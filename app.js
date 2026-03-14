@@ -215,6 +215,7 @@ const translations = {
     sampleLabel: "Label pelda",
     sampleText: "TEXT pelda",
     sampleMacro: "Komplex makro pelda",
+    sampleSprite: "Sprite mozgatas pelda",
     languageLabel: "Nyelv",
     collapseAll: "Osszes osszecsukasa",
     expandAll: "Osszes kinyitasa",
@@ -349,6 +350,7 @@ const translations = {
     sampleLabel: "Label example",
     sampleText: "TEXT example",
     sampleMacro: "Complex macro example",
+    sampleSprite: "Sprite movement example",
     languageLabel: "Language",
     collapseAll: "Collapse all",
     expandAll: "Expand all",
@@ -810,7 +812,7 @@ function applyTranslations() {
     setText(".global-memory-title", t("memoryTitle"));
     setText(".menu-field span", t("viceExecutable"));
     setText("#choose-vice", t("openEmulator"));
-    setText("#run-emulator", t("runInEmulator"));
+    setText("#run-emulator .run-label", t("runInEmulator"));
     setText("#copy-asm", t("copyAsm"));
     setText("#save-project", t("saveProject"));
     setText("#load-project", t("loadProject"));
@@ -860,6 +862,7 @@ function applyTranslations() {
   if (sampleOptions[1]) sampleOptions[1].textContent = t("sampleLabel");
   if (sampleOptions[2]) sampleOptions[2].textContent = t("sampleText");
   if (sampleOptions[3]) sampleOptions[3].textContent = t("sampleMacro");
+  if (sampleOptions[4]) sampleOptions[4].textContent = t("sampleSprite");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -3110,11 +3113,11 @@ function loadTextSampleProgram() {
     {
       id: crypto.randomUUID(),
       category: "Ugrasok",
-      mnemonic: "RTS",
-      operand: "",
-      rawOperand: "",
-      description: "Visszateres szubrutinbol.",
-      addressingMode: "implied",
+      mnemonic: "JSR",
+      operand: "$E544",
+      rawOperand: "E544",
+      description: "Szubrutin meghivasa.",
+      addressingMode: "absolute",
       base: "hex",
       validationError: ""
     },
@@ -3145,6 +3148,17 @@ function loadTextSampleProgram() {
       isTextMacro: true,
       textX: 8,
       textY: 10
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Ugrasok",
+      mnemonic: "RTS",
+      operand: "",
+      rawOperand: "",
+      description: "Visszateres szubrutinbol.",
+      addressingMode: "implied",
+      base: "hex",
+      validationError: ""
     }
   ]);
   renderOriginPreview();
@@ -3521,6 +3535,492 @@ function loadMacroDemoProgram() {
   saveUiSettings();
 }
 
+function loadSpriteSampleProgram() {
+  // Sprite data at $0840 (= 64 * 33, pointer = $21)
+  // Memory layout: $0801 JMP(3) + padding(60) + spritedata(63) + code
+  originInput.value = "0801";
+  program = collapseLoadedProgram([
+    {
+      id: crypto.randomUUID(),
+      category: "Szerkezet",
+      mnemonic: "COMMENT",
+      operand: "Sprite mozgatas demo – gomb sprite balrol jobbra halad",
+      rawOperand: "Sprite mozgatas demo – gomb sprite balrol jobbra halad",
+      description: "Megjegyzes a programhoz, ami nem general byte-ot.",
+      addressingMode: "implied",
+      base: "comment",
+      validationError: "",
+      collapsed: false,
+      isComment: true
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Ugrasok",
+      mnemonic: "JMP",
+      operand: "main",
+      rawOperand: "main",
+      description: "Feltetel nelkuli ugras egy cimre.",
+      addressingMode: "absolute",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Makrok",
+      mnemonic: "BYTE",
+      operand: "$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00",
+      rawOperand: "$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00",
+      description: "Tetszoleges byte tomb beillesztese vesszovel elvalasztva.",
+      addressingMode: "implied",
+      base: "bytes",
+      validationError: "",
+      isByteMacro: true
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Makrok",
+      mnemonic: "BYTE",
+      operand: "$00,$3C,$00,$00,$FF,$00,$01,$FF,$80,$03,$FF,$C0,$07,$FF,$E0,$0F,$FF,$F0,$1F,$FF,$F8,$1F,$FF,$F8,$1F,$FF,$F8,$1F,$FF,$F8,$1F,$FF,$F8,$0F,$FF,$F0,$07,$FF,$E0,$03,$FF,$C0,$01,$FF,$80,$00,$FF,$00,$00,$3C,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00",
+      rawOperand: "$00,$3C,$00,$00,$FF,$00,$01,$FF,$80,$03,$FF,$C0,$07,$FF,$E0,$0F,$FF,$F0,$1F,$FF,$F8,$1F,$FF,$F8,$1F,$FF,$F8,$1F,$FF,$F8,$1F,$FF,$F8,$0F,$FF,$F0,$07,$FF,$E0,$03,$FF,$C0,$01,$FF,$80,$00,$FF,$00,$00,$3C,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00",
+      description: "Tetszoleges byte tomb beillesztese vesszovel elvalasztva.",
+      addressingMode: "implied",
+      base: "bytes",
+      validationError: "",
+      isByteMacro: true
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Szerkezet",
+      mnemonic: "LABEL",
+      operand: "",
+      rawOperand: "",
+      description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.",
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      isLabel: true,
+      labelName: "main"
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Ugrasok",
+      mnemonic: "JSR",
+      operand: "$E544",
+      rawOperand: "E544",
+      description: "Szubrutin meghivasa.",
+      addressingMode: "absolute",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Makrok",
+      mnemonic: "TEXT",
+      operand: "SPRITE DEMO",
+      rawOperand: "SPRITE DEMO",
+      description: "Szoveg kiirasa a kepernyore KERNAL CHROUT rutinon keresztul.",
+      addressingMode: "implied",
+      base: "text",
+      validationError: "",
+      isTextMacro: true,
+      textX: 14,
+      textY: 0
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Szerkezet",
+      mnemonic: "COMMENT",
+      operand: "Sprite pointer: $07F8 = $0840 / 64 = 33 ($21)",
+      rawOperand: "Sprite pointer: $07F8 = $0840 / 64 = 33 ($21)",
+      description: "Megjegyzes a programhoz, ami nem general byte-ot.",
+      addressingMode: "implied",
+      base: "comment",
+      validationError: "",
+      collapsed: false,
+      isComment: true
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Adatmozgas",
+      mnemonic: "LDA",
+      operand: "#$21",
+      rawOperand: "21",
+      description: "Akkumulator betoltese memoriabol vagy konstansbol.",
+      addressingMode: "immediate",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Adatmozgas",
+      mnemonic: "STA",
+      operand: "$07F8",
+      rawOperand: "07F8",
+      description: "Akkumulator kiirasa memoriacimre.",
+      addressingMode: "absolute",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Szerkezet",
+      mnemonic: "COMMENT",
+      operand: "Sprite 0 bekapcsolasa: $D015 bit0 = 1",
+      rawOperand: "Sprite 0 bekapcsolasa: $D015 bit0 = 1",
+      description: "Megjegyzes a programhoz, ami nem general byte-ot.",
+      addressingMode: "implied",
+      base: "comment",
+      validationError: "",
+      collapsed: false,
+      isComment: true
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Adatmozgas",
+      mnemonic: "LDA",
+      operand: "#$01",
+      rawOperand: "01",
+      description: "Akkumulator betoltese memoriabol vagy konstansbol.",
+      addressingMode: "immediate",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Adatmozgas",
+      mnemonic: "STA",
+      operand: "$D015",
+      rawOperand: "D015",
+      description: "Akkumulator kiirasa memoriacimre.",
+      addressingMode: "absolute",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Adatmozgas",
+      mnemonic: "LDA",
+      operand: "#$0A",
+      rawOperand: "0A",
+      description: "Akkumulator betoltese memoriabol vagy konstansbol.",
+      addressingMode: "immediate",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Adatmozgas",
+      mnemonic: "STA",
+      operand: "$D027",
+      rawOperand: "D027",
+      description: "Akkumulator kiirasa memoriacimre.",
+      addressingMode: "absolute",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Adatmozgas",
+      mnemonic: "LDA",
+      operand: "#$00",
+      rawOperand: "00",
+      description: "Akkumulator betoltese memoriabol vagy konstansbol.",
+      addressingMode: "immediate",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Adatmozgas",
+      mnemonic: "STA",
+      operand: "$D010",
+      rawOperand: "D010",
+      description: "Akkumulator kiirasa memoriacimre.",
+      addressingMode: "absolute",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Adatmozgas",
+      mnemonic: "LDA",
+      operand: "#$18",
+      rawOperand: "18",
+      description: "Akkumulator betoltese memoriabol vagy konstansbol.",
+      addressingMode: "immediate",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Adatmozgas",
+      mnemonic: "STA",
+      operand: "$D000",
+      rawOperand: "D000",
+      description: "Akkumulator kiirasa memoriacimre.",
+      addressingMode: "absolute",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Adatmozgas",
+      mnemonic: "LDA",
+      operand: "#$64",
+      rawOperand: "64",
+      description: "Akkumulator betoltese memoriabol vagy konstansbol.",
+      addressingMode: "immediate",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Adatmozgas",
+      mnemonic: "STA",
+      operand: "$D001",
+      rawOperand: "D001",
+      description: "Akkumulator kiirasa memoriacimre.",
+      addressingMode: "absolute",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Szerkezet",
+      mnemonic: "LABEL",
+      operand: "",
+      rawOperand: "",
+      description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.",
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      isLabel: true,
+      labelName: "moveloop"
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Aritmetika",
+      mnemonic: "INC",
+      operand: "$D000",
+      rawOperand: "D000",
+      description: "Memoriacim noveles.",
+      addressingMode: "absolute",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Adatmozgas",
+      mnemonic: "LDA",
+      operand: "$D000",
+      rawOperand: "D000",
+      description: "Akkumulator betoltese memoriabol vagy konstansbol.",
+      addressingMode: "absolute",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Aritmetika",
+      mnemonic: "CMP",
+      operand: "#$E0",
+      rawOperand: "E0",
+      description: "Osszehasonlitas az akkumulatorral.",
+      addressingMode: "immediate",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Ugrasok",
+      mnemonic: "BNE",
+      operand: "no_reset",
+      rawOperand: "no_reset",
+      description: "Ugras, ha az elozo eredmeny nem nulla.",
+      addressingMode: "relative",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Adatmozgas",
+      mnemonic: "LDA",
+      operand: "#$18",
+      rawOperand: "18",
+      description: "Akkumulator betoltese memoriabol vagy konstansbol.",
+      addressingMode: "immediate",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Adatmozgas",
+      mnemonic: "STA",
+      operand: "$D000",
+      rawOperand: "D000",
+      description: "Akkumulator kiirasa memoriacimre.",
+      addressingMode: "absolute",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Szerkezet",
+      mnemonic: "LABEL",
+      operand: "",
+      rawOperand: "",
+      description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.",
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      isLabel: true,
+      labelName: "no_reset"
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Ugrasok",
+      mnemonic: "JSR",
+      operand: "delay",
+      rawOperand: "delay",
+      description: "Szubrutin meghivasa.",
+      addressingMode: "absolute",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Ugrasok",
+      mnemonic: "JMP",
+      operand: "moveloop",
+      rawOperand: "moveloop",
+      description: "Feltetel nelkuli ugras egy cimre.",
+      addressingMode: "absolute",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Szerkezet",
+      mnemonic: "LABEL",
+      operand: "",
+      rawOperand: "",
+      description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.",
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      isLabel: true,
+      labelName: "delay"
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Adatmozgas",
+      mnemonic: "LDX",
+      operand: "#$06",
+      rawOperand: "06",
+      description: "X regiszter betoltese.",
+      addressingMode: "immediate",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Szerkezet",
+      mnemonic: "LABEL",
+      operand: "",
+      rawOperand: "",
+      description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.",
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      isLabel: true,
+      labelName: "delay_outer"
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Adatmozgas",
+      mnemonic: "LDY",
+      operand: "#$FF",
+      rawOperand: "FF",
+      description: "Y regiszter betoltese.",
+      addressingMode: "immediate",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Szerkezet",
+      mnemonic: "LABEL",
+      operand: "",
+      rawOperand: "",
+      description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.",
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      isLabel: true,
+      labelName: "delay_inner"
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Regiszterek",
+      mnemonic: "DEY",
+      operand: "",
+      rawOperand: "",
+      description: "Y regiszter csokkentese.",
+      addressingMode: "implied",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Ugrasok",
+      mnemonic: "BNE",
+      operand: "delay_inner",
+      rawOperand: "delay_inner",
+      description: "Ugras, ha az elozo eredmeny nem nulla.",
+      addressingMode: "relative",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Regiszterek",
+      mnemonic: "DEX",
+      operand: "",
+      rawOperand: "",
+      description: "X regiszter csokkentese.",
+      addressingMode: "implied",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Ugrasok",
+      mnemonic: "BNE",
+      operand: "delay_outer",
+      rawOperand: "delay_outer",
+      description: "Ugras, ha az elozo eredmeny nem nulla.",
+      addressingMode: "relative",
+      base: "hex",
+      validationError: ""
+    },
+    {
+      id: crypto.randomUUID(),
+      category: "Ugrasok",
+      mnemonic: "RTS",
+      operand: "",
+      rawOperand: "",
+      description: "Visszateres szubrutinbol.",
+      addressingMode: "implied",
+      base: "hex",
+      validationError: ""
+    }
+  ]);
+  renderOriginPreview();
+  renderEmulatorRunHint();
+  renderProgram();
+  saveUiSettings();
+}
+
 function loadSelectedSample() {
   if (sampleSelect.value === "label-border") {
     loadLabelSampleProgram();
@@ -3534,6 +4034,11 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "macro-demo") {
     loadMacroDemoProgram();
+    return;
+  }
+
+  if (sampleSelect.value === "sprite-demo") {
+    loadSpriteSampleProgram();
     return;
   }
 

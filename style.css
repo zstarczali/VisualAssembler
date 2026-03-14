@@ -120,6 +120,15 @@ a {
   min-height: 42px;
   padding-inline: 18px;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.run-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }
 
 .eyebrow {
@@ -467,9 +476,9 @@ body[data-theme="dark"] .primary {
 
 .panel-heading-actions {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 6px;
-  align-items: stretch;
+  align-items: center;
 }
 
 .panel-heading-actions button {
