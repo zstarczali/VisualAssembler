@@ -2148,7 +2148,16 @@ async function loadViceConfig() {
 function updateVicePathPreview(nextPath) {
   vicePath = nextPath || "";
   if (vicePathInput) {
-    vicePathInput.value = vicePath;
+    // Shorten long paths for display
+    let displayPath = vicePath;
+    if (displayPath.length > 50) {
+      const parts = displayPath.split('/');
+      if (parts.length > 3) {
+        displayPath = `.../${parts.slice(-2).join('/')}`;
+      }
+    }
+    vicePathInput.value = displayPath;
+    vicePathInput.title = vicePath; // Show full path on hover
     vicePathInput.placeholder = currentLanguage === "en" ? "VICE not configured" : "Nincs beallitva";
   }
 }
@@ -2355,9 +2364,15 @@ async function runInEmulator() {
 
   updateVicePathPreview(result.vicePath || vicePath);
   if (emulatorStatus) {
+    // Shorten long temp file paths for display
+    let displayPath = result.filePath;
+    if (displayPath.length > 40) {
+      const parts = displayPath.split('/');
+      displayPath = `.../${parts[parts.length - 1]}`;
+    }
     emulatorStatus.textContent = currentLanguage === "en"
-      ? `VICE started with ${result.filePath}`
-      : `A VICE elindult ezzel: ${result.filePath}`;
+      ? `VICE started with ${displayPath}`
+      : `A VICE elindult ezzel: ${displayPath}`;
   }
 }
 
