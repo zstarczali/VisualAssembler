@@ -1944,7 +1944,7 @@ function assembleProgramToPrg(originOverride) {
   const bytes = [layout.origin.value & 0xFF, (layout.origin.value >> 8) & 0xFF];
 
   for (const line of layout.lines) {
-    if (line.block.isLabel) {
+    if (line.block.isLabel || line.block.isComment) {
       continue;
     }
     const compiled = compileLineBytes(line, labels);
@@ -2172,7 +2172,7 @@ function getInstructionSize(block) {
   }
 
   if (block.isTextMacro) {
-    return encodeTextMacro(block.rawOperand).length * 6;
+    return encodeTextMacro(block.rawOperand).length * 5;
   }
 
   if (block.isByteMacro) {
@@ -3568,8 +3568,8 @@ function loadSpriteSampleProgram() {
       id: crypto.randomUUID(),
       category: "Makrok",
       mnemonic: "BYTE",
-      operand: "$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00",
-      rawOperand: "$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00",
+      operand: "$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00",
+      rawOperand: "$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00",
       description: "Tetszoleges byte tomb beillesztese vesszovel elvalasztva.",
       addressingMode: "implied",
       base: "bytes",
