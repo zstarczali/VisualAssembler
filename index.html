@@ -106,8 +106,10 @@
 
           <label class="field">
             <span>Operandus</span>
-            <input id="operand-input" type="text" placeholder="#$01 vagy $D020" list="operand-suggestions" autocomplete="off">
-            <datalist id="operand-suggestions"></datalist>
+            <div class="operand-wrapper">
+              <input id="operand-input" type="text" placeholder="#$01 vagy $D020" autocomplete="off">
+              <div id="operand-dropdown" class="operand-dropdown" hidden></div>
+            </div>
           </label>
 
           <fieldset class="base-switch">
