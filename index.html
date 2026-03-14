@@ -69,14 +69,12 @@
                   <button id="zoom-out" class="secondary" type="button">A-</button>
                   <button id="zoom-in" class="secondary" type="button">A+</button>
                 </div>
-              </section>
-              <section class="control-menu-group">
-                <h3 class="control-menu-label">Program</h3>
+                <h3 class="control-menu-label" style="margin-top:4px">Program</h3>
                 <button id="copy-asm" class="secondary" type="button">ASM masolasa</button>
                 <button id="clear-program" class="secondary" type="button">Program torlese</button>
-              </section>
-              <section class="control-menu-group">
+                <h3 class="control-menu-label" style="margin-top:4px">Info</h3>
                 <button id="about-btn" class="secondary" type="button">About</button>
+                <button id="whats-new-btn" class="secondary" type="button">What's New</button>
                 <button id="check-update-btn" class="secondary" type="button">Check for Update</button>
               </section>
             </div>
@@ -256,6 +254,30 @@
     <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and dropping instruction blocks.</p>
     <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
     <button id="about-close" class="primary" type="button">Close</button>
+  </div>
+</dialog>
+
+<dialog id="whats-new-dialog" class="whats-new-dialog">
+  <div class="whats-new-card">
+    <h2 class="whats-new-title">What's New</h2>
+    <p class="whats-new-version">v1.0.5</p>
+    <ul class="whats-new-list">
+      <li>
+        <strong>Illegális opkódok</strong> — új kategória 12 stabil 6502 illegális utasítással: LAX, SAX, DCP, ISC, SLO, RLA, SRE, RRA, ANC, ALR, ARR, AXS. Piros tónussal jelölve a palettán.
+      </li>
+      <li>
+        <strong>HEX/DEC váltó byte makróknál</strong> — a BYTE, DATA és RAWBYTES blokkoknál megjelenik a HEX/DEC kapcsoló. HEX módban pl. <code>FF,00,8D</code> formátumban adhatók meg az értékek; váltáskor automatikusan konvertálódnak.
+      </li>
+    </ul>
+    <ul class="whats-new-list whats-new-list-en">
+      <li>
+        <strong>Illegal opcodes</strong> — new category with 12 stable 6502 illegal instructions: LAX, SAX, DCP, ISC, SLO, RLA, SRE, RRA, ANC, ALR, ARR, AXS. Displayed with a red tone in the palette.
+      </li>
+      <li>
+        <strong>HEX/DEC toggle for byte macros</strong> — BYTE, DATA and RAWBYTES blocks now show a HEX/DEC toggle. In HEX mode values can be entered as e.g. <code>FF,00,8D</code>; switching automatically converts existing values.
+      </li>
+    </ul>
+    <button id="whats-new-close" class="primary" type="button">OK</button>
   </div>
 </dialog>
 
