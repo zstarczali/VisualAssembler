@@ -637,23 +637,7 @@ input {
 }
 
 input[list] {
-  padding-right: 42px;
-  background-image:
-    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
-    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
-  background-position:
-    calc(100% - 20px) calc(50% + 1px),
-    calc(100% - 14px) calc(50% + 1px);
-  background-size: 6px 6px, 6px 6px;
-  background-repeat: no-repeat;
-}
-
-input[list]::-webkit-calendar-picker-indicator {
-  opacity: 0;
-  width: 0;
-  height: 0;
-  padding: 0;
-  margin: 0;
+  padding-right: 14px;
 }
 
 select {
@@ -1683,4 +1667,49 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
 
 #about-close {
   min-width: 120px;
+}
+
+/* ── Operand custom dropdown ─────────────────────────────────────── */
+.operand-wrapper {
+  position: relative;
+}
+
+.operand-wrapper input {
+  width: 100%;
+}
+
+.operand-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: var(--panel-strong);
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px color-mix(in srgb, black 18%, transparent);
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--secondary) 40%, transparent) transparent;
+}
+
+.operand-dropdown-item {
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-family: "IBM Plex Mono", monospace;
+  cursor: pointer;
+  color: var(--text);
+  transition: background 100ms ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.operand-dropdown-item:hover,
+.operand-dropdown-item.active {
+  background: color-mix(in srgb, var(--secondary) 14%, transparent);
+  color: var(--secondary);
 }

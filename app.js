@@ -721,6 +721,7 @@ function initPalette() {
     aboutDialog?.showModal();
   });
   aboutCloseButton?.addEventListener("click", () => aboutDialog?.close());
+  setupOperandDropdown();
   sampleSelect?.addEventListener("change", saveUiSettings);
   loadSampleButton.addEventListener("click", loadSelectedSample);
   saveProjectButton?.addEventListener("click", saveProjectToFile);
@@ -990,22 +991,82 @@ function handleOriginInput() {
   saveUiSettings();
 }
 
+let _operandSuggestions = [];
+let _operandActiveIndex = -1;
+
+function closeOperandDropdown() {
+  const dd = document.getElementById("operand-dropdown");
+  if (dd) dd.hidden = true;
+  _operandActiveIndex = -1;
+}
+
+function openOperandDropdown(filter) {
+  const dd = document.getElementById("operand-dropdown");
+  if (!dd || !_operandSuggestions.length) { closeOperandDropdown(); return; }
+  const items = filter
+    ? _operandSuggestions.filter(s => s.label.toLowerCase().includes(filter.toLowerCase()))
+    : _operandSuggestions;
+  if (!items.length) { closeOperandDropdown(); return; }
+  dd.innerHTML = items.map((s, i) =>
+    `<div class="operand-dropdown-item" data-value="${s.value}" data-index="${i}" title="${s.label}">${s.label}</div>`
+  ).join("");
+  dd.hidden = false;
+  dd.querySelectorAll(".operand-dropdown-item").forEach(el => {
+    el.addEventListener("mousedown", e => {
+      e.preventDefault();
+      operandInput.value = el.dataset.value;
+      operandInput.dispatchEvent(new Event("input"));
+      closeOperandDropdown();
+    });
+  });
+}
+
+function setupOperandDropdown() {
+  operandInput.addEventListener("focus", () => {
+    if (_operandSuggestions.length) openOperandDropdown(operandInput.value);
+  });
+  operandInput.addEventListener("input", () => {
+    if (_operandSuggestions.length) openOperandDropdown(operandInput.value);
+  });
+  operandInput.addEventListener("blur", () => setTimeout(closeOperandDropdown, 150));
+  operandInput.addEventListener("keydown", e => {
+    const dd = document.getElementById("operand-dropdown");
+    if (!dd || dd.hidden) return;
+    const items = dd.querySelectorAll(".operand-dropdown-item");
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      _operandActiveIndex = Math.min(_operandActiveIndex + 1, items.length - 1);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      _operandActiveIndex = Math.max(_operandActiveIndex - 1, 0);
+    } else if (e.key === "Enter" && _operandActiveIndex >= 0) {
+      e.preventDefault();
+      operandInput.value = items[_operandActiveIndex].dataset.value;
+      operandInput.dispatchEvent(new Event("input"));
+      closeOperandDropdown();
+      return;
+    } else if (e.key === "Escape") {
+      closeOperandDropdown(); return;
+    }
+    items.forEach((el, i) => el.classList.toggle("active", i === _operandActiveIndex));
+    if (_operandActiveIndex >= 0) items[_operandActiveIndex].scrollIntoView({ block: "nearest" });
+  });
+}
+
 function updateOperandField() {
   const item = getSelectedMnemonic();
   const mode = addressingModes[addressingSelect.value];
-  const datalist = document.getElementById("operand-suggestions");
 
   // Populate KERNAL suggestions for JSR / JMP
   if (item && (item.mnemonic === "JSR" || item.mnemonic === "JMP")) {
-    datalist.innerHTML = kernalRoutines
-      .map(r => {
-        const desc = r[currentLanguage] ?? r.en;
-        return `<option value="${r.addr}">${r.addr} ${r.name} \u2013 ${desc}</option>`;
-      })
-      .join("");
+    _operandSuggestions = kernalRoutines.map(r => ({
+      value: r.addr,
+      label: `${r.addr}  ${r.name} \u2013 ${r[currentLanguage] ?? r.en}`
+    }));
   } else {
-    datalist.innerHTML = "";
+    _operandSuggestions = [];
   }
+  closeOperandDropdown();
 
   if (!item || !mode) {
     operandInput.disabled = true;
