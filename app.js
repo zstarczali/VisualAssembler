@@ -113,7 +113,8 @@ const mnemonicLibrary = {
   Makrok: [
     { mnemonic: "TEXT", description: "Szoveg kiirasa a kepernyore KERNAL CHROUT rutinon keresztul.", modes: ["implied"], isTextMacro: true },
     { mnemonic: "BYTE", description: "Tetszoleges byte tomb beillesztese vesszovel elvalasztva.", modes: ["implied"], isByteMacro: true },
-    { mnemonic: "STRING", description: "Karakterlanc kiirasa egy megadott memoriacimre.", modes: ["implied"], isStringMacro: true }
+    { mnemonic: "STRING", description: "Karakterlanc kiirasa egy megadott memoriacimre.", modes: ["implied"], isStringMacro: true },
+    { mnemonic: "DATA", description: "Nyers byte-ok kiirasa egy megadott memoriacimre.", modes: ["implied"], isDataMacro: true }
   ],
   Szerkezet: [
     { mnemonic: "LABEL", description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.", modes: ["implied"], isLabel: true },
@@ -251,6 +252,7 @@ const translations = {
     dataBelow: "adat lent",
     textDataBelow: "TEXT adat lent",
     stringDataBelow: "STRING adat lent",
+    dataDataBelow: "DATA adat lent",
     compileInvalidOperand: "Nem lehet forditani: hibas operandus a(z) {mnemonic} sorban.",
     compileUnsupportedMode: "A(z) {mnemonic} {mode} modhoz meg nincs forditasi tamogatas.",
     branchLabelTooFar: "A(z) {label} label tul messze van a(z) {mnemonic} branch-hez.",
@@ -389,6 +391,7 @@ const translations = {
     dataBelow: "data below",
     textDataBelow: "TEXT data below",
     stringDataBelow: "STRING data below",
+    dataDataBelow: "DATA data below",
     compileInvalidOperand: "Cannot compile: invalid operand on the {mnemonic} line.",
     compileUnsupportedMode: "{mnemonic} {mode} is not wired to the compiler yet.",
     branchLabelTooFar: "Label {label} is too far for the {mnemonic} branch.",
@@ -1111,19 +1114,22 @@ function updateOperandField() {
   const needsTextOperand = item?.isTextMacro;
   const needsByteOperand = item?.isByteMacro;
   const needsStringOperand = item?.isStringMacro;
+  const needsDataOperand = item?.isDataMacro;
   const needsCommentOperand = item?.isComment;
-  operandInput.disabled = !(mode.needsOperand || needsTextOperand || needsByteOperand || needsStringOperand || needsCommentOperand);
+  operandInput.disabled = !(mode.needsOperand || needsTextOperand || needsByteOperand || needsStringOperand || needsDataOperand || needsCommentOperand);
   operandInput.placeholder = needsTextOperand
     ? (currentLanguage === "en" ? "For example HELLO C64" : "Peldaul HELLO C64")
     : needsByteOperand
       ? (currentLanguage === "en" ? "For example 169,0,141,32,208" : "Peldaul 169,0,141,32,208")
       : needsStringOperand
         ? (currentLanguage === "en" ? "For example HELLO" : "Peldaul HELLO")
-        : needsCommentOperand
-          ? (currentLanguage === "en" ? "For example border scroll demo" : "Peldaul border scroll demo")
-          : getOperandPlaceholder(mode, getSelectedBase());
+        : needsDataOperand
+          ? (currentLanguage === "en" ? "For example 169,0,141,32,208" : "Peldaul 169,0,141,32,208")
+          : needsCommentOperand
+            ? (currentLanguage === "en" ? "For example border scroll demo" : "Peldaul border scroll demo")
+            : getOperandPlaceholder(mode, getSelectedBase());
 
-  if (!mode.needsOperand && !needsTextOperand && !needsByteOperand && !needsStringOperand && !needsCommentOperand) {
+  if (!mode.needsOperand && !needsTextOperand && !needsByteOperand && !needsStringOperand && !needsDataOperand && !needsCommentOperand) {
     operandInput.value = "";
   }
 }
@@ -1200,7 +1206,7 @@ function renderPaletteItems() {
     const defaultMode = item.modes.includes(selectedMode) ? selectedMode : item.modes[0];
     const preview = item.isTextMacro || item.isStringMacro
       ? formatTextMacroPreview(operandInput.value.trim())
-      : item.isByteMacro
+      : item.isByteMacro || item.isDataMacro
         ? formatByteMacroPreview(operandInput.value.trim())
         : buildOperandPreview(defaultMode, operandInput.value.trim(), selectedBase);
     const node = paletteItemTemplate.content.firstElementChild.cloneNode(true);
@@ -1212,7 +1218,9 @@ function renderPaletteItems() {
         ? `${currentLanguage === "en" ? "Byte array" : "Byte tomb"} | ${preview.preview}`
         : item.isStringMacro
           ? `${currentLanguage === "en" ? "Absolute address" : "Abszolut cim"} | ${preview.preview}`
-          : item.isComment
+          : item.isDataMacro
+            ? `${currentLanguage === "en" ? "Absolute address" : "Abszolut cim"} | ${preview.preview}`
+            : item.isComment
             ? `${currentLanguage === "en" ? "Comment" : "Komment"} | ; ${operandInput.value.trim() || (currentLanguage === "en" ? "new comment" : "uj komment")}`
             : `${modeText(defaultMode, "label")} | ${preview.text}`;
 
@@ -1347,6 +1355,24 @@ function createBlockFromMnemonic(item) {
     };
   }
 
+  if (item.isDataMacro) {
+    const rawOperand = operandInput.value.trim() || "0";
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: rawOperand,
+      rawOperand,
+      description: item.description,
+      addressingMode: "implied",
+      base: "bytes",
+      validationError: validateDataMacro(rawOperand, "C000"),
+      collapsed: true,
+      isDataMacro: true,
+      dataAddress: "C000"
+    };
+  }
+
   const modeKey = item.modes.includes(addressingSelect.value) ? addressingSelect.value : item.modes[0];
   const preview = buildOperandPreview(modeKey, operandInput.value.trim(), getSelectedBase());
 
@@ -1450,6 +1476,9 @@ function updateProgramBlock(index, field, value) {
     } else if (block.isStringMacro) {
       block.operand = block.rawOperand.trim();
       block.validationError = validateStringMacroAddress(block.stringAddress);
+    } else if (block.isDataMacro) {
+      block.operand = block.rawOperand.trim();
+      block.validationError = validateDataMacro(block.rawOperand, block.dataAddress);
     } else {
       const preview = buildOperandPreview(block.addressingMode, block.rawOperand, block.base);
       block.operand = preview.operand;
@@ -1468,6 +1497,13 @@ function updateProgramBlock(index, field, value) {
 
   if (field === "stringAddress") {
     block.validationError = validateStringMacroAddress(block.stringAddress);
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (field === "dataAddress") {
+    block.validationError = validateDataMacro(block.rawOperand, block.dataAddress);
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -1730,6 +1766,22 @@ function validateStringMacroAddress(raw) {
 
   if (value < 0 || value > 0xFFFF) {
     return currentLanguage === "en" ? "STRING macro address must be between 0 and 65535." : "A STRING makro cime 0 es 65535 kozott lehet.";
+  }
+
+  return "";
+}
+
+function validateDataMacro(rawBytes, rawAddress) {
+  const byteError = validateByteMacro(rawBytes);
+  if (byteError) return byteError;
+
+  const value = parseAddressValue(rawAddress);
+  if (value === null) {
+    return currentLanguage === "en" ? "DATA macro needs a valid start address, for example $C000." : "A DATA makrohoz ervenyes kezdocim kell, peldaul $C000.";
+  }
+
+  if (value < 0 || value > 0xFFFF) {
+    return currentLanguage === "en" ? "DATA macro address must be between 0 and 65535." : "A DATA makro cime 0 es 65535 kozott lehet.";
   }
 
   return "";
@@ -2159,6 +2211,21 @@ function compileLineBytes(line, labels) {
     };
   }
 
+  if (block.isDataMacro) {
+    const dataBytes = parseByteMacro(block.rawOperand);
+    const startAddress = parseAddressValue(block.dataAddress) ?? 0xC000;
+    const bytes = [];
+    dataBytes.forEach((byte, byteIndex) => {
+      const targetAddress = startAddress + byteIndex;
+      bytes.push(0xA9, byte & 0xFF, 0x8D, targetAddress & 0xFF, (targetAddress >> 8) & 0xFF);
+    });
+    return {
+      ok: true,
+      bytes,
+      comment: `DATA ${block.rawOperand || ""} @ ${formatAddress(startAddress)}`
+    };
+  }
+
   const opcode = opcodeMap[block.mnemonic]?.[block.addressingMode];
   if (opcode === undefined) {
     return { ok: false, error: tf("compileUnsupportedMode", { mnemonic: block.mnemonic, mode: block.addressingMode }) };
@@ -2352,6 +2419,10 @@ function getInstructionSize(block) {
     return encodeTextMacro(block.rawOperand).length * 5;
   }
 
+  if (block.isDataMacro) {
+    return parseByteMacro(block.rawOperand).length * 5;
+  }
+
   if (block.addressingMode === "implied") {
     return 1;
   }
@@ -2424,6 +2495,20 @@ function getDeferredMemorySections(layout) {
           end: startAddress + chars.length - 1,
           bytes: chars,
           label: `STRING "${line.block.rawOperand || ""}" -> ${formatAddress(startAddress)}`
+        };
+      }
+
+      if (line.block.isDataMacro) {
+        const bytes = parseByteMacro(line.block.rawOperand);
+        const startAddress = parseAddressValue(line.block.dataAddress) ?? 0xC000;
+        return {
+          type: "data",
+          lineNumber,
+          sourceAddress: line.address,
+          address: startAddress,
+          end: startAddress + bytes.length - 1,
+          bytes,
+          label: `DATA ${line.block.rawOperand || ""} -> ${formatAddress(startAddress)}`
         };
       }
 
@@ -2642,6 +2727,10 @@ function getBlockDescription(block) {
     return block.validationError || `${currentLanguage === "en" ? "STRING macro" : "STRING makro"}: "${block.rawOperand || ""}" @ ${block.stringAddress || "C000"}`;
   }
 
+  if (block.isDataMacro) {
+    return block.validationError || `${currentLanguage === "en" ? "DATA macro" : "DATA makro"}: ${block.rawOperand || ""} @ ${block.dataAddress || "C000"}`;
+  }
+
   return block.validationError || (currentLanguage === "en" ? mnemonicDescriptionsEn[block.mnemonic] || block.description : block.description);
 }
 
@@ -2660,6 +2749,10 @@ function getBlockModeCaption(block) {
 
   if (block.isStringMacro) {
     return `${currentLanguage === "en" ? "Memory" : "Memoria"} | ${block.stringAddress || "C000"}`;
+  }
+
+  if (block.isDataMacro) {
+    return `${currentLanguage === "en" ? "Memory" : "Memoria"} | ${block.dataAddress || "C000"}`;
   }
 
   if (block.isLabel) {
@@ -2732,6 +2825,13 @@ function getCollapsedOperandText(block) {
 
   if (block.isStringMacro) {
     return block.rawOperand ? `"${block.rawOperand}"` : "";
+  }
+
+  if (block.isDataMacro) {
+    if (!block.rawOperand) return "";
+    const parts = block.rawOperand.split(",").map((s) => s.trim()).filter(Boolean);
+    if (parts.length <= 6) return block.rawOperand;
+    return parts.slice(0, 6).join(", ") + " …";
   }
 
   return block.operand || block.rawOperand || "";
@@ -2827,7 +2927,25 @@ function renderProgram() {
           <div class="macro-grid single-macro-row">
             <label class="mini-field">
               <span>${t("fieldAddress")}</span>
-              <input class="macro-address" type="text" value="${block.stringAddress || "C000"}" placeholder="$C000">
+              <input class="macro-address" data-address-field="stringAddress" type="text" value="${block.stringAddress || "C000"}" placeholder="$C000">
+            </label>
+          </div>
+        `
+      );
+    } else if (block.isDataMacro) {
+      inlineField.hidden = false;
+      inlineField.querySelector("span").textContent = t("fieldBytes");
+      operandField.value = block.rawOperand || "";
+      operandField.disabled = false;
+      operandField.placeholder = currentLanguage === "en" ? "For example 169,0,141,32,208" : "Peldaul 169,0,141,32,208";
+      operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid single-macro-row">
+            <label class="mini-field">
+              <span>${t("fieldAddress")}</span>
+              <input class="macro-address" data-address-field="dataAddress" type="text" value="${block.dataAddress || "C000"}" placeholder="$C000">
             </label>
           </div>
         `
@@ -2844,7 +2962,7 @@ function renderProgram() {
     blockControls.insertAdjacentHTML(
       "beforeend",
       `
-          ${mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro ? `
+          ${mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro ? `
           <label class="mini-field">
             <span>${t("fieldFormat")}</span>
           <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
@@ -2858,7 +2976,7 @@ function renderProgram() {
             </label>
           </div>
         </label>` : ""}
-          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro ? ` hidden` : ""}>
+          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro ? ` hidden` : ""}>
             <span>${t("addressingMode")}</span>
           <select class="block-mode">
             ${getMnemonicModes(block.mnemonic).map((modeKey) => `<option value="${modeKey}"${block.addressingMode === modeKey ? " selected" : ""}>${modeText(modeKey, "label")}</option>`).join("")}
@@ -2880,7 +2998,8 @@ function renderProgram() {
     }
     const macroAddressInput = node.querySelector(".macro-address");
     if (macroAddressInput) {
-      macroAddressInput.addEventListener("input", (event) => updateProgramBlock(index, "stringAddress", event.target.value));
+      const addressField = macroAddressInput.dataset.addressField || "stringAddress";
+      macroAddressInput.addEventListener("input", (event) => updateProgramBlock(index, addressField, event.target.value));
     }
       const blockModeSelect = node.querySelector(".block-mode");
       if (blockModeSelect) {
@@ -3023,6 +3142,21 @@ function renderAsmOutput() {
       return `    ; ${currentLanguage === "en" ? "STRING data below" : "STRING data lent"}: string_${lineNumber}`;
     }
 
+    if (line.block.isDataMacro) {
+      const dataBytes = parseByteMacro(line.block.rawOperand);
+      const startAddress = parseAddressValue(line.block.dataAddress) ?? 0xC000;
+      const expanded = chunkBytes(dataBytes, 16).map((chunk, chunkIndex) => {
+        const chunkAddress = startAddress + (chunkIndex * 16);
+        const byteList = chunk.map((byte) => toHex(byte, 2)).join(", ");
+        return `    ; ${formatAddress(chunkAddress)}\n    .byte ${byteList}`;
+      }).join("\n");
+      deferredDataSections.push({
+        address: startAddress,
+        text: `data_${lineNumber}:\n    ; DATA ${line.block.rawOperand || ""} -> ${formatAddress(startAddress)}\n    ; ${formatAddress(startAddress)}\n${expanded}`
+      });
+      return `    ; ${currentLanguage === "en" ? "DATA data below" : "DATA adat lent"}: data_${lineNumber}`;
+    }
+
     const suffix = line.block.operand ? ` ${line.block.operand}` : "";
     const comment = line.block.validationError ? ` ; ${t("warningLabel")}: ${line.block.validationError}` : "";
     return `    ${line.block.mnemonic}${suffix}${comment}`;
@@ -3075,20 +3209,33 @@ function renderMonitorOutput(layout = getProgramLayout()) {
     return;
   }
 
-  // Find address range
+  // Group non-contiguous regions into segments to avoid huge gaps of ".."
   const allAddresses = [...memMap.keys()].sort((a, b) => a - b);
-  const startAddr = allAddresses[0] & ~0xF; // align to 16-byte boundary
-  const endAddr = allAddresses[allAddresses.length - 1];
+  const GAP_THRESHOLD = 256;
+  const segments = [];
+  let segStart = allAddresses[0];
+  let segEnd = allAddresses[0];
+  for (let i = 1; i < allAddresses.length; i++) {
+    if (allAddresses[i] - segEnd > GAP_THRESHOLD) {
+      segments.push({ start: segStart & ~0xF, end: segEnd });
+      segStart = allAddresses[i];
+    }
+    segEnd = allAddresses[i];
+  }
+  segments.push({ start: segStart & ~0xF, end: segEnd });
 
   const rows = [];
-  for (let addr = startAddr; addr <= endAddr; addr += 16) {
-    const bytes = [];
-    for (let i = 0; i < 16; i++) {
-      const b = memMap.get(addr + i);
-      bytes.push(b !== undefined ? b.toString(16).toUpperCase().padStart(2, "0") : "..");
+  segments.forEach((seg, segIndex) => {
+    if (segIndex > 0) rows.push("");
+    for (let addr = seg.start; addr <= seg.end; addr += 16) {
+      const bytes = [];
+      for (let i = 0; i < 16; i++) {
+        const b = memMap.get(addr + i);
+        bytes.push(b !== undefined ? b.toString(16).toUpperCase().padStart(2, "0") : "..");
+      }
+      rows.push(`>${formatAddress(addr)}  ${bytes.join(" ")}`);
     }
-    rows.push(`>${formatAddress(addr)}  ${bytes.join(" ")}`);
-  }
+  });
 
   monitorOutput.textContent = rows.join("\n");
 }

@@ -48,7 +48,8 @@ Minden blokk (`program[]` tömb eleme) egy plain object:
   validationError: "",           // ha nem üres, a blokk hibás
   // opcionális mezők makrókhoz:
   isTextMacro: true, textX: 0, textY: 0,
-  isStringMacro: true, stringAddress: "0400",
+  isStringMacro: true, stringAddress: "C000",
+  isDataMacro: true, dataAddress: "C000",
   isByteMacro: true,
   isLabel: true, labelName: "loop",
   isComment: true, commentText: "..."
@@ -75,6 +76,39 @@ A `TEXT` makró `buildAsmLines()` / `buildMonitorLines()` híváskor fejlődik k
 - Karakterenkénti `LDA #$xx` + `JSR $FFD2` (CHROUT) párok
 - Az expandált kód a TEXT blokk utáni sorokban jelenik meg az ASM nézetben
 
+A `STRING` makró: szöveg karakterenként C64 screen code-ban, megadott abszolút memóriacímre (`stringAddress`, pl. `"C000"`). Deferred `.byte` szekció az ASM nézetben + inline kód a memóriatérképen.
+
+A `DATA` makró: nyers byte-ok (`$FF, 169, 0x1A` formátumban), megadott abszolút memóriacímre (`dataAddress`, pl. `"C000"`). Minden byte → `LDA #$xx` + `STA $addr+offset` pár az inline kódban; a raw byte-ok deferred szekciókban is megjelennek.
+
+**Address input dispatch pattern:** A `.macro-address` inputon `data-address-field` attribútum mondja meg, melyik blokk-mező frissüljön (`"stringAddress"` vagy `"dataAddress"`). Egy event listener kezeli mindkét típust (`macroAddressInput.dataset.addressField`).
+
+---
+
+## BASIC SYS stub
+
+- `#basic-sys-toggle` checkbox a "Beallitasok" menüben
+- **BE (alapértelmezett):** BASIC stub `$0801`-re kerül, kód `$080D`-n indul; `buildAutostartPrgForEmulator()` hívja a stub generátort
+- **KI:** `assembleProgramToPrg()` — plain kód, stub nélkül; az origin érték (pl. `$0801`) megmarad
+- `renderOriginPreview()` jelzi, ha BASIC SYS ON módban az origin figyelmen kívül marad
+- `saveUiSettings()` / `applySavedSettings()`: `basicSys` mező mentése/visszatöltése
+
+---
+
+## Menü struktúra
+
+```
+Beallitasok
+  ├── VICE exe + Edit gomb
+  ├── Nyelv (combobox) + label
+  └── BASIC SYS stub checkbox
+
+Nezet
+  ├── Téma toggle gomb
+  └── Zoom vezérlők
+
+[Check for Update gomb] → shell.openExternal → https://zstarczali.itch.io/visual-assembler-commodore-64
+```
+
 ---
 
 ## Mintaprogramok hozzáadása
@@ -95,6 +129,7 @@ A `TEXT` makró `buildAsmLines()` / `buildMonitorLines()` híváskor fejlődik k
 | `load-file` | renderer → main | JSON projekt betöltése |
 | `choose-vice` | renderer → main | VICE exe fájl választó dialógus |
 | `run-vice` | renderer → main | `.prg` temp fájl írása + VICE indítása |
+| `shell:open-external` | renderer → main | URL megnyitása a rendszer böngészőjében |
 
 ---
 
