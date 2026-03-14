@@ -167,8 +167,8 @@ h1 {
 
 .sample-picker select {
   min-width: 170px;
-  height: 42px;
-  padding: 0 40px 0 14px;
+  height: 46px;
+  padding: 0 42px 0 14px;
   border-radius: 14px;
 }
 
@@ -223,9 +223,14 @@ h1 {
   left: 0;
   top: calc(100% + 8px);
   z-index: 20;
-  display: grid;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
   gap: 12px;
-  min-width: 280px;
+  width: max-content;
+  max-width: min(580px, 90vw);
+  max-height: 80vh;
+  overflow-y: auto;
   padding: 14px;
   border-radius: 18px;
   border: 1px solid var(--panel-border);
@@ -240,6 +245,9 @@ h1 {
   border-radius: 14px;
   border: 1px solid color-mix(in srgb, var(--panel-border) 82%, transparent);
   background: color-mix(in srgb, var(--control-bg) 76%, transparent);
+  flex: 1 1 200px;
+  min-width: 200px;
+  align-content: start;
 }
 
 .control-menu-label {
@@ -485,9 +493,11 @@ body[data-theme="dark"] .primary {
   min-height: 34px;
   min-width: 34px;
   width: 34px;
-  padding: 5px 10px;
-  font-size: 0.8rem;
+  height: 34px;
+  padding: 0;
+  font-size: 0.85rem;
   justify-content: center;
+  align-items: center;
 }
 
 .panel-heading p {
@@ -610,25 +620,55 @@ body[data-theme="dark"] #add-selected:hover {
 select,
 input {
   width: 100%;
+  box-sizing: border-box;
   border: 1px solid var(--panel-border);
   border-radius: 14px;
   background: var(--input-bg);
-  padding: 12px 14px;
   color: var(--text);
+  font-size: 0.9rem;
+  font-family: inherit;
+  font-weight: 500;
   box-shadow: inset 0 1px 0 color-mix(in srgb, white 40%, transparent);
+}
+
+input {
+  min-height: 46px;
+  padding: 10px 14px;
+}
+
+input[list] {
+  padding-right: 42px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 20px) calc(50% + 1px),
+    calc(100% - 14px) calc(50% + 1px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+input[list]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  padding: 0;
+  margin: 0;
 }
 
 select {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  padding-right: 42px;
+  height: 46px;
+  padding: 0 42px 0 14px;
+  cursor: pointer;
   background-image:
-    linear-gradient(45deg, transparent 50%, currentColor 50%),
-    linear-gradient(135deg, currentColor 50%, transparent 50%);
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
   background-position:
-    calc(100% - 20px) calc(50% - 2px),
-    calc(100% - 14px) calc(50% - 2px);
+    calc(100% - 20px) calc(50% + 1px),
+    calc(100% - 14px) calc(50% + 1px);
   background-size: 6px 6px, 6px 6px;
   background-repeat: no-repeat;
 }
@@ -939,6 +979,7 @@ button:focus-visible,
   min-width: calc(24px * var(--block-scale));
   width: calc(24px * var(--block-scale));
   height: calc(24px * var(--block-scale));
+  min-height: unset;
   padding: 0;
   border-radius: 6px;
   background: var(--control-bg);
@@ -1026,12 +1067,16 @@ button:focus-visible,
   display: flex;
   flex-direction: column;
   gap: calc(5px * var(--block-scale));
+  align-items: flex-start;
 }
 
 .block-actions button {
   min-width: calc(28px * var(--block-scale));
   width: calc(28px * var(--block-scale));
   height: calc(28px * var(--block-scale));
+  min-height: unset;
+  aspect-ratio: 1;
+  flex-shrink: 0;
   padding: 0;
   border-radius: calc(6px * var(--block-scale));
   background: var(--control-bg);
@@ -1039,6 +1084,9 @@ button:focus-visible,
   color: var(--text);
   font-size: calc(0.8rem * var(--block-scale));
   line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .block-main input,
@@ -1573,3 +1621,66 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
   }
 }
 
+
+/* ── About Dialog ────────────────────────────────────────────────── */
+.about-dialog {
+  border: none;
+  border-radius: 20px;
+  padding: 0;
+  background: var(--panel);
+  box-shadow: 0 24px 64px color-mix(in srgb, black 30%, transparent);
+  max-width: 400px;
+  width: 90vw;
+}
+
+.about-dialog::backdrop {
+  background: color-mix(in srgb, black 55%, transparent);
+  backdrop-filter: blur(4px);
+}
+
+.about-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 36px 32px 28px;
+  text-align: center;
+}
+
+.about-logo svg {
+  width: 64px;
+  height: 64px;
+}
+
+.about-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.about-version {
+  margin: 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.9rem;
+  color: var(--secondary);
+  font-weight: 600;
+}
+
+.about-desc {
+  margin: 4px 0;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.about-author {
+  margin: 0 0 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+#about-close {
+  min-width: 120px;
+}

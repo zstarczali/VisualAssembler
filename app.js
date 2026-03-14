@@ -28,15 +28,21 @@ const addressingModes = {
     needsOperand: true,
     placeholder: "ciklus vagy 2048",
     help: "Branch utasitasnal adhatsz meg labelt vagy celt."
+  },
+  absoluteX: {
+    label: "Absolute,X",
+    needsOperand: true,
+    placeholder: "0-65535",
+    help: "16 bites memoriacim + X regiszter offset. Pl: LDA $0400,X"
   }
 };
 
 const mnemonicLibrary = {
   Adatmozgas: [
-    { mnemonic: "LDA", description: "Akkumulator betoltese memoriabol vagy konstansbol.", modes: ["immediate", "zeroPage", "absolute"] },
+    { mnemonic: "LDA", description: "Akkumulator betoltese memoriabol vagy konstansbol.", modes: ["immediate", "zeroPage", "absolute", "absoluteX"] },
     { mnemonic: "LDX", description: "X regiszter betoltese.", modes: ["immediate", "zeroPage", "absolute"] },
-    { mnemonic: "LDY", description: "Y regiszter betoltese.", modes: ["immediate", "zeroPage", "absolute"] },
-    { mnemonic: "STA", description: "Akkumulator kiirasa memoriacimre.", modes: ["zeroPage", "absolute"] },
+    { mnemonic: "LDY", description: "Y regiszter betoltese.", modes: ["immediate", "zeroPage", "absolute", "absoluteX"] },
+    { mnemonic: "STA", description: "Akkumulator kiirasa memoriacimre.", modes: ["zeroPage", "absolute", "absoluteX"] },
     { mnemonic: "STX", description: "X regiszter tarolasa.", modes: ["zeroPage", "absolute"] },
     { mnemonic: "STY", description: "Y regiszter tarolasa.", modes: ["zeroPage", "absolute"] }
   ],
@@ -153,6 +159,9 @@ const outputModeInputs = [...document.querySelectorAll('input[name="output-mode"
 const blockTemplate = document.getElementById("block-template");
 const paletteItemTemplate = document.getElementById("palette-item-template");
 const globalMemoryPanel = document.querySelector(".global-memory-panel");
+const aboutButton = document.getElementById("about-btn");
+const aboutDialog = document.getElementById("about-dialog");
+const aboutCloseButton = document.getElementById("about-close");
 
 let program = [];
 let dragState = null;
@@ -503,6 +512,10 @@ const addressingModeText = {
   relative: {
     hu: { label: "Relative/Label", help: "Branch utasitasnal adhatsz meg labelt vagy celt.", placeholder: "ciklus vagy 2048" },
     en: { label: "Relative/Label", help: "For branch instructions you can provide a label or target.", placeholder: "loop or 2048" }
+  },
+  absoluteX: {
+    hu: { label: "Absolute,X", help: "16 bites memoriacim + X regiszter offset. Pl: LDA $0400,X", placeholder: "0-65535" },
+    en: { label: "Absolute,X", help: "16-bit memory address + X register offset. E.g.: LDA $0400,X", placeholder: "0-65535" }
   }
 };
 
@@ -581,22 +594,22 @@ function getItemDescription(item) {
 }
 
 const opcodeMap = {
-  LDA: { immediate: 0xA9, zeroPage: 0xA5, absolute: 0xAD },
+  LDA: { immediate: 0xA9, zeroPage: 0xA5, absolute: 0xAD, absoluteX: 0xBD },
   LDX: { immediate: 0xA2, zeroPage: 0xA6, absolute: 0xAE },
-  LDY: { immediate: 0xA0, zeroPage: 0xA4, absolute: 0xAC },
-  STA: { zeroPage: 0x85, absolute: 0x8D },
+  LDY: { immediate: 0xA0, zeroPage: 0xA4, absolute: 0xAC, absoluteX: 0xBC },
+  STA: { zeroPage: 0x85, absolute: 0x8D, absoluteX: 0x9D },
   STX: { zeroPage: 0x86, absolute: 0x8E },
   STY: { zeroPage: 0x84, absolute: 0x8C },
-  ADC: { immediate: 0x69, zeroPage: 0x65, absolute: 0x6D },
-  SBC: { immediate: 0xE9, zeroPage: 0xE5, absolute: 0xED },
-  INC: { zeroPage: 0xE6, absolute: 0xEE },
-  DEC: { zeroPage: 0xC6, absolute: 0xCE },
-  CMP: { immediate: 0xC9, zeroPage: 0xC5, absolute: 0xCD },
+  ADC: { immediate: 0x69, zeroPage: 0x65, absolute: 0x6D, absoluteX: 0x7D },
+  SBC: { immediate: 0xE9, zeroPage: 0xE5, absolute: 0xED, absoluteX: 0xFD },
+  INC: { zeroPage: 0xE6, absolute: 0xEE, absoluteX: 0xFE },
+  DEC: { zeroPage: 0xC6, absolute: 0xCE, absoluteX: 0xDE },
+  CMP: { immediate: 0xC9, zeroPage: 0xC5, absolute: 0xCD, absoluteX: 0xDD },
   CPX: { immediate: 0xE0, zeroPage: 0xE4, absolute: 0xEC },
   CPY: { immediate: 0xC0, zeroPage: 0xC4, absolute: 0xCC },
-  AND: { immediate: 0x29, zeroPage: 0x25, absolute: 0x2D },
-  ORA: { immediate: 0x09, zeroPage: 0x05, absolute: 0x0D },
-  EOR: { immediate: 0x49, zeroPage: 0x45, absolute: 0x4D },
+  AND: { immediate: 0x29, zeroPage: 0x25, absolute: 0x2D, absoluteX: 0x3D },
+  ORA: { immediate: 0x09, zeroPage: 0x05, absolute: 0x0D, absoluteX: 0x1D },
+  EOR: { immediate: 0x49, zeroPage: 0x45, absolute: 0x4D, absoluteX: 0x5D },
   BIT: { zeroPage: 0x24, absolute: 0x2C },
   JMP: { absolute: 0x4C },
   JSR: { absolute: 0x20 },
@@ -640,25 +653,25 @@ const opcodeMap = {
 };
 
 const kernalRoutines = [
-  { addr: "$FFD2", name: "CHROUT",  desc: "Karakter kiirasa kepernyore/eszkozre (A=kar)" },
-  { addr: "$FFCF", name: "CHRIN",   desc: "Karakter beolvasasa (blokkolO, A=kar)" },
-  { addr: "$FFE4", name: "GETIN",   desc: "Billentyu beolvasasa (nem blokkolO, A=kar/0)" },
-  { addr: "$FFE1", name: "STOP",    desc: "STOP gomb ellenorzese (Z=1 ha lenyomva)" },
-  { addr: "$FFCC", name: "CLRCHN",  desc: "I/O csatornak alaphelyzetbe allitasa" },
-  { addr: "$FFC3", name: "SETLFS",  desc: "Logikai fajl beallitasa (A=LA, X=eszkoz, Y=SA)" },
-  { addr: "$FFBD", name: "SETNAM",  desc: "Fajlnev beallitasa (A=hossz, XY=cim)" },
-  { addr: "$FFD5", name: "LOAD",    desc: "Program betoltese eszkozrol (A=0/1)" },
-  { addr: "$FFD8", name: "SAVE",    desc: "Memoria mentese eszkozre" },
-  { addr: "$FF9F", name: "SCNKEY",  desc: "Billentyuzet pasztazasa (frissiti a puffert)" },
-  { addr: "$FF99", name: "MEMTOP",  desc: "Memoria csucs olvasasa/irasa (XY=cim, C=0 iras)" },
-  { addr: "$FF9C", name: "MEMBOT",  desc: "Memoria aljanak olvasasa/irasa (XY=cim, C=0 iras)" },
-  { addr: "$FFDE", name: "RDTIM",   desc: "Rendszerora beolvasasa (AXY=ido)" },
-  { addr: "$FFDB", name: "SETTIM",  desc: "Rendszerora beallitasa (AXY=ido)" },
-  { addr: "$FF81", name: "CINT",    desc: "Kepernyoszerkeszto inicializalasa" },
-  { addr: "$FF84", name: "IOINIT",  desc: "I/O eszkozok inicializalasa" },
-  { addr: "$FF8A", name: "RESTOR",  desc: "Alapertelmezett I/O vektorok visszaallitasa" },
-  { addr: "$E544", name: "CLRSCR",  desc: "Kepernyotorlese (nem hivatalos KERNAL vektor)" },
-  { addr: "$E50C", name: "PLOT",    desc: "Kurzor pozicio olvasasa/beallitasa (XY=sor/oszlop)" },
+  { addr: "$FFD2", name: "CHROUT",  hu: "Karakter kiirasa kepernyore/eszkozre (A=kar)",        en: "Print character to screen/device (A=char)" },
+  { addr: "$FFCF", name: "CHRIN",   hu: "Karakter beolvasasa (blokkolO, A=kar)",                en: "Read character, blocking (A=char)" },
+  { addr: "$FFE4", name: "GETIN",   hu: "Billentyu beolvasasa (nem blokkolO, A=kar/0)",         en: "Get key from keyboard, non-blocking (A=key/0)" },
+  { addr: "$FFE1", name: "STOP",    hu: "STOP gomb ellenorzese (Z=1 ha lenyomva)",              en: "Check STOP key (Z=1 if pressed)" },
+  { addr: "$FFCC", name: "CLRCHN",  hu: "I/O csatornak alaphelyzetbe allitasa",                 en: "Reset I/O channels to defaults" },
+  { addr: "$FFC3", name: "SETLFS",  hu: "Logikai fajl beallitasa (A=LA, X=eszkoz, Y=SA)",      en: "Set logical file (A=LA, X=device, Y=SA)" },
+  { addr: "$FFBD", name: "SETNAM",  hu: "Fajlnev beallitasa (A=hossz, XY=cim)",                en: "Set filename (A=length, XY=address)" },
+  { addr: "$FFD5", name: "LOAD",    hu: "Program betoltese eszkozrol (A=0/1)",                  en: "Load file from device (A=0/1)" },
+  { addr: "$FFD8", name: "SAVE",    hu: "Memoria mentese eszkozre",                             en: "Save memory to device" },
+  { addr: "$FF9F", name: "SCNKEY",  hu: "Billentyuzet pasztazasa (frissiti a puffert)",         en: "Scan keyboard (updates key buffer)" },
+  { addr: "$FF99", name: "MEMTOP",  hu: "Memoria csucs olvasasa/irasa (XY=cim, C=0 iras)",     en: "Read/write memory top (XY=addr, C=0 write)" },
+  { addr: "$FF9C", name: "MEMBOT",  hu: "Memoria aljanak olvasasa/irasa (XY=cim, C=0 iras)",   en: "Read/write memory bottom (XY=addr, C=0 write)" },
+  { addr: "$FFDE", name: "RDTIM",   hu: "Rendszerora beolvasasa (AXY=ido)",                     en: "Read system clock (AXY=time)" },
+  { addr: "$FFDB", name: "SETTIM",  hu: "Rendszerora beallitasa (AXY=ido)",                     en: "Set system clock (AXY=time)" },
+  { addr: "$FF81", name: "CINT",    hu: "Kepernyoszerkeszto inicializalasa",                    en: "Initialize screen editor" },
+  { addr: "$FF84", name: "IOINIT",  hu: "I/O eszkozok inicializalasa",                          en: "Initialize I/O devices" },
+  { addr: "$FF8A", name: "RESTOR",  hu: "Alapertelmezett I/O vektorok visszaallitasa",          en: "Restore default I/O vectors" },
+  { addr: "$E544", name: "CLRSCR",  hu: "Kepernyotorlese (nem hivatalos KERNAL vektor)",        en: "Clear screen (unofficial KERNAL vector)" },
+  { addr: "$E50C", name: "PLOT",    hu: "Kurzor pozicio olvasasa/beallitasa (XY=sor/oszlop)",   en: "Get/set cursor position (XY=row/col)" },
 ];
 
 const memorySegments = [
@@ -703,6 +716,11 @@ function initPalette() {
   baseInputs.forEach((input) => input.addEventListener("change", handleBaseChange));
   themeToggleButton.addEventListener("click", toggleTheme);
   languageSelect.addEventListener("change", handleLanguageChange);
+  aboutButton?.addEventListener("click", () => {
+    document.getElementById("about-version").textContent = "v1.0.0";
+    aboutDialog?.showModal();
+  });
+  aboutCloseButton?.addEventListener("click", () => aboutDialog?.close());
   sampleSelect?.addEventListener("change", saveUiSettings);
   loadSampleButton.addEventListener("click", loadSelectedSample);
   saveProjectButton?.addEventListener("click", saveProjectToFile);
@@ -980,7 +998,10 @@ function updateOperandField() {
   // Populate KERNAL suggestions for JSR / JMP
   if (item && (item.mnemonic === "JSR" || item.mnemonic === "JMP")) {
     datalist.innerHTML = kernalRoutines
-      .map(r => `<option value="${r.addr}">${r.addr} ${r.name} – ${r.desc}</option>`)
+      .map(r => {
+        const desc = r[currentLanguage] ?? r.en;
+        return `<option value="${r.addr}">${r.addr} ${r.name} \u2013 ${desc}</option>`;
+      })
       .join("");
   } else {
     datalist.innerHTML = "";
@@ -3201,9 +3222,14 @@ function loadTextSampleProgram() {
 }
 
 function loadMacroDemoProgram() {
-  // Hardware smooth horizontal scroll: $D016 bits 2-0 = XSCROLL (7..0 per frame)
-  // Each cycle: border color increments, fine scroll steps 7->6->5->4->3->2->1->0, then resets
+  // Text scroller demo:
+  // $080D: JMP main  (3 bytes)
+  // $0810: BYTE message (40 screen-code bytes)  <- LDA $0810,X reads here
+  // $0838: main label -> setup + fill + scroll loop
+  // Screen row 12 = $05E0 .. $0607 (40 chars)
+  // ZP $FE = message offset (0-39)
   originInput.value = "0801";
+
   const b = (category, mnemonic, operand, rawOperand, addressingMode, extra = {}) => ({
     id: crypto.randomUUID(), category, mnemonic, operand, rawOperand,
     description: "", addressingMode, base: "hex", validationError: "", ...extra
@@ -3218,100 +3244,113 @@ function loadMacroDemoProgram() {
     description: "Megjegyzes a programhoz, ami nem general byte-ot.",
     addressingMode: "implied", base: "comment", validationError: "", collapsed: false, isComment: true
   });
+  const txt = (text, x, y) => ({
+    id: crypto.randomUUID(), category: "Makrok", mnemonic: "TEXT",
+    operand: text, rawOperand: text,
+    description: "Szoveg kiirasa a kepernyore.", addressingMode: "implied",
+    base: "text", validationError: "", isTextMacro: true, textX: x, textY: y
+  });
+
+  // Message: "C64 SCROLLER DEMO" (17) + 23 spaces = 40 screen-code bytes
+  // C=$03 6=$36 4=$34 sp=$20 S=$13 C=$03 R=$12 O=$0F L=$0C L=$0C E=$05 R=$12
+  // sp=$20 D=$04 E=$05 M=$0D O=$0F + 23x $20
+  const msg = "$03,$36,$34,$20,$13,$03,$12,$0F,$0C,$0C,$05,$12,$20,$04,$05,$0D,$0F" +
+              ",$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20";
 
   program = collapseLoadedProgram([
-    cmt("Komplex makro demo – hardware smooth X scroll + color cycling"),
+    cmt("C64 Text Scroller Demo – sor 12 gorgetese balra, absoluteX cimazassal"),
 
-    // ── Setup ──────────────────────────────────────────────────────────
-    b("Rendszer",   "SEI",  "",      "",     "implied"),
-    b("Ugrasok",    "JSR",  "$E544", "E544", "absolute",
-      { description: "Kepernyo torlese (KERNAL CLRSCR)." }),
+    // $080D: jump over message data to main code
+    b("Ugrasok", "JMP", "main", "main", "absolute"),
 
-    // Black background, blue starting border
-    b("Adatmozgas", "LDA",  "#$00",  "00",   "immediate"),
-    b("Adatmozgas", "STA",  "$D021", "D021", "absolute"),
-    b("Adatmozgas", "LDA",  "#$06",  "06",   "immediate"),
-    b("Adatmozgas", "STA",  "$D020", "D020", "absolute"),
+    // $0810: 40-byte message (screen codes)
+    cmt("Uzenet: C64 kepernyo kodok (A=$01 B=$02 ... Z=$1A space=$20)"),
+    { id: crypto.randomUUID(), category: "Makrok", mnemonic: "BYTE",
+      operand: msg, rawOperand: msg,
+      description: "Gorgetett uzenet adatai.", addressingMode: "implied",
+      base: "bytes", validationError: "", isByteMacro: true },
 
-    // ── Screen text (TEXT + STRING macros) ────────────────────────────
-    {
-      id: crypto.randomUUID(), category: "Makrok", mnemonic: "TEXT",
-      operand: "** MACRO DEMO **", rawOperand: "** MACRO DEMO **",
-      description: "Szoveg kiirasa a kepernyore.", addressingMode: "implied",
-      base: "text", validationError: "", isTextMacro: true, textX: 12, textY: 1
-    },
-    {
-      id: crypto.randomUUID(), category: "Makrok", mnemonic: "STRING",
-      operand: "HARDWARE SMOOTH SCROLL ON C64",
-      rawOperand: "HARDWARE SMOOTH SCROLL ON C64",
-      description: "Karakterlanc kiirasa egy megadott memoriacimre.",
-      addressingMode: "implied", base: "string", validationError: "",
-      isStringMacro: true, stringAddress: "0450"
-    },
-    {
-      id: crypto.randomUUID(), category: "Makrok", mnemonic: "TEXT",
-      operand: "VISUAL ASSEMBLER DEMO", rawOperand: "VISUAL ASSEMBLER DEMO",
-      description: "Szoveg kiirasa a kepernyore.", addressingMode: "implied",
-      base: "text", validationError: "", isTextMacro: true, textX: 9, textY: 23
-    },
+    // $0838: main
+    lbl("main"),
+    b("Rendszer",   "SEI",   "",      "",      "implied"),
+    b("Ugrasok",    "JSR",   "$E544", "E544",  "absolute", { description: "KERNAL CLRSCR: kepernyo torlese." }),
+    b("Adatmozgas", "LDA",   "#$00",  "00",    "immediate"),
+    b("Adatmozgas", "STA",   "$D021", "D021",  "absolute"),
+    b("Adatmozgas", "LDA",   "#$0E",  "0E",    "immediate"),
+    b("Adatmozgas", "STA",   "$D020", "D020",  "absolute"),
 
-    // ── Main loop ─────────────────────────────────────────────────────
-    cmt("Foprogram: szin-ciklus + hardware fine scroll 7->0"),
+    // Static title rows via TEXT macro
+    txt("** C64 TEXT SCROLLER **", 9, 0),
+    txt("VISUAL ASSEMBLER DEMO",  10, 2),
+
+    // Init message offset in ZP $FE
+    cmt("ZP $FE = uzenet offset (0..39)"),
+    b("Adatmozgas", "LDA",   "#$00",  "00",    "immediate"),
+    b("Adatmozgas", "STA",   "$FE",   "FE",    "zeroPage"),
+
+    // Fill scroll row 12 with spaces
+    cmt("12. sor ($05E0) kezdeti feltoltese szokozzel"),
+    b("Regiszterek","LDX",   "#$00",  "00",    "immediate"),
+    lbl("fillrow"),
+    b("Adatmozgas", "LDA",   "#$20",  "20",    "immediate"),
+    b("Adatmozgas", "STA",   "$05E0", "05E0",  "absoluteX"),
+    b("Regiszterek","INX",   "",      "",      "implied"),
+    b("Aritmetika", "CPX",   "#$28",  "28",    "immediate"),
+    b("Ugrasok",    "BNE",   "fillrow", "fillrow", "relative"),
+
+    // ── Main scroll loop ──────────────────────────────────────────────
+    cmt("Fo gorgetesi ciklus: fine-scroll + karakter-eltolos + uj char"),
     lbl("main_loop"),
 
-    cmt("Fine scroll: Y = 7..0, TYA -> ORA #$08 (CSEL) -> $D016"),
-    b("Adatmozgas", "LDY",  "#$07",  "07",   "immediate"),
-    lbl("scroll_step"),
+    // Fine pixel scroll: $D016 bits 0-2 step 7->0
+    cmt("Finompixel scroll: Y=7..0, $D016 = Y|$08 (CSEL=1, 40 col mod)"),
+    b("Adatmozgas", "LDY",   "#$07",  "07",    "immediate"),
+    lbl("scroll_pixel"),
+    b("Regiszterek","TYA",   "",      "",      "implied"),
+    b("Logika",     "ORA",   "#$08",  "08",    "immediate"),
+    b("Adatmozgas", "STA",   "$D016", "D016",  "absolute"),
+    b("Ugrasok",    "JSR",   "fdelay","fdelay","absolute"),
+    b("Regiszterek","DEY",   "",      "",      "implied"),
+    b("Ugrasok",    "BPL",   "scroll_pixel","scroll_pixel","relative"),
 
-    // Set $D016: scroll = Y | $08 (CSEL bit = 40-col mode)
-    b("Regiszterek", "TYA",  "",      "",     "implied"),
-    b("Logika",      "ORA",  "#$08",  "08",   "immediate"),
-    b("Adatmozgas",  "STA",  "$D016", "D016", "absolute"),
+    // Shift screen row left by 1 char (col 1..39 -> col 0..38)
+    cmt("Sor eltolasa balra 1 karakterrel (LDA $05E1,X / STA $05E0,X)"),
+    b("Regiszterek","LDX",   "#$00",  "00",    "immediate"),
+    lbl("shift_loop"),
+    b("Adatmozgas", "LDA",   "$05E1", "05E1",  "absoluteX"),
+    b("Adatmozgas", "STA",   "$05E0", "05E0",  "absoluteX"),
+    b("Regiszterek","INX",   "",      "",      "implied"),
+    b("Aritmetika", "CPX",   "#$27",  "27",    "immediate"),
+    b("Ugrasok",    "BNE",   "shift_loop","shift_loop","relative"),
 
-    // Cycle border color (+1 mod 16)
-    b("Adatmozgas", "LDA",  "$D020", "D020", "absolute"),
-    b("Rendszer",   "CLC",  "",      "",     "implied"),
-    b("Aritmetika", "ADC",  "#$01",  "01",   "immediate"),
-    b("Logika",     "AND",  "#$0F",  "0F",   "immediate"),
-    b("Adatmozgas", "STA",  "$D020", "D020", "absolute"),
+    // Write next message char into col 39 ($0607)
+    cmt("Kovetkezo karakter beolvasasa az uzenetbol -> col 39"),
+    b("Regiszterek","LDX",   "$FE",   "FE",    "zeroPage"),
+    b("Adatmozgas", "LDA",   "$0810", "0810",  "absoluteX"),
+    b("Adatmozgas", "STA",   "$0607", "0607",  "absolute"),
 
-    // Frame delay + decrement scroll counter
-    b("Ugrasok",     "JSR",  "fdelay", "fdelay", "absolute"),
-    b("Regiszterek", "DEY",  "",       "",        "implied"),
-    b("Ugrasok",     "BPL",  "scroll_step", "scroll_step", "relative"),
+    // Advance offset, wrap at 40
+    cmt("Offset noveles es visszaallitas 0-ra, ha elerte a 40-et"),
+    b("Aritmetika", "INC",   "$FE",   "FE",    "zeroPage"),
+    b("Adatmozgas", "LDA",   "$FE",   "FE",    "zeroPage"),
+    b("Aritmetika", "CMP",   "#$28",  "28",    "immediate"),
+    b("Ugrasok",    "BNE",   "main_loop","main_loop","relative"),
+    b("Adatmozgas", "LDA",   "#$00",  "00",    "immediate"),
+    b("Adatmozgas", "STA",   "$FE",   "FE",    "zeroPage"),
+    b("Ugrasok",    "JMP",   "main_loop","main_loop","absolute"),
 
-    // Reset scroll to 7 (clean snap)
-    cmt("Scroll visszaallitasa 7-re, hosszu szunet"),
-    b("Adatmozgas", "LDA",  "#$0F",  "0F",   "immediate"),
-    b("Adatmozgas", "STA",  "$D016", "D016", "absolute"),
-    b("Ugrasok",    "JSR",  "ldelay", "ldelay", "absolute"),
-    b("Ugrasok",    "JMP",  "main_loop", "main_loop", "absolute"),
-
-    // ── Short frame delay (~1/50s) ────────────────────────────────────
-    cmt("fdelay: rovid keseleltetese (~1 frame, 50Hz)"),
+    // ── Frame delay subroutine ────────────────────────────────────────
+    cmt("fdelay: ~1 frame kesleltetese (LDX #$06, dupla DEY/DEX ciklus)"),
     lbl("fdelay"),
-    b("Adatmozgas",  "LDX",  "#$04",  "04",   "immediate"),
+    b("Regiszterek","LDX",   "#$06",  "06",    "immediate"),
     lbl("fdelay_o"),
-    b("Adatmozgas",  "LDY",  "#$FF",  "FF",   "immediate"),
+    b("Regiszterek","LDY",   "#$FF",  "FF",    "immediate"),
     lbl("fdelay_i"),
-    b("Regiszterek", "DEY",  "",      "",     "implied"),
-    b("Ugrasok",     "BNE",  "fdelay_i", "fdelay_i", "relative"),
-    b("Regiszterek", "DEX",  "",      "",     "implied"),
-    b("Ugrasok",     "BNE",  "fdelay_o", "fdelay_o", "relative"),
-    b("Ugrasok",     "RTS",  "",      "",     "implied"),
-
-    // ── Long pause delay ──────────────────────────────────────────────
-    cmt("ldelay: hosszu szunet a ket scroll-ciklus kozott"),
-    lbl("ldelay"),
-    b("Adatmozgas",  "LDX",  "#$20",  "20",   "immediate"),
-    lbl("ldelay_o"),
-    b("Adatmozgas",  "LDY",  "#$FF",  "FF",   "immediate"),
-    lbl("ldelay_i"),
-    b("Regiszterek", "DEY",  "",      "",     "implied"),
-    b("Ugrasok",     "BNE",  "ldelay_i", "ldelay_i", "relative"),
-    b("Regiszterek", "DEX",  "",      "",     "implied"),
-    b("Ugrasok",     "BNE",  "ldelay_o", "ldelay_o", "relative"),
-    b("Ugrasok",     "RTS",  "",      "",     "implied"),
+    b("Regiszterek","DEY",   "",      "",      "implied"),
+    b("Ugrasok",    "BNE",   "fdelay_i","fdelay_i","relative"),
+    b("Regiszterek","DEX",   "",      "",      "implied"),
+    b("Ugrasok",    "BNE",   "fdelay_o","fdelay_o","relative"),
+    b("Ugrasok",    "RTS",   "",      "",      "implied"),
   ]);
   renderOriginPreview();
   renderEmulatorRunHint();

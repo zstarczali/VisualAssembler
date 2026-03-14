@@ -70,6 +70,9 @@
                 <button id="copy-asm" class="secondary" type="button">ASM masolasa</button>
                 <button id="clear-program" class="secondary" type="button">Program torlese</button>
               </section>
+              <section class="control-menu-group">
+                <button id="about-btn" class="secondary" type="button">About</button>
+              </section>
             </div>
           </details>
           <button id="run-emulator" class="primary run-button" type="button">
@@ -232,7 +235,24 @@
     </button>
   </template>
 
+<dialog id="about-dialog" class="about-dialog">
+  <div class="about-card">
+    <div class="about-logo">
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect width="48" height="48" rx="12" fill="#1b3a8f"/>
+        <text x="7" y="34" font-family="IBM Plex Mono,monospace" font-size="22" font-weight="700" fill="#e8f0ff">C64</text>
+      </svg>
+    </div>
+    <h2 class="about-title">C64 Visual Assembler</h2>
+    <p class="about-version" id="about-version">v1.0.0</p>
+    <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and dropping instruction blocks.</p>
+    <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
+    <button id="about-close" class="primary" type="button">Close</button>
+  </div>
+</dialog>
+
   <script src="app.js"></script>
+
 </body>
 </html>
 
