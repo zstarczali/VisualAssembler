@@ -1,6 +1,7 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("electronAPI", {
+  openExternal: (url) => ipcRenderer.invoke("shell:open-external", url),
   quitApp: () => ipcRenderer.invoke("app:quit"),
   getAppVersion: () => ipcRenderer.invoke("app:get-version"),
   getViceConfig: () => ipcRenderer.invoke("vice:get-config"),

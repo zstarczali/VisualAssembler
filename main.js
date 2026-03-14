@@ -2,7 +2,7 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const { spawn } = require("child_process");
-const { app, BrowserWindow, dialog, ipcMain } = require("electron");
+const { app, BrowserWindow, dialog, ipcMain, shell } = require("electron");
 
 function getConfigPath() {
   return path.join(app.getPath("userData"), "config.json");
@@ -31,6 +31,10 @@ function detectViceExecutable() {
 
   return candidates.find((candidate) => fs.existsSync(candidate)) || "";
 }
+
+ipcMain.handle("shell:open-external", (_event, url) => {
+  shell.openExternal(url);
+});
 
 ipcMain.handle("app:quit", () => {
   app.quit();

@@ -165,6 +165,12 @@ h1 {
   font-size: 1.02rem;
 }
 
+.sample-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .sample-picker select {
   min-width: 170px;
   height: 46px;
@@ -514,6 +520,23 @@ body[data-theme="dark"] .primary {
 
 .menu-field {
   margin-top: 2px;
+}
+
+.menu-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: var(--fg);
+}
+
+.menu-checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--primary, #3257c7);
+  flex-shrink: 0;
 }
 
 .menu-note {
