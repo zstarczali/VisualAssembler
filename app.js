@@ -249,6 +249,7 @@ const translations = {
     sampleText: "TEXT pelda",
     sampleMacro: "Komplex makro pelda",
     sampleSprite: "Sprite mozgatas pelda",
+    sampleBitmap: "Bitmap vonal demo",
     languageLabel: "Nyelv",
     checkForUpdate: "Frissites keresese",
     whatsNew: "Ujdonsagok",
@@ -392,6 +393,7 @@ const translations = {
     sampleText: "TEXT example",
     sampleMacro: "Complex macro example",
     sampleSprite: "Sprite movement example",
+    sampleBitmap: "Bitmap line demo",
     languageLabel: "Language",
     checkForUpdate: "Check for Update",
     whatsNew: "What's New",
@@ -1001,6 +1003,7 @@ function applyTranslations() {
   if (sampleOptions[2]) sampleOptions[2].textContent = t("sampleText");
   if (sampleOptions[3]) sampleOptions[3].textContent = t("sampleMacro");
   if (sampleOptions[4]) sampleOptions[4].textContent = t("sampleSprite");
+  if (sampleOptions[5]) sampleOptions[5].textContent = t("sampleBitmap");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -4425,6 +4428,163 @@ function loadSpriteSampleProgram() {
   saveUiSettings();
 }
 
+function loadBitmapLineSampleProgram() {
+  originInput.value = "0801";
+
+  const b = (cat, mn, raw, mode) => {
+    const libItem = Object.values(mnemonicLibrary).flat().find(m => m.mnemonic === mn);
+    const desc = libItem ? libItem.description : "";
+    let operand = "";
+    if (raw) {
+      if (mode === "immediate") operand = `#$${raw}`;
+      else if (mode === "relative" || mode === "implied") operand = raw;
+      else operand = `$${raw}`;
+    }
+    return { id: crypto.randomUUID(), category: cat, mnemonic: mn, operand, rawOperand: raw, description: desc, addressingMode: mode, base: "hex", validationError: "" };
+  };
+
+  const lbl = (name) => ({
+    id: crypto.randomUUID(), category: "Szerkezet", mnemonic: "LABEL",
+    operand: "", rawOperand: "", description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.",
+    addressingMode: "implied", base: "hex", validationError: "", isLabel: true, labelName: name
+  });
+
+  const cmt = (text) => ({
+    id: crypto.randomUUID(), category: "Szerkezet", mnemonic: "COMMENT",
+    operand: text, rawOperand: text, description: "Megjegyzes a programhoz, ami nem general byte-ot.",
+    addressingMode: "implied", base: "comment", validationError: "", isComment: true, collapsed: false
+  });
+
+  // JavaScript Bresenham – a bitmap adatot itt szamitjuk ki JS-ben
+  const bitmap = new Array(8192).fill(0);
+  const setPixel = (x, y) => {
+    if (x < 0 || x >= 320 || y < 0 || y >= 200) return;
+    const cell = Math.floor(y / 8) * 40 + Math.floor(x / 8);
+    const addr = cell * 8 + (y % 8);
+    bitmap[addr] |= (1 << (7 - (x % 8)));
+  };
+  const drawLine = (x0, y0, x1, y1) => {
+    let dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0);
+    let sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1, err = dx - dy;
+    for (;;) {
+      setPixel(x0, y0);
+      if (x0 === x1 && y0 === y1) break;
+      const e2 = 2 * err;
+      if (e2 > -dy) { err -= dy; x0 += sx; }
+      if (e2 < dx)  { err += dx; y0 += sy; }
+    }
+  };
+
+  // 8 vonal – csillag minta
+  drawLine(0,   0,   319, 199);
+  drawLine(319, 0,   0,   199);
+  drawLine(0,   100, 319, 100);
+  drawLine(160, 0,   160, 199);
+  drawLine(0,   0,   319, 99);
+  drawLine(0,   199, 319, 100);
+  drawLine(0,   50,  319, 150);
+  drawLine(0,   150, 319, 50);
+
+  const bitmapHex = bitmap.map(v => v.toString(16).toUpperCase().padStart(2, '0')).join(',');
+
+  // Dinamikus gap: BASIC SYS ON => kod $080D-tol, OFF => $0801-tol indul
+  // Forrasblokkok ossz merete (label/comment = 0 byte):
+  //   SEI(1) + 5x(LDA#2+STA_abs3)=25 + 4x(LDA#2+LDX#2+STA_absX3+INX1+BNE2)=40 + JMP(3) = 69 byte
+  const CODE_SIZE = 69;
+  const codeStart = (basicSysToggle ? basicSysToggle.checked : true) ? 0x080D : 0x0801;
+  const gapSize = 0x2000 - (codeStart + CODE_SIZE);
+  const gapHex = new Array(gapSize).fill('00').join(',');
+
+  program = collapseLoadedProgram([
+    cmt("C64 Bitmap hires vonal demo – 8 szines vonal a kepernyon"),
+
+    b("Rendszer",    "SEI", "",     "implied"),
+
+    // VIC-II: bitmap mod
+    b("Adatmozgas",  "LDA", "3B",   "immediate"),
+    b("Adatmozgas",  "STA", "D011", "absolute"),
+    // VIC-II: hires (nem multicolor), 40 oszlop
+    b("Adatmozgas",  "LDA", "C8",   "immediate"),
+    b("Adatmozgas",  "STA", "D016", "absolute"),
+    // VIC-II: screen RAM $0400, bitmap $2000
+    b("Adatmozgas",  "LDA", "18",   "immediate"),
+    b("Adatmozgas",  "STA", "D018", "absolute"),
+    // Keret/hatter: fekete
+    b("Adatmozgas",  "LDA", "00",   "immediate"),
+    b("Adatmozgas",  "STA", "D020", "absolute"),
+    b("Adatmozgas",  "LDA", "00",   "immediate"),
+    b("Adatmozgas",  "STA", "D021", "absolute"),
+
+    // Szin RAM $0400: piros eloterhatter ($20 = fg=2/piros, bg=0/fekete)
+    cmt("Szin RAM $0400-$04FF: piros"),
+    b("Adatmozgas",  "LDA", "20",   "immediate"),
+    b("Adatmozgas",  "LDX", "00",   "immediate"),
+    lbl("clr04"),
+    b("Adatmozgas",  "STA", "0400", "absoluteX"),
+    b("Regiszterek", "INX", "",     "implied"),
+    b("Ugrasok",     "BNE", "clr04","relative"),
+
+    // Szin RAM $0500: cian ($30 = fg=3/cian, bg=0/fekete)
+    cmt("Szin RAM $0500-$05FF: cian"),
+    b("Adatmozgas",  "LDA", "30",   "immediate"),
+    b("Adatmozgas",  "LDX", "00",   "immediate"),
+    lbl("clr05"),
+    b("Adatmozgas",  "STA", "0500", "absoluteX"),
+    b("Regiszterek", "INX", "",     "implied"),
+    b("Ugrasok",     "BNE", "clr05","relative"),
+
+    // Szin RAM $0600: zold ($50 = fg=5/zold, bg=0/fekete)
+    cmt("Szin RAM $0600-$06FF: zold"),
+    b("Adatmozgas",  "LDA", "50",   "immediate"),
+    b("Adatmozgas",  "LDX", "00",   "immediate"),
+    lbl("clr06"),
+    b("Adatmozgas",  "STA", "0600", "absoluteX"),
+    b("Regiszterek", "INX", "",     "implied"),
+    b("Ugrasok",     "BNE", "clr06","relative"),
+
+    // Szin RAM $0700: sarga ($70 = fg=7/sarga, bg=0/fekete)
+    cmt("Szin RAM $0700-$07FF: sarga"),
+    b("Adatmozgas",  "LDA", "70",   "immediate"),
+    b("Adatmozgas",  "LDX", "00",   "immediate"),
+    lbl("clr07"),
+    b("Adatmozgas",  "STA", "0700", "absoluteX"),
+    b("Regiszterek", "INX", "",     "implied"),
+    b("Ugrasok",     "BNE", "clr07","relative"),
+
+    // Vegtelen ciklus
+    lbl("vege"),
+    b("Ugrasok",     "JMP", "vege", "absolute"),
+
+    // Toltobyte-ok a $2000-es bitmap cimig
+    cmt(`Toltobyte-ok ($${gapSize.toString(16).toUpperCase()} byte) a $2000-es bitmap cimig`),
+    {
+      id: crypto.randomUUID(), category: "Makrok", mnemonic: "BYTE",
+      operand: `[${gapSize} x $00 – igazitas $2000-re]`,
+      rawOperand: gapHex,
+      description: "Bitmap cimre igazito toltobyte-ok.",
+      addressingMode: "implied", base: "hex", validationError: "",
+      isByteMacro: true, collapsed: true
+    },
+
+    // Bitmap adat $2000-$3FFF
+    cmt("Bitmap adat $2000-$3FFF (8192 byte) – 8 vonal, JS Bresenham alapjan"),
+    {
+      id: crypto.randomUUID(), category: "Makrok", mnemonic: "BYTE",
+      operand: "[8192 byte – bitmap, 8 vonal]",
+      rawOperand: bitmapHex,
+      description: "C64 hires bitmap adat (8192 byte).",
+      addressingMode: "implied", base: "hex", validationError: "",
+      isByteMacro: true, collapsed: true
+    }
+  ]);
+
+  renderOriginPreview();
+  renderEmulatorRunHint();
+  renderProgram();
+  saveUiSettings();
+}
+
+
 function loadSelectedSample() {
   if (sampleSelect.value === "label-border") {
     loadLabelSampleProgram();
@@ -4443,6 +4603,11 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "sprite-demo") {
     loadSpriteSampleProgram();
+    return;
+  }
+
+  if (sampleSelect.value === "bitmap-demo") {
+    loadBitmapLineSampleProgram();
     return;
   }
 
