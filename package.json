@@ -1,6 +1,6 @@
 {
   "name": "c64-visual-assembler",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Commodore 64 visual assembler desktop app built with Electron.",
   "main": "main.js",
   "scripts": {
