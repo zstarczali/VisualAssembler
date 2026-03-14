@@ -29,6 +29,14 @@
       ],
       "icon": "build/commodore64.ico"
     },
+    "mac": {
+      "target": [
+        "dmg"
+      ]
+    },
+    "dmg": {
+      "sign": false
+    },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
