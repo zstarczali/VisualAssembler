@@ -45,7 +45,9 @@ jobs:
       # Windows build (NSIS) a package.json script alapján
       - name: Build (Windows)
         if: runner.os == 'Windows'
-        run: npm run dist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --win nsis --publish never
 
       # macOS build - explicit arch
       - name: Build (macOS x64)
