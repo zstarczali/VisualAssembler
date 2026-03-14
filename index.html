@@ -35,6 +35,8 @@
                     <option value="macro-demo">Komplex makro pelda</option>
                     <option value="sprite-demo">Sprite mozgatas pelda</option>
                     <option value="bitmap-demo">Bitmap vonal demo</option>
+                    <option value="loop-demo">LOOP / NEXT demo</option>
+                    <option value="hello-loop-demo">Hello World 1-40 (LOOP szamlalo)</option>
                   </select>
                 </label>
                 <button id="load-sample" class="secondary" type="button">Betoltes</button>
@@ -267,21 +269,39 @@
 <dialog id="whats-new-dialog" class="whats-new-dialog">
   <div class="whats-new-card">
     <h2 class="whats-new-title">What's New</h2>
-    <p class="whats-new-version">v1.0.6</p>
+    <p class="whats-new-version">v1.0.9</p>
     <ul class="whats-new-list">
       <li>
-        <strong>Monitor — karakter oszlop</strong> — a hex dump mellé megjelenik a 8 bájtos karakter oszlop. A C64 screen code-ok (A–Z betűk) helyesen jelennek meg.
+        <strong>Hello World 1–40 demo</strong> — új mintaprogram: LOOP / NEXT makróval 40-szer írja ki a „Hello World X" szöveget, ahol X mindig az aktuális szám (1-től 40-ig). ASCII számjegy számláló zero page-en ($FB / $FC), kétjegyű számok automatikus kezelésével.
       </li>
       <li>
-        <strong>Scrollbar javítás</strong> — a fő panelek scrollbarja már nem lóg ki a lekerekített sarkokon.
+        <strong>LOOP / NEXT makró</strong> — új vizuális ciklus blokk pár. A LOOP beállítja a számlálót (X vagy Y regiszter, hex érték), a NEXT automatikusan kapcsolódik hozzá és DEX/DEY + BNE utasítást generál. Egymásba ágyazott ciklusok is lehetségesek.
+      </li>
+      <li>
+        <strong>Bitmap vonal demo</strong> — új mintaprogram: C64 hires bitmap módban 8 egyenes vonal rajzolása JavaScript Bresenham algoritmussal előre kiszámítva.
+      </li>
+      <li>
+        <strong>LOOP / NEXT demo</strong> — új mintaprogram: egymásba ágyazott delay ciklusokkal keret- és háttérszín lassú ciklusozása mind a 16 C64 színen át.
+      </li>
+      <li>
+        <strong>Hibajavítás</strong> — indítási szintaxishiba javítva; a mnemonikkönyvtár és az összes funkció ismét helyesen töltődik be.
       </li>
     </ul>
     <ul class="whats-new-list whats-new-list-en">
       <li>
-        <strong>Monitor — character column</strong> — a character column is now shown next to the hex dump, 8 bytes per row. C64 screen codes (A–Z letters) are correctly displayed.
+        <strong>Hello World 1–40 demo</strong> — new sample program: uses LOOP / NEXT macro to print "Hello World X" 40 times, where X is the current counter (1 to 40). ASCII digit counter on zero page ($FB / $FC) with automatic two-digit handling.
       </li>
       <li>
-        <strong>Scrollbar fix</strong> — the scrollbar on the main panels no longer overflows the rounded corners.
+        <strong>LOOP / NEXT macro</strong> — new visual loop block pair. LOOP sets up the counter (X or Y register, hex value), NEXT auto-connects and generates DEX/DEY + BNE. Nested loops are fully supported.
+      </li>
+      <li>
+        <strong>Bitmap line demo</strong> — new sample program: draws 8 straight lines in C64 hires bitmap mode, pixel data pre-computed in JavaScript using Bresenham's algorithm.
+      </li>
+      <li>
+        <strong>LOOP / NEXT demo</strong> — new sample program: nested delay loops cycle the border and background through all 16 C64 colours slowly.
+      </li>
+      <li>
+        <strong>Bug fix</strong> — startup syntax error resolved; mnemonic library and all features load correctly again.
       </li>
     </ul>
     <button id="whats-new-close" class="primary" type="button">OK</button>

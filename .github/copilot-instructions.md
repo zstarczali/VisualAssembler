@@ -11,7 +11,7 @@ drag-and-drop szerkesztését teszi lehetővé. Nincs UI-framework — csak Vani
 
 | Fájl | Szerep |
 |------|--------|
-| `app.js` | Teljes renderer logika (~3 500 sor): mnemonik könyvtár, UI, ASM/monitor generálás, makró expanzió |
+| `app.js` | Teljes renderer logika (~5 100 sor): mnemonik könyvtár, UI, ASM/monitor generálás, makró expanzió |
 | `index.html` | Egyetlen HTML lap; összes UI elem és két `<template>` (block-template, palette-item-template) |
 | `style.css` | Teljes stíluslap; CSS custom properties-alapú téma (dark/light) |
 | `main.js` | Electron main process: ablak, fájlmentés/betöltés, VICE futtatás IPC |
@@ -51,6 +51,8 @@ Minden blokk (`program[]` tömb eleme) egy plain object:
   isStringMacro: true, stringAddress: "C000",
   isDataMacro: true, dataAddress: "C000",
   isByteMacro: true,
+  isLoopMacro: true, loopReg: "X",  loopCount: "0A", loopLabel: "loop1",
+  isNextMacro: true, nextLabel: "loop1", nextReg: "X",
   isLabel: true, labelName: "loop",
   isComment: true, commentText: "..."
 }
@@ -82,9 +84,63 @@ A `DATA` makró: nyers byte-ok (`$FF, 169, 0x1A` formátumban), megadott abszol�
 
 **Address input dispatch pattern:** A `.macro-address` inputon `data-address-field` attribútum mondja meg, melyik blokk-mező frissüljön (`"stringAddress"` vagy `"dataAddress"`). Egy event listener kezeli mindkét típust (`macroAddressInput.dataset.addressField`).
 
+A `LOOP` makró (két blokk rendszer):
+- **LOOP blokk** (`isLoopMacro: true`): mezők: `loopReg` (`"X"` vagy `"Y"`), `loopCount` (hex byte pl. `"0A"`), `loopLabel` (string). Generál: `LDX/LDY #count` (2 byte), majd a label a `address+2`-re mutat (a body elejére). Az auto-label `loop1`, `loop2`… ha `loopLabel` üres.
+- **NEXT blokk** (`isNextMacro: true`): mezők: `nextLabel` (párosított LOOP label neve), `nextReg` (auto-derive: a legközelebbi matching LOOP-ból). Generál: `DEX/DEY` (1 byte) + `BNE label` (2 byte). BNE offset = `target − (address+3)`, -128..127 range check.
+- `getInstructionSize`: LOOP=2, NEXT=3
+- Inserteléskor (`insertBlock`): LOOP-hoz auto-label, NEXT-hez auto-kitöltés a felette lévő LOOP alapján.
+- HEX/DEC toggle és addressing mode select el van rejtve LOOP/NEXT blokkoknál.
+
 ---
 
-## BASIC SYS stub
+## RAWBYTES / RAWTEXT makrók és PRG assembly
+
+### Makró kódolási összefoglaló
+
+| Makró | Kódolás | Runtime kód | Adat elhelyezés |
+|-------|---------|-------------|-----------------|
+| `TEXT` | screen code → LDA/STA screen RAM | ✅ inline | screen RAM $0400+ |
+| `STRING` | screen code → LDA/STA fix cím | ✅ inline | megadott cím |
+| `DATA` | raw byte → LDA/STA fix cím | ✅ inline | megadott cím |
+| `BYTE` | raw byte | ✅ inline (a kódba ágyazva) | inline |
+| `RAWBYTES` | raw byte, **nincs runtime kód** | ❌ deferred | megadott cím |
+| `RAWTEXT` | screen code, **nincs runtime kód** | ❌ deferred | megadott cím |
+
+### RAWBYTES / RAWTEXT a PRG fájlban
+
+`assembleProgramToPrg()` két fázisban dolgozik:
+1. **Inline bytes**: az összes nem-deferred blokk sorban összerakva
+2. **Deferred chunks**: RAWBYTES/RAWTEXT blokkok adatai → flat buffer-be töltve a megfelelő offset-en
+
+Ha van deferred chunk, a függvény flat `Uint8Array` buffert épít az `origin`-tól a `maxAddr`-ig (gap = nullák), majd a result tartalmazza a teljes tartományt. A `buildAutostartPrgForEmulator` ezt a flat buffert fűzi a BASIC SYS stub után.
+
+### FONTOS: `parseAddressValue` és a `rawBytesAddress` mező
+
+**BUG-TRAP:** `parseAddressValue("0900")` → decimálisként értelmezi (= 900 = `$0384`), mert a `/^\d+$/` regex illeszkedik az összes digit-karakterre!
+
+**Mindig `$` prefixet használj** az address mezőkben:
+```js
+rawBytesAddress: "$0900"   // ✅ helyes — parseAddressValue → 0x0900
+rawBytesAddress: "0900"    // ❌ HIBÁS — parseAddressValue → 900 (decimal!)
+```
+
+### PETSCII vs ASCII CHROUT-nál
+
+C64 KERNAL CHROUT (`$FFD2`) PETSCII karakterkódokat vár:
+- **Nagybetűk** ($41–$5A): azonosak az ASCII-vel → `'H'=$48`, `'E'=$45` stb. ✅
+- **Kisbetűk** ($61–$7A): C64 alapértelmezett módban grafikus karakterek, **NEM** `a`–`z`! ❌
+
+**RAWBYTES/CHROUT kombóhoz mindig nagybetűs szöveget tárolj:**
+```js
+// "HELLO WORLD " = H=$48 E=$45 L=$4C L=$4C O=$4F ' '=$20 W=$57 O=$4F R=$52 L=$4C D=$44 ' '=$20
+rawOperand: "48,45,4C,4C,4F,20,57,4F,52,4C,44,20"
+```
+
+RAWTEXT screen RAM-ba ír (`$0400+`), ott screen code-ok kellenek (nem PETSCII) — arra helyes a `toPetsciiCharCode`.
+
+---
+
+
 
 - `#basic-sys-toggle` checkbox a "Beallitasok" menüben
 - **BE (alapértelmezett):** BASIC stub `$0801`-re kerül, kód `$080D`-n indul; `buildAutostartPrgForEmulator()` hívja a stub generátort
@@ -108,6 +164,20 @@ Nezet
 
 [Check for Update gomb] → shell.openExternal → https://zstarczali.itch.io/visual-assembler-commodore-64
 ```
+
+---
+
+## Meglévő mintaprogramok
+
+| `sampleSelect.value` | Függvény | Leírás |
+|----------------------|----------|--------|
+| `"label-border"` | `loadLabelSampleProgram()` | Keret szín ciklus, cimkék bemutatása |
+| `"text-demo"` | `loadTextSampleProgram()` | KERNAL CHROUT TEXT makró demo |
+| `"macro-demo"` | `loadMacroDemoProgram()` | STRING/DATA/BYTE makrók |
+| `"sprite-demo"` | `loadSpriteSampleProgram()` | Sprite mozgatás |
+| `"bitmap-demo"` | `loadBitmapLineSampleProgram()` | Hires bitmap, 8 vonal JS Bresenham-mal; $2000-re igazított BYTE makró (gap + 8192 byte bitmap) |
+| `"loop-demo"` | `loadLoopSampleProgram()` | Nested LOOP X+Y delay, keret+háttér szín ciklus 0–15 |
+| `"hello-loop-demo"` | `loadHelloLoopSampleProgram()` | LOOP Y $28 (40×), RAWBYTES `"HELLO WORLD "` ASCII nagybetűkkel `$0900`-ra, kiírja „HELLO WORLD 1"–„HELLO WORLD 40"; CHROUT-hoz PETSCII nagybetűk kellenek; ZP `$FB`/`$FC` digit számláló |
 
 ---
 
@@ -159,3 +229,14 @@ npm run dist:dir   # Telepítő nélküli mappa build
 ```
 
 Nincs hot-reload — változtatás után `npm start` újraindítás szükséges.
+
+---
+
+## Jelenlegi verzió
+
+`1.0.9` — lásd `package.json` és a What's New dialóg (`index.html`).
+
+Verzió növelésekor:
+1. `package.json` → `"version"` mező
+2. `index.html` → `#whats-new-dialog` cím + bejegyzések (HU és EN)
+3. `npm run dist` → új telepítő
