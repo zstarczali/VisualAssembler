@@ -3543,23 +3543,32 @@ function renderMonitorOutput(layout = getProgramLayout()) {
   let segEnd = allAddresses[0];
   for (let i = 1; i < allAddresses.length; i++) {
     if (allAddresses[i] - segEnd > GAP_THRESHOLD) {
-      segments.push({ start: segStart & ~0xF, end: segEnd });
+      segments.push({ start: segStart & ~0x7, end: segEnd });
       segStart = allAddresses[i];
     }
     segEnd = allAddresses[i];
   }
-  segments.push({ start: segStart & ~0xF, end: segEnd });
+  segments.push({ start: segStart & ~0x7, end: segEnd });
 
   const rows = [];
   segments.forEach((seg, segIndex) => {
     if (segIndex > 0) rows.push("");
-    for (let addr = seg.start; addr <= seg.end; addr += 16) {
-      const bytes = [];
-      for (let i = 0; i < 16; i++) {
-        const b = memMap.get(addr + i);
-        bytes.push(b !== undefined ? b.toString(16).toUpperCase().padStart(2, "0") : "..");
+    for (let addr = seg.start; addr <= seg.end; addr += 8) {
+      const byteValues = [];
+      for (let i = 0; i < 8; i++) {
+        byteValues.push(memMap.get(addr + i));
       }
-      rows.push(`>${formatAddress(addr)}  ${bytes.join(" ")}`);
+      const hexPart = byteValues.map((b) => b !== undefined ? b.toString(16).toUpperCase().padStart(2, "0") : "..").join(" ");
+      const charPart = byteValues.map((b) => {
+        if (b === undefined) return " ";
+        if (b >= 0x20 && b <= 0x7E) return String.fromCharCode(b);
+        if (b === 0x00) return "@";
+        if (b >= 0x01 && b <= 0x1A) return String.fromCharCode(0x40 + b); // A-Z screen codes
+        if (b === 0x1B) return "[";
+        if (b === 0x1D) return "]";
+        return ".";
+      }).join("");
+      rows.push(`>${formatAddress(addr)}  ${hexPart}  |${charPart}|`);
     }
   });
 
