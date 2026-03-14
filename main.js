@@ -32,6 +32,14 @@ function detectViceExecutable() {
   return candidates.find((candidate) => fs.existsSync(candidate)) || "";
 }
 
+ipcMain.handle("app:quit", () => {
+  app.quit();
+});
+
+ipcMain.handle("app:get-version", () => {
+  return app.getVersion();
+});
+
 ipcMain.handle("vice:get-config", async () => {
   const config = readConfig();
   return {
