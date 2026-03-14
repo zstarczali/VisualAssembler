@@ -639,6 +639,28 @@ const opcodeMap = {
   BRK: { implied: 0x00 }
 };
 
+const kernalRoutines = [
+  { addr: "$FFD2", name: "CHROUT",  desc: "Karakter kiirasa kepernyore/eszkozre (A=kar)" },
+  { addr: "$FFCF", name: "CHRIN",   desc: "Karakter beolvasasa (blokkolO, A=kar)" },
+  { addr: "$FFE4", name: "GETIN",   desc: "Billentyu beolvasasa (nem blokkolO, A=kar/0)" },
+  { addr: "$FFE1", name: "STOP",    desc: "STOP gomb ellenorzese (Z=1 ha lenyomva)" },
+  { addr: "$FFCC", name: "CLRCHN",  desc: "I/O csatornak alaphelyzetbe allitasa" },
+  { addr: "$FFC3", name: "SETLFS",  desc: "Logikai fajl beallitasa (A=LA, X=eszkoz, Y=SA)" },
+  { addr: "$FFBD", name: "SETNAM",  desc: "Fajlnev beallitasa (A=hossz, XY=cim)" },
+  { addr: "$FFD5", name: "LOAD",    desc: "Program betoltese eszkozrol (A=0/1)" },
+  { addr: "$FFD8", name: "SAVE",    desc: "Memoria mentese eszkozre" },
+  { addr: "$FF9F", name: "SCNKEY",  desc: "Billentyuzet pasztazasa (frissiti a puffert)" },
+  { addr: "$FF99", name: "MEMTOP",  desc: "Memoria csucs olvasasa/irasa (XY=cim, C=0 iras)" },
+  { addr: "$FF9C", name: "MEMBOT",  desc: "Memoria aljanak olvasasa/irasa (XY=cim, C=0 iras)" },
+  { addr: "$FFDE", name: "RDTIM",   desc: "Rendszerora beolvasasa (AXY=ido)" },
+  { addr: "$FFDB", name: "SETTIM",  desc: "Rendszerora beallitasa (AXY=ido)" },
+  { addr: "$FF81", name: "CINT",    desc: "Kepernyoszerkeszto inicializalasa" },
+  { addr: "$FF84", name: "IOINIT",  desc: "I/O eszkozok inicializalasa" },
+  { addr: "$FF8A", name: "RESTOR",  desc: "Alapertelmezett I/O vektorok visszaallitasa" },
+  { addr: "$E544", name: "CLRSCR",  desc: "Kepernyotorlese (nem hivatalos KERNAL vektor)" },
+  { addr: "$E50C", name: "PLOT",    desc: "Kurzor pozicio olvasasa/beallitasa (XY=sor/oszlop)" },
+];
+
 const memorySegments = [
   { start: 0x0000, end: 0x00FF, labelKey: "zeroPageLabel", noteKey: "zeroPageNote", kind: "ram" },
   { start: 0x0100, end: 0x01FF, labelKey: "stackLabel", noteKey: "stackNote", kind: "ram" },
@@ -953,6 +975,17 @@ function handleOriginInput() {
 function updateOperandField() {
   const item = getSelectedMnemonic();
   const mode = addressingModes[addressingSelect.value];
+  const datalist = document.getElementById("operand-suggestions");
+
+  // Populate KERNAL suggestions for JSR / JMP
+  if (item && (item.mnemonic === "JSR" || item.mnemonic === "JMP")) {
+    datalist.innerHTML = kernalRoutines
+      .map(r => `<option value="${r.addr}">${r.addr} ${r.name} – ${r.desc}</option>`)
+      .join("");
+  } else {
+    datalist.innerHTML = "";
+  }
+
   if (!item || !mode) {
     operandInput.disabled = true;
     operandInput.placeholder = currentLanguage === "en" ? "Select a mnemonic first" : "Valassz elobb mnemonikot";
