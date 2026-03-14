@@ -162,6 +162,7 @@ const globalMemoryPanel = document.querySelector(".global-memory-panel");
 const aboutButton = document.getElementById("about-btn");
 const aboutDialog = document.getElementById("about-dialog");
 const aboutCloseButton = document.getElementById("about-close");
+const exitAppButton = document.getElementById("exit-app");
 
 let program = [];
 let dragState = null;
@@ -182,6 +183,7 @@ const translations = {
     loadSample: "Betoltes",
     saveProject: "Program mentese",
     loadProject: "Program betoltese",
+    exitApp: "Kilepes",
     themeToggle: "Tema valtasa",
     clearProgram: "Program torlese",
     heroCopy: "Huzz be egy mnemonik blokkot balrol, rendezd oket sorba, es nezd meg a jobb oldalon az assembly nezetet.",
@@ -317,6 +319,7 @@ const translations = {
     loadSample: "Load",
     saveProject: "Save program",
     loadProject: "Load program",
+    exitApp: "Exit",
     themeToggle: "Toggle theme",
     clearProgram: "Clear program",
     heroCopy: "Drag mnemonic blocks in from the left, arrange them in order, and inspect the assembly view on the right.",
@@ -716,11 +719,13 @@ function initPalette() {
   baseInputs.forEach((input) => input.addEventListener("change", handleBaseChange));
   themeToggleButton.addEventListener("click", toggleTheme);
   languageSelect.addEventListener("change", handleLanguageChange);
-  aboutButton?.addEventListener("click", () => {
-    document.getElementById("about-version").textContent = "v1.0.0";
+  aboutButton?.addEventListener("click", async () => {
+    const version = await window.electronAPI.getAppVersion();
+    document.getElementById("about-version").textContent = `v${version}`;
     aboutDialog?.showModal();
   });
   aboutCloseButton?.addEventListener("click", () => aboutDialog?.close());
+  exitAppButton?.addEventListener("click", () => window.electronAPI.quitApp());
   setupOperandDropdown();
   sampleSelect?.addEventListener("change", saveUiSettings);
   loadSampleButton.addEventListener("click", loadSelectedSample);
@@ -857,6 +862,9 @@ function applyTranslations() {
     setText("#copy-asm", t("copyAsm"));
     setText("#save-project", t("saveProject"));
     setText("#load-project", t("loadProject"));
+    setText("#exit-app", t("exitApp"));
+    exitAppButton?.setAttribute("title", t("exitApp"));
+    exitAppButton?.setAttribute("aria-label", t("exitApp"));
     chooseViceButton?.setAttribute("title", t("openEmulator"));
     chooseViceButton?.setAttribute("aria-label", t("openEmulator"));
     copyAsmButton?.setAttribute("title", t("copyAsm"));
