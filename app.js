@@ -1,4 +1,4 @@
-﻿const addressingModes = {
+const addressingModes = {
   implied: {
     label: "Implied",
     needsOperand: false,
@@ -3168,367 +3168,118 @@ function loadTextSampleProgram() {
 }
 
 function loadMacroDemoProgram() {
+  // Hardware smooth horizontal scroll: $D016 bits 2-0 = XSCROLL (7..0 per frame)
+  // Each cycle: border color increments, fine scroll steps 7->6->5->4->3->2->1->0, then resets
   originInput.value = "0801";
+  const b = (category, mnemonic, operand, rawOperand, addressingMode, extra = {}) => ({
+    id: crypto.randomUUID(), category, mnemonic, operand, rawOperand,
+    description: "", addressingMode, base: "hex", validationError: "", ...extra
+  });
+  const lbl = (name) => b("Szerkezet", "LABEL", "", "", "implied", {
+    isLabel: true, labelName: name,
+    description: "Nevvel ellatott cimke a kodban, ugrasi celhoz."
+  });
+  const cmt = (text) => ({
+    id: crypto.randomUUID(), category: "Szerkezet", mnemonic: "COMMENT",
+    operand: text, rawOperand: text,
+    description: "Megjegyzes a programhoz, ami nem general byte-ot.",
+    addressingMode: "implied", base: "comment", validationError: "", collapsed: false, isComment: true
+  });
+
   program = collapseLoadedProgram([
+    cmt("Komplex makro demo – hardware smooth X scroll + color cycling"),
+
+    // ── Setup ──────────────────────────────────────────────────────────
+    b("Rendszer",   "SEI",  "",      "",     "implied"),
+    b("Ugrasok",    "JSR",  "$E544", "E544", "absolute",
+      { description: "Kepernyo torlese (KERNAL CLRSCR)." }),
+
+    // Black background, blue starting border
+    b("Adatmozgas", "LDA",  "#$00",  "00",   "immediate"),
+    b("Adatmozgas", "STA",  "$D021", "D021", "absolute"),
+    b("Adatmozgas", "LDA",  "#$06",  "06",   "immediate"),
+    b("Adatmozgas", "STA",  "$D020", "D020", "absolute"),
+
+    // ── Screen text (TEXT + STRING macros) ────────────────────────────
     {
-      id: crypto.randomUUID(),
-      category: "Rendszer",
-      mnemonic: "SEI",
-      operand: "",
-      rawOperand: "",
-      description: "IRQ megszakitasok tiltasa.",
-      addressingMode: "implied",
-      base: "hex",
-      validationError: ""
+      id: crypto.randomUUID(), category: "Makrok", mnemonic: "TEXT",
+      operand: "** MACRO DEMO **", rawOperand: "** MACRO DEMO **",
+      description: "Szoveg kiirasa a kepernyore.", addressingMode: "implied",
+      base: "text", validationError: "", isTextMacro: true, textX: 12, textY: 1
     },
     {
-      id: crypto.randomUUID(),
-      category: "Szerkezet",
-      mnemonic: "LABEL",
-      operand: "",
-      rawOperand: "",
-      description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.",
-      addressingMode: "implied",
-      base: "hex",
-      validationError: "",
-      isLabel: true,
-      labelName: "loop"
+      id: crypto.randomUUID(), category: "Makrok", mnemonic: "STRING",
+      operand: "HARDWARE SMOOTH SCROLL ON C64",
+      rawOperand: "HARDWARE SMOOTH SCROLL ON C64",
+      description: "Karakterlanc kiirasa egy megadott memoriacimre.",
+      addressingMode: "implied", base: "string", validationError: "",
+      isStringMacro: true, stringAddress: "0450"
     },
     {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "LDA",
-      operand: "#$00",
-      rawOperand: "00",
-      description: "Akkumulator betoltese memoriabol vagy konstansbol.",
-      addressingMode: "immediate",
-      base: "hex",
-      validationError: ""
+      id: crypto.randomUUID(), category: "Makrok", mnemonic: "TEXT",
+      operand: "VISUAL ASSEMBLER DEMO", rawOperand: "VISUAL ASSEMBLER DEMO",
+      description: "Szoveg kiirasa a kepernyore.", addressingMode: "implied",
+      base: "text", validationError: "", isTextMacro: true, textX: 9, textY: 23
     },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "STA",
-      operand: "$D020",
-      rawOperand: "D020",
-      description: "Akkumulator kiirasa memoriacimre.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "STA",
-      operand: "$D021",
-      rawOperand: "D021",
-      description: "Akkumulator kiirasa memoriacimre.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "LDA",
-      operand: "$D020",
-      rawOperand: "D020",
-      description: "Akkumulator betoltese memoriabol vagy konstansbol.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Rendszer",
-      mnemonic: "CLC",
-      operand: "",
-      rawOperand: "",
-      description: "Carry flag torlese.",
-      addressingMode: "implied",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Aritmetika",
-      mnemonic: "ADC",
-      operand: "#$01",
-      rawOperand: "01",
-      description: "Osszeadas carry figyelembevetele mellett.",
-      addressingMode: "immediate",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Logikai",
-      mnemonic: "AND",
-      operand: "#$0F",
-      rawOperand: "0F",
-      description: "Logikai ES muvelet az akkumulatorral.",
-      addressingMode: "immediate",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "STA",
-      operand: "$D020",
-      rawOperand: "D020",
-      description: "Akkumulator kiirasa memoriacimre.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "LDA",
-      operand: "#$08",
-      rawOperand: "08",
-      description: "Akkumulator betoltese memoriabol vagy konstansbol.",
-      addressingMode: "immediate",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "STA",
-      operand: "$D016",
-      rawOperand: "D016",
-      description: "Akkumulator kiirasa memoriacimre.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Ugrasok",
-      mnemonic: "JSR",
-      operand: "delay",
-      rawOperand: "delay",
-      description: "Szubrutin meghivasa.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "LDA",
-      operand: "#$0F",
-      rawOperand: "0F",
-      description: "Akkumulator betoltese memoriabol vagy konstansbol.",
-      addressingMode: "immediate",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "STA",
-      operand: "$D016",
-      rawOperand: "D016",
-      description: "Akkumulator kiirasa memoriacimre.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Ugrasok",
-      mnemonic: "JSR",
-      operand: "delay",
-      rawOperand: "delay",
-      description: "Szubrutin meghivasa.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Ugrasok",
-      mnemonic: "JMP",
-      operand: "loop",
-      rawOperand: "loop",
-      description: "Feltetel nelkuli ugras egy cimre.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Szerkezet",
-      mnemonic: "LABEL",
-      operand: "",
-      rawOperand: "",
-      description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.",
-      addressingMode: "implied",
-      base: "hex",
-      validationError: "",
-      isLabel: true,
-      labelName: "delay"
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Regiszterek",
-      mnemonic: "LDX",
-      operand: "#$50",
-      rawOperand: "50",
-      description: "X regiszter betoltese memoriabol vagy konstansbol.",
-      addressingMode: "immediate",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Szerkezet",
-      mnemonic: "LABEL",
-      operand: "",
-      rawOperand: "",
-      description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.",
-      addressingMode: "implied",
-      base: "hex",
-      validationError: "",
-      isLabel: true,
-      labelName: "delay_outer"
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Regiszterek",
-      mnemonic: "LDY",
-      operand: "#$FF",
-      rawOperand: "FF",
-      description: "Y regiszter betoltese memoriabol vagy konstansbol.",
-      addressingMode: "immediate",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Szerkezet",
-      mnemonic: "LABEL",
-      operand: "",
-      rawOperand: "",
-      description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.",
-      addressingMode: "implied",
-      base: "hex",
-      validationError: "",
-      isLabel: true,
-      labelName: "delay_inner"
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Regiszterek",
-      mnemonic: "DEY",
-      operand: "",
-      rawOperand: "",
-      description: "Y regiszter csokkentese.",
-      addressingMode: "implied",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Ugrasok",
-      mnemonic: "BNE",
-      operand: "delay_inner",
-      rawOperand: "delay_inner",
-      description: "Ugras, ha az elozo eredmeny nem nulla.",
-      addressingMode: "relative",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Regiszterek",
-      mnemonic: "DEX",
-      operand: "",
-      rawOperand: "",
-      description: "X regiszter csokkentese.",
-      addressingMode: "implied",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Ugrasok",
-      mnemonic: "BNE",
-      operand: "delay_outer",
-      rawOperand: "delay_outer",
-      description: "Ugras, ha az elozo eredmeny nem nulla.",
-      addressingMode: "relative",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Ugrasok",
-      mnemonic: "RTS",
-      operand: "",
-      rawOperand: "",
-      description: "Visszateres szubrutinbol.",
-      addressingMode: "implied",
-      base: "hex",
-      validationError: ""
-    },
-      {
-        id: crypto.randomUUID(),
-        category: "Makrok",
-        mnemonic: "TEXT",
-        operand: "SCROLL DEMO",
-        rawOperand: "SCROLL DEMO",
-        description: "Szoveg kiirasa a kepernyore KERNAL CHROUT rutinon keresztul.",
-        addressingMode: "implied",
-        base: "text",
-        validationError: "",
-        isTextMacro: true,
-        textX: 14,
-        textY: 3
-      },
-      {
-        id: crypto.randomUUID(),
-        category: "Makrok",
-        mnemonic: "STRING",
-        operand: "BYTE STRING TEXT LABEL SCROLLER",
-        rawOperand: "BYTE STRING TEXT LABEL SCROLLER",
-        description: "Karakterlanc kiirasa egy megadott memoriacimre.",
-        addressingMode: "implied",
-        base: "string",
-        validationError: "",
-        isStringMacro: true,
-        stringAddress: "0418"
-      },
-      {
-        id: crypto.randomUUID(),
-        category: "Makrok",
-        mnemonic: "TEXT",
-        operand: "SMOOTH SCROLL FUT A LOOPBAN",
-        rawOperand: "SMOOTH SCROLL FUT A LOOPBAN",
-        description: "Szoveg kiirasa a kepernyore KERNAL CHROUT rutinon keresztul.",
-        addressingMode: "implied",
-        base: "text",
-        validationError: "",
-        isTextMacro: true,
-        textX: 5,
-        textY: 8
-      },
-      {
-        id: crypto.randomUUID(),
-        category: "Makrok",
-        mnemonic: "BYTE",
-        operand: "$53,$43,$52,$4F,$4C,$4C,$20,$44,$41,$54,$41,$00",
-        rawOperand: "$53,$43,$52,$4F,$4C,$4C,$20,$44,$41,$54,$41,$00",
-        description: "Tetszoleges byte tomb beillesztese vesszovel elvalasztva.",
-        addressingMode: "implied",
-        base: "bytes",
-        validationError: "",
-        isByteMacro: true
-      }
-    ]);
+
+    // ── Main loop ─────────────────────────────────────────────────────
+    cmt("Foprogram: szin-ciklus + hardware fine scroll 7->0"),
+    lbl("main_loop"),
+
+    cmt("Fine scroll: Y = 7..0, TYA -> ORA #$08 (CSEL) -> $D016"),
+    b("Adatmozgas", "LDY",  "#$07",  "07",   "immediate"),
+    lbl("scroll_step"),
+
+    // Set $D016: scroll = Y | $08 (CSEL bit = 40-col mode)
+    b("Regiszterek", "TYA",  "",      "",     "implied"),
+    b("Logika",      "ORA",  "#$08",  "08",   "immediate"),
+    b("Adatmozgas",  "STA",  "$D016", "D016", "absolute"),
+
+    // Cycle border color (+1 mod 16)
+    b("Adatmozgas", "LDA",  "$D020", "D020", "absolute"),
+    b("Rendszer",   "CLC",  "",      "",     "implied"),
+    b("Aritmetika", "ADC",  "#$01",  "01",   "immediate"),
+    b("Logika",     "AND",  "#$0F",  "0F",   "immediate"),
+    b("Adatmozgas", "STA",  "$D020", "D020", "absolute"),
+
+    // Frame delay + decrement scroll counter
+    b("Ugrasok",     "JSR",  "fdelay", "fdelay", "absolute"),
+    b("Regiszterek", "DEY",  "",       "",        "implied"),
+    b("Ugrasok",     "BPL",  "scroll_step", "scroll_step", "relative"),
+
+    // Reset scroll to 7 (clean snap)
+    cmt("Scroll visszaallitasa 7-re, hosszu szunet"),
+    b("Adatmozgas", "LDA",  "#$0F",  "0F",   "immediate"),
+    b("Adatmozgas", "STA",  "$D016", "D016", "absolute"),
+    b("Ugrasok",    "JSR",  "ldelay", "ldelay", "absolute"),
+    b("Ugrasok",    "JMP",  "main_loop", "main_loop", "absolute"),
+
+    // ── Short frame delay (~1/50s) ────────────────────────────────────
+    cmt("fdelay: rovid keseleltetese (~1 frame, 50Hz)"),
+    lbl("fdelay"),
+    b("Adatmozgas",  "LDX",  "#$04",  "04",   "immediate"),
+    lbl("fdelay_o"),
+    b("Adatmozgas",  "LDY",  "#$FF",  "FF",   "immediate"),
+    lbl("fdelay_i"),
+    b("Regiszterek", "DEY",  "",      "",     "implied"),
+    b("Ugrasok",     "BNE",  "fdelay_i", "fdelay_i", "relative"),
+    b("Regiszterek", "DEX",  "",      "",     "implied"),
+    b("Ugrasok",     "BNE",  "fdelay_o", "fdelay_o", "relative"),
+    b("Ugrasok",     "RTS",  "",      "",     "implied"),
+
+    // ── Long pause delay ──────────────────────────────────────────────
+    cmt("ldelay: hosszu szunet a ket scroll-ciklus kozott"),
+    lbl("ldelay"),
+    b("Adatmozgas",  "LDX",  "#$20",  "20",   "immediate"),
+    lbl("ldelay_o"),
+    b("Adatmozgas",  "LDY",  "#$FF",  "FF",   "immediate"),
+    lbl("ldelay_i"),
+    b("Regiszterek", "DEY",  "",      "",     "implied"),
+    b("Ugrasok",     "BNE",  "ldelay_i", "ldelay_i", "relative"),
+    b("Regiszterek", "DEX",  "",      "",     "implied"),
+    b("Ugrasok",     "BNE",  "ldelay_o", "ldelay_o", "relative"),
+    b("Ugrasok",     "RTS",  "",      "",     "implied"),
+  ]);
   renderOriginPreview();
   renderEmulatorRunHint();
   renderProgram();
