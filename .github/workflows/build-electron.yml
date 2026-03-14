@@ -50,11 +50,15 @@ jobs:
       # macOS build - explicit arch
       - name: Build (macOS x64)
         if: runner.os == 'macOS' && matrix.arch == 'x64'
-        run: npx electron-builder --mac --x64
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --mac --x64 --publish never
 
       - name: Build (macOS arm64)
         if: runner.os == 'macOS' && matrix.arch == 'arm64'
-        run: npx electron-builder --mac --arm64
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --mac --arm64 --publish never
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
