@@ -538,6 +538,9 @@ body[data-theme="dark"] .primary {
   font-size: 0.82rem;
   line-height: 1.4;
   color: var(--muted);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 .menu-note-strong code {
@@ -1568,6 +1571,27 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
 .vice-config-card input[readonly] {
   opacity: 0.95;
   cursor: default;
+}
+
+#choose-vice {
+  width: 100%;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menu-field {
+  max-width: 100%;
+}
+
+#vice-path {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
 }
 
 .emulator-run-hint {

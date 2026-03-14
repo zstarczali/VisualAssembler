@@ -52,10 +52,12 @@ ipcMain.handle("vice:get-config", async () => {
 });
 
 ipcMain.handle("vice:choose-executable", async () => {
+  const isMac = process.platform === "darwin";
+  
   const result = await dialog.showOpenDialog({
     title: "Valaszd ki a VICE executable fajlt",
     properties: ["openFile"],
-    filters: [
+    filters: isMac ? [] : [
       { name: "Executable", extensions: ["exe"] }
     ]
   });
@@ -76,7 +78,7 @@ ipcMain.handle("vice:choose-executable", async () => {
 
 ipcMain.handle("vice:launch", async (_event, payload) => {
   const config = readConfig();
-  const vicePath = config.vicePath || detectViceExecutable();
+  let vicePath = config.vicePath || detectViceExecutable();
 
   if (!vicePath || !fs.existsSync(vicePath)) {
     return {
@@ -92,10 +94,28 @@ ipcMain.handle("vice:launch", async (_event, payload) => {
   fs.writeFileSync(filePath, Buffer.from(payload.bytes));
 
   try {
-    const child = spawn(vicePath, [filePath], {
-      detached: true,
-      stdio: "ignore"
-    });
+    let child;
+    
+    if (process.platform === "darwin") {
+      // Mac: use 'open' with the .app bundle to properly launch VICE with the file
+      const appPath = vicePath.endsWith(".app") 
+        ? vicePath 
+        : vicePath.includes("/Contents/MacOS/") 
+          ? vicePath.split("/Contents/MacOS/")[0] + ".app"
+          : vicePath;
+      
+      child = spawn("open", ["-a", appPath, filePath], {
+        detached: true,
+        stdio: "ignore"
+      });
+    } else {
+      // Windows: direct launch with file argument
+      child = spawn(vicePath, [filePath], {
+        detached: true,
+        stdio: "ignore"
+      });
+    }
+    
     child.unref();
 
     return {
@@ -189,7 +209,7 @@ function createMainWindow() {
 }
 
 app.whenReady().then(() => {
-  Menu.setApplicationMenu(null);
+  Menu.setApplicationMenu(Menu.buildFromTemplate([]));
   createMainWindow();
 
   app.on("activate", () => {

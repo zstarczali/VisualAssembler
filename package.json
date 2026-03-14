@@ -33,7 +33,8 @@
       "target": [
         "dmg"
       ],
-      "icon": "build/commodore64.icns"
+      "icon": "build/commodore64.icns",
+      "identity": null
     },
     "dmg": {
       "sign": false
