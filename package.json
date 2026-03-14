@@ -32,7 +32,8 @@
     "mac": {
       "target": [
         "dmg"
-      ]
+      ],
+      "icon": "build/commodore64.icns"
     },
     "dmg": {
       "sign": false
