@@ -1,0 +1,59 @@
+name: Build (Windows + macOS DMG)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }} (${{ matrix.arch }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            arch: x64
+          - os: macos-13
+            arch: x64
+          - os: macos-14
+            arch: arm64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: Build (Windows NSIS)
+        if: runner.os == 'Windows'
+        run: npx electron-builder --win nsis
+
+      - name: Build (macOS DMG x64)
+        if: runner.os == 'macOS' && matrix.arch == 'x64'
+        run: npx electron-builder --mac dmg --x64
+
+      - name: Build (macOS DMG arm64)
+        if: runner.os == 'macOS' && matrix.arch == 'arm64'
+        run: npx electron-builder --mac dmg --arm64
+
+      - name: Upload dist artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }}-${{ matrix.arch }}-dist
+          path: dist/**
+          if-no-files-found: error
