@@ -1056,6 +1056,10 @@ function setupOperandDropdown() {
 function updateOperandField() {
   const item = getSelectedMnemonic();
   const mode = addressingModes[addressingSelect.value];
+  const addressingField = document.getElementById("addressing-field");
+
+  // Hide addressing mode selector for COMMENT
+  if (addressingField) addressingField.hidden = !!(item?.isComment);
 
   // Populate KERNAL suggestions for JSR / JMP
   if (item && (item.mnemonic === "JSR" || item.mnemonic === "JMP")) {
@@ -2670,7 +2674,10 @@ function getCollapsedOperandText(block) {
   }
 
   if (block.isByteMacro) {
-    return block.rawOperand || "";
+    if (!block.rawOperand) return "";
+    const parts = block.rawOperand.split(",").map(s => s.trim()).filter(Boolean);
+    if (parts.length <= 6) return block.rawOperand;
+    return parts.slice(0, 6).join(", ") + " \u2026";
   }
 
   if (block.isStringMacro) {
@@ -2987,72 +2994,53 @@ function renderAsmOutput() {
 
 function renderMonitorOutput(layout = getProgramLayout()) {
   if (!program.length) {
-    monitorOutput.textContent = `${formatAddress(layout.origin.value)}  ; ${currentLanguage === "en" ? "The monitor view will appear here" : "Itt fog megjelenni a monitor nezet"}`;
+    monitorOutput.textContent = `>${formatAddress(layout.origin.value)}`;
     return;
   }
 
-  const rows = [];
-  const deferredSections = getDeferredMemorySections(layout);
+  // Build a flat memory map: address → byte
+  const memMap = new Map();
   const labels = new Map();
+  const deferredSections = getDeferredMemorySections(layout);
+
   layout.lines.forEach((line) => {
     if (line.block.isLabel) {
       labels.set(line.block.labelName, line.address);
     }
   });
 
-    for (const line of layout.lines) {
-      if (line.block.isLabel) {
-        rows.push(`${formatAddress(line.address)}          ${line.block.labelName}:`);
-        continue;
-      }
+  for (const line of layout.lines) {
+    if (line.block.isLabel || line.block.isComment) continue;
+    const compiled = compileLineBytes(line, labels);
+    if (!compiled.ok) continue;
+    compiled.bytes.forEach((byte, i) => memMap.set(line.address + i, byte));
+  }
 
-      if (line.block.isComment) {
-        rows.push(`${formatAddress(line.address)}          ; ${line.block.rawOperand || ""}`);
-        continue;
-      }
+  deferredSections.forEach((section) => {
+    section.bytes.forEach((byte, i) => memMap.set(section.address + i, byte));
+  });
 
-      if (line.block.isTextMacro) {
-        const section = deferredSections.find((entry) => entry.sourceAddress === line.address && entry.type === "text");
-        rows.push(`${formatAddress(line.address)}  ..       ; ${section ? `${section.label}, ${t("dataBelow")}: ${formatAddress(section.address)}` : t("textDataBelow")}`);
-        continue;
-      }
+  if (!memMap.size) {
+    monitorOutput.textContent = `>${formatAddress(layout.origin.value)}`;
+    return;
+  }
 
-      if (line.block.isStringMacro) {
-        const section = deferredSections.find((entry) => entry.sourceAddress === line.address && entry.type === "string");
-        rows.push(`${formatAddress(line.address)}  ..       ; ${section ? `${section.label}, ${t("dataBelow")}: ${formatAddress(section.address)}` : t("stringDataBelow")}`);
-        continue;
-      }
+  // Find address range
+  const allAddresses = [...memMap.keys()].sort((a, b) => a - b);
+  const startAddr = allAddresses[0] & ~0xF; // align to 16-byte boundary
+  const endAddr = allAddresses[allAddresses.length - 1];
 
-      const compiled = compileLineBytes(line, labels);
-      if (!compiled.ok) {
-        rows.push(`${formatAddress(line.address)}  ??       ; ${compiled.error}`);
-        continue;
+  const rows = [];
+  for (let addr = startAddr; addr <= endAddr; addr += 16) {
+    const bytes = [];
+    for (let i = 0; i < 16; i++) {
+      const b = memMap.get(addr + i);
+      bytes.push(b !== undefined ? b.toString(16).toUpperCase().padStart(2, "0") : "..");
     }
+    rows.push(`>${formatAddress(addr)}  ${bytes.join(" ")}`);
+  }
 
-    const chunks = chunkBytes(compiled.bytes, 16);
-    chunks.forEach((chunk, chunkIndex) => {
-      const chunkAddress = line.address + (chunkIndex * 16);
-      const byteText = chunk.map((byte) => byte.toString(16).toUpperCase().padStart(2, "0")).join(" ");
-      const comment = chunkIndex === 0 ? compiled.comment : "";
-      rows.push(`${formatAddress(chunkAddress)}  ${byteText.padEnd(47, " ")}${comment ? ` ; ${comment}` : ""}`);
-      });
-    }
-
-    if (deferredSections.length) {
-      rows.push("");
-      rows.push(`; ${t("remoteMemoryData").toUpperCase()}`);
-      deferredSections.forEach((section) => {
-        const chunks = chunkBytes(section.bytes, 16);
-        chunks.forEach((chunk, chunkIndex) => {
-          const chunkAddress = section.address + (chunkIndex * 16);
-          const byteText = chunk.map((byte) => byte.toString(16).toUpperCase().padStart(2, "0")).join(" ");
-          const comment = chunkIndex === 0 ? section.label : "";
-          rows.push(`${formatAddress(chunkAddress)}  ${byteText.padEnd(47, " ")}${comment ? ` ; ${comment}` : ""}`);
-        });
-      });
-    }
-
-    monitorOutput.textContent = rows.join("\n");
+  monitorOutput.textContent = rows.join("\n");
 }
 
 function chunkBytes(bytes, size) {
@@ -3401,9 +3389,9 @@ function loadMacroDemoProgram() {
     b("Ugrasok",    "JMP",   "main_loop","main_loop","absolute"),
 
     // ── Frame delay subroutine ────────────────────────────────────────
-    cmt("fdelay: ~1 frame kesleltetese (LDX #$06, dupla DEY/DEX ciklus)"),
+    cmt("fdelay: kesleltetese (LDX #$18, dupla DEY/DEX ciklus)"),
     lbl("fdelay"),
-    b("Regiszterek","LDX",   "#$06",  "06",    "immediate"),
+    b("Regiszterek","LDX",   "#$18",  "18",    "immediate"),
     lbl("fdelay_o"),
     b("Regiszterek","LDY",   "#$FF",  "FF",    "immediate"),
     lbl("fdelay_i"),
