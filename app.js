@@ -160,6 +160,8 @@ const blockTemplate = document.getElementById("block-template");
 const paletteItemTemplate = document.getElementById("palette-item-template");
 const globalMemoryPanel = document.querySelector(".global-memory-panel");
 const aboutButton = document.getElementById("about-btn");
+const checkUpdateButton = document.getElementById("check-update-btn");
+const basicSysToggle = document.getElementById("basic-sys-toggle");
 const aboutDialog = document.getElementById("about-dialog");
 const aboutCloseButton = document.getElementById("about-close");
 const exitAppButton = document.getElementById("exit-app");
@@ -228,6 +230,8 @@ const translations = {
     sampleMacro: "Komplex makro pelda",
     sampleSprite: "Sprite mozgatas pelda",
     languageLabel: "Nyelv",
+    checkForUpdate: "Frissites keresese",
+    basicSysLabel: "BASIC SYS stub generálása",
     collapseAll: "Osszes osszecsukasa",
     expandAll: "Osszes kinyitasa",
     collapse: "Osszecsukas",
@@ -364,6 +368,8 @@ const translations = {
     sampleMacro: "Complex macro example",
     sampleSprite: "Sprite movement example",
     languageLabel: "Language",
+    checkForUpdate: "Check for Update",
+    basicSysLabel: "Generate BASIC SYS stub",
     collapseAll: "Collapse all",
     expandAll: "Expand all",
     collapse: "Collapse",
@@ -476,7 +482,8 @@ function saveUiSettings() {
     origin: originInput?.value || "",
     zoom: blockScale,
     sample: sampleSelect?.value || "basic-colors",
-    memoryPanelOpen: !!globalMemoryPanel?.open
+    memoryPanelOpen: !!globalMemoryPanel?.open,
+    basicSys: basicSysToggle ? basicSysToggle.checked : true
   };
 
   localStorage.setItem("c64-ui-settings", JSON.stringify(settings));
@@ -724,6 +731,14 @@ function initPalette() {
     document.getElementById("about-version").textContent = `v${version}`;
     aboutDialog?.showModal();
   });
+  checkUpdateButton?.addEventListener("click", () => {
+    window.electronAPI.openExternal("https://zstarczali.itch.io/visual-assembler-commodore-64");
+  });
+  basicSysToggle?.addEventListener("change", () => {
+    saveUiSettings();
+    renderEmulatorRunHint();
+    renderOriginPreview();
+  });
   aboutCloseButton?.addEventListener("click", () => aboutDialog?.close());
   exitAppButton?.addEventListener("click", () => window.electronAPI.quitApp());
   setupOperandDropdown();
@@ -801,6 +816,10 @@ function applySavedUiSettings() {
   if (globalMemoryPanel) {
     globalMemoryPanel.open = !!savedUiSettings.memoryPanelOpen;
   }
+
+  if (basicSysToggle) {
+    basicSysToggle.checked = savedUiSettings.basicSys !== false;
+  }
 }
 
 function handleLanguageChange() {
@@ -843,6 +862,9 @@ function applyTranslations() {
     if (menuLabels[2]) menuLabels[2].textContent = t("menuSettings");
     if (menuLabels[3]) menuLabels[3].textContent = t("menuView");
     if (menuLabels[4]) menuLabels[4].textContent = t("menuProgram");
+  if (checkUpdateButton) checkUpdateButton.textContent = t("checkForUpdate");
+  const basicSysLabelEl = document.getElementById("basic-sys-label");
+  if (basicSysLabelEl) basicSysLabelEl.textContent = t("basicSysLabel");
 
   document.querySelector('label[for="category-select"]');
   setText(".palette-panel .field:nth-of-type(1) span", t("fieldCategory"));
@@ -904,7 +926,8 @@ function applyTranslations() {
     themeToggleButton.setAttribute("title", document.body.dataset.theme === "dark" ? t("lightMode") : t("darkMode"));
     const srOnlyLabels = document.querySelectorAll("label.sample-picker .sr-only");
   if (srOnlyLabels[0]) srOnlyLabels[0].textContent = t("sampleSrOnly");
-  if (srOnlyLabels[1]) srOnlyLabels[1].textContent = t("languageSrOnly");
+  const languageLabelEl = document.getElementById("language-label");
+  if (languageLabelEl) languageLabelEl.textContent = t("languageLabel");
 
   const sampleOptions = sampleSelect.options;
   if (sampleOptions[0]) sampleOptions[0].textContent = t("sampleBasic");
@@ -2024,6 +2047,12 @@ async function runInEmulator() {
 }
 
 function buildAutostartPrgForEmulator() {
+  const useBasicSys = basicSysToggle ? basicSysToggle.checked : true;
+
+  if (!useBasicSys) {
+    return assembleProgramToPrg();
+  }
+
   const sysAddress = 0x080D;
   const codePrg = assembleProgramToPrg(sysAddress);
   if (!codePrg.ok) {
@@ -2263,10 +2292,11 @@ function parseOriginValue() {
 
 function renderOriginPreview() {
   const origin = parseOriginValue();
-  originPreview.innerHTML = `
-    <strong>*= ${origin.text}</strong>
-    ${origin.error ? `<small class="error-text">${origin.error}</small>` : `<small>${origin.value} dec | ${origin.text} hex</small>`}
-  `;
+  const useBasicSys = basicSysToggle ? basicSysToggle.checked : true;
+  const effectiveNote = useBasicSys && !origin.error
+    ? `<small>${currentLanguage === "en" ? "Code placed at $080D (after BASIC stub)" : "Kód elhelyezése: $080D (BASIC stub után)"}</small>`
+    : (origin.error ? `<small class="error-text">${origin.error}</small>` : `<small>${origin.value} dec | ${origin.text} hex</small>`);
+  originPreview.innerHTML = `<strong>*= ${origin.text}</strong> ${effectiveNote}`;
 }
 
 function renderEmulatorRunHint() {
@@ -2274,15 +2304,27 @@ function renderEmulatorRunHint() {
     return;
   }
 
+  const useBasicSys = basicSysToggle ? basicSysToggle.checked : true;
   const origin = parseOriginValue();
-  const runAddress = origin.value;
-  emulatorRunHint.innerHTML = origin.error
-    ? (currentLanguage === "en"
+
+  if (!useBasicSys) {
+    emulatorRunHint.innerHTML = currentLanguage === "en"
+      ? `<strong>Run hint:</strong> BASIC SYS stub disabled — load and run manually via ML monitor.`
+      : `<strong>Futtatas tipp:</strong> BASIC SYS stub kikapcsolva — ML monitorból toltsd be es inditsd el.`;
+    return;
+  }
+
+  if (origin.error) {
+    emulatorRunHint.innerHTML = currentLanguage === "en"
       ? `<strong>Run hint:</strong> fix the start address so we can show a valid ` + "`SYS`" + ` entry point.`
-      : `<strong>Futtatas tipp:</strong> javitsd a kezdocimet, hogy helyes ` + "`SYS`" + ` cimet tudjunk mutatni.`)
-    : (currentLanguage === "en"
-      ? `<strong>Run hint:</strong> if you want to start it manually in the emulator, use: <code>SYS ${runAddress}</code> <span>(${formatAddress(runAddress)})</span>`
-      : `<strong>Futtatas tipp:</strong> ha az emulatorban kezzel inditanad, hasznald ezt: <code>SYS ${runAddress}</code> <span>(${formatAddress(runAddress)})</span>`);
+      : `<strong>Futtatas tipp:</strong> javitsd a kezdocimet, hogy helyes ` + "`SYS`" + ` cimet tudjunk mutatni.`;
+    return;
+  }
+
+  const runAddress = 0x080D;
+  emulatorRunHint.innerHTML = currentLanguage === "en"
+    ? `<strong>Run hint:</strong> if you want to start it manually in the emulator, use: <code>SYS ${runAddress}</code> <span>(${formatAddress(runAddress)})</span>`
+    : `<strong>Futtatas tipp:</strong> ha az emulatorban kezzel inditanad, hasznald ezt: <code>SYS ${runAddress}</code> <span>(${formatAddress(runAddress)})</span>`;
 }
 
 function formatAddress(value) {
