@@ -370,19 +370,21 @@ body[data-theme="dark"] .primary {
   background: var(--panel);
   border: 1px solid var(--panel-border);
   border-radius: var(--radius);
-  padding: 16px;
   box-shadow: var(--shadow);
   backdrop-filter: blur(10px);
-}
-
-.palette-panel,
-.program-panel,
-.output-panel {
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   max-height: var(--editor-max-depth);
+}
+
+.panel-scroll {
+  flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--secondary) 45%, transparent) transparent;
 }
@@ -395,30 +397,22 @@ body[data-theme="dark"] .primary {
   align-items: stretch;
 }
 
-.palette-panel::-webkit-scrollbar,
-.program-panel::-webkit-scrollbar,
-.output-panel::-webkit-scrollbar {
+.panel-scroll::-webkit-scrollbar {
   width: 10px;
 }
 
-.palette-panel::-webkit-scrollbar-track,
-.program-panel::-webkit-scrollbar-track,
-.output-panel::-webkit-scrollbar-track {
+.panel-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.palette-panel::-webkit-scrollbar-thumb,
-.program-panel::-webkit-scrollbar-thumb,
-.output-panel::-webkit-scrollbar-thumb {
+.panel-scroll::-webkit-scrollbar-thumb {
   border-radius: 999px;
   background: color-mix(in srgb, var(--secondary) 42%, transparent);
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 
-.palette-panel::-webkit-scrollbar-thumb:hover,
-.program-panel::-webkit-scrollbar-thumb:hover,
-.output-panel::-webkit-scrollbar-thumb:hover {
+.panel-scroll::-webkit-scrollbar-thumb:hover {
   background: color-mix(in srgb, var(--secondary) 62%, transparent);
   background-clip: padding-box;
 }
@@ -725,6 +719,7 @@ button:focus-visible,
 
 .mnemonic-card::-webkit-scrollbar-track {
   background: transparent;
+  margin: 18px 0;
 }
 
 .mnemonic-card::-webkit-scrollbar-thumb {

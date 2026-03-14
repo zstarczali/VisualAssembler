@@ -93,6 +93,7 @@
 
     <main class="workspace">
         <aside class="palette-panel">
+          <div class="panel-scroll">
           <div class="panel-heading">
             <h2>Mnemonik menu</h2>
             <p>Valassz kategoriat, majd huzd at a blokkot a programlistaba.</p>
@@ -139,9 +140,11 @@
 
           <div id="mnemonic-description" class="mnemonic-card"></div>
           <div id="palette-list" class="palette-list" aria-label="Huzhato blokklista"></div>
+          </div>
         </aside>
 
         <section class="program-panel">
+          <div class="panel-scroll">
           <div class="panel-heading">
             <div class="panel-heading-row">
               <h2>Program blokkok</h2>
@@ -153,9 +156,11 @@
             <p>Ide ejtsd a bal oldali blokkot, vagy rendezd at a mar bent levo sorokat.</p>
           </div>
           <div id="program-list" class="program-list" aria-live="polite"></div>
+          </div>
         </section>
 
         <section class="output-panel">
+          <div class="panel-scroll">
           <div class="panel-heading">
             <h2>ASM nezet</h2>
             <p>Az osszerakott szoveges kod innen indulhat tovabb export fele.</p>
@@ -186,6 +191,7 @@
           <div id="output-stack" class="output-stack">
             <pre id="asm-output" class="asm-output"></pre>
             <pre id="monitor-output" class="asm-output monitor-output"></pre>
+          </div>
           </div>
         </section>
     </main>
