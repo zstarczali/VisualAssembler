@@ -114,7 +114,23 @@ const mnemonicLibrary = {
     { mnemonic: "TEXT", description: "Szoveg kiirasa a kepernyore KERNAL CHROUT rutinon keresztul.", modes: ["implied"], isTextMacro: true },
     { mnemonic: "BYTE", description: "Tetszoleges byte tomb beillesztese vesszovel elvalasztva.", modes: ["implied"], isByteMacro: true },
     { mnemonic: "STRING", description: "Karakterlanc kiirasa egy megadott memoriacimre.", modes: ["implied"], isStringMacro: true },
-    { mnemonic: "DATA", description: "Nyers byte-ok kiirasa egy megadott memoriacimre.", modes: ["implied"], isDataMacro: true }
+    { mnemonic: "DATA", description: "Nyers byte-ok kiirasa egy megadott memoriacimre.", modes: ["implied"], isDataMacro: true },
+    { mnemonic: "RAWBYTES", description: "Nyers byte-ok elhelyezese egy megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isRawBytesMacro: true },
+    { mnemonic: "RAWTEXT", description: "Szoveg elhelyezese PETSCII byte-kenkent egy megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isRawTextMacro: true }
+  ],
+  Illegalis: [
+    { mnemonic: "LAX", description: "A es X regiszter egyideju betoltese (illegalis: LDA+LDX kombinacio).", modes: ["immediate", "zeroPage", "absolute"] },
+    { mnemonic: "SAX", description: "A es X regiszter AND ertekenek kiirasa memoriacimre (illegalis).", modes: ["zeroPage", "absolute"] },
+    { mnemonic: "DCP", description: "Memoria dekrementum majd osszehasonlitas az akkumulatorral (illegalis: DEC+CMP).", modes: ["zeroPage", "absolute", "absoluteX"] },
+    { mnemonic: "ISC", description: "Memoria inkrementum majd kivonas az akkumulatorbol (illegalis: INC+SBC).", modes: ["zeroPage", "absolute", "absoluteX"] },
+    { mnemonic: "SLO", description: "Memoria balra tolas majd logikai VAGY az akkumulatorral (illegalis: ASL+ORA).", modes: ["zeroPage", "absolute", "absoluteX"] },
+    { mnemonic: "RLA", description: "Memoria balra forgatas majd logikai ES az akkumulatorral (illegalis: ROL+AND).", modes: ["zeroPage", "absolute", "absoluteX"] },
+    { mnemonic: "SRE", description: "Memoria jobbra tolas majd kizaro VAGY az akkumulatorral (illegalis: LSR+EOR).", modes: ["zeroPage", "absolute", "absoluteX"] },
+    { mnemonic: "RRA", description: "Memoria jobbra forgatas majd osszeadas carry-vel (illegalis: ROR+ADC).", modes: ["zeroPage", "absolute", "absoluteX"] },
+    { mnemonic: "ANC", description: "AND azonnali ertekkel, carry beallitasa a 7. bitbol (illegalis).", modes: ["immediate"] },
+    { mnemonic: "ALR", description: "AND majd jobbra tolas egy lepesben (illegalis: AND+LSR).", modes: ["immediate"] },
+    { mnemonic: "ARR", description: "AND majd jobbra forgatas egy lepesben (illegalis: AND+ROR).", modes: ["immediate"] },
+    { mnemonic: "AXS", description: "A es X AND ertekebol azonnali kivonas, eredmeny X-be (illegalis: SBX).", modes: ["immediate"] }
   ],
   Szerkezet: [
     { mnemonic: "LABEL", description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.", modes: ["implied"], isLabel: true },
@@ -161,10 +177,13 @@ const blockTemplate = document.getElementById("block-template");
 const paletteItemTemplate = document.getElementById("palette-item-template");
 const globalMemoryPanel = document.querySelector(".global-memory-panel");
 const aboutButton = document.getElementById("about-btn");
+const whatsNewButton = document.getElementById("whats-new-btn");
 const checkUpdateButton = document.getElementById("check-update-btn");
 const basicSysToggle = document.getElementById("basic-sys-toggle");
 const aboutDialog = document.getElementById("about-dialog");
 const aboutCloseButton = document.getElementById("about-close");
+const whatsNewDialog = document.getElementById("whats-new-dialog");
+const whatsNewCloseButton = document.getElementById("whats-new-close");
 const exitAppButton = document.getElementById("exit-app");
 
 let program = [];
@@ -232,6 +251,7 @@ const translations = {
     sampleSprite: "Sprite mozgatas pelda",
     languageLabel: "Nyelv",
     checkForUpdate: "Frissites keresese",
+    whatsNew: "Ujdonsagok",
     basicSysLabel: "BASIC SYS stub generálása",
     collapseAll: "Osszes osszecsukasa",
     expandAll: "Osszes kinyitasa",
@@ -253,6 +273,8 @@ const translations = {
     textDataBelow: "TEXT adat lent",
     stringDataBelow: "STRING adat lent",
     dataDataBelow: "DATA adat lent",
+    rawBytesDataBelow: "RAWBYTES adat lent",
+    rawTextDataBelow: "RAWTEXT adat lent",
     compileInvalidOperand: "Nem lehet forditani: hibas operandus a(z) {mnemonic} sorban.",
     compileUnsupportedMode: "A(z) {mnemonic} {mode} modhoz meg nincs forditasi tamogatas.",
     branchLabelTooFar: "A(z) {label} label tul messze van a(z) {mnemonic} branch-hez.",
@@ -312,6 +334,7 @@ const translations = {
       Stack: "Stack",
       Rendszer: "Rendszer",
       Makrok: "Makrok",
+      Illegalis: "Illegalis opkodok",
       Szerkezet: "Szerkezet"
     }
   },
@@ -371,6 +394,7 @@ const translations = {
     sampleSprite: "Sprite movement example",
     languageLabel: "Language",
     checkForUpdate: "Check for Update",
+    whatsNew: "What's New",
     basicSysLabel: "Generate BASIC SYS stub",
     collapseAll: "Collapse all",
     expandAll: "Expand all",
@@ -392,6 +416,8 @@ const translations = {
     textDataBelow: "TEXT data below",
     stringDataBelow: "STRING data below",
     dataDataBelow: "DATA data below",
+    rawBytesDataBelow: "RAWBYTES data below",
+    rawTextDataBelow: "RAWTEXT data below",
     compileInvalidOperand: "Cannot compile: invalid operand on the {mnemonic} line.",
     compileUnsupportedMode: "{mnemonic} {mode} is not wired to the compiler yet.",
     branchLabelTooFar: "Label {label} is too far for the {mnemonic} branch.",
@@ -451,6 +477,7 @@ const translations = {
       Stack: "Stack",
       Rendszer: "System",
       Makrok: "Macros",
+      Illegalis: "Illegal opcodes",
       Szerkezet: "Structure"
     }
   }
@@ -592,6 +619,21 @@ const mnemonicDescriptionsEn = {
   TEXT: "Write text to the screen.",
   BYTE: "Insert an arbitrary comma-separated byte array.",
   STRING: "Write a string to a given memory address.",
+  DATA: "Write raw bytes to a given memory address via LDA/STA code.",
+  RAWBYTES: "Place raw bytes at a given memory address without generating any runtime code.",
+  RAWTEXT: "Place text as PETSCII bytes at a given memory address without generating any runtime code.",
+  LAX: "Load both A and X from the same address simultaneously (illegal: LDA+LDX).",
+  SAX: "Store A AND X to a memory address (illegal).",
+  DCP: "Decrement memory then compare with accumulator (illegal: DEC+CMP).",
+  ISC: "Increment memory then subtract from accumulator (illegal: INC+SBC).",
+  SLO: "Shift memory left then OR with accumulator (illegal: ASL+ORA).",
+  RLA: "Rotate memory left then AND with accumulator (illegal: ROL+AND).",
+  SRE: "Shift memory right then EOR with accumulator (illegal: LSR+EOR).",
+  RRA: "Rotate memory right then add with carry (illegal: ROR+ADC).",
+  ANC: "AND immediate then set carry from bit 7 (illegal).",
+  ALR: "AND then logical shift right in one step (illegal: AND+LSR).",
+  ARR: "AND then rotate right in one step (illegal: AND+ROR).",
+  AXS: "Subtract immediate from A AND X, result to X (illegal: SBX).",
   LABEL: "Named label in code for jump targets.",
   COMMENT: "Program comment that does not generate bytes."
 };
@@ -662,7 +704,19 @@ const opcodeMap = {
   SED: { implied: 0xF8 },
   SEI: { implied: 0x78 },
   NOP: { implied: 0xEA },
-  BRK: { implied: 0x00 }
+  BRK: { implied: 0x00 },
+  LAX: { immediate: 0xAB, zeroPage: 0xA7, absolute: 0xAF },
+  SAX: { zeroPage: 0x87, absolute: 0x8F },
+  DCP: { zeroPage: 0xC7, absolute: 0xCF, absoluteX: 0xDF },
+  ISC: { zeroPage: 0xE7, absolute: 0xEF, absoluteX: 0xFF },
+  SLO: { zeroPage: 0x07, absolute: 0x0F, absoluteX: 0x1F },
+  RLA: { zeroPage: 0x27, absolute: 0x2F, absoluteX: 0x3F },
+  SRE: { zeroPage: 0x47, absolute: 0x4F, absoluteX: 0x5F },
+  RRA: { zeroPage: 0x67, absolute: 0x6F, absoluteX: 0x7F },
+  ANC: { immediate: 0x0B },
+  ALR: { immediate: 0x4B },
+  ARR: { immediate: 0x6B },
+  AXS: { immediate: 0xCB }
 };
 
 const kernalRoutines = [
@@ -743,6 +797,14 @@ function initPalette() {
     renderOriginPreview();
   });
   aboutCloseButton?.addEventListener("click", () => aboutDialog?.close());
+  whatsNewButton?.addEventListener("click", () => {
+    const huList = whatsNewDialog?.querySelector(".whats-new-list:not(.whats-new-list-en)");
+    const enList = whatsNewDialog?.querySelector(".whats-new-list-en");
+    if (huList) huList.hidden = currentLanguage === "en";
+    if (enList) enList.hidden = currentLanguage !== "en";
+    whatsNewDialog?.showModal();
+  });
+  whatsNewCloseButton?.addEventListener("click", () => whatsNewDialog?.close());
   exitAppButton?.addEventListener("click", () => window.electronAPI.quitApp());
   setupOperandDropdown();
   sampleSelect?.addEventListener("change", saveUiSettings);
@@ -866,6 +928,7 @@ function applyTranslations() {
     if (menuLabels[3]) menuLabels[3].textContent = t("menuView");
     if (menuLabels[4]) menuLabels[4].textContent = t("menuProgram");
   if (checkUpdateButton) checkUpdateButton.textContent = t("checkForUpdate");
+  if (whatsNewButton) whatsNewButton.textContent = t("whatsNew");
   const basicSysLabelEl = document.getElementById("basic-sys-label");
   if (basicSysLabelEl) basicSysLabelEl.textContent = t("basicSysLabel");
 
@@ -1115,8 +1178,10 @@ function updateOperandField() {
   const needsByteOperand = item?.isByteMacro;
   const needsStringOperand = item?.isStringMacro;
   const needsDataOperand = item?.isDataMacro;
+  const needsRawBytesOperand = item?.isRawBytesMacro;
+  const needsRawTextOperand = item?.isRawTextMacro;
   const needsCommentOperand = item?.isComment;
-  operandInput.disabled = !(mode.needsOperand || needsTextOperand || needsByteOperand || needsStringOperand || needsDataOperand || needsCommentOperand);
+  operandInput.disabled = !(mode.needsOperand || needsTextOperand || needsByteOperand || needsStringOperand || needsDataOperand || needsRawBytesOperand || needsRawTextOperand || needsCommentOperand);
   operandInput.placeholder = needsTextOperand
     ? (currentLanguage === "en" ? "For example HELLO C64" : "Peldaul HELLO C64")
     : needsByteOperand
@@ -1125,11 +1190,15 @@ function updateOperandField() {
         ? (currentLanguage === "en" ? "For example HELLO" : "Peldaul HELLO")
         : needsDataOperand
           ? (currentLanguage === "en" ? "For example 169,0,141,32,208" : "Peldaul 169,0,141,32,208")
-          : needsCommentOperand
-            ? (currentLanguage === "en" ? "For example border scroll demo" : "Peldaul border scroll demo")
-            : getOperandPlaceholder(mode, getSelectedBase());
+          : needsRawBytesOperand
+            ? (currentLanguage === "en" ? "For example 169,0,141,32,208" : "Peldaul 169,0,141,32,208")
+            : needsRawTextOperand
+              ? (currentLanguage === "en" ? "For example HELLO" : "Peldaul HELLO")
+              : needsCommentOperand
+                ? (currentLanguage === "en" ? "For example border scroll demo" : "Peldaul border scroll demo")
+                : getOperandPlaceholder(mode, getSelectedBase());
 
-  if (!mode.needsOperand && !needsTextOperand && !needsByteOperand && !needsStringOperand && !needsDataOperand && !needsCommentOperand) {
+  if (!mode.needsOperand && !needsTextOperand && !needsByteOperand && !needsStringOperand && !needsDataOperand && !needsRawBytesOperand && !needsRawTextOperand && !needsCommentOperand) {
     operandInput.value = "";
   }
 }
@@ -1173,6 +1242,27 @@ function renderMnemonicDescription() {
     `;
     return;
   }
+  if (item.isRawBytesMacro) {
+    const bytePreview = formatByteMacroPreview(operandInput.value.trim());
+    mnemonicDescription.innerHTML = `
+      <strong>${item.mnemonic}</strong>
+      <p>${getItemDescription(item)}</p>
+      <p>${currentLanguage === "en" ? "Macro addressing: places raw bytes directly at an absolute memory address, no LDA/STA code generated." : "Makro-cimzes: nyers byte-okat helyez el kozvetlenul egy abszolut memoriacimre, LDA/STA kod generalas nelkul."}</p>
+      <small>${currentLanguage === "en" ? "Preview" : "Elonezet"}: ${bytePreview.preview}</small>
+      ${bytePreview.error ? `<br><small class="error-text">${bytePreview.error}</small>` : ""}
+    `;
+    return;
+  }
+  if (item.isRawTextMacro) {
+    const textPreview = formatTextMacroPreview(operandInput.value.trim());
+    mnemonicDescription.innerHTML = `
+      <strong>${item.mnemonic}</strong>
+      <p>${getItemDescription(item)}</p>
+      <p>${currentLanguage === "en" ? "Macro addressing: places text as PETSCII bytes directly at an absolute memory address, no LDA/STA code generated." : "Makro-cimzes: szoveget PETSCII byte-kenkent helyez el kozvetlenul egy abszolut memoriacimre, LDA/STA kod generalas nelkul."}</p>
+      <small>${currentLanguage === "en" ? "Preview" : "Elonezet"}: ${textPreview.preview}</small>
+    `;
+    return;
+  }
   if (item.isComment) {
     mnemonicDescription.innerHTML = `
       <strong>${item.mnemonic}</strong>
@@ -1204,9 +1294,9 @@ function renderPaletteItems() {
 
   items.forEach((item) => {
     const defaultMode = item.modes.includes(selectedMode) ? selectedMode : item.modes[0];
-    const preview = item.isTextMacro || item.isStringMacro
+    const preview = item.isTextMacro || item.isStringMacro || item.isRawTextMacro
       ? formatTextMacroPreview(operandInput.value.trim())
-      : item.isByteMacro || item.isDataMacro
+      : item.isByteMacro || item.isDataMacro || item.isRawBytesMacro
         ? formatByteMacroPreview(operandInput.value.trim())
         : buildOperandPreview(defaultMode, operandInput.value.trim(), selectedBase);
     const node = paletteItemTemplate.content.firstElementChild.cloneNode(true);
@@ -1220,9 +1310,13 @@ function renderPaletteItems() {
           ? `${currentLanguage === "en" ? "Absolute address" : "Abszolut cim"} | ${preview.preview}`
           : item.isDataMacro
             ? `${currentLanguage === "en" ? "Absolute address" : "Abszolut cim"} | ${preview.preview}`
-            : item.isComment
-            ? `${currentLanguage === "en" ? "Comment" : "Komment"} | ; ${operandInput.value.trim() || (currentLanguage === "en" ? "new comment" : "uj komment")}`
-            : `${modeText(defaultMode, "label")} | ${preview.text}`;
+            : item.isRawBytesMacro
+              ? `${currentLanguage === "en" ? "Raw bytes at address" : "Nyers byte-ok adott cimre"} | ${preview.preview}`
+              : item.isRawTextMacro
+                ? `${currentLanguage === "en" ? "Raw text at address" : "Nyers szoveg adott cimre"} | ${preview.preview}`
+                : item.isComment
+                ? `${currentLanguage === "en" ? "Comment" : "Komment"} | ; ${operandInput.value.trim() || (currentLanguage === "en" ? "new comment" : "uj komment")}`
+                : `${modeText(defaultMode, "label")} | ${preview.text}`;
 
     node.addEventListener("click", () => {
       mnemonicSelect.value = item.mnemonic;
@@ -1330,7 +1424,7 @@ function createBlockFromMnemonic(item) {
       rawOperand,
       description: item.description,
       addressingMode: "implied",
-      base: "bytes",
+      base: "dec",
       validationError: validateByteMacro(rawOperand),
       collapsed: true,
       isByteMacro: true
@@ -1365,7 +1459,7 @@ function createBlockFromMnemonic(item) {
       rawOperand,
       description: item.description,
       addressingMode: "implied",
-      base: "bytes",
+      base: "dec",
       validationError: validateDataMacro(rawOperand, "C000"),
       collapsed: true,
       isDataMacro: true,
@@ -1373,6 +1467,41 @@ function createBlockFromMnemonic(item) {
     };
   }
 
+  if (item.isRawBytesMacro) {
+    const rawOperand = operandInput.value.trim() || "0";
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: rawOperand,
+      rawOperand,
+      description: item.description,
+      addressingMode: "implied",
+      base: "dec",
+      validationError: validateDataMacro(rawOperand, "C000"),
+      collapsed: true,
+      isRawBytesMacro: true,
+      rawBytesAddress: "C000"
+    };
+  }
+
+  if (item.isRawTextMacro) {
+    const rawOperand = operandInput.value.trim() || "HELLO";
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: rawOperand,
+      rawOperand,
+      description: item.description,
+      addressingMode: "implied",
+      base: "string",
+      validationError: validateStringMacroAddress("C000"),
+      collapsed: true,
+      isRawTextMacro: true,
+      rawTextAddress: "C000"
+    };
+  }
   const modeKey = item.modes.includes(addressingSelect.value) ? addressingSelect.value : item.modes[0];
   const preview = buildOperandPreview(modeKey, operandInput.value.trim(), getSelectedBase());
 
@@ -1450,6 +1579,7 @@ function expandAllBlocks() {
 
 function updateProgramBlock(index, field, value) {
   const block = program[index];
+  const prevBase = block.base;
   block[field] = value;
 
   if (field === "labelName") {
@@ -1471,14 +1601,32 @@ function updateProgramBlock(index, field, value) {
       block.operand = block.rawOperand.trim();
       block.validationError = validateTextMacroPosition(block.textX ?? 0, block.textY ?? 0, block.rawOperand);
     } else if (block.isByteMacro) {
+      if (field === "base") {
+        const bytes = parseByteMacro(block.rawOperand, prevBase);
+        block.rawOperand = convertByteArray(bytes, value);
+      }
       block.operand = block.rawOperand.trim();
-      block.validationError = validateByteMacro(block.rawOperand);
+      block.validationError = validateByteMacro(block.rawOperand, block.base);
     } else if (block.isStringMacro) {
       block.operand = block.rawOperand.trim();
       block.validationError = validateStringMacroAddress(block.stringAddress);
     } else if (block.isDataMacro) {
+      if (field === "base") {
+        const bytes = parseByteMacro(block.rawOperand, prevBase);
+        block.rawOperand = convertByteArray(bytes, value);
+      }
       block.operand = block.rawOperand.trim();
-      block.validationError = validateDataMacro(block.rawOperand, block.dataAddress);
+      block.validationError = validateDataMacro(block.rawOperand, block.dataAddress, block.base);
+    } else if (block.isRawBytesMacro) {
+      if (field === "base") {
+        const bytes = parseByteMacro(block.rawOperand, prevBase);
+        block.rawOperand = convertByteArray(bytes, value);
+      }
+      block.operand = block.rawOperand.trim();
+      block.validationError = validateDataMacro(block.rawOperand, block.rawBytesAddress, block.base);
+    } else if (block.isRawTextMacro) {
+      block.operand = block.rawOperand.trim();
+      block.validationError = validateStringMacroAddress(block.rawTextAddress);
     } else {
       const preview = buildOperandPreview(block.addressingMode, block.rawOperand, block.base);
       block.operand = preview.operand;
@@ -1503,7 +1651,21 @@ function updateProgramBlock(index, field, value) {
   }
 
   if (field === "dataAddress") {
-    block.validationError = validateDataMacro(block.rawOperand, block.dataAddress);
+    block.validationError = validateDataMacro(block.rawOperand, block.dataAddress, block.base);
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (field === "rawBytesAddress") {
+    block.validationError = validateDataMacro(block.rawOperand, block.rawBytesAddress, block.base);
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (field === "rawTextAddress") {
+    block.validationError = validateStringMacroAddress(block.rawTextAddress);
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -1658,10 +1820,10 @@ function formatTextMacroPreview(value) {
   };
 }
 
-function formatByteMacroPreview(value) {
+function formatByteMacroPreview(value, base = "dec") {
   const raw = value || "169,0,141,32,208";
-  const error = validateByteMacro(raw);
-  const bytes = error ? [] : parseByteMacro(raw);
+  const error = validateByteMacro(raw, base);
+  const bytes = error ? [] : parseByteMacro(raw, base);
   return {
     preview: bytes.length ? bytes.map((byte) => `$${byte.toString(16).toUpperCase().padStart(2, "0")}`).join(", ") : raw,
     error
@@ -1688,7 +1850,14 @@ function validateTextMacroPosition(x, y, text = "") {
   return "";
 }
 
-function parseByteMacro(raw) {
+function convertByteArray(bytes, targetBase) {
+  return bytes
+    .filter((b) => Number.isFinite(b) && b >= 0 && b <= 255)
+    .map((b) => targetBase === "hex" ? b.toString(16).toUpperCase().padStart(2, "0") : b.toString(10))
+    .join(",");
+}
+
+function parseByteMacro(raw, base = "dec") {
   return raw
     .split(",")
     .map((part) => part.trim())
@@ -1700,11 +1869,11 @@ function parseByteMacro(raw) {
       if (/^0x[0-9A-Fa-f]+$/i.test(part)) {
         return Number.parseInt(part.slice(2), 16);
       }
-      return Number.parseInt(part, 10);
+      return Number.parseInt(part, base === "hex" ? 16 : 10);
     });
 }
 
-function validateByteMacro(raw) {
+function validateByteMacro(raw, base = "dec") {
   const trimmed = raw.trim();
   if (!trimmed) {
     return currentLanguage === "en" ? "BYTE macro needs at least one byte." : "A BYTE makrohoz legalabb egy byte kell.";
@@ -1716,14 +1885,17 @@ function validateByteMacro(raw) {
   }
 
   for (const part of parts) {
-    const valid = /^\$[0-9A-Fa-f]+$/.test(part) || /^0x[0-9A-Fa-f]+$/i.test(part) || /^\d+$/.test(part);
-    if (!valid) {
-      return currentLanguage === "en" ? "BYTE macro only accepts decimal or hex bytes separated by commas." : "A BYTE makroban csak decimalis vagy hex byte-ok lehetnek, vesszovel elvalasztva.";
+    const validHexPrefixed = /^\$[0-9A-Fa-f]+$/.test(part) || /^0x[0-9A-Fa-f]+$/i.test(part);
+    const validBare = base === "hex" ? /^[0-9A-Fa-f]+$/.test(part) : /^\d+$/.test(part);
+    if (!validHexPrefixed && !validBare) {
+      return base === "hex"
+        ? (currentLanguage === "en" ? "BYTE macro only accepts hex bytes separated by commas, for example FF,00,8D." : "A BYTE makroban csak hex byte-ok lehetnek, peldaul FF,00,8D.")
+        : (currentLanguage === "en" ? "BYTE macro only accepts decimal or hex bytes separated by commas." : "A BYTE makroban csak decimalis vagy hex byte-ok lehetnek, vesszovel elvalasztva.");
     }
 
-    const value = /^\d+$/.test(part)
-      ? Number.parseInt(part, 10)
-      : Number.parseInt(part.replace(/^\$/, "").replace(/^0x/i, ""), 16);
+    const value = validHexPrefixed
+      ? Number.parseInt(part.replace(/^\$/, "").replace(/^0x/i, ""), 16)
+      : Number.parseInt(part, base === "hex" ? 16 : 10);
 
     if (value < 0 || value > 255) {
       return currentLanguage === "en" ? "Every BYTE macro element must be a byte between 0 and 255." : "A BYTE makro minden eleme 0 es 255 kozotti byte kell legyen.";
@@ -1771,8 +1943,8 @@ function validateStringMacroAddress(raw) {
   return "";
 }
 
-function validateDataMacro(rawBytes, rawAddress) {
-  const byteError = validateByteMacro(rawBytes);
+function validateDataMacro(rawBytes, rawAddress, base = "dec") {
+  const byteError = validateByteMacro(rawBytes, base);
   if (byteError) return byteError;
 
   const value = parseAddressValue(rawAddress);
@@ -2188,7 +2360,7 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isByteMacro) {
-    const bytes = parseByteMacro(block.rawOperand);
+    const bytes = parseByteMacro(block.rawOperand, block.base);
     return {
       ok: true,
       bytes,
@@ -2212,7 +2384,7 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isDataMacro) {
-    const dataBytes = parseByteMacro(block.rawOperand);
+    const dataBytes = parseByteMacro(block.rawOperand, block.base);
     const startAddress = parseAddressValue(block.dataAddress) ?? 0xC000;
     const bytes = [];
     dataBytes.forEach((byte, byteIndex) => {
@@ -2223,6 +2395,22 @@ function compileLineBytes(line, labels) {
       ok: true,
       bytes,
       comment: `DATA ${block.rawOperand || ""} @ ${formatAddress(startAddress)}`
+    };
+  }
+
+  if (block.isRawBytesMacro) {
+    return {
+      ok: true,
+      bytes: [],
+      comment: `RAWBYTES ${block.rawOperand || ""} @ ${formatAddress(parseAddressValue(block.rawBytesAddress) ?? 0xC000)}`
+    };
+  }
+
+  if (block.isRawTextMacro) {
+    return {
+      ok: true,
+      bytes: [],
+      comment: `RAWTEXT "${block.rawOperand || ""}" @ ${formatAddress(parseAddressValue(block.rawTextAddress) ?? 0xC000)}`
     };
   }
 
@@ -2412,7 +2600,7 @@ function getInstructionSize(block) {
   }
 
   if (block.isByteMacro) {
-    return parseByteMacro(block.rawOperand).length;
+    return parseByteMacro(block.rawOperand, block.base).length;
   }
 
   if (block.isStringMacro) {
@@ -2420,7 +2608,15 @@ function getInstructionSize(block) {
   }
 
   if (block.isDataMacro) {
-    return parseByteMacro(block.rawOperand).length * 5;
+    return parseByteMacro(block.rawOperand, block.base).length * 5;
+  }
+
+  if (block.isRawBytesMacro) {
+    return 0;
+  }
+
+  if (block.isRawTextMacro) {
+    return 0;
   }
 
   if (block.addressingMode === "implied") {
@@ -2499,7 +2695,7 @@ function getDeferredMemorySections(layout) {
       }
 
       if (line.block.isDataMacro) {
-        const bytes = parseByteMacro(line.block.rawOperand);
+        const bytes = parseByteMacro(line.block.rawOperand, line.block.base);
         const startAddress = parseAddressValue(line.block.dataAddress) ?? 0xC000;
         return {
           type: "data",
@@ -2509,6 +2705,34 @@ function getDeferredMemorySections(layout) {
           end: startAddress + bytes.length - 1,
           bytes,
           label: `DATA ${line.block.rawOperand || ""} -> ${formatAddress(startAddress)}`
+        };
+      }
+
+      if (line.block.isRawBytesMacro) {
+        const bytes = parseByteMacro(line.block.rawOperand, line.block.base);
+        const startAddress = parseAddressValue(line.block.rawBytesAddress) ?? 0xC000;
+        return {
+          type: "rawbytes",
+          lineNumber,
+          sourceAddress: line.address,
+          address: startAddress,
+          end: startAddress + bytes.length - 1,
+          bytes,
+          label: `RAWBYTES ${line.block.rawOperand || ""} -> ${formatAddress(startAddress)}`
+        };
+      }
+
+      if (line.block.isRawTextMacro) {
+        const chars = encodeTextMacro(line.block.rawOperand);
+        const startAddress = parseAddressValue(line.block.rawTextAddress) ?? 0xC000;
+        return {
+          type: "rawtext",
+          lineNumber,
+          sourceAddress: line.address,
+          address: startAddress,
+          end: startAddress + chars.length - 1,
+          bytes: chars,
+          label: `RAWTEXT "${line.block.rawOperand || ""}" -> ${formatAddress(startAddress)}`
         };
       }
 
@@ -2731,6 +2955,14 @@ function getBlockDescription(block) {
     return block.validationError || `${currentLanguage === "en" ? "DATA macro" : "DATA makro"}: ${block.rawOperand || ""} @ ${block.dataAddress || "C000"}`;
   }
 
+  if (block.isRawBytesMacro) {
+    return block.validationError || `${currentLanguage === "en" ? "RAWBYTES macro" : "RAWBYTES makro"}: ${block.rawOperand || ""} @ ${block.rawBytesAddress || "C000"}`;
+  }
+
+  if (block.isRawTextMacro) {
+    return block.validationError || `${currentLanguage === "en" ? "RAWTEXT macro" : "RAWTEXT makro"}: "${block.rawOperand || ""}" @ ${block.rawTextAddress || "C000"}`;
+  }
+
   return block.validationError || (currentLanguage === "en" ? mnemonicDescriptionsEn[block.mnemonic] || block.description : block.description);
 }
 
@@ -2753,6 +2985,14 @@ function getBlockModeCaption(block) {
 
   if (block.isDataMacro) {
     return `${currentLanguage === "en" ? "Memory" : "Memoria"} | ${block.dataAddress || "C000"}`;
+  }
+
+  if (block.isRawBytesMacro) {
+    return `${currentLanguage === "en" ? "Raw @ memory" : "Nyers @ memoria"} | ${block.rawBytesAddress || "C000"}`;
+  }
+
+  if (block.isRawTextMacro) {
+    return `${currentLanguage === "en" ? "Raw @ memory" : "Nyers @ memoria"} | ${block.rawTextAddress || "C000"}`;
   }
 
   if (block.isLabel) {
@@ -2797,6 +3037,9 @@ function getCategoryTone(category) {
   if (normalized.includes("makro")) {
     return "macro";
   }
+  if (normalized.includes("illegalis")) {
+    return "illegal";
+  }
   if (normalized.includes("szerkezet")) {
     return "structure";
   }
@@ -2832,6 +3075,17 @@ function getCollapsedOperandText(block) {
     const parts = block.rawOperand.split(",").map((s) => s.trim()).filter(Boolean);
     if (parts.length <= 6) return block.rawOperand;
     return parts.slice(0, 6).join(", ") + " …";
+  }
+
+  if (block.isRawBytesMacro) {
+    if (!block.rawOperand) return "";
+    const parts = block.rawOperand.split(",").map((s) => s.trim()).filter(Boolean);
+    if (parts.length <= 6) return block.rawOperand;
+    return parts.slice(0, 6).join(", ") + " …";
+  }
+
+  if (block.isRawTextMacro) {
+    return block.rawOperand ? `"${block.rawOperand}"` : "";
   }
 
   return block.operand || block.rawOperand || "";
@@ -2912,7 +3166,9 @@ function renderProgram() {
       inlineField.querySelector("span").textContent = t("fieldBytes");
       operandField.value = block.rawOperand || "";
       operandField.disabled = false;
-      operandField.placeholder = currentLanguage === "en" ? "For example 169,0,141,32,208" : "Peldaul 169,0,141,32,208";
+      operandField.placeholder = block.base === "hex"
+        ? (currentLanguage === "en" ? "For example FF,00,8D,20,D0" : "Peldaul FF,00,8D,20,D0")
+        : (currentLanguage === "en" ? "For example 169,0,141,32,208" : "Peldaul 169,0,141,32,208");
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
     } else if (block.isStringMacro) {
       inlineField.hidden = false;
@@ -2937,7 +3193,9 @@ function renderProgram() {
       inlineField.querySelector("span").textContent = t("fieldBytes");
       operandField.value = block.rawOperand || "";
       operandField.disabled = false;
-      operandField.placeholder = currentLanguage === "en" ? "For example 169,0,141,32,208" : "Peldaul 169,0,141,32,208";
+      operandField.placeholder = block.base === "hex"
+        ? (currentLanguage === "en" ? "For example FF,00,8D,20,D0" : "Peldaul FF,00,8D,20,D0")
+        : (currentLanguage === "en" ? "For example 169,0,141,32,208" : "Peldaul 169,0,141,32,208");
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
       blockControls.insertAdjacentHTML(
         "beforeend",
@@ -2946,6 +3204,44 @@ function renderProgram() {
             <label class="mini-field">
               <span>${t("fieldAddress")}</span>
               <input class="macro-address" data-address-field="dataAddress" type="text" value="${block.dataAddress || "C000"}" placeholder="$C000">
+            </label>
+          </div>
+        `
+      );
+    } else if (block.isRawBytesMacro) {
+      inlineField.hidden = false;
+      inlineField.querySelector("span").textContent = t("fieldBytes");
+      operandField.value = block.rawOperand || "";
+      operandField.disabled = false;
+      operandField.placeholder = block.base === "hex"
+        ? (currentLanguage === "en" ? "For example FF,00,8D,20,D0" : "Peldaul FF,00,8D,20,D0")
+        : (currentLanguage === "en" ? "For example 169,0,141,32,208" : "Peldaul 169,0,141,32,208");
+      operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid single-macro-row">
+            <label class="mini-field">
+              <span>${t("fieldAddress")}</span>
+              <input class="macro-address" data-address-field="rawBytesAddress" type="text" value="${block.rawBytesAddress || "C000"}" placeholder="$C000">
+            </label>
+          </div>
+        `
+      );
+    } else if (block.isRawTextMacro) {
+      inlineField.hidden = false;
+      inlineField.querySelector("span").textContent = t("fieldText");
+      operandField.value = block.rawOperand || "";
+      operandField.disabled = false;
+      operandField.placeholder = currentLanguage === "en" ? "For example HELLO" : "Peldaul HELLO";
+      operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid single-macro-row">
+            <label class="mini-field">
+              <span>${t("fieldAddress")}</span>
+              <input class="macro-address" data-address-field="rawTextAddress" type="text" value="${block.rawTextAddress || "C000"}" placeholder="$C000">
             </label>
           </div>
         `
@@ -2962,7 +3258,7 @@ function renderProgram() {
     blockControls.insertAdjacentHTML(
       "beforeend",
       `
-          ${mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro ? `
+          ${(mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro ? `
           <label class="mini-field">
             <span>${t("fieldFormat")}</span>
           <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
@@ -2976,7 +3272,7 @@ function renderProgram() {
             </label>
           </div>
         </label>` : ""}
-          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro ? ` hidden` : ""}>
+          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro ? ` hidden` : ""}>
             <span>${t("addressingMode")}</span>
           <select class="block-mode">
             ${getMnemonicModes(block.mnemonic).map((modeKey) => `<option value="${modeKey}"${block.addressingMode === modeKey ? " selected" : ""}>${modeText(modeKey, "label")}</option>`).join("")}
@@ -3143,7 +3439,7 @@ function renderAsmOutput() {
     }
 
     if (line.block.isDataMacro) {
-      const dataBytes = parseByteMacro(line.block.rawOperand);
+      const dataBytes = parseByteMacro(line.block.rawOperand, line.block.base);
       const startAddress = parseAddressValue(line.block.dataAddress) ?? 0xC000;
       const expanded = chunkBytes(dataBytes, 16).map((chunk, chunkIndex) => {
         const chunkAddress = startAddress + (chunkIndex * 16);
@@ -3155,6 +3451,36 @@ function renderAsmOutput() {
         text: `data_${lineNumber}:\n    ; DATA ${line.block.rawOperand || ""} -> ${formatAddress(startAddress)}\n    ; ${formatAddress(startAddress)}\n${expanded}`
       });
       return `    ; ${currentLanguage === "en" ? "DATA data below" : "DATA adat lent"}: data_${lineNumber}`;
+    }
+
+    if (line.block.isRawBytesMacro) {
+      const rawBytes = parseByteMacro(line.block.rawOperand, line.block.base);
+      const startAddress = parseAddressValue(line.block.rawBytesAddress) ?? 0xC000;
+      const expanded = chunkBytes(rawBytes, 16).map((chunk, chunkIndex) => {
+        const chunkAddress = startAddress + (chunkIndex * 16);
+        const byteList = chunk.map((byte) => toHex(byte, 2)).join(", ");
+        return `    ; ${formatAddress(chunkAddress)}\n    .byte ${byteList}`;
+      }).join("\n");
+      deferredDataSections.push({
+        address: startAddress,
+        text: `rawbytes_${lineNumber}:\n    ; RAWBYTES ${line.block.rawOperand || ""} -> ${formatAddress(startAddress)}\n    ; ${formatAddress(startAddress)}\n${expanded}`
+      });
+      return `    ; ${t("rawBytesDataBelow")}: rawbytes_${lineNumber}`;
+    }
+
+    if (line.block.isRawTextMacro) {
+      const chars = encodeTextMacro(line.block.rawOperand);
+      const startAddress = parseAddressValue(line.block.rawTextAddress) ?? 0xC000;
+      const expanded = chunkBytes(chars, 16).map((chunk, chunkIndex) => {
+        const chunkAddress = startAddress + (chunkIndex * 16);
+        const byteList = chunk.map((byte) => toHex(byte, 2)).join(", ");
+        return `    ; ${formatAddress(chunkAddress)}\n    .byte ${byteList}`;
+      }).join("\n");
+      deferredDataSections.push({
+        address: startAddress,
+        text: `rawtext_${lineNumber}:\n    ; RAWTEXT "${line.block.rawOperand || ""}" -> ${formatAddress(startAddress)}\n    ; ${formatAddress(startAddress)}\n${expanded}`
+      });
+      return `    ; ${t("rawTextDataBelow")}: rawtext_${lineNumber}`;
     }
 
     const suffix = line.block.operand ? ` ${line.block.operand}` : "";

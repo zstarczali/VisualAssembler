@@ -894,6 +894,13 @@ button:focus-visible,
   --block-chip-fg: #eef0ff;
 }
 
+.asm-block[data-category-tone="illegal"] {
+  --block-tone: #ff6060;
+  --block-tone-soft: color-mix(in srgb, #ff6060 10%, transparent);
+  --block-chip-bg: #7a1a1a;
+  --block-chip-fg: #ffe8e8;
+}
+
 .asm-block.dragging {
   opacity: 0.55;
 }
@@ -1708,6 +1715,74 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
 
 #about-close {
   min-width: 120px;
+}
+
+.whats-new-dialog {
+  border: none;
+  border-radius: 20px;
+  padding: 0;
+  background: var(--panel);
+  box-shadow: 0 24px 64px color-mix(in srgb, black 30%, transparent);
+  max-width: 480px;
+  width: 92vw;
+}
+
+.whats-new-dialog::backdrop {
+  background: color-mix(in srgb, black 55%, transparent);
+  backdrop-filter: blur(4px);
+}
+
+.whats-new-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 32px 32px 28px;
+}
+
+.whats-new-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.whats-new-version {
+  margin: 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.9rem;
+  color: var(--secondary);
+  font-weight: 600;
+}
+
+.whats-new-list {
+  margin: 0;
+  padding-left: 1.2em;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.whats-new-list li {
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.whats-new-list li strong {
+  color: var(--text);
+}
+
+.whats-new-list li code {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.82em;
+  background: var(--surface-soft);
+  border-radius: 4px;
+  padding: 1px 4px;
+}
+
+#whats-new-close {
+  min-width: 120px;
+  align-self: flex-end;
 }
 
 /* ── Operand custom dropdown ─────────────────────────────────────── */
