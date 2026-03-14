@@ -1,0 +1,233 @@
+﻿<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C64 Block Assembler</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="hero">
+      <div class="hero-copy-block">
+        <p class="eyebrow">Commodore 64 visual assembler</p>
+        <div class="hero-menu-row">
+          <details class="control-menu">
+            <summary class="secondary control-menu-trigger">Menu</summary>
+            <div class="control-menu-panel">
+              <section class="control-menu-group">
+                <h3 class="control-menu-label">File</h3>
+                <button id="save-project" class="secondary" type="button">Save program</button>
+                <button id="load-project" class="secondary" type="button">Load program</button>
+              </section>
+              <section class="control-menu-group">
+                <h3 class="control-menu-label">Peldak</h3>
+                <label class="sample-picker">
+                  <span class="sr-only">Mintaprogram</span>
+                  <select id="sample-select">
+                    <option value="basic-colors">Mintaprogram</option>
+                    <option value="label-border">Label pelda</option>
+                    <option value="text-demo">TEXT pelda</option>
+                    <option value="macro-demo">Komplex makro pelda</option>
+                  </select>
+                </label>
+                <button id="load-sample" class="secondary" type="button">Betoltes</button>
+              </section>
+              <section class="control-menu-group">
+                <h3 class="control-menu-label">Beallitasok</h3>
+                <label class="sample-picker">
+                  <span class="sr-only">Nyelv</span>
+                  <select id="language-select">
+                    <option value="hu">Magyar</option>
+                    <option value="en">English</option>
+                  </select>
+                </label>
+                <button id="theme-toggle" class="secondary icon-button theme-toggle-button" type="button" aria-label="Dark mode" title="Dark mode">
+                  <span class="theme-toggle-glyph" aria-hidden="true"></span>
+                  <span>Tema valtasa</span>
+                </button>
+                <button id="choose-vice" class="secondary" type="button">VICE kivalasztasa</button>
+                <label class="field compact-field menu-field">
+                  <span>VICE exe</span>
+                  <input id="vice-path" type="text" readonly placeholder="Nincs beallitva">
+                </label>
+                <p id="emulator-status" class="menu-note">A VICE kapcsolat ellenorzese folyamatban.</p>
+                <p id="emulator-run-hint" class="menu-note menu-note-strong"></p>
+              </section>
+              <section class="control-menu-group">
+                <h3 class="control-menu-label">Nezet</h3>
+                <div class="control-menu-inline">
+                  <button id="zoom-out" class="secondary" type="button">A-</button>
+                  <button id="zoom-in" class="secondary" type="button">A+</button>
+                </div>
+              </section>
+              <section class="control-menu-group">
+                <h3 class="control-menu-label">Program</h3>
+                <button id="copy-asm" class="secondary" type="button">ASM masolasa</button>
+                <button id="clear-program" class="secondary" type="button">Program torlese</button>
+              </section>
+            </div>
+          </details>
+          <button id="run-emulator" class="primary run-button" type="button">Run</button>
+        </div>
+        <p class="hero-copy">
+          Huzz be egy mnemonik blokkot balrol, rendezd oket sorba, es nezd meg a jobb oldalon az assembly nezetet.
+        </p>
+        <div id="memory-strip-top" class="memory-strip-top" aria-label="Teljes C64 memoria csik"></div>
+      </div>
+    </header>
+
+    <main class="workspace">
+        <aside class="palette-panel">
+          <div class="panel-heading">
+            <h2>Mnemonik menu</h2>
+            <p>Valassz kategoriat, majd huzd at a blokkot a programlistaba.</p>
+          </div>
+
+          <label class="field">
+            <span>Kategoria</span>
+            <select id="category-select"></select>
+          </label>
+
+          <label class="field">
+            <span>Mnemonik</span>
+            <select id="mnemonic-select"></select>
+          </label>
+
+          <label class="field">
+            <span>Operandus</span>
+            <input id="operand-input" type="text" placeholder="#$01 vagy $D020">
+          </label>
+
+          <fieldset class="base-switch">
+            <legend>Szamrendszer</legend>
+            <div class="base-toggle" role="radiogroup" aria-label="Szamrendszer valaszto">
+              <label class="base-option">
+                <input type="radio" name="number-base" value="hex" checked>
+                <span>HEX</span>
+              </label>
+              <label class="base-option">
+                <input type="radio" name="number-base" value="dec">
+                <span>DEC</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <label class="field">
+            <span>Cimzesi mod</span>
+            <select id="addressing-select"></select>
+          </label>
+
+          <button id="add-selected" class="primary" type="button">Kivalasztott blokk hozzaadasa</button>
+
+          <div id="mnemonic-description" class="mnemonic-card"></div>
+          <div id="palette-list" class="palette-list" aria-label="Huzhato blokklista"></div>
+        </aside>
+
+        <section class="program-panel">
+          <div class="panel-heading">
+            <div class="panel-heading-row">
+              <h2>Program blokkok</h2>
+              <div class="panel-heading-actions">
+                <button id="collapse-all" class="secondary" type="button" aria-label="Osszes osszecsukasa" title="Osszes osszecsukasa">&#9662;</button>
+                <button id="expand-all" class="secondary" type="button" aria-label="Osszes kinyitasa" title="Osszes kinyitasa">&#9656;</button>
+              </div>
+            </div>
+            <p>Ide ejtsd a bal oldali blokkot, vagy rendezd at a mar bent levo sorokat.</p>
+          </div>
+          <div id="program-list" class="program-list" aria-live="polite"></div>
+        </section>
+
+        <section class="output-panel">
+          <div class="panel-heading">
+            <h2>ASM nezet</h2>
+            <p>Az osszerakott szoveges kod innen indulhat tovabb export fele.</p>
+          </div>
+          <div class="output-toolbar">
+            <div class="view-mode-toggle" role="radiogroup" aria-label="Kod nezet">
+              <label class="view-mode-option">
+                <input type="radio" name="output-mode" value="asm" checked>
+                <span>ASM</span>
+              </label>
+              <label class="view-mode-option">
+                <input type="radio" name="output-mode" value="monitor">
+                <span>Monitor</span>
+              </label>
+              <label class="view-mode-option">
+                <input type="radio" name="output-mode" value="both">
+                <span>Mindketto</span>
+              </label>
+            </div>
+          </div>
+          <div class="origin-row">
+            <label class="field compact-field">
+              <span>Kezdocim (`*=`)</span>
+              <input id="origin-input" type="text" placeholder="0801 vagy $0801">
+            </label>
+            <div id="origin-preview" class="origin-preview"></div>
+          </div>
+          <div id="output-stack" class="output-stack">
+            <pre id="asm-output" class="asm-output"></pre>
+            <pre id="monitor-output" class="asm-output monitor-output"></pre>
+          </div>
+        </section>
+    </main>
+
+    <details class="global-memory-panel">
+      <summary class="global-memory-summary">
+        <span class="global-memory-title">Teljes C64 memoria</span>
+        <span class="global-memory-toggle" aria-hidden="true"></span>
+      </summary>
+      <div class="global-memory-content">
+        <div class="panel-heading memory-heading">
+          <h2>Teljes C64 memoria</h2>
+          <p>Az egesz 64 KB cimter egy csikban, jelolve a foglalt, szabad, ROM es I/O reszeket.</p>
+        </div>
+        <div id="memory-strip" class="memory-strip" aria-label="Teljes C64 memoria csik"></div>
+        <div id="memory-map" class="memory-map"></div>
+      </div>
+    </details>
+  </div>
+
+  <template id="block-template">
+    <article class="asm-block" draggable="true">
+      <div class="drag-handle" title="Huzd a blokkot">&#8801;</div>
+        <div class="block-main">
+          <div class="block-topline">
+            <div class="block-title-group">
+              <strong class="block-mnemonic"></strong>
+              <span class="collapsed-operand"></span>
+              <span class="block-category"></span>
+            </div>
+            <button class="collapse-toggle" type="button" aria-label="Osszecsukas" title="Osszecsukas">&#9662;</button>
+          </div>
+          <div class="block-controls">
+            <label class="inline-field">
+            <span>Operandus</span>
+            <input class="block-operand" type="text">
+          </label>
+        </div>
+        <p class="block-description"></p>
+      </div>
+      <div class="block-actions">
+        <button class="move-up" type="button" aria-label="Fel" title="Fel">&#8593;</button>
+        <button class="move-down" type="button" aria-label="Le" title="Le">&#8595;</button>
+        <button class="delete" type="button" aria-label="Torles" title="Torles">&#10005;</button>
+      </div>
+    </article>
+  </template>
+
+  <template id="palette-item-template">
+    <button class="palette-item" type="button" draggable="true">
+      <strong class="palette-mnemonic"></strong>
+      <span class="palette-description"></span>
+    </button>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
