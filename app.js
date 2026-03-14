@@ -116,7 +116,9 @@ const mnemonicLibrary = {
     { mnemonic: "STRING", description: "Karakterlanc kiirasa egy megadott memoriacimre.", modes: ["implied"], isStringMacro: true },
     { mnemonic: "DATA", description: "Nyers byte-ok kiirasa egy megadott memoriacimre.", modes: ["implied"], isDataMacro: true },
     { mnemonic: "RAWBYTES", description: "Nyers byte-ok elhelyezese egy megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isRawBytesMacro: true },
-    { mnemonic: "RAWTEXT", description: "Szoveg elhelyezese PETSCII byte-kenkent egy megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isRawTextMacro: true }
+    { mnemonic: "RAWTEXT", description: "Szoveg elhelyezese PETSCII byte-kenkent egy megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isRawTextMacro: true },
+    { mnemonic: "LOOP", description: "Szamlalo ciklus: LD* #count, majd cimke a body elejere. NEXT blokkal zarjuk.", modes: ["implied"], isLoopMacro: true },
+    { mnemonic: "NEXT", description: "Ciklus vege: DE* es BNE visszaugras a LOOP cimkejere.", modes: ["implied"], isNextMacro: true }
   ],
   Illegalis: [
     { mnemonic: "LAX", description: "A es X regiszter egyideju betoltese (illegalis: LDA+LDX kombinacio).", modes: ["immediate", "zeroPage", "absolute"] },
@@ -250,6 +252,8 @@ const translations = {
     sampleMacro: "Komplex makro pelda",
     sampleSprite: "Sprite mozgatas pelda",
     sampleBitmap: "Bitmap vonal demo",
+    sampleLoop: "LOOP / NEXT demo",
+    sampleHelloLoop: "Hello World 1-40 (LOOP szamlalo)",
     languageLabel: "Nyelv",
     checkForUpdate: "Frissites keresese",
     whatsNew: "Ujdonsagok",
@@ -268,6 +272,10 @@ const translations = {
     fieldComment: "Komment",
     fieldFormat: "Formatum",
     commentDefault: "uj komment",
+    fieldLoopReg: "Register",
+    fieldLoopCount: "Szamla (hex)",
+    fieldLoopLabel: "Cimke",
+    fieldNextLabel: "LOOP cimkeje",
     warningLabel: "FIGYELEM",
     remoteMemoryData: "Tavoli memoria-adatok",
     dataBelow: "adat lent",
@@ -394,6 +402,8 @@ const translations = {
     sampleMacro: "Complex macro example",
     sampleSprite: "Sprite movement example",
     sampleBitmap: "Bitmap line demo",
+    sampleLoop: "LOOP / NEXT demo",
+    sampleHelloLoop: "Hello World 1-40 (LOOP counter)",
     languageLabel: "Language",
     checkForUpdate: "Check for Update",
     whatsNew: "What's New",
@@ -412,6 +422,10 @@ const translations = {
     fieldComment: "Comment",
     fieldFormat: "Format",
     commentDefault: "new comment",
+    fieldLoopReg: "Register",
+    fieldLoopCount: "Count (hex)",
+    fieldLoopLabel: "Label",
+    fieldNextLabel: "LOOP label",
     warningLabel: "WARNING",
     remoteMemoryData: "Remote memory data",
     dataBelow: "data below",
@@ -624,6 +638,8 @@ const mnemonicDescriptionsEn = {
   DATA: "Write raw bytes to a given memory address via LDA/STA code.",
   RAWBYTES: "Place raw bytes at a given memory address without generating any runtime code.",
   RAWTEXT: "Place text as PETSCII bytes at a given memory address without generating any runtime code.",
+  LOOP: "Counter loop: LD* #count loads the counter, then a label marks the body start. Close with NEXT.",
+  NEXT: "Loop end: DE* decrements the counter, BNE branches back to the LOOP label.",
   LAX: "Load both A and X from the same address simultaneously (illegal: LDA+LDX).",
   SAX: "Store A AND X to a memory address (illegal).",
   DCP: "Decrement memory then compare with accumulator (illegal: DEC+CMP).",
@@ -1004,6 +1020,8 @@ function applyTranslations() {
   if (sampleOptions[3]) sampleOptions[3].textContent = t("sampleMacro");
   if (sampleOptions[4]) sampleOptions[4].textContent = t("sampleSprite");
   if (sampleOptions[5]) sampleOptions[5].textContent = t("sampleBitmap");
+  if (sampleOptions[6]) sampleOptions[6].textContent = t("sampleLoop");
+  if (sampleOptions[7]) sampleOptions[7].textContent = t("sampleHelloLoop");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -1505,6 +1523,43 @@ function createBlockFromMnemonic(item) {
       rawTextAddress: "C000"
     };
   }
+  if (item.isLoopMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isLoopMacro: true,
+      loopReg: "X",
+      loopCount: "0A",
+      loopLabel: ""  // auto-assigned in insertBlock
+    };
+  }
+
+  if (item.isNextMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isNextMacro: true,
+      nextLabel: "",  // auto-filled in insertBlock
+      nextReg: "X"
+    };
+  }
+
   const modeKey = item.modes.includes(addressingSelect.value) ? addressingSelect.value : item.modes[0];
   const preview = buildOperandPreview(modeKey, operandInput.value.trim(), getSelectedBase());
 
@@ -1540,6 +1595,19 @@ function clearProgram() {
 }
 
 function insertBlock(index, block) {
+  if (block.isLoopMacro && !block.loopLabel) {
+    let n = 1;
+    while (program.some(b => b.isLoopMacro && b.loopLabel === `loop${n}`)) n++;
+    block.loopLabel = `loop${n}`;
+  }
+  if (block.isNextMacro && !block.nextLabel) {
+    const loopsAbove = program.slice(0, index).filter(b => b.isLoopMacro);
+    if (loopsAbove.length > 0) {
+      const last = loopsAbove[loopsAbove.length - 1];
+      block.nextLabel = last.loopLabel;
+      block.nextReg = last.loopReg || "X";
+    }
+  }
   program.splice(index, 0, block);
   operandInput.value = "";
   renderMnemonicDescription();
@@ -1669,6 +1737,26 @@ function updateProgramBlock(index, field, value) {
 
   if (field === "rawTextAddress") {
     block.validationError = validateStringMacroAddress(block.rawTextAddress);
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isLoopMacro && (field === "loopReg" || field === "loopCount" || field === "loopLabel")) {
+    if (field === "loopLabel") {
+      block.loopLabel = sanitizeLabelName(value);
+    }
+    block.validationError = "";
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isNextMacro && field === "nextLabel") {
+    block.nextLabel = sanitizeLabelName(value);
+    const matching = program.find(b => b.isLoopMacro && b.loopLabel === block.nextLabel);
+    if (matching) block.nextReg = matching.loopReg || "X";
+    block.validationError = "";
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -2322,22 +2410,65 @@ function assembleProgramToPrg(originOverride) {
     if (line.block.isLabel) {
       labels.set(line.block.labelName, line.address);
     }
+    if (line.block.isLoopMacro && line.block.loopLabel) {
+      labels.set(line.block.loopLabel, line.address + 2);
+    }
   });
 
-  const bytes = [layout.origin.value & 0xFF, (layout.origin.value >> 8) & 0xFF];
-
+  // Assemble inline code bytes
+  const inlineBytes = [];
   for (const line of layout.lines) {
-    if (line.block.isLabel || line.block.isComment) {
-      continue;
-    }
+    if (line.block.isLabel || line.block.isComment) continue;
     const compiled = compileLineBytes(line, labels);
-    if (!compiled.ok) {
-      return { ok: false, error: compiled.error };
-    }
-    bytes.push(...compiled.bytes);
+    if (!compiled.ok) return { ok: false, error: compiled.error };
+    inlineBytes.push(...compiled.bytes);
   }
 
-  return { ok: true, bytes: new Uint8Array(bytes) };
+  const origin = layout.origin.value;
+
+  // Collect deferred address chunks from RAWBYTES and RAWTEXT blocks
+  const deferredChunks = [];
+  for (const line of layout.lines) {
+    const block = line.block;
+    if (block.isRawBytesMacro) {
+      const chunkBytes = parseByteMacro(block.rawOperand, block.base);
+      const addr = parseAddressValue(block.rawBytesAddress) ?? 0xC000;
+      if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
+    } else if (block.isRawTextMacro) {
+      const chunkBytes = encodeTextMacro(block.rawOperand);
+      const addr = parseAddressValue(block.rawTextAddress) ?? 0xC000;
+      if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
+    }
+  }
+
+  if (deferredChunks.length === 0) {
+    const bytes = [origin & 0xFF, (origin >> 8) & 0xFF, ...inlineBytes];
+    return { ok: true, bytes: new Uint8Array(bytes) };
+  }
+
+  // Determine full address range across inline code + deferred chunks
+  let maxAddr = origin + inlineBytes.length - 1;
+  for (const chunk of deferredChunks) {
+    maxAddr = Math.max(maxAddr, chunk.addr + chunk.bytes.length - 1);
+  }
+
+  // Build flat buffer from origin to maxAddr (zeros for gaps)
+  const bufSize = maxAddr - origin + 1;
+  const buf = new Uint8Array(bufSize);
+  buf.set(inlineBytes, 0);
+  for (const chunk of deferredChunks) {
+    const offset = chunk.addr - origin;
+    if (offset >= 0 && offset + chunk.bytes.length <= bufSize) {
+      buf.set(chunk.bytes, offset);
+    }
+  }
+
+  // PRG: 2-byte load address header + flat buffer
+  const result = new Uint8Array(2 + bufSize);
+  result[0] = origin & 0xFF;
+  result[1] = (origin >> 8) & 0xFF;
+  result.set(buf, 2);
+  return { ok: true, bytes: result };
 }
 
 function compileLineBytes(line, labels) {
@@ -2415,6 +2546,34 @@ function compileLineBytes(line, labels) {
       bytes: [],
       comment: `RAWTEXT "${block.rawOperand || ""}" @ ${formatAddress(parseAddressValue(block.rawTextAddress) ?? 0xC000)}`
     };
+  }
+
+  if (block.isLoopMacro) {
+    const reg = block.loopReg || "X";
+    const opcode = reg === "Y" ? 0xA0 : 0xA2;
+    const count = parseInt(block.loopCount || "00", 16);
+    if (isNaN(count) || count < 0 || count > 255) {
+      return { ok: false, error: `LOOP: ${t("invalidOperand") || "ervenytelen szamlalocim"}` };
+    }
+    return { ok: true, bytes: [opcode, count], comment: `LD${reg} #$${(block.loopCount || "00").toUpperCase()} ; ${block.loopLabel || "?"}:` };
+  }
+
+  if (block.isNextMacro) {
+    const reg = block.nextReg || "X";
+    const deOpcode = reg === "Y" ? 0x88 : 0xCA;
+    const label = block.nextLabel || "";
+    if (!label) {
+      return { ok: false, error: "NEXT: hianyzik a LOOP cimke neve." };
+    }
+    const target = labels.get(label);
+    if (target === undefined) {
+      return { ok: false, error: `NEXT: ismeretlen cimke: ${label}` };
+    }
+    const offset = target - (line.address + 3);
+    if (offset < -128 || offset > 127) {
+      return { ok: false, error: `NEXT: a ciklus tul nagy, BNE nem er el (offset: ${offset}).` };
+    }
+    return { ok: true, bytes: [deOpcode, 0xD0, offset & 0xFF], comment: `DE${reg} / BNE ${label}` };
   }
 
   const opcode = opcodeMap[block.mnemonic]?.[block.addressingMode];
@@ -2620,6 +2779,14 @@ function getInstructionSize(block) {
 
   if (block.isRawTextMacro) {
     return 0;
+  }
+
+  if (block.isLoopMacro) {
+    return 2;  // LDX/LDY #count
+  }
+
+  if (block.isNextMacro) {
+    return 3;  // DEX/DEY + BNE offset
   }
 
   if (block.addressingMode === "implied") {
@@ -3091,6 +3258,17 @@ function getCollapsedOperandText(block) {
     return block.rawOperand ? `"${block.rawOperand}"` : "";
   }
 
+  if (block.isLoopMacro) {
+    const reg = block.loopReg || "X";
+    const count = block.loopCount ? `#$${block.loopCount.toUpperCase()}` : "";
+    const label = block.loopLabel || "";
+    return `${reg} ${count}${label ? ` → ${label}` : ""}`.trim();
+  }
+
+  if (block.isNextMacro) {
+    return block.nextLabel ? `→ ${block.nextLabel}` : "";
+  }
+
   return block.operand || block.rawOperand || "";
 }
 
@@ -3249,6 +3427,43 @@ function renderProgram() {
           </div>
         `
       );
+    } else if (block.isLoopMacro) {
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${t("fieldLoopReg")}</span>
+              <select class="loop-reg">
+                <option value="X"${(block.loopReg || "X") === "X" ? " selected" : ""}>X</option>
+                <option value="Y"${block.loopReg === "Y" ? " selected" : ""}>Y</option>
+              </select>
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldLoopCount")}</span>
+              <input class="loop-count" type="text" maxlength="2" value="${block.loopCount || "0A"}" placeholder="0A">
+            </label>
+          </div>
+          <div class="macro-grid single-macro-row">
+            <label class="mini-field">
+              <span>${t("fieldLoopLabel")}</span>
+              <input class="loop-label" type="text" value="${block.loopLabel || ""}" placeholder="loop1">
+            </label>
+          </div>
+        `
+      );
+    } else if (block.isNextMacro) {
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid single-macro-row">
+            <label class="mini-field">
+              <span>${t("fieldNextLabel")}</span>
+              <input class="next-label" type="text" value="${block.nextLabel || ""}" placeholder="loop1">
+            </label>
+          </div>
+        `
+      );
     } else {
       inlineField.querySelector("span").textContent = t("fieldOperand");
       inlineField.hidden = !mode.needsOperand;
@@ -3261,7 +3476,7 @@ function renderProgram() {
     blockControls.insertAdjacentHTML(
       "beforeend",
       `
-          ${(mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro ? `
+          ${(mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isLoopMacro && !block.isNextMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro ? `
           <label class="mini-field">
             <span>${t("fieldFormat")}</span>
           <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
@@ -3275,7 +3490,7 @@ function renderProgram() {
             </label>
           </div>
         </label>` : ""}
-          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro ? ` hidden` : ""}>
+          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isLoopMacro || block.isNextMacro ? ` hidden` : ""}>
             <span>${t("addressingMode")}</span>
           <select class="block-mode">
             ${getMnemonicModes(block.mnemonic).map((modeKey) => `<option value="${modeKey}"${block.addressingMode === modeKey ? " selected" : ""}>${modeText(modeKey, "label")}</option>`).join("")}
@@ -3299,6 +3514,22 @@ function renderProgram() {
     if (macroAddressInput) {
       const addressField = macroAddressInput.dataset.addressField || "stringAddress";
       macroAddressInput.addEventListener("input", (event) => updateProgramBlock(index, addressField, event.target.value));
+    }
+    const loopRegSelect = node.querySelector(".loop-reg");
+    if (loopRegSelect) {
+      loopRegSelect.addEventListener("change", (event) => updateProgramBlock(index, "loopReg", event.target.value));
+    }
+    const loopCountInput = node.querySelector(".loop-count");
+    if (loopCountInput) {
+      loopCountInput.addEventListener("input", (event) => updateProgramBlock(index, "loopCount", event.target.value));
+    }
+    const loopLabelInput = node.querySelector(".loop-label");
+    if (loopLabelInput) {
+      loopLabelInput.addEventListener("input", (event) => updateProgramBlock(index, "loopLabel", event.target.value));
+    }
+    const nextLabelInput = node.querySelector(".next-label");
+    if (nextLabelInput) {
+      nextLabelInput.addEventListener("input", (event) => updateProgramBlock(index, "nextLabel", event.target.value));
     }
       const blockModeSelect = node.querySelector(".block-mode");
       if (blockModeSelect) {
@@ -3486,6 +3717,19 @@ function renderAsmOutput() {
       return `    ; ${t("rawTextDataBelow")}: rawtext_${lineNumber}`;
     }
 
+    if (line.block.isLoopMacro) {
+      const reg = line.block.loopReg || "X";
+      const count = (line.block.loopCount || "00").toUpperCase();
+      const label = line.block.loopLabel || "loop";
+      return `    LD${reg} #$${count}\n${label}:`;
+    }
+
+    if (line.block.isNextMacro) {
+      const reg = line.block.nextReg || "X";
+      const label = line.block.nextLabel || "loop";
+      return `    DE${reg}\n    BNE ${label}`;
+    }
+
     const suffix = line.block.operand ? ` ${line.block.operand}` : "";
     const comment = line.block.validationError ? ` ; ${t("warningLabel")}: ${line.block.validationError}` : "";
     return `    ${line.block.mnemonic}${suffix}${comment}`;
@@ -3519,6 +3763,9 @@ function renderMonitorOutput(layout = getProgramLayout()) {
   layout.lines.forEach((line) => {
     if (line.block.isLabel) {
       labels.set(line.block.labelName, line.address);
+    }
+    if (line.block.isLoopMacro && line.block.loopLabel) {
+      labels.set(line.block.loopLabel, line.address + 2);
     }
   });
 
@@ -4428,6 +4675,139 @@ function loadSpriteSampleProgram() {
   saveUiSettings();
 }
 
+function loadLoopSampleProgram() {
+  // Nested LOOP demo: szin ciklusozas keret + hatter ($D020/$D021)
+  // Kulso ciklus: A regiszterben szamlalo 0-15, minden szinnél belso delay
+  // Belso delay: LOOP X $00 (256x) * LOOP Y $00 (256x) = ~65536 × ~5 ciklus ≈ 0.33 mp/szin
+  //
+  // Memoria elrendeles (BASIC SYS ON, kod $080D-tol):
+  //  $080D  SEI             1 byte
+  //  $080E  LDA #$00        2
+  //  $0810  [color_loop]    0 (cimke)
+  //  $0810  STA $D020       3
+  //  $0813  STA $D021       3
+  //  $0816  LDX #$00        2  [dly_x cimke: $0818]
+  //  $0818  LDY #$00        2  [dly_y cimke: $081A]
+  //  $081A  DEY             1
+  //         BNE $081A       2  (BNE dly_y, offset = -3)
+  //  $081D  DEX             1
+  //         BNE $0818       2  (BNE dly_x, offset = -8)
+  //  $0820  CLC             1
+  //  $0821  ADC #$01        2
+  //  $0823  AND #$0F        2
+  //  $0825  JMP $0810       3  (JMP color_loop)
+  originInput.value = "0801";
+
+  program = collapseLoadedProgram([
+    {
+      id: crypto.randomUUID(), category: "Szerkezet", mnemonic: "COMMENT",
+      operand: "LOOP / NEXT demo – keret es hatter szin ciklusozasa (nested delay loop)",
+      rawOperand: "LOOP / NEXT demo – keret es hatter szin ciklusozasa (nested delay loop)",
+      description: "Megjegyzes.", addressingMode: "implied",
+      base: "comment", validationError: "", isComment: true
+    },
+    {
+      id: crypto.randomUUID(), category: "Rendszer", mnemonic: "SEI",
+      operand: "", rawOperand: "", description: "IRQ megszakitasok tiltasa.",
+      addressingMode: "implied", base: "hex", validationError: ""
+    },
+    // szin szamlalo A = 0-15
+    {
+      id: crypto.randomUUID(), category: "Adatmozgas", mnemonic: "LDA",
+      operand: "#$00", rawOperand: "00",
+      description: "Akkumulator betoltese kozvetlen ertekkel.",
+      addressingMode: "immediate", base: "hex", validationError: ""
+    },
+    // vegtelen fo ciklus cimkeje
+    {
+      id: crypto.randomUUID(), category: "Szerkezet", mnemonic: "LABEL",
+      operand: "", rawOperand: "", description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.",
+      addressingMode: "implied", base: "hex", validationError: "", isLabel: true, labelName: "color_loop"
+    },
+    // keret szin = A
+    {
+      id: crypto.randomUUID(), category: "Adatmozgas", mnemonic: "STA",
+      operand: "$D020", rawOperand: "D020",
+      description: "Akkumulator kiirasa memoriacimre.",
+      addressingMode: "absolute", base: "hex", validationError: ""
+    },
+    // hatter szin = A
+    {
+      id: crypto.randomUUID(), category: "Adatmozgas", mnemonic: "STA",
+      operand: "$D021", rawOperand: "D021",
+      description: "Akkumulator kiirasa memoriacimre.",
+      addressingMode: "absolute", base: "hex", validationError: ""
+    },
+    // --- belso delay: LOOP X (kulso) * LOOP Y (belso) = ~65536 iter ---
+    {
+      id: crypto.randomUUID(), category: "Szerkezet", mnemonic: "COMMENT",
+      operand: "Delay: LOOP X $00 (256x) * LOOP Y $00 (256x) ~ 0.33 mp/szin",
+      rawOperand: "Delay: LOOP X $00 (256x) * LOOP Y $00 (256x) ~ 0.33 mp/szin",
+      description: "Megjegyzes.", addressingMode: "implied",
+      base: "comment", validationError: "", isComment: true
+    },
+    // LOOP X (kulso delay, X regiszter, 256 iteracio)
+    {
+      id: crypto.randomUUID(), category: "Makrok", mnemonic: "LOOP",
+      operand: "", rawOperand: "", description: "Szamlalo ciklus: LD* #count, majd cimke a body elejere.",
+      addressingMode: "implied", base: "hex", validationError: "",
+      isLoopMacro: true, loopReg: "X", loopCount: "00", loopLabel: "dly_x"
+    },
+    // LOOP Y (belso delay, Y regiszter, 256 iteracio)
+    {
+      id: crypto.randomUUID(), category: "Makrok", mnemonic: "LOOP",
+      operand: "", rawOperand: "", description: "Szamlalo ciklus: LD* #count, majd cimke a body elejere.",
+      addressingMode: "implied", base: "hex", validationError: "",
+      isLoopMacro: true, loopReg: "Y", loopCount: "00", loopLabel: "dly_y"
+    },
+    // NEXT dly_y (belso)
+    {
+      id: crypto.randomUUID(), category: "Makrok", mnemonic: "NEXT",
+      operand: "", rawOperand: "", description: "Ciklus vege: DE* es BNE visszaugras a LOOP cimkejere.",
+      addressingMode: "implied", base: "hex", validationError: "",
+      isNextMacro: true, nextLabel: "dly_y", nextReg: "Y"
+    },
+    // NEXT dly_x (kulso)
+    {
+      id: crypto.randomUUID(), category: "Makrok", mnemonic: "NEXT",
+      operand: "", rawOperand: "", description: "Ciklus vege: DE* es BNE visszaugras a LOOP cimkejere.",
+      addressingMode: "implied", base: "hex", validationError: "",
+      isNextMacro: true, nextLabel: "dly_x", nextReg: "X"
+    },
+    // szin inkrementalas: A = (A + 1) & $0F  → 0..15 → 0..15 (vegtelen)
+    {
+      id: crypto.randomUUID(), category: "Rendszer", mnemonic: "CLC",
+      operand: "", rawOperand: "", description: "Carry flag torlese.",
+      addressingMode: "implied", base: "hex", validationError: ""
+    },
+    {
+      id: crypto.randomUUID(), category: "Aritmetika", mnemonic: "ADC",
+      operand: "#$01", rawOperand: "01",
+      description: "Osszeadas carry-vel.",
+      addressingMode: "immediate", base: "hex", validationError: ""
+    },
+    {
+      id: crypto.randomUUID(), category: "Logika", mnemonic: "AND",
+      operand: "#$0F", rawOperand: "0F",
+      description: "Logikai ES muvelet az akkumulatorral.",
+      addressingMode: "immediate", base: "hex", validationError: ""
+    },
+    // visszaugras a fo ciklusra
+    {
+      id: crypto.randomUUID(), category: "Ugrasok", mnemonic: "JMP",
+      operand: "color_loop", rawOperand: "color_loop",
+      description: "Feltetel nelkuli ugras egy cimre.",
+      addressingMode: "absolute", base: "hex", validationError: ""
+    }
+  ]);
+
+  renderOriginPreview();
+  renderEmulatorRunHint();
+  renderProgram();
+  saveUiSettings();
+}
+
+
 function loadBitmapLineSampleProgram() {
   originInput.value = "0801";
 
@@ -4585,6 +4965,122 @@ function loadBitmapLineSampleProgram() {
 }
 
 
+function loadHelloLoopSampleProgram() {
+  // Prints "Hello World 1" through "Hello World 40" using LOOP/NEXT + RAWTEXT
+  // "Hello World " stored as PETSCII at $C000 via RAWTEXT macro
+  // Outer loop: LOOP Y $28 (40×, Y register) — Y preserved by KERNAL CHROUT
+  // String print: LDX #0 → LDA $C000,X / JSR $FFD2 × 12 → uses X register
+  // Number: ZP $FB = units ASCII, $FC = tens ASCII (odometer style)
+  originInput.value = "0801";
+
+  const b = (cat, mn, raw, mode) => {
+    const libItem = Object.values(mnemonicLibrary).flat().find(m => m.mnemonic === mn);
+    const desc = libItem ? libItem.description : "";
+    let operand = "";
+    if (raw) {
+      if (mode === "immediate") operand = `#$${raw}`;
+      else if (mode === "relative" || mode === "implied") operand = raw;
+      else operand = `$${raw}`;
+    }
+    return { id: crypto.randomUUID(), category: cat, mnemonic: mn, operand, rawOperand: raw, description: desc, addressingMode: mode, base: "hex", validationError: "" };
+  };
+
+  const lbl = (name) => ({
+    id: crypto.randomUUID(), category: "Szerkezet", mnemonic: "LABEL",
+    operand: "", rawOperand: "", description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.",
+    addressingMode: "implied", base: "hex", validationError: "", isLabel: true, labelName: name
+  });
+
+  const cmt = (text) => ({
+    id: crypto.randomUUID(), category: "Szerkezet", mnemonic: "COMMENT",
+    operand: text, rawOperand: text, description: "Megjegyzes a programhoz, ami nem general byte-ot.",
+    addressingMode: "implied", base: "comment", validationError: "", isComment: true
+  });
+
+  program = collapseLoadedProgram([
+    cmt("Hello World 1-40 demo – LOOP/NEXT + RAWBYTES makro"),
+    cmt("\"Hello World \" ASCII byte-ok $0900-ra (RAWBYTES), olvasas: LDA $0900,X"),
+
+    // RAWBYTES: "HELLO WORLD " PETSCII/ASCII bytes at $0900
+    // H=$48 E=$45 L=$4C L=$4C O=$4F ' '=$20 W=$57 O=$4F R=$52 L=$4C D=$44 ' '=$20
+    {
+      id: crypto.randomUUID(), category: "Makrok", mnemonic: "RAWBYTES",
+      operand: "48,45,4C,4C,4F,20,57,4F,52,4C,44,20",
+      rawOperand: "48,45,4C,4C,4F,20,57,4F,52,4C,44,20",
+      description: "Nyers byte-ok elhelyezese egy megadott memoriacimtol, kod generalas nelkul.",
+      addressingMode: "implied", base: "hex", validationError: "",
+      isRawBytesMacro: true, rawBytesAddress: "$0900"
+    },
+
+    b("Rendszer", "SEI", "", "implied"),
+
+    // Init ASCII digit counters in zero page
+    b("Adatmozgas", "LDA", "30", "immediate"),  // #$30 = '0'
+    b("Adatmozgas", "STA", "FB", "zeroPage"),   // $FB = units
+    b("Adatmozgas", "STA", "FC", "zeroPage"),   // $FC = tens
+
+    // LOOP Y: 40 iterations — Y is preserved by KERNAL, X is free for string read
+    {
+      id: crypto.randomUUID(), category: "Makrok", mnemonic: "LOOP",
+      operand: "", rawOperand: "", description: "Szamlalo ciklus: LD* #count, majd cimke a body elejere.",
+      addressingMode: "implied", base: "hex", validationError: "",
+      isLoopMacro: true, loopReg: "Y", loopCount: "28", loopLabel: "hw_loop"
+    },
+
+    // ── LOOP BODY ──────────────────────────────────────────────────
+    // Increment units digit (odometer: $FB = '1'..'9', $FC = '0'..'4')
+    b("Aritmetika", "INC", "FB", "zeroPage"),
+    b("Adatmozgas", "LDA", "FB", "zeroPage"),
+    b("Aritmetika", "CMP", "3A", "immediate"),  // '9'+1 = carry point
+    b("Ugrasok",    "BNE", "hw_no_carry", "relative"),
+    b("Adatmozgas", "LDA", "30", "immediate"),  // reset units → '0'
+    b("Adatmozgas", "STA", "FB", "zeroPage"),
+    b("Aritmetika", "INC", "FC", "zeroPage"),   // advance tens
+    lbl("hw_no_carry"),
+
+    // Print "Hello World " — read 12 bytes from $0900 via X index
+    b("Adatmozgas", "LDX", "00", "immediate"),  // X = string index 0
+    lbl("hw_str_loop"),
+    b("Adatmozgas", "LDA", "0900", "absoluteX"), // LDA $0900,X
+    b("Ugrasok",    "JSR", "FFD2", "absolute"),
+    b("Regiszterek","INX", "", "implied"),
+    b("Aritmetika", "CPX", "0C", "immediate"),   // 12 chars done?
+    b("Ugrasok",    "BNE", "hw_str_loop", "relative"),
+
+    // Print tens digit (skip if '0')
+    b("Adatmozgas", "LDA", "FC", "zeroPage"),
+    b("Aritmetika", "CMP", "30", "immediate"),
+    b("Ugrasok",    "BEQ", "hw_no_tens", "relative"),
+    b("Ugrasok",    "JSR", "FFD2", "absolute"),
+    lbl("hw_no_tens"),
+
+    // Print units digit
+    b("Adatmozgas", "LDA", "FB", "zeroPage"),
+    b("Ugrasok",    "JSR", "FFD2", "absolute"),
+
+    // Carriage return
+    b("Adatmozgas", "LDA", "0D", "immediate"),
+    b("Ugrasok",    "JSR", "FFD2", "absolute"),
+    // ── END LOOP BODY ───────────────────────────────────────────────
+
+    // NEXT: DEY + BNE back to hw_loop
+    {
+      id: crypto.randomUUID(), category: "Makrok", mnemonic: "NEXT",
+      operand: "", rawOperand: "", description: "Ciklus vege: DE* es BNE visszaugras a LOOP cimkejere.",
+      addressingMode: "implied", base: "hex", validationError: "",
+      isNextMacro: true, nextLabel: "hw_loop", nextReg: "Y"
+    },
+
+    // RTS: return to BASIC after 40 iterations
+    b("Ugrasok", "RTS", "", "implied")
+  ]);
+
+  renderOriginPreview();
+  renderEmulatorRunHint();
+  renderProgram();
+  saveUiSettings();
+}
+
 function loadSelectedSample() {
   if (sampleSelect.value === "label-border") {
     loadLabelSampleProgram();
@@ -4608,6 +5104,16 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "bitmap-demo") {
     loadBitmapLineSampleProgram();
+    return;
+  }
+
+  if (sampleSelect.value === "loop-demo") {
+    loadLoopSampleProgram();
+    return;
+  }
+
+  if (sampleSelect.value === "hello-loop-demo") {
+    loadHelloLoopSampleProgram();
     return;
   }
 
