@@ -25,11 +25,13 @@
     ],
     "win": {
       "target": [
-        "nsis"
-      ],
-      "arch": [
-        "x64",
-        "arm64"
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
       ],
       "icon": "build/commodore64.ico"
     },
