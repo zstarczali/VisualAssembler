@@ -189,6 +189,25 @@ ipcMain.handle("project:load", async () => {
   }
 });
 
+ipcMain.handle("sample:load", async (_event, sampleName) => {
+  try {
+    const samplePath = path.join(__dirname, "samples", `${sampleName}.json`);
+    if (!fs.existsSync(samplePath)) {
+      return { ok: false, error: "Sample not found." };
+    }
+    const raw = fs.readFileSync(samplePath, "utf8");
+    return {
+      ok: true,
+      sample: JSON.parse(raw)
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error.message || "Loading sample failed."
+    };
+  }
+});
+
 function createMainWindow() {
   const mainWindow = new BrowserWindow({
     width: 1600,
