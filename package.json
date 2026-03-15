@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder --win nsis",
+    "dist": "electron-builder --win nsis --x64 --arm64",
     "dist:win:x64": "electron-builder --win nsis --x64",
     "dist:win:arm64": "electron-builder --win nsis --arm64",
     "dist:dir": "electron-builder --win dir"
