@@ -1,4 +1,4 @@
-name: Build Electron (Windows + macOS x64/arm64)
+name: Build Electron (Windows + macOS + Linux x64/arm64)
 
 on:
   push:
@@ -29,6 +29,10 @@ jobs:
           - os: macos-14
             arch: x64
           - os: macos-14
+            arch: arm64
+          - os: ubuntu-latest
+            arch: x64
+          - os: ubuntu-latest
             arch: arm64
 
     steps:
@@ -96,6 +100,20 @@ jobs:
             
             echo "✅ Clean DMG created: dist/${APP_NAME}-${VERSION}-${{ matrix.arch }}-clean.dmg"
           fi
+
+      # Linux build (Debian .deb) — explicit arch per matrix entry.
+      # Both entries run on the ubuntu-latest (x64) runner; arm64 uses cross-compilation.
+      - name: Build (Linux x64)
+        if: runner.os == 'Linux' && matrix.arch == 'x64'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --linux deb --x64 --publish never
+
+      - name: Build (Linux arm64)
+        if: runner.os == 'Linux' && matrix.arch == 'arm64'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --linux deb --arm64 --publish never
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
