@@ -228,15 +228,37 @@ npm run dist       # Windows NSIS telepítő build
 npm run dist:dir   # Telepítő nélküli mappa build
 ```
 
+### Mac DMG build ad-hoc aláírással
+
+macOS Gatekeeper miatt az app-ot ad-hoc aláírással kell ellátni, különben "damaged" hibát dob telepítéskor:
+
+```bash
+# 1. Build alapértelmezett módon (identity: null)
+rm -rf dist
+CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --mac dmg --win nsis
+
+# 2. Extended attributes törlése + ad-hoc aláírás
+xattr -cr "dist/mac-arm64/C64 Visual Assembler.app"
+codesign --force --deep --sign - "dist/mac-arm64/C64 Visual Assembler.app"
+
+# 3. Új DMG létrehozása az aláírt app-pal
+cd dist
+hdiutil create -volname "C64 Visual Assembler" \
+  -srcfolder "mac-arm64/C64 Visual Assembler.app" \
+  -ov -format UDZO "C64-Visual-Assembler-1.1.0-signed.dmg"
+```
+
+Az `identity: null` a `package.json` `mac` szekciójában azért kell, hogy ne akadjon el a codesign verify phase-ben (OneDrive metadata problémák miatt).
+
 Nincs hot-reload — változtatás után `npm start` újraindítás szükséges.
 
 ---
 
 ## Jelenlegi verzió
 
-`1.0.9` — lásd `package.json` és a What's New dialóg (`index.html`).
+`1.1.0` — lásd `package.json` és a What's New dialóg (`index.html`).
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező
 2. `index.html` → `#whats-new-dialog` cím + bejegyzések (HU és EN)
-3. `npm run dist` → új telepítő
+3. Mac + Windows build az aláírási procedúrával
