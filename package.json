@@ -45,14 +45,16 @@
       "identity": null
     },
     "dmg": {
-      "sign": false
+      "sign": false,
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "C64 Visual Assembler"
+      "shortcutName": "C64 Visual Assembler",
+      "artifactName": "${productName}-Setup-${version}-${arch}.${ext}"
     }
   },
   "devDependencies": {
