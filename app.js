@@ -4691,18 +4691,18 @@ function loadSpriteSampleProgram() {
 }
 
 function loadLoopSampleProgram() {
-  // Nested LOOP demo: szin ciklusozas keret + hatter ($D020/$D021)
-  // Kulso ciklus: A regiszterben szamlalo 0-15, minden szinnél belso delay
-  // Belso delay: LOOP X $00 (256x) * LOOP Y $00 (256x) = ~65536 × ~5 ciklus ≈ 0.33 mp/szin
+  // Nested LOOP demo: color cycling for border + background ($D020/$D021)
+  // Outer loop: A register counter 0-15, nested delay at each color
+  // Inner delay: LOOP X $00 (256x) * LOOP Y $00 (256x) = ~65536 × ~5 cycles ≈ 0.33 sec/color
   //
-  // Memoria elrendeles (BASIC SYS ON, kod $080D-tol):
+  // Memory layout (BASIC SYS ON, code starts at $080D):
   //  $080D  SEI             1 byte
   //  $080E  LDA #$00        2
-  //  $0810  [color_loop]    0 (cimke)
+  //  $0810  [color_loop]    0 (label)
   //  $0810  STA $D020       3
   //  $0813  STA $D021       3
-  //  $0816  LDX #$00        2  [dly_x cimke: $0818]
-  //  $0818  LDY #$00        2  [dly_y cimke: $081A]
+  //  $0816  LDX #$00        2  [dly_x label: $0818]
+  //  $0818  LDY #$00        2  [dly_y label: $081A]
   //  $081A  DEY             1
   //         BNE $081A       2  (BNE dly_y, offset = -3)
   //  $081D  DEX             1
@@ -4716,8 +4716,8 @@ function loadLoopSampleProgram() {
   program = collapseLoadedProgram([
     {
       id: crypto.randomUUID(), category: "Szerkezet", mnemonic: "COMMENT",
-      operand: "LOOP / NEXT demo – keret es hatter szin ciklusozasa (nested delay loop)",
-      rawOperand: "LOOP / NEXT demo – keret es hatter szin ciklusozasa (nested delay loop)",
+      operand: "LOOP / NEXT demo – border and background color cycling (nested delay loop)",
+      rawOperand: "LOOP / NEXT demo – border and background color cycling (nested delay loop)",
       description: "Megjegyzes.", addressingMode: "implied",
       base: "comment", validationError: "", isComment: true
     },
@@ -4726,70 +4726,70 @@ function loadLoopSampleProgram() {
       operand: "", rawOperand: "", description: "IRQ megszakitasok tiltasa.",
       addressingMode: "implied", base: "hex", validationError: ""
     },
-    // szin szamlalo A = 0-15
+    // color counter A = 0-15
     {
       id: crypto.randomUUID(), category: "Adatmozgas", mnemonic: "LDA",
       operand: "#$00", rawOperand: "00",
       description: "Akkumulator betoltese kozvetlen ertekkel.",
       addressingMode: "immediate", base: "hex", validationError: ""
     },
-    // vegtelen fo ciklus cimkeje
+    // infinite main loop label
     {
       id: crypto.randomUUID(), category: "Szerkezet", mnemonic: "LABEL",
       operand: "", rawOperand: "", description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.",
       addressingMode: "implied", base: "hex", validationError: "", isLabel: true, labelName: "color_loop"
     },
-    // keret szin = A
+    // border color = A
     {
       id: crypto.randomUUID(), category: "Adatmozgas", mnemonic: "STA",
       operand: "$D020", rawOperand: "D020",
       description: "Akkumulator kiirasa memoriacimre.",
       addressingMode: "absolute", base: "hex", validationError: ""
     },
-    // hatter szin = A
+    // background color = A
     {
       id: crypto.randomUUID(), category: "Adatmozgas", mnemonic: "STA",
       operand: "$D021", rawOperand: "D021",
       description: "Akkumulator kiirasa memoriacimre.",
       addressingMode: "absolute", base: "hex", validationError: ""
     },
-    // --- belso delay: LOOP X (kulso) * LOOP Y (belso) = ~65536 iter ---
+    // --- nested delay: LOOP X (outer) * LOOP Y (inner) = ~65536 iter ---
     {
       id: crypto.randomUUID(), category: "Szerkezet", mnemonic: "COMMENT",
-      operand: "Delay: LOOP X $00 (256x) * LOOP Y $00 (256x) ~ 0.33 mp/szin",
-      rawOperand: "Delay: LOOP X $00 (256x) * LOOP Y $00 (256x) ~ 0.33 mp/szin",
+      operand: "Delay: LOOP X $00 (256x) * LOOP Y $00 (256x) ~ 0.33 sec/color",
+      rawOperand: "Delay: LOOP X $00 (256x) * LOOP Y $00 (256x) ~ 0.33 sec/color",
       description: "Megjegyzes.", addressingMode: "implied",
       base: "comment", validationError: "", isComment: true
     },
-    // LOOP X (kulso delay, X regiszter, 256 iteracio)
+    // LOOP X (outer delay, X register, 256 iterations)
     {
       id: crypto.randomUUID(), category: "Makrok", mnemonic: "LOOP",
       operand: "", rawOperand: "", description: "Szamlalo ciklus: LD* #count, majd cimke a body elejere.",
       addressingMode: "implied", base: "hex", validationError: "",
       isLoopMacro: true, loopReg: "X", loopCount: "00", loopLabel: "dly_x"
     },
-    // LOOP Y (belso delay, Y regiszter, 256 iteracio)
+    // LOOP Y (inner delay, Y register, 256 iterations)
     {
       id: crypto.randomUUID(), category: "Makrok", mnemonic: "LOOP",
       operand: "", rawOperand: "", description: "Szamlalo ciklus: LD* #count, majd cimke a body elejere.",
       addressingMode: "implied", base: "hex", validationError: "",
       isLoopMacro: true, loopReg: "Y", loopCount: "00", loopLabel: "dly_y"
     },
-    // NEXT dly_y (belso)
+    // NEXT dly_y (inner)
     {
       id: crypto.randomUUID(), category: "Makrok", mnemonic: "NEXT",
       operand: "", rawOperand: "", description: "Ciklus vege: DE* es BNE visszaugras a LOOP cimkejere.",
       addressingMode: "implied", base: "hex", validationError: "",
       isNextMacro: true, nextLabel: "dly_y", nextReg: "Y"
     },
-    // NEXT dly_x (kulso)
+    // NEXT dly_x (outer)
     {
       id: crypto.randomUUID(), category: "Makrok", mnemonic: "NEXT",
       operand: "", rawOperand: "", description: "Ciklus vege: DE* es BNE visszaugras a LOOP cimkejere.",
       addressingMode: "implied", base: "hex", validationError: "",
       isNextMacro: true, nextLabel: "dly_x", nextReg: "X"
     },
-    // szin inkrementalas: A = (A + 1) & $0F  → 0..15 → 0..15 (vegtelen)
+    // color increment: A = (A + 1) & $0F  → 0..15 → 0..15 (infinite)
     {
       id: crypto.randomUUID(), category: "Rendszer", mnemonic: "CLC",
       operand: "", rawOperand: "", description: "Carry flag torlese.",
@@ -4807,7 +4807,7 @@ function loadLoopSampleProgram() {
       description: "Logikai ES muvelet az akkumulatorral.",
       addressingMode: "immediate", base: "hex", validationError: ""
     },
-    // visszaugras a fo ciklusra
+    // jump back to main loop
     {
       id: crypto.randomUUID(), category: "Ugrasok", mnemonic: "JMP",
       operand: "color_loop", rawOperand: "color_loop",
@@ -4904,14 +4904,14 @@ function loadBitmapLineSampleProgram() {
     // VIC-II: screen RAM $0400, bitmap $2000
     b("Adatmozgas",  "LDA", "18",   "immediate"),
     b("Adatmozgas",  "STA", "D018", "absolute"),
-    // Keret/hatter: fekete
+    // Border/background: black
     b("Adatmozgas",  "LDA", "00",   "immediate"),
     b("Adatmozgas",  "STA", "D020", "absolute"),
     b("Adatmozgas",  "LDA", "00",   "immediate"),
     b("Adatmozgas",  "STA", "D021", "absolute"),
 
-    // Szin RAM $0400: piros eloterhatter ($20 = fg=2/piros, bg=0/fekete)
-    cmt("Szin RAM $0400-$04FF: piros"),
+    // Color RAM $0400: red foreground ($20 = fg=2/red, bg=0/black)
+    cmt("Color RAM $0400-$04FF: red"),
     b("Adatmozgas",  "LDA", "20",   "immediate"),
     b("Adatmozgas",  "LDX", "00",   "immediate"),
     lbl("clr04"),
@@ -4946,12 +4946,12 @@ function loadBitmapLineSampleProgram() {
     b("Regiszterek", "INX", "",     "implied"),
     b("Ugrasok",     "BNE", "clr07","relative"),
 
-    // Vegtelen ciklus
+    // Infinite loop
     lbl("vege"),
     b("Ugrasok",     "JMP", "vege", "absolute"),
 
-    // Toltobyte-ok a $2000-es bitmap cimig
-    cmt(`Toltobyte-ok ($${gapSize.toString(16).toUpperCase()} byte) a $2000-es bitmap cimig`),
+    // Padding bytes to $2000 bitmap address
+    cmt(`Padding bytes ($${gapSize.toString(16).toUpperCase()} bytes) to $2000 bitmap address`),
     {
       id: crypto.randomUUID(), category: "Makrok", mnemonic: "BYTE",
       operand: `[${gapSize} x $00 – igazitas $2000-re]`,
@@ -5013,8 +5013,8 @@ function loadHelloLoopSampleProgram() {
   });
 
   program = collapseLoadedProgram([
-    cmt("Hello World 1-40 demo – LOOP/NEXT + RAWBYTES makro"),
-    cmt("\"Hello World \" ASCII byte-ok $0900-ra (RAWBYTES), olvasas: LDA $0900,X"),
+    cmt("Hello World 1-40 demo – LOOP/NEXT + RAWBYTES macro"),
+    cmt("\"Hello World \" ASCII bytes at $0900 (RAWBYTES), read: LDA $0900,X"),
 
     // RAWBYTES: "HELLO WORLD " PETSCII/ASCII bytes at $0900
     // H=$48 E=$45 L=$4C L=$4C O=$4F ' '=$20 W=$57 O=$4F R=$52 L=$4C D=$44 ' '=$20

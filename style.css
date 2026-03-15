@@ -58,6 +58,17 @@ body {
     radial-gradient(circle at top left, rgba(184, 191, 255, 0.28), transparent 24%),
     radial-gradient(circle at bottom right, rgba(107, 93, 255, 0.20), transparent 24%),
     linear-gradient(180deg, var(--bg) 0%, var(--bg-accent) 100%);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Allow text selection in inputs and textareas */
+input,
+textarea,
+.asm-output,
+.monitor-output {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 button,
@@ -230,6 +241,8 @@ h1 {
   top: calc(100% + 8px);
   z-index: 20;
   display: flex;
+  user-select: none;
+  -webkit-user-select: none;
   flex-direction: row;
   flex-wrap: wrap;
   gap: 12px;
@@ -1125,7 +1138,7 @@ button:focus-visible,
   line-height: 1.35;
   overflow: hidden;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
 }
 
