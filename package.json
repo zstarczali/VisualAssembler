@@ -2,6 +2,7 @@
   "name": "c64-visual-assembler",
   "version": "1.1.0",
   "description": "Commodore 64 visual assembler desktop app built with Electron.",
+  "author": "zstarczali",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -70,7 +71,8 @@
         }
       ],
       "icon": "build/commodore64.png",
-      "category": "Development"
+      "category": "Development",
+      "maintainer": "zstarczali"
     },
     "deb": {
       "artifactName": "${productName}-${version}-${arch}.${ext}"
