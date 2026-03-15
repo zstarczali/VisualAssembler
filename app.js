@@ -34,31 +34,49 @@ const addressingModes = {
     needsOperand: true,
     placeholder: "0-65535",
     help: "16 bites memoriacim + X regiszter offset. Pl: LDA $0400,X"
+  },
+  absoluteY: {
+    label: "Absolute,Y",
+    needsOperand: true,
+    placeholder: "0-65535",
+    help: "16 bites memoriacim + Y regiszter offset. Pl: LDA $0400,Y"
+  },
+  indirectX: {
+    label: "Indirect,X",
+    needsOperand: true,
+    placeholder: "0-255",
+    help: "Zero page indexelt indirekt. Pl: LDA ($FB,X)"
+  },
+  indirectY: {
+    label: "Indirect,Y",
+    needsOperand: true,
+    placeholder: "0-255",
+    help: "Zero page indirekt indexelt. Pl: LDA ($FB),Y"
   }
 };
 
 const mnemonicLibrary = {
   Adatmozgas: [
-    { mnemonic: "LDA", description: "Akkumulator betoltese memoriabol vagy konstansbol.", modes: ["immediate", "zeroPage", "absolute", "absoluteX"] },
+    { mnemonic: "LDA", description: "Akkumulator betoltese memoriabol vagy konstansbol.", modes: ["immediate", "zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
     { mnemonic: "LDX", description: "X regiszter betoltese.", modes: ["immediate", "zeroPage", "absolute"] },
     { mnemonic: "LDY", description: "Y regiszter betoltese.", modes: ["immediate", "zeroPage", "absolute", "absoluteX"] },
-    { mnemonic: "STA", description: "Akkumulator kiirasa memoriacimre.", modes: ["zeroPage", "absolute", "absoluteX"] },
+    { mnemonic: "STA", description: "Akkumulator kiirasa memoriacimre.", modes: ["zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
     { mnemonic: "STX", description: "X regiszter tarolasa.", modes: ["zeroPage", "absolute"] },
     { mnemonic: "STY", description: "Y regiszter tarolasa.", modes: ["zeroPage", "absolute"] }
   ],
   Aritmetika: [
-    { mnemonic: "ADC", description: "Osszeadas carry figyelembevetele mellett.", modes: ["immediate", "zeroPage", "absolute"] },
-    { mnemonic: "SBC", description: "Kivonas carry figyelembevetele mellett.", modes: ["immediate", "zeroPage", "absolute"] },
+    { mnemonic: "ADC", description: "Osszeadas carry figyelembevetele mellett.", modes: ["immediate", "zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
+    { mnemonic: "SBC", description: "Kivonas carry figyelembevetele mellett.", modes: ["immediate", "zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
     { mnemonic: "INC", description: "Memoriacim noveles.", modes: ["zeroPage", "absolute"] },
     { mnemonic: "DEC", description: "Memoriacim csokkentes.", modes: ["zeroPage", "absolute"] },
-    { mnemonic: "CMP", description: "Osszehasonlitas az akkumulatorral.", modes: ["immediate", "zeroPage", "absolute"] },
+    { mnemonic: "CMP", description: "Osszehasonlitas az akkumulatorral.", modes: ["immediate", "zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
     { mnemonic: "CPX", description: "Osszehasonlitas az X regiszterrel.", modes: ["immediate", "zeroPage", "absolute"] },
     { mnemonic: "CPY", description: "Osszehasonlitas az Y regiszterrel.", modes: ["immediate", "zeroPage", "absolute"] }
   ],
   Logika: [
-    { mnemonic: "AND", description: "Logikai ES muvelet az akkumulatorral.", modes: ["immediate", "zeroPage", "absolute"] },
-    { mnemonic: "ORA", description: "Logikai VAGY muvelet az akkumulatorral.", modes: ["immediate", "zeroPage", "absolute"] },
-    { mnemonic: "EOR", description: "Exkluziv VAGY muvelet az akkumulatorral.", modes: ["immediate", "zeroPage", "absolute"] },
+    { mnemonic: "AND", description: "Logikai ES muvelet az akkumulatorral.", modes: ["immediate", "zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
+    { mnemonic: "ORA", description: "Logikai VAGY muvelet az akkumulatorral.", modes: ["immediate", "zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
+    { mnemonic: "EOR", description: "Exkluziv VAGY muvelet az akkumulatorral.", modes: ["immediate", "zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
     { mnemonic: "BIT", description: "Bitek tesztelese memoriacimrol.", modes: ["zeroPage", "absolute"] }
   ],
   Ugrasok: [
@@ -251,6 +269,7 @@ const translations = {
     sampleText: "TEXT pelda",
     sampleMacro: "Komplex makro pelda",
     sampleSprite: "Sprite mozgatas pelda",
+    sampleSetpixel: "Setpixel demo",
     sampleBitmap: "Bitmap vonal demo",
     sampleLoop: "LOOP / NEXT demo",
     sampleHelloLoop: "Hello World 1-40 (LOOP szamlalo)",
@@ -401,6 +420,7 @@ const translations = {
     sampleText: "TEXT example",
     sampleMacro: "Complex macro example",
     sampleSprite: "Sprite movement example",
+    sampleSetpixel: "Setpixel demo",
     sampleBitmap: "Bitmap line demo",
     sampleLoop: "LOOP / NEXT demo",
     sampleHelloLoop: "Hello World 1-40 (LOOP counter)",
@@ -667,22 +687,22 @@ function getItemDescription(item) {
 }
 
 const opcodeMap = {
-  LDA: { immediate: 0xA9, zeroPage: 0xA5, absolute: 0xAD, absoluteX: 0xBD },
+  LDA: { immediate: 0xA9, zeroPage: 0xA5, absolute: 0xAD, absoluteX: 0xBD, absoluteY: 0xB9, indirectX: 0xA1, indirectY: 0xB1 },
   LDX: { immediate: 0xA2, zeroPage: 0xA6, absolute: 0xAE },
   LDY: { immediate: 0xA0, zeroPage: 0xA4, absolute: 0xAC, absoluteX: 0xBC },
-  STA: { zeroPage: 0x85, absolute: 0x8D, absoluteX: 0x9D },
+  STA: { zeroPage: 0x85, absolute: 0x8D, absoluteX: 0x9D, absoluteY: 0x99, indirectX: 0x81, indirectY: 0x91 },
   STX: { zeroPage: 0x86, absolute: 0x8E },
   STY: { zeroPage: 0x84, absolute: 0x8C },
-  ADC: { immediate: 0x69, zeroPage: 0x65, absolute: 0x6D, absoluteX: 0x7D },
-  SBC: { immediate: 0xE9, zeroPage: 0xE5, absolute: 0xED, absoluteX: 0xFD },
+  ADC: { immediate: 0x69, zeroPage: 0x65, absolute: 0x6D, absoluteX: 0x7D, absoluteY: 0x79, indirectX: 0x61, indirectY: 0x71 },
+  SBC: { immediate: 0xE9, zeroPage: 0xE5, absolute: 0xED, absoluteX: 0xFD, absoluteY: 0xF9, indirectX: 0xE1, indirectY: 0xF1 },
   INC: { zeroPage: 0xE6, absolute: 0xEE, absoluteX: 0xFE },
   DEC: { zeroPage: 0xC6, absolute: 0xCE, absoluteX: 0xDE },
-  CMP: { immediate: 0xC9, zeroPage: 0xC5, absolute: 0xCD, absoluteX: 0xDD },
+  CMP: { immediate: 0xC9, zeroPage: 0xC5, absolute: 0xCD, absoluteX: 0xDD, absoluteY: 0xD9, indirectX: 0xC1, indirectY: 0xD1 },
   CPX: { immediate: 0xE0, zeroPage: 0xE4, absolute: 0xEC },
   CPY: { immediate: 0xC0, zeroPage: 0xC4, absolute: 0xCC },
-  AND: { immediate: 0x29, zeroPage: 0x25, absolute: 0x2D, absoluteX: 0x3D },
-  ORA: { immediate: 0x09, zeroPage: 0x05, absolute: 0x0D, absoluteX: 0x1D },
-  EOR: { immediate: 0x49, zeroPage: 0x45, absolute: 0x4D, absoluteX: 0x5D },
+  AND: { immediate: 0x29, zeroPage: 0x25, absolute: 0x2D, absoluteX: 0x3D, absoluteY: 0x39, indirectX: 0x21, indirectY: 0x31 },
+  ORA: { immediate: 0x09, zeroPage: 0x05, absolute: 0x0D, absoluteX: 0x1D, absoluteY: 0x19, indirectX: 0x01, indirectY: 0x11 },
+  EOR: { immediate: 0x49, zeroPage: 0x45, absolute: 0x4D, absoluteX: 0x5D, absoluteY: 0x59, indirectX: 0x41, indirectY: 0x51 },
   BIT: { zeroPage: 0x24, absolute: 0x2C },
   JMP: { absolute: 0x4C },
   JSR: { absolute: 0x20 },
@@ -1019,9 +1039,10 @@ function applyTranslations() {
   if (sampleOptions[2]) sampleOptions[2].textContent = t("sampleText");
   if (sampleOptions[3]) sampleOptions[3].textContent = t("sampleMacro");
   if (sampleOptions[4]) sampleOptions[4].textContent = t("sampleSprite");
-  if (sampleOptions[5]) sampleOptions[5].textContent = t("sampleBitmap");
-  if (sampleOptions[6]) sampleOptions[6].textContent = t("sampleLoop");
-  if (sampleOptions[7]) sampleOptions[7].textContent = t("sampleHelloLoop");
+  if (sampleOptions[5]) sampleOptions[5].textContent = t("sampleSetpixel");
+  if (sampleOptions[6]) sampleOptions[6].textContent = t("sampleBitmap");
+  if (sampleOptions[7]) sampleOptions[7].textContent = t("sampleLoop");
+  if (sampleOptions[8]) sampleOptions[8].textContent = t("sampleHelloLoop");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -2076,11 +2097,11 @@ function validateRange(modeKey, value) {
     return currentLanguage === "en" ? "Only whole numbers are supported." : "Csak egesz szam tamogatott.";
   }
 
-  if (modeKey === "immediate" || modeKey === "zeroPage") {
+  if (modeKey === "immediate" || modeKey === "zeroPage" || modeKey === "indirectX" || modeKey === "indirectY") {
     return value < 0 || value > 255 ? (currentLanguage === "en" ? "This mode expects a value between 0 and 255." : "Ez a mod 0 es 255 kozotti erteket var.") : "";
   }
 
-  if (modeKey === "absolute") {
+  if (modeKey === "absolute" || modeKey === "absoluteX" || modeKey === "absoluteY") {
     return value < 0 || value > 65535 ? (currentLanguage === "en" ? "Absolute addressing requires a value between 0 and 65535." : "Absolute cimzesnel 0 es 65535 kozotti ertek kell.") : "";
   }
 
@@ -2098,7 +2119,15 @@ function formatOperand(modeKey, value, base) {
     return `#${formatter(value, 2)}`;
   }
 
-  return formatter(value, modeKey === "absolute" ? 4 : 2);
+  if (modeKey === "indirectX") {
+    return `(${formatter(value, 2)},X)`;
+  }
+
+  if (modeKey === "indirectY") {
+    return `(${formatter(value, 2)}),Y`;
+  }
+
+  return formatter(value, modeKey === "absolute" || modeKey === "absoluteX" || modeKey === "absoluteY" ? 4 : 2);
 }
 
 function toHex(value, minDigits) {
@@ -2616,7 +2645,7 @@ function compileLineBytes(line, labels) {
     return operandValue;
   }
 
-  if (block.addressingMode === "immediate" || block.addressingMode === "zeroPage") {
+  if (block.addressingMode === "immediate" || block.addressingMode === "zeroPage" || block.addressingMode === "indirectX" || block.addressingMode === "indirectY") {
     bytes.push(operandValue.value & 0xFF);
   } else {
     bytes.push(operandValue.value & 0xFF, (operandValue.value >> 8) & 0xFF);
@@ -2808,7 +2837,7 @@ function getInstructionSize(block) {
     return 1;
   }
 
-  if (block.addressingMode === "immediate" || block.addressingMode === "zeroPage" || block.addressingMode === "relative") {
+  if (block.addressingMode === "immediate" || block.addressingMode === "zeroPage" || block.addressingMode === "relative" || block.addressingMode === "indirectX" || block.addressingMode === "indirectY") {
     return 2;
   }
 
@@ -3867,7 +3896,7 @@ async function loadSampleFromFile(sampleName) {
 
   const sampleData = result.sample;
   originInput.value = sampleData.origin || "0801";
-  program = sampleData.program;
+  program = collapseLoadedProgram(sampleData.program);
 
   renderOriginPreview();
   renderEmulatorRunHint();
@@ -3894,6 +3923,10 @@ async function loadMacroDemoProgram() {
 
 async function loadSpriteSampleProgram() {
   await loadSampleFromFile("sprite-demo");
+}
+
+async function loadSetpixelDemo() {
+  await loadSampleFromFile("setpixel-demo");
 }
 
 async function loadLoopSampleProgram() {
@@ -3927,6 +3960,11 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "sprite-demo") {
     loadSpriteSampleProgram();
+    return;
+  }
+
+  if (sampleSelect.value === "setpixel-demo") {
+    loadSetpixelDemo();
     return;
   }
 
