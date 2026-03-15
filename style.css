@@ -266,7 +266,19 @@ h1 {
   background: color-mix(in srgb, var(--control-bg) 76%, transparent);
   flex: 1 1 200px;
   min-width: 200px;
+  max-width: 280px;
   align-content: start;
+}
+
+.control-menu-group button,
+.control-menu-group input,
+.control-menu-group select {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.control-menu-group .menu-note {
+  min-width: 0;
 }
 
 .control-menu-label {
