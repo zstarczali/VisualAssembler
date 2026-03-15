@@ -49,18 +49,43 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx electron-builder --win nsis --publish never
 
-      # macOS build - explicit arch
+      # macOS build - explicit arch with no code signing
       - name: Build (macOS x64)
         if: runner.os == 'macOS' && matrix.arch == 'x64'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false
         run: npx electron-builder --mac --x64 --publish never
 
       - name: Build (macOS arm64)
         if: runner.os == 'macOS' && matrix.arch == 'arm64'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false
         run: npx electron-builder --mac --arm64 --publish never
+
+      # macOS post-build: clean xattrs and ad-hoc sign
+      - name: Clean and sign macOS app
+        if: runner.os == 'macOS'
+        run: |
+          APP_PATH=$(find dist -name "*.app" -type d -maxdepth 2 | head -1)
+          if [ -n "$APP_PATH" ]; then
+            echo "Cleaning extended attributes from: $APP_PATH"
+            find "$APP_PATH" -exec xattr -c {} \; 2>/dev/null || true
+            
+            echo "Ad-hoc signing: $APP_PATH"
+            codesign --force --deep --sign - "$APP_PATH"
+            
+            echo "Creating clean DMG"
+            APP_NAME=$(basename "$APP_PATH" .app)
+            VERSION=$(node -p "require('./package.json').version")
+            hdiutil create -volname "$APP_NAME" \
+              -srcfolder "$APP_PATH" \
+              -ov -format UDZO \
+              "dist/${APP_NAME}-${VERSION}-${{ matrix.arch }}-clean.dmg"
+            
+            echo "✅ Clean DMG created: dist/${APP_NAME}-${VERSION}-${{ matrix.arch }}-clean.dmg"
+          fi
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
