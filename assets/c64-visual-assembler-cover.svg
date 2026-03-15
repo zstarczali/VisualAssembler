@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Visual Assembler C64 cover</title>
+  <desc id="desc">Retro Commodore 64 inspired cover for Visual Assembler</desc>
+
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1b1a5d"/>
+      <stop offset="50%" stop-color="#2f2a8a"/>
+      <stop offset="100%" stop-color="#4b44b2"/>
+    </linearGradient>
+
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#83d7ff"/>
+      <stop offset="100%" stop-color="#58b9ff"/>
+    </linearGradient>
+
+    <linearGradient id="chip" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#70ffb8"/>
+      <stop offset="100%" stop-color="#5bd9ff"/>
+    </linearGradient>
+
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="10" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+
+  <g opacity="0.15">
+    <rect x="80" y="120" width="1440" height="660" rx="24" fill="#ffffff"/>
+    <rect x="96" y="136" width="1408" height="628" rx="18" fill="#000000"/>
+  </g>
+
+  <g opacity="0.18">
+    <rect x="120" y="180" width="260" height="520" rx="18" fill="#b6b8ff"/>
+    <rect x="410" y="180" width="430" height="520" rx="18" fill="#b6b8ff"/>
+    <rect x="870" y="180" width="610" height="520" rx="18" fill="#b6b8ff"/>
+  </g>
+
+  <g transform="translate(140,220)">
+    <rect width="220" height="84" rx="16" fill="url(#panel)"/>
+    <text x="20" y="34" fill="#11235f" font-family="'IBM Plex Mono', Consolas, monospace" font-size="26" font-weight="700">LDA #$00</text>
+    <text x="20" y="62" fill="#21418a" font-family="'Space Grotesk', Segoe UI, sans-serif" font-size="17">Immediate</text>
+  </g>
+
+  <g transform="translate(140,324)">
+    <rect width="220" height="84" rx="16" fill="#9af3c8"/>
+    <text x="20" y="34" fill="#0d4f3f" font-family="'IBM Plex Mono', Consolas, monospace" font-size="26" font-weight="700">STA $D020</text>
+    <text x="20" y="62" fill="#1f6d5d" font-family="'Space Grotesk', Segoe UI, sans-serif" font-size="17">Border color</text>
+  </g>
+
+  <g transform="translate(140,428)">
+    <rect width="220" height="84" rx="16" fill="#ffd58b"/>
+    <text x="20" y="34" fill="#7a4b00" font-family="'IBM Plex Mono', Consolas, monospace" font-size="26" font-weight="700">JMP loop</text>
+    <text x="20" y="62" fill="#8e5a0a" font-family="'Space Grotesk', Segoe UI, sans-serif" font-size="17">Label jump</text>
+  </g>
+
+  <g transform="translate(450,244)">
+    <rect width="340" height="54" rx="12" fill="#2a266f"/>
+    <text x="18" y="35" fill="#9bdfff" font-family="'IBM Plex Mono', Consolas, monospace" font-size="28" font-weight="700">loop:</text>
+  </g>
+
+  <g transform="translate(450,314)">
+    <rect width="340" height="54" rx="12" fill="#2a266f"/>
+    <text x="18" y="35" fill="#dbdeff" font-family="'IBM Plex Mono', Consolas, monospace" font-size="28">LDA $D020</text>
+  </g>
+
+  <g transform="translate(450,384)">
+    <rect width="340" height="54" rx="12" fill="#2a266f"/>
+    <text x="18" y="35" fill="#dbdeff" font-family="'IBM Plex Mono', Consolas, monospace" font-size="28">CLC</text>
+  </g>
+
+  <g transform="translate(450,454)">
+    <rect width="340" height="54" rx="12" fill="#2a266f"/>
+    <text x="18" y="35" fill="#dbdeff" font-family="'IBM Plex Mono', Consolas, monospace" font-size="28">ADC #$01</text>
+  </g>
+
+  <g transform="translate(450,524)">
+    <rect width="340" height="54" rx="12" fill="#2a266f"/>
+    <text x="18" y="35" fill="#dbdeff" font-family="'IBM Plex Mono', Consolas, monospace" font-size="28">STA $D020</text>
+  </g>
+
+  <g transform="translate(900,220)">
+    <rect width="540" height="460" rx="18" fill="#171450" stroke="#8ea0ff" stroke-opacity="0.45"/>
+    <text x="26" y="48" fill="#8fdfff" font-family="'Space Grotesk', Segoe UI, sans-serif" font-size="26" font-weight="700">Monitor View</text>
+    <text x="26" y="92" fill="#e2e6ff" font-family="'IBM Plex Mono', Consolas, monospace" font-size="24">$0801  78</text>
+    <text x="26" y="128" fill="#e2e6ff" font-family="'IBM Plex Mono', Consolas, monospace" font-size="24">$0802  A9 00</text>
+    <text x="26" y="164" fill="#e2e6ff" font-family="'IBM Plex Mono', Consolas, monospace" font-size="24">$0804  8D 20 D0</text>
+    <text x="26" y="200" fill="#e2e6ff" font-family="'IBM Plex Mono', Consolas, monospace" font-size="24">$0807  4C 02 08</text>
+    <rect x="26" y="240" width="488" height="16" rx="8" fill="#32307a"/>
+    <rect x="26" y="240" width="158" height="16" rx="8" fill="#f97f92"/>
+    <text x="26" y="292" fill="#9ca7ff" font-family="'Space Grotesk', Segoe UI, sans-serif" font-size="20">C64 Memory Usage</text>
+    <text x="26" y="332" fill="#d7dcff" font-family="'IBM Plex Mono', Consolas, monospace" font-size="20">Free RAM: 44542 bytes</text>
+    <text x="26" y="362" fill="#d7dcff" font-family="'IBM Plex Mono', Consolas, monospace" font-size="20">Used RAM:   514 bytes</text>
+  </g>
+
+  <g filter="url(#glow)">
+    <text x="120" y="120" fill="url(#chip)" font-family="'Space Grotesk', Segoe UI, sans-serif" font-size="74" font-weight="700">VISUAL ASSEMBLER</text>
+    <text x="124" y="162" fill="#b8c2ff" font-family="'IBM Plex Mono', Consolas, monospace" font-size="28">COMMODORE 64 EDITION</text>
+  </g>
+
+  <g transform="translate(120,760)">
+    <rect width="310" height="64" rx="14" fill="#262068" stroke="#8ea0ff" stroke-opacity="0.45"/>
+    <text x="20" y="40" fill="#d8deff" font-family="'IBM Plex Mono', Consolas, monospace" font-size="30">*=$0801</text>
+  </g>
+</svg>
