@@ -21,6 +21,7 @@
       "mnemonic": "JSR",
       "operand": "$E544",
       "rawOperand": "E544",
+      "description": "Szubrutin meghivasa.",
       "addressingMode": "absolute",
       "base": "hex",
       "validationError": "",
