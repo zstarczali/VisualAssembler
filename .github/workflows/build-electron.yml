@@ -79,13 +79,12 @@ jobs:
             echo "Creating clean DMG"
             APP_NAME=$(basename "$APP_PATH" .app)
             VERSION=$(node -p "require('./package.json').version")
-            cd dist
             hdiutil create -volname "$APP_NAME" \
-              -srcfolder "$(basename "$APP_PATH")" \
+              -srcfolder "$APP_PATH" \
               -ov -format UDZO \
-              "${APP_NAME}-${VERSION}-${{ matrix.arch }}-clean.dmg"
+              "dist/${APP_NAME}-${VERSION}-${{ matrix.arch }}-clean.dmg"
             
-            echo "✅ Clean DMG created: ${APP_NAME}-${VERSION}-${{ matrix.arch }}-clean.dmg"
+            echo "✅ Clean DMG created: dist/${APP_NAME}-${VERSION}-${{ matrix.arch }}-clean.dmg"
           fi
 
       - name: Upload artifacts
