@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "app": "c64-visual-assembler",
+  "origin": "0801",
+  "program": [
+    {
+      "id": "b3ecb23a-5651-4c64-b53a-adcc0e4b7e94",
+      "category": "Rendszer",
+      "mnemonic": "SEI",
+      "operand": "",
+      "rawOperand": "",
+      "description": "IRQ megszakitasok tiltasa.",
+      "addressingMode": "implied",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    },
+    {
+      "id": "e308ade7-183c-4743-951a-51c82826e066",
+      "category": "Adatmozgas",
+      "mnemonic": "LDA",
+      "operand": "#$00",
+      "rawOperand": "00",
+      "description": "Akkumulator betoltese memoriabol vagy konstansbol.",
+      "addressingMode": "immediate",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    },
+    {
+      "id": "889e39f7-a905-436a-b01d-25014b4a8ae3",
+      "category": "Adatmozgas",
+      "mnemonic": "STA",
+      "operand": "$D020",
+      "rawOperand": "D020",
+      "description": "Akkumulator kiirasa memoriacimre.",
+      "addressingMode": "absolute",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    },
+    {
+      "id": "d9679e63-30a8-42c8-b957-62f8e074b373",
+      "category": "Adatmozgas",
+      "mnemonic": "STA",
+      "operand": "$D021",
+      "rawOperand": "D021",
+      "description": "Akkumulator kiirasa memoriacimre.",
+      "addressingMode": "absolute",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    },
+    {
+      "id": "f0e62760-6225-4573-8002-eb0d3edbe90d",
+      "category": "Ugrasok",
+      "mnemonic": "RTS",
+      "operand": "",
+      "rawOperand": "",
+      "description": "Visszateres szubrutinbol.",
+      "addressingMode": "implied",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    }
+  ],
+  "ui": {
+    "sample": "basic-colors",
+    "outputMode": "asm",
+    "numberBase": "hex",
+    "zoom": 0.72,
+    "language": "hu",
+    "theme": "light"
+  }
+}
