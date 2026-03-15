@@ -24,6 +24,8 @@ jobs:
         include:
           - os: windows-latest
             arch: x64
+          - os: windows-latest
+            arch: arm64
           - os: macos-13
             arch: x64
           - os: macos-14
@@ -42,12 +44,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Windows build (NSIS) a package.json script alapján
-      - name: Build (Windows)
-        if: runner.os == 'Windows'
+      # Windows build (NSIS) — explicit arch per matrix entry.
+      # Both entries run on the x64 windows-latest runner; arm64 uses cross-compilation.
+      - name: Build (Windows x64)
+        if: runner.os == 'Windows' && matrix.arch == 'x64'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx electron-builder --win nsis --publish never
+        run: npx electron-builder --win nsis --x64 --publish never
+
+      - name: Build (Windows arm64)
+        if: runner.os == 'Windows' && matrix.arch == 'arm64'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --win nsis --arm64 --publish never
 
       # macOS build - explicit arch with no code signing
       - name: Build (macOS x64)
