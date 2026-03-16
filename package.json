@@ -9,9 +9,6 @@
     "dist": "electron-builder --win nsis --x64 --arm64",
     "dist:win:x64": "electron-builder --win nsis --x64",
     "dist:win:arm64": "electron-builder --win nsis --arm64",
-    "dist:linux": "electron-builder --linux deb --x64 --arm64",
-    "dist:linux:x64": "electron-builder --linux deb --x64",
-    "dist:linux:arm64": "electron-builder --linux deb --arm64",
     "dist:dir": "electron-builder --win dir"
   },
   "build": {
@@ -60,23 +57,6 @@
       "createStartMenuShortcut": true,
       "shortcutName": "C64 Visual Assembler",
       "artifactName": "${productName}-Setup-${version}-${arch}.${ext}"
-    },
-    "linux": {
-      "target": [
-        {
-          "target": "deb",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        }
-      ],
-      "icon": "build/commodore64.png",
-      "category": "Development",
-      "maintainer": "zstarczali"
-    },
-    "deb": {
-      "artifactName": "${productName}-${version}-${arch}.${ext}"
     }
   },
   "devDependencies": {
