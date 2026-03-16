@@ -78,9 +78,9 @@
       "collapsed": true
     },
     {
-      "id": "lbl1",
-      "category": "Szerkezet",
-      "mnemonic": "LABEL",
+      "id": "7d7fda7e-698c-4e3b-85d6-bad7ee1e3477",
+      "category": "Makrok",
+      "mnemonic": "LOOP",
       "operand": "",
       "rawOperand": "",
       "description": "",
@@ -88,8 +88,10 @@
       "base": "hex",
       "validationError": "",
       "collapsed": false,
-      "isLabel": true,
-      "labelName": "clrloop"
+      "isLoopMacro": true,
+      "loopReg": "X",
+      "loopCount": "00",
+      "loopLabel": "clrloop"
     },
     {
       "id": "sta1",
@@ -476,28 +478,19 @@
       "collapsed": true
     },
     {
-      "id": "inx1",
-      "category": "Regiszterek",
-      "mnemonic": "INX",
+      "id": "aafec796-d390-41d5-a1c2-752ee6af37c7",
+      "category": "Makrok",
+      "mnemonic": "NEXT",
       "operand": "",
       "rawOperand": "",
       "description": "",
       "addressingMode": "implied",
       "base": "hex",
       "validationError": "",
-      "collapsed": true
-    },
-    {
-      "id": "bne1",
-      "category": "Ugrasok",
-      "mnemonic": "BNE",
-      "operand": "clrloop",
-      "rawOperand": "clrloop",
-      "description": "",
-      "addressingMode": "relative",
-      "base": "hex",
-      "validationError": "",
-      "collapsed": true
+      "collapsed": false,
+      "isNextMacro": true,
+      "nextLabel": "clrloop",
+      "nextReg": "X"
     },
     {
       "id": "cmt3",
@@ -537,9 +530,9 @@
       "collapsed": true
     },
     {
-      "id": "lbl2",
-      "category": "Szerkezet",
-      "mnemonic": "LABEL",
+      "id": "945122d5-3738-4fb9-bafb-a1980a7b797d",
+      "category": "Makrok",
+      "mnemonic": "LOOP",
       "operand": "",
       "rawOperand": "",
       "description": "",
@@ -547,8 +540,10 @@
       "base": "hex",
       "validationError": "",
       "collapsed": false,
-      "isLabel": true,
-      "labelName": "fillscr"
+      "isLoopMacro": true,
+      "loopReg": "X",
+      "loopCount": "00",
+      "loopLabel": "fillscr"
     },
     {
       "id": "sta33",
@@ -599,28 +594,19 @@
       "collapsed": true
     },
     {
-      "id": "inx2",
-      "category": "Regiszterek",
-      "mnemonic": "INX",
+      "id": "8a7845b8-f979-423e-94a0-6e48f78fb999",
+      "category": "Makrok",
+      "mnemonic": "NEXT",
       "operand": "",
       "rawOperand": "",
       "description": "",
       "addressingMode": "implied",
       "base": "hex",
       "validationError": "",
-      "collapsed": true
-    },
-    {
-      "id": "bne2",
-      "category": "Ugrasok",
-      "mnemonic": "BNE",
-      "operand": "fillscr",
-      "rawOperand": "fillscr",
-      "description": "",
-      "addressingMode": "relative",
-      "base": "hex",
-      "validationError": "",
-      "collapsed": true
+      "collapsed": false,
+      "isNextMacro": true,
+      "nextLabel": "fillscr",
+      "nextReg": "X"
     },
     {
       "id": "cmt4",

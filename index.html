@@ -36,6 +36,8 @@
                     <option value="sprite-demo">Sprite mozgatas pelda</option>
                     <option value="setpixel-demo">Setpixel demo</option>
                     <option value="bitmap-demo">Bitmap vonal demo</option>
+                    <option value="bitmap-clear-test">Bitmap clear test</option>
+                    <option value="macro-test">New macros test</option>
                     <option value="loop-demo">LOOP / NEXT demo</option>
                     <option value="hello-loop-demo">Hello World 1-40 (LOOP szamlalo)</option>
                   </select>
@@ -270,45 +272,25 @@
 <dialog id="whats-new-dialog" class="whats-new-dialog">
   <div class="whats-new-card">
     <h2 class="whats-new-title">What's New</h2>
-    <p class="whats-new-version">v1.1.0</p>
+    <p class="whats-new-version">v1.1.3</p>
     <ul class="whats-new-list">
       <li>
-        <strong>macOS verzió</strong> — az alkalmazás mostantól elérhető Mac-re (ARM64 DMG installer) is a Windows verzió mellett. Teljes VICE integráció macOS-en.
+        <strong>New macros</strong> — added WORD (16-bit values), FILL (repeated bytes), TABLE (lookup tables), and IF/ELSE/ENDIF (conditional assembly) macros for more complete assembler functionality.
       </li>
       <li>
-        <strong>Hello World 1–40 demo</strong> — új mintaprogram: LOOP / NEXT makróval 40-szer írja ki a „Hello World X" szöveget, ahol X mindig az aktuális szám (1-től 40-ig). ASCII számjegy számláló zero page-en ($FB / $FC), kétjegyű számok automatikus kezelésével.
+        <strong>New sample programs</strong> — added Bitmap Clear Test demo showcasing efficient memory clearing techniques using LOOP/NEXT macros with optimized 32×256 byte block fills, and Macro Test demo demonstrating all new macro features.
       </li>
       <li>
-        <strong>LOOP / NEXT makró</strong> — új vizuális ciklus blokk pár. A LOOP beállítja a számlálót (X vagy Y regiszter, hex érték), a NEXT automatikusan kapcsolódik hozzá és DEX/DEY + BNE utasítást generál. Egymásba ágyazott ciklusok is lehetségesek.
+        <strong>Internal refactoring</strong> — improved code organization and maintainability with cleaner architecture.
       </li>
       <li>
-        <strong>Bitmap vonal demo</strong> — új mintaprogram: C64 hires bitmap módban 8 egyenes vonal rajzolása JavaScript Bresenham algoritmussal előre kiszámítva.
+        <strong>Performance improvements</strong> — faster sample loading from external JSON files, optimized rendering pipeline.
       </li>
       <li>
-        <strong>LOOP / NEXT demo</strong> — új mintaprogram: egymásba ágyazott delay ciklusokkal keret- és háttérszín lassú ciklusozása mind a 16 C64 színen át.
+        <strong>Build optimization</strong> — removed Linux build target, streamlined CI/CD pipeline for Windows and macOS only.
       </li>
       <li>
-        <strong>Hibajavítás</strong> — indítási szintaxishiba javítva; a mnemonikkönyvtár és az összes funkció ismét helyesen töltődik be.
-      </li>
-    </ul>
-    <ul class="whats-new-list whats-new-list-en">
-      <li>
-        <strong>macOS version</strong> — the app is now available for Mac (ARM64 DMG installer) alongside the Windows version. Full VICE integration on macOS.
-      </li>
-      <li>
-        <strong>Hello World 1–40 demo</strong> — new sample program: uses LOOP / NEXT macro to print "Hello World X" 40 times, where X is the current counter (1 to 40). ASCII digit counter on zero page ($FB / $FC) with automatic two-digit handling.
-      </li>
-      <li>
-        <strong>LOOP / NEXT macro</strong> — new visual loop block pair. LOOP sets up the counter (X or Y register, hex value), NEXT auto-connects and generates DEX/DEY + BNE. Nested loops are fully supported.
-      </li>
-      <li>
-        <strong>Bitmap line demo</strong> — new sample program: draws 8 straight lines in C64 hires bitmap mode, pixel data pre-computed in JavaScript using Bresenham's algorithm.
-      </li>
-      <li>
-        <strong>LOOP / NEXT demo</strong> — new sample program: nested delay loops cycle the border and background through all 16 C64 colours slowly.
-      </li>
-      <li>
-        <strong>Bug fix</strong> — startup syntax error resolved; mnemonic library and all features load correctly again.
+        <strong>Sample localization</strong> — all sample program descriptions and comments translated to English for better accessibility.
       </li>
     </ul>
     <button id="whats-new-close" class="primary" type="button">OK</button>
