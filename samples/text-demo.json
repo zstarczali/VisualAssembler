@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "app": "c64-visual-assembler",
+  "origin": "0801",
+  "program": [
+    {
+      "id": "af78fa51-a08e-49ae-b5dd-e55704cbbaab",
+      "category": "Rendszer",
+      "mnemonic": "SEI",
+      "operand": "",
+      "rawOperand": "",
+      "description": "Disable IRQ interrupts.",
+      "addressingMode": "implied",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    },
+    {
+      "id": "69ddd3a5-187e-412b-8e2b-6c4e69ff1084",
+      "category": "Ugrasok",
+      "mnemonic": "JSR",
+      "operand": "$E544",
+      "rawOperand": "E544",
+      "description": "Jump to subroutine.",
+      "addressingMode": "absolute",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    },
+    {
+      "id": "9281657d-ab25-435c-9722-6b84f897552e",
+      "category": "Makrok",
+      "mnemonic": "TEXT",
+      "operand": "HELLO C64",
+      "rawOperand": "HELLO C64",
+      "description": "Print text to screen via KERNAL CHROUT routine.",
+      "addressingMode": "implied",
+      "base": "text",
+      "validationError": "",
+      "isTextMacro": true,
+      "textX": 12,
+      "textY": 8,
+      "collapsed": true
+    },
+    {
+      "id": "8c680363-9aff-46e5-9bf4-5ee95af15fca",
+      "category": "Makrok",
+      "mnemonic": "TEXT",
+      "operand": "VISUAL ASSEMBLER",
+      "rawOperand": "VISUAL ASSEMBLER",
+      "description": "Print text to screen via KERNAL CHROUT routine.",
+      "addressingMode": "implied",
+      "base": "text",
+      "validationError": "",
+      "isTextMacro": true,
+      "textX": 8,
+      "textY": 10,
+      "collapsed": true
+    },
+    {
+      "id": "e785a8e0-353f-4792-bfd7-d5b8e9d65f4b",
+      "category": "Ugrasok",
+      "mnemonic": "RTS",
+      "operand": "",
+      "rawOperand": "",
+      "description": "Return from subroutine.",
+      "addressingMode": "implied",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    }
+  ],
+  "ui": {
+    "sample": "text-demo",
+    "outputMode": "asm",
+    "numberBase": "hex",
+    "zoom": 0.72,
+    "language": "hu",
+    "theme": "light"
+  }
+}

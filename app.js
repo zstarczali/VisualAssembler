@@ -34,31 +34,49 @@ const addressingModes = {
     needsOperand: true,
     placeholder: "0-65535",
     help: "16 bites memoriacim + X regiszter offset. Pl: LDA $0400,X"
+  },
+  absoluteY: {
+    label: "Absolute,Y",
+    needsOperand: true,
+    placeholder: "0-65535",
+    help: "16 bites memoriacim + Y regiszter offset. Pl: LDA $0400,Y"
+  },
+  indirectX: {
+    label: "Indirect,X",
+    needsOperand: true,
+    placeholder: "0-255",
+    help: "Zero page indexelt indirekt. Pl: LDA ($FB,X)"
+  },
+  indirectY: {
+    label: "Indirect,Y",
+    needsOperand: true,
+    placeholder: "0-255",
+    help: "Zero page indirekt indexelt. Pl: LDA ($FB),Y"
   }
 };
 
 const mnemonicLibrary = {
   Adatmozgas: [
-    { mnemonic: "LDA", description: "Akkumulator betoltese memoriabol vagy konstansbol.", modes: ["immediate", "zeroPage", "absolute", "absoluteX"] },
+    { mnemonic: "LDA", description: "Akkumulator betoltese memoriabol vagy konstansbol.", modes: ["immediate", "zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
     { mnemonic: "LDX", description: "X regiszter betoltese.", modes: ["immediate", "zeroPage", "absolute"] },
     { mnemonic: "LDY", description: "Y regiszter betoltese.", modes: ["immediate", "zeroPage", "absolute", "absoluteX"] },
-    { mnemonic: "STA", description: "Akkumulator kiirasa memoriacimre.", modes: ["zeroPage", "absolute", "absoluteX"] },
+    { mnemonic: "STA", description: "Akkumulator kiirasa memoriacimre.", modes: ["zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
     { mnemonic: "STX", description: "X regiszter tarolasa.", modes: ["zeroPage", "absolute"] },
     { mnemonic: "STY", description: "Y regiszter tarolasa.", modes: ["zeroPage", "absolute"] }
   ],
   Aritmetika: [
-    { mnemonic: "ADC", description: "Osszeadas carry figyelembevetele mellett.", modes: ["immediate", "zeroPage", "absolute"] },
-    { mnemonic: "SBC", description: "Kivonas carry figyelembevetele mellett.", modes: ["immediate", "zeroPage", "absolute"] },
+    { mnemonic: "ADC", description: "Osszeadas carry figyelembevetele mellett.", modes: ["immediate", "zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
+    { mnemonic: "SBC", description: "Kivonas carry figyelembevetele mellett.", modes: ["immediate", "zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
     { mnemonic: "INC", description: "Memoriacim noveles.", modes: ["zeroPage", "absolute"] },
     { mnemonic: "DEC", description: "Memoriacim csokkentes.", modes: ["zeroPage", "absolute"] },
-    { mnemonic: "CMP", description: "Osszehasonlitas az akkumulatorral.", modes: ["immediate", "zeroPage", "absolute"] },
+    { mnemonic: "CMP", description: "Osszehasonlitas az akkumulatorral.", modes: ["immediate", "zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
     { mnemonic: "CPX", description: "Osszehasonlitas az X regiszterrel.", modes: ["immediate", "zeroPage", "absolute"] },
     { mnemonic: "CPY", description: "Osszehasonlitas az Y regiszterrel.", modes: ["immediate", "zeroPage", "absolute"] }
   ],
   Logika: [
-    { mnemonic: "AND", description: "Logikai ES muvelet az akkumulatorral.", modes: ["immediate", "zeroPage", "absolute"] },
-    { mnemonic: "ORA", description: "Logikai VAGY muvelet az akkumulatorral.", modes: ["immediate", "zeroPage", "absolute"] },
-    { mnemonic: "EOR", description: "Exkluziv VAGY muvelet az akkumulatorral.", modes: ["immediate", "zeroPage", "absolute"] },
+    { mnemonic: "AND", description: "Logikai ES muvelet az akkumulatorral.", modes: ["immediate", "zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
+    { mnemonic: "ORA", description: "Logikai VAGY muvelet az akkumulatorral.", modes: ["immediate", "zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
+    { mnemonic: "EOR", description: "Exkluziv VAGY muvelet az akkumulatorral.", modes: ["immediate", "zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
     { mnemonic: "BIT", description: "Bitek tesztelese memoriacimrol.", modes: ["zeroPage", "absolute"] }
   ],
   Ugrasok: [
@@ -113,12 +131,18 @@ const mnemonicLibrary = {
   Makrok: [
     { mnemonic: "TEXT", description: "Szoveg kiirasa a kepernyore KERNAL CHROUT rutinon keresztul.", modes: ["implied"], isTextMacro: true },
     { mnemonic: "BYTE", description: "Tetszoleges byte tomb beillesztese vesszovel elvalasztva.", modes: ["implied"], isByteMacro: true },
+    { mnemonic: "WORD", description: "16-bites ertekek tarolasa LO/HI byte parokban, vesszovel elvalasztva.", modes: ["implied"], isWordMacro: true },
+    { mnemonic: "FILL", description: "Ismetlodo byte generalasa megadott darabszammal.", modes: ["implied"], isFillMacro: true },
+    { mnemonic: "TABLE", description: "Lookup tabla definicio cimkevel es kezdocimmel.", modes: ["implied"], isTableMacro: true },
     { mnemonic: "STRING", description: "Karakterlanc kiirasa egy megadott memoriacimre.", modes: ["implied"], isStringMacro: true },
     { mnemonic: "DATA", description: "Nyers byte-ok kiirasa egy megadott memoriacimre.", modes: ["implied"], isDataMacro: true },
     { mnemonic: "RAWBYTES", description: "Nyers byte-ok elhelyezese egy megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isRawBytesMacro: true },
     { mnemonic: "RAWTEXT", description: "Szoveg elhelyezese PETSCII byte-kenkent egy megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isRawTextMacro: true },
     { mnemonic: "LOOP", description: "Szamlalo ciklus: LD* #count, majd cimke a body elejere. NEXT blokkal zarjuk.", modes: ["implied"], isLoopMacro: true },
-    { mnemonic: "NEXT", description: "Ciklus vege: DE* es BNE visszaugras a LOOP cimkejere.", modes: ["implied"], isNextMacro: true }
+    { mnemonic: "NEXT", description: "Ciklus vege: DE* es BNE visszaugras a LOOP cimkejere.", modes: ["implied"], isNextMacro: true },
+    { mnemonic: "IF", description: "Felteteles forditas kezdete. Kifejezest var (pl. DEBUG). ENDIF-fel zarjuk.", modes: ["implied"], isIfMacro: true },
+    { mnemonic: "ELSE", description: "Alternativ ag IF blokkon belul.", modes: ["implied"], isElseMacro: true },
+    { mnemonic: "ENDIF", description: "Felteteles forditas vege.", modes: ["implied"], isEndIfMacro: true }
   ],
   Illegalis: [
     { mnemonic: "LAX", description: "A es X regiszter egyideju betoltese (illegalis: LDA+LDX kombinacio).", modes: ["immediate", "zeroPage", "absolute"] },
@@ -251,7 +275,10 @@ const translations = {
     sampleText: "TEXT pelda",
     sampleMacro: "Komplex makro pelda",
     sampleSprite: "Sprite mozgatas pelda",
+    sampleSetpixel: "Setpixel demo",
     sampleBitmap: "Bitmap vonal demo",
+    sampleBitmapClear: "Bitmap clear test",
+    sampleMacroTest: "Uj makrok teszt",
     sampleLoop: "LOOP / NEXT demo",
     sampleHelloLoop: "Hello World 1-40 (LOOP szamlalo)",
     languageLabel: "Nyelv",
@@ -401,7 +428,10 @@ const translations = {
     sampleText: "TEXT example",
     sampleMacro: "Complex macro example",
     sampleSprite: "Sprite movement example",
+    sampleSetpixel: "Setpixel demo",
     sampleBitmap: "Bitmap line demo",
+    sampleBitmapClear: "Bitmap clear test",
+    sampleMacroTest: "New macros test",
     sampleLoop: "LOOP / NEXT demo",
     sampleHelloLoop: "Hello World 1-40 (LOOP counter)",
     languageLabel: "Language",
@@ -634,12 +664,18 @@ const mnemonicDescriptionsEn = {
   BRK: "Break/interrupt for debugging.",
   TEXT: "Write text to the screen.",
   BYTE: "Insert an arbitrary comma-separated byte array.",
+  WORD: "Insert 16-bit values stored as LO/HI byte pairs, comma-separated.",
+  FILL: "Generate repeated bytes with a specified count.",
+  TABLE: "Define a lookup table with a label and start address.",
   STRING: "Write a string to a given memory address.",
   DATA: "Write raw bytes to a given memory address via LDA/STA code.",
   RAWBYTES: "Place raw bytes at a given memory address without generating any runtime code.",
   RAWTEXT: "Place text as PETSCII bytes at a given memory address without generating any runtime code.",
   LOOP: "Counter loop: LD* #count loads the counter, then a label marks the body start. Close with NEXT.",
   NEXT: "Loop end: DE* decrements the counter, BNE branches back to the LOOP label.",
+  IF: "Conditional assembly start. Expects a condition (e.g. DEBUG). Close with ENDIF.",
+  ELSE: "Alternative branch within an IF block.",
+  ENDIF: "Conditional assembly end.",
   LAX: "Load both A and X from the same address simultaneously (illegal: LDA+LDX).",
   SAX: "Store A AND X to a memory address (illegal).",
   DCP: "Decrement memory then compare with accumulator (illegal: DEC+CMP).",
@@ -667,22 +703,22 @@ function getItemDescription(item) {
 }
 
 const opcodeMap = {
-  LDA: { immediate: 0xA9, zeroPage: 0xA5, absolute: 0xAD, absoluteX: 0xBD },
+  LDA: { immediate: 0xA9, zeroPage: 0xA5, absolute: 0xAD, absoluteX: 0xBD, absoluteY: 0xB9, indirectX: 0xA1, indirectY: 0xB1 },
   LDX: { immediate: 0xA2, zeroPage: 0xA6, absolute: 0xAE },
   LDY: { immediate: 0xA0, zeroPage: 0xA4, absolute: 0xAC, absoluteX: 0xBC },
-  STA: { zeroPage: 0x85, absolute: 0x8D, absoluteX: 0x9D },
+  STA: { zeroPage: 0x85, absolute: 0x8D, absoluteX: 0x9D, absoluteY: 0x99, indirectX: 0x81, indirectY: 0x91 },
   STX: { zeroPage: 0x86, absolute: 0x8E },
   STY: { zeroPage: 0x84, absolute: 0x8C },
-  ADC: { immediate: 0x69, zeroPage: 0x65, absolute: 0x6D, absoluteX: 0x7D },
-  SBC: { immediate: 0xE9, zeroPage: 0xE5, absolute: 0xED, absoluteX: 0xFD },
+  ADC: { immediate: 0x69, zeroPage: 0x65, absolute: 0x6D, absoluteX: 0x7D, absoluteY: 0x79, indirectX: 0x61, indirectY: 0x71 },
+  SBC: { immediate: 0xE9, zeroPage: 0xE5, absolute: 0xED, absoluteX: 0xFD, absoluteY: 0xF9, indirectX: 0xE1, indirectY: 0xF1 },
   INC: { zeroPage: 0xE6, absolute: 0xEE, absoluteX: 0xFE },
   DEC: { zeroPage: 0xC6, absolute: 0xCE, absoluteX: 0xDE },
-  CMP: { immediate: 0xC9, zeroPage: 0xC5, absolute: 0xCD, absoluteX: 0xDD },
+  CMP: { immediate: 0xC9, zeroPage: 0xC5, absolute: 0xCD, absoluteX: 0xDD, absoluteY: 0xD9, indirectX: 0xC1, indirectY: 0xD1 },
   CPX: { immediate: 0xE0, zeroPage: 0xE4, absolute: 0xEC },
   CPY: { immediate: 0xC0, zeroPage: 0xC4, absolute: 0xCC },
-  AND: { immediate: 0x29, zeroPage: 0x25, absolute: 0x2D, absoluteX: 0x3D },
-  ORA: { immediate: 0x09, zeroPage: 0x05, absolute: 0x0D, absoluteX: 0x1D },
-  EOR: { immediate: 0x49, zeroPage: 0x45, absolute: 0x4D, absoluteX: 0x5D },
+  AND: { immediate: 0x29, zeroPage: 0x25, absolute: 0x2D, absoluteX: 0x3D, absoluteY: 0x39, indirectX: 0x21, indirectY: 0x31 },
+  ORA: { immediate: 0x09, zeroPage: 0x05, absolute: 0x0D, absoluteX: 0x1D, absoluteY: 0x19, indirectX: 0x01, indirectY: 0x11 },
+  EOR: { immediate: 0x49, zeroPage: 0x45, absolute: 0x4D, absoluteX: 0x5D, absoluteY: 0x59, indirectX: 0x41, indirectY: 0x51 },
   BIT: { zeroPage: 0x24, absolute: 0x2C },
   JMP: { absolute: 0x4C },
   JSR: { absolute: 0x20 },
@@ -1019,9 +1055,12 @@ function applyTranslations() {
   if (sampleOptions[2]) sampleOptions[2].textContent = t("sampleText");
   if (sampleOptions[3]) sampleOptions[3].textContent = t("sampleMacro");
   if (sampleOptions[4]) sampleOptions[4].textContent = t("sampleSprite");
-  if (sampleOptions[5]) sampleOptions[5].textContent = t("sampleBitmap");
-  if (sampleOptions[6]) sampleOptions[6].textContent = t("sampleLoop");
-  if (sampleOptions[7]) sampleOptions[7].textContent = t("sampleHelloLoop");
+  if (sampleOptions[5]) sampleOptions[5].textContent = t("sampleSetpixel");
+  if (sampleOptions[6]) sampleOptions[6].textContent = t("sampleBitmap");
+  if (sampleOptions[7]) sampleOptions[7].textContent = t("sampleBitmapClear");
+  if (sampleOptions[8]) sampleOptions[8].textContent = t("sampleMacroTest");
+  if (sampleOptions[9]) sampleOptions[9].textContent = t("sampleLoop");
+  if (sampleOptions[10]) sampleOptions[10].textContent = t("sampleHelloLoop");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -1560,6 +1599,108 @@ function createBlockFromMnemonic(item) {
     };
   }
 
+  if (item.isWordMacro) {
+    const rawOperand = operandInput.value.trim() || "1000,2000";
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: rawOperand,
+      rawOperand,
+      description: item.description,
+      addressingMode: "implied",
+      base: "dec",
+      validationError: validateWordMacro(rawOperand),
+      collapsed: true,
+      isWordMacro: true
+    };
+  }
+
+  if (item.isFillMacro) {
+    const rawOperand = operandInput.value.trim() || "256,0";
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: rawOperand,
+      rawOperand,
+      description: item.description,
+      addressingMode: "implied",
+      base: "dec",
+      validationError: validateFillMacro(rawOperand),
+      collapsed: true,
+      isFillMacro: true
+    };
+  }
+
+  if (item.isTableMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isTableMacro: true,
+      tableName: "table1",
+      tableAddress: "C000"
+    };
+  }
+
+  if (item.isIfMacro) {
+    const rawOperand = operandInput.value.trim() || "DEBUG";
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: rawOperand,
+      rawOperand,
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: validateIfMacro(rawOperand),
+      collapsed: true,
+      isIfMacro: true,
+      ifCondition: rawOperand
+    };
+  }
+
+  if (item.isElseMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isElseMacro: true
+    };
+  }
+
+  if (item.isEndIfMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isEndIfMacro: true
+    };
+  }
+
   const modeKey = item.modes.includes(addressingSelect.value) ? addressingSelect.value : item.modes[0];
   const preview = buildOperandPreview(modeKey, operandInput.value.trim(), getSelectedBase());
 
@@ -1698,6 +1839,22 @@ function updateProgramBlock(index, field, value) {
     } else if (block.isRawTextMacro) {
       block.operand = block.rawOperand.trim();
       block.validationError = validateStringMacroAddress(block.rawTextAddress);
+    } else if (block.isWordMacro) {
+      if (field === "base") {
+        const words = parseWordMacro(block.rawOperand, prevBase);
+        block.rawOperand = words.map(w => {
+          return value === "hex" ? w.toString(16).toUpperCase() : w.toString(10);
+        }).join(",");
+      }
+      block.operand = block.rawOperand.trim();
+      block.validationError = validateWordMacro(block.rawOperand, block.base);
+    } else if (block.isFillMacro) {
+      block.operand = block.rawOperand.trim();
+      block.validationError = validateFillMacro(block.rawOperand, block.base);
+    } else if (block.isIfMacro) {
+      block.operand = block.rawOperand.trim();
+      block.ifCondition = block.rawOperand.trim();
+      block.validationError = validateIfMacro(block.rawOperand);
     } else {
       const preview = buildOperandPreview(block.addressingMode, block.rawOperand, block.base);
       block.operand = preview.operand;
@@ -1757,6 +1914,16 @@ function updateProgramBlock(index, field, value) {
     const matching = program.find(b => b.isLoopMacro && b.loopLabel === block.nextLabel);
     if (matching) block.nextReg = matching.loopReg || "X";
     block.validationError = "";
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isTableMacro && (field === "tableName" || field === "tableAddress")) {
+    if (field === "tableName") {
+      block.tableName = sanitizeLabelName(value);
+    }
+    block.validationError = validateTableMacro(block.tableName, block.tableAddress);
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -1996,6 +2163,131 @@ function validateByteMacro(raw, base = "dec") {
   return "";
 }
 
+function parseWordMacro(raw, base = "dec") {
+  return raw
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => {
+      if (/^\$[0-9A-Fa-f]+$/.test(part)) {
+        return Number.parseInt(part.slice(1), 16);
+      }
+      if (/^0x[0-9A-Fa-f]+$/i.test(part)) {
+        return Number.parseInt(part.slice(2), 16);
+      }
+      return Number.parseInt(part, base === "hex" ? 16 : 10);
+    });
+}
+
+function validateWordMacro(raw, base = "dec") {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return currentLanguage === "en" ? "WORD macro needs at least one 16-bit value." : "A WORD makrohoz legalabb egy 16-bites ertek kell.";
+  }
+
+  const parts = trimmed.split(",").map((part) => part.trim()).filter(Boolean);
+  if (!parts.length) {
+    return currentLanguage === "en" ? "WORD macro needs at least one 16-bit value." : "A WORD makrohoz legalabb egy 16-bites ertek kell.";
+  }
+
+  for (const part of parts) {
+    const validHexPrefixed = /^\$[0-9A-Fa-f]+$/.test(part) || /^0x[0-9A-Fa-f]+$/i.test(part);
+    const validBare = base === "hex" ? /^[0-9A-Fa-f]+$/.test(part) : /^\d+$/.test(part);
+    if (!validHexPrefixed && !validBare) {
+      return base === "hex"
+        ? (currentLanguage === "en" ? "WORD macro only accepts hex values separated by commas." : "A WORD makroban csak hex ertekek lehetnek, vesszovel elvalasztva.")
+        : (currentLanguage === "en" ? "WORD macro only accepts decimal or hex values separated by commas." : "A WORD makroban csak decimalis vagy hex ertekek lehetnek, vesszovel elvalasztva.");
+    }
+
+    const value = validHexPrefixed
+      ? Number.parseInt(part.replace(/^\$/, "").replace(/^0x/i, ""), 16)
+      : Number.parseInt(part, base === "hex" ? 16 : 10);
+
+    if (value < 0 || value > 65535) {
+      return currentLanguage === "en" ? "Every WORD macro element must be between 0 and 65535." : "A WORD makro minden eleme 0 es 65535 kozotti kell legyen.";
+    }
+  }
+
+  return "";
+}
+
+function parseFillMacro(raw, base = "dec") {
+  const parts = raw.split(",").map((part) => part.trim()).filter(Boolean);
+  if (parts.length !== 2) return null;
+
+  const parseValue = (part) => {
+    if (/^\$[0-9A-Fa-f]+$/.test(part)) {
+      return Number.parseInt(part.slice(1), 16);
+    }
+    if (/^0x[0-9A-Fa-f]+$/i.test(part)) {
+      return Number.parseInt(part.slice(2), 16);
+    }
+    return Number.parseInt(part, base === "hex" ? 16 : 10);
+  };
+
+  return {
+    count: parseValue(parts[0]),
+    value: parseValue(parts[1])
+  };
+}
+
+function validateFillMacro(raw, base = "dec") {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return currentLanguage === "en" ? "FILL macro needs count and value (e.g., FILL 256,$00)." : "A FILL makrohoz darabszam es ertek kell (pl. FILL 256,$00).";
+  }
+
+  const parts = trimmed.split(",").map((part) => part.trim()).filter(Boolean);
+  if (parts.length !== 2) {
+    return currentLanguage === "en" ? "FILL macro needs exactly two parameters: count,value." : "A FILL makrohoz pontosan ket parameter kell: darabszam,ertek.";
+  }
+
+  const parsed = parseFillMacro(raw, base);
+  if (!parsed) {
+    return currentLanguage === "en" ? "FILL macro parameters are invalid." : "A FILL makro parameterei ervenytelenek.";
+  }
+
+  if (isNaN(parsed.count) || parsed.count < 1 || parsed.count > 65536) {
+    return currentLanguage === "en" ? "FILL count must be between 1 and 65536." : "A FILL darabszam 1 es 65536 kozott kell legyen.";
+  }
+
+  if (isNaN(parsed.value) || parsed.value < 0 || parsed.value > 255) {
+    return currentLanguage === "en" ? "FILL value must be a byte between 0 and 255." : "A FILL ertek 0 es 255 kozotti byte kell legyen.";
+  }
+
+  return "";
+}
+
+function validateTableMacro(labelName, address) {
+  if (!labelName || !labelName.trim()) {
+    return currentLanguage === "en" ? "TABLE macro needs a label name." : "A TABLE makrohoz cimke nev kell.";
+  }
+
+  const value = parseAddressValue(address);
+  if (value === null) {
+    return currentLanguage === "en" ? "TABLE macro needs a valid start address, for example $C000." : "A TABLE makrohoz ervenyes kezdocim kell, peldaul $C000.";
+  }
+
+  if (value < 0 || value > 0xFFFF) {
+    return currentLanguage === "en" ? "TABLE macro address must be between 0 and 65535." : "A TABLE makro cime 0 es 65535 kozott lehet.";
+  }
+
+  return "";
+}
+
+function validateIfMacro(condition) {
+  if (!condition || !condition.trim()) {
+    return currentLanguage === "en" ? "IF macro needs a condition (e.g., DEBUG)." : "Az IF makrohoz feltetel kell (pl. DEBUG).";
+  }
+
+  // Simple validation - just check it's a valid identifier
+  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(condition.trim())) {
+    return currentLanguage === "en" ? "IF condition must be a valid identifier." : "Az IF feltetelnek ervenyes azonositonak kell lennie.";
+  }
+
+  return "";
+}
+
 function parseAddressValue(raw) {
   const trimmed = (raw || "").trim();
   if (!trimmed) {
@@ -2076,11 +2368,11 @@ function validateRange(modeKey, value) {
     return currentLanguage === "en" ? "Only whole numbers are supported." : "Csak egesz szam tamogatott.";
   }
 
-  if (modeKey === "immediate" || modeKey === "zeroPage") {
+  if (modeKey === "immediate" || modeKey === "zeroPage" || modeKey === "indirectX" || modeKey === "indirectY") {
     return value < 0 || value > 255 ? (currentLanguage === "en" ? "This mode expects a value between 0 and 255." : "Ez a mod 0 es 255 kozotti erteket var.") : "";
   }
 
-  if (modeKey === "absolute") {
+  if (modeKey === "absolute" || modeKey === "absoluteX" || modeKey === "absoluteY") {
     return value < 0 || value > 65535 ? (currentLanguage === "en" ? "Absolute addressing requires a value between 0 and 65535." : "Absolute cimzesnel 0 es 65535 kozotti ertek kell.") : "";
   }
 
@@ -2098,7 +2390,15 @@ function formatOperand(modeKey, value, base) {
     return `#${formatter(value, 2)}`;
   }
 
-  return formatter(value, modeKey === "absolute" ? 4 : 2);
+  if (modeKey === "indirectX") {
+    return `(${formatter(value, 2)},X)`;
+  }
+
+  if (modeKey === "indirectY") {
+    return `(${formatter(value, 2)}),Y`;
+  }
+
+  return formatter(value, modeKey === "absolute" || modeKey === "absoluteX" || modeKey === "absoluteY" ? 4 : 2);
 }
 
 function toHex(value, minDigits) {
@@ -2428,6 +2728,12 @@ function assembleProgramToPrg(originOverride) {
     if (line.block.isLoopMacro && line.block.loopLabel) {
       labels.set(line.block.loopLabel, line.address + 2);
     }
+    if (line.block.isTableMacro && line.block.tableName) {
+      const tableAddr = line.block.tableAddress
+        ? (parseAddressValue(line.block.tableAddress) ?? line.address)
+        : line.address;
+      labels.set(line.block.tableName, tableAddr);
+    }
   });
 
   // Assemble inline code bytes
@@ -2591,6 +2897,50 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes: [deOpcode, 0xD0, offset & 0xFF], comment: `DE${reg} / BNE ${label}` };
   }
 
+  if (block.isWordMacro) {
+    const words = parseWordMacro(block.rawOperand, block.base);
+    const bytes = [];
+    words.forEach(word => {
+      bytes.push(word & 0xFF, (word >> 8) & 0xFF);  // LO, HI
+    });
+    return {
+      ok: true,
+      bytes,
+      comment: `WORD ${block.rawOperand || ""}`
+    };
+  }
+
+  if (block.isFillMacro) {
+    const parsed = parseFillMacro(block.rawOperand, block.base);
+    if (!parsed || isNaN(parsed.count) || isNaN(parsed.value)) {
+      return { ok: false, error: `FILL: ${t("invalidOperand") || "invalid parameters"}` };
+    }
+    const bytes = new Array(parsed.count).fill(parsed.value & 0xFF);
+    return {
+      ok: true,
+      bytes,
+      comment: `FILL ${parsed.count},$${parsed.value.toString(16).toUpperCase().padStart(2, '0')}`
+    };
+  }
+
+  if (block.isTableMacro) {
+    // TABLE just creates a label, no bytes generated here
+    return {
+      ok: true,
+      bytes: [],
+      comment: `TABLE ${block.tableName || "?"} @ ${formatAddress(parseAddressValue(block.tableAddress) ?? 0xC000)}`
+    };
+  }
+
+  if (block.isIfMacro || block.isElseMacro || block.isEndIfMacro) {
+    // Conditional assembly blocks don't generate bytes themselves
+    return {
+      ok: true,
+      bytes: [],
+      comment: block.isIfMacro ? `IF ${block.ifCondition || "?"}` : (block.isElseMacro ? "ELSE" : "ENDIF")
+    };
+  }
+
   const opcode = opcodeMap[block.mnemonic]?.[block.addressingMode];
   if (opcode === undefined) {
     return { ok: false, error: tf("compileUnsupportedMode", { mnemonic: block.mnemonic, mode: block.addressingMode }) };
@@ -2616,7 +2966,7 @@ function compileLineBytes(line, labels) {
     return operandValue;
   }
 
-  if (block.addressingMode === "immediate" || block.addressingMode === "zeroPage") {
+  if (block.addressingMode === "immediate" || block.addressingMode === "zeroPage" || block.addressingMode === "indirectX" || block.addressingMode === "indirectY") {
     bytes.push(operandValue.value & 0xFF);
   } else {
     bytes.push(operandValue.value & 0xFF, (operandValue.value >> 8) & 0xFF);
@@ -2804,11 +3154,28 @@ function getInstructionSize(block) {
     return 3;  // DEX/DEY + BNE offset
   }
 
+  if (block.isWordMacro) {
+    return parseWordMacro(block.rawOperand, block.base).length * 2;  // 2 bytes per word
+  }
+
+  if (block.isFillMacro) {
+    const parsed = parseFillMacro(block.rawOperand, block.base);
+    return parsed ? parsed.count : 0;
+  }
+
+  if (block.isTableMacro) {
+    return 0;  // TABLE is just a label
+  }
+
+  if (block.isIfMacro || block.isElseMacro || block.isEndIfMacro) {
+    return 0;  // Conditional assembly directives don't take space
+  }
+
   if (block.addressingMode === "implied") {
     return 1;
   }
 
-  if (block.addressingMode === "immediate" || block.addressingMode === "zeroPage" || block.addressingMode === "relative") {
+  if (block.addressingMode === "immediate" || block.addressingMode === "zeroPage" || block.addressingMode === "relative" || block.addressingMode === "indirectX" || block.addressingMode === "indirectY") {
     return 2;
   }
 
@@ -3148,6 +3515,30 @@ function getBlockDescription(block) {
     return block.validationError || `${currentLanguage === "en" ? "RAWTEXT macro" : "RAWTEXT makro"}: "${block.rawOperand || ""}" @ ${block.rawTextAddress || "C000"}`;
   }
 
+  if (block.isWordMacro) {
+    return block.validationError || `${currentLanguage === "en" ? "WORD macro" : "WORD makro"}: ${block.rawOperand || ""}`;
+  }
+
+  if (block.isFillMacro) {
+    return block.validationError || `${currentLanguage === "en" ? "FILL macro" : "FILL makro"}: ${block.rawOperand || ""}`;
+  }
+
+  if (block.isTableMacro) {
+    return block.validationError || `${currentLanguage === "en" ? "TABLE" : "TABLA"}: ${block.tableName || "?"} @ ${block.tableAddress || "C000"}`;
+  }
+
+  if (block.isIfMacro) {
+    return block.validationError || `${currentLanguage === "en" ? "IF" : "HA"}: ${block.ifCondition || "?"}`;
+  }
+
+  if (block.isElseMacro) {
+    return currentLanguage === "en" ? "ELSE" : "KULONBEN";
+  }
+
+  if (block.isEndIfMacro) {
+    return currentLanguage === "en" ? "ENDIF" : "HA_VEGE";
+  }
+
   return block.validationError || (currentLanguage === "en" ? mnemonicDescriptionsEn[block.mnemonic] || block.description : block.description);
 }
 
@@ -3178,6 +3569,30 @@ function getBlockModeCaption(block) {
 
   if (block.isRawTextMacro) {
     return `${currentLanguage === "en" ? "Raw @ memory" : "Nyers @ memoria"} | ${block.rawTextAddress || "C000"}`;
+  }
+
+  if (block.isWordMacro) {
+    return currentLanguage === "en" ? "16-bit values | LO/HI pairs" : "16-bites ertekek | LO/HI parok";
+  }
+
+  if (block.isFillMacro) {
+    return currentLanguage === "en" ? "Fill | repeated bytes" : "Toltes | ismetlodo byte-ok";
+  }
+
+  if (block.isTableMacro) {
+    return `${currentLanguage === "en" ? "Lookup table" : "Kereso tabla"} | ${block.tableAddress || "C000"}`;
+  }
+
+  if (block.isIfMacro) {
+    return currentLanguage === "en" ? "Conditional | IF" : "Felteteles | HA";
+  }
+
+  if (block.isElseMacro) {
+    return currentLanguage === "en" ? "Conditional | ELSE" : "Felteteles | KULONBEN";
+  }
+
+  if (block.isEndIfMacro) {
+    return currentLanguage === "en" ? "Conditional | ENDIF" : "Felteteles | HA_VEGE";
   }
 
   if (block.isLabel) {
@@ -3282,6 +3697,29 @@ function getCollapsedOperandText(block) {
 
   if (block.isNextMacro) {
     return block.nextLabel ? `→ ${block.nextLabel}` : "";
+  }
+
+  if (block.isWordMacro) {
+    if (!block.rawOperand) return "";
+    const parts = block.rawOperand.split(",").map(s => s.trim()).filter(Boolean);
+    if (parts.length <= 4) return block.rawOperand;
+    return parts.slice(0, 4).join(", ") + " …";
+  }
+
+  if (block.isFillMacro) {
+    return block.rawOperand || "";
+  }
+
+  if (block.isTableMacro) {
+    return `${block.tableName || "?"} @ ${block.tableAddress || "C000"}`;
+  }
+
+  if (block.isIfMacro) {
+    return block.ifCondition || "?";
+  }
+
+  if (block.isElseMacro || block.isEndIfMacro) {
+    return "";
   }
 
   return block.operand || block.rawOperand || "";
@@ -3479,6 +3917,48 @@ function renderProgram() {
           </div>
         `
       );
+    } else if (block.isWordMacro) {
+      inlineField.hidden = false;
+      inlineField.querySelector("span").textContent = currentLanguage === "en" ? "16-bit values" : "16-bites ertekek";
+      operandField.value = block.rawOperand || "";
+      operandField.disabled = false;
+      operandField.placeholder = block.base === "hex"
+        ? (currentLanguage === "en" ? "For example 03E8,07D0,0BB8" : "Peldaul 03E8,07D0,0BB8")
+        : (currentLanguage === "en" ? "For example 1000,2000,3000" : "Peldaul 1000,2000,3000");
+      operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+    } else if (block.isFillMacro) {
+      inlineField.hidden = false;
+      inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Count,Value" : "Darab,Ertek";
+      operandField.value = block.rawOperand || "";
+      operandField.disabled = false;
+      operandField.placeholder = block.base === "hex"
+        ? (currentLanguage === "en" ? "For example 100,00" : "Peldaul 100,00")
+        : (currentLanguage === "en" ? "For example 256,0" : "Peldaul 256,0");
+      operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+    } else if (block.isTableMacro) {
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${currentLanguage === "en" ? "Table name" : "Tabla nev"}</span>
+              <input class="table-name" type="text" value="${block.tableName || "table1"}" placeholder="table1">
+            </label>
+            <label class="mini-field">
+              <span>${currentLanguage === "en" ? "Address" : "Cim"}</span>
+              <input class="table-address" type="text" value="${block.tableAddress || "C000"}" placeholder="C000">
+            </label>
+          </div>
+        `
+      );
+    } else if (block.isIfMacro) {
+      inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Condition" : "Feltetel";
+      inlineField.hidden = false;
+      operandField.value = block.ifCondition || "";
+      operandField.placeholder = "DEBUG";
+      operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+    } else if (block.isElseMacro || block.isEndIfMacro) {
+      inlineField.hidden = true;
     } else {
       inlineField.querySelector("span").textContent = t("fieldOperand");
       inlineField.hidden = !mode.needsOperand;
@@ -3491,7 +3971,7 @@ function renderProgram() {
     blockControls.insertAdjacentHTML(
       "beforeend",
       `
-          ${(mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isLoopMacro && !block.isNextMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro ? `
+          ${(mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isLoopMacro && !block.isNextMacro && !block.isWordMacro && !block.isFillMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro ? `
           <label class="mini-field">
             <span>${t("fieldFormat")}</span>
           <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
@@ -3505,7 +3985,7 @@ function renderProgram() {
             </label>
           </div>
         </label>` : ""}
-          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isLoopMacro || block.isNextMacro ? ` hidden` : ""}>
+          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isTableMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro ? ` hidden` : ""}>
             <span>${t("addressingMode")}</span>
           <select class="block-mode">
             ${getMnemonicModes(block.mnemonic).map((modeKey) => `<option value="${modeKey}"${block.addressingMode === modeKey ? " selected" : ""}>${modeText(modeKey, "label")}</option>`).join("")}
@@ -3545,6 +4025,14 @@ function renderProgram() {
     const nextLabelInput = node.querySelector(".next-label");
     if (nextLabelInput) {
       nextLabelInput.addEventListener("input", (event) => updateProgramBlock(index, "nextLabel", event.target.value));
+    }
+    const tableNameInput = node.querySelector(".table-name");
+    if (tableNameInput) {
+      tableNameInput.addEventListener("input", (event) => updateProgramBlock(index, "tableName", event.target.value));
+    }
+    const tableAddressInput = node.querySelector(".table-address");
+    if (tableAddressInput) {
+      tableAddressInput.addEventListener("input", (event) => updateProgramBlock(index, "tableAddress", event.target.value));
     }
       const blockModeSelect = node.querySelector(".block-mode");
       if (blockModeSelect) {
@@ -3745,6 +4233,36 @@ function renderAsmOutput() {
       return `    DE${reg}\n    BNE ${label}`;
     }
 
+    if (line.block.isWordMacro) {
+      const words = parseWordMacro(line.block.rawOperand, line.block.base);
+      const wordList = words.map(w => `$${toHex(w, 4)}`).join(", ");
+      return `    .word ${wordList}`;
+    }
+
+    if (line.block.isFillMacro) {
+      const parsed = parseFillMacro(line.block.rawOperand, line.block.base);
+      if (parsed) {
+        return `    .fill ${parsed.count}, $${toHex(parsed.value, 2)}`;
+      }
+      return `    ; FILL: invalid parameters`;
+    }
+
+    if (line.block.isTableMacro) {
+      return `${line.block.tableName || "table"}:`;
+    }
+
+    if (line.block.isIfMacro) {
+      return `; .IF ${line.block.ifCondition || "?"}`;
+    }
+
+    if (line.block.isElseMacro) {
+      return `; .ELSE`;
+    }
+
+    if (line.block.isEndIfMacro) {
+      return `; .ENDIF`;
+    }
+
     const suffix = line.block.operand ? ` ${line.block.operand}` : "";
     const comment = line.block.validationError ? ` ; ${t("warningLabel")}: ${line.block.validationError}` : "";
     return `    ${line.block.mnemonic}${suffix}${comment}`;
@@ -3781,6 +4299,12 @@ function renderMonitorOutput(layout = getProgramLayout()) {
     }
     if (line.block.isLoopMacro && line.block.loopLabel) {
       labels.set(line.block.loopLabel, line.address + 2);
+    }
+    if (line.block.isTableMacro && line.block.tableName) {
+      const tableAddr = line.block.tableAddress
+        ? (parseAddressValue(line.block.tableAddress) ?? line.address)
+        : line.address;
+      labels.set(line.block.tableName, tableAddr);
     }
   });
 
@@ -3853,1249 +4377,74 @@ function sanitizeLabelName(value) {
   return sanitized || "start";
 }
 
-function loadSampleProgram() {
-  originInput.value = "0801";
-  program = collapseLoadedProgram([
-    {
-      id: crypto.randomUUID(),
-      category: "Rendszer",
-      mnemonic: "SEI",
-      operand: "",
-      rawOperand: "",
-      description: "IRQ megszakitasok tiltasa.",
-      addressingMode: "implied",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "LDA",
-      operand: "#$00",
-      rawOperand: "00",
-      description: "Akkumulator betoltese memoriabol vagy konstansbol.",
-      addressingMode: "immediate",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "STA",
-      operand: "$D020",
-      rawOperand: "D020",
-      description: "Akkumulator kiirasa memoriacimre.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "STA",
-      operand: "$D021",
-      rawOperand: "D021",
-      description: "Akkumulator kiirasa memoriacimre.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Ugrasok",
-      mnemonic: "RTS",
-      operand: "",
-      rawOperand: "",
-      description: "Visszateres szubrutinbol.",
-      addressingMode: "implied",
-      base: "hex",
-      validationError: ""
-    }
-  ]);
-  renderOriginPreview();
-  renderEmulatorRunHint();
-  renderProgram();
-  saveUiSettings();
-}
+async function loadSampleFromFile(sampleName) {
+  if (!window.electronAPI?.loadSample) {
+    console.error("Sample loading not available");
+    return false;
+  }
 
-function loadLabelSampleProgram() {
-  originInput.value = "0801";
-  program = collapseLoadedProgram([
-    {
-      id: crypto.randomUUID(),
-      category: "Szerkezet",
-      mnemonic: "LABEL",
-      operand: "",
-      rawOperand: "",
-      description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.",
-      addressingMode: "implied",
-      base: "hex",
-      validationError: "",
-      isLabel: true,
-      labelName: "loop"
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "LDA",
-      operand: "$D020",
-      rawOperand: "D020",
-      description: "Akkumulator betoltese memoriabol vagy konstansbol.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Rendszer",
-      mnemonic: "CLC",
-      operand: "",
-      rawOperand: "",
-      description: "Carry flag torlese.",
-      addressingMode: "implied",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Aritmetika",
-      mnemonic: "ADC",
-      operand: "#$01",
-      rawOperand: "01",
-      description: "Osszeadas carry figyelembevetele mellett.",
-      addressingMode: "immediate",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "STA",
-      operand: "$D020",
-      rawOperand: "D020",
-      description: "Akkumulator kiirasa memoriacimre.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Ugrasok",
-      mnemonic: "JMP",
-      operand: "loop",
-      rawOperand: "loop",
-      description: "Feltetel nelkuli ugras egy cimre.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    }
-  ]);
-  renderOriginPreview();
-  renderEmulatorRunHint();
-  renderProgram();
-  saveUiSettings();
-}
+  const result = await window.electronAPI.loadSample(sampleName);
+  if (!result?.ok || !result?.sample) {
+    console.error("Failed to load sample:", sampleName);
+    return false;
+  }
 
-function loadTextSampleProgram() {
-  originInput.value = "0801";
-  program = collapseLoadedProgram([
-    {
-      id: crypto.randomUUID(),
-      category: "Rendszer",
-      mnemonic: "SEI",
-      operand: "",
-      rawOperand: "",
-      description: "IRQ megszakitasok tiltasa.",
-      addressingMode: "implied",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Ugrasok",
-      mnemonic: "JSR",
-      operand: "$E544",
-      rawOperand: "E544",
-      description: "Szubrutin meghivasa.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Makrok",
-      mnemonic: "TEXT",
-      operand: "HELLO C64",
-      rawOperand: "HELLO C64",
-      description: "Szoveg kiirasa a kepernyore KERNAL CHROUT rutinon keresztul.",
-      addressingMode: "implied",
-      base: "text",
-      validationError: "",
-      isTextMacro: true,
-      textX: 12,
-      textY: 8
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Makrok",
-      mnemonic: "TEXT",
-      operand: "VISUAL ASSEMBLER",
-      rawOperand: "VISUAL ASSEMBLER",
-      description: "Szoveg kiirasa a kepernyore KERNAL CHROUT rutinon keresztul.",
-      addressingMode: "implied",
-      base: "text",
-      validationError: "",
-      isTextMacro: true,
-      textX: 8,
-      textY: 10
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Ugrasok",
-      mnemonic: "RTS",
-      operand: "",
-      rawOperand: "",
-      description: "Visszateres szubrutinbol.",
-      addressingMode: "implied",
-      base: "hex",
-      validationError: ""
-    }
-  ]);
-  renderOriginPreview();
-  renderEmulatorRunHint();
-  renderProgram();
-  saveUiSettings();
-}
-
-function loadMacroDemoProgram() {
-  // Text scroller demo:
-  // $080D: JMP main  (3 bytes)
-  // $0810: BYTE message (40 screen-code bytes)  <- LDA $0810,X reads here
-  // $0838: main label -> setup + fill + scroll loop
-  // Screen row 12 = $05E0 .. $0607 (40 chars)
-  // ZP $FE = message offset (0-39)
-  originInput.value = "0801";
-
-  const b = (category, mnemonic, operand, rawOperand, addressingMode, extra = {}) => ({
-    id: crypto.randomUUID(), category, mnemonic, operand, rawOperand,
-    description: "", addressingMode, base: "hex", validationError: "", ...extra
-  });
-  const lbl = (name) => b("Szerkezet", "LABEL", "", "", "implied", {
-    isLabel: true, labelName: name,
-    description: "Nevvel ellatott cimke a kodban, ugrasi celhoz."
-  });
-  const cmt = (text) => ({
-    id: crypto.randomUUID(), category: "Szerkezet", mnemonic: "COMMENT",
-    operand: text, rawOperand: text,
-    description: "Megjegyzes a programhoz, ami nem general byte-ot.",
-    addressingMode: "implied", base: "comment", validationError: "", collapsed: false, isComment: true
-  });
-  const txt = (text, x, y) => ({
-    id: crypto.randomUUID(), category: "Makrok", mnemonic: "TEXT",
-    operand: text, rawOperand: text,
-    description: "Szoveg kiirasa a kepernyore.", addressingMode: "implied",
-    base: "text", validationError: "", isTextMacro: true, textX: x, textY: y
-  });
-
-  // Message: "C64 SCROLLER DEMO" (17) + 23 spaces = 40 screen-code bytes
-  // C=$03 6=$36 4=$34 sp=$20 S=$13 C=$03 R=$12 O=$0F L=$0C L=$0C E=$05 R=$12
-  // sp=$20 D=$04 E=$05 M=$0D O=$0F + 23x $20
-  const msg = "$03,$36,$34,$20,$13,$03,$12,$0F,$0C,$0C,$05,$12,$20,$04,$05,$0D,$0F" +
-              ",$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20";
-
-  program = collapseLoadedProgram([
-    cmt("C64 Text Scroller Demo – sor 12 gorgetese balra, absoluteX cimazassal"),
-
-    // $080D: jump over message data to main code
-    b("Ugrasok", "JMP", "main", "main", "absolute"),
-
-    // $0810: 40-byte message (screen codes)
-    cmt("Uzenet: C64 kepernyo kodok (A=$01 B=$02 ... Z=$1A space=$20)"),
-    { id: crypto.randomUUID(), category: "Makrok", mnemonic: "BYTE",
-      operand: msg, rawOperand: msg,
-      description: "Gorgetett uzenet adatai.", addressingMode: "implied",
-      base: "bytes", validationError: "", isByteMacro: true },
-
-    // $0838: main
-    lbl("main"),
-    b("Rendszer",   "SEI",   "",      "",      "implied"),
-    b("Ugrasok",    "JSR",   "$E544", "E544",  "absolute", { description: "KERNAL CLRSCR: kepernyo torlese." }),
-    b("Adatmozgas", "LDA",   "#$00",  "00",    "immediate"),
-    b("Adatmozgas", "STA",   "$D021", "D021",  "absolute"),
-    b("Adatmozgas", "LDA",   "#$0E",  "0E",    "immediate"),
-    b("Adatmozgas", "STA",   "$D020", "D020",  "absolute"),
-
-    // Static title rows via TEXT macro
-    txt("** C64 TEXT SCROLLER **", 9, 0),
-    txt("VISUAL ASSEMBLER DEMO",  10, 2),
-
-    // Init message offset in ZP $FE
-    cmt("ZP $FE = uzenet offset (0..39)"),
-    b("Adatmozgas", "LDA",   "#$00",  "00",    "immediate"),
-    b("Adatmozgas", "STA",   "$FE",   "FE",    "zeroPage"),
-
-    // Fill scroll row 12 with spaces
-    cmt("12. sor ($05E0) kezdeti feltoltese szokozzel"),
-    b("Regiszterek","LDX",   "#$00",  "00",    "immediate"),
-    lbl("fillrow"),
-    b("Adatmozgas", "LDA",   "#$20",  "20",    "immediate"),
-    b("Adatmozgas", "STA",   "$05E0", "05E0",  "absoluteX"),
-    b("Regiszterek","INX",   "",      "",      "implied"),
-    b("Aritmetika", "CPX",   "#$28",  "28",    "immediate"),
-    b("Ugrasok",    "BNE",   "fillrow", "fillrow", "relative"),
-
-    // ── Main scroll loop ──────────────────────────────────────────────
-    cmt("Fo gorgetesi ciklus: fine-scroll + karakter-eltolos + uj char"),
-    lbl("main_loop"),
-
-    // Fine pixel scroll: $D016 bits 0-2 step 7->0
-    cmt("Finompixel scroll: Y=7..0, $D016 = Y|$08 (CSEL=1, 40 col mod)"),
-    b("Adatmozgas", "LDY",   "#$07",  "07",    "immediate"),
-    lbl("scroll_pixel"),
-    b("Regiszterek","TYA",   "",      "",      "implied"),
-    b("Logika",     "ORA",   "#$08",  "08",    "immediate"),
-    b("Adatmozgas", "STA",   "$D016", "D016",  "absolute"),
-    b("Ugrasok",    "JSR",   "fdelay","fdelay","absolute"),
-    b("Regiszterek","DEY",   "",      "",      "implied"),
-    b("Ugrasok",    "BPL",   "scroll_pixel","scroll_pixel","relative"),
-
-    // Shift screen row left by 1 char (col 1..39 -> col 0..38)
-    cmt("Sor eltolasa balra 1 karakterrel (LDA $05E1,X / STA $05E0,X)"),
-    b("Regiszterek","LDX",   "#$00",  "00",    "immediate"),
-    lbl("shift_loop"),
-    b("Adatmozgas", "LDA",   "$05E1", "05E1",  "absoluteX"),
-    b("Adatmozgas", "STA",   "$05E0", "05E0",  "absoluteX"),
-    b("Regiszterek","INX",   "",      "",      "implied"),
-    b("Aritmetika", "CPX",   "#$27",  "27",    "immediate"),
-    b("Ugrasok",    "BNE",   "shift_loop","shift_loop","relative"),
-
-    // Write next message char into col 39 ($0607)
-    cmt("Kovetkezo karakter beolvasasa az uzenetbol -> col 39"),
-    b("Regiszterek","LDX",   "$FE",   "FE",    "zeroPage"),
-    b("Adatmozgas", "LDA",   "$0810", "0810",  "absoluteX"),
-    b("Adatmozgas", "STA",   "$0607", "0607",  "absolute"),
-
-    // Advance offset, wrap at 40
-    cmt("Offset noveles es visszaallitas 0-ra, ha elerte a 40-et"),
-    b("Aritmetika", "INC",   "$FE",   "FE",    "zeroPage"),
-    b("Adatmozgas", "LDA",   "$FE",   "FE",    "zeroPage"),
-    b("Aritmetika", "CMP",   "#$28",  "28",    "immediate"),
-    b("Ugrasok",    "BNE",   "main_loop","main_loop","relative"),
-    b("Adatmozgas", "LDA",   "#$00",  "00",    "immediate"),
-    b("Adatmozgas", "STA",   "$FE",   "FE",    "zeroPage"),
-    b("Ugrasok",    "JMP",   "main_loop","main_loop","absolute"),
-
-    // ── Frame delay subroutine ────────────────────────────────────────
-    cmt("fdelay: kesleltetese (LDX #$18, dupla DEY/DEX ciklus)"),
-    lbl("fdelay"),
-    b("Regiszterek","LDX",   "#$18",  "18",    "immediate"),
-    lbl("fdelay_o"),
-    b("Regiszterek","LDY",   "#$FF",  "FF",    "immediate"),
-    lbl("fdelay_i"),
-    b("Regiszterek","DEY",   "",      "",      "implied"),
-    b("Ugrasok",    "BNE",   "fdelay_i","fdelay_i","relative"),
-    b("Regiszterek","DEX",   "",      "",      "implied"),
-    b("Ugrasok",    "BNE",   "fdelay_o","fdelay_o","relative"),
-    b("Ugrasok",    "RTS",   "",      "",      "implied"),
-  ]);
-  renderOriginPreview();
-  renderEmulatorRunHint();
-  renderProgram();
-  saveUiSettings();
-}
-
-function loadSpriteSampleProgram() {
-  // Sprite data at $0840 (= 64 * 33, pointer = $21)
-  // Memory layout: $0801 JMP(3) + padding(60) + spritedata(63) + code
-  originInput.value = "0801";
-  program = collapseLoadedProgram([
-    {
-      id: crypto.randomUUID(),
-      category: "Szerkezet",
-      mnemonic: "COMMENT",
-      operand: "Sprite mozgatas demo – gomb sprite balrol jobbra halad",
-      rawOperand: "Sprite mozgatas demo – gomb sprite balrol jobbra halad",
-      description: "Megjegyzes a programhoz, ami nem general byte-ot.",
-      addressingMode: "implied",
-      base: "comment",
-      validationError: "",
-      collapsed: false,
-      isComment: true
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Ugrasok",
-      mnemonic: "JMP",
-      operand: "main",
-      rawOperand: "main",
-      description: "Feltetel nelkuli ugras egy cimre.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Makrok",
-      mnemonic: "BYTE",
-      operand: "$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00",
-      rawOperand: "$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00",
-      description: "Tetszoleges byte tomb beillesztese vesszovel elvalasztva.",
-      addressingMode: "implied",
-      base: "bytes",
-      validationError: "",
-      isByteMacro: true
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Makrok",
-      mnemonic: "BYTE",
-      operand: "$00,$3C,$00,$00,$FF,$00,$01,$FF,$80,$03,$FF,$C0,$07,$FF,$E0,$0F,$FF,$F0,$1F,$FF,$F8,$1F,$FF,$F8,$1F,$FF,$F8,$1F,$FF,$F8,$1F,$FF,$F8,$0F,$FF,$F0,$07,$FF,$E0,$03,$FF,$C0,$01,$FF,$80,$00,$FF,$00,$00,$3C,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00",
-      rawOperand: "$00,$3C,$00,$00,$FF,$00,$01,$FF,$80,$03,$FF,$C0,$07,$FF,$E0,$0F,$FF,$F0,$1F,$FF,$F8,$1F,$FF,$F8,$1F,$FF,$F8,$1F,$FF,$F8,$1F,$FF,$F8,$0F,$FF,$F0,$07,$FF,$E0,$03,$FF,$C0,$01,$FF,$80,$00,$FF,$00,$00,$3C,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00",
-      description: "Tetszoleges byte tomb beillesztese vesszovel elvalasztva.",
-      addressingMode: "implied",
-      base: "bytes",
-      validationError: "",
-      isByteMacro: true
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Szerkezet",
-      mnemonic: "LABEL",
-      operand: "",
-      rawOperand: "",
-      description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.",
-      addressingMode: "implied",
-      base: "hex",
-      validationError: "",
-      isLabel: true,
-      labelName: "main"
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Ugrasok",
-      mnemonic: "JSR",
-      operand: "$E544",
-      rawOperand: "E544",
-      description: "Szubrutin meghivasa.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Makrok",
-      mnemonic: "TEXT",
-      operand: "SPRITE DEMO",
-      rawOperand: "SPRITE DEMO",
-      description: "Szoveg kiirasa a kepernyore KERNAL CHROUT rutinon keresztul.",
-      addressingMode: "implied",
-      base: "text",
-      validationError: "",
-      isTextMacro: true,
-      textX: 14,
-      textY: 0
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Szerkezet",
-      mnemonic: "COMMENT",
-      operand: "Sprite pointer: $07F8 = $0840 / 64 = 33 ($21)",
-      rawOperand: "Sprite pointer: $07F8 = $0840 / 64 = 33 ($21)",
-      description: "Megjegyzes a programhoz, ami nem general byte-ot.",
-      addressingMode: "implied",
-      base: "comment",
-      validationError: "",
-      collapsed: false,
-      isComment: true
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "LDA",
-      operand: "#$21",
-      rawOperand: "21",
-      description: "Akkumulator betoltese memoriabol vagy konstansbol.",
-      addressingMode: "immediate",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "STA",
-      operand: "$07F8",
-      rawOperand: "07F8",
-      description: "Akkumulator kiirasa memoriacimre.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Szerkezet",
-      mnemonic: "COMMENT",
-      operand: "Sprite 0 bekapcsolasa: $D015 bit0 = 1",
-      rawOperand: "Sprite 0 bekapcsolasa: $D015 bit0 = 1",
-      description: "Megjegyzes a programhoz, ami nem general byte-ot.",
-      addressingMode: "implied",
-      base: "comment",
-      validationError: "",
-      collapsed: false,
-      isComment: true
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "LDA",
-      operand: "#$01",
-      rawOperand: "01",
-      description: "Akkumulator betoltese memoriabol vagy konstansbol.",
-      addressingMode: "immediate",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "STA",
-      operand: "$D015",
-      rawOperand: "D015",
-      description: "Akkumulator kiirasa memoriacimre.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "LDA",
-      operand: "#$0A",
-      rawOperand: "0A",
-      description: "Akkumulator betoltese memoriabol vagy konstansbol.",
-      addressingMode: "immediate",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "STA",
-      operand: "$D027",
-      rawOperand: "D027",
-      description: "Akkumulator kiirasa memoriacimre.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "LDA",
-      operand: "#$00",
-      rawOperand: "00",
-      description: "Akkumulator betoltese memoriabol vagy konstansbol.",
-      addressingMode: "immediate",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "STA",
-      operand: "$D010",
-      rawOperand: "D010",
-      description: "Akkumulator kiirasa memoriacimre.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "LDA",
-      operand: "#$18",
-      rawOperand: "18",
-      description: "Akkumulator betoltese memoriabol vagy konstansbol.",
-      addressingMode: "immediate",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "STA",
-      operand: "$D000",
-      rawOperand: "D000",
-      description: "Akkumulator kiirasa memoriacimre.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "LDA",
-      operand: "#$64",
-      rawOperand: "64",
-      description: "Akkumulator betoltese memoriabol vagy konstansbol.",
-      addressingMode: "immediate",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "STA",
-      operand: "$D001",
-      rawOperand: "D001",
-      description: "Akkumulator kiirasa memoriacimre.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Szerkezet",
-      mnemonic: "LABEL",
-      operand: "",
-      rawOperand: "",
-      description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.",
-      addressingMode: "implied",
-      base: "hex",
-      validationError: "",
-      isLabel: true,
-      labelName: "moveloop"
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Aritmetika",
-      mnemonic: "INC",
-      operand: "$D000",
-      rawOperand: "D000",
-      description: "Memoriacim noveles.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "LDA",
-      operand: "$D000",
-      rawOperand: "D000",
-      description: "Akkumulator betoltese memoriabol vagy konstansbol.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Aritmetika",
-      mnemonic: "CMP",
-      operand: "#$E0",
-      rawOperand: "E0",
-      description: "Osszehasonlitas az akkumulatorral.",
-      addressingMode: "immediate",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Ugrasok",
-      mnemonic: "BNE",
-      operand: "no_reset",
-      rawOperand: "no_reset",
-      description: "Ugras, ha az elozo eredmeny nem nulla.",
-      addressingMode: "relative",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "LDA",
-      operand: "#$18",
-      rawOperand: "18",
-      description: "Akkumulator betoltese memoriabol vagy konstansbol.",
-      addressingMode: "immediate",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "STA",
-      operand: "$D000",
-      rawOperand: "D000",
-      description: "Akkumulator kiirasa memoriacimre.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Szerkezet",
-      mnemonic: "LABEL",
-      operand: "",
-      rawOperand: "",
-      description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.",
-      addressingMode: "implied",
-      base: "hex",
-      validationError: "",
-      isLabel: true,
-      labelName: "no_reset"
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Ugrasok",
-      mnemonic: "JSR",
-      operand: "delay",
-      rawOperand: "delay",
-      description: "Szubrutin meghivasa.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Ugrasok",
-      mnemonic: "JMP",
-      operand: "moveloop",
-      rawOperand: "moveloop",
-      description: "Feltetel nelkuli ugras egy cimre.",
-      addressingMode: "absolute",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Szerkezet",
-      mnemonic: "LABEL",
-      operand: "",
-      rawOperand: "",
-      description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.",
-      addressingMode: "implied",
-      base: "hex",
-      validationError: "",
-      isLabel: true,
-      labelName: "delay"
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "LDX",
-      operand: "#$06",
-      rawOperand: "06",
-      description: "X regiszter betoltese.",
-      addressingMode: "immediate",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Szerkezet",
-      mnemonic: "LABEL",
-      operand: "",
-      rawOperand: "",
-      description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.",
-      addressingMode: "implied",
-      base: "hex",
-      validationError: "",
-      isLabel: true,
-      labelName: "delay_outer"
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Adatmozgas",
-      mnemonic: "LDY",
-      operand: "#$FF",
-      rawOperand: "FF",
-      description: "Y regiszter betoltese.",
-      addressingMode: "immediate",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Szerkezet",
-      mnemonic: "LABEL",
-      operand: "",
-      rawOperand: "",
-      description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.",
-      addressingMode: "implied",
-      base: "hex",
-      validationError: "",
-      isLabel: true,
-      labelName: "delay_inner"
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Regiszterek",
-      mnemonic: "DEY",
-      operand: "",
-      rawOperand: "",
-      description: "Y regiszter csokkentese.",
-      addressingMode: "implied",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Ugrasok",
-      mnemonic: "BNE",
-      operand: "delay_inner",
-      rawOperand: "delay_inner",
-      description: "Ugras, ha az elozo eredmeny nem nulla.",
-      addressingMode: "relative",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Regiszterek",
-      mnemonic: "DEX",
-      operand: "",
-      rawOperand: "",
-      description: "X regiszter csokkentese.",
-      addressingMode: "implied",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Ugrasok",
-      mnemonic: "BNE",
-      operand: "delay_outer",
-      rawOperand: "delay_outer",
-      description: "Ugras, ha az elozo eredmeny nem nulla.",
-      addressingMode: "relative",
-      base: "hex",
-      validationError: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      category: "Ugrasok",
-      mnemonic: "RTS",
-      operand: "",
-      rawOperand: "",
-      description: "Visszateres szubrutinbol.",
-      addressingMode: "implied",
-      base: "hex",
-      validationError: ""
-    }
-  ]);
-  renderOriginPreview();
-  renderEmulatorRunHint();
-  renderProgram();
-  saveUiSettings();
-}
-
-function loadLoopSampleProgram() {
-  // Nested LOOP demo: color cycling for border + background ($D020/$D021)
-  // Outer loop: A register counter 0-15, nested delay at each color
-  // Inner delay: LOOP X $00 (256x) * LOOP Y $00 (256x) = ~65536 × ~5 cycles ≈ 0.33 sec/color
-  //
-  // Memory layout (BASIC SYS ON, code starts at $080D):
-  //  $080D  SEI             1 byte
-  //  $080E  LDA #$00        2
-  //  $0810  [color_loop]    0 (label)
-  //  $0810  STA $D020       3
-  //  $0813  STA $D021       3
-  //  $0816  LDX #$00        2  [dly_x label: $0818]
-  //  $0818  LDY #$00        2  [dly_y label: $081A]
-  //  $081A  DEY             1
-  //         BNE $081A       2  (BNE dly_y, offset = -3)
-  //  $081D  DEX             1
-  //         BNE $0818       2  (BNE dly_x, offset = -8)
-  //  $0820  CLC             1
-  //  $0821  ADC #$01        2
-  //  $0823  AND #$0F        2
-  //  $0825  JMP $0810       3  (JMP color_loop)
-  originInput.value = "0801";
-
-  program = collapseLoadedProgram([
-    {
-      id: crypto.randomUUID(), category: "Szerkezet", mnemonic: "COMMENT",
-      operand: "LOOP / NEXT demo – border and background color cycling (nested delay loop)",
-      rawOperand: "LOOP / NEXT demo – border and background color cycling (nested delay loop)",
-      description: "Megjegyzes.", addressingMode: "implied",
-      base: "comment", validationError: "", isComment: true
-    },
-    {
-      id: crypto.randomUUID(), category: "Rendszer", mnemonic: "SEI",
-      operand: "", rawOperand: "", description: "IRQ megszakitasok tiltasa.",
-      addressingMode: "implied", base: "hex", validationError: ""
-    },
-    // color counter A = 0-15
-    {
-      id: crypto.randomUUID(), category: "Adatmozgas", mnemonic: "LDA",
-      operand: "#$00", rawOperand: "00",
-      description: "Akkumulator betoltese kozvetlen ertekkel.",
-      addressingMode: "immediate", base: "hex", validationError: ""
-    },
-    // infinite main loop label
-    {
-      id: crypto.randomUUID(), category: "Szerkezet", mnemonic: "LABEL",
-      operand: "", rawOperand: "", description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.",
-      addressingMode: "implied", base: "hex", validationError: "", isLabel: true, labelName: "color_loop"
-    },
-    // border color = A
-    {
-      id: crypto.randomUUID(), category: "Adatmozgas", mnemonic: "STA",
-      operand: "$D020", rawOperand: "D020",
-      description: "Akkumulator kiirasa memoriacimre.",
-      addressingMode: "absolute", base: "hex", validationError: ""
-    },
-    // background color = A
-    {
-      id: crypto.randomUUID(), category: "Adatmozgas", mnemonic: "STA",
-      operand: "$D021", rawOperand: "D021",
-      description: "Akkumulator kiirasa memoriacimre.",
-      addressingMode: "absolute", base: "hex", validationError: ""
-    },
-    // --- nested delay: LOOP X (outer) * LOOP Y (inner) = ~65536 iter ---
-    {
-      id: crypto.randomUUID(), category: "Szerkezet", mnemonic: "COMMENT",
-      operand: "Delay: LOOP X $00 (256x) * LOOP Y $00 (256x) ~ 0.33 sec/color",
-      rawOperand: "Delay: LOOP X $00 (256x) * LOOP Y $00 (256x) ~ 0.33 sec/color",
-      description: "Megjegyzes.", addressingMode: "implied",
-      base: "comment", validationError: "", isComment: true
-    },
-    // LOOP X (outer delay, X register, 256 iterations)
-    {
-      id: crypto.randomUUID(), category: "Makrok", mnemonic: "LOOP",
-      operand: "", rawOperand: "", description: "Szamlalo ciklus: LD* #count, majd cimke a body elejere.",
-      addressingMode: "implied", base: "hex", validationError: "",
-      isLoopMacro: true, loopReg: "X", loopCount: "00", loopLabel: "dly_x"
-    },
-    // LOOP Y (inner delay, Y register, 256 iterations)
-    {
-      id: crypto.randomUUID(), category: "Makrok", mnemonic: "LOOP",
-      operand: "", rawOperand: "", description: "Szamlalo ciklus: LD* #count, majd cimke a body elejere.",
-      addressingMode: "implied", base: "hex", validationError: "",
-      isLoopMacro: true, loopReg: "Y", loopCount: "00", loopLabel: "dly_y"
-    },
-    // NEXT dly_y (inner)
-    {
-      id: crypto.randomUUID(), category: "Makrok", mnemonic: "NEXT",
-      operand: "", rawOperand: "", description: "Ciklus vege: DE* es BNE visszaugras a LOOP cimkejere.",
-      addressingMode: "implied", base: "hex", validationError: "",
-      isNextMacro: true, nextLabel: "dly_y", nextReg: "Y"
-    },
-    // NEXT dly_x (outer)
-    {
-      id: crypto.randomUUID(), category: "Makrok", mnemonic: "NEXT",
-      operand: "", rawOperand: "", description: "Ciklus vege: DE* es BNE visszaugras a LOOP cimkejere.",
-      addressingMode: "implied", base: "hex", validationError: "",
-      isNextMacro: true, nextLabel: "dly_x", nextReg: "X"
-    },
-    // color increment: A = (A + 1) & $0F  → 0..15 → 0..15 (infinite)
-    {
-      id: crypto.randomUUID(), category: "Rendszer", mnemonic: "CLC",
-      operand: "", rawOperand: "", description: "Carry flag torlese.",
-      addressingMode: "implied", base: "hex", validationError: ""
-    },
-    {
-      id: crypto.randomUUID(), category: "Aritmetika", mnemonic: "ADC",
-      operand: "#$01", rawOperand: "01",
-      description: "Osszeadas carry-vel.",
-      addressingMode: "immediate", base: "hex", validationError: ""
-    },
-    {
-      id: crypto.randomUUID(), category: "Logika", mnemonic: "AND",
-      operand: "#$0F", rawOperand: "0F",
-      description: "Logikai ES muvelet az akkumulatorral.",
-      addressingMode: "immediate", base: "hex", validationError: ""
-    },
-    // jump back to main loop
-    {
-      id: crypto.randomUUID(), category: "Ugrasok", mnemonic: "JMP",
-      operand: "color_loop", rawOperand: "color_loop",
-      description: "Feltetel nelkuli ugras egy cimre.",
-      addressingMode: "absolute", base: "hex", validationError: ""
-    }
-  ]);
+  const sampleData = result.sample;
+  originInput.value = sampleData.origin || "0801";
+  program = collapseLoadedProgram(sampleData.program);
 
   renderOriginPreview();
   renderEmulatorRunHint();
   renderProgram();
   saveUiSettings();
+  return true;
 }
 
-
-function loadBitmapLineSampleProgram() {
-  originInput.value = "0801";
-
-  const b = (cat, mn, raw, mode) => {
-    const libItem = Object.values(mnemonicLibrary).flat().find(m => m.mnemonic === mn);
-    const desc = libItem ? libItem.description : "";
-    let operand = "";
-    if (raw) {
-      if (mode === "immediate") operand = `#$${raw}`;
-      else if (mode === "relative" || mode === "implied") operand = raw;
-      else operand = `$${raw}`;
-    }
-    return { id: crypto.randomUUID(), category: cat, mnemonic: mn, operand, rawOperand: raw, description: desc, addressingMode: mode, base: "hex", validationError: "" };
-  };
-
-  const lbl = (name) => ({
-    id: crypto.randomUUID(), category: "Szerkezet", mnemonic: "LABEL",
-    operand: "", rawOperand: "", description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.",
-    addressingMode: "implied", base: "hex", validationError: "", isLabel: true, labelName: name
-  });
-
-  const cmt = (text) => ({
-    id: crypto.randomUUID(), category: "Szerkezet", mnemonic: "COMMENT",
-    operand: text, rawOperand: text, description: "Megjegyzes a programhoz, ami nem general byte-ot.",
-    addressingMode: "implied", base: "comment", validationError: "", isComment: true, collapsed: false
-  });
-
-  // JavaScript Bresenham – a bitmap adatot itt szamitjuk ki JS-ben
-  const bitmap = new Array(8192).fill(0);
-  const setPixel = (x, y) => {
-    if (x < 0 || x >= 320 || y < 0 || y >= 200) return;
-    const cell = Math.floor(y / 8) * 40 + Math.floor(x / 8);
-    const addr = cell * 8 + (y % 8);
-    bitmap[addr] |= (1 << (7 - (x % 8)));
-  };
-  const drawLine = (x0, y0, x1, y1) => {
-    let dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0);
-    let sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1, err = dx - dy;
-    for (;;) {
-      setPixel(x0, y0);
-      if (x0 === x1 && y0 === y1) break;
-      const e2 = 2 * err;
-      if (e2 > -dy) { err -= dy; x0 += sx; }
-      if (e2 < dx)  { err += dx; y0 += sy; }
-    }
-  };
-
-  // 8 vonal – csillag minta
-  drawLine(0,   0,   319, 199);
-  drawLine(319, 0,   0,   199);
-  drawLine(0,   100, 319, 100);
-  drawLine(160, 0,   160, 199);
-  drawLine(0,   0,   319, 99);
-  drawLine(0,   199, 319, 100);
-  drawLine(0,   50,  319, 150);
-  drawLine(0,   150, 319, 50);
-
-  const bitmapHex = bitmap.map(v => v.toString(16).toUpperCase().padStart(2, '0')).join(',');
-
-  // Dinamikus gap: BASIC SYS ON => kod $080D-tol, OFF => $0801-tol indul
-  // Forrasblokkok ossz merete (label/comment = 0 byte):
-  //   SEI(1) + 5x(LDA#2+STA_abs3)=25 + 4x(LDA#2+LDX#2+STA_absX3+INX1+BNE2)=40 + JMP(3) = 69 byte
-  const CODE_SIZE = 69;
-  const codeStart = (basicSysToggle ? basicSysToggle.checked : true) ? 0x080D : 0x0801;
-  const gapSize = 0x2000 - (codeStart + CODE_SIZE);
-  const gapHex = new Array(gapSize).fill('00').join(',');
-
-  program = collapseLoadedProgram([
-    cmt("C64 Bitmap hires vonal demo – 8 szines vonal a kepernyon"),
-
-    b("Rendszer",    "SEI", "",     "implied"),
-
-    // VIC-II: bitmap mod
-    b("Adatmozgas",  "LDA", "3B",   "immediate"),
-    b("Adatmozgas",  "STA", "D011", "absolute"),
-    // VIC-II: hires (nem multicolor), 40 oszlop
-    b("Adatmozgas",  "LDA", "C8",   "immediate"),
-    b("Adatmozgas",  "STA", "D016", "absolute"),
-    // VIC-II: screen RAM $0400, bitmap $2000
-    b("Adatmozgas",  "LDA", "18",   "immediate"),
-    b("Adatmozgas",  "STA", "D018", "absolute"),
-    // Border/background: black
-    b("Adatmozgas",  "LDA", "00",   "immediate"),
-    b("Adatmozgas",  "STA", "D020", "absolute"),
-    b("Adatmozgas",  "LDA", "00",   "immediate"),
-    b("Adatmozgas",  "STA", "D021", "absolute"),
-
-    // Color RAM $0400: red foreground ($20 = fg=2/red, bg=0/black)
-    cmt("Color RAM $0400-$04FF: red"),
-    b("Adatmozgas",  "LDA", "20",   "immediate"),
-    b("Adatmozgas",  "LDX", "00",   "immediate"),
-    lbl("clr04"),
-    b("Adatmozgas",  "STA", "0400", "absoluteX"),
-    b("Regiszterek", "INX", "",     "implied"),
-    b("Ugrasok",     "BNE", "clr04","relative"),
-
-    // Szin RAM $0500: cian ($30 = fg=3/cian, bg=0/fekete)
-    cmt("Szin RAM $0500-$05FF: cian"),
-    b("Adatmozgas",  "LDA", "30",   "immediate"),
-    b("Adatmozgas",  "LDX", "00",   "immediate"),
-    lbl("clr05"),
-    b("Adatmozgas",  "STA", "0500", "absoluteX"),
-    b("Regiszterek", "INX", "",     "implied"),
-    b("Ugrasok",     "BNE", "clr05","relative"),
-
-    // Szin RAM $0600: zold ($50 = fg=5/zold, bg=0/fekete)
-    cmt("Szin RAM $0600-$06FF: zold"),
-    b("Adatmozgas",  "LDA", "50",   "immediate"),
-    b("Adatmozgas",  "LDX", "00",   "immediate"),
-    lbl("clr06"),
-    b("Adatmozgas",  "STA", "0600", "absoluteX"),
-    b("Regiszterek", "INX", "",     "implied"),
-    b("Ugrasok",     "BNE", "clr06","relative"),
-
-    // Szin RAM $0700: sarga ($70 = fg=7/sarga, bg=0/fekete)
-    cmt("Szin RAM $0700-$07FF: sarga"),
-    b("Adatmozgas",  "LDA", "70",   "immediate"),
-    b("Adatmozgas",  "LDX", "00",   "immediate"),
-    lbl("clr07"),
-    b("Adatmozgas",  "STA", "0700", "absoluteX"),
-    b("Regiszterek", "INX", "",     "implied"),
-    b("Ugrasok",     "BNE", "clr07","relative"),
-
-    // Infinite loop
-    lbl("vege"),
-    b("Ugrasok",     "JMP", "vege", "absolute"),
-
-    // Padding bytes to $2000 bitmap address
-    cmt(`Padding bytes ($${gapSize.toString(16).toUpperCase()} bytes) to $2000 bitmap address`),
-    {
-      id: crypto.randomUUID(), category: "Makrok", mnemonic: "BYTE",
-      operand: `[${gapSize} x $00 – igazitas $2000-re]`,
-      rawOperand: gapHex,
-      description: "Bitmap cimre igazito toltobyte-ok.",
-      addressingMode: "implied", base: "hex", validationError: "",
-      isByteMacro: true, collapsed: true
-    },
-
-    // Bitmap adat $2000-$3FFF
-    cmt("Bitmap adat $2000-$3FFF (8192 byte) – 8 vonal, JS Bresenham alapjan"),
-    {
-      id: crypto.randomUUID(), category: "Makrok", mnemonic: "BYTE",
-      operand: "[8192 byte – bitmap, 8 vonal]",
-      rawOperand: bitmapHex,
-      description: "C64 hires bitmap adat (8192 byte).",
-      addressingMode: "implied", base: "hex", validationError: "",
-      isByteMacro: true, collapsed: true
-    }
-  ]);
-
-  renderOriginPreview();
-  renderEmulatorRunHint();
-  renderProgram();
-  saveUiSettings();
+async function loadSampleProgram() {
+  await loadSampleFromFile("basic-colors");
 }
 
-
-function loadHelloLoopSampleProgram() {
-  // Prints "Hello World 1" through "Hello World 40" using LOOP/NEXT + RAWTEXT
-  // "Hello World " stored as PETSCII at $C000 via RAWTEXT macro
-  // Outer loop: LOOP Y $28 (40×, Y register) — Y preserved by KERNAL CHROUT
-  // String print: LDX #0 → LDA $C000,X / JSR $FFD2 × 12 → uses X register
-  // Number: ZP $FB = units ASCII, $FC = tens ASCII (odometer style)
-  originInput.value = "0801";
-
-  const b = (cat, mn, raw, mode) => {
-    const libItem = Object.values(mnemonicLibrary).flat().find(m => m.mnemonic === mn);
-    const desc = libItem ? libItem.description : "";
-    let operand = "";
-    if (raw) {
-      if (mode === "immediate") operand = `#$${raw}`;
-      else if (mode === "relative" || mode === "implied") operand = raw;
-      else operand = `$${raw}`;
-    }
-    return { id: crypto.randomUUID(), category: cat, mnemonic: mn, operand, rawOperand: raw, description: desc, addressingMode: mode, base: "hex", validationError: "" };
-  };
-
-  const lbl = (name) => ({
-    id: crypto.randomUUID(), category: "Szerkezet", mnemonic: "LABEL",
-    operand: "", rawOperand: "", description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.",
-    addressingMode: "implied", base: "hex", validationError: "", isLabel: true, labelName: name
-  });
-
-  const cmt = (text) => ({
-    id: crypto.randomUUID(), category: "Szerkezet", mnemonic: "COMMENT",
-    operand: text, rawOperand: text, description: "Megjegyzes a programhoz, ami nem general byte-ot.",
-    addressingMode: "implied", base: "comment", validationError: "", isComment: true
-  });
-
-  program = collapseLoadedProgram([
-    cmt("Hello World 1-40 demo – LOOP/NEXT + RAWBYTES macro"),
-    cmt("\"Hello World \" ASCII bytes at $0900 (RAWBYTES), read: LDA $0900,X"),
-
-    // RAWBYTES: "HELLO WORLD " PETSCII/ASCII bytes at $0900
-    // H=$48 E=$45 L=$4C L=$4C O=$4F ' '=$20 W=$57 O=$4F R=$52 L=$4C D=$44 ' '=$20
-    {
-      id: crypto.randomUUID(), category: "Makrok", mnemonic: "RAWBYTES",
-      operand: "48,45,4C,4C,4F,20,57,4F,52,4C,44,20",
-      rawOperand: "48,45,4C,4C,4F,20,57,4F,52,4C,44,20",
-      description: "Nyers byte-ok elhelyezese egy megadott memoriacimtol, kod generalas nelkul.",
-      addressingMode: "implied", base: "hex", validationError: "",
-      isRawBytesMacro: true, rawBytesAddress: "$0900"
-    },
-
-    b("Rendszer", "SEI", "", "implied"),
-
-    // Init ASCII digit counters in zero page
-    b("Adatmozgas", "LDA", "30", "immediate"),  // #$30 = '0'
-    b("Adatmozgas", "STA", "FB", "zeroPage"),   // $FB = units
-    b("Adatmozgas", "STA", "FC", "zeroPage"),   // $FC = tens
-
-    // LOOP Y: 40 iterations — Y is preserved by KERNAL, X is free for string read
-    {
-      id: crypto.randomUUID(), category: "Makrok", mnemonic: "LOOP",
-      operand: "", rawOperand: "", description: "Szamlalo ciklus: LD* #count, majd cimke a body elejere.",
-      addressingMode: "implied", base: "hex", validationError: "",
-      isLoopMacro: true, loopReg: "Y", loopCount: "28", loopLabel: "hw_loop"
-    },
-
-    // ── LOOP BODY ──────────────────────────────────────────────────
-    // Increment units digit (odometer: $FB = '1'..'9', $FC = '0'..'4')
-    b("Aritmetika", "INC", "FB", "zeroPage"),
-    b("Adatmozgas", "LDA", "FB", "zeroPage"),
-    b("Aritmetika", "CMP", "3A", "immediate"),  // '9'+1 = carry point
-    b("Ugrasok",    "BNE", "hw_no_carry", "relative"),
-    b("Adatmozgas", "LDA", "30", "immediate"),  // reset units → '0'
-    b("Adatmozgas", "STA", "FB", "zeroPage"),
-    b("Aritmetika", "INC", "FC", "zeroPage"),   // advance tens
-    lbl("hw_no_carry"),
-
-    // Print "Hello World " — read 12 bytes from $0900 via X index
-    b("Adatmozgas", "LDX", "00", "immediate"),  // X = string index 0
-    lbl("hw_str_loop"),
-    b("Adatmozgas", "LDA", "0900", "absoluteX"), // LDA $0900,X
-    b("Ugrasok",    "JSR", "FFD2", "absolute"),
-    b("Regiszterek","INX", "", "implied"),
-    b("Aritmetika", "CPX", "0C", "immediate"),   // 12 chars done?
-    b("Ugrasok",    "BNE", "hw_str_loop", "relative"),
-
-    // Print tens digit (skip if '0')
-    b("Adatmozgas", "LDA", "FC", "zeroPage"),
-    b("Aritmetika", "CMP", "30", "immediate"),
-    b("Ugrasok",    "BEQ", "hw_no_tens", "relative"),
-    b("Ugrasok",    "JSR", "FFD2", "absolute"),
-    lbl("hw_no_tens"),
-
-    // Print units digit
-    b("Adatmozgas", "LDA", "FB", "zeroPage"),
-    b("Ugrasok",    "JSR", "FFD2", "absolute"),
-
-    // Carriage return
-    b("Adatmozgas", "LDA", "0D", "immediate"),
-    b("Ugrasok",    "JSR", "FFD2", "absolute"),
-    // ── END LOOP BODY ───────────────────────────────────────────────
-
-    // NEXT: DEY + BNE back to hw_loop
-    {
-      id: crypto.randomUUID(), category: "Makrok", mnemonic: "NEXT",
-      operand: "", rawOperand: "", description: "Ciklus vege: DE* es BNE visszaugras a LOOP cimkejere.",
-      addressingMode: "implied", base: "hex", validationError: "",
-      isNextMacro: true, nextLabel: "hw_loop", nextReg: "Y"
-    },
-
-    // RTS: return to BASIC after 40 iterations
-    b("Ugrasok", "RTS", "", "implied")
-  ]);
-
-  renderOriginPreview();
-  renderEmulatorRunHint();
-  renderProgram();
-  saveUiSettings();
+async function loadLabelSampleProgram() {
+  await loadSampleFromFile("label-border");
 }
 
+async function loadTextSampleProgram() {
+  await loadSampleFromFile("text-demo");
+}
+
+async function loadMacroDemoProgram() {
+  await loadSampleFromFile("macro-demo");
+}
+
+async function loadSpriteSampleProgram() {
+  await loadSampleFromFile("sprite-demo");
+}
+
+async function loadSetpixelDemo() {
+  await loadSampleFromFile("setpixel-demo");
+}
+
+async function loadLoopSampleProgram() {
+  await loadSampleFromFile("loop-demo");
+}
+
+async function loadBitmapLineSampleProgram() {
+  await loadSampleFromFile("bitmap-demo");
+}
+
+async function loadHelloLoopSampleProgram() {
+  await loadSampleFromFile("hello-loop-demo");
+}
+
+async function loadBitmapClearTest() {
+  await loadSampleFromFile("bitmap-clear-test");
+}
+
+async function loadMacroTest() {
+  await loadSampleFromFile("macro-test");
+}
+
+// === OLD INLINE CODE BELOW (KEPT FOR REFERENCE, NOT EXECUTED) ===
 function loadSelectedSample() {
   if (sampleSelect.value === "label-border") {
     loadLabelSampleProgram();
@@ -5117,8 +4466,23 @@ function loadSelectedSample() {
     return;
   }
 
+  if (sampleSelect.value === "setpixel-demo") {
+    loadSetpixelDemo();
+    return;
+  }
+
   if (sampleSelect.value === "bitmap-demo") {
     loadBitmapLineSampleProgram();
+    return;
+  }
+
+  if (sampleSelect.value === "bitmap-clear-test") {
+    loadBitmapClearTest();
+    return;
+  }
+
+  if (sampleSelect.value === "macro-test") {
+    loadMacroTest();
     return;
   }
 
