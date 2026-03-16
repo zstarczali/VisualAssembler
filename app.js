@@ -131,12 +131,18 @@ const mnemonicLibrary = {
   Makrok: [
     { mnemonic: "TEXT", description: "Szoveg kiirasa a kepernyore KERNAL CHROUT rutinon keresztul.", modes: ["implied"], isTextMacro: true },
     { mnemonic: "BYTE", description: "Tetszoleges byte tomb beillesztese vesszovel elvalasztva.", modes: ["implied"], isByteMacro: true },
+    { mnemonic: "WORD", description: "16-bites ertekek tarolasa LO/HI byte parokban, vesszovel elvalasztva.", modes: ["implied"], isWordMacro: true },
+    { mnemonic: "FILL", description: "Ismetlodo byte generalasa megadott darabszammal.", modes: ["implied"], isFillMacro: true },
+    { mnemonic: "TABLE", description: "Lookup tabla definicio cimkevel es kezdocimmel.", modes: ["implied"], isTableMacro: true },
     { mnemonic: "STRING", description: "Karakterlanc kiirasa egy megadott memoriacimre.", modes: ["implied"], isStringMacro: true },
     { mnemonic: "DATA", description: "Nyers byte-ok kiirasa egy megadott memoriacimre.", modes: ["implied"], isDataMacro: true },
     { mnemonic: "RAWBYTES", description: "Nyers byte-ok elhelyezese egy megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isRawBytesMacro: true },
     { mnemonic: "RAWTEXT", description: "Szoveg elhelyezese PETSCII byte-kenkent egy megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isRawTextMacro: true },
     { mnemonic: "LOOP", description: "Szamlalo ciklus: LD* #count, majd cimke a body elejere. NEXT blokkal zarjuk.", modes: ["implied"], isLoopMacro: true },
-    { mnemonic: "NEXT", description: "Ciklus vege: DE* es BNE visszaugras a LOOP cimkejere.", modes: ["implied"], isNextMacro: true }
+    { mnemonic: "NEXT", description: "Ciklus vege: DE* es BNE visszaugras a LOOP cimkejere.", modes: ["implied"], isNextMacro: true },
+    { mnemonic: "IF", description: "Felteteles forditas kezdete. Kifejezest var (pl. DEBUG). ENDIF-fel zarjuk.", modes: ["implied"], isIfMacro: true },
+    { mnemonic: "ELSE", description: "Alternativ ag IF blokkon belul.", modes: ["implied"], isElseMacro: true },
+    { mnemonic: "ENDIF", description: "Felteteles forditas vege.", modes: ["implied"], isEndIfMacro: true }
   ],
   Illegalis: [
     { mnemonic: "LAX", description: "A es X regiszter egyideju betoltese (illegalis: LDA+LDX kombinacio).", modes: ["immediate", "zeroPage", "absolute"] },
@@ -271,6 +277,8 @@ const translations = {
     sampleSprite: "Sprite mozgatas pelda",
     sampleSetpixel: "Setpixel demo",
     sampleBitmap: "Bitmap vonal demo",
+    sampleBitmapClear: "Bitmap clear test",
+    sampleMacroTest: "Uj makrok teszt",
     sampleLoop: "LOOP / NEXT demo",
     sampleHelloLoop: "Hello World 1-40 (LOOP szamlalo)",
     languageLabel: "Nyelv",
@@ -422,6 +430,8 @@ const translations = {
     sampleSprite: "Sprite movement example",
     sampleSetpixel: "Setpixel demo",
     sampleBitmap: "Bitmap line demo",
+    sampleBitmapClear: "Bitmap clear test",
+    sampleMacroTest: "New macros test",
     sampleLoop: "LOOP / NEXT demo",
     sampleHelloLoop: "Hello World 1-40 (LOOP counter)",
     languageLabel: "Language",
@@ -654,12 +664,18 @@ const mnemonicDescriptionsEn = {
   BRK: "Break/interrupt for debugging.",
   TEXT: "Write text to the screen.",
   BYTE: "Insert an arbitrary comma-separated byte array.",
+  WORD: "Insert 16-bit values stored as LO/HI byte pairs, comma-separated.",
+  FILL: "Generate repeated bytes with a specified count.",
+  TABLE: "Define a lookup table with a label and start address.",
   STRING: "Write a string to a given memory address.",
   DATA: "Write raw bytes to a given memory address via LDA/STA code.",
   RAWBYTES: "Place raw bytes at a given memory address without generating any runtime code.",
   RAWTEXT: "Place text as PETSCII bytes at a given memory address without generating any runtime code.",
   LOOP: "Counter loop: LD* #count loads the counter, then a label marks the body start. Close with NEXT.",
   NEXT: "Loop end: DE* decrements the counter, BNE branches back to the LOOP label.",
+  IF: "Conditional assembly start. Expects a condition (e.g. DEBUG). Close with ENDIF.",
+  ELSE: "Alternative branch within an IF block.",
+  ENDIF: "Conditional assembly end.",
   LAX: "Load both A and X from the same address simultaneously (illegal: LDA+LDX).",
   SAX: "Store A AND X to a memory address (illegal).",
   DCP: "Decrement memory then compare with accumulator (illegal: DEC+CMP).",
@@ -1041,8 +1057,10 @@ function applyTranslations() {
   if (sampleOptions[4]) sampleOptions[4].textContent = t("sampleSprite");
   if (sampleOptions[5]) sampleOptions[5].textContent = t("sampleSetpixel");
   if (sampleOptions[6]) sampleOptions[6].textContent = t("sampleBitmap");
-  if (sampleOptions[7]) sampleOptions[7].textContent = t("sampleLoop");
-  if (sampleOptions[8]) sampleOptions[8].textContent = t("sampleHelloLoop");
+  if (sampleOptions[7]) sampleOptions[7].textContent = t("sampleBitmapClear");
+  if (sampleOptions[8]) sampleOptions[8].textContent = t("sampleMacroTest");
+  if (sampleOptions[9]) sampleOptions[9].textContent = t("sampleLoop");
+  if (sampleOptions[10]) sampleOptions[10].textContent = t("sampleHelloLoop");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -1581,6 +1599,108 @@ function createBlockFromMnemonic(item) {
     };
   }
 
+  if (item.isWordMacro) {
+    const rawOperand = operandInput.value.trim() || "1000,2000";
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: rawOperand,
+      rawOperand,
+      description: item.description,
+      addressingMode: "implied",
+      base: "dec",
+      validationError: validateWordMacro(rawOperand),
+      collapsed: true,
+      isWordMacro: true
+    };
+  }
+
+  if (item.isFillMacro) {
+    const rawOperand = operandInput.value.trim() || "256,0";
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: rawOperand,
+      rawOperand,
+      description: item.description,
+      addressingMode: "implied",
+      base: "dec",
+      validationError: validateFillMacro(rawOperand),
+      collapsed: true,
+      isFillMacro: true
+    };
+  }
+
+  if (item.isTableMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isTableMacro: true,
+      tableName: "table1",
+      tableAddress: "C000"
+    };
+  }
+
+  if (item.isIfMacro) {
+    const rawOperand = operandInput.value.trim() || "DEBUG";
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: rawOperand,
+      rawOperand,
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: validateIfMacro(rawOperand),
+      collapsed: true,
+      isIfMacro: true,
+      ifCondition: rawOperand
+    };
+  }
+
+  if (item.isElseMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isElseMacro: true
+    };
+  }
+
+  if (item.isEndIfMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isEndIfMacro: true
+    };
+  }
+
   const modeKey = item.modes.includes(addressingSelect.value) ? addressingSelect.value : item.modes[0];
   const preview = buildOperandPreview(modeKey, operandInput.value.trim(), getSelectedBase());
 
@@ -1719,6 +1839,22 @@ function updateProgramBlock(index, field, value) {
     } else if (block.isRawTextMacro) {
       block.operand = block.rawOperand.trim();
       block.validationError = validateStringMacroAddress(block.rawTextAddress);
+    } else if (block.isWordMacro) {
+      if (field === "base") {
+        const words = parseWordMacro(block.rawOperand, prevBase);
+        block.rawOperand = words.map(w => {
+          return value === "hex" ? w.toString(16).toUpperCase() : w.toString(10);
+        }).join(",");
+      }
+      block.operand = block.rawOperand.trim();
+      block.validationError = validateWordMacro(block.rawOperand, block.base);
+    } else if (block.isFillMacro) {
+      block.operand = block.rawOperand.trim();
+      block.validationError = validateFillMacro(block.rawOperand, block.base);
+    } else if (block.isIfMacro) {
+      block.operand = block.rawOperand.trim();
+      block.ifCondition = block.rawOperand.trim();
+      block.validationError = validateIfMacro(block.rawOperand);
     } else {
       const preview = buildOperandPreview(block.addressingMode, block.rawOperand, block.base);
       block.operand = preview.operand;
@@ -1778,6 +1914,16 @@ function updateProgramBlock(index, field, value) {
     const matching = program.find(b => b.isLoopMacro && b.loopLabel === block.nextLabel);
     if (matching) block.nextReg = matching.loopReg || "X";
     block.validationError = "";
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isTableMacro && (field === "tableName" || field === "tableAddress")) {
+    if (field === "tableName") {
+      block.tableName = sanitizeLabelName(value);
+    }
+    block.validationError = validateTableMacro(block.tableName, block.tableAddress);
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -2012,6 +2158,131 @@ function validateByteMacro(raw, base = "dec") {
     if (value < 0 || value > 255) {
       return currentLanguage === "en" ? "Every BYTE macro element must be a byte between 0 and 255." : "A BYTE makro minden eleme 0 es 255 kozotti byte kell legyen.";
     }
+  }
+
+  return "";
+}
+
+function parseWordMacro(raw, base = "dec") {
+  return raw
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => {
+      if (/^\$[0-9A-Fa-f]+$/.test(part)) {
+        return Number.parseInt(part.slice(1), 16);
+      }
+      if (/^0x[0-9A-Fa-f]+$/i.test(part)) {
+        return Number.parseInt(part.slice(2), 16);
+      }
+      return Number.parseInt(part, base === "hex" ? 16 : 10);
+    });
+}
+
+function validateWordMacro(raw, base = "dec") {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return currentLanguage === "en" ? "WORD macro needs at least one 16-bit value." : "A WORD makrohoz legalabb egy 16-bites ertek kell.";
+  }
+
+  const parts = trimmed.split(",").map((part) => part.trim()).filter(Boolean);
+  if (!parts.length) {
+    return currentLanguage === "en" ? "WORD macro needs at least one 16-bit value." : "A WORD makrohoz legalabb egy 16-bites ertek kell.";
+  }
+
+  for (const part of parts) {
+    const validHexPrefixed = /^\$[0-9A-Fa-f]+$/.test(part) || /^0x[0-9A-Fa-f]+$/i.test(part);
+    const validBare = base === "hex" ? /^[0-9A-Fa-f]+$/.test(part) : /^\d+$/.test(part);
+    if (!validHexPrefixed && !validBare) {
+      return base === "hex"
+        ? (currentLanguage === "en" ? "WORD macro only accepts hex values separated by commas." : "A WORD makroban csak hex ertekek lehetnek, vesszovel elvalasztva.")
+        : (currentLanguage === "en" ? "WORD macro only accepts decimal or hex values separated by commas." : "A WORD makroban csak decimalis vagy hex ertekek lehetnek, vesszovel elvalasztva.");
+    }
+
+    const value = validHexPrefixed
+      ? Number.parseInt(part.replace(/^\$/, "").replace(/^0x/i, ""), 16)
+      : Number.parseInt(part, base === "hex" ? 16 : 10);
+
+    if (value < 0 || value > 65535) {
+      return currentLanguage === "en" ? "Every WORD macro element must be between 0 and 65535." : "A WORD makro minden eleme 0 es 65535 kozotti kell legyen.";
+    }
+  }
+
+  return "";
+}
+
+function parseFillMacro(raw, base = "dec") {
+  const parts = raw.split(",").map((part) => part.trim()).filter(Boolean);
+  if (parts.length !== 2) return null;
+
+  const parseValue = (part) => {
+    if (/^\$[0-9A-Fa-f]+$/.test(part)) {
+      return Number.parseInt(part.slice(1), 16);
+    }
+    if (/^0x[0-9A-Fa-f]+$/i.test(part)) {
+      return Number.parseInt(part.slice(2), 16);
+    }
+    return Number.parseInt(part, base === "hex" ? 16 : 10);
+  };
+
+  return {
+    count: parseValue(parts[0]),
+    value: parseValue(parts[1])
+  };
+}
+
+function validateFillMacro(raw, base = "dec") {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return currentLanguage === "en" ? "FILL macro needs count and value (e.g., FILL 256,$00)." : "A FILL makrohoz darabszam es ertek kell (pl. FILL 256,$00).";
+  }
+
+  const parts = trimmed.split(",").map((part) => part.trim()).filter(Boolean);
+  if (parts.length !== 2) {
+    return currentLanguage === "en" ? "FILL macro needs exactly two parameters: count,value." : "A FILL makrohoz pontosan ket parameter kell: darabszam,ertek.";
+  }
+
+  const parsed = parseFillMacro(raw, base);
+  if (!parsed) {
+    return currentLanguage === "en" ? "FILL macro parameters are invalid." : "A FILL makro parameterei ervenytelenek.";
+  }
+
+  if (isNaN(parsed.count) || parsed.count < 1 || parsed.count > 65536) {
+    return currentLanguage === "en" ? "FILL count must be between 1 and 65536." : "A FILL darabszam 1 es 65536 kozott kell legyen.";
+  }
+
+  if (isNaN(parsed.value) || parsed.value < 0 || parsed.value > 255) {
+    return currentLanguage === "en" ? "FILL value must be a byte between 0 and 255." : "A FILL ertek 0 es 255 kozotti byte kell legyen.";
+  }
+
+  return "";
+}
+
+function validateTableMacro(labelName, address) {
+  if (!labelName || !labelName.trim()) {
+    return currentLanguage === "en" ? "TABLE macro needs a label name." : "A TABLE makrohoz cimke nev kell.";
+  }
+
+  const value = parseAddressValue(address);
+  if (value === null) {
+    return currentLanguage === "en" ? "TABLE macro needs a valid start address, for example $C000." : "A TABLE makrohoz ervenyes kezdocim kell, peldaul $C000.";
+  }
+
+  if (value < 0 || value > 0xFFFF) {
+    return currentLanguage === "en" ? "TABLE macro address must be between 0 and 65535." : "A TABLE makro cime 0 es 65535 kozott lehet.";
+  }
+
+  return "";
+}
+
+function validateIfMacro(condition) {
+  if (!condition || !condition.trim()) {
+    return currentLanguage === "en" ? "IF macro needs a condition (e.g., DEBUG)." : "Az IF makrohoz feltetel kell (pl. DEBUG).";
+  }
+
+  // Simple validation - just check it's a valid identifier
+  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(condition.trim())) {
+    return currentLanguage === "en" ? "IF condition must be a valid identifier." : "Az IF feltetelnek ervenyes azonositonak kell lennie.";
   }
 
   return "";
@@ -2457,6 +2728,12 @@ function assembleProgramToPrg(originOverride) {
     if (line.block.isLoopMacro && line.block.loopLabel) {
       labels.set(line.block.loopLabel, line.address + 2);
     }
+    if (line.block.isTableMacro && line.block.tableName) {
+      const tableAddr = line.block.tableAddress
+        ? (parseAddressValue(line.block.tableAddress) ?? line.address)
+        : line.address;
+      labels.set(line.block.tableName, tableAddr);
+    }
   });
 
   // Assemble inline code bytes
@@ -2618,6 +2895,50 @@ function compileLineBytes(line, labels) {
       return { ok: false, error: `NEXT: a ciklus tul nagy, BNE nem er el (offset: ${offset}).` };
     }
     return { ok: true, bytes: [deOpcode, 0xD0, offset & 0xFF], comment: `DE${reg} / BNE ${label}` };
+  }
+
+  if (block.isWordMacro) {
+    const words = parseWordMacro(block.rawOperand, block.base);
+    const bytes = [];
+    words.forEach(word => {
+      bytes.push(word & 0xFF, (word >> 8) & 0xFF);  // LO, HI
+    });
+    return {
+      ok: true,
+      bytes,
+      comment: `WORD ${block.rawOperand || ""}`
+    };
+  }
+
+  if (block.isFillMacro) {
+    const parsed = parseFillMacro(block.rawOperand, block.base);
+    if (!parsed || isNaN(parsed.count) || isNaN(parsed.value)) {
+      return { ok: false, error: `FILL: ${t("invalidOperand") || "invalid parameters"}` };
+    }
+    const bytes = new Array(parsed.count).fill(parsed.value & 0xFF);
+    return {
+      ok: true,
+      bytes,
+      comment: `FILL ${parsed.count},$${parsed.value.toString(16).toUpperCase().padStart(2, '0')}`
+    };
+  }
+
+  if (block.isTableMacro) {
+    // TABLE just creates a label, no bytes generated here
+    return {
+      ok: true,
+      bytes: [],
+      comment: `TABLE ${block.tableName || "?"} @ ${formatAddress(parseAddressValue(block.tableAddress) ?? 0xC000)}`
+    };
+  }
+
+  if (block.isIfMacro || block.isElseMacro || block.isEndIfMacro) {
+    // Conditional assembly blocks don't generate bytes themselves
+    return {
+      ok: true,
+      bytes: [],
+      comment: block.isIfMacro ? `IF ${block.ifCondition || "?"}` : (block.isElseMacro ? "ELSE" : "ENDIF")
+    };
   }
 
   const opcode = opcodeMap[block.mnemonic]?.[block.addressingMode];
@@ -2831,6 +3152,23 @@ function getInstructionSize(block) {
 
   if (block.isNextMacro) {
     return 3;  // DEX/DEY + BNE offset
+  }
+
+  if (block.isWordMacro) {
+    return parseWordMacro(block.rawOperand, block.base).length * 2;  // 2 bytes per word
+  }
+
+  if (block.isFillMacro) {
+    const parsed = parseFillMacro(block.rawOperand, block.base);
+    return parsed ? parsed.count : 0;
+  }
+
+  if (block.isTableMacro) {
+    return 0;  // TABLE is just a label
+  }
+
+  if (block.isIfMacro || block.isElseMacro || block.isEndIfMacro) {
+    return 0;  // Conditional assembly directives don't take space
   }
 
   if (block.addressingMode === "implied") {
@@ -3177,6 +3515,30 @@ function getBlockDescription(block) {
     return block.validationError || `${currentLanguage === "en" ? "RAWTEXT macro" : "RAWTEXT makro"}: "${block.rawOperand || ""}" @ ${block.rawTextAddress || "C000"}`;
   }
 
+  if (block.isWordMacro) {
+    return block.validationError || `${currentLanguage === "en" ? "WORD macro" : "WORD makro"}: ${block.rawOperand || ""}`;
+  }
+
+  if (block.isFillMacro) {
+    return block.validationError || `${currentLanguage === "en" ? "FILL macro" : "FILL makro"}: ${block.rawOperand || ""}`;
+  }
+
+  if (block.isTableMacro) {
+    return block.validationError || `${currentLanguage === "en" ? "TABLE" : "TABLA"}: ${block.tableName || "?"} @ ${block.tableAddress || "C000"}`;
+  }
+
+  if (block.isIfMacro) {
+    return block.validationError || `${currentLanguage === "en" ? "IF" : "HA"}: ${block.ifCondition || "?"}`;
+  }
+
+  if (block.isElseMacro) {
+    return currentLanguage === "en" ? "ELSE" : "KULONBEN";
+  }
+
+  if (block.isEndIfMacro) {
+    return currentLanguage === "en" ? "ENDIF" : "HA_VEGE";
+  }
+
   return block.validationError || (currentLanguage === "en" ? mnemonicDescriptionsEn[block.mnemonic] || block.description : block.description);
 }
 
@@ -3207,6 +3569,30 @@ function getBlockModeCaption(block) {
 
   if (block.isRawTextMacro) {
     return `${currentLanguage === "en" ? "Raw @ memory" : "Nyers @ memoria"} | ${block.rawTextAddress || "C000"}`;
+  }
+
+  if (block.isWordMacro) {
+    return currentLanguage === "en" ? "16-bit values | LO/HI pairs" : "16-bites ertekek | LO/HI parok";
+  }
+
+  if (block.isFillMacro) {
+    return currentLanguage === "en" ? "Fill | repeated bytes" : "Toltes | ismetlodo byte-ok";
+  }
+
+  if (block.isTableMacro) {
+    return `${currentLanguage === "en" ? "Lookup table" : "Kereso tabla"} | ${block.tableAddress || "C000"}`;
+  }
+
+  if (block.isIfMacro) {
+    return currentLanguage === "en" ? "Conditional | IF" : "Felteteles | HA";
+  }
+
+  if (block.isElseMacro) {
+    return currentLanguage === "en" ? "Conditional | ELSE" : "Felteteles | KULONBEN";
+  }
+
+  if (block.isEndIfMacro) {
+    return currentLanguage === "en" ? "Conditional | ENDIF" : "Felteteles | HA_VEGE";
   }
 
   if (block.isLabel) {
@@ -3311,6 +3697,29 @@ function getCollapsedOperandText(block) {
 
   if (block.isNextMacro) {
     return block.nextLabel ? `→ ${block.nextLabel}` : "";
+  }
+
+  if (block.isWordMacro) {
+    if (!block.rawOperand) return "";
+    const parts = block.rawOperand.split(",").map(s => s.trim()).filter(Boolean);
+    if (parts.length <= 4) return block.rawOperand;
+    return parts.slice(0, 4).join(", ") + " …";
+  }
+
+  if (block.isFillMacro) {
+    return block.rawOperand || "";
+  }
+
+  if (block.isTableMacro) {
+    return `${block.tableName || "?"} @ ${block.tableAddress || "C000"}`;
+  }
+
+  if (block.isIfMacro) {
+    return block.ifCondition || "?";
+  }
+
+  if (block.isElseMacro || block.isEndIfMacro) {
+    return "";
   }
 
   return block.operand || block.rawOperand || "";
@@ -3508,6 +3917,48 @@ function renderProgram() {
           </div>
         `
       );
+    } else if (block.isWordMacro) {
+      inlineField.hidden = false;
+      inlineField.querySelector("span").textContent = currentLanguage === "en" ? "16-bit values" : "16-bites ertekek";
+      operandField.value = block.rawOperand || "";
+      operandField.disabled = false;
+      operandField.placeholder = block.base === "hex"
+        ? (currentLanguage === "en" ? "For example 03E8,07D0,0BB8" : "Peldaul 03E8,07D0,0BB8")
+        : (currentLanguage === "en" ? "For example 1000,2000,3000" : "Peldaul 1000,2000,3000");
+      operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+    } else if (block.isFillMacro) {
+      inlineField.hidden = false;
+      inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Count,Value" : "Darab,Ertek";
+      operandField.value = block.rawOperand || "";
+      operandField.disabled = false;
+      operandField.placeholder = block.base === "hex"
+        ? (currentLanguage === "en" ? "For example 100,00" : "Peldaul 100,00")
+        : (currentLanguage === "en" ? "For example 256,0" : "Peldaul 256,0");
+      operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+    } else if (block.isTableMacro) {
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${currentLanguage === "en" ? "Table name" : "Tabla nev"}</span>
+              <input class="table-name" type="text" value="${block.tableName || "table1"}" placeholder="table1">
+            </label>
+            <label class="mini-field">
+              <span>${currentLanguage === "en" ? "Address" : "Cim"}</span>
+              <input class="table-address" type="text" value="${block.tableAddress || "C000"}" placeholder="C000">
+            </label>
+          </div>
+        `
+      );
+    } else if (block.isIfMacro) {
+      inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Condition" : "Feltetel";
+      inlineField.hidden = false;
+      operandField.value = block.ifCondition || "";
+      operandField.placeholder = "DEBUG";
+      operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+    } else if (block.isElseMacro || block.isEndIfMacro) {
+      inlineField.hidden = true;
     } else {
       inlineField.querySelector("span").textContent = t("fieldOperand");
       inlineField.hidden = !mode.needsOperand;
@@ -3520,7 +3971,7 @@ function renderProgram() {
     blockControls.insertAdjacentHTML(
       "beforeend",
       `
-          ${(mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isLoopMacro && !block.isNextMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro ? `
+          ${(mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isLoopMacro && !block.isNextMacro && !block.isWordMacro && !block.isFillMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro ? `
           <label class="mini-field">
             <span>${t("fieldFormat")}</span>
           <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
@@ -3534,7 +3985,7 @@ function renderProgram() {
             </label>
           </div>
         </label>` : ""}
-          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isLoopMacro || block.isNextMacro ? ` hidden` : ""}>
+          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isTableMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro ? ` hidden` : ""}>
             <span>${t("addressingMode")}</span>
           <select class="block-mode">
             ${getMnemonicModes(block.mnemonic).map((modeKey) => `<option value="${modeKey}"${block.addressingMode === modeKey ? " selected" : ""}>${modeText(modeKey, "label")}</option>`).join("")}
@@ -3574,6 +4025,14 @@ function renderProgram() {
     const nextLabelInput = node.querySelector(".next-label");
     if (nextLabelInput) {
       nextLabelInput.addEventListener("input", (event) => updateProgramBlock(index, "nextLabel", event.target.value));
+    }
+    const tableNameInput = node.querySelector(".table-name");
+    if (tableNameInput) {
+      tableNameInput.addEventListener("input", (event) => updateProgramBlock(index, "tableName", event.target.value));
+    }
+    const tableAddressInput = node.querySelector(".table-address");
+    if (tableAddressInput) {
+      tableAddressInput.addEventListener("input", (event) => updateProgramBlock(index, "tableAddress", event.target.value));
     }
       const blockModeSelect = node.querySelector(".block-mode");
       if (blockModeSelect) {
@@ -3774,6 +4233,36 @@ function renderAsmOutput() {
       return `    DE${reg}\n    BNE ${label}`;
     }
 
+    if (line.block.isWordMacro) {
+      const words = parseWordMacro(line.block.rawOperand, line.block.base);
+      const wordList = words.map(w => `$${toHex(w, 4)}`).join(", ");
+      return `    .word ${wordList}`;
+    }
+
+    if (line.block.isFillMacro) {
+      const parsed = parseFillMacro(line.block.rawOperand, line.block.base);
+      if (parsed) {
+        return `    .fill ${parsed.count}, $${toHex(parsed.value, 2)}`;
+      }
+      return `    ; FILL: invalid parameters`;
+    }
+
+    if (line.block.isTableMacro) {
+      return `${line.block.tableName || "table"}:`;
+    }
+
+    if (line.block.isIfMacro) {
+      return `; .IF ${line.block.ifCondition || "?"}`;
+    }
+
+    if (line.block.isElseMacro) {
+      return `; .ELSE`;
+    }
+
+    if (line.block.isEndIfMacro) {
+      return `; .ENDIF`;
+    }
+
     const suffix = line.block.operand ? ` ${line.block.operand}` : "";
     const comment = line.block.validationError ? ` ; ${t("warningLabel")}: ${line.block.validationError}` : "";
     return `    ${line.block.mnemonic}${suffix}${comment}`;
@@ -3810,6 +4299,12 @@ function renderMonitorOutput(layout = getProgramLayout()) {
     }
     if (line.block.isLoopMacro && line.block.loopLabel) {
       labels.set(line.block.loopLabel, line.address + 2);
+    }
+    if (line.block.isTableMacro && line.block.tableName) {
+      const tableAddr = line.block.tableAddress
+        ? (parseAddressValue(line.block.tableAddress) ?? line.address)
+        : line.address;
+      labels.set(line.block.tableName, tableAddr);
     }
   });
 
@@ -3941,6 +4436,14 @@ async function loadHelloLoopSampleProgram() {
   await loadSampleFromFile("hello-loop-demo");
 }
 
+async function loadBitmapClearTest() {
+  await loadSampleFromFile("bitmap-clear-test");
+}
+
+async function loadMacroTest() {
+  await loadSampleFromFile("macro-test");
+}
+
 // === OLD INLINE CODE BELOW (KEPT FOR REFERENCE, NOT EXECUTED) ===
 function loadSelectedSample() {
   if (sampleSelect.value === "label-border") {
@@ -3970,6 +4473,16 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "bitmap-demo") {
     loadBitmapLineSampleProgram();
+    return;
+  }
+
+  if (sampleSelect.value === "bitmap-clear-test") {
+    loadBitmapClearTest();
+    return;
+  }
+
+  if (sampleSelect.value === "macro-test") {
+    loadMacroTest();
     return;
   }
 
