@@ -8,5 +8,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
   chooseViceExecutable: () => ipcRenderer.invoke("vice:choose-executable"),
   launchVice: (payload) => ipcRenderer.invoke("vice:launch", payload),
   saveProject: (payload) => ipcRenderer.invoke("project:save", payload),
-  loadProject: () => ipcRenderer.invoke("project:load")
+  loadProject: () => ipcRenderer.invoke("project:load"),
+  loadSample: (sampleName) => ipcRenderer.invoke("sample:load", sampleName)
 });

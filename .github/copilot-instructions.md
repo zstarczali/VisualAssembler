@@ -254,6 +254,185 @@ Nincs hot-reload — változtatás után `npm start` újraindítás szükséges.
 
 ---
 
+## C64 Bitmap Mode Referencia
+
+### Hires Bitmap Mode Setup
+
+```js
+$D011 bit 5 = 1  → Bitmap Mode ON (BMM)
+$D011 = $3B      → Standard érték (BMM on, display on, Y-scroll=3)
+$D018 = $18      → Screen RAM at $0400, Bitmap at $2000
+```
+
+**KRITIKUS:** `$D018` bitjei:
+- Bits 7-4: Screen RAM location / $0400
+  - `$18` → %0001 → screen at $0400 ✅
+  - `$08` → %0000 → screen at $0000 ❌ **ROSSZ - random színek!**
+- Bits 3-1: Bitmap location / $2000
+  - %100 → bitmap at $2000
+
+### Memory Layout
+
+**Bitmap:** $2000-$3F3F (8000 bytes)
+- 320×200 pixels = 40×25 cellák (8×8 pixel/cella)
+- Minden cella = **8 byte** (1 byte/sor)
+- Cella tárolás: **ROW-MAJOR** (balról-jobbra, majd lefelé)
+
+**Cella cím számítás:**
+```
+cellRow = Y / 8
+cellCol = X / 8
+cellIndex = cellRow * 40 + cellCol
+cellAddress = $2000 + (cellIndex * 8) + (Y % 8)
+
+EGYSZERŰSÍTVE:
+cellAddress = $2000 + (Y/8)*320 + (X/8)*8 + (Y%8)
+              ↑       ↑           ↑         ↑
+              base    sor offset  oszlop    byte a cellán belül
+```
+
+**KRITIKUS HIBA:** row×**40** helyett row×**320** kell!
+- Egy sor = 40 cella × 8 byte/cella = **320 byte**!
+
+**Screen RAM:** $0400-$07E7 (1000 byte, 40×25 cella)
+- Minden byte = színinformáció egy 8×8 cellához
+- Bits 7-4: szín amikor bitmap bit = 1
+- Bits 3-0: szín amikor bitmap bit = 0
+- `$10` = foreground=1 (fehér), background=0 (fekete)
+
+**Color RAM:** $D800-$DBE7 (1000 byte)
+- **CSAK multicolor bitmap módban használt**
+- **Hires bitmap módban IGNORÁLT!**
+
+### Tipikus hibák
+
+1. **Screen RAM nincs törölve a bitmap mode beállítása előtt**
+   - Tünet: Random színek mindenütt
+   - Fix: Fill screen RAM $10-zel (vagy $01-gyel) BITMAP MODE SETUP ELŐTT
+
+2. **$D018 = $08 (rossz screen RAM cím)**
+   - Tünet: Színek nem megfelelőek, mert $0000 környéki memóriát használ
+   - Fix: $D018 = $18 (screen at $0400)
+
+3. **row×40 lookup tábla (kellene row×320)**
+   - Tünet: Képzavar, ferde rajzolás
+   - Fix: Lookup tábla minden sorhoz row*320 értéket tároljon
+
+### Setpixel algoritmus példa
+
+```assembly
+; Input: X=$FB (0-255), Y=$FC (0-199)
+setpixel:
+    TXA              ; Megőrzi a hívó X regiszterét
+    PHA
+    
+    ; 1. Row offset: (Y/8) * 320 lookup táblából
+    LDA $FC
+    LSR : LSR : LSR  ; Y/8
+    TAX
+    LDA row320lo,X
+    STA $FD
+    LDA row320hi,X
+    STA $FE
+    
+    ; 2. Column offset: (X/8) * 8
+    LDA $FB
+    LSR : LSR : LSR  ; X/8
+    ASL : ASL : ASL  ; *8
+    CLC
+    ADC $FD
+    STA $FD
+    BCC +
+    INC $FE
++   
+    ; 3. Add bitmap base $2000
+    LDA $FE
+    CLC
+    ADC #$20
+    STA $FE
+    
+    ; 4. Add byte offset (Y%8)
+    LDA $FC
+    AND #$07
+    CLC
+    ADC $FD
+    STA $FD
+    BCC +
+    INC $FE
++   
+    ; 5. Get bit mask and plot
+    LDA $FB
+    AND #$07
+    TAX
+    LDA bitmask,X
+    LDY #$00
+    ORA ($FD),Y      ; indirectY addressing
+    STA ($FD),Y
+    
+    PLA              ; Visszaállítja X-et
+    TAX
+    RTS
+
+row320lo: .byte $00,$40,$80,$C0,$00,$40,$80,$C0,... (25 byte)
+row320hi: .byte $00,$01,$02,$03,$05,$06,$07,$08,... (25 byte)
+bitmask:  .byte $80,$40,$20,$10,$08,$04,$02,$01
+```
+
+---
+
+## 6502 Addressing Mode-ok Teljes Listája
+
+Az `addressingModes` objektumban ezek MIND támogatottak:
+
+| Mode | Példa | Operand méret | needsOperand |
+|------|-------|---------------|--------------|
+| `implied` | `TAX` | 0 byte | false |
+| `immediate` | `LDA #$10` | 1 byte | true |
+| `zeroPage` | `LDA $FB` | 1 byte | true |
+| `absolute` | `LDA $D011` | 2 byte | true |
+| `absoluteX` | `LDA $0400,X` | 2 byte | true |
+| `absoluteY` | `LDA $0400,Y` | 2 byte | true |
+| `indirectX` | `LDA ($FB,X)` | 1 byte | true |
+| `indirectY` | `LDA ($FB),Y` | 1 byte | true |
+| `relative` | `BNE loop` | 1 byte (offset) | true |
+
+**KRITIKUS:** `indirectX` és `indirectY` **ZERO PAGE** címzések, tehát operand = **1 byte**!
+
+### opcodeMap kiegészítések indirectY támogatáshoz
+
+```js
+LDA: { immediate: 0xA9, zeroPage: 0xA5, absolute: 0xAD, absoluteX: 0xBD, 
+       absoluteY: 0xB9, indirectX: 0xA1, indirectY: 0xB1 },
+STA: { zeroPage: 0x85, absolute: 0x8D, absoluteX: 0x9D, 
+       absoluteY: 0x99, indirectX: 0x81, indirectY: 0x91 },
+ORA: { immediate: 0x09, zeroPage: 0x05, absolute: 0x0D, absoluteX: 0x1D,
+       absoluteY: 0x19, indirectX: 0x01, indirectY: 0x11 },
+// + ADC, SBC, CMP, AND, EOR ugyanezzel a mintával
+```
+
+### getInstructionSize, validateRange, formatOperand frissítések
+
+```js
+// getInstructionSize - indirectX/Y is 2 byte (opcode + ZP address)
+if (block.addressingMode === "immediate" || block.addressingMode === "zeroPage" || 
+    block.addressingMode === "relative" || block.addressingMode === "indirectX" || 
+    block.addressingMode === "indirectY") {
+  return 2;
+}
+
+// validateRange - indirectX/Y 0-255 range
+if (modeKey === "immediate" || modeKey === "zeroPage" || 
+    modeKey === "indirectX" || modeKey === "indirectY") {
+  return value < 0 || value > 255 ? error : "";
+}
+
+// formatOperand - speciális formázás
+if (modeKey === "indirectX") return `(${formatter(value, 2)},X)`;
+if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
+```
+
+---
+
 ## Jelenlegi verzió
 
 `1.1.0` — lásd `package.json` és a What's New dialóg (`index.html`).

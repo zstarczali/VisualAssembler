@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "app": "c64-visual-assembler",
+  "origin": "0801",
+  "program": [
+    {
+      "id": "e4219ad2-db7e-466b-adb2-94dfab552e28",
+      "category": "Szerkezet",
+      "mnemonic": "LABEL",
+      "operand": "",
+      "rawOperand": "",
+      "description": "Named label in code for jump target.",
+      "addressingMode": "implied",
+      "base": "hex",
+      "validationError": "",
+      "isLabel": true,
+      "labelName": "loop",
+      "collapsed": true
+    },
+    {
+      "id": "2c9617c6-2b26-4316-b686-071ffe23d136",
+      "category": "Adatmozgas",
+      "mnemonic": "LDA",
+      "operand": "$D020",
+      "rawOperand": "D020",
+      "description": "Load accumulator from memory or constant.",
+      "addressingMode": "absolute",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    },
+    {
+      "id": "6282c46f-9feb-498a-a230-98a81cb17c17",
+      "category": "Rendszer",
+      "mnemonic": "CLC",
+      "operand": "",
+      "rawOperand": "",
+      "description": "Clear carry flag.",
+      "addressingMode": "implied",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    },
+    {
+      "id": "245f7f62-26d5-4bd6-a027-79c433ec66ef",
+      "category": "Aritmetika",
+      "mnemonic": "ADC",
+      "operand": "#$01",
+      "rawOperand": "01",
+      "description": "Add with carry.",
+      "addressingMode": "immediate",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    },
+    {
+      "id": "f09d048e-5c3f-45fb-ac5a-39b1949447b1",
+      "category": "Adatmozgas",
+      "mnemonic": "STA",
+      "operand": "$D020",
+      "rawOperand": "D020",
+      "description": "Store accumulator to memory address.",
+      "addressingMode": "absolute",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    },
+    {
+      "id": "fa656315-a0e5-451c-9677-2c2acdcae656",
+      "category": "Ugrasok",
+      "mnemonic": "JMP",
+      "operand": "loop",
+      "rawOperand": "loop",
+      "description": "Unconditional jump to address.",
+      "addressingMode": "absolute",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    }
+  ],
+  "ui": {
+    "sample": "label-border",
+    "outputMode": "asm",
+    "numberBase": "hex",
+    "zoom": 0.72,
+    "language": "hu",
+    "theme": "light"
+  }
+}
