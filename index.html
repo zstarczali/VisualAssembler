@@ -294,13 +294,16 @@
         <strong>BASIC SYS stub toggle</strong> — added checkbox in Settings menu to enable/disable BASIC SYS stub generation. When disabled, programs load at $C000 (Free RAM) instead of $0801. Warning: sample programs with RAWBYTES, sprites, or fixed memory addresses may not work correctly without the stub.
       </li>
       <li>
-        <strong>Splash screen</strong> — added animated loading screen on application startup with smooth fade-out transition.
+        <strong>Current file indicator</strong> — the loaded project filename now appears in the ASM panel header for better context. Shows which file you're currently working on, disappears when loading samples or clearing the program.
       </li>
       <li>
-        <strong>UI improvements</strong> — fixed checkbox focus outline styling, improved visual feedback for form controls.
+        <strong>Splash screen</strong> — added animated loading screen on application startup with smooth fade-out transition (2 seconds).
       </li>
       <li>
-        <strong>Bug fixes</strong> — fixed PRG generation when BASIC SYS stub is disabled, corrected origin address handling for non-standard load addresses.
+        <strong>UI improvements</strong> — fixed checkbox focus outline styling to prevent oversized focus rectangles, improved visual feedback for form controls, better panel header layout.
+      </li>
+      <li>
+        <strong>Bug fixes</strong> — fixed PRG generation when BASIC SYS stub is disabled, corrected origin address handling for non-standard load addresses, improved file path handling in status messages.
       </li>
     </ul>
     <button id="whats-new-close" class="primary" type="button">OK</button>
