@@ -10,6 +10,15 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div id="splash-screen" class="splash-screen">
+    <div class="splash-content">
+      <h1 class="splash-title">C64 VISUAL ASSEMBLER</h1>
+      <p class="splash-subtitle">Commodore 64 Block Programming</p>
+      <div class="splash-loader">
+        <div class="splash-loader-bar"></div>
+      </div>
+    </div>
+  </div>
   <div class="app-shell">
     <header class="hero">
       <div class="hero-copy-block">
@@ -172,7 +181,10 @@
         <section class="output-panel">
           <div class="panel-scroll">
           <div class="panel-heading">
-            <h2>ASM nezet</h2>
+            <div class="panel-heading-top">
+              <h2>ASM nezet</h2>
+              <p class="current-file" id="current-file"></p>
+            </div>
             <p>Az osszerakott szoveges kod innen indulhat tovabb export fele.</p>
           </div>
           <div class="output-toolbar">
@@ -266,7 +278,7 @@
       </svg>
     </div>
     <h2 class="about-title">C64 Visual Assembler</h2>
-    <p class="about-version" id="about-version">v1.1.5</p>
+    <p class="about-version" id="about-version">v1.1.6</p>
     <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and dropping instruction blocks.</p>
     <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
     <button id="about-close" class="primary" type="button">Close</button>
@@ -276,25 +288,19 @@
 <dialog id="whats-new-dialog" class="whats-new-dialog">
   <div class="whats-new-card">
     <h2 class="whats-new-title">What's New</h2>
-    <p class="whats-new-version">v1.1.5</p>
+    <p class="whats-new-version">v1.1.6</p>
     <ul class="whats-new-list">
       <li>
-        <strong>New macros added</strong> — WORD (16-bit values), FILL (repeated bytes), TABLE (lookup tables), ALIGN (memory alignment), PUSH/PULL (stack management), INCBIN (external files), IF/ELSE/ENDIF (conditional assembly), and MACRO/ENDM (user-defined macros) for complete assembler functionality.
+        <strong>BASIC SYS stub toggle</strong> — added checkbox in Settings menu to enable/disable BASIC SYS stub generation. When disabled, programs load at $C000 (Free RAM) instead of $0801. Warning: sample programs with RAWBYTES, sprites, or fixed memory addresses may not work correctly without the stub.
       </li>
       <li>
-        <strong>LOOP/NEXT macro fixes</strong> — fixed register initialization bug where NEXT blocks didn't inherit correct register from their matching LOOP blocks, causing incorrect DEX/DEY generation.
+        <strong>Splash screen</strong> — added animated loading screen on application startup with smooth fade-out transition.
       </li>
       <li>
-        <strong>ALIGN macro bug fix</strong> — fixed critical issue where ALIGN macro used incorrect number base (hex instead of decimal), causing sprite data misalignment. ALIGN 64 now correctly aligns to 64-byte boundaries.
+        <strong>UI improvements</strong> — fixed checkbox focus outline styling, improved visual feedback for form controls.
       </li>
       <li>
-        <strong>Sprite system fixes</strong> — corrected sprite pointer calculations to account for BASIC SYS stub offset ($080D vs $0801), fixed sprite data format validation (exactly 64 bytes required), and improved sprite rendering reliability.
-      </li>
-      <li>
-        <strong>Sample program cleanup</strong> — removed unstable demos, added new examples showcasing macro features, improved sample loading performance from external JSON files.
-      </li>
-      <li>
-        <strong>Bug fixes and improvements</strong> — numerous small fixes throughout the codebase, improved error handling, better memory layout calculation, enhanced validation for all macro types.
+        <strong>Bug fixes</strong> — fixed PRG generation when BASIC SYS stub is disabled, corrected origin address handling for non-standard load addresses.
       </li>
     </ul>
     <button id="whats-new-close" class="primary" type="button">OK</button>
