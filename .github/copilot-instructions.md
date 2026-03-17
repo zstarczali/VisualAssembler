@@ -435,9 +435,267 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`1.1.0` — lásd `package.json` és a What's New dialóg (`index.html`).
+`1.1.5` — lásd `package.json` és a What's New dialóg (`index.html`).
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező
-2. `index.html` → `#whats-new-dialog` cím + bejegyzések (HU és EN)
-3. Mac + Windows build az aláírási procedúrával
+2. `index.html` → `#whats-new-dialog` cím + bejegyzések (mindig angolul!)
+3. `index.html` → `#about-dialog` verzió szám frissítése
+4. Mac + Windows build az aláírási procedúrával
+
+---
+
+## Kritikus tudás - Sprite rendszer
+
+### C64 Sprite alapok
+
+**Sprite méret és formátum:**
+- **24×21 pixel** = 3 byte/sor × 21 sor = 63 byte + 1 padding = **pontosan 64 byte**
+- Padding byte MINDIG `$00` legyen (különben extra pixelek jelennek meg)
+- Sprite-ok **64-byte határra kell igazítani** memóriában (ALIGN 64)
+
+**Sprite pointer számítás:**
+```
+Sprite pointer ($07F8-$07FF) = sprite_address / 64
+Példa: sprite at $0840 → pointer = $0840/64 = $21
+```
+
+**VIC-II sprite regiszterek:**
+- `$D015`: Sprite enable (bit 0-7 = sprite 0-7)
+- `$D000-$D00F`: X/Y pozíciók (sprite 0-7, páronként)
+- `$D010`: X koordináta 9. bit (255+ pozíciók)
+- `$D027-$D02E`: Sprite színek (sprite 0-7)
+
+### ALIGN makró bug (JAVÍTVA v1.1.5-ben)
+
+**Probléma:** Az ALIGN makró `block.base` értéket használta → ha `base: "hex"`, akkor `ALIGN 64` → 0x64 = **100 decimális** határra igazított!
+
+**Fix:** Az ALIGN blokkok mindig `base: "dec"` értéket használjanak:
+```json
+{
+  "mnemonic": "ALIGN",
+  "rawOperand": "64",
+  "base": "dec",    // ← KRITIKUS!
+  "isAlignMacro": true
+}
+```
+
+### BASIC SYS stub és sprite címek
+
+**Ha BASIC SYS stub BE van kapcsolva:**
+- Origin: `$0801` (BASIC program start)
+- BASIC SYS stub: 12 byte (0x0C)
+- **Tényleges kód start: `$080D`** (nem $0801!)
+
+**Sprite pointer számítás BASIC SYS-szel:**
+```
+$080D: JMP main (3 byte)
+$0810: ALIGN 64 start
+       remainder = $0810 % 64 = 16
+       padding = 64 - 16 = 48 byte
+$0840: Sprite 0 → pointer $21 ✓
+$0880: Sprite 1 → pointer $22 ✓
+```
+
+**Gyakori hiba:** sprite pointer `$20` használata → `$0800` címre mutat, ahol még BASIC stub van!
+
+### LOOP/NEXT makró register bug (JAVÍTVA v1.1.5-ben)
+
+**Probléma:** `collapseLoadedProgram()` nem állította be a `nextReg` mezőt betöltéskor.
+
+**Fix:**
+```javascript
+function collapseLoadedProgram(blocks) {
+  const result = blocks.map((block) => ({
+    ...block,
+    collapsed: true
+  }));
+
+  // Initialize nextReg for NEXT blocks
+  result.forEach((block, index) => {
+    if (block.isNextMacro && block.nextLabel) {
+      const matching = result.find(b =>
+        b.isLoopMacro && b.loopLabel === block.nextLabel
+      );
+      if (matching) {
+        block.nextReg = matching.loopReg || "X";
+      }
+    }
+  });
+
+  return result;
+}
+```
+
+**Tünet:** LOOP Y használata esetén NEXT generált `DEX` helyett `DEY`-t.
+
+### Sprite villogás (flicker) megelőzése
+
+**Ok:** VIC-II közepén módosítjuk a sprite regisztereket → tearing/flicker.
+
+**Megoldás 1: Delay loop**
+```assembly
+delay:
+    LDX #$08         ; 8 outer loops
+delay_outer:
+    LDY #$FF         ; 255 inner loops
+delay_inner:
+    DEY
+    BNE delay_inner
+    DEX
+    BNE delay_outer
+    RTS
+```
+
+**Megoldás 2: VBlank wait (ritkán szükséges)**
+```assembly
+wait_vblank:
+    LDA $D012        ; Raster line
+    CMP #$FA         ; Wait for line 250 (bottom)
+    BNE wait_vblank
+```
+
+**Best practice:** JSR delay minden frame után, **PUSH/PULL nem szükséges** (delay nem módosít regisztereket).
+
+### Sample program translációk
+
+**Fontos:** `renderLanguage()` függvény **index alapján** állítja be a menü szövegeket!
+
+**Ha sample-t törölsz:**
+1. JSON fájl törlése
+2. `loadXxxDemo()` függvény törlése
+3. `loadSelectedSample()` if blokk törlése
+4. `index.html` `<option>` sor törlése
+5. **translations objektum frissítése** (hu + en)
+6. **renderLanguage() indexek átszámozása!**
+
+**Példa:**
+```javascript
+// index.html sorrendje:
+// 0: basic-colors
+// 1: label-border
+// 2: text-demo
+// 3: macro-demo
+// 4: sprite-demo
+// 5: sprite-align-demo
+// 6: sprite-test-3  ← 6. index!
+// 7: setpixel-demo
+
+// renderLanguage()-ban:
+if (sampleOptions[6]) sampleOptions[6].textContent = t("sampleSpriteTest3");
+if (sampleOptions[7]) sampleOptions[7].textContent = t("sampleSetpixel");
+```
+
+---
+
+## Új makrók (v1.1.3+)
+
+### WORD makró
+- **16-bit értékek** tárolása little-endian formátumban
+- Formátum: `WORD $1234,$ABCD` → `$34,$12,$CD,$AB`
+```javascript
+if (block.isWordMacro) {
+  const words = parseWordMacro(block.rawOperand, block.base);
+  const bytes = [];
+  words.forEach(word => {
+    bytes.push(word & 0xFF, (word >> 8) & 0xFF);  // LO, HI
+  });
+}
+```
+
+### FILL makró
+- **Ismételt byte-ok** generálása
+- Formátum: `FILL count,value` pl. `FILL 100,$00`
+```javascript
+if (block.isFillMacro) {
+  const parsed = parseFillMacro(block.rawOperand, block.base);
+  const bytes = new Array(parsed.count).fill(parsed.value & 0xFF);
+}
+```
+
+### TABLE makró
+- **Lookup táblák** címkézése
+- **Nincs byte generálás**, csak label létrehozás
+- Használat: `TABLE sintable $C000` majd `BYTE` sorok utána
+
+### PUSH/PULL makrók
+- **Stack kezelés** (A/X/Y regiszterek mentése/visszaállítása)
+- `PUSH A`, `PUSH XY`, `PUSH AXY` stb.
+- **KRITIKUS:** PULL **fordított sorrendben** történik!
+```javascript
+// PUSH AXY → PHA, TXA+PHA, TYA+PHA
+// PULL AXY → PLA+TAY, PLA+TAX, PLA (reverse!)
+for (let i = regs.length - 1; i >= 0; i--) { ... }
+```
+
+### IF/ELSE/ENDIF makrók
+- **Conditional assembly** (még nincs teljesen implementálva)
+- Jelenleg csak comment-ként jelennek meg
+
+### MACRO/ENDM - User defined macros
+- Felhasználói makrók definiálása
+- `MACRO name` ... `ENDM` blokkokban
+- `parseUserMacros()` függvény építi fel a `userMacros` objektumot
+- Expanzió: `getProgramLayout()` során inline behelyettesítés
+
+---
+
+## Teszt sorrend sample betöltéskor
+
+Ha új sample programot adsz hozzá:
+1. **JSON struktúra validáció** - minden blokk tartalmazza a szükséges mezőket
+2. **Sprite data byte count** - pontosan 64 byte per sprite
+3. **ALIGN base** - `base: "dec"` ne `"hex"`
+4. **Sprite pointers** - BASIC SYS stub offsettel számolva ($080D start)
+5. **LOOP/NEXT párosítás** - minden NEXT-hez van matching LOOP
+6. **Label hivatkozások** - minden JMP/BNE/JSR target létezik
+7. **Memory overlap** - sprite data nem írja felül a kódot
+
+---
+
+## Gyakori hibák és megoldások
+
+### "Sprites rosszul néznek ki / eltolódtak"
+→ Sprite pointer nem 64-byte határra mutat, vagy sprite data nem 64 byte
+
+### "NEXT generál DEX amikor DEY kellene"
+→ `collapseLoadedProgram()` bug - javítva v1.1.5-ben
+
+### "Sprite-ok villognak mozgáskor"
+→ JSR delay hiányzik vagy túl rövid (használj LDX #$08, LDY #$FF nested loop-ot)
+
+### "Menu-ben nem jó sample töltődik be"
+→ `renderLanguage()` indexek nem egyeznek a HTML option sorrenddel
+
+### "ALIGN 64 nem oda igazít, ahová kellene"
+→ `base: "hex"` helyett `base: "dec"` kell
+
+---
+
+## Debugging eszközök
+
+**Memory layout vizualizáció:**
+```javascript
+const layout = getProgramLayout();
+layout.lines.forEach(line => {
+  console.log(`$${line.address.toString(16).toUpperCase().padStart(4,'0')}: ${line.block.mnemonic} (${line.size} bytes)`);
+});
+```
+
+**Sprite pointer ellenőrzés:**
+```javascript
+// Sprite at $0840 → $0840/64 = $21 (33 decimal)
+const spriteAddr = 0x0840;
+const expectedPtr = spriteAddr / 64;
+console.log(`Sprite pointer should be $${expectedPtr.toString(16).toUpperCase()}`);
+```
+
+**LOOP/NEXT validáció:**
+```javascript
+program.forEach((block, i) => {
+  if (block.isNextMacro) {
+    const loop = program.find(b => b.isLoopMacro && b.loopLabel === block.nextLabel);
+    console.log(`NEXT at ${i}: ${block.nextLabel} → reg=${block.nextReg}, loop reg=${loop?.loopReg}`);
+  }
+});
+```
