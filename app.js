@@ -193,6 +193,7 @@ const chooseViceButton = document.getElementById("choose-vice");
 const emulatorStatus = document.getElementById("emulator-status");
 const emulatorRunHint = document.getElementById("emulator-run-hint");
 const vicePathInput = document.getElementById("vice-path");
+const currentFileDisplay = document.getElementById("current-file");
 const originInput = document.getElementById("origin-input");
 const originPreview = document.getElementById("origin-preview");
 const memoryMap = document.getElementById("memory-map");
@@ -915,6 +916,17 @@ function initPalette() {
   renderMemoryStrip();
   loadViceConfig();
   saveUiSettings();
+
+  // Hide splash screen after initialization
+  setTimeout(() => {
+    const splashScreen = document.getElementById('splash-screen');
+    if (splashScreen) {
+      splashScreen.classList.add('fade-out');
+      setTimeout(() => {
+        splashScreen.remove();
+      }, 500);
+    }
+  }, 2000);
 }
 
 function applySavedLanguage() {
@@ -1880,6 +1892,11 @@ function clearProgram() {
   program = [];
   userMacros = {};
   renderProgram();
+
+  // Clear current file display
+  if (currentFileDisplay) {
+    currentFileDisplay.textContent = "";
+  }
 }
 
 function parseUserMacros() {
@@ -2785,6 +2802,12 @@ async function saveProjectToFile() {
   if (emulatorStatus) {
     emulatorStatus.textContent = `${t("projectSaved")}: ${result.filePath}`;
   }
+
+  // Update current file display
+  if (currentFileDisplay && result.filePath) {
+    const fileName = result.filePath.split(/[\\/]/).pop();
+    currentFileDisplay.textContent = `📄 ${fileName}`;
+  }
 }
 
 async function loadProjectFromFile() {
@@ -2855,6 +2878,12 @@ async function loadProjectFromFile() {
   if (emulatorStatus) {
     emulatorStatus.textContent = `${t("projectLoaded")}: ${result.filePath}`;
   }
+
+  // Update current file display
+  if (currentFileDisplay && result.filePath) {
+    const fileName = result.filePath.split(/[\\/]/).pop();
+    currentFileDisplay.textContent = `📄 ${fileName}`;
+  }
 }
 
 async function copyAsmToClipboard() {
@@ -2924,7 +2953,11 @@ function buildAutostartPrgForEmulator() {
   const useBasicSys = basicSysToggle ? basicSysToggle.checked : true;
 
   if (!useBasicSys) {
-    return assembleProgramToPrg();
+    // When BASIC SYS stub is disabled, use the user-defined origin value
+    // If origin is $0801 (BASIC area), automatically use $C000 (Free RAM) instead
+    const origin = parseOriginValue();
+    const targetOrigin = (origin.value === 0x0801) ? 0xC000 : origin.value;
+    return assembleProgramToPrg(targetOrigin);
   }
 
   const sysAddress = 0x080D;
@@ -3410,9 +3443,21 @@ function parseOriginValue() {
 function renderOriginPreview() {
   const origin = parseOriginValue();
   const useBasicSys = basicSysToggle ? basicSysToggle.checked : true;
-  const effectiveNote = useBasicSys && !origin.error
-    ? `<small>${currentLanguage === "en" ? "Code placed at $080D (after BASIC stub)" : "Kód elhelyezése: $080D (BASIC stub után)"}</small>`
-    : (origin.error ? `<small class="error-text">${origin.error}</small>` : `<small>${origin.value} dec | ${origin.text} hex</small>`);
+
+  let effectiveNote;
+  if (useBasicSys && !origin.error) {
+    effectiveNote = `<small>${currentLanguage === "en" ? "Code placed at $080D (after BASIC stub)" : "Kód elhelyezése: $080D (BASIC stub után)"}</small>`;
+  } else if (!useBasicSys && origin.value === 0x0801 && !origin.error) {
+    const warning = currentLanguage === "en"
+      ? "Auto-switched to $C000 (Free RAM)<br><span style='color: #d97706;'>⚠ Sample programs may not work without BASIC SYS stub</span>"
+      : "Automatikusan átváltva: $C000 (Szabad RAM)<br><span style='color: #d97706;'>⚠ Mintaprogramok nem biztos hogy működnek BASIC SYS stub nélkül</span>";
+    effectiveNote = `<small>${warning}</small>`;
+  } else if (origin.error) {
+    effectiveNote = `<small class="error-text">${origin.error}</small>`;
+  } else {
+    effectiveNote = `<small>${origin.value} dec | ${origin.text} hex</small>`;
+  }
+
   originPreview.innerHTML = `<strong>*= ${origin.text}</strong> ${effectiveNote}`;
 }
 
@@ -3425,9 +3470,12 @@ function renderEmulatorRunHint() {
   const origin = parseOriginValue();
 
   if (!useBasicSys) {
-    emulatorRunHint.innerHTML = currentLanguage === "en"
-      ? `<strong>Run hint:</strong> BASIC SYS stub disabled — load and run manually via ML monitor.`
-      : `<strong>Futtatas tipp:</strong> BASIC SYS stub kikapcsolva — ML monitorból toltsd be es inditsd el.`;
+    const targetOrigin = (origin.value === 0x0801) ? 0xC000 : origin.value;
+    const targetText = formatAddress(targetOrigin);
+    const warning = currentLanguage === "en"
+      ? `<strong>Run hint:</strong> BASIC SYS stub disabled — program loads at ${targetText}. Use <code>SYS ${targetOrigin}</code> to run.<br><span style='color: #d97706;'>⚠ Warning: Sample programs with RAWBYTES, sprites, or fixed memory addresses may not work correctly without BASIC SYS stub.</span>`
+      : `<strong>Futtatas tipp:</strong> BASIC SYS stub kikapcsolva — program betöltve ide: ${targetText}. Futtatas: <code>SYS ${targetOrigin}</code><br><span style='color: #d97706;'>⚠ Figyelem: RAWBYTES, sprite-ok vagy fix memóriacímeket használó mintaprogramok nem biztos, hogy helyesen működnek BASIC SYS stub nélkül.</span>`;
+    emulatorRunHint.innerHTML = warning;
     return;
   }
 
@@ -5063,6 +5111,12 @@ async function loadSampleFromFile(sampleName) {
   parseUserMacros();  // Parse any user-defined macros in the loaded sample
   renderProgram();
   saveUiSettings();
+
+  // Clear current file display when loading a sample
+  if (currentFileDisplay) {
+    currentFileDisplay.textContent = "";
+  }
+
   return true;
 }
 
