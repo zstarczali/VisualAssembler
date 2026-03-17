@@ -1,0 +1,83 @@
+MENU OPTION → EXPECTED FILE → FUNCTION CALLED
+==============================================
+
+1. basic-colors (Mintaprogram)
+   → basic-colors.json
+   → loadSampleProgram()
+   → loadSampleFromFile("basic-colors")
+
+2. label-border (Label pelda)
+   → label-border.json
+   → loadLabelSampleProgram()
+   → loadSampleFromFile("label-border")
+
+3. text-demo (TEXT pelda)
+   → text-demo.json
+   → loadTextSampleProgram()
+   → loadSampleFromFile("text-demo")
+
+4. macro-demo (Komplex makro pelda)
+   → macro-demo.json
+   → loadMacroDemoProgram()
+   → loadSampleFromFile("macro-demo")
+
+5. sprite-demo (Sprite mozgatas pelda)
+   → sprite-demo.json
+   → loadSpriteSampleProgram()
+   → loadSampleFromFile("sprite-demo")
+
+6. sprite-align-demo (Sprite ALIGN pelda)
+   → sprite-align-demo.json
+   → loadSpriteAlignDemo()
+   → loadSampleFromFile("sprite-align-demo")
+
+7. sprite-test-3 (Sprite Test 3)
+   → sprite-test-3.json
+   → loadSpriteTest3()
+   → loadSampleFromFile("sprite-test-3")
+
+8. setpixel-demo (Setpixel demo)
+   → setpixel-demo.json
+   → loadSetpixelDemo()
+   → loadSampleFromFile("setpixel-demo")
+
+9. bitmap-demo (Bitmap vonal demo)
+   → bitmap-demo.json
+   → loadBitmapLineSampleProgram()
+   → loadSampleFromFile("bitmap-demo")
+
+10. bitmap-clear-test (Bitmap clear test)
+    → bitmap-clear-test.json
+    → loadBitmapClearTest()
+    → loadSampleFromFile("bitmap-clear-test")
+
+11. macro-test (New macros test)
+    → macro-test.json
+    → loadMacroTest()
+    → loadSampleFromFile("macro-test")
+
+12. loop-demo (LOOP / NEXT demo)
+    → loop-demo.json
+    → loadLoopSampleProgram()
+    → loadSampleFromFile("loop-demo")
+
+13. hello-loop-demo (Hello World 1-40)
+    → hello-loop-demo.json
+    → loadHelloLoopSampleProgram()
+    → loadSampleFromFile("hello-loop-demo")
+
+14. push-pull-demo (PUSH / PULL demo)
+    → push-pull-demo.json
+    → loadPushPullDemo()
+    → loadSampleFromFile("push-pull-demo")
+
+15. user-macro-demo (User MACRO / ENDM demo)
+    → user-macro-demo.json
+    → loadUserMacroDemo()
+    → loadSampleFromFile("user-macro-demo")
+
+ALL FILES EXIST: ✓
+ALL FUNCTIONS EXIST: ✓
+HTML MENU MATCHES: ✓
+
+PLEASE TEST EACH MENU ITEM AND REPORT WHICH ONES LOAD THE WRONG DEMO!

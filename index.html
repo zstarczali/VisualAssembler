@@ -34,12 +34,16 @@
                     <option value="text-demo">TEXT pelda</option>
                     <option value="macro-demo">Komplex makro pelda</option>
                     <option value="sprite-demo">Sprite mozgatas pelda</option>
+                    <option value="sprite-align-demo">Sprite ALIGN pelda</option>
+                    <option value="sprite-test-3">Sprite Test 3</option>
                     <option value="setpixel-demo">Setpixel demo</option>
                     <option value="bitmap-demo">Bitmap vonal demo</option>
                     <option value="bitmap-clear-test">Bitmap clear test</option>
                     <option value="macro-test">New macros test</option>
                     <option value="loop-demo">LOOP / NEXT demo</option>
                     <option value="hello-loop-demo">Hello World 1-40 (LOOP szamlalo)</option>
+                    <option value="push-pull-demo">PUSH / PULL demo</option>
+                    <option value="user-macro-demo">User MACRO / ENDM demo</option>
                   </select>
                 </label>
                 <button id="load-sample" class="secondary" type="button">Betoltes</button>
@@ -262,7 +266,7 @@
       </svg>
     </div>
     <h2 class="about-title">C64 Visual Assembler</h2>
-    <p class="about-version" id="about-version">v1.0.0</p>
+    <p class="about-version" id="about-version">v1.1.5</p>
     <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and dropping instruction blocks.</p>
     <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
     <button id="about-close" class="primary" type="button">Close</button>
@@ -272,25 +276,25 @@
 <dialog id="whats-new-dialog" class="whats-new-dialog">
   <div class="whats-new-card">
     <h2 class="whats-new-title">What's New</h2>
-    <p class="whats-new-version">v1.1.3</p>
+    <p class="whats-new-version">v1.1.5</p>
     <ul class="whats-new-list">
       <li>
-        <strong>New macros</strong> — added WORD (16-bit values), FILL (repeated bytes), TABLE (lookup tables), and IF/ELSE/ENDIF (conditional assembly) macros for more complete assembler functionality.
+        <strong>New macros added</strong> — WORD (16-bit values), FILL (repeated bytes), TABLE (lookup tables), ALIGN (memory alignment), PUSH/PULL (stack management), INCBIN (external files), IF/ELSE/ENDIF (conditional assembly), and MACRO/ENDM (user-defined macros) for complete assembler functionality.
       </li>
       <li>
-        <strong>New sample programs</strong> — added Bitmap Clear Test demo showcasing efficient memory clearing techniques using LOOP/NEXT macros with optimized 32×256 byte block fills, and Macro Test demo demonstrating all new macro features.
+        <strong>LOOP/NEXT macro fixes</strong> — fixed register initialization bug where NEXT blocks didn't inherit correct register from their matching LOOP blocks, causing incorrect DEX/DEY generation.
       </li>
       <li>
-        <strong>Internal refactoring</strong> — improved code organization and maintainability with cleaner architecture.
+        <strong>ALIGN macro bug fix</strong> — fixed critical issue where ALIGN macro used incorrect number base (hex instead of decimal), causing sprite data misalignment. ALIGN 64 now correctly aligns to 64-byte boundaries.
       </li>
       <li>
-        <strong>Performance improvements</strong> — faster sample loading from external JSON files, optimized rendering pipeline.
+        <strong>Sprite system fixes</strong> — corrected sprite pointer calculations to account for BASIC SYS stub offset ($080D vs $0801), fixed sprite data format validation (exactly 64 bytes required), and improved sprite rendering reliability.
       </li>
       <li>
-        <strong>Build optimization</strong> — removed Linux build target, streamlined CI/CD pipeline for Windows and macOS only.
+        <strong>Sample program cleanup</strong> — removed unstable demos, added new examples showcasing macro features, improved sample loading performance from external JSON files.
       </li>
       <li>
-        <strong>Sample localization</strong> — all sample program descriptions and comments translated to English for better accessibility.
+        <strong>Bug fixes and improvements</strong> — numerous small fixes throughout the codebase, improved error handling, better memory layout calculation, enhanced validation for all macro types.
       </li>
     </ul>
     <button id="whats-new-close" class="primary" type="button">OK</button>
