@@ -133,6 +133,7 @@ const mnemonicLibrary = {
     { mnemonic: "BYTE", description: "Tetszoleges byte tomb beillesztese vesszovel elvalasztva.", modes: ["implied"], isByteMacro: true },
     { mnemonic: "WORD", description: "16-bites ertekek tarolasa LO/HI byte parokban, vesszovel elvalasztva.", modes: ["implied"], isWordMacro: true },
     { mnemonic: "FILL", description: "Ismetlodo byte generalasa megadott darabszammal.", modes: ["implied"], isFillMacro: true },
+    { mnemonic: "ALIGN", description: "Memoria hatar igazitas. Pl. 64 → kovetkezo 64-byte hatarra ugrik (sprite), 256 → page boundary, $2000 → bitmap.", modes: ["implied"], isAlignMacro: true },
     { mnemonic: "TABLE", description: "Lookup tabla definicio cimkevel es kezdocimmel.", modes: ["implied"], isTableMacro: true },
     { mnemonic: "STRING", description: "Karakterlanc kiirasa egy megadott memoriacimre.", modes: ["implied"], isStringMacro: true },
     { mnemonic: "DATA", description: "Nyers byte-ok kiirasa egy megadott memoriacimre.", modes: ["implied"], isDataMacro: true },
@@ -140,6 +141,11 @@ const mnemonicLibrary = {
     { mnemonic: "RAWTEXT", description: "Szoveg elhelyezese PETSCII byte-kenkent egy megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isRawTextMacro: true },
     { mnemonic: "LOOP", description: "Szamlalo ciklus: LD* #count, majd cimke a body elejere. NEXT blokkal zarjuk.", modes: ["implied"], isLoopMacro: true },
     { mnemonic: "NEXT", description: "Ciklus vege: DE* es BNE visszaugras a LOOP cimkejere.", modes: ["implied"], isNextMacro: true },
+    { mnemonic: "PUSH", description: "Regiszterek mentese a stackre (A, X, Y kombinaciok).", modes: ["implied"], isPushMacro: true },
+    { mnemonic: "PULL", description: "Regiszterek visszatoltese a stackrol (A, X, Y kombinaciok).", modes: ["implied"], isPullMacro: true },
+    { mnemonic: "MACRO", description: "Felhasznaloi makro definicio kezdete. Nevet var, ENDM-mel zarjuk.", modes: ["implied"], isMacroDefStart: true },
+    { mnemonic: "ENDM", description: "Felhasznaloi makro definicio vege.", modes: ["implied"], isMacroDefEnd: true },
+    { mnemonic: "INVOKE", description: "Felhasznaloi makro hivasa. Valaszd ki a listabol a makro nevet.", modes: ["implied"], isMacroInvoke: true },
     { mnemonic: "IF", description: "Felteteles forditas kezdete. Kifejezest var (pl. DEBUG). ENDIF-fel zarjuk.", modes: ["implied"], isIfMacro: true },
     { mnemonic: "ELSE", description: "Alternativ ag IF blokkon belul.", modes: ["implied"], isElseMacro: true },
     { mnemonic: "ENDIF", description: "Felteteles forditas vege.", modes: ["implied"], isEndIfMacro: true }
@@ -219,6 +225,7 @@ let blockScale = 0.9;
 let currentLanguage = "hu";
 let vicePath = "";
 let savedUiSettings = {};
+let userMacros = {};  // Stores user-defined macros: { macroName: [blocks...] }
 
 const translations = {
   hu: {
@@ -275,12 +282,16 @@ const translations = {
     sampleText: "TEXT pelda",
     sampleMacro: "Komplex makro pelda",
     sampleSprite: "Sprite mozgatas pelda",
+    sampleSpriteAlign: "Sprite ALIGN pelda",
+    sampleSpriteTest3: "Sprite Test 3",
     sampleSetpixel: "Setpixel demo",
     sampleBitmap: "Bitmap vonal demo",
     sampleBitmapClear: "Bitmap clear test",
     sampleMacroTest: "Uj makrok teszt",
     sampleLoop: "LOOP / NEXT demo",
     sampleHelloLoop: "Hello World 1-40 (LOOP szamlalo)",
+    samplePushPull: "PUSH / PULL demo",
+    sampleUserMacro: "User MACRO / ENDM demo",
     languageLabel: "Nyelv",
     checkForUpdate: "Frissites keresese",
     whatsNew: "Ujdonsagok",
@@ -303,6 +314,8 @@ const translations = {
     fieldLoopCount: "Szamla (hex)",
     fieldLoopLabel: "Cimke",
     fieldNextLabel: "LOOP cimkeje",
+    fieldPushRegs: "Regiszterek",
+    fieldPullRegs: "Regiszterek",
     warningLabel: "FIGYELEM",
     remoteMemoryData: "Tavoli memoria-adatok",
     dataBelow: "adat lent",
@@ -428,12 +441,16 @@ const translations = {
     sampleText: "TEXT example",
     sampleMacro: "Complex macro example",
     sampleSprite: "Sprite movement example",
+    sampleSpriteAlign: "Sprite ALIGN example",
+    sampleSpriteTest3: "Sprite Test 3",
     sampleSetpixel: "Setpixel demo",
     sampleBitmap: "Bitmap line demo",
     sampleBitmapClear: "Bitmap clear test",
     sampleMacroTest: "New macros test",
     sampleLoop: "LOOP / NEXT demo",
     sampleHelloLoop: "Hello World 1-40 (LOOP counter)",
+    samplePushPull: "PUSH / PULL demo",
+    sampleUserMacro: "User MACRO / ENDM demo",
     languageLabel: "Language",
     checkForUpdate: "Check for Update",
     whatsNew: "What's New",
@@ -456,6 +473,8 @@ const translations = {
     fieldLoopCount: "Count (hex)",
     fieldLoopLabel: "Label",
     fieldNextLabel: "LOOP label",
+    fieldPushRegs: "Registers",
+    fieldPullRegs: "Registers",
     warningLabel: "WARNING",
     remoteMemoryData: "Remote memory data",
     dataBelow: "data below",
@@ -666,6 +685,7 @@ const mnemonicDescriptionsEn = {
   BYTE: "Insert an arbitrary comma-separated byte array.",
   WORD: "Insert 16-bit values stored as LO/HI byte pairs, comma-separated.",
   FILL: "Generate repeated bytes with a specified count.",
+  ALIGN: "Memory alignment. E.g., 64 → jump to next 64-byte boundary (sprite), 256 → page boundary, $2000 → bitmap.",
   TABLE: "Define a lookup table with a label and start address.",
   STRING: "Write a string to a given memory address.",
   DATA: "Write raw bytes to a given memory address via LDA/STA code.",
@@ -673,6 +693,11 @@ const mnemonicDescriptionsEn = {
   RAWTEXT: "Place text as PETSCII bytes at a given memory address without generating any runtime code.",
   LOOP: "Counter loop: LD* #count loads the counter, then a label marks the body start. Close with NEXT.",
   NEXT: "Loop end: DE* decrements the counter, BNE branches back to the LOOP label.",
+  PUSH: "Save registers to the stack (A, X, Y combinations).",
+  PULL: "Restore registers from the stack (A, X, Y combinations).",
+  MACRO: "User macro definition start. Expects a name, close with ENDM.",
+  ENDM: "User macro definition end.",
+  INVOKE: "User macro invocation. Select the macro name from the list.",
   IF: "Conditional assembly start. Expects a condition (e.g. DEBUG). Close with ENDIF.",
   ELSE: "Alternative branch within an IF block.",
   ENDIF: "Conditional assembly end.",
@@ -1055,12 +1080,16 @@ function applyTranslations() {
   if (sampleOptions[2]) sampleOptions[2].textContent = t("sampleText");
   if (sampleOptions[3]) sampleOptions[3].textContent = t("sampleMacro");
   if (sampleOptions[4]) sampleOptions[4].textContent = t("sampleSprite");
-  if (sampleOptions[5]) sampleOptions[5].textContent = t("sampleSetpixel");
-  if (sampleOptions[6]) sampleOptions[6].textContent = t("sampleBitmap");
-  if (sampleOptions[7]) sampleOptions[7].textContent = t("sampleBitmapClear");
-  if (sampleOptions[8]) sampleOptions[8].textContent = t("sampleMacroTest");
-  if (sampleOptions[9]) sampleOptions[9].textContent = t("sampleLoop");
-  if (sampleOptions[10]) sampleOptions[10].textContent = t("sampleHelloLoop");
+  if (sampleOptions[5]) sampleOptions[5].textContent = t("sampleSpriteAlign");
+  if (sampleOptions[6]) sampleOptions[6].textContent = t("sampleSpriteTest3");
+  if (sampleOptions[7]) sampleOptions[7].textContent = t("sampleSetpixel");
+  if (sampleOptions[8]) sampleOptions[8].textContent = t("sampleBitmap");
+  if (sampleOptions[9]) sampleOptions[9].textContent = t("sampleBitmapClear");
+  if (sampleOptions[10]) sampleOptions[10].textContent = t("sampleMacroTest");
+  if (sampleOptions[11]) sampleOptions[11].textContent = t("sampleLoop");
+  if (sampleOptions[12]) sampleOptions[12].textContent = t("sampleHelloLoop");
+  if (sampleOptions[13]) sampleOptions[13].textContent = t("samplePushPull");
+  if (sampleOptions[14]) sampleOptions[14].textContent = t("sampleUserMacro");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -1633,6 +1662,23 @@ function createBlockFromMnemonic(item) {
     };
   }
 
+  if (item.isAlignMacro) {
+    const rawOperand = operandInput.value.trim() || "64";
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: rawOperand,
+      rawOperand,
+      description: item.description,
+      addressingMode: "implied",
+      base: getSelectedBase(),
+      validationError: validateAlignMacro(rawOperand, getSelectedBase()),
+      collapsed: true,
+      isAlignMacro: true
+    };
+  }
+
   if (item.isTableMacro) {
     return {
       id: crypto.randomUUID(),
@@ -1701,6 +1747,94 @@ function createBlockFromMnemonic(item) {
     };
   }
 
+  if (item.isPushMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isPushMacro: true,
+      pushRegs: "A"  // default: only A register
+    };
+  }
+
+  if (item.isPullMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isPullMacro: true,
+      pullRegs: "A"  // default: only A register
+    };
+  }
+
+  if (item.isMacroDefStart) {
+    const macroName = operandInput.value.trim() || "my_macro";
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: macroName,
+      rawOperand: macroName,
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isMacroDefStart: true,
+      macroName: macroName
+    };
+  }
+
+  if (item.isMacroDefEnd) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isMacroDefEnd: true
+    };
+  }
+
+  if (item.isMacroInvoke) {
+    // Get first available macro name or empty
+    const macroNames = Object.keys(userMacros);
+    const firstMacro = macroNames.length > 0 ? macroNames[0] : "";
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "INVOKE",  // Always keep INVOKE as the mnemonic
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: macroNames.length === 0 ? (currentLanguage === "en" ? "No macros defined yet" : "Meg nincs definialva makro") : "",
+      collapsed: true,
+      isMacroInvoke: true,
+      invokeMacroName: firstMacro
+    };
+  }
+
   const modeKey = item.modes.includes(addressingSelect.value) ? addressingSelect.value : item.modes[0];
   const preview = buildOperandPreview(modeKey, operandInput.value.trim(), getSelectedBase());
 
@@ -1719,10 +1853,22 @@ function createBlockFromMnemonic(item) {
 }
 
 function collapseLoadedProgram(blocks) {
-  return blocks.map((block) => ({
+  const result = blocks.map((block) => ({
     ...block,
     collapsed: true
   }));
+
+  // Initialize nextReg for NEXT blocks based on their matching LOOP
+  result.forEach((block, index) => {
+    if (block.isNextMacro && block.nextLabel) {
+      const matching = result.find(b => b.isLoopMacro && b.loopLabel === block.nextLabel);
+      if (matching) {
+        block.nextReg = matching.loopReg || "X";
+      }
+    }
+  });
+
+  return result;
 }
 
 function addSelectedBlock() {
@@ -1732,7 +1878,29 @@ function addSelectedBlock() {
 
 function clearProgram() {
   program = [];
+  userMacros = {};
   renderProgram();
+}
+
+function parseUserMacros() {
+  userMacros = {};
+  let macroStart = -1;
+  let macroName = null;
+
+  for (let i = 0; i < program.length; i++) {
+    const block = program[i];
+
+    if (block.isMacroDefStart) {
+      macroStart = i;
+      macroName = block.macroName;
+    } else if (block.isMacroDefEnd && macroStart >= 0 && macroName) {
+      // Extract blocks between MACRO and ENDM
+      const macroBody = program.slice(macroStart + 1, i);
+      userMacros[macroName] = macroBody;
+      macroStart = -1;
+      macroName = null;
+    }
+  }
 }
 
 function insertBlock(index, block) {
@@ -1752,6 +1920,7 @@ function insertBlock(index, block) {
   program.splice(index, 0, block);
   operandInput.value = "";
   renderMnemonicDescription();
+  parseUserMacros();  // Re-parse macros whenever program changes
   renderProgram();
 }
 
@@ -1796,6 +1965,24 @@ function updateProgramBlock(index, field, value) {
 
   if (field === "labelName") {
     block.labelName = sanitizeLabelName(value);
+    parseUserMacros();  // Re-parse in case label is inside a macro
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (field === "macroName") {
+    block.macroName = sanitizeLabelName(value);
+    parseUserMacros();  // Re-parse when macro name changes
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (field === "invokeMacroName") {
+    block.invokeMacroName = value;
+    // Keep mnemonic as "INVOKE", don't change it
+    block.validationError = userMacros[value] ? "" : (currentLanguage === "en" ? "Macro not found" : "Makro nem talalhato");
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -1851,6 +2038,9 @@ function updateProgramBlock(index, field, value) {
     } else if (block.isFillMacro) {
       block.operand = block.rawOperand.trim();
       block.validationError = validateFillMacro(block.rawOperand, block.base);
+    } else if (block.isAlignMacro) {
+      block.operand = block.rawOperand.trim();
+      block.validationError = validateAlignMacro(block.rawOperand, block.base);
     } else if (block.isIfMacro) {
       block.operand = block.rawOperand.trim();
       block.ifCondition = block.rawOperand.trim();
@@ -1919,11 +2109,38 @@ function updateProgramBlock(index, field, value) {
     return;
   }
 
+  if (block.isPushMacro && field === "pushRegs") {
+    const sanitized = value.toUpperCase().split("").filter(c => c === "A" || c === "X" || c === "Y").join("");
+    block.pushRegs = sanitized || "A";
+    block.validationError = "";
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isPullMacro && field === "pullRegs") {
+    const sanitized = value.toUpperCase().split("").filter(c => c === "A" || c === "X" || c === "Y").join("");
+    block.pullRegs = sanitized || "A";
+    block.validationError = "";
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
   if (block.isTableMacro && (field === "tableName" || field === "tableAddress")) {
     if (field === "tableName") {
       block.tableName = sanitizeLabelName(value);
     }
     block.validationError = validateTableMacro(block.tableName, block.tableAddress);
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isMacroDefStart && field === "macroName") {
+    block.macroName = sanitizeLabelName(value);
+    block.operand = block.macroName;
+    block.rawOperand = block.macroName;
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -1940,6 +2157,7 @@ function updateProgramBlock(index, field, value) {
 
 function deleteBlock(index) {
   program.splice(index, 1);
+  parseUserMacros();  // Re-parse when blocks are deleted
   renderProgram();
 }
 
@@ -2027,6 +2245,7 @@ function reorderBlock(fromIndex, dropIndex) {
   const [moved] = program.splice(fromIndex, 1);
   const targetIndex = fromIndex < dropIndex ? dropIndex - 1 : dropIndex;
   program.splice(targetIndex, 0, moved);
+  parseUserMacros();  // Re-parse when blocks are reordered
   renderProgram();
 }
 
@@ -2253,6 +2472,30 @@ function validateFillMacro(raw, base = "dec") {
 
   if (isNaN(parsed.value) || parsed.value < 0 || parsed.value > 255) {
     return currentLanguage === "en" ? "FILL value must be a byte between 0 and 255." : "A FILL ertek 0 es 255 kozotti byte kell legyen.";
+  }
+
+  return "";
+}
+
+function validateAlignMacro(raw, base = "hex") {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return currentLanguage === "en" ? "ALIGN macro needs a boundary value (e.g., 64, 256, $2000)." : "Az ALIGN makrohoz hatar ertek kell (pl. 64, 256, $2000).";
+  }
+
+  const parsed = parseNumberByBase(trimmed.replace(/^\$/, ""), base);
+  if (parsed === null || isNaN(parsed)) {
+    return currentLanguage === "en" ? "ALIGN boundary must be a valid number." : "Az ALIGN hatar ervenyes szam kell legyen.";
+  }
+
+  if (parsed < 1 || parsed > 65536) {
+    return currentLanguage === "en" ? "ALIGN boundary must be between 1 and 65536." : "Az ALIGN hatar 1 es 65536 kozott kell legyen.";
+  }
+
+  // Check if it's a power of 2 or common boundary
+  const isPowerOf2 = (parsed & (parsed - 1)) === 0;
+  if (!isPowerOf2 && parsed !== 64 && parsed !== 256 && parsed !== 0x2000) {
+    // Warning but not error - allow any value
   }
 
   return "";
@@ -2605,6 +2848,7 @@ async function loadProjectFromFile() {
   renderOriginPreview();
   renderEmulatorRunHint();
   renderOutputMode();
+  parseUserMacros();  // Parse any user-defined macros in the loaded project
   renderProgram();
   saveUiSettings();
 
@@ -2897,6 +3141,51 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes: [deOpcode, 0xD0, offset & 0xFF], comment: `DE${reg} / BNE ${label}` };
   }
 
+  if (block.isPushMacro) {
+    const regs = (block.pushRegs || "A").toUpperCase();
+    const bytes = [];
+    let comment = "PUSH ";
+    for (let i = 0; i < regs.length; i++) {
+      const reg = regs[i];
+      if (reg === 'A') {
+        bytes.push(0x48);  // PHA
+      } else if (reg === 'X') {
+        bytes.push(0x8A);  // TXA
+        bytes.push(0x48);  // PHA
+      } else if (reg === 'Y') {
+        bytes.push(0x98);  // TYA
+        bytes.push(0x48);  // PHA
+      } else {
+        return { ok: false, error: `PUSH: ervenytelen regiszter: ${reg}` };
+      }
+      comment += reg;
+    }
+    return { ok: true, bytes, comment };
+  }
+
+  if (block.isPullMacro) {
+    const regs = (block.pullRegs || "A").toUpperCase();
+    const bytes = [];
+    let comment = "PULL ";
+    // IMPORTANT: PULL should be in REVERSE order of PUSH
+    for (let i = regs.length - 1; i >= 0; i--) {
+      const reg = regs[i];
+      if (reg === 'A') {
+        bytes.push(0x68);  // PLA
+      } else if (reg === 'X') {
+        bytes.push(0x68);  // PLA
+        bytes.push(0xAA);  // TAX
+      } else if (reg === 'Y') {
+        bytes.push(0x68);  // PLA
+        bytes.push(0xA8);  // TAY
+      } else {
+        return { ok: false, error: `PULL: ervenytelen regiszter: ${reg}` };
+      }
+      comment += reg;
+    }
+    return { ok: true, bytes, comment };
+  }
+
   if (block.isWordMacro) {
     const words = parseWordMacro(block.rawOperand, block.base);
     const bytes = [];
@@ -2923,6 +3212,23 @@ function compileLineBytes(line, labels) {
     };
   }
 
+  if (block.isAlignMacro) {
+    const boundary = parseNumberByBase(block.rawOperand.replace(/^\$/, ""), block.base);
+    if (!boundary || boundary < 1) {
+      return { ok: false, error: `ALIGN: ${t("invalidOperand") || "invalid boundary"}` };
+    }
+    // Calculate padding bytes needed
+    const remainder = line.address % boundary;
+    const padding = remainder === 0 ? 0 : boundary - remainder;
+    const bytes = new Array(padding).fill(0x00);  // Fill with zeros
+    const targetAddr = line.address + padding;
+    return {
+      ok: true,
+      bytes,
+      comment: `ALIGN ${boundary} → ${formatAddress(targetAddr)}`
+    };
+  }
+
   if (block.isTableMacro) {
     // TABLE just creates a label, no bytes generated here
     return {
@@ -2938,6 +3244,35 @@ function compileLineBytes(line, labels) {
       ok: true,
       bytes: [],
       comment: block.isIfMacro ? `IF ${block.ifCondition || "?"}` : (block.isElseMacro ? "ELSE" : "ENDIF")
+    };
+  }
+
+  if (block.isMacroDefStart || block.isMacroDefEnd) {
+    // Macro definition blocks don't generate bytes
+    return {
+      ok: true,
+      bytes: [],
+      comment: block.isMacroDefStart ? `MACRO ${block.macroName || "?"}` : "ENDM"
+    };
+  }
+
+  // Check if this is a user macro invocation (INVOKE block or legacy format)
+  const macroName = block.isMacroInvoke ? block.invokeMacroName : (userMacros[block.mnemonic] ? block.mnemonic : null);
+  if (macroName && userMacros[macroName]) {
+    // This block invokes a user-defined macro - expand it inline
+    return {
+      ok: true,
+      bytes: [],
+      comment: `; Invoke user macro: ${macroName}`,
+      isMacroInvocation: true
+    };
+  }
+
+  if (block.isMacroInvoke) {
+    // INVOKE block with undefined macro
+    return {
+      ok: false,
+      error: `INVOKE: macro "${block.invokeMacroName || "?"}" is not defined`
     };
   }
 
@@ -3154,6 +3489,34 @@ function getInstructionSize(block) {
     return 3;  // DEX/DEY + BNE offset
   }
 
+  if (block.isPushMacro) {
+    const regs = (block.pushRegs || "A").toUpperCase();
+    let size = 0;
+    for (let i = 0; i < regs.length; i++) {
+      const reg = regs[i];
+      if (reg === 'A') {
+        size += 1;  // PHA
+      } else if (reg === 'X' || reg === 'Y') {
+        size += 2;  // TXA/TYA + PHA
+      }
+    }
+    return size;
+  }
+
+  if (block.isPullMacro) {
+    const regs = (block.pullRegs || "A").toUpperCase();
+    let size = 0;
+    for (let i = 0; i < regs.length; i++) {
+      const reg = regs[i];
+      if (reg === 'A') {
+        size += 1;  // PLA
+      } else if (reg === 'X' || reg === 'Y') {
+        size += 2;  // PLA + TAX/TAY
+      }
+    }
+    return size;
+  }
+
   if (block.isWordMacro) {
     return parseWordMacro(block.rawOperand, block.base).length * 2;  // 2 bytes per word
   }
@@ -3163,12 +3526,37 @@ function getInstructionSize(block) {
     return parsed ? parsed.count : 0;
   }
 
+  if (block.isAlignMacro) {
+    // ALIGN size is calculated dynamically based on current address
+    // For now return 0, will be calculated in getProgramLayout
+    return 0;
+  }
+
   if (block.isTableMacro) {
     return 0;  // TABLE is just a label
   }
 
   if (block.isIfMacro || block.isElseMacro || block.isEndIfMacro) {
     return 0;  // Conditional assembly directives don't take space
+  }
+
+  if (block.isMacroDefStart || block.isMacroDefEnd) {
+    return 0;  // Macro definitions don't take space
+  }
+
+  // Check if this is a user macro invocation (INVOKE block or legacy format)
+  const macroName = block.isMacroInvoke ? block.invokeMacroName : (userMacros[block.mnemonic] ? block.mnemonic : null);
+  if (macroName && userMacros[macroName]) {
+    // Calculate size by expanding the macro body
+    let totalSize = 0;
+    for (const macroBlock of userMacros[macroName]) {
+      totalSize += getInstructionSize(macroBlock);
+    }
+    return totalSize;
+  }
+
+  if (block.isMacroInvoke) {
+    return 0;  // INVOKE block with undefined macro
   }
 
   if (block.addressingMode === "implied") {
@@ -3193,8 +3581,53 @@ function getProgramLayout(originOverride) {
       };
   let cursor = origin.value;
 
-  const lines = program.map((block) => {
-    const size = getInstructionSize(block);
+  // Expand user macros before calculating layout
+  const expandedProgram = [];
+  let insideMacroDef = false;
+
+  for (const block of program) {
+    // Skip macro definition blocks (MACRO...ENDM)
+    if (block.isMacroDefStart) {
+      insideMacroDef = true;
+      continue;
+    }
+    if (block.isMacroDefEnd) {
+      insideMacroDef = false;
+      continue;
+    }
+    if (insideMacroDef) {
+      continue;
+    }
+
+    // Check if this block invokes a user macro (INVOKE block or legacy format)
+    const macroName = block.isMacroInvoke ? block.invokeMacroName : (userMacros[block.mnemonic] ? block.mnemonic : null);
+
+    if (macroName && userMacros[macroName]) {
+      // Expand the macro inline
+      for (const macroBlock of userMacros[macroName]) {
+        expandedProgram.push({
+          ...macroBlock,
+          id: crypto.randomUUID(),  // New unique ID for the expanded block
+          _fromMacro: macroName  // Mark where this came from
+        });
+      }
+    } else {
+      expandedProgram.push(block);
+    }
+  }
+
+  const lines = expandedProgram.map((block) => {
+    let size = getInstructionSize(block);
+
+    // Handle ALIGN macro: calculate padding to next boundary
+    if (block.isAlignMacro) {
+      const boundary = parseNumberByBase(block.rawOperand.replace(/^\$/, ""), block.base);
+      if (boundary && boundary > 0) {
+        const remainder = cursor % boundary;
+        size = remainder === 0 ? 0 : boundary - remainder;
+      }
+    }
+
     const address = cursor;
     cursor += size;
     return {
@@ -3523,6 +3956,10 @@ function getBlockDescription(block) {
     return block.validationError || `${currentLanguage === "en" ? "FILL macro" : "FILL makro"}: ${block.rawOperand || ""}`;
   }
 
+  if (block.isAlignMacro) {
+    return block.validationError || `${currentLanguage === "en" ? "ALIGN macro" : "ALIGN makro"}: ${block.rawOperand || ""}`;
+  }
+
   if (block.isTableMacro) {
     return block.validationError || `${currentLanguage === "en" ? "TABLE" : "TABLA"}: ${block.tableName || "?"} @ ${block.tableAddress || "C000"}`;
   }
@@ -3537,6 +3974,25 @@ function getBlockDescription(block) {
 
   if (block.isEndIfMacro) {
     return currentLanguage === "en" ? "ENDIF" : "HA_VEGE";
+  }
+
+  if (block.isMacroInvoke) {
+    const name = block.invokeMacroName || "?";
+    if (userMacros[name]) {
+      const bodyCount = userMacros[name].length;
+      return currentLanguage === "en"
+        ? `Invokes user-defined macro "${name}" (${bodyCount} instruction${bodyCount !== 1 ? 's' : ''})`
+        : `Felhasználói makró "${name}" hívása (${bodyCount} utasítás)`;
+    }
+    return currentLanguage === "en" ? `Invoke macro "${name}" (not defined yet)` : `Makró "${name}" hívása (még nincs definiálva)`;
+  }
+
+  // Check if this block invokes a user macro (legacy format)
+  if (userMacros[block.mnemonic]) {
+    const bodyCount = userMacros[block.mnemonic].length;
+    return currentLanguage === "en"
+      ? `Invokes user-defined macro "${block.mnemonic}" (${bodyCount} instruction${bodyCount !== 1 ? 's' : ''})`
+      : `Felhasználói makró "${block.mnemonic}" hívása (${bodyCount} utasítás)`;
   }
 
   return block.validationError || (currentLanguage === "en" ? mnemonicDescriptionsEn[block.mnemonic] || block.description : block.description);
@@ -3579,6 +4035,11 @@ function getBlockModeCaption(block) {
     return currentLanguage === "en" ? "Fill | repeated bytes" : "Toltes | ismetlodo byte-ok";
   }
 
+  if (block.isAlignMacro) {
+    const boundary = block.rawOperand || "?";
+    return currentLanguage === "en" ? `Align | boundary: ${boundary}` : `Igazitas | hatar: ${boundary}`;
+  }
+
   if (block.isTableMacro) {
     return `${currentLanguage === "en" ? "Lookup table" : "Kereso tabla"} | ${block.tableAddress || "C000"}`;
   }
@@ -3593,6 +4054,35 @@ function getBlockModeCaption(block) {
 
   if (block.isEndIfMacro) {
     return currentLanguage === "en" ? "Conditional | ENDIF" : "Felteteles | HA_VEGE";
+  }
+
+  if (block.isPushMacro) {
+    const regs = block.pushRegs || "A";
+    return currentLanguage === "en" ? `Stack | Push ${regs}` : `Stack | Ment ${regs}`;
+  }
+
+  if (block.isPullMacro) {
+    const regs = block.pullRegs || "A";
+    return currentLanguage === "en" ? `Stack | Pull ${regs}` : `Stack | Visszatolt ${regs}`;
+  }
+
+  if (block.isMacroDefStart) {
+    const name = block.macroName || "?";
+    return currentLanguage === "en" ? `User Macro | Definition: ${name}` : `Felhasznaloi Makro | Definicio: ${name}`;
+  }
+
+  if (block.isMacroDefEnd) {
+    return currentLanguage === "en" ? `User Macro | End` : `Felhasznaloi Makro | Vege`;
+  }
+
+  if (block.isMacroInvoke) {
+    const name = block.invokeMacroName || "?";
+    return currentLanguage === "en" ? `User Macro | Invoke: ${name}` : `Felhasznaloi Makro | Hivas: ${name}`;
+  }
+
+  // Check if this block invokes a user macro (legacy format)
+  if (userMacros[block.mnemonic]) {
+    return currentLanguage === "en" ? `User Macro | Invoke: ${block.mnemonic}` : `Felhasznaloi Makro | Hivas: ${block.mnemonic}`;
   }
 
   if (block.isLabel) {
@@ -3699,6 +4189,14 @@ function getCollapsedOperandText(block) {
     return block.nextLabel ? `→ ${block.nextLabel}` : "";
   }
 
+  if (block.isPushMacro) {
+    return block.pushRegs ? `${block.pushRegs}` : "A";
+  }
+
+  if (block.isPullMacro) {
+    return block.pullRegs ? `${block.pullRegs}` : "A";
+  }
+
   if (block.isWordMacro) {
     if (!block.rawOperand) return "";
     const parts = block.rawOperand.split(",").map(s => s.trim()).filter(Boolean);
@@ -3707,6 +4205,10 @@ function getCollapsedOperandText(block) {
   }
 
   if (block.isFillMacro) {
+    return block.rawOperand || "";
+  }
+
+  if (block.isAlignMacro) {
     return block.rawOperand || "";
   }
 
@@ -3720,6 +4222,18 @@ function getCollapsedOperandText(block) {
 
   if (block.isElseMacro || block.isEndIfMacro) {
     return "";
+  }
+
+  if (block.isMacroDefStart) {
+    return block.macroName || "?";
+  }
+
+  if (block.isMacroDefEnd) {
+    return "";
+  }
+
+  if (block.isMacroInvoke) {
+    return block.invokeMacroName ? `→ ${block.invokeMacroName}` : "";
   }
 
   return block.operand || block.rawOperand || "";
@@ -3917,6 +4431,30 @@ function renderProgram() {
           </div>
         `
       );
+    } else if (block.isPushMacro) {
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid single-macro-row">
+            <label class="mini-field">
+              <span>${t("fieldPushRegs")}</span>
+              <input class="push-regs" type="text" maxlength="3" value="${block.pushRegs || "A"}" placeholder="AXY">
+            </label>
+          </div>
+        `
+      );
+    } else if (block.isPullMacro) {
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid single-macro-row">
+            <label class="mini-field">
+              <span>${t("fieldPullRegs")}</span>
+              <input class="pull-regs" type="text" maxlength="3" value="${block.pullRegs || "A"}" placeholder="AXY">
+            </label>
+          </div>
+        `
+      );
     } else if (block.isWordMacro) {
       inlineField.hidden = false;
       inlineField.querySelector("span").textContent = currentLanguage === "en" ? "16-bit values" : "16-bites ertekek";
@@ -3934,6 +4472,15 @@ function renderProgram() {
       operandField.placeholder = block.base === "hex"
         ? (currentLanguage === "en" ? "For example 100,00" : "Peldaul 100,00")
         : (currentLanguage === "en" ? "For example 256,0" : "Peldaul 256,0");
+      operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+    } else if (block.isAlignMacro) {
+      inlineField.hidden = false;
+      inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Boundary" : "Hatar";
+      operandField.value = block.rawOperand || "";
+      operandField.disabled = false;
+      operandField.placeholder = block.base === "hex"
+        ? (currentLanguage === "en" ? "For example 40 (64), 100 (256), 2000" : "Peldaul 40 (64), 100 (256), 2000")
+        : (currentLanguage === "en" ? "For example 64, 256, 8192" : "Peldaul 64, 256, 8192");
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
     } else if (block.isTableMacro) {
       blockControls.insertAdjacentHTML(
@@ -3959,6 +4506,35 @@ function renderProgram() {
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
     } else if (block.isElseMacro || block.isEndIfMacro) {
       inlineField.hidden = true;
+    } else if (block.isMacroDefStart) {
+      inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Macro name" : "Makro nev";
+      inlineField.hidden = false;
+      operandField.value = block.macroName || "";
+      operandField.placeholder = "my_macro";
+      operandField.addEventListener("input", (event) => updateProgramBlock(index, "macroName", event.target.value));
+    } else if (block.isMacroDefEnd) {
+      inlineField.hidden = true;
+    } else if (block.isMacroInvoke) {
+      // INVOKE block: show dropdown with available macros
+      const macroNames = Object.keys(userMacros);
+      const options = macroNames.length > 0
+        ? macroNames.map(name => `<option value="${name}"${block.invokeMacroName === name ? " selected" : ""}>${name}</option>`).join("")
+        : `<option value="">${currentLanguage === "en" ? "No macros defined" : "Nincs definialva makro"}</option>`;
+
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid single-macro-row">
+            <label class="mini-field">
+              <span>${currentLanguage === "en" ? "Macro name" : "Makro nev"}</span>
+              <select class="invoke-macro-select">
+                ${options}
+              </select>
+            </label>
+          </div>
+        `
+      );
+      inlineField.hidden = true;
     } else {
       inlineField.querySelector("span").textContent = t("fieldOperand");
       inlineField.hidden = !mode.needsOperand;
@@ -3971,7 +4547,7 @@ function renderProgram() {
     blockControls.insertAdjacentHTML(
       "beforeend",
       `
-          ${(mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isLoopMacro && !block.isNextMacro && !block.isWordMacro && !block.isFillMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro ? `
+          ${(mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isLoopMacro && !block.isNextMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
           <label class="mini-field">
             <span>${t("fieldFormat")}</span>
           <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
@@ -3985,7 +4561,7 @@ function renderProgram() {
             </label>
           </div>
         </label>` : ""}
-          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isTableMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro ? ` hidden` : ""}>
+          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke ? ` hidden` : ""}>
             <span>${t("addressingMode")}</span>
           <select class="block-mode">
             ${getMnemonicModes(block.mnemonic).map((modeKey) => `<option value="${modeKey}"${block.addressingMode === modeKey ? " selected" : ""}>${modeText(modeKey, "label")}</option>`).join("")}
@@ -4026,6 +4602,14 @@ function renderProgram() {
     if (nextLabelInput) {
       nextLabelInput.addEventListener("input", (event) => updateProgramBlock(index, "nextLabel", event.target.value));
     }
+    const pushRegsInput = node.querySelector(".push-regs");
+    if (pushRegsInput) {
+      pushRegsInput.addEventListener("input", (event) => updateProgramBlock(index, "pushRegs", event.target.value.toUpperCase()));
+    }
+    const pullRegsInput = node.querySelector(".pull-regs");
+    if (pullRegsInput) {
+      pullRegsInput.addEventListener("input", (event) => updateProgramBlock(index, "pullRegs", event.target.value.toUpperCase()));
+    }
     const tableNameInput = node.querySelector(".table-name");
     if (tableNameInput) {
       tableNameInput.addEventListener("input", (event) => updateProgramBlock(index, "tableName", event.target.value));
@@ -4033,6 +4617,10 @@ function renderProgram() {
     const tableAddressInput = node.querySelector(".table-address");
     if (tableAddressInput) {
       tableAddressInput.addEventListener("input", (event) => updateProgramBlock(index, "tableAddress", event.target.value));
+    }
+    const invokeMacroSelect = node.querySelector(".invoke-macro-select");
+    if (invokeMacroSelect) {
+      invokeMacroSelect.addEventListener("change", (event) => updateProgramBlock(index, "invokeMacroName", event.target.value));
     }
       const blockModeSelect = node.querySelector(".block-mode");
       if (blockModeSelect) {
@@ -4132,6 +4720,27 @@ function renderAsmOutput() {
   const deferredDataSections = [];
   const codeLines = layout.lines.map((line, index) => {
     const lineNumber = `${(index + 1).toString().padStart(2, "0")}`;
+
+    // Check if this line came from a macro expansion
+    if (line.block._fromMacro) {
+      const macroName = line.block._fromMacro;
+      // Only show the macro expansion header once (first block from this macro)
+      const isFirstInMacro = index === 0 || layout.lines[index - 1].block._fromMacro !== macroName;
+      const prefix = isFirstInMacro ? `; >>> Macro expansion: ${macroName}\n` : "";
+
+      // Generate the code for this expanded block
+      let expandedCode = "";
+      if (line.block.isLabel) {
+        expandedCode = `${line.block.labelName}:`;
+      } else if (line.block.isComment) {
+        expandedCode = `; ${line.block.rawOperand || ""}`;
+      } else {
+        const suffix = line.block.operand ? ` ${line.block.operand}` : "";
+        expandedCode = `    ${line.block.mnemonic}${suffix}`;
+      }
+
+      return prefix + expandedCode;
+    }
 
     if (line.block.isLabel) {
       return `${line.block.labelName}:`;
@@ -4233,6 +4842,43 @@ function renderAsmOutput() {
       return `    DE${reg}\n    BNE ${label}`;
     }
 
+    if (line.block.isPushMacro) {
+      const regs = (line.block.pushRegs || "A").toUpperCase();
+      const lines = [];
+      for (let i = 0; i < regs.length; i++) {
+        const reg = regs[i];
+        if (reg === 'A') {
+          lines.push("    PHA");
+        } else if (reg === 'X') {
+          lines.push("    TXA");
+          lines.push("    PHA");
+        } else if (reg === 'Y') {
+          lines.push("    TYA");
+          lines.push("    PHA");
+        }
+      }
+      return lines.join("\n");
+    }
+
+    if (line.block.isPullMacro) {
+      const regs = (line.block.pullRegs || "A").toUpperCase();
+      const lines = [];
+      // PULL in reverse order
+      for (let i = regs.length - 1; i >= 0; i--) {
+        const reg = regs[i];
+        if (reg === 'A') {
+          lines.push("    PLA");
+        } else if (reg === 'X') {
+          lines.push("    PLA");
+          lines.push("    TAX");
+        } else if (reg === 'Y') {
+          lines.push("    PLA");
+          lines.push("    TAY");
+        }
+      }
+      return lines.join("\n");
+    }
+
     if (line.block.isWordMacro) {
       const words = parseWordMacro(line.block.rawOperand, line.block.base);
       const wordList = words.map(w => `$${toHex(w, 4)}`).join(", ");
@@ -4245,6 +4891,17 @@ function renderAsmOutput() {
         return `    .fill ${parsed.count}, $${toHex(parsed.value, 2)}`;
       }
       return `    ; FILL: invalid parameters`;
+    }
+
+    if (line.block.isAlignMacro) {
+      const boundary = parseNumberByBase(line.block.rawOperand.replace(/^\$/, ""), line.block.base);
+      if (boundary) {
+        const remainder = line.address % boundary;
+        const padding = remainder === 0 ? 0 : boundary - remainder;
+        const targetAddr = line.address + padding;
+        return `    ; ALIGN ${boundary} → ${formatAddress(targetAddr)} (${padding} bytes)`;
+      }
+      return `    ; ALIGN: invalid boundary`;
     }
 
     if (line.block.isTableMacro) {
@@ -4261,6 +4918,14 @@ function renderAsmOutput() {
 
     if (line.block.isEndIfMacro) {
       return `; .ENDIF`;
+    }
+
+    if (line.block.isMacroDefStart) {
+      return `; .MACRO ${line.block.macroName || "?"}`;
+    }
+
+    if (line.block.isMacroDefEnd) {
+      return `; .ENDM`;
     }
 
     const suffix = line.block.operand ? ` ${line.block.operand}` : "";
@@ -4395,6 +5060,7 @@ async function loadSampleFromFile(sampleName) {
 
   renderOriginPreview();
   renderEmulatorRunHint();
+  parseUserMacros();  // Parse any user-defined macros in the loaded sample
   renderProgram();
   saveUiSettings();
   return true;
@@ -4418,6 +5084,10 @@ async function loadMacroDemoProgram() {
 
 async function loadSpriteSampleProgram() {
   await loadSampleFromFile("sprite-demo");
+}
+
+async function loadSpriteAlignDemo() {
+  await loadSampleFromFile("sprite-align-demo");
 }
 
 async function loadSetpixelDemo() {
@@ -4444,6 +5114,18 @@ async function loadMacroTest() {
   await loadSampleFromFile("macro-test");
 }
 
+async function loadPushPullDemo() {
+  await loadSampleFromFile("push-pull-demo");
+}
+
+async function loadUserMacroDemo() {
+  await loadSampleFromFile("user-macro-demo");
+}
+
+async function loadSpriteTest3() {
+  await loadSampleFromFile("sprite-test-3");
+}
+
 // === OLD INLINE CODE BELOW (KEPT FOR REFERENCE, NOT EXECUTED) ===
 function loadSelectedSample() {
   if (sampleSelect.value === "label-border") {
@@ -4463,6 +5145,16 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "sprite-demo") {
     loadSpriteSampleProgram();
+    return;
+  }
+
+  if (sampleSelect.value === "sprite-align-demo") {
+    loadSpriteAlignDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "sprite-test-3") {
+    loadSpriteTest3();
     return;
   }
 
@@ -4493,6 +5185,16 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "hello-loop-demo") {
     loadHelloLoopSampleProgram();
+    return;
+  }
+
+  if (sampleSelect.value === "push-pull-demo") {
+    loadPushPullDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "user-macro-demo") {
+    loadUserMacroDemo();
     return;
   }
 
