@@ -25,7 +25,9 @@
       "preload.js",
       "package.json",
       "build/**/*",
-      "samples/**/*.json"
+      "samples/**/*.json",
+      "samples/**/*.bin",
+      "samples/**/*.sid"
     ],
     "win": {
       "target": [
