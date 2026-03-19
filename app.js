@@ -52,23 +52,35 @@ const addressingModes = {
     needsOperand: true,
     placeholder: "0-255",
     help: "Zero page indirekt indexelt. Pl: LDA ($FB),Y"
+  },
+  indirect: {
+    label: "Indirect",
+    needsOperand: true,
+    placeholder: "0-65535",
+    help: "Indirektes cimzesi mod. Csak JMP-nel hasznalhato. Pl: JMP ($0100)"
+  },
+  zeroPageY: {
+    label: "Zero page,Y",
+    needsOperand: true,
+    placeholder: "0-255",
+    help: "Zero page cim + Y regiszter offset. Pl: LDX $FB,Y"
   }
 };
 
 const mnemonicLibrary = {
   Adatmozgas: [
     { mnemonic: "LDA", description: "Akkumulator betoltese memoriabol vagy konstansbol.", modes: ["immediate", "zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
-    { mnemonic: "LDX", description: "X regiszter betoltese.", modes: ["immediate", "zeroPage", "absolute"] },
+    { mnemonic: "LDX", description: "X regiszter betoltese.", modes: ["immediate", "zeroPage", "zeroPageY", "absolute", "absoluteY"] },
     { mnemonic: "LDY", description: "Y regiszter betoltese.", modes: ["immediate", "zeroPage", "absolute", "absoluteX"] },
     { mnemonic: "STA", description: "Akkumulator kiirasa memoriacimre.", modes: ["zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
-    { mnemonic: "STX", description: "X regiszter tarolasa.", modes: ["zeroPage", "absolute"] },
+    { mnemonic: "STX", description: "X regiszter tarolasa.", modes: ["zeroPage", "zeroPageY", "absolute"] },
     { mnemonic: "STY", description: "Y regiszter tarolasa.", modes: ["zeroPage", "absolute"] }
   ],
   Aritmetika: [
     { mnemonic: "ADC", description: "Osszeadas carry figyelembevetele mellett.", modes: ["immediate", "zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
     { mnemonic: "SBC", description: "Kivonas carry figyelembevetele mellett.", modes: ["immediate", "zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
-    { mnemonic: "INC", description: "Memoriacim noveles.", modes: ["zeroPage", "absolute"] },
-    { mnemonic: "DEC", description: "Memoriacim csokkentes.", modes: ["zeroPage", "absolute"] },
+    { mnemonic: "INC", description: "Memoriacim noveles.", modes: ["zeroPage", "absolute", "absoluteX"] },
+    { mnemonic: "DEC", description: "Memoriacim csokkentes.", modes: ["zeroPage", "absolute", "absoluteX"] },
     { mnemonic: "CMP", description: "Osszehasonlitas az akkumulatorral.", modes: ["immediate", "zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
     { mnemonic: "CPX", description: "Osszehasonlitas az X regiszterrel.", modes: ["immediate", "zeroPage", "absolute"] },
     { mnemonic: "CPY", description: "Osszehasonlitas az Y regiszterrel.", modes: ["immediate", "zeroPage", "absolute"] }
@@ -80,7 +92,7 @@ const mnemonicLibrary = {
     { mnemonic: "BIT", description: "Bitek tesztelese memoriacimrol.", modes: ["zeroPage", "absolute"] }
   ],
   Ugrasok: [
-    { mnemonic: "JMP", description: "Feltetel nelkuli ugras egy cimre.", modes: ["absolute"] },
+    { mnemonic: "JMP", description: "Feltetel nelkuli ugras egy cimre.", modes: ["absolute", "indirect"] },
     { mnemonic: "JSR", description: "Szubrutin meghivasa.", modes: ["absolute"] },
     { mnemonic: "RTS", description: "Visszateres szubrutinbol.", modes: ["implied"] },
     { mnemonic: "BNE", description: "Ugras, ha az elozo eredmeny nem nulla.", modes: ["relative"] },
@@ -392,6 +404,7 @@ const translations = {
     memoryUsedRange: "Foglalt tartomany",
     memorySegmentStatusFree: "Szabad RAM",
     memoryAxisLabel: "Teljes C64 memoria csik",
+    languageLabel: "Nyelv",
     sampleSrOnly: "Mintaprogram",
     languageSrOnly: "Nyelv",
     categoryNames: {
@@ -768,10 +781,10 @@ function getItemDescription(item) {
 
 const opcodeMap = {
   LDA: { immediate: 0xA9, zeroPage: 0xA5, absolute: 0xAD, absoluteX: 0xBD, absoluteY: 0xB9, indirectX: 0xA1, indirectY: 0xB1 },
-  LDX: { immediate: 0xA2, zeroPage: 0xA6, absolute: 0xAE },
+  LDX: { immediate: 0xA2, zeroPage: 0xA6, zeroPageY: 0xB6, absolute: 0xAE, absoluteY: 0xBE },
   LDY: { immediate: 0xA0, zeroPage: 0xA4, absolute: 0xAC, absoluteX: 0xBC },
   STA: { zeroPage: 0x85, absolute: 0x8D, absoluteX: 0x9D, absoluteY: 0x99, indirectX: 0x81, indirectY: 0x91 },
-  STX: { zeroPage: 0x86, absolute: 0x8E },
+  STX: { zeroPage: 0x86, zeroPageY: 0x96, absolute: 0x8E },
   STY: { zeroPage: 0x84, absolute: 0x8C },
   ADC: { immediate: 0x69, zeroPage: 0x65, absolute: 0x6D, absoluteX: 0x7D, absoluteY: 0x79, indirectX: 0x61, indirectY: 0x71 },
   SBC: { immediate: 0xE9, zeroPage: 0xE5, absolute: 0xED, absoluteX: 0xFD, absoluteY: 0xF9, indirectX: 0xE1, indirectY: 0xF1 },
@@ -784,7 +797,7 @@ const opcodeMap = {
   ORA: { immediate: 0x09, zeroPage: 0x05, absolute: 0x0D, absoluteX: 0x1D, absoluteY: 0x19, indirectX: 0x01, indirectY: 0x11 },
   EOR: { immediate: 0x49, zeroPage: 0x45, absolute: 0x4D, absoluteX: 0x5D, absoluteY: 0x59, indirectX: 0x41, indirectY: 0x51 },
   BIT: { zeroPage: 0x24, absolute: 0x2C },
-  JMP: { absolute: 0x4C },
+  JMP: { absolute: 0x4C, indirect: 0x6C },
   JSR: { absolute: 0x20 },
   RTS: { implied: 0x60 },
   BNE: { relative: 0xD0 },
@@ -2751,11 +2764,11 @@ function validateRange(modeKey, value) {
     return currentLanguage === "en" ? "Only whole numbers are supported." : "Csak egesz szam tamogatott.";
   }
 
-  if (modeKey === "immediate" || modeKey === "zeroPage" || modeKey === "indirectX" || modeKey === "indirectY") {
+  if (modeKey === "immediate" || modeKey === "zeroPage" || modeKey === "indirectX" || modeKey === "indirectY" || modeKey === "zeroPageY") {
     return value < 0 || value > 255 ? (currentLanguage === "en" ? "This mode expects a value between 0 and 255." : "Ez a mod 0 es 255 kozotti erteket var.") : "";
   }
 
-  if (modeKey === "absolute" || modeKey === "absoluteX" || modeKey === "absoluteY") {
+  if (modeKey === "absolute" || modeKey === "absoluteX" || modeKey === "absoluteY" || modeKey === "indirect") {
     return value < 0 || value > 65535 ? (currentLanguage === "en" ? "Absolute addressing requires a value between 0 and 65535." : "Absolute cimzesnel 0 es 65535 kozotti ertek kell.") : "";
   }
 
@@ -2779,6 +2792,14 @@ function formatOperand(modeKey, value, base) {
 
   if (modeKey === "indirectY") {
     return `(${formatter(value, 2)}),Y`;
+  }
+
+  if (modeKey === "indirect") {
+    return `(${formatter(value, 4)})`;
+  }
+
+  if (modeKey === "zeroPageY") {
+    return `${formatter(value, 2)},Y`;
   }
 
   return formatter(value, modeKey === "absolute" || modeKey === "absoluteX" || modeKey === "absoluteY" ? 4 : 2);
@@ -3501,7 +3522,7 @@ function compileLineBytes(line, labels) {
     return operandValue;
   }
 
-  if (block.addressingMode === "immediate" || block.addressingMode === "zeroPage" || block.addressingMode === "indirectX" || block.addressingMode === "indirectY") {
+  if (block.addressingMode === "immediate" || block.addressingMode === "zeroPage" || block.addressingMode === "indirectX" || block.addressingMode === "indirectY" || block.addressingMode === "zeroPageY") {
     bytes.push(operandValue.value & 0xFF);
   } else {
     bytes.push(operandValue.value & 0xFF, (operandValue.value >> 8) & 0xFF);
@@ -3786,7 +3807,7 @@ function getInstructionSize(block) {
     return 1;
   }
 
-  if (block.addressingMode === "immediate" || block.addressingMode === "zeroPage" || block.addressingMode === "relative" || block.addressingMode === "indirectX" || block.addressingMode === "indirectY") {
+  if (block.addressingMode === "immediate" || block.addressingMode === "zeroPage" || block.addressingMode === "relative" || block.addressingMode === "indirectX" || block.addressingMode === "indirectY" || block.addressingMode === "zeroPageY") {
     return 2;
   }
 

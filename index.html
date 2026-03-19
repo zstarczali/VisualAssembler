@@ -281,7 +281,7 @@
       </svg>
     </div>
     <h2 class="about-title">C64 Visual Assembler</h2>
-    <p class="about-version" id="about-version">v1.1.9</p>
+    <p class="about-version" id="about-version">v1.1.10</p>
     <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and dropping instruction blocks.</p>
     <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
     <button id="about-close" class="primary" type="button">Close</button>
@@ -291,8 +291,14 @@
 <dialog id="whats-new-dialog" class="whats-new-dialog">
   <div class="whats-new-card">
     <h2 class="whats-new-title">What's New</h2>
-    <p class="whats-new-version">v1.1.9</p>
+    <p class="whats-new-version">v1.2.0</p>
     <ul class="whats-new-list">
+      <li>
+        <strong>Bug fix: Hungarian language label</strong> — the "Language" label in the Settings menu now correctly displays "Nyelv" in Hungarian mode instead of the raw key string.
+      </li>
+      <li>
+        <strong>New addressing modes</strong> — <em>INC / DEC</em> now expose <code>Absolute,X</code>; <em>JMP</em> gains <code>Indirect</code> (0x6C); <em>LDX</em> gains <code>Absolute,Y</code> and <code>Zero page,Y</code>; <em>STX</em> gains <code>Zero page,Y</code>.
+      </li>
       <li>
         <strong>Click-to-select ASM</strong> — clicking any block highlights the corresponding assembly source lines in the right panel. The block card gets a colored outline to indicate selection.
       </li>
@@ -301,7 +307,7 @@
       </li>
       <li>
         <strong>SID music player demo</strong> — new sample program using INCBIN to load and play the Ikari Warriors intro via raster IRQ.
-        Music by <em>Thomas E. Petersen (Laxity)</em> — Danish Influential SID composer — from the 1988 game <em>2000 A.D.</em>
+        Music by <em>Thomas E. Petersen (Laxity)</em> — influential Danish SID composer — from the 1988 game <em>2000 A.D.</em>
       </li>
       <li>
         <strong>INCBIN / INCLUDE UI</strong> — file chooser redesigned with a text input field and a monochrome folder icon button, consistent with the rest of the block controls.
