@@ -3667,6 +3667,14 @@ function getProgramLayout(originOverride) {
   const lines = expandedProgram.map((block) => {
     let size = getInstructionSize(block);
 
+    // Handle TABLE macro: set address cursor if tableAddress is present
+    if (block.isTableMacro && block.tableAddress) {
+      const tableAddr = parseAddressValue(block.tableAddress);
+      if (typeof tableAddr === "number" && !isNaN(tableAddr)) {
+        cursor = tableAddr;
+      }
+    }
+
     // Handle ALIGN macro: calculate padding to next boundary
     if (block.isAlignMacro) {
       const boundary = parseNumberByBase(block.rawOperand.replace(/^\$/, ""), block.base);
