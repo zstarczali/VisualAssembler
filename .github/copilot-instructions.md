@@ -73,10 +73,11 @@ A `loadTextSampleProgram()` helyes sorrendje:
 
 ## Makró expanzió
 
-A `TEXT` makró `buildAsmLines()` / `buildMonitorLines()` híváskor fejlődik ki:
-- Koordináta beállítás (LDA + JSR KERNAL rutinokkal)
-- Karakterenkénti `LDA #$xx` + `JSR $FFD2` (CHROUT) párok
-- Az expandált kód a TEXT blokk utáni sorokban jelenik meg az ASM nézetben
+A `TEXT` makró `compileLineBytes()` híváskor fejlődik ki:
+- Direkt screen RAM írás: karakterenkénti `LDA #$screenCode` + `STA $0400+offset` párok
+- Koordináta: `textX`, `textY` mezőkből számított `$0400 + (textY * 40) + textX` kezdőcím
+- `encodeTextMacro()` → screen code-okba konvertál (nem PETSCII, nem KERNAL CHROUT!)
+- Az ASM nézetben deferred `.byte` szekció jelenik meg a kód alján (csak vizuális)
 
 A `STRING` makró: szöveg karakterenként C64 screen code-ban, megadott abszolút memóriacímre (`stringAddress`, pl. `"C000"`). Deferred `.byte` szekció az ASM nézetben + inline kód a memóriatérképen.
 
