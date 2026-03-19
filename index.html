@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>C64 Block Assembler</title>
+  <title>C64 Visual Assembler</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -53,6 +53,9 @@
                     <option value="hello-loop-demo">Hello World 1-40 (LOOP szamlalo)</option>
                     <option value="push-pull-demo">PUSH / PULL demo</option>
                     <option value="user-macro-demo">User MACRO / ENDM demo</option>
+                    <option value="incbin-demo">INCBIN demo</option>
+                    <option value="include-demo">INCLUDE demo</option>
+                    <option value="sid-demo">SID music player (Ikari Warriors)</option>
                   </select>
                 </label>
                 <button id="load-sample" class="secondary" type="button">Betoltes</button>
@@ -278,7 +281,7 @@
       </svg>
     </div>
     <h2 class="about-title">C64 Visual Assembler</h2>
-    <p class="about-version" id="about-version">v1.1.6</p>
+    <p class="about-version" id="about-version">v1.1.9</p>
     <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and dropping instruction blocks.</p>
     <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
     <button id="about-close" class="primary" type="button">Close</button>
@@ -288,22 +291,20 @@
 <dialog id="whats-new-dialog" class="whats-new-dialog">
   <div class="whats-new-card">
     <h2 class="whats-new-title">What's New</h2>
-    <p class="whats-new-version">v1.1.6</p>
+    <p class="whats-new-version">v1.1.9</p>
     <ul class="whats-new-list">
       <li>
-        <strong>BASIC SYS stub toggle</strong> — added checkbox in Settings menu to enable/disable BASIC SYS stub generation. When disabled, programs load at $C000 (Free RAM) instead of $0801. Warning: sample programs with RAWBYTES, sprites, or fixed memory addresses may not work correctly without the stub.
+        <strong>Click-to-select ASM</strong> — clicking any block highlights the corresponding assembly source lines in the right panel. The block card gets a colored outline to indicate selection.
       </li>
       <li>
-        <strong>Current file indicator</strong> — the loaded project filename now appears in the ASM panel header for better context. Shows which file you're currently working on, disappears when loading samples or clearing the program.
+        <strong>INCLUDE macro</strong> — embed another project's JSON blocks inline. The included code is fully assembled into the PRG output. Browse for any <em>.json</em> project file; click the block to jump to its assembly.
       </li>
       <li>
-        <strong>Splash screen</strong> — added animated loading screen on application startup with smooth fade-out transition (2 seconds).
+        <strong>SID music player demo</strong> — new sample program using INCBIN to load and play the Ikari Warriors intro via raster IRQ.
+        Music by <em>Thomas E. Petersen (Laxity)</em> — Danish Influential SID composer — from the 1988 game <em>2000 A.D.</em>
       </li>
       <li>
-        <strong>UI improvements</strong> — fixed checkbox focus outline styling to prevent oversized focus rectangles, improved visual feedback for form controls, better panel header layout.
-      </li>
-      <li>
-        <strong>Bug fixes</strong> — fixed PRG generation when BASIC SYS stub is disabled, corrected origin address handling for non-standard load addresses, improved file path handling in status messages.
+        <strong>INCBIN / INCLUDE UI</strong> — file chooser redesigned with a text input field and a monochrome folder icon button, consistent with the rest of the block controls.
       </li>
     </ul>
     <button id="whats-new-close" class="primary" type="button">OK</button>

@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "app": "c64-visual-assembler",
+  "origin": "C000",
+  "program": [
+    {
+      "id": "lib-comment-1",
+      "category": "Szerkezet",
+      "mnemonic": "COMMENT",
+      "operand": "Library: set_border — sets border color from A register",
+      "rawOperand": "Library: set_border — sets border color from A register",
+      "description": "",
+      "addressingMode": "implied",
+      "base": "comment",
+      "validationError": "",
+      "collapsed": true,
+      "isComment": true
+    },
+    {
+      "id": "lib-label-set-border",
+      "category": "Szerkezet",
+      "mnemonic": "LABEL",
+      "operand": "set_border",
+      "rawOperand": "set_border",
+      "description": "",
+      "addressingMode": "implied",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true,
+      "isLabel": true,
+      "labelName": "set_border"
+    },
+    {
+      "id": "lib-sta-d020",
+      "category": "Tarolasok",
+      "mnemonic": "STA",
+      "operand": "$D020",
+      "rawOperand": "D020",
+      "description": "",
+      "addressingMode": "absolute",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    },
+    {
+      "id": "lib-rts-border",
+      "category": "Ugrasok",
+      "mnemonic": "RTS",
+      "operand": "",
+      "rawOperand": "",
+      "description": "",
+      "addressingMode": "implied",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    },
+    {
+      "id": "lib-comment-2",
+      "category": "Szerkezet",
+      "mnemonic": "COMMENT",
+      "operand": "Library: set_bg — sets background color from A register",
+      "rawOperand": "Library: set_bg — sets background color from A register",
+      "description": "",
+      "addressingMode": "implied",
+      "base": "comment",
+      "validationError": "",
+      "collapsed": true,
+      "isComment": true
+    },
+    {
+      "id": "lib-label-set-bg",
+      "category": "Szerkezet",
+      "mnemonic": "LABEL",
+      "operand": "set_bg",
+      "rawOperand": "set_bg",
+      "description": "",
+      "addressingMode": "implied",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true,
+      "isLabel": true,
+      "labelName": "set_bg"
+    },
+    {
+      "id": "lib-sta-d021",
+      "category": "Tarolasok",
+      "mnemonic": "STA",
+      "operand": "$D021",
+      "rawOperand": "D021",
+      "description": "",
+      "addressingMode": "absolute",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    },
+    {
+      "id": "lib-rts-bg",
+      "category": "Ugrasok",
+      "mnemonic": "RTS",
+      "operand": "",
+      "rawOperand": "",
+      "description": "",
+      "addressingMode": "implied",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    }
+  ],
+  "ui": {
+    "sample": "",
+    "outputMode": "asm",
+    "numberBase": "hex",
+    "zoom": 1,
+    "language": "en",
+    "theme": "dark"
+  }
+}
