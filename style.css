@@ -20,6 +20,7 @@
   --output-bg: #2e2a8a;
   --output-text: #b9c4ff;
   --error: #7d1f45;
+  --accent: var(--primary);
 }
 
 body[data-theme="dark"] {
@@ -43,6 +44,7 @@ body[data-theme="dark"] {
   --output-bg: #16124a;
   --output-text: #aeb8ff;
   --error: #ff9ab6;
+  --accent: #ffffff;
 }
 
 * {
@@ -973,6 +975,13 @@ button:focus-visible,
     inset 0 -4px 0 0 var(--primary);
 }
 
+.asm-block--selected {
+  border-color: var(--accent) !important;
+  box-shadow:
+    0 4px 12px color-mix(in srgb, black 6%, transparent),
+    inset 0 0 0 2px var(--accent);
+}
+
 .drag-handle {
   display: grid;
   place-items: center;
@@ -1086,6 +1095,95 @@ button:focus-visible,
 
 .single-macro-row {
   grid-template-columns: 1fr;
+}
+
+.incbin-file-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.incbin-filename {
+  flex: 1;
+  font-size: 0.7rem;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.icon-btn {
+  flex-shrink: 0;
+  width: calc(28px * var(--block-scale));
+  height: calc(28px * var(--block-scale));
+  min-width: calc(28px * var(--block-scale));
+  min-height: unset;
+  aspect-ratio: 1;
+  padding: 0;
+  border-radius: calc(6px * var(--block-scale));
+  background: var(--control-bg);
+  border: 1px solid var(--panel-border);
+  color: var(--text);
+  font-size: calc(0.88rem * var(--block-scale));
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.icon-btn:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.include-browse-icon:hover {
+  background: var(--control-bg);
+  color: var(--text);
+  border-color: var(--panel-border);
+}
+
+.incbin-browse-btn {
+  flex-shrink: 0;
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--surface-soft);
+  color: var(--text);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.incbin-browse-btn:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.include-browse-btn,
+.include-reload-btn {
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--accent);
+  background: var(--btn-bg, #444);
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.include-browse-btn:hover,
+.include-reload-btn:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.include-file-input {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.78rem;
+  cursor: default;
 }
 
 .mini-toggle {

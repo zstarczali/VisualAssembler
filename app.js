@@ -139,6 +139,8 @@ const mnemonicLibrary = {
     { mnemonic: "DATA", description: "Nyers byte-ok kiirasa egy megadott memoriacimre.", modes: ["implied"], isDataMacro: true },
     { mnemonic: "RAWBYTES", description: "Nyers byte-ok elhelyezese egy megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isRawBytesMacro: true },
     { mnemonic: "RAWTEXT", description: "Szoveg elhelyezese PETSCII byte-kenkent egy megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isRawTextMacro: true },
+    { mnemonic: "INCBIN", description: "Kulso binarfajl beillesztese megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isIncBinMacro: true },
+    { mnemonic: "INCLUDE", description: "Masik projekt JSON fajl blokkjainak beillesztese erre a helyre (csak olvasható).", modes: ["implied"], isIncludeMacro: true },
     { mnemonic: "LOOP", description: "Szamlalo ciklus: LD* #count, majd cimke a body elejere. NEXT blokkal zarjuk.", modes: ["implied"], isLoopMacro: true },
     { mnemonic: "NEXT", description: "Ciklus vege: DE* es BNE visszaugras a LOOP cimkejere.", modes: ["implied"], isNextMacro: true },
     { mnemonic: "PUSH", description: "Regiszterek mentese a stackre (A, X, Y kombinaciok).", modes: ["implied"], isPushMacro: true },
@@ -211,6 +213,9 @@ const paletteItemTemplate = document.getElementById("palette-item-template");
 const globalMemoryPanel = document.querySelector(".global-memory-panel");
 const aboutButton = document.getElementById("about-btn");
 const whatsNewButton = document.getElementById("whats-new-btn");
+
+let asmBlockRanges = {};
+let selectedBlockId = null;
 const checkUpdateButton = document.getElementById("check-update-btn");
 const basicSysToggle = document.getElementById("basic-sys-toggle");
 const aboutDialog = document.getElementById("about-dialog");
@@ -223,7 +228,7 @@ let program = [];
 let dragState = null;
 const defaultOrigin = 0x0801;
 let blockScale = 0.9;
-let currentLanguage = "hu";
+let currentLanguage = "en";
 let vicePath = "";
 let savedUiSettings = {};
 let userMacros = {};  // Stores user-defined macros: { macroName: [blocks...] }
@@ -293,7 +298,9 @@ const translations = {
     sampleHelloLoop: "Hello World 1-40 (LOOP szamlalo)",
     samplePushPull: "PUSH / PULL demo",
     sampleUserMacro: "User MACRO / ENDM demo",
-    languageLabel: "Nyelv",
+    sampleIncBin: "INCBIN demo",
+    sampleInclude: "INCLUDE demo",
+    sampleSidDemo: "SID zenelejatszas (Ikari Warriors)",
     checkForUpdate: "Frissites keresese",
     whatsNew: "Ujdonsagok",
     basicSysLabel: "BASIC SYS stub generálása",
@@ -325,6 +332,19 @@ const translations = {
     dataDataBelow: "DATA adat lent",
     rawBytesDataBelow: "RAWBYTES adat lent",
     rawTextDataBelow: "RAWTEXT adat lent",
+    incBinDataBelow: "INCBIN adat lent",
+    fieldIncBinFile: "Fajl",
+    incBinBrowse: "Tallozas...",
+    incBinNoFile: "Nincs fajl kivalasztva",
+    includeNoFile: "Nincs kivalasztott fajl",
+    fieldIncludeFile: "Projekt fajl",
+    includeBrowse: "Tallozas",
+    includeReload: "Ujratoltes",
+    includeShowBlocks: "Megjelenites",
+    includeHideBlocks: "Elrejtes",
+    includeBlocksCount: "blokk",
+    includeFileNotFound: "A fajl nem talalhato",
+    includeInvalidFile: "Ervenytelen projekt fajl",
     compileInvalidOperand: "Nem lehet forditani: hibas operandus a(z) {mnemonic} sorban.",
     compileUnsupportedMode: "A(z) {mnemonic} {mode} modhoz meg nincs forditasi tamogatas.",
     branchLabelTooFar: "A(z) {label} label tul messze van a(z) {mnemonic} branch-hez.",
@@ -452,6 +472,9 @@ const translations = {
     sampleHelloLoop: "Hello World 1-40 (LOOP counter)",
     samplePushPull: "PUSH / PULL demo",
     sampleUserMacro: "User MACRO / ENDM demo",
+    sampleIncBin: "INCBIN demo",
+    sampleInclude: "INCLUDE demo",
+    sampleSidDemo: "SID music player (Ikari Warriors)",
     languageLabel: "Language",
     checkForUpdate: "Check for Update",
     whatsNew: "What's New",
@@ -484,6 +507,19 @@ const translations = {
     dataDataBelow: "DATA data below",
     rawBytesDataBelow: "RAWBYTES data below",
     rawTextDataBelow: "RAWTEXT data below",
+    incBinDataBelow: "INCBIN data below",
+    fieldIncBinFile: "File",
+    incBinBrowse: "Browse...",
+    incBinNoFile: "No file selected",
+    includeNoFile: "No file selected",
+    fieldIncludeFile: "Project file",
+    includeBrowse: "Browse",
+    includeReload: "Reload",
+    includeShowBlocks: "Show blocks",
+    includeHideBlocks: "Hide blocks",
+    includeBlocksCount: "blocks",
+    includeFileNotFound: "File not found",
+    includeInvalidFile: "Invalid project file",
     compileInvalidOperand: "Cannot compile: invalid operand on the {mnemonic} line.",
     compileUnsupportedMode: "{mnemonic} {mode} is not wired to the compiler yet.",
     branchLabelTooFar: "Label {label} is too far for the {mnemonic} branch.",
@@ -692,6 +728,8 @@ const mnemonicDescriptionsEn = {
   DATA: "Write raw bytes to a given memory address via LDA/STA code.",
   RAWBYTES: "Place raw bytes at a given memory address without generating any runtime code.",
   RAWTEXT: "Place text as PETSCII bytes at a given memory address without generating any runtime code.",
+  INCBIN: "Include an external binary file at a given memory address without generating any runtime code.",
+  INCLUDE: "Include another project JSON file's blocks inline at this position (read-only).",
   LOOP: "Counter loop: LD* #count loads the counter, then a label marks the body start. Close with NEXT.",
   NEXT: "Loop end: DE* decrements the counter, BNE branches back to the LOOP label.",
   PUSH: "Save registers to the stack (A, X, Y combinations).",
@@ -930,7 +968,7 @@ function initPalette() {
 }
 
 function applySavedLanguage() {
-  const savedLanguage = localStorage.getItem("c64-block-language") || "hu";
+  const savedLanguage = localStorage.getItem("c64-block-language") || "en";
   currentLanguage = savedLanguage === "en" ? "en" : "hu";
   document.documentElement.lang = currentLanguage;
   if (languageSelect) {
@@ -1102,6 +1140,9 @@ function applyTranslations() {
   if (sampleOptions[12]) sampleOptions[12].textContent = t("sampleHelloLoop");
   if (sampleOptions[13]) sampleOptions[13].textContent = t("samplePushPull");
   if (sampleOptions[14]) sampleOptions[14].textContent = t("sampleUserMacro");
+  if (sampleOptions[15]) sampleOptions[15].textContent = t("sampleIncBin");
+  if (sampleOptions[16]) sampleOptions[16].textContent = t("sampleInclude");
+  if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleSidDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -1282,7 +1323,7 @@ function updateOperandField() {
   const needsRawBytesOperand = item?.isRawBytesMacro;
   const needsRawTextOperand = item?.isRawTextMacro;
   const needsCommentOperand = item?.isComment;
-  operandInput.disabled = !(mode.needsOperand || needsTextOperand || needsByteOperand || needsStringOperand || needsDataOperand || needsRawBytesOperand || needsRawTextOperand || needsCommentOperand);
+  operandInput.disabled = !(mode.needsOperand || needsTextOperand || needsByteOperand || needsStringOperand || needsDataOperand || needsRawBytesOperand || needsRawTextOperand || needsCommentOperand) || item?.isIncBinMacro || item?.isIncludeMacro;
   operandInput.placeholder = needsTextOperand
     ? (currentLanguage === "en" ? "For example HELLO C64" : "Peldaul HELLO C64")
     : needsByteOperand
@@ -1354,6 +1395,24 @@ function renderMnemonicDescription() {
     `;
     return;
   }
+  if (item.isIncBinMacro) {
+    mnemonicDescription.innerHTML = `
+      <strong>${item.mnemonic}</strong>
+      <p>${getItemDescription(item)}</p>
+      <p>${currentLanguage === "en" ? "Macro addressing: includes an external binary file at a given memory address, no runtime code generated." : "Makro-cimzes: kulso binarfajl adatait helyezi el egy abszolut memoriacimre, runtime kod generalas nelkul."}</p>
+      <small>${currentLanguage === "en" ? "Select a binary file with the Browse button after inserting." : "A fajlt a Tallozas gombbal valaszthatod ki a beillesztes utan."}</small>
+    `;
+    return;
+  }
+  if (item.isIncludeMacro) {
+    mnemonicDescription.innerHTML = `
+      <strong>${item.mnemonic}</strong>
+      <p>${getItemDescription(item)}</p>
+      <p>${currentLanguage === "en" ? "Embeds another project JSON file's blocks inline at this position. The blocks appear grayed out and read-only." : "Egy masik projekt JSON fajl blokkjait illeszti be erre a helyre. A blokkok szurkitve, csak olvashatoan jelennek meg."}</p>
+      <small>${currentLanguage === "en" ? "Select a project file with the Browse button after inserting." : "A projektet a Tallozas gombbal valaszthatod ki a beillesztes utan."}</small>
+    `;
+    return;
+  }
   if (item.isRawTextMacro) {
     const textPreview = formatTextMacroPreview(operandInput.value.trim());
     mnemonicDescription.innerHTML = `
@@ -1415,7 +1474,11 @@ function renderPaletteItems() {
               ? `${currentLanguage === "en" ? "Raw bytes at address" : "Nyers byte-ok adott cimre"} | ${preview.preview}`
               : item.isRawTextMacro
                 ? `${currentLanguage === "en" ? "Raw text at address" : "Nyers szoveg adott cimre"} | ${preview.preview}`
-                : item.isComment
+                : item.isIncBinMacro
+                  ? `${currentLanguage === "en" ? "Binary file at address" : "Binarfajl adott cimre"}`
+                  : item.isIncludeMacro
+                  ? `${currentLanguage === "en" ? "Include project blocks inline" : "Projekt blokkjainak beillesztese"}`
+                  : item.isComment
                 ? `${currentLanguage === "en" ? "Comment" : "Komment"} | ; ${operandInput.value.trim() || (currentLanguage === "en" ? "new comment" : "uj komment")}`
                 : `${modeText(defaultMode, "label")} | ${preview.text}`;
 
@@ -1601,6 +1664,45 @@ function createBlockFromMnemonic(item) {
       collapsed: true,
       isRawTextMacro: true,
       rawTextAddress: "C000"
+    };
+  }
+
+  if (item.isIncBinMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isIncBinMacro: true,
+      incBinFile: "",
+      incBinFileName: "",
+      incBinAddress: "$C000",
+      incBinBytes: []
+    };
+  }
+  if (item.isIncludeMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "INCLUDE",
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isIncludeMacro: true,
+      includeFile: "",
+      includeFileName: "",
+      includeCollapsed: false,
+      includedBlocks: []
     };
   }
   if (item.isLoopMacro) {
@@ -1891,6 +1993,7 @@ function addSelectedBlock() {
 function clearProgram() {
   program = [];
   userMacros = {};
+  selectedBlockId = null;
   renderProgram();
 
   // Clear current file display
@@ -2040,6 +2143,8 @@ function updateProgramBlock(index, field, value) {
       }
       block.operand = block.rawOperand.trim();
       block.validationError = validateDataMacro(block.rawOperand, block.rawBytesAddress, block.base);
+    } else if (block.isIncBinMacro) {
+      block.validationError = validateIncBinMacro(block.incBinBytes, block.incBinAddress);
     } else if (block.isRawTextMacro) {
       block.operand = block.rawOperand.trim();
       block.validationError = validateStringMacroAddress(block.rawTextAddress);
@@ -2094,6 +2199,13 @@ function updateProgramBlock(index, field, value) {
 
   if (field === "rawBytesAddress") {
     block.validationError = validateDataMacro(block.rawOperand, block.rawBytesAddress, block.base);
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (field === "incBinAddress" || field === "incBinFile" || field === "incBinFileName" || field === "incBinBytes") {
+    block.validationError = validateIncBinMacro(block.incBinBytes, block.incBinAddress);
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -2573,6 +2685,17 @@ function parseAddressValue(raw) {
   return null;
 }
 
+function validateIncBinMacro(incBinBytes, rawAddress) {
+  const value = parseAddressValue(rawAddress);
+  if (value === null) {
+    return currentLanguage === "en" ? "INCBIN macro needs a valid start address, for example $C000." : "Az INCBIN makrohoz ervenyes kezdocim kell, peldaul $C000.";
+  }
+  if (value < 0 || value > 0xFFFF) {
+    return currentLanguage === "en" ? "INCBIN macro address must be between 0 and 65535." : "Az INCBIN makro cime 0 es 65535 kozott lehet.";
+  }
+  return "";
+}
+
 function validateStringMacroAddress(raw) {
   const value = parseAddressValue(raw);
   if (value === null) {
@@ -2767,7 +2890,11 @@ function getProjectPayload() {
     version: 1,
     app: "c64-visual-assembler",
     origin: originInput?.value || "0801",
-    program,
+    program: program.map(block => {
+      if (!block.isIncludeMacro) return block;
+      const { includedBlocks, ...rest } = block;
+      return rest;
+    }),
     ui: {
       sample: sampleSelect?.value || "basic-colors",
       outputMode: getSelectedOutputMode(),
@@ -2777,6 +2904,12 @@ function getProjectPayload() {
       theme: document.body.dataset.theme || "light"
     }
   };
+}
+
+function updateWindowTitle(fileName) {
+  const base = "C64 Visual Assembler";
+  const title = fileName ? `${base} - ${fileName}` : base;
+  window.electronAPI?.setWindowTitle?.(title);
 }
 
 async function saveProjectToFile() {
@@ -2807,6 +2940,24 @@ async function saveProjectToFile() {
   if (currentFileDisplay && result.filePath) {
     const fileName = result.filePath.split(/[\\/]/).pop();
     currentFileDisplay.textContent = `📄 ${fileName}`;
+    updateWindowTitle(fileName);
+  }
+}
+
+async function reloadIncludeBlocks() {
+  if (!window.electronAPI?.reloadIncludeFile) return;
+  for (const block of program) {
+    if (block.isIncludeMacro && block.includeFile) {
+      const result = await window.electronAPI.reloadIncludeFile(block.includeFile);
+      if (!result.error) {
+        block.includedBlocks = result.blocks || [];
+        block.includeFileName = result.fileName;
+        block.validationError = "";
+      } else {
+        block.includedBlocks = [];
+        block.validationError = result.error;
+      }
+    }
   }
 }
 
@@ -2842,6 +2993,7 @@ async function loadProjectFromFile() {
     ...block,
     id: block.id || crypto.randomUUID()
   }));
+  await reloadIncludeBlocks();
 
   if (originInput) {
     originInput.value = projectData.origin || "0801";
@@ -2883,6 +3035,7 @@ async function loadProjectFromFile() {
   if (currentFileDisplay && result.filePath) {
     const fileName = result.filePath.split(/[\\/]/).pop();
     currentFileDisplay.textContent = `📄 ${fileName}`;
+    updateWindowTitle(fileName);
   }
 }
 
@@ -3016,7 +3169,7 @@ function assembleProgramToPrg(originOverride) {
   // Assemble inline code bytes
   const inlineBytes = [];
   for (const line of layout.lines) {
-    if (line.block.isLabel || line.block.isComment) continue;
+    if (line.block.isLabel || line.block.isComment || line.block.isIncludeMacro) continue;
     const compiled = compileLineBytes(line, labels);
     if (!compiled.ok) return { ok: false, error: compiled.error };
     inlineBytes.push(...compiled.bytes);
@@ -3036,6 +3189,10 @@ function assembleProgramToPrg(originOverride) {
       const chunkBytes = encodeTextMacro(block.rawOperand);
       const addr = parseAddressValue(block.rawTextAddress) ?? 0xC000;
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
+    } else if (block.isIncBinMacro) {
+      const chunkBytes = block.incBinBytes || [];
+      const addr = parseAddressValue(block.incBinAddress) ?? 0xC000;
+      if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: Array.from(chunkBytes) });
     }
   }
 
@@ -3135,6 +3292,16 @@ function compileLineBytes(line, labels) {
       ok: true,
       bytes: [],
       comment: `RAWBYTES ${block.rawOperand || ""} @ ${formatAddress(parseAddressValue(block.rawBytesAddress) ?? 0xC000)}`
+    };
+  }
+
+  if (block.isIncBinMacro) {
+    const size = (block.incBinBytes || []).length;
+    const addr = parseAddressValue(block.incBinAddress) ?? 0xC000;
+    return {
+      ok: true,
+      bytes: [],
+      comment: `INCBIN "${block.incBinFileName || block.incBinFile || ""}" (${size} bytes) @ ${formatAddress(addr)}`
     };
   }
 
@@ -3529,6 +3696,14 @@ function getInstructionSize(block) {
     return 0;
   }
 
+  if (block.isIncBinMacro) {
+    return 0;
+  }
+
+  if (block.isIncludeMacro) {
+    return 0;
+  }
+
   if (block.isLoopMacro) {
     return 2;  // LDX/LDY #count
   }
@@ -3647,6 +3822,17 @@ function getProgramLayout(originOverride) {
       continue;
     }
 
+    // Expand INCLUDE blocks inline
+    if (block.isIncludeMacro) {
+      expandedProgram.push(block); // header marker, 0 bytes
+      if (block.includedBlocks?.length) {
+        for (const subBlock of block.includedBlocks) {
+          expandedProgram.push({ ...subBlock, _fromInclude: block.id, _includeFileName: block.includeFileName });
+        }
+      }
+      continue;
+    }
+
     // Check if this block invokes a user macro (INVOKE block or legacy format)
     const macroName = block.isMacroInvoke ? block.invokeMacroName : (userMacros[block.mnemonic] ? block.mnemonic : null);
 
@@ -3760,6 +3946,20 @@ function getDeferredMemorySections(layout) {
           end: startAddress + bytes.length - 1,
           bytes,
           label: `RAWBYTES ${line.block.rawOperand || ""} -> ${formatAddress(startAddress)}`
+        };
+      }
+
+      if (line.block.isIncBinMacro) {
+        const bytes = line.block.incBinBytes || [];
+        const startAddress = parseAddressValue(line.block.incBinAddress) ?? 0xC000;
+        return {
+          type: "incbin",
+          lineNumber,
+          sourceAddress: line.address,
+          address: startAddress,
+          end: startAddress + bytes.length - 1,
+          bytes: Array.from(bytes),
+          label: `INCBIN "${line.block.incBinFileName || ""}" -> ${formatAddress(startAddress)}`
         };
       }
 
@@ -4000,6 +4200,18 @@ function getBlockDescription(block) {
     return block.validationError || `${currentLanguage === "en" ? "RAWBYTES macro" : "RAWBYTES makro"}: ${block.rawOperand || ""} @ ${block.rawBytesAddress || "C000"}`;
   }
 
+  if (block.isIncBinMacro) {
+    const size = (block.incBinBytes || []).length;
+    const name = block.incBinFileName || (currentLanguage === "en" ? "no file" : "nincs fajl");
+    return block.validationError || `${currentLanguage === "en" ? "INCBIN macro" : "INCBIN makro"}: "${name}" (${size} bytes) @ ${block.incBinAddress || "$C000"}`;
+  }
+
+  if (block.isIncludeMacro) {
+    const count = (block.includedBlocks || []).length;
+    const name = block.includeFileName || (currentLanguage === "en" ? "no file" : "nincs fajl");
+    return block.validationError || `${currentLanguage === "en" ? "INCLUDE" : "INCLUDE"}: "${name}" (${count} ${t("includeBlocksCount")})`;
+  }
+
   if (block.isRawTextMacro) {
     return block.validationError || `${currentLanguage === "en" ? "RAWTEXT macro" : "RAWTEXT makro"}: "${block.rawOperand || ""}" @ ${block.rawTextAddress || "C000"}`;
   }
@@ -4081,6 +4293,16 @@ function getBlockModeCaption(block) {
 
   if (block.isRawTextMacro) {
     return `${currentLanguage === "en" ? "Raw @ memory" : "Nyers @ memoria"} | ${block.rawTextAddress || "C000"}`;
+  }
+
+  if (block.isIncBinMacro) {
+    const size = (block.incBinBytes || []).length;
+    return `${currentLanguage === "en" ? "Binary file @ memory" : "Binarfajl @ memoria"} | ${block.incBinAddress || "$C000"} (${size} bytes)`;
+  }
+
+  if (block.isIncludeMacro) {
+    const count = (block.includedBlocks || []).length;
+    return `${currentLanguage === "en" ? "Included project" : "Beillesztett projekt"} | ${count} ${t("includeBlocksCount")}`;
   }
 
   if (block.isWordMacro) {
@@ -4230,6 +4452,18 @@ function getCollapsedOperandText(block) {
     return parts.slice(0, 6).join(", ") + " …";
   }
 
+  if (block.isIncBinMacro) {
+    const size = (block.incBinBytes || []).length;
+    if (block.incBinFileName) return `"${block.incBinFileName}" (${size} bytes)`;
+    return currentLanguage === "en" ? "no file" : "nincs fajl";
+  }
+
+  if (block.isIncludeMacro) {
+    const count = (block.includedBlocks || []).length;
+    if (block.includeFileName) return `"${block.includeFileName}" (${count} ${t("includeBlocksCount")})`;
+    return currentLanguage === "en" ? "no file" : "nincs fajl";
+  }
+
   if (block.isRawTextMacro) {
     return block.rawOperand ? `"${block.rawOperand}"` : "";
   }
@@ -4308,6 +4542,7 @@ function renderProgram() {
     program.forEach((block, index) => {
       const node = blockTemplate.content.firstElementChild.cloneNode(true);
       node.dataset.index = index;
+      node.dataset.blockId = block.id;
       node.dataset.categoryTone = getCategoryTone(block.category);
       node.dataset.collapsed = block.collapsed ? "true" : "false";
       node.draggable = true;
@@ -4450,6 +4685,83 @@ function renderProgram() {
           </div>
         `
       );
+    } else if (block.isIncBinMacro) {
+      inlineField.hidden = true;
+      const fileName = block.incBinFileName || "";
+      const fileSize = (block.incBinBytes || []).length;
+
+      const folderIcon = `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5a1 1 0 0 1 1-1h3.5l1.5 1.5H14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V5z"/></svg>`;
+
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid single-macro-row">
+            <label class="mini-field">
+              <span>${t("fieldIncBinFile")}</span>
+              <div class="incbin-file-row">
+                <input type="text" class="include-file-input block-operand" readonly
+                  value="${fileName.replace(/"/g, "&quot;")}${fileName && fileSize ? ` (${fileSize} bytes)` : ""}"
+                  placeholder="${t("incBinNoFile")}">
+                <button class="icon-btn include-browse-icon" title="${t("incBinBrowse")}">${folderIcon}</button>
+              </div>
+            </label>
+          </div>
+          <div class="macro-grid single-macro-row">
+            <label class="mini-field">
+              <span>${t("fieldAddress")}</span>
+              <input class="macro-address" data-address-field="incBinAddress" type="text" value="${block.incBinAddress || "$C000"}" placeholder="$C000">
+            </label>
+          </div>
+        `
+      );
+      blockControls.querySelector(".include-browse-icon")?.addEventListener("click", async () => {
+        if (!window.electronAPI?.chooseIncBinFile) return;
+        const result = await window.electronAPI.chooseIncBinFile();
+        if (result.canceled || result.error) return;
+        updateProgramBlock(index, "incBinFile", result.filePath);
+        updateProgramBlock(index, "incBinFileName", result.fileName);
+        updateProgramBlock(index, "incBinBytes", result.bytes);
+        renderProgram();
+      });
+    } else if (block.isIncludeMacro) {
+      inlineField.hidden = true;
+      const fileName = block.includeFileName || "";
+      const count = (block.includedBlocks || []).length;
+
+      const folderIcon = `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5a1 1 0 0 1 1-1h3.5l1.5 1.5H14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V5z"/></svg>`;
+
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid single-macro-row">
+            <label class="mini-field">
+              <span>${t("fieldIncludeFile")}</span>
+              <div class="incbin-file-row">
+                <input type="text" class="include-file-input block-operand" readonly
+                  value="${fileName.replace(/"/g, "&quot;")}"
+                  placeholder="${t("includeNoFile")}">
+                <button class="icon-btn include-browse-icon" title="${t("includeBrowse")}">${folderIcon}</button>
+              </div>
+            </label>
+          </div>
+        `
+      );
+      blockControls.querySelector(".include-browse-icon")?.addEventListener("click", async () => {
+        if (!window.electronAPI?.chooseIncludeFile) return;
+        const result = await window.electronAPI.chooseIncludeFile();
+        if (result.canceled || result.error) return;
+        program[index].includeFile = result.filePath;
+        program[index].includeFileName = result.fileName;
+        program[index].includedBlocks = result.blocks || [];
+        program[index].validationError = "";
+        renderProgram();
+        renderAsmOutput();
+      });
+
+      node.addEventListener("click", (e) => {
+        if (e.target.closest("button") || e.target.closest("input") || e.target.closest("select")) return;
+        selectBlockInAsm(block.id);
+      });
     } else if (block.isLoopMacro) {
       blockControls.insertAdjacentHTML(
         "beforeend",
@@ -4603,7 +4915,7 @@ function renderProgram() {
     blockControls.insertAdjacentHTML(
       "beforeend",
       `
-          ${(mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isLoopMacro && !block.isNextMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
+          ${(mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
           <label class="mini-field">
             <span>${t("fieldFormat")}</span>
           <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
@@ -4617,7 +4929,7 @@ function renderProgram() {
             </label>
           </div>
         </label>` : ""}
-          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke ? ` hidden` : ""}>
+          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isIncBinMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke ? ` hidden` : ""}>
             <span>${t("addressingMode")}</span>
           <select class="block-mode">
             ${getMnemonicModes(block.mnemonic).map((modeKey) => `<option value="${modeKey}"${block.addressingMode === modeKey ? " selected" : ""}>${modeText(modeKey, "label")}</option>`).join("")}
@@ -4753,16 +5065,60 @@ function renderProgram() {
       dragState = null;
     });
 
+    node.addEventListener("click", (e) => {
+      if (e.target.closest("button") || e.target.closest("input") || e.target.closest("select")) return;
+      selectBlockInAsm(block.id);
+    });
+
     programList.appendChild(node);
   });
 
   renderAsmOutput();
   renderMemoryMap();
+
+  // Restore block selection highlight after re-render
+  if (selectedBlockId) {
+    const node = programList.querySelector(`[data-block-id="${selectedBlockId}"]`);
+    if (node) node.classList.add("asm-block--selected");
+  }
 }
 
 function getMnemonicModes(mnemonic) {
   const items = Object.values(mnemonicLibrary).flat();
   return items.find((item) => item.mnemonic === mnemonic)?.modes || ["implied"];
+}
+
+function selectBlockInAsm(blockId) {
+  selectedBlockId = blockId;
+
+  // Highlight the block card
+  document.querySelectorAll(".asm-block--selected").forEach(el => el.classList.remove("asm-block--selected"));
+  const blockNode = programList.querySelector(`[data-block-id="${blockId}"]`);
+  if (blockNode) blockNode.classList.add("asm-block--selected");
+
+  const rangeInfo = asmBlockRanges[blockId];
+  if (!rangeInfo) return;
+
+  const text = asmOutput.textContent;
+  if (!text) return;
+
+  const textNode = asmOutput.firstChild;
+  if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return;
+
+  const start = Math.min(rangeInfo.start, text.length);
+  const end = Math.min(rangeInfo.end + 1, text.length);
+
+  const range = document.createRange();
+  range.setStart(textNode, start);
+  range.setEnd(textNode, end);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+
+  // Scroll to show selected lines
+  const lineHeight = parseFloat(getComputedStyle(asmOutput).lineHeight) || 18;
+  const lineNum = (text.substring(0, start).match(/\n/g) || []).length;
+  asmOutput.scrollTop = Math.max(0, (lineNum - 3) * lineHeight);
 }
 
 function renderAsmOutput() {
@@ -4868,6 +5224,32 @@ function renderAsmOutput() {
         text: `rawbytes_${lineNumber}:\n    ; RAWBYTES ${line.block.rawOperand || ""} -> ${formatAddress(startAddress)}\n    ; ${formatAddress(startAddress)}\n${expanded}`
       });
       return `    ; ${t("rawBytesDataBelow")}: rawbytes_${lineNumber}`;
+    }
+
+    if (line.block.isIncBinMacro) {
+      const bytes = line.block.incBinBytes || [];
+      const startAddress = parseAddressValue(line.block.incBinAddress) ?? 0xC000;
+      const fileName = line.block.incBinFileName || line.block.incBinFile || "?";
+      if (bytes.length > 0) {
+        const expanded = chunkBytes(Array.from(bytes), 16).map((chunk, chunkIndex) => {
+          const chunkAddress = startAddress + (chunkIndex * 16);
+          const byteList = chunk.map((byte) => toHex(byte, 2)).join(", ");
+          return `    ; ${formatAddress(chunkAddress)}\n    .byte ${byteList}`;
+        }).join("\n");
+        deferredDataSections.push({
+          address: startAddress,
+          text: `incbin_${lineNumber}:\n    ; INCBIN "${fileName}" -> ${formatAddress(startAddress)}\n    ; ${formatAddress(startAddress)}\n${expanded}`
+        });
+        return `    ; ${t("incBinDataBelow")}: incbin_${lineNumber} (${bytes.length} bytes)`;
+      }
+      return `    ; INCBIN "${fileName}" @ ${formatAddress(startAddress)} (${currentLanguage === "en" ? "no file loaded" : "nincs betoltott fajl"})`;
+    }
+
+    if (line.block.isIncludeMacro) {
+      const count = (line.block.includedBlocks || []).length;
+      const fname = line.block.includeFileName || "?";
+      if (count === 0) return `    ; INCLUDE "${fname}" (${currentLanguage === "en" ? "no blocks loaded" : "nincsenek blokkok betoltve"})`;
+      return `    ; === INCLUDE "${fname}" — ${count} ${t("includeBlocksCount")} ===`;
     }
 
     if (line.block.isRawTextMacro) {
@@ -4991,6 +5373,24 @@ function renderAsmOutput() {
 
   deferredDataSections.sort((left, right) => left.address - right.address);
 
+  // Build block → character range index for ASM selection
+  asmBlockRanges = {};
+  const headerStr = `*= ${layout.origin.text}\n\n`;
+  let charPos = headerStr.length;
+  codeLines.forEach((codeLine, i) => {
+    const block = layout.lines[i].block;
+    const key = block._fromInclude || (block._fromMacro ? null : block.id);
+    if (key) {
+      const lineEnd = charPos + codeLine.length;
+      if (!asmBlockRanges[key]) {
+        asmBlockRanges[key] = { start: charPos, end: lineEnd };
+      } else {
+        asmBlockRanges[key].end = lineEnd;
+      }
+    }
+    charPos += codeLine.length + 1; // +1 for \n join separator
+  });
+
   asmOutput.textContent = [
     `*= ${layout.origin.text}`,
     "",
@@ -5113,6 +5513,7 @@ async function loadSampleFromFile(sampleName) {
   const sampleData = result.sample;
   originInput.value = sampleData.origin || "0801";
   program = collapseLoadedProgram(sampleData.program);
+  await reloadIncludeBlocks();
 
   renderOriginPreview();
   renderEmulatorRunHint();
@@ -5124,6 +5525,7 @@ async function loadSampleFromFile(sampleName) {
   if (currentFileDisplay) {
     currentFileDisplay.textContent = "";
   }
+  updateWindowTitle(null);
 
   return true;
 }
@@ -5184,8 +5586,69 @@ async function loadUserMacroDemo() {
   await loadSampleFromFile("user-macro-demo");
 }
 
+async function loadIncBinDemo() {
+  const ok = await loadSampleFromFile("incbin-demo");
+  if (!ok) return;
+
+  // Actually load the demo binary file from disk
+  if (window.electronAPI?.loadIncBinSampleFile) {
+    const result = await window.electronAPI.loadIncBinSampleFile("demo-colors.bin");
+    if (result && !result.error) {
+      const incBinIdx = program.findIndex(b => b.isIncBinMacro);
+      if (incBinIdx >= 0) {
+        program[incBinIdx].incBinFileName = result.fileName;
+        program[incBinIdx].incBinFile = result.filePath;
+        program[incBinIdx].incBinBytes = result.bytes;
+        program[incBinIdx].validationError = validateIncBinMacro(result.bytes, program[incBinIdx].incBinAddress);
+        renderProgram();
+      }
+    }
+  }
+}
+
 async function loadSpriteTest3() {
   await loadSampleFromFile("sprite-test-3");
+}
+
+async function loadIncludeDemo() {
+  const ok = await loadSampleFromFile("include-demo");
+  if (!ok) return;
+
+  // Auto-load the library file from the samples folder
+  if (window.electronAPI?.reloadIncludeFile) {
+    const incIdx = program.findIndex(b => b.isIncludeMacro);
+    if (incIdx >= 0) {
+      // Build path to the sample library
+      const sampleResult = await window.electronAPI.loadSample("include-library");
+      if (sampleResult?.ok && sampleResult.sample?.program) {
+        program[incIdx].includedBlocks = sampleResult.sample.program;
+        program[incIdx].includeFileName = "include-library.json";
+        program[incIdx].validationError = "";
+        renderProgram();
+        renderAsmOutput();
+      }
+    }
+  }
+}
+
+async function loadSidDemo() {
+  const ok = await loadSampleFromFile("sid-demo");
+  if (!ok) return;
+
+  if (window.electronAPI?.loadIncBinSampleFile) {
+    const result = await window.electronAPI.loadIncBinSampleFile("Ikari_Intro_music.bin");
+    if (result && !result.error) {
+      const incBinIdx = program.findIndex(b => b.isIncBinMacro);
+      if (incBinIdx >= 0) {
+        program[incBinIdx].incBinFileName = result.fileName;
+        program[incBinIdx].incBinFile = result.filePath;
+        program[incBinIdx].incBinBytes = result.bytes;
+        program[incBinIdx].validationError = "";
+        renderProgram();
+        renderAsmOutput();
+      }
+    }
+  }
 }
 
 // === OLD INLINE CODE BELOW (KEPT FOR REFERENCE, NOT EXECUTED) ===
@@ -5257,6 +5720,21 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "user-macro-demo") {
     loadUserMacroDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "incbin-demo") {
+    loadIncBinDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "include-demo") {
+    loadIncludeDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "sid-demo") {
+    loadSidDemo();
     return;
   }
 
