@@ -32,6 +32,11 @@ function detectViceExecutable() {
   return candidates.find((candidate) => fs.existsSync(candidate)) || "";
 }
 
+ipcMain.handle("window:set-title", (_event, title) => {
+  const win = BrowserWindow.getAllWindows()[0];
+  if (win) win.setTitle(title);
+});
+
 ipcMain.handle("shell:open-external", (_event, url) => {
   shell.openExternal(url);
 });
@@ -49,6 +54,90 @@ ipcMain.handle("vice:get-config", async () => {
   return {
     vicePath: config.vicePath || detectViceExecutable()
   };
+});
+
+ipcMain.handle("include:choose-file", async () => {
+  const result = await dialog.showOpenDialog({
+    title: "Select project file to include",
+    properties: ["openFile"],
+    filters: [
+      { name: "C64 Visual Assembler project", extensions: ["json"] },
+      { name: "All files", extensions: ["*"] }
+    ]
+  });
+  if (result.canceled || !result.filePaths.length) return { canceled: true };
+  try {
+    const filePath = result.filePaths[0];
+    const raw = fs.readFileSync(filePath, "utf8");
+    const project = JSON.parse(raw);
+    if (project.app !== "c64-visual-assembler" || !Array.isArray(project.program)) {
+      return { canceled: false, error: "Not a valid C64 Visual Assembler project." };
+    }
+    return { canceled: false, filePath, fileName: path.basename(filePath), blocks: project.program };
+  } catch (error) {
+    return { canceled: false, error: error.message || "Failed to read file." };
+  }
+});
+
+ipcMain.handle("include:reload-file", async (_event, filePath) => {
+  try {
+    const raw = fs.readFileSync(filePath, "utf8");
+    const project = JSON.parse(raw);
+    if (project.app !== "c64-visual-assembler" || !Array.isArray(project.program)) {
+      return { error: "Not a valid C64 Visual Assembler project." };
+    }
+    return { fileName: path.basename(filePath), blocks: project.program };
+  } catch (error) {
+    return { error: error.message || "Failed to read file." };
+  }
+});
+
+ipcMain.handle("incbin:load-sample-file", async (_event, fileName) => {
+  try {
+    const filePath = path.join(__dirname, "samples", fileName);
+    if (!fs.existsSync(filePath)) {
+      return { error: "Sample file not found: " + fileName };
+    }
+    const buf = fs.readFileSync(filePath);
+    return {
+      fileName,
+      filePath,
+      bytes: Array.from(buf)
+    };
+  } catch (error) {
+    return { error: error.message || "Failed to read sample file." };
+  }
+});
+
+ipcMain.handle("incbin:choose-file", async () => {
+  const result = await dialog.showOpenDialog({
+    title: "Select binary file to include",
+    properties: ["openFile"],
+    filters: [
+      { name: "Binary files", extensions: ["bin", "prg", "sid", "raw"] },
+      { name: "All files", extensions: ["*"] }
+    ]
+  });
+
+  if (result.canceled || !result.filePaths.length) {
+    return { canceled: true };
+  }
+
+  try {
+    const filePath = result.filePaths[0];
+    const buf = fs.readFileSync(filePath);
+    return {
+      canceled: false,
+      filePath,
+      fileName: path.basename(filePath),
+      bytes: Array.from(buf)
+    };
+  } catch (error) {
+    return {
+      canceled: false,
+      error: error.message || "Failed to read file."
+    };
+  }
 });
 
 ipcMain.handle("vice:choose-executable", async () => {
@@ -225,6 +314,9 @@ function createMainWindow() {
   });
 
   mainWindow.loadFile(path.join(__dirname, "index.html"));
+  mainWindow.webContents.on("did-finish-load", () => {
+    mainWindow.setTitle("C64 Visual Assembler");
+  });
 }
 
 app.whenReady().then(() => {
