@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   loadIncBinSampleFile: (fileName) => ipcRenderer.invoke("incbin:load-sample-file", fileName),
   chooseIncludeFile: () => ipcRenderer.invoke("include:choose-file"),
   reloadIncludeFile: (filePath) => ipcRenderer.invoke("include:reload-file", filePath),
+  savePrg: (payload) => ipcRenderer.invoke("prg:save", payload),
   saveProject: (payload) => ipcRenderer.invoke("project:save", payload),
   loadProject: () => ipcRenderer.invoke("project:load"),
   loadSample: (sampleName) => ipcRenderer.invoke("sample:load", sampleName)

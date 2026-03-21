@@ -1,6 +1,6 @@
 {
   "name": "c64-visual-assembler",
-  "version": "1.2.0",
+  "version": "1.2.3",
   "description": "Commodore 64 visual assembler desktop app built with Electron.",
   "author": "Zsolt Tarczali",
   "main": "main.js",
@@ -12,7 +12,7 @@
     "dist:dir": "electron-builder --win dir"
   },
   "build": {
-    "appId": "hu.krissz.c64visualassembler",
+    "appId": "hu.zstarczali.c64visualassembler",
     "productName": "C64 Visual Assembler",
     "directories": {
       "output": "dist"

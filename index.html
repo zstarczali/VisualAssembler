@@ -14,6 +14,7 @@
     <div class="splash-content">
       <h1 class="splash-title">C64 VISUAL ASSEMBLER</h1>
       <p class="splash-subtitle">Commodore 64 Block Programming</p>
+      <p class="splash-version" id="splash-version"></p>
       <div class="splash-loader">
         <div class="splash-loader-bar"></div>
       </div>
@@ -31,6 +32,7 @@
                 <h3 class="control-menu-label">File</h3>
                 <button id="save-project" class="secondary" type="button">Save program</button>
                 <button id="load-project" class="secondary" type="button">Load program</button>
+                <button id="save-prg" class="secondary" type="button">Export to PRG</button>
                 <button id="exit-app" class="secondary" type="button">Kilepes</button>
               </section>
               <section class="control-menu-group">
@@ -91,10 +93,10 @@
                   <button id="zoom-out" class="secondary" type="button">A-</button>
                   <button id="zoom-in" class="secondary" type="button">A+</button>
                 </div>
-                <h3 class="control-menu-label" style="margin-top:4px">Program</h3>
+                <h3 class="control-menu-label control-menu-label--section">Program</h3>
                 <button id="copy-asm" class="secondary" type="button">ASM masolasa</button>
                 <button id="clear-program" class="secondary" type="button">Program torlese</button>
-                <h3 class="control-menu-label" style="margin-top:4px">Info</h3>
+                <h3 class="control-menu-label control-menu-label--section">Info</h3>
                 <button id="about-btn" class="secondary" type="button">About</button>
                 <button id="whats-new-btn" class="secondary" type="button">What's New</button>
                 <button id="check-update-btn" class="secondary" type="button">Check for Update</button>
@@ -161,6 +163,9 @@
           <button id="add-selected" class="primary" type="button">Kivalasztott blokk hozzaadasa</button>
 
           <div id="mnemonic-description" class="mnemonic-card"></div>
+          <div class="palette-search-wrap">
+            <input id="palette-search" class="palette-search-input" type="search" placeholder="Kereses..." autocomplete="off" spellcheck="false">
+          </div>
           <div id="palette-list" class="palette-list" aria-label="Huzhato blokklista"></div>
           </div>
         </aside>
@@ -205,6 +210,12 @@
                 <span>Mindketto</span>
               </label>
             </div>
+          </div>
+          <div class="macro-source-row">
+            <label class="macro-source-toggle" id="macro-source-label" title="Show macro source code in ASM view">
+              <input type="checkbox" id="macro-source-toggle">
+              <span id="macro-source-toggle-text">Macro source</span>
+            </label>
           </div>
           <div class="origin-row">
             <label class="field compact-field">
@@ -272,6 +283,14 @@
     </button>
   </template>
 
+<dialog id="compile-error-dialog" class="compile-error-dialog">
+  <div class="compile-error-card">
+    <h2 class="compile-error-title" id="compile-error-title">Compilation errors</h2>
+    <ul class="compile-error-list" id="compile-error-list"></ul>
+    <button id="compile-error-close" class="primary" type="button">OK</button>
+  </div>
+</dialog>
+
 <dialog id="about-dialog" class="about-dialog">
   <div class="about-card">
     <div class="about-logo">
@@ -281,7 +300,7 @@
       </svg>
     </div>
     <h2 class="about-title">C64 Visual Assembler</h2>
-    <p class="about-version" id="about-version">v1.1.10</p>
+    <p class="about-version" id="about-version">v1.2.3</p>
     <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and dropping instruction blocks.</p>
     <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
     <button id="about-close" class="primary" type="button">Close</button>
@@ -291,26 +310,34 @@
 <dialog id="whats-new-dialog" class="whats-new-dialog">
   <div class="whats-new-card">
     <h2 class="whats-new-title">What's New</h2>
-    <p class="whats-new-version">v1.2.0</p>
+    <p class="whats-new-version">v1.2.3</p>
     <ul class="whats-new-list">
       <li>
-        <strong>Bug fix: Hungarian language label</strong> — the "Language" label in the Settings menu now correctly displays "Nyelv" in Hungarian mode instead of the raw key string.
+        <strong>Category colors — theme-independent</strong> — every block now has a vivid, saturated color accent regardless of light or dark mode. A 3px colored left-edge strip and a bright badge chip make each category instantly recognisable on any background.
       </li>
       <li>
-        <strong>New addressing modes</strong> — <em>INC / DEC</em> now expose <code>Absolute,X</code>; <em>JMP</em> gains <code>Indirect</code> (0x6C); <em>LDX</em> gains <code>Absolute,Y</code> and <code>Zero page,Y</code>; <em>STX</em> gains <code>Zero page,Y</code>.
+        <strong>Export to PRG</strong> — new <em>File</em> menu entry saves the assembled program directly as a <code>.prg</code> file via a native save dialog, without launching VICE.
       </li>
       <li>
-        <strong>Click-to-select ASM</strong> — clicking any block highlights the corresponding assembly source lines in the right panel. The block card gets a colored outline to indicate selection.
+        <strong>Compile error dialog</strong> — if assembly fails (bad operand value, unresolved label, etc.) a dialog lists <em>all</em> errors at once instead of silently refusing to run. Applies to both Run and Export to PRG.
       </li>
       <li>
-        <strong>INCLUDE macro</strong> — embed another project's JSON blocks inline. The included code is fully assembled into the PRG output. Browse for any <em>.json</em> project file; click the block to jump to its assembly.
+        <strong>Macro source toggle</strong> — a checkbox above the ASM view shows or hides the raw <code>MACRO…ENDM</code> source blocks inline. When hidden, only the expanded invoke output is shown. State is saved between sessions.
       </li>
       <li>
-        <strong>SID music player demo</strong> — new sample program using INCBIN to load and play the Ikari Warriors intro via raster IRQ.
-        Music by <em>Thomas E. Petersen (Laxity)</em> — influential Danish SID composer — from the 1988 game <em>2000 A.D.</em>
+        <strong>Bug fix: Hungarian language label</strong> — the "Language" label in the Settings menu now correctly shows "Nyelv" in Hungarian mode.
       </li>
       <li>
-        <strong>INCBIN / INCLUDE UI</strong> — file chooser redesigned with a text input field and a monochrome folder icon button, consistent with the rest of the block controls.
+        <strong>New addressing modes</strong> — <em>INC / DEC</em> expose <code>Absolute,X</code>; <em>JMP</em> gains <code>Indirect</code> (0x6C); <em>LDX</em> gains <code>Absolute,Y</code> and <code>Zero page,Y</code>; <em>STX</em> gains <code>Zero page,Y</code>.
+      </li>
+      <li>
+        <strong>Click-to-select ASM</strong> — clicking a block highlights its corresponding assembly lines in the right panel with a colored outline.
+      </li>
+      <li>
+        <strong>INCLUDE macro</strong> — embed another project's JSON blocks inline; the included code assembles fully into the PRG output.
+      </li>
+      <li>
+        <strong>SID music player demo</strong> — sample program using INCBIN to load and play the Ikari Warriors intro via raster IRQ. Music by <em>Thomas E. Petersen (Laxity)</em>, 1988.
       </li>
     </ul>
     <button id="whats-new-close" class="primary" type="button">OK</button>
