@@ -186,6 +186,7 @@ const mnemonicLibrary = {
 
 const categorySelect = document.getElementById("category-select");
 const mnemonicSelect = document.getElementById("mnemonic-select");
+const paletteSearchInput = document.getElementById("palette-search");
 const operandInput = document.getElementById("operand-input");
 const addressingSelect = document.getElementById("addressing-select");
 const baseInputs = [...document.querySelectorAll('input[name="number-base"]')];
@@ -194,6 +195,7 @@ const languageSelect = document.getElementById("language-select");
 const loadSampleButton = document.getElementById("load-sample");
 const sampleSelect = document.getElementById("sample-select");
 const saveProjectButton = document.getElementById("save-project");
+const savePrgButton = document.getElementById("save-prg");
 const loadProjectButton = document.getElementById("load-project");
 const zoomOutButton = document.getElementById("zoom-out");
 const zoomInButton = document.getElementById("zoom-in");
@@ -228,6 +230,13 @@ const whatsNewButton = document.getElementById("whats-new-btn");
 
 let asmBlockRanges = {};
 let selectedBlockId = null;
+let showMacroSource = false;
+const macroSourceToggle = document.getElementById("macro-source-toggle");
+const macroSourceToggleText = document.getElementById("macro-source-toggle-text");
+const compileErrorDialog = document.getElementById("compile-error-dialog");
+const compileErrorList = document.getElementById("compile-error-list");
+const compileErrorTitle = document.getElementById("compile-error-title");
+const compileErrorClose = document.getElementById("compile-error-close");
 const checkUpdateButton = document.getElementById("check-update-btn");
 const basicSysToggle = document.getElementById("basic-sys-toggle");
 const aboutDialog = document.getElementById("about-dialog");
@@ -255,6 +264,11 @@ const translations = {
     menuProgram: "Program",
     loadSample: "Betoltes",
     saveProject: "Program mentese",
+    savePrg: "Export PRG-kent",
+    savePrgSuccess: "PRG elmentve",
+    savePrgFailed: "PRG mentes sikertelen",
+    macroSourceToggle: "Makro forras",
+    compileErrorTitle: "Forditasi hibak",
     loadProject: "Program betoltese",
     exitApp: "Kilepes",
     themeToggle: "Tema valtasa",
@@ -430,6 +444,11 @@ const translations = {
     menuProgram: "Program",
     loadSample: "Load",
     saveProject: "Save program",
+    savePrg: "Export to PRG",
+    savePrgSuccess: "PRG saved",
+    savePrgFailed: "PRG save failed",
+    macroSourceToggle: "Macro source",
+    compileErrorTitle: "Compilation errors",
     loadProject: "Load program",
     exitApp: "Exit",
     themeToggle: "Toggle theme",
@@ -628,7 +647,8 @@ function saveUiSettings() {
     zoom: blockScale,
     sample: sampleSelect?.value || "basic-colors",
     memoryPanelOpen: !!globalMemoryPanel?.open,
-    basicSys: basicSysToggle ? basicSysToggle.checked : true
+    basicSys: basicSysToggle ? basicSysToggle.checked : true,
+    showMacroSource
   };
 
   localStorage.setItem("c64-ui-settings", JSON.stringify(settings));
@@ -898,6 +918,13 @@ function initPalette() {
     categorySelect.value = categories[0] || "";
   }
 
+  paletteSearchInput.addEventListener("input", () => {
+    renderSearchResults(paletteSearchInput.value);
+  });
+  paletteSearchInput.addEventListener("search", () => {
+    renderSearchResults(paletteSearchInput.value);
+  });
+
   categorySelect.addEventListener("change", () => {
     syncMnemonicMenu();
     saveUiSettings();
@@ -941,10 +968,18 @@ function initPalette() {
   sampleSelect?.addEventListener("change", saveUiSettings);
   loadSampleButton.addEventListener("click", loadSelectedSample);
   saveProjectButton?.addEventListener("click", saveProjectToFile);
+  savePrgButton?.addEventListener("click", savePrgToFile);
   loadProjectButton?.addEventListener("click", loadProjectFromFile);
   zoomOutButton.addEventListener("click", () => adjustZoom(-0.08));
   zoomInButton.addEventListener("click", () => adjustZoom(0.08));
   outputModeInputs.forEach((input) => input.addEventListener("change", renderOutputMode));
+  compileErrorClose?.addEventListener("click", () => compileErrorDialog?.close());
+  compileErrorDialog?.addEventListener("click", (e) => { if (e.target === compileErrorDialog) compileErrorDialog.close(); });
+  macroSourceToggle?.addEventListener("change", () => {
+    showMacroSource = macroSourceToggle.checked;
+    saveUiSettings();
+    renderAsmOutput();
+  });
   addSelectedButton.addEventListener("click", addSelectedBlock);
   clearProgramButton.addEventListener("click", clearProgram);
   collapseAllButton.addEventListener("click", collapseAllBlocks);
@@ -967,6 +1002,12 @@ function initPalette() {
   renderMemoryStrip();
   loadViceConfig();
   saveUiSettings();
+
+  // Populate version on splash screen
+  window.electronAPI.getAppVersion().then(version => {
+    const splashVersion = document.getElementById('splash-version');
+    if (splashVersion) splashVersion.textContent = `v${version}`;
+  });
 
   // Hide splash screen after initialization
   setTimeout(() => {
@@ -1026,6 +1067,11 @@ function applySavedUiSettings() {
 
   if (basicSysToggle) {
     basicSysToggle.checked = savedUiSettings.basicSys !== false;
+  }
+
+  if (macroSourceToggle && savedUiSettings.showMacroSource !== undefined) {
+    showMacroSource = !!savedUiSettings.showMacroSource;
+    macroSourceToggle.checked = showMacroSource;
   }
 }
 
@@ -1091,6 +1137,8 @@ function applyTranslations() {
     setText("#run-emulator .run-label", t("runInEmulator"));
     setText("#copy-asm", t("copyAsm"));
     setText("#save-project", t("saveProject"));
+    setText("#save-prg", t("savePrg"));
+    if (macroSourceToggleText) macroSourceToggleText.textContent = t("macroSourceToggle");
     setText("#load-project", t("loadProject"));
     setText("#exit-app", t("exitApp"));
     exitAppButton?.setAttribute("title", t("exitApp"));
@@ -1101,6 +1149,8 @@ function applyTranslations() {
     copyAsmButton?.setAttribute("aria-label", t("copyAsm"));
     saveProjectButton?.setAttribute("title", t("saveProject"));
     saveProjectButton?.setAttribute("aria-label", t("saveProject"));
+    savePrgButton?.setAttribute("title", t("savePrg"));
+    savePrgButton?.setAttribute("aria-label", t("savePrg"));
     loadProjectButton?.setAttribute("title", t("loadProject"));
     loadProjectButton?.setAttribute("aria-label", t("loadProject"));
     addSelectedButton?.setAttribute("title", t("addSelected"));
@@ -1459,6 +1509,10 @@ function renderMnemonicDescription() {
 }
 
 function renderPaletteItems() {
+  if (paletteSearchInput && paletteSearchInput.value.trim()) {
+    renderSearchResults(paletteSearchInput.value);
+    return;
+  }
   const category = categorySelect.value;
   const items = mnemonicLibrary[category];
   const selectedBase = getSelectedBase();
@@ -1529,6 +1583,98 @@ function renderPaletteItems() {
 
     paletteList.appendChild(node);
   });
+}
+
+function renderSearchResults(query) {
+  const q = query.toLowerCase().trim();
+  paletteList.innerHTML = "";
+  if (!q) {
+    renderPaletteItems();
+    return;
+  }
+
+  const selectedBase = getSelectedBase();
+  const selectedMode = addressingSelect.value;
+  const results = [];
+
+  for (const [category, items] of Object.entries(mnemonicLibrary)) {
+    for (const item of items) {
+      if (
+        item.mnemonic.toLowerCase().includes(q) ||
+        getItemDescription(item).toLowerCase().includes(q) ||
+        getCategoryLabel(category).toLowerCase().includes(q)
+      ) {
+        results.push({ item, category, userMacroName: null });
+      }
+    }
+  }
+
+  const invokeItem = Object.values(mnemonicLibrary).flat().find(i => i.isMacroInvoke);
+  for (const macroName of Object.keys(userMacros)) {
+    if (macroName.toLowerCase().includes(q)) {
+      if (invokeItem) {
+        results.push({ item: invokeItem, category: "Makrok", userMacroName: macroName });
+      }
+    }
+  }
+
+  if (!results.length) {
+    const empty = document.createElement("p");
+    empty.className = "palette-no-results";
+    empty.textContent = currentLanguage === "en" ? "No results." : "Nincs talalat.";
+    paletteList.appendChild(empty);
+    return;
+  }
+
+  let lastCat = null;
+  for (const { item, category, userMacroName } of results) {
+    if (category !== lastCat) {
+      const hdr = document.createElement("p");
+      hdr.className = "palette-search-group";
+      hdr.textContent = getCategoryLabel(category);
+      paletteList.appendChild(hdr);
+      lastCat = category;
+    }
+
+    const defaultMode = item.modes.includes(selectedMode) ? selectedMode : item.modes[0];
+    const node = paletteItemTemplate.content.firstElementChild.cloneNode(true);
+    node.querySelector(".palette-mnemonic").textContent = userMacroName ? `INVOKE: ${userMacroName}` : item.mnemonic;
+    node.querySelector(".palette-description").textContent = userMacroName
+      ? `${currentLanguage === "en" ? "Call user macro" : "Felhasznaloi makro hivasa"}`
+      : getItemDescription(item);
+
+    node.addEventListener("click", () => {
+      categorySelect.value = category;
+      syncMnemonicMenu();
+      mnemonicSelect.value = item.mnemonic;
+      syncAddressingModes();
+    });
+
+    node.addEventListener("dragstart", (event) => {
+      categorySelect.value = category;
+      mnemonicSelect.value = item.mnemonic;
+      syncAddressingModes();
+      if (item.modes.includes(selectedMode)) {
+        addressingSelect.value = selectedMode;
+        updateOperandField();
+      }
+      renderMnemonicDescription();
+      const block = createBlockFromMnemonic(item);
+      if (userMacroName) block.invokeMacroName = userMacroName;
+      dragState = { type: "palette", block };
+      event.dataTransfer.effectAllowed = "copy";
+      event.dataTransfer.setData("text/plain", item.mnemonic);
+      node.classList.add("dragging");
+    });
+
+    node.addEventListener("dragend", () => {
+      dragState = null;
+      node.classList.remove("dragging");
+      clearDropIndicators();
+    });
+
+    paletteList.appendChild(node);
+  }
 }
 
 function getSelectedMnemonic() {
@@ -2027,11 +2173,24 @@ function parseUserMacros() {
       macroStart = i;
       macroName = block.macroName;
     } else if (block.isMacroDefEnd && macroStart >= 0 && macroName) {
-      // Extract blocks between MACRO and ENDM
       const macroBody = program.slice(macroStart + 1, i);
       userMacros[macroName] = macroBody;
       macroStart = -1;
       macroName = null;
+    }
+  }
+
+  // Sync validation errors on all INVOKE blocks with the current macro map
+  for (const block of program) {
+    if (block.isMacroInvoke) {
+      const name = block.invokeMacroName;
+      if (name && userMacros[name]) {
+        block.validationError = "";
+      } else if (!name) {
+        block.validationError = currentLanguage === "en" ? "No macros defined yet" : "Meg nincs definialva makro";
+      } else {
+        block.validationError = currentLanguage === "en" ? `Macro not found: ${name}` : `Makro nem talalhato: ${name}`;
+      }
     }
   }
 }
@@ -2965,6 +3124,37 @@ async function saveProjectToFile() {
   }
 }
 
+function showCompileErrorDialog(errors) {
+  if (!compileErrorDialog || !compileErrorList) return;
+  if (compileErrorTitle) compileErrorTitle.textContent = t("compileErrorTitle");
+  compileErrorList.innerHTML = errors
+    .map(err => `<li>${err.replace(/</g, "&lt;")}</li>`)
+    .join("");
+  compileErrorDialog.showModal();
+}
+
+async function savePrgToFile() {
+  const prg = buildAutostartPrgForEmulator();
+  if (!prg.ok) {
+    if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
+    if (emulatorStatus) emulatorStatus.textContent = prg.error;
+    return;
+  }
+
+  const result = await window.electronAPI.savePrg({ bytes: Array.from(prg.bytes) });
+  if (result?.canceled) return;
+
+  if (!result?.ok) {
+    if (emulatorStatus) emulatorStatus.textContent = result?.error || t("savePrgFailed");
+    return;
+  }
+
+  if (emulatorStatus) {
+    const fileName = result.filePath.split(/[\\/]/).pop();
+    emulatorStatus.textContent = `${t("savePrgSuccess")}: ${fileName}`;
+  }
+}
+
 async function reloadIncludeBlocks() {
   if (!window.electronAPI?.reloadIncludeFile) return;
   for (const block of program) {
@@ -3082,9 +3272,8 @@ async function copyAsmToClipboard() {
 async function runInEmulator() {
   const prg = buildAutostartPrgForEmulator();
   if (!prg.ok) {
-    if (emulatorStatus) {
-      emulatorStatus.textContent = prg.error;
-    }
+    if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
+    if (emulatorStatus) emulatorStatus.textContent = prg.error;
     return;
   }
 
@@ -3187,13 +3376,23 @@ function assembleProgramToPrg(originOverride) {
     }
   });
 
-  // Assemble inline code bytes
+  // Assemble inline code bytes, collecting all errors
   const inlineBytes = [];
+  const compileErrors = [];
   for (const line of layout.lines) {
     if (line.block.isLabel || line.block.isComment || line.block.isIncludeMacro) continue;
     const compiled = compileLineBytes(line, labels);
-    if (!compiled.ok) return { ok: false, error: compiled.error };
-    inlineBytes.push(...compiled.bytes);
+    if (!compiled.ok) {
+      const addr = `$${line.address.toString(16).toUpperCase().padStart(4, "0")}`;
+      const mnemonic = line.block.mnemonic || "?";
+      const operand = line.block.operand ? ` ${line.block.operand}` : "";
+      compileErrors.push(`${addr}  ${mnemonic}${operand} — ${compiled.error}`);
+    } else {
+      inlineBytes.push(...compiled.bytes);
+    }
+  }
+  if (compileErrors.length > 0) {
+    return { ok: false, error: compileErrors[0], errors: compileErrors };
   }
 
   const origin = layout.origin.value;
@@ -3249,6 +3448,14 @@ function assembleProgramToPrg(originOverride) {
 
 function compileLineBytes(line, labels) {
   const block = line.block;
+
+  if (block._isMacroInvokeHeader) {
+    return { ok: true, bytes: [], comment: `Invoke: ${block.invokeMacroName || "?"}` };
+  }
+
+  if (block._macroSourceBlock) {
+    return { ok: true, bytes: [] };
+  }
 
   if (block.validationError) {
     return { ok: false, error: tf("compileInvalidOperand", { mnemonic: block.mnemonic }) };
@@ -3685,6 +3892,10 @@ function formatAddress(value) {
 }
 
 function getInstructionSize(block) {
+  if (block._isMacroInvokeHeader || block._macroSourceBlock) {
+    return 0;
+  }
+
   if (block.isLabel) {
     return 0;
   }
@@ -3830,16 +4041,20 @@ function getProgramLayout(originOverride) {
   let insideMacroDef = false;
 
   for (const block of program) {
-    // Skip macro definition blocks (MACRO...ENDM)
     if (block.isMacroDefStart) {
       insideMacroDef = true;
+      if (showMacroSource) expandedProgram.push(block);
       continue;
     }
     if (block.isMacroDefEnd) {
       insideMacroDef = false;
+      if (showMacroSource) expandedProgram.push(block);
       continue;
     }
     if (insideMacroDef) {
+      if (showMacroSource) {
+        expandedProgram.push({ ...block, _macroSourceBlock: true });
+      }
       continue;
     }
 
@@ -3858,12 +4073,16 @@ function getProgramLayout(originOverride) {
     const macroName = block.isMacroInvoke ? block.invokeMacroName : (userMacros[block.mnemonic] ? block.mnemonic : null);
 
     if (macroName && userMacros[macroName]) {
-      // Expand the macro inline
+      const invokeId = block.id;
+      // Add INVOKE block as a zero-size header line for ASM view selection
+      expandedProgram.push({ ...block, _isMacroInvokeHeader: true });
+      // Expand the macro body inline, linking back to the INVOKE block
       for (const macroBlock of userMacros[macroName]) {
         expandedProgram.push({
           ...macroBlock,
-          id: crypto.randomUUID(),  // New unique ID for the expanded block
-          _fromMacro: macroName  // Mark where this came from
+          id: crypto.randomUUID(),
+          _fromMacro: macroName,
+          _invokeBlockId: invokeId
         });
       }
     } else {
@@ -5154,11 +5373,29 @@ function renderAsmOutput() {
   const codeLines = layout.lines.map((line, index) => {
     const lineNumber = `${(index + 1).toString().padStart(2, "0")}`;
 
+    // Handle INVOKE block header line
+    if (line.block._isMacroInvokeHeader) {
+      return `; >>> Invoke: ${line.block.invokeMacroName || "?"}`;
+    }
+
+    // Handle macro source blocks (body of MACRO/ENDM definition when toggle is on)
+    if (line.block._macroSourceBlock) {
+      if (line.block.isLabel) return `    ${line.block.labelName}:`;
+      if (line.block.isComment) return `    ; ${line.block.rawOperand || ""}`;
+      if (line.block.validationError) {
+        const suffix = line.block.operand ? ` ${line.block.operand}` : "";
+        return `    ${line.block.mnemonic}${suffix}  ; ${t("warningLabel")}: ${line.block.validationError}`;
+      }
+      const suffix = line.block.operand ? ` ${line.block.operand}` : "";
+      return `    ${line.block.mnemonic}${suffix}`;
+    }
+
     // Check if this line came from a macro expansion
     if (line.block._fromMacro) {
       const macroName = line.block._fromMacro;
-      // Only show the macro expansion header once (first block from this macro)
-      const isFirstInMacro = index === 0 || layout.lines[index - 1].block._fromMacro !== macroName;
+      // Show expansion header only for legacy expansions (not INVOKE-based)
+      const isFirstInMacro = !line.block._invokeBlockId &&
+        (index === 0 || layout.lines[index - 1].block._fromMacro !== macroName);
       const prefix = isFirstInMacro ? `; >>> Macro expansion: ${macroName}\n` : "";
 
       // Generate the code for this expanded block
@@ -5400,7 +5637,7 @@ function renderAsmOutput() {
   let charPos = headerStr.length;
   codeLines.forEach((codeLine, i) => {
     const block = layout.lines[i].block;
-    const key = block._fromInclude || (block._fromMacro ? null : block.id);
+    const key = block._fromInclude || (block._fromMacro ? (block._invokeBlockId || null) : block.id);
     if (key) {
       const lineEnd = charPos + codeLine.length;
       if (!asmBlockRanges[key]) {
@@ -5643,7 +5880,7 @@ async function loadIncludeDemo() {
       const sampleResult = await window.electronAPI.loadSample("include-library");
       if (sampleResult?.ok && sampleResult.sample?.program) {
         program[incIdx].includedBlocks = sampleResult.sample.program;
-        program[incIdx].includeFileName = "include-library.json";
+        program[incIdx].includeFileName = "include-library";
         program[incIdx].validationError = "";
         renderProgram();
         renderAsmOutput();
