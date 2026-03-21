@@ -796,6 +796,52 @@ button:focus-visible,
   background-clip: padding-box;
 }
 
+.palette-search-wrap {
+  position: relative;
+  margin: 10px 0;
+}
+
+.palette-search-input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--panel-border);
+  background: var(--input-bg);
+  color: var(--text);
+  font-size: 0.85rem;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.palette-search-input:focus {
+  border-color: var(--primary);
+  outline: 2px solid color-mix(in srgb, var(--primary) 30%, transparent);
+  outline-offset: 0;
+}
+
+.palette-search-input::placeholder {
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+.palette-search-group {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 8px 0 4px;
+  padding: 0 2px;
+}
+
+.palette-no-results {
+  font-size: 0.82rem;
+  color: var(--muted);
+  text-align: center;
+  padding: 20px 0;
+}
+
 .palette-list {
   display: flex;
   flex-direction: column;

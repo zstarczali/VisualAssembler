@@ -186,6 +186,7 @@ const mnemonicLibrary = {
 
 const categorySelect = document.getElementById("category-select");
 const mnemonicSelect = document.getElementById("mnemonic-select");
+const paletteSearchInput = document.getElementById("palette-search");
 const operandInput = document.getElementById("operand-input");
 const addressingSelect = document.getElementById("addressing-select");
 const baseInputs = [...document.querySelectorAll('input[name="number-base"]')];
@@ -917,6 +918,13 @@ function initPalette() {
     categorySelect.value = categories[0] || "";
   }
 
+  paletteSearchInput.addEventListener("input", () => {
+    renderSearchResults(paletteSearchInput.value);
+  });
+  paletteSearchInput.addEventListener("search", () => {
+    renderSearchResults(paletteSearchInput.value);
+  });
+
   categorySelect.addEventListener("change", () => {
     syncMnemonicMenu();
     saveUiSettings();
@@ -1501,6 +1509,10 @@ function renderMnemonicDescription() {
 }
 
 function renderPaletteItems() {
+  if (paletteSearchInput && paletteSearchInput.value.trim()) {
+    renderSearchResults(paletteSearchInput.value);
+    return;
+  }
   const category = categorySelect.value;
   const items = mnemonicLibrary[category];
   const selectedBase = getSelectedBase();
@@ -1571,6 +1583,98 @@ function renderPaletteItems() {
 
     paletteList.appendChild(node);
   });
+}
+
+function renderSearchResults(query) {
+  const q = query.toLowerCase().trim();
+  paletteList.innerHTML = "";
+  if (!q) {
+    renderPaletteItems();
+    return;
+  }
+
+  const selectedBase = getSelectedBase();
+  const selectedMode = addressingSelect.value;
+  const results = [];
+
+  for (const [category, items] of Object.entries(mnemonicLibrary)) {
+    for (const item of items) {
+      if (
+        item.mnemonic.toLowerCase().includes(q) ||
+        getItemDescription(item).toLowerCase().includes(q) ||
+        getCategoryLabel(category).toLowerCase().includes(q)
+      ) {
+        results.push({ item, category, userMacroName: null });
+      }
+    }
+  }
+
+  const invokeItem = Object.values(mnemonicLibrary).flat().find(i => i.isMacroInvoke);
+  for (const macroName of Object.keys(userMacros)) {
+    if (macroName.toLowerCase().includes(q)) {
+      if (invokeItem) {
+        results.push({ item: invokeItem, category: "Makrok", userMacroName: macroName });
+      }
+    }
+  }
+
+  if (!results.length) {
+    const empty = document.createElement("p");
+    empty.className = "palette-no-results";
+    empty.textContent = currentLanguage === "en" ? "No results." : "Nincs talalat.";
+    paletteList.appendChild(empty);
+    return;
+  }
+
+  let lastCat = null;
+  for (const { item, category, userMacroName } of results) {
+    if (category !== lastCat) {
+      const hdr = document.createElement("p");
+      hdr.className = "palette-search-group";
+      hdr.textContent = getCategoryLabel(category);
+      paletteList.appendChild(hdr);
+      lastCat = category;
+    }
+
+    const defaultMode = item.modes.includes(selectedMode) ? selectedMode : item.modes[0];
+    const node = paletteItemTemplate.content.firstElementChild.cloneNode(true);
+    node.querySelector(".palette-mnemonic").textContent = userMacroName ? `INVOKE: ${userMacroName}` : item.mnemonic;
+    node.querySelector(".palette-description").textContent = userMacroName
+      ? `${currentLanguage === "en" ? "Call user macro" : "Felhasznaloi makro hivasa"}`
+      : getItemDescription(item);
+
+    node.addEventListener("click", () => {
+      categorySelect.value = category;
+      syncMnemonicMenu();
+      mnemonicSelect.value = item.mnemonic;
+      syncAddressingModes();
+    });
+
+    node.addEventListener("dragstart", (event) => {
+      categorySelect.value = category;
+      mnemonicSelect.value = item.mnemonic;
+      syncAddressingModes();
+      if (item.modes.includes(selectedMode)) {
+        addressingSelect.value = selectedMode;
+        updateOperandField();
+      }
+      renderMnemonicDescription();
+      const block = createBlockFromMnemonic(item);
+      if (userMacroName) block.invokeMacroName = userMacroName;
+      dragState = { type: "palette", block };
+      event.dataTransfer.effectAllowed = "copy";
+      event.dataTransfer.setData("text/plain", item.mnemonic);
+      node.classList.add("dragging");
+    });
+
+    node.addEventListener("dragend", () => {
+      dragState = null;
+      node.classList.remove("dragging");
+      clearDropIndicators();
+    });
+
+    paletteList.appendChild(node);
+  }
 }
 
 function getSelectedMnemonic() {
