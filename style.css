@@ -309,6 +309,10 @@ h1 {
   color: var(--muted);
 }
 
+.control-menu-label--section {
+  margin-top: 4px;
+}
+
 .control-menu-inline {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1371,7 +1375,35 @@ button:focus-visible,
 }
 
 .output-toolbar {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
+}
+
+.macro-source-row {
+  margin-bottom: 10px;
+  line-height: 1;
+}
+
+.macro-source-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  padding: 2px 0;
+}
+
+.macro-source-toggle input[type="checkbox"] {
+  accent-color: var(--primary);
+  width: 13px;
+  height: 13px;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .view-mode-toggle {
@@ -1829,6 +1861,60 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
 }
 
 
+/* ── Compile Error Dialog ──────────────────────────────────────── */
+.compile-error-dialog {
+  border: none;
+  border-radius: 16px;
+  padding: 0;
+  background: var(--panel);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  min-width: 380px;
+  max-width: 560px;
+  width: 90vw;
+}
+
+.compile-error-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.compile-error-card {
+  padding: 28px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.compile-error-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.compile-error-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.compile-error-list li {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.8rem;
+  color: var(--text);
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  border-left: 3px solid var(--primary);
+  padding: 7px 10px;
+  border-radius: 0 6px 6px 0;
+  line-height: 1.4;
+}
+
 /* ── About Dialog ────────────────────────────────────────────────── */
 .about-dialog {
   border: none;
@@ -2045,9 +2131,16 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 1rem;
   color: var(--muted);
-  margin: 0 0 2rem 0;
+  margin: 0 0 0.5rem 0;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+}
+
+.splash-version {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  color: #2e1f7a;
+  margin: 0 0 2rem 0;
 }
 
 .splash-loader {
