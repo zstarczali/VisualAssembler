@@ -1131,7 +1131,7 @@ function applyTranslations() {
     setText(".program-panel .panel-heading h2", t("programTitle"));
     setText(".program-panel .panel-heading p", t("programHelp"));
     setText(".output-panel .panel-heading h2", t("asmTitle"));
-    setText(".output-panel .panel-heading p", t("asmHelp"));
+    setText(".output-panel .panel-heading > p", t("asmHelp"));
     setText(".global-memory-panel .panel-heading h2", t("memoryTitle"));
     setText(".global-memory-panel .panel-heading p", t("memoryHelp"));
 

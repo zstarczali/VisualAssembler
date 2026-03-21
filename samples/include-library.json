@@ -32,7 +32,7 @@
     },
     {
       "id": "lib-sta-d020",
-      "category": "Tarolasok",
+      "category": "Adatmozgas",
       "mnemonic": "STA",
       "operand": "$D020",
       "rawOperand": "D020",
@@ -83,7 +83,7 @@
     },
     {
       "id": "lib-sta-d021",
-      "category": "Tarolasok",
+      "category": "Adatmozgas",
       "mnemonic": "STA",
       "operand": "$D021",
       "rawOperand": "D021",
