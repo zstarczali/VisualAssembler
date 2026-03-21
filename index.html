@@ -267,14 +267,18 @@
             </div>
             <button class="collapse-toggle" type="button" aria-label="Osszecsukas" title="Osszecsukas">&#9662;</button>
           </div>
-          <div class="block-controls">
-            <label class="inline-field">
-            <span>Operandus</span>
-            <input class="block-operand" type="text">
-          </label>
-        </div>
-        <span class="block-description-label"></span>
-        <p class="block-description"></p>
+          <div class="block-body">
+            <div class="block-body-inner">
+              <div class="block-controls">
+                <label class="inline-field">
+                <span>Operandus</span>
+                <input class="block-operand" type="text">
+              </label>
+            </div>
+            <span class="block-description-label"></span>
+            <p class="block-description"></p>
+            </div>
+          </div>
       </div>
       <div class="block-actions">
         <button class="move-up" type="button" aria-label="Fel" title="Fel">&#8593;</button>
@@ -308,7 +312,7 @@
       </svg>
     </div>
     <h2 class="about-title">C64 Visual Assembler</h2>
-    <p class="about-version" id="about-version">v1.2.5</p>
+    <p class="about-version" id="about-version">v1.2.6</p>
     <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and dropping instruction blocks.</p>
     <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
     <button id="about-close" class="primary" type="button">Close</button>
@@ -318,8 +322,11 @@
 <dialog id="whats-new-dialog" class="whats-new-dialog">
   <div class="whats-new-card">
     <h2 class="whats-new-title">What's New</h2>
-    <p class="whats-new-version">v1.2.5</p>
+    <p class="whats-new-version">v1.2.6</p>
     <ul class="whats-new-list">
+      <li>
+        <strong>UI improvements</strong> — block collapse/expand is now animated with a smooth slide. Buttons are more compact and consistent across the interface. The version number is now visible in dark mode on the splash screen.
+      </li>
       <li>
         <strong>Mnemonic search</strong> — type in the palette search box to instantly filter instructions, macros, and categories by name or description. Results update as you type.
       </li>
