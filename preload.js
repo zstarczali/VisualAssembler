@@ -10,6 +10,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   launchVice: (payload) => ipcRenderer.invoke("vice:launch", payload),
   chooseIncBinFile: () => ipcRenderer.invoke("incbin:choose-file"),
   loadIncBinSampleFile: (fileName) => ipcRenderer.invoke("incbin:load-sample-file", fileName),
+  chooseSidFile: () => ipcRenderer.invoke("sid:choose-file"),
+  loadSidSampleFile: (fileName) => ipcRenderer.invoke("sid:load-sample-file", fileName),
   chooseIncludeFile: () => ipcRenderer.invoke("include:choose-file"),
   reloadIncludeFile: (filePath) => ipcRenderer.invoke("include:reload-file", filePath),
   savePrg: (payload) => ipcRenderer.invoke("prg:save", payload),

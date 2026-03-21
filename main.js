@@ -93,6 +93,64 @@ ipcMain.handle("include:reload-file", async (_event, filePath) => {
   }
 });
 
+function parseSidBuffer(buf) {
+  const magic = buf.slice(0, 4).toString("ascii");
+  if (magic !== "PSID" && magic !== "RSID") {
+    return { error: "Not a valid SID file (missing PSID/RSID header)." };
+  }
+  const dataOffset = (buf[6] << 8) | buf[7];
+  let loadAddress  = (buf[8] << 8) | buf[9];
+  const initAddress = (buf[10] << 8) | buf[11];
+  const playAddress = (buf[12] << 8) | buf[13];
+  const numSongs    = (buf[14] << 8) | buf[15];
+  const startSong   = (buf[16] << 8) | buf[17];
+
+  let title = ""; for (let i = 22; i < 54 && buf[i]; i++) title += String.fromCharCode(buf[i]);
+  let author = ""; for (let i = 54; i < 86 && buf[i]; i++) author += String.fromCharCode(buf[i]);
+  let copyright = ""; for (let i = 86; i < 118 && buf[i]; i++) copyright += String.fromCharCode(buf[i]);
+
+  let dataBytes = buf.slice(dataOffset);
+  if (loadAddress === 0) {
+    loadAddress = dataBytes[0] | (dataBytes[1] << 8);
+    dataBytes = dataBytes.slice(2);
+  }
+  return { loadAddress, initAddress, playAddress, numSongs, startSong, title, author, copyright, bytes: Array.from(dataBytes) };
+}
+
+ipcMain.handle("sid:choose-file", async () => {
+  const result = await dialog.showOpenDialog({
+    title: "Select SID file",
+    properties: ["openFile"],
+    filters: [
+      { name: "SID files", extensions: ["sid"] },
+      { name: "All files", extensions: ["*"] }
+    ]
+  });
+  if (result.canceled || !result.filePaths.length) return { canceled: true };
+  try {
+    const filePath = result.filePaths[0];
+    const buf = fs.readFileSync(filePath);
+    const parsed = parseSidBuffer(buf);
+    if (parsed.error) return { canceled: false, error: parsed.error };
+    return { canceled: false, filePath, fileName: path.basename(filePath), ...parsed };
+  } catch (error) {
+    return { canceled: false, error: error.message || "Failed to read SID file." };
+  }
+});
+
+ipcMain.handle("sid:load-sample-file", async (_event, fileName) => {
+  try {
+    const filePath = path.join(__dirname, "samples", fileName);
+    if (!fs.existsSync(filePath)) return { error: "Sample SID file not found: " + fileName };
+    const buf = fs.readFileSync(filePath);
+    const parsed = parseSidBuffer(buf);
+    if (parsed.error) return { error: parsed.error };
+    return { filePath, fileName, ...parsed };
+  } catch (error) {
+    return { error: error.message || "Failed to read SID file." };
+  }
+});
+
 ipcMain.handle("incbin:load-sample-file", async (_event, fileName) => {
   try {
     const filePath = path.join(__dirname, "samples", fileName);

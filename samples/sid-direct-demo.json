@@ -1,14 +1,35 @@
 {
-  "version": 1,
   "app": "c64-visual-assembler",
-  "origin": "0801",
+  "version": "1.2.3",
+  "origin": "0810",
   "program": [
     {
-      "id": "sid-demo-comment-1",
+      "id": "sdd-sid",
+      "category": "Makrok",
+      "mnemonic": "SID",
+      "operand": "",
+      "rawOperand": "",
+      "description": "SID zenefajl betoltese kozvetlenul a memoriaba.",
+      "addressingMode": "implied",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true,
+      "isSidMacro": true,
+      "sidFile": "",
+      "sidFileName": "",
+      "sidTitle": "",
+      "sidAuthor": "",
+      "sidLoadAddress": 0,
+      "sidInitAddress": 0,
+      "sidPlayAddress": 0,
+      "sidBytes": []
+    },
+    {
+      "id": "sdd-c1",
       "category": "Szerkezet",
       "mnemonic": "COMMENT",
-      "operand": "SID music player demo — Ikari Warriors intro",
-      "rawOperand": "SID music player demo — Ikari Warriors intro",
+      "operand": "SID Direct Demo — Ikari Warriors (Laxity)",
+      "rawOperand": "SID Direct Demo — Ikari Warriors (Laxity)",
       "description": "",
       "addressingMode": "implied",
       "base": "comment",
@@ -17,11 +38,11 @@
       "isComment": true
     },
     {
-      "id": "sid-demo-comment-2",
+      "id": "sdd-c2",
       "category": "Szerkezet",
       "mnemonic": "COMMENT",
-      "operand": "Music loaded via INCBIN at $1000. Init=$1000, Play=$1006.",
-      "rawOperand": "Music loaded via INCBIN at $1000. Init=$1000, Play=$1006.",
+      "operand": "SID loaded directly — no .bin conversion needed. NOTE: only works with SIDs that load into free RAM ($0900-$9FFF). SIDs loading into KERNAL ($E000-$FFFF) or BASIC ROM ($A000-$BFFF) areas require bank-switching and will not play with this simple demo.",
+      "rawOperand": "SID loaded directly — no .bin conversion needed. NOTE: only works with SIDs that load into free RAM ($0900-$9FFF). SIDs loading into KERNAL ($E000-$FFFF) or BASIC ROM ($A000-$BFFF) areas require bank-switching and will not play with this simple demo.",
       "description": "",
       "addressingMode": "implied",
       "base": "comment",
@@ -30,20 +51,7 @@
       "isComment": true
     },
     {
-      "id": "sid-demo-comment-3",
-      "category": "Szerkezet",
-      "mnemonic": "COMMENT",
-      "operand": "Raster IRQ calls play routine every frame (line $C0).",
-      "rawOperand": "Raster IRQ calls play routine every frame (line $C0).",
-      "description": "",
-      "addressingMode": "implied",
-      "base": "comment",
-      "validationError": "",
-      "collapsed": true,
-      "isComment": true
-    },
-    {
-      "id": "sid-demo-sei",
+      "id": "sdd-sei",
       "category": "Rendszer",
       "mnemonic": "SEI",
       "operand": "",
@@ -55,11 +63,11 @@
       "collapsed": true
     },
     {
-      "id": "sid-demo-comment-init",
+      "id": "sdd-c-init",
       "category": "Szerkezet",
       "mnemonic": "COMMENT",
-      "operand": "Init SID music — song 0",
-      "rawOperand": "Init SID music — song 0",
+      "operand": "Init SID first (while CIA1 still active): A=0 selects song 1",
+      "rawOperand": "Init SID first (while CIA1 still active): A=0 selects song 1",
       "description": "",
       "addressingMode": "implied",
       "base": "comment",
@@ -68,11 +76,11 @@
       "isComment": true
     },
     {
-      "id": "sid-demo-lda-song",
-      "category": "Betoltes",
+      "id": "sdd-lda-00a",
+      "category": "Adatmozgatas",
       "mnemonic": "LDA",
       "operand": "#$00",
-      "rawOperand": "00",
+      "rawOperand": "#$00",
       "description": "",
       "addressingMode": "immediate",
       "base": "hex",
@@ -80,11 +88,11 @@
       "collapsed": true
     },
     {
-      "id": "sid-demo-jsr-init",
+      "id": "sdd-jsr-init",
       "category": "Ugrasok",
       "mnemonic": "JSR",
       "operand": "$1000",
-      "rawOperand": "1000",
+      "rawOperand": "$1000",
       "description": "",
       "addressingMode": "absolute",
       "base": "hex",
@@ -92,7 +100,7 @@
       "collapsed": true
     },
     {
-      "id": "sid-demo-comment-text",
+      "id": "sdd-comment-text",
       "category": "Szerkezet",
       "mnemonic": "COMMENT",
       "operand": "Clear screen and print info text",
@@ -105,11 +113,11 @@
       "isComment": true
     },
     {
-      "id": "sid-demo-jsr-e544",
+      "id": "sdd-jsr-e544",
       "category": "Ugrasok",
       "mnemonic": "JSR",
       "operand": "$E544",
-      "rawOperand": "E544",
+      "rawOperand": "$E544",
       "description": "",
       "addressingMode": "absolute",
       "base": "hex",
@@ -117,7 +125,7 @@
       "collapsed": true
     },
     {
-      "id": "sid-demo-text-1",
+      "id": "sdd-text-1",
       "category": "Makrok",
       "mnemonic": "TEXT",
       "operand": "SAMPLE PROGRAM USING",
@@ -132,7 +140,7 @@
       "collapsed": true
     },
     {
-      "id": "sid-demo-text-2",
+      "id": "sdd-text-2",
       "category": "Makrok",
       "mnemonic": "TEXT",
       "operand": "IKARI WARRIORS SID INTRO",
@@ -147,7 +155,7 @@
       "collapsed": true
     },
     {
-      "id": "sid-demo-text-3",
+      "id": "sdd-text-3",
       "category": "Makrok",
       "mnemonic": "TEXT",
       "operand": "VIA RASTER IRQ",
@@ -162,7 +170,7 @@
       "collapsed": true
     },
     {
-      "id": "sid-demo-text-4",
+      "id": "sdd-text-4",
       "category": "Makrok",
       "mnemonic": "TEXT",
       "operand": "MUSIC BY THOMAS E. PETERSEN",
@@ -177,7 +185,7 @@
       "collapsed": true
     },
     {
-      "id": "sid-demo-text-5",
+      "id": "sdd-text-5",
       "category": "Makrok",
       "mnemonic": "TEXT",
       "operand": "(LAXITY)",
@@ -192,11 +200,11 @@
       "collapsed": true
     },
     {
-      "id": "sid-demo-comment-irq",
+      "id": "sdd-c-cia",
       "category": "Szerkezet",
       "mnemonic": "COMMENT",
-      "operand": "Setup raster IRQ — disable CIA1 timer, enable VIC raster",
-      "rawOperand": "Setup raster IRQ — disable CIA1 timer, enable VIC raster",
+      "operand": "Disable CIA1 timer IRQ after SID init (prevents double-firing)",
+      "rawOperand": "Disable CIA1 timer IRQ after SID init (prevents double-firing)",
       "description": "",
       "addressingMode": "implied",
       "base": "comment",
@@ -205,11 +213,11 @@
       "isComment": true
     },
     {
-      "id": "sid-demo-lda-7f",
-      "category": "Betoltes",
+      "id": "sdd-lda-7f",
+      "category": "Adatmozgatas",
       "mnemonic": "LDA",
       "operand": "#$7F",
-      "rawOperand": "7F",
+      "rawOperand": "#$7F",
       "description": "",
       "addressingMode": "immediate",
       "base": "hex",
@@ -217,11 +225,11 @@
       "collapsed": true
     },
     {
-      "id": "sid-demo-sta-dc0d",
-      "category": "Tarolasok",
+      "id": "sdd-sta-dc0d",
+      "category": "Adatmozgatas",
       "mnemonic": "STA",
       "operand": "$DC0D",
-      "rawOperand": "DC0D",
+      "rawOperand": "$DC0D",
       "description": "",
       "addressingMode": "absolute",
       "base": "hex",
@@ -229,83 +237,11 @@
       "collapsed": true
     },
     {
-      "id": "sid-demo-lda-01",
-      "category": "Betoltes",
-      "mnemonic": "LDA",
-      "operand": "#$01",
-      "rawOperand": "01",
-      "description": "",
-      "addressingMode": "immediate",
-      "base": "hex",
-      "validationError": "",
-      "collapsed": true
-    },
-    {
-      "id": "sid-demo-sta-d01a",
-      "category": "Tarolasok",
-      "mnemonic": "STA",
-      "operand": "$D01A",
-      "rawOperand": "D01A",
-      "description": "",
-      "addressingMode": "absolute",
-      "base": "hex",
-      "validationError": "",
-      "collapsed": true
-    },
-    {
-      "id": "sid-demo-lda-1b",
-      "category": "Betoltes",
-      "mnemonic": "LDA",
-      "operand": "#$1B",
-      "rawOperand": "1B",
-      "description": "",
-      "addressingMode": "immediate",
-      "base": "hex",
-      "validationError": "",
-      "collapsed": true
-    },
-    {
-      "id": "sid-demo-sta-d011",
-      "category": "Tarolasok",
-      "mnemonic": "STA",
-      "operand": "$D011",
-      "rawOperand": "D011",
-      "description": "",
-      "addressingMode": "absolute",
-      "base": "hex",
-      "validationError": "",
-      "collapsed": true
-    },
-    {
-      "id": "sid-demo-lda-c0",
-      "category": "Betoltes",
-      "mnemonic": "LDA",
-      "operand": "#$C0",
-      "rawOperand": "C0",
-      "description": "",
-      "addressingMode": "immediate",
-      "base": "hex",
-      "validationError": "",
-      "collapsed": true
-    },
-    {
-      "id": "sid-demo-sta-d012",
-      "category": "Tarolasok",
-      "mnemonic": "STA",
-      "operand": "$D012",
-      "rawOperand": "D012",
-      "description": "",
-      "addressingMode": "absolute",
-      "base": "hex",
-      "validationError": "",
-      "collapsed": true
-    },
-    {
-      "id": "sid-demo-comment-vec",
+      "id": "sdd-c-vic",
       "category": "Szerkezet",
       "mnemonic": "COMMENT",
-      "operand": "Set IRQ vector $0314/$0315 to irq handler",
-      "rawOperand": "Set IRQ vector $0314/$0315 to irq handler",
+      "operand": "Enable VIC raster IRQ, set raster line $C0",
+      "rawOperand": "Enable VIC raster IRQ, set raster line $C0",
       "description": "",
       "addressingMode": "implied",
       "base": "comment",
@@ -314,8 +250,93 @@
       "isComment": true
     },
     {
-      "id": "sid-demo-lda-irqlo",
-      "category": "Betoltes",
+      "id": "sdd-lda-01",
+      "category": "Adatmozgatas",
+      "mnemonic": "LDA",
+      "operand": "#$01",
+      "rawOperand": "#$01",
+      "description": "",
+      "addressingMode": "immediate",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    },
+    {
+      "id": "sdd-sta-d01a",
+      "category": "Adatmozgatas",
+      "mnemonic": "STA",
+      "operand": "$D01A",
+      "rawOperand": "$D01A",
+      "description": "",
+      "addressingMode": "absolute",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    },
+    {
+      "id": "sdd-lda-1b",
+      "category": "Adatmozgatas",
+      "mnemonic": "LDA",
+      "operand": "#$1B",
+      "rawOperand": "#$1B",
+      "description": "",
+      "addressingMode": "immediate",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    },
+    {
+      "id": "sdd-sta-d011",
+      "category": "Adatmozgatas",
+      "mnemonic": "STA",
+      "operand": "$D011",
+      "rawOperand": "$D011",
+      "description": "",
+      "addressingMode": "absolute",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    },
+    {
+      "id": "sdd-lda-c0",
+      "category": "Adatmozgatas",
+      "mnemonic": "LDA",
+      "operand": "#$C0",
+      "rawOperand": "#$C0",
+      "description": "",
+      "addressingMode": "immediate",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    },
+    {
+      "id": "sdd-sta-d012",
+      "category": "Adatmozgatas",
+      "mnemonic": "STA",
+      "operand": "$D012",
+      "rawOperand": "$D012",
+      "description": "",
+      "addressingMode": "absolute",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    },
+    {
+      "id": "sdd-c6",
+      "category": "Szerkezet",
+      "mnemonic": "COMMENT",
+      "operand": "Point IRQ vector ($0314/$0315) at our handler",
+      "rawOperand": "Point IRQ vector ($0314/$0315) at our handler",
+      "description": "",
+      "addressingMode": "implied",
+      "base": "comment",
+      "validationError": "",
+      "collapsed": true,
+      "isComment": true
+    },
+    {
+      "id": "sdd-lda-lo",
+      "category": "Adatmozgatas",
       "mnemonic": "LDA",
       "operand": "#<irq",
       "rawOperand": "#<irq",
@@ -326,11 +347,11 @@
       "collapsed": true
     },
     {
-      "id": "sid-demo-sta-0314",
-      "category": "Tarolasok",
+      "id": "sdd-sta-0314",
+      "category": "Adatmozgatas",
       "mnemonic": "STA",
       "operand": "$0314",
-      "rawOperand": "0314",
+      "rawOperand": "$0314",
       "description": "",
       "addressingMode": "absolute",
       "base": "hex",
@@ -338,8 +359,8 @@
       "collapsed": true
     },
     {
-      "id": "sid-demo-lda-irqhi",
-      "category": "Betoltes",
+      "id": "sdd-lda-hi",
+      "category": "Adatmozgatas",
       "mnemonic": "LDA",
       "operand": "#>irq",
       "rawOperand": "#>irq",
@@ -350,11 +371,11 @@
       "collapsed": true
     },
     {
-      "id": "sid-demo-sta-0315",
-      "category": "Tarolasok",
+      "id": "sdd-sta-0315",
+      "category": "Adatmozgatas",
       "mnemonic": "STA",
       "operand": "$0315",
-      "rawOperand": "0315",
+      "rawOperand": "$0315",
       "description": "",
       "addressingMode": "absolute",
       "base": "hex",
@@ -362,7 +383,7 @@
       "collapsed": true
     },
     {
-      "id": "sid-demo-cli",
+      "id": "sdd-cli",
       "category": "Rendszer",
       "mnemonic": "CLI",
       "operand": "",
@@ -374,7 +395,7 @@
       "collapsed": true
     },
     {
-      "id": "sid-demo-label-loop",
+      "id": "sdd-label-loop",
       "category": "Szerkezet",
       "mnemonic": "LABEL",
       "operand": "loop",
@@ -388,7 +409,7 @@
       "labelName": "loop"
     },
     {
-      "id": "sid-demo-jmp-loop",
+      "id": "sdd-jmp-loop",
       "category": "Ugrasok",
       "mnemonic": "JMP",
       "operand": "loop",
@@ -400,11 +421,11 @@
       "collapsed": true
     },
     {
-      "id": "sid-demo-comment-irqh",
+      "id": "sdd-c8",
       "category": "Szerkezet",
       "mnemonic": "COMMENT",
-      "operand": "IRQ handler — call SID play, acknowledge VIC interrupt",
-      "rawOperand": "IRQ handler — call SID play, acknowledge VIC interrupt",
+      "operand": "=== IRQ handler: call SID play, ack VIC raster, KERNAL exit ===",
+      "rawOperand": "=== IRQ handler: call SID play, ack VIC raster, KERNAL exit ===",
       "description": "",
       "addressingMode": "implied",
       "base": "comment",
@@ -413,7 +434,7 @@
       "isComment": true
     },
     {
-      "id": "sid-demo-label-irq",
+      "id": "sdd-label-irq",
       "category": "Szerkezet",
       "mnemonic": "LABEL",
       "operand": "irq",
@@ -427,11 +448,11 @@
       "labelName": "irq"
     },
     {
-      "id": "sid-demo-jsr-play",
+      "id": "sdd-jsr-play",
       "category": "Ugrasok",
       "mnemonic": "JSR",
       "operand": "$1006",
-      "rawOperand": "1006",
+      "rawOperand": "$1006",
       "description": "",
       "addressingMode": "absolute",
       "base": "hex",
@@ -439,11 +460,11 @@
       "collapsed": true
     },
     {
-      "id": "sid-demo-lda-d019",
-      "category": "Betoltes",
+      "id": "sdd-lda-d019",
+      "category": "Adatmozgatas",
       "mnemonic": "LDA",
       "operand": "$D019",
-      "rawOperand": "D019",
+      "rawOperand": "$D019",
       "description": "",
       "addressingMode": "absolute",
       "base": "hex",
@@ -451,11 +472,11 @@
       "collapsed": true
     },
     {
-      "id": "sid-demo-sta-d019",
-      "category": "Tarolasok",
+      "id": "sdd-sta-d019",
+      "category": "Adatmozgatas",
       "mnemonic": "STA",
       "operand": "$D019",
-      "rawOperand": "D019",
+      "rawOperand": "$D019",
       "description": "",
       "addressingMode": "absolute",
       "base": "hex",
@@ -463,41 +484,16 @@
       "collapsed": true
     },
     {
-      "id": "sid-demo-jmp-ea31",
+      "id": "sdd-jmp-ea31",
       "category": "Ugrasok",
       "mnemonic": "JMP",
       "operand": "$EA31",
-      "rawOperand": "EA31",
+      "rawOperand": "$EA31",
       "description": "",
       "addressingMode": "absolute",
       "base": "hex",
       "validationError": "",
       "collapsed": true
-    },
-    {
-      "id": "sid-demo-incbin",
-      "category": "Makrok",
-      "mnemonic": "INCBIN",
-      "operand": "",
-      "rawOperand": "",
-      "description": "Kulso binarfajl beillesztese megadott memoriacimtol, kod generalas nelkul.",
-      "addressingMode": "implied",
-      "base": "hex",
-      "validationError": "",
-      "collapsed": true,
-      "isIncBinMacro": true,
-      "incBinFile": "",
-      "incBinFileName": "Ikari_Intro_music.bin",
-      "incBinAddress": "$1000",
-      "incBinBytes": []
     }
-  ],
-  "ui": {
-    "sample": "sid-demo",
-    "outputMode": "asm",
-    "numberBase": "hex",
-    "zoom": 1,
-    "language": "en",
-    "theme": "dark"
-  }
+  ]
 }
