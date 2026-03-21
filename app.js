@@ -330,6 +330,8 @@ const translations = {
     sampleSidDemo: "SID zenelejatszas (Ikari Warriors)",
     checkForUpdate: "Frissites keresese",
     whatsNew: "Ujdonsagok",
+    paletteSearchPlaceholder: "Kereses...",
+    paletteSearchLabel: "Kereses",
     basicSysLabel: "BASIC SYS stub generálása",
     collapseAll: "Osszes osszecsukasa",
     expandAll: "Osszes kinyitasa",
@@ -406,6 +408,11 @@ const translations = {
       kernalRomLabel: "KERNAL ROM",
       kernalRomNote: "Rendszer ROM rutinok."
     },
+    sidFileLabel: "SID fajl",
+    sidFilePlaceholder: "Nincs SID fajl kivalasztva",
+    sidFileBrowse: "SID fajl tallozas",
+    blockDescriptionLabel: "Leiras:",
+    mnemonicCardLabel: "Leiras",
     darkMode: "Dark mode",
     lightMode: "Light mode",
     emptyState: "Huzz ide egy blokkot a bal oldali palettarol.",
@@ -511,6 +518,8 @@ const translations = {
     languageLabel: "Language",
     checkForUpdate: "Check for Update",
     whatsNew: "What's New",
+    paletteSearchPlaceholder: "Search...",
+    paletteSearchLabel: "Search",
     basicSysLabel: "Generate BASIC SYS stub",
     collapseAll: "Collapse all",
     expandAll: "Expand all",
@@ -587,6 +596,11 @@ const translations = {
       kernalRomLabel: "KERNAL ROM",
       kernalRomNote: "System ROM routines."
     },
+    sidFileLabel: "SID file",
+    sidFilePlaceholder: "No SID file selected",
+    sidFileBrowse: "Browse SID file",
+    blockDescriptionLabel: "Description:",
+    mnemonicCardLabel: "Description",
     darkMode: "Dark mode",
     lightMode: "Light mode",
     emptyState: "Drag a block here from the palette on the left.",
@@ -762,6 +776,7 @@ const mnemonicDescriptionsEn = {
   DATA: "Write raw bytes to a given memory address via LDA/STA code.",
   RAWBYTES: "Place raw bytes at a given memory address without generating any runtime code.",
   RAWTEXT: "Place text as PETSCII bytes at a given memory address without generating any runtime code.",
+  SID: "Load a SID music file directly into memory. The header is stripped automatically and the Load/Init/Play addresses are extracted.",
   INCBIN: "Include an external binary file at a given memory address without generating any runtime code.",
   INCLUDE: "Include another project JSON file's blocks inline at this position (read-only).",
   LOOP: "Counter loop: LD* #count loads the counter, then a label marks the body start. Close with NEXT.",
@@ -789,6 +804,16 @@ const mnemonicDescriptionsEn = {
   LABEL: "Named label in code for jump targets.",
   COMMENT: "Program comment that does not generate bytes."
 };
+
+const mnemonicDescriptionsHu = (() => {
+  const map = {};
+  for (const items of Object.values(mnemonicLibrary)) {
+    for (const item of items) {
+      if (item.mnemonic && item.description) map[item.mnemonic] = item.description;
+    }
+  }
+  return map;
+})();
 
 function modeText(modeKey, field) {
   return addressingModeText[modeKey]?.[currentLanguage]?.[field] ?? addressingModes[modeKey]?.[field] ?? "";
@@ -1118,6 +1143,11 @@ function applyTranslations() {
     if (menuLabels[4]) menuLabels[4].textContent = t("menuProgram");
   if (checkUpdateButton) checkUpdateButton.textContent = t("checkForUpdate");
   if (whatsNewButton) whatsNewButton.textContent = t("whatsNew");
+  if (paletteSearchInput) paletteSearchInput.placeholder = t("paletteSearchPlaceholder");
+  const paletteSearchLabel = document.getElementById("palette-search-label");
+  if (paletteSearchLabel) paletteSearchLabel.textContent = t("paletteSearchLabel");
+  const mnemonicDescLabel = document.getElementById("mnemonic-description-label");
+  if (mnemonicDescLabel) mnemonicDescLabel.textContent = t("mnemonicCardLabel");
   const basicSysLabelEl = document.getElementById("basic-sys-label");
   if (basicSysLabelEl) basicSysLabelEl.textContent = t("basicSysLabel");
 
@@ -4565,7 +4595,9 @@ function getBlockDescription(block) {
       : `Felhasználói makró "${block.mnemonic}" hívása (${bodyCount} utasítás)`;
   }
 
-  return block.validationError || (currentLanguage === "en" ? mnemonicDescriptionsEn[block.mnemonic] || block.description : block.description);
+  return block.validationError || (currentLanguage === "en"
+    ? mnemonicDescriptionsEn[block.mnemonic] || block.description
+    : mnemonicDescriptionsHu[block.mnemonic] || block.description);
 }
 
 function getBlockModeCaption(block) {
@@ -4681,7 +4713,9 @@ function renderBlockPreview(index) {
   }
 
   node.querySelector(".block-category").textContent = getBlockModeCaption(block);
-  node.querySelector(".block-description").textContent = getBlockDescription(block);
+  const descText = getBlockDescription(block);
+  node.querySelector(".block-description-label").textContent = descText ? t("blockDescriptionLabel") : "";
+  node.querySelector(".block-description").textContent = descText;
 }
 
 function getCategoryTone(category) {
@@ -4852,7 +4886,9 @@ function renderProgram() {
       node.querySelector(".block-mnemonic").textContent = block.mnemonic;
       node.querySelector(".collapsed-operand").textContent = getCollapsedOperandText(block);
       node.querySelector(".block-category").textContent = getBlockModeCaption(block);
-      node.querySelector(".block-description").textContent = getBlockDescription(block);
+      const blockDescText = getBlockDescription(block);
+      node.querySelector(".block-description-label").textContent = blockDescText ? t("blockDescriptionLabel") : "";
+      node.querySelector(".block-description").textContent = blockDescText;
 
       const mode = addressingModes[block.addressingMode];
       const blockControls = node.querySelector(".block-controls");
@@ -5038,12 +5074,12 @@ function renderProgram() {
         `
           <div class="macro-grid single-macro-row">
             <label class="mini-field">
-              <span>SID file</span>
+              <span>${t("sidFileLabel")}</span>
               <div class="incbin-file-row">
                 <input type="text" class="include-file-input block-operand" readonly
                   value="${(fileName + (fileSize ? ` (${fileSize} bytes)` : "")).replace(/"/g, "&quot;")}"
-                  placeholder="No SID file selected">
-                <button class="icon-btn include-browse-icon" title="Browse SID file">${folderIcon}</button>
+                  placeholder="${t("sidFilePlaceholder")}">
+                <button class="icon-btn include-browse-icon" title="${t("sidFileBrowse")}">${folderIcon}</button>
               </div>
             </label>
           </div>
@@ -5608,6 +5644,18 @@ function renderAsmOutput() {
       return `    ; INCBIN "${fileName}" @ ${formatAddress(startAddress)} (${currentLanguage === "en" ? "no file loaded" : "nincs betoltott fajl"})`;
     }
 
+    if (line.block.isSidMacro) {
+      const bytes = line.block.sidBytes || [];
+      const fileName = line.block.sidFileName || "?";
+      const load = line.block.sidLoadAddress || 0;
+      const init = line.block.sidInitAddress || 0;
+      const play = line.block.sidPlayAddress || 0;
+      if (bytes.length > 0 && load > 0) {
+        return `    ; SID "${fileName}" @ ${formatAddress(load)}  Init:${formatAddress(init)}  Play:${formatAddress(play)}  (${bytes.length} bytes)`;
+      }
+      return `    ; SID "${fileName}" (${currentLanguage === "en" ? "no file loaded" : "nincs betoltott fajl"})`;
+    }
+
     if (line.block.isIncludeMacro) {
       const count = (line.block.includedBlocks || []).length;
       const fname = line.block.includeFileName || "?";
@@ -6145,6 +6193,8 @@ function applyZoom() {
 }
 
 initPalette();
+
+
 renderOriginPreview();
 renderEmulatorRunHint();
 renderMemoryStrip();

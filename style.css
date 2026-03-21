@@ -745,6 +745,16 @@ button:focus-visible,
   outline-offset: 2px;
 }
 
+.field-section-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
 .mnemonic-card {
   min-height: 140px;
   max-height: 240px;
@@ -761,6 +771,7 @@ button:focus-visible,
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--secondary) 42%, transparent) transparent;
 }
+
 
 .mnemonic-card strong,
 .mnemonic-card p,
@@ -798,7 +809,6 @@ button:focus-visible,
 
 .palette-search-wrap {
   position: relative;
-  margin: 10px 0;
 }
 
 .palette-search-input {
@@ -1348,8 +1358,18 @@ button:focus-visible,
   background-repeat: no-repeat;
 }
 
+.block-description-label {
+  display: block;
+  margin-top: calc(6px * var(--block-scale));
+  font-size: calc(0.7rem * var(--block-scale));
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 .block-description {
-  margin: calc(6px * var(--block-scale)) 0 0;
+  margin: calc(2px * var(--block-scale)) 0 0;
   font-size: calc(0.78rem * var(--block-scale));
   line-height: 1.35;
   overflow: hidden;
@@ -1382,6 +1402,7 @@ button:focus-visible,
 
 .asm-block[data-collapsed="true"] .block-topline {
   margin-bottom: 0;
+  overflow: hidden;
 }
 
 .asm-block[data-collapsed="true"] .block-main {
@@ -1406,9 +1427,11 @@ button:focus-visible,
   flex: 1 1 auto;
   flex-wrap: nowrap;
   gap: calc(6px * var(--block-scale));
+  overflow: hidden;
 }
 
 .asm-block[data-collapsed="true"] .block-controls,
+.asm-block[data-collapsed="true"] .block-description-label,
 .asm-block[data-collapsed="true"] .block-description,
 .asm-block[data-collapsed="true"] .block-actions {
   display: none;
@@ -1419,9 +1442,13 @@ button:focus-visible,
 }
 
 .asm-block[data-collapsed="true"] .collapsed-operand {
-  display: inline-flex;
+  display: block;
   flex: 1 1 auto;
+  min-width: 0;
   font-size: calc(0.72rem * var(--block-scale));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .asm-block[data-collapsed="true"] .collapse-toggle {
