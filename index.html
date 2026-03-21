@@ -14,6 +14,7 @@
     <div class="splash-content">
       <h1 class="splash-title">C64 VISUAL ASSEMBLER</h1>
       <p class="splash-subtitle">Commodore 64 Block Programming</p>
+      <p class="splash-version" id="splash-version"></p>
       <div class="splash-loader">
         <div class="splash-loader-bar"></div>
       </div>
@@ -31,6 +32,7 @@
                 <h3 class="control-menu-label">File</h3>
                 <button id="save-project" class="secondary" type="button">Save program</button>
                 <button id="load-project" class="secondary" type="button">Load program</button>
+                <button id="save-prg" class="secondary" type="button">Export to PRG</button>
                 <button id="exit-app" class="secondary" type="button">Kilepes</button>
               </section>
               <section class="control-menu-group">
@@ -91,10 +93,10 @@
                   <button id="zoom-out" class="secondary" type="button">A-</button>
                   <button id="zoom-in" class="secondary" type="button">A+</button>
                 </div>
-                <h3 class="control-menu-label" style="margin-top:4px">Program</h3>
+                <h3 class="control-menu-label control-menu-label--section">Program</h3>
                 <button id="copy-asm" class="secondary" type="button">ASM masolasa</button>
                 <button id="clear-program" class="secondary" type="button">Program torlese</button>
-                <h3 class="control-menu-label" style="margin-top:4px">Info</h3>
+                <h3 class="control-menu-label control-menu-label--section">Info</h3>
                 <button id="about-btn" class="secondary" type="button">About</button>
                 <button id="whats-new-btn" class="secondary" type="button">What's New</button>
                 <button id="check-update-btn" class="secondary" type="button">Check for Update</button>
@@ -206,6 +208,12 @@
               </label>
             </div>
           </div>
+          <div class="macro-source-row">
+            <label class="macro-source-toggle" id="macro-source-label" title="Show macro source code in ASM view">
+              <input type="checkbox" id="macro-source-toggle">
+              <span id="macro-source-toggle-text">Macro source</span>
+            </label>
+          </div>
           <div class="origin-row">
             <label class="field compact-field">
               <span>Kezdocim (`*=`)</span>
@@ -271,6 +279,14 @@
       <span class="palette-description"></span>
     </button>
   </template>
+
+<dialog id="compile-error-dialog" class="compile-error-dialog">
+  <div class="compile-error-card">
+    <h2 class="compile-error-title" id="compile-error-title">Compilation errors</h2>
+    <ul class="compile-error-list" id="compile-error-list"></ul>
+    <button id="compile-error-close" class="primary" type="button">OK</button>
+  </div>
+</dialog>
 
 <dialog id="about-dialog" class="about-dialog">
   <div class="about-card">

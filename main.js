@@ -73,7 +73,8 @@ ipcMain.handle("include:choose-file", async () => {
     if (project.app !== "c64-visual-assembler" || !Array.isArray(project.program)) {
       return { canceled: false, error: "Not a valid C64 Visual Assembler project." };
     }
-    return { canceled: false, filePath, fileName: path.basename(filePath), blocks: project.program };
+    const fileName = path.basename(filePath).replace(/\.json$/i, '');
+    return { canceled: false, filePath, fileName, blocks: project.program };
   } catch (error) {
     return { canceled: false, error: error.message || "Failed to read file." };
   }
@@ -86,7 +87,7 @@ ipcMain.handle("include:reload-file", async (_event, filePath) => {
     if (project.app !== "c64-visual-assembler" || !Array.isArray(project.program)) {
       return { error: "Not a valid C64 Visual Assembler project." };
     }
-    return { fileName: path.basename(filePath), blocks: project.program };
+    return { fileName: path.basename(filePath).replace(/\.json$/i, ''), blocks: project.program };
   } catch (error) {
     return { error: error.message || "Failed to read file." };
   }
@@ -220,6 +221,26 @@ ipcMain.handle("vice:launch", async (_event, payload) => {
   }
 });
 
+ipcMain.handle("prg:save", async (_event, payload) => {
+  const result = await dialog.showSaveDialog({
+    title: "Save PRG file",
+    defaultPath: `c64-program-${Date.now()}.prg`,
+    filters: [
+      { name: "Commodore 64 PRG", extensions: ["prg"] },
+      { name: "All files", extensions: ["*"] }
+    ]
+  });
+
+  if (result.canceled || !result.filePath) return { canceled: true };
+
+  try {
+    fs.writeFileSync(result.filePath, Buffer.from(payload.bytes));
+    return { ok: true, filePath: result.filePath };
+  } catch (error) {
+    return { ok: false, error: error.message || "Saving PRG failed." };
+  }
+});
+
 ipcMain.handle("project:save", async (_event, payload) => {
   const result = await dialog.showSaveDialog({
     title: "Save C64 Visual Assembler Project",
@@ -320,7 +341,21 @@ function createMainWindow() {
 }
 
 app.whenReady().then(() => {
-  Menu.setApplicationMenu(Menu.buildFromTemplate([]));
+  // Keep a minimal Edit menu so Ctrl+C/V/X/Z work reliably in the renderer
+  Menu.setApplicationMenu(Menu.buildFromTemplate([
+    {
+      label: 'Edit',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { role: 'selectAll' }
+      ]
+    }
+  ]));
   createMainWindow();
 
   app.on("activate", () => {
