@@ -953,7 +953,6 @@ button:focus-visible,
   box-shadow:
     inset 3px 0 0 var(--block-tone),
     0 4px 12px color-mix(in srgb, black 6%, transparent);
-  cursor: grab;
   user-select: none;
   -webkit-user-drag: element;
 }
@@ -1058,7 +1057,6 @@ button:focus-visible,
   -webkit-user-drag: element;
 }
 
-.asm-block:active,
 .drag-handle:active {
   cursor: grabbing;
 }

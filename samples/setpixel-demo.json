@@ -18,7 +18,7 @@
     },
     {
       "id": "sei1",
-      "category": "Zarok",
+      "category": "Rendszer",
       "mnemonic": "SEI",
       "operand": "",
       "rawOperand": "",
@@ -1395,7 +1395,7 @@
     },
     {
       "id": "clc1",
-      "category": "Zarok",
+      "category": "Rendszer",
       "mnemonic": "CLC",
       "operand": "",
       "rawOperand": "",
@@ -1474,7 +1474,7 @@
     },
     {
       "id": "clc2",
-      "category": "Zarok",
+      "category": "Rendszer",
       "mnemonic": "CLC",
       "operand": "",
       "rawOperand": "",
@@ -1529,7 +1529,7 @@
     },
     {
       "id": "clc3",
-      "category": "Zarok",
+      "category": "Rendszer",
       "mnemonic": "CLC",
       "operand": "",
       "rawOperand": "",
