@@ -58,6 +58,7 @@
                     <option value="incbin-demo">INCBIN demo</option>
                     <option value="include-demo">INCLUDE demo</option>
                     <option value="sid-demo">SID music player (Ikari Warriors)</option>
+                    <option value="sid-direct-demo">SID Direct demo (SID makro, no bin conversion)</option>
                   </select>
                 </label>
                 <button id="load-sample" class="secondary" type="button">Betoltes</button>
@@ -162,10 +163,16 @@
 
           <button id="add-selected" class="primary" type="button">Kivalasztott blokk hozzaadasa</button>
 
-          <div id="mnemonic-description" class="mnemonic-card"></div>
-          <div class="palette-search-wrap">
-            <input id="palette-search" class="palette-search-input" type="search" placeholder="Kereses..." autocomplete="off" spellcheck="false">
-          </div>
+          <label class="field">
+            <span id="mnemonic-description-label"></span>
+            <div id="mnemonic-description" class="mnemonic-card"></div>
+          </label>
+          <label class="field" for="palette-search">
+            <span id="palette-search-label"></span>
+            <div class="palette-search-wrap">
+              <input id="palette-search" class="palette-search-input" type="search" placeholder="" title="Search" autocomplete="off" spellcheck="false">
+            </div>
+          </label>
           <div id="palette-list" class="palette-list" aria-label="Huzhato blokklista"></div>
           </div>
         </aside>
@@ -266,6 +273,7 @@
             <input class="block-operand" type="text">
           </label>
         </div>
+        <span class="block-description-label"></span>
         <p class="block-description"></p>
       </div>
       <div class="block-actions">
@@ -300,7 +308,7 @@
       </svg>
     </div>
     <h2 class="about-title">C64 Visual Assembler</h2>
-    <p class="about-version" id="about-version">v1.2.3</p>
+    <p class="about-version" id="about-version">v1.2.5</p>
     <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and dropping instruction blocks.</p>
     <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
     <button id="about-close" class="primary" type="button">Close</button>
@@ -310,8 +318,14 @@
 <dialog id="whats-new-dialog" class="whats-new-dialog">
   <div class="whats-new-card">
     <h2 class="whats-new-title">What's New</h2>
-    <p class="whats-new-version">v1.2.3</p>
+    <p class="whats-new-version">v1.2.5</p>
     <ul class="whats-new-list">
+      <li>
+        <strong>Mnemonic search</strong> — type in the palette search box to instantly filter instructions, macros, and categories by name or description. Results update as you type.
+      </li>
+      <li>
+        <strong>SID macro</strong> — load a <code>.sid</code> file directly into memory without converting it to <code>.bin</code> first. The macro reads the SID header and places the music data at the correct load address automatically. A matching <em>SID Direct Demo</em> sample is included.
+      </li>
       <li>
         <strong>Category colors — theme-independent</strong> — every block now has a vivid, saturated color accent regardless of light or dark mode. A 3px colored left-edge strip and a bright badge chip make each category instantly recognisable on any background.
       </li>
@@ -323,9 +337,6 @@
       </li>
       <li>
         <strong>Macro source toggle</strong> — a checkbox above the ASM view shows or hides the raw <code>MACRO…ENDM</code> source blocks inline. When hidden, only the expanded invoke output is shown. State is saved between sessions.
-      </li>
-      <li>
-        <strong>Bug fix: Hungarian language label</strong> — the "Language" label in the Settings menu now correctly shows "Nyelv" in Hungarian mode.
       </li>
       <li>
         <strong>New addressing modes</strong> — <em>INC / DEC</em> expose <code>Absolute,X</code>; <em>JMP</em> gains <code>Indirect</code> (0x6C); <em>LDX</em> gains <code>Absolute,Y</code> and <code>Zero page,Y</code>; <em>STX</em> gains <code>Zero page,Y</code>.
