@@ -69,7 +69,7 @@
     },
     {
       "id": "sid-demo-lda-song",
-      "category": "Betoltes",
+      "category": "Adatmozgas",
       "mnemonic": "LDA",
       "operand": "#$00",
       "rawOperand": "00",
@@ -206,7 +206,7 @@
     },
     {
       "id": "sid-demo-lda-7f",
-      "category": "Betoltes",
+      "category": "Adatmozgas",
       "mnemonic": "LDA",
       "operand": "#$7F",
       "rawOperand": "7F",
@@ -218,7 +218,7 @@
     },
     {
       "id": "sid-demo-sta-dc0d",
-      "category": "Tarolasok",
+      "category": "Adatmozgas",
       "mnemonic": "STA",
       "operand": "$DC0D",
       "rawOperand": "DC0D",
@@ -230,7 +230,7 @@
     },
     {
       "id": "sid-demo-lda-01",
-      "category": "Betoltes",
+      "category": "Adatmozgas",
       "mnemonic": "LDA",
       "operand": "#$01",
       "rawOperand": "01",
@@ -242,7 +242,7 @@
     },
     {
       "id": "sid-demo-sta-d01a",
-      "category": "Tarolasok",
+      "category": "Adatmozgas",
       "mnemonic": "STA",
       "operand": "$D01A",
       "rawOperand": "D01A",
@@ -254,7 +254,7 @@
     },
     {
       "id": "sid-demo-lda-1b",
-      "category": "Betoltes",
+      "category": "Adatmozgas",
       "mnemonic": "LDA",
       "operand": "#$1B",
       "rawOperand": "1B",
@@ -266,7 +266,7 @@
     },
     {
       "id": "sid-demo-sta-d011",
-      "category": "Tarolasok",
+      "category": "Adatmozgas",
       "mnemonic": "STA",
       "operand": "$D011",
       "rawOperand": "D011",
@@ -278,7 +278,7 @@
     },
     {
       "id": "sid-demo-lda-c0",
-      "category": "Betoltes",
+      "category": "Adatmozgas",
       "mnemonic": "LDA",
       "operand": "#$C0",
       "rawOperand": "C0",
@@ -290,7 +290,7 @@
     },
     {
       "id": "sid-demo-sta-d012",
-      "category": "Tarolasok",
+      "category": "Adatmozgas",
       "mnemonic": "STA",
       "operand": "$D012",
       "rawOperand": "D012",
@@ -315,7 +315,7 @@
     },
     {
       "id": "sid-demo-lda-irqlo",
-      "category": "Betoltes",
+      "category": "Adatmozgas",
       "mnemonic": "LDA",
       "operand": "#<irq",
       "rawOperand": "#<irq",
@@ -327,7 +327,7 @@
     },
     {
       "id": "sid-demo-sta-0314",
-      "category": "Tarolasok",
+      "category": "Adatmozgas",
       "mnemonic": "STA",
       "operand": "$0314",
       "rawOperand": "0314",
@@ -339,7 +339,7 @@
     },
     {
       "id": "sid-demo-lda-irqhi",
-      "category": "Betoltes",
+      "category": "Adatmozgas",
       "mnemonic": "LDA",
       "operand": "#>irq",
       "rawOperand": "#>irq",
@@ -351,7 +351,7 @@
     },
     {
       "id": "sid-demo-sta-0315",
-      "category": "Tarolasok",
+      "category": "Adatmozgas",
       "mnemonic": "STA",
       "operand": "$0315",
       "rawOperand": "0315",
@@ -440,7 +440,7 @@
     },
     {
       "id": "sid-demo-lda-d019",
-      "category": "Betoltes",
+      "category": "Adatmozgas",
       "mnemonic": "LDA",
       "operand": "$D019",
       "rawOperand": "D019",
@@ -452,7 +452,7 @@
     },
     {
       "id": "sid-demo-sta-d019",
-      "category": "Tarolasok",
+      "category": "Adatmozgas",
       "mnemonic": "STA",
       "operand": "$D019",
       "rawOperand": "D019",

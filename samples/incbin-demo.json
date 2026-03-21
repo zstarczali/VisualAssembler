@@ -56,7 +56,7 @@
     },
     {
       "id": "incbin-demo-ldx",
-      "category": "Betoltes",
+      "category": "Adatmozgas",
       "mnemonic": "LDX",
       "operand": "#$00",
       "rawOperand": "00",
@@ -95,7 +95,7 @@
     },
     {
       "id": "incbin-demo-lda",
-      "category": "Betoltes",
+      "category": "Adatmozgas",
       "mnemonic": "LDA",
       "operand": "$C000,X",
       "rawOperand": "C000",
@@ -107,7 +107,7 @@
     },
     {
       "id": "incbin-demo-sta-border",
-      "category": "Tarolasok",
+      "category": "Adatmozgas",
       "mnemonic": "STA",
       "operand": "$D020",
       "rawOperand": "D020",
@@ -119,7 +119,7 @@
     },
     {
       "id": "incbin-demo-sta-bg",
-      "category": "Tarolasok",
+      "category": "Adatmozgas",
       "mnemonic": "STA",
       "operand": "$D021",
       "rawOperand": "D021",
@@ -144,7 +144,7 @@
     },
     {
       "id": "incbin-demo-lda-delay",
-      "category": "Betoltes",
+      "category": "Adatmozgas",
       "mnemonic": "LDA",
       "operand": "#$80",
       "rawOperand": "80",
@@ -156,7 +156,7 @@
     },
     {
       "id": "incbin-demo-sta-zp",
-      "category": "Tarolasok",
+      "category": "Adatmozgas",
       "mnemonic": "STA",
       "operand": "$FE",
       "rawOperand": "FE",
@@ -182,7 +182,7 @@
     },
     {
       "id": "incbin-demo-ldy",
-      "category": "Betoltes",
+      "category": "Adatmozgas",
       "mnemonic": "LDY",
       "operand": "#$FF",
       "rawOperand": "FF",
@@ -208,7 +208,7 @@
     },
     {
       "id": "incbin-demo-dey",
-      "category": "Szamtani",
+      "category": "Aritmetika",
       "mnemonic": "DEY",
       "operand": "",
       "rawOperand": "",
@@ -232,7 +232,7 @@
     },
     {
       "id": "incbin-demo-dec-zp",
-      "category": "Szamtani",
+      "category": "Aritmetika",
       "mnemonic": "DEC",
       "operand": "$FE",
       "rawOperand": "FE",
@@ -256,7 +256,7 @@
     },
     {
       "id": "incbin-demo-inx",
-      "category": "Szamtani",
+      "category": "Aritmetika",
       "mnemonic": "INX",
       "operand": "",
       "rawOperand": "",
@@ -268,7 +268,7 @@
     },
     {
       "id": "incbin-demo-cpx",
-      "category": "Osszehasonlitas",
+      "category": "Aritmetika",
       "mnemonic": "CPX",
       "operand": "#$10",
       "rawOperand": "10",
