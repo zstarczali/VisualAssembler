@@ -550,12 +550,12 @@ body[data-theme="dark"] .primary {
 }
 
 .panel-heading-actions button {
-  min-height: 34px;
-  min-width: 34px;
-  width: 34px;
-  height: 34px;
+  min-height: 22px;
+  min-width: 22px;
+  width: 22px;
+  height: 22px;
   padding: 0;
-  font-size: 0.85rem;
+  font-size: 0.7rem;
   justify-content: center;
   align-items: center;
 }
@@ -1113,9 +1113,9 @@ button:focus-visible,
 }
 
 .collapse-toggle {
-  min-width: calc(24px * var(--block-scale));
-  width: calc(24px * var(--block-scale));
-  height: calc(24px * var(--block-scale));
+  min-width: calc(22px * var(--block-scale));
+  width: calc(22px * var(--block-scale));
+  height: calc(22px * var(--block-scale));
   min-height: unset;
   padding: 0;
   border-radius: 6px;
@@ -1130,6 +1130,18 @@ button:focus-visible,
 .inline-field span {
   font-size: calc(0.7rem * var(--block-scale));
   color: var(--muted);
+}
+
+.block-body {
+  display: grid;
+  grid-template-rows: 1fr;
+  overflow: hidden;
+  transition: grid-template-rows 220ms ease;
+}
+
+.block-body-inner {
+  min-height: 0;
+  overflow: hidden;
 }
 
 .block-controls {
@@ -1322,9 +1334,9 @@ button:focus-visible,
 }
 
 .block-actions button {
-  min-width: calc(28px * var(--block-scale));
-  width: calc(28px * var(--block-scale));
-  height: calc(28px * var(--block-scale));
+  min-width: calc(22px * var(--block-scale));
+  width: calc(22px * var(--block-scale));
+  height: calc(22px * var(--block-scale));
   min-height: unset;
   aspect-ratio: 1;
   flex-shrink: 0;
@@ -1333,7 +1345,7 @@ button:focus-visible,
   background: var(--control-bg);
   border: 1px solid var(--panel-border);
   color: var(--text);
-  font-size: calc(0.8rem * var(--block-scale));
+  font-size: calc(0.72rem * var(--block-scale));
   line-height: 1;
   display: flex;
   align-items: center;
@@ -1403,11 +1415,14 @@ button:focus-visible,
 .asm-block[data-collapsed="true"] .block-topline {
   margin-bottom: 0;
   overflow: hidden;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .asm-block[data-collapsed="true"] .block-main {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
   min-width: 0;
   min-height: calc(28px * var(--block-scale));
 }
@@ -1430,9 +1445,10 @@ button:focus-visible,
   overflow: hidden;
 }
 
-.asm-block[data-collapsed="true"] .block-controls,
-.asm-block[data-collapsed="true"] .block-description-label,
-.asm-block[data-collapsed="true"] .block-description,
+.asm-block[data-collapsed="true"] .block-body {
+  grid-template-rows: 0fr;
+}
+
 .asm-block[data-collapsed="true"] .block-actions {
   display: none;
 }
@@ -1452,9 +1468,9 @@ button:focus-visible,
 }
 
 .asm-block[data-collapsed="true"] .collapse-toggle {
-  width: calc(28px * var(--block-scale));
-  min-width: calc(28px * var(--block-scale));
-  height: calc(28px * var(--block-scale));
+  width: calc(22px * var(--block-scale));
+  min-width: calc(22px * var(--block-scale));
+  height: calc(22px * var(--block-scale));
 }
 
 .asm-output {
@@ -2246,7 +2262,7 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
 .splash-version {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.8rem;
-  color: #2e1f7a;
+  color: var(--muted);
   margin: 0 0 2rem 0;
 }
 
