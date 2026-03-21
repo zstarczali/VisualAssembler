@@ -1156,6 +1156,27 @@ button:focus-visible,
   min-width: 0;
 }
 
+.sid-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 6px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--panel-strong) 80%, var(--block-tone) 20%);
+  font-size: calc(0.68rem * var(--block-scale));
+  color: var(--muted);
+}
+
+.sid-meta-title {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.sid-meta-line {
+  font-family: "IBM Plex Mono", monospace;
+}
+
 .incbin-filename {
   flex: 1;
   font-size: 0.7rem;

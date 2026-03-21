@@ -152,6 +152,7 @@ const mnemonicLibrary = {
     { mnemonic: "RAWBYTES", description: "Nyers byte-ok elhelyezese egy megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isRawBytesMacro: true },
     { mnemonic: "RAWTEXT", description: "Szoveg elhelyezese PETSCII byte-kenkent egy megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isRawTextMacro: true },
     { mnemonic: "INCBIN", description: "Kulso binarfajl beillesztese megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isIncBinMacro: true },
+    { mnemonic: "SID", description: "SID zenefajl betoltese kozvetlenul a memoriaba. A fejlecet automatikusan eltavolitja, a Load/Init/Play cimeket kinyeri.", modes: ["implied"], isSidMacro: true },
     { mnemonic: "INCLUDE", description: "Masik projekt JSON fajl blokkjainak beillesztese erre a helyre (csak olvasható).", modes: ["implied"], isIncludeMacro: true },
     { mnemonic: "LOOP", description: "Szamlalo ciklus: LD* #count, majd cimke a body elejere. NEXT blokkal zarjuk.", modes: ["implied"], isLoopMacro: true },
     { mnemonic: "NEXT", description: "Ciklus vege: DE* es BNE visszaugras a LOOP cimkejere.", modes: ["implied"], isNextMacro: true },
@@ -1545,6 +1546,8 @@ function renderPaletteItems() {
                   ? `${currentLanguage === "en" ? "Binary file at address" : "Binarfajl adott cimre"}`
                   : item.isIncludeMacro
                   ? `${currentLanguage === "en" ? "Include project blocks inline" : "Projekt blokkjainak beillesztese"}`
+                  : item.isSidMacro
+                  ? `${currentLanguage === "en" ? "SID music file, header stripped automatically" : "SID zenefajl, fejlec automatikusan eltavolitva"}`
                   : item.isComment
                 ? `${currentLanguage === "en" ? "Comment" : "Komment"} | ; ${operandInput.value.trim() || (currentLanguage === "en" ? "new comment" : "uj komment")}`
                 : `${modeText(defaultMode, "label")} | ${preview.text}`;
@@ -1843,6 +1846,29 @@ function createBlockFromMnemonic(item) {
       incBinFileName: "",
       incBinAddress: "$C000",
       incBinBytes: []
+    };
+  }
+  if (item.isSidMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "SID",
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isSidMacro: true,
+      sidFile: "",
+      sidFileName: "",
+      sidTitle: "",
+      sidAuthor: "",
+      sidLoadAddress: 0,
+      sidInitAddress: 0,
+      sidPlayAddress: 0,
+      sidBytes: []
     };
   }
   if (item.isIncludeMacro) {
@@ -3413,6 +3439,10 @@ function assembleProgramToPrg(originOverride) {
       const chunkBytes = block.incBinBytes || [];
       const addr = parseAddressValue(block.incBinAddress) ?? 0xC000;
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: Array.from(chunkBytes) });
+    } else if (block.isSidMacro) {
+      const chunkBytes = block.sidBytes || [];
+      const addr = block.sidLoadAddress || 0;
+      if (chunkBytes.length > 0 && addr > 0) deferredChunks.push({ addr, bytes: Array.from(chunkBytes) });
     }
   }
 
@@ -3530,6 +3560,19 @@ function compileLineBytes(line, labels) {
       ok: true,
       bytes: [],
       comment: `INCBIN "${block.incBinFileName || block.incBinFile || ""}" (${size} bytes) @ ${formatAddress(addr)}`
+    };
+  }
+
+  if (block.isSidMacro) {
+    const size = (block.sidBytes || []).length;
+    const load = block.sidLoadAddress || 0;
+    const init = block.sidInitAddress || 0;
+    const play = block.sidPlayAddress || 0;
+    if (!size) return { ok: true, bytes: [], comment: `SID (no file loaded)` };
+    return {
+      ok: true,
+      bytes: [],
+      comment: `SID "${block.sidFileName || ""}" (${size} bytes) Load:${formatAddress(load)} Init:${formatAddress(init)} Play:${formatAddress(play)}`
     };
   }
 
@@ -3743,7 +3786,22 @@ function resolveNumericOperand(block, labels) {
     return { ok: true, value: labels.get(block.rawOperand) };
   }
 
-  const parsed = parseNumberByBase(block.rawOperand.replace(/^#/, "").replace(/^\$/, ""), block.base);
+  const stripped = block.rawOperand.replace(/^#/, "");
+
+  // #<label  → low byte of label address
+  if (stripped.startsWith("<")) {
+    const name = stripped.slice(1).trim();
+    if (labels.has(name)) return { ok: true, value: labels.get(name) & 0xFF };
+    return { ok: false, error: tf("operandNotResolvable", { mnemonic: block.mnemonic }) };
+  }
+  // #>label  → high byte of label address
+  if (stripped.startsWith(">")) {
+    const name = stripped.slice(1).trim();
+    if (labels.has(name)) return { ok: true, value: (labels.get(name) >> 8) & 0xFF };
+    return { ok: false, error: tf("operandNotResolvable", { mnemonic: block.mnemonic }) };
+  }
+
+  const parsed = parseNumberByBase(stripped.replace(/^\$/, ""), block.base);
   if (parsed === null) {
     return { ok: false, error: tf("operandNotResolvable", { mnemonic: block.mnemonic }) };
   }
@@ -3929,6 +3987,10 @@ function getInstructionSize(block) {
   }
 
   if (block.isIncBinMacro) {
+    return 0;
+  }
+
+  if (block.isSidMacro) {
     return 0;
   }
 
@@ -4963,6 +5025,49 @@ function renderProgram() {
         updateProgramBlock(index, "incBinBytes", result.bytes);
         renderProgram();
       });
+    } else if (block.isSidMacro) {
+      inlineField.hidden = true;
+      const fileName = block.sidFileName || "";
+      const fileSize = (block.sidBytes || []).length;
+      const fmtHex = v => v ? `$${v.toString(16).toUpperCase().padStart(4, "0")}` : "—";
+
+      const folderIcon = `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5a1 1 0 0 1 1-1h3.5l1.5 1.5H14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V5z"/></svg>`;
+
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid single-macro-row">
+            <label class="mini-field">
+              <span>SID file</span>
+              <div class="incbin-file-row">
+                <input type="text" class="include-file-input block-operand" readonly
+                  value="${(fileName + (fileSize ? ` (${fileSize} bytes)` : "")).replace(/"/g, "&quot;")}"
+                  placeholder="No SID file selected">
+                <button class="icon-btn include-browse-icon" title="Browse SID file">${folderIcon}</button>
+              </div>
+            </label>
+          </div>
+          ${block.sidTitle ? `<div class="sid-meta">
+            <span class="sid-meta-title">${block.sidTitle}</span>
+            <span class="sid-meta-line">${block.sidAuthor || ""}</span>
+            <span class="sid-meta-line">Load: ${fmtHex(block.sidLoadAddress)} &nbsp; Init: ${fmtHex(block.sidInitAddress)} &nbsp; Play: ${fmtHex(block.sidPlayAddress)}</span>
+          </div>` : ""}
+        `
+      );
+      blockControls.querySelector(".include-browse-icon")?.addEventListener("click", async () => {
+        if (!window.electronAPI?.chooseSidFile) return;
+        const result = await window.electronAPI.chooseSidFile();
+        if (result.canceled || result.error) { if (result.error) alert(result.error); return; }
+        updateProgramBlock(index, "sidFile", result.filePath);
+        updateProgramBlock(index, "sidFileName", result.fileName);
+        updateProgramBlock(index, "sidTitle", result.title || "");
+        updateProgramBlock(index, "sidAuthor", result.author || "");
+        updateProgramBlock(index, "sidLoadAddress", result.loadAddress);
+        updateProgramBlock(index, "sidInitAddress", result.initAddress);
+        updateProgramBlock(index, "sidPlayAddress", result.playAddress);
+        updateProgramBlock(index, "sidBytes", result.bytes);
+        renderProgram();
+      });
     } else if (block.isIncludeMacro) {
       inlineField.hidden = true;
       const fileName = block.includeFileName || "";
@@ -5909,6 +6014,31 @@ async function loadSidDemo() {
   }
 }
 
+async function loadSidDirectDemo() {
+  const ok = await loadSampleFromFile("sid-direct-demo");
+  if (!ok) return;
+
+  if (window.electronAPI?.loadSidSampleFile) {
+    const result = await window.electronAPI.loadSidSampleFile("Ikari_Intro.sid");
+    if (result && !result.error) {
+      const sidIdx = program.findIndex(b => b.isSidMacro);
+      if (sidIdx >= 0) {
+        program[sidIdx].sidFile = result.filePath;
+        program[sidIdx].sidFileName = result.fileName;
+        program[sidIdx].sidTitle = result.title || "";
+        program[sidIdx].sidAuthor = result.author || "";
+        program[sidIdx].sidLoadAddress = result.loadAddress;
+        program[sidIdx].sidInitAddress = result.initAddress;
+        program[sidIdx].sidPlayAddress = result.playAddress;
+        program[sidIdx].sidBytes = result.bytes;
+        program[sidIdx].validationError = "";
+        renderProgram();
+        renderAsmOutput();
+      }
+    }
+  }
+}
+
 // === OLD INLINE CODE BELOW (KEPT FOR REFERENCE, NOT EXECUTED) ===
 function loadSelectedSample() {
   if (sampleSelect.value === "label-border") {
@@ -5993,6 +6123,11 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "sid-demo") {
     loadSidDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "sid-direct-demo") {
+    loadSidDirectDemo();
     return;
   }
 
