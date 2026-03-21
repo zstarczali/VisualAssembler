@@ -878,10 +878,10 @@ button:focus-visible,
 }
 
 .asm-block {
-  --block-tone: color-mix(in srgb, var(--secondary) 55%, transparent);
-  --block-tone-soft: color-mix(in srgb, var(--secondary) 7%, transparent);
-  --block-chip-bg: color-mix(in srgb, var(--panel-strong) 86%, var(--block-tone-soft));
-  --block-chip-fg: var(--block-tone);
+  --block-tone: color-mix(in srgb, var(--secondary) 70%, transparent);
+  --block-tone-soft: color-mix(in srgb, var(--secondary) 14%, transparent);
+  --block-chip-bg: color-mix(in srgb, var(--secondary) 70%, transparent);
+  --block-chip-fg: #0d0d1e;
   display: grid;
   grid-template-columns: calc(28px * var(--block-scale)) 1fr auto;
   gap: calc(10px * var(--block-scale));
@@ -891,76 +891,78 @@ button:focus-visible,
   padding: calc(10px * var(--block-scale));
   border-radius: calc(16px * var(--block-scale));
   background:
-    linear-gradient(180deg, var(--block-tone-soft) 0, var(--block-tone-soft) calc(6px * var(--block-scale)), transparent calc(6px * var(--block-scale))),
+    linear-gradient(180deg, var(--block-tone-soft) 0, var(--block-tone-soft) calc(8px * var(--block-scale)), transparent calc(8px * var(--block-scale))),
     color-mix(in srgb, var(--panel-strong) 96%, white 4%);
   border: 1px solid var(--panel-border);
-  box-shadow: 0 4px 12px color-mix(in srgb, black 6%, transparent);
+  box-shadow:
+    inset 3px 0 0 var(--block-tone),
+    0 4px 12px color-mix(in srgb, black 6%, transparent);
   cursor: grab;
   user-select: none;
   -webkit-user-drag: element;
 }
 
 .asm-block[data-category-tone="data"] {
-  --block-tone: #6fffff;
-  --block-tone-soft: color-mix(in srgb, #6fffff 10%, transparent);
-  --block-chip-bg: #2e2a8a;
-  --block-chip-fg: #b8ffff;
+  --block-tone: #00cccc;
+  --block-tone-soft: color-mix(in srgb, #00cccc 18%, transparent);
+  --block-chip-bg: #00cccc;
+  --block-chip-fg: #021818;
 }
 
 .asm-block[data-category-tone="math"] {
-  --block-tone: #ffd86b;
-  --block-tone-soft: color-mix(in srgb, #ffd86b 10%, transparent);
-  --block-chip-bg: #4a3e16;
-  --block-chip-fg: #ffe89f;
+  --block-tone: #e6b800;
+  --block-tone-soft: color-mix(in srgb, #e6b800 18%, transparent);
+  --block-chip-bg: #e6b800;
+  --block-chip-fg: #1a1000;
 }
 
 .asm-block[data-category-tone="jump"] {
-  --block-tone: #ff8fd4;
-  --block-tone-soft: color-mix(in srgb, #ff8fd4 10%, transparent);
-  --block-chip-bg: #5f2452;
-  --block-chip-fg: #ffd1ef;
+  --block-tone: #ff3daa;
+  --block-tone-soft: color-mix(in srgb, #ff3daa 18%, transparent);
+  --block-chip-bg: #ff3daa;
+  --block-chip-fg: #1e0010;
 }
 
 .asm-block[data-category-tone="system"] {
-  --block-tone: #8bffb1;
-  --block-tone-soft: color-mix(in srgb, #8bffb1 10%, transparent);
-  --block-chip-bg: #1f5a38;
-  --block-chip-fg: #d9ffe5;
+  --block-tone: #00bb66;
+  --block-tone-soft: color-mix(in srgb, #00bb66 18%, transparent);
+  --block-chip-bg: #00bb66;
+  --block-chip-fg: #011a0d;
 }
 
 .asm-block[data-category-tone="register"] {
-  --block-tone: #ff9e7d;
-  --block-tone-soft: color-mix(in srgb, #ff9e7d 10%, transparent);
-  --block-chip-bg: #653526;
-  --block-chip-fg: #ffd7ca;
+  --block-tone: #ff6622;
+  --block-tone-soft: color-mix(in srgb, #ff6622 18%, transparent);
+  --block-chip-bg: #ff6622;
+  --block-chip-fg: #1a0700;
 }
 
 .asm-block[data-category-tone="stack"] {
-  --block-tone: #c0a0ff;
-  --block-tone-soft: color-mix(in srgb, #c0a0ff 10%, transparent);
-  --block-chip-bg: #48306d;
-  --block-chip-fg: #e2d4ff;
+  --block-tone: #9955ff;
+  --block-tone-soft: color-mix(in srgb, #9955ff 18%, transparent);
+  --block-chip-bg: #9955ff;
+  --block-chip-fg: #0d0020;
 }
 
 .asm-block[data-category-tone="macro"] {
-  --block-tone: #a7c4ff;
-  --block-tone-soft: color-mix(in srgb, #a7c4ff 10%, transparent);
-  --block-chip-bg: #263d78;
-  --block-chip-fg: #d8e4ff;
+  --block-tone: #3388ff;
+  --block-tone-soft: color-mix(in srgb, #3388ff 18%, transparent);
+  --block-chip-bg: #3388ff;
+  --block-chip-fg: #00101e;
 }
 
 .asm-block[data-category-tone="structure"] {
-  --block-tone: #d2d7ff;
-  --block-tone-soft: color-mix(in srgb, #d2d7ff 10%, transparent);
-  --block-chip-bg: #394188;
-  --block-chip-fg: #eef0ff;
+  --block-tone: #7788dd;
+  --block-tone-soft: color-mix(in srgb, #7788dd 18%, transparent);
+  --block-chip-bg: #7788dd;
+  --block-chip-fg: #06091a;
 }
 
 .asm-block[data-category-tone="illegal"] {
-  --block-tone: #ff6060;
-  --block-tone-soft: color-mix(in srgb, #ff6060 10%, transparent);
-  --block-chip-bg: #7a1a1a;
-  --block-chip-fg: #ffe8e8;
+  --block-tone: #ff2222;
+  --block-tone-soft: color-mix(in srgb, #ff2222 18%, transparent);
+  --block-chip-bg: #ff2222;
+  --block-chip-fg: #1a0000;
 }
 
 .asm-block.dragging {
@@ -1050,7 +1052,7 @@ button:focus-visible,
   padding: calc(3px * var(--block-scale)) calc(7px * var(--block-scale));
   border-radius: 999px;
   background: var(--block-chip-bg);
-  border: 1px solid color-mix(in srgb, var(--block-chip-fg) 18%, var(--panel-border));
+  border: none;
   line-height: 1;
 }
 
@@ -1398,12 +1400,23 @@ button:focus-visible,
   padding: 2px 0;
 }
 
+.macro-source-toggle:focus-within {
+  outline: none;
+}
+
 .macro-source-toggle input[type="checkbox"] {
   accent-color: var(--primary);
   width: 13px;
   height: 13px;
   cursor: pointer;
   flex-shrink: 0;
+  outline: none;
+}
+
+.macro-source-toggle input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+  border-radius: 2px;
 }
 
 .view-mode-toggle {
