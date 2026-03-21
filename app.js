@@ -2289,7 +2289,19 @@ function toggleBlockCollapsed(index) {
   }
 
   block.collapsed = !block.collapsed;
-  renderProgram();
+
+  const node = programList.querySelector(`[data-index="${index}"]`);
+  if (node) {
+    node.dataset.collapsed = block.collapsed ? "true" : "false";
+    const toggle = node.querySelector(".collapse-toggle");
+    if (toggle) {
+      toggle.textContent = block.collapsed ? "\u25B8" : "\u25BE";
+      toggle.setAttribute("aria-label", block.collapsed ? t("expand") : t("collapse"));
+      toggle.setAttribute("title", block.collapsed ? t("expand") : t("collapse"));
+    }
+  } else {
+    renderProgram();
+  }
 }
 
 function collapseAllBlocks() {
@@ -4714,7 +4726,7 @@ function renderBlockPreview(index) {
 
   node.querySelector(".block-category").textContent = getBlockModeCaption(block);
   const descText = getBlockDescription(block);
-  node.querySelector(".block-description-label").textContent = descText ? t("blockDescriptionLabel") : "";
+  node.querySelector(".block-description-label").textContent = "";
   node.querySelector(".block-description").textContent = descText;
 }
 
@@ -4791,6 +4803,12 @@ function getCollapsedOperandText(block) {
   if (block.isIncBinMacro) {
     const size = (block.incBinBytes || []).length;
     if (block.incBinFileName) return `"${block.incBinFileName}" (${size} bytes)`;
+    return currentLanguage === "en" ? "no file" : "nincs fajl";
+  }
+
+  if (block.isSidMacro) {
+    const size = (block.sidBytes || []).length;
+    if (block.sidFileName) return `"${block.sidFileName}"${size ? ` (${size} bytes)` : ""}`;
     return currentLanguage === "en" ? "no file" : "nincs fajl";
   }
 
@@ -4887,7 +4905,7 @@ function renderProgram() {
       node.querySelector(".collapsed-operand").textContent = getCollapsedOperandText(block);
       node.querySelector(".block-category").textContent = getBlockModeCaption(block);
       const blockDescText = getBlockDescription(block);
-      node.querySelector(".block-description-label").textContent = blockDescText ? t("blockDescriptionLabel") : "";
+      node.querySelector(".block-description-label").textContent = "";
       node.querySelector(".block-description").textContent = blockDescText;
 
       const mode = addressingModes[block.addressingMode];
@@ -5374,11 +5392,6 @@ function renderProgram() {
       const blockModeSelect = node.querySelector(".block-mode");
       if (blockModeSelect) {
         blockModeSelect.addEventListener("change", (event) => updateProgramBlock(index, "addressingMode", event.target.value));
-      }
-
-      if (block.collapsed) {
-        blockControls.hidden = true;
-        node.querySelector(".block-description").hidden = true;
       }
 
       const moveUpButton = node.querySelector(".move-up");
