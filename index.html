@@ -223,6 +223,16 @@
               <input type="checkbox" id="macro-source-toggle">
               <span id="macro-source-toggle-text">Macro source</span>
             </label>
+            <div class="mini-toggle asm-base-toggle" role="radiogroup" aria-label="ASM output format">
+              <label class="mini-toggle-option">
+                <input type="radio" name="asm-output-base" value="hex" checked>
+                <span>HEX</span>
+              </label>
+              <label class="mini-toggle-option">
+                <input type="radio" name="asm-output-base" value="dec">
+                <span>DEC</span>
+              </label>
+            </div>
           </div>
           <div class="origin-row">
             <label class="field compact-field">
@@ -231,6 +241,7 @@
             </label>
             <div id="origin-preview" class="origin-preview"></div>
           </div>
+
           <div id="output-stack" class="output-stack">
             <pre id="asm-output" class="asm-output"></pre>
             <pre id="monitor-output" class="asm-output monitor-output"></pre>
@@ -312,7 +323,7 @@
       </svg>
     </div>
     <h2 class="about-title">C64 Visual Assembler</h2>
-    <p class="about-version" id="about-version">v1.2.6</p>
+    <p class="about-version" id="about-version">v1.2.7</p>
     <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and dropping instruction blocks.</p>
     <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
     <button id="about-close" class="primary" type="button">Close</button>
@@ -322,40 +333,25 @@
 <dialog id="whats-new-dialog" class="whats-new-dialog">
   <div class="whats-new-card">
     <h2 class="whats-new-title">What's New</h2>
-    <p class="whats-new-version">v1.2.6</p>
+    <p class="whats-new-version">v1.2.7</p>
     <ul class="whats-new-list">
       <li>
-        <strong>UI improvements</strong> — block collapse/expand is now animated with a smooth slide. Buttons are more compact and consistent across the interface. The version number is now visible in dark mode on the splash screen.
+        <strong>Label picker</strong> — operand fields on branch and jump instructions (<code>BNE</code>, <code>JMP</code>, <code>JSR</code>, etc.) now show a custom dropdown listing all labels defined in the current program. Click to insert — no more typing label names by hand.
       </li>
       <li>
-        <strong>Mnemonic search</strong> — type in the palette search box to instantly filter instructions, macros, and categories by name or description. Results update as you type.
+        <strong>ASM view HEX / DEC toggle</strong> — a new toggle next to the Macro source checkbox switches all address and value literals in the ASM output between hexadecimal and decimal. The origin input converts alongside it.
       </li>
       <li>
-        <strong>SID macro</strong> — load a <code>.sid</code> file directly into memory without converting it to <code>.bin</code> first. The macro reads the SID header and places the music data at the correct load address automatically. A matching <em>SID Direct Demo</em> sample is included.
+        <strong>Label address in ASM view</strong> — label lines now show their resolved memory address as a comment, e.g. <code>loop:  ; $080D</code>.
       </li>
       <li>
-        <strong>Category colors — theme-independent</strong> — every block now has a vivid, saturated color accent regardless of light or dark mode. A 3px colored left-edge strip and a bright badge chip make each category instantly recognisable on any background.
+        <strong>Improved block selection highlight</strong> — clicking a block now highlights the corresponding ASM lines with a colored bar instead of the native browser text selection. The highlight stays visible after the program re-renders.
       </li>
       <li>
-        <strong>Export to PRG</strong> — new <em>File</em> menu entry saves the assembled program directly as a <code>.prg</code> file via a native save dialog, without launching VICE.
+        <strong>Block UI cleanup</strong> — unnecessary fields are now hidden on macro blocks: <em>Operand</em> and <em>Addressing mode</em> no longer appear on INVOKE, MACRO, ENDM, LOOP, NEXT, PUSH, PULL, and SID blocks. Each macro type only shows the controls it actually needs.
       </li>
       <li>
-        <strong>Compile error dialog</strong> — if assembly fails (bad operand value, unresolved label, etc.) a dialog lists <em>all</em> errors at once instead of silently refusing to run. Applies to both Run and Export to PRG.
-      </li>
-      <li>
-        <strong>Macro source toggle</strong> — a checkbox above the ASM view shows or hides the raw <code>MACRO…ENDM</code> source blocks inline. When hidden, only the expanded invoke output is shown. State is saved between sessions.
-      </li>
-      <li>
-        <strong>New addressing modes</strong> — <em>INC / DEC</em> expose <code>Absolute,X</code>; <em>JMP</em> gains <code>Indirect</code> (0x6C); <em>LDX</em> gains <code>Absolute,Y</code> and <code>Zero page,Y</code>; <em>STX</em> gains <code>Zero page,Y</code>.
-      </li>
-      <li>
-        <strong>Click-to-select ASM</strong> — clicking a block highlights its corresponding assembly lines in the right panel with a colored outline.
-      </li>
-      <li>
-        <strong>INCLUDE macro</strong> — embed another project's JSON blocks inline; the included code assembles fully into the PRG output.
-      </li>
-      <li>
-        <strong>SID music player demo</strong> — sample program using INCBIN to load and play the Ikari Warriors intro via raster IRQ. Music by <em>Thomas E. Petersen (Laxity)</em>, 1988.
+        <strong>LOOP: hex/dec count input</strong> — the loop count field now accepts both hexadecimal (<code>0A</code>) and decimal (<code>10</code>) values. A HEX / DEC toggle converts the stored value automatically when switched.
       </li>
     </ul>
     <button id="whats-new-close" class="primary" type="button">OK</button>
