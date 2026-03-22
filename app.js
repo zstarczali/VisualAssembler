@@ -232,8 +232,10 @@ const whatsNewButton = document.getElementById("whats-new-btn");
 let asmBlockRanges = {};
 let selectedBlockId = null;
 let showMacroSource = false;
+let asmOutputBase = "hex";
 const macroSourceToggle = document.getElementById("macro-source-toggle");
 const macroSourceToggleText = document.getElementById("macro-source-toggle-text");
+const asmBaseInputs = document.querySelectorAll('input[name="asm-output-base"]');
 const compileErrorDialog = document.getElementById("compile-error-dialog");
 const compileErrorList = document.getElementById("compile-error-list");
 const compileErrorTitle = document.getElementById("compile-error-title");
@@ -348,9 +350,10 @@ const translations = {
     fieldFormat: "Formatum",
     commentDefault: "uj komment",
     fieldLoopReg: "Register",
-    fieldLoopCount: "Szamla (hex)",
+    fieldLoopCount: "Ciklus",
     fieldLoopLabel: "Cimke",
     fieldNextLabel: "LOOP cimkeje",
+    pickLabel: "Cimke valasztas",
     fieldPushRegs: "Regiszterek",
     fieldPullRegs: "Regiszterek",
     warningLabel: "FIGYELEM",
@@ -536,9 +539,10 @@ const translations = {
     fieldFormat: "Format",
     commentDefault: "new comment",
     fieldLoopReg: "Register",
-    fieldLoopCount: "Count (hex)",
+    fieldLoopCount: "Count",
     fieldLoopLabel: "Label",
     fieldNextLabel: "LOOP label",
+    pickLabel: "Pick label",
     fieldPushRegs: "Registers",
     fieldPullRegs: "Registers",
     warningLabel: "WARNING",
@@ -663,7 +667,8 @@ function saveUiSettings() {
     sample: sampleSelect?.value || "basic-colors",
     memoryPanelOpen: !!globalMemoryPanel?.open,
     basicSys: basicSysToggle ? basicSysToggle.checked : true,
-    showMacroSource
+    showMacroSource,
+    asmOutputBase
   };
 
   localStorage.setItem("c64-ui-settings", JSON.stringify(settings));
@@ -1006,6 +1011,25 @@ function initPalette() {
     saveUiSettings();
     renderAsmOutput();
   });
+  asmBaseInputs.forEach(input => {
+    input.addEventListener("change", () => {
+      const prev = asmOutputBase;
+      asmOutputBase = input.value;
+      // Convert the origin input value between hex and dec
+      if (originInput && prev !== asmOutputBase) {
+        const origin = parseOriginValue();
+        if (!origin.error) {
+          originInput.value = asmOutputBase === "hex"
+            ? origin.value.toString(16).toUpperCase()
+            : String(origin.value);
+          renderOriginPreview();
+        }
+      }
+      saveUiSettings();
+      renderAsmOutput();
+    });
+  });
+
   addSelectedButton.addEventListener("click", addSelectedBlock);
   clearProgramButton.addEventListener("click", clearProgram);
   collapseAllButton.addEventListener("click", collapseAllBlocks);
@@ -1099,6 +1123,11 @@ function applySavedUiSettings() {
     showMacroSource = !!savedUiSettings.showMacroSource;
     macroSourceToggle.checked = showMacroSource;
   }
+
+  if (savedUiSettings.asmOutputBase) {
+    asmOutputBase = savedUiSettings.asmOutputBase;
+  }
+  asmBaseInputs.forEach(input => { input.checked = input.value === asmOutputBase; });
 }
 
 function handleLanguageChange() {
@@ -2645,6 +2674,10 @@ function buildOperandPreview(modeKey, rawValue, base) {
 
   const numericValue = parseNumberByBase(value, base);
   if (numericValue === null) {
+    // Allow label names (letters, digits, underscore) as valid operands for any addressing mode
+    if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(value)) {
+      return { operand: value, text: value, error: "" };
+    }
     return { operand: value, text: value, error: getNumberFormatError(base) };
   }
 
@@ -3629,11 +3662,13 @@ function compileLineBytes(line, labels) {
   if (block.isLoopMacro) {
     const reg = block.loopReg || "X";
     const opcode = reg === "Y" ? 0xA0 : 0xA2;
-    const count = parseInt(block.loopCount || "00", 16);
+    const rawCount = (block.loopCount || "0A").trim();
+    const count = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
     if (isNaN(count) || count < 0 || count > 255) {
       return { ok: false, error: `LOOP: ${t("invalidOperand") || "ervenytelen szamlalocim"}` };
     }
-    return { ok: true, bytes: [opcode, count], comment: `LD${reg} #$${(block.loopCount || "00").toUpperCase()} ; ${block.loopLabel || "?"}:` };
+    const countHex = count.toString(16).toUpperCase().padStart(2, "0");
+    return { ok: true, bytes: [opcode, count], comment: `LD${reg} #$${countHex} ; ${block.loopLabel || "?"}:` };
   }
 
   if (block.isNextMacro) {
@@ -4824,9 +4859,14 @@ function getCollapsedOperandText(block) {
 
   if (block.isLoopMacro) {
     const reg = block.loopReg || "X";
-    const count = block.loopCount ? `#$${block.loopCount.toUpperCase()}` : "";
+    let countDisplay = "";
+    if (block.loopCount) {
+      const rawCount = block.loopCount.trim();
+      const parsed = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+      countDisplay = isNaN(parsed) ? rawCount : `#$${parsed.toString(16).toUpperCase().padStart(2, "0")}`;
+    }
     const label = block.loopLabel || "";
-    return `${reg} ${count}${label ? ` → ${label}` : ""}`.trim();
+    return `${reg} ${countDisplay}${label ? ` → ${label}` : ""}`.trim();
   }
 
   if (block.isNextMacro) {
@@ -5162,6 +5202,7 @@ function renderProgram() {
         selectBlockInAsm(block.id);
       });
     } else if (block.isLoopMacro) {
+      inlineField.hidden = true;
       blockControls.insertAdjacentHTML(
         "beforeend",
         `
@@ -5175,9 +5216,22 @@ function renderProgram() {
             </label>
             <label class="mini-field">
               <span>${t("fieldLoopCount")}</span>
-              <input class="loop-count" type="text" maxlength="2" value="${block.loopCount || "0A"}" placeholder="0A">
+              <input class="loop-count" type="text" maxlength="3" value="${block.loopCount || "0A"}" placeholder="0A / 10">
             </label>
           </div>
+          <label class="mini-field">
+            <span>${t("fieldFormat")}</span>
+            <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
+              <label class="mini-toggle-option">
+                <input class="block-base" type="radio" name="block-base-${block.id}" value="hex"${block.base === "hex" ? " checked" : ""}>
+                <span>HEX</span>
+              </label>
+              <label class="mini-toggle-option">
+                <input class="block-base" type="radio" name="block-base-${block.id}" value="dec"${block.base === "dec" ? " checked" : ""}>
+                <span>DEC</span>
+              </label>
+            </div>
+          </label>
           <div class="macro-grid single-macro-row">
             <label class="mini-field">
               <span>${t("fieldLoopLabel")}</span>
@@ -5187,6 +5241,7 @@ function renderProgram() {
         `
       );
     } else if (block.isNextMacro) {
+      inlineField.hidden = true;
       blockControls.insertAdjacentHTML(
         "beforeend",
         `
@@ -5199,6 +5254,7 @@ function renderProgram() {
         `
       );
     } else if (block.isPushMacro) {
+      inlineField.hidden = true;
       blockControls.insertAdjacentHTML(
         "beforeend",
         `
@@ -5211,6 +5267,7 @@ function renderProgram() {
         `
       );
     } else if (block.isPullMacro) {
+      inlineField.hidden = true;
       blockControls.insertAdjacentHTML(
         "beforeend",
         `
@@ -5309,6 +5366,33 @@ function renderProgram() {
       operandField.disabled = !mode.needsOperand;
       operandField.placeholder = getOperandPlaceholder(mode, block.base);
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+      // Custom label picker dropdown for addressing modes that can reference a label
+      if (mode.needsOperand && (block.addressingMode === "relative" || block.addressingMode === "absolute" || block.addressingMode === "absoluteX" || block.addressingMode === "absoluteY")) {
+        const programLabels = program.filter(b => b.isLabel && b.labelName).map(b => b.labelName);
+        if (programLabels.length > 0) {
+          operandField.classList.add("has-label-picker");
+          const wrapper = document.createElement("div");
+          wrapper.className = "label-picker-wrap";
+          operandField.parentNode.insertBefore(wrapper, operandField);
+          wrapper.appendChild(operandField);
+          const dropdown = document.createElement("div");
+          dropdown.className = "label-picker-dropdown";
+          dropdown.hidden = true;
+          dropdown.innerHTML = programLabels.map(n => `<div class="label-picker-item">${n}</div>`).join("");
+          wrapper.appendChild(dropdown);
+          operandField.addEventListener("focus", () => { dropdown.hidden = false; });
+          operandField.addEventListener("blur", () => { setTimeout(() => { dropdown.hidden = true; }, 150); });
+          operandField.addEventListener("keydown", e => { if (e.key === "Escape") dropdown.hidden = true; });
+          dropdown.querySelectorAll(".label-picker-item").forEach(item => {
+            item.addEventListener("mousedown", e => {
+              e.preventDefault();
+              operandField.value = item.textContent;
+              operandField.dispatchEvent(new Event("input"));
+              dropdown.hidden = true;
+            });
+          });
+        }
+      }
     }
 
     blockControls.insertAdjacentHTML(
@@ -5328,7 +5412,7 @@ function renderProgram() {
             </label>
           </div>
         </label>` : ""}
-          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isIncBinMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke ? ` hidden` : ""}>
+          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro ? ` hidden` : ""}>
             <span>${t("addressingMode")}</span>
           <select class="block-mode">
             ${getMnemonicModes(block.mnemonic).map((modeKey) => `<option value="${modeKey}"${block.addressingMode === modeKey ? " selected" : ""}>${modeText(modeKey, "label")}</option>`).join("")}
@@ -5338,7 +5422,29 @@ function renderProgram() {
     );
 
     node.querySelectorAll(".block-base").forEach((baseInput) => {
-      baseInput.addEventListener("change", (event) => updateProgramBlock(index, "base", event.target.value));
+      baseInput.addEventListener("change", (event) => {
+        const newBase = event.target.value;
+        // For LOOP blocks, convert loopCount between hex and dec
+        if (block.isLoopMacro) {
+          const countInput = node.querySelector(".loop-count");
+          const rawCount = (countInput?.value || block.loopCount || "0A").trim();
+          const oldBase = newBase === "hex" ? "dec" : "hex";
+          let parsed;
+          if (oldBase === "dec") {
+            parsed = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+          } else {
+            parsed = parseInt(rawCount, 16);
+          }
+          if (!isNaN(parsed) && parsed >= 0 && parsed <= 255) {
+            const converted = newBase === "hex"
+              ? parsed.toString(16).toUpperCase().padStart(2, "0")
+              : String(parsed);
+            if (countInput) countInput.value = converted;
+            updateProgramBlock(index, "loopCount", converted);
+          }
+        }
+        updateProgramBlock(index, "base", newBase);
+      });
     });
     const macroXInput = node.querySelector(".macro-x");
     const macroYInput = node.querySelector(".macro-y");
@@ -5482,6 +5588,34 @@ function getMnemonicModes(mnemonic) {
   return items.find((item) => item.mnemonic === mnemonic)?.modes || ["implied"];
 }
 
+function applyAsmHighlight(blockId) {
+  const rangeInfo = asmBlockRanges[blockId];
+  const text = asmOutput.textContent;
+  if (!rangeInfo || !text) return;
+
+  const { firstLine, lastLine } = rangeInfo;
+  const lines = text.split("\n");
+
+  asmOutput.innerHTML = "";
+  lines.forEach((line, i) => {
+    const isHighlighted = i >= firstLine && i <= lastLine;
+    if (isHighlighted) {
+      const span = document.createElement("span");
+      span.className = "asm-line-highlight";
+      span.textContent = line;
+      asmOutput.appendChild(span);
+      // display:block already breaks the line — only add \n for copy-paste on non-last lines
+      if (i < lines.length - 1) span.appendChild(document.createTextNode("\n"));
+    } else {
+      asmOutput.appendChild(document.createTextNode(line));
+      if (i < lines.length - 1) asmOutput.appendChild(document.createTextNode("\n"));
+    }
+  });
+
+  const lineHeight = parseFloat(getComputedStyle(asmOutput).lineHeight) || 18;
+  asmOutput.scrollTop = Math.max(0, (firstLine - 3) * lineHeight);
+}
+
 function selectBlockInAsm(blockId) {
   selectedBlockId = blockId;
 
@@ -5490,29 +5624,7 @@ function selectBlockInAsm(blockId) {
   const blockNode = programList.querySelector(`[data-block-id="${blockId}"]`);
   if (blockNode) blockNode.classList.add("asm-block--selected");
 
-  const rangeInfo = asmBlockRanges[blockId];
-  if (!rangeInfo) return;
-
-  const text = asmOutput.textContent;
-  if (!text) return;
-
-  const textNode = asmOutput.firstChild;
-  if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return;
-
-  const start = Math.min(rangeInfo.start, text.length);
-  const end = Math.min(rangeInfo.end + 1, text.length);
-
-  const range = document.createRange();
-  range.setStart(textNode, start);
-  range.setEnd(textNode, end);
-  const sel = window.getSelection();
-  sel.removeAllRanges();
-  sel.addRange(range);
-
-  // Scroll to show selected lines
-  const lineHeight = parseFloat(getComputedStyle(asmOutput).lineHeight) || 18;
-  const lineNum = (text.substring(0, start).match(/\n/g) || []).length;
-  asmOutput.scrollTop = Math.max(0, (lineNum - 3) * lineHeight);
+  applyAsmHighlight(blockId);
 }
 
 function renderAsmOutput() {
@@ -5567,7 +5679,7 @@ function renderAsmOutput() {
     }
 
     if (line.block.isLabel) {
-      return `${line.block.labelName}:`;
+      return `${line.block.labelName}:  ; ${formatAddress(line.address)}`;
     }
 
     if (line.block.isComment) {
@@ -5693,9 +5805,11 @@ function renderAsmOutput() {
 
     if (line.block.isLoopMacro) {
       const reg = line.block.loopReg || "X";
-      const count = (line.block.loopCount || "00").toUpperCase();
+      const rawCount = (line.block.loopCount || "00").trim();
+      const parsedCount = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+      const countHex = isNaN(parsedCount) ? rawCount.toUpperCase() : parsedCount.toString(16).toUpperCase().padStart(2, "0");
       const label = line.block.loopLabel || "loop";
-      return `    LD${reg} #$${count}\n${label}:`;
+      return `    LD${reg} #$${countHex}\n${label}:`;
     }
 
     if (line.block.isNextMacro) {
@@ -5761,7 +5875,7 @@ function renderAsmOutput() {
         const remainder = line.address % boundary;
         const padding = remainder === 0 ? 0 : boundary - remainder;
         const targetAddr = line.address + padding;
-        return `    ; ALIGN ${boundary} → ${formatAddress(targetAddr)} (${padding} bytes)`;
+        return `    ; ALIGN ${boundary} \u2192 ${formatAddress(targetAddr)} (${padding} bytes)`;
       }
       return `    ; ALIGN: invalid boundary`;
     }
@@ -5797,25 +5911,22 @@ function renderAsmOutput() {
 
   deferredDataSections.sort((left, right) => left.address - right.address);
 
-  // Build block → character range index for ASM selection
+  // Build block → line-number index for ASM selection (2 header lines: "*= ..." + empty)
   asmBlockRanges = {};
-  const headerStr = `*= ${layout.origin.text}\n\n`;
-  let charPos = headerStr.length;
   codeLines.forEach((codeLine, i) => {
     const block = layout.lines[i].block;
     const key = block._fromInclude || (block._fromMacro ? (block._invokeBlockId || null) : block.id);
     if (key) {
-      const lineEnd = charPos + codeLine.length;
+      const lineNum = i + 2; // offset of 2 header lines
       if (!asmBlockRanges[key]) {
-        asmBlockRanges[key] = { start: charPos, end: lineEnd };
+        asmBlockRanges[key] = { firstLine: lineNum, lastLine: lineNum };
       } else {
-        asmBlockRanges[key].end = lineEnd;
+        asmBlockRanges[key].lastLine = lineNum;
       }
     }
-    charPos += codeLine.length + 1; // +1 for \n join separator
   });
 
-  asmOutput.textContent = [
+  let asmText = [
     `*= ${layout.origin.text}`,
     "",
     ...codeLines,
@@ -5823,6 +5934,16 @@ function renderAsmOutput() {
       ? ["", `; ${t("remoteMemoryData")}`, "", ...deferredDataSections.map((section) => section.text)]
       : [])
   ].join("\n");
+
+  if (asmOutputBase === "dec") {
+    asmText = asmText.replace(/\$([0-9A-Fa-f]+)/g, (_, hex) => String(parseInt(hex, 16)));
+  }
+
+  asmOutput.textContent = asmText;
+
+  if (selectedBlockId && asmBlockRanges[selectedBlockId]) {
+    applyAsmHighlight(selectedBlockId);
+  }
 
   renderMonitorOutput(layout);
 }
