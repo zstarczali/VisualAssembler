@@ -436,7 +436,7 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`1.1.5` — lásd `package.json` és a What's New dialóg (`index.html`).
+`1.2.7` — lásd `package.json` és a What's New dialóg (`index.html`).
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező
@@ -631,7 +631,9 @@ for (let i = regs.length - 1; i >= 0; i--) { ... }
 
 ### IF/ELSE/ENDIF makrók
 - **Conditional assembly** (még nincs teljesen implementálva)
-- Jelenleg csak comment-ként jelennek meg
+- Jelenleg csak comment-ként jelennek meg az ASM nézetben — **nem generálnak byte-ot**, **nem zárnak ki blokkokat** a fordításból
+- Az `ifCondition` mező szabad szöveg (pl. `DEBUG`) — nincs assembly-szintű hatása
+- Ha valódi feltételes kihagyás kell, az külön feature lenne
 
 ### MACRO/ENDM - User defined macros
 - Felhasználói makrók definiálása
@@ -698,5 +700,154 @@ program.forEach((block, i) => {
     const loop = program.find(b => b.isLoopMacro && b.loopLabel === block.nextLabel);
     console.log(`NEXT at ${i}: ${block.nextLabel} → reg=${block.nextReg}, loop reg=${loop?.loopReg}`);
   }
+});
+```
+
+---
+
+## UI rendszer — v1.2.7 újítások
+
+### Label picker (operandus mező)
+
+Agak és ugró utasítások operandus mezőjénél (`relative`, `absolute`, `absoluteX`, `absoluteY` módok) megjelenik egy custom dropdown a programban lévő label-ekkel:
+
+```javascript
+// renderProgram() - else ágban (sima utasítások)
+if (mode.needsOperand && (block.addressingMode === "relative" || ...)) {
+  const programLabels = program.filter(b => b.isLabel && b.labelName).map(b => b.labelName);
+  if (programLabels.length > 0) {
+    operandField.classList.add("has-label-picker");
+    // wrapper div + .label-picker-dropdown felépítése
+  }
+}
+```
+
+**CSS osztályok:**
+- `.label-picker-wrap` — `position: relative` wrapper
+- `.label-picker-dropdown` — dropdown panel (megegyezik az `.operand-dropdown` stílusával)
+- `.label-picker-item` — egy sor a dropdownban
+- `.has-label-picker` — az inputon, ha van dropdown; custom SVG nyíl, `cursor: pointer` (focus előtt)
+
+**Validáció fix:** `buildOperandPreview()` elfogadja a label neveket operandusként:
+```javascript
+if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(value)) {
+  return { operand: value, text: value, error: "" };
+}
+```
+
+### Dropdown stílus — mindkét dropdown egységes
+
+A natív `<datalist>` le van cserélve custom dropdownra. Az `operand-dropdown` (paletta) és a `label-picker-dropdown` (blokk) ugyanolyan stílusú: `var(--panel-strong)` háttér, `14px` border-radius, `var(--secondary)` hover.
+
+**TILOS** fekete (`#0d0d16`) hardcoded hátteret használni a dropdownoknál — mindig CSS változókat használj!
+
+### ASM blokk kiemelés
+
+Blokk kattintáskor az ASM nézetben a megfelelő sorok kiemelődnek. **Natív `window.getSelection()` helyett** DOM span-alapú kiemelés:
+
+```javascript
+function applyAsmHighlight(blockId) {
+  const { firstLine, lastLine } = asmBlockRanges[blockId];
+  // Rebuild <pre> content with <span class="asm-line-highlight"> on matching lines
+}
+```
+
+**`asmBlockRanges`** sorindex-alapú (`{ firstLine, lastLine }`) — **nem karakter-pozíció alapú**! DEC módban a `$D020 → 53280` konverzió megváltoztatja a szöveg hosszát, ezért a char-pos megközelítés rossz sorokat jelölt ki.
+
+A `renderAsmOutput()` végén re-apply:
+```javascript
+if (selectedBlockId && asmBlockRanges[selectedBlockId]) {
+  applyAsmHighlight(selectedBlockId);
+}
+```
+
+CSS:
+```css
+.asm-output .asm-line-highlight {
+  display: block;  /* ← egész sor legyen kiemelve */
+  background: color-mix(in srgb, var(--accent) 32%, transparent);
+  border-left: 2px solid var(--accent);
+  border-radius: 3px;
+  color: #ffffff;
+}
+```
+
+**Fontos:** `display: block` span + `\n` belülre kerül a spanba (ne utána!) — különben üres sor jelenik meg a kiemelés után.
+
+### ASM view HEX/DEC toggle
+
+A `macro-source-row`-ban egy `mini-toggle` váltja az ASM output számformátumát:
+- `asmOutputBase` state változó (`"hex"` | `"dec"`)
+- `renderAsmOutput()` végén: `.replace(/\$([0-9A-Fa-f]+)/g, ...)` ha DEC mód
+- Az origin input is konvertálódik váltáskor
+- Label sorok kommentje: `loop:  ; $080D`
+
+### CSS `[hidden]` override bug
+
+Ha egy elemnek `display: flex` vagy `display: grid` CSS-ben van definiálva, a böngésző `[hidden]` alapértelmezés (`display: none`) NEM érvényesül!
+
+**Fix — minden érintett osztályra explicit:**
+```css
+.inline-field[hidden] { display: none; }
+.mini-field[hidden]   { display: none; }
+```
+
+### Makró blokkok — melyiken látszik mi
+
+| Makró típus | Operandus | Cím.mód | Saját mezők |
+|-------------|-----------|---------|-------------|
+| `isLabel` | ✅ (label név) | ❌ | — |
+| `isComment` | ✅ (szöveg) | ❌ | — |
+| `isTextMacro` | ✅ | ❌ | X, Y koordináta |
+| `isByteMacro` | ✅ | ❌ | — |
+| `isStringMacro` | ✅ | ❌ | cím |
+| `isDataMacro` | ✅ | ❌ | cím |
+| `isRawBytesMacro` | ✅ | ❌ | cím |
+| `isRawTextMacro` | ✅ | ❌ | cím |
+| `isIncBinMacro` | ❌ | ❌ | fájl, cím |
+| `isSidMacro` | ❌ | ❌ | fájl |
+| `isIncludeMacro` | ❌ | ❌ | fájl |
+| `isLoopMacro` | ❌ | ❌ | reg, count (HEX/DEC toggle!), label |
+| `isNextMacro` | ❌ | ❌ | loop label |
+| `isPushMacro` | ❌ | ❌ | regiszterek |
+| `isPullMacro` | ❌ | ❌ | regiszterek |
+| `isWordMacro` | ✅ | ❌ | — |
+| `isFillMacro` | ✅ | ❌ | — |
+| `isAlignMacro` | ✅ | ❌ | — |
+| `isTableMacro` | ❌ | ❌ | — |
+| `isIfMacro` | ✅ (feltétel) | ❌ | — |
+| `isElseMacro` | ❌ | ❌ | — |
+| `isEndIfMacro` | ❌ | ❌ | — |
+| `isMacroDefStart` | ✅ (makró név) | ❌ | — |
+| `isMacroDefEnd` | ❌ | ❌ | — |
+| `isMacroInvoke` | ❌ | ❌ | makró select |
+
+A HEX/DEC format toggle feltétele (a nagy `insertAdjacentHTML` templateban):
+```javascript
+(mode.needsOperand && !block.isLabel && ... && !block.isLoopMacro && ...) ||
+block.isByteMacro || block.isDataMacro || block.isRawBytesMacro ||
+block.isWordMacro || block.isFillMacro || block.isAlignMacro
+// LOOP-hoz NEM kell itt, mert saját HTML-jébe van beépítve!
+```
+
+### LOOP blokk HEX/DEC toggle
+
+A LOOP `loopCount` mezőjénél a toggle a saját HTML-ben van, a címke mező FELETT:
+- A `block-base` change event LOOP blokknál konvertálja a `loopCount` értékét is:
+```javascript
+const rawCount = countInput.value.trim();
+const oldBase = newBase === "hex" ? "dec" : "hex";
+const parsed = oldBase === "dec" ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+const converted = newBase === "hex"
+  ? parsed.toString(16).toUpperCase().padStart(2, "0")
+  : String(parsed);
+```
+
+**LOOP count parse logika** (hex/dec auto-detect):
+```javascript
+const rawCount = (block.loopCount || "0A").trim();
+const count = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+// "0A" → hex → 10, "10" → dec → 10, "FF" → hex → 255, "255" → dec → 255
+```
 });
 ```
