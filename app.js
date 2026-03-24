@@ -246,6 +246,9 @@ const aboutDialog = document.getElementById("about-dialog");
 const aboutCloseButton = document.getElementById("about-close");
 const whatsNewDialog = document.getElementById("whats-new-dialog");
 const whatsNewCloseButton = document.getElementById("whats-new-close");
+const knowledgeBaseButton = document.getElementById("knowledge-base-btn");
+const knowledgeBaseDialog = document.getElementById("knowledge-base-dialog");
+const knowledgeBaseCloseButton = document.getElementById("knowledge-base-close");
 const exitAppButton = document.getElementById("exit-app");
 
 let program = [];
@@ -994,6 +997,16 @@ function initPalette() {
     whatsNewDialog?.showModal();
   });
   whatsNewCloseButton?.addEventListener("click", () => whatsNewDialog?.close());
+  knowledgeBaseButton?.addEventListener("click", () => knowledgeBaseDialog?.showModal());
+  knowledgeBaseCloseButton?.addEventListener("click", () => knowledgeBaseDialog?.close());
+  knowledgeBaseDialog?.addEventListener("click", (e) => { if (e.target === knowledgeBaseDialog) knowledgeBaseDialog.close(); });
+  knowledgeBaseDialog?.querySelectorAll(".knowledge-base-link").forEach((link) => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      const url = link.dataset.url;
+      if (url) window.electronAPI.openExternal(url);
+    });
+  });
   exitAppButton?.addEventListener("click", () => window.electronAPI.quitApp());
   setupOperandDropdown();
   sampleSelect?.addEventListener("change", saveUiSettings);
@@ -5913,17 +5926,19 @@ function renderAsmOutput() {
 
   // Build block → line-number index for ASM selection (2 header lines: "*= ..." + empty)
   asmBlockRanges = {};
+  let textLineNum = 2; // skip header "*= ..." (line 0) + empty (line 1)
   codeLines.forEach((codeLine, i) => {
     const block = layout.lines[i].block;
     const key = block._fromInclude || (block._fromMacro ? (block._invokeBlockId || null) : block.id);
+    const linesInEntry = codeLine.split("\n").length;
     if (key) {
-      const lineNum = i + 2; // offset of 2 header lines
       if (!asmBlockRanges[key]) {
-        asmBlockRanges[key] = { firstLine: lineNum, lastLine: lineNum };
+        asmBlockRanges[key] = { firstLine: textLineNum, lastLine: textLineNum + linesInEntry - 1 };
       } else {
-        asmBlockRanges[key].lastLine = lineNum;
+        asmBlockRanges[key].lastLine = textLineNum + linesInEntry - 1;
       }
     }
+    textLineNum += linesInEntry;
   });
 
   let asmText = [

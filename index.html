@@ -100,6 +100,7 @@
                 <h3 class="control-menu-label control-menu-label--section">Info</h3>
                 <button id="about-btn" class="secondary" type="button">About</button>
                 <button id="whats-new-btn" class="secondary" type="button">What's New</button>
+                <button id="knowledge-base-btn" class="secondary" type="button">Knowledge Base</button>
                 <button id="check-update-btn" class="secondary" type="button">Check for Update</button>
               </section>
             </div>
@@ -323,7 +324,7 @@
       </svg>
     </div>
     <h2 class="about-title">C64 Visual Assembler</h2>
-    <p class="about-version" id="about-version">v1.2.7</p>
+    <p class="about-version" id="about-version">v1.2.8</p>
     <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and dropping instruction blocks.</p>
     <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
     <button id="about-close" class="primary" type="button">Close</button>
@@ -333,8 +334,14 @@
 <dialog id="whats-new-dialog" class="whats-new-dialog">
   <div class="whats-new-card">
     <h2 class="whats-new-title">What's New</h2>
-    <p class="whats-new-version">v1.2.7</p>
+    <p class="whats-new-version">v1.2.8</p>
     <ul class="whats-new-list">
+      <li>
+        <strong>Zoom fix</strong> — block UI elements such as the Addressing mode selector, Format (HEX/DEC) toggle, INCBIN/INCLUDE file row, and SID metadata now correctly scale with the zoom level.
+      </li>
+      <li>
+        <strong>ASM selection highlight fix</strong> — the highlight in the ASM view no longer shifts when multi-line macros (<code>LOOP</code>, <code>NEXT</code>, <code>PUSH</code>, <code>PULL</code>) are present in the program. Previously, each multi-line macro caused all subsequent highlights to be offset by the number of extra lines it generated.
+      </li>
       <li>
         <strong>Label picker</strong> — operand fields on branch and jump instructions (<code>BNE</code>, <code>JMP</code>, <code>JSR</code>, etc.) now show a custom dropdown listing all labels defined in the current program. Click to insert — no more typing label names by hand.
       </li>
@@ -355,6 +362,40 @@
       </li>
     </ul>
     <button id="whats-new-close" class="primary" type="button">OK</button>
+  </div>
+</dialog>
+
+<dialog id="knowledge-base-dialog" class="knowledge-base-dialog">
+  <div class="knowledge-base-card">
+    <h2 class="knowledge-base-title">Knowledge Base</h2>
+    <p class="knowledge-base-subtitle">6502 &amp; C64 reference links</p>
+    <ul class="knowledge-base-list">
+      <li>
+        <a class="knowledge-base-link" href="#" data-url="http://www.6502.org/tutorials/6502opcodes.html">
+          <span class="knowledge-base-link-title">6502 Opcodes Reference</span>
+          <span class="knowledge-base-link-url">6502.org</span>
+        </a>
+      </li>
+      <li>
+        <a class="knowledge-base-link" href="#" data-url="https://sta.c64.org/cbm64krnfunc.html">
+          <span class="knowledge-base-link-title">C64 KERNAL Functions</span>
+          <span class="knowledge-base-link-url">sta.c64.org</span>
+        </a>
+      </li>
+      <li>
+        <a class="knowledge-base-link" href="#" data-url="https://sta.c64.org/cbm64mem.html">
+          <span class="knowledge-base-link-title">C64 Memory Map</span>
+          <span class="knowledge-base-link-url">sta.c64.org</span>
+        </a>
+      </li>
+      <li>
+        <a class="knowledge-base-link" href="#" data-url="https://sta.c64.org/cbm64col.html">
+          <span class="knowledge-base-link-title">C64 Color Codes</span>
+          <span class="knowledge-base-link-url">sta.c64.org</span>
+        </a>
+      </li>
+    </ul>
+    <button id="knowledge-base-close" class="primary" type="button">Close</button>
   </div>
 </dialog>
 

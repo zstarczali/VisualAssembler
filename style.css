@@ -1168,8 +1168,13 @@ button:focus-visible,
 .mini-field {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: calc(3px * var(--block-scale));
   margin-top: calc(4px * var(--block-scale));
+}
+
+.mini-field > span {
+  font-size: calc(0.7rem * var(--block-scale));
+  color: var(--muted);
 }
 
 .mini-field[hidden] {
@@ -1247,17 +1252,17 @@ button:focus-visible,
 .incbin-file-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: calc(6px * var(--block-scale));
   min-width: 0;
 }
 
 .sid-meta {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  margin-top: 6px;
-  padding: 6px 8px;
-  border-radius: 8px;
+  gap: calc(2px * var(--block-scale));
+  margin-top: calc(6px * var(--block-scale));
+  padding: calc(6px * var(--block-scale)) calc(8px * var(--block-scale));
+  border-radius: calc(8px * var(--block-scale));
   background: color-mix(in srgb, var(--panel-strong) 80%, var(--block-tone) 20%);
   font-size: calc(0.68rem * var(--block-scale));
   color: var(--muted);
@@ -1274,7 +1279,7 @@ button:focus-visible,
 
 .incbin-filename {
   flex: 1;
-  font-size: 0.7rem;
+  font-size: calc(0.7rem * var(--block-scale));
   color: var(--muted);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1314,9 +1319,9 @@ button:focus-visible,
 
 .incbin-browse-btn {
   flex-shrink: 0;
-  font-size: 0.65rem;
-  padding: 2px 6px;
-  border-radius: 4px;
+  font-size: calc(0.65rem * var(--block-scale));
+  padding: calc(2px * var(--block-scale)) calc(6px * var(--block-scale));
+  border-radius: calc(4px * var(--block-scale));
   background: var(--surface-soft);
   color: var(--text);
   border: 1px solid var(--border);
@@ -1332,9 +1337,9 @@ button:focus-visible,
 
 .include-browse-btn,
 .include-reload-btn {
-  font-size: 0.72rem;
-  padding: 2px 8px;
-  border-radius: 4px;
+  font-size: calc(0.72rem * var(--block-scale));
+  padding: calc(2px * var(--block-scale)) calc(8px * var(--block-scale));
+  border-radius: calc(4px * var(--block-scale));
   border: 1px solid var(--accent);
   background: var(--btn-bg, #444);
   color: var(--text);
@@ -1350,16 +1355,16 @@ button:focus-visible,
 .include-file-input {
   flex: 1;
   min-width: 0;
-  font-size: 0.78rem;
+  font-size: calc(0.78rem * var(--block-scale));
   cursor: default;
 }
 
 .mini-toggle {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 3px;
-  padding: 2px;
-  border-radius: 8px;
+  gap: calc(3px * var(--block-scale));
+  padding: calc(2px * var(--block-scale));
+  border-radius: calc(8px * var(--block-scale));
   background: var(--surface-soft);
   width: fit-content;
 }
@@ -1378,12 +1383,12 @@ button:focus-visible,
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 24px;
-  min-width: 42px;
-  padding: 0 6px;
-  border-radius: 6px;
+  min-height: calc(24px * var(--block-scale));
+  min-width: calc(42px * var(--block-scale));
+  padding: 0 calc(6px * var(--block-scale));
+  border-radius: calc(6px * var(--block-scale));
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: calc(0.7rem * var(--block-scale));
   font-weight: 700;
   letter-spacing: 0.03em;
   transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease;
@@ -2253,6 +2258,85 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
 }
 
 #whats-new-close {
+  min-width: 120px;
+  align-self: flex-end;
+}
+
+/* ── Knowledge Base Dialog ───────────────────────────────────────── */
+.knowledge-base-dialog {
+  border: none;
+  border-radius: 20px;
+  padding: 0;
+  background: var(--panel);
+  max-width: 420px;
+  width: 92vw;
+}
+
+.knowledge-base-dialog::backdrop {
+  background: color-mix(in srgb, black 55%, transparent);
+  backdrop-filter: blur(4px);
+}
+
+.knowledge-base-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 32px 32px 28px;
+}
+
+.knowledge-base-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.knowledge-base-subtitle {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.knowledge-base-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.knowledge-base-link {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--surface-soft);
+  border: 1px solid var(--panel-border);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease;
+}
+
+.knowledge-base-link:hover {
+  background: color-mix(in srgb, var(--secondary) 10%, var(--surface-soft));
+  border-color: var(--secondary);
+}
+
+.knowledge-base-link-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.knowledge-base-link-url {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  color: var(--secondary);
+}
+
+#knowledge-base-close {
   min-width: 120px;
   align-self: flex-end;
 }
