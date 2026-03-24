@@ -330,10 +330,12 @@ const translations = {
     sampleLoop: "LOOP / NEXT demo",
     sampleHelloLoop: "Hello World 1-40 (LOOP szamlalo)",
     samplePushPull: "PUSH / PULL demo",
+    sampleIfElse: "IF / ELSE / ENDIF demo",
     sampleUserMacro: "User MACRO / ENDM demo",
     sampleIncBin: "INCBIN demo",
     sampleInclude: "INCLUDE demo",
     sampleSidDemo: "SID zenelejatszas (Ikari Warriors)",
+    sampleSidDirectDemo: "SID lejatszas - SID makro (Ikari Warriors)",
     checkForUpdate: "Frissites keresese",
     whatsNew: "Ujdonsagok",
     paletteSearchPlaceholder: "Kereses...",
@@ -518,10 +520,12 @@ const translations = {
     sampleLoop: "LOOP / NEXT demo",
     sampleHelloLoop: "Hello World 1-40 (LOOP counter)",
     samplePushPull: "PUSH / PULL demo",
+    sampleIfElse: "IF / ELSE / ENDIF demo",
     sampleUserMacro: "User MACRO / ENDM demo",
     sampleIncBin: "INCBIN demo",
     sampleInclude: "INCLUDE demo",
-    sampleSidDemo: "SID music player (Ikari Warriors)",
+    sampleSidDemo: "SID player - INCBIN (Ikari Warriors)",
+    sampleSidDirectDemo: "SID player - SID macro (Ikari Warriors)",
     languageLabel: "Language",
     checkForUpdate: "Check for Update",
     whatsNew: "What's New",
@@ -1277,10 +1281,12 @@ function applyTranslations() {
   if (sampleOptions[11]) sampleOptions[11].textContent = t("sampleLoop");
   if (sampleOptions[12]) sampleOptions[12].textContent = t("sampleHelloLoop");
   if (sampleOptions[13]) sampleOptions[13].textContent = t("samplePushPull");
-  if (sampleOptions[14]) sampleOptions[14].textContent = t("sampleUserMacro");
-  if (sampleOptions[15]) sampleOptions[15].textContent = t("sampleIncBin");
-  if (sampleOptions[16]) sampleOptions[16].textContent = t("sampleInclude");
-  if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleSidDemo");
+  if (sampleOptions[14]) sampleOptions[14].textContent = t("sampleIfElse");
+  if (sampleOptions[15]) sampleOptions[15].textContent = t("sampleUserMacro");
+  if (sampleOptions[16]) sampleOptions[16].textContent = t("sampleIncBin");
+  if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleInclude");
+  if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleSidDemo");
+  if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleSidDirectDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -2656,12 +2662,11 @@ function highlightDropTarget(dropIndex) {
     return;
   }
 
-  if (dropIndex >= blocks.length) {
-    blocks[blocks.length - 1].classList.add("drop-after");
-    return;
+  if (dropIndex === 0) {
+    blocks[0].classList.add("drop-before");
+  } else {
+    blocks[Math.min(dropIndex - 1, blocks.length - 1)].classList.add("drop-after");
   }
-
-  blocks[dropIndex].classList.add("drop-before");
 }
 
 function clearDropIndicators() {
@@ -4846,6 +4851,7 @@ function renderBlockPreview(index) {
     return;
   }
 
+  node.querySelector(".collapsed-operand").textContent = getCollapsedOperandText(block);
   node.querySelector(".block-category").textContent = getBlockModeCaption(block);
   const descText = getBlockDescription(block);
   node.querySelector(".block-description-label").textContent = "";
@@ -5509,7 +5515,7 @@ function renderProgram() {
             </label>
           </div>
         </label>` : ""}
-          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro ? ` hidden` : ""}>
+          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro ? ` hidden` : ""}>
             <span>${t("addressingMode")}</span>
           <select class="block-mode">
             ${getMnemonicModes(block.mnemonic).map((modeKey) => `<option value="${modeKey}"${block.addressingMode === modeKey ? " selected" : ""}>${modeText(modeKey, "label")}</option>`).join("")}
@@ -5626,11 +5632,9 @@ function renderProgram() {
     });
 
     node.addEventListener("dragover", (event) => {
-      if (!dragState) {
-        return;
-      }
-
+      if (!dragState) return;
       event.preventDefault();
+      event.stopPropagation();
       const dropIndex = getDropIndex(event.clientY);
       highlightDropTarget(dropIndex);
       if (event.dataTransfer) {
@@ -5639,20 +5643,16 @@ function renderProgram() {
     });
 
     node.addEventListener("drop", (event) => {
-      if (!dragState) {
-        return;
-      }
-
+      if (!dragState) return;
       event.preventDefault();
+      event.stopPropagation();
       const dropIndex = getDropIndex(event.clientY);
       clearDropIndicators();
-
       if (dragState.type === "palette") {
         insertBlock(dropIndex, { ...dragState.block, id: crypto.randomUUID() });
       } else if (dragState.type === "program") {
         reorderBlock(dragState.index, dropIndex);
       }
-
       dragState = null;
     });
 
@@ -5738,7 +5738,7 @@ function renderAsmOutput() {
 
     // Handle conditionally skipped blocks (inactive IF branch)
     if (line.conditionallySkipped) {
-      const summary = getBlockOperandDisplay(line.block) || line.block.mnemonic || "";
+      const summary = line.block.operand || "";
       return `; [IF skipped] ${line.block.mnemonic}${summary ? " " + summary : ""}`;
     }
 
@@ -6305,6 +6305,10 @@ async function loadSidDemo() {
   }
 }
 
+async function loadIfElseDemo() {
+  await loadSampleFromFile("if-else");
+}
+
 async function loadSidDirectDemo() {
   const ok = await loadSampleFromFile("sid-direct-demo");
   if (!ok) return;
@@ -6399,6 +6403,11 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "user-macro-demo") {
     loadUserMacroDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "if-else") {
+    loadIfElseDemo();
     return;
   }
 
