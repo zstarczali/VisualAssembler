@@ -2232,6 +2232,10 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
   font-weight: 600;
 }
 
+.whats-new-version--prev {
+  margin-top: 8px;
+}
+
 .whats-new-list {
   margin: 0;
   padding-left: 1.2em;
