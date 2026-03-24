@@ -1579,6 +1579,7 @@ button:focus-visible,
 
 .asm-base-toggle {
   flex-shrink: 0;
+  --block-scale: 1;
 }
 
 .macro-source-toggle {
@@ -2229,6 +2230,10 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
   font-size: 0.9rem;
   color: var(--secondary);
   font-weight: 600;
+}
+
+.whats-new-version--prev {
+  margin-top: 8px;
 }
 
 .whats-new-list {

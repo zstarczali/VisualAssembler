@@ -377,9 +377,15 @@ ipcMain.handle("sample:load", async (_event, sampleName) => {
 });
 
 function createMainWindow() {
+  const config = readConfig();
+  const savedBounds = config.windowBounds || {};
+  const wasMaximized = config.windowMaximized || false;
+
   const mainWindow = new BrowserWindow({
-    width: 1600,
-    height: 980,
+    width: savedBounds.width || 1600,
+    height: savedBounds.height || 980,
+    x: savedBounds.x,
+    y: savedBounds.y,
     minWidth: 1200,
     minHeight: 760,
     backgroundColor: "#2f2a8a",
@@ -392,9 +398,20 @@ function createMainWindow() {
     }
   });
 
+  if (wasMaximized) mainWindow.maximize();
+
   mainWindow.loadFile(path.join(__dirname, "index.html"));
   mainWindow.webContents.on("did-finish-load", () => {
     mainWindow.setTitle("C64 Visual Assembler");
+  });
+
+  mainWindow.on("close", () => {
+    const isMaximized = mainWindow.isMaximized();
+    const bounds = isMaximized ? (savedBounds || {}) : mainWindow.getBounds();
+    const next = readConfig();
+    next.windowMaximized = isMaximized;
+    next.windowBounds = { width: bounds.width, height: bounds.height, x: bounds.x, y: bounds.y };
+    writeConfig(next);
   });
 }
 
