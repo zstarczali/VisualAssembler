@@ -32,7 +32,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
    - [LOOP / NEXT](#loop--next)
    - [PUSH / PULL](#push--pull)
    - [MACRO / ENDM / INVOKE](#macro--endm--invoke)
-   - [IF / ELSE / ENDIF](#if--else--endif)
+   - [DEFINE / IF / ELSE / ENDIF](#define--if--else--endif)
 9. [Knowledge Base Links](#9-knowledge-base-links)
 
 ---
@@ -670,24 +670,40 @@ The macro body is expanded inline — all addresses and labels are resolved in c
 
 ---
 
-### IF / ELSE / ENDIF
+### DEFINE / IF / ELSE / ENDIF
 
-Conditional assembly markers. These are annotation blocks — they do not generate executable code but mark conditional sections for documentation or future tooling.
+Conditional assembly blocks. Add a `DEFINE` block to activate a named symbol — any `IF` block whose condition matches a `DEFINE` present in the program is assembled; its `ELSE` branch (if any) is skipped, and vice versa.
+
+#### DEFINE
+
+| Field | Description |
+|---|---|
+| Symbol | One or more comma-separated identifiers to activate (e.g. `DEBUG` or `DEBUG, PAL`) |
+
+**Generated ASM:**
+```
+; .DEFINE DEBUG
+; .DEFINE DEBUG, PAL
+```
+
+A single `DEFINE` block can activate multiple symbols at once using a comma-separated list. Place `DEFINE` blocks anywhere in the program (typically at the top). Removing the block deactivates all its symbols instantly.
 
 #### IF
 
 | Field | Description |
 |---|---|
-| Condition | An identifier (e.g. `DEBUG`, `PAL_VERSION`) |
+| Condition | Identifier to test (must match a `DEFINE` symbol to be active) |
 
 **Generated ASM:**
 ```
 ; .IF DEBUG
 ```
 
+Blocks between `IF` and `ENDIF` (or `ELSE`) are included or skipped based on whether the condition symbol has a matching `DEFINE` block in the program. Skipped blocks appear as `; [IF skipped] …` comments and generate **zero bytes**.
+
 #### ELSE
 
-No fields. Marks the alternative branch.
+No fields. Marks the alternative branch — assembled when the `IF` condition is *not* active.
 
 **Generated ASM:**
 ```
@@ -703,7 +719,33 @@ No fields. Closes the conditional block.
 ; .ENDIF
 ```
 
-**Size:** 0 bytes for all three.
+**Size:** 0 bytes for all four blocks. Only the content *between* them counts.
+
+**Example — debug border flash, release build skips it:**
+```
+; .DEFINE DEBUG
+
+; .IF DEBUG
+    LDA #$02        ; red border
+    STA $D020
+; .ELSE
+    LDA #$00        ; black (release)
+    STA $D020
+; .ENDIF
+```
+
+**Example — multiple symbols in one DEFINE block:**
+```
+; .DEFINE DEBUG, PAL
+
+; .IF PAL
+    LDA #$xx        ; PAL timing constant
+; .ELSE
+    LDA #$xx        ; NTSC timing constant
+; .ENDIF
+```
+
+Nested `IF` blocks are supported. The innermost condition is evaluated independently; an outer skipped block causes all inner blocks to be skipped regardless of their condition.
 
 ---
 

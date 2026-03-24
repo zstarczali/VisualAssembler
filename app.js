@@ -161,6 +161,7 @@ const mnemonicLibrary = {
     { mnemonic: "MACRO", description: "Felhasznaloi makro definicio kezdete. Nevet var, ENDM-mel zarjuk.", modes: ["implied"], isMacroDefStart: true },
     { mnemonic: "ENDM", description: "Felhasznaloi makro definicio vege.", modes: ["implied"], isMacroDefEnd: true },
     { mnemonic: "INVOKE", description: "Felhasznaloi makro hivasa. Valaszd ki a listabol a makro nevet.", modes: ["implied"], isMacroInvoke: true },
+    { mnemonic: "DEFINE", description: "Szimbolum definialasa felteteles forditashoz. Ha jelen van, az IF blokkban levo feltetelek kivalutalodnak.", modes: ["implied"], isDefineMacro: true },
     { mnemonic: "IF", description: "Felteteles forditas kezdete. Kifejezest var (pl. DEBUG). ENDIF-fel zarjuk.", modes: ["implied"], isIfMacro: true },
     { mnemonic: "ELSE", description: "Alternativ ag IF blokkon belul.", modes: ["implied"], isElseMacro: true },
     { mnemonic: "ENDIF", description: "Felteteles forditas vege.", modes: ["implied"], isEndIfMacro: true }
@@ -1141,6 +1142,7 @@ function applySavedUiSettings() {
     asmOutputBase = savedUiSettings.asmOutputBase;
   }
   asmBaseInputs.forEach(input => { input.checked = input.value === asmOutputBase; });
+
 }
 
 function handleLanguageChange() {
@@ -2068,6 +2070,24 @@ function createBlockFromMnemonic(item) {
     };
   }
 
+  if (item.isDefineMacro) {
+    const rawOperand = operandInput.value.trim() || "DEBUG";
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: rawOperand,
+      rawOperand,
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: validateDefineMacro(rawOperand),
+      collapsed: true,
+      isDefineMacro: true,
+      defineSymbol: rawOperand
+    };
+  }
+
   if (item.isIfMacro) {
     const rawOperand = operandInput.value.trim() || "DEBUG";
     return {
@@ -2445,6 +2465,10 @@ function updateProgramBlock(index, field, value) {
     } else if (block.isAlignMacro) {
       block.operand = block.rawOperand.trim();
       block.validationError = validateAlignMacro(block.rawOperand, block.base);
+    } else if (block.isDefineMacro) {
+      block.operand = block.rawOperand.trim();
+      block.defineSymbol = block.rawOperand.trim();
+      block.validationError = validateDefineMacro(block.rawOperand);
     } else if (block.isIfMacro) {
       block.operand = block.rawOperand.trim();
       block.ifCondition = block.rawOperand.trim();
@@ -2930,6 +2954,18 @@ function validateTableMacro(labelName, address) {
     return currentLanguage === "en" ? "TABLE macro address must be between 0 and 65535." : "A TABLE makro cime 0 es 65535 kozott lehet.";
   }
 
+  return "";
+}
+
+function validateDefineMacro(symbols) {
+  if (!symbols || !symbols.trim()) {
+    return currentLanguage === "en" ? "DEFINE needs at least one symbol (e.g., DEBUG or DEBUG, PAL)." : "A DEFINE-hoz legalabb egy szimbolum kell (pl. DEBUG vagy DEBUG, PAL).";
+  }
+  const parts = symbols.split(",").map(s => s.trim()).filter(Boolean);
+  const invalid = parts.find(p => !/^[A-Za-z_][A-Za-z0-9_]*$/.test(p));
+  if (invalid) {
+    return currentLanguage === "en" ? `"${invalid}" is not a valid identifier.` : `"${invalid}" nem ervenyes azonosito.`;
+  }
   return "";
 }
 
@@ -3476,6 +3512,7 @@ function assembleProgramToPrg(originOverride) {
   const labels = new Map();
 
   layout.lines.forEach((line) => {
+    if (line.conditionallySkipped) return;
     if (line.block.isLabel) {
       labels.set(line.block.labelName, line.address);
     }
@@ -3565,6 +3602,9 @@ function assembleProgramToPrg(originOverride) {
 }
 
 function compileLineBytes(line, labels) {
+  if (line.conditionallySkipped) {
+    return { ok: true, bytes: [], comment: "conditionally skipped" };
+  }
   const block = line.block;
 
   if (block._isMacroInvokeHeader) {
@@ -3799,12 +3839,11 @@ function compileLineBytes(line, labels) {
     };
   }
 
-  if (block.isIfMacro || block.isElseMacro || block.isEndIfMacro) {
-    // Conditional assembly blocks don't generate bytes themselves
+  if (block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro) {
     return {
       ok: true,
       bytes: [],
-      comment: block.isIfMacro ? `IF ${block.ifCondition || "?"}` : (block.isElseMacro ? "ELSE" : "ENDIF")
+      comment: block.isDefineMacro ? `DEFINE ${block.defineSymbol || "?"}` : block.isIfMacro ? `IF ${block.ifCondition || "?"}` : (block.isElseMacro ? "ELSE" : "ENDIF")
     };
   }
 
@@ -4143,8 +4182,8 @@ function getInstructionSize(block) {
     return 0;  // TABLE is just a label
   }
 
-  if (block.isIfMacro || block.isElseMacro || block.isEndIfMacro) {
-    return 0;  // Conditional assembly directives don't take space
+  if (block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro) {
+    return 0;
   }
 
   if (block.isMacroDefStart || block.isMacroDefEnd) {
@@ -4242,8 +4281,35 @@ function getProgramLayout(originOverride) {
     }
   }
 
+  // Collect active defines from DEFINE blocks in the program
+  const activeDefines = new Set(
+    program.filter(b => b.isDefineMacro && b.defineSymbol).flatMap(b =>
+      b.defineSymbol.split(",").map(s => s.trim()).filter(Boolean)
+    )
+  );
+
+  // Mark blocks that are inside an inactive IF branch
+  const condStack = []; // frames: { active: bool, inElse: bool }
+  const skippedBlocks = new WeakSet();
+  for (const block of expandedProgram) {
+    if (block.isIfMacro) {
+      condStack.push({ active: activeDefines.has((block.ifCondition || "").trim()), inElse: false });
+    } else if (block.isElseMacro) {
+      if (condStack.length > 0) condStack[condStack.length - 1].inElse = true;
+    } else if (block.isEndIfMacro) {
+      if (condStack.length > 0) condStack.pop();
+    } else if (condStack.length > 0) {
+      const skip = condStack.some(f => f.inElse ? f.active : !f.active);
+      if (skip) skippedBlocks.add(block);
+    }
+  }
+
   const lines = expandedProgram.map((block) => {
     let size = getInstructionSize(block);
+
+    if (skippedBlocks.has(block)) {
+      return { block, size: 0, address: cursor, end: cursor - 1, conditionallySkipped: true };
+    }
 
     // Handle TABLE macro: set address cursor if tableAddress is present
     if (block.isTableMacro && block.tableAddress) {
@@ -4624,6 +4690,10 @@ function getBlockDescription(block) {
     return block.validationError || `${currentLanguage === "en" ? "TABLE" : "TABLA"}: ${block.tableName || "?"} @ ${block.tableAddress || "C000"}`;
   }
 
+  if (block.isDefineMacro) {
+    return block.validationError || `DEFINE: ${block.defineSymbol || "?"}`;
+  }
+
   if (block.isIfMacro) {
     return block.validationError || `${currentLanguage === "en" ? "IF" : "HA"}: ${block.ifCondition || "?"}`;
   }
@@ -4714,6 +4784,10 @@ function getBlockModeCaption(block) {
 
   if (block.isTableMacro) {
     return `${currentLanguage === "en" ? "Lookup table" : "Kereso tabla"} | ${block.tableAddress || "C000"}`;
+  }
+
+  if (block.isDefineMacro) {
+    return currentLanguage === "en" ? "Conditional | DEFINE" : "Felteteles | DEFINE";
   }
 
   if (block.isIfMacro) {
@@ -4911,6 +4985,10 @@ function getCollapsedOperandText(block) {
 
   if (block.isTableMacro) {
     return `${block.tableName || "?"} @ ${block.tableAddress || "C000"}`;
+  }
+
+  if (block.isDefineMacro) {
+    return block.defineSymbol || "?";
   }
 
   if (block.isIfMacro) {
@@ -5335,6 +5413,12 @@ function renderProgram() {
           </div>
         `
       );
+    } else if (block.isDefineMacro) {
+      inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Symbol" : "Szimbolum";
+      inlineField.hidden = false;
+      operandField.value = block.defineSymbol || "";
+      operandField.placeholder = "DEBUG";
+      operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
     } else if (block.isIfMacro) {
       inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Condition" : "Feltetel";
       inlineField.hidden = false;
@@ -5652,6 +5736,12 @@ function renderAsmOutput() {
   const codeLines = layout.lines.map((line, index) => {
     const lineNumber = `${(index + 1).toString().padStart(2, "0")}`;
 
+    // Handle conditionally skipped blocks (inactive IF branch)
+    if (line.conditionallySkipped) {
+      const summary = getBlockOperandDisplay(line.block) || line.block.mnemonic || "";
+      return `; [IF skipped] ${line.block.mnemonic}${summary ? " " + summary : ""}`;
+    }
+
     // Handle INVOKE block header line
     if (line.block._isMacroInvokeHeader) {
       return `; >>> Invoke: ${line.block.invokeMacroName || "?"}`;
@@ -5895,6 +5985,10 @@ function renderAsmOutput() {
 
     if (line.block.isTableMacro) {
       return `${line.block.tableName || "table"}:`;
+    }
+
+    if (line.block.isDefineMacro) {
+      return `; .DEFINE ${line.block.defineSymbol || "?"}`;
     }
 
     if (line.block.isIfMacro) {

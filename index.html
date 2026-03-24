@@ -242,7 +242,6 @@
             </label>
             <div id="origin-preview" class="origin-preview"></div>
           </div>
-
           <div id="output-stack" class="output-stack">
             <pre id="asm-output" class="asm-output"></pre>
             <pre id="monitor-output" class="asm-output monitor-output"></pre>
@@ -324,7 +323,7 @@
       </svg>
     </div>
     <h2 class="about-title">C64 Visual Assembler</h2>
-    <p class="about-version" id="about-version">v1.2.8</p>
+    <p class="about-version" id="about-version">v1.2.9</p>
     <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and dropping instruction blocks.</p>
     <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
     <button id="about-close" class="primary" type="button">Close</button>
@@ -334,31 +333,40 @@
 <dialog id="whats-new-dialog" class="whats-new-dialog">
   <div class="whats-new-card">
     <h2 class="whats-new-title">What's New</h2>
-    <p class="whats-new-version">v1.2.8</p>
+    <p class="whats-new-version">v1.2.9</p>
+    <ul class="whats-new-list">
+      <li>
+        <strong>DEFINE macro + IF/ELSE/ENDIF conditional assembly</strong> — add a <code>DEFINE</code> block to activate a named symbol (e.g. <code>DEBUG</code>). Any <code>IF DEBUG</code> … <code>ENDIF</code> block whose condition matches an active <code>DEFINE</code> is assembled; the <code>ELSE</code> branch (if present) is skipped — and vice versa. Nested conditionals are supported. Skipped blocks appear as <code>; [IF skipped]</code> comments in the ASM view and generate zero bytes.
+      </li>
+      <li>
+        <strong>Knowledge Base dialog</strong> — a new <em>Knowledge Base</em> button in the Info section opens a quick-reference panel with links to the 6502 opcode reference, C64 KERNAL functions, memory map, and color codes.
+      </li>
+      <li>
+        <strong>Window size remembered</strong> — the app now saves and restores the Electron window size and position between sessions. Maximized state is preserved as well.
+      </li>
+      <li>
+        <strong>ASM view HEX/DEC toggle fix</strong> — the HEX / DEC toggle in the ASM panel header no longer shrinks to zero size when the block zoom level is changed.
+      </li>
+    </ul>
+    <p class="whats-new-version whats-new-version--prev">v1.2.8</p>
     <ul class="whats-new-list">
       <li>
         <strong>Zoom fix</strong> — block UI elements such as the Addressing mode selector, Format (HEX/DEC) toggle, INCBIN/INCLUDE file row, and SID metadata now correctly scale with the zoom level.
       </li>
       <li>
-        <strong>ASM selection highlight fix</strong> — the highlight in the ASM view no longer shifts when multi-line macros (<code>LOOP</code>, <code>NEXT</code>, <code>PUSH</code>, <code>PULL</code>) are present in the program. Previously, each multi-line macro caused all subsequent highlights to be offset by the number of extra lines it generated.
+        <strong>ASM selection highlight fix</strong> — the highlight in the ASM view no longer shifts when multi-line macros (<code>LOOP</code>, <code>NEXT</code>, <code>PUSH</code>, <code>PULL</code>) are present in the program.
       </li>
       <li>
-        <strong>Label picker</strong> — operand fields on branch and jump instructions (<code>BNE</code>, <code>JMP</code>, <code>JSR</code>, etc.) now show a custom dropdown listing all labels defined in the current program. Click to insert — no more typing label names by hand.
+        <strong>Label picker</strong> — operand fields on branch and jump instructions (<code>BNE</code>, <code>JMP</code>, <code>JSR</code>, etc.) now show a custom dropdown listing all labels defined in the current program.
       </li>
       <li>
-        <strong>ASM view HEX / DEC toggle</strong> — a new toggle next to the Macro source checkbox switches all address and value literals in the ASM output between hexadecimal and decimal. The origin input converts alongside it.
+        <strong>ASM view HEX / DEC toggle</strong> — switches all address and value literals in the ASM output between hexadecimal and decimal.
       </li>
       <li>
         <strong>Label address in ASM view</strong> — label lines now show their resolved memory address as a comment, e.g. <code>loop:  ; $080D</code>.
       </li>
       <li>
-        <strong>Improved block selection highlight</strong> — clicking a block now highlights the corresponding ASM lines with a colored bar instead of the native browser text selection. The highlight stays visible after the program re-renders.
-      </li>
-      <li>
-        <strong>Block UI cleanup</strong> — unnecessary fields are now hidden on macro blocks: <em>Operand</em> and <em>Addressing mode</em> no longer appear on INVOKE, MACRO, ENDM, LOOP, NEXT, PUSH, PULL, and SID blocks. Each macro type only shows the controls it actually needs.
-      </li>
-      <li>
-        <strong>LOOP: hex/dec count input</strong> — the loop count field now accepts both hexadecimal (<code>0A</code>) and decimal (<code>10</code>) values. A HEX / DEC toggle converts the stored value automatically when switched.
+        <strong>LOOP: hex/dec count input</strong> — the loop count field now accepts both hexadecimal and decimal values with an inline HEX / DEC toggle.
       </li>
     </ul>
     <button id="whats-new-close" class="primary" type="button">OK</button>
