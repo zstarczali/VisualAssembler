@@ -1579,6 +1579,7 @@ button:focus-visible,
 
 .asm-base-toggle {
   flex-shrink: 0;
+  --block-scale: 1;
 }
 
 .macro-source-toggle {
