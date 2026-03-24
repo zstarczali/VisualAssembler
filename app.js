@@ -161,6 +161,7 @@ const mnemonicLibrary = {
     { mnemonic: "MACRO", description: "Felhasznaloi makro definicio kezdete. Nevet var, ENDM-mel zarjuk.", modes: ["implied"], isMacroDefStart: true },
     { mnemonic: "ENDM", description: "Felhasznaloi makro definicio vege.", modes: ["implied"], isMacroDefEnd: true },
     { mnemonic: "INVOKE", description: "Felhasznaloi makro hivasa. Valaszd ki a listabol a makro nevet.", modes: ["implied"], isMacroInvoke: true },
+    { mnemonic: "DEFINE", description: "Szimbolum definialasa felteteles forditashoz. Ha jelen van, az IF blokkban levo feltetelek kivalutalodnak.", modes: ["implied"], isDefineMacro: true },
     { mnemonic: "IF", description: "Felteteles forditas kezdete. Kifejezest var (pl. DEBUG). ENDIF-fel zarjuk.", modes: ["implied"], isIfMacro: true },
     { mnemonic: "ELSE", description: "Alternativ ag IF blokkon belul.", modes: ["implied"], isElseMacro: true },
     { mnemonic: "ENDIF", description: "Felteteles forditas vege.", modes: ["implied"], isEndIfMacro: true }
@@ -329,10 +330,12 @@ const translations = {
     sampleLoop: "LOOP / NEXT demo",
     sampleHelloLoop: "Hello World 1-40 (LOOP szamlalo)",
     samplePushPull: "PUSH / PULL demo",
+    sampleIfElse: "IF / ELSE / ENDIF demo",
     sampleUserMacro: "User MACRO / ENDM demo",
     sampleIncBin: "INCBIN demo",
     sampleInclude: "INCLUDE demo",
     sampleSidDemo: "SID zenelejatszas (Ikari Warriors)",
+    sampleSidDirectDemo: "SID lejatszas - SID makro (Ikari Warriors)",
     checkForUpdate: "Frissites keresese",
     whatsNew: "Ujdonsagok",
     paletteSearchPlaceholder: "Kereses...",
@@ -517,10 +520,12 @@ const translations = {
     sampleLoop: "LOOP / NEXT demo",
     sampleHelloLoop: "Hello World 1-40 (LOOP counter)",
     samplePushPull: "PUSH / PULL demo",
+    sampleIfElse: "IF / ELSE / ENDIF demo",
     sampleUserMacro: "User MACRO / ENDM demo",
     sampleIncBin: "INCBIN demo",
     sampleInclude: "INCLUDE demo",
-    sampleSidDemo: "SID music player (Ikari Warriors)",
+    sampleSidDemo: "SID player - INCBIN (Ikari Warriors)",
+    sampleSidDirectDemo: "SID player - SID macro (Ikari Warriors)",
     languageLabel: "Language",
     checkForUpdate: "Check for Update",
     whatsNew: "What's New",
@@ -1141,6 +1146,7 @@ function applySavedUiSettings() {
     asmOutputBase = savedUiSettings.asmOutputBase;
   }
   asmBaseInputs.forEach(input => { input.checked = input.value === asmOutputBase; });
+
 }
 
 function handleLanguageChange() {
@@ -1275,10 +1281,12 @@ function applyTranslations() {
   if (sampleOptions[11]) sampleOptions[11].textContent = t("sampleLoop");
   if (sampleOptions[12]) sampleOptions[12].textContent = t("sampleHelloLoop");
   if (sampleOptions[13]) sampleOptions[13].textContent = t("samplePushPull");
-  if (sampleOptions[14]) sampleOptions[14].textContent = t("sampleUserMacro");
-  if (sampleOptions[15]) sampleOptions[15].textContent = t("sampleIncBin");
-  if (sampleOptions[16]) sampleOptions[16].textContent = t("sampleInclude");
-  if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleSidDemo");
+  if (sampleOptions[14]) sampleOptions[14].textContent = t("sampleIfElse");
+  if (sampleOptions[15]) sampleOptions[15].textContent = t("sampleUserMacro");
+  if (sampleOptions[16]) sampleOptions[16].textContent = t("sampleIncBin");
+  if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleInclude");
+  if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleSidDemo");
+  if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleSidDirectDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -2068,6 +2076,24 @@ function createBlockFromMnemonic(item) {
     };
   }
 
+  if (item.isDefineMacro) {
+    const rawOperand = operandInput.value.trim() || "DEBUG";
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: rawOperand,
+      rawOperand,
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: validateDefineMacro(rawOperand),
+      collapsed: true,
+      isDefineMacro: true,
+      defineSymbol: rawOperand
+    };
+  }
+
   if (item.isIfMacro) {
     const rawOperand = operandInput.value.trim() || "DEBUG";
     return {
@@ -2445,6 +2471,10 @@ function updateProgramBlock(index, field, value) {
     } else if (block.isAlignMacro) {
       block.operand = block.rawOperand.trim();
       block.validationError = validateAlignMacro(block.rawOperand, block.base);
+    } else if (block.isDefineMacro) {
+      block.operand = block.rawOperand.trim();
+      block.defineSymbol = block.rawOperand.trim();
+      block.validationError = validateDefineMacro(block.rawOperand);
     } else if (block.isIfMacro) {
       block.operand = block.rawOperand.trim();
       block.ifCondition = block.rawOperand.trim();
@@ -2632,12 +2662,11 @@ function highlightDropTarget(dropIndex) {
     return;
   }
 
-  if (dropIndex >= blocks.length) {
-    blocks[blocks.length - 1].classList.add("drop-after");
-    return;
+  if (dropIndex === 0) {
+    blocks[0].classList.add("drop-before");
+  } else {
+    blocks[Math.min(dropIndex - 1, blocks.length - 1)].classList.add("drop-after");
   }
-
-  blocks[dropIndex].classList.add("drop-before");
 }
 
 function clearDropIndicators() {
@@ -2930,6 +2959,18 @@ function validateTableMacro(labelName, address) {
     return currentLanguage === "en" ? "TABLE macro address must be between 0 and 65535." : "A TABLE makro cime 0 es 65535 kozott lehet.";
   }
 
+  return "";
+}
+
+function validateDefineMacro(symbols) {
+  if (!symbols || !symbols.trim()) {
+    return currentLanguage === "en" ? "DEFINE needs at least one symbol (e.g., DEBUG or DEBUG, PAL)." : "A DEFINE-hoz legalabb egy szimbolum kell (pl. DEBUG vagy DEBUG, PAL).";
+  }
+  const parts = symbols.split(",").map(s => s.trim()).filter(Boolean);
+  const invalid = parts.find(p => !/^[A-Za-z_][A-Za-z0-9_]*$/.test(p));
+  if (invalid) {
+    return currentLanguage === "en" ? `"${invalid}" is not a valid identifier.` : `"${invalid}" nem ervenyes azonosito.`;
+  }
   return "";
 }
 
@@ -3476,6 +3517,7 @@ function assembleProgramToPrg(originOverride) {
   const labels = new Map();
 
   layout.lines.forEach((line) => {
+    if (line.conditionallySkipped) return;
     if (line.block.isLabel) {
       labels.set(line.block.labelName, line.address);
     }
@@ -3565,6 +3607,9 @@ function assembleProgramToPrg(originOverride) {
 }
 
 function compileLineBytes(line, labels) {
+  if (line.conditionallySkipped) {
+    return { ok: true, bytes: [], comment: "conditionally skipped" };
+  }
   const block = line.block;
 
   if (block._isMacroInvokeHeader) {
@@ -3799,12 +3844,11 @@ function compileLineBytes(line, labels) {
     };
   }
 
-  if (block.isIfMacro || block.isElseMacro || block.isEndIfMacro) {
-    // Conditional assembly blocks don't generate bytes themselves
+  if (block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro) {
     return {
       ok: true,
       bytes: [],
-      comment: block.isIfMacro ? `IF ${block.ifCondition || "?"}` : (block.isElseMacro ? "ELSE" : "ENDIF")
+      comment: block.isDefineMacro ? `DEFINE ${block.defineSymbol || "?"}` : block.isIfMacro ? `IF ${block.ifCondition || "?"}` : (block.isElseMacro ? "ELSE" : "ENDIF")
     };
   }
 
@@ -4143,8 +4187,8 @@ function getInstructionSize(block) {
     return 0;  // TABLE is just a label
   }
 
-  if (block.isIfMacro || block.isElseMacro || block.isEndIfMacro) {
-    return 0;  // Conditional assembly directives don't take space
+  if (block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro) {
+    return 0;
   }
 
   if (block.isMacroDefStart || block.isMacroDefEnd) {
@@ -4242,8 +4286,35 @@ function getProgramLayout(originOverride) {
     }
   }
 
+  // Collect active defines from DEFINE blocks in the program
+  const activeDefines = new Set(
+    program.filter(b => b.isDefineMacro && b.defineSymbol).flatMap(b =>
+      b.defineSymbol.split(",").map(s => s.trim()).filter(Boolean)
+    )
+  );
+
+  // Mark blocks that are inside an inactive IF branch
+  const condStack = []; // frames: { active: bool, inElse: bool }
+  const skippedBlocks = new WeakSet();
+  for (const block of expandedProgram) {
+    if (block.isIfMacro) {
+      condStack.push({ active: activeDefines.has((block.ifCondition || "").trim()), inElse: false });
+    } else if (block.isElseMacro) {
+      if (condStack.length > 0) condStack[condStack.length - 1].inElse = true;
+    } else if (block.isEndIfMacro) {
+      if (condStack.length > 0) condStack.pop();
+    } else if (condStack.length > 0) {
+      const skip = condStack.some(f => f.inElse ? f.active : !f.active);
+      if (skip) skippedBlocks.add(block);
+    }
+  }
+
   const lines = expandedProgram.map((block) => {
     let size = getInstructionSize(block);
+
+    if (skippedBlocks.has(block)) {
+      return { block, size: 0, address: cursor, end: cursor - 1, conditionallySkipped: true };
+    }
 
     // Handle TABLE macro: set address cursor if tableAddress is present
     if (block.isTableMacro && block.tableAddress) {
@@ -4624,6 +4695,10 @@ function getBlockDescription(block) {
     return block.validationError || `${currentLanguage === "en" ? "TABLE" : "TABLA"}: ${block.tableName || "?"} @ ${block.tableAddress || "C000"}`;
   }
 
+  if (block.isDefineMacro) {
+    return block.validationError || `DEFINE: ${block.defineSymbol || "?"}`;
+  }
+
   if (block.isIfMacro) {
     return block.validationError || `${currentLanguage === "en" ? "IF" : "HA"}: ${block.ifCondition || "?"}`;
   }
@@ -4716,6 +4791,10 @@ function getBlockModeCaption(block) {
     return `${currentLanguage === "en" ? "Lookup table" : "Kereso tabla"} | ${block.tableAddress || "C000"}`;
   }
 
+  if (block.isDefineMacro) {
+    return currentLanguage === "en" ? "Conditional | DEFINE" : "Felteteles | DEFINE";
+  }
+
   if (block.isIfMacro) {
     return currentLanguage === "en" ? "Conditional | IF" : "Felteteles | HA";
   }
@@ -4772,6 +4851,7 @@ function renderBlockPreview(index) {
     return;
   }
 
+  node.querySelector(".collapsed-operand").textContent = getCollapsedOperandText(block);
   node.querySelector(".block-category").textContent = getBlockModeCaption(block);
   const descText = getBlockDescription(block);
   node.querySelector(".block-description-label").textContent = "";
@@ -4911,6 +4991,10 @@ function getCollapsedOperandText(block) {
 
   if (block.isTableMacro) {
     return `${block.tableName || "?"} @ ${block.tableAddress || "C000"}`;
+  }
+
+  if (block.isDefineMacro) {
+    return block.defineSymbol || "?";
   }
 
   if (block.isIfMacro) {
@@ -5335,6 +5419,12 @@ function renderProgram() {
           </div>
         `
       );
+    } else if (block.isDefineMacro) {
+      inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Symbol" : "Szimbolum";
+      inlineField.hidden = false;
+      operandField.value = block.defineSymbol || "";
+      operandField.placeholder = "DEBUG";
+      operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
     } else if (block.isIfMacro) {
       inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Condition" : "Feltetel";
       inlineField.hidden = false;
@@ -5425,7 +5515,7 @@ function renderProgram() {
             </label>
           </div>
         </label>` : ""}
-          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro ? ` hidden` : ""}>
+          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro ? ` hidden` : ""}>
             <span>${t("addressingMode")}</span>
           <select class="block-mode">
             ${getMnemonicModes(block.mnemonic).map((modeKey) => `<option value="${modeKey}"${block.addressingMode === modeKey ? " selected" : ""}>${modeText(modeKey, "label")}</option>`).join("")}
@@ -5542,11 +5632,9 @@ function renderProgram() {
     });
 
     node.addEventListener("dragover", (event) => {
-      if (!dragState) {
-        return;
-      }
-
+      if (!dragState) return;
       event.preventDefault();
+      event.stopPropagation();
       const dropIndex = getDropIndex(event.clientY);
       highlightDropTarget(dropIndex);
       if (event.dataTransfer) {
@@ -5555,20 +5643,16 @@ function renderProgram() {
     });
 
     node.addEventListener("drop", (event) => {
-      if (!dragState) {
-        return;
-      }
-
+      if (!dragState) return;
       event.preventDefault();
+      event.stopPropagation();
       const dropIndex = getDropIndex(event.clientY);
       clearDropIndicators();
-
       if (dragState.type === "palette") {
         insertBlock(dropIndex, { ...dragState.block, id: crypto.randomUUID() });
       } else if (dragState.type === "program") {
         reorderBlock(dragState.index, dropIndex);
       }
-
       dragState = null;
     });
 
@@ -5651,6 +5735,12 @@ function renderAsmOutput() {
   const deferredDataSections = [];
   const codeLines = layout.lines.map((line, index) => {
     const lineNumber = `${(index + 1).toString().padStart(2, "0")}`;
+
+    // Handle conditionally skipped blocks (inactive IF branch)
+    if (line.conditionallySkipped) {
+      const summary = line.block.operand || "";
+      return `; [IF skipped] ${line.block.mnemonic}${summary ? " " + summary : ""}`;
+    }
 
     // Handle INVOKE block header line
     if (line.block._isMacroInvokeHeader) {
@@ -5895,6 +5985,10 @@ function renderAsmOutput() {
 
     if (line.block.isTableMacro) {
       return `${line.block.tableName || "table"}:`;
+    }
+
+    if (line.block.isDefineMacro) {
+      return `; .DEFINE ${line.block.defineSymbol || "?"}`;
     }
 
     if (line.block.isIfMacro) {
@@ -6211,6 +6305,10 @@ async function loadSidDemo() {
   }
 }
 
+async function loadIfElseDemo() {
+  await loadSampleFromFile("if-else");
+}
+
 async function loadSidDirectDemo() {
   const ok = await loadSampleFromFile("sid-direct-demo");
   if (!ok) return;
@@ -6305,6 +6403,11 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "user-macro-demo") {
     loadUserMacroDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "if-else") {
+    loadIfElseDemo();
     return;
   }
 
