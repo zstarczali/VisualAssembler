@@ -2,7 +2,7 @@
 
 An Electron-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v1.2.6**
+**Current version: v1.3.2**
 
 ---
 
@@ -30,7 +30,9 @@ An Electron-based desktop application for visually composing Commodore 64 6502 a
 - **TABLE macro** — define a named lookup table at a given address
 - **LOOP / NEXT macro** — visual counter loop pair; LOOP loads X or Y with a count, NEXT emits `DEX/DEY + BNE`; nested loops supported
 - **PUSH / PULL macro** — save and restore A, X, Y register combinations to/from the stack
-- **IF / ELSE / ENDIF macro** — conditional assembly blocks
+- **IF / ELSE / ENDIF macro** — conditional assembly blocks driven by `DEFINE` symbols
+- **DEFINE macro** — activate named symbols for conditional assembly
+- **CONST macro** — declare named constants; appear in label picker and generate zero bytes
 - **MACRO / ENDM / INVOKE** — define and invoke reusable user macros
 - **INCBIN macro** — include an external binary file at a given memory address
 - **INCLUDE macro** — embed another `.c64asm` project file inline (read-only)
@@ -138,6 +140,8 @@ Each block in `program[]` is a plain object:
   isIfMacro: true, ifCondition: "DEBUG",
   isElseMacro: true,
   isEndIfMacro: true,
+  isDefineMacro: true, defineSymbol: "DEBUG",
+  isConstMacro: true, constName: "SCREEN", constValue: 1024,
   isIncBinMacro: true, incBinAddress: "C000", incBinFileName: "data.bin",
   isIncludeMacro: true, includeFileName: "lib.c64asm",
   isSidMacro: true,
@@ -166,7 +170,9 @@ Each block in `program[]` is a plain object:
 | `PULL` | `PLA` / `PLA TAX` / `PLA TAY` combinations |
 | `MACRO` / `ENDM` | Define a reusable named macro block |
 | `INVOKE` | Call a user-defined macro by name |
-| `IF` / `ELSE` / `ENDIF` | Conditional assembly (condition checked at assemble time) |
+| `DEFINE` | Activate one or more named symbols for conditional assembly |
+| `IF` / `ELSE` / `ENDIF` | Conditional assembly — blocks are included or skipped based on active `DEFINE` symbols |
+| `CONST` | Declare a named constant (0 bytes); appears in label picker for instruction operands |
 | `INCBIN` | Embeds an external binary file at a given address |
 | `INCLUDE` | Inlines another `.c64asm` project at the current position |
 | `SID` | Loads a SID file into memory; strips the header, extracts load/init/play addresses |
@@ -216,7 +222,7 @@ Each block in `program[]` is a plain object:
 | `incbin-demo` | INCBIN macro loading `demo-colors.bin` at `$C000`; colour cycling loop reads bytes by index |
 | `include-demo` | INCLUDE macro embedding `include-library.json` (set_border / set_bg routines) |
 | `include-library` | Reusable library: `set_border` and `set_bg` subroutines |
-| `macro-test` | Smoke-test for WORD, FILL, TABLE, IF/ELSE/ENDIF macros |
+| `if-else` | DEFINE / IF / ELSE / ENDIF conditional assembly demo |
 | `sid-demo` | SID music player — Ikari Warriors theme, IRQ-driven via VIC raster |
 | `sid-direct-demo` | SID loaded directly using the SID macro (no `.bin` conversion needed) |
 

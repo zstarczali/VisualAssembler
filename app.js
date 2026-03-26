@@ -164,7 +164,8 @@ const mnemonicLibrary = {
     { mnemonic: "DEFINE", description: "Szimbolum definialasa felteteles forditashoz. Ha jelen van, az IF blokkban levo feltetelek kivalutalodnak.", modes: ["implied"], isDefineMacro: true },
     { mnemonic: "IF", description: "Felteteles forditas kezdete. Kifejezest var (pl. DEBUG). ENDIF-fel zarjuk.", modes: ["implied"], isIfMacro: true },
     { mnemonic: "ELSE", description: "Alternativ ag IF blokkon belul.", modes: ["implied"], isElseMacro: true },
-    { mnemonic: "ENDIF", description: "Felteteles forditas vege.", modes: ["implied"], isEndIfMacro: true }
+    { mnemonic: "ENDIF", description: "Felteteles forditas vege.", modes: ["implied"], isEndIfMacro: true },
+    { mnemonic: "CONST", description: "Nevesitett konstans definialasa. Barmely fontos mnemoniknal felhasznalhato (LDA, STA, JSR, stb.).", modes: ["implied"], isConstMacro: true }
   ],
   Illegalis: [
     { mnemonic: "LAX", description: "A es X regiszter egyideju betoltese (illegalis: LDA+LDX kombinacio).", modes: ["immediate", "zeroPage", "absolute"] },
@@ -234,9 +235,12 @@ let asmBlockRanges = {};
 let selectedBlockId = null;
 let showMacroSource = false;
 let asmOutputBase = "hex";
+let originBase = "hex";
+const macroSourceToggleOn = document.getElementById("macro-source-toggle-on");
 const macroSourceToggle = document.getElementById("macro-source-toggle");
 const macroSourceToggleText = document.getElementById("macro-source-toggle-text");
 const asmBaseInputs = document.querySelectorAll('input[name="asm-output-base"]');
+const originBaseInputs = document.querySelectorAll('input[name="origin-base"]');
 const compileErrorDialog = document.getElementById("compile-error-dialog");
 const compileErrorList = document.getElementById("compile-error-list");
 const compileErrorTitle = document.getElementById("compile-error-title");
@@ -274,7 +278,12 @@ const translations = {
     savePrg: "Export PRG-kent",
     savePrgSuccess: "PRG elmentve",
     savePrgFailed: "PRG mentes sikertelen",
-    macroSourceToggle: "Makro forras",
+    programSettings: "Programbeallitasok",
+    macroSourceToggle: "Makro forraskod megjelenites",
+    asmNumbersLabel: "Szamok az ASM kimenetben",
+    asmOutputLabel: "ASM kimenet",
+    monitorOutputLabel: "Monitor kimenet",
+    originPreviewLabel: "Forditas info",
     compileErrorTitle: "Forditasi hibak",
     loadProject: "Program betoltese",
     exitApp: "Kilepes",
@@ -293,10 +302,13 @@ const translations = {
     programHelp: "Ide ejtsd a bal oldali blokkot, vagy rendezd at a mar bent levo sorokat.",
     asmTitle: "ASM nezet",
     asmHelp: "Az osszerakott szoveges kod innen indulhat tovabb export fele.",
+    outputProgram: "Program",
     outputAsm: "ASM",
     outputMonitor: "Monitor",
     outputBoth: "Mindketto",
-    originLabel: "Kezdocim (`*=`)",
+    originLabel: "Program kezdocime",
+    originPlaceholderHex: "pl. $0801 vagy $C000",
+    originPlaceholderDec: "pl. 2049 vagy 49152",
     emulatorTitle: "VICE kapcsolat",
     emulatorHelp: "A helyi VICE emulatort inditjuk a desktop appbol.",
     openEmulator: "VICE kivalasztasa",
@@ -464,7 +476,12 @@ const translations = {
     savePrg: "Export to PRG",
     savePrgSuccess: "PRG saved",
     savePrgFailed: "PRG save failed",
-    macroSourceToggle: "Macro source",
+    programSettings: "Program settings",
+    macroSourceToggle: "Show macro source code",
+    asmNumbersLabel: "Numbers in ASM output",
+    asmOutputLabel: "ASM output",
+    monitorOutputLabel: "Monitor output",
+    originPreviewLabel: "Compile info",
     compileErrorTitle: "Compilation errors",
     loadProject: "Load program",
     exitApp: "Exit",
@@ -483,10 +500,13 @@ const translations = {
     programHelp: "Drop blocks from the left here, or reorder the lines already in the program.",
     asmTitle: "ASM view",
     asmHelp: "The assembled source code appears here and can be exported onward.",
+    outputProgram: "Program",
     outputAsm: "ASM",
     outputMonitor: "Monitor",
     outputBoth: "Both",
-    originLabel: "Start address (`*=`)",
+    originLabel: "Program start address",
+    originPlaceholderHex: "e.g. $0801 or $C000",
+    originPlaceholderDec: "e.g. 2049 or 49152",
     emulatorTitle: "VICE connection",
     emulatorHelp: "The desktop app launches your local VICE emulator.",
     openEmulator: "Choose VICE",
@@ -676,7 +696,8 @@ function saveUiSettings() {
     memoryPanelOpen: !!globalMemoryPanel?.open,
     basicSys: basicSysToggle ? basicSysToggle.checked : true,
     showMacroSource,
-    asmOutputBase
+    asmOutputBase,
+    originBase
   };
 
   localStorage.setItem("c64-ui-settings", JSON.stringify(settings));
@@ -1024,25 +1045,19 @@ function initPalette() {
   outputModeInputs.forEach((input) => input.addEventListener("change", renderOutputMode));
   compileErrorClose?.addEventListener("click", () => compileErrorDialog?.close());
   compileErrorDialog?.addEventListener("click", (e) => { if (e.target === compileErrorDialog) compileErrorDialog.close(); });
+  macroSourceToggleOn?.addEventListener("change", () => {
+    showMacroSource = macroSourceToggleOn.checked;
+    saveUiSettings();
+    renderAsmOutput();
+  });
   macroSourceToggle?.addEventListener("change", () => {
-    showMacroSource = macroSourceToggle.checked;
+    showMacroSource = false;
     saveUiSettings();
     renderAsmOutput();
   });
   asmBaseInputs.forEach(input => {
     input.addEventListener("change", () => {
-      const prev = asmOutputBase;
       asmOutputBase = input.value;
-      // Convert the origin input value between hex and dec
-      if (originInput && prev !== asmOutputBase) {
-        const origin = parseOriginValue();
-        if (!origin.error) {
-          originInput.value = asmOutputBase === "hex"
-            ? origin.value.toString(16).toUpperCase()
-            : String(origin.value);
-          renderOriginPreview();
-        }
-      }
       saveUiSettings();
       renderAsmOutput();
     });
@@ -1056,6 +1071,25 @@ function initPalette() {
   chooseViceButton?.addEventListener("click", chooseViceExecutable);
   runEmulatorButton?.addEventListener("click", runInEmulator);
   originInput.addEventListener("input", handleOriginInput);
+  originBaseInputs.forEach(input => {
+    input.addEventListener("change", () => {
+      const oldBase = originBase;
+      originBase = input.value;
+      // Convert the current input value to the new base
+      const raw = originInput.value.trim();
+      if (raw) {
+        const parsed = parseNumberByBase(raw, oldBase) ?? parseNumberByBase(raw, oldBase === "hex" ? "dec" : "hex");
+        if (parsed !== null && Number.isInteger(parsed) && parsed >= 0 && parsed <= 0xFFFF) {
+          originInput.value = originBase === "hex"
+            ? parsed.toString(16).toUpperCase().padStart(4, "0")
+            : String(parsed);
+        }
+      }
+      updateOriginPlaceholder();
+      saveUiSettings();
+      handleOriginInput();
+    });
+  });
   globalMemoryPanel?.addEventListener("toggle", saveUiSettings);
 
   applySavedTheme();
@@ -1137,15 +1171,22 @@ function applySavedUiSettings() {
     basicSysToggle.checked = savedUiSettings.basicSys !== false;
   }
 
-  if (macroSourceToggle && savedUiSettings.showMacroSource !== undefined) {
+  if (savedUiSettings.showMacroSource !== undefined) {
     showMacroSource = !!savedUiSettings.showMacroSource;
-    macroSourceToggle.checked = showMacroSource;
+    if (macroSourceToggleOn) macroSourceToggleOn.checked = showMacroSource;
+    if (macroSourceToggle) macroSourceToggle.checked = !showMacroSource;
   }
 
   if (savedUiSettings.asmOutputBase) {
     asmOutputBase = savedUiSettings.asmOutputBase;
   }
   asmBaseInputs.forEach(input => { input.checked = input.value === asmOutputBase; });
+
+  if (savedUiSettings.originBase) {
+    originBase = savedUiSettings.originBase;
+  }
+  originBaseInputs.forEach(input => { input.checked = input.value === originBase; });
+  updateOriginPlaceholder();
 
 }
 
@@ -1206,10 +1247,11 @@ function applyTranslations() {
     setText(".base-switch legend", t("numberBase"));
     setText(".palette-panel .field:nth-of-type(4) span", t("addressingMode"));
     setText("#add-selected", t("addSelected"));
+    setText('.view-mode-option input[value="program"] + span', t("outputProgram"));
     setText('.view-mode-option input[value="asm"] + span', t("outputAsm"));
     setText('.view-mode-option input[value="monitor"] + span', t("outputMonitor"));
     setText('.view-mode-option input[value="both"] + span', t("outputBoth"));
-    setText('.origin-row .field span', t("originLabel"));
+    setText('.origin-label-text', t("originLabel"));
     setText(".global-memory-title", t("memoryTitle"));
     setText(".menu-field span", t("viceExecutable"));
     setText("#choose-vice", t("openEmulator"));
@@ -1217,7 +1259,13 @@ function applyTranslations() {
     setText("#copy-asm", t("copyAsm"));
     setText("#save-project", t("saveProject"));
     setText("#save-prg", t("savePrg"));
+    setText("#program-settings-label", t("programSettings"));
     if (macroSourceToggleText) macroSourceToggleText.textContent = t("macroSourceToggle");
+    setText("#asm-numbers-label", t("asmNumbersLabel"));
+    setText("#origin-preview-label", t("originPreviewLabel"));
+    updateOriginPlaceholder();
+    setText("#asm-output-label", t("asmOutputLabel"));
+    setText("#monitor-output-label", t("monitorOutputLabel"));
     setText("#load-project", t("loadProject"));
     setText("#exit-app", t("exitApp"));
     exitAppButton?.setAttribute("title", t("exitApp"));
@@ -1366,6 +1414,18 @@ function handleBaseChange() {
   saveUiSettings();
 }
 
+function getAsmDisplayOperand(block) {
+  if (!block.rawOperand || !block.addressingMode) return block.operand || "";
+  const numericValue = parseNumberByBase(block.rawOperand, block.base || "hex");
+  if (numericValue === null) return block.operand || "";
+  if (validateRange(block.addressingMode, numericValue)) return block.operand || "";
+  return formatOperand(block.addressingMode, numericValue, asmOutputBase);
+}
+
+function updateOriginPlaceholder() {
+  originInput.placeholder = originBase === "hex" ? t("originPlaceholderHex") : t("originPlaceholderDec");
+}
+
 function handleOriginInput() {
   renderOriginPreview();
   renderAsmOutput();
@@ -1441,8 +1501,8 @@ function updateOperandField() {
   const mode = addressingModes[addressingSelect.value];
   const addressingField = document.getElementById("addressing-field");
 
-  // Hide addressing mode selector for COMMENT
-  if (addressingField) addressingField.hidden = !!(item?.isComment);
+  // Hide addressing mode selector for COMMENT or single-mode instructions
+  if (addressingField) addressingField.hidden = !!(item?.isComment) || (item ? item.modes.length <= 1 : false);
 
   // Populate KERNAL suggestions for JSR / JMP
   if (item && (item.mnemonic === "JSR" || item.mnemonic === "JMP")) {
@@ -1735,6 +1795,7 @@ function renderSearchResults(query) {
 
     node.addEventListener("dragstart", (event) => {
       categorySelect.value = category;
+      mnemonicSelect.innerHTML = (mnemonicLibrary[category] || []).map(({ mnemonic }) => `<option value="${mnemonic}">${mnemonic}</option>`).join("");
       mnemonicSelect.value = item.mnemonic;
       syncAddressingModes();
       if (item.modes.includes(selectedMode)) {
@@ -2094,6 +2155,24 @@ function createBlockFromMnemonic(item) {
     };
   }
 
+  if (item.isConstMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "0000",
+      rawOperand: "0000",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isConstMacro: true,
+      constName: "MY_CONST",
+      constValue: 0
+    };
+  }
+
   if (item.isIfMacro) {
     const rawOperand = operandInput.value.trim() || "DEBUG";
     return {
@@ -2255,6 +2334,22 @@ function collapseLoadedProgram(blocks) {
     collapsed: true
   }));
 
+  // Rebuild operand from rawOperand for all regular instruction blocks to fix
+  // suffix/prefix mismatches (,X / ,Y / #) from older saved files
+  result.forEach((block) => {
+    const isMacroOrSpecial = block.isLabel || block.isComment || block.isLoopMacro ||
+      block.isNextMacro || block.isTableMacro || block.isDefineMacro || block.isConstMacro ||
+      block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isByteMacro ||
+      block.isWordMacro || block.isDataMacro || block.isRawBytesMacro || block.isFillMacro ||
+      block.isAlignMacro || block.isTextMacro || block.isStringMacro || block.isRawTextMacro ||
+      block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isPushMacro ||
+      block.isPullMacro || block.isMacroDefStart || block.isMacroDefEnd || block.isMacroInvoke;
+    if (!isMacroOrSpecial && block.rawOperand && block.addressingMode) {
+      const preview = buildOperandPreview(block.addressingMode, block.rawOperand, block.base || "hex");
+      if (!preview.error) block.operand = preview.operand;
+    }
+  });
+
   // Initialize nextReg for NEXT blocks based on their matching LOOP
   result.forEach((block, index) => {
     if (block.isNextMacro && block.nextLabel) {
@@ -2389,6 +2484,7 @@ function expandAllBlocks() {
 function updateProgramBlock(index, field, value) {
   const block = program[index];
   const prevBase = block.base;
+  const prevConstName = block.constName;
   block[field] = value;
 
   if (field === "labelName") {
@@ -2475,11 +2571,31 @@ function updateProgramBlock(index, field, value) {
       block.operand = block.rawOperand.trim();
       block.defineSymbol = block.rawOperand.trim();
       block.validationError = validateDefineMacro(block.rawOperand);
+    } else if (block.isConstMacro) {
+      if (field === "base") {
+        const numericValue = parseNumberByBase(block.rawOperand.replace(/^\$/, ""), prevBase);
+        if (numericValue !== null) {
+          block.rawOperand = value === "hex"
+            ? numericValue.toString(16).toUpperCase().padStart(4, "0")
+            : String(numericValue);
+        }
+      }
+      block.operand = block.rawOperand.trim();
+      block.constValue = parseNumberByBase(block.rawOperand.replace(/^\$/, ""), block.base);
+      block.validationError = validateConstMacro(block.constName, block.rawOperand, block.base);
     } else if (block.isIfMacro) {
       block.operand = block.rawOperand.trim();
       block.ifCondition = block.rawOperand.trim();
       block.validationError = validateIfMacro(block.rawOperand);
     } else {
+      if (field === "base" && block.rawOperand) {
+        const numericValue = parseNumberByBase(block.rawOperand.trim().replace(/^\$/, ""), prevBase);
+        if (numericValue !== null) {
+          block.rawOperand = value === "hex"
+            ? numericValue.toString(16).toUpperCase()
+            : String(numericValue);
+        }
+      }
       const preview = buildOperandPreview(block.addressingMode, block.rawOperand, block.base);
       block.operand = preview.operand;
       block.validationError = preview.error;
@@ -2578,6 +2694,36 @@ function updateProgramBlock(index, field, value) {
     return;
   }
 
+  if (block.isConstMacro && field === "constName") {
+    const newName = sanitizeLabelName(value);
+    block.constName = newName;
+    block.validationError = validateConstMacro(block.constName, block.rawOperand, block.base);
+    // Rename all instruction blocks that reference the old const name
+    if (prevConstName && newName && prevConstName !== newName) {
+      program.forEach((b, i) => {
+        if (i === index) return;
+        if (b.rawOperand === prevConstName) {
+          b.rawOperand = newName;
+          const preview = buildOperandPreview(b.addressingMode, b.rawOperand, b.base);
+          b.operand = preview.operand;
+          b.validationError = preview.error;
+          // Update the operand input field in-place without full re-render
+          const otherNode = programList.querySelector(`.asm-block[data-index="${i}"]`);
+          const otherOperandField = otherNode?.querySelector(".block-operand");
+          if (otherOperandField) otherOperandField.value = newName;
+          renderBlockPreview(i);
+        }
+      });
+      // Update label picker dropdowns in all expanded blocks
+      programList.querySelectorAll(".label-picker-item").forEach(item => {
+        if (item.textContent === prevConstName) item.textContent = newName;
+      });
+    }
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
   if (block.isMacroDefStart && field === "macroName") {
     block.macroName = sanitizeLabelName(value);
     block.operand = block.macroName;
@@ -2587,7 +2733,7 @@ function updateProgramBlock(index, field, value) {
     return;
   }
 
-  if (field === "rawOperand") {
+  if (field === "rawOperand" || field === "base") {
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -2718,7 +2864,13 @@ function buildOperandPreview(modeKey, rawValue, base) {
   if (numericValue === null) {
     // Allow label names (letters, digits, underscore) as valid operands for any addressing mode
     if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(value)) {
-      return { operand: value, text: value, error: "" };
+      const operand = modeKey === "immediate" ? `#${value}`
+        : (modeKey === "absoluteX" || modeKey === "zeroPageX") ? `${value},X`
+        : (modeKey === "absoluteY" || modeKey === "zeroPageY") ? `${value},Y`
+        : (modeKey === "indirectX") ? `(${value},X)`
+        : (modeKey === "indirectY") ? `(${value}),Y`
+        : value;
+      return { operand, text: operand, error: "" };
     }
     return { operand: value, text: value, error: getNumberFormatError(base) };
   }
@@ -2974,6 +3126,17 @@ function validateDefineMacro(symbols) {
   return "";
 }
 
+function validateConstMacro(name, value, base) {
+  if (!name || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) {
+    return currentLanguage === "en" ? "CONST name must be a valid identifier (e.g., SCORE_ADDR)." : "A CONST neve ervenyes azonosito kell legyen (pl. SCORE_ADDR).";
+  }
+  const numericValue = parseNumberByBase((value || "").replace(/^\$/, ""), base);
+  if (numericValue === null || numericValue < 0 || numericValue > 65535) {
+    return currentLanguage === "en" ? "CONST value must be a number between 0 and 65535." : "A CONST erteke 0 es 65535 kozott kell legyen.";
+  }
+  return "";
+}
+
 function validateIfMacro(condition) {
   if (!condition || !condition.trim()) {
     return currentLanguage === "en" ? "IF macro needs a condition (e.g., DEBUG)." : "Az IF makrohoz feltetel kell (pl. DEBUG).";
@@ -3116,7 +3279,15 @@ function formatOperand(modeKey, value, base) {
     return `${formatter(value, 2)},Y`;
   }
 
-  return formatter(value, modeKey === "absolute" || modeKey === "absoluteX" || modeKey === "absoluteY" ? 4 : 2);
+  if (modeKey === "absoluteX") {
+    return `${formatter(value, 4)},X`;
+  }
+
+  if (modeKey === "absoluteY") {
+    return `${formatter(value, 4)},Y`;
+  }
+
+  return formatter(value, modeKey === "absolute" ? 4 : 2);
 }
 
 function toHex(value, minDigits) {
@@ -3530,6 +3701,12 @@ function assembleProgramToPrg(originOverride) {
         : line.address;
       labels.set(line.block.tableName, tableAddr);
     }
+    if (line.block.isConstMacro && line.block.constName) {
+      const constVal = parseNumberByBase((line.block.rawOperand || "").replace(/^\$/, ""), line.block.base);
+      if (constVal !== null) {
+        labels.set(line.block.constName, constVal);
+      }
+    }
   });
 
   // Assemble inline code bytes, collecting all errors
@@ -3844,11 +4021,11 @@ function compileLineBytes(line, labels) {
     };
   }
 
-  if (block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro) {
+  if (block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isConstMacro) {
     return {
       ok: true,
       bytes: [],
-      comment: block.isDefineMacro ? `DEFINE ${block.defineSymbol || "?"}` : block.isIfMacro ? `IF ${block.ifCondition || "?"}` : (block.isElseMacro ? "ELSE" : "ENDIF")
+      comment: block.isDefineMacro ? `DEFINE ${block.defineSymbol || "?"}` : block.isIfMacro ? `IF ${block.ifCondition || "?"}` : (block.isElseMacro ? "ELSE" : block.isConstMacro ? `CONST ${block.constName || "?"} = ${block.rawOperand || "?"}` : "ENDIF")
     };
   }
 
@@ -3937,6 +4114,10 @@ function resolveNumericOperand(block, labels) {
 
   const parsed = parseNumberByBase(stripped.replace(/^\$/, ""), block.base);
   if (parsed === null) {
+    // Try label lookup with stripped value (handles #LABEL_NAME for immediate mode)
+    if (labels.has(stripped)) {
+      return { ok: true, value: labels.get(stripped) };
+    }
     return { ok: false, error: tf("operandNotResolvable", { mnemonic: block.mnemonic }) };
   }
 
@@ -4015,7 +4196,7 @@ function parseOriginValue() {
     return { value: defaultOrigin, text: toHex(defaultOrigin, 4), error: "" };
   }
 
-  const parsed = parseNumberByBase(raw, getSelectedBase()) ?? parseNumberByBase(raw, "hex");
+  const parsed = parseNumberByBase(raw, originBase) ?? parseNumberByBase(raw, "hex");
   if (parsed === null || !Number.isInteger(parsed)) {
     return { value: defaultOrigin, text: raw, error: currentLanguage === "en" ? "The start address is not a valid number." : "A kezdocim nem ervenyes szam." };
   }
@@ -4187,7 +4368,7 @@ function getInstructionSize(block) {
     return 0;  // TABLE is just a label
   }
 
-  if (block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro) {
+  if (block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isConstMacro) {
     return 0;
   }
 
@@ -4699,6 +4880,12 @@ function getBlockDescription(block) {
     return block.validationError || `DEFINE: ${block.defineSymbol || "?"}`;
   }
 
+  if (block.isConstMacro) {
+    const constVal = parseNumberByBase((block.rawOperand || "").replace(/^\$/, ""), block.base);
+    const formatted = constVal !== null ? formatOperand("absolute", constVal, block.base) : "?";
+    return block.validationError || `CONST: ${block.constName || "?"} = ${formatted}`;
+  }
+
   if (block.isIfMacro) {
     return block.validationError || `${currentLanguage === "en" ? "IF" : "HA"}: ${block.ifCondition || "?"}`;
   }
@@ -4795,6 +4982,10 @@ function getBlockModeCaption(block) {
     return currentLanguage === "en" ? "Conditional | DEFINE" : "Felteteles | DEFINE";
   }
 
+  if (block.isConstMacro) {
+    return currentLanguage === "en" ? `Macro | CONST ${block.constName || "?"}` : `Makro | CONST ${block.constName || "?"}`;
+  }
+
   if (block.isIfMacro) {
     return currentLanguage === "en" ? "Conditional | IF" : "Felteteles | HA";
   }
@@ -4838,6 +5029,10 @@ function getBlockModeCaption(block) {
 
   if (block.isLabel) {
     return `${getCategoryLabel(block.category)} | label`;
+  }
+
+  if (getMnemonicModes(block.mnemonic).length <= 1) {
+    return getCategoryLabel(block.category);
   }
 
   return `${getCategoryLabel(block.category)} | ${modeText(block.addressingMode, "label")}`;
@@ -4995,6 +5190,12 @@ function getCollapsedOperandText(block) {
 
   if (block.isDefineMacro) {
     return block.defineSymbol || "?";
+  }
+
+  if (block.isConstMacro) {
+    const constVal = parseNumberByBase((block.rawOperand || "").replace(/^\$/, ""), block.base);
+    const formatted = constVal !== null ? formatOperand("absolute", constVal, block.base) : "?";
+    return `${block.constName || "?"} = ${formatted}`;
   }
 
   if (block.isIfMacro) {
@@ -5425,6 +5626,36 @@ function renderProgram() {
       operandField.value = block.defineSymbol || "";
       operandField.placeholder = "DEBUG";
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+    } else if (block.isConstMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${currentLanguage === "en" ? "Name" : "Nev"}</span>
+              <input class="const-name" type="text" value="${block.constName || "MY_CONST"}" placeholder="MY_CONST">
+            </label>
+            <label class="mini-field">
+              <span>${currentLanguage === "en" ? "Value" : "Ertek"}</span>
+              <input class="const-value" type="text" value="${block.rawOperand || "0000"}" placeholder="${block.base === "hex" ? "0400" : "1024"}">
+            </label>
+            <label class="mini-field">
+              <span>${currentLanguage === "en" ? "Format" : "Formatum"}</span>
+              <div class="mini-toggle" role="radiogroup" aria-label="Format">
+                <label class="mini-toggle-option">
+                  <input class="block-base" type="radio" name="block-base-${block.id}" value="hex"${block.base === "hex" ? " checked" : ""}>
+                  <span>HEX</span>
+                </label>
+                <label class="mini-toggle-option">
+                  <input class="block-base" type="radio" name="block-base-${block.id}" value="dec"${block.base === "dec" ? " checked" : ""}>
+                  <span>DEC</span>
+                </label>
+              </div>
+            </label>
+          </div>
+        `
+      );
     } else if (block.isIfMacro) {
       inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Condition" : "Feltetel";
       inlineField.hidden = false;
@@ -5469,10 +5700,14 @@ function renderProgram() {
       operandField.disabled = !mode.needsOperand;
       operandField.placeholder = getOperandPlaceholder(mode, block.base);
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
-      // Custom label picker dropdown for addressing modes that can reference a label
-      if (mode.needsOperand && (block.addressingMode === "relative" || block.addressingMode === "absolute" || block.addressingMode === "absoluteX" || block.addressingMode === "absoluteY")) {
-        const programLabels = program.filter(b => b.isLabel && b.labelName).map(b => b.labelName);
-        if (programLabels.length > 0) {
+      // Custom label picker dropdown for addressing modes that can reference a label or constant
+      if (mode.needsOperand && (block.addressingMode === "relative" || block.addressingMode === "absolute" || block.addressingMode === "absoluteX" || block.addressingMode === "absoluteY" || block.addressingMode === "immediate")) {
+        const programLabels = block.addressingMode === "immediate"
+          ? []
+          : program.filter(b => b.isLabel && b.labelName).map(b => b.labelName);
+        const constNames = program.filter(b => b.isConstMacro && b.constName).map(b => b.constName);
+        const pickerNames = [...programLabels, ...constNames];
+        if (pickerNames.length > 0) {
           operandField.classList.add("has-label-picker");
           const wrapper = document.createElement("div");
           wrapper.className = "label-picker-wrap";
@@ -5481,7 +5716,7 @@ function renderProgram() {
           const dropdown = document.createElement("div");
           dropdown.className = "label-picker-dropdown";
           dropdown.hidden = true;
-          dropdown.innerHTML = programLabels.map(n => `<div class="label-picker-item">${n}</div>`).join("");
+          dropdown.innerHTML = pickerNames.map(n => `<div class="label-picker-item">${n}</div>`).join("");
           wrapper.appendChild(dropdown);
           operandField.addEventListener("focus", () => { dropdown.hidden = false; });
           operandField.addEventListener("blur", () => { setTimeout(() => { dropdown.hidden = true; }, 150); });
@@ -5515,7 +5750,7 @@ function renderProgram() {
             </label>
           </div>
         </label>` : ""}
-          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro ? ` hidden` : ""}>
+          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro || getMnemonicModes(block.mnemonic).length <= 1 ? ` hidden` : ""}>
             <span>${t("addressingMode")}</span>
           <select class="block-mode">
             ${getMnemonicModes(block.mnemonic).map((modeKey) => `<option value="${modeKey}"${block.addressingMode === modeKey ? " selected" : ""}>${modeText(modeKey, "label")}</option>`).join("")}
@@ -5546,7 +5781,22 @@ function renderProgram() {
             updateProgramBlock(index, "loopCount", converted);
           }
         }
+        // For CONST blocks, convert the value input between hex and dec
+        if (block.isConstMacro) {
+          const constValueInput = node.querySelector(".const-value");
+          const rawVal = (constValueInput?.value || block.rawOperand || "0").trim();
+          const oldBase = newBase === "hex" ? "dec" : "hex";
+          const parsed = parseNumberByBase(rawVal.replace(/^\$/, ""), oldBase);
+          if (parsed !== null && parsed >= 0 && parsed <= 65535 && constValueInput) {
+            constValueInput.value = newBase === "hex"
+              ? parsed.toString(16).toUpperCase().padStart(4, "0")
+              : String(parsed);
+          }
+        }
         updateProgramBlock(index, "base", newBase);
+        // Sync the operand input DOM after rawOperand may have been converted
+        const operandInput = node.querySelector(".block-operand");
+        if (operandInput) operandInput.value = block.rawOperand || "";
       });
     });
     const macroXInput = node.querySelector(".macro-x");
@@ -5593,6 +5843,14 @@ function renderProgram() {
     const tableAddressInput = node.querySelector(".table-address");
     if (tableAddressInput) {
       tableAddressInput.addEventListener("input", (event) => updateProgramBlock(index, "tableAddress", event.target.value));
+    }
+    const constNameInput = node.querySelector(".const-name");
+    if (constNameInput) {
+      constNameInput.addEventListener("input", (event) => updateProgramBlock(index, "constName", event.target.value));
+    }
+    const constValueInput = node.querySelector(".const-value");
+    if (constValueInput) {
+      constValueInput.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
     }
     const invokeMacroSelect = node.querySelector(".invoke-macro-select");
     if (invokeMacroSelect) {
@@ -5729,6 +5987,7 @@ function renderAsmOutput() {
 
   if (!program.length) {
     asmOutput.textContent = `*= ${layout.origin.text}\n; ${currentLanguage === "en" ? "The C64 assembly source will appear here" : "Itt fog megjelenni a C64 assembly kod"}`;
+    renderMonitorOutput(layout);
     return;
   }
 
@@ -5805,7 +6064,9 @@ function renderAsmOutput() {
     }
 
     if (line.block.isByteMacro) {
-      return `    .byte ${line.block.rawOperand}`;
+      const asmBytes = parseByteMacro(line.block.rawOperand, line.block.base);
+      const asmByteList = asmBytes.map(b => toHex(b, 2)).join(", ");
+      return `    .byte ${asmByteList}`;
     }
 
     if (line.block.isStringMacro) {
@@ -5991,6 +6252,12 @@ function renderAsmOutput() {
       return `; .DEFINE ${line.block.defineSymbol || "?"}`;
     }
 
+    if (line.block.isConstMacro) {
+      const constVal = parseNumberByBase((line.block.rawOperand || "").replace(/^\$/, ""), line.block.base);
+      const formatted = constVal !== null ? formatOperand("absolute", constVal, asmOutputBase) : "?";
+      return `; .CONST ${line.block.constName || "?"} = ${formatted}`;
+    }
+
     if (line.block.isIfMacro) {
       return `; .IF ${line.block.ifCondition || "?"}`;
     }
@@ -6011,7 +6278,7 @@ function renderAsmOutput() {
       return `; .ENDM`;
     }
 
-    const suffix = line.block.operand ? ` ${line.block.operand}` : "";
+    const suffix = line.block.operand ? ` ${getAsmDisplayOperand(line.block)}` : "";
     const comment = line.block.validationError ? ` ; ${t("warningLabel")}: ${line.block.validationError}` : "";
     return `    ${line.block.mnemonic}${suffix}${comment}`;
   });
@@ -6080,6 +6347,12 @@ function renderMonitorOutput(layout = getProgramLayout()) {
         ? (parseAddressValue(line.block.tableAddress) ?? line.address)
         : line.address;
       labels.set(line.block.tableName, tableAddr);
+    }
+    if (line.block.isConstMacro && line.block.constName) {
+      const constVal = parseNumberByBase((line.block.rawOperand || "").replace(/^\$/, ""), line.block.base);
+      if (constVal !== null) {
+        labels.set(line.block.constName, constVal);
+      }
     }
   });
 

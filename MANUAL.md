@@ -33,6 +33,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
    - [PUSH / PULL](#push--pull)
    - [MACRO / ENDM / INVOKE](#macro--endm--invoke)
    - [DEFINE / IF / ELSE / ENDIF](#define--if--else--endif)
+   - [CONST](#const)
 9. [Knowledge Base Links](#9-knowledge-base-links)
 
 ---
@@ -95,22 +96,20 @@ The right panel shows the generated output in real time.
 | **ASM** | 6502 assembly source with addresses and labels |
 | **Monitor** | Hex / byte dump (C64 monitor style) |
 | **Both** | ASM on top, monitor below |
+| **Program** | Program settings panel — origin, number format, macro source toggle |
 
-### HEX / DEC toggle (ASM view)
+### Program tab
 
-A small HEX / DEC toggle next to the *Macro source* checkbox switches all address and value literals in the ASM output between hexadecimal and decimal.
+The **Program** tab contains the settings that affect code generation and output display:
 
-### Macro source
-
-When enabled, macro definition blocks (MACRO…ENDM) show their source code inline in the ASM view.
+- **Macro source** — when ON, macro definition blocks (MACRO…ENDM) show their source code inline in the ASM view.
+- **Show numbers in ASM (HEX / DEC)** — switches all address and value literals in the ASM output between hexadecimal and decimal. This is independent from the per-block HEX / DEC toggle: the per-block toggle controls how you *enter* the operand; this toggle controls how the *output* is displayed.
+- **Origin** — the load address of your program (default `$0801`). Supports both `0801` and `$0801` notation. The HEX / DEC toggle next to the input converts the displayed value. All label addresses and the monitor output update immediately.
+- **Compile info** — shows a summary of the compiled program (code start address, size, BASIC SYS stub status).
 
 ### Clicking an ASM line
 
 Click any line in the ASM view to **highlight the corresponding block** in the program area.
-
-### Origin
-
-Set the load address of your program in the **Origin** field (default `$0801`). The address updates all label addresses and the monitor output.
 
 ---
 
@@ -749,6 +748,27 @@ Nested `IF` blocks are supported. The innermost condition is evaluated independe
 
 ---
 
+### CONST
+
+Declares a named constant. The constant is added to the label table and can be referenced as an operand in any instruction block (LDA, STA, JSR, JMP, etc.).
+
+| Field | Description |
+|---|---|
+| Name | Identifier for the constant (e.g. `SCREEN`) |
+| Value | Numeric value in the selected base (e.g. `0400` in HEX = address $0400) |
+| Format | HEX or DEC — controls how the value is entered and displayed |
+
+**Generated ASM:**
+```
+; .CONST SCREEN = $0400
+```
+
+The constant name appears in the **label picker** dropdown of instruction blocks that support absolute/immediate addressing — simply click it to insert the constant name as the operand.
+
+**Size:** 0 bytes.
+
+---
+
 ## 9. Knowledge Base Links
 
 Quick reference links available in the app under **Knowledge Base**:
@@ -759,6 +779,7 @@ Quick reference links available in the app under **Knowledge Base**:
 | C64 KERNAL Functions | https://sta.c64.org/cbm64krnfunc.html |
 | C64 Memory Map | https://sta.c64.org/cbm64mem.html |
 | C64 Color Codes | https://sta.c64.org/cbm64col.html |
+| VIC-II Article | https://www.cebix.net/VIC-Article.txt |
 
 ---
 

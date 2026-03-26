@@ -1117,13 +1117,18 @@ button:focus-visible,
 .block-category {
   color: var(--block-chip-fg);
   font-size: calc(0.7rem * var(--block-scale));
-  display: inline-flex;
-  align-items: center;
+  display: inline-block;
+  vertical-align: middle;
   padding: calc(3px * var(--block-scale)) calc(7px * var(--block-scale));
   border-radius: 999px;
   background: var(--block-chip-bg);
   border: none;
-  line-height: 1;
+  line-height: 1.6;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .collapse-toggle {
@@ -1149,6 +1154,7 @@ button:focus-visible,
 .block-body {
   display: grid;
   grid-template-rows: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   overflow: hidden;
   transition: grid-template-rows 220ms ease;
 }
@@ -1156,6 +1162,8 @@ button:focus-visible,
 .block-body-inner {
   min-height: 0;
   overflow: hidden;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .block-controls {
@@ -1163,6 +1171,8 @@ button:focus-visible,
   flex-direction: column;
   gap: calc(6px * var(--block-scale));
   padding: 2px;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .mini-field {
@@ -1438,6 +1448,8 @@ button:focus-visible,
   height: calc(30px * var(--block-scale));
   min-height: unset;
   box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
 }
 
 .block-main select {
@@ -1466,6 +1478,7 @@ button:focus-visible,
   display: -webkit-box;
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
+  overflow-wrap: anywhere;
 }
 
 .asm-block[data-collapsed="true"] .drag-handle {
@@ -1560,13 +1573,13 @@ button:focus-visible,
   color: var(--output-text);
   font-family: "IBM Plex Mono", monospace;
   line-height: 1.7;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: auto;
+  white-space: pre;
   font-size: 0.86rem;
+  max-width: 100%;
 }
 
-.output-toolbar {
-  margin-bottom: 8px;
-}
 
 .macro-source-row {
   display: flex;
@@ -1574,51 +1587,31 @@ button:focus-visible,
   justify-content: space-between;
   gap: 10px;
   margin-bottom: 10px;
+  font-size: 0.8rem;
   line-height: 1;
 }
 
-.asm-base-toggle {
+.asm-base-toggle,
+.origin-base-toggle {
   flex-shrink: 0;
   --block-scale: 1;
 }
 
+
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--panel-border);
+  margin: 10px 0;
+}
+
 .macro-source-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--muted);
-  cursor: pointer;
-  -webkit-user-select: none;
-  user-select: none;
-  letter-spacing: 0.03em;
-  line-height: 1;
-  padding: 2px 0;
-}
-
-.macro-source-toggle:focus-within {
-  outline: none;
-}
-
-.macro-source-toggle input[type="checkbox"] {
-  accent-color: var(--primary);
-  width: 13px;
-  height: 13px;
-  cursor: pointer;
   flex-shrink: 0;
-  outline: none;
-}
-
-.macro-source-toggle input[type="checkbox"]:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 1px;
-  border-radius: 2px;
+  --block-scale: 1;
 }
 
 .view-mode-toggle {
   display: inline-grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 4px;
   padding: 4px;
   border-radius: 14px;
@@ -1655,6 +1648,10 @@ button:focus-visible,
   box-shadow: 0 5px 12px color-mix(in srgb, var(--secondary) 18%, transparent);
 }
 
+.output-toolbar {
+  margin-bottom: 16px;
+}
+
 .output-stack {
   display: grid;
   gap: 12px;
@@ -1677,8 +1674,37 @@ button:focus-visible,
     0 0 0 1px #0d1a0d;
 }
 
-.output-stack[data-mode="monitor"] #asm-output {
+.program-output {
   display: none;
+}
+
+.output-stack[data-mode="program"] .program-output {
+  display: block;
+}
+
+.output-stack[data-mode="program"] .origin-preview-section {
+  display: none;
+}
+
+.origin-preview-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.output-section-label {
+  display: none;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.output-stack[data-mode="asm"] .asm-label,
+.output-stack[data-mode="both"] .asm-label {
+  display: block;
+}
+
+.output-stack[data-mode="monitor"] .monitor-label,
+.output-stack[data-mode="both"] .monitor-label {
+  display: block;
 }
 
 .output-stack[data-mode="monitor"] #monitor-output,
@@ -1686,12 +1712,12 @@ button:focus-visible,
   display: block;
 }
 
-.origin-row {
-  display: grid;
-  grid-template-columns: minmax(180px, 220px) 1fr;
-  gap: 12px;
-  align-items: end;
-  margin-bottom: 14px;
+.panel-label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--text);
+  margin-bottom: 6px;
 }
 
 .compact-field {
@@ -1700,14 +1726,36 @@ button:focus-visible,
 
 .compact-field input {
   font-family: "IBM Plex Mono", monospace;
+  min-height: 36px;
+  padding: 6px 10px;
+}
+
+.origin-section {
+  margin-bottom: 14px;
+}
+
+
+.origin-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.origin-input-row input {
+  flex: 1;
+  font-family: "IBM Plex Mono", monospace;
+  min-height: 36px;
+  padding: 6px 10px;
+  min-width: 0;
 }
 
 .origin-preview {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  min-height: 56px;
-  padding: 10px 12px;
+  min-height: auto;
+  padding: 8px 10px;
   border-radius: 14px;
   border: 1px solid var(--panel-border);
   background: color-mix(in srgb, var(--panel-strong) 92%, transparent);
@@ -1727,6 +1775,7 @@ button:focus-visible,
 .origin-preview small {
   color: var(--muted);
 }
+
 
 .memory-heading {
   margin-top: 0;
@@ -2026,9 +2075,6 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
     display: block;
   }
 
-  .origin-row {
-    grid-template-columns: 1fr;
-  }
 
   .palette-panel,
   .program-panel,
