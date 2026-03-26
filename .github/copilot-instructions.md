@@ -11,7 +11,7 @@ drag-and-drop szerkesztését teszi lehetővé. Nincs UI-framework — csak Vani
 
 | Fájl | Szerep |
 |------|--------|
-| `app.js` | Teljes renderer logika (~5 100 sor): mnemonik könyvtár, UI, ASM/monitor generálás, makró expanzió |
+| `app.js` | Teljes renderer logika (~6 000 sor): mnemonik könyvtár, UI, ASM/monitor generálás, makró expanzió |
 | `index.html` | Egyetlen HTML lap; összes UI elem és két `<template>` (block-template, palette-item-template) |
 | `style.css` | Teljes stíluslap; CSS custom properties-alapú téma (dark/light) |
 | `main.js` | Electron main process: ablak, fájlmentés/betöltés, VICE futtatás IPC |
@@ -54,7 +54,11 @@ Minden blokk (`program[]` tömb eleme) egy plain object:
   isLoopMacro: true, loopReg: "X",  loopCount: "0A", loopLabel: "loop1",
   isNextMacro: true, nextLabel: "loop1", nextReg: "X",
   isLabel: true, labelName: "loop",
-  isComment: true, commentText: "..."
+  isComment: true, commentText: "...",
+  isConstMacro: true, constName: "SCREEN", constValue: 1024,
+  // rawOperand tárolja az értéket a blokk aktuális base-ében (pl. "0400" hex-ben)
+  // constValue numerikus érték (mindig decimálisan), constName az identifier
+  // CONST blokkok felkerülnek a label-táblába assemblelésnél → hivatkozható operandusként
 }
 ```
 
@@ -436,7 +440,7 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`1.2.7` — lásd `package.json` és a What's New dialóg (`index.html`).
+`1.3.2` — lásd `package.json` és a What's New dialóg (`index.html`).
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező
@@ -630,10 +634,13 @@ for (let i = regs.length - 1; i >= 0; i--) { ... }
 ```
 
 ### IF/ELSE/ENDIF makrók
-- **Conditional assembly** (még nincs teljesen implementálva)
-- Jelenleg csak comment-ként jelennek meg az ASM nézetben — **nem generálnak byte-ot**, **nem zárnak ki blokkokat** a fordításból
-- Az `ifCondition` mező szabad szöveg (pl. `DEBUG`) — nincs assembly-szintű hatása
-- Ha valódi feltételes kihagyás kell, az külön feature lenne
+- **Feltételes assembly** — teljesen implementálva a `DEFINE` blokkal együtt
+- A `DEFINE` blokk aktivál egy vagy több szimbólumot (pl. `DEBUG`, `PAL`)
+- `IF condition` blokk: ha a feltétel szimbólum aktív → a közte lévő blokkok lefordulnak; ha nem → kihagyódnak (`; [IF skipped] …` comment, 0 byte)
+- `ELSE` blokk: a fordított ága
+- `ENDIF` blokk: lezárja a feltételes részt
+- Nested IF-ek támogatottak (belső feltétel önállóan értékelődik; külső skip esetén belső is skip)
+- Az `isDefineMacro`, `isIfMacro`, `isElseMacro`, `isEndIfMacro` mezők azonosítják a blokkokat
 
 ### MACRO/ENDM - User defined macros
 - Felhasználói makrók definiálása
@@ -705,7 +712,7 @@ program.forEach((block, i) => {
 
 ---
 
-## UI rendszer — v1.2.7 újítások
+## UI rendszer — v1.3.2 újítások
 
 ### Label picker (operandus mező)
 
@@ -792,12 +799,28 @@ Ha egy elemnek `display: flex` vagy `display: grid` CSS-ben van definiálva, a b
 .mini-field[hidden]   { display: none; }
 ```
 
+### Két HEX/DEC rendszer
+
+Az appban **két független** HEX/DEC toggle él:
+1. **Globális operandus format** (`originBase`, `globalBase` state): a Program tabban lévő blokkok operandus inputjának formátuma. Megváltozásakor `renderProgram()` fut.
+2. **ASM output format** (`asmOutputBase` state): az ASM nézet kimeneti formátuma (`$FF` vs `255`). Csak `renderAsmOutput()` fut. A per-blokk `block.base` NEM befolyásolja az ASM kimenetet — a BYTE és CONST makrónál mindig `asmOutputBase`-t kell használni.
+
+**Renderelési pattern** — `field === "rawOperand"` vagy `field === "base"` változásakor NE hívj `renderProgram()`-ot (teljes DOM újraépítés), csak:
+```javascript
+if (field === "rawOperand" || field === "base") {
+  renderBlockPreview(index);
+  renderAsmOutput();
+  return;
+}
+```
+
 ### Makró blokkok — melyiken látszik mi
 
 | Makró típus | Operandus | Cím.mód | Saját mezők |
 |-------------|-----------|---------|-------------|
 | `isLabel` | ✅ (label név) | ❌ | — |
 | `isComment` | ✅ (szöveg) | ❌ | — |
+| `isConstMacro` | ❌ | ❌ | constName, constValue (HEX/DEC toggle) |
 | `isTextMacro` | ✅ | ❌ | X, Y koordináta |
 | `isByteMacro` | ✅ | ❌ | — |
 | `isStringMacro` | ✅ | ❌ | cím |
@@ -821,6 +844,7 @@ Ha egy elemnek `display: flex` vagy `display: grid` CSS-ben van definiálva, a b
 | `isMacroDefStart` | ✅ (makró név) | ❌ | — |
 | `isMacroDefEnd` | ❌ | ❌ | — |
 | `isMacroInvoke` | ❌ | ❌ | makró select |
+| `isDefineMacro` | ✅ (szimbólumok) | ❌ | — |
 
 A HEX/DEC format toggle feltétele (a nagy `insertAdjacentHTML` templateban):
 ```javascript
