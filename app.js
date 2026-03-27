@@ -165,6 +165,7 @@ const mnemonicLibrary = {
     { mnemonic: "SPRITE_POS", description: "Sprite pozicio beallitasa: X (0-319) es Y (0-255), kezeli a $D010 felso bitet X>255 eseten.", modes: ["implied"], isSpritePosMacro: true },
     { mnemonic: "WAIT_RASTER", description: "Rasztervonal varakozas: LDA $D012 / CMP #sor / BNE -7. Inline, 7 byte, nincs JSR.", modes: ["implied"], isWaitRasterMacro: true },
     { mnemonic: "JOYSTICK", description: "Joystick olvasas es sprite mozgatasa: UP/DOWN/LEFT/RIGHT bitek LSR+BCS+DEC/INC-cel. Port 1=$DC01, Port 2=$DC00 (alap). 27 byte inline.", modes: ["implied"], isJoystickMacro: true },
+    { mnemonic: "SPRITE_COL", description: "Sprite utkozes detektalas: LDA $D01E/$D01F + AND #bitMask. Eredmeny A-ban: nem nulla = utkozes. Utana BEQ/BNE-vel ugri. 5 byte.", modes: ["implied"], isSpriteColMacro: true },
     { mnemonic: "DEFINE", description: "Szimbolum definialasa felteteles forditashoz. Ha jelen van, az IF blokkban levo feltetelek kivalutalodnak.", modes: ["implied"], isDefineMacro: true },
     { mnemonic: "IF", description: "Felteteles forditas kezdete. Kifejezest var (pl. DEBUG). ENDIF-fel zarjuk.", modes: ["implied"], isIfMacro: true },
     { mnemonic: "ELSE", description: "Alternativ ag IF blokkon belul.", modes: ["implied"], isElseMacro: true },
@@ -351,6 +352,7 @@ const translations = {
     sampleSidDirectDemo: "SID lejatszas - SID makro (Ikari Warriors)",
     sampleSpriteMacroDemo: "SPRITE_INIT / SPRITE_POS makro demo",
     sampleJoystickDemo: "JOYSTICK makro demo",
+    sampleCollisionDemo: "SPRITE_COL utkozes demo",
     checkForUpdate: "Frissites keresese",
     whatsNew: "Ujdonsagok",
     paletteSearchPlaceholder: "Kereses...",
@@ -382,6 +384,9 @@ const translations = {
     fieldRasterLine: "Rasztersor ($00-$FF)",
     fieldJoyPort: "Port (1 vagy 2)",
     fieldJoySpriteNum: "Sprite # (0-7)",
+    fieldColType: "Utkozes tipusa",
+    colTypeSprite: "Sprite-Sprite ($D01E)",
+    colTypeBackground: "Sprite-Hatter ($D01F)",
     pickLabel: "Cimke valasztas",
     fieldPushRegs: "Regiszterek",
     fieldPullRegs: "Regiszterek",
@@ -556,6 +561,7 @@ const translations = {
     sampleSidDirectDemo: "SID player - SID macro (Ikari Warriors)",
     sampleSpriteMacroDemo: "SPRITE_INIT / SPRITE_POS macro demo",
     sampleJoystickDemo: "JOYSTICK macro demo",
+    sampleCollisionDemo: "SPRITE_COL collision demo",
     languageLabel: "Language",
     checkForUpdate: "Check for Update",
     whatsNew: "What's New",
@@ -588,6 +594,9 @@ const translations = {
     fieldRasterLine: "Raster line ($00-$FF)",
     fieldJoyPort: "Port (1 or 2)",
     fieldJoySpriteNum: "Sprite # (0-7)",
+    fieldColType: "Collision type",
+    colTypeSprite: "Sprite-Sprite ($D01E)",
+    colTypeBackground: "Sprite-Background ($D01F)",
     pickLabel: "Pick label",
     fieldPushRegs: "Registers",
     fieldPullRegs: "Registers",
@@ -1358,6 +1367,7 @@ function applyTranslations() {
   if (sampleOptions[16]) sampleOptions[16].textContent = t("sampleSidDirectDemo");
   if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleSpriteMacroDemo");
   if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleJoystickDemo");
+  if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleCollisionDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -2127,6 +2137,24 @@ function createBlockFromMnemonic(item) {
     };
   }
 
+  if (item.isSpriteColMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isSpriteColMacro: true,
+      spriteNum: "0",
+      colType: "sprite"
+    };
+  }
+
   if (item.isLoopMacro) {
     return {
       id: crypto.randomUUID(),
@@ -2749,6 +2777,16 @@ function updateProgramBlock(index, field, value) {
       (port !== 1 && port !== 2) ? (currentLanguage === "en" ? "Port must be 1 or 2." : "A port 1 vagy 2 lehet.") :
       (isNaN(num) || num < 0 || num > 7) ? (currentLanguage === "en" ? "Sprite number must be 0–7." : "A sprite szama 0 es 7 kozott lehet.") :
       "";
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isSpriteColMacro && (field === "spriteNum" || field === "colType")) {
+    const num = parseInt(field === "spriteNum" ? value : block.spriteNum, 10);
+    block.validationError = (isNaN(num) || num < 0 || num > 7)
+      ? (currentLanguage === "en" ? "Sprite number must be 0–7." : "A sprite szama 0 es 7 kozott lehet.")
+      : "";
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -4107,6 +4145,21 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes, comment: `WAIT_RASTER $${rlHex}` };
   }
 
+  if (block.isSpriteColMacro) {
+    const num = parseInt(block.spriteNum || "0", 10);
+    if (isNaN(num) || num < 0 || num > 7) {
+      return { ok: false, error: "SPRITE_COL: a sprite szama 0 es 7 kozott lehet." };
+    }
+    const isBg = (block.colType || "sprite") === "background";
+    // $D01E = sprite-sprite, $D01F = sprite-background; reading clears the register
+    const regAddr = isBg ? 0xD01F : 0xD01E;
+    const bitMask = 1 << num;
+    // LDA $D01x (AD xx D0) + AND #mask (29 mask) = 5 bytes
+    const bytes = [0xAD, regAddr & 0xFF, regAddr >> 8, 0x29, bitMask];
+    const typeLabel = isBg ? "bg" : "spr";
+    return { ok: true, bytes, comment: `SPRITE_COL #${num} ${typeLabel} → A≠0: utkozes` };
+  }
+
   if (block.isSpriteInitMacro) {
     const num = parseInt(block.spriteNum || "0", 10);
     if (isNaN(num) || num < 0 || num > 7) {
@@ -4593,6 +4646,10 @@ function getInstructionSize(block) {
 
   if (block.isWaitRasterMacro) {
     return 7;  // LDA $D012 + CMP #rl + BNE -7
+  }
+
+  if (block.isSpriteColMacro) {
+    return 5;  // LDA $D01E/$D01F + AND #mask
   }
 
   if (block.isSpriteInitMacro) {
@@ -5444,6 +5501,13 @@ function getCollapsedOperandText(block) {
     return `$D012 = $${rl}`;
   }
 
+  if (block.isSpriteColMacro) {
+    const typeLabel = (block.colType || "sprite") === "background"
+      ? (currentLanguage === "en" ? "bg" : "hatter")
+      : (currentLanguage === "en" ? "spr" : "sprite");
+    return `#${block.spriteNum || "0"} ${typeLabel} → BEQ/BNE`;
+  }
+
   if (block.isSpriteInitMacro) {
     const pageHex = (block.spriteDataPage || "21").replace(/^\$/, "").toUpperCase().padStart(2, "0");
     return `#${block.spriteNum || "0"} col=${block.spriteColor || "7"} page=$${pageHex}`;
@@ -6008,6 +6072,26 @@ function renderProgram() {
           </div>
         `
       );
+    } else if (block.isSpriteColMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${t("fieldSpriteNum")}</span>
+              <input class="col-sprite-num" type="number" min="0" max="7" value="${block.spriteNum || "0"}">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldColType")}</span>
+              <select class="col-type">
+                <option value="sprite"${(block.colType || "sprite") === "sprite" ? " selected" : ""}>${t("colTypeSprite")}</option>
+                <option value="background"${block.colType === "background" ? " selected" : ""}>${t("colTypeBackground")}</option>
+              </select>
+            </label>
+          </div>
+        `
+      );
     } else if (block.isDefineMacro) {
       inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Symbol" : "Szimbolum";
       inlineField.hidden = false;
@@ -6231,6 +6315,14 @@ function renderProgram() {
     const spriteYInput = node.querySelector(".sprite-y");
     if (spriteYInput) {
       spriteYInput.addEventListener("input", (event) => updateProgramBlock(index, "spriteY", event.target.value));
+    }
+    const colSpriteNumInput = node.querySelector(".col-sprite-num");
+    if (colSpriteNumInput) {
+      colSpriteNumInput.addEventListener("input", (event) => updateProgramBlock(index, "spriteNum", event.target.value));
+    }
+    const colTypeSelect = node.querySelector(".col-type");
+    if (colTypeSelect) {
+      colTypeSelect.addEventListener("change", (event) => updateProgramBlock(index, "colType", event.target.value));
     }
     const loopRegSelect = node.querySelector(".loop-reg");
     if (loopRegSelect) {
@@ -6905,6 +6997,10 @@ async function loadJoystickDemoProgram() {
   await loadSampleFromFile("joystick-demo");
 }
 
+async function loadCollisionDemoProgram() {
+  await loadSampleFromFile("collision-demo");
+}
+
 async function loadSetpixelDemo() {
   await loadSampleFromFile("setpixel-demo");
 }
@@ -7047,6 +7143,11 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "joystick-demo") {
     loadJoystickDemoProgram();
+    return;
+  }
+
+  if (sampleSelect.value === "collision-demo") {
+    loadCollisionDemoProgram();
     return;
   }
 
