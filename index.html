@@ -96,6 +96,10 @@
                   <span class="theme-toggle-glyph" aria-hidden="true"></span>
                   <span>Tema valtasa</span>
                 </button>
+                <button id="crt-toggle" class="secondary icon-button" type="button">
+                  <span>📺</span>
+                  <span>CRT retro mod</span>
+                </button>
                 <div class="control-menu-inline">
                   <button id="zoom-out" class="secondary" type="button">A-</button>
                   <button id="zoom-in" class="secondary" type="button">A+</button>
@@ -374,7 +378,7 @@
         </svg>
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v1.3.5</p>
+      <p class="about-version" id="about-version">v1.3.7</p>
       <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
         dropping instruction blocks.</p>
       <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
@@ -385,8 +389,29 @@
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v1.3.6</p>
+      <p class="whats-new-version">v1.3.7</p>
       <ul class="whats-new-list">
+        <li>
+          <strong>CRT retro mode</strong> — full-screen CRT filter overlay: scanlines, phosphor vignette,
+          screen flicker, and barrel distortion. Toggle via the <em>📺 CRT retro mode</em> button in the View menu.
+          State is saved between sessions.
+        </li>
+        <li>
+          <strong>ASM output — consistent macro format</strong> — all Visual Assembler-specific macros now use a
+          uniform <code>; .name params</code> comment style in the ASM view
+          (<code>; .sprite_init</code>, <code>; .sprite_pos</code>, <code>; .wait_raster</code>,
+          <code>; .joystick</code>, <code>; .sprite_col</code>, <code>; .align</code>, <code>; .invoke</code>, etc.),
+          distinguishing them from real assembler directives (<code>.byte</code>, <code>.word</code>, <code>.fill</code>).
+        </li>
+        <li>
+          <strong>Label picker dropdown — z-order fix</strong> — the label/constant picker dropdown on blocks
+          is now rendered as a document-level portal (<code>position: fixed</code>), so it always appears above
+          all other blocks regardless of stacking context. Also closes automatically on scroll.
+        </li>
+        <li>
+          <strong>SPRITE_COL — English localisation</strong> — added English description and localised compile-time
+          error message for the SPRITE_COL macro.
+        </li>
         <li>
           <strong>SPRITE_INIT macro</strong> — initialise a VIC-II sprite in one block: sets the data pointer
           (<code>$07F8+N</code>), enables the sprite (<code>$D015</code>), and sets its colour (<code>$D027+N</code>).
@@ -488,6 +513,7 @@
     </div>
   </dialog>
 
+  <div id="crt-overlay" aria-hidden="true"></div>
   <script src="app.js"></script>
 
 </body>

@@ -1215,11 +1215,8 @@ button:focus-visible,
 }
 
 .label-picker-dropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  z-index: 60;
+  position: fixed;
+  z-index: 99999;
   background: var(--panel-strong);
   border: 1px solid var(--panel-border);
   border-radius: 14px;
@@ -2447,6 +2444,74 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
 .operand-dropdown-item.active {
   background: color-mix(in srgb, var(--secondary) 14%, transparent);
   color: var(--secondary);
+}
+
+/* ── CRT Retro Mode ──────────────────────────────────────────────── */
+#crt-overlay {
+  display: none;
+  pointer-events: none;
+}
+
+@keyframes crt-flicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+  20%, 24%, 55% { opacity: 0.94; }
+}
+
+
+body.crt-mode #crt-overlay {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 99998;
+  pointer-events: none;
+  animation: crt-flicker 12s infinite steps(1);
+}
+
+/* scanlines */
+body.crt-mode #crt-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0, 0, 0, 0.20) 3px,
+    rgba(0, 0, 0, 0.20) 4px
+  );
+  pointer-events: none;
+}
+
+body.crt-mode[data-theme="dark"] #crt-overlay::before {
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(255, 255, 255, 0.06) 3px,
+    rgba(255, 255, 255, 0.06) 4px
+  );
+}
+
+/* vignette + subtle phosphor green tint */
+body.crt-mode #crt-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.55) 100%),
+    radial-gradient(ellipse at center, rgba(0, 255, 80, 0.03) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* phosphor glow on all content */
+body.crt-mode {
+  filter: brightness(1.04) contrast(1.06) saturate(1.08);
+}
+
+/* barrel distortion via perspective */
+body.crt-mode #app-root,
+body.crt-mode .app-layout {
+  transform: perspective(900px) rotateX(0.4deg);
 }
 
 /* ── Splash Screen ────────────────────────────────────────────────── */

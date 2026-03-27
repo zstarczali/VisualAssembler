@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 1.3.5**
+**Version 1.3.7**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -127,6 +127,7 @@ Click any line in the ASM view to **highlight the corresponding block** in the p
 | **Number base (HEX / DEC)** | Sets the display/input format for operands throughout the UI |
 | **Language** | Switch between English and Hungarian |
 | **Theme** | Light / dark mode |
+| **CRT retro mode** | Toggles a full-screen CRT filter: scanlines, phosphor vignette, flicker, and barrel distortion. State is saved between sessions. |
 | **BASIC SYS stub** | Prepends a BASIC line that calls SYS to your program's origin |
 | **Sample** | Load a built-in example program |
 | **Zoom in / out** | Scale the block UI (affects all block elements) |
