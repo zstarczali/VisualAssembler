@@ -89,6 +89,10 @@ A `DATA` makró: nyers byte-ok (`$FF, 169, 0x1A` formátumban), megadott abszol�
 
 **Address input dispatch pattern:** A `.macro-address` inputon `data-address-field` attribútum mondja meg, melyik blokk-mező frissüljön (`"stringAddress"` vagy `"dataAddress"`). Egy event listener kezeli mindkét típust (`macroAddressInput.dataset.addressField`).
 
+A `SPRITE_INIT` makró (`isSpriteInitMacro: true`): mezők: `spriteNum` (0–7), `spriteColor` (0–15 dec), `spriteDataPage` (hex byte, pl. `"21"` = $0840). Generál: `LDA #page; STA $07F8+N` (pointer), `LDA $D015; ORA #bitN; STA $D015` (engedélyezés), `LDA #color; STA $D027+N` (szín). Méret: 18 byte.
+
+A `SPRITE_POS` makró (`isSpritePosMacro: true`): mezők: `spriteNum` (0–7), `spriteX` (0–319 dec), `spriteY` (0–255 dec). Generál: `LDA #xLow; STA $D000+N*2`, `LDA $D010; [ORA|AND] #mask; STA $D010` ($D010 bit kezelés X>255 esetén), `LDA #y; STA $D001+N*2`. Méret: 18 byte.
+
 A `LOOP` makró (két blokk rendszer):
 - **LOOP blokk** (`isLoopMacro: true`): mezők: `loopReg` (`"X"` vagy `"Y"`), `loopCount` (hex byte pl. `"0A"`), `loopLabel` (string). Generál: `LDX/LDY #count` (2 byte), majd a label a `address+2`-re mutat (a body elejére). Az auto-label `loop1`, `loop2`… ha `loopLabel` üres.
 - **NEXT blokk** (`isNextMacro: true`): mezők: `nextLabel` (párosított LOOP label neve), `nextReg` (auto-derive: a legközelebbi matching LOOP-ból). Generál: `DEX/DEY` (1 byte) + `BNE label` (2 byte). BNE offset = `target − (address+3)`, -128..127 range check.
