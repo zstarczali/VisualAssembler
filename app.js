@@ -337,11 +337,8 @@ const translations = {
     sampleText: "TEXT pelda",
     sampleMacro: "Komplex makro pelda",
     sampleSprite: "Sprite mozgatas pelda",
-    sampleSpriteAlign: "Sprite ALIGN pelda",
-    sampleSpriteTest3: "Sprite Test 3",
     sampleSetpixel: "Setpixel demo",
     sampleBitmap: "Bitmap vonal demo",
-    sampleBitmapClear: "Bitmap clear test",
     sampleMacroTest: "Uj makrok teszt",
     sampleLoop: "LOOP / NEXT demo",
     sampleHelloLoop: "Hello World 1-40 (LOOP szamlalo)",
@@ -545,11 +542,8 @@ const translations = {
     sampleText: "TEXT example",
     sampleMacro: "Complex macro example",
     sampleSprite: "Sprite movement example",
-    sampleSpriteAlign: "Sprite ALIGN example",
-    sampleSpriteTest3: "Sprite Test 3",
     sampleSetpixel: "Setpixel demo",
     sampleBitmap: "Bitmap line demo",
-    sampleBitmapClear: "Bitmap clear test",
     sampleMacroTest: "New macros test",
     sampleLoop: "LOOP / NEXT demo",
     sampleHelloLoop: "Hello World 1-40 (LOOP counter)",
@@ -1344,23 +1338,20 @@ function applyTranslations() {
   if (sampleOptions[2]) sampleOptions[2].textContent = t("sampleText");
   if (sampleOptions[3]) sampleOptions[3].textContent = t("sampleMacro");
   if (sampleOptions[4]) sampleOptions[4].textContent = t("sampleSprite");
-  if (sampleOptions[5]) sampleOptions[5].textContent = t("sampleSpriteAlign");
-  if (sampleOptions[6]) sampleOptions[6].textContent = t("sampleSpriteTest3");
-  if (sampleOptions[7]) sampleOptions[7].textContent = t("sampleSetpixel");
-  if (sampleOptions[8]) sampleOptions[8].textContent = t("sampleBitmap");
-  if (sampleOptions[9]) sampleOptions[9].textContent = t("sampleBitmapClear");
-  if (sampleOptions[10]) sampleOptions[10].textContent = t("sampleMacroTest");
-  if (sampleOptions[11]) sampleOptions[11].textContent = t("sampleLoop");
-  if (sampleOptions[12]) sampleOptions[12].textContent = t("sampleHelloLoop");
-  if (sampleOptions[13]) sampleOptions[13].textContent = t("samplePushPull");
-  if (sampleOptions[14]) sampleOptions[14].textContent = t("sampleIfElse");
-  if (sampleOptions[15]) sampleOptions[15].textContent = t("sampleUserMacro");
-  if (sampleOptions[16]) sampleOptions[16].textContent = t("sampleIncBin");
-  if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleInclude");
-  if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleSidDemo");
-  if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleSidDirectDemo");
-  if (sampleOptions[20]) sampleOptions[20].textContent = t("sampleSpriteMacroDemo");
-  if (sampleOptions[21]) sampleOptions[21].textContent = t("sampleJoystickDemo");
+  if (sampleOptions[5]) sampleOptions[5].textContent = t("sampleSetpixel");
+  if (sampleOptions[6]) sampleOptions[6].textContent = t("sampleBitmap");
+  if (sampleOptions[7]) sampleOptions[7].textContent = t("sampleMacroTest");
+  if (sampleOptions[8]) sampleOptions[8].textContent = t("sampleLoop");
+  if (sampleOptions[9]) sampleOptions[9].textContent = t("sampleHelloLoop");
+  if (sampleOptions[10]) sampleOptions[10].textContent = t("samplePushPull");
+  if (sampleOptions[11]) sampleOptions[11].textContent = t("sampleIfElse");
+  if (sampleOptions[12]) sampleOptions[12].textContent = t("sampleUserMacro");
+  if (sampleOptions[13]) sampleOptions[13].textContent = t("sampleIncBin");
+  if (sampleOptions[14]) sampleOptions[14].textContent = t("sampleInclude");
+  if (sampleOptions[15]) sampleOptions[15].textContent = t("sampleSidDemo");
+  if (sampleOptions[16]) sampleOptions[16].textContent = t("sampleSidDirectDemo");
+  if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleSpriteMacroDemo");
+  if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleJoystickDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -5276,7 +5267,7 @@ function getBlockModeCaption(block) {
   }
 
   if (block.isConstMacro) {
-    return currentLanguage === "en" ? `Macro | CONST ${block.constName || "?"}` : `Makro | CONST ${block.constName || "?"}`;
+    return currentLanguage === "en" ? "Macro | Const" : "Makro | Const";
   }
 
   if (block.isIfMacro) {
@@ -5548,6 +5539,7 @@ function renderProgram() {
       node.dataset.blockId = block.id;
       node.dataset.categoryTone = getCategoryTone(block.category);
       node.dataset.collapsed = block.collapsed ? "true" : "false";
+      if (block.isConstMacro) node.dataset.macroKind = "const";
       node.draggable = true;
 
       node.querySelector(".block-mnemonic").textContent = block.mnemonic;
@@ -6907,10 +6899,6 @@ async function loadJoystickDemoProgram() {
   await loadSampleFromFile("joystick-demo");
 }
 
-async function loadSpriteAlignDemo() {
-  await loadSampleFromFile("sprite-align-demo");
-}
-
 async function loadSetpixelDemo() {
   await loadSampleFromFile("setpixel-demo");
 }
@@ -6925,10 +6913,6 @@ async function loadBitmapLineSampleProgram() {
 
 async function loadHelloLoopSampleProgram() {
   await loadSampleFromFile("hello-loop-demo");
-}
-
-async function loadBitmapClearTest() {
-  await loadSampleFromFile("bitmap-clear-test");
 }
 
 async function loadMacroTest() {
@@ -6961,10 +6945,6 @@ async function loadIncBinDemo() {
       }
     }
   }
-}
-
-async function loadSpriteTest3() {
-  await loadSampleFromFile("sprite-test-3");
 }
 
 async function loadIncludeDemo() {
@@ -7069,16 +7049,6 @@ function loadSelectedSample() {
     return;
   }
 
-  if (sampleSelect.value === "sprite-align-demo") {
-    loadSpriteAlignDemo();
-    return;
-  }
-
-  if (sampleSelect.value === "sprite-test-3") {
-    loadSpriteTest3();
-    return;
-  }
-
   if (sampleSelect.value === "setpixel-demo") {
     loadSetpixelDemo();
     return;
@@ -7086,11 +7056,6 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "bitmap-demo") {
     loadBitmapLineSampleProgram();
-    return;
-  }
-
-  if (sampleSelect.value === "bitmap-clear-test") {
-    loadBitmapClearTest();
     return;
   }
 

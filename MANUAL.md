@@ -1,5 +1,7 @@
 # C64 Visual Assembler — User Manual
 
+**Version 1.3.5**
+
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
 ---
@@ -34,6 +36,10 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
    - [MACRO / ENDM / INVOKE](#macro--endm--invoke)
    - [DEFINE / IF / ELSE / ENDIF](#define--if--else--endif)
    - [CONST](#const)
+   - [SPRITE_INIT](#sprite_init)
+   - [SPRITE_POS](#sprite_pos)
+   - [WAIT_RASTER](#wait_raster)
+   - [JOYSTICK](#joystick)
 9. [Knowledge Base Links](#9-knowledge-base-links)
 
 ---
@@ -64,7 +70,7 @@ The palette on the left lists all available blocks grouped by category:
 - **System** — CLC, SEC, NOP, BRK, …
 - **Illegal instructions** — LAX, SAX, DCP, …
 - **Structure** — LABEL, COMMENT
-- **Macros** — LOOP, NEXT, PUSH, PULL, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, INCBIN, SID, INCLUDE, TABLE, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF
+- **Macros** — LOOP, NEXT, PUSH, PULL, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, INCBIN, SID, INCLUDE, TABLE, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK
 
 Use the **search box** at the top of the palette to filter by name. Click the **Add selected block** button or drag a block into the program area.
 
@@ -766,6 +772,136 @@ Declares a named constant. The constant is added to the label table and can be r
 The constant name appears in the **label picker** dropdown of instruction blocks that support absolute/immediate addressing — simply click it to insert the constant name as the operand.
 
 **Size:** 0 bytes.
+
+---
+
+### SPRITE_INIT
+
+Initialises a VIC-II sprite in a single block: sets the **data pointer**, **enable bit**, and **colour**.
+
+| Field | Description |
+|---|---|
+| Sprite # | Sprite number 0–7 |
+| Colour | Colour index 0–15 (C64 palette) |
+| Data page | Sprite data address / 64 (e.g. `$21` if data is at `$0840`) |
+
+**Generated ASM:**
+```
+    LDA #$21
+    STA $07F9       ; sprite pointer register ($07F8 + N)
+    LDA $D015
+    ORA #$01        ; set enable bit for sprite 0
+    STA $D015
+    LDA #$07
+    STA $D027       ; sprite 0 colour register
+```
+
+**Size:** 18 bytes.
+
+> **Sprite data page:** `data_address / 64`. With the default BASIC SYS stub, an `ALIGN 64` block after `JMP main` places sprite data at `$0840` → page = `$0840 / 64 = 33 = $21`.
+
+---
+
+### SPRITE_POS
+
+Sets a sprite's **static start position** (compile-time constant). Use this for initial placement; for animation use `INC`/`DEC` on the sprite's register directly.
+
+| Field | Description |
+|---|---|
+| Sprite # | Sprite number 0–7 |
+| X | Horizontal position 0–319 |
+| Y | Vertical position 0–255 |
+
+**Generated ASM (example: sprite 0, X=152, Y=100):**
+```
+    LDA #$98        ; X low byte
+    STA $D000       ; sprite 0 X register
+    LDA $D010
+    AND #$FE        ; clear X MSB for sprite 0 (X ≤ 255)
+    STA $D010
+    LDA #$64        ; Y = 100
+    STA $D001       ; sprite 0 Y register
+```
+
+For X > 255 the macro sets the corresponding bit in `$D010` instead of clearing it.
+
+**Size:** 18 bytes.
+
+> **Note:** `SPRITE_POS` bakes the position into the code at assemble time (`LDA #$xx`). To move a sprite at runtime use `INC $D000` / `DEC $D000` directly — see the `sprite-macro-demo` sample.
+
+---
+
+### WAIT_RASTER
+
+Waits for a specific VIC-II raster line — entirely **inline**, no JSR and no external label required.
+
+| Field | Description |
+|---|---|
+| Raster line | Target raster line in hex (e.g. `FF` = line 255) |
+
+**Generated ASM:**
+```
+wait:
+    LDA $D012       ; current raster line
+    CMP #$FF        ; target line
+    BNE wait        ; loop back (-7 bytes)
+```
+
+**Size:** 7 bytes (the `BNE` offset `$F9` = −7 always points back to the `LDA`).
+
+> **Tip:** Place `WAIT_RASTER` at the top of your game loop to synchronise with the display and prevent sprite tearing.
+
+---
+
+### JOYSTICK
+
+Reads a CIA joystick port and moves a sprite according to the direction pressed. Entirely **inline** — no JSR or label needed.
+
+| Field | Description |
+|---|---|
+| Port | `1` = port 1 (`$DC01`) or `2` = port 2 (`$DC00`) |
+| Sprite # | Sprite number 0–7 (controls which X/Y register pair is updated) |
+
+**Generated ASM (port 2, sprite 0):**
+```
+    LDA $DC00       ; read CIA port 2
+    LSR             ; bit 0 → carry (Up)
+    BCS skip_up     ; carry set = NOT pressed
+    DEC $D001       ; Y−1 (move up)
+skip_up:
+    LSR             ; bit 1 → carry (Down)
+    BCS skip_down
+    INC $D001       ; Y+1 (move down)
+skip_down:
+    LSR             ; bit 2 → carry (Left)
+    BCS skip_left
+    DEC $D000       ; X−1 (move left)
+skip_left:
+    LSR             ; bit 3 → carry (Right)
+    BCS skip_right
+    INC $D000       ; X+1 (move right)
+skip_right:
+```
+
+**Joystick bit map (active-LOW — bit = 0 means pressed):**
+
+| Bit | Direction | CIA register |
+|-----|-----------|-------------|
+| 0 | Up | $DC00 (port 2) / $DC01 (port 1) |
+| 1 | Down | |
+| 2 | Left | |
+| 3 | Right | |
+| 4 | Fire | (not handled by this macro) |
+
+**Size:** 27 bytes. The `BCS` offset is always `+3` (skips the following 3-byte `DEC`/`INC abs` instruction).
+
+> **Typical usage:** Place inside a `gameloop` label with `WAIT_RASTER` first:
+> ```
+> gameloop:
+>     WAIT_RASTER ($FF)
+>     JOYSTICK (port=2, sprite=0)
+>     JMP gameloop
+> ```
 
 ---
 
