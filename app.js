@@ -854,7 +854,13 @@ const mnemonicDescriptionsEn = {
   ARR: "AND then rotate right in one step (illegal: AND+ROR).",
   AXS: "Subtract immediate from A AND X, result to X (illegal: SBX).",
   LABEL: "Named label in code for jump targets.",
-  COMMENT: "Program comment that does not generate bytes."
+  COMMENT: "Program comment that does not generate bytes.",
+  SPRITE_INIT: "Initialize a sprite: set data page pointer ($07F8+N), enable bit ($D015), and color ($D027+N).",
+  SPRITE_POS: "Set sprite position: X (0–319) and Y (0–255). Handles the $D010 MSB for X > 255.",
+  WAIT_RASTER: "Busy-wait for a raster line: LDA $D012 / CMP #line / BNE -7. Inline, 7 bytes, no JSR.",
+  JOYSTICK: "Read joystick and move sprite: UP/DOWN/LEFT/RIGHT via LSR+BCS+DEC/INC. Port 1=$DC01, Port 2=$DC00. 27 bytes inline.",
+  DEFINE: "Define a symbol for conditional assembly. When present, IF blocks evaluate the condition.",
+  CONST: "Named constant definition. Can be used as an operand in any mnemonic (LDA, STA, JSR, etc.)."
 };
 
 const mnemonicDescriptionsHu = (() => {
