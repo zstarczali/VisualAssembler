@@ -1215,11 +1215,8 @@ button:focus-visible,
 }
 
 .label-picker-dropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  z-index: 60;
+  position: fixed;
+  z-index: 9999;
   background: var(--panel-strong);
   border: 1px solid var(--panel-border);
   border-radius: 14px;
