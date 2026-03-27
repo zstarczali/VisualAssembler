@@ -868,6 +868,7 @@ const mnemonicDescriptionsEn = {
   SPRITE_POS: "Set sprite position: X (0–319) and Y (0–255). Handles the $D010 MSB for X > 255.",
   WAIT_RASTER: "Busy-wait for a raster line: LDA $D012 / CMP #line / BNE -7. Inline, 7 bytes, no JSR.",
   JOYSTICK: "Read joystick and move sprite: UP/DOWN/LEFT/RIGHT via LSR+BCS+DEC/INC. Port 1=$DC01, Port 2=$DC00. 27 bytes inline.",
+  SPRITE_COL: "Sprite collision detection: LDA $D01E/$D01F + AND #bitMask. Result in A: non-zero = collision. Follow with BEQ/BNE. 5 bytes.",
   DEFINE: "Define a symbol for conditional assembly. When present, IF blocks evaluate the condition.",
   CONST: "Named constant definition. Can be used as an operand in any mnemonic (LDA, STA, JSR, etc.)."
 };
@@ -4148,7 +4149,7 @@ function compileLineBytes(line, labels) {
   if (block.isSpriteColMacro) {
     const num = parseInt(block.spriteNum || "0", 10);
     if (isNaN(num) || num < 0 || num > 7) {
-      return { ok: false, error: "SPRITE_COL: a sprite szama 0 es 7 kozott lehet." };
+      return { ok: false, error: currentLanguage === "en" ? "SPRITE_COL: sprite number must be 0–7." : "SPRITE_COL: a sprite szama 0 es 7 kozott lehet." };
     }
     const isBg = (block.colType || "sprite") === "background";
     // $D01E = sprite-sprite, $D01F = sprite-background; reading clears the register
@@ -5601,6 +5602,7 @@ function renderProgram() {
     return;
   }
 
+  document.querySelectorAll(".label-picker-dropdown").forEach(el => el.remove());
   programList.innerHTML = "";
 
     program.forEach((block, index) => {
@@ -6189,8 +6191,14 @@ function renderProgram() {
           dropdown.className = "label-picker-dropdown";
           dropdown.hidden = true;
           dropdown.innerHTML = pickerNames.map(n => `<div class="label-picker-item">${n}</div>`).join("");
-          wrapper.appendChild(dropdown);
-          operandField.addEventListener("focus", () => { dropdown.hidden = false; });
+          document.body.appendChild(dropdown);
+          function positionLabelDropdown() {
+            const r = operandField.getBoundingClientRect();
+            dropdown.style.top = (r.bottom + 4) + "px";
+            dropdown.style.left = r.left + "px";
+            dropdown.style.width = r.width + "px";
+          }
+          operandField.addEventListener("focus", () => { positionLabelDropdown(); dropdown.hidden = false; });
           operandField.addEventListener("blur", () => { setTimeout(() => { dropdown.hidden = true; }, 150); });
           operandField.addEventListener("keydown", e => { if (e.key === "Escape") dropdown.hidden = true; });
           dropdown.querySelectorAll(".label-picker-item").forEach(item => {
@@ -6515,7 +6523,7 @@ function renderAsmOutput() {
 
     // Handle INVOKE block header line
     if (line.block._isMacroInvokeHeader) {
-      return `; >>> Invoke: ${line.block.invokeMacroName || "?"}`;
+      return `; .invoke ${line.block.invokeMacroName || "?"}`;
     }
 
     // Handle macro source blocks (body of MACRO/ENDM definition when toggle is on)
@@ -6570,9 +6578,9 @@ function renderAsmOutput() {
       }).join("\n");
       deferredDataSections.push({
         address: startAddress,
-        text: `text_${lineNumber}:\n    ; TEXT "${line.block.rawOperand || ""}" -> screen (${line.block.textX ?? 0}, ${line.block.textY ?? 0})\n    ; ${formatAddress(startAddress)}\n${expanded}`
+        text: `text_${lineNumber}:\n    ; .text "${line.block.rawOperand || ""}" -> screen (${line.block.textX ?? 0}, ${line.block.textY ?? 0})\n    ; ${formatAddress(startAddress)}\n${expanded}`
       });
-      return `    ; ${currentLanguage === "en" ? "TEXT data below" : "TEXT data lent"}: text_${lineNumber}`;
+      return `    ; .text text_${lineNumber}`;
     }
 
     if (line.block.isByteMacro) {
@@ -6591,9 +6599,9 @@ function renderAsmOutput() {
       }).join("\n");
       deferredDataSections.push({
         address: startAddress,
-        text: `string_${lineNumber}:\n    ; STRING "${line.block.rawOperand || ""}" -> ${formatAddress(startAddress)}\n    ; ${formatAddress(startAddress)}\n${expanded}`
+        text: `string_${lineNumber}:\n    ; .string "${line.block.rawOperand || ""}" -> ${formatAddress(startAddress)}\n    ; ${formatAddress(startAddress)}\n${expanded}`
       });
-      return `    ; ${currentLanguage === "en" ? "STRING data below" : "STRING data lent"}: string_${lineNumber}`;
+      return `    ; .string string_${lineNumber}`;
     }
 
     if (line.block.isDataMacro) {
@@ -6606,9 +6614,9 @@ function renderAsmOutput() {
       }).join("\n");
       deferredDataSections.push({
         address: startAddress,
-        text: `data_${lineNumber}:\n    ; DATA ${line.block.rawOperand || ""} -> ${formatAddress(startAddress)}\n    ; ${formatAddress(startAddress)}\n${expanded}`
+        text: `data_${lineNumber}:\n    ; .data ${line.block.rawOperand || ""} -> ${formatAddress(startAddress)}\n    ; ${formatAddress(startAddress)}\n${expanded}`
       });
-      return `    ; ${currentLanguage === "en" ? "DATA data below" : "DATA adat lent"}: data_${lineNumber}`;
+      return `    ; .data data_${lineNumber}`;
     }
 
     if (line.block.isRawBytesMacro) {
@@ -6621,9 +6629,9 @@ function renderAsmOutput() {
       }).join("\n");
       deferredDataSections.push({
         address: startAddress,
-        text: `rawbytes_${lineNumber}:\n    ; RAWBYTES ${line.block.rawOperand || ""} -> ${formatAddress(startAddress)}\n    ; ${formatAddress(startAddress)}\n${expanded}`
+        text: `rawbytes_${lineNumber}:\n    ; .rawbytes ${line.block.rawOperand || ""} -> ${formatAddress(startAddress)}\n    ; ${formatAddress(startAddress)}\n${expanded}`
       });
-      return `    ; ${t("rawBytesDataBelow")}: rawbytes_${lineNumber}`;
+      return `    ; .rawbytes rawbytes_${lineNumber}`;
     }
 
     if (line.block.isIncBinMacro) {
@@ -6638,11 +6646,11 @@ function renderAsmOutput() {
         }).join("\n");
         deferredDataSections.push({
           address: startAddress,
-          text: `incbin_${lineNumber}:\n    ; INCBIN "${fileName}" -> ${formatAddress(startAddress)}\n    ; ${formatAddress(startAddress)}\n${expanded}`
+          text: `incbin_${lineNumber}:\n    ; .incbin "${fileName}" -> ${formatAddress(startAddress)}\n    ; ${formatAddress(startAddress)}\n${expanded}`
         });
-        return `    ; ${t("incBinDataBelow")}: incbin_${lineNumber} (${bytes.length} bytes)`;
+        return `    ; .incbin incbin_${lineNumber} (${bytes.length} bytes)`;
       }
-      return `    ; INCBIN "${fileName}" @ ${formatAddress(startAddress)} (${currentLanguage === "en" ? "no file loaded" : "nincs betoltott fajl"})`;
+      return `    ; .incbin "${fileName}" @ ${formatAddress(startAddress)} (${currentLanguage === "en" ? "no file loaded" : "nincs betoltott fajl"})`;
     }
 
     if (line.block.isSidMacro) {
@@ -6652,16 +6660,16 @@ function renderAsmOutput() {
       const init = line.block.sidInitAddress || 0;
       const play = line.block.sidPlayAddress || 0;
       if (bytes.length > 0 && load > 0) {
-        return `    ; SID "${fileName}" @ ${formatAddress(load)}  Init:${formatAddress(init)}  Play:${formatAddress(play)}  (${bytes.length} bytes)`;
+        return `    ; .sid "${fileName}" @ ${formatAddress(load)}  init:${formatAddress(init)}  play:${formatAddress(play)}  (${bytes.length} bytes)`;
       }
-      return `    ; SID "${fileName}" (${currentLanguage === "en" ? "no file loaded" : "nincs betoltott fajl"})`;
+      return `    ; .sid "${fileName}" (${currentLanguage === "en" ? "no file loaded" : "nincs betoltott fajl"})`;
     }
 
     if (line.block.isIncludeMacro) {
       const count = (line.block.includedBlocks || []).length;
       const fname = line.block.includeFileName || "?";
-      if (count === 0) return `    ; INCLUDE "${fname}" (${currentLanguage === "en" ? "no blocks loaded" : "nincsenek blokkok betoltve"})`;
-      return `    ; === INCLUDE "${fname}" — ${count} ${t("includeBlocksCount")} ===`;
+      if (count === 0) return `    ; .include "${fname}" (${currentLanguage === "en" ? "no blocks loaded" : "nincsenek blokkok betoltve"})`;
+      return `    ; .include "${fname}" — ${count} ${t("includeBlocksCount")}`;
     }
 
     if (line.block.isRawTextMacro) {
@@ -6674,9 +6682,9 @@ function renderAsmOutput() {
       }).join("\n");
       deferredDataSections.push({
         address: startAddress,
-        text: `rawtext_${lineNumber}:\n    ; RAWTEXT "${line.block.rawOperand || ""}" -> ${formatAddress(startAddress)}\n    ; ${formatAddress(startAddress)}\n${expanded}`
+        text: `rawtext_${lineNumber}:\n    ; .rawtext "${line.block.rawOperand || ""}" -> ${formatAddress(startAddress)}\n    ; ${formatAddress(startAddress)}\n${expanded}`
       });
-      return `    ; ${t("rawTextDataBelow")}: rawtext_${lineNumber}`;
+      return `    ; .rawtext rawtext_${lineNumber}`;
     }
 
     if (line.block.isLoopMacro) {
@@ -6751,9 +6759,9 @@ function renderAsmOutput() {
         const remainder = line.address % boundary;
         const padding = remainder === 0 ? 0 : boundary - remainder;
         const targetAddr = line.address + padding;
-        return `    ; ALIGN ${boundary} \u2192 ${formatAddress(targetAddr)} (${padding} bytes)`;
+        return `    ; .align ${boundary} \u2192 ${formatAddress(targetAddr)} (${padding} bytes)`;
       }
-      return `    ; ALIGN: invalid boundary`;
+      return `    ; .align invalid boundary`;
     }
 
     if (line.block.isTableMacro) {
@@ -6788,6 +6796,27 @@ function renderAsmOutput() {
 
     if (line.block.isMacroDefEnd) {
       return `; .ENDM`;
+    }
+
+    if (line.block.isSpriteInitMacro) {
+      const pageHex = (line.block.spriteDataPage || "21").replace(/^\$/, "").toUpperCase().padStart(2, "0");
+      return `    ; .sprite_init #${line.block.spriteNum || "0"} col=${line.block.spriteColor || "7"} page=$${pageHex}`;
+    }
+
+    if (line.block.isSpritePosMacro) {
+      return `    ; .sprite_pos #${line.block.spriteNum || "0"} x=${line.block.spriteX || "152"} y=${line.block.spriteY || "100"}`;
+    }
+
+    if (line.block.isWaitRasterMacro) {
+      return `    ; .wait_raster $${(line.block.rasterLine || "FF").toUpperCase()}`;
+    }
+
+    if (line.block.isJoystickMacro) {
+      return `    ; .joystick port=${line.block.joyPort || "2"} sprite=${line.block.joySpriteNum || "0"}`;
+    }
+
+    if (line.block.isSpriteColMacro) {
+      return `    ; .sprite_col #${line.block.spriteNum || "0"} ${line.block.colType || "sprite"}`;
     }
 
     const suffix = line.block.operand ? ` ${getAsmDisplayOperand(line.block)}` : "";
