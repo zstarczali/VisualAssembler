@@ -449,6 +449,8 @@ const translations = {
     sidFileLabel: "SID fajl",
     sidFilePlaceholder: "Nincs SID fajl kivalasztva",
     sidFileBrowse: "SID fajl tallozas",
+    sidCustomAddress: "Betoltesi cim (feluliras)",
+    sidCustomAddressPlaceholder: "pl. C000 (ures = SID fejlec)",
     blockDescriptionLabel: "Leiras:",
     mnemonicCardLabel: "Leiras",
     darkMode: "Dark mode",
@@ -660,6 +662,8 @@ const translations = {
     sidFileLabel: "SID file",
     sidFilePlaceholder: "No SID file selected",
     sidFileBrowse: "Browse SID file",
+    sidCustomAddress: "Load address (override)",
+    sidCustomAddressPlaceholder: "e.g. C000 (empty = from SID header)",
     blockDescriptionLabel: "Description:",
     mnemonicCardLabel: "Description",
     darkMode: "Dark mode",
@@ -2049,7 +2053,8 @@ function createBlockFromMnemonic(item) {
       sidLoadAddress: 0,
       sidInitAddress: 0,
       sidPlayAddress: 0,
-      sidBytes: []
+      sidBytes: [],
+      sidCustomAddress: ""
     };
   }
   if (item.isIncludeMacro) {
@@ -3970,7 +3975,8 @@ function assembleProgramToPrg(originOverride) {
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: Array.from(chunkBytes) });
     } else if (block.isSidMacro) {
       const chunkBytes = block.sidBytes || [];
-      const addr = block.sidLoadAddress || 0;
+      const customAddr = block.sidCustomAddress ? parseAddressValue(block.sidCustomAddress.replace(/^\$/, "")) : null;
+      const addr = customAddr ?? block.sidLoadAddress ?? 0;
       if (chunkBytes.length > 0 && addr > 0) deferredChunks.push({ addr, bytes: Array.from(chunkBytes) });
     }
   }
@@ -5831,6 +5837,14 @@ function renderProgram() {
               </div>
             </label>
           </div>
+          <div class="macro-grid single-macro-row">
+            <label class="mini-field">
+              <span>${t("sidCustomAddress")}</span>
+              <input class="sid-custom-address" type="text" maxlength="6"
+                value="${block.sidCustomAddress || ""}"
+                placeholder="${t("sidCustomAddressPlaceholder")}">
+            </label>
+          </div>
           ${block.sidTitle ? `<div class="sid-meta">
             <span class="sid-meta-title">${block.sidTitle}</span>
             <span class="sid-meta-line">${block.sidAuthor || ""}</span>
@@ -5851,6 +5865,9 @@ function renderProgram() {
         updateProgramBlock(index, "sidPlayAddress", result.playAddress);
         updateProgramBlock(index, "sidBytes", result.bytes);
         renderProgram();
+      });
+      blockControls.querySelector(".sid-custom-address")?.addEventListener("input", e => {
+        updateProgramBlock(index, "sidCustomAddress", e.target.value);
       });
     } else if (block.isIncludeMacro) {
       inlineField.hidden = true;
@@ -6605,7 +6622,7 @@ function renderAsmOutput() {
         address: startAddress,
         text: `text_${lineNumber}:\n    ; .text "${line.block.rawOperand || ""}" -> screen (${line.block.textX ?? 0}, ${line.block.textY ?? 0})\n    ; ${formatAddress(startAddress)}\n${expanded}`
       });
-      return `    ; .text text_${lineNumber}`;
+      return `; .text text_${lineNumber}`;
     }
 
     if (line.block.isByteMacro) {
@@ -6626,7 +6643,7 @@ function renderAsmOutput() {
         address: startAddress,
         text: `string_${lineNumber}:\n    ; .string "${line.block.rawOperand || ""}" -> ${formatAddress(startAddress)}\n    ; ${formatAddress(startAddress)}\n${expanded}`
       });
-      return `    ; .string string_${lineNumber}`;
+      return `; .string string_${lineNumber}`;
     }
 
     if (line.block.isDataMacro) {
@@ -6641,7 +6658,7 @@ function renderAsmOutput() {
         address: startAddress,
         text: `data_${lineNumber}:\n    ; .data ${line.block.rawOperand || ""} -> ${formatAddress(startAddress)}\n    ; ${formatAddress(startAddress)}\n${expanded}`
       });
-      return `    ; .data data_${lineNumber}`;
+      return `; .data data_${lineNumber}`;
     }
 
     if (line.block.isRawBytesMacro) {
@@ -6656,7 +6673,7 @@ function renderAsmOutput() {
         address: startAddress,
         text: `rawbytes_${lineNumber}:\n    ; .rawbytes ${line.block.rawOperand || ""} -> ${formatAddress(startAddress)}\n    ; ${formatAddress(startAddress)}\n${expanded}`
       });
-      return `    ; .rawbytes rawbytes_${lineNumber}`;
+      return `; .rawbytes rawbytes_${lineNumber}`;
     }
 
     if (line.block.isIncBinMacro) {
@@ -6673,28 +6690,30 @@ function renderAsmOutput() {
           address: startAddress,
           text: `incbin_${lineNumber}:\n    ; .incbin "${fileName}" -> ${formatAddress(startAddress)}\n    ; ${formatAddress(startAddress)}\n${expanded}`
         });
-        return `    ; .incbin incbin_${lineNumber} (${bytes.length} bytes)`;
+        return `; .incbin incbin_${lineNumber} (${bytes.length} bytes)`;
       }
-      return `    ; .incbin "${fileName}" @ ${formatAddress(startAddress)} (${currentLanguage === "en" ? "no file loaded" : "nincs betoltott fajl"})`;
+      return `; .incbin "${fileName}" @ ${formatAddress(startAddress)} (${currentLanguage === "en" ? "no file loaded" : "nincs betoltott fajl"})`;
     }
 
     if (line.block.isSidMacro) {
       const bytes = line.block.sidBytes || [];
       const fileName = line.block.sidFileName || "?";
-      const load = line.block.sidLoadAddress || 0;
+      const customAddr = line.block.sidCustomAddress ? parseAddressValue(line.block.sidCustomAddress.replace(/^\$/, "")) : null;
+      const load = customAddr ?? line.block.sidLoadAddress ?? 0;
       const init = line.block.sidInitAddress || 0;
       const play = line.block.sidPlayAddress || 0;
       if (bytes.length > 0 && load > 0) {
-        return `    ; .sid "${fileName}" @ ${formatAddress(load)}  init:${formatAddress(init)}  play:${formatAddress(play)}  (${bytes.length} bytes)`;
+        const overrideNote = customAddr != null ? " [override]" : "";
+        return `; .sid "${fileName}" @ ${formatAddress(load)}${overrideNote}  init:${formatAddress(init)}  play:${formatAddress(play)}  (${bytes.length} bytes)`;
       }
-      return `    ; .sid "${fileName}" (${currentLanguage === "en" ? "no file loaded" : "nincs betoltott fajl"})`;
+      return `; .sid "${fileName}" (${currentLanguage === "en" ? "no file loaded" : "nincs betoltott fajl"})`;
     }
 
     if (line.block.isIncludeMacro) {
       const count = (line.block.includedBlocks || []).length;
       const fname = line.block.includeFileName || "?";
-      if (count === 0) return `    ; .include "${fname}" (${currentLanguage === "en" ? "no blocks loaded" : "nincsenek blokkok betoltve"})`;
-      return `    ; .include "${fname}" — ${count} ${t("includeBlocksCount")}`;
+      if (count === 0) return `; .include "${fname}" (${currentLanguage === "en" ? "no blocks loaded" : "nincsenek blokkok betoltve"})`;
+      return `; .include "${fname}" — ${count} ${t("includeBlocksCount")}`;
     }
 
     if (line.block.isRawTextMacro) {
@@ -6709,7 +6728,7 @@ function renderAsmOutput() {
         address: startAddress,
         text: `rawtext_${lineNumber}:\n    ; .rawtext "${line.block.rawOperand || ""}" -> ${formatAddress(startAddress)}\n    ; ${formatAddress(startAddress)}\n${expanded}`
       });
-      return `    ; .rawtext rawtext_${lineNumber}`;
+      return `; .rawtext rawtext_${lineNumber}`;
     }
 
     if (line.block.isLoopMacro) {
@@ -6784,9 +6803,9 @@ function renderAsmOutput() {
         const remainder = line.address % boundary;
         const padding = remainder === 0 ? 0 : boundary - remainder;
         const targetAddr = line.address + padding;
-        return `    ; .align ${boundary} \u2192 ${formatAddress(targetAddr)} (${padding} bytes)`;
+        return `; .align ${boundary} \u2192 ${formatAddress(targetAddr)} (${padding} bytes)`;
       }
-      return `    ; .align invalid boundary`;
+      return `; .align invalid boundary`;
     }
 
     if (line.block.isTableMacro) {
@@ -6825,23 +6844,23 @@ function renderAsmOutput() {
 
     if (line.block.isSpriteInitMacro) {
       const pageHex = (line.block.spriteDataPage || "21").replace(/^\$/, "").toUpperCase().padStart(2, "0");
-      return `    ; .sprite_init #${line.block.spriteNum || "0"} col=${line.block.spriteColor || "7"} page=$${pageHex}`;
+      return `; .sprite_init #${line.block.spriteNum || "0"} col=${line.block.spriteColor || "7"} page=$${pageHex}`;
     }
 
     if (line.block.isSpritePosMacro) {
-      return `    ; .sprite_pos #${line.block.spriteNum || "0"} x=${line.block.spriteX || "152"} y=${line.block.spriteY || "100"}`;
+      return `; .sprite_pos #${line.block.spriteNum || "0"} x=${line.block.spriteX || "152"} y=${line.block.spriteY || "100"}`;
     }
 
     if (line.block.isWaitRasterMacro) {
-      return `    ; .wait_raster $${(line.block.rasterLine || "FF").toUpperCase()}`;
+      return `; .wait_raster $${(line.block.rasterLine || "FF").toUpperCase()}`;
     }
 
     if (line.block.isJoystickMacro) {
-      return `    ; .joystick port=${line.block.joyPort || "2"} sprite=${line.block.joySpriteNum || "0"}`;
+      return `; .joystick port=${line.block.joyPort || "2"} sprite=${line.block.joySpriteNum || "0"}`;
     }
 
     if (line.block.isSpriteColMacro) {
-      return `    ; .sprite_col #${line.block.spriteNum || "0"} ${line.block.colType || "sprite"}`;
+      return `; .sprite_col #${line.block.spriteNum || "0"} ${line.block.colType || "sprite"}`;
     }
 
     const suffix = line.block.operand ? ` ${getAsmDisplayOperand(line.block)}` : "";
