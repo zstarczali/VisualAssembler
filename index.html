@@ -413,54 +413,14 @@
           error message for the SPRITE_COL macro.
         </li>
         <li>
-          <strong>SPRITE_INIT macro</strong> — initialise a VIC-II sprite in one block: sets the data pointer
-          (<code>$07F8+N</code>), enables the sprite (<code>$D015</code>), and sets its colour (<code>$D027+N</code>).
-          Parameters: sprite number (0–7), colour (0–15), data page (address / 64, e.g. <code>$21</code> for
-          <code>$0840</code>). Expands to 18 bytes inline.
+          <strong>SID macro — custom load address</strong> — an optional override field lets you specify where
+          the SID data is placed in memory, independent of the address stored in the SID file header.
+          Leave empty to use the header address as before.
         </li>
         <li>
-          <strong>SPRITE_POS macro</strong> — set a sprite's static start position: X (0–319, with automatic
-          <code>$D010</code> MSB handling for X &gt; 255) and Y (0–255). Parameters: sprite number, X, Y.
-          Expands to 18 bytes inline.
-        </li>
-        <li>
-          <strong>WAIT_RASTER macro</strong> — inline busy-wait for a VIC-II raster line
-          (<code>LDA $D012 / CMP #line / BNE −7</code>). No JSR, no label needed. Parameter: raster line (hex).
-          Expands to 7 bytes inline.
-        </li>
-        <li>
-          <strong>JOYSTICK macro</strong> — reads a CIA joystick port and moves a sprite: LSR+BCS checks each
-          direction bit (Up/Down/Left/Right active-LOW), then DEC/INC the sprite X/Y register.
-          Parameters: port (1 = <code>$DC01</code>, 2 = <code>$DC00</code>), sprite number.
-          Expands to 27 bytes inline.
-        </li>
-        <li>
-          <strong>New sample — sprite-macro-demo</strong> — demonstrates SPRITE_INIT, SPRITE_POS, and WAIT_RASTER:
-          a real spritemate-exported sprite bounces left and right using INC/DEC <code>$D000</code>.
-        </li>
-        <li>
-          <strong>New sample — joystick-demo</strong> — demonstrates the JOYSTICK macro: sprite #0 follows
-          joystick port 2 (VICE: Numpad or Joy2). Screen text printed via TEXT macro.
-        </li>
-        <li>
-          <strong>SPRITE_COL macro</strong> — sprite collision detection via VIC-II registers.
-          Reads <code>$D01E</code> (sprite–sprite) or <code>$D01F</code> (sprite–background),
-          ANDs the result with the selected sprite's bit mask. Result in A: non-zero = collision.
-          Use <code>BEQ</code>/<code>BNE</code> after the macro to branch. Expands to 5 bytes inline.
-        </li>
-        <li>
-          <strong>New sample — collision-demo</strong> — demonstrates SPRITE_COL: green ball (sprite #0)
-          moves with joystick port 2, red cross (sprite #1) is stationary. Border turns red on
-          sprite–sprite collision, light blue when clear.
-        </li>
-        <li>
-          <strong>CONST block header simplified</strong> — when expanded, the CONST block now shows only the
-          <em>Macro | Const</em> chip without the redundant bold <code>CONST</code> mnemonic label.
-          Collapsed appearance is unchanged.
-        </li>
-        <li>
-          <strong>Sample cleanup</strong> — removed <code>sprite-test-3</code>, <code>sprite-align-demo</code>,
-          and <code>bitmap-clear-test</code> samples (superseded by the new sprite demos).
+          <strong>ASM output — macro indentation fixed</strong> — <code>; .name</code> comment-style macro lines
+          (<code>; .sid</code>, <code>; .align</code>, <code>; .sprite_init</code>, etc.) no longer have a
+          spurious 4-space indent; they now start at column 0, consistent with other comment lines.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
