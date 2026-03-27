@@ -161,6 +161,10 @@ const mnemonicLibrary = {
     { mnemonic: "MACRO", description: "Felhasznaloi makro definicio kezdete. Nevet var, ENDM-mel zarjuk.", modes: ["implied"], isMacroDefStart: true },
     { mnemonic: "ENDM", description: "Felhasznaloi makro definicio vege.", modes: ["implied"], isMacroDefEnd: true },
     { mnemonic: "INVOKE", description: "Felhasznaloi makro hivasa. Valaszd ki a listabol a makro nevet.", modes: ["implied"], isMacroInvoke: true },
+    { mnemonic: "SPRITE_INIT", description: "Sprite inicializalasa: adatlap pointer, engedely bit es szin beallitasa ($D015, $D027+N, $07F8+N).", modes: ["implied"], isSpriteInitMacro: true },
+    { mnemonic: "SPRITE_POS", description: "Sprite pozicio beallitasa: X (0-319) es Y (0-255), kezeli a $D010 felso bitet X>255 eseten.", modes: ["implied"], isSpritePosMacro: true },
+    { mnemonic: "WAIT_RASTER", description: "Rasztervonal varakozas: LDA $D012 / CMP #sor / BNE -7. Inline, 7 byte, nincs JSR.", modes: ["implied"], isWaitRasterMacro: true },
+    { mnemonic: "JOYSTICK", description: "Joystick olvasas es sprite mozgatasa: UP/DOWN/LEFT/RIGHT bitek LSR+BCS+DEC/INC-cel. Port 1=$DC01, Port 2=$DC00 (alap). 27 byte inline.", modes: ["implied"], isJoystickMacro: true },
     { mnemonic: "DEFINE", description: "Szimbolum definialasa felteteles forditashoz. Ha jelen van, az IF blokkban levo feltetelek kivalutalodnak.", modes: ["implied"], isDefineMacro: true },
     { mnemonic: "IF", description: "Felteteles forditas kezdete. Kifejezest var (pl. DEBUG). ENDIF-fel zarjuk.", modes: ["implied"], isIfMacro: true },
     { mnemonic: "ELSE", description: "Alternativ ag IF blokkon belul.", modes: ["implied"], isElseMacro: true },
@@ -348,6 +352,8 @@ const translations = {
     sampleInclude: "INCLUDE demo",
     sampleSidDemo: "SID zenelejatszas (Ikari Warriors)",
     sampleSidDirectDemo: "SID lejatszas - SID makro (Ikari Warriors)",
+    sampleSpriteMacroDemo: "SPRITE_INIT / SPRITE_POS makro demo",
+    sampleJoystickDemo: "JOYSTICK makro demo",
     checkForUpdate: "Frissites keresese",
     whatsNew: "Ujdonsagok",
     paletteSearchPlaceholder: "Kereses...",
@@ -371,6 +377,14 @@ const translations = {
     fieldLoopCount: "Ciklus",
     fieldLoopLabel: "Cimke",
     fieldNextLabel: "LOOP cimkeje",
+    fieldSpriteNum: "Sprite # (0-7)",
+    fieldSpriteColor: "Szin (0-15)",
+    fieldSpriteDataPage: "Adatlap ($XX)",
+    fieldSpriteX: "X (0-319)",
+    fieldSpriteY: "Y (0-255)",
+    fieldRasterLine: "Rasztersor ($00-$FF)",
+    fieldJoyPort: "Port (1 vagy 2)",
+    fieldJoySpriteNum: "Sprite # (0-7)",
     pickLabel: "Cimke valasztas",
     fieldPushRegs: "Regiszterek",
     fieldPullRegs: "Regiszterek",
@@ -546,6 +560,8 @@ const translations = {
     sampleInclude: "INCLUDE demo",
     sampleSidDemo: "SID player - INCBIN (Ikari Warriors)",
     sampleSidDirectDemo: "SID player - SID macro (Ikari Warriors)",
+    sampleSpriteMacroDemo: "SPRITE_INIT / SPRITE_POS macro demo",
+    sampleJoystickDemo: "JOYSTICK macro demo",
     languageLabel: "Language",
     checkForUpdate: "Check for Update",
     whatsNew: "What's New",
@@ -570,6 +586,14 @@ const translations = {
     fieldLoopCount: "Count",
     fieldLoopLabel: "Label",
     fieldNextLabel: "LOOP label",
+    fieldSpriteNum: "Sprite # (0-7)",
+    fieldSpriteColor: "Color (0-15)",
+    fieldSpriteDataPage: "Data page ($XX)",
+    fieldSpriteX: "X (0-319)",
+    fieldSpriteY: "Y (0-255)",
+    fieldRasterLine: "Raster line ($00-$FF)",
+    fieldJoyPort: "Port (1 or 2)",
+    fieldJoySpriteNum: "Sprite # (0-7)",
     pickLabel: "Pick label",
     fieldPushRegs: "Registers",
     fieldPullRegs: "Registers",
@@ -1335,6 +1359,8 @@ function applyTranslations() {
   if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleInclude");
   if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleSidDemo");
   if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleSidDirectDemo");
+  if (sampleOptions[20]) sampleOptions[20].textContent = t("sampleSpriteMacroDemo");
+  if (sampleOptions[21]) sampleOptions[21].textContent = t("sampleJoystickDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -2031,6 +2057,79 @@ function createBlockFromMnemonic(item) {
       includedBlocks: []
     };
   }
+  if (item.isSpriteInitMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isSpriteInitMacro: true,
+      spriteNum: "0",
+      spriteColor: "7",
+      spriteDataPage: "21"
+    };
+  }
+
+  if (item.isSpritePosMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isSpritePosMacro: true,
+      spriteNum: "0",
+      spriteX: "152",
+      spriteY: "100"
+    };
+  }
+
+  if (item.isJoystickMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isJoystickMacro: true,
+      joyPort: "2",
+      joySpriteNum: "0"
+    };
+  }
+
+  if (item.isWaitRasterMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isWaitRasterMacro: true,
+      rasterLine: "FF"
+    };
+  }
+
   if (item.isLoopMacro) {
     return {
       id: crypto.randomUUID(),
@@ -2646,6 +2745,43 @@ function updateProgramBlock(index, field, value) {
     return;
   }
 
+  if (block.isJoystickMacro && (field === "joyPort" || field === "joySpriteNum")) {
+    const port = parseInt(field === "joyPort" ? value : block.joyPort, 10);
+    const num = parseInt(field === "joySpriteNum" ? value : block.joySpriteNum, 10);
+    block.validationError =
+      (port !== 1 && port !== 2) ? (currentLanguage === "en" ? "Port must be 1 or 2." : "A port 1 vagy 2 lehet.") :
+      (isNaN(num) || num < 0 || num > 7) ? (currentLanguage === "en" ? "Sprite number must be 0–7." : "A sprite szama 0 es 7 kozott lehet.") :
+      "";
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isWaitRasterMacro && field === "rasterLine") {
+    const v = value.replace(/^\$/, "");
+    const parsed = parseInt(v, 16);
+    block.validationError = (isNaN(parsed) || parsed < 0 || parsed > 255)
+      ? (currentLanguage === "en" ? "Raster line must be a hex byte ($00–$FF)." : "A rasztersor 1 hex byte legyen ($00-$FF).")
+      : "";
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isSpriteInitMacro && (field === "spriteNum" || field === "spriteColor" || field === "spriteDataPage")) {
+    block.validationError = validateSpriteInitMacro(block.spriteNum, block.spriteColor, block.spriteDataPage);
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isSpritePosMacro && (field === "spriteNum" || field === "spriteX" || field === "spriteY")) {
+    block.validationError = validateSpritePosMacro(block.spriteNum, block.spriteX, block.spriteY);
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
   if (block.isLoopMacro && (field === "loopReg" || field === "loopCount" || field === "loopLabel")) {
     if (field === "loopLabel") {
       block.loopLabel = sanitizeLabelName(value);
@@ -3111,6 +3247,39 @@ function validateTableMacro(labelName, address) {
     return currentLanguage === "en" ? "TABLE macro address must be between 0 and 65535." : "A TABLE makro cime 0 es 65535 kozott lehet.";
   }
 
+  return "";
+}
+
+function validateSpriteInitMacro(spriteNum, spriteColor, spriteDataPage) {
+  const num = parseInt(spriteNum, 10);
+  if (isNaN(num) || num < 0 || num > 7) {
+    return currentLanguage === "en" ? "Sprite number must be 0–7." : "A sprite szama 0 es 7 kozott lehet.";
+  }
+  const color = parseInt(spriteColor, 10);
+  if (isNaN(color) || color < 0 || color > 15) {
+    return currentLanguage === "en" ? "Color must be 0–15." : "A szin erteke 0 es 15 kozott lehet.";
+  }
+  const pageStr = (spriteDataPage || "").replace(/^\$/, "");
+  const page = parseInt(pageStr, 16);
+  if (isNaN(page) || page < 0 || page > 255) {
+    return currentLanguage === "en" ? "Data page must be a hex byte ($00–$FF), e.g. $21 for $0840." : "Az adatlap 1 hex byte legyen ($00-$FF), pl. $21 = $0840.";
+  }
+  return "";
+}
+
+function validateSpritePosMacro(spriteNum, spriteX, spriteY) {
+  const num = parseInt(spriteNum, 10);
+  if (isNaN(num) || num < 0 || num > 7) {
+    return currentLanguage === "en" ? "Sprite number must be 0–7." : "A sprite szama 0 es 7 kozott lehet.";
+  }
+  const x = parseInt(spriteX, 10);
+  if (isNaN(x) || x < 0 || x > 319) {
+    return currentLanguage === "en" ? "X must be 0–319." : "Az X erteke 0 es 319 kozott lehet.";
+  }
+  const y = parseInt(spriteY, 10);
+  if (isNaN(y) || y < 0 || y > 255) {
+    return currentLanguage === "en" ? "Y must be 0–255." : "Az Y erteke 0 es 255 kozott lehet.";
+  }
   return "";
 }
 
@@ -3894,6 +4063,114 @@ function compileLineBytes(line, labels) {
     };
   }
 
+  if (block.isJoystickMacro) {
+    const port = parseInt(block.joyPort || "2", 10);
+    if (port !== 1 && port !== 2) {
+      return { ok: false, error: "JOYSTICK: a port 1 vagy 2 lehet." };
+    }
+    const num = parseInt(block.joySpriteNum || "0", 10);
+    if (isNaN(num) || num < 0 || num > 7) {
+      return { ok: false, error: "JOYSTICK: a sprite szama 0 es 7 kozott lehet." };
+    }
+    const portAddr = port === 2 ? 0xDC00 : 0xDC01;
+    const xAddr = 0xD000 + num * 2;
+    const yAddr = 0xD001 + num * 2;
+    const xLo = xAddr & 0xFF, xHi = xAddr >> 8;
+    const yLo = yAddr & 0xFF, yHi = yAddr >> 8;
+    const pLo = portAddr & 0xFF, pHi = portAddr >> 8;
+    // Each direction: LSR (1) + BCS +3 (2) + DEC/INC abs (3) = 6 bytes
+    // BCS offset 3 = skip the following 3-byte DEC/INC
+    const bytes = [
+      0xAD, pLo, pHi,        // LDA $DCxx
+      0x4A,                  // LSR  → bit0 (UP) → carry
+      0xB0, 0x03,            // BCS +3 (not pressed)
+      0xCE, yLo, yHi,        // DEC $D001+N*2  (Y--)
+      0x4A,                  // LSR  → bit1 (DOWN) → carry
+      0xB0, 0x03,            // BCS +3
+      0xEE, yLo, yHi,        // INC $D001+N*2  (Y++)
+      0x4A,                  // LSR  → bit2 (LEFT) → carry
+      0xB0, 0x03,            // BCS +3
+      0xCE, xLo, xHi,        // DEC $D000+N*2  (X--)
+      0x4A,                  // LSR  → bit3 (RIGHT) → carry
+      0xB0, 0x03,            // BCS +3
+      0xEE, xLo, xHi         // INC $D000+N*2  (X++)
+    ];
+    return { ok: true, bytes, comment: `JOYSTICK port${port} → sprite#${num}` };
+  }
+
+  if (block.isWaitRasterMacro) {
+    const lineStr = (block.rasterLine || "FF").replace(/^\$/, "");
+    const rl = parseInt(lineStr, 16);
+    if (isNaN(rl) || rl < 0 || rl > 255) {
+      return { ok: false, error: "WAIT_RASTER: a rasztersor 1 hex byte legyen ($00-$FF)." };
+    }
+    const rlHex = rl.toString(16).toUpperCase().padStart(2, "0");
+    // LDA $D012 (AD 12 D0) + CMP #rl (C9 rl) + BNE -7 (D0 F9)
+    const bytes = [0xAD, 0x12, 0xD0, 0xC9, rl, 0xD0, 0xF9];
+    return { ok: true, bytes, comment: `WAIT_RASTER $${rlHex}` };
+  }
+
+  if (block.isSpriteInitMacro) {
+    const num = parseInt(block.spriteNum || "0", 10);
+    if (isNaN(num) || num < 0 || num > 7) {
+      return { ok: false, error: "SPRITE_INIT: a sprite szama 0 es 7 kozott lehet." };
+    }
+    const color = parseInt(block.spriteColor || "7", 10);
+    if (isNaN(color) || color < 0 || color > 15) {
+      return { ok: false, error: "SPRITE_INIT: a szin erteke 0 es 15 kozott lehet." };
+    }
+    const pageStr = (block.spriteDataPage || "21").replace(/^\$/, "");
+    const page = parseInt(pageStr, 16);
+    if (isNaN(page) || page < 0 || page > 255) {
+      return { ok: false, error: "SPRITE_INIT: az adatlap ertek 1 hex byte ($00-$FF) lehet." };
+    }
+    const ptrAddr = 0x07F8 + num;
+    const colorAddr = 0xD027 + num;
+    const bitMask = 1 << num;
+    const bytes = [
+      0xA9, page,                                // LDA #dataPage
+      0x8D, ptrAddr & 0xFF, ptrAddr >> 8,        // STA $07F8+N
+      0xAD, 0x15, 0xD0,                          // LDA $D015
+      0x09, bitMask,                             // ORA #bitMask
+      0x8D, 0x15, 0xD0,                          // STA $D015
+      0xA9, color,                               // LDA #color
+      0x8D, colorAddr & 0xFF, colorAddr >> 8     // STA $D027+N
+    ];
+    const pageHex = page.toString(16).toUpperCase().padStart(2, "0");
+    return { ok: true, bytes, comment: `SPRITE_INIT #${num} col=${color} page=$${pageHex}` };
+  }
+
+  if (block.isSpritePosMacro) {
+    const num = parseInt(block.spriteNum || "0", 10);
+    if (isNaN(num) || num < 0 || num > 7) {
+      return { ok: false, error: "SPRITE_POS: a sprite szama 0 es 7 kozott lehet." };
+    }
+    const x = parseInt(block.spriteX || "152", 10);
+    if (isNaN(x) || x < 0 || x > 319) {
+      return { ok: false, error: "SPRITE_POS: X erteke 0 es 319 kozott lehet." };
+    }
+    const y = parseInt(block.spriteY || "100", 10);
+    if (isNaN(y) || y < 0 || y > 255) {
+      return { ok: false, error: "SPRITE_POS: Y erteke 0 es 255 kozott lehet." };
+    }
+    const xLow = x & 0xFF;
+    const xAddr = 0xD000 + num * 2;
+    const yAddr = 0xD001 + num * 2;
+    const bitMask = 1 << num;
+    const d010Op = x > 255 ? 0x09 : 0x29;                   // ORA (set) vs AND (clear)
+    const d010Mask = x > 255 ? bitMask : (~bitMask & 0xFF);
+    const bytes = [
+      0xA9, xLow,                                // LDA #xLow
+      0x8D, xAddr & 0xFF, xAddr >> 8,            // STA $D000+N*2
+      0xAD, 0x10, 0xD0,                          // LDA $D010
+      d010Op, d010Mask,                          // ORA/AND #mask
+      0x8D, 0x10, 0xD0,                          // STA $D010
+      0xA9, y,                                   // LDA #y
+      0x8D, yAddr & 0xFF, yAddr >> 8             // STA $D001+N*2
+    ];
+    return { ok: true, bytes, comment: `SPRITE_POS #${num} X=${x} Y=${y}` };
+  }
+
   if (block.isLoopMacro) {
     const reg = block.loopReg || "X";
     const opcode = reg === "Y" ? 0xA0 : 0xA2;
@@ -4311,6 +4588,22 @@ function getInstructionSize(block) {
 
   if (block.isIncludeMacro) {
     return 0;
+  }
+
+  if (block.isJoystickMacro) {
+    return 27;  // LDA port + 4×(LSR + BCS+3 + DEC/INC)
+  }
+
+  if (block.isWaitRasterMacro) {
+    return 7;  // LDA $D012 + CMP #rl + BNE -7
+  }
+
+  if (block.isSpriteInitMacro) {
+    return 18;  // LDA/STA ptr + LDA/ORA/STA $D015 + LDA/STA color
+  }
+
+  if (block.isSpritePosMacro) {
+    return 18;  // LDA/STA xLow + LDA/[ORA|AND]/STA $D010 + LDA/STA y
   }
 
   if (block.isLoopMacro) {
@@ -5145,6 +5438,24 @@ function getCollapsedOperandText(block) {
     return block.rawOperand ? `"${block.rawOperand}"` : "";
   }
 
+  if (block.isJoystickMacro) {
+    return `port${block.joyPort || "2"} → sprite#${block.joySpriteNum || "0"}`;
+  }
+
+  if (block.isWaitRasterMacro) {
+    const rl = (block.rasterLine || "FF").replace(/^\$/, "").toUpperCase().padStart(2, "0");
+    return `$D012 = $${rl}`;
+  }
+
+  if (block.isSpriteInitMacro) {
+    const pageHex = (block.spriteDataPage || "21").replace(/^\$/, "").toUpperCase().padStart(2, "0");
+    return `#${block.spriteNum || "0"} col=${block.spriteColor || "7"} page=$${pageHex}`;
+  }
+
+  if (block.isSpritePosMacro) {
+    return `#${block.spriteNum || "0"} X=${block.spriteX || "152"} Y=${block.spriteY || "100"}`;
+  }
+
   if (block.isLoopMacro) {
     const reg = block.loopReg || "X";
     let countDisplay = "";
@@ -5620,6 +5931,85 @@ function renderProgram() {
           </div>
         `
       );
+    } else if (block.isJoystickMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${t("fieldJoyPort")}</span>
+              <select class="joy-port">
+                <option value="2"${(block.joyPort || "2") === "2" ? " selected" : ""}>2 ($DC00)</option>
+                <option value="1"${block.joyPort === "1" ? " selected" : ""}>1 ($DC01)</option>
+              </select>
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldJoySpriteNum")}</span>
+              <input class="joy-sprite-num" type="number" min="0" max="7" value="${block.joySpriteNum || "0"}">
+            </label>
+          </div>
+        `
+      );
+    } else if (block.isWaitRasterMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid single-macro-row">
+            <label class="mini-field">
+              <span>${t("fieldRasterLine")}</span>
+              <input class="raster-line" type="text" maxlength="3" value="${block.rasterLine || "FF"}" placeholder="FF">
+            </label>
+          </div>
+        `
+      );
+    } else if (block.isSpriteInitMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${t("fieldSpriteNum")}</span>
+              <input class="sprite-num" type="number" min="0" max="7" value="${block.spriteNum || "0"}">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldSpriteColor")}</span>
+              <input class="sprite-color" type="number" min="0" max="15" value="${block.spriteColor || "7"}">
+            </label>
+          </div>
+          <div class="macro-grid single-macro-row">
+            <label class="mini-field">
+              <span>${t("fieldSpriteDataPage")}</span>
+              <input class="sprite-data-page" type="text" maxlength="3" value="${block.spriteDataPage || "21"}" placeholder="21">
+            </label>
+          </div>
+        `
+      );
+    } else if (block.isSpritePosMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${t("fieldSpriteNum")}</span>
+              <input class="sprite-num" type="number" min="0" max="7" value="${block.spriteNum || "0"}">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldSpriteX")}</span>
+              <input class="sprite-x" type="number" min="0" max="319" value="${block.spriteX || "152"}">
+            </label>
+          </div>
+          <div class="macro-grid single-macro-row">
+            <label class="mini-field">
+              <span>${t("fieldSpriteY")}</span>
+              <input class="sprite-y" type="number" min="0" max="255" value="${block.spriteY || "100"}">
+            </label>
+          </div>
+        `
+      );
     } else if (block.isDefineMacro) {
       inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Symbol" : "Szimbolum";
       inlineField.hidden = false;
@@ -5811,6 +6201,38 @@ function renderProgram() {
     if (macroAddressInput) {
       const addressField = macroAddressInput.dataset.addressField || "stringAddress";
       macroAddressInput.addEventListener("input", (event) => updateProgramBlock(index, addressField, event.target.value));
+    }
+    const joyPortSelect = node.querySelector(".joy-port");
+    if (joyPortSelect) {
+      joyPortSelect.addEventListener("change", (event) => updateProgramBlock(index, "joyPort", event.target.value));
+    }
+    const joySpriteNumInput = node.querySelector(".joy-sprite-num");
+    if (joySpriteNumInput) {
+      joySpriteNumInput.addEventListener("input", (event) => updateProgramBlock(index, "joySpriteNum", event.target.value));
+    }
+    const rasterLineInput = node.querySelector(".raster-line");
+    if (rasterLineInput) {
+      rasterLineInput.addEventListener("input", (event) => updateProgramBlock(index, "rasterLine", event.target.value));
+    }
+    const spriteNumInput = node.querySelector(".sprite-num");
+    if (spriteNumInput) {
+      spriteNumInput.addEventListener("input", (event) => updateProgramBlock(index, "spriteNum", event.target.value));
+    }
+    const spriteColorInput = node.querySelector(".sprite-color");
+    if (spriteColorInput) {
+      spriteColorInput.addEventListener("input", (event) => updateProgramBlock(index, "spriteColor", event.target.value));
+    }
+    const spriteDataPageInput = node.querySelector(".sprite-data-page");
+    if (spriteDataPageInput) {
+      spriteDataPageInput.addEventListener("input", (event) => updateProgramBlock(index, "spriteDataPage", event.target.value));
+    }
+    const spriteXInput = node.querySelector(".sprite-x");
+    if (spriteXInput) {
+      spriteXInput.addEventListener("input", (event) => updateProgramBlock(index, "spriteX", event.target.value));
+    }
+    const spriteYInput = node.querySelector(".sprite-y");
+    if (spriteYInput) {
+      spriteYInput.addEventListener("input", (event) => updateProgramBlock(index, "spriteY", event.target.value));
     }
     const loopRegSelect = node.querySelector(".loop-reg");
     if (loopRegSelect) {
@@ -6477,6 +6899,14 @@ async function loadSpriteSampleProgram() {
   await loadSampleFromFile("sprite-demo");
 }
 
+async function loadSpriteMacroDemoProgram() {
+  await loadSampleFromFile("sprite-macro-demo");
+}
+
+async function loadJoystickDemoProgram() {
+  await loadSampleFromFile("joystick-demo");
+}
+
 async function loadSpriteAlignDemo() {
   await loadSampleFromFile("sprite-align-demo");
 }
@@ -6626,6 +7056,16 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "sprite-demo") {
     loadSpriteSampleProgram();
+    return;
+  }
+
+  if (sampleSelect.value === "joystick-demo") {
+    loadJoystickDemoProgram();
+    return;
+  }
+
+  if (sampleSelect.value === "sprite-macro-demo") {
+    loadSpriteMacroDemoProgram();
     return;
   }
 
