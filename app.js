@@ -293,6 +293,7 @@ const translations = {
     loadProject: "Program betoltese",
     exitApp: "Kilepes",
     themeToggle: "Tema valtasa",
+    crtToggle: "CRT retro mod",
     clearProgram: "Program torlese",
     heroCopy: "Huzz be egy mnemonik blokkot balrol, rendezd oket sorba, es nezd meg a jobb oldalon az assembly nezetet.",
     paletteTitle: "Mnemonik menu",
@@ -502,6 +503,7 @@ const translations = {
     loadProject: "Load program",
     exitApp: "Exit",
     themeToggle: "Toggle theme",
+    crtToggle: "CRT retro mode",
     clearProgram: "Clear program",
     heroCopy: "Drag mnemonic blocks in from the left, arrange them in order, and inspect the assembly view on the right.",
     paletteTitle: "Mnemonic menu",
@@ -1034,6 +1036,7 @@ function initPalette() {
   });
   baseInputs.forEach((input) => input.addEventListener("change", handleBaseChange));
   themeToggleButton.addEventListener("click", toggleTheme);
+  document.getElementById("crt-toggle")?.addEventListener("click", toggleCrtMode);
   languageSelect.addEventListener("change", handleLanguageChange);
   aboutButton?.addEventListener("click", async () => {
     const version = await window.electronAPI.getAppVersion();
@@ -1127,6 +1130,7 @@ function initPalette() {
   globalMemoryPanel?.addEventListener("toggle", saveUiSettings);
 
   applySavedTheme();
+  applySavedCrtMode();
   applySavedLanguage();
   applySavedUiSettings();
   applyTranslations();
@@ -1343,6 +1347,8 @@ function applyTranslations() {
   clearProgramButton.textContent = t("clearProgram");
     themeToggleButton.lastElementChild.textContent = t("themeToggle");
     themeToggleButton.setAttribute("title", document.body.dataset.theme === "dark" ? t("lightMode") : t("darkMode"));
+    const crtToggleBtn = document.getElementById("crt-toggle");
+    if (crtToggleBtn) crtToggleBtn.lastElementChild.textContent = t("crtToggle");
     const srOnlyLabels = document.querySelectorAll("label.sample-picker .sr-only");
   if (srOnlyLabels[0]) srOnlyLabels[0].textContent = t("sampleSrOnly");
   const languageLabelEl = document.getElementById("language-label");
@@ -3518,6 +3524,17 @@ function toggleTheme() {
   localStorage.setItem("c64-block-theme", document.body.dataset.theme);
   updateThemeToggleLabel();
   saveUiSettings();
+}
+
+function applySavedCrtMode() {
+  if (localStorage.getItem("c64-crt-mode") === "1") {
+    document.body.classList.add("crt-mode");
+  }
+}
+
+function toggleCrtMode() {
+  const on = document.body.classList.toggle("crt-mode");
+  localStorage.setItem("c64-crt-mode", on ? "1" : "0");
 }
 
 function updateThemeToggleLabel() {
@@ -6198,9 +6215,17 @@ function renderProgram() {
             dropdown.style.left = r.left + "px";
             dropdown.style.width = r.width + "px";
           }
-          operandField.addEventListener("focus", () => { positionLabelDropdown(); dropdown.hidden = false; });
-          operandField.addEventListener("blur", () => { setTimeout(() => { dropdown.hidden = true; }, 150); });
-          operandField.addEventListener("keydown", e => { if (e.key === "Escape") dropdown.hidden = true; });
+          function closeLabelDropdown() {
+            dropdown.hidden = true;
+            window.removeEventListener("scroll", closeLabelDropdown, { capture: true });
+          }
+          operandField.addEventListener("focus", () => {
+            positionLabelDropdown();
+            dropdown.hidden = false;
+            window.addEventListener("scroll", closeLabelDropdown, { capture: true, passive: true });
+          });
+          operandField.addEventListener("blur", () => { setTimeout(closeLabelDropdown, 150); });
+          operandField.addEventListener("keydown", e => { if (e.key === "Escape") closeLabelDropdown(); });
           dropdown.querySelectorAll(".label-picker-item").forEach(item => {
             item.addEventListener("mousedown", e => {
               e.preventDefault();
