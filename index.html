@@ -49,11 +49,8 @@
                     <option value="text-demo">TEXT pelda</option>
                     <option value="macro-demo">Komplex makro pelda</option>
                     <option value="sprite-demo">Sprite mozgatas pelda</option>
-                    <option value="sprite-align-demo">Sprite ALIGN pelda</option>
-                    <option value="sprite-test-3">Sprite Test 3</option>
                     <option value="setpixel-demo">Setpixel demo</option>
                     <option value="bitmap-demo">Bitmap vonal demo</option>
-                    <option value="bitmap-clear-test">Bitmap clear test</option>
                     <option value="macro-test">New macros test</option>
                     <option value="loop-demo">LOOP / NEXT demo</option>
                     <option value="hello-loop-demo">Hello World 1-40 (LOOP szamlalo)</option>
@@ -376,7 +373,7 @@
         </svg>
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v1.3.2</p>
+      <p class="about-version" id="about-version">v1.3.5</p>
       <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
         dropping instruction blocks.</p>
       <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
@@ -387,48 +384,48 @@
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v1.3.2</p>
+      <p class="whats-new-version">v1.3.5</p>
       <ul class="whats-new-list">
         <li>
-          <strong>CONST pseudo-mnemonic</strong> — declare named constants with a dedicated <code>CONST</code> block
-          (name + value + HEX/DEC format). Constants are added to the label table at assemble time and appear as
-          <code>; .CONST NAME = $XXXX</code> comments in the ASM view. Renaming a constant automatically updates all
-          instruction blocks that reference it.
+          <strong>SPRITE_INIT macro</strong> — initialise a VIC-II sprite in one block: sets the data pointer
+          (<code>$07F8+N</code>), enables the sprite (<code>$D015</code>), and sets its colour (<code>$D027+N</code>).
+          Parameters: sprite number (0–7), colour (0–15), data page (address / 64, e.g. <code>$21</code> for
+          <code>$0840</code>). Expands to 18 bytes inline.
         </li>
         <li>
-          <strong>Start address HEX/DEC toggle converts value</strong> — switching the origin input between HEX and
-          DEC now immediately converts the displayed value (e.g. <code>0801</code> ↔ <code>2049</code>).
+          <strong>SPRITE_POS macro</strong> — set a sprite's static start position: X (0–319, with automatic
+          <code>$D010</code> MSB handling for X &gt; 255) and Y (0–255). Parameters: sprite number, X, Y.
+          Expands to 18 bytes inline.
         </li>
         <li>
-          <strong>Block HEX/DEC toggle no longer resets to HEX</strong> — switching the per-block format no longer
-          triggered a full re-render that reset the radio button back to HEX. The toggle now updates only the affected
-          block in place.
+          <strong>WAIT_RASTER macro</strong> — inline busy-wait for a VIC-II raster line
+          (<code>LDA $D012 / CMP #line / BNE −7</code>). No JSR, no label needed. Parameter: raster line (hex).
+          Expands to 7 bytes inline.
         </li>
         <li>
-          <strong>Block base isolated from ASM view</strong> — the per-block HEX/DEC toggle controls only how the
-          operand is entered. The ASM view always follows the global ASM panel toggle. <code>BYTE</code> and
-          <code>CONST</code> values are formatted consistently in the output.
+          <strong>JOYSTICK macro</strong> — reads a CIA joystick port and moves a sprite: LSR+BCS checks each
+          direction bit (Up/Down/Left/Right active-LOW), then DEC/INC the sprite X/Y register.
+          Parameters: port (1 = <code>$DC01</code>, 2 = <code>$DC00</code>), sprite number.
+          Expands to 27 bytes inline.
         </li>
         <li>
-          <strong>Operand preview improvements</strong> — addressing-mode suffixes (<code>,X</code>, <code>,Y</code>,
-          <code>#</code> etc.) are now auto-appended in the block preview. Operands are rebuilt on project load to fix
-          legacy suffix issues.
+          <strong>New sample — sprite-macro-demo</strong> — demonstrates SPRITE_INIT, SPRITE_POS, and WAIT_RASTER:
+          a real spritemate-exported sprite bounces left and right using INC/DEC <code>$D000</code>.
         </li>
         <li>
-          <strong>Addressing mode selector hidden for single-mode mnemonics</strong> — instructions that support only
-          one addressing mode (e.g. <code>NOP</code>, <code>RTS</code>) no longer show the redundant mode selector.
+          <strong>New sample — joystick-demo</strong> — demonstrates the JOYSTICK macro: sprite #0 follows
+          joystick port 2 (VICE: Numpad or Joy2). Screen text printed via TEXT macro.
         </li>
         <li>
-          <strong>ASM view horizontal scroll</strong> — long lines no longer stretch the ASM panel. A horizontal
-          scrollbar appears instead.
+          <strong>CONST block header simplified</strong> — when expanded, the CONST block now shows only the
+          <em>Macro | Const</em> chip without the redundant bold <code>CONST</code> mnemonic label.
+          Collapsed appearance is unchanged.
         </li>
         <li>
-          <strong>Block layout fix for long names</strong> — blocks with very long names (<code>CONST</code>,
-          <code>MACRO</code> definition, etc.) no longer break out of the card. The category chip truncates with
-          <code>…</code> when the text overflows.
+          <strong>Sample cleanup</strong> — removed <code>sprite-test-3</code>, <code>sprite-align-demo</code>,
+          and <code>bitmap-clear-test</code> samples (superseded by the new sprite demos).
         </li>
       </ul>
-
       <button id="whats-new-close" class="primary" type="button">OK</button>
     </div>
   </dialog>

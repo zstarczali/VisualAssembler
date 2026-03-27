@@ -11,7 +11,7 @@ drag-and-drop szerkesztését teszi lehetővé. Nincs UI-framework — csak Vani
 
 | Fájl | Szerep |
 |------|--------|
-| `app.js` | Teljes renderer logika (~6 000 sor): mnemonik könyvtár, UI, ASM/monitor generálás, makró expanzió |
+| `app.js` | Teljes renderer logika (~6 500 sor): mnemonik könyvtár, UI, ASM/monitor generálás, makró expanzió |
 | `index.html` | Egyetlen HTML lap; összes UI elem és két `<template>` (block-template, palette-item-template) |
 | `style.css` | Teljes stíluslap; CSS custom properties-alapú téma (dark/light) |
 | `main.js` | Electron main process: ablak, fájlmentés/betöltés, VICE futtatás IPC |
@@ -91,7 +91,11 @@ A `DATA` makró: nyers byte-ok (`$FF, 169, 0x1A` formátumban), megadott abszol�
 
 A `SPRITE_INIT` makró (`isSpriteInitMacro: true`): mezők: `spriteNum` (0–7), `spriteColor` (0–15 dec), `spriteDataPage` (hex byte, pl. `"21"` = $0840). Generál: `LDA #page; STA $07F8+N` (pointer), `LDA $D015; ORA #bitN; STA $D015` (engedélyezés), `LDA #color; STA $D027+N` (szín). Méret: 18 byte.
 
-A `SPRITE_POS` makró (`isSpritePosMacro: true`): mezők: `spriteNum` (0–7), `spriteX` (0–319 dec), `spriteY` (0–255 dec). Generál: `LDA #xLow; STA $D000+N*2`, `LDA $D010; [ORA|AND] #mask; STA $D010` ($D010 bit kezelés X>255 esetén), `LDA #y; STA $D001+N*2`. Méret: 18 byte.
+A `SPRITE_POS` makró (`isSpritePosMacro: true`): mezők: `spriteNum` (0–7), `spriteX` (0–319 dec), `spriteY` (0–255 dec). Generál: `LDA #xLow; STA $D000+N*2`, `LDA $D010; [ORA|AND] #mask; STA $D010` ($D010 bit kezelés X>255 esetén), `LDA #y; STA $D001+N*2`. Méret: 18 byte. **Statikus pozicionálás** — animációhoz INC/DEC $D000 kell, mert az LDA #imm fordítási időben sül bele a kódba.
+
+A `WAIT_RASTER` makró (`isWaitRasterMacro: true`): mező: `rasterLine` (hex byte, pl. `"FF"`). Inline busy-wait: `LDA $D012; CMP #rasterLine; BNE $F9` (= -7, visszaugrik saját LDA-jára). Nincs JSR, nincs label. Méret: 7 byte. `getInstructionSize` = 7.
+
+A `JOYSTICK` makró (`isJoystickMacro: true`): mezők: `joyPort` (`"1"` = $DC01, `"2"` = $DC00), `joySpriteNum` (0–7). Generál: `LDA port`, majd 4× irányonként (UP/DOWN/LEFT/RIGHT): `LSR; BCS +3; DEC/INC $D001/D000` (3 byte-os DEC/INC abs). BCS +3 ugorja át a DEC/INC-et ha az iránygomb NEM lenyomott (active-LOW: bit=0 → lenyomott). Méret: 27 byte. CIA regiszterek: Port 2 = $DC00, Port 1 = $DC01. Bitek: 0=Up, 1=Down, 2=Left, 3=Right, 4=Fire.
 
 A `LOOP` makró (két blokk rendszer):
 - **LOOP blokk** (`isLoopMacro: true`): mezők: `loopReg` (`"X"` vagy `"Y"`), `loopCount` (hex byte pl. `"0A"`), `loopLabel` (string). Generál: `LDX/LDY #count` (2 byte), majd a label a `address+2`-re mutat (a body elejére). Az auto-label `loop1`, `loop2`… ha `loopLabel` üres.
@@ -178,15 +182,29 @@ Nezet
 
 ## Meglévő mintaprogramok
 
-| `sampleSelect.value` | Függvény | Leírás |
-|----------------------|----------|--------|
-| `"label-border"` | `loadLabelSampleProgram()` | Keret szín ciklus, cimkék bemutatása |
-| `"text-demo"` | `loadTextSampleProgram()` | KERNAL CHROUT TEXT makró demo |
-| `"macro-demo"` | `loadMacroDemoProgram()` | STRING/DATA/BYTE makrók |
-| `"sprite-demo"` | `loadSpriteSampleProgram()` | Sprite mozgatás |
-| `"bitmap-demo"` | `loadBitmapLineSampleProgram()` | Hires bitmap, 8 vonal JS Bresenham-mal; $2000-re igazított BYTE makró (gap + 8192 byte bitmap) |
-| `"loop-demo"` | `loadLoopSampleProgram()` | Nested LOOP X+Y delay, keret+háttér szín ciklus 0–15 |
-| `"hello-loop-demo"` | `loadHelloLoopSampleProgram()` | LOOP Y $28 (40×), RAWBYTES `"HELLO WORLD "` ASCII nagybetűkkel `$0900`-ra, kiírja „HELLO WORLD 1"–„HELLO WORLD 40"; CHROUT-hoz PETSCII nagybetűk kellenek; ZP `$FB`/`$FC` digit számláló |
+Aktuális sorrend az `index.html` `#sample-select` elemben (0-indexelt):
+
+| Index | `sampleSelect.value` | Leírás |
+|-------|----------------------|--------|
+| 0 | `"basic-colors"` | Egyszerű border szín ciklus |
+| 1 | `"label-border"` | Keret szín ciklus, cimkék bemutatása |
+| 2 | `"text-demo"` | KERNAL CHROUT TEXT makró demo |
+| 3 | `"macro-demo"` | STRING/DATA/BYTE/FILL/RAWBYTES makrók — fine scroll demo |
+| 4 | `"sprite-demo"` | Sprite mozgatás (INC/DEC $D000, BASIC struktúra) |
+| 5 | `"setpixel-demo"` | SETPIXEL szubrutin, vízszintes vonalak bitmap módban |
+| 6 | `"bitmap-demo"` | Hires bitmap, 8 vonal JS Bresenham-mal; $2000-re igazított BYTE makró |
+| 7 | `"macro-test"` | Új makrók tesztje |
+| 8 | `"loop-demo"` | Nested LOOP X+Y delay, keret+háttér szín ciklus 0–15 |
+| 9 | `"hello-loop-demo"` | LOOP Y $28 (40×), „HELLO WORLD 1"–„40"; ZP `$FB`/`$FC` digit számláló |
+| 10 | `"push-pull-demo"` | PUSH/PULL regiszter védelem demo |
+| 11 | `"if-else"` | DEFINE / IF / ELSE / ENDIF feltételes assembly demo |
+| 12 | `"user-macro-demo"` | User MACRO / ENDM / INVOKE példa |
+| 13 | `"incbin-demo"` | INCBIN makró demo |
+| 14 | `"include-demo"` | INCLUDE makró demo |
+| 15 | `"sid-demo"` | SID lejátszó — Ikari Warriors, IRQ-alapú, INCBIN |
+| 16 | `"sid-direct-demo"` | SID lejátszó — SID makróval, INCBIN nélkül |
+| 17 | `"sprite-macro-demo"` | SPRITE_INIT + SPRITE_POS + WAIT_RASTER demo; spritemate sprite balra-jobbra |
+| 18 | `"joystick-demo"` | JOYSTICK makró demo; sprite #0 joystick port 2-vel mozog |
 
 ---
 
@@ -444,13 +462,15 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`1.3.2` — lásd `package.json` és a What's New dialóg (`index.html`).
+`1.3.5` — lásd `package.json` és a What's New dialóg (`index.html`).
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező
 2. `index.html` → `#whats-new-dialog` cím + bejegyzések (mindig angolul!)
 3. `index.html` → `#about-dialog` verzió szám frissítése
-4. Mac + Windows build az aláírási procedúrával
+4. `README.md` → `Current version` sor és feature/sample lista
+5. `.github/copilot-instructions.md` → verzió + minden érintett szekció
+6. Mac + Windows build az aláírási procedúrával
 
 ---
 
@@ -580,19 +600,13 @@ wait_vblank:
 
 **Példa:**
 ```javascript
-// index.html sorrendje:
-// 0: basic-colors
-// 1: label-border
-// 2: text-demo
-// 3: macro-demo
-// 4: sprite-demo
-// 5: sprite-align-demo
-// 6: sprite-test-3  ← 6. index!
-// 7: setpixel-demo
+// index.html aktuális sorrendje (lásd a "Meglévő mintaprogramok" táblát feljebb):
+// 17: sprite-macro-demo
+// 18: joystick-demo
 
-// renderLanguage()-ban:
-if (sampleOptions[6]) sampleOptions[6].textContent = t("sampleSpriteTest3");
-if (sampleOptions[7]) sampleOptions[7].textContent = t("sampleSetpixel");
+// applyTranslations()-ban:
+if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleSpriteMacroDemo");
+if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleJoystickDemo");
 ```
 
 ---
@@ -713,6 +727,19 @@ program.forEach((block, i) => {
   }
 });
 ```
+
+---
+
+## UI rendszer — v1.3.5 újítások
+
+### CONST blokk fejléc kinyitott állapotban (v1.3.5)
+
+Kinyitott állapotban a CONST blokk **nem mutatja** a bold `.block-mnemonic` ("CONST") feliratot — csak a `.block-category` chip látszik (`"Makro | Const"` / `"Macro | Const"`). Becsukott állapotban minden változatlan.
+
+Implementáció:
+- `renderProgram`-ban: `if (block.isConstMacro) node.dataset.macroKind = "const";`
+- CSS: `.asm-block[data-macro-kind="const"]:not([data-collapsed="true"]) .block-mnemonic { display: none; }`
+- `getBlockModeCaption`: CONST esetén csak `"Makro | Const"` (névtől független)
 
 ---
 
@@ -849,6 +876,10 @@ if (field === "rawOperand" || field === "base") {
 | `isMacroDefEnd` | ❌ | ❌ | — |
 | `isMacroInvoke` | ❌ | ❌ | makró select |
 | `isDefineMacro` | ✅ (szimbólumok) | ❌ | — |
+| `isSpriteInitMacro` | ❌ | ❌ | spriteNum, spriteColor, spriteDataPage |
+| `isSpritePosMacro` | ❌ | ❌ | spriteNum, spriteX, spriteY |
+| `isWaitRasterMacro` | ❌ | ❌ | rasterLine (hex) |
+| `isJoystickMacro` | ❌ | ❌ | joyPort, joySpriteNum |
 
 A HEX/DEC format toggle feltétele (a nagy `insertAdjacentHTML` templateban):
 ```javascript

@@ -2,7 +2,7 @@
 
 An Electron-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v1.3.2**
+**Current version: v1.3.5**
 
 ---
 
@@ -37,6 +37,10 @@ An Electron-based desktop application for visually composing Commodore 64 6502 a
 - **INCBIN macro** — include an external binary file at a given memory address
 - **INCLUDE macro** — embed another `.c64asm` project file inline (read-only)
 - **SID macro** — load a SID music file directly into memory; header stripped, load/init/play addresses extracted automatically
+- **SPRITE_INIT macro** — initialise a VIC-II sprite: sets data pointer (`$07F8+N`), enable bit (`$D015`), and colour (`$D027+N`); parameters: sprite number, colour, data page
+- **SPRITE_POS macro** — set a sprite's static X/Y position; handles `$D010` MSB for X > 255; parameters: sprite number, X (0–319), Y (0–255)
+- **WAIT_RASTER macro** — inline VIC-II raster line busy-wait (`LDA $D012 / CMP #line / BNE −7`); no JSR or label needed; 7 bytes
+- **JOYSTICK macro** — reads a CIA joystick port (1 = `$DC01`, 2 = `$DC00`) and moves a sprite via INC/DEC; 27 bytes inline
 - **LABEL & COMMENT blocks** — named jump targets and zero-byte annotations
 - **Memory strip** — full 64 KB C64 memory map visualised as a colour-coded strip (RAM / ROM / I/O)
 - **Monitor view** — hex + ASCII character dump, 8 bytes per row
@@ -176,6 +180,10 @@ Each block in `program[]` is a plain object:
 | `INCBIN` | Embeds an external binary file at a given address |
 | `INCLUDE` | Inlines another `.c64asm` project at the current position |
 | `SID` | Loads a SID file into memory; strips the header, extracts load/init/play addresses |
+| `SPRITE_INIT` | Initialise a sprite: data pointer, enable bit, colour (18 bytes) |
+| `SPRITE_POS` | Set static sprite X/Y position; handles $D010 MSB for X > 255 (18 bytes) |
+| `WAIT_RASTER` | Inline raster-line busy-wait; no JSR or label needed (7 bytes) |
+| `JOYSTICK` | Read CIA joystick port and move a sprite via INC/DEC (27 bytes) |
 | `LABEL` | Zero-byte named symbol; resolves in branch/jump operands |
 | `COMMENT` | Zero-byte annotation; generates no machine code |
 
@@ -214,10 +222,9 @@ Each block in `program[]` is a plain object:
 | `push-pull-demo` | Rainbow color animation + counter display using PUSH/PULL register protection |
 | `user-macro-demo` | User MACRO / ENDM / INVOKE example |
 | `sprite-demo` | Sprite data setup + left-to-right ball animation |
-| `sprite-align-demo` | Sprite data aligned to 64-byte boundary using the ALIGN macro |
-| `sprite-test-3` | Multi-sprite test |
+| `sprite-macro-demo` | SPRITE_INIT + SPRITE_POS + WAIT_RASTER demo — spritemate-exported sprite bounces left/right |
+| `joystick-demo` | JOYSTICK macro demo — sprite #0 follows joystick port 2 (VICE: Numpad / Joy2) |
 | `bitmap-demo` | Hires bitmap mode, 8 coloured lines drawn with Bresenham; gap-aligned BYTE macro to `$2000` |
-| `bitmap-clear-test` | Full bitmap screen clear test |
 | `setpixel-demo` | SETPIXEL subroutine drawing horizontal lines in bitmap mode |
 | `incbin-demo` | INCBIN macro loading `demo-colors.bin` at `$C000`; colour cycling loop reads bytes by index |
 | `include-demo` | INCLUDE macro embedding `include-library.json` (set_border / set_bg routines) |

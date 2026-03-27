@@ -1548,6 +1548,10 @@ button:focus-visible,
   font-size: calc(0.88rem * var(--block-scale));
 }
 
+.asm-block[data-macro-kind="const"]:not([data-collapsed="true"]) .block-mnemonic {
+  display: none;
+}
+
 .asm-block[data-collapsed="true"] .collapsed-operand {
   display: block;
   flex: 1 1 auto;
@@ -2280,6 +2284,14 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
 
 .whats-new-version--prev {
   margin-top: 8px;
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+.whats-new-divider {
+  margin: 12px 0;
+  border: none;
+  border-top: 1px solid var(--panel-border);
 }
 
 .whats-new-list {
