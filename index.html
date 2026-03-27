@@ -63,6 +63,7 @@
                     <option value="sid-direct-demo">SID player - SID makro (Ikari Warriors)</option>
                     <option value="sprite-macro-demo">SPRITE_INIT / SPRITE_POS makro demo</option>
                     <option value="joystick-demo">JOYSTICK makro demo</option>
+                    <option value="collision-demo">SPRITE_COL utkozes demo</option>
                   </select>
                 </label>
                 <button id="load-sample" class="secondary" type="button">Betoltes</button>
@@ -417,6 +418,17 @@
           joystick port 2 (VICE: Numpad or Joy2). Screen text printed via TEXT macro.
         </li>
         <li>
+          <strong>SPRITE_COL macro</strong> — sprite collision detection via VIC-II registers.
+          Reads <code>$D01E</code> (sprite–sprite) or <code>$D01F</code> (sprite–background),
+          ANDs the result with the selected sprite's bit mask. Result in A: non-zero = collision.
+          Use <code>BEQ</code>/<code>BNE</code> after the macro to branch. Expands to 5 bytes inline.
+        </li>
+        <li>
+          <strong>New sample — collision-demo</strong> — demonstrates SPRITE_COL: green ball (sprite #0)
+          moves with joystick port 2, red cross (sprite #1) is stationary. Border turns red on
+          sprite–sprite collision, light blue when clear.
+        </li>
+        <li>
           <strong>CONST block header simplified</strong> — when expanded, the CONST block now shows only the
           <em>Macro | Const</em> chip without the redundant bold <code>CONST</code> mnemonic label.
           Collapsed appearance is unchanged.
@@ -463,6 +475,12 @@
           <a class="knowledge-base-link" href="#" data-url="https://www.cebix.net/VIC-Article.txt">
             <span class="knowledge-base-link-title">VIC-II Article</span>
             <span class="knowledge-base-link-url">cebix.net</span>
+          </a>
+        </li>
+        <li>
+          <a class="knowledge-base-link" href="#" data-url="https://www.spritemate.com/">
+            <span class="knowledge-base-link-title">Spritemate — C64 Sprite Editor</span>
+            <span class="knowledge-base-link-url">spritemate.com</span>
           </a>
         </li>
       </ul>

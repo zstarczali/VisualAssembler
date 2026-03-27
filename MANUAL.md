@@ -40,6 +40,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
    - [SPRITE_POS](#sprite_pos)
    - [WAIT_RASTER](#wait_raster)
    - [JOYSTICK](#joystick)
+   - [SPRITE_COL](#sprite_col)
 9. [Knowledge Base Links](#9-knowledge-base-links)
 
 ---
@@ -70,7 +71,7 @@ The palette on the left lists all available blocks grouped by category:
 - **System** — CLC, SEC, NOP, BRK, …
 - **Illegal instructions** — LAX, SAX, DCP, …
 - **Structure** — LABEL, COMMENT
-- **Macros** — LOOP, NEXT, PUSH, PULL, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, INCBIN, SID, INCLUDE, TABLE, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK
+- **Macros** — LOOP, NEXT, PUSH, PULL, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, INCBIN, SID, INCLUDE, TABLE, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, SPRITE_COL
 
 Use the **search box** at the top of the palette to filter by name. Click the **Add selected block** button or drag a block into the program area.
 
@@ -902,6 +903,46 @@ skip_right:
 >     JOYSTICK (port=2, sprite=0)
 >     JMP gameloop
 > ```
+
+---
+
+### SPRITE_COL
+
+Detects sprite collisions using the VIC-II hardware collision registers. Entirely **inline** — no JSR or label needed.
+
+| Field | Description |
+|---|---|
+| Sprite # | Sprite number 0–7 (which sprite's bit to check) |
+| Collision type | `Sprite-Sprite ($D01E)` — collision with another sprite; `Sprite-Background ($D01F)` — collision with background graphics |
+
+**Generated ASM (sprite 0, sprite–sprite):**
+```
+    LDA $D01E       ; read sprite-sprite collision register (clears it!)
+    AND #$01        ; isolate bit 0 (sprite 0)
+                    ; A ≠ 0 → collision occurred
+```
+
+**Size:** 5 bytes.
+
+> **Important:** Reading `$D01E` / `$D01F` **automatically clears the register**. Always read it exactly once per frame — use the result immediately with `BEQ`/`BNE`.
+
+**Typical usage:**
+```
+gameloop:
+    WAIT_RASTER ($FF)
+    JOYSTICK (port=2, sprite=0)
+    SPRITE_COL (sprite=0, type=sprite-sprite)
+    BEQ no_hit          ; A = 0 → no collision
+    LDA #$02
+    STA $D020           ; red border = hit!
+    JMP gameloop
+no_hit:
+    LDA #$0E
+    STA $D020           ; light blue border = clear
+    JMP gameloop
+```
+
+> **See also:** `collision-demo` sample — green ball (sprite #0) vs. red cross (sprite #1).
 
 ---
 
