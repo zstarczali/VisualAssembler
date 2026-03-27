@@ -129,6 +129,28 @@ A `LOOP` makró (két blokk rendszer):
 
 Ha van deferred chunk, a függvény flat `Uint8Array` buffert épít az `origin`-tól a `maxAddr`-ig (gap = nullák), majd a result tartalmazza a teljes tartományt. A `buildAutostartPrgForEmulator` ezt a flat buffert fűzi a BASIC SYS stub után.
 
+### KRITIKUS SPRITE SZABALY (NAGY SULLY)
+
+**SPRITE adatot ne tarts BASIC kod inline BYTE blokkban, ha stabil pointert akarsz.**
+
+Miért:
+- BASIC SYS ON modban a futasi cim `$080D`, de a layout/ALIGN kontextus konnyen felreertheto (`*=$0801` miatt)
+- ha egyetlen extra byte becsuszik (64 helyett 65), a kovetkezo sprite 1 byte-tal eltolodik
+- sprite pointer (`$07F8+$N`) mindig `spriteAddress / 64` alapjan mukodik, azaz 64-byte hatar kotelezo
+
+**KOTELEZO CHECKLIST sprite sample-hoz:**
+1. Minden sprite pontosan **64 byte** (nem 63, nem 65)
+2. Sprite cimek **64-byte alignmenten** legyenek (`addr % 64 == 0`)
+3. `SPRITE_INIT.spriteDataPage` pontosan egyezzen a cimmel (`$2000 -> $80`, `$2040 -> $81`, `$0840 -> $21`)
+4. Ha barmi eltolodas van, elso gyanusitott: elozo sprite byte-szama
+
+**Erosen ajanlott minta:**
+- `RAWBYTES` fix cimre (pl. `$2000`, `$2040`) a sprite adatoknak
+- `SPRITE_INIT` page ugyanezhez igazitva (`80`, `81`)
+- ne fuggjon a sprite adat pozicioja az inline kodhossztol vagy ALIGN paddingtol
+
+**Collision/demo tipusu mintaknal ez legyen az alapertelmezett strategia.**
+
 ### FONTOS: `parseAddressValue` és a `rawBytesAddress` mező
 
 **BUG-TRAP:** `parseAddressValue("0900")` → decimálisként értelmezi (= 900 = `$0384`), mert a `/^\d+$/` regex illeszkedik az összes digit-karakterre!
@@ -477,6 +499,21 @@ Verzió növelésekor:
 ---
 
 ## Kritikus tudás - Sprite rendszer
+
+### KRITIKUS - COLLISION/SPRITE MINTAK ALAPSZABALYA
+
+**Ne inline BYTE blokkban tarold a sprite adatot a BASIC kod folyamaban, ha stabil sprite pointer kell.**
+
+Kotelezo szabalyok:
+1. Minden sprite adat **pontosan 64 byte** legyen.
+2. Sprite cimek **64-byte alignmenten** legyenek (`addr % 64 == 0`).
+3. `SPRITE_INIT.spriteDataPage` a tenyleges cim / 64 legyen (`$2000 -> $80`, `$2040 -> $81`, `$0840 -> $21`).
+4. Ha a 2. sprite elcsuszik: **elso gyanusitott a megelőző sprite byte-darabja** (gyakori 65 byte hiba).
+
+Ajánlott minta:
+- Sprite adatok `RAWBYTES` blokkal fix cimre (`$2000`, `$2040`, ...)
+- `SPRITE_INIT` page ugyanehhez igazítva (`80`, `81`, ...)
+- Ne fuggjon a sprite adat helye az inline kod hosszától vagy ALIGN paddingtol
 
 ### C64 Sprite alapok
 
