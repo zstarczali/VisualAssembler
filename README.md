@@ -2,7 +2,7 @@
 
 An Electron-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v1.3.5**
+**Current version: v1.3.7**
 
 ---
 
