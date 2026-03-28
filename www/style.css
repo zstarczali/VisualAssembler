@@ -2209,6 +2209,12 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
   height: 64px;
 }
 
+.about-logo img {
+  width: 160px;
+  height: 160px;
+  border-radius: 16px;
+}
+
 .about-title {
   margin: 0;
   font-size: 1.3rem;

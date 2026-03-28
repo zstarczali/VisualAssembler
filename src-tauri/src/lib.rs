@@ -107,35 +107,6 @@ fn get_app_version(app: AppHandle) -> String {
     app.package_info().version.to_string()
 }
 
-#[tauri::command]
-fn open_about_window(app: AppHandle) {
-    if let Some(win) = app.get_webview_window("about") {
-        let _ = win.show();
-        let _ = win.set_focus();
-        return;
-    }
-    #[cfg(dev)]
-    let url = tauri::WebviewUrl::External("http://localhost:1430/about.html".parse().unwrap());
-    #[cfg(not(dev))]
-    let url = tauri::WebviewUrl::App("about.html".into());
-
-    let _ = tauri::WebviewWindowBuilder::new(&app, "about", url)
-        .title("About C64 Visual Assembler")
-        .inner_size(360.0, 420.0)
-        .resizable(false)
-        .minimizable(false)
-        .maximizable(false)
-        .always_on_top(true)
-        .center()
-        .build();
-}
-
-#[tauri::command]
-fn close_about_window(app: AppHandle) {
-    if let Some(win) = app.get_webview_window("about") {
-        let _ = win.close();
-    }
-}
 
 #[tauri::command]
 fn set_title(app: AppHandle, title: String) {
@@ -514,14 +485,12 @@ async fn load_sample(app: AppHandle, sample_name: String) -> serde_json::Value {
 
 pub fn run() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_window_state::Builder::default().build())
+        .plugin(tauri_plugin_window_state::Builder::default().skip_initial_state("about").build())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             get_app_version,
-            open_about_window,
-            close_about_window,
             set_title,
             open_external,
             quit_app,

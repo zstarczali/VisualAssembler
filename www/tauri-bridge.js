@@ -11,7 +11,6 @@
 
   window.electronAPI = {
     getAppVersion: () => invoke("get_app_version"),
-    openAbout: () => invoke("open_about_window"),
     setWindowTitle: (title) => invoke("set_title", { title }),
     openExternal: (url) => invoke("open_external", { url }),
     quitApp: () => invoke("quit_app"),

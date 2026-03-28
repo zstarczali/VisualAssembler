@@ -1042,8 +1042,10 @@ function initPalette() {
   themeToggleButton.addEventListener("click", toggleTheme);
   document.getElementById("crt-toggle")?.addEventListener("click", toggleCrtMode);
   languageSelect.addEventListener("change", handleLanguageChange);
-  aboutButton?.addEventListener("click", () => {
-    window.electronAPI.openAbout();
+  aboutButton?.addEventListener("click", async () => {
+    const version = await window.electronAPI.getAppVersion();
+    document.getElementById("about-version").textContent = `v${version}`;
+    document.getElementById("about-dialog")?.showModal();
   });
   checkUpdateButton?.addEventListener("click", () => {
     window.electronAPI.openExternal("https://zstarczali.itch.io/visual-assembler-commodore-64");

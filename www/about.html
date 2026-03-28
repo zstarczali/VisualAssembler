@@ -7,7 +7,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script src="tauri-bridge.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -18,68 +17,68 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
+      height: 100vh;
       user-select: none;
+      overflow: hidden;
     }
 
-    .about-card {
+    .card {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 12px;
-      padding: 32px 40px;
+      gap: 10px;
+      padding: 28px 36px;
       text-align: center;
     }
 
-    .about-logo svg {
+    .logo svg {
       width: 64px;
       height: 64px;
       border-radius: 14px;
       box-shadow: 0 4px 24px rgba(27,58,143,0.5);
     }
 
-    .about-title {
-      font-size: 20px;
+    h1 {
+      font-size: 18px;
       font-weight: 700;
       color: #e8f0ff;
       margin-top: 4px;
     }
 
-    .about-version {
+    .version {
       font-family: 'IBM Plex Mono', monospace;
       font-size: 13px;
       color: #7090d0;
     }
 
-    .about-desc {
+    .desc {
       font-size: 13px;
       color: #a0b0d0;
       line-height: 1.6;
       max-width: 280px;
     }
 
-    .about-author {
+    .author {
       font-size: 12px;
       color: #607090;
-      margin-top: 4px;
     }
 
-    .about-links {
+    .links {
       display: flex;
-      gap: 12px;
-      margin-top: 4px;
+      gap: 16px;
     }
 
-    .about-links a {
+    .links a {
       font-size: 12px;
       color: #4a7fd4;
       text-decoration: none;
+      cursor: pointer;
     }
-    .about-links a:hover { text-decoration: underline; }
+    .links a:hover { text-decoration: underline; }
 
-    .btn-close {
-      margin-top: 8px;
-      padding: 8px 28px;
+    button {
+      margin-top: 6px;
+      padding: 8px 32px;
       background: #1b3a8f;
       color: #e8f0ff;
       border: none;
@@ -90,49 +89,46 @@
       cursor: pointer;
       transition: background 0.15s;
     }
-    .btn-close:hover { background: #2a52c0; }
+    button:hover { background: #2a52c0; }
   </style>
 </head>
 <body>
-  <div class="about-card">
-    <div class="about-logo">
-      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <div class="card">
+    <div class="logo">
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect width="48" height="48" rx="12" fill="#1b3a8f"/>
         <text x="7" y="34" font-family="IBM Plex Mono,monospace" font-size="22" font-weight="700" fill="#e8f0ff">C64</text>
       </svg>
     </div>
-    <h2 class="about-title">C64 Visual Assembler</h2>
-    <p class="about-version" id="about-version">v1.3.7</p>
-    <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and dropping instruction blocks.</p>
-    <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
-    <div class="about-links">
-      <a href="#" id="link-github">GitHub</a>
-      <a href="#" id="link-manual">Manual</a>
+    <h1>C64 Visual Assembler</h1>
+    <p class="version" id="version">v1.3.7</p>
+    <p class="desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and dropping instruction blocks.</p>
+    <p class="author">&#169; 2026 Zsolt Tarczali</p>
+    <div class="links">
+      <a id="link-github">GitHub</a>
+      <a id="link-manual">Manual</a>
     </div>
-    <button class="btn-close" id="btn-close">Close</button>
+    <button id="btn-close">Close</button>
   </div>
 
   <script>
+    const invoke = window.__TAURI__?.core?.invoke;
+
     document.getElementById("btn-close").addEventListener("click", () => {
-      if (window.__TAURI__) {
-        window.__TAURI__.core.invoke("close_about_window");
-      }
+      invoke?.("close_about_window");
     });
 
-    document.getElementById("link-github").addEventListener("click", (e) => {
-      e.preventDefault();
-      if (window.electronAPI) window.electronAPI.openExternal("https://github.com/zstarczali/VisualAssembler");
+    document.getElementById("link-github").addEventListener("click", () => {
+      invoke?.("open_external", { url: "https://github.com/zstarczali/VisualAssembler" });
     });
 
-    document.getElementById("link-manual").addEventListener("click", (e) => {
-      e.preventDefault();
-      if (window.electronAPI) window.electronAPI.openExternal("https://github.com/zstarczali/VisualAssembler/blob/main/MANUAL.md");
+    document.getElementById("link-manual").addEventListener("click", () => {
+      invoke?.("open_external", { url: "https://github.com/zstarczali/VisualAssembler/blob/main/MANUAL.md" });
     });
 
-    // Load real version
-    if (window.electronAPI) {
-      window.electronAPI.getAppVersion().then(v => {
-        document.getElementById("about-version").textContent = "v" + v;
+    if (invoke) {
+      invoke("get_app_version").then(v => {
+        document.getElementById("version").textContent = "v" + v;
       }).catch(() => {});
     }
   </script>
