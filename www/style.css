@@ -2523,14 +2523,8 @@ body.crt-mode .app-layout {
 /* ── Splash Screen ────────────────────────────────────────────────── */
 .splash-screen {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: linear-gradient(135deg, var(--bg) 0%, var(--bg-accent) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 10000;
   opacity: 1;
   transition: opacity 0.5s ease-out;
@@ -2542,6 +2536,10 @@ body.crt-mode .app-layout {
 }
 
 .splash-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   text-align: center;
   padding: 2rem;
 }

@@ -1,8 +1,15 @@
 # C64 Visual Assembler
 
-An Electron-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
+A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v1.3.7**
+**Current version: v1.3.8**
+
+---
+
+## What's New
+
+### v1.3.8
+- Migrated from Electron to [Tauri 2](https://tauri.app/) — smaller binary, lower memory usage, no bundled Chromium
 
 ---
 
@@ -56,22 +63,20 @@ An Electron-based desktop application for visually composing Commodore 64 6502 a
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) (v18+)
+- [Rust](https://rustup.rs/) (stable)
 - [VICE emulator](https://vice-emu.sourceforge.io/) (optional, for Run button)
 
 ### Install & run
 
 ```bash
 npm install
-npm start
+npm run dev
 ```
 
-### Build Windows installer
+### Build installer
 
 ```bash
-npm run dist              # produces NSIS installer (x64 + arm64) in dist/
-npm run dist:win:x64      # x64 only
-npm run dist:win:arm64    # arm64 only
-npm run dist:dir          # produces unpacked directory build in dist/
+npm run build             # produces NSIS installer (Windows) or .dmg (macOS) in src-tauri/target/
 ```
 
 ---
@@ -80,15 +85,18 @@ npm run dist:dir          # produces unpacked directory build in dist/
 
 ```
 VisualAssembler/
-├── index.html        # Single-page UI (all panels, templates)
-├── style.css         # Full stylesheet — CSS custom properties for theming
-├── app.js            # All renderer logic (~6 200 lines)
-├── main.js           # Electron main process (window, file dialogs, VICE IPC)
-├── preload.js        # contextBridge — exposes safe IPC API to renderer
-├── package.json      # electron + electron-builder config
-├── samples/          # Example .c64asm project files + binary assets
-└── build/
-    └── commodore64.ico
+├── www/
+│   ├── index.html        # Single-page UI (all panels, templates)
+│   ├── style.css         # Full stylesheet — CSS custom properties for theming
+│   ├── app.js            # All renderer logic (~6 200 lines)
+│   └── tauri-bridge.js   # Maps window.electronAPI calls to Tauri invoke commands
+├── src-tauri/
+│   ├── src/lib.rs        # Tauri backend — file dialogs, VICE launch, IPC commands
+│   ├── tauri.conf.json   # App config — window, bundle, icons
+│   ├── capabilities/     # Tauri permission system
+│   └── icons/            # App icons (all sizes)
+├── package.json          # Scripts + Tauri CLI dev dependency
+└── samples/              # Example .c64asm project files + binary assets
 ```
 
 ---
