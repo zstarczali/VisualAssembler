@@ -2527,11 +2527,17 @@ body.crt-mode .app-layout {
 /* ── Splash Screen ────────────────────────────────────────────────── */
 .splash-screen {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   background: linear-gradient(135deg, var(--bg) 0%, var(--bg-accent) 100%);
   z-index: 10000;
   opacity: 1;
   transition: opacity 0.5s ease-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .splash-screen.fade-out {
@@ -2540,10 +2546,6 @@ body.crt-mode .app-layout {
 }
 
 .splash-content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   text-align: center;
   padding: 2rem;
 }
