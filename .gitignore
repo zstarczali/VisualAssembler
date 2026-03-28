@@ -10,6 +10,9 @@ yarn-error.log*
 src-tauri/target/
 src-tauri/gen/
 
+# Electron build output (obsolete)
+dist/
+
 # OS
 .DS_Store
 Thumbs.db
