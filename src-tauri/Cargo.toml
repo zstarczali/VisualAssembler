@@ -5,7 +5,7 @@ edition = "2021"
 
 [lib]
 name = "c64_visual_assembler_lib"
-crate-type = ["staticlib", "cdylib", "rlib"]
+crate-type = ["cdylib", "rlib"]
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
