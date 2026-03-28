@@ -1,0 +1,482 @@
+﻿<!DOCTYPE html>
+<html lang="hu">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C64 Visual Assembler</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div id="splash-screen" class="splash-screen">
+    <div class="splash-content">
+      <h1 class="splash-title">C64 VISUAL ASSEMBLER</h1>
+      <p class="splash-subtitle">Commodore 64 Block Programming</p>
+      <p class="splash-version" id="splash-version"></p>
+      <div class="splash-loader">
+        <div class="splash-loader-bar"></div>
+      </div>
+    </div>
+  </div>
+  <div class="app-shell">
+    <header class="hero">
+      <div class="hero-copy-block">
+        <p class="eyebrow">Commodore 64 visual assembler</p>
+        <div class="hero-menu-row">
+          <details class="control-menu">
+            <summary class="secondary control-menu-trigger">Menu</summary>
+            <div class="control-menu-panel">
+              <section class="control-menu-group">
+                <h3 class="control-menu-label">File</h3>
+                <button id="save-project" class="secondary" type="button">Save program</button>
+                <button id="load-project" class="secondary" type="button">Load program</button>
+                <button id="save-prg" class="secondary" type="button">Export to PRG</button>
+                <button id="exit-app" class="secondary" type="button">Kilepes</button>
+              </section>
+              <section class="control-menu-group">
+                <h3 class="control-menu-label">Peldak</h3>
+                <label class="sample-picker">
+                  <span class="sr-only">Mintaprogram</span>
+                  <select id="sample-select">
+                    <option value="basic-colors">Mintaprogram</option>
+                    <option value="label-border">Label pelda</option>
+                    <option value="text-demo">TEXT pelda</option>
+                    <option value="macro-demo">Komplex makro pelda</option>
+                    <option value="sprite-demo">Sprite mozgatas pelda</option>
+                    <option value="setpixel-demo">Setpixel demo</option>
+                    <option value="bitmap-demo">Bitmap vonal demo</option>
+                    <option value="macro-test">New macros test</option>
+                    <option value="loop-demo">LOOP / NEXT demo</option>
+                    <option value="hello-loop-demo">Hello World 1-40 (LOOP szamlalo)</option>
+                    <option value="push-pull-demo">PUSH / PULL demo</option>
+                    <option value="if-else">IF / ELSE / ENDIF demo</option>
+                    <option value="user-macro-demo">User MACRO / ENDM demo</option>
+                    <option value="incbin-demo">INCBIN demo</option>
+                    <option value="include-demo">INCLUDE demo</option>
+                    <option value="sid-demo">SID player - INCBIN (Ikari Warriors)</option>
+                    <option value="sid-direct-demo">SID player - SID makro (Ikari Warriors)</option>
+                    <option value="sprite-macro-demo">SPRITE_INIT / SPRITE_POS makro demo</option>
+                    <option value="joystick-demo">JOYSTICK makro demo</option>
+                    <option value="collision-demo">SPRITE_COL utkozes demo</option>
+                  </select>
+                </label>
+                <button id="load-sample" class="secondary" type="button">Betoltes</button>
+              </section>
+              <section class="control-menu-group">
+                <h3 class="control-menu-label">Beallitasok</h3>
+                <label class="sample-picker">
+                  <span id="language-label">Nyelv</span>
+                  <select id="language-select">
+                    <option value="hu">Magyar</option>
+                    <option value="en">English</option>
+                  </select>
+                </label>
+                <label class="menu-checkbox-label">
+                  <input type="checkbox" id="basic-sys-toggle" checked>
+                  <span id="basic-sys-label">BASIC SYS stub generálása</span>
+                </label>
+                <button id="choose-vice" class="secondary" type="button">VICE kivalasztasa</button>
+                <label class="field compact-field menu-field">
+                  <span>VICE exe</span>
+                  <input id="vice-path" type="text" readonly placeholder="Nincs beallitva">
+                </label>
+                <p id="emulator-status" class="menu-note">A VICE kapcsolat ellenorzese folyamatban.</p>
+                <p id="emulator-run-hint" class="menu-note menu-note-strong"></p>
+              </section>
+              <section class="control-menu-group">
+                <h3 class="control-menu-label">Nezet</h3>
+                <button id="theme-toggle" class="secondary icon-button theme-toggle-button" type="button"
+                  aria-label="Dark mode" title="Dark mode">
+                  <span class="theme-toggle-glyph" aria-hidden="true"></span>
+                  <span>Tema valtasa</span>
+                </button>
+                <button id="crt-toggle" class="secondary icon-button" type="button">
+                  <span>📺</span>
+                  <span>CRT retro mod</span>
+                </button>
+                <div class="control-menu-inline">
+                  <button id="zoom-out" class="secondary" type="button">A-</button>
+                  <button id="zoom-in" class="secondary" type="button">A+</button>
+                </div>
+                <h3 class="control-menu-label control-menu-label--section">Program</h3>
+                <button id="copy-asm" class="secondary" type="button">ASM masolasa</button>
+                <button id="clear-program" class="secondary" type="button">Program torlese</button>
+                <h3 class="control-menu-label control-menu-label--section">Info</h3>
+                <button id="about-btn" class="secondary" type="button">About</button>
+                <button id="whats-new-btn" class="secondary" type="button">What's New</button>
+                <button id="knowledge-base-btn" class="secondary" type="button">Knowledge Base</button>
+                <button id="check-update-btn" class="secondary" type="button">Check for Update</button>
+              </section>
+            </div>
+          </details>
+          <button id="run-emulator" class="primary run-button" type="button">
+            <svg class="run-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 2.5l10 5.5-10 5.5V2.5z" />
+            </svg>
+            <span class="run-label">Run</span>
+          </button>
+        </div>
+        <p class="hero-copy">
+          Huzz be egy mnemonik blokkot balrol, rendezd oket sorba, es nezd meg a jobb oldalon az assembly nezetet.
+        </p>
+        <div id="memory-strip-top" class="memory-strip-top" aria-label="Teljes C64 memoria csik"></div>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="palette-panel">
+        <div class="panel-scroll">
+          <div class="panel-heading">
+            <h2>Mnemonik menu</h2>
+            <p>Valassz kategoriat, majd huzd at a blokkot a programlistaba.</p>
+          </div>
+
+          <label class="field">
+            <span>Kategoria</span>
+            <select id="category-select"></select>
+          </label>
+
+          <label class="field">
+            <span>Mnemonik</span>
+            <select id="mnemonic-select"></select>
+          </label>
+
+          <label class="field">
+            <span>Operandus</span>
+            <div class="operand-wrapper">
+              <input id="operand-input" type="text" placeholder="#$01 vagy $D020" autocomplete="off">
+              <div id="operand-dropdown" class="operand-dropdown" hidden></div>
+            </div>
+          </label>
+
+          <fieldset class="base-switch">
+            <legend>Szamrendszer</legend>
+            <div class="base-toggle" role="radiogroup" aria-label="Szamrendszer valaszto">
+              <label class="base-option">
+                <input type="radio" name="number-base" value="hex" checked>
+                <span>HEX</span>
+              </label>
+              <label class="base-option">
+                <input type="radio" name="number-base" value="dec">
+                <span>DEC</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <label class="field" id="addressing-field">
+            <span>Cimzesi mod</span>
+            <select id="addressing-select"></select>
+          </label>
+
+          <button id="add-selected" class="primary" type="button">Kivalasztott blokk hozzaadasa</button>
+
+          <label class="field" for="palette-search">
+            <span id="palette-search-label"></span>
+            <div class="palette-search-wrap">
+              <input id="palette-search" class="palette-search-input" type="search" placeholder="" title="Search"
+                autocomplete="off" spellcheck="false">
+            </div>
+          </label>
+          <label class="field">
+            <span id="mnemonic-description-label"></span>
+            <div id="mnemonic-description" class="mnemonic-card"></div>
+          </label>
+          <div id="palette-list" class="palette-list" aria-label="Huzhato blokklista"></div>
+        </div>
+      </aside>
+
+      <section class="program-panel">
+        <div class="panel-scroll">
+          <div class="panel-heading">
+            <div class="panel-heading-row">
+              <h2>Program blokkok</h2>
+              <div class="panel-heading-actions">
+                <button id="collapse-all" class="secondary" type="button" aria-label="Osszes osszecsukasa"
+                  title="Osszes osszecsukasa">&#9662;</button>
+                <button id="expand-all" class="secondary" type="button" aria-label="Osszes kinyitasa"
+                  title="Osszes kinyitasa">&#9656;</button>
+              </div>
+            </div>
+            <p>Ide ejtsd a bal oldali blokkot, vagy rendezd at a mar bent levo sorokat.</p>
+          </div>
+          <div id="program-list" class="program-list" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="output-panel">
+        <div class="panel-scroll">
+          <div class="panel-heading">
+            <div class="panel-heading-top">
+              <h2>ASM nezet</h2>
+              <p class="current-file" id="current-file"></p>
+            </div>
+            <p>Az osszerakott szoveges kod innen indulhat tovabb export fele.</p>
+          </div>
+          <div class="output-toolbar">
+            <div class="view-mode-toggle" role="radiogroup" aria-label="Kod nezet">
+              <label class="view-mode-option">
+                <input type="radio" name="output-mode" value="asm" checked>
+                <span>ASM</span>
+              </label>
+              <label class="view-mode-option">
+                <input type="radio" name="output-mode" value="monitor">
+                <span>Monitor</span>
+              </label>
+              <label class="view-mode-option">
+                <input type="radio" name="output-mode" value="both">
+                <span>Mindketto</span>
+              </label>
+              <label class="view-mode-option">
+                <input type="radio" name="output-mode" value="program">
+                <span>Program</span>
+              </label>
+            </div>
+          </div>
+          <div id="output-stack" class="output-stack">
+            <div id="program-output" class="program-output">
+              <span class="panel-label" id="program-settings-label">Program settings</span>
+              <div class="macro-source-row">
+                <span id="macro-source-toggle-text">Macro source</span>
+                <div class="mini-toggle macro-source-toggle" id="macro-source-label" role="radiogroup"
+                  aria-label="Macro source">
+                  <label class="mini-toggle-option">
+                    <input type="radio" name="macro-source-toggle" id="macro-source-toggle-on" value="on">
+                    <span>ON</span>
+                  </label>
+                  <label class="mini-toggle-option">
+                    <input type="radio" name="macro-source-toggle" id="macro-source-toggle" value="off" checked>
+                    <span>OFF</span>
+                  </label>
+                </div>
+              </div>
+              <div class="macro-source-row">
+                <span id="asm-numbers-label">Show numbers in ASM</span>
+                <div class="mini-toggle asm-base-toggle" role="radiogroup" aria-label="ASM output format">
+                  <label class="mini-toggle-option">
+                    <input type="radio" name="asm-output-base" value="hex" checked>
+                    <span>HEX</span>
+                  </label>
+                  <label class="mini-toggle-option">
+                    <input type="radio" name="asm-output-base" value="dec">
+                    <span>DEC</span>
+                  </label>
+                </div>
+              </div>
+              <hr class="section-divider">
+              <div class="origin-section">
+                <span class="panel-label origin-label-text">Kezdocim</span>
+                <div class="origin-input-row">
+                  <input id="origin-input" type="text" placeholder="0801 vagy $0801">
+                  <div class="mini-toggle origin-base-toggle" role="radiogroup" aria-label="Origin base">
+                    <label class="mini-toggle-option">
+                      <input type="radio" name="origin-base" value="hex" checked>
+                      <span>HEX</span>
+                    </label>
+                    <label class="mini-toggle-option">
+                      <input type="radio" name="origin-base" value="dec">
+                      <span>DEC</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="origin-preview-section">
+              <span class="panel-label" id="origin-preview-label">Compile info</span>
+              <div id="origin-preview" class="origin-preview"></div>
+            </div>
+            <div class="output-section-label asm-label">
+              <span class="panel-label" id="asm-output-label">ASM output</span>
+              <pre id="asm-output" class="asm-output"></pre>
+            </div>
+            <div class="output-section-label monitor-label">
+              <span class="panel-label" id="monitor-output-label">Monitor output</span>
+              <pre id="monitor-output" class="asm-output monitor-output"></pre>
+            </div>
+          </div>
+      </section>
+
+    </main>
+
+    <details class="global-memory-panel">
+      <summary class="global-memory-summary">
+        <span class="global-memory-title">Teljes C64 memoria</span>
+        <span class="global-memory-toggle" aria-hidden="true"></span>
+      </summary>
+      <div class="global-memory-content">
+        <div class="panel-heading memory-heading">
+          <h2>Teljes C64 memoria</h2>
+          <p>Az egesz 64 KB cimter egy csikban, jelolve a foglalt, szabad, ROM es I/O reszeket.</p>
+        </div>
+        <div id="memory-strip" class="memory-strip" aria-label="Teljes C64 memoria csik"></div>
+        <div id="memory-map" class="memory-map"></div>
+      </div>
+    </details>
+  </div>
+
+  <template id="block-template">
+    <article class="asm-block" draggable="true">
+      <div class="drag-handle" title="Huzd a blokkot">&#8801;</div>
+      <div class="block-main">
+        <div class="block-topline">
+          <div class="block-title-group">
+            <strong class="block-mnemonic"></strong>
+            <span class="collapsed-operand"></span>
+            <span class="block-category"></span>
+          </div>
+          <button class="collapse-toggle" type="button" aria-label="Osszecsukas" title="Osszecsukas">&#9662;</button>
+        </div>
+        <div class="block-body">
+          <div class="block-body-inner">
+            <div class="block-controls">
+              <label class="inline-field">
+                <span>Operandus</span>
+                <input class="block-operand" type="text">
+              </label>
+            </div>
+            <span class="block-description-label"></span>
+            <p class="block-description"></p>
+          </div>
+        </div>
+      </div>
+      <div class="block-actions">
+        <button class="move-up" type="button" aria-label="Fel" title="Fel">&#8593;</button>
+        <button class="move-down" type="button" aria-label="Le" title="Le">&#8595;</button>
+        <button class="delete" type="button" aria-label="Torles" title="Torles">&#10005;</button>
+      </div>
+    </article>
+  </template>
+
+  <template id="palette-item-template">
+    <button class="palette-item" type="button" draggable="true">
+      <strong class="palette-mnemonic"></strong>
+      <span class="palette-description"></span>
+    </button>
+  </template>
+
+  <dialog id="compile-error-dialog" class="compile-error-dialog">
+    <div class="compile-error-card">
+      <h2 class="compile-error-title" id="compile-error-title">Compilation errors</h2>
+      <ul class="compile-error-list" id="compile-error-list"></ul>
+      <button id="compile-error-close" class="primary" type="button">OK</button>
+    </div>
+  </dialog>
+
+  <dialog id="about-dialog" class="about-dialog">
+    <div class="about-card">
+      <div class="about-logo">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="48" height="48" rx="12" fill="#1b3a8f" />
+          <text x="7" y="34" font-family="IBM Plex Mono,monospace" font-size="22" font-weight="700"
+            fill="#e8f0ff">C64</text>
+        </svg>
+      </div>
+      <h2 class="about-title">C64 Visual Assembler</h2>
+      <p class="about-version" id="about-version">v1.3.7</p>
+      <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
+        dropping instruction blocks.</p>
+      <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
+      <button id="about-close" class="primary" type="button">Close</button>
+    </div>
+  </dialog>
+
+  <dialog id="whats-new-dialog" class="whats-new-dialog">
+    <div class="whats-new-card">
+      <h2 class="whats-new-title">What's New</h2>
+      <p class="whats-new-version">v1.3.7</p>
+      <ul class="whats-new-list">
+        <li>
+          <strong>CRT retro mode</strong> — full-screen CRT filter overlay: scanlines, phosphor vignette,
+          screen flicker, and barrel distortion. Toggle via the <em>📺 CRT retro mode</em> button in the View menu.
+          State is saved between sessions.
+        </li>
+        <li>
+          <strong>ASM output — consistent macro format</strong> — all Visual Assembler-specific macros now use a
+          uniform <code>; .name params</code> comment style in the ASM view
+          (<code>; .sprite_init</code>, <code>; .sprite_pos</code>, <code>; .wait_raster</code>,
+          <code>; .joystick</code>, <code>; .sprite_col</code>, <code>; .align</code>, <code>; .invoke</code>, etc.),
+          distinguishing them from real assembler directives (<code>.byte</code>, <code>.word</code>, <code>.fill</code>).
+        </li>
+        <li>
+          <strong>Label picker dropdown — z-order fix</strong> — the label/constant picker dropdown on blocks
+          is now rendered as a document-level portal (<code>position: fixed</code>), so it always appears above
+          all other blocks regardless of stacking context. Also closes automatically on scroll.
+        </li>
+        <li>
+          <strong>SPRITE_COL — English localisation</strong> — added English description and localised compile-time
+          error message for the SPRITE_COL macro.
+        </li>
+        <li>
+          <strong>SID macro — custom load address</strong> — an optional override field lets you specify where
+          the SID data is placed in memory, independent of the address stored in the SID file header.
+          Leave empty to use the header address as before.
+        </li>
+        <li>
+          <strong>ASM output — macro indentation fixed</strong> — <code>; .name</code> comment-style macro lines
+          (<code>; .sid</code>, <code>; .align</code>, <code>; .sprite_init</code>, etc.) no longer have a
+          spurious 4-space indent; they now start at column 0, consistent with other comment lines.
+        </li>
+      </ul>
+      <button id="whats-new-close" class="primary" type="button">OK</button>
+    </div>
+  </dialog>
+
+  <dialog id="knowledge-base-dialog" class="knowledge-base-dialog">
+    <div class="knowledge-base-card">
+      <h2 class="knowledge-base-title">Knowledge Base</h2>
+      <p class="knowledge-base-subtitle">6502 &amp; C64 reference links</p>
+      <ul class="knowledge-base-list">
+        <li>
+          <a class="knowledge-base-link" href="#" data-url="http://www.6502.org/tutorials/6502opcodes.html">
+            <span class="knowledge-base-link-title">6502 Opcodes Reference</span>
+            <span class="knowledge-base-link-url">6502.org</span>
+          </a>
+        </li>
+        <li>
+          <a class="knowledge-base-link" href="#" data-url="https://sta.c64.org/cbm64krnfunc.html">
+            <span class="knowledge-base-link-title">C64 KERNAL Functions</span>
+            <span class="knowledge-base-link-url">sta.c64.org</span>
+          </a>
+        </li>
+        <li>
+          <a class="knowledge-base-link" href="#" data-url="https://sta.c64.org/cbm64mem.html">
+            <span class="knowledge-base-link-title">C64 Memory Map</span>
+            <span class="knowledge-base-link-url">sta.c64.org</span>
+          </a>
+        </li>
+        <li>
+          <a class="knowledge-base-link" href="#" data-url="https://sta.c64.org/cbm64col.html">
+            <span class="knowledge-base-link-title">C64 Color Codes</span>
+            <span class="knowledge-base-link-url">sta.c64.org</span>
+          </a>
+        </li>
+        <li>
+          <a class="knowledge-base-link" href="#" data-url="https://www.cebix.net/VIC-Article.txt">
+            <span class="knowledge-base-link-title">VIC-II Article</span>
+            <span class="knowledge-base-link-url">cebix.net</span>
+          </a>
+        </li>
+        <li>
+          <a class="knowledge-base-link" href="#" data-url="https://www.spritemate.com/">
+            <span class="knowledge-base-link-title">Spritemate — C64 Sprite Editor</span>
+            <span class="knowledge-base-link-url">spritemate.com</span>
+          </a>
+        </li>
+      </ul>
+      <button id="knowledge-base-close" class="primary" type="button">Close</button>
+    </div>
+  </dialog>
+
+  <div id="crt-overlay" aria-hidden="true"></div>
+  <script src="tauri-bridge.js"></script>
+  <script src="app.js"></script>
+
+</body>
+
+</html>

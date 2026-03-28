@@ -108,6 +108,36 @@ fn get_app_version(app: AppHandle) -> String {
 }
 
 #[tauri::command]
+fn open_about_window(app: AppHandle) {
+    if let Some(win) = app.get_webview_window("about") {
+        let _ = win.show();
+        let _ = win.set_focus();
+        return;
+    }
+    #[cfg(dev)]
+    let url = tauri::WebviewUrl::External("http://localhost:1430/about.html".parse().unwrap());
+    #[cfg(not(dev))]
+    let url = tauri::WebviewUrl::App("about.html".into());
+
+    let _ = tauri::WebviewWindowBuilder::new(&app, "about", url)
+        .title("About C64 Visual Assembler")
+        .inner_size(360.0, 420.0)
+        .resizable(false)
+        .minimizable(false)
+        .maximizable(false)
+        .always_on_top(true)
+        .center()
+        .build();
+}
+
+#[tauri::command]
+fn close_about_window(app: AppHandle) {
+    if let Some(win) = app.get_webview_window("about") {
+        let _ = win.close();
+    }
+}
+
+#[tauri::command]
 fn set_title(app: AppHandle, title: String) {
     if let Some(win) = app.get_webview_window("main") {
         let _ = win.set_title(&title);
@@ -193,9 +223,53 @@ async fn launch_vice(app: AppHandle, payload: LaunchVicePayload) -> serde_json::
     }
 
     let result = if cfg!(target_os = "macos") {
-        Command::new("open").args(["-a", &vice_path, file_path.to_str().unwrap()]).spawn()
+        Command::new("open")
+            .args(["-a", &vice_path, file_path.to_str().unwrap()])
+            .stdin(std::process::Stdio::null())
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::null())
+            .spawn()
     } else {
-        Command::new(&vice_path).arg(file_path.to_str().unwrap()).spawn()
+        #[cfg(target_os = "windows")]
+        {
+            // WHY NOT cmd /c start: cmd.exe is spawned as a child of this process and
+            // is placed into Tauri's Job Object before it runs. When it calls CreateProcess
+            // for VICE, Windows inherits the same job. The indirection does nothing.
+            //
+            // WHY NOT CREATE_BREAKAWAY_FROM_JOB: only works if the owning job explicitly
+            // sets JOB_OBJECT_LIMIT_BREAKAWAY_OK. Tauri CLI does not set that flag.
+            //
+            // WHY THIS WORKS: PowerShell's Start-Process calls ShellExecuteEx, which
+            // delegates actual process creation to explorer.exe (the shell host). That
+            // process is outside Tauri's Job Object entirely, so VICE is never assigned
+            // to it and survives hot-reload independently. This is only an issue in
+            // `tauri dev` mode; production builds do not use a KILL_ON_JOB_CLOSE job.
+            let ps_cmd = format!(
+                "Start-Process -FilePath '{}' -ArgumentList '{}'",
+                vice_path.replace('\'', "''"),
+                file_path.to_str().unwrap().replace('\'', "''"),
+            );
+            Command::new("powershell")
+                .args([
+                    "-NoProfile",
+                    "-NonInteractive",
+                    "-WindowStyle", "Hidden",
+                    "-Command", &ps_cmd,
+                ])
+                .stdin(std::process::Stdio::null())
+                .stdout(std::process::Stdio::null())
+                .stderr(std::process::Stdio::null())
+                .spawn()
+        }
+        #[cfg(not(target_os = "windows"))]
+        {
+            Command::new(&vice_path)
+                .arg(file_path.to_str().unwrap())
+                .stdin(std::process::Stdio::null())
+                .stdout(std::process::Stdio::null())
+                .stderr(std::process::Stdio::null())
+                .spawn()
+        }
     };
 
     match result {
@@ -440,11 +514,14 @@ async fn load_sample(app: AppHandle, sample_name: String) -> serde_json::Value {
 
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             get_app_version,
+            open_about_window,
+            close_about_window,
             set_title,
             open_external,
             quit_app,

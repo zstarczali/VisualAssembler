@@ -3,8 +3,8 @@
   "version": "1.3.7",
   "identifier": "hu.zstarczali.c64visualassembler",
   "build": {
-    "frontendDist": "../",
-    "devUrl": null
+    "frontendDist": "../www",
+    "devUrl": "http://localhost:1430"
   },
   "app": {
     "withGlobalTauri": true,
@@ -12,6 +12,7 @@
       {
         "label": "main",
         "title": "C64 Visual Assembler",
+        "url": "index.html",
         "width": 1600,
         "height": 980,
         "minWidth": 1200,
@@ -36,7 +37,7 @@
       "icons/128x128@2x.png"
     ],
     "resources": {
-      "samples/*": "samples/"
+      "../samples/*": "samples/"
     }
   }
 }

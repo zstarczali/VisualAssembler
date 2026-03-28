@@ -4,13 +4,15 @@
   "description": "Commodore 64 visual assembler desktop app built with Tauri.",
   "author": "Zsolt Tarczali",
   "scripts": {
-    "dev": "tauri dev",
+    "dev": "concurrently -k -n SERVE,TAURI \"npx serve -l 1430 ./www\" \"tauri dev\"",
     "build": "tauri build",
     "build:win:x64": "tauri build --target x86_64-pc-windows-msvc",
     "build:win:arm64": "tauri build --target aarch64-pc-windows-msvc"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2"
+    "@tauri-apps/cli": "^2",
+    "concurrently": "^9",
+    "serve": "^14"
   },
   "dependencies": {
     "@tauri-apps/api": "^2"
