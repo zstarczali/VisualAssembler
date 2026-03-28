@@ -31,12 +31,26 @@ fn write_config(app: &AppHandle, cfg: &serde_json::Value) {
 }
 
 fn detect_vice_executable() -> String {
+    #[cfg(target_os = "macos")]
+    let candidates = [
+        "/Applications/vice-arm64-gtk3-3.10/bin/x64sc",
+        "/Applications/vice-arm64-gtk3-3.9/bin/x64sc",
+        "/Applications/vice-arm64-gtk3-3.8/bin/x64sc",
+        "/Applications/GTK3VICE-3.10/bin/x64sc",
+        "/Applications/GTK3VICE-3.9/bin/x64sc",
+        "/Applications/GTK3VICE-3.8/bin/x64sc",
+        "/opt/homebrew/bin/x64sc",
+        "/usr/local/bin/x64sc",
+    ];
+    #[cfg(target_os = "windows")]
     let candidates = [
         r"C:\Program Files\GTK3VICE-3.9\bin\x64sc.exe",
         r"C:\Program Files\GTK3VICE-3.8\bin\x64sc.exe",
         r"C:\Program Files\WinVICE\x64sc.exe",
         r"C:\Program Files (x86)\WinVICE\x64sc.exe",
     ];
+    #[cfg(not(any(target_os = "macos", target_os = "windows")))]
+    let candidates: [&str; 0] = [];
     candidates
         .iter()
         .find(|p| std::path::Path::new(p).exists())
@@ -145,10 +159,32 @@ fn get_vice_config(app: AppHandle) -> serde_json::Value {
 #[tauri::command]
 async fn choose_vice_executable(app: AppHandle) -> serde_json::Value {
     let dialog = app.dialog().clone();
-    let result = dialog
-        .file()
-        .add_filter("Executable", &["exe"])
-        .blocking_pick_file();
+    let file_dialog = dialog.file();
+
+    // On Windows: filter .exe files
+    #[cfg(target_os = "windows")]
+    let file_dialog = file_dialog.add_filter("Executable", &["exe"]);
+
+    // On macOS: .app bundles are directories and cannot be selected with pick_file.
+    // Open the dialog directly in the VICE bin/ folder where the real scripts live.
+    #[cfg(target_os = "macos")]
+    let file_dialog = {
+        let vice_bin_candidates = [
+            "/Applications/vice-arm64-gtk3-3.10/bin",
+            "/Applications/vice-arm64-gtk3-3.9/bin",
+            "/Applications/vice-arm64-gtk3-3.8/bin",
+            "/Applications/GTK3VICE-3.10/bin",
+            "/Applications/GTK3VICE-3.9/bin",
+            "/Applications",
+        ];
+        let start_dir = vice_bin_candidates
+            .iter()
+            .find(|p| std::path::Path::new(p).exists())
+            .unwrap_or(&"/");
+        file_dialog.set_directory(start_dir)
+    };
+
+    let result = file_dialog.blocking_pick_file();
 
     match result {
         Some(path) => {
@@ -177,10 +213,10 @@ async fn launch_vice(app: AppHandle, payload: LaunchVicePayload) -> serde_json::
         if p.is_empty() { detect_vice_executable() } else { p }
     };
 
-    if vice_path.is_empty() || !std::path::Path::new(&vice_path).exists() {
+    if vice_path.is_empty() {
         return serde_json::json!({
             "ok": false,
-            "error": "VICE executable nincs beallitva vagy nem talalhato."
+            "error": "VICE nincs beallitva. Kattints az Edit gombra es add meg a VICE eleresi utjat."
         });
     }
 
@@ -196,8 +232,39 @@ async fn launch_vice(app: AppHandle, payload: LaunchVicePayload) -> serde_json::
     }
 
     let result = if cfg!(target_os = "macos") {
-        Command::new("open")
-            .args(["-a", &vice_path, file_path.to_str().unwrap()])
+        // GTK3VICE on macOS ships as:
+        //   /Applications/vice-arm64-gtk3-3.x/x64sc.app  ← .app bundle (droplet, no CLI args)
+        //   /Applications/vice-arm64-gtk3-3.x/bin/x64sc  ← bash wrapper (accepts CLI args) ✓
+        //   /Applications/vice-arm64-gtk3-3.x/VICE.app/Contents/MacOS/VICE  ← actual binary
+        // If user picks the .app bundle, resolve to the sibling bin/ script automatically.
+        let binary = if vice_path.ends_with(".app") {
+            let app_path = std::path::Path::new(&vice_path);
+            let stem = app_path.file_stem().unwrap_or_default().to_string_lossy().to_string();
+            // Try sibling bin/ directory first (GTK3VICE layout)
+            if let Some(parent) = app_path.parent() {
+                let bin_candidate = parent.join("bin").join(&stem);
+                if bin_candidate.exists() {
+                    bin_candidate.to_string_lossy().to_string()
+                } else {
+                    String::new()
+                }
+            } else {
+                String::new()
+            }
+        } else {
+            vice_path.clone()
+        };
+
+        if binary.is_empty() || !std::path::Path::new(&binary).exists() {
+            return serde_json::json!({
+                "ok": false,
+                "error": format!("VICE binary nem talalhato. Valaszd ki a 'bin/x64sc' scriptet a VICE mappajaban (nem az .app bundlet). Beallitott ut: {}", vice_path)
+            });
+        }
+
+        Command::new("bash")
+            .arg(&binary)
+            .arg(file_path.to_str().unwrap())
             .stdin(std::process::Stdio::null())
             .stdout(std::process::Stdio::null())
             .stderr(std::process::Stdio::null())
