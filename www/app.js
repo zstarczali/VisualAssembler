@@ -150,7 +150,8 @@ const mnemonicLibrary = {
     { mnemonic: "STRING", description: "Karakterlanc kiirasa egy megadott memoriacimre.", modes: ["implied"], isStringMacro: true },
     { mnemonic: "DATA", description: "Nyers byte-ok kiirasa egy megadott memoriacimre.", modes: ["implied"], isDataMacro: true },
     { mnemonic: "RAWBYTES", description: "Nyers byte-ok elhelyezese egy megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isRawBytesMacro: true },
-    { mnemonic: "RAWTEXT", description: "Szoveg elhelyezese PETSCII byte-kenkent egy megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isRawTextMacro: true },
+    { mnemonic: "RAWTEXT", description: "Szoveg elhelyezese kepernyo kodkent (screen code) egy megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isRawTextMacro: true },
+    { mnemonic: "PETSCII", description: "Szoveg PETSCII kodolassal egy megadott memoriacimtol, kod generalas nelkul. CHROUT ($FFD2) kompatibilis.", modes: ["implied"], isPetsciiMacro: true },
     { mnemonic: "INCBIN", description: "Kulso binarfajl beillesztese megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isIncBinMacro: true },
     { mnemonic: "SID", description: "SID zenefajl betoltese kozvetlenul a memoriaba. A fejlecet automatikusan eltavolitja, a Load/Init/Play cimeket kinyeri.", modes: ["implied"], isSidMacro: true },
     { mnemonic: "INCLUDE", description: "Masik projekt JSON fajl blokkjainak beillesztese erre a helyre (csak olvasható).", modes: ["implied"], isIncludeMacro: true },
@@ -263,6 +264,9 @@ const exitAppButton = document.getElementById("exit-app");
 
 let program = [];
 let dragState = null;
+let _dndSrc = null;
+let _dndActive = false;
+let _dndGhost = null;
 const defaultOrigin = 0x0801;
 let blockScale = 0.9;
 let currentLanguage = "en";
@@ -842,7 +846,8 @@ const mnemonicDescriptionsEn = {
   STRING: "Write a string to a given memory address.",
   DATA: "Write raw bytes to a given memory address via LDA/STA code.",
   RAWBYTES: "Place raw bytes at a given memory address without generating any runtime code.",
-  RAWTEXT: "Place text as PETSCII bytes at a given memory address without generating any runtime code.",
+  RAWTEXT: "Place text as screen codes at a given memory address without generating any runtime code.",
+  PETSCII: "Place text as PETSCII bytes at a given memory address without generating runtime code. Compatible with CHROUT ($FFD2).",
   SID: "Load a SID music file directly into memory. The header is stripped automatically and the Load/Init/Play addresses are extracted.",
   INCBIN: "Include an external binary file at a given memory address without generating any runtime code.",
   INCLUDE: "Include another project JSON file's blocks inline at this position (read-only).",
@@ -1141,6 +1146,7 @@ function initPalette() {
   applyZoom();
   updateEmulatorStatus();
   setupProgramDropZone();
+  setupMouseDnd();
   syncMnemonicMenu();
   renderOutputMode();
   renderMemoryStrip();
@@ -1504,7 +1510,7 @@ function openOperandDropdown(filter) {
   ).join("");
   dd.hidden = false;
   dd.querySelectorAll(".operand-dropdown-item").forEach(el => {
-    el.addEventListener("mousedown", e => {
+    el.addEventListener("pointerdown", e => {
       e.preventDefault();
       operandInput.value = el.dataset.value;
       operandInput.dispatchEvent(new Event("input"));
@@ -1575,8 +1581,9 @@ function updateOperandField() {
   const needsDataOperand = item?.isDataMacro;
   const needsRawBytesOperand = item?.isRawBytesMacro;
   const needsRawTextOperand = item?.isRawTextMacro;
+  const needsPetsciiOperand = item?.isPetsciiMacro;
   const needsCommentOperand = item?.isComment;
-  operandInput.disabled = !(mode.needsOperand || needsTextOperand || needsByteOperand || needsStringOperand || needsDataOperand || needsRawBytesOperand || needsRawTextOperand || needsCommentOperand) || item?.isIncBinMacro || item?.isIncludeMacro;
+  operandInput.disabled = !(mode.needsOperand || needsTextOperand || needsByteOperand || needsStringOperand || needsDataOperand || needsRawBytesOperand || needsRawTextOperand || needsPetsciiOperand || needsCommentOperand) || item?.isIncBinMacro || item?.isIncludeMacro;
   operandInput.placeholder = needsTextOperand
     ? (currentLanguage === "en" ? "For example HELLO C64" : "Peldaul HELLO C64")
     : needsByteOperand
@@ -1746,7 +1753,8 @@ function renderPaletteItems() {
       syncAddressingModes();
     });
 
-    node.addEventListener("dragstart", (event) => {
+    node.addEventListener("pointerdown", (e) => {
+      if (e.button !== 0) return;
       mnemonicSelect.value = item.mnemonic;
       syncAddressingModes();
 
@@ -1756,21 +1764,7 @@ function renderPaletteItems() {
       }
 
       renderMnemonicDescription();
-
-      dragState = {
-        type: "palette",
-        block: createBlockFromMnemonic(item)
-      };
-
-      event.dataTransfer.effectAllowed = "copy";
-      event.dataTransfer.setData("text/plain", item.mnemonic);
-      node.classList.add("dragging");
-    });
-
-    node.addEventListener("dragend", () => {
-      dragState = null;
-      node.classList.remove("dragging");
-      clearDropIndicators();
+      startMouseDnd(e, node, { type: "palette", block: createBlockFromMnemonic(item) }, item.mnemonic);
     });
 
     paletteList.appendChild(node);
@@ -1842,7 +1836,8 @@ function renderSearchResults(query) {
       syncAddressingModes();
     });
 
-    node.addEventListener("dragstart", (event) => {
+    node.addEventListener("pointerdown", (e) => {
+      if (e.button !== 0) return;
       categorySelect.value = category;
       mnemonicSelect.innerHTML = (mnemonicLibrary[category] || []).map(({ mnemonic }) => `<option value="${mnemonic}">${mnemonic}</option>`).join("");
       mnemonicSelect.value = item.mnemonic;
@@ -1854,16 +1849,7 @@ function renderSearchResults(query) {
       renderMnemonicDescription();
       const block = createBlockFromMnemonic(item);
       if (userMacroName) block.invokeMacroName = userMacroName;
-      dragState = { type: "palette", block };
-      event.dataTransfer.effectAllowed = "copy";
-      event.dataTransfer.setData("text/plain", item.mnemonic);
-      node.classList.add("dragging");
-    });
-
-    node.addEventListener("dragend", () => {
-      dragState = null;
-      node.classList.remove("dragging");
-      clearDropIndicators();
+      startMouseDnd(e, node, { type: "palette", block }, item.mnemonic);
     });
 
     paletteList.appendChild(node);
@@ -2016,6 +2002,24 @@ function createBlockFromMnemonic(item) {
       collapsed: true,
       isRawTextMacro: true,
       rawTextAddress: "C000"
+    };
+  }
+
+  if (item.isPetsciiMacro) {
+    const rawOperand = operandInput.value.trim() || "HELLO";
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: rawOperand,
+      rawOperand,
+      description: item.description,
+      addressingMode: "implied",
+      base: "string",
+      validationError: validateStringMacroAddress("C000"),
+      collapsed: true,
+      isPetsciiMacro: true,
+      petsciiAddress: "C000"
     };
   }
 
@@ -2483,7 +2487,7 @@ function collapseLoadedProgram(blocks) {
       block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isByteMacro ||
       block.isWordMacro || block.isDataMacro || block.isRawBytesMacro || block.isFillMacro ||
       block.isAlignMacro || block.isTextMacro || block.isStringMacro || block.isRawTextMacro ||
-      block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isPushMacro ||
+      block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isPushMacro ||
       block.isPullMacro || block.isMacroDefStart || block.isMacroDefEnd || block.isMacroInvoke;
     if (!isMacroOrSpecial && block.rawOperand && block.addressingMode) {
       const preview = buildOperandPreview(block.addressingMode, block.rawOperand, block.base || "hex");
@@ -2693,6 +2697,9 @@ function updateProgramBlock(index, field, value) {
     } else if (block.isRawTextMacro) {
       block.operand = block.rawOperand.trim();
       block.validationError = validateStringMacroAddress(block.rawTextAddress);
+    } else if (block.isPetsciiMacro) {
+      block.operand = block.rawOperand.trim();
+      block.validationError = validateStringMacroAddress(block.petsciiAddress);
     } else if (block.isWordMacro) {
       if (field === "base") {
         const words = parseWordMacro(block.rawOperand, prevBase);
@@ -2782,6 +2789,13 @@ function updateProgramBlock(index, field, value) {
 
   if (field === "rawTextAddress") {
     block.validationError = validateStringMacroAddress(block.rawTextAddress);
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (field === "petsciiAddress") {
+    block.validationError = validateStringMacroAddress(block.petsciiAddress);
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -2937,39 +2951,80 @@ function deleteBlock(index) {
 }
 
 function setupProgramDropZone() {
-  programList.addEventListener("dragover", (event) => {
-    if (!dragState) {
-      return;
+  // Drop handling is done in setupMouseDnd via global mouseup
+}
+
+function setupMouseDnd() {
+  document.addEventListener("pointermove", (e) => {
+    if (!_dndSrc) return;
+
+    if (!_dndActive) {
+      const dx = e.clientX - _dndSrc.x;
+      const dy = e.clientY - _dndSrc.y;
+      if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return;
+
+      _dndActive = true;
+      dragState = _dndSrc.dragState;
+      _dndSrc.node?.classList.add("dragging");
+      document.body.classList.add("dnd-active");
+
+      _dndGhost = document.createElement("div");
+      _dndGhost.className = "dnd-ghost";
+      _dndGhost.textContent = _dndSrc.label;
+      document.body.appendChild(_dndGhost);
     }
 
-    event.preventDefault();
-    const dropIndex = getDropIndex(event.clientY);
-    highlightDropTarget(dropIndex);
-    event.dataTransfer.dropEffect = dragState.type === "palette" ? "copy" : "move";
-  });
+    if (_dndGhost) {
+      _dndGhost.style.left = (e.clientX + 14) + "px";
+      _dndGhost.style.top = (e.clientY - 10) + "px";
+    }
 
-  programList.addEventListener("dragleave", (event) => {
-    if (event.target === programList) {
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    if (el && (el === programList || programList.contains(el))) {
+      highlightDropTarget(getDropIndex(e.clientY));
+    } else {
       clearDropIndicators();
     }
   });
 
-  programList.addEventListener("drop", (event) => {
-    if (!dragState) {
-      return;
+  document.addEventListener("pointerup", (e) => {
+    if (!_dndSrc) return;
+
+    if (_dndActive) {
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      if (el && (el === programList || programList.contains(el))) {
+        const dropIndex = getDropIndex(e.clientY);
+        clearDropIndicators();
+        if (dragState.type === "palette") {
+          insertBlock(dropIndex, { ...dragState.block, id: crypto.randomUUID() });
+        } else if (dragState.type === "program") {
+          reorderBlock(dragState.index, dropIndex);
+        }
+      } else {
+        clearDropIndicators();
+      }
+
+      _dndGhost?.remove();
+      _dndGhost = null;
+      _dndSrc.node?.classList.remove("dragging");
+      document.body.classList.remove("dnd-active");
+      dragState = null;
     }
 
-    event.preventDefault();
-    const dropIndex = getDropIndex(event.clientY);
+    _dndSrc = null;
+    _dndActive = false;
+  });
+
+  document.addEventListener("pointercancel", () => {
+    if (!_dndSrc) return;
+    _dndGhost?.remove();
+    _dndGhost = null;
+    _dndSrc.node?.classList.remove("dragging");
+    document.body.classList.remove("dnd-active");
     clearDropIndicators();
-
-    if (dragState.type === "palette") {
-      insertBlock(dropIndex, { ...dragState.block, id: crypto.randomUUID() });
-    } else if (dragState.type === "program") {
-      reorderBlock(dragState.index, dropIndex);
-    }
-
     dragState = null;
+    _dndSrc = null;
+    _dndActive = false;
   });
 }
 
@@ -3023,13 +3078,11 @@ function reorderBlock(fromIndex, dropIndex) {
   renderProgram();
 }
 
-function startProgramBlockDrag(event, node, index, mnemonic) {
-  dragState = { type: "program", index };
-  node.classList.add("dragging");
-  if (event.dataTransfer) {
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData("text/plain", mnemonic);
-  }
+function startMouseDnd(e, node, ds, label) {
+  if (e.button !== 0) return;
+  e.preventDefault();
+  e.target.setPointerCapture?.(e.pointerId);
+  _dndSrc = { x: e.clientX, y: e.clientY, node, dragState: ds, label };
 }
 
 function buildOperandPreview(modeKey, rawValue, base) {
@@ -3385,12 +3438,14 @@ function parseAddressValue(raw) {
     return Number.parseInt(trimmed.slice(2), 16);
   }
 
-  if (/^\d+$/.test(trimmed)) {
-    return Number.parseInt(trimmed, 10);
-  }
-
+  // 1-4 hex digits (e.g. "C000", "0900", "FF") — always treat as hex address
   if (/^[0-9A-Fa-f]{1,4}$/.test(trimmed)) {
     return Number.parseInt(trimmed, 16);
+  }
+
+  // Pure decimal only if longer than 4 digits (e.g. "49152" = $C000)
+  if (/^\d+$/.test(trimmed)) {
+    return Number.parseInt(trimmed, 10);
   }
 
   return null;
@@ -3438,6 +3493,17 @@ function validateDataMacro(rawBytes, rawAddress, base = "dec") {
 
 function encodeTextMacro(text) {
   return [...(text || "HELLO C64")].map((char) => toPetsciiCharCode(char));
+}
+
+// PETSCII makro: szoveg → PETSCII byte-ok (CHROUT-kompatibilis)
+// Nagybetuk: $41-$5A, kisbetuk: $61-$7A, egyeb: ASCII ertek
+function encodePetsciiMacro(text) {
+  return [...(text || "HELLO")].map((char) => {
+    const code = char.charCodeAt(0);
+    if (code >= 32 && code <= 126) return code; // printable ASCII = PETSCII
+    if (char === "\n") return 13;
+    return 32;
+  });
 }
 
 function toPetsciiCharCode(char) {
@@ -3974,6 +4040,10 @@ function assembleProgramToPrg(originOverride) {
       const chunkBytes = encodeTextMacro(block.rawOperand);
       const addr = parseAddressValue(block.rawTextAddress) ?? 0xC000;
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
+    } else if (block.isPetsciiMacro) {
+      const chunkBytes = encodePetsciiMacro(block.rawOperand);
+      const addr = parseAddressValue(block.petsciiAddress) ?? 0xC000;
+      if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
     } else if (block.isIncBinMacro) {
       const chunkBytes = block.incBinBytes || [];
       const addr = parseAddressValue(block.incBinAddress) ?? 0xC000;
@@ -4124,6 +4194,14 @@ function compileLineBytes(line, labels) {
       ok: true,
       bytes: [],
       comment: `RAWTEXT "${block.rawOperand || ""}" @ ${formatAddress(parseAddressValue(block.rawTextAddress) ?? 0xC000)}`
+    };
+  }
+
+  if (block.isPetsciiMacro) {
+    return {
+      ok: true,
+      bytes: [],
+      comment: `PETSCII "${block.rawOperand || ""}" @ ${formatAddress(parseAddressValue(block.petsciiAddress) ?? 0xC000)}`
     };
   }
 
@@ -4657,6 +4735,10 @@ function getInstructionSize(block) {
     return 0;
   }
 
+  if (block.isPetsciiMacro) {
+    return 0;
+  }
+
   if (block.isIncBinMacro) {
     return 0;
   }
@@ -4997,6 +5079,20 @@ function getDeferredMemorySections(layout) {
         };
       }
 
+      if (line.block.isPetsciiMacro) {
+        const chars = encodePetsciiMacro(line.block.rawOperand);
+        const startAddress = parseAddressValue(line.block.petsciiAddress) ?? 0xC000;
+        return {
+          type: "petscii",
+          lineNumber,
+          sourceAddress: line.address,
+          address: startAddress,
+          end: startAddress + chars.length - 1,
+          bytes: chars,
+          label: `PETSCII "${line.block.rawOperand || ""}" -> ${formatAddress(startAddress)}`
+        };
+      }
+
       return null;
     })
     .filter(Boolean)
@@ -5236,6 +5332,10 @@ function getBlockDescription(block) {
     return block.validationError || `${currentLanguage === "en" ? "RAWTEXT macro" : "RAWTEXT makro"}: "${block.rawOperand || ""}" @ ${block.rawTextAddress || "C000"}`;
   }
 
+  if (block.isPetsciiMacro) {
+    return block.validationError || `${currentLanguage === "en" ? "PETSCII macro" : "PETSCII makro"}: "${block.rawOperand || ""}" @ ${block.petsciiAddress || "C000"}`;
+  }
+
   if (block.isWordMacro) {
     return block.validationError || `${currentLanguage === "en" ? "WORD macro" : "WORD makro"}: ${block.rawOperand || ""}`;
   }
@@ -5325,6 +5425,10 @@ function getBlockModeCaption(block) {
 
   if (block.isRawTextMacro) {
     return `${currentLanguage === "en" ? "Raw @ memory" : "Nyers @ memoria"} | ${block.rawTextAddress || "C000"}`;
+  }
+
+  if (block.isPetsciiMacro) {
+    return `PETSCII @ ${block.petsciiAddress || "C000"}`;
   }
 
   if (block.isIncBinMacro) {
@@ -5521,6 +5625,10 @@ function getCollapsedOperandText(block) {
     return block.rawOperand ? `"${block.rawOperand}"` : "";
   }
 
+  if (block.isPetsciiMacro) {
+    return block.rawOperand ? `"${block.rawOperand}"` : "";
+  }
+
   if (block.isJoystickMacro) {
     return `port${block.joyPort || "2"} → sprite#${block.joySpriteNum || "0"}`;
   }
@@ -5640,7 +5748,6 @@ function renderProgram() {
       node.dataset.categoryTone = getCategoryTone(block.category);
       node.dataset.collapsed = block.collapsed ? "true" : "false";
       if (block.isConstMacro) node.dataset.macroKind = "const";
-      node.draggable = true;
 
       node.querySelector(".block-mnemonic").textContent = block.mnemonic;
       node.querySelector(".collapsed-operand").textContent = getCollapsedOperandText(block);
@@ -5778,6 +5885,24 @@ function renderProgram() {
             <label class="mini-field">
               <span>${t("fieldAddress")}</span>
               <input class="macro-address" data-address-field="rawTextAddress" type="text" value="${block.rawTextAddress || "C000"}" placeholder="$C000">
+            </label>
+          </div>
+        `
+      );
+    } else if (block.isPetsciiMacro) {
+      inlineField.hidden = false;
+      inlineField.querySelector("span").textContent = t("fieldText");
+      operandField.value = block.rawOperand || "";
+      operandField.disabled = false;
+      operandField.placeholder = currentLanguage === "en" ? "For example HELLO" : "Peldaul HELLO";
+      operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid single-macro-row">
+            <label class="mini-field">
+              <span>${t("fieldAddress")}</span>
+              <input class="macro-address" data-address-field="petsciiAddress" type="text" value="${block.petsciiAddress || "C000"}" placeholder="$C000">
             </label>
           </div>
         `
@@ -6249,7 +6374,7 @@ function renderProgram() {
           operandField.addEventListener("blur", () => { setTimeout(closeLabelDropdown, 150); });
           operandField.addEventListener("keydown", e => { if (e.key === "Escape") closeLabelDropdown(); });
           dropdown.querySelectorAll(".label-picker-item").forEach(item => {
-            item.addEventListener("mousedown", e => {
+            item.addEventListener("pointerdown", e => {
               e.preventDefault();
               operandField.value = item.textContent;
               operandField.dispatchEvent(new Event("input"));
@@ -6263,7 +6388,7 @@ function renderProgram() {
     blockControls.insertAdjacentHTML(
       "beforeend",
       `
-          ${(mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
+          ${(mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
           <label class="mini-field">
             <span>${t("fieldFormat")}</span>
           <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
@@ -6277,7 +6402,7 @@ function renderProgram() {
             </label>
           </div>
         </label>` : ""}
-          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro || getMnemonicModes(block.mnemonic).length <= 1 ? ` hidden` : ""}>
+          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro || getMnemonicModes(block.mnemonic).length <= 1 ? ` hidden` : ""}>
             <span>${t("addressingMode")}</span>
           <select class="block-mode">
             ${getMnemonicModes(block.mnemonic).map((modeKey) => `<option value="${modeKey}"${block.addressingMode === modeKey ? " selected" : ""}>${modeText(modeKey, "label")}</option>`).join("")}
@@ -6442,50 +6567,10 @@ function renderProgram() {
       deleteButton.addEventListener("click", () => deleteBlock(index));
 
     if (dragHandle) {
-      dragHandle.draggable = true;
-      dragHandle.addEventListener("dragstart", (event) => {
-        startProgramBlockDrag(event, node, index, block.mnemonic);
+      dragHandle.addEventListener("pointerdown", (e) => {
+        startMouseDnd(e, node, { type: "program", index }, block.mnemonic);
       });
     }
-
-    node.addEventListener("dragstart", (event) => {
-      if (event.target !== node && !event.target.closest(".drag-handle")) {
-        event.preventDefault();
-        return;
-      }
-      startProgramBlockDrag(event, node, index, block.mnemonic);
-    });
-
-    node.addEventListener("dragover", (event) => {
-      if (!dragState) return;
-      event.preventDefault();
-      event.stopPropagation();
-      const dropIndex = getDropIndex(event.clientY);
-      highlightDropTarget(dropIndex);
-      if (event.dataTransfer) {
-        event.dataTransfer.dropEffect = dragState.type === "palette" ? "copy" : "move";
-      }
-    });
-
-    node.addEventListener("drop", (event) => {
-      if (!dragState) return;
-      event.preventDefault();
-      event.stopPropagation();
-      const dropIndex = getDropIndex(event.clientY);
-      clearDropIndicators();
-      if (dragState.type === "palette") {
-        insertBlock(dropIndex, { ...dragState.block, id: crypto.randomUUID() });
-      } else if (dragState.type === "program") {
-        reorderBlock(dragState.index, dropIndex);
-      }
-      dragState = null;
-    });
-
-    node.addEventListener("dragend", () => {
-      node.classList.remove("dragging");
-      clearDropIndicators();
-      dragState = null;
-    });
 
     node.addEventListener("click", (e) => {
       if (e.target.closest("button") || e.target.closest("input") || e.target.closest("select")) return;
@@ -6734,6 +6819,21 @@ function renderAsmOutput() {
         text: `rawtext_${lineNumber}:\n    ; .rawtext "${line.block.rawOperand || ""}" -> ${formatAddress(startAddress)}\n    ; ${formatAddress(startAddress)}\n${expanded}`
       });
       return `; .rawtext rawtext_${lineNumber}`;
+    }
+
+    if (line.block.isPetsciiMacro) {
+      const chars = encodePetsciiMacro(line.block.rawOperand);
+      const startAddress = parseAddressValue(line.block.petsciiAddress) ?? 0xC000;
+      const expanded = chunkBytes(chars, 16).map((chunk, chunkIndex) => {
+        const chunkAddress = startAddress + (chunkIndex * 16);
+        const byteList = chunk.map((byte) => toHex(byte, 2)).join(", ");
+        return `    ; ${formatAddress(chunkAddress)}\n    .byte ${byteList}`;
+      }).join("\n");
+      deferredDataSections.push({
+        address: startAddress,
+        text: `petscii_${lineNumber}:\n    ; .petscii "${line.block.rawOperand || ""}" -> ${formatAddress(startAddress)}\n    ; ${formatAddress(startAddress)}\n${expanded}`
+      });
+      return `; .petscii petscii_${lineNumber}`;
     }
 
     if (line.block.isLoopMacro) {
