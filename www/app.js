@@ -1163,6 +1163,11 @@ function initPalette() {
       }, 500);
     }
   }, 2000);
+
+  document.addEventListener("contextmenu", e => {
+    const tag = e.target.tagName;
+    if (tag !== "INPUT" && tag !== "TEXTAREA") e.preventDefault();
+  });
 }
 
 function applySavedLanguage() {
@@ -6228,8 +6233,8 @@ function renderProgram() {
           document.body.appendChild(dropdown);
           function positionLabelDropdown() {
             const r = operandField.getBoundingClientRect();
-            dropdown.style.top = (r.bottom + 4) + "px";
-            dropdown.style.left = r.left + "px";
+            dropdown.style.top = (r.bottom + window.scrollY + 4) + "px";
+            dropdown.style.left = (r.left + window.scrollX) + "px";
             dropdown.style.width = r.width + "px";
           }
           function closeLabelDropdown() {

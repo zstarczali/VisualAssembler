@@ -1,6 +1,8 @@
 use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
+#[cfg(target_os = "windows")]
+use std::os::windows::process::CommandExt;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Manager};
 use tauri_plugin_dialog::DialogExt;
@@ -230,6 +232,7 @@ async fn launch_vice(app: AppHandle, payload: LaunchVicePayload) -> serde_json::
                 .stdin(std::process::Stdio::null())
                 .stdout(std::process::Stdio::null())
                 .stderr(std::process::Stdio::null())
+                .creation_flags(0x08000000) // CREATE_NO_WINDOW
                 .spawn()
         }
         #[cfg(not(target_os = "windows"))]
