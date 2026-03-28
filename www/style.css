@@ -51,6 +51,10 @@ body[data-theme="dark"] {
   box-sizing: border-box;
 }
 
+html {
+  background-color: #8b93ff;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -1215,7 +1219,7 @@ button:focus-visible,
 }
 
 .label-picker-dropdown {
-  position: fixed;
+  position: absolute;
   z-index: 99999;
   background: var(--panel-strong);
   border: 1px solid var(--panel-border);
