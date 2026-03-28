@@ -1,0 +1,467 @@
+use std::fs;
+use std::path::PathBuf;
+use std::process::Command;
+use serde::{Deserialize, Serialize};
+use tauri::{AppHandle, Manager};
+use tauri_plugin_dialog::DialogExt;
+use tauri_plugin_opener::OpenerExt;
+
+// ── Config ──────────────────────────────────────────────────────────────────
+
+fn config_path(app: &AppHandle) -> PathBuf {
+    app.path().app_config_dir().unwrap().join("config.json")
+}
+
+fn read_config(app: &AppHandle) -> serde_json::Value {
+    let path = config_path(app);
+    fs::read_to_string(&path)
+        .ok()
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or(serde_json::json!({}))
+}
+
+fn write_config(app: &AppHandle, cfg: &serde_json::Value) {
+    let path = config_path(app);
+    if let Some(parent) = path.parent() {
+        let _ = fs::create_dir_all(parent);
+    }
+    let _ = fs::write(&path, serde_json::to_string_pretty(cfg).unwrap());
+}
+
+fn detect_vice_executable() -> String {
+    let candidates = [
+        r"C:\Program Files\GTK3VICE-3.9\bin\x64sc.exe",
+        r"C:\Program Files\GTK3VICE-3.8\bin\x64sc.exe",
+        r"C:\Program Files\WinVICE\x64sc.exe",
+        r"C:\Program Files (x86)\WinVICE\x64sc.exe",
+    ];
+    candidates
+        .iter()
+        .find(|p| std::path::Path::new(p).exists())
+        .map(|s| s.to_string())
+        .unwrap_or_default()
+}
+
+// ── SID parsing ─────────────────────────────────────────────────────────────
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct SidInfo {
+    load_address: u16,
+    init_address: u16,
+    play_address: u16,
+    num_songs: u16,
+    start_song: u16,
+    title: String,
+    author: String,
+    copyright: String,
+    bytes: Vec<u8>,
+}
+
+fn parse_sid_buffer(buf: &[u8]) -> Result<SidInfo, String> {
+    if buf.len() < 128 {
+        return Err("File too short to be a SID file.".into());
+    }
+    let magic = std::str::from_utf8(&buf[0..4]).unwrap_or("");
+    if magic != "PSID" && magic != "RSID" {
+        return Err("Not a valid SID file (missing PSID/RSID header).".into());
+    }
+
+    let data_offset = ((buf[6] as usize) << 8) | buf[7] as usize;
+    let mut load_address = ((buf[8] as u16) << 8) | buf[9] as u16;
+    let init_address    = ((buf[10] as u16) << 8) | buf[11] as u16;
+    let play_address    = ((buf[12] as u16) << 8) | buf[13] as u16;
+    let num_songs       = ((buf[14] as u16) << 8) | buf[15] as u16;
+    let start_song      = ((buf[16] as u16) << 8) | buf[17] as u16;
+
+    let read_str = |from: usize, to: usize| -> String {
+        buf[from..to].iter().take_while(|&&b| b != 0).map(|&b| b as char).collect()
+    };
+    let title     = read_str(22, 54);
+    let author    = read_str(54, 86);
+    let copyright = read_str(86, 118);
+
+    let mut data_bytes = buf[data_offset..].to_vec();
+    if load_address == 0 && data_bytes.len() >= 2 {
+        load_address = (data_bytes[0] as u16) | ((data_bytes[1] as u16) << 8);
+        data_bytes = data_bytes[2..].to_vec();
+    }
+
+    Ok(SidInfo {
+        load_address,
+        init_address,
+        play_address,
+        num_songs,
+        start_song,
+        title,
+        author,
+        copyright,
+        bytes: data_bytes,
+    })
+}
+
+// ── Commands ─────────────────────────────────────────────────────────────────
+
+#[tauri::command]
+fn get_app_version(app: AppHandle) -> String {
+    app.package_info().version.to_string()
+}
+
+#[tauri::command]
+fn set_title(app: AppHandle, title: String) {
+    if let Some(win) = app.get_webview_window("main") {
+        let _ = win.set_title(&title);
+    }
+}
+
+#[tauri::command]
+async fn open_external(url: String, app: AppHandle) -> Result<(), String> {
+    app.opener().open_url(url, None::<String>).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn quit_app(app: AppHandle) {
+    app.exit(0);
+}
+
+#[tauri::command]
+fn get_vice_config(app: AppHandle) -> serde_json::Value {
+    let cfg = read_config(&app);
+    let vice_path = cfg["vicePath"]
+        .as_str()
+        .unwrap_or("")
+        .to_string();
+    let vice_path = if vice_path.is_empty() {
+        detect_vice_executable()
+    } else {
+        vice_path
+    };
+    serde_json::json!({ "vicePath": vice_path })
+}
+
+#[tauri::command]
+async fn choose_vice_executable(app: AppHandle) -> serde_json::Value {
+    let dialog = app.dialog().clone();
+    let result = dialog
+        .file()
+        .add_filter("Executable", &["exe"])
+        .blocking_pick_file();
+
+    match result {
+        Some(path) => {
+            let path_str = path.to_string();
+            let mut cfg = read_config(&app);
+            cfg["vicePath"] = serde_json::json!(path_str);
+            write_config(&app, &cfg);
+            serde_json::json!({ "canceled": false, "vicePath": path_str })
+        }
+        None => serde_json::json!({ "canceled": true }),
+    }
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct LaunchVicePayload {
+    bytes: Vec<u8>,
+    file_name: Option<String>,
+}
+
+#[tauri::command]
+async fn launch_vice(app: AppHandle, payload: LaunchVicePayload) -> serde_json::Value {
+    let cfg = read_config(&app);
+    let vice_path = {
+        let p = cfg["vicePath"].as_str().unwrap_or("").to_string();
+        if p.is_empty() { detect_vice_executable() } else { p }
+    };
+
+    if vice_path.is_empty() || !std::path::Path::new(&vice_path).exists() {
+        return serde_json::json!({
+            "ok": false,
+            "error": "VICE executable nincs beallitva vagy nem talalhato."
+        });
+    }
+
+    let temp_dir = std::env::temp_dir().join("c64-visual-assembler");
+    let _ = fs::create_dir_all(&temp_dir);
+    let file_name = payload.file_name.unwrap_or_else(|| {
+        format!("program-{}.prg", std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH).unwrap().as_millis())
+    });
+    let file_path = temp_dir.join(&file_name);
+    if let Err(e) = fs::write(&file_path, &payload.bytes) {
+        return serde_json::json!({ "ok": false, "error": e.to_string() });
+    }
+
+    let result = if cfg!(target_os = "macos") {
+        Command::new("open").args(["-a", &vice_path, file_path.to_str().unwrap()]).spawn()
+    } else {
+        Command::new(&vice_path).arg(file_path.to_str().unwrap()).spawn()
+    };
+
+    match result {
+        Ok(_) => serde_json::json!({ "ok": true, "vicePath": vice_path, "filePath": file_path.to_str().unwrap() }),
+        Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+    }
+}
+
+#[tauri::command]
+async fn choose_incbin_file(app: AppHandle) -> serde_json::Value {
+    let result = app.dialog().file()
+        .add_filter("Binary files", &["bin", "prg", "sid", "raw"])
+        .add_filter("All files", &["*"])
+        .blocking_pick_file();
+
+    match result {
+        Some(path) => {
+            let path_str = path.to_string();
+            match fs::read(&path_str) {
+                Ok(buf) => serde_json::json!({
+                    "canceled": false,
+                    "filePath": path_str,
+                    "fileName": std::path::Path::new(&path_str).file_name().and_then(|n| n.to_str()).unwrap_or(""),
+                    "bytes": buf
+                }),
+                Err(e) => serde_json::json!({ "canceled": false, "error": e.to_string() }),
+            }
+        }
+        None => serde_json::json!({ "canceled": true }),
+    }
+}
+
+#[tauri::command]
+async fn load_incbin_sample(app: AppHandle, file_name: String) -> serde_json::Value {
+    let samples_dir = match app.path().resource_dir() {
+        Ok(d) => d.join("samples"),
+        Err(e) => return serde_json::json!({ "error": e.to_string() }),
+    };
+    let file_path = samples_dir.join(&file_name);
+    match fs::read(&file_path) {
+        Ok(buf) => serde_json::json!({
+            "fileName": file_name,
+            "filePath": file_path.to_str().unwrap_or(""),
+            "bytes": buf
+        }),
+        Err(e) => serde_json::json!({ "error": e.to_string() }),
+    }
+}
+
+#[tauri::command]
+async fn choose_sid_file(app: AppHandle) -> serde_json::Value {
+    let result = app.dialog().file()
+        .add_filter("SID files", &["sid"])
+        .add_filter("All files", &["*"])
+        .blocking_pick_file();
+
+    match result {
+        Some(path) => {
+            let path_str = path.to_string();
+            match fs::read(&path_str) {
+                Ok(buf) => match parse_sid_buffer(&buf) {
+                    Ok(info) => {
+                        let file_name = std::path::Path::new(&path_str)
+                            .file_name().and_then(|n| n.to_str()).unwrap_or("").to_string();
+                        let mut v = serde_json::to_value(info).unwrap();
+                        v["canceled"] = serde_json::json!(false);
+                        v["filePath"] = serde_json::json!(path_str);
+                        v["fileName"] = serde_json::json!(file_name);
+                        v
+                    }
+                    Err(e) => serde_json::json!({ "canceled": false, "error": e }),
+                },
+                Err(e) => serde_json::json!({ "canceled": false, "error": e.to_string() }),
+            }
+        }
+        None => serde_json::json!({ "canceled": true }),
+    }
+}
+
+#[tauri::command]
+async fn load_sid_sample(app: AppHandle, file_name: String) -> serde_json::Value {
+    let samples_dir = match app.path().resource_dir() {
+        Ok(d) => d.join("samples"),
+        Err(e) => return serde_json::json!({ "error": e.to_string() }),
+    };
+    let file_path = samples_dir.join(&file_name);
+    match fs::read(&file_path) {
+        Ok(buf) => match parse_sid_buffer(&buf) {
+            Ok(info) => {
+                let mut v = serde_json::to_value(info).unwrap();
+                v["filePath"] = serde_json::json!(file_path.to_str().unwrap_or(""));
+                v["fileName"] = serde_json::json!(file_name);
+                v
+            }
+            Err(e) => serde_json::json!({ "error": e }),
+        },
+        Err(e) => serde_json::json!({ "error": e.to_string() }),
+    }
+}
+
+#[tauri::command]
+async fn choose_include_file(app: AppHandle) -> serde_json::Value {
+    let result = app.dialog().file()
+        .add_filter("C64 Visual Assembler project", &["json"])
+        .add_filter("All files", &["*"])
+        .blocking_pick_file();
+
+    match result {
+        Some(path) => {
+            let path_str = path.to_string();
+            match fs::read_to_string(&path_str) {
+                Ok(raw) => match serde_json::from_str::<serde_json::Value>(&raw) {
+                    Ok(project) => {
+                        if project["app"].as_str() != Some("c64-visual-assembler")
+                            || !project["program"].is_array()
+                        {
+                            return serde_json::json!({
+                                "canceled": false,
+                                "error": "Not a valid C64 Visual Assembler project."
+                            });
+                        }
+                        let file_name = std::path::Path::new(&path_str)
+                            .file_stem().and_then(|n| n.to_str()).unwrap_or("").to_string();
+                        serde_json::json!({
+                            "canceled": false,
+                            "filePath": path_str,
+                            "fileName": file_name,
+                            "blocks": project["program"]
+                        })
+                    }
+                    Err(e) => serde_json::json!({ "canceled": false, "error": e.to_string() }),
+                },
+                Err(e) => serde_json::json!({ "canceled": false, "error": e.to_string() }),
+            }
+        }
+        None => serde_json::json!({ "canceled": true }),
+    }
+}
+
+#[tauri::command]
+fn reload_include_file(file_path: String) -> serde_json::Value {
+    match fs::read_to_string(&file_path) {
+        Ok(raw) => match serde_json::from_str::<serde_json::Value>(&raw) {
+            Ok(project) => {
+                if project["app"].as_str() != Some("c64-visual-assembler")
+                    || !project["program"].is_array()
+                {
+                    return serde_json::json!({ "error": "Not a valid C64 Visual Assembler project." });
+                }
+                let file_name = std::path::Path::new(&file_path)
+                    .file_stem().and_then(|n| n.to_str()).unwrap_or("").to_string();
+                serde_json::json!({ "fileName": file_name, "blocks": project["program"] })
+            }
+            Err(e) => serde_json::json!({ "error": e.to_string() }),
+        },
+        Err(e) => serde_json::json!({ "error": e.to_string() }),
+    }
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct SavePrgPayload {
+    bytes: Vec<u8>,
+}
+
+#[tauri::command]
+async fn save_prg(app: AppHandle, payload: SavePrgPayload) -> serde_json::Value {
+    let result = app.dialog().file()
+        .add_filter("Commodore 64 PRG", &["prg"])
+        .add_filter("All files", &["*"])
+        .blocking_save_file();
+
+    match result {
+        Some(path) => {
+            let path_str = path.to_string();
+            match fs::write(&path_str, &payload.bytes) {
+                Ok(_) => serde_json::json!({ "ok": true, "filePath": path_str }),
+                Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+            }
+        }
+        None => serde_json::json!({ "canceled": true }),
+    }
+}
+
+#[tauri::command]
+async fn save_project(app: AppHandle, payload: serde_json::Value) -> serde_json::Value {
+    let result = app.dialog().file()
+        .add_filter("C64 Visual Assembler Project", &["json", "c64va"])
+        .blocking_save_file();
+
+    match result {
+        Some(path) => {
+            let path_str = path.to_string();
+            let content = serde_json::to_string_pretty(&payload).unwrap();
+            match fs::write(&path_str, content.as_bytes()) {
+                Ok(_) => serde_json::json!({ "ok": true, "filePath": path_str }),
+                Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+            }
+        }
+        None => serde_json::json!({ "canceled": true }),
+    }
+}
+
+#[tauri::command]
+async fn load_project(app: AppHandle) -> serde_json::Value {
+    let result = app.dialog().file()
+        .add_filter("C64 Visual Assembler Project", &["json", "c64va"])
+        .blocking_pick_file();
+
+    match result {
+        Some(path) => {
+            let path_str = path.to_string();
+            match fs::read_to_string(&path_str) {
+                Ok(raw) => match serde_json::from_str::<serde_json::Value>(&raw) {
+                    Ok(project) => serde_json::json!({ "ok": true, "filePath": path_str, "project": project }),
+                    Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+                },
+                Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+            }
+        }
+        None => serde_json::json!({ "canceled": true }),
+    }
+}
+
+#[tauri::command]
+async fn load_sample(app: AppHandle, sample_name: String) -> serde_json::Value {
+    let samples_dir = match app.path().resource_dir() {
+        Ok(d) => d.join("samples"),
+        Err(e) => return serde_json::json!({ "ok": false, "error": e.to_string() }),
+    };
+    let file_path = samples_dir.join(format!("{}.json", sample_name));
+    match fs::read_to_string(&file_path) {
+        Ok(raw) => match serde_json::from_str::<serde_json::Value>(&raw) {
+            Ok(sample) => serde_json::json!({ "ok": true, "sample": sample }),
+            Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+        },
+        Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+    }
+}
+
+// ── App setup ────────────────────────────────────────────────────────────────
+
+pub fn run() {
+    tauri::Builder::default()
+        .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_shell::init())
+        .invoke_handler(tauri::generate_handler![
+            get_app_version,
+            set_title,
+            open_external,
+            quit_app,
+            get_vice_config,
+            choose_vice_executable,
+            launch_vice,
+            choose_incbin_file,
+            load_incbin_sample,
+            choose_sid_file,
+            load_sid_sample,
+            choose_include_file,
+            reload_include_file,
+            save_prg,
+            save_project,
+            load_project,
+            load_sample,
+        ])
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
+}

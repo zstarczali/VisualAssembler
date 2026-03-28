@@ -1,68 +1,18 @@
 {
   "name": "c64-visual-assembler",
   "version": "1.3.7",
-  "description": "Commodore 64 visual assembler desktop app built with Electron.",
+  "description": "Commodore 64 visual assembler desktop app built with Tauri.",
   "author": "Zsolt Tarczali",
-  "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "dist": "electron-builder --win nsis --x64 --arm64",
-    "dist:win:x64": "electron-builder --win nsis --x64",
-    "dist:win:arm64": "electron-builder --win nsis --arm64",
-    "dist:dir": "electron-builder --win dir"
-  },
-  "build": {
-    "appId": "hu.zstarczali.c64visualassembler",
-    "productName": "C64 Visual Assembler",
-    "directories": {
-      "output": "dist"
-    },
-    "files": [
-      "index.html",
-      "style.css",
-      "app.js",
-      "main.js",
-      "preload.js",
-      "package.json",
-      "build/**/*",
-      "samples/**/*.json",
-      "samples/**/*.bin",
-      "samples/**/*.sid"
-    ],
-    "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        }
-      ],
-      "icon": "build/commodore64.ico"
-    },
-    "mac": {
-      "target": [
-        "dmg"
-      ],
-      "icon": "build/commodore64.icns",
-      "identity": null
-    },
-    "dmg": {
-      "sign": false,
-      "artifactName": "${productName}-${version}-${arch}.${ext}"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "C64 Visual Assembler",
-      "artifactName": "${productName}-Setup-${version}-${arch}.${ext}"
-    }
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "build:win:x64": "tauri build --target x86_64-pc-windows-msvc",
+    "build:win:arm64": "tauri build --target aarch64-pc-windows-msvc"
   },
   "devDependencies": {
-    "electron": "^37.2.0",
-    "electron-builder": "^26.8.1"
+    "@tauri-apps/cli": "^2"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2"
   }
 }
