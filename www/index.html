@@ -374,7 +374,7 @@
         <img src="assets/about-logo.png" alt="C64 Visual Assembler" width="160" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v1.3.7</p>
+      <p class="about-version" id="about-version">v1.3.9</p>
       <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
         dropping instruction blocks.</p>
       <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
@@ -385,8 +385,21 @@
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v1.3.8</p>
+      <p class="whats-new-version">v1.3.9</p>
       <ul class="whats-new-list">
+        <li>
+          <strong>Drag &amp; drop — complete rewrite</strong> — replaced HTML5 drag API with Pointer Events-based drag &amp; drop.
+          Fixes palette → program and block reordering drag on macOS (Tauri/WKWebView).
+        </li>
+        <li>
+          <strong>PETSCII macro</strong> — new macro for writing text in PETSCII encoding to a fixed memory address.
+          Compatible with KERNAL CHROUT ($FFD2). Use uppercase letters for correct output.
+        </li>
+        <li>
+          <strong>Address input fix</strong> — address fields (RAWBYTES, RAWTEXT, PETSCII, STRING, DATA) now always
+          interpret 1–4 digit input as hexadecimal (e.g. <code>0900</code> → <code>$0900</code>).
+          Decimal input still works for 5+ digit values (e.g. <code>49152</code> = <code>$C000</code>).
+        </li>
         <li>
           <strong>Migrated from Electron to Tauri 2</strong> — smaller binary, lower memory usage, no bundled Chromium
         </li>

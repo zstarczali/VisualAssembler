@@ -1074,7 +1074,13 @@ button:focus-visible,
   font-size: calc(0.9rem * var(--block-scale));
   cursor: grab;
   user-select: none;
-  -webkit-user-drag: element;
+  -webkit-user-drag: none;
+}
+
+body.dnd-active {
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grabbing;
 }
 
 .drag-handle:active {
@@ -2513,15 +2519,20 @@ body.crt-mode #crt-overlay::after {
   pointer-events: none;
 }
 
-/* phosphor glow on all content */
-body.crt-mode {
-  filter: brightness(1.04) contrast(1.06) saturate(1.08);
-}
-
-/* barrel distortion via perspective */
-body.crt-mode #app-root,
-body.crt-mode .app-layout {
-  transform: perspective(900px) rotateX(0.4deg);
+/* ── Mouse DnD Ghost ─────────────────────────────────────────────── */
+.dnd-ghost {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  background: var(--accent);
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: 5px;
+  font-size: 13px;
+  font-family: var(--font-mono, monospace);
+  opacity: 0.88;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  white-space: nowrap;
 }
 
 /* ── Splash Screen ────────────────────────────────────────────────── */
