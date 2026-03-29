@@ -252,6 +252,7 @@ const compileErrorList = document.getElementById("compile-error-list");
 const compileErrorTitle = document.getElementById("compile-error-title");
 const compileErrorClose = document.getElementById("compile-error-close");
 const checkUpdateButton = document.getElementById("check-update-btn");
+const reportBugButton = document.getElementById("report-bug-btn");
 const basicSysToggle = document.getElementById("basic-sys-toggle");
 const aboutDialog = document.getElementById("about-dialog");
 const aboutCloseButton = document.getElementById("about-close");
@@ -360,6 +361,8 @@ const translations = {
     sampleCollisionDemo: "SPRITE_COL utkozes demo",
     sample10Print: "10 PRINT - veletlen labirintus",
     checkForUpdate: "Frissites keresese",
+    reportBug: "Hiba bejelentese",
+    viceRunning: "VICE fut",
     whatsNew: "Ujdonsagok",
     paletteSearchPlaceholder: "Kereses...",
     paletteSearchLabel: "Kereses",
@@ -574,6 +577,8 @@ const translations = {
     sample10Print: "10 PRINT - random maze",
     languageLabel: "Language",
     checkForUpdate: "Check for Update",
+    reportBug: "Report Bug",
+    viceRunning: "VICE running",
     whatsNew: "What's New",
     paletteSearchPlaceholder: "Search...",
     paletteSearchLabel: "Search",
@@ -1052,10 +1057,22 @@ function initPalette() {
   aboutButton?.addEventListener("click", async () => {
     const version = await window.electronAPI.getAppVersion();
     document.getElementById("about-version").textContent = `v${version}`;
-    document.getElementById("about-dialog")?.showModal();
+    const dlg = document.getElementById("about-dialog");
+    dlg?.querySelectorAll("a[href^='mailto:']").forEach(a => {
+      a.addEventListener("click", e => { e.preventDefault(); window.electronAPI.openExternal(a.href); }, { once: true });
+    });
+    dlg?.showModal();
   });
   checkUpdateButton?.addEventListener("click", () => {
     window.electronAPI.openExternal("https://zstarczali.itch.io/visual-assembler-commodore-64");
+  });
+  reportBugButton?.addEventListener("click", async () => {
+    const version = await window.electronAPI.getAppVersion();
+    const ua = navigator.userAgent;
+    const os = ua.includes("Win") ? "Windows" : ua.includes("Mac") ? "macOS" : ua.includes("Linux") ? "Linux" : navigator.platform || "Unknown";
+    const subject = encodeURIComponent(`Visual Assembler v${version} - Bug Report`);
+    const body = encodeURIComponent(`Visual Assembler version: v${version}\nOS: ${os}\n\n--- Describe the bug ---\n\n\n--- Steps to reproduce ---\n\n`);
+    window.electronAPI.openExternal(`mailto:retroboj@outlook.com?subject=${subject}&body=${body}`);
   });
   basicSysToggle?.addEventListener("change", () => {
     saveUiSettings();
@@ -1064,10 +1081,6 @@ function initPalette() {
   });
   aboutCloseButton?.addEventListener("click", () => aboutDialog?.close());
   whatsNewButton?.addEventListener("click", () => {
-    const huList = whatsNewDialog?.querySelector(".whats-new-list:not(.whats-new-list-en)");
-    const enList = whatsNewDialog?.querySelector(".whats-new-list-en");
-    if (huList) huList.hidden = currentLanguage === "en";
-    if (enList) enList.hidden = currentLanguage !== "en";
     whatsNewDialog?.showModal();
   });
   whatsNewCloseButton?.addEventListener("click", () => whatsNewDialog?.close());
@@ -1286,6 +1299,7 @@ function applyTranslations() {
     if (menuLabels[3]) menuLabels[3].textContent = t("menuView");
     if (menuLabels[4]) menuLabels[4].textContent = t("menuProgram");
   if (checkUpdateButton) checkUpdateButton.textContent = t("checkForUpdate");
+  if (reportBugButton) reportBugButton.textContent = t("reportBug");
   if (whatsNewButton) whatsNewButton.textContent = t("whatsNew");
   if (paletteSearchInput) paletteSearchInput.placeholder = t("paletteSearchPlaceholder");
   const paletteSearchLabel = document.getElementById("palette-search-label");
@@ -3901,7 +3915,26 @@ async function copyAsmToClipboard() {
   }
 }
 
+let _viceToastTimer = null;
+function showViceToast(fileName, isError = false) {
+  const toast = document.getElementById("vice-toast");
+  const text = document.getElementById("vice-toast-text");
+  if (!toast || !text) return;
+  const icon = toast.querySelector(".vice-toast-icon");
+  if (icon) icon.textContent = isError ? "✕" : "▶";
+  text.textContent = isError ? fileName : `${t("viceRunning")} — ${fileName}`;
+  toast.dataset.error = isError ? "1" : "";
+  toast.hidden = false;
+  if (_viceToastTimer) clearTimeout(_viceToastTimer);
+  _viceToastTimer = setTimeout(() => { toast.hidden = true; }, isError ? 4000 : 3000);
+}
+
 async function runInEmulator() {
+  if (!vicePath) {
+    showViceToast(currentLanguage === "en" ? "VICE is not configured. Select it in the menu first." : "A VICE nincs beallitva. Valaszd ki a menuben.", true);
+    return;
+  }
+
   const prg = buildAutostartPrgForEmulator();
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
@@ -3910,11 +3943,7 @@ async function runInEmulator() {
   }
 
   if (!window.electronAPI?.launchVice) {
-    if (emulatorStatus) {
-      emulatorStatus.textContent = currentLanguage === "en"
-        ? "VICE launch is only available in the Electron app."
-        : "A VICE inditasa csak az Electron appban erheto el.";
-    }
+    showViceToast(currentLanguage === "en" ? "VICE launch is not available." : "A VICE inditasa nem elerheto.", true);
     return;
   }
 
@@ -3924,24 +3953,14 @@ async function runInEmulator() {
   });
 
   if (!result?.ok) {
-    if (emulatorStatus) {
-      emulatorStatus.textContent = result?.error || (currentLanguage === "en" ? "Launching VICE failed." : "A VICE inditasa sikertelen.");
-    }
+    showViceToast(result?.error || (currentLanguage === "en" ? "Launching VICE failed." : "A VICE inditasa sikertelen."), true);
     return;
   }
 
   updateVicePathPreview(result.vicePath || vicePath);
-  if (emulatorStatus) {
-    // Shorten long temp file paths for display
-    let displayPath = result.filePath;
-    if (displayPath.length > 40) {
-      const parts = displayPath.split('/');
-      displayPath = `.../${parts[parts.length - 1]}`;
-    }
-    emulatorStatus.textContent = currentLanguage === "en"
-      ? `VICE started with ${displayPath}`
-      : `A VICE elindult ezzel: ${displayPath}`;
-  }
+  const parts = (result.filePath || "").replace(/\\/g, "/").split("/");
+  const fileName = parts[parts.length - 1] || result.filePath;
+  showViceToast(fileName);
 }
 
 function buildAutostartPrgForEmulator() {
