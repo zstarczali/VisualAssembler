@@ -64,6 +64,7 @@
                     <option value="sprite-macro-demo">SPRITE_INIT / SPRITE_POS makro demo</option>
                     <option value="joystick-demo">JOYSTICK makro demo</option>
                     <option value="collision-demo">SPRITE_COL utkozes demo</option>
+                    <option value="10-print">10 PRINT (veletlen labirintus)</option>
                   </select>
                 </label>
                 <button id="load-sample" class="secondary" type="button">Betoltes</button>
@@ -112,6 +113,7 @@
                 <button id="whats-new-btn" class="secondary" type="button">What's New</button>
                 <button id="knowledge-base-btn" class="secondary" type="button">Knowledge Base</button>
                 <button id="check-update-btn" class="secondary" type="button">Check for Update</button>
+                <button id="report-bug-btn" class="secondary" type="button">Report Bug</button>
               </section>
             </div>
           </details>
@@ -374,10 +376,11 @@
         <img src="assets/about-logo.png" alt="C64 Visual Assembler" width="160" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v1.3.9</p>
+      <p class="about-version" id="about-version">v1.4.0</p>
       <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
         dropping instruction blocks.</p>
       <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
+      <p class="about-contact"><a href="mailto:retroboj@outlook.com">retroboj@outlook.com</a></p>
       <button id="about-close" class="primary" type="button">Close</button>
     </div>
   </dialog>
@@ -385,56 +388,27 @@
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v1.3.9</p>
+      <p class="whats-new-version">v1.4.0</p>
       <ul class="whats-new-list">
         <li>
-          <strong>Drag &amp; drop — complete rewrite</strong> — replaced HTML5 drag API with Pointer Events-based drag &amp; drop.
-          Fixes palette → program and block reordering drag on macOS (Tauri/WKWebView).
+          <strong>#&lt;label / #&gt;label operand support</strong> — lo/hi byte operators now work in
+          immediate mode (e.g. <code>LDA #&lt;irq_handler</code> / <code>LDA #&gt;irq_handler</code>).
+          Essential for setting up IRQ handlers and splitting 16-bit addresses.
         </li>
         <li>
-          <strong>PETSCII macro</strong> — new macro for writing text in PETSCII encoding to a fixed memory address.
-          Compatible with KERNAL CHROUT ($FFD2). Use uppercase letters for correct output.
+          <strong>Report Bug</strong> — new menu item. Opens the default mail client with
+          VA version and OS pre-filled in the message body.
         </li>
         <li>
-          <strong>Address input fix</strong> — address fields (RAWBYTES, RAWTEXT, PETSCII, STRING, DATA) now always
-          interpret 1–4 digit input as hexadecimal (e.g. <code>0900</code> → <code>$0900</code>).
-          Decimal input still works for 5+ digit values (e.g. <code>49152</code> = <code>$C000</code>).
+          <strong>10 PRINT sample</strong> — classic one-liner maze using raster counter <code>$D012</code>
+          as a random source to alternate between <code>CHR$(205)</code> and <code>CHR$(206)</code> via KERNAL CHROUT.
         </li>
         <li>
-          <strong>Migrated from Electron to Tauri 2</strong> — smaller binary, lower memory usage, no bundled Chromium
-        </li>
-      </ul>
-      <ul class="whats-new-list">
-        <li>
-          <strong>CRT retro mode</strong> — full-screen CRT filter overlay: scanlines, phosphor vignette,
-          screen flicker, and barrel distortion. Toggle via the <em>📺 CRT retro mode</em> button in the View menu.
-          State is saved between sessions.
-        </li>
-        <li>
-          <strong>ASM output — consistent macro format</strong> — all Visual Assembler-specific macros now use a
-          uniform <code>; .name params</code> comment style in the ASM view
-          (<code>; .sprite_init</code>, <code>; .sprite_pos</code>, <code>; .wait_raster</code>,
-          <code>; .joystick</code>, <code>; .sprite_col</code>, <code>; .align</code>, <code>; .invoke</code>, etc.),
-          distinguishing them from real assembler directives (<code>.byte</code>, <code>.word</code>, <code>.fill</code>).
-        </li>
-        <li>
-          <strong>Label picker dropdown — z-order fix</strong> — the label/constant picker dropdown on blocks
-          is now rendered as a document-level portal (<code>position: fixed</code>), so it always appears above
-          all other blocks regardless of stacking context. Also closes automatically on scroll.
-        </li>
-        <li>
-          <strong>SPRITE_COL — English localisation</strong> — added English description and localised compile-time
-          error message for the SPRITE_COL macro.
-        </li>
-        <li>
-          <strong>SID macro — custom load address</strong> — an optional override field lets you specify where
-          the SID data is placed in memory, independent of the address stored in the SID file header.
-          Leave empty to use the header address as before.
-        </li>
-        <li>
-          <strong>ASM output — macro indentation fixed</strong> — <code>; .name</code> comment-style macro lines
-          (<code>; .sid</code>, <code>; .align</code>, <code>; .sprite_init</code>, etc.) no longer have a
-          spurious 4-space indent; they now start at column 0, consistent with other comment lines.
+          <strong>Stability fixes</strong> —
+          VICE not configured now shows a clear error toast instead of silently failing.
+          Sample selector no longer resets to the first item when loading a project file.
+          Label picker dropdown position corrected in CRT retro mode.
+          Startup white flash reduced (window background color matches the app).
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -488,6 +462,10 @@
   </dialog>
 
   <div id="crt-overlay" aria-hidden="true"></div>
+  <div id="vice-toast" class="vice-toast" aria-live="polite" hidden>
+    <span class="vice-toast-icon">▶</span>
+    <span id="vice-toast-text"></span>
+  </div>
   <script src="tauri-bridge.js"></script>
   <script src="app.js"></script>
 

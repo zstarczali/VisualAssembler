@@ -336,7 +336,7 @@ dependencies = [
 
 [[package]]
 name = "c64-visual-assembler"
-version = "1.3.7"
+version = "1.4.0"
 dependencies = [
  "serde",
  "serde_json",

@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 1.3.7**
+**Version 1.4.0**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -27,6 +27,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
    - [DATA](#data)
    - [RAWBYTES](#rawbytes)
    - [RAWTEXT](#rawtext)
+   - [PETSCII](#petscii)
    - [INCBIN](#incbin)
    - [SID](#sid)
    - [INCLUDE](#include)
@@ -71,7 +72,7 @@ The palette on the left lists all available blocks grouped by category:
 - **System** — CLC, SEC, NOP, BRK, …
 - **Illegal instructions** — LAX, SAX, DCP, …
 - **Structure** — LABEL, COMMENT
-- **Macros** — LOOP, NEXT, PUSH, PULL, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, INCBIN, SID, INCLUDE, TABLE, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, SPRITE_COL
+- **Macros** — LOOP, NEXT, PUSH, PULL, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, INCBIN, SID, INCLUDE, TABLE, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, SPRITE_COL
 
 Use the **search box** at the top of the palette to filter by name. Click the **Add selected block** button or drag a block into the program area.
 
@@ -411,7 +412,7 @@ Places a PETSCII-encoded string as raw bytes at a given memory address (no runti
     .byte $48, $45, $4C, $4C, $4F   ; "HELLO"
 ```
 
-Placed at the specified address. **Size:** `text.length × 5` bytes (counted at destination).
+Placed at the specified address. **Size:** `text.length` bytes.
 
 ---
 
@@ -462,6 +463,38 @@ Like RAWBYTES but accepts a text string that is encoded as PETSCII bytes.
 | Address | Target memory address |
 
 **Size in code:** 0 bytes.
+
+---
+
+### PETSCII
+
+Places a text string encoded as PETSCII bytes at a given memory address. No runtime code is generated — the bytes are placed directly at the target address, similar to RAWBYTES.
+
+Each printable ASCII character (codes 32–126) is stored using its standard ASCII value, which corresponds to the PETSCII uppercase range. The result is compatible with KERNAL CHROUT (`$FFD2`).
+
+| Field | Description |
+|---|---|
+| Text | String to encode as PETSCII bytes |
+| Address | Target memory address (e.g. `$C000`) |
+
+**Generated ASM:**
+```
+; .petscii "HELLO" -> $C000
+; $C000
+    .byte $48, $45, $4C, $4C, $4F   ; H E L L O
+```
+
+**Size in code:** 0 bytes. The data is placed at the target address as a deferred data section (like RAWBYTES).
+
+**Encoding rules:**
+
+| Input | Byte value |
+|---|---|
+| Printable ASCII (space, letters, digits, punctuation) | Standard ASCII code (32–126) |
+| Newline | `$0D` (RETURN) |
+| Everything else | `$20` (space) |
+
+> **Tip:** Use PETSCII for data that will be output via CHROUT (`$FFD2`). For screen-code strings (different mapping), use the STRING macro instead.
 
 ---
 
@@ -790,7 +823,7 @@ Initialises a VIC-II sprite in a single block: sets the **data pointer**, **enab
 **Generated ASM:**
 ```
     LDA #$21
-    STA $07F9       ; sprite pointer register ($07F8 + N)
+    STA $07F8       ; sprite pointer register ($07F8 + N)
     LDA $D015
     ORA #$01        ; set enable bit for sprite 0
     STA $D015

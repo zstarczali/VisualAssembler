@@ -2248,10 +2248,24 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
 }
 
 .about-author {
-  margin: 0 0 8px;
+  margin: 0 0 4px;
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--text);
+}
+
+.about-contact {
+  margin: 0 0 16px;
+  font-size: 0.8rem;
+}
+
+.about-contact a {
+  color: var(--secondary);
+  text-decoration: none;
+}
+
+.about-contact a:hover {
+  text-decoration: underline;
 }
 
 #about-close {
@@ -2611,4 +2625,45 @@ body.crt-mode #crt-overlay::after {
   100% {
     width: 100%;
   }
+}
+
+.vice-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--panel-bg, #1e1e2e);
+  color: var(--fg, #cdd6f4);
+  border: 1px solid var(--panel-border, #45475a);
+  border-radius: 8px;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  z-index: 9999;
+  animation: vice-toast-in 0.2s ease;
+}
+
+.vice-toast[hidden] {
+  display: none;
+}
+
+.vice-toast-icon {
+  color: #a6e3a1;
+  font-size: 0.75rem;
+}
+
+@keyframes vice-toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.vice-toast[data-error="1"] {
+  border-color: #f38ba8;
+}
+
+.vice-toast[data-error="1"] .vice-toast-icon {
+  color: #f38ba8;
 }
