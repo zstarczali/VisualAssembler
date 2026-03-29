@@ -2686,17 +2686,26 @@ body.crt-mode #crt-overlay::after {
   opacity: 0.65;
 }
 
-.group-expand-all-btn {
-  margin-top: 6px;
-  padding: 3px 8px;
+.group-btn-row {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+}
+
+.group-expand-all-btn,
+.group-select-asm-btn {
+  min-width: calc(22px * var(--block-scale));
+  width: calc(22px * var(--block-scale));
+  height: calc(22px * var(--block-scale));
+  padding: 0;
   border-radius: 6px;
   border: 1px solid var(--panel-border);
-  background: color-mix(in srgb, var(--block-tone) 12%, transparent);
-  color: var(--block-tone);
-  font-size: 0.78rem;
+  background: var(--control-bg);
+  color: var(--muted);
+  font-size: calc(0.78rem * var(--block-scale));
+  line-height: 1;
+  flex: 0 0 auto;
   cursor: pointer;
-  width: 100%;
-  text-align: left;
 }
 
 .asm-block.group-header .block-mnemonic {

@@ -108,6 +108,9 @@ A `GROUP` / `ENDGROUP` blokk (`isGroupMacro: true` / `isEndGroupMacro: true`): v
 - **ASM output:** `; ===[ groupName ]===` … `; ===[/groupName]===` (az ENDGROUP visszakeresi a szülő GROUP nevét `layout.lines`-ban visszafelé keresve)
 - **`getInstructionSize`:** 0 — kötelező explicit kezelni, mert különben a `addressingMode === "implied"` ág 1-et adna vissza
 - **Nem fészkelhetők:** második GROUP az első ENDGROUP előtt új, párhuzamos csoportot nyit
+- **GROUP blokk gombjai (renderProgram-ban):**
+  - **⊡ Expand all** (`group-expand-all-btn`): kinyitja a csoportot (ha zárva), majd minden gyermekblokk `collapsed = false` → `renderProgram()`
+  - **⦵ Select in ASM** (`group-select-asm-btn`): megkeresi a párosított ENDGROUP-ot (depth-aware előre keresés `program[]`-ban), összerakja a `{ firstLine: asmBlockRanges[block.id].firstLine, lastLine: asmBlockRanges[endGroupBlock.id].lastLine }` tartományt, ASM tab-ra vált ha szükséges, majd ideiglenes `"__group_range__"` kulcson keresztül hívja `applyAsmHighlight()`-ot a teljes csoport kiemelésére
 
 A `LOOP` makró (két blokk rendszer):
 - **LOOP blokk** (`isLoopMacro: true`): mezők: `loopReg` (`"X"` vagy `"Y"`), `loopCount` (hex byte pl. `"0A"`), `loopLabel` (string). Generál: `LDX/LDY #count` (2 byte), majd a label a `address+2`-re mutat (a body elejére). Az auto-label `loop1`, `loop2`… ha `loopLabel` üres.

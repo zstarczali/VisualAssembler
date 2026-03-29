@@ -6478,7 +6478,10 @@ function renderProgram() {
       });
       blockControls.insertAdjacentHTML(
         "beforeend",
-        `<button type="button" class="group-expand-all-btn" title="${currentLanguage === "en" ? "Expand all blocks in group" : "Csoport blokkjainak kinyitasa"}">&#9723; ${currentLanguage === "en" ? "Expand all" : "Mind kinyit"}</button>`
+        `<div class="group-btn-row">
+          <button type="button" class="group-expand-all-btn" title="${currentLanguage === "en" ? "Expand all blocks in group" : "Csoport blokkjainak kinyitasa"}">&#9723;</button>
+          <button type="button" class="group-select-asm-btn" title="${currentLanguage === "en" ? "Select group range in ASM view" : "Csoport kijelolese az ASM nezetben"}">&#9741;</button>
+        </div>`
       );
       blockControls.querySelector(".group-expand-all-btn")?.addEventListener("click", () => {
         // Expand the group itself if collapsed, then expand all child blocks
@@ -6493,6 +6496,35 @@ function renderProgram() {
           if (inside) b.collapsed = false;
         });
         renderProgram();
+      });
+
+      blockControls.querySelector(".group-select-asm-btn")?.addEventListener("click", () => {
+        // Find the matching ENDGROUP block
+        let endGroupBlock = null;
+        let depth = 0;
+        for (let i = index; i < program.length; i++) {
+          if (program[i].isGroupMacro) depth++;
+          else if (program[i].isEndGroupMacro) {
+            depth--;
+            if (depth === 0) { endGroupBlock = program[i]; break; }
+          }
+        }
+        const groupRange = asmBlockRanges[block.id];
+        const endRange = endGroupBlock ? asmBlockRanges[endGroupBlock.id] : null;
+        if (groupRange) {
+          const combinedRange = {
+            firstLine: groupRange.firstLine,
+            lastLine: endRange ? endRange.lastLine : groupRange.lastLine
+          };
+          // Switch to ASM view if not visible
+          const asmTab = document.querySelector('[data-tab="asm"]');
+          if (asmTab && !asmTab.classList.contains("active")) asmTab.click();
+          // Apply highlight using the combined range
+          const tempId = "__group_range__";
+          asmBlockRanges[tempId] = combinedRange;
+          applyAsmHighlight(tempId);
+          delete asmBlockRanges[tempId];
+        }
       });
     } else if (block.isEndGroupMacro) {
       inlineField.hidden = true;

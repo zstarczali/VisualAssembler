@@ -721,7 +721,8 @@ Groups a set of blocks into a **named, collapsible section**. GROUP and ENDGROUP
 
 **Controls on the GROUP block:**
 - **▸ / ▾ toggle** — collapses or expands the entire group. When collapsed, all blocks between GROUP and ENDGROUP are hidden and the GROUP block's own body folds in.
-- **Expand all button** — un-collapses every individually collapsed block inside the group and expands the group itself if needed.
+- **⊡ Expand all** — un-collapses every individually collapsed block inside the group and expands the group itself if needed.
+- **⦵ Select in ASM** — highlights the entire group's code range in the ASM view (from `; ===[ name ]===` to `; ===[/name]===`) and scrolls to it. Switches to the ASM tab automatically if it is not currently visible.
 
 **Generated ASM:**
 ```
