@@ -189,7 +189,9 @@ const mnemonicLibrary = {
   ],
   Szerkezet: [
     { mnemonic: "LABEL", description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.", modes: ["implied"], isLabel: true },
-    { mnemonic: "COMMENT", description: "Megjegyzes a programhoz, ami nem general byte-ot.", modes: ["implied"], isComment: true }
+    { mnemonic: "COMMENT", description: "Megjegyzes a programhoz, ami nem general byte-ot.", modes: ["implied"], isComment: true },
+    { mnemonic: "GROUP", description: "Blokkok csoportositasa egy nevesitett, osszecsukhato szekcioba. Zarj le ENDGROUP-pal.", modes: ["implied"], isGroupMacro: true },
+    { mnemonic: "ENDGROUP", description: "GROUP szekció vege.", modes: ["implied"], isEndGroupMacro: true }
   ]
 };
 
@@ -888,7 +890,9 @@ const mnemonicDescriptionsEn = {
   JOYSTICK: "Read joystick and move sprite: UP/DOWN/LEFT/RIGHT via LSR+BCS+DEC/INC. Port 1=$DC01, Port 2=$DC00. 27 bytes inline.",
   SPRITE_COL: "Sprite collision detection: LDA $D01E/$D01F + AND #bitMask. Result in A: non-zero = collision. Follow with BEQ/BNE. 5 bytes.",
   DEFINE: "Define a symbol for conditional assembly. When present, IF blocks evaluate the condition.",
-  CONST: "Named constant definition. Can be used as an operand in any mnemonic (LDA, STA, JSR, etc.)."
+  CONST: "Named constant definition. Can be used as an operand in any mnemonic (LDA, STA, JSR, etc.).",
+  GROUP: "Group blocks into a collapsible named section. Close with ENDGROUP.",
+  ENDGROUP: "End of a GROUP section."
 };
 
 const mnemonicDescriptionsHu = (() => {
@@ -2473,6 +2477,41 @@ function createBlockFromMnemonic(item) {
     };
   }
 
+  if (item.isGroupMacro) {
+    const groupName = operandInput.value.trim() || "group1";
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "GROUP",
+      operand: groupName,
+      rawOperand: groupName,
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: false,
+      isGroupMacro: true,
+      groupName,
+      groupCollapsed: false
+    };
+  }
+
+  if (item.isEndGroupMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "ENDGROUP",
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: false,
+      isEndGroupMacro: true
+    };
+  }
+
   const modeKey = item.modes.includes(addressingSelect.value) ? addressingSelect.value : item.modes[0];
   const preview = buildOperandPreview(modeKey, operandInput.value.trim(), getSelectedBase());
 
@@ -2505,7 +2544,8 @@ function collapseLoadedProgram(blocks) {
       block.isWordMacro || block.isDataMacro || block.isRawBytesMacro || block.isFillMacro ||
       block.isAlignMacro || block.isTextMacro || block.isStringMacro || block.isRawTextMacro ||
       block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isPushMacro ||
-      block.isPullMacro || block.isMacroDefStart || block.isMacroDefEnd || block.isMacroInvoke;
+      block.isPullMacro || block.isMacroDefStart || block.isMacroDefEnd || block.isMacroInvoke ||
+      block.isGroupMacro || block.isEndGroupMacro;
     if (!isMacroOrSpecial && block.rawOperand && block.addressingMode) {
       const preview = buildOperandPreview(block.addressingMode, block.rawOperand, block.base || "hex");
       if (!preview.error) block.operand = preview.operand;
@@ -2627,6 +2667,31 @@ function toggleBlockCollapsed(index) {
   } else {
     renderProgram();
   }
+}
+
+function toggleGroupCollapsed(index) {
+  const block = program[index];
+  if (!block) return;
+  block.groupCollapsed = !block.groupCollapsed;
+  block.collapsed = block.groupCollapsed; // also collapse the GROUP block body
+
+  // Try to update DOM without full re-render for smooth feel
+  const groupNode = programList.querySelector(`[data-index="${index}"]`);
+  const wrapperEl = groupNode?.nextElementSibling;
+  if (groupNode && wrapperEl && wrapperEl.classList.contains("group-wrapper")) {
+    groupNode.dataset.collapsed = block.collapsed ? "true" : "false";
+    const toggle = groupNode.querySelector(".collapse-toggle");
+    if (toggle) {
+      toggle.textContent = block.groupCollapsed ? "\u25B8" : "\u25BE";
+      toggle.setAttribute("aria-label", block.groupCollapsed ? t("expand") : t("collapse"));
+      toggle.setAttribute("title", block.groupCollapsed ? t("expand") : t("collapse"));
+    }
+    wrapperEl.hidden = block.groupCollapsed;
+  } else {
+    renderProgram();
+  }
+  renderAsmOutput();
+  renderMemoryMap();
 }
 
 function collapseAllBlocks() {
@@ -2947,6 +3012,15 @@ function updateProgramBlock(index, field, value) {
     block.macroName = sanitizeLabelName(value);
     block.operand = block.macroName;
     block.rawOperand = block.macroName;
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isGroupMacro && field === "groupName") {
+    block.groupName = value;
+    block.operand = value;
+    block.rawOperand = value;
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -4482,6 +4556,14 @@ function compileLineBytes(line, labels) {
     };
   }
 
+  if (block.isGroupMacro || block.isEndGroupMacro) {
+    return {
+      ok: true,
+      bytes: [],
+      comment: block.isGroupMacro ? `Group: ${block.groupName || "group"}` : "End group"
+    };
+  }
+
   if (block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isConstMacro) {
     return {
       ok: true,
@@ -4859,6 +4941,10 @@ function getInstructionSize(block) {
 
   if (block.isMacroDefStart || block.isMacroDefEnd) {
     return 0;  // Macro definitions don't take space
+  }
+
+  if (block.isGroupMacro || block.isEndGroupMacro) {
+    return 0;  // GROUP/ENDGROUP are visual markers only
   }
 
   // Check if this is a user macro invocation (INVOKE block or legacy format)
@@ -5412,6 +5498,13 @@ function getBlockDescription(block) {
     return currentLanguage === "en" ? `Invoke macro "${name}" (not defined yet)` : `Makró "${name}" hívása (még nincs definiálva)`;
   }
 
+  if (block.isGroupMacro) {
+    return currentLanguage === "en" ? `Group: ${block.groupName || "group"}` : `Csoport: ${block.groupName || "group"}`;
+  }
+  if (block.isEndGroupMacro) {
+    return currentLanguage === "en" ? "End of group" : "Csoport vege";
+  }
+
   // Check if this block invokes a user macro (legacy format)
   if (userMacros[block.mnemonic]) {
     const bodyCount = userMacros[block.mnemonic].length;
@@ -5527,6 +5620,15 @@ function getBlockModeCaption(block) {
   if (block.isMacroInvoke) {
     const name = block.invokeMacroName || "?";
     return currentLanguage === "en" ? `User Macro | Invoke: ${name}` : `Felhasznaloi Makro | Hivas: ${name}`;
+  }
+
+  if (block.isGroupMacro) {
+    const name = block.groupName || "group";
+    return currentLanguage === "en" ? `Structure | Group: ${name}` : `Szerkezet | Csoport: ${name}`;
+  }
+
+  if (block.isEndGroupMacro) {
+    return currentLanguage === "en" ? "Structure | End Group" : "Szerkezet | Csoport vege";
   }
 
   // Check if this block invokes a user macro (legacy format)
@@ -5754,6 +5856,9 @@ function getCollapsedOperandText(block) {
     return block.invokeMacroName ? `→ ${block.invokeMacroName}` : "";
   }
 
+  if (block.isGroupMacro) return block.groupName || "group";
+  if (block.isEndGroupMacro) return "";
+
   return block.operand || block.rawOperand || "";
 }
 
@@ -5768,13 +5873,33 @@ function renderProgram() {
   document.querySelectorAll(".label-picker-dropdown").forEach(el => el.remove());
   programList.innerHTML = "";
 
+  // Pre-pass: which blocks are children of a collapsed group (hidden from view)
+  const hiddenByGroup = new Set();
+  let _scanGroupIdx = -1;
+  for (let i = 0; i < program.length; i++) {
+    if (program[i].isGroupMacro) {
+      _scanGroupIdx = i;
+    } else if (program[i].isEndGroupMacro) {
+      _scanGroupIdx = -1;
+    } else if (_scanGroupIdx !== -1 && program[_scanGroupIdx].groupCollapsed) {
+      hiddenByGroup.add(i);
+    }
+  }
+
+  let groupWrapper = null; // current wrapper div for group children
+
     program.forEach((block, index) => {
+      // Skip blocks hidden by a collapsed GROUP
+      if (hiddenByGroup.has(index)) return;
+
       const node = blockTemplate.content.firstElementChild.cloneNode(true);
       node.dataset.index = index;
       node.dataset.blockId = block.id;
       node.dataset.categoryTone = getCategoryTone(block.category);
       node.dataset.collapsed = block.collapsed ? "true" : "false";
       if (block.isConstMacro) node.dataset.macroKind = "const";
+      if (block.isGroupMacro) node.classList.add("group-header");
+      if (block.isEndGroupMacro) node.classList.add("group-endblock");
 
       node.querySelector(".block-mnemonic").textContent = block.mnemonic;
       node.querySelector(".collapsed-operand").textContent = getCollapsedOperandText(block);
@@ -5789,11 +5914,16 @@ function renderProgram() {
       const operandField = node.querySelector(".block-operand");
       const collapseToggle = node.querySelector(".collapse-toggle");
       const dragHandle = node.querySelector(".drag-handle");
-      collapseToggle.textContent = block.collapsed ? "\u25B8" : "\u25BE";
-      collapseToggle.setAttribute("aria-label", block.collapsed ? t("expand") : t("collapse"));
-      collapseToggle.setAttribute("title", block.collapsed ? t("expand") : t("collapse"));
+      const groupIsCollapsed = block.isGroupMacro ? (block.groupCollapsed || false) : block.collapsed;
+      collapseToggle.textContent = groupIsCollapsed ? "\u25B8" : "\u25BE";
+      collapseToggle.setAttribute("aria-label", groupIsCollapsed ? t("expand") : t("collapse"));
+      collapseToggle.setAttribute("title", groupIsCollapsed ? t("expand") : t("collapse"));
       dragHandle.setAttribute("title", t("dragBlock"));
-      collapseToggle.addEventListener("click", () => toggleBlockCollapsed(index));
+      if (block.isGroupMacro) {
+        collapseToggle.addEventListener("click", () => toggleGroupCollapsed(index));
+      } else {
+        collapseToggle.addEventListener("click", () => toggleBlockCollapsed(index));
+      }
 
       if (block.isLabel) {
         inlineField.hidden = false;
@@ -6337,6 +6467,35 @@ function renderProgram() {
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "macroName", event.target.value));
     } else if (block.isMacroDefEnd) {
       inlineField.hidden = true;
+    } else if (block.isGroupMacro) {
+      inlineField.hidden = false;
+      inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Group name" : "Csoport neve";
+      operandField.value = block.groupName || "group1";
+      operandField.disabled = false;
+      operandField.placeholder = currentLanguage === "en" ? "for example init_section" : "peldaul init_szekció";
+      operandField.addEventListener("input", (event) => {
+        updateProgramBlock(index, "groupName", event.target.value);
+      });
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `<button type="button" class="group-expand-all-btn" title="${currentLanguage === "en" ? "Expand all blocks in group" : "Csoport blokkjainak kinyitasa"}">&#9723; ${currentLanguage === "en" ? "Expand all" : "Mind kinyit"}</button>`
+      );
+      blockControls.querySelector(".group-expand-all-btn")?.addEventListener("click", () => {
+        // Expand the group itself if collapsed, then expand all child blocks
+        if (block.groupCollapsed) {
+          block.groupCollapsed = false;
+          block.collapsed = false;
+        }
+        let inside = false;
+        program.forEach((b, i) => {
+          if (i === index) { inside = true; return; }
+          if (b.isGroupMacro || b.isEndGroupMacro) { inside = false; return; }
+          if (inside) b.collapsed = false;
+        });
+        renderProgram();
+      });
+    } else if (block.isEndGroupMacro) {
+      inlineField.hidden = true;
     } else if (block.isMacroInvoke) {
       // INVOKE block: show dropdown with available macros
       const macroNames = Object.keys(userMacros);
@@ -6415,7 +6574,7 @@ function renderProgram() {
     blockControls.insertAdjacentHTML(
       "beforeend",
       `
-          ${(mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
+          ${(mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke && !block.isGroupMacro && !block.isEndGroupMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
           <label class="mini-field">
             <span>${t("fieldFormat")}</span>
           <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
@@ -6429,7 +6588,7 @@ function renderProgram() {
             </label>
           </div>
         </label>` : ""}
-          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro || getMnemonicModes(block.mnemonic).length <= 1 ? ` hidden` : ""}>
+          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro || block.isGroupMacro || block.isEndGroupMacro || getMnemonicModes(block.mnemonic).length <= 1 ? ` hidden` : ""}>
             <span>${t("addressingMode")}</span>
           <select class="block-mode">
             ${getMnemonicModes(block.mnemonic).map((modeKey) => `<option value="${modeKey}"${block.addressingMode === modeKey ? " selected" : ""}>${modeText(modeKey, "label")}</option>`).join("")}
@@ -6604,7 +6763,19 @@ function renderProgram() {
       selectBlockInAsm(block.id);
     });
 
-    programList.appendChild(node);
+    if (block.isGroupMacro) {
+      programList.appendChild(node);
+      if (!block.groupCollapsed) {
+        groupWrapper = document.createElement("div");
+        groupWrapper.className = "group-wrapper";
+        programList.appendChild(groupWrapper);
+      }
+    } else if (block.isEndGroupMacro) {
+      groupWrapper = null;
+      programList.appendChild(node);
+    } else {
+      (groupWrapper || programList).appendChild(node);
+    }
   });
 
   renderAsmOutput();
@@ -6725,6 +6896,18 @@ function renderAsmOutput() {
 
     if (line.block.isComment) {
       return `; ${line.block.rawOperand || ""}`;
+    }
+
+    if (line.block.isGroupMacro) {
+      return `; ===[ ${line.block.groupName || "group"} ]===`;
+    }
+
+    if (line.block.isEndGroupMacro) {
+      let groupName = "group";
+      for (let i = index - 1; i >= 0; i--) {
+        if (layout.lines[i].block.isGroupMacro) { groupName = layout.lines[i].block.groupName || "group"; break; }
+      }
+      return `; ===[/${groupName}]===`;
     }
 
     if (line.block.isTextMacro) {
@@ -6942,6 +7125,18 @@ function renderAsmOutput() {
 
     if (line.block.isTableMacro) {
       return `${line.block.tableName || "table"}:`;
+    }
+
+    if (line.block.isGroupMacro) {
+      return `; ===[ ${line.block.groupName || "group"} ]===`;
+    }
+
+    if (line.block.isEndGroupMacro) {
+      let groupName = "group";
+      for (let i = index - 1; i >= 0; i--) {
+        if (layout.lines[i].block.isGroupMacro) { groupName = layout.lines[i].block.groupName || "group"; break; }
+      }
+      return `; ===[/${groupName}]===`;
     }
 
     if (line.block.isDefineMacro) {

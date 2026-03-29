@@ -11,7 +11,7 @@ drag-and-drop szerkesztését teszi lehetővé. Nincs UI-framework — csak Vani
 
 | Fájl | Szerep |
 |------|--------|
-| `app.js` | Teljes renderer logika (~6 500 sor): mnemonik könyvtár, UI, ASM/monitor generálás, makró expanzió |
+| `app.js` | Teljes renderer logika (~7 200 sor): mnemonik könyvtár, UI, ASM/monitor generálás, makró expanzió |
 | `index.html` | Egyetlen HTML lap; összes UI elem és két `<template>` (block-template, palette-item-template) |
 | `style.css` | Teljes stíluslap; CSS custom properties-alapú téma (dark/light) |
 | `main.js` | Electron main process: ablak, fájlmentés/betöltés, VICE futtatás IPC |
@@ -98,6 +98,16 @@ A `WAIT_RASTER` makró (`isWaitRasterMacro: true`): mező: `rasterLine` (hex byt
 A `JOYSTICK` makró (`isJoystickMacro: true`): mezők: `joyPort` (`"1"` = $DC01, `"2"` = $DC00), `joySpriteNum` (0–7). Generál: `LDA port`, majd 4× irányonként (UP/DOWN/LEFT/RIGHT): `LSR; BCS +3; DEC/INC $D001/D000` (3 byte-os DEC/INC abs). BCS +3 ugorja át a DEC/INC-et ha az iránygomb NEM lenyomott (active-LOW: bit=0 → lenyomott). Méret: 27 byte. CIA regiszterek: Port 2 = $DC00, Port 1 = $DC01. Bitek: 0=Up, 1=Down, 2=Left, 3=Right, 4=Fire.
 
 A `SPRITE_COL` makró (`isSpriteColMacro: true`): mezők: `spriteNum` (0–7), `colType` (`"sprite"` = $D01E sprite-sprite, `"background"` = $D01F sprite-háttér). Generál: `LDA $D01E/$D01F; AND #(1<<N)`. Eredmény A-ban: nem nulla = ütközés. **Regiszter olvasása automatikusan törli!** Utána `BEQ`/`BNE`-vel ugrás. Méret: 5 byte.
+
+A `GROUP` / `ENDGROUP` blokk (`isGroupMacro: true` / `isEndGroupMacro: true`): vizuális csoportosító, **0 byte**, a program logikájára nincs hatása.
+- **Mezők (GROUP):** `groupName` (string, szabad szöveg, pl. `"init"`)
+- **`groupCollapsed`** (bool): ha true, a GROUP és ENDGROUP közötti blokkok rejtve vannak a program listában, a GROUP saját body-ja is becsukódik (`collapsed = groupCollapsed`)
+- **DOM struktúra:** GROUP blokk → `div.group-wrapper` (ha nem collapsed) → gyermek blokkok → ENDGROUP blokk. A wrapper `border-left` adja a vizuális vonalat.
+- **`toggleGroupCollapsed(index)`:** ha a wrapper már létezik a DOM-ban (összecsukás), direkt DOM manipulációval frissíti (nincs teljes `renderProgram()`); ha kiterjesztés és nincs wrapper, `renderProgram()` fut.
+- **`updateProgramBlock` `groupName` ágban** early return van (`renderBlockPreview` + `renderAsmOutput`), hogy ne hívódjon `renderProgram()` és ne vesződjön el a fókusz szerkesztés közben.
+- **ASM output:** `; ===[ groupName ]===` … `; ===[/groupName]===` (az ENDGROUP visszakeresi a szülő GROUP nevét `layout.lines`-ban visszafelé keresve)
+- **`getInstructionSize`:** 0 — kötelező explicit kezelni, mert különben a `addressingMode === "implied"` ág 1-et adna vissza
+- **Nem fészkelhetők:** második GROUP az első ENDGROUP előtt új, párhuzamos csoportot nyit
 
 A `LOOP` makró (két blokk rendszer):
 - **LOOP blokk** (`isLoopMacro: true`): mezők: `loopReg` (`"X"` vagy `"Y"`), `loopCount` (hex byte pl. `"0A"`), `loopLabel` (string). Generál: `LDX/LDY #count` (2 byte), majd a label a `address+2`-re mutat (a body elejére). Az auto-label `loop1`, `loop2`… ha `loopLabel` üres.
