@@ -3106,6 +3106,14 @@ function buildOperandPreview(modeKey, rawValue, base) {
 
   const numericValue = parseNumberByBase(value, base);
   if (numericValue === null) {
+    // Handle #<label and #>label low/high byte operators in immediate mode
+    if (modeKey === "immediate" && (value.startsWith("<") || value.startsWith(">"))) {
+      const name = value.slice(1).trim();
+      if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) {
+        const operand = `#${value}`;
+        return { operand, text: operand, error: "" };
+      }
+    }
     // Allow label names (letters, digits, underscore) as valid operands for any addressing mode
     if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(value)) {
       const operand = modeKey === "immediate" ? `#${value}`
