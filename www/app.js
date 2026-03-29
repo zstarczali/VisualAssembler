@@ -358,6 +358,7 @@ const translations = {
     sampleSpriteMacroDemo: "SPRITE_INIT / SPRITE_POS makro demo",
     sampleJoystickDemo: "JOYSTICK makro demo",
     sampleCollisionDemo: "SPRITE_COL utkozes demo",
+    sample10Print: "10 PRINT - veletlen labirintus",
     checkForUpdate: "Frissites keresese",
     whatsNew: "Ujdonsagok",
     paletteSearchPlaceholder: "Kereses...",
@@ -570,6 +571,7 @@ const translations = {
     sampleSpriteMacroDemo: "SPRITE_INIT / SPRITE_POS macro demo",
     sampleJoystickDemo: "JOYSTICK macro demo",
     sampleCollisionDemo: "SPRITE_COL collision demo",
+    sample10Print: "10 PRINT - random maze",
     languageLabel: "Language",
     checkForUpdate: "Check for Update",
     whatsNew: "What's New",
@@ -1390,6 +1392,7 @@ function applyTranslations() {
   if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleSpriteMacroDemo");
   if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleJoystickDemo");
   if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleCollisionDemo");
+  if (sampleOptions[20]) sampleOptions[20].textContent = t("sample10Print");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -3834,9 +3837,6 @@ async function loadProjectFromFile() {
     originInput.value = projectData.origin || "0801";
   }
 
-  if (projectData.ui?.sample && sampleSelect) {
-    sampleSelect.value = projectData.ui.sample;
-  }
 
   if (projectData.ui?.numberBase && baseInputs.length) {
     baseInputs.forEach((input) => {
@@ -7272,6 +7272,10 @@ async function loadIfElseDemo() {
   await loadSampleFromFile("if-else");
 }
 
+async function load10PrintDemo() {
+  await loadSampleFromFile("10-print");
+}
+
 async function loadSidDirectDemo() {
   const ok = await loadSampleFromFile("sid-direct-demo");
   if (!ok) return;
@@ -7391,6 +7395,11 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "sid-direct-demo") {
     loadSidDirectDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "10-print") {
+    load10PrintDemo();
     return;
   }
 
