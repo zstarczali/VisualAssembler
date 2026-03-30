@@ -27,5 +27,6 @@
     saveProject: (payload) => invoke("save_project", { payload }),
     loadProject: () => invoke("load_project"),
     loadSample: (sampleName) => invoke("load_sample", { sampleName }),
+    openManual: () => invoke("open_manual"),
   };
 })();

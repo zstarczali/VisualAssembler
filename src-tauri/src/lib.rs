@@ -536,6 +536,16 @@ async fn load_project(app: AppHandle) -> serde_json::Value {
 }
 
 #[tauri::command]
+async fn open_manual(app: AppHandle) -> Result<(), String> {
+    let manual_path = match app.path().resource_dir() {
+        Ok(d) => d.join("docs").join("Visual Assembler Manual.pdf"),
+        Err(e) => return Err(e.to_string()),
+    };
+    app.opener().open_path(manual_path.to_string_lossy().as_ref(), None::<String>)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 async fn load_sample(app: AppHandle, sample_name: String) -> serde_json::Value {
     let samples_dir = match app.path().resource_dir() {
         Ok(d) => d.join("samples"),
@@ -577,6 +587,7 @@ pub fn run() {
             save_project,
             load_project,
             load_sample,
+            open_manual,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

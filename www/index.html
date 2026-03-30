@@ -65,7 +65,8 @@
                     <option value="joystick-demo">JOYSTICK makro demo</option>
                     <option value="collision-demo">SPRITE_COL utkozes demo</option>
                     <option value="10-print">10 PRINT (veletlen labirintus)</option>
-                    <option value="raster-irq-demo">Raszter IRQ demo (szin villogas)</option>
+                    <option value="irq-demo">Raszter IRQ demo (szin villogas)</option>
+                    <option value="overlapping-raster-demo">Overlapping raszter csik demo</option>
                   </select>
                 </label>
                 <button id="load-sample" class="secondary" type="button">Betoltes</button>
@@ -110,6 +111,7 @@
                 <button id="copy-asm" class="secondary" type="button">ASM masolasa</button>
                 <button id="clear-program" class="secondary" type="button">Program torlese</button>
                 <h3 class="control-menu-label control-menu-label--section">Info</h3>
+                <button id="help-manual-btn" class="secondary" type="button">Manual</button>
                 <button id="about-btn" class="secondary" type="button">About</button>
                 <button id="whats-new-btn" class="secondary" type="button">What's New</button>
                 <button id="knowledge-base-btn" class="secondary" type="button">Knowledge Base</button>
@@ -272,6 +274,19 @@
                   </label>
                 </div>
               </div>
+              <div class="macro-source-row">
+                <span id="region-comments-label">Show region comments</span>
+                <div class="mini-toggle macro-source-toggle" id="region-comments-toggle-group" role="radiogroup" aria-label="Region comments">
+                  <label class="mini-toggle-option">
+                    <input type="radio" name="region-comments-toggle" id="region-comments-toggle-on" value="on" checked>
+                    <span>ON</span>
+                  </label>
+                  <label class="mini-toggle-option">
+                    <input type="radio" name="region-comments-toggle" id="region-comments-toggle-off" value="off">
+                    <span>OFF</span>
+                  </label>
+                </div>
+              </div>
               <hr class="section-divider">
               <div class="origin-section">
                 <span class="panel-label origin-label-text">Kezdocim</span>
@@ -412,6 +427,19 @@
           as a random source to alternate between <code>CHR$(205)</code> and <code>CHR$(206)</code> via KERNAL CHROUT.
         </li>
         <li>
+          <strong>Raster IRQ demo</strong> — new sample program. Sets up a VIC-II raster interrupt
+          at line <code>$80</code>, increments a frame counter in <code>$FB</code> each IRQ and writes
+          the lower 4 bits to <code>$D020</code> / <code>$D021</code>, cycling through all 16 C64 colors.
+        </li>
+        <li>
+          <strong>Overlapping raster bars demo</strong> — new sample program. A classic C64 raster
+          effect: a static rainbow bar (<code>ras1start</code>) has a scrolling silver bar
+          (<code>ras2start</code>) overlaid on it each frame. The IRQ renders 80 raster lines
+          per frame using a double-read <code>LDA $D012 / CMP $D012</code> raster-wait technique,
+          and updates the color tables every 3rd frame via the <code>checkspeed</code> /
+          <code>movesilver</code> / <code>backup</code> + <code>copysilver</code> routine chain.
+        </li>
+        <li>
           <strong>Stability fixes</strong> —
           VICE not configured now shows a clear error toast instead of silently failing.
           Sample selector no longer resets to the first item when loading a project file.
@@ -468,6 +496,18 @@
           <a class="knowledge-base-link" href="#" data-url="https://codebase.c64.org/">
             <span class="knowledge-base-link-title">C64 Codebase</span>
             <span class="knowledge-base-link-url">codebase.c64.org</span>
+          </a>
+        </li>
+        <li>
+          <a class="knowledge-base-link" href="#" data-url="https://turbo.style64.org/">
+            <span class="knowledge-base-link-title">The Turbo Assembler</span>
+            <span class="knowledge-base-link-url">turbo.style64.org</span>
+          </a>
+        </li>
+        <li>
+          <a class="knowledge-base-link" href="#" data-url="https://www.commodore.net/">
+            <span class="knowledge-base-link-title">Commodore</span>
+            <span class="knowledge-base-link-url">commodore.net</span>
           </a>
         </li>
       </ul>

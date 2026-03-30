@@ -845,6 +845,7 @@ The constant name appears in the **label picker** dropdown of instruction blocks
 
 ---
 
+<a id="sprite_init"></a>
 ### SPRITE_INIT
 
 Initialises a VIC-II sprite in a single block: sets the **data pointer**, **enable bit**, and **colour**.
@@ -872,6 +873,7 @@ Initialises a VIC-II sprite in a single block: sets the **data pointer**, **enab
 
 ---
 
+<a id="sprite_pos"></a>
 ### SPRITE_POS
 
 Sets a sprite's **static start position** (compile-time constant). Use this for initial placement; for animation use `INC`/`DEC` on the sprite's register directly.
@@ -901,6 +903,7 @@ For X > 255 the macro sets the corresponding bit in `$D010` instead of clearing 
 
 ---
 
+<a id="wait_raster"></a>
 ### WAIT_RASTER
 
 Waits for a specific VIC-II raster line — entirely **inline**, no JSR and no external label required.
@@ -975,6 +978,7 @@ skip_right:
 
 ---
 
+<a id="sprite_col"></a>
 ### SPRITE_COL
 
 Detects sprite collisions using the VIC-II hardware collision registers. Entirely **inline** — no JSR or label needed.

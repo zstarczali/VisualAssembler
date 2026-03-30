@@ -242,17 +242,21 @@ const whatsNewButton = document.getElementById("whats-new-btn");
 let asmBlockRanges = {};
 let selectedBlockId = null;
 let showMacroSource = false;
+let showRegionComments = true;
 let asmOutputBase = "hex";
 let originBase = "hex";
 const macroSourceToggleOn = document.getElementById("macro-source-toggle-on");
 const macroSourceToggle = document.getElementById("macro-source-toggle");
 const macroSourceToggleText = document.getElementById("macro-source-toggle-text");
+const regionCommentsToggleOn = document.getElementById("region-comments-toggle-on");
+const regionCommentsToggleOff = document.getElementById("region-comments-toggle-off");
 const asmBaseInputs = document.querySelectorAll('input[name="asm-output-base"]');
 const originBaseInputs = document.querySelectorAll('input[name="origin-base"]');
 const compileErrorDialog = document.getElementById("compile-error-dialog");
 const compileErrorList = document.getElementById("compile-error-list");
 const compileErrorTitle = document.getElementById("compile-error-title");
 const compileErrorClose = document.getElementById("compile-error-close");
+const helpManualButton = document.getElementById("help-manual-btn");
 const checkUpdateButton = document.getElementById("check-update-btn");
 const reportBugButton = document.getElementById("report-bug-btn");
 const basicSysToggle = document.getElementById("basic-sys-toggle");
@@ -293,6 +297,7 @@ const translations = {
     programSettings: "Programbeallitasok",
     macroSourceToggle: "Makro forraskod megjelenites",
     asmNumbersLabel: "Szamok az ASM kimenetben",
+    regionCommentsLabel: "Region kommentek megjelenites",
     asmOutputLabel: "ASM kimenet",
     monitorOutputLabel: "Monitor kimenet",
     originPreviewLabel: "Forditas info",
@@ -362,6 +367,9 @@ const translations = {
     sampleJoystickDemo: "JOYSTICK makro demo",
     sampleCollisionDemo: "SPRITE_COL utkozes demo",
     sample10Print: "10 PRINT - veletlen labirintus",
+    sampleRasterIrqDemo: "Raszter IRQ demo (szin villogas)",
+    sampleOverlappingRasterDemo: "Overlapping raszter csik demo",
+    helpManual: "Kezikonyv",
     checkForUpdate: "Frissites keresese",
     reportBug: "Hiba bejelentese",
     viceRunning: "VICE fut",
@@ -508,6 +516,7 @@ const translations = {
     programSettings: "Program settings",
     macroSourceToggle: "Show macro source code",
     asmNumbersLabel: "Numbers in ASM output",
+    regionCommentsLabel: "Show region comments",
     asmOutputLabel: "ASM output",
     monitorOutputLabel: "Monitor output",
     originPreviewLabel: "Compile info",
@@ -577,6 +586,9 @@ const translations = {
     sampleJoystickDemo: "JOYSTICK macro demo",
     sampleCollisionDemo: "SPRITE_COL collision demo",
     sample10Print: "10 PRINT - random maze",
+    sampleRasterIrqDemo: "Raster IRQ demo (color flashing)",
+    sampleOverlappingRasterDemo: "Overlapping raster bars demo",
+    helpManual: "Manual",
     languageLabel: "Language",
     checkForUpdate: "Check for Update",
     reportBug: "Report Bug",
@@ -742,6 +754,7 @@ function saveUiSettings() {
     memoryPanelOpen: !!globalMemoryPanel?.open,
     basicSys: basicSysToggle ? basicSysToggle.checked : true,
     showMacroSource,
+    showRegionComments,
     asmOutputBase,
     originBase
   };
@@ -1067,6 +1080,9 @@ function initPalette() {
     });
     dlg?.showModal();
   });
+  helpManualButton?.addEventListener("click", () => {
+    window.electronAPI?.openManual();
+  });
   checkUpdateButton?.addEventListener("click", () => {
     window.electronAPI.openExternal("https://zstarczali.itch.io/visual-assembler-commodore-64");
   });
@@ -1117,6 +1133,16 @@ function initPalette() {
   });
   macroSourceToggle?.addEventListener("change", () => {
     showMacroSource = false;
+    saveUiSettings();
+    renderAsmOutput();
+  });
+  regionCommentsToggleOn?.addEventListener("change", () => {
+    showRegionComments = true;
+    saveUiSettings();
+    renderAsmOutput();
+  });
+  regionCommentsToggleOff?.addEventListener("change", () => {
+    showRegionComments = false;
     saveUiSettings();
     renderAsmOutput();
   });
@@ -1249,6 +1275,12 @@ function applySavedUiSettings() {
     if (macroSourceToggle) macroSourceToggle.checked = !showMacroSource;
   }
 
+  if (savedUiSettings.showRegionComments !== undefined) {
+    showRegionComments = !!savedUiSettings.showRegionComments;
+    if (regionCommentsToggleOn) regionCommentsToggleOn.checked = showRegionComments;
+    if (regionCommentsToggleOff) regionCommentsToggleOff.checked = !showRegionComments;
+  }
+
   if (savedUiSettings.asmOutputBase) {
     asmOutputBase = savedUiSettings.asmOutputBase;
   }
@@ -1302,6 +1334,7 @@ function applyTranslations() {
     if (menuLabels[2]) menuLabels[2].textContent = t("menuSettings");
     if (menuLabels[3]) menuLabels[3].textContent = t("menuView");
     if (menuLabels[4]) menuLabels[4].textContent = t("menuProgram");
+  if (helpManualButton) helpManualButton.textContent = t("helpManual");
   if (checkUpdateButton) checkUpdateButton.textContent = t("checkForUpdate");
   if (reportBugButton) reportBugButton.textContent = t("reportBug");
   if (whatsNewButton) whatsNewButton.textContent = t("whatsNew");
@@ -1335,6 +1368,7 @@ function applyTranslations() {
     setText("#program-settings-label", t("programSettings"));
     if (macroSourceToggleText) macroSourceToggleText.textContent = t("macroSourceToggle");
     setText("#asm-numbers-label", t("asmNumbersLabel"));
+    setText("#region-comments-label", t("regionCommentsLabel"));
     setText("#origin-preview-label", t("originPreviewLabel"));
     updateOriginPlaceholder();
     setText("#asm-output-label", t("asmOutputLabel"));
@@ -1411,6 +1445,8 @@ function applyTranslations() {
   if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleJoystickDemo");
   if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleCollisionDemo");
   if (sampleOptions[20]) sampleOptions[20].textContent = t("sample10Print");
+  if (sampleOptions[21]) sampleOptions[21].textContent = t("sampleRasterIrqDemo");
+  if (sampleOptions[22]) sampleOptions[22].textContent = t("sampleOverlappingRasterDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -1802,19 +1838,29 @@ function renderSearchResults(query) {
 
   const selectedBase = getSelectedBase();
   const selectedMode = addressingSelect.value;
-  const results = [];
 
+  // Score each item: 3=exact mnemonic, 2=mnemonic prefix, 1=mnemonic contains, 0=description/category only
+  const scored = [];
   for (const [category, items] of Object.entries(mnemonicLibrary)) {
     for (const item of items) {
-      if (
-        item.mnemonic.toLowerCase().includes(q) ||
+      const mn = item.mnemonic.toLowerCase();
+      let score = -1;
+      if (mn === q) score = 3;
+      else if (mn.startsWith(q)) score = 2;
+      else if (mn.includes(q)) score = 1;
+      else if (
         getItemDescription(item).toLowerCase().includes(q) ||
         getCategoryLabel(category).toLowerCase().includes(q)
-      ) {
-        results.push({ item, category, userMacroName: null });
-      }
+      ) score = 0;
+      if (score >= 0) scored.push({ item, category, userMacroName: null, score });
     }
   }
+
+  // If any mnemonic match exists (score >= 1), drop pure description/category matches (score 0)
+  const hasMnemonicMatch = scored.some(r => r.score >= 1);
+  const filtered = hasMnemonicMatch ? scored.filter(r => r.score >= 1) : scored;
+  filtered.sort((a, b) => b.score - a.score);
+  const results = filtered;
 
   const invokeItem = Object.values(mnemonicLibrary).flat().find(i => i.isMacroInvoke);
   for (const macroName of Object.keys(userMacros)) {
@@ -6528,29 +6574,44 @@ function renderProgram() {
       });
 
       blockControls.querySelector(".region-select-asm-btn")?.addEventListener("click", () => {
-        // Find the matching ENDREGION block
+        // Find the matching ENDREGION block and its index
         let endGroupBlock = null;
+        let endGroupIndex = -1;
         let depth = 0;
         for (let i = index; i < program.length; i++) {
           if (program[i].isRegionMacro) depth++;
           else if (program[i].isEndRegionMacro) {
             depth--;
-            if (depth === 0) { endGroupBlock = program[i]; break; }
+            if (depth === 0) { endGroupBlock = program[i]; endGroupIndex = i; break; }
           }
         }
         const groupRange = asmBlockRanges[block.id];
         const endRange = endGroupBlock ? asmBlockRanges[endGroupBlock.id] : null;
+
+        let firstLine = null;
+        let lastLine = null;
         if (groupRange) {
-          const combinedRange = {
-            firstLine: groupRange.firstLine,
-            lastLine: endRange ? endRange.lastLine : groupRange.lastLine
-          };
+          firstLine = groupRange.firstLine;
+          lastLine = endRange ? endRange.lastLine : groupRange.lastLine;
+        } else {
+          // Region comments hidden — derive range from child blocks inside the region
+          const childEnd = endGroupIndex === -1 ? program.length : endGroupIndex;
+          for (let i = index + 1; i < childEnd; i++) {
+            const r = asmBlockRanges[program[i].id];
+            if (r) {
+              if (firstLine === null) firstLine = r.firstLine;
+              lastLine = r.lastLine;
+            }
+          }
+        }
+
+        if (firstLine !== null) {
           // Switch to ASM view if not visible
           const asmTab = document.querySelector('[data-tab="asm"]');
           if (asmTab && !asmTab.classList.contains("active")) asmTab.click();
           // Apply highlight using the combined range
           const tempId = "__group_range__";
-          asmBlockRanges[tempId] = combinedRange;
+          asmBlockRanges[tempId] = { firstLine, lastLine };
           applyAsmHighlight(tempId);
           delete asmBlockRanges[tempId];
         }
@@ -6974,10 +7035,12 @@ function renderAsmOutput() {
     }
 
     if (line.block.isRegionMacro) {
+      if (!showRegionComments) return null;
       return `; ===[ ${line.block.regionName || "region"} ]===`;
     }
 
     if (line.block.isEndRegionMacro) {
+      if (!showRegionComments) return null;
       let regionName = "region";
       let depth = 0;
       for (let i = index - 1; i >= 0; i--) {
@@ -7208,10 +7271,12 @@ function renderAsmOutput() {
     }
 
     if (line.block.isRegionMacro) {
+      if (!showRegionComments) return null;
       return `; ===[ ${line.block.regionName || "region"} ]===`;
     }
 
     if (line.block.isEndRegionMacro) {
+      if (!showRegionComments) return null;
       let regionName = "region";
       let depth = 0;
       for (let i = index - 1; i >= 0; i--) {
@@ -7286,6 +7351,7 @@ function renderAsmOutput() {
   asmBlockRanges = {};
   let textLineNum = 2; // skip header "*= ..." (line 0) + empty (line 1)
   codeLines.forEach((codeLine, i) => {
+    if (codeLine === null) return; // suppressed line (e.g. region comment hidden) — not in output
     const block = layout.lines[i].block;
     const key = block._fromInclude || (block._fromMacro ? (block._invokeBlockId || null) : block.id);
     const linesInEntry = codeLine.split("\n").length;
@@ -7302,7 +7368,7 @@ function renderAsmOutput() {
   let asmText = [
     `*= ${layout.origin.text}`,
     "",
-    ...codeLines,
+    ...codeLines.filter(line => line !== null),
     ...(deferredDataSections.length
       ? ["", `; ${t("remoteMemoryData")}`, "", ...deferredDataSections.map((section) => section.text)]
       : [])
@@ -7587,6 +7653,10 @@ async function loadRasterIrqDemo() {
   await loadSampleFromFile("irq-demo");
 }
 
+async function loadOverlappingRasterDemo() {
+  await loadSampleFromFile("overlapping-raster-demo");
+}
+
 async function loadSidDirectDemo() {
   const ok = await loadSampleFromFile("sid-direct-demo");
   if (!ok) return;
@@ -7714,8 +7784,13 @@ function loadSelectedSample() {
     return;
   }
 
-  if (sampleSelect.value === "raster-irq-demo") {
+  if (sampleSelect.value === "irq-demo") {
     loadRasterIrqDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "overlapping-raster-demo") {
+    loadOverlappingRasterDemo();
     return;
   }
 
