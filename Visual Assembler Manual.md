@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 1.4.0**
+**Version 1.4.1**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -35,7 +35,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
    - [LOOP / NEXT](#loop--next)
    - [PUSH / PULL](#push--pull)
    - [MACRO / ENDM / INVOKE](#macro--endm--invoke)
-   - [GROUP / ENDGROUP](#group--endgroup)
+   - [REGION / ENDREGION](#region--endregion)
    - [DEFINE / IF / ELSE / ENDIF](#define--if--else--endif)
    - [CONST](#const)
    - [SPRITE_INIT](#sprite_init)
@@ -72,7 +72,7 @@ The palette on the left lists all available blocks grouped by category:
 - **Stack** — PHA, PHP, PLA, PLP
 - **System** — CLC, SEC, NOP, BRK, …
 - **Illegal instructions** — LAX, SAX, DCP, …
-- **Structure** — LABEL, COMMENT, GROUP, ENDGROUP
+- **Structure** — LABEL, COMMENT, REGION, ENDREGION
 - **Macros** — LOOP, NEXT, PUSH, PULL, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, INCBIN, SID, INCLUDE, TABLE, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, SPRITE_COL
 
 Use the **search box** at the top of the palette to filter by name. Click the **Add selected block** button or drag a block into the program area.
@@ -711,18 +711,18 @@ The macro body is expanded inline — all addresses and labels are resolved in c
 
 ---
 
-### GROUP / ENDGROUP
+### REGION / ENDREGION
 
-Groups a set of blocks into a **named, collapsible section**. GROUP and ENDGROUP are purely visual — they generate **zero bytes** and have no effect on the assembled output.
+Groups a set of blocks into a **named, collapsible section**. REGION and ENDREGION are purely visual — they generate **zero bytes** and have no effect on the assembled output.
 
 | Field | Description |
 |---|---|
-| Group name | Free-text label for the section (e.g. `init`, `game_loop`, `sprite_setup`) |
+| Region name | Free-text label for the section (e.g. `init`, `game_loop`, `sprite_setup`) |
 
-**Controls on the GROUP block:**
-- **▸ / ▾ toggle** — collapses or expands the entire group. When collapsed, all blocks between GROUP and ENDGROUP are hidden and the GROUP block's own body folds in.
-- **⊡ Expand all** — un-collapses every individually collapsed block inside the group and expands the group itself if needed.
-- **⦵ Select in ASM** — highlights the entire group's code range in the ASM view (from `; ===[ name ]===` to `; ===[/name]===`) and scrolls to it. Switches to the ASM tab automatically if it is not currently visible.
+**Controls on the REGION block:**
+- **▸ / ▾ toggle** — collapses or expands the entire region. When collapsed, all blocks between REGION and ENDREGION are hidden and the REGION block's own body folds in.
+- **⊡ Expand all** — un-collapses every individually collapsed block inside the region and expands the region itself if needed.
+- **⦵ Select in ASM** — highlights the entire region's code range in the ASM view (from `; ===[ name ]===` to `; ===[/name]===`) and scrolls to it. Switches to the ASM tab automatically if it is not currently visible.
 
 **Generated ASM:**
 ```
@@ -733,15 +733,15 @@ Groups a set of blocks into a **named, collapsible section**. GROUP and ENDGROUP
 ; ===[/init]===
 ```
 
-**Size:** 0 bytes for both GROUP and ENDGROUP.
+**Size:** 0 bytes for both REGION and ENDREGION.
 
 **Example workflow:**
-1. Add a `GROUP` block, set name to `init`.
+1. Add a `REGION` block, set region name to `init`.
 2. Add your initialization instructions below it.
-3. Add an `ENDGROUP` block to close the section.
-4. Click ▸ on the GROUP to collapse the whole section into one line while working on other parts of the program.
+3. Add an `ENDREGION` block to close the section.
+4. Click ▸ on the REGION to collapse the whole section into one line while working on other parts of the program.
 
-> **Note:** Groups do not nest. Placing a second GROUP before an ENDGROUP starts a new group at the same level.
+> **Note:** Regions do not nest. Placing a second REGION before an ENDREGION starts a new region at the same level.
 
 ---
 

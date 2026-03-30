@@ -2669,7 +2669,7 @@ body.crt-mode #crt-overlay::after {
 }
 
 /* GROUP block wrapper */
-.group-wrapper {
+.region-wrapper {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -2678,36 +2678,39 @@ body.crt-mode #crt-overlay::after {
   margin-left: 6px;
 }
 
-.group-wrapper[hidden] {
+.region-wrapper[hidden] {
   display: none;
 }
 
-.asm-block.group-endblock {
+.asm-block.region-endblock {
   opacity: 0.65;
 }
 
-.group-btn-row {
+.region-btn-row {
   display: flex;
   flex-direction: row;
   gap: 4px;
+  margin-top: 2px;
 }
 
-.group-expand-all-btn,
-.group-select-asm-btn {
+.region-expand-all-btn,
+.region-select-asm-btn {
   min-width: calc(22px * var(--block-scale));
   width: calc(22px * var(--block-scale));
   height: calc(22px * var(--block-scale));
+  min-height: unset;
+  aspect-ratio: 1;
+  flex-shrink: 0;
   padding: 0;
-  border-radius: 6px;
-  border: 1px solid var(--panel-border);
+  border-radius: calc(6px * var(--block-scale));
   background: var(--control-bg);
-  color: var(--muted);
-  font-size: calc(0.78rem * var(--block-scale));
+  border: 1px solid var(--panel-border);
+  color: var(--text);
+  font-size: calc(0.72rem * var(--block-scale));
   line-height: 1;
-  flex: 0 0 auto;
   cursor: pointer;
 }
 
-.asm-block.group-header .block-mnemonic {
+.asm-block.region-header .block-mnemonic {
   letter-spacing: 0.04em;
 }

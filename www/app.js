@@ -190,8 +190,8 @@ const mnemonicLibrary = {
   Szerkezet: [
     { mnemonic: "LABEL", description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.", modes: ["implied"], isLabel: true },
     { mnemonic: "COMMENT", description: "Megjegyzes a programhoz, ami nem general byte-ot.", modes: ["implied"], isComment: true },
-    { mnemonic: "GROUP", description: "Blokkok csoportositasa egy nevesitett, osszecsukhato szekcioba. Zarj le ENDGROUP-pal.", modes: ["implied"], isGroupMacro: true },
-    { mnemonic: "ENDGROUP", description: "GROUP szekció vege.", modes: ["implied"], isEndGroupMacro: true }
+    { mnemonic: "REGION", description: "Blokkok csoportositasa egy nevesitett, osszecsukhato szekcioba. Zarj le ENDREGION-nal.", modes: ["implied"], isRegionMacro: true },
+    { mnemonic: "ENDREGION", description: "REGION szekció vege.", modes: ["implied"], isEndRegionMacro: true }
   ]
 };
 
@@ -891,8 +891,8 @@ const mnemonicDescriptionsEn = {
   SPRITE_COL: "Sprite collision detection: LDA $D01E/$D01F + AND #bitMask. Result in A: non-zero = collision. Follow with BEQ/BNE. 5 bytes.",
   DEFINE: "Define a symbol for conditional assembly. When present, IF blocks evaluate the condition.",
   CONST: "Named constant definition. Can be used as an operand in any mnemonic (LDA, STA, JSR, etc.).",
-  GROUP: "Group blocks into a collapsible named section. Close with ENDGROUP.",
-  ENDGROUP: "End of a GROUP section."
+  REGION: "Group blocks into a collapsible named section. Close with ENDREGION.",
+  ENDREGION: "End of a REGION section."
 };
 
 const mnemonicDescriptionsHu = (() => {
@@ -2477,30 +2477,30 @@ function createBlockFromMnemonic(item) {
     };
   }
 
-  if (item.isGroupMacro) {
-    const groupName = operandInput.value.trim() || "group1";
+  if (item.isRegionMacro) {
+    const regionName = operandInput.value.trim() || "region";
     return {
       id: crypto.randomUUID(),
       category: categorySelect.value,
-      mnemonic: "GROUP",
-      operand: groupName,
-      rawOperand: groupName,
+      mnemonic: "REGION",
+      operand: regionName,
+      rawOperand: regionName,
       description: item.description,
       addressingMode: "implied",
       base: "hex",
       validationError: "",
       collapsed: false,
-      isGroupMacro: true,
-      groupName,
-      groupCollapsed: false
+      isRegionMacro: true,
+      regionName,
+      regionCollapsed: false
     };
   }
 
-  if (item.isEndGroupMacro) {
+  if (item.isEndRegionMacro) {
     return {
       id: crypto.randomUUID(),
       category: categorySelect.value,
-      mnemonic: "ENDGROUP",
+      mnemonic: "ENDREGION",
       operand: "",
       rawOperand: "",
       description: item.description,
@@ -2508,7 +2508,7 @@ function createBlockFromMnemonic(item) {
       base: "hex",
       validationError: "",
       collapsed: false,
-      isEndGroupMacro: true
+      isEndRegionMacro: true
     };
   }
 
@@ -2532,7 +2532,8 @@ function createBlockFromMnemonic(item) {
 function collapseLoadedProgram(blocks) {
   const result = blocks.map((block) => ({
     ...block,
-    collapsed: true
+    collapsed: true,
+    ...(block.isRegionMacro ? { regionCollapsed: true } : {})
   }));
 
   // Rebuild operand from rawOperand for all regular instruction blocks to fix
@@ -2545,7 +2546,7 @@ function collapseLoadedProgram(blocks) {
       block.isAlignMacro || block.isTextMacro || block.isStringMacro || block.isRawTextMacro ||
       block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isPushMacro ||
       block.isPullMacro || block.isMacroDefStart || block.isMacroDefEnd || block.isMacroInvoke ||
-      block.isGroupMacro || block.isEndGroupMacro;
+      block.isRegionMacro || block.isEndRegionMacro;
     if (!isMacroOrSpecial && block.rawOperand && block.addressingMode) {
       const preview = buildOperandPreview(block.addressingMode, block.rawOperand, block.base || "hex");
       if (!preview.error) block.operand = preview.operand;
@@ -2669,27 +2670,12 @@ function toggleBlockCollapsed(index) {
   }
 }
 
-function toggleGroupCollapsed(index) {
+function toggleRegionCollapsed(index) {
   const block = program[index];
   if (!block) return;
-  block.groupCollapsed = !block.groupCollapsed;
-  block.collapsed = block.groupCollapsed; // also collapse the GROUP block body
-
-  // Try to update DOM without full re-render for smooth feel
-  const groupNode = programList.querySelector(`[data-index="${index}"]`);
-  const wrapperEl = groupNode?.nextElementSibling;
-  if (groupNode && wrapperEl && wrapperEl.classList.contains("group-wrapper")) {
-    groupNode.dataset.collapsed = block.collapsed ? "true" : "false";
-    const toggle = groupNode.querySelector(".collapse-toggle");
-    if (toggle) {
-      toggle.textContent = block.groupCollapsed ? "\u25B8" : "\u25BE";
-      toggle.setAttribute("aria-label", block.groupCollapsed ? t("expand") : t("collapse"));
-      toggle.setAttribute("title", block.groupCollapsed ? t("expand") : t("collapse"));
-    }
-    wrapperEl.hidden = block.groupCollapsed;
-  } else {
-    renderProgram();
-  }
+  block.regionCollapsed = !block.regionCollapsed;
+  block.collapsed = block.regionCollapsed; // also collapse the REGION block body
+  renderProgram();
   renderAsmOutput();
   renderMemoryMap();
 }
@@ -2697,6 +2683,7 @@ function toggleGroupCollapsed(index) {
 function collapseAllBlocks() {
   program.forEach((block) => {
     block.collapsed = true;
+    if (block.isRegionMacro) block.regionCollapsed = true;
   });
   renderProgram();
 }
@@ -2704,6 +2691,7 @@ function collapseAllBlocks() {
 function expandAllBlocks() {
   program.forEach((block) => {
     block.collapsed = false;
+    if (block.isRegionMacro) block.regionCollapsed = false;
   });
   renderProgram();
 }
@@ -3017,10 +3005,24 @@ function updateProgramBlock(index, field, value) {
     return;
   }
 
-  if (block.isGroupMacro && field === "groupName") {
-    block.groupName = value;
+  if (block.isRegionMacro && field === "regionName") {
+    block.regionName = value;
     block.operand = value;
     block.rawOperand = value;
+    // Update the matching ENDREGION's read-only input in the DOM directly (depth-aware)
+    let depth = 0;
+    for (let i = index + 1; i < program.length; i++) {
+      if (program[i].isRegionMacro) { depth++; }
+      else if (program[i].isEndRegionMacro) {
+        if (depth === 0) {
+          const endNode = programList.querySelector(`[data-index="${i}"]`);
+          const endInput = endNode?.querySelector(".inline-field input");
+          if (endInput) endInput.value = value || "region";
+          break;
+        }
+        depth--;
+      }
+    }
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -3145,7 +3147,10 @@ function highlightDropTarget(dropIndex) {
   if (dropIndex === 0) {
     blocks[0].classList.add("drop-before");
   } else {
-    blocks[Math.min(dropIndex - 1, blocks.length - 1)].classList.add("drop-after");
+    // Find the block with data-index === dropIndex - 1 (handles region-wrapper nesting)
+    const target = blocks.find(b => Number(b.dataset.index) === dropIndex - 1)
+      || blocks[blocks.length - 1];
+    target.classList.add("drop-after");
   }
 }
 
@@ -3178,7 +3183,8 @@ function startMouseDnd(e, node, ds, label) {
 
 function buildOperandPreview(modeKey, rawValue, base) {
   const mode = addressingModes[modeKey];
-  const value = rawValue.trim();
+  // Strip leading # if user typed it in immediate mode — # is added automatically by formatOperand
+  const value = (modeKey === "immediate" ? rawValue.trim().replace(/^#/, "") : rawValue.trim());
 
   if (!mode.needsOperand) {
     return { operand: "", text: currentLanguage === "en" ? "no operand" : "operandus nelkul", error: "" };
@@ -4556,11 +4562,11 @@ function compileLineBytes(line, labels) {
     };
   }
 
-  if (block.isGroupMacro || block.isEndGroupMacro) {
+  if (block.isRegionMacro || block.isEndRegionMacro) {
     return {
       ok: true,
       bytes: [],
-      comment: block.isGroupMacro ? `Group: ${block.groupName || "group"}` : "End group"
+      comment: block.isRegionMacro ? `Region: ${block.regionName || "region"}` : "End region"
     };
   }
 
@@ -4943,8 +4949,8 @@ function getInstructionSize(block) {
     return 0;  // Macro definitions don't take space
   }
 
-  if (block.isGroupMacro || block.isEndGroupMacro) {
-    return 0;  // GROUP/ENDGROUP are visual markers only
+  if (block.isRegionMacro || block.isEndRegionMacro) {
+    return 0;  // REGION/ENDREGION are visual markers only
   }
 
   // Check if this is a user macro invocation (INVOKE block or legacy format)
@@ -5498,11 +5504,11 @@ function getBlockDescription(block) {
     return currentLanguage === "en" ? `Invoke macro "${name}" (not defined yet)` : `Makró "${name}" hívása (még nincs definiálva)`;
   }
 
-  if (block.isGroupMacro) {
-    return currentLanguage === "en" ? `Group: ${block.groupName || "group"}` : `Csoport: ${block.groupName || "group"}`;
+  if (block.isRegionMacro) {
+    return currentLanguage === "en" ? `Region: ${block.regionName || "region"}` : `Régió: ${block.regionName || "region"}`;
   }
-  if (block.isEndGroupMacro) {
-    return currentLanguage === "en" ? "End of group" : "Csoport vege";
+  if (block.isEndRegionMacro) {
+    return currentLanguage === "en" ? "End of region" : "Régió vége";
   }
 
   // Check if this block invokes a user macro (legacy format)
@@ -5609,31 +5615,28 @@ function getBlockModeCaption(block) {
   }
 
   if (block.isMacroDefStart) {
-    const name = block.macroName || "?";
-    return currentLanguage === "en" ? `User Macro | Definition: ${name}` : `Felhasznaloi Makro | Definicio: ${name}`;
+    return currentLanguage === "en" ? "User Macro | Definition" : "Felhasznaloi Makro | Definicio";
   }
 
   if (block.isMacroDefEnd) {
-    return currentLanguage === "en" ? `User Macro | End` : `Felhasznaloi Makro | Vege`;
+    return currentLanguage === "en" ? "User Macro | End" : "Felhasznaloi Makro | Vege";
   }
 
   if (block.isMacroInvoke) {
-    const name = block.invokeMacroName || "?";
-    return currentLanguage === "en" ? `User Macro | Invoke: ${name}` : `Felhasznaloi Makro | Hivas: ${name}`;
+    return currentLanguage === "en" ? "User Macro | Invoke" : "Felhasznaloi Makro | Hivas";
   }
 
-  if (block.isGroupMacro) {
-    const name = block.groupName || "group";
-    return currentLanguage === "en" ? `Structure | Group: ${name}` : `Szerkezet | Csoport: ${name}`;
+  if (block.isRegionMacro) {
+    return currentLanguage === "en" ? "Structure | Region" : "Szerkezet | Régió";
   }
 
-  if (block.isEndGroupMacro) {
-    return currentLanguage === "en" ? "Structure | End Group" : "Szerkezet | Csoport vege";
+  if (block.isEndRegionMacro) {
+    return currentLanguage === "en" ? "Structure | End Region" : "Szerkezet | Régió vége";
   }
 
   // Check if this block invokes a user macro (legacy format)
   if (userMacros[block.mnemonic]) {
-    return currentLanguage === "en" ? `User Macro | Invoke: ${block.mnemonic}` : `Felhasznaloi Makro | Hivas: ${block.mnemonic}`;
+    return currentLanguage === "en" ? "User Macro | Invoke" : "Felhasznaloi Makro | Hivas";
   }
 
   if (block.isLabel) {
@@ -5856,8 +5859,8 @@ function getCollapsedOperandText(block) {
     return block.invokeMacroName ? `→ ${block.invokeMacroName}` : "";
   }
 
-  if (block.isGroupMacro) return block.groupName || "group";
-  if (block.isEndGroupMacro) return "";
+  if (block.isRegionMacro) return block.regionName || "region";
+  if (block.isEndRegionMacro) return "";
 
   return block.operand || block.rawOperand || "";
 }
@@ -5875,22 +5878,48 @@ function renderProgram() {
 
   // Pre-pass: which blocks are children of a collapsed group (hidden from view)
   const hiddenByGroup = new Set();
-  let _scanGroupIdx = -1;
+  const regionStack = []; // stack of REGION block indices
   for (let i = 0; i < program.length; i++) {
-    if (program[i].isGroupMacro) {
-      _scanGroupIdx = i;
-    } else if (program[i].isEndGroupMacro) {
-      _scanGroupIdx = -1;
-    } else if (_scanGroupIdx !== -1 && program[_scanGroupIdx].groupCollapsed) {
-      hiddenByGroup.add(i);
+    const anyAncestorCollapsed = regionStack.some(idx => program[idx].regionCollapsed);
+    if (program[i].isRegionMacro) {
+      if (anyAncestorCollapsed) hiddenByGroup.add(i);
+      regionStack.push(i);
+    } else if (program[i].isEndRegionMacro) {
+      if (anyAncestorCollapsed) hiddenByGroup.add(i);
+      regionStack.pop();
+    } else {
+      if (anyAncestorCollapsed) hiddenByGroup.add(i);
     }
   }
 
-  let groupWrapper = null; // current wrapper div for group children
+  const wrapperStack = []; // stack of region-wrapper divs (null = collapsed/hidden region)
+  const activeWrapper = () => {
+    for (let i = wrapperStack.length - 1; i >= 0; i--) {
+      if (wrapperStack[i]) return wrapperStack[i];
+    }
+    return null;
+  };
 
     program.forEach((block, index) => {
-      // Skip blocks hidden by a collapsed GROUP
-      if (hiddenByGroup.has(index)) return;
+      const isHidden = hiddenByGroup.has(index);
+
+      // Maintain wrapperStack for REGION/ENDREGION even when hidden
+      // For REGION: create wrapper now but append it AFTER the REGION node (late phase)
+      let pendingWrapper = null;
+      if (block.isRegionMacro) {
+        if (!isHidden && !block.regionCollapsed) {
+          pendingWrapper = document.createElement("div");
+          pendingWrapper.className = "region-wrapper";
+          wrapperStack.push(pendingWrapper); // push but don't append yet
+        } else {
+          wrapperStack.push(null);
+        }
+      } else if (block.isEndRegionMacro) {
+        wrapperStack.pop();
+      }
+
+      // Skip hidden blocks (node not created/appended)
+      if (isHidden) return;
 
       const node = blockTemplate.content.firstElementChild.cloneNode(true);
       node.dataset.index = index;
@@ -5898,8 +5927,8 @@ function renderProgram() {
       node.dataset.categoryTone = getCategoryTone(block.category);
       node.dataset.collapsed = block.collapsed ? "true" : "false";
       if (block.isConstMacro) node.dataset.macroKind = "const";
-      if (block.isGroupMacro) node.classList.add("group-header");
-      if (block.isEndGroupMacro) node.classList.add("group-endblock");
+      if (block.isRegionMacro) node.classList.add("region-header");
+      if (block.isEndRegionMacro) node.classList.add("region-endblock");
 
       node.querySelector(".block-mnemonic").textContent = block.mnemonic;
       node.querySelector(".collapsed-operand").textContent = getCollapsedOperandText(block);
@@ -5914,13 +5943,13 @@ function renderProgram() {
       const operandField = node.querySelector(".block-operand");
       const collapseToggle = node.querySelector(".collapse-toggle");
       const dragHandle = node.querySelector(".drag-handle");
-      const groupIsCollapsed = block.isGroupMacro ? (block.groupCollapsed || false) : block.collapsed;
+      const groupIsCollapsed = block.isRegionMacro ? (block.regionCollapsed || false) : block.collapsed;
       collapseToggle.textContent = groupIsCollapsed ? "\u25B8" : "\u25BE";
       collapseToggle.setAttribute("aria-label", groupIsCollapsed ? t("expand") : t("collapse"));
       collapseToggle.setAttribute("title", groupIsCollapsed ? t("expand") : t("collapse"));
       dragHandle.setAttribute("title", t("dragBlock"));
-      if (block.isGroupMacro) {
-        collapseToggle.addEventListener("click", () => toggleGroupCollapsed(index));
+      if (block.isRegionMacro) {
+        collapseToggle.addEventListener("click", () => toggleRegionCollapsed(index));
       } else {
         collapseToggle.addEventListener("click", () => toggleBlockCollapsed(index));
       }
@@ -6467,44 +6496,44 @@ function renderProgram() {
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "macroName", event.target.value));
     } else if (block.isMacroDefEnd) {
       inlineField.hidden = true;
-    } else if (block.isGroupMacro) {
+    } else if (block.isRegionMacro) {
       inlineField.hidden = false;
-      inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Group name" : "Csoport neve";
-      operandField.value = block.groupName || "group1";
+      inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Region name" : "Régió neve";
+      operandField.value = block.regionName || "region";
       operandField.disabled = false;
       operandField.placeholder = currentLanguage === "en" ? "for example init_section" : "peldaul init_szekció";
       operandField.addEventListener("input", (event) => {
-        updateProgramBlock(index, "groupName", event.target.value);
+        updateProgramBlock(index, "regionName", event.target.value);
       });
       blockControls.insertAdjacentHTML(
         "beforeend",
-        `<div class="group-btn-row">
-          <button type="button" class="group-expand-all-btn" title="${currentLanguage === "en" ? "Expand all blocks in group" : "Csoport blokkjainak kinyitasa"}">&#9723;</button>
-          <button type="button" class="group-select-asm-btn" title="${currentLanguage === "en" ? "Select group range in ASM view" : "Csoport kijelolese az ASM nezetben"}">&#9741;</button>
+        `<div class="region-btn-row">
+          <button type="button" class="region-expand-all-btn" title="${currentLanguage === "en" ? "Expand all blocks in region" : "Régió blokkjainak kinyitása"}">&#8597;</button>
+          <button type="button" class="region-select-asm-btn" title="${currentLanguage === "en" ? "Select region range in ASM view" : "Régió kijelölése az ASM nézetben"}">&#9678;</button>
         </div>`
       );
-      blockControls.querySelector(".group-expand-all-btn")?.addEventListener("click", () => {
+      blockControls.querySelector(".region-expand-all-btn")?.addEventListener("click", () => {
         // Expand the group itself if collapsed, then expand all child blocks
-        if (block.groupCollapsed) {
-          block.groupCollapsed = false;
+        if (block.regionCollapsed) {
+          block.regionCollapsed = false;
           block.collapsed = false;
         }
         let inside = false;
         program.forEach((b, i) => {
           if (i === index) { inside = true; return; }
-          if (b.isGroupMacro || b.isEndGroupMacro) { inside = false; return; }
+          if (b.isRegionMacro || b.isEndRegionMacro) { inside = false; return; }
           if (inside) b.collapsed = false;
         });
         renderProgram();
       });
 
-      blockControls.querySelector(".group-select-asm-btn")?.addEventListener("click", () => {
-        // Find the matching ENDGROUP block
+      blockControls.querySelector(".region-select-asm-btn")?.addEventListener("click", () => {
+        // Find the matching ENDREGION block
         let endGroupBlock = null;
         let depth = 0;
         for (let i = index; i < program.length; i++) {
-          if (program[i].isGroupMacro) depth++;
-          else if (program[i].isEndGroupMacro) {
+          if (program[i].isRegionMacro) depth++;
+          else if (program[i].isEndRegionMacro) {
             depth--;
             if (depth === 0) { endGroupBlock = program[i]; break; }
           }
@@ -6526,8 +6555,21 @@ function renderProgram() {
           delete asmBlockRanges[tempId];
         }
       });
-    } else if (block.isEndGroupMacro) {
-      inlineField.hidden = true;
+    } else if (block.isEndRegionMacro) {
+      // Show the matching REGION name as read-only label (depth-aware)
+      let matchingRegionName = "";
+      let depth = 0;
+      for (let i = index - 1; i >= 0; i--) {
+        if (program[i].isEndRegionMacro) { depth++; }
+        else if (program[i].isRegionMacro) {
+          if (depth === 0) { matchingRegionName = program[i].regionName || "region"; break; }
+          depth--;
+        }
+      }
+      inlineField.hidden = false;
+      inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Region" : "Régió";
+      operandField.value = matchingRegionName;
+      operandField.disabled = true;
     } else if (block.isMacroInvoke) {
       // INVOKE block: show dropdown with available macros
       const macroNames = Object.keys(userMacros);
@@ -6606,7 +6648,7 @@ function renderProgram() {
     blockControls.insertAdjacentHTML(
       "beforeend",
       `
-          ${(mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke && !block.isGroupMacro && !block.isEndGroupMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
+          ${(mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke && !block.isRegionMacro && !block.isEndRegionMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
           <label class="mini-field">
             <span>${t("fieldFormat")}</span>
           <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
@@ -6620,7 +6662,7 @@ function renderProgram() {
             </label>
           </div>
         </label>` : ""}
-          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro || block.isGroupMacro || block.isEndGroupMacro || getMnemonicModes(block.mnemonic).length <= 1 ? ` hidden` : ""}>
+          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro || block.isRegionMacro || block.isEndRegionMacro || getMnemonicModes(block.mnemonic).length <= 1 ? ` hidden` : ""}>
             <span>${t("addressingMode")}</span>
           <select class="block-mode">
             ${getMnemonicModes(block.mnemonic).map((modeKey) => `<option value="${modeKey}"${block.addressingMode === modeKey ? " selected" : ""}>${modeText(modeKey, "label")}</option>`).join("")}
@@ -6795,18 +6837,19 @@ function renderProgram() {
       selectBlockInAsm(block.id);
     });
 
-    if (block.isGroupMacro) {
-      programList.appendChild(node);
-      if (!block.groupCollapsed) {
-        groupWrapper = document.createElement("div");
-        groupWrapper.className = "group-wrapper";
-        programList.appendChild(groupWrapper);
-      }
-    } else if (block.isEndGroupMacro) {
-      groupWrapper = null;
-      programList.appendChild(node);
+    if (block.isRegionMacro) {
+      // REGION node + wrapper both go into the PARENT wrapper
+      // wrapperStack already has the new wrapper pushed; parent is one level up
+      const parentEl = wrapperStack.length >= 2
+        ? (wrapperStack[wrapperStack.length - 2] || programList)
+        : programList;
+      parentEl.appendChild(node);          // 1. REGION block card
+      if (pendingWrapper) parentEl.appendChild(pendingWrapper); // 2. wrapper for children
+    } else if (block.isEndRegionMacro) {
+      // ENDREGION node goes into the PARENT wrapper (already popped)
+      (activeWrapper() || programList).appendChild(node);
     } else {
-      (groupWrapper || programList).appendChild(node);
+      (activeWrapper() || programList).appendChild(node);
     }
   });
 
@@ -6930,16 +6973,21 @@ function renderAsmOutput() {
       return `; ${line.block.rawOperand || ""}`;
     }
 
-    if (line.block.isGroupMacro) {
-      return `; ===[ ${line.block.groupName || "group"} ]===`;
+    if (line.block.isRegionMacro) {
+      return `; ===[ ${line.block.regionName || "region"} ]===`;
     }
 
-    if (line.block.isEndGroupMacro) {
-      let groupName = "group";
+    if (line.block.isEndRegionMacro) {
+      let regionName = "region";
+      let depth = 0;
       for (let i = index - 1; i >= 0; i--) {
-        if (layout.lines[i].block.isGroupMacro) { groupName = layout.lines[i].block.groupName || "group"; break; }
+        if (layout.lines[i].block.isEndRegionMacro) { depth++; }
+        else if (layout.lines[i].block.isRegionMacro) {
+          if (depth === 0) { regionName = layout.lines[i].block.regionName || "region"; break; }
+          depth--;
+        }
       }
-      return `; ===[/${groupName}]===`;
+      return `; ===[/${regionName}]===`;
     }
 
     if (line.block.isTextMacro) {
@@ -7159,16 +7207,21 @@ function renderAsmOutput() {
       return `${line.block.tableName || "table"}:`;
     }
 
-    if (line.block.isGroupMacro) {
-      return `; ===[ ${line.block.groupName || "group"} ]===`;
+    if (line.block.isRegionMacro) {
+      return `; ===[ ${line.block.regionName || "region"} ]===`;
     }
 
-    if (line.block.isEndGroupMacro) {
-      let groupName = "group";
+    if (line.block.isEndRegionMacro) {
+      let regionName = "region";
+      let depth = 0;
       for (let i = index - 1; i >= 0; i--) {
-        if (layout.lines[i].block.isGroupMacro) { groupName = layout.lines[i].block.groupName || "group"; break; }
+        if (layout.lines[i].block.isEndRegionMacro) { depth++; }
+        else if (layout.lines[i].block.isRegionMacro) {
+          if (depth === 0) { regionName = layout.lines[i].block.regionName || "region"; break; }
+          depth--;
+        }
       }
-      return `; ===[/${groupName}]===`;
+      return `; ===[/${regionName}]===`;
     }
 
     if (line.block.isDefineMacro) {
@@ -7530,6 +7583,10 @@ async function load10PrintDemo() {
   await loadSampleFromFile("10-print");
 }
 
+async function loadRasterIrqDemo() {
+  await loadSampleFromFile("irq-demo");
+}
+
 async function loadSidDirectDemo() {
   const ok = await loadSampleFromFile("sid-direct-demo");
   if (!ok) return;
@@ -7654,6 +7711,11 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "10-print") {
     load10PrintDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "raster-irq-demo") {
+    loadRasterIrqDemo();
     return;
   }
 

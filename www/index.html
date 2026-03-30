@@ -65,6 +65,7 @@
                     <option value="joystick-demo">JOYSTICK makro demo</option>
                     <option value="collision-demo">SPRITE_COL utkozes demo</option>
                     <option value="10-print">10 PRINT (veletlen labirintus)</option>
+                    <option value="raster-irq-demo">Raszter IRQ demo (szin villogas)</option>
                   </select>
                 </label>
                 <button id="load-sample" class="secondary" type="button">Betoltes</button>
@@ -376,7 +377,7 @@
         <img src="assets/about-logo.png" alt="C64 Visual Assembler" width="160" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v1.4.0</p>
+      <p class="about-version" id="about-version">v1.4.1</p>
       <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
         dropping instruction blocks.</p>
       <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
@@ -388,12 +389,13 @@
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v1.4.0</p>
+      <p class="whats-new-version">v1.4.1</p>
       <ul class="whats-new-list">
         <li>
-          <strong>GROUP / ENDGROUP blocks</strong> — group any set of blocks into a named,
-          collapsible section. Click the toggle to fold the whole group into one line.
-          Includes an <em>Expand all</em> button to un-collapse child blocks at once.
+          <strong>REGION / ENDREGION blocks</strong> — group any set of blocks into a named,
+          collapsible section. Click the toggle to fold the entire region into one line.
+          Includes <em>Expand all</em> and <em>Select in ASM</em> buttons.
+          ENDREGION shows the matching region name. Supports nested regions.
           Generates zero bytes — purely visual, no effect on the assembled output.
         </li>
         <li>
