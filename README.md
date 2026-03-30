@@ -2,14 +2,23 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v1.3.8**
+**Current version: v1.4.1**
 
 ---
 
 ## What's New
 
-### v1.3.8
-- Migrated from Electron to [Tauri 2](https://tauri.app/) — smaller binary, lower memory usage, no bundled Chromium
+### v1.4.1
+- **REGION / ENDREGION blocks** — group blocks into a named, collapsible section; ENDREGION shows the matching region name; supports nested regions; *Expand all* and *Select in ASM* buttons included; zero bytes generated
+- **Block mode caption cleanup** — MACRO, INVOKE, and REGION badges no longer repeat the name when the block is expanded (already visible in the input field)
+- **Drag-and-drop fix** — drop indicator now correctly targets blocks inside region wrappers
+
+### v1.4.0
+- **GROUP / ENDGROUP blocks** (renamed to REGION / ENDREGION in v1.4.1)
+- `#<label` / `#>label` lo/hi byte operator support in immediate mode
+- Report Bug menu item — opens mail client with version and OS pre-filled
+- 10 PRINT sample program
+- Stability fixes: VICE error toast, sample selector, label picker position, startup flash
 
 ---
 
@@ -41,6 +50,7 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **DEFINE macro** — activate named symbols for conditional assembly
 - **CONST macro** — declare named constants; appear in label picker and generate zero bytes
 - **MACRO / ENDM / INVOKE** — define and invoke reusable user macros
+- **REGION / ENDREGION blocks** — group blocks into a named, collapsible section; supports nesting; zero bytes generated
 - **INCBIN macro** — include an external binary file at a given memory address
 - **INCLUDE macro** — embed another `.c64asm` project file inline (read-only)
 - **SID macro** — load a SID music file directly into memory; header stripped, load/init/play addresses extracted automatically
@@ -88,7 +98,7 @@ VisualAssembler/
 ├── www/
 │   ├── index.html        # Single-page UI (all panels, templates)
 │   ├── style.css         # Full stylesheet — CSS custom properties for theming
-│   ├── app.js            # All renderer logic (~6 200 lines)
+│   ├── app.js            # All renderer logic (~7 700 lines)
 │   └── tauri-bridge.js   # Maps window.electronAPI calls to Tauri invoke commands
 ├── src-tauri/
 │   ├── src/lib.rs        # Tauri backend — file dialogs, VICE launch, IPC commands
@@ -159,6 +169,8 @@ Each block in `program[]` is a plain object:
   isSidMacro: true,
   isLabel: true, labelName: "loop",
   isComment: true,
+  isRegionMacro: true, regionName: "init", regionCollapsed: false,
+  isEndRegionMacro: true,
 }
 ```
 
@@ -192,6 +204,7 @@ Each block in `program[]` is a plain object:
 | `SPRITE_POS` | Set static sprite X/Y position; handles $D010 MSB for X > 255 (18 bytes) |
 | `WAIT_RASTER` | Inline raster-line busy-wait; no JSR or label needed (7 bytes) |
 | `JOYSTICK` | Read CIA joystick port and move a sprite via INC/DEC (27 bytes) |
+| `REGION` / `ENDREGION` | Visual grouping block — collapsible named section; zero bytes; supports nesting |
 | `LABEL` | Zero-byte named symbol; resolves in branch/jump operands |
 | `COMMENT` | Zero-byte annotation; generates no machine code |
 
