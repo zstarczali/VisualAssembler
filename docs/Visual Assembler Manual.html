@@ -1,0 +1,2000 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Visual Assembler Manual.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="c64-visual-assembler--user-manual">C64 Visual Assembler — User Manual</h1>
+<p><strong>Version 1.4.1</strong></p>
+<p>A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.</p>
+<hr>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#1-interface-overview">Interface Overview</a></li>
+<li><a href="#2-block-palette">Block Palette</a></li>
+<li><a href="#3-program-area">Program Area</a></li>
+<li><a href="#4-asm-view">ASM View</a></li>
+<li><a href="#5-settings--toolbar">Settings &amp; Toolbar</a></li>
+<li><a href="#6-addressing-modes">Addressing Modes</a></li>
+<li><a href="#7-standard-6502-instructions">Standard 6502 Instructions</a></li>
+<li><a href="#8-macro-blocks--reference">Macro Blocks — Reference</a>
+<ul>
+<li><a href="#label">LABEL</a></li>
+<li><a href="#comment">COMMENT</a></li>
+<li><a href="#byte">BYTE</a></li>
+<li><a href="#word">WORD</a></li>
+<li><a href="#fill">FILL</a></li>
+<li><a href="#align">ALIGN</a></li>
+<li><a href="#text">TEXT</a></li>
+<li><a href="#string">STRING</a></li>
+<li><a href="#data">DATA</a></li>
+<li><a href="#rawbytes">RAWBYTES</a></li>
+<li><a href="#rawtext">RAWTEXT</a></li>
+<li><a href="#petscii">PETSCII</a></li>
+<li><a href="#incbin">INCBIN</a></li>
+<li><a href="#sid">SID</a></li>
+<li><a href="#include">INCLUDE</a></li>
+<li><a href="#table">TABLE</a></li>
+<li><a href="#loop--next">LOOP / NEXT</a></li>
+<li><a href="#push--pull">PUSH / PULL</a></li>
+<li><a href="#macro--endm--invoke">MACRO / ENDM / INVOKE</a></li>
+<li><a href="#region--endregion">REGION / ENDREGION</a></li>
+<li><a href="#define--if--else--endif">DEFINE / IF / ELSE / ENDIF</a></li>
+<li><a href="#const">CONST</a></li>
+<li><a href="#sprite_init">SPRITE_INIT</a></li>
+<li><a href="#sprite_pos">SPRITE_POS</a></li>
+<li><a href="#wait_raster">WAIT_RASTER</a></li>
+<li><a href="#joystick">JOYSTICK</a></li>
+<li><a href="#sprite_col">SPRITE_COL</a></li>
+</ul>
+</li>
+<li><a href="#9-knowledge-base-links">Knowledge Base Links</a></li>
+</ol>
+<hr>
+<h2 id="1-interface-overview">1. Interface Overview</h2>
+<p>The app is split into three main panels:</p>
+<table>
+<thead>
+<tr>
+<th>Panel</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Left — Palette</strong></td>
+<td>All available instruction and macro blocks. Search or browse by category.</td>
+</tr>
+<tr>
+<td><strong>Center — Program</strong></td>
+<td>Your program. Drag blocks here, reorder them, edit operands.</td>
+</tr>
+<tr>
+<td><strong>Right — Output</strong></td>
+<td>Live ASM view and/or memory monitor output.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="2-block-palette">2. Block Palette</h2>
+<p>The palette on the left lists all available blocks grouped by category:</p>
+<ul>
+<li><strong>Data movement</strong> — LDA, LDX, STA, STX, …</li>
+<li><strong>Arithmetic</strong> — ADC, SBC, INC, DEC, CMP, …</li>
+<li><strong>Logic</strong> — AND, ORA, EOR, BIT</li>
+<li><strong>Jumps &amp; Branches</strong> — JMP, JSR, RTS, BNE, BEQ, …</li>
+<li><strong>Register operations</strong> — TAX, TAY, INX, DEX, …</li>
+<li><strong>Shift &amp; Rotate</strong> — ASL, LSR, ROL, ROR</li>
+<li><strong>Stack</strong> — PHA, PHP, PLA, PLP</li>
+<li><strong>System</strong> — CLC, SEC, NOP, BRK, …</li>
+<li><strong>Illegal instructions</strong> — LAX, SAX, DCP, …</li>
+<li><strong>Structure</strong> — LABEL, COMMENT, REGION, ENDREGION</li>
+<li><strong>Macros</strong> — LOOP, NEXT, PUSH, PULL, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, INCBIN, SID, INCLUDE, TABLE, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, SPRITE_COL</li>
+</ul>
+<p>Use the <strong>search box</strong> at the top of the palette to filter by name. Click the <strong>Add selected block</strong> button or drag a block into the program area.</p>
+<hr>
+<h2 id="3-program-area">3. Program Area</h2>
+<ul>
+<li><strong>Drag &amp; drop</strong> blocks from the palette, or <strong>reorder</strong> existing blocks by dragging their handle (≡).</li>
+<li>Each block shows its <strong>mnemonic</strong>, <strong>operand field</strong>, and <strong>addressing mode selector</strong> (where applicable).</li>
+<li>Click the <strong>▸ / ▾</strong> toggle to collapse or expand a block.</li>
+<li>Use the <strong>× (delete)</strong> button on a block to remove it.</li>
+<li><strong>Collapse All</strong> button folds all blocks at once.</li>
+</ul>
+<h3 id="operand-input">Operand input</h3>
+<ul>
+<li>For branch/jump instructions (<code>BNE</code>, <code>JMP</code>, <code>JSR</code>, etc.) a <strong>label picker</strong> dropdown appears — click a defined label to insert it.</li>
+<li>Number format follows the <strong>HEX / DEC</strong> toggle in the toolbar (see section 5).</li>
+</ul>
+<hr>
+<h2 id="4-asm-view">4. ASM View</h2>
+<p>The right panel shows the generated output in real time.</p>
+<h3 id="output-modes">Output modes</h3>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ASM</strong></td>
+<td>6502 assembly source with addresses and labels</td>
+</tr>
+<tr>
+<td><strong>Monitor</strong></td>
+<td>Hex / byte dump (C64 monitor style)</td>
+</tr>
+<tr>
+<td><strong>Both</strong></td>
+<td>ASM on top, monitor below</td>
+</tr>
+<tr>
+<td><strong>Program</strong></td>
+<td>Program settings panel — origin, number format, macro source toggle</td>
+</tr>
+</tbody>
+</table>
+<h3 id="program-tab">Program tab</h3>
+<p>The <strong>Program</strong> tab contains the settings that affect code generation and output display:</p>
+<ul>
+<li><strong>Macro source</strong> — when ON, macro definition blocks (MACRO…ENDM) show their source code inline in the ASM view.</li>
+<li><strong>Show numbers in ASM (HEX / DEC)</strong> — switches all address and value literals in the ASM output between hexadecimal and decimal. This is independent from the per-block HEX / DEC toggle: the per-block toggle controls how you <em>enter</em> the operand; this toggle controls how the <em>output</em> is displayed.</li>
+<li><strong>Origin</strong> — the load address of your program (default <code>$0801</code>). Supports both <code>0801</code> and <code>$0801</code> notation. The HEX / DEC toggle next to the input converts the displayed value. All label addresses and the monitor output update immediately.</li>
+<li><strong>Compile info</strong> — shows a summary of the compiled program (code start address, size, BASIC SYS stub status).</li>
+</ul>
+<h3 id="clicking-an-asm-line">Clicking an ASM line</h3>
+<p>Click any line in the ASM view to <strong>highlight the corresponding block</strong> in the program area.</p>
+<hr>
+<h2 id="5-settings--toolbar">5. Settings &amp; Toolbar</h2>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Number base (HEX / DEC)</strong></td>
+<td>Sets the display/input format for operands throughout the UI</td>
+</tr>
+<tr>
+<td><strong>Language</strong></td>
+<td>Switch between English and Hungarian</td>
+</tr>
+<tr>
+<td><strong>Theme</strong></td>
+<td>Light / dark mode</td>
+</tr>
+<tr>
+<td><strong>CRT retro mode</strong></td>
+<td>Toggles a full-screen CRT filter: scanlines, phosphor vignette, flicker, and barrel distortion. State is saved between sessions.</td>
+</tr>
+<tr>
+<td><strong>BASIC SYS stub</strong></td>
+<td>Prepends a BASIC line that calls SYS to your program's origin</td>
+</tr>
+<tr>
+<td><strong>Sample</strong></td>
+<td>Load a built-in example program</td>
+</tr>
+<tr>
+<td><strong>Zoom in / out</strong></td>
+<td>Scale the block UI (affects all block elements)</td>
+</tr>
+<tr>
+<td><strong>Save Project</strong></td>
+<td>Save the current program as a <code>.json</code> project file</td>
+</tr>
+<tr>
+<td><strong>Load Project</strong></td>
+<td>Load a previously saved project</td>
+</tr>
+<tr>
+<td><strong>Save PRG</strong></td>
+<td>Export the compiled binary as a <code>.prg</code> file</td>
+</tr>
+<tr>
+<td><strong>Run in VICE</strong></td>
+<td>Compile and launch directly in the VICE emulator</td>
+</tr>
+<tr>
+<td><strong>Clear program</strong></td>
+<td>Remove all blocks from the program area</td>
+</tr>
+<tr>
+<td><strong>Collapse All</strong></td>
+<td>Collapse all blocks</td>
+</tr>
+<tr>
+<td><strong>About</strong></td>
+<td>Version info</td>
+</tr>
+<tr>
+<td><strong>What's New</strong></td>
+<td>Changelog</td>
+</tr>
+<tr>
+<td><strong>Knowledge Base</strong></td>
+<td>Reference links (6502 opcodes, C64 KERNAL, memory map, colors)</td>
+</tr>
+<tr>
+<td><strong>Check for Update</strong></td>
+<td>Open the itch.io page to check for a newer release</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="6-addressing-modes">6. Addressing Modes</h2>
+<p>Each 6502 instruction supports one or more addressing modes. The mode selector appears on each block.</p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Label</th>
+<th>Example</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>implied</strong></td>
+<td>Implied</td>
+<td><code>NOP</code></td>
+<td>No operand; the instruction is self-contained</td>
+</tr>
+<tr>
+<td><strong>immediate</strong></td>
+<td>Immediate</td>
+<td><code>LDA #$FF</code></td>
+<td>Inline constant; the assembler adds <code>#</code> automatically</td>
+</tr>
+<tr>
+<td><strong>zeroPage</strong></td>
+<td>Zero page</td>
+<td><code>LDA $10</code></td>
+<td>Single byte address in page zero (0–255)</td>
+</tr>
+<tr>
+<td><strong>absolute</strong></td>
+<td>Absolute</td>
+<td><code>LDA $0400</code></td>
+<td>Full 16-bit memory address</td>
+</tr>
+<tr>
+<td><strong>relative</strong></td>
+<td>Relative/Label</td>
+<td><code>BNE loop</code></td>
+<td>For branch instructions; enter a label name or target address</td>
+</tr>
+<tr>
+<td><strong>absoluteX</strong></td>
+<td>Absolute,X</td>
+<td><code>LDA $0400,X</code></td>
+<td>16-bit address + X register offset</td>
+</tr>
+<tr>
+<td><strong>absoluteY</strong></td>
+<td>Absolute,Y</td>
+<td><code>LDA $0400,Y</code></td>
+<td>16-bit address + Y register offset</td>
+</tr>
+<tr>
+<td><strong>indirectX</strong></td>
+<td>Indirect,X</td>
+<td><code>LDA ($FB,X)</code></td>
+<td>Zero page indexed indirect</td>
+</tr>
+<tr>
+<td><strong>indirectY</strong></td>
+<td>Indirect,Y</td>
+<td><code>LDA ($FB),Y</code></td>
+<td>Zero page indirect indexed</td>
+</tr>
+<tr>
+<td><strong>indirect</strong></td>
+<td>Indirect</td>
+<td><code>JMP ($0100)</code></td>
+<td>Indirect; only usable with JMP</td>
+</tr>
+<tr>
+<td><strong>zeroPageY</strong></td>
+<td>Zero page,Y</td>
+<td><code>LDX $FB,Y</code></td>
+<td>Zero page address + Y register offset</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="7-standard-6502-instructions">7. Standard 6502 Instructions</h2>
+<h3 id="data-movement">Data Movement</h3>
+<table>
+<thead>
+<tr>
+<th>Mnemonic</th>
+<th>Description</th>
+<th>Modes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LDA</code></td>
+<td>Load Accumulator</td>
+<td>immediate, zeroPage, absolute, absoluteX, absoluteY, indirectX, indirectY</td>
+</tr>
+<tr>
+<td><code>LDX</code></td>
+<td>Load X register</td>
+<td>immediate, zeroPage, zeroPageY, absolute, absoluteY</td>
+</tr>
+<tr>
+<td><code>LDY</code></td>
+<td>Load Y register</td>
+<td>immediate, zeroPage, absolute, absoluteX</td>
+</tr>
+<tr>
+<td><code>STA</code></td>
+<td>Store Accumulator</td>
+<td>zeroPage, absolute, absoluteX, absoluteY, indirectX, indirectY</td>
+</tr>
+<tr>
+<td><code>STX</code></td>
+<td>Store X register</td>
+<td>zeroPage, zeroPageY, absolute</td>
+</tr>
+<tr>
+<td><code>STY</code></td>
+<td>Store Y register</td>
+<td>zeroPage, absolute</td>
+</tr>
+</tbody>
+</table>
+<h3 id="arithmetic">Arithmetic</h3>
+<table>
+<thead>
+<tr>
+<th>Mnemonic</th>
+<th>Description</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ADC</code></td>
+<td>Add with carry</td>
+<td>Set carry with <code>SEC</code> before use in most cases</td>
+</tr>
+<tr>
+<td><code>SBC</code></td>
+<td>Subtract with carry</td>
+<td>Set carry with <code>SEC</code> before subtraction</td>
+</tr>
+<tr>
+<td><code>INC</code></td>
+<td>Increment memory</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>DEC</code></td>
+<td>Decrement memory</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>CMP</code></td>
+<td>Compare with A</td>
+<td>Sets flags; does not modify A</td>
+</tr>
+<tr>
+<td><code>CPX</code></td>
+<td>Compare with X</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>CPY</code></td>
+<td>Compare with Y</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h3 id="logic">Logic</h3>
+<table>
+<thead>
+<tr>
+<th>Mnemonic</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AND</code></td>
+<td>Logical AND with Accumulator</td>
+</tr>
+<tr>
+<td><code>ORA</code></td>
+<td>Logical OR with Accumulator</td>
+</tr>
+<tr>
+<td><code>EOR</code></td>
+<td>Exclusive OR with Accumulator</td>
+</tr>
+<tr>
+<td><code>BIT</code></td>
+<td>Test bits in memory against A (sets N, V, Z flags)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="jumps--branches">Jumps &amp; Branches</h3>
+<table>
+<thead>
+<tr>
+<th>Mnemonic</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>JMP</code></td>
+<td>Unconditional jump (absolute or indirect)</td>
+</tr>
+<tr>
+<td><code>JSR</code></td>
+<td>Jump to subroutine (saves return address on stack)</td>
+</tr>
+<tr>
+<td><code>RTS</code></td>
+<td>Return from subroutine</td>
+</tr>
+<tr>
+<td><code>RTI</code></td>
+<td>Return from interrupt</td>
+</tr>
+<tr>
+<td><code>BNE</code></td>
+<td>Branch if Not Equal (Z=0)</td>
+</tr>
+<tr>
+<td><code>BEQ</code></td>
+<td>Branch if Equal (Z=1)</td>
+</tr>
+<tr>
+<td><code>BCC</code></td>
+<td>Branch if Carry Clear (C=0)</td>
+</tr>
+<tr>
+<td><code>BCS</code></td>
+<td>Branch if Carry Set (C=1)</td>
+</tr>
+<tr>
+<td><code>BMI</code></td>
+<td>Branch if Minus (N=1)</td>
+</tr>
+<tr>
+<td><code>BPL</code></td>
+<td>Branch if Plus (N=0)</td>
+</tr>
+<tr>
+<td><code>BVC</code></td>
+<td>Branch if Overflow Clear (V=0)</td>
+</tr>
+<tr>
+<td><code>BVS</code></td>
+<td>Branch if Overflow Set (V=1)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="register-operations">Register Operations</h3>
+<table>
+<thead>
+<tr>
+<th>Mnemonic</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TAX</code></td>
+<td>Transfer A → X</td>
+</tr>
+<tr>
+<td><code>TAY</code></td>
+<td>Transfer A → Y</td>
+</tr>
+<tr>
+<td><code>TXA</code></td>
+<td>Transfer X → A</td>
+</tr>
+<tr>
+<td><code>TYA</code></td>
+<td>Transfer Y → A</td>
+</tr>
+<tr>
+<td><code>TSX</code></td>
+<td>Transfer Stack pointer → X</td>
+</tr>
+<tr>
+<td><code>TXS</code></td>
+<td>Transfer X → Stack pointer</td>
+</tr>
+<tr>
+<td><code>INX</code></td>
+<td>Increment X</td>
+</tr>
+<tr>
+<td><code>DEX</code></td>
+<td>Decrement X</td>
+</tr>
+<tr>
+<td><code>INY</code></td>
+<td>Increment Y</td>
+</tr>
+<tr>
+<td><code>DEY</code></td>
+<td>Decrement Y</td>
+</tr>
+</tbody>
+</table>
+<h3 id="shift--rotate">Shift &amp; Rotate</h3>
+<table>
+<thead>
+<tr>
+<th>Mnemonic</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ASL</code></td>
+<td>Arithmetic Shift Left</td>
+</tr>
+<tr>
+<td><code>LSR</code></td>
+<td>Logical Shift Right</td>
+</tr>
+<tr>
+<td><code>ROL</code></td>
+<td>Rotate Left through Carry</td>
+</tr>
+<tr>
+<td><code>ROR</code></td>
+<td>Rotate Right through Carry</td>
+</tr>
+</tbody>
+</table>
+<h3 id="stack">Stack</h3>
+<table>
+<thead>
+<tr>
+<th>Mnemonic</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PHA</code></td>
+<td>Push Accumulator onto stack</td>
+</tr>
+<tr>
+<td><code>PHP</code></td>
+<td>Push Processor status onto stack</td>
+</tr>
+<tr>
+<td><code>PLA</code></td>
+<td>Pull Accumulator from stack</td>
+</tr>
+<tr>
+<td><code>PLP</code></td>
+<td>Pull Processor status from stack</td>
+</tr>
+</tbody>
+</table>
+<h3 id="system--flags">System / Flags</h3>
+<table>
+<thead>
+<tr>
+<th>Mnemonic</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CLC</code></td>
+<td>Clear Carry flag</td>
+</tr>
+<tr>
+<td><code>CLD</code></td>
+<td>Clear Decimal mode</td>
+</tr>
+<tr>
+<td><code>CLI</code></td>
+<td>Clear Interrupt disable</td>
+</tr>
+<tr>
+<td><code>CLV</code></td>
+<td>Clear Overflow flag</td>
+</tr>
+<tr>
+<td><code>SEC</code></td>
+<td>Set Carry flag</td>
+</tr>
+<tr>
+<td><code>SED</code></td>
+<td>Set Decimal mode</td>
+</tr>
+<tr>
+<td><code>SEI</code></td>
+<td>Set Interrupt disable</td>
+</tr>
+<tr>
+<td><code>NOP</code></td>
+<td>No operation</td>
+</tr>
+<tr>
+<td><code>BRK</code></td>
+<td>Force break / software interrupt</td>
+</tr>
+</tbody>
+</table>
+<h3 id="illegal--undocumented-instructions">Illegal / Undocumented Instructions</h3>
+<p>These are supported for advanced use. Use with care — behavior may differ between chips.</p>
+<p><code>LAX</code>, <code>SAX</code>, <code>DCP</code>, <code>ISC</code>, <code>SLO</code>, <code>RLA</code>, <code>SRE</code>, <code>RRA</code>, <code>ANC</code>, <code>ALR</code>, <code>ARR</code>, <code>AXS</code></p>
+<hr>
+<h2 id="8-macro-blocks--reference">8. Macro Blocks — Reference</h2>
+<p>Macro blocks generate multiple instructions or data directives automatically. They are found in the <strong>Macros</strong> category of the palette.</p>
+<hr>
+<h3 id="label">LABEL</h3>
+<p>Creates a named label that can be used as a jump target.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Label name</td>
+<td>Identifier used in <code>JMP</code>, <code>JSR</code>, <code>BNE</code>, etc.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated ASM:</strong></p>
+<pre class="hljs"><code><div>loop:  ; $0820
+</div></code></pre>
+<p>The address is shown as a comment. Labels have <strong>0 byte size</strong>.</p>
+<hr>
+<h3 id="comment">COMMENT</h3>
+<p>Inserts a comment line in the ASM output. No bytes generated.</p>
+<p><strong>Generated ASM:</strong></p>
+<pre class="hljs"><code><div>; Your comment text here
+</div></code></pre>
+<hr>
+<h3 id="byte">BYTE</h3>
+<p>Inserts an arbitrary sequence of raw bytes.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Operand</td>
+<td>Comma-separated byte values (e.g. <code>$01, $02, $FF</code> or <code>1, 2, 255</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated ASM:</strong></p>
+<pre class="hljs"><code><div>    .byte $01, $02, $FF
+</div></code></pre>
+<p><strong>Size:</strong> Number of bytes in the list.</p>
+<hr>
+<h3 id="word">WORD</h3>
+<p>Inserts 16-bit values stored as little-endian LO/HI byte pairs.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Operand</td>
+<td>Comma-separated 16-bit values (e.g. <code>$0400, $C000</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated ASM:</strong></p>
+<pre class="hljs"><code><div>    .word $0400, $C000
+</div></code></pre>
+<p><strong>Size:</strong> 2 bytes per word.</p>
+<hr>
+<h3 id="fill">FILL</h3>
+<p>Generates a repeated sequence of the same byte value.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Operand</td>
+<td><code>count,value</code> — e.g. <code>256,0</code> fills 256 bytes with zero</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated ASM:</strong></p>
+<pre class="hljs"><code><div>    .fill 256, $00
+</div></code></pre>
+<p><strong>Size:</strong> The count value in bytes.</p>
+<hr>
+<h3 id="align">ALIGN</h3>
+<p>Advances the program counter to the next boundary of the given size. Inserts padding bytes as needed.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Boundary</td>
+<td>Alignment value — e.g. <code>64</code> (sprite boundary), <code>256</code> (page), <code>$2000</code> (bitmap)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated ASM:</strong></p>
+<pre class="hljs"><code><div>    ; ALIGN 64 → $0840 (12 bytes padding)
+</div></code></pre>
+<p><strong>Size:</strong> Dynamic — depends on the current program counter position.</p>
+<blockquote>
+<p><strong>Tip:</strong> Use <code>ALIGN 64</code> before sprite data, <code>ALIGN 256</code> to ensure page-aligned tables.</p>
+</blockquote>
+<hr>
+<h3 id="text">TEXT</h3>
+<p>Writes a text string to the C64 screen RAM at a given row/column position using the KERNAL CHROUT routine.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Text</td>
+<td>The string to display</td>
+</tr>
+<tr>
+<td>X</td>
+<td>Column (0–39)</td>
+</tr>
+<tr>
+<td>Y</td>
+<td>Row (0–24)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated ASM:</strong></p>
+<pre class="hljs"><code><div>    LDA #$48      ; 'H'
+    JSR $FFD2
+    LDA #$45      ; 'E'
+    JSR $FFD2
+    ...
+</div></code></pre>
+<p>Characters are encoded as PETSCII. <strong>Size:</strong> <code>text.length × 5</code> bytes (LDA + JSR per character).</p>
+<hr>
+<h3 id="string">STRING</h3>
+<p>Places a PETSCII-encoded string as raw bytes at a given memory address (no runtime code, deferred data section).</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Text</td>
+<td>The string to place</td>
+</tr>
+<tr>
+<td>Address</td>
+<td>Target memory address (e.g. <code>$C000</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated ASM:</strong></p>
+<pre class="hljs"><code><div>    .byte $48, $45, $4C, $4C, $4F   ; &quot;HELLO&quot;
+</div></code></pre>
+<p>Placed at the specified address. <strong>Size:</strong> <code>text.length</code> bytes.</p>
+<hr>
+<h3 id="data">DATA</h3>
+<p>Writes raw bytes to a given memory address using LDA/STA instructions at runtime.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bytes</td>
+<td>Comma-separated byte values</td>
+</tr>
+<tr>
+<td>Address</td>
+<td>Target memory address</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated ASM:</strong></p>
+<pre class="hljs"><code><div>    LDA #$01
+    STA $C000
+    LDA #$02
+    STA $C001
+    ...
+</div></code></pre>
+<p><strong>Size:</strong> <code>byte_count × 5</code> bytes (one LDA + one STA per byte).</p>
+<hr>
+<h3 id="rawbytes">RAWBYTES</h3>
+<p>Places raw bytes at a given memory address — no runtime code is generated. The bytes appear in the deferred data section of the output.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bytes</td>
+<td>Comma-separated byte values</td>
+</tr>
+<tr>
+<td>Address</td>
+<td>Target memory address (e.g. <code>$C000</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Size in code:</strong> 0 bytes. The data is placed at the given address in the output.</p>
+<blockquote>
+<p><strong>Use this instead of DATA</strong> when you don't need runtime initialization code and just want bytes at an address.</p>
+</blockquote>
+<hr>
+<h3 id="rawtext">RAWTEXT</h3>
+<p>Like RAWBYTES but accepts a text string that is encoded as PETSCII bytes.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Text</td>
+<td>String to encode</td>
+</tr>
+<tr>
+<td>Address</td>
+<td>Target memory address</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Size in code:</strong> 0 bytes.</p>
+<hr>
+<h3 id="petscii">PETSCII</h3>
+<p>Places a text string encoded as PETSCII bytes at a given memory address. No runtime code is generated — the bytes are placed directly at the target address, similar to RAWBYTES.</p>
+<p>Each printable ASCII character (codes 32–126) is stored using its standard ASCII value, which corresponds to the PETSCII uppercase range. The result is compatible with KERNAL CHROUT (<code>$FFD2</code>).</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Text</td>
+<td>String to encode as PETSCII bytes</td>
+</tr>
+<tr>
+<td>Address</td>
+<td>Target memory address (e.g. <code>$C000</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated ASM:</strong></p>
+<pre class="hljs"><code><div>; .petscii &quot;HELLO&quot; -&gt; $C000
+; $C000
+    .byte $48, $45, $4C, $4C, $4F   ; H E L L O
+</div></code></pre>
+<p><strong>Size in code:</strong> 0 bytes. The data is placed at the target address as a deferred data section (like RAWBYTES).</p>
+<p><strong>Encoding rules:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Byte value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Printable ASCII (space, letters, digits, punctuation)</td>
+<td>Standard ASCII code (32–126)</td>
+</tr>
+<tr>
+<td>Newline</td>
+<td><code>$0D</code> (RETURN)</td>
+</tr>
+<tr>
+<td>Everything else</td>
+<td><code>$20</code> (space)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Tip:</strong> Use PETSCII for data that will be output via CHROUT (<code>$FFD2</code>). For screen-code strings (different mapping), use the STRING macro instead.</p>
+</blockquote>
+<hr>
+<h3 id="incbin">INCBIN</h3>
+<p>Includes an external binary file and places its content at a given memory address.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>File</td>
+<td>Browse to select a <code>.bin</code>, <code>.prg</code>, <code>.sid</code>, or <code>.raw</code> file</td>
+</tr>
+<tr>
+<td>Address</td>
+<td>Target load address (e.g. <code>$C000</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated ASM comment:</strong></p>
+<pre class="hljs"><code><div>    ; INCBIN &quot;music.bin&quot; @ $C000 (2048 bytes)
+    .byte $01, $02, ...
+</div></code></pre>
+<p><strong>Size in code:</strong> 0 bytes (deferred data section). The binary is embedded at the given address.</p>
+<hr>
+<h3 id="sid">SID</h3>
+<p>Loads a SID music file and places its data at the address specified in the SID header. Header metadata (Load/Init/Play addresses, title, author) is extracted automatically.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>File</td>
+<td>Browse to select a <code>.sid</code> file</td>
+</tr>
+</tbody>
+</table>
+<p>The block displays:</p>
+<ul>
+<li><strong>Title / Author</strong> from the SID header</li>
+<li><strong>Load address</strong> — where the data is placed in memory</li>
+<li><strong>Init address</strong> — call this with JSR to initialize the music</li>
+<li><strong>Play address</strong> — call this with JSR on every frame (e.g. in an IRQ handler)</li>
+</ul>
+<p><strong>Generated ASM comment:</strong></p>
+<pre class="hljs"><code><div>    ; SID &quot;Commando.sid&quot; @ $1000  Init:$1000  Play:$1003  (8192 bytes)
+</div></code></pre>
+<p><strong>Size in code:</strong> 0 bytes. The SID data is placed at the load address.</p>
+<blockquote>
+<p><strong>Typical usage:</strong> JSR to Init once, then call Play periodically from an IRQ.</p>
+</blockquote>
+<hr>
+<h3 id="include">INCLUDE</h3>
+<p>Includes another Visual Assembler project file and expands its blocks inline at this position. The included blocks are read-only.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>File</td>
+<td>Browse to select a <code>.json</code> Visual Assembler project</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated ASM:</strong></p>
+<pre class="hljs"><code><div>    ; === INCLUDE &quot;library.json&quot; — 12 block(s) ===
+    ... (expanded blocks follow)
+</div></code></pre>
+<blockquote>
+<p><strong>Tip:</strong> Use INCLUDE to build reusable subroutine libraries that you can share across projects.</p>
+</blockquote>
+<hr>
+<h3 id="table">TABLE</h3>
+<p>Defines a lookup table at a fixed memory address with a named label.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Name</td>
+<td>Label identifier for the table (e.g. <code>color_table</code>)</td>
+</tr>
+<tr>
+<td>Address</td>
+<td>Fixed address where the table starts (e.g. <code>$C000</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated ASM:</strong></p>
+<pre class="hljs"><code><div>color_table:
+</div></code></pre>
+<p>The program counter jumps to the specified address for subsequent blocks. Place BYTE/WORD/FILL blocks after TABLE to fill the table content.</p>
+<p><strong>Size:</strong> 0 bytes.</p>
+<hr>
+<h3 id="loop--next">LOOP / NEXT</h3>
+<p>A counted loop pair using a register as the counter.</p>
+<h4 id="loop">LOOP</h4>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Register</td>
+<td><code>X</code> or <code>Y</code> — the counter register</td>
+</tr>
+<tr>
+<td>Count</td>
+<td>Loop iteration count (hex or decimal, e.g. <code>0A</code> = 10)</td>
+</tr>
+<tr>
+<td>Label</td>
+<td>Auto-generated loop label (e.g. <code>loop0</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated ASM:</strong></p>
+<pre class="hljs"><code><div>    LDX #$0A
+loop0:
+</div></code></pre>
+<p><strong>Size:</strong> 2 bytes (LD_ opcode + immediate operand).</p>
+<h4 id="next">NEXT</h4>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Register</td>
+<td>Automatically matched to the LOOP register</td>
+</tr>
+<tr>
+<td>Label</td>
+<td>Automatically linked to the LOOP label</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated ASM:</strong></p>
+<pre class="hljs"><code><div>    DEX
+    BNE loop0
+</div></code></pre>
+<p><strong>Size:</strong> 3 bytes (DEX + BNE + branch offset).</p>
+<p><strong>Example — clear 10 screen cells:</strong></p>
+<pre class="hljs"><code><div>    LDX #$0A
+loop0:
+    LDA #$20        ; space character
+    STA $0400,X
+    DEX
+    BNE loop0
+</div></code></pre>
+<hr>
+<h3 id="push--pull">PUSH / PULL</h3>
+<p>Save and restore registers using the stack.</p>
+<h4 id="push">PUSH</h4>
+<p>Pushes one or more registers onto the stack. The order is always A → X → Y (innermost first).</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Registers</td>
+<td>Any combination: <code>A</code>, <code>X</code>, <code>Y</code>, <code>AX</code>, <code>AY</code>, <code>XY</code>, <code>AXY</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated ASM (example: <code>AX</code>):</strong></p>
+<pre class="hljs"><code><div>    PHA
+    TXA
+    PHA
+</div></code></pre>
+<p><strong>Size:</strong> 1 byte for A (<code>PHA</code>), 2 bytes for X or Y (transfer + push).</p>
+<h4 id="pull">PULL</h4>
+<p>Restores registers from the stack in reverse order (Y → X → A).</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Registers</td>
+<td>Same as PUSH — must match the corresponding PUSH block</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated ASM (example: <code>AX</code>):</strong></p>
+<pre class="hljs"><code><div>    PLA
+    TAX
+    PLA
+</div></code></pre>
+<blockquote>
+<p><strong>Important:</strong> Always pair PUSH and PULL with the same register set, and in reverse order. <code>PUSH AX</code> must be matched by <code>PULL AX</code> (which internally does Y-first, then X, then A).</p>
+</blockquote>
+<hr>
+<h3 id="macro--endm--invoke">MACRO / ENDM / INVOKE</h3>
+<p>Define and reuse your own named code blocks.</p>
+<h4 id="macro-definition-start">MACRO (definition start)</h4>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Name</td>
+<td>Identifier for the macro (e.g. <code>clear_screen</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>Marks the beginning of a macro definition. All blocks between MACRO and ENDM become the macro body. The definition does <strong>not</strong> generate code where it appears.</p>
+<p><strong>Generated ASM:</strong></p>
+<pre class="hljs"><code><div>; .MACRO clear_screen
+    ... (body blocks)
+; .ENDM
+</div></code></pre>
+<h4 id="endm-definition-end">ENDM (definition end)</h4>
+<p>Closes the current macro definition. No fields.</p>
+<h4 id="invoke">INVOKE</h4>
+<p>Inserts the contents of a named macro at this position.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Macro name</td>
+<td>Select from the dropdown of defined macros</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated ASM:</strong></p>
+<pre class="hljs"><code><div>; &gt;&gt;&gt; Invoke: clear_screen
+    ... (expanded macro body)
+</div></code></pre>
+<p>The macro body is expanded inline — all addresses and labels are resolved in context.</p>
+<blockquote>
+<p><strong>Tip:</strong> Define macros at the top (or bottom) of your program, then INVOKE them wherever needed. Macros can be invoked multiple times.</p>
+</blockquote>
+<hr>
+<h3 id="region--endregion">REGION / ENDREGION</h3>
+<p>Groups a set of blocks into a <strong>named, collapsible section</strong>. REGION and ENDREGION are purely visual — they generate <strong>zero bytes</strong> and have no effect on the assembled output.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Region name</td>
+<td>Free-text label for the section (e.g. <code>init</code>, <code>game_loop</code>, <code>sprite_setup</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Controls on the REGION block:</strong></p>
+<ul>
+<li><strong>▸ / ▾ toggle</strong> — collapses or expands the entire region. When collapsed, all blocks between REGION and ENDREGION are hidden and the REGION block's own body folds in.</li>
+<li><strong>⊡ Expand all</strong> — un-collapses every individually collapsed block inside the region and expands the region itself if needed.</li>
+<li><strong>⦵ Select in ASM</strong> — highlights the entire region's code range in the ASM view (from <code>; ===[ name ]===</code> to <code>; ===[/name]===</code>) and scrolls to it. Switches to the ASM tab automatically if it is not currently visible.</li>
+</ul>
+<p><strong>Generated ASM:</strong></p>
+<pre class="hljs"><code><div>; ===[ init ]===
+    SEI
+    LDA #$00
+    STA $D020
+; ===[/init]===
+</div></code></pre>
+<p><strong>Size:</strong> 0 bytes for both REGION and ENDREGION.</p>
+<p><strong>Example workflow:</strong></p>
+<ol>
+<li>Add a <code>REGION</code> block, set region name to <code>init</code>.</li>
+<li>Add your initialization instructions below it.</li>
+<li>Add an <code>ENDREGION</code> block to close the section.</li>
+<li>Click ▸ on the REGION to collapse the whole section into one line while working on other parts of the program.</li>
+</ol>
+<blockquote>
+<p><strong>Note:</strong> Regions do not nest. Placing a second REGION before an ENDREGION starts a new region at the same level.</p>
+</blockquote>
+<hr>
+<h3 id="define--if--else--endif">DEFINE / IF / ELSE / ENDIF</h3>
+<p>Conditional assembly blocks. Add a <code>DEFINE</code> block to activate a named symbol — any <code>IF</code> block whose condition matches a <code>DEFINE</code> present in the program is assembled; its <code>ELSE</code> branch (if any) is skipped, and vice versa.</p>
+<h4 id="define">DEFINE</h4>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Symbol</td>
+<td>One or more comma-separated identifiers to activate (e.g. <code>DEBUG</code> or <code>DEBUG, PAL</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated ASM:</strong></p>
+<pre class="hljs"><code><div>; .DEFINE DEBUG
+; .DEFINE DEBUG, PAL
+</div></code></pre>
+<p>A single <code>DEFINE</code> block can activate multiple symbols at once using a comma-separated list. Place <code>DEFINE</code> blocks anywhere in the program (typically at the top). Removing the block deactivates all its symbols instantly.</p>
+<h4 id="if">IF</h4>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Condition</td>
+<td>Identifier to test (must match a <code>DEFINE</code> symbol to be active)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated ASM:</strong></p>
+<pre class="hljs"><code><div>; .IF DEBUG
+</div></code></pre>
+<p>Blocks between <code>IF</code> and <code>ENDIF</code> (or <code>ELSE</code>) are included or skipped based on whether the condition symbol has a matching <code>DEFINE</code> block in the program. Skipped blocks appear as <code>; [IF skipped] …</code> comments and generate <strong>zero bytes</strong>.</p>
+<h4 id="else">ELSE</h4>
+<p>No fields. Marks the alternative branch — assembled when the <code>IF</code> condition is <em>not</em> active.</p>
+<p><strong>Generated ASM:</strong></p>
+<pre class="hljs"><code><div>; .ELSE
+</div></code></pre>
+<h4 id="endif">ENDIF</h4>
+<p>No fields. Closes the conditional block.</p>
+<p><strong>Generated ASM:</strong></p>
+<pre class="hljs"><code><div>; .ENDIF
+</div></code></pre>
+<p><strong>Size:</strong> 0 bytes for all four blocks. Only the content <em>between</em> them counts.</p>
+<p><strong>Example — debug border flash, release build skips it:</strong></p>
+<pre class="hljs"><code><div>; .DEFINE DEBUG
+
+; .IF DEBUG
+    LDA #$02        ; red border
+    STA $D020
+; .ELSE
+    LDA #$00        ; black (release)
+    STA $D020
+; .ENDIF
+</div></code></pre>
+<p><strong>Example — multiple symbols in one DEFINE block:</strong></p>
+<pre class="hljs"><code><div>; .DEFINE DEBUG, PAL
+
+; .IF PAL
+    LDA #$xx        ; PAL timing constant
+; .ELSE
+    LDA #$xx        ; NTSC timing constant
+; .ENDIF
+</div></code></pre>
+<p>Nested <code>IF</code> blocks are supported. The innermost condition is evaluated independently; an outer skipped block causes all inner blocks to be skipped regardless of their condition.</p>
+<hr>
+<h3 id="const">CONST</h3>
+<p>Declares a named constant. The constant is added to the label table and can be referenced as an operand in any instruction block (LDA, STA, JSR, JMP, etc.).</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Name</td>
+<td>Identifier for the constant (e.g. <code>SCREEN</code>)</td>
+</tr>
+<tr>
+<td>Value</td>
+<td>Numeric value in the selected base (e.g. <code>0400</code> in HEX = address $0400)</td>
+</tr>
+<tr>
+<td>Format</td>
+<td>HEX or DEC — controls how the value is entered and displayed</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated ASM:</strong></p>
+<pre class="hljs"><code><div>; .CONST SCREEN = $0400
+</div></code></pre>
+<p>The constant name appears in the <strong>label picker</strong> dropdown of instruction blocks that support absolute/immediate addressing — simply click it to insert the constant name as the operand.</p>
+<p><strong>Size:</strong> 0 bytes.</p>
+<hr>
+<h3 id="spriteinit">SPRITE_INIT</h3>
+<p>Initialises a VIC-II sprite in a single block: sets the <strong>data pointer</strong>, <strong>enable bit</strong>, and <strong>colour</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sprite #</td>
+<td>Sprite number 0–7</td>
+</tr>
+<tr>
+<td>Colour</td>
+<td>Colour index 0–15 (C64 palette)</td>
+</tr>
+<tr>
+<td>Data page</td>
+<td>Sprite data address / 64 (e.g. <code>$21</code> if data is at <code>$0840</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated ASM:</strong></p>
+<pre class="hljs"><code><div>    LDA #$21
+    STA $07F8       ; sprite pointer register ($07F8 + N)
+    LDA $D015
+    ORA #$01        ; set enable bit for sprite 0
+    STA $D015
+    LDA #$07
+    STA $D027       ; sprite 0 colour register
+</div></code></pre>
+<p><strong>Size:</strong> 18 bytes.</p>
+<blockquote>
+<p><strong>Sprite data page:</strong> <code>data_address / 64</code>. With the default BASIC SYS stub, an <code>ALIGN 64</code> block after <code>JMP main</code> places sprite data at <code>$0840</code> → page = <code>$0840 / 64 = 33 = $21</code>.</p>
+</blockquote>
+<hr>
+<h3 id="spritepos">SPRITE_POS</h3>
+<p>Sets a sprite's <strong>static start position</strong> (compile-time constant). Use this for initial placement; for animation use <code>INC</code>/<code>DEC</code> on the sprite's register directly.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sprite #</td>
+<td>Sprite number 0–7</td>
+</tr>
+<tr>
+<td>X</td>
+<td>Horizontal position 0–319</td>
+</tr>
+<tr>
+<td>Y</td>
+<td>Vertical position 0–255</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated ASM (example: sprite 0, X=152, Y=100):</strong></p>
+<pre class="hljs"><code><div>    LDA #$98        ; X low byte
+    STA $D000       ; sprite 0 X register
+    LDA $D010
+    AND #$FE        ; clear X MSB for sprite 0 (X ≤ 255)
+    STA $D010
+    LDA #$64        ; Y = 100
+    STA $D001       ; sprite 0 Y register
+</div></code></pre>
+<p>For X &gt; 255 the macro sets the corresponding bit in <code>$D010</code> instead of clearing it.</p>
+<p><strong>Size:</strong> 18 bytes.</p>
+<blockquote>
+<p><strong>Note:</strong> <code>SPRITE_POS</code> bakes the position into the code at assemble time (<code>LDA #$xx</code>). To move a sprite at runtime use <code>INC $D000</code> / <code>DEC $D000</code> directly — see the <code>sprite-macro-demo</code> sample.</p>
+</blockquote>
+<hr>
+<h3 id="waitraster">WAIT_RASTER</h3>
+<p>Waits for a specific VIC-II raster line — entirely <strong>inline</strong>, no JSR and no external label required.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Raster line</td>
+<td>Target raster line in hex (e.g. <code>FF</code> = line 255)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated ASM:</strong></p>
+<pre class="hljs"><code><div>wait:
+    LDA $D012       ; current raster line
+    CMP #$FF        ; target line
+    BNE wait        ; loop back (-7 bytes)
+</div></code></pre>
+<p><strong>Size:</strong> 7 bytes (the <code>BNE</code> offset <code>$F9</code> = −7 always points back to the <code>LDA</code>).</p>
+<blockquote>
+<p><strong>Tip:</strong> Place <code>WAIT_RASTER</code> at the top of your game loop to synchronise with the display and prevent sprite tearing.</p>
+</blockquote>
+<hr>
+<h3 id="joystick">JOYSTICK</h3>
+<p>Reads a CIA joystick port and moves a sprite according to the direction pressed. Entirely <strong>inline</strong> — no JSR or label needed.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Port</td>
+<td><code>1</code> = port 1 (<code>$DC01</code>) or <code>2</code> = port 2 (<code>$DC00</code>)</td>
+</tr>
+<tr>
+<td>Sprite #</td>
+<td>Sprite number 0–7 (controls which X/Y register pair is updated)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated ASM (port 2, sprite 0):</strong></p>
+<pre class="hljs"><code><div>    LDA $DC00       ; read CIA port 2
+    LSR             ; bit 0 → carry (Up)
+    BCS skip_up     ; carry set = NOT pressed
+    DEC $D001       ; Y−1 (move up)
+skip_up:
+    LSR             ; bit 1 → carry (Down)
+    BCS skip_down
+    INC $D001       ; Y+1 (move down)
+skip_down:
+    LSR             ; bit 2 → carry (Left)
+    BCS skip_left
+    DEC $D000       ; X−1 (move left)
+skip_left:
+    LSR             ; bit 3 → carry (Right)
+    BCS skip_right
+    INC $D000       ; X+1 (move right)
+skip_right:
+</div></code></pre>
+<p><strong>Joystick bit map (active-LOW — bit = 0 means pressed):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>Direction</th>
+<th>CIA register</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Up</td>
+<td>$DC00 (port 2) / $DC01 (port 1)</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Down</td>
+<td></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Left</td>
+<td></td>
+</tr>
+<tr>
+<td>3</td>
+<td>Right</td>
+<td></td>
+</tr>
+<tr>
+<td>4</td>
+<td>Fire</td>
+<td>(not handled by this macro)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Size:</strong> 27 bytes. The <code>BCS</code> offset is always <code>+3</code> (skips the following 3-byte <code>DEC</code>/<code>INC abs</code> instruction).</p>
+<blockquote>
+<p><strong>Typical usage:</strong> Place inside a <code>gameloop</code> label with <code>WAIT_RASTER</code> first:</p>
+<pre class="hljs"><code><div>gameloop:
+    WAIT_RASTER ($FF)
+    JOYSTICK (port=2, sprite=0)
+    JMP gameloop
+</div></code></pre>
+</blockquote>
+<hr>
+<h3 id="spritecol">SPRITE_COL</h3>
+<p>Detects sprite collisions using the VIC-II hardware collision registers. Entirely <strong>inline</strong> — no JSR or label needed.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sprite #</td>
+<td>Sprite number 0–7 (which sprite's bit to check)</td>
+</tr>
+<tr>
+<td>Collision type</td>
+<td><code>Sprite-Sprite ($D01E)</code> — collision with another sprite; <code>Sprite-Background ($D01F)</code> — collision with background graphics</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated ASM (sprite 0, sprite–sprite):</strong></p>
+<pre class="hljs"><code><div>    LDA $D01E       ; read sprite-sprite collision register (clears it!)
+    AND #$01        ; isolate bit 0 (sprite 0)
+                    ; A ≠ 0 → collision occurred
+</div></code></pre>
+<p><strong>Size:</strong> 5 bytes.</p>
+<blockquote>
+<p><strong>Important:</strong> Reading <code>$D01E</code> / <code>$D01F</code> <strong>automatically clears the register</strong>. Always read it exactly once per frame — use the result immediately with <code>BEQ</code>/<code>BNE</code>.</p>
+</blockquote>
+<p><strong>Typical usage:</strong></p>
+<pre class="hljs"><code><div>gameloop:
+    WAIT_RASTER ($FF)
+    JOYSTICK (port=2, sprite=0)
+    SPRITE_COL (sprite=0, type=sprite-sprite)
+    BEQ no_hit          ; A = 0 → no collision
+    LDA #$02
+    STA $D020           ; red border = hit!
+    JMP gameloop
+no_hit:
+    LDA #$0E
+    STA $D020           ; light blue border = clear
+    JMP gameloop
+</div></code></pre>
+<blockquote>
+<p><strong>See also:</strong> <code>collision-demo</code> sample — green ball (sprite #0) vs. red cross (sprite #1).</p>
+</blockquote>
+<hr>
+<h2 id="9-knowledge-base-links">9. Knowledge Base Links</h2>
+<p>Quick reference links available in the app under <strong>Knowledge Base</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>6502 Opcodes Reference</td>
+<td>http://www.6502.org/tutorials/6502opcodes.html</td>
+</tr>
+<tr>
+<td>C64 KERNAL Functions</td>
+<td>https://sta.c64.org/cbm64krnfunc.html</td>
+</tr>
+<tr>
+<td>C64 Memory Map</td>
+<td>https://sta.c64.org/cbm64mem.html</td>
+</tr>
+<tr>
+<td>C64 Color Codes</td>
+<td>https://sta.c64.org/cbm64col.html</td>
+</tr>
+<tr>
+<td>VIC-II Article</td>
+<td>https://www.cebix.net/VIC-Article.txt</td>
+</tr>
+<tr>
+<td>C64 Codebase</td>
+<td>https://codebase.c64.org/</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><em>© 2026 Zsolt Tarczali — C64 Visual Assembler</em></p>
+
+</body>
+</html>

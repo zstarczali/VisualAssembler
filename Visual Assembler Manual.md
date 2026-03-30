@@ -1026,6 +1026,7 @@ Quick reference links available in the app under **Knowledge Base**:
 | C64 Memory Map | https://sta.c64.org/cbm64mem.html |
 | C64 Color Codes | https://sta.c64.org/cbm64col.html |
 | VIC-II Article | https://www.cebix.net/VIC-Article.txt |
+| C64 Codebase | https://codebase.c64.org/ |
 
 ---
 
