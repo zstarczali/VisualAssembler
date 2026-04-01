@@ -1,0 +1,137 @@
+{
+  "app": "c64-visual-assembler",
+  "origin": "0801",
+  "program": [
+    {
+      "addressingMode": "implied",
+      "base": "hex",
+      "category": "Rendszer",
+      "collapsed": true,
+      "description": "IRQ megszakitasok tiltasa.",
+      "id": "0df0978e-f75d-44af-9f5e-eb80244cbb70",
+      "mnemonic": "SEI",
+      "operand": "",
+      "rawOperand": "",
+      "validationError": ""
+    },
+    {
+      "addressingMode": "immediate",
+      "base": "hex",
+      "category": "Adatmozgas",
+      "collapsed": true,
+      "description": "Akkumulator betoltese memoriabol vagy konstansbol.",
+      "id": "6124e6d9-0188-4b20-ac58-7137e6c377c1",
+      "mnemonic": "LDA",
+      "operand": "#<IRQ",
+      "rawOperand": "<IRQ",
+      "validationError": ""
+    },
+    {
+      "addressingMode": "absolute",
+      "base": "hex",
+      "category": "Adatmozgas",
+      "collapsed": true,
+      "description": "Akkumulator kiirasa memoriacimre.",
+      "id": "a2fb4e12-c1a6-41a0-beb8-f958a84cc6d5",
+      "mnemonic": "STA",
+      "operand": "$0314",
+      "rawOperand": "$0314",
+      "validationError": ""
+    },
+    {
+      "addressingMode": "immediate",
+      "base": "hex",
+      "category": "Adatmozgas",
+      "collapsed": true,
+      "description": "Akkumulator betoltese memoriabol vagy konstansbol.",
+      "id": "ec286312-c5ed-4779-8c88-0bf22b1980c8",
+      "mnemonic": "LDA",
+      "operand": "#>IRQ",
+      "rawOperand": ">IRQ",
+      "validationError": ""
+    },
+    {
+      "addressingMode": "absolute",
+      "base": "hex",
+      "category": "Adatmozgas",
+      "collapsed": true,
+      "description": "Akkumulator kiirasa memoriacimre.",
+      "id": "bcea40b7-22ec-46cc-a0f4-affcac5cf684",
+      "mnemonic": "STA",
+      "operand": "$0315",
+      "rawOperand": "$0315",
+      "validationError": ""
+    },
+    {
+      "addressingMode": "implied",
+      "base": "hex",
+      "category": "Rendszer",
+      "collapsed": true,
+      "description": "Interrupt tiltasanak feloldasa.",
+      "id": "1c2397ec-3740-4aca-82ab-bd5f0bba0f27",
+      "mnemonic": "CLI",
+      "operand": "",
+      "rawOperand": "",
+      "validationError": ""
+    },
+    {
+      "addressingMode": "implied",
+      "base": "hex",
+      "category": "Ugrasok",
+      "collapsed": true,
+      "description": "Visszateres szubrutinbol.",
+      "id": "8b632a68-5b7b-410b-9f4e-ba155bb16229",
+      "mnemonic": "RTS",
+      "operand": "",
+      "rawOperand": "",
+      "validationError": ""
+    },
+    {
+      "addressingMode": "implied",
+      "base": "hex",
+      "category": "Szerkezet",
+      "collapsed": true,
+      "description": "Nevvel ellatott cimke a kodban, ugrasi celhoz.",
+      "id": "e11d83fe-e3ea-4ff6-90e4-719bae4ba0c4",
+      "isLabel": true,
+      "labelName": "IRQ",
+      "mnemonic": "LABEL",
+      "operand": "",
+      "rawOperand": "",
+      "validationError": ""
+    },
+    {
+      "addressingMode": "absolute",
+      "base": "hex",
+      "category": "Aritmetika",
+      "collapsed": true,
+      "description": "Memoriacim noveles.",
+      "id": "95d18b76-78ef-4465-bfce-82c8029e53f5",
+      "mnemonic": "INC",
+      "operand": "$D020",
+      "rawOperand": "$D020",
+      "validationError": ""
+    },
+    {
+      "addressingMode": "absolute",
+      "base": "hex",
+      "category": "Ugrasok",
+      "collapsed": true,
+      "description": "Feltetel nelkuli ugras egy cimre.",
+      "id": "f15d1335-b563-4a55-ae71-c151a43ad849",
+      "mnemonic": "JMP",
+      "operand": "$EA31",
+      "rawOperand": "$EA31",
+      "validationError": ""
+    }
+  ],
+  "ui": {
+    "language": "en",
+    "numberBase": "hex",
+    "outputMode": "asm",
+    "sample": "10-print",
+    "theme": "light",
+    "zoom": 1.14
+  },
+  "version": 1
+}

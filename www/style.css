@@ -411,7 +411,7 @@ body[data-theme="dark"] .primary {
 
 .workspace {
   display: grid;
-  grid-template-columns: 260px minmax(320px, 430px) minmax(360px, 1fr);
+  grid-template-columns: 260px minmax(360px, 470px) minmax(360px, 1fr);
   gap: 14px;
   align-items: stretch;
 }
@@ -2666,4 +2666,51 @@ body.crt-mode #crt-overlay::after {
 
 .vice-toast[data-error="1"] .vice-toast-icon {
   color: #f38ba8;
+}
+
+/* GROUP block wrapper */
+.region-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 10px;
+  border-left: 2px solid color-mix(in srgb, #7788dd 45%, transparent);
+  margin-left: 6px;
+}
+
+.region-wrapper[hidden] {
+  display: none;
+}
+
+.asm-block.region-endblock {
+  opacity: 0.65;
+}
+
+.region-btn-row {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.region-expand-all-btn,
+.region-select-asm-btn {
+  min-width: calc(22px * var(--block-scale));
+  width: calc(22px * var(--block-scale));
+  height: calc(22px * var(--block-scale));
+  min-height: unset;
+  aspect-ratio: 1;
+  flex-shrink: 0;
+  padding: 0;
+  border-radius: calc(6px * var(--block-scale));
+  background: var(--control-bg);
+  border: 1px solid var(--panel-border);
+  color: var(--text);
+  font-size: calc(0.72rem * var(--block-scale));
+  line-height: 1;
+  cursor: pointer;
+}
+
+.asm-block.region-header .block-mnemonic {
+  letter-spacing: 0.04em;
 }

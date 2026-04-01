@@ -189,7 +189,9 @@ const mnemonicLibrary = {
   ],
   Szerkezet: [
     { mnemonic: "LABEL", description: "Nevvel ellatott cimke a kodban, ugrasi celhoz.", modes: ["implied"], isLabel: true },
-    { mnemonic: "COMMENT", description: "Megjegyzes a programhoz, ami nem general byte-ot.", modes: ["implied"], isComment: true }
+    { mnemonic: "COMMENT", description: "Megjegyzes a programhoz, ami nem general byte-ot.", modes: ["implied"], isComment: true },
+    { mnemonic: "REGION", description: "Blokkok csoportositasa egy nevesitett, osszecsukhato szekcioba. Zarj le ENDREGION-nal.", modes: ["implied"], isRegionMacro: true },
+    { mnemonic: "ENDREGION", description: "REGION szekció vege.", modes: ["implied"], isEndRegionMacro: true }
   ]
 };
 
@@ -240,17 +242,21 @@ const whatsNewButton = document.getElementById("whats-new-btn");
 let asmBlockRanges = {};
 let selectedBlockId = null;
 let showMacroSource = false;
+let showRegionComments = true;
 let asmOutputBase = "hex";
 let originBase = "hex";
 const macroSourceToggleOn = document.getElementById("macro-source-toggle-on");
 const macroSourceToggle = document.getElementById("macro-source-toggle");
 const macroSourceToggleText = document.getElementById("macro-source-toggle-text");
+const regionCommentsToggleOn = document.getElementById("region-comments-toggle-on");
+const regionCommentsToggleOff = document.getElementById("region-comments-toggle-off");
 const asmBaseInputs = document.querySelectorAll('input[name="asm-output-base"]');
 const originBaseInputs = document.querySelectorAll('input[name="origin-base"]');
 const compileErrorDialog = document.getElementById("compile-error-dialog");
 const compileErrorList = document.getElementById("compile-error-list");
 const compileErrorTitle = document.getElementById("compile-error-title");
 const compileErrorClose = document.getElementById("compile-error-close");
+const helpManualButton = document.getElementById("help-manual-btn");
 const checkUpdateButton = document.getElementById("check-update-btn");
 const reportBugButton = document.getElementById("report-bug-btn");
 const basicSysToggle = document.getElementById("basic-sys-toggle");
@@ -291,6 +297,7 @@ const translations = {
     programSettings: "Programbeallitasok",
     macroSourceToggle: "Makro forraskod megjelenites",
     asmNumbersLabel: "Szamok az ASM kimenetben",
+    regionCommentsLabel: "Region kommentek megjelenites",
     asmOutputLabel: "ASM kimenet",
     monitorOutputLabel: "Monitor kimenet",
     originPreviewLabel: "Forditas info",
@@ -360,6 +367,9 @@ const translations = {
     sampleJoystickDemo: "JOYSTICK makro demo",
     sampleCollisionDemo: "SPRITE_COL utkozes demo",
     sample10Print: "10 PRINT - veletlen labirintus",
+    sampleRasterIrqDemo: "Raszter IRQ demo (szin villogas)",
+    sampleOverlappingRasterDemo: "Overlapping raszter csik demo",
+    helpManual: "Kezikonyv",
     checkForUpdate: "Frissites keresese",
     reportBug: "Hiba bejelentese",
     viceRunning: "VICE fut",
@@ -506,6 +516,7 @@ const translations = {
     programSettings: "Program settings",
     macroSourceToggle: "Show macro source code",
     asmNumbersLabel: "Numbers in ASM output",
+    regionCommentsLabel: "Show region comments",
     asmOutputLabel: "ASM output",
     monitorOutputLabel: "Monitor output",
     originPreviewLabel: "Compile info",
@@ -575,6 +586,9 @@ const translations = {
     sampleJoystickDemo: "JOYSTICK macro demo",
     sampleCollisionDemo: "SPRITE_COL collision demo",
     sample10Print: "10 PRINT - random maze",
+    sampleRasterIrqDemo: "Raster IRQ demo (color flashing)",
+    sampleOverlappingRasterDemo: "Overlapping raster bars demo",
+    helpManual: "Manual",
     languageLabel: "Language",
     checkForUpdate: "Check for Update",
     reportBug: "Report Bug",
@@ -740,6 +754,7 @@ function saveUiSettings() {
     memoryPanelOpen: !!globalMemoryPanel?.open,
     basicSys: basicSysToggle ? basicSysToggle.checked : true,
     showMacroSource,
+    showRegionComments,
     asmOutputBase,
     originBase
   };
@@ -888,7 +903,9 @@ const mnemonicDescriptionsEn = {
   JOYSTICK: "Read joystick and move sprite: UP/DOWN/LEFT/RIGHT via LSR+BCS+DEC/INC. Port 1=$DC01, Port 2=$DC00. 27 bytes inline.",
   SPRITE_COL: "Sprite collision detection: LDA $D01E/$D01F + AND #bitMask. Result in A: non-zero = collision. Follow with BEQ/BNE. 5 bytes.",
   DEFINE: "Define a symbol for conditional assembly. When present, IF blocks evaluate the condition.",
-  CONST: "Named constant definition. Can be used as an operand in any mnemonic (LDA, STA, JSR, etc.)."
+  CONST: "Named constant definition. Can be used as an operand in any mnemonic (LDA, STA, JSR, etc.).",
+  REGION: "Group blocks into a collapsible named section. Close with ENDREGION.",
+  ENDREGION: "End of a REGION section."
 };
 
 const mnemonicDescriptionsHu = (() => {
@@ -1063,6 +1080,9 @@ function initPalette() {
     });
     dlg?.showModal();
   });
+  helpManualButton?.addEventListener("click", () => {
+    window.electronAPI?.openManual();
+  });
   checkUpdateButton?.addEventListener("click", () => {
     window.electronAPI.openExternal("https://zstarczali.itch.io/visual-assembler-commodore-64");
   });
@@ -1113,6 +1133,16 @@ function initPalette() {
   });
   macroSourceToggle?.addEventListener("change", () => {
     showMacroSource = false;
+    saveUiSettings();
+    renderAsmOutput();
+  });
+  regionCommentsToggleOn?.addEventListener("change", () => {
+    showRegionComments = true;
+    saveUiSettings();
+    renderAsmOutput();
+  });
+  regionCommentsToggleOff?.addEventListener("change", () => {
+    showRegionComments = false;
     saveUiSettings();
     renderAsmOutput();
   });
@@ -1245,6 +1275,12 @@ function applySavedUiSettings() {
     if (macroSourceToggle) macroSourceToggle.checked = !showMacroSource;
   }
 
+  if (savedUiSettings.showRegionComments !== undefined) {
+    showRegionComments = !!savedUiSettings.showRegionComments;
+    if (regionCommentsToggleOn) regionCommentsToggleOn.checked = showRegionComments;
+    if (regionCommentsToggleOff) regionCommentsToggleOff.checked = !showRegionComments;
+  }
+
   if (savedUiSettings.asmOutputBase) {
     asmOutputBase = savedUiSettings.asmOutputBase;
   }
@@ -1298,6 +1334,7 @@ function applyTranslations() {
     if (menuLabels[2]) menuLabels[2].textContent = t("menuSettings");
     if (menuLabels[3]) menuLabels[3].textContent = t("menuView");
     if (menuLabels[4]) menuLabels[4].textContent = t("menuProgram");
+  if (helpManualButton) helpManualButton.textContent = t("helpManual");
   if (checkUpdateButton) checkUpdateButton.textContent = t("checkForUpdate");
   if (reportBugButton) reportBugButton.textContent = t("reportBug");
   if (whatsNewButton) whatsNewButton.textContent = t("whatsNew");
@@ -1331,6 +1368,7 @@ function applyTranslations() {
     setText("#program-settings-label", t("programSettings"));
     if (macroSourceToggleText) macroSourceToggleText.textContent = t("macroSourceToggle");
     setText("#asm-numbers-label", t("asmNumbersLabel"));
+    setText("#region-comments-label", t("regionCommentsLabel"));
     setText("#origin-preview-label", t("originPreviewLabel"));
     updateOriginPlaceholder();
     setText("#asm-output-label", t("asmOutputLabel"));
@@ -1407,6 +1445,8 @@ function applyTranslations() {
   if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleJoystickDemo");
   if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleCollisionDemo");
   if (sampleOptions[20]) sampleOptions[20].textContent = t("sample10Print");
+  if (sampleOptions[21]) sampleOptions[21].textContent = t("sampleRasterIrqDemo");
+  if (sampleOptions[22]) sampleOptions[22].textContent = t("sampleOverlappingRasterDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -1798,19 +1838,29 @@ function renderSearchResults(query) {
 
   const selectedBase = getSelectedBase();
   const selectedMode = addressingSelect.value;
-  const results = [];
 
+  // Score each item: 3=exact mnemonic, 2=mnemonic prefix, 1=mnemonic contains, 0=description/category only
+  const scored = [];
   for (const [category, items] of Object.entries(mnemonicLibrary)) {
     for (const item of items) {
-      if (
-        item.mnemonic.toLowerCase().includes(q) ||
+      const mn = item.mnemonic.toLowerCase();
+      let score = -1;
+      if (mn === q) score = 3;
+      else if (mn.startsWith(q)) score = 2;
+      else if (mn.includes(q)) score = 1;
+      else if (
         getItemDescription(item).toLowerCase().includes(q) ||
         getCategoryLabel(category).toLowerCase().includes(q)
-      ) {
-        results.push({ item, category, userMacroName: null });
-      }
+      ) score = 0;
+      if (score >= 0) scored.push({ item, category, userMacroName: null, score });
     }
   }
+
+  // If any mnemonic match exists (score >= 1), drop pure description/category matches (score 0)
+  const hasMnemonicMatch = scored.some(r => r.score >= 1);
+  const filtered = hasMnemonicMatch ? scored.filter(r => r.score >= 1) : scored;
+  filtered.sort((a, b) => b.score - a.score);
+  const results = filtered;
 
   const invokeItem = Object.values(mnemonicLibrary).flat().find(i => i.isMacroInvoke);
   for (const macroName of Object.keys(userMacros)) {
@@ -2473,6 +2523,41 @@ function createBlockFromMnemonic(item) {
     };
   }
 
+  if (item.isRegionMacro) {
+    const regionName = operandInput.value.trim() || "region";
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "REGION",
+      operand: regionName,
+      rawOperand: regionName,
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: false,
+      isRegionMacro: true,
+      regionName,
+      regionCollapsed: false
+    };
+  }
+
+  if (item.isEndRegionMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "ENDREGION",
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: false,
+      isEndRegionMacro: true
+    };
+  }
+
   const modeKey = item.modes.includes(addressingSelect.value) ? addressingSelect.value : item.modes[0];
   const preview = buildOperandPreview(modeKey, operandInput.value.trim(), getSelectedBase());
 
@@ -2493,7 +2578,8 @@ function createBlockFromMnemonic(item) {
 function collapseLoadedProgram(blocks) {
   const result = blocks.map((block) => ({
     ...block,
-    collapsed: true
+    collapsed: true,
+    ...(block.isRegionMacro ? { regionCollapsed: true } : {})
   }));
 
   // Rebuild operand from rawOperand for all regular instruction blocks to fix
@@ -2505,7 +2591,8 @@ function collapseLoadedProgram(blocks) {
       block.isWordMacro || block.isDataMacro || block.isRawBytesMacro || block.isFillMacro ||
       block.isAlignMacro || block.isTextMacro || block.isStringMacro || block.isRawTextMacro ||
       block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isPushMacro ||
-      block.isPullMacro || block.isMacroDefStart || block.isMacroDefEnd || block.isMacroInvoke;
+      block.isPullMacro || block.isMacroDefStart || block.isMacroDefEnd || block.isMacroInvoke ||
+      block.isRegionMacro || block.isEndRegionMacro;
     if (!isMacroOrSpecial && block.rawOperand && block.addressingMode) {
       const preview = buildOperandPreview(block.addressingMode, block.rawOperand, block.base || "hex");
       if (!preview.error) block.operand = preview.operand;
@@ -2629,9 +2716,20 @@ function toggleBlockCollapsed(index) {
   }
 }
 
+function toggleRegionCollapsed(index) {
+  const block = program[index];
+  if (!block) return;
+  block.regionCollapsed = !block.regionCollapsed;
+  block.collapsed = block.regionCollapsed; // also collapse the REGION block body
+  renderProgram();
+  renderAsmOutput();
+  renderMemoryMap();
+}
+
 function collapseAllBlocks() {
   program.forEach((block) => {
     block.collapsed = true;
+    if (block.isRegionMacro) block.regionCollapsed = true;
   });
   renderProgram();
 }
@@ -2639,6 +2737,7 @@ function collapseAllBlocks() {
 function expandAllBlocks() {
   program.forEach((block) => {
     block.collapsed = false;
+    if (block.isRegionMacro) block.regionCollapsed = false;
   });
   renderProgram();
 }
@@ -2952,6 +3051,29 @@ function updateProgramBlock(index, field, value) {
     return;
   }
 
+  if (block.isRegionMacro && field === "regionName") {
+    block.regionName = value;
+    block.operand = value;
+    block.rawOperand = value;
+    // Update the matching ENDREGION's read-only input in the DOM directly (depth-aware)
+    let depth = 0;
+    for (let i = index + 1; i < program.length; i++) {
+      if (program[i].isRegionMacro) { depth++; }
+      else if (program[i].isEndRegionMacro) {
+        if (depth === 0) {
+          const endNode = programList.querySelector(`[data-index="${i}"]`);
+          const endInput = endNode?.querySelector(".inline-field input");
+          if (endInput) endInput.value = value || "region";
+          break;
+        }
+        depth--;
+      }
+    }
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
   if (field === "rawOperand" || field === "base") {
     renderBlockPreview(index);
     renderAsmOutput();
@@ -3071,7 +3193,10 @@ function highlightDropTarget(dropIndex) {
   if (dropIndex === 0) {
     blocks[0].classList.add("drop-before");
   } else {
-    blocks[Math.min(dropIndex - 1, blocks.length - 1)].classList.add("drop-after");
+    // Find the block with data-index === dropIndex - 1 (handles region-wrapper nesting)
+    const target = blocks.find(b => Number(b.dataset.index) === dropIndex - 1)
+      || blocks[blocks.length - 1];
+    target.classList.add("drop-after");
   }
 }
 
@@ -3104,7 +3229,8 @@ function startMouseDnd(e, node, ds, label) {
 
 function buildOperandPreview(modeKey, rawValue, base) {
   const mode = addressingModes[modeKey];
-  const value = rawValue.trim();
+  // Strip leading # if user typed it in immediate mode — # is added automatically by formatOperand
+  const value = (modeKey === "immediate" ? rawValue.trim().replace(/^#/, "") : rawValue.trim());
 
   if (!mode.needsOperand) {
     return { operand: "", text: currentLanguage === "en" ? "no operand" : "operandus nelkul", error: "" };
@@ -4482,6 +4608,14 @@ function compileLineBytes(line, labels) {
     };
   }
 
+  if (block.isRegionMacro || block.isEndRegionMacro) {
+    return {
+      ok: true,
+      bytes: [],
+      comment: block.isRegionMacro ? `Region: ${block.regionName || "region"}` : "End region"
+    };
+  }
+
   if (block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isConstMacro) {
     return {
       ok: true,
@@ -4859,6 +4993,10 @@ function getInstructionSize(block) {
 
   if (block.isMacroDefStart || block.isMacroDefEnd) {
     return 0;  // Macro definitions don't take space
+  }
+
+  if (block.isRegionMacro || block.isEndRegionMacro) {
+    return 0;  // REGION/ENDREGION are visual markers only
   }
 
   // Check if this is a user macro invocation (INVOKE block or legacy format)
@@ -5412,6 +5550,13 @@ function getBlockDescription(block) {
     return currentLanguage === "en" ? `Invoke macro "${name}" (not defined yet)` : `Makró "${name}" hívása (még nincs definiálva)`;
   }
 
+  if (block.isRegionMacro) {
+    return currentLanguage === "en" ? `Region: ${block.regionName || "region"}` : `Régió: ${block.regionName || "region"}`;
+  }
+  if (block.isEndRegionMacro) {
+    return currentLanguage === "en" ? "End of region" : "Régió vége";
+  }
+
   // Check if this block invokes a user macro (legacy format)
   if (userMacros[block.mnemonic]) {
     const bodyCount = userMacros[block.mnemonic].length;
@@ -5516,22 +5661,28 @@ function getBlockModeCaption(block) {
   }
 
   if (block.isMacroDefStart) {
-    const name = block.macroName || "?";
-    return currentLanguage === "en" ? `User Macro | Definition: ${name}` : `Felhasznaloi Makro | Definicio: ${name}`;
+    return currentLanguage === "en" ? "User Macro | Definition" : "Felhasznaloi Makro | Definicio";
   }
 
   if (block.isMacroDefEnd) {
-    return currentLanguage === "en" ? `User Macro | End` : `Felhasznaloi Makro | Vege`;
+    return currentLanguage === "en" ? "User Macro | End" : "Felhasznaloi Makro | Vege";
   }
 
   if (block.isMacroInvoke) {
-    const name = block.invokeMacroName || "?";
-    return currentLanguage === "en" ? `User Macro | Invoke: ${name}` : `Felhasznaloi Makro | Hivas: ${name}`;
+    return currentLanguage === "en" ? "User Macro | Invoke" : "Felhasznaloi Makro | Hivas";
+  }
+
+  if (block.isRegionMacro) {
+    return currentLanguage === "en" ? "Structure | Region" : "Szerkezet | Régió";
+  }
+
+  if (block.isEndRegionMacro) {
+    return currentLanguage === "en" ? "Structure | End Region" : "Szerkezet | Régió vége";
   }
 
   // Check if this block invokes a user macro (legacy format)
   if (userMacros[block.mnemonic]) {
-    return currentLanguage === "en" ? `User Macro | Invoke: ${block.mnemonic}` : `Felhasznaloi Makro | Hivas: ${block.mnemonic}`;
+    return currentLanguage === "en" ? "User Macro | Invoke" : "Felhasznaloi Makro | Hivas";
   }
 
   if (block.isLabel) {
@@ -5754,6 +5905,9 @@ function getCollapsedOperandText(block) {
     return block.invokeMacroName ? `→ ${block.invokeMacroName}` : "";
   }
 
+  if (block.isRegionMacro) return block.regionName || "region";
+  if (block.isEndRegionMacro) return "";
+
   return block.operand || block.rawOperand || "";
 }
 
@@ -5768,13 +5922,59 @@ function renderProgram() {
   document.querySelectorAll(".label-picker-dropdown").forEach(el => el.remove());
   programList.innerHTML = "";
 
+  // Pre-pass: which blocks are children of a collapsed group (hidden from view)
+  const hiddenByGroup = new Set();
+  const regionStack = []; // stack of REGION block indices
+  for (let i = 0; i < program.length; i++) {
+    const anyAncestorCollapsed = regionStack.some(idx => program[idx].regionCollapsed);
+    if (program[i].isRegionMacro) {
+      if (anyAncestorCollapsed) hiddenByGroup.add(i);
+      regionStack.push(i);
+    } else if (program[i].isEndRegionMacro) {
+      if (anyAncestorCollapsed) hiddenByGroup.add(i);
+      regionStack.pop();
+    } else {
+      if (anyAncestorCollapsed) hiddenByGroup.add(i);
+    }
+  }
+
+  const wrapperStack = []; // stack of region-wrapper divs (null = collapsed/hidden region)
+  const activeWrapper = () => {
+    for (let i = wrapperStack.length - 1; i >= 0; i--) {
+      if (wrapperStack[i]) return wrapperStack[i];
+    }
+    return null;
+  };
+
     program.forEach((block, index) => {
+      const isHidden = hiddenByGroup.has(index);
+
+      // Maintain wrapperStack for REGION/ENDREGION even when hidden
+      // For REGION: create wrapper now but append it AFTER the REGION node (late phase)
+      let pendingWrapper = null;
+      if (block.isRegionMacro) {
+        if (!isHidden && !block.regionCollapsed) {
+          pendingWrapper = document.createElement("div");
+          pendingWrapper.className = "region-wrapper";
+          wrapperStack.push(pendingWrapper); // push but don't append yet
+        } else {
+          wrapperStack.push(null);
+        }
+      } else if (block.isEndRegionMacro) {
+        wrapperStack.pop();
+      }
+
+      // Skip hidden blocks (node not created/appended)
+      if (isHidden) return;
+
       const node = blockTemplate.content.firstElementChild.cloneNode(true);
       node.dataset.index = index;
       node.dataset.blockId = block.id;
       node.dataset.categoryTone = getCategoryTone(block.category);
       node.dataset.collapsed = block.collapsed ? "true" : "false";
       if (block.isConstMacro) node.dataset.macroKind = "const";
+      if (block.isRegionMacro) node.classList.add("region-header");
+      if (block.isEndRegionMacro) node.classList.add("region-endblock");
 
       node.querySelector(".block-mnemonic").textContent = block.mnemonic;
       node.querySelector(".collapsed-operand").textContent = getCollapsedOperandText(block);
@@ -5789,11 +5989,16 @@ function renderProgram() {
       const operandField = node.querySelector(".block-operand");
       const collapseToggle = node.querySelector(".collapse-toggle");
       const dragHandle = node.querySelector(".drag-handle");
-      collapseToggle.textContent = block.collapsed ? "\u25B8" : "\u25BE";
-      collapseToggle.setAttribute("aria-label", block.collapsed ? t("expand") : t("collapse"));
-      collapseToggle.setAttribute("title", block.collapsed ? t("expand") : t("collapse"));
+      const groupIsCollapsed = block.isRegionMacro ? (block.regionCollapsed || false) : block.collapsed;
+      collapseToggle.textContent = groupIsCollapsed ? "\u25B8" : "\u25BE";
+      collapseToggle.setAttribute("aria-label", groupIsCollapsed ? t("expand") : t("collapse"));
+      collapseToggle.setAttribute("title", groupIsCollapsed ? t("expand") : t("collapse"));
       dragHandle.setAttribute("title", t("dragBlock"));
-      collapseToggle.addEventListener("click", () => toggleBlockCollapsed(index));
+      if (block.isRegionMacro) {
+        collapseToggle.addEventListener("click", () => toggleRegionCollapsed(index));
+      } else {
+        collapseToggle.addEventListener("click", () => toggleBlockCollapsed(index));
+      }
 
       if (block.isLabel) {
         inlineField.hidden = false;
@@ -6337,6 +6542,95 @@ function renderProgram() {
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "macroName", event.target.value));
     } else if (block.isMacroDefEnd) {
       inlineField.hidden = true;
+    } else if (block.isRegionMacro) {
+      inlineField.hidden = false;
+      inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Region name" : "Régió neve";
+      operandField.value = block.regionName || "region";
+      operandField.disabled = false;
+      operandField.placeholder = currentLanguage === "en" ? "for example init_section" : "peldaul init_szekció";
+      operandField.addEventListener("input", (event) => {
+        updateProgramBlock(index, "regionName", event.target.value);
+      });
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `<div class="region-btn-row">
+          <button type="button" class="region-expand-all-btn" title="${currentLanguage === "en" ? "Expand all blocks in region" : "Régió blokkjainak kinyitása"}">&#8597;</button>
+          <button type="button" class="region-select-asm-btn" title="${currentLanguage === "en" ? "Select region range in ASM view" : "Régió kijelölése az ASM nézetben"}">&#9678;</button>
+        </div>`
+      );
+      blockControls.querySelector(".region-expand-all-btn")?.addEventListener("click", () => {
+        // Expand the group itself if collapsed, then expand all child blocks
+        if (block.regionCollapsed) {
+          block.regionCollapsed = false;
+          block.collapsed = false;
+        }
+        let inside = false;
+        program.forEach((b, i) => {
+          if (i === index) { inside = true; return; }
+          if (b.isRegionMacro || b.isEndRegionMacro) { inside = false; return; }
+          if (inside) b.collapsed = false;
+        });
+        renderProgram();
+      });
+
+      blockControls.querySelector(".region-select-asm-btn")?.addEventListener("click", () => {
+        // Find the matching ENDREGION block and its index
+        let endGroupBlock = null;
+        let endGroupIndex = -1;
+        let depth = 0;
+        for (let i = index; i < program.length; i++) {
+          if (program[i].isRegionMacro) depth++;
+          else if (program[i].isEndRegionMacro) {
+            depth--;
+            if (depth === 0) { endGroupBlock = program[i]; endGroupIndex = i; break; }
+          }
+        }
+        const groupRange = asmBlockRanges[block.id];
+        const endRange = endGroupBlock ? asmBlockRanges[endGroupBlock.id] : null;
+
+        let firstLine = null;
+        let lastLine = null;
+        if (groupRange) {
+          firstLine = groupRange.firstLine;
+          lastLine = endRange ? endRange.lastLine : groupRange.lastLine;
+        } else {
+          // Region comments hidden — derive range from child blocks inside the region
+          const childEnd = endGroupIndex === -1 ? program.length : endGroupIndex;
+          for (let i = index + 1; i < childEnd; i++) {
+            const r = asmBlockRanges[program[i].id];
+            if (r) {
+              if (firstLine === null) firstLine = r.firstLine;
+              lastLine = r.lastLine;
+            }
+          }
+        }
+
+        if (firstLine !== null) {
+          // Switch to ASM view if not visible
+          const asmTab = document.querySelector('[data-tab="asm"]');
+          if (asmTab && !asmTab.classList.contains("active")) asmTab.click();
+          // Apply highlight using the combined range
+          const tempId = "__group_range__";
+          asmBlockRanges[tempId] = { firstLine, lastLine };
+          applyAsmHighlight(tempId);
+          delete asmBlockRanges[tempId];
+        }
+      });
+    } else if (block.isEndRegionMacro) {
+      // Show the matching REGION name as read-only label (depth-aware)
+      let matchingRegionName = "";
+      let depth = 0;
+      for (let i = index - 1; i >= 0; i--) {
+        if (program[i].isEndRegionMacro) { depth++; }
+        else if (program[i].isRegionMacro) {
+          if (depth === 0) { matchingRegionName = program[i].regionName || "region"; break; }
+          depth--;
+        }
+      }
+      inlineField.hidden = false;
+      inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Region" : "Régió";
+      operandField.value = matchingRegionName;
+      operandField.disabled = true;
     } else if (block.isMacroInvoke) {
       // INVOKE block: show dropdown with available macros
       const macroNames = Object.keys(userMacros);
@@ -6415,7 +6709,7 @@ function renderProgram() {
     blockControls.insertAdjacentHTML(
       "beforeend",
       `
-          ${(mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
+          ${(mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke && !block.isRegionMacro && !block.isEndRegionMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
           <label class="mini-field">
             <span>${t("fieldFormat")}</span>
           <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
@@ -6429,7 +6723,7 @@ function renderProgram() {
             </label>
           </div>
         </label>` : ""}
-          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro || getMnemonicModes(block.mnemonic).length <= 1 ? ` hidden` : ""}>
+          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro || block.isRegionMacro || block.isEndRegionMacro || getMnemonicModes(block.mnemonic).length <= 1 ? ` hidden` : ""}>
             <span>${t("addressingMode")}</span>
           <select class="block-mode">
             ${getMnemonicModes(block.mnemonic).map((modeKey) => `<option value="${modeKey}"${block.addressingMode === modeKey ? " selected" : ""}>${modeText(modeKey, "label")}</option>`).join("")}
@@ -6604,7 +6898,20 @@ function renderProgram() {
       selectBlockInAsm(block.id);
     });
 
-    programList.appendChild(node);
+    if (block.isRegionMacro) {
+      // REGION node + wrapper both go into the PARENT wrapper
+      // wrapperStack already has the new wrapper pushed; parent is one level up
+      const parentEl = wrapperStack.length >= 2
+        ? (wrapperStack[wrapperStack.length - 2] || programList)
+        : programList;
+      parentEl.appendChild(node);          // 1. REGION block card
+      if (pendingWrapper) parentEl.appendChild(pendingWrapper); // 2. wrapper for children
+    } else if (block.isEndRegionMacro) {
+      // ENDREGION node goes into the PARENT wrapper (already popped)
+      (activeWrapper() || programList).appendChild(node);
+    } else {
+      (activeWrapper() || programList).appendChild(node);
+    }
   });
 
   renderAsmOutput();
@@ -6725,6 +7032,25 @@ function renderAsmOutput() {
 
     if (line.block.isComment) {
       return `; ${line.block.rawOperand || ""}`;
+    }
+
+    if (line.block.isRegionMacro) {
+      if (!showRegionComments) return null;
+      return `; ===[ ${line.block.regionName || "region"} ]===`;
+    }
+
+    if (line.block.isEndRegionMacro) {
+      if (!showRegionComments) return null;
+      let regionName = "region";
+      let depth = 0;
+      for (let i = index - 1; i >= 0; i--) {
+        if (layout.lines[i].block.isEndRegionMacro) { depth++; }
+        else if (layout.lines[i].block.isRegionMacro) {
+          if (depth === 0) { regionName = layout.lines[i].block.regionName || "region"; break; }
+          depth--;
+        }
+      }
+      return `; ===[/${regionName}]===`;
     }
 
     if (line.block.isTextMacro) {
@@ -6944,6 +7270,25 @@ function renderAsmOutput() {
       return `${line.block.tableName || "table"}:`;
     }
 
+    if (line.block.isRegionMacro) {
+      if (!showRegionComments) return null;
+      return `; ===[ ${line.block.regionName || "region"} ]===`;
+    }
+
+    if (line.block.isEndRegionMacro) {
+      if (!showRegionComments) return null;
+      let regionName = "region";
+      let depth = 0;
+      for (let i = index - 1; i >= 0; i--) {
+        if (layout.lines[i].block.isEndRegionMacro) { depth++; }
+        else if (layout.lines[i].block.isRegionMacro) {
+          if (depth === 0) { regionName = layout.lines[i].block.regionName || "region"; break; }
+          depth--;
+        }
+      }
+      return `; ===[/${regionName}]===`;
+    }
+
     if (line.block.isDefineMacro) {
       return `; .DEFINE ${line.block.defineSymbol || "?"}`;
     }
@@ -7006,6 +7351,7 @@ function renderAsmOutput() {
   asmBlockRanges = {};
   let textLineNum = 2; // skip header "*= ..." (line 0) + empty (line 1)
   codeLines.forEach((codeLine, i) => {
+    if (codeLine === null) return; // suppressed line (e.g. region comment hidden) — not in output
     const block = layout.lines[i].block;
     const key = block._fromInclude || (block._fromMacro ? (block._invokeBlockId || null) : block.id);
     const linesInEntry = codeLine.split("\n").length;
@@ -7022,7 +7368,7 @@ function renderAsmOutput() {
   let asmText = [
     `*= ${layout.origin.text}`,
     "",
-    ...codeLines,
+    ...codeLines.filter(line => line !== null),
     ...(deferredDataSections.length
       ? ["", `; ${t("remoteMemoryData")}`, "", ...deferredDataSections.map((section) => section.text)]
       : [])
@@ -7303,6 +7649,14 @@ async function load10PrintDemo() {
   await loadSampleFromFile("10-print");
 }
 
+async function loadRasterIrqDemo() {
+  await loadSampleFromFile("irq-demo");
+}
+
+async function loadOverlappingRasterDemo() {
+  await loadSampleFromFile("overlapping-raster-demo");
+}
+
 async function loadSidDirectDemo() {
   const ok = await loadSampleFromFile("sid-direct-demo");
   if (!ok) return;
@@ -7427,6 +7781,16 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "10-print") {
     load10PrintDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "irq-demo") {
+    loadRasterIrqDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "overlapping-raster-demo") {
+    loadOverlappingRasterDemo();
     return;
   }
 

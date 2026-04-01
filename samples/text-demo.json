@@ -1,81 +1,109 @@
 {
-  "version": 1,
   "app": "c64-visual-assembler",
   "origin": "0801",
   "program": [
     {
-      "id": "af78fa51-a08e-49ae-b5dd-e55704cbbaab",
+      "addressingMode": "implied",
+      "base": "hex",
+      "category": "Szerkezet",
+      "collapsed": true,
+      "description": "Blokkok csoportositasa egy nevesitett, osszecsukhato szekcioba. Zarj le ENDREGION-nal.",
+      "id": "40b023b4-5d45-472b-aa21-78615e487a0c",
+      "isRegionMacro": true,
+      "mnemonic": "REGION",
+      "operand": "main",
+      "rawOperand": "main",
+      "regionCollapsed": true,
+      "regionName": "main",
+      "validationError": ""
+    },
+    {
+      "addressingMode": "implied",
+      "base": "hex",
       "category": "Rendszer",
+      "collapsed": true,
+      "description": "Disable IRQ interrupts.",
+      "id": "af78fa51-a08e-49ae-b5dd-e55704cbbaab",
       "mnemonic": "SEI",
       "operand": "",
       "rawOperand": "",
-      "description": "Disable IRQ interrupts.",
-      "addressingMode": "implied",
-      "base": "hex",
-      "validationError": "",
-      "collapsed": true
+      "validationError": ""
     },
     {
-      "id": "69ddd3a5-187e-412b-8e2b-6c4e69ff1084",
+      "addressingMode": "absolute",
+      "base": "hex",
       "category": "Ugrasok",
+      "collapsed": true,
+      "description": "Jump to subroutine.",
+      "id": "69ddd3a5-187e-412b-8e2b-6c4e69ff1084",
       "mnemonic": "JSR",
       "operand": "$E544",
       "rawOperand": "E544",
-      "description": "Jump to subroutine.",
-      "addressingMode": "absolute",
-      "base": "hex",
-      "validationError": "",
-      "collapsed": true
+      "validationError": ""
     },
     {
-      "id": "9281657d-ab25-435c-9722-6b84f897552e",
+      "addressingMode": "implied",
+      "base": "text",
       "category": "Makrok",
+      "collapsed": true,
+      "description": "Print text to screen via KERNAL CHROUT routine.",
+      "id": "9281657d-ab25-435c-9722-6b84f897552e",
+      "isTextMacro": true,
       "mnemonic": "TEXT",
       "operand": "HELLO C64",
       "rawOperand": "HELLO C64",
-      "description": "Print text to screen via KERNAL CHROUT routine.",
-      "addressingMode": "implied",
-      "base": "text",
-      "validationError": "",
-      "isTextMacro": true,
       "textX": 12,
       "textY": 8,
-      "collapsed": true
+      "validationError": ""
     },
     {
-      "id": "8c680363-9aff-46e5-9bf4-5ee95af15fca",
+      "addressingMode": "implied",
+      "base": "text",
       "category": "Makrok",
+      "collapsed": true,
+      "description": "Print text to screen via KERNAL CHROUT routine.",
+      "id": "8c680363-9aff-46e5-9bf4-5ee95af15fca",
+      "isTextMacro": true,
       "mnemonic": "TEXT",
       "operand": "VISUAL ASSEMBLER",
       "rawOperand": "VISUAL ASSEMBLER",
-      "description": "Print text to screen via KERNAL CHROUT routine.",
-      "addressingMode": "implied",
-      "base": "text",
-      "validationError": "",
-      "isTextMacro": true,
       "textX": 8,
       "textY": 10,
-      "collapsed": true
+      "validationError": ""
     },
     {
-      "id": "e785a8e0-353f-4792-bfd7-d5b8e9d65f4b",
+      "addressingMode": "implied",
+      "base": "hex",
+      "category": "Szerkezet",
+      "collapsed": true,
+      "description": "REGION szekció vege.",
+      "id": "a97cfdf5-4407-4b2f-b922-77ea0d017486",
+      "isEndRegionMacro": true,
+      "mnemonic": "ENDREGION",
+      "operand": "",
+      "rawOperand": "",
+      "validationError": ""
+    },
+    {
+      "addressingMode": "implied",
+      "base": "hex",
       "category": "Ugrasok",
+      "collapsed": true,
+      "description": "Return from subroutine.",
+      "id": "e785a8e0-353f-4792-bfd7-d5b8e9d65f4b",
       "mnemonic": "RTS",
       "operand": "",
       "rawOperand": "",
-      "description": "Return from subroutine.",
-      "addressingMode": "implied",
-      "base": "hex",
-      "validationError": "",
-      "collapsed": true
+      "validationError": ""
     }
   ],
   "ui": {
-    "sample": "text-demo",
-    "outputMode": "asm",
+    "language": "en",
     "numberBase": "hex",
-    "zoom": 0.72,
-    "language": "hu",
-    "theme": "light"
-  }
+    "outputMode": "asm",
+    "sample": "text-demo",
+    "theme": "light",
+    "zoom": 0.9
+  },
+  "version": 1
 }

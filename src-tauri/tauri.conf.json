@@ -1,6 +1,6 @@
 {
   "productName": "C64 Visual Assembler",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "identifier": "hu.zstarczali.c64visualassembler",
   "build": {
     "frontendDist": "../www",
@@ -38,7 +38,8 @@
       "icons/128x128@2x.png"
     ],
     "resources": {
-      "../samples/*": "samples/"
+      "../samples/*": "samples/",
+      "../docs/*": "docs/"
     }
   }
 }
