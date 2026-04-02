@@ -21,6 +21,14 @@
   --output-text: #b9c4ff;
   --error: #7d1f45;
   --accent: var(--primary);
+  --asm-mnemonic: #7ec8e8;
+  --asm-directive: #b48bfa;
+  --asm-macro: #7dd3fc;
+  --asm-comment: #6878a8;
+  --asm-label: #ffd060;
+  --asm-number: #f09050;
+  --asm-region: #a0c8a0;
+  --asm-operand: #e8e060;
 }
 
 body[data-theme="dark"] {
@@ -45,6 +53,14 @@ body[data-theme="dark"] {
   --output-text: #aeb8ff;
   --error: #ff9ab6;
   --accent: #ffffff;
+  --asm-mnemonic: #7ec8e8;
+  --asm-directive: #b48bfa;
+  --asm-macro: #93c5fd;
+  --asm-comment: #5a6e8a;
+  --asm-label: #ffd060;
+  --asm-number: #f09050;
+  --asm-region: #80b880;
+  --asm-operand: #e8e060;
 }
 
 * {
@@ -1608,6 +1624,15 @@ body.dnd-active {
   --block-scale: 1;
 }
 
+.asm-tok-mnemonic  { color: var(--asm-mnemonic); }
+.asm-tok-directive { color: var(--asm-directive); }
+.asm-tok-macro     { color: var(--asm-macro); }
+.asm-tok-comment   { color: var(--asm-comment); }
+.asm-tok-label     { color: var(--asm-label); }
+.asm-tok-number    { color: var(--asm-number); }
+.asm-tok-region    { color: var(--asm-region); }
+.asm-tok-operand   { color: var(--asm-operand); }
+
 
 .section-divider {
   border: none;
@@ -1666,6 +1691,40 @@ body.dnd-active {
 .output-stack {
   display: grid;
   gap: 12px;
+  flex: 1;
+  min-height: 0;
+}
+
+.output-stack[data-mode="asm"],
+.output-stack[data-mode="monitor"],
+.output-stack[data-mode="both"] {
+  display: flex;
+  flex-direction: column;
+}
+
+.output-stack[data-mode="asm"] .asm-label {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.output-stack[data-mode="asm"] #asm-output {
+  flex: 1;
+  min-height: 0;
+}
+
+.output-stack[data-mode="monitor"] .monitor-label {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.output-stack[data-mode="monitor"] #monitor-output {
+  display: block;
+  flex: 1;
+  min-height: 0;
 }
 
 .monitor-output {
@@ -1708,19 +1767,19 @@ body.dnd-active {
   overflow: hidden;
 }
 
-.output-stack[data-mode="asm"] .asm-label,
-.output-stack[data-mode="both"] .asm-label {
-  display: block;
-}
-
-.output-stack[data-mode="monitor"] .monitor-label,
+.output-stack[data-mode="both"] .asm-label,
 .output-stack[data-mode="both"] .monitor-label {
-  display: block;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-.output-stack[data-mode="monitor"] #monitor-output,
+.output-stack[data-mode="both"] #asm-output,
 .output-stack[data-mode="both"] #monitor-output {
   display: block;
+  flex: 1;
+  min-height: 0;
 }
 
 .panel-label {
