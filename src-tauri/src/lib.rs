@@ -319,6 +319,232 @@ async fn launch_vice(app: AppHandle, payload: LaunchVicePayload) -> serde_json::
     }
 }
 
+// ── Debugger (RetroDebugger) ────────────────────────────────────────────────
+
+#[tauri::command]
+fn get_debugger_config(app: AppHandle) -> serde_json::Value {
+    let cfg = read_config(&app);
+    let path = cfg["debuggerPath"].as_str().unwrap_or("").to_string();
+    serde_json::json!({ "debuggerPath": path })
+}
+
+#[tauri::command]
+async fn choose_debugger_executable(app: AppHandle) -> serde_json::Value {
+    let dialog = app.dialog().clone();
+    let file_dialog = dialog.file();
+
+    #[cfg(target_os = "windows")]
+    let file_dialog = file_dialog.add_filter("Executable", &["exe"]);
+
+    #[cfg(target_os = "macos")]
+    let file_dialog = {
+        let candidates = [
+            "/Applications",
+            "/Applications/RetroDebugger",
+        ];
+        let start_dir = candidates
+            .iter()
+            .find(|p| std::path::Path::new(p).exists())
+            .unwrap_or(&"/");
+        file_dialog.set_directory(start_dir)
+    };
+
+    match file_dialog.blocking_pick_file() {
+        Some(path) => {
+            let path_str = path.to_string();
+            let mut cfg = read_config(&app);
+            cfg["debuggerPath"] = serde_json::json!(path_str);
+            write_config(&app, &cfg);
+            serde_json::json!({ "canceled": false, "debuggerPath": path_str })
+        }
+        None => serde_json::json!({ "canceled": true }),
+    }
+}
+
+#[derive(Deserialize)]
+struct DebugSymbol {
+    name: String,
+    address: u32,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct LaunchDebuggerPayload {
+    bytes: Vec<u8>,
+    file_name: Option<String>,
+    symbols: Option<Vec<DebugSymbol>>,
+    breakpoints: Option<Vec<u32>>,
+    auto_jmp: Option<bool>,
+    jmp_address: Option<u32>,
+    wait_ms: Option<u32>,
+    unpause: Option<bool>,
+}
+
+#[tauri::command]
+async fn launch_debugger(app: AppHandle, payload: LaunchDebuggerPayload) -> serde_json::Value {
+    let cfg = read_config(&app);
+    let debugger_path = cfg["debuggerPath"].as_str().unwrap_or("").to_string();
+
+    if debugger_path.is_empty() {
+        return serde_json::json!({
+            "ok": false,
+            "error": "RetroDebugger nincs beallitva. Kattints az Edit gombra."
+        });
+    }
+
+    let temp_dir = std::env::temp_dir().join("c64-visual-assembler");
+    let _ = fs::create_dir_all(&temp_dir);
+    let file_name = payload.file_name.unwrap_or_else(|| {
+        format!("program-{}.prg", std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH).unwrap().as_millis())
+    });
+    let file_path = temp_dir.join(&file_name);
+    if let Err(e) = fs::write(&file_path, &payload.bytes) {
+        return serde_json::json!({ "ok": false, "error": e.to_string() });
+    }
+
+    let prg_arg = file_path.to_str().unwrap().to_string();
+
+    // Build extra args: breakpoints, symbols, jmp
+    // Order matches confirmed working: -breakpoints -jmp -unpause
+    let mut extra_args: Vec<String> = Vec::new();
+
+    if let Some(bps) = &payload.breakpoints {
+        if !bps.is_empty() {
+            let content: String = bps.iter()
+                .map(|addr| format!("break ${:04X}", addr))
+                .collect::<Vec<_>>()
+                .join("\n");
+            let bp_path = temp_dir.join("debug-breakpoints.txt");
+            if fs::write(&bp_path, content).is_ok() {
+                extra_args.push("-breakpoints".to_string());
+                extra_args.push(bp_path.to_str().unwrap().to_string());
+            }
+        }
+    }
+
+    if let Some(symbols) = &payload.symbols {
+        if !symbols.is_empty() {
+            let content: String = symbols.iter()
+                .map(|s| {
+                    let safe = s.name.to_lowercase().replace(|c: char| !c.is_alphanumeric() && c != '_', "_");
+                    format!("al C:{:04x} .{}", s.address, safe)
+                })
+                .collect::<Vec<_>>()
+                .join("\n");
+            let sym_path = temp_dir.join("debug-symbols.txt");
+            if fs::write(&sym_path, content).is_ok() {
+                extra_args.push("-symbols".to_string());
+                extra_args.push(sym_path.to_str().unwrap().to_string());
+            }
+        }
+    }
+
+    let use_auto_jmp = payload.auto_jmp.unwrap_or(false);
+    if let Some(addr) = payload.jmp_address {
+        extra_args.push("-jmp".to_string());
+        extra_args.push(format!("${:04X}", addr));
+    }
+    if let Some(ms) = payload.wait_ms {
+        extra_args.push("-wait".to_string());
+        extra_args.push(ms.to_string());
+    }
+    if payload.unpause.unwrap_or(false) {
+        extra_args.push("-unpause".to_string());
+    }
+
+    let result = if cfg!(target_os = "macos") {
+        // On macOS resolve .app bundle → Contents/MacOS/<stem>
+        let binary = if debugger_path.ends_with(".app") {
+            let app_path = std::path::Path::new(&debugger_path);
+            let stem = app_path.file_stem().unwrap_or_default().to_string_lossy().to_string();
+            let candidate = app_path.join("Contents/MacOS").join(&stem);
+            if candidate.exists() {
+                candidate.to_string_lossy().to_string()
+            } else {
+                // Try without spaces (RetroDebugger.app → C64Debugger)
+                let stem_nospace = stem.replace(' ', "");
+                let candidate2 = app_path.join("Contents/MacOS").join(&stem_nospace);
+                if candidate2.exists() {
+                    candidate2.to_string_lossy().to_string()
+                } else {
+                    String::new()
+                }
+            }
+        } else {
+            debugger_path.clone()
+        };
+
+        if binary.is_empty() {
+            return serde_json::json!({
+                "ok": false,
+                "error": format!("RetroDebugger binary nem talalhato. Beallitott ut: {}", debugger_path)
+            });
+        }
+
+        let mut cmd = Command::new(&binary);
+        cmd.arg("-prg").arg(&prg_arg);
+        for a in &extra_args { cmd.arg(a); }
+        if use_auto_jmp { cmd.arg("-autojmp"); }
+        cmd.stdin(std::process::Stdio::null())
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::null())
+            .spawn()
+    } else {
+        #[cfg(target_os = "windows")]
+        {
+            let mut all_args = vec![
+                format!("-prg"),
+                prg_arg.clone(),
+            ];
+            all_args.extend(extra_args.iter().cloned());
+            if use_auto_jmp { all_args.push(format!("-autojmp")); }
+            let args_ps = all_args.iter()
+                .map(|a| format!("'{}'", a.replace('\'', "''")))
+                .collect::<Vec<_>>()
+                .join(",");
+            let ps_cmd = format!(
+                "Start-Process -FilePath '{}' -ArgumentList {}",
+                debugger_path.replace('\'', "''"),
+                args_ps,
+            );
+            let _ = fs::write(
+                temp_dir.join("debug.launch.log"),
+                format!("CMD: {}\nARGS: {:?}\nBREAKPOINTS: {:?}\nAUTO_JMP: {:?}\n",
+                    ps_cmd, all_args, payload.breakpoints, payload.auto_jmp),
+            );
+            Command::new("powershell")
+                .args([
+                    "-NoProfile",
+                    "-NonInteractive",
+                    "-WindowStyle", "Hidden",
+                    "-Command", &ps_cmd,
+                ])
+                .stdin(std::process::Stdio::null())
+                .stdout(std::process::Stdio::null())
+                .stderr(std::process::Stdio::null())
+                .creation_flags(0x08000000)
+                .spawn()
+        }
+        #[cfg(not(target_os = "windows"))]
+        {
+            let mut cmd = Command::new(&debugger_path);
+            cmd.arg("-prg").arg(&prg_arg);
+            for a in &extra_args { cmd.arg(a); }
+            if use_auto_jmp { cmd.arg("-autojmp"); }
+            cmd.stdin(std::process::Stdio::null())
+                .stdout(std::process::Stdio::null())
+                .stderr(std::process::Stdio::null())
+                .spawn()
+        }
+    };
+
+    match result {
+        Ok(_) => serde_json::json!({ "ok": true }),
+        Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+    }
+}
+
 #[tauri::command]
 async fn choose_incbin_file(app: AppHandle) -> serde_json::Value {
     let result = app.dialog().file()
@@ -577,6 +803,9 @@ pub fn run() {
             get_vice_config,
             choose_vice_executable,
             launch_vice,
+            get_debugger_config,
+            choose_debugger_executable,
+            launch_debugger,
             choose_incbin_file,
             load_incbin_sample,
             choose_sid_file,

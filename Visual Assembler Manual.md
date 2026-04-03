@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 1.4.1**
+**Version 1.4.3**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -32,6 +32,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
    - [SID](#sid)
    - [INCLUDE](#include)
    - [TABLE](#table)
+   - [ORG](#org)
    - [LOOP / NEXT](#loop--next)
    - [PUSH / PULL](#push--pull)
    - [MACRO / ENDM / INVOKE](#macro--endm--invoke)
@@ -43,7 +44,8 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
    - [WAIT_RASTER](#wait_raster)
    - [JOYSTICK](#joystick)
    - [SPRITE_COL](#sprite_col)
-9. [Knowledge Base Links](#9-knowledge-base-links)
+9. [RetroDebugger Integration](#9-retrodebugger-integration)
+10. [Knowledge Base Links](#10-knowledge-base-links)
 
 ---
 
@@ -73,7 +75,7 @@ The palette on the left lists all available blocks grouped by category:
 - **System** — CLC, SEC, NOP, BRK, …
 - **Illegal instructions** — LAX, SAX, DCP, …
 - **Structure** — LABEL, COMMENT, REGION, ENDREGION
-- **Macros** — LOOP, NEXT, PUSH, PULL, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, INCBIN, SID, INCLUDE, TABLE, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, SPRITE_COL
+- **Macros** — LOOP, NEXT, PUSH, PULL, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, INCBIN, SID, INCLUDE, TABLE, ORG, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, SPRITE_COL
 
 Use the **search box** at the top of the palette to filter by name. Click the **Add selected block** button or drag a block into the program area.
 
@@ -113,7 +115,11 @@ The **Program** tab contains the settings that affect code generation and output
 
 - **Macro source** — when ON, macro definition blocks (MACRO…ENDM) show their source code inline in the ASM view.
 - **Show numbers in ASM (HEX / DEC)** — switches all address and value literals in the ASM output between hexadecimal and decimal. This is independent from the per-block HEX / DEC toggle: the per-block toggle controls how you *enter* the operand; this toggle controls how the *output* is displayed.
-- **Origin** — the load address of your program (default `$0801`). Supports both `0801` and `$0801` notation. The HEX / DEC toggle next to the input converts the displayed value. All label addresses and the monitor output update immediately.
+- **Program Start Address** — the load address of your program (default `$0801`). Supports both `0801` and `$0801` notation. The HEX / DEC toggle next to the input converts the displayed value. All label addresses and the monitor output update immediately.
+- **RetroDebugger params** — three inline toggles controlling which flags are passed to RetroDebugger on launch:
+  - **`-jmp` ON/OFF** — when ON, RetroDebugger jumps directly to the program's start address on load.
+  - **`-unpause` ON/OFF** — when ON, RetroDebugger unpauses immediately after loading the program.
+  - **`-wait` ms ON/OFF** — adds a `-wait <ms>` delay before unpausing. Enter the delay value in the text box; the ON/OFF toggle enables or disables it.
 - **Compile info** — shows a summary of the compiled program (code start address, size, BASIC SYS stub status).
 
 ### Clicking an ASM line
@@ -137,6 +143,7 @@ Click any line in the ASM view to **highlight the corresponding block** in the p
 | **Load Project** | Load a previously saved project |
 | **Save PRG** | Export the compiled binary as a `.prg` file |
 | **Run in VICE** | Compile and launch directly in the VICE emulator |
+| **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 9](#9-retrodebugger-integration)) |
 | **Clear program** | Remove all blocks from the program area |
 | **Collapse All** | Collapse all blocks |
 | **About** | Version info |
@@ -581,6 +588,42 @@ The program counter jumps to the specified address for subsequent blocks. Place 
 
 ---
 
+### ORG
+
+Sets a new **program counter origin** — equivalent to the `*= $ADDR` assembler directive. Use ORG to split your program into multiple sections that load at different addresses.
+
+| Field | Description |
+|---|---|
+| Address | The new origin address (e.g. `C000`) |
+
+**Generated ASM:**
+```
+* = $C000
+```
+
+**Size:** 0 bytes. The ORG block itself generates no machine code.
+
+Each ORG block starts a new code section. All blocks following an ORG (until the next ORG or end of program) are assembled relative to that address. When the PRG is exported, all sections are merged into a single flat buffer: the load address is the lowest section start across all sections; gaps between sections are zero-filled.
+
+**Example — code at `$0801`, data table at `$C000`:**
+```
+* = $0801
+    LDX #$00
+loop:
+    LDA $C000,X
+    STA $D800,X
+    INX
+    BNE loop
+    RTS
+
+* = $C000
+    .byte $01, $02, $03, ...
+```
+
+> **Tip:** The default program origin (set in the Program tab) acts as the implicit first ORG. Add an ORG block only when you need a *second* (or third) distinct address range.
+
+---
+
 ### LOOP / NEXT
 
 A counted loop pair using a register as the counter.
@@ -741,7 +784,7 @@ Groups a set of blocks into a **named, collapsible section**. REGION and ENDREGI
 3. Add an `ENDREGION` block to close the section.
 4. Click ▸ on the REGION to collapse the whole section into one line while working on other parts of the program.
 
-> **Note:** Regions do not nest. Placing a second REGION before an ENDREGION starts a new region at the same level.
+> **Note:** Regions support nesting. A REGION placed inside another REGION creates an inner group; each ENDREGION closes the nearest open REGION.
 
 ---
 
@@ -1019,7 +1062,44 @@ no_hit:
 
 ---
 
-## 9. Knowledge Base Links
+## 9. RetroDebugger Integration
+
+[RetroDebugger](https://github.com/slajerek/RetroDebugger) is a cross-platform Commodore 64 debugger with breakpoint support, memory inspection, and label-aware disassembly.
+
+### Setup
+
+1. Open **Settings → Configure RetroDebugger executable** and point it to the `RetroDebugger` (or `RetroDebugger.exe`) binary.
+
+### Launching
+
+Click the **Debug (RetroDebugger)** button in the toolbar. The app will:
+
+1. Assemble the program to a `.prg` file in a temporary directory.
+2. Write a **breakpoints file** (`breakpoints.txt`) listing all blocks that have the breakpoint flag set (shown in red in the program area). Format: one `break $ADDR` per line.
+3. Write a **symbols file** (`symbols.txt`) in Vice/RetroDebugger label format (`al C:addr .name`). All LABEL and CONST blocks are included automatically.
+4. Launch RetroDebugger with:
+   ```
+   RetroDebugger -prg <file.prg> -breakpoints <breakpoints.txt> -symbols <symbols.txt> [flags]
+   ```
+   Additional flags are controlled by the **RetroDebugger** toggles in the **Program** tab.
+
+### Breakpoint Blocks
+
+Right-click any instruction block (or use the breakpoint icon) to toggle it as a breakpoint. Breakpointed blocks are highlighted in red. When you launch RetroDebugger, the address of each breakpointed block is included in the breakpoints file automatically.
+
+### RetroDebugger Flags (Program Tab)
+
+| Toggle | Flag | Effect |
+|--------|------|--------|
+| `-jmp` ON | `-jmp $ADDR` | Jump directly to the program start address after loading |
+| `-unpause` ON | `-unpause` | Unpause RetroDebugger immediately on load |
+| `-wait` ON | `-wait <ms>` | Wait `<ms>` milliseconds before unpausing (useful for SID/IRQ init) |
+
+> **Tip:** For most programs, enable `-jmp` and `-unpause` for instant autostart. Use `-wait 500` (or more) when your program sets up IRQs or SID music that needs a moment to initialize before the first raster.
+
+---
+
+## 10. Knowledge Base Links
 
 Quick reference links available in the app under **Knowledge Base**:
 

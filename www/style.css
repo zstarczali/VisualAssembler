@@ -1162,14 +1162,19 @@ body.dnd-active {
   width: calc(22px * var(--block-scale));
   height: calc(22px * var(--block-scale));
   min-height: unset;
+  aspect-ratio: 1;
+  flex-shrink: 0;
   padding: 0;
-  border-radius: 6px;
+  margin-top: -1px;
+  border-radius: calc(6px * var(--block-scale));
   background: var(--control-bg);
   border: 1px solid var(--panel-border);
   color: var(--muted);
   font-size: calc(0.78rem * var(--block-scale));
   line-height: 1;
-  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .inline-field span {
@@ -1463,6 +1468,27 @@ body.dnd-active {
   justify-content: center;
 }
 
+.bp-toggle {
+  color: var(--panel-border) !important;
+  font-size: calc(0.6rem * var(--block-scale)) !important;
+  transition: color 0.15s;
+}
+
+.bp-toggle.bp-active {
+  color: #ff4444 !important;
+  opacity: 1 !important;
+}
+
+.asm-block:has(.bp-toggle.bp-active) {
+  background: rgba(255, 68, 68, 0.12) !important;
+  border-color: rgba(255, 68, 68, 0.4) !important;
+}
+
+body[data-theme="dark"] .asm-block:has(.bp-toggle.bp-active) {
+  background: rgba(255, 68, 68, 0.18) !important;
+  border-color: rgba(255, 68, 68, 0.5) !important;
+}
+
 .block-main input,
 .block-main select {
   padding: calc(5px * var(--block-scale)) calc(7px * var(--block-scale));
@@ -1640,6 +1666,20 @@ body.dnd-active {
   margin: 10px 0;
 }
 
+.dbg-wait-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dbg-wait-row input {
+  flex: 1;
+  font-family: "IBM Plex Mono", monospace;
+  min-height: 36px;
+  padding: 6px 10px;
+  min-width: 0;
+}
+
 .macro-source-toggle {
   flex-shrink: 0;
   --block-scale: 1;
@@ -1800,25 +1840,6 @@ body.dnd-active {
   padding: 6px 10px;
 }
 
-.origin-section {
-  margin-bottom: 14px;
-}
-
-
-.origin-input-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.origin-input-row input {
-  flex: 1;
-  font-family: "IBM Plex Mono", monospace;
-  min-height: 36px;
-  padding: 6px 10px;
-  min-width: 0;
-}
 
 .origin-preview {
   display: flex;
@@ -1844,6 +1865,13 @@ body.dnd-active {
 
 .origin-preview small {
   color: var(--muted);
+}
+
+.origin-preview small code {
+  font-family: inherit;
+  font-size: inherit;
+  background: none;
+  padding: 0;
 }
 
 
@@ -2078,6 +2106,17 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
 .emulator-actions .secondary {
   color: var(--text);
   font-weight: 600;
+}
+
+#run-debugger {
+  background: #c0392b;
+  color: #fff;
+  border-color: #c0392b;
+}
+
+#run-debugger:hover {
+  background: #e74c3c;
+  border-color: #e74c3c;
 }
 
 .emulator-note p {

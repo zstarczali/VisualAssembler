@@ -1,75 +1,89 @@
 {
-  "version": 1,
   "app": "c64-visual-assembler",
   "origin": "0801",
   "program": [
     {
-      "id": "b3ecb23a-5651-4c64-b53a-adcc0e4b7e94",
+      "addressingMode": "implied",
+      "base": "hex",
+      "category": "Makrok",
+      "collapsed": false,
+      "description": "Cimzestarto atvaltasa (*= direktiva). A kovetkező blokkokat az itt megadott cimtol forditja.",
+      "id": "a6da3040-d7ef-40b3-9a27-dda32a263ad8",
+      "isOrgMacro": true,
+      "mnemonic": "ORG",
+      "operand": "",
+      "orgAddress": "0801",
+      "rawOperand": "",
+      "validationError": ""
+    },
+    {
+      "addressingMode": "implied",
+      "base": "hex",
       "category": "Rendszer",
+      "collapsed": true,
+      "description": "Disable IRQ interrupts.",
+      "id": "b3ecb23a-5651-4c64-b53a-adcc0e4b7e94",
       "mnemonic": "SEI",
       "operand": "",
       "rawOperand": "",
-      "description": "Disable IRQ interrupts.",
-      "addressingMode": "implied",
-      "base": "hex",
-      "validationError": "",
-      "collapsed": true
+      "validationError": ""
     },
     {
-      "id": "e308ade7-183c-4743-951a-51c82826e066",
+      "addressingMode": "immediate",
+      "base": "hex",
       "category": "Adatmozgas",
+      "collapsed": true,
+      "description": "Load accumulator from memory or constant.",
+      "id": "e308ade7-183c-4743-951a-51c82826e066",
       "mnemonic": "LDA",
       "operand": "#$00",
       "rawOperand": "00",
-      "description": "Load accumulator from memory or constant.",
-      "addressingMode": "immediate",
-      "base": "hex",
-      "validationError": "",
-      "collapsed": true
+      "validationError": ""
     },
     {
-      "id": "889e39f7-a905-436a-b01d-25014b4a8ae3",
+      "addressingMode": "absolute",
+      "base": "hex",
       "category": "Adatmozgas",
+      "collapsed": true,
+      "description": "Store accumulator to memory address.",
+      "id": "889e39f7-a905-436a-b01d-25014b4a8ae3",
       "mnemonic": "STA",
       "operand": "$D020",
       "rawOperand": "D020",
-      "description": "Store accumulator to memory address.",
-      "addressingMode": "absolute",
-      "base": "hex",
-      "validationError": "",
-      "collapsed": true
+      "validationError": ""
     },
     {
-      "id": "d9679e63-30a8-42c8-b957-62f8e074b373",
+      "addressingMode": "absolute",
+      "base": "hex",
       "category": "Adatmozgas",
+      "collapsed": true,
+      "description": "Store accumulator to memory address.",
+      "id": "d9679e63-30a8-42c8-b957-62f8e074b373",
       "mnemonic": "STA",
       "operand": "$D021",
       "rawOperand": "D021",
-      "description": "Store accumulator to memory address.",
-      "addressingMode": "absolute",
-      "base": "hex",
-      "validationError": "",
-      "collapsed": true
+      "validationError": ""
     },
     {
-      "id": "f0e62760-6225-4573-8002-eb0d3edbe90d",
+      "addressingMode": "implied",
+      "base": "hex",
       "category": "Ugrasok",
+      "collapsed": true,
+      "description": "Return from subroutine.",
+      "id": "f0e62760-6225-4573-8002-eb0d3edbe90d",
       "mnemonic": "RTS",
       "operand": "",
       "rawOperand": "",
-      "description": "Return from subroutine.",
-      "addressingMode": "implied",
-      "base": "hex",
-      "validationError": "",
-      "collapsed": true
+      "validationError": ""
     }
   ],
   "ui": {
-    "sample": "basic-colors",
-    "outputMode": "asm",
+    "language": "en",
     "numberBase": "hex",
-    "zoom": 0.72,
-    "language": "hu",
-    "theme": "light"
-  }
+    "outputMode": "asm",
+    "sample": "basic-colors",
+    "theme": "light",
+    "zoom": 1.09
+  },
+  "version": 1
 }
