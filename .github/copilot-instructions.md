@@ -2,8 +2,9 @@
 
 ## Mi ez a projekt?
 
-Electron-alapú asztali alkalmazás, amely Commodore 64 6502 assembly programok vizuális,
+Tauri 2-alapú asztali alkalmazás, amely Commodore 64 6502 assembly programok vizuális,
 drag-and-drop szerkesztését teszi lehetővé. Nincs UI-framework — csak Vanilla JS, HTML, CSS.
+Backend: Rust (Tauri 2), frontend: Vanilla JS/HTML/CSS.
 
 ---
 
@@ -11,12 +12,13 @@ drag-and-drop szerkesztését teszi lehetővé. Nincs UI-framework — csak Vani
 
 | Fájl | Szerep |
 |------|--------|
-| `app.js` | Teljes renderer logika (~7 200 sor): mnemonik könyvtár, UI, ASM/monitor generálás, makró expanzió |
+| `app.js` | Teljes renderer logika (~8 500 sor): mnemonik könyvtár, UI, ASM/monitor generálás, makró expanzió |
 | `index.html` | Egyetlen HTML lap; összes UI elem és két `<template>` (block-template, palette-item-template) |
 | `style.css` | Teljes stíluslap; CSS custom properties-alapú téma (dark/light) |
-| `main.js` | Electron main process: ablak, fájlmentés/betöltés, VICE futtatás IPC |
-| `preload.js` | `contextBridge` — csak a szükséges IPC API-k expozíciója a renderernek |
-| `package.json` | `electron` + `electron-builder`; build target: Windows NSIS |
+| `tauri-bridge.js` | `window.electronAPI` shim — Tauri invoke hívásokat térképez az app.js felé |
+| `src-tauri/src/lib.rs` | Tauri backend: VICE/RetroDebugger indítás, fájlmentés/betöltés, SID parse, config |
+| `src-tauri/tauri.conf.json` | Tauri konfiguráció, verzió, build targets |
+| `package.json` | dev/build scriptek; Tauri CLI |
 
 ---
 
@@ -256,15 +258,21 @@ Aktuális sorrend az `index.html` `#sample-select` elemben (0-indexelt):
 
 ---
 
-## Electron IPC
+## Tauri IPC (tauri-bridge.js → lib.rs)
 
-| Csatorna | Irány | Leírás |
-|----------|-------|--------|
-| `save-file` | renderer → main | JSON projekt mentése fájlba |
-| `load-file` | renderer → main | JSON projekt betöltése |
-| `choose-vice` | renderer → main | VICE exe fájl választó dialógus |
-| `run-vice` | renderer → main | `.prg` temp fájl írása + VICE indítása |
-| `shell:open-external` | renderer → main | URL megnyitása a rendszer böngészőjében |
+| Tauri command | Leírás |
+|---------------|--------|
+| `get_app_version` | Alkalmazás verzió lekérése |
+| `set_title` | Ablakcím beállítása |
+| `get_vice_config` / `choose_vice_executable` | VICE útvonal config |
+| `launch_vice` | PRG temp fájl + VICE indítása |
+| `get_debugger_config` / `choose_debugger_executable` | RetroDebugger útvonal config |
+| `launch_debugger` | PRG + breakpoints + symbols fájl + RetroDebugger indítása |
+| `launch_vice_debugger` | PRG + moncommands fájl + VICE monitor indítása |
+| `save_prg` / `save_project` / `load_project` | Fájl I/O dialógusok |
+| `load_sample` | Beépített minta projekt betöltése |
+| `choose_incbin_file` / `choose_sid_file` | Bináris/SID fájl választó |
+| `open_manual` | PDF kézikönyv megnyitása |
 
 ---
 
@@ -288,9 +296,8 @@ Aktuális sorrend az `index.html` `#sample-select` elemben (0-indexelt):
 ## Tipikus fejlesztési munkamenet
 
 ```bash
-npm start          # Electron dev futtatás
-npm run dist       # Windows NSIS telepítő build
-npm run dist:dir   # Telepítő nélküli mappa build
+npm run dev        # Tauri dev futtatás (serve + tauri dev)
+npm run build      # Tauri release build
 ```
 
 ### Mac DMG build ad-hoc aláírással
@@ -500,15 +507,16 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`1.4.2` — lásd `package.json` és a What's New dialóg (`index.html`).
+`1.4.3` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` és a What's New dialóg (`index.html`).
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező
-2. `index.html` → `#whats-new-dialog` cím + bejegyzések (mindig angolul!)
-3. `index.html` → `#about-dialog` verzió szám frissítése
-4. `README.md` → `Current version` sor és feature/sample lista
-5. `.github/copilot-instructions.md` → verzió + minden érintett szekció
-6. Mac + Windows build az aláírási procedúrával
+2. `src-tauri/tauri.conf.json` → `"version"` mező
+3. `src-tauri/Cargo.toml` → `version` mező
+4. `index.html` → `#whats-new-dialog` verzió + bejegyzések (mindig angolul!)
+5. `README.md` → `Current version` sor + új What's New szekció
+6. `.github/copilot-instructions.md` → verzió sor frissítése
+7. Mac + Windows build az aláírási procedúrával
 
 ---
 

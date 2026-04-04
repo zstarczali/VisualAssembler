@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 1.4.1**
+**Version 1.4.4**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -32,6 +32,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
    - [SID](#sid)
    - [INCLUDE](#include)
    - [TABLE](#table)
+   - [ORG](#org)
    - [LOOP / NEXT](#loop--next)
    - [PUSH / PULL](#push--pull)
    - [MACRO / ENDM / INVOKE](#macro--endm--invoke)
@@ -43,7 +44,8 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
    - [WAIT_RASTER](#wait_raster)
    - [JOYSTICK](#joystick)
    - [SPRITE_COL](#sprite_col)
-9. [Knowledge Base Links](#9-knowledge-base-links)
+9. [Debugger Integration](#9-debugger-integration)
+10. [Knowledge Base Links](#10-knowledge-base-links)
 
 ---
 
@@ -73,7 +75,7 @@ The palette on the left lists all available blocks grouped by category:
 - **System** — CLC, SEC, NOP, BRK, …
 - **Illegal instructions** — LAX, SAX, DCP, …
 - **Structure** — LABEL, COMMENT, REGION, ENDREGION
-- **Macros** — LOOP, NEXT, PUSH, PULL, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, INCBIN, SID, INCLUDE, TABLE, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, SPRITE_COL
+- **Macros** — LOOP, NEXT, PUSH, PULL, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, INCBIN, SID, INCLUDE, TABLE, ORG, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, SPRITE_COL
 
 Use the **search box** at the top of the palette to filter by name. Click the **Add selected block** button or drag a block into the program area.
 
@@ -105,15 +107,19 @@ The right panel shows the generated output in real time.
 | **ASM** | 6502 assembly source with addresses and labels |
 | **Monitor** | Hex / byte dump (C64 monitor style) |
 | **Both** | ASM on top, monitor below |
-| **Program** | Program settings panel — origin, number format, macro source toggle |
+| **Options** | Program settings panel — number format, macro source toggle, debugger params |
 
-### Program tab
+### Options tab
 
-The **Program** tab contains the settings that affect code generation and output display:
+The **Options** tab contains the settings that affect code generation and output display:
 
 - **Macro source** — when ON, macro definition blocks (MACRO…ENDM) show their source code inline in the ASM view.
 - **Show numbers in ASM (HEX / DEC)** — switches all address and value literals in the ASM output between hexadecimal and decimal. This is independent from the per-block HEX / DEC toggle: the per-block toggle controls how you *enter* the operand; this toggle controls how the *output* is displayed.
-- **Origin** — the load address of your program (default `$0801`). Supports both `0801` and `$0801` notation. The HEX / DEC toggle next to the input converts the displayed value. All label addresses and the monitor output update immediately.
+- **Program start address** — now set via an **ORG block** in the program area rather than a separate input field. The first ORG block defines the program's load address; subsequent ORG blocks start additional sections at different addresses.
+- **Debugger params** — three inline toggles controlling which flags are passed to the external debugger on launch:
+  - **`-jmp` ON/OFF** — jump directly to the program's start address after loading.
+  - **`-unpause` ON/OFF** — unpause the debugger immediately on load.
+  - **`-wait` ms ON/OFF** — adds a `-wait <ms>` delay before unpausing; select 500 ms or 1000 ms from the dropdown.
 - **Compile info** — shows a summary of the compiled program (code start address, size, BASIC SYS stub status).
 
 ### Clicking an ASM line
@@ -137,6 +143,8 @@ Click any line in the ASM view to **highlight the corresponding block** in the p
 | **Load Project** | Load a previously saved project |
 | **Save PRG** | Export the compiled binary as a `.prg` file |
 | **Run in VICE** | Compile and launch directly in the VICE emulator |
+| **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 9](#9-debugger-integration)) |
+| **Debug (C64 Debugger)** | Compile and launch in C64 Debugger with the same breakpoints and symbols support (see [Section 9](#9-debugger-integration)) |
 | **Clear program** | Remove all blocks from the program area |
 | **Collapse All** | Collapse all blocks |
 | **About** | Version info |
@@ -520,26 +528,30 @@ Includes an external binary file and places its content at a given memory addres
 
 ### SID
 
-Loads a SID music file and places its data at the address specified in the SID header. Header metadata (Load/Init/Play addresses, title, author) is extracted automatically.
+Loads a SID music file and embeds its raw data directly into the assembled PRG at a configurable memory address. Header metadata (Load/Init/Play addresses, title, author) is extracted automatically.
 
 | Field | Description |
 |---|---|
 | File | Browse to select a `.sid` file |
+| Custom address (optional) | Override the SID's native load address (e.g. `$1000`). Leave empty to use the address from the SID header. |
 
 The block displays:
 - **Title / Author** from the SID header
-- **Load address** — where the data is placed in memory
-- **Init address** — call this with JSR to initialize the music
-- **Play address** — call this with JSR on every frame (e.g. in an IRQ handler)
+- **Load address** — where the data is placed in memory (effective address after any override)
+- **Init address** — call this with JSR to initialize the music (adjusted for relocation if a custom address is used)
+- **Play address** — call this with JSR on every frame in an IRQ handler (adjusted for relocation)
+- A **(relocated)** badge appears when a custom address shifts the data from its original position
 
 **Generated ASM comment:**
 ```
-    ; SID "Commando.sid" @ $1000  Init:$1000  Play:$1003  (8192 bytes)
+    ; SID "Ikari_Warriors.sid" @ $1000  Init:$1000  Play:$1006  (4096 bytes)
 ```
 
-**Size in code:** 0 bytes. The SID data is placed at the load address.
+**Size in code:** 0 bytes inline. The SID binary is placed at the specified address as a deferred chunk in the PRG.
 
-> **Typical usage:** JSR to Init once, then call Play periodically from an IRQ.
+> **Important:** Most SID files contain hardcoded internal absolute addresses. They can only be relocated if the entire binary is shifted by the same offset. If a SID has internal jumps to `$10xx`, it must remain at `$1000` — moving it to a different address will break those internal references.
+
+> **Typical usage:** Place an ORG block before the SID block to set its address. Call Init once at startup, then call Play every frame from a raster IRQ handler.
 
 ---
 
@@ -578,6 +590,43 @@ color_table:
 The program counter jumps to the specified address for subsequent blocks. Place BYTE/WORD/FILL blocks after TABLE to fill the table content.
 
 **Size:** 0 bytes.
+
+---
+
+### ORG
+
+Sets a new **program counter origin** — equivalent to the `*= $ADDR` assembler directive. The first ORG block in your program defines its primary load address. Use additional ORG blocks to split the program into multiple sections that load at different addresses.
+
+| Field | Description |
+|---|---|
+| Address | The new origin address (e.g. `0801` in HEX, or `2049` in DEC) |
+| HEX / DEC | Toggle the address input between hexadecimal and decimal display |
+
+**Generated ASM:**
+```
+* = $C000
+```
+
+**Size:** 0 bytes. The ORG block itself generates no machine code.
+
+Each ORG block starts a new code section. All blocks following an ORG (until the next ORG or end of program) are assembled relative to that address. When the PRG is exported, all sections are merged into a single flat buffer: the load address is the lowest section start across all sections; gaps between sections are zero-filled.
+
+**Example — code at `$0801`, data table at `$C000`:**
+```
+* = $0801
+    LDX #$00
+loop:
+    LDA $C000,X
+    STA $D800,X
+    INX
+    BNE loop
+    RTS
+
+* = $C000
+    .byte $01, $02, $03, ...
+```
+
+> **Tip:** Every program must start with an ORG block. The typical starting address for a C64 BASIC-loadable program is `$0801` (2049 decimal). When **BASIC SYS stub** is enabled, the assembler adds a short BASIC line at `$0801` and your code starts at `$080D`.
 
 ---
 
@@ -741,7 +790,7 @@ Groups a set of blocks into a **named, collapsible section**. REGION and ENDREGI
 3. Add an `ENDREGION` block to close the section.
 4. Click ▸ on the REGION to collapse the whole section into one line while working on other parts of the program.
 
-> **Note:** Regions do not nest. Placing a second REGION before an ENDREGION starts a new region at the same level.
+> **Note:** Regions support nesting. A REGION placed inside another REGION creates an inner group; each ENDREGION closes the nearest open REGION.
 
 ---
 
@@ -1019,7 +1068,51 @@ no_hit:
 
 ---
 
-## 9. Knowledge Base Links
+## 9. Debugger Integration
+
+The app supports two external C64 debuggers: **RetroDebugger** and **C64 Debugger**. Both receive breakpoints, symbols, and autostart flags generated from the assembled program.
+
+### RetroDebugger
+
+[RetroDebugger](https://github.com/slajerek/RetroDebugger) is a cross-platform Commodore 64 debugger with breakpoint support, memory inspection, and label-aware disassembly.
+
+**Setup:** Open **Settings → Configure RetroDebugger executable** and point it to the `RetroDebugger` binary.
+
+**Launch:** Click **Debug (RetroDebugger)** in the toolbar. The app will:
+
+1. Assemble the program to a `.prg` file in a temporary directory.
+2. Write a **breakpoints file** (`breakpoints.txt`) — one `break $ADDR` per flagged block.
+3. Write a **symbols file** (`symbols.txt`) in Vice/RetroDebugger label format (`al C:addr .name`). All LABEL and CONST blocks are included.
+4. Launch RetroDebugger with:
+   ```
+   RetroDebugger -prg <file.prg> -breakpoints <breakpoints.txt> -symbols <symbols.txt> [flags]
+   ```
+
+### C64 Debugger
+
+[C64 Debugger](https://c64debugger.sourceforge.io/) is another popular Commodore 64 debugger and emulator.
+
+**Setup:** Open **Settings → Configure C64 Debugger executable** and point it to the `c64debugger` binary.
+
+**Launch:** Click **Debug (C64 Debugger)** in the toolbar. The same `.prg`, breakpoints, and symbols files are generated and passed to C64 Debugger with the configured flags.
+
+### Breakpoint Blocks
+
+Click the breakpoint icon (●) on any instruction block to toggle it as a breakpoint. Breakpointed blocks are highlighted in red. Their addresses are written to the breakpoints file on every debugger launch.
+
+### Debugger Flags (Options Tab)
+
+| Toggle | Flag | Effect |
+|--------|------|--------|
+| `-jmp` ON | `-jmp $ADDR` | Jump directly to the program start address after loading |
+| `-unpause` ON | `-unpause` | Unpause the debugger immediately on load |
+| `-wait` ON | `-wait <ms>` | Wait `<ms>` milliseconds before unpausing — 500 ms or 1000 ms |
+
+> **Tip:** For most programs, enable `-jmp` and `-unpause` for instant autostart. Use `-wait 500` or `-wait 1000` when your program sets up IRQs or SID music that needs time to initialize before the first raster.
+
+---
+
+## 10. Knowledge Base Links
 
 Quick reference links available in the app under **Knowledge Base**:
 
@@ -1031,6 +1124,34 @@ Quick reference links available in the app under **Knowledge Base**:
 | C64 Color Codes | https://sta.c64.org/cbm64col.html |
 | VIC-II Article | https://www.cebix.net/VIC-Article.txt |
 | C64 Codebase | https://codebase.c64.org/ |
+
+---
+
+## 11. Changelog
+
+### v1.4.4
+- **C64 Debugger integration** — launch the assembled PRG in C64 Debugger alongside RetroDebugger; both debuggers share the same breakpoints, symbols, and autostart flags
+- **SID macro block** — embed a SID file directly into memory at a configurable address; init/play addresses are auto-detected from the SID header and adjusted for relocation
+- **ORG block replaces start address field** — the program's origin is now an explicit ORG block; multiple ORG blocks compile each section to its own address range; ORG address now has a HEX / DEC toggle
+- **Options tab** — the output-mode "Program" tab is renamed to "Options"; `-wait` field is now a 500 ms / 1000 ms dropdown
+
+### v1.4.3
+- **ORG macro block** — `*= $ADDR` block in the Macros category; multiple origins supported in one program
+- **RetroDebugger integration** — launch directly in RetroDebugger with breakpoints, labels, `-jmp`, `-wait`, `-unpause` flags
+- **Breakpoint blocks** — toggle any block as a breakpoint; highlighted in red; included in the breakpoints file automatically
+- **BASIC SYS stub uses configured origin** — `SYS` target is derived from the ORG address, not hardcoded to `$080D`
+- **Program settings panel redesign** — debugger params added as inline toggles
+
+### v1.4.2
+- **ASM syntax highlighting** — color coding for mnemonics, operands, numbers, labels, directives, comments, region markers
+- **ASM panel fills the window** — output panels stretch to bottom; Both mode shares space equally
+
+### v1.4.1
+- **REGION / ENDREGION blocks** — collapsible named sections; nested regions supported
+
+### v1.4.0
+- **GROUP / ENDGROUP blocks** (renamed to REGION / ENDREGION in v1.4.1)
+- `#<label` / `#>label` lo/hi byte operator support
 
 ---
 

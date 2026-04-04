@@ -1,28 +1,20 @@
 {
   "app": "c64-visual-assembler",
   "version": "1.2.3",
-  "origin": "0810",
   "program": [
     {
-      "id": "sdd-sid",
+      "id": "sdd-org-0801",
       "category": "Makrok",
-      "mnemonic": "SID",
+      "mnemonic": "ORG",
       "operand": "",
       "rawOperand": "",
-      "description": "SID zenefajl betoltese kozvetlenul a memoriaba.",
+      "description": "Fordítási cím beállítása",
       "addressingMode": "implied",
       "base": "hex",
       "validationError": "",
-      "collapsed": true,
-      "isSidMacro": true,
-      "sidFile": "",
-      "sidFileName": "",
-      "sidTitle": "",
-      "sidAuthor": "",
-      "sidLoadAddress": 0,
-      "sidInitAddress": 0,
-      "sidPlayAddress": 0,
-      "sidBytes": []
+      "collapsed": false,
+      "isOrgMacro": true,
+      "orgAddress": "0801"
     },
     {
       "id": "sdd-c1",
@@ -494,6 +486,41 @@
       "base": "hex",
       "validationError": "",
       "collapsed": true
+    },
+    {
+      "id": "sdd-org-1000",
+      "category": "Makrok",
+      "mnemonic": "ORG",
+      "operand": "",
+      "rawOperand": "",
+      "description": "Fordítási cím beállítása",
+      "addressingMode": "implied",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": false,
+      "isOrgMacro": true,
+      "orgAddress": "1000"
+    },
+    {
+      "id": "sdd-sid",
+      "category": "Makrok",
+      "mnemonic": "SID",
+      "operand": "",
+      "rawOperand": "",
+      "description": "SID zenefajl betoltese kozvetlenul a memoriaba.",
+      "addressingMode": "implied",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true,
+      "isSidMacro": true,
+      "sidFile": "",
+      "sidFileName": "",
+      "sidTitle": "",
+      "sidAuthor": "",
+      "sidLoadAddress": 0,
+      "sidInitAddress": 0,
+      "sidPlayAddress": 0,
+      "sidBytes": []
     }
   ]
 }
