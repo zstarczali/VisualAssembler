@@ -798,7 +798,6 @@ function saveUiSettings() {
     addressingMode: addressingSelect?.value || "",
     numberBase: getSelectedBase(),
     outputMode: getSelectedOutputMode(),
-    origin: originInput?.value || "",
     zoom: blockScale,
     sample: sampleSelect?.value || "basic-colors",
     memoryPanelOpen: !!globalMemoryPanel?.open,
@@ -806,7 +805,6 @@ function saveUiSettings() {
     showMacroSource,
     showRegionComments,
     asmOutputBase,
-    originBase,
     debuggerJmp,
     debuggerWait,
     debuggerWaitMs,
@@ -1227,26 +1225,6 @@ function initPalette() {
     debuggerWaitMs = Math.max(0, parseInt(dbgWaitMsInput.value) || 0);
     saveUiSettings();
   });
-  originInput.addEventListener("input", handleOriginInput);
-  originBaseInputs.forEach(input => {
-    input.addEventListener("change", () => {
-      const oldBase = originBase;
-      originBase = input.value;
-      // Convert the current input value to the new base
-      const raw = originInput.value.trim();
-      if (raw) {
-        const parsed = parseNumberByBase(raw, oldBase) ?? parseNumberByBase(raw, oldBase === "hex" ? "dec" : "hex");
-        if (parsed !== null && Number.isInteger(parsed) && parsed >= 0 && parsed <= 0xFFFF) {
-          originInput.value = originBase === "hex"
-            ? parsed.toString(16).toUpperCase().padStart(4, "0")
-            : String(parsed);
-        }
-      }
-      updateOriginPlaceholder();
-      saveUiSettings();
-      handleOriginInput();
-    });
-  });
   globalMemoryPanel?.addEventListener("toggle", saveUiSettings);
 
   applySavedTheme();
@@ -1308,10 +1286,6 @@ function applySavedUiSettings() {
     blockScale = Math.max(0.72, Math.min(1.25, Number(savedUiSettings.zoom)));
   }
 
-  if (originInput) {
-    originInput.value = savedUiSettings.origin || "0801";
-  }
-
   if (baseInputs.length) {
     const selectedBase = savedUiSettings.numberBase === "dec" ? "dec" : "hex";
     baseInputs.forEach((input) => {
@@ -1352,12 +1326,6 @@ function applySavedUiSettings() {
     asmOutputBase = savedUiSettings.asmOutputBase;
   }
   asmBaseInputs.forEach(input => { input.checked = input.value === asmOutputBase; });
-
-  if (savedUiSettings.originBase) {
-    originBase = savedUiSettings.originBase;
-  }
-  originBaseInputs.forEach(input => { input.checked = input.value === originBase; });
-  updateOriginPlaceholder();
 
   if (savedUiSettings.debuggerJmp !== undefined) debuggerJmp = !!savedUiSettings.debuggerJmp;
   if (dbgJmpOn) dbgJmpOn.checked = debuggerJmp;
@@ -1439,7 +1407,6 @@ function applyTranslations() {
     setText('.view-mode-option input[value="asm"] + span', t("outputAsm"));
     setText('.view-mode-option input[value="monitor"] + span', t("outputMonitor"));
     setText('.view-mode-option input[value="both"] + span', t("outputBoth"));
-    setText('#origin-label-text', t("originLabel"));
     setText(".global-memory-title", t("memoryTitle"));
     setText(".menu-field span", t("viceExecutable"));
     setText("#choose-vice", t("openEmulator"));
@@ -1459,7 +1426,6 @@ function applyTranslations() {
     setText("#asm-numbers-label", t("asmNumbersLabel"));
     setText("#region-comments-label", t("regionCommentsLabel"));
     setText("#origin-preview-label", t("originPreviewLabel"));
-    updateOriginPlaceholder();
     setText("#asm-output-label", t("asmOutputLabel"));
     setText("#monitor-output-label", t("monitorOutputLabel"));
     setText("#load-project", t("loadProject"));
@@ -1633,17 +1599,6 @@ function getAsmDisplayOperand(block) {
   return formatOperand(block.addressingMode, numericValue, asmOutputBase);
 }
 
-function updateOriginPlaceholder() {
-  originInput.placeholder = originBase === "hex" ? t("originPlaceholderHex") : t("originPlaceholderDec");
-}
-
-function handleOriginInput() {
-  renderOriginPreview();
-  renderAsmOutput();
-  renderMemoryMap();
-  renderEmulatorRunHint();
-  saveUiSettings();
-}
 
 let _operandSuggestions = [];
 let _operandActiveIndex = -1;
@@ -2733,8 +2688,25 @@ function addSelectedBlock() {
   insertBlock(program.length, createBlockFromMnemonic(selected));
 }
 
+function makeDefaultOrgBlock() {
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok",
+    mnemonic: "ORG",
+    operand: "",
+    rawOperand: "",
+    description: "Fordítási cím beállítása",
+    addressingMode: "implied",
+    base: "hex",
+    validationError: "",
+    collapsed: false,
+    isOrgMacro: true,
+    orgAddress: "0801"
+  };
+}
+
 function clearProgram() {
-  program = [];
+  program = [makeDefaultOrgBlock()];
   userMacros = {};
   selectedBlockId = null;
   renderProgram();
@@ -3131,7 +3103,28 @@ function updateProgramBlock(index, field, value) {
   if (block.isOrgMacro && field === "orgAddress") {
     block.orgAddress = value.replace(/[^0-9a-fA-F]/g, "").toUpperCase().slice(0, 4) || "0900";
     renderBlockPreview(index);
+    renderOriginPreview();
     renderAsmOutput();
+    return;
+  }
+
+  if (block.isSidMacro && field === "sidCustomAddress") {
+    block.sidCustomAddress = value;
+    renderBlockPreview(index);
+    renderAsmOutput();
+    // Update the SID meta line in-place (shows relocated init/play addresses)
+    const node = programList.querySelector(`.asm-block[data-index="${index}"]`);
+    const metaLine = node?.querySelector(".sid-meta .sid-meta-line:last-child");
+    if (metaLine && block.sidTitle) {
+      const fmtHex = v => v ? `$${v.toString(16).toUpperCase().padStart(4, "0")}` : "—";
+      const customAddr = value ? parseAddressValue(value.replace(/^\$/, "")) : null;
+      const effLoad = customAddr ?? block.sidLoadAddress ?? 0;
+      const addrOffset = (customAddr !== null && block.sidLoadAddress) ? customAddr - block.sidLoadAddress : 0;
+      const effInit = block.sidInitAddress ? block.sidInitAddress + addrOffset : 0;
+      const effPlay = block.sidPlayAddress ? block.sidPlayAddress + addrOffset : 0;
+      const overrideNote = addrOffset !== 0 ? ` <small style="color:var(--accent)">(relocated)</small>` : "";
+      metaLine.innerHTML = `Load: ${fmtHex(effLoad)} &nbsp; Init: ${fmtHex(effInit)} &nbsp; Play: ${fmtHex(effPlay)}${overrideNote}`;
+    }
     return;
   }
 
@@ -4060,7 +4053,6 @@ function getProjectPayload() {
   return {
     version: 1,
     app: "c64-visual-assembler",
-    origin: originInput?.value || "0801",
     program: program.map(block => {
       if (!block.isIncludeMacro) return block;
       const { includedBlocks, ...rest } = block;
@@ -4195,12 +4187,14 @@ async function loadProjectFromFile() {
     ...block,
     id: block.id || crypto.randomUUID()
   }));
-  await reloadIncludeBlocks();
 
-  if (originInput) {
-    originInput.value = projectData.origin || "0801";
+  // Migrate old projects: if no ORG block at start, prepend one from saved origin
+  if (!program.some(b => b.isOrgMacro)) {
+    const orgAddr = (projectData.origin || "0801").replace(/^\$/, "").toUpperCase().padStart(4, "0");
+    program.unshift({ ...makeDefaultOrgBlock(), orgAddress: orgAddr });
   }
 
+  await reloadIncludeBlocks();
 
   if (projectData.ui?.numberBase && baseInputs.length) {
     baseInputs.forEach((input) => {
@@ -4329,30 +4323,17 @@ function buildAutostartPrgForEmulator() {
   const codePrg = assembleProgramToPrg(sysAddress);
   if (!codePrg.ok) return codePrg;
 
-  // Read actual code load address from PRG header — an ORG block may have overridden the origin
-  const codeAddr = codePrg.bytes[0] | (codePrg.bytes[1] << 8);
   const basicStub = buildBasicSysStub(sysAddress);
   // basicStub[0,1] = PRG load addr header ($0801)
   // basicStub[2..] = BASIC program data loaded at $0801
-  const stubChunkBytes = Array.from(basicStub.slice(2));
-  const codeChunkBytes = Array.from(codePrg.bytes.slice(2));
-
-  // Merge stub (at $0801) and code (at codeAddr) into one flat buffer
-  const chunks = [
-    { addr: 0x0801, bytes: stubChunkBytes },
-    { addr: codeAddr, bytes: codeChunkBytes }
-  ].filter(c => c.bytes.length > 0);
-  const minAddr = Math.min(...chunks.map(c => c.addr));
-  const maxAddr = Math.max(...chunks.map(c => c.addr + c.bytes.length - 1));
-  const bufSize = maxAddr - minAddr + 1;
-  const buf = new Uint8Array(bufSize);
-  for (const chunk of chunks) {
-    buf.set(chunk.bytes, chunk.addr - minAddr);
-  }
-  const bytes = new Uint8Array(2 + bufSize);
-  bytes[0] = minAddr & 0xFF;
-  bytes[1] = (minAddr >> 8) & 0xFF;
-  bytes.set(buf, 2);
+  const stubData = basicStub.slice(2);
+  const codeData = codePrg.bytes.slice(2);
+  // Fill gap between stub end and code start with zeros
+  const gapSize = sysAddress - 0x0801 - stubData.length;
+  const bytes = new Uint8Array(2 + stubData.length + gapSize + codeData.length);
+  bytes[0] = 0x01; bytes[1] = 0x08; // load at $0801
+  bytes.set(stubData, 2);
+  bytes.set(codeData, 2 + stubData.length + gapSize);
 
   return { ok: true, bytes, sysAddress };
 }
@@ -4406,11 +4387,11 @@ function assembleProgramToPrg(originOverride) {
   for (const line of layout.lines) {
     if (line.block.isLabel || line.block.isComment || line.block.isIncludeMacro) continue;
     if (line.block.isOrgMacro) {
-      const newAddr = parseAddressValue(line.block.orgAddress);
-      if (typeof newAddr === "number" && !isNaN(newAddr)) {
-        currentSection = { addr: newAddr, bytes: [] };
-        inlineSections.push(currentSection);
-      }
+      // Use line.address (clamped by getProgramLayout) instead of raw orgAddress,
+      // so that an ORG below originOverride (e.g. ORG $0801 with sysAddress=$080D)
+      // doesn't create a section at the wrong address and shift deferred data.
+      currentSection = { addr: line.address, bytes: [] };
+      inlineSections.push(currentSection);
       continue;
     }
     const compiled = compileLineBytes(line, labels);
@@ -5041,50 +5022,75 @@ function getOperandPlaceholder(mode, base) {
 }
 
 function parseOriginValue() {
-  const raw = originInput.value.trim();
-  if (!raw) {
-    return { value: defaultOrigin, text: toHex(defaultOrigin, 4), error: "" };
+  // Origin is defined by the first ORG block in the program (top-level, not inside macro def)
+  let insideMacroDef = false;
+  for (const block of program) {
+    if (block.isMacroDefStart) { insideMacroDef = true; continue; }
+    if (block.isMacroDefEnd) { insideMacroDef = false; continue; }
+    if (insideMacroDef) continue;
+    if (block.isOrgMacro && block.orgAddress) {
+      const addr = parseAddressValue(block.orgAddress);
+      if (typeof addr === "number" && !isNaN(addr) && addr >= 0 && addr <= 0xFFFF) {
+        return { value: addr, text: formatAddress(addr), error: "" };
+      }
+    }
   }
-
-  const parsed = parseNumberByBase(raw, originBase) ?? parseNumberByBase(raw, "hex");
-  if (parsed === null || !Number.isInteger(parsed)) {
-    return { value: defaultOrigin, text: raw, error: currentLanguage === "en" ? "The start address is not a valid number." : "A kezdocim nem ervenyes szam." };
-  }
-
-  if (parsed < 0 || parsed > 0xFFFF) {
-    return { value: defaultOrigin, text: formatAddress(defaultOrigin), error: currentLanguage === "en" ? "The start address must be between 0 and 65535." : "A kezdocimnek 0 es 65535 kozott kell lennie." };
-  }
-
-  return { value: parsed, text: formatAddress(parsed), error: "" };
+  return { value: defaultOrigin, text: toHex(defaultOrigin, 4), error: "" };
 }
 
 function renderOriginPreview() {
   const origin = parseOriginValue();
   const useBasicSys = basicSysToggle ? basicSysToggle.checked : true;
 
-  let effectiveNote;
-  if (useBasicSys && !origin.error) {
-    const rawOrigin = (origin.value === 0x0801) ? 0x080D : origin.value;
-    const stubDigits = String(rawOrigin).length;
-    const stubDataSize = 2 + 2 + 1 + stubDigits + 1 + 2;
-    const stubEndAddr = 0x0801 + stubDataSize;
-    const codeAddr = Math.max(rawOrigin, stubEndAddr);
-    const codeText = formatAddress(codeAddr);
-    effectiveNote = currentLanguage === "en"
-      ? `<small>BASIC stub: $0801 &nbsp;|&nbsp; <code>SYS ${codeAddr}</code> &nbsp;|&nbsp; Code: ${codeText}</small>`
-      : `<small>BASIC stub: $0801 &nbsp;|&nbsp; <code>SYS ${codeAddr}</code> &nbsp;|&nbsp; Gépi kód: ${codeText}</small>`;
-  } else if (!useBasicSys && origin.value === 0x0801 && !origin.error) {
-    const warning = currentLanguage === "en"
-      ? "Auto-switched to $C000 (Free RAM)<br><span style='color: #d97706;'>⚠ Sample programs may not work without BASIC SYS stub</span>"
-      : "Automatikusan átváltva: $C000 (Szabad RAM)<br><span style='color: #d97706;'>⚠ Mintaprogramok nem biztos hogy működnek BASIC SYS stub nélkül</span>";
-    effectiveNote = `<small>${warning}</small>`;
-  } else if (origin.error) {
-    effectiveNote = `<small class="error-text">${origin.error}</small>`;
-  } else {
-    effectiveNote = `<small>${origin.value} dec | ${origin.text} hex</small>`;
+  // Collect all top-level ORG blocks for display
+  let insideMacroDef = false;
+  const orgBlocks = [];
+  for (const block of program) {
+    if (block.isMacroDefStart) { insideMacroDef = true; continue; }
+    if (block.isMacroDefEnd) { insideMacroDef = false; continue; }
+    if (insideMacroDef) continue;
+    if (block.isOrgMacro && block.orgAddress) {
+      orgBlocks.push(block.orgAddress.toUpperCase());
+    }
   }
 
-  originPreview.innerHTML = `<strong>*= ${origin.text}</strong> ${effectiveNote}`;
+  function noteForOrg(addrHex, isFirst) {
+    const addr = parseInt(addrHex, 16);
+    if (isNaN(addr)) return "";
+    if (isFirst && useBasicSys) {
+      const rawOrigin = (addr === 0x0801) ? 0x080D : addr;
+      const stubDigits = String(rawOrigin).length;
+      const stubDataSize = 2 + 2 + 1 + stubDigits + 1 + 2;
+      const stubEndAddr = 0x0801 + stubDataSize;
+      const codeAddr = Math.max(rawOrigin, stubEndAddr);
+      const codeText = formatAddress(codeAddr);
+      return currentLanguage === "en"
+        ? `<small>BASIC stub: $0801 &nbsp;|&nbsp; <code>SYS ${codeAddr}</code> &nbsp;|&nbsp; Code: ${codeText}</small>`
+        : `<small>BASIC stub: $0801 &nbsp;|&nbsp; <code>SYS ${codeAddr}</code> &nbsp;|&nbsp; Gépi kód: ${codeText}</small>`;
+    }
+    if (isFirst && !useBasicSys && addr === 0x0801) {
+      const warning = currentLanguage === "en"
+        ? "Auto-switched to $C000 (Free RAM)<br><span style='color: #d97706;'>⚠ Sample programs may not work without BASIC SYS stub</span>"
+        : "Automatikusan átváltva: $C000 (Szabad RAM)<br><span style='color: #d97706;'>⚠ Mintaprogramok nem biztos hogy működnek BASIC SYS stub nélkül</span>";
+      return `<small>${warning}</small>`;
+    }
+    return `<small>${addr} dec | $${addrHex} hex</small>`;
+  }
+
+  let html;
+  if (orgBlocks.length > 0) {
+    html = orgBlocks.map((addrHex, i) =>
+      `<div><strong>*= $${addrHex}</strong> ${noteForOrg(addrHex, i === 0)}</div>`
+    ).join("");
+  } else {
+    if (origin.error) {
+      html = `<div><strong>*= ${origin.text}</strong> <small class="error-text">${origin.error}</small></div>`;
+    } else {
+      html = `<div><strong>*= ${origin.text}</strong> ${noteForOrg(origin.text.replace(/^\$/, ""), true)}</div>`;
+    }
+  }
+
+  originPreview.innerHTML = html;
 }
 
 function renderEmulatorRunHint() {
@@ -5391,11 +5397,14 @@ function getProgramLayout(originOverride) {
       }
     }
 
-    // Handle ORG macro: set address cursor to new origin
+    // Handle ORG macro: set address cursor to new origin.
+    // When originOverride is set (e.g. BASIC SYS mode), don't let ORG move
+    // the cursor backwards below originOverride — that would place code at the
+    // wrong physical address in the output.
     if (block.isOrgMacro && block.orgAddress) {
       const orgAddr = parseAddressValue(block.orgAddress);
       if (typeof orgAddr === "number" && !isNaN(orgAddr)) {
-        cursor = orgAddr;
+        cursor = (originOverride !== undefined && orgAddr < originOverride) ? originOverride : orgAddr;
       }
     }
 
@@ -6195,6 +6204,7 @@ function getCollapsedOperandText(block) {
 }
 
 function renderProgram() {
+  renderOriginPreview();
   if (!program.length) {
     programList.innerHTML = `<div class="empty-state">${t("emptyState")}</div>`;
     renderAsmOutput();
@@ -6502,11 +6512,19 @@ function renderProgram() {
                 placeholder="${t("sidCustomAddressPlaceholder")}">
             </label>
           </div>
-          ${block.sidTitle ? `<div class="sid-meta">
-            <span class="sid-meta-title">${block.sidTitle}</span>
-            <span class="sid-meta-line">${block.sidAuthor || ""}</span>
-            <span class="sid-meta-line">Load: ${fmtHex(block.sidLoadAddress)} &nbsp; Init: ${fmtHex(block.sidInitAddress)} &nbsp; Play: ${fmtHex(block.sidPlayAddress)}</span>
-          </div>` : ""}
+          ${block.sidTitle ? (() => {
+            const customAddr = block.sidCustomAddress ? parseAddressValue(block.sidCustomAddress.replace(/^\$/, "")) : null;
+            const effLoad = customAddr ?? block.sidLoadAddress ?? 0;
+            const addrOffset = (customAddr !== null && block.sidLoadAddress) ? customAddr - block.sidLoadAddress : 0;
+            const effInit = block.sidInitAddress ? block.sidInitAddress + addrOffset : 0;
+            const effPlay = block.sidPlayAddress ? block.sidPlayAddress + addrOffset : 0;
+            const overrideNote = addrOffset !== 0 ? ` <small style="color:var(--accent)">(relocated)</small>` : "";
+            return `<div class="sid-meta">
+              <span class="sid-meta-title">${block.sidTitle}</span>
+              <span class="sid-meta-line">${block.sidAuthor || ""}</span>
+              <span class="sid-meta-line">Load: ${fmtHex(effLoad)} &nbsp; Init: ${fmtHex(effInit)} &nbsp; Play: ${fmtHex(effPlay)}${overrideNote}</span>
+            </div>`;
+          })() : ""}
         `
       );
       blockControls.querySelector(".include-browse-icon")?.addEventListener("click", async () => {
@@ -6973,7 +6991,10 @@ function renderProgram() {
           ? []
           : program.filter(b => b.isLabel && b.labelName).map(b => b.labelName);
         const constNames = program.filter(b => b.isConstMacro && b.constName).map(b => b.constName);
-        const pickerNames = [...programLabels, ...constNames];
+        const tableNames = block.addressingMode === "immediate"
+          ? []
+          : program.filter(b => b.isTableMacro && b.tableName).map(b => b.tableName);
+        const pickerNames = [...programLabels, ...constNames, ...tableNames];
         if (pickerNames.length > 0) {
           operandField.classList.add("has-label-picker");
           const wrapper = document.createElement("div");
@@ -7523,10 +7544,11 @@ function renderAsmOutput() {
       const fileName = line.block.sidFileName || "?";
       const customAddr = line.block.sidCustomAddress ? parseAddressValue(line.block.sidCustomAddress.replace(/^\$/, "")) : null;
       const load = customAddr ?? line.block.sidLoadAddress ?? 0;
-      const init = line.block.sidInitAddress || 0;
-      const play = line.block.sidPlayAddress || 0;
+      const addrOffset = (customAddr !== null && line.block.sidLoadAddress) ? customAddr - line.block.sidLoadAddress : 0;
+      const init = (line.block.sidInitAddress || 0) + addrOffset;
+      const play = (line.block.sidPlayAddress || 0) + addrOffset;
       if (bytes.length > 0 && load > 0) {
-        const overrideNote = customAddr != null ? " [override]" : "";
+        const overrideNote = addrOffset !== 0 ? " [relocated]" : "";
         return `; .sid "${fileName}" @ ${formatAddress(load)}${overrideNote}  init:${formatAddress(init)}  play:${formatAddress(play)}  (${bytes.length} bytes)`;
       }
       return `; .sid "${fileName}" (${currentLanguage === "en" ? "no file loaded" : "nincs betoltott fajl"})`;
@@ -7731,9 +7753,9 @@ function renderAsmOutput() {
 
   deferredDataSections.sort((left, right) => left.address - right.address);
 
-  // Build block → line-number index for ASM selection (2 header lines: "*= ..." + empty)
+  // Build block → line-number index for ASM selection (no header line, ORG block is line 0)
   asmBlockRanges = {};
-  let textLineNum = 2; // skip header "*= ..." (line 0) + empty (line 1)
+  let textLineNum = 0;
   codeLines.forEach((codeLine, i) => {
     if (codeLine === null) return; // suppressed line (e.g. region comment hidden) — not in output
     const block = layout.lines[i].block;
@@ -7750,8 +7772,6 @@ function renderAsmOutput() {
   });
 
   let asmText = [
-    `*= ${layout.origin.text}`,
-    "",
     ...codeLines.filter(line => line !== null),
     ...(deferredDataSections.length
       ? ["", `; ${t("remoteMemoryData")}`, "", ...deferredDataSections.map((section) => section.text)]
@@ -7886,8 +7906,14 @@ async function loadSampleFromFile(sampleName) {
   }
 
   const sampleData = result.sample;
-  originInput.value = sampleData.origin || "0801";
   program = collapseLoadedProgram(sampleData.program);
+
+  // Migrate old samples: if no ORG block, prepend one from saved origin
+  if (!program.some(b => b.isOrgMacro)) {
+    const orgAddr = (sampleData.origin || "0801").replace(/^\$/, "").toUpperCase().padStart(4, "0");
+    program.unshift({ ...makeDefaultOrgBlock(), orgAddress: orgAddr });
+  }
+
   await reloadIncludeBlocks();
 
   renderOriginPreview();
@@ -8195,6 +8221,10 @@ function applyZoom() {
 
 initPalette();
 
+// Start with a default ORG block if program is empty
+if (program.length === 0) {
+  program = [makeDefaultOrgBlock()];
+}
 
 renderOriginPreview();
 renderEmulatorRunHint();

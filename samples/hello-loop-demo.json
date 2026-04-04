@@ -1,7 +1,20 @@
 {
   "app": "c64-visual-assembler",
-  "origin": "0801",
   "program": [
+    {
+      "addressingMode": "implied",
+      "base": "hex",
+      "category": "Makrok",
+      "collapsed": true,
+      "description": "Fordítási cím beállítása",
+      "id": "2a3c98ed-7af3-48c2-ba49-0204a0c524bc",
+      "isOrgMacro": true,
+      "mnemonic": "ORG",
+      "operand": "",
+      "orgAddress": "1000",
+      "rawOperand": "",
+      "validationError": ""
+    },
     {
       "addressingMode": "implied",
       "base": "comment",
@@ -30,16 +43,59 @@
     },
     {
       "addressingMode": "implied",
+      "base": "hex",
+      "category": "Szerkezet",
+      "collapsed": true,
+      "description": "Blokkok csoportositasa egy nevesitett, osszecsukhato szekcioba. Zarj le ENDREGION-nal.",
+      "id": "b4899140-c9ae-442c-9bd8-f7bfbb560036",
+      "isRegionMacro": true,
+      "mnemonic": "REGION",
+      "operand": "Text",
+      "rawOperand": "Text",
+      "regionCollapsed": true,
+      "regionName": "Text",
+      "validationError": ""
+    },
+    {
+      "addressingMode": "implied",
       "base": "string",
       "category": "Makrok",
-      "collapsed": false,
+      "collapsed": true,
       "description": "Szoveg PETSCII kodolassal egy megadott memoriacimtol, kod generalas nelkul. CHROUT ($FFD2) kompatibilis.",
       "id": "ec035caa-f885-45f2-a5e7-725993e5565a",
       "isPetsciiMacro": true,
       "mnemonic": "PETSCII",
       "operand": "HELLO WORLD",
-      "petsciiAddress": "$0900",
+      "petsciiAddress": "$1100",
       "rawOperand": "HELLO WORLD ",
+      "validationError": ""
+    },
+    {
+      "addressingMode": "implied",
+      "base": "hex",
+      "category": "Szerkezet",
+      "collapsed": false,
+      "description": "REGION szekció vege.",
+      "id": "8608bfa1-97a7-42d3-be68-18d4f5bf7f29",
+      "isEndRegionMacro": true,
+      "mnemonic": "ENDREGION",
+      "operand": "",
+      "rawOperand": "",
+      "validationError": ""
+    },
+    {
+      "addressingMode": "implied",
+      "base": "hex",
+      "category": "Szerkezet",
+      "collapsed": true,
+      "description": "Blokkok csoportositasa egy nevesitett, osszecsukhato szekcioba. Zarj le ENDREGION-nal.",
+      "id": "07992b25-03c5-4c03-91f3-538fff349af9",
+      "isRegionMacro": true,
+      "mnemonic": "REGION",
+      "operand": "Main",
+      "rawOperand": "Main",
+      "regionCollapsed": true,
+      "regionName": "Main",
       "validationError": ""
     },
     {
@@ -238,8 +294,8 @@
       "description": "Load accumulator from memory or constant.",
       "id": "3181d642-11d9-4ed8-aa32-c586d5541718",
       "mnemonic": "LDA",
-      "operand": "$0900,X",
-      "rawOperand": "0900",
+      "operand": "text_start,X",
+      "rawOperand": "text_start",
       "validationError": ""
     },
     {
@@ -426,6 +482,34 @@
       "operand": "",
       "rawOperand": "",
       "validationError": ""
+    },
+    {
+      "addressingMode": "implied",
+      "base": "hex",
+      "category": "Makrok",
+      "collapsed": true,
+      "description": "Lookup tabla definicio cimkevel es kezdocimmel.",
+      "id": "a9b16d6b-8060-4cd0-9340-813af556adce",
+      "isTableMacro": true,
+      "mnemonic": "TABLE",
+      "operand": "",
+      "rawOperand": "",
+      "tableAddress": "$1100",
+      "tableName": "text_start",
+      "validationError": ""
+    },
+    {
+      "addressingMode": "implied",
+      "base": "hex",
+      "category": "Szerkezet",
+      "collapsed": false,
+      "description": "REGION szekció vege.",
+      "id": "5fd3b83a-128e-4c31-b2b4-fee836594e9c",
+      "isEndRegionMacro": true,
+      "mnemonic": "ENDREGION",
+      "operand": "",
+      "rawOperand": "",
+      "validationError": ""
     }
   ],
   "ui": {
@@ -434,7 +518,7 @@
     "outputMode": "asm",
     "sample": "hello-loop-demo",
     "theme": "light",
-    "zoom": 0.9
+    "zoom": 1.09
   },
   "version": 1
 }
