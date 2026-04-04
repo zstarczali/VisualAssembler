@@ -2,11 +2,17 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v1.4.3**
+**Current version: v1.4.4**
 
 ---
 
 ## What's New
+
+### v1.4.4
+- **C64 Debugger integration** — launch the assembled PRG in C64 Debugger alongside RetroDebugger; both debuggers share the same breakpoints, symbols, and autostart flags
+- **SID macro block** — embed a SID file directly into memory at a configurable address; init/play addresses are auto-detected from the SID header and adjusted for relocation
+- **ORG block replaces start address field** — the program's origin is now an explicit ORG block; multiple ORG blocks compile each section to its own address range; ORG address now has a HEX / DEC toggle
+- **Options tab** — the output-mode "Program" tab is renamed to "Options"; `-wait` field is now a 500 ms / 1000 ms dropdown
 
 ### v1.4.3
 - **ORG macro block** — new `*= $ADDR` block in the Macros category; supports multiple origin directives in one program, each section compiled to its own address range and merged into a single flat PRG buffer

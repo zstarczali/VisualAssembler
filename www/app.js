@@ -338,7 +338,7 @@ const translations = {
     programHelp: "Ide ejtsd a bal oldali blokkot, vagy rendezd at a mar bent levo sorokat.",
     asmTitle: "ASM nezet",
     asmHelp: "Az osszerakott szoveges kod innen indulhat tovabb export fele.",
-    outputProgram: "Program",
+    outputProgram: "Beallitas",
     outputAsm: "ASM",
     outputMonitor: "Monitor",
     outputBoth: "Mindketto",
@@ -573,7 +573,7 @@ const translations = {
     programHelp: "Drop blocks from the left here, or reorder the lines already in the program.",
     asmTitle: "ASM view",
     asmHelp: "The assembled source code appears here and can be exported onward.",
-    outputProgram: "Program",
+    outputProgram: "Options",
     outputAsm: "ASM",
     outputMonitor: "Monitor",
     outputBoth: "Both",
@@ -1221,8 +1221,8 @@ function initPalette() {
   dbgWaitOff?.addEventListener("change", () => { debuggerWait = false; saveUiSettings(); });
   dbgUnpauseOn?.addEventListener("change", () => { debuggerUnpause = true; saveUiSettings(); });
   dbgUnpauseOff?.addEventListener("change", () => { debuggerUnpause = false; saveUiSettings(); });
-  dbgWaitMsInput?.addEventListener("input", () => {
-    debuggerWaitMs = Math.max(0, parseInt(dbgWaitMsInput.value) || 0);
+  dbgWaitMsInput?.addEventListener("change", () => {
+    debuggerWaitMs = parseInt(dbgWaitMsInput.value) || 500;
     saveUiSettings();
   });
   globalMemoryPanel?.addEventListener("toggle", saveUiSettings);
@@ -1335,7 +1335,10 @@ function applySavedUiSettings() {
   if (dbgWaitOn) dbgWaitOn.checked = debuggerWait;
   if (dbgWaitOff) dbgWaitOff.checked = !debuggerWait;
 
-  if (savedUiSettings.debuggerWaitMs !== undefined) debuggerWaitMs = Number(savedUiSettings.debuggerWaitMs) || 500;
+  if (savedUiSettings.debuggerWaitMs !== undefined) {
+    const ms = Number(savedUiSettings.debuggerWaitMs) || 500;
+    debuggerWaitMs = ms >= 750 ? 1000 : 500;
+  }
   if (dbgWaitMsInput) dbgWaitMsInput.value = debuggerWaitMs;
 
   if (savedUiSettings.debuggerUnpause !== undefined) debuggerUnpause = !!savedUiSettings.debuggerUnpause;
@@ -3101,7 +3104,13 @@ function updateProgramBlock(index, field, value) {
   }
 
   if (block.isOrgMacro && field === "orgAddress") {
-    block.orgAddress = value.replace(/[^0-9a-fA-F]/g, "").toUpperCase().slice(0, 4) || "0900";
+    const orgBase = block.base || "hex";
+    if (orgBase === "dec") {
+      const parsed = parseInt(value, 10);
+      block.orgAddress = !isNaN(parsed) ? parsed.toString(16).toUpperCase().padStart(4, "0") : (block.orgAddress || "0900");
+    } else {
+      block.orgAddress = value.replace(/[^0-9a-fA-F]/g, "").toUpperCase().slice(0, 4) || "0900";
+    }
     renderBlockPreview(index);
     renderOriginPreview();
     renderAsmOutput();
@@ -6271,14 +6280,22 @@ function renderProgram() {
 
       const bpBtn = node.querySelector(".bp-toggle");
       if (bpBtn) {
-        bpBtn.classList.toggle("bp-active", !!block.isBreakpoint);
-        bpBtn.setAttribute("aria-label", t("breakpointToggle"));
-        bpBtn.setAttribute("title", t("breakpointToggle"));
-        bpBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          block.isBreakpoint = !block.isBreakpoint;
-          bpBtn.classList.toggle("bp-active", block.isBreakpoint);
-        });
+        const bpAllowed = !block.isOrgMacro && !block.isRegionMacro && !block.isEndRegionMacro
+          && !block.isComment && !block.isConstMacro && !block.isDefineMacro
+          && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro
+          && !block.isMacroDefStart && !block.isMacroDefEnd && !block.isIncludeMacro;
+        if (!bpAllowed) {
+          bpBtn.hidden = true;
+        } else {
+          bpBtn.classList.toggle("bp-active", !!block.isBreakpoint);
+          bpBtn.setAttribute("aria-label", t("breakpointToggle"));
+          bpBtn.setAttribute("title", t("breakpointToggle"));
+          bpBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            block.isBreakpoint = !block.isBreakpoint;
+            bpBtn.classList.toggle("bp-active", block.isBreakpoint);
+          });
+        }
       }
 
       node.querySelector(".block-mnemonic").textContent = block.mnemonic;
@@ -6706,13 +6723,29 @@ function renderProgram() {
       );
     } else if (block.isOrgMacro) {
       inlineField.hidden = true;
+      const orgBase = block.base || "hex";
+      const orgHexVal = block.orgAddress || "0900";
+      const orgDisplayVal = orgBase === "dec" ? String(parseInt(orgHexVal, 16)) : orgHexVal;
       blockControls.insertAdjacentHTML(
         "beforeend",
         `
-          <div class="macro-grid single-macro-row">
+          <div class="macro-grid">
             <label class="mini-field">
               <span>${currentLanguage === "en" ? "New origin" : "Uj forditasi cim"}</span>
-              <input class="org-address" type="text" maxlength="4" value="${block.orgAddress || "0900"}" placeholder="0900">
+              <input class="org-address" type="text" maxlength="${orgBase === "dec" ? 5 : 4}" value="${orgDisplayVal}" placeholder="${orgBase === "dec" ? "2049" : "0900"}">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldFormat")}</span>
+              <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
+                <label class="mini-toggle-option">
+                  <input class="block-base" type="radio" name="block-base-${block.id}" value="hex"${orgBase === "hex" ? " checked" : ""}>
+                  <span>HEX</span>
+                </label>
+                <label class="mini-toggle-option">
+                  <input class="block-base" type="radio" name="block-base-${block.id}" value="dec"${orgBase === "dec" ? " checked" : ""}>
+                  <span>DEC</span>
+                </label>
+              </div>
             </label>
           </div>
         `
@@ -7012,25 +7045,35 @@ function renderProgram() {
             dropdown.style.left = (r.left + window.scrollX) + "px";
             dropdown.style.width = r.width + "px";
           }
+          let dropdownHovered = false;
           function closeLabelDropdown() {
             dropdown.hidden = true;
-            window.removeEventListener("scroll", closeLabelDropdown, { capture: true });
+            window.removeEventListener("scroll", positionLabelDropdown, { capture: true });
           }
           operandField.addEventListener("focus", () => {
             positionLabelDropdown();
             dropdown.hidden = false;
-            window.addEventListener("scroll", closeLabelDropdown, { capture: true, passive: true });
+            window.addEventListener("scroll", positionLabelDropdown, { capture: true, passive: true });
           });
-          operandField.addEventListener("blur", () => { setTimeout(closeLabelDropdown, 150); });
+          operandField.addEventListener("blur", () => {
+            if (!dropdownHovered) closeLabelDropdown();
+          });
           operandField.addEventListener("keydown", e => { if (e.key === "Escape") closeLabelDropdown(); });
+          dropdown.addEventListener("mouseenter", () => { dropdownHovered = true; });
+          dropdown.addEventListener("mouseleave", () => { dropdownHovered = false; });
           dropdown.querySelectorAll(".label-picker-item").forEach(item => {
             item.addEventListener("pointerdown", e => {
               e.preventDefault();
               operandField.value = item.textContent;
               operandField.dispatchEvent(new Event("input"));
-              dropdown.hidden = true;
+              closeLabelDropdown();
+              dropdownHovered = false;
             });
           });
+          // Close when clicking outside
+          document.addEventListener("pointerdown", e => {
+            if (!dropdown.contains(e.target) && e.target !== operandField) closeLabelDropdown();
+          }, { capture: true });
         }
       }
     }
@@ -7064,6 +7107,27 @@ function renderProgram() {
     node.querySelectorAll(".block-base").forEach((baseInput) => {
       baseInput.addEventListener("change", (event) => {
         const newBase = event.target.value;
+        // For ORG blocks, convert orgAddress between hex and dec display
+        if (block.isOrgMacro) {
+          const orgInput = node.querySelector(".org-address");
+          const rawVal = (orgInput?.value || block.orgAddress || "0900").trim();
+          const oldBase = newBase === "hex" ? "dec" : "hex";
+          let hexVal;
+          if (oldBase === "dec") {
+            const parsed = parseInt(rawVal, 10);
+            hexVal = !isNaN(parsed) ? parsed.toString(16).toUpperCase().padStart(4, "0") : (block.orgAddress || "0900");
+          } else {
+            hexVal = rawVal.replace(/[^0-9a-fA-F]/g, "").toUpperCase().slice(0, 4) || (block.orgAddress || "0900");
+          }
+          block.orgAddress = hexVal;
+          if (orgInput) {
+            orgInput.value = newBase === "hex" ? hexVal : String(parseInt(hexVal, 16));
+            orgInput.maxLength = newBase === "dec" ? 5 : 4;
+            orgInput.placeholder = newBase === "dec" ? "2049" : "0900";
+          }
+          updateProgramBlock(index, "base", newBase);
+          return;
+        }
         // For LOOP blocks, convert loopCount between hex and dec
         if (block.isLoopMacro) {
           const countInput = node.querySelector(".loop-count");

@@ -970,14 +970,14 @@ button:focus-visible,
   align-items: start;
   width: 100%;
   min-width: 0;
-  padding: calc(10px * var(--block-scale));
+  padding: calc(13px * var(--block-scale)) calc(10px * var(--block-scale)) calc(10px * var(--block-scale));
   border-radius: calc(16px * var(--block-scale));
   background:
     linear-gradient(180deg, var(--block-tone-soft) 0, var(--block-tone-soft) calc(8px * var(--block-scale)), transparent calc(8px * var(--block-scale))),
     color-mix(in srgb, var(--panel-strong) 96%, white 4%);
   border: 1px solid var(--panel-border);
   box-shadow:
-    inset 3px 0 0 var(--block-tone),
+    inset 5px 0 0 var(--block-tone),
     0 4px 12px color-mix(in srgb, black 6%, transparent);
   user-select: none;
   -webkit-user-drag: element;
@@ -1672,12 +1672,13 @@ body[data-theme="dark"] .asm-block:has(.bp-toggle.bp-active) {
   gap: 8px;
 }
 
-.dbg-wait-row input {
+.dbg-wait-row input,
+.dbg-wait-row select {
   flex: 1;
   font-family: "IBM Plex Mono", monospace;
   min-height: 36px;
   padding: 6px 10px;
-  min-width: 0;
+  min-width: 120px;
 }
 
 .macro-source-toggle {

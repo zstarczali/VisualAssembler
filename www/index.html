@@ -254,7 +254,7 @@
               </label>
               <label class="view-mode-option">
                 <input type="radio" name="output-mode" value="program">
-                <span>Program</span>
+                <span>Options</span>
               </label>
             </div>
           </div>
@@ -333,7 +333,10 @@
               <div class="macro-source-row">
                 <span id="dbg-wait-label"></span>
                 <div class="dbg-wait-row">
-                  <input id="debugger-wait-ms" type="number" value="500" min="0" step="100" title="-wait ms" aria-label="-wait milliseconds">
+                  <select id="debugger-wait-ms" title="-wait ms" aria-label="-wait milliseconds">
+                    <option value="500">500 ms</option>
+                    <option value="1000">1000 ms</option>
+                  </select>
                   <div class="mini-toggle macro-source-toggle" role="radiogroup" aria-label="-wait">
                     <label class="mini-toggle-option">
                       <input type="radio" name="dbg-wait" id="dbg-wait-on" value="on">
@@ -436,7 +439,7 @@
         <img src="assets/about-logo.png" alt="C64 Visual Assembler" width="160" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v1.4.2</p>
+      <p class="about-version" id="about-version">v1.4.4</p>
       <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
         dropping instruction blocks.</p>
       <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
@@ -448,31 +451,27 @@
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v1.4.3</p>
+      <p class="whats-new-version">v1.4.4</p>
       <ul class="whats-new-list">
         <li>
-          <strong>ORG macro block</strong> — new <code>*= $ADDR</code> block in the Macros category;
-          supports multiple origin directives in one program, each section compiled to its own
-          address range and merged into a single flat PRG buffer.
+          <strong>C64 Debugger integration</strong> — launch the assembled PRG directly in C64 Debugger
+          alongside RetroDebugger; breakpoints, symbols, <code>-jmp</code>, <code>-wait</code>,
+          and <code>-unpause</code> are fully supported for both debuggers.
         </li>
         <li>
-          <strong>RetroDebugger integration</strong> — launch the assembled PRG directly in RetroDebugger
-          with breakpoints, code labels (symbols), and optional <code>-jmp</code>, <code>-wait</code>,
-          and <code>-unpause</code> flags — all configurable from the Program settings panel.
+          <strong>SID macro block</strong> — embed a SID music file directly into your program's memory
+          at a configurable load address; init and play addresses are auto-detected from the SID header
+          and displayed with relocation offset when a custom address is used.
         </li>
         <li>
-          <strong>Breakpoint blocks</strong> — toggle any instruction block as a breakpoint;
-          highlighted in red, automatically included in the RetroDebugger breakpoints file.
+          <strong>ORG block replaces start address</strong> — the program's origin is now set via
+          an explicit <code>ORG</code> block; multiple <code>ORG</code> blocks are supported, each
+          compiling its section to a separate address range merged into one PRG.
+          The ORG address now has a HEX / DEC toggle.
         </li>
         <li>
-          <strong>BASIC SYS stub uses configured origin</strong> — when BASIC SYS is enabled,
-          the <code>SYS</code> target address is derived from the user's start address setting
-          rather than being hardcoded to <code>$080D</code>.
-        </li>
-        <li>
-          <strong>Program settings panel redesign</strong> — origin input and HEX/DEC toggle
-          moved into the Program settings section; RetroDebugger launch parameters
-          (<code>-jmp</code>, <code>-wait</code>, <code>-unpause</code>) added as inline toggles.
+          <strong>Options tab &amp; UI tweaks</strong> — the output-mode "Program" tab is renamed to
+          "Options"; the <em>Wait before task</em> field is now a 500 ms / 1000 ms dropdown.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
