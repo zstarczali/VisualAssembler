@@ -8,6 +8,33 @@ use tauri::{AppHandle, Manager};
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_opener::OpenerExt;
 
+// ── Resource path resolution ─────────────────────────────────────────────────
+// In dev builds (cargo tauri dev) resource_dir() points to target/debug/ where
+// the bundler does NOT copy resources.  Fall back to the workspace root so that
+// samples and docs are reachable during development as well.
+
+fn resolve_resource_file(app: &AppHandle, relative_path: &str) -> std::io::Result<PathBuf> {
+    let resource_path = app
+        .path()
+        .resource_dir()
+        .map_err(|e| std::io::Error::new(std::io::ErrorKind::NotFound, e.to_string()))?
+        .join(relative_path);
+
+    #[cfg(debug_assertions)]
+    {
+        if !resource_path.exists() {
+            if let Some(workspace_root) = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).parent() {
+                let dev_path = workspace_root.join(relative_path);
+                if dev_path.exists() {
+                    return Ok(dev_path);
+                }
+            }
+        }
+    }
+
+    Ok(resource_path)
+}
+
 // ── Config ──────────────────────────────────────────────────────────────────
 
 fn config_path(app: &AppHandle) -> PathBuf {
@@ -446,8 +473,10 @@ async fn launch_debugger(app: AppHandle, payload: LaunchDebuggerPayload) -> serd
         extra_args.push(format!("${:04X}", addr));
     }
     if let Some(ms) = payload.wait_ms {
-        extra_args.push("-wait".to_string());
-        extra_args.push(ms.to_string());
+        if ms > 0 {
+            extra_args.push("-wait".to_string());
+            extra_args.push(ms.to_string());
+        }
     }
     if payload.unpause.unwrap_or(false) {
         extra_args.push("-unpause".to_string());
@@ -571,11 +600,10 @@ async fn choose_incbin_file(app: AppHandle) -> serde_json::Value {
 
 #[tauri::command]
 async fn load_incbin_sample(app: AppHandle, file_name: String) -> serde_json::Value {
-    let samples_dir = match app.path().resource_dir() {
-        Ok(d) => d.join("samples"),
+    let file_path = match resolve_resource_file(&app, &format!("samples/{}", file_name)) {
+        Ok(p) => p,
         Err(e) => return serde_json::json!({ "error": e.to_string() }),
     };
-    let file_path = samples_dir.join(&file_name);
     match fs::read(&file_path) {
         Ok(buf) => serde_json::json!({
             "fileName": file_name,
@@ -618,11 +646,10 @@ async fn choose_sid_file(app: AppHandle) -> serde_json::Value {
 
 #[tauri::command]
 async fn load_sid_sample(app: AppHandle, file_name: String) -> serde_json::Value {
-    let samples_dir = match app.path().resource_dir() {
-        Ok(d) => d.join("samples"),
+    let file_path = match resolve_resource_file(&app, &format!("samples/{}", file_name)) {
+        Ok(p) => p,
         Err(e) => return serde_json::json!({ "error": e.to_string() }),
     };
-    let file_path = samples_dir.join(&file_name);
     match fs::read(&file_path) {
         Ok(buf) => match parse_sid_buffer(&buf) {
             Ok(info) => {
@@ -763,21 +790,18 @@ async fn load_project(app: AppHandle) -> serde_json::Value {
 
 #[tauri::command]
 async fn open_manual(app: AppHandle) -> Result<(), String> {
-    let manual_path = match app.path().resource_dir() {
-        Ok(d) => d.join("docs").join("Visual Assembler Manual.pdf"),
-        Err(e) => return Err(e.to_string()),
-    };
+    let manual_path = resolve_resource_file(&app, "docs/Visual Assembler Manual.pdf")
+        .map_err(|e| e.to_string())?;
     app.opener().open_path(manual_path.to_string_lossy().as_ref(), None::<String>)
         .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
 async fn load_sample(app: AppHandle, sample_name: String) -> serde_json::Value {
-    let samples_dir = match app.path().resource_dir() {
-        Ok(d) => d.join("samples"),
+    let file_path = match resolve_resource_file(&app, &format!("samples/{}.json", sample_name)) {
+        Ok(p) => p,
         Err(e) => return serde_json::json!({ "ok": false, "error": e.to_string() }),
     };
-    let file_path = samples_dir.join(format!("{}.json", sample_name));
     match fs::read_to_string(&file_path) {
         Ok(raw) => match serde_json::from_str::<serde_json::Value>(&raw) {
             Ok(sample) => serde_json::json!({ "ok": true, "sample": sample }),
