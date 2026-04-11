@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 1.4.4**
+**Version 1.4.5**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -163,14 +163,39 @@ Each 6502 instruction supports one or more addressing modes. The mode selector a
 | **implied** | Implied | `NOP` | No operand; the instruction is self-contained |
 | **immediate** | Immediate | `LDA #$FF` | Inline constant; the assembler adds `#` automatically |
 | **zeroPage** | Zero page | `LDA $10` | Single byte address in page zero (0–255) |
+| **zeroPageX** | Zero page,X | `LDA $10,X` | Zero page address + X register offset (result wraps in page 0) |
+| **zeroPageY** | Zero page,Y | `LDX $FB,Y` | Zero page address + Y register offset |
 | **absolute** | Absolute | `LDA $0400` | Full 16-bit memory address |
-| **relative** | Relative/Label | `BNE loop` | For branch instructions; enter a label name or target address |
 | **absoluteX** | Absolute,X | `LDA $0400,X` | 16-bit address + X register offset |
 | **absoluteY** | Absolute,Y | `LDA $0400,Y` | 16-bit address + Y register offset |
-| **indirectX** | Indirect,X | `LDA ($FB,X)` | Zero page indexed indirect |
-| **indirectY** | Indirect,Y | `LDA ($FB),Y` | Zero page indirect indexed |
+| **relative** | Relative/Label | `BNE loop` | For branch instructions; enter a label name or target address |
+| **indirectX** | Indirect,X | `LDA ($FB,X)` | Zero page indexed indirect (operand = zero page address, 1 byte) |
+| **indirectY** | Indirect,Y | `LDA ($FB),Y` | Zero page indirect indexed (operand = zero page address, 1 byte) |
 | **indirect** | Indirect | `JMP ($0100)` | Indirect; only usable with JMP |
-| **zeroPageY** | Zero page,Y | `LDX $FB,Y` | Zero page address + Y register offset |
+
+### Label expressions as operands
+
+Any operand field that accepts an address or immediate value also accepts a **constant name** (from a `CONST` block or a `LABEL`) directly. Additionally, you can use **label+offset** or **label−offset** expressions to reference an address relative to a named constant:
+
+| Syntax | Example | Description |
+|--------|---------|-------------|
+| `label` | `STA screen_ram,X` | Resolves to the label/constant value |
+| `label+$hex` | `STA screen_ram+$0100,X` | Label address plus a hex offset |
+| `label+decimal` | `STA screen_ram+256,X` | Label address plus a decimal offset |
+| `label-$hex` | `LDA table-$10` | Label address minus a hex offset |
+| `#<label` | `LDA #<screen_ram` | Low byte of the label address |
+| `#>label` | `LDA #>screen_ram` | High byte of the label address |
+
+**Example — clear two screen pages using a CONST:**
+```
+; .CONST screen_ram = $0400
+    LDX #$00
+clear:
+    STA screen_ram,X
+    STA screen_ram+$0100,X
+    DEX
+    BNE clear
+```
 
 ---
 
@@ -775,11 +800,11 @@ Groups a set of blocks into a **named, collapsible section**. REGION and ENDREGI
 
 **Generated ASM:**
 ```
-; ===[ init ]===
+; region init
     SEI
     LDA #$00
     STA $D020
-; ===[/init]===
+; endregion init
 ```
 
 **Size:** 0 bytes for both REGION and ENDREGION.
@@ -790,7 +815,7 @@ Groups a set of blocks into a **named, collapsible section**. REGION and ENDREGI
 3. Add an `ENDREGION` block to close the section.
 4. Click ▸ on the REGION to collapse the whole section into one line while working on other parts of the program.
 
-> **Note:** Regions support nesting. A REGION placed inside another REGION creates an inner group; each ENDREGION closes the nearest open REGION.
+> **Note:** Regions **can be nested** — a REGION placed inside another region acts as a child group (syntax sugar for visual organisation). Each ENDREGION closes the nearest preceding unclosed REGION. Nesting has no effect on the assembled output.
 
 ---
 

@@ -109,7 +109,7 @@ A `REGION` / `ENDREGION` blokk (`isRegionMacro: true` / `isEndRegionMacro: true`
 - **`updateProgramBlock` `regionName` ágban** early return van (`renderBlockPreview` + `renderAsmOutput`), hogy ne hívódjon `renderProgram()` és ne vesződjön el a fókusz szerkesztés közben.
 - **ASM output:** `; ===[ regionName ]===` … `; ===[/regionName]===` (az ENDREGION visszakeresi a szülő REGION nevét `layout.lines`-ban visszafelé keresve)
 - **`getInstructionSize`:** 0 — kötelező explicit kezelni, mert különben a `addressingMode === "implied"` ág 1-et adna vissza
-- **Nem fészkelhetők:** második REGION az első ENDREGION előtt új, párhuzamos régiót nyit
+- **Fészkelhetők** (syntax sugar): második REGION az első ENDREGION előtt egymásba ágyazott régiót alkot; minden ENDREGION a legközelebbi lezáratlan REGION-t zárja le; az assembly outputra nincs hatás
 - **ENDREGION blokk:** megjeleníti a párosított REGION nevét read-only mezőként (visszafelé keres `program[]`-ban)
 - **REGION blokk gombjai (renderProgram-ban):**
   - **⊡ Expand all** (`region-expand-all-btn`): kinyitja a régiót (ha zárva), majd minden gyermekblokk `collapsed = false` → `renderProgram()`
@@ -507,7 +507,7 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`1.4.3` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` és a What's New dialóg (`index.html`).
+`1.4.5` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` és a What's New dialóg (`index.html`).
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező

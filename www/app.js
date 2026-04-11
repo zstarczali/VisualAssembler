@@ -231,7 +231,6 @@ const dbgWaitOn = document.getElementById("dbg-wait-on");
 const dbgWaitOff = document.getElementById("dbg-wait-off");
 const dbgUnpauseOn = document.getElementById("dbg-unpause-on");
 const dbgUnpauseOff = document.getElementById("dbg-unpause-off");
-const dbgWaitMsInput = document.getElementById("debugger-wait-ms");
 const currentFileDisplay = document.getElementById("current-file");
 const originInput = document.getElementById("origin-input");
 const originPreview = document.getElementById("origin-preview");
@@ -294,7 +293,7 @@ let vicePath = "";
 let debuggerPath = "";
 let debuggerJmp = true;
 let debuggerWait = false;
-let debuggerWaitMs = 500;
+let debuggerWaitMs = 3000;
 let debuggerUnpause = false;
 let savedUiSettings = {};
 let userMacros = {};  // Stores user-defined macros: { macroName: [blocks...] }
@@ -365,6 +364,7 @@ const translations = {
     memoryLegendRom: "ROM",
     memoryLegendIo: "I/O",
     sampleBasic: "Mintaprogram",
+    sampleClearScreen: "Kepernyo torles demo",
     sampleLabel: "Label pelda",
     sampleText: "TEXT pelda",
     sampleMacro: "Komplex makro pelda",
@@ -600,6 +600,7 @@ const translations = {
     memoryLegendRom: "ROM",
     memoryLegendIo: "I/O",
     sampleBasic: "Sample program",
+    sampleClearScreen: "Clear screen demo",
     sampleLabel: "Label example",
     sampleText: "TEXT example",
     sampleMacro: "Complex macro example",
@@ -957,7 +958,8 @@ const mnemonicDescriptionsEn = {
   DEFINE: "Define a symbol for conditional assembly. When present, IF blocks evaluate the condition.",
   CONST: "Named constant definition. Can be used as an operand in any mnemonic (LDA, STA, JSR, etc.).",
   REGION: "Group blocks into a collapsible named section. Close with ENDREGION.",
-  ENDREGION: "End of a REGION section."
+  ENDREGION: "End of a REGION section.",
+  ORG: "Set the origin address (*= directive). The following blocks are assembled starting from this address."
 };
 
 const mnemonicDescriptionsHu = (() => {
@@ -1221,10 +1223,6 @@ function initPalette() {
   dbgWaitOff?.addEventListener("change", () => { debuggerWait = false; saveUiSettings(); });
   dbgUnpauseOn?.addEventListener("change", () => { debuggerUnpause = true; saveUiSettings(); });
   dbgUnpauseOff?.addEventListener("change", () => { debuggerUnpause = false; saveUiSettings(); });
-  dbgWaitMsInput?.addEventListener("change", () => {
-    debuggerWaitMs = parseInt(dbgWaitMsInput.value) || 500;
-    saveUiSettings();
-  });
   globalMemoryPanel?.addEventListener("toggle", saveUiSettings);
 
   applySavedTheme();
@@ -1334,12 +1332,6 @@ function applySavedUiSettings() {
   if (savedUiSettings.debuggerWait !== undefined) debuggerWait = !!savedUiSettings.debuggerWait;
   if (dbgWaitOn) dbgWaitOn.checked = debuggerWait;
   if (dbgWaitOff) dbgWaitOff.checked = !debuggerWait;
-
-  if (savedUiSettings.debuggerWaitMs !== undefined) {
-    const ms = Number(savedUiSettings.debuggerWaitMs) || 500;
-    debuggerWaitMs = ms >= 750 ? 1000 : 500;
-  }
-  if (dbgWaitMsInput) dbgWaitMsInput.value = debuggerWaitMs;
 
   if (savedUiSettings.debuggerUnpause !== undefined) debuggerUnpause = !!savedUiSettings.debuggerUnpause;
   if (dbgUnpauseOn) dbgUnpauseOn.checked = debuggerUnpause;
@@ -1493,28 +1485,29 @@ function applyTranslations() {
 
   const sampleOptions = sampleSelect.options;
   if (sampleOptions[0]) sampleOptions[0].textContent = t("sampleBasic");
-  if (sampleOptions[1]) sampleOptions[1].textContent = t("sampleLabel");
-  if (sampleOptions[2]) sampleOptions[2].textContent = t("sampleText");
-  if (sampleOptions[3]) sampleOptions[3].textContent = t("sampleMacro");
-  if (sampleOptions[4]) sampleOptions[4].textContent = t("sampleSprite");
-  if (sampleOptions[5]) sampleOptions[5].textContent = t("sampleSetpixel");
-  if (sampleOptions[6]) sampleOptions[6].textContent = t("sampleBitmap");
-  if (sampleOptions[7]) sampleOptions[7].textContent = t("sampleMacroTest");
-  if (sampleOptions[8]) sampleOptions[8].textContent = t("sampleLoop");
-  if (sampleOptions[9]) sampleOptions[9].textContent = t("sampleHelloLoop");
-  if (sampleOptions[10]) sampleOptions[10].textContent = t("samplePushPull");
-  if (sampleOptions[11]) sampleOptions[11].textContent = t("sampleIfElse");
-  if (sampleOptions[12]) sampleOptions[12].textContent = t("sampleUserMacro");
-  if (sampleOptions[13]) sampleOptions[13].textContent = t("sampleIncBin");
-  if (sampleOptions[14]) sampleOptions[14].textContent = t("sampleInclude");
-  if (sampleOptions[15]) sampleOptions[15].textContent = t("sampleSidDemo");
-  if (sampleOptions[16]) sampleOptions[16].textContent = t("sampleSidDirectDemo");
-  if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleSpriteMacroDemo");
-  if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleJoystickDemo");
-  if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleCollisionDemo");
-  if (sampleOptions[20]) sampleOptions[20].textContent = t("sample10Print");
-  if (sampleOptions[21]) sampleOptions[21].textContent = t("sampleRasterIrqDemo");
-  if (sampleOptions[22]) sampleOptions[22].textContent = t("sampleOverlappingRasterDemo");
+  if (sampleOptions[1]) sampleOptions[1].textContent = t("sampleClearScreen");
+  if (sampleOptions[2]) sampleOptions[2].textContent = t("sampleLabel");
+  if (sampleOptions[3]) sampleOptions[3].textContent = t("sampleText");
+  if (sampleOptions[4]) sampleOptions[4].textContent = t("sampleMacro");
+  if (sampleOptions[5]) sampleOptions[5].textContent = t("sampleSprite");
+  if (sampleOptions[6]) sampleOptions[6].textContent = t("sampleSetpixel");
+  if (sampleOptions[7]) sampleOptions[7].textContent = t("sampleBitmap");
+  if (sampleOptions[8]) sampleOptions[8].textContent = t("sampleMacroTest");
+  if (sampleOptions[9]) sampleOptions[9].textContent = t("sampleLoop");
+  if (sampleOptions[10]) sampleOptions[10].textContent = t("sampleHelloLoop");
+  if (sampleOptions[11]) sampleOptions[11].textContent = t("samplePushPull");
+  if (sampleOptions[12]) sampleOptions[12].textContent = t("sampleIfElse");
+  if (sampleOptions[13]) sampleOptions[13].textContent = t("sampleUserMacro");
+  if (sampleOptions[14]) sampleOptions[14].textContent = t("sampleIncBin");
+  if (sampleOptions[15]) sampleOptions[15].textContent = t("sampleInclude");
+  if (sampleOptions[16]) sampleOptions[16].textContent = t("sampleSidDemo");
+  if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleSidDirectDemo");
+  if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleSpriteMacroDemo");
+  if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleJoystickDemo");
+  if (sampleOptions[20]) sampleOptions[20].textContent = t("sampleCollisionDemo");
+  if (sampleOptions[21]) sampleOptions[21].textContent = t("sample10Print");
+  if (sampleOptions[22]) sampleOptions[22].textContent = t("sampleRasterIrqDemo");
+  if (sampleOptions[23]) sampleOptions[23].textContent = t("sampleOverlappingRasterDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -3389,6 +3382,17 @@ function buildOperandPreview(modeKey, rawValue, base) {
         : value;
       return { operand, text: operand, error: "" };
     }
+    // Allow label+offset or label-offset expressions (e.g. screen_ram+$0100)
+    const exprMatch = value.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*([+-])\s*(\$[0-9A-Fa-f]+|\d+)$/);
+    if (exprMatch) {
+      const operand = modeKey === "immediate" ? `#${value}`
+        : (modeKey === "absoluteX" || modeKey === "zeroPageX") ? `${value},X`
+        : (modeKey === "absoluteY" || modeKey === "zeroPageY") ? `${value},Y`
+        : (modeKey === "indirectX") ? `(${value},X)`
+        : (modeKey === "indirectY") ? `(${value}),Y`
+        : value;
+      return { operand, text: operand, error: "" };
+    }
     return { operand: value, text: value, error: getNumberFormatError(base) };
   }
 
@@ -4025,7 +4029,7 @@ async function runInDebugger() {
     breakpoints,
     autoJmp: false,
     jmpAddress: debuggerJmp ? debugCodeOrigin : undefined,
-    waitMs: debuggerWait ? debuggerWaitMs : undefined,
+    waitMs: debuggerWait ? debuggerWaitMs : 0,
     unpause: debuggerUnpause || undefined
   });
 
@@ -4935,6 +4939,21 @@ function compileLineBytes(line, labels) {
 function resolveNumericOperand(block, labels) {
   if (labels.has(block.rawOperand)) {
     return { ok: true, value: labels.get(block.rawOperand) };
+  }
+
+  // label+offset or label-offset expression (e.g. screen_ram+$0100)
+  const exprMatch = block.rawOperand.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*([+-])\s*(\$[0-9A-Fa-f]+|\d+)$/);
+  if (exprMatch) {
+    const [, name, op, offsetStr] = exprMatch;
+    if (labels.has(name)) {
+      const baseAddr = labels.get(name);
+      const offsetVal = offsetStr.startsWith("$")
+        ? parseInt(offsetStr.slice(1), 16)
+        : parseInt(offsetStr, 10);
+      const result = op === "+" ? baseAddr + offsetVal : baseAddr - offsetVal;
+      return { ok: true, value: result & 0xFFFF };
+    }
+    return { ok: false, error: tf("operandNotResolvable", { mnemonic: block.mnemonic }) };
   }
 
   const stripped = block.rawOperand.replace(/^#/, "");
@@ -8000,6 +8019,10 @@ async function loadSampleProgram() {
   await loadSampleFromFile("basic-colors");
 }
 
+async function loadClearScreenSampleProgram() {
+  await loadSampleFromFile("clear-screen");
+}
+
 async function loadLabelSampleProgram() {
   await loadSampleFromFile("label-border");
 }
@@ -8167,6 +8190,11 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "text-demo") {
     loadTextSampleProgram();
+    return;
+  }
+
+  if (sampleSelect.value === "clear-screen") {
+    loadClearScreenSampleProgram();
     return;
   }
 

@@ -2,11 +2,17 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v1.4.4**
+**Current version: v1.4.5**
 
 ---
 
 ## What's New
+
+### v1.4.5
+- **Label + offset addressing** — operand fields now accept `label+$FF` / `label-$FF` / `label+decimal` expressions resolved at compile time (e.g. `STA screen_ram+$0100,X`)
+- **Clear screen sample** — new demo program using zero-page pointers and indirect-Y addressing for fast screen clearing
+- **REGION nesting** — regions can be nested inside each other (syntax sugar); ASM output is unchanged
+- **Dev-mode resource fix** — `resolve_resource_file` helper: samples and PDF manual now load correctly under `tauri dev` by falling back to the workspace source folder in debug builds
 
 ### v1.4.4
 - **C64 Debugger integration** — launch the assembled PRG in C64 Debugger alongside RetroDebugger; both debuggers share the same breakpoints, symbols, and autostart flags
