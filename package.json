@@ -1,6 +1,6 @@
 {
   "name": "c64-visual-assembler",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "description": "Commodore 64 visual assembler desktop app.",
   "author": "Zsolt Tarczali",
   "scripts": {

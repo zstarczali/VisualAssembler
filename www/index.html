@@ -36,6 +36,7 @@
                 <h3 class="control-menu-label">File</h3>
                 <button id="save-project" class="secondary" type="button">Save program</button>
                 <button id="load-project" class="secondary" type="button">Load program</button>
+                <button id="import-asm" class="secondary" type="button">Import ASM</button>
                 <button id="save-prg" class="secondary" type="button">Export to PRG</button>
                 <button id="exit-app" class="secondary" type="button">Kilepes</button>
               </section>
@@ -276,19 +277,7 @@
                   </label>
                 </div>
               </div>
-              <div class="macro-source-row">
-                <span id="asm-numbers-label">Show numbers in ASM</span>
-                <div class="mini-toggle asm-base-toggle" role="radiogroup" aria-label="ASM output format">
-                  <label class="mini-toggle-option">
-                    <input type="radio" name="asm-output-base" value="hex" checked>
-                    <span>HEX</span>
-                  </label>
-                  <label class="mini-toggle-option">
-                    <input type="radio" name="asm-output-base" value="dec">
-                    <span>DEC</span>
-                  </label>
-                </div>
-              </div>
+
               <div class="macro-source-row">
                 <span id="region-comments-label">Show region comments</span>
                 <div class="mini-toggle macro-source-toggle" id="region-comments-toggle-group" role="radiogroup" aria-label="Region comments">
@@ -430,6 +419,27 @@
     </div>
   </dialog>
 
+  <dialog id="work-progress-dialog" class="work-progress-dialog">
+    <div class="work-progress-card">
+      <h2 class="compile-error-title" id="work-progress-title">Compiling...</h2>
+      <p class="work-progress-subtitle" id="work-progress-subtitle">Please wait...</p>
+      <div class="work-progress-bar-wrap" aria-hidden="true">
+        <div id="work-progress-bar" class="work-progress-bar"></div>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="import-asm-dialog" class="import-asm-dialog">
+    <div class="import-asm-card">
+      <h2 class="compile-error-title" id="import-asm-title">Import ASM</h2>
+      <textarea id="import-asm-textarea" class="import-asm-textarea" rows="20" spellcheck="false"></textarea>
+      <div class="import-asm-actions">
+        <button id="import-asm-confirm" class="primary" type="button">Import</button>
+        <button id="import-asm-cancel" class="secondary" type="button">Cancel</button>
+      </div>
+    </div>
+  </dialog>
+
   <dialog id="about-dialog" class="about-dialog">
     <div class="about-card">
       <div class="about-logo">
@@ -448,16 +458,52 @@
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v1.4.5</p>
+      <p class="whats-new-version">v1.4.6</p>
       <ul class="whats-new-list">
         <li>
-          <strong>Label + offset addressing</strong> — operand fields now accept <code>label+$FF</code>
-          and <code>label-$FF</code> expressions; the assembler resolves the final address at compile
-          time, e.g. <code>STA screen_ram+$0100,X</code>.
+          <strong>Import ASM dialog</strong> — a new File menu action lets you paste textual 6502 assembly (`ORG`, labels, `.byte`, comments, instructions) and convert it into Visual Assembler blocks.
         </li>
         <li>
-          <strong>Clear screen sample</strong> — new demo program showing fast screen clearing with
-          zero-page pointers and indirect-Y addressing.
+          <strong>Compiling progress modal</strong> — Run, Debug, and Import now show a centered progress dialog with an animated progress bar while work is in progress.
+        </li>
+        <li>
+          <strong>ASM line numbers</strong> — the ASM output panel now shows line-number prefixes to make error pinpointing easier during debugging.
+        </li>
+        <li>
+          <strong>Import robustness improvements</strong> — importer normalizes local labels and better handles mixed operand styles used in real-world 6502 snippets.
+        </li>
+        <li>
+          <strong>BIN (binary) mode</strong> — every instruction block now has a third format
+          option alongside HEX and DEC; operands are entered and displayed as binary values
+          prefixed with <code>%</code> (e.g. <code>AND #%11111000</code>).
+        </li>
+        <li>
+          <strong>Per-block ASM output format</strong> — the global "Numbers in ASM output"
+          HEX / DEC toggle has been removed; the ASM view now always renders each block's
+          operands in that block's own format (HEX, DEC, or BIN).
+        </li>
+        <li>
+          <strong>Binary operand parsing fix</strong> — operands that start with <code>#</code>
+          in binary mode (e.g. <code>AND #%11111000</code>) no longer produce a false WARNING.
+        </li>
+        <li>
+          <strong>Stale validation fix</strong> — blocks loaded from a project file now
+          recompute their validation error on load; stale errors no longer cause false compile
+          failures.
+        </li>
+        <li>
+          <strong>Zero page,X addressing mode</strong> — added to LDA, STA, ADC, SBC, INC,
+          DEC, CMP, AND, ORA, EOR, LDY, STY and the shift/rotate instructions (ASL, LSR, ROL, ROR);
+          also added Absolute,X to ASL/LSR/ROL/ROR.
+        </li>
+        <li>
+          <strong>NEXT block label picker</strong> — the <em>Next label</em> field now shows a
+          floating dropdown with all LOOP labels defined in the program.
+        </li>
+        <li>
+          <strong>INCLUDE load address</strong> — the INCLUDE block now has an optional
+          <em>Load address</em> field; when set, the included blocks are placed at that address
+          (a synthetic ORG is injected before them, overriding any ORG inside the included file).
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -540,7 +586,7 @@
     <span id="vice-toast-text"></span>
   </div>
   <script src="tauri-bridge.js"></script>
-  <script src="app.js"></script>
+  <script src="app.js?v=1.4.6"></script>
 
 </body>
 

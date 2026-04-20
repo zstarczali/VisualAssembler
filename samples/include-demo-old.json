@@ -1,0 +1,143 @@
+{
+  "version": 1,
+  "app": "c64-visual-assembler",
+  "origin": "0801",
+  "program": [
+    {
+      "id": "inc-demo-comment-1",
+      "category": "Szerkezet",
+      "mnemonic": "COMMENT",
+      "operand": "INCLUDE demo — includes color routines from include-library.json",
+      "rawOperand": "INCLUDE demo — includes color routines from include-library.json",
+      "description": "",
+      "addressingMode": "implied",
+      "base": "comment",
+      "validationError": "",
+      "collapsed": true,
+      "isComment": true
+    },
+    {
+      "id": "inc-demo-comment-2",
+      "category": "Szerkezet",
+      "mnemonic": "COMMENT",
+      "operand": "The INCLUDE block below loads include-library.json (set_border + set_bg routines)",
+      "rawOperand": "The INCLUDE block below loads include-library.json (set_border + set_bg routines)",
+      "description": "",
+      "addressingMode": "implied",
+      "base": "comment",
+      "validationError": "",
+      "collapsed": true,
+      "isComment": true
+    },
+    {
+      "id": "inc-demo-sei",
+      "category": "Rendszer",
+      "mnemonic": "SEI",
+      "operand": "",
+      "rawOperand": "",
+      "description": "",
+      "addressingMode": "implied",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    },
+    {
+      "id": "inc-demo-comment-3",
+      "category": "Szerkezet",
+      "mnemonic": "COMMENT",
+      "operand": "Set border to red (color 2), background to blue (color 6)",
+      "rawOperand": "Set border to red (color 2), background to blue (color 6)",
+      "description": "",
+      "addressingMode": "implied",
+      "base": "comment",
+      "validationError": "",
+      "collapsed": true,
+      "isComment": true
+    },
+    {
+      "id": "inc-demo-lda-red",
+      "category": "Adatmozgas",
+      "mnemonic": "LDA",
+      "operand": "#$02",
+      "rawOperand": "02",
+      "description": "",
+      "addressingMode": "immediate",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    },
+    {
+      "id": "inc-demo-jsr-border",
+      "category": "Ugrasok",
+      "mnemonic": "JSR",
+      "operand": "set_border",
+      "rawOperand": "set_border",
+      "description": "",
+      "addressingMode": "absolute",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    },
+    {
+      "id": "inc-demo-lda-blue",
+      "category": "Adatmozgas",
+      "mnemonic": "LDA",
+      "operand": "#$06",
+      "rawOperand": "06",
+      "description": "",
+      "addressingMode": "immediate",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    },
+    {
+      "id": "inc-demo-jsr-bg",
+      "category": "Ugrasok",
+      "mnemonic": "JSR",
+      "operand": "set_bg",
+      "rawOperand": "set_bg",
+      "description": "",
+      "addressingMode": "absolute",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    },
+    {
+      "id": "inc-demo-rts",
+      "category": "Ugrasok",
+      "mnemonic": "RTS",
+      "operand": "",
+      "rawOperand": "",
+      "description": "",
+      "addressingMode": "implied",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true
+    },
+    {
+      "id": "inc-demo-include-block",
+      "category": "Makrok",
+      "mnemonic": "INCLUDE",
+      "operand": "",
+      "rawOperand": "",
+      "description": "Masik projekt JSON fajl blokkjainak beillesztese erre a helyre (csak olvasható).",
+      "addressingMode": "implied",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": false,
+      "isIncludeMacro": true,
+      "includeFile": "",
+      "includeFileName": "include-library-old.json",
+      "includeCollapsed": false,
+      "includedBlocks": []
+    }
+  ],
+  "ui": {
+    "sample": "include-demo",
+    "outputMode": "asm",
+    "numberBase": "hex",
+    "zoom": 1,
+    "language": "en",
+    "theme": "dark"
+  }
+}
