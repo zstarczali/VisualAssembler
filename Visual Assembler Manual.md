@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 1.4.5**
+**Version 1.4.6**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -46,6 +46,8 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
    - [SPRITE_COL](#sprite_col)
 9. [Debugger Integration](#9-debugger-integration)
 10. [Knowledge Base Links](#10-knowledge-base-links)
+11. [ASM Import Workflow](#11-asm-import-workflow)
+12. [Changelog](#12-changelog)
 
 ---
 
@@ -114,7 +116,6 @@ The right panel shows the generated output in real time.
 The **Options** tab contains the settings that affect code generation and output display:
 
 - **Macro source** — when ON, macro definition blocks (MACRO…ENDM) show their source code inline in the ASM view.
-- **Show numbers in ASM (HEX / DEC)** — switches all address and value literals in the ASM output between hexadecimal and decimal. This is independent from the per-block HEX / DEC toggle: the per-block toggle controls how you *enter* the operand; this toggle controls how the *output* is displayed.
 - **Program start address** — now set via an **ORG block** in the program area rather than a separate input field. The first ORG block defines the program's load address; subsequent ORG blocks start additional sections at different addresses.
 - **Debugger params** — three inline toggles controlling which flags are passed to the external debugger on launch:
   - **`-jmp` ON/OFF** — jump directly to the program's start address after loading.
@@ -126,13 +127,30 @@ The **Options** tab contains the settings that affect code generation and output
 
 Click any line in the ASM view to **highlight the corresponding block** in the program area.
 
+### ASM line numbers
+
+The ASM panel displays **line numbers** (`001 |`, `002 |`, …) to make troubleshooting easier when a compile error points to a specific line.
+
+- The visual line numbers are for diagnostics only.
+- **Copy ASM** still copies the clean source text **without** line-number prefixes.
+
+### Compile progress modal
+
+During heavier actions, a centered progress modal appears with a progress bar:
+
+- **Run in VICE** — compiling/building PRG and launching emulator.
+- **Debug** — compiling/building PRG and launching debugger.
+- **Import ASM** — parsing and materializing blocks from pasted source.
+
+The modal closes automatically when the action completes or fails.
+
 ---
 
 ## 5. Settings & Toolbar
 
 | Control | Description |
 |---|---|
-| **Number base (HEX / DEC)** | Sets the display/input format for operands throughout the UI |
+| **Number base (HEX / DEC / BIN)** | Sets the display/input format for operands throughout the UI. BIN mode displays values as binary with `%` prefix (e.g. `%11111000`). The ASM view always shows each block in its own format. |
 | **Language** | Switch between English and Hungarian |
 | **Theme** | Light / dark mode |
 | **CRT retro mode** | Toggles a full-screen CRT filter: scanlines, phosphor vignette, flicker, and barrel distortion. State is saved between sessions. |
@@ -141,6 +159,7 @@ Click any line in the ASM view to **highlight the corresponding block** in the p
 | **Zoom in / out** | Scale the block UI (affects all block elements) |
 | **Save Project** | Save the current program as a `.json` project file |
 | **Load Project** | Load a previously saved project |
+| **Import ASM** | Opens a paste dialog and imports textual 6502 ASM into blocks |
 | **Save PRG** | Export the compiled binary as a `.prg` file |
 | **Run in VICE** | Compile and launch directly in the VICE emulator |
 | **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 9](#9-debugger-integration)) |
@@ -151,6 +170,24 @@ Click any line in the ASM view to **highlight the corresponding block** in the p
 | **What's New** | Changelog |
 | **Knowledge Base** | Reference links (6502 opcodes, C64 KERNAL, memory map, colors) |
 | **Check for Update** | Open the itch.io page to check for a newer release |
+
+### Import ASM (quick reference)
+
+The Import dialog accepts common 6502 source patterns and converts them into blocks:
+
+- `* = $1500` → ORG block
+- `Label:` → LABEL block
+- `Label: .byte 0` → LABEL + BYTE blocks
+- `.byte ...` → BYTE block
+- `; comment` (or inline `; ...`) → COMMENT block
+- instructions (`lda`, `jsr`, `beq`, etc.) → instruction blocks with detected addressing mode
+
+#### Import parsing notes and best practices
+
+- Local labels like `.wait` are imported as standard labels (dot removed), and references are normalized accordingly.
+- For `($zp),Y` / `($zp,X)` style addressing, use a concrete zero-page byte (`$FB`, `$FC`, etc.) for best compatibility.
+- Avoid ambiguous short labels that look like hex (`cc1`, `dead`, `beef`) in branch contexts; prefer names like `loop_cc1`.
+- If your program starts with data (`.byte`) before executable code, add an explicit entry jump (for example `JMP Start`) at the top.
 
 ---
 
@@ -587,14 +624,22 @@ Includes another Visual Assembler project file and expands its blocks inline at 
 | Field | Description |
 |---|---|
 | File | Browse to select a `.json` Visual Assembler project |
+| Load address (optional) | If set (hex, e.g. `C000`), the included blocks are placed at that address — a synthetic `ORG` is injected before them, overriding any ORG block inside the included file. Leave empty to let the included file's own ORG blocks control placement. |
 
-**Generated ASM:**
+**Generated ASM (no address override):**
 ```
-    ; === INCLUDE "library.json" — 12 block(s) ===
+    ; .include "library.json" — 12 block(s)
     ... (expanded blocks follow)
 ```
 
-> **Tip:** Use INCLUDE to build reusable subroutine libraries that you can share across projects.
+**Generated ASM (with load address `C000`):**
+```
+    ; .include "library.json" @ $C000 — 12 block(s)
+    *=$C000
+    ... (expanded blocks follow)
+```
+
+> **Tip:** Use INCLUDE to build reusable subroutine libraries that you can share across projects. Set a load address when the library has no ORG of its own, or when you want to override its default placement.
 
 ---
 
@@ -1152,7 +1197,7 @@ Quick reference links available in the app under **Knowledge Base**:
 
 ---
 
-## 11. Changelog
+## 12. Changelog
 
 ### v1.4.4
 - **C64 Debugger integration** — launch the assembled PRG in C64 Debugger alongside RetroDebugger; both debuggers share the same breakpoints, symbols, and autostart flags

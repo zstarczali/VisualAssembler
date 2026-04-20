@@ -1,0 +1,93 @@
+{
+  "app": "c64-visual-assembler",
+  "program": [
+    {
+      "addressingMode": "implied",
+      "base": "hex",
+      "category": "Makrok",
+      "collapsed": false,
+      "description": "Fordítási cím beállítása",
+      "id": "98beb624-65b4-4cd6-bf17-d649767e36b1",
+      "isOrgMacro": true,
+      "mnemonic": "ORG",
+      "operand": "",
+      "orgAddress": "1000",
+      "rawOperand": "",
+      "validationError": ""
+    },
+    {
+      "addressingMode": "implied",
+      "base": "hex",
+      "category": "Makrok",
+      "collapsed": false,
+      "description": "Masik projekt JSON fajl blokkjainak beillesztese erre a helyre (csak olvasható).",
+      "id": "bdb075c8-60c2-4970-b277-6358b1c4481b",
+      "includeAddress": "1500",
+      "includeCollapsed": false,
+      "includeFile": "/Users/ztarczali/Library/CloudStorage/OneDrive-GoToTechnologiesUSALLC/Desktop/macros.json",
+      "includeFileName": "macros",
+      "isIncludeMacro": true,
+      "mnemonic": "INCLUDE",
+      "operand": "",
+      "rawOperand": "",
+      "validationError": ""
+    },
+    {
+      "addressingMode": "absolute",
+      "base": "hex",
+      "category": "Ugrasok",
+      "collapsed": false,
+      "description": "Szubrutin meghivasa.",
+      "id": "7af46852-adcf-4efe-a7c5-c67e6a3aa22f",
+      "mnemonic": "JSR",
+      "operand": "BitmapOn",
+      "rawOperand": "BitmapOn",
+      "validationError": ""
+    },
+    {
+      "addressingMode": "absolute",
+      "base": "hex",
+      "category": "Ugrasok",
+      "collapsed": false,
+      "description": "Szubrutin meghivasa.",
+      "id": "3047f1f9-78ff-45d5-ab7e-cf9fc9b3ab18",
+      "mnemonic": "JSR",
+      "operand": "WaitForKey",
+      "rawOperand": "WaitForKey",
+      "validationError": ""
+    },
+    {
+      "addressingMode": "absolute",
+      "base": "hex",
+      "category": "Ugrasok",
+      "collapsed": false,
+      "description": "Szubrutin meghivasa.",
+      "id": "fc9e99a3-4e71-4b98-b71e-545e73b034bb",
+      "mnemonic": "JSR",
+      "operand": "BitmapOff",
+      "rawOperand": "BitmapOff",
+      "validationError": ""
+    },
+    {
+      "addressingMode": "implied",
+      "base": "hex",
+      "category": "Ugrasok",
+      "collapsed": true,
+      "description": "Visszateres szubrutinbol.",
+      "id": "95a2a93f-3652-469e-933a-ea664f7adf4b",
+      "mnemonic": "RTS",
+      "operand": "",
+      "rawOperand": "",
+      "validationError": ""
+    }
+  ],
+  "ui": {
+    "language": "en",
+    "numberBase": "hex",
+    "outputMode": "asm",
+    "sample": "include-demo",
+    "theme": "light",
+    "zoom": 1.09
+  },
+  "version": 1
+}

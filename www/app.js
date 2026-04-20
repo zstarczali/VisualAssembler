@@ -59,6 +59,12 @@ const addressingModes = {
     placeholder: "0-65535",
     help: "Indirektes cimzesi mod. Csak JMP-nel hasznalhato. Pl: JMP ($0100)"
   },
+  zeroPageX: {
+    label: "Zero page,X",
+    needsOperand: true,
+    placeholder: "0-255",
+    help: "Zero page cim + X regiszter offset. Pl: LDA $FB,X"
+  },
   zeroPageY: {
     label: "Zero page,Y",
     needsOperand: true,
@@ -69,26 +75,26 @@ const addressingModes = {
 
 const mnemonicLibrary = {
   Adatmozgas: [
-    { mnemonic: "LDA", description: "Akkumulator betoltese memoriabol vagy konstansbol.", modes: ["immediate", "zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
+    { mnemonic: "LDA", description: "Akkumulator betoltese memoriabol vagy konstansbol.", modes: ["immediate", "zeroPage", "zeroPageX", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
     { mnemonic: "LDX", description: "X regiszter betoltese.", modes: ["immediate", "zeroPage", "zeroPageY", "absolute", "absoluteY"] },
-    { mnemonic: "LDY", description: "Y regiszter betoltese.", modes: ["immediate", "zeroPage", "absolute", "absoluteX"] },
-    { mnemonic: "STA", description: "Akkumulator kiirasa memoriacimre.", modes: ["zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
+    { mnemonic: "LDY", description: "Y regiszter betoltese.", modes: ["immediate", "zeroPage", "zeroPageX", "absolute", "absoluteX"] },
+    { mnemonic: "STA", description: "Akkumulator kiirasa memoriacimre.", modes: ["zeroPage", "zeroPageX", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
     { mnemonic: "STX", description: "X regiszter tarolasa.", modes: ["zeroPage", "zeroPageY", "absolute"] },
-    { mnemonic: "STY", description: "Y regiszter tarolasa.", modes: ["zeroPage", "absolute"] }
+    { mnemonic: "STY", description: "Y regiszter tarolasa.", modes: ["zeroPage", "zeroPageX", "absolute"] }
   ],
   Aritmetika: [
-    { mnemonic: "ADC", description: "Osszeadas carry figyelembevetele mellett.", modes: ["immediate", "zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
-    { mnemonic: "SBC", description: "Kivonas carry figyelembevetele mellett.", modes: ["immediate", "zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
-    { mnemonic: "INC", description: "Memoriacim noveles.", modes: ["zeroPage", "absolute", "absoluteX"] },
-    { mnemonic: "DEC", description: "Memoriacim csokkentes.", modes: ["zeroPage", "absolute", "absoluteX"] },
-    { mnemonic: "CMP", description: "Osszehasonlitas az akkumulatorral.", modes: ["immediate", "zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
+    { mnemonic: "ADC", description: "Osszeadas carry figyelembevetele mellett.", modes: ["immediate", "zeroPage", "zeroPageX", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
+    { mnemonic: "SBC", description: "Kivonas carry figyelembevetele mellett.", modes: ["immediate", "zeroPage", "zeroPageX", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
+    { mnemonic: "INC", description: "Memoriacim noveles.", modes: ["zeroPage", "zeroPageX", "absolute", "absoluteX"] },
+    { mnemonic: "DEC", description: "Memoriacim csokkentes.", modes: ["zeroPage", "zeroPageX", "absolute", "absoluteX"] },
+    { mnemonic: "CMP", description: "Osszehasonlitas az akkumulatorral.", modes: ["immediate", "zeroPage", "zeroPageX", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
     { mnemonic: "CPX", description: "Osszehasonlitas az X regiszterrel.", modes: ["immediate", "zeroPage", "absolute"] },
     { mnemonic: "CPY", description: "Osszehasonlitas az Y regiszterrel.", modes: ["immediate", "zeroPage", "absolute"] }
   ],
   Logika: [
-    { mnemonic: "AND", description: "Logikai ES muvelet az akkumulatorral.", modes: ["immediate", "zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
-    { mnemonic: "ORA", description: "Logikai VAGY muvelet az akkumulatorral.", modes: ["immediate", "zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
-    { mnemonic: "EOR", description: "Exkluziv VAGY muvelet az akkumulatorral.", modes: ["immediate", "zeroPage", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
+    { mnemonic: "AND", description: "Logikai ES muvelet az akkumulatorral.", modes: ["immediate", "zeroPage", "zeroPageX", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
+    { mnemonic: "ORA", description: "Logikai VAGY muvelet az akkumulatorral.", modes: ["immediate", "zeroPage", "zeroPageX", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
+    { mnemonic: "EOR", description: "Exkluziv VAGY muvelet az akkumulatorral.", modes: ["immediate", "zeroPage", "zeroPageX", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
     { mnemonic: "BIT", description: "Bitek tesztelese memoriacimrol.", modes: ["zeroPage", "absolute"] }
   ],
   Ugrasok: [
@@ -118,10 +124,10 @@ const mnemonicLibrary = {
     { mnemonic: "TYA", description: "Y regiszter masolasa az akkumulatorba.", modes: ["implied"] }
   ],
   ShiftEsRotate: [
-    { mnemonic: "ASL", description: "Balra tolas egy bittel.", modes: ["implied", "zeroPage", "absolute"] },
-    { mnemonic: "LSR", description: "Jobbra tolas egy bittel.", modes: ["implied", "zeroPage", "absolute"] },
-    { mnemonic: "ROL", description: "Balra forgas carryvel.", modes: ["implied", "zeroPage", "absolute"] },
-    { mnemonic: "ROR", description: "Jobbra forgas carryvel.", modes: ["implied", "zeroPage", "absolute"] }
+    { mnemonic: "ASL", description: "Balra tolas egy bittel.", modes: ["implied", "zeroPage", "zeroPageX", "absolute", "absoluteX"] },
+    { mnemonic: "LSR", description: "Jobbra tolas egy bittel.", modes: ["implied", "zeroPage", "zeroPageX", "absolute", "absoluteX"] },
+    { mnemonic: "ROL", description: "Balra forgas carryvel.", modes: ["implied", "zeroPage", "zeroPageX", "absolute", "absoluteX"] },
+    { mnemonic: "ROR", description: "Jobbra forgas carryvel.", modes: ["implied", "zeroPage", "zeroPageX", "absolute", "absoluteX"] }
   ],
   Stack: [
     { mnemonic: "PHA", description: "Akkumulator push a verembe.", modes: ["implied"] },
@@ -209,6 +215,11 @@ const sampleSelect = document.getElementById("sample-select");
 const saveProjectButton = document.getElementById("save-project");
 const savePrgButton = document.getElementById("save-prg");
 const loadProjectButton = document.getElementById("load-project");
+const importAsmButton = document.getElementById("import-asm");
+const importAsmDialog = document.getElementById("import-asm-dialog");
+const importAsmTextarea = document.getElementById("import-asm-textarea");
+const importAsmConfirmButton = document.getElementById("import-asm-confirm");
+const importAsmCancelButton = document.getElementById("import-asm-cancel");
 const zoomOutButton = document.getElementById("zoom-out");
 const zoomInButton = document.getElementById("zoom-in");
 const addSelectedButton = document.getElementById("add-selected");
@@ -253,6 +264,7 @@ const whatsNewButton = document.getElementById("whats-new-btn");
 let asmBlockRanges = {};
 let selectedBlockId = null;
 let asmPlainText = "";
+let asmDisplayText = "";
 let showMacroSource = false;
 let showRegionComments = true;
 let asmOutputBase = "hex";
@@ -268,6 +280,10 @@ const compileErrorDialog = document.getElementById("compile-error-dialog");
 const compileErrorList = document.getElementById("compile-error-list");
 const compileErrorTitle = document.getElementById("compile-error-title");
 const compileErrorClose = document.getElementById("compile-error-close");
+const workProgressDialog = document.getElementById("work-progress-dialog");
+const workProgressTitle = document.getElementById("work-progress-title");
+const workProgressSubtitle = document.getElementById("work-progress-subtitle");
+const workProgressBar = document.getElementById("work-progress-bar");
 const helpManualButton = document.getElementById("help-manual-btn");
 const checkUpdateButton = document.getElementById("check-update-btn");
 const reportBugButton = document.getElementById("report-bug-btn");
@@ -279,6 +295,8 @@ const whatsNewCloseButton = document.getElementById("whats-new-close");
 const knowledgeBaseButton = document.getElementById("knowledge-base-btn");
 const knowledgeBaseDialog = document.getElementById("knowledge-base-dialog");
 const knowledgeBaseCloseButton = document.getElementById("knowledge-base-close");
+let workProgressTimer = null;
+let workProgressValue = 10;
 const exitAppButton = document.getElementById("exit-app");
 
 let program = [];
@@ -308,6 +326,19 @@ const translations = {
     menuProgram: "Program",
     loadSample: "Betoltes",
     saveProject: "Program mentese",
+    importAsm: "ASM importalasa",
+    importAsmTitle: "ASM import",
+    importAsmPlaceholder: "Illeszd be a 6502 assembly kodot ide...",
+    importAsmConfirm: "Import",
+    importAsmCancel: "Megsem",
+    workProgressTitle: "Forditas folyamatban...",
+    workProgressDoneTitle: "Sikeres build",
+    workProgressRun: "PRG generalasa es VICE inditasa...",
+    workProgressDebug: "PRG generalasa es debugger inditasa...",
+    workProgressImport: "ASM import feldolgozasa...",
+    workProgressSuccessRun: "Build sikeres, VICE inditva.",
+    workProgressSuccessDebug: "Build sikeres, debugger inditva.",
+    workProgressSuccessImport: "Import sikeres.",
     savePrg: "Export PRG-kent",
     savePrgSuccess: "PRG elmentve",
     savePrgFailed: "PRG mentes sikertelen",
@@ -544,6 +575,19 @@ const translations = {
     menuProgram: "Program",
     loadSample: "Load",
     saveProject: "Save program",
+    importAsm: "Import ASM",
+    importAsmTitle: "Import ASM",
+    importAsmPlaceholder: "Paste 6502 assembly code here...",
+    importAsmConfirm: "Import",
+    importAsmCancel: "Cancel",
+    workProgressTitle: "Compiling...",
+    workProgressDoneTitle: "Build successful",
+    workProgressRun: "Building PRG and launching VICE...",
+    workProgressDebug: "Building PRG and launching debugger...",
+    workProgressImport: "Importing ASM blocks...",
+    workProgressSuccessRun: "Build successful, VICE launched.",
+    workProgressSuccessDebug: "Build successful, debugger launched.",
+    workProgressSuccessImport: "Import successful.",
     savePrg: "Export to PRG",
     savePrgSuccess: "PRG saved",
     savePrgFailed: "PRG save failed",
@@ -983,22 +1027,22 @@ function getItemDescription(item) {
 }
 
 const opcodeMap = {
-  LDA: { immediate: 0xA9, zeroPage: 0xA5, absolute: 0xAD, absoluteX: 0xBD, absoluteY: 0xB9, indirectX: 0xA1, indirectY: 0xB1 },
+  LDA: { immediate: 0xA9, zeroPage: 0xA5, zeroPageX: 0xB5, absolute: 0xAD, absoluteX: 0xBD, absoluteY: 0xB9, indirectX: 0xA1, indirectY: 0xB1 },
   LDX: { immediate: 0xA2, zeroPage: 0xA6, zeroPageY: 0xB6, absolute: 0xAE, absoluteY: 0xBE },
-  LDY: { immediate: 0xA0, zeroPage: 0xA4, absolute: 0xAC, absoluteX: 0xBC },
-  STA: { zeroPage: 0x85, absolute: 0x8D, absoluteX: 0x9D, absoluteY: 0x99, indirectX: 0x81, indirectY: 0x91 },
+  LDY: { immediate: 0xA0, zeroPage: 0xA4, zeroPageX: 0xB4, absolute: 0xAC, absoluteX: 0xBC },
+  STA: { zeroPage: 0x85, zeroPageX: 0x95, absolute: 0x8D, absoluteX: 0x9D, absoluteY: 0x99, indirectX: 0x81, indirectY: 0x91 },
   STX: { zeroPage: 0x86, zeroPageY: 0x96, absolute: 0x8E },
-  STY: { zeroPage: 0x84, absolute: 0x8C },
-  ADC: { immediate: 0x69, zeroPage: 0x65, absolute: 0x6D, absoluteX: 0x7D, absoluteY: 0x79, indirectX: 0x61, indirectY: 0x71 },
-  SBC: { immediate: 0xE9, zeroPage: 0xE5, absolute: 0xED, absoluteX: 0xFD, absoluteY: 0xF9, indirectX: 0xE1, indirectY: 0xF1 },
-  INC: { zeroPage: 0xE6, absolute: 0xEE, absoluteX: 0xFE },
-  DEC: { zeroPage: 0xC6, absolute: 0xCE, absoluteX: 0xDE },
-  CMP: { immediate: 0xC9, zeroPage: 0xC5, absolute: 0xCD, absoluteX: 0xDD, absoluteY: 0xD9, indirectX: 0xC1, indirectY: 0xD1 },
+  STY: { zeroPage: 0x84, zeroPageX: 0x94, absolute: 0x8C },
+  ADC: { immediate: 0x69, zeroPage: 0x65, zeroPageX: 0x75, absolute: 0x6D, absoluteX: 0x7D, absoluteY: 0x79, indirectX: 0x61, indirectY: 0x71 },
+  SBC: { immediate: 0xE9, zeroPage: 0xE5, zeroPageX: 0xF5, absolute: 0xED, absoluteX: 0xFD, absoluteY: 0xF9, indirectX: 0xE1, indirectY: 0xF1 },
+  INC: { zeroPage: 0xE6, zeroPageX: 0xF6, absolute: 0xEE, absoluteX: 0xFE },
+  DEC: { zeroPage: 0xC6, zeroPageX: 0xD6, absolute: 0xCE, absoluteX: 0xDE },
+  CMP: { immediate: 0xC9, zeroPage: 0xC5, zeroPageX: 0xD5, absolute: 0xCD, absoluteX: 0xDD, absoluteY: 0xD9, indirectX: 0xC1, indirectY: 0xD1 },
   CPX: { immediate: 0xE0, zeroPage: 0xE4, absolute: 0xEC },
   CPY: { immediate: 0xC0, zeroPage: 0xC4, absolute: 0xCC },
-  AND: { immediate: 0x29, zeroPage: 0x25, absolute: 0x2D, absoluteX: 0x3D, absoluteY: 0x39, indirectX: 0x21, indirectY: 0x31 },
-  ORA: { immediate: 0x09, zeroPage: 0x05, absolute: 0x0D, absoluteX: 0x1D, absoluteY: 0x19, indirectX: 0x01, indirectY: 0x11 },
-  EOR: { immediate: 0x49, zeroPage: 0x45, absolute: 0x4D, absoluteX: 0x5D, absoluteY: 0x59, indirectX: 0x41, indirectY: 0x51 },
+  AND: { immediate: 0x29, zeroPage: 0x25, zeroPageX: 0x35, absolute: 0x2D, absoluteX: 0x3D, absoluteY: 0x39, indirectX: 0x21, indirectY: 0x31 },
+  ORA: { immediate: 0x09, zeroPage: 0x05, zeroPageX: 0x15, absolute: 0x0D, absoluteX: 0x1D, absoluteY: 0x19, indirectX: 0x01, indirectY: 0x11 },
+  EOR: { immediate: 0x49, zeroPage: 0x45, zeroPageX: 0x55, absolute: 0x4D, absoluteX: 0x5D, absoluteY: 0x59, indirectX: 0x41, indirectY: 0x51 },
   BIT: { zeroPage: 0x24, absolute: 0x2C },
   JMP: { absolute: 0x4C, indirect: 0x6C },
   JSR: { absolute: 0x20 },
@@ -1022,10 +1066,10 @@ const opcodeMap = {
   TXA: { implied: 0x8A },
   TXS: { implied: 0x9A },
   TYA: { implied: 0x98 },
-  ASL: { implied: 0x0A, zeroPage: 0x06, absolute: 0x0E },
-  LSR: { implied: 0x4A, zeroPage: 0x46, absolute: 0x4E },
-  ROL: { implied: 0x2A, zeroPage: 0x26, absolute: 0x2E },
-  ROR: { implied: 0x6A, zeroPage: 0x66, absolute: 0x6E },
+  ASL: { implied: 0x0A, zeroPage: 0x06, zeroPageX: 0x16, absolute: 0x0E, absoluteX: 0x1E },
+  LSR: { implied: 0x4A, zeroPage: 0x46, zeroPageX: 0x56, absolute: 0x4E, absoluteX: 0x5E },
+  ROL: { implied: 0x2A, zeroPage: 0x26, zeroPageX: 0x36, absolute: 0x2E, absoluteX: 0x3E },
+  ROR: { implied: 0x6A, zeroPage: 0x66, zeroPageX: 0x76, absolute: 0x6E, absoluteX: 0x7E },
   PHA: { implied: 0x48 },
   PHP: { implied: 0x08 },
   PLA: { implied: 0x68 },
@@ -1175,6 +1219,40 @@ function initPalette() {
   saveProjectButton?.addEventListener("click", saveProjectToFile);
   savePrgButton?.addEventListener("click", savePrgToFile);
   loadProjectButton?.addEventListener("click", loadProjectFromFile);
+  importAsmButton?.addEventListener("click", () => {
+    if (importAsmTextarea) importAsmTextarea.value = "";
+    importAsmDialog?.showModal();
+    importAsmTextarea?.focus();
+  });
+  importAsmCancelButton?.addEventListener("click", () => importAsmDialog?.close());
+  importAsmDialog?.addEventListener("click", (e) => { if (e.target === importAsmDialog) importAsmDialog.close(); });
+  workProgressDialog?.addEventListener("cancel", (e) => e.preventDefault());
+  importAsmConfirmButton?.addEventListener("click", async () => {
+    const text = importAsmTextarea?.value || "";
+    importAsmDialog?.close();
+    await showWorkProgress("workProgressImport");
+    let success = false;
+    try {
+      setWorkProgress(25);
+      const imported = parseAsmText(text);
+      if (imported.length === 0) {
+        return;
+      }
+      setWorkProgress(60);
+      program = imported;
+      parseUserMacros();
+      renderProgram();
+      renderAsmOutput();
+      setWorkProgress(100);
+      success = true;
+    } finally {
+      if (success) {
+        await completeWorkProgress("workProgressSuccessImport");
+      } else {
+        hideWorkProgress();
+      }
+    }
+  });
   zoomOutButton.addEventListener("click", () => adjustZoom(-0.08));
   zoomInButton.addEventListener("click", () => adjustZoom(0.08));
   outputModeInputs.forEach((input) => input.addEventListener("change", renderOutputMode));
@@ -1200,14 +1278,6 @@ function initPalette() {
     saveUiSettings();
     renderAsmOutput();
   });
-  asmBaseInputs.forEach(input => {
-    input.addEventListener("change", () => {
-      asmOutputBase = input.value;
-      saveUiSettings();
-      renderAsmOutput();
-    });
-  });
-
   addSelectedButton.addEventListener("click", addSelectedBlock);
   clearProgramButton.addEventListener("click", clearProgram);
   collapseAllButton.addEventListener("click", collapseAllBlocks);
@@ -1415,6 +1485,11 @@ function applyTranslations() {
     setText("#run-debugger .run-label", t("runInDebugger"));
     setText("#copy-asm", t("copyAsm"));
     setText("#save-project", t("saveProject"));
+    setText("#import-asm", t("importAsm"));
+    setText("#import-asm-confirm", t("importAsmConfirm"));
+    setText("#import-asm-cancel", t("importAsmCancel"));
+    setText("#import-asm-title", t("importAsmTitle"));
+    if (importAsmTextarea) importAsmTextarea.placeholder = t("importAsmPlaceholder");
     setText("#save-prg", t("savePrg"));
     setText("#program-settings-label", t("programSettings"));
     if (macroSourceToggleText) macroSourceToggleText.textContent = t("macroSourceToggle");
@@ -1592,7 +1667,7 @@ function getAsmDisplayOperand(block) {
   const numericValue = parseNumberByBase(block.rawOperand, block.base || "hex");
   if (numericValue === null) return block.operand || "";
   if (validateRange(block.addressingMode, numericValue)) return block.operand || "";
-  return formatOperand(block.addressingMode, numericValue, asmOutputBase);
+  return formatOperand(block.addressingMode, numericValue, block.base || "hex");
 }
 
 
@@ -2198,6 +2273,7 @@ function createBlockFromMnemonic(item) {
       isIncludeMacro: true,
       includeFile: "",
       includeFileName: "",
+      includeAddress: "",
       includeCollapsed: false,
       includedBlocks: []
     };
@@ -2663,6 +2739,11 @@ function collapseLoadedProgram(blocks) {
     if (!isMacroOrSpecial && block.rawOperand && block.addressingMode) {
       const preview = buildOperandPreview(block.addressingMode, block.rawOperand, block.base || "hex");
       if (!preview.error) block.operand = preview.operand;
+      // Always clear stale validationError — live validation runs again on render
+      block.validationError = preview.error;
+    } else if (!isMacroOrSpecial) {
+      // No operand or addressing mode → not an error state
+      block.validationError = "";
     }
   });
 
@@ -2718,14 +2799,26 @@ function parseUserMacros() {
   let macroStart = -1;
   let macroName = null;
 
-  for (let i = 0; i < program.length; i++) {
-    const block = program[i];
+  // Build a flat list: top-level program + any includedBlocks from INCLUDE macros
+  const allBlocks = [];
+  for (const block of program) {
+    allBlocks.push(block);
+    // Libraries with a fixed includeAddress emit macros as subroutines (not inline templates)
+    if (block.isIncludeMacro && block.includedBlocks?.length && !block.includeAddress) {
+      for (const sub of block.includedBlocks) {
+        allBlocks.push(sub);
+      }
+    }
+  }
+
+  for (let i = 0; i < allBlocks.length; i++) {
+    const block = allBlocks[i];
 
     if (block.isMacroDefStart) {
       macroStart = i;
       macroName = block.macroName;
     } else if (block.isMacroDefEnd && macroStart >= 0 && macroName) {
-      const macroBody = program.slice(macroStart + 1, i);
+      const macroBody = allBlocks.slice(macroStart + 1, i);
       userMacros[macroName] = macroBody;
       macroStart = -1;
       macroName = null;
@@ -2925,7 +3018,9 @@ function updateProgramBlock(index, field, value) {
         if (numericValue !== null) {
           block.rawOperand = value === "hex"
             ? numericValue.toString(16).toUpperCase().padStart(4, "0")
-            : String(numericValue);
+            : value === "bin"
+              ? numericValue.toString(2).padStart(numericValue > 255 ? 16 : 8, "0")
+              : String(numericValue);
         }
       }
       block.operand = block.rawOperand.trim();
@@ -2937,11 +3032,17 @@ function updateProgramBlock(index, field, value) {
       block.validationError = validateIfMacro(block.rawOperand);
     } else {
       if (field === "base" && block.rawOperand) {
-        const numericValue = parseNumberByBase(block.rawOperand.trim().replace(/^\$/, ""), prevBase);
-        if (numericValue !== null) {
-          block.rawOperand = value === "hex"
-            ? numericValue.toString(16).toUpperCase()
-            : String(numericValue);
+        // parseNumberByBase now handles $ and % prefixes universally, no need to strip $
+        const numericValue = parseNumberByBase(block.rawOperand.trim(), prevBase);
+        if (numericValue !== null && numericValue >= 0) {
+          if (value === "hex") {
+            block.rawOperand = numericValue.toString(16).toUpperCase();
+          } else if (value === "dec") {
+            block.rawOperand = String(numericValue);
+          } else if (value === "bin") {
+            const is16bit = ["absolute", "absoluteX", "absoluteY", "indirect"].includes(block.addressingMode);
+            block.rawOperand = numericValue.toString(2).padStart(is16bit ? 16 : 8, "0");
+          }
         }
       }
       const preview = buildOperandPreview(block.addressingMode, block.rawOperand, block.base);
@@ -3096,10 +3197,21 @@ function updateProgramBlock(index, field, value) {
     return;
   }
 
+  if (block.isIncludeMacro && field === "includeAddress") {
+    block.includeAddress = value.replace(/[^0-9a-fA-F]/g, "").toUpperCase().slice(0, 4);
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
   if (block.isOrgMacro && field === "orgAddress") {
     const orgBase = block.base || "hex";
     if (orgBase === "dec") {
       const parsed = parseInt(value, 10);
+      block.orgAddress = !isNaN(parsed) ? parsed.toString(16).toUpperCase().padStart(4, "0") : (block.orgAddress || "0900");
+    } else if (orgBase === "bin") {
+      const bits = value.replace(/[^01]/g, "");
+      const parsed = bits ? parseInt(bits, 2) : NaN;
       block.orgAddress = !isNaN(parsed) ? parsed.toString(16).toUpperCase().padStart(4, "0") : (block.orgAddress || "0900");
     } else {
       block.orgAddress = value.replace(/[^0-9a-fA-F]/g, "").toUpperCase().slice(0, 4) || "0900";
@@ -3447,7 +3559,11 @@ function validateTextMacroPosition(x, y, text = "") {
 function convertByteArray(bytes, targetBase) {
   return bytes
     .filter((b) => Number.isFinite(b) && b >= 0 && b <= 255)
-    .map((b) => targetBase === "hex" ? b.toString(16).toUpperCase().padStart(2, "0") : b.toString(10))
+    .map((b) => {
+      if (targetBase === "hex") return b.toString(16).toUpperCase().padStart(2, "0");
+      if (targetBase === "bin") return b.toString(2).padStart(8, "0");
+      return b.toString(10);
+    })
     .join(",");
 }
 
@@ -3457,13 +3573,16 @@ function parseByteMacro(raw, base = "dec") {
     .map((part) => part.trim())
     .filter(Boolean)
     .map((part) => {
+      if (/^%[01]+$/.test(part)) {
+        return Number.parseInt(part.slice(1), 2);
+      }
       if (/^\$[0-9A-Fa-f]+$/.test(part)) {
         return Number.parseInt(part.slice(1), 16);
       }
       if (/^0x[0-9A-Fa-f]+$/i.test(part)) {
         return Number.parseInt(part.slice(2), 16);
       }
-      return Number.parseInt(part, base === "hex" ? 16 : 10);
+      return Number.parseInt(part, base === "bin" ? 2 : (base === "hex" ? 16 : 10));
     });
 }
 
@@ -3479,17 +3598,22 @@ function validateByteMacro(raw, base = "dec") {
   }
 
   for (const part of parts) {
+    const validBinary = /^%[01]+$/.test(part);
     const validHexPrefixed = /^\$[0-9A-Fa-f]+$/.test(part) || /^0x[0-9A-Fa-f]+$/i.test(part);
-    const validBare = base === "hex" ? /^[0-9A-Fa-f]+$/.test(part) : /^\d+$/.test(part);
-    if (!validHexPrefixed && !validBare) {
-      return base === "hex"
-        ? (currentLanguage === "en" ? "BYTE macro only accepts hex bytes separated by commas, for example FF,00,8D." : "A BYTE makroban csak hex byte-ok lehetnek, peldaul FF,00,8D.")
-        : (currentLanguage === "en" ? "BYTE macro only accepts decimal or hex bytes separated by commas." : "A BYTE makroban csak decimalis vagy hex byte-ok lehetnek, vesszovel elvalasztva.");
+    const validBare = base === "bin" ? /^[01]+$/.test(part) : (base === "hex" ? /^[0-9A-Fa-f]+$/.test(part) : /^\d+$/.test(part));
+    if (!validBinary && !validHexPrefixed && !validBare) {
+      return base === "bin"
+        ? (currentLanguage === "en" ? "In binary mode use only 0 and 1 separated by commas, optionally with % prefix." : "Binaris modban csak 0-kat es 1-eseket hasznalj, opcionis % elotaggal.")
+        : base === "hex"
+          ? (currentLanguage === "en" ? "BYTE macro only accepts hex bytes separated by commas, for example FF,00,8D." : "A BYTE makroban csak hex byte-ok lehetnek, peldaul FF,00,8D.")
+          : (currentLanguage === "en" ? "BYTE macro only accepts decimal or hex bytes separated by commas." : "A BYTE makroban csak decimalis vagy hex byte-ok lehetnek, vesszovel elvalasztva.");
     }
 
-    const value = validHexPrefixed
-      ? Number.parseInt(part.replace(/^\$/, "").replace(/^0x/i, ""), 16)
-      : Number.parseInt(part, base === "hex" ? 16 : 10);
+    const value = validBinary
+      ? Number.parseInt(part.slice(1), 2)
+      : validHexPrefixed
+        ? Number.parseInt(part.replace(/^\$/, "").replace(/^0x/i, ""), 16)
+        : Number.parseInt(part, base === "bin" ? 2 : (base === "hex" ? 16 : 10));
 
     if (value < 0 || value > 255) {
       return currentLanguage === "en" ? "Every BYTE macro element must be a byte between 0 and 255." : "A BYTE makro minden eleme 0 es 255 kozotti byte kell legyen.";
@@ -3511,7 +3635,7 @@ function parseWordMacro(raw, base = "dec") {
       if (/^0x[0-9A-Fa-f]+$/i.test(part)) {
         return Number.parseInt(part.slice(2), 16);
       }
-      return Number.parseInt(part, base === "hex" ? 16 : 10);
+      return Number.parseInt(part, base === "bin" ? 2 : (base === "hex" ? 16 : 10));
     });
 }
 
@@ -3558,7 +3682,7 @@ function parseFillMacro(raw, base = "dec") {
     if (/^0x[0-9A-Fa-f]+$/i.test(part)) {
       return Number.parseInt(part.slice(2), 16);
     }
-    return Number.parseInt(part, base === "hex" ? 16 : 10);
+    return Number.parseInt(part, base === "bin" ? 2 : (base === "hex" ? 16 : 10));
   };
 
   return {
@@ -3808,7 +3932,7 @@ function validateRange(modeKey, value) {
     return currentLanguage === "en" ? "Only whole numbers are supported." : "Csak egesz szam tamogatott.";
   }
 
-  if (modeKey === "immediate" || modeKey === "zeroPage" || modeKey === "indirectX" || modeKey === "indirectY" || modeKey === "zeroPageY") {
+  if (modeKey === "immediate" || modeKey === "zeroPage" || modeKey === "zeroPageX" || modeKey === "indirectX" || modeKey === "indirectY" || modeKey === "zeroPageY") {
     return value < 0 || value > 255 ? (currentLanguage === "en" ? "This mode expects a value between 0 and 255." : "Ez a mod 0 es 255 kozotti erteket var.") : "";
   }
 
@@ -3824,7 +3948,7 @@ function validateRange(modeKey, value) {
 }
 
 function formatOperand(modeKey, value, base) {
-  const formatter = base === "hex" ? toHex : toDec;
+  const formatter = base === "bin" ? toBin : (base === "hex" ? toHex : toDec);
 
   if (modeKey === "immediate") {
     return `#${formatter(value, 2)}`;
@@ -3840,6 +3964,10 @@ function formatOperand(modeKey, value, base) {
 
   if (modeKey === "indirect") {
     return `(${formatter(value, 4)})`;
+  }
+
+  if (modeKey === "zeroPageX") {
+    return `${formatter(value, 2)},X`;
   }
 
   if (modeKey === "zeroPageY") {
@@ -3867,6 +3995,10 @@ function toHex(value, minDigits) {
 
 function toDec(value) {
   return String(value);
+}
+
+function toBin(value, nibbles) {
+  return `%${value.toString(2).padStart(nibbles * 4, "0")}`;
 }
 
 function applySavedTheme() {
@@ -3986,59 +4118,76 @@ async function runInDebugger() {
     return;
   }
 
-  const prg = buildAutostartPrgForEmulator();
-  if (!prg.ok) {
-    if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
-    if (emulatorStatus) emulatorStatus.textContent = prg.error;
-    return;
-  }
-
   if (!window.electronAPI?.launchDebugger) {
     showViceToast(t("debuggerLaunchNotAvailable"), true);
     return;
   }
 
-  const debugCodeOrigin = prg.sysAddress ?? (() => {
-    const o = parseOriginValue();
-    return (o.value === 0x0801) ? 0xC000 : o.value;
-  })();
-  const layout = getProgramLayout(debugCodeOrigin);
+  await showWorkProgress("workProgressDebug");
+  let success = false;
+  try {
+    setWorkProgress(20);
 
-  const symbols = [];
-  const breakpoints = [];
+    const prg = buildAutostartPrgForEmulator();
+    if (!prg.ok) {
+      if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
+      if (emulatorStatus) emulatorStatus.textContent = prg.error;
+      return;
+    }
 
-  layout.lines.forEach(line => {
-    if (line.block.isLabel && line.block.labelName) {
-      symbols.push({ name: line.block.labelName, address: line.address });
-    }
-    if (line.block.isLoopMacro && line.block.loopLabel) {
-      symbols.push({ name: line.block.loopLabel, address: line.address + 2 });
-    }
-    if (line.block.isTableMacro && line.block.tableName) {
-      symbols.push({ name: line.block.tableName, address: line.address });
-    }
-    if (line.block.isBreakpoint) {
-      breakpoints.push(line.address);
-    }
-  });
+    setWorkProgress(50);
 
-  const result = await window.electronAPI.launchDebugger({
-    bytes: Array.from(prg.bytes),
-    fileName: `c64-visual-assembler-${Date.now()}.prg`,
-    symbols,
-    breakpoints,
-    autoJmp: false,
-    jmpAddress: debuggerJmp ? debugCodeOrigin : undefined,
-    waitMs: debuggerWait ? debuggerWaitMs : 0,
-    unpause: debuggerUnpause || undefined
-  });
+    const debugCodeOrigin = prg.sysAddress ?? (() => {
+      const o = parseOriginValue();
+      return (o.value === 0x0801) ? 0xC000 : o.value;
+    })();
+    const layout = getProgramLayout(debugCodeOrigin);
 
-  if (!result?.ok) {
-    showViceToast(result?.error || t("debuggerLaunchFailed"), true);
-    return;
+    const symbols = [];
+    const breakpoints = [];
+
+    layout.lines.forEach(line => {
+      if (line.block.isLabel && line.block.labelName) {
+        symbols.push({ name: line.block.labelName, address: line.address });
+      }
+      if (line.block.isLoopMacro && line.block.loopLabel) {
+        symbols.push({ name: line.block.loopLabel, address: line.address + 2 });
+      }
+      if (line.block.isTableMacro && line.block.tableName) {
+        symbols.push({ name: line.block.tableName, address: line.address });
+      }
+      if (line.block.isBreakpoint) {
+        breakpoints.push(line.address);
+      }
+    });
+
+    setWorkProgress(80);
+    const result = await window.electronAPI.launchDebugger({
+      bytes: Array.from(prg.bytes),
+      fileName: `c64-visual-assembler-${Date.now()}.prg`,
+      symbols,
+      breakpoints,
+      autoJmp: false,
+      jmpAddress: debuggerJmp ? debugCodeOrigin : undefined,
+      waitMs: debuggerWait ? debuggerWaitMs : 0,
+      unpause: debuggerUnpause || undefined
+    });
+
+    if (!result?.ok) {
+      showViceToast(result?.error || t("debuggerLaunchFailed"), true);
+      return;
+    }
+
+    setWorkProgress(100);
+    showViceToast(t("debuggerLaunched"));
+    success = true;
+  } finally {
+    if (success) {
+      await completeWorkProgress("workProgressSuccessDebug");
+    } else {
+      hideWorkProgress();
+    }
   }
-
-  showViceToast(t("debuggerLaunched"));
 }
 
 function updateEmulatorStatus() {
@@ -4129,6 +4278,59 @@ function showCompileErrorDialog(errors) {
   compileErrorDialog.showModal();
 }
 
+async function showWorkProgress(messageKey) {
+  if (!workProgressDialog) return;
+  if (workProgressTimer) {
+    clearInterval(workProgressTimer);
+    workProgressTimer = null;
+  }
+
+  workProgressValue = 10;
+  if (workProgressTitle) workProgressTitle.textContent = t("workProgressTitle");
+  if (workProgressSubtitle) workProgressSubtitle.textContent = t(messageKey);
+  if (workProgressBar) workProgressBar.style.width = `${workProgressValue}%`;
+  if (!workProgressDialog.open) workProgressDialog.showModal();
+
+  await new Promise(resolve => window.requestAnimationFrame(() => resolve()));
+
+  workProgressTimer = window.setInterval(() => {
+    workProgressValue = Math.min(92, workProgressValue + 3);
+    if (workProgressBar) workProgressBar.style.width = `${workProgressValue}%`;
+  }, 120);
+}
+
+function setWorkProgress(value) {
+  workProgressValue = Math.max(0, Math.min(100, value));
+  if (workProgressBar) workProgressBar.style.width = `${workProgressValue}%`;
+}
+
+function hideWorkProgress() {
+  if (!workProgressDialog) return;
+  if (workProgressTimer) {
+    clearInterval(workProgressTimer);
+    workProgressTimer = null;
+  }
+  setWorkProgress(100);
+  if (workProgressDialog.open) {
+    workProgressDialog.close();
+  }
+}
+
+async function completeWorkProgress(successMessageKey, delayMs = 1200) {
+  if (!workProgressDialog) return;
+  if (workProgressTimer) {
+    clearInterval(workProgressTimer);
+    workProgressTimer = null;
+  }
+  if (workProgressTitle) workProgressTitle.textContent = t("workProgressDoneTitle");
+  if (workProgressSubtitle) workProgressSubtitle.textContent = t(successMessageKey);
+  setWorkProgress(100);
+  await new Promise(resolve => setTimeout(resolve, delayMs));
+  if (workProgressDialog.open) {
+    workProgressDialog.close();
+  }
+}
+
 async function savePrgToFile() {
   const prg = buildAutostartPrgForEmulator();
   if (!prg.ok) {
@@ -4167,6 +4369,234 @@ async function reloadIncludeBlocks() {
     }
   }
 }
+
+// ── ASM Import parser ─────────────────────────────────────────────
+
+function _importMnemonicCategory(mnemonic) {
+  for (const [cat, items] of Object.entries(mnemonicLibrary)) {
+    if (items.some(item => item.mnemonic === mnemonic)) return cat;
+  }
+  return "Szerkezet";
+}
+
+function _importMnemonicDescription(mnemonic) {
+  for (const items of Object.values(mnemonicLibrary)) {
+    const found = items.find(item => item.mnemonic === mnemonic);
+    if (found) return found.description || "";
+  }
+  return "";
+}
+
+function _importMakeComment(text) {
+  return {
+    id: crypto.randomUUID(),
+    category: "Szerkezet", mnemonic: "COMMENT",
+    operand: text, rawOperand: text, description: "",
+    addressingMode: "implied", base: "comment",
+    validationError: "", collapsed: true, isComment: true,
+    commentText: text
+  };
+}
+
+function _importMakeLabel(name) {
+  return {
+    id: crypto.randomUUID(),
+    category: "Szerkezet", mnemonic: "LABEL",
+    operand: name, rawOperand: name, description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: "", collapsed: true, isLabel: true,
+    labelName: name
+  };
+}
+
+function _importMakeByte(rawByteStr) {
+  let raw = rawByteStr.trim();
+  let base = "hex";
+  let display = raw;
+  if (raw.startsWith("%")) {
+    base = "bin";
+  } else if (raw.startsWith("$")) {
+    raw = raw.slice(1).toUpperCase();
+    display = "$" + raw;
+  } else if (/^\d+$/.test(raw)) {
+    base = "dec";
+  } else {
+    raw = raw.toUpperCase();
+    display = raw;
+  }
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "BYTE",
+    operand: display, rawOperand: raw, description: "",
+    addressingMode: "implied", base,
+    validationError: "", collapsed: true, isByteMacro: true
+  };
+}
+
+function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
+  const category = _importMnemonicCategory(mnemonic);
+  const description = _importMnemonicDescription(mnemonic);
+
+  let addressingMode = "implied";
+  let rawOperand = "";
+  let base = "hex";
+  let displayOperand = "";
+
+  if (operandRaw) {
+    const op = operandRaw;
+
+    if (op.startsWith("#")) {
+      // Immediate
+      addressingMode = "immediate";
+      const val = op.slice(1);
+      if (val.startsWith("%")) {
+        base = "bin"; rawOperand = val; displayOperand = "#" + val;
+      } else if (val.startsWith("$")) {
+        base = "hex"; rawOperand = val.slice(1).toUpperCase(); displayOperand = "#$" + rawOperand;
+      } else if (/^\d+$/.test(val)) {
+        base = "dec"; rawOperand = val; displayOperand = "#" + val;
+      } else {
+        base = "hex"; rawOperand = val; displayOperand = "#" + val;
+      }
+    } else if (/^\(\$[0-9A-Fa-f]+,X\)$/i.test(op)) {
+      // (zp,X)
+      const m = op.match(/^\((\$[0-9A-Fa-f]+),X\)$/i);
+      addressingMode = "indirectX"; base = "hex";
+      rawOperand = m[1].slice(1).toUpperCase(); displayOperand = "($" + rawOperand + ",X)";
+    } else if (/^\(\$[0-9A-Fa-f]+\),Y$/i.test(op)) {
+      // (zp),Y
+      const m = op.match(/^\((\$[0-9A-Fa-f]+)\),Y$/i);
+      addressingMode = "indirectY"; base = "hex";
+      rawOperand = m[1].slice(1).toUpperCase(); displayOperand = "($" + rawOperand + "),Y";
+    } else if (/^\$[0-9A-Fa-f]+,X$/i.test(op)) {
+      const m = op.match(/^(\$[0-9A-Fa-f]+),X$/i);
+      rawOperand = m[1].slice(1).toUpperCase(); base = "hex";
+      addressingMode = parseInt(rawOperand, 16) > 0xFF ? "absoluteX" : "zeroPageX";
+      displayOperand = "$" + rawOperand + ",X";
+    } else if (/^\$[0-9A-Fa-f]+,Y$/i.test(op)) {
+      const m = op.match(/^(\$[0-9A-Fa-f]+),Y$/i);
+      rawOperand = m[1].slice(1).toUpperCase(); base = "hex";
+      addressingMode = parseInt(rawOperand, 16) > 0xFF ? "absoluteY" : "zeroPageY";
+      displayOperand = "$" + rawOperand + ",Y";
+    } else if (/^\$[0-9A-Fa-f]+$/i.test(op)) {
+      rawOperand = op.slice(1).toUpperCase(); base = "hex";
+      addressingMode = parseInt(rawOperand, 16) > 0xFF ? "absolute" : "zeroPage";
+      displayOperand = "$" + rawOperand;
+    } else if (/^\.[A-Za-z][A-Za-z0-9_]*$/.test(op)) {
+      // Local label reference: strip dot
+      rawOperand = op.slice(1); base = "hex";
+      addressingMode = branchMnems.has(mnemonic) ? "relative" : "absolute";
+      displayOperand = rawOperand;
+    } else if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(op)) {
+      rawOperand = op; base = "hex";
+      addressingMode = branchMnems.has(mnemonic) ? "relative" : "absolute";
+      displayOperand = op;
+    } else if (/^\d+$/.test(op)) {
+      rawOperand = op; base = "dec";
+      addressingMode = parseInt(op, 10) > 255 ? "absolute" : "zeroPage";
+      displayOperand = op;
+    } else {
+      rawOperand = op; base = "hex";
+      addressingMode = "absolute"; displayOperand = op;
+    }
+  }
+
+  return {
+    id: crypto.randomUUID(),
+    category, mnemonic, description,
+    operand: displayOperand, rawOperand, addressingMode, base,
+    validationError: "", collapsed: true
+  };
+}
+
+function parseAsmText(text) {
+  const BRANCH_MNEMS = new Set(["BEQ","BNE","BCC","BCS","BMI","BPL","BVC","BVS","BRA"]);
+  const blocks = [];
+
+  for (let rawLine of text.split("\n")) {
+    // Separate inline comment
+    const scIdx = rawLine.indexOf(";");
+    let commentText = "";
+    let line = rawLine;
+    if (scIdx >= 0) {
+      commentText = rawLine.slice(scIdx + 1).trim();
+      line = rawLine.slice(0, scIdx);
+    }
+    line = line.trim();
+
+    if (!line) {
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // * = $XXXX  →  ORG
+    const orgM = line.match(/^\*\s*=\s*\$([0-9A-Fa-f]{1,4})\s*$/);
+    if (orgM) {
+      const orgAddress = orgM[1].toUpperCase().padStart(4, "0");
+      blocks.push({
+        id: crypto.randomUUID(),
+        category: "Makrok", mnemonic: "ORG",
+        operand: "", rawOperand: "", description: "",
+        addressingMode: "implied", base: "hex",
+        validationError: "", collapsed: true,
+        isOrgMacro: true, orgAddress
+      });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Label: .byte value  →  LABEL + BYTE
+    const lblByteM = line.match(/^([A-Za-z_.][A-Za-z0-9_.]*):\s*\.byte\s+(.+)$/i);
+    if (lblByteM) {
+      blocks.push(_importMakeLabel(lblByteM[1].replace(/^\./, "")));
+      blocks.push(_importMakeByte(lblByteM[2].trim()));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Standalone .byte value,...
+    const standaloneByteM = line.match(/^\.byte\s+(.+)$/i);
+    if (standaloneByteM) {
+      blocks.push(_importMakeByte(standaloneByteM[1].trim()));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Label only: "Name:" or ".name"
+    const lblOnlyM = line.match(/^([A-Za-z_.][A-Za-z0-9_.]*):\s*$/);
+    if (lblOnlyM) {
+      blocks.push(_importMakeLabel(lblOnlyM[1].replace(/^\./, "")));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Local label without colon: ".name"
+    const localLblM = line.match(/^(\.[A-Za-z][A-Za-z0-9_]*)\s*$/);
+    if (localLblM) {
+      blocks.push(_importMakeLabel(localLblM[1].slice(1)));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Instruction: "mnemonic [operand]"
+    const instrM = line.match(/^([A-Za-z]{2,4})\s*(.*)\s*$/);
+    if (instrM) {
+      const mn = instrM[1].toUpperCase();
+      const opRaw = instrM[2].trim();
+      blocks.push(_importMakeInstruction(mn, opRaw, BRANCH_MNEMS));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Fallback: treat as comment
+    const full = line + (commentText ? " ; " + commentText : "");
+    blocks.push(_importMakeComment(full));
+  }
+
+  return blocks;
+}
+
+// ── End ASM Import parser ─────────────────────────────────────────
 
 async function loadProjectFromFile() {
   if (!window.electronAPI?.loadProject) {
@@ -4286,32 +4716,48 @@ async function runInEmulator() {
     return;
   }
 
-  const prg = buildAutostartPrgForEmulator();
-  if (!prg.ok) {
-    if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
-    if (emulatorStatus) emulatorStatus.textContent = prg.error;
-    return;
-  }
-
   if (!window.electronAPI?.launchVice) {
     showViceToast(currentLanguage === "en" ? "VICE launch is not available." : "A VICE inditasa nem elerheto.", true);
     return;
   }
 
-  const result = await window.electronAPI.launchVice({
-    bytes: Array.from(prg.bytes),
-    fileName: `c64-visual-assembler-${Date.now()}.prg`
-  });
+  await showWorkProgress("workProgressRun");
+  let success = false;
+  try {
+    setWorkProgress(20);
 
-  if (!result?.ok) {
-    showViceToast(result?.error || (currentLanguage === "en" ? "Launching VICE failed." : "A VICE inditasa sikertelen."), true);
-    return;
+    const prg = buildAutostartPrgForEmulator();
+    if (!prg.ok) {
+      if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
+      if (emulatorStatus) emulatorStatus.textContent = prg.error;
+      return;
+    }
+
+    setWorkProgress(72);
+
+    const result = await window.electronAPI.launchVice({
+      bytes: Array.from(prg.bytes),
+      fileName: `c64-visual-assembler-${Date.now()}.prg`
+    });
+
+    if (!result?.ok) {
+      showViceToast(result?.error || (currentLanguage === "en" ? "Launching VICE failed." : "A VICE inditasa sikertelen."), true);
+      return;
+    }
+
+    setWorkProgress(100);
+    updateVicePathPreview(result.vicePath || vicePath);
+    const parts = (result.filePath || "").replace(/\\/g, "/").split("/");
+    const fileName = parts[parts.length - 1] || result.filePath;
+    showViceToast(fileName);
+    success = true;
+  } finally {
+    if (success) {
+      await completeWorkProgress("workProgressSuccessRun");
+    } else {
+      hideWorkProgress();
+    }
   }
-
-  updateVicePathPreview(result.vicePath || vicePath);
-  const parts = (result.filePath || "").replace(/\\/g, "/").split("/");
-  const fileName = parts[parts.length - 1] || result.filePath;
-  showViceToast(fileName);
 }
 
 function buildAutostartPrgForEmulator() {
@@ -4397,8 +4843,14 @@ function assembleProgramToPrg(originOverride) {
   const inlineSections = [{ addr: layout.origin.value, bytes: [] }];
   let currentSection = inlineSections[0];
   const compileErrors = [];
-  for (const line of layout.lines) {
+  for (const [layoutIndex, line] of layout.lines.entries()) {
     if (line.block.isLabel || line.block.isComment || line.block.isIncludeMacro) continue;
+    if (line.block._isSavedAddress) continue;
+    if (line.block._isRestoreAddress) {
+      currentSection = { addr: line.address, bytes: [] };
+      inlineSections.push(currentSection);
+      continue;
+    }
     if (line.block.isOrgMacro) {
       // Use line.address (clamped by getProgramLayout) instead of raw orgAddress,
       // so that an ORG below originOverride (e.g. ORG $0801 with sysAddress=$080D)
@@ -4412,7 +4864,12 @@ function assembleProgramToPrg(originOverride) {
       const addr = `$${line.address.toString(16).toUpperCase().padStart(4, "0")}`;
       const mnemonic = line.block.mnemonic || "?";
       const operand = line.block.operand ? ` ${line.block.operand}` : "";
-      compileErrors.push(`${addr}  ${mnemonic}${operand} — ${compiled.error}`);
+      const key = line.block._fromInclude || (line.block._fromMacro ? (line.block._invokeBlockId || null) : line.block.id);
+      const asmLine = (key && asmBlockRanges[key]) ? (asmBlockRanges[key].firstLine + 1) : null;
+      const lineTag = asmLine
+        ? `L${String(asmLine).padStart(3, "0")}`
+        : `P${String(layoutIndex + 1).padStart(3, "0")}`;
+      compileErrors.push(`[${lineTag}] ${addr}  ${mnemonic}${operand} — ${compiled.error}`);
     } else {
       currentSection.bytes.push(...compiled.bytes);
     }
@@ -4502,7 +4959,8 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes: [] };
   }
 
-  if (block.validationError) {
+  const blockError = getLiveValidationError(block);
+  if (blockError) {
     return { ok: false, error: tf("compileInvalidOperand", { mnemonic: block.mnemonic }) };
   }
 
@@ -4971,7 +5429,8 @@ function resolveNumericOperand(block, labels) {
     return { ok: false, error: tf("operandNotResolvable", { mnemonic: block.mnemonic }) };
   }
 
-  const parsed = parseNumberByBase(stripped.replace(/^\$/, ""), block.base);
+  // Strip $ (hex prefix) and % (binary prefix) before parsing
+  const parsed = parseNumberByBase(stripped.replace(/^[\$%]/, ""), block.base);
   if (parsed === null) {
     // Try label lookup with stripped value (handles #LABEL_NAME for immediate mode)
     if (labels.has(stripped)) {
@@ -5012,18 +5471,64 @@ function resolveRelativeOperand(block, address, labels) {
 }
 
 function parseNumberByBase(value, base) {
+  // Trim leading/trailing whitespace — rawOperand may have trailing spaces from user input or old saves
+  value = value.trim();
+
+  // Strip leading # (immediate mode prefix — users sometimes type it, and
+  // rawOperand may contain it from older saves or copy-paste)
+  if (value.startsWith("#")) {
+    value = value.slice(1);
+    if (!value) return null;
+  }
+
+  // Binary literal with % prefix (works in any base mode)
+  if (value.startsWith("%")) {
+    const bits = value.slice(1);
+    return /^[01]+$/.test(bits) ? Number.parseInt(bits, 2) : null;
+  }
+
+  // Hex literal with $ or 0x prefix (works in any base mode)
+  if (value.startsWith("$")) {
+    const hex = value.slice(1);
+    return /^[0-9A-Fa-f]+$/.test(hex) ? Number.parseInt(hex, 16) : null;
+  }
+  if (/^0x/i.test(value)) {
+    const hex = value.slice(2);
+    return /^[0-9A-Fa-f]+$/.test(hex) ? Number.parseInt(hex, 16) : null;
+  }
+
+  if (base === "bin") {
+    return /^[01]+$/.test(value) ? Number.parseInt(value, 2) : null;
+  }
+
   if (base === "hex") {
-    const normalized = value.replace(/^\$/, "");
-    return /^[0-9A-Fa-f]+$/.test(normalized) ? Number.parseInt(normalized, 16) : null;
+    return /^[0-9A-Fa-f]+$/.test(value) ? Number.parseInt(value, 16) : null;
   }
 
   return /^-?\d+$/.test(value) ? Number(value) : null;
 }
 
 function getNumberFormatError(base) {
+  if (base === "bin") {
+    return currentLanguage === "en"
+      ? "In binary mode use only 0 and 1 characters, optionally with a % prefix."
+      : "Binaris modban csak 0 es 1 karaktereket hasznalj, opcionis % elotaggal.";
+  }
   return base === "hex"
-    ? (currentLanguage === "en" ? "In hex mode use only 0-9 and A-F characters, optionally with a $ prefix." : "Hex modban csak 0-9 es A-F karaktereket hasznalj, opcionis $ elotaggal.")
-    : (currentLanguage === "en" ? "In decimal mode provide only whole numbers." : "Decimalis modban csak egesz szamot adj meg.");
+    ? (currentLanguage === "en" ? "In hex mode use only 0-9 and A-F characters, optionally with a $ prefix. Binary literals (%00001111) are also accepted." : "Hex modban csak 0-9 es A-F karaktereket hasznalj, opcionis $ elotaggal. Binaris literalok is elfogadottak (%00001111).")
+    : (currentLanguage === "en" ? "In decimal mode provide only whole numbers. Binary literals (%00001111) are also accepted." : "Decimalis modban csak egesz szamot adj meg. Binaris literalok is elfogadottak (%00001111).");
+}
+
+// For regular 6502 instruction blocks, always re-evaluate validation error from current rawOperand.
+// This avoids stale stored errors (e.g. from before a fix or from a loaded project).
+function getLiveValidationError(block) {
+  if (opcodeMap[block.mnemonic] && block.addressingMode) {
+    const preview = buildOperandPreview(block.addressingMode, block.rawOperand || "", block.base || "hex");
+    // Update stored error so block state stays in sync
+    block.validationError = preview.error;
+    return preview.error;
+  }
+  return block.validationError || "";
 }
 
 function getOperandPlaceholder(mode, base) {
@@ -5043,6 +5548,15 @@ function getOperandPlaceholder(mode, base) {
 
     if (modeText(modeKey, "label") === "Zero page") {
       return currentLanguage === "en" ? "for example 10 or $A0" : "peldaul 10 vagy $A0";
+    }
+  }
+
+  if (base === "bin") {
+    if (modeText(modeKey, "label") === "Immediate" || modeText(modeKey, "label") === "Zero page") {
+      return currentLanguage === "en" ? "for example 11111000" : "peldaul 11111000";
+    }
+    if (modeText(modeKey, "label") === "Absolute") {
+      return currentLanguage === "en" ? "for example 1101000000010001" : "peldaul 1101000000010001";
     }
   }
 
@@ -5158,6 +5672,10 @@ function formatAddress(value) {
 
 function getInstructionSize(block) {
   if (block._isMacroInvokeHeader || block._macroSourceBlock) {
+    return 0;
+  }
+
+  if (block._isSavedAddress || block._isRestoreAddress) {
     return 0;
   }
 
@@ -5315,7 +5833,7 @@ function getInstructionSize(block) {
     return 1;
   }
 
-  if (block.addressingMode === "immediate" || block.addressingMode === "zeroPage" || block.addressingMode === "relative" || block.addressingMode === "indirectX" || block.addressingMode === "indirectY" || block.addressingMode === "zeroPageY") {
+  if (block.addressingMode === "immediate" || block.addressingMode === "zeroPage" || block.addressingMode === "zeroPageX" || block.addressingMode === "relative" || block.addressingMode === "indirectX" || block.addressingMode === "indirectY" || block.addressingMode === "zeroPageY") {
     return 2;
   }
 
@@ -5359,8 +5877,78 @@ function getProgramLayout(originOverride) {
     if (block.isIncludeMacro) {
       expandedProgram.push(block); // header marker, 0 bytes
       if (block.includedBlocks?.length) {
+        // If an override address is set, save current address then inject synthetic ORG
+        if (block.includeAddress) {
+          // Save address so main program can resume correctly after the library
+          expandedProgram.push({ _isSavedAddress: true, id: crypto.randomUUID() });
+          const addrHex = block.includeAddress.replace(/^\$/, "").toUpperCase().padStart(4, "0");
+          expandedProgram.push({
+            id: crypto.randomUUID(),
+            mnemonic: "ORG",
+            addressingMode: "implied",
+            base: "hex",
+            operand: "",
+            rawOperand: "",
+            validationError: "",
+            isOrgMacro: true,
+            orgAddress: addrHex,
+            _fromInclude: block.id,
+            _includeFileName: block.includeFileName,
+            _syntheticOrg: true
+          });
+        }
+        // Expand included blocks, respecting MACRO/ENDM boundaries
+        // Skip ORG blocks from included libraries — they have no meaning in the including program's address space
+        let insideIncludedMacroDef = false;
+        let includedMacroName = null;
         for (const subBlock of block.includedBlocks) {
+          if (subBlock.isOrgMacro) continue;
+          if (subBlock.isMacroDefStart) {
+            insideIncludedMacroDef = true;
+            includedMacroName = subBlock.macroName || "";
+            if (block.includeAddress) {
+              // Library at fixed address: macros become subroutines
+              // Show source comment first (if toggled on), then synthetic label for JSR target
+              if (showMacroSource) expandedProgram.push({ ...subBlock, _fromInclude: block.id });
+              if (includedMacroName) {
+                expandedProgram.push({
+                  id: crypto.randomUUID(),
+                  isLabel: true,
+                  labelName: includedMacroName,
+                  mnemonic: "LABEL",
+                  addressingMode: "implied",
+                  base: "hex",
+                  operand: includedMacroName,
+                  rawOperand: includedMacroName,
+                  _fromInclude: block.id,
+                  _syntheticMacroLabel: true
+                });
+              }
+            } else {
+              if (showMacroSource) expandedProgram.push({ ...subBlock, _fromInclude: block.id });
+            }
+            continue;
+          }
+          if (subBlock.isMacroDefEnd) {
+            insideIncludedMacroDef = false;
+            includedMacroName = null;
+            if (showMacroSource) expandedProgram.push({ ...subBlock, _fromInclude: block.id });
+            continue;
+          }
+          if (insideIncludedMacroDef) {
+            if (block.includeAddress) {
+              // Emit as actual subroutine code so JSR macroName resolves correctly
+              expandedProgram.push({ ...subBlock, _fromInclude: block.id, _includeFileName: block.includeFileName, _fromLibraryMacro: includedMacroName });
+            } else if (showMacroSource) {
+              expandedProgram.push({ ...subBlock, _macroSourceBlock: true, _fromInclude: block.id });
+            }
+            continue;
+          }
           expandedProgram.push({ ...subBlock, _fromInclude: block.id, _includeFileName: block.includeFileName });
+        }
+        // After library: restore main program address
+        if (block.includeAddress) {
+          expandedProgram.push({ _isRestoreAddress: true, id: crypto.randomUUID() });
         }
       }
       continue;
@@ -5410,11 +5998,22 @@ function getProgramLayout(originOverride) {
     }
   }
 
+  let savedAddress = null;
   const lines = expandedProgram.map((block) => {
     let size = getInstructionSize(block);
 
     if (skippedBlocks.has(block)) {
       return { block, size: 0, address: cursor, end: cursor - 1, conditionallySkipped: true };
+    }
+
+    if (block._isSavedAddress) {
+      savedAddress = cursor;
+      return { block, size: 0, address: cursor, end: cursor - 1 };
+    }
+
+    if (block._isRestoreAddress) {
+      if (savedAddress !== null) { cursor = savedAddress; savedAddress = null; }
+      return { block, size: 0, address: cursor, end: cursor - 1 };
     }
 
     // Handle TABLE macro: set address cursor if tableAddress is present
@@ -5798,7 +6397,8 @@ function getBlockDescription(block) {
   if (block.isIncludeMacro) {
     const count = (block.includedBlocks || []).length;
     const name = block.includeFileName || (currentLanguage === "en" ? "no file" : "nincs fajl");
-    return block.validationError || `${currentLanguage === "en" ? "INCLUDE" : "INCLUDE"}: "${name}" (${count} ${t("includeBlocksCount")})`;
+    const addrNote = block.includeAddress ? ` @ $${block.includeAddress.replace(/^\$/, "").toUpperCase().padStart(4, "0")}` : "";
+    return block.validationError || `${currentLanguage === "en" ? "INCLUDE" : "INCLUDE"}: "${name}" (${count} ${t("includeBlocksCount")})${addrNote}`;
   }
 
   if (block.isRawTextMacro) {
@@ -6018,6 +6618,13 @@ function renderBlockPreview(index) {
 
   if (!block || !node) {
     return;
+  }
+
+  // Keep stored validationError in sync for regular instruction blocks
+  if (opcodeMap[block.mnemonic] && block.addressingMode) {
+    const preview = buildOperandPreview(block.addressingMode, block.rawOperand || "", block.base || "hex");
+    block.validationError = preview.error;
+    block.operand = preview.operand || block.operand;
   }
 
   node.querySelector(".collapsed-operand").textContent = getCollapsedOperandText(block);
@@ -6601,6 +7208,14 @@ function renderProgram() {
               </div>
             </label>
           </div>
+          <div class="macro-grid single-macro-row">
+            <label class="mini-field">
+              <span>${currentLanguage === "en" ? "Load address (optional)" : "Betoltesi cim (opcionalis)"}</span>
+              <input type="text" class="include-address-input" maxlength="4"
+                value="${block.includeAddress || ""}"
+                placeholder="${currentLanguage === "en" ? "e.g. C000" : "Pl. C000"}">
+            </label>
+          </div>
         `
       );
       blockControls.querySelector(".include-browse-icon")?.addEventListener("click", async () => {
@@ -6611,8 +7226,12 @@ function renderProgram() {
         program[index].includeFileName = result.fileName;
         program[index].includedBlocks = result.blocks || [];
         program[index].validationError = "";
+        parseUserMacros();
         renderProgram();
         renderAsmOutput();
+      });
+      blockControls.querySelector(".include-address-input")?.addEventListener("input", (e) => {
+        updateProgramBlock(index, "includeAddress", e.target.value);
       });
 
       node.addEventListener("click", (e) => {
@@ -6648,6 +7267,10 @@ function renderProgram() {
                 <input class="block-base" type="radio" name="block-base-${block.id}" value="dec"${block.base === "dec" ? " checked" : ""}>
                 <span>DEC</span>
               </label>
+              <label class="mini-toggle-option">
+                <input class="block-base" type="radio" name="block-base-${block.id}" value="bin"${block.base === "bin" ? " checked" : ""}>
+                <span>BIN</span>
+              </label>
             </div>
           </label>
           <div class="macro-grid single-macro-row">
@@ -6671,6 +7294,57 @@ function renderProgram() {
           </div>
         `
       );
+      // Label picker for next-label: shows all LOOP labels in the program
+      {
+        const loopLabels = program.filter(b => b.isLoopMacro && b.loopLabel).map(b => b.loopLabel);
+        if (loopLabels.length > 0) {
+          const nextLabelInput = blockControls.querySelector(".next-label");
+          nextLabelInput.classList.add("has-label-picker");
+          const wrapper = document.createElement("div");
+          wrapper.className = "label-picker-wrap";
+          nextLabelInput.parentNode.insertBefore(wrapper, nextLabelInput);
+          wrapper.appendChild(nextLabelInput);
+          const dropdown = document.createElement("div");
+          dropdown.className = "label-picker-dropdown";
+          dropdown.hidden = true;
+          dropdown.innerHTML = loopLabels.map(n => `<div class="label-picker-item">${n}</div>`).join("");
+          document.body.appendChild(dropdown);
+          function positionNextDropdown() {
+            const r = nextLabelInput.getBoundingClientRect();
+            dropdown.style.top = (r.bottom + window.scrollY + 4) + "px";
+            dropdown.style.left = (r.left + window.scrollX) + "px";
+            dropdown.style.width = r.width + "px";
+          }
+          let nextDropdownHovered = false;
+          function closeNextDropdown() {
+            dropdown.hidden = true;
+            window.removeEventListener("scroll", positionNextDropdown, { capture: true });
+          }
+          nextLabelInput.addEventListener("focus", () => {
+            positionNextDropdown();
+            dropdown.hidden = false;
+            window.addEventListener("scroll", positionNextDropdown, { capture: true, passive: true });
+          });
+          nextLabelInput.addEventListener("blur", () => {
+            if (!nextDropdownHovered) closeNextDropdown();
+          });
+          nextLabelInput.addEventListener("keydown", e => { if (e.key === "Escape") closeNextDropdown(); });
+          dropdown.addEventListener("mouseenter", () => { nextDropdownHovered = true; });
+          dropdown.addEventListener("mouseleave", () => { nextDropdownHovered = false; });
+          dropdown.querySelectorAll(".label-picker-item").forEach(item => {
+            item.addEventListener("pointerdown", e => {
+              e.preventDefault();
+              nextLabelInput.value = item.textContent;
+              nextLabelInput.dispatchEvent(new Event("input"));
+              closeNextDropdown();
+              nextDropdownHovered = false;
+            });
+          });
+          document.addEventListener("pointerdown", e => {
+            if (!dropdown.contains(e.target) && e.target !== nextLabelInput) closeNextDropdown();
+          }, { capture: true });
+        }
+      }
     } else if (block.isPushMacro) {
       inlineField.hidden = true;
       blockControls.insertAdjacentHTML(
@@ -6744,20 +7418,23 @@ function renderProgram() {
       inlineField.hidden = true;
       const orgBase = block.base || "hex";
       const orgHexVal = block.orgAddress || "0900";
-      const orgDisplayVal = orgBase === "dec" ? String(parseInt(orgHexVal, 16)) : orgHexVal;
+      const orgNumVal = parseInt(orgHexVal, 16);
+      const orgDisplayVal = orgBase === "dec" ? String(orgNumVal) : orgBase === "bin" ? orgNumVal.toString(2).padStart(16, "0") : orgHexVal;
+      const orgMaxLen = orgBase === "dec" ? 5 : orgBase === "bin" ? 16 : 4;
+      const orgPlaceholder = orgBase === "dec" ? "2049" : orgBase === "bin" ? "0000100000000001" : "0900";
       blockControls.insertAdjacentHTML(
         "beforeend",
         `
           <div class="macro-grid">
             <label class="mini-field">
               <span>${currentLanguage === "en" ? "New origin" : "Uj forditasi cim"}</span>
-              <input class="org-address" type="text" maxlength="${orgBase === "dec" ? 5 : 4}" value="${orgDisplayVal}" placeholder="${orgBase === "dec" ? "2049" : "0900"}">
+              <input class="org-address" type="text" maxlength="${orgMaxLen}" value="${orgDisplayVal}" placeholder="${orgPlaceholder}">
             </label>
             <label class="mini-field">
               <span>${t("fieldFormat")}</span>
               <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
                 <label class="mini-toggle-option">
-                  <input class="block-base" type="radio" name="block-base-${block.id}" value="hex"${orgBase === "hex" ? " checked" : ""}>
+                  <input class="block-base" type="radio" name="block-base-${block.id}" value="hex"${orgBase !== "dec" ? " checked" : ""}>
                   <span>HEX</span>
                 </label>
                 <label class="mini-toggle-option">
@@ -6898,6 +7575,10 @@ function renderProgram() {
                 <label class="mini-toggle-option">
                   <input class="block-base" type="radio" name="block-base-${block.id}" value="dec"${block.base === "dec" ? " checked" : ""}>
                   <span>DEC</span>
+                </label>
+                <label class="mini-toggle-option">
+                  <input class="block-base" type="radio" name="block-base-${block.id}" value="bin"${block.base === "bin" ? " checked" : ""}>
+                  <span>BIN</span>
                 </label>
               </div>
             </label>
@@ -7046,8 +7727,34 @@ function renderProgram() {
         const tableNames = block.addressingMode === "immediate"
           ? []
           : program.filter(b => b.isTableMacro && b.tableName).map(b => b.tableName);
-        const pickerNames = [...programLabels, ...constNames, ...tableNames];
-        if (pickerNames.length > 0) {
+        // Labels and macro-subroutines from all INCLUDE blocks
+      // Helper: build current picker names by scanning program state at this moment
+        function buildPickerNamesForBlock() {
+          const isImm = block.addressingMode === "immediate";
+          const labels = isImm ? [] : program.filter(b => b.isLabel && b.labelName).map(b => b.labelName);
+          const consts = program.filter(b => b.isConstMacro && b.constName).map(b => b.constName);
+          const tables = isImm ? [] : program.filter(b => b.isTableMacro && b.tableName).map(b => b.tableName);
+          const included = isImm ? [] : program
+            .filter(b => b.isIncludeMacro && b.includedBlocks?.length)
+            .flatMap(b => {
+              const names = [];
+              let inMacro = false;
+              for (const sub of b.includedBlocks) {
+                if (sub.isMacroDefStart) {
+                  inMacro = true;
+                  if (b.includeAddress && sub.macroName) names.push(sub.macroName);
+                  continue;
+                }
+                if (sub.isMacroDefEnd) { inMacro = false; continue; }
+                if (!inMacro && sub.isLabel && sub.labelName) names.push(sub.labelName);
+              }
+              return names;
+            });
+          return [...labels, ...included, ...consts, ...tables];
+        }
+
+        // Always create the picker container; populate dynamically on focus
+        {
           operandField.classList.add("has-label-picker");
           const wrapper = document.createElement("div");
           wrapper.className = "label-picker-wrap";
@@ -7056,7 +7763,6 @@ function renderProgram() {
           const dropdown = document.createElement("div");
           dropdown.className = "label-picker-dropdown";
           dropdown.hidden = true;
-          dropdown.innerHTML = pickerNames.map(n => `<div class="label-picker-item">${n}</div>`).join("");
           document.body.appendChild(dropdown);
           function positionLabelDropdown() {
             const r = operandField.getBoundingClientRect();
@@ -7069,10 +7775,27 @@ function renderProgram() {
             dropdown.hidden = true;
             window.removeEventListener("scroll", positionLabelDropdown, { capture: true });
           }
+          function attachPickerItemHandlers() {
+            dropdown.querySelectorAll(".label-picker-item").forEach(item => {
+              item.addEventListener("pointerdown", e => {
+                e.preventDefault();
+                operandField.value = item.textContent;
+                operandField.dispatchEvent(new Event("input"));
+                closeLabelDropdown();
+                dropdownHovered = false;
+              });
+            });
+          }
           operandField.addEventListener("focus", () => {
-            positionLabelDropdown();
-            dropdown.hidden = false;
-            window.addEventListener("scroll", positionLabelDropdown, { capture: true, passive: true });
+            // Rebuild picker content from current program state
+            const names = buildPickerNamesForBlock();
+            dropdown.innerHTML = names.map(n => `<div class="label-picker-item">${n}</div>`).join("");
+            attachPickerItemHandlers();
+            if (names.length > 0) {
+              positionLabelDropdown();
+              dropdown.hidden = false;
+              window.addEventListener("scroll", positionLabelDropdown, { capture: true, passive: true });
+            }
           });
           operandField.addEventListener("blur", () => {
             if (!dropdownHovered) closeLabelDropdown();
@@ -7080,16 +7803,6 @@ function renderProgram() {
           operandField.addEventListener("keydown", e => { if (e.key === "Escape") closeLabelDropdown(); });
           dropdown.addEventListener("mouseenter", () => { dropdownHovered = true; });
           dropdown.addEventListener("mouseleave", () => { dropdownHovered = false; });
-          dropdown.querySelectorAll(".label-picker-item").forEach(item => {
-            item.addEventListener("pointerdown", e => {
-              e.preventDefault();
-              operandField.value = item.textContent;
-              operandField.dispatchEvent(new Event("input"));
-              closeLabelDropdown();
-              dropdownHovered = false;
-            });
-          });
-          // Close when clicking outside
           document.addEventListener("pointerdown", e => {
             if (!dropdown.contains(e.target) && e.target !== operandField) closeLabelDropdown();
           }, { capture: true });
@@ -7112,6 +7825,10 @@ function renderProgram() {
               <input class="block-base" type="radio" name="block-base-${block.id}" value="dec"${block.base === "dec" ? " checked" : ""}>
               <span>DEC</span>
             </label>
+            <label class="mini-toggle-option">
+              <input class="block-base" type="radio" name="block-base-${block.id}" value="bin"${block.base === "bin" ? " checked" : ""}>
+              <span>BIN</span>
+            </label>
           </div>
         </label>` : ""}
           <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro || block.isRegionMacro || block.isEndRegionMacro || getMnemonicModes(block.mnemonic).length <= 1 ? ` hidden` : ""}>
@@ -7130,52 +7847,50 @@ function renderProgram() {
         if (block.isOrgMacro) {
           const orgInput = node.querySelector(".org-address");
           const rawVal = (orgInput?.value || block.orgAddress || "0900").trim();
-          const oldBase = newBase === "hex" ? "dec" : "hex";
-          let hexVal;
-          if (oldBase === "dec") {
-            const parsed = parseInt(rawVal, 10);
-            hexVal = !isNaN(parsed) ? parsed.toString(16).toUpperCase().padStart(4, "0") : (block.orgAddress || "0900");
-          } else {
-            hexVal = rawVal.replace(/[^0-9a-fA-F]/g, "").toUpperCase().slice(0, 4) || (block.orgAddress || "0900");
-          }
+          const oldBase = block.base || "hex";
+          let numericVal;
+          if (oldBase === "dec") numericVal = parseInt(rawVal, 10);
+          else if (oldBase === "bin") numericVal = /^[01]+$/.test(rawVal) ? parseInt(rawVal, 2) : NaN;
+          else numericVal = parseInt(rawVal, 16);
+          const hexVal = !isNaN(numericVal)
+            ? numericVal.toString(16).toUpperCase().padStart(4, "0")
+            : (block.orgAddress || "0900");
           block.orgAddress = hexVal;
           if (orgInput) {
-            orgInput.value = newBase === "hex" ? hexVal : String(parseInt(hexVal, 16));
-            orgInput.maxLength = newBase === "dec" ? 5 : 4;
-            orgInput.placeholder = newBase === "dec" ? "2049" : "0900";
+            if (newBase === "dec") { orgInput.value = String(parseInt(hexVal, 16)); orgInput.maxLength = 5; orgInput.placeholder = "2049"; }
+            else if (newBase === "bin") { orgInput.value = parseInt(hexVal, 16).toString(2).padStart(16, "0"); orgInput.maxLength = 16; orgInput.placeholder = "0001000000000000"; }
+            else { orgInput.value = hexVal; orgInput.maxLength = 4; orgInput.placeholder = "0900"; }
           }
           updateProgramBlock(index, "base", newBase);
           return;
         }
-        // For LOOP blocks, convert loopCount between hex and dec
+        // For LOOP blocks, convert loopCount between hex, dec, and bin
         if (block.isLoopMacro) {
           const countInput = node.querySelector(".loop-count");
           const rawCount = (countInput?.value || block.loopCount || "0A").trim();
-          const oldBase = newBase === "hex" ? "dec" : "hex";
-          let parsed;
-          if (oldBase === "dec") {
-            parsed = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
-          } else {
-            parsed = parseInt(rawCount, 16);
-          }
-          if (!isNaN(parsed) && parsed >= 0 && parsed <= 255) {
-            const converted = newBase === "hex"
-              ? parsed.toString(16).toUpperCase().padStart(2, "0")
-              : String(parsed);
+          const oldBase = block.base || "hex";
+          const parsed = parseNumberByBase(rawCount, oldBase);
+          if (parsed !== null && !isNaN(parsed) && parsed >= 0 && parsed <= 255) {
+            let converted;
+            if (newBase === "hex") converted = parsed.toString(16).toUpperCase().padStart(2, "0");
+            else if (newBase === "bin") converted = parsed.toString(2).padStart(8, "0");
+            else converted = String(parsed);
             if (countInput) countInput.value = converted;
             updateProgramBlock(index, "loopCount", converted);
           }
         }
-        // For CONST blocks, convert the value input between hex and dec
+        // For CONST blocks, convert the value input between hex, dec, and bin
         if (block.isConstMacro) {
           const constValueInput = node.querySelector(".const-value");
           const rawVal = (constValueInput?.value || block.rawOperand || "0").trim();
-          const oldBase = newBase === "hex" ? "dec" : "hex";
+          const oldBase = block.base || "hex";
           const parsed = parseNumberByBase(rawVal.replace(/^\$/, ""), oldBase);
           if (parsed !== null && parsed >= 0 && parsed <= 65535 && constValueInput) {
-            constValueInput.value = newBase === "hex"
-              ? parsed.toString(16).toUpperCase().padStart(4, "0")
-              : String(parsed);
+            let converted;
+            if (newBase === "hex") converted = parsed.toString(16).toUpperCase().padStart(4, "0");
+            else if (newBase === "bin") converted = parsed.toString(2).padStart(16, "0");
+            else converted = String(parsed);
+            constValueInput.value = converted;
           }
         }
         updateProgramBlock(index, "base", newBase);
@@ -7350,69 +8065,85 @@ function syntaxHighlightAsmLine(line) {
   const hilightNums = s => esc(s)
     .replace(/(\$[0-9A-Fa-f]+)/g, '<span class="asm-tok-number">$1</span>');
 
+  let prefix = "";
+  let content = line;
+  const lineNoMatch = line.match(/^(\d+\s\|\s)(.*)$/);
+  if (lineNoMatch) {
+    prefix = '<span class="asm-tok-lineno">' + esc(lineNoMatch[1]) + '</span>';
+    content = lineNoMatch[2];
+  }
+
   // Origin: * = $xxxx  or  *= $xxxx
-  if (/^\* ?=/.test(line)) {
-    const eqIdx = line.indexOf('=');
-    return '<span class="asm-tok-directive">' + esc(line.slice(0, eqIdx + 1)) + '</span>' + hilightNums(line.slice(eqIdx + 1));
+  if (/^\* ?=/.test(content)) {
+    const eqIdx = content.indexOf('=');
+    return prefix + '<span class="asm-tok-directive">' + esc(content.slice(0, eqIdx + 1)) + '</span>' + hilightNums(content.slice(eqIdx + 1));
   }
 
   // Label: "labelname:  ; ..."
-  if (/^[A-Za-z_][A-Za-z0-9_]*:/.test(line)) {
-    const m = line.match(/^([A-Za-z_][A-Za-z0-9_]*:)(.*)/);
-    if (m) return '<span class="asm-tok-label">' + esc(m[1]) + '</span>' + hilightNums(m[2]);
+  if (/^[A-Za-z_][A-Za-z0-9_]*:/.test(content)) {
+    const m = content.match(/^([A-Za-z_][A-Za-z0-9_]*:)(.*)/);
+    if (m) return prefix + '<span class="asm-tok-label">' + esc(m[1]) + '</span>' + hilightNums(m[2]);
   }
 
   // Region comment: "; region ..." / "; endregion ..."
-  if (/^; (?:region|endregion)\b/.test(line)) {
-    return '<span class="asm-tok-region">' + esc(line) + '</span>';
+  if (/^; (?:region|endregion)\b/.test(content)) {
+    return prefix + '<span class="asm-tok-region">' + esc(content) + '</span>';
   }
 
   // Macro comment: "; .xxx ..."
-  if (/^; \./.test(line)) {
-    const m = line.match(/^(; )(\.\S+)(.*)/);
-    if (m) return '<span class="asm-tok-comment">' + esc(m[1]) + '</span><span class="asm-tok-macro">' + esc(m[2]) + '</span>' + hilightNums(m[3]);
+  if (/^; \./.test(content)) {
+    const m = content.match(/^(; )(\.\S+)(.*)/);
+    if (m) return prefix + '<span class="asm-tok-comment">' + esc(m[1]) + '</span><span class="asm-tok-macro">' + esc(m[2]) + '</span>' + hilightNums(m[3]);
   }
 
   // Regular comment: "; ..."
-  if (/^;/.test(line)) {
-    return '<span class="asm-tok-comment">' + esc(line) + '</span>';
+  if (/^;/.test(content)) {
+    return prefix + '<span class="asm-tok-comment">' + esc(content) + '</span>';
   }
 
   // Indented macro comment: "    ; .text / .string / .data ..."
-  if (/^    ; \./.test(line)) {
-    const m = line.match(/^(    ; )(\.\S+)(.*)/);
-    if (m) return '<span class="asm-tok-comment">' + esc(m[1]) + '</span><span class="asm-tok-macro">' + esc(m[2]) + '</span>' + hilightNums(m[3]);
+  if (/^    ; \./.test(content)) {
+    const m = content.match(/^(    ; )(\.\S+)(.*)/);
+    if (m) return prefix + '<span class="asm-tok-comment">' + esc(m[1]) + '</span><span class="asm-tok-macro">' + esc(m[2]) + '</span>' + hilightNums(m[3]);
   }
 
   // Directive: "    .byte / .word / .fill / .align / .word"
-  const dirMatch = line.match(/^(    )(\.\w+)(.*)/);
+  const dirMatch = content.match(/^(    )(\.\w+)(.*)/);
   if (dirMatch) {
-    return esc(dirMatch[1]) + '<span class="asm-tok-directive">' + esc(dirMatch[2]) + '</span>' + hilightNums(dirMatch[3]);
+    return prefix + esc(dirMatch[1]) + '<span class="asm-tok-directive">' + esc(dirMatch[2]) + '</span>' + hilightNums(dirMatch[3]);
   }
 
   // Instruction: "    MNEMONIC operand  ; comment"
-  const instrMatch = line.match(/^(    )([A-Z]{2,4})(.*)/);
+  const instrMatch = content.match(/^(    )([A-Z]{2,4})(.*)/);
   if (instrMatch) {
     const rest = instrMatch[3];
     const commentIdx = rest.indexOf(" ; ");
     const operand = commentIdx !== -1 ? rest.slice(0, commentIdx) : rest;
     const inlineComment = commentIdx !== -1 ? rest.slice(commentIdx) : "";
-    return esc(instrMatch[1]) +
+    return prefix + esc(instrMatch[1]) +
       '<span class="asm-tok-mnemonic">' + esc(instrMatch[2]) + '</span>' +
       (operand ? '<span class="asm-tok-operand">' + hilightNums(operand) + '</span>' : '') +
       (inlineComment ? '<span class="asm-tok-comment">' + esc(inlineComment) + '</span>' : '');
   }
 
-  return esc(line);
+  return prefix + esc(content);
 }
 
 function highlightAsmHtml(text) {
   return text.split("\n").map(line => syntaxHighlightAsmLine(line)).join("\n");
 }
 
+function withAsmLineNumbers(text) {
+  const lines = text.split("\n");
+  const width = Math.max(3, String(lines.length).length);
+  return lines
+    .map((line, idx) => `${String(idx + 1).padStart(width, "0")} | ${line}`)
+    .join("\n");
+}
+
 function applyAsmHighlight(blockId) {
   const rangeInfo = asmBlockRanges[blockId];
-  const text = asmPlainText;
+  const text = asmDisplayText || asmPlainText;
   if (!rangeInfo || !text) return;
 
   const { firstLine, lastLine } = rangeInfo;
@@ -7456,7 +8187,8 @@ function renderAsmOutput() {
 
   if (!program.length) {
     asmPlainText = `*= ${layout.origin.text}\n; ${currentLanguage === "en" ? "The C64 assembly source will appear here" : "Itt fog megjelenni a C64 assembly kod"}`;
-    asmOutput.innerHTML = highlightAsmHtml(asmPlainText);
+    asmDisplayText = withAsmLineNumbers(asmPlainText);
+    asmOutput.innerHTML = highlightAsmHtml(asmDisplayText);
     renderMonitorOutput(layout);
     return;
   }
@@ -7476,13 +8208,17 @@ function renderAsmOutput() {
       return `; .invoke ${line.block.invokeMacroName || "?"}`;
     }
 
+    // Invisible layout markers — address save/restore for INCLUDE with fixed address
+    if (line.block._isSavedAddress || line.block._isRestoreAddress) return null;
+
     // Handle macro source blocks (body of MACRO/ENDM definition when toggle is on)
     if (line.block._macroSourceBlock) {
       if (line.block.isLabel) return `    ${line.block.labelName}:`;
       if (line.block.isComment) return `    ; ${line.block.rawOperand || ""}`;
-      if (line.block.validationError) {
+      const macroSrcError = getLiveValidationError(line.block);
+      if (macroSrcError) {
         const suffix = line.block.operand ? ` ${line.block.operand}` : "";
-        return `    ${line.block.mnemonic}${suffix}  ; ${t("warningLabel")}: ${line.block.validationError}`;
+        return `    ${line.block.mnemonic}${suffix}  ; ${t("warningLabel")}: ${macroSrcError}`;
       }
       const suffix = line.block.operand ? ` ${line.block.operand}` : "";
       return `    ${line.block.mnemonic}${suffix}`;
@@ -7640,8 +8376,9 @@ function renderAsmOutput() {
     if (line.block.isIncludeMacro) {
       const count = (line.block.includedBlocks || []).length;
       const fname = line.block.includeFileName || "?";
-      if (count === 0) return `; .include "${fname}" (${currentLanguage === "en" ? "no blocks loaded" : "nincsenek blokkok betoltve"})`;
-      return `; .include "${fname}" — ${count} ${t("includeBlocksCount")}`;
+      const addrNote = line.block.includeAddress ? ` @ $${line.block.includeAddress.replace(/^\$/, "").toUpperCase().padStart(4, "0")}` : "";
+      if (count === 0) return `; .include "${fname}"${addrNote} (${currentLanguage === "en" ? "no blocks loaded" : "nincsenek blokkok betoltve"})`;
+      return `; .include "${fname}"${addrNote} — ${count} ${t("includeBlocksCount")}`;
     }
 
     if (line.block.isRawTextMacro) {
@@ -7784,7 +8521,7 @@ function renderAsmOutput() {
 
     if (line.block.isConstMacro) {
       const constVal = parseNumberByBase((line.block.rawOperand || "").replace(/^\$/, ""), line.block.base);
-      const formatted = constVal !== null ? formatOperand("absolute", constVal, asmOutputBase) : "?";
+      const formatted = constVal !== null ? formatOperand("absolute", constVal, line.block.base || "hex") : "?";
       return `; .CONST ${line.block.constName || "?"} = ${formatted}`;
     }
 
@@ -7830,7 +8567,8 @@ function renderAsmOutput() {
     }
 
     const suffix = line.block.operand ? ` ${getAsmDisplayOperand(line.block)}` : "";
-    const comment = line.block.validationError ? ` ; ${t("warningLabel")}: ${line.block.validationError}` : "";
+    const liveError = getLiveValidationError(line.block);
+    const comment = liveError ? ` ; ${t("warningLabel")}: ${liveError}` : "";
     return `    ${line.block.mnemonic}${suffix}${comment}`;
   });
 
@@ -7861,12 +8599,9 @@ function renderAsmOutput() {
       : [])
   ].join("\n");
 
-  if (asmOutputBase === "dec") {
-    asmText = asmText.replace(/\$([0-9A-Fa-f]+)/g, (_, hex) => String(parseInt(hex, 16)));
-  }
-
   asmPlainText = asmText;
-  asmOutput.innerHTML = highlightAsmHtml(asmText);
+  asmDisplayText = withAsmLineNumbers(asmText);
+  asmOutput.innerHTML = highlightAsmHtml(asmDisplayText);
 
   if (selectedBlockId && asmBlockRanges[selectedBlockId]) {
     applyAsmHighlight(selectedBlockId);
@@ -8104,15 +8839,17 @@ async function loadIncludeDemo() {
   if (!ok) return;
 
   // Auto-load the library file from the samples folder
-  if (window.electronAPI?.reloadIncludeFile) {
+  if (window.electronAPI?.loadSample) {
     const incIdx = program.findIndex(b => b.isIncludeMacro);
     if (incIdx >= 0) {
       // Build path to the sample library
       const sampleResult = await window.electronAPI.loadSample("include-library");
       if (sampleResult?.ok && sampleResult.sample?.program) {
         program[incIdx].includedBlocks = sampleResult.sample.program;
-        program[incIdx].includeFileName = "include-library";
+        program[incIdx].includeFileName = "include-library.json";
+        program[incIdx].includeAddress = "1500"; // Fixed load address so MACRO defs become real subroutines
         program[incIdx].validationError = "";
+        parseUserMacros();
         renderProgram();
         renderAsmOutput();
       }

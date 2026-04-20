@@ -1079,6 +1079,14 @@ button:focus-visible,
   color: #ffffff;
 }
 
+.asm-tok-lineno {
+  color: var(--output-text);
+  text-shadow: 0 0 0.5px rgba(255, 255, 255, 0.25);
+  font-weight: 600;
+  opacity: 1;
+  user-select: none;
+}
+
 .drag-handle {
   display: grid;
   place-items: center;
@@ -1398,8 +1406,9 @@ body.dnd-active {
 }
 
 .mini-toggle {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   gap: calc(3px * var(--block-scale));
   padding: calc(2px * var(--block-scale));
   border-radius: calc(8px * var(--block-scale));
@@ -2286,6 +2295,102 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
   padding: 7px 10px;
   border-radius: 0 6px 6px 0;
   line-height: 1.4;
+}
+
+.work-progress-dialog {
+  border: none;
+  border-radius: 16px;
+  padding: 0;
+  background: var(--panel);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  min-width: 340px;
+  max-width: 420px;
+  width: 88vw;
+}
+
+.work-progress-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.46);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+
+.work-progress-card {
+  padding: 24px 24px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.work-progress-subtitle {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.work-progress-bar-wrap {
+  height: 10px;
+  width: 100%;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 18%, transparent);
+  overflow: hidden;
+}
+
+.work-progress-bar {
+  height: 100%;
+  width: 10%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--primary-deep), var(--primary));
+  transition: width 120ms linear;
+}
+
+/* ── About Dialog ────────────────────────────────────────────────── */
+.import-asm-dialog {
+  border: none;
+  border-radius: 16px;
+  padding: 0;
+  background: var(--panel);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  min-width: 480px;
+  max-width: 760px;
+  width: 90vw;
+}
+
+.import-asm-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.import-asm-card {
+  padding: 28px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.import-asm-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 320px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  background: var(--output-bg);
+  color: var(--output-text);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  resize: vertical;
+  outline: none;
+}
+
+.import-asm-textarea:focus {
+  border-color: var(--accent);
+}
+
+.import-asm-actions {
+  display: flex;
+  gap: 8px;
 }
 
 /* ── About Dialog ────────────────────────────────────────────────── */

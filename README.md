@@ -2,11 +2,20 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v1.4.5**
+**Current version: v1.4.6**
 
 ---
 
 ## What's New
+
+### v1.4.6
+- **BIN (binary) mode** — every instruction block now has a third format option alongside HEX and DEC; operands are entered and displayed as binary values prefixed with `%` (e.g. `AND #%11111000`)
+- **Per-block ASM output format** — the global "Numbers in ASM output" HEX / DEC toggle has been removed; the ASM view always renders each block's operands in that block's own format (HEX, DEC, or BIN)
+- **ORG block** — BIN option removed from the ORG block's format toggle; only HEX / DEC available
+- **Binary operand parsing fix** — operands beginning with `#` in binary mode (e.g. `AND #%11111000`) no longer produce a false WARNING
+- **Zero page,X addressing mode** — added to LDA, STA, ADC, SBC, INC, DEC, CMP, AND, ORA, EOR, LDY, STY and shift/rotate instructions (ASL, LSR, ROL, ROR); also added Absolute,X to ASL/LSR/ROL/ROR
+- **NEXT block label picker** — the *Next label* field now shows a floating dropdown listing all LOOP labels in the program
+- **Stale validation fix** — blocks loaded from a project file now recompute their validation error; stale errors no longer cause false compile failures
 
 ### v1.4.5
 - **Label + offset addressing** — operand fields now accept `label+$FF` / `label-$FF` / `label+decimal` expressions resolved at compile time (e.g. `STA screen_ram+$0100,X`)
