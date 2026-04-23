@@ -4353,11 +4353,15 @@ async function savePrgToFile() {
   }
 }
 
-async function reloadIncludeBlocks() {
+async function reloadIncludeBlocks(projectFilePath = "") {
   if (!window.electronAPI?.reloadIncludeFile) return;
+  const lastSlash = typeof projectFilePath === "string"
+    ? Math.max(projectFilePath.lastIndexOf("/"), projectFilePath.lastIndexOf("\\"))
+    : -1;
+  const baseDir = lastSlash >= 0 ? projectFilePath.slice(0, lastSlash) : "";
   for (const block of program) {
     if (block.isIncludeMacro && block.includeFile) {
-      const result = await window.electronAPI.reloadIncludeFile(block.includeFile);
+      const result = await window.electronAPI.reloadIncludeFile(block.includeFile, baseDir);
       if (!result.error) {
         block.includedBlocks = result.blocks || [];
         block.includeFileName = result.fileName;
@@ -4366,6 +4370,67 @@ async function reloadIncludeBlocks() {
         block.includedBlocks = [];
         block.validationError = result.error;
       }
+    }
+  }
+}
+
+async function reloadIncBinBlocks(projectFilePath = "") {
+  if (!window.electronAPI?.reloadIncBinFile) return;
+  const lastSlash = typeof projectFilePath === "string"
+    ? Math.max(projectFilePath.lastIndexOf("/"), projectFilePath.lastIndexOf("\\"))
+    : -1;
+  const baseDir = lastSlash >= 0 ? projectFilePath.slice(0, lastSlash) : "";
+
+  for (const block of program) {
+    if (!block.isIncBinMacro) continue;
+
+    const hasIncBinFile = typeof block.incBinFile === "string" && block.incBinFile.trim() !== "";
+    const incBinName = typeof block.incBinFileName === "string" ? block.incBinFileName.trim() : "";
+    const sourcePath = hasIncBinFile ? block.incBinFile : incBinName;
+    if (!sourcePath) continue;
+
+    const result = await window.electronAPI.reloadIncBinFile(sourcePath, baseDir);
+    if (!result?.error) {
+      block.incBinBytes = result.bytes || [];
+      block.incBinFileName = result.fileName || block.incBinFileName || "";
+      block.incBinFile = result.filePath || sourcePath;
+      block.validationError = validateIncBinMacro(block.incBinBytes, block.incBinAddress);
+    } else {
+      block.incBinBytes = [];
+      block.validationError = result.error;
+    }
+  }
+}
+
+async function reloadSidBlocks(projectFilePath = "") {
+  if (!window.electronAPI?.reloadSidFile) return;
+  const lastSlash = typeof projectFilePath === "string"
+    ? Math.max(projectFilePath.lastIndexOf("/"), projectFilePath.lastIndexOf("\\"))
+    : -1;
+  const baseDir = lastSlash >= 0 ? projectFilePath.slice(0, lastSlash) : "";
+
+  for (const block of program) {
+    if (!block.isSidMacro) continue;
+
+    const hasSidFile = typeof block.sidFile === "string" && block.sidFile.trim() !== "";
+    const sidName = typeof block.sidFileName === "string" ? block.sidFileName.trim() : "";
+    const sourcePath = hasSidFile ? block.sidFile : sidName;
+    if (!sourcePath) continue;
+
+    const result = await window.electronAPI.reloadSidFile(sourcePath, baseDir);
+    if (!result?.error) {
+      block.sidFile = result.filePath || sourcePath;
+      block.sidFileName = result.fileName || block.sidFileName || "";
+      block.sidTitle = result.title || block.sidTitle || "";
+      block.sidAuthor = result.author || block.sidAuthor || "";
+      block.sidLoadAddress = result.loadAddress;
+      block.sidInitAddress = result.initAddress;
+      block.sidPlayAddress = result.playAddress;
+      block.sidBytes = result.bytes || [];
+      block.validationError = "";
+    } else {
+      block.sidBytes = [];
+      block.validationError = result.error;
     }
   }
 }
@@ -4631,13 +4696,48 @@ async function loadProjectFromFile() {
     id: block.id || crypto.randomUUID()
   }));
 
+  // Backward compatibility for old INCLUDE projects:
+  // some files store only includeFileName (includeFile is empty).
+  for (const block of program) {
+    if (!block?.isIncludeMacro) continue;
+    const hasIncludeFile = typeof block.includeFile === "string" && block.includeFile.trim() !== "";
+    if (hasIncludeFile) continue;
+    const name = typeof block.includeFileName === "string" ? block.includeFileName.trim() : "";
+    if (!name) continue;
+    block.includeFile = /\.json$/i.test(name) ? name : `${name}.json`;
+  }
+
+  // Backward compatibility for old INCBIN projects:
+  // some files store only incBinFileName (incBinFile is empty).
+  for (const block of program) {
+    if (!block?.isIncBinMacro) continue;
+    const hasIncBinFile = typeof block.incBinFile === "string" && block.incBinFile.trim() !== "";
+    if (hasIncBinFile) continue;
+    const name = typeof block.incBinFileName === "string" ? block.incBinFileName.trim() : "";
+    if (!name) continue;
+    block.incBinFile = name;
+  }
+
+  // Backward compatibility for old SID projects:
+  // some files store only sidFileName (sidFile is empty).
+  for (const block of program) {
+    if (!block?.isSidMacro) continue;
+    const hasSidFile = typeof block.sidFile === "string" && block.sidFile.trim() !== "";
+    if (hasSidFile) continue;
+    const name = typeof block.sidFileName === "string" ? block.sidFileName.trim() : "";
+    if (!name) continue;
+    block.sidFile = name;
+  }
+
   // Migrate old projects: if no ORG block at start, prepend one from saved origin
   if (!program.some(b => b.isOrgMacro)) {
     const orgAddr = (projectData.origin || "0801").replace(/^\$/, "").toUpperCase().padStart(4, "0");
     program.unshift({ ...makeDefaultOrgBlock(), orgAddress: orgAddr });
   }
 
-  await reloadIncludeBlocks();
+  await reloadIncludeBlocks(result.filePath || "");
+  await reloadIncBinBlocks(result.filePath || "");
+  await reloadSidBlocks(result.filePath || "");
 
   if (projectData.ui?.numberBase && baseInputs.length) {
     baseInputs.forEach((input) => {
