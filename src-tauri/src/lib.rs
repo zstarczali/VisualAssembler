@@ -933,7 +933,17 @@ async fn load_project(app: AppHandle) -> serde_json::Value {
             let path_str = path.to_string();
             match fs::read_to_string(&path_str) {
                 Ok(raw) => match serde_json::from_str::<serde_json::Value>(&raw) {
-                    Ok(project) => serde_json::json!({ "ok": true, "filePath": path_str, "project": project }),
+                    Ok(project) => {
+                        if project["app"].as_str() != Some("c64-visual-assembler")
+                            || !project["program"].is_array()
+                        {
+                            return serde_json::json!({
+                                "ok": false,
+                                "error": "Not a valid C64 Visual Assembler project."
+                            });
+                        }
+                        serde_json::json!({ "ok": true, "filePath": path_str, "project": project })
+                    },
                     Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
                 },
                 Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
