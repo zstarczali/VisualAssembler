@@ -682,7 +682,7 @@ body[data-theme="dark"] #add-selected:hover {
 
 .base-toggle {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 4px;
   padding: 4px;
   border-radius: 14px;
@@ -703,12 +703,12 @@ body[data-theme="dark"] #add-selected:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 34px;
-  border-radius: 10px;
+  min-height: 28px;
+  border-radius: 8px;
   border: 1px solid transparent;
   background: transparent;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.75rem;
   letter-spacing: 0.04em;
   font-weight: 700;
   transition: background 160ms ease, color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
@@ -2295,6 +2295,10 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
   padding: 7px 10px;
   border-radius: 0 6px 6px 0;
   line-height: 1.4;
+}
+
+.compile-error-list li[data-asm-line]:not([data-asm-line=""]) {
+  cursor: pointer;
 }
 
 .work-progress-dialog {

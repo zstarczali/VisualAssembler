@@ -4331,12 +4331,28 @@ async function saveProjectToFile() {
   }
 }
 
+let _lastCompileErrors = [];
+
 function showCompileErrorDialog(errors) {
   if (!compileErrorDialog || !compileErrorList) return;
   if (compileErrorTitle) compileErrorTitle.textContent = t("compileErrorTitle");
-  compileErrorList.innerHTML = errors
-    .map(err => `<li>${err.replace(/</g, "&lt;")}</li>`)
-    .join("");
+  _lastCompileErrors = errors;
+  compileErrorList.innerHTML = errors.map((err, idx) => {
+    const lineTagMatch = err.match(/^\[L(\d+)\]/);
+    const asmLine = lineTagMatch ? parseInt(lineTagMatch[1], 10) : null;
+    return `<li data-index="${idx}" data-asm-line="${asmLine ?? ""}">${err.replace(/</g, "&lt;")}</li>`;
+  }).join("");
+
+  compileErrorList.querySelectorAll("li").forEach(li => {
+    li.addEventListener("click", () => {
+      const asmLine = parseInt(li.dataset.asmLine, 10);
+      compileErrorDialog.close();
+      if (!isNaN(asmLine)) {
+        scrollAsmOutputToLine(asmLine);
+      }
+    });
+  });
+
   compileErrorDialog.showModal();
 }
 
@@ -7885,7 +7901,7 @@ function renderProgram() {
       operandField.placeholder = getOperandPlaceholder(mode, block.base);
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
       // Custom label picker dropdown for addressing modes that can reference a label or constant
-      if (mode.needsOperand && (block.addressingMode === "relative" || block.addressingMode === "absolute" || block.addressingMode === "absoluteX" || block.addressingMode === "absoluteY" || block.addressingMode === "immediate")) {
+      if (mode.needsOperand && (block.addressingMode === "relative" || block.addressingMode === "absolute" || block.addressingMode === "absoluteX" || block.addressingMode === "absoluteY" || block.addressingMode === "zeroPage" || block.addressingMode === "zeroPageX" || block.addressingMode === "zeroPageY" || block.addressingMode === "indirectX" || block.addressingMode === "indirectY" || block.addressingMode === "indirect" || block.addressingMode === "immediate")) {
         const programLabels = block.addressingMode === "immediate"
           ? []
           : program.filter(b => b.isLabel && b.labelName).map(b => b.labelName);
@@ -8305,6 +8321,32 @@ function withAsmLineNumbers(text) {
   return lines
     .map((line, idx) => `${String(idx + 1).padStart(width, "0")} | ${line}`)
     .join("\n");
+}
+
+function scrollAsmOutputToLine(targetLine) {
+  if (!targetLine || !asmDisplayText) return;
+  const text = asmDisplayText;
+  const lines = text.split("\n");
+
+  asmOutput.innerHTML = "";
+  lines.forEach((line, i) => {
+    const isTarget = i === targetLine - 1;
+    if (isTarget) {
+      const span = document.createElement("span");
+      span.className = "asm-line-highlight";
+      span.textContent = line;
+      asmOutput.appendChild(span);
+      if (i < lines.length - 1) span.appendChild(document.createTextNode("\n"));
+    } else {
+      const span = document.createElement("span");
+      span.innerHTML = syntaxHighlightAsmLine(line);
+      asmOutput.appendChild(span);
+      if (i < lines.length - 1) span.appendChild(document.createTextNode("\n"));
+    }
+  });
+
+  const lineHeight = parseFloat(getComputedStyle(asmOutput).lineHeight) || 18;
+  asmOutput.scrollTop = Math.max(0, (targetLine - 3) * lineHeight);
 }
 
 function applyAsmHighlight(blockId) {
