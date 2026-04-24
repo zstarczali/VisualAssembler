@@ -1211,13 +1211,5 @@ This keeps the import-debug cycle inside one dialog: paste, import, inspect erro
 
 ---
 
-## 12. Changelog
-
-### v1.4.7
-
-- Import dialog now shows **inline error messages** at the bottom on failed import.
-- Import workflow now **restores pasted source** after failed validation/compile.
-- Import editor now includes **line numbers** for faster error localization.
-- INCLUDE sample/reload behavior improved for **more reliable relative path resolution** and better resilience against transient reload failures.
 
 *© 2026 Zsolt Tarczali — C64 Visual Assembler*

@@ -491,39 +491,6 @@
         <li>
           <strong>Import robustness improvements</strong> — importer normalizes local labels and better handles mixed operand styles used in real-world 6502 snippets.
         </li>
-        <li>
-          <strong>BIN (binary) mode</strong> — every instruction block now has a third format
-          option alongside HEX and DEC; operands are entered and displayed as binary values
-          prefixed with <code>%</code> (e.g. <code>AND #%11111000</code>).
-        </li>
-        <li>
-          <strong>Per-block ASM output format</strong> — the global "Numbers in ASM output"
-          HEX / DEC toggle has been removed; the ASM view now always renders each block's
-          operands in that block's own format (HEX, DEC, or BIN).
-        </li>
-        <li>
-          <strong>Binary operand parsing fix</strong> — operands that start with <code>#</code>
-          in binary mode (e.g. <code>AND #%11111000</code>) no longer produce a false WARNING.
-        </li>
-        <li>
-          <strong>Stale validation fix</strong> — blocks loaded from a project file now
-          recompute their validation error on load; stale errors no longer cause false compile
-          failures.
-        </li>
-        <li>
-          <strong>Zero page,X addressing mode</strong> — added to LDA, STA, ADC, SBC, INC,
-          DEC, CMP, AND, ORA, EOR, LDY, STY and the shift/rotate instructions (ASL, LSR, ROL, ROR);
-          also added Absolute,X to ASL/LSR/ROL/ROR.
-        </li>
-        <li>
-          <strong>NEXT block label picker</strong> — the <em>Next label</em> field now shows a
-          floating dropdown with all LOOP labels defined in the program.
-        </li>
-        <li>
-          <strong>INCLUDE load address</strong> — the INCLUDE block now has an optional
-          <em>Load address</em> field; when set, the included blocks are placed at that address
-          (a synthetic ORG is injected before them, overriding any ORG inside the included file).
-        </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
     </div>
