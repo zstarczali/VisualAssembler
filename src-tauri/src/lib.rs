@@ -969,7 +969,11 @@ async fn load_sample(app: AppHandle, sample_name: String) -> serde_json::Value {
     };
     match fs::read_to_string(&file_path) {
         Ok(raw) => match serde_json::from_str::<serde_json::Value>(&raw) {
-            Ok(sample) => serde_json::json!({ "ok": true, "sample": sample }),
+            Ok(sample) => serde_json::json!({
+                "ok": true,
+                "sample": sample,
+                "filePath": file_path.to_string_lossy().to_string()
+            }),
             Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
         },
         Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),

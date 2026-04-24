@@ -2,11 +2,17 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v1.4.6**
+**Current version: v1.4.7**
 
 ---
 
 ## What's New
+
+### v1.4.7
+- **Import dialog inline errors** — failed ASM imports now keep the dialog open and display the error list directly at the bottom of the import dialog
+- **Import source recovery** — if import fails, the pasted source text is restored automatically so you can fix and retry immediately
+- **Import line numbers** — the Import ASM editor now has synchronized line numbers for easier troubleshooting
+- **INCLUDE stability fixes** — sample include reload now resolves relative paths more reliably and avoids disappearing include content on transient reload errors
 
 ### v1.4.6
 - **BIN (binary) mode** — every instruction block now has a third format option alongside HEX and DEC; operands are entered and displayed as binary values prefixed with `%` (e.g. `AND #%11111000`)

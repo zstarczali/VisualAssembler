@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 1.4.6**
+**Version 1.4.7**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -1196,5 +1196,28 @@ Quick reference links available in the app under **Knowledge Base**:
 | C64 Codebase | https://codebase.c64.org/ |
 | The Turbo Assembler | https://turbo.style64.org/ |
 | RetroDebugger | https://github.com/slajerek/RetroDebugger/ |
+
+---
+
+## 11. ASM Import Workflow
+
+The Import ASM dialog now includes quality-of-life safeguards for iterative fixes:
+
+- **Line numbers in the import editor** are synchronized with scroll position.
+- **Inline error list** is shown at the bottom of the same dialog when import fails.
+- **Source preservation on failure** restores your pasted source automatically, so you can correct and retry without re-pasting.
+
+This keeps the import-debug cycle inside one dialog: paste, import, inspect errors, fix, retry.
+
+---
+
+## 12. Changelog
+
+### v1.4.7
+
+- Import dialog now shows **inline error messages** at the bottom on failed import.
+- Import workflow now **restores pasted source** after failed validation/compile.
+- Import editor now includes **line numbers** for faster error localization.
+- INCLUDE sample/reload behavior improved for **more reliable relative path resolution** and better resilience against transient reload failures.
 
 *© 2026 Zsolt Tarczali — C64 Visual Assembler*

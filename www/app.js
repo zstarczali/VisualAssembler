@@ -218,6 +218,10 @@ const loadProjectButton = document.getElementById("load-project");
 const importAsmButton = document.getElementById("import-asm");
 const importAsmDialog = document.getElementById("import-asm-dialog");
 const importAsmTextarea = document.getElementById("import-asm-textarea");
+const importAsmLineNumbers = document.getElementById("import-asm-line-numbers");
+const importAsmErrors = document.getElementById("import-asm-errors");
+const importAsmErrorsTitle = document.getElementById("import-asm-errors-title");
+const importAsmErrorsList = document.getElementById("import-asm-errors-list");
 const importAsmConfirmButton = document.getElementById("import-asm-confirm");
 const importAsmCancelButton = document.getElementById("import-asm-cancel");
 const zoomOutButton = document.getElementById("zoom-out");
@@ -331,6 +335,7 @@ const translations = {
     importAsmPlaceholder: "Illeszd be a 6502 assembly kodot ide...",
     importAsmConfirm: "Import",
     importAsmCancel: "Megsem",
+    importAsmErrorsTitle: "Hibak",
     workProgressTitle: "Forditas folyamatban...",
     workProgressDoneTitle: "Sikeres build",
     workProgressRun: "PRG generalasa es VICE inditasa...",
@@ -580,6 +585,7 @@ const translations = {
     importAsmPlaceholder: "Paste 6502 assembly code here...",
     importAsmConfirm: "Import",
     importAsmCancel: "Cancel",
+    importAsmErrorsTitle: "Errors",
     workProgressTitle: "Compiling...",
     workProgressDoneTitle: "Build successful",
     workProgressRun: "Building PRG and launching VICE...",
@@ -826,6 +832,29 @@ function tf(key, values = {}) {
     (text, [name, value]) => text.replaceAll(`{${name}}`, String(value)),
     t(key)
   );
+}
+
+function updateImportAsmLineNumbers() {
+  if (!importAsmTextarea || !importAsmLineNumbers) return;
+  const lineCount = Math.max(1, importAsmTextarea.value.split("\n").length);
+  const numbers = Array.from({ length: lineCount }, (_, i) => String(i + 1)).join("\n");
+  if (importAsmLineNumbers.textContent !== numbers) {
+    importAsmLineNumbers.textContent = numbers;
+  }
+  importAsmLineNumbers.scrollTop = importAsmTextarea.scrollTop;
+}
+
+function setImportAsmErrors(errors = []) {
+  if (!importAsmErrors || !importAsmErrorsList) return;
+  if (!Array.isArray(errors) || errors.length === 0) {
+    importAsmErrors.hidden = true;
+    importAsmErrorsList.innerHTML = "";
+    return;
+  }
+  importAsmErrorsList.innerHTML = errors
+    .map(err => `<li>${String(err).replace(/</g, "&lt;")}</li>`)
+    .join("");
+  importAsmErrors.hidden = false;
 }
 
 function readUiSettings() {
@@ -1221,35 +1250,67 @@ function initPalette() {
   loadProjectButton?.addEventListener("click", loadProjectFromFile);
   importAsmButton?.addEventListener("click", () => {
     if (importAsmTextarea) importAsmTextarea.value = "";
+    setImportAsmErrors([]);
+    updateImportAsmLineNumbers();
     importAsmDialog?.showModal();
     importAsmTextarea?.focus();
   });
+  importAsmTextarea?.addEventListener("input", () => {
+    setImportAsmErrors([]);
+    updateImportAsmLineNumbers();
+  });
+  importAsmTextarea?.addEventListener("scroll", updateImportAsmLineNumbers);
   importAsmCancelButton?.addEventListener("click", () => importAsmDialog?.close());
   importAsmDialog?.addEventListener("click", (e) => { if (e.target === importAsmDialog) importAsmDialog.close(); });
   workProgressDialog?.addEventListener("cancel", (e) => e.preventDefault());
   importAsmConfirmButton?.addEventListener("click", async () => {
     const text = importAsmTextarea?.value || "";
     importAsmDialog?.close();
+    if (!text.trim()) return;
     await showWorkProgress("workProgressImport");
     let success = false;
+    let importErrors = [];
     try {
       setWorkProgress(25);
       const imported = parseAsmText(text);
       if (imported.length === 0) {
+        importErrors = [currentLanguage === "en" ? "No valid ASM lines found to import." : "Nem talalhato ervenyes ASM sor importhoz."];
         return;
       }
-      setWorkProgress(60);
+      setWorkProgress(40);
+      const oldProgram = program;
+      const oldUserMacros = { ...userMacros };
       program = imported;
       parseUserMacros();
-      renderProgram();
-      renderAsmOutput();
-      setWorkProgress(100);
-      success = true;
+      setWorkProgress(60);
+      const prg = buildAutostartPrgForEmulator();
+      setWorkProgress(85);
+      if (prg.ok) {
+        success = true;
+      } else {
+        importErrors = prg.errors || [prg.error || t("projectLoadFailed")];
+      }
+      if (!prg.ok) {
+        program = oldProgram;
+        userMacros = oldUserMacros;
+      }
     } finally {
       if (success) {
+        setImportAsmErrors([]);
+        renderOriginPreview();
+        renderEmulatorRunHint();
+        renderProgram();
+        saveUiSettings();
         await completeWorkProgress("workProgressSuccessImport");
       } else {
         hideWorkProgress();
+        if (importAsmTextarea) {
+          importAsmTextarea.value = text;
+          updateImportAsmLineNumbers();
+        }
+        importAsmDialog?.showModal();
+        setImportAsmErrors(importErrors);
+        importAsmTextarea?.focus();
       }
     }
   });
@@ -1489,6 +1550,7 @@ function applyTranslations() {
     setText("#import-asm-confirm", t("importAsmConfirm"));
     setText("#import-asm-cancel", t("importAsmCancel"));
     setText("#import-asm-title", t("importAsmTitle"));
+    setText("#import-asm-errors-title", t("importAsmErrorsTitle"));
     if (importAsmTextarea) importAsmTextarea.placeholder = t("importAsmPlaceholder");
     setText("#save-prg", t("savePrg"));
     setText("#program-settings-label", t("programSettings"));
@@ -4367,7 +4429,11 @@ async function reloadIncludeBlocks(projectFilePath = "") {
         block.includeFileName = result.fileName;
         block.validationError = "";
       } else {
-        block.includedBlocks = [];
+        // Keep last successfully loaded content visible if a transient reload fails.
+        // This prevents include source from flashing in/out during async refreshes.
+        if (!Array.isArray(block.includedBlocks)) {
+          block.includedBlocks = [];
+        }
         block.validationError = result.error;
       }
     }
@@ -8832,7 +8898,7 @@ async function loadSampleFromFile(sampleName) {
     program.unshift({ ...makeDefaultOrgBlock(), orgAddress: orgAddr });
   }
 
-  await reloadIncludeBlocks();
+  await reloadIncludeBlocks(result.filePath || "");
 
   renderOriginPreview();
   renderEmulatorRunHint();
@@ -8935,26 +9001,7 @@ async function loadIncBinDemo() {
 }
 
 async function loadIncludeDemo() {
-  const ok = await loadSampleFromFile("include-demo");
-  if (!ok) return;
-
-  // Auto-load the library file from the samples folder
-  if (window.electronAPI?.loadSample) {
-    const incIdx = program.findIndex(b => b.isIncludeMacro);
-    if (incIdx >= 0) {
-      // Build path to the sample library
-      const sampleResult = await window.electronAPI.loadSample("include-library");
-      if (sampleResult?.ok && sampleResult.sample?.program) {
-        program[incIdx].includedBlocks = sampleResult.sample.program;
-        program[incIdx].includeFileName = "include-library.json";
-        program[incIdx].includeAddress = "1500"; // Fixed load address so MACRO defs become real subroutines
-        program[incIdx].validationError = "";
-        parseUserMacros();
-        renderProgram();
-        renderAsmOutput();
-      }
-    }
-  }
+  await loadSampleFromFile("include-demo");
 }
 
 async function loadSidDemo() {

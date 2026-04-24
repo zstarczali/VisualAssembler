@@ -135,7 +135,7 @@
       "id": "inc-demo-include-block",
       "includeAddress": "1500",
       "includeCollapsed": false,
-      "includeFile": "samples/macros.json",
+      "includeFile": "macros.json",
       "includeFileName": "macros",
       "isIncludeMacro": true,
       "mnemonic": "INCLUDE",
