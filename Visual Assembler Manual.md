@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 1.4.6**
+**Version 1.4.7**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -1194,35 +1194,22 @@ Quick reference links available in the app under **Knowledge Base**:
 | C64 Color Codes | https://sta.c64.org/cbm64col.html |
 | VIC-II Article | https://www.cebix.net/VIC-Article.txt |
 | C64 Codebase | https://codebase.c64.org/ |
+| The Turbo Assembler | https://turbo.style64.org/ |
+| RetroDebugger | https://github.com/slajerek/RetroDebugger/ |
 
 ---
 
-## 12. Changelog
+## 11. ASM Import Workflow
 
-### v1.4.4
-- **C64 Debugger integration** — launch the assembled PRG in C64 Debugger alongside RetroDebugger; both debuggers share the same breakpoints, symbols, and autostart flags
-- **SID macro block** — embed a SID file directly into memory at a configurable address; init/play addresses are auto-detected from the SID header and adjusted for relocation
-- **ORG block replaces start address field** — the program's origin is now an explicit ORG block; multiple ORG blocks compile each section to its own address range; ORG address now has a HEX / DEC toggle
-- **Options tab** — the output-mode "Program" tab is renamed to "Options"; `-wait` field is now a 500 ms / 1000 ms dropdown
+The Import ASM dialog now includes quality-of-life safeguards for iterative fixes:
 
-### v1.4.3
-- **ORG macro block** — `*= $ADDR` block in the Macros category; multiple origins supported in one program
-- **RetroDebugger integration** — launch directly in RetroDebugger with breakpoints, labels, `-jmp`, `-wait`, `-unpause` flags
-- **Breakpoint blocks** — toggle any block as a breakpoint; highlighted in red; included in the breakpoints file automatically
-- **BASIC SYS stub uses configured origin** — `SYS` target is derived from the ORG address, not hardcoded to `$080D`
-- **Program settings panel redesign** — debugger params added as inline toggles
+- **Line numbers in the import editor** are synchronized with scroll position.
+- **Inline error list** is shown at the bottom of the same dialog when import fails.
+- **Source preservation on failure** restores your pasted source automatically, so you can correct and retry without re-pasting.
 
-### v1.4.2
-- **ASM syntax highlighting** — color coding for mnemonics, operands, numbers, labels, directives, comments, region markers
-- **ASM panel fills the window** — output panels stretch to bottom; Both mode shares space equally
-
-### v1.4.1
-- **REGION / ENDREGION blocks** — collapsible named sections; nested regions supported
-
-### v1.4.0
-- **GROUP / ENDGROUP blocks** (renamed to REGION / ENDREGION in v1.4.1)
-- `#<label` / `#>label` lo/hi byte operator support
+This keeps the import-debug cycle inside one dialog: paste, import, inspect errors, fix, retry.
 
 ---
+
 
 *© 2026 Zsolt Tarczali — C64 Visual Assembler*

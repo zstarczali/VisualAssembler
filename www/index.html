@@ -432,10 +432,17 @@
   <dialog id="import-asm-dialog" class="import-asm-dialog">
     <div class="import-asm-card">
       <h2 class="compile-error-title" id="import-asm-title">Import ASM</h2>
-      <textarea id="import-asm-textarea" class="import-asm-textarea" rows="20" spellcheck="false"></textarea>
+      <div class="import-asm-editor">
+        <pre id="import-asm-line-numbers" class="import-asm-line-numbers" aria-hidden="true">1</pre>
+        <textarea id="import-asm-textarea" class="import-asm-textarea" rows="20" spellcheck="false"></textarea>
+      </div>
       <div class="import-asm-actions">
         <button id="import-asm-confirm" class="primary" type="button">Import</button>
         <button id="import-asm-cancel" class="secondary" type="button">Cancel</button>
+      </div>
+      <div id="import-asm-errors" class="import-asm-errors" hidden>
+        <p id="import-asm-errors-title" class="import-asm-errors-title">Errors</p>
+        <ul id="import-asm-errors-list" class="import-asm-errors-list"></ul>
       </div>
     </div>
   </dialog>
@@ -458,8 +465,20 @@
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v1.4.6</p>
+      <p class="whats-new-version">v1.4.7</p>
       <ul class="whats-new-list">
+        <li>
+          <strong>Import dialog inline errors</strong> — failed ASM imports now keep the dialog open and show the error list directly at the bottom of the same dialog.
+        </li>
+        <li>
+          <strong>Import source recovery on failure</strong> — when import fails, the original pasted source text is restored automatically so you can fix and retry without re-pasting.
+        </li>
+        <li>
+          <strong>Import line numbers</strong> — the Import ASM editor now has synchronized line numbers for easier troubleshooting.
+        </li>
+        <li>
+          <strong>INCLUDE stability fixes</strong> — sample include reload now resolves relative paths more reliably and avoids disappearing include content on transient reload errors.
+        </li>
         <li>
           <strong>Import ASM dialog</strong> — a new File menu action lets you paste textual 6502 assembly (`ORG`, labels, `.byte`, comments, instructions) and convert it into Visual Assembler blocks.
         </li>
@@ -471,39 +490,6 @@
         </li>
         <li>
           <strong>Import robustness improvements</strong> — importer normalizes local labels and better handles mixed operand styles used in real-world 6502 snippets.
-        </li>
-        <li>
-          <strong>BIN (binary) mode</strong> — every instruction block now has a third format
-          option alongside HEX and DEC; operands are entered and displayed as binary values
-          prefixed with <code>%</code> (e.g. <code>AND #%11111000</code>).
-        </li>
-        <li>
-          <strong>Per-block ASM output format</strong> — the global "Numbers in ASM output"
-          HEX / DEC toggle has been removed; the ASM view now always renders each block's
-          operands in that block's own format (HEX, DEC, or BIN).
-        </li>
-        <li>
-          <strong>Binary operand parsing fix</strong> — operands that start with <code>#</code>
-          in binary mode (e.g. <code>AND #%11111000</code>) no longer produce a false WARNING.
-        </li>
-        <li>
-          <strong>Stale validation fix</strong> — blocks loaded from a project file now
-          recompute their validation error on load; stale errors no longer cause false compile
-          failures.
-        </li>
-        <li>
-          <strong>Zero page,X addressing mode</strong> — added to LDA, STA, ADC, SBC, INC,
-          DEC, CMP, AND, ORA, EOR, LDY, STY and the shift/rotate instructions (ASL, LSR, ROL, ROR);
-          also added Absolute,X to ASL/LSR/ROL/ROR.
-        </li>
-        <li>
-          <strong>NEXT block label picker</strong> — the <em>Next label</em> field now shows a
-          floating dropdown with all LOOP labels defined in the program.
-        </li>
-        <li>
-          <strong>INCLUDE load address</strong> — the INCLUDE block now has an optional
-          <em>Load address</em> field; when set, the included blocks are placed at that address
-          (a synthetic ORG is injected before them, overriding any ORG inside the included file).
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -586,7 +572,7 @@
     <span id="vice-toast-text"></span>
   </div>
   <script src="tauri-bridge.js"></script>
-  <script src="app.js?v=1.4.6"></script>
+  <script src="app.js?v=1.4.7"></script>
 
 </body>
 

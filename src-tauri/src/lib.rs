@@ -615,6 +615,63 @@ async fn load_incbin_sample(app: AppHandle, file_name: String) -> serde_json::Va
 }
 
 #[tauri::command]
+async fn reload_incbin_file(app: AppHandle, file_path: String, base_dir: Option<String>) -> serde_json::Value {
+    let raw_path = file_path.trim();
+    let raw_input_path = std::path::Path::new(raw_path);
+    let normalized_file_path = if !raw_input_path.is_absolute() && raw_input_path.has_root() {
+        raw_path.trim_start_matches(['/', '\\']).to_string()
+    } else {
+        raw_path.to_string()
+    };
+    let input_path = std::path::Path::new(&normalized_file_path);
+    let mut candidates: Vec<PathBuf> = Vec::new();
+
+    if input_path.is_absolute() {
+        candidates.push(input_path.to_path_buf());
+    } else {
+        if let Some(base) = base_dir.as_deref() {
+            let base = base.trim();
+            if !base.is_empty() {
+                candidates.push(std::path::Path::new(base).join(&normalized_file_path));
+            }
+        }
+
+        let is_bare_file_name = input_path
+            .parent()
+            .map(|p| p.as_os_str().is_empty())
+            .unwrap_or(true);
+
+        if is_bare_file_name {
+            if let Ok(p) = resolve_resource_file(&app, &format!("samples/{}", normalized_file_path)) {
+                candidates.push(p);
+            }
+        }
+
+        if let Ok(p) = resolve_resource_file(&app, &normalized_file_path) {
+            candidates.push(p);
+        }
+    }
+
+    let resolved = candidates.into_iter().find(|p| p.exists());
+    let Some(resolved) = resolved else {
+        return serde_json::json!({ "error": format!("The system cannot find the file specified. (os error 2): {}", file_path) });
+    };
+
+    match fs::read(&resolved) {
+        Ok(buf) => {
+            let file_name = resolved
+                .file_name().and_then(|n| n.to_str()).unwrap_or("").to_string();
+            serde_json::json!({
+                "fileName": file_name,
+                "filePath": resolved.to_string_lossy(),
+                "bytes": buf
+            })
+        }
+        Err(e) => serde_json::json!({ "error": e.to_string() }),
+    }
+}
+
+#[tauri::command]
 async fn choose_sid_file(app: AppHandle) -> serde_json::Value {
     let result = app.dialog().file()
         .add_filter("SID files", &["sid"])
@@ -665,6 +722,63 @@ async fn load_sid_sample(app: AppHandle, file_name: String) -> serde_json::Value
 }
 
 #[tauri::command]
+async fn reload_sid_file(app: AppHandle, file_path: String, base_dir: Option<String>) -> serde_json::Value {
+    let raw_path = file_path.trim();
+    let raw_input_path = std::path::Path::new(raw_path);
+    let normalized_file_path = if !raw_input_path.is_absolute() && raw_input_path.has_root() {
+        raw_path.trim_start_matches(['/', '\\']).to_string()
+    } else {
+        raw_path.to_string()
+    };
+    let input_path = std::path::Path::new(&normalized_file_path);
+    let mut candidates: Vec<PathBuf> = Vec::new();
+
+    if input_path.is_absolute() {
+        candidates.push(input_path.to_path_buf());
+    } else {
+        if let Some(base) = base_dir.as_deref() {
+            let base = base.trim();
+            if !base.is_empty() {
+                candidates.push(std::path::Path::new(base).join(&normalized_file_path));
+            }
+        }
+
+        let is_bare_file_name = input_path
+            .parent()
+            .map(|p| p.as_os_str().is_empty())
+            .unwrap_or(true);
+
+        if is_bare_file_name {
+            if let Ok(p) = resolve_resource_file(&app, &format!("samples/{}", normalized_file_path)) {
+                candidates.push(p);
+            }
+        }
+
+        if let Ok(p) = resolve_resource_file(&app, &normalized_file_path) {
+            candidates.push(p);
+        }
+    }
+
+    let resolved = candidates.into_iter().find(|p| p.exists());
+    let Some(resolved) = resolved else {
+        return serde_json::json!({ "error": format!("The system cannot find the file specified. (os error 2): {}", file_path) });
+    };
+
+    match fs::read(&resolved) {
+        Ok(buf) => match parse_sid_buffer(&buf) {
+            Ok(info) => {
+                let mut v = serde_json::to_value(info).unwrap();
+                v["filePath"] = serde_json::json!(resolved.to_string_lossy().to_string());
+                v["fileName"] = serde_json::json!(resolved.file_name().and_then(|n| n.to_str()).unwrap_or(""));
+                v
+            }
+            Err(e) => serde_json::json!({ "error": e }),
+        },
+        Err(e) => serde_json::json!({ "error": e.to_string() }),
+    }
+}
+
+#[tauri::command]
 async fn choose_include_file(app: AppHandle) -> serde_json::Value {
     let result = app.dialog().file()
         .add_filter("C64 Visual Assembler project", &["json"])
@@ -704,8 +818,49 @@ async fn choose_include_file(app: AppHandle) -> serde_json::Value {
 }
 
 #[tauri::command]
-fn reload_include_file(file_path: String) -> serde_json::Value {
-    match fs::read_to_string(&file_path) {
+async fn reload_include_file(app: AppHandle, file_path: String, base_dir: Option<String>) -> serde_json::Value {
+    let raw_path = file_path.trim();
+    let raw_input_path = std::path::Path::new(raw_path);
+    let normalized_file_path = if !raw_input_path.is_absolute() && raw_input_path.has_root() {
+        raw_path.trim_start_matches(['/', '\\']).to_string()
+    } else {
+        raw_path.to_string()
+    };
+    let input_path = std::path::Path::new(&normalized_file_path);
+    let mut candidates: Vec<PathBuf> = Vec::new();
+
+    if input_path.is_absolute() {
+        candidates.push(input_path.to_path_buf());
+    } else {
+        if let Some(base) = base_dir.as_deref() {
+            let base = base.trim();
+            if !base.is_empty() {
+                candidates.push(std::path::Path::new(base).join(&normalized_file_path));
+            }
+        }
+
+        let is_bare_file_name = input_path
+            .parent()
+            .map(|p| p.as_os_str().is_empty())
+            .unwrap_or(true);
+
+        if is_bare_file_name {
+            if let Ok(p) = resolve_resource_file(&app, &format!("samples/{}", normalized_file_path)) {
+                candidates.push(p);
+            }
+        }
+
+        if let Ok(p) = resolve_resource_file(&app, &normalized_file_path) {
+            candidates.push(p);
+        }
+    }
+
+    let resolved = candidates.into_iter().find(|p| p.exists());
+    let Some(resolved) = resolved else {
+        return serde_json::json!({ "error": format!("The system cannot find the file specified. (os error 2): {}", file_path) });
+    };
+
+    match fs::read_to_string(&resolved) {
         Ok(raw) => match serde_json::from_str::<serde_json::Value>(&raw) {
             Ok(project) => {
                 if project["app"].as_str() != Some("c64-visual-assembler")
@@ -713,7 +868,7 @@ fn reload_include_file(file_path: String) -> serde_json::Value {
                 {
                     return serde_json::json!({ "error": "Not a valid C64 Visual Assembler project." });
                 }
-                let file_name = std::path::Path::new(&file_path)
+                let file_name = resolved
                     .file_stem().and_then(|n| n.to_str()).unwrap_or("").to_string();
                 serde_json::json!({ "fileName": file_name, "blocks": project["program"] })
             }
@@ -778,7 +933,17 @@ async fn load_project(app: AppHandle) -> serde_json::Value {
             let path_str = path.to_string();
             match fs::read_to_string(&path_str) {
                 Ok(raw) => match serde_json::from_str::<serde_json::Value>(&raw) {
-                    Ok(project) => serde_json::json!({ "ok": true, "filePath": path_str, "project": project }),
+                    Ok(project) => {
+                        if project["app"].as_str() != Some("c64-visual-assembler")
+                            || !project["program"].is_array()
+                        {
+                            return serde_json::json!({
+                                "ok": false,
+                                "error": "Not a valid C64 Visual Assembler project."
+                            });
+                        }
+                        serde_json::json!({ "ok": true, "filePath": path_str, "project": project })
+                    },
                     Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
                 },
                 Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
@@ -804,7 +969,11 @@ async fn load_sample(app: AppHandle, sample_name: String) -> serde_json::Value {
     };
     match fs::read_to_string(&file_path) {
         Ok(raw) => match serde_json::from_str::<serde_json::Value>(&raw) {
-            Ok(sample) => serde_json::json!({ "ok": true, "sample": sample }),
+            Ok(sample) => serde_json::json!({
+                "ok": true,
+                "sample": sample,
+                "filePath": file_path.to_string_lossy().to_string()
+            }),
             Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
         },
         Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
@@ -832,8 +1001,10 @@ pub fn run() {
             launch_debugger,
             choose_incbin_file,
             load_incbin_sample,
+            reload_incbin_file,
             choose_sid_file,
             load_sid_sample,
+            reload_sid_file,
             choose_include_file,
             reload_include_file,
             save_prg,
