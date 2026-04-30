@@ -158,6 +158,69 @@ a {
   gap: 7px;
 }
 
+.split-run-group {
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+}
+
+.split-run-main {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  padding-inline-end: 14px;
+}
+
+.split-run-arrow {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  padding-inline: 10px;
+  border-inline-start: 1px solid rgba(255,255,255,0.25);
+  min-height: unset;
+}
+
+.run-mode-menu[hidden] { display: none; }
+
+.run-mode-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: var(--panel-strong);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+  z-index: 200;
+  min-width: 180px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.run-mode-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 4px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 0.875rem;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background 0.12s;
+}
+
+.run-mode-item:hover {
+  background: var(--secondary-soft);
+}
+
+.run-mode-item.active {
+  background: var(--secondary-soft);
+  font-weight: 600;
+}
+
 .run-icon {
   width: 14px;
   height: 14px;
@@ -2527,11 +2590,24 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
 .d64-export-extras {
   border: 1px solid var(--panel-border);
   border-radius: 10px;
-  padding: 12px;
-  background: color-mix(in srgb, var(--panel) 92%, black 8%);
+  padding: 14px;
+  background: var(--surface-soft);
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.d64-export-extras-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.d64-export-extras-header > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
 .d64-export-subtitle {
@@ -2544,7 +2620,7 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
 .d64-export-help {
   margin: 0;
   font-size: 0.78rem;
-  color: color-mix(in srgb, var(--text) 70%, transparent);
+  color: var(--muted);
 }
 
 .d64-export-extras-list {
@@ -2554,46 +2630,71 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
 }
 
 .d64-export-extra-item {
-  display: grid;
-  grid-template-columns: 1.4fr 1fr 0.6fr auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px 12px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.d64-export-extra-top {
+  display: flex;
   gap: 6px;
   align-items: center;
-  padding: 6px;
-  border: 1px solid var(--panel-border);
-  border-radius: 6px;
-  background: var(--output-bg);
 }
 
 .d64-export-extra-item input {
   font-family: "IBM Plex Mono", monospace;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   padding: 5px 8px;
   border: 1px solid var(--panel-border);
-  border-radius: 4px;
-  background: var(--panel);
-  color: var(--output-text);
+  border-radius: 6px;
+  background: var(--input-bg);
+  color: var(--text);
   outline: none;
   min-width: 0;
 }
 
-.d64-export-extra-item input[readonly] {
-  background: color-mix(in srgb, var(--panel) 80%, transparent);
-  color: color-mix(in srgb, var(--output-text) 80%, transparent);
+.d64-export-extra-item input:focus {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.d64-extra-name {
+  flex: 1;
+}
+
+.d64-extra-addr {
+  width: 72px;
+  flex: none;
+}
+
+.d64-extra-source {
+  width: 100%;
+  font-size: 0.72rem;
+  color: var(--muted);
+  background: transparent !important;
+  border-color: transparent !important;
+  padding-inline: 2px !important;
   cursor: default;
 }
 
 .d64-export-extra-remove {
   background: transparent;
   border: 1px solid var(--panel-border);
-  border-radius: 4px;
+  border-radius: 6px;
   color: var(--error, #d97706);
-  padding: 4px 8px;
+  padding: 4px 9px;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 1rem;
+  line-height: 1;
+  flex: none;
 }
 
 .d64-export-extra-remove:hover {
   background: color-mix(in srgb, var(--error, #d97706) 12%, transparent);
+  border-color: color-mix(in srgb, var(--error, #d97706) 40%, transparent);
 }
 
 .d64-export-actions {

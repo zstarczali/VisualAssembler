@@ -885,6 +885,14 @@ struct SavePrgPayload {
 }
 
 #[tauri::command]
+fn read_bin_file(path: String) -> serde_json::Value {
+    match fs::read(&path) {
+        Ok(bytes) => serde_json::json!({ "ok": true, "bytes": bytes }),
+        Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+    }
+}
+
+#[tauri::command]
 async fn save_prg(app: AppHandle, payload: SavePrgPayload) -> serde_json::Value {
     let result = app.dialog().file()
         .add_filter("Commodore 64 PRG", &["prg"])
@@ -943,13 +951,13 @@ fn resolve_c1541_path(vice_path: &str) -> Option<PathBuf> {
 }
 
 fn sanitize_disk_name(name: &str, max_len: usize) -> String {
-    let upper: String = name
+    let lower: String = name
         .chars()
         .filter(|c| c.is_ascii() && !matches!(c, '"' | ',' | '/' | '\\' | ':' | '\0'))
         .take(max_len)
         .collect::<String>()
-        .to_uppercase();
-    if upper.is_empty() { "DISK".to_string() } else { upper }
+        .to_lowercase();
+    if lower.is_empty() { "disk".to_string() } else { lower }
 }
 
 #[derive(Deserialize)]
@@ -1106,6 +1114,147 @@ async fn save_d64(app: AppHandle, payload: SaveD64Payload) -> serde_json::Value 
     })
 }
 
+// ── Run via D64: create temp D64, launch VICE ─────────────────────────────────
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct RunD64Payload {
+    files: Vec<D64FileEntry>,
+    #[serde(default)]
+    disk_name: Option<String>,
+}
+
+#[tauri::command]
+async fn run_d64(app: AppHandle, payload: RunD64Payload) -> serde_json::Value {
+    if payload.files.is_empty() {
+        return serde_json::json!({ "ok": false, "error": "Nincs fajl a D64-re irashoz." });
+    }
+
+    let cfg = read_config(&app);
+    let vice_path = {
+        let p = cfg["vicePath"].as_str().unwrap_or("").to_string();
+        if p.is_empty() { detect_vice_executable() } else { p }
+    };
+
+    let c1541_path = match resolve_c1541_path(&vice_path) {
+        Some(p) => p,
+        None => return serde_json::json!({
+            "ok": false,
+            "error": "c1541 nem talalhato. Allitsd be a VICE eleresi utjat."
+        }),
+    };
+
+    let temp_dir = std::env::temp_dir().join("c64-visual-assembler");
+    let _ = fs::create_dir_all(&temp_dir);
+    let now_ms = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH).unwrap().as_millis();
+
+    let raw_disk = payload.disk_name.unwrap_or_else(|| "disk".to_string());
+    let disk_name = sanitize_disk_name(&raw_disk, 16);
+    let disk_id = "01";
+    let d64_path = temp_dir.join(format!("run-d64-{}.d64", now_ms));
+
+    let mut staged: Vec<(PathBuf, String)> = Vec::new();
+    for (idx, entry) in payload.files.iter().enumerate() {
+        let prg_path = temp_dir.join(format!("run-d64-{}-{}.prg", now_ms, idx));
+        let mut data: Vec<u8> = Vec::with_capacity(entry.bytes.len() + 2);
+        if let Some(addr) = entry.load_address {
+            data.push((addr & 0xFF) as u8);
+            data.push((addr >> 8) as u8);
+        }
+        data.extend_from_slice(&entry.bytes);
+        if let Err(e) = fs::write(&prg_path, &data) {
+            for (p, _) in &staged { let _ = fs::remove_file(p); }
+            return serde_json::json!({ "ok": false, "error": e.to_string() });
+        }
+        let c64_name = sanitize_disk_name(&entry.name, 16);
+        staged.push((prg_path, c64_name));
+    }
+
+    let format_arg = format!("{},{}", disk_name, disk_id);
+    #[allow(unused_mut)]
+    let mut cmd = if cfg!(target_os = "macos") {
+        let mut c = Command::new("bash");
+        c.arg(c1541_path.to_string_lossy().to_string());
+        c
+    } else {
+        Command::new(&c1541_path)
+    };
+
+    cmd.arg("-format").arg(&format_arg).arg("d64").arg(&d64_path);
+    for (prg_path, c64_name) in &staged {
+        cmd.arg("-write").arg(prg_path.to_string_lossy().to_string()).arg(c64_name);
+    }
+
+    #[cfg(target_os = "windows")]
+    {
+        const CREATE_NO_WINDOW: u32 = 0x08000000;
+        cmd.creation_flags(CREATE_NO_WINDOW);
+    }
+
+    let c1541_out = match cmd.output() {
+        Ok(o) => o,
+        Err(e) => {
+            for (p, _) in &staged { let _ = fs::remove_file(p); }
+            return serde_json::json!({ "ok": false, "error": e.to_string() });
+        }
+    };
+    for (p, _) in &staged { let _ = fs::remove_file(p); }
+
+    if !c1541_out.status.success() {
+        let _ = fs::remove_file(&d64_path);
+        return serde_json::json!({
+            "ok": false,
+            "error": format!("c1541 hiba: {}{}", String::from_utf8_lossy(&c1541_out.stderr), String::from_utf8_lossy(&c1541_out.stdout))
+        });
+    }
+
+    // Launch VICE with the temp D64 (same pattern as launch_vice)
+    let d64_str = d64_path.to_str().unwrap_or("").to_string();
+    let launch_result = if cfg!(target_os = "macos") {
+        let binary = if vice_path.ends_with(".app") {
+            let app_path = std::path::Path::new(&vice_path);
+            let stem = app_path.file_stem().unwrap_or_default().to_string_lossy().to_string();
+            if let Some(parent) = app_path.parent() {
+                let cand = parent.join("bin").join(&stem);
+                if cand.exists() { cand.to_string_lossy().to_string() } else { String::new() }
+            } else { String::new() }
+        } else { vice_path.clone() };
+
+        if binary.is_empty() || !std::path::Path::new(&binary).exists() {
+            return serde_json::json!({ "ok": false, "error": "VICE binary nem talalhato." });
+        }
+        Command::new("bash").arg(&binary).arg(&d64_str)
+            .stdin(std::process::Stdio::null()).stdout(std::process::Stdio::null()).stderr(std::process::Stdio::null())
+            .spawn()
+    } else {
+        #[cfg(target_os = "windows")]
+        {
+            let ps_cmd = format!(
+                "Start-Process -FilePath '{}' -ArgumentList '{}'",
+                vice_path.replace('\'', "''"),
+                d64_str.replace('\'', "''"),
+            );
+            Command::new("powershell")
+                .args(["-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden", "-Command", &ps_cmd])
+                .stdin(std::process::Stdio::null()).stdout(std::process::Stdio::null()).stderr(std::process::Stdio::null())
+                .creation_flags(0x08000000)
+                .spawn()
+        }
+        #[cfg(not(target_os = "windows"))]
+        {
+            Command::new(&vice_path).arg(&d64_str)
+                .stdin(std::process::Stdio::null()).stdout(std::process::Stdio::null()).stderr(std::process::Stdio::null())
+                .spawn()
+        }
+    };
+
+    match launch_result {
+        Ok(_) => serde_json::json!({ "ok": true, "filePath": d64_str, "vicePath": vice_path }),
+        Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+    }
+}
+
 #[tauri::command]
 async fn save_project(app: AppHandle, payload: serde_json::Value) -> serde_json::Value {
     let result = app.dialog().file()
@@ -1212,6 +1361,8 @@ pub fn run() {
             reload_include_file,
             save_prg,
             save_d64,
+            run_d64,
+            read_bin_file,
             save_project,
             load_project,
             load_sample,

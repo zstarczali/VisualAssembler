@@ -130,13 +130,28 @@
               </section>
             </div>
           </details>
-          <button id="run-emulator" class="primary run-button" type="button">
-            <svg class="run-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg">
-              <path d="M3 2.5l10 5.5-10 5.5V2.5z" />
-            </svg>
-            <span class="run-label">Run</span>
-          </button>
+          <div class="split-run-group">
+            <button id="run-emulator" class="primary run-button split-run-main" type="button">
+              <svg class="run-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 2.5l10 5.5-10 5.5V2.5z" />
+              </svg>
+              <span class="run-label">Run</span>
+            </button>
+            <button id="run-mode-arrow" class="primary run-button split-run-arrow" type="button" aria-haspopup="true" aria-expanded="false" title="Futtatasi mod valasztasa">
+              <svg viewBox="0 0 10 6" fill="currentColor" width="10" height="6" aria-hidden="true"><path d="M0 0l5 6 5-6z"/></svg>
+            </button>
+            <div id="run-mode-menu" class="run-mode-menu" hidden role="menu">
+              <button id="run-prg-mode" class="run-mode-item" role="menuitem" data-mode="prg">
+                <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13" aria-hidden="true"><path d="M3 2.5l10 5.5-10 5.5V2.5z"/></svg>
+                <span id="run-prg-label">Run as PRG</span>
+              </button>
+              <button id="run-d64-mode" class="run-mode-item" role="menuitem" data-mode="d64">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" aria-hidden="true"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2"/></svg>
+                <span id="run-d64-label">Run via D64</span>
+              </button>
+            </div>
+          </div>
           <button id="run-debugger" class="secondary run-button" type="button" title="">
             <svg class="run-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg">
@@ -467,12 +482,14 @@
         </label>
       </div>
       <div class="d64-export-extras">
-        <h3 class="d64-export-subtitle" id="d64-export-extras-title">Extra files</h3>
-        <p class="d64-export-help" id="d64-export-extras-help">
-          Add raw binary files (e.g. data, sprites). They become PRG entries on the D64.
-        </p>
+        <div class="d64-export-extras-header">
+          <div>
+            <h3 class="d64-export-subtitle" id="d64-export-extras-title">Extra files</h3>
+            <p class="d64-export-help" id="d64-export-extras-help">Add raw binary files (e.g. data, sprites).</p>
+          </div>
+          <button id="d64-export-add-file" class="secondary" type="button" title="Add file">+</button>
+        </div>
         <div id="d64-export-extras-list" class="d64-export-extras-list"></div>
-        <button id="d64-export-add-file" class="secondary" type="button">+ Add file</button>
       </div>
       <div id="d64-export-error" class="d64-export-error" hidden></div>
       <div class="d64-export-actions">

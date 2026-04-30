@@ -341,9 +341,11 @@ const translations = {
     workProgressTitle: "Forditas folyamatban...",
     workProgressDoneTitle: "Sikeres build",
     workProgressRun: "PRG generalasa es VICE inditasa...",
+    workProgressRunD64: "D64 csomagolas es VICE inditasa...",
     workProgressDebug: "PRG generalasa es debugger inditasa...",
     workProgressImport: "ASM import feldolgozasa...",
     workProgressSuccessRun: "Build sikeres, VICE inditva.",
+    workProgressSuccessRunD64: "Build sikeres, VICE inditva D64-rol.",
     workProgressSuccessDebug: "Build sikeres, debugger inditva.",
     workProgressSuccessImport: "Import sikeres.",
     savePrg: "Export PRG-kent",
@@ -404,6 +406,9 @@ const translations = {
     emulatorHelp: "A helyi VICE emulatort inditjuk a desktop appbol.",
     openEmulator: "VICE kivalasztasa",
     runInEmulator: "Run",
+    runAsPrg: "Futtatás PRG-ként",
+    runViaD64: "Futtatás D64-ről",
+    runViaD64Confirm: "Futtatás VICE-ban",
     copyAsm: "ASM masolasa",
     viceExecutable: "VICE exe",
     chooseViceStatusPending: "A VICE kapcsolat ellenorzese folyamatban.",
@@ -616,9 +621,11 @@ const translations = {
     workProgressTitle: "Compiling...",
     workProgressDoneTitle: "Build successful",
     workProgressRun: "Building PRG and launching VICE...",
+    workProgressRunD64: "Packaging D64 and launching VICE...",
     workProgressDebug: "Building PRG and launching debugger...",
     workProgressImport: "Importing ASM blocks...",
     workProgressSuccessRun: "Build successful, VICE launched.",
+    workProgressSuccessRunD64: "Build successful, VICE launched from D64.",
     workProgressSuccessDebug: "Build successful, debugger launched.",
     workProgressSuccessImport: "Import successful.",
     savePrg: "Export to PRG",
@@ -679,6 +686,9 @@ const translations = {
     emulatorHelp: "The desktop app launches your local VICE emulator.",
     openEmulator: "Choose VICE",
     runInEmulator: "Run",
+    runAsPrg: "Run as PRG",
+    runViaD64: "Run via D64",
+    runViaD64Confirm: "Run in VICE",
     copyAsm: "Copy ASM",
     viceExecutable: "VICE executable",
     chooseViceStatusPending: "Checking the VICE connection.",
@@ -1400,7 +1410,8 @@ function initPalette() {
   expandAllButton.addEventListener("click", expandAllBlocks);
   copyAsmButton?.addEventListener("click", copyAsmToClipboard);
   chooseViceButton?.addEventListener("click", chooseViceExecutable);
-  runEmulatorButton?.addEventListener("click", runInEmulator);
+  runEmulatorButton?.addEventListener("click", () => runMode === "d64" ? runViaD64() : runInEmulator());
+  setupRunModeDropdown();
   chooseDebuggerButton?.addEventListener("click", chooseDebuggerExecutable);
   runDebuggerButton?.addEventListener("click", runInDebugger);
   dbgJmpOn?.addEventListener("change", () => { debuggerJmp = true; saveUiSettings(); });
@@ -1597,7 +1608,9 @@ function applyTranslations() {
     setText("#dbg-jmp-label", t("debuggerJmpLabel"));
     setText("#dbg-wait-label", t("debuggerWaitLabel"));
     setText("#dbg-unpause-label", t("debuggerUnpauseLabel"));
-    setText("#run-emulator .run-label", t("runInEmulator"));
+    setText("#run-emulator .run-label", runMode === "d64" ? t("runViaD64") : t("runInEmulator"));
+    setText("#run-prg-label", t("runAsPrg"));
+    setText("#run-d64-label", t("runViaD64"));
     setText("#run-debugger .run-label", t("runInDebugger"));
     setText("#copy-asm", t("copyAsm"));
     setText("#save-project", t("saveProject"));
@@ -1614,7 +1627,7 @@ function applyTranslations() {
     setText("#d64-export-progname-label", t("d64ExportProgName"));
     setText("#d64-export-extras-title", t("d64ExportExtrasTitle"));
     setText("#d64-export-extras-help", t("d64ExportExtrasHelp"));
-    setText("#d64-export-add-file", t("d64ExportAddFile"));
+    document.getElementById("d64-export-add-file")?.setAttribute("title", t("d64ExportAddFile"));
     setText("#d64-export-confirm", t("d64ExportConfirm"));
     setText("#d64-export-cancel", t("d64ExportCancel"));
     setText("#program-settings-label", t("programSettings"));
@@ -4564,7 +4577,8 @@ async function saveD64ToFile() {
 // written to the same D64 image.
 const d64ExportState = {
   prgBytes: null,
-  extras: []  // [{ name: string, sourcePath: string, bytes: number[], loadAddress: string }]
+  extras: [],  // [{ name: string, sourcePath: string, bytes: number[], loadAddress: string }]
+  runMode: false
 };
 
 function defaultDiskName() {
@@ -4574,17 +4588,48 @@ function defaultDiskName() {
   return "DISK";
 }
 
-function openD64ExportDialog(prgBytes) {
+function d64SaveSettings(diskName, progName) {
+  const meta = d64ExportState.extras.map(e => ({ name: e.name, sourcePath: e.sourcePath, loadAddress: e.loadAddress }));
+  try { localStorage.setItem("d64LastSettings", JSON.stringify({ diskName, progName, extras: meta })); } catch (_) {}
+}
+
+async function d64LoadSavedExtras(savedExtras) {
+  if (!window.electronAPI?.readBinFile) return [];
+  const restored = [];
+  for (const meta of savedExtras) {
+    if (!meta.sourcePath) continue;
+    try {
+      const r = await window.electronAPI.readBinFile(meta.sourcePath);
+      if (r?.ok && r.bytes) restored.push({ name: meta.name, sourcePath: meta.sourcePath, loadAddress: meta.loadAddress || "", bytes: r.bytes });
+    } catch (_) {}
+  }
+  return restored;
+}
+
+async function openD64ExportDialog(prgBytes) {
   const dialog = document.getElementById("d64-export-dialog");
   if (!dialog) return;
   d64ExportState.prgBytes = prgBytes;
-  d64ExportState.extras = [];
 
   const diskInput = document.getElementById("d64-export-diskname");
   const progInput = document.getElementById("d64-export-progname");
   const errorBox = document.getElementById("d64-export-error");
-  if (diskInput) diskInput.value = defaultDiskName();
-  if (progInput) progInput.value = defaultDiskName();
+
+  let diskName = defaultDiskName();
+  let progName = defaultDiskName();
+  try {
+    const saved = JSON.parse(localStorage.getItem("d64LastSettings") || "null");
+    if (saved) {
+      if (saved.diskName) diskName = saved.diskName;
+      if (saved.progName) progName = saved.progName;
+      if (d64ExportState.extras.length === 0 && saved.extras?.length) {
+        d64ExportState.extras = await d64LoadSavedExtras(saved.extras);
+      }
+    }
+  } catch (_) {}
+
+  if (diskInput) diskInput.value = diskName;
+  if (progInput) progInput.value = progName;
   if (errorBox) { errorBox.hidden = true; errorBox.textContent = ""; }
 
   renderD64ExtraFiles();
@@ -4600,10 +4645,12 @@ function renderD64ExtraFiles() {
     const item = document.createElement("div");
     item.className = "d64-export-extra-item";
     item.innerHTML = `
-      <input type="text" maxlength="16" class="d64-extra-name" value="${escapeHtmlAttribute(entry.name)}" placeholder="${t("d64ExtraNamePlaceholder")}">
-      <input type="text" class="d64-extra-source" value="${escapeHtmlAttribute(entry.sourcePath || "")}" readonly>
-      <input type="text" maxlength="5" class="d64-extra-addr" value="${escapeHtmlAttribute(entry.loadAddress || "")}" placeholder="${t("d64ExtraAddrPlaceholder")}">
-      <button type="button" class="d64-export-extra-remove" title="${t("d64ExtraRemove")}">×</button>
+      <div class="d64-export-extra-top">
+        <input type="text" maxlength="16" class="d64-extra-name" value="${escapeHtmlAttribute(entry.name)}" placeholder="${t("d64ExtraNamePlaceholder")}">
+        <input type="text" maxlength="5" class="d64-extra-addr" value="${escapeHtmlAttribute(entry.loadAddress || "")}" placeholder="${t("d64ExtraAddrPlaceholder")}">
+        <button type="button" class="d64-export-extra-remove" title="${t("d64ExtraRemove")}">×</button>
+      </div>
+      <input type="text" class="d64-extra-source" value="${escapeHtmlAttribute(entry.sourcePath || "")}" readonly tabindex="-1">
     `;
     list.appendChild(item);
 
@@ -4650,8 +4697,8 @@ async function confirmD64Export() {
   const errorBox = document.getElementById("d64-export-error");
   if (!dialog || !d64ExportState.prgBytes) return;
 
-  const diskName = ((diskInput?.value || "").trim() || "DISK").toUpperCase();
-  const progName = ((progInput?.value || "").trim() || "PROGRAM").toUpperCase();
+  const diskName = ((diskInput?.value || "").trim() || "DISK").toLowerCase();
+  const progName = ((progInput?.value || "").trim() || "PROGRAM").toLowerCase();
 
   // First file = the assembled PRG. Its bytes already contain the load
   // address prefix (from buildAutostartPrgForEmulator), so loadAddress = null.
@@ -4676,7 +4723,7 @@ async function confirmD64Export() {
       loadAddr = parsed;
     }
     files.push({
-      name: extra.name.toUpperCase(),
+      name: extra.name.toLowerCase(),
       bytes: Array.from(extra.bytes),
       loadAddress: loadAddr
     });
@@ -4688,17 +4735,31 @@ async function confirmD64Export() {
   if (confirmBtn) confirmBtn.disabled = true;
   if (cancelBtn) cancelBtn.disabled = true;
 
+  const isRunMode = d64ExportState.runMode;
+  if (isRunMode) await showWorkProgress("workProgressRunD64");
+
   let result;
   try {
-    result = await window.electronAPI.saveD64({ diskName, files });
+    if (isRunMode) {
+      result = await window.electronAPI.runD64({ diskName, files });
+    } else {
+      result = await window.electronAPI.saveD64({ diskName, files });
+    }
   } finally {
-    if (confirmBtn) confirmBtn.disabled = false;
+    if (confirmBtn) {
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = t(isRunMode ? "runViaD64Confirm" : "d64ExportConfirm");
+    }
     if (cancelBtn) cancelBtn.disabled = false;
   }
 
-  if (result?.canceled) return;
+  if (result?.canceled) {
+    if (isRunMode) hideWorkProgress();
+    return;
+  }
 
   if (!result?.ok) {
+    if (isRunMode) hideWorkProgress();
     const err = result?.error || "";
     let msg = err || t("saveD64Failed");
     if (/c1541|VICE/i.test(err)) msg = t("saveD64NeedVice");
@@ -4706,12 +4767,112 @@ async function confirmD64Export() {
     return;
   }
 
+  d64SaveSettings((diskInput?.value || "").trim() || "DISK", (progInput?.value || "").trim() || "PROGRAM");
   dialog.close();
-  if (emulatorStatus) {
+  if (isRunMode) {
+    await completeWorkProgress("workProgressSuccessRunD64");
+  } else if (emulatorStatus) {
     const fileName = (result.filePath || "").split(/[\\/]/).pop();
     const count = result.fileCount || files.length;
     emulatorStatus.textContent = `${t("saveD64Success")}: ${fileName} (${count} ${t("d64FilesLabel")})`;
   }
+}
+
+// ── Run mode (PRG / D64) split button ─────────────────────────────────────────
+
+let runMode = "prg";
+
+function setupRunModeDropdown() {
+  const arrow = document.getElementById("run-mode-arrow");
+  const menu = document.getElementById("run-mode-menu");
+  if (!arrow || !menu) return;
+
+  arrow.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const open = !menu.hidden;
+    menu.hidden = open;
+    arrow.setAttribute("aria-expanded", String(!open));
+  });
+
+  document.addEventListener("click", () => {
+    if (!menu.hidden) {
+      menu.hidden = true;
+      arrow.setAttribute("aria-expanded", "false");
+    }
+  });
+
+  document.getElementById("run-prg-mode")?.addEventListener("click", () => {
+    setRunMode("prg");
+    menu.hidden = true;
+    arrow.setAttribute("aria-expanded", "false");
+  });
+
+  document.getElementById("run-d64-mode")?.addEventListener("click", () => {
+    setRunMode("d64");
+    menu.hidden = true;
+    arrow.setAttribute("aria-expanded", "false");
+  });
+
+  const saved = localStorage.getItem("runMode");
+  if (saved === "prg" || saved === "d64") setRunMode(saved);
+}
+
+function setRunMode(mode) {
+  runMode = mode;
+  localStorage.setItem("runMode", mode);
+  const prgBtn = document.getElementById("run-prg-mode");
+  const d64Btn = document.getElementById("run-d64-mode");
+  if (prgBtn) prgBtn.classList.toggle("active", mode === "prg");
+  if (d64Btn) d64Btn.classList.toggle("active", mode === "d64");
+  const label = document.querySelector("#run-emulator .run-label");
+  if (label) label.textContent = mode === "d64" ? t("runViaD64") : t("runInEmulator");
+}
+
+async function runViaD64() {
+  if (!vicePath) {
+    showViceToast(currentLanguage === "en" ? "VICE is not configured. Select it in the menu first." : "A VICE nincs beallitva. Valaszd ki a menuben.", true);
+    return;
+  }
+  if (!window.electronAPI?.runD64) {
+    showViceToast(currentLanguage === "en" ? "D64 run is not available." : "A D64 futtatás nem elerheto.", true);
+    return;
+  }
+
+  const prg = buildAutostartPrgForEmulator();
+  if (!prg.ok) {
+    if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
+    if (emulatorStatus) emulatorStatus.textContent = prg.error;
+    return;
+  }
+
+  d64ExportState.prgBytes = prg.bytes;
+  d64ExportState.runMode = true;
+
+  const dialog = document.getElementById("d64-export-dialog");
+  const diskInput = document.getElementById("d64-export-diskname");
+  const progInput = document.getElementById("d64-export-progname");
+  const errorBox = document.getElementById("d64-export-error");
+  const confirmBtn = document.getElementById("d64-export-confirm");
+
+  let diskName = defaultDiskName();
+  let progName = defaultDiskName();
+  try {
+    const saved = JSON.parse(localStorage.getItem("d64LastSettings") || "null");
+    if (saved) {
+      if (saved.diskName) diskName = saved.diskName;
+      if (saved.progName) progName = saved.progName;
+      if (d64ExportState.extras.length === 0 && saved.extras?.length) {
+        d64ExportState.extras = await d64LoadSavedExtras(saved.extras);
+      }
+    }
+  } catch (_) {}
+
+  if (diskInput) diskInput.value = diskName;
+  if (progInput) progInput.value = progName;
+  if (errorBox) { errorBox.hidden = true; errorBox.textContent = ""; }
+  if (confirmBtn) confirmBtn.textContent = t("runViaD64Confirm");
+  renderD64ExtraFiles();
+  dialog?.showModal();
 }
 
 function setupD64ExportDialog() {
@@ -4722,7 +4883,9 @@ function setupD64ExportDialog() {
   document.getElementById("d64-export-cancel")?.addEventListener("click", () => dialog.close());
   dialog.addEventListener("close", () => {
     d64ExportState.prgBytes = null;
-    d64ExportState.extras = [];
+    d64ExportState.runMode = false;
+    const confirmBtn = document.getElementById("d64-export-confirm");
+    if (confirmBtn) confirmBtn.textContent = t("d64ExportConfirm");
   });
 }
 
