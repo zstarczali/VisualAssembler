@@ -101,6 +101,28 @@ A `JOYSTICK` makró (`isJoystickMacro: true`): mezők: `joyPort` (`"1"` = $DC01,
 
 A `SPRITE_COL` makró (`isSpriteColMacro: true`): mezők: `spriteNum` (0–7), `colType` (`"sprite"` = $D01E sprite-sprite, `"background"` = $D01F sprite-háttér). Generál: `LDA $D01E/$D01F; AND #(1<<N)`. Eredmény A-ban: nem nulla = ütközés. **Regiszter olvasása automatikusan törli!** Utána `BEQ`/`BNE`-vel ugrás. Méret: 5 byte.
 
+A `LOADFILE` makró (`isLoadFileMacro: true`): fájl betöltése D64-ről KERNAL rutinokkal (SETNAM/SETLFS/LOAD). Inline kód, deferred section nélkül.
+- **Mezők:** `loadFileName` (string, max 16 ASCII karakter, automatikus uppercase, `, " / \ : * ? < > |` szűrve), `loadFileDevice` (8–30, default `"8"`), `loadFileAddress` (opcionális hex pl. `"C000"`, üres = a fájl saját load címe sec=1-gyel; kitöltve = override sec=0-val), `loadFileErrorLabel` (opcionális label név; ha kitöltve `BCS errorLabel` a JSR LOAD után).
+- **Generált kód layout:**
+  ```
+  base+0:  4C lo hi      ; JMP skip_filename (3 byte)
+  base+3:  filename bytes (PETSCII, A-Z = $41-$5A = ASCII)
+  skip:    A9 L          ; LDA #length
+           A2 lo / A0 hi ; LDX/LDY = fname pointer
+           20 BD FF      ; JSR $FFBD (SETNAM)
+           A9 01         ; LDA #1 (logical file)
+           A2 dev / A0 sec
+           20 BA FF      ; JSR $FFBA (SETLFS)
+  ; if override (sec=0): A2 lo / A0 hi (LDX/LDY override addr)
+           A9 00         ; LDA #0 (LOAD, not VERIFY)
+           20 D5 FF      ; JSR $FFD5 (LOAD)
+  ; if errorLabel: B0 off (BCS errorLabel; offset = label - (here+2))
+  ```
+- **Méret:** `3 + fnLen + 9 (SETNAM) + 9 (SETLFS) + (override ? 4 : 0) + 5 (LDA#0+JSR LOAD) + (errorLabel ? 2 : 0)` — minimum 27 byte (1-char fájlnév, opciók nélkül).
+- **PETSCII match:** A `c1541 -write … name` által írt fájl neve uppercase PETSCII-ben kerül a D64-re ($41-$5A); a SETNAM is azt vár → match. Egyéb karakterek (filename-tiltottak) szűrve.
+- **BCS hatótáv:** ±127 byte. Ha messzebb, fordítási hiba: `LOADFILE: a hiba cimke tul messze van`.
+- **UI:** HEX/DEC toggle és addressing mode select **el van rejtve**. Kétsoros macro-grid: filename + device | address + errorLabel.
+
 A `REGION` / `ENDREGION` blokk (`isRegionMacro: true` / `isEndRegionMacro: true`): vizuális csoportosító, **0 byte**, a program logikájára nincs hatása.
 - **Mezők (REGION):** `regionName` (string, szabad szöveg, pl. `"init"`)
 - **`regionCollapsed`** (bool): ha true, a REGION és ENDREGION közötti blokkok rejtve vannak a program listában, a REGION saját body-ja is becsukódik (`collapsed = regionCollapsed`)

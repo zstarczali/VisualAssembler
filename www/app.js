@@ -173,6 +173,7 @@ const mnemonicLibrary = {
     { mnemonic: "WAIT_RASTER", description: "Rasztervonal varakozas: LDA $D012 / CMP #sor / BNE -7. Inline, 7 byte, nincs JSR.", modes: ["implied"], isWaitRasterMacro: true },
     { mnemonic: "JOYSTICK", description: "Joystick olvasas es sprite mozgatasa: UP/DOWN/LEFT/RIGHT bitek LSR+BCS+DEC/INC-cel. Port 1=$DC01, Port 2=$DC00 (alap). 27 byte inline.", modes: ["implied"], isJoystickMacro: true },
     { mnemonic: "SPRITE_COL", description: "Sprite utkozes detektalas: LDA $D01E/$D01F + AND #bitMask. Eredmeny A-ban: nem nulla = utkozes. Utana BEQ/BNE-vel ugri. 5 byte.", modes: ["implied"], isSpriteColMacro: true },
+    { mnemonic: "LOADFILE", description: "Fajl betoltese D64-rol KERNAL SETNAM/SETLFS/LOAD rutinokkal. Cim opcionalis (ures = fajl sajat cime, sec=1; kitoltve = override, sec=0). Hiba cimke opcionalis (BCS).", modes: ["implied"], isLoadFileMacro: true },
     { mnemonic: "DEFINE", description: "Szimbolum definialasa felteteles forditashoz. Ha jelen van, az IF blokkban levo feltetelek kivalutalodnak.", modes: ["implied"], isDefineMacro: true },
     { mnemonic: "IF", description: "Felteteles forditas kezdete. Kifejezest var (pl. DEBUG). ENDIF-fel zarjuk.", modes: ["implied"], isIfMacro: true },
     { mnemonic: "ELSE", description: "Alternativ ag IF blokkon belul.", modes: ["implied"], isElseMacro: true },
@@ -214,6 +215,7 @@ const loadSampleButton = document.getElementById("load-sample");
 const sampleSelect = document.getElementById("sample-select");
 const saveProjectButton = document.getElementById("save-project");
 const savePrgButton = document.getElementById("save-prg");
+const saveD64Button = document.getElementById("save-d64");
 const loadProjectButton = document.getElementById("load-project");
 const importAsmButton = document.getElementById("import-asm");
 const importAsmDialog = document.getElementById("import-asm-dialog");
@@ -347,6 +349,24 @@ const translations = {
     savePrg: "Export PRG-kent",
     savePrgSuccess: "PRG elmentve",
     savePrgFailed: "PRG mentes sikertelen",
+    saveD64: "Export D64-kent",
+    saveD64Success: "D64 elmentve",
+    saveD64Failed: "D64 mentes sikertelen",
+    saveD64NeedVice: "A D64 mentes a VICE c1541 toolt hasznalja. Allitsd be a VICE eleresi utjat a Beallitasok menuben.",
+    d64ExtraNamePlaceholder: "FAJLNEV",
+    d64ExtraAddrPlaceholder: "C000",
+    d64ExtraRemove: "Eltavolitas",
+    d64ErrorEmptyName: "Egy fajlhoz nincs nev megadva.",
+    d64ErrorBadAddr: "Ervenytelen betoltesi cim a {name} fajlhoz (hex 0000-FFFF).",
+    d64FilesLabel: "fajl",
+    d64ExportTitle: "Export D64-kent",
+    d64ExportDiskName: "Lemez nev (max 16)",
+    d64ExportProgName: "Program nev (max 16)",
+    d64ExportExtrasTitle: "Tovabbi fajlok",
+    d64ExportExtrasHelp: "Adj hozza nyers binaris fajlokat (pl. adat, sprite). PRG bejegyzeskent kerulnek a D64-re. A betoltesi cim mezo opcionalis (hex), uresen hagyva nyersen mented.",
+    d64ExportAddFile: "+ Fajl hozzaadasa",
+    d64ExportConfirm: "Mentes",
+    d64ExportCancel: "Megse",
     programSettings: "Programbeallitasok",
     macroSourceToggle: "Makro forraskod megjelenites",
     asmNumbersLabel: "Szamok az ASM kimenetben",
@@ -460,6 +480,12 @@ const translations = {
     fieldColType: "Utkozes tipusa",
     colTypeSprite: "Sprite-Sprite ($D01E)",
     colTypeBackground: "Sprite-Hatter ($D01F)",
+    fieldLoadFileName: "Fajlnev (max 16)",
+    fieldLoadFileDevice: "Eszkoz (8-30)",
+    fieldLoadFileAddress: "Cim (opcionalis)",
+    fieldLoadFileAddressPlaceholder: "ures = fajl sajat cime",
+    fieldLoadFileErrorLabel: "Hiba cimke (opcionalis)",
+    fieldLoadFileErrorLabelPlaceholder: "BCS celja",
     pickLabel: "Cimke valasztas",
     fieldPushRegs: "Regiszterek",
     fieldPullRegs: "Regiszterek",
@@ -597,6 +623,24 @@ const translations = {
     savePrg: "Export to PRG",
     savePrgSuccess: "PRG saved",
     savePrgFailed: "PRG save failed",
+    saveD64: "Export to D64",
+    saveD64Success: "D64 saved",
+    saveD64Failed: "D64 export failed",
+    saveD64NeedVice: "D64 export uses VICE's c1541 tool. Set the VICE path in the Settings menu.",
+    d64ExtraNamePlaceholder: "FILENAME",
+    d64ExtraAddrPlaceholder: "C000",
+    d64ExtraRemove: "Remove",
+    d64ErrorEmptyName: "An extra file has no name.",
+    d64ErrorBadAddr: "Invalid load address for {name} (hex 0000-FFFF).",
+    d64FilesLabel: "files",
+    d64ExportTitle: "Export to D64",
+    d64ExportDiskName: "Disk name (max 16)",
+    d64ExportProgName: "Program name (max 16)",
+    d64ExportExtrasTitle: "Extra files",
+    d64ExportExtrasHelp: "Add raw binary files (e.g. data, sprites). They are written as PRG entries on the D64. The load address field is optional (hex); leave empty to save raw.",
+    d64ExportAddFile: "+ Add file",
+    d64ExportConfirm: "Export",
+    d64ExportCancel: "Cancel",
     programSettings: "Program settings",
     macroSourceToggle: "Show macro source code",
     asmNumbersLabel: "Numbers in ASM output",
@@ -711,6 +755,12 @@ const translations = {
     fieldColType: "Collision type",
     colTypeSprite: "Sprite-Sprite ($D01E)",
     colTypeBackground: "Sprite-Background ($D01F)",
+    fieldLoadFileName: "Filename (max 16)",
+    fieldLoadFileDevice: "Device (8-30)",
+    fieldLoadFileAddress: "Address (optional)",
+    fieldLoadFileAddressPlaceholder: "empty = file's own load addr",
+    fieldLoadFileErrorLabel: "Error label (optional)",
+    fieldLoadFileErrorLabelPlaceholder: "BCS target",
     pickLabel: "Pick label",
     fieldPushRegs: "Registers",
     fieldPullRegs: "Registers",
@@ -1024,6 +1074,7 @@ const mnemonicDescriptionsEn = {
   LABEL: "Named label in code for jump targets.",
   COMMENT: "Program comment that does not generate bytes.",
   SPRITE_INIT: "Initialize a sprite: set data page pointer ($07F8+N), enable bit ($D015), and color ($D027+N).",
+  LOADFILE: "Load a file from disk via KERNAL SETNAM/SETLFS/LOAD. Address optional (empty = file's own load address with secondary=1; filled = override with secondary=0). Error label optional (BCS to label on carry/error).",
   SPRITE_POS: "Set sprite position: X (0–319) and Y (0–255). Handles the $D010 MSB for X > 255.",
   WAIT_RASTER: "Busy-wait for a raster line: LDA $D012 / CMP #line / BNE -7. Inline, 7 bytes, no JSR.",
   JOYSTICK: "Read joystick and move sprite: UP/DOWN/LEFT/RIGHT via LSR+BCS+DEC/INC. Port 1=$DC01, Port 2=$DC00. 27 bytes inline.",
@@ -1243,10 +1294,12 @@ function initPalette() {
   });
   exitAppButton?.addEventListener("click", () => window.electronAPI.quitApp());
   setupOperandDropdown();
+  setupD64ExportDialog();
   sampleSelect?.addEventListener("change", saveUiSettings);
   loadSampleButton.addEventListener("click", loadSelectedSample);
   saveProjectButton?.addEventListener("click", saveProjectToFile);
   savePrgButton?.addEventListener("click", savePrgToFile);
+  saveD64Button?.addEventListener("click", saveD64ToFile);
   loadProjectButton?.addEventListener("click", loadProjectFromFile);
   importAsmButton?.addEventListener("click", () => {
     if (importAsmTextarea) importAsmTextarea.value = "";
@@ -1553,6 +1606,15 @@ function applyTranslations() {
     setText("#import-asm-errors-title", t("importAsmErrorsTitle"));
     if (importAsmTextarea) importAsmTextarea.placeholder = t("importAsmPlaceholder");
     setText("#save-prg", t("savePrg"));
+    setText("#save-d64", t("saveD64"));
+    setText("#d64-export-title", t("d64ExportTitle"));
+    setText("#d64-export-diskname-label", t("d64ExportDiskName"));
+    setText("#d64-export-progname-label", t("d64ExportProgName"));
+    setText("#d64-export-extras-title", t("d64ExportExtrasTitle"));
+    setText("#d64-export-extras-help", t("d64ExportExtrasHelp"));
+    setText("#d64-export-add-file", t("d64ExportAddFile"));
+    setText("#d64-export-confirm", t("d64ExportConfirm"));
+    setText("#d64-export-cancel", t("d64ExportCancel"));
     setText("#program-settings-label", t("programSettings"));
     if (macroSourceToggleText) macroSourceToggleText.textContent = t("macroSourceToggle");
     setText("#asm-numbers-label", t("asmNumbersLabel"));
@@ -1572,6 +1634,8 @@ function applyTranslations() {
     saveProjectButton?.setAttribute("aria-label", t("saveProject"));
     savePrgButton?.setAttribute("title", t("savePrg"));
     savePrgButton?.setAttribute("aria-label", t("savePrg"));
+    saveD64Button?.setAttribute("title", t("saveD64"));
+    saveD64Button?.setAttribute("aria-label", t("saveD64"));
     loadProjectButton?.setAttribute("title", t("loadProject"));
     loadProjectButton?.setAttribute("aria-label", t("loadProject"));
     addSelectedButton?.setAttribute("title", t("addSelected"));
@@ -2359,6 +2423,26 @@ function createBlockFromMnemonic(item) {
     };
   }
 
+  if (item.isLoadFileMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isLoadFileMacro: true,
+      loadFileName: "DATA",
+      loadFileDevice: "8",
+      loadFileAddress: "",
+      loadFileErrorLabel: ""
+    };
+  }
+
   if (item.isSpritePosMacro) {
     return {
       id: crypto.randomUUID(),
@@ -3107,6 +3191,15 @@ function updateProgramBlock(index, field, value) {
           }
         }
       }
+      // If addressing mode changed away from immediate while base is "bin",
+      // BIN no longer makes sense for address operands — coerce to hex.
+      if (field === "addressingMode" && block.base === "bin" && value !== "immediate") {
+        const numericValue = parseNumberByBase(block.rawOperand.trim(), "bin");
+        block.base = "hex";
+        if (numericValue !== null && numericValue >= 0) {
+          block.rawOperand = numericValue.toString(16).toUpperCase();
+        }
+      }
       const preview = buildOperandPreview(block.addressingMode, block.rawOperand, block.base);
       block.operand = preview.operand;
       block.validationError = preview.error;
@@ -3199,6 +3292,20 @@ function updateProgramBlock(index, field, value) {
 
   if (block.isSpriteInitMacro && (field === "spriteNum" || field === "spriteColor" || field === "spriteDataPage")) {
     block.validationError = validateSpriteInitMacro(block.spriteNum, block.spriteColor, block.spriteDataPage);
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isLoadFileMacro && (field === "loadFileName" || field === "loadFileDevice" || field === "loadFileAddress" || field === "loadFileErrorLabel")) {
+    if (field === "loadFileName") {
+      // Sanitize: ASCII printable only, max 16 chars, uppercase (PETSCII A-Z = $41-$5A)
+      block.loadFileName = (value || "").toUpperCase().replace(/[^\x20-\x7E]/g, "").replace(/["\,\/\\:\*\?<>\|]/g, "").slice(0, 16);
+    }
+    if (field === "loadFileErrorLabel") {
+      block.loadFileErrorLabel = sanitizeLabelName(value);
+    }
+    block.validationError = "";
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -4431,6 +4538,191 @@ async function savePrgToFile() {
   }
 }
 
+async function saveD64ToFile() {
+  if (!window.electronAPI?.saveD64) {
+    if (emulatorStatus) emulatorStatus.textContent = t("saveD64Failed");
+    return;
+  }
+
+  // Compile first so we surface errors early (before opening the dialog).
+  const prg = buildAutostartPrgForEmulator();
+  if (!prg.ok) {
+    if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
+    if (emulatorStatus) emulatorStatus.textContent = prg.error;
+    return;
+  }
+
+  openD64ExportDialog(prg.bytes);
+}
+
+// ── D64 Export Dialog ─────────────────────────────────────────────────
+// Lets the user pick a disk name + program name for the assembled PRG and
+// add additional raw binary files (e.g. data files for LOADFILE) that get
+// written to the same D64 image.
+const d64ExportState = {
+  prgBytes: null,
+  extras: []  // [{ name: string, sourcePath: string, bytes: number[], loadAddress: string }]
+};
+
+function defaultDiskName() {
+  if (sampleSelect && sampleSelect.value) {
+    return sampleSelect.value.replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 16) || "DISK";
+  }
+  return "DISK";
+}
+
+function openD64ExportDialog(prgBytes) {
+  const dialog = document.getElementById("d64-export-dialog");
+  if (!dialog) return;
+  d64ExportState.prgBytes = prgBytes;
+  d64ExportState.extras = [];
+
+  const diskInput = document.getElementById("d64-export-diskname");
+  const progInput = document.getElementById("d64-export-progname");
+  const errorBox = document.getElementById("d64-export-error");
+  if (diskInput) diskInput.value = defaultDiskName();
+  if (progInput) progInput.value = defaultDiskName();
+  if (errorBox) { errorBox.hidden = true; errorBox.textContent = ""; }
+
+  renderD64ExtraFiles();
+  dialog.showModal();
+}
+
+function renderD64ExtraFiles() {
+  const list = document.getElementById("d64-export-extras-list");
+  if (!list) return;
+  list.innerHTML = "";
+
+  d64ExportState.extras.forEach((entry, idx) => {
+    const item = document.createElement("div");
+    item.className = "d64-export-extra-item";
+    item.innerHTML = `
+      <input type="text" maxlength="16" class="d64-extra-name" value="${escapeHtmlAttribute(entry.name)}" placeholder="${t("d64ExtraNamePlaceholder")}">
+      <input type="text" class="d64-extra-source" value="${escapeHtmlAttribute(entry.sourcePath || "")}" readonly>
+      <input type="text" maxlength="5" class="d64-extra-addr" value="${escapeHtmlAttribute(entry.loadAddress || "")}" placeholder="${t("d64ExtraAddrPlaceholder")}">
+      <button type="button" class="d64-export-extra-remove" title="${t("d64ExtraRemove")}">×</button>
+    `;
+    list.appendChild(item);
+
+    item.querySelector(".d64-extra-name").addEventListener("input", (event) => {
+      const cleaned = event.target.value.toUpperCase().replace(/[^\x20-\x7E]/g, "").replace(/[",\/\\:\*\?<>\|]/g, "").slice(0, 16);
+      d64ExportState.extras[idx].name = cleaned;
+      event.target.value = cleaned;
+    });
+
+    item.querySelector(".d64-extra-addr").addEventListener("input", (event) => {
+      const cleaned = event.target.value.replace(/^\$/, "").replace(/[^0-9A-Fa-f]/g, "").slice(0, 4);
+      d64ExportState.extras[idx].loadAddress = cleaned;
+      event.target.value = cleaned;
+    });
+
+    item.querySelector(".d64-export-extra-remove").addEventListener("click", () => {
+      d64ExportState.extras.splice(idx, 1);
+      renderD64ExtraFiles();
+    });
+  });
+}
+
+async function pickD64ExtraFile() {
+  if (!window.electronAPI?.chooseIncBinFile) return;
+  const result = await window.electronAPI.chooseIncBinFile();
+  if (result?.canceled || !result?.bytes) return;
+
+  // Default name = uppercase basename without extension, max 16 chars.
+  const baseName = (result.fileName || "").replace(/\.[^.]+$/, "").toUpperCase().replace(/[^\x20-\x7E]/g, "").replace(/[",\/\\:\*\?<>\|]/g, "").slice(0, 16) || "DATA";
+
+  d64ExportState.extras.push({
+    name: baseName,
+    sourcePath: result.filePath || result.fileName || "",
+    bytes: result.bytes,
+    loadAddress: ""  // empty = save raw, no load addr prepended
+  });
+  renderD64ExtraFiles();
+}
+
+async function confirmD64Export() {
+  const dialog = document.getElementById("d64-export-dialog");
+  const diskInput = document.getElementById("d64-export-diskname");
+  const progInput = document.getElementById("d64-export-progname");
+  const errorBox = document.getElementById("d64-export-error");
+  if (!dialog || !d64ExportState.prgBytes) return;
+
+  const diskName = (diskInput?.value || "").trim() || "DISK";
+  const progName = (progInput?.value || "").trim() || "PROGRAM";
+
+  // First file = the assembled PRG. Its bytes already contain the load
+  // address prefix (from buildAutostartPrgForEmulator), so loadAddress = null.
+  const files = [{
+    name: progName,
+    bytes: Array.from(d64ExportState.prgBytes),
+    loadAddress: null
+  }];
+
+  for (const extra of d64ExportState.extras) {
+    if (!extra.name) {
+      if (errorBox) { errorBox.hidden = false; errorBox.textContent = t("d64ErrorEmptyName"); }
+      return;
+    }
+    let loadAddr = null;
+    if (extra.loadAddress && extra.loadAddress.trim()) {
+      const parsed = parseInt(extra.loadAddress.trim(), 16);
+      if (isNaN(parsed) || parsed < 0 || parsed > 0xFFFF) {
+        if (errorBox) { errorBox.hidden = false; errorBox.textContent = tf("d64ErrorBadAddr", { name: extra.name }); }
+        return;
+      }
+      loadAddr = parsed;
+    }
+    files.push({
+      name: extra.name,
+      bytes: Array.from(extra.bytes),
+      loadAddress: loadAddr
+    });
+  }
+
+  // Disable buttons during the async backend call
+  const confirmBtn = document.getElementById("d64-export-confirm");
+  const cancelBtn = document.getElementById("d64-export-cancel");
+  if (confirmBtn) confirmBtn.disabled = true;
+  if (cancelBtn) cancelBtn.disabled = true;
+
+  let result;
+  try {
+    result = await window.electronAPI.saveD64({ diskName, files });
+  } finally {
+    if (confirmBtn) confirmBtn.disabled = false;
+    if (cancelBtn) cancelBtn.disabled = false;
+  }
+
+  if (result?.canceled) return;
+
+  if (!result?.ok) {
+    const err = result?.error || "";
+    let msg = err || t("saveD64Failed");
+    if (/c1541|VICE/i.test(err)) msg = t("saveD64NeedVice");
+    if (errorBox) { errorBox.hidden = false; errorBox.textContent = msg; }
+    return;
+  }
+
+  dialog.close();
+  if (emulatorStatus) {
+    const fileName = (result.filePath || "").split(/[\\/]/).pop();
+    const count = result.fileCount || files.length;
+    emulatorStatus.textContent = `${t("saveD64Success")}: ${fileName} (${count} ${t("d64FilesLabel")})`;
+  }
+}
+
+function setupD64ExportDialog() {
+  const dialog = document.getElementById("d64-export-dialog");
+  if (!dialog) return;
+  document.getElementById("d64-export-add-file")?.addEventListener("click", pickD64ExtraFile);
+  document.getElementById("d64-export-confirm")?.addEventListener("click", confirmD64Export);
+  document.getElementById("d64-export-cancel")?.addEventListener("click", () => dialog.close());
+  dialog.addEventListener("close", () => {
+    d64ExportState.prgBytes = null;
+    d64ExportState.extras = [];
+  });
+}
+
 async function reloadIncludeBlocks(projectFilePath = "") {
   if (!window.electronAPI?.reloadIncludeFile) return;
   const lastSlash = typeof projectFilePath === "string"
@@ -4580,6 +4872,187 @@ function _importMakeByte(rawByteStr) {
   };
 }
 
+// Detect a comma-separated value list base. Returns { base, normalized } where
+// normalized is the cleaned string (without $/% prefixes) that matches `base`.
+function _importDetectListBase(rawList) {
+  const parts = rawList.split(",").map(p => p.trim()).filter(Boolean);
+  if (!parts.length) return { base: "hex", normalized: rawList.trim() };
+  const allBin = parts.every(p => /^%[01]+$/.test(p));
+  const allHex = parts.every(p => /^\$[0-9A-Fa-f]+$/.test(p) || /^0x[0-9A-Fa-f]+$/i.test(p));
+  const allDec = parts.every(p => /^\d+$/.test(p));
+  const stripped = parts.map(p => p.replace(/^[\$%]/, "").replace(/^0x/i, ""));
+  if (allBin) return { base: "bin", normalized: stripped.join(",") };
+  if (allDec) return { base: "dec", normalized: stripped.join(",") };
+  if (allHex) return { base: "hex", normalized: stripped.join(",").toUpperCase() };
+  // Mixed → keep hex semantics, strip prefixes where present
+  return { base: "hex", normalized: stripped.join(",").toUpperCase() };
+}
+
+function _importParseScalar(raw) {
+  const v = raw.trim();
+  if (/^%[01]+$/.test(v)) return { base: "bin", value: v.slice(1) };
+  if (/^\$[0-9A-Fa-f]+$/.test(v)) return { base: "hex", value: v.slice(1).toUpperCase() };
+  if (/^0x[0-9A-Fa-f]+$/i.test(v)) return { base: "hex", value: v.slice(2).toUpperCase() };
+  if (/^\d+$/.test(v)) return { base: "dec", value: v };
+  return { base: "hex", value: v.toUpperCase() };
+}
+
+function _importMakeWord(rawList) {
+  const detected = _importDetectListBase(rawList);
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "WORD",
+    operand: detected.normalized, rawOperand: detected.normalized, description: "",
+    addressingMode: "implied", base: detected.base === "bin" ? "hex" : detected.base,
+    validationError: "", collapsed: true, isWordMacro: true
+  };
+}
+
+function _importMakeFill(rawList) {
+  // FILL accepts "count, value"
+  const parts = rawList.split(",").map(p => p.trim()).filter(Boolean);
+  let base = "dec";
+  let normalized = rawList.trim();
+  if (parts.length === 2) {
+    const a = _importParseScalar(parts[0]);
+    const b = _importParseScalar(parts[1]);
+    // Pick the value's base for the macro (count usually fits any base).
+    base = b.base;
+    normalized = `${a.value},${b.value}`;
+  }
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "FILL",
+    operand: normalized, rawOperand: normalized, description: "",
+    addressingMode: "implied", base,
+    validationError: "", collapsed: true, isFillMacro: true
+  };
+}
+
+function _importMakeAlign(rawValue) {
+  const scalar = _importParseScalar(rawValue);
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "ALIGN",
+    operand: scalar.value, rawOperand: scalar.value, description: "",
+    addressingMode: "implied",
+    // ALIGN must use "dec" or "hex" — bin is meaningless and triggers known bugs.
+    base: scalar.base === "bin" ? "hex" : scalar.base,
+    validationError: "", collapsed: true, isAlignMacro: true
+  };
+}
+
+function _importMakeIncBin(fileName, addressHex) {
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "INCBIN",
+    operand: "", rawOperand: "", description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: "", collapsed: true, isIncBinMacro: true,
+    incBinFileName: fileName,
+    incBinFile: fileName,
+    incBinBytes: [],
+    incBinAddress: addressHex || ""
+  };
+}
+
+function _importMakeConst(name, rawValue) {
+  const scalar = _importParseScalar(rawValue);
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "CONST",
+    operand: scalar.value, rawOperand: scalar.value, description: "",
+    addressingMode: "implied", base: scalar.base,
+    validationError: "", collapsed: true, isConstMacro: true,
+    constName: name,
+    constValue: parseNumberByBase(scalar.value, scalar.base)
+  };
+}
+
+function _importMakeRegion(name) {
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "REGION",
+    operand: name, rawOperand: name, description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: "", collapsed: true, isRegionMacro: true,
+    regionName: name, regionCollapsed: false
+  };
+}
+
+function _importMakeEndRegion() {
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "ENDREGION",
+    operand: "", rawOperand: "", description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: "", collapsed: true, isEndRegionMacro: true
+  };
+}
+
+function _importMakeDefine(symbol) {
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "DEFINE",
+    operand: symbol, rawOperand: symbol, description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: "", collapsed: true, isDefineMacro: true,
+    defineSymbol: symbol
+  };
+}
+
+function _importMakeIf(condition) {
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "IF",
+    operand: condition, rawOperand: condition, description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: "", collapsed: true, isIfMacro: true,
+    ifCondition: condition
+  };
+}
+
+function _importMakeElse() {
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "ELSE",
+    operand: "", rawOperand: "", description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: "", collapsed: true, isElseMacro: true
+  };
+}
+
+function _importMakeEndIf() {
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "ENDIF",
+    operand: "", rawOperand: "", description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: "", collapsed: true, isEndIfMacro: true
+  };
+}
+
+function _importMakeMacroDefStart(name) {
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "MACRO",
+    operand: name, rawOperand: name, description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: "", collapsed: true, isMacroDefStart: true,
+    macroName: name
+  };
+}
+
+function _importMakeMacroDefEnd() {
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "ENDM",
+    operand: "", rawOperand: "", description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: "", collapsed: true, isMacroDefEnd: true
+  };
+}
+
 function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
   const category = _importMnemonicCategory(mnemonic);
   const description = _importMnemonicDescription(mnemonic);
@@ -4597,7 +5070,9 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
       addressingMode = "immediate";
       const val = op.slice(1);
       if (val.startsWith("%")) {
-        base = "bin"; rawOperand = val; displayOperand = "#" + val;
+        // Strip % so rawOperand stays consistent with other bin-base blocks
+        // (the rest of the codebase stores BIN values as bare bits).
+        base = "bin"; rawOperand = val.slice(1); displayOperand = "#" + val;
       } else if (val.startsWith("$")) {
         base = "hex"; rawOperand = val.slice(1).toUpperCase(); displayOperand = "#$" + rawOperand;
       } else if (/^\d+$/.test(val)) {
@@ -4672,7 +5147,35 @@ function parseAsmText(text) {
     line = line.trim();
 
     if (!line) {
-      if (commentText) blocks.push(_importMakeComment(commentText));
+      // Detect app-specific structural markers in comment-only lines.
+      // These re-create REGION/CONST/IF/DEFINE when re-importing this app's
+      // own ASM output.
+      //
+      // Note: ; .MACRO / ; .ENDM markers are intentionally NOT recognized.
+      // The export emits them around fixed-address INCLUDE subroutines as
+      // documentation, but treating them as real macro defs on import would
+      // wrap the labels inside a template (skipped by getProgramLayout),
+      // breaking external JSR references.
+      if (commentText) {
+        const ct = commentText.trim();
+        // region NAME
+        let m = ct.match(/^region\s+(.+?)\s*$/i);
+        if (m) { blocks.push(_importMakeRegion(m[1].trim())); continue; }
+        // endregion [NAME]
+        if (/^endregion(?:\s+.+)?$/i.test(ct)) { blocks.push(_importMakeEndRegion()); continue; }
+        // .DEFINE SYM
+        m = ct.match(/^\.DEFINE\s+([A-Za-z_][A-Za-z0-9_]*)\s*$/i);
+        if (m) { blocks.push(_importMakeDefine(m[1])); continue; }
+        // .CONST name = value
+        m = ct.match(/^\.CONST\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+?)\s*$/i);
+        if (m) { blocks.push(_importMakeConst(m[1], m[2])); continue; }
+        // .IF condition
+        m = ct.match(/^\.IF\s+(.+?)\s*$/i);
+        if (m) { blocks.push(_importMakeIf(m[1].trim())); continue; }
+        if (/^\.ELSE\s*$/i.test(ct)) { blocks.push(_importMakeElse()); continue; }
+        if (/^\.ENDIF\s*$/i.test(ct)) { blocks.push(_importMakeEndIf()); continue; }
+        blocks.push(_importMakeComment(commentText));
+      }
       continue;
     }
 
@@ -4692,6 +5195,56 @@ function parseAsmText(text) {
       continue;
     }
 
+    // Label: .word value,...  →  LABEL + WORD
+    const lblWordM = line.match(/^([A-Za-z_.][A-Za-z0-9_.]*):\s*\.word\s+(.+)$/i);
+    if (lblWordM) {
+      blocks.push(_importMakeLabel(lblWordM[1].replace(/^\./, "")));
+      blocks.push(_importMakeWord(lblWordM[2].trim()));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Standalone .word val,... (also accepts ACME-style !word)
+    const standaloneWordM = line.match(/^(?:\.word|!word)\s+(.+)$/i);
+    if (standaloneWordM) {
+      blocks.push(_importMakeWord(standaloneWordM[1].trim()));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .fill count,value  (also !fill)
+    const fillM = line.match(/^(?:\.fill|!fill)\s+(.+)$/i);
+    if (fillM) {
+      blocks.push(_importMakeFill(fillM[1].trim()));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .align N  (also !align)
+    const alignM = line.match(/^(?:\.align|!align)\s+(.+)$/i);
+    if (alignM) {
+      blocks.push(_importMakeAlign(alignM[1].trim()));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .incbin "filename"  (also !bin / !binary)
+    const incbinM = line.match(/^(?:\.incbin|!bin(?:ary)?)\s+"([^"]+)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$/i);
+    if (incbinM) {
+      const addr = incbinM[2] ? incbinM[2].toUpperCase().padStart(4, "0") : "";
+      blocks.push(_importMakeIncBin(incbinM[1], addr));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // CONST equate: name = $value  or  name .equ $value
+    const equateM = line.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*(?:=|\.equ\b)\s*(\$[0-9A-Fa-f]+|0x[0-9A-Fa-f]+|%[01]+|\d+)\s*$/i);
+    if (equateM) {
+      blocks.push(_importMakeConst(equateM[1], equateM[2]));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
     // Label: .byte value  →  LABEL + BYTE
     const lblByteM = line.match(/^([A-Za-z_.][A-Za-z0-9_.]*):\s*\.byte\s+(.+)$/i);
     if (lblByteM) {
@@ -4701,8 +5254,8 @@ function parseAsmText(text) {
       continue;
     }
 
-    // Standalone .byte value,...
-    const standaloneByteM = line.match(/^\.byte\s+(.+)$/i);
+    // Standalone .byte value,... (also ACME-style !byte)
+    const standaloneByteM = line.match(/^(?:\.byte|!byte)\s+(.+)$/i);
     if (standaloneByteM) {
       blocks.push(_importMakeByte(standaloneByteM[1].trim()));
       if (commentText) blocks.push(_importMakeComment(commentText));
@@ -5339,6 +5892,85 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes, comment: `SPRITE_INIT #${num} col=${color} page=$${pageHex}` };
   }
 
+  if (block.isLoadFileMacro) {
+    const filename = (block.loadFileName || "").toUpperCase().replace(/[^\x20-\x7E]/g, "").slice(0, 16);
+    if (!filename) {
+      return { ok: false, error: "LOADFILE: a fajlnev nem lehet ures." };
+    }
+    const device = parseInt(block.loadFileDevice || "8", 10);
+    if (isNaN(device) || device < 8 || device > 30) {
+      return { ok: false, error: "LOADFILE: az eszkozszam 8 es 30 kozott lehet." };
+    }
+    const addrStr = (block.loadFileAddress || "").trim().replace(/^\$/, "");
+    const useOverride = addrStr !== "";
+    let overrideAddr = 0;
+    if (useOverride) {
+      overrideAddr = parseInt(addrStr, 16);
+      if (isNaN(overrideAddr) || overrideAddr < 0 || overrideAddr > 0xFFFF) {
+        return { ok: false, error: "LOADFILE: az override cim ervenytelen ($0000-$FFFF)." };
+      }
+    }
+    const errorLabel = (block.loadFileErrorLabel || "").trim();
+    const useErrorCheck = errorLabel !== "";
+
+    const baseAddr = line.address;
+    const fnameAddr = baseAddr + 3;             // immediately after JMP skip
+    const skipAddr = fnameAddr + filename.length;
+
+    const bytes = [];
+
+    // JMP skip (over the filename data)
+    bytes.push(0x4C, skipAddr & 0xFF, skipAddr >> 8);
+
+    // Filename bytes (PETSCII; ASCII A-Z = PETSCII A-Z)
+    for (let i = 0; i < filename.length; i++) {
+      bytes.push(filename.charCodeAt(i) & 0xFF);
+    }
+
+    // SETNAM ($FFBD): A=length, X/Y=ptr lo/hi
+    bytes.push(0xA9, filename.length);
+    bytes.push(0xA2, fnameAddr & 0xFF);
+    bytes.push(0xA0, (fnameAddr >> 8) & 0xFF);
+    bytes.push(0x20, 0xBD, 0xFF);
+
+    // SETLFS ($FFBA): A=logical, X=device, Y=secondary (0 = use override addr; 1 = use file's load addr)
+    const secondary = useOverride ? 0x00 : 0x01;
+    bytes.push(0xA9, 0x01);
+    bytes.push(0xA2, device & 0xFF);
+    bytes.push(0xA0, secondary);
+    bytes.push(0x20, 0xBA, 0xFF);
+
+    // Override address (only when secondary=0): LDX #<addr ; LDY #>addr
+    if (useOverride) {
+      bytes.push(0xA2, overrideAddr & 0xFF);
+      bytes.push(0xA0, (overrideAddr >> 8) & 0xFF);
+    }
+
+    // LOAD ($FFD5): A=0 (load, not verify)
+    bytes.push(0xA9, 0x00);
+    bytes.push(0x20, 0xD5, 0xFF);
+
+    // Optional BCS errorLabel (carry set on KERNAL load error)
+    if (useErrorCheck) {
+      const target = labels.get(errorLabel);
+      if (target === undefined) {
+        return { ok: false, error: `LOADFILE: ismeretlen hiba cimke: ${errorLabel}` };
+      }
+      const bcsAddr = baseAddr + bytes.length;
+      const offset = target - (bcsAddr + 2);
+      if (offset < -128 || offset > 127) {
+        return { ok: false, error: `LOADFILE: a hiba cimke tul messze van (offset: ${offset}).` };
+      }
+      bytes.push(0xB0, offset & 0xFF);
+    }
+
+    const addrSuffix = useOverride
+      ? ` @$${overrideAddr.toString(16).toUpperCase().padStart(4, "0")}`
+      : "";
+    const errSuffix = useErrorCheck ? ` BCS ${errorLabel}` : "";
+    return { ok: true, bytes, comment: `LOADFILE "${filename}" dev=${device}${addrSuffix}${errSuffix}` };
+  }
+
   if (block.isSpritePosMacro) {
     const num = parseInt(block.spriteNum || "0", 10);
     if (isNaN(num) || num < 0 || num > 7) {
@@ -5652,6 +6284,26 @@ function resolveRelativeOperand(block, address, labels) {
   return { ok: true, value: offset & 0xFF };
 }
 
+// BIN format only makes sense for bitmask-style values (immediate mode, raw byte data).
+// For address operands (JMP/JSR/branches/zeroPage/absolute/indirect) BIN is meaningless,
+// so the BIN radio is hidden in those cases.
+function shouldShowBinForBlock(block, mode) {
+  if (!block) return false;
+  // Macros: byte-level data benefits from BIN (bitmasks for sprites, chars, flags).
+  if (block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isFillMacro) {
+    return true;
+  }
+  // 16-bit values (mostly addresses) and alignment boundaries: BIN is not useful.
+  if (block.isWordMacro || block.isAlignMacro) {
+    return false;
+  }
+  // Regular instructions: BIN only for immediate mode.
+  if (mode && mode.needsOperand) {
+    return block.addressingMode === "immediate";
+  }
+  return false;
+}
+
 function parseNumberByBase(value, base) {
   // Trim leading/trailing whitespace — rawOperand may have trailing spaces from user input or old saves
   value = value.trim();
@@ -5923,6 +6575,15 @@ function getInstructionSize(block) {
 
   if (block.isSpriteInitMacro) {
     return 18;  // LDA/STA ptr + LDA/ORA/STA $D015 + LDA/STA color
+  }
+
+  if (block.isLoadFileMacro) {
+    const filename = (block.loadFileName || "").toUpperCase().replace(/[^\x20-\x7E]/g, "").slice(0, 16);
+    const fnLen = Math.max(filename.length, 1);  // reserve at least 1 byte even if empty (compile error will surface separately)
+    const useOverride = (block.loadFileAddress || "").trim() !== "";
+    const useErrorCheck = (block.loadFileErrorLabel || "").trim() !== "";
+    // 3 (JMP skip) + fnLen + 9 (SETNAM) + 9 (SETLFS) + (4 if override) + 5 (LDA #0 + JSR LOAD) + (2 if BCS)
+    return 3 + fnLen + 9 + 9 + (useOverride ? 4 : 0) + 5 + (useErrorCheck ? 2 : 0);
   }
 
   if (block.isSpritePosMacro) {
@@ -6933,6 +7594,16 @@ function getCollapsedOperandText(block) {
     return `#${block.spriteNum || "0"} col=${block.spriteColor || "7"} page=$${pageHex}`;
   }
 
+  if (block.isLoadFileMacro) {
+    const fname = (block.loadFileName || "").trim();
+    const dev = block.loadFileDevice || "8";
+    const addr = (block.loadFileAddress || "").trim();
+    const errLbl = (block.loadFileErrorLabel || "").trim();
+    const addrPart = addr ? ` @$${addr.replace(/^\$/, "").toUpperCase()}` : "";
+    const errPart = errLbl ? ` ⚠${errLbl}` : "";
+    return `"${fname || "?"}" dev=${dev}${addrPart}${errPart}`;
+  }
+
   if (block.isSpritePosMacro) {
     return `#${block.spriteNum || "0"} X=${block.spriteX || "152"} Y=${block.spriteY || "100"}`;
   }
@@ -7727,6 +8398,33 @@ function renderProgram() {
           </div>
         `
       );
+    } else if (block.isLoadFileMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${t("fieldLoadFileName")}</span>
+              <input class="loadfile-name" type="text" maxlength="16" value="${escapeHtmlAttribute(block.loadFileName || "")}" placeholder="DATA">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldLoadFileDevice")}</span>
+              <input class="loadfile-device" type="number" min="8" max="30" value="${block.loadFileDevice || "8"}">
+            </label>
+          </div>
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${t("fieldLoadFileAddress")}</span>
+              <input class="loadfile-address" type="text" maxlength="5" value="${escapeHtmlAttribute(block.loadFileAddress || "")}" placeholder="${t("fieldLoadFileAddressPlaceholder")}">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldLoadFileErrorLabel")}</span>
+              <input class="loadfile-error-label" type="text" value="${escapeHtmlAttribute(block.loadFileErrorLabel || "")}" placeholder="${t("fieldLoadFileErrorLabelPlaceholder")}">
+            </label>
+          </div>
+        `
+      );
     } else if (block.isDefineMacro) {
       inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Symbol" : "Szimbolum";
       inlineField.hidden = false;
@@ -7995,7 +8693,7 @@ function renderProgram() {
     blockControls.insertAdjacentHTML(
       "beforeend",
       `
-          ${(mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke && !block.isRegionMacro && !block.isEndRegionMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
+          ${(mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke && !block.isRegionMacro && !block.isEndRegionMacro && !block.isLoadFileMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
           <label class="mini-field">
             <span>${t("fieldFormat")}</span>
           <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
@@ -8007,13 +8705,13 @@ function renderProgram() {
               <input class="block-base" type="radio" name="block-base-${block.id}" value="dec"${block.base === "dec" ? " checked" : ""}>
               <span>DEC</span>
             </label>
-            <label class="mini-toggle-option">
+            ${shouldShowBinForBlock(block, mode) ? `<label class="mini-toggle-option">
               <input class="block-base" type="radio" name="block-base-${block.id}" value="bin"${block.base === "bin" ? " checked" : ""}>
               <span>BIN</span>
-            </label>
+            </label>` : ""}
           </div>
         </label>` : ""}
-          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro || block.isRegionMacro || block.isEndRegionMacro || getMnemonicModes(block.mnemonic).length <= 1 ? ` hidden` : ""}>
+          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro || block.isRegionMacro || block.isEndRegionMacro || block.isLoadFileMacro || getMnemonicModes(block.mnemonic).length <= 1 ? ` hidden` : ""}>
             <span>${t("addressingMode")}</span>
           <select class="block-mode">
             ${getMnemonicModes(block.mnemonic).map((modeKey) => `<option value="${modeKey}"${block.addressingMode === modeKey ? " selected" : ""}>${modeText(modeKey, "label")}</option>`).join("")}
@@ -8133,6 +8831,71 @@ function renderProgram() {
     const colTypeSelect = node.querySelector(".col-type");
     if (colTypeSelect) {
       colTypeSelect.addEventListener("change", (event) => updateProgramBlock(index, "colType", event.target.value));
+    }
+    const loadFileNameInput = node.querySelector(".loadfile-name");
+    if (loadFileNameInput) {
+      loadFileNameInput.addEventListener("input", (event) => updateProgramBlock(index, "loadFileName", event.target.value));
+    }
+    const loadFileDeviceInput = node.querySelector(".loadfile-device");
+    if (loadFileDeviceInput) {
+      loadFileDeviceInput.addEventListener("input", (event) => updateProgramBlock(index, "loadFileDevice", event.target.value));
+    }
+    const loadFileAddressInput = node.querySelector(".loadfile-address");
+    if (loadFileAddressInput) {
+      loadFileAddressInput.addEventListener("input", (event) => updateProgramBlock(index, "loadFileAddress", event.target.value));
+    }
+    const loadFileErrorLabelInput = node.querySelector(".loadfile-error-label");
+    if (loadFileErrorLabelInput) {
+      loadFileErrorLabelInput.addEventListener("input", (event) => updateProgramBlock(index, "loadFileErrorLabel", event.target.value));
+
+      // Label picker dropdown — shows all program labels for the BCS target.
+      const programLabels = program.filter(b => b.isLabel && b.labelName).map(b => b.labelName);
+      if (programLabels.length > 0) {
+        loadFileErrorLabelInput.classList.add("has-label-picker");
+        const wrapper = document.createElement("div");
+        wrapper.className = "label-picker-wrap";
+        loadFileErrorLabelInput.parentNode.insertBefore(wrapper, loadFileErrorLabelInput);
+        wrapper.appendChild(loadFileErrorLabelInput);
+        const dropdown = document.createElement("div");
+        dropdown.className = "label-picker-dropdown";
+        dropdown.hidden = true;
+        dropdown.innerHTML = programLabels.map(n => `<div class="label-picker-item">${n}</div>`).join("");
+        document.body.appendChild(dropdown);
+        const positionDropdown = () => {
+          const r = loadFileErrorLabelInput.getBoundingClientRect();
+          dropdown.style.top = (r.bottom + window.scrollY + 4) + "px";
+          dropdown.style.left = (r.left + window.scrollX) + "px";
+          dropdown.style.width = r.width + "px";
+        };
+        let dropdownHovered = false;
+        const closeDropdown = () => {
+          dropdown.hidden = true;
+          window.removeEventListener("scroll", positionDropdown, { capture: true });
+        };
+        loadFileErrorLabelInput.addEventListener("focus", () => {
+          positionDropdown();
+          dropdown.hidden = false;
+          window.addEventListener("scroll", positionDropdown, { capture: true, passive: true });
+        });
+        loadFileErrorLabelInput.addEventListener("blur", () => {
+          if (!dropdownHovered) closeDropdown();
+        });
+        loadFileErrorLabelInput.addEventListener("keydown", e => { if (e.key === "Escape") closeDropdown(); });
+        dropdown.addEventListener("mouseenter", () => { dropdownHovered = true; });
+        dropdown.addEventListener("mouseleave", () => { dropdownHovered = false; });
+        dropdown.querySelectorAll(".label-picker-item").forEach(item => {
+          item.addEventListener("pointerdown", e => {
+            e.preventDefault();
+            loadFileErrorLabelInput.value = item.textContent;
+            loadFileErrorLabelInput.dispatchEvent(new Event("input"));
+            closeDropdown();
+            dropdownHovered = false;
+          });
+        });
+        document.addEventListener("pointerdown", e => {
+          if (!dropdown.contains(e.target) && e.target !== loadFileErrorLabelInput) closeDropdown();
+        }, { capture: true });
+      }
     }
     const loopRegSelect = node.querySelector(".loop-reg");
     if (loopRegSelect) {
@@ -8756,6 +9519,16 @@ function renderAsmOutput() {
     if (line.block.isSpriteInitMacro) {
       const pageHex = (line.block.spriteDataPage || "21").replace(/^\$/, "").toUpperCase().padStart(2, "0");
       return `; .sprite_init #${line.block.spriteNum || "0"} col=${line.block.spriteColor || "7"} page=$${pageHex}`;
+    }
+
+    if (line.block.isLoadFileMacro) {
+      const fname = (line.block.loadFileName || "").trim() || "?";
+      const dev = line.block.loadFileDevice || "8";
+      const addr = (line.block.loadFileAddress || "").trim();
+      const errLbl = (line.block.loadFileErrorLabel || "").trim();
+      const addrPart = addr ? ` addr=$${addr.replace(/^\$/, "").toUpperCase()}` : "";
+      const errPart = errLbl ? ` err=${errLbl}` : "";
+      return `; .loadfile "${fname}" dev=${dev}${addrPart}${errPart}`;
     }
 
     if (line.block.isSpritePosMacro) {

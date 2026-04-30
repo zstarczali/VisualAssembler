@@ -903,6 +903,209 @@ async fn save_prg(app: AppHandle, payload: SavePrgPayload) -> serde_json::Value 
     }
 }
 
+// ── D64 export via c1541 (VICE) ──────────────────────────────────────────────
+// c1541 lives in the same bin/ directory as x64sc. We resolve it from the
+// configured VICE path, then run:
+//   c1541 -format "diskname,id" d64 disk.d64 -write program.prg progname
+
+fn resolve_c1541_path(vice_path: &str) -> Option<PathBuf> {
+    if vice_path.is_empty() {
+        return None;
+    }
+
+    let vice = std::path::Path::new(vice_path);
+
+    // If user picked a .app bundle on macOS, use sibling bin/c1541
+    #[cfg(target_os = "macos")]
+    {
+        if vice_path.ends_with(".app") {
+            if let Some(parent) = vice.parent() {
+                let candidate = parent.join("bin").join("c1541");
+                if candidate.exists() { return Some(candidate); }
+            }
+        }
+    }
+
+    // Same directory as the VICE binary
+    if let Some(dir) = vice.parent() {
+        #[cfg(target_os = "windows")]
+        let exe_name = "c1541.exe";
+        #[cfg(not(target_os = "windows"))]
+        let exe_name = "c1541";
+
+        let candidate = dir.join(exe_name);
+        if candidate.exists() {
+            return Some(candidate);
+        }
+    }
+
+    None
+}
+
+fn sanitize_disk_name(name: &str, max_len: usize) -> String {
+    let upper: String = name
+        .chars()
+        .filter(|c| c.is_ascii() && !matches!(c, '"' | ',' | '/' | '\\' | ':' | '\0'))
+        .take(max_len)
+        .collect::<String>()
+        .to_uppercase();
+    if upper.is_empty() { "DISK".to_string() } else { upper }
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct D64FileEntry {
+    bytes: Vec<u8>,
+    name: String,
+    /// Optional 16-bit load address (decimal). If Some, prepended to bytes
+    /// before writing (PRG format). If None, bytes are written as-is.
+    #[serde(default)]
+    load_address: Option<u16>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct SaveD64Payload {
+    files: Vec<D64FileEntry>,
+    #[serde(default)]
+    disk_name: Option<String>,
+}
+
+#[tauri::command]
+async fn save_d64(app: AppHandle, payload: SaveD64Payload) -> serde_json::Value {
+    if payload.files.is_empty() {
+        return serde_json::json!({ "ok": false, "error": "Nincs fajl a D64-re irashoz." });
+    }
+
+    // 1. Locate c1541
+    let cfg = read_config(&app);
+    let vice_path = {
+        let p = cfg["vicePath"].as_str().unwrap_or("").to_string();
+        if p.is_empty() { detect_vice_executable() } else { p }
+    };
+
+    let c1541_path = match resolve_c1541_path(&vice_path) {
+        Some(p) => p,
+        None => return serde_json::json!({
+            "ok": false,
+            "error": "c1541 nem talalhato. Allitsd be a VICE eleresi utjat (a c1541 a VICE bin/ mappajaban van)."
+        }),
+    };
+
+    // 2. Ask user where to save
+    let save_path = match app.dialog().file()
+        .add_filter("Commodore 64 disk image", &["d64"])
+        .add_filter("All files", &["*"])
+        .blocking_save_file()
+    {
+        Some(p) => p.to_string(),
+        None => return serde_json::json!({ "canceled": true }),
+    };
+
+    // 3. Prepare temp dir for staged PRG files
+    let temp_dir = std::env::temp_dir().join("c64-visual-assembler");
+    let _ = fs::create_dir_all(&temp_dir);
+
+    // 4. Build disk name (PETSCII-safe uppercase)
+    let raw_disk = payload.disk_name.unwrap_or_else(|| {
+        std::path::Path::new(&save_path)
+            .file_stem().unwrap_or_default().to_string_lossy().to_string()
+    });
+    let disk_name = sanitize_disk_name(&raw_disk, 16);
+    let disk_id = "01";
+
+    // 5. Write each file to a temp PRG, collecting (temp_path, c64_name) tuples.
+    //    For files with load_address set, prepend the 2-byte little-endian header.
+    let now_ms = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH).unwrap().as_millis();
+
+    let mut staged: Vec<(PathBuf, String)> = Vec::new();
+    for (idx, entry) in payload.files.iter().enumerate() {
+        let prg_path = temp_dir.join(format!("d64-export-{}-{}.prg", now_ms, idx));
+
+        let mut data: Vec<u8> = Vec::with_capacity(entry.bytes.len() + 2);
+        if let Some(addr) = entry.load_address {
+            data.push((addr & 0xFF) as u8);
+            data.push((addr >> 8) as u8);
+        }
+        data.extend_from_slice(&entry.bytes);
+
+        if let Err(e) = fs::write(&prg_path, &data) {
+            // Cleanup what we already wrote
+            for (p, _) in &staged { let _ = fs::remove_file(p); }
+            return serde_json::json!({
+                "ok": false,
+                "error": format!("Nem sikerult ideiglenes fajl irasa ({}): {}", entry.name, e)
+            });
+        }
+
+        let c64_name = sanitize_disk_name(&entry.name, 16);
+        if c64_name.is_empty() {
+            for (p, _) in &staged { let _ = fs::remove_file(p); }
+            let _ = fs::remove_file(&prg_path);
+            return serde_json::json!({
+                "ok": false,
+                "error": format!("A {}. fajl nevet ervenytelen.", idx + 1)
+            });
+        }
+        staged.push((prg_path, c64_name));
+    }
+
+    // 6. Run c1541 with -format then -write per file
+    let format_arg = format!("{},{}", disk_name, disk_id);
+
+    #[allow(unused_mut)]
+    let mut cmd = if cfg!(target_os = "macos") {
+        let mut c = Command::new("bash");
+        c.arg(c1541_path.to_string_lossy().to_string());
+        c
+    } else {
+        Command::new(&c1541_path)
+    };
+
+    cmd.arg("-format").arg(&format_arg).arg("d64").arg(&save_path);
+    for (prg_path, c64_name) in &staged {
+        cmd.arg("-write").arg(prg_path.to_string_lossy().to_string()).arg(c64_name);
+    }
+
+    #[cfg(target_os = "windows")]
+    {
+        const CREATE_NO_WINDOW: u32 = 0x08000000;
+        cmd.creation_flags(CREATE_NO_WINDOW);
+    }
+
+    let output = match cmd.output() {
+        Ok(out) => out,
+        Err(e) => {
+            for (p, _) in &staged { let _ = fs::remove_file(p); }
+            return serde_json::json!({
+                "ok": false,
+                "error": format!("c1541 inditasa sikertelen ({}): {}", c1541_path.display(), e)
+            });
+        }
+    };
+
+    // 7. Cleanup temp PRGs
+    for (p, _) in &staged { let _ = fs::remove_file(p); }
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+        return serde_json::json!({
+            "ok": false,
+            "error": format!("c1541 hiba: {}{}", stderr, stdout)
+        });
+    }
+
+    serde_json::json!({
+        "ok": true,
+        "filePath": save_path,
+        "diskName": disk_name,
+        "fileCount": staged.len(),
+        "fileNames": staged.iter().map(|(_, n)| n.clone()).collect::<Vec<_>>(),
+    })
+}
+
 #[tauri::command]
 async fn save_project(app: AppHandle, payload: serde_json::Value) -> serde_json::Value {
     let result = app.dialog().file()
@@ -1008,6 +1211,7 @@ pub fn run() {
             choose_include_file,
             reload_include_file,
             save_prg,
+            save_d64,
             save_project,
             load_project,
             load_sample,

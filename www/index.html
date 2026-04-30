@@ -38,6 +38,7 @@
                 <button id="load-project" class="secondary" type="button">Load program</button>
                 <button id="import-asm" class="secondary" type="button">Import ASM</button>
                 <button id="save-prg" class="secondary" type="button">Export to PRG</button>
+                <button id="save-d64" class="secondary" type="button">Export to D64</button>
                 <button id="exit-app" class="secondary" type="button">Kilepes</button>
               </section>
               <section class="control-menu-group">
@@ -447,6 +448,35 @@
       <div id="import-asm-errors" class="import-asm-errors" hidden>
         <p id="import-asm-errors-title" class="import-asm-errors-title">Errors</p>
         <ul id="import-asm-errors-list" class="import-asm-errors-list"></ul>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="d64-export-dialog" class="d64-export-dialog">
+    <div class="d64-export-card">
+      <h2 class="compile-error-title" id="d64-export-title">Export to D64</h2>
+      <div class="d64-export-row">
+        <label class="d64-export-field">
+          <span id="d64-export-diskname-label">Disk name (max 16)</span>
+          <input id="d64-export-diskname" type="text" maxlength="16" value="DISK">
+        </label>
+        <label class="d64-export-field">
+          <span id="d64-export-progname-label">Program name (max 16)</span>
+          <input id="d64-export-progname" type="text" maxlength="16" value="PROGRAM">
+        </label>
+      </div>
+      <div class="d64-export-extras">
+        <h3 class="d64-export-subtitle" id="d64-export-extras-title">Extra files</h3>
+        <p class="d64-export-help" id="d64-export-extras-help">
+          Add raw binary files (e.g. data, sprites). They become PRG entries on the D64.
+        </p>
+        <div id="d64-export-extras-list" class="d64-export-extras-list"></div>
+        <button id="d64-export-add-file" class="secondary" type="button">+ Add file</button>
+      </div>
+      <div id="d64-export-error" class="d64-export-error" hidden></div>
+      <div class="d64-export-actions">
+        <button id="d64-export-confirm" class="primary" type="button">Export</button>
+        <button id="d64-export-cancel" class="secondary" type="button">Cancel</button>
       </div>
     </div>
   </dialog>

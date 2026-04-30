@@ -29,6 +29,7 @@
     chooseIncludeFile: () => invoke("choose_include_file"),
     reloadIncludeFile: (filePath, baseDir) => invoke("reload_include_file", { filePath, baseDir }),
     savePrg: (payload) => invoke("save_prg", { payload }),
+    saveD64: (payload) => invoke("save_d64", { payload }),
     saveProject: (payload) => invoke("save_project", { payload }),
     loadProject: () => invoke("load_project"),
     loadSample: (sampleName) => invoke("load_sample", { sampleName }),

@@ -2357,6 +2357,9 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
   min-width: 480px;
   max-width: 760px;
   width: 90vw;
+  max-height: 95vh;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .import-asm-dialog::backdrop {
@@ -2370,12 +2373,17 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  max-height: 95vh;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .import-asm-editor {
   width: 100%;
   box-sizing: border-box;
-  min-height: 320px;
+  min-height: 200px;
+  flex: 1 1 auto;
+  min-height: 0;
   display: grid;
   grid-template-columns: auto 1fr;
   border: 1px solid var(--panel-border);
@@ -2404,7 +2412,7 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
 .import-asm-textarea {
   width: 100%;
   box-sizing: border-box;
-  min-height: 320px;
+  min-height: 200px;
   font-family: "IBM Plex Mono", monospace;
   font-size: 0.78rem;
   line-height: 1.5;
@@ -2413,8 +2421,9 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
   border: 0;
   border-radius: 0;
   padding: 10px 12px;
-  resize: vertical;
+  resize: none;
   outline: none;
+  overflow: auto;
 }
 
 .import-asm-textarea:focus {
@@ -2431,6 +2440,9 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
   background: color-mix(in srgb, var(--error) 10%, transparent);
   border-radius: 10px;
   padding: 10px 12px;
+  max-height: 25vh;
+  overflow-y: auto;
+  flex: 0 0 auto;
 }
 
 .import-asm-errors-title {
@@ -2448,6 +2460,155 @@ body[data-theme="dark"] .emulator-actions .link-button.primary {
   color: var(--text);
   font-size: 0.82rem;
   line-height: 1.35;
+}
+
+/* ── D64 Export Dialog ────────────────────────────────────────────── */
+.d64-export-dialog {
+  border: none;
+  border-radius: 16px;
+  padding: 0;
+  background: var(--panel);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  min-width: 480px;
+  max-width: 720px;
+  width: 90vw;
+  max-height: 90vh;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.d64-export-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.d64-export-card {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.d64-export-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.d64-export-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.82rem;
+}
+
+.d64-export-field span {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.d64-export-field input {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.85rem;
+  padding: 8px 10px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: var(--output-bg);
+  color: var(--output-text);
+  outline: none;
+}
+
+.d64-export-field input:focus {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.d64-export-extras {
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 12px;
+  background: color-mix(in srgb, var(--panel) 92%, black 8%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.d64-export-subtitle {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.d64-export-help {
+  margin: 0;
+  font-size: 0.78rem;
+  color: color-mix(in srgb, var(--text) 70%, transparent);
+}
+
+.d64-export-extras-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.d64-export-extra-item {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 0.6fr auto;
+  gap: 6px;
+  align-items: center;
+  padding: 6px;
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  background: var(--output-bg);
+}
+
+.d64-export-extra-item input {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.78rem;
+  padding: 5px 8px;
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+  background: var(--panel);
+  color: var(--output-text);
+  outline: none;
+  min-width: 0;
+}
+
+.d64-export-extra-item input[readonly] {
+  background: color-mix(in srgb, var(--panel) 80%, transparent);
+  color: color-mix(in srgb, var(--output-text) 80%, transparent);
+  cursor: default;
+}
+
+.d64-export-extra-remove {
+  background: transparent;
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+  color: var(--error, #d97706);
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.d64-export-extra-remove:hover {
+  background: color-mix(in srgb, var(--error, #d97706) 12%, transparent);
+}
+
+.d64-export-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.d64-export-error {
+  border: 1px solid color-mix(in srgb, var(--error, #d97706) 35%, var(--panel-border));
+  background: color-mix(in srgb, var(--error, #d97706) 10%, transparent);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  color: var(--error, #d97706);
 }
 
 /* ── About Dialog ────────────────────────────────────────────────── */
