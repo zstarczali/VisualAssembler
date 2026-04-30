@@ -434,6 +434,7 @@ const translations = {
     sampleIfElse: "IF / ELSE / ENDIF demo",
     sampleUserMacro: "User MACRO / ENDM demo",
     sampleIncBin: "INCBIN demo",
+    sampleLoadFile: "LOADFILE demo (D64 betoltes futasidoben)",
     sampleInclude: "INCLUDE demo",
     sampleSidDemo: "SID zenelejatszas (Ikari Warriors)",
     sampleSidDirectDemo: "SID lejatszas - SID makro (Ikari Warriors)",
@@ -708,6 +709,7 @@ const translations = {
     sampleIfElse: "IF / ELSE / ENDIF demo",
     sampleUserMacro: "User MACRO / ENDM demo",
     sampleIncBin: "INCBIN demo",
+    sampleLoadFile: "LOADFILE demo (runtime D64 load)",
     sampleInclude: "INCLUDE demo",
     sampleSidDemo: "SID player - INCBIN (Ikari Warriors)",
     sampleSidDirectDemo: "SID player - SID macro (Ikari Warriors)",
@@ -1700,15 +1702,16 @@ function applyTranslations() {
   if (sampleOptions[12]) sampleOptions[12].textContent = t("sampleIfElse");
   if (sampleOptions[13]) sampleOptions[13].textContent = t("sampleUserMacro");
   if (sampleOptions[14]) sampleOptions[14].textContent = t("sampleIncBin");
-  if (sampleOptions[15]) sampleOptions[15].textContent = t("sampleInclude");
-  if (sampleOptions[16]) sampleOptions[16].textContent = t("sampleSidDemo");
-  if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleSidDirectDemo");
-  if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleSpriteMacroDemo");
-  if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleJoystickDemo");
-  if (sampleOptions[20]) sampleOptions[20].textContent = t("sampleCollisionDemo");
-  if (sampleOptions[21]) sampleOptions[21].textContent = t("sample10Print");
-  if (sampleOptions[22]) sampleOptions[22].textContent = t("sampleRasterIrqDemo");
-  if (sampleOptions[23]) sampleOptions[23].textContent = t("sampleOverlappingRasterDemo");
+  if (sampleOptions[15]) sampleOptions[15].textContent = t("sampleLoadFile");
+  if (sampleOptions[16]) sampleOptions[16].textContent = t("sampleInclude");
+  if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleSidDemo");
+  if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleSidDirectDemo");
+  if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleSpriteMacroDemo");
+  if (sampleOptions[20]) sampleOptions[20].textContent = t("sampleJoystickDemo");
+  if (sampleOptions[21]) sampleOptions[21].textContent = t("sampleCollisionDemo");
+  if (sampleOptions[22]) sampleOptions[22].textContent = t("sample10Print");
+  if (sampleOptions[23]) sampleOptions[23].textContent = t("sampleRasterIrqDemo");
+  if (sampleOptions[24]) sampleOptions[24].textContent = t("sampleOverlappingRasterDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -4647,8 +4650,8 @@ async function confirmD64Export() {
   const errorBox = document.getElementById("d64-export-error");
   if (!dialog || !d64ExportState.prgBytes) return;
 
-  const diskName = (diskInput?.value || "").trim() || "DISK";
-  const progName = (progInput?.value || "").trim() || "PROGRAM";
+  const diskName = ((diskInput?.value || "").trim() || "DISK").toUpperCase();
+  const progName = ((progInput?.value || "").trim() || "PROGRAM").toUpperCase();
 
   // First file = the assembled PRG. Its bytes already contain the load
   // address prefix (from buildAutostartPrgForEmulator), so loadAddress = null.
@@ -4673,7 +4676,7 @@ async function confirmD64Export() {
       loadAddr = parsed;
     }
     files.push({
-      name: extra.name,
+      name: extra.name.toUpperCase(),
       bytes: Array.from(extra.bytes),
       loadAddress: loadAddr
     });
@@ -9795,6 +9798,10 @@ async function loadUserMacroDemo() {
   await loadSampleFromFile("user-macro-demo");
 }
 
+async function loadLoadFileDemo() {
+  await loadSampleFromFile("loadfile-demo");
+}
+
 async function loadIncBinDemo() {
   const ok = await loadSampleFromFile("incbin-demo");
   if (!ok) return;
@@ -9964,6 +9971,11 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "incbin-demo") {
     loadIncBinDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "loadfile-demo") {
+    loadLoadFileDemo();
     return;
   }
 

@@ -262,11 +262,12 @@ Aktuális sorrend az `index.html` `#sample-select` elemben (0-indexelt):
 | 11 | `"if-else"` | DEFINE / IF / ELSE / ENDIF feltételes assembly demo |
 | 12 | `"user-macro-demo"` | User MACRO / ENDM / INVOKE példa |
 | 13 | `"incbin-demo"` | INCBIN makró demo |
-| 14 | `"include-demo"` | INCLUDE makró demo |
-| 15 | `"sid-demo"` | SID lejátszó — Ikari Warriors, IRQ-alapú, INCBIN |
-| 16 | `"sid-direct-demo"` | SID lejátszó — SID makróval, INCBIN nélkül |
-| 17 | `"sprite-macro-demo"` | SPRITE_INIT + SPRITE_POS + WAIT_RASTER demo; spritemate sprite balra-jobbra |
-| 18 | `"joystick-demo"` | JOYSTICK makró demo; sprite #0 joystick port 2-vel mozog |
+| 14 | `"loadfile-demo"` | LOADFILE makró — futásidőben tölt fájlt D64-ről, hibakezeléssel |
+| 15 | `"include-demo"` | INCLUDE makró demo |
+| 16 | `"sid-demo"` | SID lejátszó — Ikari Warriors, IRQ-alapú, INCBIN |
+| 17 | `"sid-direct-demo"` | SID lejátszó — SID makróval, INCBIN nélkül |
+| 18 | `"sprite-macro-demo"` | SPRITE_INIT + SPRITE_POS + WAIT_RASTER demo; spritemate sprite balra-jobbra |
+| 19 | `"joystick-demo"` | JOYSTICK makró demo; sprite #0 joystick port 2-vel mozog |
 
 ---
 
