@@ -233,12 +233,24 @@ Beallitasok
   ├── Nyelv (combobox) + label
   └── BASIC SYS stub checkbox
 
+Hardver beallitasok (külön dialóg, #hardware-settings-btn)
+  ├── C64 Ultimate host + password
+  └── Kapcsolat teszt gomb
+
 Nezet
-  ├── Téma toggle gomb
+  ├── Téma picker (Light / Dark / OLED) — #theme-picker <details> elem
   └── Zoom vezérlők
 
 [Check for Update gomb] → shell.openExternal → https://zstarczali.itch.io/visual-assembler-commodore-64
 ```
+
+### Futtatási módok (split run gomb)
+
+| Mód | Leírás |
+|-----|--------|
+| `prg` | PRG fájl → VICE közvetlenül |
+| `d64` | PRG + extra fájlok → D64 (c1541) → VICE |
+| `ultimate` | PRG → C64 Ultimate REST API (`/v3/runners/prg`) |
 
 ---
 
@@ -269,6 +281,8 @@ Aktuális sorrend az `index.html` `#sample-select` elemben (0-indexelt):
 | 18 | `"sprite-macro-demo"` | SPRITE_INIT + SPRITE_POS + WAIT_RASTER demo; spritemate sprite balra-jobbra |
 | 19 | `"joystick-demo"` | JOYSTICK makró demo; sprite #0 joystick port 2-vel mozog |
 
+> **Megjegyzés:** A `collision-demo`, `10-print`, `irq-demo`, `overlapping-raster-demo` sample-ok szintén szerepelnek a `#sample-select`-ben 20–23 indexen (lásd `index.html` aktuális sorrendjét).
+
 ---
 
 ## Mintaprogramok hozzáadása
@@ -295,7 +309,53 @@ Aktuális sorrend az `index.html` `#sample-select` elemben (0-indexelt):
 | `save_prg` / `save_project` / `load_project` | Fájl I/O dialógusok |
 | `load_sample` | Beépített minta projekt betöltése |
 | `choose_incbin_file` / `choose_sid_file` | Bináris/SID fájl választó |
+| `save_d64` | D64 lemezképet ment c1541-gyel (VICE) |
+| `run_d64` | Temp D64 + VICE indítása D64-ről |
+| `read_bin_file` | Nyers bináris fájl beolvasása (extras lazy load) |
+| `run_on_ultimate` | PRG küldés + futtatás C64 Ultimate REST API-on |
+| `test_ultimate_connection` | C64 Ultimate kapcsolat teszt |
 | `open_manual` | PDF kézikönyv megnyitása |
+
+---
+
+## D64 export és futtatás
+
+### D64 export dialóg
+
+`saveD64ToFile()` → `openD64ExportDialog(prgBytes)` → `confirmD64Export()` → `save_d64` Tauri command.
+
+A dialóg megjeleníti a `d64ExportState` tartalmát:
+- `diskName` / `progName`: lemez- és programnév (max 16 char, c1541 lowercase)
+- `extras[]`: extra bináris fájlok a lemezre; minden entry: `{ name, sourcePath, bytes, loadAddress }`
+
+Ha `loadAddress` üres → fájl raw bytes (nincs 2-byte header); ha kitöltve → PRG header prepend.
+
+### Extras lazy vs. eager loading
+
+Amikor egy sample betöltődik (`loadSampleFromFile`), a kód először eager-load-dal próbálja feloldani az `extras`-t az `_sampleD64BaseDir` alapján. Ha sikerül, `d64ExportState.extras` feltöltődik. Ha nem (pl. production build eltérő útvonal), `_pendingExtras` + `_pendingExtrasBaseDir` megőrzi a lazy fallback-hez.
+
+A dialóg megnyitásakor (export vagy run D64): ha `extras` üres és `_pendingExtras` nem null → `d64LoadSavedExtras()` hívás, majd `_pendingExtras = null`.
+
+### C64 Ultimate integrációk
+
+- **`run_on_ultimate(host, password, prgBytes)`** → HTTP POST `/v3/runners/prg` a megadott hostra
+- **`test_ultimate_connection(host, password)`** → kapcsolat teszt (`/v3/runners/info`)
+- **Beállítások:** `#hardware-settings-dialog` — host + password; elmentve a config-ba
+- **Run mód:** `"ultimate"` — a split run gomb ultimateMode-ban a `runViaUltimate()` függvényt hívja
+
+### D64 state a project JSON-ben
+
+A `d64` szekció a projektfájlban:
+```json
+"d64": {
+  "diskName": "LEMEZNAME",
+  "progName": "PROGRAMNAME",
+  "extras": [
+    { "name": "DATAFILE", "sourcePath": "relative/path/file.prg", "loadAddress": "" }
+  ]
+}
+```
+A `sourcePath` relatív a projektfájlhoz képest. Sample esetén a `samples/` mappához képest relatív.
 
 ---
 
@@ -530,7 +590,7 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`1.4.7` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` és a What's New dialóg (`index.html`).
+`1.5.0` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` és a What's New dialóg (`index.html`).
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező

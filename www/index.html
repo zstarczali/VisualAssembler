@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>C64 Visual Assembler</title>
+  <script>(function(){var t=localStorage.getItem('c64-block-theme')||'light';document.documentElement.dataset.theme=t;document.documentElement.style.background={'dark':'#2f2a8a','oled':'#03020c','light':'#8b93ff'}[t]||'#8b93ff';})();</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -531,31 +532,31 @@
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v1.4.7</p>
+      <p class="whats-new-version">v1.5.0</p>
       <ul class="whats-new-list">
         <li>
-          <strong>Import dialog inline errors</strong> — failed ASM imports now keep the dialog open and show the error list directly at the bottom of the same dialog.
+          <strong>Export to D64</strong> — assemble your program and export it directly to a .d64 disk image using VICE's c1541 tool. Add extra files (data, sprites, PRGs) to the same disk before export.
         </li>
         <li>
-          <strong>Import source recovery on failure</strong> — when import fails, the original pasted source text is restored automatically so you can fix and retry without re-pasting.
+          <strong>Run via D64</strong> — new split run button lets you choose between running as a plain PRG or packaging into a D64 and launching VICE directly from the disk image.
         </li>
         <li>
-          <strong>Import line numbers</strong> — the Import ASM editor now has synchronized line numbers for easier troubleshooting.
+          <strong>LOADFILE macro</strong> — load a file from a D64 at runtime using C64 KERNAL SETNAM/SETLFS/LOAD routines. Supports optional override address and error-label (BCS) for error handling.
         </li>
         <li>
-          <strong>INCLUDE stability fixes</strong> — sample include reload now resolves relative paths more reliably and avoids disappearing include content on transient reload errors.
+          <strong>LOADFILE demo sample</strong> — a ready-to-run example that loads DEMO-COLORS.PRG from a D64 at runtime and then cycles border and background colors.
         </li>
         <li>
-          <strong>Import ASM dialog</strong> — a new File menu action lets you paste textual 6502 assembly (`ORG`, labels, `.byte`, comments, instructions) and convert it into Visual Assembler blocks.
+          <strong>Run on hardware (C64 Ultimate)</strong> — send and run your assembled PRG directly on a 1541 Ultimate / Ultimate 64 device via its REST API. Configure host and password in Hardware Settings.
         </li>
         <li>
-          <strong>Compiling progress modal</strong> — Run, Debug, and Import now show a centered progress dialog with an animated progress bar while work is in progress.
+          <strong>OLED theme</strong> — a new pure-black OLED theme for AMOLED screens. Select it from the new theme picker (Light / Dark / OLED).
         </li>
         <li>
-          <strong>ASM line numbers</strong> — the ASM output panel now shows line-number prefixes to make error pinpointing easier during debugging.
+          <strong>Splash screen</strong> — a startup splash screen with animated loader and C64 Ultimate logos.
         </li>
         <li>
-          <strong>Import robustness improvements</strong> — importer normalizes local labels and better handles mixed operand styles used in real-world 6502 snippets.
+          <strong>D64 metadata in projects</strong> — disk name, program name, and extra file list are now saved into the project JSON so they are restored when the project or sample is reloaded.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>

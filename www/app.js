@@ -4251,17 +4251,19 @@ function toBin(value, nibbles) {
 
 function applySavedTheme() {
   const savedTheme = localStorage.getItem("c64-block-theme") || "light";
-  document.body.dataset.theme = savedTheme;
+  document.documentElement.dataset.theme = savedTheme;
   updateThemeToggleLabel();
+  // Show the window now that the correct theme is applied — prevents color flash on startup
+  window.__TAURI__?.window?.getCurrentWindow()?.show().catch(() => {});
 }
 
 function toggleTheme() {
   const next = { light: "dark", dark: "oled", oled: "light" };
-  setTheme(next[document.body.dataset.theme] || "dark");
+  setTheme(next[document.documentElement.dataset.theme] || "dark");
 }
 
 function setTheme(theme) {
-  document.body.dataset.theme = theme;
+  document.documentElement.dataset.theme = theme;
   localStorage.setItem("c64-block-theme", theme);
   updateThemeToggleLabel();
   saveUiSettings();
@@ -4279,7 +4281,7 @@ function toggleCrtMode() {
 }
 
 function updateThemeToggleLabel() {
-  const current = document.body.dataset.theme || "light";
+  const current = document.documentElement.dataset.theme || "light";
   document.querySelectorAll(".theme-option").forEach(btn => {
     if (btn.dataset.themeOpt === current) {
       btn.setAttribute("data-active", "");
@@ -4486,7 +4488,7 @@ function getProjectPayload() {
       numberBase: getSelectedBase(),
       zoom: blockScale,
       language: currentLanguage,
-      theme: document.body.dataset.theme || "light"
+      theme: document.documentElement.dataset.theme || "light"
     },
     d64: {
       diskName: d64ExportState.diskName,
@@ -10097,22 +10099,27 @@ async function loadSampleFromFile(sampleName) {
   d64ExportState.extras = [];
   d64ExportState._pendingExtras = null;
   d64ExportState._pendingExtrasBaseDir = "";
-  const _sampleD64BaseDir = (() => {
-    const fp = typeof result.filePath === "string" ? result.filePath : "";
-    const s = Math.max(fp.lastIndexOf("/"), fp.lastIndexOf("\\"));
-    return s >= 0 ? fp.slice(0, s) : "";
-  })();
   if (sampleData.d64) {
     d64ExportState.diskName = sampleData.d64.diskName || "";
     d64ExportState.progName = sampleData.d64.progName || "";
-    const rawExtras = Array.isArray(sampleData.d64.extras) ? sampleData.d64.extras : [];
-    if (rawExtras.length > 0 && _sampleD64BaseDir) {
-      d64ExportState.extras = await d64LoadSavedExtras(rawExtras, _sampleD64BaseDir);
-    }
-    if (d64ExportState.extras.length === 0 && rawExtras.length > 0) {
-      // Eager load failed (e.g. prod build, different path) — keep as pending for lazy fallback
-      d64ExportState._pendingExtras = rawExtras;
-      d64ExportState._pendingExtrasBaseDir = _sampleD64BaseDir;
+    // Use pre-loaded bytes returned by the Rust load_sample command (most reliable)
+    if (Array.isArray(result.extrasLoaded) && result.extrasLoaded.length > 0) {
+      d64ExportState.extras = result.extrasLoaded.map(e => ({
+        name: e.name || "",
+        sourcePath: e.sourcePath || "",
+        loadAddress: e.loadAddress || "",
+        bytes: e.bytes
+      }));
+    } else {
+      // Fallback: lazy-load via readBinFile when the dialog is opened
+      const rawExtras = Array.isArray(sampleData.d64.extras) ? sampleData.d64.extras : [];
+      if (rawExtras.length > 0) {
+        const fp = typeof result.filePath === "string" ? result.filePath : "";
+        const s = Math.max(fp.lastIndexOf("/"), fp.lastIndexOf("\\"));
+        const baseDir = s >= 0 ? fp.slice(0, s) : "";
+        d64ExportState._pendingExtras = rawExtras;
+        d64ExportState._pendingExtrasBaseDir = baseDir;
+      }
     }
   } else {
     d64ExportState.diskName = "";

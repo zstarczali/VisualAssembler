@@ -1394,11 +1394,35 @@ async fn load_sample(app: AppHandle, sample_name: String) -> serde_json::Value {
     };
     match fs::read_to_string(&file_path) {
         Ok(raw) => match serde_json::from_str::<serde_json::Value>(&raw) {
-            Ok(sample) => serde_json::json!({
-                "ok": true,
-                "sample": sample,
-                "filePath": file_path.to_string_lossy().to_string()
-            }),
+            Ok(sample) => {
+                // Pre-load any d64 extras binary files so the frontend doesn't need a
+                // separate readBinFile round-trip with fragile JS path resolution.
+                let mut extras_loaded: Vec<serde_json::Value> = Vec::new();
+                if let Some(extras) = sample.get("d64").and_then(|d| d.get("extras")).and_then(|e| e.as_array()) {
+                    let base_dir = file_path.parent().unwrap_or(&file_path);
+                    for entry in extras {
+                        if let Some(src) = entry.get("sourcePath").and_then(|v| v.as_str()) {
+                            if !src.is_empty() {
+                                let bin_path = base_dir.join(src);
+                                if let Ok(bytes) = fs::read(&bin_path) {
+                                    extras_loaded.push(serde_json::json!({
+                                        "name": entry.get("name").and_then(|v| v.as_str()).unwrap_or(""),
+                                        "sourcePath": src,
+                                        "loadAddress": entry.get("loadAddress").and_then(|v| v.as_str()).unwrap_or(""),
+                                        "bytes": bytes
+                                    }));
+                                }
+                            }
+                        }
+                    }
+                }
+                serde_json::json!({
+                    "ok": true,
+                    "sample": sample,
+                    "filePath": file_path.to_string_lossy().to_string(),
+                    "extrasLoaded": extras_loaded
+                })
+            },
             Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
         },
         Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
