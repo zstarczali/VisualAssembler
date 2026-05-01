@@ -4491,7 +4491,10 @@ function getProjectPayload() {
     d64: {
       diskName: d64ExportState.diskName,
       progName: d64ExportState.progName,
-      extras: d64ExportState.extras.map(e => ({ name: e.name, sourcePath: e.sourcePath, loadAddress: e.loadAddress }))
+      extras: (d64ExportState.extras.length > 0
+        ? d64ExportState.extras
+        : (d64ExportState._pendingExtras || [])
+      ).map(e => ({ name: e.name, sourcePath: e.sourcePath, loadAddress: e.loadAddress || "" }))
     }
   };
 }
@@ -10092,6 +10095,8 @@ async function loadSampleFromFile(sampleName) {
   await reloadIncludeBlocks(result.filePath || "");
 
   d64ExportState.extras = [];
+  d64ExportState._pendingExtras = null;
+  d64ExportState._pendingExtrasBaseDir = "";
   const _sampleD64BaseDir = (() => {
     const fp = typeof result.filePath === "string" ? result.filePath : "";
     const s = Math.max(fp.lastIndexOf("/"), fp.lastIndexOf("\\"));
@@ -10100,13 +10105,18 @@ async function loadSampleFromFile(sampleName) {
   if (sampleData.d64) {
     d64ExportState.diskName = sampleData.d64.diskName || "";
     d64ExportState.progName = sampleData.d64.progName || "";
-    d64ExportState._pendingExtras = Array.isArray(sampleData.d64.extras) ? sampleData.d64.extras : [];
-    d64ExportState._pendingExtrasBaseDir = _sampleD64BaseDir;
+    const rawExtras = Array.isArray(sampleData.d64.extras) ? sampleData.d64.extras : [];
+    if (rawExtras.length > 0 && _sampleD64BaseDir) {
+      d64ExportState.extras = await d64LoadSavedExtras(rawExtras, _sampleD64BaseDir);
+    }
+    if (d64ExportState.extras.length === 0 && rawExtras.length > 0) {
+      // Eager load failed (e.g. prod build, different path) — keep as pending for lazy fallback
+      d64ExportState._pendingExtras = rawExtras;
+      d64ExportState._pendingExtrasBaseDir = _sampleD64BaseDir;
+    }
   } else {
     d64ExportState.diskName = "";
     d64ExportState.progName = "";
-    d64ExportState._pendingExtras = null;
-    d64ExportState._pendingExtrasBaseDir = "";
   }
 
   renderOriginPreview();
