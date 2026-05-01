@@ -29,9 +29,15 @@
     chooseIncludeFile: () => invoke("choose_include_file"),
     reloadIncludeFile: (filePath, baseDir) => invoke("reload_include_file", { filePath, baseDir }),
     savePrg: (payload) => invoke("save_prg", { payload }),
+    saveD64: (payload) => invoke("save_d64", { payload }),
+    runD64: (payload) => invoke("run_d64", { payload }),
     saveProject: (payload) => invoke("save_project", { payload }),
     loadProject: () => invoke("load_project"),
+    readBinFile: (path) => invoke("read_bin_file", { path }),
     loadSample: (sampleName) => invoke("load_sample", { sampleName }),
     openManual: () => invoke("open_manual"),
+    runOnUltimate: (host, password, prgBytes) => invoke("run_on_ultimate", { host, password, prgBytes }),
+    runD64OnUltimate: (payload) => invoke("run_d64_on_ultimate", { payload }),
+    testUltimateConnection: (host, password) => invoke("test_ultimate_connection", { host, password }),
   };
 })();

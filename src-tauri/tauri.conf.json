@@ -1,6 +1,6 @@
 {
   "productName": "C64 Visual Assembler",
-  "version": "1.4.7",
+  "version": "1.5.0",
   "identifier": "hu.zstarczali.c64visualassembler",
   "build": {
     "frontendDist": "../www",
@@ -19,11 +19,12 @@
         "minHeight": 760,
         "resizable": true,
         "fullscreen": false,
-        "backgroundColor": "#8b93ff"
+        "backgroundColor": "#03020c",
+        "visible": false
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: asset: https://asset.localhost; connect-src 'self' ipc: http://ipc.localhost"
     }
   },
   "bundle": {

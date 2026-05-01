@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 1.4.7**
+**Version 1.5.0**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -44,10 +44,12 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
    - [WAIT_RASTER](#wait_raster)
    - [JOYSTICK](#joystick)
    - [SPRITE_COL](#sprite_col)
+   - [LOADFILE](#loadfile)
 9. [Debugger Integration](#9-debugger-integration)
 10. [Knowledge Base Links](#10-knowledge-base-links)
 11. [ASM Import Workflow](#11-asm-import-workflow)
-12. [Changelog](#12-changelog)
+12. [D64 Export & Run](#12-d64-export--run)
+13. [Hardware Settings](#13-hardware-settings)
 
 ---
 
@@ -152,7 +154,7 @@ The modal closes automatically when the action completes or fails.
 |---|---|
 | **Number base (HEX / DEC / BIN)** | Sets the display/input format for operands throughout the UI. BIN mode displays values as binary with `%` prefix (e.g. `%11111000`). The ASM view always shows each block in its own format. |
 | **Language** | Switch between English and Hungarian |
-| **Theme** | Light / dark mode |
+| **Theme** | Light / Dark / OLED — select from the theme picker in the Settings menu. OLED uses a pure-black background for AMOLED displays. |
 | **CRT retro mode** | Toggles a full-screen CRT filter: scanlines, phosphor vignette, flicker, and barrel distortion. State is saved between sessions. |
 | **BASIC SYS stub** | Prepends a BASIC line that calls SYS to your program's origin |
 | **Sample** | Load a built-in example program |
@@ -161,8 +163,9 @@ The modal closes automatically when the action completes or fails.
 | **Load Project** | Load a previously saved project |
 | **Import ASM** | Opens a paste dialog and imports textual 6502 ASM into blocks |
 | **Save PRG** | Export the compiled binary as a `.prg` file |
-| **Run in VICE** | Compile and launch directly in the VICE emulator |
+| **Run (split button)** | The main **▶ Run** button runs the current mode; click the **▾** arrow to switch between: **Run as PRG** (compile and launch VICE directly), **Run via D64** (package into a .d64 disk image and launch VICE), or **Run on hardware** (send PRG to a C64 Ultimate / 1541 Ultimate device). See [Section 12](#12-d64-export--run) and [Section 13](#13-hardware-settings). |
 | **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 9](#9-debugger-integration)) |
+| **Hardware Settings** | Open the hardware configuration dialog — configure VICE, RetroDebugger, and C64 Ultimate (host, password, connection test). See [Section 13](#13-hardware-settings). |
 | **Debug (C64 Debugger)** | Compile and launch in C64 Debugger with the same breakpoints and symbols support (see [Section 9](#9-debugger-integration)) |
 | **Clear program** | Remove all blocks from the program area |
 | **Collapse All** | Collapse all blocks |
@@ -1138,6 +1141,45 @@ no_hit:
 
 ---
 
+### LOADFILE
+
+Loads a file from a D64 disk at runtime using the C64 KERNAL routines SETNAM (`$FFBD`), SETLFS (`$FFBA`), and LOAD (`$FFD5`). Use this macro to load data, music, or additional code from disk while your program is running.
+
+| Field | Description |
+|---|---|
+| Filename | File name on the disk (max 16 chars, auto-uppercase; characters `,`, `"`, `/`, `\`, `:`, `*`, `?`, `<`, `>`, `\|` are filtered) |
+| Device | Device number 8–30 (default `8`) |
+| Override address (optional) | Hex load address (e.g. `C000`). If set, the file is loaded to this address (`sec=0`, ignoring the PRG header). Leave empty to use the file's own 2-byte PRG header (`sec=1`). |
+| Error label (optional) | If set, a `BCS` instruction is generated after JSR LOAD. If the KERNAL returns with carry set (error), execution jumps to this label. |
+
+**Generated code structure:**
+```
+    JMP skip_filename      ; jump over the inline filename
+    .byte "DEMO-COLORS"    ; filename bytes (PETSCII, 11 chars)
+skip_filename:
+    LDA #11                ; filename length
+    LDX #<fname            ; pointer lo
+    LDY #>fname            ; pointer hi
+    JSR $FFBD              ; SETNAM
+    LDA #1                 ; logical file #1
+    LDX #8                 ; device 8
+    LDY #0                 ; sec=0 (override addr) or #1 (file's own addr)
+    JSR $FFBA              ; SETLFS
+    LDA #0                 ; LOAD command (not VERIFY)
+    JSR $FFD5              ; LOAD
+    BCS fail               ; (only if error label set)
+```
+
+**Size:** `3 + filename_length + 9 (SETNAM) + 9 (SETLFS) + (4 if override) + 5 (LOAD) + (2 if error label)` bytes. Minimum 27 bytes.
+
+> **Important:** The filename is stored inline in the machine code right after a `JMP skip_filename`. The file name on the disk must be uppercase PETSCII — which matches plain ASCII uppercase letters (`A`–`Z`). The macro enforces this automatically.
+
+> **Error handling:** The KERNAL sets the carry flag if LOAD fails (no drive, file not found, etc.). Without an error label, a failure leaves carry set and execution falls through to whatever follows — which is almost certainly wrong. Always provide an error label for production programs.
+
+> **See also:** `loadfile-demo` sample — demonstrates loading `DEMO-COLORS.PRG` from a D64 with a BCS error branch and a visual error screen.
+
+---
+
 ## 9. Debugger Integration
 
 The app supports two external C64 debuggers: **RetroDebugger** and **C64 Debugger**. Both receive breakpoints, symbols, and autostart flags generated from the assembled program.
@@ -1208,6 +1250,91 @@ The Import ASM dialog now includes quality-of-life safeguards for iterative fixe
 - **Source preservation on failure** restores your pasted source automatically, so you can correct and retry without re-pasting.
 
 This keeps the import-debug cycle inside one dialog: paste, import, inspect errors, fix, retry.
+
+---
+
+## 12. D64 Export & Run
+
+Version 1.5.0 adds the ability to package your program (and additional data files) into a C64 D64 disk image and launch it in VICE — or export the disk image for use elsewhere.
+
+### Split Run button
+
+The toolbar **Run** button has been replaced by a **split button**:
+
+| Part | Action |
+|---|---|
+| **▶ Run** (main) | Executes the currently selected run mode |
+| **▾** (arrow) | Opens the mode selector |
+
+**Available run modes:**
+
+| Mode | Description |
+|---|---|
+| **Run as PRG** | Assemble to a temporary `.prg` and launch VICE directly. Classic behaviour. |
+| **Run via D64** | Assemble, build a `.d64` disk image (using c1541), add any configured extra files, then launch VICE from the disk. Use this whenever your program loads files at runtime (e.g. with the LOADFILE macro). |
+| **Run on hardware** | Assemble to PRG and send it to a **1541 Ultimate / Ultimate 64** device over the local network. See [Section 13](#13-hardware-settings). |
+
+The selected mode is saved between sessions.
+
+### Export to D64 dialog
+
+Open via the **Save PRG ▾** dropdown → **Export to D64**. The dialog lets you:
+
+1. Set the **disk name** (max 16 chars) and **program name** — these are the names that appear in the C64 disk directory.
+2. **Add extra files** — click **+** to pick any binary file (`.prg`, `.bin`, `.sid`, etc.). For each extra:
+   - **Name** — how it appears in the D64 directory (max 16 chars, auto-uppercase).
+   - **Load address (optional)** — if provided, a 2-byte PRG header is prepended. Leave empty to write raw bytes with no header.
+3. Click **Export** to generate the `.d64` file using VICE's `c1541` tool.
+
+### D64 metadata in projects
+
+The disk name, program name, and extra file list are saved inside the project JSON (under the `d64` key). When you reload the project or a sample that includes D64 metadata, the extras are restored automatically — no need to re-add them each time.
+
+The **loadfile-demo** sample comes pre-configured with `DEMO-COLORS.PRG` as an extra file. Select it, open **Run via D64**, and click **Run** to see the full load flow in action.
+
+> **Requirement:** D64 export and Run via D64 both require VICE (`c1541`) to be configured in [Hardware Settings](#13-hardware-settings).
+
+---
+
+## 13. Hardware Settings
+
+Open via **Settings → Hardware Settings…** in the toolbar menu. All external hardware paths and network configuration live here.
+
+### VICE Emulator
+
+| Setting | Description |
+|---|---|
+| **Select VICE** | Browse to the `x64sc` (or `x64`) VICE executable |
+| **Status** | Shows whether the executable path is valid and accessible |
+
+VICE is required for **Run as PRG**, **Run via D64**, and **Export to D64**.
+
+### Retro Debugger
+
+| Setting | Description |
+|---|---|
+| **Select RetroDebugger** | Browse to the `RetroDebugger` binary |
+| **Status** | Shows whether the path is valid |
+
+See [Section 9](#9-debugger-integration) for full debugger documentation.
+
+### C64 Ultimate / 1541 Ultimate
+
+Run assembled PRGs directly on real hardware over the local network using the Ultimate REST API.
+
+| Setting | Description |
+|---|---|
+| **Host (IP)** | IP address of the device (e.g. `192.168.1.100`) |
+| **Password** | Optional — if the device requires authentication |
+| **Test connection** | Sends a test request to `/v3/runners/info`; shows OK or error |
+
+**Workflow:**
+1. Connect the 1541 Ultimate / Ultimate 64 to your local network.
+2. Enter its IP address (and password if set) in Hardware Settings.
+3. Select **Run on hardware** from the split run menu.
+4. Click **▶ Run** — the PRG is compiled and sent to the device via HTTP POST to `/v3/runners/prg`. The device loads and runs it on the C64 immediately.
+
+> **Tip:** No USB cable or driver needed — the REST API is built into the Ultimate firmware. Your computer and the device must be on the same local network.
 
 ---
 

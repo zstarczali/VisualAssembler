@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python3 -c:*)"
+      "Bash(python3 -c:*)",
+      "Bash(cargo check *)",
+      "WebFetch(domain:1541u-documentation.readthedocs.io)",
+      "Bash(cargo tree *)",
+      "Bash(grep -v \"//.*menu-field\")"
     ]
   }
 }

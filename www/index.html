@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>C64 Visual Assembler</title>
+  <script>(function(){var t=localStorage.getItem('c64-block-theme')||'light';document.documentElement.dataset.theme=t;document.documentElement.style.background={'dark':'#2f2a8a','oled':'#03020c','light':'#8b93ff'}[t]||'#8b93ff';})();</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -22,6 +23,13 @@
       <div class="splash-loader">
         <div class="splash-loader-bar"></div>
       </div>
+      <div class="splash-ultimate">
+        <div class="splash-ultimate-logos">
+          <img src="assets/64-lone-logo-scaled-2.png" alt="64 Ultimate" class="splash-ultimate-logo">
+          <img src="assets/64C-lone-logo.png" alt="64C Ultimate" class="splash-ultimate-logo">
+        </div>
+        <p class="splash-ultimate-text">Made for Commodore Ultimate 64</p>
+      </div>
     </div>
   </div>
   <div class="app-shell">
@@ -38,6 +46,7 @@
                 <button id="load-project" class="secondary" type="button">Load program</button>
                 <button id="import-asm" class="secondary" type="button">Import ASM</button>
                 <button id="save-prg" class="secondary" type="button">Export to PRG</button>
+                <button id="save-d64" class="secondary" type="button">Export to D64</button>
                 <button id="exit-app" class="secondary" type="button">Kilepes</button>
               </section>
               <section class="control-menu-group">
@@ -60,6 +69,7 @@
                     <option value="if-else">IF / ELSE / ENDIF demo</option>
                     <option value="user-macro-demo">User MACRO / ENDM demo</option>
                     <option value="incbin-demo">INCBIN demo</option>
+                    <option value="loadfile-demo">LOADFILE demo (D64 betoltes)</option>
                     <option value="include-demo">INCLUDE demo</option>
                     <option value="sid-demo">SID player - INCBIN (Ikari Warriors)</option>
                     <option value="sid-direct-demo">SID player - SID makro (Ikari Warriors)</option>
@@ -86,35 +96,38 @@
                   <input type="checkbox" id="basic-sys-toggle" checked>
                   <span id="basic-sys-label">BASIC SYS stub generálása</span>
                 </label>
-                <button id="choose-vice" class="secondary" type="button">VICE kivalasztasa</button>
-                <label class="field compact-field menu-field">
-                  <span>VICE exe</span>
-                  <input id="vice-path" type="text" readonly placeholder="Nincs beallitva">
-                </label>
-                <p id="emulator-status" class="menu-note">A VICE kapcsolat ellenorzese folyamatban.</p>
-                <p id="emulator-run-hint" class="menu-note menu-note-strong"></p>
-                <button id="choose-debugger" class="secondary" type="button"></button>
-                <label class="field compact-field menu-field">
-                  <span id="debugger-exe-label"></span>
-                  <input id="debugger-path" type="text" readonly placeholder="">
-                </label>
-                <p id="debugger-status" class="menu-note"></p>
-              </section>
-              <section class="control-menu-group">
-                <h3 class="control-menu-label">Nezet</h3>
-                <button id="theme-toggle" class="secondary icon-button theme-toggle-button" type="button"
-                  aria-label="Dark mode" title="Dark mode">
-                  <span class="theme-toggle-glyph" aria-hidden="true"></span>
-                  <span>Tema valtasa</span>
-                </button>
+                <button id="hardware-settings-btn" class="secondary" type="button">Hardver beállítások...</button>
+                <h3 class="control-menu-label control-menu-label--section" id="view-section-label">Nezet</h3>
+                <details class="theme-picker-menu" id="theme-picker">
+                  <summary id="theme-toggle" class="secondary icon-button theme-toggle-button" aria-label="Dark mode" title="Dark mode">
+                    <span class="theme-toggle-glyph" aria-hidden="true"></span>
+                    <span id="theme-toggle-label">Tema valtasa</span>
+                  </summary>
+                  <div class="theme-picker-panel">
+                    <button class="secondary theme-option" data-theme-opt="light" type="button">
+                      <span class="theme-option-dot" data-theme-opt="light" aria-hidden="true"></span>
+                      <span>Light</span>
+                    </button>
+                    <button class="secondary theme-option" data-theme-opt="dark" type="button">
+                      <span class="theme-option-dot" data-theme-opt="dark" aria-hidden="true"></span>
+                      <span>Dark</span>
+                    </button>
+                    <button class="secondary theme-option" data-theme-opt="oled" type="button">
+                      <span class="theme-option-dot" data-theme-opt="oled" aria-hidden="true"></span>
+                      <span>OLED</span>
+                    </button>
+                  </div>
+                </details>
                 <button id="crt-toggle" class="secondary icon-button" type="button">
                   <span>📺</span>
-                  <span>CRT retro mod</span>
+                  <span id="crt-toggle-label">CRT retro mod</span>
                 </button>
                 <div class="control-menu-inline">
                   <button id="zoom-out" class="secondary" type="button">A-</button>
                   <button id="zoom-in" class="secondary" type="button">A+</button>
                 </div>
+              </section>
+              <section class="control-menu-group">
                 <h3 class="control-menu-label control-menu-label--section">Program</h3>
                 <button id="copy-asm" class="secondary" type="button">ASM masolasa</button>
                 <button id="clear-program" class="secondary" type="button">Program torlese</button>
@@ -128,13 +141,36 @@
               </section>
             </div>
           </details>
-          <button id="run-emulator" class="primary run-button" type="button">
-            <svg class="run-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg">
-              <path d="M3 2.5l10 5.5-10 5.5V2.5z" />
-            </svg>
-            <span class="run-label">Run</span>
-          </button>
+          <div class="split-run-group">
+            <button id="run-emulator" class="primary run-button split-run-main" type="button">
+              <svg class="run-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 2.5l10 5.5-10 5.5V2.5z" />
+              </svg>
+              <span class="run-label">Run</span>
+            </button>
+            <button id="run-mode-arrow" class="primary run-button split-run-arrow" type="button" aria-haspopup="true" aria-expanded="false" title="Futtatasi mod valasztasa">
+              <svg viewBox="0 0 10 6" fill="currentColor" width="10" height="6" aria-hidden="true"><path d="M0 0l5 6 5-6z"/></svg>
+            </button>
+            <div id="run-mode-menu" class="run-mode-menu" hidden role="menu">
+              <button id="run-prg-mode" class="run-mode-item" role="menuitem" data-mode="prg">
+                <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13" aria-hidden="true"><path d="M3 2.5l10 5.5-10 5.5V2.5z"/></svg>
+                <span id="run-prg-label">Run as PRG</span>
+              </button>
+              <button id="run-d64-mode" class="run-mode-item" role="menuitem" data-mode="d64">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" aria-hidden="true"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2"/></svg>
+                <span id="run-d64-label">Run via D64</span>
+              </button>
+              <button id="run-ultimate-mode" class="run-mode-item" role="menuitem" data-mode="ultimate">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" aria-hidden="true"><rect x="3" y="5" width="10" height="7" rx="1"/><path d="M5 5V3M8 5V3M11 5V3M5 12v1M8 12v1M11 12v1M1 7h2M1 9h2M13 7h2M13 9h2"/></svg>
+                <span id="run-ultimate-label">Run on hardware</span>
+              </button>
+              <button id="run-ultimate-d64-mode" class="run-mode-item" role="menuitem" data-mode="ultimate-d64">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" aria-hidden="true"><rect x="3" y="5" width="10" height="7" rx="1"/><path d="M5 5V3M8 5V3M11 5V3M5 12v1M8 12v1M11 12v1M1 7h2M1 9h2M13 7h2M13 9h2"/><circle cx="8" cy="8" r="2" fill="currentColor" stroke="none"/></svg>
+                <span id="run-ultimate-d64-label">D64 on hardware</span>
+              </button>
+            </div>
+          </div>
           <button id="run-debugger" class="secondary run-button" type="button" title="">
             <svg class="run-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg">
@@ -182,6 +218,10 @@
               <label class="base-option">
                 <input type="radio" name="number-base" value="hex" checked>
                 <span>HEX</span>
+              </label>
+              <label class="base-option">
+                <input type="radio" name="number-base" value="bin">
+                <span>BIN</span>
               </label>
               <label class="base-option">
                 <input type="radio" name="number-base" value="dec">
@@ -447,6 +487,37 @@
     </div>
   </dialog>
 
+  <dialog id="d64-export-dialog" class="d64-export-dialog">
+    <div class="d64-export-card">
+      <h2 class="compile-error-title" id="d64-export-title">Export to D64</h2>
+      <div class="d64-export-row">
+        <label class="d64-export-field">
+          <span id="d64-export-diskname-label">Disk name (max 16)</span>
+          <input id="d64-export-diskname" type="text" maxlength="16" value="DISK">
+        </label>
+        <label class="d64-export-field">
+          <span id="d64-export-progname-label">Program name (max 16)</span>
+          <input id="d64-export-progname" type="text" maxlength="16" value="PROGRAM">
+        </label>
+      </div>
+      <div class="d64-export-extras">
+        <div class="d64-export-extras-header">
+          <div>
+            <h3 class="d64-export-subtitle" id="d64-export-extras-title">Extra files</h3>
+            <p class="d64-export-help" id="d64-export-extras-help">Add raw binary files (e.g. data, sprites).</p>
+          </div>
+          <button id="d64-export-add-file" class="secondary" type="button" title="Add file">+</button>
+        </div>
+        <div id="d64-export-extras-list" class="d64-export-extras-list"></div>
+      </div>
+      <div id="d64-export-error" class="d64-export-error" hidden></div>
+      <div class="d64-export-actions">
+        <button id="d64-export-confirm" class="primary" type="button">Export</button>
+        <button id="d64-export-cancel" class="secondary" type="button">Cancel</button>
+      </div>
+    </div>
+  </dialog>
+
   <dialog id="about-dialog" class="about-dialog">
     <div class="about-card">
       <div class="about-logo">
@@ -465,31 +536,28 @@
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v1.4.7</p>
+      <p class="whats-new-version">v1.5.0</p>
       <ul class="whats-new-list">
         <li>
-          <strong>Import dialog inline errors</strong> — failed ASM imports now keep the dialog open and show the error list directly at the bottom of the same dialog.
+          <strong>Export to D64</strong> — assemble your program and export it directly to a .d64 disk image using VICE's c1541 tool. Add extra files (data, sprites, PRGs) to the same disk before export.
         </li>
         <li>
-          <strong>Import source recovery on failure</strong> — when import fails, the original pasted source text is restored automatically so you can fix and retry without re-pasting.
+          <strong>Run via D64</strong> — new split run button lets you choose between running as a plain PRG or packaging into a D64 and launching VICE directly from the disk image.
         </li>
         <li>
-          <strong>Import line numbers</strong> — the Import ASM editor now has synchronized line numbers for easier troubleshooting.
+          <strong>LOADFILE macro</strong> — load a file from a D64 at runtime using C64 KERNAL SETNAM/SETLFS/LOAD routines. Supports optional override address and error-label (BCS) for error handling.
         </li>
         <li>
-          <strong>INCLUDE stability fixes</strong> — sample include reload now resolves relative paths more reliably and avoids disappearing include content on transient reload errors.
+          <strong>LOADFILE demo sample</strong> — a ready-to-run example that loads DEMO-COLORS.PRG from a D64 at runtime and then cycles border and background colors.
         </li>
         <li>
-          <strong>Import ASM dialog</strong> — a new File menu action lets you paste textual 6502 assembly (`ORG`, labels, `.byte`, comments, instructions) and convert it into Visual Assembler blocks.
+          <strong>Run on hardware (C64 Ultimate)</strong> — send and run your assembled PRG directly on a 1541 Ultimate / Ultimate 64 device via its REST API. Configure host and password in Hardware Settings.
         </li>
         <li>
-          <strong>Compiling progress modal</strong> — Run, Debug, and Import now show a centered progress dialog with an animated progress bar while work is in progress.
+          <strong>OLED theme</strong> — a new pure-black OLED theme for AMOLED screens. Select it from the new theme picker (Light / Dark / OLED).
         </li>
         <li>
-          <strong>ASM line numbers</strong> — the ASM output panel now shows line-number prefixes to make error pinpointing easier during debugging.
-        </li>
-        <li>
-          <strong>Import robustness improvements</strong> — importer normalizes local labels and better handles mixed operand styles used in real-world 6502 snippets.
+          <strong>D64 metadata in projects</strong> — disk name, program name, and extra file list are now saved into the project JSON so they are restored when the project or sample is reloaded.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -563,6 +631,51 @@
         </li>
       </ul>
       <button id="knowledge-base-close" class="primary" type="button">Close</button>
+    </div>
+  </dialog>
+
+  <dialog id="hardware-settings-dialog" class="hardware-settings-dialog">
+    <div class="hardware-settings-card">
+      <h2 class="compile-error-title" id="hardware-settings-title">Hardver beállítások</h2>
+
+      <section class="hw-settings-section">
+        <h3 class="hw-settings-section-label" id="hw-vice-section-label">VICE Emulator</h3>
+        <button id="choose-vice" class="secondary" type="button">VICE kivalasztasa</button>
+        <label class="field compact-field hw-field">
+          <span id="vice-exe-label">VICE exe</span>
+          <input id="vice-path" type="text" readonly placeholder="Nincs beallitva">
+        </label>
+        <p id="emulator-status" class="menu-note">A VICE kapcsolat ellenorzese folyamatban.</p>
+        <p id="emulator-run-hint" class="menu-note menu-note-strong"></p>
+      </section>
+
+      <section class="hw-settings-section">
+        <h3 class="hw-settings-section-label" id="hw-debugger-section-label">Retro Debugger</h3>
+        <button id="choose-debugger" class="secondary" type="button"></button>
+        <label class="field compact-field hw-field">
+          <span id="debugger-exe-label"></span>
+          <input id="debugger-path" type="text" readonly placeholder="">
+        </label>
+        <p id="debugger-status" class="menu-note"></p>
+      </section>
+
+      <section class="hw-settings-section">
+        <h3 class="hw-settings-section-label" id="ultimate-section-label">C64 Ultimate</h3>
+        <label class="field compact-field hw-field">
+          <span id="ultimate-host-label">Host (IP)</span>
+          <input id="ultimate-host" type="text" placeholder="192.168.1.100" autocomplete="off" spellcheck="false">
+        </label>
+        <label class="field compact-field hw-field">
+          <span id="ultimate-password-label">Jelszó</span>
+          <input id="ultimate-password" type="password" placeholder="(opcionális)" autocomplete="off">
+        </label>
+        <button id="ultimate-connect-test" class="secondary" type="button">Kapcsolat tesztelése</button>
+        <p id="ultimate-status" class="menu-note"></p>
+      </section>
+
+      <div class="hw-settings-actions">
+        <button id="hardware-settings-close" class="primary" type="button">Bezárás</button>
+      </div>
     </div>
   </dialog>
 

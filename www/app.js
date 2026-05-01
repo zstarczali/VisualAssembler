@@ -173,6 +173,7 @@ const mnemonicLibrary = {
     { mnemonic: "WAIT_RASTER", description: "Rasztervonal varakozas: LDA $D012 / CMP #sor / BNE -7. Inline, 7 byte, nincs JSR.", modes: ["implied"], isWaitRasterMacro: true },
     { mnemonic: "JOYSTICK", description: "Joystick olvasas es sprite mozgatasa: UP/DOWN/LEFT/RIGHT bitek LSR+BCS+DEC/INC-cel. Port 1=$DC01, Port 2=$DC00 (alap). 27 byte inline.", modes: ["implied"], isJoystickMacro: true },
     { mnemonic: "SPRITE_COL", description: "Sprite utkozes detektalas: LDA $D01E/$D01F + AND #bitMask. Eredmeny A-ban: nem nulla = utkozes. Utana BEQ/BNE-vel ugri. 5 byte.", modes: ["implied"], isSpriteColMacro: true },
+    { mnemonic: "LOADFILE", description: "Fajl betoltese D64-rol KERNAL SETNAM/SETLFS/LOAD rutinokkal. Cim opcionalis (ures = fajl sajat cime, sec=1; kitoltve = override, sec=0). Hiba cimke opcionalis (BCS).", modes: ["implied"], isLoadFileMacro: true },
     { mnemonic: "DEFINE", description: "Szimbolum definialasa felteteles forditashoz. Ha jelen van, az IF blokkban levo feltetelek kivalutalodnak.", modes: ["implied"], isDefineMacro: true },
     { mnemonic: "IF", description: "Felteteles forditas kezdete. Kifejezest var (pl. DEBUG). ENDIF-fel zarjuk.", modes: ["implied"], isIfMacro: true },
     { mnemonic: "ELSE", description: "Alternativ ag IF blokkon belul.", modes: ["implied"], isElseMacro: true },
@@ -214,6 +215,7 @@ const loadSampleButton = document.getElementById("load-sample");
 const sampleSelect = document.getElementById("sample-select");
 const saveProjectButton = document.getElementById("save-project");
 const savePrgButton = document.getElementById("save-prg");
+const saveD64Button = document.getElementById("save-d64");
 const loadProjectButton = document.getElementById("load-project");
 const importAsmButton = document.getElementById("import-asm");
 const importAsmDialog = document.getElementById("import-asm-dialog");
@@ -339,14 +341,38 @@ const translations = {
     workProgressTitle: "Forditas folyamatban...",
     workProgressDoneTitle: "Sikeres build",
     workProgressRun: "PRG generalasa es VICE inditasa...",
+    workProgressRunD64: "D64 csomagolas es VICE inditasa...",
+    workProgressRunUltimate: "PRG kuldese a C64 Ultimate-re...",
+    workProgressRunD64Ultimate: "D64 kuldese a C64 Ultimate-re...",
     workProgressDebug: "PRG generalasa es debugger inditasa...",
     workProgressImport: "ASM import feldolgozasa...",
     workProgressSuccessRun: "Build sikeres, VICE inditva.",
+    workProgressSuccessRunD64: "Build sikeres, VICE inditva D64-rol.",
+    workProgressSuccessUltimate: "Build sikeres, program elinditva a hardveren.",
+    workProgressSuccessD64Ultimate: "D64 felcsatolva, lemez fut a hardveren.",
     workProgressSuccessDebug: "Build sikeres, debugger inditva.",
     workProgressSuccessImport: "Import sikeres.",
     savePrg: "Export PRG-kent",
     savePrgSuccess: "PRG elmentve",
     savePrgFailed: "PRG mentes sikertelen",
+    saveD64: "Export D64-kent",
+    saveD64Success: "D64 elmentve",
+    saveD64Failed: "D64 mentes sikertelen",
+    saveD64NeedVice: "A D64 mentes a VICE c1541 toolt hasznalja. Allitsd be a VICE eleresi utjat a Beallitasok menuben.",
+    d64ExtraNamePlaceholder: "FAJLNEV",
+    d64ExtraAddrPlaceholder: "C000",
+    d64ExtraRemove: "Eltavolitas",
+    d64ErrorEmptyName: "Egy fajlhoz nincs nev megadva.",
+    d64ErrorBadAddr: "Ervenytelen betoltesi cim a {name} fajlhoz (hex 0000-FFFF).",
+    d64FilesLabel: "fajl",
+    d64ExportTitle: "Export D64-kent",
+    d64ExportDiskName: "Lemez nev (max 16)",
+    d64ExportProgName: "Program nev (max 16)",
+    d64ExportExtrasTitle: "Tovabbi fajlok",
+    d64ExportExtrasHelp: "Adj hozza nyers binaris fajlokat (pl. adat, sprite). PRG bejegyzeskent kerulnek a D64-re. A betoltesi cim mezo opcionalis (hex), uresen hagyva nyersen mented.",
+    d64ExportAddFile: "+ Fajl hozzaadasa",
+    d64ExportConfirm: "Mentes",
+    d64ExportCancel: "Megse",
     programSettings: "Programbeallitasok",
     macroSourceToggle: "Makro forraskod megjelenites",
     asmNumbersLabel: "Szamok az ASM kimenetben",
@@ -384,6 +410,26 @@ const translations = {
     emulatorHelp: "A helyi VICE emulatort inditjuk a desktop appbol.",
     openEmulator: "VICE kivalasztasa",
     runInEmulator: "Run",
+    runAsPrg: "Futtatás PRG-ként",
+    runViaD64: "Futtatás D64-ről",
+    runViaD64Confirm: "Futtatás VICE-ban",
+    runD64Title: "Futtatás D64-ről",
+    hardwareSettings: "Hardver beállítások...",
+    hardwareSettingsTitle: "Hardver beállítások",
+    hardwareSettingsClose: "Bezárás",
+    hwViceSectionLabel: "VICE Emulator",
+    hwDebuggerSectionLabel: "Retro Debugger",
+    runOnUltimate: "Futtatás hardveren",
+    runD64OnHardware: "D64 hardveren",
+    ultimateSectionLabel: "C64 Ultimate",
+    ultimateHostLabel: "Host (IP)",
+    ultimatePasswordLabel: "Jelszó",
+    ultimateConnectTest: "Kapcsolat tesztelése",
+    ultimateConnecting: "Kapcsolódás...",
+    ultimateConnected: "Csatlakozva",
+    ultimateConnectFailed: "Kapcsolat sikertelen",
+    ultimateNotConfigured: "C64 Ultimate nincs beállítva. Add meg a host IP-t a beállításokban.",
+    ultimateRunFailed: "Futtatás sikertelen",
     copyAsm: "ASM masolasa",
     viceExecutable: "VICE exe",
     chooseViceStatusPending: "A VICE kapcsolat ellenorzese folyamatban.",
@@ -414,6 +460,7 @@ const translations = {
     sampleIfElse: "IF / ELSE / ENDIF demo",
     sampleUserMacro: "User MACRO / ENDM demo",
     sampleIncBin: "INCBIN demo",
+    sampleLoadFile: "LOADFILE demo (D64 betoltes futasidoben)",
     sampleInclude: "INCLUDE demo",
     sampleSidDemo: "SID zenelejatszas (Ikari Warriors)",
     sampleSidDirectDemo: "SID lejatszas - SID makro (Ikari Warriors)",
@@ -424,6 +471,10 @@ const translations = {
     sampleRasterIrqDemo: "Raszter IRQ demo (szin villogas)",
     sampleOverlappingRasterDemo: "Overlapping raszter csik demo",
     helpManual: "Kezikonyv",
+    about: "Névjegy",
+    knowledgeBase: "Tudásbázis",
+    zoomIn: "Nagyítás (A+)",
+    zoomOut: "Kicsinyítés (A-)",
     checkForUpdate: "Frissites keresese",
     reportBug: "Hiba bejelentese",
     viceRunning: "VICE fut",
@@ -460,6 +511,12 @@ const translations = {
     fieldColType: "Utkozes tipusa",
     colTypeSprite: "Sprite-Sprite ($D01E)",
     colTypeBackground: "Sprite-Hatter ($D01F)",
+    fieldLoadFileName: "Fajlnev (max 16)",
+    fieldLoadFileDevice: "Eszkoz (8-30)",
+    fieldLoadFileAddress: "Cim (opcionalis)",
+    fieldLoadFileAddressPlaceholder: "ures = fajl sajat cime",
+    fieldLoadFileErrorLabel: "Hiba cimke (opcionalis)",
+    fieldLoadFileErrorLabelPlaceholder: "BCS celja",
     pickLabel: "Cimke valasztas",
     fieldPushRegs: "Regiszterek",
     fieldPullRegs: "Regiszterek",
@@ -527,6 +584,7 @@ const translations = {
     mnemonicCardLabel: "Leiras",
     darkMode: "Dark mode",
     lightMode: "Light mode",
+    oledMode: "OLED mode",
     emptyState: "Huzz ide egy blokkot a bal oldali palettarol.",
     memoryUsedRam: "Foglalt RAM",
     memoryFreeRam: "Szabad RAM",
@@ -589,14 +647,38 @@ const translations = {
     workProgressTitle: "Compiling...",
     workProgressDoneTitle: "Build successful",
     workProgressRun: "Building PRG and launching VICE...",
+    workProgressRunD64: "Packaging D64 and launching VICE...",
+    workProgressRunUltimate: "Sending PRG to C64 Ultimate...",
+    workProgressRunD64Ultimate: "Sending D64 to C64 Ultimate...",
     workProgressDebug: "Building PRG and launching debugger...",
     workProgressImport: "Importing ASM blocks...",
     workProgressSuccessRun: "Build successful, VICE launched.",
+    workProgressSuccessRunD64: "Build successful, VICE launched from D64.",
+    workProgressSuccessUltimate: "Build successful, program running on hardware.",
+    workProgressSuccessD64Ultimate: "D64 mounted, disk running on hardware.",
     workProgressSuccessDebug: "Build successful, debugger launched.",
     workProgressSuccessImport: "Import successful.",
     savePrg: "Export to PRG",
     savePrgSuccess: "PRG saved",
     savePrgFailed: "PRG save failed",
+    saveD64: "Export to D64",
+    saveD64Success: "D64 saved",
+    saveD64Failed: "D64 export failed",
+    saveD64NeedVice: "D64 export uses VICE's c1541 tool. Set the VICE path in the Settings menu.",
+    d64ExtraNamePlaceholder: "FILENAME",
+    d64ExtraAddrPlaceholder: "C000",
+    d64ExtraRemove: "Remove",
+    d64ErrorEmptyName: "An extra file has no name.",
+    d64ErrorBadAddr: "Invalid load address for {name} (hex 0000-FFFF).",
+    d64FilesLabel: "files",
+    d64ExportTitle: "Export to D64",
+    d64ExportDiskName: "Disk name (max 16)",
+    d64ExportProgName: "Program name (max 16)",
+    d64ExportExtrasTitle: "Extra files",
+    d64ExportExtrasHelp: "Add raw binary files (e.g. data, sprites). They are written as PRG entries on the D64. The load address field is optional (hex); leave empty to save raw.",
+    d64ExportAddFile: "+ Add file",
+    d64ExportConfirm: "Export",
+    d64ExportCancel: "Cancel",
     programSettings: "Program settings",
     macroSourceToggle: "Show macro source code",
     asmNumbersLabel: "Numbers in ASM output",
@@ -634,6 +716,26 @@ const translations = {
     emulatorHelp: "The desktop app launches your local VICE emulator.",
     openEmulator: "Choose VICE",
     runInEmulator: "Run",
+    runAsPrg: "Run as PRG",
+    runViaD64: "Run via D64",
+    runViaD64Confirm: "Run in VICE",
+    runD64Title: "Run via D64",
+    hardwareSettings: "Hardware settings...",
+    hardwareSettingsTitle: "Hardware Settings",
+    hardwareSettingsClose: "Close",
+    hwViceSectionLabel: "VICE Emulator",
+    hwDebuggerSectionLabel: "Retro Debugger",
+    runOnUltimate: "Run on hardware",
+    runD64OnHardware: "D64 on hardware",
+    ultimateSectionLabel: "C64 Ultimate",
+    ultimateHostLabel: "Host (IP)",
+    ultimatePasswordLabel: "Password",
+    ultimateConnectTest: "Test connection",
+    ultimateConnecting: "Connecting...",
+    ultimateConnected: "Connected",
+    ultimateConnectFailed: "Connection failed",
+    ultimateNotConfigured: "C64 Ultimate is not configured. Enter the host IP in Settings.",
+    ultimateRunFailed: "Run failed",
     copyAsm: "Copy ASM",
     viceExecutable: "VICE executable",
     chooseViceStatusPending: "Checking the VICE connection.",
@@ -664,6 +766,7 @@ const translations = {
     sampleIfElse: "IF / ELSE / ENDIF demo",
     sampleUserMacro: "User MACRO / ENDM demo",
     sampleIncBin: "INCBIN demo",
+    sampleLoadFile: "LOADFILE demo (runtime D64 load)",
     sampleInclude: "INCLUDE demo",
     sampleSidDemo: "SID player - INCBIN (Ikari Warriors)",
     sampleSidDirectDemo: "SID player - SID macro (Ikari Warriors)",
@@ -674,6 +777,10 @@ const translations = {
     sampleRasterIrqDemo: "Raster IRQ demo (color flashing)",
     sampleOverlappingRasterDemo: "Overlapping raster bars demo",
     helpManual: "Manual",
+    about: "About",
+    knowledgeBase: "Knowledge Base",
+    zoomIn: "Zoom in (A+)",
+    zoomOut: "Zoom out (A-)",
     languageLabel: "Language",
     checkForUpdate: "Check for Update",
     reportBug: "Report Bug",
@@ -711,6 +818,12 @@ const translations = {
     fieldColType: "Collision type",
     colTypeSprite: "Sprite-Sprite ($D01E)",
     colTypeBackground: "Sprite-Background ($D01F)",
+    fieldLoadFileName: "Filename (max 16)",
+    fieldLoadFileDevice: "Device (8-30)",
+    fieldLoadFileAddress: "Address (optional)",
+    fieldLoadFileAddressPlaceholder: "empty = file's own load addr",
+    fieldLoadFileErrorLabel: "Error label (optional)",
+    fieldLoadFileErrorLabelPlaceholder: "BCS target",
     pickLabel: "Pick label",
     fieldPushRegs: "Registers",
     fieldPullRegs: "Registers",
@@ -778,6 +891,7 @@ const translations = {
     mnemonicCardLabel: "Description",
     darkMode: "Dark mode",
     lightMode: "Light mode",
+    oledMode: "OLED mode",
     emptyState: "Drag a block here from the palette on the left.",
     memoryUsedRam: "Used RAM",
     memoryFreeRam: "Free RAM",
@@ -1024,6 +1138,7 @@ const mnemonicDescriptionsEn = {
   LABEL: "Named label in code for jump targets.",
   COMMENT: "Program comment that does not generate bytes.",
   SPRITE_INIT: "Initialize a sprite: set data page pointer ($07F8+N), enable bit ($D015), and color ($D027+N).",
+  LOADFILE: "Load a file from disk via KERNAL SETNAM/SETLFS/LOAD. Address optional (empty = file's own load address with secondary=1; filled = override with secondary=0). Error label optional (BCS to label on carry/error).",
   SPRITE_POS: "Set sprite position: X (0–319) and Y (0–255). Handles the $D010 MSB for X > 255.",
   WAIT_RASTER: "Busy-wait for a raster line: LDA $D012 / CMP #line / BNE -7. Inline, 7 bytes, no JSR.",
   JOYSTICK: "Read joystick and move sprite: UP/DOWN/LEFT/RIGHT via LSR+BCS+DEC/INC. Port 1=$DC01, Port 2=$DC00. 27 bytes inline.",
@@ -1195,7 +1310,16 @@ function initPalette() {
     saveUiSettings();
   });
   baseInputs.forEach((input) => input.addEventListener("change", handleBaseChange));
-  themeToggleButton.addEventListener("click", toggleTheme);
+  document.querySelectorAll(".theme-option").forEach(btn => {
+    btn.addEventListener("click", () => {
+      setTheme(btn.dataset.themeOpt);
+      document.getElementById("theme-picker")?.removeAttribute("open");
+    });
+  });
+  document.addEventListener("click", e => {
+    const picker = document.getElementById("theme-picker");
+    if (picker?.open && !picker.contains(e.target)) picker.removeAttribute("open");
+  });
   document.getElementById("crt-toggle")?.addEventListener("click", toggleCrtMode);
   languageSelect.addEventListener("change", handleLanguageChange);
   aboutButton?.addEventListener("click", async () => {
@@ -1243,10 +1367,12 @@ function initPalette() {
   });
   exitAppButton?.addEventListener("click", () => window.electronAPI.quitApp());
   setupOperandDropdown();
+  setupD64ExportDialog();
   sampleSelect?.addEventListener("change", saveUiSettings);
   loadSampleButton.addEventListener("click", loadSelectedSample);
   saveProjectButton?.addEventListener("click", saveProjectToFile);
   savePrgButton?.addEventListener("click", savePrgToFile);
+  saveD64Button?.addEventListener("click", saveD64ToFile);
   loadProjectButton?.addEventListener("click", loadProjectFromFile);
   importAsmButton?.addEventListener("click", () => {
     if (importAsmTextarea) importAsmTextarea.value = "";
@@ -1345,7 +1471,15 @@ function initPalette() {
   expandAllButton.addEventListener("click", expandAllBlocks);
   copyAsmButton?.addEventListener("click", copyAsmToClipboard);
   chooseViceButton?.addEventListener("click", chooseViceExecutable);
-  runEmulatorButton?.addEventListener("click", runInEmulator);
+  runEmulatorButton?.addEventListener("click", () => {
+    if (runMode === "d64") runViaD64();
+    else if (runMode === "ultimate") runOnUltimate();
+    else if (runMode === "ultimate-d64") runUltimateD64();
+    else runInEmulator();
+  });
+  setupRunModeDropdown();
+  setupHardwareSettingsDialog();
+  setupUltimateSettings();
   chooseDebuggerButton?.addEventListener("click", chooseDebuggerExecutable);
   runDebuggerButton?.addEventListener("click", runInDebugger);
   dbgJmpOn?.addEventListener("change", () => { debuggerJmp = true; saveUiSettings(); });
@@ -1534,7 +1668,12 @@ function applyTranslations() {
     setText('.view-mode-option input[value="monitor"] + span', t("outputMonitor"));
     setText('.view-mode-option input[value="both"] + span', t("outputBoth"));
     setText(".global-memory-title", t("memoryTitle"));
-    setText(".menu-field span", t("viceExecutable"));
+    setText("#hardware-settings-btn", t("hardwareSettings"));
+    setText("#hardware-settings-title", t("hardwareSettingsTitle"));
+    setText("#hardware-settings-close", t("hardwareSettingsClose"));
+    setText("#hw-vice-section-label", t("hwViceSectionLabel"));
+    setText("#hw-debugger-section-label", t("hwDebuggerSectionLabel"));
+    setText("#vice-exe-label", t("viceExecutable"));
     setText("#choose-vice", t("openEmulator"));
     setText("#choose-debugger", t("chooseDebugger"));
     setText("#debugger-exe-label", t("debuggerExecutable"));
@@ -1542,7 +1681,15 @@ function applyTranslations() {
     setText("#dbg-jmp-label", t("debuggerJmpLabel"));
     setText("#dbg-wait-label", t("debuggerWaitLabel"));
     setText("#dbg-unpause-label", t("debuggerUnpauseLabel"));
-    setText("#run-emulator .run-label", t("runInEmulator"));
+    setText("#run-emulator .run-label", runMode === "d64" ? t("runViaD64") : runMode === "ultimate" ? t("runOnUltimate") : runMode === "ultimate-d64" ? t("runD64OnHardware") : t("runInEmulator"));
+    setText("#run-prg-label", t("runAsPrg"));
+    setText("#run-d64-label", t("runViaD64"));
+    setText("#run-ultimate-label", t("runOnUltimate"));
+    setText("#run-ultimate-d64-label", t("runD64OnHardware"));
+    setText("#ultimate-section-label", t("ultimateSectionLabel"));
+    setText("#ultimate-host-label", t("ultimateHostLabel"));
+    setText("#ultimate-password-label", t("ultimatePasswordLabel"));
+    setText("#ultimate-connect-test", t("ultimateConnectTest"));
     setText("#run-debugger .run-label", t("runInDebugger"));
     setText("#copy-asm", t("copyAsm"));
     setText("#save-project", t("saveProject"));
@@ -1553,6 +1700,15 @@ function applyTranslations() {
     setText("#import-asm-errors-title", t("importAsmErrorsTitle"));
     if (importAsmTextarea) importAsmTextarea.placeholder = t("importAsmPlaceholder");
     setText("#save-prg", t("savePrg"));
+    setText("#save-d64", t("saveD64"));
+    setText("#d64-export-title", t("d64ExportTitle"));
+    setText("#d64-export-diskname-label", t("d64ExportDiskName"));
+    setText("#d64-export-progname-label", t("d64ExportProgName"));
+    setText("#d64-export-extras-title", t("d64ExportExtrasTitle"));
+    setText("#d64-export-extras-help", t("d64ExportExtrasHelp"));
+    document.getElementById("d64-export-add-file")?.setAttribute("title", t("d64ExportAddFile"));
+    setText("#d64-export-confirm", t("d64ExportConfirm"));
+    setText("#d64-export-cancel", t("d64ExportCancel"));
     setText("#program-settings-label", t("programSettings"));
     if (macroSourceToggleText) macroSourceToggleText.textContent = t("macroSourceToggle");
     setText("#asm-numbers-label", t("asmNumbersLabel"));
@@ -1572,6 +1728,8 @@ function applyTranslations() {
     saveProjectButton?.setAttribute("aria-label", t("saveProject"));
     savePrgButton?.setAttribute("title", t("savePrg"));
     savePrgButton?.setAttribute("aria-label", t("savePrg"));
+    saveD64Button?.setAttribute("title", t("saveD64"));
+    saveD64Button?.setAttribute("aria-label", t("saveD64"));
     loadProjectButton?.setAttribute("title", t("loadProject"));
     loadProjectButton?.setAttribute("aria-label", t("loadProject"));
     addSelectedButton?.setAttribute("title", t("addSelected"));
@@ -1590,6 +1748,26 @@ function applyTranslations() {
     }
     chooseDebuggerButton?.setAttribute("title", t("chooseDebugger"));
     chooseDebuggerButton?.setAttribute("aria-label", t("chooseDebugger"));
+    document.getElementById("hardware-settings-btn")?.setAttribute("title", t("hardwareSettings"));
+    document.getElementById("hardware-settings-btn")?.setAttribute("aria-label", t("hardwareSettings"));
+    document.getElementById("crt-toggle")?.setAttribute("title", t("crtToggle"));
+    document.getElementById("crt-toggle")?.setAttribute("aria-label", t("crtToggle"));
+    zoomInButton?.setAttribute("title", t("zoomIn"));
+    zoomInButton?.setAttribute("aria-label", t("zoomIn"));
+    zoomOutButton?.setAttribute("title", t("zoomOut"));
+    zoomOutButton?.setAttribute("aria-label", t("zoomOut"));
+    helpManualButton?.setAttribute("title", t("helpManual"));
+    helpManualButton?.setAttribute("aria-label", t("helpManual"));
+    aboutButton?.setAttribute("title", t("about"));
+    aboutButton?.setAttribute("aria-label", t("about"));
+    whatsNewButton?.setAttribute("title", t("whatsNew"));
+    whatsNewButton?.setAttribute("aria-label", t("whatsNew"));
+    knowledgeBaseButton?.setAttribute("title", t("knowledgeBase"));
+    knowledgeBaseButton?.setAttribute("aria-label", t("knowledgeBase"));
+    checkUpdateButton?.setAttribute("title", t("checkForUpdate"));
+    checkUpdateButton?.setAttribute("aria-label", t("checkForUpdate"));
+    reportBugButton?.setAttribute("title", t("reportBug"));
+    reportBugButton?.setAttribute("aria-label", t("reportBug"));
     if (debuggerPathInput) {
       debuggerPathInput.placeholder = t("debuggerNotConfiguredPlaceholder");
     }
@@ -1612,7 +1790,7 @@ function applyTranslations() {
   loadSampleButton.textContent = t("loadSample");
   clearProgramButton.textContent = t("clearProgram");
     themeToggleButton.lastElementChild.textContent = t("themeToggle");
-    themeToggleButton.setAttribute("title", document.body.dataset.theme === "dark" ? t("lightMode") : t("darkMode"));
+    updateThemeToggleLabel();
     const crtToggleBtn = document.getElementById("crt-toggle");
     if (crtToggleBtn) crtToggleBtn.lastElementChild.textContent = t("crtToggle");
     const srOnlyLabels = document.querySelectorAll("label.sample-picker .sr-only");
@@ -1636,15 +1814,16 @@ function applyTranslations() {
   if (sampleOptions[12]) sampleOptions[12].textContent = t("sampleIfElse");
   if (sampleOptions[13]) sampleOptions[13].textContent = t("sampleUserMacro");
   if (sampleOptions[14]) sampleOptions[14].textContent = t("sampleIncBin");
-  if (sampleOptions[15]) sampleOptions[15].textContent = t("sampleInclude");
-  if (sampleOptions[16]) sampleOptions[16].textContent = t("sampleSidDemo");
-  if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleSidDirectDemo");
-  if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleSpriteMacroDemo");
-  if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleJoystickDemo");
-  if (sampleOptions[20]) sampleOptions[20].textContent = t("sampleCollisionDemo");
-  if (sampleOptions[21]) sampleOptions[21].textContent = t("sample10Print");
-  if (sampleOptions[22]) sampleOptions[22].textContent = t("sampleRasterIrqDemo");
-  if (sampleOptions[23]) sampleOptions[23].textContent = t("sampleOverlappingRasterDemo");
+  if (sampleOptions[15]) sampleOptions[15].textContent = t("sampleLoadFile");
+  if (sampleOptions[16]) sampleOptions[16].textContent = t("sampleInclude");
+  if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleSidDemo");
+  if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleSidDirectDemo");
+  if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleSpriteMacroDemo");
+  if (sampleOptions[20]) sampleOptions[20].textContent = t("sampleJoystickDemo");
+  if (sampleOptions[21]) sampleOptions[21].textContent = t("sampleCollisionDemo");
+  if (sampleOptions[22]) sampleOptions[22].textContent = t("sample10Print");
+  if (sampleOptions[23]) sampleOptions[23].textContent = t("sampleRasterIrqDemo");
+  if (sampleOptions[24]) sampleOptions[24].textContent = t("sampleOverlappingRasterDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -2356,6 +2535,26 @@ function createBlockFromMnemonic(item) {
       spriteNum: "0",
       spriteColor: "7",
       spriteDataPage: "21"
+    };
+  }
+
+  if (item.isLoadFileMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isLoadFileMacro: true,
+      loadFileName: "DATA",
+      loadFileDevice: "8",
+      loadFileAddress: "",
+      loadFileErrorLabel: ""
     };
   }
 
@@ -3107,6 +3306,15 @@ function updateProgramBlock(index, field, value) {
           }
         }
       }
+      // If addressing mode changed away from immediate while base is "bin",
+      // BIN no longer makes sense for address operands — coerce to hex.
+      if (field === "addressingMode" && block.base === "bin" && value !== "immediate") {
+        const numericValue = parseNumberByBase(block.rawOperand.trim(), "bin");
+        block.base = "hex";
+        if (numericValue !== null && numericValue >= 0) {
+          block.rawOperand = numericValue.toString(16).toUpperCase();
+        }
+      }
       const preview = buildOperandPreview(block.addressingMode, block.rawOperand, block.base);
       block.operand = preview.operand;
       block.validationError = preview.error;
@@ -3199,6 +3407,20 @@ function updateProgramBlock(index, field, value) {
 
   if (block.isSpriteInitMacro && (field === "spriteNum" || field === "spriteColor" || field === "spriteDataPage")) {
     block.validationError = validateSpriteInitMacro(block.spriteNum, block.spriteColor, block.spriteDataPage);
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isLoadFileMacro && (field === "loadFileName" || field === "loadFileDevice" || field === "loadFileAddress" || field === "loadFileErrorLabel")) {
+    if (field === "loadFileName") {
+      // Sanitize: ASCII printable only, max 16 chars, uppercase (PETSCII A-Z = $41-$5A)
+      block.loadFileName = (value || "").toUpperCase().replace(/[^\x20-\x7E]/g, "").replace(/["\,\/\\:\*\?<>\|]/g, "").slice(0, 16);
+    }
+    if (field === "loadFileErrorLabel") {
+      block.loadFileErrorLabel = sanitizeLabelName(value);
+    }
+    block.validationError = "";
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -4065,13 +4287,25 @@ function toBin(value, nibbles) {
 
 function applySavedTheme() {
   const savedTheme = localStorage.getItem("c64-block-theme") || "light";
-  document.body.dataset.theme = savedTheme;
+  document.documentElement.dataset.theme = savedTheme;
   updateThemeToggleLabel();
+  // Wait for two animation frames so the browser completes a full layout+paint
+  // cycle with the correct theme before the window becomes visible.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      window.__TAURI__?.window?.getCurrentWindow()?.show().catch(() => {});
+    });
+  });
 }
 
 function toggleTheme() {
-  document.body.dataset.theme = document.body.dataset.theme === "dark" ? "light" : "dark";
-  localStorage.setItem("c64-block-theme", document.body.dataset.theme);
+  const next = { light: "dark", dark: "oled", oled: "light" };
+  setTheme(next[document.documentElement.dataset.theme] || "dark");
+}
+
+function setTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  localStorage.setItem("c64-block-theme", theme);
   updateThemeToggleLabel();
   saveUiSettings();
 }
@@ -4088,9 +4322,16 @@ function toggleCrtMode() {
 }
 
 function updateThemeToggleLabel() {
-  const nextModeLabel = document.body.dataset.theme === "dark" ? t("lightMode") : t("darkMode");
-  themeToggleButton.setAttribute("aria-label", nextModeLabel);
-  themeToggleButton.setAttribute("title", nextModeLabel);
+  const current = document.documentElement.dataset.theme || "light";
+  document.querySelectorAll(".theme-option").forEach(btn => {
+    if (btn.dataset.themeOpt === current) {
+      btn.setAttribute("data-active", "");
+    } else {
+      btn.removeAttribute("data-active");
+    }
+  });
+  themeToggleButton.setAttribute("aria-label", t("themeToggle"));
+  themeToggleButton.setAttribute("title", t("themeToggle"));
 }
 
 async function loadViceConfig() {
@@ -4288,7 +4529,15 @@ function getProjectPayload() {
       numberBase: getSelectedBase(),
       zoom: blockScale,
       language: currentLanguage,
-      theme: document.body.dataset.theme || "light"
+      theme: document.documentElement.dataset.theme || "light"
+    },
+    d64: {
+      diskName: d64ExportState.diskName,
+      progName: d64ExportState.progName,
+      extras: (d64ExportState.extras.length > 0
+        ? d64ExportState.extras
+        : (d64ExportState._pendingExtras || [])
+      ).map(e => ({ name: e.name, sourcePath: e.sourcePath, loadAddress: e.loadAddress || "" }))
     }
   };
 }
@@ -4331,12 +4580,28 @@ async function saveProjectToFile() {
   }
 }
 
+let _lastCompileErrors = [];
+
 function showCompileErrorDialog(errors) {
   if (!compileErrorDialog || !compileErrorList) return;
   if (compileErrorTitle) compileErrorTitle.textContent = t("compileErrorTitle");
-  compileErrorList.innerHTML = errors
-    .map(err => `<li>${err.replace(/</g, "&lt;")}</li>`)
-    .join("");
+  _lastCompileErrors = errors;
+  compileErrorList.innerHTML = errors.map((err, idx) => {
+    const lineTagMatch = err.match(/^\[L(\d+)\]/);
+    const asmLine = lineTagMatch ? parseInt(lineTagMatch[1], 10) : null;
+    return `<li data-index="${idx}" data-asm-line="${asmLine ?? ""}">${err.replace(/</g, "&lt;")}</li>`;
+  }).join("");
+
+  compileErrorList.querySelectorAll("li").forEach(li => {
+    li.addEventListener("click", () => {
+      const asmLine = parseInt(li.dataset.asmLine, 10);
+      compileErrorDialog.close();
+      if (!isNaN(asmLine)) {
+        scrollAsmOutputToLine(asmLine);
+      }
+    });
+  });
+
   compileErrorDialog.showModal();
 }
 
@@ -4413,6 +4678,525 @@ async function savePrgToFile() {
     const fileName = result.filePath.split(/[\\/]/).pop();
     emulatorStatus.textContent = `${t("savePrgSuccess")}: ${fileName}`;
   }
+}
+
+async function saveD64ToFile() {
+  if (!window.electronAPI?.saveD64) {
+    if (emulatorStatus) emulatorStatus.textContent = t("saveD64Failed");
+    return;
+  }
+
+  // Compile first so we surface errors early (before opening the dialog).
+  const prg = buildAutostartPrgForEmulator();
+  if (!prg.ok) {
+    if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
+    if (emulatorStatus) emulatorStatus.textContent = prg.error;
+    return;
+  }
+
+  openD64ExportDialog(prg.bytes);
+}
+
+// ── D64 Export Dialog ─────────────────────────────────────────────────
+// Lets the user pick a disk name + program name for the assembled PRG and
+// add additional raw binary files (e.g. data files for LOADFILE) that get
+// written to the same D64 image.
+const d64ExportState = {
+  prgBytes: null,
+  extras: [],  // [{ name: string, sourcePath: string, bytes: number[], loadAddress: string }]
+  runMode: false,
+  diskName: "",
+  progName: "",
+  _pendingExtras: null,      // extras metadata from project JSON, loaded lazily on dialog open
+  _pendingExtrasBaseDir: ""  // base directory of the project file, for resolving relative paths
+};
+
+function defaultDiskName() {
+  if (sampleSelect && sampleSelect.value) {
+    return sampleSelect.value.replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 16) || "DISK";
+  }
+  return "DISK";
+}
+
+function d64SaveSettings(diskName, progName) {
+  d64ExportState.diskName = diskName;
+  d64ExportState.progName = progName;
+  const meta = d64ExportState.extras.map(e => ({ name: e.name, sourcePath: e.sourcePath, loadAddress: e.loadAddress }));
+  try { localStorage.setItem("d64LastSettings", JSON.stringify({ diskName, progName, extras: meta })); } catch (_) {}
+}
+
+async function d64LoadSavedExtras(savedExtras, baseDir = "") {
+  if (!window.electronAPI?.readBinFile) return [];
+  const restored = [];
+  for (const meta of savedExtras) {
+    if (!meta.sourcePath) continue;
+    const isAbsolute = /^([A-Za-z]:[\\/]|\/)/.test(meta.sourcePath);
+    const resolvedPath = (baseDir && !isAbsolute) ? baseDir + "/" + meta.sourcePath : meta.sourcePath;
+    try {
+      const r = await window.electronAPI.readBinFile(resolvedPath);
+      if (r?.ok && r.bytes) restored.push({ name: meta.name, sourcePath: resolvedPath, loadAddress: meta.loadAddress || "", bytes: r.bytes });
+    } catch (_) {}
+  }
+  return restored;
+}
+
+async function openD64ExportDialog(prgBytes) {
+  const dialog = document.getElementById("d64-export-dialog");
+  if (!dialog) return;
+  d64ExportState.prgBytes = prgBytes;
+
+  const diskInput = document.getElementById("d64-export-diskname");
+  const progInput = document.getElementById("d64-export-progname");
+  const errorBox = document.getElementById("d64-export-error");
+
+  let diskName = d64ExportState.diskName || defaultDiskName();
+  let progName = d64ExportState.progName || defaultDiskName();
+  if (d64ExportState.extras.length === 0) {
+    if (d64ExportState._pendingExtras?.length) {
+      d64ExportState.extras = await d64LoadSavedExtras(d64ExportState._pendingExtras, d64ExportState._pendingExtrasBaseDir);
+      d64ExportState._pendingExtras = null;
+      d64ExportState._pendingExtrasBaseDir = "";
+    } else {
+      try {
+        const saved = JSON.parse(localStorage.getItem("d64LastSettings") || "null");
+        if (saved) {
+          if (!d64ExportState.diskName && saved.diskName) diskName = saved.diskName;
+          if (!d64ExportState.progName && saved.progName) progName = saved.progName;
+          if (saved.extras?.length) d64ExportState.extras = await d64LoadSavedExtras(saved.extras);
+        }
+      } catch (_) {}
+    }
+  }
+
+  if (diskInput) diskInput.value = diskName;
+  if (progInput) progInput.value = progName;
+  if (errorBox) { errorBox.hidden = true; errorBox.textContent = ""; }
+
+  renderD64ExtraFiles();
+  dialog.showModal();
+}
+
+function renderD64ExtraFiles() {
+  const list = document.getElementById("d64-export-extras-list");
+  if (!list) return;
+  list.innerHTML = "";
+
+  d64ExportState.extras.forEach((entry, idx) => {
+    const item = document.createElement("div");
+    item.className = "d64-export-extra-item";
+    item.innerHTML = `
+      <div class="d64-export-extra-top">
+        <input type="text" maxlength="16" class="d64-extra-name" value="${escapeHtmlAttribute(entry.name)}" placeholder="${t("d64ExtraNamePlaceholder")}">
+        <input type="text" maxlength="5" class="d64-extra-addr" value="${escapeHtmlAttribute(entry.loadAddress || "")}" placeholder="${t("d64ExtraAddrPlaceholder")}">
+        <button type="button" class="d64-export-extra-remove" title="${t("d64ExtraRemove")}">×</button>
+      </div>
+      <input type="text" class="d64-extra-source" value="${escapeHtmlAttribute(entry.sourcePath || "")}" readonly tabindex="-1">
+    `;
+    list.appendChild(item);
+
+    item.querySelector(".d64-extra-name").addEventListener("input", (event) => {
+      const cleaned = event.target.value.toUpperCase().replace(/[^\x20-\x7E]/g, "").replace(/[",\/\\:\*\?<>\|]/g, "").slice(0, 16);
+      d64ExportState.extras[idx].name = cleaned;
+      event.target.value = cleaned;
+    });
+
+    item.querySelector(".d64-extra-addr").addEventListener("input", (event) => {
+      const cleaned = event.target.value.replace(/^\$/, "").replace(/[^0-9A-Fa-f]/g, "").slice(0, 4);
+      d64ExportState.extras[idx].loadAddress = cleaned;
+      event.target.value = cleaned;
+    });
+
+    item.querySelector(".d64-export-extra-remove").addEventListener("click", () => {
+      d64ExportState.extras.splice(idx, 1);
+      renderD64ExtraFiles();
+    });
+  });
+}
+
+async function pickD64ExtraFile() {
+  if (!window.electronAPI?.chooseIncBinFile) return;
+  const result = await window.electronAPI.chooseIncBinFile();
+  if (result?.canceled || !result?.bytes) return;
+
+  // Default name = uppercase basename without extension, max 16 chars.
+  const baseName = (result.fileName || "").replace(/\.[^.]+$/, "").toUpperCase().replace(/[^\x20-\x7E]/g, "").replace(/[",\/\\:\*\?<>\|]/g, "").slice(0, 16) || "DATA";
+
+  d64ExportState.extras.push({
+    name: baseName,
+    sourcePath: result.filePath || result.fileName || "",
+    bytes: result.bytes,
+    loadAddress: ""  // empty = save raw, no load addr prepended
+  });
+  renderD64ExtraFiles();
+}
+
+async function confirmD64Export() {
+  const dialog = document.getElementById("d64-export-dialog");
+  const diskInput = document.getElementById("d64-export-diskname");
+  const progInput = document.getElementById("d64-export-progname");
+  const errorBox = document.getElementById("d64-export-error");
+  if (!dialog || !d64ExportState.prgBytes) return;
+
+  const diskName = ((diskInput?.value || "").trim() || "DISK").toLowerCase();
+  const progName = ((progInput?.value || "").trim() || "PROGRAM").toLowerCase();
+
+  // First file = the assembled PRG. Its bytes already contain the load
+  // address prefix (from buildAutostartPrgForEmulator), so loadAddress = null.
+  const files = [{
+    name: progName,
+    bytes: Array.from(d64ExportState.prgBytes),
+    loadAddress: null
+  }];
+
+  for (const extra of d64ExportState.extras) {
+    if (!extra.name) {
+      if (errorBox) { errorBox.hidden = false; errorBox.textContent = t("d64ErrorEmptyName"); }
+      return;
+    }
+    let loadAddr = null;
+    if (extra.loadAddress && extra.loadAddress.trim()) {
+      const parsed = parseInt(extra.loadAddress.trim(), 16);
+      if (isNaN(parsed) || parsed < 0 || parsed > 0xFFFF) {
+        if (errorBox) { errorBox.hidden = false; errorBox.textContent = tf("d64ErrorBadAddr", { name: extra.name }); }
+        return;
+      }
+      loadAddr = parsed;
+    }
+    files.push({
+      name: extra.name.toLowerCase(),
+      bytes: Array.from(extra.bytes),
+      loadAddress: loadAddr
+    });
+  }
+
+  // Disable buttons during the async backend call
+  const confirmBtn = document.getElementById("d64-export-confirm");
+  const cancelBtn = document.getElementById("d64-export-cancel");
+  if (confirmBtn) confirmBtn.disabled = true;
+  if (cancelBtn) cancelBtn.disabled = true;
+
+  const isRunMode = d64ExportState.runMode;
+  const isUltimateMode = isRunMode === "ultimate";
+  if (isRunMode) await showWorkProgress(isUltimateMode ? "workProgressRunD64Ultimate" : "workProgressRunD64");
+
+  let result;
+  try {
+    if (isUltimateMode) {
+      const host = (document.getElementById("ultimate-host")?.value || ultimateHost).trim();
+      const password = (document.getElementById("ultimate-password")?.value || ultimatePassword).trim() || null;
+      if (!host) {
+        hideWorkProgress();
+        if (errorBox) { errorBox.hidden = false; errorBox.textContent = t("ultimateNotConfigured"); }
+        if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = t("runOnUltimate"); }
+        if (cancelBtn) cancelBtn.disabled = false;
+        return;
+      }
+      result = await window.electronAPI.runD64OnUltimate({ host, password, diskName, files });
+    } else if (isRunMode) {
+      result = await window.electronAPI.runD64({ diskName, files });
+    } else {
+      result = await window.electronAPI.saveD64({ diskName, files });
+    }
+  } finally {
+    if (confirmBtn) {
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = t(isUltimateMode ? "runOnUltimate" : isRunMode ? "runViaD64Confirm" : "d64ExportConfirm");
+    }
+    if (cancelBtn) cancelBtn.disabled = false;
+  }
+
+  if (result?.canceled) {
+    if (isRunMode) hideWorkProgress();
+    return;
+  }
+
+  if (!result?.ok) {
+    if (isRunMode) hideWorkProgress();
+    const err = result?.error || "";
+    let msg = err || t("saveD64Failed");
+    if (!isUltimateMode && /c1541|VICE/i.test(err)) msg = t("saveD64NeedVice");
+    if (errorBox) { errorBox.hidden = false; errorBox.textContent = msg; }
+    return;
+  }
+
+  d64SaveSettings((diskInput?.value || "").trim() || "DISK", (progInput?.value || "").trim() || "PROGRAM");
+  dialog.close();
+  if (isRunMode) {
+    await completeWorkProgress(isUltimateMode ? "workProgressSuccessD64Ultimate" : "workProgressSuccessRunD64");
+  } else if (emulatorStatus) {
+    const fileName = (result.filePath || "").split(/[\\/]/).pop();
+    const count = result.fileCount || files.length;
+    emulatorStatus.textContent = `${t("saveD64Success")}: ${fileName} (${count} ${t("d64FilesLabel")})`;
+  }
+}
+
+// ── Run mode (PRG / D64) split button ─────────────────────────────────────────
+
+let runMode = "prg";
+
+function setupRunModeDropdown() {
+  const arrow = document.getElementById("run-mode-arrow");
+  const menu = document.getElementById("run-mode-menu");
+  if (!arrow || !menu) return;
+
+  arrow.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const open = !menu.hidden;
+    menu.hidden = open;
+    arrow.setAttribute("aria-expanded", String(!open));
+  });
+
+  document.addEventListener("click", () => {
+    if (!menu.hidden) {
+      menu.hidden = true;
+      arrow.setAttribute("aria-expanded", "false");
+    }
+  });
+
+  document.getElementById("run-prg-mode")?.addEventListener("click", () => {
+    setRunMode("prg");
+    menu.hidden = true;
+    arrow.setAttribute("aria-expanded", "false");
+  });
+
+  document.getElementById("run-d64-mode")?.addEventListener("click", () => {
+    setRunMode("d64");
+    menu.hidden = true;
+    arrow.setAttribute("aria-expanded", "false");
+  });
+
+  document.getElementById("run-ultimate-mode")?.addEventListener("click", () => {
+    setRunMode("ultimate");
+    menu.hidden = true;
+    arrow.setAttribute("aria-expanded", "false");
+  });
+
+  document.getElementById("run-ultimate-d64-mode")?.addEventListener("click", () => {
+    setRunMode("ultimate-d64");
+    menu.hidden = true;
+    arrow.setAttribute("aria-expanded", "false");
+  });
+
+  const saved = localStorage.getItem("runMode");
+  if (saved === "prg" || saved === "d64" || saved === "ultimate" || saved === "ultimate-d64") setRunMode(saved);
+}
+
+function setRunMode(mode) {
+  runMode = mode;
+  localStorage.setItem("runMode", mode);
+  const prgBtn = document.getElementById("run-prg-mode");
+  const d64Btn = document.getElementById("run-d64-mode");
+  const ulBtn = document.getElementById("run-ultimate-mode");
+  const ulD64Btn = document.getElementById("run-ultimate-d64-mode");
+  if (prgBtn) prgBtn.classList.toggle("active", mode === "prg");
+  if (d64Btn) d64Btn.classList.toggle("active", mode === "d64");
+  if (ulBtn) ulBtn.classList.toggle("active", mode === "ultimate");
+  if (ulD64Btn) ulD64Btn.classList.toggle("active", mode === "ultimate-d64");
+  const label = document.querySelector("#run-emulator .run-label");
+  if (label) label.textContent = mode === "d64" ? t("runViaD64") : mode === "ultimate" ? t("runOnUltimate") : mode === "ultimate-d64" ? t("runD64OnHardware") : t("runInEmulator");
+}
+
+async function runViaD64() {
+  if (!vicePath) {
+    showViceToast(currentLanguage === "en" ? "VICE is not configured. Select it in the menu first." : "A VICE nincs beallitva. Valaszd ki a menuben.", true);
+    return;
+  }
+  if (!window.electronAPI?.runD64) {
+    showViceToast(currentLanguage === "en" ? "D64 run is not available." : "A D64 futtatás nem elerheto.", true);
+    return;
+  }
+
+  const prg = buildAutostartPrgForEmulator();
+  if (!prg.ok) {
+    if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
+    if (emulatorStatus) emulatorStatus.textContent = prg.error;
+    return;
+  }
+
+  d64ExportState.prgBytes = prg.bytes;
+  d64ExportState.runMode = true;
+
+  const dialog = document.getElementById("d64-export-dialog");
+  const diskInput = document.getElementById("d64-export-diskname");
+  const progInput = document.getElementById("d64-export-progname");
+  const errorBox = document.getElementById("d64-export-error");
+  const confirmBtn = document.getElementById("d64-export-confirm");
+
+  let diskName = d64ExportState.diskName || defaultDiskName();
+  let progName = d64ExportState.progName || defaultDiskName();
+  if (d64ExportState.extras.length === 0) {
+    if (d64ExportState._pendingExtras?.length) {
+      d64ExportState.extras = await d64LoadSavedExtras(d64ExportState._pendingExtras, d64ExportState._pendingExtrasBaseDir);
+      d64ExportState._pendingExtras = null;
+      d64ExportState._pendingExtrasBaseDir = "";
+    } else {
+      try {
+        const saved = JSON.parse(localStorage.getItem("d64LastSettings") || "null");
+        if (saved) {
+          if (!d64ExportState.diskName && saved.diskName) diskName = saved.diskName;
+          if (!d64ExportState.progName && saved.progName) progName = saved.progName;
+          if (saved.extras?.length) d64ExportState.extras = await d64LoadSavedExtras(saved.extras);
+        }
+      } catch (_) {}
+    }
+  }
+
+  if (diskInput) diskInput.value = diskName;
+  if (progInput) progInput.value = progName;
+  if (errorBox) { errorBox.hidden = true; errorBox.textContent = ""; }
+  if (confirmBtn) confirmBtn.textContent = t("runViaD64Confirm");
+  const titleEl = document.getElementById("d64-export-title");
+  if (titleEl) titleEl.textContent = t("runD64Title");
+  renderD64ExtraFiles();
+  dialog?.showModal();
+}
+
+function setupD64ExportDialog() {
+  const dialog = document.getElementById("d64-export-dialog");
+  if (!dialog) return;
+  document.getElementById("d64-export-add-file")?.addEventListener("click", pickD64ExtraFile);
+  document.getElementById("d64-export-confirm")?.addEventListener("click", confirmD64Export);
+  document.getElementById("d64-export-cancel")?.addEventListener("click", () => dialog.close());
+  dialog.addEventListener("close", () => {
+    d64ExportState.prgBytes = null;
+    d64ExportState.runMode = false;
+    const confirmBtn = document.getElementById("d64-export-confirm");
+    if (confirmBtn) confirmBtn.textContent = t("d64ExportConfirm");
+    const titleEl = document.getElementById("d64-export-title");
+    if (titleEl) titleEl.textContent = t("d64ExportTitle");
+  });
+}
+
+// ── Hardware Settings Dialog ──────────────────────────────────────────────────
+
+function setupHardwareSettingsDialog() {
+  const dialog = document.getElementById("hardware-settings-dialog");
+  if (!dialog) return;
+  document.getElementById("hardware-settings-btn")?.addEventListener("click", () => dialog.showModal());
+  document.getElementById("hardware-settings-close")?.addEventListener("click", () => dialog.close());
+}
+
+// ── C64 Ultimate (1541 Ultimate REST API) ─────────────────────────────────────
+
+let ultimateHost = localStorage.getItem("ultimateHost") || "";
+let ultimatePassword = localStorage.getItem("ultimatePassword") || "";
+
+function setupUltimateSettings() {
+  const hostInput = document.getElementById("ultimate-host");
+  const passInput = document.getElementById("ultimate-password");
+  const testBtn = document.getElementById("ultimate-connect-test");
+
+  if (hostInput) {
+    hostInput.value = ultimateHost;
+    hostInput.addEventListener("change", () => {
+      ultimateHost = hostInput.value.trim();
+      localStorage.setItem("ultimateHost", ultimateHost);
+    });
+  }
+  if (passInput) {
+    passInput.value = ultimatePassword;
+    passInput.addEventListener("change", () => {
+      ultimatePassword = passInput.value.trim();
+      localStorage.setItem("ultimatePassword", ultimatePassword);
+    });
+  }
+  testBtn?.addEventListener("click", testUltimateConnection);
+}
+
+async function testUltimateConnection() {
+  const host = (document.getElementById("ultimate-host")?.value || ultimateHost).trim();
+  const password = (document.getElementById("ultimate-password")?.value || ultimatePassword).trim() || null;
+  const statusEl = document.getElementById("ultimate-status");
+  if (!host) {
+    if (statusEl) statusEl.textContent = t("ultimateNotConfigured");
+    return;
+  }
+  if (statusEl) statusEl.textContent = t("ultimateConnecting");
+  const result = await window.electronAPI?.testUltimateConnection(host, password);
+  if (result?.ok) {
+    const info = result.info || {};
+    const product = info.product || "";
+    const firmware = info.firmware || info.version || "";
+    const desc = [product, firmware].filter(Boolean).join(" ").trim() || t("ultimateConnected");
+    if (statusEl) statusEl.textContent = `✓ ${desc}`;
+  } else {
+    if (statusEl) statusEl.textContent = `✗ ${result?.error || t("ultimateConnectFailed")}`;
+  }
+}
+
+async function runOnUltimate() {
+  const host = (document.getElementById("ultimate-host")?.value || ultimateHost).trim();
+  if (!host) {
+    showViceToast(t("ultimateNotConfigured"), true);
+    return;
+  }
+  const prg = buildAutostartPrgForEmulator();
+  if (!prg.ok) {
+    if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
+    if (emulatorStatus) emulatorStatus.textContent = prg.error;
+    return;
+  }
+  const password = (document.getElementById("ultimate-password")?.value || ultimatePassword).trim() || null;
+  await showWorkProgress("workProgressRunUltimate");
+  const result = await window.electronAPI?.runOnUltimate(host, password, Array.from(prg.bytes));
+  if (result?.ok) {
+    await completeWorkProgress("workProgressSuccessUltimate");
+  } else {
+    hideWorkProgress();
+    showViceToast(result?.error || t("ultimateRunFailed"), true);
+  }
+}
+
+async function runUltimateD64() {
+  const host = (document.getElementById("ultimate-host")?.value || ultimateHost).trim();
+  if (!host) {
+    showViceToast(t("ultimateNotConfigured"), true);
+    return;
+  }
+
+  const prg = buildAutostartPrgForEmulator();
+  if (!prg.ok) {
+    if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
+    if (emulatorStatus) emulatorStatus.textContent = prg.error;
+    return;
+  }
+
+  d64ExportState.prgBytes = prg.bytes;
+  d64ExportState.runMode = "ultimate";
+
+  const dialog = document.getElementById("d64-export-dialog");
+  const diskInput = document.getElementById("d64-export-diskname");
+  const progInput = document.getElementById("d64-export-progname");
+  const errorBox = document.getElementById("d64-export-error");
+  const confirmBtn = document.getElementById("d64-export-confirm");
+
+  let diskName = d64ExportState.diskName || defaultDiskName();
+  let progName = d64ExportState.progName || defaultDiskName();
+  if (d64ExportState.extras.length === 0) {
+    if (d64ExportState._pendingExtras?.length) {
+      d64ExportState.extras = await d64LoadSavedExtras(d64ExportState._pendingExtras, d64ExportState._pendingExtrasBaseDir);
+      d64ExportState._pendingExtras = null;
+      d64ExportState._pendingExtrasBaseDir = "";
+    } else {
+      try {
+        const saved = JSON.parse(localStorage.getItem("d64LastSettings") || "null");
+        if (saved) {
+          if (!d64ExportState.diskName && saved.diskName) diskName = saved.diskName;
+          if (!d64ExportState.progName && saved.progName) progName = saved.progName;
+          if (saved.extras?.length) d64ExportState.extras = await d64LoadSavedExtras(saved.extras);
+        }
+      } catch (_) {}
+    }
+  }
+
+  if (diskInput) diskInput.value = diskName;
+  if (progInput) progInput.value = progName;
+  if (errorBox) { errorBox.hidden = true; errorBox.textContent = ""; }
+  if (confirmBtn) confirmBtn.textContent = t("runOnUltimate");
+  const titleEl = document.getElementById("d64-export-title");
+  if (titleEl) titleEl.textContent = t("runD64Title");
+  renderD64ExtraFiles();
+  dialog?.showModal();
 }
 
 async function reloadIncludeBlocks(projectFilePath = "") {
@@ -4564,6 +5348,187 @@ function _importMakeByte(rawByteStr) {
   };
 }
 
+// Detect a comma-separated value list base. Returns { base, normalized } where
+// normalized is the cleaned string (without $/% prefixes) that matches `base`.
+function _importDetectListBase(rawList) {
+  const parts = rawList.split(",").map(p => p.trim()).filter(Boolean);
+  if (!parts.length) return { base: "hex", normalized: rawList.trim() };
+  const allBin = parts.every(p => /^%[01]+$/.test(p));
+  const allHex = parts.every(p => /^\$[0-9A-Fa-f]+$/.test(p) || /^0x[0-9A-Fa-f]+$/i.test(p));
+  const allDec = parts.every(p => /^\d+$/.test(p));
+  const stripped = parts.map(p => p.replace(/^[\$%]/, "").replace(/^0x/i, ""));
+  if (allBin) return { base: "bin", normalized: stripped.join(",") };
+  if (allDec) return { base: "dec", normalized: stripped.join(",") };
+  if (allHex) return { base: "hex", normalized: stripped.join(",").toUpperCase() };
+  // Mixed → keep hex semantics, strip prefixes where present
+  return { base: "hex", normalized: stripped.join(",").toUpperCase() };
+}
+
+function _importParseScalar(raw) {
+  const v = raw.trim();
+  if (/^%[01]+$/.test(v)) return { base: "bin", value: v.slice(1) };
+  if (/^\$[0-9A-Fa-f]+$/.test(v)) return { base: "hex", value: v.slice(1).toUpperCase() };
+  if (/^0x[0-9A-Fa-f]+$/i.test(v)) return { base: "hex", value: v.slice(2).toUpperCase() };
+  if (/^\d+$/.test(v)) return { base: "dec", value: v };
+  return { base: "hex", value: v.toUpperCase() };
+}
+
+function _importMakeWord(rawList) {
+  const detected = _importDetectListBase(rawList);
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "WORD",
+    operand: detected.normalized, rawOperand: detected.normalized, description: "",
+    addressingMode: "implied", base: detected.base === "bin" ? "hex" : detected.base,
+    validationError: "", collapsed: true, isWordMacro: true
+  };
+}
+
+function _importMakeFill(rawList) {
+  // FILL accepts "count, value"
+  const parts = rawList.split(",").map(p => p.trim()).filter(Boolean);
+  let base = "dec";
+  let normalized = rawList.trim();
+  if (parts.length === 2) {
+    const a = _importParseScalar(parts[0]);
+    const b = _importParseScalar(parts[1]);
+    // Pick the value's base for the macro (count usually fits any base).
+    base = b.base;
+    normalized = `${a.value},${b.value}`;
+  }
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "FILL",
+    operand: normalized, rawOperand: normalized, description: "",
+    addressingMode: "implied", base,
+    validationError: "", collapsed: true, isFillMacro: true
+  };
+}
+
+function _importMakeAlign(rawValue) {
+  const scalar = _importParseScalar(rawValue);
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "ALIGN",
+    operand: scalar.value, rawOperand: scalar.value, description: "",
+    addressingMode: "implied",
+    // ALIGN must use "dec" or "hex" — bin is meaningless and triggers known bugs.
+    base: scalar.base === "bin" ? "hex" : scalar.base,
+    validationError: "", collapsed: true, isAlignMacro: true
+  };
+}
+
+function _importMakeIncBin(fileName, addressHex) {
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "INCBIN",
+    operand: "", rawOperand: "", description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: "", collapsed: true, isIncBinMacro: true,
+    incBinFileName: fileName,
+    incBinFile: fileName,
+    incBinBytes: [],
+    incBinAddress: addressHex || ""
+  };
+}
+
+function _importMakeConst(name, rawValue) {
+  const scalar = _importParseScalar(rawValue);
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "CONST",
+    operand: scalar.value, rawOperand: scalar.value, description: "",
+    addressingMode: "implied", base: scalar.base,
+    validationError: "", collapsed: true, isConstMacro: true,
+    constName: name,
+    constValue: parseNumberByBase(scalar.value, scalar.base)
+  };
+}
+
+function _importMakeRegion(name) {
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "REGION",
+    operand: name, rawOperand: name, description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: "", collapsed: true, isRegionMacro: true,
+    regionName: name, regionCollapsed: false
+  };
+}
+
+function _importMakeEndRegion() {
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "ENDREGION",
+    operand: "", rawOperand: "", description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: "", collapsed: true, isEndRegionMacro: true
+  };
+}
+
+function _importMakeDefine(symbol) {
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "DEFINE",
+    operand: symbol, rawOperand: symbol, description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: "", collapsed: true, isDefineMacro: true,
+    defineSymbol: symbol
+  };
+}
+
+function _importMakeIf(condition) {
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "IF",
+    operand: condition, rawOperand: condition, description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: "", collapsed: true, isIfMacro: true,
+    ifCondition: condition
+  };
+}
+
+function _importMakeElse() {
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "ELSE",
+    operand: "", rawOperand: "", description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: "", collapsed: true, isElseMacro: true
+  };
+}
+
+function _importMakeEndIf() {
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "ENDIF",
+    operand: "", rawOperand: "", description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: "", collapsed: true, isEndIfMacro: true
+  };
+}
+
+function _importMakeMacroDefStart(name) {
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "MACRO",
+    operand: name, rawOperand: name, description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: "", collapsed: true, isMacroDefStart: true,
+    macroName: name
+  };
+}
+
+function _importMakeMacroDefEnd() {
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "ENDM",
+    operand: "", rawOperand: "", description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: "", collapsed: true, isMacroDefEnd: true
+  };
+}
+
 function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
   const category = _importMnemonicCategory(mnemonic);
   const description = _importMnemonicDescription(mnemonic);
@@ -4581,7 +5546,9 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
       addressingMode = "immediate";
       const val = op.slice(1);
       if (val.startsWith("%")) {
-        base = "bin"; rawOperand = val; displayOperand = "#" + val;
+        // Strip % so rawOperand stays consistent with other bin-base blocks
+        // (the rest of the codebase stores BIN values as bare bits).
+        base = "bin"; rawOperand = val.slice(1); displayOperand = "#" + val;
       } else if (val.startsWith("$")) {
         base = "hex"; rawOperand = val.slice(1).toUpperCase(); displayOperand = "#$" + rawOperand;
       } else if (/^\d+$/.test(val)) {
@@ -4613,6 +5580,26 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
       rawOperand = op.slice(1).toUpperCase(); base = "hex";
       addressingMode = parseInt(rawOperand, 16) > 0xFF ? "absolute" : "zeroPage";
       displayOperand = "$" + rawOperand;
+    } else if (/^\([A-Za-z_][A-Za-z0-9_]*,X\)$/i.test(op)) {
+      // (label,X) indirectX with label
+      const m = op.match(/^\(([A-Za-z_][A-Za-z0-9_]*),X\)$/i);
+      rawOperand = m[1]; base = "hex"; addressingMode = "indirectX";
+      displayOperand = "(" + rawOperand + ",X)";
+    } else if (/^\([A-Za-z_][A-Za-z0-9_]*\),Y$/i.test(op)) {
+      // (label),Y indirectY with label
+      const m = op.match(/^\(([A-Za-z_][A-Za-z0-9_]*)\),Y$/i);
+      rawOperand = m[1]; base = "hex"; addressingMode = "indirectY";
+      displayOperand = "(" + rawOperand + "),Y";
+    } else if (/^[A-Za-z_][A-Za-z0-9_]*(?:\s*[+-]\s*(?:\$[0-9A-Fa-f]+|\d+))?,X$/i.test(op)) {
+      // label,X or label+offset,X → absoluteX
+      rawOperand = op.slice(0, op.lastIndexOf(",")).trim();
+      base = "hex"; addressingMode = "absoluteX";
+      displayOperand = rawOperand + ",X";
+    } else if (/^[A-Za-z_][A-Za-z0-9_]*(?:\s*[+-]\s*(?:\$[0-9A-Fa-f]+|\d+))?,Y$/i.test(op)) {
+      // label,Y or label+offset,Y → absoluteY
+      rawOperand = op.slice(0, op.lastIndexOf(",")).trim();
+      base = "hex"; addressingMode = "absoluteY";
+      displayOperand = rawOperand + ",Y";
     } else if (/^\.[A-Za-z][A-Za-z0-9_]*$/.test(op)) {
       // Local label reference: strip dot
       rawOperand = op.slice(1); base = "hex";
@@ -4656,7 +5643,35 @@ function parseAsmText(text) {
     line = line.trim();
 
     if (!line) {
-      if (commentText) blocks.push(_importMakeComment(commentText));
+      // Detect app-specific structural markers in comment-only lines.
+      // These re-create REGION/CONST/IF/DEFINE when re-importing this app's
+      // own ASM output.
+      //
+      // Note: ; .MACRO / ; .ENDM markers are intentionally NOT recognized.
+      // The export emits them around fixed-address INCLUDE subroutines as
+      // documentation, but treating them as real macro defs on import would
+      // wrap the labels inside a template (skipped by getProgramLayout),
+      // breaking external JSR references.
+      if (commentText) {
+        const ct = commentText.trim();
+        // region NAME
+        let m = ct.match(/^region\s+(.+?)\s*$/i);
+        if (m) { blocks.push(_importMakeRegion(m[1].trim())); continue; }
+        // endregion [NAME]
+        if (/^endregion(?:\s+.+)?$/i.test(ct)) { blocks.push(_importMakeEndRegion()); continue; }
+        // .DEFINE SYM
+        m = ct.match(/^\.DEFINE\s+([A-Za-z_][A-Za-z0-9_]*)\s*$/i);
+        if (m) { blocks.push(_importMakeDefine(m[1])); continue; }
+        // .CONST name = value
+        m = ct.match(/^\.CONST\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+?)\s*$/i);
+        if (m) { blocks.push(_importMakeConst(m[1], m[2])); continue; }
+        // .IF condition
+        m = ct.match(/^\.IF\s+(.+?)\s*$/i);
+        if (m) { blocks.push(_importMakeIf(m[1].trim())); continue; }
+        if (/^\.ELSE\s*$/i.test(ct)) { blocks.push(_importMakeElse()); continue; }
+        if (/^\.ENDIF\s*$/i.test(ct)) { blocks.push(_importMakeEndIf()); continue; }
+        blocks.push(_importMakeComment(commentText));
+      }
       continue;
     }
 
@@ -4676,6 +5691,56 @@ function parseAsmText(text) {
       continue;
     }
 
+    // Label: .word value,...  →  LABEL + WORD
+    const lblWordM = line.match(/^([A-Za-z_.][A-Za-z0-9_.]*):\s*\.word\s+(.+)$/i);
+    if (lblWordM) {
+      blocks.push(_importMakeLabel(lblWordM[1].replace(/^\./, "")));
+      blocks.push(_importMakeWord(lblWordM[2].trim()));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Standalone .word val,... (also accepts ACME-style !word)
+    const standaloneWordM = line.match(/^(?:\.word|!word)\s+(.+)$/i);
+    if (standaloneWordM) {
+      blocks.push(_importMakeWord(standaloneWordM[1].trim()));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .fill count,value  (also !fill)
+    const fillM = line.match(/^(?:\.fill|!fill)\s+(.+)$/i);
+    if (fillM) {
+      blocks.push(_importMakeFill(fillM[1].trim()));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .align N  (also !align)
+    const alignM = line.match(/^(?:\.align|!align)\s+(.+)$/i);
+    if (alignM) {
+      blocks.push(_importMakeAlign(alignM[1].trim()));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .incbin "filename"  (also !bin / !binary)
+    const incbinM = line.match(/^(?:\.incbin|!bin(?:ary)?)\s+"([^"]+)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$/i);
+    if (incbinM) {
+      const addr = incbinM[2] ? incbinM[2].toUpperCase().padStart(4, "0") : "";
+      blocks.push(_importMakeIncBin(incbinM[1], addr));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // CONST equate: name = $value  or  name .equ $value
+    const equateM = line.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*(?:=|\.equ\b)\s*(\$[0-9A-Fa-f]+|0x[0-9A-Fa-f]+|%[01]+|\d+)\s*$/i);
+    if (equateM) {
+      blocks.push(_importMakeConst(equateM[1], equateM[2]));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
     // Label: .byte value  →  LABEL + BYTE
     const lblByteM = line.match(/^([A-Za-z_.][A-Za-z0-9_.]*):\s*\.byte\s+(.+)$/i);
     if (lblByteM) {
@@ -4685,8 +5750,8 @@ function parseAsmText(text) {
       continue;
     }
 
-    // Standalone .byte value,...
-    const standaloneByteM = line.match(/^\.byte\s+(.+)$/i);
+    // Standalone .byte value,... (also ACME-style !byte)
+    const standaloneByteM = line.match(/^(?:\.byte|!byte)\s+(.+)$/i);
     if (standaloneByteM) {
       blocks.push(_importMakeByte(standaloneByteM[1].trim()));
       if (commentText) blocks.push(_importMakeComment(commentText));
@@ -4804,6 +5869,24 @@ async function loadProjectFromFile() {
   await reloadIncludeBlocks(result.filePath || "");
   await reloadIncBinBlocks(result.filePath || "");
   await reloadSidBlocks(result.filePath || "");
+
+  d64ExportState.extras = [];
+  const _d64BaseDir = (() => {
+    const fp = typeof result.filePath === "string" ? result.filePath : "";
+    const s = Math.max(fp.lastIndexOf("/"), fp.lastIndexOf("\\"));
+    return s >= 0 ? fp.slice(0, s) : "";
+  })();
+  if (projectData.d64) {
+    d64ExportState.diskName = projectData.d64.diskName || "";
+    d64ExportState.progName = projectData.d64.progName || "";
+    d64ExportState._pendingExtras = Array.isArray(projectData.d64.extras) ? projectData.d64.extras : [];
+    d64ExportState._pendingExtrasBaseDir = _d64BaseDir;
+  } else {
+    d64ExportState.diskName = "";
+    d64ExportState.progName = "";
+    d64ExportState._pendingExtras = null;
+    d64ExportState._pendingExtrasBaseDir = "";
+  }
 
   if (projectData.ui?.numberBase && baseInputs.length) {
     baseInputs.forEach((input) => {
@@ -5323,6 +6406,85 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes, comment: `SPRITE_INIT #${num} col=${color} page=$${pageHex}` };
   }
 
+  if (block.isLoadFileMacro) {
+    const filename = (block.loadFileName || "").toUpperCase().replace(/[^\x20-\x7E]/g, "").slice(0, 16);
+    if (!filename) {
+      return { ok: false, error: "LOADFILE: a fajlnev nem lehet ures." };
+    }
+    const device = parseInt(block.loadFileDevice || "8", 10);
+    if (isNaN(device) || device < 8 || device > 30) {
+      return { ok: false, error: "LOADFILE: az eszkozszam 8 es 30 kozott lehet." };
+    }
+    const addrStr = (block.loadFileAddress || "").trim().replace(/^\$/, "");
+    const useOverride = addrStr !== "";
+    let overrideAddr = 0;
+    if (useOverride) {
+      overrideAddr = parseInt(addrStr, 16);
+      if (isNaN(overrideAddr) || overrideAddr < 0 || overrideAddr > 0xFFFF) {
+        return { ok: false, error: "LOADFILE: az override cim ervenytelen ($0000-$FFFF)." };
+      }
+    }
+    const errorLabel = (block.loadFileErrorLabel || "").trim();
+    const useErrorCheck = errorLabel !== "";
+
+    const baseAddr = line.address;
+    const fnameAddr = baseAddr + 3;             // immediately after JMP skip
+    const skipAddr = fnameAddr + filename.length;
+
+    const bytes = [];
+
+    // JMP skip (over the filename data)
+    bytes.push(0x4C, skipAddr & 0xFF, skipAddr >> 8);
+
+    // Filename bytes (PETSCII; ASCII A-Z = PETSCII A-Z)
+    for (let i = 0; i < filename.length; i++) {
+      bytes.push(filename.charCodeAt(i) & 0xFF);
+    }
+
+    // SETNAM ($FFBD): A=length, X/Y=ptr lo/hi
+    bytes.push(0xA9, filename.length);
+    bytes.push(0xA2, fnameAddr & 0xFF);
+    bytes.push(0xA0, (fnameAddr >> 8) & 0xFF);
+    bytes.push(0x20, 0xBD, 0xFF);
+
+    // SETLFS ($FFBA): A=logical, X=device, Y=secondary (0 = use override addr; 1 = use file's load addr)
+    const secondary = useOverride ? 0x00 : 0x01;
+    bytes.push(0xA9, 0x01);
+    bytes.push(0xA2, device & 0xFF);
+    bytes.push(0xA0, secondary);
+    bytes.push(0x20, 0xBA, 0xFF);
+
+    // Override address (only when secondary=0): LDX #<addr ; LDY #>addr
+    if (useOverride) {
+      bytes.push(0xA2, overrideAddr & 0xFF);
+      bytes.push(0xA0, (overrideAddr >> 8) & 0xFF);
+    }
+
+    // LOAD ($FFD5): A=0 (load, not verify)
+    bytes.push(0xA9, 0x00);
+    bytes.push(0x20, 0xD5, 0xFF);
+
+    // Optional BCS errorLabel (carry set on KERNAL load error)
+    if (useErrorCheck) {
+      const target = labels.get(errorLabel);
+      if (target === undefined) {
+        return { ok: false, error: `LOADFILE: ismeretlen hiba cimke: ${errorLabel}` };
+      }
+      const bcsAddr = baseAddr + bytes.length;
+      const offset = target - (bcsAddr + 2);
+      if (offset < -128 || offset > 127) {
+        return { ok: false, error: `LOADFILE: a hiba cimke tul messze van (offset: ${offset}).` };
+      }
+      bytes.push(0xB0, offset & 0xFF);
+    }
+
+    const addrSuffix = useOverride
+      ? ` @$${overrideAddr.toString(16).toUpperCase().padStart(4, "0")}`
+      : "";
+    const errSuffix = useErrorCheck ? ` BCS ${errorLabel}` : "";
+    return { ok: true, bytes, comment: `LOADFILE "${filename}" dev=${device}${addrSuffix}${errSuffix}` };
+  }
+
   if (block.isSpritePosMacro) {
     const num = parseInt(block.spriteNum || "0", 10);
     if (isNaN(num) || num < 0 || num > 7) {
@@ -5636,6 +6798,26 @@ function resolveRelativeOperand(block, address, labels) {
   return { ok: true, value: offset & 0xFF };
 }
 
+// BIN format only makes sense for bitmask-style values (immediate mode, raw byte data).
+// For address operands (JMP/JSR/branches/zeroPage/absolute/indirect) BIN is meaningless,
+// so the BIN radio is hidden in those cases.
+function shouldShowBinForBlock(block, mode) {
+  if (!block) return false;
+  // Macros: byte-level data benefits from BIN (bitmasks for sprites, chars, flags).
+  if (block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isFillMacro) {
+    return true;
+  }
+  // 16-bit values (mostly addresses) and alignment boundaries: BIN is not useful.
+  if (block.isWordMacro || block.isAlignMacro) {
+    return false;
+  }
+  // Regular instructions: BIN only for immediate mode.
+  if (mode && mode.needsOperand) {
+    return block.addressingMode === "immediate";
+  }
+  return false;
+}
+
 function parseNumberByBase(value, base) {
   // Trim leading/trailing whitespace — rawOperand may have trailing spaces from user input or old saves
   value = value.trim();
@@ -5907,6 +7089,15 @@ function getInstructionSize(block) {
 
   if (block.isSpriteInitMacro) {
     return 18;  // LDA/STA ptr + LDA/ORA/STA $D015 + LDA/STA color
+  }
+
+  if (block.isLoadFileMacro) {
+    const filename = (block.loadFileName || "").toUpperCase().replace(/[^\x20-\x7E]/g, "").slice(0, 16);
+    const fnLen = Math.max(filename.length, 1);  // reserve at least 1 byte even if empty (compile error will surface separately)
+    const useOverride = (block.loadFileAddress || "").trim() !== "";
+    const useErrorCheck = (block.loadFileErrorLabel || "").trim() !== "";
+    // 3 (JMP skip) + fnLen + 9 (SETNAM) + 9 (SETLFS) + (4 if override) + 5 (LDA #0 + JSR LOAD) + (2 if BCS)
+    return 3 + fnLen + 9 + 9 + (useOverride ? 4 : 0) + 5 + (useErrorCheck ? 2 : 0);
   }
 
   if (block.isSpritePosMacro) {
@@ -6917,6 +8108,16 @@ function getCollapsedOperandText(block) {
     return `#${block.spriteNum || "0"} col=${block.spriteColor || "7"} page=$${pageHex}`;
   }
 
+  if (block.isLoadFileMacro) {
+    const fname = (block.loadFileName || "").trim();
+    const dev = block.loadFileDevice || "8";
+    const addr = (block.loadFileAddress || "").trim();
+    const errLbl = (block.loadFileErrorLabel || "").trim();
+    const addrPart = addr ? ` @$${addr.replace(/^\$/, "").toUpperCase()}` : "";
+    const errPart = errLbl ? ` ⚠${errLbl}` : "";
+    return `"${fname || "?"}" dev=${dev}${addrPart}${errPart}`;
+  }
+
   if (block.isSpritePosMacro) {
     return `#${block.spriteNum || "0"} X=${block.spriteX || "152"} Y=${block.spriteY || "100"}`;
   }
@@ -7711,6 +8912,33 @@ function renderProgram() {
           </div>
         `
       );
+    } else if (block.isLoadFileMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${t("fieldLoadFileName")}</span>
+              <input class="loadfile-name" type="text" maxlength="16" value="${escapeHtmlAttribute(block.loadFileName || "")}" placeholder="DATA">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldLoadFileDevice")}</span>
+              <input class="loadfile-device" type="number" min="8" max="30" value="${block.loadFileDevice || "8"}">
+            </label>
+          </div>
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${t("fieldLoadFileAddress")}</span>
+              <input class="loadfile-address" type="text" maxlength="5" value="${escapeHtmlAttribute(block.loadFileAddress || "")}" placeholder="${t("fieldLoadFileAddressPlaceholder")}">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldLoadFileErrorLabel")}</span>
+              <input class="loadfile-error-label" type="text" value="${escapeHtmlAttribute(block.loadFileErrorLabel || "")}" placeholder="${t("fieldLoadFileErrorLabelPlaceholder")}">
+            </label>
+          </div>
+        `
+      );
     } else if (block.isDefineMacro) {
       inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Symbol" : "Szimbolum";
       inlineField.hidden = false;
@@ -7885,7 +9113,7 @@ function renderProgram() {
       operandField.placeholder = getOperandPlaceholder(mode, block.base);
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
       // Custom label picker dropdown for addressing modes that can reference a label or constant
-      if (mode.needsOperand && (block.addressingMode === "relative" || block.addressingMode === "absolute" || block.addressingMode === "absoluteX" || block.addressingMode === "absoluteY" || block.addressingMode === "immediate")) {
+      if (mode.needsOperand && (block.addressingMode === "relative" || block.addressingMode === "absolute" || block.addressingMode === "absoluteX" || block.addressingMode === "absoluteY" || block.addressingMode === "zeroPage" || block.addressingMode === "zeroPageX" || block.addressingMode === "zeroPageY" || block.addressingMode === "indirectX" || block.addressingMode === "indirectY" || block.addressingMode === "indirect" || block.addressingMode === "immediate")) {
         const programLabels = block.addressingMode === "immediate"
           ? []
           : program.filter(b => b.isLabel && b.labelName).map(b => b.labelName);
@@ -7979,7 +9207,7 @@ function renderProgram() {
     blockControls.insertAdjacentHTML(
       "beforeend",
       `
-          ${(mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke && !block.isRegionMacro && !block.isEndRegionMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
+          ${(mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke && !block.isRegionMacro && !block.isEndRegionMacro && !block.isLoadFileMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
           <label class="mini-field">
             <span>${t("fieldFormat")}</span>
           <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
@@ -7991,13 +9219,13 @@ function renderProgram() {
               <input class="block-base" type="radio" name="block-base-${block.id}" value="dec"${block.base === "dec" ? " checked" : ""}>
               <span>DEC</span>
             </label>
-            <label class="mini-toggle-option">
+            ${shouldShowBinForBlock(block, mode) ? `<label class="mini-toggle-option">
               <input class="block-base" type="radio" name="block-base-${block.id}" value="bin"${block.base === "bin" ? " checked" : ""}>
               <span>BIN</span>
-            </label>
+            </label>` : ""}
           </div>
         </label>` : ""}
-          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro || block.isRegionMacro || block.isEndRegionMacro || getMnemonicModes(block.mnemonic).length <= 1 ? ` hidden` : ""}>
+          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro || block.isRegionMacro || block.isEndRegionMacro || block.isLoadFileMacro || getMnemonicModes(block.mnemonic).length <= 1 ? ` hidden` : ""}>
             <span>${t("addressingMode")}</span>
           <select class="block-mode">
             ${getMnemonicModes(block.mnemonic).map((modeKey) => `<option value="${modeKey}"${block.addressingMode === modeKey ? " selected" : ""}>${modeText(modeKey, "label")}</option>`).join("")}
@@ -8117,6 +9345,71 @@ function renderProgram() {
     const colTypeSelect = node.querySelector(".col-type");
     if (colTypeSelect) {
       colTypeSelect.addEventListener("change", (event) => updateProgramBlock(index, "colType", event.target.value));
+    }
+    const loadFileNameInput = node.querySelector(".loadfile-name");
+    if (loadFileNameInput) {
+      loadFileNameInput.addEventListener("input", (event) => updateProgramBlock(index, "loadFileName", event.target.value));
+    }
+    const loadFileDeviceInput = node.querySelector(".loadfile-device");
+    if (loadFileDeviceInput) {
+      loadFileDeviceInput.addEventListener("input", (event) => updateProgramBlock(index, "loadFileDevice", event.target.value));
+    }
+    const loadFileAddressInput = node.querySelector(".loadfile-address");
+    if (loadFileAddressInput) {
+      loadFileAddressInput.addEventListener("input", (event) => updateProgramBlock(index, "loadFileAddress", event.target.value));
+    }
+    const loadFileErrorLabelInput = node.querySelector(".loadfile-error-label");
+    if (loadFileErrorLabelInput) {
+      loadFileErrorLabelInput.addEventListener("input", (event) => updateProgramBlock(index, "loadFileErrorLabel", event.target.value));
+
+      // Label picker dropdown — shows all program labels for the BCS target.
+      const programLabels = program.filter(b => b.isLabel && b.labelName).map(b => b.labelName);
+      if (programLabels.length > 0) {
+        loadFileErrorLabelInput.classList.add("has-label-picker");
+        const wrapper = document.createElement("div");
+        wrapper.className = "label-picker-wrap";
+        loadFileErrorLabelInput.parentNode.insertBefore(wrapper, loadFileErrorLabelInput);
+        wrapper.appendChild(loadFileErrorLabelInput);
+        const dropdown = document.createElement("div");
+        dropdown.className = "label-picker-dropdown";
+        dropdown.hidden = true;
+        dropdown.innerHTML = programLabels.map(n => `<div class="label-picker-item">${n}</div>`).join("");
+        document.body.appendChild(dropdown);
+        const positionDropdown = () => {
+          const r = loadFileErrorLabelInput.getBoundingClientRect();
+          dropdown.style.top = (r.bottom + window.scrollY + 4) + "px";
+          dropdown.style.left = (r.left + window.scrollX) + "px";
+          dropdown.style.width = r.width + "px";
+        };
+        let dropdownHovered = false;
+        const closeDropdown = () => {
+          dropdown.hidden = true;
+          window.removeEventListener("scroll", positionDropdown, { capture: true });
+        };
+        loadFileErrorLabelInput.addEventListener("focus", () => {
+          positionDropdown();
+          dropdown.hidden = false;
+          window.addEventListener("scroll", positionDropdown, { capture: true, passive: true });
+        });
+        loadFileErrorLabelInput.addEventListener("blur", () => {
+          if (!dropdownHovered) closeDropdown();
+        });
+        loadFileErrorLabelInput.addEventListener("keydown", e => { if (e.key === "Escape") closeDropdown(); });
+        dropdown.addEventListener("mouseenter", () => { dropdownHovered = true; });
+        dropdown.addEventListener("mouseleave", () => { dropdownHovered = false; });
+        dropdown.querySelectorAll(".label-picker-item").forEach(item => {
+          item.addEventListener("pointerdown", e => {
+            e.preventDefault();
+            loadFileErrorLabelInput.value = item.textContent;
+            loadFileErrorLabelInput.dispatchEvent(new Event("input"));
+            closeDropdown();
+            dropdownHovered = false;
+          });
+        });
+        document.addEventListener("pointerdown", e => {
+          if (!dropdown.contains(e.target) && e.target !== loadFileErrorLabelInput) closeDropdown();
+        }, { capture: true });
+      }
     }
     const loopRegSelect = node.querySelector(".loop-reg");
     if (loopRegSelect) {
@@ -8305,6 +9598,32 @@ function withAsmLineNumbers(text) {
   return lines
     .map((line, idx) => `${String(idx + 1).padStart(width, "0")} | ${line}`)
     .join("\n");
+}
+
+function scrollAsmOutputToLine(targetLine) {
+  if (!targetLine || !asmDisplayText) return;
+  const text = asmDisplayText;
+  const lines = text.split("\n");
+
+  asmOutput.innerHTML = "";
+  lines.forEach((line, i) => {
+    const isTarget = i === targetLine - 1;
+    if (isTarget) {
+      const span = document.createElement("span");
+      span.className = "asm-line-highlight";
+      span.textContent = line;
+      asmOutput.appendChild(span);
+      if (i < lines.length - 1) span.appendChild(document.createTextNode("\n"));
+    } else {
+      const span = document.createElement("span");
+      span.innerHTML = syntaxHighlightAsmLine(line);
+      asmOutput.appendChild(span);
+      if (i < lines.length - 1) span.appendChild(document.createTextNode("\n"));
+    }
+  });
+
+  const lineHeight = parseFloat(getComputedStyle(asmOutput).lineHeight) || 18;
+  asmOutput.scrollTop = Math.max(0, (targetLine - 3) * lineHeight);
 }
 
 function applyAsmHighlight(blockId) {
@@ -8716,6 +10035,16 @@ function renderAsmOutput() {
       return `; .sprite_init #${line.block.spriteNum || "0"} col=${line.block.spriteColor || "7"} page=$${pageHex}`;
     }
 
+    if (line.block.isLoadFileMacro) {
+      const fname = (line.block.loadFileName || "").trim() || "?";
+      const dev = line.block.loadFileDevice || "8";
+      const addr = (line.block.loadFileAddress || "").trim();
+      const errLbl = (line.block.loadFileErrorLabel || "").trim();
+      const addrPart = addr ? ` addr=$${addr.replace(/^\$/, "").toUpperCase()}` : "";
+      const errPart = errLbl ? ` err=${errLbl}` : "";
+      return `; .loadfile "${fname}" dev=${dev}${addrPart}${errPart}`;
+    }
+
     if (line.block.isSpritePosMacro) {
       return `; .sprite_pos #${line.block.spriteNum || "0"} x=${line.block.spriteX || "152"} y=${line.block.spriteY || "100"}`;
     }
@@ -8900,6 +10229,36 @@ async function loadSampleFromFile(sampleName) {
 
   await reloadIncludeBlocks(result.filePath || "");
 
+  d64ExportState.extras = [];
+  d64ExportState._pendingExtras = null;
+  d64ExportState._pendingExtrasBaseDir = "";
+  if (sampleData.d64) {
+    d64ExportState.diskName = sampleData.d64.diskName || "";
+    d64ExportState.progName = sampleData.d64.progName || "";
+    // Use pre-loaded bytes returned by the Rust load_sample command (most reliable)
+    if (Array.isArray(result.extrasLoaded) && result.extrasLoaded.length > 0) {
+      d64ExportState.extras = result.extrasLoaded.map(e => ({
+        name: e.name || "",
+        sourcePath: e.sourcePath || "",
+        loadAddress: e.loadAddress || "",
+        bytes: e.bytes
+      }));
+    } else {
+      // Fallback: lazy-load via readBinFile when the dialog is opened
+      const rawExtras = Array.isArray(sampleData.d64.extras) ? sampleData.d64.extras : [];
+      if (rawExtras.length > 0) {
+        const fp = typeof result.filePath === "string" ? result.filePath : "";
+        const s = Math.max(fp.lastIndexOf("/"), fp.lastIndexOf("\\"));
+        const baseDir = s >= 0 ? fp.slice(0, s) : "";
+        d64ExportState._pendingExtras = rawExtras;
+        d64ExportState._pendingExtrasBaseDir = baseDir;
+      }
+    }
+  } else {
+    d64ExportState.diskName = "";
+    d64ExportState.progName = "";
+  }
+
   renderOriginPreview();
   renderEmulatorRunHint();
   parseUserMacros();  // Parse any user-defined macros in the loaded sample
@@ -8978,6 +10337,10 @@ async function loadPushPullDemo() {
 
 async function loadUserMacroDemo() {
   await loadSampleFromFile("user-macro-demo");
+}
+
+async function loadLoadFileDemo() {
+  await loadSampleFromFile("loadfile-demo");
 }
 
 async function loadIncBinDemo() {
@@ -9149,6 +10512,11 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "incbin-demo") {
     loadIncBinDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "loadfile-demo") {
+    loadLoadFileDemo();
     return;
   }
 

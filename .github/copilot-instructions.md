@@ -101,6 +101,28 @@ A `JOYSTICK` makró (`isJoystickMacro: true`): mezők: `joyPort` (`"1"` = $DC01,
 
 A `SPRITE_COL` makró (`isSpriteColMacro: true`): mezők: `spriteNum` (0–7), `colType` (`"sprite"` = $D01E sprite-sprite, `"background"` = $D01F sprite-háttér). Generál: `LDA $D01E/$D01F; AND #(1<<N)`. Eredmény A-ban: nem nulla = ütközés. **Regiszter olvasása automatikusan törli!** Utána `BEQ`/`BNE`-vel ugrás. Méret: 5 byte.
 
+A `LOADFILE` makró (`isLoadFileMacro: true`): fájl betöltése D64-ről KERNAL rutinokkal (SETNAM/SETLFS/LOAD). Inline kód, deferred section nélkül.
+- **Mezők:** `loadFileName` (string, max 16 ASCII karakter, automatikus uppercase, `, " / \ : * ? < > |` szűrve), `loadFileDevice` (8–30, default `"8"`), `loadFileAddress` (opcionális hex pl. `"C000"`, üres = a fájl saját load címe sec=1-gyel; kitöltve = override sec=0-val), `loadFileErrorLabel` (opcionális label név; ha kitöltve `BCS errorLabel` a JSR LOAD után).
+- **Generált kód layout:**
+  ```
+  base+0:  4C lo hi      ; JMP skip_filename (3 byte)
+  base+3:  filename bytes (PETSCII, A-Z = $41-$5A = ASCII)
+  skip:    A9 L          ; LDA #length
+           A2 lo / A0 hi ; LDX/LDY = fname pointer
+           20 BD FF      ; JSR $FFBD (SETNAM)
+           A9 01         ; LDA #1 (logical file)
+           A2 dev / A0 sec
+           20 BA FF      ; JSR $FFBA (SETLFS)
+  ; if override (sec=0): A2 lo / A0 hi (LDX/LDY override addr)
+           A9 00         ; LDA #0 (LOAD, not VERIFY)
+           20 D5 FF      ; JSR $FFD5 (LOAD)
+  ; if errorLabel: B0 off (BCS errorLabel; offset = label - (here+2))
+  ```
+- **Méret:** `3 + fnLen + 9 (SETNAM) + 9 (SETLFS) + (override ? 4 : 0) + 5 (LDA#0+JSR LOAD) + (errorLabel ? 2 : 0)` — minimum 27 byte (1-char fájlnév, opciók nélkül).
+- **PETSCII match:** A `c1541 -write … name` által írt fájl neve uppercase PETSCII-ben kerül a D64-re ($41-$5A); a SETNAM is azt vár → match. Egyéb karakterek (filename-tiltottak) szűrve.
+- **BCS hatótáv:** ±127 byte. Ha messzebb, fordítási hiba: `LOADFILE: a hiba cimke tul messze van`.
+- **UI:** HEX/DEC toggle és addressing mode select **el van rejtve**. Kétsoros macro-grid: filename + device | address + errorLabel.
+
 A `REGION` / `ENDREGION` blokk (`isRegionMacro: true` / `isEndRegionMacro: true`): vizuális csoportosító, **0 byte**, a program logikájára nincs hatása.
 - **Mezők (REGION):** `regionName` (string, szabad szöveg, pl. `"init"`)
 - **`regionCollapsed`** (bool): ha true, a REGION és ENDREGION közötti blokkok rejtve vannak a program listában, a REGION saját body-ja is becsukódik (`collapsed = regionCollapsed`)
@@ -211,12 +233,24 @@ Beallitasok
   ├── Nyelv (combobox) + label
   └── BASIC SYS stub checkbox
 
+Hardver beallitasok (külön dialóg, #hardware-settings-btn)
+  ├── C64 Ultimate host + password
+  └── Kapcsolat teszt gomb
+
 Nezet
-  ├── Téma toggle gomb
+  ├── Téma picker (Light / Dark / OLED) — #theme-picker <details> elem
   └── Zoom vezérlők
 
 [Check for Update gomb] → shell.openExternal → https://zstarczali.itch.io/visual-assembler-commodore-64
 ```
+
+### Futtatási módok (split run gomb)
+
+| Mód | Leírás |
+|-----|--------|
+| `prg` | PRG fájl → VICE közvetlenül |
+| `d64` | PRG + extra fájlok → D64 (c1541) → VICE |
+| `ultimate` | PRG → C64 Ultimate REST API (kétlépéses: D64 mount + PRG run) |
 
 ---
 
@@ -240,11 +274,14 @@ Aktuális sorrend az `index.html` `#sample-select` elemben (0-indexelt):
 | 11 | `"if-else"` | DEFINE / IF / ELSE / ENDIF feltételes assembly demo |
 | 12 | `"user-macro-demo"` | User MACRO / ENDM / INVOKE példa |
 | 13 | `"incbin-demo"` | INCBIN makró demo |
-| 14 | `"include-demo"` | INCLUDE makró demo |
-| 15 | `"sid-demo"` | SID lejátszó — Ikari Warriors, IRQ-alapú, INCBIN |
-| 16 | `"sid-direct-demo"` | SID lejátszó — SID makróval, INCBIN nélkül |
-| 17 | `"sprite-macro-demo"` | SPRITE_INIT + SPRITE_POS + WAIT_RASTER demo; spritemate sprite balra-jobbra |
-| 18 | `"joystick-demo"` | JOYSTICK makró demo; sprite #0 joystick port 2-vel mozog |
+| 14 | `"loadfile-demo"` | LOADFILE makró — futásidőben tölt fájlt D64-ről, hibakezeléssel |
+| 15 | `"include-demo"` | INCLUDE makró demo |
+| 16 | `"sid-demo"` | SID lejátszó — Ikari Warriors, IRQ-alapú, INCBIN |
+| 17 | `"sid-direct-demo"` | SID lejátszó — SID makróval, INCBIN nélkül |
+| 18 | `"sprite-macro-demo"` | SPRITE_INIT + SPRITE_POS + WAIT_RASTER demo; spritemate sprite balra-jobbra |
+| 19 | `"joystick-demo"` | JOYSTICK makró demo; sprite #0 joystick port 2-vel mozog |
+
+> **Megjegyzés:** A `collision-demo`, `10-print`, `irq-demo`, `overlapping-raster-demo` sample-ok szintén szerepelnek a `#sample-select`-ben 20–23 indexen (lásd `index.html` aktuális sorrendjét).
 
 ---
 
@@ -272,7 +309,59 @@ Aktuális sorrend az `index.html` `#sample-select` elemben (0-indexelt):
 | `save_prg` / `save_project` / `load_project` | Fájl I/O dialógusok |
 | `load_sample` | Beépített minta projekt betöltése |
 | `choose_incbin_file` / `choose_sid_file` | Bináris/SID fájl választó |
+| `save_d64` | D64 lemezképet ment c1541-gyel (VICE) |
+| `run_d64` | Temp D64 + VICE indítása D64-ről |
+| `read_bin_file` | Nyers bináris fájl beolvasása (extras lazy load) |
+| `run_on_ultimate` | PRG küldés + futtatás C64 Ultimate REST API-on |
+| `test_ultimate_connection` | C64 Ultimate kapcsolat teszt |
 | `open_manual` | PDF kézikönyv megnyitása |
+
+---
+
+## D64 export és futtatás
+
+### D64 export dialóg
+
+`saveD64ToFile()` → `openD64ExportDialog(prgBytes)` → `confirmD64Export()` → `save_d64` Tauri command.
+
+A dialóg megjeleníti a `d64ExportState` tartalmát:
+- `diskName` / `progName`: lemez- és programnév (max 16 char, c1541 lowercase)
+- `extras[]`: extra bináris fájlok a lemezre; minden entry: `{ name, sourcePath, bytes, loadAddress }`
+
+Ha `loadAddress` üres → fájl raw bytes (nincs 2-byte header); ha kitöltve → PRG header prepend.
+
+### Extras lazy vs. eager loading
+
+Amikor egy sample betöltődik (`loadSampleFromFile`), a kód először eager-load-dal próbálja feloldani az `extras`-t az `_sampleD64BaseDir` alapján. Ha sikerül, `d64ExportState.extras` feltöltődik. Ha nem (pl. production build eltérő útvonal), `_pendingExtras` + `_pendingExtrasBaseDir` megőrzi a lazy fallback-hez.
+
+A dialóg megnyitásakor (export vagy run D64): ha `extras` üres és `_pendingExtras` nem null → `d64LoadSavedExtras()` hívás, majd `_pendingExtras = null`.
+
+### C64 Ultimate integrációk
+
+- **`run_on_ultimate(host, password, prgBytes)`** → kétlépéses folyamat (v1 API):
+  1. `POST http://{host}/v1/drives/a:mount` — D64 bytes mint `application/octet-stream` (ha D64 mód)
+  2. `POST http://{host}/v1/runners:run_prg` — PRG bytes (2-byte load address prefix + kód)
+  - Mindkét kérés `X-Password` headert kap, ha jelszó be van állítva
+- **`test_ultimate_connection(host, password)`** → kapcsolat teszt (`/v1/runners/info`)
+- **Beállítások:** `#hardware-settings-dialog` — host + password; elmentve a config-ba
+- **Run mód:** `"ultimate"` — a split run gomb ultimateMode-ban a `runViaUltimate()` függvényt hívja
+
+> **FIGYELEM:** A helyes endpoint `/v1/drives/a:mount` + `/v1/runners:run_prg`.
+> **NE** használd a `/v3/runners/prg` vagy `/v3/runners:mount_disk` végpontokat — ezek nem léteznek!
+
+### D64 state a project JSON-ben
+
+A `d64` szekció a projektfájlban:
+```json
+"d64": {
+  "diskName": "LEMEZNAME",
+  "progName": "PROGRAMNAME",
+  "extras": [
+    { "name": "DATAFILE", "sourcePath": "relative/path/file.prg", "loadAddress": "" }
+  ]
+}
+```
+A `sourcePath` relatív a projektfájlhoz képest. Sample esetén a `samples/` mappához képest relatív.
 
 ---
 
@@ -507,7 +596,7 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`1.4.7` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` és a What's New dialóg (`index.html`).
+`1.5.0` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` és a What's New dialóg (`index.html`).
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező
@@ -517,6 +606,66 @@ Verzió növelésekor:
 5. `README.md` → `Current version` sor + új What's New szekció
 6. `.github/copilot-instructions.md` → verzió sor frissítése
 7. Mac + Windows build az aláírási procedúrával
+
+---
+
+## ASM import — `_importMakeInstruction` operandus parsing
+
+Az `parseAsmText()` → `_importMakeInstruction()` függvény 6502 assembly szöveget alakít program blokkká.
+
+**Támogatott `label,X` / `label,Y` minták** (regex alapján azonosítva a catch-all előtt):
+
+| Minta | Addressing mode | rawOperand |
+|-------|-----------------|------------|
+| `(label,X)` | `indirectX` | `label` |
+| `(label),Y` | `indirectY` | `label` |
+| `label,X` vagy `label+offset,X` | `absoluteX` | `label` vagy `label+offset` |
+| `label,Y` vagy `label+offset,Y` | `absoluteY` | `label` vagy `label+offset` |
+
+**Regex minták:**
+```js
+/^\([A-Za-z_][A-Za-z0-9_]*,X\)$/i           // (label,X)
+/^\([A-Za-z_][A-Za-z0-9_]*\),Y$/i           // (label),Y
+/^[A-Za-z_][A-Za-z0-9_]*(?:\s*[+-]\s*(?:\$[0-9A-Fa-f]+|\d+))?,X$/i  // label,X
+/^[A-Za-z_][A-Za-z0-9_]*(?:\s*[+-]\s*(?:\$[0-9A-Fa-f]+|\d+))?,Y$/i  // label,Y
+```
+
+**Tipikus hiba:** ha ezek az ágak hiányoznak, `"ras1start,X"` teljes stringként kerül `rawOperand`-ba `"absolute"` mode-dal → 7 validációs hiba importáláskor.
+
+---
+
+## Fordítási rendszer — tooltip konvenció
+
+**Minden gombnak legyen `title` és `aria-label` attribútuma** — ezeket az `applyTranslations()` állítja be a `t(key)` segédfüggvénnyel.
+
+Minta:
+```js
+myButton?.setAttribute("title", t("myKey"));
+myButton?.setAttribute("aria-label", t("myKey"));
+```
+
+**Új translation key hozzáadásakor** mindig frissítsd mindkét objektumot:
+- `translations.hu.myKey = "Magyar szöveg"`
+- `translations.en.myKey = "English text"`
+
+**Meglévő gombok tooltip kulcsai** (`applyTranslations()`-ban beállítva):
+
+| Elem | Translation key |
+|------|-----------------|
+| `#hardware-settings-btn` | `hardwareSettings` |
+| `#crt-toggle` | `crtToggle` |
+| `#zoom-in` / `#zoom-out` | `zoomIn` / `zoomOut` |
+| `#help-manual-btn` | `helpManual` |
+| `#about-btn` | `about` |
+| `#whats-new-btn` | `whatsNew` |
+| `#knowledge-base-btn` | `knowledgeBase` |
+| `#check-update-btn` | `checkForUpdate` |
+| `#report-bug-btn` | `reportBug` |
+| `copyAsmButton` | `copyAsm` |
+| `clearProgramButton` | `clearProgram` |
+| `runEmulatorButton` | `runInEmulator` |
+| `runDebuggerButton` | `runInDebuggerTitle` |
+| `collapseAllButton` / `expandAllButton` | `collapseAll` / `expandAll` |
 
 ---
 
