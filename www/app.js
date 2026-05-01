@@ -409,6 +409,7 @@ const translations = {
     runAsPrg: "Futtatás PRG-ként",
     runViaD64: "Futtatás D64-ről",
     runViaD64Confirm: "Futtatás VICE-ban",
+    runD64Title: "Futtatás D64-ről",
     copyAsm: "ASM masolasa",
     viceExecutable: "VICE exe",
     chooseViceStatusPending: "A VICE kapcsolat ellenorzese folyamatban.",
@@ -689,6 +690,7 @@ const translations = {
     runAsPrg: "Run as PRG",
     runViaD64: "Run via D64",
     runViaD64Confirm: "Run in VICE",
+    runD64Title: "Run via D64",
     copyAsm: "Copy ASM",
     viceExecutable: "VICE executable",
     chooseViceStatusPending: "Checking the VICE connection.",
@@ -4412,6 +4414,11 @@ function getProjectPayload() {
       zoom: blockScale,
       language: currentLanguage,
       theme: document.body.dataset.theme || "light"
+    },
+    d64: {
+      diskName: d64ExportState.diskName,
+      progName: d64ExportState.progName,
+      extras: d64ExportState.extras.map(e => ({ name: e.name, sourcePath: e.sourcePath, loadAddress: e.loadAddress }))
     }
   };
 }
@@ -4578,7 +4585,11 @@ async function saveD64ToFile() {
 const d64ExportState = {
   prgBytes: null,
   extras: [],  // [{ name: string, sourcePath: string, bytes: number[], loadAddress: string }]
-  runMode: false
+  runMode: false,
+  diskName: "",
+  progName: "",
+  _pendingExtras: null,      // extras metadata from project JSON, loaded lazily on dialog open
+  _pendingExtrasBaseDir: ""  // base directory of the project file, for resolving relative paths
 };
 
 function defaultDiskName() {
@@ -4589,18 +4600,22 @@ function defaultDiskName() {
 }
 
 function d64SaveSettings(diskName, progName) {
+  d64ExportState.diskName = diskName;
+  d64ExportState.progName = progName;
   const meta = d64ExportState.extras.map(e => ({ name: e.name, sourcePath: e.sourcePath, loadAddress: e.loadAddress }));
   try { localStorage.setItem("d64LastSettings", JSON.stringify({ diskName, progName, extras: meta })); } catch (_) {}
 }
 
-async function d64LoadSavedExtras(savedExtras) {
+async function d64LoadSavedExtras(savedExtras, baseDir = "") {
   if (!window.electronAPI?.readBinFile) return [];
   const restored = [];
   for (const meta of savedExtras) {
     if (!meta.sourcePath) continue;
+    const isAbsolute = /^([A-Za-z]:[\\/]|\/)/.test(meta.sourcePath);
+    const resolvedPath = (baseDir && !isAbsolute) ? baseDir + "/" + meta.sourcePath : meta.sourcePath;
     try {
-      const r = await window.electronAPI.readBinFile(meta.sourcePath);
-      if (r?.ok && r.bytes) restored.push({ name: meta.name, sourcePath: meta.sourcePath, loadAddress: meta.loadAddress || "", bytes: r.bytes });
+      const r = await window.electronAPI.readBinFile(resolvedPath);
+      if (r?.ok && r.bytes) restored.push({ name: meta.name, sourcePath: resolvedPath, loadAddress: meta.loadAddress || "", bytes: r.bytes });
     } catch (_) {}
   }
   return restored;
@@ -4615,18 +4630,24 @@ async function openD64ExportDialog(prgBytes) {
   const progInput = document.getElementById("d64-export-progname");
   const errorBox = document.getElementById("d64-export-error");
 
-  let diskName = defaultDiskName();
-  let progName = defaultDiskName();
-  try {
-    const saved = JSON.parse(localStorage.getItem("d64LastSettings") || "null");
-    if (saved) {
-      if (saved.diskName) diskName = saved.diskName;
-      if (saved.progName) progName = saved.progName;
-      if (d64ExportState.extras.length === 0 && saved.extras?.length) {
-        d64ExportState.extras = await d64LoadSavedExtras(saved.extras);
-      }
+  let diskName = d64ExportState.diskName || defaultDiskName();
+  let progName = d64ExportState.progName || defaultDiskName();
+  if (d64ExportState.extras.length === 0) {
+    if (d64ExportState._pendingExtras?.length) {
+      d64ExportState.extras = await d64LoadSavedExtras(d64ExportState._pendingExtras, d64ExportState._pendingExtrasBaseDir);
+      d64ExportState._pendingExtras = null;
+      d64ExportState._pendingExtrasBaseDir = "";
+    } else {
+      try {
+        const saved = JSON.parse(localStorage.getItem("d64LastSettings") || "null");
+        if (saved) {
+          if (!d64ExportState.diskName && saved.diskName) diskName = saved.diskName;
+          if (!d64ExportState.progName && saved.progName) progName = saved.progName;
+          if (saved.extras?.length) d64ExportState.extras = await d64LoadSavedExtras(saved.extras);
+        }
+      } catch (_) {}
     }
-  } catch (_) {}
+  }
 
   if (diskInput) diskInput.value = diskName;
   if (progInput) progInput.value = progName;
@@ -4854,23 +4875,31 @@ async function runViaD64() {
   const errorBox = document.getElementById("d64-export-error");
   const confirmBtn = document.getElementById("d64-export-confirm");
 
-  let diskName = defaultDiskName();
-  let progName = defaultDiskName();
-  try {
-    const saved = JSON.parse(localStorage.getItem("d64LastSettings") || "null");
-    if (saved) {
-      if (saved.diskName) diskName = saved.diskName;
-      if (saved.progName) progName = saved.progName;
-      if (d64ExportState.extras.length === 0 && saved.extras?.length) {
-        d64ExportState.extras = await d64LoadSavedExtras(saved.extras);
-      }
+  let diskName = d64ExportState.diskName || defaultDiskName();
+  let progName = d64ExportState.progName || defaultDiskName();
+  if (d64ExportState.extras.length === 0) {
+    if (d64ExportState._pendingExtras?.length) {
+      d64ExportState.extras = await d64LoadSavedExtras(d64ExportState._pendingExtras, d64ExportState._pendingExtrasBaseDir);
+      d64ExportState._pendingExtras = null;
+      d64ExportState._pendingExtrasBaseDir = "";
+    } else {
+      try {
+        const saved = JSON.parse(localStorage.getItem("d64LastSettings") || "null");
+        if (saved) {
+          if (!d64ExportState.diskName && saved.diskName) diskName = saved.diskName;
+          if (!d64ExportState.progName && saved.progName) progName = saved.progName;
+          if (saved.extras?.length) d64ExportState.extras = await d64LoadSavedExtras(saved.extras);
+        }
+      } catch (_) {}
     }
-  } catch (_) {}
+  }
 
   if (diskInput) diskInput.value = diskName;
   if (progInput) progInput.value = progName;
   if (errorBox) { errorBox.hidden = true; errorBox.textContent = ""; }
   if (confirmBtn) confirmBtn.textContent = t("runViaD64Confirm");
+  const titleEl = document.getElementById("d64-export-title");
+  if (titleEl) titleEl.textContent = t("runD64Title");
   renderD64ExtraFiles();
   dialog?.showModal();
 }
@@ -4886,6 +4915,8 @@ function setupD64ExportDialog() {
     d64ExportState.runMode = false;
     const confirmBtn = document.getElementById("d64-export-confirm");
     if (confirmBtn) confirmBtn.textContent = t("d64ExportConfirm");
+    const titleEl = document.getElementById("d64-export-title");
+    if (titleEl) titleEl.textContent = t("d64ExportTitle");
   });
 }
 
@@ -5539,6 +5570,24 @@ async function loadProjectFromFile() {
   await reloadIncludeBlocks(result.filePath || "");
   await reloadIncBinBlocks(result.filePath || "");
   await reloadSidBlocks(result.filePath || "");
+
+  d64ExportState.extras = [];
+  const _d64BaseDir = (() => {
+    const fp = typeof result.filePath === "string" ? result.filePath : "";
+    const s = Math.max(fp.lastIndexOf("/"), fp.lastIndexOf("\\"));
+    return s >= 0 ? fp.slice(0, s) : "";
+  })();
+  if (projectData.d64) {
+    d64ExportState.diskName = projectData.d64.diskName || "";
+    d64ExportState.progName = projectData.d64.progName || "";
+    d64ExportState._pendingExtras = Array.isArray(projectData.d64.extras) ? projectData.d64.extras : [];
+    d64ExportState._pendingExtrasBaseDir = _d64BaseDir;
+  } else {
+    d64ExportState.diskName = "";
+    d64ExportState.progName = "";
+    d64ExportState._pendingExtras = null;
+    d64ExportState._pendingExtrasBaseDir = "";
+  }
 
   if (projectData.ui?.numberBase && baseInputs.length) {
     baseInputs.forEach((input) => {
@@ -9880,6 +9929,24 @@ async function loadSampleFromFile(sampleName) {
   }
 
   await reloadIncludeBlocks(result.filePath || "");
+
+  d64ExportState.extras = [];
+  const _sampleD64BaseDir = (() => {
+    const fp = typeof result.filePath === "string" ? result.filePath : "";
+    const s = Math.max(fp.lastIndexOf("/"), fp.lastIndexOf("\\"));
+    return s >= 0 ? fp.slice(0, s) : "";
+  })();
+  if (sampleData.d64) {
+    d64ExportState.diskName = sampleData.d64.diskName || "";
+    d64ExportState.progName = sampleData.d64.progName || "";
+    d64ExportState._pendingExtras = Array.isArray(sampleData.d64.extras) ? sampleData.d64.extras : [];
+    d64ExportState._pendingExtrasBaseDir = _sampleD64BaseDir;
+  } else {
+    d64ExportState.diskName = "";
+    d64ExportState.progName = "";
+    d64ExportState._pendingExtras = null;
+    d64ExportState._pendingExtrasBaseDir = "";
+  }
 
   renderOriginPreview();
   renderEmulatorRunHint();
