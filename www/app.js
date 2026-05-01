@@ -577,6 +577,7 @@ const translations = {
     mnemonicCardLabel: "Leiras",
     darkMode: "Dark mode",
     lightMode: "Light mode",
+    oledMode: "OLED mode",
     emptyState: "Huzz ide egy blokkot a bal oldali palettarol.",
     memoryUsedRam: "Foglalt RAM",
     memoryFreeRam: "Szabad RAM",
@@ -876,6 +877,7 @@ const translations = {
     mnemonicCardLabel: "Description",
     darkMode: "Dark mode",
     lightMode: "Light mode",
+    oledMode: "OLED mode",
     emptyState: "Drag a block here from the palette on the left.",
     memoryUsedRam: "Used RAM",
     memoryFreeRam: "Free RAM",
@@ -1294,7 +1296,16 @@ function initPalette() {
     saveUiSettings();
   });
   baseInputs.forEach((input) => input.addEventListener("change", handleBaseChange));
-  themeToggleButton.addEventListener("click", toggleTheme);
+  document.querySelectorAll(".theme-option").forEach(btn => {
+    btn.addEventListener("click", () => {
+      setTheme(btn.dataset.themeOpt);
+      document.getElementById("theme-picker")?.removeAttribute("open");
+    });
+  });
+  document.addEventListener("click", e => {
+    const picker = document.getElementById("theme-picker");
+    if (picker?.open && !picker.contains(e.target)) picker.removeAttribute("open");
+  });
   document.getElementById("crt-toggle")?.addEventListener("click", toggleCrtMode);
   languageSelect.addEventListener("change", handleLanguageChange);
   aboutButton?.addEventListener("click", async () => {
@@ -1743,7 +1754,7 @@ function applyTranslations() {
   loadSampleButton.textContent = t("loadSample");
   clearProgramButton.textContent = t("clearProgram");
     themeToggleButton.lastElementChild.textContent = t("themeToggle");
-    themeToggleButton.setAttribute("title", document.body.dataset.theme === "dark" ? t("lightMode") : t("darkMode"));
+    updateThemeToggleLabel();
     const crtToggleBtn = document.getElementById("crt-toggle");
     if (crtToggleBtn) crtToggleBtn.lastElementChild.textContent = t("crtToggle");
     const srOnlyLabels = document.querySelectorAll("label.sample-picker .sr-only");
@@ -4245,8 +4256,13 @@ function applySavedTheme() {
 }
 
 function toggleTheme() {
-  document.body.dataset.theme = document.body.dataset.theme === "dark" ? "light" : "dark";
-  localStorage.setItem("c64-block-theme", document.body.dataset.theme);
+  const next = { light: "dark", dark: "oled", oled: "light" };
+  setTheme(next[document.body.dataset.theme] || "dark");
+}
+
+function setTheme(theme) {
+  document.body.dataset.theme = theme;
+  localStorage.setItem("c64-block-theme", theme);
   updateThemeToggleLabel();
   saveUiSettings();
 }
@@ -4263,9 +4279,16 @@ function toggleCrtMode() {
 }
 
 function updateThemeToggleLabel() {
-  const nextModeLabel = document.body.dataset.theme === "dark" ? t("lightMode") : t("darkMode");
-  themeToggleButton.setAttribute("aria-label", nextModeLabel);
-  themeToggleButton.setAttribute("title", nextModeLabel);
+  const current = document.body.dataset.theme || "light";
+  document.querySelectorAll(".theme-option").forEach(btn => {
+    if (btn.dataset.themeOpt === current) {
+      btn.setAttribute("data-active", "");
+    } else {
+      btn.removeAttribute("data-active");
+    }
+  });
+  themeToggleButton.setAttribute("aria-label", t("themeToggle"));
+  themeToggleButton.setAttribute("title", t("themeToggle"));
 }
 
 async function loadViceConfig() {

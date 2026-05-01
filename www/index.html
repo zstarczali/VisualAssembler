@@ -22,6 +22,13 @@
       <div class="splash-loader">
         <div class="splash-loader-bar"></div>
       </div>
+      <div class="splash-ultimate">
+        <div class="splash-ultimate-logos">
+          <img src="assets/64-lone-logo-scaled-2.png" alt="64 Ultimate" class="splash-ultimate-logo">
+          <img src="assets/64C-lone-logo.png" alt="64C Ultimate" class="splash-ultimate-logo">
+        </div>
+        <p class="splash-ultimate-text">Made for Commodore Ultimate 64</p>
+      </div>
     </div>
   </div>
   <div class="app-shell">
@@ -90,11 +97,26 @@
                 </label>
                 <button id="hardware-settings-btn" class="secondary" type="button">Hardver beállítások...</button>
                 <h3 class="control-menu-label control-menu-label--section" id="view-section-label">Nezet</h3>
-                <button id="theme-toggle" class="secondary icon-button theme-toggle-button" type="button"
-                  aria-label="Dark mode" title="Dark mode">
-                  <span class="theme-toggle-glyph" aria-hidden="true"></span>
-                  <span id="theme-toggle-label">Tema valtasa</span>
-                </button>
+                <details class="theme-picker-menu" id="theme-picker">
+                  <summary id="theme-toggle" class="secondary icon-button theme-toggle-button" aria-label="Dark mode" title="Dark mode">
+                    <span class="theme-toggle-glyph" aria-hidden="true"></span>
+                    <span id="theme-toggle-label">Tema valtasa</span>
+                  </summary>
+                  <div class="theme-picker-panel">
+                    <button class="secondary theme-option" data-theme-opt="light" type="button">
+                      <span class="theme-option-dot" data-theme-opt="light" aria-hidden="true"></span>
+                      <span>Light</span>
+                    </button>
+                    <button class="secondary theme-option" data-theme-opt="dark" type="button">
+                      <span class="theme-option-dot" data-theme-opt="dark" aria-hidden="true"></span>
+                      <span>Dark</span>
+                    </button>
+                    <button class="secondary theme-option" data-theme-opt="oled" type="button">
+                      <span class="theme-option-dot" data-theme-opt="oled" aria-hidden="true"></span>
+                      <span>OLED</span>
+                    </button>
+                  </div>
+                </details>
                 <button id="crt-toggle" class="secondary icon-button" type="button">
                   <span>📺</span>
                   <span id="crt-toggle-label">CRT retro mod</span>
