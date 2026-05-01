@@ -36,5 +36,7 @@
     readBinFile: (path) => invoke("read_bin_file", { path }),
     loadSample: (sampleName) => invoke("load_sample", { sampleName }),
     openManual: () => invoke("open_manual"),
+    runOnUltimate: (host, password, prgBytes) => invoke("run_on_ultimate", { host, password, prgBytes }),
+    testUltimateConnection: (host, password) => invoke("test_ultimate_connection", { host, password }),
   };
 })();

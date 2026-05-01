@@ -342,10 +342,12 @@ const translations = {
     workProgressDoneTitle: "Sikeres build",
     workProgressRun: "PRG generalasa es VICE inditasa...",
     workProgressRunD64: "D64 csomagolas es VICE inditasa...",
+    workProgressRunUltimate: "PRG kuldese a C64 Ultimate-re...",
     workProgressDebug: "PRG generalasa es debugger inditasa...",
     workProgressImport: "ASM import feldolgozasa...",
     workProgressSuccessRun: "Build sikeres, VICE inditva.",
     workProgressSuccessRunD64: "Build sikeres, VICE inditva D64-rol.",
+    workProgressSuccessUltimate: "Build sikeres, program elinditva a hardveren.",
     workProgressSuccessDebug: "Build sikeres, debugger inditva.",
     workProgressSuccessImport: "Import sikeres.",
     savePrg: "Export PRG-kent",
@@ -410,6 +412,21 @@ const translations = {
     runViaD64: "Futtatás D64-ről",
     runViaD64Confirm: "Futtatás VICE-ban",
     runD64Title: "Futtatás D64-ről",
+    hardwareSettings: "Hardver beállítások...",
+    hardwareSettingsTitle: "Hardver beállítások",
+    hardwareSettingsClose: "Bezárás",
+    hwViceSectionLabel: "VICE Emulator",
+    hwDebuggerSectionLabel: "Retro Debugger",
+    runOnUltimate: "Futtatás hardveren",
+    ultimateSectionLabel: "C64 Ultimate",
+    ultimateHostLabel: "Host (IP)",
+    ultimatePasswordLabel: "Jelszó",
+    ultimateConnectTest: "Kapcsolat tesztelése",
+    ultimateConnecting: "Kapcsolódás...",
+    ultimateConnected: "Csatlakozva",
+    ultimateConnectFailed: "Kapcsolat sikertelen",
+    ultimateNotConfigured: "C64 Ultimate nincs beállítva. Add meg a host IP-t a beállításokban.",
+    ultimateRunFailed: "Futtatás sikertelen",
     copyAsm: "ASM masolasa",
     viceExecutable: "VICE exe",
     chooseViceStatusPending: "A VICE kapcsolat ellenorzese folyamatban.",
@@ -623,10 +640,12 @@ const translations = {
     workProgressDoneTitle: "Build successful",
     workProgressRun: "Building PRG and launching VICE...",
     workProgressRunD64: "Packaging D64 and launching VICE...",
+    workProgressRunUltimate: "Sending PRG to C64 Ultimate...",
     workProgressDebug: "Building PRG and launching debugger...",
     workProgressImport: "Importing ASM blocks...",
     workProgressSuccessRun: "Build successful, VICE launched.",
     workProgressSuccessRunD64: "Build successful, VICE launched from D64.",
+    workProgressSuccessUltimate: "Build successful, program running on hardware.",
     workProgressSuccessDebug: "Build successful, debugger launched.",
     workProgressSuccessImport: "Import successful.",
     savePrg: "Export to PRG",
@@ -691,6 +710,21 @@ const translations = {
     runViaD64: "Run via D64",
     runViaD64Confirm: "Run in VICE",
     runD64Title: "Run via D64",
+    hardwareSettings: "Hardware settings...",
+    hardwareSettingsTitle: "Hardware Settings",
+    hardwareSettingsClose: "Close",
+    hwViceSectionLabel: "VICE Emulator",
+    hwDebuggerSectionLabel: "Retro Debugger",
+    runOnUltimate: "Run on hardware",
+    ultimateSectionLabel: "C64 Ultimate",
+    ultimateHostLabel: "Host (IP)",
+    ultimatePasswordLabel: "Password",
+    ultimateConnectTest: "Test connection",
+    ultimateConnecting: "Connecting...",
+    ultimateConnected: "Connected",
+    ultimateConnectFailed: "Connection failed",
+    ultimateNotConfigured: "C64 Ultimate is not configured. Enter the host IP in Settings.",
+    ultimateRunFailed: "Run failed",
     copyAsm: "Copy ASM",
     viceExecutable: "VICE executable",
     chooseViceStatusPending: "Checking the VICE connection.",
@@ -1412,8 +1446,14 @@ function initPalette() {
   expandAllButton.addEventListener("click", expandAllBlocks);
   copyAsmButton?.addEventListener("click", copyAsmToClipboard);
   chooseViceButton?.addEventListener("click", chooseViceExecutable);
-  runEmulatorButton?.addEventListener("click", () => runMode === "d64" ? runViaD64() : runInEmulator());
+  runEmulatorButton?.addEventListener("click", () => {
+    if (runMode === "d64") runViaD64();
+    else if (runMode === "ultimate") runOnUltimate();
+    else runInEmulator();
+  });
   setupRunModeDropdown();
+  setupHardwareSettingsDialog();
+  setupUltimateSettings();
   chooseDebuggerButton?.addEventListener("click", chooseDebuggerExecutable);
   runDebuggerButton?.addEventListener("click", runInDebugger);
   dbgJmpOn?.addEventListener("change", () => { debuggerJmp = true; saveUiSettings(); });
@@ -1602,7 +1642,12 @@ function applyTranslations() {
     setText('.view-mode-option input[value="monitor"] + span', t("outputMonitor"));
     setText('.view-mode-option input[value="both"] + span', t("outputBoth"));
     setText(".global-memory-title", t("memoryTitle"));
-    setText(".menu-field span", t("viceExecutable"));
+    setText("#hardware-settings-btn", t("hardwareSettings"));
+    setText("#hardware-settings-title", t("hardwareSettingsTitle"));
+    setText("#hardware-settings-close", t("hardwareSettingsClose"));
+    setText("#hw-vice-section-label", t("hwViceSectionLabel"));
+    setText("#hw-debugger-section-label", t("hwDebuggerSectionLabel"));
+    setText("#vice-exe-label", t("viceExecutable"));
     setText("#choose-vice", t("openEmulator"));
     setText("#choose-debugger", t("chooseDebugger"));
     setText("#debugger-exe-label", t("debuggerExecutable"));
@@ -1610,9 +1655,14 @@ function applyTranslations() {
     setText("#dbg-jmp-label", t("debuggerJmpLabel"));
     setText("#dbg-wait-label", t("debuggerWaitLabel"));
     setText("#dbg-unpause-label", t("debuggerUnpauseLabel"));
-    setText("#run-emulator .run-label", runMode === "d64" ? t("runViaD64") : t("runInEmulator"));
+    setText("#run-emulator .run-label", runMode === "d64" ? t("runViaD64") : runMode === "ultimate" ? t("runOnUltimate") : t("runInEmulator"));
     setText("#run-prg-label", t("runAsPrg"));
     setText("#run-d64-label", t("runViaD64"));
+    setText("#run-ultimate-label", t("runOnUltimate"));
+    setText("#ultimate-section-label", t("ultimateSectionLabel"));
+    setText("#ultimate-host-label", t("ultimateHostLabel"));
+    setText("#ultimate-password-label", t("ultimatePasswordLabel"));
+    setText("#ultimate-connect-test", t("ultimateConnectTest"));
     setText("#run-debugger .run-label", t("runInDebugger"));
     setText("#copy-asm", t("copyAsm"));
     setText("#save-project", t("saveProject"));
@@ -4834,8 +4884,14 @@ function setupRunModeDropdown() {
     arrow.setAttribute("aria-expanded", "false");
   });
 
+  document.getElementById("run-ultimate-mode")?.addEventListener("click", () => {
+    setRunMode("ultimate");
+    menu.hidden = true;
+    arrow.setAttribute("aria-expanded", "false");
+  });
+
   const saved = localStorage.getItem("runMode");
-  if (saved === "prg" || saved === "d64") setRunMode(saved);
+  if (saved === "prg" || saved === "d64" || saved === "ultimate") setRunMode(saved);
 }
 
 function setRunMode(mode) {
@@ -4843,10 +4899,12 @@ function setRunMode(mode) {
   localStorage.setItem("runMode", mode);
   const prgBtn = document.getElementById("run-prg-mode");
   const d64Btn = document.getElementById("run-d64-mode");
+  const ulBtn = document.getElementById("run-ultimate-mode");
   if (prgBtn) prgBtn.classList.toggle("active", mode === "prg");
   if (d64Btn) d64Btn.classList.toggle("active", mode === "d64");
+  if (ulBtn) ulBtn.classList.toggle("active", mode === "ultimate");
   const label = document.querySelector("#run-emulator .run-label");
-  if (label) label.textContent = mode === "d64" ? t("runViaD64") : t("runInEmulator");
+  if (label) label.textContent = mode === "d64" ? t("runViaD64") : mode === "ultimate" ? t("runOnUltimate") : t("runInEmulator");
 }
 
 async function runViaD64() {
@@ -4918,6 +4976,86 @@ function setupD64ExportDialog() {
     const titleEl = document.getElementById("d64-export-title");
     if (titleEl) titleEl.textContent = t("d64ExportTitle");
   });
+}
+
+// ── Hardware Settings Dialog ──────────────────────────────────────────────────
+
+function setupHardwareSettingsDialog() {
+  const dialog = document.getElementById("hardware-settings-dialog");
+  if (!dialog) return;
+  document.getElementById("hardware-settings-btn")?.addEventListener("click", () => dialog.showModal());
+  document.getElementById("hardware-settings-close")?.addEventListener("click", () => dialog.close());
+}
+
+// ── C64 Ultimate (1541 Ultimate REST API) ─────────────────────────────────────
+
+let ultimateHost = localStorage.getItem("ultimateHost") || "";
+let ultimatePassword = localStorage.getItem("ultimatePassword") || "";
+
+function setupUltimateSettings() {
+  const hostInput = document.getElementById("ultimate-host");
+  const passInput = document.getElementById("ultimate-password");
+  const testBtn = document.getElementById("ultimate-connect-test");
+
+  if (hostInput) {
+    hostInput.value = ultimateHost;
+    hostInput.addEventListener("change", () => {
+      ultimateHost = hostInput.value.trim();
+      localStorage.setItem("ultimateHost", ultimateHost);
+    });
+  }
+  if (passInput) {
+    passInput.value = ultimatePassword;
+    passInput.addEventListener("change", () => {
+      ultimatePassword = passInput.value.trim();
+      localStorage.setItem("ultimatePassword", ultimatePassword);
+    });
+  }
+  testBtn?.addEventListener("click", testUltimateConnection);
+}
+
+async function testUltimateConnection() {
+  const host = (document.getElementById("ultimate-host")?.value || ultimateHost).trim();
+  const password = (document.getElementById("ultimate-password")?.value || ultimatePassword).trim() || null;
+  const statusEl = document.getElementById("ultimate-status");
+  if (!host) {
+    if (statusEl) statusEl.textContent = t("ultimateNotConfigured");
+    return;
+  }
+  if (statusEl) statusEl.textContent = t("ultimateConnecting");
+  const result = await window.electronAPI?.testUltimateConnection(host, password);
+  if (result?.ok) {
+    const info = result.info || {};
+    const product = info.product || "";
+    const firmware = info.firmware || info.version || "";
+    const desc = [product, firmware].filter(Boolean).join(" ").trim() || t("ultimateConnected");
+    if (statusEl) statusEl.textContent = `✓ ${desc}`;
+  } else {
+    if (statusEl) statusEl.textContent = `✗ ${result?.error || t("ultimateConnectFailed")}`;
+  }
+}
+
+async function runOnUltimate() {
+  const host = (document.getElementById("ultimate-host")?.value || ultimateHost).trim();
+  if (!host) {
+    showViceToast(t("ultimateNotConfigured"), true);
+    return;
+  }
+  const prg = buildAutostartPrgForEmulator();
+  if (!prg.ok) {
+    if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
+    if (emulatorStatus) emulatorStatus.textContent = prg.error;
+    return;
+  }
+  const password = (document.getElementById("ultimate-password")?.value || ultimatePassword).trim() || null;
+  await showWorkProgress("workProgressRunUltimate");
+  const result = await window.electronAPI?.runOnUltimate(host, password, Array.from(prg.bytes));
+  if (result?.ok) {
+    await completeWorkProgress("workProgressSuccessUltimate");
+  } else {
+    hideWorkProgress();
+    showViceToast(result?.error || t("ultimateRunFailed"), true);
+  }
 }
 
 async function reloadIncludeBlocks(projectFilePath = "") {

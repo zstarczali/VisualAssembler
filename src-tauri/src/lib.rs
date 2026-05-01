@@ -1,6 +1,7 @@
 use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
+use std::time::Duration;
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
 use serde::{Deserialize, Serialize};
@@ -1255,6 +1256,78 @@ async fn run_d64(app: AppHandle, payload: RunD64Payload) -> serde_json::Value {
     }
 }
 
+// ── 1541 Ultimate REST API ────────────────────────────────────────────────────
+
+#[tauri::command]
+async fn run_on_ultimate(host: String, password: Option<String>, prg_bytes: Vec<u8>) -> serde_json::Value {
+    let host = host.trim().trim_end_matches('/').to_string();
+    let url = format!("http://{}/v1/runners:run_prg", host);
+    let client = match reqwest::Client::builder()
+        .timeout(Duration::from_secs(15))
+        .build()
+    {
+        Ok(c) => c,
+        Err(e) => return serde_json::json!({ "ok": false, "error": e.to_string() }),
+    };
+    let mut req = client
+        .post(&url)
+        .header("Content-Type", "application/octet-stream")
+        .body(prg_bytes);
+    if let Some(pwd) = password {
+        if !pwd.is_empty() {
+            req = req.header("X-Password", pwd);
+        }
+    }
+    match req.send().await {
+        Ok(resp) => {
+            let status = resp.status().as_u16();
+            if resp.status().is_success() {
+                serde_json::json!({ "ok": true })
+            } else {
+                let text = resp.text().await.unwrap_or_default();
+                serde_json::json!({ "ok": false, "error": format!("HTTP {}: {}", status, text.trim()) })
+            }
+        }
+        Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+    }
+}
+
+#[tauri::command]
+async fn test_ultimate_connection(host: String, password: Option<String>) -> serde_json::Value {
+    let host = host.trim().trim_end_matches('/').to_string();
+    let url = format!("http://{}/v1/info", host);
+    let client = match reqwest::Client::builder()
+        .timeout(Duration::from_secs(5))
+        .build()
+    {
+        Ok(c) => c,
+        Err(e) => return serde_json::json!({ "ok": false, "error": e.to_string() }),
+    };
+    let mut req = client.get(&url);
+    if let Some(pwd) = password {
+        if !pwd.is_empty() {
+            req = req.header("X-Password", pwd);
+        }
+    }
+    match req.send().await {
+        Ok(resp) => {
+            let status = resp.status().as_u16();
+            if status == 403 {
+                return serde_json::json!({ "ok": false, "error": "Authentication failed (wrong password?)" });
+            }
+            if resp.status().is_success() {
+                let text = resp.text().await.unwrap_or_default();
+                let info: serde_json::Value = serde_json::from_str(&text)
+                    .unwrap_or(serde_json::json!({ "product": text.trim() }));
+                serde_json::json!({ "ok": true, "info": info })
+            } else {
+                serde_json::json!({ "ok": false, "error": format!("HTTP {}", status) })
+            }
+        }
+        Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+    }
+}
+
 #[tauri::command]
 async fn save_project(app: AppHandle, payload: serde_json::Value) -> serde_json::Value {
     let result = app.dialog().file()
@@ -1367,6 +1440,8 @@ pub fn run() {
             load_project,
             load_sample,
             open_manual,
+            run_on_ultimate,
+            test_ultimate_connection,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

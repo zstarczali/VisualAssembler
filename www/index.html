@@ -88,35 +88,23 @@
                   <input type="checkbox" id="basic-sys-toggle" checked>
                   <span id="basic-sys-label">BASIC SYS stub generálása</span>
                 </label>
-                <button id="choose-vice" class="secondary" type="button">VICE kivalasztasa</button>
-                <label class="field compact-field menu-field">
-                  <span>VICE exe</span>
-                  <input id="vice-path" type="text" readonly placeholder="Nincs beallitva">
-                </label>
-                <p id="emulator-status" class="menu-note">A VICE kapcsolat ellenorzese folyamatban.</p>
-                <p id="emulator-run-hint" class="menu-note menu-note-strong"></p>
-                <button id="choose-debugger" class="secondary" type="button"></button>
-                <label class="field compact-field menu-field">
-                  <span id="debugger-exe-label"></span>
-                  <input id="debugger-path" type="text" readonly placeholder="">
-                </label>
-                <p id="debugger-status" class="menu-note"></p>
-              </section>
-              <section class="control-menu-group">
-                <h3 class="control-menu-label">Nezet</h3>
+                <button id="hardware-settings-btn" class="secondary" type="button">Hardver beállítások...</button>
+                <h3 class="control-menu-label control-menu-label--section" id="view-section-label">Nezet</h3>
                 <button id="theme-toggle" class="secondary icon-button theme-toggle-button" type="button"
                   aria-label="Dark mode" title="Dark mode">
                   <span class="theme-toggle-glyph" aria-hidden="true"></span>
-                  <span>Tema valtasa</span>
+                  <span id="theme-toggle-label">Tema valtasa</span>
                 </button>
                 <button id="crt-toggle" class="secondary icon-button" type="button">
                   <span>📺</span>
-                  <span>CRT retro mod</span>
+                  <span id="crt-toggle-label">CRT retro mod</span>
                 </button>
                 <div class="control-menu-inline">
                   <button id="zoom-out" class="secondary" type="button">A-</button>
                   <button id="zoom-in" class="secondary" type="button">A+</button>
                 </div>
+              </section>
+              <section class="control-menu-group">
                 <h3 class="control-menu-label control-menu-label--section">Program</h3>
                 <button id="copy-asm" class="secondary" type="button">ASM masolasa</button>
                 <button id="clear-program" class="secondary" type="button">Program torlese</button>
@@ -149,6 +137,10 @@
               <button id="run-d64-mode" class="run-mode-item" role="menuitem" data-mode="d64">
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" aria-hidden="true"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2"/></svg>
                 <span id="run-d64-label">Run via D64</span>
+              </button>
+              <button id="run-ultimate-mode" class="run-mode-item" role="menuitem" data-mode="ultimate">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" aria-hidden="true"><rect x="3" y="5" width="10" height="7" rx="1"/><path d="M5 5V3M8 5V3M11 5V3M5 12v1M8 12v1M11 12v1M1 7h2M1 9h2M13 7h2M13 9h2"/></svg>
+                <span id="run-ultimate-label">Run on hardware</span>
               </button>
             </div>
           </div>
@@ -615,6 +607,51 @@
         </li>
       </ul>
       <button id="knowledge-base-close" class="primary" type="button">Close</button>
+    </div>
+  </dialog>
+
+  <dialog id="hardware-settings-dialog" class="hardware-settings-dialog">
+    <div class="hardware-settings-card">
+      <h2 class="compile-error-title" id="hardware-settings-title">Hardver beállítások</h2>
+
+      <section class="hw-settings-section">
+        <h3 class="hw-settings-section-label" id="hw-vice-section-label">VICE Emulator</h3>
+        <button id="choose-vice" class="secondary" type="button">VICE kivalasztasa</button>
+        <label class="field compact-field hw-field">
+          <span id="vice-exe-label">VICE exe</span>
+          <input id="vice-path" type="text" readonly placeholder="Nincs beallitva">
+        </label>
+        <p id="emulator-status" class="menu-note">A VICE kapcsolat ellenorzese folyamatban.</p>
+        <p id="emulator-run-hint" class="menu-note menu-note-strong"></p>
+      </section>
+
+      <section class="hw-settings-section">
+        <h3 class="hw-settings-section-label" id="hw-debugger-section-label">Retro Debugger</h3>
+        <button id="choose-debugger" class="secondary" type="button"></button>
+        <label class="field compact-field hw-field">
+          <span id="debugger-exe-label"></span>
+          <input id="debugger-path" type="text" readonly placeholder="">
+        </label>
+        <p id="debugger-status" class="menu-note"></p>
+      </section>
+
+      <section class="hw-settings-section">
+        <h3 class="hw-settings-section-label" id="ultimate-section-label">C64 Ultimate</h3>
+        <label class="field compact-field hw-field">
+          <span id="ultimate-host-label">Host (IP)</span>
+          <input id="ultimate-host" type="text" placeholder="192.168.1.100" autocomplete="off" spellcheck="false">
+        </label>
+        <label class="field compact-field hw-field">
+          <span id="ultimate-password-label">Jelszó</span>
+          <input id="ultimate-password" type="password" placeholder="(opcionális)" autocomplete="off">
+        </label>
+        <button id="ultimate-connect-test" class="secondary" type="button">Kapcsolat tesztelése</button>
+        <p id="ultimate-status" class="menu-note"></p>
+      </section>
+
+      <div class="hw-settings-actions">
+        <button id="hardware-settings-close" class="primary" type="button">Bezárás</button>
+      </div>
     </div>
   </dialog>
 
