@@ -1258,6 +1258,180 @@ async fn run_d64(app: AppHandle, payload: RunD64Payload) -> serde_json::Value {
 
 // ── 1541 Ultimate REST API ────────────────────────────────────────────────────
 
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct RunD64UltimatePayload {
+    host: String,
+    #[serde(default)]
+    password: Option<String>,
+    files: Vec<D64FileEntry>,
+    #[serde(default)]
+    disk_name: Option<String>,
+}
+
+#[tauri::command]
+async fn run_d64_on_ultimate(app: AppHandle, payload: RunD64UltimatePayload) -> serde_json::Value {
+    if payload.files.is_empty() {
+        return serde_json::json!({ "ok": false, "error": "Nincs fajl a D64-re irashoz." });
+    }
+
+    let host = payload.host.trim().trim_end_matches('/').to_string();
+    if host.is_empty() {
+        return serde_json::json!({ "ok": false, "error": "C64 Ultimate host nincs megadva." });
+    }
+
+    // Build temp D64 with c1541
+    let cfg = read_config(&app);
+    let vice_path = {
+        let p = cfg["vicePath"].as_str().unwrap_or("").to_string();
+        if p.is_empty() { detect_vice_executable() } else { p }
+    };
+    let c1541_path = match resolve_c1541_path(&vice_path) {
+        Some(p) => p,
+        None => return serde_json::json!({
+            "ok": false,
+            "error": "c1541 nem talalhato. Allitsd be a VICE eleresi utjat."
+        }),
+    };
+
+    let temp_dir = std::env::temp_dir().join("c64-visual-assembler");
+    let _ = fs::create_dir_all(&temp_dir);
+    let now_ms = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH).unwrap().as_millis();
+
+    let raw_disk = payload.disk_name.unwrap_or_else(|| "disk".to_string());
+    let disk_name = sanitize_disk_name(&raw_disk, 16);
+    let disk_id = "01";
+    let d64_path = temp_dir.join(format!("ultimate-d64-{}.d64", now_ms));
+
+    let mut staged: Vec<(PathBuf, String)> = Vec::new();
+    for (idx, entry) in payload.files.iter().enumerate() {
+        let prg_path = temp_dir.join(format!("ultimate-d64-{}-{}.prg", now_ms, idx));
+        let mut data: Vec<u8> = Vec::with_capacity(entry.bytes.len() + 2);
+        if let Some(addr) = entry.load_address {
+            data.push((addr & 0xFF) as u8);
+            data.push((addr >> 8) as u8);
+        }
+        data.extend_from_slice(&entry.bytes);
+        if let Err(e) = fs::write(&prg_path, &data) {
+            for (p, _) in &staged { let _ = fs::remove_file(p); }
+            return serde_json::json!({ "ok": false, "error": e.to_string() });
+        }
+        let c64_name = sanitize_disk_name(&entry.name, 16);
+        staged.push((prg_path, c64_name));
+    }
+
+    let format_arg = format!("{},{}", disk_name, disk_id);
+    #[allow(unused_mut)]
+    let mut cmd = if cfg!(target_os = "macos") {
+        let mut c = Command::new("bash");
+        c.arg(c1541_path.to_string_lossy().to_string());
+        c
+    } else {
+        Command::new(&c1541_path)
+    };
+    cmd.arg("-format").arg(&format_arg).arg("d64").arg(&d64_path);
+    for (prg_path, c64_name) in &staged {
+        cmd.arg("-write").arg(prg_path.to_string_lossy().to_string()).arg(c64_name);
+    }
+    #[cfg(target_os = "windows")]
+    {
+        const CREATE_NO_WINDOW: u32 = 0x08000000;
+        cmd.creation_flags(CREATE_NO_WINDOW);
+    }
+
+    let c1541_out = match cmd.output() {
+        Ok(o) => o,
+        Err(e) => {
+            for (p, _) in &staged { let _ = fs::remove_file(p); }
+            return serde_json::json!({ "ok": false, "error": e.to_string() });
+        }
+    };
+    for (p, _) in &staged { let _ = fs::remove_file(p); }
+
+    if !c1541_out.status.success() {
+        let _ = fs::remove_file(&d64_path);
+        return serde_json::json!({
+            "ok": false,
+            "error": format!("c1541 hiba: {}{}", String::from_utf8_lossy(&c1541_out.stderr), String::from_utf8_lossy(&c1541_out.stdout))
+        });
+    }
+
+    // Read D64 bytes and upload to Ultimate
+    let d64_bytes = match fs::read(&d64_path) {
+        Ok(b) => b,
+        Err(e) => {
+            let _ = fs::remove_file(&d64_path);
+            return serde_json::json!({ "ok": false, "error": e.to_string() });
+        }
+    };
+    let _ = fs::remove_file(&d64_path);
+
+    let password = payload.password;
+
+    let client = match reqwest::Client::builder()
+        .timeout(Duration::from_secs(30))
+        .build()
+    {
+        Ok(c) => c,
+        Err(e) => return serde_json::json!({ "ok": false, "error": e.to_string() }),
+    };
+
+    // Step 1: Mount D64 on drive A (device 8)
+    let mount_url = format!("http://{}/v1/drives/a:mount", host);
+    let mut mount_req = client
+        .post(&mount_url)
+        .header("Content-Type", "application/octet-stream")
+        .body(d64_bytes);
+    if let Some(ref pwd) = password {
+        if !pwd.is_empty() {
+            mount_req = mount_req.header("X-Password", pwd.clone());
+        }
+    }
+    match mount_req.send().await {
+        Ok(resp) => {
+            if !resp.status().is_success() {
+                let status = resp.status().as_u16();
+                let text = resp.text().await.unwrap_or_default();
+                return serde_json::json!({ "ok": false, "error": format!("D64 mount HTTP {}: {}", status, text.trim()) });
+            }
+        }
+        Err(e) => return serde_json::json!({ "ok": false, "error": format!("D64 mount: {}", e) }),
+    }
+
+    // Step 2: Run the main PRG (first file) via DMA
+    let main_entry = &payload.files[0];
+    let mut prg_bytes: Vec<u8> = Vec::with_capacity(main_entry.bytes.len() + 2);
+    if let Some(addr) = main_entry.load_address {
+        prg_bytes.push((addr & 0xFF) as u8);
+        prg_bytes.push((addr >> 8) as u8);
+    }
+    prg_bytes.extend_from_slice(&main_entry.bytes);
+
+    let run_url = format!("http://{}/v1/runners:run_prg", host);
+    let mut run_req = client
+        .post(&run_url)
+        .header("Content-Type", "application/octet-stream")
+        .body(prg_bytes);
+    if let Some(pwd) = password {
+        if !pwd.is_empty() {
+            run_req = run_req.header("X-Password", pwd);
+        }
+    }
+    match run_req.send().await {
+        Ok(resp) => {
+            let status = resp.status().as_u16();
+            if resp.status().is_success() {
+                serde_json::json!({ "ok": true })
+            } else {
+                let text = resp.text().await.unwrap_or_default();
+                serde_json::json!({ "ok": false, "error": format!("HTTP {}: {}", status, text.trim()) })
+            }
+        }
+        Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+    }
+}
+
 #[tauri::command]
 async fn run_on_ultimate(host: String, password: Option<String>, prg_bytes: Vec<u8>) -> serde_json::Value {
     let host = host.trim().trim_end_matches('/').to_string();
@@ -1459,6 +1633,7 @@ pub fn run() {
             save_prg,
             save_d64,
             run_d64,
+            run_d64_on_ultimate,
             read_bin_file,
             save_project,
             load_project,

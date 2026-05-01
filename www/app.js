@@ -343,11 +343,13 @@ const translations = {
     workProgressRun: "PRG generalasa es VICE inditasa...",
     workProgressRunD64: "D64 csomagolas es VICE inditasa...",
     workProgressRunUltimate: "PRG kuldese a C64 Ultimate-re...",
+    workProgressRunD64Ultimate: "D64 kuldese a C64 Ultimate-re...",
     workProgressDebug: "PRG generalasa es debugger inditasa...",
     workProgressImport: "ASM import feldolgozasa...",
     workProgressSuccessRun: "Build sikeres, VICE inditva.",
     workProgressSuccessRunD64: "Build sikeres, VICE inditva D64-rol.",
     workProgressSuccessUltimate: "Build sikeres, program elinditva a hardveren.",
+    workProgressSuccessD64Ultimate: "D64 felcsatolva, lemez fut a hardveren.",
     workProgressSuccessDebug: "Build sikeres, debugger inditva.",
     workProgressSuccessImport: "Import sikeres.",
     savePrg: "Export PRG-kent",
@@ -418,6 +420,7 @@ const translations = {
     hwViceSectionLabel: "VICE Emulator",
     hwDebuggerSectionLabel: "Retro Debugger",
     runOnUltimate: "Futtatás hardveren",
+    runD64OnHardware: "D64 hardveren",
     ultimateSectionLabel: "C64 Ultimate",
     ultimateHostLabel: "Host (IP)",
     ultimatePasswordLabel: "Jelszó",
@@ -468,6 +471,10 @@ const translations = {
     sampleRasterIrqDemo: "Raszter IRQ demo (szin villogas)",
     sampleOverlappingRasterDemo: "Overlapping raszter csik demo",
     helpManual: "Kezikonyv",
+    about: "Névjegy",
+    knowledgeBase: "Tudásbázis",
+    zoomIn: "Nagyítás (A+)",
+    zoomOut: "Kicsinyítés (A-)",
     checkForUpdate: "Frissites keresese",
     reportBug: "Hiba bejelentese",
     viceRunning: "VICE fut",
@@ -642,11 +649,13 @@ const translations = {
     workProgressRun: "Building PRG and launching VICE...",
     workProgressRunD64: "Packaging D64 and launching VICE...",
     workProgressRunUltimate: "Sending PRG to C64 Ultimate...",
+    workProgressRunD64Ultimate: "Sending D64 to C64 Ultimate...",
     workProgressDebug: "Building PRG and launching debugger...",
     workProgressImport: "Importing ASM blocks...",
     workProgressSuccessRun: "Build successful, VICE launched.",
     workProgressSuccessRunD64: "Build successful, VICE launched from D64.",
     workProgressSuccessUltimate: "Build successful, program running on hardware.",
+    workProgressSuccessD64Ultimate: "D64 mounted, disk running on hardware.",
     workProgressSuccessDebug: "Build successful, debugger launched.",
     workProgressSuccessImport: "Import successful.",
     savePrg: "Export to PRG",
@@ -717,6 +726,7 @@ const translations = {
     hwViceSectionLabel: "VICE Emulator",
     hwDebuggerSectionLabel: "Retro Debugger",
     runOnUltimate: "Run on hardware",
+    runD64OnHardware: "D64 on hardware",
     ultimateSectionLabel: "C64 Ultimate",
     ultimateHostLabel: "Host (IP)",
     ultimatePasswordLabel: "Password",
@@ -767,6 +777,10 @@ const translations = {
     sampleRasterIrqDemo: "Raster IRQ demo (color flashing)",
     sampleOverlappingRasterDemo: "Overlapping raster bars demo",
     helpManual: "Manual",
+    about: "About",
+    knowledgeBase: "Knowledge Base",
+    zoomIn: "Zoom in (A+)",
+    zoomOut: "Zoom out (A-)",
     languageLabel: "Language",
     checkForUpdate: "Check for Update",
     reportBug: "Report Bug",
@@ -1460,6 +1474,7 @@ function initPalette() {
   runEmulatorButton?.addEventListener("click", () => {
     if (runMode === "d64") runViaD64();
     else if (runMode === "ultimate") runOnUltimate();
+    else if (runMode === "ultimate-d64") runUltimateD64();
     else runInEmulator();
   });
   setupRunModeDropdown();
@@ -1666,10 +1681,11 @@ function applyTranslations() {
     setText("#dbg-jmp-label", t("debuggerJmpLabel"));
     setText("#dbg-wait-label", t("debuggerWaitLabel"));
     setText("#dbg-unpause-label", t("debuggerUnpauseLabel"));
-    setText("#run-emulator .run-label", runMode === "d64" ? t("runViaD64") : runMode === "ultimate" ? t("runOnUltimate") : t("runInEmulator"));
+    setText("#run-emulator .run-label", runMode === "d64" ? t("runViaD64") : runMode === "ultimate" ? t("runOnUltimate") : runMode === "ultimate-d64" ? t("runD64OnHardware") : t("runInEmulator"));
     setText("#run-prg-label", t("runAsPrg"));
     setText("#run-d64-label", t("runViaD64"));
     setText("#run-ultimate-label", t("runOnUltimate"));
+    setText("#run-ultimate-d64-label", t("runD64OnHardware"));
     setText("#ultimate-section-label", t("ultimateSectionLabel"));
     setText("#ultimate-host-label", t("ultimateHostLabel"));
     setText("#ultimate-password-label", t("ultimatePasswordLabel"));
@@ -1732,6 +1748,26 @@ function applyTranslations() {
     }
     chooseDebuggerButton?.setAttribute("title", t("chooseDebugger"));
     chooseDebuggerButton?.setAttribute("aria-label", t("chooseDebugger"));
+    document.getElementById("hardware-settings-btn")?.setAttribute("title", t("hardwareSettings"));
+    document.getElementById("hardware-settings-btn")?.setAttribute("aria-label", t("hardwareSettings"));
+    document.getElementById("crt-toggle")?.setAttribute("title", t("crtToggle"));
+    document.getElementById("crt-toggle")?.setAttribute("aria-label", t("crtToggle"));
+    zoomInButton?.setAttribute("title", t("zoomIn"));
+    zoomInButton?.setAttribute("aria-label", t("zoomIn"));
+    zoomOutButton?.setAttribute("title", t("zoomOut"));
+    zoomOutButton?.setAttribute("aria-label", t("zoomOut"));
+    helpManualButton?.setAttribute("title", t("helpManual"));
+    helpManualButton?.setAttribute("aria-label", t("helpManual"));
+    aboutButton?.setAttribute("title", t("about"));
+    aboutButton?.setAttribute("aria-label", t("about"));
+    whatsNewButton?.setAttribute("title", t("whatsNew"));
+    whatsNewButton?.setAttribute("aria-label", t("whatsNew"));
+    knowledgeBaseButton?.setAttribute("title", t("knowledgeBase"));
+    knowledgeBaseButton?.setAttribute("aria-label", t("knowledgeBase"));
+    checkUpdateButton?.setAttribute("title", t("checkForUpdate"));
+    checkUpdateButton?.setAttribute("aria-label", t("checkForUpdate"));
+    reportBugButton?.setAttribute("title", t("reportBug"));
+    reportBugButton?.setAttribute("aria-label", t("reportBug"));
     if (debuggerPathInput) {
       debuggerPathInput.placeholder = t("debuggerNotConfiguredPlaceholder");
     }
@@ -4253,8 +4289,13 @@ function applySavedTheme() {
   const savedTheme = localStorage.getItem("c64-block-theme") || "light";
   document.documentElement.dataset.theme = savedTheme;
   updateThemeToggleLabel();
-  // Show the window now that the correct theme is applied — prevents color flash on startup
-  window.__TAURI__?.window?.getCurrentWindow()?.show().catch(() => {});
+  // Wait for two animation frames so the browser completes a full layout+paint
+  // cycle with the correct theme before the window becomes visible.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      window.__TAURI__?.window?.getCurrentWindow()?.show().catch(() => {});
+    });
+  });
 }
 
 function toggleTheme() {
@@ -4835,11 +4876,23 @@ async function confirmD64Export() {
   if (cancelBtn) cancelBtn.disabled = true;
 
   const isRunMode = d64ExportState.runMode;
-  if (isRunMode) await showWorkProgress("workProgressRunD64");
+  const isUltimateMode = isRunMode === "ultimate";
+  if (isRunMode) await showWorkProgress(isUltimateMode ? "workProgressRunD64Ultimate" : "workProgressRunD64");
 
   let result;
   try {
-    if (isRunMode) {
+    if (isUltimateMode) {
+      const host = (document.getElementById("ultimate-host")?.value || ultimateHost).trim();
+      const password = (document.getElementById("ultimate-password")?.value || ultimatePassword).trim() || null;
+      if (!host) {
+        hideWorkProgress();
+        if (errorBox) { errorBox.hidden = false; errorBox.textContent = t("ultimateNotConfigured"); }
+        if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = t("runOnUltimate"); }
+        if (cancelBtn) cancelBtn.disabled = false;
+        return;
+      }
+      result = await window.electronAPI.runD64OnUltimate({ host, password, diskName, files });
+    } else if (isRunMode) {
       result = await window.electronAPI.runD64({ diskName, files });
     } else {
       result = await window.electronAPI.saveD64({ diskName, files });
@@ -4847,7 +4900,7 @@ async function confirmD64Export() {
   } finally {
     if (confirmBtn) {
       confirmBtn.disabled = false;
-      confirmBtn.textContent = t(isRunMode ? "runViaD64Confirm" : "d64ExportConfirm");
+      confirmBtn.textContent = t(isUltimateMode ? "runOnUltimate" : isRunMode ? "runViaD64Confirm" : "d64ExportConfirm");
     }
     if (cancelBtn) cancelBtn.disabled = false;
   }
@@ -4861,7 +4914,7 @@ async function confirmD64Export() {
     if (isRunMode) hideWorkProgress();
     const err = result?.error || "";
     let msg = err || t("saveD64Failed");
-    if (/c1541|VICE/i.test(err)) msg = t("saveD64NeedVice");
+    if (!isUltimateMode && /c1541|VICE/i.test(err)) msg = t("saveD64NeedVice");
     if (errorBox) { errorBox.hidden = false; errorBox.textContent = msg; }
     return;
   }
@@ -4869,7 +4922,7 @@ async function confirmD64Export() {
   d64SaveSettings((diskInput?.value || "").trim() || "DISK", (progInput?.value || "").trim() || "PROGRAM");
   dialog.close();
   if (isRunMode) {
-    await completeWorkProgress("workProgressSuccessRunD64");
+    await completeWorkProgress(isUltimateMode ? "workProgressSuccessD64Ultimate" : "workProgressSuccessRunD64");
   } else if (emulatorStatus) {
     const fileName = (result.filePath || "").split(/[\\/]/).pop();
     const count = result.fileCount || files.length;
@@ -4918,8 +4971,14 @@ function setupRunModeDropdown() {
     arrow.setAttribute("aria-expanded", "false");
   });
 
+  document.getElementById("run-ultimate-d64-mode")?.addEventListener("click", () => {
+    setRunMode("ultimate-d64");
+    menu.hidden = true;
+    arrow.setAttribute("aria-expanded", "false");
+  });
+
   const saved = localStorage.getItem("runMode");
-  if (saved === "prg" || saved === "d64" || saved === "ultimate") setRunMode(saved);
+  if (saved === "prg" || saved === "d64" || saved === "ultimate" || saved === "ultimate-d64") setRunMode(saved);
 }
 
 function setRunMode(mode) {
@@ -4928,11 +4987,13 @@ function setRunMode(mode) {
   const prgBtn = document.getElementById("run-prg-mode");
   const d64Btn = document.getElementById("run-d64-mode");
   const ulBtn = document.getElementById("run-ultimate-mode");
+  const ulD64Btn = document.getElementById("run-ultimate-d64-mode");
   if (prgBtn) prgBtn.classList.toggle("active", mode === "prg");
   if (d64Btn) d64Btn.classList.toggle("active", mode === "d64");
   if (ulBtn) ulBtn.classList.toggle("active", mode === "ultimate");
+  if (ulD64Btn) ulD64Btn.classList.toggle("active", mode === "ultimate-d64");
   const label = document.querySelector("#run-emulator .run-label");
-  if (label) label.textContent = mode === "d64" ? t("runViaD64") : mode === "ultimate" ? t("runOnUltimate") : t("runInEmulator");
+  if (label) label.textContent = mode === "d64" ? t("runViaD64") : mode === "ultimate" ? t("runOnUltimate") : mode === "ultimate-d64" ? t("runD64OnHardware") : t("runInEmulator");
 }
 
 async function runViaD64() {
@@ -5084,6 +5145,58 @@ async function runOnUltimate() {
     hideWorkProgress();
     showViceToast(result?.error || t("ultimateRunFailed"), true);
   }
+}
+
+async function runUltimateD64() {
+  const host = (document.getElementById("ultimate-host")?.value || ultimateHost).trim();
+  if (!host) {
+    showViceToast(t("ultimateNotConfigured"), true);
+    return;
+  }
+
+  const prg = buildAutostartPrgForEmulator();
+  if (!prg.ok) {
+    if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
+    if (emulatorStatus) emulatorStatus.textContent = prg.error;
+    return;
+  }
+
+  d64ExportState.prgBytes = prg.bytes;
+  d64ExportState.runMode = "ultimate";
+
+  const dialog = document.getElementById("d64-export-dialog");
+  const diskInput = document.getElementById("d64-export-diskname");
+  const progInput = document.getElementById("d64-export-progname");
+  const errorBox = document.getElementById("d64-export-error");
+  const confirmBtn = document.getElementById("d64-export-confirm");
+
+  let diskName = d64ExportState.diskName || defaultDiskName();
+  let progName = d64ExportState.progName || defaultDiskName();
+  if (d64ExportState.extras.length === 0) {
+    if (d64ExportState._pendingExtras?.length) {
+      d64ExportState.extras = await d64LoadSavedExtras(d64ExportState._pendingExtras, d64ExportState._pendingExtrasBaseDir);
+      d64ExportState._pendingExtras = null;
+      d64ExportState._pendingExtrasBaseDir = "";
+    } else {
+      try {
+        const saved = JSON.parse(localStorage.getItem("d64LastSettings") || "null");
+        if (saved) {
+          if (!d64ExportState.diskName && saved.diskName) diskName = saved.diskName;
+          if (!d64ExportState.progName && saved.progName) progName = saved.progName;
+          if (saved.extras?.length) d64ExportState.extras = await d64LoadSavedExtras(saved.extras);
+        }
+      } catch (_) {}
+    }
+  }
+
+  if (diskInput) diskInput.value = diskName;
+  if (progInput) progInput.value = progName;
+  if (errorBox) { errorBox.hidden = true; errorBox.textContent = ""; }
+  if (confirmBtn) confirmBtn.textContent = t("runOnUltimate");
+  const titleEl = document.getElementById("d64-export-title");
+  if (titleEl) titleEl.textContent = t("runD64Title");
+  renderD64ExtraFiles();
+  dialog?.showModal();
 }
 
 async function reloadIncludeBlocks(projectFilePath = "") {
@@ -5467,6 +5580,26 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
       rawOperand = op.slice(1).toUpperCase(); base = "hex";
       addressingMode = parseInt(rawOperand, 16) > 0xFF ? "absolute" : "zeroPage";
       displayOperand = "$" + rawOperand;
+    } else if (/^\([A-Za-z_][A-Za-z0-9_]*,X\)$/i.test(op)) {
+      // (label,X) indirectX with label
+      const m = op.match(/^\(([A-Za-z_][A-Za-z0-9_]*),X\)$/i);
+      rawOperand = m[1]; base = "hex"; addressingMode = "indirectX";
+      displayOperand = "(" + rawOperand + ",X)";
+    } else if (/^\([A-Za-z_][A-Za-z0-9_]*\),Y$/i.test(op)) {
+      // (label),Y indirectY with label
+      const m = op.match(/^\(([A-Za-z_][A-Za-z0-9_]*)\),Y$/i);
+      rawOperand = m[1]; base = "hex"; addressingMode = "indirectY";
+      displayOperand = "(" + rawOperand + "),Y";
+    } else if (/^[A-Za-z_][A-Za-z0-9_]*(?:\s*[+-]\s*(?:\$[0-9A-Fa-f]+|\d+))?,X$/i.test(op)) {
+      // label,X or label+offset,X → absoluteX
+      rawOperand = op.slice(0, op.lastIndexOf(",")).trim();
+      base = "hex"; addressingMode = "absoluteX";
+      displayOperand = rawOperand + ",X";
+    } else if (/^[A-Za-z_][A-Za-z0-9_]*(?:\s*[+-]\s*(?:\$[0-9A-Fa-f]+|\d+))?,Y$/i.test(op)) {
+      // label,Y or label+offset,Y → absoluteY
+      rawOperand = op.slice(0, op.lastIndexOf(",")).trim();
+      base = "hex"; addressingMode = "absoluteY";
+      displayOperand = rawOperand + ",Y";
     } else if (/^\.[A-Za-z][A-Za-z0-9_]*$/.test(op)) {
       // Local label reference: strip dot
       rawOperand = op.slice(1); base = "hex";

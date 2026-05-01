@@ -101,12 +101,37 @@ html[data-theme="oled"] {
 
 html {
   background-color: #8b93ff;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--secondary) 45%, transparent) transparent;
 }
 html[data-theme="dark"] {
   background-color: #2f2a8a;
 }
 html[data-theme="oled"] {
   background-color: #03020c;
+}
+html:has(#splash-screen) {
+  overflow: hidden;
+}
+
+html::-webkit-scrollbar {
+  width: 10px;
+}
+
+html::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--secondary) 42%, transparent);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--secondary) 62%, transparent);
+  background-clip: padding-box;
 }
 
 body {
@@ -557,7 +582,7 @@ button,
   border: 2px solid currentColor;
 }
 
-body[data-theme="light"] .theme-toggle-glyph::after {
+html[data-theme="light"] .theme-toggle-glyph::after {
   content: "";
   position: absolute;
   inset: 3px;
@@ -565,7 +590,7 @@ body[data-theme="light"] .theme-toggle-glyph::after {
   background: currentColor;
 }
 
-body[data-theme="dark"] .theme-toggle-glyph::after {
+html[data-theme="dark"] .theme-toggle-glyph::after {
   content: "";
   position: absolute;
   top: -1px;
@@ -576,7 +601,7 @@ body[data-theme="dark"] .theme-toggle-glyph::after {
   background: var(--panel);
 }
 
-body[data-theme="oled"] .theme-toggle-glyph::after {
+html[data-theme="oled"] .theme-toggle-glyph::after {
   content: "";
   position: absolute;
   top: -1px;
@@ -599,8 +624,8 @@ button:hover,
   box-shadow: 0 6px 14px color-mix(in srgb, var(--primary) 18%, transparent);
 }
 
-body[data-theme="dark"] .primary,
-body[data-theme="oled"] .primary {
+html[data-theme="dark"] .primary,
+html[data-theme="oled"] .primary {
   color: #10245f;
   font-weight: 700;
 }
@@ -847,16 +872,16 @@ body[data-theme="oled"] .primary {
   box-shadow: 0 12px 28px rgba(37, 67, 151, 0.36);
 }
 
-body[data-theme="dark"] #add-selected,
-body[data-theme="oled"] #add-selected {
+html[data-theme="dark"] #add-selected,
+html[data-theme="oled"] #add-selected {
   background: linear-gradient(180deg, #3a63dc 0%, #2746a8 100%);
   color: #f3f7ff;
   border-color: #6f8cff;
   box-shadow: 0 10px 24px rgba(61, 101, 220, 0.3);
 }
 
-body[data-theme="dark"] #add-selected:hover,
-body[data-theme="oled"] #add-selected:hover {
+html[data-theme="dark"] #add-selected:hover,
+html[data-theme="oled"] #add-selected:hover {
   border-color: #90a8ff;
   box-shadow: 0 12px 28px rgba(61, 101, 220, 0.38);
 }
@@ -1688,8 +1713,8 @@ body.dnd-active {
   border-color: rgba(255, 68, 68, 0.4) !important;
 }
 
-body[data-theme="dark"] .asm-block:has(.bp-toggle.bp-active),
-body[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
+html[data-theme="dark"] .asm-block:has(.bp-toggle.bp-active),
+html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
   background: rgba(255, 68, 68, 0.18) !important;
   border-color: rgba(255, 68, 68, 0.5) !important;
 }
@@ -2304,10 +2329,10 @@ body[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
   font-weight: 700;
 }
 
-body[data-theme="dark"] .emulator-actions .primary,
-body[data-theme="dark"] .emulator-actions .link-button.primary,
-body[data-theme="oled"] .emulator-actions .primary,
-body[data-theme="oled"] .emulator-actions .link-button.primary {
+html[data-theme="dark"] .emulator-actions .primary,
+html[data-theme="dark"] .emulator-actions .link-button.primary,
+html[data-theme="oled"] .emulator-actions .primary,
+html[data-theme="oled"] .emulator-actions .link-button.primary {
   color: #10245f;
 }
 

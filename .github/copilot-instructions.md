@@ -250,7 +250,7 @@ Nezet
 |-----|--------|
 | `prg` | PRG fájl → VICE közvetlenül |
 | `d64` | PRG + extra fájlok → D64 (c1541) → VICE |
-| `ultimate` | PRG → C64 Ultimate REST API (`/v3/runners/prg`) |
+| `ultimate` | PRG → C64 Ultimate REST API (kétlépéses: D64 mount + PRG run) |
 
 ---
 
@@ -338,10 +338,16 @@ A dialóg megnyitásakor (export vagy run D64): ha `extras` üres és `_pendingE
 
 ### C64 Ultimate integrációk
 
-- **`run_on_ultimate(host, password, prgBytes)`** → HTTP POST `/v3/runners/prg` a megadott hostra
-- **`test_ultimate_connection(host, password)`** → kapcsolat teszt (`/v3/runners/info`)
+- **`run_on_ultimate(host, password, prgBytes)`** → kétlépéses folyamat (v1 API):
+  1. `POST http://{host}/v1/drives/a:mount` — D64 bytes mint `application/octet-stream` (ha D64 mód)
+  2. `POST http://{host}/v1/runners:run_prg` — PRG bytes (2-byte load address prefix + kód)
+  - Mindkét kérés `X-Password` headert kap, ha jelszó be van állítva
+- **`test_ultimate_connection(host, password)`** → kapcsolat teszt (`/v1/runners/info`)
 - **Beállítások:** `#hardware-settings-dialog` — host + password; elmentve a config-ba
 - **Run mód:** `"ultimate"` — a split run gomb ultimateMode-ban a `runViaUltimate()` függvényt hívja
+
+> **FIGYELEM:** A helyes endpoint `/v1/drives/a:mount` + `/v1/runners:run_prg`.
+> **NE** használd a `/v3/runners/prg` vagy `/v3/runners:mount_disk` végpontokat — ezek nem léteznek!
 
 ### D64 state a project JSON-ben
 
@@ -600,6 +606,66 @@ Verzió növelésekor:
 5. `README.md` → `Current version` sor + új What's New szekció
 6. `.github/copilot-instructions.md` → verzió sor frissítése
 7. Mac + Windows build az aláírási procedúrával
+
+---
+
+## ASM import — `_importMakeInstruction` operandus parsing
+
+Az `parseAsmText()` → `_importMakeInstruction()` függvény 6502 assembly szöveget alakít program blokkká.
+
+**Támogatott `label,X` / `label,Y` minták** (regex alapján azonosítva a catch-all előtt):
+
+| Minta | Addressing mode | rawOperand |
+|-------|-----------------|------------|
+| `(label,X)` | `indirectX` | `label` |
+| `(label),Y` | `indirectY` | `label` |
+| `label,X` vagy `label+offset,X` | `absoluteX` | `label` vagy `label+offset` |
+| `label,Y` vagy `label+offset,Y` | `absoluteY` | `label` vagy `label+offset` |
+
+**Regex minták:**
+```js
+/^\([A-Za-z_][A-Za-z0-9_]*,X\)$/i           // (label,X)
+/^\([A-Za-z_][A-Za-z0-9_]*\),Y$/i           // (label),Y
+/^[A-Za-z_][A-Za-z0-9_]*(?:\s*[+-]\s*(?:\$[0-9A-Fa-f]+|\d+))?,X$/i  // label,X
+/^[A-Za-z_][A-Za-z0-9_]*(?:\s*[+-]\s*(?:\$[0-9A-Fa-f]+|\d+))?,Y$/i  // label,Y
+```
+
+**Tipikus hiba:** ha ezek az ágak hiányoznak, `"ras1start,X"` teljes stringként kerül `rawOperand`-ba `"absolute"` mode-dal → 7 validációs hiba importáláskor.
+
+---
+
+## Fordítási rendszer — tooltip konvenció
+
+**Minden gombnak legyen `title` és `aria-label` attribútuma** — ezeket az `applyTranslations()` állítja be a `t(key)` segédfüggvénnyel.
+
+Minta:
+```js
+myButton?.setAttribute("title", t("myKey"));
+myButton?.setAttribute("aria-label", t("myKey"));
+```
+
+**Új translation key hozzáadásakor** mindig frissítsd mindkét objektumot:
+- `translations.hu.myKey = "Magyar szöveg"`
+- `translations.en.myKey = "English text"`
+
+**Meglévő gombok tooltip kulcsai** (`applyTranslations()`-ban beállítva):
+
+| Elem | Translation key |
+|------|-----------------|
+| `#hardware-settings-btn` | `hardwareSettings` |
+| `#crt-toggle` | `crtToggle` |
+| `#zoom-in` / `#zoom-out` | `zoomIn` / `zoomOut` |
+| `#help-manual-btn` | `helpManual` |
+| `#about-btn` | `about` |
+| `#whats-new-btn` | `whatsNew` |
+| `#knowledge-base-btn` | `knowledgeBase` |
+| `#check-update-btn` | `checkForUpdate` |
+| `#report-bug-btn` | `reportBug` |
+| `copyAsmButton` | `copyAsm` |
+| `clearProgramButton` | `clearProgram` |
+| `runEmulatorButton` | `runInEmulator` |
+| `runDebuggerButton` | `runInDebuggerTitle` |
+| `collapseAllButton` / `expandAllButton` | `collapseAll` / `expandAll` |
 
 ---
 

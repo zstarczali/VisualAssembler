@@ -37,6 +37,7 @@
     loadSample: (sampleName) => invoke("load_sample", { sampleName }),
     openManual: () => invoke("open_manual"),
     runOnUltimate: (host, password, prgBytes) => invoke("run_on_ultimate", { host, password, prgBytes }),
+    runD64OnUltimate: (payload) => invoke("run_d64_on_ultimate", { payload }),
     testUltimateConnection: (host, password) => invoke("test_ultimate_connection", { host, password }),
   };
 })();
