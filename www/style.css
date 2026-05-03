@@ -137,6 +137,7 @@ html::-webkit-scrollbar-thumb:hover {
 body {
   margin: 0;
   min-height: 100vh;
+  overflow-x: clip;
   font-family: "Space Grotesk", sans-serif;
   color: var(--text);
   background:
@@ -384,6 +385,7 @@ h1 {
   background: var(--control-bg);
   color: var(--text);
   box-shadow: 0 2px 6px color-mix(in srgb, black 6%, transparent);
+  overflow: hidden;
 }
 
 .control-menu-trigger::after {
@@ -427,6 +429,10 @@ h1 {
   animation: menuOpen 160ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+.control-menu-panel.menu-closing {
+  animation: menuClose 120ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+
 @keyframes menuOpen {
   from {
     opacity: 0;
@@ -435,6 +441,17 @@ h1 {
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes menuClose {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
   }
 }
 

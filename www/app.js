@@ -1369,16 +1369,31 @@ function initPalette() {
   setupOperandDropdown();
   setupD64ExportDialog();
 
-  // Menu open animation: add class before details opens, remove after
+  // Menu open/close animation
   const controlMenu = document.querySelector(".control-menu");
   const controlMenuPanel = document.querySelector(".control-menu-panel");
-  controlMenu?.querySelector("summary")?.addEventListener("click", () => {
-    if (!controlMenu.open) {
+  let menuClosing = false;
+  controlMenu?.querySelector("summary")?.addEventListener("click", (e) => {
+    if (menuClosing) return;
+    if (controlMenu.open) {
+      // Intercept close: animate first, then remove open
+      e.preventDefault();
+      menuClosing = true;
+      controlMenuPanel?.classList.add("menu-closing");
+      controlMenuPanel?.addEventListener("animationend", () => {
+        controlMenuPanel.classList.remove("menu-closing");
+        menuClosing = false;
+        controlMenu.removeAttribute("open");
+      }, { once: true });
+    } else {
+      // Opening: add opening class
       controlMenuPanel?.classList.add("menu-opening");
     }
   });
-  controlMenuPanel?.addEventListener("animationend", () => {
-    controlMenuPanel.classList.remove("menu-opening");
+  controlMenuPanel?.addEventListener("animationend", (e) => {
+    if (e.animationName === "menuOpen") {
+      controlMenuPanel.classList.remove("menu-opening");
+    }
   });
 
   sampleSelect?.addEventListener("change", saveUiSettings);
