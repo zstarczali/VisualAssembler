@@ -1369,11 +1369,17 @@ function initPalette() {
   setupOperandDropdown();
   setupD64ExportDialog();
   sampleSelect?.addEventListener("change", saveUiSettings);
-  loadSampleButton.addEventListener("click", loadSelectedSample);
+  loadSampleButton.addEventListener("click", () => {
+    const ok = loadSelectedSample();
+    if (ok !== false) document.querySelector(".control-menu")?.removeAttribute("open");
+  });
   saveProjectButton?.addEventListener("click", saveProjectToFile);
   savePrgButton?.addEventListener("click", savePrgToFile);
   saveD64Button?.addEventListener("click", saveD64ToFile);
-  loadProjectButton?.addEventListener("click", loadProjectFromFile);
+  loadProjectButton?.addEventListener("click", async () => {
+    const ok = await loadProjectFromFile();
+    if (ok) document.querySelector(".control-menu")?.removeAttribute("open");
+  });
   importAsmButton?.addEventListener("click", () => {
     if (importAsmTextarea) importAsmTextarea.value = "";
     setImportAsmErrors([]);
@@ -2062,7 +2068,7 @@ function renderMnemonicDescription() {
     mnemonicDescription.innerHTML = `
       <strong>${item.mnemonic}</strong>
       <p>${getItemDescription(item)}</p>
-      <p>${currentLanguage === "en" ? "Macro addressing: writes byte by byte to an absolute memory address." : "Makro-cimzes: abszolut memoriacimre ir byte-onkent."}</p>
+      <p>${currentLanguage === "en" ? "Macro addressing: encodes text as screen codes, then generates LDA #code / STA $addr pairs at runtime." : "Makro-cimzes: szoveget kepernyo kodkent kodol, majd LDA #kod / STA $cim parokat general futasidokor."}</p>
       <small>${currentLanguage === "en" ? "Preview" : "Elonezet"}: ${textPreview.preview}</small>
     `;
     return;
@@ -2101,7 +2107,7 @@ function renderMnemonicDescription() {
     mnemonicDescription.innerHTML = `
       <strong>${item.mnemonic}</strong>
       <p>${getItemDescription(item)}</p>
-      <p>${currentLanguage === "en" ? "Macro addressing: places text as PETSCII bytes directly at an absolute memory address, no LDA/STA code generated." : "Makro-cimzes: szoveget PETSCII byte-kenkent helyez el kozvetlenul egy abszolut memoriacimre, LDA/STA kod generalas nelkul."}</p>
+      <p>${currentLanguage === "en" ? "Macro addressing: places text as screen codes directly at an absolute memory address, no LDA/STA code generated." : "Makro-cimzes: szoveget kepernyo kodkent helyez el kozvetlenul egy abszolut memoriacimre, LDA/STA kod generalas nelkul."}</p>
       <small>${currentLanguage === "en" ? "Preview" : "Elonezet"}: ${textPreview.preview}</small>
     `;
     return;
@@ -3331,7 +3337,7 @@ function updateProgramBlock(index, field, value) {
   }
 
   if (field === "stringAddress") {
-    block.validationError = validateStringMacroAddress(block.stringAddress);
+    block.validationError = validateStringMacroAddress(block.stringAddress) || validateTextWithOffset(block.rawOperand, block.charOffset);
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -3359,7 +3365,7 @@ function updateProgramBlock(index, field, value) {
   }
 
   if (field === "rawTextAddress") {
-    block.validationError = validateStringMacroAddress(block.rawTextAddress);
+    block.validationError = validateStringMacroAddress(block.rawTextAddress) || validateTextWithOffset(block.rawOperand, block.charOffset);
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -3594,7 +3600,11 @@ function updateProgramBlock(index, field, value) {
     return;
   }
 
-  if (field === "macroLabel") {
+  if (field === "macroLabel" || field === "charOffset") {
+    if (field === "charOffset" && (block.isStringMacro || block.isRawTextMacro)) {
+      block.validationError = validateTextWithOffset(block.rawOperand, block.charOffset);
+      renderBlockPreview(index);
+    }
     renderAsmOutput();
     return;
   }
@@ -4165,6 +4175,22 @@ function validateStringMacroAddress(raw) {
     return currentLanguage === "en" ? "STRING macro address must be between 0 and 65535." : "A STRING makro cime 0 es 65535 kozott lehet.";
   }
 
+  return "";
+}
+
+function validateTextWithOffset(rawOperand, charOffset) {
+  const offset = parseInt(charOffset || "0", 16);
+  if (isNaN(offset) || offset < 0 || offset > 255) {
+    return currentLanguage === "en" ? "+Byte offset must be a hex value between 00 and FF." : "A +Byte offset 00 es FF kozotti hex ertek lehet.";
+  }
+  if (offset === 0) return "";
+  const chars = encodeTextMacro(rawOperand);
+  const overflow = chars.find(c => (c + offset) > 255);
+  if (overflow !== undefined) {
+    return currentLanguage === "en"
+      ? `+Byte offset $${offset.toString(16).toUpperCase().padStart(2,"0")} causes overflow (char code $${overflow.toString(16).toUpperCase().padStart(2,"0")} + offset > $FF).`
+      : `A +Byte offset $${offset.toString(16).toUpperCase().padStart(2,"0")} tulcsordulast okoz (karakter kod $${overflow.toString(16).toUpperCase().padStart(2,"0")} + offset > $FF).`;
+  }
   return "";
 }
 
@@ -5927,6 +5953,8 @@ async function loadProjectFromFile() {
     currentFileDisplay.textContent = `📄 ${fileName}`;
     updateWindowTitle(fileName);
   }
+
+  return true;
 }
 
 async function copyAsmToClipboard() {
@@ -6164,7 +6192,8 @@ function assembleProgramToPrg(originOverride) {
       const addr = parseAddressValue(block.rawBytesAddress) ?? 0xC000;
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
     } else if (block.isRawTextMacro) {
-      const chunkBytes = encodeTextMacro(block.rawOperand);
+      const rawOffset = parseInt(block.charOffset || "0", 16);
+      const chunkBytes = encodeTextMacro(block.rawOperand).map(b => (b + (isNaN(rawOffset) ? 0 : rawOffset)) & 0xFF);
       const addr = parseAddressValue(block.rawTextAddress) ?? 0xC000;
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
     } else if (block.isPetsciiMacro) {
@@ -6265,11 +6294,12 @@ function compileLineBytes(line, labels) {
 
   if (block.isStringMacro) {
     const chars = encodeTextMacro(block.rawOperand);
+    const offset = parseInt(block.charOffset || "0", 16);
     const startAddress = parseAddressValue(block.stringAddress) ?? 0xC000;
     const bytes = [];
     chars.forEach((charCode, charIndex) => {
       const targetAddress = startAddress + charIndex;
-      bytes.push(0xA9, charCode & 0xFF, 0x8D, targetAddress & 0xFF, (targetAddress >> 8) & 0xFF);
+      bytes.push(0xA9, (charCode + (isNaN(offset) ? 0 : offset)) & 0xFF, 0x8D, targetAddress & 0xFF, (targetAddress >> 8) & 0xFF);
     });
     return {
       ok: true,
@@ -7760,7 +7790,8 @@ function getBlockDescription(block) {
   }
 
   if (block.isStringMacro) {
-    return block.validationError || `${currentLanguage === "en" ? "STRING macro" : "STRING makro"}: "${block.rawOperand || ""}" @ ${block.stringAddress || "C000"}`;
+    const offsetNote = (() => { const v = parseInt(block.charOffset || "0", 16); return (!isNaN(v) && v !== 0) ? ` (+$${v.toString(16).toUpperCase().padStart(2,"0")} ${currentLanguage === "en" ? "added to each char" : "hozzaadva minden karakterhez"})` : ""; })();
+    return block.validationError || `${currentLanguage === "en" ? "STRING macro" : "STRING makro"}: "${block.rawOperand || ""}" @ ${block.stringAddress || "C000"}${offsetNote}`;
   }
 
   if (block.isDataMacro) {
@@ -7785,7 +7816,8 @@ function getBlockDescription(block) {
   }
 
   if (block.isRawTextMacro) {
-    return block.validationError || `${currentLanguage === "en" ? "RAWTEXT macro" : "RAWTEXT makro"}: "${block.rawOperand || ""}" @ ${block.rawTextAddress || "C000"}`;
+    const offsetNote = (() => { const v = parseInt(block.charOffset || "0", 16); return (!isNaN(v) && v !== 0) ? ` (+$${v.toString(16).toUpperCase().padStart(2,"0")} ${currentLanguage === "en" ? "added to each char" : "hozzaadva minden karakterhez"})` : ""; })();
+    return block.validationError || `${currentLanguage === "en" ? "RAWTEXT macro" : "RAWTEXT makro"}: "${block.rawOperand || ""}" @ ${block.rawTextAddress || "C000"}${offsetNote}`;
   }
 
   if (block.isPetsciiMacro) {
@@ -7879,7 +7911,9 @@ function getBlockModeCaption(block) {
   }
 
   if (block.isStringMacro) {
-    return `${currentLanguage === "en" ? "Memory" : "Memoria"} | ${block.stringAddress || "C000"}`;
+    const off = parseInt(block.charOffset || "0", 16);
+    const offNote = (!isNaN(off) && off !== 0) ? ` +$${off.toString(16).toUpperCase().padStart(2,"0")}` : "";
+    return `${currentLanguage === "en" ? "Screen code" : "Kepernyo kod"} | ${block.stringAddress || "C000"}${offNote}`;
   }
 
   if (block.isDataMacro) {
@@ -7887,11 +7921,13 @@ function getBlockModeCaption(block) {
   }
 
   if (block.isRawBytesMacro) {
-    return `${currentLanguage === "en" ? "Raw @ memory" : "Nyers @ memoria"} | ${block.rawBytesAddress || "C000"}`;
+    return `${currentLanguage === "en" ? "Raw bytes @ mem" : "Nyers byte @ mem"} | ${block.rawBytesAddress || "C000"}`;
   }
 
   if (block.isRawTextMacro) {
-    return `${currentLanguage === "en" ? "Raw @ memory" : "Nyers @ memoria"} | ${block.rawTextAddress || "C000"}`;
+    const off = parseInt(block.charOffset || "0", 16);
+    const offNote = (!isNaN(off) && off !== 0) ? ` +$${off.toString(16).toUpperCase().padStart(2,"0")}` : "";
+    return `${currentLanguage === "en" ? "Screen codes @ mem" : "Kepernyo kod @ mem"} | ${block.rawTextAddress || "C000"}${offNote}`;
   }
 
   if (block.isPetsciiMacro) {
@@ -8405,9 +8441,15 @@ function renderProgram() {
               <span>${t("fieldAddress")}</span>
               <input class="macro-address" data-address-field="stringAddress" type="text" value="${block.stringAddress || "C000"}" placeholder="$C000">
             </label>
+          </div>
+          <div class="macro-grid" style="grid-template-columns:1fr auto">
             <label class="mini-field">
               <span>${currentLanguage === "en" ? "Label (optional)" : "Label (opcionális)"}</span>
               <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage === "en" ? "e.g. mystr" : "pl. sajatstr"}">
+            </label>
+            <label class="mini-field">
+              <span>${currentLanguage === "en" ? "Shift" : "Eltolas"}</span>
+              <input class="macro-char-offset" type="text" value="${block.charOffset !== undefined ? block.charOffset : "00"}" placeholder="00" style="width:2.8em;min-width:0">
             </label>
           </div>
         `
@@ -8475,9 +8517,15 @@ function renderProgram() {
               <span>${t("fieldAddress")}</span>
               <input class="macro-address" data-address-field="rawTextAddress" type="text" value="${block.rawTextAddress || "C000"}" placeholder="$C000">
             </label>
+          </div>
+          <div class="macro-grid" style="grid-template-columns:1fr auto">
             <label class="mini-field">
               <span>${currentLanguage === "en" ? "Label (optional)" : "Label (opcionális)"}</span>
               <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage === "en" ? "e.g. mytext" : "pl. sajatszoveg"}">
+            </label>
+            <label class="mini-field">
+              <span>${currentLanguage === "en" ? "Shift" : "Eltolas"}</span>
+              <input class="macro-char-offset" type="text" value="${block.charOffset !== undefined ? block.charOffset : "00"}" placeholder="00" style="width:2.8em;min-width:0">
             </label>
           </div>
         `
@@ -9361,6 +9409,10 @@ function renderProgram() {
     if (macroLabelInput) {
       macroLabelInput.addEventListener("input", (event) => updateProgramBlock(index, "macroLabel", event.target.value));
     }
+    const macroCharOffsetInput = node.querySelector(".macro-char-offset");
+    if (macroCharOffsetInput) {
+      macroCharOffsetInput.addEventListener("input", (event) => updateProgramBlock(index, "charOffset", event.target.value));
+    }
     const joyPortSelect = node.querySelector(".joy-port");
     if (joyPortSelect) {
       joyPortSelect.addEventListener("change", (event) => updateProgramBlock(index, "joyPort", event.target.value));
@@ -9836,7 +9888,8 @@ function renderAsmOutput() {
     }
 
     if (line.block.isStringMacro) {
-      const chars = encodeTextMacro(line.block.rawOperand);
+      const rawOffset = parseInt(line.block.charOffset || "0", 16);
+      const chars = encodeTextMacro(line.block.rawOperand).map(b => (b + (isNaN(rawOffset) ? 0 : rawOffset)) & 0xFF);
       const startAddress = parseAddressValue(line.block.stringAddress) ?? 0xC000;
       const expanded = chunkBytes(chars, 16).map((chunk, chunkIndex) => {
         const chunkAddress = startAddress + (chunkIndex * 16);
@@ -9926,7 +9979,8 @@ function renderAsmOutput() {
     }
 
     if (line.block.isRawTextMacro) {
-      const chars = encodeTextMacro(line.block.rawOperand);
+      const rawOffset = parseInt(line.block.charOffset || "0", 16);
+      const chars = encodeTextMacro(line.block.rawOperand).map(b => (b + (isNaN(rawOffset) ? 0 : rawOffset)) & 0xFF);
       const startAddress = parseAddressValue(line.block.rawTextAddress) ?? 0xC000;
       const expanded = chunkBytes(chars, 16).map((chunk, chunkIndex) => {
         const chunkAddress = startAddress + (chunkIndex * 16);
