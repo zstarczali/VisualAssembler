@@ -1118,5 +1118,121 @@ const rawCount = (block.loopCount || "0A").trim();
 const count = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
 // "0A" → hex → 10, "10" → dec → 10, "FF" → hex → 255, "255" → dec → 255
 ```
-});
+
+---
+
+## Expert Mode — rendszer áttekintés
+
+Az alkalmazás kétféle szerkesztési módot támogat, amelyek között tab-onként lehet váltani:
+- **Block mode** (alapértelmezett): drag-and-drop blokk szerkesztő
+- **Expert mode**: direkt assembly szövegszerkesztő (`body.expert-mode` CSS class)
+
+### Fontos state változók
+
+```javascript
+let expertMode = false;              // aktuális mód
+let _expertHlEnabled = true;         // syntax highlight be/ki
+let _expertPaletteSyncEnabled = true;// paletta szinkronizáció
+let _expertPaletteVisible = false;   // bal panel látható
+let _expertDisasmVisible = false;    // disasm panel látható
+let _expertDisasmWidth   = 340;      // disasm panel szélessége
+let _expertMonitorVisible = false;   // monitor panel látható
 ```
+
+### `saveUiSettings()` felülírja `savedUiSettings`-t — BUG TRAP
+
+**KRITIKUS:** `setExpertMode(true)` végén `saveUiSettings()` hívódik, ami **felülírja `savedUiSettings`-t** a jelenlegi (default) változóértékekkel.
+
+**Ha `_applyUiSettingsToDOM()`-ban toolbar állapotokat kell visszaállítani, a `setExpertMode(true)` hívás ELŐTT kell kimenteni őket local változókba!**
+
+```javascript
+// HELYES:
+const _savedHlEnabled    = savedUiSettings.expertHlEnabled;
+const _savedMonitorVis   = savedUiSettings.expertMonitorVisible;
+// ... stb.
+setExpertMode(true);   // ← ez felülírja savedUiSettings-t!
+// Visszaállítás a kimentett értékekből:
+if (_savedHlEnabled === false) { _expertHlEnabled = false; ... }
+if (_savedMonitorVis) { _expertMonitorVisible = true; ... }
+
+// HIBÁS:
+setExpertMode(true);
+if (savedUiSettings.expertHlEnabled === false) { ... }  // ← már default értéket olvas!
+```
+
+### Expert toolbar gombok
+
+| Gomb ID | Funkció | State változó | CSS osztály (be) |
+|---------|---------|---------------|------------------|
+| `#expert-palette-btn` | Bal paletta panel | `_expertPaletteVisible` | `expert-hl-toggle--on` |
+| `#expert-palette-sync-btn` | Paletta szinkron | `_expertPaletteSyncEnabled` | `expert-hl-toggle--on` |
+| `#expert-disasm-btn` | Disasm panel | `_expertDisasmVisible` | `expert-hl-toggle--on` |
+| `#expert-monitor-btn` | Monitor panel | `_expertMonitorVisible` | `expert-hl-toggle--on` |
+| `#expert-format-btn` | Forráskód formázás | — (nem toggle) | — |
+
+Minden gombnak van `aria-pressed` attribútuma a state visszatükrözéséhez.
+
+### `_expertFormatSource()` — formázás
+
+A format gomb (`#expert-format-btn`) hívja. Funkciók:
+- Soronként megőrzi az eredeti leading whitespace-t (`origIndent`)
+- Label definíciók (`name:`) mindig col 0-ra kerülnek
+- Mnemonikokat nagybetűre konvertálja (`_EXPERT_MNEM_SET` alapján)
+- Mnemonic + operandus között **pontosan 1 space** (sem több, sem kevesebb)
+- Ha a tartalom nem változott: `"Already formatted"` / `"Már formázott"` status
+- Ha változott: `markTabDirty()` + `"Formatted"` / `"Formázva"` status
+
+**1-space konvenció a `_blockToExpertLine()`-ban is:**
+```javascript
+// Helyes — 1 space mnemonic és operandus között:
+const op = block.operand ? `    ${mnem} ${block.operand}` : `    ${mnem}`;
+// Hibás volt — 2 space:
+// const op = block.operand ? `    ${mnem}  ${block.operand}` : ...
+```
+
+### Dirty tab indicator
+
+Mentetlen változtatásokat jelöl a tab fejlécén egy kis accent-színű pont (`.tab-dirty-dot`).
+
+```javascript
+function markTabDirty() { ... }   // felhívandó minden módosításkor
+function markTabClean() { ... }   // felhívandó mentéskor/betöltéskor
+```
+
+**Hívási helyek:**
+- `markTabDirty()`: `insertBlock()`, `deleteBlock()`, `updateProgramBlock()`, expert editor `input` event, `_expertFormatSource()` (ha változott)
+- `markTabClean()`: `saveProjectToFile()`, `loadProjectFromFile()`, `loadSampleFromFile()`, `doClearProgram()`
+
+### `applySavedUiSettings()` — kétlépéses inicializálás
+
+```javascript
+function applySavedUiSettings() {
+  savedUiSettings = readUiSettings();   // localStorage
+  _applyUiSettingsToDOM();              // azonnal alkalmaz
+
+  // Tauri config felülbírálja a localStorage-t (async)
+  if (window.electronAPI?.getUiSettings) {
+    window.electronAPI.getUiSettings().then(globalSettings => {
+      if (globalSettings && Object.keys(globalSettings).length > 0) {
+        savedUiSettings = globalSettings;
+        localStorage.setItem("c64-ui-settings", JSON.stringify(savedUiSettings));
+        _applyUiSettingsToDOM();
+      }
+    }).catch(() => {});
+  }
+}
+```
+
+### CSS — expert editor háttér
+
+`--expert-editor-bg` CSS custom property per-theme (nem `--bg`, külön változó):
+- `:root` (light): `#edf0ff`
+- `html[data-theme="dark"]`: `#1e1a5e`
+- `html[data-theme="oled"]`: `#03020c`
+
+### Compile error dialog — méret
+
+`.compile-error-dialog`: `max-width: 460px`, `border-radius: 12px`
+`.compile-error-card`: `padding: 18px 20px 16px`
+Lista sorok: `font-size: 0.75rem`, `max-height: 220px`
+OK gomb: `.compile-error-card .primary` → `padding: 7px 20px`, `font-size: 0.85rem`

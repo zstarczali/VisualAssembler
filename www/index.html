@@ -96,6 +96,10 @@
                   <input type="checkbox" id="basic-sys-toggle" checked>
                   <span id="basic-sys-label">BASIC SYS stub generálása</span>
                 </label>
+                <label class="menu-checkbox-label">
+                  <input type="checkbox" id="expert-mode-toggle">
+                  <span id="expert-mode-label">Expert mód (ASM szerkesztő)</span>
+                </label>
                 <button id="hardware-settings-btn" class="secondary" type="button">Hardver beállítások...</button>
                 <h3 class="control-menu-label control-menu-label--section" id="view-section-label">Nezet</h3>
                 <details class="theme-picker-menu" id="theme-picker">
@@ -185,6 +189,10 @@
         <div id="memory-strip-top" class="memory-strip-top" aria-label="Teljes C64 memoria csik"></div>
       </div>
     </header>
+
+    <div id="tab-bar" class="tab-bar">
+      <button class="tab-new-btn" id="tab-new-btn" title="New tab">+</button>
+    </div>
 
     <main class="workspace">
       <aside class="palette-panel">
@@ -392,6 +400,45 @@
           </div>
       </section>
 
+      <section class="expert-panel" id="expert-panel" hidden>
+        <div class="expert-toolbar">
+          <button id="expert-palette-btn" class="expert-hl-toggle" title="Palette panel" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><rect x="1" y="1" width="5" height="14" rx="1" fill="currentColor" opacity="0.9"/><rect x="8" y="1" width="7" height="3" rx="1" fill="currentColor" opacity="0.6"/><rect x="8" y="6" width="7" height="3" rx="1" fill="currentColor" opacity="0.4"/><rect x="8" y="11" width="7" height="3" rx="1" fill="currentColor" opacity="0.25"/></svg>
+          </button>
+          <button id="expert-palette-sync-btn" class="expert-hl-toggle expert-hl-toggle--on" title="Mnemonik panel szinkron" aria-pressed="true">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><rect x="1" y="2" width="6" height="3" rx="1" fill="currentColor"/><rect x="1" y="7" width="6" height="3" rx="1" fill="currentColor" opacity="0.6"/><rect x="1" y="12" width="6" height="2" rx="1" fill="currentColor" opacity="0.3"/><path d="M10 5l4 3-4 3V5z" fill="currentColor"/></svg>
+          </button>
+          <button id="expert-disasm-btn" class="expert-hl-toggle" title="Disassembler" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><rect x="1" y="2" width="14" height="2" rx="1" fill="currentColor" opacity="0.4"/><rect x="1" y="6" width="9" height="2" rx="1" fill="currentColor"/><rect x="11" y="6" width="4" height="2" rx="1" fill="currentColor" opacity="0.5"/><rect x="1" y="10" width="6" height="2" rx="1" fill="currentColor"/><rect x="8" y="10" width="7" height="2" rx="1" fill="currentColor" opacity="0.5"/><rect x="1" y="14" width="11" height="1" rx="0.5" fill="currentColor" opacity="0.3"/></svg>
+          </button>
+          <button id="expert-monitor-btn" class="expert-hl-toggle" title="Monitor" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><rect x="1" y="1" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="3" y="3" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.7"/><rect x="6" y="3" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.7"/><rect x="9" y="3" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.7"/><rect x="3" y="6.5" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.4"/><rect x="6" y="6.5" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.4"/><rect x="9" y="6.5" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.4"/><rect x="6" y="12" width="4" height="1.5" rx="0.5" fill="currentColor" opacity="0.5"/><rect x="4" y="13.5" width="8" height="1" rx="0.5" fill="currentColor" opacity="0.3"/></svg>
+          </button>
+          <div class="expert-toolbar-sep"></div>
+          <button id="expert-format-btn" class="expert-hl-toggle" title="Format source" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M3 3h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M5 6.5h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M5 10h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M2 5.5l1.5 1.5-1.5 1.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 9l1.5 1.5-1.5 1.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <span id="expert-file-name" class="expert-file-name"></span>
+        </div>
+        <div class="expert-body">
+          <div class="expert-editor-wrap">
+            <pre class="expert-hl" id="expert-hl" aria-hidden="true"><code id="expert-hl-code"></code></pre>
+            <textarea id="expert-editor" class="expert-editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" wrap="off" placeholder="; Expert mode — write 6502 assembly here&#10;; * = $0801&#10;; start:&#10;;     LDA #$00&#10;;     STA $D020&#10;;     RTS"></textarea>
+          </div>
+          <div class="expert-disasm-resizer" id="expert-disasm-resizer" hidden></div>
+          <div class="expert-disasm-panel" id="expert-disasm-panel" hidden>
+            <pre id="expert-disasm-output" class="expert-disasm-output"></pre>
+          </div>
+          <div class="expert-monitor-panel" id="expert-monitor-panel" hidden>
+            <pre id="expert-monitor-output" class="expert-monitor-output"></pre>
+          </div>
+        </div>
+        <div class="expert-statusbar">
+          <span id="expert-status" class="expert-status"></span>
+          <span id="expert-cursor-pos" class="expert-cursor-pos">Ln 1, Col 1</span>
+        </div>
+      </section>
+
     </main>
 
     <details class="global-memory-panel">
@@ -466,6 +513,16 @@
       <h2 class="compile-error-title" id="compile-error-title">Compilation errors</h2>
       <ul class="compile-error-list" id="compile-error-list"></ul>
       <button id="compile-error-close" class="primary" type="button">OK</button>
+    </div>
+  </dialog>
+
+  <dialog id="app-confirm-dialog" class="app-confirm-dialog">
+    <div class="app-confirm-card">
+      <p id="app-confirm-msg" class="app-confirm-msg"></p>
+      <div class="app-confirm-buttons">
+        <button id="app-confirm-yes" class="primary" type="button">Igen</button>
+        <button id="app-confirm-no" class="secondary" type="button">Mégsem</button>
+      </div>
     </div>
   </dialog>
 

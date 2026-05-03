@@ -15,6 +15,8 @@
     openExternal: (url) => invoke("open_external", { url }),
     quitApp: () => invoke("quit_app"),
     getViceConfig: () => invoke("get_vice_config"),
+    getUiSettings: () => invoke("get_ui_settings"),
+    saveUiSettingsGlobal: (settings) => invoke("save_ui_settings", { settings }),
     chooseViceExecutable: () => invoke("choose_vice_executable"),
     launchVice: (payload) => invoke("launch_vice", { payload }),
     getDebuggerConfig: () => invoke("get_debugger_config"),

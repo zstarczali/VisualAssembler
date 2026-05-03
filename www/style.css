@@ -29,9 +29,25 @@
   --asm-number: #f09050;
   --asm-region: #a0c8a0;
   --asm-operand: #e8e060;
+  /* expert syntax highlight — light theme */
+  --hl-comment:   #3a4e8a;
+  --hl-directive: #1c3faa;
+  --hl-mnem:      #095e7a;
+  --hl-number:    #8b3200;
+  --hl-string:    #7a2200;
+  --hl-label:     #5a3d00;
+  --expert-editor-bg: #edf0ff;
 }
 
 html[data-theme="dark"] {
+  /* expert syntax highlight — dark theme */
+  --hl-comment:   #6a9955;
+  --hl-directive: #569cd6;
+  --hl-mnem:      #dcdcaa;
+  --hl-number:    #b5cea8;
+  --hl-string:    #ce9178;
+  --hl-label:     #9cdcfe;
+  --expert-editor-bg: #1e1a5e;
   --bg: #2f2a8a;
   --bg-accent: #201b6d;
   --panel: rgba(63, 55, 150, 0.96);
@@ -64,6 +80,14 @@ html[data-theme="dark"] {
 }
 
 html[data-theme="oled"] {
+  /* expert syntax highlight — oled theme */
+  --hl-comment:   #5a8a4a;
+  --hl-directive: #4c9ee0;
+  --hl-mnem:      #c8c07a;
+  --hl-number:    #9ebb8a;
+  --hl-string:    #bf7a58;
+  --hl-label:     #7ac8ee;
+  --expert-editor-bg: #03020c;
   --bg: #03020c;
   --bg-accent: #010108;
   --panel: rgba(8, 6, 22, 0.98);
@@ -558,10 +582,10 @@ h1 {
 }
 
 .theme-picker-panel {
-  position: absolute;
-  top: calc(100% + 6px);
+  position: fixed;
+  top: 0;
   left: 0;
-  z-index: 100;
+  z-index: 10000;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -2529,6 +2553,442 @@ html[data-theme="oled"] .emulator-actions .link-button.primary {
 }
 
 
+/* ─── Expert Mode ──────────────────────────────────────────────────── */
+
+.expert-panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  max-height: var(--editor-max-depth);
+}
+
+.expert-panel[hidden] {
+  display: none;
+}
+
+body.expert-mode .program-panel,
+body.expert-mode .output-panel,
+body.expert-mode .hero-copy {
+  display: none;
+}
+
+body.expert-mode .workspace {
+  grid-template-columns: 260px 1fr;
+}
+
+body.expert-mode.expert-show-palette .palette-panel {
+  display: flex;
+}
+
+body.expert-mode:not(.expert-show-palette) .palette-panel {
+  display: none;
+}
+
+body.expert-mode:not(.expert-show-palette) .workspace {
+  grid-template-columns: 1fr;
+}
+
+body.expert-mode .expert-panel {
+  display: flex;
+  min-height: var(--editor-max-depth);
+}
+
+.expert-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--panel-border);
+  background: color-mix(in srgb, var(--panel-strong) 80%, transparent);
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.expert-statusbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 14px;
+  border-top: 1px solid var(--panel-border);
+  background: color-mix(in srgb, var(--panel-strong) 80%, transparent);
+  height: 26px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+/* ── Tab bar ─────────────────────────────────────────────────────── */
+
+.tab-bar {
+  display: flex;
+  align-items: stretch;
+  background: color-mix(in srgb, var(--panel-strong) 90%, transparent);
+  border-bottom: 1px solid var(--panel-border);
+  min-height: 34px;
+  overflow-x: auto;
+  flex-shrink: 0;
+  scrollbar-width: none;
+  padding: 0 2px;
+  margin-bottom: 18px;
+}
+
+.tab-bar::-webkit-scrollbar { display: none; }
+
+.tab-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 10px 0 13px;
+  cursor: pointer;
+  border-right: 1px solid var(--panel-border);
+  min-width: 90px;
+  max-width: 200px;
+  white-space: nowrap;
+  font-size: 0.76rem;
+  color: var(--secondary);
+  transition: background 0.12s, color 0.12s;
+  position: relative;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.tab-item:hover {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--text);
+}
+
+.tab-item--active {
+  background: var(--panel);
+  color: var(--text);
+  font-weight: 500;
+}
+
+.tab-item--active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px 1px 0 0;
+}
+
+.tab-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tab-close {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border: none;
+  background: none;
+  color: var(--secondary);
+  cursor: pointer;
+  border-radius: 3px;
+  font-size: 12px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  opacity: 0;
+  transition: opacity 0.1s, background 0.1s;
+}
+
+.tab-item:hover .tab-close,
+.tab-item--active .tab-close {
+  opacity: 0.55;
+}
+
+.tab-close:hover {
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
+  color: var(--text);
+  opacity: 1 !important;
+}
+
+.tab-new-btn {
+  flex-shrink: 0;
+  min-width: 32px;
+  border: none;
+  background: none;
+  color: var(--secondary);
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  opacity: 0.6;
+  align-self: stretch;
+  transition: background 0.12s, opacity 0.12s;
+}
+
+.tab-new-btn:hover {
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--text);
+  opacity: 1;
+  border-radius: 4px;
+}
+
+.expert-file-name {
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.75;
+  text-align: right;
+}
+
+.expert-toolbar-sep {
+  width: 1px;
+  height: 18px;
+  background: var(--panel-border);
+  flex-shrink: 0;
+  border-radius: 1px;
+  opacity: 0.7;
+}
+
+.tab-dirty-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.85;
+  margin-right: 5px;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.expert-status {
+  font-size: 0.78rem;
+  color: var(--secondary);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.expert-status.expert-status--error {
+  color: #ff5f5f;
+}
+
+.expert-status.expert-status--ok {
+  color: #5fcf80;
+}
+
+.expert-cursor-pos {
+  font-size: 0.78rem;
+  color: var(--secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.expert-hl-toggle {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  min-height: 24px;
+  border: 1px solid transparent;
+  background: none;
+  color: var(--secondary);
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  opacity: 0.55;
+  transition: opacity 0.12s, background 0.12s, border-color 0.12s;
+}
+
+.expert-hl-toggle:hover {
+  opacity: 1;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+}
+
+.expert-hl-toggle--on {
+  opacity: 1;
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+
+.expert-hl-toggle--on:hover {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+/* Region bracket highlight in overlay — MUST stay display:inline
+   (display:block + \n inside = extra blank line → cursor offset bug) */
+.expert-hl .hl-region-bracket {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  outline: 1px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  border-radius: 2px;
+}
+.expert-hl .hl-region-body {
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+}
+
+.expert-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.expert-editor-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.expert-disasm-resizer {
+  width: 5px;
+  flex-shrink: 0;
+  cursor: col-resize;
+  background: transparent;
+  transition: background 0.15s;
+  position: relative;
+  z-index: 1;
+}
+
+.expert-disasm-resizer::after {
+  content: "";
+  position: absolute;
+  inset: 0 1px;
+  background: var(--panel-border);
+  transition: background 0.15s;
+}
+
+.expert-disasm-resizer:hover::after,
+.expert-disasm-resizer.dragging::after {
+  background: var(--accent);
+}
+
+.expert-disasm-resizer[hidden] {
+  display: none;
+}
+
+.expert-disasm-panel {
+  width: 340px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--panel-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--panel-strong) 40%, transparent);
+}
+
+.expert-disasm-panel[hidden],
+.expert-monitor-panel[hidden] {
+  display: none;
+}
+
+.expert-monitor-panel {
+  width: 340px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--panel-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--panel-strong) 40%, transparent);
+}
+
+.expert-disasm-output,
+.expert-monitor-output {
+  flex: 1;
+  margin: 0;
+  padding: 14px 16px;
+  font-family: 'JetBrains Mono', 'Fira Mono', 'Cascadia Code', 'Consolas', monospace;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--secondary);
+  overflow: auto;
+  white-space: pre;
+  tab-size: 4;
+}
+
+.expert-hl,
+.expert-editor {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 16px 20px;
+  font-family: 'JetBrains Mono', 'Fira Mono', 'Cascadia Code', 'Consolas', monospace;
+  font-size: 0.84rem;
+  line-height: 1.6;
+  tab-size: 4;
+  white-space: pre;
+  overflow: auto;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  word-wrap: normal;
+}
+
+.expert-hl {
+  background: var(--expert-editor-bg);
+  color: var(--text);
+  pointer-events: none;
+  overflow: hidden;
+  /* Shrink by scrollbar size so highlighted content never overlaps scrollbars.
+     Standard scrollbar width/height is ~15-17px; 20px is a safe value. */
+  right: 20px;
+  bottom: 20px;
+  width: auto;
+  height: auto;
+  z-index: 0;
+  border: none;
+  border-radius: 0;
+}
+
+.expert-hl code {
+  display: block;
+  white-space: pre;
+  font: inherit;
+  will-change: transform;
+  /* min sizes ensure content never clips before scroll sync kicks in */
+  min-width: max-content;
+  min-height: max-content;
+}
+
+.expert-editor {
+  background: transparent;
+  color: transparent;
+  caret-color: var(--accent);
+  border: none;
+  outline: none;
+  resize: none;
+  z-index: 1;
+  -webkit-text-fill-color: transparent;
+}
+
+.expert-editor::placeholder {
+  -webkit-text-fill-color: color-mix(in srgb, var(--secondary) 35%, transparent);
+}
+
+/* Syntax highlight token colours (use per-theme CSS vars) */
+.expert-hl .hl-comment   { color: var(--hl-comment);   font-style: italic; }
+.expert-hl .hl-directive { color: var(--hl-directive); }
+.expert-hl .hl-mnem      { color: var(--hl-mnem); }
+.expert-hl .hl-number    { color: var(--hl-number); }
+.expert-hl .hl-string    { color: var(--hl-string); }
+.expert-hl .hl-label     { color: var(--hl-label); font-weight: 600; }
+
 /* ── Compile Error Dialog ──────────────────────────────────────── */
 .confirm-dialog {
   border: none;
@@ -2568,14 +3028,55 @@ html[data-theme="oled"] .emulator-actions .link-button.primary {
 }
 
 .compile-error-dialog {
-  border: none;
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 0;
   background: var(--panel);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
-  min-width: 380px;
-  max-width: 560px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.30);
+  min-width: 300px;
+  max-width: 460px;
+  width: 88vw;
+}
+
+.app-confirm-dialog {
+  border: none;
+  border-radius: 14px;
+  padding: 0;
+  background: var(--panel);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+  min-width: 300px;
+  max-width: 420px;
   width: 90vw;
+}
+
+.app-confirm-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.app-confirm-card {
+  padding: 24px 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.app-confirm-msg {
+  font-size: 0.95rem;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.app-confirm-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.app-confirm-buttons button {
+  min-height: unset;
+  padding: 8px 18px;
 }
 
 .compile-error-dialog::backdrop {
@@ -2585,14 +3086,14 @@ html[data-theme="oled"] .emulator-actions .link-button.primary {
 }
 
 .compile-error-card {
-  padding: 28px 28px 24px;
+  padding: 18px 20px 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
 }
 
 .compile-error-title {
-  font-size: 1.05rem;
+  font-size: 0.92rem;
   font-weight: 700;
   color: var(--text);
   margin: 0;
@@ -2604,24 +3105,31 @@ html[data-theme="oled"] .emulator-actions .link-button.primary {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  max-height: 300px;
+  gap: 4px;
+  max-height: 220px;
   overflow-y: auto;
 }
 
 .compile-error-list li {
   font-family: "IBM Plex Mono", monospace;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--text);
   background: color-mix(in srgb, var(--primary) 8%, transparent);
-  border-left: 3px solid var(--primary);
-  padding: 7px 10px;
-  border-radius: 0 6px 6px 0;
-  line-height: 1.4;
+  border-left: 2px solid var(--primary);
+  padding: 5px 9px;
+  border-radius: 0 5px 5px 0;
+  line-height: 1.35;
 }
 
 .compile-error-list li[data-asm-line]:not([data-asm-line=""]) {
   cursor: pointer;
+}
+
+.compile-error-card .primary {
+  min-height: unset;
+  padding: 7px 20px;
+  font-size: 0.85rem;
+  align-self: flex-end;
 }
 
 .work-progress-dialog {

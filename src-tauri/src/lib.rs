@@ -170,6 +170,19 @@ fn quit_app(app: AppHandle) {
 }
 
 #[tauri::command]
+fn get_ui_settings(app: AppHandle) -> serde_json::Value {
+    let cfg = read_config(&app);
+    cfg["uiSettings"].clone()
+}
+
+#[tauri::command]
+fn save_ui_settings(app: AppHandle, settings: serde_json::Value) {
+    let mut cfg = read_config(&app);
+    cfg["uiSettings"] = settings;
+    write_config(&app, &cfg);
+}
+
+#[tauri::command]
 fn get_vice_config(app: AppHandle) -> serde_json::Value {
     let cfg = read_config(&app);
     let vice_path = cfg["vicePath"]
@@ -1616,6 +1629,8 @@ pub fn run() {
             set_title,
             open_external,
             quit_app,
+            get_ui_settings,
+            save_ui_settings,
             get_vice_config,
             choose_vice_executable,
             launch_vice,
