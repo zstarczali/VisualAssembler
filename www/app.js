@@ -386,6 +386,8 @@ const translations = {
     themeToggle: "Tema valtasa",
     crtToggle: "CRT retro mod",
     clearProgram: "Uj program...",
+    newProgramConfirmMsg: "Uj programot hozol letre? A mentetlen valtozasok elvesznek.",
+    newProgramConfirmBtn: "Uj program",
     heroCopy: "Huzz be egy mnemonik blokkot balrol, rendezd oket sorba, es nezd meg a jobb oldalon az assembly nezetet.",
     paletteTitle: "Mnemonik menu",
     paletteHelp: "Valassz kategoriat, majd huzd at a blokkot a programlistaba.",
@@ -692,6 +694,8 @@ const translations = {
     themeToggle: "Toggle theme",
     crtToggle: "CRT retro mode",
     clearProgram: "New program...",
+    newProgramConfirmMsg: "Create a new program? Unsaved changes will be lost.",
+    newProgramConfirmBtn: "New program",
     heroCopy: "Drag mnemonic blocks in from the left, arrange them in order, and inspect the assembly view on the right.",
     paletteTitle: "Mnemonic menu",
     paletteHelp: "Choose a category, then drag a block into the program list.",
@@ -1482,6 +1486,14 @@ function initPalette() {
   outputModeInputs.forEach((input) => input.addEventListener("change", renderOutputMode));
   compileErrorClose?.addEventListener("click", () => compileErrorDialog?.close());
   compileErrorDialog?.addEventListener("click", (e) => { if (e.target === compileErrorDialog) compileErrorDialog.close(); });
+
+  document.getElementById("new-program-confirm")?.addEventListener("click", () => {
+    document.getElementById("new-program-dialog")?.close();
+    doClearProgram();
+  });
+  document.getElementById("new-program-cancel")?.addEventListener("click", () => {
+    document.getElementById("new-program-dialog")?.close();
+  });
   macroSourceToggleOn?.addEventListener("change", () => {
     showMacroSource = macroSourceToggleOn.checked;
     saveUiSettings();
@@ -3081,6 +3093,18 @@ function makeDefaultOrgBlock() {
 }
 
 function clearProgram() {
+  const dialog = document.getElementById("new-program-dialog");
+  if (dialog) {
+    document.getElementById("new-program-dialog-msg").textContent = t("newProgramConfirmMsg");
+    document.getElementById("new-program-confirm").textContent = t("newProgramConfirmBtn");
+    document.getElementById("new-program-cancel").textContent = t("cancel");
+    dialog.showModal();
+    return;
+  }
+  doClearProgram();
+}
+
+function doClearProgram() {
   program = [makeDefaultOrgBlock()];
   userMacros = {};
   selectedBlockId = null;
@@ -3090,6 +3114,10 @@ function clearProgram() {
   if (currentFileDisplay) {
     currentFileDisplay.textContent = "";
   }
+}
+
+function isProgramEmpty() {
+  return program.every(b => b.isOrgMacro || b.isRegionMacro || b.isEndRegionMacro || b.isComment || b.isDefineMacro);
 }
 
 function parseUserMacros() {
@@ -4478,6 +4506,10 @@ async function chooseDebuggerExecutable() {
 }
 
 async function runInDebugger() {
+  if (isProgramEmpty()) {
+    showViceToast(currentLanguage === "en" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
+    return;
+  }
   if (!debuggerPath) {
     showViceToast(t("debuggerNotConfiguredMsg"), true);
     return;
@@ -5001,43 +5033,43 @@ function setupRunModeDropdown() {
   const menu = document.getElementById("run-mode-menu");
   if (!arrow || !menu) return;
 
+  function openMenu() {
+    menu.hidden = false;
+    menu.classList.add("menu-opening");
+    menu.addEventListener("animationend", () => menu.classList.remove("menu-opening"), { once: true });
+    arrow.setAttribute("aria-expanded", "true");
+  }
+
+  let runMenuClosing = false;
+  function closeMenu() {
+    if (runMenuClosing || menu.hidden) return;
+    runMenuClosing = true;
+    menu.classList.add("menu-closing");
+    menu.addEventListener("animationend", () => {
+      menu.classList.remove("menu-closing");
+      menu.hidden = true;
+      runMenuClosing = false;
+    }, { once: true });
+    arrow.setAttribute("aria-expanded", "false");
+  }
+
   arrow.addEventListener("click", (e) => {
     e.stopPropagation();
-    const open = !menu.hidden;
-    menu.hidden = open;
-    arrow.setAttribute("aria-expanded", String(!open));
-  });
-
-  document.addEventListener("click", () => {
     if (!menu.hidden) {
-      menu.hidden = true;
-      arrow.setAttribute("aria-expanded", "false");
+      closeMenu();
+    } else {
+      openMenu();
     }
   });
 
-  document.getElementById("run-prg-mode")?.addEventListener("click", () => {
-    setRunMode("prg");
-    menu.hidden = true;
-    arrow.setAttribute("aria-expanded", "false");
+  document.addEventListener("click", () => {
+    if (!menu.hidden) closeMenu();
   });
 
-  document.getElementById("run-d64-mode")?.addEventListener("click", () => {
-    setRunMode("d64");
-    menu.hidden = true;
-    arrow.setAttribute("aria-expanded", "false");
-  });
-
-  document.getElementById("run-ultimate-mode")?.addEventListener("click", () => {
-    setRunMode("ultimate");
-    menu.hidden = true;
-    arrow.setAttribute("aria-expanded", "false");
-  });
-
-  document.getElementById("run-ultimate-d64-mode")?.addEventListener("click", () => {
-    setRunMode("ultimate-d64");
-    menu.hidden = true;
-    arrow.setAttribute("aria-expanded", "false");
-  });
+  document.getElementById("run-prg-mode")?.addEventListener("click", () => { setRunMode("prg"); closeMenu(); });
+  document.getElementById("run-d64-mode")?.addEventListener("click", () => { setRunMode("d64"); closeMenu(); });
+  document.getElementById("run-ultimate-mode")?.addEventListener("click", () => { setRunMode("ultimate"); closeMenu(); });
+  document.getElementById("run-ultimate-d64-mode")?.addEventListener("click", () => { setRunMode("ultimate-d64"); closeMenu(); });
 
   const saved = localStorage.getItem("runMode");
   if (saved === "prg" || saved === "d64" || saved === "ultimate" || saved === "ultimate-d64") setRunMode(saved);
@@ -5059,6 +5091,10 @@ function setRunMode(mode) {
 }
 
 async function runViaD64() {
+  if (isProgramEmpty()) {
+    showViceToast(currentLanguage === "en" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
+    return;
+  }
   if (!vicePath) {
     showViceToast(currentLanguage === "en" ? "VICE is not configured. Select it in the menu first." : "A VICE nincs beallitva. Valaszd ki a menuben.", true);
     return;
@@ -5187,6 +5223,10 @@ async function testUltimateConnection() {
 }
 
 async function runOnUltimate() {
+  if (isProgramEmpty()) {
+    showViceToast(currentLanguage === "en" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
+    return;
+  }
   const host = (document.getElementById("ultimate-host")?.value || ultimateHost).trim();
   if (!host) {
     showViceToast(t("ultimateNotConfigured"), true);
@@ -5210,6 +5250,10 @@ async function runOnUltimate() {
 }
 
 async function runUltimateD64() {
+  if (isProgramEmpty()) {
+    showViceToast(currentLanguage === "en" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
+    return;
+  }
   const host = (document.getElementById("ultimate-host")?.value || ultimateHost).trim();
   if (!host) {
     showViceToast(t("ultimateNotConfigured"), true);
@@ -6024,6 +6068,10 @@ function showViceToast(fileName, isError = false) {
 }
 
 async function runInEmulator() {
+  if (isProgramEmpty()) {
+    showViceToast(currentLanguage === "en" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
+    return;
+  }
   if (!vicePath) {
     showViceToast(currentLanguage === "en" ? "VICE is not configured. Select it in the menu first." : "A VICE nincs beallitva. Valaszd ki a menuben.", true);
     return;

@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 1.5.0**
+**Version 1.5.1**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -167,7 +167,7 @@ The modal closes automatically when the action completes or fails.
 | **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 9](#9-debugger-integration)) |
 | **Hardware Settings** | Open the hardware configuration dialog — configure VICE, RetroDebugger, and C64 Ultimate (host, password, connection test). See [Section 13](#13-hardware-settings). |
 | **Debug (C64 Debugger)** | Compile and launch in C64 Debugger with the same breakpoints and symbols support (see [Section 9](#9-debugger-integration)) |
-| **Clear program** | Remove all blocks from the program area |
+| **New program…** | Opens a confirmation dialog, then clears all blocks from the program area |
 | **Collapse All** | Collapse all blocks |
 | **About** | Version info |
 | **What's New** | Changelog |
@@ -1274,7 +1274,7 @@ This keeps the import-debug cycle inside one dialog: paste, import, inspect erro
 
 ## 12. D64 Export & Run
 
-Version 1.5.0 adds the ability to package your program (and additional data files) into a C64 D64 disk image and launch it in VICE — or export the disk image for use elsewhere.
+Version 1.5.1 adds the ability to package your program (and additional data files) into a C64 D64 disk image and launch it in VICE — or export the disk image for use elsewhere.
 
 ### Split Run button
 
