@@ -3594,6 +3594,11 @@ function updateProgramBlock(index, field, value) {
     return;
   }
 
+  if (field === "macroLabel") {
+    renderAsmOutput();
+    return;
+  }
+
   renderProgram();
 }
 
@@ -6086,6 +6091,27 @@ function assembleProgramToPrg(originOverride) {
         labels.set(line.block.constName, constVal);
       }
     }
+    // Register optional macroLabel pointing to the macro's fixed memory address
+    if (line.block.macroLabel) {
+      const ml = line.block.macroLabel.trim();
+      if (ml) {
+        let addr = null;
+        if (line.block.isTextMacro) {
+          addr = 0x0400 + ((line.block.textY ?? 0) * 40) + (line.block.textX ?? 0);
+        } else if (line.block.isStringMacro) {
+          addr = parseAddressValue(line.block.stringAddress) ?? 0xC000;
+        } else if (line.block.isDataMacro) {
+          addr = parseAddressValue(line.block.dataAddress) ?? 0xC000;
+        } else if (line.block.isRawBytesMacro) {
+          addr = parseAddressValue(line.block.rawBytesAddress) ?? 0xC000;
+        } else if (line.block.isRawTextMacro) {
+          addr = parseAddressValue(line.block.rawTextAddress) ?? 0xC000;
+        } else if (line.block.isPetsciiMacro) {
+          addr = parseAddressValue(line.block.petsciiAddress) ?? 0xC000;
+        }
+        if (addr !== null) labels.set(ml, addr);
+      }
+    }
   });
 
   // Assemble inline code bytes as sections (split by ORG blocks)
@@ -8348,6 +8374,10 @@ function renderProgram() {
               <span>Y</span>
               <input class="macro-y" type="number" min="0" max="24" value="${block.textY ?? 0}">
             </label>
+            <label class="mini-field">
+              <span>${currentLanguage === "en" ? "Label (optional)" : "Label (opcionális)"}</span>
+              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage === "en" ? "e.g. mytext" : "pl. sajatszoveg"}">
+            </label>
           </div>
         `
       );
@@ -8375,6 +8405,10 @@ function renderProgram() {
               <span>${t("fieldAddress")}</span>
               <input class="macro-address" data-address-field="stringAddress" type="text" value="${block.stringAddress || "C000"}" placeholder="$C000">
             </label>
+            <label class="mini-field">
+              <span>${currentLanguage === "en" ? "Label (optional)" : "Label (opcionális)"}</span>
+              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage === "en" ? "e.g. mystr" : "pl. sajatstr"}">
+            </label>
           </div>
         `
       );
@@ -8394,6 +8428,10 @@ function renderProgram() {
             <label class="mini-field">
               <span>${t("fieldAddress")}</span>
               <input class="macro-address" data-address-field="dataAddress" type="text" value="${block.dataAddress || "C000"}" placeholder="$C000">
+            </label>
+            <label class="mini-field">
+              <span>${currentLanguage === "en" ? "Label (optional)" : "Label (opcionális)"}</span>
+              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage === "en" ? "e.g. mydata" : "pl. sajatadat"}">
             </label>
           </div>
         `
@@ -8415,6 +8453,10 @@ function renderProgram() {
               <span>${t("fieldAddress")}</span>
               <input class="macro-address" data-address-field="rawBytesAddress" type="text" value="${block.rawBytesAddress || "C000"}" placeholder="$C000">
             </label>
+            <label class="mini-field">
+              <span>${currentLanguage === "en" ? "Label (optional)" : "Label (opcionális)"}</span>
+              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage === "en" ? "e.g. myraw" : "pl. sajatnyers"}">
+            </label>
           </div>
         `
       );
@@ -8433,6 +8475,10 @@ function renderProgram() {
               <span>${t("fieldAddress")}</span>
               <input class="macro-address" data-address-field="rawTextAddress" type="text" value="${block.rawTextAddress || "C000"}" placeholder="$C000">
             </label>
+            <label class="mini-field">
+              <span>${currentLanguage === "en" ? "Label (optional)" : "Label (opcionális)"}</span>
+              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage === "en" ? "e.g. mytext" : "pl. sajatszoveg"}">
+            </label>
           </div>
         `
       );
@@ -8450,6 +8496,10 @@ function renderProgram() {
             <label class="mini-field">
               <span>${t("fieldAddress")}</span>
               <input class="macro-address" data-address-field="petsciiAddress" type="text" value="${block.petsciiAddress || "C000"}" placeholder="$C000">
+            </label>
+            <label class="mini-field">
+              <span>${currentLanguage === "en" ? "Label (optional)" : "Label (opcionális)"}</span>
+              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage === "en" ? "e.g. mypetscii" : "pl. sajatpetscii"}">
             </label>
           </div>
         `
@@ -9126,6 +9176,7 @@ function renderProgram() {
         function buildPickerNamesForBlock() {
           const isImm = block.addressingMode === "immediate";
           const labels = isImm ? [] : program.filter(b => b.isLabel && b.labelName).map(b => b.labelName);
+          const macroLabels = isImm ? [] : program.filter(b => b.macroLabel).map(b => b.macroLabel.trim()).filter(Boolean);
           const consts = program.filter(b => b.isConstMacro && b.constName).map(b => b.constName);
           const tables = isImm ? [] : program.filter(b => b.isTableMacro && b.tableName).map(b => b.tableName);
           const included = isImm ? [] : program
@@ -9144,7 +9195,7 @@ function renderProgram() {
               }
               return names;
             });
-          return [...labels, ...included, ...consts, ...tables];
+          return [...labels, ...macroLabels, ...included, ...consts, ...tables];
         }
 
         // Always create the picker container; populate dynamically on focus
@@ -9305,6 +9356,10 @@ function renderProgram() {
     if (macroAddressInput) {
       const addressField = macroAddressInput.dataset.addressField || "stringAddress";
       macroAddressInput.addEventListener("input", (event) => updateProgramBlock(index, addressField, event.target.value));
+    }
+    const macroLabelInput = node.querySelector(".macro-label");
+    if (macroLabelInput) {
+      macroLabelInput.addEventListener("input", (event) => updateProgramBlock(index, "macroLabel", event.target.value));
     }
     const joyPortSelect = node.querySelector(".joy-port");
     if (joyPortSelect) {
@@ -9768,9 +9823,10 @@ function renderAsmOutput() {
       }).join("\n");
       deferredDataSections.push({
         address: startAddress,
-        text: `text_${lineNumber}:\n    ; .text "${line.block.rawOperand || ""}" -> screen (${line.block.textX ?? 0}, ${line.block.textY ?? 0})\n${expanded}`
+        text: `${line.block.macroLabel ? line.block.macroLabel.trim() : `text_${lineNumber}`}:\n    ; .text "${line.block.rawOperand || ""}" -> screen (${line.block.textX ?? 0}, ${line.block.textY ?? 0})\n${expanded}`
       });
-      return `; .text text_${lineNumber}`;
+      const textLabel = line.block.macroLabel ? line.block.macroLabel.trim() : `text_${lineNumber}`;
+      return `; .text ${textLabel}`;
     }
 
     if (line.block.isByteMacro) {
@@ -9789,9 +9845,10 @@ function renderAsmOutput() {
       }).join("\n");
       deferredDataSections.push({
         address: startAddress,
-        text: `string_${lineNumber}:\n    ; .string "${line.block.rawOperand || ""}" -> ${formatAddress(startAddress)}\n${expanded}`
+        text: `${line.block.macroLabel ? line.block.macroLabel.trim() : `string_${lineNumber}`}:\n    ; .string "${line.block.rawOperand || ""}" -> ${formatAddress(startAddress)}\n${expanded}`
       });
-      return `; .string string_${lineNumber}`;
+      const stringLabel = line.block.macroLabel ? line.block.macroLabel.trim() : `string_${lineNumber}`;
+      return `; .string ${stringLabel}`;
     }
 
     if (line.block.isDataMacro) {
@@ -9804,9 +9861,10 @@ function renderAsmOutput() {
       }).join("\n");
       deferredDataSections.push({
         address: startAddress,
-        text: `data_${lineNumber}:\n    ; .data ${line.block.rawOperand || ""} -> ${formatAddress(startAddress)}\n${expanded}`
+        text: `${line.block.macroLabel ? line.block.macroLabel.trim() : `data_${lineNumber}`}:\n    ; .data ${line.block.rawOperand || ""} -> ${formatAddress(startAddress)}\n${expanded}`
       });
-      return `; .data data_${lineNumber}`;
+      const dataLabel = line.block.macroLabel ? line.block.macroLabel.trim() : `data_${lineNumber}`;
+      return `; .data ${dataLabel}`;
     }
 
     if (line.block.isRawBytesMacro) {
@@ -9819,9 +9877,10 @@ function renderAsmOutput() {
       }).join("\n");
       deferredDataSections.push({
         address: startAddress,
-        text: `rawbytes_${lineNumber}:\n    ; .rawbytes ${line.block.rawOperand || ""} -> ${formatAddress(startAddress)}\n${expanded}`
+        text: `${line.block.macroLabel ? line.block.macroLabel.trim() : `rawbytes_${lineNumber}`}:\n    ; .rawbytes ${line.block.rawOperand || ""} -> ${formatAddress(startAddress)}\n${expanded}`
       });
-      return `; .rawbytes rawbytes_${lineNumber}`;
+      const rawbytesLabel = line.block.macroLabel ? line.block.macroLabel.trim() : `rawbytes_${lineNumber}`;
+      return `; .rawbytes ${rawbytesLabel}`;
     }
 
     if (line.block.isIncBinMacro) {
@@ -9876,9 +9935,10 @@ function renderAsmOutput() {
       }).join("\n");
       deferredDataSections.push({
         address: startAddress,
-        text: `rawtext_${lineNumber}:\n    ; .rawtext "${line.block.rawOperand || ""}" -> ${formatAddress(startAddress)}\n${expanded}`
+        text: `${line.block.macroLabel ? line.block.macroLabel.trim() : `rawtext_${lineNumber}`}:\n    ; .rawtext "${line.block.rawOperand || ""}" -> ${formatAddress(startAddress)}\n${expanded}`
       });
-      return `; .rawtext rawtext_${lineNumber}`;
+      const rawtextLabel = line.block.macroLabel ? line.block.macroLabel.trim() : `rawtext_${lineNumber}`;
+      return `; .rawtext ${rawtextLabel}`;
     }
 
     if (line.block.isPetsciiMacro) {
@@ -9891,9 +9951,10 @@ function renderAsmOutput() {
       }).join("\n");
       deferredDataSections.push({
         address: startAddress,
-        text: `petscii_${lineNumber}:\n    ; .petscii "${line.block.rawOperand || ""}" -> ${formatAddress(startAddress)}\n${expanded}`
+        text: `${line.block.macroLabel ? line.block.macroLabel.trim() : `petscii_${lineNumber}`}:\n    ; .petscii "${line.block.rawOperand || ""}" -> ${formatAddress(startAddress)}\n${expanded}`
       });
-      return `; .petscii petscii_${lineNumber}`;
+      const petsciiLabel = line.block.macroLabel ? line.block.macroLabel.trim() : `petscii_${lineNumber}`;
+      return `; .petscii ${petsciiLabel}`;
     }
 
     if (line.block.isLoopMacro) {
