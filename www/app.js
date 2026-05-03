@@ -385,7 +385,7 @@ const translations = {
     exitApp: "Kilepes",
     themeToggle: "Tema valtasa",
     crtToggle: "CRT retro mod",
-    clearProgram: "Program torlese",
+    clearProgram: "Uj program...",
     heroCopy: "Huzz be egy mnemonik blokkot balrol, rendezd oket sorba, es nezd meg a jobb oldalon az assembly nezetet.",
     paletteTitle: "Mnemonik menu",
     paletteHelp: "Valassz kategoriat, majd huzd at a blokkot a programlistaba.",
@@ -691,7 +691,7 @@ const translations = {
     exitApp: "Exit",
     themeToggle: "Toggle theme",
     crtToggle: "CRT retro mode",
-    clearProgram: "Clear program",
+    clearProgram: "New program...",
     heroCopy: "Drag mnemonic blocks in from the left, arrange them in order, and inspect the assembly view on the right.",
     paletteTitle: "Mnemonic menu",
     paletteHelp: "Choose a category, then drag a block into the program list.",
@@ -1368,12 +1368,28 @@ function initPalette() {
   exitAppButton?.addEventListener("click", () => window.electronAPI.quitApp());
   setupOperandDropdown();
   setupD64ExportDialog();
+
+  // Menu open animation: add class before details opens, remove after
+  const controlMenu = document.querySelector(".control-menu");
+  const controlMenuPanel = document.querySelector(".control-menu-panel");
+  controlMenu?.querySelector("summary")?.addEventListener("click", () => {
+    if (!controlMenu.open) {
+      controlMenuPanel?.classList.add("menu-opening");
+    }
+  });
+  controlMenuPanel?.addEventListener("animationend", () => {
+    controlMenuPanel.classList.remove("menu-opening");
+  });
+
   sampleSelect?.addEventListener("change", saveUiSettings);
   loadSampleButton.addEventListener("click", () => {
     const ok = loadSelectedSample();
     if (ok !== false) document.querySelector(".control-menu")?.removeAttribute("open");
   });
-  saveProjectButton?.addEventListener("click", saveProjectToFile);
+  saveProjectButton?.addEventListener("click", async () => {
+    await saveProjectToFile();
+    document.querySelector(".control-menu")?.removeAttribute("open");
+  });
   savePrgButton?.addEventListener("click", savePrgToFile);
   saveD64Button?.addEventListener("click", saveD64ToFile);
   loadProjectButton?.addEventListener("click", async () => {
@@ -7495,7 +7511,9 @@ function getDeferredMemorySections(layout) {
       }
 
       if (line.block.isStringMacro) {
-        const chars = encodeTextMacro(line.block.rawOperand);
+        const rawChars = encodeTextMacro(line.block.rawOperand);
+        const offset = parseInt(line.block.charOffset || "0", 16);
+        const chars = isNaN(offset) || offset === 0 ? rawChars : rawChars.map(b => (b + offset) & 0xFF);
         const startAddress = parseAddressValue(line.block.stringAddress) ?? 0xC000;
         return {
           type: "string",
@@ -7551,7 +7569,9 @@ function getDeferredMemorySections(layout) {
       }
 
       if (line.block.isRawTextMacro) {
-        const chars = encodeTextMacro(line.block.rawOperand);
+        const rawChars = encodeTextMacro(line.block.rawOperand);
+        const offset = parseInt(line.block.charOffset || "0", 16);
+        const chars = isNaN(offset) || offset === 0 ? rawChars : rawChars.map(b => (b + offset) & 0xFF);
         const startAddress = parseAddressValue(line.block.rawTextAddress) ?? 0xC000;
         return {
           type: "rawtext",
@@ -10295,10 +10315,6 @@ function renderMonitorOutput(layout = getProgramLayout()) {
       const charPart = byteValues.map((b) => {
         if (b === undefined) return " ";
         if (b >= 0x20 && b <= 0x7E) return String.fromCharCode(b);
-        if (b === 0x00) return "@";
-        if (b >= 0x01 && b <= 0x1A) return String.fromCharCode(0x40 + b); // A-Z screen codes
-        if (b === 0x1B) return "[";
-        if (b === 0x1D) return "]";
         return ".";
       }).join("");
       rows.push(`>${formatAddress(addr)}  ${hexPart}  |${charPart}|`);
