@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 1.5.0**
+**Version 1.5.1**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -167,7 +167,7 @@ The modal closes automatically when the action completes or fails.
 | **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 9](#9-debugger-integration)) |
 | **Hardware Settings** | Open the hardware configuration dialog — configure VICE, RetroDebugger, and C64 Ultimate (host, password, connection test). See [Section 13](#13-hardware-settings). |
 | **Debug (C64 Debugger)** | Compile and launch in C64 Debugger with the same breakpoints and symbols support (see [Section 9](#9-debugger-integration)) |
-| **Clear program** | Remove all blocks from the program area |
+| **New program…** | Opens a confirmation dialog, then clears all blocks from the program area |
 | **Collapse All** | Collapse all blocks |
 | **About** | Version info |
 | **What's New** | Changelog |
@@ -451,42 +451,49 @@ Advances the program counter to the next boundary of the given size. Inserts pad
 
 ### TEXT
 
-Writes a text string to the C64 screen RAM at a given row/column position using the KERNAL CHROUT routine.
+Writes a text string to the C64 screen RAM at a given row/column position by generating direct LDA/STA pairs targeting the screen RAM at `$0400`.
 
 | Field | Description |
 |---|---|
 | Text | The string to display |
 | X | Column (0–39) |
 | Y | Row (0–24) |
+| Label (optional) | Assigns a label pointing to the computed screen address |
 
 **Generated ASM:**
 ```
-    LDA #$48      ; 'H'
-    JSR $FFD2
-    LDA #$45      ; 'E'
-    JSR $FFD2
+    LDA #$08      ; 'H' (screen code)
+    STA $0400
+    LDA #$05      ; 'E' (screen code)
+    STA $0401
     ...
 ```
 
-Characters are encoded as PETSCII. **Size:** `text.length × 5` bytes (LDA + JSR per character).
+Characters are encoded as **screen codes** (not PETSCII). **Size:** `text.length × 5` bytes (LDA + STA per character).
 
 ---
 
 ### STRING
 
-Places a PETSCII-encoded string as raw bytes at a given memory address (no runtime code, deferred data section).
+Encodes a text string as **screen codes** and writes it to a given memory address using LDA/STA instruction pairs at runtime.
 
 | Field | Description |
 |---|---|
-| Text | The string to place |
+| Text | The string to write |
 | Address | Target memory address (e.g. `$C000`) |
+| Label (optional) | Assigns a label pointing to the target address |
+| Shift | Hex value (00–FF) added to each screen code byte (e.g. `$80` = reverse video) |
 
 **Generated ASM:**
 ```
-    .byte $48, $45, $4C, $4C, $4F   ; "HELLO"
+    LDA #$08      ; 'H' screen code
+    STA $C000
+    LDA #$05      ; 'E' screen code
+    STA $C001
+    ...
 ```
 
-Placed at the specified address. **Size:** `text.length` bytes.
+Each character is converted to a **screen code** (not PETSCII). The optional **Shift** value is added to every byte (`& $FF`). **Size:** `text.length × 5` bytes (one LDA + one STA per character).
 
 ---
 
@@ -520,6 +527,7 @@ Places raw bytes at a given memory address — no runtime code is generated. The
 |---|---|
 | Bytes | Comma-separated byte values |
 | Address | Target memory address (e.g. `$C000`) |
+| Label (optional) | Assigns a label pointing to the target address |
 
 **Size in code:** 0 bytes. The data is placed at the given address in the output.
 
@@ -529,14 +537,25 @@ Places raw bytes at a given memory address — no runtime code is generated. The
 
 ### RAWTEXT
 
-Like RAWBYTES but accepts a text string that is encoded as PETSCII bytes.
+Encodes a text string as **screen codes** and places the bytes directly at a given memory address — no runtime code is generated. The data appears in the deferred section of the output.
 
 | Field | Description |
 |---|---|
 | Text | String to encode |
 | Address | Target memory address |
+| Label (optional) | Assigns a label pointing to the target address |
+| Shift | Hex value (00–FF) added to each screen code byte (e.g. `$80` = reverse video) |
 
-**Size in code:** 0 bytes.
+**Generated ASM:**
+```
+; .rawtext "HELLO" -> $C000
+; $C000
+    .byte $08, $05, $0C, $0C, $0F   ; H E L L O (screen codes)
+```
+
+**Size in code:** 0 bytes. The data is placed at the given address in the output.
+
+> **Difference from STRING:** RAWTEXT places the data as static bytes — no LDA/STA code is generated. The bytes are present in memory as soon as the PRG is loaded, before any code runs.
 
 ---
 
@@ -1255,7 +1274,7 @@ This keeps the import-debug cycle inside one dialog: paste, import, inspect erro
 
 ## 12. D64 Export & Run
 
-Version 1.5.0 adds the ability to package your program (and additional data files) into a C64 D64 disk image and launch it in VICE — or export the disk image for use elsewhere.
+Version 1.5.1 adds the ability to package your program (and additional data files) into a C64 D64 disk image and launch it in VICE — or export the disk image for use elsewhere.
 
 ### Split Run button
 

@@ -451,6 +451,16 @@
     </button>
   </template>
 
+  <dialog id="new-program-dialog" class="confirm-dialog">
+    <div class="confirm-card">
+      <p id="new-program-dialog-msg">Create a new program? Unsaved changes will be lost.</p>
+      <div class="confirm-buttons">
+        <button id="new-program-cancel" class="secondary" type="button">Cancel</button>
+        <button id="new-program-confirm" class="primary" type="button">New program</button>
+      </div>
+    </div>
+  </dialog>
+
   <dialog id="compile-error-dialog" class="compile-error-dialog">
     <div class="compile-error-card">
       <h2 class="compile-error-title" id="compile-error-title">Compilation errors</h2>
@@ -536,8 +546,11 @@
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v1.5.0</p>
+      <p class="whats-new-version">v1.5.1</p>
       <ul class="whats-new-list">
+        <li>
+          <strong>Bug fixes &amp; UI improvements</strong> — "New program" now shows a confirmation dialog before clearing. STRING and RAWTEXT descriptions corrected (screen codes, not PETSCII). Tonns of other small fixes.
+        </li>
         <li>
           <strong>Export to D64</strong> — assemble your program and export it directly to a .d64 disk image using VICE's c1541 tool. Add extra files (data, sprites, PRGs) to the same disk before export.
         </li>
