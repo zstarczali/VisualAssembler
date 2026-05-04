@@ -3583,51 +3583,58 @@ function _expertFormatSource() {
     return operand ? mnem + " " + operand : mnem;
   }
 
-  const lines = expertEditor.value.split("\n");
-  const out = lines.map(raw => {
-    if (!raw.trim()) return "";
+  try {
+    const lines = expertEditor.value.split("\n");
+    const out = lines.map(raw => {
+      if (!raw.trim()) return "";
 
-    // Preserve the original leading whitespace
-    const origIndent = raw.match(/^(\s*)/)[1];
+      // Preserve the original leading whitespace
+      const origIndent = raw.match(/^(\s*)/)[1];
 
-    const { code, comment } = splitComment(raw);
-    if (!code) return origIndent + comment.trim();
+      const { code, comment } = splitComment(raw);
+      if (!code) return origIndent + comment.trim();
 
-    // * = $xxxx  (org) — always at col 0
-    if (/^\*\s*=/.test(code)) {
-      return code.replace(/\s+/g, " ") + comment;
+      // * = $xxxx  (org) — always at col 0
+      if (/^\*\s*=/.test(code)) {
+        return code.replace(/\s+/g, " ") + comment;
+      }
+
+      // Label definition: "name:" optionally followed by instruction — always at col 0
+      const labelM = code.match(/^([A-Za-z_][A-Za-z0-9_]*\s*:)\s*(.*)/s);
+      if (labelM) {
+        const label = labelM[1].trimEnd();
+        const rest  = labelM[2].trim();
+        if (!rest) return label + comment;
+        return label + " " + formatInstr(rest) + comment;
+      }
+
+      // .directive or !directive lines — normalize to col 0 (like _blockToExpertLine generates)
+      if (/^[.!]/.test(code)) {
+        return code.trim() + comment;
+      }
+
+      // Regular instruction — always 4-space indent, normalize mnemonic/operand
+      return "    " + formatInstr(code) + comment;
+    });
+
+    const result = out.join("\n");
+    if (result === expertEditor.value) {
+      _expertSetStatus(currentLanguage === "en" ? "Already formatted" : "Már formázott", "ok");
+      return;
     }
-
-    // Label definition: "name:" optionally followed by instruction — always at col 0
-    const labelM = code.match(/^([A-Za-z_][A-Za-z0-9_]*\s*:)\s*(.*)/s);
-    if (labelM) {
-      const label = labelM[1].trimEnd();
-      const rest  = labelM[2].trim();
-      if (!rest) return label + comment;
-      return label + " " + formatInstr(rest) + comment;
-    }
-
-    // .directive or !directive lines — preserve original indent
-    if (/^[.!]/.test(code)) {
-      return origIndent + code.trim() + comment;
-    }
-
-    // Regular instruction — preserve original indentation, normalize content
-    return origIndent + formatInstr(code) + comment;
-  });
-
-  const result = out.join("\n");
-  if (result === expertEditor.value) {
-    _expertSetStatus(currentLanguage === "en" ? "Already formatted" : "Már formázott", "ok");
-    return;
+    const sel = expertEditor.selectionStart;
+    expertEditor.value = result;
+    expertEditor.selectionStart = Math.min(sel, result.length);
+    expertEditor.selectionEnd   = Math.min(sel, result.length);
+    _expertApplyHighlight();
+    markTabDirty();
+    clearTimeout(_expertParseTimer);
+    _expertParseTimer = setTimeout(() => _expertValidate(), 0);
+    _expertSetStatus(currentLanguage === "en" ? "Formatted" : "Formázva", "ok");
+  } catch (err) {
+    _expertSetStatus("Format error: " + String(err), "error");
+    console.error("_expertFormatSource error:", err);
   }
-  const sel    = expertEditor.selectionStart;
-  expertEditor.value = result;
-  expertEditor.selectionStart = Math.min(sel, result.length);
-  expertEditor.selectionEnd   = Math.min(sel, result.length);
-  markTabDirty();
-  _expertValidate();
-  _expertSetStatus(currentLanguage === "en" ? "Formatted" : "Formázva", "ok");
 }
 
 function _expertHighlightLine(raw) {
@@ -5981,7 +5988,54 @@ function renderTabBar() {
   newBtn.textContent = "+";
   newBtn.addEventListener("click", _tabNew);
   tabBar.appendChild(newBtn);
+
+  // Scroll the active tab into view
+  const activeEl = tabBar.querySelector(".tab-item--active");
+  if (activeEl) activeEl.scrollIntoView({ block: "nearest", inline: "nearest" });
+
+  _updateTabScrollButtons();
 }
+
+function _updateTabScrollButtons() {
+  const tabBar = document.getElementById("tab-bar");
+  const wrap   = tabBar?.closest(".tab-bar-wrap");
+  if (!tabBar || !wrap) return;
+  const canLeft  = tabBar.scrollLeft > 1;
+  const canRight = tabBar.scrollLeft + tabBar.clientWidth < tabBar.scrollWidth - 1;
+  wrap.classList.toggle("can-scroll-left",  canLeft);
+  wrap.classList.toggle("can-scroll-right", canRight);
+}
+
+// Wire scroll buttons (called once at startup)
+(function _initTabScrollButtons() {
+  const tabBar     = document.getElementById("tab-bar");
+  const btnLeft    = document.getElementById("tab-scroll-left");
+  const btnRight   = document.getElementById("tab-scroll-right");
+  if (!tabBar || !btnLeft || !btnRight) return;
+
+  let _scrollInterval = null;
+  function startScroll(dir) {
+    clearInterval(_scrollInterval);
+    _scrollInterval = setInterval(() => {
+      tabBar.scrollBy({ left: dir * 80, behavior: "smooth" });
+      _updateTabScrollButtons();
+    }, 120);
+  }
+  function stopScroll() { clearInterval(_scrollInterval); _scrollInterval = null; }
+
+  btnLeft.addEventListener("mousedown",  () => startScroll(-1));
+  btnRight.addEventListener("mousedown", () => startScroll(1));
+  ["mouseup", "mouseleave"].forEach(ev => {
+    btnLeft.addEventListener(ev,  stopScroll);
+    btnRight.addEventListener(ev, stopScroll);
+  });
+  // Single click also nudges
+  btnLeft.addEventListener("click",  () => { tabBar.scrollBy({ left: -120, behavior: "smooth" }); setTimeout(_updateTabScrollButtons, 150); });
+  btnRight.addEventListener("click", () => { tabBar.scrollBy({ left:  120, behavior: "smooth" }); setTimeout(_updateTabScrollButtons, 150); });
+
+  tabBar.addEventListener("scroll", _updateTabScrollButtons, { passive: true });
+  new ResizeObserver(_updateTabScrollButtons).observe(tabBar);
+}());
 
 async function saveProjectToFile() {
   if (!window.electronAPI?.saveProject) {

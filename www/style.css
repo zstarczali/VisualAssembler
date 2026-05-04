@@ -2622,17 +2622,63 @@ body.expert-mode .expert-panel {
 
 /* ── Tab bar ─────────────────────────────────────────────────────── */
 
+.tab-bar-wrap {
+  display: flex;
+  align-items: stretch;
+  position: relative;
+  background: color-mix(in srgb, var(--panel-strong) 90%, transparent);
+  border-bottom: 1px solid var(--panel-border);
+  flex-shrink: 0;
+  margin-bottom: 18px;
+}
+
+.tab-scroll-btn {
+  flex-shrink: 0;
+  width: 22px;
+  min-height: 34px;
+  border: none;
+  background: color-mix(in srgb, var(--panel-strong) 90%, transparent);
+  color: var(--secondary);
+  font-size: 1.1rem;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s, background 0.12s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  padding: 0;
+  line-height: 1;
+}
+
+.tab-scroll-btn--left {
+  border-right: 1px solid var(--panel-border);
+}
+
+.tab-scroll-btn--right {
+  border-left: 1px solid var(--panel-border);
+}
+
+.tab-bar-wrap.can-scroll-left  .tab-scroll-btn--left,
+.tab-bar-wrap.can-scroll-right .tab-scroll-btn--right {
+  opacity: 0.75;
+  pointer-events: auto;
+}
+
+.tab-scroll-btn:hover {
+  opacity: 1 !important;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+}
+
 .tab-bar {
   display: flex;
   align-items: stretch;
-  background: color-mix(in srgb, var(--panel-strong) 90%, transparent);
-  border-bottom: 1px solid var(--panel-border);
   min-height: 34px;
   overflow-x: auto;
-  flex-shrink: 0;
+  flex: 1;
   scrollbar-width: none;
   padding: 0 2px;
-  margin-bottom: 18px;
 }
 
 .tab-bar::-webkit-scrollbar { display: none; }
