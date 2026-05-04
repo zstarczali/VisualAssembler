@@ -1,0 +1,13 @@
+{
+  "name": "Új projekt",
+  "files": [
+    {
+      "name": "include-demo.json",
+      "path": "C:\\Users\\rlung\\Documents\\GitHub\\VisualAssembler\\samples\\include-demo.json"
+    },
+    {
+      "name": "macros.json",
+      "path": "C:\\Users\\rlung\\Documents\\GitHub\\VisualAssembler\\samples\\macros.json"
+    }
+  ]
+}

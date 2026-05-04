@@ -323,6 +323,8 @@ const expertMonitorBtn     = document.getElementById("expert-monitor-btn");
 const expertMonitorPanel   = document.getElementById("expert-monitor-panel");
 const expertMonitorOutput  = document.getElementById("expert-monitor-output");
 const expertFormatBtn      = document.getElementById("expert-format-btn");
+const expertProjectBtn     = document.getElementById("expert-project-btn");
+const expertProjectPanel   = document.getElementById("expert-project-panel");
 
 let program = [];
 let dragState = null;
@@ -351,6 +353,8 @@ let _expertPaletteVisible = false;
 let _expertDisasmVisible = false;
 let _expertDisasmWidth   = 340;
 let _expertMonitorVisible = false;
+let _expertProjectVisible = false;
+let _expertProjectData = null; // { name, files, _projPath }
 
 const translations = {
   hu: {
@@ -518,6 +522,18 @@ const translations = {
     expertDisasm: "Disassembler be/ki",
     expertMonitor: "Monitor be/ki",
     expertFormat: "Forráskód formázása",
+    expertProjectPanel: "Projekt panel",
+    projNoProject: "Nincs projekt",
+    projClickToOpen: "Kattints a mappa gombra\nprojekt megnyitásához",
+    projAddFileHint: "Adj hozzá fájlt a + gombbal",
+    projRegions: "Régiók",
+    projMacros: "Makrók",
+    projOpened: "Projekt megnyitva",
+    projSaved: "Projekt mentve",
+    projError: "Projekt hiba",
+    projOpenFile: "Megnyitva",
+    projSaveError: "Mentési hiba",
+    projRemove: "Eltávolítás",
     viceRunning: "VICE fut",
     whatsNew: "Ujdonsagok",
     paletteSearchPlaceholder: "Kereses...",
@@ -837,6 +853,18 @@ const translations = {
     expertDisasm: "Toggle disassembler",
     expertMonitor: "Toggle monitor",
     expertFormat: "Format source code",
+    expertProjectPanel: "Project panel",
+    projNoProject: "No project",
+    projClickToOpen: "Click the folder button\nto open a project",
+    projAddFileHint: "Add files with the + button",
+    projRegions: "Regions",
+    projMacros: "Macros",
+    projOpened: "Project opened",
+    projSaved: "Project saved",
+    projError: "Project error",
+    projOpenFile: "Opened",
+    projSaveError: "Save error",
+    projRemove: "Remove",
     viceRunning: "VICE running",
     whatsNew: "What's New",
     paletteSearchPlaceholder: "Search...",
@@ -1051,6 +1079,7 @@ function saveUiSettings() {
     expertDisasmVisible: _expertDisasmVisible,
     expertDisasmWidth: _expertDisasmWidth,
     expertMonitorVisible: _expertMonitorVisible,
+    expertProjectVisible: _expertProjectVisible,
     showMacroSource,
     showRegionComments,
     asmOutputBase,
@@ -1517,6 +1546,23 @@ function initPalette() {
 
   expertFormatBtn?.addEventListener("click", _expertFormatSource);
 
+  expertProjectBtn?.addEventListener("click", () => {
+    _expertProjectVisible = !_expertProjectVisible;
+    expertProjectBtn.classList.toggle("expert-hl-toggle--on", _expertProjectVisible);
+    expertProjectBtn.setAttribute("aria-pressed", String(_expertProjectVisible));
+    if (_expertProjectVisible) {
+      expertProjectPanel?.removeAttribute("hidden");
+    } else {
+      expertProjectPanel?.setAttribute("hidden", "");
+    }
+    saveUiSettings();
+  });
+
+  document.getElementById("expert-project-open-btn")?.addEventListener("click", _expertOpenProject);
+  document.getElementById("expert-project-new-btn")?.addEventListener("click",  _expertNewProject);
+  document.getElementById("expert-project-save-btn")?.addEventListener("click", _expertSaveProject);
+  document.getElementById("expert-project-add-btn")?.addEventListener("click",  _expertAddProjMember);
+
   expertEditor?.addEventListener("input", () => {
     markTabDirty();
     _expertValidate();
@@ -1818,6 +1864,7 @@ function _applyUiSettingsToDOM() {
     const _savedDisasmWidth        = savedUiSettings.expertDisasmWidth;
     const _savedDisasmVisible      = savedUiSettings.expertDisasmVisible;
     const _savedMonitorVisible     = savedUiSettings.expertMonitorVisible;
+    const _savedProjectVisible     = savedUiSettings.expertProjectVisible;
 
     setExpertMode(true);
 
@@ -1856,6 +1903,12 @@ function _applyUiSettingsToDOM() {
       expertMonitorBtn?.setAttribute("aria-pressed", "true");
       expertMonitorPanel?.removeAttribute("hidden");
       _expertRenderMonitor();
+    }
+    if (_savedProjectVisible) {
+      _expertProjectVisible = true;
+      expertProjectBtn?.classList.add("expert-hl-toggle--on");
+      expertProjectBtn?.setAttribute("aria-pressed", "true");
+      expertProjectPanel?.removeAttribute("hidden");
     }
   }
 
@@ -1962,6 +2015,8 @@ function applyTranslations() {
   if (_confirmNo)  _confirmNo.textContent  = t("tabCloseConfirmCancel");
   expertPaletteBtn?.setAttribute("title", t("expertPaletteToggle"));
   expertPaletteBtn?.setAttribute("aria-label", t("expertPaletteToggle"));
+  expertProjectBtn?.setAttribute("title", t("expertProjectPanel"));
+  expertProjectBtn?.setAttribute("aria-label", t("expertProjectPanel"));
   expertPaletteSyncBtn?.setAttribute("title", t("expertPaletteSync"));
   expertPaletteSyncBtn?.setAttribute("aria-label", t("expertPaletteSync"));
   expertDisasmBtn?.setAttribute("title", t("expertDisasm"));
@@ -4158,6 +4213,7 @@ function _expertValidate() {
       }
       if (_expertDisasmVisible) _expertRenderDisasm();
       if (_expertMonitorVisible) _expertRenderMonitor();
+      if (_expertProjectVisible) _expertRenderSymbols();
     } catch (e) {
       _expertSetStatus(String(e), "error");
     }
@@ -4241,6 +4297,399 @@ function _expertRenderMonitor() {
   } catch (e) {
     expertMonitorOutput.textContent = String(e);
   }
+}
+
+// ── Expert Project Panel ──────────────────────────────────────────────────────
+
+function _expertRenderSymbols() {
+  const el = document.getElementById("expert-project-symbols");
+  if (!el) return;
+
+  // In expert mode: scan textarea text directly so typing immediately reflects
+  // In block mode: read from program[]
+  let regions = [];
+  let macros  = [];
+
+  if (expertMode && expertEditor) {
+    const lines = expertEditor.value.split("\n");
+    lines.forEach((line, idx) => {
+      const rm = line.match(/^\s*\.region\s+(.+?)(?:\s*;.*)?$/i);
+      if (rm) { regions.push({ _textName: rm[1].trim(), _lineIdx: idx }); return; }
+      const mm = line.match(/^\s*macro\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s|$)/i);
+      if (mm) { macros.push({ _textName: mm[1].trim(), _lineIdx: idx }); }
+    });
+  } else {
+    regions = program.filter(b => b.isRegionMacro && b.regionName);
+    macros  = program.filter(b => b.isMacroDefStart && b.macroName);
+  }
+
+  if (regions.length === 0 && macros.length === 0) {
+    el.hidden = true;
+    return;
+  }
+  el.hidden = false;
+  el.innerHTML = "";
+
+  // Jump cursor in expert editor to a specific line index
+  function gotoEditorLine(lineIdx) {
+    if (!expertEditor) return;
+    const lines = expertEditor.value.split("\n");
+    const pos = lines.slice(0, lineIdx).reduce((a, l) => a + l.length + 1, 0);
+    const endPos = pos + (lines[lineIdx] || "").trimEnd().length;
+    expertEditor.focus();
+    expertEditor.setSelectionRange(pos, endPos);
+    const lineH = parseFloat(getComputedStyle(expertEditor).lineHeight) || 18;
+    expertEditor.scrollTop = Math.max(0, lineIdx * lineH - expertEditor.clientHeight / 3);
+  }
+
+  // Jump by regex scan (fallback for block-mode derived data)
+  function gotoEditorPattern(pattern) {
+    if (!expertEditor) return;
+    const lines = expertEditor.value.split("\n");
+    for (let i = 0; i < lines.length; i++) {
+      if (pattern.test(lines[i])) { gotoEditorLine(i); return; }
+    }
+  }
+
+  const svgRegion = `<svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="11" height="11"><rect x="1.5" y="1.5" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 4.5h6M4 7h4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>`;
+  const svgMacro  = `<svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="11" height="11"><path d="M2.5 4l3.5 3-3.5 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 10h3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`;
+
+  function addGroup(labelKey, items, svgIcon, nameFn, clickFn) {
+    if (items.length === 0) return;
+    const hdr = document.createElement("div");
+    hdr.className = "expert-project-symbols-label";
+    hdr.textContent = t(labelKey);
+    el.appendChild(hdr);
+
+    items.forEach(item => {
+      const row = document.createElement("div");
+      row.className = "expert-project-item expert-project-item--file";
+
+      const iconEl = document.createElement("span");
+      iconEl.className = "expert-project-item-icon";
+      iconEl.innerHTML = svgIcon;
+
+      const nameEl = document.createElement("span");
+      nameEl.className = "expert-project-item-name";
+      nameEl.textContent = nameFn(item);
+
+      row.appendChild(iconEl);
+      row.appendChild(nameEl);
+      row.addEventListener("click", () => clickFn(item));
+      el.appendChild(row);
+    });
+  }
+
+  addGroup("projRegions", regions, svgRegion,
+    item => item._textName ?? item.regionName,
+    item => {
+      if (expertMode && expertEditor) {
+        if (item._lineIdx != null) { gotoEditorLine(item._lineIdx); return; }
+        const escaped = item.regionName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        gotoEditorPattern(new RegExp(`^\\s*\\.region\\s+${escaped}\\s*(?:;.*)?$`, "i"));
+      } else {
+        selectBlockInAsm(item.id);
+        programList?.querySelector(`[data-block-id="${item.id}"]`)
+          ?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+    }
+  );
+
+  addGroup("projMacros", macros, svgMacro,
+    item => item._textName ?? item.macroName,
+    item => {
+      if (expertMode && expertEditor) {
+        if (item._lineIdx != null) { gotoEditorLine(item._lineIdx); return; }
+        const escaped = item.macroName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        gotoEditorPattern(new RegExp(`^\\s*macro\\s+${escaped}\\b`, "i"));
+      } else {
+        selectBlockInAsm(item.id);
+        programList?.querySelector(`[data-block-id="${item.id}"]`)
+          ?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+    }
+  );
+}
+
+// ── Project tree SVG icons ─────────────────────────────────────────────────
+const _PROJ_SVG = {
+  project: `<svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M1 4C1 3.45 1.45 3 2 3H5.5L7 5H12C12.55 5 13 5.45 13 6V11C13 11.55 12.55 12 12 12H2C1.45 12 1 11.55 1 11V4Z" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="1.1"/></svg>`,
+  file_json: `<svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M2.5 1.5H8.5L11.5 4.5V12.5C11.5 12.78 11.28 13 11 13H3C2.72 13 2.5 12.78 2.5 12.5V2C2.5 1.72 2.72 1.5 3 1.5Z" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1.1"/><path d="M8.5 1.5V4.5H11.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/><text x="3.5" y="11.5" font-size="4" fill="currentColor" opacity="0.75" font-family="monospace" font-weight="bold">{}</text></svg>`,
+  file_generic: `<svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M2.5 1.5H8.5L11.5 4.5V12.5C11.5 12.78 11.28 13 11 13H3C2.72 13 2.5 12.78 2.5 12.5V2C2.5 1.72 2.72 1.5 3 1.5Z" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1.1"/><path d="M8.5 1.5V4.5H11.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+};
+
+function _projFileIcon(name) {
+  const ext = (name || "").split(".").pop().toLowerCase();
+  if (ext === "json" || ext === "c64va") return _PROJ_SVG.file_json;
+  return _PROJ_SVG.file_generic;
+}
+
+function _expertRenderProjectTree() {
+  const nameEl = document.getElementById("expert-project-name");
+  const treeEl = document.getElementById("expert-project-tree");
+  if (!nameEl || !treeEl) return;
+
+  if (!_expertProjectData) {
+    nameEl.textContent = t("projNoProject");
+    nameEl.title = "";
+    treeEl.innerHTML = `<div class="expert-project-empty">${t("projClickToOpen").replace("\n", "<br>")}</div>`;
+    return;
+  }
+
+  const projName = _expertProjectData.name || "Névtelen projekt";
+  nameEl.textContent = projName;
+  nameEl.title = _expertProjectData._projPath || "";
+
+  treeEl.innerHTML = "";
+
+  // Root node
+  const rootItem = document.createElement("div");
+  rootItem.className = "expert-project-item expert-project-item--root";
+  const rootIcon = document.createElement("span");
+  rootIcon.className = "expert-project-item-icon";
+  rootIcon.innerHTML = _PROJ_SVG.project;
+  const rootName = document.createElement("span");
+  rootName.className = "expert-project-item-name";
+  rootName.textContent = projName;
+  rootItem.appendChild(rootIcon);
+  rootItem.appendChild(rootName);
+  treeEl.appendChild(rootItem);
+
+  // Flat file list (ignore any folder nodes from old saves)
+  const files = (_expertProjectData.files || []).filter(n => !n.type || n.type === "file");
+
+  if (files.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "expert-project-empty";
+    empty.style.cssText = "padding: 10px 12px; font-size: 0.68rem;";
+    empty.textContent = t("projAddFileHint");
+    treeEl.appendChild(empty);
+    return;
+  }
+
+  const activeTab = tabs.find(t => t.id === activeTabId);
+  const activeFilePath = _normFilePath(activeTab?.filePath || "");
+
+  files.forEach(file => {
+    if (!file._id) file._id = crypto.randomUUID();
+    const isActive = activeFilePath && _normFilePath(_projResolveAbsPath(file.path)) === activeFilePath;
+
+    const item = document.createElement("div");
+    item.className = `expert-project-item expert-project-item--file${isActive ? " expert-project-item--active" : ""}`;
+
+    const iconEl = document.createElement("span");
+    iconEl.className = "expert-project-item-icon";
+    iconEl.innerHTML = _projFileIcon(file.name);
+
+    const nameSpan = document.createElement("span");
+    nameSpan.className = "expert-project-item-name";
+    nameSpan.textContent = file.name;
+    nameSpan.title = file.path;
+
+    const delBtn = _makeProjDelBtn(() => {
+      const idx = _expertProjectData.files.indexOf(file);
+      if (idx >= 0) _expertProjectData.files.splice(idx, 1);
+      _expertRenderProjectTree();
+    });
+
+    item.appendChild(iconEl);
+    item.appendChild(nameSpan);
+    item.appendChild(delBtn);
+    item.addEventListener("click", e => {
+      if (e.target === delBtn || delBtn.contains(e.target)) return;
+      _expertProjectOpenFile(file);
+    });
+    treeEl.appendChild(item);
+  });
+}
+
+function _makeProjDelBtn(onDelete) {
+  const btn = document.createElement("button");
+  btn.className = "expert-project-item-del";
+  btn.title = t("projRemove");
+  btn.textContent = "✕";
+  btn.addEventListener("click", e => { e.stopPropagation(); onDelete(); });
+  return btn;
+}
+
+function _projResolveAbsPath(relPath) {
+  if (!relPath) return relPath;
+  // Already absolute?
+  if (/^[A-Za-z]:[\\/]/.test(relPath) || relPath.startsWith("/")) {
+    return relPath.replace(/\\/g, "/");
+  }
+  if (!_expertProjectData?._projPath) return relPath;
+  const dir = _expertProjectData._projPath.replace(/\\/g, "/").replace(/\/[^\/]*$/, "");
+  return dir + "/" + relPath.replace(/\\/g, "/");
+}
+
+function _normFilePath(p) {
+  return (p || "").replace(/\\/g, "/").toLowerCase();
+}
+
+async function _expertOpenProject() {
+  const res = await window.electronAPI?.openProjFile?.();
+  if (!res || res.canceled) return;
+  if (!res.ok) { _expertSetStatus(t("projError") + ": " + res.error, "error"); return; }
+  const proj = res.project || {};
+  // Backward compat: old format had plain {name, path} objects without type field
+  function migrateNodes(nodes) {
+    return (nodes || []).map(n => {
+      if (n.type === "folder") return { type: "folder", name: n.name, children: migrateNodes(n.children), _open: true };
+      return { type: "file", name: n.name || n.path?.split("/").pop() || "", path: n.path };
+    });
+  }
+  _expertProjectData = {
+    name:      proj.name  || "Névtelen projekt",
+    files:     migrateNodes(proj.files),
+    _projPath: res.filePath
+  };
+  _expertRenderProjectTree();
+  _expertSetStatus(t("projOpened") + ": " + _expertProjectData.name, "ok");
+}
+
+async function _expertNewProject() {
+  _expertProjectData = { name: "Új projekt", files: [], _projPath: null };
+  _expertRenderProjectTree();
+  // Open save dialog right away so user can set name/path
+  await _expertSaveProject();
+}
+
+async function _expertSaveProject() {
+  if (!_expertProjectData) return;
+  // Strip runtime-only fields before serialising
+  const cleaned = (_expertProjectData.files || [])
+    .filter(n => !n.type || n.type === "file")
+    .map(n => ({ type: "file", name: n.name, path: n.path }));
+  const payload = JSON.stringify({ name: _expertProjectData.name, files: cleaned }, null, 2);
+  const path = _expertProjectData._projPath || "";
+  const res = await window.electronAPI?.saveProjFile?.(path, payload);
+  if (!res || res.canceled) return;
+  if (!res.ok) { _expertSetStatus(t("projSaveError") + ": " + res.error, "error"); return; }
+  _expertProjectData._projPath = res.filePath;
+  // Update project name from filename if freshly created
+  if (!_expertProjectData.name || _expertProjectData.name === "Új projekt") {
+    _expertProjectData.name = res.filePath.replace(/\\/g, "/").split("/").pop().replace(/\.proj$/i, "");
+  }
+  _expertRenderProjectTree();
+  _expertSetStatus(t("projSaved"), "ok");
+}
+
+async function _expertAddProjMember() {
+  const res = await window.electronAPI?.chooseProjMember?.();
+  if (!res || res.canceled) return;
+  if (!_expertProjectData) {
+    _expertProjectData = { name: "Névtelen projekt", files: [], _projPath: null };
+  }
+  // Compute relative path if project has a saved path
+  let relPath = res.filePath;
+  if (_expertProjectData._projPath) {
+    const projDir = _expertProjectData._projPath.replace(/\\/g, "/").replace(/\/[^/]+$/, "");
+    const absFile = res.filePath.replace(/\\/g, "/");
+    if (absFile.startsWith(projDir + "/")) {
+      relPath = absFile.slice(projDir.length + 1);
+    }
+  }
+  // Avoid duplicates
+  if (!_expertProjectData.files.some(f => f.path === relPath)) {
+    _expertProjectData.files.push({ type: "file", name: res.fileName, path: relPath });
+  }
+  _expertRenderProjectTree();
+}
+
+async function _expertProjectOpenFile(fileEntry) {
+  const absPath = _projResolveAbsPath(fileEntry.path);
+  const normAbs = _normFilePath(absPath);
+
+  // If tab for this file already open, just activate it
+  const existing = tabs.find(t => _normFilePath(t.filePath) === normAbs);
+  if (existing) {
+    _tabActivate(existing.id);
+    // Scroll active tab into view
+    const tabBar = document.getElementById("tab-bar");
+    const activeEl = tabBar?.querySelector(".tab-item--active");
+    if (activeEl) activeEl.scrollIntoView({ block: "nearest", inline: "nearest" });
+    _expertRenderProjectTree();
+    return;
+  }
+
+  // Load as C64VA project JSON → program blocks
+  const res = await window.electronAPI?.readTextFile?.(absPath);
+  if (!res || !res.ok) {
+    _expertSetStatus("Nem nyitható meg: " + (res?.error || "ismeretlen hiba"), "error");
+    return;
+  }
+
+  let projectData;
+  try {
+    projectData = JSON.parse(res.content);
+  } catch (e) {
+    _expertSetStatus("Érvénytelen JSON: " + e.message, "error");
+    return;
+  }
+
+  if (projectData.app !== "c64-visual-assembler" || !Array.isArray(projectData.program)) {
+    _expertSetStatus("Nem C64VA projektfájl: " + fileEntry.name, "error");
+    return;
+  }
+
+  // Parse program blocks (same logic as loadProjectFromFile)
+  let loadedProgram = projectData.program.map(block => ({
+    ...block,
+    id: block.id || crypto.randomUUID()
+  }));
+
+  for (const block of loadedProgram) {
+    if (block.isIncludeMacro && !block.includeFile) {
+      const name = block.includeFileName || "";
+      if (name) block.includeFile = /\.json$/i.test(name) ? name : `${name}.json`;
+    }
+    if (block.isIncBinMacro && !block.incBinFile) {
+      const name = block.incBinFileName || "";
+      if (name) block.incBinFile = name;
+    }
+    if (block.isSidMacro && !block.sidFile) {
+      const name = block.sidFileName || "";
+      if (name) block.sidFile = name;
+    }
+  }
+
+  if (!loadedProgram.some(b => b.isOrgMacro)) {
+    const orgAddr = (projectData.origin || "0801").replace(/^\$/, "").toUpperCase().padStart(4, "0");
+    loadedProgram.unshift({ ...makeDefaultOrgBlock(), orgAddress: orgAddr });
+  }
+
+  // Create new tab
+  _tabSaveCurrent();
+  const tab = _tabCreate();
+  tab.name     = fileEntry.name.replace(/\.(json|c64va)$/i, "");
+  tab.filePath = absPath;
+  tab.program  = loadedProgram;
+  tab.userMacros = {};
+  tabs.push(tab);
+  activeTabId = tab.id;
+
+  program = JSON.parse(JSON.stringify(loadedProgram));
+  userMacros = {};
+  selectedBlockId = null;
+
+  const displayName = tab.name;
+  if (expertFileName)    expertFileName.textContent    = "📄 " + displayName;
+  if (currentFileDisplay) currentFileDisplay.textContent = "📄 " + displayName;
+  updateWindowTitle(displayName);
+
+  await reloadIncludeBlocks(absPath);
+  await reloadIncBinBlocks(absPath);
+  await reloadSidBlocks(absPath);
+
+  parseUserMacros();
+  renderTabBar();
+  renderProgram();
+  renderAsmOutput();
+  if (expertMode) _expertSyncFromProgram();
+  markTabClean();
+  _expertRenderProjectTree();
+  _expertSetStatus(t("projOpenFile") + ": " + displayName, "ok");
 }
 
 function parseUserMacros() {
@@ -11109,6 +11558,8 @@ function renderProgram() {
     const node = programList.querySelector(`[data-block-id="${selectedBlockId}"]`);
     if (node) node.classList.add("asm-block--selected");
   }
+
+  _expertRenderSymbols();
 }
 
 function getMnemonicModes(mnemonic) {
