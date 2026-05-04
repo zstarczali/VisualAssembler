@@ -37,8 +37,12 @@
       <div class="hero-copy-block">
         <p class="eyebrow">Commodore 64 visual assembler</p>
         <div class="hero-menu-row">
+          <div class="main-toolbar">
           <details class="control-menu">
-            <summary class="secondary control-menu-trigger">Menu</summary>
+            <summary class="main-tb-btn control-menu-trigger">
+              <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              <span>Menu</span>
+            </summary>
             <div class="control-menu-panel">
               <section class="control-menu-group">
                 <h3 class="control-menu-label">File</h3>
@@ -46,9 +50,6 @@
                 <button id="load-project" class="secondary" type="button">Load program</button>
                 <button id="menu-open-project" class="secondary" type="button">Open project</button>
                 <button id="menu-save-project" class="secondary" type="button">Save project</button>
-                <button id="import-asm" class="secondary" type="button">Import ASM</button>
-                <button id="save-prg" class="secondary" type="button">Export to PRG</button>
-                <button id="save-d64" class="secondary" type="button">Export to D64</button>
                 <button id="exit-app" class="secondary" type="button">Kilepes</button>
               </section>
               <section class="control-menu-group">
@@ -84,6 +85,9 @@
                   </select>
                 </label>
                 <button id="load-sample" class="secondary" type="button">Betoltes</button>
+                <h3 class="control-menu-label control-menu-label--section" id="build-section-label">Build</h3>
+                <button id="save-prg" class="secondary" type="button">Build PRG</button>
+                <button id="save-d64" class="secondary" type="button">Build D64</button>
               </section>
               <section class="control-menu-group">
                 <h3 class="control-menu-label">Beallitasok</h3>
@@ -147,15 +151,16 @@
               </section>
             </div>
           </details>
+          <div class="main-tb-sep" aria-hidden="true"></div>
           <div class="split-run-group">
-            <button id="run-emulator" class="primary run-button split-run-main" type="button">
+            <button id="run-emulator" class="main-tb-btn main-tb-run split-run-main" type="button">
               <svg class="run-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg">
                 <path d="M3 2.5l10 5.5-10 5.5V2.5z" />
               </svg>
               <span class="run-label">Run</span>
             </button>
-            <button id="run-mode-arrow" class="primary run-button split-run-arrow" type="button" aria-haspopup="true" aria-expanded="false" title="Futtatasi mod valasztasa">
+            <button id="run-mode-arrow" class="main-tb-btn main-tb-run split-run-arrow" type="button" aria-haspopup="true" aria-expanded="false" title="Futtatasi mod valasztasa">
               <svg viewBox="0 0 10 6" fill="currentColor" width="10" height="6" aria-hidden="true"><path d="M0 0l5 6 5-6z"/></svg>
             </button>
             <div id="run-mode-menu" class="run-mode-menu" hidden role="menu">
@@ -177,13 +182,14 @@
               </button>
             </div>
           </div>
-          <button id="run-debugger" class="secondary run-button" type="button" title="">
+          <button id="run-debugger" class="main-tb-btn main-tb-debug" type="button" title="">
             <svg class="run-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg">
               <circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.2 3.2l1.4 1.4M11.4 11.4l1.4 1.4M11.4 3.2l-1.4 1.4M4.6 11.4l-1.4 1.4" stroke="currentColor" stroke-width="1.5" fill="none"/>
             </svg>
             <span class="run-label">Debug</span>
           </button>
+          </div>
         </div>
         <p class="hero-copy">
           Huzz be egy mnemonik blokkot balrol, rendezd oket sorba, es nezd meg a jobb oldalon az assembly nezetet.
@@ -563,24 +569,6 @@
       <p class="work-progress-subtitle" id="work-progress-subtitle">Please wait...</p>
       <div class="work-progress-bar-wrap" aria-hidden="true">
         <div id="work-progress-bar" class="work-progress-bar"></div>
-      </div>
-    </div>
-  </dialog>
-
-  <dialog id="import-asm-dialog" class="import-asm-dialog">
-    <div class="import-asm-card">
-      <h2 class="compile-error-title" id="import-asm-title">Import ASM</h2>
-      <div class="import-asm-editor">
-        <pre id="import-asm-line-numbers" class="import-asm-line-numbers" aria-hidden="true">1</pre>
-        <textarea id="import-asm-textarea" class="import-asm-textarea" rows="20" spellcheck="false"></textarea>
-      </div>
-      <div class="import-asm-actions">
-        <button id="import-asm-confirm" class="primary" type="button">Import</button>
-        <button id="import-asm-cancel" class="secondary" type="button">Cancel</button>
-      </div>
-      <div id="import-asm-errors" class="import-asm-errors" hidden>
-        <p id="import-asm-errors-title" class="import-asm-errors-title">Errors</p>
-        <ul id="import-asm-errors-list" class="import-asm-errors-list"></ul>
       </div>
     </div>
   </dialog>

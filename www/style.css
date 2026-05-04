@@ -236,6 +236,99 @@ a {
   width: 100%;
 }
 
+/* ── Main toolbar ─────────────────────────────────── */
+.main-toolbar {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 5px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+
+.main-tb-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--panel-border);
+  margin: 0 3px;
+  flex-shrink: 0;
+}
+
+.main-tb-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-family: inherit;
+  font-weight: 500;
+  white-space: nowrap;
+  min-height: 0;
+  height: 32px;
+  transition: background 0.12s;
+  list-style: none;
+}
+
+.main-tb-btn:hover {
+  background: color-mix(in srgb, var(--secondary) 18%, transparent);
+}
+
+/* Override legacy control-menu-trigger inside toolbar */
+.main-toolbar .control-menu-trigger {
+  min-width: unset;
+  min-height: 0;
+  height: 32px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  justify-content: flex-start;
+}
+.main-toolbar .control-menu-trigger:hover {
+  background: color-mix(in srgb, var(--secondary) 18%, transparent);
+}
+.main-toolbar .control-menu-trigger::after { display: none; }
+
+/* Run buttons — green */
+.main-tb-run { color: #3ac96a; }
+.main-tb-run:hover {
+  background: color-mix(in srgb, #3ac96a 18%, transparent);
+  color: #3ac96a;
+}
+
+html[data-theme="light"] .main-tb-run { color: #1a8a3f; }
+html[data-theme="light"] .main-tb-run:hover {
+  background: color-mix(in srgb, #1a8a3f 14%, transparent);
+  color: #1a8a3f;
+}
+html[data-theme="light"] .main-toolbar .split-run-arrow {
+  border-inline-start-color: color-mix(in srgb, #1a8a3f 35%, transparent);
+}
+
+/* Debug button — red */
+.main-tb-debug { color: #e05252; }
+.main-tb-debug:hover {
+  background: color-mix(in srgb, #e05252 18%, transparent);
+  color: #e05252;
+}
+
+/* Split run group inside toolbar */
+.main-toolbar .split-run-main { padding-inline-end: 10px; }
+.main-toolbar .split-run-arrow {
+  padding-inline: 7px;
+  border-inline-start: 1px solid color-mix(in srgb, #3ac96a 35%, transparent);
+  min-height: 0;
+  height: 32px;
+}
+
 .run-button {
   min-height: 42px;
   padding-inline: 18px;
@@ -523,6 +616,7 @@ h1 {
 .control-menu-group select {
   max-width: 100%;
   min-width: 0;
+  border-radius: 8px;
 }
 
 .control-menu-group .menu-note {
@@ -3409,142 +3503,6 @@ body.expert-mode .expert-panel {
   border-radius: inherit;
   background: linear-gradient(90deg, var(--primary-deep), var(--primary));
   transition: width 120ms linear;
-}
-
-/* ── About Dialog ────────────────────────────────────────────────── */
-.import-asm-dialog {
-  border: none;
-  border-radius: 16px;
-  padding: 0;
-  background: var(--panel);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
-  min-width: 480px;
-  max-width: 760px;
-  width: 90vw;
-  max-height: 95vh;
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
-.import-asm-dialog::backdrop {
-  background: rgba(0, 0, 0, 0.5);
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
-}
-
-.import-asm-card {
-  padding: 28px 28px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  max-height: 95vh;
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
-.import-asm-editor {
-  width: 100%;
-  box-sizing: border-box;
-  min-height: 200px;
-  flex: 1 1 auto;
-  min-height: 0;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  border: 1px solid var(--panel-border);
-  border-radius: 8px;
-  background: var(--output-bg);
-  overflow: hidden;
-}
-
-.import-asm-line-numbers {
-  margin: 0;
-  padding: 10px 10px 10px 12px;
-  min-width: 44px;
-  text-align: right;
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 0.78rem;
-  line-height: 1.5;
-  color: color-mix(in srgb, var(--output-text) 62%, transparent);
-  background: color-mix(in srgb, var(--output-bg) 84%, black 16%);
-  border-right: 1px solid color-mix(in srgb, var(--panel-border) 85%, transparent);
-  white-space: pre;
-  overflow: hidden;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.import-asm-textarea {
-  width: 100%;
-  box-sizing: border-box;
-  min-height: 200px;
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 0.78rem;
-  line-height: 1.5;
-  background: transparent;
-  color: var(--output-text);
-  border: 0;
-  border-radius: 0;
-  padding: 10px 12px;
-  resize: none;
-  outline: none;
-  overflow: auto;
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--secondary) 45%, transparent) transparent;
-}
-
-.import-asm-textarea::-webkit-scrollbar {
-  width: 7px;
-}
-
-.import-asm-textarea::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.import-asm-textarea::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--secondary) 45%, transparent);
-  background-clip: padding-box;
-}
-
-.import-asm-textarea::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, var(--secondary) 65%, transparent);
-  background-clip: padding-box;
-}
-
-.import-asm-textarea:focus {
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 48%, transparent);
-}
-
-.import-asm-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.import-asm-errors {
-  border: 1px solid color-mix(in srgb, var(--error) 35%, var(--panel-border));
-  background: color-mix(in srgb, var(--error) 10%, transparent);
-  border-radius: 10px;
-  padding: 10px 12px;
-  max-height: 25vh;
-  overflow-y: auto;
-  flex: 0 0 auto;
-}
-
-.import-asm-errors-title {
-  margin: 0 0 6px;
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--error);
-}
-
-.import-asm-errors-list {
-  margin: 0;
-  padding-left: 18px;
-  display: grid;
-  gap: 4px;
-  color: var(--text);
-  font-size: 0.82rem;
-  line-height: 1.35;
 }
 
 /* ── D64 Export Dialog ────────────────────────────────────────────── */

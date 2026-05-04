@@ -217,15 +217,6 @@ const saveProjectButton = document.getElementById("save-project");
 const savePrgButton = document.getElementById("save-prg");
 const saveD64Button = document.getElementById("save-d64");
 const loadProjectButton = document.getElementById("load-project");
-const importAsmButton = document.getElementById("import-asm");
-const importAsmDialog = document.getElementById("import-asm-dialog");
-const importAsmTextarea = document.getElementById("import-asm-textarea");
-const importAsmLineNumbers = document.getElementById("import-asm-line-numbers");
-const importAsmErrors = document.getElementById("import-asm-errors");
-const importAsmErrorsTitle = document.getElementById("import-asm-errors-title");
-const importAsmErrorsList = document.getElementById("import-asm-errors-list");
-const importAsmConfirmButton = document.getElementById("import-asm-confirm");
-const importAsmCancelButton = document.getElementById("import-asm-cancel");
 const zoomOutButton = document.getElementById("zoom-out");
 const zoomInButton = document.getElementById("zoom-in");
 const addSelectedButton = document.getElementById("add-selected");
@@ -366,12 +357,6 @@ const translations = {
     menuProgram: "Program",
     loadSample: "Betoltes",
     saveProject: "Program mentese",
-    importAsm: "ASM importalasa",
-    importAsmTitle: "ASM import",
-    importAsmPlaceholder: "Illeszd be a 6502 assembly kodot ide...",
-    importAsmConfirm: "Import",
-    importAsmCancel: "Megsem",
-    importAsmErrorsTitle: "Hibak",
     workProgressTitle: "Forditas folyamatban...",
     workProgressDoneTitle: "Sikeres build",
     workProgressRun: "PRG generalasa es VICE inditasa...",
@@ -386,10 +371,10 @@ const translations = {
     workProgressSuccessD64Ultimate: "D64 felcsatolva, lemez fut a hardveren.",
     workProgressSuccessDebug: "Build sikeres, debugger inditva.",
     workProgressSuccessImport: "Import sikeres.",
-    savePrg: "Export PRG-kent",
-    savePrgSuccess: "PRG elmentve",
+    savePrg: "Build PRG",
+    buildSection: "Build",
     savePrgFailed: "PRG mentes sikertelen",
-    saveD64: "Export D64-kent",
+    saveD64: "Build D64",
     saveD64Success: "D64 elmentve",
     saveD64Failed: "D64 mentes sikertelen",
     saveD64NeedVice: "A D64 mentes a VICE c1541 toolt hasznalja. Allitsd be a VICE eleresi utjat a Beallitasok menuben.",
@@ -702,12 +687,6 @@ const translations = {
     menuProgram: "Program",
     loadSample: "Load",
     saveProject: "Save program",
-    importAsm: "Import ASM",
-    importAsmTitle: "Import ASM",
-    importAsmPlaceholder: "Paste 6502 assembly code here...",
-    importAsmConfirm: "Import",
-    importAsmCancel: "Cancel",
-    importAsmErrorsTitle: "Errors",
     workProgressTitle: "Compiling...",
     workProgressDoneTitle: "Build successful",
     workProgressRun: "Building PRG and launching VICE...",
@@ -722,10 +701,10 @@ const translations = {
     workProgressSuccessD64Ultimate: "D64 mounted, disk running on hardware.",
     workProgressSuccessDebug: "Build successful, debugger launched.",
     workProgressSuccessImport: "Import successful.",
-    savePrg: "Export to PRG",
-    savePrgSuccess: "PRG saved",
+    savePrg: "Build PRG",
+    buildSection: "Build",
     savePrgFailed: "PRG save failed",
-    saveD64: "Export to D64",
+    saveD64: "Build D64",
     saveD64Success: "D64 saved",
     saveD64Failed: "D64 export failed",
     saveD64NeedVice: "D64 export uses VICE's c1541 tool. Set the VICE path in the Settings menu.",
@@ -1040,29 +1019,6 @@ function tf(key, values = {}) {
     (text, [name, value]) => text.replaceAll(`{${name}}`, String(value)),
     t(key)
   );
-}
-
-function updateImportAsmLineNumbers() {
-  if (!importAsmTextarea || !importAsmLineNumbers) return;
-  const lineCount = Math.max(1, importAsmTextarea.value.split("\n").length);
-  const numbers = Array.from({ length: lineCount }, (_, i) => String(i + 1)).join("\n");
-  if (importAsmLineNumbers.textContent !== numbers) {
-    importAsmLineNumbers.textContent = numbers;
-  }
-  importAsmLineNumbers.scrollTop = importAsmTextarea.scrollTop;
-}
-
-function setImportAsmErrors(errors = []) {
-  if (!importAsmErrors || !importAsmErrorsList) return;
-  if (!Array.isArray(errors) || errors.length === 0) {
-    importAsmErrors.hidden = true;
-    importAsmErrorsList.innerHTML = "";
-    return;
-  }
-  importAsmErrorsList.innerHTML = errors
-    .map(err => `<li>${String(err).replace(/</g, "&lt;")}</li>`)
-    .join("");
-  importAsmErrors.hidden = false;
 }
 
 function readUiSettings() {
@@ -1448,6 +1404,7 @@ function initPalette() {
   document.getElementById("crt-toggle")?.addEventListener("click", toggleCrtMode);
   languageSelect.addEventListener("change", handleLanguageChange);
   aboutButton?.addEventListener("click", async () => {
+    document.querySelector(".control-menu")?.removeAttribute("open");
     const version = await window.electronAPI.getAppVersion();
     document.getElementById("about-version").textContent = `v${version}`;
     const dlg = document.getElementById("about-dialog");
@@ -1603,10 +1560,14 @@ function initPalette() {
   });
   aboutCloseButton?.addEventListener("click", () => aboutDialog?.close());
   whatsNewButton?.addEventListener("click", () => {
+    document.querySelector(".control-menu")?.removeAttribute("open");
     whatsNewDialog?.showModal();
   });
   whatsNewCloseButton?.addEventListener("click", () => whatsNewDialog?.close());
-  knowledgeBaseButton?.addEventListener("click", () => knowledgeBaseDialog?.showModal());
+  knowledgeBaseButton?.addEventListener("click", () => {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    knowledgeBaseDialog?.showModal();
+  });
   knowledgeBaseCloseButton?.addEventListener("click", () => knowledgeBaseDialog?.close());
   knowledgeBaseDialog?.addEventListener("click", (e) => { if (e.target === knowledgeBaseDialog) knowledgeBaseDialog.close(); });
   knowledgeBaseDialog?.querySelectorAll(".knowledge-base-link").forEach((link) => {
@@ -1670,72 +1631,6 @@ function initPalette() {
     const ok = await loadProjectFromFile();
     if (ok) document.querySelector(".control-menu")?.removeAttribute("open");
   });
-  importAsmButton?.addEventListener("click", () => {
-    if (importAsmTextarea) importAsmTextarea.value = "";
-    setImportAsmErrors([]);
-    updateImportAsmLineNumbers();
-    importAsmDialog?.showModal();
-    importAsmTextarea?.focus();
-  });
-  importAsmTextarea?.addEventListener("input", () => {
-    setImportAsmErrors([]);
-    updateImportAsmLineNumbers();
-  });
-  importAsmTextarea?.addEventListener("scroll", updateImportAsmLineNumbers);
-  importAsmCancelButton?.addEventListener("click", () => importAsmDialog?.close());
-  importAsmDialog?.addEventListener("click", (e) => { if (e.target === importAsmDialog) importAsmDialog.close(); });
-  workProgressDialog?.addEventListener("cancel", (e) => e.preventDefault());
-  importAsmConfirmButton?.addEventListener("click", async () => {
-    const text = importAsmTextarea?.value || "";
-    importAsmDialog?.close();
-    if (!text.trim()) return;
-    await showWorkProgress("workProgressImport");
-    let success = false;
-    let importErrors = [];
-    try {
-      setWorkProgress(25);
-      const imported = parseAsmText(text);
-      if (imported.length === 0) {
-        importErrors = [currentLanguage === "en" ? "No valid ASM lines found to import." : "Nem talalhato ervenyes ASM sor importhoz."];
-        return;
-      }
-      setWorkProgress(40);
-      const oldProgram = program;
-      const oldUserMacros = { ...userMacros };
-      program = imported;
-      parseUserMacros();
-      setWorkProgress(60);
-      const prg = buildAutostartPrgForEmulator();
-      setWorkProgress(85);
-      if (prg.ok) {
-        success = true;
-      } else {
-        importErrors = prg.errors || [prg.error || t("projectLoadFailed")];
-      }
-      if (!prg.ok) {
-        program = oldProgram;
-        userMacros = oldUserMacros;
-      }
-    } finally {
-      if (success) {
-        setImportAsmErrors([]);
-        renderOriginPreview();
-        renderEmulatorRunHint();
-        renderProgram();
-        saveUiSettings();
-        await completeWorkProgress("workProgressSuccessImport");
-      } else {
-        hideWorkProgress();
-        if (importAsmTextarea) {
-          importAsmTextarea.value = text;
-          updateImportAsmLineNumbers();
-        }
-        importAsmDialog?.showModal();
-        setImportAsmErrors(importErrors);
-        importAsmTextarea?.focus();
-      }
-    }
-  });
   zoomOutButton.addEventListener("click", () => adjustZoom(-0.08));
   zoomInButton.addEventListener("click", () => adjustZoom(0.08));
   outputModeInputs.forEach((input) => input.addEventListener("change", renderOutputMode));
@@ -1773,7 +1668,10 @@ function initPalette() {
   clearProgramButton.addEventListener("click", clearProgram);
   collapseAllButton.addEventListener("click", collapseAllBlocks);
   expandAllButton.addEventListener("click", expandAllBlocks);
-  copyAsmButton?.addEventListener("click", copyAsmToClipboard);
+  copyAsmButton?.addEventListener("click", () => {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    copyAsmToClipboard();
+  });
   chooseViceButton?.addEventListener("click", chooseViceExecutable);
   runEmulatorButton?.addEventListener("click", () => {
     if (runMode === "d64") runViaD64();
@@ -2093,13 +1991,8 @@ function applyTranslations() {
     setText("#save-project", t("saveProject"));
     setText("#menu-open-project", t("menuOpenProject"));
     setText("#menu-save-project", t("menuSaveProject"));
-    setText("#import-asm", t("importAsm"));
-    setText("#import-asm-confirm", t("importAsmConfirm"));
-    setText("#import-asm-cancel", t("importAsmCancel"));
-    setText("#import-asm-title", t("importAsmTitle"));
-    setText("#import-asm-errors-title", t("importAsmErrorsTitle"));
-    if (importAsmTextarea) importAsmTextarea.placeholder = t("importAsmPlaceholder");
     setText("#save-prg", t("savePrg"));
+    setText("#build-section-label", t("buildSection"));
     setText("#save-d64", t("saveD64"));
     setText("#d64-export-title", t("d64ExportTitle"));
     setText("#d64-export-diskname-label", t("d64ExportDiskName"));
@@ -3555,6 +3448,7 @@ function makeDefaultOrgBlock() {
 }
 
 function clearProgram() {
+  document.querySelector(".control-menu")?.removeAttribute("open");
   const dialog = document.getElementById("new-program-dialog");
   if (dialog) {
     document.getElementById("new-program-dialog-msg").textContent = t("newProgramConfirmMsg");
@@ -4542,7 +4436,39 @@ function _makeProjDelBtn(onDelete) {
   return btn;
 }
 
+async function _closeAllTabsWithConfirm() {
+  // For each tab that has content, ask user. If user cancels any, stop and return false.
+  for (const tab of [...tabs]) {
+    if (_tabHasContent(tab)) {
+      const key = tab.filePath ? "tabCloseConfirmUnsaved" : "tabCloseConfirm";
+      const msg = tf(key, { name: tab.name });
+      if (!await _showConfirm(msg)) return false;
+    }
+  }
+  // All confirmed — clear all tabs, leave one blank
+  tabs.length = 0;
+  const blank = _tabCreate();
+  blank.program = [makeDefaultOrgBlock()];
+  tabs.push(blank);
+  activeTabId = blank.id;
+  program = JSON.parse(JSON.stringify(blank.program));
+  userMacros = {};
+  selectedBlockId = null;
+  if (expertMode && expertEditor) {
+    expertEditor.value = "";
+    expertEditor.dispatchEvent(new Event("input"));
+  }
+  if (currentFileDisplay) currentFileDisplay.textContent = "";
+  if (expertFileName) expertFileName.textContent = "";
+  updateWindowTitle("");
+  renderTabBar();
+  return true;
+}
+
 async function _openProjectFromMenu() {
+  // Ask user for each dirty tab before loading
+  if (!await _closeAllTabsWithConfirm()) return;
+
   // Load the .proj file first (shared with expert mode)
   const res = await window.electronAPI?.openProjFile?.();
   if (!res || res.canceled) return;
@@ -4576,6 +4502,25 @@ async function _openProjectFromMenu() {
   for (const file of files) {
     await _expertProjectOpenFile(file);
   }
+
+  // Remove the initial blank placeholder tab left by _closeAllTabsWithConfirm
+  // (only if at least one real tab was opened)
+  if (tabs.length > 1) {
+    const blankIdx = tabs.findIndex(t =>
+      !t.filePath && (t.program || []).length <= 1 && ((t.program || [])[0]?.isOrgMacro ?? true)
+    );
+    if (blankIdx >= 0) {
+      tabs.splice(blankIdx, 1);
+      // Make sure activeTabId still points to a valid tab
+      if (!tabs.find(t => t.id === activeTabId)) {
+        activeTabId = tabs[0].id;
+        _tabActivate(activeTabId);
+      } else {
+        renderTabBar();
+      }
+    }
+  }
+
   _expertSetStatus(t("projOpened") + ": " + _expertProjectData.name, "ok");
 }
 
@@ -4595,6 +4540,7 @@ function _normFilePath(p) {
 }
 
 async function _expertOpenProject() {
+  if (!await _closeAllTabsWithConfirm()) return;
   const res = await window.electronAPI?.openProjFile?.();
   if (!res || res.canceled) return;
   if (!res.ok) { _expertSetStatus(t("projError") + ": " + res.error, "error"); return; }
@@ -6463,7 +6409,10 @@ async function _tabClose(tabId) {
   tabs.splice(idx, 1);
   if (activeTabId === tabId) {
     const nextTab = tabs[Math.min(idx, tabs.length - 1)];
-    activeTabId = nextTab.id; // set before _tabActivate so _tabSaveCurrent skips deleted tab
+    // The closing tab is already spliced from tabs[], so _tabSaveCurrent inside
+    // _tabActivate will find no tab for the old activeTabId and return early (correct).
+    // Do NOT set activeTabId before _tabActivate — that would make _tabSaveCurrent
+    // overwrite the next tab with the closing tab's stale content.
     _tabActivate(nextTab.id);
   } else {
     renderTabBar();
