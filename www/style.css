@@ -200,7 +200,7 @@ a {
 }
 
 .app-shell {
-  max-width: 1320px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 24px;
   min-height: 100vh;
@@ -730,7 +730,7 @@ html[data-theme="oled"] .primary {
 
 .workspace {
   display: grid;
-  grid-template-columns: 260px minmax(360px, 470px) minmax(360px, 1fr);
+  grid-template-columns: 260px minmax(360px, 520px) minmax(360px, 1fr);
   gap: 14px;
   align-items: stretch;
 }
@@ -2736,6 +2736,7 @@ body.expert-mode .expert-panel {
   flex-shrink: 0;
   width: 16px;
   height: 16px;
+  min-height: 0;
   border: none;
   background: none;
   color: var(--secondary);

@@ -523,6 +523,12 @@ const translations = {
     expertMonitor: "Monitor be/ki",
     expertFormat: "Forráskód formázása",
     expertProjectPanel: "Projekt panel",
+    projOpenProjectBtn: "Projekt megnyítása",
+    menuOpenProject: "Projekt megnyítása",
+    menuSaveProject: "Projekt mentése",
+    projNewProjectBtn: "Új projekt",
+    projSaveProjectBtn: "Projekt mentése",
+    projAddFileBtn: "Fájl hozzáadása",
     projNoProject: "Nincs projekt",
     projClickToOpen: "Kattints a mappa gombra\nprojekt megnyitásához",
     projAddFileHint: "Adj hozzá fájlt a + gombbal",
@@ -854,6 +860,12 @@ const translations = {
     expertMonitor: "Toggle monitor",
     expertFormat: "Format source code",
     expertProjectPanel: "Project panel",
+    projOpenProjectBtn: "Open project",
+    menuOpenProject: "Open project",
+    menuSaveProject: "Save project",
+    projNewProjectBtn: "New project",
+    projSaveProjectBtn: "Save project",
+    projAddFileBtn: "Add file",
     projNoProject: "No project",
     projClickToOpen: "Click the folder button\nto open a project",
     projAddFileHint: "Add files with the + button",
@@ -1644,6 +1656,14 @@ function initPalette() {
     await saveProjectToFile();
     document.querySelector(".control-menu")?.removeAttribute("open");
   });
+  document.getElementById("menu-open-project")?.addEventListener("click", async () => {
+    await _openProjectFromMenu();
+    document.querySelector(".control-menu")?.removeAttribute("open");
+  });
+  document.getElementById("menu-save-project")?.addEventListener("click", async () => {
+    await _expertSaveProject();
+    document.querySelector(".control-menu")?.removeAttribute("open");
+  });
   savePrgButton?.addEventListener("click", savePrgToFile);
   saveD64Button?.addEventListener("click", saveD64ToFile);
   loadProjectButton?.addEventListener("click", async () => {
@@ -2017,6 +2037,14 @@ function applyTranslations() {
   expertPaletteBtn?.setAttribute("aria-label", t("expertPaletteToggle"));
   expertProjectBtn?.setAttribute("title", t("expertProjectPanel"));
   expertProjectBtn?.setAttribute("aria-label", t("expertProjectPanel"));
+  document.getElementById("expert-project-open-btn")?.setAttribute("title", t("projOpenProjectBtn"));
+  document.getElementById("expert-project-open-btn")?.setAttribute("aria-label", t("projOpenProjectBtn"));
+  document.getElementById("expert-project-new-btn")?.setAttribute("title", t("projNewProjectBtn"));
+  document.getElementById("expert-project-new-btn")?.setAttribute("aria-label", t("projNewProjectBtn"));
+  document.getElementById("expert-project-save-btn")?.setAttribute("title", t("projSaveProjectBtn"));
+  document.getElementById("expert-project-save-btn")?.setAttribute("aria-label", t("projSaveProjectBtn"));
+  document.getElementById("expert-project-add-btn")?.setAttribute("title", t("projAddFileBtn"));
+  document.getElementById("expert-project-add-btn")?.setAttribute("aria-label", t("projAddFileBtn"));
   expertPaletteSyncBtn?.setAttribute("title", t("expertPaletteSync"));
   expertPaletteSyncBtn?.setAttribute("aria-label", t("expertPaletteSync"));
   expertDisasmBtn?.setAttribute("title", t("expertDisasm"));
@@ -2063,6 +2091,8 @@ function applyTranslations() {
     setText("#run-debugger .run-label", t("runInDebugger"));
     setText("#copy-asm", t("copyAsm"));
     setText("#save-project", t("saveProject"));
+    setText("#menu-open-project", t("menuOpenProject"));
+    setText("#menu-save-project", t("menuSaveProject"));
     setText("#import-asm", t("importAsm"));
     setText("#import-asm-confirm", t("importAsmConfirm"));
     setText("#import-asm-cancel", t("importAsmCancel"));
@@ -4315,7 +4345,7 @@ function _expertRenderSymbols() {
     lines.forEach((line, idx) => {
       const rm = line.match(/^\s*\.region\s+(.+?)(?:\s*;.*)?$/i);
       if (rm) { regions.push({ _textName: rm[1].trim(), _lineIdx: idx }); return; }
-      const mm = line.match(/^\s*macro\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s|$)/i);
+      const mm = line.match(/^\s*\.macro\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s|$)/i);
       if (mm) { macros.push({ _textName: mm[1].trim(), _lineIdx: idx }); }
     });
   } else {
@@ -4401,7 +4431,7 @@ function _expertRenderSymbols() {
       if (expertMode && expertEditor) {
         if (item._lineIdx != null) { gotoEditorLine(item._lineIdx); return; }
         const escaped = item.macroName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-        gotoEditorPattern(new RegExp(`^\\s*macro\\s+${escaped}\\b`, "i"));
+        gotoEditorPattern(new RegExp(`^\\s*\\.macro\\s+${escaped}\\b`, "i"));
       } else {
         selectBlockInAsm(item.id);
         programList?.querySelector(`[data-block-id="${item.id}"]`)
@@ -4510,6 +4540,43 @@ function _makeProjDelBtn(onDelete) {
   btn.textContent = "✕";
   btn.addEventListener("click", e => { e.stopPropagation(); onDelete(); });
   return btn;
+}
+
+async function _openProjectFromMenu() {
+  // Load the .proj file first (shared with expert mode)
+  const res = await window.electronAPI?.openProjFile?.();
+  if (!res || res.canceled) return;
+  if (!res.ok) { _expertSetStatus(t("projError") + ": " + res.error, "error"); return; }
+  const proj = res.project || {};
+  function migrateNodes(nodes) {
+    return (nodes || []).map(n => {
+      if (n.type === "folder") return { type: "folder", name: n.name, children: migrateNodes(n.children) };
+      return { type: "file", name: n.name || n.path?.split("/").pop() || "", path: n.path };
+    });
+  }
+  _expertProjectData = {
+    name:      proj.name || "Névtelen projekt",
+    files:     migrateNodes(proj.files),
+    _projPath: res.filePath
+  };
+
+  if (expertMode) {
+    // In expert mode: just update the panel as usual
+    _expertRenderProjectTree();
+    _expertSetStatus(t("projOpened") + ": " + _expertProjectData.name, "ok");
+    return;
+  }
+
+  // In block mode: open every file as a tab
+  const files = (_expertProjectData.files || []).filter(f => !f.type || f.type === "file");
+  if (files.length === 0) {
+    _expertSetStatus(t("projOpened") + ": " + _expertProjectData.name, "ok");
+    return;
+  }
+  for (const file of files) {
+    await _expertProjectOpenFile(file);
+  }
+  _expertSetStatus(t("projOpened") + ": " + _expertProjectData.name, "ok");
 }
 
 function _projResolveAbsPath(relPath) {
@@ -6319,6 +6386,7 @@ function _tabActivate(tabId) {
   renderTabBar();
   renderProgram();
   renderAsmOutput();
+  if (_expertProjectVisible && _expertProjectData) _expertRenderProjectTree();
 }
 
 function _tabNew() {
@@ -6381,6 +6449,10 @@ async function _tabClose(tabId) {
     tab.name = tab._untitledName;
     tab.filePath = null;
     tab.expertText = "";
+    if (expertMode && expertEditor) {
+      expertEditor.value = "";
+      expertEditor.dispatchEvent(new Event("input"));
+    }
     if (currentFileDisplay) currentFileDisplay.textContent = "";
     if (expertFileName) expertFileName.textContent = "";
     updateWindowTitle("");
