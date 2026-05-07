@@ -264,7 +264,7 @@ a {
   border: none;
   background: transparent;
   color: var(--text);
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 0.875rem;
   font-family: inherit;
@@ -286,7 +286,7 @@ a {
   min-height: 0;
   height: 32px;
   padding: 5px 10px;
-  border-radius: 6px;
+  border-radius: 8px;
   border: none;
   background: transparent;
   box-shadow: none;
@@ -389,7 +389,7 @@ html[data-theme="light"] .main-toolbar .split-run-arrow {
   align-items: center;
   gap: 8px;
   padding: 7px 10px;
-  border-radius: 4px;
+  border-radius: 8px;
   background: transparent;
   border: none;
   color: var(--text);
@@ -475,7 +475,7 @@ h1 {
   min-width: 170px;
   height: 46px;
   padding: 0 42px 0 14px;
-  border-radius: 14px;
+  border-radius: 8px;
 }
 
 .control-menu {
@@ -503,7 +503,7 @@ h1 {
   padding: 9px 14px;
   justify-content: space-between;
   gap: 10px;
-  border-radius: 14px;
+  border-radius: 8px;
   border: 1px solid var(--panel-border);
   background: var(--control-bg);
   color: var(--text);
@@ -658,7 +658,7 @@ h1 {
   cursor: pointer;
   width: 100%;
   border: 1px solid var(--panel-border);
-  border-radius: 14px;
+  border-radius: 8px;
   padding: 9px 14px;
   background: var(--control-bg);
   color: var(--text);
@@ -697,7 +697,7 @@ h1 {
   gap: 10px;
   width: 100%;
   padding: 8px 12px;
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 0.88rem;
   justify-content: flex-start;
 }
@@ -733,7 +733,7 @@ h1 {
 button,
 .link-button {
   border: 1px solid transparent;
-  border-radius: 14px;
+  border-radius: 8px;
   padding: 9px 14px;
   cursor: pointer;
   transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease, border-color 160ms ease, color 160ms ease;
@@ -998,7 +998,7 @@ html[data-theme="oled"] .primary {
   gap: 8px;
   font-size: 0.9rem;
   cursor: pointer;
-  color: var(--fg);
+  color: var(--text);
 }
 
 .menu-checkbox-label input[type="checkbox"] {
@@ -1027,13 +1027,13 @@ html[data-theme="oled"] .primary {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--active-fg);
   box-shadow: 0 1px 3px rgba(0,0,0,0.3);
   transition: transform 0.2s;
 }
 
 .menu-checkbox-label input[type="checkbox"]:checked {
-  background: var(--accent);
+  background: var(--primary);
 }
 
 .menu-checkbox-label input[type="checkbox"]:checked::after {
@@ -1155,7 +1155,7 @@ input {
   width: 100%;
   box-sizing: border-box;
   border: 1px solid var(--panel-border);
-  border-radius: 14px;
+  border-radius: 8px;
   background: var(--input-bg);
   color: var(--text);
   font-size: 0.9rem;
@@ -1269,7 +1269,7 @@ button:focus-visible,
 .palette-search-input {
   width: 100%;
   padding: 8px 12px;
-  border-radius: 10px;
+  border-radius: 8px;
   border: 1px solid var(--panel-border);
   background: var(--input-bg);
   color: var(--text);
@@ -1324,7 +1324,7 @@ button:focus-visible,
   min-height: 0;
   height: auto;
   padding: 10px 12px;
-  border-radius: 14px;
+  border-radius: 8px;
   background: var(--panel-strong);
   border: 1px solid var(--panel-border);
   text-align: left;
@@ -1626,13 +1626,12 @@ body.dnd-active {
   display: grid;
   grid-template-rows: 1fr;
   grid-template-columns: minmax(0, 1fr);
-  overflow: hidden;
+  overflow: visible;
   transition: grid-template-rows 220ms ease;
 }
 
 .block-body-inner {
   min-height: 0;
-  overflow: hidden;
   max-width: 100%;
   min-width: 0;
 }
@@ -2029,6 +2028,7 @@ html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
 
 .asm-block[data-collapsed="true"] .block-body {
   grid-template-rows: 0fr;
+  overflow: hidden;
 }
 
 .asm-block[data-collapsed="true"] .block-actions {
@@ -2130,7 +2130,7 @@ html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
 
 .view-mode-toggle {
   display: inline-grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 4px;
   padding: 4px;
   border-radius: 14px;
@@ -2154,7 +2154,7 @@ html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
   justify-content: center;
   min-height: 34px;
   padding: 0 12px;
-  border-radius: 10px;
+  border-radius: 8px;
   color: var(--muted);
   font-size: 0.8rem;
   font-weight: 700;
@@ -3976,16 +3976,15 @@ body.expert-mode .expert-panel {
 }
 
 .operand-dropdown {
-  position: absolute;
-  top: calc(100% + 4px);
+  position: fixed;
+  top: 0;
   left: 0;
-  min-width: 100%;
   width: max-content;
-  max-width: min(360px, 90vw);
+  max-width: min(600px, 90vw);
   z-index: 50;
   background: var(--panel-strong);
   border: 1px solid var(--panel-border);
-  border-radius: 14px;
+  border-radius: 8px;
   box-shadow: 0 8px 24px color-mix(in srgb, black 18%, transparent);
   max-height: 240px;
   overflow-y: auto;
@@ -4003,8 +4002,6 @@ body.expert-mode .expert-panel {
   color: var(--text);
   transition: background 100ms ease;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .operand-dropdown-item:hover,
@@ -4135,6 +4132,7 @@ body.crt-mode #crt-overlay::after {
 .splash-version {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.8rem;
+  font-weight: 700;
   color: var(--muted);
   margin: 0 0 2rem 0;
 }
@@ -4290,7 +4288,7 @@ body.crt-mode #crt-overlay::after {
   background: var(--panel);
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
   min-width: 360px;
-  max-width: 480px;
+  max-width: 720px;
   width: 90vw;
 }
 
@@ -4307,6 +4305,16 @@ body.crt-mode #crt-overlay::after {
   gap: 16px;
 }
 
+.hw-settings-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.hw-settings-body .hw-settings-section--full {
+  grid-column: 1 / -1;
+}
+
 .hw-settings-section {
   display: flex;
   flex-direction: column;
@@ -4315,6 +4323,7 @@ body.crt-mode #crt-overlay::after {
   border-radius: 12px;
   border: 1px solid color-mix(in srgb, var(--panel-border) 82%, transparent);
   background: color-mix(in srgb, var(--control-bg) 76%, transparent);
+  color: var(--text);
 }
 
 .hw-settings-section button,

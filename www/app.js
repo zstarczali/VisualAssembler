@@ -233,12 +233,9 @@ const emulatorRunHint = document.getElementById("emulator-run-hint");
 const vicePathInput = document.getElementById("vice-path");
 const debuggerPathInput = document.getElementById("debugger-path");
 const debuggerStatus = document.getElementById("debugger-status");
-const dbgJmpOn = document.getElementById("dbg-jmp-on");
-const dbgJmpOff = document.getElementById("dbg-jmp-off");
-const dbgWaitOn = document.getElementById("dbg-wait-on");
-const dbgWaitOff = document.getElementById("dbg-wait-off");
-const dbgUnpauseOn = document.getElementById("dbg-unpause-on");
-const dbgUnpauseOff = document.getElementById("dbg-unpause-off");
+const dbgJmp = document.getElementById("dbg-jmp");
+const dbgWait = document.getElementById("dbg-wait");
+const dbgUnpause = document.getElementById("dbg-unpause");
 const currentFileDisplay = document.getElementById("current-file");
 const originInput = document.getElementById("origin-input");
 const originPreview = document.getElementById("origin-preview");
@@ -266,11 +263,9 @@ let showMacroSource = false;
 let showRegionComments = true;
 let asmOutputBase = "hex";
 let originBase = "hex";
-const macroSourceToggleOn = document.getElementById("macro-source-toggle-on");
 const macroSourceToggle = document.getElementById("macro-source-toggle");
 const macroSourceToggleText = document.getElementById("macro-source-toggle-text");
-const regionCommentsToggleOn = document.getElementById("region-comments-toggle-on");
-const regionCommentsToggleOff = document.getElementById("region-comments-toggle-off");
+const regionCommentsToggle = document.getElementById("region-comments-toggle");
 const asmBaseInputs = document.querySelectorAll('input[name="asm-output-base"]');
 const originBaseInputs = document.querySelectorAll('input[name="origin-base"]');
 const compileErrorDialog = document.getElementById("compile-error-dialog");
@@ -1644,23 +1639,13 @@ function initPalette() {
   document.getElementById("new-program-cancel")?.addEventListener("click", () => {
     document.getElementById("new-program-dialog")?.close();
   });
-  macroSourceToggleOn?.addEventListener("change", () => {
-    showMacroSource = macroSourceToggleOn.checked;
-    saveUiSettings();
-    renderAsmOutput();
-  });
   macroSourceToggle?.addEventListener("change", () => {
-    showMacroSource = false;
+    showMacroSource = macroSourceToggle.checked;
     saveUiSettings();
     renderAsmOutput();
   });
-  regionCommentsToggleOn?.addEventListener("change", () => {
-    showRegionComments = true;
-    saveUiSettings();
-    renderAsmOutput();
-  });
-  regionCommentsToggleOff?.addEventListener("change", () => {
-    showRegionComments = false;
+  regionCommentsToggle?.addEventListener("change", () => {
+    showRegionComments = regionCommentsToggle.checked;
     saveUiSettings();
     renderAsmOutput();
   });
@@ -1684,12 +1669,9 @@ function initPalette() {
   setupUltimateSettings();
   chooseDebuggerButton?.addEventListener("click", chooseDebuggerExecutable);
   runDebuggerButton?.addEventListener("click", runInDebugger);
-  dbgJmpOn?.addEventListener("change", () => { debuggerJmp = true; saveUiSettings(); });
-  dbgJmpOff?.addEventListener("change", () => { debuggerJmp = false; saveUiSettings(); });
-  dbgWaitOn?.addEventListener("change", () => { debuggerWait = true; saveUiSettings(); });
-  dbgWaitOff?.addEventListener("change", () => { debuggerWait = false; saveUiSettings(); });
-  dbgUnpauseOn?.addEventListener("change", () => { debuggerUnpause = true; saveUiSettings(); });
-  dbgUnpauseOff?.addEventListener("change", () => { debuggerUnpause = false; saveUiSettings(); });
+  dbgJmp?.addEventListener("change", () => { debuggerJmp = dbgJmp.checked; saveUiSettings(); });
+  dbgWait?.addEventListener("change", () => { debuggerWait = dbgWait.checked; saveUiSettings(); });
+  dbgUnpause?.addEventListener("change", () => { debuggerUnpause = dbgUnpause.checked; saveUiSettings(); });
   globalMemoryPanel?.addEventListener("toggle", saveUiSettings);
 
   applySavedTheme();
@@ -1832,14 +1814,12 @@ function _applyUiSettingsToDOM() {
 
   if (savedUiSettings.showMacroSource !== undefined) {
     showMacroSource = !!savedUiSettings.showMacroSource;
-    if (macroSourceToggleOn) macroSourceToggleOn.checked = showMacroSource;
-    if (macroSourceToggle) macroSourceToggle.checked = !showMacroSource;
+    if (macroSourceToggle) macroSourceToggle.checked = showMacroSource;
   }
 
   if (savedUiSettings.showRegionComments !== undefined) {
     showRegionComments = !!savedUiSettings.showRegionComments;
-    if (regionCommentsToggleOn) regionCommentsToggleOn.checked = showRegionComments;
-    if (regionCommentsToggleOff) regionCommentsToggleOff.checked = !showRegionComments;
+    if (regionCommentsToggle) regionCommentsToggle.checked = showRegionComments;
   }
 
   if (savedUiSettings.asmOutputBase) {
@@ -1848,16 +1828,13 @@ function _applyUiSettingsToDOM() {
   asmBaseInputs.forEach(input => { input.checked = input.value === asmOutputBase; });
 
   if (savedUiSettings.debuggerJmp !== undefined) debuggerJmp = !!savedUiSettings.debuggerJmp;
-  if (dbgJmpOn) dbgJmpOn.checked = debuggerJmp;
-  if (dbgJmpOff) dbgJmpOff.checked = !debuggerJmp;
+  if (dbgJmp) dbgJmp.checked = debuggerJmp;
 
   if (savedUiSettings.debuggerWait !== undefined) debuggerWait = !!savedUiSettings.debuggerWait;
-  if (dbgWaitOn) dbgWaitOn.checked = debuggerWait;
-  if (dbgWaitOff) dbgWaitOff.checked = !debuggerWait;
+  if (dbgWait) dbgWait.checked = debuggerWait;
 
   if (savedUiSettings.debuggerUnpause !== undefined) debuggerUnpause = !!savedUiSettings.debuggerUnpause;
-  if (dbgUnpauseOn) dbgUnpauseOn.checked = debuggerUnpause;
-  if (dbgUnpauseOff) dbgUnpauseOff.checked = !debuggerUnpause;
+  if (dbgUnpause) dbgUnpause.checked = debuggerUnpause;
 }
 
 function applySavedUiSettings() {
@@ -2224,6 +2201,11 @@ function openOperandDropdown(filter) {
   dd.innerHTML = items.map((s, i) =>
     `<div class="operand-dropdown-item" data-value="${s.value}" data-index="${i}" title="${s.label}">${s.label}</div>`
   ).join("");
+  // Position using fixed coords to escape overflow:hidden parent
+  const rect = operandInput.getBoundingClientRect();
+  dd.style.left = rect.left + "px";
+  dd.style.top = (rect.bottom + 4) + "px";
+  dd.style.minWidth = rect.width + "px";
   dd.hidden = false;
   dd.querySelectorAll(".operand-dropdown-item").forEach(el => {
     el.addEventListener("pointerdown", e => {
@@ -2236,6 +2218,15 @@ function openOperandDropdown(filter) {
 }
 
 function setupOperandDropdown() {
+  // Create dropdown at body level to escape backdrop-filter containing block
+  let dd = document.getElementById("operand-dropdown");
+  if (!dd) {
+    dd = document.createElement("div");
+    dd.id = "operand-dropdown";
+    dd.className = "operand-dropdown";
+    dd.hidden = true;
+    document.body.appendChild(dd);
+  }
   operandInput.addEventListener("focus", () => {
     if (_operandSuggestions.length) openOperandDropdown(operandInput.value);
   });
@@ -4187,7 +4178,8 @@ function _expertRenderDisasm() {
         if (line.block._isSavedAddress || line.block._isRestoreAddress) continue;
         if (line.block._macroSourceBlock) continue;
         if (line.block.isComment) { lines.push(`; ${line.block.rawOperand || ""}`); continue; }
-        if (line.block.isLabel) { lines.push(`${line.block.labelName}:`); continue; }
+        if (line.block.isLabel && !line.block._syntheticMacroLabel) { lines.push(`${line.block.labelName}:`); continue; }
+        if (line.block.isLabel && line.block._syntheticMacroLabel) continue;
         if (line.block.isOrgMacro) { lines.push(`* = $${(line.block.orgAddress || "0801").toUpperCase()}`); continue; }
         if (line.block.isIncludeMacro) continue;
         // Macro / structural blocks — show address + mnemonic

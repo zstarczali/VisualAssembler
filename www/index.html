@@ -129,7 +129,7 @@
                   </div>
                 </details>
                 <button id="crt-toggle" class="secondary icon-button" type="button">
-                  <span>📺</span>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" width="15" height="15" aria-hidden="true"><rect x="1" y="2" width="14" height="10" rx="1.5"/><path d="M5 14h6M8 12v2" stroke-linecap="round"/><path d="M3.5 5.5l2 2-2 2M7.5 9.5h3" stroke-linecap="round" stroke-linejoin="round"/></svg>
                   <span id="crt-toggle-label">CRT retro mod</span>
                 </button>
                 <div class="control-menu-inline">
@@ -228,7 +228,6 @@
             <span>Operandus</span>
             <div class="operand-wrapper">
               <input id="operand-input" type="text" placeholder="#$01 vagy $D020" autocomplete="off">
-              <div id="operand-dropdown" class="operand-dropdown" hidden></div>
             </div>
           </label>
 
@@ -314,89 +313,9 @@
                 <input type="radio" name="output-mode" value="both">
                 <span>Mindketto</span>
               </label>
-              <label class="view-mode-option">
-                <input type="radio" name="output-mode" value="program">
-                <span>Options</span>
-              </label>
             </div>
           </div>
           <div id="output-stack" class="output-stack">
-            <div id="program-output" class="program-output">
-              <span class="panel-label" id="program-settings-label">Program settings</span>
-              <div class="macro-source-row">
-                <span id="macro-source-toggle-text">Macro source</span>
-                <div class="mini-toggle macro-source-toggle" id="macro-source-label" role="radiogroup"
-                  aria-label="Macro source">
-                  <label class="mini-toggle-option">
-                    <input type="radio" name="macro-source-toggle" id="macro-source-toggle-on" value="on">
-                    <span>ON</span>
-                  </label>
-                  <label class="mini-toggle-option">
-                    <input type="radio" name="macro-source-toggle" id="macro-source-toggle" value="off" checked>
-                    <span>OFF</span>
-                  </label>
-                </div>
-              </div>
-
-              <div class="macro-source-row">
-                <span id="region-comments-label">Show region comments</span>
-                <div class="mini-toggle macro-source-toggle" id="region-comments-toggle-group" role="radiogroup" aria-label="Region comments">
-                  <label class="mini-toggle-option">
-                    <input type="radio" name="region-comments-toggle" id="region-comments-toggle-on" value="on" checked>
-                    <span>ON</span>
-                  </label>
-                  <label class="mini-toggle-option">
-                    <input type="radio" name="region-comments-toggle" id="region-comments-toggle-off" value="off">
-                    <span>OFF</span>
-                  </label>
-                </div>
-              </div>
-                            
-              <hr class="section-divider">
-              <span class="panel-label" id="debugger-params-label">C64 Debugger</span>
-              <div class="macro-source-row">
-                <span id="dbg-jmp-label"></span>
-                <div class="mini-toggle macro-source-toggle" role="radiogroup" aria-label="-jmp">
-                  <label class="mini-toggle-option">
-                    <input type="radio" name="dbg-jmp" id="dbg-jmp-on" value="on" checked>
-                    <span>ON</span>
-                  </label>
-                  <label class="mini-toggle-option">
-                    <input type="radio" name="dbg-jmp" id="dbg-jmp-off" value="off">
-                    <span>OFF</span>
-                  </label>
-                </div>
-              </div>
-              <div class="macro-source-row">
-                <span id="dbg-unpause-label"></span>
-                <div class="mini-toggle macro-source-toggle" role="radiogroup" aria-label="-unpause">
-                  <label class="mini-toggle-option">
-                    <input type="radio" name="dbg-unpause" id="dbg-unpause-on" value="on">
-                    <span>ON</span>
-                  </label>
-                  <label class="mini-toggle-option">
-                    <input type="radio" name="dbg-unpause" id="dbg-unpause-off" value="off" checked>
-                    <span>OFF</span>
-                  </label>
-                </div>
-              </div>      
-              <div class="macro-source-row">
-                <span id="dbg-wait-label"></span>
-                <div class="dbg-wait-row">
-                  <div class="mini-toggle macro-source-toggle" role="radiogroup" aria-label="-wait">
-                    <label class="mini-toggle-option">
-                      <input type="radio" name="dbg-wait" id="dbg-wait-on" value="on">
-                      <span>ON</span>
-                    </label>
-                    <label class="mini-toggle-option">
-                      <input type="radio" name="dbg-wait" id="dbg-wait-off" value="off" checked>
-                      <span>OFF</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-              <hr class="section-divider">
-            </div>
             <div class="origin-preview-section">
               <span class="panel-label" id="origin-preview-label">Compile info</span>
               <div id="origin-preview" class="origin-preview"></div>
@@ -721,40 +640,70 @@
     <div class="hardware-settings-card">
       <h2 class="compile-error-title" id="hardware-settings-title">Hardver beállítások</h2>
 
-      <section class="hw-settings-section">
-        <h3 class="hw-settings-section-label" id="hw-vice-section-label">VICE Emulator</h3>
-        <button id="choose-vice" class="secondary" type="button">VICE kivalasztasa</button>
-        <label class="field compact-field hw-field">
-          <span id="vice-exe-label">VICE exe</span>
-          <input id="vice-path" type="text" readonly placeholder="Nincs beallitva">
-        </label>
-        <p id="emulator-status" class="menu-note">A VICE kapcsolat ellenorzese folyamatban.</p>
-        <p id="emulator-run-hint" class="menu-note menu-note-strong"></p>
-      </section>
+      <div class="hw-settings-body">
+        <section class="hw-settings-section">
+          <h3 class="hw-settings-section-label" id="hw-vice-section-label">VICE Emulator</h3>
+          <button id="choose-vice" class="secondary" type="button">VICE kivalasztasa</button>
+          <label class="field compact-field hw-field">
+            <span id="vice-exe-label">VICE exe</span>
+            <input id="vice-path" type="text" readonly placeholder="Nincs beallitva">
+          </label>
+          <p id="emulator-status" class="menu-note">A VICE kapcsolat ellenorzese folyamatban.</p>
+          <p id="emulator-run-hint" class="menu-note menu-note-strong"></p>
+        </section>
 
-      <section class="hw-settings-section">
-        <h3 class="hw-settings-section-label" id="hw-debugger-section-label">Retro Debugger</h3>
-        <button id="choose-debugger" class="secondary" type="button"></button>
-        <label class="field compact-field hw-field">
-          <span id="debugger-exe-label"></span>
-          <input id="debugger-path" type="text" readonly placeholder="">
-        </label>
-        <p id="debugger-status" class="menu-note"></p>
-      </section>
+        <section class="hw-settings-section">
+          <h3 class="hw-settings-section-label" id="hw-debugger-section-label">Retro Debugger</h3>
+          <button id="choose-debugger" class="secondary" type="button"></button>
+          <label class="field compact-field hw-field">
+            <span id="debugger-exe-label"></span>
+            <input id="debugger-path" type="text" readonly placeholder="">
+          </label>
+          <p id="debugger-status" class="menu-note"></p>
+        </section>
 
-      <section class="hw-settings-section">
-        <h3 class="hw-settings-section-label" id="ultimate-section-label">C64 Ultimate</h3>
-        <label class="field compact-field hw-field">
-          <span id="ultimate-host-label">Host (IP)</span>
-          <input id="ultimate-host" type="text" placeholder="192.168.1.100" autocomplete="off" spellcheck="false">
-        </label>
-        <label class="field compact-field hw-field">
-          <span id="ultimate-password-label">Jelszó</span>
-          <input id="ultimate-password" type="password" placeholder="(opcionális)" autocomplete="off">
-        </label>
-        <button id="ultimate-connect-test" class="secondary" type="button">Kapcsolat tesztelése</button>
-        <p id="ultimate-status" class="menu-note"></p>
-      </section>
+        <section class="hw-settings-section">
+          <h3 class="hw-settings-section-label" id="debugger-params-label">C64 Debugger params</h3>
+          <label class="menu-checkbox-label">
+            <input type="checkbox" id="dbg-jmp" checked>
+            <span id="dbg-jmp-label"></span>
+          </label>
+          <label class="menu-checkbox-label">
+            <input type="checkbox" id="dbg-unpause">
+            <span id="dbg-unpause-label"></span>
+          </label>
+          <label class="menu-checkbox-label">
+            <input type="checkbox" id="dbg-wait">
+            <span id="dbg-wait-label"></span>
+          </label>
+        </section>
+
+        <section class="hw-settings-section">
+          <h3 class="hw-settings-section-label" id="program-settings-label">ASM output</h3>
+          <label class="menu-checkbox-label">
+            <input type="checkbox" id="macro-source-toggle">
+            <span id="macro-source-toggle-text">Macro source</span>
+          </label>
+          <label class="menu-checkbox-label">
+            <input type="checkbox" id="region-comments-toggle" checked>
+            <span id="region-comments-label">Show region comments</span>
+          </label>
+        </section>
+
+        <section class="hw-settings-section">
+          <h3 class="hw-settings-section-label" id="ultimate-section-label">C64 Ultimate</h3>
+          <label class="field compact-field hw-field">
+            <span id="ultimate-host-label">Host (IP)</span>
+            <input id="ultimate-host" type="text" placeholder="192.168.1.100" autocomplete="off" spellcheck="false">
+          </label>
+          <label class="field compact-field hw-field">
+            <span id="ultimate-password-label">Jelszó</span>
+            <input id="ultimate-password" type="password" placeholder="(opcionális)" autocomplete="off">
+          </label>
+          <button id="ultimate-connect-test" class="secondary" type="button">Kapcsolat tesztelése</button>
+          <p id="ultimate-status" class="menu-note"></p>
+        </section>
+      </div>
 
       <div class="hw-settings-actions">
         <button id="hardware-settings-close" class="primary" type="button">Bezárás</button>
