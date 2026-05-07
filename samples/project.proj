@@ -1,0 +1,15 @@
+{
+  "name": "project",
+  "files": [
+    {
+      "type": "file",
+      "name": "include-demo.json",
+      "path": "include-demo.json"
+    },
+    {
+      "type": "file",
+      "name": "macros.json",
+      "path": "macros.json"
+    }
+  ]
+}

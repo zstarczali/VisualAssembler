@@ -37,16 +37,19 @@
       <div class="hero-copy-block">
         <p class="eyebrow">Commodore 64 visual assembler</p>
         <div class="hero-menu-row">
+          <div class="main-toolbar">
           <details class="control-menu">
-            <summary class="secondary control-menu-trigger">Menu</summary>
+            <summary class="main-tb-btn control-menu-trigger">
+              <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              <span>Menu</span>
+            </summary>
             <div class="control-menu-panel">
               <section class="control-menu-group">
                 <h3 class="control-menu-label">File</h3>
                 <button id="save-project" class="secondary" type="button">Save program</button>
                 <button id="load-project" class="secondary" type="button">Load program</button>
-                <button id="import-asm" class="secondary" type="button">Import ASM</button>
-                <button id="save-prg" class="secondary" type="button">Export to PRG</button>
-                <button id="save-d64" class="secondary" type="button">Export to D64</button>
+                <button id="menu-open-project" class="secondary" type="button">Open project</button>
+                <button id="menu-save-project" class="secondary" type="button">Save project</button>
                 <button id="exit-app" class="secondary" type="button">Kilepes</button>
               </section>
               <section class="control-menu-group">
@@ -82,6 +85,9 @@
                   </select>
                 </label>
                 <button id="load-sample" class="secondary" type="button">Betoltes</button>
+                <h3 class="control-menu-label control-menu-label--section" id="build-section-label">Build</h3>
+                <button id="save-prg" class="secondary" type="button">Build PRG</button>
+                <button id="save-d64" class="secondary" type="button">Build D64</button>
               </section>
               <section class="control-menu-group">
                 <h3 class="control-menu-label">Beallitasok</h3>
@@ -95,6 +101,10 @@
                 <label class="menu-checkbox-label">
                   <input type="checkbox" id="basic-sys-toggle" checked>
                   <span id="basic-sys-label">BASIC SYS stub generálása</span>
+                </label>
+                <label class="menu-checkbox-label">
+                  <input type="checkbox" id="expert-mode-toggle">
+                  <span id="expert-mode-label">Expert mód (ASM szerkesztő)</span>
                 </label>
                 <button id="hardware-settings-btn" class="secondary" type="button">Hardver beállítások...</button>
                 <h3 class="control-menu-label control-menu-label--section" id="view-section-label">Nezet</h3>
@@ -119,7 +129,7 @@
                   </div>
                 </details>
                 <button id="crt-toggle" class="secondary icon-button" type="button">
-                  <span>📺</span>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" width="15" height="15" aria-hidden="true"><rect x="1" y="2" width="14" height="10" rx="1.5"/><path d="M5 14h6M8 12v2" stroke-linecap="round"/><path d="M3.5 5.5l2 2-2 2M7.5 9.5h3" stroke-linecap="round" stroke-linejoin="round"/></svg>
                   <span id="crt-toggle-label">CRT retro mod</span>
                 </button>
                 <div class="control-menu-inline">
@@ -141,15 +151,16 @@
               </section>
             </div>
           </details>
+          <div class="main-tb-sep" aria-hidden="true"></div>
           <div class="split-run-group">
-            <button id="run-emulator" class="primary run-button split-run-main" type="button">
+            <button id="run-emulator" class="main-tb-btn main-tb-run split-run-main" type="button">
               <svg class="run-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg">
                 <path d="M3 2.5l10 5.5-10 5.5V2.5z" />
               </svg>
               <span class="run-label">Run</span>
             </button>
-            <button id="run-mode-arrow" class="primary run-button split-run-arrow" type="button" aria-haspopup="true" aria-expanded="false" title="Futtatasi mod valasztasa">
+            <button id="run-mode-arrow" class="main-tb-btn main-tb-run split-run-arrow" type="button" aria-haspopup="true" aria-expanded="false" title="Futtatasi mod valasztasa">
               <svg viewBox="0 0 10 6" fill="currentColor" width="10" height="6" aria-hidden="true"><path d="M0 0l5 6 5-6z"/></svg>
             </button>
             <div id="run-mode-menu" class="run-mode-menu" hidden role="menu">
@@ -171,13 +182,14 @@
               </button>
             </div>
           </div>
-          <button id="run-debugger" class="secondary run-button" type="button" title="">
+          <button id="run-debugger" class="main-tb-btn main-tb-debug" type="button" title="">
             <svg class="run-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg">
               <circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.2 3.2l1.4 1.4M11.4 11.4l1.4 1.4M11.4 3.2l-1.4 1.4M4.6 11.4l-1.4 1.4" stroke="currentColor" stroke-width="1.5" fill="none"/>
             </svg>
             <span class="run-label">Debug</span>
           </button>
+          </div>
         </div>
         <p class="hero-copy">
           Huzz be egy mnemonik blokkot balrol, rendezd oket sorba, es nezd meg a jobb oldalon az assembly nezetet.
@@ -185,6 +197,14 @@
         <div id="memory-strip-top" class="memory-strip-top" aria-label="Teljes C64 memoria csik"></div>
       </div>
     </header>
+
+    <div class="tab-bar-wrap">
+      <button class="tab-scroll-btn tab-scroll-btn--left" id="tab-scroll-left" aria-label="Scroll tabs left" tabindex="-1">&#x2039;</button>
+      <div id="tab-bar" class="tab-bar">
+        <button class="tab-new-btn" id="tab-new-btn" title="New tab">+</button>
+      </div>
+      <button class="tab-scroll-btn tab-scroll-btn--right" id="tab-scroll-right" aria-label="Scroll tabs right" tabindex="-1">&#x203A;</button>
+    </div>
 
     <main class="workspace">
       <aside class="palette-panel">
@@ -208,7 +228,6 @@
             <span>Operandus</span>
             <div class="operand-wrapper">
               <input id="operand-input" type="text" placeholder="#$01 vagy $D020" autocomplete="off">
-              <div id="operand-dropdown" class="operand-dropdown" hidden></div>
             </div>
           </label>
 
@@ -294,89 +313,9 @@
                 <input type="radio" name="output-mode" value="both">
                 <span>Mindketto</span>
               </label>
-              <label class="view-mode-option">
-                <input type="radio" name="output-mode" value="program">
-                <span>Options</span>
-              </label>
             </div>
           </div>
           <div id="output-stack" class="output-stack">
-            <div id="program-output" class="program-output">
-              <span class="panel-label" id="program-settings-label">Program settings</span>
-              <div class="macro-source-row">
-                <span id="macro-source-toggle-text">Macro source</span>
-                <div class="mini-toggle macro-source-toggle" id="macro-source-label" role="radiogroup"
-                  aria-label="Macro source">
-                  <label class="mini-toggle-option">
-                    <input type="radio" name="macro-source-toggle" id="macro-source-toggle-on" value="on">
-                    <span>ON</span>
-                  </label>
-                  <label class="mini-toggle-option">
-                    <input type="radio" name="macro-source-toggle" id="macro-source-toggle" value="off" checked>
-                    <span>OFF</span>
-                  </label>
-                </div>
-              </div>
-
-              <div class="macro-source-row">
-                <span id="region-comments-label">Show region comments</span>
-                <div class="mini-toggle macro-source-toggle" id="region-comments-toggle-group" role="radiogroup" aria-label="Region comments">
-                  <label class="mini-toggle-option">
-                    <input type="radio" name="region-comments-toggle" id="region-comments-toggle-on" value="on" checked>
-                    <span>ON</span>
-                  </label>
-                  <label class="mini-toggle-option">
-                    <input type="radio" name="region-comments-toggle" id="region-comments-toggle-off" value="off">
-                    <span>OFF</span>
-                  </label>
-                </div>
-              </div>
-                            
-              <hr class="section-divider">
-              <span class="panel-label" id="debugger-params-label">C64 Debugger</span>
-              <div class="macro-source-row">
-                <span id="dbg-jmp-label"></span>
-                <div class="mini-toggle macro-source-toggle" role="radiogroup" aria-label="-jmp">
-                  <label class="mini-toggle-option">
-                    <input type="radio" name="dbg-jmp" id="dbg-jmp-on" value="on" checked>
-                    <span>ON</span>
-                  </label>
-                  <label class="mini-toggle-option">
-                    <input type="radio" name="dbg-jmp" id="dbg-jmp-off" value="off">
-                    <span>OFF</span>
-                  </label>
-                </div>
-              </div>
-              <div class="macro-source-row">
-                <span id="dbg-unpause-label"></span>
-                <div class="mini-toggle macro-source-toggle" role="radiogroup" aria-label="-unpause">
-                  <label class="mini-toggle-option">
-                    <input type="radio" name="dbg-unpause" id="dbg-unpause-on" value="on">
-                    <span>ON</span>
-                  </label>
-                  <label class="mini-toggle-option">
-                    <input type="radio" name="dbg-unpause" id="dbg-unpause-off" value="off" checked>
-                    <span>OFF</span>
-                  </label>
-                </div>
-              </div>      
-              <div class="macro-source-row">
-                <span id="dbg-wait-label"></span>
-                <div class="dbg-wait-row">
-                  <div class="mini-toggle macro-source-toggle" role="radiogroup" aria-label="-wait">
-                    <label class="mini-toggle-option">
-                      <input type="radio" name="dbg-wait" id="dbg-wait-on" value="on">
-                      <span>ON</span>
-                    </label>
-                    <label class="mini-toggle-option">
-                      <input type="radio" name="dbg-wait" id="dbg-wait-off" value="off" checked>
-                      <span>OFF</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-              <hr class="section-divider">
-            </div>
             <div class="origin-preview-section">
               <span class="panel-label" id="origin-preview-label">Compile info</span>
               <div id="origin-preview" class="origin-preview"></div>
@@ -390,6 +329,70 @@
               <pre id="monitor-output" class="asm-output monitor-output"></pre>
             </div>
           </div>
+      </section>
+
+      <section class="expert-panel" id="expert-panel" hidden>
+        <div class="expert-toolbar">
+          <button id="expert-project-btn" class="expert-hl-toggle" title="Projekt panel" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><rect x="1" y="2" width="5" height="4" rx="1" fill="currentColor" opacity="0.9"/><rect x="1" y="8" width="5" height="4" rx="1" fill="currentColor" opacity="0.5"/><rect x="8" y="3" width="7" height="1.8" rx="0.7" fill="currentColor" opacity="0.7"/><rect x="8" y="7" width="5" height="1.8" rx="0.7" fill="currentColor" opacity="0.5"/><rect x="8" y="11" width="6" height="1.8" rx="0.7" fill="currentColor" opacity="0.3"/></svg>
+          </button>
+          <div class="expert-toolbar-sep"></div>
+          <button id="expert-palette-btn" class="expert-hl-toggle" title="Palette panel" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><rect x="1" y="1" width="5" height="14" rx="1" fill="currentColor" opacity="0.9"/><rect x="8" y="1" width="7" height="3" rx="1" fill="currentColor" opacity="0.6"/><rect x="8" y="6" width="7" height="3" rx="1" fill="currentColor" opacity="0.4"/><rect x="8" y="11" width="7" height="3" rx="1" fill="currentColor" opacity="0.25"/></svg>
+          </button>
+          <button id="expert-palette-sync-btn" class="expert-hl-toggle expert-hl-toggle--on" title="Mnemonik panel szinkron" aria-pressed="true">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><rect x="1" y="2" width="6" height="3" rx="1" fill="currentColor"/><rect x="1" y="7" width="6" height="3" rx="1" fill="currentColor" opacity="0.6"/><rect x="1" y="12" width="6" height="2" rx="1" fill="currentColor" opacity="0.3"/><path d="M10 5l4 3-4 3V5z" fill="currentColor"/></svg>
+          </button>
+          <button id="expert-disasm-btn" class="expert-hl-toggle" title="Disassembler" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><rect x="1" y="2" width="14" height="2" rx="1" fill="currentColor" opacity="0.4"/><rect x="1" y="6" width="9" height="2" rx="1" fill="currentColor"/><rect x="11" y="6" width="4" height="2" rx="1" fill="currentColor" opacity="0.5"/><rect x="1" y="10" width="6" height="2" rx="1" fill="currentColor"/><rect x="8" y="10" width="7" height="2" rx="1" fill="currentColor" opacity="0.5"/><rect x="1" y="14" width="11" height="1" rx="0.5" fill="currentColor" opacity="0.3"/></svg>
+          </button>
+          <button id="expert-monitor-btn" class="expert-hl-toggle" title="Monitor" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><rect x="1" y="1" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="3" y="3" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.7"/><rect x="6" y="3" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.7"/><rect x="9" y="3" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.7"/><rect x="3" y="6.5" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.4"/><rect x="6" y="6.5" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.4"/><rect x="9" y="6.5" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.4"/><rect x="6" y="12" width="4" height="1.5" rx="0.5" fill="currentColor" opacity="0.5"/><rect x="4" y="13.5" width="8" height="1" rx="0.5" fill="currentColor" opacity="0.3"/></svg>
+          </button>
+          <div class="expert-toolbar-sep"></div>
+          <button id="expert-format-btn" class="expert-hl-toggle" title="Format source" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M3 3h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M5 6.5h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M5 10h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M2 5.5l1.5 1.5-1.5 1.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 9l1.5 1.5-1.5 1.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <span id="expert-file-name" class="expert-file-name"></span>
+        </div>
+        <div class="expert-body">
+          <div class="expert-project-panel" id="expert-project-panel" hidden>
+            <div class="expert-project-header">
+              <span class="expert-project-name" id="expert-project-name" title="">Nincs projekt</span>
+              <button id="expert-project-open-btn" class="expert-project-icon-btn">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M2 5C2 4.45 2.45 4 3 4H6.5L8 6H13C13.55 6 14 6.45 14 7V12C14 12.55 13.55 13 13 13H3C2.45 13 2 12.55 2 12V5Z" stroke="currentColor" stroke-width="1.2"/></svg>
+              </button>
+              <button id="expert-project-new-btn" class="expert-project-icon-btn">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M8 5.5V10.5M5.5 8H10.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              </button>
+              <button id="expert-project-save-btn" class="expert-project-icon-btn">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M3 2H11L14 5V13C14 13.55 13.55 14 13 14H3C2.45 14 2 13.55 2 13V3C2 2.45 2.45 2 3 2Z" stroke="currentColor" stroke-width="1.2"/><rect x="5" y="2" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.45"/><rect x="4" y="9" width="8" height="4" rx="1" fill="currentColor" opacity="0.35"/></svg>
+              </button>
+              <button id="expert-project-add-btn" class="expert-project-icon-btn">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><rect x="3" y="2" width="10" height="12" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 5.5V10.5M5.5 8H10.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+            <div class="expert-project-tree" id="expert-project-tree">
+              <div class="expert-project-empty">Kattints a mappa gombra<br>projekt megnyit&#xE1;s&#xE1;hoz</div>
+            </div>
+            <div class="expert-project-symbols" id="expert-project-symbols" hidden></div>
+          </div>
+          <div class="expert-editor-wrap">
+            <pre class="expert-hl" id="expert-hl" aria-hidden="true"><code id="expert-hl-code"></code></pre>
+            <textarea id="expert-editor" class="expert-editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" wrap="off" placeholder="; Expert mode — write 6502 assembly here&#10;; * = $0801&#10;; start:&#10;;     LDA #$00&#10;;     STA $D020&#10;;     RTS"></textarea>
+          </div>
+          <div class="expert-disasm-resizer" id="expert-disasm-resizer" hidden></div>
+          <div class="expert-disasm-panel" id="expert-disasm-panel" hidden>
+            <pre id="expert-disasm-output" class="expert-disasm-output"></pre>
+          </div>
+          <div class="expert-monitor-panel" id="expert-monitor-panel" hidden>
+            <pre id="expert-monitor-output" class="expert-monitor-output"></pre>
+          </div>
+        </div>
+        <div class="expert-statusbar">
+          <span id="expert-status" class="expert-status"></span>
+          <span id="expert-cursor-pos" class="expert-cursor-pos">Ln 1, Col 1</span>
+        </div>
       </section>
 
     </main>
@@ -469,6 +472,16 @@
     </div>
   </dialog>
 
+  <dialog id="app-confirm-dialog" class="app-confirm-dialog">
+    <div class="app-confirm-card">
+      <p id="app-confirm-msg" class="app-confirm-msg"></p>
+      <div class="app-confirm-buttons">
+        <button id="app-confirm-yes" class="primary" type="button">Igen</button>
+        <button id="app-confirm-no" class="secondary" type="button">Mégsem</button>
+      </div>
+    </div>
+  </dialog>
+
   <dialog id="work-progress-dialog" class="work-progress-dialog">
     <div class="work-progress-card">
       <h2 class="compile-error-title" id="work-progress-title">Compiling...</h2>
@@ -479,27 +492,9 @@
     </div>
   </dialog>
 
-  <dialog id="import-asm-dialog" class="import-asm-dialog">
-    <div class="import-asm-card">
-      <h2 class="compile-error-title" id="import-asm-title">Import ASM</h2>
-      <div class="import-asm-editor">
-        <pre id="import-asm-line-numbers" class="import-asm-line-numbers" aria-hidden="true">1</pre>
-        <textarea id="import-asm-textarea" class="import-asm-textarea" rows="20" spellcheck="false"></textarea>
-      </div>
-      <div class="import-asm-actions">
-        <button id="import-asm-confirm" class="primary" type="button">Import</button>
-        <button id="import-asm-cancel" class="secondary" type="button">Cancel</button>
-      </div>
-      <div id="import-asm-errors" class="import-asm-errors" hidden>
-        <p id="import-asm-errors-title" class="import-asm-errors-title">Errors</p>
-        <ul id="import-asm-errors-list" class="import-asm-errors-list"></ul>
-      </div>
-    </div>
-  </dialog>
-
   <dialog id="d64-export-dialog" class="d64-export-dialog">
     <div class="d64-export-card">
-      <h2 class="compile-error-title" id="d64-export-title">Export to D64</h2>
+      <h2 class="compile-error-title" id="d64-export-title">Build D64</h2>
       <div class="d64-export-row">
         <label class="d64-export-field">
           <span id="d64-export-diskname-label">Disk name (max 16)</span>
@@ -534,7 +529,7 @@
         <img src="assets/about-logo.png" alt="C64 Visual Assembler" width="160" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v1.4.4</p>
+      <p class="about-version" id="about-version">v1.6.0</p>
       <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
         dropping instruction blocks.</p>
       <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
@@ -546,31 +541,25 @@
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v1.5.1</p>
+      <p class="whats-new-version">v1.6.0</p>
       <ul class="whats-new-list">
         <li>
-          <strong>Bug fixes &amp; UI improvements</strong> — "New program" now shows a confirmation dialog before clearing. STRING and RAWTEXT descriptions corrected (screen codes, not PETSCII). Tonns of other small fixes.
+          <strong>Expert Mode</strong> — a full direct-text ASM editor alongside the block editor. Write 6502 assembly by hand with live syntax highlighting, real-time disassembly panel, block-mode palette sync, and a built-in source formatter. Switch between Block and Expert mode per-tab at any time.
         </li>
         <li>
-          <strong>Export to D64</strong> — assemble your program and export it directly to a .d64 disk image using VICE's c1541 tool. Add extra files (data, sprites, PRGs) to the same disk before export.
+          <strong>Tab bar &amp; project panel</strong> — open multiple programs in tabs. Each tab has its own program state and dirty indicator. The Expert mode project panel lets you manage multi-file <code>.proj</code> projects.
         </li>
         <li>
-          <strong>Run via D64</strong> — new split run button lets you choose between running as a plain PRG or packaging into a D64 and launching VICE directly from the disk image.
+          <strong>charOffset for TEXT / STRING macros</strong> — an optional byte offset added to every screen-code character. Use <code>$80</code> for reverse-video text.
         </li>
         <li>
-          <strong>LOADFILE macro</strong> — load a file from a D64 at runtime using C64 KERNAL SETNAM/SETLFS/LOAD routines. Supports optional override address and error-label (BCS) for error handling.
+          <strong>JSR to inline macros</strong> — <code>JSR macroName</code> now resolves correctly when the target is an inline <code>.macro</code> definition. The macro body is emitted as a real subroutine at its declared position.
         </li>
         <li>
-          <strong>LOADFILE demo sample</strong> — a ready-to-run example that loads DEMO-COLORS.PRG from a D64 at runtime and then cycles border and background colors.
+          <strong>UI polish</strong> — Apple-style toggle switches, animated run-mode dropdown, animated settings menu, 8 px border-radius on panels and memory strip, improved OLED theme brightness, full-width operand dropdown.
         </li>
         <li>
-          <strong>Run on hardware (C64 Ultimate)</strong> — send and run your assembled PRG directly on a 1541 Ultimate / Ultimate 64 device via its REST API. Configure host and password in Hardware Settings.
-        </li>
-        <li>
-          <strong>OLED theme</strong> — a new pure-black OLED theme for AMOLED screens. Select it from the new theme picker (Light / Dark / OLED).
-        </li>
-        <li>
-          <strong>D64 metadata in projects</strong> — disk name, program name, and extra file list are now saved into the project JSON so they are restored when the project or sample is reloaded.
+          <strong>Bug fixes</strong> — disassembler no longer shows <code>[error]</code> after <code>.include</code> blocks; file extension now shown in tab bar after save/load; expert editor no longer clips code on the right and bottom edges.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -651,40 +640,70 @@
     <div class="hardware-settings-card">
       <h2 class="compile-error-title" id="hardware-settings-title">Hardver beállítások</h2>
 
-      <section class="hw-settings-section">
-        <h3 class="hw-settings-section-label" id="hw-vice-section-label">VICE Emulator</h3>
-        <button id="choose-vice" class="secondary" type="button">VICE kivalasztasa</button>
-        <label class="field compact-field hw-field">
-          <span id="vice-exe-label">VICE exe</span>
-          <input id="vice-path" type="text" readonly placeholder="Nincs beallitva">
-        </label>
-        <p id="emulator-status" class="menu-note">A VICE kapcsolat ellenorzese folyamatban.</p>
-        <p id="emulator-run-hint" class="menu-note menu-note-strong"></p>
-      </section>
+      <div class="hw-settings-body">
+        <section class="hw-settings-section">
+          <h3 class="hw-settings-section-label" id="hw-vice-section-label">VICE Emulator</h3>
+          <button id="choose-vice" class="secondary" type="button">VICE kivalasztasa</button>
+          <label class="field compact-field hw-field">
+            <span id="vice-exe-label">VICE exe</span>
+            <input id="vice-path" type="text" readonly placeholder="Nincs beallitva">
+          </label>
+          <p id="emulator-status" class="menu-note">A VICE kapcsolat ellenorzese folyamatban.</p>
+          <p id="emulator-run-hint" class="menu-note menu-note-strong"></p>
+        </section>
 
-      <section class="hw-settings-section">
-        <h3 class="hw-settings-section-label" id="hw-debugger-section-label">Retro Debugger</h3>
-        <button id="choose-debugger" class="secondary" type="button"></button>
-        <label class="field compact-field hw-field">
-          <span id="debugger-exe-label"></span>
-          <input id="debugger-path" type="text" readonly placeholder="">
-        </label>
-        <p id="debugger-status" class="menu-note"></p>
-      </section>
+        <section class="hw-settings-section">
+          <h3 class="hw-settings-section-label" id="hw-debugger-section-label">Retro Debugger</h3>
+          <button id="choose-debugger" class="secondary" type="button"></button>
+          <label class="field compact-field hw-field">
+            <span id="debugger-exe-label"></span>
+            <input id="debugger-path" type="text" readonly placeholder="">
+          </label>
+          <p id="debugger-status" class="menu-note"></p>
+        </section>
 
-      <section class="hw-settings-section">
-        <h3 class="hw-settings-section-label" id="ultimate-section-label">C64 Ultimate</h3>
-        <label class="field compact-field hw-field">
-          <span id="ultimate-host-label">Host (IP)</span>
-          <input id="ultimate-host" type="text" placeholder="192.168.1.100" autocomplete="off" spellcheck="false">
-        </label>
-        <label class="field compact-field hw-field">
-          <span id="ultimate-password-label">Jelszó</span>
-          <input id="ultimate-password" type="password" placeholder="(opcionális)" autocomplete="off">
-        </label>
-        <button id="ultimate-connect-test" class="secondary" type="button">Kapcsolat tesztelése</button>
-        <p id="ultimate-status" class="menu-note"></p>
-      </section>
+        <section class="hw-settings-section">
+          <h3 class="hw-settings-section-label" id="debugger-params-label">C64 Debugger params</h3>
+          <label class="menu-checkbox-label">
+            <input type="checkbox" id="dbg-jmp" checked>
+            <span id="dbg-jmp-label"></span>
+          </label>
+          <label class="menu-checkbox-label">
+            <input type="checkbox" id="dbg-unpause">
+            <span id="dbg-unpause-label"></span>
+          </label>
+          <label class="menu-checkbox-label">
+            <input type="checkbox" id="dbg-wait">
+            <span id="dbg-wait-label"></span>
+          </label>
+        </section>
+
+        <section class="hw-settings-section">
+          <h3 class="hw-settings-section-label" id="program-settings-label">ASM output</h3>
+          <label class="menu-checkbox-label">
+            <input type="checkbox" id="macro-source-toggle">
+            <span id="macro-source-toggle-text">Macro source</span>
+          </label>
+          <label class="menu-checkbox-label">
+            <input type="checkbox" id="region-comments-toggle" checked>
+            <span id="region-comments-label">Show region comments</span>
+          </label>
+        </section>
+
+        <section class="hw-settings-section">
+          <h3 class="hw-settings-section-label" id="ultimate-section-label">C64 Ultimate</h3>
+          <label class="field compact-field hw-field">
+            <span id="ultimate-host-label">Host (IP)</span>
+            <input id="ultimate-host" type="text" placeholder="192.168.1.100" autocomplete="off" spellcheck="false">
+          </label>
+          <label class="field compact-field hw-field">
+            <span id="ultimate-password-label">Jelszó</span>
+            <input id="ultimate-password" type="password" placeholder="(opcionális)" autocomplete="off">
+          </label>
+          <button id="ultimate-connect-test" class="secondary" type="button">Kapcsolat tesztelése</button>
+          <p id="ultimate-status" class="menu-note"></p>
+        </section>
+      </div>
 
       <div class="hw-settings-actions">
         <button id="hardware-settings-close" class="primary" type="button">Bezárás</button>

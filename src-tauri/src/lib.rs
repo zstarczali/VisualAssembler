@@ -170,6 +170,19 @@ fn quit_app(app: AppHandle) {
 }
 
 #[tauri::command]
+fn get_ui_settings(app: AppHandle) -> serde_json::Value {
+    let cfg = read_config(&app);
+    cfg["uiSettings"].clone()
+}
+
+#[tauri::command]
+fn save_ui_settings(app: AppHandle, settings: serde_json::Value) {
+    let mut cfg = read_config(&app);
+    cfg["uiSettings"] = settings;
+    write_config(&app, &cfg);
+}
+
+#[tauri::command]
 fn get_vice_config(app: AppHandle) -> serde_json::Value {
     let cfg = read_config(&app);
     let vice_path = cfg["vicePath"]
@@ -1504,18 +1517,102 @@ async fn test_ultimate_connection(host: String, password: Option<String>) -> ser
 
 #[tauri::command]
 async fn save_project(app: AppHandle, payload: serde_json::Value) -> serde_json::Value {
+    // If the caller passes a _filePath, save silently to that path
+    let existing_path = payload.get("_filePath").and_then(|v| v.as_str()).unwrap_or("").to_string();
+    let default_name  = payload.get("_defaultName").and_then(|v| v.as_str()).unwrap_or("program.json").to_string();
+
+    let save_path: String = if !existing_path.is_empty() {
+        existing_path
+    } else {
+        let result = app.dialog().file()
+            .add_filter("C64 Visual Assembler Project", &["json", "c64va"])
+            .set_file_name(&default_name)
+            .blocking_save_file();
+        match result {
+            Some(path) => path.to_string(),
+            None => return serde_json::json!({ "canceled": true }),
+        }
+    };
+
+    // Strip internal helper fields before serialising
+    let mut clean = payload.clone();
+    if let Some(obj) = clean.as_object_mut() {
+        obj.remove("_filePath");
+        obj.remove("_defaultName");
+    }
+    let content = serde_json::to_string_pretty(&clean).unwrap();
+    match fs::write(&save_path, content.as_bytes()) {
+        Ok(_)  => serde_json::json!({ "ok": true, "filePath": save_path }),
+        Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+    }
+}
+
+#[tauri::command]
+async fn open_proj_file(app: AppHandle) -> serde_json::Value {
     let result = app.dialog().file()
-        .add_filter("C64 Visual Assembler Project", &["json", "c64va"])
-        .blocking_save_file();
+        .add_filter("Visual Assembler Project", &["proj"])
+        .add_filter("All files", &["*"])
+        .blocking_pick_file();
 
     match result {
         Some(path) => {
             let path_str = path.to_string();
-            let content = serde_json::to_string_pretty(&payload).unwrap();
-            match fs::write(&path_str, content.as_bytes()) {
-                Ok(_) => serde_json::json!({ "ok": true, "filePath": path_str }),
+            match fs::read_to_string(&path_str) {
+                Ok(raw) => match serde_json::from_str::<serde_json::Value>(&raw) {
+                    Ok(proj) => serde_json::json!({ "ok": true, "filePath": path_str, "project": proj }),
+                    Err(e)   => serde_json::json!({ "ok": false, "error": e.to_string() }),
+                },
                 Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
             }
+        }
+        None => serde_json::json!({ "canceled": true }),
+    }
+}
+
+#[tauri::command]
+async fn save_proj_file(app: AppHandle, path: String, content: String) -> serde_json::Value {
+    let save_path = if path.is_empty() {
+        let result = app.dialog().file()
+            .add_filter("Visual Assembler Project", &["proj"])
+            .set_file_name("project.proj")
+            .blocking_save_file();
+        match result {
+            Some(p) => p.to_string(),
+            None    => return serde_json::json!({ "canceled": true }),
+        }
+    } else {
+        path
+    };
+
+    match fs::write(&save_path, content.as_bytes()) {
+        Ok(_)  => serde_json::json!({ "ok": true, "filePath": save_path }),
+        Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+    }
+}
+
+#[tauri::command]
+fn read_text_file(path: String) -> serde_json::Value {
+    match fs::read_to_string(&path) {
+        Ok(content) => serde_json::json!({ "ok": true, "content": content }),
+        Err(e)      => serde_json::json!({ "ok": false, "error": e.to_string() }),
+    }
+}
+
+#[tauri::command]
+async fn choose_proj_member(app: AppHandle) -> serde_json::Value {
+    let result = app.dialog().file()
+        .add_filter("C64 Visual Assembler Project", &["json", "c64va"])
+        .blocking_pick_file();
+
+    match result {
+        Some(path) => {
+            let path_str = path.to_string();
+            let file_name = std::path::Path::new(&path_str)
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("")
+                .to_string();
+            serde_json::json!({ "canceled": false, "filePath": path_str, "fileName": file_name })
         }
         None => serde_json::json!({ "canceled": true }),
     }
@@ -1616,6 +1713,8 @@ pub fn run() {
             set_title,
             open_external,
             quit_app,
+            get_ui_settings,
+            save_ui_settings,
             get_vice_config,
             choose_vice_executable,
             launch_vice,
@@ -1637,6 +1736,10 @@ pub fn run() {
             read_bin_file,
             save_project,
             load_project,
+            open_proj_file,
+            save_proj_file,
+            read_text_file,
+            choose_proj_member,
             load_sample,
             open_manual,
             run_on_ultimate,

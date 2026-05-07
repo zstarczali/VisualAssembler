@@ -217,15 +217,6 @@ const saveProjectButton = document.getElementById("save-project");
 const savePrgButton = document.getElementById("save-prg");
 const saveD64Button = document.getElementById("save-d64");
 const loadProjectButton = document.getElementById("load-project");
-const importAsmButton = document.getElementById("import-asm");
-const importAsmDialog = document.getElementById("import-asm-dialog");
-const importAsmTextarea = document.getElementById("import-asm-textarea");
-const importAsmLineNumbers = document.getElementById("import-asm-line-numbers");
-const importAsmErrors = document.getElementById("import-asm-errors");
-const importAsmErrorsTitle = document.getElementById("import-asm-errors-title");
-const importAsmErrorsList = document.getElementById("import-asm-errors-list");
-const importAsmConfirmButton = document.getElementById("import-asm-confirm");
-const importAsmCancelButton = document.getElementById("import-asm-cancel");
 const zoomOutButton = document.getElementById("zoom-out");
 const zoomInButton = document.getElementById("zoom-in");
 const addSelectedButton = document.getElementById("add-selected");
@@ -242,12 +233,9 @@ const emulatorRunHint = document.getElementById("emulator-run-hint");
 const vicePathInput = document.getElementById("vice-path");
 const debuggerPathInput = document.getElementById("debugger-path");
 const debuggerStatus = document.getElementById("debugger-status");
-const dbgJmpOn = document.getElementById("dbg-jmp-on");
-const dbgJmpOff = document.getElementById("dbg-jmp-off");
-const dbgWaitOn = document.getElementById("dbg-wait-on");
-const dbgWaitOff = document.getElementById("dbg-wait-off");
-const dbgUnpauseOn = document.getElementById("dbg-unpause-on");
-const dbgUnpauseOff = document.getElementById("dbg-unpause-off");
+const dbgJmp = document.getElementById("dbg-jmp");
+const dbgWait = document.getElementById("dbg-wait");
+const dbgUnpause = document.getElementById("dbg-unpause");
 const currentFileDisplay = document.getElementById("current-file");
 const originInput = document.getElementById("origin-input");
 const originPreview = document.getElementById("origin-preview");
@@ -275,11 +263,9 @@ let showMacroSource = false;
 let showRegionComments = true;
 let asmOutputBase = "hex";
 let originBase = "hex";
-const macroSourceToggleOn = document.getElementById("macro-source-toggle-on");
 const macroSourceToggle = document.getElementById("macro-source-toggle");
 const macroSourceToggleText = document.getElementById("macro-source-toggle-text");
-const regionCommentsToggleOn = document.getElementById("region-comments-toggle-on");
-const regionCommentsToggleOff = document.getElementById("region-comments-toggle-off");
+const regionCommentsToggle = document.getElementById("region-comments-toggle");
 const asmBaseInputs = document.querySelectorAll('input[name="asm-output-base"]');
 const originBaseInputs = document.querySelectorAll('input[name="origin-base"]');
 const compileErrorDialog = document.getElementById("compile-error-dialog");
@@ -294,6 +280,14 @@ const helpManualButton = document.getElementById("help-manual-btn");
 const checkUpdateButton = document.getElementById("check-update-btn");
 const reportBugButton = document.getElementById("report-bug-btn");
 const basicSysToggle = document.getElementById("basic-sys-toggle");
+const expertModeToggle = document.getElementById("expert-mode-toggle");
+const expertPanel = document.getElementById("expert-panel");
+const expertEditor = document.getElementById("expert-editor");
+const expertStatus = document.getElementById("expert-status");
+const expertHlCode  = document.getElementById("expert-hl-code");
+const expertHlPre   = document.getElementById("expert-hl");
+const expertCursorPos = document.getElementById("expert-cursor-pos");
+const expertFileName = document.getElementById("expert-file-name");
 const aboutDialog = document.getElementById("about-dialog");
 const aboutCloseButton = document.getElementById("about-close");
 const whatsNewDialog = document.getElementById("whats-new-dialog");
@@ -304,6 +298,19 @@ const knowledgeBaseCloseButton = document.getElementById("knowledge-base-close")
 let workProgressTimer = null;
 let workProgressValue = 10;
 const exitAppButton = document.getElementById("exit-app");
+const expertHlToggleBtn = document.getElementById("expert-hl-toggle");
+const expertPaletteSyncBtn = document.getElementById("expert-palette-sync-btn");
+const expertPaletteBtn     = document.getElementById("expert-palette-btn");
+const expertDisasmBtn      = document.getElementById("expert-disasm-btn");
+const expertDisasmPanel    = document.getElementById("expert-disasm-panel");
+const expertDisasmOutput   = document.getElementById("expert-disasm-output");
+const expertDisasmResizer  = document.getElementById("expert-disasm-resizer");
+const expertMonitorBtn     = document.getElementById("expert-monitor-btn");
+const expertMonitorPanel   = document.getElementById("expert-monitor-panel");
+const expertMonitorOutput  = document.getElementById("expert-monitor-output");
+const expertFormatBtn      = document.getElementById("expert-format-btn");
+const expertProjectBtn     = document.getElementById("expert-project-btn");
+const expertProjectPanel   = document.getElementById("expert-project-panel");
 
 let program = [];
 let dragState = null;
@@ -322,6 +329,19 @@ let debuggerUnpause = false;
 let savedUiSettings = {};
 let userMacros = {};  // Stores user-defined macros: { macroName: [blocks...] }
 
+// ── Tab system ──────────────────────────────────────────────────────
+let tabs = [];
+let activeTabId = null;
+let _tabCounter = 0;
+let _expertHlEnabled = true;
+let _expertPaletteSyncEnabled = true;
+let _expertPaletteVisible = false;
+let _expertDisasmVisible = false;
+let _expertDisasmWidth   = 340;
+let _expertMonitorVisible = false;
+let _expertProjectVisible = false;
+let _expertProjectData = null; // { name, files, _projPath }
+
 const translations = {
   hu: {
     menu: "Menu",
@@ -332,12 +352,6 @@ const translations = {
     menuProgram: "Program",
     loadSample: "Betoltes",
     saveProject: "Program mentese",
-    importAsm: "ASM importalasa",
-    importAsmTitle: "ASM import",
-    importAsmPlaceholder: "Illeszd be a 6502 assembly kodot ide...",
-    importAsmConfirm: "Import",
-    importAsmCancel: "Megsem",
-    importAsmErrorsTitle: "Hibak",
     workProgressTitle: "Forditas folyamatban...",
     workProgressDoneTitle: "Sikeres build",
     workProgressRun: "PRG generalasa es VICE inditasa...",
@@ -352,10 +366,10 @@ const translations = {
     workProgressSuccessD64Ultimate: "D64 felcsatolva, lemez fut a hardveren.",
     workProgressSuccessDebug: "Build sikeres, debugger inditva.",
     workProgressSuccessImport: "Import sikeres.",
-    savePrg: "Export PRG-kent",
-    savePrgSuccess: "PRG elmentve",
+    savePrg: "Build PRG",
+    buildSection: "Build",
     savePrgFailed: "PRG mentes sikertelen",
-    saveD64: "Export D64-kent",
+    saveD64: "Build D64",
     saveD64Success: "D64 elmentve",
     saveD64Failed: "D64 mentes sikertelen",
     saveD64NeedVice: "A D64 mentes a VICE c1541 toolt hasznalja. Allitsd be a VICE eleresi utjat a Beallitasok menuben.",
@@ -479,11 +493,39 @@ const translations = {
     zoomOut: "Kicsinyítés (A-)",
     checkForUpdate: "Frissites keresese",
     reportBug: "Hiba bejelentese",
+    tabCloseConfirm: "Biztosan bezárod a \"{name}\" tabot?",
+    tabCloseConfirmUnsaved: "Biztosan bezárod a \"{name}\" tabot? Nem mentett változtatások elvesznek.",
+    tabCloseConfirmOk: "Bezárás",
+    tabCloseConfirmCancel: "Mégsem",
+    expertPaletteSync: "Mnemonik panel szinkron",
+    expertPaletteToggle: "Mnemonik panel megjelenítése",
+    expertDisasm: "Disassembler be/ki",
+    expertMonitor: "Monitor be/ki",
+    expertFormat: "Forráskód formázása",
+    expertProjectPanel: "Projekt panel",
+    projOpenProjectBtn: "Projekt megnyítása",
+    menuOpenProject: "Projekt megnyítása",
+    menuSaveProject: "Projekt mentése",
+    projNewProjectBtn: "Új projekt",
+    projSaveProjectBtn: "Projekt mentése",
+    projAddFileBtn: "Fájl hozzáadása",
+    projNoProject: "Nincs projekt",
+    projClickToOpen: "Kattints a mappa gombra\nprojekt megnyitásához",
+    projAddFileHint: "Adj hozzá fájlt a + gombbal",
+    projRegions: "Régiók",
+    projMacros: "Makrók",
+    projOpened: "Projekt megnyitva",
+    projSaved: "Projekt mentve",
+    projError: "Projekt hiba",
+    projOpenFile: "Megnyitva",
+    projSaveError: "Mentési hiba",
+    projRemove: "Eltávolítás",
     viceRunning: "VICE fut",
     whatsNew: "Ujdonsagok",
     paletteSearchPlaceholder: "Kereses...",
     paletteSearchLabel: "Kereses",
     basicSysLabel: "BASIC SYS stub generálása",
+    expertModeLabel: "Expert mód (ASM szerkesztő)",
     collapseAll: "Osszes osszecsukasa",
     expandAll: "Osszes kinyitasa",
     collapse: "Osszecsukas",
@@ -640,12 +682,6 @@ const translations = {
     menuProgram: "Program",
     loadSample: "Load",
     saveProject: "Save program",
-    importAsm: "Import ASM",
-    importAsmTitle: "Import ASM",
-    importAsmPlaceholder: "Paste 6502 assembly code here...",
-    importAsmConfirm: "Import",
-    importAsmCancel: "Cancel",
-    importAsmErrorsTitle: "Errors",
     workProgressTitle: "Compiling...",
     workProgressDoneTitle: "Build successful",
     workProgressRun: "Building PRG and launching VICE...",
@@ -660,10 +696,10 @@ const translations = {
     workProgressSuccessD64Ultimate: "D64 mounted, disk running on hardware.",
     workProgressSuccessDebug: "Build successful, debugger launched.",
     workProgressSuccessImport: "Import successful.",
-    savePrg: "Export to PRG",
-    savePrgSuccess: "PRG saved",
+    savePrg: "Build PRG",
+    buildSection: "Build",
     savePrgFailed: "PRG save failed",
-    saveD64: "Export to D64",
+    saveD64: "Build D64",
     saveD64Success: "D64 saved",
     saveD64Failed: "D64 export failed",
     saveD64NeedVice: "D64 export uses VICE's c1541 tool. Set the VICE path in the Settings menu.",
@@ -788,11 +824,39 @@ const translations = {
     languageLabel: "Language",
     checkForUpdate: "Check for Update",
     reportBug: "Report Bug",
+    tabCloseConfirm: "Close the \"{name}\" tab?",
+    tabCloseConfirmUnsaved: "Close the \"{name}\" tab? Unsaved changes will be lost.",
+    tabCloseConfirmOk: "Close",
+    tabCloseConfirmCancel: "Cancel",
+    expertPaletteSync: "Toggle mnemonic panel sync",
+    expertPaletteToggle: "Show mnemonic panel",
+    expertDisasm: "Toggle disassembler",
+    expertMonitor: "Toggle monitor",
+    expertFormat: "Format source code",
+    expertProjectPanel: "Project panel",
+    projOpenProjectBtn: "Open project",
+    menuOpenProject: "Open project",
+    menuSaveProject: "Save project",
+    projNewProjectBtn: "New project",
+    projSaveProjectBtn: "Save project",
+    projAddFileBtn: "Add file",
+    projNoProject: "No project",
+    projClickToOpen: "Click the folder button\nto open a project",
+    projAddFileHint: "Add files with the + button",
+    projRegions: "Regions",
+    projMacros: "Macros",
+    projOpened: "Project opened",
+    projSaved: "Project saved",
+    projError: "Project error",
+    projOpenFile: "Opened",
+    projSaveError: "Save error",
+    projRemove: "Remove",
     viceRunning: "VICE running",
     whatsNew: "What's New",
     paletteSearchPlaceholder: "Search...",
     paletteSearchLabel: "Search",
     basicSysLabel: "Generate BASIC SYS stub",
+    expertModeLabel: "Expert mode (ASM editor)",
     collapseAll: "Collapse all",
     expandAll: "Expand all",
     collapse: "Collapse",
@@ -952,29 +1016,6 @@ function tf(key, values = {}) {
   );
 }
 
-function updateImportAsmLineNumbers() {
-  if (!importAsmTextarea || !importAsmLineNumbers) return;
-  const lineCount = Math.max(1, importAsmTextarea.value.split("\n").length);
-  const numbers = Array.from({ length: lineCount }, (_, i) => String(i + 1)).join("\n");
-  if (importAsmLineNumbers.textContent !== numbers) {
-    importAsmLineNumbers.textContent = numbers;
-  }
-  importAsmLineNumbers.scrollTop = importAsmTextarea.scrollTop;
-}
-
-function setImportAsmErrors(errors = []) {
-  if (!importAsmErrors || !importAsmErrorsList) return;
-  if (!Array.isArray(errors) || errors.length === 0) {
-    importAsmErrors.hidden = true;
-    importAsmErrorsList.innerHTML = "";
-    return;
-  }
-  importAsmErrorsList.innerHTML = errors
-    .map(err => `<li>${String(err).replace(/</g, "&lt;")}</li>`)
-    .join("");
-  importAsmErrors.hidden = false;
-}
-
 function readUiSettings() {
   try {
     return JSON.parse(localStorage.getItem("c64-ui-settings") || "{}");
@@ -994,6 +1035,14 @@ function saveUiSettings() {
     sample: sampleSelect?.value || "basic-colors",
     memoryPanelOpen: !!globalMemoryPanel?.open,
     basicSys: basicSysToggle ? basicSysToggle.checked : true,
+    expertMode: expertMode,
+    expertHlEnabled: _expertHlEnabled,
+    expertPaletteSyncEnabled: _expertPaletteSyncEnabled,
+    expertPaletteVisible: _expertPaletteVisible,
+    expertDisasmVisible: _expertDisasmVisible,
+    expertDisasmWidth: _expertDisasmWidth,
+    expertMonitorVisible: _expertMonitorVisible,
+    expertProjectVisible: _expertProjectVisible,
     showMacroSource,
     showRegionComments,
     asmOutputBase,
@@ -1005,6 +1054,7 @@ function saveUiSettings() {
 
   localStorage.setItem("c64-ui-settings", JSON.stringify(settings));
   savedUiSettings = settings;
+  window.electronAPI?.saveUiSettingsGlobal?.(settings);
 }
 
 function getCategoryLabel(category) {
@@ -1324,9 +1374,32 @@ function initPalette() {
     const picker = document.getElementById("theme-picker");
     if (picker?.open && !picker.contains(e.target)) picker.removeAttribute("open");
   });
+
+  // Position theme-picker panel as fixed popup relative to the summary button
+  document.getElementById("theme-picker")?.addEventListener("toggle", (e) => {
+    const panel = document.querySelector(".theme-picker-panel");
+    if (!panel) return;
+    if (e.newState === "open") {
+      const summaryRect = document.getElementById("theme-toggle")?.getBoundingClientRect();
+      if (summaryRect) {
+        const panelW = 160;
+        let left = summaryRect.left;
+        // Keep inside viewport
+        if (left + panelW > window.innerWidth - 8) left = window.innerWidth - panelW - 8;
+        if (left < 8) left = 8;
+        let top = summaryRect.bottom + 6;
+        // If would go off bottom, open upward
+        const estH = 140;
+        if (top + estH > window.innerHeight - 8) top = summaryRect.top - estH - 6;
+        panel.style.top  = top + "px";
+        panel.style.left = left + "px";
+      }
+    }
+  });
   document.getElementById("crt-toggle")?.addEventListener("click", toggleCrtMode);
   languageSelect.addEventListener("change", handleLanguageChange);
   aboutButton?.addEventListener("click", async () => {
+    document.querySelector(".control-menu")?.removeAttribute("open");
     const version = await window.electronAPI.getAppVersion();
     document.getElementById("about-version").textContent = `v${version}`;
     const dlg = document.getElementById("about-dialog");
@@ -1354,12 +1427,142 @@ function initPalette() {
     renderEmulatorRunHint();
     renderOriginPreview();
   });
+
+  expertModeToggle?.addEventListener("change", () => {
+    setExpertMode(expertModeToggle.checked);
+  });
+
+  expertHlToggleBtn?.addEventListener("click", () => {
+    _expertHlEnabled = !_expertHlEnabled;
+    expertHlToggleBtn.classList.toggle("expert-hl-toggle--on", _expertHlEnabled);
+    expertHlToggleBtn.setAttribute("aria-pressed", String(_expertHlEnabled));
+    _expertApplyHighlight();
+    saveUiSettings();
+  });
+
+  expertPaletteBtn?.addEventListener("click", () => {
+    _expertPaletteVisible = !_expertPaletteVisible;
+    expertPaletteBtn.classList.toggle("expert-hl-toggle--on", _expertPaletteVisible);
+    expertPaletteBtn.setAttribute("aria-pressed", String(_expertPaletteVisible));
+    document.body.classList.toggle("expert-show-palette", _expertPaletteVisible);
+    saveUiSettings();
+  });
+
+  expertPaletteSyncBtn?.addEventListener("click", () => {
+    _expertPaletteSyncEnabled = !_expertPaletteSyncEnabled;
+    expertPaletteSyncBtn.classList.toggle("expert-hl-toggle--on", _expertPaletteSyncEnabled);
+    expertPaletteSyncBtn.setAttribute("aria-pressed", String(_expertPaletteSyncEnabled));
+    saveUiSettings();
+  });
+
+  expertDisasmBtn?.addEventListener("click", () => {
+    _expertDisasmVisible = !_expertDisasmVisible;
+    expertDisasmBtn.classList.toggle("expert-hl-toggle--on", _expertDisasmVisible);
+    expertDisasmBtn.setAttribute("aria-pressed", String(_expertDisasmVisible));
+    if (_expertDisasmVisible) {
+      expertDisasmPanel?.removeAttribute("hidden");
+      expertDisasmResizer?.removeAttribute("hidden");
+      expertDisasmPanel.style.width = `${_expertDisasmWidth}px`;
+      _expertRenderDisasm();
+    } else {
+      expertDisasmPanel?.setAttribute("hidden", "");
+      expertDisasmResizer?.setAttribute("hidden", "");
+    }
+    saveUiSettings();
+  });
+
+  if (expertDisasmResizer) {
+    expertDisasmResizer.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      const startX     = e.clientX;
+      const startWidth = _expertDisasmWidth;
+      expertDisasmResizer.classList.add("dragging");
+      const onMove = (ev) => {
+        const delta = startX - ev.clientX;          // drag left → panel grows
+        const minW  = 180;
+        const maxW  = window.innerWidth * 0.6;
+        _expertDisasmWidth = Math.max(minW, Math.min(maxW, startWidth + delta));
+        if (expertDisasmPanel) expertDisasmPanel.style.width = `${_expertDisasmWidth}px`;
+      };
+      const onUp = () => {
+        expertDisasmResizer.classList.remove("dragging");
+        document.removeEventListener("mousemove", onMove);
+        document.removeEventListener("mouseup", onUp);
+        saveUiSettings();
+      };
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup", onUp);
+    });
+  }
+
+  expertMonitorBtn?.addEventListener("click", () => {
+    _expertMonitorVisible = !_expertMonitorVisible;
+    expertMonitorBtn.classList.toggle("expert-hl-toggle--on", _expertMonitorVisible);
+    expertMonitorBtn.setAttribute("aria-pressed", String(_expertMonitorVisible));
+    if (_expertMonitorVisible) {
+      expertMonitorPanel?.removeAttribute("hidden");
+      _expertRenderMonitor();
+    } else {
+      expertMonitorPanel?.setAttribute("hidden", "");
+    }
+    saveUiSettings();
+  });
+
+  expertFormatBtn?.addEventListener("click", _expertFormatSource);
+
+  expertProjectBtn?.addEventListener("click", () => {
+    _expertProjectVisible = !_expertProjectVisible;
+    expertProjectBtn.classList.toggle("expert-hl-toggle--on", _expertProjectVisible);
+    expertProjectBtn.setAttribute("aria-pressed", String(_expertProjectVisible));
+    if (_expertProjectVisible) {
+      expertProjectPanel?.removeAttribute("hidden");
+    } else {
+      expertProjectPanel?.setAttribute("hidden", "");
+    }
+    saveUiSettings();
+  });
+
+  document.getElementById("expert-project-open-btn")?.addEventListener("click", _expertOpenProject);
+  document.getElementById("expert-project-new-btn")?.addEventListener("click",  _expertNewProject);
+  document.getElementById("expert-project-save-btn")?.addEventListener("click", _expertSaveProject);
+  document.getElementById("expert-project-add-btn")?.addEventListener("click",  _expertAddProjMember);
+
+  expertEditor?.addEventListener("input", () => {
+    markTabDirty();
+    _expertValidate();
+  });
+
+  expertEditor?.addEventListener("keydown", (e) => {
+    if (e.key === "Tab") {
+      e.preventDefault();
+      const ta = expertEditor;
+      const start = ta.selectionStart;
+      const end   = ta.selectionEnd;
+      ta.value = ta.value.slice(0, start) + "  " + ta.value.slice(end);
+      ta.selectionStart = ta.selectionEnd = start + 2;
+      _expertApplyHighlight();
+      _expertValidate();
+    }
+  });
+  expertEditor?.addEventListener("keyup",   _expertUpdateCursor);
+  expertEditor?.addEventListener("click",   _expertUpdateCursor);
+
+  expertEditor?.addEventListener("scroll", () => {
+    if (expertHlCode) {
+      expertHlCode.style.transform =
+        `translate(${-expertEditor.scrollLeft}px, ${-expertEditor.scrollTop}px)`;
+    }
+  });
   aboutCloseButton?.addEventListener("click", () => aboutDialog?.close());
   whatsNewButton?.addEventListener("click", () => {
+    document.querySelector(".control-menu")?.removeAttribute("open");
     whatsNewDialog?.showModal();
   });
   whatsNewCloseButton?.addEventListener("click", () => whatsNewDialog?.close());
-  knowledgeBaseButton?.addEventListener("click", () => knowledgeBaseDialog?.showModal());
+  knowledgeBaseButton?.addEventListener("click", () => {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    knowledgeBaseDialog?.showModal();
+  });
   knowledgeBaseCloseButton?.addEventListener("click", () => knowledgeBaseDialog?.close());
   knowledgeBaseDialog?.addEventListener("click", (e) => { if (e.target === knowledgeBaseDialog) knowledgeBaseDialog.close(); });
   knowledgeBaseDialog?.querySelectorAll(".knowledge-base-link").forEach((link) => {
@@ -1400,6 +1603,21 @@ function initPalette() {
     }
   });
 
+  // Close menu when any button/link inside the panel is clicked
+  controlMenuPanel?.addEventListener("click", (e) => {
+    const target = e.target.closest("button, a, .theme-option, .run-mode-item");
+    if (!target || !controlMenu.open) return;
+    // Small delay so the button's own handler can fire first
+    setTimeout(() => { controlMenu.removeAttribute("open"); }, 80);
+  });
+
+  // Close menu when clicking outside of it
+  document.addEventListener("click", (e) => {
+    if (!controlMenu?.open) return;
+    if (controlMenu.contains(e.target)) return;
+    controlMenu.removeAttribute("open");
+  });
+
   sampleSelect?.addEventListener("change", saveUiSettings);
   loadSampleButton.addEventListener("click", () => {
     const ok = loadSelectedSample();
@@ -1409,77 +1627,37 @@ function initPalette() {
     await saveProjectToFile();
     document.querySelector(".control-menu")?.removeAttribute("open");
   });
+  document.getElementById("menu-open-project")?.addEventListener("click", async () => {
+    await _openProjectFromMenu();
+    document.querySelector(".control-menu")?.removeAttribute("open");
+  });
+  document.getElementById("menu-save-project")?.addEventListener("click", async () => {
+    await _expertSaveProject();
+    document.querySelector(".control-menu")?.removeAttribute("open");
+  });
   savePrgButton?.addEventListener("click", savePrgToFile);
   saveD64Button?.addEventListener("click", saveD64ToFile);
+
+  // Global Ctrl+S / Cmd+S — works in both block mode and expert mode
+  document.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+      e.preventDefault();
+      saveProjectToFile().then(() => {
+        markTabClean();
+        if (expertMode) {
+          _expertSetStatus(currentLanguage === "en" ? "Saved ✓" : "Mentve ✓", "ok");
+          setTimeout(() => _expertValidate(), 1800);
+        } else if (emulatorStatus) {
+          const prev = emulatorStatus.textContent;
+          emulatorStatus.textContent = currentLanguage === "en" ? "Saved ✓" : "Mentve ✓";
+          setTimeout(() => { if (emulatorStatus.textContent.includes("✓")) emulatorStatus.textContent = prev; }, 1800);
+        }
+      });
+    }
+  });
   loadProjectButton?.addEventListener("click", async () => {
     const ok = await loadProjectFromFile();
     if (ok) document.querySelector(".control-menu")?.removeAttribute("open");
-  });
-  importAsmButton?.addEventListener("click", () => {
-    if (importAsmTextarea) importAsmTextarea.value = "";
-    setImportAsmErrors([]);
-    updateImportAsmLineNumbers();
-    importAsmDialog?.showModal();
-    importAsmTextarea?.focus();
-  });
-  importAsmTextarea?.addEventListener("input", () => {
-    setImportAsmErrors([]);
-    updateImportAsmLineNumbers();
-  });
-  importAsmTextarea?.addEventListener("scroll", updateImportAsmLineNumbers);
-  importAsmCancelButton?.addEventListener("click", () => importAsmDialog?.close());
-  importAsmDialog?.addEventListener("click", (e) => { if (e.target === importAsmDialog) importAsmDialog.close(); });
-  workProgressDialog?.addEventListener("cancel", (e) => e.preventDefault());
-  importAsmConfirmButton?.addEventListener("click", async () => {
-    const text = importAsmTextarea?.value || "";
-    importAsmDialog?.close();
-    if (!text.trim()) return;
-    await showWorkProgress("workProgressImport");
-    let success = false;
-    let importErrors = [];
-    try {
-      setWorkProgress(25);
-      const imported = parseAsmText(text);
-      if (imported.length === 0) {
-        importErrors = [currentLanguage === "en" ? "No valid ASM lines found to import." : "Nem talalhato ervenyes ASM sor importhoz."];
-        return;
-      }
-      setWorkProgress(40);
-      const oldProgram = program;
-      const oldUserMacros = { ...userMacros };
-      program = imported;
-      parseUserMacros();
-      setWorkProgress(60);
-      const prg = buildAutostartPrgForEmulator();
-      setWorkProgress(85);
-      if (prg.ok) {
-        success = true;
-      } else {
-        importErrors = prg.errors || [prg.error || t("projectLoadFailed")];
-      }
-      if (!prg.ok) {
-        program = oldProgram;
-        userMacros = oldUserMacros;
-      }
-    } finally {
-      if (success) {
-        setImportAsmErrors([]);
-        renderOriginPreview();
-        renderEmulatorRunHint();
-        renderProgram();
-        saveUiSettings();
-        await completeWorkProgress("workProgressSuccessImport");
-      } else {
-        hideWorkProgress();
-        if (importAsmTextarea) {
-          importAsmTextarea.value = text;
-          updateImportAsmLineNumbers();
-        }
-        importAsmDialog?.showModal();
-        setImportAsmErrors(importErrors);
-        importAsmTextarea?.focus();
-      }
-    }
   });
   zoomOutButton.addEventListener("click", () => adjustZoom(-0.08));
   zoomInButton.addEventListener("click", () => adjustZoom(0.08));
@@ -1494,23 +1672,13 @@ function initPalette() {
   document.getElementById("new-program-cancel")?.addEventListener("click", () => {
     document.getElementById("new-program-dialog")?.close();
   });
-  macroSourceToggleOn?.addEventListener("change", () => {
-    showMacroSource = macroSourceToggleOn.checked;
-    saveUiSettings();
-    renderAsmOutput();
-  });
   macroSourceToggle?.addEventListener("change", () => {
-    showMacroSource = false;
+    showMacroSource = macroSourceToggle.checked;
     saveUiSettings();
     renderAsmOutput();
   });
-  regionCommentsToggleOn?.addEventListener("change", () => {
-    showRegionComments = true;
-    saveUiSettings();
-    renderAsmOutput();
-  });
-  regionCommentsToggleOff?.addEventListener("change", () => {
-    showRegionComments = false;
+  regionCommentsToggle?.addEventListener("change", () => {
+    showRegionComments = regionCommentsToggle.checked;
     saveUiSettings();
     renderAsmOutput();
   });
@@ -1518,7 +1686,10 @@ function initPalette() {
   clearProgramButton.addEventListener("click", clearProgram);
   collapseAllButton.addEventListener("click", collapseAllBlocks);
   expandAllButton.addEventListener("click", expandAllBlocks);
-  copyAsmButton?.addEventListener("click", copyAsmToClipboard);
+  copyAsmButton?.addEventListener("click", () => {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    copyAsmToClipboard();
+  });
   chooseViceButton?.addEventListener("click", chooseViceExecutable);
   runEmulatorButton?.addEventListener("click", () => {
     if (runMode === "d64") runViaD64();
@@ -1531,12 +1702,9 @@ function initPalette() {
   setupUltimateSettings();
   chooseDebuggerButton?.addEventListener("click", chooseDebuggerExecutable);
   runDebuggerButton?.addEventListener("click", runInDebugger);
-  dbgJmpOn?.addEventListener("change", () => { debuggerJmp = true; saveUiSettings(); });
-  dbgJmpOff?.addEventListener("change", () => { debuggerJmp = false; saveUiSettings(); });
-  dbgWaitOn?.addEventListener("change", () => { debuggerWait = true; saveUiSettings(); });
-  dbgWaitOff?.addEventListener("change", () => { debuggerWait = false; saveUiSettings(); });
-  dbgUnpauseOn?.addEventListener("change", () => { debuggerUnpause = true; saveUiSettings(); });
-  dbgUnpauseOff?.addEventListener("change", () => { debuggerUnpause = false; saveUiSettings(); });
+  dbgJmp?.addEventListener("change", () => { debuggerJmp = dbgJmp.checked; saveUiSettings(); });
+  dbgWait?.addEventListener("change", () => { debuggerWait = dbgWait.checked; saveUiSettings(); });
+  dbgUnpause?.addEventListener("change", () => { debuggerUnpause = dbgUnpause.checked; saveUiSettings(); });
   globalMemoryPanel?.addEventListener("toggle", saveUiSettings);
 
   applySavedTheme();
@@ -1587,9 +1755,7 @@ function applySavedLanguage() {
   }
 }
 
-function applySavedUiSettings() {
-  savedUiSettings = readUiSettings();
-
+function _applyUiSettingsToDOM() {
   if (sampleSelect && savedUiSettings.sample) {
     sampleSelect.value = savedUiSettings.sample;
   }
@@ -1622,16 +1788,71 @@ function applySavedUiSettings() {
     basicSysToggle.checked = savedUiSettings.basicSys !== false;
   }
 
+  if (savedUiSettings.expertMode) {
+    // Capture toolbar states BEFORE setExpertMode(true) — it calls saveUiSettings()
+    // which overwrites savedUiSettings with current (default) variable values.
+    const _savedHlEnabled          = savedUiSettings.expertHlEnabled;
+    const _savedPaletteSyncEnabled = savedUiSettings.expertPaletteSyncEnabled;
+    const _savedPaletteVisible     = savedUiSettings.expertPaletteVisible;
+    const _savedDisasmWidth        = savedUiSettings.expertDisasmWidth;
+    const _savedDisasmVisible      = savedUiSettings.expertDisasmVisible;
+    const _savedMonitorVisible     = savedUiSettings.expertMonitorVisible;
+    const _savedProjectVisible     = savedUiSettings.expertProjectVisible;
+
+    setExpertMode(true);
+
+    // Restore expert toolbar toggles using captured values
+    if (_savedHlEnabled === false) {
+      _expertHlEnabled = false;
+      expertHlToggleBtn?.classList.remove("expert-hl-toggle--on");
+      expertHlToggleBtn?.setAttribute("aria-pressed", "false");
+    }
+    if (_savedPaletteSyncEnabled === false) {
+      _expertPaletteSyncEnabled = false;
+      expertPaletteSyncBtn?.classList.remove("expert-hl-toggle--on");
+      expertPaletteSyncBtn?.setAttribute("aria-pressed", "false");
+    }
+    if (_savedPaletteVisible) {
+      _expertPaletteVisible = true;
+      expertPaletteBtn?.classList.add("expert-hl-toggle--on");
+      expertPaletteBtn?.setAttribute("aria-pressed", "true");
+      document.body.classList.add("expert-show-palette");
+    }
+    if (_savedDisasmWidth) {
+      _expertDisasmWidth = _savedDisasmWidth;
+    }
+    if (_savedDisasmVisible) {
+      _expertDisasmVisible = true;
+      expertDisasmBtn?.classList.add("expert-hl-toggle--on");
+      expertDisasmBtn?.setAttribute("aria-pressed", "true");
+      expertDisasmPanel?.removeAttribute("hidden");
+      expertDisasmResizer?.removeAttribute("hidden");
+      if (expertDisasmPanel) expertDisasmPanel.style.width = `${_expertDisasmWidth}px`;
+      _expertRenderDisasm();
+    }
+    if (_savedMonitorVisible) {
+      _expertMonitorVisible = true;
+      expertMonitorBtn?.classList.add("expert-hl-toggle--on");
+      expertMonitorBtn?.setAttribute("aria-pressed", "true");
+      expertMonitorPanel?.removeAttribute("hidden");
+      _expertRenderMonitor();
+    }
+    if (_savedProjectVisible) {
+      _expertProjectVisible = true;
+      expertProjectBtn?.classList.add("expert-hl-toggle--on");
+      expertProjectBtn?.setAttribute("aria-pressed", "true");
+      expertProjectPanel?.removeAttribute("hidden");
+    }
+  }
+
   if (savedUiSettings.showMacroSource !== undefined) {
     showMacroSource = !!savedUiSettings.showMacroSource;
-    if (macroSourceToggleOn) macroSourceToggleOn.checked = showMacroSource;
-    if (macroSourceToggle) macroSourceToggle.checked = !showMacroSource;
+    if (macroSourceToggle) macroSourceToggle.checked = showMacroSource;
   }
 
   if (savedUiSettings.showRegionComments !== undefined) {
     showRegionComments = !!savedUiSettings.showRegionComments;
-    if (regionCommentsToggleOn) regionCommentsToggleOn.checked = showRegionComments;
-    if (regionCommentsToggleOff) regionCommentsToggleOff.checked = !showRegionComments;
+    if (regionCommentsToggle) regionCommentsToggle.checked = showRegionComments;
   }
 
   if (savedUiSettings.asmOutputBase) {
@@ -1640,17 +1861,29 @@ function applySavedUiSettings() {
   asmBaseInputs.forEach(input => { input.checked = input.value === asmOutputBase; });
 
   if (savedUiSettings.debuggerJmp !== undefined) debuggerJmp = !!savedUiSettings.debuggerJmp;
-  if (dbgJmpOn) dbgJmpOn.checked = debuggerJmp;
-  if (dbgJmpOff) dbgJmpOff.checked = !debuggerJmp;
+  if (dbgJmp) dbgJmp.checked = debuggerJmp;
 
   if (savedUiSettings.debuggerWait !== undefined) debuggerWait = !!savedUiSettings.debuggerWait;
-  if (dbgWaitOn) dbgWaitOn.checked = debuggerWait;
-  if (dbgWaitOff) dbgWaitOff.checked = !debuggerWait;
+  if (dbgWait) dbgWait.checked = debuggerWait;
 
   if (savedUiSettings.debuggerUnpause !== undefined) debuggerUnpause = !!savedUiSettings.debuggerUnpause;
-  if (dbgUnpauseOn) dbgUnpauseOn.checked = debuggerUnpause;
-  if (dbgUnpauseOff) dbgUnpauseOff.checked = !debuggerUnpause;
+  if (dbgUnpause) dbgUnpause.checked = debuggerUnpause;
+}
 
+function applySavedUiSettings() {
+  savedUiSettings = readUiSettings();
+  _applyUiSettingsToDOM();
+
+  // If running in Tauri, prefer the global config over localStorage (async fallback)
+  if (window.electronAPI?.getUiSettings) {
+    window.electronAPI.getUiSettings().then(globalSettings => {
+      if (globalSettings && typeof globalSettings === "object" && Object.keys(globalSettings).length > 0) {
+        savedUiSettings = globalSettings;
+        localStorage.setItem("c64-ui-settings", JSON.stringify(savedUiSettings));
+        _applyUiSettingsToDOM();
+      }
+    }).catch(() => {});
+  }
 }
 
 function handleLanguageChange() {
@@ -1704,6 +1937,30 @@ function applyTranslations() {
   if (mnemonicDescLabel) mnemonicDescLabel.textContent = t("mnemonicCardLabel");
   const basicSysLabelEl = document.getElementById("basic-sys-label");
   if (basicSysLabelEl) basicSysLabelEl.textContent = t("basicSysLabel");
+  const expertModeLabelEl = document.getElementById("expert-mode-label");
+  if (expertModeLabelEl) expertModeLabelEl.textContent = t("expertModeLabel");
+  if (_confirmYes) _confirmYes.textContent = t("tabCloseConfirmOk");
+  if (_confirmNo)  _confirmNo.textContent  = t("tabCloseConfirmCancel");
+  expertPaletteBtn?.setAttribute("title", t("expertPaletteToggle"));
+  expertPaletteBtn?.setAttribute("aria-label", t("expertPaletteToggle"));
+  expertProjectBtn?.setAttribute("title", t("expertProjectPanel"));
+  expertProjectBtn?.setAttribute("aria-label", t("expertProjectPanel"));
+  document.getElementById("expert-project-open-btn")?.setAttribute("title", t("projOpenProjectBtn"));
+  document.getElementById("expert-project-open-btn")?.setAttribute("aria-label", t("projOpenProjectBtn"));
+  document.getElementById("expert-project-new-btn")?.setAttribute("title", t("projNewProjectBtn"));
+  document.getElementById("expert-project-new-btn")?.setAttribute("aria-label", t("projNewProjectBtn"));
+  document.getElementById("expert-project-save-btn")?.setAttribute("title", t("projSaveProjectBtn"));
+  document.getElementById("expert-project-save-btn")?.setAttribute("aria-label", t("projSaveProjectBtn"));
+  document.getElementById("expert-project-add-btn")?.setAttribute("title", t("projAddFileBtn"));
+  document.getElementById("expert-project-add-btn")?.setAttribute("aria-label", t("projAddFileBtn"));
+  expertPaletteSyncBtn?.setAttribute("title", t("expertPaletteSync"));
+  expertPaletteSyncBtn?.setAttribute("aria-label", t("expertPaletteSync"));
+  expertDisasmBtn?.setAttribute("title", t("expertDisasm"));
+  expertDisasmBtn?.setAttribute("aria-label", t("expertDisasm"));
+  expertMonitorBtn?.setAttribute("title", t("expertMonitor"));
+  expertMonitorBtn?.setAttribute("aria-label", t("expertMonitor"));
+  expertFormatBtn?.setAttribute("title", t("expertFormat"));
+  expertFormatBtn?.setAttribute("aria-label", t("expertFormat"));
 
   document.querySelector('label[for="category-select"]');
   setText(".palette-panel .field:nth-of-type(1) span", t("fieldCategory"));
@@ -1742,13 +1999,10 @@ function applyTranslations() {
     setText("#run-debugger .run-label", t("runInDebugger"));
     setText("#copy-asm", t("copyAsm"));
     setText("#save-project", t("saveProject"));
-    setText("#import-asm", t("importAsm"));
-    setText("#import-asm-confirm", t("importAsmConfirm"));
-    setText("#import-asm-cancel", t("importAsmCancel"));
-    setText("#import-asm-title", t("importAsmTitle"));
-    setText("#import-asm-errors-title", t("importAsmErrorsTitle"));
-    if (importAsmTextarea) importAsmTextarea.placeholder = t("importAsmPlaceholder");
+    setText("#menu-open-project", t("menuOpenProject"));
+    setText("#menu-save-project", t("menuSaveProject"));
     setText("#save-prg", t("savePrg"));
+    setText("#build-section-label", t("buildSection"));
     setText("#save-d64", t("saveD64"));
     setText("#d64-export-title", t("d64ExportTitle"));
     setText("#d64-export-diskname-label", t("d64ExportDiskName"));
@@ -1980,6 +2234,11 @@ function openOperandDropdown(filter) {
   dd.innerHTML = items.map((s, i) =>
     `<div class="operand-dropdown-item" data-value="${s.value}" data-index="${i}" title="${s.label}">${s.label}</div>`
   ).join("");
+  // Position using fixed coords to escape overflow:hidden parent
+  const rect = operandInput.getBoundingClientRect();
+  dd.style.left = rect.left + "px";
+  dd.style.top = (rect.bottom + 4) + "px";
+  dd.style.minWidth = rect.width + "px";
   dd.hidden = false;
   dd.querySelectorAll(".operand-dropdown-item").forEach(el => {
     el.addEventListener("pointerdown", e => {
@@ -1992,6 +2251,15 @@ function openOperandDropdown(filter) {
 }
 
 function setupOperandDropdown() {
+  // Create dropdown at body level to escape backdrop-filter containing block
+  let dd = document.getElementById("operand-dropdown");
+  if (!dd) {
+    dd = document.createElement("div");
+    dd.id = "operand-dropdown";
+    dd.className = "operand-dropdown";
+    dd.hidden = true;
+    document.body.appendChild(dd);
+  }
   operandInput.addEventListener("focus", () => {
     if (_operandSuggestions.length) openOperandDropdown(operandInput.value);
   });
@@ -3072,7 +3340,123 @@ function collapseLoadedProgram(blocks) {
 
 function addSelectedBlock() {
   const selected = getSelectedMnemonic();
-  insertBlock(program.length, createBlockFromMnemonic(selected));
+  if (expertMode && expertEditor) {
+    const block = createBlockFromMnemonic(selected);
+    const line = _blockToExpertLine(block);
+    _expertInsertLine(line);
+  } else {
+    let insertIndex = program.length;
+    if (selectedBlockId) {
+      const idx = program.findIndex(b => b.id === selectedBlockId);
+      if (idx !== -1) insertIndex = idx + 1;
+    }
+    insertBlock(insertIndex, createBlockFromMnemonic(selected));
+  }
+}
+
+// Convert a block to its expert-mode source line representation
+function _blockToExpertLine(block) {
+  // Helper: prefix each comma-separated token with $ if base is hex
+  const fmtRaw = (raw, base) => {
+    if ((base || "hex") !== "hex") return raw || "0";
+    return (raw || "0").split(",").map(t => {
+      const s = t.trim();
+      return s.startsWith("$") || s === "" ? s : "$" + s;
+    }).join(", ");
+  };
+  if (block.isOrgMacro)       return `* = $${(block.orgAddress || "0801").toUpperCase()}`;
+  if (block.isLabel)          return `${block.labelName || "start"}:`;
+  if (block.isComment)        return `; ${block.rawOperand || ""}`;
+  if (block.isTextMacro)      return `.text ${block.textX || 0}, ${block.textY || 0}, "${block.rawOperand || ""}"`;
+  if (block.isStringMacro)    return `.string $${(block.stringAddress || "C000").toUpperCase()}, "${block.rawOperand || ""}"`;
+  if (block.isRawTextMacro)   return `.rawtext $${(block.rawTextAddress || "C000").replace(/^\$/,"").toUpperCase()}, "${block.rawOperand || ""}"`;
+  if (block.isDataMacro)      return `.data $${(block.dataAddress || "C000").replace(/^\$/,"").toUpperCase()}, ${fmtRaw(block.rawOperand, block.base)}`;
+  if (block.isRawBytesMacro)  return `.rawbytes $${(block.rawBytesAddress || "C000").replace(/^\$/,"").toUpperCase()}, ${fmtRaw(block.rawOperand, block.base)}`;
+  if (block.isByteMacro)      return `.byte ${fmtRaw(block.rawOperand, block.base)}`;
+  if (block.isWordMacro)      return `.word ${fmtRaw(block.rawOperand, block.base)}`;
+  if (block.isFillMacro)      return `.fill ${fmtRaw(block.rawOperand, block.base)}`;
+  if (block.isAlignMacro)     return `.align ${block.rawOperand || "64"}`;
+  if (block.isIncBinMacro)    return `.incbin "${block.incBinFileName || "data.bin"}"${block.incBinAddress && block.incBinAddress !== "$C000" ? ", $" + block.incBinAddress.replace(/^\$/,"") : ""}`;
+  if (block.isPetsciiMacro)   return `.petscii $${(block.petsciiAddress || "C000").replace(/^\$/,"").toUpperCase()}, "${block.rawOperand || "HELLO"}"`;
+  if (block.isTableMacro)     return block.tableAddress ? `.table ${block.tableName || "table1"} $${block.tableAddress.replace(/^\$/,"").toUpperCase()}` : `.table ${block.tableName || "table1"}`;  
+  if (block.isLoadFileMacro)  return `.loadfile "${block.loadFileName || "DATA"}", ${block.loadFileDevice || "8"}${block.loadFileAddress ? ", $" + block.loadFileAddress.replace(/^\$/,"") : ""}${block.loadFileErrorLabel ? ", " + block.loadFileErrorLabel : ""}`;
+  if (block.isSidMacro)       return `.sid "${block.sidFileName || "music.sid"}"${block.sidCustomAddress ? ", $" + block.sidCustomAddress.replace(/^\$/, "") : ""}`;  
+  if (block.isIncludeMacro)   return `.include "${block.includeFileName || "library.json"}"${block.includeAddress ? ", $" + block.includeAddress.replace(/^\$/, "") : ""}`;  
+  if (block.isLoopMacro)      return `.loop ${block.loopReg || "X"}, $${(block.loopCount || "0A").toUpperCase()}, ${block.loopLabel || "loop1"}`;
+  if (block.isNextMacro)      return `.next ${block.nextLabel || "loop1"}`;
+  if (block.isPushMacro)      return `.push ${block.pushRegs || "A"}`;
+  if (block.isPullMacro)      return `.pull ${block.pullRegs || "A"}`;
+  if (block.isConstMacro) {
+    const raw = String(block.rawOperand ?? block.constValue ?? "0").trim();
+    const base = block.base || "hex";
+    let formatted;
+    if (base === "dec") {
+      formatted = raw.replace(/^\$/, "") ; // already decimal digits
+    } else if (base === "hex") {
+      // rawOperand stores the hex digits without $; re-add $
+      const digits = raw.replace(/^\$/, "").toUpperCase();
+      formatted = "$" + digits;
+    } else {
+      // fallback: use constValue
+      const num = block.constValue ?? 0;
+      formatted = "$" + num.toString(16).toUpperCase();
+    }
+    return `.const ${block.constName || "MY_CONST"} = ${formatted}`;
+  }
+  if (block.isDefineMacro)    return `.define ${block.rawOperand || "SYMBOL"}`;
+  if (block.isIfMacro)        return `.if ${block.rawOperand || "SYMBOL"}`;
+  if (block.isElseMacro)      return `.else`;
+  if (block.isEndIfMacro)     return `.endif`;
+  if (block.isRegionMacro)    return `.region ${block.regionName || "region"}`;
+  if (block.isEndRegionMacro) return `.endregion`;
+  if (block.isMacroDefStart)  return `.macro ${block.macroName || block.rawOperand || "myMacro"}`;
+  if (block.isMacroDefEnd)    return `.endm`;
+  if (block.isMacroInvoke)    return `.invoke ${block.invokeMacroName || "myMacro"}`;
+  if (block.isSpriteInitMacro)return `.sprite_init ${block.spriteNum || 0}, ${block.spriteColor || 7}, $${(block.spriteDataPage || "21").toUpperCase()}`;
+  if (block.isSpritePosMacro) return `.sprite_pos ${block.spriteNum || 0}, ${block.spriteX || 152}, ${block.spriteY || 100}`;
+  if (block.isWaitRasterMacro)return `.wait_raster $${(block.rasterLine || "FF").toUpperCase()}`;
+  if (block.isJoystickMacro)  return `.joystick ${block.joyPort || 2}, ${block.joySpriteNum || 0}`;
+  if (block.isSpriteColMacro) return `.sprite_col ${block.spriteNum || 0}, ${block.colType || "background"}`;
+  // Plain instruction
+  const mnem = block.mnemonic || "NOP";
+  const op = block.operand ? `    ${mnem} ${block.operand}` : `    ${mnem}`;
+  return op.trimEnd();
+}
+
+// Sync expert editor from current program[] — call after loading a project/sample in expert mode
+function _expertSyncFromProgram() {
+  if (!expertEditor) return;
+  const lines = program.map(_blockToExpertLine).join("\n");
+  expertEditor.value = lines;
+  _expertApplyHighlight();
+  _expertValidate();
+}
+
+// Insert a line at cursor position (or end) in the expert editor
+function _expertInsertLine(line) {
+  if (!expertEditor) return;
+  const ta = expertEditor;
+  const val = ta.value;
+  const start = ta.selectionStart ?? val.length;
+
+  // Find the start of the current line
+  let lineStart = val.lastIndexOf("\n", start - 1) + 1;
+  // Find end of current line
+  let lineEnd = val.indexOf("\n", start);
+  if (lineEnd === -1) lineEnd = val.length;
+
+  // Insert after current line
+  const before = val.slice(0, lineEnd);
+  const after  = val.slice(lineEnd);
+  const insert = "\n" + line;
+  ta.value = before + insert + after;
+  // Move cursor to end of inserted line
+  const newCursor = lineEnd + insert.length;
+  ta.setSelectionRange(newCursor, newCursor);
+  ta.focus();
+
+  _expertApplyHighlight();
+  _expertValidate();
 }
 
 function makeDefaultOrgBlock() {
@@ -3093,6 +3477,7 @@ function makeDefaultOrgBlock() {
 }
 
 function clearProgram() {
+  document.querySelector(".control-menu")?.removeAttribute("open");
   const dialog = document.getElementById("new-program-dialog");
   if (dialog) {
     document.getElementById("new-program-dialog-msg").textContent = t("newProgramConfirmMsg");
@@ -3108,16 +3493,1254 @@ function doClearProgram() {
   program = [makeDefaultOrgBlock()];
   userMacros = {};
   selectedBlockId = null;
+  markTabClean();
   renderProgram();
 
   // Clear current file display
-  if (currentFileDisplay) {
-    currentFileDisplay.textContent = "";
-  }
+  _setCurrentFile("", "", null);
 }
 
 function isProgramEmpty() {
+  if (expertMode) {
+    const blocks = _expertBuildProgram();
+    return blocks.every(b => b.isOrgMacro || b.isRegionMacro || b.isEndRegionMacro || b.isComment || b.isDefineMacro);
+  }
   return program.every(b => b.isOrgMacro || b.isRegionMacro || b.isEndRegionMacro || b.isComment || b.isDefineMacro);
+}
+
+// ── Expert Mode ────────────────────────────────────────────────────────────
+
+let expertMode = false;
+let _expertParseTimer = null;
+
+function setExpertMode(on) {
+  if (!on && expertMode) {
+    // Convert expert text → program blocks before switching off
+    const blocks = _expertBuildProgram();
+    if (blocks && blocks.length > 0) {
+      program = blocks.map(b => ({ ...b, collapsed: false }));
+    }
+  }
+  expertMode = on;
+  document.body.classList.toggle("expert-mode", on);
+  if (expertPanel) expertPanel.hidden = !on;
+  if (expertModeToggle) expertModeToggle.checked = on;
+  if (on) _expertSyncFromProgram();
+  else renderProgram();
+  saveUiSettings();
+}
+
+function _expertSetStatus(text, type) {
+  if (!expertStatus) return;
+  expertStatus.textContent = text;
+  expertStatus.className = "expert-status" + (type ? " expert-status--" + type : "");
+}
+
+/* ── Syntax highlight ─────────────────────────────────────────────── */
+const _EXPERT_MNEM_SET = new Set([
+  "ADC","AND","ASL","BCC","BCS","BEQ","BIT","BMI","BNE","BPL","BRK","BVC","BVS",
+  "CLC","CLD","CLI","CLV","CMP","CPX","CPY","DEC","DEX","DEY","EOR","INC","INX",
+  "INY","JMP","JSR","LDA","LDX","LDY","LSR","NOP","ORA","PHA","PHP","PLA","PLP",
+  "ROL","ROR","RTI","RTS","SBC","SEC","SED","SEI","STA","STX","STY","TAX","TAY",
+  "TSX","TXA","TXS","TYA"
+]);
+
+// Directive name (without dot) → uppercase mnemonic in mnemonicLibrary
+const _DIRECTIVE_TO_MNEM = {
+  text:"TEXT", string:"STRING", rawtext:"RAWTEXT", rawbytes:"RAWBYTES", data:"DATA",
+  byte:"BYTE", word:"WORD", fill:"FILL", align:"ALIGN", incbin:"INCBIN",
+  petscii:"PETSCII", table:"TABLE", loadfile:"LOADFILE", sid:"SID", include:"INCLUDE",
+  loop:"LOOP", next:"NEXT", push:"PUSH", pull:"PULL",
+  macro:"MACRO", endm:"ENDM", invoke:"INVOKE",
+  sprite_init:"SPRITE_INIT", sprite_pos:"SPRITE_POS", wait_raster:"WAIT_RASTER",
+  joystick:"JOYSTICK", sprite_col:"SPRITE_COL",
+  define:"DEFINE", if:"IF", else:"ELSE", endif:"ENDIF", const:"CONST", org:"ORG",
+  region:"REGION", endregion:"ENDREGION"
+};
+
+// Lazy-built: mnemonic → category
+let _expertMnemCatMap = null;
+function _getExpertMnemCatMap() {
+  if (_expertMnemCatMap) return _expertMnemCatMap;
+  _expertMnemCatMap = new Map();
+  for (const [cat, items] of Object.entries(mnemonicLibrary)) {
+    for (const item of items) _expertMnemCatMap.set(item.mnemonic.toUpperCase(), cat);
+  }
+  return _expertMnemCatMap;
+}
+
+function _expertFormatSource() {
+  if (!expertEditor) return;
+
+  function splitComment(raw) {
+    let inStr = false, idx = -1;
+    for (let i = 0; i < raw.length; i++) {
+      if (raw[i] === '"') inStr = !inStr;
+      else if (raw[i] === ";" && !inStr) { idx = i; break; }
+    }
+    return idx >= 0
+      ? { code: raw.slice(0, idx).trimEnd(), comment: "  " + raw.slice(idx).trim() }
+      : { code: raw.trim(), comment: "" };
+  }
+
+  function formatInstr(code) {
+    const m = code.trim().match(/^([A-Za-z_][A-Za-z0-9_]*)\s*(.*)/s);
+    if (!m) return code.trim();
+    const mnem = _EXPERT_MNEM_SET.has(m[1].toUpperCase()) ? m[1].toUpperCase() : m[1];
+    const operand = m[2].trim();
+    return operand ? mnem + " " + operand : mnem;
+  }
+
+  try {
+    const lines = expertEditor.value.split("\n");
+    const out = lines.map(raw => {
+      if (!raw.trim()) return "";
+
+      // Preserve the original leading whitespace
+      const origIndent = raw.match(/^(\s*)/)[1];
+
+      const { code, comment } = splitComment(raw);
+      if (!code) return origIndent + comment.trim();
+
+      // * = $xxxx  (org) — always at col 0
+      if (/^\*\s*=/.test(code)) {
+        return code.replace(/\s+/g, " ") + comment;
+      }
+
+      // Label definition: "name:" optionally followed by instruction — always at col 0
+      const labelM = code.match(/^([A-Za-z_][A-Za-z0-9_]*\s*:)\s*(.*)/s);
+      if (labelM) {
+        const label = labelM[1].trimEnd();
+        const rest  = labelM[2].trim();
+        if (!rest) return label + comment;
+        return label + " " + formatInstr(rest) + comment;
+      }
+
+      // .directive or !directive lines — normalize to col 0 (like _blockToExpertLine generates)
+      if (/^[.!]/.test(code)) {
+        return code.trim() + comment;
+      }
+
+      // Regular instruction — always 4-space indent, normalize mnemonic/operand
+      return "    " + formatInstr(code) + comment;
+    });
+
+    const result = out.join("\n");
+    if (result === expertEditor.value) {
+      _expertSetStatus(currentLanguage === "en" ? "Already formatted" : "Már formázott", "ok");
+      return;
+    }
+    const sel = expertEditor.selectionStart;
+    expertEditor.value = result;
+    expertEditor.selectionStart = Math.min(sel, result.length);
+    expertEditor.selectionEnd   = Math.min(sel, result.length);
+    _expertApplyHighlight();
+    markTabDirty();
+    clearTimeout(_expertParseTimer);
+    _expertParseTimer = setTimeout(() => _expertValidate(), 0);
+    _expertSetStatus(currentLanguage === "en" ? "Formatted" : "Formázva", "ok");
+  } catch (err) {
+    _expertSetStatus("Format error: " + String(err), "error");
+    console.error("_expertFormatSource error:", err);
+  }
+}
+
+function _expertHighlightLine(raw) {
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  if (raw === "") return "";
+
+  // Split off comment (ignore ';' inside strings)
+  let inStr = false;
+  let commentIdx = -1;
+  for (let i = 0; i < raw.length; i++) {
+    if (raw[i] === '"') inStr = !inStr;
+    else if (raw[i] === ";" && !inStr) { commentIdx = i; break; }
+  }
+  const commentHtml = commentIdx >= 0
+    ? `<span class="hl-comment">${esc(raw.slice(commentIdx))}</span>`
+    : "";
+  const code = commentIdx >= 0 ? raw.slice(0, commentIdx) : raw;
+
+  if (!code.trim()) return esc(code) + commentHtml;
+
+  // Token regex (order matters)
+  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|loop|next|push|pull|const|define|if|else|endif|region|endregion|macro|endm|invoke|incbin|include|sid|petscii|table|loadfile|sprite_init|sprite_pos|wait_raster|joystick|sprite_col)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)/gi;
+
+  let result = "";
+  let lastIdx = 0;
+  let m;
+  while ((m = TOKEN_RE.exec(code)) !== null) {
+    result += esc(code.slice(lastIdx, m.index));
+    lastIdx = m.index + m[0].length;
+    const [full, strLit, orgEq, directive, hexNum, decNum, label, ident] = m;
+    if (strLit) {
+      result += `<span class="hl-string">${esc(full)}</span>`;
+    } else if (orgEq || directive) {
+      result += `<span class="hl-directive">${esc(full)}</span>`;
+    } else if (hexNum || decNum) {
+      result += `<span class="hl-number">${esc(full)}</span>`;
+    } else if (label) {
+      result += `<span class="hl-label">${esc(full)}</span>`;
+    } else if (ident && _EXPERT_MNEM_SET.has(full.trim().toUpperCase())) {
+      result += `<span class="hl-mnem">${esc(full)}</span>`;
+    } else {
+      result += esc(full);
+    }
+  }
+  result += esc(code.slice(lastIdx));
+  return result + commentHtml;
+}
+
+// Current region range for highlight (set by _expertUpdateCursor, consumed by _expertApplyHighlight)
+let _expertRegionHighlight = null; // null | { start: number, end: number }
+
+function _expertApplyHighlight() {
+  if (!expertHlCode || !expertEditor) return;
+  const allLines = expertEditor.value.split("\n");
+  const rh = _expertRegionHighlight;
+
+  if (!_expertHlEnabled) {
+    // No highlight — just escape HTML to prevent injection
+    expertHlCode.innerHTML = allLines.map((raw, i) => {
+      const escaped = raw.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+      return escaped + (i < allLines.length - 1 ? "\n" : "");
+    }).join("");
+    return;
+  }
+
+  // CRITICAL: \n must be OUTSIDE spans — display:block + \n inside causes
+  // the pre to render extra blank lines, desyncing it from the textarea.
+  const html = allLines.map((raw, i) => {
+    const hl = _expertHighlightLine(raw);
+    const nl = i < allLines.length - 1 ? "\n" : "";
+    if (rh) {
+      if (i === rh.start || i === rh.end)
+        return `<span class="hl-region-bracket">${hl}</span>${nl}`;
+      if (i > rh.start && i < rh.end)
+        return `<span class="hl-region-body">${hl}</span>${nl}`;
+    }
+    return hl + nl;
+  }).join("");
+  expertHlCode.innerHTML = html;
+}
+
+function parseExpertText(text) {
+  const BRANCH_MNEMS = new Set(["BEQ","BNE","BCC","BCS","BMI","BPL","BVC","BVS","BRA"]);
+  const blocks = [];
+
+  for (let rawLine of text.split("\n")) {
+    const scIdx = rawLine.indexOf(";");
+    let commentText = "";
+    let line = rawLine;
+    if (scIdx >= 0) {
+      commentText = rawLine.slice(scIdx + 1).trim();
+      line = rawLine.slice(0, scIdx);
+    }
+    line = line.trim();
+
+    if (!line) {
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // * = $XXXX → ORG
+    const orgM = line.match(/^\*\s*=\s*\$([0-9A-Fa-f]{1,4})\s*$/);
+    if (orgM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "ORG", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isOrgMacro: true, orgAddress: orgM[1].toUpperCase().padStart(4,"0") });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .text X, Y, "string" [, shift]
+    const textM = line.match(/^\.text\s+(\d+)\s*,\s*(\d+)\s*,\s*"([^"]*)"\s*(?:,\s*([0-9A-Fa-f]{1,2}))?\s*$/i);
+    if (textM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "TEXT", operand: textM[3], rawOperand: textM[3], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isTextMacro: true, textX: parseInt(textM[1],10), textY: parseInt(textM[2],10), charOffset: textM[4] ? textM[4].toUpperCase().padStart(2,"0") : "00" });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .string $ADDR, "string" [, shift]
+    const stringM = line.match(/^\.string\s+\$([0-9A-Fa-f]{1,4})\s*,\s*"([^"]*)"\s*(?:,\s*([0-9A-Fa-f]{1,2}))?\s*$/i);
+    if (stringM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "STRING", operand: stringM[2], rawOperand: stringM[2], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isStringMacro: true, stringAddress: stringM[1].toUpperCase().padStart(4,"0"), charOffset: stringM[3] ? stringM[3].toUpperCase().padStart(2,"0") : "00" });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .rawtext $ADDR, "string" [, shift]
+    const rawtextM = line.match(/^\.rawtext\s+\$([0-9A-Fa-f]{1,4})\s*,\s*"([^"]*)"\s*(?:,\s*([0-9A-Fa-f]{1,2}))?\s*$/i);
+    if (rawtextM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "RAWTEXT", operand: rawtextM[2], rawOperand: rawtextM[2], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isRawTextMacro: true, rawTextAddress: "$" + rawtextM[1].toUpperCase().padStart(4,"0"), charOffset: rawtextM[3] ? rawtextM[3].toUpperCase().padStart(2,"0") : "00" });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .data $ADDR, bytes...
+    const dataM = line.match(/^\.data\s+\$([0-9A-Fa-f]{1,4})\s*,\s*(.+)$/i);
+    if (dataM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "DATA", operand: dataM[2].trim(), rawOperand: dataM[2].trim(), description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isDataMacro: true, dataAddress: "$" + dataM[1].toUpperCase().padStart(4,"0") });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .rawbytes $ADDR, bytes...
+    const rawbytesM = line.match(/^\.rawbytes\s+\$([0-9A-Fa-f]{1,4})\s*,\s*(.+)$/i);
+    if (rawbytesM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "RAWBYTES", operand: rawbytesM[2].trim(), rawOperand: rawbytesM[2].trim(), description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isRawBytesMacro: true, rawBytesAddress: "$" + rawbytesM[1].toUpperCase().padStart(4,"0") });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .petscii $ADDR, "text" [, shift]
+    const petsciiM = line.match(/^\.petscii\s+\$([0-9A-Fa-f]{1,4})\s*,\s*"([^"]*)"\s*(?:,\s*([0-9A-Fa-f]{1,2}))?\s*$/i);
+    if (petsciiM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "PETSCII", operand: petsciiM[2], rawOperand: petsciiM[2], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isPetsciiMacro: true, petsciiAddress: petsciiM[1].toUpperCase().padStart(4,"0"), charOffset: petsciiM[3] ? petsciiM[3].toUpperCase().padStart(2,"0") : "00" });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .table NAME [$ADDR]  — address is optional
+    const tableM = line.match(/^\.table\s+([A-Za-z_][A-Za-z0-9_]*)\s*(?:\$([0-9A-Fa-f]{1,4}))?\s*$/i);
+    if (tableM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "TABLE", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isTableMacro: true, tableName: tableM[1], tableAddress: tableM[2] ? tableM[2].toUpperCase().padStart(4,"0") : "" });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .loadfile "NAME", device [, $addr] [, errorLabel]
+    const loadfileM = line.match(/^\.loadfile\s+"([^"]*)"\s*,\s*(\d+)\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*(?:,\s*([A-Za-z_][A-Za-z0-9_]*))?\s*$/i);
+    if (loadfileM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "LOADFILE", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isLoadFileMacro: true, loadFileName: loadfileM[1].toUpperCase(), loadFileDevice: loadfileM[2], loadFileAddress: loadfileM[3] ? loadfileM[3].toUpperCase() : "", loadFileErrorLabel: loadfileM[4] || "" });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .incbin "filename" [, $ADDR]
+    const incbinM = line.match(/^\.incbin\s+"([^"]*)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$/i);
+    if (incbinM) {
+      blocks.push(_importMakeIncBin(incbinM[1], incbinM[2] ? incbinM[2].toUpperCase() : ""));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .sid "filename.sid" [, $ADDR]
+    const sidDirM = line.match(/^\.sid\s+"([^"]*)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$/i);
+    if (sidDirM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SID", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "SID: valassz fajlt normalis modban", collapsed: true, isSidMacro: true, sidFile: "", sidFileName: sidDirM[1], sidTitle: "", sidAuthor: "", sidLoadAddress: 0, sidInitAddress: 0, sidPlayAddress: 0, sidBytes: [], sidCustomAddress: sidDirM[2] ? sidDirM[2].toUpperCase() : "" });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .include "filename.json" [, $ADDR]
+    const includeDirM = line.match(/^\.include\s+"([^"]*)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$/i);
+    if (includeDirM) {
+      const _incName = includeDirM[1];
+      const _incFile = /\.json$/i.test(_incName) ? _incName : `${_incName}.json`;
+      const _incAddr = includeDirM[2] ? includeDirM[2].toUpperCase() : "";
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "INCLUDE", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isIncludeMacro: true, includeFile: _incFile, includeFileName: _incName, includeAddress: _incAddr, includeCollapsed: false, includedBlocks: [] });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .loop REG, count, label
+    const loopM = line.match(/^\.loop\s+([XY])\s*,\s*(\$?[0-9A-Fa-f]+|\d+)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*$/i);
+    if (loopM) {
+      const reg = loopM[1].toUpperCase();
+      const countRaw = loopM[2];
+      const count = countRaw.startsWith("$") ? countRaw.slice(1).toUpperCase().padStart(2,"0") : parseInt(countRaw,10).toString(16).toUpperCase().padStart(2,"0");
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "LOOP", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isLoopMacro: true, loopReg: reg, loopCount: count, loopLabel: loopM[3] });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .next label
+    const nextM = line.match(/^\.next\s+([A-Za-z_][A-Za-z0-9_]*)\s*$/i);
+    if (nextM) {
+      const matchingLoop = blocks.slice().reverse().find(b => b.isLoopMacro && b.loopLabel === nextM[1]);
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "NEXT", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isNextMacro: true, nextLabel: nextM[1], nextReg: matchingLoop?.loopReg || "X" });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .sprite_init spriteNum, color, $page
+    const siM = line.match(/^\.sprite_init\s+(\d)\s*,\s*(\d{1,2})\s*,\s*\$([0-9A-Fa-f]{1,2})\s*$/i);
+    if (siM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SPRITE_INIT", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSpriteInitMacro: true, spriteNum: parseInt(siM[1],10), spriteColor: parseInt(siM[2],10), spriteDataPage: siM[3].toUpperCase().padStart(2,"0") });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .sprite_pos spriteNum, x, y
+    const spM = line.match(/^\.sprite_pos\s+(\d)\s*,\s*(\d+)\s*,\s*(\d+)\s*$/i);
+    if (spM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SPRITE_POS", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSpritePosMacro: true, spriteNum: parseInt(spM[1],10), spriteX: parseInt(spM[2],10), spriteY: parseInt(spM[3],10) });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .wait_raster $line
+    const wrM = line.match(/^\.wait_raster\s+\$([0-9A-Fa-f]{1,2})\s*$/i);
+    if (wrM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "WAIT_RASTER", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isWaitRasterMacro: true, rasterLine: wrM[1].toUpperCase().padStart(2,"0") });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .joystick port, spriteNum
+    const joyM = line.match(/^\.joystick\s+([12])\s*,\s*(\d)\s*$/i);
+    if (joyM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "JOYSTICK", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isJoystickMacro: true, joyPort: joyM[1], joySpriteNum: parseInt(joyM[2],10) });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .sprite_col spriteNum, sprite|background
+    const scColM = line.match(/^\.sprite_col\s+(\d)\s*,\s*(sprite|background)\s*$/i);
+    if (scColM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SPRITE_COL", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSpriteColMacro: true, spriteNum: parseInt(scColM[1],10), colType: scColM[2].toLowerCase() });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .push / .pull regs
+    const pushM = line.match(/^\.push\s+([AXYaxy]+)\s*$/i);
+    if (pushM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "PUSH", operand: pushM[1].toUpperCase(), rawOperand: pushM[1].toUpperCase(), description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isPushMacro: true, pushRegs: pushM[1].toUpperCase() });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+    const pullM = line.match(/^\.pull\s+([AXYaxy]+)\s*$/i);
+    if (pullM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "PULL", operand: pullM[1].toUpperCase(), rawOperand: pullM[1].toUpperCase(), description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isPullMacro: true, pullRegs: pullM[1].toUpperCase() });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .const NAME = value
+    const constM = line.match(/^\.const\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)\s*$/i);
+    if (constM) { blocks.push(_importMakeConst(constM[1], constM[2].trim())); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
+
+    // .define SYM [, SYM2]
+    const defineM = line.match(/^\.define\s+(.+)$/i);
+    if (defineM) { blocks.push(_importMakeDefine(defineM[1].trim())); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
+
+    // .if / .else / .endif
+    const ifM = line.match(/^\.if\s+(.+)$/i);
+    if (ifM) { blocks.push(_importMakeIf(ifM[1].trim())); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
+    if (/^\.else\s*$/i.test(line)) { blocks.push(_importMakeElse()); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
+    if (/^\.endif\s*$/i.test(line)) { blocks.push(_importMakeEndIf()); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
+
+    // .region / .endregion
+    const regionM = line.match(/^\.region\s+(.+)$/i);
+    if (regionM) { blocks.push(_importMakeRegion(regionM[1].trim())); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
+    if (/^\.endregion(?:\s+.+)?$/i.test(line)) { blocks.push(_importMakeEndRegion()); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
+
+    // .macro name / .endm
+    const macroM = line.match(/^\.macro\s+([A-Za-z_][A-Za-z0-9_]*)\s*$/i);
+    if (macroM) { blocks.push(_importMakeMacroDefStart(macroM[1])); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
+    if (/^\.endm\s*$/i.test(line)) { blocks.push(_importMakeMacroDefEnd()); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
+
+    // .invoke macroname
+    const invokeM = line.match(/^\.invoke\s+([A-Za-z_][A-Za-z0-9_]*)\s*$/i);
+    if (invokeM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "INVOKE", operand: invokeM[1], rawOperand: invokeM[1], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isMacroInvoke: true, invokeMacroName: invokeM[1] });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Delegate the rest to the existing parser patterns (ORG already handled above)
+    const delegated = parseAsmText(line + (commentText ? " ; " + commentText : ""));
+    if (delegated.length) { blocks.push(...delegated); continue; }
+
+    // Fallback comment
+    blocks.push(_importMakeComment(line + (commentText ? " ; " + commentText : "")));
+  }
+
+  return blocks;
+}
+
+function _expertBuildProgram() {
+  const text = expertEditor?.value || "";
+  const blocks = parseExpertText(text);
+
+  // Preserve binary data from existing program[] blocks — can't be encoded in text form.
+  // Match by filename so loaded bytes survive mode-switches and compile calls.
+  blocks.forEach(newBlock => {
+    if (newBlock.isIncBinMacro && newBlock.incBinFileName) {
+      const existing = program.find(b =>
+        b.isIncBinMacro && b.incBinFileName === newBlock.incBinFileName &&
+        (b.incBinBytes || []).length > 0
+      );
+      if (existing) {
+        newBlock.incBinBytes = existing.incBinBytes;
+        newBlock.incBinFile  = existing.incBinFile || "";
+        newBlock.validationError = validateIncBinMacro(newBlock.incBinBytes, newBlock.incBinAddress);
+      }
+    }
+    if (newBlock.isSidMacro && newBlock.sidFileName) {
+      const existing = program.find(b =>
+        b.isSidMacro && b.sidFileName === newBlock.sidFileName &&
+        (b.sidBytes || []).length > 0
+      );
+      if (existing) {
+        newBlock.sidBytes        = existing.sidBytes;
+        newBlock.sidFile         = existing.sidFile || "";
+        newBlock.sidTitle        = existing.sidTitle || "";
+        newBlock.sidAuthor       = existing.sidAuthor || "";
+        newBlock.sidLoadAddress  = existing.sidLoadAddress || 0;
+        newBlock.sidInitAddress  = existing.sidInitAddress || 0;
+        newBlock.sidPlayAddress  = existing.sidPlayAddress || 0;
+        newBlock.sidCustomAddress = existing.sidCustomAddress || "";
+        newBlock.validationError = existing.validationError || "";
+      }
+    }
+    if (newBlock.isIncludeMacro && newBlock.includeFileName) {
+      const existing = program.find(b =>
+        b.isIncludeMacro && b.includeFileName === newBlock.includeFileName &&
+        (b.includedBlocks || []).length > 0
+      );
+      if (existing) {
+        newBlock.includedBlocks  = existing.includedBlocks;
+        newBlock.includeFile     = existing.includeFile || newBlock.includeFile || "";
+        // Only copy address from existing if the text didn't specify one
+        if (!newBlock.includeAddress && existing.includeAddress)
+          newBlock.includeAddress = existing.includeAddress;
+        newBlock.validationError = existing.validationError || "";
+      }
+    }
+  });
+
+  return blocks;
+}
+
+// Update Ln/Col display and region bracket highlighting
+function _expertUpdateCursor() {
+  if (!expertEditor) return;
+  const val  = expertEditor.value;
+  const pos  = expertEditor.selectionStart;
+  const lines = val.slice(0, pos).split("\n");
+  const ln  = lines.length;
+  const col = lines[lines.length - 1].length + 1;
+
+  // Find current region by scanning backwards (depth-aware)
+  const allLines = val.split("\n");
+  const curLine  = ln - 1; // 0-based
+  let currentRegion = null;
+  let depth = 0;
+  for (let i = curLine; i >= 0; i--) {
+    const raw = allLines[i] || "";
+    if (/^\s*\.endregion\b/i.test(raw)) {
+      depth++;
+    } else {
+      const m = raw.match(/^\s*\.region\s+(.+)$/i);
+      if (m) {
+        if (depth === 0) { currentRegion = m[1].trim(); break; }
+        depth--;
+      }
+    }
+  }
+
+  if (expertCursorPos) {
+    expertCursorPos.textContent = currentRegion
+      ? `Ln ${ln}, Col ${col}  ·  ${currentRegion}`
+      : `Ln ${ln}, Col ${col}`;
+  }
+
+  // Sync palette to current line
+  if (!_expertPaletteSyncEnabled) return;
+  const curRaw = allLines[curLine] || "";
+  const trimmed = curRaw.trim();
+  let targetMnem = null;
+  if (/^\*\s*=/.test(trimmed)) {
+    targetMnem = "ORG";
+  } else if (/^[A-Za-z_][A-Za-z0-9_]*\s*:/.test(trimmed)) {
+    targetMnem = "LABEL";
+  } else if (trimmed.startsWith(".")) {
+    const dir = trimmed.slice(1).split(/[\s(,]/)[0].toLowerCase();
+    targetMnem = _DIRECTIVE_TO_MNEM[dir] || null;
+  } else if (/^[A-Za-z]{2,3}(\s|$)/.test(trimmed)) {
+    const mnem = trimmed.split(/\s+/)[0].toUpperCase();
+    if (_getExpertMnemCatMap().has(mnem)) targetMnem = mnem;
+  }
+  if (targetMnem) {
+    const cat = _getExpertMnemCatMap().get(targetMnem);
+    if (cat) {
+      if (categorySelect.value !== cat) {
+        categorySelect.value = cat;
+        syncMnemonicMenu();
+      }
+      if (mnemonicSelect.value !== targetMnem) {
+        mnemonicSelect.value = targetMnem;
+        syncAddressingModes();
+        renderPaletteItems();
+      }
+    }
+  }
+
+  // Update region highlight state and rebuild overlay
+  const isRegionLine    = /^\s*\.region\b/i.test(curRaw);
+  const isEndRegionLine = /^\s*\.endregion\b/i.test(curRaw);
+
+  let newRegionHighlight = null;
+  if (isRegionLine || isEndRegionLine) {
+    let regionStart = -1, regionEnd = -1;
+    if (isRegionLine) {
+      regionStart = curLine;
+      let d = 0;
+      for (let i = curLine; i < allLines.length; i++) {
+        if (/^\s*\.region\b/i.test(allLines[i])) d++;
+        else if (/^\s*\.endregion\b/i.test(allLines[i])) { d--; if (d === 0) { regionEnd = i; break; } }
+      }
+    } else {
+      regionEnd = curLine;
+      let d = 0;
+      for (let i = curLine; i >= 0; i--) {
+        if (/^\s*\.endregion\b/i.test(allLines[i])) d++;
+        else if (/^\s*\.region\b/i.test(allLines[i])) { d--; if (d === 0) { regionStart = i; break; } }
+      }
+    }
+    if (regionStart !== -1 && regionEnd !== -1) {
+      newRegionHighlight = { start: regionStart, end: regionEnd };
+    }
+  }
+
+  // Only rebuild if region highlight changed
+  const prev = _expertRegionHighlight;
+  const changed = (prev?.start !== newRegionHighlight?.start) || (prev?.end !== newRegionHighlight?.end);
+  _expertRegionHighlight = newRegionHighlight;
+  if (changed) _expertApplyHighlight();
+}
+
+function _expertValidate() {
+  if (!expertMode || !expertEditor) return;
+  _expertApplyHighlight();
+  clearTimeout(_expertParseTimer);
+  _expertParseTimer = setTimeout(() => {
+    try {
+      const blocks = _expertBuildProgram();
+      const saved = program;
+      const savedUserMacros = userMacros;
+      program = blocks;
+      parseUserMacros();
+      let errors = [];
+      try {
+        const layout = getProgramLayout();
+        // Build label map (same as assembleProgramToPrg)
+        const labels = new Map();
+        layout.lines.forEach((line) => {
+          if (line.conditionallySkipped) return;
+          if (line.block.isLabel && line.block.labelName) labels.set(line.block.labelName, line.address);
+          if (line.block.isLoopMacro && line.block.loopLabel) labels.set(line.block.loopLabel, line.address + 2);
+          if (line.block.isTableMacro && line.block.tableName) {
+            const tableAddr = line.block.tableAddress
+              ? (parseAddressValue(line.block.tableAddress) ?? line.address)
+              : line.address;
+            labels.set(line.block.tableName, tableAddr);
+          }
+          if (line.block.isConstMacro && line.block.constName) {
+            const v = parseNumberByBase((line.block.rawOperand || "").replace(/^\$/, ""), line.block.base);
+            if (v !== null) labels.set(line.block.constName, v);
+          }
+        });
+        // Run compileLineBytes to detect unknown mnemonics / bad operands
+        for (const line of layout.lines) {
+          if (line.conditionallySkipped) continue;
+          if (line.block.isLabel || line.block.isComment || line.block.isIncludeMacro) continue;
+          if (line.block._isSavedAddress || line.block._isRestoreAddress || line.block.isOrgMacro) continue;
+          const result = compileLineBytes(line, labels);
+          if (!result.ok) errors.push(result.error);
+        }
+        // Fall back to block-level validationError if compile found nothing
+        if (!errors.length) {
+          errors = layout.lines.filter(l => l.block?.validationError).map(l => l.block.validationError);
+        }
+      } finally {
+        program = saved;
+        userMacros = savedUserMacros;
+      }
+      if (errors.length) {
+        _expertSetStatus(errors[0] + (errors.length > 1 ? ` (+${errors.length - 1} more)` : ""), "error");
+      } else {
+        _expertSetStatus(currentLanguage === "en"
+          ? `${blocks.length} ${blocks.length === 1 ? "block" : "blocks"} — OK`
+          : `${blocks.length} blokk — OK`, "ok");
+      }
+      if (_expertDisasmVisible) _expertRenderDisasm();
+      if (_expertMonitorVisible) _expertRenderMonitor();
+      if (_expertProjectVisible) _expertRenderSymbols();
+    } catch (e) {
+      _expertSetStatus(String(e), "error");
+    }
+  }, 350);
+}
+
+function _expertRenderDisasm() {
+  if (!expertDisasmOutput) return;
+  try {
+    const blocks = _expertBuildProgram();
+    const saved = program;
+    const savedUserMacros = userMacros;
+    program = blocks;
+    parseUserMacros();
+    let lines = [];
+    try {
+      const layout = getProgramLayout();
+      const labels = new Map();
+      layout.lines.forEach((line) => {
+        if (line.block.isLabel && line.block.labelName) labels.set(line.block.labelName, line.address);
+        if (line.block.isLoopMacro && line.block.loopLabel) labels.set(line.block.loopLabel, line.address + 2);
+        if (line.block.isTableMacro && line.block.tableName) {
+          const tableAddr = line.block.tableAddress
+            ? (parseAddressValue(line.block.tableAddress) ?? line.address)
+            : line.address;
+          labels.set(line.block.tableName, tableAddr);
+        }
+        if (line.block.isConstMacro && line.block.constName) {
+          const v = parseNumberByBase((line.block.rawOperand || "").replace(/^\$/, ""), line.block.base);
+          if (v !== null) labels.set(line.block.constName, v);
+        }
+      });
+      // Reverse label map for lookup by address
+      const addrToLabel = new Map();
+      for (const [name, addr] of labels) addrToLabel.set(addr, name);
+
+      for (const line of layout.lines) {
+        if (line.conditionallySkipped) continue;
+        if (line.block._isSavedAddress || line.block._isRestoreAddress) continue;
+        if (line.block._macroSourceBlock) continue;
+        if (line.block.isComment) { lines.push(`; ${line.block.rawOperand || ""}`); continue; }
+        if (line.block.isLabel && !line.block._syntheticMacroLabel) { lines.push(`${line.block.labelName}:`); continue; }
+        if (line.block.isLabel && line.block._syntheticMacroLabel) continue;
+        if (line.block.isOrgMacro) { lines.push(`* = $${(line.block.orgAddress || "0801").toUpperCase()}`); continue; }
+        if (line.block.isIncludeMacro) continue;
+        // Macro / structural blocks — show address + mnemonic
+        const addrStr = `$${line.address.toString(16).toUpperCase().padStart(4, "0")}`;
+        const compiled = compileLineBytes(line, labels);
+        if (!compiled.ok) {
+          lines.push(`${addrStr}  ; ${line.block.mnemonic} [error]`);
+          continue;
+        }
+        if (!compiled.bytes.length) {
+          if (line.block.mnemonic && !line.block._macroSourceBlock) {
+            lines.push(`; [${line.block.mnemonic}]`);
+          }
+          continue;
+        }
+        const hexBytes = compiled.bytes.map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+        // Build disasm from opcodeMap reverse lookup
+        const mnem = line.block.mnemonic;
+        const op = line.block.operand || "";
+        const labelHint = addrToLabel.has(line.address) ? `${addrToLabel.get(line.address)}:\n` : "";
+        lines.push(`${labelHint}${addrStr}  ${hexBytes.padEnd(10)}  ${mnem}${op ? "  " + op : ""}`);
+      }
+    } finally {
+      program = saved;
+      userMacros = savedUserMacros;
+    }
+    expertDisasmOutput.textContent = lines.join("\n");
+  } catch (e) {
+    expertDisasmOutput.textContent = String(e);
+  }
+}
+
+function _expertRenderMonitor() {
+  if (!expertMonitorOutput) return;
+  try {
+    const blocks = _expertBuildProgram();
+    const saved = program;
+    program = blocks;
+    try {
+      expertMonitorOutput.textContent = _buildMonitorText(getProgramLayout());
+    } finally {
+      program = saved;
+    }
+  } catch (e) {
+    expertMonitorOutput.textContent = String(e);
+  }
+}
+
+// ── Expert Project Panel ──────────────────────────────────────────────────────
+
+function _expertRenderSymbols() {
+  const el = document.getElementById("expert-project-symbols");
+  if (!el) return;
+
+  // In expert mode: scan textarea text directly so typing immediately reflects
+  // In block mode: read from program[]
+  let regions = [];
+  let macros  = [];
+
+  if (expertMode && expertEditor) {
+    const lines = expertEditor.value.split("\n");
+    lines.forEach((line, idx) => {
+      const rm = line.match(/^\s*\.region\s+(.+?)(?:\s*;.*)?$/i);
+      if (rm) { regions.push({ _textName: rm[1].trim(), _lineIdx: idx }); return; }
+      const mm = line.match(/^\s*\.macro\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s|$)/i);
+      if (mm) { macros.push({ _textName: mm[1].trim(), _lineIdx: idx }); }
+    });
+  } else {
+    regions = program.filter(b => b.isRegionMacro && b.regionName);
+    macros  = program.filter(b => b.isMacroDefStart && b.macroName);
+  }
+
+  if (regions.length === 0 && macros.length === 0) {
+    el.hidden = true;
+    return;
+  }
+  el.hidden = false;
+  el.innerHTML = "";
+
+  // Jump cursor in expert editor to a specific line index
+  function gotoEditorLine(lineIdx) {
+    if (!expertEditor) return;
+    const lines = expertEditor.value.split("\n");
+    const pos = lines.slice(0, lineIdx).reduce((a, l) => a + l.length + 1, 0);
+    const endPos = pos + (lines[lineIdx] || "").trimEnd().length;
+    expertEditor.focus();
+    expertEditor.setSelectionRange(pos, endPos);
+    const lineH = parseFloat(getComputedStyle(expertEditor).lineHeight) || 18;
+    expertEditor.scrollTop = Math.max(0, lineIdx * lineH - expertEditor.clientHeight / 3);
+  }
+
+  // Jump by regex scan (fallback for block-mode derived data)
+  function gotoEditorPattern(pattern) {
+    if (!expertEditor) return;
+    const lines = expertEditor.value.split("\n");
+    for (let i = 0; i < lines.length; i++) {
+      if (pattern.test(lines[i])) { gotoEditorLine(i); return; }
+    }
+  }
+
+  const svgRegion = `<svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="11" height="11"><rect x="1.5" y="1.5" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 4.5h6M4 7h4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>`;
+  const svgMacro  = `<svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="11" height="11"><path d="M2.5 4l3.5 3-3.5 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 10h3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`;
+
+  function addGroup(labelKey, items, svgIcon, nameFn, clickFn) {
+    if (items.length === 0) return;
+    const hdr = document.createElement("div");
+    hdr.className = "expert-project-symbols-label";
+    hdr.textContent = t(labelKey);
+    el.appendChild(hdr);
+
+    items.forEach(item => {
+      const row = document.createElement("div");
+      row.className = "expert-project-item expert-project-item--file";
+
+      const iconEl = document.createElement("span");
+      iconEl.className = "expert-project-item-icon";
+      iconEl.innerHTML = svgIcon;
+
+      const nameEl = document.createElement("span");
+      nameEl.className = "expert-project-item-name";
+      nameEl.textContent = nameFn(item);
+
+      row.appendChild(iconEl);
+      row.appendChild(nameEl);
+      row.addEventListener("click", () => clickFn(item));
+      el.appendChild(row);
+    });
+  }
+
+  addGroup("projRegions", regions, svgRegion,
+    item => item._textName ?? item.regionName,
+    item => {
+      if (expertMode && expertEditor) {
+        if (item._lineIdx != null) { gotoEditorLine(item._lineIdx); return; }
+        const escaped = item.regionName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        gotoEditorPattern(new RegExp(`^\\s*\\.region\\s+${escaped}\\s*(?:;.*)?$`, "i"));
+      } else {
+        selectBlockInAsm(item.id);
+        programList?.querySelector(`[data-block-id="${item.id}"]`)
+          ?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+    }
+  );
+
+  addGroup("projMacros", macros, svgMacro,
+    item => item._textName ?? item.macroName,
+    item => {
+      if (expertMode && expertEditor) {
+        if (item._lineIdx != null) { gotoEditorLine(item._lineIdx); return; }
+        const escaped = item.macroName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        gotoEditorPattern(new RegExp(`^\\s*\\.macro\\s+${escaped}\\b`, "i"));
+      } else {
+        selectBlockInAsm(item.id);
+        programList?.querySelector(`[data-block-id="${item.id}"]`)
+          ?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+    }
+  );
+}
+
+// ── Project tree SVG icons ─────────────────────────────────────────────────
+const _PROJ_SVG = {
+  project: `<svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M1 4C1 3.45 1.45 3 2 3H5.5L7 5H12C12.55 5 13 5.45 13 6V11C13 11.55 12.55 12 12 12H2C1.45 12 1 11.55 1 11V4Z" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="1.1"/></svg>`,
+  file_json: `<svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M2.5 1.5H8.5L11.5 4.5V12.5C11.5 12.78 11.28 13 11 13H3C2.72 13 2.5 12.78 2.5 12.5V2C2.5 1.72 2.72 1.5 3 1.5Z" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1.1"/><path d="M8.5 1.5V4.5H11.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/><text x="3.5" y="11.5" font-size="4" fill="currentColor" opacity="0.75" font-family="monospace" font-weight="bold">{}</text></svg>`,
+  file_generic: `<svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M2.5 1.5H8.5L11.5 4.5V12.5C11.5 12.78 11.28 13 11 13H3C2.72 13 2.5 12.78 2.5 12.5V2C2.5 1.72 2.72 1.5 3 1.5Z" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1.1"/><path d="M8.5 1.5V4.5H11.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+};
+
+function _projFileIcon(name) {
+  const ext = (name || "").split(".").pop().toLowerCase();
+  if (ext === "json" || ext === "c64va") return _PROJ_SVG.file_json;
+  return _PROJ_SVG.file_generic;
+}
+
+function _expertRenderProjectTree() {
+  const nameEl = document.getElementById("expert-project-name");
+  const treeEl = document.getElementById("expert-project-tree");
+  if (!nameEl || !treeEl) return;
+
+  if (!_expertProjectData) {
+    nameEl.textContent = t("projNoProject");
+    nameEl.title = "";
+    treeEl.innerHTML = `<div class="expert-project-empty">${t("projClickToOpen").replace("\n", "<br>")}</div>`;
+    return;
+  }
+
+  const projName = _expertProjectData.name || "Névtelen projekt";
+  nameEl.textContent = projName;
+  nameEl.title = _expertProjectData._projPath || "";
+
+  treeEl.innerHTML = "";
+
+  // Root node
+  const rootItem = document.createElement("div");
+  rootItem.className = "expert-project-item expert-project-item--root";
+  const rootIcon = document.createElement("span");
+  rootIcon.className = "expert-project-item-icon";
+  rootIcon.innerHTML = _PROJ_SVG.project;
+  const rootName = document.createElement("span");
+  rootName.className = "expert-project-item-name";
+  rootName.textContent = projName;
+  rootItem.appendChild(rootIcon);
+  rootItem.appendChild(rootName);
+  treeEl.appendChild(rootItem);
+
+  // Flat file list (ignore any folder nodes from old saves)
+  const files = (_expertProjectData.files || []).filter(n => !n.type || n.type === "file");
+
+  if (files.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "expert-project-empty";
+    empty.style.cssText = "padding: 10px 12px; font-size: 0.68rem;";
+    empty.textContent = t("projAddFileHint");
+    treeEl.appendChild(empty);
+    return;
+  }
+
+  const activeTab = tabs.find(t => t.id === activeTabId);
+  const activeFilePath = _normFilePath(activeTab?.filePath || "");
+
+  files.forEach(file => {
+    if (!file._id) file._id = crypto.randomUUID();
+    const isActive = activeFilePath && _normFilePath(_projResolveAbsPath(file.path)) === activeFilePath;
+
+    const item = document.createElement("div");
+    item.className = `expert-project-item expert-project-item--file${isActive ? " expert-project-item--active" : ""}`;
+
+    const iconEl = document.createElement("span");
+    iconEl.className = "expert-project-item-icon";
+    iconEl.innerHTML = _projFileIcon(file.name);
+
+    const nameSpan = document.createElement("span");
+    nameSpan.className = "expert-project-item-name";
+    nameSpan.textContent = file.name;
+    nameSpan.title = file.path;
+
+    const delBtn = _makeProjDelBtn(() => {
+      const idx = _expertProjectData.files.indexOf(file);
+      if (idx >= 0) _expertProjectData.files.splice(idx, 1);
+      _expertRenderProjectTree();
+    });
+
+    item.appendChild(iconEl);
+    item.appendChild(nameSpan);
+    item.appendChild(delBtn);
+    item.addEventListener("click", e => {
+      if (e.target === delBtn || delBtn.contains(e.target)) return;
+      _expertProjectOpenFile(file);
+    });
+    treeEl.appendChild(item);
+  });
+}
+
+function _makeProjDelBtn(onDelete) {
+  const btn = document.createElement("button");
+  btn.className = "expert-project-item-del";
+  btn.title = t("projRemove");
+  btn.textContent = "✕";
+  btn.addEventListener("click", e => { e.stopPropagation(); onDelete(); });
+  return btn;
+}
+
+async function _closeAllTabsWithConfirm() {
+  // For each tab that has content, ask user. If user cancels any, stop and return false.
+  for (const tab of [...tabs]) {
+    if (_tabHasContent(tab)) {
+      const key = tab.filePath ? "tabCloseConfirmUnsaved" : "tabCloseConfirm";
+      const msg = tf(key, { name: tab.name });
+      if (!await _showConfirm(msg)) return false;
+    }
+  }
+  // All confirmed — clear all tabs, leave one blank
+  tabs.length = 0;
+  const blank = _tabCreate();
+  blank.program = [makeDefaultOrgBlock()];
+  tabs.push(blank);
+  activeTabId = blank.id;
+  program = JSON.parse(JSON.stringify(blank.program));
+  userMacros = {};
+  selectedBlockId = null;
+  if (expertMode && expertEditor) {
+    expertEditor.value = "";
+    expertEditor.dispatchEvent(new Event("input"));
+  }
+  if (currentFileDisplay) currentFileDisplay.textContent = "";
+  if (expertFileName) expertFileName.textContent = "";
+  updateWindowTitle("");
+  renderTabBar();
+  return true;
+}
+
+async function _openProjectFromMenu() {
+  // Ask user for each dirty tab before loading
+  if (!await _closeAllTabsWithConfirm()) return;
+
+  // Load the .proj file first (shared with expert mode)
+  const res = await window.electronAPI?.openProjFile?.();
+  if (!res || res.canceled) return;
+  if (!res.ok) { _expertSetStatus(t("projError") + ": " + res.error, "error"); return; }
+  const proj = res.project || {};
+  function migrateNodes(nodes) {
+    return (nodes || []).map(n => {
+      if (n.type === "folder") return { type: "folder", name: n.name, children: migrateNodes(n.children) };
+      return { type: "file", name: n.name || n.path?.split("/").pop() || "", path: n.path };
+    });
+  }
+  _expertProjectData = {
+    name:      proj.name || "Névtelen projekt",
+    files:     migrateNodes(proj.files),
+    _projPath: res.filePath
+  };
+
+  if (expertMode) {
+    // In expert mode: just update the panel as usual
+    _expertRenderProjectTree();
+    _expertSetStatus(t("projOpened") + ": " + _expertProjectData.name, "ok");
+    return;
+  }
+
+  // In block mode: open every file as a tab
+  const files = (_expertProjectData.files || []).filter(f => !f.type || f.type === "file");
+  if (files.length === 0) {
+    _expertSetStatus(t("projOpened") + ": " + _expertProjectData.name, "ok");
+    return;
+  }
+  for (const file of files) {
+    await _expertProjectOpenFile(file);
+  }
+
+  // Remove the initial blank placeholder tab left by _closeAllTabsWithConfirm
+  // (only if at least one real tab was opened)
+  if (tabs.length > 1) {
+    const blankIdx = tabs.findIndex(t =>
+      !t.filePath && (t.program || []).length <= 1 && ((t.program || [])[0]?.isOrgMacro ?? true)
+    );
+    if (blankIdx >= 0) {
+      tabs.splice(blankIdx, 1);
+      // Make sure activeTabId still points to a valid tab
+      if (!tabs.find(t => t.id === activeTabId)) {
+        activeTabId = tabs[0].id;
+        _tabActivate(activeTabId);
+      } else {
+        renderTabBar();
+      }
+    }
+  }
+
+  _expertSetStatus(t("projOpened") + ": " + _expertProjectData.name, "ok");
+}
+
+function _projResolveAbsPath(relPath) {
+  if (!relPath) return relPath;
+  // Already absolute?
+  if (/^[A-Za-z]:[\\/]/.test(relPath) || relPath.startsWith("/")) {
+    return relPath.replace(/\\/g, "/");
+  }
+  if (!_expertProjectData?._projPath) return relPath;
+  const dir = _expertProjectData._projPath.replace(/\\/g, "/").replace(/\/[^\/]*$/, "");
+  return dir + "/" + relPath.replace(/\\/g, "/");
+}
+
+function _normFilePath(p) {
+  return (p || "").replace(/\\/g, "/").toLowerCase();
+}
+
+async function _expertOpenProject() {
+  if (!await _closeAllTabsWithConfirm()) return;
+  const res = await window.electronAPI?.openProjFile?.();
+  if (!res || res.canceled) return;
+  if (!res.ok) { _expertSetStatus(t("projError") + ": " + res.error, "error"); return; }
+  const proj = res.project || {};
+  // Backward compat: old format had plain {name, path} objects without type field
+  function migrateNodes(nodes) {
+    return (nodes || []).map(n => {
+      if (n.type === "folder") return { type: "folder", name: n.name, children: migrateNodes(n.children), _open: true };
+      return { type: "file", name: n.name || n.path?.split("/").pop() || "", path: n.path };
+    });
+  }
+  _expertProjectData = {
+    name:      proj.name  || "Névtelen projekt",
+    files:     migrateNodes(proj.files),
+    _projPath: res.filePath
+  };
+  _expertRenderProjectTree();
+  _expertSetStatus(t("projOpened") + ": " + _expertProjectData.name, "ok");
+}
+
+async function _expertNewProject() {
+  _expertProjectData = { name: "Új projekt", files: [], _projPath: null };
+  _expertRenderProjectTree();
+  // Open save dialog right away so user can set name/path
+  await _expertSaveProject();
+}
+
+async function _expertSaveProject() {
+  if (!_expertProjectData) return;
+  // Strip runtime-only fields before serialising
+  const cleaned = (_expertProjectData.files || [])
+    .filter(n => !n.type || n.type === "file")
+    .map(n => ({ type: "file", name: n.name, path: n.path }));
+  const payload = JSON.stringify({ name: _expertProjectData.name, files: cleaned }, null, 2);
+  const path = _expertProjectData._projPath || "";
+  const res = await window.electronAPI?.saveProjFile?.(path, payload);
+  if (!res || res.canceled) return;
+  if (!res.ok) { _expertSetStatus(t("projSaveError") + ": " + res.error, "error"); return; }
+  _expertProjectData._projPath = res.filePath;
+  // Update project name from filename if freshly created
+  if (!_expertProjectData.name || _expertProjectData.name === "Új projekt") {
+    _expertProjectData.name = res.filePath.replace(/\\/g, "/").split("/").pop().replace(/\.proj$/i, "");
+  }
+  _expertRenderProjectTree();
+  _expertSetStatus(t("projSaved"), "ok");
+}
+
+async function _expertAddProjMember() {
+  const res = await window.electronAPI?.chooseProjMember?.();
+  if (!res || res.canceled) return;
+  if (!_expertProjectData) {
+    _expertProjectData = { name: "Névtelen projekt", files: [], _projPath: null };
+  }
+  // Compute relative path if project has a saved path
+  let relPath = res.filePath;
+  if (_expertProjectData._projPath) {
+    const projDir = _expertProjectData._projPath.replace(/\\/g, "/").replace(/\/[^/]+$/, "");
+    const absFile = res.filePath.replace(/\\/g, "/");
+    if (absFile.startsWith(projDir + "/")) {
+      relPath = absFile.slice(projDir.length + 1);
+    }
+  }
+  // Avoid duplicates
+  if (!_expertProjectData.files.some(f => f.path === relPath)) {
+    _expertProjectData.files.push({ type: "file", name: res.fileName, path: relPath });
+  }
+  _expertRenderProjectTree();
+}
+
+async function _expertProjectOpenFile(fileEntry) {
+  const absPath = _projResolveAbsPath(fileEntry.path);
+  const normAbs = _normFilePath(absPath);
+
+  // If tab for this file already open, just activate it
+  const existing = tabs.find(t => _normFilePath(t.filePath) === normAbs);
+  if (existing) {
+    _tabActivate(existing.id);
+    // Scroll active tab into view
+    const tabBar = document.getElementById("tab-bar");
+    const activeEl = tabBar?.querySelector(".tab-item--active");
+    if (activeEl) activeEl.scrollIntoView({ block: "nearest", inline: "nearest" });
+    _expertRenderProjectTree();
+    return;
+  }
+
+  // Load as C64VA project JSON → program blocks
+  const res = await window.electronAPI?.readTextFile?.(absPath);
+  if (!res || !res.ok) {
+    _expertSetStatus("Nem nyitható meg: " + (res?.error || "ismeretlen hiba"), "error");
+    return;
+  }
+
+  let projectData;
+  try {
+    projectData = JSON.parse(res.content);
+  } catch (e) {
+    _expertSetStatus("Érvénytelen JSON: " + e.message, "error");
+    return;
+  }
+
+  if (projectData.app !== "c64-visual-assembler" || !Array.isArray(projectData.program)) {
+    _expertSetStatus("Nem C64VA projektfájl: " + fileEntry.name, "error");
+    return;
+  }
+
+  // Parse program blocks (same logic as loadProjectFromFile)
+  let loadedProgram = projectData.program.map(block => ({
+    ...block,
+    id: block.id || crypto.randomUUID()
+  }));
+
+  for (const block of loadedProgram) {
+    if (block.isIncludeMacro && !block.includeFile) {
+      const name = block.includeFileName || "";
+      if (name) block.includeFile = /\.json$/i.test(name) ? name : `${name}.json`;
+    }
+    if (block.isIncBinMacro && !block.incBinFile) {
+      const name = block.incBinFileName || "";
+      if (name) block.incBinFile = name;
+    }
+    if (block.isSidMacro && !block.sidFile) {
+      const name = block.sidFileName || "";
+      if (name) block.sidFile = name;
+    }
+  }
+
+  if (!loadedProgram.some(b => b.isOrgMacro)) {
+    const orgAddr = (projectData.origin || "0801").replace(/^\$/, "").toUpperCase().padStart(4, "0");
+    loadedProgram.unshift({ ...makeDefaultOrgBlock(), orgAddress: orgAddr });
+  }
+
+  // Create new tab
+  _tabSaveCurrent();
+  const tab = _tabCreate();
+  tab.name     = fileEntry.name;
+  tab.filePath = absPath;
+  tab.program  = loadedProgram;
+  tab.userMacros = {};
+  tabs.push(tab);
+  activeTabId = tab.id;
+
+  program = JSON.parse(JSON.stringify(loadedProgram));
+  userMacros = {};
+  selectedBlockId = null;
+
+  const displayName = tab.name;
+  if (expertFileName)    expertFileName.textContent    = displayName;
+  if (currentFileDisplay) currentFileDisplay.textContent = displayName;
+  updateWindowTitle(displayName);
+
+  await reloadIncludeBlocks(absPath);
+  await reloadIncBinBlocks(absPath);
+  await reloadSidBlocks(absPath);
+
+  parseUserMacros();
+  renderTabBar();
+  renderProgram();
+  renderAsmOutput();
+  if (expertMode) _expertSyncFromProgram();
+  markTabClean();
+  _expertRenderProjectTree();
+  _expertSetStatus(t("projOpenFile") + ": " + displayName, "ok");
 }
 
 function parseUserMacros() {
@@ -3167,6 +4790,7 @@ function parseUserMacros() {
 }
 
 function insertBlock(index, block) {
+  markTabDirty();
   if (block.isLoopMacro && !block.loopLabel) {
     let n = 1;
     while (program.some(b => b.isLoopMacro && b.loopLabel === `loop${n}`)) n++;
@@ -3246,6 +4870,7 @@ function expandAllBlocks() {
 }
 
 function updateProgramBlock(index, field, value) {
+  markTabDirty();
   const block = program[index];
   const prevBase = block.base;
   const prevConstName = block.constName;
@@ -3672,6 +5297,7 @@ function updateProgramBlock(index, field, value) {
 }
 
 function deleteBlock(index) {
+  markTabDirty();
   program.splice(index, 1);
   parseUserMacros();  // Re-parse when blocks are deleted
   renderProgram();
@@ -4609,6 +6235,11 @@ function updateEmulatorStatus() {
 }
 
 function getProjectPayload() {
+  // In expert mode, sync program[] from editor content before building payload
+  if (expertMode) {
+    const blocks = _expertBuildProgram();
+    if (blocks && blocks.length > 0) program = blocks;
+  }
   return {
     version: 1,
     app: "c64-visual-assembler",
@@ -4642,6 +6273,278 @@ function updateWindowTitle(fileName) {
   window.electronAPI?.setWindowTitle?.(title);
 }
 
+function _setCurrentFile(displayText, titleFileName, filePath) {
+  if (currentFileDisplay) currentFileDisplay.textContent = displayText;
+  if (expertFileName) expertFileName.textContent = displayText;
+  updateWindowTitle(titleFileName || "");
+  // Sync active tab
+  const tab = tabs?.find(t => t.id === activeTabId);
+  if (tab) {
+    tab.name = titleFileName || tab._untitledName || "Untitled";
+    if (filePath !== undefined) tab.filePath = filePath;
+    renderTabBar();
+  }
+}
+
+// ── Tab management ──────────────────────────────────────────────────
+
+function _tabCreate(name) {
+  _tabCounter++;
+  const untitledName = `Untitled ${_tabCounter}`;
+  return {
+    id: _tabCounter,
+    name: name || untitledName,
+    _untitledName: untitledName,
+    filePath: null,
+    dirty: false,
+    program: [],
+    userMacros: {},
+    selectedBlockId: null,
+    expertText: ""
+  };
+}
+
+function markTabDirty() {
+  const tab = tabs?.find(t => t.id === activeTabId);
+  if (!tab || tab.dirty) return;
+  tab.dirty = true;
+  renderTabBar();
+}
+
+function markTabClean() {
+  const tab = tabs?.find(t => t.id === activeTabId);
+  if (!tab || !tab.dirty) return;
+  tab.dirty = false;
+  renderTabBar();
+}
+
+function _tabSaveCurrent() {
+  const tab = tabs.find(t => t.id === activeTabId);
+  if (!tab) return;
+  if (expertMode && expertEditor) {
+    tab.expertText = expertEditor.value;
+  } else {
+    tab.expertText = "";
+  }
+  tab.program = JSON.parse(JSON.stringify(program));
+  tab.userMacros = JSON.parse(JSON.stringify(userMacros));
+  tab.selectedBlockId = selectedBlockId;
+}
+
+function _tabActivate(tabId) {
+  _tabSaveCurrent();
+  activeTabId = tabId;
+  const tab = tabs.find(t => t.id === tabId);
+  if (!tab) return;
+
+  program = JSON.parse(JSON.stringify(tab.program));
+  userMacros = JSON.parse(JSON.stringify(tab.userMacros));
+  selectedBlockId = tab.selectedBlockId;
+
+  // Update file display
+  if (tab.filePath) {
+    const fileName = tab.filePath.split(/[/\\]/).pop();
+    if (currentFileDisplay) currentFileDisplay.textContent = fileName;
+    if (expertFileName) expertFileName.textContent = fileName;
+    updateWindowTitle(fileName);
+  } else if (tab.name && !tab.name.startsWith("Untitled")) {
+    if (currentFileDisplay) currentFileDisplay.textContent = tab.name;
+    if (expertFileName) expertFileName.textContent = tab.name;
+    updateWindowTitle(tab.name);
+  } else {
+    if (currentFileDisplay) currentFileDisplay.textContent = "";
+    if (expertFileName) expertFileName.textContent = "";
+    updateWindowTitle("");
+  }
+
+  // Restore expert editor if active
+  if (expertMode && expertEditor) {
+    if (tab.expertText) {
+      expertEditor.value = tab.expertText;
+      expertEditor.dispatchEvent(new Event("input"));
+    } else {
+      _expertSyncFromProgram();
+    }
+  }
+
+  renderTabBar();
+  renderProgram();
+  renderAsmOutput();
+  if (_expertProjectVisible && _expertProjectData) _expertRenderProjectTree();
+}
+
+function _tabNew() {
+  _tabSaveCurrent();
+  const tab = _tabCreate();
+  tab.program = [makeDefaultOrgBlock()];
+  tabs.push(tab);
+  activeTabId = tab.id;
+
+  program = [makeDefaultOrgBlock()];
+  userMacros = {};
+  selectedBlockId = null;
+
+  if (currentFileDisplay) currentFileDisplay.textContent = "";
+  if (expertFileName) expertFileName.textContent = "";
+  updateWindowTitle("");
+  if (expertMode && expertEditor) _expertSyncFromProgram();
+
+  renderTabBar();
+  renderProgram();
+  renderAsmOutput();
+}
+
+function _tabHasContent(tab) {
+  const prog = (tab.id === activeTabId ? program : tab.program) || [];
+  // More than just a default ORG block, or has a saved filePath
+  return tab.filePath != null || prog.length > 1 || (prog.length === 1 && !prog[0].isOrgMacro);
+}
+
+let _confirmResolve = null;
+const _confirmDialog = document.getElementById("app-confirm-dialog");
+const _confirmMsg    = document.getElementById("app-confirm-msg");
+const _confirmYes    = document.getElementById("app-confirm-yes");
+const _confirmNo     = document.getElementById("app-confirm-no");
+
+_confirmYes?.addEventListener("click", () => { _confirmDialog?.close(); _confirmResolve?.(true); });
+_confirmNo?.addEventListener("click",  () => { _confirmDialog?.close(); _confirmResolve?.(false); });
+_confirmDialog?.addEventListener("cancel", () => { _confirmResolve?.(false); });
+
+function _showConfirm(msg) {
+  return new Promise(resolve => {
+    _confirmResolve = resolve;
+    if (_confirmMsg) _confirmMsg.textContent = msg;
+    _confirmDialog?.showModal();
+  });
+}
+
+async function _tabClose(tabId) {
+  const tab = tabs.find(t => t.id === tabId);
+  if (tab && _tabHasContent(tab)) {
+    const key = tab.filePath ? "tabCloseConfirmUnsaved" : "tabCloseConfirm";
+    const msg = tf(key, { name: tab.name });
+    if (!await _showConfirm(msg)) return;
+  }
+
+  if (tabs.length <= 1) {
+    // Clear the only tab instead of removing it
+    doClearProgram();
+    const tab = tabs[0];
+    tab.name = tab._untitledName;
+    tab.filePath = null;
+    tab.expertText = "";
+    if (expertMode && expertEditor) {
+      expertEditor.value = "";
+      expertEditor.dispatchEvent(new Event("input"));
+    }
+    if (currentFileDisplay) currentFileDisplay.textContent = "";
+    if (expertFileName) expertFileName.textContent = "";
+    updateWindowTitle("");
+    renderTabBar();
+    return;
+  }
+  const idx = tabs.findIndex(t => t.id === tabId);
+  tabs.splice(idx, 1);
+  if (activeTabId === tabId) {
+    const nextTab = tabs[Math.min(idx, tabs.length - 1)];
+    // The closing tab is already spliced from tabs[], so _tabSaveCurrent inside
+    // _tabActivate will find no tab for the old activeTabId and return early (correct).
+    // Do NOT set activeTabId before _tabActivate — that would make _tabSaveCurrent
+    // overwrite the next tab with the closing tab's stale content.
+    _tabActivate(nextTab.id);
+  } else {
+    renderTabBar();
+  }
+}
+
+function renderTabBar() {
+  const tabBar = document.getElementById("tab-bar");
+  if (!tabBar) return;
+  tabBar.innerHTML = "";
+
+  tabs.forEach(tab => {
+    const div = document.createElement("div");
+    div.className = "tab-item" + (tab.id === activeTabId ? " tab-item--active" : "");
+    div.dataset.tabId = tab.id;
+
+    const nameSpan = document.createElement("span");
+    nameSpan.className = "tab-name";
+    if (tab.dirty) {
+      const dot = document.createElement("span");
+      dot.className = "tab-dirty-dot";
+      dot.setAttribute("aria-hidden", "true");
+      nameSpan.appendChild(dot);
+    }
+    nameSpan.appendChild(document.createTextNode(tab.name));
+    div.appendChild(nameSpan);
+
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "tab-close";
+    closeBtn.title = "Close tab";
+    closeBtn.innerHTML = "&#x2715;";
+    closeBtn.addEventListener("click", e => { e.stopPropagation(); _tabClose(tab.id); });
+    div.appendChild(closeBtn);
+
+    div.addEventListener("click", () => { if (tab.id !== activeTabId) _tabActivate(tab.id); });
+    tabBar.appendChild(div);
+  });
+
+  const newBtn = document.createElement("button");
+  newBtn.id = "tab-new-btn";
+  newBtn.className = "tab-new-btn";
+  newBtn.title = "New tab";
+  newBtn.textContent = "+";
+  newBtn.addEventListener("click", _tabNew);
+  tabBar.appendChild(newBtn);
+
+  // Scroll the active tab into view
+  const activeEl = tabBar.querySelector(".tab-item--active");
+  if (activeEl) activeEl.scrollIntoView({ block: "nearest", inline: "nearest" });
+
+  _updateTabScrollButtons();
+}
+
+function _updateTabScrollButtons() {
+  const tabBar = document.getElementById("tab-bar");
+  const wrap   = tabBar?.closest(".tab-bar-wrap");
+  if (!tabBar || !wrap) return;
+  const canLeft  = tabBar.scrollLeft > 1;
+  const canRight = tabBar.scrollLeft + tabBar.clientWidth < tabBar.scrollWidth - 1;
+  wrap.classList.toggle("can-scroll-left",  canLeft);
+  wrap.classList.toggle("can-scroll-right", canRight);
+}
+
+// Wire scroll buttons (called once at startup)
+(function _initTabScrollButtons() {
+  const tabBar     = document.getElementById("tab-bar");
+  const btnLeft    = document.getElementById("tab-scroll-left");
+  const btnRight   = document.getElementById("tab-scroll-right");
+  if (!tabBar || !btnLeft || !btnRight) return;
+
+  let _scrollInterval = null;
+  function startScroll(dir) {
+    clearInterval(_scrollInterval);
+    _scrollInterval = setInterval(() => {
+      tabBar.scrollBy({ left: dir * 80, behavior: "smooth" });
+      _updateTabScrollButtons();
+    }, 120);
+  }
+  function stopScroll() { clearInterval(_scrollInterval); _scrollInterval = null; }
+
+  btnLeft.addEventListener("mousedown",  () => startScroll(-1));
+  btnRight.addEventListener("mousedown", () => startScroll(1));
+  ["mouseup", "mouseleave"].forEach(ev => {
+    btnLeft.addEventListener(ev,  stopScroll);
+    btnRight.addEventListener(ev, stopScroll);
+  });
+  // Single click also nudges
+  btnLeft.addEventListener("click",  () => { tabBar.scrollBy({ left: -120, behavior: "smooth" }); setTimeout(_updateTabScrollButtons, 150); });
+  btnRight.addEventListener("click", () => { tabBar.scrollBy({ left:  120, behavior: "smooth" }); setTimeout(_updateTabScrollButtons, 150); });
+
+  tabBar.addEventListener("scroll", _updateTabScrollButtons, { passive: true });
+  new ResizeObserver(_updateTabScrollButtons).observe(tabBar);
+}());
+
 async function saveProjectToFile() {
   if (!window.electronAPI?.saveProject) {
     if (emulatorStatus) {
@@ -4650,7 +6553,16 @@ async function saveProjectToFile() {
     return;
   }
 
-  const result = await window.electronAPI.saveProject(getProjectPayload());
+  const tab = tabs?.find(t => t.id === activeTabId);
+  const existingPath = tab?.filePath || "";
+  const defaultName  = (tab?.name || "program").replace(/\.(json|c64va)$/i, "") + ".json";
+
+  const payload = {
+    ...getProjectPayload(),
+    _filePath:    existingPath,
+    _defaultName: defaultName
+  };
+  const result = await window.electronAPI.saveProject(payload);
   if (result?.canceled) {
     return;
   }
@@ -4667,11 +6579,11 @@ async function saveProjectToFile() {
   }
 
   // Update current file display
-  if (currentFileDisplay && result.filePath) {
+  if (result.filePath) {
     const fileName = result.filePath.split(/[\\/]/).pop();
-    currentFileDisplay.textContent = `📄 ${fileName}`;
-    updateWindowTitle(fileName);
+    _setCurrentFile(fileName, fileName, result.filePath);
   }
+  markTabClean();
 }
 
 let _lastCompileErrors = [];
@@ -5431,24 +7343,14 @@ function _importMakeLabel(name) {
 }
 
 function _importMakeByte(rawByteStr) {
-  let raw = rawByteStr.trim();
-  let base = "hex";
-  let display = raw;
-  if (raw.startsWith("%")) {
-    base = "bin";
-  } else if (raw.startsWith("$")) {
-    raw = raw.slice(1).toUpperCase();
-    display = "$" + raw;
-  } else if (/^\d+$/.test(raw)) {
-    base = "dec";
-  } else {
-    raw = raw.toUpperCase();
-    display = raw;
-  }
+  const { base, normalized } = _importDetectListBase(rawByteStr.trim());
+  const display = base === "hex"
+    ? normalized.split(",").map(t => { const s = t.trim(); return s ? "$" + s : s; }).join(", ")
+    : normalized;
   return {
     id: crypto.randomUUID(),
     category: "Makrok", mnemonic: "BYTE",
-    operand: display, rawOperand: raw, description: "",
+    operand: display, rawOperand: normalized, description: "",
     addressingMode: "implied", base,
     validationError: "", collapsed: true, isByteMacro: true
   };
@@ -5534,7 +7436,7 @@ function _importMakeIncBin(fileName, addressHex) {
     incBinFileName: fileName,
     incBinFile: fileName,
     incBinBytes: [],
-    incBinAddress: addressHex || ""
+    incBinAddress: addressHex ? "$" + addressHex : "$C000"
   };
 }
 
@@ -6016,6 +7918,7 @@ async function loadProjectFromFile() {
   renderOutputMode();
   parseUserMacros();  // Parse any user-defined macros in the loaded project
   renderProgram();
+  if (expertMode) _expertSyncFromProgram();
   saveUiSettings();
 
   if (emulatorStatus) {
@@ -6023,11 +7926,11 @@ async function loadProjectFromFile() {
   }
 
   // Update current file display
-  if (currentFileDisplay && result.filePath) {
+  if (result.filePath) {
     const fileName = result.filePath.split(/[\\/]/).pop();
-    currentFileDisplay.textContent = `📄 ${fileName}`;
-    updateWindowTitle(fileName);
+    _setCurrentFile(fileName, fileName, result.filePath);
   }
+  markTabClean();
 
   return true;
 }
@@ -6122,6 +8025,17 @@ async function runInEmulator() {
 }
 
 function buildAutostartPrgForEmulator() {
+  if (expertMode) {
+    const saved = program;
+    program = _expertBuildProgram();
+    const result = _buildAutostartPrgCore();
+    program = saved;
+    return result;
+  }
+  return _buildAutostartPrgCore();
+}
+
+function _buildAutostartPrgCore() {
   const useBasicSys = basicSysToggle ? basicSysToggle.checked : true;
 
   if (!useBasicSys) {
@@ -7346,22 +9260,38 @@ function getProgramLayout(originOverride) {
   // Expand user macros before calculating layout
   const expandedProgram = [];
   let insideMacroDef = false;
+  let currentMacroName = null;
 
   for (const block of program) {
     if (block.isMacroDefStart) {
       insideMacroDef = true;
+      currentMacroName = block.macroName || null;
+      // Emit synthetic label so JSR macroName can resolve to the definition site
+      if (currentMacroName) {
+        expandedProgram.push({
+          id: crypto.randomUUID(),
+          isLabel: true,
+          labelName: currentMacroName,
+          mnemonic: "LABEL",
+          addressingMode: "implied",
+          base: "hex",
+          operand: currentMacroName,
+          rawOperand: currentMacroName,
+          _syntheticMacroLabel: true,
+        });
+      }
       if (showMacroSource) expandedProgram.push(block);
       continue;
     }
     if (block.isMacroDefEnd) {
       insideMacroDef = false;
+      currentMacroName = null;
       if (showMacroSource) expandedProgram.push(block);
       continue;
     }
     if (insideMacroDef) {
-      if (showMacroSource) {
-        expandedProgram.push({ ...block, _macroSourceBlock: true });
-      }
+      // Emit macro body as real subroutine code at definition site (enables JSR macroName)
+      expandedProgram.push({ ...block, _fromMacroDef: currentMacroName });
       continue;
     }
 
@@ -7451,16 +9381,48 @@ function getProgramLayout(originOverride) {
 
     if (macroName && userMacros[macroName]) {
       const invokeId = block.id;
+      const localSuffix = "__m" + invokeId.replace(/-/g, "").slice(0, 8);
+      // Collect local label names defined inside this macro body
+      const localLabels = new Set(
+        userMacros[macroName]
+          .filter(b => b.isLabel && b.labelName)
+          .map(b => b.labelName)
+      );
+      // Helper: replace local label references in a rawOperand string
+      const rewriteOperand = (raw) => {
+        if (!raw || !localLabels.size) return raw;
+        let result = raw;
+        for (const lbl of localLabels) {
+          // Match whole-word label references (not part of a longer identifier)
+          const re = new RegExp(`(?<![A-Za-z0-9_])${lbl}(?![A-Za-z0-9_])`, "g");
+          result = result.replace(re, lbl + localSuffix);
+        }
+        return result;
+      };
       // Add INVOKE block as a zero-size header line for ASM view selection
       expandedProgram.push({ ...block, _isMacroInvokeHeader: true });
-      // Expand the macro body inline, linking back to the INVOKE block
+      // Expand the macro body inline with uniquified local labels
       for (const macroBlock of userMacros[macroName]) {
-        expandedProgram.push({
+        const expanded = {
           ...macroBlock,
           id: crypto.randomUUID(),
           _fromMacro: macroName,
           _invokeBlockId: invokeId
-        });
+        };
+        if (macroBlock.isLabel && macroBlock.labelName && localLabels.has(macroBlock.labelName)) {
+          expanded.labelName = macroBlock.labelName + localSuffix;
+        }
+        if (macroBlock.rawOperand) {
+          expanded.rawOperand = rewriteOperand(macroBlock.rawOperand);
+          expanded.operand   = rewriteOperand(macroBlock.operand);
+        }
+        if (macroBlock.isLoopMacro && macroBlock.loopLabel && localLabels.has(macroBlock.loopLabel)) {
+          expanded.loopLabel = macroBlock.loopLabel + localSuffix;
+        }
+        if (macroBlock.isNextMacro && macroBlock.nextLabel && localLabels.has(macroBlock.nextLabel)) {
+          expanded.nextLabel = macroBlock.nextLabel + localSuffix;
+        }
+        expandedProgram.push(expanded);
       }
     } else {
       expandedProgram.push(block);
@@ -9676,6 +11638,14 @@ function renderProgram() {
     node.addEventListener("click", (e) => {
       if (e.target.closest("button") || e.target.closest("input") || e.target.closest("select")) return;
       selectBlockInAsm(block.id);
+      const descEl = node.querySelector(".block-description");
+      if (descEl && descEl.textContent.trim()) {
+        const range = document.createRange();
+        range.selectNodeContents(descEl);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
     });
 
     if (block.isRegionMacro) {
@@ -9702,6 +11672,8 @@ function renderProgram() {
     const node = programList.querySelector(`[data-block-id="${selectedBlockId}"]`);
     if (node) node.classList.add("asm-block--selected");
   }
+
+  _expertRenderSymbols();
 }
 
 function getMnemonicModes(mnemonic) {
@@ -10303,13 +12275,9 @@ function renderAsmOutput() {
   renderMonitorOutput(layout);
 }
 
-function renderMonitorOutput(layout = getProgramLayout()) {
-  if (!program.length) {
-    monitorOutput.textContent = `>${formatAddress(layout.origin.value)}`;
-    return;
-  }
+function _buildMonitorText(layout) {
+  if (!program.length) return `>${formatAddress(layout.origin.value)}`;
 
-  // Build a flat memory map: address → byte
   const memMap = new Map();
   const labels = new Map();
   const deferredSections = getDeferredMemorySections(layout);
@@ -10346,12 +12314,8 @@ function renderMonitorOutput(layout = getProgramLayout()) {
     section.bytes.forEach((byte, i) => memMap.set(section.address + i, byte));
   });
 
-  if (!memMap.size) {
-    monitorOutput.textContent = `>${formatAddress(layout.origin.value)}`;
-    return;
-  }
+  if (!memMap.size) return `>${formatAddress(layout.origin.value)}`;
 
-  // Group non-contiguous regions into segments to avoid huge gaps of ".."
   const allAddresses = [...memMap.keys()].sort((a, b) => a - b);
   const GAP_THRESHOLD = 256;
   const segments = [];
@@ -10384,7 +12348,11 @@ function renderMonitorOutput(layout = getProgramLayout()) {
     }
   });
 
-  monitorOutput.textContent = rows.join("\n");
+  return rows.join("\n");
+}
+
+function renderMonitorOutput(layout = getProgramLayout()) {
+  monitorOutput.textContent = _buildMonitorText(layout);
 }
 
 function chunkBytes(bytes, size) {
@@ -10457,14 +12425,13 @@ async function loadSampleFromFile(sampleName) {
   renderEmulatorRunHint();
   parseUserMacros();  // Parse any user-defined macros in the loaded sample
   renderProgram();
+  if (expertMode) _expertSyncFromProgram();
   saveUiSettings();
 
   // Update file display with sample name
-  const displayName = `${sampleName}.c64asm`;
-  if (currentFileDisplay) {
-    currentFileDisplay.textContent = `📄 ${displayName}`;
-  }
-  updateWindowTitle(displayName);
+  const displayName = `${sampleName}.c64va`;
+  _setCurrentFile(displayName, displayName);
+  markTabClean();
 
   return true;
 }
@@ -10552,6 +12519,7 @@ async function loadIncBinDemo() {
         program[incBinIdx].incBinBytes = result.bytes;
         program[incBinIdx].validationError = validateIncBinMacro(result.bytes, program[incBinIdx].incBinAddress);
         renderProgram();
+        if (expertMode) _expertSyncFromProgram();
       }
     }
   }
@@ -10575,6 +12543,7 @@ async function loadSidDemo() {
         program[incBinIdx].incBinBytes = result.bytes;
         program[incBinIdx].validationError = "";
         renderProgram();
+        if (expertMode) _expertSyncFromProgram();
         renderAsmOutput();
       }
     }
@@ -10616,6 +12585,7 @@ async function loadSidDirectDemo() {
         program[sidIdx].sidBytes = result.bytes;
         program[sidIdx].validationError = "";
         renderProgram();
+        if (expertMode) _expertSyncFromProgram();
         renderAsmOutput();
       }
     }
@@ -10759,13 +12729,29 @@ function applyZoom() {
 
 initPalette();
 
+// Initialize tab system
+if (tabs.length === 0) {
+  const _firstTab = _tabCreate("Untitled 1");
+  // Override the auto-incremented name/counter so first tab is always "Untitled 1"
+  _firstTab.name = "Untitled 1";
+  _firstTab._untitledName = "Untitled 1";
+  tabs.push(_firstTab);
+  activeTabId = _firstTab.id;
+}
+
+// Wire up static new-tab button (only used before renderTabBar replaces it)
+document.getElementById("tab-new-btn")?.addEventListener("click", _tabNew);
+
 // Start with a default ORG block if program is empty
 if (program.length === 0) {
   program = [makeDefaultOrgBlock()];
+  // Persist into the first tab too
+  if (tabs[0]) tabs[0].program = JSON.parse(JSON.stringify(program));
 }
 
 renderOriginPreview();
 renderEmulatorRunHint();
 renderMemoryStrip();
+renderTabBar();
 renderProgram();
 

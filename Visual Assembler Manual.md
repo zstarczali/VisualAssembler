@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 1.5.1**
+**Version 1.6.0**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -13,9 +13,10 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 3. [Program Area](#3-program-area)
 4. [ASM View](#4-asm-view)
 5. [Settings & Toolbar](#5-settings--toolbar)
-6. [Addressing Modes](#6-addressing-modes)
-7. [Standard 6502 Instructions](#7-standard-6502-instructions)
-8. [Macro Blocks — Reference](#8-macro-blocks--reference)
+6. [Expert Mode](#6-expert-mode)
+7. [Addressing Modes](#7-addressing-modes)
+8. [Standard 6502 Instructions](#8-standard-6502-instructions)
+9. [Macro Blocks — Reference](#9-macro-blocks--reference)
    - [LABEL](#label)
    - [COMMENT](#comment)
    - [BYTE](#byte)
@@ -45,11 +46,11 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
    - [JOYSTICK](#joystick)
    - [SPRITE_COL](#sprite_col)
    - [LOADFILE](#loadfile)
-9. [Debugger Integration](#9-debugger-integration)
-10. [Knowledge Base Links](#10-knowledge-base-links)
-11. [ASM Import Workflow](#11-asm-import-workflow)
-12. [D64 Export & Run](#12-d64-export--run)
-13. [Hardware Settings](#13-hardware-settings)
+10. [Debugger Integration](#10-debugger-integration)
+11. [Knowledge Base Links](#11-knowledge-base-links)
+12. [ASM Import Workflow](#12-asm-import-workflow)
+13. [D64 Export & Run](#13-d64-export--run)
+14. [Hardware Settings](#14-hardware-settings)
 
 ---
 
@@ -192,9 +193,80 @@ The Import dialog accepts common 6502 source patterns and converts them into blo
 - Avoid ambiguous short labels that look like hex (`cc1`, `dead`, `beef`) in branch contexts; prefer names like `loop_cc1`.
 - If your program starts with data (`.byte`) before executable code, add an explicit entry jump (for example `JMP Start`) at the top.
 
+## 6. Expert Mode
+
+Expert Mode is a full-featured direct-text 6502 assembly editor that lives alongside the block editor. Every tab can be in either Block mode or Expert mode — you switch between them freely at any time using the **Block / Expert** toggle in the top bar.
+
+### Switching modes
+
+- **Block → Expert:** the current program is serialised to text (one instruction per line, labels, macros as directives). Edits in Expert mode are synced back to the block array whenever you switch back or trigger an action.
+- **Expert → Block:** the text is parsed with `parseAsmText()` and the result replaces the block program. A compile-error dialog is shown if parsing fails.
+
+### Editor layout
+
+```
+┌─────────────────────────────────────────────────────┐
+│ [toolbar]  Block │ Expert ◀ tab toggle               │
+├────────────┬────────────────────────────┬────────────┤
+│  Palette   │   ASM text editor          │  Disasm    │
+│  (opt.)    │   (monospace, editable)    │  panel     │
+│            │                            │  (opt.)    │
+└────────────┴────────────────────────────┴────────────┘
+```
+
+| Panel | Toggle | Description |
+|-------|--------|-------------|
+| **Palette** | `#expert-palette-btn` | The left block palette — drag blocks into the editor or click to insert at cursor |
+| **ASM editor** | always visible | Full monospace textarea with live syntax highlight overlay |
+| **Disasm panel** | `#expert-disasm-btn` | Real-time disassembly: shows address, bytes, and mnemonic for each line |
+
+### Syntax highlight
+
+The editor uses a transparent `<div>` overlay (`expert-hl`) that mirrors the textarea content with coloured `<span>` elements. Highlight can be toggled off with the **HL** button for performance on very large programs.
+
+| Colour | Token |
+|--------|-------|
+| Yellow-green | Mnemonics (`LDA`, `STA`, `JMP`, …) |
+| Blue | Directives (`.byte`, `.word`, `.fill`, `*=`, …) |
+| Orange | Numbers (`$FF`, `%1010`, `255`) |
+| Cyan | Labels (lines ending in `:`) |
+| Teal | String literals |
+| Dark green | Comments (`; …`) |
+
+### Source formatter
+
+Click the **Format** button (`#expert-format-btn`) to auto-format the current source:
+
+- Label definitions are moved to column 0.
+- Instructions are indented with 4 spaces.
+- Mnemonics are uppercased.
+- Exactly one space between mnemonic and operand (extra whitespace is normalised).
+- If the source is already formatted, a `"Already formatted"` status is shown.
+
+### Project panel & tabs
+
+Expert mode supports a **project panel** (`#expert-project-panel`) for multi-file `.proj` projects:
+
+- A `.proj` file is a JSON manifest that lists source files and their metadata.
+- Open a project with **File → Open project…** or drag a `.proj` file onto the window.
+- Each file in the project opens as a separate **tab** in the tab bar at the top of the editor.
+
+### Tab bar
+
+The tab bar appears above the editor when there is more than one tab open.
+
+| Feature | Description |
+|---------|-------------|
+| **Dirty dot** | A small accent-coloured dot on the tab name indicates unsaved changes |
+| **Scroll arrows** | Left/right scroll buttons appear when there are more tabs than fit the bar |
+| **Close (×)** | Closes the tab; prompts to save if the tab is dirty |
+| **File extension** | The full filename including extension (`.c64va`, `.json`) is shown |
+
+> **Tip:** Palette sync (`#expert-palette-sync-btn`) keeps the palette selection in sync with the mnemonic at the cursor. Disable it when you prefer not to have the palette jump around as you edit.
+
 ---
 
-## 6. Addressing Modes
+## 7. Addressing Modes
 
 Each 6502 instruction supports one or more addressing modes. The mode selector appears on each block.
 
@@ -239,7 +311,7 @@ clear:
 
 ---
 
-## 7. Standard 6502 Instructions
+## 8. Standard 6502 Instructions
 
 ### Data Movement
 
@@ -345,7 +417,7 @@ These are supported for advanced use. Use with care — behavior may differ betw
 
 ---
 
-## 8. Macro Blocks — Reference
+## 9. Macro Blocks — Reference
 
 Macro blocks generate multiple instructions or data directives automatically. They are found in the **Macros** category of the palette.
 
@@ -1199,7 +1271,7 @@ skip_filename:
 
 ---
 
-## 9. Debugger Integration
+## 10. Debugger Integration
 
 The app supports two external C64 debuggers: **RetroDebugger** and **C64 Debugger**. Both receive breakpoints, symbols, and autostart flags generated from the assembled program.
 
@@ -1243,7 +1315,7 @@ Click the breakpoint icon (●) on any instruction block to toggle it as a break
 
 ---
 
-## 10. Knowledge Base Links
+## 11. Knowledge Base Links
 
 Quick reference links available in the app under **Knowledge Base**:
 
@@ -1260,7 +1332,7 @@ Quick reference links available in the app under **Knowledge Base**:
 
 ---
 
-## 11. ASM Import Workflow
+## 12. ASM Import Workflow
 
 The Import ASM dialog now includes quality-of-life safeguards for iterative fixes:
 
@@ -1272,7 +1344,7 @@ This keeps the import-debug cycle inside one dialog: paste, import, inspect erro
 
 ---
 
-## 12. D64 Export & Run
+## 13. D64 Export & Run
 
 Version 1.5.1 adds the ability to package your program (and additional data files) into a C64 D64 disk image and launch it in VICE — or export the disk image for use elsewhere.
 
@@ -1315,7 +1387,7 @@ The **loadfile-demo** sample comes pre-configured with `DEMO-COLORS.PRG` as an e
 
 ---
 
-## 13. Hardware Settings
+## 14. Hardware Settings
 
 Open via **Settings → Hardware Settings…** in the toolbar menu. All external hardware paths and network configuration live here.
 
