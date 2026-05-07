@@ -421,6 +421,18 @@ html[data-theme="light"] .main-toolbar .split-run-arrow {
   letter-spacing: 0.14em;
   font-size: 0.75rem;
   color: var(--secondary);
+  padding-bottom: 7px;
+  background-image: linear-gradient(
+    to right,
+    #cc2200 0%, #cc2200 20%,
+    #e05a00 20%, #e05a00 40%,
+    #d4a800 40%, #d4a800 60%,
+    #3a7d1e 60%, #3a7d1e 80%,
+    #2a7ac4 80%, #2a7ac4 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 120px 3px;
+  background-position: left bottom;
 }
 
 .current-file {

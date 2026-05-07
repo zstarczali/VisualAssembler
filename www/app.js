@@ -1603,6 +1603,21 @@ function initPalette() {
     }
   });
 
+  // Close menu when any button/link inside the panel is clicked
+  controlMenuPanel?.addEventListener("click", (e) => {
+    const target = e.target.closest("button, a, .theme-option, .run-mode-item");
+    if (!target || !controlMenu.open) return;
+    // Small delay so the button's own handler can fire first
+    setTimeout(() => { controlMenu.removeAttribute("open"); }, 80);
+  });
+
+  // Close menu when clicking outside of it
+  document.addEventListener("click", (e) => {
+    if (!controlMenu?.open) return;
+    if (controlMenu.contains(e.target)) return;
+    controlMenu.removeAttribute("open");
+  });
+
   sampleSelect?.addEventListener("change", saveUiSettings);
   loadSampleButton.addEventListener("click", () => {
     const ok = loadSelectedSample();
@@ -1622,6 +1637,24 @@ function initPalette() {
   });
   savePrgButton?.addEventListener("click", savePrgToFile);
   saveD64Button?.addEventListener("click", saveD64ToFile);
+
+  // Global Ctrl+S / Cmd+S — works in both block mode and expert mode
+  document.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+      e.preventDefault();
+      saveProjectToFile().then(() => {
+        markTabClean();
+        if (expertMode) {
+          _expertSetStatus(currentLanguage === "en" ? "Saved ✓" : "Mentve ✓", "ok");
+          setTimeout(() => _expertValidate(), 1800);
+        } else if (emulatorStatus) {
+          const prev = emulatorStatus.textContent;
+          emulatorStatus.textContent = currentLanguage === "en" ? "Saved ✓" : "Mentve ✓";
+          setTimeout(() => { if (emulatorStatus.textContent.includes("✓")) emulatorStatus.textContent = prev; }, 1800);
+        }
+      });
+    }
+  });
   loadProjectButton?.addEventListener("click", async () => {
     const ok = await loadProjectFromFile();
     if (ok) document.querySelector(".control-menu")?.removeAttribute("open");
@@ -6520,7 +6553,16 @@ async function saveProjectToFile() {
     return;
   }
 
-  const result = await window.electronAPI.saveProject(getProjectPayload());
+  const tab = tabs?.find(t => t.id === activeTabId);
+  const existingPath = tab?.filePath || "";
+  const defaultName  = (tab?.name || "program").replace(/\.(json|c64va)$/i, "") + ".json";
+
+  const payload = {
+    ...getProjectPayload(),
+    _filePath:    existingPath,
+    _defaultName: defaultName
+  };
+  const result = await window.electronAPI.saveProject(payload);
   if (result?.canceled) {
     return;
   }
@@ -7301,24 +7343,14 @@ function _importMakeLabel(name) {
 }
 
 function _importMakeByte(rawByteStr) {
-  let raw = rawByteStr.trim();
-  let base = "hex";
-  let display = raw;
-  if (raw.startsWith("%")) {
-    base = "bin";
-  } else if (raw.startsWith("$")) {
-    raw = raw.slice(1).toUpperCase();
-    display = "$" + raw;
-  } else if (/^\d+$/.test(raw)) {
-    base = "dec";
-  } else {
-    raw = raw.toUpperCase();
-    display = raw;
-  }
+  const { base, normalized } = _importDetectListBase(rawByteStr.trim());
+  const display = base === "hex"
+    ? normalized.split(",").map(t => { const s = t.trim(); return s ? "$" + s : s; }).join(", ")
+    : normalized;
   return {
     id: crypto.randomUUID(),
     category: "Makrok", mnemonic: "BYTE",
-    operand: display, rawOperand: raw, description: "",
+    operand: display, rawOperand: normalized, description: "",
     addressingMode: "implied", base,
     validationError: "", collapsed: true, isByteMacro: true
   };
@@ -9349,16 +9381,48 @@ function getProgramLayout(originOverride) {
 
     if (macroName && userMacros[macroName]) {
       const invokeId = block.id;
+      const localSuffix = "__m" + invokeId.replace(/-/g, "").slice(0, 8);
+      // Collect local label names defined inside this macro body
+      const localLabels = new Set(
+        userMacros[macroName]
+          .filter(b => b.isLabel && b.labelName)
+          .map(b => b.labelName)
+      );
+      // Helper: replace local label references in a rawOperand string
+      const rewriteOperand = (raw) => {
+        if (!raw || !localLabels.size) return raw;
+        let result = raw;
+        for (const lbl of localLabels) {
+          // Match whole-word label references (not part of a longer identifier)
+          const re = new RegExp(`(?<![A-Za-z0-9_])${lbl}(?![A-Za-z0-9_])`, "g");
+          result = result.replace(re, lbl + localSuffix);
+        }
+        return result;
+      };
       // Add INVOKE block as a zero-size header line for ASM view selection
       expandedProgram.push({ ...block, _isMacroInvokeHeader: true });
-      // Expand the macro body inline, linking back to the INVOKE block
+      // Expand the macro body inline with uniquified local labels
       for (const macroBlock of userMacros[macroName]) {
-        expandedProgram.push({
+        const expanded = {
           ...macroBlock,
           id: crypto.randomUUID(),
           _fromMacro: macroName,
           _invokeBlockId: invokeId
-        });
+        };
+        if (macroBlock.isLabel && macroBlock.labelName && localLabels.has(macroBlock.labelName)) {
+          expanded.labelName = macroBlock.labelName + localSuffix;
+        }
+        if (macroBlock.rawOperand) {
+          expanded.rawOperand = rewriteOperand(macroBlock.rawOperand);
+          expanded.operand   = rewriteOperand(macroBlock.operand);
+        }
+        if (macroBlock.isLoopMacro && macroBlock.loopLabel && localLabels.has(macroBlock.loopLabel)) {
+          expanded.loopLabel = macroBlock.loopLabel + localSuffix;
+        }
+        if (macroBlock.isNextMacro && macroBlock.nextLabel && localLabels.has(macroBlock.nextLabel)) {
+          expanded.nextLabel = macroBlock.nextLabel + localSuffix;
+        }
+        expandedProgram.push(expanded);
       }
     } else {
       expandedProgram.push(block);

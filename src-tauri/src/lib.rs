@@ -1517,20 +1517,33 @@ async fn test_ultimate_connection(host: String, password: Option<String>) -> ser
 
 #[tauri::command]
 async fn save_project(app: AppHandle, payload: serde_json::Value) -> serde_json::Value {
-    let result = app.dialog().file()
-        .add_filter("C64 Visual Assembler Project", &["json", "c64va"])
-        .blocking_save_file();
+    // If the caller passes a _filePath, save silently to that path
+    let existing_path = payload.get("_filePath").and_then(|v| v.as_str()).unwrap_or("").to_string();
+    let default_name  = payload.get("_defaultName").and_then(|v| v.as_str()).unwrap_or("program.json").to_string();
 
-    match result {
-        Some(path) => {
-            let path_str = path.to_string();
-            let content = serde_json::to_string_pretty(&payload).unwrap();
-            match fs::write(&path_str, content.as_bytes()) {
-                Ok(_) => serde_json::json!({ "ok": true, "filePath": path_str }),
-                Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
-            }
+    let save_path: String = if !existing_path.is_empty() {
+        existing_path
+    } else {
+        let result = app.dialog().file()
+            .add_filter("C64 Visual Assembler Project", &["json", "c64va"])
+            .set_file_name(&default_name)
+            .blocking_save_file();
+        match result {
+            Some(path) => path.to_string(),
+            None => return serde_json::json!({ "canceled": true }),
         }
-        None => serde_json::json!({ "canceled": true }),
+    };
+
+    // Strip internal helper fields before serialising
+    let mut clean = payload.clone();
+    if let Some(obj) = clean.as_object_mut() {
+        obj.remove("_filePath");
+        obj.remove("_defaultName");
+    }
+    let content = serde_json::to_string_pretty(&clean).unwrap();
+    match fs::write(&save_path, content.as_bytes()) {
+        Ok(_)  => serde_json::json!({ "ok": true, "filePath": save_path }),
+        Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
     }
 }
 
