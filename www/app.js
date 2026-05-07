@@ -3321,7 +3321,12 @@ function addSelectedBlock() {
     const line = _blockToExpertLine(block);
     _expertInsertLine(line);
   } else {
-    insertBlock(program.length, createBlockFromMnemonic(selected));
+    let insertIndex = program.length;
+    if (selectedBlockId) {
+      const idx = program.findIndex(b => b.id === selectedBlockId);
+      if (idx !== -1) insertIndex = idx + 1;
+    }
+    insertBlock(insertIndex, createBlockFromMnemonic(selected));
   }
 }
 
@@ -4092,7 +4097,9 @@ function _expertValidate() {
     try {
       const blocks = _expertBuildProgram();
       const saved = program;
+      const savedUserMacros = userMacros;
       program = blocks;
+      parseUserMacros();
       let errors = [];
       try {
         const layout = getProgramLayout();
@@ -4127,6 +4134,7 @@ function _expertValidate() {
         }
       } finally {
         program = saved;
+        userMacros = savedUserMacros;
       }
       if (errors.length) {
         _expertSetStatus(errors[0] + (errors.length > 1 ? ` (+${errors.length - 1} more)` : ""), "error");
@@ -4149,7 +4157,9 @@ function _expertRenderDisasm() {
   try {
     const blocks = _expertBuildProgram();
     const saved = program;
+    const savedUserMacros = userMacros;
     program = blocks;
+    parseUserMacros();
     let lines = [];
     try {
       const layout = getProgramLayout();
@@ -4175,9 +4185,11 @@ function _expertRenderDisasm() {
       for (const line of layout.lines) {
         if (line.conditionallySkipped) continue;
         if (line.block._isSavedAddress || line.block._isRestoreAddress) continue;
+        if (line.block._macroSourceBlock) continue;
         if (line.block.isComment) { lines.push(`; ${line.block.rawOperand || ""}`); continue; }
         if (line.block.isLabel) { lines.push(`${line.block.labelName}:`); continue; }
         if (line.block.isOrgMacro) { lines.push(`* = $${(line.block.orgAddress || "0801").toUpperCase()}`); continue; }
+        if (line.block.isIncludeMacro) continue;
         // Macro / structural blocks — show address + mnemonic
         const addrStr = `$${line.address.toString(16).toUpperCase().padStart(4, "0")}`;
         const compiled = compileLineBytes(line, labels);
@@ -4200,6 +4212,7 @@ function _expertRenderDisasm() {
       }
     } finally {
       program = saved;
+      userMacros = savedUserMacros;
     }
     expertDisasmOutput.textContent = lines.join("\n");
   } catch (e) {
@@ -4675,7 +4688,7 @@ async function _expertProjectOpenFile(fileEntry) {
   // Create new tab
   _tabSaveCurrent();
   const tab = _tabCreate();
-  tab.name     = fileEntry.name.replace(/\.(json|c64va)$/i, "");
+  tab.name     = fileEntry.name;
   tab.filePath = absPath;
   tab.program  = loadedProgram;
   tab.userMacros = {};
@@ -4687,8 +4700,8 @@ async function _expertProjectOpenFile(fileEntry) {
   selectedBlockId = null;
 
   const displayName = tab.name;
-  if (expertFileName)    expertFileName.textContent    = "📄 " + displayName;
-  if (currentFileDisplay) currentFileDisplay.textContent = "📄 " + displayName;
+  if (expertFileName)    expertFileName.textContent    = displayName;
+  if (currentFileDisplay) currentFileDisplay.textContent = displayName;
   updateWindowTitle(displayName);
 
   await reloadIncludeBlocks(absPath);
@@ -6306,12 +6319,12 @@ function _tabActivate(tabId) {
   // Update file display
   if (tab.filePath) {
     const fileName = tab.filePath.split(/[/\\]/).pop();
-    if (currentFileDisplay) currentFileDisplay.textContent = `📄 ${fileName}`;
-    if (expertFileName) expertFileName.textContent = `📄 ${fileName}`;
+    if (currentFileDisplay) currentFileDisplay.textContent = fileName;
+    if (expertFileName) expertFileName.textContent = fileName;
     updateWindowTitle(fileName);
   } else if (tab.name && !tab.name.startsWith("Untitled")) {
-    if (currentFileDisplay) currentFileDisplay.textContent = `📄 ${tab.name}`;
-    if (expertFileName) expertFileName.textContent = `📄 ${tab.name}`;
+    if (currentFileDisplay) currentFileDisplay.textContent = tab.name;
+    if (expertFileName) expertFileName.textContent = tab.name;
     updateWindowTitle(tab.name);
   } else {
     if (currentFileDisplay) currentFileDisplay.textContent = "";
@@ -6534,7 +6547,7 @@ async function saveProjectToFile() {
   // Update current file display
   if (result.filePath) {
     const fileName = result.filePath.split(/[\\/]/).pop();
-    _setCurrentFile(`📄 ${fileName}`, fileName, result.filePath);
+    _setCurrentFile(fileName, fileName, result.filePath);
   }
   markTabClean();
 }
@@ -7891,7 +7904,7 @@ async function loadProjectFromFile() {
   // Update current file display
   if (result.filePath) {
     const fileName = result.filePath.split(/[\\/]/).pop();
-    _setCurrentFile(`📄 ${fileName}`, fileName, result.filePath);
+    _setCurrentFile(fileName, fileName, result.filePath);
   }
   markTabClean();
 
@@ -9223,22 +9236,38 @@ function getProgramLayout(originOverride) {
   // Expand user macros before calculating layout
   const expandedProgram = [];
   let insideMacroDef = false;
+  let currentMacroName = null;
 
   for (const block of program) {
     if (block.isMacroDefStart) {
       insideMacroDef = true;
+      currentMacroName = block.macroName || null;
+      // Emit synthetic label so JSR macroName can resolve to the definition site
+      if (currentMacroName) {
+        expandedProgram.push({
+          id: crypto.randomUUID(),
+          isLabel: true,
+          labelName: currentMacroName,
+          mnemonic: "LABEL",
+          addressingMode: "implied",
+          base: "hex",
+          operand: currentMacroName,
+          rawOperand: currentMacroName,
+          _syntheticMacroLabel: true,
+        });
+      }
       if (showMacroSource) expandedProgram.push(block);
       continue;
     }
     if (block.isMacroDefEnd) {
       insideMacroDef = false;
+      currentMacroName = null;
       if (showMacroSource) expandedProgram.push(block);
       continue;
     }
     if (insideMacroDef) {
-      if (showMacroSource) {
-        expandedProgram.push({ ...block, _macroSourceBlock: true });
-      }
+      // Emit macro body as real subroutine code at definition site (enables JSR macroName)
+      expandedProgram.push({ ...block, _fromMacroDef: currentMacroName });
       continue;
     }
 
@@ -11553,6 +11582,14 @@ function renderProgram() {
     node.addEventListener("click", (e) => {
       if (e.target.closest("button") || e.target.closest("input") || e.target.closest("select")) return;
       selectBlockInAsm(block.id);
+      const descEl = node.querySelector(".block-description");
+      if (descEl && descEl.textContent.trim()) {
+        const range = document.createRange();
+        range.selectNodeContents(descEl);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
     });
 
     if (block.isRegionMacro) {
@@ -12337,7 +12374,7 @@ async function loadSampleFromFile(sampleName) {
 
   // Update file display with sample name
   const displayName = `${sampleName}.c64va`;
-  _setCurrentFile(`📄 ${displayName}`, displayName);
+  _setCurrentFile(displayName, displayName);
   markTabClean();
 
   return true;

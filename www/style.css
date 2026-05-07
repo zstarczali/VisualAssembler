@@ -15,7 +15,7 @@
   --active-bg: #43318d;
   --active-fg: #f7f8ff;
   --shadow: 0 16px 34px rgba(49, 41, 116, 0.18);
-  --radius: 24px;
+  --radius: 8px;
   --input-bg: rgba(210, 215, 255, 0.98);
   --output-bg: #2e2a8a;
   --output-text: #b9c4ff;
@@ -87,25 +87,25 @@ html[data-theme="oled"] {
   --hl-number:    #9ebb8a;
   --hl-string:    #bf7a58;
   --hl-label:     #7ac8ee;
-  --expert-editor-bg: #03020c;
-  --bg: #03020c;
-  --bg-accent: #010108;
-  --panel: rgba(8, 6, 22, 0.98);
-  --panel-strong: rgba(12, 10, 30, 0.99);
-  --panel-border: rgba(90, 110, 255, 0.16);
+  --expert-editor-bg: #0c0a20;
+  --bg: #0c0a20;
+  --bg-accent: #080614;
+  --panel: rgba(18, 14, 42, 0.98);
+  --panel-strong: rgba(24, 20, 54, 0.99);
+  --panel-border: rgba(90, 110, 255, 0.18);
   --text: #d0d4ff;
   --muted: #6878b8;
   --primary: #8bffb1;
   --primary-deep: #54c77d;
   --secondary: #5060b8;
   --secondary-soft: rgba(90, 110, 255, 0.10);
-  --surface-soft: rgba(90, 110, 255, 0.04);
-  --control-bg: rgba(6, 4, 18, 0.99);
+  --surface-soft: rgba(90, 110, 255, 0.05);
+  --control-bg: rgba(14, 10, 32, 0.99);
   --active-bg: #8bffb1;
   --active-fg: #010108;
-  --shadow: 0 18px 44px rgba(0, 0, 0, 0.80);
-  --input-bg: rgba(8, 6, 22, 0.99);
-  --output-bg: #000000;
+  --shadow: 0 18px 44px rgba(0, 0, 0, 0.75);
+  --input-bg: rgba(18, 14, 42, 0.99);
+  --output-bg: #080614;
   --output-text: #7888c8;
   --error: #ff6b8a;
   --accent: #ffffff;
@@ -132,7 +132,7 @@ html[data-theme="dark"] {
   background-color: #2f2a8a;
 }
 html[data-theme="oled"] {
-  background-color: #03020c;
+  background-color: #0c0a20;
 }
 html:has(#splash-screen) {
   overflow: hidden;
@@ -426,9 +426,8 @@ html[data-theme="light"] .main-toolbar .split-run-arrow {
 .current-file {
   margin: 0;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.8rem;
-  color: var(--primary);
-  font-weight: 500;
+  font-size: 0.65rem;
+  opacity: 0.65;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -604,7 +603,7 @@ h1 {
   display: grid;
   gap: 8px;
   padding: 10px;
-  border-radius: 14px;
+  border-radius: 8px;
   border: 1px solid color-mix(in srgb, var(--panel-border) 82%, transparent);
   background: color-mix(in srgb, var(--control-bg) 76%, transparent);
   align-content: start;
@@ -979,7 +978,7 @@ html[data-theme="oled"] .primary {
 
 .panel-heading p {
   margin: 4px 0 0;
-  font-size: 0.9rem;
+  font-size: 0.70rem;
 }
 
 .field,
@@ -1003,15 +1002,46 @@ html[data-theme="oled"] .primary {
 }
 
 .menu-checkbox-label input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-  accent-color: var(--primary, #3257c7);
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  width: 36px;
+  height: 20px;
+  min-height: unset;
   flex-shrink: 0;
+  cursor: pointer;
+  background: color-mix(in srgb, var(--secondary) 35%, transparent);
+  border-radius: 999px;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  transition: background 0.2s;
+  outline: none;
 }
 
-.menu-checkbox-label input[type="checkbox"]:focus {
-  outline: none;
+.menu-checkbox-label input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  transition: transform 0.2s;
+}
+
+.menu-checkbox-label input[type="checkbox"]:checked {
+  background: var(--accent);
+}
+
+.menu-checkbox-label input[type="checkbox"]:checked::after {
+  transform: translateX(16px);
+}
+
+.menu-checkbox-label input[type="checkbox"]:focus-visible {
+  box-shadow: 0 0 0 2px var(--accent);
 }
 
 .menu-note {
@@ -2302,7 +2332,7 @@ html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
   position: relative;
   height: 30px;
   width: 100%;
-  border-radius: 999px;
+  border-radius: 8px;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--panel-border) 85%, transparent);
   background: color-mix(in srgb, var(--panel-strong) 86%, transparent);
@@ -2314,6 +2344,8 @@ html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
 .memory-strip-overlays {
   position: absolute;
   inset: 0;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .memory-strip-base {
@@ -2723,6 +2755,7 @@ body.expert-mode .expert-panel {
   position: relative;
   background: color-mix(in srgb, var(--panel-strong) 90%, transparent);
   border-bottom: 1px solid var(--panel-border);
+  border-radius: 8px;
   flex-shrink: 0;
   margin-bottom: 18px;
 }
@@ -3272,10 +3305,8 @@ body.expert-mode .expert-panel {
   color: var(--text);
   pointer-events: none;
   overflow: hidden;
-  /* Shrink by scrollbar size so highlighted content never overlaps scrollbars.
-     Standard scrollbar width/height is ~15-17px; 20px is a safe value. */
-  right: 20px;
-  bottom: 20px;
+  right: 0;
+  bottom: 0;
   width: auto;
   height: auto;
   z-index: 0;
@@ -3937,6 +3968,7 @@ body.expert-mode .expert-panel {
 /* ── Operand custom dropdown ─────────────────────────────────────── */
 .operand-wrapper {
   position: relative;
+  width: 100%;
 }
 
 .operand-wrapper input {
@@ -3947,7 +3979,9 @@ body.expert-mode .expert-panel {
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
-  right: 0;
+  min-width: 100%;
+  width: max-content;
+  max-width: min(360px, 90vw);
   z-index: 50;
   background: var(--panel-strong);
   border: 1px solid var(--panel-border);

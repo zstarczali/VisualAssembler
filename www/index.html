@@ -575,7 +575,7 @@
 
   <dialog id="d64-export-dialog" class="d64-export-dialog">
     <div class="d64-export-card">
-      <h2 class="compile-error-title" id="d64-export-title">Export to D64</h2>
+      <h2 class="compile-error-title" id="d64-export-title">Build D64</h2>
       <div class="d64-export-row">
         <label class="d64-export-field">
           <span id="d64-export-diskname-label">Disk name (max 16)</span>
@@ -610,7 +610,7 @@
         <img src="assets/about-logo.png" alt="C64 Visual Assembler" width="160" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v1.4.4</p>
+      <p class="about-version" id="about-version">v1.6.0</p>
       <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
         dropping instruction blocks.</p>
       <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
@@ -622,31 +622,25 @@
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v1.5.1</p>
+      <p class="whats-new-version">v1.6.0</p>
       <ul class="whats-new-list">
         <li>
-          <strong>Bug fixes &amp; UI improvements</strong> — "New program" now shows a confirmation dialog before clearing. STRING and RAWTEXT descriptions corrected (screen codes, not PETSCII). Tonns of other small fixes.
+          <strong>Expert Mode</strong> — a full direct-text ASM editor alongside the block editor. Write 6502 assembly by hand with live syntax highlighting, real-time disassembly panel, block-mode palette sync, and a built-in source formatter. Switch between Block and Expert mode per-tab at any time.
         </li>
         <li>
-          <strong>Export to D64</strong> — assemble your program and export it directly to a .d64 disk image using VICE's c1541 tool. Add extra files (data, sprites, PRGs) to the same disk before export.
+          <strong>Tab bar &amp; project panel</strong> — open multiple programs in tabs. Each tab has its own program state and dirty indicator. The Expert mode project panel lets you manage multi-file <code>.proj</code> projects.
         </li>
         <li>
-          <strong>Run via D64</strong> — new split run button lets you choose between running as a plain PRG or packaging into a D64 and launching VICE directly from the disk image.
+          <strong>charOffset for TEXT / STRING macros</strong> — an optional byte offset added to every screen-code character. Use <code>$80</code> for reverse-video text.
         </li>
         <li>
-          <strong>LOADFILE macro</strong> — load a file from a D64 at runtime using C64 KERNAL SETNAM/SETLFS/LOAD routines. Supports optional override address and error-label (BCS) for error handling.
+          <strong>JSR to inline macros</strong> — <code>JSR macroName</code> now resolves correctly when the target is an inline <code>.macro</code> definition. The macro body is emitted as a real subroutine at its declared position.
         </li>
         <li>
-          <strong>LOADFILE demo sample</strong> — a ready-to-run example that loads DEMO-COLORS.PRG from a D64 at runtime and then cycles border and background colors.
+          <strong>UI polish</strong> — Apple-style toggle switches, animated run-mode dropdown, animated settings menu, 8 px border-radius on panels and memory strip, improved OLED theme brightness, full-width operand dropdown.
         </li>
         <li>
-          <strong>Run on hardware (C64 Ultimate)</strong> — send and run your assembled PRG directly on a 1541 Ultimate / Ultimate 64 device via its REST API. Configure host and password in Hardware Settings.
-        </li>
-        <li>
-          <strong>OLED theme</strong> — a new pure-black OLED theme for AMOLED screens. Select it from the new theme picker (Light / Dark / OLED).
-        </li>
-        <li>
-          <strong>D64 metadata in projects</strong> — disk name, program name, and extra file list are now saved into the project JSON so they are restored when the project or sample is reloaded.
+          <strong>Bug fixes</strong> — disassembler no longer shows <code>[error]</code> after <code>.include</code> blocks; file extension now shown in tab bar after save/load; expert editor no longer clips code on the right and bottom edges.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
