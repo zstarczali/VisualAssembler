@@ -317,6 +317,7 @@ let dragState = null;
 let _dndSrc = null;
 let _dndActive = false;
 let _dndGhost = null;
+let _copiedBlock = null;
 const defaultOrigin = 0x0801;
 let blockScale = 0.9;
 let currentLanguage = "en";
@@ -1533,9 +1534,19 @@ function initPalette() {
     markTabDirty();
     _expertValidate();
     renderExpertOriginInfo();
+    _expertAcUpdate();
   });
 
   expertEditor?.addEventListener("keydown", (e) => {
+    // Autocomplete navigation
+    if (_expertAcVisible()) {
+      if (e.key === "ArrowDown")  { e.preventDefault(); _expertAcMove(1);  return; }
+      if (e.key === "ArrowUp")    { e.preventDefault(); _expertAcMove(-1); return; }
+      if (e.key === "Enter" || e.key === "Tab") {
+        if (_expertAcCommit()) { e.preventDefault(); return; }
+      }
+      if (e.key === "Escape")     { _expertAcHide(); return; }
+    }
     if (e.key === "Tab") {
       e.preventDefault();
       const ta = expertEditor;
@@ -1555,6 +1566,7 @@ function initPalette() {
       expertHlCode.style.transform =
         `translate(${-expertEditor.scrollLeft}px, ${-expertEditor.scrollTop}px)`;
     }
+    _expertAcHide();
   });
   aboutCloseButton?.addEventListener("click", () => aboutDialog?.close());
   whatsNewButton?.addEventListener("click", () => {
@@ -1766,7 +1778,115 @@ function initPalette() {
   document.addEventListener("contextmenu", e => {
     const tag = e.target.tagName;
     if (tag !== "INPUT" && tag !== "TEXTAREA") e.preventDefault();
+    // Block context menu in block mode
+    if (!expertMode) {
+      const blockEl = e.target.closest(".asm-block");
+      if (blockEl && blockEl.dataset.index !== undefined) {
+        _showBlockCtxMenu(e, parseInt(blockEl.dataset.index, 10));
+      } else {
+        _hideBlockCtxMenu();
+      }
+    }
   });
+
+  // Close context menu on any click outside
+  document.addEventListener("click", e => {
+    if (!e.target.closest("#block-ctx-menu")) _hideBlockCtxMenu();
+  }, true);
+}
+
+function _showBlockCtxMenu(e, index) {
+  let menu = document.getElementById("block-ctx-menu");
+  if (!menu) {
+    menu = document.createElement("div");
+    menu.id = "block-ctx-menu";
+    menu.className = "block-ctx-menu";
+    document.body.appendChild(menu);
+  }
+  const block = program[index];
+  if (!block) return;
+  const hu = currentLanguage === "hu";
+  menu.innerHTML = `
+    <button class="block-ctx-item" data-action="copy">
+      <svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="4" y="4" width="9" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="2" y="2" width="9" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3" fill="var(--bg)"/></svg>
+      ${hu ? "Másolás" : "Copy"}
+    </button>
+    <button class="block-ctx-item" data-action="cut">
+      <svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity="0.5"/><circle cx="4" cy="12" r="2" stroke="currentColor" stroke-width="1.2"/><circle cx="12" cy="12" r="2" stroke="currentColor" stroke-width="1.2"/></svg>
+      ${hu ? "Kivágás" : "Cut"}
+    </button>
+    <button class="block-ctx-item${_copiedBlock ? "" : " block-ctx-item--disabled"}" data-action="paste-before">
+      <svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="3" y="5" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M6 5V3.5A0.5 0.5 0 016.5 3h3a0.5 0.5 0 01.5.5V5" stroke="currentColor" stroke-width="1.1"/><path d="M8 8v4M6 10h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      ${hu ? "Beillesztés elé" : "Paste before"}
+    </button>
+    <button class="block-ctx-item${_copiedBlock ? "" : " block-ctx-item--disabled"}" data-action="paste-after">
+      <svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="3" y="5" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M6 5V3.5A0.5 0.5 0 016.5 3h3a0.5 0.5 0 01.5.5V5" stroke="currentColor" stroke-width="1.1"/><path d="M8 8v4M6 10h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/></svg>
+      ${hu ? "Beillesztés után" : "Paste after"}
+    </button>
+    <button class="block-ctx-item" data-action="duplicate">
+      <svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="2" y="2" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3" fill="var(--bg)"/></svg>
+      ${hu ? "Duplikálás" : "Duplicate"}
+    </button>
+    <div class="block-ctx-sep"></div>
+    <button class="block-ctx-item block-ctx-item--danger" data-action="delete">
+      <svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M3 5h10M6 5V3.5A.5.5 0 016.5 3h3a.5.5 0 01.5.5V5M7 8v4M9 8v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><rect x="4" y="5" width="8" height="9" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
+      ${hu ? "Törlés" : "Delete"}
+    </button>
+  `;
+  menu.dataset.blockIndex = index;
+  menu.querySelectorAll(".block-ctx-item").forEach(btn => {
+    btn.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      if (btn.classList.contains("block-ctx-item--disabled")) return;
+      const action = btn.dataset.action;
+      const idx = parseInt(menu.dataset.blockIndex, 10);
+      _handleBlockCtxAction(action, idx);
+      _hideBlockCtxMenu();
+    });
+  });
+
+  // Position: render off-screen first to measure actual height
+  menu.style.visibility = "hidden";
+  menu.style.left = "0px";
+  menu.style.top  = "0px";
+  menu.removeAttribute("hidden");
+  const menuW = menu.offsetWidth || 180;
+  const menuH = menu.offsetHeight || 230;
+  let x = e.clientX, y = e.clientY;
+  if (x + menuW > window.innerWidth - 8) x = window.innerWidth - menuW - 8;
+  if (y + menuH > window.innerHeight - 8) y = window.innerHeight - menuH - 8;
+  if (x < 8) x = 8;
+  if (y < 8) y = 8;
+  menu.style.left = x + "px";
+  menu.style.top  = y + "px";
+  menu.style.visibility = "";
+}
+
+function _hideBlockCtxMenu() {
+  const menu = document.getElementById("block-ctx-menu");
+  if (menu) menu.setAttribute("hidden", "");
+}
+
+function _handleBlockCtxAction(action, index) {
+  const block = program[index];
+  if (!block) return;
+  if (action === "copy") {
+    _copiedBlock = JSON.parse(JSON.stringify(block));
+  } else if (action === "cut") {
+    _copiedBlock = JSON.parse(JSON.stringify(block));
+    deleteBlock(index);
+  } else if (action === "paste-before" && _copiedBlock) {
+    const fresh = { ...JSON.parse(JSON.stringify(_copiedBlock)), id: crypto.randomUUID() };
+    insertBlock(index, fresh);
+  } else if (action === "paste-after" && _copiedBlock) {
+    const fresh = { ...JSON.parse(JSON.stringify(_copiedBlock)), id: crypto.randomUUID() };
+    insertBlock(index + 1, fresh);
+  } else if (action === "duplicate") {
+    const fresh = { ...JSON.parse(JSON.stringify(block)), id: crypto.randomUUID() };
+    insertBlock(index + 1, fresh);
+  } else if (action === "delete") {
+    deleteBlock(index);
+  }
 }
 
 function applySavedLanguage() {
@@ -3625,6 +3745,215 @@ function _getExpertMnemCatMap() {
     for (const item of items) _expertMnemCatMap.set(item.mnemonic.toUpperCase(), cat);
   }
   return _expertMnemCatMap;
+}
+
+// ── Expert autocomplete ────────────────────────────────────────────────────────────────────────
+const _AC_DIRECTIVES = Object.keys(_DIRECTIVE_TO_MNEM).map(k => "."+k);
+
+const _AC_DIRECTIVE_DESC = {
+  ".org":"set origin", ".byte":"raw byte(s)", ".word":"16-bit value",
+  ".fill":"repeat bytes", ".align":"align boundary", ".text":"screen text macro",
+  ".string":"string at address", ".rawtext":"raw screen codes", ".rawbytes":"raw bytes at addr",
+  ".data":"data macro", ".incbin":"include binary", ".sid":"SID player macro",
+  ".include":"include file", ".loop":"loop start", ".next":"loop end",
+  ".push":"push registers", ".pull":"pop registers",
+  ".macro":"define macro", ".endm":"end macro", ".invoke":"call macro",
+  ".define":"define symbol", ".if":"conditional", ".else":"else branch", ".endif":"end if",
+  ".const":"constant", ".table":"lookup table", ".petscii":"PETSCII string",
+  ".loadfile":"load file KERNAL", ".sprite_init":"init sprite", ".sprite_pos":"set sprite pos",
+  ".wait_raster":"wait raster line", ".joystick":"joystick macro", ".sprite_col":"sprite collision",
+  ".region":"visual region", ".endregion":"end region"
+};
+
+let _acActive = -1;
+
+function _expertAcEl() {
+  let el = document.getElementById("expert-ac");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "expert-ac";
+    el.className = "expert-autocomplete";
+    el.setAttribute("hidden", "");
+    document.body.appendChild(el);
+  }
+  return el;
+}
+
+function _expertAcVisible() {
+  const el = document.getElementById("expert-ac");
+  return el && !el.hasAttribute("hidden");
+}
+
+function _expertAcHide() {
+  const el = document.getElementById("expert-ac");
+  if (el) el.setAttribute("hidden", "");
+  _acActive = -1;
+}
+
+function _expertAcMove(dir) {
+  const el = _expertAcEl();
+  const items = el.querySelectorAll(".expert-ac-item");
+  if (!items.length) return;
+  items[_acActive]?.classList.remove("active");
+  _acActive = (_acActive + dir + items.length) % items.length;
+  const next = items[_acActive];
+  next?.classList.add("active");
+  next?.scrollIntoView({ block: "nearest" });
+}
+
+function _expertAcCommit() {
+  const el = _expertAcEl();
+  const active = el.querySelector(".expert-ac-item.active");
+  const item = active || el.querySelector(".expert-ac-item");
+  if (!item) return false;
+  _expertAcInsert(item.dataset.value, item.dataset.kind);
+  return true;
+}
+
+function _expertAcInsert(value, kind) {
+  if (!expertEditor) return;
+  const ta = expertEditor;
+  const pos = ta.selectionStart;
+  const before = ta.value.slice(0, pos);
+  const after = ta.value.slice(pos);
+
+  let replaceFrom, replaceWith;
+  if (kind === "mnemonic" || kind === "label") {
+    // Replace the typed word — use ([\ s\S]*\s) to anchor at the whitespace before the word
+    // This avoids the greedy ([\ s\S]*) bug that only replaces the last character.
+    const wordRe = kind === "label"
+      ? /^([\s\S]*\s)([A-Za-z_]\w*)?$/
+      : /^([\s\S]*\s)([A-Za-z]{1,4})?$/;
+    const m = before.match(wordRe);
+    if (!m) return;
+    replaceFrom = m[1].length;
+    replaceWith = value + (kind === "label" ? "" : " ");
+  } else {
+    // Directive: replace from the last dot
+    const dotIdx = before.lastIndexOf(".");
+    if (dotIdx === -1) return;
+    replaceFrom = dotIdx;
+    replaceWith = value + " ";
+  }
+
+  ta.value = before.slice(0, replaceFrom) + replaceWith + after;
+  const newPos = replaceFrom + replaceWith.length;
+  ta.selectionStart = ta.selectionEnd = newPos;
+  _expertAcHide();
+  _expertApplyHighlight();
+  _expertValidate();
+  renderExpertOriginInfo();
+  markTabDirty();
+}
+
+function _expertAcUpdate() {
+  if (!expertEditor) return;
+  const ta = expertEditor;
+  const pos = ta.selectionStart;
+  const lineStart = ta.value.lastIndexOf("\n", pos - 1) + 1;
+  const lineText = ta.value.slice(lineStart, pos);
+
+  // Directive completion: line is optional whitespace + dot + optional word chars
+  const mDir = lineText.match(/^\s*(\.\w*)$/);
+  if (mDir) {
+    const typed = mDir[1].toLowerCase();
+    const matches = typed === "." ? _AC_DIRECTIVES
+      : _AC_DIRECTIVES.filter(d => d.startsWith(typed));
+    if (!matches.length) { _expertAcHide(); return; }
+    _expertAcShowList(matches.map(d => ({
+      value: d,
+      label: d,
+      desc: _AC_DIRECTIVE_DESC[d] || "",
+      kind: "directive"
+    })), ta, pos);
+    return;
+  }
+
+  // Mnemonic completion: line is optional whitespace + 1-4 uppercase/lowercase letters (no dot, no colon yet)
+  const mMnem = lineText.match(/^(\s+)([A-Za-z]{1,4})$/);
+  if (mMnem) {
+    const typed = mMnem[2].toUpperCase();
+    const mnems = [..._EXPERT_MNEM_SET].filter(m => m.startsWith(typed));
+    if (!mnems.length) { _expertAcHide(); return; }
+    mnems.sort();
+    _expertAcShowList(mnems.map(m => ({
+      value: m,
+      label: m,
+      desc: mnemonicDescriptionsEn[m] ? mnemonicDescriptionsEn[m].replace(/\.$/, "") : "",
+      kind: "mnemonic"
+    })), ta, pos);
+    return;
+  }
+
+  // Label completion: line is whitespace + mnemonic + whitespace + optional typed word (operand position)
+  // Triggers immediately after the space following the mnemonic, even before any letter is typed.
+  const mLabel = lineText.match(/^\s+[A-Za-z]{2,4}\s+([A-Za-z_]\w*)?$/);
+  if (mLabel !== null) {
+    const typed = mLabel[1] || "";
+    const allLabels = _expertGetLabels(ta.value);
+    const labels = typed ? allLabels.filter(l => l.startsWith(typed)) : allLabels;
+    if (!labels.length) { _expertAcHide(); return; }
+    _expertAcShowList(labels.map(l => ({
+      value: l,
+      label: l,
+      desc: "label",
+      kind: "label"
+    })), ta, pos);
+    return;
+  }
+
+  _expertAcHide();
+}
+
+function _expertGetLabels(src) {
+  const labels = [];
+  for (const line of src.split("\n")) {
+    const m = line.match(/^([A-Za-z_][A-Za-z0-9_]*):/);
+    if (m) labels.push(m[1]);
+  }
+  return labels;
+}
+
+function _expertAcShowList(items, ta, pos) {
+  const el = _expertAcEl();
+  _acActive = -1;
+  el.innerHTML = items.map(it =>
+    `<div class="expert-ac-item" data-value="${it.value}" data-kind="${it.kind}">` +
+    `<span class="expert-ac-item-kw">${it.label}</span>` +
+    (it.desc ? `<span class="expert-ac-item-desc">${it.desc}</span>` : "") +
+    `</div>`
+  ).join("");
+
+  el.querySelectorAll(".expert-ac-item").forEach(item => {
+    item.addEventListener("mousedown", ev => {
+      ev.preventDefault();
+      _expertAcInsert(item.dataset.value, item.dataset.kind);
+    });
+  });
+
+  // Position below the cursor line using textarea bounding rect
+  const taRect = ta.getBoundingClientRect();
+  const lineH = parseInt(window.getComputedStyle(ta).lineHeight) || 18;
+  const linesBeforeCursor = ta.value.slice(0, pos).split("\n").length - 1;
+  const paddingTop = parseInt(window.getComputedStyle(ta).paddingTop) || 0;
+  const caretTop = taRect.top + paddingTop + linesBeforeCursor * lineH - ta.scrollTop;
+  const caretBottom = caretTop + lineH;
+
+  el.style.visibility = "hidden";
+  el.removeAttribute("hidden");
+  const elW = el.offsetWidth || 220;
+  const elH = el.offsetHeight || 200;
+  el.setAttribute("hidden", "");
+  el.style.visibility = "";
+
+  let x = taRect.left + 8;
+  let y = caretBottom + 4;
+  if (x + elW > window.innerWidth - 8) x = window.innerWidth - elW - 8;
+  if (y + elH > window.innerHeight - 8) y = caretTop - elH - 2;
+  if (y < 8) y = 8;
+  el.style.left = x + "px";
+  el.style.top  = y + "px";
+  el.removeAttribute("hidden");
 }
 
 function _expertFormatSource() {
@@ -6301,6 +6630,7 @@ function getProjectPayload() {
   return {
     version: 1,
     app: "c64-visual-assembler",
+    expertText: expertMode && expertEditor ? expertEditor.value : undefined,
     program: program.map(block => {
       if (!block.isIncludeMacro) return block;
       const { includedBlocks, ...rest } = block;
@@ -7976,7 +8306,14 @@ async function loadProjectFromFile() {
   renderOutputMode();
   parseUserMacros();  // Parse any user-defined macros in the loaded project
   renderProgram();
-  if (expertMode) _expertSyncFromProgram();
+  if (expertMode) {
+    if (typeof projectData.expertText === "string") {
+      expertEditor.value = projectData.expertText;
+      expertEditor.dispatchEvent(new Event("input"));
+    } else {
+      _expertSyncFromProgram();
+    }
+  }
   saveUiSettings();
 
   if (emulatorStatus) {

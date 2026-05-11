@@ -4037,6 +4037,98 @@ body.expert-mode .expert-panel {
   color: var(--secondary);
 }
 
+.block-ctx-menu {
+  position: fixed;
+  z-index: 9999;
+  background: var(--panel-strong);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  box-shadow: 0 8px 28px color-mix(in srgb, black 22%, transparent);
+  padding: 6px;
+  min-width: 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.block-ctx-menu[hidden] { display: none; }
+
+.block-ctx-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  color: var(--text);
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: background 80ms ease;
+}
+.block-ctx-item:hover:not(.block-ctx-item--disabled) {
+  background: color-mix(in srgb, var(--secondary) 14%, transparent);
+}
+.block-ctx-item--disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.block-ctx-item--danger { color: #ff5f5f; }
+.block-ctx-item--danger:hover { background: color-mix(in srgb, #ff5f5f 12%, transparent); }
+
+.block-ctx-sep {
+  height: 1px;
+  background: var(--panel-border);
+  margin: 4px 6px;
+}
+
+.expert-autocomplete {
+  position: fixed;
+  z-index: 9998;
+  background: var(--panel-strong);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  box-shadow: 0 8px 28px color-mix(in srgb, black 22%, transparent);
+  padding: 5px;
+  min-width: 200px;
+  max-height: 260px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--secondary) 40%, transparent) transparent;
+}
+.expert-autocomplete[hidden] { display: none; }
+
+.expert-ac-item {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 11px;
+  border-radius: 7px;
+  font-size: 0.83rem;
+  font-family: "IBM Plex Mono", monospace;
+  cursor: pointer;
+  color: var(--text);
+  transition: background 60ms ease;
+  white-space: nowrap;
+}
+.expert-ac-item:hover,
+.expert-ac-item.active {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
+}
+.expert-ac-item-kw {
+  font-weight: 600;
+  color: var(--accent);
+}
+.expert-ac-item.active .expert-ac-item-kw { color: inherit; }
+.expert-ac-item-desc {
+  font-size: 0.74rem;
+  opacity: 0.6;
+  font-family: inherit;
+}
+
 /* ── CRT Retro Mode ──────────────────────────────────────────────── */
 #crt-overlay {
   display: none;
