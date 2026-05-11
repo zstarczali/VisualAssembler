@@ -379,7 +379,7 @@ const translations = {
     d64ErrorEmptyName: "Egy fajlhoz nincs nev megadva.",
     d64ErrorBadAddr: "Ervenytelen betoltesi cim a {name} fajlhoz (hex 0000-FFFF).",
     d64FilesLabel: "fajl",
-    d64ExportTitle: "Export D64-kent",
+    d64ExportTitle: "Build D64",
     d64ExportDiskName: "Lemez nev (max 16)",
     d64ExportProgName: "Program nev (max 16)",
     d64ExportExtrasTitle: "Tovabbi fajlok",
@@ -440,6 +440,7 @@ const translations = {
     ultimateSectionLabel: "C64 Ultimate",
     ultimateHostLabel: "Host (IP)",
     ultimatePasswordLabel: "Jelszó",
+    ultimatePasswordPlaceholder: "(opcionális)",
     ultimateConnectTest: "Kapcsolat tesztelése",
     ultimateConnecting: "Kapcsolódás...",
     ultimateConnected: "Csatlakozva",
@@ -525,7 +526,7 @@ const translations = {
     paletteSearchPlaceholder: "Kereses...",
     paletteSearchLabel: "Kereses",
     basicSysLabel: "BASIC SYS stub generálása",
-    expertModeLabel: "Expert mód (ASM szerkesztő)",
+    expertModeLabel: "Expert mode",
     collapseAll: "Osszes osszecsukasa",
     expandAll: "Osszes kinyitasa",
     collapse: "Osszecsukas",
@@ -709,7 +710,7 @@ const translations = {
     d64ErrorEmptyName: "An extra file has no name.",
     d64ErrorBadAddr: "Invalid load address for {name} (hex 0000-FFFF).",
     d64FilesLabel: "files",
-    d64ExportTitle: "Export to D64",
+    d64ExportTitle: "Build D64",
     d64ExportDiskName: "Disk name (max 16)",
     d64ExportProgName: "Program name (max 16)",
     d64ExportExtrasTitle: "Extra files",
@@ -770,6 +771,7 @@ const translations = {
     ultimateSectionLabel: "C64 Ultimate",
     ultimateHostLabel: "Host (IP)",
     ultimatePasswordLabel: "Password",
+    ultimatePasswordPlaceholder: "(optional)",
     ultimateConnectTest: "Test connection",
     ultimateConnecting: "Connecting...",
     ultimateConnected: "Connected",
@@ -856,7 +858,7 @@ const translations = {
     paletteSearchPlaceholder: "Search...",
     paletteSearchLabel: "Search",
     basicSysLabel: "Generate BASIC SYS stub",
-    expertModeLabel: "Expert mode (ASM editor)",
+    expertModeLabel: "Expert mode",
     collapseAll: "Collapse all",
     expandAll: "Expand all",
     collapse: "Collapse",
@@ -1367,7 +1369,6 @@ function initPalette() {
   document.querySelectorAll(".theme-option").forEach(btn => {
     btn.addEventListener("click", () => {
       setTheme(btn.dataset.themeOpt);
-      document.getElementById("theme-picker")?.removeAttribute("open");
     });
   });
   document.addEventListener("click", e => {
@@ -1426,6 +1427,7 @@ function initPalette() {
     saveUiSettings();
     renderEmulatorRunHint();
     renderOriginPreview();
+    renderExpertOriginInfo();
   });
 
   expertModeToggle?.addEventListener("change", () => {
@@ -1530,6 +1532,7 @@ function initPalette() {
   expertEditor?.addEventListener("input", () => {
     markTabDirty();
     _expertValidate();
+    renderExpertOriginInfo();
   });
 
   expertEditor?.addEventListener("keydown", (e) => {
@@ -1580,6 +1583,20 @@ function initPalette() {
   const controlMenu = document.querySelector(".control-menu");
   const controlMenuPanel = document.querySelector(".control-menu-panel");
   let menuClosing = false;
+
+  // Exposed helper so toolbar buttons outside the panel can also close with animation
+  window._closeControlMenu = function(onDone) {
+    if (!controlMenu?.open) { onDone?.(); return; }
+    if (menuClosing) { onDone?.(); return; }
+    menuClosing = true;
+    controlMenuPanel?.classList.add("menu-closing");
+    controlMenuPanel?.addEventListener("animationend", () => {
+      controlMenuPanel.classList.remove("menu-closing");
+      menuClosing = false;
+      controlMenu.removeAttribute("open");
+      onDone?.();
+    }, { once: true });
+  };
   controlMenu?.querySelector("summary")?.addEventListener("click", (e) => {
     if (menuClosing) return;
     if (controlMenu.open) {
@@ -1605,17 +1622,23 @@ function initPalette() {
 
   // Close menu when any button/link inside the panel is clicked
   controlMenuPanel?.addEventListener("click", (e) => {
-    const target = e.target.closest("button, a, .theme-option, .run-mode-item");
+    const target = e.target.closest("button, a, .run-mode-item");
     if (!target || !controlMenu.open) return;
+    // Don't close when interacting with the theme picker
+    if (e.target.closest("#theme-picker")) return;
     // Small delay so the button's own handler can fire first
     setTimeout(() => { controlMenu.removeAttribute("open"); }, 80);
   });
 
-  // Close menu when clicking outside of it
+  // Close menu when clicking outside of it (with closing animation)
+  // Only fires for clicks truly outside — toolbar buttons outside the menu
+  // use window._closeControlMenu() directly.
   document.addEventListener("click", (e) => {
     if (!controlMenu?.open) return;
     if (controlMenu.contains(e.target)) return;
-    controlMenu.removeAttribute("open");
+    // If target is a button that calls _closeControlMenu itself, skip
+    if (e.target.closest("[data-closes-menu]")) return;
+    window._closeControlMenu();
   });
 
   sampleSelect?.addEventListener("change", saveUiSettings);
@@ -1995,6 +2018,7 @@ function applyTranslations() {
     setText("#ultimate-section-label", t("ultimateSectionLabel"));
     setText("#ultimate-host-label", t("ultimateHostLabel"));
     setText("#ultimate-password-label", t("ultimatePasswordLabel"));
+    document.getElementById("ultimate-password")?.setAttribute("placeholder", t("ultimatePasswordPlaceholder"));
     setText("#ultimate-connect-test", t("ultimateConnectTest"));
     setText("#run-debugger .run-label", t("runInDebugger"));
     setText("#copy-asm", t("copyAsm"));
@@ -3525,7 +3549,7 @@ function setExpertMode(on) {
   document.body.classList.toggle("expert-mode", on);
   if (expertPanel) expertPanel.hidden = !on;
   if (expertModeToggle) expertModeToggle.checked = on;
-  if (on) _expertSyncFromProgram();
+  if (on) { _expertSyncFromProgram(); renderExpertOriginInfo(); }
   else renderProgram();
   saveUiSettings();
 }
@@ -3534,6 +3558,40 @@ function _expertSetStatus(text, type) {
   if (!expertStatus) return;
   expertStatus.textContent = text;
   expertStatus.className = "expert-status" + (type ? " expert-status--" + type : "");
+}
+
+function renderExpertOriginInfo() {
+  const el = document.getElementById("expert-origin-info");
+  if (!el) return;
+  const text = expertEditor ? expertEditor.value : "";
+  const useBasicSys = basicSysToggle ? basicSysToggle.checked : true;
+
+  // Find first * = $XXXX or * = XXXX directive (not in a comment)
+  let origin = null;
+  for (const line of text.split("\n")) {
+    const stripped = line.replace(/;.*$/, "").trim();
+    const m = stripped.match(/^\*\s*=\s*\$(\s*[0-9A-Fa-f]{1,4})\b/) ||
+              stripped.match(/^\*\s*=\s*(\d{1,5})\b/);
+    if (m) {
+      const isHex = stripped.includes("$");
+      origin = isHex ? parseInt(m[1].trim(), 16) : parseInt(m[1], 10);
+      break;
+    }
+  }
+  if (origin === null) origin = defaultOrigin;
+
+  if (!useBasicSys) {
+    el.textContent = `* = $${origin.toString(16).toUpperCase().padStart(4,"0")} (${origin}) ⚠ No BASIC SYS`;
+    el.className = "expert-origin-info expert-origin-info--warn";
+  } else {
+    // With BASIC SYS stub, show the actual SYS address
+    const rawOrigin = (origin === 0x0801) ? 0x080D : origin;
+    const stubDigits = String(rawOrigin).length;
+    const stubDataSize = 2 + 2 + 1 + stubDigits + 1 + 2;
+    const codeAddr = Math.max(rawOrigin, 0x0801 + stubDataSize);
+    el.textContent = `SYS ${codeAddr} ($${codeAddr.toString(16).toUpperCase().padStart(4,"0")})`;
+    el.className = "expert-origin-info";
+  }
 }
 
 /* ── Syntax highlight ─────────────────────────────────────────────── */
@@ -8027,9 +8085,12 @@ async function runInEmulator() {
 function buildAutostartPrgForEmulator() {
   if (expertMode) {
     const saved = program;
+    const savedUserMacros = userMacros;
     program = _expertBuildProgram();
+    parseUserMacros();
     const result = _buildAutostartPrgCore();
     program = saved;
+    userMacros = savedUserMacros;
     return result;
   }
   return _buildAutostartPrgCore();
@@ -9383,11 +9444,12 @@ function getProgramLayout(originOverride) {
       const invokeId = block.id;
       const localSuffix = "__m" + invokeId.replace(/-/g, "").slice(0, 8);
       // Collect local label names defined inside this macro body
-      const localLabels = new Set(
-        userMacros[macroName]
-          .filter(b => b.isLabel && b.labelName)
-          .map(b => b.labelName)
-      );
+      // Includes both explicit LABEL blocks AND loop labels (isLoopMacro.loopLabel)
+      // so that LOOP/NEXT labels inside macros are uniquified per-invocation.
+      const localLabels = new Set([
+        ...userMacros[macroName].filter(b => b.isLabel && b.labelName).map(b => b.labelName),
+        ...userMacros[macroName].filter(b => b.isLoopMacro && b.loopLabel).map(b => b.loopLabel)
+      ]);
       // Helper: replace local label references in a rawOperand string
       const rewriteOperand = (raw) => {
         if (!raw || !localLabels.size) return raw;

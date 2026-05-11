@@ -104,7 +104,7 @@
                 </label>
                 <label class="menu-checkbox-label">
                   <input type="checkbox" id="expert-mode-toggle">
-                  <span id="expert-mode-label">Expert mód (ASM szerkesztő)</span>
+                  <span id="expert-mode-label">Expert mode</span>
                 </label>
                 <button id="hardware-settings-btn" class="secondary" type="button">Hardver beállítások...</button>
                 <h3 class="control-menu-label control-menu-label--section" id="view-section-label">Nezet</h3>
@@ -391,6 +391,7 @@
         </div>
         <div class="expert-statusbar">
           <span id="expert-status" class="expert-status"></span>
+          <span id="expert-origin-info" class="expert-origin-info"></span>
           <span id="expert-cursor-pos" class="expert-cursor-pos">Ln 1, Col 1</span>
         </div>
       </section>
@@ -529,7 +530,7 @@
         <img src="assets/about-logo.png" alt="C64 Visual Assembler" width="160" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v1.6.0</p>
+      <p class="about-version" id="about-version">v1.6.1</p>
       <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
         dropping instruction blocks.</p>
       <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
@@ -541,8 +542,17 @@
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v1.6.0</p>
+      <p class="whats-new-version">v1.6.1</p>
       <ul class="whats-new-list">
+        <li>
+          <strong>Bug fixes &amp; polish</strong> — menu closes properly on outside click; About and Knowledge Base buttons no longer cause menu flash; theme picker stays open when selecting a theme; Expert mode label simplified.
+        </li>
+        <li>
+          <strong>INVOKE macro fix</strong> — user macros now compile correctly in Expert mode; LOOP labels inside <code>.invoke</code> expansions no longer collide.
+        </li>
+        <li>
+          <strong>Import fix</strong> — decimal byte lists (e.g. <code>13,147,13</code>) are now correctly detected as decimal when importing ASM text.
+        </li>
         <li>
           <strong>Expert Mode</strong> — a full direct-text ASM editor alongside the block editor. Write 6502 assembly by hand with live syntax highlighting, real-time disassembly panel, block-mode palette sync, and a built-in source formatter. Switch between Block and Expert mode per-tab at any time.
         </li>
@@ -698,7 +708,7 @@
           </label>
           <label class="field compact-field hw-field">
             <span id="ultimate-password-label">Jelszó</span>
-            <input id="ultimate-password" type="password" placeholder="(opcionális)" autocomplete="off">
+            <input id="ultimate-password" type="password" placeholder="(optional)" autocomplete="off">
           </label>
           <button id="ultimate-connect-test" class="secondary" type="button">Kapcsolat tesztelése</button>
           <p id="ultimate-status" class="menu-note"></p>

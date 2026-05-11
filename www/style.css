@@ -2977,12 +2977,27 @@ body.expert-mode .expert-panel {
   color: #5fcf80;
 }
 
+.expert-origin-info {
+  font-size: 0.78rem;
+  color: var(--secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  border-left: 1px solid var(--panel-border);
+  padding-left: 10px;
+}
+.expert-origin-info.expert-origin-info--warn {
+  color: #d97706;
+}
+
 .expert-cursor-pos {
   font-size: 0.78rem;
   color: var(--secondary);
   white-space: nowrap;
   flex-shrink: 0;
   font-variant-numeric: tabular-nums;
+  border-left: 1px solid var(--panel-border);
+  padding-left: 10px;
 }
 
 .expert-hl-toggle {
