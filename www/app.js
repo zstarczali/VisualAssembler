@@ -242,6 +242,7 @@ const originPreview = document.getElementById("origin-preview");
 const memoryMap = document.getElementById("memory-map");
 const memoryStrip = document.getElementById("memory-strip");
 const memoryStripTop = document.getElementById("memory-strip-top");
+const memoryOverlapBadge = document.getElementById("memory-overlap-badge");
 const mnemonicDescription = document.getElementById("mnemonic-description");
 const paletteList = document.getElementById("palette-list");
 const programList = document.getElementById("program-list");
@@ -488,6 +489,7 @@ const translations = {
     sample10Print: "10 PRINT - veletlen labirintus",
     sampleRasterIrqDemo: "Raszter IRQ demo (szin villogas)",
     sampleOverlappingRasterDemo: "Overlapping raszter csik demo",
+    sampleMemoryOverlapDemo: "Memoria atfedes demo",
     helpManual: "Kezikonyv",
     about: "Névjegy",
     knowledgeBase: "Tudásbázis",
@@ -641,6 +643,12 @@ const translations = {
     memorySensitive: "A program beleer ebbe az erzekeny tartomanyba.",
     memoryUsedRange: "Foglalt tartomany",
     memorySegmentStatusFree: "Szabad RAM",
+    memoryOverlapTitle: "Memoria atfedes",
+    memoryOverlapWarning: "Figyelem: teruletek atfednek!",
+    memoryOverlapSingle: "atfedes talalhato",
+    memoryOverlapMultiple: "atfedes talalhato",
+    memoryOverlapBytes: "byte atfedes",
+    memoryOverlapCode: "Kod",
     memoryAxisLabel: "Teljes C64 memoria csik",
     languageLabel: "Nyelv",
     sampleSrOnly: "Mintaprogram",
@@ -819,6 +827,7 @@ const translations = {
     sample10Print: "10 PRINT - random maze",
     sampleRasterIrqDemo: "Raster IRQ demo (color flashing)",
     sampleOverlappingRasterDemo: "Overlapping raster bars demo",
+    sampleMemoryOverlapDemo: "Memory overlap demo",
     helpManual: "Manual",
     about: "About",
     knowledgeBase: "Knowledge Base",
@@ -973,6 +982,12 @@ const translations = {
     memorySensitive: "The program overlaps this sensitive range.",
     memoryUsedRange: "Used range",
     memorySegmentStatusFree: "Free RAM",
+    memoryOverlapTitle: "Memory overlap",
+    memoryOverlapWarning: "Warning: regions overlap!",
+    memoryOverlapSingle: "overlap found",
+    memoryOverlapMultiple: "overlaps found",
+    memoryOverlapBytes: "byte overlap",
+    memoryOverlapCode: "Code",
     memoryAxisLabel: "Full C64 memory strip",
     sampleSrOnly: "Sample program",
     languageSrOnly: "Language",
@@ -2271,6 +2286,7 @@ function applyTranslations() {
   if (sampleOptions[22]) sampleOptions[22].textContent = t("sample10Print");
   if (sampleOptions[23]) sampleOptions[23].textContent = t("sampleRasterIrqDemo");
   if (sampleOptions[24]) sampleOptions[24].textContent = t("sampleOverlappingRasterDemo");
+  if (sampleOptions[25]) sampleOptions[25].textContent = t("sampleMemoryOverlapDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -3570,6 +3586,7 @@ function _blockToExpertLine(block) {
 // Sync expert editor from current program[] — call after loading a project/sample in expert mode
 function _expertSyncFromProgram() {
   if (!expertEditor) return;
+  _expertAcHide();
   const lines = program.map(_blockToExpertLine).join("\n");
   expertEditor.value = lines;
   _expertApplyHighlight();
@@ -4539,6 +4556,8 @@ function _expertValidate() {
           const result = compileLineBytes(line, labels);
           if (!result.ok) errors.push(result.error);
         }
+        // Update overlap badge and panel
+        renderMemoryMap(getMemoryUsage(layout));
         // Fall back to block-level validationError if compile found nothing
         if (!errors.length) {
           errors = layout.lines.filter(l => l.block?.validationError).map(l => l.block.validationError);
@@ -8307,6 +8326,7 @@ async function loadProjectFromFile() {
   parseUserMacros();  // Parse any user-defined macros in the loaded project
   renderProgram();
   if (expertMode) {
+    _expertAcHide();
     if (typeof projectData.expertText === "string") {
       expertEditor.value = projectData.expertText;
       expertEditor.dispatchEvent(new Event("input"));
@@ -10107,8 +10127,74 @@ function getMemoryUsage(layout = getProgramLayout()) {
     mergedOccupied,
     totalRamBytes,
     occupiedRamBytes,
-    freeRamBytes: Math.max(0, totalRamBytes - occupiedRamBytes)
+    freeRamBytes: Math.max(0, totalRamBytes - occupiedRamBytes),
+    overlaps: detectMemoryOverlaps(layout, deferredSections)
   };
+}
+
+function detectMemoryOverlaps(layout, deferredSections) {
+  // Build contiguous inline code regions (split at gaps/ORG jumps)
+  const codeRegions = [];
+  let runStart = null;
+  let runEnd = null;
+
+  for (const line of layout.lines) {
+    if (
+      line.conditionallySkipped ||
+      line.block._isSavedAddress ||
+      line.block._isRestoreAddress ||
+      line.block._isMacroInvokeHeader ||
+      line.block.isRawBytesMacro ||
+      line.block.isRawTextMacro ||
+      line.size === 0
+    ) continue;
+
+    const blockEnd = line.address + line.size - 1;
+    if (runStart === null) {
+      runStart = line.address;
+      runEnd = blockEnd;
+    } else if (line.address <= runEnd + 1) {
+      runEnd = Math.max(runEnd, blockEnd);
+    } else {
+      codeRegions.push({ address: runStart, end: runEnd, type: "code" });
+      runStart = line.address;
+      runEnd = blockEnd;
+    }
+  }
+  if (runStart !== null) {
+    codeRegions.push({ address: runStart, end: runEnd, type: "code" });
+  }
+
+  const labeledCode = codeRegions.map(r => ({
+    ...r,
+    label: `${t("memoryOverlapCode")} ${formatAddress(r.address)}\u2013${formatAddress(r.end)}`
+  }));
+
+  const deferredRegions = deferredSections
+    .filter(s => s.bytes.length > 0)
+    .map(s => ({ address: s.address, end: s.end, type: s.type, label: s.label }));
+
+  const allRegions = [...labeledCode, ...deferredRegions];
+
+  const overlaps = [];
+  for (let i = 0; i < allRegions.length; i++) {
+    for (let j = i + 1; j < allRegions.length; j++) {
+      const a = allRegions[i];
+      const b = allRegions[j];
+      const overlapStart = Math.max(a.address, b.address);
+      const overlapEnd = Math.min(a.end, b.end);
+      if (overlapStart <= overlapEnd) {
+        overlaps.push({
+          regionA: a,
+          regionB: b,
+          overlapStart,
+          overlapEnd,
+          bytes: overlapEnd - overlapStart + 1
+        });
+      }
+    }
+  }
+  return overlaps;
 }
 
 function escapeHtmlAttribute(value) {
@@ -10138,10 +10224,18 @@ function buildMemoryStripMarkup(usage) {
     return `<div class="memory-strip-overlay" style="left:${left}%;width:${width}%;" title="${escapeHtmlAttribute(range.label)}"></div>`;
   }).join("");
 
+  const overlapMarkup = (usage.overlaps || []).map((ov) => {
+    const left = (ov.overlapStart / totalBytes) * 100;
+    const width = (ov.bytes / totalBytes) * 100;
+    const title = `\u26a0 ${ov.bytes} ${t("memoryOverlapBytes")}: ${ov.regionA.label} \u2194 ${ov.regionB.label}`;
+    return `<div class="memory-strip-collision" style="left:${Math.max(0, left)}%;width:${Math.max(0.2, width)}%;" title="${escapeHtmlAttribute(title)}"></div>`;
+  }).join("");
+
   return `
     <div class="memory-strip-track">
       <div class="memory-strip-base">${segmentMarkup}</div>
       <div class="memory-strip-overlays">${overlayMarkup}</div>
+      ${overlapMarkup ? `<div class="memory-strip-collisions">${overlapMarkup}</div>` : ""}
     </div>
     <div class="memory-strip-axis">
       <span>$0000</span>
@@ -10150,8 +10244,8 @@ function buildMemoryStripMarkup(usage) {
   `;
 }
 
-function renderMemoryStrip() {
-  const usage = getMemoryUsage();
+function renderMemoryStrip(precomputedUsage) {
+  const usage = precomputedUsage || getMemoryUsage();
   const markup = buildMemoryStripMarkup(usage);
 
   if (!memoryStrip || !memoryStripTop) {
@@ -10161,10 +10255,50 @@ function renderMemoryStrip() {
   memoryStrip.innerHTML = markup;
 }
 
-function renderMemoryMap() {
-  const usage = getMemoryUsage();
+function renderMemoryMap(precomputedUsage) {
+  const usage = precomputedUsage || getMemoryUsage();
   const layout = usage.layout;
   memoryMap.innerHTML = "";
+
+  // Update the badge on the collapsed summary bar
+  if (memoryOverlapBadge) {
+    if (usage.overlaps.length > 0) {
+      memoryOverlapBadge.textContent = `\u26a0 ${usage.overlaps.length} ${usage.overlaps.length === 1 ? t("memoryOverlapSingle") : t("memoryOverlapMultiple")}`;
+      memoryOverlapBadge.removeAttribute("hidden");
+    } else {
+      memoryOverlapBadge.setAttribute("hidden", "");
+    }
+  }
+
+  // Overlap warning panel
+  if (usage.overlaps.length > 0) {
+    const overlapNode = document.createElement("details");
+    overlapNode.className = "memory-segment memory-overlap-panel";
+    overlapNode.open = true;
+    const count = usage.overlaps.length;
+    const countLabel = `${count} ${count === 1 ? t("memoryOverlapSingle") : t("memoryOverlapMultiple")}`;
+    const rows = usage.overlaps.map(ov =>
+      `<li class="memory-overlap-item">
+        <span class="memory-overlap-zone">${formatAddress(ov.overlapStart)}\u2013${formatAddress(ov.overlapEnd)}&nbsp;(${ov.bytes}&nbsp;byte)</span>
+        <span class="memory-overlap-parties">${escapeHtmlAttribute(ov.regionA.label)} \u2194 ${escapeHtmlAttribute(ov.regionB.label)}</span>
+      </li>`
+    ).join("");
+    overlapNode.innerHTML = `
+      <summary class="memory-meta is-overlap">
+        <span class="memory-title-group">
+          <strong>\u26a0\ufe0f ${t("memoryOverlapTitle")}</strong>
+          <small>${countLabel}</small>
+        </span>
+        <span class="memory-summary-side">
+          <small class="error-text">${t("memoryOverlapWarning")}</small>
+          <span class="memory-toggle-icon" aria-hidden="true"></span>
+        </span>
+      </summary>
+      <div class="memory-content">
+        <ul class="memory-overlap-list">${rows}</ul>
+      </div>`;
+    memoryMap.appendChild(overlapNode);
+  }
 
   memorySegments.forEach((segment) => {
     const segmentNode = document.createElement("details");
@@ -10209,7 +10343,7 @@ function renderMemoryMap() {
     memoryMap.appendChild(segmentNode);
   });
 
-  renderMemoryStrip();
+  renderMemoryStrip(usage);
 }
 
 function isRomOrIoSegment(segment) {
@@ -12672,6 +12806,9 @@ function renderAsmOutput() {
   }
 
   renderMonitorOutput(layout);
+
+  // Keep overlap badge and panel in sync on every ASM render (reuses layout)
+  renderMemoryMap(getMemoryUsage(layout));
 }
 
 function _buildMonitorText(layout) {
@@ -12965,6 +13102,10 @@ async function loadOverlappingRasterDemo() {
   await loadSampleFromFile("overlapping-raster-demo");
 }
 
+async function loadMemoryOverlapDemo() {
+  await loadSampleFromFile("memory-overlap-demo");
+}
+
 async function loadSidDirectDemo() {
   const ok = await loadSampleFromFile("sid-direct-demo");
   if (!ok) return;
@@ -13110,6 +13251,11 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "overlapping-raster-demo") {
     loadOverlappingRasterDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "memory-overlap-demo") {
+    loadMemoryOverlapDemo();
     return;
   }
 
