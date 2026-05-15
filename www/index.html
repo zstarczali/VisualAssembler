@@ -82,6 +82,7 @@
                     <option value="10-print">10 PRINT (veletlen labirintus)</option>
                     <option value="irq-demo">Raszter IRQ demo (szin villogas)</option>
                     <option value="overlapping-raster-demo">Overlapping raszter csik demo</option>
+                    <option value="memory-overlap-demo">Memoria atfedes demo</option>
                   </select>
                 </label>
                 <button id="load-sample" class="secondary" type="button">Betoltes</button>
@@ -104,7 +105,7 @@
                 </label>
                 <label class="menu-checkbox-label">
                   <input type="checkbox" id="expert-mode-toggle">
-                  <span id="expert-mode-label">Expert mód (ASM szerkesztő)</span>
+                  <span id="expert-mode-label">Expert mode</span>
                 </label>
                 <button id="hardware-settings-btn" class="secondary" type="button">Hardver beállítások...</button>
                 <h3 class="control-menu-label control-menu-label--section" id="view-section-label">Nezet</h3>
@@ -391,6 +392,7 @@
         </div>
         <div class="expert-statusbar">
           <span id="expert-status" class="expert-status"></span>
+          <span id="expert-origin-info" class="expert-origin-info"></span>
           <span id="expert-cursor-pos" class="expert-cursor-pos">Ln 1, Col 1</span>
         </div>
       </section>
@@ -399,7 +401,10 @@
 
     <details class="global-memory-panel">
       <summary class="global-memory-summary">
-        <span class="global-memory-title">Teljes C64 memoria</span>
+        <span class="global-memory-title-group">
+          <span class="global-memory-title">Teljes C64 memoria</span>
+          <span id="memory-overlap-badge" class="memory-overlap-badge" hidden></span>
+        </span>
         <span class="global-memory-toggle" aria-hidden="true"></span>
       </summary>
       <div class="global-memory-content">
@@ -442,7 +447,7 @@
         <button class="bp-toggle" type="button">&#9679;</button>
         <button class="move-up" type="button" aria-label="Fel" title="Fel">&#8593;</button>
         <button class="move-down" type="button" aria-label="Le" title="Le">&#8595;</button>
-        <button class="delete" type="button" aria-label="Torles" title="Torles">&#10005;</button>
+        <button class="delete" type="button" aria-label="Torles" title="Torles"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M3 5h10M6 5V3.5A.5.5 0 016.5 3h3a.5.5 0 01.5.5V5M7 8v4M9 8v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><rect x="4" y="5" width="8" height="9" rx="1" stroke="currentColor" stroke-width="1.2"/></svg></button>
       </div>
     </article>
   </template>
@@ -529,7 +534,7 @@
         <img src="assets/about-logo.png" alt="C64 Visual Assembler" width="160" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v1.6.0</p>
+      <p class="about-version" id="about-version">v1.6.1</p>
       <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
         dropping instruction blocks.</p>
       <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
@@ -541,25 +546,28 @@
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v1.6.0</p>
+      <p class="whats-new-version">v1.6.1</p>
       <ul class="whats-new-list">
         <li>
+          <strong>Cut / Copy / Paste blocks</strong> — select one or more blocks and cut or copy them to the clipboard. Paste inserts the blocks after the current selection. Works across tabs. Keyboard shortcuts: <code>Ctrl+X</code>, <code>Ctrl+C</code>, <code>Ctrl+V</code>.
+        </li>
+        <li>
+          <strong>Expert Mode — autocomplete</strong> — while typing in the Expert editor, a popup lists matching instructions, directives, and labels. Navigate with <code>↑↓</code>, confirm with <code>Tab</code> or <code>Enter</code>, dismiss with <code>Esc</code>.
+        </li>
+        <li>
+          <strong>Memory overlap detection</strong> — the Memory Map panel now detects when two memory regions overlap (e.g. inline code and a RAWBYTES section targeting the same address range). Overlapping zones are highlighted with a striped warning pattern on the memory strip, and a detailed list is shown at the top of the Memory Map.
+        </li>
+        <li>
+          <strong>Bug fixes &amp; polish</strong> — menu closes properly on outside click; About and Knowledge Base buttons no longer cause menu flash; theme picker stays open when selecting a theme; Expert mode label simplified.
+        </li>
+        <li>
+          <strong>INVOKE macro fix</strong> — user macros now compile correctly in Expert mode; LOOP labels inside <code>.invoke</code> expansions no longer collide.
+        </li>
+        <li>
+          <strong>Import fix</strong> — decimal byte lists (e.g. <code>13,147,13</code>) are now correctly detected as decimal when importing ASM text.
+        </li>
+        <li>
           <strong>Expert Mode</strong> — a full direct-text ASM editor alongside the block editor. Write 6502 assembly by hand with live syntax highlighting, real-time disassembly panel, block-mode palette sync, and a built-in source formatter. Switch between Block and Expert mode per-tab at any time.
-        </li>
-        <li>
-          <strong>Tab bar &amp; project panel</strong> — open multiple programs in tabs. Each tab has its own program state and dirty indicator. The Expert mode project panel lets you manage multi-file <code>.proj</code> projects.
-        </li>
-        <li>
-          <strong>charOffset for TEXT / STRING macros</strong> — an optional byte offset added to every screen-code character. Use <code>$80</code> for reverse-video text.
-        </li>
-        <li>
-          <strong>JSR to inline macros</strong> — <code>JSR macroName</code> now resolves correctly when the target is an inline <code>.macro</code> definition. The macro body is emitted as a real subroutine at its declared position.
-        </li>
-        <li>
-          <strong>UI polish</strong> — Apple-style toggle switches, animated run-mode dropdown, animated settings menu, 8 px border-radius on panels and memory strip, improved OLED theme brightness, full-width operand dropdown.
-        </li>
-        <li>
-          <strong>Bug fixes</strong> — disassembler no longer shows <code>[error]</code> after <code>.include</code> blocks; file extension now shown in tab bar after save/load; expert editor no longer clips code on the right and bottom edges.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -698,7 +706,7 @@
           </label>
           <label class="field compact-field hw-field">
             <span id="ultimate-password-label">Jelszó</span>
-            <input id="ultimate-password" type="password" placeholder="(opcionális)" autocomplete="off">
+            <input id="ultimate-password" type="password" placeholder="(optional)" autocomplete="off">
           </label>
           <button id="ultimate-connect-test" class="secondary" type="button">Kapcsolat tesztelése</button>
           <p id="ultimate-status" class="menu-note"></p>
