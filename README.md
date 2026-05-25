@@ -6,13 +6,6 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 
 ---
 
-
-## Screenshot
-
-> *Drag blocks from the left panel, arrange them in the center, and see live ASM output on the right.*
-
----
-
 ## Features
 
 - **Drag-and-drop block editor** — build programs by dragging mnemonic blocks into a list
