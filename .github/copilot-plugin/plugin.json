@@ -1,0 +1,14 @@
+{
+  "name": "c64-assembly-expert",
+  "description": "Reusable GitHub Copilot plugin for source-grounded Commodore 64 assembly help backed by local knowledge sources.",
+  "version": "0.2.0",
+  "author": {
+    "name": "rlung"
+  },
+  "license": "UNLICENSED",
+  "keywords": ["c64", "commodore-64", "6502", "6510", "assembly", "retro"],
+  "category": "developer-tools",
+  "tags": ["retro", "embedded", "low-level"],
+  "agents": "agents/",
+  "skills": "skills/"
+}

@@ -5856,6 +5856,17 @@ function buildOperandPreview(modeKey, rawValue, base) {
     return { operand: "", text: currentLanguage === "en" ? "no operand" : "operandus nelkul", error: "" };
   }
 
+  // * = current program counter (e.g. JMP *, JSR *, BNE *)
+  if (value === "*") {
+    const display = modeKey === "immediate" ? "#*"
+      : (modeKey === "absoluteX" || modeKey === "zeroPageX") ? "*,X"
+      : (modeKey === "absoluteY" || modeKey === "zeroPageY") ? "*,Y"
+      : (modeKey === "indirectX") ? "(*,X)"
+      : (modeKey === "indirectY") ? "(*),Y"
+      : "*";
+    return { operand: display, text: display, error: "" };
+  }
+
   if (!value) {
     return { operand: "", text: currentLanguage === "en" ? "missing operand" : "hianyzo operandus", error: currentLanguage === "en" ? "This addressing mode requires an operand." : "Ehhez a cimzesi modhoz operandus kell." };
   }
@@ -9175,7 +9186,12 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes, comment: `${block.mnemonic} ${block.operand || block.rawOperand}` };
   }
 
-  const operandValue = resolveNumericOperand(block, labels);
+  // Resolve * (current PC) to the instruction's own address
+  const resolveBlock = block.rawOperand.trim() === "*"
+    ? { ...block, rawOperand: line.address.toString(16).toUpperCase().padStart(4, "0"), base: "hex" }
+    : block;
+
+  const operandValue = resolveNumericOperand(resolveBlock, labels);
   if (!operandValue.ok) {
     return operandValue;
   }
@@ -9239,6 +9255,11 @@ function resolveNumericOperand(block, labels) {
 
 function resolveRelativeOperand(block, address, labels) {
   const raw = block.rawOperand.trim();
+
+  // * = current PC: branch to self → offset = -2
+  if (raw === "*") {
+    return { ok: true, value: 0xFE }; // -2 as unsigned byte
+  }
 
   if (labels.has(raw)) {
     const target = labels.get(raw);

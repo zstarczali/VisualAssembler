@@ -6,6 +6,17 @@ Tauri 2-alapú asztali alkalmazás, amely Commodore 64 6502 assembly programok v
 drag-and-drop szerkesztését teszi lehetővé. Nincs UI-framework — csak Vanilla JS, HTML, CSS.
 Backend: Rust (Tauri 2), frontend: Vanilla JS/HTML/CSS.
 
+## Plugin integráció (C64AssemblyExpert)
+
+Ez a repo beemelve tartalmazza a C64AssemblyExpert Copilot plugint.
+
+- Agent fájl: `.github/copilot-plugin/agents/c64-assembly-expert.agent.md`
+- Skill fájl: `.github/copilot-plugin/skills/c64-assembly-expert/SKILL.md`
+- Plugin meta: `.github/copilot-plugin/plugin.json`
+
+Ha a kérdés C64 assembly szakmai tudást igényel (VIC-II, SID, CIA, KERNAL, timing),
+akkor ezeket a beemelt plugin fájlokat is vedd figyelembe válaszadás előtt.
+
 ---
 
 ## Fájlszerkezet
