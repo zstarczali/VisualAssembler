@@ -2046,6 +2046,11 @@ html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
   min-width: 0;
 }
 
+/* REGION header has extra buttons in the topline — never clip them */
+.asm-block.region-header[data-collapsed="true"] .block-topline {
+  overflow: visible;
+}
+
 .asm-block[data-collapsed="true"] .block-main {
   display: flex;
   flex-direction: column;
@@ -4524,6 +4529,14 @@ body.crt-mode #crt-overlay::after {
   font-size: calc(0.72rem * var(--block-scale));
   line-height: 1;
   cursor: pointer;
+}
+
+.region-expand-all-btn:hover,
+.region-select-asm-btn:hover,
+.region-copy-btn:hover,
+.region-paste-btn:hover {
+  background: var(--secondary);
+  border-color: var(--secondary);
 }
 
 .asm-block.region-header .block-mnemonic {

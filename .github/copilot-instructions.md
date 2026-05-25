@@ -175,7 +175,7 @@ A `REGION` / `ENDREGION` blokk (`isRegionMacro: true` / `isEndRegionMacro: true`
   - **↕ Expand all** (`region-expand-all-btn`): kinyitja a régiót (ha zárva), majd minden gyermekblokk `collapsed = false` → `renderProgram()`
   - **⦵ Select in ASM** (`region-select-asm-btn`): megkeresi a párosított ENDREGION-t (depth-aware előre keresés `program[]`-ban), összerakja a `{ firstLine: asmBlockRanges[block.id].firstLine, lastLine: asmBlockRanges[endRegionBlock.id].lastLine }` tartományt, ASM tab-ra vált ha szükséges, majd ideiglenes `"__group_range__"` kulcson keresztül hívja `applyAsmHighlight()`-ot a teljes régió kiemelésére
   - **⧉ Copy** (`region-copy-btn`): depth-aware scan → `program.slice(index, endIndex+1)` → `_clipboardRegion = slice.map(b => ({...b, id: uuid()}))` ; ✓ flash visszajelzés; paste gomb opacity törlése
-  - **⎘ Paste** (`region-paste-btn`): `_clipboardRegion` ellenőrzés → depth-aware ENDREGION keresés → `insertAt = endIndex + 1` → `program.splice(insertAt, 0, ...toInsert)` → `renderProgram()` → `scrollIntoView` az új blokkra; gomb `opacity:0.4` ha clipboard üres
+  - **⎘ Paste** (`region-paste-btn`): `_clipboardRegion` ellenőrzés → depth-aware ENDREGION keresés → `insertAt = endIndex + 1` → `program.splice(insertAt, 0, ...toInsert)` → beillesztett REGION mindig `collapsed: false, regionCollapsed: false` (visible after paste) → `renderProgram()` → `scrollIntoView` az új blokkra; gomb `opacity:0.4` ha clipboard üres
 
 A `LOOP` makró (két blokk rendszer):
 - **LOOP blokk** (`isLoopMacro: true`): mezők: `loopReg` (`"X"` vagy `"Y"`), `loopCount` (hex byte pl. `"0A"`), `loopLabel` (string). Generál: `LDX/LDY #count` (2 byte), majd a label a `address+2`-re mutat (a body elejére). Az auto-label `loop1`, `loop2`… ha `loopLabel` üres.
