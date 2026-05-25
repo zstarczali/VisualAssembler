@@ -1332,14 +1332,29 @@ skip_filename:
 
 ### REU_CHECK
 
-Detects whether a Commodore RAM Expansion Unit (REU) is present by reading register `$DF00` and comparing it to `$FF`.
+Detects whether a Commodore RAM Expansion Unit (REU) is present by writing test values to writable REU register `$DF04` and reading them back.
 
-**Generated code (5 bytes):**
+**Generated code (34 bytes):**
 ```
-AD F8 DF   LDA $DFF8
-C9 FF      CMP #$FF
+LDA #$55
+STA $DF04
+LDA $DF04
+CMP #$55
+BNE fail
+LDA #$AA
+STA $DF04
+LDA $DF04
+CMP #$AA
+BNE fail
+LDA #$00
+CMP #$FF   ; Z=0 => REU present
+BNE done
+fail:
+LDA #$FF
+CMP #$FF   ; Z=1 => no REU
+done:
 ```
-> The actual detection reads `$DFF8` (REU status); if the value is not `$FF`, a REU is present.
+> The macro normalizes the result so the following branch stays simple: `BNE` means REU present, `BEQ` means REU missing.
 
 **Result in flags:**
 - **Z = 0** (result ≠ 0) → REU present → use `BNE`
@@ -1363,9 +1378,9 @@ Performs a block DMA transfer between C64 RAM and a Commodore REU using the REU'
 
 | Macro | Direction | `$DF01` command |
 |-------|-----------|-----------------|
-| `REU_STASH` | C64 RAM → REU | `$91` |
-| `REU_FETCH` | REU → C64 RAM | `$92` |
-| `REU_SWAP`  | C64 RAM ↔ REU | `$93` |
+| `REU_STASH` | C64 RAM → REU | `$90` |
+| `REU_FETCH` | REU → C64 RAM | `$91` |
+| `REU_SWAP`  | C64 RAM ↔ REU | `$92` |
 
 **Fields:**
 
@@ -1387,10 +1402,10 @@ LDA #lenLo    STA $DF07    ; length LO
 LDA #lenHi    STA $DF08    ; length HI
 LDA #$00      STA $DF09    ; address control (fixed)
 LDA #$00      STA $DF0A    ; interrupt mask (fixed)
-LDA #cmd      STA $DF01    ; execute DMA ($91/$92/$93)
+LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immediate)
 ```
 
-> **Note:** Writing to `$DF01` triggers the DMA immediately. The C64 CPU is halted while the transfer runs.
+> **Note:** Immediate DMA uses command values with bit 4 set (`$90/$91/$92`), which disables FF00-triggered mode. Writing to `$DF01` then starts the DMA immediately while the C64 CPU is halted during the transfer.
 
 ---
 

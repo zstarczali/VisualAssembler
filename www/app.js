@@ -175,10 +175,10 @@ const mnemonicLibrary = {
     { mnemonic: "MOUSE", description: "C64 1351 arányos egér vezérlése: SID POTX/POTY olvasás, delta számítás, sprite pozíció frissítés. 37 byte inline.", modes: ["implied"], isMouseMacro: true },
     { mnemonic: "SPRITE_COL", description: "Sprite utkozes detektalas: LDA $D01E/$D01F + AND #bitMask. Eredmeny A-ban: nem nulla = utkozes. Utana BEQ/BNE-vel ugri. 5 byte.", modes: ["implied"], isSpriteColMacro: true },
     { mnemonic: "LOADFILE", description: "Fajl betoltese D64-rol KERNAL SETNAM/SETLFS/LOAD rutinokkal. Cim opcionalis (ures = fajl sajat cime, sec=1; kitoltve = override, sec=0). Hiba cimke opcionalis (BCS).", modes: ["implied"], isLoadFileMacro: true },
-    { mnemonic: "REU_CHECK", description: "REU (RAM bovito egyseg) jelenletenek ellenorzese: LDA $DF00 / CMP #$FF. Z=0 → REU jelen van (BNE-vel ugri), Z=1 → nincs REU (BEQ-vel ugri). 5 byte.", modes: ["implied"], isReuCheckMacro: true },
-    { mnemonic: "REU_STASH", description: "C64 RAM → REU mentes: C64 cim, REU cim/bank es hossz beallitasa ($DF02-$DF08), majd $91 parancs → $DF01. 40 byte inline.", modes: ["implied"], isReuTransferMacro: true },
-    { mnemonic: "REU_FETCH", description: "REU → C64 RAM betoltes: C64 cim, REU cim/bank es hossz beallitasa ($DF02-$DF08), majd $92 parancs → $DF01. 40 byte inline.", modes: ["implied"], isReuTransferMacro: true },
-    { mnemonic: "REU_SWAP", description: "C64 RAM ↔ REU csere: C64 cim, REU cim/bank es hossz beallitasa ($DF02-$DF08), majd $93 parancs → $DF01. 40 byte inline.", modes: ["implied"], isReuTransferMacro: true },
+    { mnemonic: "REU_CHECK", description: "REU (RAM bovito egyseg) jelenletenek ellenorzese: $DF04 write/read proba $55 es $AA mintaval. Z=0 → REU jelen van (BNE-vel ugri), Z=1 → nincs REU (BEQ-vel ugri). 34 byte.", modes: ["implied"], isReuCheckMacro: true },
+    { mnemonic: "REU_STASH", description: "C64 RAM → REU mentes: C64 cim, REU cim/bank es hossz beallitasa ($DF02-$DF08), majd $90 parancs → $DF01 (execute + stash, azonnali DMA). 40 byte inline.", modes: ["implied"], isReuTransferMacro: true },
+    { mnemonic: "REU_FETCH", description: "REU → C64 RAM betoltes: C64 cim, REU cim/bank es hossz beallitasa ($DF02-$DF08), majd $91 parancs → $DF01 (execute + fetch, azonnali DMA). 40 byte inline.", modes: ["implied"], isReuTransferMacro: true },
+    { mnemonic: "REU_SWAP", description: "C64 RAM ↔ REU csere: C64 cim, REU cim/bank es hossz beallitasa ($DF02-$DF08), majd $92 parancs → $DF01 (execute + swap, azonnali DMA). 40 byte inline.", modes: ["implied"], isReuTransferMacro: true },
     { mnemonic: "TURBO_SET", description: "U64 Turbo mod beallitasa: $D031-be irja a sebessegi indexet (0-15) es a badline vezerlest (bit7). LDA #ertek + STA $D031, 5 byte.", modes: ["implied"], isTurboSetMacro: true },
     { mnemonic: "SUPERCPU_DETECT", description: "CMD SuperCPU jelenletenek ellenorzese: LDA $D0B8 / CMP #$FF. Z=0 → SuperCPU jelen (BNE-vel ugri), Z=1 → nincs (BEQ-vel ugri). 5 byte.", modes: ["implied"], isSuperCpuDetectMacro: true },
     { mnemonic: "TURBO_ENABLE", description: "CMD SuperCPU turbo be/ki: BE → LDA #$00 / STA $D07A, KI → LDA #$00 / STA $D07B. 5 byte.", modes: ["implied"], isTurboEnableMacro: true },
@@ -501,6 +501,8 @@ const translations = {
     sampleRasterIrqDemo: "Raszter IRQ demo (szin villogas)",
     sampleOverlappingRasterDemo: "Overlapping raszter csik demo",
     sampleMemoryOverlapDemo: "Memoria atfedes demo",
+    sampleRandLinesDemo: "Veletlen vonalak demo",
+    sampleReuDemo: "REU demo",
     helpManual: "Kezikonyv",
     about: "Névjegy",
     knowledgeBase: "Tudásbázis",
@@ -529,6 +531,7 @@ const translations = {
     projAddFileHint: "Adj hozzá fájlt a + gombbal",
     projRegions: "Régiók",
     projMacros: "Makrók",
+    projLabels: "Labelek",
     projOpened: "Projekt megnyitva",
     projSaved: "Projekt mentve",
     projError: "Projekt hiba",
@@ -844,6 +847,8 @@ const translations = {
     sampleRasterIrqDemo: "Raster IRQ demo (color flashing)",
     sampleOverlappingRasterDemo: "Overlapping raster bars demo",
     sampleMemoryOverlapDemo: "Memory overlap demo",
+    sampleRandLinesDemo: "Random lines demo",
+    sampleReuDemo: "REU demo",
     helpManual: "Manual",
     about: "About",
     knowledgeBase: "Knowledge Base",
@@ -873,6 +878,7 @@ const translations = {
     projAddFileHint: "Add files with the + button",
     projRegions: "Regions",
     projMacros: "Macros",
+    projLabels: "Labels",
     projOpened: "Project opened",
     projSaved: "Project saved",
     projError: "Project error",
@@ -1243,10 +1249,10 @@ const mnemonicDescriptionsEn = {
   REGION: "Group blocks into a collapsible named section. Close with ENDREGION.",
   ENDREGION: "End of a REGION section.",
   ORG: "Set the origin address (*= directive). The following blocks are assembled starting from this address.",
-  REU_CHECK: "Check if a RAM Expansion Unit (REU) is present: LDA $DF00 / CMP #$FF. Z=0 → REU present (use BNE), Z=1 → no REU (use BEQ). 5 bytes.",
-  REU_STASH: "C64 RAM → REU transfer (save): sets C64 address, REU address/bank and length in $DF02–$DF08, then writes command $91 to $DF01. 40 bytes inline.",
-  REU_FETCH: "REU → C64 RAM transfer (load): sets C64 address, REU address/bank and length in $DF02–$DF08, then writes command $92 to $DF01. 40 bytes inline.",
-  REU_SWAP: "C64 RAM ↔ REU swap: sets C64 address, REU address/bank and length in $DF02–$DF08, then writes command $93 to $DF01. 40 bytes inline.",
+  REU_CHECK: "Check if a RAM Expansion Unit (REU) is present using a $DF04 write/read probe with $55 and $AA patterns. Z=0 → REU present (use BNE), Z=1 → no REU (use BEQ). 34 bytes.",
+  REU_STASH: "C64 RAM → REU transfer (save): sets C64 address, REU address/bank and length in $DF02–$DF08, then writes command $90 to $DF01 (execute + stash, immediate DMA). 40 bytes inline.",
+  REU_FETCH: "REU → C64 RAM transfer (load): sets C64 address, REU address/bank and length in $DF02–$DF08, then writes command $91 to $DF01 (execute + fetch, immediate DMA). 40 bytes inline.",
+  REU_SWAP: "C64 RAM ↔ REU swap: sets C64 address, REU address/bank and length in $DF02–$DF08, then writes command $92 to $DF01 (execute + swap, immediate DMA). 40 bytes inline.",
   TURBO_SET: "Set U64 turbo speed: writes speed index (0–15) and badline control (bit 7) to $D031. LDA #value + STA $D031, 5 bytes. Speed 0=1 MHz … 7=10 MHz … 15=48 MHz (U64) / 64 MHz (U64E2).",
   SUPERCPU_DETECT: "Detect CMD SuperCPU presence: LDA $D0B8 / CMP #$FF. Z=0 → SuperCPU present (use BNE), Z=1 → not found (use BEQ). 5 bytes.",
   TURBO_ENABLE: "CMD SuperCPU turbo on/off: ON → LDA #$00 / STA $D07A, OFF → LDA #$00 / STA $D07B. 5 bytes."
@@ -1862,27 +1868,29 @@ function _showBlockCtxMenu(e, index) {
   }
   const block = program[index];
   if (!block) return;
+  const isRegion = block.isRegionMacro;
+  const isCopiedRegion = Array.isArray(_copiedBlock);
   const hu = currentLanguage === "hu";
   menu.innerHTML = `
     <button class="block-ctx-item" data-action="copy">
       <svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="4" y="4" width="9" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="2" y="2" width="9" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3" fill="var(--bg)"/></svg>
-      ${hu ? "Másolás" : "Copy"}
+      ${isRegion ? (hu ? "Régió másolása" : "Copy region") : (hu ? "Másolás" : "Copy")}
     </button>
     <button class="block-ctx-item" data-action="cut">
       <svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity="0.5"/><circle cx="4" cy="12" r="2" stroke="currentColor" stroke-width="1.2"/><circle cx="12" cy="12" r="2" stroke="currentColor" stroke-width="1.2"/></svg>
-      ${hu ? "Kivágás" : "Cut"}
+      ${isRegion ? (hu ? "Régió kivágása" : "Cut region") : (hu ? "Kivágás" : "Cut")}
     </button>
     <button class="block-ctx-item${_copiedBlock ? "" : " block-ctx-item--disabled"}" data-action="paste-before">
       <svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="3" y="5" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M6 5V3.5A0.5 0.5 0 016.5 3h3a0.5 0.5 0 01.5.5V5" stroke="currentColor" stroke-width="1.1"/><path d="M8 8v4M6 10h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-      ${hu ? "Beillesztés elé" : "Paste before"}
+      ${isCopiedRegion ? (hu ? "Régió beillesztése elé" : "Paste region before") : (hu ? "Beillesztés elé" : "Paste before")}
     </button>
     <button class="block-ctx-item${_copiedBlock ? "" : " block-ctx-item--disabled"}" data-action="paste-after">
       <svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="3" y="5" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M6 5V3.5A0.5 0.5 0 016.5 3h3a0.5 0.5 0 01.5.5V5" stroke="currentColor" stroke-width="1.1"/><path d="M8 8v4M6 10h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/></svg>
-      ${hu ? "Beillesztés után" : "Paste after"}
+      ${isCopiedRegion ? (hu ? "Régió beillesztése után" : "Paste region after") : (hu ? "Beillesztés után" : "Paste after")}
     </button>
     <button class="block-ctx-item" data-action="duplicate">
       <svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="2" y="2" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3" fill="var(--bg)"/></svg>
-      ${hu ? "Duplikálás" : "Duplicate"}
+      ${isRegion ? (hu ? "Régió duplikálása" : "Duplicate region") : (hu ? "Duplikálás" : "Duplicate")}
     </button>
     <div class="block-ctx-sep"></div>
     <button class="block-ctx-item block-ctx-item--danger" data-action="delete">
@@ -1927,20 +1935,99 @@ function _hideBlockCtxMenu() {
 function _handleBlockCtxAction(action, index) {
   const block = program[index];
   if (!block) return;
+
+  // Find the matching ENDREGION index for a REGION at startIdx (depth-aware)
+  function _regionEndIdx(startIdx) {
+    let depth = 0;
+    for (let i = startIdx; i < program.length; i++) {
+      const b = program[i];
+      if (b.isRegionMacro || b.mnemonic === "REGION") depth++;
+      else if (b.isEndRegionMacro || b.mnemonic === "ENDREGION") { if (--depth === 0) return i; }
+    }
+    return -1;
+  }
+
+  // Build a deep-copied slice of REGION + children + ENDREGION
+  function _regionGroupCopy(startIdx) {
+    const endIdx = _regionEndIdx(startIdx);
+    const src = endIdx === -1
+      ? [program[startIdx], _importMakeEndRegion()]
+      : program.slice(startIdx, endIdx + 1);
+    return JSON.parse(JSON.stringify(src));
+  }
+
+  // Produce fresh blocks with new IDs; renames the top REGION to avoid name collision
+  function _freshCopy(source) {
+    const arr = Array.isArray(source) ? source : [source];
+    const toInsert = arr.map(b => ({ ...JSON.parse(JSON.stringify(b)), id: crypto.randomUUID() }));
+    if (toInsert.length > 0 && toInsert[0].isRegionMacro) {
+      const origName = toInsert[0].regionName || "region";
+      let newName = `copy of ${origName}`;
+      let counter = 2;
+      while (program.some(b => b.isRegionMacro && b.regionName === newName)) {
+        newName = `copy of ${origName} ${counter++}`;
+      }
+      toInsert[0].regionName = newName;
+      toInsert[0].regionCollapsed = false;
+      toInsert[0].collapsed = false;
+    }
+    return toInsert;
+  }
+
   if (action === "copy") {
-    _copiedBlock = JSON.parse(JSON.stringify(block));
+    _copiedBlock = block.isRegionMacro ? _regionGroupCopy(index) : JSON.parse(JSON.stringify(block));
+
   } else if (action === "cut") {
-    _copiedBlock = JSON.parse(JSON.stringify(block));
-    deleteBlock(index);
-  } else if (action === "paste-before" && _copiedBlock) {
-    const fresh = { ...JSON.parse(JSON.stringify(_copiedBlock)), id: crypto.randomUUID() };
-    insertBlock(index, fresh);
-  } else if (action === "paste-after" && _copiedBlock) {
-    const fresh = { ...JSON.parse(JSON.stringify(_copiedBlock)), id: crypto.randomUUID() };
-    insertBlock(index + 1, fresh);
+    if (block.isRegionMacro) {
+      const endIdx = _regionEndIdx(index);
+      _copiedBlock = _regionGroupCopy(index);
+      const count = endIdx === -1 ? 1 : endIdx - index + 1;
+      markTabDirty();
+      program.splice(index, count);
+      parseUserMacros();
+      renderProgram();
+    } else {
+      _copiedBlock = JSON.parse(JSON.stringify(block));
+      deleteBlock(index);
+    }
+
+  } else if ((action === "paste-before" || action === "paste-after") && _copiedBlock) {
+    let insertAt;
+    if (action === "paste-before") {
+      insertAt = index;
+    } else {
+      // When pasting after a REGION block, skip past its ENDREGION so the content
+      // lands after the entire region (not hidden inside a collapsed region)
+      if (block.isRegionMacro || block.mnemonic === "REGION") {
+        const endIdx = _regionEndIdx(index);
+        insertAt = endIdx === -1 ? program.length : endIdx + 1;
+      } else {
+        insertAt = index + 1;
+      }
+    }
+    if (Array.isArray(_copiedBlock)) {
+      const toInsert = _freshCopy(_copiedBlock);
+      markTabDirty();
+      toInsert.forEach((b, i) => program.splice(insertAt + i, 0, b));
+      parseUserMacros();
+      renderProgram();
+    } else {
+      insertBlock(insertAt, _freshCopy(_copiedBlock)[0]);
+    }
+
   } else if (action === "duplicate") {
-    const fresh = { ...JSON.parse(JSON.stringify(block)), id: crypto.randomUUID() };
-    insertBlock(index + 1, fresh);
+    if (block.isRegionMacro) {
+      const endIdx = _regionEndIdx(index);
+      const insertAt = endIdx === -1 ? index + 1 : endIdx + 1;
+      const toInsert = _freshCopy(_regionGroupCopy(index));
+      markTabDirty();
+      toInsert.forEach((b, i) => program.splice(insertAt + i, 0, b));
+      parseUserMacros();
+      renderProgram();
+    } else {
+      insertBlock(index + 1, _freshCopy(block)[0]);
+    }
+
   } else if (action === "delete") {
     deleteBlock(index);
   }
@@ -2336,6 +2423,8 @@ function applyTranslations() {
   if (sampleOptions[23]) sampleOptions[23].textContent = t("sampleRasterIrqDemo");
   if (sampleOptions[24]) sampleOptions[24].textContent = t("sampleOverlappingRasterDemo");
   if (sampleOptions[25]) sampleOptions[25].textContent = t("sampleMemoryOverlapDemo");
+  if (sampleOptions[26]) sampleOptions[26].textContent = t("sampleRandLinesDemo");
+  if (sampleOptions[27]) sampleOptions[27].textContent = t("sampleReuDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -2721,14 +2810,16 @@ function renderPaletteItems() {
   _highlightActivePaletteItem();
 }
 
-function _syncPaletteToBlock(blockId) {
+function _syncPaletteToBlock(blockId, force = false) {
   if (expertMode) return;
-  if (!blockPaletteSync) return;
+  if (!blockPaletteSync && !force) return;
   if (paletteSearchInput && paletteSearchInput.value.trim()) return; // don't override search
   const block = program.find(b => b.id === blockId);
-  if (!block || !block.category || !mnemonicLibrary[block.category]) return;
-  if (categorySelect.value !== block.category) {
-    categorySelect.value = block.category;
+  if (!block) return;
+  const paletteCategory = _importMnemonicCategory(block.mnemonic);
+  if (!paletteCategory || !mnemonicLibrary[paletteCategory]) return;
+  if (categorySelect.value !== paletteCategory) {
+    categorySelect.value = paletteCategory;
     syncMnemonicMenu(); // re-renders palette + calls _highlightActivePaletteItem at end
   } else {
     _highlightActivePaletteItem();
@@ -3692,7 +3783,19 @@ function addSelectedBlock() {
       const idx = program.findIndex(b => b.id === selectedBlockId);
       if (idx !== -1) insertIndex = idx + 1;
     }
-    insertBlock(insertIndex, createBlockFromMnemonic(selected));
+    const newBlock = createBlockFromMnemonic(selected);
+    insertBlock(insertIndex, newBlock);
+    // Always track the newly inserted block in the palette, regardless of blockPaletteSync toggle
+    selectedBlockId = newBlock.id;
+    _syncPaletteToBlock(newBlock.id, true);
+    requestAnimationFrame(() => {
+      document.querySelectorAll(".asm-block--selected").forEach(el => el.classList.remove("asm-block--selected"));
+      const blockNode = programList.querySelector(`[data-block-id="${newBlock.id}"]`);
+      if (blockNode) {
+        blockNode.classList.add("asm-block--selected");
+        blockNode.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+    });
   }
 }
 
@@ -3939,8 +4042,9 @@ const _DIRECTIVE_TO_MNEM = {
   loop:"LOOP", next:"NEXT", push:"PUSH", pull:"PULL",
   macro:"MACRO", endm:"ENDM", invoke:"INVOKE",
   sprite_init:"SPRITE_INIT", sprite_pos:"SPRITE_POS", wait_raster:"WAIT_RASTER",
-  joystick:"JOYSTICK", sprite_col:"SPRITE_COL", turbo_set:"TURBO_SET",
+  joystick:"JOYSTICK", mouse:"MOUSE", sprite_col:"SPRITE_COL", turbo_set:"TURBO_SET",
   supercpu_detect:"SUPERCPU_DETECT", turbo_enable:"TURBO_ENABLE",
+  reu_check:"REU_CHECK", reu_stash:"REU_STASH", reu_fetch:"REU_FETCH", reu_swap:"REU_SWAP",
   define:"DEFINE", if:"IF", else:"ELSE", endif:"ENDIF", const:"CONST", org:"ORG",
   region:"REGION", endregion:"ENDREGION"
 };
@@ -3970,10 +4074,11 @@ const _AC_DIRECTIVE_DESC = {
   ".define":"define symbol", ".if":"conditional", ".else":"else branch", ".endif":"end if",
   ".const":"constant", ".table":"lookup table", ".petscii":"PETSCII string",
   ".loadfile":"load file KERNAL", ".sprite_init":"init sprite", ".sprite_pos":"set sprite pos",
-  ".wait_raster":"wait raster line", ".joystick":"joystick macro", ".sprite_col":"sprite collision",
+  ".wait_raster":"wait raster line", ".joystick":"joystick macro", ".mouse":"1351 mouse macro", ".sprite_col":"sprite collision",
   ".turbo_set":"U64 turbo speed",
   ".supercpu_detect":"detect SuperCPU",
   ".turbo_enable":"SuperCPU turbo on/off",
+  ".reu_check":"detect REU", ".reu_stash":"C64→REU DMA", ".reu_fetch":"REU→C64 DMA", ".reu_swap":"C64↔REU DMA",
   ".region":"visual region", ".endregion":"end region"
 };
 
@@ -4982,6 +5087,7 @@ function _expertRenderSymbols() {
   // In block mode: read from program[]
   let regions = [];
   let macros  = [];
+  let labels  = [];
 
   if (expertMode && expertEditor) {
     const lines = expertEditor.value.split("\n");
@@ -4989,14 +5095,17 @@ function _expertRenderSymbols() {
       const rm = line.match(/^\s*\.region\s+(.+?)(?:\s*;.*)?$/i);
       if (rm) { regions.push({ _textName: rm[1].trim(), _lineIdx: idx }); return; }
       const mm = line.match(/^\s*\.macro\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s|$)/i);
-      if (mm) { macros.push({ _textName: mm[1].trim(), _lineIdx: idx }); }
+      if (mm) { macros.push({ _textName: mm[1].trim(), _lineIdx: idx }); return; }
+      const lm = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(?:;.*)?$/);
+      if (lm) { labels.push({ _textName: lm[1].trim(), _lineIdx: idx }); }
     });
   } else {
     regions = program.filter(b => b.isRegionMacro && b.regionName);
     macros  = program.filter(b => b.isMacroDefStart && b.macroName);
+    labels  = program.filter(b => b.isLabel && b.labelName);
   }
 
-  if (regions.length === 0 && macros.length === 0) {
+  if (regions.length === 0 && macros.length === 0 && labels.length === 0) {
     el.hidden = true;
     return;
   }
@@ -5026,6 +5135,7 @@ function _expertRenderSymbols() {
 
   const svgRegion = `<svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="11" height="11"><rect x="1.5" y="1.5" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 4.5h6M4 7h4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>`;
   const svgMacro  = `<svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="11" height="11"><path d="M2.5 4l3.5 3-3.5 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 10h3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`;
+  const svgLabel  = `<svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="11" height="11"><path d="M2 4.5V2.8C2 2.36 2.36 2 2.8 2h4.64c.21 0 .42.08.57.23l3.76 3.76a.8.8 0 0 1 0 1.13L8.03 10.56a.8.8 0 0 1-.57.24H2.8A.8.8 0 0 1 2 10V8.3" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/><circle cx="5" cy="5.4" r="0.85" fill="currentColor"/></svg>`;
 
   function addGroup(labelKey, items, svgIcon, nameFn, clickFn) {
     if (items.length === 0) return;
@@ -5075,6 +5185,21 @@ function _expertRenderSymbols() {
         if (item._lineIdx != null) { gotoEditorLine(item._lineIdx); return; }
         const escaped = item.macroName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         gotoEditorPattern(new RegExp(`^\\s*\\.macro\\s+${escaped}\\b`, "i"));
+      } else {
+        selectBlockInAsm(item.id);
+        programList?.querySelector(`[data-block-id="${item.id}"]`)
+          ?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+    }
+  );
+
+  addGroup("projLabels", labels, svgLabel,
+    item => item._textName ?? item.labelName,
+    item => {
+      if (expertMode && expertEditor) {
+        if (item._lineIdx != null) { gotoEditorLine(item._lineIdx); return; }
+        const escaped = item.labelName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        gotoEditorPattern(new RegExp(`^\\s*${escaped}\\s*:\\s*(?:;.*)?$`));
       } else {
         selectBlockInAsm(item.id);
         programList?.querySelector(`[data-block-id="${item.id}"]`)
@@ -8229,7 +8354,7 @@ function _importMakeRegion(name) {
     category: "Makrok", mnemonic: "REGION",
     operand: name, rawOperand: name, description: "",
     addressingMode: "implied", base: "hex",
-    validationError: "", collapsed: true, isRegionMacro: true,
+    validationError: "", collapsed: false, isRegionMacro: true,
     regionName: name, regionCollapsed: false
   };
 }
@@ -9266,8 +9391,28 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isReuCheckMacro) {
-    // LDA $DF00 + CMP #$FF — Z=0 (BNE) = REU present, Z=1 (BEQ) = no REU (open bus)
-    return { ok: true, bytes: [0xAD, 0x00, 0xDF, 0xC9, 0xFF], comment: "REU_CHECK: LDA $DF00 / CMP #$FF" };
+    // Probe a writable REU register twice. Present -> final CMP leaves Z=0; missing/open bus -> Z=1.
+    return {
+      ok: true,
+      bytes: [
+        0xA9, 0x55,
+        0x8D, 0x04, 0xDF,
+        0xAD, 0x04, 0xDF,
+        0xC9, 0x55,
+        0xD0, 0x12,
+        0xA9, 0xAA,
+        0x8D, 0x04, 0xDF,
+        0xAD, 0x04, 0xDF,
+        0xC9, 0xAA,
+        0xD0, 0x06,
+        0xA9, 0x00,
+        0xC9, 0xFF,
+        0xD0, 0x04,
+        0xA9, 0xFF,
+        0xC9, 0xFF
+      ],
+      comment: "REU_CHECK: probe $DF04 with $55/$AA"
+    };
   }
 
   if (block.isReuTransferMacro) {
@@ -9279,7 +9424,7 @@ function compileLineBytes(line, labels) {
     if (isNaN(expAddr) || expAddr < 0 || expAddr > 0xFFFF) return { ok: false, error: "REU: ervenytelen REU cim ($0000-$FFFF)." };
     if (isNaN(bank)    || bank < 0    || bank > 7)         return { ok: false, error: "REU: a bank erteke 0-7 lehet." };
     if (isNaN(length)  || length < 1  || length > 0xFFFF)  return { ok: false, error: "REU: a hossz $0001-$FFFF lehet." };
-    const cmd = block.mnemonic === "REU_STASH" ? 0x91 : block.mnemonic === "REU_FETCH" ? 0x92 : 0x93;
+    const cmd = block.mnemonic === "REU_STASH" ? 0x90 : block.mnemonic === "REU_FETCH" ? 0x91 : 0x92;
     const cmdLabel = block.mnemonic === "REU_STASH" ? "C64→REU" : block.mnemonic === "REU_FETCH" ? "REU→C64" : "C64↔REU";
     const bytes = [
       0xA9, c64Addr & 0xFF,       0x8D, 0x02, 0xDF,  // LDA #<c64  : STA $DF02
@@ -10052,7 +10197,7 @@ function getInstructionSize(block) {
   }
 
   if (block.isReuCheckMacro) {
-    return 5;  // LDA $DF00 (3) + CMP #$FF (2)
+    return 34;  // $DF04 write/read probe with $55/$AA, normalized to Z=0 present / Z=1 missing
   }
 
   if (block.isReuTransferMacro) {
@@ -11257,11 +11402,11 @@ function getCollapsedOperandText(block) {
   }
 
   if (block.isReuCheckMacro) {
-    return currentLanguage === "en" ? "LDA $DF00 / CMP #$FF" : "LDA $DF00 / CMP #$FF";
+    return currentLanguage === "en" ? "probe $DF04 with $55/$AA" : "$DF04 proba $55/$AA mintaval";
   }
 
   if (block.isReuTransferMacro) {
-    const cmd = block.mnemonic === "REU_STASH" ? "$91" : block.mnemonic === "REU_FETCH" ? "$92" : "$93";
+    const cmd = block.mnemonic === "REU_STASH" ? "$90" : block.mnemonic === "REU_FETCH" ? "$91" : "$92";
     const c64 = (block.reuC64Addr || "C000").replace(/^\$/, "").toUpperCase();
     const exp = (block.reuExpAddr || "0000").replace(/^\$/, "").toUpperCase();
     const bank = block.reuBank || "0";
@@ -12325,22 +12470,39 @@ function renderProgram() {
           block.regionCollapsed = false;
           block.collapsed = false;
         }
-        let inside = false;
-        program.forEach((b, i) => {
-          if (i === index) { inside = true; return; }
-          if (b.isRegionMacro || b.isEndRegionMacro) { inside = false; return; }
-          if (inside) b.collapsed = false;
-        });
+        // Depth-aware scan: expand all blocks within this region (handles nested regions)
+        let depth = 0;
+        for (let i = index; i < program.length; i++) {
+          const _b = program[i];
+          if (_b.isRegionMacro || _b.mnemonic === "REGION") {
+            if (i === index) { depth++; continue; }
+            depth++;
+            _b.regionCollapsed = false;
+            _b.collapsed = false;
+          } else if (_b.isEndRegionMacro || _b.mnemonic === "ENDREGION") {
+            if (--depth === 0) break;
+          } else if (depth > 0) {
+            _b.collapsed = false;
+          }
+        }
         renderProgram();
       });
 
       node.querySelector(".region-copy-btn")?.addEventListener("click", () => {
         let depth = 0, endIndex = -1;
         for (let i = index; i < program.length; i++) {
-          if (program[i].isRegionMacro) depth++;
-          else if (program[i].isEndRegionMacro) { if (--depth === 0) { endIndex = i; break; } }
+          const _b = program[i];
+          if (_b.isRegionMacro || _b.mnemonic === "REGION") depth++;
+          else if (_b.isEndRegionMacro || _b.mnemonic === "ENDREGION") { if (--depth === 0) { endIndex = i; break; } }
         }
-        const slice = program.slice(index, endIndex === -1 ? index + 1 : endIndex + 1);
+        let slice;
+        if (endIndex === -1) {
+          // Region has no matching ENDREGION — copy the REGION block and add a synthetic ENDREGION
+          // so the paste always produces a complete, balanced region structure
+          slice = [program[index], _importMakeEndRegion()];
+        } else {
+          slice = program.slice(index, endIndex + 1);
+        }
         _clipboardRegion = slice.map(b => ({ ...b, id: crypto.randomUUID() }));
         const btn = node.querySelector(".region-copy-btn");
         const pasteBtn = node.querySelector(".region-paste-btn");
@@ -12352,11 +12514,27 @@ function renderProgram() {
         if (!_clipboardRegion || _clipboardRegion.length === 0) return;
         let depth = 0, endIndex = -1;
         for (let i = index; i < program.length; i++) {
-          if (program[i].isRegionMacro) depth++;
-          else if (program[i].isEndRegionMacro) { if (--depth === 0) { endIndex = i; break; } }
+          const _b = program[i];
+          if (_b.isRegionMacro || _b.mnemonic === "REGION") depth++;
+          else if (_b.isEndRegionMacro || _b.mnemonic === "ENDREGION") { if (--depth === 0) { endIndex = i; break; } }
         }
-        const insertAt = endIndex === -1 ? index + 1 : endIndex + 1;
+        // When endIndex === -1 the target region has no ENDREGION; append at end of program
+        // rather than inserting at index+1 (which would land inside the unclosed region)
+        const insertAt = endIndex === -1 ? program.length : endIndex + 1;
         const toInsert = _clipboardRegion.map(b => ({ ...b, id: crypto.randomUUID() }));
+        // Force the pasted REGION to be expanded so the user can clearly see it was pasted
+        if (toInsert.length > 0 && toInsert[0].isRegionMacro) {
+          toInsert[0].regionCollapsed = false;
+          toInsert[0].collapsed = false;
+          // Give the pasted region a unique name so it doesn't conflict with the original
+          const origName = toInsert[0].regionName || "region";
+          let newName = `copy of ${origName}`;
+          let counter = 2;
+          while (program.some(b => b.isRegionMacro && b.regionName === newName)) {
+            newName = `copy of ${origName} ${counter++}`;
+          }
+          toInsert[0].regionName = newName;
+        }
         program.splice(insertAt, 0, ...toInsert);
         markTabDirty();
         renderProgram();
@@ -12373,8 +12551,9 @@ function renderProgram() {
         let endGroupIndex = -1;
         let depth = 0;
         for (let i = index; i < program.length; i++) {
-          if (program[i].isRegionMacro) depth++;
-          else if (program[i].isEndRegionMacro) {
+          const _b = program[i];
+          if (_b.isRegionMacro || _b.mnemonic === "REGION") depth++;
+          else if (_b.isEndRegionMacro || _b.mnemonic === "ENDREGION") {
             depth--;
             if (depth === 0) { endGroupBlock = program[i]; endGroupIndex = i; break; }
           }
@@ -13851,6 +14030,14 @@ async function loadMemoryOverlapDemo() {
   await loadSampleFromFile("memory-overlap-demo");
 }
 
+async function loadRandLinesDemo() {
+  await loadSampleFromFile("rand-lines-demo");
+}
+
+async function loadReuDemo() {
+  await loadSampleFromFile("reu-demo");
+}
+
 async function loadSidDirectDemo() {
   const ok = await loadSampleFromFile("sid-direct-demo");
   if (!ok) return;
@@ -14001,6 +14188,16 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "memory-overlap-demo") {
     loadMemoryOverlapDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "rand-lines-demo") {
+    loadRandLinesDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "reu-demo") {
+    loadReuDemo();
     return;
   }
 

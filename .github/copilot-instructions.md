@@ -136,11 +136,11 @@ A `LOADFILE` makró (`isLoadFileMacro: true`): fájl betöltése D64-ről KERNAL
 - **BCS hatótáv:** ±127 byte. Ha messzebb, fordítási hiba: `LOADFILE: a hiba cimke tul messze van`.
 - **UI:** HEX/DEC toggle és addressing mode select **el van rejtve**. Kétsoros macro-grid: filename + device | address + errorLabel.
 
-A `REU_CHECK` makró (`isReuCheckMacro: true`): nincs saját mező. Generál: `LDA $DFF8; CMP #$FF` (5 byte). Z=0 → REU jelen van (BNE), Z=1 → nincs REU (BEQ). Az `$DFF8` a REU status register. Nincs operandus, nincs addressing mode select.
+A `REU_CHECK` makró (`isReuCheckMacro: true`): nincs saját mező. Generál: kétlépcsős `$DF04` write/read próbát `$55` és `$AA` mintával (34 byte). A végén a flag-ek normalizáltak: Z=0 → REU jelen van (BNE), Z=1 → nincs REU (BEQ). Nincs operandus, nincs addressing mode select.
 
 A `REU_STASH` / `REU_FETCH` / `REU_SWAP` makrók (`isReuStashMacro`, `isReuFetchMacro`, `isReuSwapMacro: true`): 40 byte-os DMA transfer blokkok.
 - **Mezők:** `reuC64Address` (hex, 16-bit, pl. `"C000"`), `reuAddress` (hex, 16-bit, pl. `"0000"`), `reuBank` (0–7, decimal), `reuLength` (hex, 16-bit, pl. `"1000"`).
-- **DMA parancs:** STASH=`$91` (C64→REU), FETCH=`$92` (REU→C64), SWAP=`$93` (C64↔REU).
+- **DMA parancs:** STASH=`$90` (C64→REU), FETCH=`$91` (REU→C64), SWAP=`$92` (C64↔REU). Bit 7 = execute, bit 4 = 1 (FF00 decode tiltva, azonnali DMA), bits 1-0 = op. **A korábbi `$80/$81/$82` HIBÁS volt** — FF00-triggeres módot hagyott aktívan, ezért azonnali `$DF01` írásra a DMA nem indult el.
 - **Generált kód layout:** 10× `LDA #val; STA $DF02+offset` pár, utolsó: `STA $DF01` (DMA trigger). Méret: 40 byte.
 - **Expert:** `.reu_stash C000,0000,0,1000` formátum.
 
