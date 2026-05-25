@@ -1204,7 +1204,7 @@ skip_right:
 <a id="mouse"></a>
 ### MOUSE
 
-Reads a Commodore 1351 proportional mouse via the SID chip's paddle inputs (`POTX` = `$D419`, `POTY` = `$D41A`) and moves a sprite proportionally. Entirely **inline** — no JSR or label needed.
+Reads a Commodore 1351 proportional mouse via the SID chip's paddle inputs (`POTX` = `$D419`, `POTY` = `$D41A`) and moves a sprite proportionally. Entirely **inline** — no JSR or label needed. The Y-axis delta is negated (`EOR #$FF` + `SEC` before `ADC`) because VICE's 1351 emulation increases `POTY` when the host mouse moves up, which is the opposite of the VIC-II screen Y direction.
 
 | Field | Description |
 |---|---|
@@ -1213,11 +1213,11 @@ Reads a Commodore 1351 proportional mouse via the SID chip's paddle inputs (`POT
 | ZP byte X | Zero-page address (hex, 1 byte) used to store the previous POTX value (e.g. `FD`) |
 | ZP byte Y | Zero-page address (hex, 1 byte) used to store the previous POTY value (e.g. `FE`) |
 
-**Generated ASM (port 2, sprite 0, ZP `$FD`/`$FE`):**
+**Generated ASM (port 1, sprite 0, ZP `$FD`/`$FE`):**
 ```
     ; CIA port select
     LDA $DC00
-    ORA #$40        ; port 2 selector
+    AND #$BF        ; port 1 selector (clear bit 6)
     STA $DC00
     ; X axis
     LDA $D419       ; read POTX
@@ -1228,10 +1228,19 @@ Reads a Commodore 1351 proportional mouse via the SID chip's paddle inputs (`POT
     ADC $D000       ; apply delta to sprite X
     STA $D000
     STX $FD         ; save current POTX
-    ; Y axis (same pattern with $D41A / $D001 / $FE)
+    ; Y axis (inverted: EOR #$FF + SEC)
+    LDA $D41A       ; read POTY
+    TAY
+    SEC
+    SBC $FE         ; delta = current − previous
+    EOR #$FF        ; invert Y (VICE POTY increases upward)
+    SEC             ; carry=1 → ADC gives two's complement negation
+    ADC $D001       ; sprite_Y − delta (mouse up → sprite moves up)
+    STA $D001
+    STY $FE         ; save current POTY
 ```
 
-**Size:** 37 bytes.
+**Size:** 42 bytes.
 
 **Expert mode syntax:**
 ```
@@ -1240,8 +1249,10 @@ Reads a Commodore 1351 proportional mouse via the SID chip's paddle inputs (`POT
 .mouse 2, 0, FD, FE
 ```
 
-> **Important:** Before the first call, initialise the zero-page bytes with the current POTX/POTY values to avoid a large jump on the first frame:
+> **Important:** Before the first call, select the correct port and initialise the zero-page bytes with the current POTX/POTY values to avoid a large jump on the first frame:
 > ```
+>     ; port 1: LDA #$00 : STA $DC00
+>     ; port 2: LDA #$40 : STA $DC00
 >     LDA $D419 : STA $FD
 >     LDA $D41A : STA $FE
 > ```

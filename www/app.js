@@ -172,7 +172,7 @@ const mnemonicLibrary = {
     { mnemonic: "SPRITE_POS", description: "Sprite pozicio beallitasa: X (0-319) es Y (0-255), kezeli a $D010 felso bitet X>255 eseten.", modes: ["implied"], isSpritePosMacro: true },
     { mnemonic: "WAIT_RASTER", description: "Rasztervonal varakozas: LDA $D012 / CMP #sor / BNE -7. Inline, 7 byte, nincs JSR.", modes: ["implied"], isWaitRasterMacro: true },
     { mnemonic: "JOYSTICK", description: "Joystick olvasas es sprite mozgatasa: UP/DOWN/LEFT/RIGHT bitek LSR+BCS+DEC/INC-cel. Port 1=$DC01, Port 2=$DC00 (alap). 27 byte inline.", modes: ["implied"], isJoystickMacro: true },
-    { mnemonic: "MOUSE", description: "C64 1351 arányos egér vezérlése: SID POTX/POTY olvasás, delta számítás, sprite pozíció frissítés. 37 byte inline.", modes: ["implied"], isMouseMacro: true },
+    { mnemonic: "MOUSE", description: "C64 1351 arányos egér vezérlése: SID POTX/POTY olvasás, delta számítás, CIA $DC00 bit 6 portválasztás megőrző maszkolással, Y tengely invertálva (VICE), sprite pozíció frissítés. 42 byte inline.", modes: ["implied"], isMouseMacro: true },
     { mnemonic: "SPRITE_COL", description: "Sprite utkozes detektalas: LDA $D01E/$D01F + AND #bitMask. Eredmeny A-ban: nem nulla = utkozes. Utana BEQ/BNE-vel ugri. 5 byte.", modes: ["implied"], isSpriteColMacro: true },
     { mnemonic: "LOADFILE", description: "Fajl betoltese D64-rol KERNAL SETNAM/SETLFS/LOAD rutinokkal. Cim opcionalis (ures = fajl sajat cime, sec=1; kitoltve = override, sec=0). Hiba cimke opcionalis (BCS).", modes: ["implied"], isLoadFileMacro: true },
     { mnemonic: "REU_CHECK", description: "REU (RAM bovito egyseg) jelenletenek ellenorzese: $DF04 write/read proba $55 es $AA mintaval. Z=0 → REU jelen van (BNE-vel ugri), Z=1 → nincs REU (BEQ-vel ugri). 34 byte.", modes: ["implied"], isReuCheckMacro: true },
@@ -496,6 +496,7 @@ const translations = {
     sampleSidDirectDemo: "SID lejatszas - SID makro (Ikari Warriors)",
     sampleSpriteMacroDemo: "SPRITE_INIT / SPRITE_POS makro demo",
     sampleJoystickDemo: "JOYSTICK makro demo",
+    sampleMouseDemo: "MOUSE makro demo",
     sampleCollisionDemo: "SPRITE_COL utkozes demo",
     sample10Print: "10 PRINT - veletlen labirintus",
     sampleRasterIrqDemo: "Raszter IRQ demo (szin villogas)",
@@ -842,6 +843,7 @@ const translations = {
     sampleSidDirectDemo: "SID player - SID macro (Ikari Warriors)",
     sampleSpriteMacroDemo: "SPRITE_INIT / SPRITE_POS macro demo",
     sampleJoystickDemo: "JOYSTICK macro demo",
+    sampleMouseDemo: "MOUSE macro demo",
     sampleCollisionDemo: "SPRITE_COL collision demo",
     sample10Print: "10 PRINT - random maze",
     sampleRasterIrqDemo: "Raster IRQ demo (color flashing)",
@@ -1242,7 +1244,7 @@ const mnemonicDescriptionsEn = {
   SPRITE_POS: "Set sprite position: X (0–319) and Y (0–255). Handles the $D010 MSB for X > 255.",
   WAIT_RASTER: "Busy-wait for a raster line: LDA $D012 / CMP #line / BNE -7. Inline, 7 bytes, no JSR.",
   JOYSTICK: "Read joystick and move sprite: UP/DOWN/LEFT/RIGHT via LSR+BCS+DEC/INC. Port 1=$DC01, Port 2=$DC00. 27 bytes inline.",
-  MOUSE: "Read 1351 proportional mouse via SID POTX/POTY ($D419/$D41A) and move sprite. CIA $DC00 port select. Two ZP bytes store previous POT values. 37 bytes inline.",
+  MOUSE: "Read 1351 proportional mouse via SID POTX/POTY ($D419/$D41A) and move sprite. CIA $DC00 bit 6 selects the analog port via masked ORA/AND. Y-axis is inverted (VICE POTY increases upward). Two ZP bytes store previous POT values. 42 bytes inline.",
   SPRITE_COL: "Sprite collision detection: LDA $D01E/$D01F + AND #bitMask. Result in A: non-zero = collision. Follow with BEQ/BNE. 5 bytes.",
   DEFINE: "Define a symbol for conditional assembly. When present, IF blocks evaluate the condition.",
   CONST: "Named constant definition. Can be used as an operand in any mnemonic (LDA, STA, JSR, etc.).",
@@ -2418,13 +2420,14 @@ function applyTranslations() {
   if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleSidDirectDemo");
   if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleSpriteMacroDemo");
   if (sampleOptions[20]) sampleOptions[20].textContent = t("sampleJoystickDemo");
-  if (sampleOptions[21]) sampleOptions[21].textContent = t("sampleCollisionDemo");
-  if (sampleOptions[22]) sampleOptions[22].textContent = t("sample10Print");
-  if (sampleOptions[23]) sampleOptions[23].textContent = t("sampleRasterIrqDemo");
-  if (sampleOptions[24]) sampleOptions[24].textContent = t("sampleOverlappingRasterDemo");
-  if (sampleOptions[25]) sampleOptions[25].textContent = t("sampleMemoryOverlapDemo");
-  if (sampleOptions[26]) sampleOptions[26].textContent = t("sampleRandLinesDemo");
-  if (sampleOptions[27]) sampleOptions[27].textContent = t("sampleReuDemo");
+  if (sampleOptions[21]) sampleOptions[21].textContent = t("sampleMouseDemo");
+  if (sampleOptions[22]) sampleOptions[22].textContent = t("sampleCollisionDemo");
+  if (sampleOptions[23]) sampleOptions[23].textContent = t("sample10Print");
+  if (sampleOptions[24]) sampleOptions[24].textContent = t("sampleRasterIrqDemo");
+  if (sampleOptions[25]) sampleOptions[25].textContent = t("sampleOverlappingRasterDemo");
+  if (sampleOptions[26]) sampleOptions[26].textContent = t("sampleMemoryOverlapDemo");
+  if (sampleOptions[27]) sampleOptions[27].textContent = t("sampleRandLinesDemo");
+  if (sampleOptions[28]) sampleOptions[28].textContent = t("sampleReuDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -9288,14 +9291,18 @@ function compileLineBytes(line, labels) {
     if (isNaN(zpY) || zpY < 0 || zpY > 255) {
       return { ok: false, error: "MOUSE: ZP Y 1 hex byte legyen (00-FF)." };
     }
-    const ciaVal = port === 2 ? 0x40 : 0x00;
+    const ciaMask = port === 2 ? 0x40 : 0xBF;
+    const ciaOp = port === 2 ? 0x09 : 0x29;
     const xAddr = 0xD000 + num * 2;
     const yAddr = 0xD001 + num * 2;
     const xLo = xAddr & 0xFF, xHi = xAddr >> 8;
     const yLo = yAddr & 0xFF, yHi = yAddr >> 8;
-    // CIA select(5) + X-axis(16) + Y-axis(16) = 37 bytes
+    // CIA select(8) + X-axis(16) + Y-axis(18) = 42 bytes
+    // Y-axis: EOR #$FF + SEC inverts the delta so mouse-up moves sprite up
+    // (VICE POTY increases when host mouse moves up, but VIC-II Y=0 is top of screen)
     const bytes = [
-      0xA9, ciaVal,           // LDA #ciaVal (port select: $40=port2, $00=port1)
+      0xAD, 0x00, 0xDC,       // LDA $DC00
+      ciaOp, ciaMask,         // ORA #$40 for port2 / AND #$BF for port1
       0x8D, 0x00, 0xDC,       // STA $DC00
       0xAD, 0x19, 0xD4,       // LDA $D419  (POTX current)
       0xAA,                   // TAX        (save current POTX)
@@ -9309,8 +9316,9 @@ function compileLineBytes(line, labels) {
       0xA8,                   // TAY        (save current POTY)
       0x38,                   // SEC
       0xE5, zpY,              // SBC $zpY   (delta = current - prev)
-      0x18,                   // CLC
-      0x6D, yLo, yHi,         // ADC $D001+N*2 (add delta to sprite Y)
+      0x49, 0xFF,             // EOR #$FF   (invert Y axis: ~delta)
+      0x38,                   // SEC        (carry=1 → ADC gives two's complement negation)
+      0x6D, yLo, yHi,         // ADC $D001+N*2 (sprite_Y - delta = inverted Y movement)
       0x8D, yLo, yHi,         // STA $D001+N*2
       0x84, zpY               // STY $zpY   (update prev_y = current POTY)
     ];
@@ -10156,7 +10164,7 @@ function getInstructionSize(block) {
   }
 
   if (block.isMouseMacro) {
-    return 37;  // LDA #ciaVal + STA $DC00 + 2×(LDA $D4xx + TAX/Y + SEC + SBC zp + CLC + ADC abs + STA abs + STX/Y zp)
+    return 42;  // LDA $DC00 + [ORA|AND] #mask + STA $DC00 + X-axis(16) + Y-axis(18, EOR#FF+SEC for Y-invert)
   }
 
   if (block.isWaitRasterMacro) {
@@ -13928,6 +13936,10 @@ async function loadJoystickDemoProgram() {
   await loadSampleFromFile("joystick-demo");
 }
 
+async function loadMouseDemoProgram() {
+  await loadSampleFromFile("mouse-demo");
+}
+
 async function loadCollisionDemoProgram() {
   await loadSampleFromFile("collision-demo");
 }
@@ -14093,6 +14105,11 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "joystick-demo") {
     loadJoystickDemoProgram();
+    return;
+  }
+
+  if (sampleSelect.value === "mouse-demo") {
+    loadMouseDemoProgram();
     return;
   }
 
