@@ -9,7 +9,7 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 ## What's New
 
 ### v1.6.5
-- **MOUSE macro** — read C64 1351 proportional mouse via SID POTX/POTY (`$D419`/`$D41A`) and move a sprite; fields: port (1/2), sprite number, two zero-page bytes for previous POTX/POTY; generates a 42-byte inline routine (`$DC00` masked port select → X delta → Y delta inverted for VICE → sprite register update)
+- **MOUSE macro** — read C64 1351 proportional mouse via SID POTX/POTY (`$D419`/`$D41A`) and move a sprite; fields: port (1/2), sprite number, two zero-page bytes for previous normalized POTX/POTY phases; generates a 103-byte inline routine (`$DC00` upper-bit mux select → SID settle wait → 6-bit mouse phase delta → X `$D010` MSB handling → Y delta inverted for VICE → sprite register update)
 - **Region copy & paste** — each REGION block header now has a ⧉ copy button and a ⎘ paste button; copy captures the entire region (REGION + all child blocks + ENDREGION) into a clipboard; paste inserts the copy as a new region immediately after the current region's ENDREGION and scrolls to it; buttons are always visible regardless of collapse state
 - **Track block selection in palette** — clicking any block syncs the palette category, highlights the mnemonic, and updates the description panel; can be disabled to keep the palette pinned while editing
 - **Expert mode region highlight** — a continuous background div (`#expert-region-bg`) visually marks the active REGION in the expert text editor; updates on scroll and line-height changes
@@ -119,7 +119,7 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **SPRITE_POS macro** — set a sprite's static X/Y position; handles `$D010` MSB for X > 255; parameters: sprite number, X (0–319), Y (0–255)
 - **WAIT_RASTER macro** — inline VIC-II raster line busy-wait (`LDA $D012 / CMP #line / BNE −7`); no JSR or label needed; 7 bytes
 - **JOYSTICK macro** — reads a CIA joystick port (1 = `$DC01`, 2 = `$DC00`) and moves a sprite via INC/DEC; 27 bytes inline
-- **MOUSE macro** — reads C64 1351 proportional mouse via SID POTX/POTY and moves a sprite; masked CIA `$DC00` port select, delta computation, Y-axis inverted (VICE), sprite X/Y update; 42 bytes inline
+- **MOUSE macro** — reads C64 1351 proportional mouse via SID POTX/POTY and moves a sprite; CIA `$DC00` upper-bit port select, one SID conversion settle wait, documented 6-bit mouse-phase delta computation, sprite X `$D010` MSB maintenance, Y-axis inverted (VICE), sprite X/Y update; 103 bytes inline
 - **SPRITE_COL macro** — read VIC-II collision register (`$D01E` sprite–sprite, `$D01F` sprite–background); result in A register; 5 bytes
 - **LOADFILE macro** — load a named file from a D64 at runtime using KERNAL `SETNAM`/`SETLFS`/`LOAD`; optional address override and `BCS` error label; variable size
 - **REU_CHECK macro** — detect RAM Expansion Unit presence with a `$DF04` write/read probe (`$55`, `$AA`); result in Z flag; 34 bytes

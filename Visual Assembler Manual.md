@@ -1204,7 +1204,7 @@ skip_right:
 <a id="mouse"></a>
 ### MOUSE
 
-Reads a Commodore 1351 proportional mouse via the SID chip's paddle inputs (`POTX` = `$D419`, `POTY` = `$D41A`) and moves a sprite proportionally. Entirely **inline** — no JSR or label needed. The Y-axis delta is negated (`EOR #$FF` + `SEC` before `ADC`) because VICE's 1351 emulation increases `POTY` when the host mouse moves up, which is the opposite of the VIC-II screen Y direction.
+Reads a Commodore 1351 proportional mouse via the SID chip's paddle inputs (`POTX` = `$D419`, `POTY` = `$D41A`) and moves a sprite proportionally. Entirely **inline** — no JSR or label needed. The 1351 proportional format is not a plain 8-bit position sample: the useful bits are `xPPPPPPn`, where bit 0 is noise, bits 1–6 are the mouse phase modulo 64, and the top bit is ignored. The macro therefore normalizes each POT sample to a 6-bit modulo position before computing the delta. After selecting the control port on CIA1 `$DC00`, the macro waits roughly one SID conversion window (just over 512 machine cycles) before reading the POT registers, otherwise the reads can be stale or mid-switch. The Y-axis delta is negated (`EOR #$FF` + `SEC` before `ADC`) because VICE's 1351 emulation increases `POTY` when the host mouse moves up, which is the opposite of the VIC-II screen Y direction. Sprite X updates also maintain the correct `$D010` MSB bit so movement across X=`255` does not wrap to the left edge.
 
 Deltas are **clamped to ±64** before being applied: if the raw delta falls outside the range 0–64 or 192–255, it is discarded and the zero-page reference value is **not updated**. This prevents the SID discharge glitch (the SID briefly reads ~0 every 512 cycles during capacitor reset) from causing large sprite jumps.
 
@@ -1217,44 +1217,65 @@ Deltas are **clamped to ±64** before being applied: if the raw delta falls outs
 
 **Generated ASM (port 1, sprite 0, ZP `$FD`/`$FE`):**
 ```
-    ; CIA port select
+    ; CIA port select + settle
     LDA $DC00
-    ORA #$40        ; port 1 selector (set bit 6 → SID reads control port 1)
+    AND #$3F        ; clear mux bits 7:6, preserve lower bits
+    ORA #$40        ; port 1 selector (%01xxxxxx)
     STA $DC00
+    LDX #$67
+wait:
+    DEX
+    BNE wait        ; ~516 cycles so SID gets a fresh POT sample
     ; X axis — delta clamped ±64 (prevents SID discharge glitch jumps)
-    LDA $D419       ; read POTX
-    TAX             ; save current for STX
+    LDA $D419       ; read POTX raw = xPPPPPPn
+    LSR A           ; drop noise bit
+    AND #$3F        ; keep the 6-bit modulo mouse phase
+    TAX             ; save normalized current for STX
     SEC
-    SBC $FD         ; delta = current − previous
-    CMP #65         ; delta < 65 → valid forward movement
-    BCC +8          ; → STX $FD
-    CMP #192        ; delta ≥ 192 → valid backward movement (−64..−1)
-    BCS +4          ; → STX $FD
-    LDA #0          ; glitch: clamp delta, do not update zpX
-    BEQ +2          ; → skip STX
-    STX $FD         ; update prev_x (valid delta only)
+    SBC $FD         ; raw delta = current6 − previous6
+    AND #$3F        ; modulo 64 delta
+    CMP #$20        ; 32..63 means negative movement
+    BCC +
+    ORA #$C0        ; sign-extend to -32..-1
++   STX $FD         ; update prev_x with normalized sample
+    BMI negx        ; negative delta needs borrow-aware $D010 update
     CLC
-    ADC $D000       ; apply delta to sprite X
+    ADC $D000       ; apply positive delta to sprite X
     STA $D000
+    BCC +           ; no overflow → keep $D010 bit as-is
+    LDA $D010
+    ORA #$01        ; sprite 0 crossed X=255 → set MSB
+    STA $D010
+    JMP xdone
++   
+negx:
+    CLC
+    ADC $D000       ; apply negative delta to sprite X
+    STA $D000
+    BCS xdone       ; no underflow → keep $D010 bit as-is
+    LDA $D010
+    AND #$FE        ; underflow → clear sprite 0 MSB
+    STA $D010
+xdone:
     ; Y axis — delta clamped ±64, then inverted
-    LDA $D41A       ; read POTY
-    TAY             ; save current for STY
+    LDA $D41A       ; read POTY raw = xPPPPPPn
+    LSR A           ; drop noise bit
+    AND #$3F        ; keep the 6-bit modulo mouse phase
+    TAY             ; save normalized current for STY
     SEC
-    SBC $FE         ; delta = current − previous
-    CMP #65
-    BCC +8          ; → STY $FE
-    CMP #192
-    BCS +4          ; → STY $FE
-    LDA #0          ; glitch: clamp delta, do not update zpY
-    BEQ +2          ; → skip STY
-    STY $FE         ; update prev_y (valid delta only)
+    SBC $FE         ; raw delta = current6 − previous6
+    AND #$3F        ; modulo 64 delta
+    CMP #$20        ; 32..63 means negative movement
+    BCC +
+    ORA #$C0        ; sign-extend to -32..-1
++   STY $FE         ; update prev_y with normalized sample
     EOR #$FF        ; invert Y (VICE POTY increases upward)
     SEC
     ADC $D001       ; sprite_Y − delta (mouse up → sprite moves up)
     STA $D001
 ```
 
-**Size:** 70 bytes.
+**Size:** 103 bytes.
 
 **Expert mode syntax:**
 ```
@@ -1263,13 +1284,15 @@ Deltas are **clamped to ±64** before being applied: if the raw delta falls outs
 .mouse 2, 0, FD, FE
 ```
 
-> **Important:** Before the first call, select the correct port and initialise the zero-page bytes with the current POTX/POTY values to avoid a large jump on the first frame:
+> **Important:** Before the first call, select the correct port with the CIA mux bits and initialise the zero-page bytes with the current POTX/POTY values to avoid a large jump on the first frame:
 > ```
->     ; port 1: LDA #$40 : STA $DC00   (bit 6 = 1 → SID reads port 1)
->     ; port 2: LDA #$00 : STA $DC00   (bit 6 = 0 → SID reads port 2)
->     LDA $D419 : STA $FD
->     LDA $D41A : STA $FE
+>     ; port 1: LDA $DC00 : AND #$3F : ORA #$40 : STA $DC00
+>     ; port 2: LDA $DC00 : AND #$3F : ORA #$80 : STA $DC00
+>     LDA $D419 : LSR A : AND #$3F : STA $FD
+>     LDA $D41A : LSR A : AND #$3F : STA $FE
 > ```
+
+> **Recommended:** Poll the mouse once per frame, for example by placing `WAIT_RASTER` in the game loop before `MOUSE`, instead of hammering the SID POT registers in a tight loop.
 
 > **Note:** `$DC00` bit 6 controls which control port the SID reads for POTX/POTY: bit 6 = 1 (`$40`, `ORA #$40`) → Control Port 1; bit 6 = 0 (`$00`, `AND #$BF`) → Control Port 2. The MOUSE macro sets the correct bit automatically.
 
