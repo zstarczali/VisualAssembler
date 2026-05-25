@@ -83,6 +83,8 @@
                     <option value="irq-demo">Raszter IRQ demo (szin villogas)</option>
                     <option value="overlapping-raster-demo">Overlapping raszter csik demo</option>
                     <option value="memory-overlap-demo">Memoria atfedes demo</option>
+                    <option value="rand-lines-demo">Veletlen vonalak demo</option>
+                    <option value="reu-demo">REU demo</option>
                   </select>
                 </label>
                 <button id="load-sample" class="secondary" type="button">Betoltes</button>
@@ -102,6 +104,10 @@
                 <label class="menu-checkbox-label">
                   <input type="checkbox" id="basic-sys-toggle" checked>
                   <span id="basic-sys-label">BASIC SYS stub generálása</span>
+                </label>
+                <label class="menu-checkbox-label">
+                  <input type="checkbox" id="block-desc-sync-toggle" checked>
+                  <span id="block-desc-sync-label">Leírás szinkron blokk módban</span>
                 </label>
                 <label class="menu-checkbox-label">
                   <input type="checkbox" id="expert-mode-toggle">
@@ -316,7 +322,7 @@
               </label>
               <label class="view-mode-option">
                 <input type="radio" name="output-mode" value="disasm">
-                <span>Disasm</span>
+                <span>Disassembler</span>
               </label>
             </div>
           </div>
@@ -554,28 +560,31 @@
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v1.6.1</p>
+      <p class="whats-new-version">v1.6.5</p>
       <ul class="whats-new-list">
         <li>
-          <strong>Cut / Copy / Paste blocks</strong> — select one or more blocks and cut or copy them to the clipboard. Paste inserts the blocks after the current selection. Works across tabs. Keyboard shortcuts: <code>Ctrl+X</code>, <code>Ctrl+C</code>, <code>Ctrl+V</code>.
+          <strong>Region copy &amp; paste</strong> — each REGION block now has a <strong>⧉ copy</strong> and <strong>⎘ paste</strong> button in its header. Copy duplicates the region with all its blocks; paste inserts the copy as a new region immediately after the current one and scrolls to it. Both buttons are always visible regardless of whether the region is collapsed.
         </li>
         <li>
-          <strong>Expert Mode — autocomplete</strong> — while typing in the Expert editor, a popup lists matching instructions, directives, and labels. Navigate with <code>↑↓</code>, confirm with <code>Tab</code> or <code>Enter</code>, dismiss with <code>Esc</code>.
+          <strong>Track block selection in palette</strong> — new checkbox in Settings. When enabled (default), clicking a block in the program list syncs the palette category, highlights the mnemonic, and updates the description panel. Disable it to keep the palette pinned while editing.
         </li>
         <li>
-          <strong>Memory overlap detection</strong> — the Memory Map panel now detects when two memory regions overlap (e.g. inline code and a RAWBYTES section targeting the same address range). Overlapping zones are highlighted with a striped warning pattern on the memory strip, and a detailed list is shown at the top of the Memory Map.
+          <strong>MOUSE macro</strong> — read a C64 1351 proportional mouse via SID <code>POTX</code>/<code>POTY</code> (<code>$D419</code>/<code>$D41A</code>) and move a chosen sprite accordingly. Fields: port (1 or 2), sprite number, two zero-page bytes for previous POT values. 37 bytes inline.
         </li>
         <li>
-          <strong>Bug fixes &amp; polish</strong> — menu closes properly on outside click; About and Knowledge Base buttons no longer cause menu flash; theme picker stays open when selecting a theme; Expert mode label simplified.
+          <strong>REU macros</strong> — four macros for Commodore RAM Expansion Unit DMA transfers: <strong>REU_CHECK</strong> detects a REU via <code>$DFF8</code> (5 bytes); <strong>REU_STASH</strong> transfers C64 RAM → REU; <strong>REU_FETCH</strong> transfers REU → C64 RAM; <strong>REU_SWAP</strong> swaps C64 RAM ↔ REU. Each DMA macro is 40 bytes and takes C64 address, REU address, bank, and length fields.
         </li>
         <li>
-          <strong>INVOKE macro fix</strong> — user macros now compile correctly in Expert mode; LOOP labels inside <code>.invoke</code> expansions no longer collide.
+          <strong>TURBO_SET macro</strong> — set U64 CPU turbo speed via <code>$D031</code>; speed index 0–15 (up to ~48 MHz) and badline enable/disable; 5 bytes.
         </li>
         <li>
-          <strong>Import fix</strong> — decimal byte lists (e.g. <code>13,147,13</code>) are now correctly detected as decimal when importing ASM text.
+          <strong>SUPERCPU_DETECT macro</strong> — detect CMD SuperCPU presence by comparing <code>$D0B8</code> to <code>$FF</code>; result in Z flag (<code>BNE</code> = present); 5 bytes.
         </li>
         <li>
-          <strong>Expert Mode</strong> — a full direct-text ASM editor alongside the block editor. Write 6502 assembly by hand with live syntax highlighting, real-time disassembly panel, block-mode palette sync, and a built-in source formatter. Switch between Block and Expert mode per-tab at any time.
+          <strong>TURBO_ENABLE macro</strong> — enable or disable CMD SuperCPU turbo mode; writes <code>LDA #$00</code> + <code>STA $D07A</code> / <code>$D07B</code>; 5 bytes.
+        </li>
+        <li>
+          <strong>Bug fixes</strong> — Expert mode Disassembler/Monitor panels now use a consistent dark background across all themes so syntax colors are always readable; block description panel correctly updates when selecting a block.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>

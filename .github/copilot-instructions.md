@@ -110,6 +110,8 @@ A `WAIT_RASTER` makró (`isWaitRasterMacro: true`): mező: `rasterLine` (hex byt
 
 A `JOYSTICK` makró (`isJoystickMacro: true`): mezők: `joyPort` (`"1"` = $DC01, `"2"` = $DC00), `joySpriteNum` (0–7). Generál: `LDA port`, majd 4× irányonként (UP/DOWN/LEFT/RIGHT): `LSR; BCS +3; DEC/INC $D001/D000` (3 byte-os DEC/INC abs). BCS +3 ugorja át a DEC/INC-et ha az iránygomb NEM lenyomott (active-LOW: bit=0 → lenyomott). Méret: 27 byte. CIA regiszterek: Port 2 = $DC00, Port 1 = $DC01. Bitek: 0=Up, 1=Down, 2=Left, 3=Right, 4=Fire.
 
+A `MOUSE` makró (`isMouseMacro: true`): C64 1351 arányos egér olvasása SID POTX/POTY (`$D419`/`$D41A`) keresztül, sprite mozgatás. Mezők: `mousePort` (`"1"` = CIA `$00` / `"2"` = CIA `$40`), `mouseSpriteNum` (0–7), `mousePotXZP` (ZP hex byte, prev POTX tárolója, pl. `"FD"`), `mousePotYZP` (ZP hex byte, prev POTY tárolója, pl. `"FE"`). Generált kód: CIA port select → `LDA $D419; TAX; SEC; SBC $zpX; CLC; ADC $D000+N*2; STA $D000+N*2; STX $zpX` (X-tengely) + ugyanez Y-tengelyre `$D41A`→`$D001+N*2`→`$zpY`. Méret: **37 byte**. Expert sor: `.mouse port, spriteNum, zpX, zpY` (pl. `.mouse 2, 0, FD, FE`). **Fontos:** az első hívás előtt inicializáld a ZP értékeket az aktuális POTX/POTY-ra, különben az első frame-ben nagy ugrás keletkezik.
+
 A `SPRITE_COL` makró (`isSpriteColMacro: true`): mezők: `spriteNum` (0–7), `colType` (`"sprite"` = $D01E sprite-sprite, `"background"` = $D01F sprite-háttér). Generál: `LDA $D01E/$D01F; AND #(1<<N)`. Eredmény A-ban: nem nulla = ütközés. **Regiszter olvasása automatikusan törli!** Utána `BEQ`/`BNE`-vel ugrás. Méret: 5 byte.
 
 A `LOADFILE` makró (`isLoadFileMacro: true`): fájl betöltése D64-ről KERNAL rutinokkal (SETNAM/SETLFS/LOAD). Inline kód, deferred section nélkül.
@@ -134,11 +136,11 @@ A `LOADFILE` makró (`isLoadFileMacro: true`): fájl betöltése D64-ről KERNAL
 - **BCS hatótáv:** ±127 byte. Ha messzebb, fordítási hiba: `LOADFILE: a hiba cimke tul messze van`.
 - **UI:** HEX/DEC toggle és addressing mode select **el van rejtve**. Kétsoros macro-grid: filename + device | address + errorLabel.
 
-A `REU_CHECK` makró (`isReuCheckMacro: true`): nincs saját mező. Generál: `LDA $DFF8; CMP #$FF` (5 byte). Z=0 → REU jelen van (BNE), Z=1 → nincs REU (BEQ). Az `$DFF8` a REU status register. Nincs operandus, nincs addressing mode select.
+A `REU_CHECK` makró (`isReuCheckMacro: true`): nincs saját mező. Generál: kétlépcsős `$DF04` write/read próbát `$55` és `$AA` mintával (34 byte). A végén a flag-ek normalizáltak: Z=0 → REU jelen van (BNE), Z=1 → nincs REU (BEQ). Nincs operandus, nincs addressing mode select.
 
 A `REU_STASH` / `REU_FETCH` / `REU_SWAP` makrók (`isReuStashMacro`, `isReuFetchMacro`, `isReuSwapMacro: true`): 40 byte-os DMA transfer blokkok.
 - **Mezők:** `reuC64Address` (hex, 16-bit, pl. `"C000"`), `reuAddress` (hex, 16-bit, pl. `"0000"`), `reuBank` (0–7, decimal), `reuLength` (hex, 16-bit, pl. `"1000"`).
-- **DMA parancs:** STASH=`$91` (C64→REU), FETCH=`$92` (REU→C64), SWAP=`$93` (C64↔REU).
+- **DMA parancs:** STASH=`$90` (C64→REU), FETCH=`$91` (REU→C64), SWAP=`$92` (C64↔REU). Bit 7 = execute, bit 4 = 1 (FF00 decode tiltva, azonnali DMA), bits 1-0 = op. **A korábbi `$80/$81/$82` HIBÁS volt** — FF00-triggeres módot hagyott aktívan, ezért azonnali `$DF01` írásra a DMA nem indult el.
 - **Generált kód layout:** 10× `LDA #val; STA $DF02+offset` pár, utolsó: `STA $DF01` (DMA trigger). Méret: 40 byte.
 - **Expert:** `.reu_stash C000,0000,0,1000` formátum.
 
@@ -169,9 +171,11 @@ A `REGION` / `ENDREGION` blokk (`isRegionMacro: true` / `isEndRegionMacro: true`
 - **`getInstructionSize`:** 0 — kötelező explicit kezelni, mert különben a `addressingMode === "implied"` ág 1-et adna vissza
 - **Fészkelhetők** (syntax sugar): második REGION az első ENDREGION előtt egymásba ágyazott régiót alkot; minden ENDREGION a legközelebbi lezáratlan REGION-t zárja le; az assembly outputra nincs hatás
 - **ENDREGION blokk:** megjeleníti a párosított REGION nevét read-only mezőként (visszafelé keres `program[]`-ban)
-- **REGION blokk gombjai (renderProgram-ban):**
-  - **⊡ Expand all** (`region-expand-all-btn`): kinyitja a régiót (ha zárva), majd minden gyermekblokk `collapsed = false` → `renderProgram()`
+- **REGION blokk gombjai — mind a `.block-topline`-ban vannak** (`collapseToggle.insertAdjacentHTML("beforebegin", ...)`) → **mindig láthatóak**, akkor is, ha a REGION blokk össze van csukva (`data-collapsed="true"`)
+  - **↕ Expand all** (`region-expand-all-btn`): kinyitja a régiót (ha zárva), majd minden gyermekblokk `collapsed = false` → `renderProgram()`
   - **⦵ Select in ASM** (`region-select-asm-btn`): megkeresi a párosított ENDREGION-t (depth-aware előre keresés `program[]`-ban), összerakja a `{ firstLine: asmBlockRanges[block.id].firstLine, lastLine: asmBlockRanges[endRegionBlock.id].lastLine }` tartományt, ASM tab-ra vált ha szükséges, majd ideiglenes `"__group_range__"` kulcson keresztül hívja `applyAsmHighlight()`-ot a teljes régió kiemelésére
+  - **⧉ Copy** (`region-copy-btn`): depth-aware scan → `program.slice(index, endIndex+1)` → `_clipboardRegion = slice.map(b => ({...b, id: uuid()}))` ; ✓ flash visszajelzés; paste gomb opacity törlése
+  - **⎘ Paste** (`region-paste-btn`): `_clipboardRegion` ellenőrzés → depth-aware ENDREGION keresés → `insertAt = endIndex + 1` → `program.splice(insertAt, 0, ...toInsert)` → beillesztett REGION mindig `collapsed: false, regionCollapsed: false` (visible after paste) → `renderProgram()` → `scrollIntoView` az új blokkra; gomb `opacity:0.4` ha clipboard üres
 
 A `LOOP` makró (két blokk rendszer):
 - **LOOP blokk** (`isLoopMacro: true`): mezők: `loopReg` (`"X"` vagy `"Y"`), `loopCount` (hex byte pl. `"0A"`), `loopLabel` (string). Generál: `LDX/LDY #count` (2 byte), majd a label a `address+2`-re mutat (a body elejére). Az auto-label `loop1`, `loop2`… ha `loopLabel` üres.
@@ -594,6 +598,16 @@ Az `addressingModes` objektumban ezek MIND támogatottak:
 | `relative` | `BNE loop` | 1 byte (offset) | true |
 
 **KRITIKUS:** `indirectX` és `indirectY` **ZERO PAGE** címzések, tehát operand = **1 byte**!
+
+### `*` (current PC) operandus támogatás
+
+- Bármely operandus mező elfogadja a `*` karaktert mint az utasítás saját címét (aktuális program counter)
+- `compileOperand()` először ellenőrzi a `rawOperand === "*"` feltételt → az adott blokk assemblélési címét használja
+- **Relatív branches esetén** (pl. `BNE *`): offset = `address − (address+2)` = `−2` = `0xFE` → végtelen önhurok
+- **Display (block preview):** `"*"` helyett mode-függő szöveg jelenik meg:
+  - relative → `"* (self)"`
+  - absolute → `"*(=addr)"`
+- Import (`_importMakeInstruction`): `"*"` operandussal érkező sor `rawOperand: "*"` ként kerül be
 
 ### opcodeMap kiegészítések indirectY támogatáshoz
 
@@ -1066,6 +1080,17 @@ A `macro-source-row`-ban egy `mini-toggle` váltja az ASM output számformátum�
 - Az origin input is konvertálódik váltáskor
 - Label sorok kommentje: `loop:  ; $080D`
 
+### Disasm output mód (block nézet)
+
+A jobb oldali panel új `"disasm"` output módja valós idejű disassembly listát jelennek meg.
+
+- **Állapot:** `outputMode` state változó = `"disasm"` (a többi módhoz hasonlóan: `"asm"`, `"monitor"`, `"both"`, `"options"`)
+- **Renderelő függvény:** `renderDisasmOutput()` → `_buildDisasmHTML()` → színezett HTML span-ok
+- **DOM elem:** `#disasm-output` (rejtódik ha más mód aktiv)
+- **Token színek:** cín (`$D000`), byte-ok (`A9 FF`), mnemonik (`LDA`), komment — a `.disasm-*` CSS osztályokon keresztül
+- **Expert módban** a Disasm panel (`#expert-disasm-panel`) külön jobb oldali panel — ez más, mint a block mód `#disasm-output` eleme
+- `renderAsmOutput()` / `renderMonitorOutput()` / `renderDisasmOutput()` mind hívódnak az `outputMode` érték alapján
+
 ### CSS `[hidden]` override bug
 
 Ha egy elemnek `display: flex` vagy `display: grid` CSS-ben van definiálva, a böngésző `[hidden]` alapértelmezés (`display: none`) NEM érvényesül!
@@ -1126,6 +1151,7 @@ if (field === "rawOperand" || field === "base") {
 | `isSpritePosMacro` | ❌ | ❌ | spriteNum, spriteX, spriteY |
 | `isWaitRasterMacro` | ❌ | ❌ | rasterLine (hex) |
 | `isJoystickMacro` | ❌ | ❌ | joyPort, joySpriteNum |
+| `isMouseMacro` | ❌ | ❌ | mousePort, mouseSpriteNum, mousePotXZP, mousePotYZP |
 | `isSpriteColMacro` | ❌ | ❌ | spriteNum, colType |
 | `isLoadFileMacro` | ❌ | ❌ | loadFileName, loadFileDevice, loadFileAddress, loadFileErrorLabel |
 | `isReuCheckMacro` | ❌ | ❌ | — |
@@ -1183,6 +1209,17 @@ let _expertDisasmVisible = false;    // disasm panel látható
 let _expertDisasmWidth   = 340;      // disasm panel szélessége
 let _expertMonitorVisible = false;   // monitor panel látható
 ```
+
+### Expert mode régió háttér (`#expert-region-bg`)
+
+Folytonos háttér div az expert editor aktív REGION blokk kiemeléshez — nem per-sor span, hanem egyetlen abszolút pozicionált div.
+
+- **DOM elem:** `<div id="expert-region-bg">` — a highlight `<pre>` belső első gyermeke
+- **Frissítő függvény:** `_updateExpertRegionBg(firstLine, lastLine)` — szélesség, `top` és `height` `style` attribútumokat állít a számított line-height és padding alapján
+- **Scroll szinkron:** az editor `scroll` eventjén `transform: translateY(-scrollTop)` — ez tartja a divet a szöveggel egy vonalban
+- **Paletta szinkron:** `_syncPaletteToBlock(mnemonic)` — blokk kattintáskor frissíti az aktív palet elem kiemelést és a paletta kategóriát; letiltható ha keresés aktív vagy expert módban
+- **Ha nincs aktív régió** a cursorban, a div `display: none`
+- **Per-sor span megközelítés el van hagyva** (performance problémák miatt); CSS osztály: `.expert-region-bg`, `.palette-item--active`
 
 ### `saveUiSettings()` felülírja `savedUiSettings`-t — BUG TRAP
 

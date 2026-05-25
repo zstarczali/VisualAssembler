@@ -44,6 +44,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
    - [SPRITE_POS](#sprite_pos)
    - [WAIT_RASTER](#wait_raster)
    - [JOYSTICK](#joystick)
+   - [MOUSE](#mouse)
    - [SPRITE_COL](#sprite_col)
    - [LOADFILE](#loadfile)
    - [REU_CHECK](#reu_check)
@@ -85,7 +86,7 @@ The palette on the left lists all available blocks grouped by category:
 - **System** — CLC, SEC, NOP, BRK, …
 - **Illegal instructions** — LAX, SAX, DCP, …
 - **Structure** — LABEL, COMMENT, REGION, ENDREGION
-- **Macros** — LOOP, NEXT, PUSH, PULL, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, INCBIN, SID, INCLUDE, TABLE, ORG, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, SPRITE_COL, LOADFILE, REU_CHECK, REU_STASH, REU_FETCH, REU_SWAP, TURBO_SET, SUPERCPU_DETECT, TURBO_ENABLE
+- **Macros** — LOOP, NEXT, PUSH, PULL, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, INCBIN, SID, INCLUDE, TABLE, ORG, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, MOUSE, SPRITE_COL, LOADFILE, REU_CHECK, REU_STASH, REU_FETCH, REU_SWAP, TURBO_SET, SUPERCPU_DETECT, TURBO_ENABLE
 
 Use the **search box** at the top of the palette to filter by name. Click the **Add selected block** button or drag a block into the program area.
 
@@ -116,6 +117,7 @@ The right panel shows the generated output in real time.
 |---|---|
 | **ASM** | 6502 assembly source with addresses and labels |
 | **Monitor** | Hex / byte dump (C64 monitor style) |
+| **Disasm** | Real-time disassembly listing: address · raw bytes · mnemonic for every compiled instruction |
 | **Both** | ASM on top, monitor below |
 | **Options** | Program settings panel — number format, macro source toggle, debugger params |
 
@@ -302,6 +304,7 @@ Any operand field that accepts an address or immediate value also accepts a **co
 | `label-$hex` | `LDA table-$10` | Label address minus a hex offset |
 | `#<label` | `LDA #<screen_ram` | Low byte of the label address |
 | `#>label` | `LDA #>screen_ram` | High byte of the label address |
+| `*` | `BNE *` | Current program counter (the instruction's own address); branches with `*` generate an infinite self-loop (offset `$FE`) |
 
 **Example — clear two screen pages using a CONST:**
 ```
@@ -937,10 +940,12 @@ Groups a set of blocks into a **named, collapsible section**. REGION and ENDREGI
 |---|---|
 | Region name | Free-text label for the section (e.g. `init`, `game_loop`, `sprite_setup`) |
 
-**Controls on the REGION block:**
-- **▸ / ▾ toggle** — collapses or expands the entire region. When collapsed, all blocks between REGION and ENDREGION are hidden and the REGION block's own body folds in.
-- **⊡ Expand all** — un-collapses every individually collapsed block inside the region and expands the region itself if needed.
+**Controls on the REGION block header (always visible):**
+- **▸ / ▾ toggle** — collapses or expands the entire region. When collapsed, all blocks between REGION and ENDREGION are hidden.
+- **↕ Expand all** — un-collapses every individually collapsed block inside the region and expands the region itself if needed.
 - **⦵ Select in ASM** — highlights the entire region's code range in the ASM view (from `; ===[ name ]===` to `; ===[/name]===`) and scrolls to it. Switches to the ASM tab automatically if it is not currently visible.
+- **⧉ Copy region** — copies the REGION block, all child blocks, and the matching ENDREGION into a clipboard. A ✓ flash confirms the copy.
+- **⎘ Paste region** — inserts the copied region as a new region immediately after the current region's ENDREGION and scrolls to it. The button is dimmed until a region has been copied.
 
 **Generated ASM:**
 ```
@@ -1196,6 +1201,55 @@ skip_right:
 
 ---
 
+<a id="mouse"></a>
+### MOUSE
+
+Reads a Commodore 1351 proportional mouse via the SID chip's paddle inputs (`POTX` = `$D419`, `POTY` = `$D41A`) and moves a sprite proportionally. Entirely **inline** — no JSR or label needed.
+
+| Field | Description |
+|---|---|
+| Port | `1` = CIA port offset `$00`, `2` = CIA port offset `$40` |
+| Sprite # | Sprite number 0–7 (controls which `$D000`/`$D001` pair is updated) |
+| ZP byte X | Zero-page address (hex, 1 byte) used to store the previous POTX value (e.g. `FD`) |
+| ZP byte Y | Zero-page address (hex, 1 byte) used to store the previous POTY value (e.g. `FE`) |
+
+**Generated ASM (port 2, sprite 0, ZP `$FD`/`$FE`):**
+```
+    ; CIA port select
+    LDA $DC00
+    ORA #$40        ; port 2 selector
+    STA $DC00
+    ; X axis
+    LDA $D419       ; read POTX
+    TAX
+    SEC
+    SBC $FD         ; delta = current − previous
+    CLC
+    ADC $D000       ; apply delta to sprite X
+    STA $D000
+    STX $FD         ; save current POTX
+    ; Y axis (same pattern with $D41A / $D001 / $FE)
+```
+
+**Size:** 37 bytes.
+
+**Expert mode syntax:**
+```
+.mouse port, spriteNum, zpX, zpY
+; example:
+.mouse 2, 0, FD, FE
+```
+
+> **Important:** Before the first call, initialise the zero-page bytes with the current POTX/POTY values to avoid a large jump on the first frame:
+> ```
+>     LDA $D419 : STA $FD
+>     LDA $D41A : STA $FE
+> ```
+
+> **Note:** The 1351 uses `$DC00` bit 6 to select between port 1 and port 2 for the analog inputs. The MOUSE macro sets the correct bit automatically.
+
+---
+
 <a id="sprite_col"></a>
 ### SPRITE_COL
 
@@ -1278,14 +1332,29 @@ skip_filename:
 
 ### REU_CHECK
 
-Detects whether a Commodore RAM Expansion Unit (REU) is present by reading register `$DF00` and comparing it to `$FF`.
+Detects whether a Commodore RAM Expansion Unit (REU) is present by writing test values to writable REU register `$DF04` and reading them back.
 
-**Generated code (5 bytes):**
+**Generated code (34 bytes):**
 ```
-AD F8 DF   LDA $DFF8
-C9 FF      CMP #$FF
+LDA #$55
+STA $DF04
+LDA $DF04
+CMP #$55
+BNE fail
+LDA #$AA
+STA $DF04
+LDA $DF04
+CMP #$AA
+BNE fail
+LDA #$00
+CMP #$FF   ; Z=0 => REU present
+BNE done
+fail:
+LDA #$FF
+CMP #$FF   ; Z=1 => no REU
+done:
 ```
-> The actual detection reads `$DFF8` (REU status); if the value is not `$FF`, a REU is present.
+> The macro normalizes the result so the following branch stays simple: `BNE` means REU present, `BEQ` means REU missing.
 
 **Result in flags:**
 - **Z = 0** (result ≠ 0) → REU present → use `BNE`
@@ -1309,9 +1378,9 @@ Performs a block DMA transfer between C64 RAM and a Commodore REU using the REU'
 
 | Macro | Direction | `$DF01` command |
 |-------|-----------|-----------------|
-| `REU_STASH` | C64 RAM → REU | `$91` |
-| `REU_FETCH` | REU → C64 RAM | `$92` |
-| `REU_SWAP`  | C64 RAM ↔ REU | `$93` |
+| `REU_STASH` | C64 RAM → REU | `$90` |
+| `REU_FETCH` | REU → C64 RAM | `$91` |
+| `REU_SWAP`  | C64 RAM ↔ REU | `$92` |
 
 **Fields:**
 
@@ -1333,10 +1402,10 @@ LDA #lenLo    STA $DF07    ; length LO
 LDA #lenHi    STA $DF08    ; length HI
 LDA #$00      STA $DF09    ; address control (fixed)
 LDA #$00      STA $DF0A    ; interrupt mask (fixed)
-LDA #cmd      STA $DF01    ; execute DMA ($91/$92/$93)
+LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immediate)
 ```
 
-> **Note:** Writing to `$DF01` triggers the DMA immediately. The C64 CPU is halted while the transfer runs.
+> **Note:** Immediate DMA uses command values with bit 4 set (`$90/$91/$92`), which disables FF00-triggered mode. Writing to `$DF01` then starts the DMA immediately while the C64 CPU is halted during the transfer.
 
 ---
 

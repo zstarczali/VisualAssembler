@@ -172,12 +172,13 @@ const mnemonicLibrary = {
     { mnemonic: "SPRITE_POS", description: "Sprite pozicio beallitasa: X (0-319) es Y (0-255), kezeli a $D010 felso bitet X>255 eseten.", modes: ["implied"], isSpritePosMacro: true },
     { mnemonic: "WAIT_RASTER", description: "Rasztervonal varakozas: LDA $D012 / CMP #sor / BNE -7. Inline, 7 byte, nincs JSR.", modes: ["implied"], isWaitRasterMacro: true },
     { mnemonic: "JOYSTICK", description: "Joystick olvasas es sprite mozgatasa: UP/DOWN/LEFT/RIGHT bitek LSR+BCS+DEC/INC-cel. Port 1=$DC01, Port 2=$DC00 (alap). 27 byte inline.", modes: ["implied"], isJoystickMacro: true },
+    { mnemonic: "MOUSE", description: "C64 1351 arányos egér vezérlése: SID POTX/POTY olvasás, delta számítás, sprite pozíció frissítés. 37 byte inline.", modes: ["implied"], isMouseMacro: true },
     { mnemonic: "SPRITE_COL", description: "Sprite utkozes detektalas: LDA $D01E/$D01F + AND #bitMask. Eredmeny A-ban: nem nulla = utkozes. Utana BEQ/BNE-vel ugri. 5 byte.", modes: ["implied"], isSpriteColMacro: true },
     { mnemonic: "LOADFILE", description: "Fajl betoltese D64-rol KERNAL SETNAM/SETLFS/LOAD rutinokkal. Cim opcionalis (ures = fajl sajat cime, sec=1; kitoltve = override, sec=0). Hiba cimke opcionalis (BCS).", modes: ["implied"], isLoadFileMacro: true },
-    { mnemonic: "REU_CHECK", description: "REU (RAM bovito egyseg) jelenletenek ellenorzese: LDA $DF00 / CMP #$FF. Z=0 → REU jelen van (BNE-vel ugri), Z=1 → nincs REU (BEQ-vel ugri). 5 byte.", modes: ["implied"], isReuCheckMacro: true },
-    { mnemonic: "REU_STASH", description: "C64 RAM → REU mentes: C64 cim, REU cim/bank es hossz beallitasa ($DF02-$DF08), majd $91 parancs → $DF01. 40 byte inline.", modes: ["implied"], isReuTransferMacro: true },
-    { mnemonic: "REU_FETCH", description: "REU → C64 RAM betoltes: C64 cim, REU cim/bank es hossz beallitasa ($DF02-$DF08), majd $92 parancs → $DF01. 40 byte inline.", modes: ["implied"], isReuTransferMacro: true },
-    { mnemonic: "REU_SWAP", description: "C64 RAM ↔ REU csere: C64 cim, REU cim/bank es hossz beallitasa ($DF02-$DF08), majd $93 parancs → $DF01. 40 byte inline.", modes: ["implied"], isReuTransferMacro: true },
+    { mnemonic: "REU_CHECK", description: "REU (RAM bovito egyseg) jelenletenek ellenorzese: $DF04 write/read proba $55 es $AA mintaval. Z=0 → REU jelen van (BNE-vel ugri), Z=1 → nincs REU (BEQ-vel ugri). 34 byte.", modes: ["implied"], isReuCheckMacro: true },
+    { mnemonic: "REU_STASH", description: "C64 RAM → REU mentes: C64 cim, REU cim/bank es hossz beallitasa ($DF02-$DF08), majd $90 parancs → $DF01 (execute + stash, azonnali DMA). 40 byte inline.", modes: ["implied"], isReuTransferMacro: true },
+    { mnemonic: "REU_FETCH", description: "REU → C64 RAM betoltes: C64 cim, REU cim/bank es hossz beallitasa ($DF02-$DF08), majd $91 parancs → $DF01 (execute + fetch, azonnali DMA). 40 byte inline.", modes: ["implied"], isReuTransferMacro: true },
+    { mnemonic: "REU_SWAP", description: "C64 RAM ↔ REU csere: C64 cim, REU cim/bank es hossz beallitasa ($DF02-$DF08), majd $92 parancs → $DF01 (execute + swap, azonnali DMA). 40 byte inline.", modes: ["implied"], isReuTransferMacro: true },
     { mnemonic: "TURBO_SET", description: "U64 Turbo mod beallitasa: $D031-be irja a sebessegi indexet (0-15) es a badline vezerlest (bit7). LDA #ertek + STA $D031, 5 byte.", modes: ["implied"], isTurboSetMacro: true },
     { mnemonic: "SUPERCPU_DETECT", description: "CMD SuperCPU jelenletenek ellenorzese: LDA $D0B8 / CMP #$FF. Z=0 → SuperCPU jelen (BNE-vel ugri), Z=1 → nincs (BEQ-vel ugri). 5 byte.", modes: ["implied"], isSuperCpuDetectMacro: true },
     { mnemonic: "TURBO_ENABLE", description: "CMD SuperCPU turbo be/ki: BE → LDA #$00 / STA $D07A, KI → LDA #$00 / STA $D07B. 5 byte.", modes: ["implied"], isTurboEnableMacro: true },
@@ -269,11 +270,13 @@ let asmPlainText = "";
 let asmDisplayText = "";
 let showMacroSource = false;
 let showRegionComments = true;
+let blockPaletteSync = true;
 let asmOutputBase = "hex";
 let originBase = "hex";
 const macroSourceToggle = document.getElementById("macro-source-toggle");
 const macroSourceToggleText = document.getElementById("macro-source-toggle-text");
 const regionCommentsToggle = document.getElementById("region-comments-toggle");
+const blockPaletteSyncToggle = document.getElementById("block-desc-sync-toggle");
 const asmBaseInputs = document.querySelectorAll('input[name="asm-output-base"]');
 const originBaseInputs = document.querySelectorAll('input[name="origin-base"]');
 const compileErrorDialog = document.getElementById("compile-error-dialog");
@@ -326,6 +329,7 @@ let _dndSrc = null;
 let _dndActive = false;
 let _dndGhost = null;
 let _copiedBlock = null;
+let _clipboardRegion = null;
 const defaultOrigin = 0x0801;
 let blockScale = 0.9;
 let currentLanguage = "en";
@@ -497,6 +501,8 @@ const translations = {
     sampleRasterIrqDemo: "Raszter IRQ demo (szin villogas)",
     sampleOverlappingRasterDemo: "Overlapping raszter csik demo",
     sampleMemoryOverlapDemo: "Memoria atfedes demo",
+    sampleRandLinesDemo: "Veletlen vonalak demo",
+    sampleReuDemo: "REU demo",
     helpManual: "Kezikonyv",
     about: "Névjegy",
     knowledgeBase: "Tudásbázis",
@@ -525,6 +531,7 @@ const translations = {
     projAddFileHint: "Adj hozzá fájlt a + gombbal",
     projRegions: "Régiók",
     projMacros: "Makrók",
+    projLabels: "Labelek",
     projOpened: "Projekt megnyitva",
     projSaved: "Projekt mentve",
     projError: "Projekt hiba",
@@ -536,6 +543,7 @@ const translations = {
     paletteSearchPlaceholder: "Kereses...",
     paletteSearchLabel: "Kereses",
     basicSysLabel: "BASIC SYS stub generálása",
+    blockDescSyncLabel: "Blokk kiválasztás követése a paletán",
     expertModeLabel: "Expert mode",
     collapseAll: "Osszes osszecsukasa",
     expandAll: "Osszes kinyitasa",
@@ -563,6 +571,10 @@ const translations = {
     fieldRasterLine: "Rasztersor ($00-$FF)",
     fieldJoyPort: "Port (1 vagy 2)",
     fieldJoySpriteNum: "Sprite # (0-7)",
+    fieldMousePort: "Port (1 vagy 2)",
+    fieldMouseSpriteNum: "Sprite # (0-7)",
+    fieldMousePotX: "ZP elozo X ($00-$FF)",
+    fieldMousePotY: "ZP elozo Y ($00-$FF)",
     fieldColType: "Utkozes tipusa",
     colTypeSprite: "Sprite-Sprite ($D01E)",
     colTypeBackground: "Sprite-Hatter ($D01F)",
@@ -835,6 +847,8 @@ const translations = {
     sampleRasterIrqDemo: "Raster IRQ demo (color flashing)",
     sampleOverlappingRasterDemo: "Overlapping raster bars demo",
     sampleMemoryOverlapDemo: "Memory overlap demo",
+    sampleRandLinesDemo: "Random lines demo",
+    sampleReuDemo: "REU demo",
     helpManual: "Manual",
     about: "About",
     knowledgeBase: "Knowledge Base",
@@ -864,6 +878,7 @@ const translations = {
     projAddFileHint: "Add files with the + button",
     projRegions: "Regions",
     projMacros: "Macros",
+    projLabels: "Labels",
     projOpened: "Project opened",
     projSaved: "Project saved",
     projError: "Project error",
@@ -875,6 +890,7 @@ const translations = {
     paletteSearchPlaceholder: "Search...",
     paletteSearchLabel: "Search",
     basicSysLabel: "Generate BASIC SYS stub",
+    blockDescSyncLabel: "Track block selection in palette",
     expertModeLabel: "Expert mode",
     collapseAll: "Collapse all",
     expandAll: "Expand all",
@@ -902,6 +918,10 @@ const translations = {
     fieldRasterLine: "Raster line ($00-$FF)",
     fieldJoyPort: "Port (1 or 2)",
     fieldJoySpriteNum: "Sprite # (0-7)",
+    fieldMousePort: "Port (1 or 2)",
+    fieldMouseSpriteNum: "Sprite # (0-7)",
+    fieldMousePotX: "ZP prev X ($00-$FF)",
+    fieldMousePotY: "ZP prev Y ($00-$FF)",
     fieldColType: "Collision type",
     colTypeSprite: "Sprite-Sprite ($D01E)",
     colTypeBackground: "Sprite-Background ($D01F)",
@@ -1070,6 +1090,7 @@ function saveUiSettings() {
     expertProjectVisible: _expertProjectVisible,
     showMacroSource,
     showRegionComments,
+    blockPaletteSync,
     asmOutputBase,
     debuggerJmp,
     debuggerWait,
@@ -1221,16 +1242,17 @@ const mnemonicDescriptionsEn = {
   SPRITE_POS: "Set sprite position: X (0–319) and Y (0–255). Handles the $D010 MSB for X > 255.",
   WAIT_RASTER: "Busy-wait for a raster line: LDA $D012 / CMP #line / BNE -7. Inline, 7 bytes, no JSR.",
   JOYSTICK: "Read joystick and move sprite: UP/DOWN/LEFT/RIGHT via LSR+BCS+DEC/INC. Port 1=$DC01, Port 2=$DC00. 27 bytes inline.",
+  MOUSE: "Read 1351 proportional mouse via SID POTX/POTY ($D419/$D41A) and move sprite. CIA $DC00 port select. Two ZP bytes store previous POT values. 37 bytes inline.",
   SPRITE_COL: "Sprite collision detection: LDA $D01E/$D01F + AND #bitMask. Result in A: non-zero = collision. Follow with BEQ/BNE. 5 bytes.",
   DEFINE: "Define a symbol for conditional assembly. When present, IF blocks evaluate the condition.",
   CONST: "Named constant definition. Can be used as an operand in any mnemonic (LDA, STA, JSR, etc.).",
   REGION: "Group blocks into a collapsible named section. Close with ENDREGION.",
   ENDREGION: "End of a REGION section.",
   ORG: "Set the origin address (*= directive). The following blocks are assembled starting from this address.",
-  REU_CHECK: "Check if a RAM Expansion Unit (REU) is present: LDA $DF00 / CMP #$FF. Z=0 → REU present (use BNE), Z=1 → no REU (use BEQ). 5 bytes.",
-  REU_STASH: "C64 RAM → REU transfer (save): sets C64 address, REU address/bank and length in $DF02–$DF08, then writes command $91 to $DF01. 40 bytes inline.",
-  REU_FETCH: "REU → C64 RAM transfer (load): sets C64 address, REU address/bank and length in $DF02–$DF08, then writes command $92 to $DF01. 40 bytes inline.",
-  REU_SWAP: "C64 RAM ↔ REU swap: sets C64 address, REU address/bank and length in $DF02–$DF08, then writes command $93 to $DF01. 40 bytes inline.",
+  REU_CHECK: "Check if a RAM Expansion Unit (REU) is present using a $DF04 write/read probe with $55 and $AA patterns. Z=0 → REU present (use BNE), Z=1 → no REU (use BEQ). 34 bytes.",
+  REU_STASH: "C64 RAM → REU transfer (save): sets C64 address, REU address/bank and length in $DF02–$DF08, then writes command $90 to $DF01 (execute + stash, immediate DMA). 40 bytes inline.",
+  REU_FETCH: "REU → C64 RAM transfer (load): sets C64 address, REU address/bank and length in $DF02–$DF08, then writes command $91 to $DF01 (execute + fetch, immediate DMA). 40 bytes inline.",
+  REU_SWAP: "C64 RAM ↔ REU swap: sets C64 address, REU address/bank and length in $DF02–$DF08, then writes command $92 to $DF01 (execute + swap, immediate DMA). 40 bytes inline.",
   TURBO_SET: "Set U64 turbo speed: writes speed index (0–15) and badline control (bit 7) to $D031. LDA #value + STA $D031, 5 bytes. Speed 0=1 MHz … 7=10 MHz … 15=48 MHz (U64) / 64 MHz (U64E2).",
   SUPERCPU_DETECT: "Detect CMD SuperCPU presence: LDA $D0B8 / CMP #$FF. Z=0 → SuperCPU present (use BNE), Z=1 → not found (use BEQ). 5 bytes.",
   TURBO_ENABLE: "CMD SuperCPU turbo on/off: ON → LDA #$00 / STA $D07A, OFF → LDA #$00 / STA $D07B. 5 bytes."
@@ -1754,6 +1776,10 @@ function initPalette() {
     saveUiSettings();
     renderAsmOutput();
   });
+  blockPaletteSyncToggle?.addEventListener("change", () => {
+    blockPaletteSync = blockPaletteSyncToggle.checked;
+    saveUiSettings();
+  });
   addSelectedButton.addEventListener("click", addSelectedBlock);
   clearProgramButton.addEventListener("click", clearProgram);
   collapseAllButton.addEventListener("click", collapseAllBlocks);
@@ -1842,27 +1868,29 @@ function _showBlockCtxMenu(e, index) {
   }
   const block = program[index];
   if (!block) return;
+  const isRegion = block.isRegionMacro;
+  const isCopiedRegion = Array.isArray(_copiedBlock);
   const hu = currentLanguage === "hu";
   menu.innerHTML = `
     <button class="block-ctx-item" data-action="copy">
       <svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="4" y="4" width="9" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="2" y="2" width="9" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3" fill="var(--bg)"/></svg>
-      ${hu ? "Másolás" : "Copy"}
+      ${isRegion ? (hu ? "Régió másolása" : "Copy region") : (hu ? "Másolás" : "Copy")}
     </button>
     <button class="block-ctx-item" data-action="cut">
       <svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity="0.5"/><circle cx="4" cy="12" r="2" stroke="currentColor" stroke-width="1.2"/><circle cx="12" cy="12" r="2" stroke="currentColor" stroke-width="1.2"/></svg>
-      ${hu ? "Kivágás" : "Cut"}
+      ${isRegion ? (hu ? "Régió kivágása" : "Cut region") : (hu ? "Kivágás" : "Cut")}
     </button>
     <button class="block-ctx-item${_copiedBlock ? "" : " block-ctx-item--disabled"}" data-action="paste-before">
       <svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="3" y="5" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M6 5V3.5A0.5 0.5 0 016.5 3h3a0.5 0.5 0 01.5.5V5" stroke="currentColor" stroke-width="1.1"/><path d="M8 8v4M6 10h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-      ${hu ? "Beillesztés elé" : "Paste before"}
+      ${isCopiedRegion ? (hu ? "Régió beillesztése elé" : "Paste region before") : (hu ? "Beillesztés elé" : "Paste before")}
     </button>
     <button class="block-ctx-item${_copiedBlock ? "" : " block-ctx-item--disabled"}" data-action="paste-after">
       <svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="3" y="5" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M6 5V3.5A0.5 0.5 0 016.5 3h3a0.5 0.5 0 01.5.5V5" stroke="currentColor" stroke-width="1.1"/><path d="M8 8v4M6 10h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/></svg>
-      ${hu ? "Beillesztés után" : "Paste after"}
+      ${isCopiedRegion ? (hu ? "Régió beillesztése után" : "Paste region after") : (hu ? "Beillesztés után" : "Paste after")}
     </button>
     <button class="block-ctx-item" data-action="duplicate">
       <svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="2" y="2" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3" fill="var(--bg)"/></svg>
-      ${hu ? "Duplikálás" : "Duplicate"}
+      ${isRegion ? (hu ? "Régió duplikálása" : "Duplicate region") : (hu ? "Duplikálás" : "Duplicate")}
     </button>
     <div class="block-ctx-sep"></div>
     <button class="block-ctx-item block-ctx-item--danger" data-action="delete">
@@ -1907,20 +1935,99 @@ function _hideBlockCtxMenu() {
 function _handleBlockCtxAction(action, index) {
   const block = program[index];
   if (!block) return;
+
+  // Find the matching ENDREGION index for a REGION at startIdx (depth-aware)
+  function _regionEndIdx(startIdx) {
+    let depth = 0;
+    for (let i = startIdx; i < program.length; i++) {
+      const b = program[i];
+      if (b.isRegionMacro || b.mnemonic === "REGION") depth++;
+      else if (b.isEndRegionMacro || b.mnemonic === "ENDREGION") { if (--depth === 0) return i; }
+    }
+    return -1;
+  }
+
+  // Build a deep-copied slice of REGION + children + ENDREGION
+  function _regionGroupCopy(startIdx) {
+    const endIdx = _regionEndIdx(startIdx);
+    const src = endIdx === -1
+      ? [program[startIdx], _importMakeEndRegion()]
+      : program.slice(startIdx, endIdx + 1);
+    return JSON.parse(JSON.stringify(src));
+  }
+
+  // Produce fresh blocks with new IDs; renames the top REGION to avoid name collision
+  function _freshCopy(source) {
+    const arr = Array.isArray(source) ? source : [source];
+    const toInsert = arr.map(b => ({ ...JSON.parse(JSON.stringify(b)), id: crypto.randomUUID() }));
+    if (toInsert.length > 0 && toInsert[0].isRegionMacro) {
+      const origName = toInsert[0].regionName || "region";
+      let newName = `copy of ${origName}`;
+      let counter = 2;
+      while (program.some(b => b.isRegionMacro && b.regionName === newName)) {
+        newName = `copy of ${origName} ${counter++}`;
+      }
+      toInsert[0].regionName = newName;
+      toInsert[0].regionCollapsed = false;
+      toInsert[0].collapsed = false;
+    }
+    return toInsert;
+  }
+
   if (action === "copy") {
-    _copiedBlock = JSON.parse(JSON.stringify(block));
+    _copiedBlock = block.isRegionMacro ? _regionGroupCopy(index) : JSON.parse(JSON.stringify(block));
+
   } else if (action === "cut") {
-    _copiedBlock = JSON.parse(JSON.stringify(block));
-    deleteBlock(index);
-  } else if (action === "paste-before" && _copiedBlock) {
-    const fresh = { ...JSON.parse(JSON.stringify(_copiedBlock)), id: crypto.randomUUID() };
-    insertBlock(index, fresh);
-  } else if (action === "paste-after" && _copiedBlock) {
-    const fresh = { ...JSON.parse(JSON.stringify(_copiedBlock)), id: crypto.randomUUID() };
-    insertBlock(index + 1, fresh);
+    if (block.isRegionMacro) {
+      const endIdx = _regionEndIdx(index);
+      _copiedBlock = _regionGroupCopy(index);
+      const count = endIdx === -1 ? 1 : endIdx - index + 1;
+      markTabDirty();
+      program.splice(index, count);
+      parseUserMacros();
+      renderProgram();
+    } else {
+      _copiedBlock = JSON.parse(JSON.stringify(block));
+      deleteBlock(index);
+    }
+
+  } else if ((action === "paste-before" || action === "paste-after") && _copiedBlock) {
+    let insertAt;
+    if (action === "paste-before") {
+      insertAt = index;
+    } else {
+      // When pasting after a REGION block, skip past its ENDREGION so the content
+      // lands after the entire region (not hidden inside a collapsed region)
+      if (block.isRegionMacro || block.mnemonic === "REGION") {
+        const endIdx = _regionEndIdx(index);
+        insertAt = endIdx === -1 ? program.length : endIdx + 1;
+      } else {
+        insertAt = index + 1;
+      }
+    }
+    if (Array.isArray(_copiedBlock)) {
+      const toInsert = _freshCopy(_copiedBlock);
+      markTabDirty();
+      toInsert.forEach((b, i) => program.splice(insertAt + i, 0, b));
+      parseUserMacros();
+      renderProgram();
+    } else {
+      insertBlock(insertAt, _freshCopy(_copiedBlock)[0]);
+    }
+
   } else if (action === "duplicate") {
-    const fresh = { ...JSON.parse(JSON.stringify(block)), id: crypto.randomUUID() };
-    insertBlock(index + 1, fresh);
+    if (block.isRegionMacro) {
+      const endIdx = _regionEndIdx(index);
+      const insertAt = endIdx === -1 ? index + 1 : endIdx + 1;
+      const toInsert = _freshCopy(_regionGroupCopy(index));
+      markTabDirty();
+      toInsert.forEach((b, i) => program.splice(insertAt + i, 0, b));
+      parseUserMacros();
+      renderProgram();
+    } else {
+      insertBlock(index + 1, _freshCopy(block)[0]);
+    }
+
   } else if (action === "delete") {
     deleteBlock(index);
   }
@@ -2035,6 +2142,11 @@ function _applyUiSettingsToDOM() {
     if (regionCommentsToggle) regionCommentsToggle.checked = showRegionComments;
   }
 
+  if (savedUiSettings.blockPaletteSync !== undefined) {
+    blockPaletteSync = !!savedUiSettings.blockPaletteSync;
+    if (blockPaletteSyncToggle) blockPaletteSyncToggle.checked = blockPaletteSync;
+  }
+
   if (savedUiSettings.asmOutputBase) {
     asmOutputBase = savedUiSettings.asmOutputBase;
   }
@@ -2117,6 +2229,8 @@ function applyTranslations() {
   if (mnemonicDescLabel) mnemonicDescLabel.textContent = t("mnemonicCardLabel");
   const basicSysLabelEl = document.getElementById("basic-sys-label");
   if (basicSysLabelEl) basicSysLabelEl.textContent = t("basicSysLabel");
+  const blockPaletteSyncLabelEl = document.getElementById("block-desc-sync-label");
+  if (blockPaletteSyncLabelEl) blockPaletteSyncLabelEl.textContent = t("blockDescSyncLabel");
   const expertModeLabelEl = document.getElementById("expert-mode-label");
   if (expertModeLabelEl) expertModeLabelEl.textContent = t("expertModeLabel");
   if (_confirmYes) _confirmYes.textContent = t("tabCloseConfirmOk");
@@ -2309,6 +2423,8 @@ function applyTranslations() {
   if (sampleOptions[23]) sampleOptions[23].textContent = t("sampleRasterIrqDemo");
   if (sampleOptions[24]) sampleOptions[24].textContent = t("sampleOverlappingRasterDemo");
   if (sampleOptions[25]) sampleOptions[25].textContent = t("sampleMemoryOverlapDemo");
+  if (sampleOptions[26]) sampleOptions[26].textContent = t("sampleRandLinesDemo");
+  if (sampleOptions[27]) sampleOptions[27].textContent = t("sampleReuDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -2694,16 +2810,25 @@ function renderPaletteItems() {
   _highlightActivePaletteItem();
 }
 
-function _syncPaletteToBlock(blockId) {
+function _syncPaletteToBlock(blockId, force = false) {
   if (expertMode) return;
+  if (!blockPaletteSync && !force) return;
   if (paletteSearchInput && paletteSearchInput.value.trim()) return; // don't override search
   const block = program.find(b => b.id === blockId);
-  if (!block || !block.category || !mnemonicLibrary[block.category]) return;
-  if (categorySelect.value !== block.category) {
-    categorySelect.value = block.category;
+  if (!block) return;
+  const paletteCategory = _importMnemonicCategory(block.mnemonic);
+  if (!paletteCategory || !mnemonicLibrary[paletteCategory]) return;
+  if (categorySelect.value !== paletteCategory) {
+    categorySelect.value = paletteCategory;
     syncMnemonicMenu(); // re-renders palette + calls _highlightActivePaletteItem at end
   } else {
     _highlightActivePaletteItem();
+  }
+  if (mnemonicSelect.value !== block.mnemonic) {
+    mnemonicSelect.value = block.mnemonic;
+    syncAddressingModes();
+  } else {
+    renderMnemonicDescription();
   }
 }
 
@@ -3121,6 +3246,26 @@ function createBlockFromMnemonic(item) {
       isJoystickMacro: true,
       joyPort: "2",
       joySpriteNum: "0"
+    };
+  }
+
+  if (item.isMouseMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isMouseMacro: true,
+      mousePort: "2",
+      mouseSpriteNum: "0",
+      mousePotXZP: "FD",
+      mousePotYZP: "FE"
     };
   }
 
@@ -3638,7 +3783,19 @@ function addSelectedBlock() {
       const idx = program.findIndex(b => b.id === selectedBlockId);
       if (idx !== -1) insertIndex = idx + 1;
     }
-    insertBlock(insertIndex, createBlockFromMnemonic(selected));
+    const newBlock = createBlockFromMnemonic(selected);
+    insertBlock(insertIndex, newBlock);
+    // Always track the newly inserted block in the palette, regardless of blockPaletteSync toggle
+    selectedBlockId = newBlock.id;
+    _syncPaletteToBlock(newBlock.id, true);
+    requestAnimationFrame(() => {
+      document.querySelectorAll(".asm-block--selected").forEach(el => el.classList.remove("asm-block--selected"));
+      const blockNode = programList.querySelector(`[data-block-id="${newBlock.id}"]`);
+      if (blockNode) {
+        blockNode.classList.add("asm-block--selected");
+        blockNode.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+    });
   }
 }
 
@@ -3707,6 +3864,7 @@ function _blockToExpertLine(block) {
   if (block.isSuperCpuDetectMacro) return `.supercpu_detect`;
   if (block.isTurboEnableMacro)    return `.turbo_enable ${block.turboEnableMode || "on"}`;
   if (block.isJoystickMacro)  return `.joystick ${block.joyPort || 2}, ${block.joySpriteNum || 0}`;
+  if (block.isMouseMacro)     return `.mouse ${block.mousePort || 2}, ${block.mouseSpriteNum || 0}, ${(block.mousePotXZP || "FD").toUpperCase()}, ${(block.mousePotYZP || "FE").toUpperCase()}`;
   if (block.isSpriteColMacro) return `.sprite_col ${block.spriteNum || 0}, ${block.colType || "background"}`;
   if (block.isReuCheckMacro)  return `.reu_check`;
   if (block.isReuTransferMacro) {
@@ -3884,8 +4042,9 @@ const _DIRECTIVE_TO_MNEM = {
   loop:"LOOP", next:"NEXT", push:"PUSH", pull:"PULL",
   macro:"MACRO", endm:"ENDM", invoke:"INVOKE",
   sprite_init:"SPRITE_INIT", sprite_pos:"SPRITE_POS", wait_raster:"WAIT_RASTER",
-  joystick:"JOYSTICK", sprite_col:"SPRITE_COL", turbo_set:"TURBO_SET",
+  joystick:"JOYSTICK", mouse:"MOUSE", sprite_col:"SPRITE_COL", turbo_set:"TURBO_SET",
   supercpu_detect:"SUPERCPU_DETECT", turbo_enable:"TURBO_ENABLE",
+  reu_check:"REU_CHECK", reu_stash:"REU_STASH", reu_fetch:"REU_FETCH", reu_swap:"REU_SWAP",
   define:"DEFINE", if:"IF", else:"ELSE", endif:"ENDIF", const:"CONST", org:"ORG",
   region:"REGION", endregion:"ENDREGION"
 };
@@ -3915,10 +4074,11 @@ const _AC_DIRECTIVE_DESC = {
   ".define":"define symbol", ".if":"conditional", ".else":"else branch", ".endif":"end if",
   ".const":"constant", ".table":"lookup table", ".petscii":"PETSCII string",
   ".loadfile":"load file KERNAL", ".sprite_init":"init sprite", ".sprite_pos":"set sprite pos",
-  ".wait_raster":"wait raster line", ".joystick":"joystick macro", ".sprite_col":"sprite collision",
+  ".wait_raster":"wait raster line", ".joystick":"joystick macro", ".mouse":"1351 mouse macro", ".sprite_col":"sprite collision",
   ".turbo_set":"U64 turbo speed",
   ".supercpu_detect":"detect SuperCPU",
   ".turbo_enable":"SuperCPU turbo on/off",
+  ".reu_check":"detect REU", ".reu_stash":"C64→REU DMA", ".reu_fetch":"REU→C64 DMA", ".reu_swap":"C64↔REU DMA",
   ".region":"visual region", ".endregion":"end region"
 };
 
@@ -4479,6 +4639,14 @@ function parseExpertText(text) {
       continue;
     }
 
+    // .mouse port, spriteNum, zpX, zpY
+    const mouseM = line.match(/^\.mouse\s+([12])\s*,\s*(\d)\s*,\s*\$?([0-9A-Fa-f]{1,2})\s*,\s*\$?([0-9A-Fa-f]{1,2})\s*$/i);
+    if (mouseM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "MOUSE", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isMouseMacro: true, mousePort: mouseM[1], mouseSpriteNum: parseInt(mouseM[2], 10), mousePotXZP: mouseM[3].toUpperCase(), mousePotYZP: mouseM[4].toUpperCase() });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
     // .sprite_col spriteNum, sprite|background
     const scColM = line.match(/^\.sprite_col\s+(\d)\s*,\s*(sprite|background)\s*$/i);
     if (scColM) {
@@ -4919,6 +5087,7 @@ function _expertRenderSymbols() {
   // In block mode: read from program[]
   let regions = [];
   let macros  = [];
+  let labels  = [];
 
   if (expertMode && expertEditor) {
     const lines = expertEditor.value.split("\n");
@@ -4926,14 +5095,17 @@ function _expertRenderSymbols() {
       const rm = line.match(/^\s*\.region\s+(.+?)(?:\s*;.*)?$/i);
       if (rm) { regions.push({ _textName: rm[1].trim(), _lineIdx: idx }); return; }
       const mm = line.match(/^\s*\.macro\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s|$)/i);
-      if (mm) { macros.push({ _textName: mm[1].trim(), _lineIdx: idx }); }
+      if (mm) { macros.push({ _textName: mm[1].trim(), _lineIdx: idx }); return; }
+      const lm = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(?:;.*)?$/);
+      if (lm) { labels.push({ _textName: lm[1].trim(), _lineIdx: idx }); }
     });
   } else {
     regions = program.filter(b => b.isRegionMacro && b.regionName);
     macros  = program.filter(b => b.isMacroDefStart && b.macroName);
+    labels  = program.filter(b => b.isLabel && b.labelName);
   }
 
-  if (regions.length === 0 && macros.length === 0) {
+  if (regions.length === 0 && macros.length === 0 && labels.length === 0) {
     el.hidden = true;
     return;
   }
@@ -4963,6 +5135,7 @@ function _expertRenderSymbols() {
 
   const svgRegion = `<svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="11" height="11"><rect x="1.5" y="1.5" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 4.5h6M4 7h4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>`;
   const svgMacro  = `<svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="11" height="11"><path d="M2.5 4l3.5 3-3.5 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 10h3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`;
+  const svgLabel  = `<svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="11" height="11"><path d="M2 4.5V2.8C2 2.36 2.36 2 2.8 2h4.64c.21 0 .42.08.57.23l3.76 3.76a.8.8 0 0 1 0 1.13L8.03 10.56a.8.8 0 0 1-.57.24H2.8A.8.8 0 0 1 2 10V8.3" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/><circle cx="5" cy="5.4" r="0.85" fill="currentColor"/></svg>`;
 
   function addGroup(labelKey, items, svgIcon, nameFn, clickFn) {
     if (items.length === 0) return;
@@ -5012,6 +5185,21 @@ function _expertRenderSymbols() {
         if (item._lineIdx != null) { gotoEditorLine(item._lineIdx); return; }
         const escaped = item.macroName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         gotoEditorPattern(new RegExp(`^\\s*\\.macro\\s+${escaped}\\b`, "i"));
+      } else {
+        selectBlockInAsm(item.id);
+        programList?.querySelector(`[data-block-id="${item.id}"]`)
+          ?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+    }
+  );
+
+  addGroup("projLabels", labels, svgLabel,
+    item => item._textName ?? item.labelName,
+    item => {
+      if (expertMode && expertEditor) {
+        if (item._lineIdx != null) { gotoEditorLine(item._lineIdx); return; }
+        const escaped = item.labelName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        gotoEditorPattern(new RegExp(`^\\s*${escaped}\\s*:\\s*(?:;.*)?$`));
       } else {
         selectBlockInAsm(item.id);
         programList?.querySelector(`[data-block-id="${item.id}"]`)
@@ -5716,6 +5904,22 @@ function updateProgramBlock(index, field, value) {
     block.validationError =
       (port !== 1 && port !== 2) ? (currentLanguage === "en" ? "Port must be 1 or 2." : "A port 1 vagy 2 lehet.") :
       (isNaN(num) || num < 0 || num > 7) ? (currentLanguage === "en" ? "Sprite number must be 0–7." : "A sprite szama 0 es 7 kozott lehet.") :
+      "";
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isMouseMacro && (field === "mousePort" || field === "mouseSpriteNum" || field === "mousePotXZP" || field === "mousePotYZP")) {
+    const port = parseInt(field === "mousePort" ? value : block.mousePort, 10);
+    const num = parseInt(field === "mouseSpriteNum" ? value : block.mouseSpriteNum, 10);
+    const zpX = (field === "mousePotXZP" ? value : block.mousePotXZP || "FD").replace(/^\$/, "");
+    const zpY = (field === "mousePotYZP" ? value : block.mousePotYZP || "FE").replace(/^\$/, "");
+    block.validationError =
+      (port !== 1 && port !== 2) ? (currentLanguage === "en" ? "Port must be 1 or 2." : "A port 1 vagy 2 lehet.") :
+      (isNaN(num) || num < 0 || num > 7) ? (currentLanguage === "en" ? "Sprite number must be 0–7." : "A sprite szama 0 es 7 kozott lehet.") :
+      (!/^[0-9A-Fa-f]{1,2}$/.test(zpX)) ? (currentLanguage === "en" ? "ZP X must be a hex byte (00–FF)." : "ZP X 1 hex byte legyen (00–FF).") :
+      (!/^[0-9A-Fa-f]{1,2}$/.test(zpY)) ? (currentLanguage === "en" ? "ZP Y must be a hex byte (00–FF)." : "ZP Y 1 hex byte legyen (00–FF).") :
       "";
     renderBlockPreview(index);
     renderAsmOutput();
@@ -8150,7 +8354,7 @@ function _importMakeRegion(name) {
     category: "Makrok", mnemonic: "REGION",
     operand: name, rawOperand: name, description: "",
     addressingMode: "implied", base: "hex",
-    validationError: "", collapsed: true, isRegionMacro: true,
+    validationError: "", collapsed: false, isRegionMacro: true,
     regionName: name, regionCollapsed: false
   };
 }
@@ -9065,6 +9269,54 @@ function compileLineBytes(line, labels) {
     };
   }
 
+  if (block.isMouseMacro) {
+    const port = parseInt(block.mousePort || "2", 10);
+    if (port !== 1 && port !== 2) {
+      return { ok: false, error: "MOUSE: a port 1 vagy 2 lehet." };
+    }
+    const num = parseInt(block.mouseSpriteNum || "0", 10);
+    if (isNaN(num) || num < 0 || num > 7) {
+      return { ok: false, error: "MOUSE: a sprite szama 0 es 7 kozott lehet." };
+    }
+    const zpXStr = (block.mousePotXZP || "FD").replace(/^\$/, "");
+    const zpYStr = (block.mousePotYZP || "FE").replace(/^\$/, "");
+    const zpX = parseInt(zpXStr, 16);
+    const zpY = parseInt(zpYStr, 16);
+    if (isNaN(zpX) || zpX < 0 || zpX > 255) {
+      return { ok: false, error: "MOUSE: ZP X 1 hex byte legyen (00-FF)." };
+    }
+    if (isNaN(zpY) || zpY < 0 || zpY > 255) {
+      return { ok: false, error: "MOUSE: ZP Y 1 hex byte legyen (00-FF)." };
+    }
+    const ciaVal = port === 2 ? 0x40 : 0x00;
+    const xAddr = 0xD000 + num * 2;
+    const yAddr = 0xD001 + num * 2;
+    const xLo = xAddr & 0xFF, xHi = xAddr >> 8;
+    const yLo = yAddr & 0xFF, yHi = yAddr >> 8;
+    // CIA select(5) + X-axis(16) + Y-axis(16) = 37 bytes
+    const bytes = [
+      0xA9, ciaVal,           // LDA #ciaVal (port select: $40=port2, $00=port1)
+      0x8D, 0x00, 0xDC,       // STA $DC00
+      0xAD, 0x19, 0xD4,       // LDA $D419  (POTX current)
+      0xAA,                   // TAX        (save current POTX)
+      0x38,                   // SEC
+      0xE5, zpX,              // SBC $zpX   (delta = current - prev)
+      0x18,                   // CLC
+      0x6D, xLo, xHi,         // ADC $D000+N*2 (add delta to sprite X)
+      0x8D, xLo, xHi,         // STA $D000+N*2
+      0x86, zpX,              // STX $zpX   (update prev_x = current POTX)
+      0xAD, 0x1A, 0xD4,       // LDA $D41A  (POTY current)
+      0xA8,                   // TAY        (save current POTY)
+      0x38,                   // SEC
+      0xE5, zpY,              // SBC $zpY   (delta = current - prev)
+      0x18,                   // CLC
+      0x6D, yLo, yHi,         // ADC $D001+N*2 (add delta to sprite Y)
+      0x8D, yLo, yHi,         // STA $D001+N*2
+      0x84, zpY               // STY $zpY   (update prev_y = current POTY)
+    ];
+    return { ok: true, bytes, comment: `MOUSE port${port} → sprite#${num} ZP:$${zpXStr.toUpperCase()}/$${zpYStr.toUpperCase()}` };
+  }
+
   if (block.isJoystickMacro) {
     const port = parseInt(block.joyPort || "2", 10);
     if (port !== 1 && port !== 2) {
@@ -9139,8 +9391,28 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isReuCheckMacro) {
-    // LDA $DF00 + CMP #$FF — Z=0 (BNE) = REU present, Z=1 (BEQ) = no REU (open bus)
-    return { ok: true, bytes: [0xAD, 0x00, 0xDF, 0xC9, 0xFF], comment: "REU_CHECK: LDA $DF00 / CMP #$FF" };
+    // Probe a writable REU register twice. Present -> final CMP leaves Z=0; missing/open bus -> Z=1.
+    return {
+      ok: true,
+      bytes: [
+        0xA9, 0x55,
+        0x8D, 0x04, 0xDF,
+        0xAD, 0x04, 0xDF,
+        0xC9, 0x55,
+        0xD0, 0x12,
+        0xA9, 0xAA,
+        0x8D, 0x04, 0xDF,
+        0xAD, 0x04, 0xDF,
+        0xC9, 0xAA,
+        0xD0, 0x06,
+        0xA9, 0x00,
+        0xC9, 0xFF,
+        0xD0, 0x04,
+        0xA9, 0xFF,
+        0xC9, 0xFF
+      ],
+      comment: "REU_CHECK: probe $DF04 with $55/$AA"
+    };
   }
 
   if (block.isReuTransferMacro) {
@@ -9152,7 +9424,7 @@ function compileLineBytes(line, labels) {
     if (isNaN(expAddr) || expAddr < 0 || expAddr > 0xFFFF) return { ok: false, error: "REU: ervenytelen REU cim ($0000-$FFFF)." };
     if (isNaN(bank)    || bank < 0    || bank > 7)         return { ok: false, error: "REU: a bank erteke 0-7 lehet." };
     if (isNaN(length)  || length < 1  || length > 0xFFFF)  return { ok: false, error: "REU: a hossz $0001-$FFFF lehet." };
-    const cmd = block.mnemonic === "REU_STASH" ? 0x91 : block.mnemonic === "REU_FETCH" ? 0x92 : 0x93;
+    const cmd = block.mnemonic === "REU_STASH" ? 0x90 : block.mnemonic === "REU_FETCH" ? 0x91 : 0x92;
     const cmdLabel = block.mnemonic === "REU_STASH" ? "C64→REU" : block.mnemonic === "REU_FETCH" ? "REU→C64" : "C64↔REU";
     const bytes = [
       0xA9, c64Addr & 0xFF,       0x8D, 0x02, 0xDF,  // LDA #<c64  : STA $DF02
@@ -9883,6 +10155,10 @@ function getInstructionSize(block) {
     return 27;  // LDA port + 4×(LSR + BCS+3 + DEC/INC)
   }
 
+  if (block.isMouseMacro) {
+    return 37;  // LDA #ciaVal + STA $DC00 + 2×(LDA $D4xx + TAX/Y + SEC + SBC zp + CLC + ADC abs + STA abs + STX/Y zp)
+  }
+
   if (block.isWaitRasterMacro) {
     return 7;  // LDA $D012 + CMP #rl + BNE -7
   }
@@ -9921,7 +10197,7 @@ function getInstructionSize(block) {
   }
 
   if (block.isReuCheckMacro) {
-    return 5;  // LDA $DF00 (3) + CMP #$FF (2)
+    return 34;  // $DF04 write/read probe with $55/$AA, normalized to Z=0 present / Z=1 missing
   }
 
   if (block.isReuTransferMacro) {
@@ -11088,6 +11364,12 @@ function getCollapsedOperandText(block) {
     return `port${block.joyPort || "2"} → sprite#${block.joySpriteNum || "0"}`;
   }
 
+  if (block.isMouseMacro) {
+    const zpX = (block.mousePotXZP || "FD").toUpperCase();
+    const zpY = (block.mousePotYZP || "FE").toUpperCase();
+    return `port${block.mousePort || "2"} → sprite#${block.mouseSpriteNum || "0"} ZP:$${zpX}/$${zpY}`;
+  }
+
   if (block.isWaitRasterMacro) {
     const rl = (block.rasterLine || "FF").replace(/^\$/, "").toUpperCase().padStart(2, "0");
     return `$D012 = $${rl}`;
@@ -11120,11 +11402,11 @@ function getCollapsedOperandText(block) {
   }
 
   if (block.isReuCheckMacro) {
-    return currentLanguage === "en" ? "LDA $DF00 / CMP #$FF" : "LDA $DF00 / CMP #$FF";
+    return currentLanguage === "en" ? "probe $DF04 with $55/$AA" : "$DF04 proba $55/$AA mintaval";
   }
 
   if (block.isReuTransferMacro) {
-    const cmd = block.mnemonic === "REU_STASH" ? "$91" : block.mnemonic === "REU_FETCH" ? "$92" : "$93";
+    const cmd = block.mnemonic === "REU_STASH" ? "$90" : block.mnemonic === "REU_FETCH" ? "$91" : "$92";
     const c64 = (block.reuC64Addr || "C000").replace(/^\$/, "").toUpperCase();
     const exp = (block.reuExpAddr || "0000").replace(/^\$/, "").toUpperCase();
     const bank = block.reuBank || "0";
@@ -11898,6 +12180,34 @@ function renderProgram() {
           </div>
         `
       );
+    } else if (block.isMouseMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${t("fieldMousePort")}</span>
+              <select class="mouse-port">
+                <option value="2"${(block.mousePort || "2") === "2" ? " selected" : ""}>2 ($D41x, CIA $40)</option>
+                <option value="1"${block.mousePort === "1" ? " selected" : ""}>1 ($D41x, CIA $00)</option>
+              </select>
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldMouseSpriteNum")}</span>
+              <input class="mouse-sprite-num" type="number" min="0" max="7" value="${block.mouseSpriteNum || "0"}">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldMousePotX")}</span>
+              <input class="mouse-pot-x-zp" type="text" maxlength="2" value="${(block.mousePotXZP || "FD").toUpperCase()}" placeholder="FD">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldMousePotY")}</span>
+              <input class="mouse-pot-y-zp" type="text" maxlength="2" value="${(block.mousePotYZP || "FE").toUpperCase()}" placeholder="FE">
+            </label>
+          </div>
+        `
+      );
     } else if (block.isWaitRasterMacro) {
       inlineField.hidden = true;
       blockControls.insertAdjacentHTML(
@@ -12145,36 +12455,105 @@ function renderProgram() {
       operandField.addEventListener("input", (event) => {
         updateProgramBlock(index, "regionName", event.target.value);
       });
-      blockControls.insertAdjacentHTML(
-        "beforeend",
-        `<div class="region-btn-row">
+      collapseToggle.insertAdjacentHTML(
+        "beforebegin",
+        `<div class="region-topline-btns">
           <button type="button" class="region-expand-all-btn" title="${currentLanguage === "en" ? "Expand all blocks in region" : "Régió blokkjainak kinyitása"}">&#8597;</button>
           <button type="button" class="region-select-asm-btn" title="${currentLanguage === "en" ? "Select region range in ASM view" : "Régió kijelölése az ASM nézetben"}">&#9678;</button>
+          <button type="button" class="region-copy-btn" title="${currentLanguage === "en" ? "Copy region with all blocks" : "Régió másolása az összes blokkal"}">&#10697;</button>
+          <button type="button" class="region-paste-btn" title="${currentLanguage === "en" ? "Paste copied region after this region" : "Másolt régió beillesztése e régió után"}" style="${_clipboardRegion ? '' : 'opacity:0.4'}">&#9112;</button>
         </div>`
       );
-      blockControls.querySelector(".region-expand-all-btn")?.addEventListener("click", () => {
+      node.querySelector(".region-expand-all-btn")?.addEventListener("click", () => {
         // Expand the group itself if collapsed, then expand all child blocks
         if (block.regionCollapsed) {
           block.regionCollapsed = false;
           block.collapsed = false;
         }
-        let inside = false;
-        program.forEach((b, i) => {
-          if (i === index) { inside = true; return; }
-          if (b.isRegionMacro || b.isEndRegionMacro) { inside = false; return; }
-          if (inside) b.collapsed = false;
-        });
+        // Depth-aware scan: expand all blocks within this region (handles nested regions)
+        let depth = 0;
+        for (let i = index; i < program.length; i++) {
+          const _b = program[i];
+          if (_b.isRegionMacro || _b.mnemonic === "REGION") {
+            if (i === index) { depth++; continue; }
+            depth++;
+            _b.regionCollapsed = false;
+            _b.collapsed = false;
+          } else if (_b.isEndRegionMacro || _b.mnemonic === "ENDREGION") {
+            if (--depth === 0) break;
+          } else if (depth > 0) {
+            _b.collapsed = false;
+          }
+        }
         renderProgram();
       });
 
-      blockControls.querySelector(".region-select-asm-btn")?.addEventListener("click", () => {
+      node.querySelector(".region-copy-btn")?.addEventListener("click", () => {
+        let depth = 0, endIndex = -1;
+        for (let i = index; i < program.length; i++) {
+          const _b = program[i];
+          if (_b.isRegionMacro || _b.mnemonic === "REGION") depth++;
+          else if (_b.isEndRegionMacro || _b.mnemonic === "ENDREGION") { if (--depth === 0) { endIndex = i; break; } }
+        }
+        let slice;
+        if (endIndex === -1) {
+          // Region has no matching ENDREGION — copy the REGION block and add a synthetic ENDREGION
+          // so the paste always produces a complete, balanced region structure
+          slice = [program[index], _importMakeEndRegion()];
+        } else {
+          slice = program.slice(index, endIndex + 1);
+        }
+        _clipboardRegion = slice.map(b => ({ ...b, id: crypto.randomUUID() }));
+        const btn = node.querySelector(".region-copy-btn");
+        const pasteBtn = node.querySelector(".region-paste-btn");
+        if (btn) { const orig = btn.innerHTML; btn.innerHTML = "&#10003;"; setTimeout(() => { btn.innerHTML = orig; }, 700); }
+        if (pasteBtn) pasteBtn.style.opacity = "";
+      });
+
+      node.querySelector(".region-paste-btn")?.addEventListener("click", () => {
+        if (!_clipboardRegion || _clipboardRegion.length === 0) return;
+        let depth = 0, endIndex = -1;
+        for (let i = index; i < program.length; i++) {
+          const _b = program[i];
+          if (_b.isRegionMacro || _b.mnemonic === "REGION") depth++;
+          else if (_b.isEndRegionMacro || _b.mnemonic === "ENDREGION") { if (--depth === 0) { endIndex = i; break; } }
+        }
+        // When endIndex === -1 the target region has no ENDREGION; append at end of program
+        // rather than inserting at index+1 (which would land inside the unclosed region)
+        const insertAt = endIndex === -1 ? program.length : endIndex + 1;
+        const toInsert = _clipboardRegion.map(b => ({ ...b, id: crypto.randomUUID() }));
+        // Force the pasted REGION to be expanded so the user can clearly see it was pasted
+        if (toInsert.length > 0 && toInsert[0].isRegionMacro) {
+          toInsert[0].regionCollapsed = false;
+          toInsert[0].collapsed = false;
+          // Give the pasted region a unique name so it doesn't conflict with the original
+          const origName = toInsert[0].regionName || "region";
+          let newName = `copy of ${origName}`;
+          let counter = 2;
+          while (program.some(b => b.isRegionMacro && b.regionName === newName)) {
+            newName = `copy of ${origName} ${counter++}`;
+          }
+          toInsert[0].regionName = newName;
+        }
+        program.splice(insertAt, 0, ...toInsert);
+        markTabDirty();
+        renderProgram();
+        // Scroll the newly pasted REGION block into view
+        requestAnimationFrame(() => {
+          const pastedNode = programList.querySelector(`[data-index="${insertAt}"]`);
+          if (pastedNode) pastedNode.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        });
+      });
+
+      node.querySelector(".region-select-asm-btn")?.addEventListener("click", () => {
         // Find the matching ENDREGION block and its index
         let endGroupBlock = null;
         let endGroupIndex = -1;
         let depth = 0;
         for (let i = index; i < program.length; i++) {
-          if (program[i].isRegionMacro) depth++;
-          else if (program[i].isEndRegionMacro) {
+          const _b = program[i];
+          if (_b.isRegionMacro || _b.mnemonic === "REGION") depth++;
+          else if (_b.isEndRegionMacro || _b.mnemonic === "ENDREGION") {
             depth--;
             if (depth === 0) { endGroupBlock = program[i]; endGroupIndex = i; break; }
           }
@@ -12463,6 +12842,22 @@ function renderProgram() {
     const joySpriteNumInput = node.querySelector(".joy-sprite-num");
     if (joySpriteNumInput) {
       joySpriteNumInput.addEventListener("input", (event) => updateProgramBlock(index, "joySpriteNum", event.target.value));
+    }
+    const mousePortSelect = node.querySelector(".mouse-port");
+    if (mousePortSelect) {
+      mousePortSelect.addEventListener("change", (event) => updateProgramBlock(index, "mousePort", event.target.value));
+    }
+    const mouseSpriteNumInput = node.querySelector(".mouse-sprite-num");
+    if (mouseSpriteNumInput) {
+      mouseSpriteNumInput.addEventListener("input", (event) => updateProgramBlock(index, "mouseSpriteNum", event.target.value));
+    }
+    const mousePotXZPInput = node.querySelector(".mouse-pot-x-zp");
+    if (mousePotXZPInput) {
+      mousePotXZPInput.addEventListener("input", (event) => updateProgramBlock(index, "mousePotXZP", event.target.value));
+    }
+    const mousePotYZPInput = node.querySelector(".mouse-pot-y-zp");
+    if (mousePotYZPInput) {
+      mousePotYZPInput.addEventListener("input", (event) => updateProgramBlock(index, "mousePotYZP", event.target.value));
     }
     const rasterLineInput = node.querySelector(".raster-line");
     if (rasterLineInput) {
@@ -13269,6 +13664,12 @@ function renderAsmOutput() {
       return `; .joystick port=${line.block.joyPort || "2"} sprite=${line.block.joySpriteNum || "0"}`;
     }
 
+    if (line.block.isMouseMacro) {
+      const zpX = (line.block.mousePotXZP || "FD").toUpperCase();
+      const zpY = (line.block.mousePotYZP || "FE").toUpperCase();
+      return `; .mouse port=${line.block.mousePort || "2"} sprite=${line.block.mouseSpriteNum || "0"} zp=$${zpX}/$${zpY}`;
+    }
+
     if (line.block.isSpriteColMacro) {
       return `; .sprite_col #${line.block.spriteNum || "0"} ${line.block.colType || "sprite"}`;
     }
@@ -13629,6 +14030,14 @@ async function loadMemoryOverlapDemo() {
   await loadSampleFromFile("memory-overlap-demo");
 }
 
+async function loadRandLinesDemo() {
+  await loadSampleFromFile("rand-lines-demo");
+}
+
+async function loadReuDemo() {
+  await loadSampleFromFile("reu-demo");
+}
+
 async function loadSidDirectDemo() {
   const ok = await loadSampleFromFile("sid-direct-demo");
   if (!ok) return;
@@ -13779,6 +14188,16 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "memory-overlap-demo") {
     loadMemoryOverlapDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "rand-lines-demo") {
+    loadRandLinesDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "reu-demo") {
+    loadReuDemo();
     return;
   }
 

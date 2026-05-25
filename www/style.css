@@ -1454,6 +1454,11 @@ button:focus-visible,
   -webkit-user-drag: element;
 }
 
+.asm-block[data-collapsed="true"] {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 64px;
+}
+
 .asm-block[data-category-tone="data"] {
   --block-tone: #00cccc;
   --block-tone-soft: color-mix(in srgb, #00cccc 18%, transparent);
@@ -2039,6 +2044,11 @@ html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
   overflow: hidden;
   flex: 1 1 auto;
   min-width: 0;
+}
+
+/* REGION header has extra buttons in the topline — never clip them */
+.asm-block.region-header[data-collapsed="true"] .block-topline {
+  overflow: visible;
 }
 
 .asm-block[data-collapsed="true"] .block-main {
@@ -3218,7 +3228,7 @@ body.expert-mode .expert-panel {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: color-mix(in srgb, var(--panel-strong) 40%, transparent);
+  background: var(--output-bg);
 }
 
 .expert-disasm-panel[hidden],
@@ -3233,7 +3243,7 @@ body.expert-mode .expert-panel {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: color-mix(in srgb, var(--panel-strong) 40%, transparent);
+  background: var(--output-bg);
 }
 
 .expert-disasm-output,
@@ -3244,7 +3254,7 @@ body.expert-mode .expert-panel {
   font-family: 'JetBrains Mono', 'Fira Mono', 'Cascadia Code', 'Consolas', monospace;
   font-size: 0.78rem;
   line-height: 1.6;
-  color: var(--secondary);
+  color: var(--output-text);
   overflow: auto;
   white-space: pre;
   tab-size: 4;
@@ -3414,7 +3424,7 @@ body.expert-mode .expert-panel {
 .expert-project-symbols {
   flex-shrink: 0;
   border-top: 1px solid var(--panel-border);
-  max-height: 160px;
+  max-height: min(320px, 42vh);
   overflow-y: auto;
   scrollbar-width: thin;
   padding: 3px 0 5px;
@@ -4493,15 +4503,18 @@ body.crt-mode #crt-overlay::after {
   opacity: 0.65;
 }
 
-.region-btn-row {
+.region-topline-btns {
   display: flex;
   flex-direction: row;
-  gap: 4px;
-  margin-top: 2px;
+  gap: 2px;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .region-expand-all-btn,
-.region-select-asm-btn {
+.region-select-asm-btn,
+.region-copy-btn,
+.region-paste-btn {
   min-width: calc(22px * var(--block-scale));
   width: calc(22px * var(--block-scale));
   height: calc(22px * var(--block-scale));
@@ -4516,6 +4529,14 @@ body.crt-mode #crt-overlay::after {
   font-size: calc(0.72rem * var(--block-scale));
   line-height: 1;
   cursor: pointer;
+}
+
+.region-expand-all-btn:hover,
+.region-select-asm-btn:hover,
+.region-copy-btn:hover,
+.region-paste-btn:hover {
+  background: var(--secondary);
+  border-color: var(--secondary);
 }
 
 .asm-block.region-header .block-mnemonic {
