@@ -9,9 +9,16 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 ## What's New
 
 ### v1.6.5
+- **MOUSE macro** — read C64 1351 proportional mouse via SID POTX/POTY (`$D419`/`$D41A`) and move a sprite; fields: port (1/2), sprite number, two zero-page bytes for previous POTX/POTY; generates a 37-byte inline routine (CIA port select → delta read → sprite register update)
+- **Region copy & paste** — each REGION block header now has a ⧉ copy button and a ⎘ paste button; copy captures the entire region (REGION + all child blocks + ENDREGION) into a clipboard; paste inserts the copy as a new region immediately after the current region's ENDREGION and scrolls to it; buttons are always visible regardless of collapse state
+- **Track block selection in palette** — clicking any block syncs the palette category, highlights the mnemonic, and updates the description panel; can be disabled to keep the palette pinned while editing
+- **Expert mode region highlight** — a continuous background div (`#expert-region-bg`) visually marks the active REGION in the expert text editor; updates on scroll and line-height changes
+- **Disassembler view** — new **Disasm** output mode shows a real-time disassembly listing (address · hex bytes · mnemonic) alongside the ASM and Monitor views
+- **`*` (current PC) operand** — any operand field accepts `*` as a shorthand for the instruction's own address; branch instructions treat `*` as a self-branch (offset `$FE`, infinite loop)
 - **TURBO_SET macro** — set U64 CPU turbo speed via `$D031`; speed index 0–15 (up to ~48 MHz) and badline enable/disable; 5 bytes
 - **SUPERCPU_DETECT macro** — detect CMD SuperCPU presence by comparing `$D0B8` to `$FF`; result in Z flag (`BNE` = present, `BEQ` = not found); 5 bytes
 - **TURBO_ENABLE macro** — enable or disable CMD SuperCPU turbo mode; writes `LDA #$00` + `STA $D07A` (enable) or `STA $D07B` (disable); 5 bytes
+- **Bug fixes** — Expert mode Disassembler/Monitor panels now always use a dark background so syntax highlight colors are readable in all themes; block description panel correctly updates on block selection
 
 ### v1.6.0
 - **REU_CHECK macro** — detect Commodore RAM Expansion Unit presence by comparing `$DF00` to `$FF`; result in Z flag (`BNE` = REU present, `BEQ` = not found); 5 bytes
@@ -112,6 +119,7 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **SPRITE_POS macro** — set a sprite's static X/Y position; handles `$D010` MSB for X > 255; parameters: sprite number, X (0–319), Y (0–255)
 - **WAIT_RASTER macro** — inline VIC-II raster line busy-wait (`LDA $D012 / CMP #line / BNE −7`); no JSR or label needed; 7 bytes
 - **JOYSTICK macro** — reads a CIA joystick port (1 = `$DC01`, 2 = `$DC00`) and moves a sprite via INC/DEC; 27 bytes inline
+- **MOUSE macro** — reads C64 1351 proportional mouse via SID POTX/POTY and moves a sprite; CIA port select, delta computation, sprite X/Y update; 37 bytes inline
 - **SPRITE_COL macro** — read VIC-II collision register (`$D01E` sprite–sprite, `$D01F` sprite–background); result in A register; 5 bytes
 - **LOADFILE macro** — load a named file from a D64 at runtime using KERNAL `SETNAM`/`SETLFS`/`LOAD`; optional address override and `BCS` error label; variable size
 - **REU_CHECK macro** — detect RAM Expansion Unit presence (`LDA $DF00 / CMP #$FF`); result in Z flag; 5 bytes
@@ -119,6 +127,8 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **TURBO_SET macro** — set U64 CPU speed via `$D031`; speed index 0–15 + badline control; 5 bytes
 - **SUPERCPU_DETECT macro** — detect CMD SuperCPU (`LDA $D0B8 / CMP #$FF`); result in Z flag; 5 bytes
 - **TURBO_ENABLE macro** — CMD SuperCPU turbo on (`STA $D07A`) / off (`STA $D07B`); 5 bytes
+- **Disassembler view** — real-time **Disasm** output mode showing address, raw bytes, and mnemonic for every compiled instruction
+- **`*` (current PC) operand** — operand fields accept `*` as a shorthand for the current instruction address; branches with `*` generate an infinite self-loop (`BNE *` → offset `$FE`)
 - **LABEL & COMMENT blocks** — named jump targets and zero-byte annotations
 - **Memory strip** — full 64 KB C64 memory map visualised as a colour-coded strip (RAM / ROM / I/O)
 - **Monitor view** — hex + ASCII character dump, 8 bytes per row
