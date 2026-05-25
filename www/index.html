@@ -78,6 +78,7 @@
                     <option value="sid-direct-demo">SID player - SID makro (Ikari Warriors)</option>
                     <option value="sprite-macro-demo">SPRITE_INIT / SPRITE_POS makro demo</option>
                     <option value="joystick-demo">JOYSTICK makro demo</option>
+                    <option value="mouse-demo">MOUSE makro demo</option>
                     <option value="collision-demo">SPRITE_COL utkozes demo</option>
                     <option value="10-print">10 PRINT (veletlen labirintus)</option>
                     <option value="irq-demo">Raszter IRQ demo (szin villogas)</option>
@@ -569,7 +570,7 @@
           <strong>Track block selection in palette</strong> — new checkbox in Settings. When enabled (default), clicking a block in the program list syncs the palette category, highlights the mnemonic, and updates the description panel. Disable it to keep the palette pinned while editing.
         </li>
         <li>
-          <strong>MOUSE macro</strong> — read a C64 1351 proportional mouse via SID <code>POTX</code>/<code>POTY</code> (<code>$D419</code>/<code>$D41A</code>) and move a chosen sprite accordingly. Fields: port (1 or 2), sprite number, two zero-page bytes for previous POT values. 37 bytes inline.
+          <strong>MOUSE macro</strong> — read a C64 1351 proportional mouse via SID <code>POTX</code>/<code>POTY</code> (<code>$D419</code>/<code>$D41A</code>) and move a chosen sprite accordingly. Fields: port (1 or 2), sprite number, two zero-page bytes for previous normalized mouse phases. Uses CIA <code>$DC00</code> upper-bit mux select, waits one SID conversion window, extracts the documented 6-bit mouse phase, applies 2x horizontal gain, keeps sprite X <code>$D010</code> in sync, and inverts Y for VICE. 104 bytes inline.
         </li>
         <li>
           <strong>REU macros</strong> — four macros for Commodore RAM Expansion Unit DMA transfers: <strong>REU_CHECK</strong> detects a REU via <code>$DFF8</code> (5 bytes); <strong>REU_STASH</strong> transfers C64 RAM → REU; <strong>REU_FETCH</strong> transfers REU → C64 RAM; <strong>REU_SWAP</strong> swaps C64 RAM ↔ REU. Each DMA macro is 40 bytes and takes C64 address, REU address, bank, and length fields.
