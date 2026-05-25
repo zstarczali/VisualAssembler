@@ -3835,11 +3835,17 @@ body.expert-mode .expert-panel {
 
 .d64-extra-name {
   flex: 1;
+  min-height: 28px;
+  height: 28px;
+  padding-block: 0;
 }
 
 .d64-extra-addr {
   width: 72px;
   flex: none;
+  min-height: 28px;
+  height: 28px;
+  padding-block: 0;
 }
 
 .d64-extra-source {
@@ -3857,16 +3863,30 @@ body.expert-mode .expert-panel {
   border: 1px solid var(--panel-border);
   border-radius: 6px;
   color: var(--error, #d97706);
-  padding: 4px 9px;
+  padding: 0;
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
   cursor: pointer;
   font-size: 1rem;
   line-height: 1;
   flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .d64-export-extra-remove:hover {
   background: color-mix(in srgb, var(--error, #d97706) 12%, transparent);
   border-color: color-mix(in srgb, var(--error, #d97706) 40%, transparent);
+}
+
+#d64-export-add-file {
+  padding: 0;
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
+  flex: none;
 }
 
 .d64-export-actions {

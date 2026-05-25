@@ -172,7 +172,7 @@ const mnemonicLibrary = {
     { mnemonic: "SPRITE_POS", description: "Sprite pozicio beallitasa: X (0-319) es Y (0-255), kezeli a $D010 felso bitet X>255 eseten.", modes: ["implied"], isSpritePosMacro: true },
     { mnemonic: "WAIT_RASTER", description: "Rasztervonal varakozas: LDA $D012 / CMP #sor / BNE -7. Inline, 7 byte, nincs JSR.", modes: ["implied"], isWaitRasterMacro: true },
     { mnemonic: "JOYSTICK", description: "Joystick olvasas es sprite mozgatasa: UP/DOWN/LEFT/RIGHT bitek LSR+BCS+DEC/INC-cel. Port 1=$DC01, Port 2=$DC00 (alap). 27 byte inline.", modes: ["implied"], isJoystickMacro: true },
-    { mnemonic: "MOUSE", description: "C64 1351 arányos egér vezérlése: SID POTX/POTY olvasás, a dokumentált xPPPPPPn mintából a 6 bites modulo-pozíció kinyerése, CIA $DC00 felső 2 bitjével portválasztás, 512-ciklusos SID settle wait, $D010 X-MSB kezelés, Y tengely invertálva (VICE), sprite pozíció frissítés. 103 byte inline.", modes: ["implied"], isMouseMacro: true },
+    { mnemonic: "MOUSE", description: "C64 1351 arányos egér vezérlése: SID POTX/POTY olvasás, a dokumentált xPPPPPPn mintából a 6 bites modulo-pozíció kinyerése, CIA $DC00 felső 2 bitjével portválasztás, 512-ciklusos SID settle wait, mindkét tengelyen dead zone és deltaclip, X tengelyen 2x gain, $D010 X-MSB kezelés, Y tengely invertálva (VICE), sprite pozíció frissítés. 154 byte inline.", modes: ["implied"], isMouseMacro: true },
     { mnemonic: "SPRITE_COL", description: "Sprite utkozes detektalas: LDA $D01E/$D01F + AND #bitMask. Eredmeny A-ban: nem nulla = utkozes. Utana BEQ/BNE-vel ugri. 5 byte.", modes: ["implied"], isSpriteColMacro: true },
     { mnemonic: "LOADFILE", description: "Fajl betoltese D64-rol KERNAL SETNAM/SETLFS/LOAD rutinokkal. Cim opcionalis (ures = fajl sajat cime, sec=1; kitoltve = override, sec=0). Hiba cimke opcionalis (BCS).", modes: ["implied"], isLoadFileMacro: true },
     { mnemonic: "REU_CHECK", description: "REU (RAM bovito egyseg) jelenletenek ellenorzese: $DF04 write/read proba $55 es $AA mintaval. Z=0 → REU jelen van (BNE-vel ugri), Z=1 → nincs REU (BEQ-vel ugri). 34 byte.", modes: ["implied"], isReuCheckMacro: true },
@@ -1244,7 +1244,7 @@ const mnemonicDescriptionsEn = {
   SPRITE_POS: "Set sprite position: X (0–319) and Y (0–255). Handles the $D010 MSB for X > 255.",
   WAIT_RASTER: "Busy-wait for a raster line: LDA $D012 / CMP #line / BNE -7. Inline, 7 bytes, no JSR.",
   JOYSTICK: "Read joystick and move sprite: UP/DOWN/LEFT/RIGHT via LSR+BCS+DEC/INC. Port 1=$DC01, Port 2=$DC00. 27 bytes inline.",
-  MOUSE: "Read 1351 proportional mouse via SID POTX/POTY ($D419/$D41A) and move sprite. The macro extracts the documented 6-bit xPPPPPPn mouse phase, selects the analog port via CIA $DC00 upper bits, waits one SID conversion window, keeps sprite X $D010 in sync, and inverts Y for VICE. 103 bytes inline.",
+  MOUSE: "Read 1351 proportional mouse via SID POTX/POTY ($D419/$D41A) and move sprite. The macro extracts the documented 6-bit xPPPPPPn mouse phase, selects the analog port via CIA $DC00 upper bits, waits one SID conversion window, filters tiny jitter on both axes, clamps per-frame deltas, applies 2x horizontal gain, keeps sprite X $D010 in sync, and inverts Y for VICE. 154 bytes inline.",
   SPRITE_COL: "Sprite collision detection: LDA $D01E/$D01F + AND #bitMask. Result in A: non-zero = collision. Follow with BEQ/BNE. 5 bytes.",
   DEFINE: "Define a symbol for conditional assembly. When present, IF blocks evaluate the condition.",
   CONST: "Named constant definition. Can be used as an operand in any mnemonic (LDA, STA, JSR, etc.).",
@@ -9299,9 +9299,10 @@ function compileLineBytes(line, labels) {
     const xLo = xAddr & 0xFF, xHi = xAddr >> 8;
     const yLo = yAddr & 0xFF, yHi = yAddr >> 8;
     const ciaSelectSize = 15; // select via bits 7:6 + wait one 512-cycle SID conversion window
-    const xAxisSize = 59;
+    const xAxisSize = 83;
     const xDoneAddr = line.address + ciaSelectSize + xAxisSize;
-    // CIA select+settle(15) + X-axis with 6-bit modulo delta and $D010 MSB handling(59) + Y-axis with 6-bit modulo delta+invert(29) = 103 bytes
+    const yApplyAddr = line.address + ciaSelectSize + xAxisSize + 47;
+    // CIA select+settle(15) + X-axis with 6-bit modulo delta, dead zone, clip, 2x gain and $D010 MSB handling(83) + Y-axis with 6-bit modulo delta, dead zone, clip and invert(56) = 154 bytes
     // 1351 proportional mode exposes xPPPPPPn in POTX/POTY: bit0=noise, bits1-6=position modulo 64, bit7 ignored.
     // Store the normalized 6-bit sample in zpX/zpY, then compute a signed modulo-64 delta each frame.
     // After changing the analog mux, wait for a full SID conversion window before reading POTX/POTY.
@@ -9328,15 +9329,28 @@ function compileLineBytes(line, labels) {
       0x90, 0x02,             // BCC +2        → already positive 0..31
       0x09, 0xC0,             // ORA #$C0      (sign-extend 32..63 to -32..-1)
       0x86, zpX,              // STX $zpX      (update prev_x with normalized sample)
-      0x30, 0x14,             // BMI +20       → negative-delta path
+      0xC9, 0x01,             // CMP #$01      (dead zone: ignore tiny +1 jitter)
+      0xF0, 0x04,             // BEQ +4        → LDA #0
+      0xC9, 0xFF,             // CMP #$FF      (dead zone: ignore tiny -1 jitter)
+      0xD0, 0x02,             // BNE +2        → keep delta
+      0xA9, 0x00,             // LDA #0
+      0x30, 0x1B,             // BMI +27       → negative-delta path
+      0xC9, 0x05,             // CMP #$05      (positive clip before 2x gain)
+      0x90, 0x02,             // BCC +2        → keep positive delta
+      0xA9, 0x04,             // LDA #$04      (clip to +4 → +8 after gain)
+      0x0A,                   // ASL A         (2x horizontal gain for fuller screen travel)
       0x18,                   // CLC
       0x6D, xLo, xHi,         // ADC $D000+N*2 (sprite_X + delta)
       0x8D, xLo, xHi,         // STA $D000+N*2
-      0x90, 0x1C,             // BCC +28       → Y-axis start (no MSB change)
+      0x90, 0x23,             // BCC +35       → Y-axis start (no MSB change)
       0xAD, 0x10, 0xD0,       // LDA $D010
       0x09, xMsbMask,         // ORA #bitN     (set sprite X MSB on overflow)
       0x8D, 0x10, 0xD0,       // STA $D010
       0x4C, xDoneAddr & 0xFF, (xDoneAddr >> 8) & 0xFF, // JMP Y-axis start
+      0xC9, 0xFC,             // CMP #$FC      (negative clip before 2x gain)
+      0xB0, 0x02,             // BCS +2        → keep negative delta
+      0xA9, 0xFC,             // LDA #$FC      (clip to -4 → -8 after gain)
+      0x0A,                   // ASL A         (2x horizontal gain)
       0x18,                   // CLC
       0x6D, xLo, xHi,         // ADC $D000+N*2 (sprite_X + delta)
       0x8D, xLo, xHi,         // STA $D000+N*2
@@ -9356,6 +9370,19 @@ function compileLineBytes(line, labels) {
       0x90, 0x02,             // BCC +2        → already positive 0..31
       0x09, 0xC0,             // ORA #$C0      (sign-extend 32..63 to -32..-1)
       0x84, zpY,              // STY $zpY      (update prev_y with normalized sample)
+      0xC9, 0x01,             // CMP #$01      (dead zone: ignore tiny +1 jitter)
+      0xF0, 0x04,             // BEQ +4        → LDA #0
+      0xC9, 0xFF,             // CMP #$FF      (dead zone: ignore tiny -1 jitter)
+      0xD0, 0x02,             // BNE +2        → keep delta
+      0xA9, 0x00,             // LDA #0
+      0x30, 0x09,             // BMI +9        → negative-delta path
+      0xC9, 0x09,             // CMP #$09      (positive Y clip)
+      0x90, 0x02,             // BCC +2        → keep positive Y delta
+      0xA9, 0x08,             // LDA #$08
+      0x4C, yApplyAddr & 0xFF, (yApplyAddr >> 8) & 0xFF, // JMP apply Y delta
+      0xC9, 0xF8,             // CMP #$F8      (negative Y clip)
+      0xB0, 0x02,             // BCS +2        → keep negative Y delta
+      0xA9, 0xF8,             // LDA #$F8
       0x49, 0xFF,             // EOR #$FF      (invert Y: mouse-up → sprite-up)
       0x38,                   // SEC
       0x6D, yLo, yHi,         // ADC $D001+N*2 (sprite_Y - delta)
@@ -10203,7 +10230,7 @@ function getInstructionSize(block) {
   }
 
   if (block.isMouseMacro) {
-    return 103;  // CIA select via bits 7:6 + settle wait(15) + X-axis 6-bit modulo delta with $D010 MSB handling(59) + Y-axis 6-bit modulo delta + EOR invert(29)
+    return 154;  // CIA select via bits 7:6 + settle wait(15) + X-axis 6-bit modulo delta with dead zone, clip, 2x gain and $D010 MSB handling(83) + Y-axis 6-bit modulo delta with dead zone, clip and EOR invert(56)
   }
 
   if (block.isWaitRasterMacro) {

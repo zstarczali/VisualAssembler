@@ -1204,7 +1204,7 @@ skip_right:
 <a id="mouse"></a>
 ### MOUSE
 
-Reads a Commodore 1351 proportional mouse via the SID chip's paddle inputs (`POTX` = `$D419`, `POTY` = `$D41A`) and moves a sprite proportionally. Entirely **inline** — no JSR or label needed. The 1351 proportional format is not a plain 8-bit position sample: the useful bits are `xPPPPPPn`, where bit 0 is noise, bits 1–6 are the mouse phase modulo 64, and the top bit is ignored. The macro therefore normalizes each POT sample to a 6-bit modulo position before computing the delta. After selecting the control port on CIA1 `$DC00`, the macro waits roughly one SID conversion window (just over 512 machine cycles) before reading the POT registers, otherwise the reads can be stale or mid-switch. The Y-axis delta is negated (`EOR #$FF` + `SEC` before `ADC`) because VICE's 1351 emulation increases `POTY` when the host mouse moves up, which is the opposite of the VIC-II screen Y direction. Sprite X updates also maintain the correct `$D010` MSB bit so movement across X=`255` does not wrap to the left edge.
+Reads a Commodore 1351 proportional mouse via the SID chip's paddle inputs (`POTX` = `$D419`, `POTY` = `$D41A`) and moves a sprite proportionally. Entirely **inline** — no JSR or label needed. The 1351 proportional format is not a plain 8-bit position sample: the useful bits are `xPPPPPPn`, where bit 0 is noise, bits 1–6 are the mouse phase modulo 64, and the top bit is ignored. The macro therefore normalizes each POT sample to a 6-bit modulo position before computing the delta. After selecting the control port on CIA1 `$DC00`, the macro waits roughly one SID conversion window (just over 512 machine cycles) before reading the POT registers, otherwise the reads can be stale or mid-switch. The X delta is then doubled so the sprite can use the full visible width more naturally in VICE. The Y-axis delta is negated (`EOR #$FF` + `SEC` before `ADC`) because VICE's 1351 emulation increases `POTY` when the host mouse moves up, which is the opposite of the VIC-II screen Y direction. Sprite X updates also maintain the correct `$D010` MSB bit so movement across X=`255` does not wrap to the left edge.
 
 Deltas are **clamped to ±64** before being applied: if the raw delta falls outside the range 0–64 or 192–255, it is discarded and the zero-page reference value is **not updated**. This prevents the SID discharge glitch (the SID briefly reads ~0 every 512 cycles during capacitor reset) from causing large sprite jumps.
 
@@ -1238,6 +1238,7 @@ wait:
     BCC +
     ORA #$C0        ; sign-extend to -32..-1
 +   STX $FD         ; update prev_x with normalized sample
+    ASL A           ; 2x horizontal gain
     BMI negx        ; negative delta needs borrow-aware $D010 update
     CLC
     ADC $D000       ; apply positive delta to sprite X
@@ -1275,7 +1276,7 @@ xdone:
     STA $D001
 ```
 
-**Size:** 103 bytes.
+**Size:** 104 bytes.
 
 **Expert mode syntax:**
 ```
