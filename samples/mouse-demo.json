@@ -58,8 +58,8 @@
       "id": "c1d2e3f4-0005-4000-8000-200000000005",
       "category": "Makrok",
       "mnemonic": "BYTE",
-      "operand": "$00,$7E,$00,$00,$FF,$00,$01,$FF,$80,$03,$FF,$C0,$07,$FF,$E0,$0F,$FF,$F0,$1F,$FF,$F8,$1F,$FF,$F8,$1F,$FF,$F8,$1F,$FF,$F8,$1F,$FF,$F8,$0F,$FF,$F0,$07,$FF,$E0,$03,$FF,$C0,$01,$FF,$80,$00,$FF,$00,$00,$7E,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00",
-      "rawOperand": "$00,$7E,$00,$00,$FF,$00,$01,$FF,$80,$03,$FF,$C0,$07,$FF,$E0,$0F,$FF,$F0,$1F,$FF,$F8,$1F,$FF,$F8,$1F,$FF,$F8,$1F,$FF,$F8,$1F,$FF,$F8,$0F,$FF,$F0,$07,$FF,$E0,$03,$FF,$C0,$01,$FF,$80,$00,$FF,$00,$00,$7E,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00",
+      "operand": "$C0,$00,$00,$E0,$00,$00,$F0,$00,$00,$D8,$00,$00,$CC,$00,$00,$C6,$00,$00,$C3,$00,$00,$C1,$80,$00,$C0,$C0,$00,$C0,$60,$00,$C0,$30,$00,$C0,$18,$00,$C3,$FC,$00,$C6,$00,$00,$CC,$00,$00,$F8,$00,$00,$F0,$00,$00,$C0,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00",
+      "rawOperand": "$C0,$00,$00,$E0,$00,$00,$F0,$00,$00,$D8,$00,$00,$CC,$00,$00,$C6,$00,$00,$C3,$00,$00,$C1,$80,$00,$C0,$C0,$00,$C0,$60,$00,$C0,$30,$00,$C0,$18,$00,$C3,$FC,$00,$C6,$00,$00,$CC,$00,$00,$F8,$00,$00,$F0,$00,$00,$C0,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00",
       "description": "Tetszoleges byte tomb beillesztese vesszovel elvalasztva.",
       "addressingMode": "implied",
       "base": "bytes",
@@ -163,7 +163,7 @@
       "collapsed": true,
       "isSpriteInitMacro": true,
       "spriteNum": "0",
-      "spriteColor": "7",
+      "spriteColor": "1",
       "spriteDataPage": "21"
     },
     {
@@ -360,7 +360,7 @@
       "mnemonic": "MOUSE",
       "operand": "",
       "rawOperand": "",
-      "description": "C64 1351 aranyos eger vezerlese: SID POTX/POTY olvasas, a dokumentalt xPPPPPPn mintabol 6 bites modulo-pozicio kinyerese, CIA $DC00 felső 2 bitjével portvalasztas, 512-ciklusos settle wait, $D010 X-MSB kezeles, sprite pozicio frissites. 103 byte inline.",
+      "description": "C64 1351 aranyos eger vezerlese: SID POTX/POTY olvasas, a dokumentalt xPPPPPPn mintabol 6 bites modulo-pozicio kinyerese, CIA $DC00 felső 2 bitjével portvalasztas, 512-ciklusos settle wait, mindket tengelyen dead zone es deltaclip, X tengelyen 2x gain, $D010 X-MSB kezeles, sprite pozicio frissites. 154 byte inline.",
       "addressingMode": "implied",
       "base": "hex",
       "validationError": "",
