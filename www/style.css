@@ -1373,6 +1373,11 @@ button:focus-visible,
 .palette-item.dragging {
   opacity: 0.55;
 }
+.palette-item.palette-item--active {
+  background: color-mix(in srgb, var(--accent) 14%, var(--panel-strong));
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--panel-border));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent), 0 2px 6px color-mix(in srgb, black 4%, transparent);
+}
 
 .palette-mnemonic {
   display: block;
@@ -3152,7 +3157,15 @@ body.expert-mode .expert-panel {
   outline: 1px solid color-mix(in srgb, var(--accent) 60%, transparent);
   border-radius: 2px;
 }
-.expert-hl .hl-region-body {
+/* Continuous region body background — absolutely-positioned div inside <pre>,
+   translated in sync with the code element to follow scrolling.
+   z-index: -1 keeps it behind the code text but above the pre's own background. */
+.expert-region-bg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: -1;
+  pointer-events: none;
   background: color-mix(in srgb, var(--accent) 9%, transparent);
 }
 

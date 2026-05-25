@@ -1595,6 +1595,10 @@ function initPalette() {
       expertHlCode.style.transform =
         `translate(${-expertEditor.scrollLeft}px, ${-expertEditor.scrollTop}px)`;
     }
+    const _regionBg = document.getElementById("expert-region-bg");
+    if (_regionBg && !_regionBg.hidden) {
+      _regionBg.style.transform = `translateY(${-expertEditor.scrollTop}px)`;
+    }
     _expertAcHide();
   });
   aboutCloseButton?.addEventListener("click", () => aboutDialog?.close());
@@ -1669,6 +1673,8 @@ function initPalette() {
     if (e.target.closest("#theme-picker")) return;
     // Don't close when using zoom buttons
     if (e.target.closest("#zoom-in, #zoom-out")) return;
+    // Don't close when toggling CRT mode
+    if (e.target.closest("#crt-toggle")) return;
     // Small delay so the button's own handler can fire first
     setTimeout(() => { controlMenu.removeAttribute("open"); }, 80);
   });
@@ -2685,6 +2691,36 @@ function renderPaletteItems() {
 
     paletteList.appendChild(node);
   });
+  _highlightActivePaletteItem();
+}
+
+function _syncPaletteToBlock(blockId) {
+  if (expertMode) return;
+  if (paletteSearchInput && paletteSearchInput.value.trim()) return; // don't override search
+  const block = program.find(b => b.id === blockId);
+  if (!block || !block.category || !mnemonicLibrary[block.category]) return;
+  if (categorySelect.value !== block.category) {
+    categorySelect.value = block.category;
+    syncMnemonicMenu(); // re-renders palette + calls _highlightActivePaletteItem at end
+  } else {
+    _highlightActivePaletteItem();
+  }
+}
+
+function _highlightActivePaletteItem() {
+  document.querySelectorAll(".palette-item--active").forEach(el => el.classList.remove("palette-item--active"));
+  if (!selectedBlockId) return;
+  const block = program.find(b => b.id === selectedBlockId);
+  if (!block) return;
+  const items = paletteList.querySelectorAll(".palette-item");
+  for (const item of items) {
+    const mn = item.querySelector(".palette-mnemonic")?.textContent?.trim();
+    if (mn === block.mnemonic) {
+      item.classList.add("palette-item--active");
+      item.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      break;
+    }
+  }
 }
 
 function renderSearchResults(query) {
@@ -4226,12 +4262,28 @@ function _expertApplyHighlight() {
     if (rh) {
       if (i === rh.start || i === rh.end)
         return `<span class="hl-region-bracket">${hl}</span>${nl}`;
-      if (i > rh.start && i < rh.end)
-        return `<span class="hl-region-body">${hl}</span>${nl}`;
+      // body lines: background covered by #expert-region-bg div (no per-line span needed)
     }
     return hl + nl;
   }).join("");
   expertHlCode.innerHTML = html;
+  _updateExpertRegionBg();
+}
+
+function _updateExpertRegionBg() {
+  const bgDiv = document.getElementById("expert-region-bg");
+  if (!bgDiv || !expertEditor) return;
+  const rh = _expertRegionHighlight;
+  if (!rh || !_expertHlEnabled) {
+    bgDiv.hidden = true;
+    return;
+  }
+  const lh = parseFloat(getComputedStyle(expertEditor).lineHeight);
+  const pt = parseFloat(getComputedStyle(expertEditor).paddingTop);
+  bgDiv.style.top    = (pt + rh.start * lh) + "px";
+  bgDiv.style.height = ((rh.end - rh.start + 1) * lh) + "px";
+  bgDiv.style.transform = `translateY(${-expertEditor.scrollTop}px)`;
+  bgDiv.hidden = false;
 }
 
 function parseExpertText(text) {
@@ -12801,6 +12853,7 @@ function selectBlockInAsm(blockId) {
   if (blockNode) blockNode.classList.add("asm-block--selected");
 
   applyAsmHighlight(blockId);
+  _syncPaletteToBlock(blockId);
 }
 
 function renderAsmOutput() {
