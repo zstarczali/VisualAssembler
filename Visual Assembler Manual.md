@@ -1206,9 +1206,11 @@ skip_right:
 
 Reads a Commodore 1351 proportional mouse via the SID chip's paddle inputs (`POTX` = `$D419`, `POTY` = `$D41A`) and moves a sprite proportionally. Entirely **inline** — no JSR or label needed. The Y-axis delta is negated (`EOR #$FF` + `SEC` before `ADC`) because VICE's 1351 emulation increases `POTY` when the host mouse moves up, which is the opposite of the VIC-II screen Y direction.
 
+Deltas are **clamped to ±64** before being applied: if the raw delta falls outside the range 0–64 or 192–255, it is discarded and the zero-page reference value is **not updated**. This prevents the SID discharge glitch (the SID briefly reads ~0 every 512 cycles during capacitor reset) from causing large sprite jumps.
+
 | Field | Description |
 |---|---|
-| Port | `1` = CIA port offset `$00`, `2` = CIA port offset `$40` |
+| Port | `1` = CIA `ORA #$40`, `2` = CIA `AND #$BF` |
 | Sprite # | Sprite number 0–7 (controls which `$D000`/`$D001` pair is updated) |
 | ZP byte X | Zero-page address (hex, 1 byte) used to store the previous POTX value (e.g. `FD`) |
 | ZP byte Y | Zero-page address (hex, 1 byte) used to store the previous POTY value (e.g. `FE`) |
@@ -1217,30 +1219,42 @@ Reads a Commodore 1351 proportional mouse via the SID chip's paddle inputs (`POT
 ```
     ; CIA port select
     LDA $DC00
-    AND #$BF        ; port 1 selector (clear bit 6)
+    ORA #$40        ; port 1 selector (set bit 6 → SID reads control port 1)
     STA $DC00
-    ; X axis
+    ; X axis — delta clamped ±64 (prevents SID discharge glitch jumps)
     LDA $D419       ; read POTX
-    TAX
+    TAX             ; save current for STX
     SEC
     SBC $FD         ; delta = current − previous
+    CMP #65         ; delta < 65 → valid forward movement
+    BCC +8          ; → STX $FD
+    CMP #192        ; delta ≥ 192 → valid backward movement (−64..−1)
+    BCS +4          ; → STX $FD
+    LDA #0          ; glitch: clamp delta, do not update zpX
+    BEQ +2          ; → skip STX
+    STX $FD         ; update prev_x (valid delta only)
     CLC
     ADC $D000       ; apply delta to sprite X
     STA $D000
-    STX $FD         ; save current POTX
-    ; Y axis (inverted: EOR #$FF + SEC)
+    ; Y axis — delta clamped ±64, then inverted
     LDA $D41A       ; read POTY
-    TAY
+    TAY             ; save current for STY
     SEC
     SBC $FE         ; delta = current − previous
+    CMP #65
+    BCC +8          ; → STY $FE
+    CMP #192
+    BCS +4          ; → STY $FE
+    LDA #0          ; glitch: clamp delta, do not update zpY
+    BEQ +2          ; → skip STY
+    STY $FE         ; update prev_y (valid delta only)
     EOR #$FF        ; invert Y (VICE POTY increases upward)
-    SEC             ; carry=1 → ADC gives two's complement negation
+    SEC
     ADC $D001       ; sprite_Y − delta (mouse up → sprite moves up)
     STA $D001
-    STY $FE         ; save current POTY
 ```
 
-**Size:** 42 bytes.
+**Size:** 70 bytes.
 
 **Expert mode syntax:**
 ```
@@ -1251,13 +1265,13 @@ Reads a Commodore 1351 proportional mouse via the SID chip's paddle inputs (`POT
 
 > **Important:** Before the first call, select the correct port and initialise the zero-page bytes with the current POTX/POTY values to avoid a large jump on the first frame:
 > ```
->     ; port 1: LDA #$00 : STA $DC00
->     ; port 2: LDA #$40 : STA $DC00
+>     ; port 1: LDA #$40 : STA $DC00   (bit 6 = 1 → SID reads port 1)
+>     ; port 2: LDA #$00 : STA $DC00   (bit 6 = 0 → SID reads port 2)
 >     LDA $D419 : STA $FD
 >     LDA $D41A : STA $FE
 > ```
 
-> **Note:** The 1351 uses `$DC00` bit 6 to select between port 1 and port 2 for the analog inputs. The MOUSE macro sets the correct bit automatically.
+> **Note:** `$DC00` bit 6 controls which control port the SID reads for POTX/POTY: bit 6 = 1 (`$40`, `ORA #$40`) → Control Port 1; bit 6 = 0 (`$00`, `AND #$BF`) → Control Port 2. The MOUSE macro sets the correct bit automatically.
 
 ---
 

@@ -172,7 +172,7 @@ const mnemonicLibrary = {
     { mnemonic: "SPRITE_POS", description: "Sprite pozicio beallitasa: X (0-319) es Y (0-255), kezeli a $D010 felso bitet X>255 eseten.", modes: ["implied"], isSpritePosMacro: true },
     { mnemonic: "WAIT_RASTER", description: "Rasztervonal varakozas: LDA $D012 / CMP #sor / BNE -7. Inline, 7 byte, nincs JSR.", modes: ["implied"], isWaitRasterMacro: true },
     { mnemonic: "JOYSTICK", description: "Joystick olvasas es sprite mozgatasa: UP/DOWN/LEFT/RIGHT bitek LSR+BCS+DEC/INC-cel. Port 1=$DC01, Port 2=$DC00 (alap). 27 byte inline.", modes: ["implied"], isJoystickMacro: true },
-    { mnemonic: "MOUSE", description: "C64 1351 arányos egér vezérlése: SID POTX/POTY olvasás, delta számítás, CIA $DC00 bit 6 portválasztás megőrző maszkolással, Y tengely invertálva (VICE), sprite pozíció frissítés. 42 byte inline.", modes: ["implied"], isMouseMacro: true },
+    { mnemonic: "MOUSE", description: "C64 1351 arányos egér vezérlése: SID POTX/POTY olvasás, delta számítás ±64 clamping-gel (SID discharge glitch ellen), CIA $DC00 bit 6 portválasztás, Y tengely invertálva (VICE), sprite pozíció frissítés. 70 byte inline.", modes: ["implied"], isMouseMacro: true },
     { mnemonic: "SPRITE_COL", description: "Sprite utkozes detektalas: LDA $D01E/$D01F + AND #bitMask. Eredmeny A-ban: nem nulla = utkozes. Utana BEQ/BNE-vel ugri. 5 byte.", modes: ["implied"], isSpriteColMacro: true },
     { mnemonic: "LOADFILE", description: "Fajl betoltese D64-rol KERNAL SETNAM/SETLFS/LOAD rutinokkal. Cim opcionalis (ures = fajl sajat cime, sec=1; kitoltve = override, sec=0). Hiba cimke opcionalis (BCS).", modes: ["implied"], isLoadFileMacro: true },
     { mnemonic: "REU_CHECK", description: "REU (RAM bovito egyseg) jelenletenek ellenorzese: $DF04 write/read proba $55 es $AA mintaval. Z=0 → REU jelen van (BNE-vel ugri), Z=1 → nincs REU (BEQ-vel ugri). 34 byte.", modes: ["implied"], isReuCheckMacro: true },
@@ -1244,7 +1244,7 @@ const mnemonicDescriptionsEn = {
   SPRITE_POS: "Set sprite position: X (0–319) and Y (0–255). Handles the $D010 MSB for X > 255.",
   WAIT_RASTER: "Busy-wait for a raster line: LDA $D012 / CMP #line / BNE -7. Inline, 7 bytes, no JSR.",
   JOYSTICK: "Read joystick and move sprite: UP/DOWN/LEFT/RIGHT via LSR+BCS+DEC/INC. Port 1=$DC01, Port 2=$DC00. 27 bytes inline.",
-  MOUSE: "Read 1351 proportional mouse via SID POTX/POTY ($D419/$D41A) and move sprite. CIA $DC00 bit 6 selects the analog port via masked ORA/AND. Y-axis is inverted (VICE POTY increases upward). Two ZP bytes store previous POT values. 42 bytes inline.",
+  MOUSE: "Read 1351 proportional mouse via SID POTX/POTY ($D419/$D41A) and move sprite. CIA $DC00 bit 6 selects the analog port via masked ORA/AND. Delta clamped ±64 to prevent SID discharge glitches (avoids 200-pixel jumps). Y-axis inverted (VICE). 70 bytes inline.",
   SPRITE_COL: "Sprite collision detection: LDA $D01E/$D01F + AND #bitMask. Result in A: non-zero = collision. Follow with BEQ/BNE. 5 bytes.",
   DEFINE: "Define a symbol for conditional assembly. When present, IF blocks evaluate the condition.",
   CONST: "Named constant definition. Can be used as an operand in any mnemonic (LDA, STA, JSR, etc.).",
@@ -9291,36 +9291,56 @@ function compileLineBytes(line, labels) {
     if (isNaN(zpY) || zpY < 0 || zpY > 255) {
       return { ok: false, error: "MOUSE: ZP Y 1 hex byte legyen (00-FF)." };
     }
-    const ciaMask = port === 2 ? 0x40 : 0xBF;
-    const ciaOp = port === 2 ? 0x09 : 0x29;
+    const ciaMask = port === 2 ? 0xBF : 0x40;  // port1→ORA #$40 (set bit6) / port2→AND #$BF (clear bit6)
+    const ciaOp   = port === 2 ? 0x29 : 0x09;  // port1→ORA / port2→AND
     const xAddr = 0xD000 + num * 2;
     const yAddr = 0xD001 + num * 2;
     const xLo = xAddr & 0xFF, xHi = xAddr >> 8;
     const yLo = yAddr & 0xFF, yHi = yAddr >> 8;
-    // CIA select(8) + X-axis(16) + Y-axis(18) = 42 bytes
-    // Y-axis: EOR #$FF + SEC inverts the delta so mouse-up moves sprite up
-    // (VICE POTY increases when host mouse moves up, but VIC-II Y=0 is top of screen)
+    // CIA select(8) + X-axis with clamp(30) + Y-axis with clamp+invert(32) = 70 bytes
+    // Delta clamping: threshold ±64 (CMP #$41/#$C0) prevents SID discharge glitch jumps.
+    // Conditional STX/STY: zpX/zpY only updated on valid deltas — prevents chained glitch.
+    // Y-axis: EOR #$FF + SEC inverts delta so mouse-up moves sprite up (VICE POTY direction).
+    // X-axis clamp branch offsets: BCC +8 → STX, BCS +4 → STX, BEQ +2 → skip STX.
+    // Y-axis clamp branch offsets: BCC +8 → STY, BCS +4 → STY, BEQ +2 → skip STY.
     const bytes = [
+      // CIA port select (8 bytes)
       0xAD, 0x00, 0xDC,       // LDA $DC00
-      ciaOp, ciaMask,         // ORA #$40 for port2 / AND #$BF for port1
+      ciaOp, ciaMask,         // ORA #$40 (port1) / AND #$BF (port2)
       0x8D, 0x00, 0xDC,       // STA $DC00
-      0xAD, 0x19, 0xD4,       // LDA $D419  (POTX current)
-      0xAA,                   // TAX        (save current POTX)
+      // X-axis with clamping (30 bytes)
+      0xAD, 0x19, 0xD4,       // LDA $D419     (POTX current)
+      0xAA,                   // TAX           (save current in X for STX later)
       0x38,                   // SEC
-      0xE5, zpX,              // SBC $zpX   (delta = current - prev)
+      0xE5, zpX,              // SBC $zpX      (delta = current - prev)
+      0xC9, 0x41,             // CMP #65       (forward OK: delta < 65)
+      0x90, 0x08,             // BCC +8        → STX $zpX (valid path)
+      0xC9, 0xC0,             // CMP #192      (backward OK: delta >= 192 = -64)
+      0xB0, 0x04,             // BCS +4        → STX $zpX (valid path)
+      0xA9, 0x00,             // LDA #0        (glitch: clamp delta, don't update zpX)
+      0xF0, 0x02,             // BEQ +2        → skip STX
+      0x86, zpX,              // STX $zpX      (valid: update prev_x = current POTX)
+                              //               ← clamp path joins here
       0x18,                   // CLC
-      0x6D, xLo, xHi,         // ADC $D000+N*2 (add delta to sprite X)
+      0x6D, xLo, xHi,         // ADC $D000+N*2 (sprite_X + delta)
       0x8D, xLo, xHi,         // STA $D000+N*2
-      0x86, zpX,              // STX $zpX   (update prev_x = current POTX)
-      0xAD, 0x1A, 0xD4,       // LDA $D41A  (POTY current)
-      0xA8,                   // TAY        (save current POTY)
+      // Y-axis with clamping + invert (32 bytes)
+      0xAD, 0x1A, 0xD4,       // LDA $D41A     (POTY current)
+      0xA8,                   // TAY           (save current in Y for STY later)
       0x38,                   // SEC
-      0xE5, zpY,              // SBC $zpY   (delta = current - prev)
-      0x49, 0xFF,             // EOR #$FF   (invert Y axis: ~delta)
-      0x38,                   // SEC        (carry=1 → ADC gives two's complement negation)
-      0x6D, yLo, yHi,         // ADC $D001+N*2 (sprite_Y - delta = inverted Y movement)
+      0xE5, zpY,              // SBC $zpY      (delta = current - prev)
+      0xC9, 0x41,             // CMP #65
+      0x90, 0x08,             // BCC +8        → STY $zpY (valid path)
+      0xC9, 0xC0,             // CMP #192
+      0xB0, 0x04,             // BCS +4        → STY $zpY (valid path)
+      0xA9, 0x00,             // LDA #0        (glitch: clamp delta, don't update zpY)
+      0xF0, 0x02,             // BEQ +2        → skip STY
+      0x84, zpY,              // STY $zpY      (valid: update prev_y = current POTY)
+                              //               ← clamp path joins here
+      0x49, 0xFF,             // EOR #$FF      (invert Y: mouse-up → sprite-up)
+      0x38,                   // SEC
+      0x6D, yLo, yHi,         // ADC $D001+N*2 (sprite_Y - delta)
       0x8D, yLo, yHi,         // STA $D001+N*2
-      0x84, zpY               // STY $zpY   (update prev_y = current POTY)
     ];
     return { ok: true, bytes, comment: `MOUSE port${port} → sprite#${num} ZP:$${zpXStr.toUpperCase()}/$${zpYStr.toUpperCase()}` };
   }
@@ -10164,7 +10184,7 @@ function getInstructionSize(block) {
   }
 
   if (block.isMouseMacro) {
-    return 42;  // LDA $DC00 + [ORA|AND] #mask + STA $DC00 + X-axis(16) + Y-axis(18, EOR#FF+SEC for Y-invert)
+    return 70;  // CIA(8) + X-axis with ±64 clamp(30) + Y-axis with ±64 clamp + EOR invert(32)
   }
 
   if (block.isWaitRasterMacro) {
