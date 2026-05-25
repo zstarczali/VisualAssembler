@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 1.6.0**
+**Version 1.6.5**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -46,6 +46,11 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
    - [JOYSTICK](#joystick)
    - [SPRITE_COL](#sprite_col)
    - [LOADFILE](#loadfile)
+   - [REU_CHECK](#reu_check)
+   - [REU_STASH / REU_FETCH / REU_SWAP](#reu_stash--reu_fetch--reu_swap)
+   - [TURBO_SET](#turbo_set)
+   - [SUPERCPU_DETECT](#supercpu_detect)
+   - [TURBO_ENABLE](#turbo_enable)
 10. [Debugger Integration](#10-debugger-integration)
 11. [Knowledge Base Links](#11-knowledge-base-links)
 12. [ASM Import Workflow](#12-asm-import-workflow)
@@ -80,7 +85,7 @@ The palette on the left lists all available blocks grouped by category:
 - **System** — CLC, SEC, NOP, BRK, …
 - **Illegal instructions** — LAX, SAX, DCP, …
 - **Structure** — LABEL, COMMENT, REGION, ENDREGION
-- **Macros** — LOOP, NEXT, PUSH, PULL, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, INCBIN, SID, INCLUDE, TABLE, ORG, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, SPRITE_COL
+- **Macros** — LOOP, NEXT, PUSH, PULL, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, INCBIN, SID, INCLUDE, TABLE, ORG, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, SPRITE_COL, LOADFILE, REU_CHECK, REU_STASH, REU_FETCH, REU_SWAP, TURBO_SET, SUPERCPU_DETECT, TURBO_ENABLE
 
 Use the **search box** at the top of the palette to filter by name. Click the **Add selected block** button or drag a block into the program area.
 
@@ -1268,6 +1273,150 @@ skip_filename:
 > **Error handling:** The KERNAL sets the carry flag if LOAD fails (no drive, file not found, etc.). Without an error label, a failure leaves carry set and execution falls through to whatever follows — which is almost certainly wrong. Always provide an error label for production programs.
 
 > **See also:** `loadfile-demo` sample — demonstrates loading `DEMO-COLORS.PRG` from a D64 with a BCS error branch and a visual error screen.
+
+---
+
+### REU_CHECK
+
+Detects whether a Commodore RAM Expansion Unit (REU) is present by reading register `$DF00` and comparing it to `$FF`.
+
+**Generated code (5 bytes):**
+```
+AD F8 DF   LDA $DFF8
+C9 FF      CMP #$FF
+```
+> The actual detection reads `$DFF8` (REU status); if the value is not `$FF`, a REU is present.
+
+**Result in flags:**
+- **Z = 0** (result ≠ 0) → REU present → use `BNE`
+- **Z = 1** (result = 0) → no REU → use `BEQ`
+
+**No configurable fields** — the macro generates the same code every time.
+
+**Typical usage:**
+```assembly
+REU_CHECK
+BEQ no_reu        ; skip if REU not present
+; ... REU code here ...
+no_reu:
+```
+
+---
+
+### REU_STASH / REU_FETCH / REU_SWAP
+
+Performs a block DMA transfer between C64 RAM and a Commodore REU using the REU's built-in DMA engine.
+
+| Macro | Direction | `$DF01` command |
+|-------|-----------|-----------------|
+| `REU_STASH` | C64 RAM → REU | `$91` |
+| `REU_FETCH` | REU → C64 RAM | `$92` |
+| `REU_SWAP`  | C64 RAM ↔ REU | `$93` |
+
+**Fields:**
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| C64 address | Source/dest in C64 RAM (hex) | `C000` |
+| REU address | Source/dest in REU (hex, 16-bit) | `0000` |
+| REU bank | REU memory bank (0–7) | `0` |
+| Length | Number of bytes to transfer (hex, 16-bit) | `1000` |
+
+**Generated code (40 bytes):**
+```
+LDA #c64lo    STA $DF02    ; C64 address LO
+LDA #c64hi    STA $DF03    ; C64 address HI
+LDA #reuLo    STA $DF04    ; REU address LO
+LDA #reuHi    STA $DF05    ; REU address HI
+LDA #bank     STA $DF06    ; REU bank
+LDA #lenLo    STA $DF07    ; length LO
+LDA #lenHi    STA $DF08    ; length HI
+LDA #$00      STA $DF09    ; address control (fixed)
+LDA #$00      STA $DF0A    ; interrupt mask (fixed)
+LDA #cmd      STA $DF01    ; execute DMA ($91/$92/$93)
+```
+
+> **Note:** Writing to `$DF01` triggers the DMA immediately. The C64 CPU is halted while the transfer runs.
+
+---
+
+### TURBO_SET
+
+Sets the U64 (Ultimate-64) CPU turbo speed via register `$D031`.
+
+**Fields:**
+
+| Field | Description | Range |
+|-------|-------------|-------|
+| Speed | CPU speed index | 0 = 1 MHz … 7 ≈ 10 MHz … 15 ≈ 48 MHz |
+| Badline | Badline emulation | Enabled (C64 compatible) / Disabled (turbo) |
+
+The speed byte is calculated as: `(speedIndex & 0x0F) | (badline_disabled ? 0x80 : 0x00)`.
+
+**Generated code (5 bytes):**
+```
+A9 xx   LDA #speed_byte
+8D 31 D0   STA $D031
+```
+
+**Expert mode syntax:**
+```
+.turbo_set 7,0    ; speed=7 (~10 MHz), badline enabled
+.turbo_set 15,1   ; speed=15 (~48 MHz), badline disabled
+```
+
+> **Note:** This macro affects U64 hardware only. On a real C64 or other emulators this writes to `$D031` which may affect the CIA or be ignored.
+
+---
+
+### SUPERCPU_DETECT
+
+Detects whether a CMD SuperCPU accelerator is installed by reading its version register at `$D0B8` and comparing it to `$FF`.
+
+**Generated code (5 bytes):**
+```
+AD B8 D0   LDA $D0B8
+C9 FF      CMP #$FF
+```
+
+**Result in flags:**
+- **Z = 0** → SuperCPU present → use `BNE`
+- **Z = 1** → SuperCPU not found → use `BEQ`
+
+**No configurable fields.**
+
+**Typical usage:**
+```assembly
+SUPERCPU_DETECT
+BEQ no_scpu       ; skip if SuperCPU not present
+; ... SuperCPU turbo code here ...
+no_scpu:
+```
+
+---
+
+### TURBO_ENABLE
+
+Enables or disables CMD SuperCPU turbo mode by writing to the SuperCPU control registers.
+
+| Mode | Register | Effect |
+|------|----------|--------|
+| Enable | `$D07A` | Engage turbo (up to 20 MHz with SuperCPU) |
+| Disable | `$D07B` | Return to 1 MHz compatibility mode |
+
+**Generated code (5 bytes):**
+```
+A9 00         LDA #$00
+8D 7A D0      STA $D07A    ; (or $D07B for disable)
+```
+
+**Expert mode syntax:**
+```
+.turbo_enable on
+.turbo_enable off
+```
+
+> **Note:** Call `SUPERCPU_DETECT` first and branch around this macro if the SuperCPU is not present.
 
 ---
 

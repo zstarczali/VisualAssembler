@@ -134,6 +134,31 @@ A `LOADFILE` makró (`isLoadFileMacro: true`): fájl betöltése D64-ről KERNAL
 - **BCS hatótáv:** ±127 byte. Ha messzebb, fordítási hiba: `LOADFILE: a hiba cimke tul messze van`.
 - **UI:** HEX/DEC toggle és addressing mode select **el van rejtve**. Kétsoros macro-grid: filename + device | address + errorLabel.
 
+A `REU_CHECK` makró (`isReuCheckMacro: true`): nincs saját mező. Generál: `LDA $DFF8; CMP #$FF` (5 byte). Z=0 → REU jelen van (BNE), Z=1 → nincs REU (BEQ). Az `$DFF8` a REU status register. Nincs operandus, nincs addressing mode select.
+
+A `REU_STASH` / `REU_FETCH` / `REU_SWAP` makrók (`isReuStashMacro`, `isReuFetchMacro`, `isReuSwapMacro: true`): 40 byte-os DMA transfer blokkok.
+- **Mezők:** `reuC64Address` (hex, 16-bit, pl. `"C000"`), `reuAddress` (hex, 16-bit, pl. `"0000"`), `reuBank` (0–7, decimal), `reuLength` (hex, 16-bit, pl. `"1000"`).
+- **DMA parancs:** STASH=`$91` (C64→REU), FETCH=`$92` (REU→C64), SWAP=`$93` (C64↔REU).
+- **Generált kód layout:** 10× `LDA #val; STA $DF02+offset` pár, utolsó: `STA $DF01` (DMA trigger). Méret: 40 byte.
+- **Expert:** `.reu_stash C000,0000,0,1000` formátum.
+
+A `TURBO_SET` makró (`isTurboSetMacro: true`): U64 CPU turbo sebesség beállítása `$D031` regiszteren keresztül.
+- **Mezők:** `turboSpeed` (0–15, dropdown, 0=1MHz … 7≈10MHz … 15≈48MHz), `turboBadline` (`"0"` = engedélyezett C64 kompatibilis / `"1"` = tiltott turbo).
+- **Byte:** `(turboSpeed & 0x0F) | (turboBadline === "1" ? 0x80 : 0x00)`.
+- **Generált kód:** `LDA #byte` + `STA $D031` = 5 byte.
+- **Expert:** `.turbo_set 7,0` (speed, badline); import regex: `/^\.turbo_set\s+(\d{1,2})\s*,\s*([01])\s*$/i`.
+- **ASM output:** `; .TURBO_SET speed=7 badline=on`.
+
+A `SUPERCPU_DETECT` makró (`isSuperCpuDetectMacro: true`): CMD SuperCPU jelenlét ellenőrzés a verziójáról szóló regiszter (`$D0B8`) olvasásával.
+- **Nincs saját mező.** Generál: `LDA $D0B8; CMP #$FF` = 5 byte.
+- Z=0 → SuperCPU jelen van (BNE), Z=1 → nincs (BEQ).
+- **Expert:** `.supercpu_detect`; import: `/^\.supercpu_detect\s*$/i`.
+
+A `TURBO_ENABLE` makró (`isTurboEnableMacro: true`): CMD SuperCPU turbo be/ki kapcsolása.
+- **Mező:** `turboEnableMode` (`"on"` = `$D07A`, `"off"` = `$D07B`).
+- ON bytes: `[0xA9, 0x00, 0x8D, 0x7A, 0xD0]`; OFF bytes: `[0xA9, 0x00, 0x8D, 0x7B, 0xD0]`. Méret: 5 byte.
+- **Expert:** `.turbo_enable on` / `.turbo_enable off`; import: `/^\.turbo_enable\s+(on|off)\s*$/i`.
+
 A `REGION` / `ENDREGION` blokk (`isRegionMacro: true` / `isEndRegionMacro: true`): vizuális csoportosító, **0 byte**, a program logikájára nincs hatása.
 - **Mezők (REGION):** `regionName` (string, szabad szöveg, pl. `"init"`)
 - **`regionCollapsed`** (bool): ha true, a REGION és ENDREGION közötti blokkok rejtve vannak a program listában, a REGION saját body-ja is becsukódik (`collapsed = regionCollapsed`)
@@ -607,7 +632,7 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`1.5.1` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` és a What's New dialóg (`index.html`).
+`1.6.5` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` és a What's New dialóg (`index.html`).
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező
@@ -1101,6 +1126,15 @@ if (field === "rawOperand" || field === "base") {
 | `isSpritePosMacro` | ❌ | ❌ | spriteNum, spriteX, spriteY |
 | `isWaitRasterMacro` | ❌ | ❌ | rasterLine (hex) |
 | `isJoystickMacro` | ❌ | ❌ | joyPort, joySpriteNum |
+| `isSpriteColMacro` | ❌ | ❌ | spriteNum, colType |
+| `isLoadFileMacro` | ❌ | ❌ | loadFileName, loadFileDevice, loadFileAddress, loadFileErrorLabel |
+| `isReuCheckMacro` | ❌ | ❌ | — |
+| `isReuStashMacro` | ❌ | ❌ | reuC64Address, reuAddress, reuBank, reuLength |
+| `isReuFetchMacro` | ❌ | ❌ | reuC64Address, reuAddress, reuBank, reuLength |
+| `isReuSwapMacro` | ❌ | ❌ | reuC64Address, reuAddress, reuBank, reuLength |
+| `isTurboSetMacro` | ❌ | ❌ | turboSpeed (0–15), turboBadline ("0"/"1") |
+| `isSuperCpuDetectMacro` | ❌ | ❌ | — |
+| `isTurboEnableMacro` | ❌ | ❌ | turboEnableMode ("on"/"off") |
 
 A HEX/DEC format toggle feltétele (a nagy `insertAdjacentHTML` templateban):
 ```javascript

@@ -2137,6 +2137,10 @@ html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
 .asm-tok-region    { color: var(--asm-region); }
 .asm-tok-operand   { color: var(--asm-operand); }
 
+/* Disassembler token classes */
+.dsm-addr  { color: var(--asm-number); opacity: 0.75; }
+.dsm-bytes { color: var(--asm-comment); font-size: 0.78em; }
+
 
 .section-divider {
   border: none;
@@ -2166,7 +2170,7 @@ html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
 
 .view-mode-toggle {
   display: inline-grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 4px;
   padding: 4px;
   border-radius: 14px;
@@ -2216,7 +2220,8 @@ html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
 
 .output-stack[data-mode="asm"],
 .output-stack[data-mode="monitor"],
-.output-stack[data-mode="both"] {
+.output-stack[data-mode="both"],
+.output-stack[data-mode="disasm"] {
   display: flex;
   flex-direction: column;
 }
@@ -2296,6 +2301,19 @@ html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
 
 .output-stack[data-mode="both"] #asm-output,
 .output-stack[data-mode="both"] #monitor-output {
+  display: block;
+  flex: 1;
+  min-height: 0;
+}
+
+.output-stack[data-mode="disasm"] .disasm-label {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.output-stack[data-mode="disasm"] #disasm-output {
   display: block;
   flex: 1;
   min-height: 0;

@@ -174,6 +174,13 @@ const mnemonicLibrary = {
     { mnemonic: "JOYSTICK", description: "Joystick olvasas es sprite mozgatasa: UP/DOWN/LEFT/RIGHT bitek LSR+BCS+DEC/INC-cel. Port 1=$DC01, Port 2=$DC00 (alap). 27 byte inline.", modes: ["implied"], isJoystickMacro: true },
     { mnemonic: "SPRITE_COL", description: "Sprite utkozes detektalas: LDA $D01E/$D01F + AND #bitMask. Eredmeny A-ban: nem nulla = utkozes. Utana BEQ/BNE-vel ugri. 5 byte.", modes: ["implied"], isSpriteColMacro: true },
     { mnemonic: "LOADFILE", description: "Fajl betoltese D64-rol KERNAL SETNAM/SETLFS/LOAD rutinokkal. Cim opcionalis (ures = fajl sajat cime, sec=1; kitoltve = override, sec=0). Hiba cimke opcionalis (BCS).", modes: ["implied"], isLoadFileMacro: true },
+    { mnemonic: "REU_CHECK", description: "REU (RAM bovito egyseg) jelenletenek ellenorzese: LDA $DF00 / CMP #$FF. Z=0 → REU jelen van (BNE-vel ugri), Z=1 → nincs REU (BEQ-vel ugri). 5 byte.", modes: ["implied"], isReuCheckMacro: true },
+    { mnemonic: "REU_STASH", description: "C64 RAM → REU mentes: C64 cim, REU cim/bank es hossz beallitasa ($DF02-$DF08), majd $91 parancs → $DF01. 40 byte inline.", modes: ["implied"], isReuTransferMacro: true },
+    { mnemonic: "REU_FETCH", description: "REU → C64 RAM betoltes: C64 cim, REU cim/bank es hossz beallitasa ($DF02-$DF08), majd $92 parancs → $DF01. 40 byte inline.", modes: ["implied"], isReuTransferMacro: true },
+    { mnemonic: "REU_SWAP", description: "C64 RAM ↔ REU csere: C64 cim, REU cim/bank es hossz beallitasa ($DF02-$DF08), majd $93 parancs → $DF01. 40 byte inline.", modes: ["implied"], isReuTransferMacro: true },
+    { mnemonic: "TURBO_SET", description: "U64 Turbo mod beallitasa: $D031-be irja a sebessegi indexet (0-15) es a badline vezerlest (bit7). LDA #ertek + STA $D031, 5 byte.", modes: ["implied"], isTurboSetMacro: true },
+    { mnemonic: "SUPERCPU_DETECT", description: "CMD SuperCPU jelenletenek ellenorzese: LDA $D0B8 / CMP #$FF. Z=0 → SuperCPU jelen (BNE-vel ugri), Z=1 → nincs (BEQ-vel ugri). 5 byte.", modes: ["implied"], isSuperCpuDetectMacro: true },
+    { mnemonic: "TURBO_ENABLE", description: "CMD SuperCPU turbo be/ki: BE → LDA #$00 / STA $D07A, KI → LDA #$00 / STA $D07B. 5 byte.", modes: ["implied"], isTurboEnableMacro: true },
     { mnemonic: "DEFINE", description: "Szimbolum definialasa felteteles forditashoz. Ha jelen van, az IF blokkban levo feltetelek kivalutalodnak.", modes: ["implied"], isDefineMacro: true },
     { mnemonic: "IF", description: "Felteteles forditas kezdete. Kifejezest var (pl. DEBUG). ENDIF-fel zarjuk.", modes: ["implied"], isIfMacro: true },
     { mnemonic: "ELSE", description: "Alternativ ag IF blokkon belul.", modes: ["implied"], isElseMacro: true },
@@ -1219,7 +1226,14 @@ const mnemonicDescriptionsEn = {
   CONST: "Named constant definition. Can be used as an operand in any mnemonic (LDA, STA, JSR, etc.).",
   REGION: "Group blocks into a collapsible named section. Close with ENDREGION.",
   ENDREGION: "End of a REGION section.",
-  ORG: "Set the origin address (*= directive). The following blocks are assembled starting from this address."
+  ORG: "Set the origin address (*= directive). The following blocks are assembled starting from this address.",
+  REU_CHECK: "Check if a RAM Expansion Unit (REU) is present: LDA $DF00 / CMP #$FF. Z=0 → REU present (use BNE), Z=1 → no REU (use BEQ). 5 bytes.",
+  REU_STASH: "C64 RAM → REU transfer (save): sets C64 address, REU address/bank and length in $DF02–$DF08, then writes command $91 to $DF01. 40 bytes inline.",
+  REU_FETCH: "REU → C64 RAM transfer (load): sets C64 address, REU address/bank and length in $DF02–$DF08, then writes command $92 to $DF01. 40 bytes inline.",
+  REU_SWAP: "C64 RAM ↔ REU swap: sets C64 address, REU address/bank and length in $DF02–$DF08, then writes command $93 to $DF01. 40 bytes inline.",
+  TURBO_SET: "Set U64 turbo speed: writes speed index (0–15) and badline control (bit 7) to $D031. LDA #value + STA $D031, 5 bytes. Speed 0=1 MHz … 7=10 MHz … 15=48 MHz (U64) / 64 MHz (U64E2).",
+  SUPERCPU_DETECT: "Detect CMD SuperCPU presence: LDA $D0B8 / CMP #$FF. Z=0 → SuperCPU present (use BNE), Z=1 → not found (use BEQ). 5 bytes.",
+  TURBO_ENABLE: "CMD SuperCPU turbo on/off: ON → LDA #$00 / STA $D07A, OFF → LDA #$00 / STA $D07B. 5 bytes."
 };
 
 const mnemonicDescriptionsHu = (() => {
@@ -1653,6 +1667,8 @@ function initPalette() {
     if (!target || !controlMenu.open) return;
     // Don't close when interacting with the theme picker
     if (e.target.closest("#theme-picker")) return;
+    // Don't close when using zoom buttons
+    if (e.target.closest("#zoom-in, #zoom-out")) return;
     // Small delay so the button's own handler can fire first
     setTimeout(() => { controlMenu.removeAttribute("open"); }, 80);
   });
@@ -1930,7 +1946,7 @@ function _applyUiSettingsToDOM() {
   }
 
   if (outputModeInputs.length) {
-    const selectedOutputMode = ["asm", "monitor", "both"].includes(savedUiSettings.outputMode)
+    const selectedOutputMode = ["asm", "monitor", "both", "disasm"].includes(savedUiSettings.outputMode)
       ? savedUiSettings.outputMode
       : "asm";
     outputModeInputs.forEach((input) => {
@@ -3107,6 +3123,82 @@ function createBlockFromMnemonic(item) {
     };
   }
 
+  if (item.isTurboSetMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isTurboSetMacro: true,
+      turboSpeed: "7",
+      turboBadline: "0"
+    };
+  }
+
+  if (item.isSuperCpuDetectMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "", rawOperand: "", description: item.description,
+      addressingMode: "implied", base: "hex", validationError: "",
+      collapsed: true, isSuperCpuDetectMacro: true
+    };
+  }
+
+  if (item.isTurboEnableMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "", rawOperand: "", description: item.description,
+      addressingMode: "implied", base: "hex", validationError: "",
+      collapsed: true, isTurboEnableMacro: true, turboEnableMode: "on"
+    };
+  }
+
+  if (item.isReuCheckMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isReuCheckMacro: true
+    };
+  }
+
+  if (item.isReuTransferMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isReuTransferMacro: true,
+      reuC64Addr: "C000",
+      reuExpAddr: "0000",
+      reuBank: "0",
+      reuLength: "0100"
+    };
+  }
+
   if (item.isLoopMacro) {
     return {
       id: crypto.randomUUID(),
@@ -3575,8 +3667,16 @@ function _blockToExpertLine(block) {
   if (block.isSpriteInitMacro)return `.sprite_init ${block.spriteNum || 0}, ${block.spriteColor || 7}, $${(block.spriteDataPage || "21").toUpperCase()}`;
   if (block.isSpritePosMacro) return `.sprite_pos ${block.spriteNum || 0}, ${block.spriteX || 152}, ${block.spriteY || 100}`;
   if (block.isWaitRasterMacro)return `.wait_raster $${(block.rasterLine || "FF").toUpperCase()}`;
+  if (block.isTurboSetMacro) return `.turbo_set ${block.turboSpeed || "7"},${block.turboBadline || "0"}`;
+  if (block.isSuperCpuDetectMacro) return `.supercpu_detect`;
+  if (block.isTurboEnableMacro)    return `.turbo_enable ${block.turboEnableMode || "on"}`;
   if (block.isJoystickMacro)  return `.joystick ${block.joyPort || 2}, ${block.joySpriteNum || 0}`;
   if (block.isSpriteColMacro) return `.sprite_col ${block.spriteNum || 0}, ${block.colType || "background"}`;
+  if (block.isReuCheckMacro)  return `.reu_check`;
+  if (block.isReuTransferMacro) {
+    const t = block.mnemonic.toLowerCase(); // reu_stash/reu_fetch/reu_swap
+    return `.${t} $${(block.reuC64Addr||"C000").toUpperCase()}, $${(block.reuExpAddr||"0000").toUpperCase()}, ${block.reuBank||0}, $${(block.reuLength||"0100").toUpperCase()}`;
+  }
   // Plain instruction
   const mnem = block.mnemonic || "NOP";
   const op = block.operand ? `    ${mnem} ${block.operand}` : `    ${mnem}`;
@@ -3748,7 +3848,8 @@ const _DIRECTIVE_TO_MNEM = {
   loop:"LOOP", next:"NEXT", push:"PUSH", pull:"PULL",
   macro:"MACRO", endm:"ENDM", invoke:"INVOKE",
   sprite_init:"SPRITE_INIT", sprite_pos:"SPRITE_POS", wait_raster:"WAIT_RASTER",
-  joystick:"JOYSTICK", sprite_col:"SPRITE_COL",
+  joystick:"JOYSTICK", sprite_col:"SPRITE_COL", turbo_set:"TURBO_SET",
+  supercpu_detect:"SUPERCPU_DETECT", turbo_enable:"TURBO_ENABLE",
   define:"DEFINE", if:"IF", else:"ELSE", endif:"ENDIF", const:"CONST", org:"ORG",
   region:"REGION", endregion:"ENDREGION"
 };
@@ -3779,6 +3880,9 @@ const _AC_DIRECTIVE_DESC = {
   ".const":"constant", ".table":"lookup table", ".petscii":"PETSCII string",
   ".loadfile":"load file KERNAL", ".sprite_init":"init sprite", ".sprite_pos":"set sprite pos",
   ".wait_raster":"wait raster line", ".joystick":"joystick macro", ".sprite_col":"sprite collision",
+  ".turbo_set":"U64 turbo speed",
+  ".supercpu_detect":"detect SuperCPU",
+  ".turbo_enable":"SuperCPU turbo on/off",
   ".region":"visual region", ".endregion":"end region"
 };
 
@@ -4292,6 +4396,29 @@ function parseExpertText(text) {
       continue;
     }
 
+    // .turbo_set speed,badline
+    const turboM = line.match(/^\.turbo_set\s+(\d{1,2})\s*,\s*([01])\s*$/i);
+    if (turboM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "TURBO_SET", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isTurboSetMacro: true, turboSpeed: turboM[1], turboBadline: turboM[2] });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .supercpu_detect
+    if (/^\.supercpu_detect\s*$/i.test(line)) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SUPERCPU_DETECT", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSuperCpuDetectMacro: true });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .turbo_enable on|off
+    const turboEnM = line.match(/^\.turbo_enable\s+(on|off)\s*$/i);
+    if (turboEnM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "TURBO_ENABLE", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isTurboEnableMacro: true, turboEnableMode: turboEnM[1].toLowerCase() });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
     // .joystick port, spriteNum
     const joyM = line.match(/^\.joystick\s+([12])\s*,\s*(\d)\s*$/i);
     if (joyM) {
@@ -4304,6 +4431,22 @@ function parseExpertText(text) {
     const scColM = line.match(/^\.sprite_col\s+(\d)\s*,\s*(sprite|background)\s*$/i);
     if (scColM) {
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SPRITE_COL", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSpriteColMacro: true, spriteNum: parseInt(scColM[1],10), colType: scColM[2].toLowerCase() });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .reu_check
+    if (/^\.reu_check\s*$/i.test(line)) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "REU_CHECK", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isReuCheckMacro: true });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+    // .reu_stash / .reu_fetch / .reu_swap $c64addr, $reuaddr, bank, $len
+    const reuM = line.match(/^\.(reu_stash|reu_fetch|reu_swap)\s+\$?([0-9A-Fa-f]{1,4})\s*,\s*\$?([0-9A-Fa-f]{1,4})\s*,\s*([0-7])\s*,\s*\$?([0-9A-Fa-f]{1,4})\s*$/i);
+    if (reuM) {
+      const reuMnemonics = { reu_stash: "REU_STASH", reu_fetch: "REU_FETCH", reu_swap: "REU_SWAP" };
+      const reuMnem = reuMnemonics[reuM[1].toLowerCase()];
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: reuMnem, operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isReuTransferMacro: true, reuC64Addr: reuM[2].toUpperCase().padStart(4,"0"), reuExpAddr: reuM[3].toUpperCase().padStart(4,"0"), reuBank: reuM[4], reuLength: reuM[5].toUpperCase().padStart(4,"0") });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -4582,6 +4725,103 @@ function _expertValidate() {
   }, 350);
 }
 
+// ── Shared disassembler ────────────────────────────────────────────────────────
+
+function _escHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+// Build syntax-highlighted disassembler HTML from current program[].
+// Caller must ensure program[] is set to the desired block list before calling.
+function _buildDisasmHTML() {
+  const esc = _escHtml;
+  const lines = [];
+  try {
+    const layout = getProgramLayout();
+    const labels = new Map();
+    layout.lines.forEach((line) => {
+      if (line.block.isLabel && line.block.labelName) labels.set(line.block.labelName, line.address);
+      if (line.block.isLoopMacro && line.block.loopLabel) labels.set(line.block.loopLabel, line.address + 2);
+      if (line.block.isTableMacro && line.block.tableName) {
+        const tableAddr = line.block.tableAddress
+          ? (parseAddressValue(line.block.tableAddress) ?? line.address)
+          : line.address;
+        labels.set(line.block.tableName, tableAddr);
+      }
+      if (line.block.isConstMacro && line.block.constName) {
+        const v = parseNumberByBase((line.block.rawOperand || "").replace(/^\$/, ""), line.block.base);
+        if (v !== null) labels.set(line.block.constName, v);
+      }
+    });
+    const addrToLabel = new Map();
+    for (const [name, addr] of labels) addrToLabel.set(addr, name);
+
+    for (const line of layout.lines) {
+      if (line.conditionallySkipped) continue;
+      if (line.block._isSavedAddress || line.block._isRestoreAddress) continue;
+      if (line.block._macroSourceBlock) continue;
+
+      if (line.block.isComment) {
+        lines.push(`<span class="asm-tok-comment">; ${esc(line.block.rawOperand || "")}</span>`);
+        continue;
+      }
+      if (line.block.isLabel && !line.block._syntheticMacroLabel) {
+        lines.push(`<span class="asm-tok-label">${esc(line.block.labelName)}:</span>`);
+        continue;
+      }
+      if (line.block.isLabel && line.block._syntheticMacroLabel) continue;
+      if (line.block.isOrgMacro) {
+        lines.push(`<span class="asm-tok-directive">* = $${(line.block.orgAddress || "0801").toUpperCase()}</span>`);
+        continue;
+      }
+      if (line.block.isIncludeMacro) continue;
+
+      const addrHex = line.address.toString(16).toUpperCase().padStart(4, "0");
+      const compiled = compileLineBytes(line, labels);
+      if (!compiled.ok) {
+        lines.push(`<span class="dsm-addr">$${addrHex}</span>  <span class="asm-tok-comment">; ${esc(line.block.mnemonic)} [error]</span>`);
+        continue;
+      }
+      if (!compiled.bytes.length) {
+        if (line.block.mnemonic && !line.block._macroSourceBlock) {
+          lines.push(`<span class="asm-tok-comment">; [${esc(line.block.mnemonic)}]</span>`);
+        }
+        continue;
+      }
+
+      if (addrToLabel.has(line.address)) {
+        lines.push(`<span class="asm-tok-label">${esc(addrToLabel.get(line.address))}:</span>`);
+      }
+
+      const hexDump = compiled.bytes.map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+      const mnem = line.block.mnemonic;
+      const op   = line.block.operand || "";
+      lines.push(
+        `<span class="dsm-addr">$${addrHex}</span>  ` +
+        `<span class="dsm-bytes">${hexDump.padEnd(10)}</span>  ` +
+        `<span class="asm-tok-mnemonic">${esc(mnem)}</span>` +
+        (op ? `  <span class="asm-tok-operand">${esc(op)}</span>` : "")
+      );
+    }
+  } catch (e) {
+    lines.push(`<span class="asm-tok-comment">; Error: ${esc(String(e))}</span>`);
+  }
+  return lines.join("\n");
+}
+
+function renderDisasmOutput() {
+  const el = document.getElementById("disasm-output");
+  if (!el) return;
+  if (!program.length) {
+    el.innerHTML = `<span class="asm-tok-comment">; ${currentLanguage === "en" ? "Disassembly will appear here" : "A disassembler kimenet itt jelenik meg"}</span>`;
+    return;
+  }
+  el.innerHTML = _buildDisasmHTML();
+}
+
 function _expertRenderDisasm() {
   if (!expertDisasmOutput) return;
   try {
@@ -4590,62 +4830,12 @@ function _expertRenderDisasm() {
     const savedUserMacros = userMacros;
     program = blocks;
     parseUserMacros();
-    let lines = [];
     try {
-      const layout = getProgramLayout();
-      const labels = new Map();
-      layout.lines.forEach((line) => {
-        if (line.block.isLabel && line.block.labelName) labels.set(line.block.labelName, line.address);
-        if (line.block.isLoopMacro && line.block.loopLabel) labels.set(line.block.loopLabel, line.address + 2);
-        if (line.block.isTableMacro && line.block.tableName) {
-          const tableAddr = line.block.tableAddress
-            ? (parseAddressValue(line.block.tableAddress) ?? line.address)
-            : line.address;
-          labels.set(line.block.tableName, tableAddr);
-        }
-        if (line.block.isConstMacro && line.block.constName) {
-          const v = parseNumberByBase((line.block.rawOperand || "").replace(/^\$/, ""), line.block.base);
-          if (v !== null) labels.set(line.block.constName, v);
-        }
-      });
-      // Reverse label map for lookup by address
-      const addrToLabel = new Map();
-      for (const [name, addr] of labels) addrToLabel.set(addr, name);
-
-      for (const line of layout.lines) {
-        if (line.conditionallySkipped) continue;
-        if (line.block._isSavedAddress || line.block._isRestoreAddress) continue;
-        if (line.block._macroSourceBlock) continue;
-        if (line.block.isComment) { lines.push(`; ${line.block.rawOperand || ""}`); continue; }
-        if (line.block.isLabel && !line.block._syntheticMacroLabel) { lines.push(`${line.block.labelName}:`); continue; }
-        if (line.block.isLabel && line.block._syntheticMacroLabel) continue;
-        if (line.block.isOrgMacro) { lines.push(`* = $${(line.block.orgAddress || "0801").toUpperCase()}`); continue; }
-        if (line.block.isIncludeMacro) continue;
-        // Macro / structural blocks — show address + mnemonic
-        const addrStr = `$${line.address.toString(16).toUpperCase().padStart(4, "0")}`;
-        const compiled = compileLineBytes(line, labels);
-        if (!compiled.ok) {
-          lines.push(`${addrStr}  ; ${line.block.mnemonic} [error]`);
-          continue;
-        }
-        if (!compiled.bytes.length) {
-          if (line.block.mnemonic && !line.block._macroSourceBlock) {
-            lines.push(`; [${line.block.mnemonic}]`);
-          }
-          continue;
-        }
-        const hexBytes = compiled.bytes.map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
-        // Build disasm from opcodeMap reverse lookup
-        const mnem = line.block.mnemonic;
-        const op = line.block.operand || "";
-        const labelHint = addrToLabel.has(line.address) ? `${addrToLabel.get(line.address)}:\n` : "";
-        lines.push(`${labelHint}${addrStr}  ${hexBytes.padEnd(10)}  ${mnem}${op ? "  " + op : ""}`);
-      }
+      expertDisasmOutput.innerHTML = _buildDisasmHTML();
     } finally {
       program = saved;
       userMacros = savedUserMacros;
     }
-    expertDisasmOutput.textContent = lines.join("\n");
   } catch (e) {
     expertDisasmOutput.textContent = String(e);
   }
@@ -5501,6 +5691,16 @@ function updateProgramBlock(index, field, value) {
     return;
   }
 
+  if (block.isTurboSetMacro && (field === "turboSpeed" || field === "turboBadline")) {
+    const spd = parseInt(block.turboSpeed || "7", 10);
+    block.validationError = (isNaN(spd) || spd < 0 || spd > 15)
+      ? (currentLanguage === "en" ? "Turbo speed must be 0–15." : "A turbo sebesseg 0 es 15 kozott lehet.")
+      : "";
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
   if (block.isSpriteInitMacro && (field === "spriteNum" || field === "spriteColor" || field === "spriteDataPage")) {
     block.validationError = validateSpriteInitMacro(block.spriteNum, block.spriteColor, block.spriteDataPage);
     renderBlockPreview(index);
@@ -5524,6 +5724,27 @@ function updateProgramBlock(index, field, value) {
 
   if (block.isSpritePosMacro && (field === "spriteNum" || field === "spriteX" || field === "spriteY")) {
     block.validationError = validateSpritePosMacro(block.spriteNum, block.spriteX, block.spriteY);
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isReuTransferMacro && (field === "reuC64Addr" || field === "reuExpAddr" || field === "reuBank" || field === "reuLength")) {
+    const c64Addr = parseInt((block.reuC64Addr || "C000").replace(/^\$/, ""), 16);
+    const expAddr = parseInt((block.reuExpAddr || "0000").replace(/^\$/, ""), 16);
+    const bankVal = parseInt(block.reuBank || "0", 10);
+    const length  = parseInt((block.reuLength || "0100").replace(/^\$/, ""), 16);
+    if (isNaN(c64Addr) || c64Addr < 0 || c64Addr > 0xFFFF) {
+      block.validationError = currentLanguage === "en" ? "C64 address must be $0000–$FFFF." : "A C64 cim $0000-$FFFF kozott lehet.";
+    } else if (isNaN(expAddr) || expAddr < 0 || expAddr > 0xFFFF) {
+      block.validationError = currentLanguage === "en" ? "REU address must be $0000–$FFFF." : "A REU cim $0000-$FFFF kozott lehet.";
+    } else if (isNaN(bankVal) || bankVal < 0 || bankVal > 7) {
+      block.validationError = currentLanguage === "en" ? "REU bank must be 0–7." : "A REU bank 0-7 lehet.";
+    } else if (isNaN(length) || length < 1 || length > 0xFFFF) {
+      block.validationError = currentLanguage === "en" ? "Length must be $0001–$FFFF." : "A hossz $0001-$FFFF kozott lehet.";
+    } else {
+      block.validationError = "";
+    }
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -8839,6 +9060,17 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes, comment: `WAIT_RASTER $${rlHex}` };
   }
 
+  if (block.isTurboSetMacro) {
+    const spd = parseInt(block.turboSpeed || "7", 10);
+    if (isNaN(spd) || spd < 0 || spd > 15) {
+      return { ok: false, error: currentLanguage === "en" ? "TURBO_SET: speed must be 0–15." : "TURBO_SET: a sebesseg 0 es 15 kozott lehet." };
+    }
+    const badline = parseInt(block.turboBadline || "0", 10) === 1 ? 0x80 : 0x00;
+    const val = (spd & 0x0F) | badline;
+    // LDA #val (A9 val) + STA $D031 (8D 31 D0)
+    return { ok: true, bytes: [0xA9, val, 0x8D, 0x31, 0xD0], comment: `TURBO_SET speed=${spd} badline=${block.turboBadline === "1" ? "off" : "on"}` };
+  }
+
   if (block.isSpriteColMacro) {
     const num = parseInt(block.spriteNum || "0", 10);
     if (isNaN(num) || num < 0 || num > 7) {
@@ -8852,6 +9084,38 @@ function compileLineBytes(line, labels) {
     const bytes = [0xAD, regAddr & 0xFF, regAddr >> 8, 0x29, bitMask];
     const typeLabel = isBg ? "bg" : "spr";
     return { ok: true, bytes, comment: `SPRITE_COL #${num} ${typeLabel} → A≠0: utkozes` };
+  }
+
+  if (block.isReuCheckMacro) {
+    // LDA $DF00 + CMP #$FF — Z=0 (BNE) = REU present, Z=1 (BEQ) = no REU (open bus)
+    return { ok: true, bytes: [0xAD, 0x00, 0xDF, 0xC9, 0xFF], comment: "REU_CHECK: LDA $DF00 / CMP #$FF" };
+  }
+
+  if (block.isReuTransferMacro) {
+    const c64Addr = parseInt((block.reuC64Addr || "C000").replace(/^\$/, ""), 16);
+    const expAddr = parseInt((block.reuExpAddr || "0000").replace(/^\$/, ""), 16);
+    const bank    = parseInt(block.reuBank || "0", 10);
+    const length  = parseInt((block.reuLength || "0100").replace(/^\$/, ""), 16);
+    if (isNaN(c64Addr) || c64Addr < 0 || c64Addr > 0xFFFF) return { ok: false, error: "REU: ervenytelen C64 cim ($0000-$FFFF)." };
+    if (isNaN(expAddr) || expAddr < 0 || expAddr > 0xFFFF) return { ok: false, error: "REU: ervenytelen REU cim ($0000-$FFFF)." };
+    if (isNaN(bank)    || bank < 0    || bank > 7)         return { ok: false, error: "REU: a bank erteke 0-7 lehet." };
+    if (isNaN(length)  || length < 1  || length > 0xFFFF)  return { ok: false, error: "REU: a hossz $0001-$FFFF lehet." };
+    const cmd = block.mnemonic === "REU_STASH" ? 0x91 : block.mnemonic === "REU_FETCH" ? 0x92 : 0x93;
+    const cmdLabel = block.mnemonic === "REU_STASH" ? "C64→REU" : block.mnemonic === "REU_FETCH" ? "REU→C64" : "C64↔REU";
+    const bytes = [
+      0xA9, c64Addr & 0xFF,       0x8D, 0x02, 0xDF,  // LDA #<c64  : STA $DF02
+      0xA9, (c64Addr >> 8) & 0xFF, 0x8D, 0x03, 0xDF, // LDA #>c64  : STA $DF03
+      0xA9, expAddr & 0xFF,       0x8D, 0x04, 0xDF,  // LDA #<reu  : STA $DF04
+      0xA9, (expAddr >> 8) & 0xFF, 0x8D, 0x05, 0xDF, // LDA #>reu  : STA $DF05
+      0xA9, bank & 0xFF,          0x8D, 0x06, 0xDF,  // LDA #bank  : STA $DF06
+      0xA9, length & 0xFF,        0x8D, 0x07, 0xDF,  // LDA #<len  : STA $DF07
+      0xA9, (length >> 8) & 0xFF, 0x8D, 0x08, 0xDF,  // LDA #>len  : STA $DF08
+      0xA9, cmd,                  0x8D, 0x01, 0xDF   // LDA #cmd   : STA $DF01
+    ];
+    const c64Hex = c64Addr.toString(16).toUpperCase().padStart(4, "0");
+    const expHex = expAddr.toString(16).toUpperCase().padStart(4, "0");
+    const lenHex = length.toString(16).toUpperCase().padStart(4, "0");
+    return { ok: true, bytes, comment: `${block.mnemonic} ${cmdLabel}: $${c64Hex} → REU${bank}:$${expHex} len=$${lenHex}` };
   }
 
   if (block.isSpriteInitMacro) {
@@ -9571,6 +9835,18 @@ function getInstructionSize(block) {
     return 7;  // LDA $D012 + CMP #rl + BNE -7
   }
 
+  if (block.isTurboSetMacro) {
+    return 5;  // LDA #val + STA $D031
+  }
+
+  if (block.isSuperCpuDetectMacro) {
+    return 5;  // LDA $D0B8 + CMP #$FF
+  }
+
+  if (block.isTurboEnableMacro) {
+    return 5;  // LDA #$00 + STA $D07A/$D07B
+  }
+
   if (block.isSpriteColMacro) {
     return 5;  // LDA $D01E/$D01F + AND #mask
   }
@@ -9590,6 +9866,14 @@ function getInstructionSize(block) {
 
   if (block.isSpritePosMacro) {
     return 18;  // LDA/STA xLow + LDA/[ORA|AND]/STA $D010 + LDA/STA y
+  }
+
+  if (block.isReuCheckMacro) {
+    return 5;  // LDA $DF00 (3) + CMP #$FF (2)
+  }
+
+  if (block.isReuTransferMacro) {
+    return 40;  // 8 × (LDA #imm 2 + STA abs 3) = 8 × 5
   }
 
   if (block.isLoopMacro) {
@@ -10757,11 +11041,43 @@ function getCollapsedOperandText(block) {
     return `$D012 = $${rl}`;
   }
 
+  if (block.isTurboSetMacro) {
+    const spd = parseInt(block.turboSpeed || "7", 10);
+    const badlineLabel = block.turboBadline === "1"
+      ? (currentLanguage === "en" ? "badline off" : "badline ki")
+      : (currentLanguage === "en" ? "badline on" : "badline be");
+    return `$D031 = spd${spd} ${badlineLabel}`;
+  }
+
+  if (block.isSuperCpuDetectMacro) {
+    return currentLanguage === "en" ? "$D0B8 vs $FF" : "$D0B8 vs $FF";
+  }
+
+  if (block.isTurboEnableMacro) {
+    const mode = (block.turboEnableMode || "on") === "on"
+      ? (currentLanguage === "en" ? "ON" : "BE")
+      : (currentLanguage === "en" ? "OFF" : "KI");
+    return `$D07${(block.turboEnableMode || "on") === "on" ? "A" : "B"} (${mode})`;
+  }
+
   if (block.isSpriteColMacro) {
     const typeLabel = (block.colType || "sprite") === "background"
       ? (currentLanguage === "en" ? "bg" : "hatter")
       : (currentLanguage === "en" ? "spr" : "sprite");
     return `#${block.spriteNum || "0"} ${typeLabel} → BEQ/BNE`;
+  }
+
+  if (block.isReuCheckMacro) {
+    return currentLanguage === "en" ? "LDA $DF00 / CMP #$FF" : "LDA $DF00 / CMP #$FF";
+  }
+
+  if (block.isReuTransferMacro) {
+    const cmd = block.mnemonic === "REU_STASH" ? "$91" : block.mnemonic === "REU_FETCH" ? "$92" : "$93";
+    const c64 = (block.reuC64Addr || "C000").replace(/^\$/, "").toUpperCase();
+    const exp = (block.reuExpAddr || "0000").replace(/^\$/, "").toUpperCase();
+    const bank = block.reuBank || "0";
+    const len = (block.reuLength || "0100").replace(/^\$/, "").toUpperCase();
+    return `$${c64} ↔ REU${bank}:$${exp} len=$${len} [${cmd}]`;
   }
 
   if (block.isSpriteInitMacro) {
@@ -11543,6 +11859,53 @@ function renderProgram() {
           </div>
         `
       );
+    } else if (block.isSuperCpuDetectMacro) {
+      inlineField.hidden = true;
+    } else if (block.isTurboEnableMacro) {
+      inlineField.hidden = true;
+      const curMode = block.turboEnableMode || "on";
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid single-macro-row">
+            <label class="mini-field">
+              <span>${currentLanguage === "en" ? "Turbo" : "Turbo"}</span>
+              <select class="turbo-enable-mode">
+                <option value="on" ${curMode === "on" ? "selected" : ""}>${currentLanguage === "en" ? "Enable ($D07A)" : "Bekapcsol ($D07A)"}</option>
+                <option value="off" ${curMode === "off" ? "selected" : ""}>${currentLanguage === "en" ? "Disable ($D07B)" : "Kikapcsol ($D07B)"}</option>
+              </select>
+            </label>
+          </div>
+        `
+      );
+    } else if (block.isTurboSetMacro) {
+      inlineField.hidden = true;
+      const turboSpeeds = [
+        "0=1MHz","1=2MHz","2=3MHz","3=4MHz","4=5MHz","5=6MHz",
+        "6=8MHz","7=10MHz","8=12MHz","9=14MHz","10=16MHz",
+        "11=20MHz","12=24MHz","13=32MHz","14=40MHz","15=48MHz"
+      ];
+      const curSpd = parseInt(block.turboSpeed || "7", 10);
+      const curBl = block.turboBadline || "0";
+      const spdOptions = turboSpeeds.map((s, i) => `<option value="${i}" ${i === curSpd ? "selected" : ""}>${s}</option>`).join("");
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${currentLanguage === "en" ? "Speed" : "Sebesseg"}</span>
+              <select class="turbo-speed">${spdOptions}</select>
+            </label>
+            <label class="mini-field">
+              <span>${currentLanguage === "en" ? "Badline" : "Badline"}</span>
+              <select class="turbo-badline">
+                <option value="0" ${curBl === "0" ? "selected" : ""}>${currentLanguage === "en" ? "Enabled (C64 compat)" : "Engedelyezve (C64 kompatibilis)"}</option>
+                <option value="1" ${curBl === "1" ? "selected" : ""}>${currentLanguage === "en" ? "Disabled (turbo)" : "Letiltva (turbo)"}</option>
+              </select>
+            </label>
+          </div>
+        `
+      );
     } else if (block.isSpriteInitMacro) {
       inlineField.hidden = true;
       blockControls.insertAdjacentHTML(
@@ -11632,6 +11995,35 @@ function renderProgram() {
             <label class="mini-field">
               <span>${t("fieldLoadFileErrorLabel")}</span>
               <input class="loadfile-error-label" type="text" value="${escapeHtmlAttribute(block.loadFileErrorLabel || "")}" placeholder="${t("fieldLoadFileErrorLabelPlaceholder")}">
+            </label>
+          </div>
+        `
+      );
+    } else if (block.isReuCheckMacro) {
+      inlineField.hidden = true;
+    } else if (block.isReuTransferMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${currentLanguage === "en" ? "C64 addr" : "C64 cim"}</span>
+              <input class="reu-c64-addr" type="text" maxlength="5" value="${block.reuC64Addr || "C000"}" placeholder="C000">
+            </label>
+            <label class="mini-field">
+              <span>${currentLanguage === "en" ? "REU addr" : "REU cim"}</span>
+              <input class="reu-exp-addr" type="text" maxlength="5" value="${block.reuExpAddr || "0000"}" placeholder="0000">
+            </label>
+          </div>
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${currentLanguage === "en" ? "Bank (0–7)" : "Bank (0–7)"}</span>
+              <input class="reu-bank" type="number" min="0" max="7" value="${block.reuBank || "0"}">
+            </label>
+            <label class="mini-field">
+              <span>${currentLanguage === "en" ? "Length (hex)" : "Hossz (hex)"}</span>
+              <input class="reu-length" type="text" maxlength="5" value="${block.reuLength || "0100"}" placeholder="0100">
             </label>
           </div>
         `
@@ -12024,6 +12416,34 @@ function renderProgram() {
     if (rasterLineInput) {
       rasterLineInput.addEventListener("input", (event) => updateProgramBlock(index, "rasterLine", event.target.value));
     }
+    const turboSpeedSelect = node.querySelector(".turbo-speed");
+    if (turboSpeedSelect) {
+      turboSpeedSelect.addEventListener("change", (event) => updateProgramBlock(index, "turboSpeed", event.target.value));
+    }
+    const turboBadlineSelect = node.querySelector(".turbo-badline");
+    if (turboBadlineSelect) {
+      turboBadlineSelect.addEventListener("change", (event) => updateProgramBlock(index, "turboBadline", event.target.value));
+    }
+    const turboEnableModeSelect = node.querySelector(".turbo-enable-mode");
+    if (turboEnableModeSelect) {
+      turboEnableModeSelect.addEventListener("change", (event) => updateProgramBlock(index, "turboEnableMode", event.target.value));
+    }
+    const reuC64AddrInput = node.querySelector(".reu-c64-addr");
+    if (reuC64AddrInput) {
+      reuC64AddrInput.addEventListener("input", (event) => updateProgramBlock(index, "reuC64Addr", event.target.value));
+    }
+    const reuExpAddrInput = node.querySelector(".reu-exp-addr");
+    if (reuExpAddrInput) {
+      reuExpAddrInput.addEventListener("input", (event) => updateProgramBlock(index, "reuExpAddr", event.target.value));
+    }
+    const reuBankInput = node.querySelector(".reu-bank");
+    if (reuBankInput) {
+      reuBankInput.addEventListener("input", (event) => updateProgramBlock(index, "reuBank", event.target.value));
+    }
+    const reuLengthInput = node.querySelector(".reu-length");
+    if (reuLengthInput) {
+      reuLengthInput.addEventListener("input", (event) => updateProgramBlock(index, "reuLength", event.target.value));
+    }
     const spriteNumInput = node.querySelector(".sprite-num");
     if (spriteNumInput) {
       spriteNumInput.addEventListener("input", (event) => updateProgramBlock(index, "spriteNum", event.target.value));
@@ -12391,6 +12811,7 @@ function renderAsmOutput() {
     asmDisplayText = withAsmLineNumbers(asmPlainText);
     asmOutput.innerHTML = highlightAsmHtml(asmDisplayText);
     renderMonitorOutput(layout);
+    renderDisasmOutput();
     return;
   }
 
@@ -12777,12 +13198,39 @@ function renderAsmOutput() {
       return `; .wait_raster $${(line.block.rasterLine || "FF").toUpperCase()}`;
     }
 
+    if (line.block.isTurboSetMacro) {
+      const spd = parseInt(line.block.turboSpeed || "7", 10);
+      const bl = line.block.turboBadline === "1" ? "off" : "on";
+      return `; .TURBO_SET speed=${spd} badline=${bl}`;
+    }
+
+    if (line.block.isSuperCpuDetectMacro) {
+      return `; .SUPERCPU_DETECT`;
+    }
+
+    if (line.block.isTurboEnableMacro) {
+      return `; .TURBO_ENABLE ${(line.block.turboEnableMode || "on").toUpperCase()}`;
+    }
+
     if (line.block.isJoystickMacro) {
       return `; .joystick port=${line.block.joyPort || "2"} sprite=${line.block.joySpriteNum || "0"}`;
     }
 
     if (line.block.isSpriteColMacro) {
       return `; .sprite_col #${line.block.spriteNum || "0"} ${line.block.colType || "sprite"}`;
+    }
+
+    if (line.block.isReuCheckMacro) {
+      return `; .REU_CHECK`;
+    }
+
+    if (line.block.isReuTransferMacro) {
+      const cmd = line.block.mnemonic === "REU_STASH" ? "STASH" : line.block.mnemonic === "REU_FETCH" ? "FETCH" : "SWAP";
+      const c64 = (line.block.reuC64Addr || "C000").replace(/^\$/, "").toUpperCase().padStart(4, "0");
+      const exp = (line.block.reuExpAddr || "0000").replace(/^\$/, "").toUpperCase().padStart(4, "0");
+      const bank = line.block.reuBank || "0";
+      const len  = (line.block.reuLength || "0100").replace(/^\$/, "").toUpperCase().padStart(4, "0");
+      return `; .REU_${cmd} $${c64} → REU${bank}:$${exp} len=$${len}`;
     }
 
     const suffix = line.block.operand ? ` ${getAsmDisplayOperand(line.block)}` : "";
@@ -12827,6 +13275,7 @@ function renderAsmOutput() {
   }
 
   renderMonitorOutput(layout);
+  renderDisasmOutput();
 
   // Keep overlap badge and panel in sync on every ASM render (reuses layout)
   renderMemoryMap(getMemoryUsage(layout));
