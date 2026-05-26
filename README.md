@@ -2,7 +2,7 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v1.6.5**
+**Current version: v1.6.6**
 
 ---
 
@@ -57,6 +57,9 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **Memory strip** — full 64 KB C64 memory map visualised as a colour-coded strip (RAM / ROM / I/O)
 - **Monitor view** — hex + ASCII character dump, 8 bytes per row
 - **VICE integration** — assemble and launch directly in the VICE C64 emulator
+- **Build Info dialog** — one-click summary of origin, end address, size, labels, constants, and macros used
+- **Expert mode .asm file save/load** — load and save raw `.asm` source files in Expert mode
+- **Expert mode error highlighting** — lines that fail to compile are highlighted in red in real time
 - **Dark / light theme**, zoom, HEX / DEC operand mode
 - **Hungarian and English UI**
 - **Save / load projects** as `.c64asm` JSON files
@@ -208,9 +211,26 @@ Each block in `program[]` is a plain object:
 | `TURBO_SET` | Set U64 CPU speed via `$D031`; speed index 0–15 + badline control (5 bytes) |
 | `SUPERCPU_DETECT` | Compare `$D0B8` to `$FF`; Z=0 → SuperCPU present (5 bytes) |
 | `TURBO_ENABLE` | SuperCPU turbo on (`STA $D07A`) / off (`STA $D07B`) (5 bytes) |
+
+---
+
+## What's New in v1.6.6
+
+- **Build Info dialog** — toolbar button (block mode and expert mode) opens a summary showing origin address, end address, total size, all labels with their resolved addresses, constants, macros used, and any compile errors.
+- **Save / Load `.asm` files in Expert mode** — load a raw `.asm` source file directly into the Expert editor; save the editor content back to a `.asm` file. Works independently of `.c64asm` project files.
+- **Expert mode error line highlighting** — lines that fail to compile are highlighted in red (background tint + left accent border) in real time, 350 ms after each keystroke.
+
+### Previous: v1.6.5
+
+- MOUSE macro (142 bytes — C64 1351 proportional mouse via SID POTX/POTY)
+- REU_CHECK / REU_STASH / REU_FETCH / REU_SWAP macros (RAM Expansion Unit DMA)
+- TURBO_SET / SUPERCPU_DETECT / TURBO_ENABLE macros (U64 + CMD SuperCPU)
+- Region copy & paste buttons
+- Track block selection in palette (Settings toggle)
 | `REGION` / `ENDREGION` | Visual grouping block — collapsible named section; zero bytes; supports nesting |
 | `LABEL` | Zero-byte named symbol; resolves in branch/jump operands |
 | `COMMENT` | Zero-byte annotation; generates no machine code |
+| `MOUSE` | C64 1351 proportional mouse via SID POTX/POTY and sprite movement (142 bytes) |
 
 ### Output generation
 

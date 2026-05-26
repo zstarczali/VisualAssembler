@@ -320,6 +320,10 @@ const expertMonitorBtn     = document.getElementById("expert-monitor-btn");
 const expertMonitorPanel   = document.getElementById("expert-monitor-panel");
 const expertMonitorOutput  = document.getElementById("expert-monitor-output");
 const expertFormatBtn      = document.getElementById("expert-format-btn");
+const expertLoadAsmBtn     = document.getElementById("expert-load-asm-btn");
+const expertSaveAsmBtn     = document.getElementById("expert-save-asm-btn");
+const expertBuildInfoBtn   = document.getElementById("expert-build-info-btn");
+const buildInfoBtn         = document.getElementById("build-info-btn");
 const expertProjectBtn     = document.getElementById("expert-project-btn");
 const expertProjectPanel   = document.getElementById("expert-project-panel");
 
@@ -408,6 +412,22 @@ const translations = {
     monitorOutputLabel: "Monitor kimenet",
     originPreviewLabel: "Forditas info",
     compileErrorTitle: "Forditasi hibak",
+    buildInfoTitle: "Build info",
+    buildInfoOrigin: "Kezdocim",
+    buildInfoSize: "Meret",
+    buildInfoEnd: "Vegcim",
+    buildInfoLabels: "Cimkek",
+    buildInfoConsts: "Konstansok",
+    buildInfoMacros: "Makrok",
+    buildInfoErrors: "Hibak",
+    buildInfoNoErrors: "Nincsenek hibak",
+    buildInfoBtn: "Build info",
+    vasmLoadBtn: "ASM betoltese",
+    vasmSaveBtn: "ASM mentese",
+    vasmLoadedStatus: "Betoltve",
+    vasmSavedStatus: "Mentve",
+    vasmLoadError: "Betoltesi hiba",
+    vasmSaveError: "Mentesi hiba",
     loadProject: "Program betoltese",
     exitApp: "Kilepes",
     themeToggle: "Tema valtasa",
@@ -755,6 +775,22 @@ const translations = {
     monitorOutputLabel: "Monitor output",
     originPreviewLabel: "Compile info",
     compileErrorTitle: "Compilation errors",
+    buildInfoTitle: "Build info",
+    buildInfoOrigin: "Origin",
+    buildInfoSize: "Size",
+    buildInfoEnd: "End address",
+    buildInfoLabels: "Labels",
+    buildInfoConsts: "Constants",
+    buildInfoMacros: "Macros",
+    buildInfoErrors: "Errors",
+    buildInfoNoErrors: "No errors",
+    buildInfoBtn: "Build info",
+    vasmLoadBtn: "Load .asm",
+    vasmSaveBtn: "Save .asm",
+    vasmLoadedStatus: "Loaded",
+    vasmSavedStatus: "Saved",
+    vasmLoadError: "Load error",
+    vasmSaveError: "Save error",
     loadProject: "Load program",
     exitApp: "Exit",
     themeToggle: "Toggle theme",
@@ -1565,6 +1601,19 @@ function initPalette() {
   });
 
   expertFormatBtn?.addEventListener("click", _expertFormatSource);
+  expertLoadAsmBtn?.addEventListener("click", _expertLoadAsm);
+  expertSaveAsmBtn?.addEventListener("click", _expertSaveAsm);
+  expertBuildInfoBtn?.addEventListener("click", showBuildInfoDialog);
+  buildInfoBtn?.addEventListener("click", showBuildInfoDialog);
+
+  // Build info dialog close
+  document.getElementById("build-info-close")?.addEventListener("click", () => {
+    document.getElementById("build-info-dialog")?.close();
+  });
+  document.getElementById("build-info-dialog")?.addEventListener("click", (e) => {
+    if (e.target === document.getElementById("build-info-dialog"))
+      document.getElementById("build-info-dialog").close();
+  });
 
   expertProjectBtn?.addEventListener("click", () => {
     _expertProjectVisible = !_expertProjectVisible;
@@ -2257,6 +2306,13 @@ function applyTranslations() {
   expertMonitorBtn?.setAttribute("aria-label", t("expertMonitor"));
   expertFormatBtn?.setAttribute("title", t("expertFormat"));
   expertFormatBtn?.setAttribute("aria-label", t("expertFormat"));
+  expertLoadAsmBtn?.setAttribute("title", t("vasmLoadBtn"));
+  expertLoadAsmBtn?.setAttribute("aria-label", t("vasmLoadBtn"));
+  expertSaveAsmBtn?.setAttribute("title", t("vasmSaveBtn"));
+  expertSaveAsmBtn?.setAttribute("aria-label", t("vasmSaveBtn"));
+  expertBuildInfoBtn?.setAttribute("title", t("buildInfoBtn"));
+  expertBuildInfoBtn?.setAttribute("aria-label", t("buildInfoBtn"));
+  buildInfoBtn?.setAttribute("title", t("buildInfoBtn"));
 
   document.querySelector('label[for="category-select"]');
   setText(".palette-panel .field:nth-of-type(1) span", t("fieldCategory"));
@@ -3970,6 +4026,8 @@ function isProgramEmpty() {
 
 let expertMode = false;
 let _expertParseTimer = null;
+let _expertErrorLineNos = new Set();  // source line indices (0-based) with compile errors
+let _expertAsmFilePath = "";          // current .asm file path (empty = unsaved)
 
 function setExpertMode(on) {
   if (!on && expertMode) {
@@ -4352,6 +4410,175 @@ function _expertFormatSource() {
   }
 }
 
+// ── VASM file I/O ────────────────────────────────────────────────────────────
+
+async function _expertSaveAsm() {
+  if (!expertEditor) return;
+  const content = expertEditor.value;
+  try {
+    const res = await window.electronAPI?.saveAsmFile?.(_expertAsmFilePath || "", content);
+    if (!res || res.canceled) return;
+    if (!res.ok) {
+      _expertSetStatus(t("vasmSaveError") + ": " + res.error, "error");
+      return;
+    }
+    _expertAsmFilePath = res.filePath;
+    const name = res.filePath.replace(/\\/g, "/").split("/").pop();
+    if (expertFileName) expertFileName.textContent = name;
+    _expertSetStatus(t("vasmSavedStatus") + ": " + name, "ok");
+  } catch (e) {
+    _expertSetStatus(t("vasmSaveError") + ": " + String(e), "error");
+  }
+}
+
+async function _expertLoadAsm() {
+  try {
+    const res = await window.electronAPI?.chooseAsmFile?.();
+    if (!res || res.canceled) return;
+    if (!res.ok) {
+      _expertSetStatus(t("vasmLoadError") + ": " + res.error, "error");
+      return;
+    }
+    _expertAsmFilePath = res.filePath;
+    const name = res.filePath.replace(/\\/g, "/").split("/").pop();
+    if (expertEditor) {
+      expertEditor.value = res.content;
+      expertEditor.dispatchEvent(new Event("input"));
+    }
+    if (expertFileName) expertFileName.textContent = name;
+    _expertSetStatus(t("vasmLoadedStatus") + ": " + name, "ok");
+    markTabDirty();
+  } catch (e) {
+    _expertSetStatus(t("vasmLoadError") + ": " + String(e), "error");
+  }
+}
+
+// ── Build info dialog ────────────────────────────────────────────────────────
+
+function showBuildInfoDialog() {
+  const buildInfoDialog  = document.getElementById("build-info-dialog");
+  const buildInfoContent = document.getElementById("build-info-content");
+  const buildInfoTitle   = document.getElementById("build-info-title");
+  if (!buildInfoDialog || !buildInfoContent) return;
+
+  if (buildInfoTitle) buildInfoTitle.textContent = t("buildInfoTitle");
+
+  const makeRow = (key, val, extra = "") =>
+    `<div class="build-info-row"><span class="build-info-row-key">${key}</span><span class="build-info-row-val">${val}</span>${extra ? `<span class="build-info-row-note">${extra}</span>` : ""}</div>`;
+  const makeSection = (label, rows) => {
+    if (!rows.length) return "";
+    return `<div class="build-info-section"><div class="build-info-section-label">${label}</div>${rows.join("")}</div>`;
+  };
+
+  let blocks;
+  if (expertMode && expertEditor) {
+    blocks = _expertBuildProgram();
+  } else {
+    blocks = program;
+  }
+  const savedProgram = program;
+  const savedUserMacros = userMacros;
+  program = blocks;
+  parseUserMacros();
+
+  let infoHtml = "";
+  try {
+    const layout = getProgramLayout();
+    const labels = new Map();
+    layout.lines.forEach(line => {
+      if (line.block.isLabel && line.block.labelName) labels.set(line.block.labelName, line.address);
+      if (line.block.isLoopMacro && line.block.loopLabel) labels.set(line.block.loopLabel, line.address + 2);
+      if (line.block.isConstMacro && line.block.constName) {
+        const v = parseNumberByBase((line.block.rawOperand || "").replace(/^\$/, ""), line.block.base);
+        if (v !== null) labels.set(line.block.constName, v);
+      }
+    });
+
+    const origin = layout.lines.length ? layout.lines[0].address : 0;
+    let totalBytes = 0, maxAddr = origin;
+    for (const line of layout.lines) {
+      if (line.conditionallySkipped) continue;
+      if (line.size > 0) {
+        totalBytes += line.size;
+        maxAddr = Math.max(maxAddr, line.address + line.size);
+      }
+    }
+    const fmtAddr = a => "$" + a.toString(16).toUpperCase().padStart(4, "0");
+
+    const compileErrors = [];
+    for (const line of layout.lines) {
+      if (line.conditionallySkipped) continue;
+      if (line.block.isLabel || line.block.isComment || line.block.isIncludeMacro) continue;
+      if (line.block._isSavedAddress || line.block._isRestoreAddress || line.block.isOrgMacro) continue;
+      if (line.block.validationError) { compileErrors.push(line.block.validationError); continue; }
+      const result = compileLineBytes(line, labels);
+      if (!result.ok) compileErrors.push(result.error);
+    }
+
+    const labelList = [];
+    const constList = [];
+    const macroCount = new Map();
+
+    layout.lines.forEach(line => {
+      if (line.conditionallySkipped) return;
+      const b = line.block;
+      if (b.isLabel && b.labelName) labelList.push({ name: b.labelName, addr: fmtAddr(line.address) });
+      if (b.isLoopMacro && b.loopLabel) labelList.push({ name: b.loopLabel, addr: fmtAddr(line.address + 2) });
+      if (b.isConstMacro && b.constName) {
+        const v = parseNumberByBase((b.rawOperand || "").replace(/^\$/, ""), b.base);
+        constList.push({ name: b.constName, val: v !== null ? fmtAddr(v) : (b.rawOperand || "?") });
+      }
+      const macroTypes = [
+        "isTextMacro","isStringMacro","isDataMacro","isRawBytesMacro","isRawTextMacro",
+        "isLoopMacro","isNextMacro","isSpriteInitMacro","isSpritePosMacro","isWaitRasterMacro",
+        "isJoystickMacro","isMouseMacro","isSpriteColMacro","isIncBinMacro","isSidMacro",
+        "isLoadFileMacro","isReuStashMacro","isReuFetchMacro","isReuSwapMacro","isReuCheckMacro",
+        "isTurboSetMacro","isTurboEnableMacro","isSuperCpuDetectMacro",
+      ];
+      macroTypes.forEach(t2 => {
+        if (b[t2]) {
+          const key = t2.replace(/^is/, "").replace(/Macro$/, "");
+          macroCount.set(key, (macroCount.get(key) || 0) + 1);
+        }
+      });
+    });
+
+    const summaryRows = [
+      makeRow(t("buildInfoOrigin"), fmtAddr(origin)),
+      makeRow(t("buildInfoEnd"),    maxAddr > origin ? fmtAddr(maxAddr - 1) : fmtAddr(origin)),
+      makeRow(t("buildInfoSize"),   totalBytes + " bytes"),
+    ];
+    infoHtml += makeSection(t("buildInfoTitle"), summaryRows);
+
+    if (compileErrors.length) {
+      const errRows = compileErrors.map(e =>
+        `<div class="build-info-row build-info-err"><span class="build-info-row-val">${e}</span></div>`);
+      infoHtml += makeSection(t("buildInfoErrors"), errRows);
+    }
+    if (labelList.length) {
+      infoHtml += makeSection(t("buildInfoLabels"), labelList.map(l => makeRow(l.name, l.addr)));
+    }
+    if (constList.length) {
+      infoHtml += makeSection(t("buildInfoConsts"), constList.map(c => makeRow(c.name, c.val)));
+    }
+    if (macroCount.size) {
+      infoHtml += makeSection(t("buildInfoMacros"),
+        [...macroCount.entries()].map(([k, v]) => makeRow(k, v + "×")));
+    }
+    if (!compileErrors.length && !labelList.length && !constList.length && !macroCount.size) {
+      infoHtml += `<div class="build-info-row"><span class="build-info-row-val">${t("buildInfoNoErrors")}</span></div>`;
+    }
+  } catch (e) {
+    infoHtml = `<div class="build-info-row build-info-err"><span class="build-info-row-val">Error: ${e.message}</span></div>`;
+  } finally {
+    program = savedProgram;
+    userMacros = savedUserMacros;
+  }
+
+  buildInfoContent.innerHTML = infoHtml;
+  buildInfoDialog.showModal();
+}
+
 function _expertHighlightLine(raw) {
   function esc(s) {
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -4422,12 +4649,16 @@ function _expertApplyHighlight() {
   const html = allLines.map((raw, i) => {
     const hl = _expertHighlightLine(raw);
     const nl = i < allLines.length - 1 ? "\n" : "";
+    let lineHtml = hl;
     if (rh) {
       if (i === rh.start || i === rh.end)
-        return `<span class="hl-region-bracket">${hl}</span>${nl}`;
+        lineHtml = `<span class="hl-region-bracket">${hl}</span>`;
       // body lines: background covered by #expert-region-bg div (no per-line span needed)
     }
-    return hl + nl;
+    if (_expertErrorLineNos.has(i)) {
+      lineHtml = `<span class="expert-err-line">${lineHtml}</span>`;
+    }
+    return lineHtml + nl;
   }).join("");
   expertHlCode.innerHTML = html;
   _updateExpertRegionBg();
@@ -4731,9 +4962,44 @@ function parseExpertText(text) {
   return blocks;
 }
 
+// Map each block to its source line index by scanning the source text in parallel.
+// Sets block._srcLine = lineIndex for the first block produced by each source line.
+function _addSrcLineToBlocks(text, blocks) {
+  if (!blocks.length) return;
+  const srcLines = text.split("\n");
+  let bIdx = 0;
+  for (let li = 0; li < srcLines.length && bIdx < blocks.length; li++) {
+    const raw = srcLines[li];
+    const scIdx = raw.indexOf(";");
+    const codePart = (scIdx >= 0 ? raw.slice(0, scIdx) : raw).trim();
+    const hasCode = codePart.length > 0;
+    const hasTrailingComment = scIdx >= 0 && raw.slice(scIdx + 1).trim().length > 0;
+    const isCommentOnly = !hasCode && scIdx >= 0 && raw.slice(scIdx + 1).trim().length > 0;
+
+    if (hasCode) {
+      // Main block
+      blocks[bIdx]._srcLine = li;
+      bIdx++;
+      // Trailing comment block (if any follows right away and is a comment)
+      if (hasTrailingComment && bIdx < blocks.length && blocks[bIdx].isComment) {
+        blocks[bIdx]._srcLine = li;
+        bIdx++;
+      }
+    } else if (isCommentOnly) {
+      // Comment-only line → one comment block
+      if (blocks[bIdx].isComment) {
+        blocks[bIdx]._srcLine = li;
+        bIdx++;
+      }
+    }
+    // pure empty lines: no blocks
+  }
+}
+
 function _expertBuildProgram() {
   const text = expertEditor?.value || "";
   const blocks = parseExpertText(text);
+  _addSrcLineToBlocks(text, blocks);
 
   // Preserve binary data from existing program[] blocks — can't be encoded in text form.
   // Match by filename so loaded bytes survive mode-switches and compile calls.
@@ -4920,20 +5186,27 @@ function _expertValidate() {
           if (line.block.isLabel || line.block.isComment || line.block.isIncludeMacro) continue;
           if (line.block._isSavedAddress || line.block._isRestoreAddress || line.block.isOrgMacro) continue;
           const result = compileLineBytes(line, labels);
-          if (!result.ok) errors.push(result.error);
+          if (!result.ok) errors.push({ msg: result.error, srcLine: line.block._srcLine });
         }
         // Update overlap badge and panel
         renderMemoryMap(getMemoryUsage(layout));
         // Fall back to block-level validationError if compile found nothing
         if (!errors.length) {
-          errors = layout.lines.filter(l => l.block?.validationError).map(l => l.block.validationError);
+          errors = layout.lines
+            .filter(l => l.block?.validationError)
+            .map(l => ({ msg: l.block.validationError, srcLine: l.block._srcLine }));
         }
       } finally {
         program = saved;
         userMacros = savedUserMacros;
       }
+      // Update error line set and re-highlight
+      const prevErrSize = _expertErrorLineNos.size;
+      _expertErrorLineNos = new Set(errors.map(e => e.srcLine).filter(n => n !== undefined));
+      if (_expertErrorLineNos.size !== prevErrSize) _expertApplyHighlight();
+
       if (errors.length) {
-        _expertSetStatus(errors[0] + (errors.length > 1 ? ` (+${errors.length - 1} more)` : ""), "error");
+        _expertSetStatus(errors[0].msg + (errors.length > 1 ? ` (+${errors.length - 1} more)` : ""), "error");
       } else {
         _expertSetStatus(currentLanguage === "en"
           ? `${blocks.length} ${blocks.length === 1 ? "block" : "blocks"} — OK`

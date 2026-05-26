@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 1.6.5**
+**Version 1.6.6**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -226,6 +226,23 @@ Expert Mode is a full-featured direct-text 6502 assembly editor that lives along
 | **Palette** | `#expert-palette-btn` | The left block palette — drag blocks into the editor or click to insert at cursor |
 | **ASM editor** | always visible | Full monospace textarea with live syntax highlight overlay |
 | **Disasm panel** | `#expert-disasm-btn` | Real-time disassembly: shows address, bytes, and mnemonic for each line |
+
+### Toolbar buttons
+
+| Button | ID | Function |
+|--------|----|----------|
+| **Format** | `#expert-format-btn` | Auto-format source (labels to col 0, 4-space indent, 1-space mnemonic/operand) |
+| **Load .asm** | `#expert-load-asm-btn` | Open a `.asm` file and load it into the editor |
+| **Save .asm** | `#expert-save-asm-btn` | Save editor content to a `.asm` file (file dialog on first save) |
+| **Build Info** | `#expert-build-info-btn` | Open the Build Info dialog (origin, size, labels, errors) |
+| **HL** | `#expert-hl-btn` | Toggle syntax highlighting (disable for very large files) |
+| **Palette** | `#expert-palette-btn` | Show/hide the left mnemonic palette |
+| **Disasm** | `#expert-disasm-btn` | Show/hide the real-time disassembly panel |
+| **Monitor** | `#expert-monitor-btn` | Show/hide the monitor hex-dump panel |
+
+### Error highlighting
+
+Lines that fail to compile are highlighted in **red** (tinted background + left accent border) in real time, 350 ms after each keystroke. The first error message is also shown in the status bar. Fix the line and the highlight disappears automatically.
 
 ### Syntax highlight
 

@@ -92,6 +92,7 @@
                 <h3 class="control-menu-label control-menu-label--section" id="build-section-label">Build</h3>
                 <button id="save-prg" class="secondary" type="button">Build PRG</button>
                 <button id="save-d64" class="secondary" type="button">Build D64</button>
+                <button id="build-info-btn" class="secondary" type="button">Build Info</button>
               </section>
               <section class="control-menu-group">
                 <h3 class="control-menu-label">Beallitasok</h3>
@@ -369,6 +370,17 @@
           <button id="expert-format-btn" class="expert-hl-toggle" title="Format source" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M3 3h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M5 6.5h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M5 10h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M2 5.5l1.5 1.5-1.5 1.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 9l1.5 1.5-1.5 1.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
+          <div class="expert-toolbar-sep"></div>
+          <button id="expert-load-asm-btn" class="expert-hl-toggle" title="Load .asm file" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M3 2H9L13 6V13C13 13.55 12.55 14 12 14H4C3.45 14 3 13.55 3 13V3C3 2.45 3.45 2 4 2Z" stroke="currentColor" stroke-width="1.2"/><path d="M9 2V6H13" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/><path d="M8 9L6 11L8 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 11H11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </button>
+          <button id="expert-save-asm-btn" class="expert-hl-toggle" title="Save .asm file" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M3 2H9L13 6V13C13 13.55 12.55 14 12 14H4C3.45 14 3 13.55 3 13V3C3 2.45 3.45 2 4 2Z" stroke="currentColor" stroke-width="1.2"/><path d="M9 2V6H13" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/><path d="M8 8L10 10L8 12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 10H5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </button>
+          <div class="expert-toolbar-sep"></div>
+          <button id="expert-build-info-btn" class="expert-hl-toggle" title="Build Info" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 7V12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="5" r="0.8" fill="currentColor"/></svg>
+          </button>
           <span id="expert-file-name" class="expert-file-name"></span>
         </div>
         <div class="expert-body">
@@ -492,6 +504,14 @@
     </div>
   </dialog>
 
+  <dialog id="build-info-dialog" class="build-info-dialog">
+    <div class="build-info-card" id="build-info-card">
+      <h2 class="build-info-title" id="build-info-title">Build Info</h2>
+      <div id="build-info-content"></div>
+      <button id="build-info-close" class="primary" type="button">OK</button>
+    </div>
+  </dialog>
+
   <dialog id="app-confirm-dialog" class="app-confirm-dialog">
     <div class="app-confirm-card">
       <p id="app-confirm-msg" class="app-confirm-msg"></p>
@@ -561,31 +581,34 @@
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v1.6.5</p>
+      <p class="whats-new-version">v1.6.6</p>
       <ul class="whats-new-list">
         <li>
-          <strong>Region copy &amp; paste</strong> — each REGION block now has a <strong>⧉ copy</strong> and <strong>⎘ paste</strong> button in its header. Copy duplicates the region with all its blocks; paste inserts the copy as a new region immediately after the current one and scrolls to it. Both buttons are always visible regardless of whether the region is collapsed.
+          <strong>Build Info dialog</strong> — a new <strong>Build Info</strong> button (toolbar and Expert mode toolbar) opens a summary dialog showing origin address, end address, total size, all labels with their addresses, constants, macros used, and any compile errors.
         </li>
         <li>
-          <strong>Track block selection in palette</strong> — new checkbox in Settings. When enabled (default), clicking a block in the program list syncs the palette category, highlights the mnemonic, and updates the description panel. Disable it to keep the palette pinned while editing.
+          <strong>Save / Load .asm files in Expert mode</strong> — two new buttons in the Expert toolbar let you load a <code>.asm</code> source file directly into the editor and save the current editor content back to a <code>.asm</code> file. Works independently of the <code>.c64asm</code> project format.
         </li>
         <li>
-          <strong>MOUSE macro</strong> — read a C64 1351 proportional mouse via SID <code>POTX</code>/<code>POTY</code> (<code>$D419</code>/<code>$D41A</code>) and move a chosen sprite accordingly. Fields: port (1 or 2), sprite number, two zero-page bytes for previous normalized mouse phases. Uses CIA <code>$DC00</code> upper-bit mux select, waits one SID conversion window, extracts the documented 6-bit mouse phase, applies 2x horizontal gain, keeps sprite X <code>$D010</code> in sync, and inverts Y for VICE. 104 bytes inline.
+          <strong>Expert mode error highlighting</strong> — lines that fail to compile are now highlighted in red in real time (red background + left border). The highlight is recomputed 350 ms after each keystroke alongside the existing status-bar error message.
+        </li>
+      </ul>
+      <p class="whats-new-version" style="font-size:0.78rem;opacity:0.6;margin-top:10px">v1.6.5</p>
+      <ul class="whats-new-list" style="opacity:0.75">
+        <li>
+          <strong>Region copy &amp; paste</strong> — each REGION block now has a <strong>⧉ copy</strong> and <strong>⎘ paste</strong> button in its header.
         </li>
         <li>
-          <strong>REU macros</strong> — four macros for Commodore RAM Expansion Unit DMA transfers: <strong>REU_CHECK</strong> detects a REU via <code>$DFF8</code> (5 bytes); <strong>REU_STASH</strong> transfers C64 RAM → REU; <strong>REU_FETCH</strong> transfers REU → C64 RAM; <strong>REU_SWAP</strong> swaps C64 RAM ↔ REU. Each DMA macro is 40 bytes and takes C64 address, REU address, bank, and length fields.
+          <strong>Track block selection in palette</strong> — new checkbox in Settings; clicking a block syncs the palette to that mnemonic.
         </li>
         <li>
-          <strong>TURBO_SET macro</strong> — set U64 CPU turbo speed via <code>$D031</code>; speed index 0–15 (up to ~48 MHz) and badline enable/disable; 5 bytes.
+          <strong>MOUSE macro</strong> — C64 1351 proportional mouse via SID POTX/POTY; CIA port select, SID settle wait, 7-bit delta decode, sprite X $D010 MSB; 142 bytes.
         </li>
         <li>
-          <strong>SUPERCPU_DETECT macro</strong> — detect CMD SuperCPU presence by comparing <code>$D0B8</code> to <code>$FF</code>; result in Z flag (<code>BNE</code> = present); 5 bytes.
+          <strong>REU macros</strong> — REU_CHECK (34 bytes), REU_STASH / REU_FETCH / REU_SWAP (40 bytes each) for RAM Expansion Unit DMA.
         </li>
         <li>
-          <strong>TURBO_ENABLE macro</strong> — enable or disable CMD SuperCPU turbo mode; writes <code>LDA #$00</code> + <code>STA $D07A</code> / <code>$D07B</code>; 5 bytes.
-        </li>
-        <li>
-          <strong>Bug fixes</strong> — Expert mode Disassembler/Monitor panels now use a consistent dark background across all themes so syntax colors are always readable; block description panel correctly updates when selecting a block.
+          <strong>TURBO_SET / SUPERCPU_DETECT / TURBO_ENABLE macros</strong> — U64 and CMD SuperCPU support.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>

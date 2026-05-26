@@ -3167,6 +3167,18 @@ body.expert-mode .expert-panel {
   outline: 1px solid color-mix(in srgb, var(--accent) 60%, transparent);
   border-radius: 2px;
 }
+/* Error line highlight in expert editor */
+.expert-err-line {
+  display: block;
+  background: color-mix(in srgb, #ff4444 14%, transparent);
+  border-left: 2px solid #ff4444;
+  margin-left: -2px;
+}
+html[data-theme="dark"] .expert-err-line,
+html[data-theme="oled"] .expert-err-line {
+  background: color-mix(in srgb, #ff4444 18%, transparent);
+}
+
 /* Continuous region body background — absolutely-positioned div inside <pre>,
    translated in sync with the code element to follow scrolling.
    z-index: -1 keeps it behind the code text but above the pre's own background. */
@@ -3649,6 +3661,92 @@ body.expert-mode .expert-panel {
   padding: 7px 20px;
   font-size: 0.85rem;
   align-self: flex-end;
+}
+
+/* ── Build info dialog ────────────────────────────────────────────────────── */
+.build-info-dialog {
+  border: none;
+  border-radius: 14px;
+  padding: 0;
+  background: var(--panel);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  min-width: 340px;
+  max-width: 540px;
+  width: 90vw;
+}
+.build-info-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+.build-info-card {
+  padding: 18px 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.build-info-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+.build-info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.build-info-section-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+.build-info-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.76rem;
+  color: var(--text);
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  border-left: 2px solid var(--primary);
+  padding: 3px 8px;
+  border-radius: 0 4px 4px 0;
+  line-height: 1.4;
+}
+.build-info-row-key {
+  color: var(--muted);
+  min-width: 90px;
+  flex-shrink: 0;
+}
+.build-info-row-val {
+  color: var(--accent);
+  font-weight: 600;
+  word-break: break-all;
+}
+.build-info-row-note {
+  color: var(--muted);
+  font-size: 0.7em;
+}
+.build-info-err .build-info-row {
+  border-color: var(--primary);
+  background: color-mix(in srgb, #ff4444 10%, transparent);
+  border-left-color: #ff4444;
+}
+.build-info-err .build-info-row-val {
+  color: #ff6666;
+}
+.build-info-card .primary {
+  min-height: unset;
+  padding: 7px 20px;
+  font-size: 0.85rem;
+  align-self: flex-end;
+  margin-top: 4px;
 }
 
 .work-progress-dialog {
