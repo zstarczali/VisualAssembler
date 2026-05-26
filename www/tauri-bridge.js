@@ -38,6 +38,8 @@
     openProjFile: () => invoke("open_proj_file"),
     saveProjFile: (path, content) => invoke("save_proj_file", { path, content }),
     readTextFile: (path) => invoke("read_text_file", { path }),
+    saveAsmFile: (path, content) => invoke("save_asm_file", { path, content }),
+    chooseAsmFile: () => invoke("choose_asm_file"),
     chooseProjMember: () => invoke("choose_proj_member"),
     readBinFile: (path) => invoke("read_bin_file", { path }),
     loadSample: (sampleName) => invoke("load_sample", { sampleName }),

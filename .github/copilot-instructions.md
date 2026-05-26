@@ -110,7 +110,7 @@ A `WAIT_RASTER` makró (`isWaitRasterMacro: true`): mező: `rasterLine` (hex byt
 
 A `JOYSTICK` makró (`isJoystickMacro: true`): mezők: `joyPort` (`"1"` = $DC01, `"2"` = $DC00), `joySpriteNum` (0–7). Generál: `LDA port`, majd 4× irányonként (UP/DOWN/LEFT/RIGHT): `LSR; BCS +3; DEC/INC $D001/D000` (3 byte-os DEC/INC abs). BCS +3 ugorja át a DEC/INC-et ha az iránygomb NEM lenyomott (active-LOW: bit=0 → lenyomott). Méret: 27 byte. CIA regiszterek: Port 2 = $DC00, Port 1 = $DC01. Bitek: 0=Up, 1=Down, 2=Left, 3=Right, 4=Fire.
 
-A `MOUSE` makró (`isMouseMacro: true`): C64 1351 arányos egér olvasása SID POTX/POTY (`$D419`/`$D41A`) keresztül, sprite mozgatás. Mezők: `mousePort` (`"1"` = CIA `$40` / `"2"` = CIA `$00`), `mouseSpriteNum` (0–7), `mousePotXZP` (ZP hex byte, prev POTX tárolója, pl. `"FD"`), `mousePotYZP` (ZP hex byte, prev POTY tárolója, pl. `"FE"`). Generált kód: CIA port select → X-tengely delta clamping (`CMP #$41/$C0` ±64 küszöb, SID discharge glitch ellen, conditional STX) → Y-tengely ugyanez + `EOR #$FF; SEC` invertálás. Méret: **70 byte** (CIA 8 + X-axis 30 + Y-axis 32). Expert sor: `.mouse port, spriteNum, zpX, zpY` (pl. `.mouse 2, 0, FD, FE`). **Fontos:** az első hívás előtt inicializáld a ZP értékeket az aktuális POTX/POTY-ra. **Delta clamp:** ha a nyers delta 65–191 tartományba esik (SID discharge glitch), a delta 0-ra van clampelve ÉS a zpX/zpY NEM frissül (hogy a következő olvasásnál ne legyen nagy ugrás a másik irányban sem).
+A `MOUSE` makró (`isMouseMacro: true`): C64 1351 arányos egér olvasása SID POTX/POTY (`$D419`/`$D41A`) keresztül, sprite mozgatás. Mezők: `mousePort` (`"1"` = CIA `$DC00` bits `7:6` = `%01`, `"2"` = CIA `$DC00` bits `7:6` = `%10`), `mouseSpriteNum` (0–7), `mousePotXZP` (ZP hex byte, prev POTX tárolója, pl. `"FD"`), `mousePotYZP` (ZP hex byte, prev POTY tárolója, pl. `"FE"`). Generált kód: CIA port select a felső két bit megőrzött-maszkolt állításával → kb. 512 ciklusos SID settle wait → standard 1351-féle 7 bites delta dekódolás mindkét tengelyen → X oldalon `$D010` MSB karbantartás, Y oldalon invertált mozgás. Méret: **142 byte**. Expert sor: `.mouse port, spriteNum, zpX, zpY` (pl. `.mouse 2, 0, FD, FE`). **Fontos:** az első hívás előtt inicializáld a ZP értékeket az aktuális POTX/POTY-ra.
 
 A `SPRITE_COL` makró (`isSpriteColMacro: true`): mezők: `spriteNum` (0–7), `colType` (`"sprite"` = $D01E sprite-sprite, `"background"` = $D01F sprite-háttér). Generál: `LDA $D01E/$D01F; AND #(1<<N)`. Eredmény A-ban: nem nulla = ütközés. **Regiszter olvasása automatikusan törli!** Utána `BEQ`/`BNE`-vel ugrás. Méret: 5 byte.
 
@@ -646,7 +646,7 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`1.6.5` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` és a What's New dialóg (`index.html`).
+`1.6.6` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` és a What's New dialóg (`index.html`).
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező
