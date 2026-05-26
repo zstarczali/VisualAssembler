@@ -7,7 +7,7 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 ---
 
 
-## Screenshot
+<img title="a title" alt="Alt text" src="/assets//20260328_002258712_iOS.png" width="400">
 
 > *Drag blocks from the left panel, arrange them in the center, and see live ASM output on the right.*
 
