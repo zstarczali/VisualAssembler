@@ -5,7 +5,7 @@
     "extras": [],
     "progName": ""
   },
-  "expertText": "* = $0801\n; MOUSE macro demo - sprite#0 follows a C64 1351 mouse on port 1. VICE: Settings > Input > Control Port 1 > Mouse (1351)\n; Init: select port 1 via CIA bits 7:6 (%01xxxxxx), normalize POT xPPPPPPn -> 6-bit and store to $FD/$FE\n.region Init\n    JMP main\n.align 64\n.byte $C0,$00,$00,$E0,$00,$00,$F0,$00,$00,$D8,$00,$00,$CC,$00,$00,$C6,$00,$00,$C3,$00,$00,$C1,$80,$00,$C0,$C0,$00,$C0,$60,$00,$C0,$30,$00,$C0,$18,$00,$C3,$FC,$00,$C6,$00,$00,$CC,$00,$00,$F8,$00,$00,$F0,$00,$00,$C0,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00\n.endregion \n\n.region Main\nmain:\n    SEI\n    JSR $E544\n.text 15, 0, \"MOUSE DEMO\"\n.text 6, 2, \"MOVE A 1351 MOUSE ON PORT 1\"\n.text 3, 3, \"SPRITE TRACKS SID POTX/POTY DELTA\"\n.sprite_init 0, 1, $21\n.sprite_pos 0, 152, 100\n    LDA $DC00\n    AND #$3F\n    ORA #$40\n    STA $DC00\n    LDA $D419\n    LSR\n    AND #$3F\n    STA $FD\n    LDA $D41A\n    LSR\n    AND #$3F\n    STA $FE\ngameloop:\n.wait_raster $F8\n.mouse 1, 0, FD, FE\n    JMP gameloop\n.endregion ",
+  "expertText": "* = $0801\n; MOUSE macro demo - sprite#0 follows a C64 1351 mouse on port 1. VICE: Settings > Input > Control Port 1 > Mouse (1351)\n; Init: select port 1 via CIA bits 7:6 (%01xxxxxx), then store raw POT samples in $FD/$FE\n.region Init\n    JMP main\n.align 64\n.byte $C0,$00,$00,$E0,$00,$00,$F0,$00,$00,$D8,$00,$00,$CC,$00,$00,$C6,$00,$00,$C3,$00,$00,$C1,$80,$00,$C0,$C0,$00,$C0,$60,$00,$C0,$30,$00,$C0,$18,$00,$C3,$FC,$00,$C6,$00,$00,$CC,$00,$00,$F8,$00,$00,$F0,$00,$00,$C0,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00\n.endregion \n\n.region Main\nmain:\n    SEI\n    JSR $E544\n.text 15, 0, \"MOUSE DEMO\"\n.text 6, 2, \"MOVE A 1351 MOUSE ON PORT 1\"\n.text 3, 3, \"SPRITE TRACKS SID POTX/POTY DELTA\"\n.sprite_init 0, 1, $21\n.sprite_pos 0, 152, 100\n    LDA $DC00\n    AND #$3F\n    ORA #$40\n    STA $DC00\n    LDA $D419\n    STA $FD\n    LDA $D41A\n    STA $FE\ngameloop:\n.wait_raster $F8\n.mouse 1, 0, FD, FE\n.mouse 1, 0, FD, FE\n    JMP gameloop\n.endregion ",
   "program": [
     {
       "addressingMode": "implied",
@@ -40,13 +40,13 @@
       "base": "comment",
       "category": "Szerkezet",
       "collapsed": true,
-      "commentText": "Init: select port 1 via CIA bits 7:6 (%01xxxxxx), normalize POT xPPPPPPn -> 6-bit and store to $FD/$FE",
+      "commentText": "Init: select port 1 via CIA bits 7:6 (%01xxxxxx), then store raw POT samples in $FD/$FE",
       "description": "",
       "id": "78320ced-79a2-4c18-aac5-22f0a55593d6",
       "isComment": true,
       "mnemonic": "COMMENT",
-      "operand": "Init: select port 1 via CIA bits 7:6 (%01xxxxxx), normalize POT xPPPPPPn -> 6-bit and store to $FD/$FE",
-      "rawOperand": "Init: select port 1 via CIA bits 7:6 (%01xxxxxx), normalize POT xPPPPPPn -> 6-bit and store to $FD/$FE",
+      "operand": "Init: select port 1 via CIA bits 7:6 (%01xxxxxx), then store raw POT samples in $FD/$FE",
+      "rawOperand": "Init: select port 1 via CIA bits 7:6 (%01xxxxxx), then store raw POT samples in $FD/$FE",
       "validationError": ""
     },
     {
@@ -309,30 +309,6 @@
       "validationError": ""
     },
     {
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "ShiftEsRotate",
-      "collapsed": true,
-      "description": "Jobbra tolas egy bittel.",
-      "id": "91f1802d-2b3e-45a8-b8f2-1eb55e008656",
-      "mnemonic": "LSR",
-      "operand": "",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "addressingMode": "immediate",
-      "base": "hex",
-      "category": "Logika",
-      "collapsed": true,
-      "description": "Logikai ES muvelet az akkumulatorral.",
-      "id": "dd15d4e0-4f5b-4c39-8464-c1504baa3003",
-      "mnemonic": "AND",
-      "operand": "#$3F",
-      "rawOperand": "3F",
-      "validationError": ""
-    },
-    {
       "addressingMode": "zeroPage",
       "base": "hex",
       "category": "Adatmozgas",
@@ -354,30 +330,6 @@
       "mnemonic": "LDA",
       "operand": "$D41A",
       "rawOperand": "D41A",
-      "validationError": ""
-    },
-    {
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "ShiftEsRotate",
-      "collapsed": true,
-      "description": "Jobbra tolas egy bittel.",
-      "id": "b5ca3c94-74bd-4103-94a3-f8274f465170",
-      "mnemonic": "LSR",
-      "operand": "",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "addressingMode": "immediate",
-      "base": "hex",
-      "category": "Logika",
-      "collapsed": true,
-      "description": "Logikai ES muvelet az akkumulatorral.",
-      "id": "27fe2c29-297b-42da-8fac-afb0a6b90b3d",
-      "mnemonic": "AND",
-      "operand": "#$3F",
-      "rawOperand": "3F",
       "validationError": ""
     },
     {
@@ -427,6 +379,23 @@
       "collapsed": true,
       "description": "",
       "id": "4bde91d1-7250-476a-8d26-32c1e66a86bb",
+      "isMouseMacro": true,
+      "mnemonic": "MOUSE",
+      "mousePort": "1",
+      "mousePotXZP": "FD",
+      "mousePotYZP": "FE",
+      "mouseSpriteNum": 0,
+      "operand": "",
+      "rawOperand": "",
+      "validationError": ""
+    },
+    {
+      "addressingMode": "implied",
+      "base": "hex",
+      "category": "Makrok",
+      "collapsed": true,
+      "description": "",
+      "id": "b4ee14ce-0bd4-4ce8-89c7-8894f01bb53a",
       "isMouseMacro": true,
       "mnemonic": "MOUSE",
       "mousePort": "1",
