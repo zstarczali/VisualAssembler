@@ -62,6 +62,7 @@
                     <option value="clear-screen">Kepernyo torles</option>
                     <option value="label-border">Label pelda</option>
                     <option value="text-demo">TEXT pelda</option>
+                    <option value="lowercase-text-demo">Kisbetus TEXT pelda</option>
                     <option value="macro-demo">Komplex makro pelda</option>
                     <option value="sprite-demo">Sprite mozgatas pelda</option>
                     <option value="setpixel-demo">Setpixel demo</option>
@@ -586,6 +587,12 @@
       <p class="whats-new-version">v1.6.7</p>
       <ul class="whats-new-list">
         <li>
+          <strong>Lowercase charset TEXT/STRING/RAWTEXT auto-detection</strong> — all text macros now auto-detect alphabetic input and encode it for the C64 lowercase charset. <code>TEXT "Hello World"</code> produces mixed-case screen codes: <code>a</code>–<code>z</code> → scr 1–26, <code>A</code>–<code>Z</code> → scr 65–90. Just switch to lowercase charset with <code>LDA #$17</code> / <code>STA $D018</code> — no special flags needed.
+        </li>
+        <li>
+          <strong>New sample: Lowercase TEXT demo</strong> — demonstrates the lowercase charset + mixed-case TEXT output. Load from the Sample menu as <em>"Kisbetus TEXT pelda"</em>.
+        </li>
+        <li>
           <strong>Load .asm opens a new tab</strong> — the <strong>Load .asm</strong> button in Expert mode now opens the file in a <strong>new tab</strong> with the filename as the tab label, instead of replacing the current tab's content. Each loaded <code>.asm</code> file becomes its own independent tab with full block/expert editor state, parsed into program blocks, and marked clean on open.
         </li>
         <li>
@@ -593,9 +600,6 @@
         </li>
         <li>
           <strong>Run respects project startup file</strong> — when a project has a <strong>startup file</strong> (marked with ★ in the project panel), the <strong>Run</strong> button (PRG, D64, Ultimate) now assembles and runs that file's code regardless of which tab is currently active. Works in both block mode and Expert mode.
-        </li>
-        <li>
-          <strong>Project panel translation fix</strong> — the Expert project panel header no longer shows hardcoded Hungarian <em>"Nincs projekt"</em> when English is the active language. <code>_expertRenderProjectTree()</code> now runs every time the panel is toggled visible, ensuring the title and empty-state text match the current UI language.
         </li>
         <li>
           <strong>New translation keys</strong> — added <code>menuCloseProject</code>, <code>projClosed</code>, and <code>projNoOpen</code> to both Hungarian and English translation tables.
@@ -611,24 +615,6 @@
         </li>
         <li>
           <strong>Expert mode error highlighting</strong> — lines that fail to compile are now highlighted in red in real time (red background + left border). The highlight is recomputed 350 ms after each keystroke alongside the existing status-bar error message.
-        </li>
-      </ul>
-      <p class="whats-new-version" style="font-size:0.78rem;opacity:0.6;margin-top:10px">v1.6.5</p>
-      <ul class="whats-new-list" style="opacity:0.75">
-        <li>
-          <strong>Region copy &amp; paste</strong> — each REGION block now has a <strong>⧉ copy</strong> and <strong>⎘ paste</strong> button in its header.
-        </li>
-        <li>
-          <strong>Track block selection in palette</strong> — new checkbox in Settings; clicking a block syncs the palette to that mnemonic.
-        </li>
-        <li>
-          <strong>MOUSE macro</strong> — C64 1351 proportional mouse via SID POTX/POTY; CIA port select, SID settle wait, 7-bit delta decode, sprite X $D010 MSB; 142 bytes.
-        </li>
-        <li>
-          <strong>REU macros</strong> — REU_CHECK (34 bytes), REU_STASH / REU_FETCH / REU_SWAP (40 bytes each) for RAM Expansion Unit DMA.
-        </li>
-        <li>
-          <strong>TURBO_SET / SUPERCPU_DETECT / TURBO_ENABLE macros</strong> — U64 and CMD SuperCPU support.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -786,7 +772,7 @@
     <span id="vice-toast-text"></span>
   </div>
   <script src="tauri-bridge.js"></script>
-  <script src="app.js?v=1.4.7"></script>
+  <script src="app.js?v=1.6.7"></script>
 
 </body>
 

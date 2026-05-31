@@ -19,13 +19,13 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **Real-time ASM + Monitor output** — auto-generated as you edit, with configurable start address (`*=`)
 - **Block collapsing** — collapse individual blocks or all at once to reduce visual noise
 - **Mnemonic search** — filter the palette by name or description
-- **TEXT macro** — write text to the C64 screen at an X/Y coordinate using KERNAL CHROUT
+- **TEXT macro** — write text to the C64 screen at an X/Y coordinate; auto-detects case for lowercase charset output
 - **BYTE macro** — insert arbitrary raw byte arrays inline
 - **WORD macro** — insert 16-bit values as LO/HI byte pairs
-- **STRING macro** — copy a string (as screen codes) to a fixed memory address
+- **STRING macro** — copy a string (as screen codes) to a fixed memory address; same case auto-detection as TEXT
 - **DATA macro** — write raw bytes to a fixed memory address via `LDA/STA` pairs
 - **RAWBYTES macro** — place raw bytes at a given address without generating runtime code
-- **RAWTEXT macro** — place PETSCII text at a given address without generating runtime code
+- **RAWTEXT macro** — place text as screen codes at a given address without generating runtime code; same case auto-detection
 - **FILL macro** — generate repeated bytes with a specified count
 - **ALIGN macro** — jump to the next memory boundary (e.g. 64 for sprites, `$2000` for bitmap)
 - **TABLE macro** — define a named lookup table at a given address
@@ -216,6 +216,8 @@ Each block in `program[]` is a plain object:
 
 ## What's New in v1.6.7
 
+- **Lowercase charset TEXT/STRING/RAWTEXT auto-detection** — TEXT, STRING, and RAWTEXT macros now automatically detect alphabetic input and encode it for the C64 lowercase charset (`$D018=$17`). `TEXT "Hello World"` produces mixed-case screen codes: lowercase `a`-`z` → scr 1–26, uppercase `A`-`Z` → scr 65–90. Pure numbers/symbols stay backward-compatible. No special flag needed — just switch to lowercase charset with `LDA #$17` / `STA $D018` and type normally.
+- **New sample: Lowercase TEXT demo** — demonstrates lowercase charset mode with mixed-case TEXT output. Switches to lowercase charset, then prints three TEXT lines: `hello c64!`, `Visual Assembler`, and `HELLO WORLD` — all rendered correctly with proper case.
 - **Load `.asm` opens a new tab** — the Load .asm button in Expert mode now opens the file in a **new tab** with the filename as the tab label, instead of replacing the current tab's content. The file is parsed into program blocks and marked clean on open.
 - **Close Project menu item** — new **Close Project** button in Menu → File closes the currently open project and all its file tabs at once, with unsaved-change confirmation.
 - **Run respects project startup file** — when a project has a startup file (★ in the tree), the Run button assembles that file's code regardless of which tab is active. Works in both block mode and Expert mode, and across all run targets (PRG, D64, Ultimate).
@@ -269,6 +271,7 @@ Each block in `program[]` is a plain object:
 | `basic-colors` | Simple border colour loop |
 | `label-border` | LABEL + BNE loop example |
 | `text-demo` | Screen clear → TEXT macros → RTS |
+| `lowercase-text-demo` | Lowercase charset ($D018=$17) + mixed-case TEXT output |
 | `macro-demo` | C64 text scroller — fine-scroll + character shift, FILL/BYTE/RAWBYTES macros |
 | `loop-demo` | Nested LOOP X + LOOP Y delay, cycles border + background through all 16 C64 colours |
 | `hello-loop-demo` | LOOP X `$28` (40×) prints "Hello World 1"–"Hello World 40"; digit counter on ZP `$FB`/`$FC` |

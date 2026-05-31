@@ -562,9 +562,11 @@ Writes a text string to the C64 screen RAM at a given row/column position by gen
 | Y | Row (0–24) |
 | Label (optional) | Assigns a label pointing to the computed screen address |
 
+**Case auto-detection:** If the input contains any alphabetic character (`/[A-Za-z]/`), the macro uses lowercase charset screen codes: `a`–`z` → 1–26, `A`–`Z` → 65–90. This produces correct mixed-case output when the C64 charset is switched to lowercase mode (`$D018=$17`, e.g. `LDA #$17` / `STA $D018`). Pure numbers and symbols use standard screen codes for backward compatibility.
+
 **Generated ASM:**
 ```
-    LDA #$08      ; 'H' (screen code)
+    LDA #$08      ; 'H' (screen code, upper-case in standard charset)
     STA $0400
     LDA #$05      ; 'E' (screen code)
     STA $0401
@@ -577,7 +579,7 @@ Characters are encoded as **screen codes** (not PETSCII). **Size:** `text.length
 
 ### STRING
 
-Encodes a text string as **screen codes** and writes it to a given memory address using LDA/STA instruction pairs at runtime.
+Encodes a text string as **screen codes** and writes it to a given memory address using LDA/STA instruction pairs at runtime. Same case auto-detection as TEXT.
 
 | Field | Description |
 |---|---|
@@ -639,7 +641,7 @@ Places raw bytes at a given memory address — no runtime code is generated. The
 
 ### RAWTEXT
 
-Encodes a text string as **screen codes** and places the bytes directly at a given memory address — no runtime code is generated. The data appears in the deferred section of the output.
+Encodes a text string as **screen codes** and places the bytes directly at a given memory address — no runtime code is generated. The data appears in the deferred section of the output. Same case auto-detection as TEXT and STRING.
 
 | Field | Description |
 |---|---|

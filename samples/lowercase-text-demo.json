@@ -1,0 +1,61 @@
+{
+  "app": "c64-visual-assembler",
+  "origin": "0801",
+  "program": [
+    {
+      "addressingMode": "implied", "base": "hex", "category": "Szerkezet", "collapsed": true,
+      "id": "lc-01", "isRegionMacro": true, "mnemonic": "REGION", "operand": "init",
+      "rawOperand": "init", "regionCollapsed": true, "regionName": "init", "validationError": ""
+    },
+    {
+      "addressingMode": "implied", "base": "hex", "category": "Rendszer", "collapsed": true,
+      "id": "lc-02", "mnemonic": "SEI", "operand": "", "rawOperand": "", "validationError": ""
+    },
+    {
+      "addressingMode": "absolute", "base": "hex", "category": "Ugrasok", "collapsed": true,
+      "id": "lc-03", "mnemonic": "JSR", "operand": "$E544", "rawOperand": "E544", "validationError": ""
+    },
+    {
+      "addressingMode": "immediate", "base": "hex", "category": "Betoltesek", "collapsed": true,
+      "id": "lc-04", "mnemonic": "LDA", "operand": "#$17", "rawOperand": "17", "validationError": ""
+    },
+    {
+      "addressingMode": "absolute", "base": "hex", "category": "Tarolasok", "collapsed": true,
+      "id": "lc-05", "mnemonic": "STA", "operand": "$D018", "rawOperand": "D018", "validationError": ""
+    },
+    {
+      "addressingMode": "implied", "base": "hex", "category": "Szerkezet", "collapsed": true,
+      "id": "lc-06", "isEndRegionMacro": true, "mnemonic": "ENDREGION", "operand": "", "rawOperand": "", "validationError": ""
+    },
+    {
+      "addressingMode": "implied", "base": "hex", "category": "Szerkezet", "collapsed": true,
+      "id": "lc-cmt", "isComment": true, "mnemonic": "COMMENT",
+      "commentText": "TEXT auto-detects lowercase: a-z=scr 1-26, A-Z=scr 65-90 when input has ANY lowercase letter",
+      "operand": "TEXT auto: lowercase input → mixed case encoding",
+      "rawOperand": "TEXT auto: lowercase input → mixed case encoding", "validationError": ""
+    },
+    {
+      "addressingMode": "implied", "base": "text", "category": "Makrok", "collapsed": true,
+      "id": "lc-10", "isTextMacro": true, "mnemonic": "TEXT",
+      "operand": "hello c64!", "rawOperand": "hello c64!",
+      "textX": 14, "textY": 8, "validationError": ""
+    },
+    {
+      "addressingMode": "implied", "base": "text", "category": "Makrok", "collapsed": true,
+      "id": "lc-11", "isTextMacro": true, "mnemonic": "TEXT",
+      "operand": "Visual Assembler", "rawOperand": "Visual Assembler",
+      "textX": 10, "textY": 12, "validationError": ""
+    },
+    {
+      "addressingMode": "implied", "base": "text", "category": "Makrok", "collapsed": true,
+      "id": "lc-12", "isTextMacro": true, "mnemonic": "TEXT",
+      "operand": "HELLO WORLD", "rawOperand": "HELLO WORLD",
+      "textX": 10, "textY": 18, "validationError": ""
+    },
+    {
+      "addressingMode": "implied", "base": "hex", "category": "Ugrasok", "collapsed": true,
+      "id": "lc-99", "mnemonic": "RTS", "operand": "", "rawOperand": "", "validationError": ""
+    }
+  ],
+  "ui": { "sample": "lowercase-text-demo", "outputMode": "both", "numberBase": "hex", "zoom": 0.9, "language": "en", "theme": "dark" }
+}

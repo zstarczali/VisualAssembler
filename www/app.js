@@ -147,7 +147,7 @@ const mnemonicLibrary = {
     { mnemonic: "BRK", description: "Megszakitas vagy leallas hibakereseshez.", modes: ["implied"] }
   ],
   Makrok: [
-    { mnemonic: "TEXT", description: "Szoveg kiirasa a kepernyore KERNAL CHROUT rutinon keresztul.", modes: ["implied"], isTextMacro: true },
+    { mnemonic: "TEXT", description: "Szoveg kiirasa a kepernyore screen code-kent. Kisbetu eseten automatikus lowercase kodolas.", modes: ["implied"], isTextMacro: true },
     { mnemonic: "BYTE", description: "Tetszoleges byte tomb beillesztese vesszovel elvalasztva.", modes: ["implied"], isByteMacro: true },
     { mnemonic: "WORD", description: "16-bites ertekek tarolasa LO/HI byte parokban, vesszovel elvalasztva.", modes: ["implied"], isWordMacro: true },
     { mnemonic: "FILL", description: "Ismetlodo byte generalasa megadott darabszammal.", modes: ["implied"], isFillMacro: true },
@@ -499,6 +499,7 @@ const translations = {
     sampleClearScreen: "Kepernyo torles demo",
     sampleLabel: "Label pelda",
     sampleText: "TEXT pelda",
+    sampleLowercaseText: "Kisbetus TEXT pelda",
     sampleMacro: "Komplex makro pelda",
     sampleSprite: "Sprite mozgatas pelda",
     sampleSetpixel: "Setpixel demo",
@@ -871,6 +872,7 @@ const translations = {
     sampleClearScreen: "Clear screen demo",
     sampleLabel: "Label example",
     sampleText: "TEXT example",
+    sampleLowercaseText: "Lowercase TEXT example",
     sampleMacro: "Complex macro example",
     sampleSprite: "Sprite movement example",
     sampleSetpixel: "Setpixel demo",
@@ -2484,32 +2486,33 @@ function applyTranslations() {
   if (sampleOptions[1]) sampleOptions[1].textContent = t("sampleClearScreen");
   if (sampleOptions[2]) sampleOptions[2].textContent = t("sampleLabel");
   if (sampleOptions[3]) sampleOptions[3].textContent = t("sampleText");
-  if (sampleOptions[4]) sampleOptions[4].textContent = t("sampleMacro");
-  if (sampleOptions[5]) sampleOptions[5].textContent = t("sampleSprite");
-  if (sampleOptions[6]) sampleOptions[6].textContent = t("sampleSetpixel");
-  if (sampleOptions[7]) sampleOptions[7].textContent = t("sampleBitmap");
-  if (sampleOptions[8]) sampleOptions[8].textContent = t("sampleMacroTest");
-  if (sampleOptions[9]) sampleOptions[9].textContent = t("sampleLoop");
-  if (sampleOptions[10]) sampleOptions[10].textContent = t("sampleHelloLoop");
-  if (sampleOptions[11]) sampleOptions[11].textContent = t("samplePushPull");
-  if (sampleOptions[12]) sampleOptions[12].textContent = t("sampleIfElse");
-  if (sampleOptions[13]) sampleOptions[13].textContent = t("sampleUserMacro");
-  if (sampleOptions[14]) sampleOptions[14].textContent = t("sampleIncBin");
-  if (sampleOptions[15]) sampleOptions[15].textContent = t("sampleLoadFile");
-  if (sampleOptions[16]) sampleOptions[16].textContent = t("sampleInclude");
-  if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleSidDemo");
-  if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleSidDirectDemo");
-  if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleSpriteMacroDemo");
-  if (sampleOptions[20]) sampleOptions[20].textContent = t("sampleJoystickDemo");
-  if (sampleOptions[21]) sampleOptions[21].textContent = t("sampleMouseDemo");
-  if (sampleOptions[22]) sampleOptions[22].textContent = t("sampleCollisionDemo");
-  if (sampleOptions[23]) sampleOptions[23].textContent = t("sample10Print");
-  if (sampleOptions[24]) sampleOptions[24].textContent = t("sampleRasterIrqDemo");
-  if (sampleOptions[25]) sampleOptions[25].textContent = t("sampleOverlappingRasterDemo");
-  if (sampleOptions[26]) sampleOptions[26].textContent = t("sampleMemoryOverlapDemo");
-  if (sampleOptions[27]) sampleOptions[27].textContent = t("sampleRandLinesDemo");
-  if (sampleOptions[28]) sampleOptions[28].textContent = t("sampleReuDemo");
-  if (sampleOptions[29]) sampleOptions[29].textContent = t("sampleScrollTextDemo");
+  if (sampleOptions[4]) sampleOptions[4].textContent = t("sampleLowercaseText");
+  if (sampleOptions[5]) sampleOptions[5].textContent = t("sampleMacro");
+  if (sampleOptions[6]) sampleOptions[6].textContent = t("sampleSprite");
+  if (sampleOptions[7]) sampleOptions[7].textContent = t("sampleSetpixel");
+  if (sampleOptions[8]) sampleOptions[8].textContent = t("sampleBitmap");
+  if (sampleOptions[9]) sampleOptions[9].textContent = t("sampleMacroTest");
+  if (sampleOptions[10]) sampleOptions[10].textContent = t("sampleLoop");
+  if (sampleOptions[11]) sampleOptions[11].textContent = t("sampleHelloLoop");
+  if (sampleOptions[12]) sampleOptions[12].textContent = t("samplePushPull");
+  if (sampleOptions[13]) sampleOptions[13].textContent = t("sampleIfElse");
+  if (sampleOptions[14]) sampleOptions[14].textContent = t("sampleUserMacro");
+  if (sampleOptions[15]) sampleOptions[15].textContent = t("sampleIncBin");
+  if (sampleOptions[16]) sampleOptions[16].textContent = t("sampleLoadFile");
+  if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleInclude");
+  if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleSidDemo");
+  if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleSidDirectDemo");
+  if (sampleOptions[20]) sampleOptions[20].textContent = t("sampleSpriteMacroDemo");
+  if (sampleOptions[21]) sampleOptions[21].textContent = t("sampleJoystickDemo");
+  if (sampleOptions[22]) sampleOptions[22].textContent = t("sampleMouseDemo");
+  if (sampleOptions[23]) sampleOptions[23].textContent = t("sampleCollisionDemo");
+  if (sampleOptions[24]) sampleOptions[24].textContent = t("sample10Print");
+  if (sampleOptions[25]) sampleOptions[25].textContent = t("sampleRasterIrqDemo");
+  if (sampleOptions[26]) sampleOptions[26].textContent = t("sampleOverlappingRasterDemo");
+  if (sampleOptions[27]) sampleOptions[27].textContent = t("sampleMemoryOverlapDemo");
+  if (sampleOptions[28]) sampleOptions[28].textContent = t("sampleRandLinesDemo");
+  if (sampleOptions[29]) sampleOptions[29].textContent = t("sampleReuDemo");
+  if (sampleOptions[30]) sampleOptions[30].textContent = t("sampleScrollTextDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -3083,6 +3086,7 @@ function createBlockFromMnemonic(item) {
       validationError: validateTextMacroPosition(0, 0, rawOperand),
       collapsed: true,
       isTextMacro: true,
+      textCharset: "standard",
       textX: 0,
       textY: 0
     };
@@ -3119,7 +3123,8 @@ function createBlockFromMnemonic(item) {
       validationError: validateStringMacroAddress("C000"),
       collapsed: true,
       isStringMacro: true,
-      stringAddress: "C000"
+      stringAddress: "C000",
+      textCharset: "standard"
     };
   }
 
@@ -7198,8 +7203,26 @@ function validateDataMacro(rawBytes, rawAddress, base = "dec") {
   return "";
 }
 
-function encodeTextMacro(text) {
-  return [...(text || "HELLO C64")].map((char) => toPetsciiCharCode(char));
+function encodeTextMacro(text, charset = "standard") {
+  // Auto-detect: any letter triggers lowercase charset encoding.
+  // "HELLO WORLD" → HELLO WORLD, "Hello World" → Hello World.
+  // Pure numbers/symbols stay standard for backward compat.
+  const hasLetters = /[A-Za-z]/.test(text || "");
+  const effectiveCharset = charset === "lowercase" || (charset === "standard" && hasLetters) ? "lowercase" : "standard";
+  const mapper = effectiveCharset === "lowercase" ? toLowercaseScreenCode : toPetsciiCharCode;
+  return [...(text || "HELLO C64")].map((char) => mapper(char));
+}
+
+// Lowercase charset screen code mapping (C64 char ROM at $1800, $D018=$17):
+//   'a'-'z' ($61-$7A) → screen codes 1-26  ($01-$1A)
+//   'A'-'Z' ($41-$5A) → screen codes 65-90 ($41-$5A — same as PETSCII/ASCII)
+//   Everything else falls through to standard mapping.
+function toLowercaseScreenCode(char) {
+  if (char === "\n") return 13;
+  const code = char.charCodeAt(0);
+  if (code >= 97 && code <= 122) return code - 96;         // a-z → 1-26
+  if (code >= 65 && code <= 90)  return code;               // A-Z → 65-90 (PETSCII match)
+  return toPetsciiCharCode(char);                           // fallback
 }
 
 // PETSCII makro: szoveg → PETSCII byte-ok (CHROUT-kompatibilis)
@@ -9596,7 +9619,7 @@ function assembleProgramToPrg(originOverride) {
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
     } else if (block.isRawTextMacro) {
       const rawOffset = parseInt(block.charOffset || "0", 16);
-      const chunkBytes = encodeTextMacro(block.rawOperand).map(b => (b + (isNaN(rawOffset) ? 0 : rawOffset)) & 0xFF);
+      const chunkBytes = encodeTextMacro(block.rawOperand, block.textCharset || "standard").map(b => (b + (isNaN(rawOffset) ? 0 : rawOffset)) & 0xFF);
       const addr = parseAddressValue(block.rawTextAddress) ?? 0xC000;
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
     } else if (block.isPetsciiMacro) {
@@ -9676,17 +9699,19 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isTextMacro) {
-    const chars = encodeTextMacro(block.rawOperand);
+    const charset = block.textCharset || "standard";
+    const chars = encodeTextMacro(block.rawOperand, charset);
     const startAddress = 0x0400 + ((block.textY ?? 0) * 40) + (block.textX ?? 0);
     const bytes = [];
     chars.forEach((charCode, charIndex) => {
       const targetAddress = startAddress + charIndex;
       bytes.push(0xA9, charCode & 0xFF, 0x8D, targetAddress & 0xFF, (targetAddress >> 8) & 0xFF);
     });
+    const isLower = /[a-z]/.test(block.rawOperand || "");
     return {
       ok: true,
       bytes,
-      comment: `TEXT "${block.rawOperand || ""}" @ (${block.textX ?? 0}, ${block.textY ?? 0})`
+      comment: `TEXT "${block.rawOperand || ""}" @ (${block.textX ?? 0}, ${block.textY ?? 0})${isLower || charset === "lowercase" ? " [lowercase]" : ""}`
     };
   }
 
@@ -9700,7 +9725,7 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isStringMacro) {
-    const chars = encodeTextMacro(block.rawOperand);
+    const chars = encodeTextMacro(block.rawOperand, block.textCharset || "standard");
     const offset = parseInt(block.charOffset || "0", 16);
     const startAddress = parseAddressValue(block.stringAddress) ?? 0xC000;
     const bytes = [];
@@ -9711,7 +9736,7 @@ function compileLineBytes(line, labels) {
     return {
       ok: true,
       bytes,
-      comment: `STRING "${block.rawOperand || ""}" @ ${formatAddress(startAddress)}`
+      comment: `STRING "${block.rawOperand || ""}" @ ${formatAddress(startAddress)}${block.textCharset === "lowercase" ? " [lowercase]" : ""}`
     };
   }
 
@@ -14609,6 +14634,10 @@ async function loadTextSampleProgram() {
   await loadSampleFromFile("text-demo");
 }
 
+async function loadLowercaseTextDemo() {
+  await loadSampleFromFile("lowercase-text-demo");
+}
+
 async function loadMacroDemoProgram() {
   await loadSampleFromFile("macro-demo");
 }
@@ -14778,6 +14807,11 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "text-demo") {
     loadTextSampleProgram();
+    return;
+  }
+
+  if (sampleSelect.value === "lowercase-text-demo") {
+    loadLowercaseTextDemo();
     return;
   }
 
