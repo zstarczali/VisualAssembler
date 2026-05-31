@@ -524,6 +524,7 @@ const translations = {
     sampleMemoryOverlapDemo: "Memoria atfedes demo",
     sampleRandLinesDemo: "Veletlen vonalak demo",
     sampleReuDemo: "REU demo",
+    sampleScrollTextDemo: "Sima scroll demo (pontonkenti gorgetes)",
     helpManual: "Kezikonyv",
     about: "Névjegy",
     knowledgeBase: "Tudásbázis",
@@ -635,6 +636,7 @@ const translations = {
     branchOperandInvalid: "Nem lehet futtatni: a(z) {mnemonic} branch operandusa nem ervenyes.",
     branchTargetOutOfRange: "A(z) {mnemonic} branch celcime nincs elerheto tavolsagban.",
     operandNotResolvable: "Nem lehet futtatni: a(z) {mnemonic} operandusa nem forditheto cimme vagy ertekke.",
+    anonymousLabelNotFound: "A(z) \"{label}\" nevtelen cimke nem talalhato.",
     memorySegments: {
       zeroPageLabel: "Zero page",
       zeroPageNote: "Gyors eleresu valtozok es pointerek.",
@@ -887,6 +889,7 @@ const translations = {
     sampleMemoryOverlapDemo: "Memory overlap demo",
     sampleRandLinesDemo: "Random lines demo",
     sampleReuDemo: "REU demo",
+    sampleScrollTextDemo: "Smooth scroll demo (per-pixel scrolling)",
     helpManual: "Manual",
     about: "About",
     knowledgeBase: "Knowledge Base",
@@ -999,6 +1002,7 @@ const translations = {
     branchOperandInvalid: "Cannot run: the branch operand for {mnemonic} is invalid.",
     branchTargetOutOfRange: "The branch target for {mnemonic} is out of range.",
     operandNotResolvable: "Cannot run: the operand for {mnemonic} cannot be resolved to an address or value.",
+    anonymousLabelNotFound: "Anonymous label \"{label}\" not found.",
     memorySegments: {
       zeroPageLabel: "Zero page",
       zeroPageNote: "Fast-access variables and pointers.",
@@ -2484,6 +2488,7 @@ function applyTranslations() {
   if (sampleOptions[26]) sampleOptions[26].textContent = t("sampleMemoryOverlapDemo");
   if (sampleOptions[27]) sampleOptions[27].textContent = t("sampleRandLinesDemo");
   if (sampleOptions[28]) sampleOptions[28].textContent = t("sampleReuDemo");
+  if (sampleOptions[29]) sampleOptions[29].textContent = t("sampleScrollTextDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -3798,7 +3803,7 @@ function collapseLoadedProgram(blocks) {
   // Rebuild operand from rawOperand for all regular instruction blocks to fix
   // suffix/prefix mismatches (,X / ,Y / #) from older saved files
   result.forEach((block) => {
-    const isMacroOrSpecial = block.isLabel || block.isComment || block.isLoopMacro ||
+    const isMacroOrSpecial = block.isLabel || block.isComment || block.isAnonymousLabel || block.isLoopMacro ||
       block.isNextMacro || block.isTableMacro || block.isDefineMacro || block.isConstMacro ||
       block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isByteMacro ||
       block.isWordMacro || block.isDataMacro || block.isRawBytesMacro || block.isFillMacro ||
@@ -3870,6 +3875,7 @@ function _blockToExpertLine(block) {
   };
   if (block.isOrgMacro)       return `* = $${(block.orgAddress || "0801").toUpperCase()}`;
   if (block.isLabel)          return `${block.labelName || "start"}:`;
+  if (block.isAnonymousLabel) return "-";
   if (block.isComment)        return `; ${block.rawOperand || ""}`;
   if (block.isTextMacro)      return `.text ${block.textX || 0}, ${block.textY || 0}, "${block.rawOperand || ""}"`;
   if (block.isStringMacro)    return `.string $${(block.stringAddress || "C000").toUpperCase()}, "${block.rawOperand || ""}"`;
@@ -4493,6 +4499,7 @@ function showBuildInfoDialog() {
         if (v !== null) labels.set(line.block.constName, v);
       }
     });
+    labels._anonAddrs = _collectAnonLabels(layout);
 
     const origin = layout.lines.length ? layout.lines[0].address : 0;
     let totalBytes = 0, maxAddr = origin;
@@ -5180,6 +5187,7 @@ function _expertValidate() {
             if (v !== null) labels.set(line.block.constName, v);
           }
         });
+        labels._anonAddrs = _collectAnonLabels(layout);
         // Run compileLineBytes to detect unknown mnemonics / bad operands
         for (const line of layout.lines) {
           if (line.conditionallySkipped) continue;
@@ -5252,6 +5260,7 @@ function _buildDisasmHTML() {
         if (v !== null) labels.set(line.block.constName, v);
       }
     });
+    labels._anonAddrs = _collectAnonLabels(layout);
     const addrToLabel = new Map();
     for (const [name, addr] of labels) addrToLabel.set(addr, name);
 
@@ -6618,6 +6627,17 @@ function buildOperandPreview(modeKey, rawValue, base) {
       : (modeKey === "indirectY") ? "(*),Y"
       : "*";
     return { operand: display, text: display, error: "" };
+  }
+
+  // - / + anonymous labels (ACME-style: - = backward, + = forward)
+  if (value === "-" || value === "+") {
+    const operand = modeKey === "immediate" ? `#${value}`
+      : (modeKey === "absoluteX" || modeKey === "zeroPageX") ? `${value},X`
+      : (modeKey === "absoluteY" || modeKey === "zeroPageY") ? `${value},Y`
+      : (modeKey === "indirectX") ? `(${value},X)`
+      : (modeKey === "indirectY") ? `(${value}),Y`
+      : value;
+    return { operand, text: operand, error: "" };
   }
 
   if (!value) {
@@ -8784,6 +8804,10 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
       rawOperand = op.slice(1); base = "hex";
       addressingMode = branchMnems.has(mnemonic) ? "relative" : "absolute";
       displayOperand = rawOperand;
+    } else if (op === "-" || op === "+") {
+      rawOperand = op; base = "hex";
+      addressingMode = branchMnems.has(mnemonic) ? "relative" : "absolute";
+      displayOperand = op;
     } else if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(op)) {
       rawOperand = op; base = "hex";
       addressingMode = branchMnems.has(mnemonic) ? "relative" : "absolute";
@@ -8941,6 +8965,49 @@ function parseAsmText(text) {
     const lblOnlyM = line.match(/^([A-Za-z_.][A-Za-z0-9_.]*):\s*$/);
     if (lblOnlyM) {
       blocks.push(_importMakeLabel(lblOnlyM[1].replace(/^\./, "")));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Anonymous label: "-" or "+" on its own line (ACME-style)
+    if (line.trim() === "-" || line.trim() === "+") {
+      const anonChar = line.trim();
+      blocks.push({
+        id: crypto.randomUUID(),
+        category: "Makrok",
+        mnemonic: "LABEL",
+        operand: anonChar,
+        rawOperand: anonChar,
+        labelName: anonChar,
+        description: currentLanguage === "en" ? "Anonymous local label" : "Nevtelen helyi cimke",
+        addressingMode: "implied",
+        base: "hex",
+        validationError: "",
+        collapsed: true,
+        isAnonymousLabel: true
+      });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Anonymous label with instruction on same line: "-   LDA $D012" or "+   RTS"
+    const anonWithInstrM = line.match(/^([-+])\s+([A-Za-z]{2,4})\s*(.*)\s*$/);
+    if (anonWithInstrM) {
+      blocks.push({
+        id: crypto.randomUUID(),
+        category: "Makrok",
+        mnemonic: "LABEL",
+        operand: anonWithInstrM[1],
+        rawOperand: anonWithInstrM[1],
+        labelName: anonWithInstrM[1],
+        description: currentLanguage === "en" ? "Anonymous local label" : "Nevtelen helyi cimke",
+        addressingMode: "implied",
+        base: "hex",
+        validationError: "",
+        collapsed: true,
+        isAnonymousLabel: true
+      });
+      blocks.push(_importMakeInstruction(anonWithInstrM[2].toUpperCase(), anonWithInstrM[3].trim(), BRANCH_MNEMS));
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -9316,6 +9383,7 @@ function assembleProgramToPrg(originOverride) {
       }
     }
   });
+  labels._anonAddrs = _collectAnonLabels(layout);
 
   // Assemble inline code bytes as sections (split by ORG blocks)
   const inlineSections = [{ addr: layout.origin.value, bytes: [] }];
@@ -9435,6 +9503,10 @@ function compileLineBytes(line, labels) {
   }
 
   if (block._macroSourceBlock) {
+    return { ok: true, bytes: [] };
+  }
+
+  if (block.isLabel || block.isComment || block.isAnonymousLabel) {
     return { ok: true, bytes: [] };
   }
 
@@ -10137,7 +10209,15 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.addressingMode === "relative") {
-    const relative = resolveRelativeOperand(block, line.address, labels);
+    let resolveBlock = block;
+    if (block.rawOperand.trim() === "-" || block.rawOperand.trim() === "+") {
+      const anonAddr = _resolveAnonymousLabel(block.rawOperand.trim(), line.address, labels._anonAddrs);
+      if (anonAddr === null) {
+        return { ok: false, error: tf("anonymousLabelNotFound", { label: block.rawOperand.trim() }) };
+      }
+      resolveBlock = { ...block, rawOperand: anonAddr.toString(16).toUpperCase().padStart(4, "0"), base: "hex" };
+    }
+    const relative = resolveRelativeOperand(resolveBlock, line.address, labels);
     if (!relative.ok) {
       return relative;
     }
@@ -10145,10 +10225,22 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes, comment: `${block.mnemonic} ${block.operand || block.rawOperand}` };
   }
 
-  // Resolve * (current PC) to the instruction's own address
+  // Resolve * (current PC) and -/+ anonymous labels to concrete addresses
   const resolveBlock = block.rawOperand.trim() === "*"
     ? { ...block, rawOperand: line.address.toString(16).toUpperCase().padStart(4, "0"), base: "hex" }
-    : block;
+    : (block.rawOperand.trim() === "-" || block.rawOperand.trim() === "+")
+      ? (() => {
+          const anonAddr = _resolveAnonymousLabel(block.rawOperand.trim(), line.address, labels._anonAddrs);
+          if (anonAddr === null) {
+            return null;
+          }
+          return { ...block, rawOperand: anonAddr.toString(16).toUpperCase().padStart(4, "0"), base: "hex" };
+        })()
+      : block;
+
+  if (resolveBlock === null) {
+    return { ok: false, error: tf("anonymousLabelNotFound", { label: block.rawOperand.trim() }) };
+  }
 
   const operandValue = resolveNumericOperand(resolveBlock, labels);
   if (!operandValue.ok) {
@@ -10243,6 +10335,48 @@ function resolveRelativeOperand(block, address, labels) {
     return { ok: false, error: tf("branchTargetOutOfRange", { mnemonic: block.mnemonic }) };
   }
   return { ok: true, value: offset & 0xFF };
+}
+
+// ── Anonymous label helpers ──────────────────────────────────────────────────────
+
+// Collect anonymous label addresses from layout.
+// These are stored on the labels map as labels._anonAddrs (sorted ascending).
+function _collectAnonLabels(layout) {
+  const addrs = [];
+  for (const line of layout.lines) {
+    if (line.block.isAnonymousLabel) {
+      addrs.push(line.address);
+    }
+  }
+  addrs.sort((a, b) => a - b);
+  return addrs;
+}
+
+// Resolve an anonymous label reference ("-" or "+") to a concrete address.
+// * "-" (backward) → largest anonymous label address < currentAddr
+// * "+" (forward) → smallest anonymous label address > currentAddr
+// Returns null if no matching anonymous label found.
+function _resolveAnonymousLabel(operand, currentAddr, anonAddrs) {
+  if (!anonAddrs || !anonAddrs.length) return null;
+  if (operand === "-") {
+    let best = null;
+    for (const addr of anonAddrs) {
+      if (addr < currentAddr && (best === null || addr > best)) {
+        best = addr;
+      }
+    }
+    return best;
+  }
+  if (operand === "+") {
+    let best = null;
+    for (const addr of anonAddrs) {
+      if (addr > currentAddr && (best === null || addr < best)) {
+        best = addr;
+      }
+    }
+    return best;
+  }
+  return null;
 }
 
 // BIN format only makes sense for bitmask-style values (immediate mode, raw byte data).
@@ -10479,6 +10613,10 @@ function getInstructionSize(block) {
   }
 
   if (block.isComment) {
+    return 0;
+  }
+
+  if (block.isAnonymousLabel) {
     return 0;
   }
 
@@ -11355,6 +11493,10 @@ function isRomOrIoSegment(segment) {
 }
 
 function getBlockDescription(block) {
+  if (block.isAnonymousLabel) {
+    return currentLanguage === "en" ? "Anonymous local label (-)" : "Nevtelen helyi cimke (-)";
+  }
+
   if (block.isLabel) {
     return `${currentLanguage === "en" ? "Label" : "Label"}: ${block.labelName || "start"}`;
   }
@@ -11597,6 +11739,10 @@ function getBlockModeCaption(block) {
     return currentLanguage === "en" ? "Structure | End Region" : "Szerkezet | Régió vége";
   }
 
+  if (block.isAnonymousLabel) {
+    return getCategoryLabel(block.category);
+  }
+
   // Check if this block invokes a user macro (legacy format)
   if (userMacros[block.mnemonic]) {
     return currentLanguage === "en" ? "User Macro | Invoke" : "Felhasznaloi Makro | Hivas";
@@ -11668,6 +11814,10 @@ function getCategoryTone(category) {
 }
 
 function getCollapsedOperandText(block) {
+  if (block.isAnonymousLabel) {
+    return "-";
+  }
+
   if (block.isLabel) {
     return block.labelName ? `${block.labelName}:` : "";
   }
@@ -11997,7 +12147,12 @@ function renderProgram() {
         collapseToggle.addEventListener("click", () => toggleBlockCollapsed(index));
       }
 
-      if (block.isLabel) {
+      if (block.isAnonymousLabel) {
+        inlineField.hidden = false;
+        inlineField.querySelector("span").textContent = "-";
+        operandField.value = "-";
+        operandField.disabled = true;
+      } else if (block.isLabel) {
         inlineField.hidden = false;
         inlineField.querySelector("span").textContent = "Label";
         operandField.value = block.labelName || "";
@@ -13099,7 +13254,7 @@ function renderProgram() {
     blockControls.insertAdjacentHTML(
       "beforeend",
       `
-          ${(mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke && !block.isRegionMacro && !block.isEndRegionMacro && !block.isLoadFileMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
+          ${(mode.needsOperand && !block.isLabel && !block.isAnonymousLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke && !block.isRegionMacro && !block.isEndRegionMacro && !block.isLoadFileMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
           <label class="mini-field">
             <span>${t("fieldFormat")}</span>
           <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
@@ -13117,7 +13272,7 @@ function renderProgram() {
             </label>` : ""}
           </div>
         </label>` : ""}
-          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro || block.isRegionMacro || block.isEndRegionMacro || block.isLoadFileMacro || getMnemonicModes(block.mnemonic).length <= 1 ? ` hidden` : ""}>
+          <label class="mini-field"${block.isLabel || block.isAnonymousLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro || block.isRegionMacro || block.isEndRegionMacro || block.isLoadFileMacro || getMnemonicModes(block.mnemonic).length <= 1 ? ` hidden` : ""}>
             <span>${t("addressingMode")}</span>
           <select class="block-mode">
             ${getMnemonicModes(block.mnemonic).map((modeKey) => `<option value="${modeKey}"${block.addressingMode === modeKey ? " selected" : ""}>${modeText(modeKey, "label")}</option>`).join("")}
@@ -13655,6 +13810,7 @@ function renderAsmOutput() {
     // Handle macro source blocks (body of MACRO/ENDM definition when toggle is on)
     if (line.block._macroSourceBlock) {
       if (line.block.isLabel) return `    ${line.block.labelName}:`;
+      if (line.block.isAnonymousLabel) return `    -`;
       if (line.block.isComment) return `    ; ${line.block.rawOperand || ""}`;
       const macroSrcError = getLiveValidationError(line.block);
       if (macroSrcError) {
@@ -13675,7 +13831,9 @@ function renderAsmOutput() {
 
       // Generate the code for this expanded block
       let expandedCode = "";
-      if (line.block.isLabel) {
+      if (line.block.isAnonymousLabel) {
+        expandedCode = "-";
+      } else if (line.block.isLabel) {
         expandedCode = `${line.block.labelName}:`;
       } else if (line.block.isComment) {
         expandedCode = `; ${line.block.rawOperand || ""}`;
@@ -13689,6 +13847,10 @@ function renderAsmOutput() {
 
     if (line.block.isLabel) {
       return `${line.block.labelName}:  ; ${formatAddress(line.address)}`;
+    }
+
+    if (line.block.isAnonymousLabel) {
+      return `-  ; ${formatAddress(line.address)}`;
     }
 
     if (line.block.isComment) {
@@ -14133,6 +14295,7 @@ function _buildMonitorText(layout) {
       }
     }
   });
+  labels._anonAddrs = _collectAnonLabels(layout);
 
   for (const line of layout.lines) {
     if (line.block.isLabel || line.block.isComment) continue;
@@ -14416,6 +14579,10 @@ async function loadReuDemo() {
   await loadSampleFromFile("reu-demo");
 }
 
+async function loadScrollTextDemo() {
+  await loadSampleFromFile("scroll-text-demo");
+}
+
 async function loadSidDirectDemo() {
   const ok = await loadSampleFromFile("sid-direct-demo");
   if (!ok) return;
@@ -14581,6 +14748,11 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "reu-demo") {
     loadReuDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "scroll-text-demo") {
+    loadScrollTextDemo();
     return;
   }
 
