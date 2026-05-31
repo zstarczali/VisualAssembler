@@ -223,8 +223,8 @@
       "id": "6bb8e64b-b650-418a-a476-66b2f05e8ddb",
       "isTextMacro": true,
       "mnemonic": "TEXT",
-      "operand": "HIRES-ON",
-      "rawOperand": "HIRES-ON",
+      "operand": "hires-on",
+      "rawOperand": "hires-on",
       "textX": 1,
       "textY": 1,
       "validationError": ""
@@ -239,8 +239,8 @@
       "id": "85e3f544-addd-4438-8a36-d1be37727f9a",
       "isTextMacro": true,
       "mnemonic": "TEXT",
-      "operand": "CLEAR SCREEN AND CLEAR COLOR RAM",
-      "rawOperand": "CLEAR SCREEN AND CLEAR COLOR RAM",
+      "operand": "clear screen and clear color ram",
+      "rawOperand": "clear screen and clear color ram",
       "textX": 1,
       "textY": 2,
       "validationError": ""
@@ -255,8 +255,8 @@
       "id": "ac831669-4379-4ff6-af9d-7fc2356634f4",
       "isTextMacro": true,
       "mnemonic": "TEXT",
-      "operand": "PRESS KEY AND THEN PRESS KEY AGAIN!",
-      "rawOperand": "PRESS KEY AND THEN PRESS KEY AGAIN!",
+      "operand": "press key and then press key again!",
+      "rawOperand": "press key and then press key again!",
       "textX": 1,
       "textY": 3,
       "validationError": ""
