@@ -5298,6 +5298,83 @@ function _escHtml(s) {
     .replace(/>/g, "&gt;");
 }
 
+// ── 6502 byte-level disassembler ────────────────────────────────────────────
+
+// Reverse opcode lookup: opcode -> { mnemonic, mode, size }
+const _REV_OP = (() => {
+  const rev = {};
+  const modeSize = {
+    implied:1, immediate:2, zeroPage:2, zeroPageX:2, zeroPageY:2,
+    absolute:3, absoluteX:3, absoluteY:3,
+    indirectX:2, indirectY:2, relative:2, indirect:3
+  };
+  for (const [mnem, modes] of Object.entries(opcodeMap)) {
+    for (const [mode, oc] of Object.entries(modes)) {
+      rev[oc] = { mnem, mode, size: modeSize[mode] || 1 };
+    }
+  }
+  // Fill unknown opcodes as .byte
+  for (let i = 0; i < 256; i++) {
+    if (!rev[i]) rev[i] = { mnem: ".BYTE", mode: "unknown", size: 1 };
+  }
+  return rev;
+})();
+
+function _disasmBytes(bytes, baseAddr) {
+  const result = [];
+  let i = 0;
+  while (i < bytes.length) {
+    const addr = baseAddr + i;
+    const oc = bytes[i];
+    const info = _REV_OP[oc] || { mnem: ".BYTE", mode: "unknown", size: 1 };
+    const end = Math.min(i + info.size, bytes.length);
+    const instrBytes = bytes.slice(i, end);
+    let operand = "";
+
+    if (info.size >= 2 && i + 1 < bytes.length) {
+      const b1 = bytes[i + 1];
+      if (info.mode === "immediate") {
+        operand = "#$" + b1.toString(16).toUpperCase().padStart(2, "0");
+      } else if (info.mode === "zeroPage") {
+        operand = "$" + b1.toString(16).toUpperCase().padStart(2, "0");
+      } else if (info.mode === "zeroPageX") {
+        operand = "$" + b1.toString(16).toUpperCase().padStart(2, "0") + ",X";
+      } else if (info.mode === "zeroPageY") {
+        operand = "$" + b1.toString(16).toUpperCase().padStart(2, "0") + ",Y";
+      } else if (info.mode === "indirectX") {
+        operand = "($" + b1.toString(16).toUpperCase().padStart(2, "0") + ",X)";
+      } else if (info.mode === "indirectY") {
+        operand = "($" + b1.toString(16).toUpperCase().padStart(2, "0") + "),Y";
+      } else if (info.mode === "relative") {
+        const offset = (b1 & 0x80) ? b1 - 256 : b1;
+        const target = addr + 2 + offset;
+        const label = "$" + (target & 0xFFFF).toString(16).toUpperCase().padStart(4, "0");
+        operand = label;
+      }
+    }
+    if (info.size >= 3 && i + 2 < bytes.length) {
+      const b1 = bytes[i + 1], b2 = bytes[i + 2];
+      const abs = b1 | (b2 << 8);
+      if (info.mode === "absolute") {
+        operand = "$" + abs.toString(16).toUpperCase().padStart(4, "0");
+      } else if (info.mode === "absoluteX") {
+        operand = "$" + abs.toString(16).toUpperCase().padStart(4, "0") + ",X";
+      } else if (info.mode === "absoluteY") {
+        operand = "$" + abs.toString(16).toUpperCase().padStart(4, "0") + ",Y";
+      } else if (info.mode === "indirect") {
+        operand = "($" + abs.toString(16).toUpperCase().padStart(4, "0") + ")";
+      }
+    }
+    if (info.mnem === ".BYTE" && info.mode === "unknown") {
+      operand = "$" + oc.toString(16).toUpperCase().padStart(2, "0");
+    }
+
+    result.push({ address: addr, bytes: Array.from(instrBytes), mnemonic: info.mnem, operand });
+    i += info.size;
+  }
+  return result;
+}
+
 // Build syntax-highlighted disassembler HTML from current program[].
 // Caller must ensure program[] is set to the desired block list before calling.
 function _buildDisasmHTML() {
@@ -5346,27 +5423,96 @@ function _buildDisasmHTML() {
 
       // Only show lines that produce actual bytes (real code / inline data)
       if (!compiled.bytes.length) {
-        // Still show real labels even if they have no bytes
-        if (line.block.isLabel && line.block.labelName) {
-          lines.push(`<span class="asm-tok-label">${esc(line.block.labelName)}:</span>`);
-        }
         continue;
       }
 
-      // Show label at this address if one exists
+      // Show label at this address if one exists (inline, before the instruction)
       if (addrToLabel.has(line.address)) {
         lines.push(`<span class="asm-tok-label">${esc(addrToLabel.get(line.address))}:</span>`);
       }
 
-      const hexDump = compiled.bytes.map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+      const DISASM_CHUNK = 8; // bytes per line for raw data blocks
+      const allBytes = compiled.bytes;
       const mnem = line.block.mnemonic;
       const op   = line.block.operand || "";
-      lines.push(
-        `<span class="dsm-addr">$${addrHex}</span>  ` +
-        `<span class="dsm-bytes">${hexDump.padEnd(10)}</span>  ` +
-        `<span class="asm-tok-mnemonic">${esc(mnem)}</span>` +
-        (op ? `  <span class="asm-tok-operand">${esc(op)}</span>` : "")
-      );
+      const isRealInstruction = opcodeMap[mnem] !== undefined;
+      const isDataBlock = line.block.isByteMacro || line.block.isWordMacro || line.block.isFillMacro;
+
+      if (isRealInstruction && allBytes.length <= DISASM_CHUNK) {
+        // Short — real 6502 instruction, show resolved numeric operand
+        let disasmOp = "";
+        const mode = line.block.addressingMode;
+        if (mode === "relative") {
+          const rel = resolveRelativeOperand(line.block, line.address, labelMap);
+          if (rel.ok) {
+            const target = line.address + 2 + (rel.value & 0x80 ? rel.value - 256 : rel.value);
+            disasmOp = "$" + (target & 0xFFFF).toString(16).toUpperCase().padStart(4, "0");
+          }
+        } else if (mode !== "implied") {
+          const num = resolveNumericOperand(line.block, labelMap);
+          if (num.ok) {
+            const v = num.value;
+            if (mode === "immediate") {
+              disasmOp = v <= 0xFF ? "#$" + (v & 0xFF).toString(16).toUpperCase().padStart(2, "0")
+                                   : "#$" + (v & 0xFFFF).toString(16).toUpperCase().padStart(4, "0");
+            } else if (mode === "zeroPage") {
+              disasmOp = "$" + (v & 0xFF).toString(16).toUpperCase().padStart(2, "0");
+            } else if (mode === "zeroPageX" || mode === "zeroPageY") {
+              const suffix = mode === "zeroPageX" ? ",X" : ",Y";
+              disasmOp = "$" + (v & 0xFF).toString(16).toUpperCase().padStart(2, "0") + suffix;
+            } else if (mode === "absolute") {
+              disasmOp = "$" + (v & 0xFFFF).toString(16).toUpperCase().padStart(4, "0");
+            } else if (mode === "absoluteX" || mode === "absoluteY") {
+              const suffix = mode === "absoluteX" ? ",X" : ",Y";
+              disasmOp = "$" + (v & 0xFFFF).toString(16).toUpperCase().padStart(4, "0") + suffix;
+            } else if (mode === "indirectX") {
+              disasmOp = "($" + (v & 0xFF).toString(16).toUpperCase().padStart(2, "0") + ",X)";
+            } else if (mode === "indirectY") {
+              disasmOp = "($" + (v & 0xFF).toString(16).toUpperCase().padStart(2, "0") + "),Y";
+            } else if (mode === "indirect") {
+              disasmOp = "($" + (v & 0xFFFF).toString(16).toUpperCase().padStart(4, "0") + ")";
+            }
+          }
+        }
+        const hexDump = allBytes.map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+        lines.push(
+          `<span class="dsm-addr">$${addrHex}</span>  ` +
+          `<span class="dsm-bytes">${hexDump.padEnd(Math.max(hexDump.length, 8))}</span>  ` +
+          `<span class="asm-tok-mnemonic">${esc(mnem)}</span>` +
+          (disasmOp ? `  <span class="asm-tok-operand">${esc(disasmOp)}</span>` : "")
+        );
+      } else if (isDataBlock) {
+        // Raw data blocks — chunk into 8-byte hex lines
+        const COLW = DISASM_CHUNK * 3 - 1; // fixed byte-column width for long data
+        const opParts = op.split(",").map(s => s.trim());
+        const isShortData = allBytes.length <= DISASM_CHUNK;
+        for (let ci = 0; ci < allBytes.length; ci += DISASM_CHUNK) {
+          const chunk = allBytes.slice(ci, ci + DISASM_CHUNK);
+          const chunkAddr = (line.address + ci).toString(16).toUpperCase().padStart(4, "0");
+          const hexDump = chunk.map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+          const padTo = isShortData ? Math.max(hexDump.length, 8) : COLW;
+          const chunkOp = opParts.slice(ci, ci + DISASM_CHUNK).join(", ");
+          lines.push(
+            `<span class="dsm-addr">$${chunkAddr}</span>  ` +
+            `<span class="dsm-bytes">${hexDump.padEnd(padTo)}</span>  ` +
+            `<span class="asm-tok-mnemonic">${esc(mnem)}</span>` +
+            (chunkOp ? `  <span class="asm-tok-operand">${esc(chunkOp)}</span>` : "")
+          );
+        }
+      } else {
+        // Macro-generated code — disassemble instruction by instruction
+        const instrs = _disasmBytes(allBytes, line.address);
+        for (const instr of instrs) {
+          const iAddr = instr.address.toString(16).toUpperCase().padStart(4, "0");
+          const iHex = instr.bytes.map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+          lines.push(
+            `<span class="dsm-addr">$${iAddr}</span>  ` +
+            `<span class="dsm-bytes">${iHex.padEnd(Math.max(iHex.length, 8))}</span>  ` +
+            `<span class="asm-tok-mnemonic">${esc(instr.mnemonic)}</span>` +
+            (instr.operand ? `  <span class="asm-tok-operand">${esc(instr.operand)}</span>` : "")
+          );
+        }
+      }
     }
   } catch (e) {
     lines.push(`<span class="asm-tok-comment">; Error: ${esc(String(e))}</span>`);
