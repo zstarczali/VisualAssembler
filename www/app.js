@@ -9384,26 +9384,41 @@ async function runInEmulator() {
 }
 
 function buildAutostartPrgForEmulator() {
+  const saved = program;
+  const savedUserMacros = userMacros;
+  let didSwap = false;
+
   if (expertMode) {
-    const saved = program;
-    const savedUserMacros = userMacros;
-    // If project has a startup file, use that file's program
+    // Expert mode: always rebuild from editor, but prefer startup file if set
     const startupBlocks = _expertGetStartupProgram();
     program = startupBlocks || _expertBuildProgram();
-    parseUserMacros();
-    const result = _buildAutostartPrgCore();
-    program = saved;
-    userMacros = savedUserMacros;
-    return result;
+    didSwap = true;
+  } else {
+    // Block mode: check for project startup file
+    const startupBlocks = _expertGetStartupProgram();
+    if (startupBlocks) {
+      program = startupBlocks;
+      didSwap = true;
+    }
   }
-  return _buildAutostartPrgCore();
+
+  try {
+    parseUserMacros();
+    return _buildAutostartPrgCore();
+  } finally {
+    if (didSwap) {
+      program = saved;
+      userMacros = savedUserMacros;
+    }
+  }
 }
 
 /**
  * Returns the program blocks for the project startup file, or null if none.
- * - If the startup file's tab is active → fresh parse from editor
+ * Works in both block mode and expert mode:
+ * - If the startup file's tab is active → use current program (expert: fresh parse, block: global program[])
  * - If startup file's tab is open but not active → use saved tab.program
- * - If startup file's tab is not open → null (fallback to current editor)
+ * - If startup file's tab is not open → null (fallback to current editor/tab)
  */
 function _expertGetStartupProgram() {
   if (!_expertProjectData?.startupFile) return null;
@@ -9414,9 +9429,10 @@ function _expertGetStartupProgram() {
   const normAbs  = _normFilePath(absPath);
   const activeTab = tabs.find(t => t.id === activeTabId);
 
-  // If the startup file tab is active, editor content is the freshest source
+  // If the startup file tab is active, use the current program
   if (activeTab && _normFilePath(activeTab.filePath) === normAbs) {
-    return _expertBuildProgram();
+    // In expert mode, parse fresh from editor; in block mode use current program[]
+    return expertMode ? _expertBuildProgram() : JSON.parse(JSON.stringify(program));
   }
 
   // Otherwise use the tab's saved program (from last _tabSaveCurrent)

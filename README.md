@@ -216,8 +216,11 @@ Each block in `program[]` is a plain object:
 
 ## What's New in v1.6.7
 
-- **Load `.asm` opens a new tab** — the Load .asm button in Expert mode now opens the file in a **new tab** with the filename as the tab label, instead of replacing the current tab's content. Each loaded `.asm` file becomes its own independent tab with full block/expert editor state.
+- **Load `.asm` opens a new tab** — the Load .asm button in Expert mode now opens the file in a **new tab** with the filename as the tab label, instead of replacing the current tab's content. The file is parsed into program blocks and marked clean on open.
 - **Close Project menu item** — new **Close Project** button in Menu → File closes the currently open project and all its file tabs at once, with unsaved-change confirmation.
+- **Run respects project startup file** — when a project has a startup file (★ in the tree), the Run button assembles that file's code regardless of which tab is active. Works in both block mode and Expert mode, and across all run targets (PRG, D64, Ultimate).
+- **Project panel language fix** — the Expert project panel now correctly reflects the current UI language (no more hardcoded Hungarian text when English is selected).
+- **New translations** — `menuCloseProject`, `projClosed`, `projNoOpen` added to both Hungarian and English.
 
 ### Previous: v1.6.6
 

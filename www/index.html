@@ -586,10 +586,19 @@
       <p class="whats-new-version">v1.6.7</p>
       <ul class="whats-new-list">
         <li>
-          <strong>Load .asm opens a new tab</strong> — the <strong>Load .asm</strong> button in Expert mode now opens the file in a <strong>new tab</strong> with the filename as the tab label, instead of replacing the current tab's content. Each loaded <code>.asm</code> file becomes its own independent tab with full block/expert editor state.
+          <strong>Load .asm opens a new tab</strong> — the <strong>Load .asm</strong> button in Expert mode now opens the file in a <strong>new tab</strong> with the filename as the tab label, instead of replacing the current tab's content. Each loaded <code>.asm</code> file becomes its own independent tab with full block/expert editor state, parsed into program blocks, and marked clean on open.
         </li>
         <li>
-          <strong>Close Project menu item</strong> — new <strong>Close Project</strong> button in the <strong>Menu → File</strong> section closes the currently open project and all its file tabs at once. Prompts to save any unsaved changes before closing. The project panel is reset to its empty state.
+          <strong>Close Project menu item</strong> — new <strong>Close Project</strong> button in the <strong>Menu → File</strong> section closes the currently open project and all its file tabs at once. Prompts to save any unsaved changes before closing. The project panel is reset to its empty state, and <code>_expertProjectData</code> is cleared to <code>null</code>.
+        </li>
+        <li>
+          <strong>Run respects project startup file</strong> — when a project has a <strong>startup file</strong> (marked with ★ in the project panel), the <strong>Run</strong> button (PRG, D64, Ultimate) now assembles and runs that file's code regardless of which tab is currently active. Works in both block mode and Expert mode.
+        </li>
+        <li>
+          <strong>Project panel translation fix</strong> — the Expert project panel header no longer shows hardcoded Hungarian <em>"Nincs projekt"</em> when English is the active language. <code>_expertRenderProjectTree()</code> now runs every time the panel is toggled visible, ensuring the title and empty-state text match the current UI language.
+        </li>
+        <li>
+          <strong>New translation keys</strong> — added <code>menuCloseProject</code>, <code>projClosed</code>, and <code>projNoOpen</code> to both Hungarian and English translation tables.
         </li>
       </ul>
       <p class="whats-new-version" style="font-size:0.78rem;opacity:0.6;margin-top:10px">v1.6.6</p>
