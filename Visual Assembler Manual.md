@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 1.6.6**
+**Version 1.6.7**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -169,6 +169,9 @@ The modal closes automatically when the action completes or fails.
 | **Zoom in / out** | Scale the block UI (affects all block elements) |
 | **Save Project** | Save the current program as a `.json` project file |
 | **Load Project** | Load a previously saved project |
+| **Open Project** (`Menu → File`) | Open a multi-file `.proj` project and open all source files as tabs |
+| **Save Project** (`Menu → File`) | Save the current `.proj` project (project panel must be open) |
+| **Close Project** (`Menu → File`) | Close the currently open project and all its file tabs. Prompts to save unsaved changes. The project panel resets to its empty state. |
 | **Import ASM** | Opens a paste dialog and imports textual 6502 ASM into blocks |
 | **Save PRG** | Export the compiled binary as a `.prg` file |
 | **Run (split button)** | The main **▶ Run** button runs the current mode; click the **▾** arrow to switch between: **Run as PRG** (compile and launch VICE directly), **Run via D64** (package into a .d64 disk image and launch VICE), or **Run on hardware** (send PRG to a C64 Ultimate / 1541 Ultimate device). See [Section 12](#12-d64-export--run) and [Section 13](#13-hardware-settings). |
@@ -232,7 +235,7 @@ Expert Mode is a full-featured direct-text 6502 assembly editor that lives along
 | Button | ID | Function |
 |--------|----|----------|
 | **Format** | `#expert-format-btn` | Auto-format source (labels to col 0, 4-space indent, 1-space mnemonic/operand) |
-| **Load .asm** | `#expert-load-asm-btn` | Open a `.asm` file and load it into the editor |
+| **Load .asm** | `#expert-load-asm-btn` | Open a `.asm` file — the content is loaded into a **new tab** with the filename as the tab label. Each loaded file becomes an independent tab with its own program blocks and editor state. |
 | **Save .asm** | `#expert-save-asm-btn` | Save editor content to a `.asm` file (file dialog on first save) |
 | **Build Info** | `#expert-build-info-btn` | Open the Build Info dialog (origin, size, labels, errors) |
 | **HL** | `#expert-hl-btn` | Toggle syntax highlighting (disable for very large files) |
@@ -272,8 +275,10 @@ Click the **Format** button (`#expert-format-btn`) to auto-format the current so
 Expert mode supports a **project panel** (`#expert-project-panel`) for multi-file `.proj` projects:
 
 - A `.proj` file is a JSON manifest that lists source files and their metadata.
-- Open a project with **File → Open project…** or drag a `.proj` file onto the window.
+- Open a project with **Menu → File → Open project** or drag a `.proj` file onto the window.
 - Each file in the project opens as a separate **tab** in the tab bar at the top of the editor.
+- **Close Project** (`Menu → File → Close project` / `#menu-close-project`) closes the current project and all its file tabs at once. Prompts to save any unsaved changes before closing. The project panel resets to its empty state and `_expertProjectData` is cleared.
+- Each file can be marked as the **startup file** (★ star icon). When a startup file is set, the **Run** button (PRG, D64, Ultimate) always assembles and runs that file's code — regardless of which tab is currently active. This works in both block mode and Expert mode.
 
 ### Tab bar
 
@@ -557,9 +562,11 @@ Writes a text string to the C64 screen RAM at a given row/column position by gen
 | Y | Row (0–24) |
 | Label (optional) | Assigns a label pointing to the computed screen address |
 
+**Case auto-detection:** If the input contains any alphabetic character (`/[A-Za-z]/`), the macro uses lowercase charset screen codes: `a`–`z` → 1–26, `A`–`Z` → 65–90. This produces correct mixed-case output when the C64 charset is switched to lowercase mode (`$D018=$17`, e.g. `LDA #$17` / `STA $D018`). Pure numbers and symbols use standard screen codes for backward compatibility.
+
 **Generated ASM:**
 ```
-    LDA #$08      ; 'H' (screen code)
+    LDA #$08      ; 'H' (screen code, upper-case in standard charset)
     STA $0400
     LDA #$05      ; 'E' (screen code)
     STA $0401
@@ -572,7 +579,7 @@ Characters are encoded as **screen codes** (not PETSCII). **Size:** `text.length
 
 ### STRING
 
-Encodes a text string as **screen codes** and writes it to a given memory address using LDA/STA instruction pairs at runtime.
+Encodes a text string as **screen codes** and writes it to a given memory address using LDA/STA instruction pairs at runtime. Same case auto-detection as TEXT.
 
 | Field | Description |
 |---|---|
@@ -634,7 +641,7 @@ Places raw bytes at a given memory address — no runtime code is generated. The
 
 ### RAWTEXT
 
-Encodes a text string as **screen codes** and places the bytes directly at a given memory address — no runtime code is generated. The data appears in the deferred section of the output.
+Encodes a text string as **screen codes** and places the bytes directly at a given memory address — no runtime code is generated. The data appears in the deferred section of the output. Same case auto-detection as TEXT and STRING.
 
 | Field | Description |
 |---|---|

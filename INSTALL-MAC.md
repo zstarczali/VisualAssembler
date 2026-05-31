@@ -29,5 +29,5 @@ xattr -cr "/Applications/C64 Visual Assembler.app"
 
 ---
 
-**Version:** 1.6.6 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 1.6.7 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
 

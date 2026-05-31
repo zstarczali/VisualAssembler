@@ -147,7 +147,7 @@ const mnemonicLibrary = {
     { mnemonic: "BRK", description: "Megszakitas vagy leallas hibakereseshez.", modes: ["implied"] }
   ],
   Makrok: [
-    { mnemonic: "TEXT", description: "Szoveg kiirasa a kepernyore KERNAL CHROUT rutinon keresztul.", modes: ["implied"], isTextMacro: true },
+    { mnemonic: "TEXT", description: "Szoveg kiirasa a kepernyore screen code-kent. Kisbetu eseten automatikus lowercase kodolas.", modes: ["implied"], isTextMacro: true },
     { mnemonic: "BYTE", description: "Tetszoleges byte tomb beillesztese vesszovel elvalasztva.", modes: ["implied"], isByteMacro: true },
     { mnemonic: "WORD", description: "16-bites ertekek tarolasa LO/HI byte parokban, vesszovel elvalasztva.", modes: ["implied"], isWordMacro: true },
     { mnemonic: "FILL", description: "Ismetlodo byte generalasa megadott darabszammal.", modes: ["implied"], isFillMacro: true },
@@ -499,6 +499,7 @@ const translations = {
     sampleClearScreen: "Kepernyo torles demo",
     sampleLabel: "Label pelda",
     sampleText: "TEXT pelda",
+    sampleLowercaseText: "Kisbetus TEXT pelda",
     sampleMacro: "Komplex makro pelda",
     sampleSprite: "Sprite mozgatas pelda",
     sampleSetpixel: "Setpixel demo",
@@ -524,6 +525,7 @@ const translations = {
     sampleMemoryOverlapDemo: "Memoria atfedes demo",
     sampleRandLinesDemo: "Veletlen vonalak demo",
     sampleReuDemo: "REU demo",
+    sampleScrollTextDemo: "Sima scroll demo (pontonkenti gorgetes)",
     helpManual: "Kezikonyv",
     about: "Névjegy",
     knowledgeBase: "Tudásbázis",
@@ -544,6 +546,7 @@ const translations = {
     projOpenProjectBtn: "Projekt megnyítása",
     menuOpenProject: "Projekt megnyítása",
     menuSaveProject: "Projekt mentése",
+    menuCloseProject: "Projekt bezárása",
     projNewProjectBtn: "Új projekt",
     projSaveProjectBtn: "Projekt mentése",
     projAddFileBtn: "Fájl hozzáadása",
@@ -555,10 +558,16 @@ const translations = {
     projLabels: "Labelek",
     projOpened: "Projekt megnyitva",
     projSaved: "Projekt mentve",
+    projClosed: "Projekt bezárva",
+    projNoOpen: "Nincs megnyitott projekt",
     projError: "Projekt hiba",
     projOpenFile: "Megnyitva",
     projSaveError: "Mentési hiba",
     projRemove: "Eltávolítás",
+    projStartupFile: "Indítófájl",
+    projSetStartup: "Beállítás indítófájlként",
+    projUnsetStartup: "Indítófájl törlése",
+    projStartupSet: "Indítófájl beállítva",
     viceRunning: "VICE fut",
     whatsNew: "Ujdonsagok",
     paletteSearchPlaceholder: "Kereses...",
@@ -635,6 +644,7 @@ const translations = {
     branchOperandInvalid: "Nem lehet futtatni: a(z) {mnemonic} branch operandusa nem ervenyes.",
     branchTargetOutOfRange: "A(z) {mnemonic} branch celcime nincs elerheto tavolsagban.",
     operandNotResolvable: "Nem lehet futtatni: a(z) {mnemonic} operandusa nem forditheto cimme vagy ertekke.",
+    anonymousLabelNotFound: "A(z) \"{label}\" nevtelen cimke nem talalhato.",
     memorySegments: {
       zeroPageLabel: "Zero page",
       zeroPageNote: "Gyors eleresu valtozok es pointerek.",
@@ -862,6 +872,7 @@ const translations = {
     sampleClearScreen: "Clear screen demo",
     sampleLabel: "Label example",
     sampleText: "TEXT example",
+    sampleLowercaseText: "Lowercase TEXT example",
     sampleMacro: "Complex macro example",
     sampleSprite: "Sprite movement example",
     sampleSetpixel: "Setpixel demo",
@@ -887,6 +898,7 @@ const translations = {
     sampleMemoryOverlapDemo: "Memory overlap demo",
     sampleRandLinesDemo: "Random lines demo",
     sampleReuDemo: "REU demo",
+    sampleScrollTextDemo: "Smooth scroll demo (per-pixel scrolling)",
     helpManual: "Manual",
     about: "About",
     knowledgeBase: "Knowledge Base",
@@ -908,6 +920,7 @@ const translations = {
     projOpenProjectBtn: "Open project",
     menuOpenProject: "Open project",
     menuSaveProject: "Save project",
+    menuCloseProject: "Close project",
     projNewProjectBtn: "New project",
     projSaveProjectBtn: "Save project",
     projAddFileBtn: "Add file",
@@ -919,10 +932,16 @@ const translations = {
     projLabels: "Labels",
     projOpened: "Project opened",
     projSaved: "Project saved",
+    projClosed: "Project closed",
+    projNoOpen: "No project is open",
     projError: "Project error",
     projOpenFile: "Opened",
     projSaveError: "Save error",
     projRemove: "Remove",
+    projStartupFile: "Startup file",
+    projSetStartup: "Set as startup file",
+    projUnsetStartup: "Remove startup file",
+    projStartupSet: "Startup file set",
     viceRunning: "VICE running",
     whatsNew: "What's New",
     paletteSearchPlaceholder: "Search...",
@@ -999,6 +1018,7 @@ const translations = {
     branchOperandInvalid: "Cannot run: the branch operand for {mnemonic} is invalid.",
     branchTargetOutOfRange: "The branch target for {mnemonic} is out of range.",
     operandNotResolvable: "Cannot run: the operand for {mnemonic} cannot be resolved to an address or value.",
+    anonymousLabelNotFound: "Anonymous label \"{label}\" not found.",
     memorySegments: {
       zeroPageLabel: "Zero page",
       zeroPageNote: "Fast-access variables and pointers.",
@@ -1621,6 +1641,7 @@ function initPalette() {
     expertProjectBtn.setAttribute("aria-pressed", String(_expertProjectVisible));
     if (_expertProjectVisible) {
       expertProjectPanel?.removeAttribute("hidden");
+      _expertRenderProjectTree();
     } else {
       expertProjectPanel?.setAttribute("hidden", "");
     }
@@ -1778,6 +1799,10 @@ function initPalette() {
   });
   document.getElementById("menu-save-project")?.addEventListener("click", async () => {
     await _expertSaveProject();
+    document.querySelector(".control-menu")?.removeAttribute("open");
+  });
+  document.getElementById("menu-close-project")?.addEventListener("click", async () => {
+    await _closeProject();
     document.querySelector(".control-menu")?.removeAttribute("open");
   });
   savePrgButton?.addEventListener("click", savePrgToFile);
@@ -2240,6 +2265,7 @@ function handleLanguageChange() {
   renderOriginPreview();
   renderEmulatorRunHint();
   renderProgram();
+  if (expertMode) _expertRenderProjectTree();
   saveUiSettings();
 }
 
@@ -2354,6 +2380,7 @@ function applyTranslations() {
     setText("#save-project", t("saveProject"));
     setText("#menu-open-project", t("menuOpenProject"));
     setText("#menu-save-project", t("menuSaveProject"));
+    setText("#menu-close-project", t("menuCloseProject"));
     setText("#save-prg", t("savePrg"));
     setText("#build-section-label", t("buildSection"));
     setText("#save-d64", t("saveD64"));
@@ -2459,31 +2486,33 @@ function applyTranslations() {
   if (sampleOptions[1]) sampleOptions[1].textContent = t("sampleClearScreen");
   if (sampleOptions[2]) sampleOptions[2].textContent = t("sampleLabel");
   if (sampleOptions[3]) sampleOptions[3].textContent = t("sampleText");
-  if (sampleOptions[4]) sampleOptions[4].textContent = t("sampleMacro");
-  if (sampleOptions[5]) sampleOptions[5].textContent = t("sampleSprite");
-  if (sampleOptions[6]) sampleOptions[6].textContent = t("sampleSetpixel");
-  if (sampleOptions[7]) sampleOptions[7].textContent = t("sampleBitmap");
-  if (sampleOptions[8]) sampleOptions[8].textContent = t("sampleMacroTest");
-  if (sampleOptions[9]) sampleOptions[9].textContent = t("sampleLoop");
-  if (sampleOptions[10]) sampleOptions[10].textContent = t("sampleHelloLoop");
-  if (sampleOptions[11]) sampleOptions[11].textContent = t("samplePushPull");
-  if (sampleOptions[12]) sampleOptions[12].textContent = t("sampleIfElse");
-  if (sampleOptions[13]) sampleOptions[13].textContent = t("sampleUserMacro");
-  if (sampleOptions[14]) sampleOptions[14].textContent = t("sampleIncBin");
-  if (sampleOptions[15]) sampleOptions[15].textContent = t("sampleLoadFile");
-  if (sampleOptions[16]) sampleOptions[16].textContent = t("sampleInclude");
-  if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleSidDemo");
-  if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleSidDirectDemo");
-  if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleSpriteMacroDemo");
-  if (sampleOptions[20]) sampleOptions[20].textContent = t("sampleJoystickDemo");
-  if (sampleOptions[21]) sampleOptions[21].textContent = t("sampleMouseDemo");
-  if (sampleOptions[22]) sampleOptions[22].textContent = t("sampleCollisionDemo");
-  if (sampleOptions[23]) sampleOptions[23].textContent = t("sample10Print");
-  if (sampleOptions[24]) sampleOptions[24].textContent = t("sampleRasterIrqDemo");
-  if (sampleOptions[25]) sampleOptions[25].textContent = t("sampleOverlappingRasterDemo");
-  if (sampleOptions[26]) sampleOptions[26].textContent = t("sampleMemoryOverlapDemo");
-  if (sampleOptions[27]) sampleOptions[27].textContent = t("sampleRandLinesDemo");
-  if (sampleOptions[28]) sampleOptions[28].textContent = t("sampleReuDemo");
+  if (sampleOptions[4]) sampleOptions[4].textContent = t("sampleLowercaseText");
+  if (sampleOptions[5]) sampleOptions[5].textContent = t("sampleMacro");
+  if (sampleOptions[6]) sampleOptions[6].textContent = t("sampleSprite");
+  if (sampleOptions[7]) sampleOptions[7].textContent = t("sampleSetpixel");
+  if (sampleOptions[8]) sampleOptions[8].textContent = t("sampleBitmap");
+  if (sampleOptions[9]) sampleOptions[9].textContent = t("sampleMacroTest");
+  if (sampleOptions[10]) sampleOptions[10].textContent = t("sampleLoop");
+  if (sampleOptions[11]) sampleOptions[11].textContent = t("sampleHelloLoop");
+  if (sampleOptions[12]) sampleOptions[12].textContent = t("samplePushPull");
+  if (sampleOptions[13]) sampleOptions[13].textContent = t("sampleIfElse");
+  if (sampleOptions[14]) sampleOptions[14].textContent = t("sampleUserMacro");
+  if (sampleOptions[15]) sampleOptions[15].textContent = t("sampleIncBin");
+  if (sampleOptions[16]) sampleOptions[16].textContent = t("sampleLoadFile");
+  if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleInclude");
+  if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleSidDemo");
+  if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleSidDirectDemo");
+  if (sampleOptions[20]) sampleOptions[20].textContent = t("sampleSpriteMacroDemo");
+  if (sampleOptions[21]) sampleOptions[21].textContent = t("sampleJoystickDemo");
+  if (sampleOptions[22]) sampleOptions[22].textContent = t("sampleMouseDemo");
+  if (sampleOptions[23]) sampleOptions[23].textContent = t("sampleCollisionDemo");
+  if (sampleOptions[24]) sampleOptions[24].textContent = t("sample10Print");
+  if (sampleOptions[25]) sampleOptions[25].textContent = t("sampleRasterIrqDemo");
+  if (sampleOptions[26]) sampleOptions[26].textContent = t("sampleOverlappingRasterDemo");
+  if (sampleOptions[27]) sampleOptions[27].textContent = t("sampleMemoryOverlapDemo");
+  if (sampleOptions[28]) sampleOptions[28].textContent = t("sampleRandLinesDemo");
+  if (sampleOptions[29]) sampleOptions[29].textContent = t("sampleReuDemo");
+  if (sampleOptions[30]) sampleOptions[30].textContent = t("sampleScrollTextDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -3057,6 +3086,7 @@ function createBlockFromMnemonic(item) {
       validationError: validateTextMacroPosition(0, 0, rawOperand),
       collapsed: true,
       isTextMacro: true,
+      textCharset: "standard",
       textX: 0,
       textY: 0
     };
@@ -3093,7 +3123,8 @@ function createBlockFromMnemonic(item) {
       validationError: validateStringMacroAddress("C000"),
       collapsed: true,
       isStringMacro: true,
-      stringAddress: "C000"
+      stringAddress: "C000",
+      textCharset: "standard"
     };
   }
 
@@ -3798,7 +3829,7 @@ function collapseLoadedProgram(blocks) {
   // Rebuild operand from rawOperand for all regular instruction blocks to fix
   // suffix/prefix mismatches (,X / ,Y / #) from older saved files
   result.forEach((block) => {
-    const isMacroOrSpecial = block.isLabel || block.isComment || block.isLoopMacro ||
+    const isMacroOrSpecial = block.isLabel || block.isComment || block.isAnonymousLabel || block.isLoopMacro ||
       block.isNextMacro || block.isTableMacro || block.isDefineMacro || block.isConstMacro ||
       block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isByteMacro ||
       block.isWordMacro || block.isDataMacro || block.isRawBytesMacro || block.isFillMacro ||
@@ -3870,6 +3901,7 @@ function _blockToExpertLine(block) {
   };
   if (block.isOrgMacro)       return `* = $${(block.orgAddress || "0801").toUpperCase()}`;
   if (block.isLabel)          return `${block.labelName || "start"}:`;
+  if (block.isAnonymousLabel) return "-";
   if (block.isComment)        return `; ${block.rawOperand || ""}`;
   if (block.isTextMacro)      return `.text ${block.textX || 0}, ${block.textY || 0}, "${block.rawOperand || ""}"`;
   if (block.isStringMacro)    return `.string $${(block.stringAddress || "C000").toUpperCase()}, "${block.rawOperand || ""}"`;
@@ -4016,7 +4048,7 @@ function doClearProgram() {
 
 function isProgramEmpty() {
   if (expertMode) {
-    const blocks = _expertBuildProgram();
+    const blocks = _expertGetStartupProgram() || _expertBuildProgram();
     return blocks.every(b => b.isOrgMacro || b.isRegionMacro || b.isEndRegionMacro || b.isComment || b.isDefineMacro);
   }
   return program.every(b => b.isOrgMacro || b.isRegionMacro || b.isEndRegionMacro || b.isComment || b.isDefineMacro);
@@ -4439,15 +4471,49 @@ async function _expertLoadAsm() {
       _expertSetStatus(t("vasmLoadError") + ": " + res.error, "error");
       return;
     }
-    _expertAsmFilePath = res.filePath;
-    const name = res.filePath.replace(/\\/g, "/").split("/").pop();
-    if (expertEditor) {
+
+    const filePath = res.filePath;
+    const name = filePath.replace(/\\/g, "/").split("/").pop();
+
+    // Save current tab state
+    _tabSaveCurrent();
+
+    // Parse ASM text into blocks
+    const blocks = parseExpertText(res.content);
+    _addSrcLineToBlocks(res.content, blocks);
+
+    // Create new tab
+    const tab = _tabCreate(name);
+    tab.filePath = filePath;
+    tab.program = blocks;
+    tab.expertText = res.content;
+    tab.userMacros = {};
+    tabs.push(tab);
+    activeTabId = tab.id;
+
+    // Update active state
+    program = JSON.parse(JSON.stringify(blocks));
+    userMacros = {};
+    selectedBlockId = null;
+    _expertAsmFilePath = filePath;
+
+    if (currentFileDisplay) currentFileDisplay.textContent = name;
+    if (expertFileName) expertFileName.textContent = name;
+    updateWindowTitle(name);
+
+    // Update expert editor if in expert mode
+    if (expertMode && expertEditor) {
       expertEditor.value = res.content;
       expertEditor.dispatchEvent(new Event("input"));
     }
-    if (expertFileName) expertFileName.textContent = name;
+
+    parseUserMacros();
+    renderTabBar();
+    renderProgram();
+    renderAsmOutput();
+    markTabClean();
+
     _expertSetStatus(t("vasmLoadedStatus") + ": " + name, "ok");
-    markTabDirty();
   } catch (e) {
     _expertSetStatus(t("vasmLoadError") + ": " + String(e), "error");
   }
@@ -4493,6 +4559,7 @@ function showBuildInfoDialog() {
         if (v !== null) labels.set(line.block.constName, v);
       }
     });
+    labels._anonAddrs = _collectAnonLabels(layout);
 
     const origin = layout.lines.length ? layout.lines[0].address : 0;
     let totalBytes = 0, maxAddr = origin;
@@ -5180,6 +5247,7 @@ function _expertValidate() {
             if (v !== null) labels.set(line.block.constName, v);
           }
         });
+        labels._anonAddrs = _collectAnonLabels(layout);
         // Run compileLineBytes to detect unknown mnemonics / bad operands
         for (const line of layout.lines) {
           if (line.conditionallySkipped) continue;
@@ -5252,6 +5320,7 @@ function _buildDisasmHTML() {
         if (v !== null) labels.set(line.block.constName, v);
       }
     });
+    labels._anonAddrs = _collectAnonLabels(layout);
     const addrToLabel = new Map();
     for (const [name, addr] of labels) addrToLabel.set(addr, name);
 
@@ -5547,9 +5616,10 @@ function _expertRenderProjectTree() {
   files.forEach(file => {
     if (!file._id) file._id = crypto.randomUUID();
     const isActive = activeFilePath && _normFilePath(_projResolveAbsPath(file.path)) === activeFilePath;
+    const isStartup = _expertProjectData.startupFile === file.path;
 
     const item = document.createElement("div");
-    item.className = `expert-project-item expert-project-item--file${isActive ? " expert-project-item--active" : ""}`;
+    item.className = `expert-project-item expert-project-item--file${isActive ? " expert-project-item--active" : ""}${isStartup ? " expert-project-item--startup" : ""}`;
 
     const iconEl = document.createElement("span");
     iconEl.className = "expert-project-item-icon";
@@ -5560,17 +5630,33 @@ function _expertRenderProjectTree() {
     nameSpan.textContent = file.name;
     nameSpan.title = file.path;
 
+    // Startup star button
+    const starBtn = document.createElement("button");
+    starBtn.className = "expert-project-item-star" + (isStartup ? " expert-project-item-star--on" : "");
+    starBtn.title = isStartup ? t("projUnsetStartup") : t("projSetStartup");
+    starBtn.innerHTML = isStartup
+      ? `<svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="11" height="11"><path d="M7 1L8.5 5.5H13L9.5 8.5L11 13L7 10L3 13L4.5 8.5L1 5.5H5.5L7 1Z" fill="currentColor" stroke="currentColor" stroke-width="0.5"/></svg>`
+      : `<svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="11" height="11"><path d="M7 1L8.5 5.5H13L9.5 8.5L11 13L7 10L3 13L4.5 8.5L1 5.5H5.5L7 1Z" stroke="currentColor" stroke-width="1" opacity="0.5"/></svg>`;
+    starBtn.addEventListener("click", e => {
+      e.stopPropagation();
+      _expertProjectData.startupFile = _expertProjectData.startupFile === file.path ? null : file.path;
+      _expertRenderProjectTree();
+    });
+
     const delBtn = _makeProjDelBtn(() => {
       const idx = _expertProjectData.files.indexOf(file);
       if (idx >= 0) _expertProjectData.files.splice(idx, 1);
+      // Clear startup if the deleted file was the startup
+      if (_expertProjectData.startupFile === file.path) _expertProjectData.startupFile = null;
       _expertRenderProjectTree();
     });
 
     item.appendChild(iconEl);
     item.appendChild(nameSpan);
+    item.appendChild(starBtn);
     item.appendChild(delBtn);
     item.addEventListener("click", e => {
-      if (e.target === delBtn || delBtn.contains(e.target)) return;
+      if (e.target === delBtn || delBtn.contains(e.target) || e.target === starBtn || starBtn.contains(e.target)) return;
       _expertProjectOpenFile(file);
     });
     treeEl.appendChild(item);
@@ -5615,6 +5701,35 @@ async function _closeAllTabsWithConfirm() {
   return true;
 }
 
+async function _closeProject() {
+  if (!_expertProjectData && tabs.every(t => !_tabHasContent(t))) {
+    _expertSetStatus(t("projNoOpen"), "ok");
+    return;
+  }
+
+  // Confirm closing project tabs
+  if (!await _closeAllTabsWithConfirm()) return;
+
+  // Clear project data
+  _expertProjectData = null;
+
+  // Hide project panel
+  _expertProjectVisible = false;
+  expertProjectBtn?.classList.remove("expert-hl-toggle--on");
+  expertProjectBtn?.setAttribute("aria-pressed", "false");
+  expertProjectPanel?.setAttribute("hidden", "");
+
+  if (expertMode) {
+    _expertRenderProjectTree();
+    _expertSetStatus(t("projClosed"), "ok");
+  } else {
+    _expertSetStatus(t("projClosed"), "ok");
+  }
+
+  renderProgram();
+  renderAsmOutput();
+}
+
 async function _openProjectFromMenu() {
   // Ask user for each dirty tab before loading
   if (!await _closeAllTabsWithConfirm()) return;
@@ -5631,14 +5746,20 @@ async function _openProjectFromMenu() {
     });
   }
   _expertProjectData = {
-    name:      proj.name || "Névtelen projekt",
-    files:     migrateNodes(proj.files),
-    _projPath: res.filePath
+    name:        proj.name || "Névtelen projekt",
+    files:       migrateNodes(proj.files),
+    _projPath:   res.filePath,
+    startupFile: proj.startupFile || null
   };
 
   if (expertMode) {
     // In expert mode: just update the panel as usual
     _expertRenderProjectTree();
+    // Auto-open startup file if set
+    if (_expertProjectData.startupFile) {
+      const sf = _expertProjectData.files.find(f => f.path === _expertProjectData.startupFile);
+      if (sf) await _expertProjectOpenFile(sf);
+    }
     _expertSetStatus(t("projOpened") + ": " + _expertProjectData.name, "ok");
     return;
   }
@@ -5703,11 +5824,17 @@ async function _expertOpenProject() {
     });
   }
   _expertProjectData = {
-    name:      proj.name  || "Névtelen projekt",
-    files:     migrateNodes(proj.files),
-    _projPath: res.filePath
+    name:        proj.name  || "Névtelen projekt",
+    files:       migrateNodes(proj.files),
+    _projPath:   res.filePath,
+    startupFile: proj.startupFile || null
   };
   _expertRenderProjectTree();
+  // Auto-open startup file if set
+  if (_expertProjectData.startupFile) {
+    const sf = _expertProjectData.files.find(f => f.path === _expertProjectData.startupFile);
+    if (sf) await _expertProjectOpenFile(sf);
+  }
   _expertSetStatus(t("projOpened") + ": " + _expertProjectData.name, "ok");
 }
 
@@ -5724,7 +5851,7 @@ async function _expertSaveProject() {
   const cleaned = (_expertProjectData.files || [])
     .filter(n => !n.type || n.type === "file")
     .map(n => ({ type: "file", name: n.name, path: n.path }));
-  const payload = JSON.stringify({ name: _expertProjectData.name, files: cleaned }, null, 2);
+  const payload = JSON.stringify({ name: _expertProjectData.name, files: cleaned, startupFile: _expertProjectData.startupFile || null }, null, 2);
   const path = _expertProjectData._projPath || "";
   const res = await window.electronAPI?.saveProjFile?.(path, payload);
   if (!res || res.canceled) return;
@@ -6620,6 +6747,17 @@ function buildOperandPreview(modeKey, rawValue, base) {
     return { operand: display, text: display, error: "" };
   }
 
+  // - / + anonymous labels (ACME-style: - = backward, + = forward)
+  if (value === "-" || value === "+") {
+    const operand = modeKey === "immediate" ? `#${value}`
+      : (modeKey === "absoluteX" || modeKey === "zeroPageX") ? `${value},X`
+      : (modeKey === "absoluteY" || modeKey === "zeroPageY") ? `${value},Y`
+      : (modeKey === "indirectX") ? `(${value},X)`
+      : (modeKey === "indirectY") ? `(${value}),Y`
+      : value;
+    return { operand, text: operand, error: "" };
+  }
+
   if (!value) {
     return { operand: "", text: currentLanguage === "en" ? "missing operand" : "hianyzo operandus", error: currentLanguage === "en" ? "This addressing mode requires an operand." : "Ehhez a cimzesi modhoz operandus kell." };
   }
@@ -7065,8 +7203,26 @@ function validateDataMacro(rawBytes, rawAddress, base = "dec") {
   return "";
 }
 
-function encodeTextMacro(text) {
-  return [...(text || "HELLO C64")].map((char) => toPetsciiCharCode(char));
+function encodeTextMacro(text, charset = "standard") {
+  // Auto-detect: any letter triggers lowercase charset encoding.
+  // "HELLO WORLD" → HELLO WORLD, "Hello World" → Hello World.
+  // Pure numbers/symbols stay standard for backward compat.
+  const hasLetters = /[A-Za-z]/.test(text || "");
+  const effectiveCharset = charset === "lowercase" || (charset === "standard" && hasLetters) ? "lowercase" : "standard";
+  const mapper = effectiveCharset === "lowercase" ? toLowercaseScreenCode : toPetsciiCharCode;
+  return [...(text || "HELLO C64")].map((char) => mapper(char));
+}
+
+// Lowercase charset screen code mapping (C64 char ROM at $1800, $D018=$17):
+//   'a'-'z' ($61-$7A) → screen codes 1-26  ($01-$1A)
+//   'A'-'Z' ($41-$5A) → screen codes 65-90 ($41-$5A — same as PETSCII/ASCII)
+//   Everything else falls through to standard mapping.
+function toLowercaseScreenCode(char) {
+  if (char === "\n") return 13;
+  const code = char.charCodeAt(0);
+  if (code >= 97 && code <= 122) return code - 96;         // a-z → 1-26
+  if (code >= 65 && code <= 90)  return code;               // A-Z → 65-90 (PETSCII match)
+  return toPetsciiCharCode(char);                           // fallback
 }
 
 // PETSCII makro: szoveg → PETSCII byte-ok (CHROUT-kompatibilis)
@@ -8784,6 +8940,10 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
       rawOperand = op.slice(1); base = "hex";
       addressingMode = branchMnems.has(mnemonic) ? "relative" : "absolute";
       displayOperand = rawOperand;
+    } else if (op === "-" || op === "+") {
+      rawOperand = op; base = "hex";
+      addressingMode = branchMnems.has(mnemonic) ? "relative" : "absolute";
+      displayOperand = op;
     } else if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(op)) {
       rawOperand = op; base = "hex";
       addressingMode = branchMnems.has(mnemonic) ? "relative" : "absolute";
@@ -8941,6 +9101,49 @@ function parseAsmText(text) {
     const lblOnlyM = line.match(/^([A-Za-z_.][A-Za-z0-9_.]*):\s*$/);
     if (lblOnlyM) {
       blocks.push(_importMakeLabel(lblOnlyM[1].replace(/^\./, "")));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Anonymous label: "-" or "+" on its own line (ACME-style)
+    if (line.trim() === "-" || line.trim() === "+") {
+      const anonChar = line.trim();
+      blocks.push({
+        id: crypto.randomUUID(),
+        category: "Makrok",
+        mnemonic: "LABEL",
+        operand: anonChar,
+        rawOperand: anonChar,
+        labelName: anonChar,
+        description: currentLanguage === "en" ? "Anonymous local label" : "Nevtelen helyi cimke",
+        addressingMode: "implied",
+        base: "hex",
+        validationError: "",
+        collapsed: true,
+        isAnonymousLabel: true
+      });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Anonymous label with instruction on same line: "-   LDA $D012" or "+   RTS"
+    const anonWithInstrM = line.match(/^([-+])\s+([A-Za-z]{2,4})\s*(.*)\s*$/);
+    if (anonWithInstrM) {
+      blocks.push({
+        id: crypto.randomUUID(),
+        category: "Makrok",
+        mnemonic: "LABEL",
+        operand: anonWithInstrM[1],
+        rawOperand: anonWithInstrM[1],
+        labelName: anonWithInstrM[1],
+        description: currentLanguage === "en" ? "Anonymous local label" : "Nevtelen helyi cimke",
+        addressingMode: "implied",
+        base: "hex",
+        validationError: "",
+        collapsed: true,
+        isAnonymousLabel: true
+      });
+      blocks.push(_importMakeInstruction(anonWithInstrM[2].toUpperCase(), anonWithInstrM[3].trim(), BRANCH_MNEMS));
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -9204,17 +9407,64 @@ async function runInEmulator() {
 }
 
 function buildAutostartPrgForEmulator() {
+  const saved = program;
+  const savedUserMacros = userMacros;
+  let didSwap = false;
+
   if (expertMode) {
-    const saved = program;
-    const savedUserMacros = userMacros;
-    program = _expertBuildProgram();
-    parseUserMacros();
-    const result = _buildAutostartPrgCore();
-    program = saved;
-    userMacros = savedUserMacros;
-    return result;
+    // Expert mode: always rebuild from editor, but prefer startup file if set
+    const startupBlocks = _expertGetStartupProgram();
+    program = startupBlocks || _expertBuildProgram();
+    didSwap = true;
+  } else {
+    // Block mode: check for project startup file
+    const startupBlocks = _expertGetStartupProgram();
+    if (startupBlocks) {
+      program = startupBlocks;
+      didSwap = true;
+    }
   }
-  return _buildAutostartPrgCore();
+
+  try {
+    parseUserMacros();
+    return _buildAutostartPrgCore();
+  } finally {
+    if (didSwap) {
+      program = saved;
+      userMacros = savedUserMacros;
+    }
+  }
+}
+
+/**
+ * Returns the program blocks for the project startup file, or null if none.
+ * Works in both block mode and expert mode:
+ * - If the startup file's tab is active → use current program (expert: fresh parse, block: global program[])
+ * - If startup file's tab is open but not active → use saved tab.program
+ * - If startup file's tab is not open → null (fallback to current editor/tab)
+ */
+function _expertGetStartupProgram() {
+  if (!_expertProjectData?.startupFile) return null;
+  const sf = _expertProjectData.files.find(f => f.path === _expertProjectData.startupFile);
+  if (!sf) return null;
+
+  const absPath  = _projResolveAbsPath(sf.path);
+  const normAbs  = _normFilePath(absPath);
+  const activeTab = tabs.find(t => t.id === activeTabId);
+
+  // If the startup file tab is active, use the current program
+  if (activeTab && _normFilePath(activeTab.filePath) === normAbs) {
+    // In expert mode, parse fresh from editor; in block mode use current program[]
+    return expertMode ? _expertBuildProgram() : JSON.parse(JSON.stringify(program));
+  }
+
+  // Otherwise use the tab's saved program (from last _tabSaveCurrent)
+  const tab = tabs.find(t => _normFilePath(t.filePath) === normAbs);
+  if (tab?.program?.length > 0) {
+    return JSON.parse(JSON.stringify(tab.program));
+  }
+
+  return null;  // fallback → current editor
 }
 
 function _buildAutostartPrgCore() {
@@ -9316,6 +9566,7 @@ function assembleProgramToPrg(originOverride) {
       }
     }
   });
+  labels._anonAddrs = _collectAnonLabels(layout);
 
   // Assemble inline code bytes as sections (split by ORG blocks)
   const inlineSections = [{ addr: layout.origin.value, bytes: [] }];
@@ -9368,7 +9619,7 @@ function assembleProgramToPrg(originOverride) {
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
     } else if (block.isRawTextMacro) {
       const rawOffset = parseInt(block.charOffset || "0", 16);
-      const chunkBytes = encodeTextMacro(block.rawOperand).map(b => (b + (isNaN(rawOffset) ? 0 : rawOffset)) & 0xFF);
+      const chunkBytes = encodeTextMacro(block.rawOperand, block.textCharset || "standard").map(b => (b + (isNaN(rawOffset) ? 0 : rawOffset)) & 0xFF);
       const addr = parseAddressValue(block.rawTextAddress) ?? 0xC000;
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
     } else if (block.isPetsciiMacro) {
@@ -9438,23 +9689,29 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes: [] };
   }
 
+  if (block.isLabel || block.isComment || block.isAnonymousLabel) {
+    return { ok: true, bytes: [] };
+  }
+
   const blockError = getLiveValidationError(block);
   if (blockError) {
     return { ok: false, error: tf("compileInvalidOperand", { mnemonic: block.mnemonic }) };
   }
 
   if (block.isTextMacro) {
-    const chars = encodeTextMacro(block.rawOperand);
+    const charset = block.textCharset || "standard";
+    const chars = encodeTextMacro(block.rawOperand, charset);
     const startAddress = 0x0400 + ((block.textY ?? 0) * 40) + (block.textX ?? 0);
     const bytes = [];
     chars.forEach((charCode, charIndex) => {
       const targetAddress = startAddress + charIndex;
       bytes.push(0xA9, charCode & 0xFF, 0x8D, targetAddress & 0xFF, (targetAddress >> 8) & 0xFF);
     });
+    const isLower = /[a-z]/.test(block.rawOperand || "");
     return {
       ok: true,
       bytes,
-      comment: `TEXT "${block.rawOperand || ""}" @ (${block.textX ?? 0}, ${block.textY ?? 0})`
+      comment: `TEXT "${block.rawOperand || ""}" @ (${block.textX ?? 0}, ${block.textY ?? 0})${isLower || charset === "lowercase" ? " [lowercase]" : ""}`
     };
   }
 
@@ -9468,7 +9725,7 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isStringMacro) {
-    const chars = encodeTextMacro(block.rawOperand);
+    const chars = encodeTextMacro(block.rawOperand, block.textCharset || "standard");
     const offset = parseInt(block.charOffset || "0", 16);
     const startAddress = parseAddressValue(block.stringAddress) ?? 0xC000;
     const bytes = [];
@@ -9479,7 +9736,7 @@ function compileLineBytes(line, labels) {
     return {
       ok: true,
       bytes,
-      comment: `STRING "${block.rawOperand || ""}" @ ${formatAddress(startAddress)}`
+      comment: `STRING "${block.rawOperand || ""}" @ ${formatAddress(startAddress)}${block.textCharset === "lowercase" ? " [lowercase]" : ""}`
     };
   }
 
@@ -10137,7 +10394,15 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.addressingMode === "relative") {
-    const relative = resolveRelativeOperand(block, line.address, labels);
+    let resolveBlock = block;
+    if (block.rawOperand.trim() === "-" || block.rawOperand.trim() === "+") {
+      const anonAddr = _resolveAnonymousLabel(block.rawOperand.trim(), line.address, labels._anonAddrs);
+      if (anonAddr === null) {
+        return { ok: false, error: tf("anonymousLabelNotFound", { label: block.rawOperand.trim() }) };
+      }
+      resolveBlock = { ...block, rawOperand: anonAddr.toString(16).toUpperCase().padStart(4, "0"), base: "hex" };
+    }
+    const relative = resolveRelativeOperand(resolveBlock, line.address, labels);
     if (!relative.ok) {
       return relative;
     }
@@ -10145,10 +10410,22 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes, comment: `${block.mnemonic} ${block.operand || block.rawOperand}` };
   }
 
-  // Resolve * (current PC) to the instruction's own address
+  // Resolve * (current PC) and -/+ anonymous labels to concrete addresses
   const resolveBlock = block.rawOperand.trim() === "*"
     ? { ...block, rawOperand: line.address.toString(16).toUpperCase().padStart(4, "0"), base: "hex" }
-    : block;
+    : (block.rawOperand.trim() === "-" || block.rawOperand.trim() === "+")
+      ? (() => {
+          const anonAddr = _resolveAnonymousLabel(block.rawOperand.trim(), line.address, labels._anonAddrs);
+          if (anonAddr === null) {
+            return null;
+          }
+          return { ...block, rawOperand: anonAddr.toString(16).toUpperCase().padStart(4, "0"), base: "hex" };
+        })()
+      : block;
+
+  if (resolveBlock === null) {
+    return { ok: false, error: tf("anonymousLabelNotFound", { label: block.rawOperand.trim() }) };
+  }
 
   const operandValue = resolveNumericOperand(resolveBlock, labels);
   if (!operandValue.ok) {
@@ -10243,6 +10520,48 @@ function resolveRelativeOperand(block, address, labels) {
     return { ok: false, error: tf("branchTargetOutOfRange", { mnemonic: block.mnemonic }) };
   }
   return { ok: true, value: offset & 0xFF };
+}
+
+// ── Anonymous label helpers ──────────────────────────────────────────────────────
+
+// Collect anonymous label addresses from layout.
+// These are stored on the labels map as labels._anonAddrs (sorted ascending).
+function _collectAnonLabels(layout) {
+  const addrs = [];
+  for (const line of layout.lines) {
+    if (line.block.isAnonymousLabel) {
+      addrs.push(line.address);
+    }
+  }
+  addrs.sort((a, b) => a - b);
+  return addrs;
+}
+
+// Resolve an anonymous label reference ("-" or "+") to a concrete address.
+// * "-" (backward) → largest anonymous label address < currentAddr
+// * "+" (forward) → smallest anonymous label address > currentAddr
+// Returns null if no matching anonymous label found.
+function _resolveAnonymousLabel(operand, currentAddr, anonAddrs) {
+  if (!anonAddrs || !anonAddrs.length) return null;
+  if (operand === "-") {
+    let best = null;
+    for (const addr of anonAddrs) {
+      if (addr < currentAddr && (best === null || addr > best)) {
+        best = addr;
+      }
+    }
+    return best;
+  }
+  if (operand === "+") {
+    let best = null;
+    for (const addr of anonAddrs) {
+      if (addr > currentAddr && (best === null || addr < best)) {
+        best = addr;
+      }
+    }
+    return best;
+  }
+  return null;
 }
 
 // BIN format only makes sense for bitmask-style values (immediate mode, raw byte data).
@@ -10479,6 +10798,10 @@ function getInstructionSize(block) {
   }
 
   if (block.isComment) {
+    return 0;
+  }
+
+  if (block.isAnonymousLabel) {
     return 0;
   }
 
@@ -11355,6 +11678,10 @@ function isRomOrIoSegment(segment) {
 }
 
 function getBlockDescription(block) {
+  if (block.isAnonymousLabel) {
+    return currentLanguage === "en" ? "Anonymous local label (-)" : "Nevtelen helyi cimke (-)";
+  }
+
   if (block.isLabel) {
     return `${currentLanguage === "en" ? "Label" : "Label"}: ${block.labelName || "start"}`;
   }
@@ -11597,6 +11924,10 @@ function getBlockModeCaption(block) {
     return currentLanguage === "en" ? "Structure | End Region" : "Szerkezet | Régió vége";
   }
 
+  if (block.isAnonymousLabel) {
+    return getCategoryLabel(block.category);
+  }
+
   // Check if this block invokes a user macro (legacy format)
   if (userMacros[block.mnemonic]) {
     return currentLanguage === "en" ? "User Macro | Invoke" : "Felhasznaloi Makro | Hivas";
@@ -11668,6 +11999,10 @@ function getCategoryTone(category) {
 }
 
 function getCollapsedOperandText(block) {
+  if (block.isAnonymousLabel) {
+    return "-";
+  }
+
   if (block.isLabel) {
     return block.labelName ? `${block.labelName}:` : "";
   }
@@ -11997,7 +12332,12 @@ function renderProgram() {
         collapseToggle.addEventListener("click", () => toggleBlockCollapsed(index));
       }
 
-      if (block.isLabel) {
+      if (block.isAnonymousLabel) {
+        inlineField.hidden = false;
+        inlineField.querySelector("span").textContent = "-";
+        operandField.value = "-";
+        operandField.disabled = true;
+      } else if (block.isLabel) {
         inlineField.hidden = false;
         inlineField.querySelector("span").textContent = "Label";
         operandField.value = block.labelName || "";
@@ -13099,7 +13439,7 @@ function renderProgram() {
     blockControls.insertAdjacentHTML(
       "beforeend",
       `
-          ${(mode.needsOperand && !block.isLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke && !block.isRegionMacro && !block.isEndRegionMacro && !block.isLoadFileMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
+          ${(mode.needsOperand && !block.isLabel && !block.isAnonymousLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke && !block.isRegionMacro && !block.isEndRegionMacro && !block.isLoadFileMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
           <label class="mini-field">
             <span>${t("fieldFormat")}</span>
           <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
@@ -13117,7 +13457,7 @@ function renderProgram() {
             </label>` : ""}
           </div>
         </label>` : ""}
-          <label class="mini-field"${block.isLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro || block.isRegionMacro || block.isEndRegionMacro || block.isLoadFileMacro || getMnemonicModes(block.mnemonic).length <= 1 ? ` hidden` : ""}>
+          <label class="mini-field"${block.isLabel || block.isAnonymousLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro || block.isRegionMacro || block.isEndRegionMacro || block.isLoadFileMacro || getMnemonicModes(block.mnemonic).length <= 1 ? ` hidden` : ""}>
             <span>${t("addressingMode")}</span>
           <select class="block-mode">
             ${getMnemonicModes(block.mnemonic).map((modeKey) => `<option value="${modeKey}"${block.addressingMode === modeKey ? " selected" : ""}>${modeText(modeKey, "label")}</option>`).join("")}
@@ -13655,6 +13995,7 @@ function renderAsmOutput() {
     // Handle macro source blocks (body of MACRO/ENDM definition when toggle is on)
     if (line.block._macroSourceBlock) {
       if (line.block.isLabel) return `    ${line.block.labelName}:`;
+      if (line.block.isAnonymousLabel) return `    -`;
       if (line.block.isComment) return `    ; ${line.block.rawOperand || ""}`;
       const macroSrcError = getLiveValidationError(line.block);
       if (macroSrcError) {
@@ -13675,7 +14016,9 @@ function renderAsmOutput() {
 
       // Generate the code for this expanded block
       let expandedCode = "";
-      if (line.block.isLabel) {
+      if (line.block.isAnonymousLabel) {
+        expandedCode = "-";
+      } else if (line.block.isLabel) {
         expandedCode = `${line.block.labelName}:`;
       } else if (line.block.isComment) {
         expandedCode = `; ${line.block.rawOperand || ""}`;
@@ -13689,6 +14032,10 @@ function renderAsmOutput() {
 
     if (line.block.isLabel) {
       return `${line.block.labelName}:  ; ${formatAddress(line.address)}`;
+    }
+
+    if (line.block.isAnonymousLabel) {
+      return `-  ; ${formatAddress(line.address)}`;
     }
 
     if (line.block.isComment) {
@@ -14133,6 +14480,7 @@ function _buildMonitorText(layout) {
       }
     }
   });
+  labels._anonAddrs = _collectAnonLabels(layout);
 
   for (const line of layout.lines) {
     if (line.block.isLabel || line.block.isComment) continue;
@@ -14286,6 +14634,10 @@ async function loadTextSampleProgram() {
   await loadSampleFromFile("text-demo");
 }
 
+async function loadLowercaseTextDemo() {
+  await loadSampleFromFile("lowercase-text-demo");
+}
+
 async function loadMacroDemoProgram() {
   await loadSampleFromFile("macro-demo");
 }
@@ -14416,6 +14768,10 @@ async function loadReuDemo() {
   await loadSampleFromFile("reu-demo");
 }
 
+async function loadScrollTextDemo() {
+  await loadSampleFromFile("scroll-text-demo");
+}
+
 async function loadSidDirectDemo() {
   const ok = await loadSampleFromFile("sid-direct-demo");
   if (!ok) return;
@@ -14451,6 +14807,11 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "text-demo") {
     loadTextSampleProgram();
+    return;
+  }
+
+  if (sampleSelect.value === "lowercase-text-demo") {
+    loadLowercaseTextDemo();
     return;
   }
 
@@ -14581,6 +14942,11 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "reu-demo") {
     loadReuDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "scroll-text-demo") {
+    loadScrollTextDemo();
     return;
   }
 
