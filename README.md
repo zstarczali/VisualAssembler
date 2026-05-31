@@ -2,7 +2,7 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v1.6.7**
+**Current version: v1.6.8**
 
 ---
 
@@ -214,7 +214,7 @@ Each block in `program[]` is a plain object:
 
 ---
 
-## What's New in v1.6.7
+## What's New in v1.6.8
 
 - **Lowercase charset TEXT/STRING/RAWTEXT auto-detection** — TEXT, STRING, and RAWTEXT macros now automatically detect alphabetic input and encode it for the C64 lowercase charset (`$D018=$17`). `TEXT "Hello World"` produces mixed-case screen codes: lowercase `a`-`z` → scr 1–26, uppercase `A`-`Z` → scr 65–90. Pure numbers/symbols stay backward-compatible. No special flag needed — just switch to lowercase charset with `LDA #$17` / `STA $D018` and type normally.
 - **New sample: Lowercase TEXT demo** — demonstrates lowercase charset mode with mixed-case TEXT output. Switches to lowercase charset, then prints three TEXT lines: `hello c64!`, `Visual Assembler`, and `HELLO WORLD` — all rendered correctly with proper case.

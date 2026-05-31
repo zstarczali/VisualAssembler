@@ -4124,8 +4124,8 @@ html[data-theme="oled"] .expert-err-line {
   padding: 0;
   background: var(--panel);
   box-shadow: 0 24px 64px color-mix(in srgb, black 30%, transparent);
-  max-width: 480px;
-  width: 92vw;
+  max-width: 640px;
+  width: 94vw;
 }
 
 .whats-new-dialog::backdrop {
