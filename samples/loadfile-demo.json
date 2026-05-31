@@ -86,8 +86,8 @@
       "id": "loadfile-text-loading",
       "isTextMacro": true,
       "mnemonic": "TEXT",
-      "operand": "LOADING DEMO-COLORS...",
-      "rawOperand": "LOADING DEMO-COLORS...",
+      "operand": "loading demo-colors...",
+      "rawOperand": "loading demo-colors...",
       "textX": 8,
       "textY": 10,
       "validationError": ""
@@ -170,8 +170,8 @@
       "id": "loadfile-text-ok",
       "isTextMacro": true,
       "mnemonic": "TEXT",
-      "operand": "LOADED! CYCLING COLORS...      ",
-      "rawOperand": "LOADED! CYCLING COLORS...      ",
+      "operand": "loaded! cycling colors...      ",
+      "rawOperand": "loaded! cycling colors...      ",
       "textX": 8,
       "textY": 10,
       "validationError": ""
@@ -363,8 +363,8 @@
       "id": "loadfile-text-error",
       "isTextMacro": true,
       "mnemonic": "TEXT",
-      "operand": "LOAD ERROR - ATTACH D64!  ",
-      "rawOperand": "LOAD ERROR - ATTACH D64!  ",
+      "operand": "load error - attach d64!  ",
+      "rawOperand": "load error - attach d64!  ",
       "textX": 8,
       "textY": 10,
       "validationError": ""

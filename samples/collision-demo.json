@@ -136,8 +136,8 @@
       "id": "d9925c7d-d65d-4ccc-95b7-53fe0dfa0978",
       "isTextMacro": true,
       "mnemonic": "TEXT",
-      "operand": "COLLISION DEMO",
-      "rawOperand": "COLLISION DEMO",
+      "operand": "collision demo",
+      "rawOperand": "collision demo",
       "textX": 13,
       "textY": 0,
       "validationError": ""
@@ -152,8 +152,8 @@
       "id": "bbf856de-e8df-4a86-adf7-c65d1ebbd25f",
       "isTextMacro": true,
       "mnemonic": "TEXT",
-      "operand": "GREEN=PLAYER RED=TARGET",
-      "rawOperand": "GREEN=PLAYER RED=TARGET",
+      "operand": "green=player red=target",
+      "rawOperand": "green=player red=target",
       "textX": 7,
       "textY": 2,
       "validationError": ""
@@ -168,8 +168,8 @@
       "id": "dde10453-2aeb-41c0-a91f-c9ba74633b9b",
       "isTextMacro": true,
       "mnemonic": "TEXT",
-      "operand": "JOY PORT 2: MOVE PLAYER",
-      "rawOperand": "JOY PORT 2: MOVE PLAYER",
+      "operand": "joy port 2: move player",
+      "rawOperand": "joy port 2: move player",
       "textX": 9,
       "textY": 3,
       "validationError": ""
@@ -184,8 +184,8 @@
       "id": "70929e8c-d64e-4e86-8b9e-4a326021746a",
       "isTextMacro": true,
       "mnemonic": "TEXT",
-      "operand": "HIT TARGET: BORDER=RED",
-      "rawOperand": "HIT TARGET: BORDER=RED",
+      "operand": "hit target: border=red",
+      "rawOperand": "hit target: border=red",
       "textX": 9,
       "textY": 4,
       "validationError": ""

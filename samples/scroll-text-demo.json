@@ -1072,9 +1072,9 @@
       "id": "f58cfd10-cf7c-4fec-8b0c-2d9a9e14880d",
       "isPetsciiMacro": true,
       "mnemonic": "PETSCII",
-      "operand": "  SMOOTH SCROLLING TEXT DEMO ON THE COMMODORE 64!  ---   VISUAL ASSEMBLER ---  ",
+      "operand": "  smooth scrolling text demo on the commodore 64!  ---   visual assembler ---  ",
       "petsciiAddress": "0900",
-      "rawOperand": "  SMOOTH SCROLLING TEXT DEMO ON THE COMMODORE 64!  ---   VISUAL ASSEMBLER ---  ",
+      "rawOperand": "  smooth scrolling text demo on the commodore 64!  ---   visual assembler ---  ",
       "validationError": ""
     }
   ],

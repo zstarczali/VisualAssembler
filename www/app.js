@@ -7369,12 +7369,16 @@ function toLowercaseScreenCode(char) {
 }
 
 // PETSCII makro: szoveg → PETSCII byte-ok (CHROUT-kompatibilis)
-// Nagybetuk: $41-$5A, kisbetuk: $61-$7A, egyeb: ASCII ertek
+// Mindig uppercase: C64 alap charset-ben $61-$7A = grafikus karakterek
+// Kisbetus megjeleniteshez $D018 bit 1=1 (lowercase mode) szukseges
 function encodePetsciiMacro(text) {
   return [...(text || "HELLO")].map((char) => {
-    const code = char.charCodeAt(0);
-    if (code >= 32 && code <= 126) return code; // printable ASCII = PETSCII
     if (char === "\n") return 13;
+    const upper = char.toUpperCase();
+    const code = upper.charCodeAt(0);
+    // Only printable ASCII range maps to PETSCII in default charset
+    if (code >= 32 && code <= 90) return code;
+    if (code >= 97 && code <= 122) return code - 32; // lowercase→uppercase PETSCII
     return 32;
   });
 }

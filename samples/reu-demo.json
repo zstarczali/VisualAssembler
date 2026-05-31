@@ -5274,9 +5274,9 @@
       "id": "c96d48d7-53e9-4493-9f6f-5ca9222910d0",
       "isPetsciiMacro": true,
       "mnemonic": "PETSCII",
-      "operand": "NO REU! PRESS ANY KEY TO EXIT.",
+      "operand": "no reu! press any key to exit.",
       "petsciiAddress": "0C00",
-      "rawOperand": "NO REU! PRESS ANY KEY TO EXIT.",
+      "rawOperand": "no reu! press any key to exit.",
       "validationError": ""
     },
     {
