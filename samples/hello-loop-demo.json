@@ -65,9 +65,9 @@
       "id": "ec035caa-f885-45f2-a5e7-725993e5565a",
       "isPetsciiMacro": true,
       "mnemonic": "PETSCII",
-      "operand": "HELLO WORLD",
+      "operand": "hello world",
       "petsciiAddress": "$1100",
-      "rawOperand": "HELLO WORLD ",
+      "rawOperand": "hello world ",
       "validationError": ""
     },
     {

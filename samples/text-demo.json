@@ -50,8 +50,8 @@
       "id": "9281657d-ab25-435c-9722-6b84f897552e",
       "isTextMacro": true,
       "mnemonic": "TEXT",
-      "operand": "HELLO C64",
-      "rawOperand": "HELLO C64",
+      "operand": "hello c64",
+      "rawOperand": "hello c64",
       "textX": 12,
       "textY": 8,
       "validationError": ""
@@ -65,8 +65,8 @@
       "id": "8c680363-9aff-46e5-9bf4-5ee95af15fca",
       "isTextMacro": true,
       "mnemonic": "TEXT",
-      "operand": "VISUAL ASSEMBLER",
-      "rawOperand": "VISUAL ASSEMBLER",
+      "operand": "visual assembler",
+      "rawOperand": "visual assembler",
       "textX": 8,
       "textY": 10,
       "validationError": ""
