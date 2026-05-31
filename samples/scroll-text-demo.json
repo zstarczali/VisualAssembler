@@ -44,13 +44,13 @@
       "category": "Makrok",
       "collapsed": true,
       "constName": "scrolltext_len",
-      "constValue": 78,
+      "constValue": 79,
       "description": "",
       "id": "cb047420-d687-45e8-a199-759fac1e5599",
       "isConstMacro": true,
       "mnemonic": "CONST",
-      "operand": "4E",
-      "rawOperand": "4E",
+      "operand": "4F",
+      "rawOperand": "4F",
       "validationError": ""
     },
     {
@@ -709,14 +709,14 @@
     },
     {
       "_srcLine": 57,
-      "addressingMode": "absolute",
+      "addressingMode": "immediate",
       "base": "hex",
       "category": "Aritmetika",
       "collapsed": true,
       "description": "Osszehasonlitas az X regiszterrel.",
       "id": "d3a292c6-4073-4911-a37a-eee2863b44a5",
       "mnemonic": "CPX",
-      "operand": "scrolltext_len",
+      "operand": "#scrolltext_len",
       "rawOperand": "scrolltext_len",
       "validationError": ""
     },

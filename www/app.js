@@ -5305,58 +5305,55 @@ function _buildDisasmHTML() {
   const lines = [];
   try {
     const layout = getProgramLayout();
-    const labels = new Map();
+
+    // Build label map (name -> address)
+    const labelMap = new Map();
     layout.lines.forEach((line) => {
-      if (line.block.isLabel && line.block.labelName) labels.set(line.block.labelName, line.address);
-      if (line.block.isLoopMacro && line.block.loopLabel) labels.set(line.block.loopLabel, line.address + 2);
+      if (line.block.isLabel && line.block.labelName) labelMap.set(line.block.labelName, line.address);
+      if (line.block.isLoopMacro && line.block.loopLabel) labelMap.set(line.block.loopLabel, line.address + 2);
       if (line.block.isTableMacro && line.block.tableName) {
         const tableAddr = line.block.tableAddress
           ? (parseAddressValue(line.block.tableAddress) ?? line.address)
           : line.address;
-        labels.set(line.block.tableName, tableAddr);
+        labelMap.set(line.block.tableName, tableAddr);
       }
       if (line.block.isConstMacro && line.block.constName) {
         const v = parseNumberByBase((line.block.rawOperand || "").replace(/^\$/, ""), line.block.base);
-        if (v !== null) labels.set(line.block.constName, v);
+        if (v !== null) labelMap.set(line.block.constName, v);
       }
     });
-    labels._anonAddrs = _collectAnonLabels(layout);
+    labelMap._anonAddrs = _collectAnonLabels(layout);
     const addrToLabel = new Map();
-    for (const [name, addr] of labels) addrToLabel.set(addr, name);
+    for (const [name, addr] of labelMap) addrToLabel.set(addr, name);
 
     for (const line of layout.lines) {
+      // Skip non-code blocks
       if (line.conditionallySkipped) continue;
       if (line.block._isSavedAddress || line.block._isRestoreAddress) continue;
       if (line.block._macroSourceBlock) continue;
-
-      if (line.block.isComment) {
-        lines.push(`<span class="asm-tok-comment">; ${esc(line.block.rawOperand || "")}</span>`);
-        continue;
-      }
-      if (line.block.isLabel && !line.block._syntheticMacroLabel) {
-        lines.push(`<span class="asm-tok-label">${esc(line.block.labelName)}:</span>`);
-        continue;
-      }
-      if (line.block.isLabel && line.block._syntheticMacroLabel) continue;
-      if (line.block.isOrgMacro) {
-        lines.push(`<span class="asm-tok-directive">* = $${(line.block.orgAddress || "0801").toUpperCase()}</span>`);
-        continue;
-      }
+      if (line.block.isComment) continue;
       if (line.block.isIncludeMacro) continue;
+      if (line.block.isOrgMacro) continue;
+      if (line.block.isRegionMacro || line.block.isEndRegionMacro) continue;
+
+      // Treat synthetic macro labels as invisible (they're internal to macro expansion)
+      if (line.block.isLabel && line.block._syntheticMacroLabel) continue;
 
       const addrHex = line.address.toString(16).toUpperCase().padStart(4, "0");
-      const compiled = compileLineBytes(line, labels);
-      if (!compiled.ok) {
-        lines.push(`<span class="dsm-addr">$${addrHex}</span>  <span class="asm-tok-comment">; ${esc(line.block.mnemonic)} [error]</span>`);
-        continue;
-      }
+      const compiled = compileLineBytes(line, labelMap);
+
+      if (!compiled.ok) continue;
+
+      // Only show lines that produce actual bytes (real code / inline data)
       if (!compiled.bytes.length) {
-        if (line.block.mnemonic && !line.block._macroSourceBlock) {
-          lines.push(`<span class="asm-tok-comment">; [${esc(line.block.mnemonic)}]</span>`);
+        // Still show real labels even if they have no bytes
+        if (line.block.isLabel && line.block.labelName) {
+          lines.push(`<span class="asm-tok-label">${esc(line.block.labelName)}:</span>`);
         }
         continue;
       }
 
+      // Show label at this address if one exists
       if (addrToLabel.has(line.address)) {
         lines.push(`<span class="asm-tok-label">${esc(addrToLabel.get(line.address))}:</span>`);
       }
