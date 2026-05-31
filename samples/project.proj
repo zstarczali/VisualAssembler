@@ -11,5 +11,6 @@
       "name": "macros.json",
       "path": "macros.json"
     }
-  ]
+  ],
+  "startupFile": "include-demo.json"
 }

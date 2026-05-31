@@ -50,6 +50,7 @@
                 <button id="load-project" class="secondary" type="button">Load program</button>
                 <button id="menu-open-project" class="secondary" type="button">Open project</button>
                 <button id="menu-save-project" class="secondary" type="button">Save project</button>
+                <button id="menu-close-project" class="secondary" type="button">Close project</button>
                 <button id="exit-app" class="secondary" type="button">Kilepes</button>
               </section>
               <section class="control-menu-group">
@@ -387,7 +388,7 @@
         <div class="expert-body">
           <div class="expert-project-panel" id="expert-project-panel" hidden>
             <div class="expert-project-header">
-              <span class="expert-project-name" id="expert-project-name" title="">Nincs projekt</span>
+              <span class="expert-project-name" id="expert-project-name" title=""></span>
               <button id="expert-project-open-btn" class="expert-project-icon-btn">
                 <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M2 5C2 4.45 2.45 4 3 4H6.5L8 6H13C13.55 6 14 6.45 14 7V12C14 12.55 13.55 13 13 13H3C2.45 13 2 12.55 2 12V5Z" stroke="currentColor" stroke-width="1.2"/></svg>
               </button>
@@ -402,7 +403,7 @@
               </button>
             </div>
             <div class="expert-project-tree" id="expert-project-tree">
-              <div class="expert-project-empty">Kattints a mappa gombra<br>projekt megnyit&#xE1;s&#xE1;hoz</div>
+              <div class="expert-project-empty">Click the folder button<br>to open a project</div>
             </div>
             <div class="expert-project-symbols" id="expert-project-symbols" hidden></div>
           </div>
@@ -582,8 +583,17 @@
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v1.6.6</p>
+      <p class="whats-new-version">v1.6.7</p>
       <ul class="whats-new-list">
+        <li>
+          <strong>Load .asm opens a new tab</strong> — the <strong>Load .asm</strong> button in Expert mode now opens the file in a <strong>new tab</strong> with the filename as the tab label, instead of replacing the current tab's content. Each loaded <code>.asm</code> file becomes its own independent tab with full block/expert editor state.
+        </li>
+        <li>
+          <strong>Close Project menu item</strong> — new <strong>Close Project</strong> button in the <strong>Menu → File</strong> section closes the currently open project and all its file tabs at once. Prompts to save any unsaved changes before closing. The project panel is reset to its empty state.
+        </li>
+      </ul>
+      <p class="whats-new-version" style="font-size:0.78rem;opacity:0.6;margin-top:10px">v1.6.6</p>
+      <ul class="whats-new-list" style="opacity:0.75">
         <li>
           <strong>Build Info dialog</strong> — a new <strong>Build Info</strong> button (toolbar and Expert mode toolbar) opens a summary dialog showing origin address, end address, total size, all labels with their addresses, constants, macros used, and any compile errors.
         </li>

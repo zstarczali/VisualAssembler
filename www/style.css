@@ -3424,6 +3424,39 @@ html[data-theme="oled"] .expert-err-line {
 .expert-project-item:hover .expert-project-item-del { opacity: 0.5; }
 .expert-project-item-del:hover { opacity: 1 !important; color: #e57373; }
 
+.expert-project-item--startup .expert-project-item-name {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.expert-project-item-star {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  border: none;
+  background: none;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 0.6rem;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  opacity: 0;
+  line-height: 1;
+  transition: opacity 0.1s;
+  min-height: 0;
+}
+
+.expert-project-item-star--on {
+  opacity: 1;
+}
+
+.expert-project-item:hover .expert-project-item-star { opacity: 0.45; }
+.expert-project-item-star:hover,
+.expert-project-item-star--on:hover { opacity: 1 !important; }
+
 .expert-project-empty {
   padding: 24px 12px;
   font-size: 0.7rem;

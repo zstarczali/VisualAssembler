@@ -545,6 +545,7 @@ const translations = {
     projOpenProjectBtn: "Projekt megnyítása",
     menuOpenProject: "Projekt megnyítása",
     menuSaveProject: "Projekt mentése",
+    menuCloseProject: "Projekt bezárása",
     projNewProjectBtn: "Új projekt",
     projSaveProjectBtn: "Projekt mentése",
     projAddFileBtn: "Fájl hozzáadása",
@@ -556,10 +557,16 @@ const translations = {
     projLabels: "Labelek",
     projOpened: "Projekt megnyitva",
     projSaved: "Projekt mentve",
+    projClosed: "Projekt bezárva",
+    projNoOpen: "Nincs megnyitott projekt",
     projError: "Projekt hiba",
     projOpenFile: "Megnyitva",
     projSaveError: "Mentési hiba",
     projRemove: "Eltávolítás",
+    projStartupFile: "Indítófájl",
+    projSetStartup: "Beállítás indítófájlként",
+    projUnsetStartup: "Indítófájl törlése",
+    projStartupSet: "Indítófájl beállítva",
     viceRunning: "VICE fut",
     whatsNew: "Ujdonsagok",
     paletteSearchPlaceholder: "Kereses...",
@@ -911,6 +918,7 @@ const translations = {
     projOpenProjectBtn: "Open project",
     menuOpenProject: "Open project",
     menuSaveProject: "Save project",
+    menuCloseProject: "Close project",
     projNewProjectBtn: "New project",
     projSaveProjectBtn: "Save project",
     projAddFileBtn: "Add file",
@@ -922,10 +930,16 @@ const translations = {
     projLabels: "Labels",
     projOpened: "Project opened",
     projSaved: "Project saved",
+    projClosed: "Project closed",
+    projNoOpen: "No project is open",
     projError: "Project error",
     projOpenFile: "Opened",
     projSaveError: "Save error",
     projRemove: "Remove",
+    projStartupFile: "Startup file",
+    projSetStartup: "Set as startup file",
+    projUnsetStartup: "Remove startup file",
+    projStartupSet: "Startup file set",
     viceRunning: "VICE running",
     whatsNew: "What's New",
     paletteSearchPlaceholder: "Search...",
@@ -1625,6 +1639,7 @@ function initPalette() {
     expertProjectBtn.setAttribute("aria-pressed", String(_expertProjectVisible));
     if (_expertProjectVisible) {
       expertProjectPanel?.removeAttribute("hidden");
+      _expertRenderProjectTree();
     } else {
       expertProjectPanel?.setAttribute("hidden", "");
     }
@@ -1782,6 +1797,10 @@ function initPalette() {
   });
   document.getElementById("menu-save-project")?.addEventListener("click", async () => {
     await _expertSaveProject();
+    document.querySelector(".control-menu")?.removeAttribute("open");
+  });
+  document.getElementById("menu-close-project")?.addEventListener("click", async () => {
+    await _closeProject();
     document.querySelector(".control-menu")?.removeAttribute("open");
   });
   savePrgButton?.addEventListener("click", savePrgToFile);
@@ -2244,6 +2263,7 @@ function handleLanguageChange() {
   renderOriginPreview();
   renderEmulatorRunHint();
   renderProgram();
+  if (expertMode) _expertRenderProjectTree();
   saveUiSettings();
 }
 
@@ -2358,6 +2378,7 @@ function applyTranslations() {
     setText("#save-project", t("saveProject"));
     setText("#menu-open-project", t("menuOpenProject"));
     setText("#menu-save-project", t("menuSaveProject"));
+    setText("#menu-close-project", t("menuCloseProject"));
     setText("#save-prg", t("savePrg"));
     setText("#build-section-label", t("buildSection"));
     setText("#save-d64", t("saveD64"));
@@ -4022,7 +4043,7 @@ function doClearProgram() {
 
 function isProgramEmpty() {
   if (expertMode) {
-    const blocks = _expertBuildProgram();
+    const blocks = _expertGetStartupProgram() || _expertBuildProgram();
     return blocks.every(b => b.isOrgMacro || b.isRegionMacro || b.isEndRegionMacro || b.isComment || b.isDefineMacro);
   }
   return program.every(b => b.isOrgMacro || b.isRegionMacro || b.isEndRegionMacro || b.isComment || b.isDefineMacro);
@@ -4445,15 +4466,49 @@ async function _expertLoadAsm() {
       _expertSetStatus(t("vasmLoadError") + ": " + res.error, "error");
       return;
     }
-    _expertAsmFilePath = res.filePath;
-    const name = res.filePath.replace(/\\/g, "/").split("/").pop();
-    if (expertEditor) {
+
+    const filePath = res.filePath;
+    const name = filePath.replace(/\\/g, "/").split("/").pop();
+
+    // Save current tab state
+    _tabSaveCurrent();
+
+    // Parse ASM text into blocks
+    const blocks = parseExpertText(res.content);
+    _addSrcLineToBlocks(res.content, blocks);
+
+    // Create new tab
+    const tab = _tabCreate(name);
+    tab.filePath = filePath;
+    tab.program = blocks;
+    tab.expertText = res.content;
+    tab.userMacros = {};
+    tabs.push(tab);
+    activeTabId = tab.id;
+
+    // Update active state
+    program = JSON.parse(JSON.stringify(blocks));
+    userMacros = {};
+    selectedBlockId = null;
+    _expertAsmFilePath = filePath;
+
+    if (currentFileDisplay) currentFileDisplay.textContent = name;
+    if (expertFileName) expertFileName.textContent = name;
+    updateWindowTitle(name);
+
+    // Update expert editor if in expert mode
+    if (expertMode && expertEditor) {
       expertEditor.value = res.content;
       expertEditor.dispatchEvent(new Event("input"));
     }
-    if (expertFileName) expertFileName.textContent = name;
+
+    parseUserMacros();
+    renderTabBar();
+    renderProgram();
+    renderAsmOutput();
+    markTabClean();
+
     _expertSetStatus(t("vasmLoadedStatus") + ": " + name, "ok");
-    markTabDirty();
   } catch (e) {
     _expertSetStatus(t("vasmLoadError") + ": " + String(e), "error");
   }
@@ -5556,9 +5611,10 @@ function _expertRenderProjectTree() {
   files.forEach(file => {
     if (!file._id) file._id = crypto.randomUUID();
     const isActive = activeFilePath && _normFilePath(_projResolveAbsPath(file.path)) === activeFilePath;
+    const isStartup = _expertProjectData.startupFile === file.path;
 
     const item = document.createElement("div");
-    item.className = `expert-project-item expert-project-item--file${isActive ? " expert-project-item--active" : ""}`;
+    item.className = `expert-project-item expert-project-item--file${isActive ? " expert-project-item--active" : ""}${isStartup ? " expert-project-item--startup" : ""}`;
 
     const iconEl = document.createElement("span");
     iconEl.className = "expert-project-item-icon";
@@ -5569,17 +5625,33 @@ function _expertRenderProjectTree() {
     nameSpan.textContent = file.name;
     nameSpan.title = file.path;
 
+    // Startup star button
+    const starBtn = document.createElement("button");
+    starBtn.className = "expert-project-item-star" + (isStartup ? " expert-project-item-star--on" : "");
+    starBtn.title = isStartup ? t("projUnsetStartup") : t("projSetStartup");
+    starBtn.innerHTML = isStartup
+      ? `<svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="11" height="11"><path d="M7 1L8.5 5.5H13L9.5 8.5L11 13L7 10L3 13L4.5 8.5L1 5.5H5.5L7 1Z" fill="currentColor" stroke="currentColor" stroke-width="0.5"/></svg>`
+      : `<svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="11" height="11"><path d="M7 1L8.5 5.5H13L9.5 8.5L11 13L7 10L3 13L4.5 8.5L1 5.5H5.5L7 1Z" stroke="currentColor" stroke-width="1" opacity="0.5"/></svg>`;
+    starBtn.addEventListener("click", e => {
+      e.stopPropagation();
+      _expertProjectData.startupFile = _expertProjectData.startupFile === file.path ? null : file.path;
+      _expertRenderProjectTree();
+    });
+
     const delBtn = _makeProjDelBtn(() => {
       const idx = _expertProjectData.files.indexOf(file);
       if (idx >= 0) _expertProjectData.files.splice(idx, 1);
+      // Clear startup if the deleted file was the startup
+      if (_expertProjectData.startupFile === file.path) _expertProjectData.startupFile = null;
       _expertRenderProjectTree();
     });
 
     item.appendChild(iconEl);
     item.appendChild(nameSpan);
+    item.appendChild(starBtn);
     item.appendChild(delBtn);
     item.addEventListener("click", e => {
-      if (e.target === delBtn || delBtn.contains(e.target)) return;
+      if (e.target === delBtn || delBtn.contains(e.target) || e.target === starBtn || starBtn.contains(e.target)) return;
       _expertProjectOpenFile(file);
     });
     treeEl.appendChild(item);
@@ -5624,6 +5696,35 @@ async function _closeAllTabsWithConfirm() {
   return true;
 }
 
+async function _closeProject() {
+  if (!_expertProjectData && tabs.every(t => !_tabHasContent(t))) {
+    _expertSetStatus(t("projNoOpen"), "ok");
+    return;
+  }
+
+  // Confirm closing project tabs
+  if (!await _closeAllTabsWithConfirm()) return;
+
+  // Clear project data
+  _expertProjectData = null;
+
+  // Hide project panel
+  _expertProjectVisible = false;
+  expertProjectBtn?.classList.remove("expert-hl-toggle--on");
+  expertProjectBtn?.setAttribute("aria-pressed", "false");
+  expertProjectPanel?.setAttribute("hidden", "");
+
+  if (expertMode) {
+    _expertRenderProjectTree();
+    _expertSetStatus(t("projClosed"), "ok");
+  } else {
+    _expertSetStatus(t("projClosed"), "ok");
+  }
+
+  renderProgram();
+  renderAsmOutput();
+}
+
 async function _openProjectFromMenu() {
   // Ask user for each dirty tab before loading
   if (!await _closeAllTabsWithConfirm()) return;
@@ -5640,14 +5741,20 @@ async function _openProjectFromMenu() {
     });
   }
   _expertProjectData = {
-    name:      proj.name || "Névtelen projekt",
-    files:     migrateNodes(proj.files),
-    _projPath: res.filePath
+    name:        proj.name || "Névtelen projekt",
+    files:       migrateNodes(proj.files),
+    _projPath:   res.filePath,
+    startupFile: proj.startupFile || null
   };
 
   if (expertMode) {
     // In expert mode: just update the panel as usual
     _expertRenderProjectTree();
+    // Auto-open startup file if set
+    if (_expertProjectData.startupFile) {
+      const sf = _expertProjectData.files.find(f => f.path === _expertProjectData.startupFile);
+      if (sf) await _expertProjectOpenFile(sf);
+    }
     _expertSetStatus(t("projOpened") + ": " + _expertProjectData.name, "ok");
     return;
   }
@@ -5712,11 +5819,17 @@ async function _expertOpenProject() {
     });
   }
   _expertProjectData = {
-    name:      proj.name  || "Névtelen projekt",
-    files:     migrateNodes(proj.files),
-    _projPath: res.filePath
+    name:        proj.name  || "Névtelen projekt",
+    files:       migrateNodes(proj.files),
+    _projPath:   res.filePath,
+    startupFile: proj.startupFile || null
   };
   _expertRenderProjectTree();
+  // Auto-open startup file if set
+  if (_expertProjectData.startupFile) {
+    const sf = _expertProjectData.files.find(f => f.path === _expertProjectData.startupFile);
+    if (sf) await _expertProjectOpenFile(sf);
+  }
   _expertSetStatus(t("projOpened") + ": " + _expertProjectData.name, "ok");
 }
 
@@ -5733,7 +5846,7 @@ async function _expertSaveProject() {
   const cleaned = (_expertProjectData.files || [])
     .filter(n => !n.type || n.type === "file")
     .map(n => ({ type: "file", name: n.name, path: n.path }));
-  const payload = JSON.stringify({ name: _expertProjectData.name, files: cleaned }, null, 2);
+  const payload = JSON.stringify({ name: _expertProjectData.name, files: cleaned, startupFile: _expertProjectData.startupFile || null }, null, 2);
   const path = _expertProjectData._projPath || "";
   const res = await window.electronAPI?.saveProjFile?.(path, payload);
   if (!res || res.canceled) return;
@@ -9274,7 +9387,9 @@ function buildAutostartPrgForEmulator() {
   if (expertMode) {
     const saved = program;
     const savedUserMacros = userMacros;
-    program = _expertBuildProgram();
+    // If project has a startup file, use that file's program
+    const startupBlocks = _expertGetStartupProgram();
+    program = startupBlocks || _expertBuildProgram();
     parseUserMacros();
     const result = _buildAutostartPrgCore();
     program = saved;
@@ -9282,6 +9397,35 @@ function buildAutostartPrgForEmulator() {
     return result;
   }
   return _buildAutostartPrgCore();
+}
+
+/**
+ * Returns the program blocks for the project startup file, or null if none.
+ * - If the startup file's tab is active → fresh parse from editor
+ * - If startup file's tab is open but not active → use saved tab.program
+ * - If startup file's tab is not open → null (fallback to current editor)
+ */
+function _expertGetStartupProgram() {
+  if (!_expertProjectData?.startupFile) return null;
+  const sf = _expertProjectData.files.find(f => f.path === _expertProjectData.startupFile);
+  if (!sf) return null;
+
+  const absPath  = _projResolveAbsPath(sf.path);
+  const normAbs  = _normFilePath(absPath);
+  const activeTab = tabs.find(t => t.id === activeTabId);
+
+  // If the startup file tab is active, editor content is the freshest source
+  if (activeTab && _normFilePath(activeTab.filePath) === normAbs) {
+    return _expertBuildProgram();
+  }
+
+  // Otherwise use the tab's saved program (from last _tabSaveCurrent)
+  const tab = tabs.find(t => _normFilePath(t.filePath) === normAbs);
+  if (tab?.program?.length > 0) {
+    return JSON.parse(JSON.stringify(tab.program));
+  }
+
+  return null;  // fallback → current editor
 }
 
 function _buildAutostartPrgCore() {

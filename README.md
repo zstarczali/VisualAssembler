@@ -2,7 +2,7 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v1.6.6**
+**Current version: v1.6.7**
 
 ---
 
@@ -214,7 +214,12 @@ Each block in `program[]` is a plain object:
 
 ---
 
-## What's New in v1.6.6
+## What's New in v1.6.7
+
+- **Load `.asm` opens a new tab** — the Load .asm button in Expert mode now opens the file in a **new tab** with the filename as the tab label, instead of replacing the current tab's content. Each loaded `.asm` file becomes its own independent tab with full block/expert editor state.
+- **Close Project menu item** — new **Close Project** button in Menu → File closes the currently open project and all its file tabs at once, with unsaved-change confirmation.
+
+### Previous: v1.6.6
 
 - **Build Info dialog** — toolbar button (block mode and expert mode) opens a summary showing origin address, end address, total size, all labels with their resolved addresses, constants, macros used, and any compile errors.
 - **Save / Load `.asm` files in Expert mode** — load a raw `.asm` source file directly into the Expert editor; save the editor content back to a `.asm` file. Works independently of `.c64asm` project files.

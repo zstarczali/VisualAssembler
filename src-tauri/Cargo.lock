@@ -336,7 +336,7 @@ dependencies = [
 
 [[package]]
 name = "c64-visual-assembler"
-version = "1.6.6"
+version = "1.6.7"
 dependencies = [
  "reqwest 0.12.28",
  "serde",
