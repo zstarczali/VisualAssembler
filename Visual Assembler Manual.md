@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 1.6.7**
+**Version 1.6.8**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -117,7 +117,7 @@ The right panel shows the generated output in real time.
 |---|---|
 | **ASM** | 6502 assembly source with addresses and labels |
 | **Monitor** | Hex / byte dump (C64 monitor style) |
-| **Disasm** | Real-time disassembly listing: address · raw bytes · mnemonic for every compiled instruction |
+| **Disasm** | Pure 6502 disassembly: address · hex bytes · mnemonics with resolved numeric operands. Macros are expanded to individual instructions (TEXT → LDA/STA pairs, LOOP → LDX, etc.). BYTE/WORD/FILL data shown as chunked hex dump. No macro names, comments, or annotations in output. |
 | **Both** | ASM on top, monitor below |
 | **Options** | Program settings panel — number format, macro source toggle, debugger params |
 
@@ -228,7 +228,7 @@ Expert Mode is a full-featured direct-text 6502 assembly editor that lives along
 |-------|--------|-------------|
 | **Palette** | `#expert-palette-btn` | The left block palette — drag blocks into the editor or click to insert at cursor |
 | **ASM editor** | always visible | Full monospace textarea with live syntax highlight overlay |
-| **Disasm panel** | `#expert-disasm-btn` | Real-time disassembly: shows address, bytes, and mnemonic for each line |
+| **Disasm panel** | `#expert-disasm-btn` | Pure 6502 disassembly: each instruction shows address, hex bytes, and numeric operands; macros fully expanded |
 
 ### Toolbar buttons
 
@@ -240,7 +240,7 @@ Expert Mode is a full-featured direct-text 6502 assembly editor that lives along
 | **Build Info** | `#expert-build-info-btn` | Open the Build Info dialog (origin, size, labels, errors) |
 | **HL** | `#expert-hl-btn` | Toggle syntax highlighting (disable for very large files) |
 | **Palette** | `#expert-palette-btn` | Show/hide the left mnemonic palette |
-| **Disasm** | `#expert-disasm-btn` | Show/hide the real-time disassembly panel |
+| **Disasm** | `#expert-disasm-btn` | Show/hide the disassembly panel (pure 6502, macros expanded) |
 | **Monitor** | `#expert-monitor-btn` | Show/hide the monitor hex-dump panel |
 
 ### Error highlighting

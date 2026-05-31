@@ -584,8 +584,26 @@
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v1.6.7</p>
+      <p class="whats-new-version">v1.6.8</p>
       <ul class="whats-new-list">
+        <li>
+          <strong>Pure 6502 disassembler view</strong> — the <strong>Disasm</strong> output mode now shows a clean machine-code listing: no macros, no comments, no annotations. Only real 6502 instructions with addresses, hex bytes, and resolved numeric operands (CONST labels expand to <code>$XXXX</code> addresses).
+        </li>
+        <li>
+          <strong>Byte-level 6502 disassembler</strong> — a reverse opcode table (<code>_REV_OP</code>) covers all 256 opcodes, and <code>_disasmBytes()</code> disassembles byte arrays instruction-by-instruction. TEXT/STRING/DATA macros now show individual <code>LDA #$xx</code> / <code>STA $xxxx</code> pairs instead of raw hex dumps. Functional macros (MOUSE, JOYSTICK, SPRITE_*, LOOP/NEXT, REU_*, TURBO_*, WAIT_RASTER, PUSH/PULL, LOADFILE) are fully disassembled into their 6502 instructions.
+        </li>
+        <li>
+          <strong>Long data blocks chunked</strong> — BYTE, WORD, and FILL blocks with many values are now split into 8-byte hex dump lines with correct addresses per chunk.
+        </li>
+        <li>
+          <strong>Numeric operand resolution in disasm</strong> — all label and CONST references in the disassembly view are resolved to numeric addresses. <code>LDA screen_ram,X</code> now shows <code>LDA $0400,X</code>, relative branches show the target address.
+        </li>
+        <li>
+          <strong>scroll-text-demo sample fixed</strong> — the <code>scrolltext_len</code> CONST was off by one (78 → 79), and <code>CPX scrolltext_len</code> used absolute addressing instead of immediate, causing the wrap check to read from ZP <code>$4E</code> instead of comparing with the value. Both corrected.
+        </li>
+      </ul>
+      <p class="whats-new-version" style="font-size:0.78rem;opacity:0.6;margin-top:10px">v1.6.7</p>
+      <ul class="whats-new-list" style="opacity:0.75">
         <li>
           <strong>Lowercase charset TEXT/STRING/RAWTEXT auto-detection</strong> — all text macros now auto-detect alphabetic input and encode it for the C64 lowercase charset. <code>TEXT "Hello World"</code> produces mixed-case screen codes: <code>a</code>–<code>z</code> → scr 1–26, <code>A</code>–<code>Z</code> → scr 65–90. Just switch to lowercase charset with <code>LDA #$17</code> / <code>STA $D018</code> — no special flags needed.
         </li>
@@ -772,7 +790,7 @@
     <span id="vice-toast-text"></span>
   </div>
   <script src="tauri-bridge.js"></script>
-  <script src="app.js?v=1.6.7"></script>
+  <script src="app.js?v=1.6.8"></script>
 
 </body>
 

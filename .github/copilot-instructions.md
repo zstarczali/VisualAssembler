@@ -646,7 +646,7 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`1.6.7` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` és a What's New dialóg (`index.html`).
+`1.6.8` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` és a What's New dialóg (`index.html`).
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező
@@ -958,6 +958,16 @@ Ha új sample programot adsz hozzá:
 ### "ALIGN 64 nem oda igazít, ahová kellene"
 → `base: "hex"` helyett `base: "dec"` kell
 
+### "CONST label-lel CPX absolute módban nem wrap-el a loop"
+→ `CPX scrolltext_len` absolute addressing mód `CPX $004E`-t generál (ZP címről olvas), nem `CPX #$4E`-t (immediate összehasonlítás). Használj `addressingMode: "immediate"` és `operand: "#scrolltext_len"` formátumot.
+→ **scroll-text-demo javítva:** `scrolltext_len` 78→79 (a szöveg 79 karakter), `CPX scrolltext_len` absolute→immediate
+
+### "Disassembler nézetben undefined mnemonik"
+→ `_REV_OP` tábla `mnem` property-t tárol, nem `mnemonic`-t. `_disasmBytes`-ben `info.mnem`-et kell olvasni.
+
+### "Disassembler nézetben makró nevek jelennek meg (LOOP, NEXT, WAIT_RASTER)"
+→ Kis makrók (≤8 byte) korábban a short path-en mentek és a blokk mnemonikját mutatták. Most `opcodeMap[mnem]` check: ha nincs benne → makró → `_disasmBytes` hívás.
+
 ---
 
 ## Debugging eszközök
@@ -1080,16 +1090,21 @@ A `macro-source-row`-ban egy `mini-toggle` váltja az ASM output számformátum�
 - Az origin input is konvertálódik váltáskor
 - Label sorok kommentje: `loop:  ; $080D`
 
-### Disasm output mód (block nézet)
+### Disasm output mód (block nézet) — v1.6.8 átdolgozva
 
-A jobb oldali panel új `"disasm"` output módja valós idejű disassembly listát jelennek meg.
+A `"disasm"` output mód tiszta 6502 disassembly listát mutat — **csak gépi kód**, nincs makró, nincs komment, nincs annotáció.
 
-- **Állapot:** `outputMode` state változó = `"disasm"` (a többi módhoz hasonlóan: `"asm"`, `"monitor"`, `"both"`, `"options"`)
-- **Renderelő függvény:** `renderDisasmOutput()` → `_buildDisasmHTML()` → színezett HTML span-ok
-- **DOM elem:** `#disasm-output` (rejtódik ha más mód aktiv)
-- **Token színek:** cín (`$D000`), byte-ok (`A9 FF`), mnemonik (`LDA`), komment — a `.disasm-*` CSS osztályokon keresztül
-- **Expert módban** a Disasm panel (`#expert-disasm-panel`) külön jobb oldali panel — ez más, mint a block mód `#disasm-output` eleme
-- `renderAsmOutput()` / `renderMonitorOutput()` / `renderDisasmOutput()` mind hívódnak az `outputMode` érték alapján
+- **Állapot:** `outputMode` state változó = `"disasm"`
+- **Renderelő:** `_buildDisasmHTML()` — három ágon renderel:
+  1. **Valódi 6502 utasítás** (`opcodeMap`-ben szereplő mnemonik, ≤8 byte): eredeti mnemonik + **numerikus operandus** (CONST label-ek feloldva `$XXXX` formában)
+  2. **Adatblokk** (BYTE/WORD/FILL): 8 byte-os chunk-olt hex dump, BYTE mnemonikkal
+  3. **Minden más (makrók):** `_disasmBytes()` hívás — utasításonkénti 6502 disassembly a reverse opcode táblán keresztül
+- **Reverse opcode tábla:** `_REV_OP` — IIFE, `opcodeMap`-ből épített `opcode → { mnem, mode, size }` lookup, mind a 256 opcode lefedve (ismeretlen = `.BYTE`)
+- **`_disasmBytes(bytes, baseAddr)`:** byte-tömböt jár végig, `_REV_OP` alapján utasításokra bont, operandust formáz (immediate `#$xx`, absolute `$xxxx`, relative célcím, indirectX/Y, stb.)
+- **Label-ek:** csak inline jelennek meg az utasítás előtt (`addrToLabel` map), standalone label sorok kihagyva
+- **Kihagyott blokkok:** komment, ORG, REGION/ENDREGION, INCLUDE, RAWBYTES/RAWTEXT/PETSCII/INCBIN/SID (nincs inline byte-juk), feltételesen kihagyott blokkok, macro source block-ok
+- **DOM:** `#disasm-output` (block mód), `#expert-disasm-output` (expert mód) — mindkettő `_buildDisasmHTML()`-t hív
+- **CSS osztályok:** `.dsm-addr` (cím), `.dsm-bytes` (hex byte-ok), `.asm-tok-mnemonic` (mnemonik), `.asm-tok-operand` (operandus), `.asm-tok-label` (címke)
 
 ### CSS `[hidden]` override bug
 

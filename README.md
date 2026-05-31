@@ -2,7 +2,7 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v1.6.7**
+**Current version: v1.6.8**
 
 ---
 
@@ -51,7 +51,7 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **TURBO_SET macro** — set U64 CPU speed via `$D031`; speed index 0–15 + badline control; 5 bytes
 - **SUPERCPU_DETECT macro** — detect CMD SuperCPU (`LDA $D0B8 / CMP #$FF`); result in Z flag; 5 bytes
 - **TURBO_ENABLE macro** — CMD SuperCPU turbo on (`STA $D07A`) / off (`STA $D07B`); 5 bytes
-- **Disassembler view** — real-time **Disasm** output mode showing address, raw bytes, and mnemonic for every compiled instruction
+- **Disassembler view** — real-time pure 6502 disassembly: shows address, hex bytes, and resolved numeric operands for every instruction; macros are expanded to individual instructions (TEXT → LDA/STA pairs, LOOP → LDX, MOUSE → full 142-byte decode); BYTE/WORD/FILL data shown as chunked hex dump; no macros, comments, or annotations in output
 - **`*` (current PC) operand** — operand fields accept `*` as a shorthand for the current instruction address; branches with `*` generate an infinite self-loop (`BNE *` → offset `$FE`)
 - **LABEL & COMMENT blocks** — named jump targets and zero-byte annotations
 - **Memory strip** — full 64 KB C64 memory map visualised as a colour-coded strip (RAM / ROM / I/O)
@@ -214,7 +214,7 @@ Each block in `program[]` is a plain object:
 
 ---
 
-## What's New in v1.6.7
+## What's New in v1.6.8
 
 - **Lowercase charset TEXT/STRING/RAWTEXT auto-detection** — TEXT, STRING, and RAWTEXT macros now automatically detect alphabetic input and encode it for the C64 lowercase charset (`$D018=$17`). `TEXT "Hello World"` produces mixed-case screen codes: lowercase `a`-`z` → scr 1–26, uppercase `A`-`Z` → scr 65–90. Pure numbers/symbols stay backward-compatible. No special flag needed — just switch to lowercase charset with `LDA #$17` / `STA $D018` and type normally.
 - **New sample: Lowercase TEXT demo** — demonstrates lowercase charset mode with mixed-case TEXT output. Switches to lowercase charset, then prints three TEXT lines: `hello c64!`, `Visual Assembler`, and `HELLO WORLD` — all rendered correctly with proper case.
