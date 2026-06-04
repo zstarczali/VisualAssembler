@@ -610,45 +610,6 @@
           <strong>Palette sync and UI fixes</strong> — palette item highlighting refactored with <code>_highlightPaletteItemByMnemonic</code>; active palette items now scroll into view. Table macros no longer show operand field. Numerous Hungarian translation encoding/phrasing fixes.
         </li>
       </ul>
-      <p class="whats-new-version" style="font-size:0.78rem;opacity:0.6;margin-top:10px">v1.6.8</p>
-      <ul class="whats-new-list" style="opacity:0.75">
-        <li>
-          <strong>Pure 6502 disassembler view</strong> — the <strong>Disasm</strong> output mode now shows a clean machine-code listing: no macros, no comments, no annotations. Only real 6502 instructions with addresses, hex bytes, and resolved numeric operands (CONST labels expand to <code>$XXXX</code> addresses).
-        </li>
-        <li>
-          <strong>Byte-level 6502 disassembler</strong> — a reverse opcode table (<code>_REV_OP</code>) covers all 256 opcodes, and <code>_disasmBytes()</code> disassembles byte arrays instruction-by-instruction. TEXT/STRING/DATA macros now show individual <code>LDA #$xx</code> / <code>STA $xxxx</code> pairs instead of raw hex dumps. Functional macros (MOUSE, JOYSTICK, SPRITE_*, LOOP/NEXT, REU_*, TURBO_*, WAIT_RASTER, PUSH/PULL, LOADFILE) are fully disassembled into their 6502 instructions.
-        </li>
-        <li>
-          <strong>Long data blocks chunked</strong> — BYTE, WORD, and FILL blocks with many values are now split into 8-byte hex dump lines with correct addresses per chunk.
-        </li>
-        <li>
-          <strong>Numeric operand resolution in disasm</strong> — all label and CONST references in the disassembly view are resolved to numeric addresses. <code>LDA screen_ram,X</code> now shows <code>LDA $0400,X</code>, relative branches show the target address.
-        </li>
-        <li>
-          <strong>scroll-text-demo sample fixed</strong> — the <code>scrolltext_len</code> CONST was off by one (78 → 79), and <code>CPX scrolltext_len</code> used absolute addressing instead of immediate, causing the wrap check to read from ZP <code>$4E</code> instead of comparing with the value. Both corrected.
-        </li>
-      </ul>
-      <p class="whats-new-version" style="font-size:0.78rem;opacity:0.6;margin-top:10px">v1.6.7</p>
-      <ul class="whats-new-list" style="opacity:0.75">
-        <li>
-          <strong>Lowercase charset TEXT/STRING/RAWTEXT auto-detection</strong> — all text macros now auto-detect alphabetic input and encode it for the C64 lowercase charset. <code>TEXT "Hello World"</code> produces mixed-case screen codes: <code>a</code>–<code>z</code> → scr 1–26, <code>A</code>–<code>Z</code> → scr 65–90. Just switch to lowercase charset with <code>LDA #$17</code> / <code>STA $D018</code> — no special flags needed.
-        </li>
-        <li>
-          <strong>New sample: Lowercase TEXT demo</strong> — demonstrates the lowercase charset + mixed-case TEXT output. Load from the Sample menu as <em>"Kisbetus TEXT pelda"</em>.
-        </li>
-        <li>
-          <strong>Load .asm opens a new tab</strong> — the <strong>Load .asm</strong> button in Expert mode now opens the file in a <strong>new tab</strong> with the filename as the tab label, instead of replacing the current tab's content. Each loaded <code>.asm</code> file becomes its own independent tab with full block/expert editor state, parsed into program blocks, and marked clean on open.
-        </li>
-        <li>
-          <strong>Close Project menu item</strong> — new <strong>Close Project</strong> button in the <strong>Menu → File</strong> section closes the currently open project and all its file tabs at once. Prompts to save any unsaved changes before closing. The project panel is reset to its empty state, and <code>_expertProjectData</code> is cleared to <code>null</code>.
-        </li>
-        <li>
-          <strong>Run respects project startup file</strong> — when a project has a <strong>startup file</strong> (marked with ★ in the project panel), the <strong>Run</strong> button (PRG, D64, Ultimate) now assembles and runs that file's code regardless of which tab is currently active. Works in both block mode and Expert mode.
-        </li>
-        <li>
-          <strong>New translation keys</strong> — added <code>menuCloseProject</code>, <code>projClosed</code>, and <code>projNoOpen</code> to both Hungarian and English translation tables.
-        </li>
-      </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
     </div>
   </dialog>
