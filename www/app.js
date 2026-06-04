@@ -15482,49 +15482,6 @@ const TUTORIAL_DATA = {
   ],
   lessons: [
     {
-      id: "featured-color-text-build",
-      category: "featured",
-      type: "tour",
-      interactive: true,
-      difficulty: 1,
-      titleHu: "Kiemelt: név bekérés PETSCII-vel",
-      titleEn: "Featured: Name Input with PETSCII",
-      descHu: "Egy működő program: PETSCII makró + CHROUT print loop + CHRIN input. A mintaprogram betöltődik, majd a tour végigvezet a részein.",
-      descEn: "A working program: PETSCII macro + CHROUT print loop + CHRIN input. The sample loads, then the tour walks you through each section.",
-      steps: [
-        {
-          target: null,
-          onEnterActionId: "prepare-name-input-demo",
-          titleHu: "Név bekérés demo — PETSCII + CHROUT + CHRIN",
-          titleEn: "Name Input Demo — PETSCII + CHROUT + CHRIN",
-          descHu: "Ez a program valódi billentyűzet inputot kezel!\n\n1. Kiírja: \"WHAT'S YOUR NAME? \"\n2. Vár a nevedre — CHRIN ($FFCF) beolvassa, CHROUT ($FFD2) visszhangozza\n3. ENTER után kiírja: \"HELLO \" + a neved + \"!\"\n\nAz adatok PETSCII makróval vannak tárolva, a kiíratás FOR/ENDF ciklusokkal történik.",
-          descEn: "This program handles real keyboard input!\n\n1. Prints: \"WHAT'S YOUR NAME? \"\n2. Waits for your name — CHRIN ($FFCF) reads, CHROUT ($FFD2) echoes\n3. After ENTER prints: \"HELLO \" + your name + \"!\"\n\nData is stored with PETSCII macros, output uses FOR/ENDF loops."
-        },
-        {
-          target: ".program-panel",
-          titleHu: "Blokklista áttekintése",
-          titleEn: "Block List Overview",
-          descHu: "A mintaprogram betöltődött. A középső panelen látod a blokkokat:\n\n• FOR/ENDF — előre számláló ciklusok a szöveg kiírásához\n• CHRIN + CHROUT — név beolvasása és visszhangzása\n• PETSCII makrók — szöveg tárolása $0C00 és $0C20 címen\n• RAWBYTES — névpuffer $0C50-en\n\nKattints egy blokkra — az ASM nézetben kiemeli!",
-          descEn: "The sample is loaded. In the center panel:\n\n• FOR/ENDF — forward-counting loops for text output\n• CHRIN + CHROUT — name input and echo\n• PETSCII macros — text stored at $0C00 and $0C20\n• RAWBYTES — name buffer at $0C50\n\nClick a block — it highlights in the ASM view!"
-        },
-        {
-          target: ".output-panel",
-          titleHu: "ASM kimenet",
-          titleEn: "ASM Output",
-          descHu: "A jobb oldali ASM panelen láthatod a generált kódot:\n\n• FOR: LDX #$00 + címke\n• ENDF: INX + CPX #count + BNE\n• CHRIN input loop: JSR $FFCF / CMP #$0D / BEQ\n• CHROUT: JSR $FFD2 a karakter kiírásához\n• PETSCII adatok deferred .byte szekcióban\n\nA FOR/ENDF makrók clean, olvasható kódot generálnak!",
-          descEn: "The right ASM panel shows generated code:\n\n• FOR: LDX #$00 + label\n• ENDF: INX + CPX #count + BNE\n• CHRIN input loop: JSR $FFCF / CMP #$0D / BEQ\n• CHROUT: JSR $FFD2 for character output\n• PETSCII data in deferred .byte section\n\nFOR/ENDF macros generate clean, readable code!"
-        },
-        {
-          target: "#run-emulator",
-          centerCard: true,
-          titleHu: "Futtasd le!",
-          titleEn: "Run It!",
-          descHu: "Kattints a Run gombra! A VICE emulátorban:\n\n1. Megjelenik \"WHAT'S YOUR NAME? \"\n2. A kurzor villog — gépeld be a neved! (pl. ANNA)\n3. ENTER után: \"HELLO ANNA!\"\n\nPróbáld ki! Ha kész, nyomj Finish-t.",
-          descEn: "Click Run! In the VICE emulator:\n\n1. \"WHAT'S YOUR NAME? \" appears\n2. The cursor blinks — type your name! (e.g. JOHN)\n3. After ENTER: \"HELLO JOHN!\"\n\nTry it! When done, press Finish."
-        }
-      ]
-    },
-    {
       id: "guided-first-text",
       category: "basics",
       type: "lesson",
@@ -15532,96 +15489,229 @@ const TUTORIAL_DATA = {
       difficulty: 0,
       titleHu: "Építsd meg: első szöveges program",
       titleEn: "Build: Your First Text Program",
-      descHu: "Interaktívan, lépésről lépésre felépítünk egy programot ami fekete képernyőre ír szöveget. Csak kattints az Add gombra!",
-      descEn: "Interactively build a program step by step that writes text on a black screen. Just click Add!",
+      descHu: "Interaktívan, lépésről lépésre felépítünk egy programot. A mnemonikokat és az operandus értékeket is neked kell megadni, a TEXT blokkok szövegét pedig neked kell beírni.",
+      descEn: "Interactively build a program step by step. You must choose the mnemonics and enter the operand values yourself, and you must also type the TEXT block contents yourself.",
       steps: [
         {
           target: null,
           onEnterActionId: "prepare-guided-color-text",
           titleHu: "Kezdjük az üres programmal!",
           titleEn: "Starting with an Empty Program!",
-          descHu: "Üres programterülettel indulunk. A bal oldali palettáról fogjuk a blokkokat hozzáadni az Add gombbal.\n\nA program amit felépítünk:\n  SEI\n  LDA #$00\n  STA $D020  ; border fekete\n  STA $D021  ; háttér fekete\n  JSR $E544  ; képernyő törlés\n  TEXT 12,8: \"hello c64\"\n  TEXT 8,10: \"visual assembler\"\n  RTS\n\nKészen állsz? Kattints a Tovább gombra!",
-          descEn: "We start with a blank canvas. We'll add blocks from the left palette using the Add button.\n\nThe program we'll build:\n  SEI\n  LDA #$00\n  STA $D020  ; border black\n  STA $D021  ; background black\n  JSR $E544  ; clear screen\n  TEXT 12,8: \"hello c64\"\n  TEXT 8,10: \"visual assembler\"\n  RTS\n\nReady? Click Next!"
+          descHu: "Üres programterülettel indulunk. A bal oldali palettán neked kell kiválasztani a megfelelő mnemonikot, és neked kell beírni az operandus mezőbe az értékeket is. A TEXT blokkok szövegét szintén te írod be.\n\nA program amit felépítünk:\n  SEI\n  LDA #$00\n  STA $D020\n  STA $D021\n  JSR $E544\n  .text 12, 8, \"hello c64\"\n  .text 8, 10, \"visual assembler\"\n  RTS\n\nKészen állsz? Kattints a Tovább gombra!",
+          descEn: "We start with a blank canvas. On the left palette you must choose the correct mnemonic, and you must also type the operand values yourself. For TEXT blocks, you also type the text yourself.\n\nThe program we'll build:\n  SEI\n  LDA #$00\n  STA $D020\n  STA $D021\n  JSR $E544\n  .text 12, 8, \"hello c64\"\n  .text 8, 10, \"visual assembler\"\n  RTS\n\nReady? Click Next!"
         },
         {
-          target: "#add-button",
+          target: "#mnemonic-select",
           onEnterActionId: "prep-sei",
-          advanceOnTargetClick: true,
-          titleHu: "1/8 — SEI: interruptok tiltása",
-          titleEn: "1/8 — SEI: Disable Interrupts",
-          descHu: "Adj hozzá egy SEI blokkot!\n\nA SEI (Set Interrupt Disable) letiltja a C64 megszakításait, így a programunk zavartalanul futhat.\n\nA paletta már be van állítva → kattints az Add gombra!",
-          descEn: "Add an SEI block!\n\nSEI (Set Interrupt Disable) stops C64 interrupts so our program runs uninterrupted.\n\nThe palette is pre-selected → click Add!"
+          advanceOnTargetChange: true,
+          targetValue: "SEI",
+          titleHu: "1/24 — Válaszd ki a SEI mnemonikot",
+          titleEn: "1/24 — Select the SEI Mnemonic",
+          descHu: "A kategória már jó helyen van. Válaszd ki a listából a SEI-t!",
+          descEn: "The category is already correct. Choose SEI from the list!"
         },
         {
-          target: "#add-button",
+          target: "#add-selected",
+          advanceOnTargetClick: true,
+          titleHu: "2/24 — Add hozzá a SEI blokkot",
+          titleEn: "2/24 — Add the SEI Block",
+          descHu: "Most kattints az Add gombra!",
+          descEn: "Now click Add!"
+        },
+        {
+          target: "#mnemonic-select",
           onEnterActionId: "prep-lda-black",
-          advanceOnTargetClick: true,
-          titleHu: "2/8 — LDA #$00: fekete szín betöltése",
-          titleEn: "2/8 — LDA #$00: Load Black Color",
-          descHu: "Töltsük be a fekete színt az A regiszterbe!\n\nLDA #$00 betölti a 0-t (fekete) az Accumulator-ba. A # azt jelenti: közvetlen érték.\n\nKattints az Add gombra!",
-          descEn: "Load black into the A register!\n\nLDA #$00 loads 0 (black) into the Accumulator. # means immediate value.\n\nClick Add!"
+          advanceOnTargetChange: true,
+          targetValue: "LDA",
+          titleHu: "3/24 — Válaszd ki az LDA mnemonikot",
+          titleEn: "3/24 — Select the LDA Mnemonic",
+          descHu: "Most neked kell összeállítani az LDA #$00 utasítást. Először válaszd ki az LDA mnemonikot!",
+          descEn: "Now you must assemble the LDA #$00 instruction yourself. First choose the LDA mnemonic!"
         },
         {
-          target: "#add-button",
+          target: "#operand-input",
+          advanceOnTargetInput: true,
+          targetValue: "00",
+          titleHu: "4/24 — Írd be: 00",
+          titleEn: "4/24 — Type: 00",
+          descHu: "Az immediate operandus értékét most te add meg. Írd be az operandus mezőbe: 00",
+          descEn: "Enter the immediate operand value yourself now. Type 00 into the operand field."
+        },
+        {
+          target: "#add-selected",
+          advanceOnTargetClick: true,
+          titleHu: "5/24 — Add hozzá az LDA blokkot",
+          titleEn: "5/24 — Add the LDA Block",
+          descHu: "Kattints az Add gombra az LDA #$00 blokkhoz!",
+          descEn: "Click Add for the LDA #$00 block!"
+        },
+        {
+          target: "#mnemonic-select",
           onEnterActionId: "prep-sta-border",
-          advanceOnTargetClick: true,
-          titleHu: "3/8 — STA $D020: border feketére",
-          titleEn: "3/8 — STA $D020: Border to Black",
-          descHu: "Állítsuk a keretet feketére!\n\n$D020 a VIC-II videochip border-szín regisztere. STA kiírja az A-ban lévő $00-t erre a címre.\n\nKattints az Add gombra!",
-          descEn: "Set the border to black!\n\n$D020 is the VIC-II border color register. STA writes A ($00) to this address.\n\nClick Add!"
+          advanceOnTargetChange: true,
+          targetValue: "STA",
+          titleHu: "6/24 — Válaszd ki az STA mnemonikot a borderhez",
+          titleEn: "6/24 — Select STA for the Border",
+          descHu: "Most a border színcímére írunk. Először válaszd ki az STA mnemonikot!",
+          descEn: "Now we write to the border color address. First select the STA mnemonic!"
         },
         {
-          target: "#add-button",
+          target: "#operand-input",
+          advanceOnTargetInput: true,
+          targetValue: "D020",
+          titleHu: "7/24 — Írd be: D020",
+          titleEn: "7/24 — Type: D020",
+          descHu: "Most add meg a border címét. Írd be az operandus mezőbe: D020",
+          descEn: "Now enter the border address. Type D020 into the operand field."
+        },
+        {
+          target: "#add-selected",
+          advanceOnTargetClick: true,
+          titleHu: "8/24 — Add hozzá a border STA blokkot",
+          titleEn: "8/24 — Add the Border STA Block",
+          descHu: "Kattints az Add gombra!",
+          descEn: "Click Add!"
+        },
+        {
+          target: "#mnemonic-select",
           onEnterActionId: "prep-sta-background",
-          advanceOnTargetClick: true,
-          titleHu: "4/8 — STA $D021: háttér feketére",
-          titleEn: "4/8 — STA $D021: Background to Black",
-          descHu: "Most a hátteret is feketére!\n\n$D021 a VIC-II háttérszín regisztere. Ugyanazt a $00-t írjuk ki — az egész képernyő fekete.\n\nKattints az Add gombra!",
-          descEn: "Now the background too!\n\n$D021 is the VIC-II background color register. Same $00 → whole screen is black.\n\nClick Add!"
+          advanceOnTargetChange: true,
+          targetValue: "STA",
+          titleHu: "9/24 — Válaszd ki az STA mnemonikot a háttérhez",
+          titleEn: "9/24 — Select STA for the Background",
+          descHu: "Most a háttérszín címére írunk. Válaszd ki ismét az STA mnemonikot!",
+          descEn: "Now we write to the background color address. Select STA again!"
         },
         {
-          target: "#add-button",
+          target: "#operand-input",
+          advanceOnTargetInput: true,
+          targetValue: "D021",
+          titleHu: "10/24 — Írd be: D021",
+          titleEn: "10/24 — Type: D021",
+          descHu: "Add meg a háttér címét. Írd be az operandus mezőbe: D021",
+          descEn: "Enter the background address. Type D021 into the operand field."
+        },
+        {
+          target: "#add-selected",
+          advanceOnTargetClick: true,
+          titleHu: "11/24 — Add hozzá a háttér STA blokkot",
+          titleEn: "11/24 — Add the Background STA Block",
+          descHu: "Kattints az Add gombra!",
+          descEn: "Click Add!"
+        },
+        {
+          target: "#mnemonic-select",
           onEnterActionId: "prep-jsr-clearscreen",
-          advanceOnTargetClick: true,
-          titleHu: "5/8 — JSR $E544: képernyő törlése",
-          titleEn: "5/8 — JSR $E544: Clear Screen",
-          descHu: "Töröljük a képernyőt a KERNAL rutinnal!\n\n$E544 a C64 KERNAL ROM CLRSCR rutinja. JSR-rel hívjuk — space-ekkel tölti a képernyőt.\n\nKattints az Add gombra!",
-          descEn: "Clear the screen with the KERNAL routine!\n\n$E544 is the CLRSCR routine in C64 KERNAL ROM. JSR calls it — fills screen with spaces.\n\nClick Add!"
+          advanceOnTargetChange: true,
+          targetValue: "JSR",
+          titleHu: "12/24 — Válaszd ki a JSR mnemonikot",
+          titleEn: "12/24 — Select the JSR Mnemonic",
+          descHu: "Most a képernyőt törlő KERNAL rutint hívjuk. Először válaszd ki a JSR-t!",
+          descEn: "Now we call the KERNAL clear-screen routine. First select JSR!"
         },
         {
-          target: "#add-button",
+          target: "#operand-input",
+          advanceOnTargetInput: true,
+          targetValue: "E544",
+          titleHu: "13/24 — Írd be: E544",
+          titleEn: "13/24 — Type: E544",
+          descHu: "Add meg a clear-screen rutin címét. Írd be az operandus mezőbe: E544",
+          descEn: "Enter the clear-screen routine address. Type E544 into the operand field."
+        },
+        {
+          target: "#add-selected",
+          advanceOnTargetClick: true,
+          titleHu: "14/24 — Add hozzá a JSR blokkot",
+          titleEn: "14/24 — Add the JSR Block",
+          descHu: "Kattints az Add gombra!",
+          descEn: "Click Add!"
+        },
+        {
+          target: "#mnemonic-select",
           onEnterActionId: "prep-text-hello-c64",
-          advanceOnTargetClick: true,
-          titleHu: "6/8 — TEXT \"hello c64\" (12,8) pozícióba",
-          titleEn: "6/8 — TEXT \"hello c64\" at (12,8)",
-          descHu: "Most jön a szöveg! A TEXT makró közvetlenül a képernyő-RAM-ba ír.\n\nA TEXT blokk hozzáadása után állítsd be az X=12, Y=8 koordinátákat a program panelen.\n\nKattints az Add gombra!",
-          descEn: "Now for text! The TEXT macro writes directly to screen RAM.\n\nAfter adding the TEXT block, set X=12, Y=8 in the program panel.\n\nClick Add!"
+          advanceOnTargetChange: true,
+          targetValue: "TEXT",
+          titleHu: "15/24 — Válaszd ki a TEXT makrót",
+          titleEn: "15/24 — Select the TEXT Macro",
+          descHu: "Most jön az első TEXT blokk. Válaszd ki a TEXT makrót a listából!",
+          descEn: "Now comes the first TEXT block. Select the TEXT macro from the list!"
         },
         {
-          target: "#add-button",
+          target: "#operand-input",
+          advanceOnTargetInput: true,
+          targetValue: "hello c64",
+          titleHu: "16/24 — Írd be: hello c64",
+          titleEn: "16/24 — Type: hello c64",
+          descHu: "Most neked kell beírni a szöveget az operandus mezőbe: hello c64",
+          descEn: "Now you must type the text into the operand field: hello c64"
+        },
+        {
+          target: "#add-selected",
+          advanceOnTargetClick: true,
+          titleHu: "17/24 — Add hozzá az első TEXT blokkot",
+          titleEn: "17/24 — Add the First TEXT Block",
+          descHu: "Kattints az Add gombra, majd a program panelen állítsd a koordinátákat X=12, Y=8 értékre.",
+          descEn: "Click Add, then set the coordinates in the program panel to X=12, Y=8."
+        },
+        {
+          target: "#mnemonic-select",
           onEnterActionId: "prep-text-visual-assembler",
-          advanceOnTargetClick: true,
-          titleHu: "7/8 — TEXT \"visual assembler\" (8,10) pozícióba",
-          titleEn: "7/8 — TEXT \"visual assembler\" at (8,10)",
-          descHu: "Még egy TEXT makró!\n\nÁllítsd be: X=8, Y=10. Ez a \"hello c64\" alá kerül.\n\nKattints az Add gombra!",
-          descEn: "One more TEXT macro!\n\nSet X=8, Y=10. This goes below \"hello c64\".\n\nClick Add!"
+          advanceOnTargetChange: true,
+          targetValue: "TEXT",
+          titleHu: "18/24 — Válaszd ki újra a TEXT makrót",
+          titleEn: "18/24 — Select TEXT Again",
+          descHu: "Most a második TEXT blokk következik. Válaszd ki ismét a TEXT makrót!",
+          descEn: "Now the second TEXT block follows. Select TEXT again!"
         },
         {
-          target: "#add-button",
-          onEnterActionId: "prep-rts-block",
+          target: "#operand-input",
+          advanceOnTargetInput: true,
+          targetValue: "visual assembler",
+          titleHu: "19/24 — Írd be: visual assembler",
+          titleEn: "19/24 — Type: visual assembler",
+          descHu: "Írd be az operandus mezőbe: visual assembler",
+          descEn: "Type into the operand field: visual assembler"
+        },
+        {
+          target: "#add-selected",
           advanceOnTargetClick: true,
-          titleHu: "8/8 — RTS: visszatérés BASIC-be",
-          titleEn: "8/8 — RTS: Return to BASIC",
-          descHu: "Az utolsó blokk: RTS!\n\nAz RTS (ReTurn from Subroutine) visszatér a BASIC-hez. Minden C64 programot RTS-sel kell zárni!\n\nKattints az Add gombra!",
-          descEn: "The final block: RTS!\n\nRTS (ReTurn from Subroutine) returns to BASIC. Every C64 program must end with RTS!\n\nClick Add!"
+          titleHu: "20/24 — Add hozzá a második TEXT blokkot",
+          titleEn: "20/24 — Add the Second TEXT Block",
+          descHu: "Kattints az Add gombra, majd a koordinátákat állítsd X=8, Y=10-re.",
+          descEn: "Click Add, then set the coordinates to X=8, Y=10."
+        },
+        {
+          target: "#mnemonic-select",
+          onEnterActionId: "prep-rts-block",
+          advanceOnTargetChange: true,
+          targetValue: "RTS",
+          titleHu: "21/24 — Válaszd ki az RTS mnemonikot",
+          titleEn: "21/24 — Select the RTS Mnemonic",
+          descHu: "Utolsó utasításként válaszd ki az RTS-t!",
+          descEn: "As the final instruction, select RTS!"
+        },
+        {
+          target: "#add-selected",
+          advanceOnTargetClick: true,
+          titleHu: "22/24 — Add hozzá az RTS blokkot",
+          titleEn: "22/24 — Add the RTS Block",
+          descHu: "Kattints az Add gombra!",
+          descEn: "Click Add!"
+        },
+        {
+          target: ".program-panel",
+          titleHu: "23/24 — Állítsd be a TEXT blokkok koordinátáit",
+          titleEn: "23/24 — Set the TEXT Block Coordinates",
+          descHu: "Mielőtt futtatod, állítsd be a két TEXT blokkot a program panelen: az első legyen X=12, Y=8, a második pedig X=8, Y=10.",
+          descEn: "Before running, set the two TEXT blocks in the program panel: first X=12, Y=8, second X=8, Y=10."
         },
         {
           target: "#run-emulator",
           centerCard: true,
-          titleHu: "Kész! Futtasd le!",
-          titleEn: "Done! Run It!",
-          descHu: "Megépítetted az első C64 programodat! 🎉\n\nKattints a Run gombra! A VICE emulátorban:\n• Fekete képernyő\n• Középen: \"hello c64\"\n• Alatta: \"visual assembler\"\n\nGratulálok! Ha kész, nyomd meg a Finish gombot.",
-          descEn: "You built your first C64 program! 🎉\n\nClick Run! In the VICE emulator:\n• Black screen\n• Center: \"hello c64\"\n• Below: \"visual assembler\"\n\nCongratulations! Press Finish when done."
+          titleHu: "24/24 — Kész! Futtasd le!",
+          titleEn: "24/24 — Done! Run It!",
+          descHu: "Megépítetted az első C64 programodat! Kattints a Run gombra! A VICE emulátorban fekete képernyőt és két sort látsz majd: \"hello c64\" és \"visual assembler\".",
+          descEn: "You built your first C64 program! Click Run! In the VICE emulator you should see a black screen with two lines: \"hello c64\" and \"visual assembler\"."
         }
       ]
     },
@@ -16157,6 +16247,7 @@ let _tourMenuSyncRaf = 0;
 let _tourInteractiveMode = false;
 let _tourTargetAdvanceCleanup = null;
 let _tourPreparedLessonId = null;
+let _tourRepositionRaf = 0;
 
 function _tutLoadProgress() {
   try {
@@ -16340,9 +16431,9 @@ function _runTutorialStepAction(actionId) {
     case "prep-sta-border":
       _tutorialSetPaletteSelection({
         category: "Adatmozgas",
-        mnemonic: "STA",
+        mnemonic: "LDA",
         addressingMode: "absolute",
-        operand: "D020",
+        operand: "",
         base: "hex"
       });
       break;
@@ -16358,16 +16449,16 @@ function _runTutorialStepAction(actionId) {
     case "prep-sta-background":
       _tutorialSetPaletteSelection({
         category: "Adatmozgas",
-        mnemonic: "STA",
+        mnemonic: "LDA",
         addressingMode: "absolute",
-        operand: "D021",
+        operand: "",
         base: "hex"
       });
       break;
     case "prep-rts-block":
       _tutorialSetPaletteSelection({
         category: "Ugrasok",
-        mnemonic: "RTS",
+        mnemonic: "JMP",
         addressingMode: "implied",
         operand: ""
       });
@@ -16375,9 +16466,9 @@ function _runTutorialStepAction(actionId) {
     case "prep-jsr-clearscreen":
       _tutorialSetPaletteSelection({
         category: "Ugrasok",
-        mnemonic: "JSR",
+        mnemonic: "JMP",
         addressingMode: "absolute",
-        operand: "E544",
+        operand: "",
         base: "hex"
       });
       break;
@@ -16407,7 +16498,7 @@ function _runTutorialStepAction(actionId) {
     case "prep-sei":
       _tutorialSetPaletteSelection({
         category: "Rendszer",
-        mnemonic: "SEI",
+        mnemonic: "CLC",
         addressingMode: "implied",
         operand: ""
       });
@@ -16415,24 +16506,24 @@ function _runTutorialStepAction(actionId) {
     case "prep-lda-black":
       _tutorialSetPaletteSelection({
         category: "Adatmozgas",
-        mnemonic: "LDA",
+        mnemonic: "LDX",
         addressingMode: "immediate",
-        operand: "00",
+        operand: "",
         base: "hex"
       });
       break;
     case "prep-text-hello-c64":
       _tutorialSetPaletteSelection({
         category: "Makrok",
-        mnemonic: "TEXT",
-        operand: "hello c64"
+        mnemonic: "BYTE",
+        operand: ""
       });
       break;
     case "prep-text-visual-assembler":
       _tutorialSetPaletteSelection({
         category: "Makrok",
-        mnemonic: "TEXT",
-        operand: "visual assembler"
+        mnemonic: "BYTE",
+        operand: ""
       });
       break;
   }
@@ -16447,12 +16538,14 @@ function _tourClearTargetAdvance() {
 
 function _tourBindTargetAdvance(step) {
   _tourClearTargetAdvance();
-  if (!_tourInteractiveMode || !step?.advanceOnTargetClick || !step.target) return;
+  if (!_tourInteractiveMode || !step?.target) return;
 
   const targetEl = document.querySelector(step.target);
   if (!targetEl) return;
 
-  const onClick = () => {
+  const cleanups = [];
+
+  const advance = () => {
     if (!_tourActive) return;
     setTimeout(() => {
       if (!_tourActive) return;
@@ -16465,8 +16558,49 @@ function _tourBindTargetAdvance(step) {
     }, 0);
   };
 
-  targetEl.addEventListener("click", onClick);
-  _tourTargetAdvanceCleanup = () => targetEl.removeEventListener("click", onClick);
+  if (step.advanceOnTargetClick) {
+    const onClick = () => advance();
+    targetEl.addEventListener("click", onClick);
+    cleanups.push(() => targetEl.removeEventListener("click", onClick));
+  }
+
+  if (step.advanceOnTargetChange) {
+    const onChange = () => {
+      if (!_tourTargetValueMatches(step, targetEl.value)) {
+        return;
+      }
+      advance();
+    };
+    targetEl.addEventListener("change", onChange);
+    cleanups.push(() => targetEl.removeEventListener("change", onChange));
+  }
+
+  if (step.advanceOnTargetInput) {
+    const onInput = () => {
+      if (!_tourTargetValueMatches(step, targetEl.value)) {
+        return;
+      }
+      advance();
+    };
+    targetEl.addEventListener("input", onInput);
+    cleanups.push(() => targetEl.removeEventListener("input", onInput));
+  }
+
+  _tourTargetAdvanceCleanup = () => cleanups.forEach((cleanup) => cleanup());
+}
+
+function _tourTargetValueMatches(step, actualValue) {
+  if (typeof step?.targetValue === "undefined") return true;
+
+  const actual = String(actualValue ?? "").trim();
+  const expected = String(step.targetValue).trim();
+  const allowCaseInsensitiveHex = step.target === "#operand-input" && /^[0-9A-F]+$/i.test(expected);
+
+  if (step.caseInsensitiveTargetValue || allowCaseInsensitiveHex) {
+    return actual.toUpperCase() === expected.toUpperCase();
+  }
+
+  return actual === expected;
 }
 
 function openTutorialDialog() {
@@ -16515,7 +16649,6 @@ function _tutRenderDialog() {
     });
   });
 
-  // Show first lesson by default
   const firstBtn = listEl.querySelector(".tutorial-lesson-item");
   if (firstBtn) firstBtn.click();
 }
@@ -16525,10 +16658,10 @@ function _tutShowLesson(lessonId) {
   const lesson = TUTORIAL_DATA.lessons.find(l => l.id === lessonId);
   const contentEl = document.getElementById("tutorial-lesson-content");
   if (!lesson || !contentEl) return;
+  const canStartTour = lesson.type === "tour" || lesson.interactive === true;
 
   const title = lang === "hu" ? lesson.titleHu : lesson.titleEn;
   const desc = lang === "hu" ? lesson.descHu : lesson.descEn;
-  const isTour = lesson.type === "tour";
   const diffStars = lesson.difficulty > 0
     ? ("★".repeat(lesson.difficulty) + "☆".repeat(3 - lesson.difficulty))
     : null;
@@ -16538,8 +16671,6 @@ function _tutShowLesson(lessonId) {
     : (lang === "hu" ? "Haladó" : "Advanced");
 
   const stepsHtml = lesson.steps.map((step, i) => {
-    const sTitle = lang === "hu" ? step.titleHu : step.titleEn;
-    const sDesc = lang === "hu" ? step.descHu : step.descEn;
     return `<div class="tutorial-step">
       <div class="tutorial-step-num">${i + 1}</div>
       <div class="tutorial-step-content">
@@ -16561,7 +16692,7 @@ function _tutShowLesson(lessonId) {
       <h3 class="tutorial-content-title"></h3>
       <p class="tutorial-content-desc"></p>
     </div>
-    ${lesson.interactive ? `<div class="tutorial-tour-start">
+    ${canStartTour ? `<div class="tutorial-tour-start">
       <button class="primary tutorial-start-tour-btn" type="button">${t("tutorialStartTour")}</button>
     </div>` : ""}
     <div class="tutorial-steps">${stepsHtml}</div>
@@ -16569,7 +16700,6 @@ function _tutShowLesson(lessonId) {
       <button class="primary tutorial-mark-done-btn" type="button"></button>
     </div>`;
 
-  // Set text content safely (no XSS)
   contentEl.querySelector(".tutorial-content-title").textContent = title;
   contentEl.querySelector(".tutorial-content-desc").textContent = desc;
   lesson.steps.forEach((step, i) => {
@@ -16580,19 +16710,11 @@ function _tutShowLesson(lessonId) {
     const actionBtn = stepEl.querySelector(".tutorial-step-action-btn");
     if (actionBtn) actionBtn.textContent = lang === "hu" ? step.actionLabelHu : step.actionLabelEn;
   });
-  const doneBtn = contentEl.querySelector(".tutorial-mark-done-btn");
-  doneBtn.textContent = isDone ? t("tutorialMarkDoneCompleted") : t("tutorialMarkDone");
-  if (isDone) doneBtn.disabled = true;
 
-  // Load sample buttons
   contentEl.querySelectorAll(".tutorial-load-sample-btn").forEach(btn => {
     btn.addEventListener("click", () => {
-      const sampleVal = btn.dataset.sample;
+      loadSampleFromFile(btn.dataset.sample);
       document.getElementById("tutorial-dialog")?.close();
-      if (sampleSelect) {
-        sampleSelect.value = sampleVal;
-        loadSelectedSample();
-      }
     });
   });
 
@@ -16602,7 +16724,6 @@ function _tutShowLesson(lessonId) {
     });
   });
 
-  // Start tour button
   const startTourBtn = contentEl.querySelector(".tutorial-start-tour-btn");
   if (startTourBtn) {
     startTourBtn.addEventListener("click", () => {
@@ -16611,11 +16732,11 @@ function _tutShowLesson(lessonId) {
     });
   }
 
-  // Mark done button
+  const doneBtn = contentEl.querySelector(".tutorial-mark-done-btn");
+  doneBtn.textContent = isDone ? t("tutorialMarkDoneCompleted") : t("tutorialMarkDone");
   doneBtn.addEventListener("click", () => {
     _tutMarkDone(lessonId);
     _tutRenderDialog();
-    // Re-activate the item and re-show lesson
     const listEl = document.getElementById("tutorial-lesson-list");
     const btn = listEl?.querySelector(`[data-lesson-id="${lessonId}"]`);
     if (btn) {
@@ -16625,8 +16746,6 @@ function _tutShowLesson(lessonId) {
     _tutShowLesson(lessonId);
   });
 }
-
-// --- Tour engine ---
 
 function _tourStart(steps, lessonId, interactive = false) {
   _tourActive = true;
@@ -16654,18 +16773,16 @@ function _tourStopMenuSync() {
 function _tourStartMenuSync() {
   _tourStopMenuSync();
   const sync = () => {
-    if (!_tourActive || !_tourMenuOpened || _tourAllowOverlayClose) {
-      _tourMenuSyncRaf = 0;
-      return;
-    }
+    if (!_tourMenuOpened) return;
     const menuDetails = document.querySelector(".control-menu");
     const menuPanel = document.querySelector(".control-menu-panel");
-    menuDetails?.classList.add("tour-menu-open");
-    menuPanel?.classList.remove("menu-closing");
-    menuPanel?.classList.add("menu-opening");
-    menuDetails?.setAttribute("open", "");
-    if (menuDetails) menuDetails.open = true;
-    _tourMenuSyncRaf = requestAnimationFrame(sync);
+    if (menuDetails?.open) {
+      menuDetails.classList.add("tour-menu-open");
+      menuPanel?.classList.add("menu-opening");
+      _tourMenuSyncRaf = requestAnimationFrame(sync);
+      return;
+    }
+    _tourMenuSyncRaf = 0;
   };
   _tourMenuSyncRaf = requestAnimationFrame(sync);
 }
@@ -16769,7 +16886,7 @@ function _tourShowStep(index) {
   }
 }
 
-function _positionSpotlightAndCard(spotlight, card, rect, step) {
+function _applyTourSpotlightPosition(spotlight, card, rect, step) {
   const pad = 8;
   spotlight.style.left = (rect.left - pad) + "px";
   spotlight.style.top = (rect.top - pad) + "px";
@@ -16781,7 +16898,35 @@ function _positionSpotlightAndCard(spotlight, card, rect, step) {
   } else {
     _tourPositionCard(card, rect);
   }
+}
+
+function _positionSpotlightAndCard(spotlight, card, rect, step) {
+  _applyTourSpotlightPosition(spotlight, card, rect, step);
   _tourBindTargetAdvance(step);
+}
+
+function _tourRefreshCurrentStepPosition() {
+  if (!_tourActive) return;
+  const step = _tourSteps[_tourCurrentStep];
+  if (!step?.target) return;
+
+  const spotlight = document.getElementById("tour-spotlight");
+  const card = document.getElementById("tour-card");
+  const targetEl = document.querySelector(step.target);
+  if (!spotlight || !card || !targetEl) return;
+
+  const rect = targetEl.getBoundingClientRect();
+  if (rect.width === 0 && rect.height === 0) return;
+  _applyTourSpotlightPosition(spotlight, card, rect, step);
+}
+
+function _tourScheduleReposition() {
+  if (!_tourActive) return;
+  if (_tourRepositionRaf) return;
+  _tourRepositionRaf = requestAnimationFrame(() => {
+    _tourRepositionRaf = 0;
+    _tourRefreshCurrentStepPosition();
+  });
 }
 
 function _tourPositionCard(card, targetRect) {
@@ -16824,6 +16969,10 @@ function _tourEnd() {
   _tourAllowOverlayClose = true;
   _tourInteractiveMode = false;
   _tourPreparedLessonId = null;
+  if (_tourRepositionRaf) {
+    cancelAnimationFrame(_tourRepositionRaf);
+    _tourRepositionRaf = 0;
+  }
   _tourClearTargetAdvance();
   _tourStopMenuSync();
   document.getElementById("sample-programs-group")?.classList.remove("tour-sample-highlight");
@@ -16891,6 +17040,9 @@ function _initTutorialEvents() {
     if (!_tourAllowOverlayClose) return;
     _tourEnd();
   });
+
+  window.addEventListener("scroll", _tourScheduleReposition, { capture: true, passive: true });
+  window.addEventListener("resize", _tourScheduleReposition, { passive: true });
 }
 
 _tutLoadProgress();
