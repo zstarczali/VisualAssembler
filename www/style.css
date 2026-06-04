@@ -161,7 +161,7 @@ html::-webkit-scrollbar-thumb:hover {
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Inter", sans-serif;
   color: var(--text);
   background:
     radial-gradient(circle at top left, rgba(184, 191, 255, 0.28), transparent 24%),
@@ -3247,8 +3247,7 @@ body.expert-mode .expert-panel {
 .expert-err-line {
   display: block;
   background: color-mix(in srgb, #ff4444 14%, transparent);
-  border-left: 2px solid #ff4444;
-  margin-left: -2px;
+  box-shadow: inset 2px 0 0 #ff4444;
 }
 html[data-theme="dark"] .expert-err-line,
 html[data-theme="oled"] .expert-err-line {
