@@ -684,6 +684,23 @@ Each printable ASCII character (codes 32–126) is stored using its standard ASC
 
 **Size in code:** 0 bytes. The data is placed at the target address as a deferred data section (like RAWBYTES).
 
+**Null terminator:** Check the *"Append `$00` (null terminator)"* checkbox in the PETSCII block to automatically add a `$00` byte after the text. This is ideal for null-terminated string loops:
+
+```
+    LDX #$00
+for0:
+    LDA msg,X
+    BEQ done        ; $00 stops the loop
+    JSR $FFD2
+    INX
+    CPX #$20
+    BNE for0
+done:
+    RTS
+```
+
+In expert mode, add `, null` after the text: `.petscii $C000, "HELLO", null`
+
 **Encoding rules:**
 
 | Input | Byte value |

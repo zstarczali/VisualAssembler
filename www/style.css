@@ -1114,6 +1114,24 @@ html[data-theme="oled"] .primary {
   box-shadow: 0 0 0 2px var(--accent);
 }
 
+/* Compact checkbox for macro options (PETSCII null, etc.) */
+.mini-checkbox {
+  width: 13px !important;
+  height: 13px !important;
+  min-width: 13px !important;
+  min-height: 13px !important;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: var(--primary);
+  margin: 0;
+  padding: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: none !important;
+  vertical-align: middle;
+}
+
 .menu-note {
   margin: 0;
   font-size: 0.82rem;

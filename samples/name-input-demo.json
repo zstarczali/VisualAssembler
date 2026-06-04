@@ -5,68 +5,49 @@
     {
       "id": "ni-001",
       "isComment": true,
-      "commentText": "CHRIN-alapú névbevitel: kérdés → nevet olvas → HELLO [nev]!",
+      "commentText": "CHRIN-alapu nevbevitel: kerdes -> nevet olvas -> HELLO [nev]!",
       "mnemonic": "COMMENT", "operand": "", "rawOperand": "", "description": "",
       "addressingMode": "implied", "base": "hex", "validationError": ""
     },
     {
       "id": "ni-002",
       "isComment": true,
-      "commentText": "--- Kérdés kiírása (null-terminált, PETSCII $0C00) ---",
+      "commentText": "--- Kerdes kiirasa (null-terminated, PETSCII $0C00) ---",
       "mnemonic": "COMMENT", "operand": "", "rawOperand": "", "description": "",
       "addressingMode": "implied", "base": "hex", "validationError": ""
     },
     {
       "id": "ni-003",
-      "category": "Adatmozgas", "mnemonic": "LDX",
-      "operand": "#$00", "rawOperand": "00",
-      "description": "X = 0 (kérdés index)",
-      "addressingMode": "immediate", "base": "hex", "validationError": ""
-    },
-    {
-      "id": "ni-004",
-      "isLabel": true, "labelName": "print_q",
-      "mnemonic": "LABEL", "operand": "print_q", "rawOperand": "print_q", "description": "",
-      "addressingMode": "implied", "base": "hex", "validationError": ""
+      "isForMacro": true, "loopReg": "X", "loopCount": "18", "loopLabel": "print_q",
+      "mnemonic": "FOR", "operand": "", "rawOperand": "",
+      "description": "X: 0 -> 17 (18 karakter)",
+      "addressingMode": "implied", "base": "dec", "validationError": ""
     },
     {
       "id": "ni-005",
       "category": "Adatmozgas", "mnemonic": "LDA",
       "operand": "question,X", "rawOperand": "question",
-      "description": "Következő karakter",
+      "description": "Karakter a kerdes stringbol",
       "addressingMode": "absoluteX", "base": "hex", "validationError": ""
-    },
-    {
-      "id": "ni-006",
-      "category": "Ugrasok", "mnemonic": "BEQ",
-      "operand": "read_name", "rawOperand": "read_name",
-      "description": "Null = kérdés vége",
-      "addressingMode": "relative", "base": "hex", "validationError": ""
     },
     {
       "id": "ni-007",
       "category": "Ugrasok", "mnemonic": "JSR",
       "operand": "$FFD2", "rawOperand": "FFD2",
-      "description": "CHROUT — karakter kiírása",
+      "description": "CHROUT - karakter kiirasa",
       "addressingMode": "absolute", "base": "hex", "validationError": ""
     },
     {
-      "id": "ni-008",
-      "category": "Regiszterek", "mnemonic": "INX",
-      "operand": "", "rawOperand": "", "description": "Következő karakter",
-      "addressingMode": "implied", "base": "hex", "validationError": ""
-    },
-    {
       "id": "ni-009",
-      "category": "Ugrasok", "mnemonic": "BNE",
-      "operand": "print_q", "rawOperand": "print_q",
-      "description": "Vissza",
-      "addressingMode": "relative", "base": "hex", "validationError": ""
+      "isEndfMacro": true, "nextLabel": "print_q", "nextReg": "X", "nextCount": "18",
+      "mnemonic": "ENDF", "operand": "", "rawOperand": "",
+      "description": "INX; CPX #18; BNE print_q",
+      "addressingMode": "implied", "base": "dec", "validationError": ""
     },
     {
       "id": "ni-010",
       "isComment": true,
-      "commentText": "--- Névbevitel: CHRIN blokkoló, X megőrződik, echóz ---",
+      "commentText": "--- Nevbevitel: CHRIN blokkolo, X megorzodik, echo ---",
       "mnemonic": "COMMENT", "operand": "", "rawOperand": "", "description": "",
       "addressingMode": "implied", "base": "hex", "validationError": ""
     },
@@ -80,7 +61,7 @@
       "id": "ni-012",
       "category": "Adatmozgas", "mnemonic": "LDX",
       "operand": "#$00", "rawOperand": "00",
-      "description": "X = 0 (névpuffer index)",
+      "description": "X = 0 (nevpuffer index)",
       "addressingMode": "immediate", "base": "hex", "validationError": ""
     },
     {
@@ -93,7 +74,7 @@
       "id": "ni-014",
       "category": "Ugrasok", "mnemonic": "JSR",
       "operand": "$FFCF", "rawOperand": "FFCF",
-      "description": "CHRIN — blokkolva vár, A=karakter, X megőrződik",
+      "description": "CHRIN - blokkolva var, A=karakter, X megorzodik",
       "addressingMode": "absolute", "base": "hex", "validationError": ""
     },
     {
@@ -107,33 +88,33 @@
       "id": "ni-016",
       "category": "Ugrasok", "mnemonic": "BEQ",
       "operand": "done", "rawOperand": "done",
-      "description": "Ha RETURN: bevitel vége",
+      "description": "Ha RETURN: bevitel vege",
       "addressingMode": "relative", "base": "hex", "validationError": ""
     },
     {
       "id": "ni-017",
       "category": "Adatmozgas", "mnemonic": "STA",
       "operand": "nev,X", "rawOperand": "nev",
-      "description": "Karakter eltárolása a névpufferbe",
+      "description": "Karakter eltarolasa a nevpufferbe",
       "addressingMode": "absoluteX", "base": "hex", "validationError": ""
     },
     {
       "id": "ni-018",
       "category": "Regiszterek", "mnemonic": "INX",
-      "operand": "", "rawOperand": "", "description": "Következő hely",
+      "operand": "", "rawOperand": "", "description": "Kovetkezo hely",
       "addressingMode": "implied", "base": "hex", "validationError": ""
     },
     {
       "id": "ni-019",
       "category": "Ugrasok", "mnemonic": "BNE",
       "operand": "read", "rawOperand": "read",
-      "description": "Vissza (overflow: X=0 után leáll)",
+      "description": "Vissza (overflow: X=0 utan leall)",
       "addressingMode": "relative", "base": "hex", "validationError": ""
     },
     {
       "id": "ni-020",
       "isComment": true,
-      "commentText": "--- Bevitel kész: null lezárás, új sor ---",
+      "commentText": "--- Bevitel kesz: null lezaras, uj sor ---",
       "mnemonic": "COMMENT", "operand": "", "rawOperand": "", "description": "",
       "addressingMode": "implied", "base": "hex", "validationError": ""
     },
@@ -147,63 +128,50 @@
       "id": "ni-022",
       "category": "Adatmozgas", "mnemonic": "LDA",
       "operand": "#$00", "rawOperand": "00",
-      "description": "Null lezáró byte",
+      "description": "Null lezaro byte",
       "addressingMode": "immediate", "base": "hex", "validationError": ""
     },
     {
       "id": "ni-023",
       "category": "Adatmozgas", "mnemonic": "STA",
       "operand": "nev,X", "rawOperand": "nev",
-      "description": "Null terminátor a név végére",
+      "description": "Null terminator a nev vegere",
       "addressingMode": "absoluteX", "base": "hex", "validationError": ""
     },
     {
       "id": "ni-024",
       "category": "Adatmozgas", "mnemonic": "LDA",
       "operand": "#$0D", "rawOperand": "0D",
-      "description": "Új sor",
+      "description": "Uj sor",
       "addressingMode": "immediate", "base": "hex", "validationError": ""
     },
     {
       "id": "ni-025",
       "category": "Ugrasok", "mnemonic": "JSR",
       "operand": "$FFD2", "rawOperand": "FFD2",
-      "description": "CHROUT — új sor",
+      "description": "CHROUT - uj sor",
       "addressingMode": "absolute", "base": "hex", "validationError": ""
     },
     {
       "id": "ni-026",
       "isComment": true,
-      "commentText": "--- HELLO kiírása (null-terminált, PETSCII $0C20) ---",
+      "commentText": "--- HELLO kiirasa (null-terminated, PETSCII $0C20) ---",
       "mnemonic": "COMMENT", "operand": "", "rawOperand": "", "description": "",
       "addressingMode": "implied", "base": "hex", "validationError": ""
     },
     {
       "id": "ni-027",
-      "category": "Adatmozgas", "mnemonic": "LDX",
-      "operand": "#$00", "rawOperand": "00",
-      "description": "X = 0",
-      "addressingMode": "immediate", "base": "hex", "validationError": ""
-    },
-    {
-      "id": "ni-028",
-      "isLabel": true, "labelName": "print_hello",
-      "mnemonic": "LABEL", "operand": "print_hello", "rawOperand": "print_hello", "description": "",
-      "addressingMode": "implied", "base": "hex", "validationError": ""
+      "isForMacro": true, "loopReg": "X", "loopCount": "06", "loopLabel": "print_hello",
+      "mnemonic": "FOR", "operand": "", "rawOperand": "",
+      "description": "X: 0 -> 5 (6 karakter: HELLO )",
+      "addressingMode": "implied", "base": "dec", "validationError": ""
     },
     {
       "id": "ni-029",
       "category": "Adatmozgas", "mnemonic": "LDA",
       "operand": "hello,X", "rawOperand": "hello",
-      "description": "Következő karakter",
+      "description": "Karakter a hello stringbol",
       "addressingMode": "absoluteX", "base": "hex", "validationError": ""
-    },
-    {
-      "id": "ni-030",
-      "category": "Ugrasok", "mnemonic": "BEQ",
-      "operand": "print_name", "rawOperand": "print_name",
-      "description": "Null = HELLO vége",
-      "addressingMode": "relative", "base": "hex", "validationError": ""
     },
     {
       "id": "ni-031",
@@ -213,22 +181,16 @@
       "addressingMode": "absolute", "base": "hex", "validationError": ""
     },
     {
-      "id": "ni-032",
-      "category": "Regiszterek", "mnemonic": "INX",
-      "operand": "", "rawOperand": "", "description": "",
-      "addressingMode": "implied", "base": "hex", "validationError": ""
-    },
-    {
       "id": "ni-033",
-      "category": "Ugrasok", "mnemonic": "BNE",
-      "operand": "print_hello", "rawOperand": "print_hello",
-      "description": "",
-      "addressingMode": "relative", "base": "hex", "validationError": ""
+      "isEndfMacro": true, "nextLabel": "print_hello", "nextReg": "X", "nextCount": "06",
+      "mnemonic": "ENDF", "operand": "", "rawOperand": "",
+      "description": "INX; CPX #6; BNE print_hello",
+      "addressingMode": "implied", "base": "dec", "validationError": ""
     },
     {
       "id": "ni-034",
       "isComment": true,
-      "commentText": "--- Beírt név kiírása (null-terminált puffer) ---",
+      "commentText": "--- Beirt nev kiirasa (null-terminated puffer) ---",
       "mnemonic": "COMMENT", "operand": "", "rawOperand": "", "description": "",
       "addressingMode": "implied", "base": "hex", "validationError": ""
     },
@@ -255,14 +217,14 @@
       "id": "ni-038",
       "category": "Adatmozgas", "mnemonic": "LDA",
       "operand": "nev,X", "rawOperand": "nev",
-      "description": "Névkarakter",
+      "description": "Nevkarakter",
       "addressingMode": "absoluteX", "base": "hex", "validationError": ""
     },
     {
       "id": "ni-039",
       "category": "Ugrasok", "mnemonic": "BEQ",
       "operand": "print_excl", "rawOperand": "print_excl",
-      "description": "Null = név vége",
+      "description": "Null = nev vege",
       "addressingMode": "relative", "base": "hex", "validationError": ""
     },
     {
@@ -295,26 +257,26 @@
       "id": "ni-044",
       "category": "Adatmozgas", "mnemonic": "LDA",
       "operand": "#$21", "rawOperand": "21",
-      "description": "'!'",
+      "description": "!",
       "addressingMode": "immediate", "base": "hex", "validationError": ""
     },
     {
       "id": "ni-045",
       "category": "Ugrasok", "mnemonic": "JSR",
       "operand": "$FFD2", "rawOperand": "FFD2",
-      "description": "CHROUT — '!'",
+      "description": "CHROUT - !",
       "addressingMode": "absolute", "base": "hex", "validationError": ""
     },
     {
       "id": "ni-046",
       "category": "Ugrasok", "mnemonic": "RTS",
-      "operand": "", "rawOperand": "", "description": "Visszatérés BASIC-be",
+      "operand": "", "rawOperand": "", "description": "Visszateres BASIC-be",
       "addressingMode": "implied", "base": "hex", "validationError": ""
     },
     {
       "id": "ni-047",
       "isComment": true,
-      "commentText": "--- Adatok: PETSCII stringek fix címen, nev puffer ---",
+      "commentText": "--- Adatok: PETSCII stringek fix cimen, nev puffer ---",
       "mnemonic": "COMMENT", "operand": "", "rawOperand": "", "description": "",
       "addressingMode": "implied", "base": "hex", "validationError": ""
     },
@@ -330,15 +292,9 @@
       "mnemonic": "PETSCII",
       "operand": "WHAT'S YOUR NAME? ",
       "rawOperand": "WHAT'S YOUR NAME? ",
-      "description": "18 byte, $0C00–$0C11",
-      "addressingMode": "implied", "base": "hex", "validationError": ""
-    },
-    {
-      "id": "ni-050",
-      "isRawBytesMacro": true, "rawBytesAddress": "$0C12",
-      "mnemonic": "RAWBYTES", "operand": "00", "rawOperand": "00",
-      "description": "Null terminátor ($0C12)",
-      "addressingMode": "implied", "base": "hex", "validationError": ""
+      "description": "18 byte + $00 null lezaro, $0C00-$0C12",
+      "addressingMode": "implied", "base": "hex", "validationError": "",
+      "petsciiNullTerminated": true
     },
     {
       "id": "ni-051",
@@ -352,18 +308,12 @@
       "mnemonic": "PETSCII",
       "operand": "HELLO ",
       "rawOperand": "HELLO ",
-      "description": "6 byte, $0C20–$0C25",
-      "addressingMode": "implied", "base": "hex", "validationError": ""
+      "description": "6 byte + $00 null lezaro, $0C20-$0C26",
+      "addressingMode": "implied", "base": "hex", "validationError": "",
+      "petsciiNullTerminated": true
     },
     {
       "id": "ni-053",
-      "isRawBytesMacro": true, "rawBytesAddress": "$0C26",
-      "mnemonic": "RAWBYTES", "operand": "00", "rawOperand": "00",
-      "description": "Null terminátor ($0C26)",
-      "addressingMode": "implied", "base": "hex", "validationError": ""
-    },
-    {
-      "id": "ni-054",
       "isTableMacro": true, "tableName": "nev", "tableAddress": "$0C50",
       "mnemonic": "TABLE", "operand": "nev $0C50", "rawOperand": "nev $0C50", "description": "",
       "addressingMode": "implied", "base": "hex", "validationError": ""
@@ -374,7 +324,7 @@
       "mnemonic": "RAWBYTES",
       "operand": "00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00",
       "rawOperand": "00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00",
-      "description": "21 nulla byte névpuffer ($0C50)",
+      "description": "21 nulla byte nevpuffer ($0C50)",
       "addressingMode": "implied", "base": "hex", "validationError": ""
     }
   ]

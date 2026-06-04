@@ -157,7 +157,7 @@ const mnemonicLibrary = {
     { mnemonic: "DATA", description: "Nyers byte-ok kiirasa egy megadott memoriacimre.", modes: ["implied"], isDataMacro: true },
     { mnemonic: "RAWBYTES", description: "Nyers byte-ok elhelyezese egy megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isRawBytesMacro: true },
     { mnemonic: "RAWTEXT", description: "Szoveg elhelyezese kepernyo kodkent (screen code) egy megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isRawTextMacro: true },
-    { mnemonic: "PETSCII", description: "Szoveg PETSCII kodolassal egy megadott memoriacimtol, kod generalas nelkul. CHROUT ($FFD2) kompatibilis.", modes: ["implied"], isPetsciiMacro: true },
+    { mnemonic: "PETSCII", description: "Szoveg PETSCII kodolassal egy megadott memoriacimtol, kod generalas nelkul. CHROUT ($FFD2) kompatibilis. Null lezaro checkbox.", modes: ["implied"], isPetsciiMacro: true },
     { mnemonic: "INCBIN", description: "Kulso binarfajl beillesztese megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isIncBinMacro: true },
     { mnemonic: "SID", description: "SID zenefajl betoltese kozvetlenul a memoriaba. A fejlecet automatikusan eltavolitja, a Load/Init/Play cimeket kinyeri.", modes: ["implied"], isSidMacro: true },
     { mnemonic: "INCLUDE", description: "Masik projekt JSON fajl blokkjainak beillesztese erre a helyre (csak olvasható).", modes: ["implied"], isIncludeMacro: true },
@@ -1293,7 +1293,7 @@ const mnemonicDescriptionsEn = {
   DATA: "Write raw bytes to a given memory address via LDA/STA code.",
   RAWBYTES: "Place raw bytes at a given memory address without generating any runtime code.",
   RAWTEXT: "Place text as screen codes at a given memory address without generating any runtime code.",
-  PETSCII: "Place text as PETSCII bytes at a given memory address without generating runtime code. Compatible with CHROUT ($FFD2).",
+  PETSCII: "Place text as PETSCII bytes at a given memory address without generating runtime code. Compatible with CHROUT ($FFD2). Null terminator checkbox appends $00.",
   SID: "Load a SID music file directly into memory. The header is stripped automatically and the Load/Init/Play addresses are extracted.",
   INCBIN: "Include an external binary file at a given memory address without generating any runtime code.",
   INCLUDE: "Include another project JSON file's blocks inline at this position (read-only).",
@@ -3239,7 +3239,8 @@ function createBlockFromMnemonic(item) {
       validationError: validateStringMacroAddress("C000"),
       collapsed: true,
       isPetsciiMacro: true,
-      petsciiAddress: "C000"
+      petsciiAddress: "C000",
+      petsciiNullTerminated: false
     };
   }
 
@@ -4001,7 +4002,7 @@ function _blockToExpertLine(block) {
   if (block.isFillMacro)      return `.fill ${fmtRaw(block.rawOperand, block.base)}`;
   if (block.isAlignMacro)     return `.align ${block.rawOperand || "64"}`;
   if (block.isIncBinMacro)    return `.incbin "${block.incBinFileName || "data.bin"}"${block.incBinAddress && block.incBinAddress !== "$C000" ? ", $" + block.incBinAddress.replace(/^\$/,"") : ""}`;
-  if (block.isPetsciiMacro)   return `.petscii $${(block.petsciiAddress || "C000").replace(/^\$/,"").toUpperCase()}, "${block.rawOperand || "HELLO"}"`;
+  if (block.isPetsciiMacro)   return `.petscii $${(block.petsciiAddress || "C000").replace(/^\$/,"").toUpperCase()}, "${block.rawOperand || "HELLO"}"${block.petsciiNullTerminated ? ", null" : ""}`;
   if (block.isTableMacro)     return block.tableAddress ? `.table ${block.tableName || "table1"} $${block.tableAddress.replace(/^\$/,"").toUpperCase()}` : `.table ${block.tableName || "table1"}`;  
   if (block.isLoadFileMacro)  return `.loadfile "${block.loadFileName || "DATA"}", ${block.loadFileDevice || "8"}${block.loadFileAddress ? ", $" + block.loadFileAddress.replace(/^\$/,"") : ""}${block.loadFileErrorLabel ? ", " + block.loadFileErrorLabel : ""}`;
   if (block.isSidMacro)       return `.sid "${block.sidFileName || "music.sid"}"${block.sidCustomAddress ? ", $" + block.sidCustomAddress.replace(/^\$/, "") : ""}`;  
@@ -4905,10 +4906,10 @@ function parseExpertText(text) {
       continue;
     }
 
-    // .petscii $ADDR, "text" [, shift]
-    const petsciiM = line.match(/^\.petscii\s+\$([0-9A-Fa-f]{1,4})\s*,\s*"([^"]*)"\s*(?:,\s*([0-9A-Fa-f]{1,2}))?\s*$/i);
+    // .petscii $ADDR, "text" [, shift] [, null]
+    const petsciiM = line.match(/^\.petscii\s+\$([0-9A-Fa-f]{1,4})\s*,\s*"([^"]*)"\s*(?:,\s*([0-9A-Fa-f]{1,2}))?(?:\s*,\s*(null))?\s*$/i);
     if (petsciiM) {
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "PETSCII", operand: petsciiM[2], rawOperand: petsciiM[2], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isPetsciiMacro: true, petsciiAddress: petsciiM[1].toUpperCase().padStart(4,"0"), charOffset: petsciiM[3] ? petsciiM[3].toUpperCase().padStart(2,"0") : "00" });
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "PETSCII", operand: petsciiM[2], rawOperand: petsciiM[2], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isPetsciiMacro: true, petsciiAddress: petsciiM[1].toUpperCase().padStart(4,"0"), charOffset: petsciiM[3] ? petsciiM[3].toUpperCase().padStart(2,"0") : "00", petsciiNullTerminated: !!petsciiM[4] });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -4977,7 +4978,7 @@ function parseExpertText(text) {
     }
 
     // .for REG, count, label
-    const forM = line.match(/^\.loopf\s+([XY])\s*,\s*(\$?[0-9A-Fa-f]+|\d+)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*$/i);
+    const forM = line.match(/^\.for\s+([XY])\s*,\s*(\$?[0-9A-Fa-f]+|\d+)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*$/i);
     if (forM) {
       const reg = forM[1].toUpperCase();
       const countRaw = forM[2];
@@ -4988,7 +4989,7 @@ function parseExpertText(text) {
     }
 
     // .endf label
-    const endfM = line.match(/^\.nextf\s+([A-Za-z_][A-Za-z0-9_]*)\s*$/i);
+    const endfM = line.match(/^\.endf\s+([A-Za-z_][A-Za-z0-9_]*)\s*$/i);
     if (endfM) {
       const matchingLoop = blocks.slice().reverse().find(b => b.isForMacro && b.loopLabel === endfM[1]);
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "ENDF", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isEndfMacro: true, nextLabel: endfM[1], nextReg: matchingLoop?.loopReg || "X", nextCount: matchingLoop?.loopCount || "0A" });
@@ -6453,6 +6454,11 @@ function updateProgramBlock(index, field, value) {
     } else if (block.isPetsciiMacro) {
       block.operand = block.rawOperand.trim();
       block.validationError = validateStringMacroAddress(block.petsciiAddress);
+      if (field === "petsciiNullTerminated") {
+        renderBlockPreview(index);
+        renderAsmOutput();
+        return;
+      }
     } else if (block.isWordMacro) {
       if (field === "base") {
         const words = parseWordMacro(block.rawOperand, prevBase);
@@ -9924,6 +9930,7 @@ function assembleProgramToPrg(originOverride) {
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
     } else if (block.isPetsciiMacro) {
       const chunkBytes = encodePetsciiMacro(block.rawOperand);
+      if (block.petsciiNullTerminated) chunkBytes.push(0x00);
       const addr = parseAddressValue(block.petsciiAddress) ?? 0xC000;
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
     } else if (block.isIncBinMacro) {
@@ -10095,10 +10102,11 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isPetsciiMacro) {
+    const nullNote = block.petsciiNullTerminated ? " +$00" : "";
     return {
       ok: true,
       bytes: [],
-      comment: `PETSCII "${block.rawOperand || ""}" @ ${formatAddress(parseAddressValue(block.petsciiAddress) ?? 0xC000)}`
+      comment: `PETSCII "${block.rawOperand || ""}"${nullNote} @ ${formatAddress(parseAddressValue(block.petsciiAddress) ?? 0xC000)}`
     };
   }
 
@@ -10514,7 +10522,7 @@ function compileLineBytes(line, labels) {
     const reg = block.loopReg || "X";
     const opcode = reg === "Y" ? 0xA0 : 0xA2;
     const rawCount = (block.loopCount || "0A").trim();
-    const count = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+    const count = (block.base === "dec") ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
     if (isNaN(count) || count < 0 || count > 255) {
       return { ok: false, error: `LOOP: ${t("invalidOperand") || "ervenytelen szamlalocim"}` };
     }
@@ -10544,7 +10552,7 @@ function compileLineBytes(line, labels) {
     const reg = block.loopReg || "X";
     const opcode = reg === "Y" ? 0xA0 : 0xA2;
     const rawCount = (block.loopCount || "0A").trim();
-    const count = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+    const count = (block.base === "dec") ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
     if (isNaN(count) || count < 0 || count > 255) {
       return { ok: false, error: `FOR: ervenytelen szamlalo` };
     }
@@ -10561,7 +10569,7 @@ function compileLineBytes(line, labels) {
       return { ok: false, error: "ENDF: hianyzik a FOR cimke neve." };
     }
     const rawCount = (block.nextCount || "0A").trim();
-    const count = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+    const count = (block.base === "dec") ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
     if (isNaN(count) || count < 0 || count > 255) {
       return { ok: false, error: `ENDF: ervenytelen hatarszam` };
     }
@@ -12872,6 +12880,10 @@ function renderProgram() {
               <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage === "en" ? "e.g. mypetscii" : "pl. sajatpetscii"}">
             </label>
           </div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:4px;font-size:0.72rem;color:var(--muted);">
+            <input class="petscii-null-check mini-checkbox" data-field="petsciiNullTerminated" type="checkbox"${block.petsciiNullTerminated ? " checked" : ""}>
+            ${currentLanguage === "en" ? "Append $00 (null terminator)" : "Null lezaro ($00) hozzafuzese"}
+          </div>
         `
       );
     } else if (block.isIncBinMacro) {
@@ -14009,6 +14021,10 @@ function renderProgram() {
     if (macroLabelInput) {
       macroLabelInput.addEventListener("input", (event) => updateProgramBlock(index, "macroLabel", event.target.value));
     }
+    const petsciiNullCheck = node.querySelector(".petscii-null-check");
+    if (petsciiNullCheck) {
+      petsciiNullCheck.addEventListener("change", (event) => updateProgramBlock(index, "petsciiNullTerminated", event.target.checked));
+    }
     const macroCharOffsetInput = node.querySelector(".macro-char-offset");
     if (macroCharOffsetInput) {
       macroCharOffsetInput.addEventListener("input", (event) => updateProgramBlock(index, "charOffset", event.target.value));
@@ -14661,14 +14677,16 @@ function renderAsmOutput() {
     if (line.block.isPetsciiMacro) {
       const chars = encodePetsciiMacro(line.block.rawOperand);
       const startAddress = parseAddressValue(line.block.petsciiAddress) ?? 0xC000;
+      const nullNote = line.block.petsciiNullTerminated ? ", null" : "";
       const expanded = chunkBytes(chars, 16).map((chunk, chunkIndex) => {
         const chunkAddress = startAddress + (chunkIndex * 16);
         const byteList = chunk.map((byte) => toHex(byte, 2)).join(", ");
         return `    ; ${formatAddress(chunkAddress)}\n    .byte ${byteList}`;
       }).join("\n");
+      const nullLine = line.block.petsciiNullTerminated ? `\n    ; ${formatAddress(startAddress + chars.length)}\n    .byte 00  ; null terminator` : "";
       deferredDataSections.push({
         address: startAddress,
-        text: `${line.block.macroLabel ? line.block.macroLabel.trim() : `petscii_${lineNumber}`}:\n    ; .petscii "${line.block.rawOperand || ""}" -> ${formatAddress(startAddress)}\n${expanded}`
+        text: `${line.block.macroLabel ? line.block.macroLabel.trim() : `petscii_${lineNumber}`}:\n    ; .petscii "${line.block.rawOperand || ""}"${nullNote} -> ${formatAddress(startAddress)}\n${expanded}${nullLine}`
       });
       const petsciiLabel = line.block.macroLabel ? line.block.macroLabel.trim() : `petscii_${lineNumber}`;
       return `; .petscii ${petsciiLabel}`;
@@ -15479,37 +15497,131 @@ const TUTORIAL_DATA = {
           onEnterActionId: "prepare-name-input-demo",
           titleHu: "Név bekérés demo — PETSCII + CHROUT + CHRIN",
           titleEn: "Name Input Demo — PETSCII + CHROUT + CHRIN",
-          descHu: "Ez a program valódi billentyűzet inputot kezel!\n\n1. Kiírja: \"hello c64!\"\n2. Kiírja: \"what's your name?\"\n3. Vár a nevedre — a CHRIN ($FFCF) beolvassa, a CHROUT ($FFD2) visszhangozza, és a bufferbe ($0C30) menti\n4. ENTER után új sorba lép\n5. Kiírja: \"hello \" + a buffer tartalma + \"!\"\n\nAz adatok $0C00 környékén vannak — közel a programkódhoz.",
-          descEn: "This program handles real keyboard input!\n\n1. Prints: \"hello c64!\"\n2. Prints: \"what's your name?\"\n3. Prints: \"hello \"\n4. Waits for your name — CHRIN ($FFCF) reads, CHROUT ($FFD2) echoes\n5. After ENTER prints \"!\" and returns\n\nThe text is stored with the PETSCII macro, output by a print loop using CHROUT."
+          descHu: "Ez a program valódi billentyűzet inputot kezel!\n\n1. Kiírja: \"WHAT'S YOUR NAME? \"\n2. Vár a nevedre — CHRIN ($FFCF) beolvassa, CHROUT ($FFD2) visszhangozza\n3. ENTER után kiírja: \"HELLO \" + a neved + \"!\"\n\nAz adatok PETSCII makróval vannak tárolva, a kiíratás FOR/ENDF ciklusokkal történik.",
+          descEn: "This program handles real keyboard input!\n\n1. Prints: \"WHAT'S YOUR NAME? \"\n2. Waits for your name — CHRIN ($FFCF) reads, CHROUT ($FFD2) echoes\n3. After ENTER prints: \"HELLO \" + your name + \"!\"\n\nData is stored with PETSCII macros, output uses FOR/ENDF loops."
         },
         {
           target: ".program-panel",
           titleHu: "Blokklista áttekintése",
           titleEn: "Block List Overview",
-          descHu: "A mintaprogram betöltődött. A középső panelen látod a blokkokat:\n\n• JSR $E544 — képernyő törlése\n• LDA/STA $D020 — border szín (kék)\n• LDA/STA $D021 — háttérszín (fekete)\n• Print loop — PETSCII szöveg kiírása CHROUT-tal\n• Input loop — CHRIN + CHROUT a név beolvasásához\n• \"!\" kiírása + RTS",
-          descEn: "The sample program is loaded. In the center panel you see the blocks:\n\n• JSR $E544 — clear screen\n• LDA/STA $D020 — border color (blue)\n• LDA/STA $D021 — background color (black)\n• Print loop — outputs PETSCII text via CHROUT\n• Input loop — CHRIN + CHROUT to read your name\n• Print \"!\" + RTS"
+          descHu: "A mintaprogram betöltődött. A középső panelen látod a blokkokat:\n\n• FOR/ENDF — előre számláló ciklusok a szöveg kiírásához\n• CHRIN + CHROUT — név beolvasása és visszhangzása\n• PETSCII makrók — szöveg tárolása $0C00 és $0C20 címen\n• RAWBYTES — névpuffer $0C50-en\n\nKattints egy blokkra — az ASM nézetben kiemeli!",
+          descEn: "The sample is loaded. In the center panel:\n\n• FOR/ENDF — forward-counting loops for text output\n• CHRIN + CHROUT — name input and echo\n• PETSCII macros — text stored at $0C00 and $0C20\n• RAWBYTES — name buffer at $0C50\n\nClick a block — it highlights in the ASM view!"
         },
         {
           target: ".output-panel",
-          titleHu: "ASM kimenet — PETSCII és TABLE",
-          titleEn: "ASM Output — PETSCII and TABLE",
-          descHu: "A jobb oldali ASM panelen láthatod:\n\n• `TABLE msg_text` — a $0C00 címhez rendelt címke\n• A PETSCII makró a $0C00 címtől tárolja a szöveget (31 bájt)\n• `TABLE hello_text` — $0C20 cím, RAWBYTES \"hello \" (6 bájt)\n• `TABLE name_buf` — $0C30 cím, 16 bájt buffer (kezdetben $00)\n• A print loop: `LDA msg_text,Y` / `JSR $FFD2` / `NEXT`\n• Az input loop: `JSR $FFCF` / `CMP #$0D` / `BEQ` / `STA name_buf,X` / `JSR $FFD2`\n\nA név a bufferbe mentődik, majd a program újra kiírja a \"hello \" + név + \"!\" stringet!",
-          descEn: "In the right ASM panel you can see:\n\n• `TABLE msg_start` — label assigned to address $C000\n• The PETSCII macro stores text starting from $C000\n• The text contains `$0D` (RETURN) bytes for line breaks\n• The print loop: `LDA msg_start,Y` / `JSR $FFD2` / `INY` / `CPY #$25` / `BNE`\n\nCHROUT handles $0D automatically: it moves the cursor to a new line!"
-        },
-        {
-          target: ".program-panel",
-          titleHu: "Input loop — így működik a CHRIN",
-          titleEn: "Input Loop — How CHRIN Works",
-          descHu: "Az input loop a program lelke:\n\n```\ninput_loop:\n  JSR $FFCF    ; CHRIN: vár egy billentyűre\n  CMP #$0D     ; RETURN?\n  BEQ done     ; ha igen, kilép\n  STA name_buf,X ; eltárolja a bufferben\n  JSR $FFD2    ; CHROUT: visszhangozza\n  INX          ; következő pozíció\n  CPX #$10     ; max 16 karakter\n  BNE loop     ; vissza\ninput_done:\n  STX $FB      ; elmenti a hosszt (X)\n  LDA #0       ; null terminátor\n  STA name_buf,X\n```\n\nUtána:\\n• `LDA #$0D` / `JSR $FFD2` — új sor\\n• LOOP: kiírja a \"hello \" szöveget\\n• Ciklus: kiírja a name_buf tartalmát\\n• `LDA #$21` / `JSR $FFD2` — \"!\" kiírása",
-          descEn: "The input loop is the heart of the program:\n\n```\ninput_loop:\n  JSR $FFCF    ; CHRIN: waits for a key\n  CMP #$0D     ; RETURN?\n  BEQ done     ; if yes, exit\n  JSR $FFD2    ; CHROUT: echo the character\n  JMP loop     ; back to start\ninput_done:\n```\n\n$FFCF (CHRIN) WAITS for a key — it won't continue until you press one. $FFD2 (CHROUT) prints the character at the cursor.\n\nAt the end, LDA #$21 / JSR $FFD2 prints a \"!\"."
+          titleHu: "ASM kimenet",
+          titleEn: "ASM Output",
+          descHu: "A jobb oldali ASM panelen láthatod a generált kódot:\n\n• FOR: LDX #$00 + címke\n• ENDF: INX + CPX #count + BNE\n• CHRIN input loop: JSR $FFCF / CMP #$0D / BEQ\n• CHROUT: JSR $FFD2 a karakter kiírásához\n• PETSCII adatok deferred .byte szekcióban\n\nA FOR/ENDF makrók clean, olvasható kódot generálnak!",
+          descEn: "The right ASM panel shows generated code:\n\n• FOR: LDX #$00 + label\n• ENDF: INX + CPX #count + BNE\n• CHRIN input loop: JSR $FFCF / CMP #$0D / BEQ\n• CHROUT: JSR $FFD2 for character output\n• PETSCII data in deferred .byte section\n\nFOR/ENDF macros generate clean, readable code!"
         },
         {
           target: "#run-emulator",
           centerCard: true,
           titleHu: "Futtasd le!",
           titleEn: "Run It!",
-          descHu: "Kattints a Run gombra! A VICE emulátorban:\n\n1. Megjelenik \"hello c64!\"\n2. Megjelenik \"what's your name?\"\n3. A kurzor villog — gépeld be a neved! (pl. ANNA)\n4. ENTER után új sorban: \"hello ANNA!\"\n\nPróbáld ki! Ha kész, nyomj Finish-t.",
-          descEn: "Click Run! In the VICE emulator:\n\n1. \"hello c64!\" appears\n2. \"what's your name?\" appears\n3. \"hello \" appears\n4. The cursor blinks — type your name! (e.g. JOHN)\n5. After ENTER, \"!\" appears\n\nTry it! When done, press Finish."
+          descHu: "Kattints a Run gombra! A VICE emulátorban:\n\n1. Megjelenik \"WHAT'S YOUR NAME? \"\n2. A kurzor villog — gépeld be a neved! (pl. ANNA)\n3. ENTER után: \"HELLO ANNA!\"\n\nPróbáld ki! Ha kész, nyomj Finish-t.",
+          descEn: "Click Run! In the VICE emulator:\n\n1. \"WHAT'S YOUR NAME? \" appears\n2. The cursor blinks — type your name! (e.g. JOHN)\n3. After ENTER: \"HELLO JOHN!\"\n\nTry it! When done, press Finish."
+        }
+      ]
+    },
+    {
+      id: "guided-first-text",
+      category: "basics",
+      type: "lesson",
+      interactive: true,
+      difficulty: 0,
+      titleHu: "Építsd meg: első szöveges program",
+      titleEn: "Build: Your First Text Program",
+      descHu: "Interaktívan, lépésről lépésre felépítünk egy programot ami fekete képernyőre ír szöveget. Csak kattints az Add gombra!",
+      descEn: "Interactively build a program step by step that writes text on a black screen. Just click Add!",
+      steps: [
+        {
+          target: null,
+          onEnterActionId: "prepare-guided-color-text",
+          titleHu: "Kezdjük az üres programmal!",
+          titleEn: "Starting with an Empty Program!",
+          descHu: "Üres programterülettel indulunk. A bal oldali palettáról fogjuk a blokkokat hozzáadni az Add gombbal.\n\nA program amit felépítünk:\n  SEI\n  LDA #$00\n  STA $D020  ; border fekete\n  STA $D021  ; háttér fekete\n  JSR $E544  ; képernyő törlés\n  TEXT 12,8: \"hello c64\"\n  TEXT 8,10: \"visual assembler\"\n  RTS\n\nKészen állsz? Kattints a Tovább gombra!",
+          descEn: "We start with a blank canvas. We'll add blocks from the left palette using the Add button.\n\nThe program we'll build:\n  SEI\n  LDA #$00\n  STA $D020  ; border black\n  STA $D021  ; background black\n  JSR $E544  ; clear screen\n  TEXT 12,8: \"hello c64\"\n  TEXT 8,10: \"visual assembler\"\n  RTS\n\nReady? Click Next!"
+        },
+        {
+          target: "#add-button",
+          onEnterActionId: "prep-sei",
+          advanceOnTargetClick: true,
+          titleHu: "1/8 — SEI: interruptok tiltása",
+          titleEn: "1/8 — SEI: Disable Interrupts",
+          descHu: "Adj hozzá egy SEI blokkot!\n\nA SEI (Set Interrupt Disable) letiltja a C64 megszakításait, így a programunk zavartalanul futhat.\n\nA paletta már be van állítva → kattints az Add gombra!",
+          descEn: "Add an SEI block!\n\nSEI (Set Interrupt Disable) stops C64 interrupts so our program runs uninterrupted.\n\nThe palette is pre-selected → click Add!"
+        },
+        {
+          target: "#add-button",
+          onEnterActionId: "prep-lda-black",
+          advanceOnTargetClick: true,
+          titleHu: "2/8 — LDA #$00: fekete szín betöltése",
+          titleEn: "2/8 — LDA #$00: Load Black Color",
+          descHu: "Töltsük be a fekete színt az A regiszterbe!\n\nLDA #$00 betölti a 0-t (fekete) az Accumulator-ba. A # azt jelenti: közvetlen érték.\n\nKattints az Add gombra!",
+          descEn: "Load black into the A register!\n\nLDA #$00 loads 0 (black) into the Accumulator. # means immediate value.\n\nClick Add!"
+        },
+        {
+          target: "#add-button",
+          onEnterActionId: "prep-sta-border",
+          advanceOnTargetClick: true,
+          titleHu: "3/8 — STA $D020: border feketére",
+          titleEn: "3/8 — STA $D020: Border to Black",
+          descHu: "Állítsuk a keretet feketére!\n\n$D020 a VIC-II videochip border-szín regisztere. STA kiírja az A-ban lévő $00-t erre a címre.\n\nKattints az Add gombra!",
+          descEn: "Set the border to black!\n\n$D020 is the VIC-II border color register. STA writes A ($00) to this address.\n\nClick Add!"
+        },
+        {
+          target: "#add-button",
+          onEnterActionId: "prep-sta-background",
+          advanceOnTargetClick: true,
+          titleHu: "4/8 — STA $D021: háttér feketére",
+          titleEn: "4/8 — STA $D021: Background to Black",
+          descHu: "Most a hátteret is feketére!\n\n$D021 a VIC-II háttérszín regisztere. Ugyanazt a $00-t írjuk ki — az egész képernyő fekete.\n\nKattints az Add gombra!",
+          descEn: "Now the background too!\n\n$D021 is the VIC-II background color register. Same $00 → whole screen is black.\n\nClick Add!"
+        },
+        {
+          target: "#add-button",
+          onEnterActionId: "prep-jsr-clearscreen",
+          advanceOnTargetClick: true,
+          titleHu: "5/8 — JSR $E544: képernyő törlése",
+          titleEn: "5/8 — JSR $E544: Clear Screen",
+          descHu: "Töröljük a képernyőt a KERNAL rutinnal!\n\n$E544 a C64 KERNAL ROM CLRSCR rutinja. JSR-rel hívjuk — space-ekkel tölti a képernyőt.\n\nKattints az Add gombra!",
+          descEn: "Clear the screen with the KERNAL routine!\n\n$E544 is the CLRSCR routine in C64 KERNAL ROM. JSR calls it — fills screen with spaces.\n\nClick Add!"
+        },
+        {
+          target: "#add-button",
+          onEnterActionId: "prep-text-hello-c64",
+          advanceOnTargetClick: true,
+          titleHu: "6/8 — TEXT \"hello c64\" (12,8) pozícióba",
+          titleEn: "6/8 — TEXT \"hello c64\" at (12,8)",
+          descHu: "Most jön a szöveg! A TEXT makró közvetlenül a képernyő-RAM-ba ír.\n\nA TEXT blokk hozzáadása után állítsd be az X=12, Y=8 koordinátákat a program panelen.\n\nKattints az Add gombra!",
+          descEn: "Now for text! The TEXT macro writes directly to screen RAM.\n\nAfter adding the TEXT block, set X=12, Y=8 in the program panel.\n\nClick Add!"
+        },
+        {
+          target: "#add-button",
+          onEnterActionId: "prep-text-visual-assembler",
+          advanceOnTargetClick: true,
+          titleHu: "7/8 — TEXT \"visual assembler\" (8,10) pozícióba",
+          titleEn: "7/8 — TEXT \"visual assembler\" at (8,10)",
+          descHu: "Még egy TEXT makró!\n\nÁllítsd be: X=8, Y=10. Ez a \"hello c64\" alá kerül.\n\nKattints az Add gombra!",
+          descEn: "One more TEXT macro!\n\nSet X=8, Y=10. This goes below \"hello c64\".\n\nClick Add!"
+        },
+        {
+          target: "#add-button",
+          onEnterActionId: "prep-rts-block",
+          advanceOnTargetClick: true,
+          titleHu: "8/8 — RTS: visszatérés BASIC-be",
+          titleEn: "8/8 — RTS: Return to BASIC",
+          descHu: "Az utolsó blokk: RTS!\n\nAz RTS (ReTurn from Subroutine) visszatér a BASIC-hez. Minden C64 programot RTS-sel kell zárni!\n\nKattints az Add gombra!",
+          descEn: "The final block: RTS!\n\nRTS (ReTurn from Subroutine) returns to BASIC. Every C64 program must end with RTS!\n\nClick Add!"
+        },
+        {
+          target: "#run-emulator",
+          centerCard: true,
+          titleHu: "Kész! Futtasd le!",
+          titleEn: "Done! Run It!",
+          descHu: "Megépítetted az első C64 programodat! 🎉\n\nKattints a Run gombra! A VICE emulátorban:\n• Fekete képernyő\n• Középen: \"hello c64\"\n• Alatta: \"visual assembler\"\n\nGratulálok! Ha kész, nyomd meg a Finish gombot.",
+          descEn: "You built your first C64 program! 🎉\n\nClick Run! In the VICE emulator:\n• Black screen\n• Center: \"hello c64\"\n• Below: \"visual assembler\"\n\nCongratulations! Press Finish when done."
         }
       ]
     },
@@ -16292,6 +16404,37 @@ function _runTutorialStepAction(actionId) {
         base: "hex"
       });
       break;
+    case "prep-sei":
+      _tutorialSetPaletteSelection({
+        category: "Rendszer",
+        mnemonic: "SEI",
+        addressingMode: "implied",
+        operand: ""
+      });
+      break;
+    case "prep-lda-black":
+      _tutorialSetPaletteSelection({
+        category: "Adatmozgas",
+        mnemonic: "LDA",
+        addressingMode: "immediate",
+        operand: "00",
+        base: "hex"
+      });
+      break;
+    case "prep-text-hello-c64":
+      _tutorialSetPaletteSelection({
+        category: "Makrok",
+        mnemonic: "TEXT",
+        operand: "hello c64"
+      });
+      break;
+    case "prep-text-visual-assembler":
+      _tutorialSetPaletteSelection({
+        category: "Makrok",
+        mnemonic: "TEXT",
+        operand: "visual assembler"
+      });
+      break;
   }
 }
 
@@ -16418,7 +16561,7 @@ function _tutShowLesson(lessonId) {
       <h3 class="tutorial-content-title"></h3>
       <p class="tutorial-content-desc"></p>
     </div>
-    ${isTour ? `<div class="tutorial-tour-start">
+    ${lesson.interactive ? `<div class="tutorial-tour-start">
       <button class="primary tutorial-start-tour-btn" type="button">${t("tutorialStartTour")}</button>
     </div>` : ""}
     <div class="tutorial-steps">${stepsHtml}</div>
