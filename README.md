@@ -2,7 +2,7 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v1.6.8**
+**Current version: v1.6.9**
 
 ---
 
@@ -30,6 +30,7 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **ALIGN macro** — jump to the next memory boundary (e.g. 64 for sprites, `$2000` for bitmap)
 - **TABLE macro** — define a named lookup table at a given address
 - **LOOP / NEXT macro** — visual counter loop pair; LOOP loads X or Y with a count, NEXT emits `DEX/DEY + BNE`; nested loops supported
+- **FOR / ENDF macro** — forward counting loop pair; FOR loads X or Y with 0, ENDF emits `INX/INY + CPX/CPY #limit + BNE`; X/Y = 0..limit-1
 - **PUSH / PULL macro** — save and restore A, X, Y register combinations to/from the stack
 - **IF / ELSE / ENDIF macro** — conditional assembly blocks driven by `DEFINE` symbols
 - **DEFINE macro** — activate named symbols for conditional assembly
@@ -214,7 +215,16 @@ Each block in `program[]` is a plain object:
 
 ---
 
-## What's New in v1.6.8
+## What's New in v1.6.9
+
+- **FOR / ENDF forward-counting loops** — new loop macros: `FOR X, count, label` loads X/Y with zero, `ENDF label` emits `INX/INY + CPX/CPY #limit + BNE`. Loop body runs 0..limit−1. Supports nested loops, auto-labeling (`for1`, `for2`…), expert text import/export, full assembly/PRG/disassembly. ENDF is 5 bytes.
+- **PETSCII null terminator option** — PETSCII blocks now support an optional trailing `$00` byte via a compact checkbox. Expert mode and parser accept/emit `, null` for `.petscii` lines.
+- **Interactive tutorial system** — built-in tutorial system with categorized lessons, guided step-by-step tours, and sample links. Fully localised (HU/EN). Tour steps advance on user interactions; menu overlay state respects active tours. Tutorial data lives in `www/tutorial-data.js`.
+- **Name-input demo and tutorial** — new sample `name-input-demo.json` demonstrating PETSCII text + CHROUT print loop + CHRIN keyboard input, with a guided interactive tutorial.
+- **Lowercase sample text normalisation** — sample demo text operands normalised to lowercase across all samples. PETSCII encoder improved: newlines map to 13, characters uppercase for C64 charset, lowercase→uppercase fallback.
+- **Palette sync and UI fixes** — palette item highlighting refactored; active palette items scroll into view. Table macros no longer show operand field. Hungarian translation fixes.
+
+### Previous: v1.6.8
 
 - **Lowercase charset TEXT/STRING/RAWTEXT auto-detection** — TEXT, STRING, and RAWTEXT macros now automatically detect alphabetic input and encode it for the C64 lowercase charset (`$D018=$17`). `TEXT "Hello World"` produces mixed-case screen codes: lowercase `a`-`z` → scr 1–26, uppercase `A`-`Z` → scr 65–90. Pure numbers/symbols stay backward-compatible. No special flag needed — just switch to lowercase charset with `LDA #$17` / `STA $D018` and type normally.
 - **New sample: Lowercase TEXT demo** — demonstrates lowercase charset mode with mixed-case TEXT output. Switches to lowercase charset, then prints three TEXT lines: `hello c64!`, `Visual Assembler`, and `HELLO WORLD` — all rendered correctly with proper case.

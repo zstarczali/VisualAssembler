@@ -157,12 +157,14 @@ const mnemonicLibrary = {
     { mnemonic: "DATA", description: "Nyers byte-ok kiirasa egy megadott memoriacimre.", modes: ["implied"], isDataMacro: true },
     { mnemonic: "RAWBYTES", description: "Nyers byte-ok elhelyezese egy megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isRawBytesMacro: true },
     { mnemonic: "RAWTEXT", description: "Szoveg elhelyezese kepernyo kodkent (screen code) egy megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isRawTextMacro: true },
-    { mnemonic: "PETSCII", description: "Szoveg PETSCII kodolassal egy megadott memoriacimtol, kod generalas nelkul. CHROUT ($FFD2) kompatibilis.", modes: ["implied"], isPetsciiMacro: true },
+    { mnemonic: "PETSCII", description: "Szoveg PETSCII kodolassal egy megadott memoriacimtol, kod generalas nelkul. CHROUT ($FFD2) kompatibilis. Null lezaro checkbox.", modes: ["implied"], isPetsciiMacro: true },
     { mnemonic: "INCBIN", description: "Kulso binarfajl beillesztese megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isIncBinMacro: true },
     { mnemonic: "SID", description: "SID zenefajl betoltese kozvetlenul a memoriaba. A fejlecet automatikusan eltavolitja, a Load/Init/Play cimeket kinyeri.", modes: ["implied"], isSidMacro: true },
     { mnemonic: "INCLUDE", description: "Masik projekt JSON fajl blokkjainak beillesztese erre a helyre (csak olvasható).", modes: ["implied"], isIncludeMacro: true },
     { mnemonic: "LOOP", description: "Szamlalo ciklus: LD* #count, majd cimke a body elejere. NEXT blokkal zarjuk.", modes: ["implied"], isLoopMacro: true },
     { mnemonic: "NEXT", description: "Ciklus vege: DE* es BNE visszaugras a LOOP cimkejere.", modes: ["implied"], isNextMacro: true },
+    { mnemonic: "FOR", description: "Elore szamlalo ciklus: LD* #0, majd cimke. ENDF zarja (IN* / CP* #limit / BNE). X/Y = 0..limit-1.", modes: ["implied"], isForMacro: true },
+    { mnemonic: "ENDF", description: "Elore szamlalo ciklus vege: IN* / CP* #limit / BNE cimkere. Parosa a FOR blokk.", modes: ["implied"], isEndfMacro: true },
     { mnemonic: "PUSH", description: "Regiszterek mentese a stackre (A, X, Y kombinaciok).", modes: ["implied"], isPushMacro: true },
     { mnemonic: "PULL", description: "Regiszterek visszatoltese a stackrol (A, X, Y kombinaciok).", modes: ["implied"], isPullMacro: true },
     { mnemonic: "MACRO", description: "Felhasznaloi makro definicio kezdete. Nevet var, ENDM-mel zarjuk.", modes: ["implied"], isMacroDefStart: true },
@@ -346,7 +348,7 @@ let debuggerUnpause = false;
 let savedUiSettings = {};
 let userMacros = {};  // Stores user-defined macros: { macroName: [blocks...] }
 
-// ── Tab system ──────────────────────────────────────────────────────
+// ΓöÇΓöÇ Tab system ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 let tabs = [];
 let activeTabId = null;
 let _tabCounter = 0;
@@ -459,27 +461,27 @@ const translations = {
     emulatorHelp: "A helyi VICE emulatort inditjuk a desktop appbol.",
     openEmulator: "VICE kivalasztasa",
     runInEmulator: "Run",
-    runAsPrg: "Futtatás PRG-ként",
-    runViaD64: "Futtatás D64-ről",
-    runViaD64Confirm: "Futtatás VICE-ban",
-    runD64Title: "Futtatás D64-ről",
-    hardwareSettings: "Hardver beállítások...",
-    hardwareSettingsTitle: "Hardver beállítások",
-    hardwareSettingsClose: "Bezárás",
+    runAsPrg: "Futtat├ís PRG-k├⌐nt",
+    runViaD64: "Futtat├ís D64-r┼æl",
+    runViaD64Confirm: "Futtat├ís VICE-ban",
+    runD64Title: "Futtat├ís D64-r┼æl",
+    hardwareSettings: "Hardver be├íll├¡t├ísok...",
+    hardwareSettingsTitle: "Hardver be├íll├¡t├ísok",
+    hardwareSettingsClose: "Bez├ír├ís",
     hwViceSectionLabel: "VICE Emulator",
     hwDebuggerSectionLabel: "Retro Debugger",
-    runOnUltimate: "Futtatás hardveren",
+    runOnUltimate: "Futtat├ís hardveren",
     runD64OnHardware: "D64 hardveren",
     ultimateSectionLabel: "C64 Ultimate",
     ultimateHostLabel: "Host (IP)",
-    ultimatePasswordLabel: "Jelszó",
-    ultimatePasswordPlaceholder: "(opcionális)",
-    ultimateConnectTest: "Kapcsolat tesztelése",
-    ultimateConnecting: "Kapcsolódás...",
+    ultimatePasswordLabel: "Jelsz├│",
+    ultimatePasswordPlaceholder: "(opcion├ílis)",
+    ultimateConnectTest: "Kapcsolat tesztel├⌐se",
+    ultimateConnecting: "Kapcsol├│d├ís...",
     ultimateConnected: "Csatlakozva",
     ultimateConnectFailed: "Kapcsolat sikertelen",
-    ultimateNotConfigured: "C64 Ultimate nincs beállítva. Add meg a host IP-t a beállításokban.",
-    ultimateRunFailed: "Futtatás sikertelen",
+    ultimateNotConfigured: "C64 Ultimate nincs be├íll├¡tva. Add meg a host IP-t a be├íll├¡t├ísokban.",
+    ultimateRunFailed: "Futtat├ís sikertelen",
     copyAsm: "ASM masolasa",
     viceExecutable: "VICE exe",
     chooseViceStatusPending: "A VICE kapcsolat ellenorzese folyamatban.",
@@ -526,54 +528,66 @@ const translations = {
     sampleRandLinesDemo: "Veletlen vonalak demo",
     sampleReuDemo: "REU demo",
     sampleScrollTextDemo: "Sima scroll demo (pontonkenti gorgetes)",
+    sampleNameInputDemo: "Nev bekeres demo (PETSCII + CHROUT)",
     helpManual: "Kezikonyv",
-    about: "Névjegy",
-    knowledgeBase: "Tudásbázis",
-    zoomIn: "Nagyítás (A+)",
-    zoomOut: "Kicsinyítés (A-)",
+    about: "N├⌐vjegy",
+    knowledgeBase: "Tud├ísb├ízis",
+    tutorials: "Tutorialok",
+    tutorialDialogTitle: "Tutorialok",
+    tutorialSelectHint: "Valassz egy tutorialt a listabol",
+    tutorialMarkDone: "Megjeloles keszkent",
+    tutorialMarkDoneCompleted: "Done",
+    tutorialLoadSample: "Mintaprogram betoltese",
+    tutorialStartTour: "Interaktiv bemutato inditasa",
+    tourPrev: "< Elozo",
+    tourNext: "Kovetkezo >",
+    tourFinish: "Befejezes",
+    tourSkip: "Kihagyas",
+    zoomIn: "Nagy├¡t├ís (A+)",
+    zoomOut: "Kicsiny├¡t├⌐s (A-)",
     checkForUpdate: "Frissites keresese",
     reportBug: "Hiba bejelentese",
-    tabCloseConfirm: "Biztosan bezárod a \"{name}\" tabot?",
-    tabCloseConfirmUnsaved: "Biztosan bezárod a \"{name}\" tabot? Nem mentett változtatások elvesznek.",
-    tabCloseConfirmOk: "Bezárás",
-    tabCloseConfirmCancel: "Mégsem",
+    tabCloseConfirm: "Biztosan bez├írod a \"{name}\" tabot?",
+    tabCloseConfirmUnsaved: "Biztosan bez├írod a \"{name}\" tabot? Nem mentett v├íltoztat├ísok elvesznek.",
+    tabCloseConfirmOk: "Bez├ír├ís",
+    tabCloseConfirmCancel: "M├⌐gsem",
     expertPaletteSync: "Mnemonik panel szinkron",
-    expertPaletteToggle: "Mnemonik panel megjelenítése",
+    expertPaletteToggle: "Mnemonik panel megjelen├¡t├⌐se",
     expertDisasm: "Disassembler be/ki",
     expertMonitor: "Monitor be/ki",
-    expertFormat: "Forráskód formázása",
+    expertFormat: "Forr├ísk├│d form├íz├ísa",
     expertProjectPanel: "Projekt panel",
-    projOpenProjectBtn: "Projekt megnyítása",
-    menuOpenProject: "Projekt megnyítása",
-    menuSaveProject: "Projekt mentése",
-    menuCloseProject: "Projekt bezárása",
-    projNewProjectBtn: "Új projekt",
-    projSaveProjectBtn: "Projekt mentése",
-    projAddFileBtn: "Fájl hozzáadása",
+    projOpenProjectBtn: "Projekt megny├¡t├ísa",
+    menuOpenProject: "Projekt megny├¡t├ísa",
+    menuSaveProject: "Projekt ment├⌐se",
+    menuCloseProject: "Projekt bez├ír├ísa",
+    projNewProjectBtn: "├Üj projekt",
+    projSaveProjectBtn: "Projekt ment├⌐se",
+    projAddFileBtn: "F├íjl hozz├íad├ísa",
     projNoProject: "Nincs projekt",
-    projClickToOpen: "Kattints a mappa gombra\nprojekt megnyitásához",
-    projAddFileHint: "Adj hozzá fájlt a + gombbal",
-    projRegions: "Régiók",
-    projMacros: "Makrók",
+    projClickToOpen: "Kattints a mappa gombra\nprojekt megnyit├ís├íhoz",
+    projAddFileHint: "Adj hozz├í f├íjlt a + gombbal",
+    projRegions: "R├⌐gi├│k",
+    projMacros: "Makr├│k",
     projLabels: "Labelek",
     projOpened: "Projekt megnyitva",
     projSaved: "Projekt mentve",
-    projClosed: "Projekt bezárva",
+    projClosed: "Projekt bez├írva",
     projNoOpen: "Nincs megnyitott projekt",
     projError: "Projekt hiba",
     projOpenFile: "Megnyitva",
-    projSaveError: "Mentési hiba",
-    projRemove: "Eltávolítás",
-    projStartupFile: "Indítófájl",
-    projSetStartup: "Beállítás indítófájlként",
-    projUnsetStartup: "Indítófájl törlése",
-    projStartupSet: "Indítófájl beállítva",
+    projSaveError: "Ment├⌐si hiba",
+    projRemove: "Elt├ívol├¡t├ís",
+    projStartupFile: "Ind├¡t├│f├íjl",
+    projSetStartup: "Be├íll├¡t├ís ind├¡t├│f├íjlk├⌐nt",
+    projUnsetStartup: "Ind├¡t├│f├íjl t├╢rl├⌐se",
+    projStartupSet: "Ind├¡t├│f├íjl be├íll├¡tva",
     viceRunning: "VICE fut",
     whatsNew: "Ujdonsagok",
     paletteSearchPlaceholder: "Kereses...",
     paletteSearchLabel: "Kereses",
-    basicSysLabel: "BASIC SYS stub generálása",
-    blockDescSyncLabel: "Blokk kiválasztás követése a paletán",
+    basicSysLabel: "BASIC SYS stub gener├íl├ísa",
+    blockDescSyncLabel: "Blokk kiv├ílaszt├ís k├╢vet├⌐se a palet├ín",
     expertModeLabel: "Expert mode",
     collapseAll: "Osszes osszecsukasa",
     expandAll: "Osszes kinyitasa",
@@ -721,7 +735,7 @@ const translations = {
     debuggerNotConfiguredPlaceholder: "Nincs beallitva",
     debuggerParamsLabel: "RetroDebugger",
     debuggerJmpLabel: "Ugras a kod cimere (-jmp)",
-    debuggerWaitLabel: "Varakozas inditás előtt (-wait)",
+    debuggerWaitLabel: "Varakozas indit├ís el┼ætt (-wait)",
     debuggerUnpauseLabel: "Futatas kenyszeritese (-unpause)",
     debuggerStatusPending: "Valaszd ki a RetroDebugger executable-t.",
     debuggerStatusReady: "RetroDebugger keszen all: {path}",
@@ -899,9 +913,21 @@ const translations = {
     sampleRandLinesDemo: "Random lines demo",
     sampleReuDemo: "REU demo",
     sampleScrollTextDemo: "Smooth scroll demo (per-pixel scrolling)",
+    sampleNameInputDemo: "Name input demo (PETSCII + CHROUT)",
     helpManual: "Manual",
     about: "About",
     knowledgeBase: "Knowledge Base",
+    tutorials: "Tutorials",
+    tutorialDialogTitle: "Tutorials",
+    tutorialSelectHint: "Select a lesson from the list",
+    tutorialMarkDone: "Mark as Completed",
+    tutorialMarkDoneCompleted: "Done",
+    tutorialLoadSample: "Load Sample Program",
+    tutorialStartTour: "Start Interactive Tour",
+    tourPrev: "< Prev",
+    tourNext: "Next >",
+    tourFinish: "Finish",
+    tourSkip: "Skip",
     zoomIn: "Zoom in (A+)",
     zoomOut: "Zoom out (A-)",
     languageLabel: "Language",
@@ -1267,12 +1293,14 @@ const mnemonicDescriptionsEn = {
   DATA: "Write raw bytes to a given memory address via LDA/STA code.",
   RAWBYTES: "Place raw bytes at a given memory address without generating any runtime code.",
   RAWTEXT: "Place text as screen codes at a given memory address without generating any runtime code.",
-  PETSCII: "Place text as PETSCII bytes at a given memory address without generating runtime code. Compatible with CHROUT ($FFD2).",
+  PETSCII: "Place text as PETSCII bytes at a given memory address without generating runtime code. Compatible with CHROUT ($FFD2). Null terminator checkbox appends $00.",
   SID: "Load a SID music file directly into memory. The header is stripped automatically and the Load/Init/Play addresses are extracted.",
   INCBIN: "Include an external binary file at a given memory address without generating any runtime code.",
   INCLUDE: "Include another project JSON file's blocks inline at this position (read-only).",
   LOOP: "Counter loop: LD* #count loads the counter, then a label marks the body start. Close with NEXT.",
   NEXT: "Loop end: DE* decrements the counter, BNE branches back to the LOOP label.",
+  FOR: "Forward counting loop: LD* #0, then a label marks the body start. Close with ENDF (IN* / CP* #limit / BNE).",
+  ENDF: "Forward loop end: IN* increments, CP* #limit compares, BNE branches back to the FOR label.",
   PUSH: "Save registers to the stack (A, X, Y combinations).",
   PULL: "Restore registers from the stack (A, X, Y combinations).",
   MACRO: "User macro definition start. Expects a name, close with ENDM.",
@@ -1725,6 +1753,7 @@ function initPalette() {
 
   // Exposed helper so toolbar buttons outside the panel can also close with animation
   window._closeControlMenu = function(onDone) {
+    if (_tourMenuOpened && !_tourAllowOverlayClose) { onDone?.(); return; }
     if (!controlMenu?.open) { onDone?.(); return; }
     if (menuClosing) { onDone?.(); return; }
     menuClosing = true;
@@ -1737,6 +1766,10 @@ function initPalette() {
     }, { once: true });
   };
   controlMenu?.querySelector("summary")?.addEventListener("click", (e) => {
+    if (_tourMenuOpened && !_tourAllowOverlayClose) {
+      e.preventDefault();
+      return;
+    }
     if (menuClosing) return;
     if (controlMenu.open) {
       // Intercept close: animate first, then remove open
@@ -1763,6 +1796,7 @@ function initPalette() {
   controlMenuPanel?.addEventListener("click", (e) => {
     const target = e.target.closest("button, a, .run-mode-item");
     if (!target || !controlMenu.open) return;
+    if (_tourMenuOpened && !_tourAllowOverlayClose) return;
     // Don't close when interacting with the theme picker
     if (e.target.closest("#theme-picker")) return;
     // Don't close when using zoom buttons
@@ -1778,6 +1812,7 @@ function initPalette() {
   // use window._closeControlMenu() directly.
   document.addEventListener("click", (e) => {
     if (!controlMenu?.open) return;
+    if (_tourMenuOpened && !_tourAllowOverlayClose) return;
     if (controlMenu.contains(e.target)) return;
     // If target is a button that calls _closeControlMenu itself, skip
     if (e.target.closest("[data-closes-menu]")) return;
@@ -2299,6 +2334,13 @@ function applyTranslations() {
   if (checkUpdateButton) checkUpdateButton.textContent = t("checkForUpdate");
   if (reportBugButton) reportBugButton.textContent = t("reportBug");
   if (whatsNewButton) whatsNewButton.textContent = t("whatsNew");
+  const tutorialBtnEl = document.getElementById("tutorial-btn");
+  const tutorialBtnLabelEl = document.getElementById("tutorial-toolbar-label");
+  if (tutorialBtnLabelEl) tutorialBtnLabelEl.textContent = t("tutorials");
+  if (tutorialBtnEl) {
+    tutorialBtnEl.setAttribute("title", t("tutorials"));
+    tutorialBtnEl.setAttribute("aria-label", t("tutorials"));
+  }
   if (paletteSearchInput) paletteSearchInput.placeholder = t("paletteSearchPlaceholder");
   const paletteSearchLabel = document.getElementById("palette-search-label");
   if (paletteSearchLabel) paletteSearchLabel.textContent = t("paletteSearchLabel");
@@ -2513,6 +2555,7 @@ function applyTranslations() {
   if (sampleOptions[28]) sampleOptions[28].textContent = t("sampleRandLinesDemo");
   if (sampleOptions[29]) sampleOptions[29].textContent = t("sampleReuDemo");
   if (sampleOptions[30]) sampleOptions[30].textContent = t("sampleScrollTextDemo");
+  if (sampleOptions[31]) sampleOptions[31].textContent = t("sampleNameInputDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -2680,10 +2723,13 @@ function setupOperandDropdown() {
 function updateOperandField() {
   const item = getSelectedMnemonic();
   const mode = addressingModes[addressingSelect.value];
+  const operandField = operandInput.closest(".field");
   const addressingField = document.getElementById("addressing-field");
+  const hideOperandField = !!item?.isTableMacro;
 
   // Hide addressing mode selector for COMMENT or single-mode instructions
   if (addressingField) addressingField.hidden = !!(item?.isComment) || (item ? item.modes.length <= 1 : false);
+  if (operandField) operandField.hidden = hideOperandField;
 
   // Populate KERNAL suggestions for JSR / JMP
   if (item && (item.mnemonic === "JSR" || item.mnemonic === "JMP")) {
@@ -2709,7 +2755,7 @@ function updateOperandField() {
   const needsRawTextOperand = item?.isRawTextMacro;
   const needsPetsciiOperand = item?.isPetsciiMacro;
   const needsCommentOperand = item?.isComment;
-  operandInput.disabled = !(mode.needsOperand || needsTextOperand || needsByteOperand || needsStringOperand || needsDataOperand || needsRawBytesOperand || needsRawTextOperand || needsPetsciiOperand || needsCommentOperand) || item?.isIncBinMacro || item?.isIncludeMacro;
+  operandInput.disabled = hideOperandField || !(mode.needsOperand || needsTextOperand || needsByteOperand || needsStringOperand || needsDataOperand || needsRawBytesOperand || needsRawTextOperand || needsPetsciiOperand || needsCommentOperand) || item?.isIncBinMacro || item?.isIncludeMacro;
   operandInput.placeholder = needsTextOperand
     ? (currentLanguage === "en" ? "For example HELLO C64" : "Peldaul HELLO C64")
     : needsByteOperand
@@ -2920,20 +2966,25 @@ function _syncPaletteToBlock(blockId, force = false) {
   }
 }
 
-function _highlightActivePaletteItem() {
+function _highlightPaletteItemByMnemonic(mnemonic, behavior = "smooth") {
   document.querySelectorAll(".palette-item--active").forEach(el => el.classList.remove("palette-item--active"));
-  if (!selectedBlockId) return;
-  const block = program.find(b => b.id === selectedBlockId);
-  if (!block) return;
+  if (!mnemonic) return;
   const items = paletteList.querySelectorAll(".palette-item");
   for (const item of items) {
     const mn = item.querySelector(".palette-mnemonic")?.textContent?.trim();
-    if (mn === block.mnemonic) {
+    if (mn === mnemonic) {
       item.classList.add("palette-item--active");
-      item.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      item.scrollIntoView({ block: "nearest", behavior });
       break;
     }
   }
+}
+
+function _highlightActivePaletteItem() {
+  if (!selectedBlockId) return;
+  const block = program.find(b => b.id === selectedBlockId);
+  if (!block) return;
+  _highlightPaletteItemByMnemonic(block.mnemonic, "smooth");
 }
 
 function renderSearchResults(query) {
@@ -3196,7 +3247,8 @@ function createBlockFromMnemonic(item) {
       validationError: validateStringMacroAddress("C000"),
       collapsed: true,
       isPetsciiMacro: true,
-      petsciiAddress: "C000"
+      petsciiAddress: "C000",
+      petsciiNullTerminated: false
     };
   }
 
@@ -3504,6 +3556,44 @@ function createBlockFromMnemonic(item) {
       isNextMacro: true,
       nextLabel: "",  // auto-filled in insertBlock
       nextReg: "X"
+    };
+  }
+
+  if (item.isForMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isForMacro: true,
+      loopReg: "X",
+      loopCount: "0A",
+      loopLabel: ""  // auto-assigned in insertBlock
+    };
+  }
+
+  if (item.isEndfMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isEndfMacro: true,
+      nextLabel: "",  // auto-filled in insertBlock
+      nextReg: "X",
+      nextCount: "0A"
     };
   }
 
@@ -3830,7 +3920,7 @@ function collapseLoadedProgram(blocks) {
   // suffix/prefix mismatches (,X / ,Y / #) from older saved files
   result.forEach((block) => {
     const isMacroOrSpecial = block.isLabel || block.isComment || block.isAnonymousLabel || block.isLoopMacro ||
-      block.isNextMacro || block.isTableMacro || block.isDefineMacro || block.isConstMacro ||
+      block.isNextMacro || block.isForMacro || block.isEndfMacro || block.isTableMacro || block.isDefineMacro || block.isConstMacro ||
       block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isByteMacro ||
       block.isWordMacro || block.isDataMacro || block.isRawBytesMacro || block.isFillMacro ||
       block.isAlignMacro || block.isTextMacro || block.isStringMacro || block.isRawTextMacro ||
@@ -3854,6 +3944,13 @@ function collapseLoadedProgram(blocks) {
       const matching = result.find(b => b.isLoopMacro && b.loopLabel === block.nextLabel);
       if (matching) {
         block.nextReg = matching.loopReg || "X";
+      }
+    }
+    if (block.isEndfMacro && block.nextLabel) {
+      const matching = result.find(b => b.isForMacro && b.loopLabel === block.nextLabel);
+      if (matching) {
+        block.nextReg = matching.loopReg || "X";
+        block.nextCount = matching.loopCount || "0A";
       }
     }
   });
@@ -3913,13 +4010,15 @@ function _blockToExpertLine(block) {
   if (block.isFillMacro)      return `.fill ${fmtRaw(block.rawOperand, block.base)}`;
   if (block.isAlignMacro)     return `.align ${block.rawOperand || "64"}`;
   if (block.isIncBinMacro)    return `.incbin "${block.incBinFileName || "data.bin"}"${block.incBinAddress && block.incBinAddress !== "$C000" ? ", $" + block.incBinAddress.replace(/^\$/,"") : ""}`;
-  if (block.isPetsciiMacro)   return `.petscii $${(block.petsciiAddress || "C000").replace(/^\$/,"").toUpperCase()}, "${block.rawOperand || "HELLO"}"`;
+  if (block.isPetsciiMacro)   return `.petscii $${(block.petsciiAddress || "C000").replace(/^\$/,"").toUpperCase()}, "${block.rawOperand || "HELLO"}"${block.petsciiNullTerminated ? ", null" : ""}`;
   if (block.isTableMacro)     return block.tableAddress ? `.table ${block.tableName || "table1"} $${block.tableAddress.replace(/^\$/,"").toUpperCase()}` : `.table ${block.tableName || "table1"}`;  
   if (block.isLoadFileMacro)  return `.loadfile "${block.loadFileName || "DATA"}", ${block.loadFileDevice || "8"}${block.loadFileAddress ? ", $" + block.loadFileAddress.replace(/^\$/,"") : ""}${block.loadFileErrorLabel ? ", " + block.loadFileErrorLabel : ""}`;
   if (block.isSidMacro)       return `.sid "${block.sidFileName || "music.sid"}"${block.sidCustomAddress ? ", $" + block.sidCustomAddress.replace(/^\$/, "") : ""}`;  
   if (block.isIncludeMacro)   return `.include "${block.includeFileName || "library.json"}"${block.includeAddress ? ", $" + block.includeAddress.replace(/^\$/, "") : ""}`;  
   if (block.isLoopMacro)      return `.loop ${block.loopReg || "X"}, $${(block.loopCount || "0A").toUpperCase()}, ${block.loopLabel || "loop1"}`;
   if (block.isNextMacro)      return `.next ${block.nextLabel || "loop1"}`;
+  if (block.isForMacro)     return `.for ${block.loopReg || "X"}, $${(block.loopCount || "0A").toUpperCase()}, ${block.loopLabel || "loop1"}`;
+  if (block.isEndfMacro)     return `.endf ${block.nextLabel || "loop1"}`;
   if (block.isPushMacro)      return `.push ${block.pushRegs || "A"}`;
   if (block.isPullMacro)      return `.pull ${block.pullRegs || "A"}`;
   if (block.isConstMacro) {
@@ -4132,7 +4231,7 @@ const _DIRECTIVE_TO_MNEM = {
   text:"TEXT", string:"STRING", rawtext:"RAWTEXT", rawbytes:"RAWBYTES", data:"DATA",
   byte:"BYTE", word:"WORD", fill:"FILL", align:"ALIGN", incbin:"INCBIN",
   petscii:"PETSCII", table:"TABLE", loadfile:"LOADFILE", sid:"SID", include:"INCLUDE",
-  loop:"LOOP", next:"NEXT", push:"PUSH", pull:"PULL",
+  loop:"LOOP", next:"NEXT", for:"FOR", endf:"ENDF", push:"PUSH", pull:"PULL",
   macro:"MACRO", endm:"ENDM", invoke:"INVOKE",
   sprite_init:"SPRITE_INIT", sprite_pos:"SPRITE_POS", wait_raster:"WAIT_RASTER",
   joystick:"JOYSTICK", mouse:"MOUSE", sprite_col:"SPRITE_COL", turbo_set:"TURBO_SET",
@@ -4554,6 +4653,7 @@ function showBuildInfoDialog() {
     layout.lines.forEach(line => {
       if (line.block.isLabel && line.block.labelName) labels.set(line.block.labelName, line.address);
       if (line.block.isLoopMacro && line.block.loopLabel) labels.set(line.block.loopLabel, line.address + 2);
+      if (line.block.isForMacro && line.block.loopLabel) labels.set(line.block.loopLabel, line.address + 2);
       if (line.block.isConstMacro && line.block.constName) {
         const v = parseNumberByBase((line.block.rawOperand || "").replace(/^\$/, ""), line.block.base);
         if (v !== null) labels.set(line.block.constName, v);
@@ -4597,7 +4697,7 @@ function showBuildInfoDialog() {
       }
       const macroTypes = [
         "isTextMacro","isStringMacro","isDataMacro","isRawBytesMacro","isRawTextMacro",
-        "isLoopMacro","isNextMacro","isSpriteInitMacro","isSpritePosMacro","isWaitRasterMacro",
+        "isLoopMacro","isNextMacro","isForMacro","isEndfMacro","isSpriteInitMacro","isSpritePosMacro","isWaitRasterMacro",
         "isJoystickMacro","isMouseMacro","isSpriteColMacro","isIncBinMacro","isSidMacro",
         "isLoadFileMacro","isReuStashMacro","isReuFetchMacro","isReuSwapMacro","isReuCheckMacro",
         "isTurboSetMacro","isTurboEnableMacro","isSuperCpuDetectMacro",
@@ -4814,10 +4914,10 @@ function parseExpertText(text) {
       continue;
     }
 
-    // .petscii $ADDR, "text" [, shift]
-    const petsciiM = line.match(/^\.petscii\s+\$([0-9A-Fa-f]{1,4})\s*,\s*"([^"]*)"\s*(?:,\s*([0-9A-Fa-f]{1,2}))?\s*$/i);
+    // .petscii $ADDR, "text" [, shift] [, null]
+    const petsciiM = line.match(/^\.petscii\s+\$([0-9A-Fa-f]{1,4})\s*,\s*"([^"]*)"\s*(?:,\s*([0-9A-Fa-f]{1,2}))?(?:\s*,\s*(null))?\s*$/i);
     if (petsciiM) {
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "PETSCII", operand: petsciiM[2], rawOperand: petsciiM[2], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isPetsciiMacro: true, petsciiAddress: petsciiM[1].toUpperCase().padStart(4,"0"), charOffset: petsciiM[3] ? petsciiM[3].toUpperCase().padStart(2,"0") : "00" });
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "PETSCII", operand: petsciiM[2], rawOperand: petsciiM[2], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isPetsciiMacro: true, petsciiAddress: petsciiM[1].toUpperCase().padStart(4,"0"), charOffset: petsciiM[3] ? petsciiM[3].toUpperCase().padStart(2,"0") : "00", petsciiNullTerminated: !!petsciiM[4] });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -4881,6 +4981,26 @@ function parseExpertText(text) {
     if (nextM) {
       const matchingLoop = blocks.slice().reverse().find(b => b.isLoopMacro && b.loopLabel === nextM[1]);
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "NEXT", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isNextMacro: true, nextLabel: nextM[1], nextReg: matchingLoop?.loopReg || "X" });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .for REG, count, label
+    const forM = line.match(/^\.for\s+([XY])\s*,\s*(\$?[0-9A-Fa-f]+|\d+)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*$/i);
+    if (forM) {
+      const reg = forM[1].toUpperCase();
+      const countRaw = forM[2];
+      const count = countRaw.startsWith("$") ? countRaw.slice(1).toUpperCase().padStart(2,"0") : parseInt(countRaw,10).toString(16).toUpperCase().padStart(2,"0");
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "FOR", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isForMacro: true, loopReg: reg, loopCount: count, loopLabel: forM[3] });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .endf label
+    const endfM = line.match(/^\.endf\s+([A-Za-z_][A-Za-z0-9_]*)\s*$/i);
+    if (endfM) {
+      const matchingLoop = blocks.slice().reverse().find(b => b.isForMacro && b.loopLabel === endfM[1]);
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "ENDF", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isEndfMacro: true, nextLabel: endfM[1], nextReg: matchingLoop?.loopReg || "X", nextCount: matchingLoop?.loopCount || "0A" });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -5178,7 +5298,10 @@ function _expertUpdateCursor() {
         mnemonicSelect.value = targetMnem;
         syncAddressingModes();
         renderPaletteItems();
+      } else {
+        renderMnemonicDescription();
       }
+      _highlightPaletteItemByMnemonic(targetMnem, "smooth");
     }
   }
 
@@ -5236,6 +5359,7 @@ function _expertValidate() {
           if (line.conditionallySkipped) return;
           if (line.block.isLabel && line.block.labelName) labels.set(line.block.labelName, line.address);
           if (line.block.isLoopMacro && line.block.loopLabel) labels.set(line.block.loopLabel, line.address + 2);
+          if (line.block.isForMacro && line.block.loopLabel) labels.set(line.block.loopLabel, line.address + 2);
           if (line.block.isTableMacro && line.block.tableName) {
             const tableAddr = line.block.tableAddress
               ? (parseAddressValue(line.block.tableAddress) ?? line.address)
@@ -5388,6 +5512,7 @@ function _buildDisasmHTML() {
     layout.lines.forEach((line) => {
       if (line.block.isLabel && line.block.labelName) labelMap.set(line.block.labelName, line.address);
       if (line.block.isLoopMacro && line.block.loopLabel) labelMap.set(line.block.loopLabel, line.address + 2);
+      if (line.block.isForMacro && line.block.loopLabel) labelMap.set(line.block.loopLabel, line.address + 2);
       if (line.block.isTableMacro && line.block.tableName) {
         const tableAddr = line.block.tableAddress
           ? (parseAddressValue(line.block.tableAddress) ?? line.address)
@@ -5420,6 +5545,45 @@ function _buildDisasmHTML() {
       const compiled = compileLineBytes(line, labelMap);
 
       if (!compiled.ok) continue;
+
+      const block = line.block;
+
+      // Deferred data blocks: RAWBYTES, RAWTEXT, PETSCII — no inline code; show data at target address
+      if (block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro) {
+        let deferredBytes = [];
+        let deferredAddr = 0;
+        if (block.isRawBytesMacro) {
+          deferredBytes = parseByteMacro(block.rawOperand, block.base);
+          deferredAddr = parseAddressValue(block.rawBytesAddress) ?? 0xC000;
+        } else if (block.isRawTextMacro) {
+          const rawOffset = parseInt(block.charOffset || "0", 16);
+          deferredBytes = encodeTextMacro(block.rawOperand, block.textCharset || "standard")
+            .map(b => (b + (isNaN(rawOffset) ? 0 : rawOffset)) & 0xFF);
+          deferredAddr = parseAddressValue(block.rawTextAddress) ?? 0xC000;
+        } else if (block.isPetsciiMacro) {
+          deferredBytes = encodePetsciiMacro(block.rawOperand);
+          if (block.petsciiNullTerminated) deferredBytes.push(0x00);
+          deferredAddr = parseAddressValue(block.petsciiAddress) ?? 0xC000;
+        }
+        if (deferredBytes.length > 0) {
+          const DCHUNK = 8;
+          const DCOLW = DCHUNK * 3 - 1;
+          const isShort = deferredBytes.length <= DCHUNK;
+          for (let ci = 0; ci < deferredBytes.length; ci += DCHUNK) {
+            const chunk = deferredBytes.slice(ci, ci + DCHUNK);
+            const chunkAddrHex = (deferredAddr + ci).toString(16).toUpperCase().padStart(4, "0");
+            const hexDump = chunk.map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+            const padTo = isShort ? Math.max(hexDump.length, 8) : DCOLW;
+            lines.push(
+              `<span class="dsm-addr">$${chunkAddrHex}</span>  ` +
+              `<span class="dsm-bytes">${hexDump.padEnd(padTo)}</span>  ` +
+              `<span class="asm-tok-mnemonic">.BYTE</span>  ` +
+              `<span class="asm-tok-operand">${esc(chunk.map(b => "$" + b.toString(16).toUpperCase().padStart(2, "0")).join(", "))}</span>`
+            );
+          }
+        }
+        continue;
+      }
 
       // Only show lines that produce actual bytes (real code / inline data)
       if (!compiled.bytes.length) {
@@ -6186,6 +6350,20 @@ function insertBlock(index, block) {
       block.nextReg = last.loopReg || "X";
     }
   }
+  if (block.isForMacro && !block.loopLabel) {
+    let n = 1;
+    while (program.some(b => (b.isForMacro || b.isLoopMacro) && b.loopLabel === `for${n}`)) n++;
+    block.loopLabel = `for${n}`;
+  }
+  if (block.isEndfMacro && !block.nextLabel) {
+    const loopsAbove = program.slice(0, index).filter(b => b.isForMacro);
+    if (loopsAbove.length > 0) {
+      const last = loopsAbove[loopsAbove.length - 1];
+      block.nextLabel = last.loopLabel;
+      block.nextReg = last.loopReg || "X";
+      block.nextCount = last.loopCount || "0A";
+    }
+  }
   program.splice(index, 0, block);
   operandInput.value = "";
   renderMnemonicDescription();
@@ -6326,6 +6504,11 @@ function updateProgramBlock(index, field, value) {
     } else if (block.isPetsciiMacro) {
       block.operand = block.rawOperand.trim();
       block.validationError = validateStringMacroAddress(block.petsciiAddress);
+      if (field === "petsciiNullTerminated") {
+        renderBlockPreview(index);
+        renderAsmOutput();
+        return;
+      }
     } else if (block.isWordMacro) {
       if (field === "base") {
         const words = parseWordMacro(block.rawOperand, prevBase);
@@ -6566,6 +6749,29 @@ function updateProgramBlock(index, field, value) {
     block.nextLabel = sanitizeLabelName(value);
     const matching = program.find(b => b.isLoopMacro && b.loopLabel === block.nextLabel);
     if (matching) block.nextReg = matching.loopReg || "X";
+    block.validationError = "";
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isForMacro && (field === "loopReg" || field === "loopCount" || field === "loopLabel")) {
+    if (field === "loopLabel") {
+      block.loopLabel = sanitizeLabelName(value);
+    }
+    block.validationError = "";
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isEndfMacro && field === "nextLabel") {
+    block.nextLabel = sanitizeLabelName(value);
+    const matching = program.find(b => b.isForMacro && b.loopLabel === block.nextLabel);
+    if (matching) {
+      block.nextReg = matching.loopReg || "X";
+      block.nextCount = matching.loopCount || "0A";
+    }
     block.validationError = "";
     renderBlockPreview(index);
     renderAsmOutput();
@@ -9679,6 +9885,9 @@ function assembleProgramToPrg(originOverride) {
     if (line.block.isLoopMacro && line.block.loopLabel) {
       labels.set(line.block.loopLabel, line.address + 2);
     }
+    if (line.block.isForMacro && line.block.loopLabel) {
+      labels.set(line.block.loopLabel, line.address + 2);
+    }
     if (line.block.isTableMacro && line.block.tableName) {
       const tableAddr = line.block.tableAddress
         ? (parseAddressValue(line.block.tableAddress) ?? line.address)
@@ -9771,6 +9980,7 @@ function assembleProgramToPrg(originOverride) {
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
     } else if (block.isPetsciiMacro) {
       const chunkBytes = encodePetsciiMacro(block.rawOperand);
+      if (block.petsciiNullTerminated) chunkBytes.push(0x00);
       const addr = parseAddressValue(block.petsciiAddress) ?? 0xC000;
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
     } else if (block.isIncBinMacro) {
@@ -9942,10 +10152,11 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isPetsciiMacro) {
+    const nullNote = block.petsciiNullTerminated ? " +$00" : "";
     return {
       ok: true,
       bytes: [],
-      comment: `PETSCII "${block.rawOperand || ""}" @ ${formatAddress(parseAddressValue(block.petsciiAddress) ?? 0xC000)}`
+      comment: `PETSCII "${block.rawOperand || ""}"${nullNote} @ ${formatAddress(parseAddressValue(block.petsciiAddress) ?? 0xC000)}`
     };
   }
 
@@ -10361,7 +10572,7 @@ function compileLineBytes(line, labels) {
     const reg = block.loopReg || "X";
     const opcode = reg === "Y" ? 0xA0 : 0xA2;
     const rawCount = (block.loopCount || "0A").trim();
-    const count = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+    const count = (block.base === "dec") ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
     if (isNaN(count) || count < 0 || count > 255) {
       return { ok: false, error: `LOOP: ${t("invalidOperand") || "ervenytelen szamlalocim"}` };
     }
@@ -10385,6 +10596,44 @@ function compileLineBytes(line, labels) {
       return { ok: false, error: `NEXT: a ciklus tul nagy, BNE nem er el (offset: ${offset}).` };
     }
     return { ok: true, bytes: [deOpcode, 0xD0, offset & 0xFF], comment: `DE${reg} / BNE ${label}` };
+  }
+
+  if (block.isForMacro) {
+    const reg = block.loopReg || "X";
+    const opcode = reg === "Y" ? 0xA0 : 0xA2;
+    const rawCount = (block.loopCount || "0A").trim();
+    const count = (block.base === "dec") ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+    if (isNaN(count) || count < 0 || count > 255) {
+      return { ok: false, error: `FOR: ervenytelen szamlalo` };
+    }
+    // LDX/LDY #0  — label at address+2
+    return { ok: true, bytes: [opcode, 0x00], comment: `LD${reg} #$00 ; ${block.loopLabel || "?"}:` };
+  }
+
+  if (block.isEndfMacro) {
+    const reg = block.nextReg || "X";
+    const inOpcode  = reg === "Y" ? 0xC8 : 0xE8;  // INY / INX
+    const cpOpcode  = reg === "Y" ? 0xC0 : 0xE0;  // CPY / CPX immediate
+    const label = block.nextLabel || "";
+    if (!label) {
+      return { ok: false, error: "ENDF: hianyzik a FOR cimke neve." };
+    }
+    const rawCount = (block.nextCount || "0A").trim();
+    const count = (block.base === "dec") ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+    if (isNaN(count) || count < 0 || count > 255) {
+      return { ok: false, error: `ENDF: ervenytelen hatarszam` };
+    }
+    const target = labels.get(label);
+    if (target === undefined) {
+      return { ok: false, error: `ENDF: ismeretlen cimke: ${label}` };
+    }
+    // INX/INY (1) + CPX/CPY #count (2) + BNE offset (2) = 5 bytes
+    // BNE is at address+3, so target offset = target - (address+3+2) = target - (address+5)
+    const offset = target - (line.address + 5);
+    if (offset < -128 || offset > 127) {
+      return { ok: false, error: `ENDF: a ciklus tul nagy, BNE nem er el (offset: ${offset}).` };
+    }
+    return { ok: true, bytes: [inOpcode, cpOpcode, count, 0xD0, offset & 0xFF], comment: `IN${reg} / CP${reg} #$${count.toString(16).toUpperCase().padStart(2,"0")} / BNE ${label}` };
   }
 
   if (block.isPushMacro) {
@@ -11051,6 +11300,14 @@ function getInstructionSize(block) {
 
   if (block.isNextMacro) {
     return 3;  // DEX/DEY + BNE offset
+  }
+
+  if (block.isForMacro) {
+    return 2;  // LDX/LDY #0
+  }
+
+  if (block.isEndfMacro) {
+    return 5;  // INX/INY + CPX/CPY #limit + BNE offset
   }
 
   if (block.isPushMacro) {
@@ -12302,6 +12559,22 @@ function getCollapsedOperandText(block) {
     return block.nextLabel ? `→ ${block.nextLabel}` : "";
   }
 
+  if (block.isForMacro) {
+    const reg = block.loopReg || "X";
+    let countDisplay = "";
+    if (block.loopCount) {
+      const rawCount = block.loopCount.trim();
+      const parsed = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+      countDisplay = isNaN(parsed) ? rawCount : `#$${parsed.toString(16).toUpperCase().padStart(2, "0")}`;
+    }
+    const label = block.loopLabel || "";
+    return `${reg} 0..${countDisplay}${label ? ` → ${label}` : ""}`.trim();
+  }
+
+  if (block.isEndfMacro) {
+    return block.nextLabel ? `↑ ${block.nextLabel}` : "";
+  }
+
   if (block.isPushMacro) {
     return block.pushRegs ? `${block.pushRegs}` : "A";
   }
@@ -12657,6 +12930,10 @@ function renderProgram() {
               <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage === "en" ? "e.g. mypetscii" : "pl. sajatpetscii"}">
             </label>
           </div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:4px;font-size:0.72rem;color:var(--muted);">
+            <input class="petscii-null-check mini-checkbox" data-field="petsciiNullTerminated" type="checkbox"${block.petsciiNullTerminated ? " checked" : ""}>
+            ${currentLanguage === "en" ? "Append $00 (null terminator)" : "Null lezaro ($00) hozzafuzese"}
+          </div>
         `
       );
     } else if (block.isIncBinMacro) {
@@ -12917,6 +13194,111 @@ function renderProgram() {
           }, { capture: true });
         }
       }
+    } else if (block.isForMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${t("fieldLoopReg")}</span>
+              <select class="loop-reg">
+                <option value="X"${(block.loopReg || "X") === "X" ? " selected" : ""}>X</option>
+                <option value="Y"${block.loopReg === "Y" ? " selected" : ""}>Y</option>
+              </select>
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldLoopCount")}</span>
+              <input class="loop-count" type="text" maxlength="3" value="${block.loopCount || "0A"}" placeholder="0A / 10">
+            </label>
+          </div>
+          <label class="mini-field">
+            <span>${t("fieldFormat")}</span>
+            <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
+              <label class="mini-toggle-option">
+                <input class="block-base" type="radio" name="block-base-${block.id}" value="hex"${block.base === "hex" ? " checked" : ""}>
+                <span>HEX</span>
+              </label>
+              <label class="mini-toggle-option">
+                <input class="block-base" type="radio" name="block-base-${block.id}" value="dec"${block.base === "dec" ? " checked" : ""}>
+                <span>DEC</span>
+              </label>
+              <label class="mini-toggle-option">
+                <input class="block-base" type="radio" name="block-base-${block.id}" value="bin"${block.base === "bin" ? " checked" : ""}>
+                <span>BIN</span>
+              </label>
+            </div>
+          </label>
+          <div class="macro-grid single-macro-row">
+            <label class="mini-field">
+              <span>${t("fieldLoopLabel")}</span>
+              <input class="loop-label" type="text" value="${block.loopLabel || ""}" placeholder="for1">
+            </label>
+          </div>
+        `
+      );
+    } else if (block.isEndfMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid single-macro-row">
+            <label class="mini-field">
+              <span>${t("fieldNextLabel")}</span>
+              <input class="next-label" type="text" value="${block.nextLabel || ""}" placeholder="for1">
+            </label>
+          </div>
+        `
+      );
+      // Label picker: shows all LOOPF labels
+      {
+        const loopLabels = program.filter(b => b.isForMacro && b.loopLabel).map(b => b.loopLabel);
+        if (loopLabels.length > 0) {
+          const nextLabelInput = blockControls.querySelector(".next-label");
+          nextLabelInput.classList.add("has-label-picker");
+          const wrapper = document.createElement("div");
+          wrapper.className = "label-picker-wrap";
+          nextLabelInput.parentNode.insertBefore(wrapper, nextLabelInput);
+          wrapper.appendChild(nextLabelInput);
+          const dropdown = document.createElement("div");
+          dropdown.className = "label-picker-dropdown";
+          dropdown.hidden = true;
+          dropdown.innerHTML = loopLabels.map(n => `<div class="label-picker-item">${n}</div>`).join("");
+          document.body.appendChild(dropdown);
+          function positionNFDropdown() {
+            const r = nextLabelInput.getBoundingClientRect();
+            dropdown.style.top = (r.bottom + window.scrollY + 4) + "px";
+            dropdown.style.left = (r.left + window.scrollX) + "px";
+            dropdown.style.width = r.width + "px";
+          }
+          let nfDropdownHovered = false;
+          function closeNFDropdown() {
+            dropdown.hidden = true;
+            window.removeEventListener("scroll", positionNFDropdown, { capture: true });
+          }
+          nextLabelInput.addEventListener("focus", () => {
+            positionNFDropdown();
+            dropdown.hidden = false;
+            window.addEventListener("scroll", positionNFDropdown, { capture: true, passive: true });
+          });
+          nextLabelInput.addEventListener("blur", () => { if (!nfDropdownHovered) closeNFDropdown(); });
+          nextLabelInput.addEventListener("keydown", e => { if (e.key === "Escape") closeNFDropdown(); });
+          dropdown.addEventListener("mouseenter", () => { nfDropdownHovered = true; });
+          dropdown.addEventListener("mouseleave", () => { nfDropdownHovered = false; });
+          dropdown.querySelectorAll(".label-picker-item").forEach(item => {
+            item.addEventListener("pointerdown", e => {
+              e.preventDefault();
+              nextLabelInput.value = item.textContent;
+              nextLabelInput.dispatchEvent(new Event("input"));
+              closeNFDropdown();
+              nfDropdownHovered = false;
+            });
+          });
+          document.addEventListener("pointerdown", e => {
+            if (!dropdown.contains(e.target) && e.target !== nextLabelInput) closeNFDropdown();
+          }, { capture: true });
+        }
+      }
     } else if (block.isPushMacro) {
       inlineField.hidden = true;
       blockControls.insertAdjacentHTML(
@@ -12971,6 +13353,7 @@ function renderProgram() {
         : (currentLanguage === "en" ? "For example 64, 256, 8192" : "Peldaul 64, 256, 8192");
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
     } else if (block.isTableMacro) {
+      inlineField.hidden = true;
       blockControls.insertAdjacentHTML(
         "beforeend",
         `
@@ -13485,9 +13868,9 @@ function renderProgram() {
       inlineField.hidden = true;
     } else {
       inlineField.querySelector("span").textContent = t("fieldOperand");
-      inlineField.hidden = !mode.needsOperand;
+      inlineField.hidden = !mode.needsOperand || !!block.isTableMacro;
       operandField.value = block.rawOperand || "";
-      operandField.disabled = !mode.needsOperand;
+      operandField.disabled = !mode.needsOperand || !!block.isTableMacro;
       operandField.placeholder = getOperandPlaceholder(mode, block.base);
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
       // Custom label picker dropdown for addressing modes that can reference a label or constant
@@ -13586,7 +13969,7 @@ function renderProgram() {
     blockControls.insertAdjacentHTML(
       "beforeend",
       `
-          ${(mode.needsOperand && !block.isLabel && !block.isAnonymousLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke && !block.isRegionMacro && !block.isEndRegionMacro && !block.isLoadFileMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
+          ${(mode.needsOperand && !block.isLabel && !block.isAnonymousLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isForMacro && !block.isEndfMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke && !block.isRegionMacro && !block.isEndRegionMacro && !block.isLoadFileMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
           <label class="mini-field">
             <span>${t("fieldFormat")}</span>
           <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
@@ -13604,7 +13987,7 @@ function renderProgram() {
             </label>` : ""}
           </div>
         </label>` : ""}
-          <label class="mini-field"${block.isLabel || block.isAnonymousLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro || block.isRegionMacro || block.isEndRegionMacro || block.isLoadFileMacro || getMnemonicModes(block.mnemonic).length <= 1 ? ` hidden` : ""}>
+          <label class="mini-field"${block.isLabel || block.isAnonymousLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isForMacro || block.isEndfMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro || block.isRegionMacro || block.isEndRegionMacro || block.isLoadFileMacro || getMnemonicModes(block.mnemonic).length <= 1 ? ` hidden` : ""}>
             <span>${t("addressingMode")}</span>
           <select class="block-mode">
             ${getMnemonicModes(block.mnemonic).map((modeKey) => `<option value="${modeKey}"${block.addressingMode === modeKey ? " selected" : ""}>${modeText(modeKey, "label")}</option>`).join("")}
@@ -13638,7 +14021,7 @@ function renderProgram() {
           return;
         }
         // For LOOP blocks, convert loopCount between hex, dec, and bin
-        if (block.isLoopMacro) {
+        if (block.isLoopMacro || block.isForMacro) {
           const countInput = node.querySelector(".loop-count");
           const rawCount = (countInput?.value || block.loopCount || "0A").trim();
           const oldBase = block.base || "hex";
@@ -13688,6 +14071,10 @@ function renderProgram() {
     const macroLabelInput = node.querySelector(".macro-label");
     if (macroLabelInput) {
       macroLabelInput.addEventListener("input", (event) => updateProgramBlock(index, "macroLabel", event.target.value));
+    }
+    const petsciiNullCheck = node.querySelector(".petscii-null-check");
+    if (petsciiNullCheck) {
+      petsciiNullCheck.addEventListener("change", (event) => updateProgramBlock(index, "petsciiNullTerminated", event.target.checked));
     }
     const macroCharOffsetInput = node.querySelector(".macro-char-offset");
     if (macroCharOffsetInput) {
@@ -14341,25 +14728,30 @@ function renderAsmOutput() {
     if (line.block.isPetsciiMacro) {
       const chars = encodePetsciiMacro(line.block.rawOperand);
       const startAddress = parseAddressValue(line.block.petsciiAddress) ?? 0xC000;
+      const nullNote = line.block.petsciiNullTerminated ? ", null" : "";
       const expanded = chunkBytes(chars, 16).map((chunk, chunkIndex) => {
         const chunkAddress = startAddress + (chunkIndex * 16);
         const byteList = chunk.map((byte) => toHex(byte, 2)).join(", ");
         return `    ; ${formatAddress(chunkAddress)}\n    .byte ${byteList}`;
       }).join("\n");
+      const nullLine = line.block.petsciiNullTerminated ? `\n    ; ${formatAddress(startAddress + chars.length)}\n    .byte 00  ; null terminator` : "";
       deferredDataSections.push({
         address: startAddress,
-        text: `${line.block.macroLabel ? line.block.macroLabel.trim() : `petscii_${lineNumber}`}:\n    ; .petscii "${line.block.rawOperand || ""}" -> ${formatAddress(startAddress)}\n${expanded}`
+        text: `${line.block.macroLabel ? line.block.macroLabel.trim() : `petscii_${lineNumber}`}:\n    ; .petscii "${line.block.rawOperand || ""}"${nullNote} -> ${formatAddress(startAddress)}\n${expanded}${nullLine}`
       });
       const petsciiLabel = line.block.macroLabel ? line.block.macroLabel.trim() : `petscii_${lineNumber}`;
       return `; .petscii ${petsciiLabel}`;
     }
 
-    if (line.block.isLoopMacro) {
+    if (line.block.isLoopMacro || line.block.isForMacro) {
       const reg = line.block.loopReg || "X";
       const rawCount = (line.block.loopCount || "00").trim();
       const parsedCount = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
       const countHex = isNaN(parsedCount) ? rawCount.toUpperCase() : parsedCount.toString(16).toUpperCase().padStart(2, "0");
       const label = line.block.loopLabel || "loop";
+      if (line.block.isForMacro) {
+        return `    LD${reg} #$00\n${label}:`;
+      }
       return `    LD${reg} #$${countHex}\n${label}:`;
     }
 
@@ -14367,6 +14759,15 @@ function renderAsmOutput() {
       const reg = line.block.nextReg || "X";
       const label = line.block.nextLabel || "loop";
       return `    DE${reg}\n    BNE ${label}`;
+    }
+
+    if (line.block.isEndfMacro) {
+      const reg = line.block.nextReg || "X";
+      const label = line.block.nextLabel || "loop";
+      const rawCount = (line.block.nextCount || "00").trim();
+      const parsedCount = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+      const countStr = isNaN(parsedCount) ? rawCount.toUpperCase() : `$${parsedCount.toString(16).toUpperCase().padStart(2, "0")}`;
+      return `    IN${reg}\n    CP${reg} #${countStr}\n    BNE ${label}`;
     }
 
     if (line.block.isPushMacro) {
@@ -14612,6 +15013,9 @@ function _buildMonitorText(layout) {
       labels.set(line.block.labelName, line.address);
     }
     if (line.block.isLoopMacro && line.block.loopLabel) {
+      labels.set(line.block.loopLabel, line.address + 2);
+    }
+    if (line.block.isForMacro && line.block.loopLabel) {
       labels.set(line.block.loopLabel, line.address + 2);
     }
     if (line.block.isTableMacro && line.block.tableName) {
@@ -15097,7 +15501,12 @@ function loadSelectedSample() {
     return;
   }
 
-  loadSampleProgram();
+  if (sampleSelect.value === "name-input-demo") {
+    loadSampleFromFile("name-input-demo");
+    return;
+  }
+
+  loadSampleFromFile(sampleSelect.value);
 }
 
 function adjustZoom(delta) {
@@ -15111,6 +15520,827 @@ function applyZoom() {
 }
 
 initPalette();
+
+// ===== TUTORIAL SYSTEM =======================================================
+
+const TUTORIAL_DATA = window.TUTORIAL_DATA || { categories: [], lessons: [] };
+
+// --- Tutorial state ---
+let _tutorialProgress = {};
+let _tourActive = false;
+let _tourCurrentStep = 0;
+let _tourSteps = [];
+let _tourLessonId = null;
+let _tourMenuOpened = false;
+let _tourAllowOverlayClose = true;
+let _tourMenuSyncRaf = 0;
+let _tourInteractiveMode = false;
+let _tourTargetAdvanceCleanup = null;
+let _tourPreparedLessonId = null;
+let _tourRepositionRaf = 0;
+
+function _tutLoadProgress() {
+  try {
+    const saved = localStorage.getItem("c64-tutorial-progress");
+    _tutorialProgress = saved ? JSON.parse(saved) : {};
+  } catch { _tutorialProgress = {}; }
+}
+
+function _tutSaveProgress() {
+  localStorage.setItem("c64-tutorial-progress", JSON.stringify(_tutorialProgress));
+}
+
+function _tutMarkDone(lessonId) {
+  if (!_tutorialProgress[lessonId]) _tutorialProgress[lessonId] = {};
+  _tutorialProgress[lessonId].completed = true;
+  _tutSaveProgress();
+}
+
+function _tutorialFindMnemonicDefinition(mnemonic) {
+  for (const [category, items] of Object.entries(mnemonicLibrary)) {
+    const item = (items || []).find((entry) => entry.mnemonic === mnemonic);
+    if (item) return { category, item };
+  }
+  return null;
+}
+
+function _tutorialCreateInstructionBlock(mnemonic, addressingMode = "implied", rawOperand = "", base = "hex") {
+  const found = _tutorialFindMnemonicDefinition(mnemonic);
+  const preview = buildOperandPreview(addressingMode, rawOperand, base);
+  return {
+    id: crypto.randomUUID(),
+    category: found?.category || "Adatmozgas",
+    mnemonic,
+    operand: preview.operand || "",
+    rawOperand,
+    description: found?.item?.description || "",
+    addressingMode,
+    base,
+    validationError: preview.error || "",
+    collapsed: true
+  };
+}
+
+function _tutorialBuildColorTextProgram() {
+  document.getElementById("tutorial-dialog")?.close();
+
+  if (expertMode) {
+    setExpertMode(false);
+    if (expertModeToggle) expertModeToggle.checked = false;
+  }
+
+  const textInfo = _tutorialFindMnemonicDefinition("TEXT");
+  const orgBlock = makeDefaultOrgBlock();
+  orgBlock.orgAddress = "0801";
+  orgBlock.collapsed = false;
+
+  program = [
+    orgBlock,
+    _tutorialCreateInstructionBlock("LDA", "immediate", "06"),
+    _tutorialCreateInstructionBlock("STA", "absolute", "D020"),
+    _tutorialCreateInstructionBlock("LDA", "immediate", "00"),
+    _tutorialCreateInstructionBlock("STA", "absolute", "D021"),
+    {
+      id: crypto.randomUUID(),
+      category: textInfo?.category || "Makrok",
+      mnemonic: "TEXT",
+      operand: "HELLO C64",
+      rawOperand: "HELLO C64",
+      description: textInfo?.item?.description || "",
+      addressingMode: "implied",
+      base: "text",
+      validationError: validateTextMacroPosition(10, 8, "HELLO C64"),
+      collapsed: false,
+      isTextMacro: true,
+      textCharset: "standard",
+      textX: 10,
+      textY: 8
+    },
+    _tutorialCreateInstructionBlock("RTS")
+  ];
+
+  userMacros = {};
+  selectedBlockId = null;
+  markTabDirty();
+  renderProgram();
+  renderAsmOutput();
+  renderMemoryMap();
+  renderMonitorOutput();
+  document.querySelector(".program-panel")?.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function _runTutorialAction(actionId) {
+  if (actionId === "build-color-text-program") {
+    _tutorialBuildColorTextProgram();
+  }
+}
+
+function _tutorialSetPaletteSelection({ category, mnemonic, addressingMode = null, operand = "", base = null }) {
+  if (expertMode) {
+    setExpertMode(false);
+    if (expertModeToggle) expertModeToggle.checked = false;
+  }
+
+  if (categorySelect && category) {
+    categorySelect.value = category;
+  }
+  syncMnemonicMenu();
+
+  if (mnemonicSelect && mnemonic) {
+    mnemonicSelect.value = mnemonic;
+  }
+  syncAddressingModes();
+
+  if (addressingSelect && addressingMode) {
+    addressingSelect.value = addressingMode;
+    handleAddressingChange();
+  }
+
+  if (base) {
+    const baseInput = Array.from(baseInputs || []).find((input) => input.value === base);
+    if (baseInput) {
+      baseInput.checked = true;
+      handleBaseChange();
+    }
+  }
+
+  if (operandInput) {
+    operandInput.value = operand;
+  }
+
+  updateOperandField();
+  renderMnemonicDescription();
+}
+
+function _runTutorialStepAction(actionId) {
+  switch (actionId) {
+    case "prepare-name-input-demo": {
+      if (_tourPreparedLessonId === _tourLessonId) return;
+      _tourPreparedLessonId = _tourLessonId;
+      if (expertMode) {
+        setExpertMode(false);
+        if (expertModeToggle) expertModeToggle.checked = false;
+      }
+      if (sampleSelect) {
+        sampleSelect.value = "name-input-demo";
+        loadSelectedSample();
+      }
+      break;
+    }
+    case "prepare-guided-color-text": {
+      if (_tourPreparedLessonId === _tourLessonId) return;
+      _tourPreparedLessonId = _tourLessonId;
+      if (expertMode) {
+        setExpertMode(false);
+        if (expertModeToggle) expertModeToggle.checked = false;
+      }
+      doClearProgram();
+      selectedBlockId = null;
+      renderProgram();
+      renderAsmOutput();
+      renderMemoryMap();
+      renderMonitorOutput();
+      break;
+    }
+    case "prep-text-block":
+      _tutorialSetPaletteSelection({
+        category: "Makrok",
+        mnemonic: "TEXT",
+        operand: "hello c64!"
+      });
+      break;
+    case "prep-lda-border":
+      _tutorialSetPaletteSelection({
+        category: "Adatmozgas",
+        mnemonic: "LDA",
+        addressingMode: "immediate",
+        operand: "",
+        base: "hex"
+      });
+      break;
+    case "prep-sta-border":
+      _tutorialSetPaletteSelection({
+        category: "Adatmozgas",
+        mnemonic: "LDA",
+        addressingMode: "absolute",
+        operand: "",
+        base: "hex"
+      });
+      break;
+    case "prep-lda-background":
+      _tutorialSetPaletteSelection({
+        category: "Adatmozgas",
+        mnemonic: "LDA",
+        addressingMode: "immediate",
+        operand: "",
+        base: "hex"
+      });
+      break;
+    case "prep-sta-background":
+      _tutorialSetPaletteSelection({
+        category: "Adatmozgas",
+        mnemonic: "LDA",
+        addressingMode: "absolute",
+        operand: "",
+        base: "hex"
+      });
+      break;
+    case "prep-rts-block":
+      _tutorialSetPaletteSelection({
+        category: "Ugrasok",
+        mnemonic: "JMP",
+        addressingMode: "implied",
+        operand: ""
+      });
+      break;
+    case "prep-jsr-clearscreen":
+      _tutorialSetPaletteSelection({
+        category: "Ugrasok",
+        mnemonic: "JMP",
+        addressingMode: "absolute",
+        operand: "",
+        base: "hex"
+      });
+      break;
+    case "prep-text-greeting":
+      _tutorialSetPaletteSelection({
+        category: "Makrok",
+        mnemonic: "TEXT",
+        operand: "hello "
+      });
+      break;
+    case "prep-text-whatsyourname":
+      _tutorialSetPaletteSelection({
+        category: "Makrok",
+        mnemonic: "TEXT",
+        operand: "what's your name?"
+      });
+      break;
+    case "prep-jsr-chrin":
+      _tutorialSetPaletteSelection({
+        category: "Ugrasok",
+        mnemonic: "JSR",
+        addressingMode: "absolute",
+        operand: "FFCF",
+        base: "hex"
+      });
+      break;
+    case "prep-sei":
+      _tutorialSetPaletteSelection({
+        category: "Rendszer",
+        mnemonic: "CLC",
+        addressingMode: "implied",
+        operand: ""
+      });
+      break;
+    case "prep-lda-black":
+      _tutorialSetPaletteSelection({
+        category: "Adatmozgas",
+        mnemonic: "LDX",
+        addressingMode: "immediate",
+        operand: "",
+        base: "hex"
+      });
+      break;
+    case "prep-text-hello-c64":
+      _tutorialSetPaletteSelection({
+        category: "Makrok",
+        mnemonic: "BYTE",
+        operand: ""
+      });
+      break;
+    case "prep-text-visual-assembler":
+      _tutorialSetPaletteSelection({
+        category: "Makrok",
+        mnemonic: "BYTE",
+        operand: ""
+      });
+      break;
+  }
+}
+
+function _tourClearTargetAdvance() {
+  if (_tourTargetAdvanceCleanup) {
+    _tourTargetAdvanceCleanup();
+    _tourTargetAdvanceCleanup = null;
+  }
+}
+
+function _tourBindTargetAdvance(step) {
+  _tourClearTargetAdvance();
+  if (!_tourInteractiveMode || !step?.target) return;
+
+  const targetEl = document.querySelector(step.target);
+  if (!targetEl) return;
+
+  const cleanups = [];
+
+  const advance = () => {
+    if (!_tourActive) return;
+    setTimeout(() => {
+      if (!_tourActive) return;
+      if (_tourCurrentStep >= _tourSteps.length - 1) {
+        _tourEnd();
+        return;
+      }
+      _tourCurrentStep += 1;
+      _tourShowStep(_tourCurrentStep);
+    }, 0);
+  };
+
+  if (step.advanceOnTargetClick) {
+    const onClick = () => advance();
+    targetEl.addEventListener("click", onClick);
+    cleanups.push(() => targetEl.removeEventListener("click", onClick));
+  }
+
+  if (step.advanceOnTargetChange) {
+    const onChange = () => {
+      if (!_tourTargetValueMatches(step, targetEl.value)) {
+        return;
+      }
+      advance();
+    };
+    targetEl.addEventListener("change", onChange);
+    cleanups.push(() => targetEl.removeEventListener("change", onChange));
+  }
+
+  if (step.advanceOnTargetInput) {
+    const onInput = () => {
+      if (!_tourTargetValueMatches(step, targetEl.value)) {
+        return;
+      }
+      advance();
+    };
+    targetEl.addEventListener("input", onInput);
+    cleanups.push(() => targetEl.removeEventListener("input", onInput));
+  }
+
+  _tourTargetAdvanceCleanup = () => cleanups.forEach((cleanup) => cleanup());
+}
+
+function _tourTargetValueMatches(step, actualValue) {
+  if (typeof step?.targetValue === "undefined") return true;
+
+  const actual = String(actualValue ?? "").trim();
+  const expected = String(step.targetValue).trim();
+  const allowCaseInsensitiveHex = step.target === "#operand-input" && /^[0-9A-F]+$/i.test(expected);
+
+  if (step.caseInsensitiveTargetValue || allowCaseInsensitiveHex) {
+    return actual.toUpperCase() === expected.toUpperCase();
+  }
+
+  return actual === expected;
+}
+
+function openTutorialDialog() {
+  const dlg = document.getElementById("tutorial-dialog");
+  if (!dlg) return;
+  _tutRenderDialog();
+  document.querySelector(".control-menu")?.removeAttribute("open");
+  dlg.showModal();
+}
+
+function _tutRenderDialog() {
+  const lang = currentLanguage;
+  const listEl = document.getElementById("tutorial-lesson-list");
+  const contentEl = document.getElementById("tutorial-lesson-content");
+  const titleEl = document.getElementById("tutorial-dialog-title");
+  if (titleEl) titleEl.textContent = t("tutorialDialogTitle");
+  const hintEl = document.getElementById("tutorial-select-hint");
+  if (hintEl) hintEl.textContent = t("tutorialSelectHint");
+  if (!listEl || !contentEl) return;
+
+  listEl.innerHTML = TUTORIAL_DATA.categories.map(cat => {
+    const catLessons = TUTORIAL_DATA.lessons.filter(l => l.category === cat.id);
+    if (catLessons.length === 0) return "";
+    return `<div class="tutorial-category">
+      <div class="tutorial-category-label">${lang === "hu" ? cat.labelHu : cat.labelEn}</div>
+      ${catLessons.map(lesson => {
+        const done = _tutorialProgress[lesson.id]?.completed;
+        const title = lang === "hu" ? lesson.titleHu : lesson.titleEn;
+        const stars = lesson.difficulty > 0
+          ? `${lesson.difficulty}/3`
+          : "TOUR";
+        return `<button class="tutorial-lesson-item${done ? " tutorial-lesson-item--done" : ""}" data-lesson-id="${lesson.id}" type="button">
+          <span class="tutorial-lesson-check">${done ? "✓" : ""}</span>
+          <span class="tutorial-lesson-title">${title}</span>
+          <span class="tutorial-lesson-stars">${stars}</span>
+        </button>`;
+      }).join("")}
+    </div>`;
+  }).join("");
+
+  listEl.querySelectorAll(".tutorial-lesson-item").forEach(btn => {
+    btn.addEventListener("click", () => {
+      listEl.querySelectorAll(".tutorial-lesson-item").forEach(b => b.classList.remove("tutorial-lesson-item--active"));
+      btn.classList.add("tutorial-lesson-item--active");
+      _tutShowLesson(btn.dataset.lessonId);
+    });
+  });
+
+  const firstBtn = listEl.querySelector(".tutorial-lesson-item");
+  if (firstBtn) firstBtn.click();
+}
+
+function _tutShowLesson(lessonId) {
+  const lang = currentLanguage;
+  const lesson = TUTORIAL_DATA.lessons.find(l => l.id === lessonId);
+  const contentEl = document.getElementById("tutorial-lesson-content");
+  if (!lesson || !contentEl) return;
+  const canStartTour = lesson.type === "tour" || lesson.interactive === true;
+
+  const title = lang === "hu" ? lesson.titleHu : lesson.titleEn;
+  const desc = lang === "hu" ? lesson.descHu : lesson.descEn;
+  const diffStars = lesson.difficulty > 0
+    ? `(${lesson.difficulty}/3)`
+    : null;
+  const diffLabel = lesson.difficulty === 0 ? "Tour"
+    : lesson.difficulty === 1 ? (lang === "hu" ? "Kezdo" : "Beginner")
+    : lesson.difficulty === 2 ? (lang === "hu" ? "Kozepes" : "Intermediate")
+    : (lang === "hu" ? "Halado" : "Advanced");
+
+  const stepsHtml = lesson.steps.map((step, i) => {
+    return `<div class="tutorial-step">
+      <div class="tutorial-step-num">${i + 1}</div>
+      <div class="tutorial-step-content">
+        <h4 class="tutorial-step-title"></h4>
+        <pre class="tutorial-step-desc"></pre>
+        ${step.loadSample ? `<button class="secondary tutorial-load-sample-btn" data-sample="${step.loadSample}" type="button">${t("tutorialLoadSample")}</button>` : ""}
+        ${step.actionId ? `<button class="primary tutorial-step-action-btn" data-action-id="${step.actionId}" type="button"></button>` : ""}
+      </div>
+    </div>`;
+  }).join("");
+
+  const isDone = _tutorialProgress[lessonId]?.completed;
+
+  contentEl.innerHTML = `
+    <div class="tutorial-content-header">
+      <div class="tutorial-content-meta">
+        <span class="tutorial-difficulty-badge">${diffLabel}${diffStars ? " " + diffStars : ""}</span>
+      </div>
+      <h3 class="tutorial-content-title"></h3>
+      <p class="tutorial-content-desc"></p>
+    </div>
+    ${canStartTour ? `<div class="tutorial-tour-start">
+      <button class="primary tutorial-start-tour-btn" type="button">${t("tutorialStartTour")}</button>
+    </div>` : ""}
+    <div class="tutorial-steps">${stepsHtml}</div>
+    <div class="tutorial-content-footer">
+      <button class="primary tutorial-mark-done-btn" type="button"></button>
+    </div>`;
+
+  contentEl.querySelector(".tutorial-content-title").textContent = title;
+  contentEl.querySelector(".tutorial-content-desc").textContent = desc;
+  lesson.steps.forEach((step, i) => {
+    const stepEl = contentEl.querySelectorAll(".tutorial-step")[i];
+    if (!stepEl) return;
+    stepEl.querySelector(".tutorial-step-title").textContent = lang === "hu" ? step.titleHu : step.titleEn;
+    stepEl.querySelector(".tutorial-step-desc").textContent = lang === "hu" ? step.descHu : step.descEn;
+    const actionBtn = stepEl.querySelector(".tutorial-step-action-btn");
+    if (actionBtn) actionBtn.textContent = lang === "hu" ? step.actionLabelHu : step.actionLabelEn;
+  });
+
+  contentEl.querySelectorAll(".tutorial-load-sample-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      loadSampleFromFile(btn.dataset.sample);
+      document.getElementById("tutorial-dialog")?.close();
+    });
+  });
+
+  contentEl.querySelectorAll(".tutorial-step-action-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      _runTutorialAction(btn.dataset.actionId);
+    });
+  });
+
+  const startTourBtn = contentEl.querySelector(".tutorial-start-tour-btn");
+  if (startTourBtn) {
+    startTourBtn.addEventListener("click", () => {
+      document.getElementById("tutorial-dialog")?.close();
+      _tourStart(lesson.steps, lessonId, lesson.interactive === true);
+    });
+  }
+
+  const doneBtn = contentEl.querySelector(".tutorial-mark-done-btn");
+  doneBtn.textContent = isDone ? t("tutorialMarkDoneCompleted") : t("tutorialMarkDone");
+  doneBtn.addEventListener("click", () => {
+    _tutMarkDone(lessonId);
+    _tutRenderDialog();
+    const listEl = document.getElementById("tutorial-lesson-list");
+    const btn = listEl?.querySelector(`[data-lesson-id="${lessonId}"]`);
+    if (btn) {
+      listEl.querySelectorAll(".tutorial-lesson-item").forEach(b => b.classList.remove("tutorial-lesson-item--active"));
+      btn.classList.add("tutorial-lesson-item--active");
+    }
+    _tutShowLesson(lessonId);
+  });
+}
+
+function _tourStart(steps, lessonId, interactive = false) {
+  if (expertMode) {
+    setExpertMode(false);
+    if (expertModeToggle) expertModeToggle.checked = false;
+  }
+  _tourActive = true;
+  _tourCurrentStep = 0;
+  _tourSteps = steps;
+  _tourLessonId = lessonId;
+  _tourAllowOverlayClose = true;
+  _tourInteractiveMode = interactive;
+  _tourPreparedLessonId = null;
+  const overlay = document.getElementById("tour-overlay");
+  const card = document.getElementById("tour-card");
+  if (overlay) overlay.style.pointerEvents = interactive ? "none" : "all";
+  overlay?.removeAttribute("hidden");
+  card?.removeAttribute("hidden");
+  _tourShowStep(0);
+}
+
+function _tourStopMenuSync() {
+  if (_tourMenuSyncRaf) {
+    cancelAnimationFrame(_tourMenuSyncRaf);
+    _tourMenuSyncRaf = 0;
+  }
+}
+
+function _tourStartMenuSync() {
+  _tourStopMenuSync();
+  const sync = () => {
+    if (!_tourMenuOpened) return;
+    const menuDetails = document.querySelector(".control-menu");
+    const menuPanel = document.querySelector(".control-menu-panel");
+    if (menuDetails?.open) {
+      menuDetails.classList.add("tour-menu-open");
+      menuPanel?.classList.add("menu-opening");
+      _tourMenuSyncRaf = requestAnimationFrame(sync);
+      return;
+    }
+    _tourMenuSyncRaf = 0;
+  };
+  _tourMenuSyncRaf = requestAnimationFrame(sync);
+}
+
+function _tourShowStep(index) {
+  const lang = currentLanguage;
+  const step = _tourSteps[index];
+  if (!step) return;
+  _tourClearTargetAdvance();
+  if (step.onEnterActionId) {
+    _runTutorialStepAction(step.onEnterActionId);
+  }
+
+  const stepLabel = document.getElementById("tour-step-label");
+  const cardTitle = document.getElementById("tour-card-title");
+  const cardDesc = document.getElementById("tour-card-desc");
+  const prevBtn = document.getElementById("tour-prev");
+  const nextBtn = document.getElementById("tour-next");
+  const skipBtn = document.getElementById("tour-skip");
+
+  if (stepLabel) stepLabel.textContent = `${index + 1} / ${_tourSteps.length}`;
+  if (cardTitle) cardTitle.textContent = lang === "hu" ? step.titleHu : step.titleEn;
+  if (cardDesc) cardDesc.textContent = lang === "hu" ? step.descHu : step.descEn;
+  if (prevBtn) prevBtn.disabled = index === 0;
+  if (nextBtn) nextBtn.textContent = index === _tourSteps.length - 1
+    ? t("tourFinish") : t("tourNext");
+  if (skipBtn) skipBtn.textContent = t("tourSkip");
+  if (prevBtn) prevBtn.textContent = t("tourPrev");
+
+  const spotlight = document.getElementById("tour-spotlight");
+  const card = document.getElementById("tour-card");
+  const sampleProgramsGroup = document.getElementById("sample-programs-group");
+  sampleProgramsGroup?.classList.remove("tour-sample-highlight");
+
+  // Close menu from previous step if we opened it
+  if (!step.openMenu && _tourMenuOpened) {
+    _tourStopMenuSync();
+    const menuDetails = document.querySelector(".control-menu");
+    const menuPanel = document.querySelector(".control-menu-panel");
+    menuPanel?.classList.remove("menu-opening");
+    menuDetails?.classList.remove("tour-menu-open");
+    menuDetails?.removeAttribute("open");
+    if (menuDetails) menuDetails.open = false;
+    _tourMenuOpened = false;
+  }
+
+  if (step.target) {
+    _tourAllowOverlayClose = !step.openMenu;
+    const doPosition = () => {
+      const targetEl = document.querySelector(step.target);
+      if (targetEl && spotlight) {
+        if (typeof targetEl.scrollIntoView === "function") {
+          targetEl.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "auto" });
+        }
+        const rect = targetEl.getBoundingClientRect();
+        // Retry once if the element has zero area (not yet laid out after scrollIntoView)
+        if (rect.width === 0 && rect.height === 0) {
+          requestAnimationFrame(() => {
+            const rect2 = targetEl.getBoundingClientRect();
+            if (rect2.width === 0 && rect2.height === 0) return;
+            _positionSpotlightAndCard(spotlight, card, rect2, step);
+          });
+          return;
+        }
+        _positionSpotlightAndCard(spotlight, card, rect, step);
+      }
+    };
+    // If this step needs the menu open, open it and wait for animation (160ms)
+    if (step.openMenu) {
+      const menuDetails = document.querySelector(".control-menu");
+      const menuPanel = document.querySelector(".control-menu-panel");
+      menuDetails?.classList.add("tour-menu-open");
+      menuPanel?.classList.remove("menu-closing");
+      menuPanel?.classList.add("menu-opening");
+      menuDetails?.setAttribute("open", "");
+      if (menuDetails) menuDetails.open = true;
+      sampleProgramsGroup?.classList.add("tour-sample-highlight");
+      _tourMenuOpened = true;
+      _tourStartMenuSync();
+      setTimeout(() => {
+        requestAnimationFrame(doPosition);
+      }, 0);
+    } else {
+      // Double rAF: first lets DOM mutations from onEnterActionId settle,
+      // second fires after the browser has completed layout.
+      const delay = step.positionDelay || 0;
+      const schedule = () => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(doPosition);
+        });
+      };
+      if (delay > 0) {
+        setTimeout(schedule, delay);
+      } else {
+        schedule();
+      }
+    }
+  } else {
+    if (spotlight) spotlight.setAttribute("hidden", "");
+    _tourCenterCard(card);
+  }
+}
+
+function _applyTourSpotlightPosition(spotlight, card, rect, step) {
+  const pad = 8;
+  spotlight.style.left = (rect.left - pad) + "px";
+  spotlight.style.top = (rect.top - pad) + "px";
+  spotlight.style.width = (rect.width + pad * 2) + "px";
+  spotlight.style.height = (rect.height + pad * 2) + "px";
+  spotlight.removeAttribute("hidden");
+  if (step.centerCard) {
+    _tourCenterCard(card);
+  } else {
+    _tourPositionCard(card, rect);
+  }
+}
+
+function _positionSpotlightAndCard(spotlight, card, rect, step) {
+  _applyTourSpotlightPosition(spotlight, card, rect, step);
+  _tourBindTargetAdvance(step);
+}
+
+function _tourRefreshCurrentStepPosition() {
+  if (!_tourActive) return;
+  const step = _tourSteps[_tourCurrentStep];
+  if (!step?.target) return;
+
+  const spotlight = document.getElementById("tour-spotlight");
+  const card = document.getElementById("tour-card");
+  const targetEl = document.querySelector(step.target);
+  if (!spotlight || !card || !targetEl) return;
+
+  const rect = targetEl.getBoundingClientRect();
+  if (rect.width === 0 && rect.height === 0) return;
+  _applyTourSpotlightPosition(spotlight, card, rect, step);
+}
+
+function _tourScheduleReposition() {
+  if (!_tourActive) return;
+  if (_tourRepositionRaf) return;
+  _tourRepositionRaf = requestAnimationFrame(() => {
+    _tourRepositionRaf = 0;
+    _tourRefreshCurrentStepPosition();
+  });
+}
+
+function _tourPositionCard(card, targetRect) {
+  if (!card) return;
+  const cardW = 320;
+  const cardH = card.offsetHeight || 220;
+  const margin = 14;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  let left, top;
+
+  if (targetRect.right + cardW + margin < vw) {
+    left = targetRect.right + margin;
+    top = Math.max(margin, Math.min(targetRect.top, vh - cardH - margin));
+  } else if (targetRect.left - cardW - margin > 0) {
+    left = targetRect.left - cardW - margin;
+    top = Math.max(margin, Math.min(targetRect.top, vh - cardH - margin));
+  } else if (targetRect.bottom + cardH + margin < vh) {
+    left = Math.max(margin, (vw - cardW) / 2);
+    top = targetRect.bottom + margin;
+  } else {
+    left = Math.max(margin, (vw - cardW) / 2);
+    top = Math.max(margin, targetRect.top - cardH - margin);
+  }
+
+  card.style.left = left + "px";
+  card.style.top = top + "px";
+  card.style.transform = "";
+}
+
+function _tourCenterCard(card) {
+  if (!card) return;
+  card.style.left = "50%";
+  card.style.top = "50%";
+  card.style.transform = "translate(-50%, -50%)";
+}
+
+function _tourEnd() {
+  _tourActive = false;
+  _tourAllowOverlayClose = true;
+  _tourInteractiveMode = false;
+  _tourPreparedLessonId = null;
+  if (_tourRepositionRaf) {
+    cancelAnimationFrame(_tourRepositionRaf);
+    _tourRepositionRaf = 0;
+  }
+  _tourClearTargetAdvance();
+  _tourStopMenuSync();
+  document.getElementById("sample-programs-group")?.classList.remove("tour-sample-highlight");
+  // Close menu if tour opened it
+  if (_tourMenuOpened) {
+    const menuDetails = document.querySelector(".control-menu");
+    const menuPanel = document.querySelector(".control-menu-panel");
+    menuPanel?.classList.remove("menu-opening");
+    menuDetails?.classList.remove("tour-menu-open");
+    menuDetails?.removeAttribute("open");
+    if (menuDetails) menuDetails.open = false;
+    _tourMenuOpened = false;
+  }
+  const overlay = document.getElementById("tour-overlay");
+  const spotlight = document.getElementById("tour-spotlight");
+  const card = document.getElementById("tour-card");
+  if (overlay) overlay.style.pointerEvents = "all";
+  overlay?.setAttribute("hidden", "");
+  spotlight?.setAttribute("hidden", "");
+  card?.setAttribute("hidden", "");
+  if (_tourLessonId) _tutMarkDone(_tourLessonId);
+}
+
+function _initTutorialEvents() {
+  const tutBtn = document.getElementById("tutorial-btn");
+  const tutDlg = document.getElementById("tutorial-dialog");
+  const tutClose = document.getElementById("tutorial-close");
+
+  tutBtn?.addEventListener("click", () => openTutorialDialog());
+  tutClose?.addEventListener("click", () => tutDlg?.close());
+  tutDlg?.addEventListener("click", (e) => { if (e.target === tutDlg) tutDlg.close(); });
+
+  document.getElementById("tour-next")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (_tourCurrentStep >= _tourSteps.length - 1) {
+      const wasInteractive = _tourInteractiveMode;
+      _tourEnd();
+      // Don't reopen the dialog for interactive/guided lessons —
+      // the user just built a program and wants to interact with the editor.
+      if (!wasInteractive) openTutorialDialog();
+    } else {
+      _tourCurrentStep++;
+      _tourShowStep(_tourCurrentStep);
+    }
+  });
+
+  document.getElementById("tour-prev")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (_tourCurrentStep > 0) {
+      _tourCurrentStep--;
+      _tourShowStep(_tourCurrentStep);
+    }
+  });
+
+  document.getElementById("tour-skip")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    _tourEnd();
+  });
+
+  // Close tour on overlay click (not on spotlight/card area)
+  document.getElementById("tour-overlay")?.addEventListener("click", () => {
+    if (!_tourAllowOverlayClose) return;
+    _tourEnd();
+  });
+
+  window.addEventListener("scroll", _tourScheduleReposition, { capture: true, passive: true });
+  window.addEventListener("resize", _tourScheduleReposition, { passive: true });
+}
+
+_tutLoadProgress();
+_initTutorialEvents();
 
 // Initialize tab system
 if (tabs.length === 0) {
