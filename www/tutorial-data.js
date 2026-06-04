@@ -225,34 +225,34 @@
           descEn: "Click Add!"
         },
         {
-          target: "[data-index=\"6\"]",
-          titleHu: "23/27 \u2014 Az első TEXT blokk",
-          titleEn: "23/27 \u2014 The First TEXT Block",
-          descHu: "Ez az első TEXT blokk (\"hello c64\"). Nyisd ki a lenyíló gombbal, majd állítsd a koordinátákat X=12, Y=8-ra.",
-          descEn: "This is the first TEXT block (\"hello c64\"). Open it with the expand button, then set the coordinates to X=12, Y=8."
-        },
-        {
           target: "[data-index=\"6\"] .collapse-toggle",
           advanceOnTargetClick: true,
-          titleHu: "24/27 \u2014 Nyisd ki az első TEXT blokkot",
-          titleEn: "24/27 \u2014 Expand the First TEXT Block",
-          descHu: "Kattints erre a gombra az első TEXT blokk kinyitásához!",
-          descEn: "Click this button to expand the first TEXT block!"
+          titleHu: "23/27 \u2014 Nyisd ki az első TEXT blokkot",
+          titleEn: "23/27 \u2014 Expand the First TEXT Block",
+          descHu: "Ez az első TEXT blokk (\"hello c64\"). Kattints a ▸ gombra a kinyitáshoz, majd beállíthatod a koordinátákat!",
+          descEn: "This is the first TEXT block (\"hello c64\"). Click the ▸ button to expand it, then you can set the coordinates!"
         },
         {
-          target: "[data-index=\"7\"]",
-          titleHu: "25/27 \u2014 A második TEXT blokk",
-          titleEn: "25/27 \u2014 The Second TEXT Block",
-          descHu: "Ez a második TEXT blokk (\"visual assembler\"). Nyisd ki, majd állítsd a koordinátákat X=8, Y=10-re.",
-          descEn: "This is the second TEXT block (\"visual assembler\"). Open it, then set the coordinates to X=8, Y=10."
+          target: "[data-index=\"6\"] .macro-grid",
+          titleHu: "24/27 \u2014 Állítsd be a koordinátákat (X=12, Y=8)",
+          titleEn: "24/27 \u2014 Set the Coordinates (X=12, Y=8)",
+          descHu: "Az X és Y mezőkbe írd be: X=12, Y=8.\nA szöveg a képernyő 12. oszlopától és 8. sorától kezdődik (0-tól számozva). Ha kész, kattints a Next gombra!",
+          descEn: "Enter X=12 and Y=8 in the coordinate fields.\nThis positions the text starting at column 12, row 8 of the screen (0-indexed). When done, click Next!"
         },
         {
           target: "[data-index=\"7\"] .collapse-toggle",
           advanceOnTargetClick: true,
-          titleHu: "26/27 \u2014 Nyisd ki a második TEXT blokkot",
-          titleEn: "26/27 \u2014 Expand the Second TEXT Block",
-          descHu: "Kattints erre a gombra a második TEXT blokk kinyitásához!",
-          descEn: "Click this button to expand the second TEXT block!"
+          titleHu: "25/27 \u2014 Nyisd ki a második TEXT blokkot",
+          titleEn: "25/27 \u2014 Expand the Second TEXT Block",
+          descHu: "Ez a második TEXT blokk (\"visual assembler\"). Kattints a ▸ gombra a kinyitáshoz, majd beállíthatod a koordinátákat!",
+          descEn: "This is the second TEXT block (\"visual assembler\"). Click the ▸ button to expand it, then you can set the coordinates!"
+        },
+        {
+          target: "[data-index=\"7\"] .macro-grid",
+          titleHu: "26/27 \u2014 Állítsd be a koordinátákat (X=8, Y=10)",
+          titleEn: "26/27 \u2014 Set the Coordinates (X=8, Y=10)",
+          descHu: "Az X és Y mezőkbe írd be: X=8, Y=10.\nA szöveg a képernyő 8. oszlopától és 10. sorától helyezkedik el. Ha kész, kattints a Next gombra!",
+          descEn: "Enter X=8 and Y=10 in the coordinate fields.\nThis places the text starting at column 8, row 10 of the screen. When done, click Next!"
         },
         {
           target: "#run-emulator",

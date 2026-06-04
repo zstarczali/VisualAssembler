@@ -4231,7 +4231,7 @@ const _DIRECTIVE_TO_MNEM = {
   text:"TEXT", string:"STRING", rawtext:"RAWTEXT", rawbytes:"RAWBYTES", data:"DATA",
   byte:"BYTE", word:"WORD", fill:"FILL", align:"ALIGN", incbin:"INCBIN",
   petscii:"PETSCII", table:"TABLE", loadfile:"LOADFILE", sid:"SID", include:"INCLUDE",
-  loop:"LOOP", next:"NEXT", push:"PUSH", pull:"PULL",
+  loop:"LOOP", next:"NEXT", for:"FOR", endf:"ENDF", push:"PUSH", pull:"PULL",
   macro:"MACRO", endm:"ENDM", invoke:"INVOKE",
   sprite_init:"SPRITE_INIT", sprite_pos:"SPRITE_POS", wait_raster:"WAIT_RASTER",
   joystick:"JOYSTICK", mouse:"MOUSE", sprite_col:"SPRITE_COL", turbo_set:"TURBO_SET",
@@ -5545,6 +5545,45 @@ function _buildDisasmHTML() {
       const compiled = compileLineBytes(line, labelMap);
 
       if (!compiled.ok) continue;
+
+      const block = line.block;
+
+      // Deferred data blocks: RAWBYTES, RAWTEXT, PETSCII — no inline code; show data at target address
+      if (block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro) {
+        let deferredBytes = [];
+        let deferredAddr = 0;
+        if (block.isRawBytesMacro) {
+          deferredBytes = parseByteMacro(block.rawOperand, block.base);
+          deferredAddr = parseAddressValue(block.rawBytesAddress) ?? 0xC000;
+        } else if (block.isRawTextMacro) {
+          const rawOffset = parseInt(block.charOffset || "0", 16);
+          deferredBytes = encodeTextMacro(block.rawOperand, block.textCharset || "standard")
+            .map(b => (b + (isNaN(rawOffset) ? 0 : rawOffset)) & 0xFF);
+          deferredAddr = parseAddressValue(block.rawTextAddress) ?? 0xC000;
+        } else if (block.isPetsciiMacro) {
+          deferredBytes = encodePetsciiMacro(block.rawOperand);
+          if (block.petsciiNullTerminated) deferredBytes.push(0x00);
+          deferredAddr = parseAddressValue(block.petsciiAddress) ?? 0xC000;
+        }
+        if (deferredBytes.length > 0) {
+          const DCHUNK = 8;
+          const DCOLW = DCHUNK * 3 - 1;
+          const isShort = deferredBytes.length <= DCHUNK;
+          for (let ci = 0; ci < deferredBytes.length; ci += DCHUNK) {
+            const chunk = deferredBytes.slice(ci, ci + DCHUNK);
+            const chunkAddrHex = (deferredAddr + ci).toString(16).toUpperCase().padStart(4, "0");
+            const hexDump = chunk.map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+            const padTo = isShort ? Math.max(hexDump.length, 8) : DCOLW;
+            lines.push(
+              `<span class="dsm-addr">$${chunkAddrHex}</span>  ` +
+              `<span class="dsm-bytes">${hexDump.padEnd(padTo)}</span>  ` +
+              `<span class="asm-tok-mnemonic">.BYTE</span>  ` +
+              `<span class="asm-tok-operand">${esc(chunk.map(b => "$" + b.toString(16).toUpperCase().padStart(2, "0")).join(", "))}</span>`
+            );
+          }
+        }
+        continue;
+      }
 
       // Only show lines that produce actual bytes (real code / inline data)
       if (!compiled.bytes.length) {
