@@ -35,6 +35,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
    - [TABLE](#table)
    - [ORG](#org)
    - [LOOP / NEXT](#loop--next)
+   - [FOR / ENDF](#for--endf)
    - [PUSH / PULL](#push--pull)
    - [MACRO / ENDM / INVOKE](#macro--endm--invoke)
    - [REGION / ENDREGION](#region--endregion)
@@ -86,7 +87,7 @@ The palette on the left lists all available blocks grouped by category:
 - **System** — CLC, SEC, NOP, BRK, …
 - **Illegal instructions** — LAX, SAX, DCP, …
 - **Structure** — LABEL, COMMENT, REGION, ENDREGION
-- **Macros** — LOOP, NEXT, PUSH, PULL, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, INCBIN, SID, INCLUDE, TABLE, ORG, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, MOUSE, SPRITE_COL, LOADFILE, REU_CHECK, REU_STASH, REU_FETCH, REU_SWAP, TURBO_SET, SUPERCPU_DETECT, TURBO_ENABLE
+- **Macros** — LOOP, NEXT, FOR, ENDF, PUSH, PULL, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, INCBIN, SID, INCLUDE, TABLE, ORG, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, MOUSE, SPRITE_COL, LOADFILE, REU_CHECK, REU_STASH, REU_FETCH, REU_SWAP, TURBO_SET, SUPERCPU_DETECT, TURBO_ENABLE
 
 Use the **search box** at the top of the palette to filter by name. Click the **Add selected block** button or drag a block into the program area.
 
@@ -870,6 +871,61 @@ loop0:
     DEX
     BNE loop0
 ```
+
+---
+
+### FOR / ENDF
+
+Forward counting loop pair. Unlike LOOP/NEXT which counts **down** (N→1), FOR/ENDF counts **up** (0→N-1) — ideal for string printing and array traversal.
+
+#### FOR
+
+| Field | Description |
+|---|---|
+| Register | `X` or `Y` — the counter register |
+| Count | Loop limit (hex or decimal, e.g. `$12` = 18). X/Y runs from 0 up to limit-1. |
+| Label | Auto-generated loop label (e.g. `for0`) |
+
+**Generated ASM:**
+```
+    LDX #$00
+for0:
+```
+
+**Size:** 2 bytes (LD_ opcode + `#$00`).
+
+#### ENDF
+
+| Field | Description |
+|---|---|
+| Register | Automatically matched to the FOR register |
+| Label | Automatically linked to the FOR label |
+| Count | Automatically copied from the paired FOR |
+
+**Generated ASM:**
+```
+    INX
+    CPX #$12
+    BNE for0
+```
+
+**Size:** 5 bytes (IN_ + CP_ #imm + BNE offset).
+
+**Example — print a null-terminated string:**
+```
+    LDX #$00
+for0:
+    LDA msg,X       ; msg = PETSCII string at fixed address
+    BEQ done        ; null terminator → exit
+    JSR $FFD2       ; CHROUT
+    INX
+    CPX #$12        ; 18 characters max
+    BNE for0
+done:
+    RTS
+```
+
+> **LOOP vs FOR:** LOOP is better for known-iteration loops (delay, memory fill, pixel loops). FOR is better for string/array operations where you need a forward index (0→N). Both can use X or Y.
 
 ---
 

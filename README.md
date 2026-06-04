@@ -30,6 +30,7 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **ALIGN macro** — jump to the next memory boundary (e.g. 64 for sprites, `$2000` for bitmap)
 - **TABLE macro** — define a named lookup table at a given address
 - **LOOP / NEXT macro** — visual counter loop pair; LOOP loads X or Y with a count, NEXT emits `DEX/DEY + BNE`; nested loops supported
+- **FOR / ENDF macro** — forward counting loop pair; FOR loads X or Y with 0, ENDF emits `INX/INY + CPX/CPY #limit + BNE`; X/Y = 0..limit-1
 - **PUSH / PULL macro** — save and restore A, X, Y register combinations to/from the stack
 - **IF / ELSE / ENDIF macro** — conditional assembly blocks driven by `DEFINE` symbols
 - **DEFINE macro** — activate named symbols for conditional assembly

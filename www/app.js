@@ -163,6 +163,8 @@ const mnemonicLibrary = {
     { mnemonic: "INCLUDE", description: "Masik projekt JSON fajl blokkjainak beillesztese erre a helyre (csak olvasható).", modes: ["implied"], isIncludeMacro: true },
     { mnemonic: "LOOP", description: "Szamlalo ciklus: LD* #count, majd cimke a body elejere. NEXT blokkal zarjuk.", modes: ["implied"], isLoopMacro: true },
     { mnemonic: "NEXT", description: "Ciklus vege: DE* es BNE visszaugras a LOOP cimkejere.", modes: ["implied"], isNextMacro: true },
+    { mnemonic: "FOR", description: "Elore szamlalo ciklus: LD* #0, majd cimke. ENDF zarja (IN* / CP* #limit / BNE). X/Y = 0..limit-1.", modes: ["implied"], isForMacro: true },
+    { mnemonic: "ENDF", description: "Elore szamlalo ciklus vege: IN* / CP* #limit / BNE cimkere. Parosa a FOR blokk.", modes: ["implied"], isEndfMacro: true },
     { mnemonic: "PUSH", description: "Regiszterek mentese a stackre (A, X, Y kombinaciok).", modes: ["implied"], isPushMacro: true },
     { mnemonic: "PULL", description: "Regiszterek visszatoltese a stackrol (A, X, Y kombinaciok).", modes: ["implied"], isPullMacro: true },
     { mnemonic: "MACRO", description: "Felhasznaloi makro definicio kezdete. Nevet var, ENDM-mel zarjuk.", modes: ["implied"], isMacroDefStart: true },
@@ -1297,6 +1299,8 @@ const mnemonicDescriptionsEn = {
   INCLUDE: "Include another project JSON file's blocks inline at this position (read-only).",
   LOOP: "Counter loop: LD* #count loads the counter, then a label marks the body start. Close with NEXT.",
   NEXT: "Loop end: DE* decrements the counter, BNE branches back to the LOOP label.",
+  FOR: "Forward counting loop: LD* #0, then a label marks the body start. Close with ENDF (IN* / CP* #limit / BNE).",
+  ENDF: "Forward loop end: IN* increments, CP* #limit compares, BNE branches back to the FOR label.",
   PUSH: "Save registers to the stack (A, X, Y combinations).",
   PULL: "Restore registers from the stack (A, X, Y combinations).",
   MACRO: "User macro definition start. Expects a name, close with ENDM.",
@@ -3546,6 +3550,44 @@ function createBlockFromMnemonic(item) {
     };
   }
 
+  if (item.isForMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isForMacro: true,
+      loopReg: "X",
+      loopCount: "0A",
+      loopLabel: ""  // auto-assigned in insertBlock
+    };
+  }
+
+  if (item.isEndfMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isEndfMacro: true,
+      nextLabel: "",  // auto-filled in insertBlock
+      nextReg: "X",
+      nextCount: "0A"
+    };
+  }
+
   if (item.isWordMacro) {
     const rawOperand = operandInput.value.trim() || "1000,2000";
     return {
@@ -3869,7 +3911,7 @@ function collapseLoadedProgram(blocks) {
   // suffix/prefix mismatches (,X / ,Y / #) from older saved files
   result.forEach((block) => {
     const isMacroOrSpecial = block.isLabel || block.isComment || block.isAnonymousLabel || block.isLoopMacro ||
-      block.isNextMacro || block.isTableMacro || block.isDefineMacro || block.isConstMacro ||
+      block.isNextMacro || block.isForMacro || block.isEndfMacro || block.isTableMacro || block.isDefineMacro || block.isConstMacro ||
       block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isByteMacro ||
       block.isWordMacro || block.isDataMacro || block.isRawBytesMacro || block.isFillMacro ||
       block.isAlignMacro || block.isTextMacro || block.isStringMacro || block.isRawTextMacro ||
@@ -3893,6 +3935,13 @@ function collapseLoadedProgram(blocks) {
       const matching = result.find(b => b.isLoopMacro && b.loopLabel === block.nextLabel);
       if (matching) {
         block.nextReg = matching.loopReg || "X";
+      }
+    }
+    if (block.isEndfMacro && block.nextLabel) {
+      const matching = result.find(b => b.isForMacro && b.loopLabel === block.nextLabel);
+      if (matching) {
+        block.nextReg = matching.loopReg || "X";
+        block.nextCount = matching.loopCount || "0A";
       }
     }
   });
@@ -3959,6 +4008,8 @@ function _blockToExpertLine(block) {
   if (block.isIncludeMacro)   return `.include "${block.includeFileName || "library.json"}"${block.includeAddress ? ", $" + block.includeAddress.replace(/^\$/, "") : ""}`;  
   if (block.isLoopMacro)      return `.loop ${block.loopReg || "X"}, $${(block.loopCount || "0A").toUpperCase()}, ${block.loopLabel || "loop1"}`;
   if (block.isNextMacro)      return `.next ${block.nextLabel || "loop1"}`;
+  if (block.isForMacro)     return `.for ${block.loopReg || "X"}, $${(block.loopCount || "0A").toUpperCase()}, ${block.loopLabel || "loop1"}`;
+  if (block.isEndfMacro)     return `.endf ${block.nextLabel || "loop1"}`;
   if (block.isPushMacro)      return `.push ${block.pushRegs || "A"}`;
   if (block.isPullMacro)      return `.pull ${block.pullRegs || "A"}`;
   if (block.isConstMacro) {
@@ -4593,6 +4644,7 @@ function showBuildInfoDialog() {
     layout.lines.forEach(line => {
       if (line.block.isLabel && line.block.labelName) labels.set(line.block.labelName, line.address);
       if (line.block.isLoopMacro && line.block.loopLabel) labels.set(line.block.loopLabel, line.address + 2);
+      if (line.block.isForMacro && line.block.loopLabel) labels.set(line.block.loopLabel, line.address + 2);
       if (line.block.isConstMacro && line.block.constName) {
         const v = parseNumberByBase((line.block.rawOperand || "").replace(/^\$/, ""), line.block.base);
         if (v !== null) labels.set(line.block.constName, v);
@@ -4636,7 +4688,7 @@ function showBuildInfoDialog() {
       }
       const macroTypes = [
         "isTextMacro","isStringMacro","isDataMacro","isRawBytesMacro","isRawTextMacro",
-        "isLoopMacro","isNextMacro","isSpriteInitMacro","isSpritePosMacro","isWaitRasterMacro",
+        "isLoopMacro","isNextMacro","isForMacro","isEndfMacro","isSpriteInitMacro","isSpritePosMacro","isWaitRasterMacro",
         "isJoystickMacro","isMouseMacro","isSpriteColMacro","isIncBinMacro","isSidMacro",
         "isLoadFileMacro","isReuStashMacro","isReuFetchMacro","isReuSwapMacro","isReuCheckMacro",
         "isTurboSetMacro","isTurboEnableMacro","isSuperCpuDetectMacro",
@@ -4920,6 +4972,26 @@ function parseExpertText(text) {
     if (nextM) {
       const matchingLoop = blocks.slice().reverse().find(b => b.isLoopMacro && b.loopLabel === nextM[1]);
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "NEXT", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isNextMacro: true, nextLabel: nextM[1], nextReg: matchingLoop?.loopReg || "X" });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .for REG, count, label
+    const forM = line.match(/^\.loopf\s+([XY])\s*,\s*(\$?[0-9A-Fa-f]+|\d+)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*$/i);
+    if (forM) {
+      const reg = forM[1].toUpperCase();
+      const countRaw = forM[2];
+      const count = countRaw.startsWith("$") ? countRaw.slice(1).toUpperCase().padStart(2,"0") : parseInt(countRaw,10).toString(16).toUpperCase().padStart(2,"0");
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "FOR", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isForMacro: true, loopReg: reg, loopCount: count, loopLabel: forM[3] });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .endf label
+    const endfM = line.match(/^\.nextf\s+([A-Za-z_][A-Za-z0-9_]*)\s*$/i);
+    if (endfM) {
+      const matchingLoop = blocks.slice().reverse().find(b => b.isForMacro && b.loopLabel === endfM[1]);
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "ENDF", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isEndfMacro: true, nextLabel: endfM[1], nextReg: matchingLoop?.loopReg || "X", nextCount: matchingLoop?.loopCount || "0A" });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -5275,6 +5347,7 @@ function _expertValidate() {
           if (line.conditionallySkipped) return;
           if (line.block.isLabel && line.block.labelName) labels.set(line.block.labelName, line.address);
           if (line.block.isLoopMacro && line.block.loopLabel) labels.set(line.block.loopLabel, line.address + 2);
+          if (line.block.isForMacro && line.block.loopLabel) labels.set(line.block.loopLabel, line.address + 2);
           if (line.block.isTableMacro && line.block.tableName) {
             const tableAddr = line.block.tableAddress
               ? (parseAddressValue(line.block.tableAddress) ?? line.address)
@@ -5427,6 +5500,7 @@ function _buildDisasmHTML() {
     layout.lines.forEach((line) => {
       if (line.block.isLabel && line.block.labelName) labelMap.set(line.block.labelName, line.address);
       if (line.block.isLoopMacro && line.block.loopLabel) labelMap.set(line.block.loopLabel, line.address + 2);
+      if (line.block.isForMacro && line.block.loopLabel) labelMap.set(line.block.loopLabel, line.address + 2);
       if (line.block.isTableMacro && line.block.tableName) {
         const tableAddr = line.block.tableAddress
           ? (parseAddressValue(line.block.tableAddress) ?? line.address)
@@ -6225,6 +6299,20 @@ function insertBlock(index, block) {
       block.nextReg = last.loopReg || "X";
     }
   }
+  if (block.isForMacro && !block.loopLabel) {
+    let n = 1;
+    while (program.some(b => (b.isForMacro || b.isLoopMacro) && b.loopLabel === `for${n}`)) n++;
+    block.loopLabel = `for${n}`;
+  }
+  if (block.isEndfMacro && !block.nextLabel) {
+    const loopsAbove = program.slice(0, index).filter(b => b.isForMacro);
+    if (loopsAbove.length > 0) {
+      const last = loopsAbove[loopsAbove.length - 1];
+      block.nextLabel = last.loopLabel;
+      block.nextReg = last.loopReg || "X";
+      block.nextCount = last.loopCount || "0A";
+    }
+  }
   program.splice(index, 0, block);
   operandInput.value = "";
   renderMnemonicDescription();
@@ -6605,6 +6693,29 @@ function updateProgramBlock(index, field, value) {
     block.nextLabel = sanitizeLabelName(value);
     const matching = program.find(b => b.isLoopMacro && b.loopLabel === block.nextLabel);
     if (matching) block.nextReg = matching.loopReg || "X";
+    block.validationError = "";
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isForMacro && (field === "loopReg" || field === "loopCount" || field === "loopLabel")) {
+    if (field === "loopLabel") {
+      block.loopLabel = sanitizeLabelName(value);
+    }
+    block.validationError = "";
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isEndfMacro && field === "nextLabel") {
+    block.nextLabel = sanitizeLabelName(value);
+    const matching = program.find(b => b.isForMacro && b.loopLabel === block.nextLabel);
+    if (matching) {
+      block.nextReg = matching.loopReg || "X";
+      block.nextCount = matching.loopCount || "0A";
+    }
     block.validationError = "";
     renderBlockPreview(index);
     renderAsmOutput();
@@ -9718,6 +9829,9 @@ function assembleProgramToPrg(originOverride) {
     if (line.block.isLoopMacro && line.block.loopLabel) {
       labels.set(line.block.loopLabel, line.address + 2);
     }
+    if (line.block.isForMacro && line.block.loopLabel) {
+      labels.set(line.block.loopLabel, line.address + 2);
+    }
     if (line.block.isTableMacro && line.block.tableName) {
       const tableAddr = line.block.tableAddress
         ? (parseAddressValue(line.block.tableAddress) ?? line.address)
@@ -10426,6 +10540,44 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes: [deOpcode, 0xD0, offset & 0xFF], comment: `DE${reg} / BNE ${label}` };
   }
 
+  if (block.isForMacro) {
+    const reg = block.loopReg || "X";
+    const opcode = reg === "Y" ? 0xA0 : 0xA2;
+    const rawCount = (block.loopCount || "0A").trim();
+    const count = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+    if (isNaN(count) || count < 0 || count > 255) {
+      return { ok: false, error: `FOR: ervenytelen szamlalo` };
+    }
+    // LDX/LDY #0  — label at address+2
+    return { ok: true, bytes: [opcode, 0x00], comment: `LD${reg} #$00 ; ${block.loopLabel || "?"}:` };
+  }
+
+  if (block.isEndfMacro) {
+    const reg = block.nextReg || "X";
+    const inOpcode  = reg === "Y" ? 0xC8 : 0xE8;  // INY / INX
+    const cpOpcode  = reg === "Y" ? 0xC0 : 0xE0;  // CPY / CPX immediate
+    const label = block.nextLabel || "";
+    if (!label) {
+      return { ok: false, error: "ENDF: hianyzik a FOR cimke neve." };
+    }
+    const rawCount = (block.nextCount || "0A").trim();
+    const count = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+    if (isNaN(count) || count < 0 || count > 255) {
+      return { ok: false, error: `ENDF: ervenytelen hatarszam` };
+    }
+    const target = labels.get(label);
+    if (target === undefined) {
+      return { ok: false, error: `ENDF: ismeretlen cimke: ${label}` };
+    }
+    // INX/INY (1) + CPX/CPY #count (2) + BNE offset (2) = 5 bytes
+    // BNE is at address+3, so target offset = target - (address+3+2) = target - (address+5)
+    const offset = target - (line.address + 5);
+    if (offset < -128 || offset > 127) {
+      return { ok: false, error: `ENDF: a ciklus tul nagy, BNE nem er el (offset: ${offset}).` };
+    }
+    return { ok: true, bytes: [inOpcode, cpOpcode, count, 0xD0, offset & 0xFF], comment: `IN${reg} / CP${reg} #$${count.toString(16).toUpperCase().padStart(2,"0")} / BNE ${label}` };
+  }
+
   if (block.isPushMacro) {
     const regs = (block.pushRegs || "A").toUpperCase();
     const bytes = [];
@@ -11090,6 +11242,14 @@ function getInstructionSize(block) {
 
   if (block.isNextMacro) {
     return 3;  // DEX/DEY + BNE offset
+  }
+
+  if (block.isForMacro) {
+    return 2;  // LDX/LDY #0
+  }
+
+  if (block.isEndfMacro) {
+    return 5;  // INX/INY + CPX/CPY #limit + BNE offset
   }
 
   if (block.isPushMacro) {
@@ -12341,6 +12501,22 @@ function getCollapsedOperandText(block) {
     return block.nextLabel ? `→ ${block.nextLabel}` : "";
   }
 
+  if (block.isForMacro) {
+    const reg = block.loopReg || "X";
+    let countDisplay = "";
+    if (block.loopCount) {
+      const rawCount = block.loopCount.trim();
+      const parsed = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+      countDisplay = isNaN(parsed) ? rawCount : `#$${parsed.toString(16).toUpperCase().padStart(2, "0")}`;
+    }
+    const label = block.loopLabel || "";
+    return `${reg} 0..${countDisplay}${label ? ` → ${label}` : ""}`.trim();
+  }
+
+  if (block.isEndfMacro) {
+    return block.nextLabel ? `↑ ${block.nextLabel}` : "";
+  }
+
   if (block.isPushMacro) {
     return block.pushRegs ? `${block.pushRegs}` : "A";
   }
@@ -12953,6 +13129,111 @@ function renderProgram() {
           });
           document.addEventListener("pointerdown", e => {
             if (!dropdown.contains(e.target) && e.target !== nextLabelInput) closeNextDropdown();
+          }, { capture: true });
+        }
+      }
+    } else if (block.isForMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${t("fieldLoopReg")}</span>
+              <select class="loop-reg">
+                <option value="X"${(block.loopReg || "X") === "X" ? " selected" : ""}>X</option>
+                <option value="Y"${block.loopReg === "Y" ? " selected" : ""}>Y</option>
+              </select>
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldLoopCount")}</span>
+              <input class="loop-count" type="text" maxlength="3" value="${block.loopCount || "0A"}" placeholder="0A / 10">
+            </label>
+          </div>
+          <label class="mini-field">
+            <span>${t("fieldFormat")}</span>
+            <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
+              <label class="mini-toggle-option">
+                <input class="block-base" type="radio" name="block-base-${block.id}" value="hex"${block.base === "hex" ? " checked" : ""}>
+                <span>HEX</span>
+              </label>
+              <label class="mini-toggle-option">
+                <input class="block-base" type="radio" name="block-base-${block.id}" value="dec"${block.base === "dec" ? " checked" : ""}>
+                <span>DEC</span>
+              </label>
+              <label class="mini-toggle-option">
+                <input class="block-base" type="radio" name="block-base-${block.id}" value="bin"${block.base === "bin" ? " checked" : ""}>
+                <span>BIN</span>
+              </label>
+            </div>
+          </label>
+          <div class="macro-grid single-macro-row">
+            <label class="mini-field">
+              <span>${t("fieldLoopLabel")}</span>
+              <input class="loop-label" type="text" value="${block.loopLabel || ""}" placeholder="for1">
+            </label>
+          </div>
+        `
+      );
+    } else if (block.isEndfMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid single-macro-row">
+            <label class="mini-field">
+              <span>${t("fieldNextLabel")}</span>
+              <input class="next-label" type="text" value="${block.nextLabel || ""}" placeholder="for1">
+            </label>
+          </div>
+        `
+      );
+      // Label picker: shows all LOOPF labels
+      {
+        const loopLabels = program.filter(b => b.isForMacro && b.loopLabel).map(b => b.loopLabel);
+        if (loopLabels.length > 0) {
+          const nextLabelInput = blockControls.querySelector(".next-label");
+          nextLabelInput.classList.add("has-label-picker");
+          const wrapper = document.createElement("div");
+          wrapper.className = "label-picker-wrap";
+          nextLabelInput.parentNode.insertBefore(wrapper, nextLabelInput);
+          wrapper.appendChild(nextLabelInput);
+          const dropdown = document.createElement("div");
+          dropdown.className = "label-picker-dropdown";
+          dropdown.hidden = true;
+          dropdown.innerHTML = loopLabels.map(n => `<div class="label-picker-item">${n}</div>`).join("");
+          document.body.appendChild(dropdown);
+          function positionNFDropdown() {
+            const r = nextLabelInput.getBoundingClientRect();
+            dropdown.style.top = (r.bottom + window.scrollY + 4) + "px";
+            dropdown.style.left = (r.left + window.scrollX) + "px";
+            dropdown.style.width = r.width + "px";
+          }
+          let nfDropdownHovered = false;
+          function closeNFDropdown() {
+            dropdown.hidden = true;
+            window.removeEventListener("scroll", positionNFDropdown, { capture: true });
+          }
+          nextLabelInput.addEventListener("focus", () => {
+            positionNFDropdown();
+            dropdown.hidden = false;
+            window.addEventListener("scroll", positionNFDropdown, { capture: true, passive: true });
+          });
+          nextLabelInput.addEventListener("blur", () => { if (!nfDropdownHovered) closeNFDropdown(); });
+          nextLabelInput.addEventListener("keydown", e => { if (e.key === "Escape") closeNFDropdown(); });
+          dropdown.addEventListener("mouseenter", () => { nfDropdownHovered = true; });
+          dropdown.addEventListener("mouseleave", () => { nfDropdownHovered = false; });
+          dropdown.querySelectorAll(".label-picker-item").forEach(item => {
+            item.addEventListener("pointerdown", e => {
+              e.preventDefault();
+              nextLabelInput.value = item.textContent;
+              nextLabelInput.dispatchEvent(new Event("input"));
+              closeNFDropdown();
+              nfDropdownHovered = false;
+            });
+          });
+          document.addEventListener("pointerdown", e => {
+            if (!dropdown.contains(e.target) && e.target !== nextLabelInput) closeNFDropdown();
           }, { capture: true });
         }
       }
@@ -13625,7 +13906,7 @@ function renderProgram() {
     blockControls.insertAdjacentHTML(
       "beforeend",
       `
-          ${(mode.needsOperand && !block.isLabel && !block.isAnonymousLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke && !block.isRegionMacro && !block.isEndRegionMacro && !block.isLoadFileMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
+          ${(mode.needsOperand && !block.isLabel && !block.isAnonymousLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isForMacro && !block.isEndfMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke && !block.isRegionMacro && !block.isEndRegionMacro && !block.isLoadFileMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
           <label class="mini-field">
             <span>${t("fieldFormat")}</span>
           <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
@@ -13643,7 +13924,7 @@ function renderProgram() {
             </label>` : ""}
           </div>
         </label>` : ""}
-          <label class="mini-field"${block.isLabel || block.isAnonymousLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro || block.isRegionMacro || block.isEndRegionMacro || block.isLoadFileMacro || getMnemonicModes(block.mnemonic).length <= 1 ? ` hidden` : ""}>
+          <label class="mini-field"${block.isLabel || block.isAnonymousLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isForMacro || block.isEndfMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro || block.isRegionMacro || block.isEndRegionMacro || block.isLoadFileMacro || getMnemonicModes(block.mnemonic).length <= 1 ? ` hidden` : ""}>
             <span>${t("addressingMode")}</span>
           <select class="block-mode">
             ${getMnemonicModes(block.mnemonic).map((modeKey) => `<option value="${modeKey}"${block.addressingMode === modeKey ? " selected" : ""}>${modeText(modeKey, "label")}</option>`).join("")}
@@ -13677,7 +13958,7 @@ function renderProgram() {
           return;
         }
         // For LOOP blocks, convert loopCount between hex, dec, and bin
-        if (block.isLoopMacro) {
+        if (block.isLoopMacro || block.isForMacro) {
           const countInput = node.querySelector(".loop-count");
           const rawCount = (countInput?.value || block.loopCount || "0A").trim();
           const oldBase = block.base || "hex";
@@ -14393,12 +14674,15 @@ function renderAsmOutput() {
       return `; .petscii ${petsciiLabel}`;
     }
 
-    if (line.block.isLoopMacro) {
+    if (line.block.isLoopMacro || line.block.isForMacro) {
       const reg = line.block.loopReg || "X";
       const rawCount = (line.block.loopCount || "00").trim();
       const parsedCount = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
       const countHex = isNaN(parsedCount) ? rawCount.toUpperCase() : parsedCount.toString(16).toUpperCase().padStart(2, "0");
       const label = line.block.loopLabel || "loop";
+      if (line.block.isForMacro) {
+        return `    LD${reg} #$00\n${label}:`;
+      }
       return `    LD${reg} #$${countHex}\n${label}:`;
     }
 
@@ -14406,6 +14690,15 @@ function renderAsmOutput() {
       const reg = line.block.nextReg || "X";
       const label = line.block.nextLabel || "loop";
       return `    DE${reg}\n    BNE ${label}`;
+    }
+
+    if (line.block.isEndfMacro) {
+      const reg = line.block.nextReg || "X";
+      const label = line.block.nextLabel || "loop";
+      const rawCount = (line.block.nextCount || "00").trim();
+      const parsedCount = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+      const countStr = isNaN(parsedCount) ? rawCount.toUpperCase() : `$${parsedCount.toString(16).toUpperCase().padStart(2, "0")}`;
+      return `    IN${reg}\n    CP${reg} #${countStr}\n    BNE ${label}`;
     }
 
     if (line.block.isPushMacro) {
@@ -14651,6 +14944,9 @@ function _buildMonitorText(layout) {
       labels.set(line.block.labelName, line.address);
     }
     if (line.block.isLoopMacro && line.block.loopLabel) {
+      labels.set(line.block.loopLabel, line.address + 2);
+    }
+    if (line.block.isForMacro && line.block.loopLabel) {
       labels.set(line.block.loopLabel, line.address + 2);
     }
     if (line.block.isTableMacro && line.block.tableName) {

@@ -184,6 +184,15 @@ A `LOOP` makró (két blokk rendszer):
 - Inserteléskor (`insertBlock`): LOOP-hoz auto-label, NEXT-hez auto-kitöltés a felette lévő LOOP alapján.
 - HEX/DEC toggle és addressing mode select el van rejtve LOOP/NEXT blokkoknál.
 
+A `FOR` makró (előre számoló, két blokk rendszer):
+- **FOR blokk** (`isForMacro: true`): mezők: `loopReg` (`"X"` vagy `"Y"`), `loopCount` (hex byte limit pl. `"0A"`), `loopLabel` (string). Generál: `LDX/LDY #$00` (2 byte), majd a label a `address+2`-re mutat (a body elejére). Az auto-label `for1`, `for2`… ha `loopLabel` üres.
+- **ENDF blokk** (`isEndfMacro: true`): mezők: `nextLabel` (párosított FOR label neve), `nextReg` (auto-derive), `nextCount` (auto-derive a pár FOR-ból). Generál: `INX/INY` (1 byte) + `CPX/CPY #limit` (2 byte) + `BNE label` (2 byte) = 5 byte. BNE offset = `target − (address+5)`, -128..127 range check.
+- `getInstructionSize`: FOR=2, ENDF=5
+- Inserteléskor (`insertBlock`): FOR-hoz auto-label, ENDF-hez auto-kitöltés a felette lévő FOR alapján.
+- HEX/DEC toggle és addressing mode select el van rejtve FOR/ENDF blokkoknál.
+- Import regex: `/^\.for\s+([XY])\s*,\s*(\$?[0-9A-Fa-f]+|\d+)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*$/i` és `/^\.endf\s+([A-Za-z_][A-Za-z0-9_]*)\s*$/i`
+- Expert sor: `.for REG, count, label` / `.endf label`
+
 ---
 
 ## RAWBYTES / RAWTEXT makrók és PRG assembly
@@ -1149,6 +1158,8 @@ if (field === "rawOperand" || field === "base") {
 | `isIncludeMacro` | ❌ | ❌ | fájl |
 | `isLoopMacro` | ❌ | ❌ | reg, count (HEX/DEC toggle!), label |
 | `isNextMacro` | ❌ | ❌ | loop label |
+| `isForMacro` | ❌ | ❌ | reg, count (HEX/DEC toggle!), label |
+| `isEndfMacro` | ❌ | ❌ | loop label |
 | `isPushMacro` | ❌ | ❌ | regiszterek |
 | `isPullMacro` | ❌ | ❌ | regiszterek |
 | `isWordMacro` | ✅ | ❌ | — |
