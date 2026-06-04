@@ -589,8 +589,29 @@
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v1.6.8</p>
+      <p class="whats-new-version">v1.6.9</p>
       <ul class="whats-new-list">
+        <li>
+          <strong>FOR / ENDF forward-counting loops</strong> — new forward-counting loop macros: <code>FOR</code> loads X/Y with zero, <code>ENDF</code> emits <code>INX/INY + CPX/CPY #limit + BNE</code>. Loop body runs 0..limit−1. Supports nested loops, auto-labeling (<code>for1</code>, <code>for2</code>…), expert text import/export, full assembly/PRG/disassembly. ENDF is 5 bytes.
+        </li>
+        <li>
+          <strong>PETSCII null terminator option</strong> — PETSCII blocks now support an optional trailing <code>$00</code> byte via a new compact checkbox. Expert mode and parser accept/emit <code>, null</code> syntax for <code>.petscii</code> lines. The assembler includes the null byte in deferred data.
+        </li>
+        <li>
+          <strong>Interactive tutorial system</strong> — built-in tutorial system with categorized lessons, guided step-by-step tours, and sample links. Fully localised (HU/EN). Tour steps advance on target clicks or input changes (<code>advanceOnTargetClick</code> / <code>advanceOnTargetChange</code> with <code>targetValue</code> matching). Menu overlay behaviour respects tour state. Tour data extracted to separate <code>www/tutorial-data.js</code> keeping <code>app.js</code> cleaner.
+        </li>
+        <li>
+          <strong>Name-input demo and tutorial</strong> — new sample <code>name-input-demo.json</code> demonstrating PETSCII text output + CHROUT print loop + CHRIN keyboard input. Comes with a guided interactive tutorial tour.
+        </li>
+        <li>
+          <strong>Lowercase sample text normalisation</strong> — sample demo text operands normalised to lowercase across all samples for consistency. PETSCII encoder improved: newlines → 13, characters uppercase for C64 charset, lowercase→uppercase fallback, unsupported → space.
+        </li>
+        <li>
+          <strong>Palette sync and UI fixes</strong> — palette item highlighting refactored with <code>_highlightPaletteItemByMnemonic</code>; active palette items now scroll into view. Table macros no longer show operand field. Numerous Hungarian translation encoding/phrasing fixes.
+        </li>
+      </ul>
+      <p class="whats-new-version" style="font-size:0.78rem;opacity:0.6;margin-top:10px">v1.6.8</p>
+      <ul class="whats-new-list" style="opacity:0.75">
         <li>
           <strong>Pure 6502 disassembler view</strong> — the <strong>Disasm</strong> output mode now shows a clean machine-code listing: no macros, no comments, no annotations. Only real 6502 instructions with addresses, hex bytes, and resolved numeric operands (CONST labels expand to <code>$XXXX</code> addresses).
         </li>
