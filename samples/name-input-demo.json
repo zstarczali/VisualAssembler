@@ -1,0 +1,381 @@
+{
+  "origin": "$0801",
+  "basicSys": true,
+  "program": [
+    {
+      "id": "ni-001",
+      "isComment": true,
+      "commentText": "CHRIN-alapú névbevitel: kérdés → nevet olvas → HELLO [nev]!",
+      "mnemonic": "COMMENT", "operand": "", "rawOperand": "", "description": "",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-002",
+      "isComment": true,
+      "commentText": "--- Kérdés kiírása (null-terminált, PETSCII $0C00) ---",
+      "mnemonic": "COMMENT", "operand": "", "rawOperand": "", "description": "",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-003",
+      "category": "Adatmozgas", "mnemonic": "LDX",
+      "operand": "#$00", "rawOperand": "00",
+      "description": "X = 0 (kérdés index)",
+      "addressingMode": "immediate", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-004",
+      "isLabel": true, "labelName": "print_q",
+      "mnemonic": "LABEL", "operand": "print_q", "rawOperand": "print_q", "description": "",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-005",
+      "category": "Adatmozgas", "mnemonic": "LDA",
+      "operand": "question,X", "rawOperand": "question",
+      "description": "Következő karakter",
+      "addressingMode": "absoluteX", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-006",
+      "category": "Ugrasok", "mnemonic": "BEQ",
+      "operand": "read_name", "rawOperand": "read_name",
+      "description": "Null = kérdés vége",
+      "addressingMode": "relative", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-007",
+      "category": "Ugrasok", "mnemonic": "JSR",
+      "operand": "$FFD2", "rawOperand": "FFD2",
+      "description": "CHROUT — karakter kiírása",
+      "addressingMode": "absolute", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-008",
+      "category": "Regiszterek", "mnemonic": "INX",
+      "operand": "", "rawOperand": "", "description": "Következő karakter",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-009",
+      "category": "Ugrasok", "mnemonic": "BNE",
+      "operand": "print_q", "rawOperand": "print_q",
+      "description": "Vissza",
+      "addressingMode": "relative", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-010",
+      "isComment": true,
+      "commentText": "--- Névbevitel: CHRIN blokkoló, X megőrződik, echóz ---",
+      "mnemonic": "COMMENT", "operand": "", "rawOperand": "", "description": "",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-011",
+      "isLabel": true, "labelName": "read_name",
+      "mnemonic": "LABEL", "operand": "read_name", "rawOperand": "read_name", "description": "",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-012",
+      "category": "Adatmozgas", "mnemonic": "LDX",
+      "operand": "#$00", "rawOperand": "00",
+      "description": "X = 0 (névpuffer index)",
+      "addressingMode": "immediate", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-013",
+      "isLabel": true, "labelName": "read",
+      "mnemonic": "LABEL", "operand": "read", "rawOperand": "read", "description": "",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-014",
+      "category": "Ugrasok", "mnemonic": "JSR",
+      "operand": "$FFCF", "rawOperand": "FFCF",
+      "description": "CHRIN — blokkolva vár, A=karakter, X megőrződik",
+      "addressingMode": "absolute", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-015",
+      "category": "Aritmetika", "mnemonic": "CMP",
+      "operand": "#$0D", "rawOperand": "0D",
+      "description": "RETURN? ($0D)",
+      "addressingMode": "immediate", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-016",
+      "category": "Ugrasok", "mnemonic": "BEQ",
+      "operand": "done", "rawOperand": "done",
+      "description": "Ha RETURN: bevitel vége",
+      "addressingMode": "relative", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-017",
+      "category": "Adatmozgas", "mnemonic": "STA",
+      "operand": "nev,X", "rawOperand": "nev",
+      "description": "Karakter eltárolása a névpufferbe",
+      "addressingMode": "absoluteX", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-018",
+      "category": "Regiszterek", "mnemonic": "INX",
+      "operand": "", "rawOperand": "", "description": "Következő hely",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-019",
+      "category": "Ugrasok", "mnemonic": "BNE",
+      "operand": "read", "rawOperand": "read",
+      "description": "Vissza (overflow: X=0 után leáll)",
+      "addressingMode": "relative", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-020",
+      "isComment": true,
+      "commentText": "--- Bevitel kész: null lezárás, új sor ---",
+      "mnemonic": "COMMENT", "operand": "", "rawOperand": "", "description": "",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-021",
+      "isLabel": true, "labelName": "done",
+      "mnemonic": "LABEL", "operand": "done", "rawOperand": "done", "description": "",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-022",
+      "category": "Adatmozgas", "mnemonic": "LDA",
+      "operand": "#$00", "rawOperand": "00",
+      "description": "Null lezáró byte",
+      "addressingMode": "immediate", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-023",
+      "category": "Adatmozgas", "mnemonic": "STA",
+      "operand": "nev,X", "rawOperand": "nev",
+      "description": "Null terminátor a név végére",
+      "addressingMode": "absoluteX", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-024",
+      "category": "Adatmozgas", "mnemonic": "LDA",
+      "operand": "#$0D", "rawOperand": "0D",
+      "description": "Új sor",
+      "addressingMode": "immediate", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-025",
+      "category": "Ugrasok", "mnemonic": "JSR",
+      "operand": "$FFD2", "rawOperand": "FFD2",
+      "description": "CHROUT — új sor",
+      "addressingMode": "absolute", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-026",
+      "isComment": true,
+      "commentText": "--- HELLO kiírása (null-terminált, PETSCII $0C20) ---",
+      "mnemonic": "COMMENT", "operand": "", "rawOperand": "", "description": "",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-027",
+      "category": "Adatmozgas", "mnemonic": "LDX",
+      "operand": "#$00", "rawOperand": "00",
+      "description": "X = 0",
+      "addressingMode": "immediate", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-028",
+      "isLabel": true, "labelName": "print_hello",
+      "mnemonic": "LABEL", "operand": "print_hello", "rawOperand": "print_hello", "description": "",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-029",
+      "category": "Adatmozgas", "mnemonic": "LDA",
+      "operand": "hello,X", "rawOperand": "hello",
+      "description": "Következő karakter",
+      "addressingMode": "absoluteX", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-030",
+      "category": "Ugrasok", "mnemonic": "BEQ",
+      "operand": "print_name", "rawOperand": "print_name",
+      "description": "Null = HELLO vége",
+      "addressingMode": "relative", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-031",
+      "category": "Ugrasok", "mnemonic": "JSR",
+      "operand": "$FFD2", "rawOperand": "FFD2",
+      "description": "CHROUT",
+      "addressingMode": "absolute", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-032",
+      "category": "Regiszterek", "mnemonic": "INX",
+      "operand": "", "rawOperand": "", "description": "",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-033",
+      "category": "Ugrasok", "mnemonic": "BNE",
+      "operand": "print_hello", "rawOperand": "print_hello",
+      "description": "",
+      "addressingMode": "relative", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-034",
+      "isComment": true,
+      "commentText": "--- Beírt név kiírása (null-terminált puffer) ---",
+      "mnemonic": "COMMENT", "operand": "", "rawOperand": "", "description": "",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-035",
+      "isLabel": true, "labelName": "print_name",
+      "mnemonic": "LABEL", "operand": "print_name", "rawOperand": "print_name", "description": "",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-036",
+      "category": "Adatmozgas", "mnemonic": "LDX",
+      "operand": "#$00", "rawOperand": "00",
+      "description": "X = 0",
+      "addressingMode": "immediate", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-037",
+      "isLabel": true, "labelName": "name_loop",
+      "mnemonic": "LABEL", "operand": "name_loop", "rawOperand": "name_loop", "description": "",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-038",
+      "category": "Adatmozgas", "mnemonic": "LDA",
+      "operand": "nev,X", "rawOperand": "nev",
+      "description": "Névkarakter",
+      "addressingMode": "absoluteX", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-039",
+      "category": "Ugrasok", "mnemonic": "BEQ",
+      "operand": "print_excl", "rawOperand": "print_excl",
+      "description": "Null = név vége",
+      "addressingMode": "relative", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-040",
+      "category": "Ugrasok", "mnemonic": "JSR",
+      "operand": "$FFD2", "rawOperand": "FFD2",
+      "description": "CHROUT",
+      "addressingMode": "absolute", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-041",
+      "category": "Regiszterek", "mnemonic": "INX",
+      "operand": "", "rawOperand": "", "description": "",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-042",
+      "category": "Ugrasok", "mnemonic": "BNE",
+      "operand": "name_loop", "rawOperand": "name_loop",
+      "description": "",
+      "addressingMode": "relative", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-043",
+      "isLabel": true, "labelName": "print_excl",
+      "mnemonic": "LABEL", "operand": "print_excl", "rawOperand": "print_excl", "description": "",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-044",
+      "category": "Adatmozgas", "mnemonic": "LDA",
+      "operand": "#$21", "rawOperand": "21",
+      "description": "'!'",
+      "addressingMode": "immediate", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-045",
+      "category": "Ugrasok", "mnemonic": "JSR",
+      "operand": "$FFD2", "rawOperand": "FFD2",
+      "description": "CHROUT — '!'",
+      "addressingMode": "absolute", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-046",
+      "category": "Ugrasok", "mnemonic": "RTS",
+      "operand": "", "rawOperand": "", "description": "Visszatérés BASIC-be",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-047",
+      "isComment": true,
+      "commentText": "--- Adatok: PETSCII stringek fix címen, nev puffer ---",
+      "mnemonic": "COMMENT", "operand": "", "rawOperand": "", "description": "",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-048",
+      "isTableMacro": true, "tableName": "question", "tableAddress": "$0C00",
+      "mnemonic": "TABLE", "operand": "question $0C00", "rawOperand": "question $0C00", "description": "",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-049",
+      "isPetsciiMacro": true, "petsciiAddress": "$0C00",
+      "mnemonic": "PETSCII",
+      "operand": "WHAT'S YOUR NAME? ",
+      "rawOperand": "WHAT'S YOUR NAME? ",
+      "description": "18 byte, $0C00–$0C11",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-050",
+      "isRawBytesMacro": true, "rawBytesAddress": "$0C12",
+      "mnemonic": "RAWBYTES", "operand": "00", "rawOperand": "00",
+      "description": "Null terminátor ($0C12)",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-051",
+      "isTableMacro": true, "tableName": "hello", "tableAddress": "$0C20",
+      "mnemonic": "TABLE", "operand": "hello $0C20", "rawOperand": "hello $0C20", "description": "",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-052",
+      "isPetsciiMacro": true, "petsciiAddress": "$0C20",
+      "mnemonic": "PETSCII",
+      "operand": "HELLO ",
+      "rawOperand": "HELLO ",
+      "description": "6 byte, $0C20–$0C25",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-053",
+      "isRawBytesMacro": true, "rawBytesAddress": "$0C26",
+      "mnemonic": "RAWBYTES", "operand": "00", "rawOperand": "00",
+      "description": "Null terminátor ($0C26)",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-054",
+      "isTableMacro": true, "tableName": "nev", "tableAddress": "$0C50",
+      "mnemonic": "TABLE", "operand": "nev $0C50", "rawOperand": "nev $0C50", "description": "",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    },
+    {
+      "id": "ni-055",
+      "isRawBytesMacro": true, "rawBytesAddress": "$0C50",
+      "mnemonic": "RAWBYTES",
+      "operand": "00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00",
+      "rawOperand": "00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00",
+      "description": "21 nulla byte névpuffer ($0C50)",
+      "addressingMode": "implied", "base": "hex", "validationError": ""
+    }
+  ]
+}

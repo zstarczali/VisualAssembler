@@ -526,6 +526,7 @@ const translations = {
     sampleRandLinesDemo: "Veletlen vonalak demo",
     sampleReuDemo: "REU demo",
     sampleScrollTextDemo: "Sima scroll demo (pontonkenti gorgetes)",
+    sampleNameInputDemo: "Nev bekeres demo (PETSCII + CHROUT)",
     helpManual: "Kezikonyv",
     about: "Névjegy",
     knowledgeBase: "Tudásbázis",
@@ -910,6 +911,7 @@ const translations = {
     sampleRandLinesDemo: "Random lines demo",
     sampleReuDemo: "REU demo",
     sampleScrollTextDemo: "Smooth scroll demo (per-pixel scrolling)",
+    sampleNameInputDemo: "Name input demo (PETSCII + CHROUT)",
     helpManual: "Manual",
     about: "About",
     knowledgeBase: "Knowledge Base",
@@ -2549,6 +2551,7 @@ function applyTranslations() {
   if (sampleOptions[28]) sampleOptions[28].textContent = t("sampleRandLinesDemo");
   if (sampleOptions[29]) sampleOptions[29].textContent = t("sampleReuDemo");
   if (sampleOptions[30]) sampleOptions[30].textContent = t("sampleScrollTextDemo");
+  if (sampleOptions[31]) sampleOptions[31].textContent = t("sampleNameInputDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -15133,7 +15136,12 @@ function loadSelectedSample() {
     return;
   }
 
-  loadSampleProgram();
+  if (sampleSelect.value === "name-input-demo") {
+    loadSampleFromFile("name-input-demo");
+    return;
+  }
+
+  loadSampleFromFile(sampleSelect.value);
 }
 
 function adjustZoom(delta) {
@@ -15165,216 +15173,47 @@ const TUTORIAL_DATA = {
       type: "tour",
       interactive: true,
       difficulty: 1,
-      titleHu: "Kiemelt: első színes szövegprogram",
-      titleEn: "Featured: First Color Text Program",
-      descHu: "Pontosan megmutatja, mire kattints a felületen, hogy összerakj egy egyszerű programot: TEXT felirat + border és háttérszín beállítás.",
-      descEn: "Shows exactly what to click in the UI to build a simple program: a TEXT label plus border and background color setup.",
+      titleHu: "Kiemelt: név bekérés PETSCII-vel",
+      titleEn: "Featured: Name Input with PETSCII",
+      descHu: "Egy működő program: PETSCII makró + CHROUT print loop + CHRIN input. A mintaprogram betöltődik, majd a tour végigvezet a részein.",
+      descEn: "A working program: PETSCII macro + CHROUT print loop + CHRIN input. The sample loads, then the tour walks you through each section.",
       steps: [
         {
           target: null,
-          onEnterActionId: "prepare-guided-color-text",
-          titleHu: "Kezdjük egy üres programmal",
-          titleEn: "Start with an Empty Program",
-          descHu: "Ez a guided lecke lépésről lépésre végigvisz egy kis program összerakásán.\n\nA színeket és a szöveget TE adhatod meg menet közben — nem előre gyártott értékeket kapsz.",
-          descEn: "This guided lesson walks you step by step through assembling a small program.\n\nYOU choose the colors and the text along the way — no pre-baked values."
-        },
-        {
-          target: "#mnemonic-select",
-          onEnterActionId: "prep-jsr-clearscreen",
-          titleHu: "1. JSR — képernyő törlése",
-          titleEn: "1. JSR — Clear Screen",
-          descHu: "Mielőtt bármit kiírnánk, töröljük a képernyőt! A guide előkészítette a `JSR $E544` blokkot.\n\nAz $E544 a C64 KERNAL ROM rutinja, amely letörli a képernyőt és a kurzort a bal felső sarokba teszi.\n\nAz operandus (`E544`) fix cím — nem kell átírnod.",
-          descEn: "Before we print anything, let's clear the screen! The guide prepared a `JSR $E544` block.\n\n$E544 is the C64 KERNAL ROM routine that clears the screen and homes the cursor to the top-left.\n\nThe operand (`E544`) is a fixed address — no need to change it."
-        },
-        {
-          target: "#add-selected",
-          advanceOnTargetClick: true,
-          titleHu: "2. Add hozzá a JSR blokkot",
-          titleEn: "2. Add the JSR Block",
-          descHu: "Kattints az `Add selected` gombra. Ezzel bekerül a képernyőtörlő rutin hívása a program elejére.",
-          descEn: "Click `Add selected`. This inserts the clear-screen routine call at the start of the program."
-        },
-        {
-          target: "#mnemonic-select",
-          onEnterActionId: "prep-text-block",
-          titleHu: "3. TEXT makró — írd át a szöveget",
-          titleEn: "3. TEXT Macro — Edit the Text",
-          descHu: "A guide kiválasztotta a TEXT makrót és beírta a `HELLO C64!` szöveget az operandus mezőbe.\n\n✏️ Most írd át a SAJÁT szövegedre! Kattints az operandus mezőbe, és gépeld be, amit ki szeretnél íratni.",
-          descEn: "The guide selected the TEXT macro and filled `HELLO C64!` into the operand field.\n\n✏️ Now change it to YOUR OWN text! Click the operand field and type what you want to display."
-        },
-        {
-          target: "#operand-input",
-          positionDelay: 120,
-          titleHu: "4. Ellenőrizd a szöveged",
-          titleEn: "4. Check Your Text",
-          descHu: "Itt látod az operandus mezőt a saját szövegeddel. Ha jó, lépj tovább — mindjárt hozzáadjuk a programhoz.",
-          descEn: "Here's the operand field with your text. If it looks good, move on — we'll add it to the program next."
-        },
-        {
-          target: "#add-selected",
-          advanceOnTargetClick: true,
-          titleHu: "5. Add hozzá a TEXT blokkot",
-          titleEn: "5. Add the TEXT Block",
-          descHu: "Kattints a `Kiválasztott blokk hozzáadása` gombra. Ez beszúrja a TE szövegeddel a TEXT blokkot.",
-          descEn: "Click `Add selected block`. This inserts the TEXT block with YOUR text."
-        },
-        {
-          target: "#mnemonic-select",
-          onEnterActionId: "prep-lda-border",
-          titleHu: "6. Keretszín — írd be az értéket",
-          titleEn: "6. Border Color — Type the Value",
-          descHu: "A guide előkészítette az `LDA` utasítást immediate módban.\n\n✏️ Most írd be az operandus mezőbe a keretszíned hex kódját (00–0F)!\nPl.: 06=kék, 02=piros, 05=zöld, 01=fehér, 00=fekete",
-          descEn: "The guide prepared `LDA` in immediate mode.\n\n✏️ Now type your border color hex code (00–0F) in the operand field!\nE.g.: 06=blue, 02=red, 05=green, 01=white, 00=black"
-        },
-        {
-          target: "#operand-input",
-          positionDelay: 120,
-          titleHu: "7. Ellenőrizd a keretszín értéket",
-          titleEn: "7. Check the Border Color Value",
-          descHu: "Az operandus mezőben a keretszíned hex kódja van. Ha jó, lépj tovább a hozzáadáshoz.",
-          descEn: "The operand field holds your border color hex code. If it's correct, continue to add it."
-        },
-        {
-          target: "#add-selected",
-          advanceOnTargetClick: true,
-          titleHu: "8. Add hozzá a keretszín LDA-t",
-          titleEn: "8. Add the Border LDA",
-          descHu: "Kattints az `Add selected` gombra. Ezzel a keretszín értéke bekerül az akkumulátorba.",
-          descEn: "Click `Add selected`. This loads your border color into the accumulator."
-        },
-        {
-          target: "#mnemonic-select",
-          onEnterActionId: "prep-sta-border",
-          titleHu: "9. STA $D020 — border regiszter",
-          titleEn: "9. STA $D020 — Border Register",
-          descHu: "A guide előkészítette a `STA $D020` blokkot. Ez kiírja a színt a C64 border regiszterébe.\n\nAz operandus (`D020`) fix cím, nem kell átírnod.",
-          descEn: "The guide prepared `STA $D020`. This writes the color to the C64 border register.\n\nThe operand (`D020`) is a fixed address — no need to change it."
-        },
-        {
-          target: "#add-selected",
-          advanceOnTargetClick: true,
-          titleHu: "10. Add hozzá a border STA-t",
-          titleEn: "10. Add the Border STA",
-          descHu: "Kattints az `Add selected` gombra. A keretszín beállítás kész.",
-          descEn: "Click `Add selected`. The border color setup is done."
-        },
-        {
-          target: "#mnemonic-select",
-          onEnterActionId: "prep-lda-background",
-          titleHu: "11. Háttérszín — írd be az értéket",
-          titleEn: "11. Background Color — Type the Value",
-          descHu: "A guide előkészítette az `LDA` utasítást a háttérszínhez.\n\n✏️ Most írd be az operandus mezőbe a háttérszíned hex kódját (00–0F)!\nPl.: 00=fekete, 01=fehér, 06=kék, 0B=sötétszürke",
-          descEn: "The guide prepared `LDA` for the background color.\n\n✏️ Now type your background color hex code (00–0F) in the operand field!\nE.g.: 00=black, 01=white, 06=blue, 0B=dark gray"
-        },
-        {
-          target: "#operand-input",
-          positionDelay: 120,
-          titleHu: "12. Ellenőrizd a háttérszín értéket",
-          titleEn: "12. Check the Background Color Value",
-          descHu: "Az operandus mezőben a háttérszíned hex kódja van. Ha jó, lépj tovább.",
-          descEn: "The operand field holds your background color hex code. If it's correct, continue."
-        },
-        {
-          target: "#add-selected",
-          advanceOnTargetClick: true,
-          titleHu: "13. Add hozzá a háttérszín LDA-t",
-          titleEn: "13. Add the Background LDA",
-          descHu: "Kattints az `Add selected` gombra. A háttérszín értéke bekerül az akkumulátorba.",
-          descEn: "Click `Add selected`. Your background color is loaded into the accumulator."
-        },
-        {
-          target: "#mnemonic-select",
-          onEnterActionId: "prep-sta-background",
-          titleHu: "14. STA $D021 — háttér regiszter",
-          titleEn: "14. STA $D021 — Background Register",
-          descHu: "A guide előkészítette a `STA $D021` blokkot. Ez a C64 háttérszín regisztere.\n\nAz operandus (`D021`) fix cím — nem kell átírnod.",
-          descEn: "The guide prepared `STA $D021`. This is the C64 background color register.\n\nThe operand (`D021`) is a fixed address — no need to change it."
-        },
-        {
-          target: "#add-selected",
-          advanceOnTargetClick: true,
-          titleHu: "15. Add hozzá a háttér STA-t",
-          titleEn: "15. Add the Background STA",
-          descHu: "Kattints az `Add selected` gombra. A háttérszín beállítás is kész.",
-          descEn: "Click `Add selected`. The background color setup is also done."
-        },
-        {
-          target: "#mnemonic-select",
-          onEnterActionId: "prep-text-whatsyourname",
-          titleHu: "16. TEXT — mi a neved?",
-          titleEn: "16. TEXT — What's Your Name?",
-          descHu: "Most megkérdezzük a felhasználó nevét! A guide előkészítette a TEXT makrót `WHAT'S YOUR NAME?` szöveggel.\n\n✏️ Írd át a szöveget ha szeretnéd — pl. magyarul `MI A NEVED?`",
-          descEn: "Now let's ask for the user's name! The guide prepared the TEXT macro with `WHAT'S YOUR NAME?`.\n\n✏️ Change the text if you like — e.g. `WHAT IS YOUR NAME?`"
-        },
-        {
-          target: "#add-selected",
-          advanceOnTargetClick: true,
-          titleHu: "17. Add hozzá a kérdés TEXT blokkot",
-          titleEn: "17. Add the Question TEXT Block",
-          descHu: "Kattints az `Add selected` gombra. A kérdés felkerül a képernyőre.",
-          descEn: "Click `Add selected`. The question appears on screen."
-        },
-        {
-          target: "#mnemonic-select",
-          onEnterActionId: "prep-jsr-chrin",
-          titleHu: "18. JSR $FFCF — KERNAL input (CHRIN)",
-          titleEn: "18. JSR $FFCF — KERNAL Input (CHRIN)",
-          descHu: "Most jön a KERNAL input! A guide előkészítette a `JSR $FFCF` blokkot.\n\nAz $FFCF a CHRIN KERNAL rutin — egy karaktert olvas be a billentyűzetről.\nValódi programban ezt egy ciklusban hívnád (pl. LOOP/NEXT), hogy több karaktert olvass be, amíg ENTER-t nem nyom a felhasználó.\n\nItt most egyetlen JSR $FFCF-et adunk hozzá, ami az alapelvet mutatja be.",
-          descEn: "Now for KERNAL input! The guide prepared a `JSR $FFCF` block.\n\n$FFCF is the CHRIN KERNAL routine — it reads one character from the keyboard.\nIn a real program you'd call it in a loop (e.g. LOOP/NEXT) to read multiple characters until the user presses ENTER.\n\nHere we add a single JSR $FFCF to demonstrate the concept."
-        },
-        {
-          target: "#add-selected",
-          advanceOnTargetClick: true,
-          titleHu: "19. Add hozzá a CHRIN JSR blokkot",
-          titleEn: "19. Add the CHRIN JSR Block",
-          descHu: "Kattints az `Add selected` gombra. A CHRIN hívás bekerül a programba.",
-          descEn: "Click `Add selected`. The CHRIN call is added to the program."
-        },
-        {
-          target: "#mnemonic-select",
-          onEnterActionId: "prep-text-greeting",
-          titleHu: "20. TEXT — üdvözlés a névvel",
-          titleEn: "20. TEXT — Greeting with Name",
-          descHu: "Most kiírjuk a személyes üdvözlést! A guide előkészítette a TEXT makrót `HELLO ` szöveggel.\n\n✏️ Írd a neved a `HELLO ` UTÁN az operandus mezőbe! Pl.: `HELLO ANNA`\n\nValódi programban az imént beolvasott nevet tárolnád egy memóriacímen (STRING makróval), és azt jelenítenéd meg.",
-          descEn: "Now let's print a personal greeting! The guide prepared the TEXT macro with `HELLO `.\n\n✏️ Type your name AFTER `HELLO ` in the operand field! E.g.: `HELLO ANNA`\n\nIn a real program you'd store the name you just read at a memory address (using STRING macro) and display that."
-        },
-        {
-          target: "#add-selected",
-          advanceOnTargetClick: true,
-          titleHu: "21. Add hozzá az üdvözlő TEXT blokkot",
-          titleEn: "21. Add the Greeting TEXT Block",
-          descHu: "Kattints az `Add selected` gombra. A személyes üdvözlés bekerül a programba.",
-          descEn: "Click `Add selected`. The personal greeting is added to the program."
-        },
-        {
-          target: "#mnemonic-select",
-          onEnterActionId: "prep-rts-block",
-          titleHu: "22. RTS — program lezárása",
-          titleEn: "22. RTS — End the Program",
-          descHu: "A guide kiválasztotta az `RTS` utasítást. Ez zárja le a programot.",
-          descEn: "The guide selected `RTS`. This ends the program."
-        },
-        {
-          target: "#add-selected",
-          advanceOnTargetClick: true,
-          titleHu: "23. Add hozzá az RTS blokkot",
-          titleEn: "23. Add the RTS Block",
-          descHu: "Kattints az `Add selected` gombra az utolsó blokk beszúrásához.",
-          descEn: "Click `Add selected` to insert the final block."
+          onEnterActionId: "prepare-name-input-demo",
+          titleHu: "Név bekérés demo — PETSCII + CHROUT + CHRIN",
+          titleEn: "Name Input Demo — PETSCII + CHROUT + CHRIN",
+          descHu: "Ez a program valódi billentyűzet inputot kezel!\n\n1. Kiírja: \"hello c64!\"\n2. Kiírja: \"what's your name?\"\n3. Vár a nevedre — a CHRIN ($FFCF) beolvassa, a CHROUT ($FFD2) visszhangozza, és a bufferbe ($0C30) menti\n4. ENTER után új sorba lép\n5. Kiírja: \"hello \" + a buffer tartalma + \"!\"\n\nAz adatok $0C00 környékén vannak — közel a programkódhoz.",
+          descEn: "This program handles real keyboard input!\n\n1. Prints: \"hello c64!\"\n2. Prints: \"what's your name?\"\n3. Prints: \"hello \"\n4. Waits for your name — CHRIN ($FFCF) reads, CHROUT ($FFD2) echoes\n5. After ENTER prints \"!\" and returns\n\nThe text is stored with the PETSCII macro, output by a print loop using CHROUT."
         },
         {
           target: ".program-panel",
-          titleHu: "24. Kész a TE programod!",
-          titleEn: "24. YOUR Program Is Ready!",
-          descHu: "Egyedi programot építettél: képernyőtörlés, HELLO C64!, színek, WHAT'S YOUR NAME?, KERNAL input CHRIN, és HELLO [neved]! Nézd meg a blokklistát.",
-          descEn: "You built a custom program: clear screen, HELLO C64!, colors, WHAT'S YOUR NAME?, KERNAL CHRIN input, and HELLO [your name]! Check out the block list."
+          titleHu: "Blokklista áttekintése",
+          titleEn: "Block List Overview",
+          descHu: "A mintaprogram betöltődött. A középső panelen látod a blokkokat:\n\n• JSR $E544 — képernyő törlése\n• LDA/STA $D020 — border szín (kék)\n• LDA/STA $D021 — háttérszín (fekete)\n• Print loop — PETSCII szöveg kiírása CHROUT-tal\n• Input loop — CHRIN + CHROUT a név beolvasásához\n• \"!\" kiírása + RTS",
+          descEn: "The sample program is loaded. In the center panel you see the blocks:\n\n• JSR $E544 — clear screen\n• LDA/STA $D020 — border color (blue)\n• LDA/STA $D021 — background color (black)\n• Print loop — outputs PETSCII text via CHROUT\n• Input loop — CHRIN + CHROUT to read your name\n• Print \"!\" + RTS"
+        },
+        {
+          target: ".output-panel",
+          titleHu: "ASM kimenet — PETSCII és TABLE",
+          titleEn: "ASM Output — PETSCII and TABLE",
+          descHu: "A jobb oldali ASM panelen láthatod:\n\n• `TABLE msg_text` — a $0C00 címhez rendelt címke\n• A PETSCII makró a $0C00 címtől tárolja a szöveget (31 bájt)\n• `TABLE hello_text` — $0C20 cím, RAWBYTES \"hello \" (6 bájt)\n• `TABLE name_buf` — $0C30 cím, 16 bájt buffer (kezdetben $00)\n• A print loop: `LDA msg_text,Y` / `JSR $FFD2` / `NEXT`\n• Az input loop: `JSR $FFCF` / `CMP #$0D` / `BEQ` / `STA name_buf,X` / `JSR $FFD2`\n\nA név a bufferbe mentődik, majd a program újra kiírja a \"hello \" + név + \"!\" stringet!",
+          descEn: "In the right ASM panel you can see:\n\n• `TABLE msg_start` — label assigned to address $C000\n• The PETSCII macro stores text starting from $C000\n• The text contains `$0D` (RETURN) bytes for line breaks\n• The print loop: `LDA msg_start,Y` / `JSR $FFD2` / `INY` / `CPY #$25` / `BNE`\n\nCHROUT handles $0D automatically: it moves the cursor to a new line!"
+        },
+        {
+          target: ".program-panel",
+          titleHu: "Input loop — így működik a CHRIN",
+          titleEn: "Input Loop — How CHRIN Works",
+          descHu: "Az input loop a program lelke:\n\n```\ninput_loop:\n  JSR $FFCF    ; CHRIN: vár egy billentyűre\n  CMP #$0D     ; RETURN?\n  BEQ done     ; ha igen, kilép\n  STA name_buf,X ; eltárolja a bufferben\n  JSR $FFD2    ; CHROUT: visszhangozza\n  INX          ; következő pozíció\n  CPX #$10     ; max 16 karakter\n  BNE loop     ; vissza\ninput_done:\n  STX $FB      ; elmenti a hosszt (X)\n  LDA #0       ; null terminátor\n  STA name_buf,X\n```\n\nUtána:\\n• `LDA #$0D` / `JSR $FFD2` — új sor\\n• LOOP: kiírja a \"hello \" szöveget\\n• Ciklus: kiírja a name_buf tartalmát\\n• `LDA #$21` / `JSR $FFD2` — \"!\" kiírása",
+          descEn: "The input loop is the heart of the program:\n\n```\ninput_loop:\n  JSR $FFCF    ; CHRIN: waits for a key\n  CMP #$0D     ; RETURN?\n  BEQ done     ; if yes, exit\n  JSR $FFD2    ; CHROUT: echo the character\n  JMP loop     ; back to start\ninput_done:\n```\n\n$FFCF (CHRIN) WAITS for a key — it won't continue until you press one. $FFD2 (CHROUT) prints the character at the cursor.\n\nAt the end, LDA #$21 / JSR $FFD2 prints a \"!\"."
         },
         {
           target: "#run-emulator",
-          titleHu: "25. Futtasd le",
-          titleEn: "25. Run It",
-          descHu: "Kattints a Run gombra és nézd meg az eredményt! Ha kész, nyomj Finish-t.",
-          descEn: "Click Run and see the result! When done, press Finish."
+          centerCard: true,
+          titleHu: "Futtasd le!",
+          titleEn: "Run It!",
+          descHu: "Kattints a Run gombra! A VICE emulátorban:\n\n1. Megjelenik \"hello c64!\"\n2. Megjelenik \"what's your name?\"\n3. A kurzor villog — gépeld be a neved! (pl. ANNA)\n4. ENTER után új sorban: \"hello ANNA!\"\n\nPróbáld ki! Ha kész, nyomj Finish-t.",
+          descEn: "Click Run! In the VICE emulator:\n\n1. \"hello c64!\" appears\n2. \"what's your name?\" appears\n3. \"hello \" appears\n4. The cursor blinks — type your name! (e.g. JOHN)\n5. After ENTER, \"!\" appears\n\nTry it! When done, press Finish."
         }
       ]
     },
@@ -16046,6 +15885,19 @@ function _tutorialSetPaletteSelection({ category, mnemonic, addressingMode = nul
 
 function _runTutorialStepAction(actionId) {
   switch (actionId) {
+    case "prepare-name-input-demo": {
+      if (_tourPreparedLessonId === _tourLessonId) return;
+      _tourPreparedLessonId = _tourLessonId;
+      if (expertMode) {
+        setExpertMode(false);
+        if (expertModeToggle) expertModeToggle.checked = false;
+      }
+      if (sampleSelect) {
+        sampleSelect.value = "name-input-demo";
+        loadSelectedSample();
+      }
+      break;
+    }
     case "prepare-guided-color-text": {
       if (_tourPreparedLessonId === _tourLessonId) return;
       _tourPreparedLessonId = _tourLessonId;
@@ -16065,7 +15917,7 @@ function _runTutorialStepAction(actionId) {
       _tutorialSetPaletteSelection({
         category: "Makrok",
         mnemonic: "TEXT",
-        operand: "HELLO C64"
+        operand: "hello c64!"
       });
       break;
     case "prep-lda-border":
@@ -16125,14 +15977,23 @@ function _runTutorialStepAction(actionId) {
       _tutorialSetPaletteSelection({
         category: "Makrok",
         mnemonic: "TEXT",
-        operand: "HELLO "
+        operand: "hello "
       });
       break;
-    case "prep-comment-kernel-input":
+    case "prep-text-whatsyourname":
       _tutorialSetPaletteSelection({
-        category: "Szerkezet",
-        mnemonic: "COMMENT",
-        operand: "KERNAL input: GETIN $FFE4, CHRIN $FFCF, CHROUT $FFD2"
+        category: "Makrok",
+        mnemonic: "TEXT",
+        operand: "what's your name?"
+      });
+      break;
+    case "prep-jsr-chrin":
+      _tutorialSetPaletteSelection({
+        category: "Ugrasok",
+        mnemonic: "JSR",
+        addressingMode: "absolute",
+        operand: "FFCF",
+        base: "hex"
       });
       break;
   }
