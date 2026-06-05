@@ -586,6 +586,7 @@ h1 {
   max-width: min(600px, 90vw);
   max-height: 80vh;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 12px;
   border-radius: 8px;
   border: 1px solid var(--panel-border);
@@ -1400,7 +1401,7 @@ button:focus-visible,
   flex-direction: column;
   gap: 8px;
   margin-top: 0;
-  max-height: 280px;
+  min-height: 300px;
   overflow-y: auto;
   padding-right: 4px;
   scrollbar-width: thin;
