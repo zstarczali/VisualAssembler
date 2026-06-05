@@ -361,781 +361,9 @@ let _expertMonitorVisible = false;
 let _expertProjectVisible = false;
 let _expertProjectData = null; // { name, files, _projPath }
 
-const translations = {
-  hu: {
-    menu: "Menu",
-    menuFile: "File",
-    menuExamples: "Peldak",
-    menuSettings: "Beallitasok",
-    menuView: "Nezet",
-    menuProgram: "Program",
-    loadSample: "Betoltes",
-    saveProject: "Program mentese",
-    workProgressTitle: "Forditas folyamatban...",
-    workProgressDoneTitle: "Sikeres build",
-    workProgressRun: "PRG generalasa es VICE inditasa...",
-    workProgressRunD64: "D64 csomagolas es VICE inditasa...",
-    workProgressRunUltimate: "PRG kuldese a C64 Ultimate-re...",
-    workProgressRunD64Ultimate: "D64 kuldese a C64 Ultimate-re...",
-    workProgressDebug: "PRG generalasa es debugger inditasa...",
-    workProgressImport: "ASM import feldolgozasa...",
-    workProgressSuccessRun: "Build sikeres, VICE inditva.",
-    workProgressSuccessRunD64: "Build sikeres, VICE inditva D64-rol.",
-    workProgressSuccessUltimate: "Build sikeres, program elinditva a hardveren.",
-    workProgressSuccessD64Ultimate: "D64 felcsatolva, lemez fut a hardveren.",
-    workProgressSuccessDebug: "Build sikeres, debugger inditva.",
-    workProgressSuccessImport: "Import sikeres.",
-    savePrg: "Build PRG",
-    buildSection: "Build",
-    savePrgFailed: "PRG mentes sikertelen",
-    saveD64: "Build D64",
-    saveD64Success: "D64 elmentve",
-    saveD64Failed: "D64 mentes sikertelen",
-    saveD64NeedVice: "A D64 mentes a VICE c1541 toolt hasznalja. Allitsd be a VICE eleresi utjat a Beallitasok menuben.",
-    d64ExtraNamePlaceholder: "FAJLNEV",
-    d64ExtraAddrPlaceholder: "C000",
-    d64ExtraRemove: "Eltavolitas",
-    d64ErrorEmptyName: "Egy fajlhoz nincs nev megadva.",
-    d64ErrorBadAddr: "Ervenytelen betoltesi cim a {name} fajlhoz (hex 0000-FFFF).",
-    d64FilesLabel: "fajl",
-    d64ExportTitle: "Build D64",
-    d64ExportDiskName: "Lemez nev (max 16)",
-    d64ExportProgName: "Program nev (max 16)",
-    d64ExportExtrasTitle: "Tovabbi fajlok",
-    d64ExportExtrasHelp: "Adj hozza nyers binaris fajlokat (pl. adat, sprite). PRG bejegyzeskent kerulnek a D64-re. A betoltesi cim mezo opcionalis (hex), uresen hagyva nyersen mented.",
-    d64ExportAddFile: "+ Fajl hozzaadasa",
-    d64ExportConfirm: "Mentes",
-    d64ExportCancel: "Megse",
-    programSettings: "Programbeallitasok",
-    macroSourceToggle: "Makro forraskod megjelenites",
-    asmNumbersLabel: "Szamok az ASM kimenetben",
-    regionCommentsLabel: "Region kommentek megjelenites",
-    asmOutputLabel: "ASM kimenet",
-    monitorOutputLabel: "Monitor kimenet",
-    originPreviewLabel: "Forditas info",
-    compileErrorTitle: "Forditasi hibak",
-    buildInfoTitle: "Build info",
-    buildInfoOrigin: "Kezdocim",
-    buildInfoSize: "Meret",
-    buildInfoEnd: "Vegcim",
-    buildInfoLabels: "Cimkek",
-    buildInfoConsts: "Konstansok",
-    buildInfoMacros: "Makrok",
-    buildInfoErrors: "Hibak",
-    buildInfoNoErrors: "Nincsenek hibak",
-    buildInfoBtn: "Build info",
-    vasmLoadBtn: "ASM betoltese",
-    vasmSaveBtn: "ASM mentese",
-    vasmLoadedStatus: "Betoltve",
-    vasmSavedStatus: "Mentve",
-    vasmLoadError: "Betoltesi hiba",
-    vasmSaveError: "Mentesi hiba",
-    loadProject: "Program betoltese",
-    exitApp: "Kilepes",
-    themeToggle: "Tema valtasa",
-    crtToggle: "CRT retro mod",
-    clearProgram: "Uj program...",
-    newProgramConfirmMsg: "Uj programot hozol letre? A mentetlen valtozasok elvesznek.",
-    newProgramConfirmBtn: "Uj program",
-    heroCopy: "Huzz be egy mnemonik blokkot balrol, rendezd oket sorba, es nezd meg a jobb oldalon az assembly nezetet.",
-    paletteTitle: "Mnemonik menu",
-    paletteHelp: "Valassz kategoriat, majd huzd at a blokkot a programlistaba.",
-    fieldCategory: "Kategoria",
-    fieldMnemonic: "Mnemonik",
-    fieldOperand: "Operandus",
-    numberBase: "Szamrendszer",
-    addressingMode: "Cimzesi mod",
-    addSelected: "Kivalasztott blokk hozzaadasa",
-    programTitle: "Program blokkok",
-    programHelp: "Ide ejtsd a bal oldali blokkot, vagy rendezd at a mar bent levo sorokat.",
-    asmTitle: "ASM nezet",
-    asmHelp: "Az osszerakott szoveges kod innen indulhat tovabb export fele.",
-    outputProgram: "Beallitas",
-    outputAsm: "ASM",
-    outputMonitor: "Monitor",
-    outputBoth: "Mindketto",
-    originLabel: "Program kezdocime",
-    originPlaceholderHex: "pl. $0801 vagy $C000",
-    originPlaceholderDec: "pl. 2049 vagy 49152",
-    emulatorTitle: "VICE kapcsolat",
-    emulatorHelp: "A helyi VICE emulatort inditjuk a desktop appbol.",
-    openEmulator: "VICE kivalasztasa",
-    runInEmulator: "Run",
-    runAsPrg: "Futtatás PRG-ként",
-    runViaD64: "Futtatás D64-ről",
-    runViaD64Confirm: "Futtatás VICE-ban",
-    runD64Title: "Futtatás D64-ről",
-    hardwareSettings: "Hardver beállítások...",
-    hardwareSettingsTitle: "Hardver beállítások",
-    hardwareSettingsClose: "Bezárás",
-    hwViceSectionLabel: "VICE Emulator",
-    hwDebuggerSectionLabel: "Retro Debugger",
-    runOnUltimate: "Futtatás hardveren",
-    runD64OnHardware: "D64 hardveren",
-    ultimateSectionLabel: "C64 Ultimate",
-    ultimateHostLabel: "Host (IP)",
-    ultimatePasswordLabel: "Jelszó",
-    ultimatePasswordPlaceholder: "(opcionális)",
-    ultimateConnectTest: "Kapcsolat tesztelése",
-    ultimateConnecting: "Kapcsolódás...",
-    ultimateConnected: "Csatlakozva",
-    ultimateConnectFailed: "Kapcsolat sikertelen",
-    ultimateNotConfigured: "C64 Ultimate nincs beállítva. Add meg a host IP-t a beállításokban.",
-    ultimateRunFailed: "Futtatás sikertelen",
-    copyAsm: "ASM masolasa",
-    viceExecutable: "VICE exe",
-    chooseViceStatusPending: "A VICE kapcsolat ellenorzese folyamatban.",
-    projectSaved: "Program elmentve",
-    projectLoaded: "Program betoltve",
-    projectSaveFailed: "A program mentese sikertelen.",
-    projectLoadFailed: "A program betoltese sikertelen.",
-    projectInvalid: "A fajl nem ervenyes visual assembler projekt.",
-    emulatorFallback: "Az app a generalt PRG-t ideiglenes fajlba menti, majd azzal inditja a helyi VICE-ot.",
-    memoryTitle: "Teljes C64 memoria",
-    memoryHelp: "Az egesz 64 KB cimter egy csikban, jelolve a foglalt, szabad, ROM es I/O reszeket.",
-    memoryLegendRam: "Szabad RAM",
-    memoryLegendUsed: "Foglalt",
-    memoryLegendRom: "ROM",
-    memoryLegendIo: "I/O",
-    sampleBasic: "Mintaprogram",
-    sampleClearScreen: "Kepernyo torles demo",
-    sampleLabel: "Label pelda",
-    sampleText: "TEXT pelda",
-    sampleLowercaseText: "Kisbetus TEXT pelda",
-    sampleMacro: "Komplex makro pelda",
-    sampleSprite: "Sprite mozgatas pelda",
-    sampleSetpixel: "Setpixel demo",
-    sampleBitmap: "Bitmap vonal demo",
-    sampleMacroTest: "Uj makrok teszt",
-    sampleLoop: "LOOP / NEXT demo",
-    sampleHelloLoop: "Hello World 1-40 (LOOP szamlalo)",
-    samplePushPull: "PUSH / PULL demo",
-    sampleIfElse: "IF / ELSE / ENDIF demo",
-    sampleUserMacro: "User MACRO / ENDM demo",
-    sampleIncBin: "INCBIN demo",
-    sampleLoadFile: "LOADFILE demo (D64 betoltes futasidoben)",
-    sampleInclude: "INCLUDE demo",
-    sampleSidDemo: "SID zenelejatszas (Ikari Warriors)",
-    sampleSidDirectDemo: "SID lejatszas - SID makro (Ikari Warriors)",
-    sampleSpriteMacroDemo: "SPRITE_INIT / SPRITE_POS makro demo",
-    sampleJoystickDemo: "JOYSTICK makro demo",
-    sampleMouseDemo: "MOUSE makro demo",
-    sampleCollisionDemo: "SPRITE_COL utkozes demo",
-    sample10Print: "10 PRINT - veletlen labirintus",
-    sampleRasterIrqDemo: "Raszter IRQ demo (szin villogas)",
-    sampleOverlappingRasterDemo: "Overlapping raszter csik demo",
-    sampleMemoryOverlapDemo: "Memoria atfedes demo",
-    sampleRandLinesDemo: "Veletlen vonalak demo",
-    sampleReuDemo: "REU demo",
-    sampleScrollTextDemo: "Sima scroll demo (pontonkenti gorgetes)",
-    sampleNameInputDemo: "Nev bekeres demo (PETSCII + CHROUT)",
-    helpManual: "Kezikonyv",
-    about: "Névjegy",
-    knowledgeBase: "Tudásbázis",
-    tutorials: "Tutorialok",
-    tutorialDialogTitle: "Tutorialok",
-    tutorialSelectHint: "Valassz egy tutorialt a listabol",
-    tutorialMarkDone: "Megjeloles keszkent",
-    tutorialMarkDoneCompleted: "Done",
-    tutorialLoadSample: "Mintaprogram betoltese",
-    tutorialStartTour: "Interaktiv bemutato inditasa",
-    tourPrev: "< Elozo",
-    tourNext: "Kovetkezo >",
-    tourFinish: "Befejezes",
-    tourSkip: "Kihagyas",
-    zoomIn: "Nagyítás (A+)",
-    zoomOut: "Kicsinyítés (A-)",
-    checkForUpdate: "Frissites keresese",
-    reportBug: "Hiba bejelentese",
-    tabCloseConfirm: "Biztosan bezárod a \"{name}\" tabot?",
-    tabCloseConfirmUnsaved: "Biztosan bezárod a \"{name}\" tabot? Nem mentett változtatások elvesznek.",
-    tabCloseConfirmOk: "Bezárás",
-    tabCloseConfirmCancel: "Mégsem",
-    expertPaletteSync: "Mnemonik panel szinkron",
-    expertPaletteToggle: "Mnemonik panel megjelenítése",
-    expertDisasm: "Disassembler be/ki",
-    expertMonitor: "Monitor be/ki",
-    expertFormat: "Forráskód formázása",
-    expertProjectPanel: "Projekt panel",
-    projOpenProjectBtn: "Projekt megnyitása",
-    menuOpenProject: "Projekt megnyitása",
-    menuSaveProject: "Projekt mentése",
-    menuCloseProject: "Projekt bezárása",
-    projNewProjectBtn: "Új projekt",
-    projSaveProjectBtn: "Projekt mentése",
-    projAddFileBtn: "Fájl hozzáadása",
-    projNoProject: "Nincs projekt",
-    projClickToOpen: "Kattints a mappa gombra\nprojekt megnyitásához",
-    projAddFileHint: "Adj hozzá fájlt a + gombbal",
-    projRegions: "Régiók",
-    projMacros: "Makrók",
-    projLabels: "Labelek",
-    projOpened: "Projekt megnyitva",
-    projSaved: "Projekt mentve",
-    projClosed: "Projekt bezárva",
-    projNoOpen: "Nincs megnyitott projekt",
-    projError: "Projekt hiba",
-    projOpenFile: "Megnyitva",
-    projSaveError: "Mentési hiba",
-    projRemove: "Eltávolítás",
-    projStartupFile: "Indítófájl",
-    projSetStartup: "Beállítás indítófájlként",
-    projUnsetStartup: "Indítófájl törlése",
-    projStartupSet: "Indítófájl beállítva",
-    viceRunning: "VICE fut",
-    whatsNew: "Ujdonsagok",
-    paletteSearchPlaceholder: "Kereses...",
-    paletteSearchLabel: "Kereses",
-    basicSysLabel: "BASIC SYS stub generálása",
-    blockDescSyncLabel: "Blokk kiválasztás követése a palettán",
-    expertModeLabel: "Expert mode",
-    collapseAll: "Osszes osszecsukasa",
-    expandAll: "Osszes kinyitasa",
-    collapse: "Osszecsukas",
-    expand: "Kinyitas",
-    moveUp: "Fel",
-    moveDown: "Le",
-    delete: "Torles",
-    dragBlock: "Huzd a blokkot",
-    fieldText: "Szoveg",
-    fieldBytes: "Byte-ok",
-    fieldAddress: "Cim",
-    fieldComment: "Komment",
-    fieldFormat: "Formatum",
-    commentDefault: "uj komment",
-    fieldLoopReg: "Register",
-    fieldLoopCount: "Ciklus",
-    fieldLoopLabel: "Cimke",
-    fieldNextLabel: "LOOP cimkeje",
-    fieldSpriteNum: "Sprite # (0-7)",
-    fieldSpriteColor: "Szin (0-15)",
-    fieldSpriteDataPage: "Adatlap ($XX)",
-    fieldSpriteX: "X (0-319)",
-    fieldSpriteY: "Y (0-255)",
-    fieldRasterLine: "Rasztersor ($00-$FF)",
-    fieldJoyPort: "Port (1 vagy 2)",
-    fieldJoySpriteNum: "Sprite # (0-7)",
-    fieldMousePort: "Port (1 vagy 2)",
-    fieldMouseSpriteNum: "Sprite # (0-7)",
-    fieldMousePotX: "ZP elozo X ($00-$FF)",
-    fieldMousePotY: "ZP elozo Y ($00-$FF)",
-    fieldColType: "Utkozes tipusa",
-    colTypeSprite: "Sprite-Sprite ($D01E)",
-    colTypeBackground: "Sprite-Hatter ($D01F)",
-    fieldLoadFileName: "Fajlnev (max 16)",
-    fieldLoadFileDevice: "Eszkoz (8-30)",
-    fieldLoadFileAddress: "Cim (opcionalis)",
-    fieldLoadFileAddressPlaceholder: "ures = fajl sajat cime",
-    fieldLoadFileErrorLabel: "Hiba cimke (opcionalis)",
-    fieldLoadFileErrorLabelPlaceholder: "BCS celja",
-    pickLabel: "Cimke valasztas",
-    fieldPushRegs: "Regiszterek",
-    fieldPullRegs: "Regiszterek",
-    warningLabel: "FIGYELEM",
-    remoteMemoryData: "Tavoli memoria-adatok",
-    dataBelow: "adat lent",
-    textDataBelow: "TEXT adat lent",
-    stringDataBelow: "STRING adat lent",
-    dataDataBelow: "DATA adat lent",
-    rawBytesDataBelow: "RAWBYTES adat lent",
-    rawTextDataBelow: "RAWTEXT adat lent",
-    incBinDataBelow: "INCBIN adat lent",
-    fieldIncBinFile: "Fajl",
-    incBinBrowse: "Tallozas...",
-    incBinNoFile: "Nincs fajl kivalasztva",
-    includeNoFile: "Nincs kivalasztott fajl",
-    fieldIncludeFile: "Projekt fajl",
-    includeBrowse: "Tallozas",
-    includeReload: "Ujratoltes",
-    includeShowBlocks: "Megjelenites",
-    includeHideBlocks: "Elrejtes",
-    includeBlocksCount: "blokk",
-    includeFileNotFound: "A fajl nem talalhato",
-    includeInvalidFile: "Ervenytelen projekt fajl",
-    compileInvalidOperand: "Nem lehet forditani: hibas operandus a(z) {mnemonic} sorban.",
-    compileUnsupportedMode: "A(z) {mnemonic} {mode} modhoz meg nincs forditasi tamogatas.",
-    branchLabelTooFar: "A(z) {label} label tul messze van a(z) {mnemonic} branch-hez.",
-    branchOperandInvalid: "Nem lehet futtatni: a(z) {mnemonic} branch operandusa nem ervenyes.",
-    branchTargetOutOfRange: "A(z) {mnemonic} branch celcime nincs elerheto tavolsagban.",
-    operandNotResolvable: "Nem lehet futtatni: a(z) {mnemonic} operandusa nem forditheto cimme vagy ertekke.",
-    anonymousLabelNotFound: "A(z) \"{label}\" nevtelen cimke nem talalhato.",
-    memorySegments: {
-      zeroPageLabel: "Zero page",
-      zeroPageNote: "Gyors eleresu valtozok es pointerek.",
-      stackLabel: "Stack",
-      stackNote: "6502 veremterulet.",
-      systemRamLabel: "Rendszer RAM",
-      systemRamNote: "KERNAL/BASIC munkateruletek.",
-      basicRamLabel: "BASIC / felhasznaloi RAM",
-      basicRamNote: "Tipikus programterulet, BASIC start kozeleben.",
-      basicRomLabel: "BASIC ROM",
-      basicRomNote: "ROM bank, nem irhato allandoan.",
-      freeRamLabel: "Szabad RAM",
-      freeRamNote: "Gyakori gepi kod terulet.",
-      vicLabel: "VIC-II",
-      vicNote: "Video regiszterek.",
-      sidLabel: "SID",
-      sidNote: "Hanggenerator regiszterek.",
-      colorRamLabel: "Color RAM",
-      colorRamNote: "Karakter szinek.",
-      cia1Label: "CIA 1",
-      cia1Note: "I/O, billentyuzet, joystick.",
-      cia2Label: "CIA 2",
-      cia2Note: "I/O, soros busz es bankolas.",
-      ioCartLabel: "I/O / cartridge",
-      ioCartNote: "Bovitokartya tartomany.",
-      kernalRomLabel: "KERNAL ROM",
-      kernalRomNote: "Rendszer ROM rutinok."
-    },
-    sidFileLabel: "SID fajl",
-    sidFilePlaceholder: "Nincs SID fajl kivalasztva",
-    sidFileBrowse: "SID fajl tallozas",
-    sidCustomAddress: "Betoltesi cim (feluliras)",
-    sidCustomAddressPlaceholder: "pl. C000 (ures = SID fejlec)",
-    blockDescriptionLabel: "Leiras:",
-    mnemonicCardLabel: "Leiras",
-    darkMode: "Dark mode",
-    lightMode: "Light mode",
-    oledMode: "OLED mode",
-    emptyState: "Huzz ide egy blokkot a bal oldali palettarol.",
-    memoryUsedRam: "Foglalt RAM",
-    memoryFreeRam: "Szabad RAM",
-    memoryOrigin: "Kod kezdete",
-    memoryOccupied: "foglalt",
-    memoryFreeInSegment: "Szabad ebben a RAM szegmensben",
-    memoryNoUsage: "Nincs foglaltsag ebben a szegmensben.",
-    memorySensitive: "A program beleer ebbe az erzekeny tartomanyba.",
-    memoryUsedRange: "Foglalt tartomany",
-    memorySegmentStatusFree: "Szabad RAM",
-    memoryOverlapTitle: "Memoria atfedes",
-    memoryOverlapWarning: "Figyelem: teruletek atfednek!",
-    memoryOverlapSingle: "atfedes talalhato",
-    memoryOverlapMultiple: "atfedes talalhato",
-    memoryOverlapBytes: "byte atfedes",
-    memoryOverlapCode: "Kod",
-    memoryAxisLabel: "Teljes C64 memoria csik",
-    languageLabel: "Nyelv",
-    sampleSrOnly: "Mintaprogram",
-    languageSrOnly: "Nyelv",
-    categoryNames: {
-      Adatmozgas: "Adatmozgas",
-      Aritmetika: "Aritmetika",
-      Logika: "Logika",
-      Ugrasok: "Ugrasok",
-      Regiszterek: "Regiszterek",
-      ShiftEsRotate: "Shift es rotate",
-      Stack: "Stack",
-      Rendszer: "Rendszer",
-      Makrok: "Makrok",
-      Illegalis: "Illegalis opkodok",
-      Szerkezet: "Szerkezet"
-    },
-    chooseDebugger: "RetroDebugger kivalasztasa",
-    debuggerExecutable: "RetroDebugger exe",
-    debuggerNotConfiguredPlaceholder: "Nincs beallitva",
-    debuggerParamsLabel: "RetroDebugger",
-    debuggerJmpLabel: "Ugras a kod cimere (-jmp)",
-    debuggerWaitLabel: "Várakozás indítás előtt (-wait)",
-    debuggerUnpauseLabel: "Futatas kenyszeritese (-unpause)",
-    debuggerStatusPending: "Valaszd ki a RetroDebugger executable-t.",
-    debuggerStatusReady: "RetroDebugger keszen all: {path}",
-    debuggerNotConfiguredMsg: "A RetroDebugger nincs beallitva. Valaszd ki a menuben.",
-    debuggerLaunchNotAvailable: "A debugger inditasa nem elerheto.",
-    debuggerLaunched: "RetroDebugger elindult.",
-    debuggerLaunchFailed: "A RetroDebugger inditasa sikertelen.",
-    runInDebugger: "Debug",
-    runInDebuggerTitle: "Futtatas RetroDebuggerben",
-    breakpointToggle: "Torespont"
-  },
-  en: {
-    menu: "Menu",
-    menuFile: "File",
-    menuExamples: "Examples",
-    menuSettings: "Settings",
-    menuView: "View",
-    menuProgram: "Program",
-    loadSample: "Load",
-    saveProject: "Save program",
-    workProgressTitle: "Compiling...",
-    workProgressDoneTitle: "Build successful",
-    workProgressRun: "Building PRG and launching VICE...",
-    workProgressRunD64: "Packaging D64 and launching VICE...",
-    workProgressRunUltimate: "Sending PRG to C64 Ultimate...",
-    workProgressRunD64Ultimate: "Sending D64 to C64 Ultimate...",
-    workProgressDebug: "Building PRG and launching debugger...",
-    workProgressImport: "Importing ASM blocks...",
-    workProgressSuccessRun: "Build successful, VICE launched.",
-    workProgressSuccessRunD64: "Build successful, VICE launched from D64.",
-    workProgressSuccessUltimate: "Build successful, program running on hardware.",
-    workProgressSuccessD64Ultimate: "D64 mounted, disk running on hardware.",
-    workProgressSuccessDebug: "Build successful, debugger launched.",
-    workProgressSuccessImport: "Import successful.",
-    savePrg: "Build PRG",
-    buildSection: "Build",
-    savePrgFailed: "PRG save failed",
-    saveD64: "Build D64",
-    saveD64Success: "D64 saved",
-    saveD64Failed: "D64 export failed",
-    saveD64NeedVice: "D64 export uses VICE's c1541 tool. Set the VICE path in the Settings menu.",
-    d64ExtraNamePlaceholder: "FILENAME",
-    d64ExtraAddrPlaceholder: "C000",
-    d64ExtraRemove: "Remove",
-    d64ErrorEmptyName: "An extra file has no name.",
-    d64ErrorBadAddr: "Invalid load address for {name} (hex 0000-FFFF).",
-    d64FilesLabel: "files",
-    d64ExportTitle: "Build D64",
-    d64ExportDiskName: "Disk name (max 16)",
-    d64ExportProgName: "Program name (max 16)",
-    d64ExportExtrasTitle: "Extra files",
-    d64ExportExtrasHelp: "Add raw binary files (e.g. data, sprites). They are written as PRG entries on the D64. The load address field is optional (hex); leave empty to save raw.",
-    d64ExportAddFile: "+ Add file",
-    d64ExportConfirm: "Export",
-    d64ExportCancel: "Cancel",
-    programSettings: "Program settings",
-    macroSourceToggle: "Show macro source code",
-    asmNumbersLabel: "Numbers in ASM output",
-    regionCommentsLabel: "Show region comments",
-    asmOutputLabel: "ASM output",
-    monitorOutputLabel: "Monitor output",
-    originPreviewLabel: "Compile info",
-    compileErrorTitle: "Compilation errors",
-    buildInfoTitle: "Build info",
-    buildInfoOrigin: "Origin",
-    buildInfoSize: "Size",
-    buildInfoEnd: "End address",
-    buildInfoLabels: "Labels",
-    buildInfoConsts: "Constants",
-    buildInfoMacros: "Macros",
-    buildInfoErrors: "Errors",
-    buildInfoNoErrors: "No errors",
-    buildInfoBtn: "Build info",
-    vasmLoadBtn: "Load .asm",
-    vasmSaveBtn: "Save .asm",
-    vasmLoadedStatus: "Loaded",
-    vasmSavedStatus: "Saved",
-    vasmLoadError: "Load error",
-    vasmSaveError: "Save error",
-    loadProject: "Load program",
-    exitApp: "Exit",
-    themeToggle: "Toggle theme",
-    crtToggle: "CRT retro mode",
-    clearProgram: "New program...",
-    newProgramConfirmMsg: "Create a new program? Unsaved changes will be lost.",
-    newProgramConfirmBtn: "New program",
-    heroCopy: "Drag mnemonic blocks in from the left, arrange them in order, and inspect the assembly view on the right.",
-    paletteTitle: "Mnemonic menu",
-    paletteHelp: "Choose a category, then drag a block into the program list.",
-    fieldCategory: "Category",
-    fieldMnemonic: "Mnemonic",
-    fieldOperand: "Operand",
-    numberBase: "Number base",
-    addressingMode: "Addressing mode",
-    addSelected: "Add selected block",
-    programTitle: "Program blocks",
-    programHelp: "Drop blocks from the left here, or reorder the lines already in the program.",
-    asmTitle: "ASM view",
-    asmHelp: "The assembled source code appears here and can be exported onward.",
-    outputProgram: "Options",
-    outputAsm: "ASM",
-    outputMonitor: "Monitor",
-    outputBoth: "Both",
-    originLabel: "Program start address",
-    originPlaceholderHex: "e.g. $0801 or $C000",
-    originPlaceholderDec: "e.g. 2049 or 49152",
-    emulatorTitle: "VICE connection",
-    emulatorHelp: "The desktop app launches your local VICE emulator.",
-    openEmulator: "Choose VICE",
-    runInEmulator: "Run",
-    runAsPrg: "Run as PRG",
-    runViaD64: "Run via D64",
-    runViaD64Confirm: "Run in VICE",
-    runD64Title: "Run via D64",
-    hardwareSettings: "Hardware settings...",
-    hardwareSettingsTitle: "Hardware Settings",
-    hardwareSettingsClose: "Close",
-    hwViceSectionLabel: "VICE Emulator",
-    hwDebuggerSectionLabel: "Retro Debugger",
-    runOnUltimate: "Run on hardware",
-    runD64OnHardware: "D64 on hardware",
-    ultimateSectionLabel: "C64 Ultimate",
-    ultimateHostLabel: "Host (IP)",
-    ultimatePasswordLabel: "Password",
-    ultimatePasswordPlaceholder: "(optional)",
-    ultimateConnectTest: "Test connection",
-    ultimateConnecting: "Connecting...",
-    ultimateConnected: "Connected",
-    ultimateConnectFailed: "Connection failed",
-    ultimateNotConfigured: "C64 Ultimate is not configured. Enter the host IP in Settings.",
-    ultimateRunFailed: "Run failed",
-    copyAsm: "Copy ASM",
-    viceExecutable: "VICE executable",
-    chooseViceStatusPending: "Checking the VICE connection.",
-    projectSaved: "Program saved",
-    projectLoaded: "Program loaded",
-    projectSaveFailed: "Saving the program failed.",
-    projectLoadFailed: "Loading the program failed.",
-    projectInvalid: "This file is not a valid visual assembler project.",
-    emulatorFallback: "The app saves the generated PRG as a temporary file, then launches your local VICE with it.",
-    memoryTitle: "Full C64 memory",
-    memoryHelp: "The full 64 KB address space in one strip, with used, free, ROM and I/O areas highlighted.",
-    memoryLegendRam: "Free RAM",
-    memoryLegendUsed: "Used",
-    memoryLegendRom: "ROM",
-    memoryLegendIo: "I/O",
-    sampleBasic: "Sample program",
-    sampleClearScreen: "Clear screen demo",
-    sampleLabel: "Label example",
-    sampleText: "TEXT example",
-    sampleLowercaseText: "Lowercase TEXT example",
-    sampleMacro: "Complex macro example",
-    sampleSprite: "Sprite movement example",
-    sampleSetpixel: "Setpixel demo",
-    sampleBitmap: "Bitmap line demo",
-    sampleMacroTest: "New macros test",
-    sampleLoop: "LOOP / NEXT demo",
-    sampleHelloLoop: "Hello World 1-40 (LOOP counter)",
-    samplePushPull: "PUSH / PULL demo",
-    sampleIfElse: "IF / ELSE / ENDIF demo",
-    sampleUserMacro: "User MACRO / ENDM demo",
-    sampleIncBin: "INCBIN demo",
-    sampleLoadFile: "LOADFILE demo (runtime D64 load)",
-    sampleInclude: "INCLUDE demo",
-    sampleSidDemo: "SID player - INCBIN (Ikari Warriors)",
-    sampleSidDirectDemo: "SID player - SID macro (Ikari Warriors)",
-    sampleSpriteMacroDemo: "SPRITE_INIT / SPRITE_POS macro demo",
-    sampleJoystickDemo: "JOYSTICK macro demo",
-    sampleMouseDemo: "MOUSE macro demo",
-    sampleCollisionDemo: "SPRITE_COL collision demo",
-    sample10Print: "10 PRINT - random maze",
-    sampleRasterIrqDemo: "Raster IRQ demo (color flashing)",
-    sampleOverlappingRasterDemo: "Overlapping raster bars demo",
-    sampleMemoryOverlapDemo: "Memory overlap demo",
-    sampleRandLinesDemo: "Random lines demo",
-    sampleReuDemo: "REU demo",
-    sampleScrollTextDemo: "Smooth scroll demo (per-pixel scrolling)",
-    sampleNameInputDemo: "Name input demo (PETSCII + CHROUT)",
-    helpManual: "Manual",
-    about: "About",
-    knowledgeBase: "Knowledge Base",
-    tutorials: "Tutorials",
-    tutorialDialogTitle: "Tutorials",
-    tutorialSelectHint: "Select a lesson from the list",
-    tutorialMarkDone: "Mark as Completed",
-    tutorialMarkDoneCompleted: "Done",
-    tutorialLoadSample: "Load Sample Program",
-    tutorialStartTour: "Start Interactive Tour",
-    tourPrev: "< Prev",
-    tourNext: "Next >",
-    tourFinish: "Finish",
-    tourSkip: "Skip",
-    zoomIn: "Zoom in (A+)",
-    zoomOut: "Zoom out (A-)",
-    languageLabel: "Language",
-    checkForUpdate: "Check for Update",
-    reportBug: "Report Bug",
-    tabCloseConfirm: "Close the \"{name}\" tab?",
-    tabCloseConfirmUnsaved: "Close the \"{name}\" tab? Unsaved changes will be lost.",
-    tabCloseConfirmOk: "Close",
-    tabCloseConfirmCancel: "Cancel",
-    expertPaletteSync: "Toggle mnemonic panel sync",
-    expertPaletteToggle: "Show mnemonic panel",
-    expertDisasm: "Toggle disassembler",
-    expertMonitor: "Toggle monitor",
-    expertFormat: "Format source code",
-    expertProjectPanel: "Project panel",
-    projOpenProjectBtn: "Open project",
-    menuOpenProject: "Open project",
-    menuSaveProject: "Save project",
-    menuCloseProject: "Close project",
-    projNewProjectBtn: "New project",
-    projSaveProjectBtn: "Save project",
-    projAddFileBtn: "Add file",
-    projNoProject: "No project",
-    projClickToOpen: "Click the folder button\nto open a project",
-    projAddFileHint: "Add files with the + button",
-    projRegions: "Regions",
-    projMacros: "Macros",
-    projLabels: "Labels",
-    projOpened: "Project opened",
-    projSaved: "Project saved",
-    projClosed: "Project closed",
-    projNoOpen: "No project is open",
-    projError: "Project error",
-    projOpenFile: "Opened",
-    projSaveError: "Save error",
-    projRemove: "Remove",
-    projStartupFile: "Startup file",
-    projSetStartup: "Set as startup file",
-    projUnsetStartup: "Remove startup file",
-    projStartupSet: "Startup file set",
-    viceRunning: "VICE running",
-    whatsNew: "What's New",
-    paletteSearchPlaceholder: "Search...",
-    paletteSearchLabel: "Search",
-    basicSysLabel: "Generate BASIC SYS stub",
-    blockDescSyncLabel: "Track block selection in palette",
-    expertModeLabel: "Expert mode",
-    collapseAll: "Collapse all",
-    expandAll: "Expand all",
-    collapse: "Collapse",
-    expand: "Expand",
-    moveUp: "Move up",
-    moveDown: "Move down",
-    delete: "Delete",
-    dragBlock: "Drag block",
-    fieldText: "Text",
-    fieldBytes: "Bytes",
-    fieldAddress: "Address",
-    fieldComment: "Comment",
-    fieldFormat: "Format",
-    commentDefault: "new comment",
-    fieldLoopReg: "Register",
-    fieldLoopCount: "Count",
-    fieldLoopLabel: "Label",
-    fieldNextLabel: "LOOP label",
-    fieldSpriteNum: "Sprite # (0-7)",
-    fieldSpriteColor: "Color (0-15)",
-    fieldSpriteDataPage: "Data page ($XX)",
-    fieldSpriteX: "X (0-319)",
-    fieldSpriteY: "Y (0-255)",
-    fieldRasterLine: "Raster line ($00-$FF)",
-    fieldJoyPort: "Port (1 or 2)",
-    fieldJoySpriteNum: "Sprite # (0-7)",
-    fieldMousePort: "Port (1 or 2)",
-    fieldMouseSpriteNum: "Sprite # (0-7)",
-    fieldMousePotX: "ZP prev X ($00-$FF)",
-    fieldMousePotY: "ZP prev Y ($00-$FF)",
-    fieldColType: "Collision type",
-    colTypeSprite: "Sprite-Sprite ($D01E)",
-    colTypeBackground: "Sprite-Background ($D01F)",
-    fieldLoadFileName: "Filename (max 16)",
-    fieldLoadFileDevice: "Device (8-30)",
-    fieldLoadFileAddress: "Address (optional)",
-    fieldLoadFileAddressPlaceholder: "empty = file's own load addr",
-    fieldLoadFileErrorLabel: "Error label (optional)",
-    fieldLoadFileErrorLabelPlaceholder: "BCS target",
-    pickLabel: "Pick label",
-    fieldPushRegs: "Registers",
-    fieldPullRegs: "Registers",
-    warningLabel: "WARNING",
-    remoteMemoryData: "Remote memory data",
-    dataBelow: "data below",
-    textDataBelow: "TEXT data below",
-    stringDataBelow: "STRING data below",
-    dataDataBelow: "DATA data below",
-    rawBytesDataBelow: "RAWBYTES data below",
-    rawTextDataBelow: "RAWTEXT data below",
-    incBinDataBelow: "INCBIN data below",
-    fieldIncBinFile: "File",
-    incBinBrowse: "Browse...",
-    incBinNoFile: "No file selected",
-    includeNoFile: "No file selected",
-    fieldIncludeFile: "Project file",
-    includeBrowse: "Browse",
-    includeReload: "Reload",
-    includeShowBlocks: "Show blocks",
-    includeHideBlocks: "Hide blocks",
-    includeBlocksCount: "blocks",
-    includeFileNotFound: "File not found",
-    includeInvalidFile: "Invalid project file",
-    compileInvalidOperand: "Cannot compile: invalid operand on the {mnemonic} line.",
-    compileUnsupportedMode: "{mnemonic} {mode} is not wired to the compiler yet.",
-    branchLabelTooFar: "Label {label} is too far for the {mnemonic} branch.",
-    branchOperandInvalid: "Cannot run: the branch operand for {mnemonic} is invalid.",
-    branchTargetOutOfRange: "The branch target for {mnemonic} is out of range.",
-    operandNotResolvable: "Cannot run: the operand for {mnemonic} cannot be resolved to an address or value.",
-    anonymousLabelNotFound: "Anonymous label \"{label}\" not found.",
-    memorySegments: {
-      zeroPageLabel: "Zero page",
-      zeroPageNote: "Fast-access variables and pointers.",
-      stackLabel: "Stack",
-      stackNote: "6502 stack area.",
-      systemRamLabel: "System RAM",
-      systemRamNote: "KERNAL/BASIC work areas.",
-      basicRamLabel: "BASIC / user RAM",
-      basicRamNote: "Typical program area near the BASIC start.",
-      basicRomLabel: "BASIC ROM",
-      basicRomNote: "ROM bank, not always writable.",
-      freeRamLabel: "Free RAM",
-      freeRamNote: "Common machine-code area.",
-      vicLabel: "VIC-II",
-      vicNote: "Video registers.",
-      sidLabel: "SID",
-      sidNote: "Sound generator registers.",
-      colorRamLabel: "Color RAM",
-      colorRamNote: "Character colors.",
-      cia1Label: "CIA 1",
-      cia1Note: "I/O, keyboard, joystick.",
-      cia2Label: "CIA 2",
-      cia2Note: "I/O, serial bus and banking.",
-      ioCartLabel: "I/O / cartridge",
-      ioCartNote: "Expansion cartridge range.",
-      kernalRomLabel: "KERNAL ROM",
-      kernalRomNote: "System ROM routines."
-    },
-    sidFileLabel: "SID file",
-    sidFilePlaceholder: "No SID file selected",
-    sidFileBrowse: "Browse SID file",
-    sidCustomAddress: "Load address (override)",
-    sidCustomAddressPlaceholder: "e.g. C000 (empty = from SID header)",
-    blockDescriptionLabel: "Description:",
-    mnemonicCardLabel: "Description",
-    darkMode: "Dark mode",
-    lightMode: "Light mode",
-    oledMode: "OLED mode",
-    emptyState: "Drag a block here from the palette on the left.",
-    memoryUsedRam: "Used RAM",
-    memoryFreeRam: "Free RAM",
-    memoryOrigin: "Code start",
-    memoryOccupied: "used",
-    memoryFreeInSegment: "Free in this RAM segment",
-    memoryNoUsage: "No usage in this segment.",
-    memorySensitive: "The program overlaps this sensitive range.",
-    memoryUsedRange: "Used range",
-    memorySegmentStatusFree: "Free RAM",
-    memoryOverlapTitle: "Memory overlap",
-    memoryOverlapWarning: "Warning: regions overlap!",
-    memoryOverlapSingle: "overlap found",
-    memoryOverlapMultiple: "overlaps found",
-    memoryOverlapBytes: "byte overlap",
-    memoryOverlapCode: "Code",
-    memoryAxisLabel: "Full C64 memory strip",
-    sampleSrOnly: "Sample program",
-    languageSrOnly: "Language",
-    categoryNames: {
-      Adatmozgas: "Data movement",
-      Aritmetika: "Arithmetic",
-      Logika: "Logic",
-      Ugrasok: "Branches",
-      Regiszterek: "Registers",
-      ShiftEsRotate: "Shift and rotate",
-      Stack: "Stack",
-      Rendszer: "System",
-      Makrok: "Macros",
-      Illegalis: "Illegal opcodes",
-      Szerkezet: "Structure"
-    },
-    chooseDebugger: "Choose RetroDebugger",
-    debuggerExecutable: "RetroDebugger executable",
-    debuggerNotConfiguredPlaceholder: "Not configured",
-    debuggerParamsLabel: "RetroDebugger",
-    debuggerJmpLabel: "Jump to code address (-jmp)",
-    debuggerWaitLabel: "Wait before tasks (-wait)",
-    debuggerUnpauseLabel: "Force code running (-unpause)",
-    debuggerStatusPending: "Choose the RetroDebugger executable.",
-    debuggerStatusReady: "RetroDebugger ready: {path}",
-    debuggerNotConfiguredMsg: "RetroDebugger is not configured. Select it in the menu first.",
-    debuggerLaunchNotAvailable: "Debugger launch not available.",
-    debuggerLaunched: "RetroDebugger launched.",
-    debuggerLaunchFailed: "Launching RetroDebugger failed.",
-    runInDebugger: "Debug",
-    runInDebuggerTitle: "Run in RetroDebugger",
-    breakpointToggle: "Breakpoint"
-  }
-};
-
+// translations object is defined in i18n.js (loaded before app.js)
 function t(key) {
-  return translations[currentLanguage]?.[key] ?? translations.hu[key] ?? key;
+  return translations[currentLanguage]?.[key] ?? translations.en[key] ?? translations.hu[key] ?? key;
 }
 
 function tf(key, values = {}) {
@@ -1358,11 +586,130 @@ function modeText(modeKey, field) {
   return addressingModeText[modeKey]?.[currentLanguage]?.[field] ?? addressingModes[modeKey]?.[field] ?? "";
 }
 
+const mnemonicDescriptionsEs = {
+  LDA: "Carga el acumulador desde memoria o constante.",
+  LDX: "Carga el registro X.",
+  LDY: "Carga el registro Y.",
+  STA: "Almacena el acumulador en una dirección de memoria.",
+  STX: "Almacena el registro X.",
+  STY: "Almacena el registro Y.",
+  ADC: "Suma con acarreo.",
+  SBC: "Resta con acarreo.",
+  INC: "Incrementa una dirección de memoria.",
+  DEC: "Decrementa una dirección de memoria.",
+  CMP: "Compara con el acumulador.",
+  CPX: "Compara con el registro X.",
+  CPY: "Compara con el registro Y.",
+  AND: "AND lógico con el acumulador.",
+  ORA: "OR lógico con el acumulador.",
+  EOR: "OR exclusivo con el acumulador.",
+  BIT: "Prueba bits de la memoria.",
+  JMP: "Salto incondicional a una dirección.",
+  JSR: "Llamada a subrutina.",
+  RTS: "Retorno de subrutina.",
+  BNE: "Salto si el resultado anterior no es cero.",
+  BEQ: "Salto si el resultado anterior es cero.",
+  BCC: "Salto si el acarreo está limpio.",
+  BCS: "Salto si el acarreo está activo.",
+  BMI: "Salto si el resultado es negativo.",
+  BPL: "Salto si el resultado es positivo.",
+  BVC: "Salto si el desbordamiento está limpio.",
+  BVS: "Salto si el desbordamiento está activo.",
+  RTI: "Retorno de interrupción.",
+  TAX: "Copia el acumulador en X.",
+  TAY: "Copia el acumulador en Y.",
+  INX: "Incrementa el registro X.",
+  DEX: "Decrementa el registro X.",
+  INY: "Incrementa el registro Y.",
+  DEY: "Decrementa el registro Y.",
+  TSX: "Copia el puntero de pila en X.",
+  TXA: "Copia el registro X en el acumulador.",
+  TXS: "Copia el registro X en el puntero de pila.",
+  TYA: "Copia el registro Y en el acumulador.",
+  ASL: "Desplazamiento a la izquierda un bit.",
+  LSR: "Desplazamiento a la derecha un bit.",
+  ROL: "Rotación a la izquierda a través del acarreo.",
+  ROR: "Rotación a la derecha a través del acarreo.",
+  PHA: "Apila el acumulador en la pila.",
+  PHP: "Apila el estado del procesador en la pila.",
+  PLA: "Extrae el acumulador de la pila.",
+  PLP: "Extrae el estado del procesador de la pila.",
+  CLC: "Limpia el flag de acarreo.",
+  CLD: "Limpia el flag decimal.",
+  CLI: "Re-habilita las interrupciones.",
+  CLV: "Limpia el flag de desbordamiento.",
+  SEC: "Activa el flag de acarreo.",
+  SED: "Activa el modo decimal.",
+  SEI: "Deshabilita las interrupciones IRQ.",
+  NOP: "Sin operación, solo continúa.",
+  BRK: "Break/interrupción para depuración.",
+  TEXT: "Escribe texto en la pantalla.",
+  BYTE: "Inserta un array de bytes separados por comas.",
+  WORD: "Inserta valores de 16 bits como pares LO/HI, separados por comas.",
+  FILL: "Genera bytes repetidos con un conteo especificado.",
+  ALIGN: "Alineación de memoria. Ej.: 64 → salto al siguiente límite de 64 bytes (sprite), 256 → límite de página.",
+  TABLE: "Define una tabla de consulta con una etiqueta y dirección de inicio.",
+  STRING: "Escribe una cadena en una dirección de memoria dada.",
+  DATA: "Escribe bytes sin procesar en una dirección de memoria mediante código LDA/STA.",
+  RAWBYTES: "Coloca bytes sin procesar en una dirección de memoria sin generar código en tiempo de ejecución.",
+  RAWTEXT: "Coloca texto como códigos de pantalla en una dirección de memoria sin generar código en tiempo de ejecución.",
+  PETSCII: "Coloca texto como bytes PETSCII en una dirección de memoria sin generar código. Compatible con CHROUT ($FFD2).",
+  SID: "Carga un archivo de música SID directamente en memoria. La cabecera se elimina y se extraen las direcciones Load/Init/Play.",
+  INCBIN: "Incluye un archivo binario externo en una dirección de memoria sin generar código en tiempo de ejecución.",
+  INCLUDE: "Incluye los bloques de otro archivo JSON de proyecto en esta posición (solo lectura).",
+  LOOP: "Bucle contador: LD* #count carga el contador, luego una etiqueta marca el inicio del cuerpo. Cerrar con NEXT.",
+  NEXT: "Fin del bucle: DE* decrementa el contador, BNE vuelve a la etiqueta LOOP.",
+  FOR: "Bucle de conteo hacia adelante: LD* #0, luego una etiqueta marca el inicio del cuerpo. Cerrar con ENDF.",
+  ENDF: "Fin del bucle hacia adelante: IN* incrementa, CP* #limit compara, BNE vuelve a la etiqueta FOR.",
+  PUSH: "Guarda registros en la pila (combinaciones de A, X, Y).",
+  PULL: "Restaura registros de la pila (combinaciones de A, X, Y).",
+  MACRO: "Inicio de definición de macro de usuario. Requiere un nombre; cerrar con ENDM.",
+  ENDM: "Fin de definición de macro de usuario.",
+  INVOKE: "Invocación de macro de usuario. Selecciona el nombre de la macro de la lista.",
+  IF: "Inicio de ensamblado condicional. Requiere una condición (ej. DEBUG). Cerrar con ENDIF.",
+  ELSE: "Rama alternativa dentro de un bloque IF.",
+  ENDIF: "Fin del ensamblado condicional.",
+  LAX: "Carga A y X desde la misma dirección simultáneamente (ilegal: LDA+LDX).",
+  SAX: "Almacena A AND X en una dirección de memoria (ilegal).",
+  DCP: "Decrementa memoria y compara con el acumulador (ilegal: DEC+CMP).",
+  ISC: "Incrementa memoria y resta del acumulador (ilegal: INC+SBC).",
+  SLO: "Desplaza memoria a la izquierda y OR con el acumulador (ilegal: ASL+ORA).",
+  RLA: "Rota memoria a la izquierda y AND con el acumulador (ilegal: ROL+AND).",
+  SRE: "Desplaza memoria a la derecha y EOR con el acumulador (ilegal: LSR+EOR).",
+  RRA: "Rota memoria a la derecha y suma con acarreo (ilegal: ROR+ADC).",
+  ANC: "AND inmediato y activa acarreo desde bit 7 (ilegal).",
+  ALR: "AND y desplazamiento lógico a la derecha en un paso (ilegal: AND+LSR).",
+  ARR: "AND y rotación a la derecha en un paso (ilegal: AND+ROR).",
+  AXS: "Resta inmediato de A AND X, resultado en X (ilegal: SBX).",
+  LABEL: "Etiqueta con nombre en el código para destinos de salto.",
+  COMMENT: "Comentario del programa que no genera bytes.",
+  SPRITE_INIT: "Inicializa un sprite: puntero de datos ($07F8+N), bit de habilitación ($D015) y color ($D027+N).",
+  LOADFILE: "Carga un archivo del disco mediante KERNAL SETNAM/SETLFS/LOAD. Dirección opcional; etiqueta de error opcional (BCS).",
+  SPRITE_POS: "Establece la posición del sprite: X (0–319) e Y (0–255). Gestiona el MSB de $D010 para X > 255.",
+  WAIT_RASTER: "Espera activa una línea de raster: LDA $D012 / CMP #línea / BNE -7. Inline, 7 bytes, sin JSR.",
+  JOYSTICK: "Lee el joystick y mueve el sprite: UP/DOWN/LEFT/RIGHT mediante LSR+BCS+DEC/INC. Puerto 1=$DC01, Puerto 2=$DC00. 27 bytes inline.",
+  MOUSE: "Lee el ratón 1351 proporcional mediante SID POTX/POTY ($D419/$D41A) y mueve el sprite. 142 bytes inline.",
+  SPRITE_COL: "Detección de colisión de sprite: LDA $D01E/$D01F + AND #bitMask. Resultado en A: no-cero = colisión. 5 bytes.",
+  DEFINE: "Define un símbolo para ensamblado condicional. Cuando está presente, los bloques IF evalúan la condición.",
+  CONST: "Definición de constante con nombre. Se puede usar como operando en cualquier mnemónico.",
+  REGION: "Agrupa bloques en una sección con nombre colapsable. Cerrar con ENDREGION.",
+  ENDREGION: "Fin de una sección REGION.",
+  ORG: "Establece la dirección de origen (directiva *=). Los bloques siguientes se ensamblan desde esta dirección.",
+  REU_CHECK: "Comprueba si hay una RAM Expansion Unit (REU) mediante una prueba de escritura/lectura en $DF04. Z=0 → REU presente. 34 bytes.",
+  REU_STASH: "Transferencia C64 RAM → REU (guardar): establece C64/REU addr, banco y longitud, luego escribe $90 en $DF01. 40 bytes.",
+  REU_FETCH: "Transferencia REU → C64 RAM (cargar): establece C64/REU addr, banco y longitud, luego escribe $91 en $DF01. 40 bytes.",
+  REU_SWAP: "Intercambio C64 RAM ↔ REU: establece C64/REU addr, banco y longitud, luego escribe $92 en $DF01. 40 bytes.",
+  TURBO_SET: "Establece la velocidad turbo U64: escribe índice de velocidad (0–15) y control de badline (bit 7) en $D031. 5 bytes.",
+  SUPERCPU_DETECT: "Detecta la presencia del CMD SuperCPU: LDA $D0B8 / CMP #$FF. Z=0 → SuperCPU presente. 5 bytes.",
+  TURBO_ENABLE: "CMD SuperCPU turbo on/off: ON → LDA #$00 / STA $D07A, OFF → LDA #$00 / STA $D07B. 5 bytes."
+};
+
 function getItemDescription(item) {
-  return currentLanguage === "en"
-    ? mnemonicDescriptionsEn[item.mnemonic] || item.description
-    : item.description;
+  if (currentLanguage === "es") return mnemonicDescriptionsEs[item.mnemonic] || mnemonicDescriptionsEn[item.mnemonic] || item.description;
+  if (currentLanguage !== "hu") return mnemonicDescriptionsEn[item.mnemonic] || item.description;
+  return item.description;
 }
+
 
 const opcodeMap = {
   LDA: { immediate: 0xA9, zeroPage: 0xA5, zeroPageX: 0xB5, absolute: 0xAD, absoluteX: 0xBD, absoluteY: 0xB9, indirectX: 0xA1, indirectY: 0xB1 },
@@ -1850,11 +1197,11 @@ function initPalette() {
       saveProjectToFile().then(() => {
         markTabClean();
         if (expertMode) {
-          _expertSetStatus(currentLanguage === "en" ? "Saved ✓" : "Mentve ✓", "ok");
+          _expertSetStatus(currentLanguage === "hu" ? "Mentve ✓" : "Saved ✓", "ok");
           setTimeout(() => _expertValidate(), 1800);
         } else if (emulatorStatus) {
           const prev = emulatorStatus.textContent;
-          emulatorStatus.textContent = currentLanguage === "en" ? "Saved ✓" : "Mentve ✓";
+          emulatorStatus.textContent = currentLanguage === "hu" ? "Mentve ✓" : "Saved ✓";
           setTimeout(() => { if (emulatorStatus.textContent.includes("✓")) emulatorStatus.textContent = prev; }, 1800);
         }
       });
@@ -2146,7 +1493,7 @@ function _handleBlockCtxAction(action, index) {
 
 function applySavedLanguage() {
   const savedLanguage = localStorage.getItem("c64-block-language") || "en";
-  currentLanguage = savedLanguage === "en" ? "en" : "hu";
+  currentLanguage = ["en", "es", "hu"].includes(savedLanguage) ? savedLanguage : "hu";
   document.documentElement.lang = currentLanguage;
   if (languageSelect) {
     languageSelect.value = currentLanguage;
@@ -2290,7 +1637,7 @@ function applySavedUiSettings() {
 }
 
 function handleLanguageChange() {
-  currentLanguage = languageSelect.value === "en" ? "en" : "hu";
+  currentLanguage = ["en", "es", "hu"].includes(languageSelect.value) ? languageSelect.value : "hu";
   localStorage.setItem("c64-block-language", currentLanguage);
   document.documentElement.lang = currentLanguage;
   applyTranslations();
@@ -2305,7 +1652,7 @@ function handleLanguageChange() {
 }
 
 function applyTranslations() {
-  document.title = currentLanguage === "en" ? "C64 Visual Assembler" : "C64 Block Assembler";
+  document.title = currentLanguage === "hu" ? "C64 Block Assembler" : "C64 Visual Assembler";
   const setText = (selector, value) => {
     const node = document.querySelector(selector);
     if (node) {
@@ -2744,7 +2091,7 @@ function updateOperandField() {
 
   if (!item || !mode) {
     operandInput.disabled = true;
-    operandInput.placeholder = currentLanguage === "en" ? "Select a mnemonic first" : "Valassz elobb mnemonikot";
+    operandInput.placeholder = currentLanguage === "hu" ? "Valassz elobb mnemonikot" : "Select a mnemonic first";
     return;
   }
   const needsTextOperand = item?.isTextMacro;
@@ -2757,19 +2104,19 @@ function updateOperandField() {
   const needsCommentOperand = item?.isComment;
   operandInput.disabled = hideOperandField || !(mode.needsOperand || needsTextOperand || needsByteOperand || needsStringOperand || needsDataOperand || needsRawBytesOperand || needsRawTextOperand || needsPetsciiOperand || needsCommentOperand) || item?.isIncBinMacro || item?.isIncludeMacro;
   operandInput.placeholder = needsTextOperand
-    ? (currentLanguage === "en" ? "For example HELLO C64" : "Peldaul HELLO C64")
+    ? (currentLanguage === "hu" ? "Peldaul HELLO C64" : "For example HELLO C64")
     : needsByteOperand
-      ? (currentLanguage === "en" ? "For example 169,0,141,32,208" : "Peldaul 169,0,141,32,208")
+      ? (currentLanguage === "hu" ? "Peldaul 169,0,141,32,208" : "For example 169,0,141,32,208")
       : needsStringOperand
-        ? (currentLanguage === "en" ? "For example HELLO" : "Peldaul HELLO")
+        ? (currentLanguage === "hu" ? "Peldaul HELLO" : "For example HELLO")
         : needsDataOperand
-          ? (currentLanguage === "en" ? "For example 169,0,141,32,208" : "Peldaul 169,0,141,32,208")
+          ? (currentLanguage === "hu" ? "Peldaul 169,0,141,32,208" : "For example 169,0,141,32,208")
           : needsRawBytesOperand
-            ? (currentLanguage === "en" ? "For example 169,0,141,32,208" : "Peldaul 169,0,141,32,208")
+            ? (currentLanguage === "hu" ? "Peldaul 169,0,141,32,208" : "For example 169,0,141,32,208")
             : needsRawTextOperand
-              ? (currentLanguage === "en" ? "For example HELLO" : "Peldaul HELLO")
+              ? (currentLanguage === "hu" ? "Peldaul HELLO" : "For example HELLO")
               : needsCommentOperand
-                ? (currentLanguage === "en" ? "For example border scroll demo" : "Peldaul border scroll demo")
+                ? (currentLanguage === "hu" ? "Peldaul border scroll demo" : "For example border scroll demo")
                 : getOperandPlaceholder(mode, getSelectedBase());
 
   if (!mode.needsOperand && !needsTextOperand && !needsByteOperand && !needsStringOperand && !needsDataOperand && !needsRawBytesOperand && !needsRawTextOperand && !needsCommentOperand) {
@@ -2790,8 +2137,8 @@ function renderMnemonicDescription() {
     mnemonicDescription.innerHTML = `
       <strong>${item.mnemonic}</strong>
       <p>${getItemDescription(item)}</p>
-      <p>${currentLanguage === "en" ? "Macro addressing: screen position by X/Y." : "Makro-cimzes: kepernyo pozicio X/Y alapon."}</p>
-      <small>${currentLanguage === "en" ? "Preview" : "Elonezet"}: ${textPreview.preview}</small>
+      <p>${currentLanguage === "hu" ? "Makro-cimzes: kepernyo pozicio X/Y alapon." : "Macro addressing: screen position by X/Y."}</p>
+      <small>${currentLanguage === "hu" ? "Elonezet" : "Preview"}: ${textPreview.preview}</small>
     `;
     return;
   }
@@ -2800,8 +2147,8 @@ function renderMnemonicDescription() {
     mnemonicDescription.innerHTML = `
       <strong>${item.mnemonic}</strong>
       <p>${getItemDescription(item)}</p>
-      <p>${currentLanguage === "en" ? "Macro addressing: bytes are inserted at the current assembly address." : "Makro-cimzes: a byte-ok a jelenlegi assembly cimre kerulnek."}</p>
-      <small>${currentLanguage === "en" ? "Preview" : "Elonezet"}: ${bytePreview.preview}</small>
+      <p>${currentLanguage === "hu" ? "Makro-cimzes: a byte-ok a jelenlegi assembly cimre kerulnek." : "Macro addressing: bytes are inserted at the current assembly address."}</p>
+      <small>${currentLanguage === "hu" ? "Elonezet" : "Preview"}: ${bytePreview.preview}</small>
       ${bytePreview.error ? `<br><small class="error-text">${bytePreview.error}</small>` : ""}
     `;
     return;
@@ -2811,8 +2158,8 @@ function renderMnemonicDescription() {
     mnemonicDescription.innerHTML = `
       <strong>${item.mnemonic}</strong>
       <p>${getItemDescription(item)}</p>
-      <p>${currentLanguage === "en" ? "Macro addressing: encodes text as screen codes, then generates LDA #code / STA $addr pairs at runtime." : "Makro-cimzes: szoveget kepernyo kodkent kodol, majd LDA #kod / STA $cim parokat general futasidokor."}</p>
-      <small>${currentLanguage === "en" ? "Preview" : "Elonezet"}: ${textPreview.preview}</small>
+      <p>${currentLanguage === "hu" ? "Makro-cimzes: szoveget kepernyo kodkent kodol, majd LDA #kod / STA $cim parokat general futasidokor." : "Macro addressing: encodes text as screen codes, then generates LDA #code / STA $addr pairs at runtime."}</p>
+      <small>${currentLanguage === "hu" ? "Elonezet" : "Preview"}: ${textPreview.preview}</small>
     `;
     return;
   }
@@ -2821,8 +2168,8 @@ function renderMnemonicDescription() {
     mnemonicDescription.innerHTML = `
       <strong>${item.mnemonic}</strong>
       <p>${getItemDescription(item)}</p>
-      <p>${currentLanguage === "en" ? "Macro addressing: places raw bytes directly at an absolute memory address, no LDA/STA code generated." : "Makro-cimzes: nyers byte-okat helyez el kozvetlenul egy abszolut memoriacimre, LDA/STA kod generalas nelkul."}</p>
-      <small>${currentLanguage === "en" ? "Preview" : "Elonezet"}: ${bytePreview.preview}</small>
+      <p>${currentLanguage === "hu" ? "Makro-cimzes: nyers byte-okat helyez el kozvetlenul egy abszolut memoriacimre, LDA/STA kod generalas nelkul." : "Macro addressing: places raw bytes directly at an absolute memory address, no LDA/STA code generated."}</p>
+      <small>${currentLanguage === "hu" ? "Elonezet" : "Preview"}: ${bytePreview.preview}</small>
       ${bytePreview.error ? `<br><small class="error-text">${bytePreview.error}</small>` : ""}
     `;
     return;
@@ -2831,8 +2178,8 @@ function renderMnemonicDescription() {
     mnemonicDescription.innerHTML = `
       <strong>${item.mnemonic}</strong>
       <p>${getItemDescription(item)}</p>
-      <p>${currentLanguage === "en" ? "Macro addressing: includes an external binary file at a given memory address, no runtime code generated." : "Makro-cimzes: kulso binarfajl adatait helyezi el egy abszolut memoriacimre, runtime kod generalas nelkul."}</p>
-      <small>${currentLanguage === "en" ? "Select a binary file with the Browse button after inserting." : "A fajlt a Tallozas gombbal valaszthatod ki a beillesztes utan."}</small>
+      <p>${currentLanguage === "hu" ? "Makro-cimzes: kulso binarfajl adatait helyezi el egy abszolut memoriacimre, runtime kod generalas nelkul." : "Macro addressing: includes an external binary file at a given memory address, no runtime code generated."}</p>
+      <small>${currentLanguage === "hu" ? "A fajlt a Tallozas gombbal valaszthatod ki a beillesztes utan." : "Select a binary file with the Browse button after inserting."}</small>
     `;
     return;
   }
@@ -2840,8 +2187,8 @@ function renderMnemonicDescription() {
     mnemonicDescription.innerHTML = `
       <strong>${item.mnemonic}</strong>
       <p>${getItemDescription(item)}</p>
-      <p>${currentLanguage === "en" ? "Embeds another project JSON file's blocks inline at this position. The blocks appear grayed out and read-only." : "Egy masik projekt JSON fajl blokkjait illeszti be erre a helyre. A blokkok szurkitve, csak olvashatoan jelennek meg."}</p>
-      <small>${currentLanguage === "en" ? "Select a project file with the Browse button after inserting." : "A projektet a Tallozas gombbal valaszthatod ki a beillesztes utan."}</small>
+      <p>${currentLanguage === "hu" ? "Egy masik projekt JSON fajl blokkjait illeszti be erre a helyre. A blokkok szurkitve, csak olvashatoan jelennek meg." : "Embeds another project JSON file's blocks inline at this position. The blocks appear grayed out and read-only."}</p>
+      <small>${currentLanguage === "hu" ? "A projektet a Tallozas gombbal valaszthatod ki a beillesztes utan." : "Select a project file with the Browse button after inserting."}</small>
     `;
     return;
   }
@@ -2850,8 +2197,8 @@ function renderMnemonicDescription() {
     mnemonicDescription.innerHTML = `
       <strong>${item.mnemonic}</strong>
       <p>${getItemDescription(item)}</p>
-      <p>${currentLanguage === "en" ? "Macro addressing: places text as screen codes directly at an absolute memory address, no LDA/STA code generated." : "Makro-cimzes: szoveget kepernyo kodkent helyez el kozvetlenul egy abszolut memoriacimre, LDA/STA kod generalas nelkul."}</p>
-      <small>${currentLanguage === "en" ? "Preview" : "Elonezet"}: ${textPreview.preview}</small>
+      <p>${currentLanguage === "hu" ? "Makro-cimzes: szoveget kepernyo kodkent helyez el kozvetlenul egy abszolut memoriacimre, LDA/STA kod generalas nelkul." : "Macro addressing: places text as screen codes directly at an absolute memory address, no LDA/STA code generated."}</p>
+      <small>${currentLanguage === "hu" ? "Elonezet" : "Preview"}: ${textPreview.preview}</small>
     `;
     return;
   }
@@ -2859,8 +2206,8 @@ function renderMnemonicDescription() {
     mnemonicDescription.innerHTML = `
       <strong>${item.mnemonic}</strong>
       <p>${getItemDescription(item)}</p>
-      <p>${currentLanguage === "en" ? "Comment line visible in ASM and monitor, but it generates no bytes." : "Kommentsor, ami az ASM-ben es a monitorban is latszik, de nem general byte-ot."}</p>
-      <small>${currentLanguage === "en" ? "Preview" : "Elonezet"}: ; ${operandInput.value.trim() || (currentLanguage === "en" ? "new comment" : "uj komment")}</small>
+      <p>${currentLanguage === "hu" ? "Kommentsor, ami az ASM-ben es a monitorban is latszik, de nem general byte-ot." : "Comment line visible in ASM and monitor, but it generates no bytes."}</p>
+      <small>${currentLanguage === "hu" ? "Elonezet" : "Preview"}: ; ${operandInput.value.trim() || (currentLanguage === "hu" ? "uj komment" : "new comment")}</small>
     `;
     return;
   }
@@ -2869,10 +2216,10 @@ function renderMnemonicDescription() {
   mnemonicDescription.innerHTML = `
     <strong>${item.mnemonic}</strong>
     <p>${getItemDescription(item)}</p>
-    <p>${currentLanguage === "en" ? "Addressing" : "Cimzes"}: ${modeText(modeKey, "label")}. ${modeText(modeKey, "help")}</p>
-    <small>${currentLanguage === "en" ? "Allowed modes" : "Engedett modok"}: ${item.modes.map((key) => modeText(key, "label")).join(", ")}</small>
+    <p>${currentLanguage === "hu" ? "Cimzes" : "Addressing"}: ${modeText(modeKey, "label")}. ${modeText(modeKey, "help")}</p>
+    <small>${currentLanguage === "hu" ? "Engedett modok" : "Allowed modes"}: ${item.modes.map((key) => modeText(key, "label")).join(", ")}</small>
     <br>
-    <small>${currentLanguage === "en" ? "Preview" : "Elonezet"}: ${preview.text}</small>
+    <small>${currentLanguage === "hu" ? "Elonezet" : "Preview"}: ${preview.text}</small>
     ${preview.error ? `<br><small class="error-text">${preview.error}</small>` : ""}
   `;
 }
@@ -2899,25 +2246,25 @@ function renderPaletteItems() {
 
     node.querySelector(".palette-mnemonic").textContent = item.mnemonic;
     node.querySelector(".palette-description").textContent = item.isTextMacro
-      ? `${currentLanguage === "en" ? "Screen X/Y" : "Kepernyo X/Y"} | ${preview.preview}`
+      ? `${currentLanguage === "hu" ? "Kepernyo X/Y" : "Screen X/Y"} | ${preview.preview}`
       : item.isByteMacro
-        ? `${currentLanguage === "en" ? "Byte array" : "Byte tomb"} | ${preview.preview}`
+        ? `${currentLanguage === "hu" ? "Byte tomb" : "Byte array"} | ${preview.preview}`
         : item.isStringMacro
-          ? `${currentLanguage === "en" ? "Absolute address" : "Abszolut cim"} | ${preview.preview}`
+          ? `${currentLanguage === "hu" ? "Abszolut cim" : "Absolute address"} | ${preview.preview}`
           : item.isDataMacro
-            ? `${currentLanguage === "en" ? "Absolute address" : "Abszolut cim"} | ${preview.preview}`
+            ? `${currentLanguage === "hu" ? "Abszolut cim" : "Absolute address"} | ${preview.preview}`
             : item.isRawBytesMacro
-              ? `${currentLanguage === "en" ? "Raw bytes at address" : "Nyers byte-ok adott cimre"} | ${preview.preview}`
+              ? `${currentLanguage === "hu" ? "Nyers byte-ok adott cimre" : "Raw bytes at address"} | ${preview.preview}`
               : item.isRawTextMacro
-                ? `${currentLanguage === "en" ? "Raw text at address" : "Nyers szoveg adott cimre"} | ${preview.preview}`
+                ? `${currentLanguage === "hu" ? "Nyers szoveg adott cimre" : "Raw text at address"} | ${preview.preview}`
                 : item.isIncBinMacro
-                  ? `${currentLanguage === "en" ? "Binary file at address" : "Binarfajl adott cimre"}`
+                  ? `${currentLanguage === "hu" ? "Binarfajl adott cimre" : "Binary file at address"}`
                   : item.isIncludeMacro
-                  ? `${currentLanguage === "en" ? "Include project blocks inline" : "Projekt blokkjainak beillesztese"}`
+                  ? `${currentLanguage === "hu" ? "Projekt blokkjainak beillesztese" : "Include project blocks inline"}`
                   : item.isSidMacro
-                  ? `${currentLanguage === "en" ? "SID music file, header stripped automatically" : "SID zenefajl, fejlec automatikusan eltavolitva"}`
+                  ? `${currentLanguage === "hu" ? "SID zenefajl, fejlec automatikusan eltavolitva" : "SID music file, header stripped automatically"}`
                   : item.isComment
-                ? `${currentLanguage === "en" ? "Comment" : "Komment"} | ; ${operandInput.value.trim() || (currentLanguage === "en" ? "new comment" : "uj komment")}`
+                ? `${currentLanguage === "hu" ? "Komment" : "Comment"} | ; ${operandInput.value.trim() || (currentLanguage === "hu" ? "uj komment" : "new comment")}`
                 : `${modeText(defaultMode, "label")} | ${preview.text}`;
 
     node.addEventListener("click", () => {
@@ -3033,7 +2380,7 @@ function renderSearchResults(query) {
   if (!results.length) {
     const empty = document.createElement("p");
     empty.className = "palette-no-results";
-    empty.textContent = currentLanguage === "en" ? "No results." : "Nincs talalat.";
+    empty.textContent = currentLanguage !== "hu" ? "No results." : "Nincs talalat.";
     paletteList.appendChild(empty);
     return;
   }
@@ -3052,7 +2399,7 @@ function renderSearchResults(query) {
     const node = paletteItemTemplate.content.firstElementChild.cloneNode(true);
     node.querySelector(".palette-mnemonic").textContent = userMacroName ? `INVOKE: ${userMacroName}` : item.mnemonic;
     node.querySelector(".palette-description").textContent = userMacroName
-      ? `${currentLanguage === "en" ? "Call user macro" : "Felhasznaloi makro hivasa"}`
+      ? `${currentLanguage !== "hu" ? "Call user macro" : "Felhasznaloi makro hivasa"}`
       : getItemDescription(item);
 
     node.addEventListener("click", () => {
@@ -3850,7 +3197,7 @@ function createBlockFromMnemonic(item) {
       description: item.description,
       addressingMode: "implied",
       base: "hex",
-      validationError: macroNames.length === 0 ? (currentLanguage === "en" ? "No macros defined yet" : "Meg nincs definialva makro") : "",
+      validationError: macroNames.length === 0 ? (currentLanguage !== "hu" ? "No macros defined yet" : "Meg nincs definialva makro") : "",
       collapsed: true,
       isMacroInvoke: true,
       invokeMacroName: firstMacro
@@ -4523,7 +3870,7 @@ function _expertFormatSource() {
 
     const result = out.join("\n");
     if (result === expertEditor.value) {
-      _expertSetStatus(currentLanguage === "en" ? "Already formatted" : "Már formázott", "ok");
+      _expertSetStatus(currentLanguage !== "hu" ? "Already formatted" : "Már formázott", "ok");
       return;
     }
     const sel = expertEditor.selectionStart;
@@ -4534,7 +3881,7 @@ function _expertFormatSource() {
     markTabDirty();
     clearTimeout(_expertParseTimer);
     _expertParseTimer = setTimeout(() => _expertValidate(), 0);
-    _expertSetStatus(currentLanguage === "en" ? "Formatted" : "Formázva", "ok");
+    _expertSetStatus(currentLanguage !== "hu" ? "Formatted" : "Formázva", "ok");
   } catch (err) {
     _expertSetStatus("Format error: " + String(err), "error");
     console.error("_expertFormatSource error:", err);
@@ -5402,7 +4749,7 @@ function _expertValidate() {
       if (errors.length) {
         _expertSetStatus(errors[0].msg + (errors.length > 1 ? ` (+${errors.length - 1} more)` : ""), "error");
       } else {
-        _expertSetStatus(currentLanguage === "en"
+        _expertSetStatus(currentLanguage !== "hu"
           ? `${blocks.length} ${blocks.length === 1 ? "block" : "blocks"} — OK`
           : `${blocks.length} blokk — OK`, "ok");
       }
@@ -5690,7 +5037,7 @@ function renderDisasmOutput() {
   const el = document.getElementById("disasm-output");
   if (!el) return;
   if (!program.length) {
-    el.innerHTML = `<span class="asm-tok-comment">; ${currentLanguage === "en" ? "Disassembly will appear here" : "A disassembler kimenet itt jelenik meg"}</span>`;
+    el.innerHTML = `<span class="asm-tok-comment">; ${currentLanguage !== "hu" ? "Disassembly will appear here" : "A disassembler kimenet itt jelenik meg"}</span>`;
     return;
   }
   el.innerHTML = _buildDisasmHTML();
@@ -6329,9 +5676,9 @@ function parseUserMacros() {
       if (name && userMacros[name]) {
         block.validationError = "";
       } else if (!name) {
-        block.validationError = currentLanguage === "en" ? "No macros defined yet" : "Meg nincs definialva makro";
+        block.validationError = currentLanguage !== "hu" ? "No macros defined yet" : "Meg nincs definialva makro";
       } else {
-        block.validationError = currentLanguage === "en" ? `Macro not found: ${name}` : `Makro nem talalhato: ${name}`;
+        block.validationError = currentLanguage !== "hu" ? `Macro not found: ${name}` : `Makro nem talalhato: ${name}`;
       }
     }
   }
@@ -6457,7 +5804,7 @@ function updateProgramBlock(index, field, value) {
   if (field === "invokeMacroName") {
     block.invokeMacroName = value;
     // Keep mnemonic as "INVOKE", don't change it
-    block.validationError = userMacros[value] ? "" : (currentLanguage === "en" ? "Macro not found" : "Makro nem talalhato");
+    block.validationError = userMacros[value] ? "" : (currentLanguage !== "hu" ? "Macro not found" : "Makro nem talalhato");
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -6633,8 +5980,8 @@ function updateProgramBlock(index, field, value) {
     const port = parseInt(field === "joyPort" ? value : block.joyPort, 10);
     const num = parseInt(field === "joySpriteNum" ? value : block.joySpriteNum, 10);
     block.validationError =
-      (port !== 1 && port !== 2) ? (currentLanguage === "en" ? "Port must be 1 or 2." : "A port 1 vagy 2 lehet.") :
-      (isNaN(num) || num < 0 || num > 7) ? (currentLanguage === "en" ? "Sprite number must be 0–7." : "A sprite szama 0 es 7 kozott lehet.") :
+      (port !== 1 && port !== 2) ? (currentLanguage !== "hu" ? "Port must be 1 or 2." : "A port 1 vagy 2 lehet.") :
+      (isNaN(num) || num < 0 || num > 7) ? (currentLanguage !== "hu" ? "Sprite number must be 0–7." : "A sprite szama 0 es 7 kozott lehet.") :
       "";
     renderBlockPreview(index);
     renderAsmOutput();
@@ -6647,10 +5994,10 @@ function updateProgramBlock(index, field, value) {
     const zpX = (field === "mousePotXZP" ? value : block.mousePotXZP || "FD").replace(/^\$/, "");
     const zpY = (field === "mousePotYZP" ? value : block.mousePotYZP || "FE").replace(/^\$/, "");
     block.validationError =
-      (port !== 1 && port !== 2) ? (currentLanguage === "en" ? "Port must be 1 or 2." : "A port 1 vagy 2 lehet.") :
-      (isNaN(num) || num < 0 || num > 7) ? (currentLanguage === "en" ? "Sprite number must be 0–7." : "A sprite szama 0 es 7 kozott lehet.") :
-      (!/^[0-9A-Fa-f]{1,2}$/.test(zpX)) ? (currentLanguage === "en" ? "ZP X must be a hex byte (00–FF)." : "ZP X 1 hex byte legyen (00–FF).") :
-      (!/^[0-9A-Fa-f]{1,2}$/.test(zpY)) ? (currentLanguage === "en" ? "ZP Y must be a hex byte (00–FF)." : "ZP Y 1 hex byte legyen (00–FF).") :
+      (port !== 1 && port !== 2) ? (currentLanguage !== "hu" ? "Port must be 1 or 2." : "A port 1 vagy 2 lehet.") :
+      (isNaN(num) || num < 0 || num > 7) ? (currentLanguage !== "hu" ? "Sprite number must be 0–7." : "A sprite szama 0 es 7 kozott lehet.") :
+      (!/^[0-9A-Fa-f]{1,2}$/.test(zpX)) ? (currentLanguage !== "hu" ? "ZP X must be a hex byte (00–FF)." : "ZP X 1 hex byte legyen (00–FF).") :
+      (!/^[0-9A-Fa-f]{1,2}$/.test(zpY)) ? (currentLanguage !== "hu" ? "ZP Y must be a hex byte (00–FF)." : "ZP Y 1 hex byte legyen (00–FF).") :
       "";
     renderBlockPreview(index);
     renderAsmOutput();
@@ -6660,7 +6007,7 @@ function updateProgramBlock(index, field, value) {
   if (block.isSpriteColMacro && (field === "spriteNum" || field === "colType")) {
     const num = parseInt(field === "spriteNum" ? value : block.spriteNum, 10);
     block.validationError = (isNaN(num) || num < 0 || num > 7)
-      ? (currentLanguage === "en" ? "Sprite number must be 0–7." : "A sprite szama 0 es 7 kozott lehet.")
+      ? (currentLanguage !== "hu" ? "Sprite number must be 0–7." : "A sprite szama 0 es 7 kozott lehet.")
       : "";
     renderBlockPreview(index);
     renderAsmOutput();
@@ -6671,7 +6018,7 @@ function updateProgramBlock(index, field, value) {
     const v = value.replace(/^\$/, "");
     const parsed = parseInt(v, 16);
     block.validationError = (isNaN(parsed) || parsed < 0 || parsed > 255)
-      ? (currentLanguage === "en" ? "Raster line must be a hex byte ($00–$FF)." : "A rasztersor 1 hex byte legyen ($00-$FF).")
+      ? (currentLanguage !== "hu" ? "Raster line must be a hex byte ($00–$FF)." : "A rasztersor 1 hex byte legyen ($00-$FF).")
       : "";
     renderBlockPreview(index);
     renderAsmOutput();
@@ -6681,7 +6028,7 @@ function updateProgramBlock(index, field, value) {
   if (block.isTurboSetMacro && (field === "turboSpeed" || field === "turboBadline")) {
     const spd = parseInt(block.turboSpeed || "7", 10);
     block.validationError = (isNaN(spd) || spd < 0 || spd > 15)
-      ? (currentLanguage === "en" ? "Turbo speed must be 0–15." : "A turbo sebesseg 0 es 15 kozott lehet.")
+      ? (currentLanguage !== "hu" ? "Turbo speed must be 0–15." : "A turbo sebesseg 0 es 15 kozott lehet.")
       : "";
     renderBlockPreview(index);
     renderAsmOutput();
@@ -6722,13 +6069,13 @@ function updateProgramBlock(index, field, value) {
     const bankVal = parseInt(block.reuBank || "0", 10);
     const length  = parseInt((block.reuLength || "0100").replace(/^\$/, ""), 16);
     if (isNaN(c64Addr) || c64Addr < 0 || c64Addr > 0xFFFF) {
-      block.validationError = currentLanguage === "en" ? "C64 address must be $0000–$FFFF." : "A C64 cim $0000-$FFFF kozott lehet.";
+      block.validationError = currentLanguage !== "hu" ? "C64 address must be $0000–$FFFF." : "A C64 cim $0000-$FFFF kozott lehet.";
     } else if (isNaN(expAddr) || expAddr < 0 || expAddr > 0xFFFF) {
-      block.validationError = currentLanguage === "en" ? "REU address must be $0000–$FFFF." : "A REU cim $0000-$FFFF kozott lehet.";
+      block.validationError = currentLanguage !== "hu" ? "REU address must be $0000–$FFFF." : "A REU cim $0000-$FFFF kozott lehet.";
     } else if (isNaN(bankVal) || bankVal < 0 || bankVal > 7) {
-      block.validationError = currentLanguage === "en" ? "REU bank must be 0–7." : "A REU bank 0-7 lehet.";
+      block.validationError = currentLanguage !== "hu" ? "REU bank must be 0–7." : "A REU bank 0-7 lehet.";
     } else if (isNaN(length) || length < 1 || length > 0xFFFF) {
-      block.validationError = currentLanguage === "en" ? "Length must be $0001–$FFFF." : "A hossz $0001-$FFFF kozott lehet.";
+      block.validationError = currentLanguage !== "hu" ? "Length must be $0001–$FFFF." : "A hossz $0001-$FFFF kozott lehet.";
     } else {
       block.validationError = "";
     }
@@ -7084,7 +6431,7 @@ function buildOperandPreview(modeKey, rawValue, base) {
   const value = (modeKey === "immediate" ? rawValue.trim().replace(/^#/, "") : rawValue.trim());
 
   if (!mode.needsOperand) {
-    return { operand: "", text: currentLanguage === "en" ? "no operand" : "operandus nelkul", error: "" };
+    return { operand: "", text: currentLanguage !== "hu" ? "no operand" : "operandus nelkul", error: "" };
   }
 
   // * = current program counter (e.g. JMP *, JSR *, BNE *)
@@ -7110,7 +6457,7 @@ function buildOperandPreview(modeKey, rawValue, base) {
   }
 
   if (!value) {
-    return { operand: "", text: currentLanguage === "en" ? "missing operand" : "hianyzo operandus", error: currentLanguage === "en" ? "This addressing mode requires an operand." : "Ehhez a cimzesi modhoz operandus kell." };
+    return { operand: "", text: currentLanguage !== "hu" ? "missing operand" : "hianyzo operandus", error: currentLanguage !== "hu" ? "This addressing mode requires an operand." : "Ehhez a cimzesi modhoz operandus kell." };
   }
 
   if (modeKey === "relative" && parseNumberByBase(value, base) === null) {
@@ -7181,19 +6528,19 @@ function formatByteMacroPreview(value, base = "dec") {
 
 function validateTextMacroPosition(x, y, text = "") {
   if (!Number.isInteger(x) || !Number.isInteger(y)) {
-    return currentLanguage === "en" ? "TEXT macro X and Y must be whole numbers." : "A TEXT makro X es Y erteke csak egesz szam lehet.";
+    return currentLanguage !== "hu" ? "TEXT macro X and Y must be whole numbers." : "A TEXT makro X es Y erteke csak egesz szam lehet.";
   }
 
   if (x < 0 || x > 39) {
-    return currentLanguage === "en" ? "TEXT macro X must be between 0 and 39." : "A TEXT makro X erteke 0 es 39 kozott lehet.";
+    return currentLanguage !== "hu" ? "TEXT macro X must be between 0 and 39." : "A TEXT makro X erteke 0 es 39 kozott lehet.";
   }
 
   if (y < 0 || y > 24) {
-    return currentLanguage === "en" ? "TEXT macro Y must be between 0 and 24." : "A TEXT makro Y erteke 0 es 24 kozott lehet.";
+    return currentLanguage !== "hu" ? "TEXT macro Y must be between 0 and 24." : "A TEXT makro Y erteke 0 es 24 kozott lehet.";
   }
 
   if ((x + Math.max(0, (text || "").length - 1)) > 39) {
-    return currentLanguage === "en" ? "TEXT macro would run past the right edge of the row." : "A TEXT makro szovege kifutna a sor jobb szelere.";
+    return currentLanguage !== "hu" ? "TEXT macro would run past the right edge of the row." : "A TEXT makro szovege kifutna a sor jobb szelere.";
   }
 
   return "";
@@ -7232,12 +6579,12 @@ function parseByteMacro(raw, base = "dec") {
 function validateByteMacro(raw, base = "dec") {
   const trimmed = raw.trim();
   if (!trimmed) {
-    return currentLanguage === "en" ? "BYTE macro needs at least one byte." : "A BYTE makrohoz legalabb egy byte kell.";
+    return currentLanguage !== "hu" ? "BYTE macro needs at least one byte." : "A BYTE makrohoz legalabb egy byte kell.";
   }
 
   const parts = trimmed.split(",").map((part) => part.trim()).filter(Boolean);
   if (!parts.length) {
-    return currentLanguage === "en" ? "BYTE macro needs at least one byte." : "A BYTE makrohoz legalabb egy byte kell.";
+    return currentLanguage !== "hu" ? "BYTE macro needs at least one byte." : "A BYTE makrohoz legalabb egy byte kell.";
   }
 
   for (const part of parts) {
@@ -7246,10 +6593,10 @@ function validateByteMacro(raw, base = "dec") {
     const validBare = base === "bin" ? /^[01]+$/.test(part) : (base === "hex" ? /^[0-9A-Fa-f]+$/.test(part) : /^\d+$/.test(part));
     if (!validBinary && !validHexPrefixed && !validBare) {
       return base === "bin"
-        ? (currentLanguage === "en" ? "In binary mode use only 0 and 1 separated by commas, optionally with % prefix." : "Binaris modban csak 0-kat es 1-eseket hasznalj, opcionis % elotaggal.")
+        ? (currentLanguage !== "hu" ? "In binary mode use only 0 and 1 separated by commas, optionally with % prefix." : "Binaris modban csak 0-kat es 1-eseket hasznalj, opcionis % elotaggal.")
         : base === "hex"
-          ? (currentLanguage === "en" ? "BYTE macro only accepts hex bytes separated by commas, for example FF,00,8D." : "A BYTE makroban csak hex byte-ok lehetnek, peldaul FF,00,8D.")
-          : (currentLanguage === "en" ? "BYTE macro only accepts decimal or hex bytes separated by commas." : "A BYTE makroban csak decimalis vagy hex byte-ok lehetnek, vesszovel elvalasztva.");
+          ? (currentLanguage !== "hu" ? "BYTE macro only accepts hex bytes separated by commas, for example FF,00,8D." : "A BYTE makroban csak hex byte-ok lehetnek, peldaul FF,00,8D.")
+          : (currentLanguage !== "hu" ? "BYTE macro only accepts decimal or hex bytes separated by commas." : "A BYTE makroban csak decimalis vagy hex byte-ok lehetnek, vesszovel elvalasztva.");
     }
 
     const value = validBinary
@@ -7259,7 +6606,7 @@ function validateByteMacro(raw, base = "dec") {
         : Number.parseInt(part, base === "bin" ? 2 : (base === "hex" ? 16 : 10));
 
     if (value < 0 || value > 255) {
-      return currentLanguage === "en" ? "Every BYTE macro element must be a byte between 0 and 255." : "A BYTE makro minden eleme 0 es 255 kozotti byte kell legyen.";
+      return currentLanguage !== "hu" ? "Every BYTE macro element must be a byte between 0 and 255." : "A BYTE makro minden eleme 0 es 255 kozotti byte kell legyen.";
     }
   }
 
@@ -7285,12 +6632,12 @@ function parseWordMacro(raw, base = "dec") {
 function validateWordMacro(raw, base = "dec") {
   const trimmed = raw.trim();
   if (!trimmed) {
-    return currentLanguage === "en" ? "WORD macro needs at least one 16-bit value." : "A WORD makrohoz legalabb egy 16-bites ertek kell.";
+    return currentLanguage !== "hu" ? "WORD macro needs at least one 16-bit value." : "A WORD makrohoz legalabb egy 16-bites ertek kell.";
   }
 
   const parts = trimmed.split(",").map((part) => part.trim()).filter(Boolean);
   if (!parts.length) {
-    return currentLanguage === "en" ? "WORD macro needs at least one 16-bit value." : "A WORD makrohoz legalabb egy 16-bites ertek kell.";
+    return currentLanguage !== "hu" ? "WORD macro needs at least one 16-bit value." : "A WORD makrohoz legalabb egy 16-bites ertek kell.";
   }
 
   for (const part of parts) {
@@ -7298,8 +6645,8 @@ function validateWordMacro(raw, base = "dec") {
     const validBare = base === "hex" ? /^[0-9A-Fa-f]+$/.test(part) : /^\d+$/.test(part);
     if (!validHexPrefixed && !validBare) {
       return base === "hex"
-        ? (currentLanguage === "en" ? "WORD macro only accepts hex values separated by commas." : "A WORD makroban csak hex ertekek lehetnek, vesszovel elvalasztva.")
-        : (currentLanguage === "en" ? "WORD macro only accepts decimal or hex values separated by commas." : "A WORD makroban csak decimalis vagy hex ertekek lehetnek, vesszovel elvalasztva.");
+        ? (currentLanguage !== "hu" ? "WORD macro only accepts hex values separated by commas." : "A WORD makroban csak hex ertekek lehetnek, vesszovel elvalasztva.")
+        : (currentLanguage !== "hu" ? "WORD macro only accepts decimal or hex values separated by commas." : "A WORD makroban csak decimalis vagy hex ertekek lehetnek, vesszovel elvalasztva.");
     }
 
     const value = validHexPrefixed
@@ -7307,7 +6654,7 @@ function validateWordMacro(raw, base = "dec") {
       : Number.parseInt(part, base === "hex" ? 16 : 10);
 
     if (value < 0 || value > 65535) {
-      return currentLanguage === "en" ? "Every WORD macro element must be between 0 and 65535." : "A WORD makro minden eleme 0 es 65535 kozotti kell legyen.";
+      return currentLanguage !== "hu" ? "Every WORD macro element must be between 0 and 65535." : "A WORD makro minden eleme 0 es 65535 kozotti kell legyen.";
     }
   }
 
@@ -7337,25 +6684,25 @@ function parseFillMacro(raw, base = "dec") {
 function validateFillMacro(raw, base = "dec") {
   const trimmed = raw.trim();
   if (!trimmed) {
-    return currentLanguage === "en" ? "FILL macro needs count and value (e.g., FILL 256,$00)." : "A FILL makrohoz darabszam es ertek kell (pl. FILL 256,$00).";
+    return currentLanguage !== "hu" ? "FILL macro needs count and value (e.g., FILL 256,$00)." : "A FILL makrohoz darabszam es ertek kell (pl. FILL 256,$00).";
   }
 
   const parts = trimmed.split(",").map((part) => part.trim()).filter(Boolean);
   if (parts.length !== 2) {
-    return currentLanguage === "en" ? "FILL macro needs exactly two parameters: count,value." : "A FILL makrohoz pontosan ket parameter kell: darabszam,ertek.";
+    return currentLanguage !== "hu" ? "FILL macro needs exactly two parameters: count,value." : "A FILL makrohoz pontosan ket parameter kell: darabszam,ertek.";
   }
 
   const parsed = parseFillMacro(raw, base);
   if (!parsed) {
-    return currentLanguage === "en" ? "FILL macro parameters are invalid." : "A FILL makro parameterei ervenytelenek.";
+    return currentLanguage !== "hu" ? "FILL macro parameters are invalid." : "A FILL makro parameterei ervenytelenek.";
   }
 
   if (isNaN(parsed.count) || parsed.count < 1 || parsed.count > 65536) {
-    return currentLanguage === "en" ? "FILL count must be between 1 and 65536." : "A FILL darabszam 1 es 65536 kozott kell legyen.";
+    return currentLanguage !== "hu" ? "FILL count must be between 1 and 65536." : "A FILL darabszam 1 es 65536 kozott kell legyen.";
   }
 
   if (isNaN(parsed.value) || parsed.value < 0 || parsed.value > 255) {
-    return currentLanguage === "en" ? "FILL value must be a byte between 0 and 255." : "A FILL ertek 0 es 255 kozotti byte kell legyen.";
+    return currentLanguage !== "hu" ? "FILL value must be a byte between 0 and 255." : "A FILL ertek 0 es 255 kozotti byte kell legyen.";
   }
 
   return "";
@@ -7364,16 +6711,16 @@ function validateFillMacro(raw, base = "dec") {
 function validateAlignMacro(raw, base = "hex") {
   const trimmed = raw.trim();
   if (!trimmed) {
-    return currentLanguage === "en" ? "ALIGN macro needs a boundary value (e.g., 64, 256, $2000)." : "Az ALIGN makrohoz hatar ertek kell (pl. 64, 256, $2000).";
+    return currentLanguage !== "hu" ? "ALIGN macro needs a boundary value (e.g., 64, 256, $2000)." : "Az ALIGN makrohoz hatar ertek kell (pl. 64, 256, $2000).";
   }
 
   const parsed = parseNumberByBase(trimmed.replace(/^\$/, ""), base);
   if (parsed === null || isNaN(parsed)) {
-    return currentLanguage === "en" ? "ALIGN boundary must be a valid number." : "Az ALIGN hatar ervenyes szam kell legyen.";
+    return currentLanguage !== "hu" ? "ALIGN boundary must be a valid number." : "Az ALIGN hatar ervenyes szam kell legyen.";
   }
 
   if (parsed < 1 || parsed > 65536) {
-    return currentLanguage === "en" ? "ALIGN boundary must be between 1 and 65536." : "Az ALIGN hatar 1 es 65536 kozott kell legyen.";
+    return currentLanguage !== "hu" ? "ALIGN boundary must be between 1 and 65536." : "Az ALIGN hatar 1 es 65536 kozott kell legyen.";
   }
 
   // Check if it's a power of 2 or common boundary
@@ -7387,16 +6734,16 @@ function validateAlignMacro(raw, base = "hex") {
 
 function validateTableMacro(labelName, address) {
   if (!labelName || !labelName.trim()) {
-    return currentLanguage === "en" ? "TABLE macro needs a label name." : "A TABLE makrohoz cimke nev kell.";
+    return currentLanguage !== "hu" ? "TABLE macro needs a label name." : "A TABLE makrohoz cimke nev kell.";
   }
 
   const value = parseAddressValue(address);
   if (value === null) {
-    return currentLanguage === "en" ? "TABLE macro needs a valid start address, for example $C000." : "A TABLE makrohoz ervenyes kezdocim kell, peldaul $C000.";
+    return currentLanguage !== "hu" ? "TABLE macro needs a valid start address, for example $C000." : "A TABLE makrohoz ervenyes kezdocim kell, peldaul $C000.";
   }
 
   if (value < 0 || value > 0xFFFF) {
-    return currentLanguage === "en" ? "TABLE macro address must be between 0 and 65535." : "A TABLE makro cime 0 es 65535 kozott lehet.";
+    return currentLanguage !== "hu" ? "TABLE macro address must be between 0 and 65535." : "A TABLE makro cime 0 es 65535 kozott lehet.";
   }
 
   return "";
@@ -7405,16 +6752,16 @@ function validateTableMacro(labelName, address) {
 function validateSpriteInitMacro(spriteNum, spriteColor, spriteDataPage) {
   const num = parseInt(spriteNum, 10);
   if (isNaN(num) || num < 0 || num > 7) {
-    return currentLanguage === "en" ? "Sprite number must be 0–7." : "A sprite szama 0 es 7 kozott lehet.";
+    return currentLanguage !== "hu" ? "Sprite number must be 0–7." : "A sprite szama 0 es 7 kozott lehet.";
   }
   const color = parseInt(spriteColor, 10);
   if (isNaN(color) || color < 0 || color > 15) {
-    return currentLanguage === "en" ? "Color must be 0–15." : "A szin erteke 0 es 15 kozott lehet.";
+    return currentLanguage !== "hu" ? "Color must be 0–15." : "A szin erteke 0 es 15 kozott lehet.";
   }
   const pageStr = (spriteDataPage || "").replace(/^\$/, "");
   const page = parseInt(pageStr, 16);
   if (isNaN(page) || page < 0 || page > 255) {
-    return currentLanguage === "en" ? "Data page must be a hex byte ($00–$FF), e.g. $21 for $0840." : "Az adatlap 1 hex byte legyen ($00-$FF), pl. $21 = $0840.";
+    return currentLanguage !== "hu" ? "Data page must be a hex byte ($00–$FF), e.g. $21 for $0840." : "Az adatlap 1 hex byte legyen ($00-$FF), pl. $21 = $0840.";
   }
   return "";
 }
@@ -7422,50 +6769,50 @@ function validateSpriteInitMacro(spriteNum, spriteColor, spriteDataPage) {
 function validateSpritePosMacro(spriteNum, spriteX, spriteY) {
   const num = parseInt(spriteNum, 10);
   if (isNaN(num) || num < 0 || num > 7) {
-    return currentLanguage === "en" ? "Sprite number must be 0–7." : "A sprite szama 0 es 7 kozott lehet.";
+    return currentLanguage !== "hu" ? "Sprite number must be 0–7." : "A sprite szama 0 es 7 kozott lehet.";
   }
   const x = parseInt(spriteX, 10);
   if (isNaN(x) || x < 0 || x > 319) {
-    return currentLanguage === "en" ? "X must be 0–319." : "Az X erteke 0 es 319 kozott lehet.";
+    return currentLanguage !== "hu" ? "X must be 0–319." : "Az X erteke 0 es 319 kozott lehet.";
   }
   const y = parseInt(spriteY, 10);
   if (isNaN(y) || y < 0 || y > 255) {
-    return currentLanguage === "en" ? "Y must be 0–255." : "Az Y erteke 0 es 255 kozott lehet.";
+    return currentLanguage !== "hu" ? "Y must be 0–255." : "Az Y erteke 0 es 255 kozott lehet.";
   }
   return "";
 }
 
 function validateDefineMacro(symbols) {
   if (!symbols || !symbols.trim()) {
-    return currentLanguage === "en" ? "DEFINE needs at least one symbol (e.g., DEBUG or DEBUG, PAL)." : "A DEFINE-hoz legalabb egy szimbolum kell (pl. DEBUG vagy DEBUG, PAL).";
+    return currentLanguage !== "hu" ? "DEFINE needs at least one symbol (e.g., DEBUG or DEBUG, PAL)." : "A DEFINE-hoz legalabb egy szimbolum kell (pl. DEBUG vagy DEBUG, PAL).";
   }
   const parts = symbols.split(",").map(s => s.trim()).filter(Boolean);
   const invalid = parts.find(p => !/^[A-Za-z_][A-Za-z0-9_]*$/.test(p));
   if (invalid) {
-    return currentLanguage === "en" ? `"${invalid}" is not a valid identifier.` : `"${invalid}" nem ervenyes azonosito.`;
+    return currentLanguage !== "hu" ? `"${invalid}" is not a valid identifier.` : `"${invalid}" nem ervenyes azonosito.`;
   }
   return "";
 }
 
 function validateConstMacro(name, value, base) {
   if (!name || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) {
-    return currentLanguage === "en" ? "CONST name must be a valid identifier (e.g., SCORE_ADDR)." : "A CONST neve ervenyes azonosito kell legyen (pl. SCORE_ADDR).";
+    return currentLanguage !== "hu" ? "CONST name must be a valid identifier (e.g., SCORE_ADDR)." : "A CONST neve ervenyes azonosito kell legyen (pl. SCORE_ADDR).";
   }
   const numericValue = parseNumberByBase((value || "").replace(/^\$/, ""), base);
   if (numericValue === null || numericValue < 0 || numericValue > 65535) {
-    return currentLanguage === "en" ? "CONST value must be a number between 0 and 65535." : "A CONST erteke 0 es 65535 kozott kell legyen.";
+    return currentLanguage !== "hu" ? "CONST value must be a number between 0 and 65535." : "A CONST erteke 0 es 65535 kozott kell legyen.";
   }
   return "";
 }
 
 function validateIfMacro(condition) {
   if (!condition || !condition.trim()) {
-    return currentLanguage === "en" ? "IF macro needs a condition (e.g., DEBUG)." : "Az IF makrohoz feltetel kell (pl. DEBUG).";
+    return currentLanguage !== "hu" ? "IF macro needs a condition (e.g., DEBUG)." : "Az IF makrohoz feltetel kell (pl. DEBUG).";
   }
 
   // Simple validation - just check it's a valid identifier
   if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(condition.trim())) {
-    return currentLanguage === "en" ? "IF condition must be a valid identifier." : "Az IF feltetelnek ervenyes azonositonak kell lennie.";
+    return currentLanguage !== "hu" ? "IF condition must be a valid identifier." : "Az IF feltetelnek ervenyes azonositonak kell lennie.";
   }
 
   return "";
@@ -7501,10 +6848,10 @@ function parseAddressValue(raw) {
 function validateIncBinMacro(incBinBytes, rawAddress) {
   const value = parseAddressValue(rawAddress);
   if (value === null) {
-    return currentLanguage === "en" ? "INCBIN macro needs a valid start address, for example $C000." : "Az INCBIN makrohoz ervenyes kezdocim kell, peldaul $C000.";
+    return currentLanguage !== "hu" ? "INCBIN macro needs a valid start address, for example $C000." : "Az INCBIN makrohoz ervenyes kezdocim kell, peldaul $C000.";
   }
   if (value < 0 || value > 0xFFFF) {
-    return currentLanguage === "en" ? "INCBIN macro address must be between 0 and 65535." : "Az INCBIN makro cime 0 es 65535 kozott lehet.";
+    return currentLanguage !== "hu" ? "INCBIN macro address must be between 0 and 65535." : "Az INCBIN makro cime 0 es 65535 kozott lehet.";
   }
   return "";
 }
@@ -7512,11 +6859,11 @@ function validateIncBinMacro(incBinBytes, rawAddress) {
 function validateStringMacroAddress(raw) {
   const value = parseAddressValue(raw);
   if (value === null) {
-    return currentLanguage === "en" ? "STRING macro needs a valid start address, for example $C000." : "A STRING makrohoz ervenyes kezdocim kell, peldaul $C000.";
+    return currentLanguage !== "hu" ? "STRING macro needs a valid start address, for example $C000." : "A STRING makrohoz ervenyes kezdocim kell, peldaul $C000.";
   }
 
   if (value < 0 || value > 0xFFFF) {
-    return currentLanguage === "en" ? "STRING macro address must be between 0 and 65535." : "A STRING makro cime 0 es 65535 kozott lehet.";
+    return currentLanguage !== "hu" ? "STRING macro address must be between 0 and 65535." : "A STRING makro cime 0 es 65535 kozott lehet.";
   }
 
   return "";
@@ -7525,13 +6872,13 @@ function validateStringMacroAddress(raw) {
 function validateTextWithOffset(rawOperand, charOffset) {
   const offset = parseInt(charOffset || "0", 16);
   if (isNaN(offset) || offset < 0 || offset > 255) {
-    return currentLanguage === "en" ? "+Byte offset must be a hex value between 00 and FF." : "A +Byte offset 00 es FF kozotti hex ertek lehet.";
+    return currentLanguage !== "hu" ? "+Byte offset must be a hex value between 00 and FF." : "A +Byte offset 00 es FF kozotti hex ertek lehet.";
   }
   if (offset === 0) return "";
   const chars = encodeTextMacro(rawOperand);
   const overflow = chars.find(c => (c + offset) > 255);
   if (overflow !== undefined) {
-    return currentLanguage === "en"
+    return currentLanguage !== "hu"
       ? `+Byte offset $${offset.toString(16).toUpperCase().padStart(2,"0")} causes overflow (char code $${overflow.toString(16).toUpperCase().padStart(2,"0")} + offset > $FF).`
       : `A +Byte offset $${offset.toString(16).toUpperCase().padStart(2,"0")} tulcsordulast okoz (karakter kod $${overflow.toString(16).toUpperCase().padStart(2,"0")} + offset > $FF).`;
   }
@@ -7544,11 +6891,11 @@ function validateDataMacro(rawBytes, rawAddress, base = "dec") {
 
   const value = parseAddressValue(rawAddress);
   if (value === null) {
-    return currentLanguage === "en" ? "DATA macro needs a valid start address, for example $C000." : "A DATA makrohoz ervenyes kezdocim kell, peldaul $C000.";
+    return currentLanguage !== "hu" ? "DATA macro needs a valid start address, for example $C000." : "A DATA makrohoz ervenyes kezdocim kell, peldaul $C000.";
   }
 
   if (value < 0 || value > 0xFFFF) {
-    return currentLanguage === "en" ? "DATA macro address must be between 0 and 65535." : "A DATA makro cime 0 es 65535 kozott lehet.";
+    return currentLanguage !== "hu" ? "DATA macro address must be between 0 and 65535." : "A DATA makro cime 0 es 65535 kozott lehet.";
   }
 
   return "";
@@ -7610,19 +6957,19 @@ function toPetsciiCharCode(char) {
 
 function validateRange(modeKey, value) {
   if (!Number.isInteger(value)) {
-    return currentLanguage === "en" ? "Only whole numbers are supported." : "Csak egesz szam tamogatott.";
+    return currentLanguage !== "hu" ? "Only whole numbers are supported." : "Csak egesz szam tamogatott.";
   }
 
   if (modeKey === "immediate" || modeKey === "zeroPage" || modeKey === "zeroPageX" || modeKey === "indirectX" || modeKey === "indirectY" || modeKey === "zeroPageY") {
-    return value < 0 || value > 255 ? (currentLanguage === "en" ? "This mode expects a value between 0 and 255." : "Ez a mod 0 es 255 kozotti erteket var.") : "";
+    return value < 0 || value > 255 ? (currentLanguage !== "hu" ? "This mode expects a value between 0 and 255." : "Ez a mod 0 es 255 kozotti erteket var.") : "";
   }
 
   if (modeKey === "absolute" || modeKey === "absoluteX" || modeKey === "absoluteY" || modeKey === "indirect") {
-    return value < 0 || value > 65535 ? (currentLanguage === "en" ? "Absolute addressing requires a value between 0 and 65535." : "Absolute cimzesnel 0 es 65535 kozotti ertek kell.") : "";
+    return value < 0 || value > 65535 ? (currentLanguage !== "hu" ? "Absolute addressing requires a value between 0 and 65535." : "Absolute cimzesnel 0 es 65535 kozotti ertek kell.") : "";
   }
 
   if (modeKey === "relative") {
-    return value < -128 || value > 65535 ? (currentLanguage === "en" ? "Relative/label mode needs a label or a sensible address/offset." : "Relative/label modban label vagy esszeru cim/offset kell.") : "";
+    return value < -128 || value > 65535 ? (currentLanguage !== "hu" ? "Relative/label mode needs a label or a sensible address/offset." : "Relative/label modban label vagy esszeru cim/offset kell.") : "";
   }
 
   return "";
@@ -7757,14 +7104,14 @@ function updateVicePathPreview(nextPath) {
     }
     vicePathInput.value = displayPath;
     vicePathInput.title = vicePath; // Show full path on hover
-    vicePathInput.placeholder = currentLanguage === "en" ? "VICE not configured" : "Nincs beallitva";
+    vicePathInput.placeholder = currentLanguage !== "hu" ? "VICE not configured" : "Nincs beallitva";
   }
 }
 
 async function chooseViceExecutable() {
   if (!window.electronAPI?.chooseViceExecutable) {
     if (emulatorStatus) {
-      emulatorStatus.textContent = currentLanguage === "en"
+      emulatorStatus.textContent = currentLanguage !== "hu"
         ? "VICE selection is only available in the Electron app."
         : "A VICE valasztasa csak az Electron appban erheto el.";
     }
@@ -7814,7 +7161,7 @@ async function chooseDebuggerExecutable() {
 
 async function runInDebugger() {
   if (isProgramEmpty()) {
-    showViceToast(currentLanguage === "en" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
+    showViceToast(currentLanguage !== "hu" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
     return;
   }
   if (!debuggerPath) {
@@ -7900,17 +7247,17 @@ function updateEmulatorStatus() {
   }
 
   if (!window.electronAPI) {
-    emulatorStatus.textContent = currentLanguage === "en"
+    emulatorStatus.textContent = currentLanguage !== "hu"
       ? "VICE launching is available only inside the Electron desktop app."
       : "A VICE inditasa csak az Electron desktop appban erheto el.";
     return;
   }
 
   emulatorStatus.textContent = vicePath
-    ? (currentLanguage === "en"
+    ? (currentLanguage !== "hu"
       ? `VICE is ready. Executable: ${vicePath}`
       : `A VICE keszen all. Exe: ${vicePath}`)
-    : (currentLanguage === "en"
+    : (currentLanguage !== "hu"
       ? "Choose the VICE executable first, then use Run in emulator."
       : "Eloszor valaszd ki a VICE executable fajlt, utana hasznald a Run in emulator gombot.");
 }
@@ -8686,15 +8033,15 @@ function setRunMode(mode) {
 
 async function runViaD64() {
   if (isProgramEmpty()) {
-    showViceToast(currentLanguage === "en" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
+    showViceToast(currentLanguage !== "hu" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
     return;
   }
   if (!vicePath) {
-    showViceToast(currentLanguage === "en" ? "VICE is not configured. Select it in the menu first." : "A VICE nincs beallitva. Valaszd ki a menuben.", true);
+    showViceToast(currentLanguage !== "hu" ? "VICE is not configured. Select it in the menu first." : "A VICE nincs beallitva. Valaszd ki a menuben.", true);
     return;
   }
   if (!window.electronAPI?.runD64) {
-    showViceToast(currentLanguage === "en" ? "D64 run is not available." : "A D64 futtatás nem elerheto.", true);
+    showViceToast(currentLanguage !== "hu" ? "D64 run is not available." : "A D64 futtatás nem elerheto.", true);
     return;
   }
 
@@ -8818,7 +8165,7 @@ async function testUltimateConnection() {
 
 async function runOnUltimate() {
   if (isProgramEmpty()) {
-    showViceToast(currentLanguage === "en" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
+    showViceToast(currentLanguage !== "hu" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
     return;
   }
   const host = (document.getElementById("ultimate-host")?.value || ultimateHost).trim();
@@ -8845,7 +8192,7 @@ async function runOnUltimate() {
 
 async function runUltimateD64() {
   if (isProgramEmpty()) {
-    showViceToast(currentLanguage === "en" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
+    showViceToast(currentLanguage !== "hu" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
     return;
   }
   const host = (document.getElementById("ultimate-host")?.value || ultimateHost).trim();
@@ -9470,7 +8817,7 @@ function parseAsmText(text) {
         operand: anonChar,
         rawOperand: anonChar,
         labelName: anonChar,
-        description: currentLanguage === "en" ? "Anonymous local label" : "Nevtelen helyi cimke",
+        description: currentLanguage !== "hu" ? "Anonymous local label" : "Nevtelen helyi cimke",
         addressingMode: "implied",
         base: "hex",
         validationError: "",
@@ -9491,7 +8838,7 @@ function parseAsmText(text) {
         operand: anonWithInstrM[1],
         rawOperand: anonWithInstrM[1],
         labelName: anonWithInstrM[1],
-        description: currentLanguage === "en" ? "Anonymous local label" : "Nevtelen helyi cimke",
+        description: currentLanguage !== "hu" ? "Anonymous local label" : "Nevtelen helyi cimke",
         addressingMode: "implied",
         base: "hex",
         validationError: "",
@@ -9681,12 +9028,12 @@ async function copyAsmToClipboard() {
     const version = document.getElementById("about-version")?.textContent?.trim() || "v?";
     const header = `; Generated by C64 Visual Assembler ${version}\n; https://zstarczali.itch.io/visual-assembler-commodore-64\n;\n`;
     await navigator.clipboard.writeText(header + asmPlainText);
-    copyAsmButton.textContent = currentLanguage === "en" ? "ASM copied" : "ASM kimasolva";
+    copyAsmButton.textContent = currentLanguage !== "hu" ? "ASM copied" : "ASM kimasolva";
     window.setTimeout(() => {
       copyAsmButton.textContent = t("copyAsm");
     }, 1400);
   } catch (error) {
-    copyAsmButton.textContent = currentLanguage === "en" ? "Copy failed" : "Masolas sikertelen";
+    copyAsmButton.textContent = currentLanguage !== "hu" ? "Copy failed" : "Masolas sikertelen";
     window.setTimeout(() => {
       copyAsmButton.textContent = t("copyAsm");
     }, 1800);
@@ -9709,16 +9056,16 @@ function showViceToast(fileName, isError = false) {
 
 async function runInEmulator() {
   if (isProgramEmpty()) {
-    showViceToast(currentLanguage === "en" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
+    showViceToast(currentLanguage !== "hu" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
     return;
   }
   if (!vicePath) {
-    showViceToast(currentLanguage === "en" ? "VICE is not configured. Select it in the menu first." : "A VICE nincs beallitva. Valaszd ki a menuben.", true);
+    showViceToast(currentLanguage !== "hu" ? "VICE is not configured. Select it in the menu first." : "A VICE nincs beallitva. Valaszd ki a menuben.", true);
     return;
   }
 
   if (!window.electronAPI?.launchVice) {
-    showViceToast(currentLanguage === "en" ? "VICE launch is not available." : "A VICE inditasa nem elerheto.", true);
+    showViceToast(currentLanguage !== "hu" ? "VICE launch is not available." : "A VICE inditasa nem elerheto.", true);
     return;
   }
 
@@ -9742,7 +9089,7 @@ async function runInEmulator() {
     });
 
     if (!result?.ok) {
-      showViceToast(result?.error || (currentLanguage === "en" ? "Launching VICE failed." : "A VICE inditasa sikertelen."), true);
+      showViceToast(result?.error || (currentLanguage !== "hu" ? "Launching VICE failed." : "A VICE inditasa sikertelen."), true);
       return;
     }
 
@@ -10355,7 +9702,7 @@ function compileLineBytes(line, labels) {
   if (block.isTurboSetMacro) {
     const spd = parseInt(block.turboSpeed || "7", 10);
     if (isNaN(spd) || spd < 0 || spd > 15) {
-      return { ok: false, error: currentLanguage === "en" ? "TURBO_SET: speed must be 0–15." : "TURBO_SET: a sebesseg 0 es 15 kozott lehet." };
+      return { ok: false, error: currentLanguage !== "hu" ? "TURBO_SET: speed must be 0–15." : "TURBO_SET: a sebesseg 0 es 15 kozott lehet." };
     }
     const badline = parseInt(block.turboBadline || "0", 10) === 1 ? 0x80 : 0x00;
     const val = (spd & 0x0F) | badline;
@@ -10366,7 +9713,7 @@ function compileLineBytes(line, labels) {
   if (block.isSpriteColMacro) {
     const num = parseInt(block.spriteNum || "0", 10);
     if (isNaN(num) || num < 0 || num > 7) {
-      return { ok: false, error: currentLanguage === "en" ? "SPRITE_COL: sprite number must be 0–7." : "SPRITE_COL: a sprite szama 0 es 7 kozott lehet." };
+      return { ok: false, error: currentLanguage !== "hu" ? "SPRITE_COL: sprite number must be 0–7." : "SPRITE_COL: a sprite szama 0 es 7 kozott lehet." };
     }
     const isBg = (block.colType || "sprite") === "background";
     // $D01E = sprite-sprite, $D01F = sprite-background; reading clears the register
@@ -11022,13 +10369,13 @@ function parseNumberByBase(value, base) {
 
 function getNumberFormatError(base) {
   if (base === "bin") {
-    return currentLanguage === "en"
+    return currentLanguage !== "hu"
       ? "In binary mode use only 0 and 1 characters, optionally with a % prefix."
       : "Binaris modban csak 0 es 1 karaktereket hasznalj, opcionis % elotaggal.";
   }
   return base === "hex"
-    ? (currentLanguage === "en" ? "In hex mode use only 0-9 and A-F characters, optionally with a $ prefix. Binary literals (%00001111) are also accepted." : "Hex modban csak 0-9 es A-F karaktereket hasznalj, opcionis $ elotaggal. Binaris literalok is elfogadottak (%00001111).")
-    : (currentLanguage === "en" ? "In decimal mode provide only whole numbers. Binary literals (%00001111) are also accepted." : "Decimalis modban csak egesz szamot adj meg. Binaris literalok is elfogadottak (%00001111).");
+    ? (currentLanguage !== "hu" ? "In hex mode use only 0-9 and A-F characters, optionally with a $ prefix. Binary literals (%00001111) are also accepted." : "Hex modban csak 0-9 es A-F karaktereket hasznalj, opcionis $ elotaggal. Binaris literalok is elfogadottak (%00001111).")
+    : (currentLanguage !== "hu" ? "In decimal mode provide only whole numbers. Binary literals (%00001111) are also accepted." : "Decimalis modban csak egesz szamot adj meg. Binaris literalok is elfogadottak (%00001111).");
 }
 
 // For regular 6502 instruction blocks, always re-evaluate validation error from current rawOperand.
@@ -11051,24 +10398,24 @@ function getOperandPlaceholder(mode, base) {
 
   if (base === "hex") {
     if (modeText(modeKey, "label") === "Immediate") {
-      return currentLanguage === "en" ? "for example 01 or $FF" : "peldaul 01 vagy $FF";
+      return currentLanguage !== "hu" ? "for example 01 or $FF" : "peldaul 01 vagy $FF";
     }
 
     if (modeText(modeKey, "label") === "Absolute") {
-      return currentLanguage === "en" ? "for example C000 or $D020" : "peldaul C000 vagy $D020";
+      return currentLanguage !== "hu" ? "for example C000 or $D020" : "peldaul C000 vagy $D020";
     }
 
     if (modeText(modeKey, "label") === "Zero page") {
-      return currentLanguage === "en" ? "for example 10 or $A0" : "peldaul 10 vagy $A0";
+      return currentLanguage !== "hu" ? "for example 10 or $A0" : "peldaul 10 vagy $A0";
     }
   }
 
   if (base === "bin") {
     if (modeText(modeKey, "label") === "Immediate" || modeText(modeKey, "label") === "Zero page") {
-      return currentLanguage === "en" ? "for example 11111000" : "peldaul 11111000";
+      return currentLanguage !== "hu" ? "for example 11111000" : "peldaul 11111000";
     }
     if (modeText(modeKey, "label") === "Absolute") {
-      return currentLanguage === "en" ? "for example 1101000000010001" : "peldaul 1101000000010001";
+      return currentLanguage !== "hu" ? "for example 1101000000010001" : "peldaul 1101000000010001";
     }
   }
 
@@ -11118,12 +10465,12 @@ function renderOriginPreview() {
       const stubEndAddr = 0x0801 + stubDataSize;
       const codeAddr = Math.max(rawOrigin, stubEndAddr);
       const codeText = formatAddress(codeAddr);
-      return currentLanguage === "en"
+      return currentLanguage !== "hu"
         ? `<small>BASIC stub: $0801 &nbsp;|&nbsp; <code>SYS ${codeAddr}</code> &nbsp;|&nbsp; Code: ${codeText}</small>`
         : `<small>BASIC stub: $0801 &nbsp;|&nbsp; <code>SYS ${codeAddr}</code> &nbsp;|&nbsp; Gépi kód: ${codeText}</small>`;
     }
     if (isFirst && !useBasicSys && addr === 0x0801) {
-      const warning = currentLanguage === "en"
+      const warning = currentLanguage !== "hu"
         ? "Auto-switched to $C000 (Free RAM)<br><span style='color: #d97706;'>⚠ Sample programs may not work without BASIC SYS stub</span>"
         : "Automatikusan átváltva: $C000 (Szabad RAM)<br><span style='color: #d97706;'>⚠ Mintaprogramok nem biztos hogy működnek BASIC SYS stub nélkül</span>";
       return `<small>${warning}</small>`;
@@ -11158,7 +10505,7 @@ function renderEmulatorRunHint() {
   if (!useBasicSys) {
     const targetOrigin = (origin.value === 0x0801) ? 0xC000 : origin.value;
     const targetText = formatAddress(targetOrigin);
-    const warning = currentLanguage === "en"
+    const warning = currentLanguage !== "hu"
       ? `<strong>Run hint:</strong> BASIC SYS stub disabled — program loads at ${targetText}. Use <code>SYS ${targetOrigin}</code> to run.<br><span style='color: #d97706;'>⚠ Warning: Sample programs with RAWBYTES, sprites, or fixed memory addresses may not work correctly without BASIC SYS stub.</span>`
       : `<strong>Futtatas tipp:</strong> BASIC SYS stub kikapcsolva — program betöltve ide: ${targetText}. Futtatas: <code>SYS ${targetOrigin}</code><br><span style='color: #d97706;'>⚠ Figyelem: RAWBYTES, sprite-ok vagy fix memóriacímeket használó mintaprogramok nem biztos, hogy helyesen működnek BASIC SYS stub nélkül.</span>`;
     emulatorRunHint.innerHTML = warning;
@@ -11166,14 +10513,14 @@ function renderEmulatorRunHint() {
   }
 
   if (origin.error) {
-    emulatorRunHint.innerHTML = currentLanguage === "en"
+    emulatorRunHint.innerHTML = currentLanguage !== "hu"
       ? `<strong>Run hint:</strong> fix the start address so we can show a valid ` + "`SYS`" + ` entry point.`
       : `<strong>Futtatas tipp:</strong> javitsd a kezdocimet, hogy helyes ` + "`SYS`" + ` cimet tudjunk mutatni.`;
     return;
   }
 
   const runAddress = 0x080D;
-  emulatorRunHint.innerHTML = currentLanguage === "en"
+  emulatorRunHint.innerHTML = currentLanguage !== "hu"
     ? `<strong>Run hint:</strong> if you want to start it manually in the emulator, use: <code>SYS ${runAddress}</code> <span>(${formatAddress(runAddress)})</span>`
     : `<strong>Futtatas tipp:</strong> ha az emulatorban kezzel inditanad, hasznald ezt: <code>SYS ${runAddress}</code> <span>(${formatAddress(runAddress)})</span>`;
 }
@@ -12085,74 +11432,74 @@ function isRomOrIoSegment(segment) {
 
 function getBlockDescription(block) {
   if (block.isAnonymousLabel) {
-    return currentLanguage === "en" ? "Anonymous local label (-)" : "Nevtelen helyi cimke (-)";
+    return currentLanguage !== "hu" ? "Anonymous local label (-)" : "Nevtelen helyi cimke (-)";
   }
 
   if (block.isLabel) {
-    return `${currentLanguage === "en" ? "Label" : "Label"}: ${block.labelName || "start"}`;
+    return `${currentLanguage !== "hu" ? "Label" : "Label"}: ${block.labelName || "start"}`;
   }
 
   if (block.isComment) {
-    return `${currentLanguage === "en" ? "Comment" : "Komment"}: ${block.rawOperand || ""}`;
+    return `${currentLanguage !== "hu" ? "Comment" : "Komment"}: ${block.rawOperand || ""}`;
   }
 
   if (block.isTextMacro) {
-    return block.validationError || `${currentLanguage === "en" ? "TEXT macro" : "TEXT makro"}: "${block.rawOperand || ""}" @ (${block.textX ?? 0}, ${block.textY ?? 0})`;
+    return block.validationError || `${currentLanguage !== "hu" ? "TEXT macro" : "TEXT makro"}: "${block.rawOperand || ""}" @ (${block.textX ?? 0}, ${block.textY ?? 0})`;
   }
 
   if (block.isByteMacro) {
-    return block.validationError || `${currentLanguage === "en" ? "BYTE macro" : "BYTE makro"}: ${block.rawOperand || ""}`;
+    return block.validationError || `${currentLanguage !== "hu" ? "BYTE macro" : "BYTE makro"}: ${block.rawOperand || ""}`;
   }
 
   if (block.isStringMacro) {
-    const offsetNote = (() => { const v = parseInt(block.charOffset || "0", 16); return (!isNaN(v) && v !== 0) ? ` (+$${v.toString(16).toUpperCase().padStart(2,"0")} ${currentLanguage === "en" ? "added to each char" : "hozzaadva minden karakterhez"})` : ""; })();
-    return block.validationError || `${currentLanguage === "en" ? "STRING macro" : "STRING makro"}: "${block.rawOperand || ""}" @ ${block.stringAddress || "C000"}${offsetNote}`;
+    const offsetNote = (() => { const v = parseInt(block.charOffset || "0", 16); return (!isNaN(v) && v !== 0) ? ` (+$${v.toString(16).toUpperCase().padStart(2,"0")} ${currentLanguage !== "hu" ? "added to each char" : "hozzaadva minden karakterhez"})` : ""; })();
+    return block.validationError || `${currentLanguage !== "hu" ? "STRING macro" : "STRING makro"}: "${block.rawOperand || ""}" @ ${block.stringAddress || "C000"}${offsetNote}`;
   }
 
   if (block.isDataMacro) {
-    return block.validationError || `${currentLanguage === "en" ? "DATA macro" : "DATA makro"}: ${block.rawOperand || ""} @ ${block.dataAddress || "C000"}`;
+    return block.validationError || `${currentLanguage !== "hu" ? "DATA macro" : "DATA makro"}: ${block.rawOperand || ""} @ ${block.dataAddress || "C000"}`;
   }
 
   if (block.isRawBytesMacro) {
-    return block.validationError || `${currentLanguage === "en" ? "RAWBYTES macro" : "RAWBYTES makro"}: ${block.rawOperand || ""} @ ${block.rawBytesAddress || "C000"}`;
+    return block.validationError || `${currentLanguage !== "hu" ? "RAWBYTES macro" : "RAWBYTES makro"}: ${block.rawOperand || ""} @ ${block.rawBytesAddress || "C000"}`;
   }
 
   if (block.isIncBinMacro) {
     const size = (block.incBinBytes || []).length;
-    const name = block.incBinFileName || (currentLanguage === "en" ? "no file" : "nincs fajl");
-    return block.validationError || `${currentLanguage === "en" ? "INCBIN macro" : "INCBIN makro"}: "${name}" (${size} bytes) @ ${block.incBinAddress || "$C000"}`;
+    const name = block.incBinFileName || (currentLanguage !== "hu" ? "no file" : "nincs fajl");
+    return block.validationError || `${currentLanguage !== "hu" ? "INCBIN macro" : "INCBIN makro"}: "${name}" (${size} bytes) @ ${block.incBinAddress || "$C000"}`;
   }
 
   if (block.isIncludeMacro) {
     const count = (block.includedBlocks || []).length;
-    const name = block.includeFileName || (currentLanguage === "en" ? "no file" : "nincs fajl");
+    const name = block.includeFileName || (currentLanguage !== "hu" ? "no file" : "nincs fajl");
     const addrNote = block.includeAddress ? ` @ $${block.includeAddress.replace(/^\$/, "").toUpperCase().padStart(4, "0")}` : "";
-    return block.validationError || `${currentLanguage === "en" ? "INCLUDE" : "INCLUDE"}: "${name}" (${count} ${t("includeBlocksCount")})${addrNote}`;
+    return block.validationError || `${currentLanguage !== "hu" ? "INCLUDE" : "INCLUDE"}: "${name}" (${count} ${t("includeBlocksCount")})${addrNote}`;
   }
 
   if (block.isRawTextMacro) {
-    const offsetNote = (() => { const v = parseInt(block.charOffset || "0", 16); return (!isNaN(v) && v !== 0) ? ` (+$${v.toString(16).toUpperCase().padStart(2,"0")} ${currentLanguage === "en" ? "added to each char" : "hozzaadva minden karakterhez"})` : ""; })();
-    return block.validationError || `${currentLanguage === "en" ? "RAWTEXT macro" : "RAWTEXT makro"}: "${block.rawOperand || ""}" @ ${block.rawTextAddress || "C000"}${offsetNote}`;
+    const offsetNote = (() => { const v = parseInt(block.charOffset || "0", 16); return (!isNaN(v) && v !== 0) ? ` (+$${v.toString(16).toUpperCase().padStart(2,"0")} ${currentLanguage !== "hu" ? "added to each char" : "hozzaadva minden karakterhez"})` : ""; })();
+    return block.validationError || `${currentLanguage !== "hu" ? "RAWTEXT macro" : "RAWTEXT makro"}: "${block.rawOperand || ""}" @ ${block.rawTextAddress || "C000"}${offsetNote}`;
   }
 
   if (block.isPetsciiMacro) {
-    return block.validationError || `${currentLanguage === "en" ? "PETSCII macro" : "PETSCII makro"}: "${block.rawOperand || ""}" @ ${block.petsciiAddress || "C000"}`;
+    return block.validationError || `${currentLanguage !== "hu" ? "PETSCII macro" : "PETSCII makro"}: "${block.rawOperand || ""}" @ ${block.petsciiAddress || "C000"}`;
   }
 
   if (block.isWordMacro) {
-    return block.validationError || `${currentLanguage === "en" ? "WORD macro" : "WORD makro"}: ${block.rawOperand || ""}`;
+    return block.validationError || `${currentLanguage !== "hu" ? "WORD macro" : "WORD makro"}: ${block.rawOperand || ""}`;
   }
 
   if (block.isFillMacro) {
-    return block.validationError || `${currentLanguage === "en" ? "FILL macro" : "FILL makro"}: ${block.rawOperand || ""}`;
+    return block.validationError || `${currentLanguage !== "hu" ? "FILL macro" : "FILL makro"}: ${block.rawOperand || ""}`;
   }
 
   if (block.isAlignMacro) {
-    return block.validationError || `${currentLanguage === "en" ? "ALIGN macro" : "ALIGN makro"}: ${block.rawOperand || ""}`;
+    return block.validationError || `${currentLanguage !== "hu" ? "ALIGN macro" : "ALIGN makro"}: ${block.rawOperand || ""}`;
   }
 
   if (block.isTableMacro) {
-    return block.validationError || `${currentLanguage === "en" ? "TABLE" : "TABLA"}: ${block.tableName || "?"} @ ${block.tableAddress || "C000"}`;
+    return block.validationError || `${currentLanguage !== "hu" ? "TABLE" : "TABLA"}: ${block.tableName || "?"} @ ${block.tableAddress || "C000"}`;
   }
 
   if (block.isOrgMacro) {
@@ -12170,79 +11517,81 @@ function getBlockDescription(block) {
   }
 
   if (block.isIfMacro) {
-    return block.validationError || `${currentLanguage === "en" ? "IF" : "HA"}: ${block.ifCondition || "?"}`;
+    return block.validationError || `${currentLanguage !== "hu" ? "IF" : "HA"}: ${block.ifCondition || "?"}`;
   }
 
   if (block.isElseMacro) {
-    return currentLanguage === "en" ? "ELSE" : "KULONBEN";
+    return currentLanguage !== "hu" ? "ELSE" : "KULONBEN";
   }
 
   if (block.isEndIfMacro) {
-    return currentLanguage === "en" ? "ENDIF" : "HA_VEGE";
+    return currentLanguage !== "hu" ? "ENDIF" : "HA_VEGE";
   }
 
   if (block.isMacroInvoke) {
     const name = block.invokeMacroName || "?";
     if (userMacros[name]) {
       const bodyCount = userMacros[name].length;
-      return currentLanguage === "en"
+      return currentLanguage !== "hu"
         ? `Invokes user-defined macro "${name}" (${bodyCount} instruction${bodyCount !== 1 ? 's' : ''})`
         : `Felhasználói makró "${name}" hívása (${bodyCount} utasítás)`;
     }
-    return currentLanguage === "en" ? `Invoke macro "${name}" (not defined yet)` : `Makró "${name}" hívása (még nincs definiálva)`;
+    return currentLanguage !== "hu" ? `Invoke macro "${name}" (not defined yet)` : `Makró "${name}" hívása (még nincs definiálva)`;
   }
 
   if (block.isRegionMacro) {
-    return currentLanguage === "en" ? `Region: ${block.regionName || "region"}` : `Régió: ${block.regionName || "region"}`;
+    return currentLanguage !== "hu" ? `Region: ${block.regionName || "region"}` : `Régió: ${block.regionName || "region"}`;
   }
   if (block.isEndRegionMacro) {
-    return currentLanguage === "en" ? "End of region" : "Régió vége";
+    return currentLanguage !== "hu" ? "End of region" : "Régió vége";
   }
 
   // Check if this block invokes a user macro (legacy format)
   if (userMacros[block.mnemonic]) {
     const bodyCount = userMacros[block.mnemonic].length;
-    return currentLanguage === "en"
+    return currentLanguage !== "hu"
       ? `Invokes user-defined macro "${block.mnemonic}" (${bodyCount} instruction${bodyCount !== 1 ? 's' : ''})`
       : `Felhasználói makró "${block.mnemonic}" hívása (${bodyCount} utasítás)`;
   }
 
-  return block.validationError || (currentLanguage === "en"
-    ? mnemonicDescriptionsEn[block.mnemonic] || block.description
-    : mnemonicDescriptionsHu[block.mnemonic] || block.description);
+  return block.validationError || (currentLanguage === "es"
+    ? mnemonicDescriptionsEs[block.mnemonic] || mnemonicDescriptionsEn[block.mnemonic] || block.description
+    : currentLanguage !== "hu"
+      ? mnemonicDescriptionsEn[block.mnemonic] || block.description
+      : block.description);
 }
 
 function getBlockModeCaption(block) {
   if (block.isComment) {
-    return `${getCategoryLabel(block.category)} | ${currentLanguage === "en" ? "comment" : "komment"}`;
+    return `${getCategoryLabel(block.category)} | ${currentLanguage !== "hu" ? "comment" : "komment"}`;
   }
 
   if (block.isTextMacro) {
-    return `${currentLanguage === "en" ? "Screen" : "Kepernyo"} | X:${block.textX ?? 0} Y:${block.textY ?? 0}`;
+    return `${currentLanguage !== "hu" ? "Screen" : "Kepernyo"} | X:${block.textX ?? 0} Y:${block.textY ?? 0}`;
   }
 
   if (block.isByteMacro) {
-    return currentLanguage === "en" ? "Byte array | current address" : "Byte tomb | aktualis cim";
+    return currentLanguage !== "hu" ? "Byte array | current address" : "Byte tomb | aktualis cim";
   }
 
   if (block.isStringMacro) {
     const off = parseInt(block.charOffset || "0", 16);
     const offNote = (!isNaN(off) && off !== 0) ? ` +$${off.toString(16).toUpperCase().padStart(2,"0")}` : "";
-    return `${currentLanguage === "en" ? "Screen code" : "Kepernyo kod"} | ${block.stringAddress || "C000"}${offNote}`;
+    return `${currentLanguage !== "hu" ? "Screen code" : "Kepernyo kod"} | ${block.stringAddress || "C000"}${offNote}`;
   }
 
   if (block.isDataMacro) {
-    return `${currentLanguage === "en" ? "Memory" : "Memoria"} | ${block.dataAddress || "C000"}`;
+    return `${currentLanguage !== "hu" ? "Memory" : "Memoria"} | ${block.dataAddress || "C000"}`;
   }
 
   if (block.isRawBytesMacro) {
-    return `${currentLanguage === "en" ? "Raw bytes @ mem" : "Nyers byte @ mem"} | ${block.rawBytesAddress || "C000"}`;
+    return `${currentLanguage !== "hu" ? "Raw bytes @ mem" : "Nyers byte @ mem"} | ${block.rawBytesAddress || "C000"}`;
   }
 
   if (block.isRawTextMacro) {
     const off = parseInt(block.charOffset || "0", 16);
     const offNote = (!isNaN(off) && off !== 0) ? ` +$${off.toString(16).toUpperCase().padStart(2,"0")}` : "";
-    return `${currentLanguage === "en" ? "Screen codes @ mem" : "Kepernyo kod @ mem"} | ${block.rawTextAddress || "C000"}${offNote}`;
+    return `${currentLanguage !== "hu" ? "Screen codes @ mem" : "Kepernyo kod @ mem"} | ${block.rawTextAddress || "C000"}${offNote}`;
   }
 
   if (block.isPetsciiMacro) {
@@ -12251,83 +11600,83 @@ function getBlockModeCaption(block) {
 
   if (block.isIncBinMacro) {
     const size = (block.incBinBytes || []).length;
-    return `${currentLanguage === "en" ? "Binary file @ memory" : "Binarfajl @ memoria"} | ${block.incBinAddress || "$C000"} (${size} bytes)`;
+    return `${currentLanguage !== "hu" ? "Binary file @ memory" : "Binarfajl @ memoria"} | ${block.incBinAddress || "$C000"} (${size} bytes)`;
   }
 
   if (block.isIncludeMacro) {
     const count = (block.includedBlocks || []).length;
-    return `${currentLanguage === "en" ? "Included project" : "Beillesztett projekt"} | ${count} ${t("includeBlocksCount")}`;
+    return `${currentLanguage !== "hu" ? "Included project" : "Beillesztett projekt"} | ${count} ${t("includeBlocksCount")}`;
   }
 
   if (block.isWordMacro) {
-    return currentLanguage === "en" ? "16-bit values | LO/HI pairs" : "16-bites ertekek | LO/HI parok";
+    return currentLanguage !== "hu" ? "16-bit values | LO/HI pairs" : "16-bites ertekek | LO/HI parok";
   }
 
   if (block.isFillMacro) {
-    return currentLanguage === "en" ? "Fill | repeated bytes" : "Toltes | ismetlodo byte-ok";
+    return currentLanguage !== "hu" ? "Fill | repeated bytes" : "Toltes | ismetlodo byte-ok";
   }
 
   if (block.isAlignMacro) {
     const boundary = block.rawOperand || "?";
-    return currentLanguage === "en" ? `Align | boundary: ${boundary}` : `Igazitas | hatar: ${boundary}`;
+    return currentLanguage !== "hu" ? `Align | boundary: ${boundary}` : `Igazitas | hatar: ${boundary}`;
   }
 
   if (block.isTableMacro) {
-    return `${currentLanguage === "en" ? "Lookup table" : "Kereso tabla"} | ${block.tableAddress || "C000"}`;
+    return `${currentLanguage !== "hu" ? "Lookup table" : "Kereso tabla"} | ${block.tableAddress || "C000"}`;
   }
 
   if (block.isOrgMacro) {
-    return `${currentLanguage === "en" ? "Origin" : "Forditasi cim"} | $${(block.orgAddress || "0900").toUpperCase()}`;
+    return `${currentLanguage !== "hu" ? "Origin" : "Forditasi cim"} | $${(block.orgAddress || "0900").toUpperCase()}`;
   }
 
   if (block.isDefineMacro) {
-    return currentLanguage === "en" ? "Conditional | DEFINE" : "Felteteles | DEFINE";
+    return currentLanguage !== "hu" ? "Conditional | DEFINE" : "Felteteles | DEFINE";
   }
 
   if (block.isConstMacro) {
-    return currentLanguage === "en" ? "Macro | Const" : "Makro | Const";
+    return currentLanguage !== "hu" ? "Macro | Const" : "Makro | Const";
   }
 
   if (block.isIfMacro) {
-    return currentLanguage === "en" ? "Conditional | IF" : "Felteteles | HA";
+    return currentLanguage !== "hu" ? "Conditional | IF" : "Felteteles | HA";
   }
 
   if (block.isElseMacro) {
-    return currentLanguage === "en" ? "Conditional | ELSE" : "Felteteles | KULONBEN";
+    return currentLanguage !== "hu" ? "Conditional | ELSE" : "Felteteles | KULONBEN";
   }
 
   if (block.isEndIfMacro) {
-    return currentLanguage === "en" ? "Conditional | ENDIF" : "Felteteles | HA_VEGE";
+    return currentLanguage !== "hu" ? "Conditional | ENDIF" : "Felteteles | HA_VEGE";
   }
 
   if (block.isPushMacro) {
     const regs = block.pushRegs || "A";
-    return currentLanguage === "en" ? `Stack | Push ${regs}` : `Stack | Ment ${regs}`;
+    return currentLanguage !== "hu" ? `Stack | Push ${regs}` : `Stack | Ment ${regs}`;
   }
 
   if (block.isPullMacro) {
     const regs = block.pullRegs || "A";
-    return currentLanguage === "en" ? `Stack | Pull ${regs}` : `Stack | Visszatolt ${regs}`;
+    return currentLanguage !== "hu" ? `Stack | Pull ${regs}` : `Stack | Visszatolt ${regs}`;
   }
 
   if (block.isMacroDefStart) {
-    return currentLanguage === "en" ? "User Macro | Definition" : "Felhasznaloi Makro | Definicio";
+    return currentLanguage !== "hu" ? "User Macro | Definition" : "Felhasznaloi Makro | Definicio";
   }
 
   if (block.isMacroDefEnd) {
-    return currentLanguage === "en" ? "User Macro | End" : "Felhasznaloi Makro | Vege";
+    return currentLanguage !== "hu" ? "User Macro | End" : "Felhasznaloi Makro | Vege";
   }
 
   if (block.isMacroInvoke) {
-    return currentLanguage === "en" ? "User Macro | Invoke" : "Felhasznaloi Makro | Hivas";
+    return currentLanguage !== "hu" ? "User Macro | Invoke" : "Felhasznaloi Makro | Hivas";
   }
 
   if (block.isRegionMacro) {
-    return currentLanguage === "en" ? "Structure | Region" : "Szerkezet | Régió";
+    return currentLanguage !== "hu" ? "Structure | Region" : "Szerkezet | Régió";
   }
 
   if (block.isEndRegionMacro) {
-    return currentLanguage === "en" ? "Structure | End Region" : "Szerkezet | Régió vége";
+    return currentLanguage !== "hu" ? "Structure | End Region" : "Szerkezet | Régió vége";
   }
 
   if (block.isAnonymousLabel) {
@@ -12336,7 +11685,7 @@ function getBlockModeCaption(block) {
 
   // Check if this block invokes a user macro (legacy format)
   if (userMacros[block.mnemonic]) {
-    return currentLanguage === "en" ? "User Macro | Invoke" : "Felhasznaloi Makro | Hivas";
+    return currentLanguage !== "hu" ? "User Macro | Invoke" : "Felhasznaloi Makro | Hivas";
   }
 
   if (block.isLabel) {
@@ -12449,19 +11798,19 @@ function getCollapsedOperandText(block) {
   if (block.isIncBinMacro) {
     const size = (block.incBinBytes || []).length;
     if (block.incBinFileName) return `"${block.incBinFileName}" (${size} bytes)`;
-    return currentLanguage === "en" ? "no file" : "nincs fajl";
+    return currentLanguage !== "hu" ? "no file" : "nincs fajl";
   }
 
   if (block.isSidMacro) {
     const size = (block.sidBytes || []).length;
     if (block.sidFileName) return `"${block.sidFileName}"${size ? ` (${size} bytes)` : ""}`;
-    return currentLanguage === "en" ? "no file" : "nincs fajl";
+    return currentLanguage !== "hu" ? "no file" : "nincs fajl";
   }
 
   if (block.isIncludeMacro) {
     const count = (block.includedBlocks || []).length;
     if (block.includeFileName) return `"${block.includeFileName}" (${count} ${t("includeBlocksCount")})`;
-    return currentLanguage === "en" ? "no file" : "nincs fajl";
+    return currentLanguage !== "hu" ? "no file" : "nincs fajl";
   }
 
   if (block.isRawTextMacro) {
@@ -12490,31 +11839,31 @@ function getCollapsedOperandText(block) {
   if (block.isTurboSetMacro) {
     const spd = parseInt(block.turboSpeed || "7", 10);
     const badlineLabel = block.turboBadline === "1"
-      ? (currentLanguage === "en" ? "badline off" : "badline ki")
-      : (currentLanguage === "en" ? "badline on" : "badline be");
+      ? (currentLanguage !== "hu" ? "badline off" : "badline ki")
+      : (currentLanguage !== "hu" ? "badline on" : "badline be");
     return `$D031 = spd${spd} ${badlineLabel}`;
   }
 
   if (block.isSuperCpuDetectMacro) {
-    return currentLanguage === "en" ? "$D0B8 vs $FF" : "$D0B8 vs $FF";
+    return currentLanguage !== "hu" ? "$D0B8 vs $FF" : "$D0B8 vs $FF";
   }
 
   if (block.isTurboEnableMacro) {
     const mode = (block.turboEnableMode || "on") === "on"
-      ? (currentLanguage === "en" ? "ON" : "BE")
-      : (currentLanguage === "en" ? "OFF" : "KI");
+      ? (currentLanguage !== "hu" ? "ON" : "BE")
+      : (currentLanguage !== "hu" ? "OFF" : "KI");
     return `$D07${(block.turboEnableMode || "on") === "on" ? "A" : "B"} (${mode})`;
   }
 
   if (block.isSpriteColMacro) {
     const typeLabel = (block.colType || "sprite") === "background"
-      ? (currentLanguage === "en" ? "bg" : "hatter")
-      : (currentLanguage === "en" ? "spr" : "sprite");
+      ? (currentLanguage !== "hu" ? "bg" : "hatter")
+      : (currentLanguage !== "hu" ? "spr" : "sprite");
     return `#${block.spriteNum || "0"} ${typeLabel} → BEQ/BNE`;
   }
 
   if (block.isReuCheckMacro) {
-    return currentLanguage === "en" ? "probe $DF04 with $55/$AA" : "$DF04 proba $55/$AA mintaval";
+    return currentLanguage !== "hu" ? "probe $DF04 with $55/$AA" : "$DF04 proba $55/$AA mintaval";
   }
 
   if (block.isReuTransferMacro) {
@@ -12764,21 +12113,21 @@ function renderProgram() {
         inlineField.querySelector("span").textContent = "Label";
         operandField.value = block.labelName || "";
         operandField.disabled = false;
-        operandField.placeholder = currentLanguage === "en" ? "for example start_loop" : "peldaul start_loop";
+        operandField.placeholder = currentLanguage !== "hu" ? "for example start_loop" : "peldaul start_loop";
         operandField.addEventListener("input", (event) => updateProgramBlock(index, "labelName", event.target.value));
       } else if (block.isComment) {
         inlineField.hidden = false;
         inlineField.querySelector("span").textContent = t("fieldComment");
         operandField.value = block.rawOperand || "";
         operandField.disabled = false;
-        operandField.placeholder = currentLanguage === "en" ? "For example border scroll demo" : "Peldaul border scroll demo";
+        operandField.placeholder = currentLanguage !== "hu" ? "For example border scroll demo" : "Peldaul border scroll demo";
         operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
       } else if (block.isTextMacro) {
         inlineField.hidden = false;
         inlineField.querySelector("span").textContent = t("fieldText");
         operandField.value = block.rawOperand || "";
         operandField.disabled = false;
-        operandField.placeholder = currentLanguage === "en" ? "For example HELLO C64" : "Peldaul HELLO C64";
+        operandField.placeholder = currentLanguage !== "hu" ? "For example HELLO C64" : "Peldaul HELLO C64";
         operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
         blockControls.insertAdjacentHTML(
         "beforeend",
@@ -12793,8 +12142,8 @@ function renderProgram() {
               <input class="macro-y" type="number" min="0" max="24" value="${block.textY ?? 0}">
             </label>
             <label class="mini-field">
-              <span>${currentLanguage === "en" ? "Label (optional)" : "Label (opcionális)"}</span>
-              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage === "en" ? "e.g. mytext" : "pl. sajatszoveg"}">
+              <span>${currentLanguage !== "hu" ? "Label (optional)" : "Label (opcionális)"}</span>
+              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage !== "hu" ? "e.g. mytext" : "pl. sajatszoveg"}">
             </label>
           </div>
         `
@@ -12805,15 +12154,15 @@ function renderProgram() {
       operandField.value = block.rawOperand || "";
       operandField.disabled = false;
       operandField.placeholder = block.base === "hex"
-        ? (currentLanguage === "en" ? "For example FF,00,8D,20,D0" : "Peldaul FF,00,8D,20,D0")
-        : (currentLanguage === "en" ? "For example 169,0,141,32,208" : "Peldaul 169,0,141,32,208");
+        ? (currentLanguage !== "hu" ? "For example FF,00,8D,20,D0" : "Peldaul FF,00,8D,20,D0")
+        : (currentLanguage !== "hu" ? "For example 169,0,141,32,208" : "Peldaul 169,0,141,32,208");
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
     } else if (block.isStringMacro) {
       inlineField.hidden = false;
       inlineField.querySelector("span").textContent = t("fieldText");
       operandField.value = block.rawOperand || "";
       operandField.disabled = false;
-      operandField.placeholder = currentLanguage === "en" ? "For example HELLO" : "Peldaul HELLO";
+      operandField.placeholder = currentLanguage !== "hu" ? "For example HELLO" : "Peldaul HELLO";
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
       blockControls.insertAdjacentHTML(
         "beforeend",
@@ -12826,11 +12175,11 @@ function renderProgram() {
           </div>
           <div class="macro-grid" style="grid-template-columns:1fr auto">
             <label class="mini-field">
-              <span>${currentLanguage === "en" ? "Label (optional)" : "Label (opcionális)"}</span>
-              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage === "en" ? "e.g. mystr" : "pl. sajatstr"}">
+              <span>${currentLanguage !== "hu" ? "Label (optional)" : "Label (opcionális)"}</span>
+              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage !== "hu" ? "e.g. mystr" : "pl. sajatstr"}">
             </label>
             <label class="mini-field">
-              <span>${currentLanguage === "en" ? "Shift" : "Eltolas"}</span>
+              <span>${currentLanguage !== "hu" ? "Shift" : "Eltolas"}</span>
               <input class="macro-char-offset" type="text" value="${block.charOffset !== undefined ? block.charOffset : "00"}" placeholder="00" style="width:2.8em;min-width:0">
             </label>
           </div>
@@ -12842,8 +12191,8 @@ function renderProgram() {
       operandField.value = block.rawOperand || "";
       operandField.disabled = false;
       operandField.placeholder = block.base === "hex"
-        ? (currentLanguage === "en" ? "For example FF,00,8D,20,D0" : "Peldaul FF,00,8D,20,D0")
-        : (currentLanguage === "en" ? "For example 169,0,141,32,208" : "Peldaul 169,0,141,32,208");
+        ? (currentLanguage !== "hu" ? "For example FF,00,8D,20,D0" : "Peldaul FF,00,8D,20,D0")
+        : (currentLanguage !== "hu" ? "For example 169,0,141,32,208" : "Peldaul 169,0,141,32,208");
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
       blockControls.insertAdjacentHTML(
         "beforeend",
@@ -12854,8 +12203,8 @@ function renderProgram() {
               <input class="macro-address" data-address-field="dataAddress" type="text" value="${block.dataAddress || "C000"}" placeholder="$C000">
             </label>
             <label class="mini-field">
-              <span>${currentLanguage === "en" ? "Label (optional)" : "Label (opcionális)"}</span>
-              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage === "en" ? "e.g. mydata" : "pl. sajatadat"}">
+              <span>${currentLanguage !== "hu" ? "Label (optional)" : "Label (opcionális)"}</span>
+              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage !== "hu" ? "e.g. mydata" : "pl. sajatadat"}">
             </label>
           </div>
         `
@@ -12866,8 +12215,8 @@ function renderProgram() {
       operandField.value = block.rawOperand || "";
       operandField.disabled = false;
       operandField.placeholder = block.base === "hex"
-        ? (currentLanguage === "en" ? "For example FF,00,8D,20,D0" : "Peldaul FF,00,8D,20,D0")
-        : (currentLanguage === "en" ? "For example 169,0,141,32,208" : "Peldaul 169,0,141,32,208");
+        ? (currentLanguage !== "hu" ? "For example FF,00,8D,20,D0" : "Peldaul FF,00,8D,20,D0")
+        : (currentLanguage !== "hu" ? "For example 169,0,141,32,208" : "Peldaul 169,0,141,32,208");
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
       blockControls.insertAdjacentHTML(
         "beforeend",
@@ -12878,8 +12227,8 @@ function renderProgram() {
               <input class="macro-address" data-address-field="rawBytesAddress" type="text" value="${block.rawBytesAddress || "C000"}" placeholder="$C000">
             </label>
             <label class="mini-field">
-              <span>${currentLanguage === "en" ? "Label (optional)" : "Label (opcionális)"}</span>
-              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage === "en" ? "e.g. myraw" : "pl. sajatnyers"}">
+              <span>${currentLanguage !== "hu" ? "Label (optional)" : "Label (opcionális)"}</span>
+              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage !== "hu" ? "e.g. myraw" : "pl. sajatnyers"}">
             </label>
           </div>
         `
@@ -12889,7 +12238,7 @@ function renderProgram() {
       inlineField.querySelector("span").textContent = t("fieldText");
       operandField.value = block.rawOperand || "";
       operandField.disabled = false;
-      operandField.placeholder = currentLanguage === "en" ? "For example HELLO" : "Peldaul HELLO";
+      operandField.placeholder = currentLanguage !== "hu" ? "For example HELLO" : "Peldaul HELLO";
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
       blockControls.insertAdjacentHTML(
         "beforeend",
@@ -12902,11 +12251,11 @@ function renderProgram() {
           </div>
           <div class="macro-grid" style="grid-template-columns:1fr auto">
             <label class="mini-field">
-              <span>${currentLanguage === "en" ? "Label (optional)" : "Label (opcionális)"}</span>
-              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage === "en" ? "e.g. mytext" : "pl. sajatszoveg"}">
+              <span>${currentLanguage !== "hu" ? "Label (optional)" : "Label (opcionális)"}</span>
+              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage !== "hu" ? "e.g. mytext" : "pl. sajatszoveg"}">
             </label>
             <label class="mini-field">
-              <span>${currentLanguage === "en" ? "Shift" : "Eltolas"}</span>
+              <span>${currentLanguage !== "hu" ? "Shift" : "Eltolas"}</span>
               <input class="macro-char-offset" type="text" value="${block.charOffset !== undefined ? block.charOffset : "00"}" placeholder="00" style="width:2.8em;min-width:0">
             </label>
           </div>
@@ -12917,7 +12266,7 @@ function renderProgram() {
       inlineField.querySelector("span").textContent = t("fieldText");
       operandField.value = block.rawOperand || "";
       operandField.disabled = false;
-      operandField.placeholder = currentLanguage === "en" ? "For example HELLO" : "Peldaul HELLO";
+      operandField.placeholder = currentLanguage !== "hu" ? "For example HELLO" : "Peldaul HELLO";
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
       blockControls.insertAdjacentHTML(
         "beforeend",
@@ -12928,13 +12277,13 @@ function renderProgram() {
               <input class="macro-address" data-address-field="petsciiAddress" type="text" value="${block.petsciiAddress || "C000"}" placeholder="$C000">
             </label>
             <label class="mini-field">
-              <span>${currentLanguage === "en" ? "Label (optional)" : "Label (opcionális)"}</span>
-              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage === "en" ? "e.g. mypetscii" : "pl. sajatpetscii"}">
+              <span>${currentLanguage !== "hu" ? "Label (optional)" : "Label (opcionális)"}</span>
+              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage !== "hu" ? "e.g. mypetscii" : "pl. sajatpetscii"}">
             </label>
           </div>
           <div style="display:flex;align-items:center;gap:6px;margin-top:4px;font-size:0.72rem;color:var(--muted);">
             <input class="petscii-null-check mini-checkbox" data-field="petsciiNullTerminated" type="checkbox"${block.petsciiNullTerminated ? " checked" : ""}>
-            ${currentLanguage === "en" ? "Append $00 (null terminator)" : "Null lezaro ($00) hozzafuzese"}
+            ${currentLanguage !== "hu" ? "Append $00 (null terminator)" : "Null lezaro ($00) hozzafuzese"}
           </div>
         `
       );
@@ -13061,10 +12410,10 @@ function renderProgram() {
           </div>
           <div class="macro-grid single-macro-row">
             <label class="mini-field">
-              <span>${currentLanguage === "en" ? "Load address (optional)" : "Betoltesi cim (opcionalis)"}</span>
+              <span>${currentLanguage !== "hu" ? "Load address (optional)" : "Betoltesi cim (opcionalis)"}</span>
               <input type="text" class="include-address-input" maxlength="4"
                 value="${block.includeAddress || ""}"
-                placeholder="${currentLanguage === "en" ? "e.g. C000" : "Pl. C000"}">
+                placeholder="${currentLanguage !== "hu" ? "e.g. C000" : "Pl. C000"}">
             </label>
           </div>
         `
@@ -13329,30 +12678,30 @@ function renderProgram() {
       );
     } else if (block.isWordMacro) {
       inlineField.hidden = false;
-      inlineField.querySelector("span").textContent = currentLanguage === "en" ? "16-bit values" : "16-bites ertekek";
+      inlineField.querySelector("span").textContent = currentLanguage !== "hu" ? "16-bit values" : "16-bites ertekek";
       operandField.value = block.rawOperand || "";
       operandField.disabled = false;
       operandField.placeholder = block.base === "hex"
-        ? (currentLanguage === "en" ? "For example 03E8,07D0,0BB8" : "Peldaul 03E8,07D0,0BB8")
-        : (currentLanguage === "en" ? "For example 1000,2000,3000" : "Peldaul 1000,2000,3000");
+        ? (currentLanguage !== "hu" ? "For example 03E8,07D0,0BB8" : "Peldaul 03E8,07D0,0BB8")
+        : (currentLanguage !== "hu" ? "For example 1000,2000,3000" : "Peldaul 1000,2000,3000");
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
     } else if (block.isFillMacro) {
       inlineField.hidden = false;
-      inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Count,Value" : "Darab,Ertek";
+      inlineField.querySelector("span").textContent = currentLanguage !== "hu" ? "Count,Value" : "Darab,Ertek";
       operandField.value = block.rawOperand || "";
       operandField.disabled = false;
       operandField.placeholder = block.base === "hex"
-        ? (currentLanguage === "en" ? "For example 100,00" : "Peldaul 100,00")
-        : (currentLanguage === "en" ? "For example 256,0" : "Peldaul 256,0");
+        ? (currentLanguage !== "hu" ? "For example 100,00" : "Peldaul 100,00")
+        : (currentLanguage !== "hu" ? "For example 256,0" : "Peldaul 256,0");
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
     } else if (block.isAlignMacro) {
       inlineField.hidden = false;
-      inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Boundary" : "Hatar";
+      inlineField.querySelector("span").textContent = currentLanguage !== "hu" ? "Boundary" : "Hatar";
       operandField.value = block.rawOperand || "";
       operandField.disabled = false;
       operandField.placeholder = block.base === "hex"
-        ? (currentLanguage === "en" ? "For example 40 (64), 100 (256), 2000" : "Peldaul 40 (64), 100 (256), 2000")
-        : (currentLanguage === "en" ? "For example 64, 256, 8192" : "Peldaul 64, 256, 8192");
+        ? (currentLanguage !== "hu" ? "For example 40 (64), 100 (256), 2000" : "Peldaul 40 (64), 100 (256), 2000")
+        : (currentLanguage !== "hu" ? "For example 64, 256, 8192" : "Peldaul 64, 256, 8192");
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
     } else if (block.isTableMacro) {
       inlineField.hidden = true;
@@ -13361,11 +12710,11 @@ function renderProgram() {
         `
           <div class="macro-grid">
             <label class="mini-field">
-              <span>${currentLanguage === "en" ? "Table name" : "Tabla nev"}</span>
+              <span>${currentLanguage !== "hu" ? "Table name" : "Tabla nev"}</span>
               <input class="table-name" type="text" value="${block.tableName || "table1"}" placeholder="table1">
             </label>
             <label class="mini-field">
-              <span>${currentLanguage === "en" ? "Address" : "Cim"}</span>
+              <span>${currentLanguage !== "hu" ? "Address" : "Cim"}</span>
               <input class="table-address" type="text" value="${block.tableAddress || "C000"}" placeholder="C000">
             </label>
           </div>
@@ -13384,7 +12733,7 @@ function renderProgram() {
         `
           <div class="macro-grid">
             <label class="mini-field">
-              <span>${currentLanguage === "en" ? "New origin" : "Uj forditasi cim"}</span>
+              <span>${currentLanguage !== "hu" ? "New origin" : "Uj forditasi cim"}</span>
               <input class="org-address" type="text" maxlength="${orgMaxLen}" value="${orgDisplayVal}" placeholder="${orgPlaceholder}">
             </label>
             <label class="mini-field">
@@ -13474,10 +12823,10 @@ function renderProgram() {
         `
           <div class="macro-grid single-macro-row">
             <label class="mini-field">
-              <span>${currentLanguage === "en" ? "Turbo" : "Turbo"}</span>
+              <span>${currentLanguage !== "hu" ? "Turbo" : "Turbo"}</span>
               <select class="turbo-enable-mode">
-                <option value="on" ${curMode === "on" ? "selected" : ""}>${currentLanguage === "en" ? "Enable ($D07A)" : "Bekapcsol ($D07A)"}</option>
-                <option value="off" ${curMode === "off" ? "selected" : ""}>${currentLanguage === "en" ? "Disable ($D07B)" : "Kikapcsol ($D07B)"}</option>
+                <option value="on" ${curMode === "on" ? "selected" : ""}>${currentLanguage !== "hu" ? "Enable ($D07A)" : "Bekapcsol ($D07A)"}</option>
+                <option value="off" ${curMode === "off" ? "selected" : ""}>${currentLanguage !== "hu" ? "Disable ($D07B)" : "Kikapcsol ($D07B)"}</option>
               </select>
             </label>
           </div>
@@ -13498,14 +12847,14 @@ function renderProgram() {
         `
           <div class="macro-grid">
             <label class="mini-field">
-              <span>${currentLanguage === "en" ? "Speed" : "Sebesseg"}</span>
+              <span>${currentLanguage !== "hu" ? "Speed" : "Sebesseg"}</span>
               <select class="turbo-speed">${spdOptions}</select>
             </label>
             <label class="mini-field">
-              <span>${currentLanguage === "en" ? "Badline" : "Badline"}</span>
+              <span>${currentLanguage !== "hu" ? "Badline" : "Badline"}</span>
               <select class="turbo-badline">
-                <option value="0" ${curBl === "0" ? "selected" : ""}>${currentLanguage === "en" ? "Enabled (C64 compat)" : "Engedelyezve (C64 kompatibilis)"}</option>
-                <option value="1" ${curBl === "1" ? "selected" : ""}>${currentLanguage === "en" ? "Disabled (turbo)" : "Letiltva (turbo)"}</option>
+                <option value="0" ${curBl === "0" ? "selected" : ""}>${currentLanguage !== "hu" ? "Enabled (C64 compat)" : "Engedelyezve (C64 kompatibilis)"}</option>
+                <option value="1" ${curBl === "1" ? "selected" : ""}>${currentLanguage !== "hu" ? "Disabled (turbo)" : "Letiltva (turbo)"}</option>
               </select>
             </label>
           </div>
@@ -13613,28 +12962,28 @@ function renderProgram() {
         `
           <div class="macro-grid">
             <label class="mini-field">
-              <span>${currentLanguage === "en" ? "C64 addr" : "C64 cim"}</span>
+              <span>${currentLanguage !== "hu" ? "C64 addr" : "C64 cim"}</span>
               <input class="reu-c64-addr" type="text" maxlength="5" value="${block.reuC64Addr || "C000"}" placeholder="C000">
             </label>
             <label class="mini-field">
-              <span>${currentLanguage === "en" ? "REU addr" : "REU cim"}</span>
+              <span>${currentLanguage !== "hu" ? "REU addr" : "REU cim"}</span>
               <input class="reu-exp-addr" type="text" maxlength="5" value="${block.reuExpAddr || "0000"}" placeholder="0000">
             </label>
           </div>
           <div class="macro-grid">
             <label class="mini-field">
-              <span>${currentLanguage === "en" ? "Bank (0–7)" : "Bank (0–7)"}</span>
+              <span>${currentLanguage !== "hu" ? "Bank (0–7)" : "Bank (0–7)"}</span>
               <input class="reu-bank" type="number" min="0" max="7" value="${block.reuBank || "0"}">
             </label>
             <label class="mini-field">
-              <span>${currentLanguage === "en" ? "Length (hex)" : "Hossz (hex)"}</span>
+              <span>${currentLanguage !== "hu" ? "Length (hex)" : "Hossz (hex)"}</span>
               <input class="reu-length" type="text" maxlength="5" value="${block.reuLength || "0100"}" placeholder="0100">
             </label>
           </div>
         `
       );
     } else if (block.isDefineMacro) {
-      inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Symbol" : "Szimbolum";
+      inlineField.querySelector("span").textContent = currentLanguage !== "hu" ? "Symbol" : "Szimbolum";
       inlineField.hidden = false;
       operandField.value = block.defineSymbol || "";
       operandField.placeholder = "DEBUG";
@@ -13646,15 +12995,15 @@ function renderProgram() {
         `
           <div class="macro-grid">
             <label class="mini-field">
-              <span>${currentLanguage === "en" ? "Name" : "Nev"}</span>
+              <span>${currentLanguage !== "hu" ? "Name" : "Nev"}</span>
               <input class="const-name" type="text" value="${block.constName || "MY_CONST"}" placeholder="MY_CONST">
             </label>
             <label class="mini-field">
-              <span>${currentLanguage === "en" ? "Value" : "Ertek"}</span>
+              <span>${currentLanguage !== "hu" ? "Value" : "Ertek"}</span>
               <input class="const-value" type="text" value="${block.rawOperand || "0000"}" placeholder="${block.base === "hex" ? "0400" : "1024"}">
             </label>
             <label class="mini-field">
-              <span>${currentLanguage === "en" ? "Format" : "Formatum"}</span>
+              <span>${currentLanguage !== "hu" ? "Format" : "Formatum"}</span>
               <div class="mini-toggle" role="radiogroup" aria-label="Format">
                 <label class="mini-toggle-option">
                   <input class="block-base" type="radio" name="block-base-${block.id}" value="hex"${block.base === "hex" ? " checked" : ""}>
@@ -13674,7 +13023,7 @@ function renderProgram() {
         `
       );
     } else if (block.isIfMacro) {
-      inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Condition" : "Feltetel";
+      inlineField.querySelector("span").textContent = currentLanguage !== "hu" ? "Condition" : "Feltetel";
       inlineField.hidden = false;
       operandField.value = block.ifCondition || "";
       operandField.placeholder = "DEBUG";
@@ -13682,7 +13031,7 @@ function renderProgram() {
     } else if (block.isElseMacro || block.isEndIfMacro) {
       inlineField.hidden = true;
     } else if (block.isMacroDefStart) {
-      inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Macro name" : "Makro nev";
+      inlineField.querySelector("span").textContent = currentLanguage !== "hu" ? "Macro name" : "Makro nev";
       inlineField.hidden = false;
       operandField.value = block.macroName || "";
       operandField.placeholder = "my_macro";
@@ -13691,20 +13040,20 @@ function renderProgram() {
       inlineField.hidden = true;
     } else if (block.isRegionMacro) {
       inlineField.hidden = false;
-      inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Region name" : "Régió neve";
+      inlineField.querySelector("span").textContent = currentLanguage !== "hu" ? "Region name" : "Régió neve";
       operandField.value = block.regionName || "region";
       operandField.disabled = false;
-      operandField.placeholder = currentLanguage === "en" ? "for example init_section" : "peldaul init_szekció";
+      operandField.placeholder = currentLanguage !== "hu" ? "for example init_section" : "peldaul init_szekció";
       operandField.addEventListener("input", (event) => {
         updateProgramBlock(index, "regionName", event.target.value);
       });
       collapseToggle.insertAdjacentHTML(
         "beforebegin",
         `<div class="region-topline-btns">
-          <button type="button" class="region-expand-all-btn" title="${currentLanguage === "en" ? "Expand all blocks in region" : "Régió blokkjainak kinyitása"}">&#8597;</button>
-          <button type="button" class="region-select-asm-btn" title="${currentLanguage === "en" ? "Select region range in ASM view" : "Régió kijelölése az ASM nézetben"}">&#9678;</button>
-          <button type="button" class="region-copy-btn" title="${currentLanguage === "en" ? "Copy region with all blocks" : "Régió másolása az összes blokkal"}">&#10697;</button>
-          <button type="button" class="region-paste-btn" title="${currentLanguage === "en" ? "Paste copied region after this region" : "Másolt régió beillesztése e régió után"}" style="${_clipboardRegion ? '' : 'opacity:0.4'}">&#9112;</button>
+          <button type="button" class="region-expand-all-btn" title="${currentLanguage !== "hu" ? "Expand all blocks in region" : "Régió blokkjainak kinyitása"}">&#8597;</button>
+          <button type="button" class="region-select-asm-btn" title="${currentLanguage !== "hu" ? "Select region range in ASM view" : "Régió kijelölése az ASM nézetben"}">&#9678;</button>
+          <button type="button" class="region-copy-btn" title="${currentLanguage !== "hu" ? "Copy region with all blocks" : "Régió másolása az összes blokkal"}">&#10697;</button>
+          <button type="button" class="region-paste-btn" title="${currentLanguage !== "hu" ? "Paste copied region after this region" : "Másolt régió beillesztése e régió után"}" style="${_clipboardRegion ? '' : 'opacity:0.4'}">&#9112;</button>
         </div>`
       );
       node.querySelector(".region-expand-all-btn")?.addEventListener("click", () => {
@@ -13844,7 +13193,7 @@ function renderProgram() {
         }
       }
       inlineField.hidden = false;
-      inlineField.querySelector("span").textContent = currentLanguage === "en" ? "Region" : "Régió";
+      inlineField.querySelector("span").textContent = currentLanguage !== "hu" ? "Region" : "Régió";
       operandField.value = matchingRegionName;
       operandField.disabled = true;
     } else if (block.isMacroInvoke) {
@@ -13852,14 +13201,14 @@ function renderProgram() {
       const macroNames = Object.keys(userMacros);
       const options = macroNames.length > 0
         ? macroNames.map(name => `<option value="${name}"${block.invokeMacroName === name ? " selected" : ""}>${name}</option>`).join("")
-        : `<option value="">${currentLanguage === "en" ? "No macros defined" : "Nincs definialva makro"}</option>`;
+        : `<option value="">${currentLanguage !== "hu" ? "No macros defined" : "Nincs definialva makro"}</option>`;
 
       blockControls.insertAdjacentHTML(
         "beforeend",
         `
           <div class="macro-grid single-macro-row">
             <label class="mini-field">
-              <span>${currentLanguage === "en" ? "Macro name" : "Makro nev"}</span>
+              <span>${currentLanguage !== "hu" ? "Macro name" : "Makro nev"}</span>
               <select class="invoke-macro-select">
                 ${options}
               </select>
@@ -14502,7 +13851,7 @@ function renderAsmOutput() {
   const layout = getProgramLayout();
 
   if (!program.length) {
-    asmPlainText = `*= ${layout.origin.text}\n; ${currentLanguage === "en" ? "The C64 assembly source will appear here" : "Itt fog megjelenni a C64 assembly kod"}`;
+    asmPlainText = `*= ${layout.origin.text}\n; ${currentLanguage !== "hu" ? "The C64 assembly source will appear here" : "Itt fog megjelenni a C64 assembly kod"}`;
     asmDisplayText = withAsmLineNumbers(asmPlainText);
     asmOutput.innerHTML = highlightAsmHtml(asmDisplayText);
     renderMonitorOutput(layout);
@@ -14684,7 +14033,7 @@ function renderAsmOutput() {
         });
         return `; .incbin incbin_${lineNumber} (${bytes.length} bytes)`;
       }
-      return `; .incbin "${fileName}" @ ${formatAddress(startAddress)} (${currentLanguage === "en" ? "no file loaded" : "nincs betoltott fajl"})`;
+      return `; .incbin "${fileName}" @ ${formatAddress(startAddress)} (${currentLanguage !== "hu" ? "no file loaded" : "nincs betoltott fajl"})`;
     }
 
     if (line.block.isSidMacro) {
@@ -14699,14 +14048,14 @@ function renderAsmOutput() {
         const overrideNote = addrOffset !== 0 ? " [relocated]" : "";
         return `; .sid "${fileName}" @ ${formatAddress(load)}${overrideNote}  init:${formatAddress(init)}  play:${formatAddress(play)}  (${bytes.length} bytes)`;
       }
-      return `; .sid "${fileName}" (${currentLanguage === "en" ? "no file loaded" : "nincs betoltott fajl"})`;
+      return `; .sid "${fileName}" (${currentLanguage !== "hu" ? "no file loaded" : "nincs betoltott fajl"})`;
     }
 
     if (line.block.isIncludeMacro) {
       const count = (line.block.includedBlocks || []).length;
       const fname = line.block.includeFileName || "?";
       const addrNote = line.block.includeAddress ? ` @ $${line.block.includeAddress.replace(/^\$/, "").toUpperCase().padStart(4, "0")}` : "";
-      if (count === 0) return `; .include "${fname}"${addrNote} (${currentLanguage === "en" ? "no blocks loaded" : "nincsenek blokkok betoltve"})`;
+      if (count === 0) return `; .include "${fname}"${addrNote} (${currentLanguage !== "hu" ? "no blocks loaded" : "nincsenek blokkok betoltve"})`;
       return `; .include "${fname}"${addrNote} — ${count} ${t("includeBlocksCount")}`;
     }
 
@@ -15917,10 +15266,10 @@ function _tutRenderDialog() {
     const catLessons = TUTORIAL_DATA.lessons.filter(l => l.category === cat.id);
     if (catLessons.length === 0) return "";
     return `<div class="tutorial-category">
-      <div class="tutorial-category-label">${lang === "hu" ? cat.labelHu : cat.labelEn}</div>
+      <div class="tutorial-category-label">${lang === "hu" ? cat.labelHu : (lang === "es" && cat.labelEs ? cat.labelEs : cat.labelEn)}</div>
       ${catLessons.map(lesson => {
         const done = _tutorialProgress[lesson.id]?.completed;
-        const title = lang === "hu" ? lesson.titleHu : lesson.titleEn;
+        const title = lang === "hu" ? lesson.titleHu : (lang === "es" && lesson.titleEs ? lesson.titleEs : lesson.titleEn);
         const stars = lesson.difficulty > 0
           ? `${lesson.difficulty}/3`
           : "TOUR";
@@ -15952,15 +15301,15 @@ function _tutShowLesson(lessonId) {
   if (!lesson || !contentEl) return;
   const canStartTour = lesson.type === "tour" || lesson.interactive === true;
 
-  const title = lang === "hu" ? lesson.titleHu : lesson.titleEn;
-  const desc = lang === "hu" ? lesson.descHu : lesson.descEn;
+  const title = lang === "hu" ? lesson.titleHu : (lang === "es" && lesson.titleEs ? lesson.titleEs : lesson.titleEn);
+  const desc = lang === "hu" ? lesson.descHu : (lang === "es" && lesson.descEs ? lesson.descEs : lesson.descEn);
   const diffStars = lesson.difficulty > 0
     ? `(${lesson.difficulty}/3)`
     : null;
   const diffLabel = lesson.difficulty === 0 ? "Tour"
-    : lesson.difficulty === 1 ? (lang === "hu" ? "Kezdo" : "Beginner")
-    : lesson.difficulty === 2 ? (lang === "hu" ? "Kozepes" : "Intermediate")
-    : (lang === "hu" ? "Halado" : "Advanced");
+    : lesson.difficulty === 1 ? (lang === "hu" ? "Kezdo" : (lang === "es" ? "Principiante" : "Beginner"))
+    : lesson.difficulty === 2 ? (lang === "hu" ? "Kozepes" : (lang === "es" ? "Intermedio" : "Intermediate"))
+    : (lang === "hu" ? "Halado" : (lang === "es" ? "Avanzado" : "Advanced"));
 
   const stepsHtml = lesson.steps.map((step, i) => {
     return `<div class="tutorial-step">
@@ -15997,10 +15346,10 @@ function _tutShowLesson(lessonId) {
   lesson.steps.forEach((step, i) => {
     const stepEl = contentEl.querySelectorAll(".tutorial-step")[i];
     if (!stepEl) return;
-    stepEl.querySelector(".tutorial-step-title").textContent = lang === "hu" ? step.titleHu : step.titleEn;
-    stepEl.querySelector(".tutorial-step-desc").textContent = lang === "hu" ? step.descHu : step.descEn;
+    stepEl.querySelector(".tutorial-step-title").textContent = lang === "hu" ? step.titleHu : (lang === "es" && step.titleEs ? step.titleEs : step.titleEn);
+    stepEl.querySelector(".tutorial-step-desc").textContent = lang === "hu" ? step.descHu : (lang === "es" && step.descEs ? step.descEs : step.descEn);
     const actionBtn = stepEl.querySelector(".tutorial-step-action-btn");
-    if (actionBtn) actionBtn.textContent = lang === "hu" ? step.actionLabelHu : step.actionLabelEn;
+    if (actionBtn) actionBtn.textContent = lang === "hu" ? step.actionLabelHu : (lang === "es" && step.actionLabelEs ? step.actionLabelEs : step.actionLabelEn);
   });
 
   contentEl.querySelectorAll(".tutorial-load-sample-btn").forEach(btn => {
@@ -16100,8 +15449,8 @@ function _tourShowStep(index) {
   const skipBtn = document.getElementById("tour-skip");
 
   if (stepLabel) stepLabel.textContent = `${index + 1} / ${_tourSteps.length}`;
-  if (cardTitle) cardTitle.textContent = lang === "hu" ? step.titleHu : step.titleEn;
-  if (cardDesc) cardDesc.textContent = lang === "hu" ? step.descHu : step.descEn;
+  if (cardTitle) cardTitle.textContent = lang === "hu" ? step.titleHu : (lang === "es" && step.titleEs ? step.titleEs : step.titleEn);
+  if (cardDesc) cardDesc.textContent = lang === "hu" ? step.descHu : (lang === "es" && step.descEs ? step.descEs : step.descEn);
   if (prevBtn) prevBtn.disabled = index === 0;
   if (nextBtn) nextBtn.textContent = index === _tourSteps.length - 1
     ? t("tourFinish") : t("tourNext");

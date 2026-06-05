@@ -2,7 +2,7 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v1.6.9**
+**Current version: v1.7.0**
 
 ---
 
@@ -62,7 +62,7 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **Expert mode .asm file save/load** — load and save raw `.asm` source files in Expert mode
 - **Expert mode error highlighting** — lines that fail to compile are highlighted in red in real time
 - **Dark / light theme**, zoom, HEX / DEC operand mode
-- **Hungarian and English UI**
+- **Hungarian and English and Spanish UI**
 - **Save / load projects** as `.c64asm` JSON files
 
 ---
@@ -121,7 +121,7 @@ VisualAssembler/
 | `mnemonicDescriptionsEn` | English description strings keyed by mnemonic |
 | `opcodeMap` | Mnemonic → addressing mode → opcode byte |
 | `memorySegments` | Full C64 64 KB memory map definition |
-| `translations` | `hu` / `en` string dictionaries |
+| `translations` | `hu` / `en` / `es` string dictionaries (in `www/i18n.js`) |
 | `program[]` | In-memory block list (the current program state) |
 
 ### Block data model
@@ -223,7 +223,11 @@ Each block in `program[]` is a plain object:
 - **Name-input demo and tutorial** — new sample `name-input-demo.json` demonstrating PETSCII text + CHROUT print loop + CHRIN keyboard input, with a guided interactive tutorial.
 - **Lowercase sample text normalisation** — sample demo text operands normalised to lowercase across all samples. PETSCII encoder improved: newlines map to 13, characters uppercase for C64 charset, lowercase→uppercase fallback.
 - **Palette sync and UI fixes** — palette item highlighting refactored; active palette items scroll into view. Table macros no longer show operand field. Hungarian translation fixes.
+## What's New in v1.7.0
 
+- **Spanish language (Español)** — full Spanish UI localisation: all menus, dialogs, tooltips, error messages, block labels, and memory map annotations. Spanish mnemonic descriptions for all 100+ opcodes and macros. Tutorial system fully translated to Spanish (all 5 categories, 15 lessons, 98 steps). Switch via Menu → Settings → Language.
+- **Hungarian text encoding fixes** — all accented characters (á, é, í, ó, ö, ő, ú, ü, ű) restored across the entire Hungarian UI locale. Over 170 strings corrected: menus, sample names, field labels, error messages, memory map annotations, debugger strings, and tutorial hints.
+- **Tutorial UI polish** — tutorial panel close button correctly sized (no longer elongated by the global button min-height rule).
 ### Previous: v1.6.8
 
 - **Lowercase charset TEXT/STRING/RAWTEXT auto-detection** — TEXT, STRING, and RAWTEXT macros now automatically detect alphabetic input and encode it for the C64 lowercase charset (`$D018=$17`). `TEXT "Hello World"` produces mixed-case screen codes: lowercase `a`-`z` → scr 1–26, uppercase `A`-`Z` → scr 65–90. Pure numbers/symbols stay backward-compatible. No special flag needed — just switch to lowercase charset with `LDA #$17` / `STA $D018` and type normally.
