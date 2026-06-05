@@ -586,6 +586,7 @@ h1 {
   max-width: min(600px, 90vw);
   max-height: 80vh;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 12px;
   border-radius: 8px;
   border: 1px solid var(--panel-border);
@@ -1400,10 +1401,13 @@ button:focus-visible,
   flex-direction: column;
   gap: 8px;
   margin-top: 0;
-  max-height: 280px;
   overflow-y: auto;
   padding-right: 4px;
   scrollbar-width: thin;
+}
+
+#palette-list {
+  min-height: 300px;
 }
 
 .palette-list::-webkit-scrollbar {
@@ -4845,7 +4849,7 @@ body.crt-mode #crt-overlay::after {
 
 .tutorial-dialog {
   border: none;
-  border-radius: 20px;
+  border-radius: 8px;
   padding: 0;
   background: var(--panel);
   max-width: 880px;
@@ -4900,6 +4904,7 @@ body.crt-mode #crt-overlay::after {
   padding: 2px 6px;
   border-radius: 6px;
   line-height: 1;
+  min-height: unset;
   transition: background 120ms ease, color 120ms ease;
 }
 
