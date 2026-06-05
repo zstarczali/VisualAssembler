@@ -105,6 +105,7 @@
                   <select id="language-select">
                     <option value="hu">Magyar</option>
                     <option value="en">English</option>
+                    <option value="es">Español</option>
                   </select>
                 </label>
                 <label class="menu-checkbox-label">
@@ -589,25 +590,19 @@
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v1.6.9</p>
+      <p class="whats-new-version">v1.7.0</p>
       <ul class="whats-new-list">
         <li>
-          <strong>FOR / ENDF forward-counting loops</strong> — new forward-counting loop macros: <code>FOR</code> loads X/Y with zero, <code>ENDF</code> emits <code>INX/INY + CPX/CPY #limit + BNE</code>. Loop body runs 0..limit−1. Supports nested loops, auto-labeling (<code>for1</code>, <code>for2</code>…), expert text import/export, full assembly/PRG/disassembly. ENDF is 5 bytes.
+          <strong>Spanish language (Español)</strong> — full Spanish UI localisation: all menus, dialogs, tooltips, error messages, block labels, and memory map annotations. Spanish mnemonic descriptions for all 100+ opcodes and macros. Tutorial system fully translated to Spanish (all 5 categories, 15 lessons, 98 steps). Switch via Menu → Settings → Language.
         </li>
         <li>
-          <strong>PETSCII null terminator option</strong> — PETSCII blocks now support an optional trailing <code>$00</code> byte via a new compact checkbox. Expert mode and parser accept/emit <code>, null</code> syntax for <code>.petscii</code> lines. The assembler includes the null byte in deferred data.
+          <strong>Hungarian text encoding fixes</strong> — all accented characters (á, é, í, ó, ö, ő, ú, ü, ű) restored across the entire Hungarian UI locale. Over 170 strings corrected in categories: menus, sample names, field labels, error messages, memory map annotations, debugger strings, and tutorial hints.
         </li>
         <li>
-          <strong>Interactive tutorial system</strong> — built-in tutorial system with categorized lessons, guided step-by-step tours, and sample links. Fully localised (HU/EN). Tour steps advance on target clicks or input changes (<code>advanceOnTargetClick</code> / <code>advanceOnTargetChange</code> with <code>targetValue</code> matching). Menu overlay behaviour respects tour state. Tour data extracted to separate <code>www/tutorial-data.js</code> keeping <code>app.js</code> cleaner.
+          <strong>Interactive tutorial system</strong> — built-in tutorial system with categorized lessons, guided step-by-step tours, and sample links. Fully localised (HU/EN/ES). Tour steps advance on target clicks or input changes (<code>advanceOnTargetClick</code> / <code>advanceOnTargetChange</code> with <code>targetValue</code> matching). Menu overlay behaviour respects tour state. Tour data extracted to separate <code>www/tutorial-data.js</code> keeping <code>app.js</code> cleaner.
         </li>
         <li>
-          <strong>Name-input demo and tutorial</strong> — new sample <code>name-input-demo.json</code> demonstrating PETSCII text output + CHROUT print loop + CHRIN keyboard input. Comes with a guided interactive tutorial tour.
-        </li>
-        <li>
-          <strong>Lowercase sample text normalisation</strong> — sample demo text operands normalised to lowercase across all samples for consistency. PETSCII encoder improved: newlines → 13, characters uppercase for C64 charset, lowercase→uppercase fallback, unsupported → space.
-        </li>
-        <li>
-          <strong>Palette sync and UI fixes</strong> — palette item highlighting refactored with <code>_highlightPaletteItemByMnemonic</code>; active palette items now scroll into view. Table macros no longer show operand field. Numerous Hungarian translation encoding/phrasing fixes.
+          <strong>Tutorial UI polish</strong> — the tutorial panel close button is now correctly sized (no longer elongated by the global button min-height rule).
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -799,6 +794,7 @@
   </div>
 
   <script src="tauri-bridge.js"></script>
+  <script src="i18n.js?v=1.7.0"></script>
   <script src="tutorial-data.js?v=1.6.8"></script>
   <script src="app.js?v=1.6.8"></script>
 
