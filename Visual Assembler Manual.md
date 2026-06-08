@@ -212,6 +212,7 @@ Expert Mode is a full-featured direct-text 6502 assembly editor that lives along
 
 - **Block → Expert:** the current program is serialised to text (one instruction per line, labels, macros as directives). Edits in Expert mode are synced back to the block array whenever you switch back or trigger an action.
 - **Expert → Block:** the text is parsed with `parseAsmText()` and the result replaces the block program. A compile-error dialog is shown if parsing fails.
+- **Blank lines** are preserved through round-trips: empty lines in the Expert editor appear as thin dashed spacers in Block mode and are restored as empty lines when switching back to Expert.
 
 ### Editor layout
 
@@ -988,21 +989,32 @@ Restores registers from the stack in reverse order (Y → X → A).
 
 ### MACRO / ENDM / INVOKE
 
-Define and reuse your own named code blocks.
+Define and reuse your own named code blocks, optionally with parameters.
 
 #### MACRO (definition start)
 
 | Field | Description |
 |---|---|
-| Name | Identifier for the macro (e.g. `clear_screen`) |
+| Name | Identifier for the macro (e.g. `setColor`) |
+| Params | Optional comma-separated parameter names (e.g. `color` or `color, count`) |
 
 Marks the beginning of a macro definition. All blocks between MACRO and ENDM become the macro body. The definition does **not** generate code where it appears.
 
+Inside the body, use `{paramName}` as a placeholder wherever the argument value should be substituted at invoke time.
+
 **Generated ASM:**
 ```
-; .MACRO clear_screen
+; .MACRO setColor (color)
     ... (body blocks)
 ; .ENDM
+```
+
+**Expert mode syntax:**
+```
+.macro setColor color
+    LDA {color}
+    STA $D020
+.endm
 ```
 
 #### ENDM (definition end)
@@ -1011,21 +1023,35 @@ Closes the current macro definition. No fields.
 
 #### INVOKE
 
-Inserts the contents of a named macro at this position.
+Inserts the contents of a named macro at this position, substituting any argument values for `{paramName}` placeholders in the body.
 
 | Field | Description |
 |---|---|
 | Macro name | Select from the dropdown of defined macros |
+| Arguments | Comma-separated argument values matching the macro's parameter list (e.g. `#$07`) |
 
 **Generated ASM:**
 ```
-; >>> Invoke: clear_screen
-    ... (expanded macro body)
+; .invoke setColor(#$07)
+    LDA #$07
+    STA $D020
 ```
 
-The macro body is expanded inline — all addresses and labels are resolved in context.
+**Expert mode syntax:**
+```
+; single argument:
+.invoke setColor(#$07)
 
-> **Tip:** Define macros at the top (or bottom) of your program, then INVOKE them wherever needed. Macros can be invoked multiple times.
+; multiple arguments:
+.invoke drawPixel($10, $20)
+
+; no arguments:
+.invoke clearScreen
+```
+
+The macro body is expanded inline — `{paramName}` placeholders are replaced with the supplied argument values. All addresses and labels are resolved in context. The space-separated form (`.invoke setColor #$07`) is also accepted for backwards compatibility.
+
+> **Tip:** Define macros at the top (or bottom) of your program, then INVOKE them wherever needed. Macros can be invoked multiple times with different arguments.
 
 ---
 

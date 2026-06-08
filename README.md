@@ -35,7 +35,8 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **IF / ELSE / ENDIF macro** — conditional assembly blocks driven by `DEFINE` symbols
 - **DEFINE macro** — activate named symbols for conditional assembly
 - **CONST macro** — declare named constants; appear in label picker and generate zero bytes
-- **MACRO / ENDM / INVOKE** — define and invoke reusable user macros
+- **MACRO / ENDM / INVOKE** — define reusable named macros with optional parameters; use `{paramName}` placeholders in the body; invoke with arguments using `.invoke setColor(#$07)` parentheses syntax; multiple parameters supported (e.g. `.invoke drawPixel($10, $20)`)
+- **Expert mode blank line preservation** — empty lines typed in the Expert editor survive round-trips through block mode; shown as thin dashed spacers in the block list
 - **REGION / ENDREGION blocks** — group blocks into a named, collapsible section; supports nesting; zero bytes generated
 - **INCBIN macro** — include an external binary file at a given memory address
 - **INCLUDE macro** — embed another `.c64asm` project file inline (read-only)
@@ -155,9 +156,10 @@ Each block in `program[]` is a plain object:
   isNextMacro: true, nextLabel: "loop1", nextReg: "X",
   isPushMacro: true, pushRegs: "AXY",
   isPullMacro: true, pullRegs: "AXY",
-  isMacroDefStart: true, macroName: "mymacro",
+  isMacroDefStart: true, macroName: "mymacro", macroParams: "color, count",
   isMacroDefEnd: true,
-  isMacroInvoke: true, invokeMacroName: "mymacro",
+  isMacroInvoke: true, invokeMacroName: "mymacro", invokeArgs: "#$07, $20",
+  isBlankLine: true,   // empty line in expert mode — 0 bytes
   isIfMacro: true, ifCondition: "DEBUG",
   isElseMacro: true,
   isEndIfMacro: true,
@@ -191,8 +193,8 @@ Each block in `program[]` is a plain object:
 | `NEXT` | `DEX/DEY` + `BNE label` (3 bytes); label resolves to the matching LOOP body |
 | `PUSH` | `PHA` / `TXA PHA` / `TYA PHA` combinations |
 | `PULL` | `PLA` / `PLA TAX` / `PLA TAY` combinations |
-| `MACRO` / `ENDM` | Define a reusable named macro block |
-| `INVOKE` | Call a user-defined macro by name |
+| `MACRO` / `ENDM` | Define a reusable named macro block; optional comma-separated parameter names (`macroParams` field) |
+| `INVOKE` | Call a user-defined macro by name; optional arguments (`invokeArgs` field) — `{paramName}` placeholders in the body are replaced with the supplied values |
 | `DEFINE` | Activate one or more named symbols for conditional assembly |
 | `IF` / `ELSE` / `ENDIF` | Conditional assembly — blocks are included or skipped based on active `DEFINE` symbols |
 | `CONST` | Declare a named constant (0 bytes); appears in label picker for instruction operands |
@@ -225,6 +227,8 @@ Each block in `program[]` is a plain object:
 - **Palette sync and UI fixes** — palette item highlighting refactored; active palette items scroll into view. Table macros no longer show operand field. Hungarian translation fixes.
 ## What's New in v1.7.0
 
+- **Macro parameters** — MACRO blocks now support optional parameter lists (`color`, `x, y`, …). Use `{paramName}` placeholders anywhere in the macro body. Invoke with arguments using parentheses: `.invoke setColor(#$07)`. Multiple parameters: `.invoke drawPixel($10, $20)`. Backwards-compatible: space-separated invokes without parens still work.
+- **Expert mode blank line preservation** — empty lines in the Expert editor are no longer discarded on save or mode-switch. They survive block mode round-trips and appear as thin dashed spacers in the block list (0 bytes).
 - **Spanish language (Español)** — full Spanish UI localisation: all menus, dialogs, tooltips, error messages, block labels, and memory map annotations. Spanish mnemonic descriptions for all 100+ opcodes and macros. Tutorial system fully translated to Spanish (all 5 categories, 15 lessons, 98 steps). Switch via Menu → Settings → Language.
 - **Hungarian text encoding fixes** — all accented characters (á, é, í, ó, ö, ő, ú, ü, ű) restored across the entire Hungarian UI locale. Over 170 strings corrected: menus, sample names, field labels, error messages, memory map annotations, debugger strings, and tutorial hints.
 - **Tutorial UI polish** — tutorial panel close button correctly sized (no longer elongated by the global button min-height rule).

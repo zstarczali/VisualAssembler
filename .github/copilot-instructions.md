@@ -72,6 +72,10 @@ Minden blokk (`program[]` tömb eleme) egy plain object:
   // rawOperand tárolja az értéket a blokk aktuális base-ében (pl. "0400" hex-ben)
   // constValue numerikus érték (mindig decimálisan), constName az identifier
   // CONST blokkok felkerülnek a label-táblába assemblelésnél → hivatkozható operandusként
+  // Makró paraméterek és invokálás:
+  macroParams: "color, count",      // MACRO blokkon: vesszős paraméternévlista
+  invokeArgs: "#$07, $0A",          // INVOKE blokkon: vesszős argumentumlista
+  isBlankLine: true,                // Expert módban gépelt üres sor — 0 byte, dashed spacer block módban
 }
 ```
 
@@ -930,10 +934,14 @@ for (let i = regs.length - 1; i >= 0; i--) { ... }
 - Az `isDefineMacro`, `isIfMacro`, `isElseMacro`, `isEndIfMacro` mezők azonosítják a blokkokat
 
 ### MACRO/ENDM - User defined macros
-- Felhasználói makrók definiálása
-- `MACRO name` ... `ENDM` blokkokban
-- `parseUserMacros()` függvény építi fel a `userMacros` objektumot
-- Expanzió: `getProgramLayout()` során inline behelyettesítés
+- Felhasználói makrók definiálása paraméterekkel
+- `MACRO name [param1, param2, ...]` ... `ENDM` blokkokban; `block.macroParams` (string, vesszővel elválasztva, pl. `"color"` vagy `"color, count"`)
+- A makró törzsében `{paramNév}` helyőrzők cserélődnek az INVOKE argumentumaira expanzió során
+- `parseUserMacros()` → `userMacros[name] = { params: string[], body: blockArray }` struktúra
+- Expanzió: `getProgramLayout()` során inline, `applyParams(raw)` végzi a `{param}` → arg cserét
+- Expert szintaxis: `.macro setColor color` / `.invoke setColor(#$07)` (zárójelek); több param: `.invoke drawPixel($10, $20)`; visszafelé kompatibilis szóközes forma is elfogadott
+- `block.invokeArgs` (string): a hívási argumentumok vesszővel elválasztva (pl. `"#$07, $20"`)
+- Blank lines (üres sorok) az expert módban `isBlankLine: true` blokkként tárolódnak; 0 byte, block módban vékony szaggatott vonal, ASM outputban üres sor
 
 ---
 

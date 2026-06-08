@@ -1625,6 +1625,7 @@ button:focus-visible,
     inset 0 0 0 2px var(--accent);
 }
 
+
 .asm-output .asm-line-highlight {
   display: block;
   min-width: max-content;
@@ -2495,6 +2496,11 @@ html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
   inset: 0;
   border-radius: 8px;
   overflow: hidden;
+}
+
+body[data-memory-overlays="0"] .memory-strip-top,
+body[data-memory-overlays="0"] .memory-strip {
+  display: none !important;
 }
 
 .memory-strip-base {
