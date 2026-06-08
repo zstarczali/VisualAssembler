@@ -1213,6 +1213,13 @@ function initPalette() {
         }
       });
     }
+    // Ctrl+Shift+E / Cmd+Shift+E — toggle Expert mode
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "E") {
+      e.preventDefault();
+      const newVal = !expertMode;
+      if (expertModeToggle) expertModeToggle.checked = newVal;
+      setExpertMode(newVal);
+    }
   });
   loadProjectButton?.addEventListener("click", async () => {
     const ok = await loadProjectFromFile();
@@ -15309,6 +15316,21 @@ function _runTutorialStepAction(actionId) {
         operand: ""
       });
       break;
+    case "open-settings-dialog": {
+      document.getElementById("hardware-settings-dialog")?.showModal();
+      // Re-elevate tour elements above the newly opened settings dialog.
+      // Top-layer order (last = topmost): settings → overlay → spotlight → card
+      const _ov = document.getElementById("tour-overlay");
+      const _sp = document.getElementById("tour-spotlight");
+      const _tc = document.getElementById("tour-card");
+      if (_ov?.matches(":popover-open")) { _ov.hidePopover(); _ov.showPopover(); }
+      if (_sp?.matches(":popover-open")) { _sp.hidePopover(); _sp.showPopover(); }
+      if (_tc?.open) { _tc.close(); _tc.showModal(); }
+      break;
+    }
+    case "close-settings-dialog":
+      document.getElementById("hardware-settings-dialog")?.close();
+      break;
   }
 }
 
@@ -15543,10 +15565,14 @@ function _tourStart(steps, lessonId, interactive = false) {
   _tourInteractiveMode = interactive;
   _tourPreparedLessonId = null;
   const overlay = document.getElementById("tour-overlay");
+  const spotlight = document.getElementById("tour-spotlight");
   const card = document.getElementById("tour-card");
   if (overlay) overlay.style.pointerEvents = interactive ? "none" : "all";
-  overlay?.removeAttribute("hidden");
-  card?.removeAttribute("hidden");
+  // Add to top-layer in order: overlay → spotlight → card (last = topmost)
+  if (!overlay?.matches(":popover-open")) overlay?.showPopover();
+  spotlight.style.visibility = "hidden"; // start invisible, position per step
+  if (!spotlight?.matches(":popover-open")) spotlight?.showPopover();
+  if (!card?.open) card?.showModal();
   _tourShowStep(0);
 }
 
@@ -15620,12 +15646,14 @@ function _tourShowStep(index) {
     _tourAllowOverlayClose = !step.openMenu;
     const doPosition = () => {
       const targetEl = document.querySelector(step.target);
-      if (targetEl && spotlight) {
-        if (typeof targetEl.scrollIntoView === "function") {
-          targetEl.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "auto" });
-        }
+      if (!targetEl || !spotlight) return;
+      if (typeof targetEl.scrollIntoView === "function") {
+        targetEl.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "auto" });
+      }
+      // Extra rAF: lets WebKit apply any pending async scroll before measuring
+      requestAnimationFrame(() => {
         const rect = targetEl.getBoundingClientRect();
-        // Retry once if the element has zero area (not yet laid out after scrollIntoView)
+        // Retry once if the element has zero area (not yet laid out)
         if (rect.width === 0 && rect.height === 0) {
           requestAnimationFrame(() => {
             const rect2 = targetEl.getBoundingClientRect();
@@ -15635,7 +15663,7 @@ function _tourShowStep(index) {
           return;
         }
         _positionSpotlightAndCard(spotlight, card, rect, step);
-      }
+      });
     };
     // If this step needs the menu open, open it and wait for animation (160ms)
     if (step.openMenu) {
@@ -15649,9 +15677,10 @@ function _tourShowStep(index) {
       sampleProgramsGroup?.classList.add("tour-sample-highlight");
       _tourMenuOpened = true;
       _tourStartMenuSync();
+      // 250 ms: enough for menu slide-in animation to complete before measuring
       setTimeout(() => {
         requestAnimationFrame(doPosition);
-      }, 0);
+      }, 250);
     } else {
       // Double rAF: first lets DOM mutations from onEnterActionId settle,
       // second fires after the browser has completed layout.
@@ -15668,7 +15697,7 @@ function _tourShowStep(index) {
       }
     }
   } else {
-    if (spotlight) spotlight.setAttribute("hidden", "");
+    if (spotlight) spotlight.style.visibility = "hidden";
     _tourCenterCard(card);
   }
 }
@@ -15679,7 +15708,7 @@ function _applyTourSpotlightPosition(spotlight, card, rect, step) {
   spotlight.style.top = (rect.top - pad) + "px";
   spotlight.style.width = (rect.width + pad * 2) + "px";
   spotlight.style.height = (rect.height + pad * 2) + "px";
-  spotlight.removeAttribute("hidden");
+  spotlight.style.visibility = "visible";
   if (step.centerCard) {
     _tourCenterCard(card);
   } else {
@@ -15777,9 +15806,9 @@ function _tourEnd() {
   const spotlight = document.getElementById("tour-spotlight");
   const card = document.getElementById("tour-card");
   if (overlay) overlay.style.pointerEvents = "all";
-  overlay?.setAttribute("hidden", "");
-  spotlight?.setAttribute("hidden", "");
-  card?.setAttribute("hidden", "");
+  if (overlay?.matches(":popover-open")) overlay.hidePopover();
+  if (spotlight?.matches(":popover-open")) spotlight.hidePopover();
+  if (card?.open) card.close();
   if (_tourLessonId) _tutMarkDone(_tourLessonId);
 }
 

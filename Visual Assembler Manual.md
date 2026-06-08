@@ -178,7 +178,6 @@ The modal closes automatically when the action completes or fails.
 | **Run (split button)** | The main **▶ Run** button runs the current mode; click the **▾** arrow to switch between: **Run as PRG** (compile and launch VICE directly), **Run via D64** (package into a .d64 disk image and launch VICE), or **Run on hardware** (send PRG to a C64 Ultimate / 1541 Ultimate device). See [Section 12](#12-d64-export--run) and [Section 13](#13-hardware-settings). |
 | **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 9](#9-debugger-integration)) |
 | **Hardware Settings** | Open the hardware configuration dialog — configure VICE, RetroDebugger, and C64 Ultimate (host, password, connection test). See [Section 13](#13-hardware-settings). |
-| **Debug (C64 Debugger)** | Compile and launch in C64 Debugger with the same breakpoints and symbols support (see [Section 9](#9-debugger-integration)) |
 | **New program…** | Opens a confirmation dialog, then clears all blocks from the program area |
 | **Collapse All** | Collapse all blocks |
 | **About** | Version info |
@@ -1687,7 +1686,7 @@ A9 00         LDA #$00
 
 ## 10. Debugger Integration
 
-The app supports two external C64 debuggers: **RetroDebugger** and **C64 Debugger**. Both receive breakpoints, symbols, and autostart flags generated from the assembled program.
+The app supports **RetroDebugger** as the external C64 debugger. It receives breakpoints, symbols, and autostart flags generated from the assembled program.
 
 ### RetroDebugger
 
@@ -1704,14 +1703,6 @@ The app supports two external C64 debuggers: **RetroDebugger** and **C64 Debugge
    ```
    RetroDebugger -prg <file.prg> -breakpoints <breakpoints.txt> -symbols <symbols.txt> [flags]
    ```
-
-### C64 Debugger
-
-[C64 Debugger](https://c64debugger.sourceforge.io/) is another popular Commodore 64 debugger and emulator.
-
-**Setup:** Open **Settings → Configure C64 Debugger executable** and point it to the `c64debugger` binary.
-
-**Launch:** Click **Debug (C64 Debugger)** in the toolbar. The same `.prg`, breakpoints, and symbols files are generated and passed to C64 Debugger with the configured flags.
 
 ### Breakpoint Blocks
 

@@ -5152,6 +5152,17 @@ body.crt-mode #crt-overlay::after {
   cursor: default;
 }
 
+#tour-overlay:popover-open {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: none;
+  padding: 0;
+  background: transparent;
+  overflow: visible;
+}
+
 #tour-spotlight {
   position: fixed;
   z-index: 9992;
@@ -5160,6 +5171,19 @@ body.crt-mode #crt-overlay::after {
   box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.58);
   transition: left 300ms ease, top 300ms ease, width 300ms ease, height 300ms ease;
   outline: 2px solid color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+#tour-spotlight:popover-open {
+  inset: auto; /* reset UA inset:0 so JS left/top take full effect */
+  margin: 0;
+  border: none;
+  padding: 0;
+  overflow: visible;
+  background: transparent;
+}
+
+#tour-card::backdrop {
+  display: none;
 }
 
 .tour-card {
