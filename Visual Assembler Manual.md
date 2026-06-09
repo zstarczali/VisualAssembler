@@ -19,12 +19,12 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 9. [Macro Blocks — Reference](#9-macro-blocks--reference)
    - [LABEL](#label)
    - [COMMENT](#comment)
-   - [BYTE](#byte)∏
+   - [BYTE](#byte)
    - [WORD](#word)
    - [FILL](#fill)
    - [ALIGN](#align)
-   - [TEXT](#text)∏
-   - [STRING](#string)∏
+   - [TEXT](#text)
+   - [STRING](#string)
    - [DATA](#data)
    - [RAWBYTES](#rawbytes)
    - [RAWTEXT](#rawtext)
