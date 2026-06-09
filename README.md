@@ -227,6 +227,10 @@ Each block in `program[]` is a plain object:
 - **Palette sync and UI fixes** — palette item highlighting refactored; active palette items scroll into view. Table macros no longer show operand field. Hungarian translation fixes.
 ## What's New in v1.7.1
 
+- **Label address support for deferred data macros** — `.rawbytes`, `.rawtext`, `.string`, `.data`, `.petscii` now accept a **label name** as the address parameter in Expert mode (e.g. `.rawbytes sprite_data, $00, $01`). The label is resolved at assembly time from the program's label map (CONST, TABLE, LABEL blocks, loop labels).
+- **`:macroLabel` suffix in Expert mode** — deferred data macros can define a named label for their target address using `:labelName` at the end of the line (e.g. `.rawbytes $0C50, $00, $00 :nev`). This label is then usable in instructions like `STA nev,X`. The suffix round-trips correctly between block mode and Expert mode.
+- **Expert mode validator recognises macroLabel** — the real-time error highlighter in Expert mode now includes `macroLabel` entries in its label map, so instructions referencing those labels no longer show false "cannot be resolved" errors.
+
 - **Settings dialog** — program settings (BASIC SYS stub, block description sync, Expert mode toggle) and ASM output settings (macro source, region comments, memory overlays) moved from the menu into a dedicated Settings dialog. The menu button is now labeled *Settings…* / *Beállítások…*
 - **Memory overlays toggle** — new checkbox in Settings → ASM output to show or hide the overlay/collision strips in the memory map view. State persists across restarts.
 - **Tour system improvements** — tour card is now a `<dialog>` element rendered in the browser's top-layer, always visible above `showModal()` dialogs. Tour overlay and spotlight use the Popover API for the same guarantee. Spotlight position no longer drifts on macOS WebKit after menu open.
