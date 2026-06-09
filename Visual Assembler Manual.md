@@ -585,9 +585,16 @@ Encodes a text string as **screen codes** and writes it to a given memory addres
 | Field | Description |
 |---|---|
 | Text | The string to write |
-| Address | Target memory address (e.g. `$C000`) |
+| Address | Target memory address — `$C000` hex or a **label name** |
 | Label (optional) | Assigns a label pointing to the target address |
 | Shift | Hex value (00–FF) added to each screen code byte (e.g. `$80` = reverse video) |
+
+**Expert syntax:**
+```
+.string $C000, "HELLO"              ; hex address
+.string my_buf, "HELLO"             ; label address (resolved at assembly time)
+.string $C000, "HELLO" :my_string   ; with macroLabel
+```
 
 **Generated ASM:**
 ```
@@ -609,7 +616,15 @@ Writes raw bytes to a given memory address using LDA/STA instructions at runtime
 | Field | Description |
 |---|---|
 | Bytes | Comma-separated byte values |
-| Address | Target memory address |
+| Address | Target memory address — `$C000` hex or a **label name** |
+| Label (optional) | Assigns a label pointing to the target address |
+
+**Expert syntax:**
+```
+.data $C000, $01, $02, $03          ; hex address
+.data my_buf, $01, $02, $03         ; label address
+.data $C000, $01, $02, $03 :mydata  ; with macroLabel
+```
 
 **Generated ASM:**
 ```
@@ -631,8 +646,15 @@ Places raw bytes at a given memory address — no runtime code is generated. The
 | Field | Description |
 |---|---|
 | Bytes | Comma-separated byte values |
-| Address | Target memory address (e.g. `$C000`) |
+| Address | Target memory address — `$C000` hex or a **label name** |
 | Label (optional) | Assigns a label pointing to the target address |
+
+**Expert syntax:**
+```
+.rawbytes $C000, $00, $00, $00      ; hex address
+.rawbytes sprite_data, $00, $00     ; label address
+.rawbytes $0C50, $00, $00 :nev      ; with macroLabel — other code can use LDA nev,X
+```
 
 **Size in code:** 0 bytes. The data is placed at the given address in the output.
 
@@ -647,9 +669,16 @@ Encodes a text string as **screen codes** and places the bytes directly at a giv
 | Field | Description |
 |---|---|
 | Text | String to encode |
-| Address | Target memory address |
+| Address | Target memory address — `$C000` hex or a **label name** |
 | Label (optional) | Assigns a label pointing to the target address |
 | Shift | Hex value (00–FF) added to each screen code byte (e.g. `$80` = reverse video) |
+
+**Expert syntax:**
+```
+.rawtext $C000, "HELLO"             ; hex address
+.rawtext screen_pos, "HELLO"        ; label address
+.rawtext $0400, "HELLO" :my_text    ; with macroLabel
+```
 
 **Generated ASM:**
 ```
@@ -673,7 +702,17 @@ Each printable ASCII character (codes 32–126) is stored using its standard ASC
 | Field | Description |
 |---|---|
 | Text | String to encode as PETSCII bytes |
-| Address | Target memory address (e.g. `$C000`) |
+| Address | Target memory address — `$C000` hex or a **label name** |
+| Label (optional) | Assigns a label pointing to the target address |
+
+**Expert syntax:**
+```
+.petscii $C000, "HELLO"             ; hex address
+.petscii msg_buf, "HELLO"           ; label address
+.petscii $C000, "HELLO", null       ; with null terminator
+.petscii $C000, "HELLO" :my_msg     ; with macroLabel
+.petscii $C000, "HELLO", null :msg  ; combined
+```
 
 **Generated ASM:**
 ```

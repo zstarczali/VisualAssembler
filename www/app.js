@@ -3379,16 +3379,18 @@ function _blockToExpertLine(block) {
   if (block.isAnonymousLabel) return "-";
   if (block.isComment)        return `; ${block.rawOperand || ""}`;
   if (block.isTextMacro)      return `.text ${block.textX || 0}, ${block.textY || 0}, "${block.rawOperand || ""}"`;
-  if (block.isStringMacro)    return `.string $${(block.stringAddress || "C000").toUpperCase()}, "${block.rawOperand || ""}"`;
-  if (block.isRawTextMacro)   return `.rawtext $${(block.rawTextAddress || "C000").replace(/^\$/,"").toUpperCase()}, "${block.rawOperand || ""}"`;
-  if (block.isDataMacro)      return `.data $${(block.dataAddress || "C000").replace(/^\$/,"").toUpperCase()}, ${fmtRaw(block.rawOperand, block.base)}`;
-  if (block.isRawBytesMacro)  return `.rawbytes $${(block.rawBytesAddress || "C000").replace(/^\$/,"").toUpperCase()}, ${fmtRaw(block.rawOperand, block.base)}`;
+  const fmtAddr = a => /^[A-Za-z_]/.test(a || "") ? a : "$" + (a || "C000").replace(/^\$/, "").toUpperCase();
+  const fmtMacroLabel = ml => ml ? ` :${ml}` : "";
+  if (block.isStringMacro)    return `.string ${fmtAddr(block.stringAddress)}, "${block.rawOperand || ""}"${fmtMacroLabel(block.macroLabel)}`;
+  if (block.isRawTextMacro)   return `.rawtext ${fmtAddr(block.rawTextAddress)}, "${block.rawOperand || ""}"${fmtMacroLabel(block.macroLabel)}`;
+  if (block.isDataMacro)      return `.data ${fmtAddr(block.dataAddress)}, ${fmtRaw(block.rawOperand, block.base)}${fmtMacroLabel(block.macroLabel)}`;
+  if (block.isRawBytesMacro)  return `.rawbytes ${fmtAddr(block.rawBytesAddress)}, ${fmtRaw(block.rawOperand, block.base)}${fmtMacroLabel(block.macroLabel)}`;
   if (block.isByteMacro)      return `.byte ${fmtRaw(block.rawOperand, block.base)}`;
   if (block.isWordMacro)      return `.word ${fmtRaw(block.rawOperand, block.base)}`;
   if (block.isFillMacro)      return `.fill ${fmtRaw(block.rawOperand, block.base)}`;
   if (block.isAlignMacro)     return `.align ${block.rawOperand || "64"}`;
   if (block.isIncBinMacro)    return `.incbin "${block.incBinFileName || "data.bin"}"${block.incBinAddress && block.incBinAddress !== "$C000" ? ", $" + block.incBinAddress.replace(/^\$/,"") : ""}`;
-  if (block.isPetsciiMacro)   return `.petscii $${(block.petsciiAddress || "C000").replace(/^\$/,"").toUpperCase()}, "${block.rawOperand || "HELLO"}"${block.petsciiNullTerminated ? ", null" : ""}`;
+  if (block.isPetsciiMacro)   return `.petscii ${fmtAddr(block.petsciiAddress)}, "${block.rawOperand || "HELLO"}"${block.petsciiNullTerminated ? ", null" : ""}${fmtMacroLabel(block.macroLabel)}`;
   if (block.isTableMacro)     return block.tableAddress ? `.table ${block.tableName || "table1"} $${block.tableAddress.replace(/^\$/,"").toUpperCase()}` : `.table ${block.tableName || "table1"}`;  
   if (block.isLoadFileMacro)  return `.loadfile "${block.loadFileName || "DATA"}", ${block.loadFileDevice || "8"}${block.loadFileAddress ? ", $" + block.loadFileAddress.replace(/^\$/,"") : ""}${block.loadFileErrorLabel ? ", " + block.loadFileErrorLabel : ""}`;
   if (block.isSidMacro)       return `.sid "${block.sidFileName || "music.sid"}"${block.sidCustomAddress ? ", $" + block.sidCustomAddress.replace(/^\$/, "") : ""}`;  
@@ -4263,42 +4265,47 @@ function parseExpertText(text) {
       continue;
     }
 
-    // .string $ADDR, "string" [, shift]
-    const stringM = line.match(/^\.string\s+\$([0-9A-Fa-f]{1,4})\s*,\s*"([^"]*)"\s*(?:,\s*([0-9A-Fa-f]{1,2}))?\s*$/i);
+    // .string $ADDR|label, "string" [, shift] [:macroLabel]
+    const stringM = line.match(/^\.string\s+(?:\$([0-9A-Fa-f]{1,4})|([A-Za-z_][A-Za-z0-9_]*))\s*,\s*"([^"]*)"\s*(?:,\s*([0-9A-Fa-f]{1,2}))?\s*(?::([A-Za-z_][A-Za-z0-9_]*))?\s*$/i);
     if (stringM) {
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "STRING", operand: stringM[2], rawOperand: stringM[2], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isStringMacro: true, stringAddress: stringM[1].toUpperCase().padStart(4,"0"), charOffset: stringM[3] ? stringM[3].toUpperCase().padStart(2,"0") : "00" });
+      const strAddr = stringM[1] ? "$" + stringM[1].toUpperCase().padStart(4,"0") : stringM[2];
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "STRING", operand: stringM[3], rawOperand: stringM[3], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isStringMacro: true, stringAddress: strAddr, charOffset: stringM[4] ? stringM[4].toUpperCase().padStart(2,"0") : "00", macroLabel: stringM[5] || "" });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
 
-    // .rawtext $ADDR, "string" [, shift]
-    const rawtextM = line.match(/^\.rawtext\s+\$([0-9A-Fa-f]{1,4})\s*,\s*"([^"]*)"\s*(?:,\s*([0-9A-Fa-f]{1,2}))?\s*$/i);
+    // .rawtext $ADDR|label, "string" [, shift] [:macroLabel]
+    const rawtextM = line.match(/^\.rawtext\s+(?:\$([0-9A-Fa-f]{1,4})|([A-Za-z_][A-Za-z0-9_]*))\s*,\s*"([^"]*)"\s*(?:,\s*([0-9A-Fa-f]{1,2}))?\s*(?::([A-Za-z_][A-Za-z0-9_]*))?\s*$/i);
     if (rawtextM) {
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "RAWTEXT", operand: rawtextM[2], rawOperand: rawtextM[2], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isRawTextMacro: true, rawTextAddress: "$" + rawtextM[1].toUpperCase().padStart(4,"0"), charOffset: rawtextM[3] ? rawtextM[3].toUpperCase().padStart(2,"0") : "00" });
+      const rtAddr = rawtextM[1] ? "$" + rawtextM[1].toUpperCase().padStart(4,"0") : rawtextM[2];
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "RAWTEXT", operand: rawtextM[3], rawOperand: rawtextM[3], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isRawTextMacro: true, rawTextAddress: rtAddr, charOffset: rawtextM[4] ? rawtextM[4].toUpperCase().padStart(2,"0") : "00", macroLabel: rawtextM[5] || "" });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
 
-    // .data $ADDR, bytes...
-    const dataM = line.match(/^\.data\s+\$([0-9A-Fa-f]{1,4})\s*,\s*(.+)$/i);
+    // .data $ADDR|label, bytes... [:macroLabel]
+    const dataM = line.match(/^\.data\s+(?:\$([0-9A-Fa-f]{1,4})|([A-Za-z_][A-Za-z0-9_]*))\s*,\s*(.+?)\s*(?::([A-Za-z_][A-Za-z0-9_]*))?\s*$/i);
     if (dataM) {
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "DATA", operand: dataM[2].trim(), rawOperand: dataM[2].trim(), description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isDataMacro: true, dataAddress: "$" + dataM[1].toUpperCase().padStart(4,"0") });
+      const dataAddr = dataM[1] ? "$" + dataM[1].toUpperCase().padStart(4,"0") : dataM[2];
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "DATA", operand: dataM[3].trim(), rawOperand: dataM[3].trim(), description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isDataMacro: true, dataAddress: dataAddr, macroLabel: dataM[4] || "" });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
 
-    // .rawbytes $ADDR, bytes...
-    const rawbytesM = line.match(/^\.rawbytes\s+\$([0-9A-Fa-f]{1,4})\s*,\s*(.+)$/i);
+    // .rawbytes $ADDR|label, bytes... [:macroLabel]
+    const rawbytesM = line.match(/^\.rawbytes\s+(?:\$([0-9A-Fa-f]{1,4})|([A-Za-z_][A-Za-z0-9_]*))\s*,\s*(.+?)\s*(?::([A-Za-z_][A-Za-z0-9_]*))?\s*$/i);
     if (rawbytesM) {
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "RAWBYTES", operand: rawbytesM[2].trim(), rawOperand: rawbytesM[2].trim(), description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isRawBytesMacro: true, rawBytesAddress: "$" + rawbytesM[1].toUpperCase().padStart(4,"0") });
+      const rbAddr = rawbytesM[1] ? "$" + rawbytesM[1].toUpperCase().padStart(4,"0") : rawbytesM[2];
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "RAWBYTES", operand: rawbytesM[3].trim(), rawOperand: rawbytesM[3].trim(), description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isRawBytesMacro: true, rawBytesAddress: rbAddr, macroLabel: rawbytesM[4] || "" });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
 
-    // .petscii $ADDR, "text" [, shift] [, null]
-    const petsciiM = line.match(/^\.petscii\s+\$([0-9A-Fa-f]{1,4})\s*,\s*"([^"]*)"\s*(?:,\s*([0-9A-Fa-f]{1,2}))?(?:\s*,\s*(null))?\s*$/i);
+    // .petscii $ADDR|label, "text" [, shift] [, null] [:macroLabel]
+    const petsciiM = line.match(/^\.petscii\s+(?:\$([0-9A-Fa-f]{1,4})|([A-Za-z_][A-Za-z0-9_]*))\s*,\s*"([^"]*)"\s*(?:,\s*([0-9A-Fa-f]{1,2}))?(?:\s*,\s*(null))?\s*(?::([A-Za-z_][A-Za-z0-9_]*))?\s*$/i);
     if (petsciiM) {
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "PETSCII", operand: petsciiM[2], rawOperand: petsciiM[2], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isPetsciiMacro: true, petsciiAddress: petsciiM[1].toUpperCase().padStart(4,"0"), charOffset: petsciiM[3] ? petsciiM[3].toUpperCase().padStart(2,"0") : "00", petsciiNullTerminated: !!petsciiM[4] });
+      const peAddr = petsciiM[1] ? petsciiM[1].toUpperCase().padStart(4,"0") : petsciiM[2];
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "PETSCII", operand: petsciiM[3], rawOperand: petsciiM[3], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isPetsciiMacro: true, petsciiAddress: peAddr, charOffset: petsciiM[4] ? petsciiM[4].toUpperCase().padStart(2,"0") : "00", petsciiNullTerminated: !!petsciiM[5], macroLabel: petsciiM[6] || "" });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -4760,6 +4767,20 @@ function _expertValidate() {
             const v = parseNumberByBase((line.block.rawOperand || "").replace(/^\$/, ""), line.block.base);
             if (v !== null) labels.set(line.block.constName, v);
           }
+          // macroLabel on deferred-data blocks (rawbytes, rawtext, string, data, petscii)
+          if (line.block.macroLabel) {
+            const ml = line.block.macroLabel.trim();
+            if (ml) {
+              let addr = null;
+              if (line.block.isTextMacro)      addr = 0x0400 + ((line.block.textY ?? 0) * 40) + (line.block.textX ?? 0);
+              else if (line.block.isStringMacro)  addr = parseAddressValue(line.block.stringAddress) ?? 0xC000;
+              else if (line.block.isDataMacro)    addr = parseAddressValue(line.block.dataAddress) ?? 0xC000;
+              else if (line.block.isRawBytesMacro) addr = parseAddressValue(line.block.rawBytesAddress) ?? 0xC000;
+              else if (line.block.isRawTextMacro)  addr = parseAddressValue(line.block.rawTextAddress) ?? 0xC000;
+              else if (line.block.isPetsciiMacro)  addr = parseAddressValue(line.block.petsciiAddress) ?? 0xC000;
+              if (addr !== null) labels.set(ml, addr);
+            }
+          }
         });
         labels._anonAddrs = _collectAnonLabels(layout);
         // Run compileLineBytes to detect unknown mnemonics / bad operands
@@ -4944,16 +4965,16 @@ function _buildDisasmHTML() {
         let deferredAddr = 0;
         if (block.isRawBytesMacro) {
           deferredBytes = parseByteMacro(block.rawOperand, block.base);
-          deferredAddr = parseAddressValue(block.rawBytesAddress) ?? 0xC000;
+          deferredAddr = parseAddressValue(block.rawBytesAddress, labelMap) ?? 0xC000;
         } else if (block.isRawTextMacro) {
           const rawOffset = parseInt(block.charOffset || "0", 16);
           deferredBytes = encodeTextMacro(block.rawOperand, block.textCharset || "standard")
             .map(b => (b + (isNaN(rawOffset) ? 0 : rawOffset)) & 0xFF);
-          deferredAddr = parseAddressValue(block.rawTextAddress) ?? 0xC000;
+          deferredAddr = parseAddressValue(block.rawTextAddress, labelMap) ?? 0xC000;
         } else if (block.isPetsciiMacro) {
           deferredBytes = encodePetsciiMacro(block.rawOperand);
           if (block.petsciiNullTerminated) deferredBytes.push(0x00);
-          deferredAddr = parseAddressValue(block.petsciiAddress) ?? 0xC000;
+          deferredAddr = parseAddressValue(block.petsciiAddress, labelMap) ?? 0xC000;
         }
         if (deferredBytes.length > 0) {
           const DCHUNK = 8;
@@ -6877,7 +6898,7 @@ function validateIfMacro(condition) {
   return "";
 }
 
-function parseAddressValue(raw) {
+function parseAddressValue(raw, labelMap) {
   const trimmed = (raw || "").trim();
   if (!trimmed) {
     return null;
@@ -6901,6 +6922,15 @@ function parseAddressValue(raw) {
     return Number.parseInt(trimmed, 10);
   }
 
+  // Label identifier — look up in label map if provided (must come AFTER all numeric checks)
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(trimmed)) {
+    if (labelMap) {
+      const v = labelMap.get(trimmed);
+      return v !== undefined ? v : null;
+    }
+    return null;
+  }
+
   return null;
 }
 
@@ -6916,6 +6946,7 @@ function validateIncBinMacro(incBinBytes, rawAddress) {
 }
 
 function validateStringMacroAddress(raw) {
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test((raw || "").trim())) return ""; // label identifier — resolved at assembly time
   const value = parseAddressValue(raw);
   if (value === null) {
     return currentLanguage !== "hu" ? "STRING macro needs a valid start address, for example $C000." : "A STRING makrohoz ervenyes kezdocim kell, peldaul $C000.";
@@ -6948,6 +6979,7 @@ function validateDataMacro(rawBytes, rawAddress, base = "dec") {
   const byteError = validateByteMacro(rawBytes, base);
   if (byteError) return byteError;
 
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test((rawAddress || "").trim())) return ""; // label identifier — resolved at assembly time
   const value = parseAddressValue(rawAddress);
   if (value === null) {
     return currentLanguage !== "hu" ? "DATA macro needs a valid start address, for example $C000." : "A DATA makrohoz ervenyes kezdocim kell, peldaul $C000.";
@@ -9382,17 +9414,17 @@ function assembleProgramToPrg(originOverride) {
     const block = line.block;
     if (block.isRawBytesMacro) {
       const chunkBytes = parseByteMacro(block.rawOperand, block.base);
-      const addr = parseAddressValue(block.rawBytesAddress) ?? 0xC000;
+      const addr = parseAddressValue(block.rawBytesAddress, labels) ?? 0xC000;
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
     } else if (block.isRawTextMacro) {
       const rawOffset = parseInt(block.charOffset || "0", 16);
       const chunkBytes = encodeTextMacro(block.rawOperand, block.textCharset || "standard").map(b => (b + (isNaN(rawOffset) ? 0 : rawOffset)) & 0xFF);
-      const addr = parseAddressValue(block.rawTextAddress) ?? 0xC000;
+      const addr = parseAddressValue(block.rawTextAddress, labels) ?? 0xC000;
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
     } else if (block.isPetsciiMacro) {
       const chunkBytes = encodePetsciiMacro(block.rawOperand);
       if (block.petsciiNullTerminated) chunkBytes.push(0x00);
-      const addr = parseAddressValue(block.petsciiAddress) ?? 0xC000;
+      const addr = parseAddressValue(block.petsciiAddress, labels) ?? 0xC000;
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
     } else if (block.isIncBinMacro) {
       const chunkBytes = block.incBinBytes || [];
@@ -9504,7 +9536,7 @@ function compileLineBytes(line, labels) {
   if (block.isStringMacro) {
     const chars = encodeTextMacro(block.rawOperand, block.textCharset || "standard");
     const offset = parseInt(block.charOffset || "0", 16);
-    const startAddress = parseAddressValue(block.stringAddress) ?? 0xC000;
+    const startAddress = parseAddressValue(block.stringAddress, labels) ?? 0xC000;
     const bytes = [];
     chars.forEach((charCode, charIndex) => {
       const targetAddress = startAddress + charIndex;
@@ -9519,7 +9551,7 @@ function compileLineBytes(line, labels) {
 
   if (block.isDataMacro) {
     const dataBytes = parseByteMacro(block.rawOperand, block.base);
-    const startAddress = parseAddressValue(block.dataAddress) ?? 0xC000;
+    const startAddress = parseAddressValue(block.dataAddress, labels) ?? 0xC000;
     const bytes = [];
     dataBytes.forEach((byte, byteIndex) => {
       const targetAddress = startAddress + byteIndex;
@@ -11134,6 +11166,20 @@ function getProgramLayout(originOverride) {
 }
 
 function getDeferredMemorySections(layout) {
+  // Build label map for address resolution
+  const labelMap = new Map();
+  layout.lines.forEach((line) => {
+    if (!line.conditionallySkipped) {
+      if (line.block.isLabel && line.block.labelName) labelMap.set(line.block.labelName, line.address);
+      if (line.block.isLoopMacro && line.block.loopLabel) labelMap.set(line.block.loopLabel, line.address + 2);
+      if (line.block.isForMacro && line.block.loopLabel) labelMap.set(line.block.loopLabel, line.address + 2);
+      if (line.block.isConstMacro && line.block.constName) {
+        const v = parseNumberByBase((line.block.rawOperand || "").replace(/^\$/, ""), line.block.base);
+        if (v !== null) labelMap.set(line.block.constName, v);
+      }
+    }
+  });
+
   return layout.lines
     .map((line, index) => {
       const lineNumber = `${(index + 1).toString().padStart(2, "0")}`;
@@ -11156,7 +11202,7 @@ function getDeferredMemorySections(layout) {
         const rawChars = encodeTextMacro(line.block.rawOperand);
         const offset = parseInt(line.block.charOffset || "0", 16);
         const chars = isNaN(offset) || offset === 0 ? rawChars : rawChars.map(b => (b + offset) & 0xFF);
-        const startAddress = parseAddressValue(line.block.stringAddress) ?? 0xC000;
+        const startAddress = parseAddressValue(line.block.stringAddress, labelMap) ?? 0xC000;
         return {
           type: "string",
           lineNumber,
@@ -11170,7 +11216,7 @@ function getDeferredMemorySections(layout) {
 
       if (line.block.isDataMacro) {
         const bytes = parseByteMacro(line.block.rawOperand, line.block.base);
-        const startAddress = parseAddressValue(line.block.dataAddress) ?? 0xC000;
+        const startAddress = parseAddressValue(line.block.dataAddress, labelMap) ?? 0xC000;
         return {
           type: "data",
           lineNumber,
@@ -11184,7 +11230,7 @@ function getDeferredMemorySections(layout) {
 
       if (line.block.isRawBytesMacro) {
         const bytes = parseByteMacro(line.block.rawOperand, line.block.base);
-        const startAddress = parseAddressValue(line.block.rawBytesAddress) ?? 0xC000;
+        const startAddress = parseAddressValue(line.block.rawBytesAddress, labelMap) ?? 0xC000;
         return {
           type: "rawbytes",
           lineNumber,
@@ -11214,7 +11260,7 @@ function getDeferredMemorySections(layout) {
         const rawChars = encodeTextMacro(line.block.rawOperand);
         const offset = parseInt(line.block.charOffset || "0", 16);
         const chars = isNaN(offset) || offset === 0 ? rawChars : rawChars.map(b => (b + offset) & 0xFF);
-        const startAddress = parseAddressValue(line.block.rawTextAddress) ?? 0xC000;
+        const startAddress = parseAddressValue(line.block.rawTextAddress, labelMap) ?? 0xC000;
         return {
           type: "rawtext",
           lineNumber,
@@ -11228,7 +11274,7 @@ function getDeferredMemorySections(layout) {
 
       if (line.block.isPetsciiMacro) {
         const chars = encodePetsciiMacro(line.block.rawOperand);
-        const startAddress = parseAddressValue(line.block.petsciiAddress) ?? 0xC000;
+        const startAddress = parseAddressValue(line.block.petsciiAddress, labelMap) ?? 0xC000;
         return {
           type: "petscii",
           lineNumber,
