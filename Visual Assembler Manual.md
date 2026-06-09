@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 1.7.0**
+**Version 1.7.1**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -178,7 +178,6 @@ The modal closes automatically when the action completes or fails.
 | **Run (split button)** | The main **▶ Run** button runs the current mode; click the **▾** arrow to switch between: **Run as PRG** (compile and launch VICE directly), **Run via D64** (package into a .d64 disk image and launch VICE), or **Run on hardware** (send PRG to a C64 Ultimate / 1541 Ultimate device). See [Section 12](#12-d64-export--run) and [Section 13](#13-hardware-settings). |
 | **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 9](#9-debugger-integration)) |
 | **Hardware Settings** | Open the hardware configuration dialog — configure VICE, RetroDebugger, and C64 Ultimate (host, password, connection test). See [Section 13](#13-hardware-settings). |
-| **Debug (C64 Debugger)** | Compile and launch in C64 Debugger with the same breakpoints and symbols support (see [Section 9](#9-debugger-integration)) |
 | **New program…** | Opens a confirmation dialog, then clears all blocks from the program area |
 | **Collapse All** | Collapse all blocks |
 | **About** | Version info |
@@ -212,6 +211,7 @@ Expert Mode is a full-featured direct-text 6502 assembly editor that lives along
 
 - **Block → Expert:** the current program is serialised to text (one instruction per line, labels, macros as directives). Edits in Expert mode are synced back to the block array whenever you switch back or trigger an action.
 - **Expert → Block:** the text is parsed with `parseAsmText()` and the result replaces the block program. A compile-error dialog is shown if parsing fails.
+- **Blank lines** are preserved through round-trips: empty lines in the Expert editor appear as thin dashed spacers in Block mode and are restored as empty lines when switching back to Expert.
 
 ### Editor layout
 
@@ -988,21 +988,32 @@ Restores registers from the stack in reverse order (Y → X → A).
 
 ### MACRO / ENDM / INVOKE
 
-Define and reuse your own named code blocks.
+Define and reuse your own named code blocks, optionally with parameters.
 
 #### MACRO (definition start)
 
 | Field | Description |
 |---|---|
-| Name | Identifier for the macro (e.g. `clear_screen`) |
+| Name | Identifier for the macro (e.g. `setColor`) |
+| Params | Optional comma-separated parameter names (e.g. `color` or `color, count`) |
 
 Marks the beginning of a macro definition. All blocks between MACRO and ENDM become the macro body. The definition does **not** generate code where it appears.
 
+Inside the body, use `{paramName}` as a placeholder wherever the argument value should be substituted at invoke time.
+
 **Generated ASM:**
 ```
-; .MACRO clear_screen
+; .MACRO setColor (color)
     ... (body blocks)
 ; .ENDM
+```
+
+**Expert mode syntax:**
+```
+.macro setColor color
+    LDA {color}
+    STA $D020
+.endm
 ```
 
 #### ENDM (definition end)
@@ -1011,21 +1022,35 @@ Closes the current macro definition. No fields.
 
 #### INVOKE
 
-Inserts the contents of a named macro at this position.
+Inserts the contents of a named macro at this position, substituting any argument values for `{paramName}` placeholders in the body.
 
 | Field | Description |
 |---|---|
 | Macro name | Select from the dropdown of defined macros |
+| Arguments | Comma-separated argument values matching the macro's parameter list (e.g. `#$07`) |
 
 **Generated ASM:**
 ```
-; >>> Invoke: clear_screen
-    ... (expanded macro body)
+; .invoke setColor(#$07)
+    LDA #$07
+    STA $D020
 ```
 
-The macro body is expanded inline — all addresses and labels are resolved in context.
+**Expert mode syntax:**
+```
+; single argument:
+.invoke setColor(#$07)
 
-> **Tip:** Define macros at the top (or bottom) of your program, then INVOKE them wherever needed. Macros can be invoked multiple times.
+; multiple arguments:
+.invoke drawPixel($10, $20)
+
+; no arguments:
+.invoke clearScreen
+```
+
+The macro body is expanded inline — `{paramName}` placeholders are replaced with the supplied argument values. All addresses and labels are resolved in context. The space-separated form (`.invoke setColor #$07`) is also accepted for backwards compatibility.
+
+> **Tip:** Define macros at the top (or bottom) of your program, then INVOKE them wherever needed. Macros can be invoked multiple times with different arguments.
 
 ---
 
@@ -1661,7 +1686,7 @@ A9 00         LDA #$00
 
 ## 10. Debugger Integration
 
-The app supports two external C64 debuggers: **RetroDebugger** and **C64 Debugger**. Both receive breakpoints, symbols, and autostart flags generated from the assembled program.
+The app supports **RetroDebugger** as the external C64 debugger. It receives breakpoints, symbols, and autostart flags generated from the assembled program.
 
 ### RetroDebugger
 
@@ -1678,14 +1703,6 @@ The app supports two external C64 debuggers: **RetroDebugger** and **C64 Debugge
    ```
    RetroDebugger -prg <file.prg> -breakpoints <breakpoints.txt> -symbols <symbols.txt> [flags]
    ```
-
-### C64 Debugger
-
-[C64 Debugger](https://c64debugger.sourceforge.io/) is another popular Commodore 64 debugger and emulator.
-
-**Setup:** Open **Settings → Configure C64 Debugger executable** and point it to the `c64debugger` binary.
-
-**Launch:** Click **Debug (C64 Debugger)** in the toolbar. The same `.prg`, breakpoints, and symbols files are generated and passed to C64 Debugger with the configured flags.
 
 ### Breakpoint Blocks
 

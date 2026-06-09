@@ -272,12 +272,14 @@ let asmPlainText = "";
 let asmDisplayText = "";
 let showMacroSource = false;
 let showRegionComments = true;
+let showMemoryOverlays = true;
 let blockPaletteSync = true;
 let asmOutputBase = "hex";
 let originBase = "hex";
 const macroSourceToggle = document.getElementById("macro-source-toggle");
 const macroSourceToggleText = document.getElementById("macro-source-toggle-text");
 const regionCommentsToggle = document.getElementById("region-comments-toggle");
+const memoryOverlaysToggle = document.getElementById("memory-overlays-toggle");
 const blockPaletteSyncToggle = document.getElementById("block-desc-sync-toggle");
 const asmBaseInputs = document.querySelectorAll('input[name="asm-output-base"]');
 const originBaseInputs = document.querySelectorAll('input[name="origin-base"]');
@@ -381,6 +383,10 @@ function readUiSettings() {
   }
 }
 
+function _applyMemoryOverlaysVisibility() {
+  document.body.dataset.memoryOverlays = showMemoryOverlays ? "1" : "0";
+}
+
 function saveUiSettings() {
   const settings = {
     category: categorySelect?.value || "",
@@ -402,6 +408,7 @@ function saveUiSettings() {
     expertProjectVisible: _expertProjectVisible,
     showMacroSource,
     showRegionComments,
+    showMemoryOverlays,
     blockPaletteSync,
     asmOutputBase,
     debuggerJmp,
@@ -1206,6 +1213,13 @@ function initPalette() {
         }
       });
     }
+    // Ctrl+Shift+E / Cmd+Shift+E — toggle Expert mode
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "E") {
+      e.preventDefault();
+      const newVal = !expertMode;
+      if (expertModeToggle) expertModeToggle.checked = newVal;
+      setExpertMode(newVal);
+    }
   });
   loadProjectButton?.addEventListener("click", async () => {
     const ok = await loadProjectFromFile();
@@ -1233,6 +1247,11 @@ function initPalette() {
     showRegionComments = regionCommentsToggle.checked;
     saveUiSettings();
     renderAsmOutput();
+  });
+  memoryOverlaysToggle?.addEventListener("change", () => {
+    showMemoryOverlays = memoryOverlaysToggle.checked;
+    _applyMemoryOverlaysVisibility();
+    saveUiSettings();
   });
   blockPaletteSyncToggle?.addEventListener("change", () => {
     blockPaletteSync = blockPaletteSyncToggle.checked;
@@ -1277,7 +1296,6 @@ function initPalette() {
   renderMemoryStrip();
   loadViceConfig();
   loadDebuggerConfig();
-  saveUiSettings();
 
   // Populate version on splash screen
   window.electronAPI.getAppVersion().then(version => {
@@ -1600,6 +1618,12 @@ function _applyUiSettingsToDOM() {
     if (regionCommentsToggle) regionCommentsToggle.checked = showRegionComments;
   }
 
+  if (savedUiSettings.showMemoryOverlays !== undefined) {
+    showMemoryOverlays = !!savedUiSettings.showMemoryOverlays;
+    if (memoryOverlaysToggle) memoryOverlaysToggle.checked = showMemoryOverlays;
+    _applyMemoryOverlaysVisibility();
+  }
+
   if (savedUiSettings.blockPaletteSync !== undefined) {
     blockPaletteSync = !!savedUiSettings.blockPaletteSync;
     if (blockPaletteSyncToggle) blockPaletteSyncToggle.checked = blockPaletteSync;
@@ -1631,6 +1655,8 @@ function applySavedUiSettings() {
         savedUiSettings = globalSettings;
         localStorage.setItem("c64-ui-settings", JSON.stringify(savedUiSettings));
         _applyUiSettingsToDOM();
+        _applyMemoryOverlaysVisibility();
+        renderMemoryStrip();
       }
     }).catch(() => {});
   }
@@ -1782,9 +1808,11 @@ function applyTranslations() {
     setText("#d64-export-confirm", t("d64ExportConfirm"));
     setText("#d64-export-cancel", t("d64ExportCancel"));
     setText("#program-settings-label", t("programSettings"));
+    setText("#asm-output-settings-label", t("asmOutputSettings"));
     if (macroSourceToggleText) macroSourceToggleText.textContent = t("macroSourceToggle");
     setText("#asm-numbers-label", t("asmNumbersLabel"));
     setText("#region-comments-label", t("regionCommentsLabel"));
+    setText("#memory-overlays-label", t("memoryOverlaysLabel"));
     setText("#origin-preview-label", t("originPreviewLabel"));
     setText("#asm-output-label", t("asmOutputLabel"));
     setText("#monitor-output-label", t("monitorOutputLabel"));
@@ -3164,7 +3192,8 @@ function createBlockFromMnemonic(item) {
       validationError: "",
       collapsed: true,
       isMacroDefStart: true,
-      macroName: macroName
+      macroName: macroName,
+      macroParams: ""
     };
   }
 
@@ -3200,7 +3229,8 @@ function createBlockFromMnemonic(item) {
       validationError: macroNames.length === 0 ? (currentLanguage !== "hu" ? "No macros defined yet" : "Meg nincs definialva makro") : "",
       collapsed: true,
       isMacroInvoke: true,
-      invokeMacroName: firstMacro
+      invokeMacroName: firstMacro,
+      invokeArgs: ""
     };
   }
 
@@ -3335,6 +3365,7 @@ function addSelectedBlock() {
 
 // Convert a block to its expert-mode source line representation
 function _blockToExpertLine(block) {
+  if (block.isBlankLine) return "";
   // Helper: prefix each comma-separated token with $ if base is hex
   const fmtRaw = (raw, base) => {
     if ((base || "hex") !== "hex") return raw || "0";
@@ -3391,9 +3422,9 @@ function _blockToExpertLine(block) {
   if (block.isEndIfMacro)     return `.endif`;
   if (block.isRegionMacro)    return `.region ${block.regionName || "region"}`;
   if (block.isEndRegionMacro) return `.endregion`;
-  if (block.isMacroDefStart)  return `.macro ${block.macroName || block.rawOperand || "myMacro"}`;
+  if (block.isMacroDefStart)  return `.macro ${block.macroName || block.rawOperand || "myMacro"}${block.macroParams ? "(" + block.macroParams + ")" : ""}`;
   if (block.isMacroDefEnd)    return `.endm`;
-  if (block.isMacroInvoke)    return `.invoke ${block.invokeMacroName || "myMacro"}`;
+  if (block.isMacroInvoke)    return `.invoke ${block.invokeMacroName || "myMacro"}${block.invokeArgs ? "(" + block.invokeArgs + ")" : ""}`;  
   if (block.isSpriteInitMacro)return `.sprite_init ${block.spriteNum || 0}, ${block.spriteColor || 7}, $${(block.spriteDataPage || "21").toUpperCase()}`;
   if (block.isSpritePosMacro) return `.sprite_pos ${block.spriteNum || 0}, ${block.spriteX || 152}, ${block.spriteY || 100}`;
   if (block.isWaitRasterMacro)return `.wait_raster $${(block.rasterLine || "FF").toUpperCase()}`;
@@ -4212,6 +4243,7 @@ function parseExpertText(text) {
 
     if (!line) {
       if (commentText) blocks.push(_importMakeComment(commentText));
+      else blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "BLANK", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isBlankLine: true });
       continue;
     }
 
@@ -4474,15 +4506,19 @@ function parseExpertText(text) {
     if (regionM) { blocks.push(_importMakeRegion(regionM[1].trim())); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
     if (/^\.endregion(?:\s+.+)?$/i.test(line)) { blocks.push(_importMakeEndRegion()); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
 
-    // .macro name / .endm
-    const macroM = line.match(/^\.macro\s+([A-Za-z_][A-Za-z0-9_]*)\s*$/i);
-    if (macroM) { blocks.push(_importMakeMacroDefStart(macroM[1])); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
+    // .macro name(param1, param2) or .macro name param1, param2 / .endm
+    const macroM = line.match(/^\.macro\s+([A-Za-z_][A-Za-z0-9_]*)(?:\(([^)]*)\)|\s*(.*?))?\s*$/i);
+    if (macroM) {
+      const macroParams = (macroM[2] !== undefined ? macroM[2] : (macroM[3] || "")).trim();
+      blocks.push(_importMakeMacroDefStart(macroM[1], macroParams)); if (commentText) blocks.push(_importMakeComment(commentText)); continue;
+    }
     if (/^\.endm\s*$/i.test(line)) { blocks.push(_importMakeMacroDefEnd()); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
 
-    // .invoke macroname
-    const invokeM = line.match(/^\.invoke\s+([A-Za-z_][A-Za-z0-9_]*)\s*$/i);
+    // .invoke macroname(arg1, arg2, ...) or .invoke macroname arg1, arg2
+    const invokeM = line.match(/^\.invoke\s+([A-Za-z_][A-Za-z0-9_]*)(?:\(([^)]*)\)|\s+(.*?))?\s*$/i);
     if (invokeM) {
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "INVOKE", operand: invokeM[1], rawOperand: invokeM[1], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isMacroInvoke: true, invokeMacroName: invokeM[1] });
+      const invokeArgs = (invokeM[2] !== undefined ? invokeM[2] : (invokeM[3] || "")).trim();
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "INVOKE", operand: invokeM[1], rawOperand: invokeM[1], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isMacroInvoke: true, invokeMacroName: invokeM[1], invokeArgs });  
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -4527,8 +4563,13 @@ function _addSrcLineToBlocks(text, blocks) {
         blocks[bIdx]._srcLine = li;
         bIdx++;
       }
+    } else if (!hasCode && !isCommentOnly) {
+      // Pure empty line → blank line block (if parseExpertText emitted one)
+      if (bIdx < blocks.length && blocks[bIdx].isBlankLine) {
+        blocks[bIdx]._srcLine = li;
+        bIdx++;
+      }
     }
-    // pure empty lines: no blocks
   }
 }
 
@@ -4724,7 +4765,7 @@ function _expertValidate() {
         // Run compileLineBytes to detect unknown mnemonics / bad operands
         for (const line of layout.lines) {
           if (line.conditionallySkipped) continue;
-          if (line.block.isLabel || line.block.isComment || line.block.isIncludeMacro) continue;
+          if (line.block.isLabel || line.block.isComment || line.block.isIncludeMacro || line.block.isBlankLine) continue;
           if (line.block._isSavedAddress || line.block._isRestoreAddress || line.block.isOrgMacro) continue;
           const result = compileLineBytes(line, labels);
           if (!result.ok) errors.push({ msg: result.error, srcLine: line.block._srcLine });
@@ -5095,7 +5136,7 @@ function _expertRenderSymbols() {
     lines.forEach((line, idx) => {
       const rm = line.match(/^\s*\.region\s+(.+?)(?:\s*;.*)?$/i);
       if (rm) { regions.push({ _textName: rm[1].trim(), _lineIdx: idx }); return; }
-      const mm = line.match(/^\s*\.macro\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s|$)/i);
+      const mm = line.match(/^\s*\.macro\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s|\(|$)/i);
       if (mm) { macros.push({ _textName: mm[1].trim(), _lineIdx: idx }); return; }
       const lm = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(?:;.*)?$/);
       if (lm) { labels.push({ _textName: lm[1].trim(), _lineIdx: idx }); }
@@ -5663,7 +5704,9 @@ function parseUserMacros() {
       macroName = block.macroName;
     } else if (block.isMacroDefEnd && macroStart >= 0 && macroName) {
       const macroBody = allBlocks.slice(macroStart + 1, i);
-      userMacros[macroName] = macroBody;
+      const macroParamsDef = allBlocks[macroStart].macroParams || "";
+      const paramsArray = macroParamsDef.split(",").map(s => s.trim()).filter(Boolean);
+      userMacros[macroName] = { params: paramsArray, body: macroBody };
       macroStart = -1;
       macroName = null;
     }
@@ -6234,6 +6277,22 @@ function updateProgramBlock(index, field, value) {
     block.macroName = sanitizeLabelName(value);
     block.operand = block.macroName;
     block.rawOperand = block.macroName;
+    parseUserMacros();
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isMacroDefStart && field === "macroParams") {
+    block.macroParams = value;
+    parseUserMacros();
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isMacroInvoke && field === "invokeArgs") {
+    block.invokeArgs = value;
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -8545,14 +8604,15 @@ function _importMakeEndIf() {
   };
 }
 
-function _importMakeMacroDefStart(name) {
+function _importMakeMacroDefStart(name, params) {
   return {
     id: crypto.randomUUID(),
     category: "Makrok", mnemonic: "MACRO",
     operand: name, rawOperand: name, description: "",
     addressingMode: "implied", base: "hex",
     validationError: "", collapsed: true, isMacroDefStart: true,
-    macroName: name
+    macroName: name,
+    macroParams: params || ""
   };
 }
 
@@ -9278,8 +9338,10 @@ function assembleProgramToPrg(originOverride) {
   let currentSection = inlineSections[0];
   const compileErrors = [];
   for (const [layoutIndex, line] of layout.lines.entries()) {
-    if (line.block.isLabel || line.block.isComment || line.block.isIncludeMacro) continue;
+    if (line.block.isLabel || line.block.isComment || line.block.isIncludeMacro || line.block.isBlankLine) continue;
     if (line.block._isSavedAddress) continue;
+    // Skip macro definition-site blocks that still contain unresolved {param} placeholders
+    if (line.block._fromMacroDef && /\{[A-Za-z_][A-Za-z0-9_]*\}/.test(line.block.rawOperand || "")) continue;
     if (line.block._isRestoreAddress) {
       currentSection = { addr: line.address, bytes: [] };
       inlineSections.push(currentSection);
@@ -9395,12 +9457,21 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes: [] };
   }
 
-  if (block.isLabel || block.isComment || block.isAnonymousLabel) {
+  // Macro body at definition site with unresolved {param} placeholders — skip compilation
+  if (block._fromMacroDef && /\{[A-Za-z_][A-Za-z0-9_]*\}/.test(block.rawOperand || "")) {
+    return { ok: true, bytes: [] };
+  }
+
+  if (block.isLabel || block.isComment || block.isAnonymousLabel || block.isBlankLine) {
     return { ok: true, bytes: [] };
   }
 
   const blockError = getLiveValidationError(block);
   if (blockError) {
+    // If the rawOperand still has an unresolved {param} placeholder, give a clearer message
+    if (/\{[A-Za-z_][A-Za-z0-9_]*\}/.test(block.rawOperand || "")) {
+      return { ok: false, error: `Unresolved macro parameter in ${block.mnemonic}: ${block.rawOperand}` };
+    }
     return { ok: false, error: tf("compileInvalidOperand", { mnemonic: block.mnemonic }) };
   }
 
@@ -10382,6 +10453,11 @@ function getNumberFormatError(base) {
 // This avoids stale stored errors (e.g. from before a fix or from a loaded project).
 function getLiveValidationError(block) {
   if (opcodeMap[block.mnemonic] && block.addressingMode) {
+    // Skip validation for macro body blocks with {param} placeholders (definition site or include source)
+    if ((block._macroSourceBlock || block._fromMacroDef) && /\{[A-Za-z_][A-Za-z0-9_]*\}/.test(block.rawOperand || "")) {
+      block.validationError = "";
+      return "";
+    }
     const preview = buildOperandPreview(block.addressingMode, block.rawOperand || "", block.base || "hex");
     // Update stored error so block state stays in sync
     block.validationError = preview.error;
@@ -10530,6 +10606,10 @@ function formatAddress(value) {
 }
 
 function getInstructionSize(block) {
+  if (block.isBlankLine) {
+    return 0;
+  }
+
   if (block._isMacroInvokeHeader || block._macroSourceBlock) {
     return 0;
   }
@@ -10723,7 +10803,7 @@ function getInstructionSize(block) {
   if (macroName && userMacros[macroName]) {
     // Calculate size by expanding the macro body
     let totalSize = 0;
-    for (const macroBlock of userMacros[macroName]) {
+    for (const macroBlock of userMacros[macroName].body) {
       totalSize += getInstructionSize(macroBlock);
     }
     return totalSize;
@@ -10759,13 +10839,16 @@ function getProgramLayout(originOverride) {
   const expandedProgram = [];
   let insideMacroDef = false;
   let currentMacroName = null;
+  let currentMacroHasParams = false;
 
   for (const block of program) {
     if (block.isMacroDefStart) {
       insideMacroDef = true;
       currentMacroName = block.macroName || null;
-      // Emit synthetic label so JSR macroName can resolve to the definition site
-      if (currentMacroName) {
+      // Macros with parameters cannot be used as subroutines (placeholders can't be resolved at definition site)
+      currentMacroHasParams = !!(block.macroParams && block.macroParams.trim());
+      // Emit synthetic label so JSR macroName can resolve to the definition site (param-less macros only)
+      if (currentMacroName && !currentMacroHasParams) {
         expandedProgram.push({
           id: crypto.randomUUID(),
           isLabel: true,
@@ -10784,12 +10867,18 @@ function getProgramLayout(originOverride) {
     if (block.isMacroDefEnd) {
       insideMacroDef = false;
       currentMacroName = null;
+      currentMacroHasParams = false;
       if (showMacroSource) expandedProgram.push(block);
       continue;
     }
     if (insideMacroDef) {
-      // Emit macro body as real subroutine code at definition site (enables JSR macroName)
-      expandedProgram.push({ ...block, _fromMacroDef: currentMacroName });
+      // Emit macro body as real subroutine code at definition site (enables JSR macroName) —
+      // only for parameter-less macros; parameterised macros are INVOKE-only
+      if (!currentMacroHasParams) {
+        expandedProgram.push({ ...block, _fromMacroDef: currentMacroName });
+      } else if (showMacroSource) {
+        expandedProgram.push({ ...block, _macroSourceBlock: true, _fromMacroDef: currentMacroName });
+      }
       continue;
     }
 
@@ -10884,13 +10973,29 @@ function getProgramLayout(originOverride) {
       // Includes both explicit LABEL blocks AND loop labels (isLoopMacro.loopLabel)
       // so that LOOP/NEXT labels inside macros are uniquified per-invocation.
       const localLabels = new Set([
-        ...userMacros[macroName].filter(b => b.isLabel && b.labelName).map(b => b.labelName),
-        ...userMacros[macroName].filter(b => b.isLoopMacro && b.loopLabel).map(b => b.loopLabel)
+        ...userMacros[macroName].body.filter(b => b.isLabel && b.labelName).map(b => b.labelName),
+        ...userMacros[macroName].body.filter(b => b.isLoopMacro && b.loopLabel).map(b => b.loopLabel)
       ]);
-      // Helper: replace local label references in a rawOperand string
-      const rewriteOperand = (raw) => {
-        if (!raw || !localLabels.size) return raw;
+      // Build parameter → argument substitution map
+      const macroParams = userMacros[macroName].params || [];
+      const invokeArgsStr = block.invokeArgs || "";
+      const invokeArgsList = invokeArgsStr.split(",").map(s => s.trim());
+      const paramSubst = {};
+      macroParams.forEach((p, i) => { if (p) paramSubst[p] = invokeArgsList[i] ?? ""; });
+      // Helper: substitute {param} placeholders with argument values
+      const applyParams = (raw) => {
+        if (!raw || !macroParams.length) return raw;
         let result = raw;
+        for (const [p, v] of Object.entries(paramSubst)) {
+          result = result.replace(new RegExp(`\\{${p}\\}`, "g"), v);
+        }
+        return result;
+      };
+      // Helper: replace local label references in a rawOperand string, and apply param substitution
+      const rewriteOperand = (raw) => {
+        if (!raw) return raw;
+        let result = applyParams(raw);
+        if (!localLabels.size) return result;
         for (const lbl of localLabels) {
           // Match whole-word label references (not part of a longer identifier)
           const re = new RegExp(`(?<![A-Za-z0-9_])${lbl}(?![A-Za-z0-9_])`, "g");
@@ -10901,7 +11006,7 @@ function getProgramLayout(originOverride) {
       // Add INVOKE block as a zero-size header line for ASM view selection
       expandedProgram.push({ ...block, _isMacroInvokeHeader: true });
       // Expand the macro body inline with uniquified local labels
-      for (const macroBlock of userMacros[macroName]) {
+      for (const macroBlock of userMacros[macroName].body) {
         const expanded = {
           ...macroBlock,
           id: crypto.randomUUID(),
@@ -10912,8 +11017,21 @@ function getProgramLayout(originOverride) {
           expanded.labelName = macroBlock.labelName + localSuffix;
         }
         if (macroBlock.rawOperand) {
-          expanded.rawOperand = rewriteOperand(macroBlock.rawOperand);
+          const newRaw = rewriteOperand(macroBlock.rawOperand);
+          expanded.rawOperand = newRaw;
           expanded.operand   = rewriteOperand(macroBlock.operand);
+          // If param substitution changed the operand (had {param}), re-derive addressing mode
+          // because the original block was parsed with a placeholder (e.g. "absolute" for "{color}")
+          if (newRaw !== macroBlock.rawOperand && opcodeMap[macroBlock.mnemonic]) {
+            const reparsed = _importMakeInstruction(macroBlock.mnemonic, newRaw, new Set(["BEQ","BNE","BCC","BCS","BMI","BPL","BVC","BVS","BRA"]));
+            expanded.addressingMode = reparsed.addressingMode;
+            expanded.rawOperand = reparsed.rawOperand;
+            expanded.operand = reparsed.operand;
+            expanded.base = reparsed.base;
+          }
+        } else if (macroParams.length) {
+          // No rawOperand, but still apply param substitution to operand
+          expanded.operand = applyParams(macroBlock.operand);
         }
         if (macroBlock.isLoopMacro && macroBlock.loopLabel && localLabels.has(macroBlock.loopLabel)) {
           expanded.loopLabel = macroBlock.loopLabel + localSuffix;
@@ -11531,7 +11649,7 @@ function getBlockDescription(block) {
   if (block.isMacroInvoke) {
     const name = block.invokeMacroName || "?";
     if (userMacros[name]) {
-      const bodyCount = userMacros[name].length;
+      const bodyCount = userMacros[name].body.length;
       return currentLanguage !== "hu"
         ? `Invokes user-defined macro "${name}" (${bodyCount} instruction${bodyCount !== 1 ? 's' : ''})`
         : `Felhasználói makró "${name}" hívása (${bodyCount} utasítás)`;
@@ -12049,6 +12167,9 @@ function renderProgram() {
 
       // Skip hidden blocks (node not created/appended)
       if (isHidden) return;
+
+      // Blank line blocks are invisible in block mode — they only exist for expert mode round-trip
+      if (block.isBlankLine) return;
 
       const node = blockTemplate.content.firstElementChild.cloneNode(true);
       node.dataset.index = index;
@@ -13031,11 +13152,21 @@ function renderProgram() {
     } else if (block.isElseMacro || block.isEndIfMacro) {
       inlineField.hidden = true;
     } else if (block.isMacroDefStart) {
-      inlineField.querySelector("span").textContent = currentLanguage !== "hu" ? "Macro name" : "Makro nev";
-      inlineField.hidden = false;
-      operandField.value = block.macroName || "";
-      operandField.placeholder = "my_macro";
-      operandField.addEventListener("input", (event) => updateProgramBlock(index, "macroName", event.target.value));
+      blockControls.insertAdjacentHTML("beforeend", `
+        <div class="macro-grid">
+          <label class="mini-field">
+            <span>${currentLanguage !== "hu" ? "Macro name" : "Makro nev"}</span>
+            <input class="macro-def-name" type="text" value="${block.macroName || ""}" placeholder="my_macro">
+          </label>
+          <label class="mini-field">
+            <span>${currentLanguage !== "hu" ? "Params (comma-sep.)" : "Paraméterek (vesszővel)"}</span>
+            <input class="macro-def-params" type="text" value="${block.macroParams || ""}" placeholder="color, addr">
+          </label>
+        </div>
+      `);
+      inlineField.hidden = true;
+      blockControls.querySelector(".macro-def-name")?.addEventListener("input", (e) => updateProgramBlock(index, "macroName", e.target.value));
+      blockControls.querySelector(".macro-def-params")?.addEventListener("input", (e) => updateProgramBlock(index, "macroParams", e.target.value));
     } else if (block.isMacroDefEnd) {
       inlineField.hidden = true;
     } else if (block.isRegionMacro) {
@@ -13203,6 +13334,10 @@ function renderProgram() {
         ? macroNames.map(name => `<option value="${name}"${block.invokeMacroName === name ? " selected" : ""}>${name}</option>`).join("")
         : `<option value="">${currentLanguage !== "hu" ? "No macros defined" : "Nincs definialva makro"}</option>`;
 
+      const selectedMacro = block.invokeMacroName && userMacros[block.invokeMacroName];
+      const paramNames = selectedMacro ? (userMacros[block.invokeMacroName].params || []) : [];
+      const paramPlaceholder = paramNames.length ? paramNames.map(p => `{${p}}`).join(", ") : "";
+
       blockControls.insertAdjacentHTML(
         "beforeend",
         `
@@ -13214,9 +13349,16 @@ function renderProgram() {
               </select>
             </label>
           </div>
+          <div class="macro-grid single-macro-row">
+            <label class="mini-field">
+              <span>${currentLanguage !== "hu" ? "Arguments" : "Argumentumok"}${paramPlaceholder ? " (" + paramPlaceholder + ")" : ""}</span>
+              <input class="invoke-macro-args" type="text" value="${(block.invokeArgs || "").replace(/"/g, "&quot;")}" placeholder="${paramPlaceholder || currentLanguage !== "hu" ? "arg1, arg2" : "arg1, arg2"}">
+            </label>
+          </div>
         `
       );
       inlineField.hidden = true;
+      blockControls.querySelector(".invoke-macro-args")?.addEventListener("input", (e) => updateProgramBlock(index, "invokeArgs", e.target.value));
     } else {
       inlineField.querySelector("span").textContent = t("fieldOperand");
       inlineField.hidden = !mode.needsOperand || !!block.isTableMacro;
@@ -13863,6 +14005,11 @@ function renderAsmOutput() {
   const codeLines = layout.lines.map((line, index) => {
     const lineNumber = `${(index + 1).toString().padStart(2, "0")}`;
 
+    // Blank line block → empty line in ASM output
+    if (line.block.isBlankLine) {
+      return "";
+    }
+
     // Handle conditionally skipped blocks (inactive IF branch)
     if (line.conditionallySkipped) {
       const summary = line.block.operand || "";
@@ -13871,7 +14018,8 @@ function renderAsmOutput() {
 
     // Handle INVOKE block header line
     if (line.block._isMacroInvokeHeader) {
-      return `; .invoke ${line.block.invokeMacroName || "?"}`;
+      const args = line.block.invokeArgs ? `(${line.block.invokeArgs})` : "";
+      return `; .invoke ${line.block.invokeMacroName || "?"}${args}`;
     }
 
     // Invisible layout markers — address save/restore for INCLUDE with fixed address
@@ -14233,7 +14381,8 @@ function renderAsmOutput() {
     }
 
     if (line.block.isMacroDefStart) {
-      return `; .MACRO ${line.block.macroName || "?"}`;
+      const params = line.block.macroParams ? `(${line.block.macroParams})` : "";
+      return `; .MACRO ${line.block.macroName || "?"}${params}`;
     }
 
     if (line.block.isMacroDefEnd) {
@@ -15167,6 +15316,21 @@ function _runTutorialStepAction(actionId) {
         operand: ""
       });
       break;
+    case "open-settings-dialog": {
+      document.getElementById("hardware-settings-dialog")?.showModal();
+      // Re-elevate tour elements above the newly opened settings dialog.
+      // Top-layer order (last = topmost): settings → overlay → spotlight → card
+      const _ov = document.getElementById("tour-overlay");
+      const _sp = document.getElementById("tour-spotlight");
+      const _tc = document.getElementById("tour-card");
+      if (_ov?.matches(":popover-open")) { _ov.hidePopover(); _ov.showPopover(); }
+      if (_sp?.matches(":popover-open")) { _sp.hidePopover(); _sp.showPopover(); }
+      if (_tc?.open) { _tc.close(); _tc.showModal(); }
+      break;
+    }
+    case "close-settings-dialog":
+      document.getElementById("hardware-settings-dialog")?.close();
+      break;
   }
 }
 
@@ -15401,10 +15565,14 @@ function _tourStart(steps, lessonId, interactive = false) {
   _tourInteractiveMode = interactive;
   _tourPreparedLessonId = null;
   const overlay = document.getElementById("tour-overlay");
+  const spotlight = document.getElementById("tour-spotlight");
   const card = document.getElementById("tour-card");
   if (overlay) overlay.style.pointerEvents = interactive ? "none" : "all";
-  overlay?.removeAttribute("hidden");
-  card?.removeAttribute("hidden");
+  // Add to top-layer in order: overlay → spotlight → card (last = topmost)
+  if (!overlay?.matches(":popover-open")) overlay?.showPopover();
+  spotlight.style.visibility = "hidden"; // start invisible, position per step
+  if (!spotlight?.matches(":popover-open")) spotlight?.showPopover();
+  if (!card?.open) card?.showModal();
   _tourShowStep(0);
 }
 
@@ -15478,12 +15646,14 @@ function _tourShowStep(index) {
     _tourAllowOverlayClose = !step.openMenu;
     const doPosition = () => {
       const targetEl = document.querySelector(step.target);
-      if (targetEl && spotlight) {
-        if (typeof targetEl.scrollIntoView === "function") {
-          targetEl.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "auto" });
-        }
+      if (!targetEl || !spotlight) return;
+      if (typeof targetEl.scrollIntoView === "function") {
+        targetEl.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "auto" });
+      }
+      // Extra rAF: lets WebKit apply any pending async scroll before measuring
+      requestAnimationFrame(() => {
         const rect = targetEl.getBoundingClientRect();
-        // Retry once if the element has zero area (not yet laid out after scrollIntoView)
+        // Retry once if the element has zero area (not yet laid out)
         if (rect.width === 0 && rect.height === 0) {
           requestAnimationFrame(() => {
             const rect2 = targetEl.getBoundingClientRect();
@@ -15493,7 +15663,7 @@ function _tourShowStep(index) {
           return;
         }
         _positionSpotlightAndCard(spotlight, card, rect, step);
-      }
+      });
     };
     // If this step needs the menu open, open it and wait for animation (160ms)
     if (step.openMenu) {
@@ -15507,9 +15677,10 @@ function _tourShowStep(index) {
       sampleProgramsGroup?.classList.add("tour-sample-highlight");
       _tourMenuOpened = true;
       _tourStartMenuSync();
+      // 250 ms: enough for menu slide-in animation to complete before measuring
       setTimeout(() => {
         requestAnimationFrame(doPosition);
-      }, 0);
+      }, 250);
     } else {
       // Double rAF: first lets DOM mutations from onEnterActionId settle,
       // second fires after the browser has completed layout.
@@ -15526,7 +15697,7 @@ function _tourShowStep(index) {
       }
     }
   } else {
-    if (spotlight) spotlight.setAttribute("hidden", "");
+    if (spotlight) spotlight.style.visibility = "hidden";
     _tourCenterCard(card);
   }
 }
@@ -15537,7 +15708,7 @@ function _applyTourSpotlightPosition(spotlight, card, rect, step) {
   spotlight.style.top = (rect.top - pad) + "px";
   spotlight.style.width = (rect.width + pad * 2) + "px";
   spotlight.style.height = (rect.height + pad * 2) + "px";
-  spotlight.removeAttribute("hidden");
+  spotlight.style.visibility = "visible";
   if (step.centerCard) {
     _tourCenterCard(card);
   } else {
@@ -15635,9 +15806,9 @@ function _tourEnd() {
   const spotlight = document.getElementById("tour-spotlight");
   const card = document.getElementById("tour-card");
   if (overlay) overlay.style.pointerEvents = "all";
-  overlay?.setAttribute("hidden", "");
-  spotlight?.setAttribute("hidden", "");
-  card?.setAttribute("hidden", "");
+  if (overlay?.matches(":popover-open")) overlay.hidePopover();
+  if (spotlight?.matches(":popover-open")) spotlight.hidePopover();
+  if (card?.open) card.close();
   if (_tourLessonId) _tutMarkDone(_tourLessonId);
 }
 
