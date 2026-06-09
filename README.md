@@ -2,7 +2,7 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v1.7.0**
+**Current version: v1.7.1**
 
 ---
 
@@ -225,6 +225,16 @@ Each block in `program[]` is a plain object:
 - **Name-input demo and tutorial** — new sample `name-input-demo.json` demonstrating PETSCII text + CHROUT print loop + CHRIN keyboard input, with a guided interactive tutorial.
 - **Lowercase sample text normalisation** — sample demo text operands normalised to lowercase across all samples. PETSCII encoder improved: newlines map to 13, characters uppercase for C64 charset, lowercase→uppercase fallback.
 - **Palette sync and UI fixes** — palette item highlighting refactored; active palette items scroll into view. Table macros no longer show operand field. Hungarian translation fixes.
+## What's New in v1.7.1
+
+- **Settings dialog** — program settings (BASIC SYS stub, block description sync, Expert mode toggle) and ASM output settings (macro source, region comments, memory overlays) moved from the menu into a dedicated Settings dialog. The menu button is now labeled *Settings…* / *Beállítások…*
+- **Memory overlays toggle** — new checkbox in Settings → ASM output to show or hide the overlay/collision strips in the memory map view. State persists across restarts.
+- **Tour system improvements** — tour card is now a `<dialog>` element rendered in the browser's top-layer, always visible above `showModal()` dialogs. Tour overlay and spotlight use the Popover API for the same guarantee. Spotlight position no longer drifts on macOS WebKit after menu open.
+- **New interactive tour: Setting Up VICE & RetroDebugger** — step-by-step guided tour that opens the Settings dialog, highlights the VICE and RetroDebugger path fields, and closes the dialog on finish.
+- **Ctrl+Shift+E shortcut** — toggles Expert mode on/off from anywhere in the app (Cmd+Shift+E on macOS).
+- **RetroDebugger only** — removed references to C64 Debugger from the manual and UI; the app exclusively supports RetroDebugger as the external debugger.
+- **Bug fixes** — settings toggle state now correctly persists across restarts; memory overlay visibility survives all re-renders; tour spotlight no longer misaligns horizontally on first menu open.
+
 ## What's New in v1.7.0
 
 - **Macro parameters** — MACRO blocks now support optional parameter lists (`color`, `x, y`, …). Use `{paramName}` placeholders anywhere in the macro body. Invoke with arguments using parentheses: `.invoke setColor(#$07)`. Multiple parameters: `.invoke drawPixel($10, $20)`. Backwards-compatible: space-separated invokes without parens still work.

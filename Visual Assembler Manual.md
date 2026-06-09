@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 1.7.0**
+**Version 1.7.1**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 

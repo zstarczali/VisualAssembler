@@ -1,6 +1,6 @@
 {
   "productName": "C64 Visual Assembler",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "identifier": "hu.zstarczali.c64visualassembler",
   "build": {
     "frontendDist": "../www",
