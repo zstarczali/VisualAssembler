@@ -5160,12 +5160,23 @@ function _expertRenderSymbols() {
       const mm = line.match(/^\s*\.macro\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s|\(|$)/i);
       if (mm) { macros.push({ _textName: mm[1].trim(), _lineIdx: idx }); return; }
       const lm = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(?:;.*)?$/);
-      if (lm) { labels.push({ _textName: lm[1].trim(), _lineIdx: idx }); }
+      if (lm) { labels.push({ _textName: lm[1].trim(), _lineIdx: idx }); return; }
+      // Inline macro label suffix — e.g. .petscii $0C00, "...", null :bbb
+      const ilm = line.match(/:([A-Za-z_][A-Za-z0-9_]*)\s*(?:;.*)?$/);
+      if (ilm && /^\s*\.(petscii|string|rawtext|rawbytes|data|table|incbin|byte|fill|word)\b/i.test(line)) {
+        labels.push({ _textName: ilm[1].trim(), _lineIdx: idx });
+      }
     });
   } else {
     regions = program.filter(b => b.isRegionMacro && b.regionName);
     macros  = program.filter(b => b.isMacroDefStart && b.macroName);
     labels  = program.filter(b => b.isLabel && b.labelName);
+    // Also include macro-label suffixes (:bbb) from data macros
+    program.forEach(b => {
+      if (b.macroLabel && b.macroLabel.trim()) {
+        labels.push({ ...b, labelName: b.macroLabel.trim() });
+      }
+    });
   }
 
   if (regions.length === 0 && macros.length === 0 && labels.length === 0) {
@@ -5709,8 +5720,9 @@ function parseUserMacros() {
   const allBlocks = [];
   for (const block of program) {
     allBlocks.push(block);
-    // Libraries with a fixed includeAddress emit macros as subroutines (not inline templates)
-    if (block.isIncludeMacro && block.includedBlocks?.length && !block.includeAddress) {
+    // Include macro definitions from ALL included files (both inline and fixed-address libraries)
+    // so INVOKE can find macros regardless of where they were defined
+    if (block.isIncludeMacro && block.includedBlocks?.length) {
       for (const sub of block.includedBlocks) {
         allBlocks.push(sub);
       }
@@ -7715,7 +7727,16 @@ function showCompileErrorDialog(errors) {
   compileErrorList.innerHTML = errors.map((err, idx) => {
     const lineTagMatch = err.match(/^\[L(\d+)\]/);
     const asmLine = lineTagMatch ? parseInt(lineTagMatch[1], 10) : null;
-    return `<li data-index="${idx}" data-asm-line="${asmLine ?? ""}">${err.replace(/</g, "&lt;")}</li>`;
+    const sepIdx = err.indexOf(" \u2014 ");
+    let html;
+    if (sepIdx !== -1) {
+      const prefix = err.slice(0, sepIdx).replace(/</g, "&lt;");
+      const msg = err.slice(sepIdx + 3).replace(/</g, "&lt;");
+      html = `${prefix} <span class="compile-error-msg">\u2014 ${msg}</span>`;
+    } else {
+      html = `<span class="compile-error-msg">${err.replace(/</g, "&lt;")}</span>`;
+    }
+    return `<li data-index="${idx}" data-asm-line="${asmLine ?? ""}">${html}</li>`;
   }).join("");
 
   compileErrorList.querySelectorAll("li").forEach(li => {
@@ -10024,7 +10045,7 @@ function compileLineBytes(line, labels) {
     const reg = block.loopReg || "X";
     const opcode = reg === "Y" ? 0xA0 : 0xA2;
     const rawCount = (block.loopCount || "0A").trim();
-    const count = (block.base === "dec") ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+    const count = parseNumberByBase(rawCount, block.base || "hex") ?? NaN;
     if (isNaN(count) || count < 0 || count > 255) {
       return { ok: false, error: `LOOP: ${t("invalidOperand") || "ervenytelen szamlalocim"}` };
     }
@@ -12063,7 +12084,7 @@ function getCollapsedOperandText(block) {
     let countDisplay = "";
     if (block.loopCount) {
       const rawCount = block.loopCount.trim();
-      const parsed = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+      const parsed = parseNumberByBase(rawCount, block.base || "hex") ?? NaN;
       countDisplay = isNaN(parsed) ? rawCount : `#$${parsed.toString(16).toUpperCase().padStart(2, "0")}`;
     }
     const label = block.loopLabel || "";
@@ -12079,7 +12100,7 @@ function getCollapsedOperandText(block) {
     let countDisplay = "";
     if (block.loopCount) {
       const rawCount = block.loopCount.trim();
-      const parsed = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+      const parsed = parseNumberByBase(rawCount, block.base || "hex") ?? NaN;
       countDisplay = isNaN(parsed) ? rawCount : `#$${parsed.toString(16).toUpperCase().padStart(2, "0")}`;
     }
     const label = block.loopLabel || "";
@@ -12223,6 +12244,9 @@ function renderProgram() {
       node.dataset.categoryTone = getCategoryTone(block.category);
       node.dataset.collapsed = block.collapsed ? "true" : "false";
       if (block.isConstMacro) node.dataset.macroKind = "const";
+      if (block.isMacroDefStart) node.dataset.blockKind = "macro-def-start";
+      if (block.isMacroDefEnd) node.dataset.blockKind = "macro-def-end";
+      if (block.isLabel) node.dataset.blockKind = "label";
       if (block.isRegionMacro) node.classList.add("region-header");
       if (block.isEndRegionMacro) node.classList.add("region-endblock");
 
@@ -14086,27 +14110,14 @@ function renderAsmOutput() {
     }
 
     // Check if this line came from a macro expansion
+    // Only intercept labels and comments here (to suppress the address annotation).
+    // All other block types (LOOP, NEXT, REGION, regular instructions, etc.) fall
+    // through to their own rendering code below so they render correctly.
     if (line.block._fromMacro) {
-      const macroName = line.block._fromMacro;
-      // Show expansion header only for legacy expansions (not INVOKE-based)
-      const isFirstInMacro = !line.block._invokeBlockId &&
-        (index === 0 || layout.lines[index - 1].block._fromMacro !== macroName);
-      const prefix = isFirstInMacro ? `; >>> Macro expansion: ${macroName}\n` : "";
-
-      // Generate the code for this expanded block
-      let expandedCode = "";
-      if (line.block.isAnonymousLabel) {
-        expandedCode = "-";
-      } else if (line.block.isLabel) {
-        expandedCode = `${line.block.labelName}:`;
-      } else if (line.block.isComment) {
-        expandedCode = `; ${line.block.rawOperand || ""}`;
-      } else {
-        const suffix = line.block.operand ? ` ${line.block.operand}` : "";
-        expandedCode = `    ${line.block.mnemonic}${suffix}`;
-      }
-
-      return prefix + expandedCode;
+      if (line.block.isAnonymousLabel) return `-`;
+      if (line.block.isLabel) return `${line.block.labelName}:`;
+      if (line.block.isComment) return `; ${line.block.rawOperand || ""}`;
+      // fall through to normal rendering for everything else
     }
 
     if (line.block.isLabel) {
@@ -14291,7 +14302,7 @@ function renderAsmOutput() {
     if (line.block.isLoopMacro || line.block.isForMacro) {
       const reg = line.block.loopReg || "X";
       const rawCount = (line.block.loopCount || "00").trim();
-      const parsedCount = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+      const parsedCount = parseNumberByBase(rawCount, line.block.base || "hex") ?? NaN;
       const countHex = isNaN(parsedCount) ? rawCount.toUpperCase() : parsedCount.toString(16).toUpperCase().padStart(2, "0");
       const label = line.block.loopLabel || "loop";
       if (line.block.isForMacro) {
@@ -14310,7 +14321,7 @@ function renderAsmOutput() {
       const reg = line.block.nextReg || "X";
       const label = line.block.nextLabel || "loop";
       const rawCount = (line.block.nextCount || "00").trim();
-      const parsedCount = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+      const parsedCount = parseNumberByBase(rawCount, line.block.base || "hex") ?? NaN;
       const countStr = isNaN(parsedCount) ? rawCount.toUpperCase() : `$${parsedCount.toString(16).toUpperCase().padStart(2, "0")}`;
       return `    IN${reg}\n    CP${reg} #${countStr}\n    BNE ${label}`;
     }
@@ -15720,7 +15731,7 @@ function _tourShowStep(index) {
       menuPanel?.classList.add("menu-opening");
       menuDetails?.setAttribute("open", "");
       if (menuDetails) menuDetails.open = true;
-      sampleProgramsGroup?.classList.add("tour-sample-highlight");
+      if (step.target === "#sample-programs-group") sampleProgramsGroup?.classList.add("tour-sample-highlight");
       _tourMenuOpened = true;
       _tourStartMenuSync();
       // 250 ms: enough for menu slide-in animation to complete before measuring

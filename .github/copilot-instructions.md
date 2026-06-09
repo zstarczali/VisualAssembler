@@ -659,7 +659,7 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`1.7.1` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` és a What's New dialóg (`index.html`).
+`1.7.2` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` és a What's New dialóg (`index.html`).
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező
@@ -1063,6 +1063,248 @@ if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(value)) {
 ### Dropdown stílus — mindkét dropdown egységes
 
 A natív `<datalist>` le van cserélve custom dropdownra. Az `operand-dropdown` (paletta) és a `label-picker-dropdown` (blokk) ugyanolyan stílusú: `var(--panel-strong)` háttér, `14px` border-radius, `var(--secondary)` hover.
+
+---
+
+## Tutorial / Guided Tour rendszer
+
+### Fájlok
+
+| Fájl | Szerep |
+|------|--------|
+| `www/tutorial-data.js` | `window.TUTORIAL_DATA` — összes kategória, lecke és lépés adata |
+| `www/app.js` (~15074–15900) | Tour engine: state, renderelés, lépés-logika, spotlight/kártya pozicionálás |
+
+---
+
+### Adatstruktúra (`tutorial-data.js`)
+
+```js
+window.TUTORIAL_DATA = {
+  categories: [
+    { id: "featured",     labelHu: "Kiemelt",   labelEn: "Featured" },
+    { id: "tour",         labelHu: "Bemutató",  labelEn: "Tour" },
+    { id: "basics",       labelHu: "Kezdőknek", labelEn: "Beginners" },
+    { id: "fundamentals", labelHu: "Alapok",    labelEn: "Fundamentals" },
+    { id: "advanced",     labelHu: "Haladó",    labelEn: "Advanced" }
+  ],
+  lessons: [ /* ld. alább */ ]
+}
+```
+
+#### Lecke (lesson) objektum
+
+```js
+{
+  id: "guided-first-text",       // egyedi string azonosító
+  category: "basics",            // kategória id
+  type: "lesson" | "tour",       // "tour" = bemutató, "lesson" = oktatás
+  interactive: true,             // ha true → Start Tour gomb megjelenik
+  difficulty: 0,                 // 0 = tour (csillag helyett "TOUR"), 1-3 = nehézség
+  titleHu: "...", titleEn: "...", titleEs: "...",
+  descHu:  "...", descEn:  "...", descEs:  "...",
+  sample: "basic-colors",        // opcionális: sample betöltése a leckéhez
+  steps: [ /* ld. alább */ ]
+}
+```
+
+#### Lépés (step) objektum — minden mező opcionális
+
+```js
+{
+  // --- Spotolás ---
+  target: "#mnemonic-select",       // CSS selector; null = nincs spotlight, kártya középre
+  centerCard: true,                 // ha true → kártya mindig középen (NE add target-es lépésnél!)
+
+  // --- Tartalom ---
+  titleHu: "1/27 — ...", titleEn: "...", titleEs: "...",
+  descHu:  "...",         descEn:  "...", descEs:  "...",
+
+  // --- Automatikus UI előkészítés ---
+  onEnterActionId: "prep-sei",      // meghívja _runTutorialStepAction() az adott id-vel
+
+  // --- Automatikus továbblépés ---
+  advanceOnTargetClick: true,       // továbblép ha a target-et kattintják
+  advanceOnTargetChange: true,      // továbblép ha a target értéke megváltozik ÉS egyezik targetValue-val
+  advanceOnTargetInput: true,       // továbblép input eseménynél ha értéke egyezik targetValue-val
+  targetValue: "SEI",               // elvárt érték (case-insensitive hex #operand-input-nál)
+  caseInsensitiveTargetValue: true, // kisbetű/nagybetű ignorálás
+
+  // --- Menü kezelés ---
+  openMenu: true,                   // megnyitja a .control-menu-t a spotolás előtt
+  positionDelay: 300,               // ms várakozás pozicionálás előtt (pl. dialóg animáció)
+
+  // --- Egyéb ---
+  loadSample: "basic-colors",       // megjelenít egy "Load sample" gombot a lépésben
+  actionId: "...",                  // megjelenít egy akció gombot (actionLabelHu/En/Es kell)
+  highlight: ".program-panel",      // opcionális extra kiemelés
+}
+```
+
+---
+
+### Tour engine state változók (`app.js`)
+
+```js
+let _tourActive          = false;   // fut-e tour
+let _tourCurrentStep     = 0;       // aktuális lépésszám
+let _tourSteps           = [];      // a futó tour lépéstömbje
+let _tourLessonId        = null;    // futó lecke id
+let _tourMenuOpened      = false;   // megnyitotta-e a tour a menüt
+let _tourAllowOverlayClose = true;  // overlay-kattintással bezárható-e
+let _tourInteractiveMode = false;   // interactive=true leckéknél aktív
+let _tourPreparedLessonId = null;   // onEnterActionId prepare guard
+let _tourRepositionRaf   = 0;       // rAF handle reposition-höz
+```
+
+---
+
+### Kulcs-függvények (`app.js`)
+
+| Függvény | Leírás |
+|----------|--------|
+| `openTutorialDialog()` | Megnyitja a tutorial dialógot |
+| `_tutRenderDialog()` | Felépíti a kategória/lecke listát |
+| `_tutShowLesson(lessonId)` | Megjeleníti egy lecke tartalmát |
+| `_tourStart(lesson)` | Elindítja a tour-t (beállítja `_tourSteps`, `_tourActive`) |
+| `_tourShowStep(stepIndex)` | Megjeleníti az adott lépést: kártya tartalma + spotlight pozíció |
+| `_runTutorialStepAction(actionId)` | Végrehajtja az `onEnterActionId` akciót |
+| `_tourBindTargetAdvance(step)` | Felköti az auto-advance eseményfigyelőket |
+| `_tourTargetValueMatches(step, val)` | Ellenőrzi a target érték egyezést |
+| `_positionSpotlightAndCard(sp, card, rect, step)` | Spotlight + kártya pozicionálás |
+| `_tourPositionCard(card, targetRect)` | Kártya elhelyezés a spotlight mellé (jobb/bal/alá/fölé) |
+| `_tourCenterCard(card)` | Kártya középre (`50%/50%`) |
+| `_tourRefreshCurrentStepPosition()` | Újrapozicionál (resize/scroll után) |
+| `_tourEnd()` | Tour leállítása, cleanup |
+| `_tutorialSetPaletteSelection({...})` | Paletta állapot beállítása (category/mnemonic/addressing/operand) |
+
+---
+
+### `onEnterActionId` értékek (jelenleg implementáltak)
+
+| actionId | Mit csinál |
+|----------|-----------|
+| `"prepare-guided-color-text"` | Törli a programot, block módra vált (egyszer fut le / lecke) |
+| `"prepare-name-input-demo"` | Betölti a `name-input-demo` sample-t (egyszer fut le / lecke) |
+| `"prep-sei"` | Paletta → Rendszer / CLC implied (a user ezután kiválasztja a SEI-t) |
+| `"prep-lda-black"` | Paletta → Adatmozgas / LDX immediate |
+| `"prep-lda-border"` | Paletta → Adatmozgas / LDA immediate |
+| `"prep-sta-border"` | Paletta → Adatmozgas / LDA absolute |
+| `"prep-lda-background"` | Paletta → Adatmozgas / LDA immediate |
+| `"prep-sta-background"` | Paletta → Adatmozgas / LDA absolute |
+| `"prep-rts-block"` | Paletta → Ugrasok / JMP implied |
+| `"prep-jsr-clearscreen"` | Paletta → Ugrasok / JMP absolute |
+| `"prep-jsr-chrin"` | Paletta → Ugrasok / JSR absolute, operand=FFCF |
+| `"prep-text-block"` | Paletta → Makrok / TEXT, operand="hello c64!" |
+| `"prep-text-hello-c64"` | Paletta → Makrok / BYTE (user ezután TEXT-re vált) |
+| `"prep-text-visual-assembler"` | Paletta → Makrok / BYTE (user ezután TEXT-re vált) |
+| `"prep-text-greeting"` | Paletta → Makrok / TEXT, operand="hello " |
+| `"prep-text-whatsyourname"` | Paletta → Makrok / TEXT, operand="what's your name?" |
+| `"open-settings-dialog"` | Megnyitja a `#hardware-settings-dialog`-ot; tour elemeket a dialóg fölé hozza |
+| `"close-settings-dialog"` | Bezárja a `#hardware-settings-dialog`-ot |
+
+> **Fontos:** `prepare-*` akciók `_tourPreparedLessonId` guard-dal csak egyszer futnak le / lecke (nehogy újrainduláskor töröljék a user munkáját).
+
+---
+
+### `openMenu: true` lépések szabályai
+
+- Megnyitja a `.control-menu`-t animációval (`tour-menu-open` class)
+- **`sampleProgramsGroup` kiemelés CSAK akkor** ha `step.target === "#sample-programs-group"`
+- A következő lépésnél (ha `openMenu` nincs) automatikusan becsukja a menüt
+- Overlay kattintásra NEM zárja be a tour-t (`_tourAllowOverlayClose = false`)
+
+---
+
+### Tour létrehozásának lépései
+
+1. **`tutorial-data.js`-ben** adj hozzá egy objektumot a `lessons` tömbhöz
+   - `id` — egyedi, kebab-case string
+   - `category` — valamelyik meglévő kategória id
+   - `type: "tour"` (spotlight-os bemutató) vagy `"lesson"` + `interactive: true` (interaktív)
+   - `difficulty: 0` ha tour (TOUR badge), `1-3` ha lecke
+   - 3 nyelvű `title` + `desc`
+   - `steps[]` tömb (ld. step objektum feljebb)
+
+2. **Ha új `onEnterActionId` kell**, add hozzá a `_runTutorialStepAction()` switch-be (`app.js`)
+
+3. **Ha a lépés dialógot nyit** (pl. settings):
+   - `onEnterActionId: "open-settings-dialog"` + `positionDelay: 300`
+   - **Ne** adj `centerCard: true`-t — a kártya automatikusan a spotlight mellé megy
+
+4. **Auto-advance** interaktív lépéseknél:
+   - `advanceOnTargetClick: true` — gomb megnyomásakor
+   - `advanceOnTargetChange: true` + `targetValue` — select/input értékre
+   - `advanceOnTargetInput: true` + `targetValue` — szabad gépelésre (pl. operandus mező)
+
+---
+
+### "Build: Your First Text Program" tour — teljes lépéssor
+
+`id: "guided-first-text"` | `interactive: true` | `difficulty: 0`
+
+| # | target | onEnterActionId | advanceOn | targetValue | Leírás |
+|---|--------|-----------------|-----------|-------------|--------|
+| 0 | null | `prepare-guided-color-text` | — | — | Intro: üres program, felsorolja a célprogramot |
+| 1 | `#mnemonic-select` | `prep-sei` | Change | `"SEI"` | Válaszd ki a SEI-t |
+| 2 | `#add-selected` | — | Click | — | Add hozzá a SEI blokkot |
+| 3 | `#mnemonic-select` | `prep-lda-black` | Change | `"LDA"` | Válaszd ki az LDA-t |
+| 4 | `#operand-input` | — | Input | `"00"` | Írd be: 00 (fekete szín) |
+| 5 | `#add-selected` | — | Click | — | Add hozzá az LDA #$00-t |
+| 6 | `#mnemonic-select` | `prep-sta-border` | Change | `"STA"` | STA a border-hez |
+| 7 | `#operand-input` | — | Input | `"D020"` | Írd be: D020 |
+| 8 | `#add-selected` | — | Click | — | Add STA $D020-t |
+| 9 | `#mnemonic-select` | `prep-sta-background` | Change | `"STA"` | STA a háttérhez |
+| 10 | `#operand-input` | — | Input | `"D021"` | Írd be: D021 |
+| 11 | `#add-selected` | — | Click | — | Add STA $D021-t |
+| 12 | `#mnemonic-select` | `prep-jsr-clearscreen` | Change | `"JSR"` | JSR a clear-screenhez |
+| 13 | `#operand-input` | — | Input | `"E544"` | Írd be: E544 |
+| 14 | `#add-selected` | — | Click | — | Add JSR $E544-t |
+| 15 | `#mnemonic-select` | `prep-text-hello-c64` | Change | `"TEXT"` | Válaszd ki a TEXT makrót |
+| 16 | `#operand-input` | — | Input | `"hello c64"` | Írd be: hello c64 |
+| 17 | `#add-selected` | — | Click | — | Add TEXT blokkot (X=12, Y=8 majd) |
+| 18 | `#mnemonic-select` | `prep-text-visual-assembler` | Change | `"TEXT"` | TEXT újra |
+| 19 | `#operand-input` | — | Input | `"visual assembler"` | Írd be: visual assembler |
+| 20 | `#add-selected` | — | Click | — | Add TEXT blokkot (X=8, Y=10 majd) |
+| 21 | `#mnemonic-select` | `prep-rts-block` | Change | `"RTS"` | Válaszd ki az RTS-t |
+| 22 | `#add-selected` | — | Click | — | Add RTS-t |
+| 23 | `[data-index="6"] .collapse-toggle` | — | Click | — | Nyisd ki az első TEXT blokkot |
+| 24 | `[data-index="6"] .macro-grid` | — | — | — | Állítsd X=12, Y=8 (Next gomb) |
+| 25 | `[data-index="7"] .collapse-toggle` | — | Click | — | Nyisd ki a második TEXT blokkot |
+| 26 | `[data-index="7"] .macro-grid` | — | — | — | Állítsd X=8, Y=10 (Next gomb) |
+| 27 | `#run-emulator` | — | — | — | Kész! Futtasd le! |
+
+**Célprogram:**
+```
+SEI
+LDA #$00
+STA $D020
+STA $D021
+JSR $E544
+.text 12, 8, "hello c64"
+.text 8, 10, "visual assembler"
+RTS
+```
+
+> **Megjegyzés:** A `prep-sei` akció CLC-re állítja a palettát (nem SEI-re) — a user dolga a helyes mnemonic kiválasztása. Ugyanígy `prep-lda-black` LDX-re állít, `prep-sta-border`/background LDA-ra, `prep-rts-block` JMP-re, `prep-text-hello-c64`/visual BYTE-ra. Ez szándékos: az interaktív tourban a user választja ki a helyeset.
+
+---
+
+### "Setting Up VICE & RetroDebugger" tour — lépéssor
+
+`id: "setup-emulators-tour"` | `type: "tour"` | `difficulty: 0`
+
+| # | target | openMenu | onEnterActionId | Leírás |
+|---|--------|----------|-----------------|--------|
+| 0 | null | — | — | Intro: miért kell beállítani |
+| 1 | `.control-menu-trigger` | — | — | Spotlight a menü gombra (☰) |
+| 2 | `#hardware-settings-btn` | true | — | Spotlight a Settings gombra a megnyílt menüben |
+| 3 | `#choose-vice` | — | `open-settings-dialog` | VICE exe választó gomb, dialóg megnyílik |
+| 4 | `#vice-path` | — | — | VICE elérési út mező |
+| 5 | `#choose-debugger` | — | — | RetroDebugger exe választó gomb |
+| 6 | `#debugger-path` | — | — | RetroDebugger elérési út mező |
+| 7 | null | — | `close-settings-dialog` | Kész! Dialóg bezárul |
+
 
 **TILOS** fekete (`#0d0d16`) hardcoded hátteret használni a dropdownoknál — mindig CSS változókat használj!
 
