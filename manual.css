@@ -1,0 +1,93 @@
+/* Markdown PDF custom style — C64 Visual Assembler Manual */
+
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #1a1a1a;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+/* Inline code — plain dark look, no brown/orange */
+code,
+td code,
+th code,
+li code,
+p code,
+blockquote code {
+  font-family: "Consolas", "Courier New", monospace !important;
+  font-size: 0.98em !important;
+  background: #ebebeb !important;
+  color: #1a1a1a !important;
+  padding: 1px 4px !important;
+  border-radius: 3px !important;
+  border: none !important;
+}
+
+/* Code blocks */
+pre {
+  background: #f5f5f5;
+  border-left: 3px solid #666;
+  padding: 10px 14px;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 0.85em;
+  line-height: 1.5;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
+  color: #1a1a1a;
+}
+
+/* Headings */
+h1 { font-size: 1.9em; border-bottom: 2px solid #333; padding-bottom: 6px; }
+h2 { font-size: 1.4em; border-bottom: 1px solid #aaa; padding-bottom: 4px; margin-top: 2em; }
+h3 { font-size: 1.1em; margin-top: 1.6em; }
+h4 { font-size: 1em; margin-top: 1.2em; }
+
+/* Tables */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+  font-size: 0.9em;
+}
+th {
+  background: #e8e8e8;
+  font-weight: 600;
+  text-align: left;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+}
+td {
+  padding: 4px 10px;
+  border: 1px solid #ddd;
+  vertical-align: top;
+}
+tr:nth-child(even) td {
+  background: #fafafa;
+}
+
+/* Blockquotes (Tip/Note/Important) */
+blockquote {
+  border-left: 3px solid #888;
+  margin: 0.8em 0;
+  padding: 6px 12px;
+  background: #f9f9f9;
+  color: #444;
+  font-size: 0.92em;
+}
+
+blockquote p { margin: 0; }
+
+/* Horizontal rule */
+hr {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 2em 0;
+}
