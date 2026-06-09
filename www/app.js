@@ -10045,7 +10045,7 @@ function compileLineBytes(line, labels) {
     const reg = block.loopReg || "X";
     const opcode = reg === "Y" ? 0xA0 : 0xA2;
     const rawCount = (block.loopCount || "0A").trim();
-    const count = (block.base === "dec") ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+    const count = parseNumberByBase(rawCount, block.base || "hex") ?? NaN;
     if (isNaN(count) || count < 0 || count > 255) {
       return { ok: false, error: `LOOP: ${t("invalidOperand") || "ervenytelen szamlalocim"}` };
     }
@@ -12084,7 +12084,7 @@ function getCollapsedOperandText(block) {
     let countDisplay = "";
     if (block.loopCount) {
       const rawCount = block.loopCount.trim();
-      const parsed = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+      const parsed = parseNumberByBase(rawCount, block.base || "hex") ?? NaN;
       countDisplay = isNaN(parsed) ? rawCount : `#$${parsed.toString(16).toUpperCase().padStart(2, "0")}`;
     }
     const label = block.loopLabel || "";
@@ -12100,7 +12100,7 @@ function getCollapsedOperandText(block) {
     let countDisplay = "";
     if (block.loopCount) {
       const rawCount = block.loopCount.trim();
-      const parsed = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+      const parsed = parseNumberByBase(rawCount, block.base || "hex") ?? NaN;
       countDisplay = isNaN(parsed) ? rawCount : `#$${parsed.toString(16).toUpperCase().padStart(2, "0")}`;
     }
     const label = block.loopLabel || "";
@@ -14302,7 +14302,7 @@ function renderAsmOutput() {
     if (line.block.isLoopMacro || line.block.isForMacro) {
       const reg = line.block.loopReg || "X";
       const rawCount = (line.block.loopCount || "00").trim();
-      const parsedCount = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+      const parsedCount = parseNumberByBase(rawCount, line.block.base || "hex") ?? NaN;
       const countHex = isNaN(parsedCount) ? rawCount.toUpperCase() : parsedCount.toString(16).toUpperCase().padStart(2, "0");
       const label = line.block.loopLabel || "loop";
       if (line.block.isForMacro) {
@@ -14321,7 +14321,7 @@ function renderAsmOutput() {
       const reg = line.block.nextReg || "X";
       const label = line.block.nextLabel || "loop";
       const rawCount = (line.block.nextCount || "00").trim();
-      const parsedCount = /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
+      const parsedCount = parseNumberByBase(rawCount, line.block.base || "hex") ?? NaN;
       const countStr = isNaN(parsedCount) ? rawCount.toUpperCase() : `$${parsedCount.toString(16).toUpperCase().padStart(2, "0")}`;
       return `    IN${reg}\n    CP${reg} #${countStr}\n    BNE ${label}`;
     }

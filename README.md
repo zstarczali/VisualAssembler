@@ -2,7 +2,7 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v1.7.1**
+**Current version: v1.7.2**
 
 ---
 
@@ -225,6 +225,17 @@ Each block in `program[]` is a plain object:
 - **Name-input demo and tutorial** — new sample `name-input-demo.json` demonstrating PETSCII text + CHROUT print loop + CHRIN keyboard input, with a guided interactive tutorial.
 - **Lowercase sample text normalisation** — sample demo text operands normalised to lowercase across all samples. PETSCII encoder improved: newlines map to 13, characters uppercase for C64 charset, lowercase→uppercase fallback.
 - **Palette sync and UI fixes** — palette item highlighting refactored; active palette items scroll into view. Table macros no longer show operand field. Hungarian translation fixes.
+## What's New in v1.7.2
+
+- **INVOKE + INCLUDE fix** — macros defined in a fixed-address `.include` library (e.g. `$1500`) are now correctly found by `.invoke`. Previously only inline (no address) includes were scanned for macro definitions.
+- **MACRO / LABEL block full-color styling** — MACRO/ENDM blocks render with a solid blue accent background; LABEL blocks render with a solid purple accent background, making them visually distinct from regular instruction blocks.
+- **Guided tour bubble follows spotlight** — in the *Setting Up VICE & RetroDebugger* tour the card bubble now moves next to the highlighted element instead of staying centred.
+- **Tour: menu-button step** — the *Setting Up VICE & RetroDebugger* tour now first spotlights the ☰ menu button, then the Settings entry inside the opened menu, matching the flow of the main app tour.
+- **Compilation Errors dialog wider** — max-width increased from 460 px to 720 px; error message text (after the `—` separator) is now highlighted in red.
+- **ASM export INVOKE fix** — INVOKE-expanded LOOP, NEXT, REGION/ENDREGION and regular instruction blocks now render with correct syntax instead of raw mnemonic names.
+- **Symbol tree: inline macro labels** — `:labelName` suffixes on `.petscii`, `.rawbytes`, `.table` and similar lines now appear in the Expert mode symbol tree (Labels section) and are clickable.
+- **Sample-programs highlight fix** — the sample-programs group in the menu is no longer highlighted for non-sample tour steps that use `openMenu`.
+
 ## What's New in v1.7.1
 
 - **Label address support for deferred data macros** — `.rawbytes`, `.rawtext`, `.string`, `.data`, `.petscii` now accept a **label name** as the address parameter in Expert mode (e.g. `.rawbytes sprite_data, $00, $01`). The label is resolved at assembly time from the program's label map (CONST, TABLE, LABEL blocks, loop labels).
