@@ -3708,7 +3708,7 @@ html[data-theme="oled"] .expert-err-line {
   background: var(--panel);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.30);
   min-width: 300px;
-  max-width: 460px;
+  max-width: 720px;
   width: 88vw;
 }
 
@@ -3794,6 +3794,11 @@ html[data-theme="oled"] .expert-err-line {
   padding: 5px 9px;
   border-radius: 0 5px 5px 0;
   line-height: 1.35;
+}
+
+.compile-error-msg {
+  color: #ff4444;
+  font-weight: 600;
 }
 
 .compile-error-list li[data-asm-line]:not([data-asm-line=""]) {

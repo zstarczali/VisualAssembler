@@ -5160,12 +5160,23 @@ function _expertRenderSymbols() {
       const mm = line.match(/^\s*\.macro\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s|\(|$)/i);
       if (mm) { macros.push({ _textName: mm[1].trim(), _lineIdx: idx }); return; }
       const lm = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(?:;.*)?$/);
-      if (lm) { labels.push({ _textName: lm[1].trim(), _lineIdx: idx }); }
+      if (lm) { labels.push({ _textName: lm[1].trim(), _lineIdx: idx }); return; }
+      // Inline macro label suffix — e.g. .petscii $0C00, "...", null :bbb
+      const ilm = line.match(/:([A-Za-z_][A-Za-z0-9_]*)\s*(?:;.*)?$/);
+      if (ilm && /^\s*\.(petscii|string|rawtext|rawbytes|data|table|incbin|byte|fill|word)\b/i.test(line)) {
+        labels.push({ _textName: ilm[1].trim(), _lineIdx: idx });
+      }
     });
   } else {
     regions = program.filter(b => b.isRegionMacro && b.regionName);
     macros  = program.filter(b => b.isMacroDefStart && b.macroName);
     labels  = program.filter(b => b.isLabel && b.labelName);
+    // Also include macro-label suffixes (:bbb) from data macros
+    program.forEach(b => {
+      if (b.macroLabel && b.macroLabel.trim()) {
+        labels.push({ ...b, labelName: b.macroLabel.trim() });
+      }
+    });
   }
 
   if (regions.length === 0 && macros.length === 0 && labels.length === 0) {
@@ -7716,7 +7727,16 @@ function showCompileErrorDialog(errors) {
   compileErrorList.innerHTML = errors.map((err, idx) => {
     const lineTagMatch = err.match(/^\[L(\d+)\]/);
     const asmLine = lineTagMatch ? parseInt(lineTagMatch[1], 10) : null;
-    return `<li data-index="${idx}" data-asm-line="${asmLine ?? ""}">${err.replace(/</g, "&lt;")}</li>`;
+    const sepIdx = err.indexOf(" \u2014 ");
+    let html;
+    if (sepIdx !== -1) {
+      const prefix = err.slice(0, sepIdx).replace(/</g, "&lt;");
+      const msg = err.slice(sepIdx + 3).replace(/</g, "&lt;");
+      html = `${prefix} <span class="compile-error-msg">\u2014 ${msg}</span>`;
+    } else {
+      html = `<span class="compile-error-msg">${err.replace(/</g, "&lt;")}</span>`;
+    }
+    return `<li data-index="${idx}" data-asm-line="${asmLine ?? ""}">${html}</li>`;
   }).join("");
 
   compileErrorList.querySelectorAll("li").forEach(li => {
@@ -14090,27 +14110,14 @@ function renderAsmOutput() {
     }
 
     // Check if this line came from a macro expansion
+    // Only intercept labels and comments here (to suppress the address annotation).
+    // All other block types (LOOP, NEXT, REGION, regular instructions, etc.) fall
+    // through to their own rendering code below so they render correctly.
     if (line.block._fromMacro) {
-      const macroName = line.block._fromMacro;
-      // Show expansion header only for legacy expansions (not INVOKE-based)
-      const isFirstInMacro = !line.block._invokeBlockId &&
-        (index === 0 || layout.lines[index - 1].block._fromMacro !== macroName);
-      const prefix = isFirstInMacro ? `; >>> Macro expansion: ${macroName}\n` : "";
-
-      // Generate the code for this expanded block
-      let expandedCode = "";
-      if (line.block.isAnonymousLabel) {
-        expandedCode = "-";
-      } else if (line.block.isLabel) {
-        expandedCode = `${line.block.labelName}:`;
-      } else if (line.block.isComment) {
-        expandedCode = `; ${line.block.rawOperand || ""}`;
-      } else {
-        const suffix = line.block.operand ? ` ${line.block.operand}` : "";
-        expandedCode = `    ${line.block.mnemonic}${suffix}`;
-      }
-
-      return prefix + expandedCode;
+      if (line.block.isAnonymousLabel) return `-`;
+      if (line.block.isLabel) return `${line.block.labelName}:`;
+      if (line.block.isComment) return `; ${line.block.rawOperand || ""}`;
+      // fall through to normal rendering for everything else
     }
 
     if (line.block.isLabel) {
@@ -15724,7 +15731,7 @@ function _tourShowStep(index) {
       menuPanel?.classList.add("menu-opening");
       menuDetails?.setAttribute("open", "");
       if (menuDetails) menuDetails.open = true;
-      sampleProgramsGroup?.classList.add("tour-sample-highlight");
+      if (step.target === "#sample-programs-group") sampleProgramsGroup?.classList.add("tour-sample-highlight");
       _tourMenuOpened = true;
       _tourStartMenuSync();
       // 250 ms: enough for menu slide-in animation to complete before measuring
