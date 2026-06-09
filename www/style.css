@@ -1595,6 +1595,32 @@ button:focus-visible,
   --block-chip-fg: #06091a;
 }
 
+/* Full-color blocks: MACRO def start/end and LABEL */
+.asm-block[data-block-kind="macro-def-start"],
+.asm-block[data-block-kind="macro-def-end"] {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, #3388ff 32%, transparent) 0, color-mix(in srgb, #3388ff 32%, transparent) calc(8px * var(--block-scale)), color-mix(in srgb, #3388ff 18%, transparent) calc(8px * var(--block-scale))),
+    color-mix(in srgb, var(--panel-strong) 96%, white 4%);
+  box-shadow:
+    inset 5px 0 0 #3388ff,
+    inset -5px 0 0 color-mix(in srgb, #3388ff 40%, transparent),
+    0 4px 16px color-mix(in srgb, black 18%, transparent),
+    0 1px 3px color-mix(in srgb, black 12%, transparent);
+  border-color: color-mix(in srgb, #3388ff 50%, transparent);
+}
+
+.asm-block[data-block-kind="label"] {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, #7788dd 32%, transparent) 0, color-mix(in srgb, #7788dd 32%, transparent) calc(8px * var(--block-scale)), color-mix(in srgb, #7788dd 18%, transparent) calc(8px * var(--block-scale))),
+    color-mix(in srgb, var(--panel-strong) 96%, white 4%);
+  box-shadow:
+    inset 5px 0 0 #7788dd,
+    inset -5px 0 0 color-mix(in srgb, #7788dd 40%, transparent),
+    0 4px 16px color-mix(in srgb, black 18%, transparent),
+    0 1px 3px color-mix(in srgb, black 12%, transparent);
+  border-color: color-mix(in srgb, #7788dd 50%, transparent);
+}
+
 .asm-block[data-category-tone="illegal"] {
   --block-tone: #ff2222;
   --block-tone-soft: color-mix(in srgb, #ff2222 18%, transparent);

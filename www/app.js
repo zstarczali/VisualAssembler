@@ -5709,8 +5709,9 @@ function parseUserMacros() {
   const allBlocks = [];
   for (const block of program) {
     allBlocks.push(block);
-    // Libraries with a fixed includeAddress emit macros as subroutines (not inline templates)
-    if (block.isIncludeMacro && block.includedBlocks?.length && !block.includeAddress) {
+    // Include macro definitions from ALL included files (both inline and fixed-address libraries)
+    // so INVOKE can find macros regardless of where they were defined
+    if (block.isIncludeMacro && block.includedBlocks?.length) {
       for (const sub of block.includedBlocks) {
         allBlocks.push(sub);
       }
@@ -12223,6 +12224,9 @@ function renderProgram() {
       node.dataset.categoryTone = getCategoryTone(block.category);
       node.dataset.collapsed = block.collapsed ? "true" : "false";
       if (block.isConstMacro) node.dataset.macroKind = "const";
+      if (block.isMacroDefStart) node.dataset.blockKind = "macro-def-start";
+      if (block.isMacroDefEnd) node.dataset.blockKind = "macro-def-end";
+      if (block.isLabel) node.dataset.blockKind = "label";
       if (block.isRegionMacro) node.classList.add("region-header");
       if (block.isEndRegionMacro) node.classList.add("region-endblock");
 
