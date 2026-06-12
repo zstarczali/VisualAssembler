@@ -1551,6 +1551,41 @@ function _applyUiSettingsToDOM() {
     basicSysToggle.checked = savedUiSettings.basicSys !== false;
   }
 
+  if (savedUiSettings.showMacroSource !== undefined) {
+    showMacroSource = !!savedUiSettings.showMacroSource;
+    if (macroSourceToggle) macroSourceToggle.checked = showMacroSource;
+  }
+
+  if (savedUiSettings.showRegionComments !== undefined) {
+    showRegionComments = !!savedUiSettings.showRegionComments;
+    if (regionCommentsToggle) regionCommentsToggle.checked = showRegionComments;
+  }
+
+  if (savedUiSettings.showMemoryOverlays !== undefined) {
+    showMemoryOverlays = !!savedUiSettings.showMemoryOverlays;
+    if (memoryOverlaysToggle) memoryOverlaysToggle.checked = showMemoryOverlays;
+    _applyMemoryOverlaysVisibility();
+  }
+
+  if (savedUiSettings.blockPaletteSync !== undefined) {
+    blockPaletteSync = !!savedUiSettings.blockPaletteSync;
+    if (blockPaletteSyncToggle) blockPaletteSyncToggle.checked = blockPaletteSync;
+  }
+
+  if (savedUiSettings.asmOutputBase) {
+    asmOutputBase = savedUiSettings.asmOutputBase;
+  }
+  asmBaseInputs.forEach(input => { input.checked = input.value === asmOutputBase; });
+
+  if (savedUiSettings.debuggerJmp !== undefined) debuggerJmp = !!savedUiSettings.debuggerJmp;
+  if (dbgJmp) dbgJmp.checked = debuggerJmp;
+
+  if (savedUiSettings.debuggerWait !== undefined) debuggerWait = !!savedUiSettings.debuggerWait;
+  if (dbgWait) dbgWait.checked = debuggerWait;
+
+  if (savedUiSettings.debuggerUnpause !== undefined) debuggerUnpause = !!savedUiSettings.debuggerUnpause;
+  if (dbgUnpause) dbgUnpause.checked = debuggerUnpause;
+
   if (savedUiSettings.expertMode) {
     // Capture toolbar states BEFORE setExpertMode(true) — it calls saveUiSettings()
     // which overwrites savedUiSettings with current (default) variable values.
@@ -1607,41 +1642,6 @@ function _applyUiSettingsToDOM() {
       expertProjectPanel?.removeAttribute("hidden");
     }
   }
-
-  if (savedUiSettings.showMacroSource !== undefined) {
-    showMacroSource = !!savedUiSettings.showMacroSource;
-    if (macroSourceToggle) macroSourceToggle.checked = showMacroSource;
-  }
-
-  if (savedUiSettings.showRegionComments !== undefined) {
-    showRegionComments = !!savedUiSettings.showRegionComments;
-    if (regionCommentsToggle) regionCommentsToggle.checked = showRegionComments;
-  }
-
-  if (savedUiSettings.showMemoryOverlays !== undefined) {
-    showMemoryOverlays = !!savedUiSettings.showMemoryOverlays;
-    if (memoryOverlaysToggle) memoryOverlaysToggle.checked = showMemoryOverlays;
-    _applyMemoryOverlaysVisibility();
-  }
-
-  if (savedUiSettings.blockPaletteSync !== undefined) {
-    blockPaletteSync = !!savedUiSettings.blockPaletteSync;
-    if (blockPaletteSyncToggle) blockPaletteSyncToggle.checked = blockPaletteSync;
-  }
-
-  if (savedUiSettings.asmOutputBase) {
-    asmOutputBase = savedUiSettings.asmOutputBase;
-  }
-  asmBaseInputs.forEach(input => { input.checked = input.value === asmOutputBase; });
-
-  if (savedUiSettings.debuggerJmp !== undefined) debuggerJmp = !!savedUiSettings.debuggerJmp;
-  if (dbgJmp) dbgJmp.checked = debuggerJmp;
-
-  if (savedUiSettings.debuggerWait !== undefined) debuggerWait = !!savedUiSettings.debuggerWait;
-  if (dbgWait) dbgWait.checked = debuggerWait;
-
-  if (savedUiSettings.debuggerUnpause !== undefined) debuggerUnpause = !!savedUiSettings.debuggerUnpause;
-  if (dbgUnpause) dbgUnpause.checked = debuggerUnpause;
 }
 
 function applySavedUiSettings() {
