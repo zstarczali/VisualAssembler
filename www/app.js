@@ -3426,7 +3426,7 @@ function _blockToExpertLine(block) {
   if (block.isEndRegionMacro) return `.endregion`;
   if (block.isMacroDefStart)  return `.macro ${block.macroName || block.rawOperand || "myMacro"}${block.macroParams ? "(" + block.macroParams + ")" : ""}`;
   if (block.isMacroDefEnd)    return `.endm`;
-  if (block.isMacroInvoke)    return `.invoke ${block.invokeMacroName || "myMacro"}${block.invokeArgs ? "(" + block.invokeArgs + ")" : ""}`;  
+  if (block.isMacroInvoke)    return `.${block.invokeSyntax || "invoke"} ${block.invokeMacroName || "myMacro"}${block.invokeArgs ? "(" + block.invokeArgs + ")" : ""}`;  
   if (block.isSpriteInitMacro)return `.sprite_init ${block.spriteNum || 0}, ${block.spriteColor || 7}, $${(block.spriteDataPage || "21").toUpperCase()}`;
   if (block.isSpritePosMacro) return `.sprite_pos ${block.spriteNum || 0}, ${block.spriteX || 152}, ${block.spriteY || 100}`;
   if (block.isWaitRasterMacro)return `.wait_raster $${(block.rasterLine || "FF").toUpperCase()}`;
@@ -3612,7 +3612,7 @@ const _DIRECTIVE_TO_MNEM = {
   byte:"BYTE", word:"WORD", fill:"FILL", align:"ALIGN", incbin:"INCBIN",
   petscii:"PETSCII", table:"TABLE", loadfile:"LOADFILE", sid:"SID", include:"INCLUDE",
   loop:"LOOP", next:"NEXT", for:"FOR", endf:"ENDF", push:"PUSH", pull:"PULL",
-  macro:"MACRO", endm:"ENDM", invoke:"INVOKE",
+  macro:"MACRO", endm:"ENDM", invoke:"INVOKE", call:"INVOKE",
   sprite_init:"SPRITE_INIT", sprite_pos:"SPRITE_POS", wait_raster:"WAIT_RASTER",
   joystick:"JOYSTICK", mouse:"MOUSE", sprite_col:"SPRITE_COL", turbo_set:"TURBO_SET",
   supercpu_detect:"SUPERCPU_DETECT", turbo_enable:"TURBO_ENABLE",
@@ -3642,7 +3642,7 @@ const _AC_DIRECTIVE_DESC = {
   ".data":"data macro", ".incbin":"include binary", ".sid":"SID player macro",
   ".include":"include file", ".loop":"loop start", ".next":"loop end",
   ".push":"push registers", ".pull":"pop registers",
-  ".macro":"define macro", ".endm":"end macro", ".invoke":"call macro",
+  ".macro":"define macro", ".endm":"end macro", ".invoke":"call macro", ".call":"call macro",
   ".define":"define symbol", ".if":"conditional", ".else":"else branch", ".endif":"end if",
   ".const":"constant", ".table":"lookup table", ".petscii":"PETSCII string",
   ".loadfile":"load file KERNAL", ".sprite_init":"init sprite", ".sprite_pos":"set sprite pos",
@@ -4030,15 +4030,7 @@ function showBuildInfoDialog() {
   try {
     const layout = getProgramLayout();
     const labels = new Map();
-    layout.lines.forEach(line => {
-      if (line.block.isLabel && line.block.labelName) labels.set(line.block.labelName, line.address);
-      if (line.block.isLoopMacro && line.block.loopLabel) labels.set(line.block.loopLabel, line.address + 2);
-      if (line.block.isForMacro && line.block.loopLabel) labels.set(line.block.loopLabel, line.address + 2);
-      if (line.block.isConstMacro && line.block.constName) {
-        const v = parseNumberByBase((line.block.rawOperand || "").replace(/^\$/, ""), line.block.base);
-        if (v !== null) labels.set(line.block.constName, v);
-      }
-    });
+    layout.lines.forEach(line => addLayoutLabels(labels, line));
     labels._anonAddrs = _collectAnonLabels(layout);
 
     const origin = layout.lines.length ? layout.lines[0].address : 0;
@@ -4147,7 +4139,7 @@ function _expertHighlightLine(raw) {
   if (!code.trim()) return esc(code) + commentHtml;
 
   // Token regex (order matters)
-  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|loop|next|push|pull|const|define|if|else|endif|region|endregion|macro|endm|invoke|incbin|include|sid|petscii|table|loadfile|sprite_init|sprite_pos|wait_raster|joystick|sprite_col)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)/gi;
+  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|loop|next|push|pull|const|define|if|else|endif|region|endregion|macro|endm|invoke|call|incbin|include|sid|petscii|table|loadfile|sprite_init|sprite_pos|wait_raster|joystick|sprite_col)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)/gi;
 
   let result = "";
   let lastIdx = 0;
@@ -4249,10 +4241,13 @@ function parseExpertText(text) {
       continue;
     }
 
-    // * = $XXXX → ORG
-    const orgM = line.match(/^\*\s*=\s*\$([0-9A-Fa-f]{1,4})\s*$/);
+    // * = $XXXX or * = decimal → ORG
+    const orgM = line.match(/^\*\s*=\s*(?:\$([0-9A-Fa-f]{1,4})|(\d{1,5}))\s*$/);
     if (orgM) {
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "ORG", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isOrgMacro: true, orgAddress: orgM[1].toUpperCase().padStart(4,"0") });
+      const orgAddress = orgM[1]
+        ? orgM[1].toUpperCase().padStart(4, "0")
+        : parseInt(orgM[2], 10).toString(16).toUpperCase().padStart(4, "0");
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "ORG", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isOrgMacro: true, orgAddress });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -4521,11 +4516,11 @@ function parseExpertText(text) {
     }
     if (/^\.endm\s*$/i.test(line)) { blocks.push(_importMakeMacroDefEnd()); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
 
-    // .invoke macroname(arg1, arg2, ...) or .invoke macroname arg1, arg2
-    const invokeM = line.match(/^\.invoke\s+([A-Za-z_][A-Za-z0-9_]*)(?:\(([^)]*)\)|\s+(.*?))?\s*$/i);
+    // .invoke/.call macroname(arg1, arg2, ...) or .invoke/.call macroname arg1, arg2
+    const invokeM = line.match(/^\.(invoke|call)\s+([A-Za-z_][A-Za-z0-9_]*)(?:\(([^)]*)\)|\s+(.*?))?\s*$/i);
     if (invokeM) {
-      const invokeArgs = (invokeM[2] !== undefined ? invokeM[2] : (invokeM[3] || "")).trim();
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "INVOKE", operand: invokeM[1], rawOperand: invokeM[1], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isMacroInvoke: true, invokeMacroName: invokeM[1], invokeArgs });  
+      const invokeArgs = (invokeM[3] !== undefined ? invokeM[3] : (invokeM[4] || "")).trim();
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "INVOKE", operand: invokeM[2], rawOperand: invokeM[2], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isMacroInvoke: true, invokeMacroName: invokeM[2], invokeArgs, invokeSyntax: invokeM[1].toLowerCase() });  
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -4752,36 +4747,7 @@ function _expertValidate() {
         const layout = getProgramLayout();
         // Build label map (same as assembleProgramToPrg)
         const labels = new Map();
-        layout.lines.forEach((line) => {
-          if (line.conditionallySkipped) return;
-          if (line.block.isLabel && line.block.labelName) labels.set(line.block.labelName, line.address);
-          if (line.block.isLoopMacro && line.block.loopLabel) labels.set(line.block.loopLabel, line.address + 2);
-          if (line.block.isForMacro && line.block.loopLabel) labels.set(line.block.loopLabel, line.address + 2);
-          if (line.block.isTableMacro && line.block.tableName) {
-            const tableAddr = line.block.tableAddress
-              ? (parseAddressValue(line.block.tableAddress) ?? line.address)
-              : line.address;
-            labels.set(line.block.tableName, tableAddr);
-          }
-          if (line.block.isConstMacro && line.block.constName) {
-            const v = parseNumberByBase((line.block.rawOperand || "").replace(/^\$/, ""), line.block.base);
-            if (v !== null) labels.set(line.block.constName, v);
-          }
-          // macroLabel on deferred-data blocks (rawbytes, rawtext, string, data, petscii)
-          if (line.block.macroLabel) {
-            const ml = line.block.macroLabel.trim();
-            if (ml) {
-              let addr = null;
-              if (line.block.isTextMacro)      addr = 0x0400 + ((line.block.textY ?? 0) * 40) + (line.block.textX ?? 0);
-              else if (line.block.isStringMacro)  addr = parseAddressValue(line.block.stringAddress) ?? 0xC000;
-              else if (line.block.isDataMacro)    addr = parseAddressValue(line.block.dataAddress) ?? 0xC000;
-              else if (line.block.isRawBytesMacro) addr = parseAddressValue(line.block.rawBytesAddress) ?? 0xC000;
-              else if (line.block.isRawTextMacro)  addr = parseAddressValue(line.block.rawTextAddress) ?? 0xC000;
-              else if (line.block.isPetsciiMacro)  addr = parseAddressValue(line.block.petsciiAddress) ?? 0xC000;
-              if (addr !== null) labels.set(ml, addr);
-            }
-          }
-        });
+        layout.lines.forEach((line) => addLayoutLabels(labels, line));
         labels._anonAddrs = _collectAnonLabels(layout);
         // Run compileLineBytes to detect unknown mnemonics / bad operands
         for (const line of layout.lines) {
@@ -4920,21 +4886,7 @@ function _buildDisasmHTML() {
 
     // Build label map (name -> address)
     const labelMap = new Map();
-    layout.lines.forEach((line) => {
-      if (line.block.isLabel && line.block.labelName) labelMap.set(line.block.labelName, line.address);
-      if (line.block.isLoopMacro && line.block.loopLabel) labelMap.set(line.block.loopLabel, line.address + 2);
-      if (line.block.isForMacro && line.block.loopLabel) labelMap.set(line.block.loopLabel, line.address + 2);
-      if (line.block.isTableMacro && line.block.tableName) {
-        const tableAddr = line.block.tableAddress
-          ? (parseAddressValue(line.block.tableAddress) ?? line.address)
-          : line.address;
-        labelMap.set(line.block.tableName, tableAddr);
-      }
-      if (line.block.isConstMacro && line.block.constName) {
-        const v = parseNumberByBase((line.block.rawOperand || "").replace(/^\$/, ""), line.block.base);
-        if (v !== null) labelMap.set(line.block.constName, v);
-      }
-    });
+    layout.lines.forEach((line) => addLayoutLabels(labelMap, line));
     labelMap._anonAddrs = _collectAnonLabels(layout);
     const addrToLabel = new Map();
     for (const [name, addr] of labelMap) addrToLabel.set(addr, name);
@@ -7307,6 +7259,9 @@ async function runInDebugger() {
       if (line.block.isLoopMacro && line.block.loopLabel) {
         symbols.push({ name: line.block.loopLabel, address: line.address + 2 });
       }
+      if (line.block._autoBufferLabel) {
+        symbols.push({ name: line.block._autoBufferLabel, address: line.address });
+      }
       if (line.block.isTableMacro && line.block.tableName) {
         symbols.push({ name: line.block.tableName, address: line.address });
       }
@@ -8829,10 +8784,13 @@ function parseAsmText(text) {
       continue;
     }
 
-    // * = $XXXX  →  ORG
-    const orgM = line.match(/^\*\s*=\s*\$([0-9A-Fa-f]{1,4})\s*$/);
+    // * = $XXXX or * = decimal → ORG
+    const orgM = line.match(/^\*\s*=\s*(?:\$([0-9A-Fa-f]{1,4})|(\d{1,5}))\s*$/);
     if (orgM) {
-      const orgAddress = orgM[1].toUpperCase().padStart(4, "0");
+      const orgAddress = orgM[1]
+        ? orgM[1].toUpperCase().padStart(4, "0")
+        : parseInt(orgM[2], 10).toString(16).toUpperCase().padStart(4, "0");
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "ORG", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isOrgMacro: true, orgAddress });
       blocks.push({
         id: crypto.randomUUID(),
         category: "Makrok", mnemonic: "ORG",
@@ -8987,6 +8945,115 @@ function parseAsmText(text) {
   }
 
   return blocks;
+}
+
+function splitMacroInvokeArgs(argText) {
+  const result = [];
+  let current = "";
+  let quote = "";
+  let escaped = false;
+
+  for (const char of (argText || "")) {
+    if (escaped) {
+      current += char;
+      escaped = false;
+      continue;
+    }
+    if (char === "\\") {
+      current += char;
+      escaped = true;
+      continue;
+    }
+    if (quote) {
+      current += char;
+      if (char === quote) {
+        quote = "";
+      }
+      continue;
+    }
+    if (char === "\"" || char === "'") {
+      quote = char;
+      current += char;
+      continue;
+    }
+    if (char === ",") {
+      result.push(current.trim());
+      current = "";
+      continue;
+    }
+    current += char;
+  }
+
+  if (current.trim() || result.length) {
+    result.push(current.trim());
+  }
+
+  return result.filter(part => part !== "");
+}
+
+function normalizeMacroInvokeArg(arg) {
+  const trimmed = (arg || "").trim();
+  if (trimmed.length >= 2) {
+    const first = trimmed[0];
+    const last = trimmed[trimmed.length - 1];
+    if ((first === '"' && last === '"') || (first === "'" && last === "'")) {
+      return trimmed.slice(1, -1);
+    }
+  }
+  return trimmed;
+}
+
+function isBareLabelToken(value) {
+  return /^[A-Za-z_][A-Za-z0-9_]*$/.test((value || "").trim());
+}
+
+function getDeferredMacroAddressField(block) {
+  if (block.isStringMacro) return "stringAddress";
+  if (block.isRawTextMacro) return "rawTextAddress";
+  if (block.isDataMacro) return "dataAddress";
+  if (block.isRawBytesMacro) return "rawBytesAddress";
+  if (block.isPetsciiMacro) return "petsciiAddress";
+  return null;
+}
+
+function makeMacroBufferLabel(invokeId, paramName) {
+  const safeInvokeId = String(invokeId || "").replace(/-/g, "").slice(0, 8) || "invk";
+  const safeParamName = String(paramName || "buf").replace(/[^A-Za-z0-9_]/g, "_");
+  return `__buf_${safeInvokeId}_${safeParamName}`;
+}
+
+function addLayoutLabels(labelMap, line) {
+  if (!line || line.conditionallySkipped) return;
+  const block = line.block || {};
+  if (block.isLabel && block.labelName) labelMap.set(block.labelName, line.address);
+  if (block.isLoopMacro && block.loopLabel) labelMap.set(block.loopLabel, line.address + 2);
+  if (block.isForMacro && block.loopLabel) labelMap.set(block.loopLabel, line.address + 2);
+  if (block.isTableMacro && block.tableName) {
+    const tableAddr = block.tableAddress
+      ? (parseAddressValue(block.tableAddress) ?? line.address)
+      : line.address;
+    labelMap.set(block.tableName, tableAddr);
+  }
+  if (block.isConstMacro && block.constName) {
+    const v = parseNumberByBase((block.rawOperand || "").replace(/^\$/, ""), block.base);
+    if (v !== null) labelMap.set(block.constName, v);
+  }
+  if (block._autoBufferLabel) {
+    labelMap.set(block._autoBufferLabel, block._autoBufferAddress ?? line.address);
+  }
+  if (block.macroLabel) {
+    const ml = block.macroLabel.trim();
+    if (ml) {
+      let addr = null;
+      if (block.isTextMacro)      addr = 0x0400 + ((block.textY ?? 0) * 40) + (block.textX ?? 0);
+      else if (block.isStringMacro)  addr = parseAddressValue(block.stringAddress) ?? 0xC000;
+      else if (block.isDataMacro)    addr = parseAddressValue(block.dataAddress) ?? 0xC000;
+      else if (block.isRawBytesMacro) addr = parseAddressValue(block.rawBytesAddress) ?? 0xC000;
+      else if (block.isRawTextMacro)  addr = parseAddressValue(block.rawTextAddress) ?? 0xC000;
+      else if (block.isPetsciiMacro)  addr = parseAddressValue(block.petsciiAddress) ?? 0xC000;
+      if (addr !== null) labelMap.set(ml, addr);
+    }
+  }
 }
 
 // ── End ASM Import parser ─────────────────────────────────────────
@@ -9339,51 +9406,7 @@ function assembleProgramToPrg(originOverride) {
   const layout = getProgramLayout(originOverride);
   const labels = new Map();
 
-  layout.lines.forEach((line) => {
-    if (line.conditionallySkipped) return;
-    if (line.block.isLabel) {
-      labels.set(line.block.labelName, line.address);
-    }
-    if (line.block.isLoopMacro && line.block.loopLabel) {
-      labels.set(line.block.loopLabel, line.address + 2);
-    }
-    if (line.block.isForMacro && line.block.loopLabel) {
-      labels.set(line.block.loopLabel, line.address + 2);
-    }
-    if (line.block.isTableMacro && line.block.tableName) {
-      const tableAddr = line.block.tableAddress
-        ? (parseAddressValue(line.block.tableAddress) ?? line.address)
-        : line.address;
-      labels.set(line.block.tableName, tableAddr);
-    }
-    if (line.block.isConstMacro && line.block.constName) {
-      const constVal = parseNumberByBase((line.block.rawOperand || "").replace(/^\$/, ""), line.block.base);
-      if (constVal !== null) {
-        labels.set(line.block.constName, constVal);
-      }
-    }
-    // Register optional macroLabel pointing to the macro's fixed memory address
-    if (line.block.macroLabel) {
-      const ml = line.block.macroLabel.trim();
-      if (ml) {
-        let addr = null;
-        if (line.block.isTextMacro) {
-          addr = 0x0400 + ((line.block.textY ?? 0) * 40) + (line.block.textX ?? 0);
-        } else if (line.block.isStringMacro) {
-          addr = parseAddressValue(line.block.stringAddress) ?? 0xC000;
-        } else if (line.block.isDataMacro) {
-          addr = parseAddressValue(line.block.dataAddress) ?? 0xC000;
-        } else if (line.block.isRawBytesMacro) {
-          addr = parseAddressValue(line.block.rawBytesAddress) ?? 0xC000;
-        } else if (line.block.isRawTextMacro) {
-          addr = parseAddressValue(line.block.rawTextAddress) ?? 0xC000;
-        } else if (line.block.isPetsciiMacro) {
-          addr = parseAddressValue(line.block.petsciiAddress) ?? 0xC000;
-        }
-        if (addr !== null) labels.set(ml, addr);
-      }
-    }
-  });
+  layout.lines.forEach((line) => addLayoutLabels(labels, line));
   labels._anonAddrs = _collectAnonLabels(layout);
 
   // Assemble inline code bytes as sections (split by ORG blocks)
@@ -11022,17 +11045,30 @@ function getProgramLayout(originOverride) {
     if (macroName && userMacros[macroName]) {
       const invokeId = block.id;
       const localSuffix = "__m" + invokeId.replace(/-/g, "").slice(0, 8);
+      const macroBody = userMacros[macroName].body;
+      const macroParams = userMacros[macroName].params || [];
       // Collect local label names defined inside this macro body
       // Includes both explicit LABEL blocks AND loop labels (isLoopMacro.loopLabel)
       // so that LOOP/NEXT labels inside macros are uniquified per-invocation.
       const localLabels = new Set([
-        ...userMacros[macroName].body.filter(b => b.isLabel && b.labelName).map(b => b.labelName),
-        ...userMacros[macroName].body.filter(b => b.isLoopMacro && b.loopLabel).map(b => b.loopLabel)
+        ...macroBody.filter(b => b.isLabel && b.labelName).map(b => b.labelName),
+        ...macroBody.filter(b => b.isLoopMacro && b.loopLabel).map(b => b.loopLabel)
       ]);
+      const bufferParams = new Set();
+      for (const macroBlock of macroBody) {
+        const addrFieldName = getDeferredMacroAddressField(macroBlock);
+        if (!addrFieldName) continue;
+        const addrToken = (macroBlock[addrFieldName] || "").trim();
+        if (isBareLabelToken(addrToken) && macroParams.includes(addrToken)) {
+          bufferParams.add(addrToken);
+        }
+      }
+      const bufferLabels = new Map(
+        [...bufferParams].map((paramName) => [paramName, makeMacroBufferLabel(invokeId, paramName)])
+      );
       // Build parameter → argument substitution map
-      const macroParams = userMacros[macroName].params || [];
       const invokeArgsStr = block.invokeArgs || "";
-      const invokeArgsList = invokeArgsStr.split(",").map(s => s.trim());
+      const invokeArgsList = splitMacroInvokeArgs(invokeArgsStr).map(normalizeMacroInvokeArg);
       const paramSubst = {};
       macroParams.forEach((p, i) => { if (p) paramSubst[p] = invokeArgsList[i] ?? ""; });
       // Helper: substitute {param} placeholders with argument values
@@ -11041,6 +11077,8 @@ function getProgramLayout(originOverride) {
         let result = raw;
         for (const [p, v] of Object.entries(paramSubst)) {
           result = result.replace(new RegExp(`\\{${p}\\}`, "g"), v);
+          const bareReplacement = bufferLabels.get(p) || v;
+          result = result.replace(new RegExp(`(?<![A-Za-z0-9_])${p}(?![A-Za-z0-9_])`, "g"), bareReplacement);
         }
         return result;
       };
@@ -11066,8 +11104,16 @@ function getProgramLayout(originOverride) {
           _fromMacro: macroName,
           _invokeBlockId: invokeId
         };
+        const addrFieldName = getDeferredMacroAddressField(macroBlock);
         if (macroBlock.isLabel && macroBlock.labelName && localLabels.has(macroBlock.labelName)) {
           expanded.labelName = macroBlock.labelName + localSuffix;
+        }
+        if (addrFieldName) {
+          const resolvedAddr = applyParams(macroBlock[addrFieldName]);
+          expanded[addrFieldName] = resolvedAddr;
+          if (bufferLabels.has((macroBlock[addrFieldName] || "").trim())) {
+            expanded._autoBufferLabel = resolvedAddr;
+          }
         }
         if (macroBlock.rawOperand) {
           const newRaw = rewriteOperand(macroBlock.rawOperand);
@@ -11076,7 +11122,8 @@ function getProgramLayout(originOverride) {
           // If param substitution changed the operand (had {param}), re-derive addressing mode
           // because the original block was parsed with a placeholder (e.g. "absolute" for "{color}")
           if (newRaw !== macroBlock.rawOperand && opcodeMap[macroBlock.mnemonic]) {
-            const reparsed = _importMakeInstruction(macroBlock.mnemonic, newRaw, new Set(["BEQ","BNE","BCC","BCS","BMI","BPL","BVC","BVS","BRA"]));
+            const reparsedOperand = rewriteOperand(macroBlock.operand || macroBlock.rawOperand);
+            const reparsed = _importMakeInstruction(macroBlock.mnemonic, reparsedOperand, new Set(["BEQ","BNE","BCC","BCS","BMI","BPL","BVC","BVS","BRA"]));
             expanded.addressingMode = reparsed.addressingMode;
             expanded.rawOperand = reparsed.rawOperand;
             expanded.operand = reparsed.operand;
@@ -11178,6 +11225,36 @@ function getProgramLayout(originOverride) {
     };
   });
 
+  let autoBufferCursor = lines.length ? (lines[lines.length - 1].end + 1) : origin.value;
+  for (const line of lines) {
+    const block = line.block;
+    const addrFieldName = getDeferredMacroAddressField(block);
+    if (!addrFieldName || !block._autoBufferLabel) continue;
+    const autoBytes = block.isPetsciiMacro
+      ? (() => {
+          const bytes = encodePetsciiMacro(block.rawOperand);
+          if (block.petsciiNullTerminated) bytes.push(0x00);
+          return bytes;
+        })()
+      : block.isStringMacro
+        ? (() => {
+            const rawChars = encodeTextMacro(block.rawOperand);
+            const offset = parseInt(block.charOffset || "0", 16);
+            return isNaN(offset) || offset === 0 ? rawChars : rawChars.map(b => (b + offset) & 0xFF);
+          })()
+        : block.isRawTextMacro
+          ? (() => {
+              const rawChars = encodeTextMacro(block.rawOperand, block.textCharset || "standard");
+              const offset = parseInt(block.charOffset || "0", 16);
+              return isNaN(offset) || offset === 0 ? rawChars : rawChars.map(b => (b + offset) & 0xFF);
+            })()
+          : [];
+    const resolvedAddr = autoBufferCursor;
+    block._autoBufferAddress = resolvedAddr;
+    block[addrFieldName] = `$${resolvedAddr.toString(16).toUpperCase().padStart(4, "0")}`;
+    autoBufferCursor += autoBytes.length;
+  }
+
   return {
     origin,
     lines,
@@ -11189,17 +11266,7 @@ function getProgramLayout(originOverride) {
 function getDeferredMemorySections(layout) {
   // Build label map for address resolution
   const labelMap = new Map();
-  layout.lines.forEach((line) => {
-    if (!line.conditionallySkipped) {
-      if (line.block.isLabel && line.block.labelName) labelMap.set(line.block.labelName, line.address);
-      if (line.block.isLoopMacro && line.block.loopLabel) labelMap.set(line.block.loopLabel, line.address + 2);
-      if (line.block.isForMacro && line.block.loopLabel) labelMap.set(line.block.loopLabel, line.address + 2);
-      if (line.block.isConstMacro && line.block.constName) {
-        const v = parseNumberByBase((line.block.rawOperand || "").replace(/^\$/, ""), line.block.base);
-        if (v !== null) labelMap.set(line.block.constName, v);
-      }
-    }
-  });
+  layout.lines.forEach((line) => addLayoutLabels(labelMap, line));
 
   return layout.lines
     .map((line, index) => {
@@ -14089,7 +14156,7 @@ function renderAsmOutput() {
     // Handle INVOKE block header line
     if (line.block._isMacroInvokeHeader) {
       const args = line.block.invokeArgs ? `(${line.block.invokeArgs})` : "";
-      return `; .invoke ${line.block.invokeMacroName || "?"}${args}`;
+      return `; .${line.block.invokeSyntax || "invoke"} ${line.block.invokeMacroName || "?"}${args}`;
     }
 
     // Invisible layout markers — address save/restore for INCLUDE with fixed address
@@ -14565,29 +14632,7 @@ function _buildMonitorText(layout) {
   const labels = new Map();
   const deferredSections = getDeferredMemorySections(layout);
 
-  layout.lines.forEach((line) => {
-    if (line.block.isLabel) {
-      labels.set(line.block.labelName, line.address);
-    }
-    if (line.block.isLoopMacro && line.block.loopLabel) {
-      labels.set(line.block.loopLabel, line.address + 2);
-    }
-    if (line.block.isForMacro && line.block.loopLabel) {
-      labels.set(line.block.loopLabel, line.address + 2);
-    }
-    if (line.block.isTableMacro && line.block.tableName) {
-      const tableAddr = line.block.tableAddress
-        ? (parseAddressValue(line.block.tableAddress) ?? line.address)
-        : line.address;
-      labels.set(line.block.tableName, tableAddr);
-    }
-    if (line.block.isConstMacro && line.block.constName) {
-      const constVal = parseNumberByBase((line.block.rawOperand || "").replace(/^\$/, ""), line.block.base);
-      if (constVal !== null) {
-        labels.set(line.block.constName, constVal);
-      }
-    }
-  });
+  layout.lines.forEach((line) => addLayoutLabels(labels, line));
   labels._anonAddrs = _collectAnonLabels(layout);
 
   for (const line of layout.lines) {

@@ -492,22 +492,6 @@
       "validationError": ""
     },
     {
-      "_srcLine": 42,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "194c2d90-d668-434f-9477-349c9cdd2a09",
-      "isTableMacro": true,
-      "mnemonic": "TABLE",
-      "operand": "",
-      "rawOperand": "",
-      "tableAddress": "0C00",
-      "tableName": "question",
-      "validationError": ""
-    },
-    {
       "_srcLine": 43,
       "addressingMode": "implied",
       "base": "hex",
@@ -517,27 +501,12 @@
       "description": "",
       "id": "c5e416db-364f-4ea5-8621-6f61a1e9a5b5",
       "isPetsciiMacro": true,
+      "macroLabel": "question",
       "mnemonic": "PETSCII",
       "operand": "WHAT'S YOUR NAME? ",
       "petsciiAddress": "0C00",
       "petsciiNullTerminated": true,
       "rawOperand": "WHAT'S YOUR NAME? ",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 44,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "557bc871-1667-4c85-83bf-4039e8a1c42a",
-      "isTableMacro": true,
-      "mnemonic": "TABLE",
-      "operand": "",
-      "rawOperand": "",
-      "tableAddress": "0C20",
-      "tableName": "hello",
       "validationError": ""
     },
     {
@@ -550,6 +519,7 @@
       "description": "",
       "id": "a7611c0b-325c-4911-bb17-bd8df0c655d0",
       "isPetsciiMacro": true,
+      "macroLabel": "hello",
       "mnemonic": "PETSCII",
       "operand": "HELLO ",
       "petsciiAddress": "0C20",
@@ -579,7 +549,7 @@
     "numberBase": "hex",
     "outputMode": "asm",
     "sample": "name-input-demo",
-    "theme": "dark",
+    "theme": "light",
     "zoom": 1.25
   },
   "version": 1
