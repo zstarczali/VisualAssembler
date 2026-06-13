@@ -86,6 +86,97 @@ fn detect_vice_executable() -> String {
         .unwrap_or_default()
 }
 
+fn resolve_vice_launch_path(vice_path: &str) -> Result<String, String> {
+    if vice_path.is_empty() {
+        return Err("VICE binary nem talalhato. Beallitott ut: ".to_string());
+    }
+
+    if cfg!(target_os = "macos") && vice_path.ends_with(".app") {
+        let app_path = std::path::Path::new(vice_path);
+        let stem = app_path.file_stem().unwrap_or_default().to_string_lossy().to_string();
+
+        if let Some(parent) = app_path.parent() {
+            let bin_candidate = parent.join("bin").join(&stem);
+            if bin_candidate.exists() {
+                return Ok(bin_candidate.to_string_lossy().to_string());
+            }
+        }
+
+        return Err(format!(
+            "VICE binary nem talalhato. Valaszd ki a 'bin/x64sc' scriptet a VICE mappajaban (nem az .app bundlet). Beallitott ut: {}",
+            vice_path
+        ));
+    }
+
+    if !std::path::Path::new(vice_path).exists() {
+        return Err(format!("VICE binary nem talalhato. Beallitott ut: {}", vice_path));
+    }
+
+    Ok(vice_path.to_string())
+}
+
+fn spawn_vice_with_file(vice_path: &str, file_path: &std::path::Path) -> Result<(), String> {
+    let binary = resolve_vice_launch_path(vice_path)?;
+
+    let result = if cfg!(target_os = "macos") {
+        Command::new("bash")
+            .arg(&binary)
+            .arg(file_path.to_str().unwrap())
+            .stdin(std::process::Stdio::null())
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::null())
+            .spawn()
+    } else {
+        #[cfg(target_os = "windows")]
+        {
+            // WHY NOT cmd /c start: cmd.exe is spawned as a child of this process and
+            // is placed into Tauri's Job Object before it runs. When it calls CreateProcess
+            // for VICE, Windows inherits the same job. The indirection does nothing.
+            //
+            // WHY NOT CREATE_BREAKAWAY_FROM_JOB: only works if the owning job explicitly
+            // sets JOB_OBJECT_LIMIT_BREAKAWAY_OK. Tauri CLI does not set that flag.
+            //
+            // WHY THIS WORKS: PowerShell's Start-Process calls ShellExecuteEx, which
+            // delegates actual process creation to explorer.exe (the shell host). That
+            // process is outside Tauri's Job Object entirely, so VICE is never assigned
+            // to it and survives hot-reload independently. This is only an issue in
+            // `tauri dev` mode; production builds do not use a KILL_ON_JOB_CLOSE job.
+            let ps_cmd = format!(
+                "Start-Process -FilePath '{}' -ArgumentList '{}'",
+                binary.replace('\'', "''"),
+                file_path.to_str().unwrap().replace('\'', "''"),
+            );
+            Command::new("powershell")
+                .args([
+                    "-NoProfile",
+                    "-NonInteractive",
+                    "-WindowStyle", "Hidden",
+                    "-Command", &ps_cmd,
+                ])
+                .stdin(std::process::Stdio::null())
+                .stdout(std::process::Stdio::null())
+                .stderr(std::process::Stdio::null())
+                .creation_flags(0x08000000) // CREATE_NO_WINDOW
+                .spawn()
+        }
+        #[cfg(not(target_os = "windows"))]
+        {
+            Command::new(&binary)
+                .arg(file_path.to_str().unwrap())
+                .stdin(std::process::Stdio::null())
+                .stdout(std::process::Stdio::null())
+                .stderr(std::process::Stdio::null())
+                .spawn()
+        }
+    };
+
+    result.map(|_| ()).map_err(|e| e.to_string())
+}
+
+fn get_exomizer_path(cfg: &serde_json::Value) -> String {
+    cfg["exomizerPath"].as_str().unwrap_or("").to_string()
+}
+
 // ── SID parsing ─────────────────────────────────────────────────────────────
 
 #[derive(Serialize)]
@@ -198,6 +289,12 @@ fn get_vice_config(app: AppHandle) -> serde_json::Value {
 }
 
 #[tauri::command]
+fn get_exomizer_config(app: AppHandle) -> serde_json::Value {
+    let cfg = read_config(&app);
+    serde_json::json!({ "exomizerPath": get_exomizer_path(&cfg) })
+}
+
+#[tauri::command]
 async fn choose_vice_executable(app: AppHandle) -> serde_json::Value {
     let dialog = app.dialog().clone();
     let file_dialog = dialog.file();
@@ -239,11 +336,96 @@ async fn choose_vice_executable(app: AppHandle) -> serde_json::Value {
     }
 }
 
+#[tauri::command]
+async fn choose_exomizer_executable(app: AppHandle) -> serde_json::Value {
+    let dialog = app.dialog().clone();
+    let file_dialog = dialog.file();
+
+    #[cfg(target_os = "windows")]
+    let file_dialog = file_dialog.add_filter("Executable", &["exe"]);
+
+    match file_dialog.blocking_pick_file() {
+        Some(path) => {
+            let path_str = path.to_string();
+            let mut cfg = read_config(&app);
+            cfg["exomizerPath"] = serde_json::json!(path_str);
+            write_config(&app, &cfg);
+            serde_json::json!({ "canceled": false, "exomizerPath": path_str })
+        }
+        None => serde_json::json!({ "canceled": true }),
+    }
+}
+
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct LaunchVicePayload {
     bytes: Vec<u8>,
     file_name: Option<String>,
+}
+
+fn crunch_with_exomizer(exomizer_path: &str, input_bytes: &[u8], file_name: &str) -> Result<(PathBuf, Vec<u8>), String> {
+    let temp_dir = std::env::temp_dir().join("c64-visual-assembler");
+    let _ = fs::create_dir_all(&temp_dir);
+    let input_path = temp_dir.join(file_name);
+    fs::write(&input_path, input_bytes).map_err(|e| e.to_string())?;
+
+    let output_path = temp_dir.join(format!(
+        "exomizer-sfx-{}.prg",
+        std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()
+    ));
+
+    let output = Command::new(exomizer_path)
+        .args([
+            "sfx",
+            "sys",
+            "-o",
+            output_path.to_str().unwrap(),
+            input_path.to_str().unwrap(),
+        ])
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .output()
+        .map_err(|e| e.to_string())?;
+
+    if !output.status.success() {
+        let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
+        let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+        let error = if !stderr.is_empty() { stderr } else if !stdout.is_empty() { stdout } else { "Exomizer futtatas sikertelen.".to_string() };
+        return Err(error);
+    }
+
+    let bytes = fs::read(&output_path).map_err(|e| e.to_string())?;
+    Ok((output_path, bytes))
+}
+
+#[tauri::command]
+async fn build_exomizer_prg(app: AppHandle, payload: LaunchVicePayload) -> serde_json::Value {
+    let cfg = read_config(&app);
+    let exomizer_path = get_exomizer_path(&cfg);
+
+    if exomizer_path.is_empty() {
+        return serde_json::json!({
+            "ok": false,
+            "error": "Exomizer nincs beallitva. Kattints az Edit gombra es add meg az eleresi utjat."
+        });
+    }
+
+    let file_name = payload.file_name.unwrap_or_else(|| {
+        format!("program-{}.prg", std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH).unwrap().as_millis())
+    });
+
+    match crunch_with_exomizer(&exomizer_path, &payload.bytes, &file_name) {
+        Ok((output_path, bytes)) => serde_json::json!({
+            "ok": true,
+            "exomizerPath": exomizer_path,
+            "sourceFilePath": std::env::temp_dir().join("c64-visual-assembler").join(&file_name).to_string_lossy().to_string(),
+            "filePath": output_path.to_string_lossy().to_string(),
+            "bytes": bytes
+        }),
+        Err(error) => serde_json::json!({ "ok": false, "error": error }),
+    }
 }
 
 #[tauri::command]
@@ -272,92 +454,58 @@ async fn launch_vice(app: AppHandle, payload: LaunchVicePayload) -> serde_json::
         return serde_json::json!({ "ok": false, "error": e.to_string() });
     }
 
-    let result = if cfg!(target_os = "macos") {
-        // GTK3VICE on macOS ships as:
-        //   /Applications/vice-arm64-gtk3-3.x/x64sc.app  ← .app bundle (droplet, no CLI args)
-        //   /Applications/vice-arm64-gtk3-3.x/bin/x64sc  ← bash wrapper (accepts CLI args) ✓
-        //   /Applications/vice-arm64-gtk3-3.x/VICE.app/Contents/MacOS/VICE  ← actual binary
-        // If user picks the .app bundle, resolve to the sibling bin/ script automatically.
-        let binary = if vice_path.ends_with(".app") {
-            let app_path = std::path::Path::new(&vice_path);
-            let stem = app_path.file_stem().unwrap_or_default().to_string_lossy().to_string();
-            // Try sibling bin/ directory first (GTK3VICE layout)
-            if let Some(parent) = app_path.parent() {
-                let bin_candidate = parent.join("bin").join(&stem);
-                if bin_candidate.exists() {
-                    bin_candidate.to_string_lossy().to_string()
-                } else {
-                    String::new()
-                }
-            } else {
-                String::new()
-            }
-        } else {
-            vice_path.clone()
-        };
-
-        if binary.is_empty() || !std::path::Path::new(&binary).exists() {
-            return serde_json::json!({
-                "ok": false,
-                "error": format!("VICE binary nem talalhato. Valaszd ki a 'bin/x64sc' scriptet a VICE mappajaban (nem az .app bundlet). Beallitott ut: {}", vice_path)
-            });
-        }
-
-        Command::new("bash")
-            .arg(&binary)
-            .arg(file_path.to_str().unwrap())
-            .stdin(std::process::Stdio::null())
-            .stdout(std::process::Stdio::null())
-            .stderr(std::process::Stdio::null())
-            .spawn()
-    } else {
-        #[cfg(target_os = "windows")]
-        {
-            // WHY NOT cmd /c start: cmd.exe is spawned as a child of this process and
-            // is placed into Tauri's Job Object before it runs. When it calls CreateProcess
-            // for VICE, Windows inherits the same job. The indirection does nothing.
-            //
-            // WHY NOT CREATE_BREAKAWAY_FROM_JOB: only works if the owning job explicitly
-            // sets JOB_OBJECT_LIMIT_BREAKAWAY_OK. Tauri CLI does not set that flag.
-            //
-            // WHY THIS WORKS: PowerShell's Start-Process calls ShellExecuteEx, which
-            // delegates actual process creation to explorer.exe (the shell host). That
-            // process is outside Tauri's Job Object entirely, so VICE is never assigned
-            // to it and survives hot-reload independently. This is only an issue in
-            // `tauri dev` mode; production builds do not use a KILL_ON_JOB_CLOSE job.
-            let ps_cmd = format!(
-                "Start-Process -FilePath '{}' -ArgumentList '{}'",
-                vice_path.replace('\'', "''"),
-                file_path.to_str().unwrap().replace('\'', "''"),
-            );
-            Command::new("powershell")
-                .args([
-                    "-NoProfile",
-                    "-NonInteractive",
-                    "-WindowStyle", "Hidden",
-                    "-Command", &ps_cmd,
-                ])
-                .stdin(std::process::Stdio::null())
-                .stdout(std::process::Stdio::null())
-                .stderr(std::process::Stdio::null())
-                .creation_flags(0x08000000) // CREATE_NO_WINDOW
-                .spawn()
-        }
-        #[cfg(not(target_os = "windows"))]
-        {
-            Command::new(&vice_path)
-                .arg(file_path.to_str().unwrap())
-                .stdin(std::process::Stdio::null())
-                .stdout(std::process::Stdio::null())
-                .stderr(std::process::Stdio::null())
-                .spawn()
-        }
-    };
+    let result = spawn_vice_with_file(&vice_path, &file_path);
 
     match result {
         Ok(_) => serde_json::json!({ "ok": true, "vicePath": vice_path, "filePath": file_path.to_str().unwrap() }),
         Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
     }
+}
+
+#[tauri::command]
+async fn launch_exomizer(app: AppHandle, payload: LaunchVicePayload) -> serde_json::Value {
+    let cfg = read_config(&app);
+    let exomizer_path = get_exomizer_path(&cfg);
+    let vice_path = {
+        let p = cfg["vicePath"].as_str().unwrap_or("").to_string();
+        if p.is_empty() { detect_vice_executable() } else { p }
+    };
+
+    if exomizer_path.is_empty() {
+        return serde_json::json!({
+            "ok": false,
+            "error": "Exomizer nincs beallitva. Kattints az Edit gombra es add meg az eleresi utjat."
+        });
+    }
+
+    if vice_path.is_empty() {
+        return serde_json::json!({
+            "ok": false,
+            "error": "VICE nincs beallitva. Kattints az Edit gombra es add meg a VICE eleresi utjat."
+        });
+    }
+
+    let file_name = payload.file_name.unwrap_or_else(|| {
+        format!("program-{}.prg", std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH).unwrap().as_millis())
+    });
+
+    let (output_path, _) = match crunch_with_exomizer(&exomizer_path, &payload.bytes, &file_name) {
+        Ok(result) => result,
+        Err(error) => return serde_json::json!({ "ok": false, "error": error }),
+    };
+
+    if let Err(e) = spawn_vice_with_file(&vice_path, &output_path) {
+        return serde_json::json!({ "ok": false, "error": e });
+    }
+
+    serde_json::json!({
+        "ok": true,
+        "exomizerPath": exomizer_path,
+        "vicePath": vice_path,
+        "sourceFilePath": std::env::temp_dir().join("c64-visual-assembler").join(&file_name).to_string_lossy().to_string(),
+        "filePath": output_path.to_string_lossy().to_string()
+    })
 }
 
 // ── Debugger (RetroDebugger) ────────────────────────────────────────────────
@@ -1757,8 +1905,12 @@ pub fn run() {
             get_ui_settings,
             save_ui_settings,
             get_vice_config,
+            get_exomizer_config,
             choose_vice_executable,
+            choose_exomizer_executable,
+            build_exomizer_prg,
             launch_vice,
+            launch_exomizer,
             get_debugger_config,
             choose_debugger_executable,
             launch_debugger,

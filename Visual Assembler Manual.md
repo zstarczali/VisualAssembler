@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 1.7.3**
+**Version 1.7.4**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -105,6 +105,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [D64 metadata in projects](#d64-metadata-in-projects)
   - [13. Hardware Settings](#13-hardware-settings)
     - [VICE Emulator](#vice-emulator)
+    - [Exomizer](#exomizer)
     - [Retro Debugger](#retro-debugger)
     - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
 
@@ -226,7 +227,8 @@ The modal closes automatically when the action completes or fails.
 | **Save PRG** | Export the compiled binary as a `.prg` file |
 | **Run (split button)** | The main **▶ Run** button runs the current mode; click the **▾** arrow to switch between: **Run as PRG** (compile and launch VICE directly), **Run via D64** (package into a .d64 disk image and launch VICE), or **Run on hardware** (send PRG to a C64 Ultimate / 1541 Ultimate device). See [Section 12](#12-d64-export--run) and [Section 13](#13-hardware-settings). |
 | **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 9](#9-debugger-integration)) |
-| **Hardware Settings** | Open the hardware configuration dialog — configure VICE, RetroDebugger, and C64 Ultimate (host, password, connection test). See [Section 13](#13-hardware-settings). |
+| **Run with Exomizer** | Checkbox in the Settings menu — when enabled, all Run and Build operations crunch the PRG through `exomizer sfx sys` before launching or saving. Works with Run as PRG, Run via D64, Run on Hardware, Build PRG, and Build D64. Configure the Exomizer executable in **Hardware Settings** first. |
+| **Hardware Settings** | Open the hardware configuration dialog — configure VICE, Exomizer, RetroDebugger, and C64 Ultimate (host, password, connection test). See [Section 13](#13-hardware-settings). |
 | **New program…** | Opens a confirmation dialog, then clears all blocks from the program area |
 | **Collapse All** | Collapse all blocks |
 | **About** | Version info |
@@ -1884,6 +1886,21 @@ Open via **Settings → Hardware Settings…** in the toolbar menu. All external
 | **Status** | Shows whether the executable path is valid and accessible |
 
 VICE is required for **Run as PRG**, **Run via D64**, and **Export to D64**.
+
+### Exomizer
+
+| Setting | Description |
+|---|---|
+| **Select Exomizer** | Browse to the `exomizer` executable |
+| **Status** | Shows whether the executable path is valid and accessible |
+
+**Workflow:**
+1. Place the Exomizer binary on your system (download from https://csdb.dk/release/?id=244342 or build from https://github.com/pfusik/exomizer).
+2. Configure the path in **Hardware Settings → Exomizer section**.
+3. Enable the **Run with Exomizer** checkbox in the **Settings menu**.
+4. All **Run** actions (PRG, D64, hardware) and **Build** actions (Build PRG, Build D64) will now crunch the assembled program through `exomizer sfx sys` before launching or saving.
+
+> **Tip:** If the Exomizer path is not configured but the checkbox is enabled, a clear error toast is shown instead of launching. Disable the checkbox to run without compression.
 
 ### Retro Debugger
 

@@ -365,6 +365,8 @@ Aktuális sorrend az `index.html` `#sample-select` elemben (0-indexelt):
 | `save_d64` | D64 lemezképet ment c1541-gyel (VICE) |
 | `run_d64` | Temp D64 + VICE indítása D64-ről |
 | `read_bin_file` | Nyers bináris fájl beolvasása (extras lazy load) |
+| `build_exomizer_prg` | PRG tömörítése Exomizerrel (sfx sys), crunched bytes visszaadása |
+| `launch_exomizer` | PRG tömörítése + VICE indítása a tömörített kimenettel |
 | `run_on_ultimate` | PRG küldés + futtatás C64 Ultimate REST API-on |
 | `test_ultimate_connection` | C64 Ultimate kapcsolat teszt |
 | `open_manual` | PDF kézikönyv megnyitása |
@@ -659,7 +661,7 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`1.7.3` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` és a What's New dialóg (`index.html`).
+`1.7.4` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` és a What's New dialóg (`index.html`).
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező

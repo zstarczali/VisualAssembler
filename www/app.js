@@ -237,10 +237,14 @@ const copyAsmButton = document.getElementById("copy-asm");
 const runEmulatorButton = document.getElementById("run-emulator");
 const runDebuggerButton = document.getElementById("run-debugger");
 const chooseViceButton = document.getElementById("choose-vice");
+const chooseExomizerButton = document.getElementById("choose-exomizer");
+const runExomizerToggle = document.getElementById("run-exomizer-toggle");
 const chooseDebuggerButton = document.getElementById("choose-debugger");
 const emulatorStatus = document.getElementById("emulator-status");
 const emulatorRunHint = document.getElementById("emulator-run-hint");
 const vicePathInput = document.getElementById("vice-path");
+const exomizerPathInput = document.getElementById("exomizer-path");
+const exomizerStatus = document.getElementById("exomizer-status");
 const debuggerPathInput = document.getElementById("debugger-path");
 const debuggerStatus = document.getElementById("debugger-status");
 const dbgJmp = document.getElementById("dbg-jmp");
@@ -342,6 +346,8 @@ const defaultOrigin = 0x0801;
 let blockScale = 0.9;
 let currentLanguage = "en";
 let vicePath = "";
+let exomizerPath = "";
+let exomizerEnabled = false;
 let debuggerPath = "";
 let debuggerJmp = true;
 let debuggerWait = false;
@@ -411,6 +417,7 @@ function saveUiSettings() {
     showMemoryOverlays,
     blockPaletteSync,
     asmOutputBase,
+    exomizerEnabled,
     debuggerJmp,
     debuggerWait,
     debuggerWaitMs,
@@ -1277,6 +1284,11 @@ function initPalette() {
   setupRunModeDropdown();
   setupHardwareSettingsDialog();
   setupUltimateSettings();
+  chooseExomizerButton?.addEventListener("click", chooseExomizerExecutable);
+  runExomizerToggle?.addEventListener("change", () => {
+    exomizerEnabled = !!runExomizerToggle.checked;
+    saveUiSettings();
+  });
   chooseDebuggerButton?.addEventListener("click", chooseDebuggerExecutable);
   runDebuggerButton?.addEventListener("click", runInDebugger);
   dbgJmp?.addEventListener("change", () => { debuggerJmp = dbgJmp.checked; saveUiSettings(); });
@@ -1297,6 +1309,7 @@ function initPalette() {
   renderOutputMode();
   renderMemoryStrip();
   loadViceConfig();
+  loadExomizerConfig();
   loadDebuggerConfig();
 
   // Populate version on splash screen
@@ -1574,6 +1587,9 @@ function _applyUiSettingsToDOM() {
     if (blockPaletteSyncToggle) blockPaletteSyncToggle.checked = blockPaletteSync;
   }
 
+  exomizerEnabled = !!savedUiSettings.exomizerEnabled;
+  if (runExomizerToggle) runExomizerToggle.checked = exomizerEnabled;
+
   if (savedUiSettings.asmOutputBase) {
     asmOutputBase = savedUiSettings.asmOutputBase;
   }
@@ -1773,17 +1789,21 @@ function applyTranslations() {
     setText("#hardware-settings-title", t("hardwareSettingsTitle"));
     setText("#hardware-settings-close", t("hardwareSettingsClose"));
     setText("#hw-vice-section-label", t("hwViceSectionLabel"));
+    setText("#hw-exomizer-section-label", t("hwExomizerSectionLabel"));
     setText("#hw-debugger-section-label", t("hwDebuggerSectionLabel"));
     setText("#vice-exe-label", t("viceExecutable"));
     setText("#choose-vice", t("openEmulator"));
+    setText("#choose-exomizer", t("chooseExomizer"));
+    setText("#exomizer-exe-label", t("exomizerExecutable"));
     setText("#choose-debugger", t("chooseDebugger"));
     setText("#debugger-exe-label", t("debuggerExecutable"));
     setText("#debugger-params-label", t("debuggerParamsLabel"));
     setText("#dbg-jmp-label", t("debuggerJmpLabel"));
     setText("#dbg-wait-label", t("debuggerWaitLabel"));
     setText("#dbg-unpause-label", t("debuggerUnpauseLabel"));
-    setText("#run-emulator .run-label", runMode === "d64" ? t("runViaD64") : runMode === "ultimate" ? t("runOnUltimate") : runMode === "ultimate-d64" ? t("runD64OnHardware") : t("runInEmulator"));
+    setText("#run-emulator .run-label", getRunModeLabel(runMode));
     setText("#run-prg-label", t("runAsPrg"));
+    setText("#run-exomizer-toggle-label", t("runWithExomizer"));
     setText("#run-d64-label", t("runViaD64"));
     setText("#run-ultimate-label", t("runOnUltimate"));
     setText("#run-ultimate-d64-label", t("runD64OnHardware"));
@@ -1841,8 +1861,9 @@ function applyTranslations() {
     clearProgramButton?.setAttribute("title", t("clearProgram"));
     clearProgramButton?.setAttribute("aria-label", t("clearProgram"));
     if (runEmulatorButton) {
-      runEmulatorButton.setAttribute("title", t("runInEmulator"));
-      runEmulatorButton.setAttribute("aria-label", t("runInEmulator"));
+      const runLabel = getRunModeLabel(runMode);
+      runEmulatorButton.setAttribute("title", runLabel);
+      runEmulatorButton.setAttribute("aria-label", runLabel);
     }
     if (runDebuggerButton) {
       runDebuggerButton.setAttribute("title", t("runInDebuggerTitle"));
@@ -1850,6 +1871,12 @@ function applyTranslations() {
     }
     chooseDebuggerButton?.setAttribute("title", t("chooseDebugger"));
     chooseDebuggerButton?.setAttribute("aria-label", t("chooseDebugger"));
+    chooseExomizerButton?.setAttribute("title", t("chooseExomizer"));
+    chooseExomizerButton?.setAttribute("aria-label", t("chooseExomizer"));
+    updateVicePathPreview(vicePath);
+    updateExomizerPathPreview(exomizerPath);
+    updateDebuggerPathPreview(debuggerPath);
+    updateEmulatorStatus();
     document.getElementById("hardware-settings-btn")?.setAttribute("title", t("hardwareSettings"));
     document.getElementById("hardware-settings-btn")?.setAttribute("aria-label", t("hardwareSettings"));
     document.getElementById("crt-toggle")?.setAttribute("title", t("crtToggle"));
@@ -7158,6 +7185,16 @@ async function loadViceConfig() {
   updateEmulatorStatus();
 }
 
+async function loadExomizerConfig() {
+  if (!window.electronAPI?.getExomizerConfig) {
+    updateExomizerPathPreview("");
+    return;
+  }
+
+  const config = await window.electronAPI.getExomizerConfig();
+  updateExomizerPathPreview(config?.exomizerPath || "");
+}
+
 function updateVicePathPreview(nextPath) {
   vicePath = nextPath || "";
   if (vicePathInput) {
@@ -7172,6 +7209,27 @@ function updateVicePathPreview(nextPath) {
     vicePathInput.value = displayPath;
     vicePathInput.title = vicePath; // Show full path on hover
     vicePathInput.placeholder = currentLanguage !== "hu" ? "VICE not configured" : "Nincs beallitva";
+  }
+}
+
+function updateExomizerPathPreview(nextPath) {
+  exomizerPath = nextPath || "";
+  if (exomizerPathInput) {
+    let displayPath = exomizerPath;
+    if (displayPath.length > 50) {
+      const parts = displayPath.replace(/\\/g, "/").split("/");
+      if (parts.length > 3) {
+        displayPath = `.../${parts.slice(-2).join("/")}`;
+      }
+    }
+    exomizerPathInput.value = displayPath;
+    exomizerPathInput.title = exomizerPath;
+    exomizerPathInput.placeholder = currentLanguage !== "hu" ? "Exomizer not configured" : "Nincs beallitva";
+  }
+  if (exomizerStatus) {
+    exomizerStatus.textContent = exomizerPath
+      ? tf("exomizerStatusReady", { path: exomizerPath })
+      : t("exomizerStatusPending");
   }
 }
 
@@ -7192,6 +7250,24 @@ async function chooseViceExecutable() {
 
   updateVicePathPreview(result?.vicePath || "");
   updateEmulatorStatus();
+}
+
+async function chooseExomizerExecutable() {
+  if (!window.electronAPI?.chooseExomizerExecutable) {
+    if (exomizerStatus) {
+      exomizerStatus.textContent = currentLanguage !== "hu"
+        ? "Exomizer selection is only available in the desktop app."
+        : "Az Exomizer kivalasztasa csak a desktop appban erheto el.";
+    }
+    return;
+  }
+
+  const result = await window.electronAPI.chooseExomizerExecutable();
+  if (result?.canceled) {
+    return;
+  }
+
+  updateExomizerPathPreview(result?.exomizerPath || "");
 }
 
 async function loadDebuggerConfig() {
@@ -7773,9 +7849,10 @@ async function completeWorkProgress(successMessageKey, delayMs = 1200) {
 }
 
 async function savePrgToFile() {
-  const prg = buildAutostartPrgForEmulator();
+  const prg = await buildRunPrgForCurrentMode();
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
+    if (prg.error) { showViceToast(prg.error, true); return; }
     if (emulatorStatus) emulatorStatus.textContent = prg.error;
     return;
   }
@@ -7801,9 +7878,10 @@ async function saveD64ToFile() {
   }
 
   // Compile first so we surface errors early (before opening the dialog).
-  const prg = buildAutostartPrgForEmulator();
+  const prg = await buildRunPrgForCurrentMode();
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
+    if (prg.error) { showViceToast(prg.error, true); return; }
     if (emulatorStatus) emulatorStatus.textContent = prg.error;
     return;
   }
@@ -8048,6 +8126,13 @@ async function confirmD64Export() {
 
 let runMode = "prg";
 
+function getRunModeLabel(mode) {
+  if (mode === "d64") return t("runViaD64");
+  if (mode === "ultimate") return t("runOnUltimate");
+  if (mode === "ultimate-d64") return t("runD64OnHardware");
+  return t("runInEmulator");
+}
+
 function setupRunModeDropdown() {
   const arrow = document.getElementById("run-mode-arrow");
   const menu = document.getElementById("run-mode-menu");
@@ -8107,7 +8192,12 @@ function setRunMode(mode) {
   if (ulBtn) ulBtn.classList.toggle("active", mode === "ultimate");
   if (ulD64Btn) ulD64Btn.classList.toggle("active", mode === "ultimate-d64");
   const label = document.querySelector("#run-emulator .run-label");
-  if (label) label.textContent = mode === "d64" ? t("runViaD64") : mode === "ultimate" ? t("runOnUltimate") : mode === "ultimate-d64" ? t("runD64OnHardware") : t("runInEmulator");
+  const runLabel = getRunModeLabel(mode);
+  if (label) label.textContent = runLabel;
+  if (runEmulatorButton) {
+    runEmulatorButton.setAttribute("title", runLabel);
+    runEmulatorButton.setAttribute("aria-label", runLabel);
+  }
 }
 
 async function runViaD64() {
@@ -8124,7 +8214,7 @@ async function runViaD64() {
     return;
   }
 
-  const prg = buildAutostartPrgForEmulator();
+  const prg = await buildRunPrgForCurrentMode();
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
     if (emulatorStatus) emulatorStatus.textContent = prg.error;
@@ -8167,6 +8257,93 @@ async function runViaD64() {
   if (titleEl) titleEl.textContent = t("runD64Title");
   renderD64ExtraFiles();
   dialog?.showModal();
+}
+
+async function runViaExomizer() {
+  if (isProgramEmpty()) {
+    showViceToast(currentLanguage !== "hu" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
+    return;
+  }
+  if (!exomizerPath) {
+    showViceToast(t("exomizerNotConfiguredMsg"), true);
+    return;
+  }
+  if (!vicePath) {
+    showViceToast(currentLanguage !== "hu" ? "VICE is not configured. Select it in the menu first." : "A VICE nincs beallitva. Valaszd ki a menuben.", true);
+    return;
+  }
+  if (!window.electronAPI?.launchExomizer) {
+    showViceToast(t("exomizerLaunchNotAvailable"), true);
+    return;
+  }
+
+  const prg = buildAutostartPrgForEmulator();
+  if (!prg.ok) {
+    if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
+    if (emulatorStatus) emulatorStatus.textContent = prg.error;
+    return;
+  }
+
+  await showWorkProgress("workProgressRunExomizer");
+  let success = false;
+  try {
+    setWorkProgress(30);
+
+    const result = await window.electronAPI.launchExomizer({
+      bytes: Array.from(prg.bytes),
+      fileName: `c64-visual-assembler-${Date.now()}.prg`
+    });
+
+    if (!result?.ok) {
+      showViceToast(result?.error || t("exomizerLaunchFailed"), true);
+      return;
+    }
+
+    setWorkProgress(100);
+    updateVicePathPreview(result.vicePath || vicePath);
+    updateExomizerPathPreview(result.exomizerPath || exomizerPath);
+    const parts = (result.filePath || "").replace(/\\/g, "/").split("/");
+    const fileName = parts[parts.length - 1] || result.filePath;
+    showViceToast(fileName);
+    success = true;
+  } finally {
+    if (success) {
+      await completeWorkProgress("workProgressSuccessRunExomizer");
+    } else {
+      hideWorkProgress();
+    }
+  }
+}
+
+async function buildRunPrgForCurrentMode() {
+  const prg = buildAutostartPrgForEmulator();
+  if (!prg.ok) return prg;
+
+  if (!exomizerEnabled) return prg;
+
+  if (!exomizerPath) {
+    return { ok: false, error: t("exomizerNotConfiguredMsg") };
+  }
+
+  if (!window.electronAPI?.buildExomizerPrg) {
+    return { ok: false, error: t("exomizerLaunchNotAvailable") };
+  }
+
+  const result = await window.electronAPI.buildExomizerPrg({
+    bytes: Array.from(prg.bytes),
+    fileName: `c64-visual-assembler-${Date.now()}.prg`
+  });
+
+  if (!result?.ok) {
+    return { ok: false, error: result?.error || t("exomizerLaunchFailed") };
+  }
+
+  return {
+    ok: true,
+    bytes: Uint8Array.from(result.bytes || []),
+    exomizerPath: result.exomizerPath,
+    filePath: result.filePath
+  };
 }
 
 function setupD64ExportDialog() {
@@ -8252,7 +8429,7 @@ async function runOnUltimate() {
     showViceToast(t("ultimateNotConfigured"), true);
     return;
   }
-  const prg = buildAutostartPrgForEmulator();
+  const prg = await buildRunPrgForCurrentMode();
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
     if (emulatorStatus) emulatorStatus.textContent = prg.error;
@@ -8280,7 +8457,7 @@ async function runUltimateD64() {
     return;
   }
 
-  const prg = buildAutostartPrgForEmulator();
+  const prg = await buildRunPrgForCurrentMode();
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
     if (emulatorStatus) emulatorStatus.textContent = prg.error;
@@ -9268,7 +9445,7 @@ async function runInEmulator() {
   try {
     setWorkProgress(20);
 
-    const prg = buildAutostartPrgForEmulator();
+    const prg = await buildRunPrgForCurrentMode();
     if (!prg.ok) {
       if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
       if (emulatorStatus) emulatorStatus.textContent = prg.error;
