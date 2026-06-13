@@ -8329,21 +8329,37 @@ async function buildRunPrgForCurrentMode() {
     return { ok: false, error: t("exomizerLaunchNotAvailable") };
   }
 
-  const result = await window.electronAPI.buildExomizerPrg({
-    bytes: Array.from(prg.bytes),
-    fileName: `c64-visual-assembler-${Date.now()}.prg`
-  });
-
-  if (!result?.ok) {
-    return { ok: false, error: result?.error || t("exomizerLaunchFailed") };
+  // Show progress dialog while Exomizer compresses (can take several seconds)
+  const wasDialogOpen = workProgressDialog?.open;
+  if (!wasDialogOpen) {
+    await showWorkProgress("workProgressExomizerCompress");
+  } else {
+    // Update subtitle in already-open progress dialog (e.g. runProgram flow)
+    if (workProgressSubtitle) workProgressSubtitle.textContent = t("workProgressExomizerCompress");
   }
 
-  return {
-    ok: true,
-    bytes: Uint8Array.from(result.bytes || []),
-    exomizerPath: result.exomizerPath,
-    filePath: result.filePath
-  };
+  try {
+    const result = await window.electronAPI.buildExomizerPrg({
+      bytes: Array.from(prg.bytes),
+      fileName: `c64-visual-assembler-${Date.now()}.prg`
+    });
+
+    if (!result?.ok) {
+      return { ok: false, error: result?.error || t("exomizerLaunchFailed") };
+    }
+
+    return {
+      ok: true,
+      bytes: Uint8Array.from(result.bytes || []),
+      exomizerPath: result.exomizerPath,
+      filePath: result.filePath
+    };
+  } finally {
+    // Hide progress only if we opened it (don't close an outer dialog)
+    if (!wasDialogOpen) {
+      hideWorkProgress();
+    }
+  }
 }
 
 function setupD64ExportDialog() {
