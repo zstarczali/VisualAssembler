@@ -5214,6 +5214,11 @@ body.crt-mode #crt-overlay::after {
   transition: left 300ms ease, top 300ms ease;
 }
 
+.tour-card::backdrop {
+  pointer-events: none;
+  background: transparent;
+}
+
 .tour-card-header {
   display: flex;
   align-items: center;
