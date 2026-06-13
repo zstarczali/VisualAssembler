@@ -1004,7 +1004,8 @@ html[data-theme="oled"] .primary {
 
 .panel-heading {
   margin-bottom: 12px;
-  padding-bottom: 10px;
+  padding: 12px 14px 10px;
+  background: color-mix(in srgb, var(--accent) 4%, var(--panel-strong));
   border-bottom: 1px solid color-mix(in srgb, var(--panel-border) 78%, transparent);
 }
 
