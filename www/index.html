@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>C64 Visual Assembler</title>
-  <script>(function(){var t=localStorage.getItem('c64-block-theme')||'light';document.documentElement.dataset.theme=t;document.documentElement.style.background={'dark':'#2f2a8a','oled':'#03020c','light':'#8b93ff'}[t]||'#8b93ff';})();</script>
+  <script>(function(){var t=localStorage.getItem('c64-block-theme')||'light';document.documentElement.dataset.theme=t;document.documentElement.style.background={'dark':'#1a1b26','oled':'#0d0d12','light':'#e8ecf1'}[t]||'#e8ecf1';})();</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -302,28 +302,15 @@
           <div class="panel-heading">
             <div class="panel-heading-top">
               <h2>ASM nezet</h2>
-              <p class="current-file" id="current-file"></p>
             </div>
             <p>Az osszerakott szoveges kod innen indulhat tovabb export fele.</p>
           </div>
           <div class="output-toolbar">
-            <div class="view-mode-toggle" role="radiogroup" aria-label="Kod nezet">
-              <label class="view-mode-option">
-                <input type="radio" name="output-mode" value="asm" checked>
-                <span>ASM</span>
-              </label>
-              <label class="view-mode-option">
-                <input type="radio" name="output-mode" value="monitor">
-                <span>Monitor</span>
-              </label>
-              <label class="view-mode-option">
-                <input type="radio" name="output-mode" value="both">
-                <span>Mindketto</span>
-              </label>
-              <label class="view-mode-option">
-                <input type="radio" name="output-mode" value="disasm">
-                <span>Disassembler</span>
-              </label>
+            <div class="view-mode-tabs" role="tablist" aria-label="Kod nezet">
+              <button class="view-mode-tab active" role="tab" aria-selected="true" data-mode="asm">ASM</button>
+              <button class="view-mode-tab" role="tab" aria-selected="false" data-mode="monitor">Monitor</button>
+              <button class="view-mode-tab" role="tab" aria-selected="false" data-mode="both">Mindketto</button>
+              <button class="view-mode-tab" role="tab" aria-selected="false" data-mode="disasm">Disassembler</button>
             </div>
           </div>
           <div id="output-stack" class="output-stack">

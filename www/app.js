@@ -259,7 +259,7 @@ const programList = document.getElementById("program-list");
 const asmOutput = document.getElementById("asm-output");
 const monitorOutput = document.getElementById("monitor-output");
 const outputStack = document.getElementById("output-stack");
-const outputModeInputs = [...document.querySelectorAll('input[name="output-mode"]')];
+const outputModeTabs = [...document.querySelectorAll('.view-mode-tab')];
 const blockTemplate = document.getElementById("block-template");
 const paletteItemTemplate = document.getElementById("palette-item-template");
 const globalMemoryPanel = document.querySelector(".global-memory-panel");
@@ -1227,7 +1227,9 @@ function initPalette() {
   });
   zoomOutButton.addEventListener("click", () => adjustZoom(-0.08));
   zoomInButton.addEventListener("click", () => adjustZoom(0.08));
-  outputModeInputs.forEach((input) => input.addEventListener("change", renderOutputMode));
+  outputModeTabs.forEach((tab) => tab.addEventListener("click", () => {
+    setOutputMode(tab.dataset.mode);
+  }));
   compileErrorClose?.addEventListener("click", () => compileErrorDialog?.close());
   compileErrorDialog?.addEventListener("click", (e) => { if (e.target === compileErrorDialog) compileErrorDialog.close(); });
 
@@ -1534,12 +1536,12 @@ function _applyUiSettingsToDOM() {
     });
   }
 
-  if (outputModeInputs.length) {
-    const selectedOutputMode = ["asm", "monitor", "both", "disasm"].includes(savedUiSettings.outputMode)
-      ? savedUiSettings.outputMode
-      : "asm";
-    outputModeInputs.forEach((input) => {
-      input.checked = input.value === selectedOutputMode;
+  if (outputModeTabs.length && savedUiSettings.outputMode) {
+    const mode = ["asm","monitor","both","disasm"].includes(savedUiSettings.outputMode) ? savedUiSettings.outputMode : "asm";
+    outputModeTabs.forEach((tab) => {
+      const isActive = tab.dataset.mode === mode;
+      tab.classList.toggle("active", isActive);
+      tab.setAttribute("aria-selected", String(isActive));
     });
   }
 
@@ -1762,10 +1764,10 @@ function applyTranslations() {
     setText(".base-switch legend", t("numberBase"));
     setText(".palette-panel .field:nth-of-type(4) span", t("addressingMode"));
     setText("#add-selected", t("addSelected"));
-    setText('.view-mode-option input[value="program"] + span', t("outputProgram"));
-    setText('.view-mode-option input[value="asm"] + span', t("outputAsm"));
-    setText('.view-mode-option input[value="monitor"] + span', t("outputMonitor"));
-    setText('.view-mode-option input[value="both"] + span', t("outputBoth"));
+    setText('.view-mode-tab[data-mode="asm"]', t("outputAsm"));
+    setText('.view-mode-tab[data-mode="monitor"]', t("outputMonitor"));
+    setText('.view-mode-tab[data-mode="both"]', t("outputBoth"));
+    setText('.view-mode-tab[data-mode="disasm"]', t("outputDisasm"));
     setText(".global-memory-title", t("memoryTitle"));
     setText("#hardware-settings-btn", t("hardwareSettings"));
     setText("#hardware-settings-title", t("hardwareSettingsTitle"));
@@ -1948,7 +1950,17 @@ function refreshCategoryOptions() {
 }
 
 function getSelectedOutputMode() {
-  return outputModeInputs.find((input) => input.checked)?.value || "asm";
+  return outputModeTabs.find((tab) => tab.classList.contains("active"))?.dataset.mode || "asm";
+}
+
+function setOutputMode(mode) {
+  outputModeTabs.forEach((tab) => {
+    const isActive = tab.dataset.mode === mode;
+    tab.classList.toggle("active", isActive);
+    tab.setAttribute("aria-selected", String(isActive));
+  });
+  outputStack.dataset.mode = mode;
+  saveUiSettings();
 }
 
 function renderOutputMode() {
@@ -9158,9 +9170,11 @@ async function loadProjectFromFile() {
     });
   }
 
-  if (projectData.ui?.outputMode && outputModeInputs.length) {
-    outputModeInputs.forEach((input) => {
-      input.checked = input.value === projectData.ui.outputMode;
+  if (projectData.ui?.outputMode && outputModeTabs.length) {
+    outputModeTabs.forEach((tab) => {
+      const isActive = tab.dataset.mode === projectData.ui.outputMode;
+      tab.classList.toggle("active", isActive);
+      tab.setAttribute("aria-selected", String(isActive));
     });
   }
 
