@@ -1647,7 +1647,7 @@ button:focus-visible,
   margin-left: -2px;
   padding-left: 2px;
   padding-right: 1ch;
-  color: #ffffff;
+  color: var(--text);
 }
 
 .asm-tok-lineno {
@@ -3927,6 +3927,19 @@ html[data-theme="oled"] .expert-err-line {
   border-radius: inherit;
   background: var(--primary);
   transition: width 120ms linear;
+}
+
+/* ── Indeterminate (végtelen) progress bar ────────────────────────── */
+.work-progress-bar--indeterminate {
+  width: 38% !important;
+  transition: none;
+  animation: progress-indeterminate 1.6s ease-in-out infinite;
+}
+
+@keyframes progress-indeterminate {
+  0%   { transform: translateX(-100%); }
+  50%  { transform: translateX(165%); }
+  100% { transform: translateX(-100%); }
 }
 
 /* ── D64 Export Dialog ────────────────────────────────────────────── */
