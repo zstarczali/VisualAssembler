@@ -566,31 +566,40 @@
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v1.7.2</p>
+      <p class="whats-new-version">v1.7.3</p>
       <ul class="whats-new-list">
         <li>
-          <strong>INVOKE + INCLUDE fix</strong> &mdash; macros defined in a fixed-address <code>.include</code> library (e.g. <code>$1500</code>) are now correctly found by <code>.invoke</code>.
+          <strong>UI overhaul — clean, professional look</strong> &mdash; removed all gradients, replaced purple/indigo AI-colors with a professional slate-blue palette. Light, Dark and OLED themes all updated.
         </li>
         <li>
-          <strong>MACRO / LABEL block full-color styling</strong> &mdash; MACRO/ENDM blocks render with a solid blue accent background; LABEL blocks render with a solid purple accent background.
+          <strong>Output toolbar → tabs</strong> &mdash; ASM / Monitor / Both / Disassembler selector is now a proper tab bar with bottom-border active indicator instead of radio-button pills.
         </li>
         <li>
-          <strong>Guided tour bubble follows spotlight</strong> &mdash; in the <em>Setting Up VICE &amp; RetroDebugger</em> tour the card bubble now moves next to the highlighted element instead of staying centred.
+          <strong>Square, angular UI</strong> &mdash; border-radius reduced throughout: buttons, inputs, panels, and controls now use crisp 2–3 px corners. Toggle-switch knobs are square. Blocks keep a comfortable 15 px radius.
         </li>
         <li>
-          <strong>Tour: menu-button step</strong> &mdash; the <em>Setting Up VICE &amp; RetroDebugger</em> tour now first spotlights the &#9776; menu button, then the Settings entry inside the opened menu.
+          <strong>Block category color wraps all sides</strong> &mdash; each block's category-tone colour now appears as a full border plus a wider 6 px left accent bar. Selection no longer overrides the block's identity colour.
         </li>
         <li>
-          <strong>Compilation Errors dialog wider</strong> &mdash; max-width increased to 720 px; error message text is now highlighted in red.
+          <strong>Light-theme outputs</strong> &mdash; ASM, Monitor and Disassembler panels now use a light background in light mode. Monitor text is dark green. Dark/OLED themes keep the classic CRT look.
         </li>
         <li>
-          <strong>ASM export INVOKE fix</strong> &mdash; INVOKE-expanded LOOP, NEXT, REGION/ENDREGION and regular instruction blocks now render with correct syntax.
+          <strong>Fluid layout</strong> &mdash; removed the 1400 px max-width; palette, program and output panels now scale proportionally with the window.
         </li>
         <li>
-          <strong>Symbol tree: inline macro labels</strong> &mdash; <code>:labelName</code> suffixes on <code>.petscii</code>, <code>.rawbytes</code>, <code>.table</code> and similar lines now appear in the Expert mode symbol tree.
+          <strong><code>.call</code> alias for <code>.invoke</code></strong> &mdash; macro invocations can now use <code>.call macroName(arg1, arg2)</code> as a synonym for <code>.invoke</code>, matching familiar assembler syntax.
         </li>
         <li>
-          <strong>Sample-programs highlight fix</strong> &mdash; the sample-programs group is no longer highlighted for non-sample tour steps that open the menu.
+          <strong>Macro argument parsing improvements</strong> &mdash; quoted arguments with commas inside them are now handled correctly. Argument splitting and normalisation rewritten for robustness across expert mode, ASM import and block mode.
+        </li>
+        <li>
+          <strong>Auto buffer allocation for deferred macros</strong> &mdash; macros like <code>.rawbytes</code>, <code>.rawtext</code>, <code>.petscii</code> that use address parameters now support automatic buffer address assignment via generated buffer labels and a <code>_autoBufferAddress</code> allocator.
+        </li>
+        <li>
+          <strong>Decimal <code>.org</code> syntax</strong> &mdash; the ORG directive now accepts plain decimal numbers (e.g. <code>.org 2049</code>) in addition to hex (<code>.org $0801</code>).
+        </li>
+        <li>
+          <strong>Unified label/metadata collection</strong> &mdash; <code>addLayoutLabels()</code> helper consolidates label map population across all layout functions, reducing duplication and fixing edge cases with symbol resolution.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -802,9 +811,9 @@
   </dialog>
 
   <script src="tauri-bridge.js"></script>
-  <script src="i18n.js?v=1.7.2"></script>
-  <script src="tutorial-data.js?v=1.7.2"></script>
-  <script src="app.js?v=1.7.2"></script>
+  <script src="i18n.js?v=1.7.3"></script>
+  <script src="tutorial-data.js?v=1.7.3"></script>
+  <script src="app.js?v=1.7.3"></script>
 
 </body>
 

@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 1.7.2**
+**Version 1.7.3**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -1130,9 +1130,20 @@ Calls a defined macro at this position and substitutes the supplied argument val
 
 ; no arguments:
 .invoke clearScreen
+
+; text / string arguments (quoted):
+.invoke printText("Hello, World!")
+
+; .call alias (synonym for .invoke):
+.call setColor(#$07)
 ```
 
 The macro body is expanded inline with `{paramName}` replaced by the actual arguments. The space-separated form (`.invoke setColor #$07`) is also accepted.
+
+**Argument types:**
+- **Numeric**: `#$07`, `$10`, `255` — hex or decimal values
+- **Text strings**: `"Hello, World!"` — quoted strings; commas inside quotes are treated as part of the text, not as argument separators
+- **Mixed**: `#$07, "hello", $20` — any combination
 
 > **Tip:** Define macros at the top (or bottom) of your program, then INVOKE them wherever needed. Macros can be invoked multiple times with different arguments.
 
