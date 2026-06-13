@@ -1,42 +1,42 @@
-﻿:root {
-  --bg: #8b93ff;
-  --bg-accent: #6f79db;
-  --panel: rgba(184, 191, 255, 0.96);
-  --panel-strong: rgba(201, 207, 255, 0.98);
-  --panel-border: rgba(47, 53, 129, 0.34);
-  --text: #222a74;
-  --muted: #4953aa;
-  --primary: #6d4aff;
-  --primary-deep: #4d31c3;
-  --secondary: #43318d;
-  --secondary-soft: rgba(67, 49, 141, 0.12);
-  --surface-soft: rgba(52, 61, 151, 0.10);
-  --control-bg: rgba(171, 179, 255, 0.96);
-  --active-bg: #43318d;
-  --active-fg: #f7f8ff;
-  --shadow: 0 16px 34px rgba(49, 41, 116, 0.18);
-  --radius: 8px;
-  --input-bg: rgba(210, 215, 255, 0.98);
-  --output-bg: #2e2a8a;
-  --output-text: #b9c4ff;
-  --error: #7d1f45;
+:root {
+  --bg: #e8ecf1;
+  --bg-accent: #dde1e6;
+  --panel: rgba(255, 255, 255, 0.96);
+  --panel-strong: rgba(248, 249, 250, 0.98);
+  --panel-border: rgba(0, 0, 0, 0.10);
+  --text: #1a1a2e;
+  --muted: #5a5a78;
+  --primary: #2563eb;
+  --primary-deep: #1d4ed8;
+  --secondary: #475569;
+  --secondary-soft: rgba(71, 85, 105, 0.10);
+  --surface-soft: rgba(71, 85, 105, 0.06);
+  --control-bg: rgba(241, 245, 249, 0.96);
+  --active-bg: #2563eb;
+  --active-fg: #ffffff;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+  --radius: 2px;
+  --input-bg: rgba(248, 250, 252, 0.98);
+  --output-bg: #f1f5f9;
+  --output-text: #1e293b;
+  --error: #dc2626;
   --accent: var(--primary);
-  --asm-mnemonic: #7ec8e8;
-  --asm-directive: #b48bfa;
-  --asm-macro: #7dd3fc;
-  --asm-comment: #6878a8;
-  --asm-label: #ffd060;
-  --asm-number: #f09050;
-  --asm-region: #a0c8a0;
-  --asm-operand: #e8e060;
+  --asm-mnemonic: #0369a1;
+  --asm-directive: #7c3aed;
+  --asm-macro: #0284c7;
+  --asm-comment: #64748b;
+  --asm-label: #b45309;
+  --asm-number: #c2410c;
+  --asm-region: #166534;
+  --asm-operand: #a16207;
   /* expert syntax highlight — light theme */
-  --hl-comment:   #3a4e8a;
-  --hl-directive: #1c3faa;
-  --hl-mnem:      #095e7a;
-  --hl-number:    #8b3200;
-  --hl-string:    #7a2200;
-  --hl-label:     #5a3d00;
-  --expert-editor-bg: #edf0ff;
+  --hl-comment:   #64748b;
+  --hl-directive: #1d4ed8;
+  --hl-mnem:      #0c4a6e;
+  --hl-number:    #9a3412;
+  --hl-string:    #7c2d12;
+  --hl-label:     #854d0e;
+  --expert-editor-bg: #f1f5f9;
 }
 
 html[data-theme="dark"] {
@@ -47,36 +47,36 @@ html[data-theme="dark"] {
   --hl-number:    #b5cea8;
   --hl-string:    #ce9178;
   --hl-label:     #9cdcfe;
-  --expert-editor-bg: #1e1a5e;
-  --bg: #2f2a8a;
-  --bg-accent: #201b6d;
-  --panel: rgba(63, 55, 150, 0.96);
-  --panel-strong: rgba(77, 67, 169, 0.98);
-  --panel-border: rgba(162, 173, 255, 0.20);
-  --text: #e5e9ff;
-  --muted: #aeb8ff;
-  --primary: #8bffb1;
-  --primary-deep: #54c77d;
-  --secondary: #89a1ff;
-  --secondary-soft: rgba(137, 161, 255, 0.14);
-  --surface-soft: rgba(181, 193, 255, 0.08);
-  --control-bg: rgba(42, 36, 121, 0.96);
-  --active-bg: #8bffb1;
-  --active-fg: #1a2358;
-  --shadow: 0 18px 44px rgba(10, 9, 45, 0.32);
-  --input-bg: rgba(54, 48, 145, 0.98);
-  --output-bg: #16124a;
-  --output-text: #aeb8ff;
-  --error: #ff9ab6;
-  --accent: #ffffff;
-  --asm-mnemonic: #7ec8e8;
-  --asm-directive: #b48bfa;
+  --expert-editor-bg: #1a1b26;
+  --bg: #1a1b26;
+  --bg-accent: #16171f;
+  --panel: rgba(30, 32, 48, 0.96);
+  --panel-strong: rgba(40, 42, 58, 0.98);
+  --panel-border: rgba(255, 255, 255, 0.08);
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --primary: #60a5fa;
+  --primary-deep: #3b82f6;
+  --secondary: #94a3b8;
+  --secondary-soft: rgba(148, 163, 184, 0.10);
+  --surface-soft: rgba(148, 163, 184, 0.06);
+  --control-bg: rgba(22, 24, 35, 0.96);
+  --active-bg: #3b82f6;
+  --active-fg: #ffffff;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.40);
+  --input-bg: rgba(13, 17, 23, 0.98);
+  --output-bg: #0d1117;
+  --output-text: #94a3b8;
+  --error: #f87171;
+  --accent: #f8fafc;
+  --asm-mnemonic: #38bdf8;
+  --asm-directive: #a78bfa;
   --asm-macro: #93c5fd;
-  --asm-comment: #5a6e8a;
-  --asm-label: #ffd060;
-  --asm-number: #f09050;
+  --asm-comment: #64748b;
+  --asm-label: #fbbf24;
+  --asm-number: #fb923c;
   --asm-region: #80b880;
-  --asm-operand: #e8e060;
+  --asm-operand: #facc15;
 }
 
 html[data-theme="oled"] {
@@ -87,36 +87,36 @@ html[data-theme="oled"] {
   --hl-number:    #9ebb8a;
   --hl-string:    #bf7a58;
   --hl-label:     #7ac8ee;
-  --expert-editor-bg: #0c0a20;
-  --bg: #0c0a20;
-  --bg-accent: #080614;
-  --panel: rgba(18, 14, 42, 0.98);
-  --panel-strong: rgba(24, 20, 54, 0.99);
-  --panel-border: rgba(90, 110, 255, 0.18);
-  --text: #d0d4ff;
-  --muted: #6878b8;
-  --primary: #8bffb1;
-  --primary-deep: #54c77d;
-  --secondary: #5060b8;
-  --secondary-soft: rgba(90, 110, 255, 0.10);
-  --surface-soft: rgba(90, 110, 255, 0.05);
-  --control-bg: rgba(14, 10, 32, 0.99);
-  --active-bg: #8bffb1;
-  --active-fg: #010108;
-  --shadow: 0 18px 44px rgba(0, 0, 0, 0.75);
-  --input-bg: rgba(18, 14, 42, 0.99);
-  --output-bg: #080614;
-  --output-text: #7888c8;
-  --error: #ff6b8a;
-  --accent: #ffffff;
-  --asm-mnemonic: #7ec8e8;
-  --asm-directive: #b48bfa;
+  --expert-editor-bg: #0d0d12;
+  --bg: #0d0d12;
+  --bg-accent: #0a0a0e;
+  --panel: rgba(18, 18, 26, 0.98);
+  --panel-strong: rgba(24, 24, 34, 0.99);
+  --panel-border: rgba(255, 255, 255, 0.06);
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --primary: #60a5fa;
+  --primary-deep: #3b82f6;
+  --secondary: #64748b;
+  --secondary-soft: rgba(100, 116, 139, 0.08);
+  --surface-soft: rgba(100, 116, 139, 0.04);
+  --control-bg: rgba(10, 10, 16, 0.99);
+  --active-bg: #3b82f6;
+  --active-fg: #ffffff;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.60);
+  --input-bg: rgba(10, 10, 16, 0.99);
+  --output-bg: #08080c;
+  --output-text: #64748b;
+  --error: #f87171;
+  --accent: #f8fafc;
+  --asm-mnemonic: #38bdf8;
+  --asm-directive: #a78bfa;
   --asm-macro: #93c5fd;
-  --asm-comment: #4a5878;
-  --asm-label: #ffd060;
-  --asm-number: #f09050;
+  --asm-comment: #475569;
+  --asm-label: #fbbf24;
+  --asm-number: #fb923c;
   --asm-region: #70a870;
-  --asm-operand: #e8e060;
+  --asm-operand: #facc15;
 }
 
 * {
@@ -124,15 +124,15 @@ html[data-theme="oled"] {
 }
 
 html {
-  background-color: #8b93ff;
+  background-color: #e8ecf1;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--secondary) 45%, transparent) transparent;
 }
 html[data-theme="dark"] {
-  background-color: #2f2a8a;
+  background-color: #1a1b26;
 }
 html[data-theme="oled"] {
-  background-color: #0c0a20;
+  background-color: #0d0d12;
 }
 html:has(#splash-screen) {
   overflow: hidden;
@@ -147,7 +147,7 @@ html::-webkit-scrollbar-track {
 }
 
 html::-webkit-scrollbar-thumb {
-  border-radius: 999px;
+  border-radius: 2px;
   background: color-mix(in srgb, var(--secondary) 42%, transparent);
   border: 2px solid transparent;
   background-clip: padding-box;
@@ -163,10 +163,7 @@ body {
   min-height: 100vh;
   font-family: "Inter", sans-serif;
   color: var(--text);
-  background:
-    radial-gradient(circle at top left, rgba(184, 191, 255, 0.28), transparent 24%),
-    radial-gradient(circle at bottom right, rgba(107, 93, 255, 0.20), transparent 24%),
-    linear-gradient(180deg, var(--bg) 0%, var(--bg-accent) 100%);
+  background: var(--bg);
   user-select: none;
   -webkit-user-select: none;
 }
@@ -200,7 +197,6 @@ a {
 }
 
 .app-shell {
-  max-width: 1400px;
   margin: 0 auto;
   padding: 24px;
   min-height: 100vh;
@@ -244,7 +240,7 @@ a {
   padding: 4px 5px;
   background: var(--panel);
   border: 1px solid var(--panel-border);
-  border-radius: 8px;
+  border-radius: 2px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.18);
 }
 
@@ -264,7 +260,7 @@ a {
   border: none;
   background: transparent;
   color: var(--text);
-  border-radius: 8px;
+  border-radius: 2px;
   cursor: pointer;
   font-size: 0.875rem;
   font-family: inherit;
@@ -295,7 +291,7 @@ a {
   min-height: 0;
   height: 32px;
   padding: 5px 10px;
-  border-radius: 8px;
+  border-radius: 2px;
   border: none;
   background: transparent;
   box-shadow: none;
@@ -398,7 +394,7 @@ html[data-theme="light"] .main-toolbar .split-run-arrow {
   align-items: center;
   gap: 8px;
   padding: 7px 10px;
-  border-radius: 8px;
+  border-radius: 2px;
   background: transparent;
   border: none;
   color: var(--text);
@@ -425,6 +421,7 @@ html[data-theme="light"] .main-toolbar .split-run-arrow {
 }
 
 .eyebrow {
+  width: fit-content;
   margin: 0 0 8px;
   text-transform: uppercase;
   letter-spacing: 0.14em;
@@ -440,7 +437,7 @@ html[data-theme="light"] .main-toolbar .split-run-arrow {
     #2a7ac4 80%, #2a7ac4 100%
   );
   background-repeat: no-repeat;
-  background-size: 120px 3px;
+  background-size: 100% 6px;
   background-position: left bottom;
 }
 
@@ -483,7 +480,7 @@ h1 {
 .hero-copy {
   max-width: 62ch;
   margin: 8px 0 0;
-  font-size: 1.02rem;
+  font-size: 0.80rem;
 }
 
 .sample-picker {
@@ -496,7 +493,7 @@ h1 {
   min-width: 170px;
   height: 46px;
   padding: 0 42px 0 14px;
-  border-radius: 8px;
+  border-radius: 2px;
 }
 
 .control-menu {
@@ -522,7 +519,7 @@ h1 {
 #sample-programs-group.tour-sample-highlight {
   position: relative;
   z-index: 1;
-  border-radius: 10px;
+  border-radius: 3px;
   outline: 2px solid color-mix(in srgb, var(--accent) 80%, transparent);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
   background: color-mix(in srgb, var(--panel) 88%, var(--accent) 12%);
@@ -549,7 +546,7 @@ h1 {
   padding: 9px 14px;
   justify-content: space-between;
   gap: 10px;
-  border-radius: 8px;
+  border-radius: 2px;
   border: 1px solid var(--panel-border);
   background: var(--control-bg);
   color: var(--text);
@@ -588,7 +585,7 @@ h1 {
   overflow-y: auto;
   overflow-x: hidden;
   padding: 12px;
-  border-radius: 8px;
+  border-radius: 2px;
   border: 1px solid var(--panel-border);
   background: color-mix(in srgb, var(--panel-strong) 96%, transparent);
   box-shadow: 0 6px 20px rgba(0,0,0,0.4);
@@ -635,7 +632,7 @@ h1 {
 }
 
 .control-menu-panel::-webkit-scrollbar-thumb {
-  border-radius: 999px;
+  border-radius: 2px;
   background: color-mix(in srgb, var(--secondary) 42%, transparent);
   border: 2px solid transparent;
   background-clip: padding-box;
@@ -650,7 +647,7 @@ h1 {
   display: grid;
   gap: 8px;
   padding: 10px;
-  border-radius: 8px;
+  border-radius: 2px;
   border: 1px solid color-mix(in srgb, var(--panel-border) 82%, transparent);
   background: color-mix(in srgb, var(--control-bg) 76%, transparent);
   align-content: start;
@@ -662,7 +659,7 @@ h1 {
 .control-menu-group select {
   max-width: 100%;
   min-width: 0;
-  border-radius: 8px;
+  border-radius: 2px;
 }
 
 .control-menu-group .menu-note {
@@ -705,7 +702,7 @@ h1 {
   cursor: pointer;
   width: 100%;
   border: 1px solid var(--panel-border);
-  border-radius: 8px;
+  border-radius: 2px;
   padding: 9px 14px;
   background: var(--control-bg);
   color: var(--text);
@@ -732,7 +729,7 @@ h1 {
   gap: 4px;
   min-width: 140px;
   padding: 8px;
-  border-radius: 16px;
+  border-radius: 3px;
   border: 1px solid var(--panel-border);
   background: color-mix(in srgb, var(--panel-strong) 97%, transparent);
   box-shadow: var(--shadow);
@@ -744,7 +741,7 @@ h1 {
   gap: 10px;
   width: 100%;
   padding: 8px 12px;
-  border-radius: 8px;
+  border-radius: 2px;
   font-size: 0.88rem;
   justify-content: flex-start;
 }
@@ -765,22 +762,23 @@ h1 {
 }
 
 .theme-option-dot[data-theme-opt="light"] {
-  background: #8b93ff;
+  background: #e8ecf1;
+  border-color: #94a3b8;
 }
 
 .theme-option-dot[data-theme-opt="dark"] {
-  background: #2f2a8a;
+  background: #1a1b26;
 }
 
 .theme-option-dot[data-theme-opt="oled"] {
-  background: #03020c;
-  border-color: #5060b8;
+  background: #0d0d12;
+  border-color: #475569;
 }
 
 button,
 .link-button {
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: 2px;
   padding: 9px 14px;
   cursor: pointer;
   transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease, border-color 160ms ease, color 160ms ease;
@@ -839,7 +837,7 @@ html[data-theme="oled"] .theme-toggle-glyph::after {
 
 button:hover,
 .link-button:hover {
-  transform: translateY(-1px);
+  /* no lift — clean */
 }
 
 .primary {
@@ -870,7 +868,7 @@ html[data-theme="oled"] .primary {
 
 .workspace {
   display: grid;
-  grid-template-columns: 260px minmax(360px, 520px) minmax(360px, 1fr);
+  grid-template-columns: minmax(240px, 300px) 1fr 1fr;
   gap: 14px;
   align-items: stretch;
 }
@@ -880,7 +878,7 @@ html[data-theme="oled"] .primary {
 .output-panel {
   background: var(--panel);
   border: 1px solid var(--panel-border);
-  border-radius: 8px;
+  border-radius: 2px;
   box-shadow: var(--shadow);
   backdrop-filter: blur(10px);
   overflow: hidden;
@@ -917,7 +915,7 @@ html[data-theme="oled"] .primary {
 }
 
 .panel-scroll::-webkit-scrollbar-thumb {
-  border-radius: 999px;
+  border-radius: 2px;
   background: color-mix(in srgb, var(--secondary) 42%, transparent);
   border: 2px solid transparent;
   background-clip: padding-box;
@@ -932,7 +930,7 @@ html[data-theme="oled"] .primary {
   margin-top: 18px;
   background: var(--panel);
   border: 1px solid var(--panel-border);
-  border-radius: 8px;
+  border-radius: 2px;
   box-shadow: var(--shadow);
   overflow: hidden;
 }
@@ -969,7 +967,7 @@ html[data-theme="oled"] .primary {
   align-items: center;
   gap: 4px;
   padding: 2px 9px;
-  border-radius: 999px;
+  border-radius: 2px;
   background: color-mix(in srgb, var(--error) 16%, transparent);
   border: 1px solid color-mix(in srgb, var(--error) 48%, transparent);
   color: var(--error);
@@ -1082,7 +1080,7 @@ html[data-theme="oled"] .primary {
   flex-shrink: 0;
   cursor: pointer;
   background: color-mix(in srgb, var(--secondary) 35%, transparent);
-  border-radius: 999px;
+  border-radius: 2px;
   border: none;
   box-shadow: none;
   padding: 0;
@@ -1093,11 +1091,11 @@ html[data-theme="oled"] .primary {
 .menu-checkbox-label input[type="checkbox"]::after {
   content: "";
   position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
   background: var(--active-fg);
   box-shadow: 0 1px 3px rgba(0,0,0,0.3);
   transition: transform 0.2s;
@@ -1155,39 +1153,34 @@ html[data-theme="oled"] .primary {
   width: 100%;
   margin: 6px 0 14px;
   padding: 12px 16px;
-  min-height: 56px;
   line-height: 1.3;
   white-space: normal;
   text-align: center;
-  background: linear-gradient(180deg, #3257c7 0%, #213f98 100%);
-  color: #f3f7ff;
-  border-color: #4768d0;
-  box-shadow: 0 10px 24px rgba(37, 67, 151, 0.28);
+  background: var(--primary);
+  color: var(--active-fg);
+  border-color: var(--primary-deep);
 }
 
 #add-selected:hover {
-  border-color: #6f8cff;
-  box-shadow: 0 12px 28px rgba(37, 67, 151, 0.36);
+  background: var(--primary-deep);
 }
 
 html[data-theme="dark"] #add-selected,
 html[data-theme="oled"] #add-selected {
-  background: linear-gradient(180deg, #3a63dc 0%, #2746a8 100%);
-  color: #f3f7ff;
-  border-color: #6f8cff;
-  box-shadow: 0 10px 24px rgba(61, 101, 220, 0.3);
+  background: var(--primary);
+  color: var(--active-fg);
+  border-color: var(--primary-deep);
 }
 
 html[data-theme="dark"] #add-selected:hover,
 html[data-theme="oled"] #add-selected:hover {
-  border-color: #90a8ff;
-  box-shadow: 0 12px 28px rgba(61, 101, 220, 0.38);
+  background: var(--primary-deep);
 }
 
 .base-switch {
   margin: 0 0 14px;
   padding: 6px;
-  border-radius: 18px;
+  border-radius: 4px;
   border: 1px solid var(--panel-border);
   background: var(--control-bg);
 }
@@ -1203,7 +1196,7 @@ html[data-theme="oled"] #add-selected:hover {
   grid-template-columns: repeat(3, 1fr);
   gap: 4px;
   padding: 4px;
-  border-radius: 14px;
+  border-radius: 3px;
   background: var(--surface-soft);
 }
 
@@ -1222,7 +1215,7 @@ html[data-theme="oled"] #add-selected:hover {
   align-items: center;
   justify-content: center;
   min-height: 28px;
-  border-radius: 8px;
+  border-radius: 2px;
   border: 1px solid transparent;
   background: transparent;
   color: var(--muted);
@@ -1244,7 +1237,7 @@ input {
   width: 100%;
   box-sizing: border-box;
   border: 1px solid var(--panel-border);
-  border-radius: 8px;
+  border-radius: 2px;
   background: var(--input-bg);
   color: var(--text);
   font-size: 0.9rem;
@@ -1303,7 +1296,7 @@ button:focus-visible,
   min-height: 140px;
   max-height: 240px;
   padding: 16px;
-  border-radius: 8px;
+  border-radius: 2px;
   background: var(--panel-strong);
   border: 1px solid var(--panel-border);
   position: relative;
@@ -1345,7 +1338,7 @@ button:focus-visible,
 }
 
 .mnemonic-card::-webkit-scrollbar-thumb {
-  border-radius: 999px;
+  border-radius: 2px;
   background: color-mix(in srgb, var(--secondary) 42%, transparent);
   border: 2px solid transparent;
   background-clip: padding-box;
@@ -1358,7 +1351,7 @@ button:focus-visible,
 .palette-search-input {
   width: 100%;
   padding: 8px 12px;
-  border-radius: 8px;
+  border-radius: 2px;
   border: 1px solid var(--panel-border);
   background: var(--input-bg);
   color: var(--text);
@@ -1419,7 +1412,7 @@ button:focus-visible,
 }
 
 .palette-list::-webkit-scrollbar-thumb {
-  border-radius: 999px;
+  border-radius: 2px;
   background: color-mix(in srgb, var(--secondary) 38%, transparent);
   border: 2px solid transparent;
   background-clip: padding-box;
@@ -1440,7 +1433,7 @@ button:focus-visible,
   flex-shrink: 0;
   height: auto;
   padding: 10px 12px;
-  border-radius: 8px;
+  border-radius: 2px;
   background: var(--panel-strong);
   border: 1px solid var(--panel-border);
   text-align: left;
@@ -1486,7 +1479,7 @@ button:focus-visible,
   gap: 8px;
   width: 100%;
   padding: 2px 2px 2px 2px;
-  border-radius: 18px;
+  border-radius: 4px;
   transition: background 160ms ease, box-shadow 160ms ease;
 }
 
@@ -1500,7 +1493,7 @@ button:focus-visible,
   place-items: center;
   min-height: 120px;
   padding: 20px 24px;
-  border-radius: 16px;
+  border-radius: 3px;
   border: 1px dashed var(--panel-border);
   color: var(--muted);
   background: color-mix(in srgb, var(--panel-strong) 55%, transparent);
@@ -1519,17 +1512,15 @@ button:focus-visible,
   gap: calc(10px * var(--block-scale));
   align-items: start;
   width: 100%;
+  max-width: 600px;
   min-width: 0;
   padding: calc(13px * var(--block-scale)) calc(10px * var(--block-scale)) calc(10px * var(--block-scale));
-  border-radius: calc(16px * var(--block-scale));
-  background:
-    linear-gradient(180deg, var(--block-tone-soft) 0, var(--block-tone-soft) calc(8px * var(--block-scale)), transparent calc(8px * var(--block-scale))),
-    color-mix(in srgb, var(--panel-strong) 96%, white 4%);
-  border: 1px solid var(--panel-border);
+  border-radius: calc(15px * var(--block-scale));
+  background: color-mix(in srgb, var(--panel-strong) 96%, white 4%);
+  border: 1px solid var(--block-tone);
   box-shadow:
-    inset 5px 0 0 var(--block-tone),
-    0 4px 16px color-mix(in srgb, black 18%, transparent),
-    0 1px 3px color-mix(in srgb, black 12%, transparent);
+    inset 6px 0 0 color-mix(in srgb, var(--block-tone) 55%, transparent),
+    0 2px 8px color-mix(in srgb, black 12%, transparent);
   user-select: none;
   -webkit-user-drag: element;
 }
@@ -1598,27 +1589,21 @@ button:focus-visible,
 /* Full-color blocks: MACRO def start/end and LABEL */
 .asm-block[data-block-kind="macro-def-start"],
 .asm-block[data-block-kind="macro-def-end"] {
-  background:
-    linear-gradient(180deg, color-mix(in srgb, #3388ff 32%, transparent) 0, color-mix(in srgb, #3388ff 32%, transparent) calc(8px * var(--block-scale)), color-mix(in srgb, #3388ff 18%, transparent) calc(8px * var(--block-scale))),
-    color-mix(in srgb, var(--panel-strong) 96%, white 4%);
+  --block-tone: #3388ff;
+  background: color-mix(in srgb, var(--panel-strong) 96%, white 4%);
+  border: 1px solid #3388ff;
   box-shadow:
-    inset 5px 0 0 #3388ff,
-    inset -5px 0 0 color-mix(in srgb, #3388ff 40%, transparent),
-    0 4px 16px color-mix(in srgb, black 18%, transparent),
-    0 1px 3px color-mix(in srgb, black 12%, transparent);
-  border-color: color-mix(in srgb, #3388ff 50%, transparent);
+    inset 6px 0 0 color-mix(in srgb, #3388ff 55%, transparent),
+    0 2px 8px color-mix(in srgb, black 12%, transparent);
 }
 
 .asm-block[data-block-kind="label"] {
-  background:
-    linear-gradient(180deg, color-mix(in srgb, #7788dd 32%, transparent) 0, color-mix(in srgb, #7788dd 32%, transparent) calc(8px * var(--block-scale)), color-mix(in srgb, #7788dd 18%, transparent) calc(8px * var(--block-scale))),
-    color-mix(in srgb, var(--panel-strong) 96%, white 4%);
+  --block-tone: #7788dd;
+  background: color-mix(in srgb, var(--panel-strong) 96%, white 4%);
+  border: 1px solid #7788dd;
   box-shadow:
-    inset 5px 0 0 #7788dd,
-    inset -5px 0 0 color-mix(in srgb, #7788dd 40%, transparent),
-    0 4px 16px color-mix(in srgb, black 18%, transparent),
-    0 1px 3px color-mix(in srgb, black 12%, transparent);
-  border-color: color-mix(in srgb, #7788dd 50%, transparent);
+    inset 6px 0 0 color-mix(in srgb, #7788dd 55%, transparent),
+    0 2px 8px color-mix(in srgb, black 12%, transparent);
 }
 
 .asm-block[data-category-tone="illegal"] {
@@ -1644,11 +1629,11 @@ button:focus-visible,
     inset 0 -4px 0 0 var(--primary);
 }
 
-.asm-block--selected {
-  border-color: var(--accent) !important;
+.asm-block.asm-block--selected {
   box-shadow:
-    0 4px 12px color-mix(in srgb, black 6%, transparent),
-    inset 0 0 0 2px var(--accent);
+    inset 6px 0 0 color-mix(in srgb, var(--block-tone) 55%, transparent),
+    0 0 0 2px var(--accent),
+    0 2px 12px color-mix(in srgb, black 16%, transparent);
 }
 
 
@@ -1677,7 +1662,7 @@ button:focus-visible,
   place-items: center;
   height: 100%;
   min-height: calc(60px * var(--block-scale));
-  border-radius: calc(10px * var(--block-scale));
+  border-radius: calc(2px * var(--block-scale));
   background: color-mix(in srgb, var(--block-tone) 12%, transparent);
   color: var(--block-tone);
   font-size: calc(0.9rem * var(--block-scale));
@@ -1739,7 +1724,7 @@ body.dnd-active {
   display: inline-block;
   vertical-align: middle;
   padding: calc(3px * var(--block-scale)) calc(7px * var(--block-scale));
-  border-radius: 999px;
+  border-radius: 2px;
   background: var(--block-chip-bg);
   border: none;
   line-height: 1.6;
@@ -1759,7 +1744,7 @@ body.dnd-active {
   flex-shrink: 0;
   padding: 0;
   margin-top: -1px;
-  border-radius: calc(6px * var(--block-scale));
+  border-radius: calc(2px * var(--block-scale));
   background: var(--control-bg);
   border: 1px solid var(--panel-border);
   color: var(--muted);
@@ -1842,7 +1827,7 @@ body.dnd-active {
   z-index: 99999;
   background: var(--panel-strong);
   border: 1px solid var(--panel-border);
-  border-radius: 14px;
+  border-radius: 3px;
   box-shadow: 0 8px 24px color-mix(in srgb, black 18%, transparent);
   max-height: 160px;
   overflow-y: auto;
@@ -1853,7 +1838,7 @@ body.dnd-active {
 
 .label-picker-item {
   padding: 8px 12px;
-  border-radius: 10px;
+  border-radius: 3px;
   font-size: 0.85rem;
   font-family: "IBM Plex Mono", monospace;
   cursor: pointer;
@@ -1892,7 +1877,7 @@ body.dnd-active {
   gap: calc(2px * var(--block-scale));
   margin-top: calc(6px * var(--block-scale));
   padding: calc(6px * var(--block-scale)) calc(8px * var(--block-scale));
-  border-radius: calc(8px * var(--block-scale));
+  border-radius: calc(2px * var(--block-scale));
   background: color-mix(in srgb, var(--panel-strong) 80%, var(--block-tone) 20%);
   font-size: calc(0.68rem * var(--block-scale));
   color: var(--muted);
@@ -1925,7 +1910,7 @@ body.dnd-active {
   min-height: unset;
   aspect-ratio: 1;
   padding: 0;
-  border-radius: calc(6px * var(--block-scale));
+  border-radius: calc(2px * var(--block-scale));
   background: var(--control-bg);
   border: 1px solid var(--panel-border);
   color: var(--text);
@@ -1951,7 +1936,7 @@ body.dnd-active {
   flex-shrink: 0;
   font-size: calc(0.65rem * var(--block-scale));
   padding: calc(2px * var(--block-scale)) calc(6px * var(--block-scale));
-  border-radius: calc(4px * var(--block-scale));
+  border-radius: calc(2px * var(--block-scale));
   background: var(--surface-soft);
   color: var(--text);
   border: 1px solid var(--border);
@@ -1969,7 +1954,7 @@ body.dnd-active {
 .include-reload-btn {
   font-size: calc(0.72rem * var(--block-scale));
   padding: calc(2px * var(--block-scale)) calc(8px * var(--block-scale));
-  border-radius: calc(4px * var(--block-scale));
+  border-radius: calc(2px * var(--block-scale));
   border: 1px solid var(--accent);
   background: var(--btn-bg, #444);
   color: var(--text);
@@ -1995,7 +1980,7 @@ body.dnd-active {
   flex-wrap: nowrap;
   gap: calc(3px * var(--block-scale));
   padding: calc(2px * var(--block-scale));
-  border-radius: calc(8px * var(--block-scale));
+  border-radius: calc(2px * var(--block-scale));
   background: var(--surface-soft);
   width: fit-content;
 }
@@ -2017,7 +2002,7 @@ body.dnd-active {
   min-height: calc(24px * var(--block-scale));
   min-width: calc(42px * var(--block-scale));
   padding: 0 calc(6px * var(--block-scale));
-  border-radius: calc(6px * var(--block-scale));
+  border-radius: calc(2px * var(--block-scale));
   color: var(--muted);
   font-size: calc(0.7rem * var(--block-scale));
   font-weight: 700;
@@ -2050,7 +2035,7 @@ body.dnd-active {
   aspect-ratio: 1;
   flex-shrink: 0;
   padding: 0;
-  border-radius: calc(6px * var(--block-scale));
+  border-radius: calc(2px * var(--block-scale));
   background: var(--control-bg);
   border: 1px solid var(--panel-border);
   color: var(--text);
@@ -2086,7 +2071,7 @@ html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
 .block-main input,
 .block-main select {
   padding: calc(5px * var(--block-scale)) calc(7px * var(--block-scale));
-  border-radius: calc(10px * var(--block-scale));
+  border-radius: calc(2px * var(--block-scale));
   font-size: calc(0.78rem * var(--block-scale));
   height: calc(30px * var(--block-scale));
   min-height: unset;
@@ -2135,7 +2120,7 @@ html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
     calc(28px * var(--block-scale));
   gap: calc(8px * var(--block-scale));
   padding: calc(6px * var(--block-scale));
-  border-radius: calc(12px * var(--block-scale));
+  border-radius: calc(9px * var(--block-scale));
 }
 
 .asm-block[data-collapsed="true"] .block-category {
@@ -2220,7 +2205,7 @@ html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
 .asm-output {
   margin: 0;
   min-height: 320px;
-  border-radius: 16px;
+  border-radius: 3px;
   padding: 12px;
   background: var(--output-bg);
   color: var(--output-text);
@@ -2290,47 +2275,43 @@ html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
   --block-scale: 1;
 }
 
-.view-mode-toggle {
-  display: inline-grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 4px;
-  padding: 4px;
-  border-radius: 14px;
-  background: var(--control-bg);
-  border: 1px solid var(--panel-border);
+/* ── Output view mode tabs ─────────────────────────── */
+.output-toolbar {
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--panel-border);
 }
 
-.view-mode-option {
-  position: relative;
+.view-mode-tabs {
+  display: flex;
+  gap: 0;
 }
 
-.view-mode-option input {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.view-mode-option span {
+.view-mode-tab {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 34px;
-  padding: 0 12px;
-  border-radius: 8px;
+  padding: 0 16px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
   color: var(--muted);
   font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
 
-.view-mode-option input:checked + span {
-  background: var(--active-bg);
-  color: var(--active-fg);
-  box-shadow: 0 5px 12px color-mix(in srgb, var(--secondary) 18%, transparent);
+.view-mode-tab:hover {
+  color: var(--text);
+  background: color-mix(in srgb, var(--secondary) 8%, transparent);
 }
 
-.output-toolbar {
-  margin-bottom: 16px;
+.view-mode-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  background: transparent;
 }
 
 .output-stack {
@@ -2375,15 +2356,22 @@ html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
 
 .monitor-output {
   display: none;
-  background: #0a0e1a !important;
-  color: #4dff91 !important;
-  border: 2px solid #1a2a1a !important;
-  border-radius: 10px !important;
+  background: var(--output-bg) !important;
+  color: #15803d !important;
+  border: 1px solid var(--panel-border) !important;
+  border-radius: 3px !important;
   font-family: "IBM Plex Mono", "Courier New", monospace !important;
   font-size: 0.82rem !important;
   line-height: 1.6 !important;
   padding: 18px 20px !important;
   letter-spacing: 0.04em;
+}
+
+html[data-theme="dark"] .monitor-output,
+html[data-theme="oled"] .monitor-output {
+  color: #4dff91 !important;
+  background: #0a0e1a !important;
+  border-color: #1a2a1a !important;
   text-shadow: 0 0 8px rgba(77, 255, 145, 0.45);
   box-shadow:
     inset 0 0 40px rgba(0,0,0,0.6),
@@ -2466,7 +2454,7 @@ html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
   gap: 4px;
   min-height: auto;
   padding: 8px 10px;
-  border-radius: 14px;
+  border-radius: 3px;
   border: 1px solid var(--panel-border);
   background: color-mix(in srgb, var(--panel-strong) 92%, transparent);
 }
@@ -2508,7 +2496,7 @@ html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
   position: relative;
   height: 30px;
   width: 100%;
-  border-radius: 8px;
+  border-radius: 2px;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--panel-border) 85%, transparent);
   background: color-mix(in srgb, var(--panel-strong) 86%, transparent);
@@ -2520,7 +2508,7 @@ html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
 .memory-strip-overlays {
   position: absolute;
   inset: 0;
-  border-radius: 8px;
+  border-radius: 2px;
   overflow: hidden;
 }
 
@@ -2538,30 +2526,30 @@ body[data-memory-overlays="0"] .memory-strip {
 }
 
 .memory-strip-segment.is-ram {
-  background: linear-gradient(180deg, color-mix(in srgb, #8fd2ff 60%, var(--panel-strong)), color-mix(in srgb, #4b8be0 55%, var(--panel)));
+  background: color-mix(in srgb, #4b8be0 55%, var(--panel));
 }
 
 .memory-strip-segment.is-rom {
-  background: linear-gradient(180deg, color-mix(in srgb, #8a86c7 64%, var(--panel-strong)), color-mix(in srgb, #5b4f9e 56%, var(--panel)));
+  background: color-mix(in srgb, #5b4f9e 56%, var(--panel));
 }
 
 .memory-strip-segment.is-io {
-  background: linear-gradient(180deg, color-mix(in srgb, #b5a45d 62%, var(--panel-strong)), color-mix(in srgb, #876d2b 58%, var(--panel)));
+  background: color-mix(in srgb, #876d2b 58%, var(--panel));
 }
 
 .memory-strip-overlay {
   position: absolute;
   top: 4px;
   bottom: 4px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, #ff9b88, #f15d70);
+  border-radius: 2px;
+  background: #f15d70;
   box-shadow: 0 0 0 1px color-mix(in srgb, #fff 16%, transparent), 0 0 18px color-mix(in srgb, #f15d70 36%, transparent);
 }
 
 .memory-strip-collisions {
   position: absolute;
   inset: 0;
-  border-radius: 8px;
+  border-radius: 2px;
   overflow: hidden;
   pointer-events: none;
 }
@@ -2608,7 +2596,7 @@ body[data-memory-overlays="0"] .memory-strip {
   flex-direction: column;
   gap: 2px;
   padding: 7px 10px;
-  border-radius: 8px;
+  border-radius: 2px;
   background: color-mix(in srgb, var(--error) 8%, var(--panel));
   border: 1px solid color-mix(in srgb, var(--error) 28%, transparent);
   font-size: 0.78rem;
@@ -2653,7 +2641,7 @@ body[data-memory-overlays="0"] .memory-strip {
 }
 
 .memory-segment {
-  border-radius: 14px;
+  border-radius: 3px;
   border: 1px solid var(--panel-border);
   background: color-mix(in srgb, var(--panel-strong) 86%, transparent);
   overflow: hidden;
@@ -2733,7 +2721,7 @@ body[data-memory-overlays="0"] .memory-strip {
 .memory-bar {
   height: 12px;
   overflow: hidden;
-  border-radius: 999px;
+  border-radius: 2px;
   background: color-mix(in srgb, var(--text) 8%, transparent);
 }
 
@@ -2741,7 +2729,7 @@ body[data-memory-overlays="0"] .memory-strip {
   height: 100%;
   width: 0;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--primary), color-mix(in srgb, var(--secondary) 65%, var(--primary)));
+  background: var(--primary);
 }
 
 .memory-bar.has-program {
@@ -2768,8 +2756,8 @@ body[data-memory-overlays="0"] .memory-strip {
   gap: 16px;
   align-items: center;
   padding: 18px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--secondary) 14%, transparent), color-mix(in srgb, var(--panel-strong) 85%, transparent));
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--panel-strong) 85%, transparent);
   border: 1px solid color-mix(in srgb, var(--secondary) 16%, transparent);
 }
 
@@ -2823,7 +2811,7 @@ html[data-theme="oled"] .emulator-actions .link-button.primary {
 .vice-config-card {
   margin-top: 16px;
   padding: 16px;
-  border-radius: 18px;
+  border-radius: 4px;
   border: 1px solid color-mix(in srgb, var(--secondary) 16%, transparent);
   background: color-mix(in srgb, var(--panel-strong) 82%, transparent);
 }
@@ -2858,7 +2846,7 @@ html[data-theme="oled"] .emulator-actions .link-button.primary {
   margin: 0 0 10px;
   padding: 10px 12px;
   border: 1px solid var(--panel-border);
-  border-radius: 12px;
+  border-radius: 3px;
   background: color-mix(in srgb, var(--panel-strong) 82%, transparent);
   color: var(--text);
 }
@@ -2937,7 +2925,7 @@ html[data-theme="oled"] .emulator-actions .link-button.primary {
   flex-direction: column;
   background: var(--panel);
   border: 1px solid var(--panel-border);
-  border-radius: 8px;
+  border-radius: 2px;
   box-shadow: var(--shadow);
   overflow: hidden;
   max-height: var(--editor-max-depth);
@@ -2954,7 +2942,7 @@ body.expert-mode .hero-copy {
 }
 
 body.expert-mode .workspace {
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: minmax(240px, 300px) 1fr;
 }
 
 body.expert-mode.expert-show-palette .palette-panel {
@@ -3005,7 +2993,7 @@ body.expert-mode .expert-panel {
   position: relative;
   background: color-mix(in srgb, var(--panel-strong) 90%, transparent);
   border-bottom: 1px solid var(--panel-border);
-  border-radius: 8px;
+  border-radius: 2px;
   flex-shrink: 0;
   margin-bottom: 18px;
 }
@@ -3667,7 +3655,7 @@ html[data-theme="oled"] .expert-err-line {
 /* ── Compile Error Dialog ──────────────────────────────────────── */
 .confirm-dialog {
   border: none;
-  border-radius: 16px;
+  border-radius: 3px;
   padding: 0;
   background: var(--panel);
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
@@ -3703,7 +3691,8 @@ html[data-theme="oled"] .expert-err-line {
 }
 
 .compile-error-dialog {
-  border-radius: 12px;
+  border: 1px solid var(--panel-border);
+  border-radius: 3px;
   padding: 0;
   background: var(--panel);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.30);
@@ -3714,7 +3703,7 @@ html[data-theme="oled"] .expert-err-line {
 
 .app-confirm-dialog {
   border: none;
-  border-radius: 14px;
+  border-radius: 3px;
   padding: 0;
   background: var(--panel);
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
@@ -3815,29 +3804,29 @@ html[data-theme="oled"] .expert-err-line {
 /* ── Build info dialog ────────────────────────────────────────────────────── */
 .build-info-dialog {
   border: none;
-  border-radius: 14px;
+  border-radius: 4px;
   padding: 0;
   background: var(--panel);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
-  min-width: 340px;
-  max-width: 540px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  min-width: 300px;
+  max-width: 480px;
   width: 90vw;
 }
 .build-info-dialog::backdrop {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.4);
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
 }
 .build-info-card {
-  padding: 18px 20px 16px;
+  padding: 20px 24px 16px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   max-height: 80vh;
   overflow-y: auto;
 }
 .build-info-title {
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--text);
   margin: 0;
@@ -3845,62 +3834,57 @@ html[data-theme="oled"] .expert-err-line {
 .build-info-section {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
 }
 .build-info-section-label {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 600;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
-  margin-bottom: 2px;
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--panel-border);
 }
 .build-info-row {
   display: flex;
   align-items: baseline;
-  gap: 8px;
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 0.76rem;
+  gap: 12px;
+  font-size: 0.78rem;
   color: var(--text);
-  background: color-mix(in srgb, var(--primary) 8%, transparent);
-  border-left: 2px solid var(--primary);
-  padding: 3px 8px;
-  border-radius: 0 4px 4px 0;
-  line-height: 1.4;
+  padding: 2px 0;
+  line-height: 1.5;
 }
 .build-info-row-key {
   color: var(--muted);
-  min-width: 90px;
+  min-width: 80px;
   flex-shrink: 0;
 }
 .build-info-row-val {
-  color: var(--accent);
-  font-weight: 600;
+  font-family: "IBM Plex Mono", monospace;
+  color: var(--text);
+  font-weight: 500;
   word-break: break-all;
 }
 .build-info-row-note {
   color: var(--muted);
-  font-size: 0.7em;
-}
-.build-info-err .build-info-row {
-  border-color: var(--primary);
-  background: color-mix(in srgb, #ff4444 10%, transparent);
-  border-left-color: #ff4444;
+  font-size: 0.75em;
+  font-family: "IBM Plex Mono", monospace;
 }
 .build-info-err .build-info-row-val {
-  color: #ff6666;
+  color: var(--error);
 }
 .build-info-card .primary {
   min-height: unset;
-  padding: 7px 20px;
-  font-size: 0.85rem;
-  align-self: flex-end;
+  padding: 7px 24px;
+  font-size: 0.82rem;
+  align-self: center;
   margin-top: 4px;
 }
 
 .work-progress-dialog {
   border: none;
-  border-radius: 16px;
+  border-radius: 3px;
   padding: 0;
   background: var(--panel);
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
@@ -3931,7 +3915,7 @@ html[data-theme="oled"] .expert-err-line {
 .work-progress-bar-wrap {
   height: 10px;
   width: 100%;
-  border-radius: 999px;
+  border-radius: 2px;
   background: color-mix(in srgb, var(--primary) 18%, transparent);
   overflow: hidden;
 }
@@ -3940,14 +3924,14 @@ html[data-theme="oled"] .expert-err-line {
   height: 100%;
   width: 10%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--primary-deep), var(--primary));
+  background: var(--primary);
   transition: width 120ms linear;
 }
 
 /* ── D64 Export Dialog ────────────────────────────────────────────── */
 .d64-export-dialog {
   border: none;
-  border-radius: 16px;
+  border-radius: 3px;
   padding: 0;
   background: var(--panel);
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
@@ -3996,7 +3980,7 @@ html[data-theme="oled"] .expert-err-line {
   font-size: 0.85rem;
   padding: 8px 10px;
   border: 1px solid var(--panel-border);
-  border-radius: 8px;
+  border-radius: 2px;
   background: var(--output-bg);
   color: var(--output-text);
   outline: none;
@@ -4008,7 +3992,7 @@ html[data-theme="oled"] .expert-err-line {
 
 .d64-export-extras {
   border: 1px solid var(--panel-border);
-  border-radius: 10px;
+  border-radius: 3px;
   padding: 14px;
   background: var(--surface-soft);
   display: flex;
@@ -4054,7 +4038,7 @@ html[data-theme="oled"] .expert-err-line {
   gap: 5px;
   padding: 10px 12px;
   border: 1px solid var(--panel-border);
-  border-radius: 8px;
+  border-radius: 2px;
   background: var(--panel);
 }
 
@@ -4145,7 +4129,7 @@ html[data-theme="oled"] .expert-err-line {
 .d64-export-error {
   border: 1px solid color-mix(in srgb, var(--error, #d97706) 35%, var(--panel-border));
   background: color-mix(in srgb, var(--error, #d97706) 10%, transparent);
-  border-radius: 8px;
+  border-radius: 2px;
   padding: 8px 12px;
   font-size: 0.82rem;
   color: var(--error, #d97706);
@@ -4154,7 +4138,7 @@ html[data-theme="oled"] .expert-err-line {
 /* ── About Dialog ────────────────────────────────────────────────── */
 .about-dialog {
   border: none;
-  border-radius: 20px;
+  border-radius: 4px;
   padding: 0;
   background: var(--panel);
   box-shadow: 0 24px 64px color-mix(in srgb, black 30%, transparent);
@@ -4184,7 +4168,7 @@ html[data-theme="oled"] .expert-err-line {
 .about-logo img {
   width: 160px;
   height: 160px;
-  border-radius: 16px;
+  border-radius: 3px;
 }
 
 .about-title {
@@ -4236,7 +4220,7 @@ html[data-theme="oled"] .expert-err-line {
 
 .whats-new-dialog {
   border: none;
-  border-radius: 20px;
+  border-radius: 4px;
   padding: 0;
   background: var(--panel);
   box-shadow: 0 24px 64px color-mix(in srgb, black 30%, transparent);
@@ -4317,7 +4301,7 @@ html[data-theme="oled"] .expert-err-line {
 /* ── Knowledge Base Dialog ───────────────────────────────────────── */
 .knowledge-base-dialog {
   border: none;
-  border-radius: 20px;
+  border-radius: 4px;
   padding: 0;
   background: var(--panel);
   max-width: 420px;
@@ -4363,7 +4347,7 @@ html[data-theme="oled"] .expert-err-line {
   flex-direction: column;
   gap: 2px;
   padding: 12px 14px;
-  border-radius: 12px;
+  border-radius: 3px;
   background: var(--surface-soft);
   border: 1px solid var(--panel-border);
   text-decoration: none;
@@ -4412,7 +4396,7 @@ html[data-theme="oled"] .expert-err-line {
   z-index: 50;
   background: var(--panel-strong);
   border: 1px solid var(--panel-border);
-  border-radius: 8px;
+  border-radius: 2px;
   box-shadow: 0 8px 24px color-mix(in srgb, black 18%, transparent);
   max-height: 240px;
   overflow-y: auto;
@@ -4423,7 +4407,7 @@ html[data-theme="oled"] .expert-err-line {
 
 .operand-dropdown-item {
   padding: 8px 12px;
-  border-radius: 10px;
+  border-radius: 3px;
   font-size: 0.85rem;
   font-family: "IBM Plex Mono", monospace;
   cursor: pointer;
@@ -4443,7 +4427,7 @@ html[data-theme="oled"] .expert-err-line {
   z-index: 9999;
   background: var(--panel-strong);
   border: 1px solid var(--panel-border);
-  border-radius: 12px;
+  border-radius: 3px;
   box-shadow: 0 8px 28px color-mix(in srgb, black 22%, transparent);
   padding: 6px;
   min-width: 160px;
@@ -4458,7 +4442,7 @@ html[data-theme="oled"] .expert-err-line {
   align-items: center;
   gap: 9px;
   padding: 7px 12px;
-  border-radius: 8px;
+  border-radius: 2px;
   font-size: 0.85rem;
   font-family: inherit;
   color: var(--text);
@@ -4490,7 +4474,7 @@ html[data-theme="oled"] .expert-err-line {
   z-index: 9998;
   background: var(--panel-strong);
   border: 1px solid var(--panel-border);
-  border-radius: 10px;
+  border-radius: 3px;
   box-shadow: 0 8px 28px color-mix(in srgb, black 22%, transparent);
   padding: 5px;
   min-width: 200px;
@@ -4611,7 +4595,7 @@ body.crt-mode #crt-overlay::after {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: linear-gradient(135deg, var(--bg) 0%, var(--bg-accent) 100%);
+  background: var(--bg);
   z-index: 10000;
   opacity: 1;
   transition: opacity 0.5s ease-out;
@@ -4719,7 +4703,7 @@ body.crt-mode #crt-overlay::after {
   background: var(--panel-bg, #1e1e2e);
   color: var(--fg, #cdd6f4);
   border: 1px solid var(--panel-border, #45475a);
-  border-radius: 8px;
+  border-radius: 2px;
   padding: 10px 18px;
   display: flex;
   align-items: center;
@@ -4789,7 +4773,7 @@ body.crt-mode #crt-overlay::after {
   aspect-ratio: 1;
   flex-shrink: 0;
   padding: 0;
-  border-radius: calc(6px * var(--block-scale));
+  border-radius: calc(2px * var(--block-scale));
   background: var(--control-bg);
   border: 1px solid var(--panel-border);
   color: var(--text);
@@ -4814,7 +4798,7 @@ body.crt-mode #crt-overlay::after {
 
 .hardware-settings-dialog {
   border: none;
-  border-radius: 16px;
+  border-radius: 3px;
   padding: 0;
   background: var(--panel);
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
@@ -4851,7 +4835,7 @@ body.crt-mode #crt-overlay::after {
   flex-direction: column;
   gap: 8px;
   padding: 14px;
-  border-radius: 12px;
+  border-radius: 3px;
   border: 1px solid color-mix(in srgb, var(--panel-border) 82%, transparent);
   background: color-mix(in srgb, var(--control-bg) 76%, transparent);
   color: var(--text);
@@ -4886,7 +4870,7 @@ body.crt-mode #crt-overlay::after {
 
 .tutorial-dialog {
   border: none;
-  border-radius: 8px;
+  border-radius: 2px;
   padding: 0;
   background: var(--panel);
   max-width: 880px;
@@ -4982,7 +4966,7 @@ body.crt-mode #crt-overlay::after {
   align-items: center;
   gap: 8px;
   padding: 8px 10px;
-  border-radius: 10px;
+  border-radius: 3px;
   border: none;
   background: transparent;
   color: var(--text);
@@ -5074,7 +5058,7 @@ body.crt-mode #crt-overlay::after {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   padding: 2px 8px;
-  border-radius: 20px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--secondary) 18%, transparent);
   color: var(--secondary);
 }
@@ -5198,7 +5182,7 @@ body.crt-mode #crt-overlay::after {
   position: fixed;
   z-index: 9992;
   pointer-events: none;
-  border-radius: 10px;
+  border-radius: 3px;
   box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.58);
   transition: left 300ms ease, top 300ms ease, width 300ms ease, height 300ms ease;
   outline: 2px solid color-mix(in srgb, var(--accent) 70%, transparent);
@@ -5223,7 +5207,7 @@ body.crt-mode #crt-overlay::after {
   width: 310px;
   background: var(--panel-strong);
   border: 1px solid var(--panel-border);
-  border-radius: 14px;
+  border-radius: 3px;
   padding: 18px 20px 16px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
   transition: left 300ms ease, top 300ms ease;

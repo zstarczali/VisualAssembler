@@ -2,7 +2,7 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v1.7.2**
+**Current version: v1.7.3**
 
 ---
 
@@ -225,6 +225,21 @@ Each block in `program[]` is a plain object:
 - **Name-input demo and tutorial** — new sample `name-input-demo.json` demonstrating PETSCII text + CHROUT print loop + CHRIN keyboard input, with a guided interactive tutorial.
 - **Lowercase sample text normalisation** — sample demo text operands normalised to lowercase across all samples. PETSCII encoder improved: newlines map to 13, characters uppercase for C64 charset, lowercase→uppercase fallback.
 - **Palette sync and UI fixes** — palette item highlighting refactored; active palette items scroll into view. Table macros no longer show operand field. Hungarian translation fixes.
+## What's New in v1.7.3
+
+- **UI overhaul — clean, professional look** — removed all gradients, replaced purple/indigo AI-colors with a professional slate-blue palette. Light, Dark and OLED themes all updated.
+- **Output toolbar → tabs** — ASM / Monitor / Both / Disassembler selector is now a proper tab bar with bottom-border active indicator instead of radio-button pills.
+- **Square, angular UI** — border-radius reduced throughout: buttons, inputs, panels, and controls now use crisp 2–3 px corners. Toggle-switch knobs are square. Blocks keep a comfortable 15 px radius.
+- **Block category color wraps all sides** — each block's category-tone colour now appears as a full border plus a wider 6 px left accent bar. Selection no longer overrides the block's identity colour.
+- **Light-theme outputs** — ASM, Monitor and Disassembler panels now use a light background in light mode. Monitor text is dark green. Dark/OLED themes keep the classic CRT look.
+- **Fluid layout** — removed the 1400 px max-width; palette, program and output panels now scale proportionally with the window.
+- **Removed current-file indicator** from the ASM tab heading.
+- **`.call` alias for `.invoke`** — macro invocations can now use `.call macroName(arg1, arg2)` as a synonym for `.invoke`, matching familiar assembler syntax.
+- **Macro argument parsing improvements** — quoted arguments with commas inside them are now handled correctly. Argument splitting and normalisation rewritten for robustness across expert mode, ASM import and block mode.
+- **Auto buffer allocation for deferred macros** — macros like `.rawbytes`, `.rawtext`, `.petscii` that use address parameters now support automatic buffer address assignment via generated buffer labels and a `_autoBufferAddress` allocator.
+- **Decimal `.org` syntax** — the ORG directive now accepts plain decimal numbers (e.g. `.org 2049`) in addition to hex (`.org $0801`).
+- **Unified label/metadata collection** — `addLayoutLabels()` helper consolidates label map population across all layout functions, reducing duplication and fixing edge cases with symbol resolution.
+
 ## What's New in v1.7.2
 
 - **INVOKE + INCLUDE fix** — macros defined in a fixed-address `.include` library (e.g. `$1500`) are now correctly found by `.invoke`. Previously only inline (no address) includes were scanned for macro definitions.

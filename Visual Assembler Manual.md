@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 1.7.2**
+**Version 1.7.3**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -99,12 +99,11 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Breakpoint Blocks](#breakpoint-blocks)
     - [Debugger Flags (Options Tab)](#debugger-flags-options-tab)
   - [11. Knowledge Base Links](#11-knowledge-base-links)
-  - [12. ASM Import Workflow](#12-asm-import-workflow)
-  - [13. D64 Export \& Run](#13-d64-export--run)
+  - [12. D64 Export \& Run](#12-d64-export--run)
     - [Split Run button](#split-run-button)
     - [Export to D64 dialog](#export-to-d64-dialog)
     - [D64 metadata in projects](#d64-metadata-in-projects)
-  - [14. Hardware Settings](#14-hardware-settings)
+  - [13. Hardware Settings](#13-hardware-settings)
     - [VICE Emulator](#vice-emulator)
     - [Retro Debugger](#retro-debugger)
     - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
@@ -500,13 +499,13 @@ These are supported for advanced use. Use with care — behavior may differ betw
 
 ## 9. Macro Blocks — Reference
 
-Macro blocks generate multiple instructions or data directives automatically. They are found in the **Macros** category of the palette.
+Macro blocks let you do common tasks in one step — instead of writing 10–20 instructions by hand, you drop one block and the assembler generates the code for you. Think of them as built-in subroutines.
 
 ---
 
 ### LABEL
 
-Creates a named label that can be used as a jump target.
+Like a **line number in BASIC** — but with a name instead of a number. Jump targets for `JMP`, `JSR`, `BNE`, etc.
 
 | Field | Description |
 |---|---|
@@ -517,13 +516,13 @@ Creates a named label that can be used as a jump target.
 loop:  ; $0820
 ```
 
-The address is shown as a comment. Labels have **0 byte size**.
+The current address is shown as a comment. Labels have **0 byte size**.
 
 ---
 
 ### COMMENT
 
-Inserts a comment line in the ASM output. No bytes generated.
+Like **REM in BASIC** — a note for yourself that the assembler ignores completely.
 
 **Generated ASM:**
 ```
@@ -534,7 +533,7 @@ Inserts a comment line in the ASM output. No bytes generated.
 
 ### BYTE
 
-Inserts an arbitrary sequence of raw bytes.
+Like **DATA in BASIC** — stores a list of raw byte values inline in the program.
 
 | Field | Description |
 |---|---|
@@ -551,7 +550,7 @@ Inserts an arbitrary sequence of raw bytes.
 
 ### WORD
 
-Inserts 16-bit values stored as little-endian LO/HI byte pairs.
+Like **DATA in BASIC but for 16-bit numbers**. Each value is stored as two bytes (low byte first, then high byte — 6502 little-endian order).
 
 | Field | Description |
 |---|---|
@@ -568,7 +567,7 @@ Inserts 16-bit values stored as little-endian LO/HI byte pairs.
 
 ### FILL
 
-Generates a repeated sequence of the same byte value.
+Like `FOR I=1 TO N : POKE addr+I, val : NEXT` — fills a block of memory with the same byte, but in a single block. Great for clearing areas or pre-filling tables.
 
 | Field | Description |
 |---|---|
@@ -585,7 +584,7 @@ Generates a repeated sequence of the same byte value.
 
 ### ALIGN
 
-Advances the program counter to the next boundary of the given size. Inserts padding bytes as needed.
+Slides the current address forward to the next clean boundary by inserting zero-padding bytes. The C64 requires sprite data to start on a 64-byte boundary — `ALIGN 64` handles that automatically.
 
 | Field | Description |
 |---|---|
@@ -604,7 +603,7 @@ Advances the program counter to the next boundary of the given size. Inserts pad
 
 ### TEXT
 
-Writes a text string to the C64 screen RAM at a given row/column position by generating direct LDA/STA pairs targeting the screen RAM at `$0400`.
+Like **PRINT AT** — writes text directly to the C64 screen at a given column and row, without using the KERNAL. It generates one LDA/STA pair per character, targeting screen RAM at `$0400`.
 
 | Field | Description |
 |---|---|
@@ -613,7 +612,7 @@ Writes a text string to the C64 screen RAM at a given row/column position by gen
 | Y | Row (0–24) |
 | Label (optional) | Assigns a label pointing to the computed screen address |
 
-**Case auto-detection:** If the input contains any alphabetic character (`/[A-Za-z]/`), the macro uses lowercase charset screen codes: `a`–`z` → 1–26, `A`–`Z` → 65–90. This produces correct mixed-case output when the C64 charset is switched to lowercase mode (`$D018=$17`, e.g. `LDA #$17` / `STA $D018`). Pure numbers and symbols use standard screen codes for backward compatibility.
+**Case auto-detection:** If the text contains any letter, the macro uses lowercase charset screen codes (`a`–`z` → 1–26). This works correctly when the C64 charset is set to lowercase mode (`LDA #$17 : STA $D018`). Numbers and symbols always use standard screen codes.
 
 **Generated ASM:**
 ```
@@ -630,7 +629,7 @@ Characters are encoded as **screen codes** (not PETSCII). **Size:** `text.length
 
 ### STRING
 
-Encodes a text string as **screen codes** and writes it to a given memory address using LDA/STA instruction pairs at runtime. Same case auto-detection as TEXT.
+Like **POKEing a string** into any memory address at runtime. Generates LDA/STA pairs that copy each character's screen code to consecutive addresses. Same case auto-detection as TEXT.
 
 | Field | Description |
 |---|---|
@@ -655,13 +654,13 @@ Encodes a text string as **screen codes** and writes it to a given memory addres
     ...
 ```
 
-Each character is converted to a **screen code** (not PETSCII). The optional **Shift** value is added to every byte (`& $FF`). **Size:** `text.length × 5` bytes (one LDA + one STA per character).
+Characters are encoded as **screen codes** (not PETSCII). The optional **Shift** value is added to every byte, e.g. `$80` for reverse video. **Size:** `text.length × 5` bytes (one LDA + one STA per character).
 
 ---
 
 ### DATA
 
-Writes raw bytes to a given memory address using LDA/STA instructions at runtime.
+Like a **POKE loop** — writes a list of raw bytes to a memory address at runtime, one LDA/STA pair per byte.
 
 | Field | Description |
 |---|---|
@@ -691,7 +690,7 @@ Writes raw bytes to a given memory address using LDA/STA instructions at runtime
 
 ### RAWBYTES
 
-Places raw bytes at a given memory address — no runtime code is generated. The bytes appear in the deferred data section of the output.
+Like **DATA that loads directly into memory** — no runtime code at all. The bytes are present from the moment the PRG loads, before your code even starts. Use this for sprite data, level maps, lookup tables, anything that just needs to be at a specific address.
 
 | Field | Description |
 |---|---|
@@ -708,13 +707,13 @@ Places raw bytes at a given memory address — no runtime code is generated. The
 
 **Size in code:** 0 bytes. The data is placed at the given address in the output.
 
-> **Use this instead of DATA** when you don't need runtime initialization code and just want bytes at an address.
+> **DATA vs RAWBYTES:** DATA generates LDA/STA code that copies bytes at runtime (slower, but works if the data needs to be dynamic). RAWBYTES just places the bytes directly — no code, instant, zero cost.
 
 ---
 
 ### RAWTEXT
 
-Encodes a text string as **screen codes** and places the bytes directly at a given memory address — no runtime code is generated. The data appears in the deferred section of the output. Same case auto-detection as TEXT and STRING.
+Like RAWBYTES but for text — encodes the string as screen codes and places the bytes at a fixed address with **no runtime code**. The text is ready in memory the instant the PRG loads. Same case auto-detection as TEXT and STRING.
 
 | Field | Description |
 |---|---|
@@ -739,15 +738,13 @@ Encodes a text string as **screen codes** and places the bytes directly at a giv
 
 **Size in code:** 0 bytes. The data is placed at the given address in the output.
 
-> **Difference from STRING:** RAWTEXT places the data as static bytes — no LDA/STA code is generated. The bytes are present in memory as soon as the PRG is loaded, before any code runs.
+> **STRING vs RAWTEXT:** STRING generates LDA/STA code that copies the text at runtime. RAWTEXT bakes the bytes into the PRG at load time — no code, no waiting.
 
 ---
 
 ### PETSCII
 
-Places a text string encoded as PETSCII bytes at a given memory address. No runtime code is generated — the bytes are placed directly at the target address, similar to RAWBYTES.
-
-Each printable ASCII character (codes 32–126) is stored using its standard ASCII value, which corresponds to the PETSCII uppercase range. The result is compatible with KERNAL CHROUT (`$FFD2`).
+Like **RAWBYTES but for KERNAL output** — encodes the string as PETSCII bytes (compatible with CHROUT at `$FFD2`) and places them at a fixed address with no runtime code. Use this when you want to print characters via `JSR $FFD2` in a loop.
 
 | Field | Description |
 |---|---|
@@ -804,7 +801,7 @@ In expert mode, add `, null` after the text: `.petscii $C000, "HELLO", null`
 
 ### INCBIN
 
-Includes an external binary file and places its content at a given memory address.
+Like **BLOAD in BASIC** — picks up an external binary file (`.bin`, `.prg`, `.sid`, `.raw`) and embeds it directly into the assembled PRG at the address you specify.
 
 | Field | Description |
 |---|---|
@@ -823,7 +820,7 @@ Includes an external binary file and places its content at a given memory addres
 
 ### SID
 
-Loads a SID music file and embeds its raw data directly into the assembled PRG at a configurable memory address. Header metadata (Load/Init/Play addresses, title, author) is extracted automatically.
+Like **BLOAD for music** — loads a `.sid` file into your PRG and automatically reads its Init and Play addresses from the header. Call Init once at startup, then call Play from your IRQ handler every frame.
 
 | Field | Description |
 |---|---|
@@ -852,7 +849,7 @@ The block displays:
 
 ### INCLUDE
 
-Includes another Visual Assembler project file and expands its blocks inline at this position. The included blocks are read-only.
+Like **MERGE in BASIC** — pulls in another Visual Assembler project file and expands its blocks inline at this position. Perfect for reusable subroutine libraries. The included blocks are read-only in the current project.
 
 | Field | Description |
 |---|---|
@@ -878,7 +875,7 @@ Includes another Visual Assembler project file and expands its blocks inline at 
 
 ### TABLE
 
-Defines a lookup table at a fixed memory address with a named label.
+Like **DIM at a specific address** — names a lookup table and sets where it lives in memory. Place BYTE, WORD, or FILL blocks after it to define the table's contents.
 
 | Field | Description |
 |---|---|
@@ -890,7 +887,7 @@ Defines a lookup table at a fixed memory address with a named label.
 color_table:
 ```
 
-The program counter jumps to the specified address for subsequent blocks. Place BYTE/WORD/FILL blocks after TABLE to fill the table content.
+The program counter jumps to the specified address. Place BYTE/WORD/FILL blocks after TABLE to fill the content.
 
 **Size:** 0 bytes.
 
@@ -898,7 +895,7 @@ The program counter jumps to the specified address for subsequent blocks. Place 
 
 ### ORG
 
-Sets a new **program counter origin** — equivalent to the `*= $ADDR` assembler directive. The first ORG block in your program defines its primary load address. Use additional ORG blocks to split the program into multiple sections that load at different addresses.
+Sets where in memory the program (or a section of it) is placed — like choosing a start address before typing in machine code. Every program needs at least one ORG. The standard C64 BASIC-loadable start is `$0801`.
 
 | Field | Description |
 |---|---|
@@ -912,7 +909,7 @@ Sets a new **program counter origin** — equivalent to the `*= $ADDR` assembler
 
 **Size:** 0 bytes. The ORG block itself generates no machine code.
 
-Each ORG block starts a new code section. All blocks following an ORG (until the next ORG or end of program) are assembled relative to that address. When the PRG is exported, all sections are merged into a single flat buffer: the load address is the lowest section start across all sections; gaps between sections are zero-filled.
+Each ORG block starts a new section. Blocks that follow are assembled starting at that address. When you export the PRG, all sections are merged into one file — gaps between sections are filled with zeros.
 
 **Example — code at `$0801`, data table at `$C000`:**
 ```
@@ -935,7 +932,7 @@ loop:
 
 ### LOOP / NEXT
 
-A counted loop pair using a register as the counter.
+Like **`FOR X=N TO 1 STEP -1 : ... : NEXT X`** in BASIC — counts down from N to 1 using the X or Y register. Drop a LOOP block, put your instructions between it and NEXT, and it loops the right number of times automatically.
 
 #### LOOP
 
@@ -982,7 +979,7 @@ loop0:
 
 ### FOR / ENDF
 
-Forward counting loop pair. Unlike LOOP/NEXT which counts **down** (N→1), FOR/ENDF counts **up** (0→N-1) — ideal for string printing and array traversal.
+Like **`FOR X=0 TO N-1 : ... : NEXT X`** in BASIC — counts *up* from 0. Ideal when you need a forward index, e.g. stepping through a string or an array.
 
 #### FOR
 
@@ -1031,13 +1028,13 @@ done:
     RTS
 ```
 
-> **LOOP vs FOR:** LOOP is better for known-iteration loops (delay, memory fill, pixel loops). FOR is better for string/array operations where you need a forward index (0→N). Both can use X or Y.
+> **LOOP vs FOR:** LOOP counts down (N→1) — good for delays, fills, pixel loops. FOR counts up (0→N) — good for string/array access. Both can use X or Y.
 
 ---
 
 ### PUSH / PULL
 
-Save and restore registers using the stack.
+Like **saving variables before a GOSUB and restoring them after** — but uses the 6502 hardware stack. If a subroutine uses A, X, or Y, wrap it with PUSH and PULL so the calling code's registers are preserved.
 
 #### PUSH
 
@@ -1058,7 +1055,7 @@ Pushes one or more registers onto the stack. The order is always A → X → Y (
 
 #### PULL
 
-Restores registers from the stack in reverse order (Y → X → A).
+Restores registers from the stack in **reverse order** (Y → X → A).
 
 | Field | Description |
 |---|---|
@@ -1071,13 +1068,13 @@ Restores registers from the stack in reverse order (Y → X → A).
     PLA
 ```
 
-> **Important:** Always pair PUSH and PULL with the same register set, and in reverse order. `PUSH AX` must be matched by `PULL AX` (which internally does Y-first, then X, then A).
+> **Rule:** PUSH and PULL must always use the **same register set**. `PUSH AX` → `PULL AX` (internally restores in reverse: X first, then A).
 
 ---
 
 ### MACRO / ENDM / INVOKE
 
-Define and reuse your own named code blocks, optionally with parameters.
+Like **a named GOSUB with parameters** — define a reusable chunk of code once (MACRO…ENDM), then call it anywhere with INVOKE. Pass different argument values each time instead of copy-pasting blocks.
 
 #### MACRO (definition start)
 
@@ -1086,9 +1083,7 @@ Define and reuse your own named code blocks, optionally with parameters.
 | Name | Identifier for the macro (e.g. `setColor`) |
 | Params | Optional comma-separated parameter names (e.g. `color` or `color, count`) |
 
-Marks the beginning of a macro definition. All blocks between MACRO and ENDM become the macro body. The definition does **not** generate code where it appears.
-
-Inside the body, use `{paramName}` as a placeholder wherever the argument value should be substituted at invoke time.
+Marks the start of a macro definition. Blocks between MACRO and ENDM are the macro's body — they **don’t generate any code** where the definition sits. Use `{paramName}` as a placeholder for arguments.
 
 **Generated ASM:**
 ```
@@ -1111,7 +1106,7 @@ Closes the current macro definition. No fields.
 
 #### INVOKE
 
-Inserts the contents of a named macro at this position, substituting any argument values for `{paramName}` placeholders in the body.
+Calls a defined macro at this position and substitutes the supplied argument values for `{paramName}` placeholders in the body.
 
 | Field | Description |
 |---|---|
@@ -1135,9 +1130,20 @@ Inserts the contents of a named macro at this position, substituting any argumen
 
 ; no arguments:
 .invoke clearScreen
+
+; text / string arguments (quoted):
+.invoke printText("Hello, World!")
+
+; .call alias (synonym for .invoke):
+.call setColor(#$07)
 ```
 
-The macro body is expanded inline — `{paramName}` placeholders are replaced with the supplied argument values. All addresses and labels are resolved in context. The space-separated form (`.invoke setColor #$07`) is also accepted for backwards compatibility.
+The macro body is expanded inline with `{paramName}` replaced by the actual arguments. The space-separated form (`.invoke setColor #$07`) is also accepted.
+
+**Argument types:**
+- **Numeric**: `#$07`, `$10`, `255` — hex or decimal values
+- **Text strings**: `"Hello, World!"` — quoted strings; commas inside quotes are treated as part of the text, not as argument separators
+- **Mixed**: `#$07, "hello", $20` — any combination
 
 > **Tip:** Define macros at the top (or bottom) of your program, then INVOKE them wherever needed. Macros can be invoked multiple times with different arguments.
 
@@ -1145,7 +1151,7 @@ The macro body is expanded inline — `{paramName}` placeholders are replaced wi
 
 ### REGION / ENDREGION
 
-Groups a set of blocks into a **named, collapsible section**. REGION and ENDREGION are purely visual — they generate **zero bytes** and have no effect on the assembled output.
+Purely visual grouping — **zero bytes**, zero effect on the assembled code. Like folding a section of a BASIC program into a named block so you can collapse it and focus on something else.
 
 | Field | Description |
 |---|---|
@@ -1175,13 +1181,13 @@ Groups a set of blocks into a **named, collapsible section**. REGION and ENDREGI
 3. Add an `ENDREGION` block to close the section.
 4. Click ▸ on the REGION to collapse the whole section into one line while working on other parts of the program.
 
-> **Note:** Regions **can be nested** — a REGION placed inside another region acts as a child group (syntax sugar for visual organisation). Each ENDREGION closes the nearest preceding unclosed REGION. Nesting has no effect on the assembled output.
+> **Note:** Regions can be **nested** inside each other. Each ENDREGION closes the nearest open REGION. No effect on the assembled output.
 
 ---
 
 ### DEFINE / IF / ELSE / ENDIF
 
-Conditional assembly blocks. Add a `DEFINE` block to activate a named symbol — any `IF` block whose condition matches a `DEFINE` present in the program is assembled; its `ELSE` branch (if any) is skipped, and vice versa.
+Like **a switch the assembler reads** — `DEFINE DEBUG` turns on a symbol, then any `IF DEBUG` block is included and its `ELSE` branch is skipped. Remove the DEFINE block and the IF block disappears from the output. No need to delete code for release builds.
 
 #### DEFINE
 
@@ -1195,7 +1201,7 @@ Conditional assembly blocks. Add a `DEFINE` block to activate a named symbol —
 ; .DEFINE DEBUG, PAL
 ```
 
-A single `DEFINE` block can activate multiple symbols at once using a comma-separated list. Place `DEFINE` blocks anywhere in the program (typically at the top). Removing the block deactivates all its symbols instantly.
+A `DEFINE` block can activate multiple symbols at once (comma-separated). Place DEFINE blocks at the top of your program. Removing the block deactivates all its symbols instantly.
 
 #### IF
 
@@ -1208,7 +1214,7 @@ A single `DEFINE` block can activate multiple symbols at once using a comma-sepa
 ; .IF DEBUG
 ```
 
-Blocks between `IF` and `ENDIF` (or `ELSE`) are included or skipped based on whether the condition symbol has a matching `DEFINE` block in the program. Skipped blocks appear as `; [IF skipped] …` comments and generate **zero bytes**.
+Blocks between `IF` and `ENDIF` (or `ELSE`) are included or skipped based on whether the condition symbol has a matching `DEFINE` in the program. Skipped blocks appear as `; [IF skipped] …` comments and generate **zero bytes**.
 
 #### ELSE
 
@@ -1254,13 +1260,13 @@ No fields. Closes the conditional block.
 ; .ENDIF
 ```
 
-Nested `IF` blocks are supported. The innermost condition is evaluated independently; an outer skipped block causes all inner blocks to be skipped regardless of their condition.
+Nested `IF` blocks are supported. If an outer block is skipped, inner blocks are skipped too.
 
 ---
 
 ### CONST
 
-Declares a named constant. The constant is added to the label table and can be referenced as an operand in any instruction block (LDA, STA, JSR, JMP, etc.).
+Like **a named variable that never changes** — `SCREEN = $0400`. Use the name instead of typing raw addresses everywhere, making the code easier to read and change later.
 
 | Field | Description |
 |---|---|
@@ -1273,7 +1279,7 @@ Declares a named constant. The constant is added to the label table and can be r
 ; .CONST SCREEN = $0400
 ```
 
-The constant name appears in the **label picker** dropdown of instruction blocks that support absolute/immediate addressing — simply click it to insert the constant name as the operand.
+The constant name appears in the **label picker** dropdown on instruction blocks — just click it to insert.
 
 **Size:** 0 bytes.
 
@@ -1282,7 +1288,7 @@ The constant name appears in the **label picker** dropdown of instruction blocks
 <a id="sprite_init"></a>
 ### SPRITE_INIT
 
-Initialises a VIC-II sprite in a single block: sets the **data pointer**, **enable bit**, and **colour**.
+Sets up a VIC-II sprite in one block — instead of writing ~6 POKE statements in BASIC, just fill in three fields. Sets the sprite's data pointer, turns it on, and sets its colour.
 
 | Field | Description |
 |---|---|
@@ -1303,14 +1309,14 @@ Initialises a VIC-II sprite in a single block: sets the **data pointer**, **enab
 
 **Size:** 18 bytes.
 
-> **Sprite data page:** `data_address / 64`. With the default BASIC SYS stub, an `ALIGN 64` block after `JMP main` places sprite data at `$0840` → page = `$0840 / 64 = 33 = $21`.
+> **Sprite data page:** `data_address ÷ 64`. With the default BASIC SYS stub, `ALIGN 64` after `JMP main` places sprite data at `$0840` → page = `$21`.
 
 ---
 
 <a id="sprite_pos"></a>
 ### SPRITE_POS
 
-Sets a sprite's **static start position** (compile-time constant). Use this for initial placement; for animation use `INC`/`DEC` on the sprite's register directly.
+Like **`POKE 53248, x : POKE 53249, y`** in BASIC — sets a sprite's starting position. The coordinates are baked in at assemble time; for animation use `INC`/`DEC` on the sprite register directly.
 
 | Field | Description |
 |---|---|
@@ -1333,14 +1339,14 @@ For X > 255 the macro sets the corresponding bit in `$D010` instead of clearing 
 
 **Size:** 18 bytes.
 
-> **Note:** `SPRITE_POS` bakes the position into the code at assemble time (`LDA #$xx`). To move a sprite at runtime use `INC $D000` / `DEC $D000` directly — see the `sprite-macro-demo` sample.
+> **Note:** `SPRITE_POS` bakes the X/Y into the code (`LDA #$xx`). To animate a sprite at runtime use `INC $D000` / `DEC $D000` — see the `sprite-macro-demo` sample.
 
 ---
 
 <a id="wait_raster"></a>
 ### WAIT_RASTER
 
-Waits for a specific VIC-II raster line — entirely **inline**, no JSR and no external label required.
+Waits for the VIC-II electron beam to reach a specific scan line — like syncing to a TV frame. Put this at the top of your game loop to prevent sprite tearing. No JSR, no label needed.
 
 | Field | Description |
 |---|---|
@@ -1362,7 +1368,7 @@ wait:
 
 ### JOYSTICK
 
-Reads a CIA joystick port and moves a sprite according to the direction pressed. Entirely **inline** — no JSR or label needed.
+Like reading **`PEEK($DC00)`** and then POKEing the sprite position — but in one block. Reads one CIA joystick port and adjusts a sprite's X/Y registers accordingly. Entirely inline, no JSR needed.
 
 | Field | Description |
 |---|---|
@@ -1415,18 +1421,17 @@ skip_right:
 <a id="mouse"></a>
 ### MOUSE
 
-Reads a Commodore 1351 proportional mouse via the SID chip's paddle inputs (`POTX` = `$D419`, `POTY` = `$D41A`) and moves a sprite proportionally. Entirely **inline** — no JSR or label needed. After selecting the control port on CIA1 `$DC00`, the macro waits roughly one SID conversion window (just over 512 machine cycles) before reading the POT registers, otherwise the reads can be stale or mid-switch. The movement decoding follows the standard 1351 driver pattern from Codebase64: it works from the raw POT samples, masks the delta to 7 bits, treats values `0..63` as positive and `64..127` as negative movement, then halves the delta (`LSR` / `ROR`) before applying it. On X, the sprite low byte is updated first and the matching `$D010` bit is toggled with the classic `TXA / ADC #$00 / AND #$01 / EOR $D010` pattern when a page crossing occurs. On Y, the decoded delta is inverted with `EOR #$FF` + `SEC` before `ADC`, so mouse-up moves the sprite upward in VICE as expected. The current inline implementation is 142 bytes long.
-
-This implementation intentionally stays close to the standard 1351 routines instead of layering custom clamps and heuristics on top. That keeps the behavior more predictable, although very large motion between polls can still alias because the 1351 is sampled periodically rather than continuously. If you need smoother fast motion in a sample, poll the macro more than once per frame rather than adding more clipping logic.
+Reads a Commodore 1351 proportional mouse and moves a sprite. Entirely **inline** — no JSR or label needed. The macro selects the CIA port, waits for the SID paddle inputs to settle, then decodes the delta movement using the standard 1351 driver pattern and applies it to the sprite registers.
 
 | Field | Description |
 |---|---|
-| Port | `1` = CIA `$DC00` bits `7:6` set to `%01`, `2` = CIA `$DC00` bits `7:6` set to `%10` |
-| Sprite # | Sprite number 0–7 (controls which `$D000`/`$D001` pair is updated) |
-| ZP byte X | Zero-page address (hex, 1 byte) used to store the previous POTX value (e.g. `FD`) |
-| ZP byte Y | Zero-page address (hex, 1 byte) used to store the previous POTY value (e.g. `FE`) |
+| Port | `1` = CIA `$DC00` bits `7:6` = `%01`; `2` = `%10` |
+| Sprite # | Sprite number 0–7 |
+| ZP byte X | Zero-page address (hex) to hold the previous POTX sample (e.g. `FD`) |
+| ZP byte Y | Zero-page address (hex) to hold the previous POTY sample (e.g. `FE`) |
 
 **Generated ASM shape (port 1, sprite 0, ZP `$FD`/`$FE`):**
+
 ```
     ; CIA port select + settle
     LDA $DC00
@@ -1520,7 +1525,7 @@ ydone:
 .mouse 2, 0, FD, FE
 ```
 
-> **Important:** Before the first call, select the correct port with the CIA mux bits and initialise the zero-page bytes with the current POTX/POTY values to avoid a large jump on the first frame:
+> **Important:** Before the first call, initialise the zero-page bytes with the current POTX/POTY values to avoid a jump on the first frame:
 > ```
 >     ; port 1: LDA $DC00 : AND #$3F : ORA #$40 : STA $DC00
 >     ; port 2: LDA $DC00 : AND #$3F : ORA #$80 : STA $DC00
@@ -1528,16 +1533,14 @@ ydone:
 >     LDA $D41A : LSR A : AND #$3F : STA $FE
 > ```
 
-> **Recommended:** Poll the mouse once per frame, for example by placing `WAIT_RASTER` in the game loop before `MOUSE`, instead of hammering the SID POT registers in a tight loop.
-
-> **Note:** The MOUSE macro selects the control port through CIA `$DC00` bits `7:6`: `%01` (`ORA #$40` after `AND #$3F`) for Control Port 1, `%10` (`ORA #$80` after `AND #$3F`) for Control Port 2. The lower six bits are preserved.
+> **Tip:** Poll the mouse once per frame — place `WAIT_RASTER` in the game loop before `MOUSE`.
 
 ---
 
 <a id="sprite_col"></a>
 ### SPRITE_COL
 
-Detects sprite collisions using the VIC-II hardware collision registers. Entirely **inline** — no JSR or label needed.
+Like **`PEEK($D01E)`** in BASIC — checks the VIC-II hardware collision registers and tells you whether a sprite hit another sprite or the background. Entirely inline, no JSR needed.
 
 | Field | Description |
 |---|---|
@@ -1553,7 +1556,7 @@ Detects sprite collisions using the VIC-II hardware collision registers. Entirel
 
 **Size:** 5 bytes.
 
-> **Important:** Reading `$D01E` / `$D01F` **automatically clears the register**. Always read it exactly once per frame — use the result immediately with `BEQ`/`BNE`.
+> **Important:** Reading `$D01E`/`$D01F` **clears the register**. Read it once per frame and act on the result immediately with `BEQ`/`BNE`.
 
 **Typical usage:**
 ```
@@ -1577,7 +1580,7 @@ no_hit:
 
 ### LOADFILE
 
-Loads a file from a D64 disk at runtime using the C64 KERNAL routines SETNAM (`$FFBD`), SETLFS (`$FFBA`), and LOAD (`$FFD5`). Use this macro to load data, music, or additional code from disk while your program is running.
+Like **`LOAD "file",8`** in BASIC — loads a file from a D64 disk at runtime using the KERNAL LOAD routine. Use this to load data, music, or extra code from disk while your program is running.
 
 | Field | Description |
 |---|---|
@@ -1608,7 +1611,7 @@ skip_filename:
 
 > **Important:** The filename is stored inline in the machine code right after a `JMP skip_filename`. The file name on the disk must be uppercase PETSCII — which matches plain ASCII uppercase letters (`A`–`Z`). The macro enforces this automatically.
 
-> **Error handling:** The KERNAL sets the carry flag if LOAD fails (no drive, file not found, etc.). Without an error label, a failure leaves carry set and execution falls through to whatever follows — which is almost certainly wrong. Always provide an error label for production programs.
+> **Always use an error label** for production programs — if the file isn't found, KERNAL sets the carry flag and execution falls through to whatever is next.
 
 > **See also:** `loadfile-demo` sample — demonstrates loading `DEMO-COLORS.PRG` from a D64 with a BCS error branch and a visual error screen.
 
@@ -1616,7 +1619,7 @@ skip_filename:
 
 ### REU_CHECK
 
-Detects whether a Commodore RAM Expansion Unit (REU) is present by writing test values to writable REU register `$DF04` and reading them back.
+Detects whether a Commodore RAM Expansion Unit (REU) is plugged in — like checking `PEEK($D010)` to see if hardware is present. Tests by writing and reading back two patterns to REU register `$DF04`.
 
 **Generated code (34 bytes):**
 ```
@@ -1658,7 +1661,7 @@ no_reu:
 
 ### REU_STASH / REU_FETCH / REU_SWAP
 
-Performs a block DMA transfer between C64 RAM and a Commodore REU using the REU's built-in DMA engine.
+DMA block transfer between C64 RAM and REU expansion memory — like a very fast POKE loop, but the CPU doesn't do any work (the REU chip copies the data while the CPU is halted). A `$1000`-byte transfer is effectively instant.
 
 | Macro | Direction | `$DF01` command |
 |-------|-----------|-----------------|
@@ -1689,13 +1692,13 @@ LDA #$00      STA $DF0A    ; interrupt mask (fixed)
 LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immediate)
 ```
 
-> **Note:** Immediate DMA uses command values with bit 4 set (`$90/$91/$92`), which disables FF00-triggered mode. Writing to `$DF01` then starts the DMA immediately while the C64 CPU is halted during the transfer.
+> **Note:** Commands use `$90/$91/$92` (bit 4 set = immediate DMA mode). Writing to `$DF01` starts the transfer; the CPU resumes when it finishes.
 
 ---
 
 ### TURBO_SET
 
-Sets the U64 (Ultimate-64) CPU turbo speed via register `$D031`.
+Sets the **Ultimate-64 (U64) CPU speed** via register `$D031`. No effect on a real C64 or other emulators.
 
 **Fields:**
 
@@ -1724,7 +1727,7 @@ A9 xx   LDA #speed_byte
 
 ### SUPERCPU_DETECT
 
-Detects whether a CMD SuperCPU accelerator is installed by reading its version register at `$D0B8` and comparing it to `$FF`.
+Checks whether a **CMD SuperCPU** accelerator is installed — like `PEEK($D0B8)` to see if it returns something other than `$FF`.
 
 **Generated code (5 bytes):**
 ```
@@ -1750,7 +1753,7 @@ no_scpu:
 
 ### TURBO_ENABLE
 
-Enables or disables CMD SuperCPU turbo mode by writing to the SuperCPU control registers.
+Turns **CMD SuperCPU turbo mode** on or off. Call `SUPERCPU_DETECT` first and skip this if the SuperCPU isn't present.
 
 | Mode | Register | Effect |
 |------|----------|--------|
@@ -1826,19 +1829,7 @@ Quick reference links available in the app under **Knowledge Base**:
 
 ---
 
-## 12. ASM Import Workflow
-
-The Import ASM dialog now includes quality-of-life safeguards for iterative fixes:
-
-- **Line numbers in the import editor** are synchronized with scroll position.
-- **Inline error list** is shown at the bottom of the same dialog when import fails.
-- **Source preservation on failure** restores your pasted source automatically, so you can correct and retry without re-pasting.
-
-This keeps the import-debug cycle inside one dialog: paste, import, inspect errors, fix, retry.
-
----
-
-## 13. D64 Export & Run
+## 12. D64 Export & Run
 
 Version 1.5.1 adds the ability to package your program (and additional data files) into a C64 D64 disk image and launch it in VICE — or export the disk image for use elsewhere.
 
@@ -1881,7 +1872,7 @@ The **loadfile-demo** sample comes pre-configured with `DEMO-COLORS.PRG` as an e
 
 ---
 
-## 14. Hardware Settings
+## 13. Hardware Settings
 
 Open via **Settings → Hardware Settings…** in the toolbar menu. All external hardware paths and network configuration live here.
 
