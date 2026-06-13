@@ -3424,8 +3424,16 @@ function _blockToExpertLine(block) {
   if (block.isRawTextMacro)   return `.rawtext ${fmtAddr(block.rawTextAddress)}, "${block.rawOperand || ""}"${fmtMacroLabel(block.macroLabel)}`;
   if (block.isDataMacro)      return `.data ${fmtAddr(block.dataAddress)}, ${fmtRaw(block.rawOperand, block.base)}${fmtMacroLabel(block.macroLabel)}`;
   if (block.isRawBytesMacro)  return `.rawbytes ${fmtAddr(block.rawBytesAddress)}, ${fmtRaw(block.rawOperand, block.base)}${fmtMacroLabel(block.macroLabel)}`;
-  if (block.isByteMacro)      return `.byte ${fmtRaw(block.rawOperand, block.base)}`;
-  if (block.isWordMacro)      return `.word ${fmtRaw(block.rawOperand, block.base)}`;
+  if (block.isByteMacro) {
+      const asmBytes = parseByteMacro(block.rawOperand, block.base);
+      const chunks = chunkBytes(asmBytes, 8);
+      return chunks.map(chunk => `.byte ${chunk.map(b => "$" + b.toString(16).toUpperCase().padStart(2, "0")).join(", ")}`).join("\n");
+  }
+  if (block.isWordMacro) {
+      const words = parseWordMacro(block.rawOperand, block.base);
+      const chunks = chunkBytes(words, 4);
+      return chunks.map(chunk => `.word ${chunk.map(w => "$" + (w & 0xFFFF).toString(16).toUpperCase().padStart(4, "0")).join(", ")}`).join("\n");
+  }
   if (block.isFillMacro)      return `.fill ${fmtRaw(block.rawOperand, block.base)}`;
   if (block.isAlignMacro)     return `.align ${block.rawOperand || "64"}`;
   if (block.isIncBinMacro)    return `.incbin "${block.incBinFileName || "data.bin"}"${block.incBinAddress && block.incBinAddress !== "$C000" ? ", $" + block.incBinAddress.replace(/^\$/,"") : ""}`;
@@ -7795,18 +7803,35 @@ function showCompileErrorDialog(errors) {
   compileErrorDialog.showModal();
 }
 
-async function showWorkProgress(messageKey) {
+async function showWorkProgress(messageKey, opts = {}) {
   if (!workProgressDialog) return;
   if (workProgressTimer) {
     clearInterval(workProgressTimer);
     workProgressTimer = null;
   }
 
-  workProgressValue = 10;
+  const indeterminate = !!opts.indeterminate;
+
   if (workProgressTitle) workProgressTitle.textContent = t("workProgressTitle");
   if (workProgressSubtitle) workProgressSubtitle.textContent = t(messageKey);
-  if (workProgressBar) workProgressBar.style.width = `${workProgressValue}%`;
+
+  if (indeterminate) {
+    workProgressValue = 0;
+    if (workProgressBar) {
+      workProgressBar.style.width = "";
+      workProgressBar.classList.add("work-progress-bar--indeterminate");
+    }
+  } else {
+    workProgressValue = 10;
+    if (workProgressBar) {
+      workProgressBar.classList.remove("work-progress-bar--indeterminate");
+      workProgressBar.style.width = `${workProgressValue}%`;
+    }
+  }
+
   if (!workProgressDialog.open) workProgressDialog.showModal();
+
+  if (indeterminate) return;
 
   await new Promise(resolve => window.requestAnimationFrame(() => resolve()));
 
@@ -7818,7 +7843,10 @@ async function showWorkProgress(messageKey) {
 
 function setWorkProgress(value) {
   workProgressValue = Math.max(0, Math.min(100, value));
-  if (workProgressBar) workProgressBar.style.width = `${workProgressValue}%`;
+  if (workProgressBar) {
+    workProgressBar.classList.remove("work-progress-bar--indeterminate");
+    workProgressBar.style.width = `${workProgressValue}%`;
+  }
 }
 
 function hideWorkProgress() {
@@ -7827,7 +7855,10 @@ function hideWorkProgress() {
     clearInterval(workProgressTimer);
     workProgressTimer = null;
   }
-  setWorkProgress(100);
+  if (workProgressBar) {
+    workProgressBar.classList.remove("work-progress-bar--indeterminate");
+    workProgressBar.style.width = "";
+  }
   if (workProgressDialog.open) {
     workProgressDialog.close();
   }
@@ -7841,7 +7872,10 @@ async function completeWorkProgress(successMessageKey, delayMs = 1200) {
   }
   if (workProgressTitle) workProgressTitle.textContent = t("workProgressDoneTitle");
   if (workProgressSubtitle) workProgressSubtitle.textContent = t(successMessageKey);
-  setWorkProgress(100);
+  if (workProgressBar) {
+    workProgressBar.classList.remove("work-progress-bar--indeterminate");
+    workProgressBar.style.width = "100%";
+  }
   await new Promise(resolve => setTimeout(resolve, delayMs));
   if (workProgressDialog.open) {
     workProgressDialog.close();
@@ -8284,10 +8318,9 @@ async function runViaExomizer() {
     return;
   }
 
-  await showWorkProgress("workProgressRunExomizer");
+  await showWorkProgress("workProgressRunExomizer", { indeterminate: true });
   let success = false;
   try {
-    setWorkProgress(30);
 
     const result = await window.electronAPI.launchExomizer({
       bytes: Array.from(prg.bytes),
@@ -8299,7 +8332,6 @@ async function runViaExomizer() {
       return;
     }
 
-    setWorkProgress(100);
     updateVicePathPreview(result.vicePath || vicePath);
     updateExomizerPathPreview(result.exomizerPath || exomizerPath);
     const parts = (result.filePath || "").replace(/\\/g, "/").split("/");
@@ -8332,10 +8364,14 @@ async function buildRunPrgForCurrentMode() {
   // Show progress dialog while Exomizer compresses (can take several seconds)
   const wasDialogOpen = workProgressDialog?.open;
   if (!wasDialogOpen) {
-    await showWorkProgress("workProgressExomizerCompress");
+    await showWorkProgress("workProgressExomizerCompress", { indeterminate: true });
   } else {
-    // Update subtitle in already-open progress dialog (e.g. runProgram flow)
+    // Update subtitle + switch to indeterminate in already-open progress dialog (e.g. runProgram flow)
     if (workProgressSubtitle) workProgressSubtitle.textContent = t("workProgressExomizerCompress");
+    if (workProgressBar) {
+      workProgressBar.classList.add("work-progress-bar--indeterminate");
+      workProgressBar.style.width = "";
+    }
   }
 
   try {
@@ -12026,40 +12062,47 @@ function getBlockModeCaption(block) {
   }
 
   if (block.isTextMacro) {
-    return `${currentLanguage !== "hu" ? "Screen" : "Kepernyo"} | X:${block.textX ?? 0} Y:${block.textY ?? 0}`;
+    const n = encodeTextMacro(block.rawOperand).length;
+    return `${currentLanguage !== "hu" ? "Screen" : "Kepernyo"} | X:${block.textX ?? 0} Y:${block.textY ?? 0}  (${n} byte)`;
   }
 
   if (block.isByteMacro) {
-    return currentLanguage !== "hu" ? "Byte array | current address" : "Byte tomb | aktualis cim";
+    const n = parseByteMacro(block.rawOperand, block.base).length;
+    return (currentLanguage !== "hu" ? "Byte array | current address" : "Byte tomb | aktualis cim") + `  (${n} byte)`;
   }
 
   if (block.isStringMacro) {
     const off = parseInt(block.charOffset || "0", 16);
     const offNote = (!isNaN(off) && off !== 0) ? ` +$${off.toString(16).toUpperCase().padStart(2,"0")}` : "";
-    return `${currentLanguage !== "hu" ? "Screen code" : "Kepernyo kod"} | ${block.stringAddress || "C000"}${offNote}`;
+    const n = encodeTextMacro(block.rawOperand).length;
+    return `${currentLanguage !== "hu" ? "Screen code" : "Kepernyo kod"} | ${block.stringAddress || "C000"}${offNote}  (${n} byte)`;
   }
 
   if (block.isDataMacro) {
-    return `${currentLanguage !== "hu" ? "Memory" : "Memoria"} | ${block.dataAddress || "C000"}`;
+    const n = parseByteMacro(block.rawOperand, block.base).length;
+    return `${currentLanguage !== "hu" ? "Memory" : "Memoria"} | ${block.dataAddress || "C000"}  (${n} byte)`;
   }
 
   if (block.isRawBytesMacro) {
-    return `${currentLanguage !== "hu" ? "Raw bytes @ mem" : "Nyers byte @ mem"} | ${block.rawBytesAddress || "C000"}`;
+    const n = parseByteMacro(block.rawOperand, block.base).length;
+    return `${currentLanguage !== "hu" ? "Raw bytes @ mem" : "Nyers byte @ mem"} | ${block.rawBytesAddress || "C000"}  (${n} byte)`;
   }
 
   if (block.isRawTextMacro) {
     const off = parseInt(block.charOffset || "0", 16);
     const offNote = (!isNaN(off) && off !== 0) ? ` +$${off.toString(16).toUpperCase().padStart(2,"0")}` : "";
-    return `${currentLanguage !== "hu" ? "Screen codes @ mem" : "Kepernyo kod @ mem"} | ${block.rawTextAddress || "C000"}${offNote}`;
+    const n = encodeTextMacro(block.rawOperand).length;
+    return `${currentLanguage !== "hu" ? "Screen codes @ mem" : "Kepernyo kod @ mem"} | ${block.rawTextAddress || "C000"}${offNote}  (${n} byte)`;
   }
 
   if (block.isPetsciiMacro) {
-    return `PETSCII @ ${block.petsciiAddress || "C000"}`;
+    const n = encodePetsciiMacro(block.rawOperand).length;
+    return `PETSCII @ ${block.petsciiAddress || "C000"}  (${n} byte)`;
   }
 
   if (block.isIncBinMacro) {
     const size = (block.incBinBytes || []).length;
-    return `${currentLanguage !== "hu" ? "Binary file @ memory" : "Binarfajl @ memoria"} | ${block.incBinAddress || "$C000"} (${size} bytes)`;
+    return `${currentLanguage !== "hu" ? "Binary file @ memory" : "Binarfajl @ memoria"} | ${block.incBinAddress || "$C000"}  (${size} byte)`;
   }
 
   if (block.isIncludeMacro) {
@@ -12068,11 +12111,14 @@ function getBlockModeCaption(block) {
   }
 
   if (block.isWordMacro) {
-    return currentLanguage !== "hu" ? "16-bit values | LO/HI pairs" : "16-bites ertekek | LO/HI parok";
+    const n = parseWordMacro(block.rawOperand, block.base).length * 2;
+    return (currentLanguage !== "hu" ? "16-bit values | LO/HI pairs" : "16-bites ertekek | LO/HI parok") + `  (${n} byte)`;
   }
 
   if (block.isFillMacro) {
-    return currentLanguage !== "hu" ? "Fill | repeated bytes" : "Toltes | ismetlodo byte-ok";
+    const parsed = parseFillMacro(block.rawOperand, block.base);
+    const n = parsed ? parsed.count : 0;
+    return (currentLanguage !== "hu" ? "Fill | repeated bytes" : "Toltes | ismetlodo byte-ok") + `  (${n} byte)`;
   }
 
   if (block.isAlignMacro) {
@@ -14443,8 +14489,8 @@ function renderAsmOutput() {
 
     if (line.block.isByteMacro) {
       const asmBytes = parseByteMacro(line.block.rawOperand, line.block.base);
-      const asmByteList = asmBytes.map(b => toHex(b, 2)).join(", ");
-      return `    .byte ${asmByteList}`;
+      const chunks = chunkBytes(asmBytes, 8);
+      return chunks.map(chunk => `    .byte ${chunk.map(b => toHex(b, 2)).join(", ")}`).join("\n");
     }
 
     if (line.block.isStringMacro) {
@@ -14639,8 +14685,8 @@ function renderAsmOutput() {
 
     if (line.block.isWordMacro) {
       const words = parseWordMacro(line.block.rawOperand, line.block.base);
-      const wordList = words.map(w => `$${toHex(w, 4)}`).join(", ");
-      return `    .word ${wordList}`;
+      const chunks = chunkBytes(words, 4);
+      return chunks.map(chunk => `    .word ${chunk.map(w => `$${toHex(w, 4)}`).join(", ")}`).join("\n");
     }
 
     if (line.block.isFillMacro) {
