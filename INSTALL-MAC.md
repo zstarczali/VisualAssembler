@@ -27,7 +27,15 @@ xattr -cr "/Applications/C64 Visual Assembler.app"
 
 **Requirements:** macOS 11.0+, Apple Silicon (M1/M2/M3)
 
+## Exomizer (Optional)
+
+Compress PRG files with Exomizer for smaller binaries and faster loading:
+
+1. Download Exomizer: https://csdb.dk/release/?id=244342 (Windows) or build from source (https://github.com/pfusik/exomizer)
+2. In Visual Assembler: Menu → Settings → **"Beállítások..."** → Exomizer section → **"Exomizer kiválasztása"**
+3. Enable via the checkbox in Menu → Settings
+
 ---
 
-**Version:** 1.7.0 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 1.7.4 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
 

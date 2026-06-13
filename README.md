@@ -2,7 +2,7 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v1.7.3**
+**Current version: v1.7.4**
 
 ---
 
@@ -54,6 +54,7 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **SUPERCPU_DETECT macro** — detect CMD SuperCPU (`LDA $D0B8 / CMP #$FF`); result in Z flag; 5 bytes
 - **TURBO_ENABLE macro** — CMD SuperCPU turbo on (`STA $D07A`) / off (`STA $D07B`); 5 bytes
 - **Disassembler view** — real-time pure 6502 disassembly: shows address, hex bytes, and resolved numeric operands for every instruction; macros are expanded to individual instructions (TEXT → LDA/STA pairs, LOOP → LDX, MOUSE → full 142-byte decode); BYTE/WORD/FILL data shown as chunked hex dump; no macros, comments, or annotations in output
+- **Exomizer compression** — optional Exomizer sfx sys crunching via a Settings checkbox; compresses PRGs before launching VICE, saving to file, or running on C64 Ultimate hardware; works with all run modes and Build PRG / Build D64
 - **`*` (current PC) operand** — operand fields accept `*` as a shorthand for the current instruction address; branches with `*` generate an infinite self-loop (`BNE *` → offset `$FE`)
 - **LABEL & COMMENT blocks** — named jump targets and zero-byte annotations
 - **Memory strip** — full 64 KB C64 memory map visualised as a colour-coded strip (RAM / ROM / I/O)
@@ -225,6 +226,10 @@ Each block in `program[]` is a plain object:
 - **Name-input demo and tutorial** — new sample `name-input-demo.json` demonstrating PETSCII text + CHROUT print loop + CHRIN keyboard input, with a guided interactive tutorial.
 - **Lowercase sample text normalisation** — sample demo text operands normalised to lowercase across all samples. PETSCII encoder improved: newlines map to 13, characters uppercase for C64 charset, lowercase→uppercase fallback.
 - **Palette sync and UI fixes** — palette item highlighting refactored; active palette items scroll into view. Table macros no longer show operand field. Hungarian translation fixes.
+## What's New in v1.7.4
+
+- **Exomizer integration** — optional Exomizer crunching for all run and build paths via a single checkbox in the Settings menu. Configure the Exomizer executable in Hardware Settings, then enable the checkbox to compress PRG and D64 output with `exomizer sfx sys`. Works with VICE launch, D64 export, and C64 Ultimate hardware runs. If the Exomizer path is not configured, a clear error toast is shown instead of launching.
+
 ## What's New in v1.7.3
 
 - **UI overhaul — clean, professional look** — removed all gradients, replaced purple/indigo AI-colors with a professional slate-blue palette. Light, Dark and OLED themes all updated.
