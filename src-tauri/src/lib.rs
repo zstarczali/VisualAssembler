@@ -374,7 +374,12 @@ fn crunch_with_exomizer(exomizer_path: &str, input_bytes: &[u8], file_name: &str
         std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()
     ));
 
-    let output = Command::new(exomizer_path)
+    let mut cmd = Command::new(exomizer_path);
+    #[cfg(target_os = "windows")]
+    {
+        cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW
+    }
+    let output = cmd
         .args([
             "sfx",
             "sys",
