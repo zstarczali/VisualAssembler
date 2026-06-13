@@ -15441,7 +15441,7 @@ function _runTutorialStepAction(actionId) {
       const _tc = document.getElementById("tour-card");
       if (_ov?.matches(":popover-open")) { _ov.hidePopover(); _ov.showPopover(); }
       if (_sp?.matches(":popover-open")) { _sp.hidePopover(); _sp.showPopover(); }
-      if (_tc?.open) { _tc.close(); _tc.showModal(); }
+      if (_tc?.matches(":popover-open")) { _tc.hidePopover(); _tc.showPopover(); }
       break;
     }
     case "close-settings-dialog":
@@ -15688,7 +15688,7 @@ function _tourStart(steps, lessonId, interactive = false) {
   if (!overlay?.matches(":popover-open")) overlay?.showPopover();
   spotlight.style.visibility = "hidden"; // start invisible, position per step
   if (!spotlight?.matches(":popover-open")) spotlight?.showPopover();
-  if (!card?.open) card?.showModal();
+  if (!card?.matches(":popover-open")) card?.showPopover();
   _tourShowStep(0);
 }
 
@@ -15924,7 +15924,7 @@ function _tourEnd() {
   if (overlay) overlay.style.pointerEvents = "all";
   if (overlay?.matches(":popover-open")) overlay.hidePopover();
   if (spotlight?.matches(":popover-open")) spotlight.hidePopover();
-  if (card?.open) card.close();
+  if (card?.matches(":popover-open")) card.hidePopover();
   if (_tourLessonId) _tutMarkDone(_tourLessonId);
 }
 
