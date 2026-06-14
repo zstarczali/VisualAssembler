@@ -1104,6 +1104,10 @@ function initPalette() {
     });
   });
   exitAppButton?.addEventListener("click", () => window.electronAPI.quitApp());
+  setupC64Palette();
+  setupC64CharRom();
+  setupCharEditor();
+  setupMapEditor();
   setupOperandDropdown();
   setupD64ExportDialog();
 
@@ -1587,7 +1591,7 @@ function _applyUiSettingsToDOM() {
     if (blockPaletteSyncToggle) blockPaletteSyncToggle.checked = blockPaletteSync;
   }
 
-  exomizerEnabled = !!savedUiSettings.exomizerEnabled;
+  exomizerEnabled = _isOsx() ? false : !!savedUiSettings.exomizerEnabled;
   if (runExomizerToggle) runExomizerToggle.checked = exomizerEnabled;
 
   if (savedUiSettings.asmOutputBase) {
@@ -1964,6 +1968,64 @@ function applyTranslations() {
   updateThemeToggleLabel();
   refreshCategoryOptions();
   updateOperandField();
+  _applyEditorTranslations();
+}
+
+/* Translate the new tool dialogs (CharROM, Character Editor, Map Editor) */
+function _applyEditorTranslations() {
+  const setText = (sel, val) => { const el = document.querySelector(sel); if (el) el.textContent = val; };
+  const setAttr = (sel, val) => {
+    const el = document.querySelector(sel);
+    if (el) { el.setAttribute("title", val); el.setAttribute("aria-label", val); }
+  };
+  // Toolbar button tooltips
+  setAttr("#c64-palette-btn", t("paletteBtnTitle"));
+  setAttr("#c64-chrrom-btn", t("chrromBtnTitle"));
+  setAttr("#char-editor-btn", t("charEditorBtnTitle"));
+  setAttr("#map-editor-btn", t("mapEditorBtnTitle"));
+  // CharROM dialog
+  setText(".c64-chrrom-title", t("chrromTitle"));
+  setText("#c64-chrrom-tab1", t("chrromSet1"));
+  setText("#c64-chrrom-tab2", t("chrromSet2"));
+  const hint = document.getElementById("c64-chrrom-info-hint");
+  if (hint && !hint.hidden) hint.textContent = t("chrromHint");
+  // Character Editor
+  setText(".ce-hdr-titles .ce-section-lbl", t("ceEditorLabel"));
+  setText(".ce-map-lbl", t("ceMapLabel"));
+  setText("#ce-clear", t("ceClear"));
+  setText("#ce-invert", t("ceInvert"));
+  setText("#ce-fliph", t("ceFlipH"));
+  setText("#ce-flipv", t("ceFlipV"));
+  setText(".ce-shift-lbl", t("ceShift"));
+  setText(".ce-export-lbl", t("ceExport"));
+  setText("#ce-copy-asm", t("ceCopyAsm"));
+  setText("#ce-load-rom", t("ceLoadRom"));
+  setText("#ce-load-bin", t("ceLoadBin"));
+  setText("#ce-save-bin", t("ceSaveBin"));
+  if (typeof _ceUpdateInfo === "function" && typeof _ceData !== "undefined" && _ceData) _ceUpdateInfo();
+  // Map Editor
+  setText(".me-title", t("meTitle"));
+  setText('.me-tool[data-tool="paint"]', t("mePaint"));
+  setText('.me-tool[data-tool="fill"]', t("meFill"));
+  setText('.me-tool[data-tool="flood"]', t("meFlood"));
+  setText('.me-tool[data-tool="select"]', t("meSelect"));
+  setText('.me-tool[data-tool="pick"]', t("mePick"));
+  setText("#me-export-btn", t("meExportLabel"));
+  setText('#me-export-menu button[data-export="screen"]', t("meExportScreen"));
+  setText('#me-export-menu button[data-export="color"]', t("meExportColor"));
+  setText('#me-export-menu button[data-export="bin"]', t("meExportBin"));
+  setText("#me-load-map", t("meLoadMap"));
+  setText("#me-grid-label", t("meGrid"));
+  setText("#me-charset-load", t("meLoadBin"));
+  setText("#me-charset-editor", t("meFromEditor"));
+  setText(".me-charset .me-section-lbl", t("meCharset"));
+  setText(".me-palette-wrap .me-section-lbl", t("meColorLabel"));
+  setText(".me-layers .me-section-lbl", t("meLayers"));
+  setText(".me-layer span", t("meBackground"));
+  const csOpt0 = document.querySelector('#me-charset-src option[value="rom"]');
+  const csOpt1 = document.querySelector('#me-charset-src option[value="custom"]');
+  if (csOpt0) csOpt0.textContent = t("meCharRom");
+  if (csOpt1) csOpt1.textContent = t("meCharCustom");
 }
 
 function refreshCategoryOptions() {
@@ -7193,7 +7255,30 @@ async function loadViceConfig() {
   updateEmulatorStatus();
 }
 
+function _isOsx() {
+  return /Mac|iPhone|iPad|iPod/.test(navigator.platform) ||
+    /Mac OS X|macOS/.test(navigator.userAgent);
+}
+
 async function loadExomizerConfig() {
+  if (_isOsx()) {
+    if (runExomizerToggle) {
+      runExomizerToggle.checked = false;
+      runExomizerToggle.disabled = true;
+      runExomizerToggle.title = currentLanguage !== "hu"
+        ? "Exomizer is not supported on macOS"
+        : "Exomizer nem elérhető macOS-en";
+    }
+    const lbl = document.getElementById("run-exomizer-toggle-label");
+    if (lbl) lbl.style.opacity = "0.4";
+    if (chooseExomizerButton) chooseExomizerButton.disabled = true;
+    if (exomizerStatus) exomizerStatus.textContent = currentLanguage !== "hu"
+      ? "Exomizer is not supported on macOS."
+      : "Exomizer nem elérhető macOS-en.";
+    exomizerEnabled = false;
+    return;
+  }
+
   if (!window.electronAPI?.getExomizerConfig) {
     updateExomizerPathPreview("");
     return;
@@ -16174,7 +16259,6 @@ function _initTutorialEvents() {
 
   tutBtn?.addEventListener("click", () => openTutorialDialog());
   tutClose?.addEventListener("click", () => tutDlg?.close());
-  tutDlg?.addEventListener("click", (e) => { if (e.target === tutDlg) tutDlg.close(); });
 
   document.getElementById("tour-next")?.addEventListener("click", (e) => {
     e.preventDefault();
@@ -16229,6 +16313,51 @@ if (tabs.length === 0) {
   activeTabId = _firstTab.id;
 }
 
+/* ─── C64 Color Palette ─────────────────────────────────── */
+const _C64_COLORS = [
+  {n:"Black",       hex:"#000000"}, {n:"White",       hex:"#FFFFFF"},
+  {n:"Red",         hex:"#9F4E44"}, {n:"Cyan",        hex:"#6ABFC6"},
+  {n:"Purple",      hex:"#A057A3"}, {n:"Green",       hex:"#5CAB5E"},
+  {n:"Blue",        hex:"#50459B"}, {n:"Yellow",      hex:"#C9D487"},
+  {n:"Orange",      hex:"#A1683C"}, {n:"Brown",       hex:"#6D5412"},
+  {n:"Light Red",   hex:"#CB7E75"}, {n:"Dark Grey",   hex:"#626262"},
+  {n:"Med. Grey",   hex:"#898989"}, {n:"Light Green", hex:"#9AE29B"},
+  {n:"Light Blue",  hex:"#887ECB"}, {n:"Light Grey",  hex:"#ADADAD"},
+];
+
+function _buildC64PaletteGrid() {
+  const grid = document.getElementById("c64-palette-grid");
+  if (!grid || grid.children.length > 0) return;
+  _C64_COLORS.forEach((color, i) => {
+    const item = document.createElement("div");
+    item.className = "c64-palette-item";
+    const swatch = document.createElement("div");
+    swatch.className = "c64-palette-swatch";
+    swatch.style.background = color.hex;
+    swatch.title = i + ": " + color.n + " (" + color.hex + ") — click to copy index";
+    swatch.addEventListener("click", () => {
+      navigator.clipboard.writeText(String(i)).catch(() => {});
+    });
+    const label = document.createElement("div");
+    label.className = "c64-palette-label";
+    label.textContent = i + ": " + color.n;
+    item.appendChild(swatch);
+    item.appendChild(label);
+    grid.appendChild(item);
+  });
+}
+
+function setupC64Palette() {
+  const dialog = document.getElementById("c64-palette-dialog");
+  if (!dialog) return;
+  document.getElementById("c64-palette-btn")?.addEventListener("click", () => {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    _buildC64PaletteGrid();
+    dialog.showModal();
+  });
+  document.getElementById("c64-palette-close")?.addEventListener("click", () => dialog.close());
+}
+
 // Wire up static new-tab button (only used before renderTabBar replaces it)
 document.getElementById("tab-new-btn")?.addEventListener("click", _tabNew);
 
@@ -16245,3 +16374,995 @@ renderMemoryStrip();
 renderTabBar();
 renderProgram();
 
+
+
+
+// ── C64 Character ROM Viewer ─────────────────────────────────────
+
+// Character names / display strings for Set 1 (uppercase/graphics)
+// Index = screen code 0-127 (reversed chars 128-255 use base = sc-128)
+const _C64_ROM_CHARS = [
+  // SC 0-31: @A-Z[\£]↑←
+  "@","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O",
+  "P","Q","R","S","T","U","V","W","X","Y","Z","[","£","]","↑","←",
+  // SC 32-63: printable ASCII
+  " ","!",'"',"#","$","%","&","'","(",")","*","+",",","-",".","/",
+  "0","1","2","3","4","5","6","7","8","9",":",";","<","=",">","?",
+  // SC 64-95: C64 graphics block 1
+  "─","♠","│","╮","╰","╯","╲","╱","├","▒","└","┐","┌","┼","▔","▗",
+  "▁","▂","▃","▄","▅","▆","▇","█","▏","▎","▍","▌","▋","▊","▉","▔",
+  // SC 96-127: C64 graphics block 2
+  "╲","♣","┤","─","▊","║","┼","▓","─","▒","●","█","○","►","◄","▲",
+  "▼","┼","│","├","─","╮","▒","┌","┘","╯","─","╱","●","╭","─","π",
+];
+
+const _C64_ROM_CHARS_SET2 = [
+  // SC 0-31: @a-z[\£]↑←  (lowercase)
+  "@","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o",
+  "p","q","r","s","t","u","v","w","x","y","z","[","£","]","↑","←",
+  // SC 32-63: printable ASCII (same)
+  " ","!",'"',"#","$","%","&","'","(",")","*","+",",","-",".","/",
+  "0","1","2","3","4","5","6","7","8","9",":",";","<","=",">","?",
+  // SC 64-95: A-Z uppercase (in lowercase charset)
+  "─","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O",
+  "P","Q","R","S","T","U","V","W","X","Y","Z","[","£","]","↑","←",
+  // SC 96-127: C64 graphics block 2 (same as Set 1)
+  "╲","♣","┤","─","▊","║","┼","▓","─","▒","●","█","○","►","◄","▲",
+  "▼","┼","│","├","─","╮","▒","┌","┘","╯","─","╱","●","╭","─","π",
+];
+
+// Return the character name/string for display for a given screen code
+function _c64RomDisplayChar(sc, set) {
+  const base = sc >= 128 ? sc - 128 : sc;
+  const chars = set === 2 ? _C64_ROM_CHARS_SET2 : _C64_ROM_CHARS;
+  return chars[base] !== undefined ? chars[base] : " ";
+}
+
+// PETSCII code for info display only (not used for font rendering)
+function _c64RomPetsciiCode(sc) {
+  const base = sc >= 128 ? sc - 128 : sc;
+  if (base <= 31)  return base + 64;
+  if (base <= 63)  return base;
+  if (base <= 95)  return base + 32;
+  return base + 96;
+}
+
+// Extract 8x8 bitmap via canvas
+let _c64RomCanvas = null;
+function _c64RomBitmapData(sc, set) {
+  const S = 8;          // device px per C64 pixel
+  const N = 8 * S;      // 64×64 canvas
+  if (!_c64RomCanvas) _c64RomCanvas = document.createElement("canvas");
+  if (_c64RomCanvas.width !== N) { _c64RomCanvas.width = N; _c64RomCanvas.height = N; }
+  const ctx = _c64RomCanvas.getContext("2d");
+  ctx.clearRect(0, 0, N, N);
+  ctx.fillStyle = "#000000";
+  ctx.fillRect(0, 0, N, N);
+  ctx.fillStyle = "#ffffff";
+  ctx.font = N + "px C64ProMono";   // 64px → 8 C64 px, each 8 device px
+  ctx.textBaseline = "top";
+  ctx.fillText(_c64RomDisplayChar(sc, set), 0, 0);
+  const img = ctx.getImageData(0, 0, N, N).data;
+  const bits = [];
+  for (let row = 0; row < 8; row++) {
+    for (let col = 0; col < 8; col++) {
+      // Coverage over the inner area of each S×S cell (skip 1px edges to avoid AA bleed)
+      let lit = 0, total = 0;
+      for (let dy = 1; dy < S - 1; dy++) {
+        for (let dx = 1; dx < S - 1; dx++) {
+          const idx = ((row * S + dy) * N + (col * S + dx)) * 4;
+          if (img[idx] > 96) lit++;
+          total++;
+        }
+      }
+      bits.push(lit * 2 >= total ? 1 : 0);
+    }
+  }
+  // Invert for reversed chars (SC 128-255)
+  if (sc >= 128) return bits.map(function(b) { return b ^ 1; });
+  return bits;
+}
+
+let _c64ChrromSet = 1;
+let _c64ChrromSelected = -1;
+function _buildC64CharRomGrid() {
+  const grid = document.getElementById("c64-chrrom-grid");
+  if (!grid) return;
+  grid.innerHTML = "";
+  for (let sc = 0; sc < 256; sc++) {
+    const cell = document.createElement("div");
+    cell.className = "c64-chrrom-cell" + (sc >= 128 ? " c64-chrrom-cell--rev" : "");
+    cell.textContent = _c64RomDisplayChar(sc, _c64ChrromSet);
+    cell.dataset.sc = sc;
+    cell.addEventListener("click", function() { _c64RomSelect(sc); });
+    grid.appendChild(cell);
+  }
+}
+
+function _c64RomRenderPixgrid(bits) {
+  const pixgrid = document.getElementById("c64-chrrom-pixgrid");
+  if (!pixgrid) return;
+  pixgrid.innerHTML = "";
+  bits.forEach(function(b) {
+    const px = document.createElement("div");
+    px.className = "c64-chrrom-pixel c64-chrrom-pixel--" + (b ? "on" : "off");
+    pixgrid.appendChild(px);
+  });
+}
+
+function _c64RomSelect(sc) {
+  document.querySelectorAll(".c64-chrrom-cell").forEach(function(c) { c.classList.remove("c64-chrrom-cell--sel"); });
+  const selCell = document.querySelector(".c64-chrrom-cell[data-sc='" + sc + "']");
+  if (selCell) selCell.classList.add("c64-chrrom-cell--sel");
+  _c64ChrromSelected = sc;
+
+  document.getElementById("c64-chrrom-info-hint").hidden = true;
+  const content = document.getElementById("c64-chrrom-info-content");
+  if (!content) return;
+  content.hidden = false;
+  content.innerHTML = "";
+
+  const base = sc >= 128 ? sc - 128 : sc;
+  const petscii = _c64RomPetsciiCode(sc);
+  const isRev = sc >= 128;
+  const chars = _c64ChrromSet === 1 ? _C64_ROM_CHARS : _C64_ROM_CHARS_SET2;
+  const ch = _c64RomDisplayChar(sc, _c64ChrromSet);
+  const charName = chars[base] || "?";
+
+  // Big char preview box
+  const preview = document.createElement("div");
+  preview.className = "c64-chrrom-char-preview";
+  preview.textContent = ch;
+  preview.style.fontFamily = '"C64ProMono", monospace';
+  preview.style.color = isRev ? "#352879" : "#6c5eb5";
+  preview.style.background = isRev ? "#6c5eb5" : "#352879";
+  content.appendChild(preview);
+
+  const nameEl = document.createElement("div");
+  nameEl.className = "c64-chrrom-name-val";
+  nameEl.textContent = charName;
+  content.appendChild(nameEl);
+
+  // Info rows
+  [
+    ["SC",      sc + " ($" + sc.toString(16).toUpperCase().padStart(2,"0") + ")"],
+    ["PETSCII", petscii + " ($" + petscii.toString(16).toUpperCase().padStart(2,"0") + ")"],
+    ["Offset",  "$" + (base*8).toString(16).toUpperCase().padStart(4,"0")],
+    ["Rev",     isRev ? "Yes" : "No"],
+  ].forEach(function(pair) {
+    const row = document.createElement("div");
+    row.className = "c64-chrrom-info-row";
+    const l = document.createElement("span"); l.className = "c64-chrrom-info-lbl"; l.textContent = pair[0];
+    const v = document.createElement("span"); v.className = "c64-chrrom-info-val"; v.textContent = pair[1];
+    row.appendChild(l); row.appendChild(v);
+    content.appendChild(row);
+  });
+
+  // Bitmap
+  const bits = _c64RomBitmapData(sc, _c64ChrromSet);
+  _c64RomRenderPixgrid(bits);
+
+  // Byte rows — structured (fixed-size pixel squares + right-aligned hex)
+  const rowsDiv = document.createElement("div");
+  rowsDiv.className = "c64-chrrom-pixrows";
+  rowsDiv.id = "c64-chrrom-pixrows";
+  for (let r = 0; r < 8; r++) {
+    let byte = 0;
+    const row = document.createElement("div");
+    row.className = "c64-chrrom-pixrow";
+    const bitsWrap = document.createElement("div");
+    bitsWrap.className = "c64-chrrom-pixrow-bits";
+    for (let c = 0; c < 8; c++) {
+      const b = bits[r*8+c];
+      if (b) byte |= (1<<(7-c));
+      const bit = document.createElement("div");
+      bit.className = "c64-chrrom-bit " + (b ? "c64-chrrom-bit--on" : "c64-chrrom-bit--off");
+      bitsWrap.appendChild(bit);
+    }
+    const hex = document.createElement("span");
+    hex.className = "c64-chrrom-pixrow-hex";
+    hex.textContent = "$" + byte.toString(16).toUpperCase().padStart(2,"0");
+    row.appendChild(bitsWrap);
+    row.appendChild(hex);
+    rowsDiv.appendChild(row);
+  }
+  content.appendChild(rowsDiv);
+
+  // Copy button
+  const copyBtn = document.createElement("button");
+  copyBtn.className = "c64-chrrom-action-btn";
+  const _copyLbl = (typeof t === "function" ? t("chrromCopyBytes") : "Copy bytes");
+  copyBtn.textContent = _copyLbl;
+  copyBtn.addEventListener("click", function() {
+    const bytes = [];
+    for (let r = 0; r < 8; r++) {
+      let byte = 0;
+      for (let c = 0; c < 8; c++) { if (bits[r*8+c]) byte |= (1<<(7-c)); }
+      bytes.push("$" + byte.toString(16).toUpperCase().padStart(2,"0"));
+    }
+    navigator.clipboard.writeText(bytes.join(", ")).then(function() {
+      copyBtn.textContent = (typeof t === "function" ? t("copied") : "Copied!");
+      setTimeout(function() { copyBtn.textContent = _copyLbl; }, 1200);
+    });
+  });
+  content.appendChild(copyBtn);
+}
+
+function setupC64CharRom() {
+  const dialog = document.getElementById("c64-chrrom-dialog");
+  if (!dialog) return;
+
+  document.getElementById("c64-chrrom-btn")?.addEventListener("click", function() {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    _buildC64CharRomGrid();
+    dialog.showModal();
+  });
+  document.getElementById("c64-chrrom-close")?.addEventListener("click", function() { dialog.close(); });
+
+  document.getElementById("c64-chrrom-tab1")?.addEventListener("click", function() {
+    _c64ChrromSet = 1;
+    document.getElementById("c64-chrrom-tab1").classList.add("c64-chrrom-tab--active");
+    document.getElementById("c64-chrrom-tab2").classList.remove("c64-chrrom-tab--active");
+    _buildC64CharRomGrid();
+    if (_c64ChrromSelected >= 0) _c64RomSelect(_c64ChrromSelected);
+  });
+
+  document.getElementById("c64-chrrom-tab2")?.addEventListener("click", function() {
+    _c64ChrromSet = 2;
+    document.getElementById("c64-chrrom-tab2").classList.add("c64-chrrom-tab--active");
+    document.getElementById("c64-chrrom-tab1").classList.remove("c64-chrrom-tab--active");
+    _buildC64CharRomGrid();
+    if (_c64ChrromSelected >= 0) _c64RomSelect(_c64ChrromSelected);
+  });
+
+
+}
+
+/* ═══════════════════════════════════════════════════════
+   CHARACTER SET EDITOR
+   ═══════════════════════════════════════════════════════ */
+const _CE_COLORS = [
+  "#000000","#ffffff","#68372b","#70a4b2",
+  "#6f3d86","#588d43","#352879","#b8c76f",
+  "#6f4f25","#433900","#9a6759","#444444",
+  "#6c6c6c","#9ad284","#6c5eb5","#959595"
+];
+
+let _ceData = null;
+let _ceSel  = 0;
+let _ceFg   = 14;   // Light Blue
+let _ceBg   = 6;    // Blue
+let _cePainting = false;
+let _cePaintVal = 1;
+
+function _ceGetBit(charIdx, row, col) {
+  if (!_ceData) return 0;
+  return (_ceData[charIdx * 8 + row] >> (7 - col)) & 1;
+}
+
+function _ceSetBit(charIdx, row, col, val) {
+  if (!_ceData) return;
+  const i = charIdx * 8 + row;
+  if (val) _ceData[i] |= (1 << (7 - col));
+  else     _ceData[i] &= ~(1 << (7 - col));
+}
+
+function _ceRenderEditor() {
+  const grid = document.getElementById("ce-editor-grid");
+  if (!grid || !_ceData) return;
+  const cells = grid.children;
+  const fg = _CE_COLORS[_ceFg];
+  const bg = _CE_COLORS[_ceBg];
+  for (let i = 0; i < 64; i++) {
+    cells[i].style.background = _ceGetBit(_ceSel, i >> 3, i & 7) ? fg : bg;
+  }
+}
+
+function _ceRenderMap() {
+  const canvas = document.getElementById("ce-map-canvas");
+  if (!canvas || !_ceData) return;
+  const ctx = canvas.getContext("2d");
+  const W    = canvas.width;   // 256
+  const CELL = W / 16;         // 16 px per char
+  const PIX  = CELL / 8;       // 2 px per bit
+  const fg   = _CE_COLORS[_ceFg];
+  const bg   = _CE_COLORS[_ceBg];
+
+  ctx.clearRect(0, 0, W, W);
+
+  for (let n = 0; n < 256; n++) {
+    const cx = (n % 16) * CELL;
+    const cy = Math.floor(n / 16) * CELL;
+
+    ctx.fillStyle = n === _ceSel ? "#4a3a9a" : bg;
+    ctx.fillRect(cx, cy, CELL, CELL);
+
+    ctx.fillStyle = fg;
+    for (let r = 0; r < 8; r++) {
+      const byte = _ceData[n * 8 + r];
+      for (let c = 0; c < 8; c++) {
+        if ((byte >> (7 - c)) & 1) {
+          ctx.fillRect(cx + c * PIX, cy + r * PIX, PIX, PIX);
+        }
+      }
+    }
+
+    if (n === _ceSel) {
+      ctx.strokeStyle = "rgba(255,255,255,0.6)";
+      ctx.lineWidth = 0.5;
+      ctx.strokeRect(cx + 0.5, cy + 0.5, CELL - 1, CELL - 1);
+    }
+  }
+}
+
+function _ceUpdateInfo() {
+  const el = document.getElementById("ce-char-info");
+  if (el) el.textContent = "Char: " + _ceSel + " ($" + _ceSel.toString(16).toUpperCase().padStart(2,"0") + ")";
+}
+
+function _ceUpdateAsm() {
+  const el = document.getElementById("ce-asm-out");
+  if (!el) return;
+  if (!_ceData) { el.textContent = ""; return; }
+  const n   = _ceSel;
+  const hex = n.toString(16).toUpperCase().padStart(2,"0");
+  const bytes = [];
+  for (let r = 0; r < 8; r++) {
+    bytes.push("$" + _ceData[n * 8 + r].toString(16).toUpperCase().padStart(2,"0"));
+  }
+  el.textContent = "char_" + hex + ":  ; $" + hex + "\n        .byte " + bytes.join(", ");
+}
+
+function _ceSelect(n) {
+  _ceSel = n;
+  _ceUpdateInfo();
+  _ceRenderEditor();
+  _ceRenderMap();
+  _ceUpdateAsm();
+}
+
+function _ceClear() {
+  if (!_ceData) return;
+  for (let r = 0; r < 8; r++) _ceData[_ceSel * 8 + r] = 0;
+  _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+}
+
+function _ceInvert() {
+  if (!_ceData) return;
+  for (let r = 0; r < 8; r++) _ceData[_ceSel * 8 + r] ^= 0xFF;
+  _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+}
+
+function _ceFlipH() {
+  if (!_ceData) return;
+  for (let r = 0; r < 8; r++) {
+    let b = _ceData[_ceSel * 8 + r], rev = 0;
+    for (let i = 0; i < 8; i++) rev |= ((b >> i) & 1) << (7 - i);
+    _ceData[_ceSel * 8 + r] = rev;
+  }
+  _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+}
+
+function _ceFlipV() {
+  if (!_ceData) return;
+  const base = _ceSel * 8;
+  for (let r = 0; r < 4; r++) {
+    const t = _ceData[base + r];
+    _ceData[base + r] = _ceData[base + 7 - r];
+    _ceData[base + 7 - r] = t;
+  }
+  _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+}
+
+function _ceShift(dir) {
+  if (!_ceData) return;
+  const base = _ceSel * 8;
+  if (dir === "up") {
+    const first = _ceData[base];
+    for (let r = 0; r < 7; r++) _ceData[base + r] = _ceData[base + r + 1];
+    _ceData[base + 7] = first;
+  } else if (dir === "down") {
+    const last = _ceData[base + 7];
+    for (let r = 7; r > 0; r--) _ceData[base + r] = _ceData[base + r - 1];
+    _ceData[base] = last;
+  } else if (dir === "left") {
+    for (let r = 0; r < 8; r++) {
+      const b = _ceData[base + r];
+      _ceData[base + r] = ((b << 1) | (b >> 7)) & 0xFF;
+    }
+  } else {
+    for (let r = 0; r < 8; r++) {
+      const b = _ceData[base + r];
+      _ceData[base + r] = ((b >> 1) | (b << 7)) & 0xFF;
+    }
+  }
+  _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+}
+
+function _ceLoadRom() {
+  if (!_ceData) _ceData = new Uint8Array(256 * 8);
+  for (let sc = 0; sc < 256; sc++) {
+    const bits = _c64RomBitmapData(sc, 1);
+    const base = sc * 8;
+    for (let r = 0; r < 8; r++) {
+      let byte = 0;
+      for (let c = 0; c < 8; c++) {
+        if (bits[r * 8 + c]) byte |= (1 << (7 - c));
+      }
+      _ceData[base + r] = byte;
+    }
+  }
+  _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+  const btn = document.getElementById("ce-load-rom");
+  if (btn) { btn.textContent = "Loaded!"; setTimeout(function() { btn.textContent = "Load ROM"; }, 1400); }
+}
+
+function _ceInit() {
+  if (_ceData) return;
+  _ceData = new Uint8Array(256 * 8);
+
+  const grid = document.getElementById("ce-editor-grid");
+  if (grid) {
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const cell = document.createElement("div");
+        cell.className = "ce-pixel";
+        cell.dataset.r = r;
+        cell.dataset.c = c;
+        grid.appendChild(cell);
+      }
+    }
+  }
+
+  const fgEl = document.getElementById("ce-fg-colors");
+  const bgEl = document.getElementById("ce-bg-colors");
+  if (fgEl && bgEl) {
+    _CE_COLORS.forEach(function(hex, i) {
+      const mkSwatch = function(container, isFg) {
+        const sw = document.createElement("div");
+        sw.className = "ce-color-swatch" + ((isFg ? i === _ceFg : i === _ceBg) ? " ce-color-swatch--sel" : "");
+        sw.style.background = hex;
+        sw.title = "Color " + i;
+        sw.addEventListener("click", function() {
+          if (isFg) { _ceFg = i; fgEl.querySelectorAll(".ce-color-swatch").forEach(function(s,j){ s.classList.toggle("ce-color-swatch--sel",j===i); }); }
+          else       { _ceBg = i; bgEl.querySelectorAll(".ce-color-swatch").forEach(function(s,j){ s.classList.toggle("ce-color-swatch--sel",j===i); }); }
+          _ceRenderEditor(); _ceRenderMap();
+        });
+        container.appendChild(sw);
+      };
+      mkSwatch(fgEl, true);
+      mkSwatch(bgEl, false);
+    });
+  }
+}
+
+function setupCharEditor() {
+  const dialog = document.getElementById("char-editor-dialog");
+  if (!dialog) return;
+
+  document.getElementById("char-editor-btn")?.addEventListener("click", function() {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    _ceInit();
+    _ceUpdateInfo();
+    _ceRenderEditor();
+    _ceRenderMap();
+    _ceUpdateAsm();
+    dialog.showModal();
+  });
+
+  document.getElementById("ce-close")?.addEventListener("click", function() { dialog.close(); });
+
+  const grid = document.getElementById("ce-editor-grid");
+  if (grid) {
+    const _cePaintAt = function(clientX, clientY, firstHit) {
+      const el = document.elementFromPoint(clientX, clientY);
+      const cell = el && el.closest ? el.closest(".ce-pixel") : null;
+      if (!cell || !grid.contains(cell)) return;
+      const r = +cell.dataset.r, c = +cell.dataset.c;
+      if (firstHit) {
+        _cePaintVal = _ceGetBit(_ceSel, r, c) ? 0 : 1;
+      } else if (_ceGetBit(_ceSel, r, c) === _cePaintVal) {
+        return;
+      }
+      _ceSetBit(_ceSel, r, c, _cePaintVal);
+      _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+    };
+    grid.addEventListener("pointerdown", function(e) {
+      if (!_ceData || e.button !== 0) return;
+      _cePainting = true;
+      try { grid.setPointerCapture(e.pointerId); } catch (_) {}
+      _cePaintAt(e.clientX, e.clientY, true);
+      e.preventDefault();
+    });
+    grid.addEventListener("pointermove", function(e) {
+      if (!_cePainting || !_ceData) return;
+      _cePaintAt(e.clientX, e.clientY, false);
+      e.preventDefault();
+    });
+    const _ceEndPaint = function(e) {
+      if (!_cePainting) return;
+      _cePainting = false;
+      if (e && e.pointerId != null) { try { grid.releasePointerCapture(e.pointerId); } catch (_) {} }
+    };
+    grid.addEventListener("pointerup", _ceEndPaint);
+    grid.addEventListener("pointercancel", _ceEndPaint);
+    document.addEventListener("pointerup", _ceEndPaint);
+  }
+
+  const mapCanvas = document.getElementById("ce-map-canvas");
+  if (mapCanvas) {
+    mapCanvas.addEventListener("click", function(e) {
+      const rect = mapCanvas.getBoundingClientRect();
+      const sx = mapCanvas.width / rect.width;
+      const sy = mapCanvas.height / rect.height;
+      const cx = (e.clientX - rect.left) * sx;
+      const cy = (e.clientY - rect.top)  * sy;
+      const CELL = mapCanvas.width / 16;
+      const col  = Math.min(15, Math.floor(cx / CELL));
+      const row  = Math.min(15, Math.floor(cy / CELL));
+      _ceSelect(row * 16 + col);
+    });
+  }
+
+  document.getElementById("ce-clear")?.addEventListener("click", _ceClear);
+  document.getElementById("ce-invert")?.addEventListener("click", _ceInvert);
+  document.getElementById("ce-fliph")?.addEventListener("click", _ceFlipH);
+  document.getElementById("ce-flipv")?.addEventListener("click", _ceFlipV);
+  document.getElementById("ce-shl")?.addEventListener("click", function() { _ceShift("left"); });
+  document.getElementById("ce-shr")?.addEventListener("click", function() { _ceShift("right"); });
+  document.getElementById("ce-shu")?.addEventListener("click", function() { _ceShift("up"); });
+  document.getElementById("ce-shd")?.addEventListener("click", function() { _ceShift("down"); });
+
+  document.getElementById("ce-copy-asm")?.addEventListener("click", function() {
+    const el = document.getElementById("ce-asm-out");
+    if (!el) return;
+    navigator.clipboard.writeText(el.textContent).then(function() {
+      const btn = document.getElementById("ce-copy-asm");
+      if (btn) { btn.textContent = "Copied!"; setTimeout(function() { btn.textContent = "Copy ASM"; }, 1300); }
+    });
+  });
+
+  document.getElementById("ce-load-rom")?.addEventListener("click", _ceLoadRom);
+
+  document.getElementById("ce-save-bin")?.addEventListener("click", function() {
+    if (!_ceData) return;
+    _saveBinFile(_ceData, "charset.bin");
+  });
+
+  const ceLoadFile = document.getElementById("ce-load-file");
+  document.getElementById("ce-load-bin")?.addEventListener("click", function() { ceLoadFile?.click(); });
+  ceLoadFile?.addEventListener("change", function(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function() {
+      if (!_ceData) _ceData = new Uint8Array(256 * 8);
+      const src = new Uint8Array(reader.result);
+      _ceData.fill(0);
+      _ceData.set(src.subarray(0, Math.min(src.length, _ceData.length)));
+      _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+      const btn = document.getElementById("ce-load-bin");
+      if (btn) { const o = btn.textContent; btn.textContent = (typeof t === "function" ? t("loaded") : "Loaded!"); setTimeout(function(){ btn.textContent = o; }, 1400); }
+    };
+    reader.readAsArrayBuffer(file);
+    e.target.value = "";
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   MAP EDITOR
+   ═══════════════════════════════════════════════════════ */
+const _ME_COLS = 40, _ME_ROWS = 25;
+let _meScreen   = null;   // Uint8Array(1000) screen codes
+let _meColorRam = null;   // Uint8Array(1000) color indices
+let _meTile  = 1;         // selected screen code
+let _meColor = 14;        // selected color (Light Blue)
+let _meBgColor = 6;       // map background (Blue)
+let _meTool  = "paint";
+let _meZoom  = 16;        // pixels per tile on main canvas
+let _meGrid  = true;
+let _mePainting = false;
+let _meSelStart = null;   // {col,row} during Select drag
+let _meSelEnd   = null;
+let _meTileCache = null;   // [256][64] ROM bit arrays
+let _meCustomCache = null; // [256][64] custom charset bit arrays
+let _meCustomData = null;  // Uint8Array(2048) custom charset bytes
+let _meCharSource = "rom"; // "rom" | "custom"
+let _meBuffer = null;      // offscreen canvas (map without overlay)
+let _meCtx = null, _meBufCtx = null;
+let _meInited = false;
+
+function _meTileBits(sc) {
+  sc &= 0xFF;
+  if (_meCharSource === "custom" && _meCustomCache) return _meCustomCache[sc];
+  if (!_meTileCache) {
+    _meTileCache = [];
+    for (let i = 0; i < 256; i++) _meTileCache.push(_c64RomBitmapData(i, 1));
+  }
+  return _meTileCache[sc];
+}
+
+/* Build per-tile bit arrays from a 2048-byte (256×8) custom charset */
+function _meSetCustomCharset(bytes) {
+  const data = new Uint8Array(2048);
+  data.set(bytes.subarray(0, Math.min(bytes.length, 2048)));
+  _meCustomData = data;
+  _meCustomCache = [];
+  for (let sc = 0; sc < 256; sc++) {
+    const bits = [];
+    const base = sc * 8;
+    for (let r = 0; r < 8; r++) {
+      const byte = data[base + r];
+      for (let c = 0; c < 8; c++) bits.push((byte >> (7 - c)) & 1);
+    }
+    _meCustomCache.push(bits);
+  }
+  _meCharSource = "custom";
+  const sel = document.getElementById("me-charset-src");
+  if (sel) sel.value = "custom";
+}
+
+/* ── Draw one map cell into the offscreen buffer ── */
+function _meDrawCellBuf(col, row) {
+  const Z = _meZoom, sub = Z / 8;
+  const x0 = col * Z, y0 = row * Z;
+  const sc  = _meScreen[row * _ME_COLS + col];
+  const fg  = _CE_COLORS[_meColorRam[row * _ME_COLS + col]];
+  const bg  = _CE_COLORS[_meBgColor];
+  _meBufCtx.fillStyle = bg;
+  _meBufCtx.fillRect(x0, y0, Z, Z);
+  const bits = _meTileBits(sc);
+  _meBufCtx.fillStyle = fg;
+  for (let p = 0; p < 64; p++) {
+    if (bits[p]) {
+      _meBufCtx.fillRect(x0 + (p & 7) * sub, y0 + (p >> 3) * sub, Math.ceil(sub), Math.ceil(sub));
+    }
+  }
+  if (_meGrid) {
+    _meBufCtx.strokeStyle = "rgba(170,160,225,0.22)";
+    _meBufCtx.lineWidth = 1;
+    _meBufCtx.strokeRect(x0 + 0.5, y0 + 0.5, Z - 1, Z - 1);
+  }
+}
+
+/* ── Full render: buffer → main canvas ── */
+function _meRenderAll() {
+  const W = _ME_COLS * _meZoom, H = _ME_ROWS * _meZoom;
+  if (_meBuffer.width !== W) { _meBuffer.width = W; _meBuffer.height = H; }
+  const canvas = document.getElementById("me-canvas");
+  if (canvas.width !== W) { canvas.width = W; canvas.height = H; }
+  for (let r = 0; r < _ME_ROWS; r++)
+    for (let c = 0; c < _ME_COLS; c++) _meDrawCellBuf(c, r);
+  _meBlit();
+}
+
+function _meBlit() { _meCtx.drawImage(_meBuffer, 0, 0); }
+function _meBlitCell(col, row) {
+  const Z = _meZoom, x0 = col * Z, y0 = row * Z;
+  _meCtx.drawImage(_meBuffer, x0, y0, Z, Z, x0, y0, Z, Z);
+}
+
+function _meSetCell(col, row, tile, color) {
+  if (col < 0 || col >= _ME_COLS || row < 0 || row >= _ME_ROWS) return;
+  const i = row * _ME_COLS + col;
+  _meScreen[i] = tile;
+  _meColorRam[i] = color;
+  _meDrawCellBuf(col, row);
+  _meBlitCell(col, row);
+}
+
+/* ── Tools ── */
+function _meFloodFill(col, row) {
+  const target = _meScreen[row * _ME_COLS + col];
+  if (target === _meTile) { _meSetCell(col, row, _meTile, _meColor); return; }
+  const stack = [[col, row]];
+  while (stack.length) {
+    const [c, r] = stack.pop();
+    if (c < 0 || c >= _ME_COLS || r < 0 || r >= _ME_ROWS) continue;
+    if (_meScreen[r * _ME_COLS + c] !== target) continue;
+    _meScreen[r * _ME_COLS + c] = _meTile;
+    _meColorRam[r * _ME_COLS + c] = _meColor;
+    _meDrawCellBuf(c, r);
+    stack.push([c+1, r], [c-1, r], [c, r+1], [c, r-1]);
+  }
+  _meBlit();
+}
+
+function _meFillAll() {
+  for (let i = 0; i < _meScreen.length; i++) { _meScreen[i] = _meTile; _meColorRam[i] = _meColor; }
+  _meRenderAll();
+}
+
+function _meFillRect(c0, r0, c1, r1) {
+  const ca = Math.min(c0,c1), cb = Math.max(c0,c1);
+  const ra = Math.min(r0,r1), rb = Math.max(r0,r1);
+  for (let r = ra; r <= rb; r++)
+    for (let c = ca; c <= cb; c++) {
+      const i = r * _ME_COLS + c;
+      _meScreen[i] = _meTile; _meColorRam[i] = _meColor;
+      _meDrawCellBuf(c, r);
+    }
+  _meBlit();
+}
+
+function _meCellFromEvent(e) {
+  const canvas = document.getElementById("me-canvas");
+  const rect = canvas.getBoundingClientRect();
+  const sx = canvas.width / rect.width, sy = canvas.height / rect.height;
+  const col = Math.floor((e.clientX - rect.left) * sx / _meZoom);
+  const row = Math.floor((e.clientY - rect.top)  * sy / _meZoom);
+  if (col < 0 || col >= _ME_COLS || row < 0 || row >= _ME_ROWS) return null;
+  return { col, row };
+}
+
+function _meUpdateStatus(col, row) {
+  const el = document.getElementById("me-status");
+  if (!el) return;
+  if (col == null) { el.textContent = "Col: -   Row: -   Tile: --   Offset: ----"; return; }
+  const off = row * _ME_COLS + col;
+  const tile = _meScreen[off];
+  el.textContent =
+    "Col: " + col + "   Row: " + row +
+    "   Tile: $" + tile.toString(16).toUpperCase().padStart(2,"0") +
+    "   Offset: $" + off.toString(16).toUpperCase().padStart(4,"0");
+}
+
+function _meDrawSelOverlay() {
+  _meBlit();
+  if (!_meSelStart || !_meSelEnd) return;
+  const Z = _meZoom;
+  const ca = Math.min(_meSelStart.col, _meSelEnd.col), cb = Math.max(_meSelStart.col, _meSelEnd.col);
+  const ra = Math.min(_meSelStart.row, _meSelEnd.row), rb = Math.max(_meSelStart.row, _meSelEnd.row);
+  _meCtx.strokeStyle = "rgba(255,255,255,0.9)";
+  _meCtx.lineWidth = 2;
+  _meCtx.setLineDash([5, 4]);
+  _meCtx.strokeRect(ca*Z+1, ra*Z+1, (cb-ca+1)*Z-2, (rb-ra+1)*Z-2);
+  _meCtx.setLineDash([]);
+}
+
+/* ── Tile banks ── */
+function _meRenderBank(canvasId, startSc) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const TS = 16;            // tile size in bank
+  ctx.fillStyle = "#23263a";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  for (let i = 0; i < 128; i++) {
+    const sc = startSc + i;
+    const bx = (i % 16) * TS, by = Math.floor(i / 16) * TS;
+    const bits = _meTileBits(sc);
+    ctx.fillStyle = "#c2c8dc";
+    for (let p = 0; p < 64; p++) {
+      if (bits[p]) ctx.fillRect(bx + (p & 7) * 2, by + (p >> 3) * 2, 2, 2);
+    }
+    if (sc === _meTile) {
+      ctx.strokeStyle = "#ffcc33";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(bx + 1, by + 1, TS - 2, TS - 2);
+    }
+  }
+}
+function _meRenderBanks() { _meRenderBank("me-bank0", 0); _meRenderBank("me-bank1", 128); }
+
+function _meBuildPalette() {
+  const wrap = document.getElementById("me-palette");
+  if (!wrap || wrap.children.length) return;
+  _CE_COLORS.forEach(function(hex, i) {
+    const sw = document.createElement("div");
+    sw.className = "me-swatch" + (i === _meColor ? " me-swatch--sel" : "");
+    sw.style.background = hex;
+    sw.title = "Color " + i;
+    sw.addEventListener("click", function() {
+      _meColor = i;
+      wrap.querySelectorAll(".me-swatch").forEach(function(s, j) { s.classList.toggle("me-swatch--sel", j === i); });
+    });
+    wrap.appendChild(sw);
+  });
+}
+
+/* Save raw bytes to a file. Uses the native save dialog in the desktop app
+   (the <a download> trick does not work inside the Tauri webview), with a
+   browser blob-download fallback for dev. */
+async function _saveBinFile(bytes, fileName) {
+  const arr = Array.from(bytes);
+  const api = window.electronAPI;
+  if (api?.saveBin) {
+    try { return await api.saveBin({ bytes: arr, fileName: fileName }); } catch (_) {}
+  }
+  if (api?.savePrg) {
+    try { return await api.savePrg({ bytes: arr }); } catch (_) {}
+  }
+  const blob = new Blob([new Uint8Array(arr)], { type: "application/octet-stream" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = fileName;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+}
+
+function _meExport(kind) {
+  if (kind === "bin") {
+    _saveBinFile(_meScreen, "map.bin");
+    return;
+  }
+  const data = kind === "color" ? _meColorRam : _meScreen;
+  let out = "";
+  for (let r = 0; r < _ME_ROWS; r++) {
+    const row = [];
+    for (let c = 0; c < _ME_COLS; c++) row.push("$" + data[r * _ME_COLS + c].toString(16).toUpperCase().padStart(2,"0"));
+    out += row.join(", ") + (r < _ME_ROWS - 1 ? ",\n" : "\n");
+  }
+  navigator.clipboard.writeText(out).then(function() {
+    const btn = document.getElementById("me-export-btn");
+    if (btn) { const o = btn.textContent; btn.textContent = "Copied!"; setTimeout(function(){ btn.textContent = o; }, 1200); }
+  }).catch(function(){});
+}
+
+function _meInit() {
+  if (_meInited) return;
+  _meInited = true;
+  _meScreen   = new Uint8Array(_ME_COLS * _ME_ROWS).fill(0x20);
+  _meColorRam = new Uint8Array(_ME_COLS * _ME_ROWS).fill(_meColor);
+  _meBuffer = document.createElement("canvas");
+  _meBufCtx = _meBuffer.getContext("2d");
+  const canvas = document.getElementById("me-canvas");
+  _meCtx = canvas.getContext("2d");
+  _meBuildPalette();
+}
+
+function setupMapEditor() {
+  const dialog = document.getElementById("map-editor-dialog");
+  if (!dialog) return;
+
+  document.getElementById("map-editor-btn")?.addEventListener("click", function() {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    _meInit();
+    _meRenderBanks();
+    _meRenderAll();
+    _meUpdateStatus(null);
+    dialog.showModal();
+  });
+  document.getElementById("me-close")?.addEventListener("click", function() { dialog.close(); });
+
+  // Tool selection
+  dialog.querySelectorAll(".me-tool[data-tool]").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      _meTool = btn.dataset.tool;
+      dialog.querySelectorAll(".me-tool[data-tool]").forEach(function(b) { b.classList.toggle("me-tool--active", b === btn); });
+    });
+  });
+
+  // Export menu
+  const exBtn = document.getElementById("me-export-btn");
+  const exMenu = document.getElementById("me-export-menu");
+  exBtn?.addEventListener("click", function(e) { e.stopPropagation(); exMenu.hidden = !exMenu.hidden; });
+  document.addEventListener("click", function() { if (exMenu) exMenu.hidden = true; });
+  exMenu?.addEventListener("click", function(e) { e.stopPropagation(); });
+  exMenu?.querySelectorAll("button[data-export]").forEach(function(b) {
+    b.addEventListener("click", function() { _meExport(b.dataset.export); exMenu.hidden = true; });
+  });
+
+  // Charset source switching
+  const csSel = document.getElementById("me-charset-src");
+  csSel?.addEventListener("change", function(e) {
+    if (e.target.value === "custom" && !_meCustomCache) {
+      // No custom data yet — keep ROM and prompt to load
+      e.target.value = "rom";
+      document.getElementById("me-charset-load")?.focus();
+      return;
+    }
+    _meCharSource = e.target.value;
+    _meRenderBanks(); _meRenderAll();
+  });
+  const csFile = document.getElementById("me-charset-file");
+  document.getElementById("me-charset-load")?.addEventListener("click", function() { csFile?.click(); });
+  csFile?.addEventListener("change", function(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function() {
+      _meSetCustomCharset(new Uint8Array(reader.result));
+      _meRenderBanks(); _meRenderAll();
+    };
+    reader.readAsArrayBuffer(file);
+    e.target.value = "";
+  });
+  document.getElementById("me-charset-editor")?.addEventListener("click", function() {
+    if (typeof _ceData !== "undefined" && _ceData) {
+      _meSetCustomCharset(_ceData);
+      _meRenderBanks(); _meRenderAll();
+    } else {
+      const btn = document.getElementById("me-charset-editor");
+      if (btn) { const o = btn.textContent; btn.textContent = "Editor empty"; setTimeout(function(){ btn.textContent = o; }, 1400); }
+    }
+  });
+
+  // Load map (.bin) — first 1000 bytes = screen codes, optional next 1000 = color RAM
+  const mapFile = document.getElementById("me-map-file");
+  document.getElementById("me-load-map")?.addEventListener("click", function() { mapFile?.click(); });
+  mapFile?.addEventListener("change", function(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function() {
+      const src = new Uint8Array(reader.result);
+      const n = _ME_COLS * _ME_ROWS;
+      for (let i = 0; i < n; i++) _meScreen[i] = i < src.length ? src[i] : 0x20;
+      if (src.length >= n * 2) {
+        for (let i = 0; i < n; i++) _meColorRam[i] = src[n + i] & 0x0F;
+      }
+      _meRenderAll();
+    };
+    reader.readAsArrayBuffer(file);
+    e.target.value = "";
+  });
+
+  // Grid + zoom
+  document.getElementById("me-grid-toggle")?.addEventListener("change", function(e) {
+    _meGrid = e.target.checked; _meRenderAll();
+  });
+  document.getElementById("me-zoom")?.addEventListener("input", function(e) {
+    _meZoom = parseInt(e.target.value, 10); _meRenderAll();
+  });
+
+  // Bank tile selection
+  ["me-bank0", "me-bank1"].forEach(function(id, bank) {
+    const cv = document.getElementById(id);
+    cv?.addEventListener("click", function(e) {
+      const rect = cv.getBoundingClientRect();
+      const col = Math.floor((e.clientX - rect.left) / rect.width * 16);
+      const row = Math.floor((e.clientY - rect.top) / rect.height * 8);
+      const sc = bank * 128 + row * 16 + col;
+      if (sc >= 0 && sc < 256) { _meTile = sc; _meRenderBanks(); }
+    });
+  });
+
+  // Main canvas interaction
+  const canvas = document.getElementById("me-canvas");
+  if (canvas) {
+    const apply = function(cell) {
+      if (!cell) return;
+      if (_meTool === "paint") { _meSetCell(cell.col, cell.row, _meTile, _meColor); }
+      else if (_meTool === "fill") { _meFloodFill(cell.col, cell.row); }
+      else if (_meTool === "flood") { _meFillAll(); }
+      else if (_meTool === "pick") {
+        const i = cell.row * _ME_COLS + cell.col;
+        _meTile = _meScreen[i]; _meColor = _meColorRam[i];
+        _meRenderBanks();
+        document.querySelectorAll("#me-palette .me-swatch").forEach(function(s, j) { s.classList.toggle("me-swatch--sel", j === _meColor); });
+      }
+    };
+    canvas.addEventListener("pointerdown", function(e) {
+      if (e.button !== 0) return;
+      const cell = _meCellFromEvent(e);
+      if (!cell) return;
+      try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+      if (_meTool === "select") {
+        _meSelStart = cell; _meSelEnd = cell; _mePainting = true; _meDrawSelOverlay();
+      } else {
+        _mePainting = true; apply(cell);
+      }
+      e.preventDefault();
+    });
+    canvas.addEventListener("pointermove", function(e) {
+      const cell = _meCellFromEvent(e);
+      _meUpdateStatus(cell ? cell.col : null, cell ? cell.row : null);
+      if (!_mePainting || !cell) return;
+      if (_meTool === "select") { _meSelEnd = cell; _meDrawSelOverlay(); }
+      else if (_meTool === "paint") { _meSetCell(cell.col, cell.row, _meTile, _meColor); }
+    });
+    const endPaint = function(e) {
+      if (!_mePainting) return;
+      _mePainting = false;
+      if (_meTool === "select" && _meSelStart && _meSelEnd) {
+        _meFillRect(_meSelStart.col, _meSelStart.row, _meSelEnd.col, _meSelEnd.row);
+        _meSelStart = _meSelEnd = null;
+      }
+      if (e && e.pointerId != null) { try { canvas.releasePointerCapture(e.pointerId); } catch (_) {} }
+    };
+    canvas.addEventListener("pointerup", endPaint);
+    canvas.addEventListener("pointercancel", endPaint);
+    canvas.addEventListener("pointerleave", function() { _meUpdateStatus(null); });
+  }
+}

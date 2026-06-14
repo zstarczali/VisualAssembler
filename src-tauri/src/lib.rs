@@ -1051,6 +1051,14 @@ struct SavePrgPayload {
     bytes: Vec<u8>,
 }
 
+#[derive(serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct SaveBinPayload {
+    bytes: Vec<u8>,
+    #[serde(default)]
+    file_name: Option<String>,
+}
+
 #[tauri::command]
 fn read_bin_file(path: String) -> serde_json::Value {
     match fs::read(&path) {
@@ -1065,6 +1073,30 @@ async fn save_prg(app: AppHandle, payload: SavePrgPayload) -> serde_json::Value 
         .add_filter("Commodore 64 PRG", &["prg"])
         .add_filter("All files", &["*"])
         .blocking_save_file();
+
+    match result {
+        Some(path) => {
+            let path_str = path.to_string();
+            match fs::write(&path_str, &payload.bytes) {
+                Ok(_) => serde_json::json!({ "ok": true, "filePath": path_str }),
+                Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+            }
+        }
+        None => serde_json::json!({ "canceled": true }),
+    }
+}
+
+#[tauri::command]
+async fn save_bin(app: AppHandle, payload: SaveBinPayload) -> serde_json::Value {
+    let mut dialog = app.dialog().file()
+        .add_filter("Binary", &["bin"])
+        .add_filter("All files", &["*"]);
+    if let Some(name) = payload.file_name.as_deref() {
+        if !name.is_empty() {
+            dialog = dialog.set_file_name(name);
+        }
+    }
+    let result = dialog.blocking_save_file();
 
     match result {
         Some(path) => {
@@ -1928,6 +1960,7 @@ pub fn run() {
             choose_include_file,
             reload_include_file,
             save_prg,
+            save_bin,
             save_d64,
             run_d64,
             run_d64_on_ultimate,
