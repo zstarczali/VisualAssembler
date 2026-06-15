@@ -1111,6 +1111,7 @@ function initPalette() {
   setupCharEditor();
   setupMapEditor();
   setupHiresEditor();
+  setupSpriteEditor();
   _setupFileMenus();
   setupOperandDropdown();
   setupD64ExportDialog();
@@ -2022,10 +2023,8 @@ function _applyEditorTranslations() {
   setText("#me-grid-label", t("meGrid"));
   setText("#me-charset-load", t("meLoadBin"));
   setText("#me-charset-editor", t("meFromEditor"));
-  setText(".me-charset .me-section-lbl", t("meCharset"));
   setText(".me-palette-wrap .me-section-lbl", t("meColorLabel"));
   setText(".me-layers .me-section-lbl", t("meLayers"));
-  setText(".me-layer span", t("meBackground"));
 }
 
 function refreshCategoryOptions() {
@@ -16944,8 +16943,11 @@ function setupCharEditor() {
    MAP EDITOR
    ═══════════════════════════════════════════════════════ */
 const _ME_COLS = 40, _ME_ROWS = 25;
-let _meScreen   = null;   // Uint8Array(1000) screen codes
-let _meColorRam = null;   // Uint8Array(1000) color indices
+let _meScreen   = null;   // active layer screen codes (alias of _meLayers[active].screen)
+let _meColorRam = null;   // active layer colour indices (alias)
+let _meLayers = null;     // [{ name, screen:Uint8Array, color:Uint8Array, visible }]
+let _meActiveLayer = 0;
+const _ME_EMPTY = 0x20;   // space tile = transparent for layers above
 let _meTile  = 1;         // selected screen code
 let _meColor = 14;        // selected color (Light Blue)
 let _meBgColor = 6;       // map background (Blue)
@@ -16973,6 +16975,18 @@ function _meTileBits(sc) {
   return _meTileCache[sc];
 }
 
+/* The ROM tiles are extracted by rendering the C64ProMono font to a canvas.
+   If that cache is built before the font has loaded, the canvas uses a
+   fallback font → garbled tiles. Ensure the font is loaded, then rebuild the
+   cache once and re-run the callback. */
+let _meRomFontReady = false;
+function _meEnsureRomFont(cb) {
+  if (_meRomFontReady || !(document.fonts && document.fonts.load)) { cb(); return; }
+  document.fonts.load('64px "C64ProMono"').then(function() {
+    _meRomFontReady = true; _meTileCache = null; cb();
+  }, function() { cb(); });
+}
+
 /* Build per-tile bit arrays from a 2048-byte (256×8) custom charset */
 function _meSetCustomCharset(bytes) {
   const data = new Uint8Array(2048);
@@ -16995,8 +17009,15 @@ function _meSetCustomCharset(bytes) {
 function _meDrawCellBuf(col, row) {
   const Z = _meZoom, sub = Z / 8;
   const x0 = col * Z, y0 = row * Z;
-  const sc  = _meScreen[row * _ME_COLS + col];
-  const fg  = _CE_COLORS[_meColorRam[row * _ME_COLS + col]];
+  const i = row * _ME_COLS + col;
+  // composite: topmost visible layer with a non-empty tile
+  let sc = _ME_EMPTY, colIdx = _meColor;
+  for (let L = _meLayers.length - 1; L >= 0; L--) {
+    if (!_meLayers[L].visible) continue;
+    const t = _meLayers[L].screen[i];
+    if (t !== _ME_EMPTY) { sc = t; colIdx = _meLayers[L].color[i]; break; }
+  }
+  const fg  = _CE_COLORS[colIdx];
   const bg  = _CE_COLORS[_meBgColor];
   _meBufCtx.fillStyle = bg;
   _meBufCtx.fillRect(x0, y0, Z, Z);
@@ -17171,11 +17192,12 @@ async function _saveBinFile(bytes, fileName) {
 }
 
 function _meExport(kind) {
+  const comp = _meComposite();   // flattened visible layers
   if (kind === "bin") {
-    _saveBinFile(_meScreen, "map.bin");
+    _saveBinFile(comp.screen, "map.bin");
     return;
   }
-  const data = kind === "color" ? _meColorRam : _meScreen;
+  const data = kind === "color" ? comp.color : comp.screen;
   let out = "";
   for (let r = 0; r < _ME_ROWS; r++) {
     const row = [];
@@ -17188,16 +17210,99 @@ function _meExport(kind) {
   }).catch(function(){});
 }
 
+function _meNewLayer(name) {
+  return {
+    name: name,
+    screen: new Uint8Array(_ME_COLS * _ME_ROWS).fill(_ME_EMPTY),
+    color:  new Uint8Array(_ME_COLS * _ME_ROWS).fill(_meColor),
+    visible: true
+  };
+}
 function _meInit() {
   if (_meInited) return;
   _meInited = true;
-  _meScreen   = new Uint8Array(_ME_COLS * _ME_ROWS).fill(0x20);
-  _meColorRam = new Uint8Array(_ME_COLS * _ME_ROWS).fill(_meColor);
+  _meLayers = [_meNewLayer("Background")];
+  _meActiveLayer = 0;
+  _meScreen = _meLayers[0].screen;
+  _meColorRam = _meLayers[0].color;
   _meBuffer = document.createElement("canvas");
   _meBufCtx = _meBuffer.getContext("2d");
   const canvas = document.getElementById("me-canvas");
   _meCtx = canvas.getContext("2d");
   _meBuildPalette();
+  _meBuildLayers();
+}
+
+/* ── Layers ── */
+function _meSetActiveLayer(i) {
+  if (i < 0 || i >= _meLayers.length) return;
+  _meActiveLayer = i;
+  _meScreen = _meLayers[i].screen;
+  _meColorRam = _meLayers[i].color;
+  _meBuildLayers();
+}
+function _meAddLayer() {
+  _meLayers.push(_meNewLayer("Layer " + _meLayers.length));
+  _meSetActiveLayer(_meLayers.length - 1);
+  _meRenderAll();
+}
+function _meDeleteLayer(i) {
+  if (_meLayers.length <= 1) return;
+  _meLayers.splice(i, 1);
+  if (_meActiveLayer >= _meLayers.length) _meActiveLayer = _meLayers.length - 1;
+  _meSetActiveLayer(_meActiveLayer);
+  _meRenderAll();
+}
+function _meBuildLayers() {
+  const list = document.getElementById("me-layers-list");
+  if (!list) return;
+  list.innerHTML = "";
+  // top layer first (visually like Photoshop)
+  for (let i = _meLayers.length - 1; i >= 0; i--) {
+    (function(idx) {
+      const L = _meLayers[idx];
+      const row = document.createElement("div");
+      row.className = "me-layer" + (idx === _meActiveLayer ? " me-layer--active" : "");
+      const eye = document.createElement("button");
+      eye.type = "button"; eye.className = "me-layer-eye" + (L.visible ? "" : " me-layer-eye--off");
+      eye.title = L.visible ? "Hide layer" : "Show layer";
+      eye.innerHTML = L.visible
+        ? '<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M1.5 8s2.5-4.5 6.5-4.5S14.5 8 14.5 8s-2.5 4.5-6.5 4.5S1.5 8 1.5 8z"/><circle cx="8" cy="8" r="2"/></svg>'
+        : '<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><path d="M2 8s2.5-4.5 6-4.5c1 0 1.9.3 2.7.7M14 8s-2.5 4.5-6 4.5c-1 0-1.9-.3-2.7-.7"/><path d="M2.5 2.5l11 11"/></svg>';
+      eye.addEventListener("click", function(e) { e.stopPropagation(); L.visible = !L.visible; _meBuildLayers(); _meRenderAll(); });
+      const nm = document.createElement("span");
+      nm.className = "me-layer-name"; nm.textContent = L.name;
+      nm.title = "Double-click to rename";
+      nm.addEventListener("dblclick", function(e) {
+        e.stopPropagation();
+        const v = prompt("Layer name:", L.name);
+        if (v != null && v.trim()) { L.name = v.trim(); _meBuildLayers(); }
+      });
+      row.appendChild(eye); row.appendChild(nm);
+      if (_meLayers.length > 1) {
+        const del = document.createElement("button");
+        del.type = "button"; del.className = "me-layer-del"; del.title = "Delete layer"; del.textContent = "×";
+        del.addEventListener("click", function(e) { e.stopPropagation(); _meDeleteLayer(idx); });
+        row.appendChild(del);
+      }
+      row.addEventListener("click", function() { _meSetActiveLayer(idx); });
+      list.appendChild(row);
+    })(i);
+  }
+}
+/* Composite the visible layers into a final {screen,color} (top-down). */
+function _meComposite() {
+  const n = _ME_COLS * _ME_ROWS;
+  const screen = new Uint8Array(n).fill(_ME_EMPTY);
+  const color = new Uint8Array(n).fill(_meColor);
+  for (let i = 0; i < n; i++) {
+    for (let L = _meLayers.length - 1; L >= 0; L--) {
+      if (!_meLayers[L].visible) continue;
+      const t = _meLayers[L].screen[i];
+      if (t !== _ME_EMPTY) { screen[i] = t; color[i] = _meLayers[L].color[i]; break; }
+    }
+  }
+  return { screen: screen, color: color };
 }
 
 function setupMapEditor() {
@@ -17211,6 +17316,8 @@ function setupMapEditor() {
     _meRenderAll();
     _meUpdateStatus(null);
     dialog.showModal();
+    // Re-render once the C64 font is ready (first open may extract tiles too early).
+    _meEnsureRomFont(function() { _meRenderBanks(); _meRenderAll(); });
   });
   document.getElementById("me-close")?.addEventListener("click", function() { dialog.close(); });
 
@@ -17230,8 +17337,9 @@ function setupMapEditor() {
   // Charset: load from C64 ROM
   document.getElementById("me-charset-rom")?.addEventListener("click", function() {
     _meCharSource = "rom";
-    _meRenderBanks(); _meRenderAll();
+    _meEnsureRomFont(function() { _meTileCache = null; _meRenderBanks(); _meRenderAll(); });
   });
+  document.getElementById("me-layer-add")?.addEventListener("click", _meAddLayer);
   // Clear the whole map (toolbar icon + Files menu entry)
   const _meClearMap = function() {
     if (!_meScreen) return;
@@ -17768,7 +17876,26 @@ function setupHiresEditor() {
   });
 
   document.getElementById("hg-multicolor")?.addEventListener("change", function(e) {
-    _hgMulti = e.target.checked; _hgRenderAll();
+    const toMulti = !!e.target.checked;
+    if (toMulti === _hgMulti) { _hgRenderAll(); return; }
+    _hgPushUndo();
+    if (toMulti) {
+      // Hi-res (320 wide) → Multicolor (160 wide). Each MC pixel covers hires
+      // columns 2x / 2x+1; keep the non-paper one if they differ (less loss).
+      for (let y = 0; y < 200; y++)
+        for (let x = 0; x < 160; x++) {
+          const a = _hgGet(2 * x, y), b = _hgGet(2 * x + 1, y);
+          _hgPixMC[y * 160 + x] = (a === _hgPaper && b !== _hgPaper) ? b : a;
+        }
+      _hgMulti = true;
+    } else {
+      // Multicolor (160 wide) → Hi-res (320 wide): each MC pixel → 2 hires
+      // columns; reduce to 2 colours per 8×8 cell.
+      const mc = _hgPixMC, pal = _hgPal();
+      _hgMulti = false;
+      _hgHiresFromRGB(function(x, y) { return pal[mc[y * 160 + (x >> 1)] & 0x0F]; });
+    }
+    _hgRenderAll();
   });
   document.getElementById("hg-grid")?.addEventListener("change", function(e) {
     _hgGrid = e.target.checked; _hgBlit();
@@ -17895,4 +18022,348 @@ function _setupFileMenus() {
   document.addEventListener("click", function() {
     allMenus().forEach(function(m) { m.hidden = true; });
   });
+}
+
+/* =======================================================
+   SPRITE EDITOR (24x21 hi-res / 12x21 multicolor, animated)
+   ======================================================= */
+const _SP_W = 24, _SP_H = 21;
+let _spFrames = null;
+let _spFrame = 0;
+let _spMulti = false;
+let _spGrid = true;
+let _spZoom = 13;
+let _spSlot = "sprite";
+let _spCol = { sprite: 1, bg: 6, mc1: 0, mc2: 11 };
+let _spWrap = false;
+let _spPainting = false, _spPaintVal = 0;
+let _spCanvas = null, _spCtx = null;
+let _spInited = false;
+let _spClip = null;
+let _spPlay = null;
+let _spPlayDir = 1;
+let _spPingPong = false, _spOnion = false, _spFps = 6;
+
+function _spCur() { return _spFrames[_spFrame]; }
+function _spGet(x, y) { return (x<0||y<0||x>=_SP_W||y>=_SP_H) ? 0 : _spCur()[y*_SP_W+x]; }
+function _spSet(x, y, v) {
+  if (x<0||y<0||x>=_SP_W||y>=_SP_H) return;
+  const f = _spCur();
+  if (_spMulti) { const x0 = x & ~1; f[y*_SP_W+x0] = v; f[y*_SP_W+x0+1] = v; }
+  else f[y*_SP_W+x] = v;
+}
+function _spSlotVal(slot) {
+  if (slot === "bg") return 0;
+  if (_spMulti) return slot === "mc1" ? 1 : slot === "mc2" ? 3 : 2;
+  return 1;
+}
+function _spPenColor(v) {
+  if (v === 0) return _spCol.bg;
+  if (!_spMulti) return _spCol.sprite;
+  return v === 1 ? _spCol.mc1 : v === 3 ? _spCol.mc2 : _spCol.sprite;
+}
+
+function _spRender() {
+  const W = _SP_W * _spZoom, H = _SP_H * _spZoom;
+  if (_spCanvas.width !== W) { _spCanvas.width = W; _spCanvas.height = H; }
+  const z = _spZoom;
+  for (let y = 0; y < _SP_H; y++)
+    for (let x = 0; x < _SP_W; x++) {
+      _spCtx.fillStyle = _CE_COLORS[_spPenColor(_spCur()[y*_SP_W+x])];
+      _spCtx.fillRect(x*z, y*z, z, z);
+    }
+  if (_spOnion && _spFrames.length > 1) {
+    const prev = _spFrames[(_spFrame - 1 + _spFrames.length) % _spFrames.length];
+    _spCtx.globalAlpha = 0.3;
+    for (let y = 0; y < _SP_H; y++)
+      for (let x = 0; x < _SP_W; x++) {
+        const v = prev[y*_SP_W+x];
+        if (v !== 0) { _spCtx.fillStyle = _CE_COLORS[_spPenColor(v)]; _spCtx.fillRect(x*z, y*z, z, z); }
+      }
+    _spCtx.globalAlpha = 1;
+  }
+  if (_spGrid) {
+    _spCtx.strokeStyle = "rgba(255,255,255,0.12)"; _spCtx.lineWidth = 1;
+    _spCtx.beginPath();
+    const step = _spMulti ? 2 : 1;
+    for (let x = 0; x <= _SP_W; x += step) { _spCtx.moveTo(x*z+0.5, 0); _spCtx.lineTo(x*z+0.5, H); }
+    for (let y = 0; y <= _SP_H; y++) { _spCtx.moveTo(0, y*z+0.5); _spCtx.lineTo(W, y*z+0.5); }
+    _spCtx.stroke();
+    _spCtx.strokeStyle = "rgba(255,255,255,0.32)"; _spCtx.beginPath();
+    for (let x = 0; x <= _SP_W; x += 8) { _spCtx.moveTo(x*z+0.5, 0); _spCtx.lineTo(x*z+0.5, H); }
+    _spCtx.stroke();
+  }
+  _spRenderPreview();
+  _spRenderThumbs();
+  const fl = document.getElementById("se-frame-label");
+  if (fl) fl.textContent = "Frame " + (_spFrame+1) + " / " + _spFrames.length;
+}
+function _spDrawFrameTo(ctx, frame, cw, ch) {
+  const zx = cw / _SP_W, zy = ch / _SP_H;
+  ctx.clearRect(0,0,cw,ch);
+  ctx.fillStyle = _CE_COLORS[_spCol.bg]; ctx.fillRect(0,0,cw,ch);
+  for (let y = 0; y < _SP_H; y++)
+    for (let x = 0; x < _SP_W; x++) {
+      const v = frame[y*_SP_W+x];
+      if (v !== 0) { ctx.fillStyle = _CE_COLORS[_spPenColor(v)]; ctx.fillRect(Math.floor(x*zx), Math.floor(y*zy), Math.ceil(zx), Math.ceil(zy)); }
+    }
+}
+function _spRenderPreview() {
+  const c = document.getElementById("se-preview"); if (!c) return;
+  _spDrawFrameTo(c.getContext("2d"), _spCur(), c.width, c.height);
+}
+function _spRenderThumbs() {
+  const wrap = document.getElementById("se-anim-frames"); if (!wrap) return;
+  wrap.innerHTML = "";
+  _spFrames.forEach(function(fr, i) {
+    const cv = document.createElement("canvas");
+    cv.width = 48; cv.height = 42;
+    cv.className = "se-frame-thumb" + (i === _spFrame ? " se-frame-thumb--active" : "");
+    cv.title = "Frame " + (i+1);
+    _spDrawFrameTo(cv.getContext("2d"), fr, 48, 42);
+    cv.addEventListener("click", function() { _spStop(); _spFrame = i; _spRender(); });
+    wrap.appendChild(cv);
+  });
+}
+
+function _spBuildColors() {
+  const wrap = document.getElementById("se-colors"); if (!wrap) return;
+  wrap.innerHTML = "";
+  const slots = _spMulti
+    ? [["sprite","Sprite Color"],["mc1","Multi-Color 1"],["mc2","Multi-Color 2"],["bg","Background"]]
+    : [["sprite","Sprite Color"],["bg","Background"]];
+  slots.forEach(function(s) {
+    const row = document.createElement("div");
+    row.className = "se-color-slot" + (s[0] === _spSlot ? " se-color-slot--active" : "");
+    const sw = document.createElement("div"); sw.className = "se-color-sw"; sw.style.background = _CE_COLORS[_spCol[s[0]]];
+    const nm = document.createElement("div"); nm.className = "se-color-name"; nm.textContent = s[1];
+    row.appendChild(sw); row.appendChild(nm);
+    row.addEventListener("click", function() { _spSlot = s[0]; _spBuildColors(); });
+    wrap.appendChild(row);
+  });
+}
+function _spBuildPalette() {
+  const wrap = document.getElementById("se-palette"); if (!wrap || wrap.children.length) return;
+  _CE_COLORS.forEach(function(hex, i) {
+    const sw = document.createElement("div");
+    sw.className = "se-swatch"; sw.style.background = hex; sw.title = "Color " + i;
+    sw.addEventListener("click", function() { _spCol[_spSlot] = i; _spBuildColors(); _spRender(); });
+    wrap.appendChild(sw);
+  });
+}
+
+function _spFrameBytes(frame) {
+  const out = new Uint8Array(64);
+  for (let y = 0; y < _SP_H; y++) {
+    for (let b = 0; b < 3; b++) {
+      let byte = 0;
+      if (_spMulti) {
+        for (let j = 0; j < 4; j++) { const v = frame[y*_SP_W + (b*4+j)*2] & 3; byte |= v << ((3-j)*2); }
+      } else {
+        for (let i = 0; i < 8; i++) { if (frame[y*_SP_W + b*8 + i]) byte |= 1 << (7-i); }
+      }
+      out[y*3 + b] = byte;
+    }
+  }
+  return out;
+}
+function _spExportText() {
+  const fmtEl = document.getElementById("se-export-fmt");
+  const fmt = fmtEl ? fmtEl.value : "hex";
+  const allEl = document.getElementById("se-export-all");
+  const all = allEl && allEl.checked;
+  const frames = all ? _spFrames : [_spCur()];
+  let out = "", line = 1000;
+  frames.forEach(function(fr, fi) {
+    const bytes = _spFrameBytes(fr);
+    if (fmt === "basic") {
+      out += line + " REM FRAME " + (all ? fi+1 : _spFrame+1) + "\n"; line += 10;
+      for (let r = 0; r < 8; r++) {
+        const row = [];
+        for (let c = 0; c < 8; c++) row.push(bytes[r*8+c]);
+        out += line + " DATA " + row.join(",") + "\n"; line += 10;
+      }
+    } else if (fmt === "asm") {
+      out += "sprite_" + (all ? fi+1 : _spFrame+1) + ":\n";
+      for (let r = 0; r < 8; r++) {
+        const row = [];
+        for (let c = 0; c < 8; c++) row.push("$" + bytes[r*8+c].toString(16).toUpperCase().padStart(2,"0"));
+        out += "    .byte " + row.join(", ") + "\n";
+      }
+    } else {
+      let s = "";
+      for (let i = 0; i < 64; i++) s += bytes[i].toString(16).toUpperCase().padStart(2,"0") + (i%8===7?"\n":" ");
+      out += s;
+    }
+    out += "\n";
+  });
+  return out.replace(/\s+$/, "");
+}
+/* Current frame as comma-separated hex bytes ($xx, $xx, …) — 63 sprite bytes. */
+function _spHexCSV() {
+  const bytes = _spFrameBytes(_spCur());
+  const arr = [];
+  for (let i = 0; i < 63; i++) arr.push("$" + bytes[i].toString(16).toUpperCase().padStart(2,"0"));
+  return arr.join(", ");
+}
+function _spUpdateExport() {
+  const el = document.getElementById("se-export-out");
+  if (el) el.textContent = _spExportText();
+}
+
+function _spFlipH() { const f = _spCur(); for (let y=0;y<_SP_H;y++) for (let x=0;x<_SP_W/2;x++){ const i=y*_SP_W+x, j=y*_SP_W+(_SP_W-1-x); const t=f[i]; f[i]=f[j]; f[j]=t; } _spRender(); }
+function _spFlipV() { const f = _spCur(); for (let y=0;y<_SP_H/2;y++) for (let x=0;x<_SP_W;x++){ const i=y*_SP_W+x, j=(_SP_H-1-y)*_SP_W+x; const t=f[i]; f[i]=f[j]; f[j]=t; } _spRender(); }
+function _spShift(dir) {
+  const f = _spCur(), n = new Uint8Array(_SP_W*_SP_H);
+  for (let y=0;y<_SP_H;y++) for (let x=0;x<_SP_W;x++) {
+    let sx=x, sy=y;
+    if (dir==="left") sx=x+1; else if (dir==="right") sx=x-1; else if (dir==="up") sy=y+1; else sy=y-1;
+    if (_spWrap) { sx=(sx+_SP_W)%_SP_W; sy=(sy+_SP_H)%_SP_H; n[y*_SP_W+x]=f[sy*_SP_W+sx]; }
+    else { n[y*_SP_W+x] = (sx<0||sy<0||sx>=_SP_W||sy>=_SP_H) ? 0 : f[sy*_SP_W+sx]; }
+  }
+  f.set(n); _spRender();
+}
+
+function _spStop() { if (_spPlay) { clearInterval(_spPlay); _spPlay = null; } const b = document.getElementById("se-play"); if (b) b.textContent = "▶ Play"; }
+function _spTogglePlay() {
+  if (_spPlay) { _spStop(); return; }
+  if (_spFrames.length < 2) return;
+  _spPlayDir = 1;
+  const b = document.getElementById("se-play"); if (b) b.textContent = "■ Stop";
+  _spPlay = setInterval(function() {
+    if (_spPingPong) {
+      _spFrame += _spPlayDir;
+      if (_spFrame >= _spFrames.length-1) { _spFrame = _spFrames.length-1; _spPlayDir = -1; }
+      else if (_spFrame <= 0) { _spFrame = 0; _spPlayDir = 1; }
+    } else { _spFrame = (_spFrame + 1) % _spFrames.length; }
+    _spRender();
+  }, Math.round(1000 / _spFps));
+}
+
+function _spInit() {
+  if (_spInited) return;
+  _spInited = true;
+  _spFrames = [new Uint8Array(_SP_W*_SP_H)];
+  _spCanvas = document.getElementById("se-canvas");
+  _spCtx = _spCanvas.getContext("2d");
+  _spBuildColors();
+  _spBuildPalette();
+}
+
+function setupSpriteEditor() {
+  const dialog = document.getElementById("sprite-editor-dialog");
+  if (!dialog) return;
+  const sbtn = document.getElementById("sprite-editor-btn");
+  if (sbtn) sbtn.addEventListener("click", function() {
+    const cm = document.querySelector(".control-menu"); if (cm) cm.removeAttribute("open");
+    _spInit(); _spRender(); dialog.showModal();
+  });
+  const cbtn = document.getElementById("se-close");
+  if (cbtn) cbtn.addEventListener("click", function() { _spStop(); dialog.close(); });
+
+  const canvas = document.getElementById("se-canvas");
+  const cellFromEvent = function(e) {
+    const r = canvas.getBoundingClientRect();
+    const sx = canvas.width / r.width, sy = canvas.height / r.height;
+    return { x: Math.floor((e.clientX-r.left)*sx/_spZoom), y: Math.floor((e.clientY-r.top)*sy/_spZoom) };
+  };
+  canvas.addEventListener("pointerdown", function(e) {
+    if (e.button !== 0) return;
+    _spInit();
+    const p = cellFromEvent(e);
+    if (p.x<0||p.y<0||p.x>=_SP_W||p.y>=_SP_H) return;
+    try { canvas.setPointerCapture(e.pointerId); } catch(_){}
+    const pen = _spSlotVal(_spSlot);
+    _spPaintVal = (_spGet(p.x,p.y) === pen && pen !== 0) ? 0 : pen;
+    _spPainting = true;
+    _spSet(p.x, p.y, _spPaintVal); _spRender();
+    e.preventDefault();
+  });
+  canvas.addEventListener("pointermove", function(e) {
+    if (!_spPainting) return;
+    const p = cellFromEvent(e);
+    if (p.x<0||p.y<0||p.x>=_SP_W||p.y>=_SP_H) return;
+    if (_spGet(p.x,p.y) === _spPaintVal) return;
+    _spSet(p.x, p.y, _spPaintVal); _spRender();
+  });
+  const end = function(e){ _spPainting=false; if(e&&e.pointerId!=null){try{canvas.releasePointerCapture(e.pointerId);}catch(_){}}};
+  canvas.addEventListener("pointerup", end);
+  canvas.addEventListener("pointercancel", end);
+
+  const onClick = function(id, fn){ const el=document.getElementById(id); if(el) el.addEventListener("click", fn); };
+  const onChange = function(id, fn){ const el=document.getElementById(id); if(el) el.addEventListener("change", fn); };
+  const onInput = function(id, fn){ const el=document.getElementById(id); if(el) el.addEventListener("input", fn); };
+
+  onClick("se-fliph", _spFlipH);
+  onClick("se-flipv", _spFlipV);
+  onClick("se-clear", function() { _spCur().fill(0); _spRender(); });
+  onClick("se-shl", function(){ _spShift("left"); });
+  onClick("se-shr", function(){ _spShift("right"); });
+  onClick("se-shu", function(){ _spShift("up"); });
+  onClick("se-shd", function(){ _spShift("down"); });
+  onChange("se-wrap", function(e){ _spWrap = e.target.checked; });
+
+  onChange("se-multicolor", function(e) {
+    _spMulti = e.target.checked;
+    if (_spMulti) { _spFrames.forEach(function(f){ for(let y=0;y<_SP_H;y++) for(let x=0;x<_SP_W;x+=2){ const v=f[y*_SP_W+x]||f[y*_SP_W+x+1]; f[y*_SP_W+x]=v; f[y*_SP_W+x+1]=v; } }); }
+    if (_spSlot==="mc1"||_spSlot==="mc2") _spSlot = "sprite";
+    _spBuildColors(); _spRender();
+  });
+  onChange("se-grid", function(e){ _spGrid = e.target.checked; _spRender(); });
+  onInput("se-zoom", function(e){ _spZoom = parseInt(e.target.value,10); _spRender(); });
+
+  onClick("se-copy-data", function() { navigator.clipboard.writeText(_spHexCSV()).catch(function(){}); });
+
+  onClick("se-play", _spTogglePlay);
+  onChange("se-pingpong", function(e){ _spPingPong = e.target.checked; });
+  onChange("se-onion", function(e){ _spOnion = e.target.checked; _spRender(); });
+  onInput("se-fps", function(e){ _spFps = parseInt(e.target.value,10); const v=document.getElementById("se-fps-val"); if(v)v.textContent=_spFps; if(_spPlay){_spStop();_spTogglePlay();} });
+  onClick("se-add", function(){ _spStop(); _spFrames.splice(_spFrame+1,0,new Uint8Array(_SP_W*_SP_H)); _spFrame++; _spRender(); });
+  onClick("se-dup", function(){ _spStop(); _spFrames.splice(_spFrame+1,0,_spCur().slice(0)); _spFrame++; _spRender(); });
+  onClick("se-fcopy", function(){ _spClip = _spCur().slice(0); });
+  onClick("se-fpaste", function(){ if(_spClip){ _spCur().set(_spClip); _spRender(); } });
+  onClick("se-fdel", function(){ _spStop(); if(_spFrames.length<=1){ _spCur().fill(0); } else { _spFrames.splice(_spFrame,1); if(_spFrame>=_spFrames.length)_spFrame=_spFrames.length-1; } _spRender(); });
+
+  const fileIn = document.createElement("input"); fileIn.type = "file"; fileIn.accept = ".bin,.spd,application/octet-stream"; fileIn.hidden = true;
+  dialog.appendChild(fileIn);
+  onClick("se-open-spd", function(){ fileIn.click(); });
+  fileIn.addEventListener("change", function(e){
+    const file = e.target.files && e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(){ _spImportBin(new Uint8Array(reader.result)); };
+    reader.readAsArrayBuffer(file); e.target.value = "";
+  });
+  onClick("se-save-bin", function(){
+    const allEl = document.getElementById("se-export-all");
+    const all = allEl && allEl.checked;
+    const frames = all ? _spFrames : [_spCur()];
+    const out = new Uint8Array(frames.length * 64);
+    frames.forEach(function(fr,i){ out.set(_spFrameBytes(fr), i*64); });
+    _saveBinFile(out, "sprite.bin");
+  });
+}
+
+function _spImportBin(src) {
+  _spStop();
+  const count = Math.max(1, Math.floor(src.length / 64));
+  _spFrames = [];
+  for (let f = 0; f < count; f++) {
+    const fr = new Uint8Array(_SP_W*_SP_H);
+    for (let y = 0; y < _SP_H; y++)
+      for (let b = 0; b < 3; b++) {
+        const byte = src[f*64 + y*3 + b] || 0;
+        if (_spMulti) { for (let j=0;j<4;j++){ const v=(byte>>((3-j)*2))&3; const x=(b*4+j)*2; fr[y*_SP_W+x]=v; fr[y*_SP_W+x+1]=v; } }
+        else { for (let i=0;i<8;i++) fr[y*_SP_W+b*8+i] = (byte>>(7-i))&1; }
+      }
+    _spFrames.push(fr);
+  }
+  _spFrame = 0; _spRender();
+}
+function _spImportText(txt) {
+  const nums = [];
+  const re = /\$[0-9A-Fa-f]+|\d+/g; let m;
+  while ((m = re.exec(txt)) !== null) { const t = m[0]; nums.push(t[0]==="$" ? parseInt(t.slice(1),16) : parseInt(t,10)); }
+  const bytes = nums.filter(function(n){ return n>=0 && n<=255; });
+  if (!bytes.length) return;
+  _spImportBin(Uint8Array.from(bytes));
 }

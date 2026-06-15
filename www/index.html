@@ -174,6 +174,9 @@
           <button id="hires-editor-btn" class="main-tb-btn main-tb-icon-btn" type="button" title="Hi-Res Graphics Editor" aria-label="Hi-Res Graphics Editor">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" width="15" height="15" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="1"/><path d="M3 11l3-3 2 2 3-4 2 2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="5.5" cy="5.5" r="1" fill="currentColor" stroke="none"/></svg>
           </button>
+          <button id="sprite-editor-btn" class="main-tb-btn main-tb-icon-btn" type="button" title="Sprite Editor" aria-label="Sprite Editor">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" width="15" height="15" aria-hidden="true"><rect x="2" y="1.5" width="12" height="13" rx="1"/><rect x="4" y="3.5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="9" y="3.5" width="3" height="3" fill="currentColor" stroke="none" opacity="0.5"/><rect x="4" y="8.5" width="3" height="3" fill="currentColor" stroke="none" opacity="0.5"/><rect x="9" y="8.5" width="3" height="3" fill="currentColor" stroke="none"/></svg>
+          </button>
           <div class="main-tb-sep" aria-hidden="true"></div>
           <div class="split-run-group">
             <button id="run-emulator" class="main-tb-btn main-tb-run split-run-main" type="button">
@@ -861,6 +864,9 @@ PRINTABLE CHARACTERS
             </button>
           </div>
           <div class="me-tool-group">
+            <button class="me-tool" id="me-charset-rom" type="button" title="Load charset from C64 ROM" aria-label="Load charset from ROM">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="8" height="8" rx="1"/><path d="M6.5 4V2M9.5 4V2M6.5 14v-2M9.5 14v-2M4 6.5H2M4 9.5H2M14 6.5h-2M14 9.5h-2" stroke-linecap="round"/></svg>
+            </button>
             <button class="me-tool" id="me-clear" type="button" title="Clear map" aria-label="Clear map">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10M6.2 4.5V3h3.6v1.5M5 4.5l.7 8.5h4.6l.7-8.5"/></svg>
             </button>
@@ -889,13 +895,7 @@ PRINTABLE CHARACTERS
       </div>
       <div class="me-body">
         <div class="me-sidebar">
-          <div class="me-charset">
-            <div class="me-section-lbl">Charset</div>
-            <div class="me-charset-row">
-              <button id="me-charset-rom" class="me-mini-btn" type="button">Load from ROM</button>
-            </div>
-            <input type="file" id="me-charset-file" accept=".bin,application/octet-stream" hidden>
-          </div>
+          <input type="file" id="me-charset-file" accept=".bin,application/octet-stream" hidden>
           <div class="me-bank">
             <div class="me-bank-hdr"><span>BANK 0</span><span class="me-bank-range">$00–$7F</span></div>
             <canvas id="me-bank0" class="me-bank-canvas" width="256" height="128"></canvas>
@@ -909,11 +909,11 @@ PRINTABLE CHARACTERS
             <div class="me-palette" id="me-palette"></div>
           </div>
           <div class="me-layers">
-            <div class="me-section-lbl">Layers</div>
-            <div class="me-layer me-layer--active">
-              <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M8 2.5l5.5 3-5.5 3-5.5-3 5.5-3zM2.5 8L8 11l5.5-3M2.5 10.5L8 13.5l5.5-3" fill="none" stroke="currentColor" stroke-width="1"/></svg>
-              <span>Background</span>
+            <div class="me-layers-hdr">
+              <span class="me-section-lbl">Layers</span>
+              <button id="me-layer-add" class="me-layer-add" type="button" title="Add layer">+</button>
             </div>
+            <div id="me-layers-list" class="me-layers-list"></div>
           </div>
         </div>
         <div class="me-canvas-wrap" id="me-canvas-wrap">
@@ -999,6 +999,86 @@ PRINTABLE CHARACTERS
       </div>
       <div class="hg-footer">
         <span id="hg-status" class="hg-status">(0, 0)</span>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Sprite Editor -->
+  <dialog id="sprite-editor-dialog" class="se-dialog">
+    <div class="se-card">
+      <div class="se-hdr">
+        <div class="ed-file">
+          <button class="ed-file-btn" type="button">Files ▾</button>
+          <div class="ed-file-menu" hidden>
+            <button id="se-copy-data" type="button">Copy hex bytes</button>
+            <div class="ed-file-sep"></div>
+            <button id="se-save-bin" type="button">Save .bin…</button>
+            <button id="se-open-spd" type="button">Load .bin…</button>
+          </div>
+        </div>
+        <span class="se-title">SPRITE EDITOR</span>
+        <span id="se-frame-label" class="se-frame-label">Frame 1 / 1</span>
+        <button id="se-close" class="se-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="se-toolbar">
+        <div class="se-tool-group">
+          <button class="se-tool" id="se-fliph" type="button" title="Flip Horizontal" aria-label="Flip Horizontal">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v12" stroke-dasharray="1.5 1.4"/><path d="M6.2 5L3 8l3.2 3z" fill="currentColor" stroke="none"/><path d="M9.8 5L13 8l-3.2 3z" fill="currentColor" stroke="none" opacity="0.45"/></svg>
+          </button>
+          <button class="se-tool" id="se-flipv" type="button" title="Flip Vertical" aria-label="Flip Vertical">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" aria-hidden="true"><path d="M2 8h12" stroke-dasharray="1.5 1.4"/><path d="M5 6.2L8 3l3 3.2z" fill="currentColor" stroke="none"/><path d="M5 9.8L8 13l3-3.2z" fill="currentColor" stroke="none" opacity="0.45"/></svg>
+          </button>
+          <button class="se-tool" id="se-clear" type="button" title="Clear frame" aria-label="Clear frame">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10M6.2 4.5V3h3.6v1.5M5 4.5l.7 8.5h4.6l.7-8.5"/></svg>
+          </button>
+        </div>
+        <div class="se-tool-group se-shift-group">
+          <span class="se-mini-lbl">Shift</span>
+          <button class="se-tool" id="se-shl" type="button" title="Shift Left" aria-label="Shift Left">←</button>
+          <button class="se-tool" id="se-shr" type="button" title="Shift Right" aria-label="Shift Right">→</button>
+          <button class="se-tool" id="se-shu" type="button" title="Shift Up" aria-label="Shift Up">↑</button>
+          <button class="se-tool" id="se-shd" type="button" title="Shift Down" aria-label="Shift Down">↓</button>
+          <label class="se-check"><input type="checkbox" id="se-wrap"> <span>Wrap</span></label>
+        </div>
+        <label class="se-check"><input type="checkbox" id="se-multicolor"> <span>Multi-Color</span></label>
+        <label class="se-check"><input type="checkbox" id="se-grid" checked> <span>Grid</span></label>
+        <div class="se-tb-right">
+          <span class="se-mini-lbl">Zoom</span>
+          <input type="range" id="se-zoom" min="6" max="20" step="1" value="13" class="se-zoom">
+        </div>
+      </div>
+      <div class="se-body">
+        <div class="se-left">
+          <div class="se-canvas-wrap" id="se-canvas-wrap">
+            <canvas id="se-canvas" class="se-canvas"></canvas>
+          </div>
+        </div>
+        <div class="se-right">
+          <div class="se-preview-wrap">
+            <canvas id="se-preview" class="se-preview" width="96" height="84"></canvas>
+          </div>
+          <div class="se-section-lbl">Colors</div>
+          <div class="se-colors" id="se-colors"></div>
+          <div class="se-section-lbl">Palette</div>
+          <div class="se-palette" id="se-palette"></div>
+        </div>
+      </div>
+      <div class="se-footer">
+        <div class="se-anim-frames" id="se-anim-frames"></div>
+        <div class="se-anim-controls">
+          <button class="se-mini-btn" id="se-play" type="button">▶ Play</button>
+          <label class="se-check"><input type="checkbox" id="se-pingpong"> <span>Ping-Pong</span></label>
+          <span class="se-mini-lbl">FPS</span>
+          <input type="range" id="se-fps" min="1" max="30" step="1" value="6" class="se-zoom">
+          <span id="se-fps-val" class="se-mini-lbl">6</span>
+          <label class="se-check"><input type="checkbox" id="se-onion"> <span>Onion</span></label>
+          <span class="se-anim-spacer"></span>
+          <button class="se-mini-btn" id="se-add" type="button">+ Add</button>
+          <button class="se-mini-btn" id="se-dup" type="button">Dup</button>
+          <button class="se-mini-btn" id="se-fcopy" type="button">Copy</button>
+          <button class="se-mini-btn" id="se-fpaste" type="button">Paste</button>
+          <button class="se-mini-btn" id="se-fdel" type="button">Del</button>
+        </div>
       </div>
     </div>
   </dialog>

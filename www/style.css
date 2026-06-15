@@ -2478,7 +2478,7 @@ html[data-theme="oled"] .monitor-output {
   letter-spacing: 0.06em;
   color: var(--text);
 }
-#toolkit-palette { grid-template-columns: repeat(8, 1fr); gap: 9px; }
+#toolkit-palette { grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 460px; }
 #toolkit-palette .c64-palette-swatch { border-radius: 3px; border-width: 1px; }
 #toolkit-palette .c64-palette-label { font-size: 0.6rem; }
 
@@ -6235,7 +6235,16 @@ body.crt-mode #crt-overlay::after {
 }
 .me-swatch:hover { transform: scale(1.12); }
 .me-swatch--sel { border-color: var(--text) !important; outline: 1px solid rgba(0,0,0,0.35); }
-.me-layers { display: flex; flex-direction: column; }
+.me-layers { display: flex; flex-direction: column; gap: 6px; }
+.me-layers-hdr { display: flex; align-items: center; justify-content: space-between; }
+.me-layer-add {
+  width: 22px; height: 20px; min-height: 0; padding: 0; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 0.95rem; border: 1px solid var(--panel-border); border-radius: 2px;
+  background: var(--control-bg); color: var(--text); cursor: pointer; transition: background 0.12s;
+}
+.me-layer-add:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); }
+.me-layers-list { display: flex; flex-direction: column; gap: 2px; }
 .me-layer {
   display: flex;
   align-items: center;
@@ -6243,11 +6252,24 @@ body.crt-mode #crt-overlay::after {
   font-family: inherit;
   font-size: 0.8rem;
   color: var(--text);
-  padding: 6px 8px;
+  padding: 4px 6px;
   border-radius: 2px;
   cursor: pointer;
 }
+.me-layer:hover { background: var(--surface-soft); }
 .me-layer--active { background: var(--surface-soft); color: var(--primary); }
+.me-layer-eye {
+  min-height: 0; padding: 2px; border: none; background: none; cursor: pointer;
+  color: var(--secondary); display: inline-flex; align-items: center; flex-shrink: 0; line-height: 1;
+}
+.me-layer-eye:hover { color: var(--text); }
+.me-layer-eye--off { color: color-mix(in srgb, var(--secondary) 45%, transparent); }
+.me-layer-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.me-layer-del {
+  min-height: 0; padding: 0 5px; border: none; background: none; cursor: pointer;
+  color: var(--secondary); font-size: 1rem; line-height: 1; flex-shrink: 0; border-radius: 2px;
+}
+.me-layer-del:hover { color: var(--text); background: color-mix(in srgb, var(--secondary) 18%, transparent); }
 
 /* Canvas area */
 /* Scroller, inset from the dialog's right and bottom edges (gap shows the card
@@ -6398,7 +6420,7 @@ body.crt-mode #crt-overlay::after {
   letter-spacing: 0.04em;
   color: var(--secondary);
 }
-.hg-palette { display: flex; gap: 3px; flex-wrap: wrap; }
+.hg-palette { display: flex; gap: 3px; flex-wrap: nowrap; }
 .hg-swatch {
   width: 22px;
   height: 22px;
@@ -6515,3 +6537,140 @@ body.crt-mode #crt-overlay::after {
 }
 .ed-file-menu button:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); }
 .ed-file-sep { height: 1px; background: var(--panel-border); margin: 4px 6px; }
+
+/* ═══ Sprite Editor ════════════════════════════════════════ */
+.se-dialog {
+  background: transparent; border: none; padding: 0;
+  width: min(1080px, 97vw); max-width: 97vw;
+  height: min(860px, 95vh); max-height: 95vh; overflow: hidden;
+}
+.se-dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
+.se-card {
+  background: var(--panel); border: 1px solid var(--panel-border);
+  display: flex; flex-direction: column; height: 100%; overflow: hidden;
+}
+.se-hdr {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 12px; border-bottom: 1px solid var(--panel-border);
+  background: var(--panel-strong); flex-shrink: 0;
+}
+.se-title {
+  font-family: inherit; font-size: 0.74rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--text);
+}
+.se-frame-label {
+  margin-left: auto; font-family: "IBM Plex Mono", monospace;
+  font-size: 0.7rem; color: var(--secondary);
+}
+.se-xbtn {
+  background: none; border: none; color: var(--secondary); font-size: 1.3rem;
+  cursor: pointer; padding: 0; line-height: 1; min-height: 0; height: 28px; width: 28px;
+}
+.se-xbtn:hover { color: var(--text); }
+
+/* Toolbar */
+.se-toolbar {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 7px 12px; border-bottom: 1px solid var(--panel-border); flex-shrink: 0;
+}
+.se-tool-group { display: flex; gap: 2px; align-items: center; background: var(--control-bg); border: 1px solid var(--panel-border); border-radius: 2px; padding: 2px; }
+.se-shift-group { gap: 4px; padding: 2px 6px; }
+.se-tool {
+  font-family: inherit; width: 28px; height: 26px; min-height: 0; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: none; border-radius: 2px; background: transparent; color: var(--secondary);
+  cursor: pointer; font-size: 0.9rem; transition: background 0.12s, color 0.12s;
+}
+.se-tool svg { display: block; width: 15px; height: 15px; }
+.se-tool:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); color: var(--text); }
+.se-mini-lbl { font-family: inherit; font-size: 0.7rem; color: var(--secondary); white-space: nowrap; }
+.se-check {
+  display: flex; align-items: center; gap: 5px; font-family: inherit;
+  font-size: 0.78rem; color: var(--secondary); cursor: pointer; user-select: none; white-space: nowrap;
+}
+.se-check input[type="checkbox"] {
+  appearance: none; -webkit-appearance: none; position: relative;
+  width: 32px; height: 18px; min-height: unset; flex-shrink: 0; cursor: pointer;
+  background: color-mix(in srgb, var(--secondary) 35%, transparent);
+  border-radius: 2px; border: none; padding: 0; margin: 0; transition: background 0.2s; outline: none;
+}
+.se-check input[type="checkbox"]::after {
+  content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px;
+  border-radius: 2px; background: var(--active-fg); box-shadow: 0 1px 3px rgba(0,0,0,0.3); transition: transform 0.2s;
+}
+.se-check input[type="checkbox"]:checked { background: var(--primary); }
+.se-check input[type="checkbox"]:checked::after { transform: translateX(14px); }
+.se-tb-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.se-zoom { width: 100px; accent-color: var(--primary); cursor: pointer; min-height: 0; padding: 0; margin: 0; height: auto; }
+
+/* Body */
+.se-body { display: flex; flex: 1; min-height: 0; overflow: hidden; }
+.se-left { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 12px; gap: 10px; overflow: hidden; }
+.se-canvas-wrap {
+  flex: 1; min-height: 0; overflow: auto; background: #000;
+  display: flex; align-items: center; justify-content: center; padding: 10px;
+  border: 1px solid var(--panel-border); color-scheme: dark;
+}
+.se-canvas { display: block; image-rendering: pixelated; image-rendering: crisp-edges; cursor: crosshair; }
+
+/* Export */
+.se-export { flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; }
+.se-export-hdr { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.se-section-lbl {
+  font-family: inherit; font-size: 0.66rem; font-weight: 600; letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--secondary);
+}
+.se-select {
+  font-family: inherit; font-size: 0.74rem; padding: 4px 6px; min-height: 0;
+  border: 1px solid var(--panel-border); border-radius: 2px; background: var(--control-bg); color: var(--text); cursor: pointer;
+}
+.se-mini-btn {
+  font-family: inherit; font-size: 0.74rem; font-weight: 500; padding: 4px 10px; min-height: 0;
+  border: 1px solid var(--panel-border); border-radius: 2px; background: var(--control-bg); color: var(--text);
+  cursor: pointer; white-space: nowrap; transition: background 0.12s;
+}
+.se-mini-btn:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); }
+.se-export-out {
+  font-family: "IBM Plex Mono", monospace; font-size: 0.66rem; line-height: 1.5;
+  color: #4dff91; background: #0a0e1a; border: 1px solid var(--panel-border); border-radius: 2px;
+  padding: 8px 10px; margin: 0; height: 120px; overflow: auto; white-space: pre;
+}
+
+/* Right column */
+.se-right {
+  width: 280px; flex-shrink: 0; border-left: 1px solid var(--panel-border);
+  background: var(--panel-strong); padding: 14px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.se-preview-wrap { display: flex; justify-content: center; }
+.se-preview {
+  width: 160px; height: 140px; image-rendering: pixelated; image-rendering: crisp-edges;
+  border: 1px solid var(--panel-border); background: #000;
+}
+.se-colors { display: flex; flex-direction: column; gap: 6px; }
+.se-color-slot {
+  display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 3px 4px;
+  border: 1px solid transparent; border-radius: 2px;
+}
+.se-color-slot:hover { background: var(--surface-soft); }
+.se-color-slot--active { border-color: var(--primary); background: var(--surface-soft); }
+.se-color-sw { width: 28px; height: 28px; border-radius: 2px; border: 1px solid var(--panel-border); flex-shrink: 0; }
+.se-color-name { font-family: inherit; font-size: 0.78rem; color: var(--secondary); }
+.se-color-slot--active .se-color-name { color: var(--primary); font-weight: 600; }
+.se-palette { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; }
+.se-swatch { aspect-ratio: 1; border-radius: 2px; cursor: pointer; border: 2px solid transparent; box-sizing: border-box; transition: transform 0.1s; }
+.se-swatch:hover { transform: scale(1.12); }
+
+/* Footer / animation */
+.se-footer {
+  flex-shrink: 0; border-top: 1px solid var(--panel-border); background: var(--panel-strong);
+  padding: 8px 12px; display: flex; flex-direction: column; gap: 8px;
+}
+.se-anim-frames { display: flex; gap: 6px; overflow-x: auto; min-height: 56px; padding-bottom: 2px; }
+.se-frame-thumb {
+  width: 56px; height: 50px; flex-shrink: 0; border: 2px solid var(--panel-border);
+  border-radius: 2px; cursor: pointer; background: #000; image-rendering: pixelated; position: relative;
+}
+.se-frame-thumb--active { border-color: var(--primary); }
+.se-anim-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.se-anim-spacer { flex: 1; }
