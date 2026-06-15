@@ -1104,11 +1104,14 @@ function initPalette() {
     });
   });
   exitAppButton?.addEventListener("click", () => window.electronAPI.quitApp());
-  setupC64Palette();
+  // Deferred: _C64_COLORS is a const declared later in the file (TDZ at init);
+  // try/catch guards a degraded browser where earlier eval aborted (no Tauri).
+  setTimeout(function() { try { _buildToolkitPalette(); } catch (_) {} }, 0);
   setupC64CharRom();
   setupCharEditor();
   setupMapEditor();
   setupHiresEditor();
+  _setupFileMenus();
   setupOperandDropdown();
   setupD64ExportDialog();
 
@@ -1555,7 +1558,7 @@ function _applyUiSettingsToDOM() {
   }
 
   if (outputModeTabs.length && savedUiSettings.outputMode) {
-    const mode = ["asm","monitor","both","disasm"].includes(savedUiSettings.outputMode) ? savedUiSettings.outputMode : "asm";
+    const mode = ["asm","monitor","both","disasm","toolkit"].includes(savedUiSettings.outputMode) ? savedUiSettings.outputMode : "asm";
     outputModeTabs.forEach((tab) => {
       const isActive = tab.dataset.mode === mode;
       tab.classList.toggle("active", isActive);
@@ -1993,11 +1996,10 @@ function _applyEditorTranslations() {
   // Character Editor
   setText(".ce-hdr-titles .ce-section-lbl", t("ceEditorLabel"));
   setText(".ce-map-lbl", t("ceMapLabel"));
-  setText("#ce-clear", t("ceClear"));
-  setText("#ce-invert", t("ceInvert"));
-  setText("#ce-fliph", t("ceFlipH"));
-  setText("#ce-flipv", t("ceFlipV"));
-  setText(".ce-shift-lbl", t("ceShift"));
+  setAttr("#ce-clear", t("ceClear"));
+  setAttr("#ce-invert", t("ceInvert"));
+  setAttr("#ce-fliph", t("ceFlipH"));
+  setAttr("#ce-flipv", t("ceFlipV"));
   setText(".ce-export-lbl", t("ceExport"));
   setText("#ce-copy-asm", t("ceCopyAsm"));
   setText("#ce-load-rom", t("ceLoadRom"));
@@ -2008,15 +2010,14 @@ function _applyEditorTranslations() {
   try { _ceUpdateInfo(); } catch (_) {}
   // Map Editor
   setText(".me-title", t("meTitle"));
-  setText('.me-tool[data-tool="paint"]', t("mePaint"));
-  setText('.me-tool[data-tool="fill"]', t("meFill"));
-  setText('.me-tool[data-tool="flood"]', t("meFlood"));
-  setText('.me-tool[data-tool="select"]', t("meSelect"));
-  setText('.me-tool[data-tool="pick"]', t("mePick"));
-  setText("#me-export-btn", t("meExportLabel"));
-  setText('#me-export-menu button[data-export="screen"]', t("meExportScreen"));
-  setText('#me-export-menu button[data-export="color"]', t("meExportColor"));
-  setText('#me-export-menu button[data-export="bin"]', t("meExportBin"));
+  setAttr('.me-tool[data-tool="paint"]', t("mePaint"));
+  setAttr('.me-tool[data-tool="fill"]', t("meFill"));
+  setAttr('.me-tool[data-tool="flood"]', t("meFlood"));
+  setAttr('.me-tool[data-tool="select"]', t("meSelect"));
+  setAttr('.me-tool[data-tool="pick"]', t("mePick"));
+  setText('#map-editor-dialog button[data-export="screen"]', t("meExportScreen"));
+  setText('#map-editor-dialog button[data-export="color"]', t("meExportColor"));
+  setText('#map-editor-dialog button[data-export="bin"]', t("meExportBin"));
   setText("#me-load-map", t("meLoadMap"));
   setText("#me-grid-label", t("meGrid"));
   setText("#me-charset-load", t("meLoadBin"));
@@ -2025,10 +2026,6 @@ function _applyEditorTranslations() {
   setText(".me-palette-wrap .me-section-lbl", t("meColorLabel"));
   setText(".me-layers .me-section-lbl", t("meLayers"));
   setText(".me-layer span", t("meBackground"));
-  const csOpt0 = document.querySelector('#me-charset-src option[value="rom"]');
-  const csOpt1 = document.querySelector('#me-charset-src option[value="custom"]');
-  if (csOpt0) csOpt0.textContent = t("meCharRom");
-  if (csOpt1) csOpt1.textContent = t("meCharCustom");
 }
 
 function refreshCategoryOptions() {
@@ -2052,6 +2049,7 @@ function setOutputMode(mode) {
     tab.setAttribute("aria-selected", String(isActive));
   });
   outputStack.dataset.mode = mode;
+  if (mode === "toolkit") { try { _buildToolkitPalette(); } catch (_) {} }
   saveUiSettings();
 }
 
@@ -16328,8 +16326,9 @@ const _C64_COLORS = [
   {n:"Light Blue",  hex:"#887ECB"}, {n:"Light Grey",  hex:"#ADADAD"},
 ];
 
-function _buildC64PaletteGrid() {
-  const grid = document.getElementById("c64-palette-grid");
+// C64 colour palette now lives in the ASM view's Toolkit tab.
+function _buildToolkitPalette() {
+  const grid = document.getElementById("toolkit-palette");
   if (!grid || grid.children.length > 0) return;
   _C64_COLORS.forEach((color, i) => {
     const item = document.createElement("div");
@@ -16337,7 +16336,7 @@ function _buildC64PaletteGrid() {
     const swatch = document.createElement("div");
     swatch.className = "c64-palette-swatch";
     swatch.style.background = color.hex;
-    swatch.title = i + ": " + color.n + " (" + color.hex + ") — click to copy index";
+    swatch.title = "Click to copy";
     swatch.addEventListener("click", () => {
       navigator.clipboard.writeText(String(i)).catch(() => {});
     });
@@ -16348,17 +16347,6 @@ function _buildC64PaletteGrid() {
     item.appendChild(label);
     grid.appendChild(item);
   });
-}
-
-function setupC64Palette() {
-  const dialog = document.getElementById("c64-palette-dialog");
-  if (!dialog) return;
-  document.getElementById("c64-palette-btn")?.addEventListener("click", () => {
-    document.querySelector(".control-menu")?.removeAttribute("open");
-    _buildC64PaletteGrid();
-    dialog.showModal();
-  });
-  document.getElementById("c64-palette-close")?.addEventListener("click", () => dialog.close());
 }
 
 // Wire up static new-tab button (only used before renderTabBar replaces it)
@@ -17001,8 +16989,6 @@ function _meSetCustomCharset(bytes) {
     _meCustomCache.push(bits);
   }
   _meCharSource = "custom";
-  const sel = document.getElementById("me-charset-src");
-  if (sel) sel.value = "custom";
 }
 
 /* ── Draw one map cell into the offscreen buffer ── */
@@ -17197,7 +17183,7 @@ function _meExport(kind) {
     out += row.join(", ") + (r < _ME_ROWS - 1 ? ",\n" : "\n");
   }
   navigator.clipboard.writeText(out).then(function() {
-    const btn = document.getElementById("me-export-btn");
+    const btn = document.querySelector("#map-editor-dialog .ed-file-btn");
     if (btn) { const o = btn.textContent; btn.textContent = (typeof t === "function" ? t("copied") : "Copied!"); setTimeout(function(){ btn.textContent = o; }, 1200); }
   }).catch(function(){});
 }
@@ -17236,27 +17222,22 @@ function setupMapEditor() {
     });
   });
 
-  // Export menu
-  const exBtn = document.getElementById("me-export-btn");
-  const exMenu = document.getElementById("me-export-menu");
-  exBtn?.addEventListener("click", function(e) { e.stopPropagation(); exMenu.hidden = !exMenu.hidden; });
-  document.addEventListener("click", function() { if (exMenu) exMenu.hidden = true; });
-  exMenu?.addEventListener("click", function(e) { e.stopPropagation(); });
-  exMenu?.querySelectorAll("button[data-export]").forEach(function(b) {
-    b.addEventListener("click", function() { _meExport(b.dataset.export); exMenu.hidden = true; });
+  // Export items (in the File menu — open/close handled by _setupFileMenus)
+  dialog.querySelectorAll("button[data-export]").forEach(function(b) {
+    b.addEventListener("click", function() { _meExport(b.dataset.export); });
   });
 
-  // Charset source switching
-  const csSel = document.getElementById("me-charset-src");
-  csSel?.addEventListener("change", function(e) {
-    if (e.target.value === "custom" && !_meCustomCache) {
-      // No custom data yet — keep ROM and prompt to load
-      e.target.value = "rom";
-      document.getElementById("me-charset-load")?.focus();
-      return;
-    }
-    _meCharSource = e.target.value;
+  // Charset: load from C64 ROM
+  document.getElementById("me-charset-rom")?.addEventListener("click", function() {
+    _meCharSource = "rom";
     _meRenderBanks(); _meRenderAll();
+  });
+  // Clear the whole map
+  document.getElementById("me-clear")?.addEventListener("click", function() {
+    if (!_meScreen) return;
+    _meScreen.fill(0x20);
+    _meColorRam.fill(_meColor);
+    _meRenderAll();
   });
   const csFile = document.getElementById("me-charset-file");
   document.getElementById("me-charset-load")?.addEventListener("click", function() { csFile?.click(); });
@@ -17374,9 +17355,18 @@ function setupMapEditor() {
    HI-RES / MULTICOLOR GRAPHICS EDITOR
    ═══════════════════════════════════════════════════════ */
 let _hgMulti = false;        // false = hi-res (320x200), true = multicolor (160x200)
-let _hgPixHi = null;         // Uint8Array(320*200)
-let _hgPixMC = null;         // Uint8Array(160*200)
-let _hgColor = 1;            // selected color index
+// Hi-res storage: C64 bitmap is 40x25 cells of 8x8 px; each cell allows only
+// TWO colours — fg (set bits) + bg (clear bits), taken from the screen-RAM
+// byte (hi nibble = fg, lo nibble = bg). So we store a per-pixel BIT plus a
+// per-cell fg/bg colour, and painting a 3rd colour recolours the cell (the
+// classic "colour clash"). Ref: c64-assembly-expert knowledge base — VIC-II
+// standard bitmap mode.
+let _hgBit    = null;        // Uint8Array(320*200) 0/1
+let _hgFgCell = null;        // Uint8Array(40*25) foreground colour per cell
+let _hgBgCell = null;        // Uint8Array(40*25) background colour per cell
+let _hgPixMC  = null;        // Uint8Array(160*200) multicolor: free per-pixel colour
+let _hgColor = 1;            // selected color index (ink)
+let _hgPaper = 0;            // paper / background colour index (bit-0 in hi-res)
 let _hgTool  = "pencil";
 let _hgZoom  = 3;
 let _hgGrid  = false;
@@ -17388,7 +17378,6 @@ let _hgInited = false;
 
 function _hgW() { return _hgMulti ? 160 : 320; }
 function _hgH() { return 200; }
-function _hgPix() { return _hgMulti ? _hgPixMC : _hgPixHi; }
 function _hgPxW() { return _hgMulti ? _hgZoom * 2 : _hgZoom; }  // display px width of one logical pixel
 function _hgPxH() { return _hgZoom; }
 function _hgDispW() { return _hgW() * _hgPxW(); }   // = 320*zoom always
@@ -17396,18 +17385,36 @@ function _hgDispH() { return _hgH() * _hgPxH(); }
 
 function _hgGet(x, y) {
   if (x < 0 || y < 0 || x >= _hgW() || y >= _hgH()) return -1;
-  return _hgPix()[y * _hgW() + x];
+  if (_hgMulti) return _hgPixMC[y * 160 + x];
+  const cell = (y >> 3) * 40 + (x >> 3);
+  return _hgBit[y * 320 + x] ? _hgFgCell[cell] : _hgBgCell[cell];
 }
 function _hgSet(x, y, col) {
   if (x < 0 || y < 0 || x >= _hgW() || y >= _hgH()) return;
-  _hgPix()[y * _hgW() + x] = col;
+  if (_hgMulti) { _hgPixMC[y * 160 + x] = col; return; }
+  // Hi-res: only 2 colours per 8x8 cell. col == bg → clear bit; any other
+  // colour becomes the cell's single foreground (recolouring lit pixels =
+  // C64 colour clash).
+  const idx = y * 320 + x;
+  const cell = (y >> 3) * 40 + (x >> 3);
+  if (col === _hgBgCell[cell]) { _hgBit[idx] = 0; return; }
+  _hgFgCell[cell] = col;
+  _hgBit[idx] = 1;
 }
 
 /* ── Rendering ── */
 function _hgDrawPixelBuf(x, y) {
   const pw = _hgPxW(), ph = _hgPxH();
-  _hgBufCtx.fillStyle = _CE_COLORS[_hgPix()[y * _hgW() + x]];
+  _hgBufCtx.fillStyle = _CE_COLORS[_hgGet(x, y)];
   _hgBufCtx.fillRect(x * pw, y * ph, pw, ph);
+}
+/* Redraw the whole 8x8 cell a pixel belongs to (hi-res clash may have
+   recoloured neighbours); multicolor just redraws the single pixel. */
+function _hgRedrawCellBuf(x, y) {
+  if (_hgMulti) { _hgDrawPixelBuf(x, y); return; }
+  const cx = (x >> 3) << 3, cy = (y >> 3) << 3;
+  for (let yy = 0; yy < 8; yy++)
+    for (let xx = 0; xx < 8; xx++) _hgDrawPixelBuf(cx + xx, cy + yy);
 }
 function _hgRenderBuf() {
   const W = _hgDispW(), H = _hgDispH();
@@ -17441,23 +17448,29 @@ function _hgBlit() {
 function _hgRenderAll() { _hgRenderBuf(); _hgBlit(); }
 
 /* ── Undo / redo ── */
+function _hgSnapshot() {
+  if (_hgMulti) return { m: true, mc: _hgPixMC.slice(0) };
+  return { m: false, bit: _hgBit.slice(0), fg: _hgFgCell.slice(0), bg: _hgBgCell.slice(0) };
+}
+function _hgRestore(s) {
+  if (s.m) { _hgPixMC.set(s.mc); }
+  else { _hgBit.set(s.bit); _hgFgCell.set(s.fg); _hgBgCell.set(s.bg); }
+}
 function _hgPushUndo() {
-  _hgUndo.push(_hgPix().slice(0));
+  _hgUndo.push(_hgSnapshot());
   if (_hgUndo.length > 40) _hgUndo.shift();
   _hgRedo.length = 0;
 }
 function _hgUndoOp() {
   if (!_hgUndo.length) return;
-  _hgRedo.push(_hgPix().slice(0));
-  const prev = _hgUndo.pop();
-  _hgPix().set(prev);
+  _hgRedo.push(_hgSnapshot());
+  _hgRestore(_hgUndo.pop());
   _hgRenderAll();
 }
 function _hgRedoOp() {
   if (!_hgRedo.length) return;
-  _hgUndo.push(_hgPix().slice(0));
-  const next = _hgRedo.pop();
-  _hgPix().set(next);
+  _hgUndo.push(_hgSnapshot());
+  _hgRestore(_hgRedo.pop());
   _hgRenderAll();
 }
 
@@ -17506,13 +17519,18 @@ function _hgOval(x0, y0, x1, y1, set, filled) {
 function _hgFloodFill(x, y, col) {
   const target = _hgGet(x, y);
   if (target === col || target === -1) return;
-  const W = _hgW(), H = _hgH(), data = _hgPix();
+  const W = _hgW(), H = _hgH();
+  // `seen` guard: in hi-res _hgSet recolours a whole cell, which can change a
+  // neighbour's displayed colour mid-fill, so track visited pixels explicitly.
+  const seen = new Uint8Array(W * H);
   const stack = [[x, y]];
   while (stack.length) {
     const [cx, cy] = stack.pop();
     if (cx < 0 || cy < 0 || cx >= W || cy >= H) continue;
-    if (data[cy * W + cx] !== target) continue;
-    data[cy * W + cx] = col;
+    if (seen[cy * W + cx]) continue;
+    if (_hgGet(cx, cy) !== target) continue;
+    seen[cy * W + cx] = 1;
+    _hgSet(cx, cy, col);
     stack.push([cx+1, cy], [cx-1, cy], [cx, cy+1], [cx, cy-1]);
   }
 }
@@ -17538,13 +17556,31 @@ function _hgBuildPalette() {
     const sw = document.createElement("div");
     sw.className = "hg-swatch" + (i === _hgColor ? " hg-swatch--sel" : "");
     sw.style.background = hex;
-    sw.title = "Color " + i;
+    sw.title = "Color " + i + " — left-click: ink, right-click: paper";
     sw.addEventListener("click", function() {
       _hgColor = i;
       wrap.querySelectorAll(".hg-swatch").forEach(function(s, j) { s.classList.toggle("hg-swatch--sel", j === i); });
     });
+    sw.addEventListener("contextmenu", function(e) { e.preventDefault(); _hgSetPaper(i); });
     wrap.appendChild(sw);
   });
+  _hgUpdatePaperSwatch();
+}
+
+function _hgUpdatePaperSwatch() {
+  const el = document.getElementById("hg-paper");
+  if (el) el.style.background = _CE_COLORS[_hgPaper];
+}
+
+function _hgSetPaper(col) {
+  _hgPaper = col;
+  if (_hgBgCell) _hgBgCell.fill(col);   // hi-res: recolour every cell background
+  if (_hgMulti && _hgPixMC) {
+    // multicolor: recolour pixels currently showing the old paper is ambiguous;
+    // paper here just defines the clear/erase colour, so leave existing pixels.
+  }
+  _hgUpdatePaperSwatch();
+  _hgRenderAll();
 }
 
 /* ── Import image (nearest C64 color) ── */
@@ -17566,18 +17602,111 @@ function _hgImportImage(img) {
   tc.drawImage(img, 0, 0, W, H);
   const d = tc.getImageData(0, 0, W, H).data;
   _hgPushUndo();
-  const data = _hgPix();
-  for (let i = 0; i < W * H; i++) {
-    data[i] = _hgNearestColor(d[i*4], d[i*4+1], d[i*4+2]);
+  // Nearest C64 colour per pixel
+  const near = new Uint8Array(W * H);
+  for (let i = 0; i < W * H; i++) near[i] = _hgNearestColor(d[i*4], d[i*4+1], d[i*4+2]);
+
+  if (_hgMulti) {
+    _hgPixMC.set(near);
+  } else {
+    // Proper hi-res conversion: per 8x8 cell reduce to the 2 most frequent
+    // colours (bg = most common, fg = second), set bits accordingly.
+    for (let cy = 0; cy < 25; cy++) {
+      for (let cx = 0; cx < 40; cx++) {
+        const freq = new Array(16).fill(0);
+        for (let yy = 0; yy < 8; yy++)
+          for (let xx = 0; xx < 8; xx++)
+            freq[near[(cy*8+yy) * 320 + (cx*8+xx)]]++;
+        let c0 = 0, c1 = 0, f0 = -1, f1 = -1;
+        for (let i = 0; i < 16; i++) {
+          if (freq[i] > f0) { f1 = f0; c1 = c0; f0 = freq[i]; c0 = i; }
+          else if (freq[i] > f1) { f1 = freq[i]; c1 = i; }
+        }
+        const cell = cy * 40 + cx;
+        _hgBgCell[cell] = c0;
+        _hgFgCell[cell] = (c1 === c0 || f1 === 0) ? c0 : c1;
+        const fg = _hgFgCell[cell];
+        for (let yy = 0; yy < 8; yy++)
+          for (let xx = 0; xx < 8; xx++) {
+            const px = cx*8+xx, py = cy*8+yy;
+            _hgBit[py * 320 + px] = (near[py * 320 + px] === fg && fg !== c0) ? 1 : 0;
+          }
+      }
+    }
   }
+  _hgRenderAll();
+}
+
+/* Per-pixel displayed-colour buffer (for export). */
+/* Export the picture.
+   Hi-res → standard C64 layout: 8000-byte bitmap + 1000-byte screen RAM
+   (hi nibble = fg/set bits, lo nibble = bg/clear bits).
+   Multicolor → raw 160×200 per-pixel colour indices (32000 bytes). */
+function _hgExportBytes() {
+  if (_hgMulti) return _hgPixMC.slice(0);
+  const out = new Uint8Array(9000);
+  for (let cell = 0; cell < 1000; cell++) {
+    const cx = (cell % 40) * 8, cy = ((cell / 40) | 0) * 8;
+    for (let row = 0; row < 8; row++) {
+      let byte = 0;
+      for (let col = 0; col < 8; col++) {
+        if (_hgBit[(cy + row) * 320 + (cx + col)]) byte |= (1 << (7 - col));
+      }
+      out[cell * 8 + row] = byte;
+    }
+    out[8000 + cell] = ((_hgFgCell[cell] & 0x0F) << 4) | (_hgBgCell[cell] & 0x0F);
+  }
+  return out;
+}
+
+/* Load a .bin, detecting the format by size so the resolution/mode always
+   matches the file (fixes images loading at the wrong resolution). */
+function _hgImportBytes(src) {
+  _hgPushUndo();
+  const len = src.length;
+  if (len === 32000) {
+    // Multicolor raw per-pixel
+    _hgMulti = true;
+    for (let i = 0; i < 32000; i++) _hgPixMC[i] = src[i] & 0x0F;
+  } else if (len === 9000 || len === 8000) {
+    // C64 hi-res bitmap (+ optional screen RAM)
+    _hgMulti = false;
+    for (let cell = 0; cell < 1000; cell++) {
+      const cx = (cell % 40) * 8, cy = ((cell / 40) | 0) * 8;
+      const scr = len === 9000 ? src[8000 + cell] : 0x10; // default white/black
+      _hgFgCell[cell] = (scr >> 4) & 0x0F;
+      _hgBgCell[cell] = scr & 0x0F;
+      for (let row = 0; row < 8; row++) {
+        const byte = src[cell * 8 + row];
+        for (let col = 0; col < 8; col++) {
+          _hgBit[(cy + row) * 320 + (cx + col)] = (byte >> (7 - col)) & 1;
+        }
+      }
+    }
+  } else if (len === 64000) {
+    // Legacy hi-res per-pixel colour
+    _hgMulti = false;
+    _hgBit.fill(0); _hgFgCell.fill(1); _hgBgCell.fill(_hgPaper);
+    for (let y = 0; y < 200; y++)
+      for (let x = 0; x < 320; x++) _hgSet(x, y, src[y * 320 + x] & 0x0F);
+  } else {
+    // Unknown size — best effort into the current mode
+    const W = _hgW(), H = _hgH();
+    for (let y = 0; y < H; y++)
+      for (let x = 0; x < W; x++) { const i = y * W + x; _hgSet(x, y, i < len ? (src[i] & 0x0F) : _hgPaper); }
+  }
+  const mc = document.getElementById("hg-multicolor");
+  if (mc) mc.checked = _hgMulti;
   _hgRenderAll();
 }
 
 function _hgInit() {
   if (_hgInited) return;
   _hgInited = true;
-  _hgPixHi = new Uint8Array(320 * 200).fill(0);
-  _hgPixMC = new Uint8Array(160 * 200).fill(0);
+  _hgBit    = new Uint8Array(320 * 200).fill(0);
+  _hgFgCell = new Uint8Array(40 * 25).fill(1);
+  _hgBgCell = new Uint8Array(40 * 25).fill(_hgPaper);
+  _hgPixMC  = new Uint8Array(160 * 200).fill(_hgPaper);
   _hgCanvas = document.getElementById("hg-canvas");
   _hgCtx = _hgCanvas.getContext("2d");
   _hgBuf = document.createElement("canvas");
@@ -17608,7 +17737,10 @@ function setupHiresEditor() {
   document.getElementById("hg-undo")?.addEventListener("click", _hgUndoOp);
   document.getElementById("hg-redo")?.addEventListener("click", _hgRedoOp);
   document.getElementById("hg-clear")?.addEventListener("click", function() {
-    _hgPushUndo(); _hgPix().fill(0); _hgRenderAll();
+    _hgPushUndo();
+    if (_hgMulti) { _hgPixMC.fill(_hgPaper); }
+    else { _hgBit.fill(0); _hgFgCell.fill(1); _hgBgCell.fill(_hgPaper); }
+    _hgRenderAll();
   });
 
   document.getElementById("hg-multicolor")?.addEventListener("change", function(e) {
@@ -17620,6 +17752,9 @@ function setupHiresEditor() {
   document.getElementById("hg-raster")?.addEventListener("change", function(e) {
     _hgRaster = e.target.checked; _hgBlit();
   });
+  // Paper colour: click sets it from the selected ink; right-click a palette
+  // swatch also sets paper (wired in _hgBuildPalette).
+  document.getElementById("hg-paper")?.addEventListener("click", function() { _hgSetPaper(_hgColor); });
   document.getElementById("hg-zoom")?.addEventListener("input", function(e) {
     _hgZoom = parseInt(e.target.value, 10);
     const lbl = document.getElementById("hg-zoom-val");
@@ -17635,13 +17770,7 @@ function setupHiresEditor() {
     if (!file) return;
     if (/\.bin$/i.test(file.name) || file.type === "application/octet-stream") {
       const reader = new FileReader();
-      reader.onload = function() {
-        const src = new Uint8Array(reader.result);
-        _hgPushUndo();
-        const data = _hgPix();
-        for (let i = 0; i < data.length; i++) data[i] = i < src.length ? (src[i] & 0x0F) : 0;
-        _hgRenderAll();
-      };
+      reader.onload = function() { _hgImportBytes(new Uint8Array(reader.result)); };
       reader.readAsArrayBuffer(file);
     } else {
       const img = new Image();
@@ -17653,18 +17782,18 @@ function setupHiresEditor() {
 
   // Export / Save
   document.getElementById("hg-export")?.addEventListener("click", function() {
-    _saveBinFile(_hgPix(), _hgMulti ? "image-mc.bin" : "image-hires.bin");
+    _saveBinFile(_hgExportBytes(), _hgMulti ? "image-mc.bin" : "image-hires.bin");
   });
   document.getElementById("hg-save-d64")?.addEventListener("click", function() {
-    _saveBinFile(_hgPix(), _hgMulti ? "image-mc.bin" : "image-hires.bin");
+    _saveBinFile(_hgExportBytes(), _hgMulti ? "image-mc.bin" : "image-hires.bin");
   });
 
   // Canvas interaction
   const canvas = document.getElementById("hg-canvas");
   const applyPoint = function(x, y) {
-    const col = _hgTool === "eraser" ? 0 : _hgColor;
+    const col = _hgTool === "eraser" ? _hgPaper : _hgColor;
     _hgSet(x, y, col);
-    _hgDrawPixelBuf(x, y);
+    _hgRedrawCellBuf(x, y);
   };
   canvas.addEventListener("pointerdown", function(e) {
     if (e.button !== 0) return;
@@ -17682,9 +17811,9 @@ function setupHiresEditor() {
     const p = _hgPixelFromEvent(e);
     _hgStatus(p.x >= 0 && p.y >= 0 && p.x < _hgW() && p.y < _hgH() ? p.x : null, p.y);
     if (!_hgPainting) return;
-    const col = _hgTool === "eraser" ? 0 : _hgColor;
+    const col = _hgTool === "eraser" ? _hgPaper : _hgColor;
     if (_hgTool === "pencil" || _hgTool === "eraser") {
-      _hgLine(_hgLast.x, _hgLast.y, p.x, p.y, function(x, y) { _hgSet(x, y, col); if (_hgGet(x,y) !== -1) _hgDrawPixelBuf(x, y); });
+      _hgLine(_hgLast.x, _hgLast.y, p.x, p.y, function(x, y) { _hgSet(x, y, col); _hgRedrawCellBuf(x, y); });
       _hgLast = p; _hgBlit();
     } else {
       // shape preview: blit committed, draw preview on top
@@ -17718,4 +17847,28 @@ function _hgPreviewShape(a, b, set) {
   else if (_hgTool === "fillrect") _hgRect(a.x, a.y, b.x, b.y, set, true);
   else if (_hgTool === "oval") _hgOval(a.x, a.y, b.x, b.y, set, false);
   else if (_hgTool === "filloval") _hgOval(a.x, a.y, b.x, b.y, set, true);
+}
+
+/* Generic open/close wiring for all editor File menus (.ed-file). The menu
+   items keep their original ids/data-attrs so existing handlers stay bound. */
+function _setupFileMenus() {
+  const allMenus = function() { return document.querySelectorAll(".ed-file-menu"); };
+  document.querySelectorAll(".ed-file").forEach(function(wrap) {
+    const btn = wrap.querySelector(".ed-file-btn");
+    const menu = wrap.querySelector(".ed-file-menu");
+    if (!btn || !menu) return;
+    btn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      const willOpen = menu.hidden;
+      allMenus().forEach(function(m) { m.hidden = true; });
+      menu.hidden = !willOpen;
+    });
+    menu.addEventListener("click", function(e) { e.stopPropagation(); });
+    menu.querySelectorAll("button").forEach(function(b) {
+      b.addEventListener("click", function() { menu.hidden = true; });
+    });
+  });
+  document.addEventListener("click", function() {
+    allMenus().forEach(function(m) { m.hidden = true; });
+  });
 }

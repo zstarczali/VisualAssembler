@@ -2347,7 +2347,8 @@ html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
 .output-stack[data-mode="asm"],
 .output-stack[data-mode="monitor"],
 .output-stack[data-mode="both"],
-.output-stack[data-mode="disasm"] {
+.output-stack[data-mode="disasm"],
+.output-stack[data-mode="toolkit"] {
   display: flex;
   flex-direction: column;
 }
@@ -2409,7 +2410,8 @@ html[data-theme="oled"] .monitor-output {
   display: block;
 }
 
-.output-stack[data-mode="program"] .origin-preview-section {
+.output-stack[data-mode="program"] .origin-preview-section,
+.output-stack[data-mode="toolkit"] .origin-preview-section {
   display: none;
 }
 
@@ -2451,6 +2453,34 @@ html[data-theme="oled"] .monitor-output {
   flex: 1;
   min-height: 0;
 }
+
+.output-stack[data-mode="toolkit"] .toolkit-label {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.output-stack[data-mode="toolkit"] #toolkit-output {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+.toolkit-block { margin: 0; flex: none; }
+.toolkit-palette-section { display: flex; flex-direction: column; gap: 10px; }
+.toolkit-subhdr {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text);
+}
+#toolkit-palette { grid-template-columns: repeat(8, 1fr); gap: 9px; }
+#toolkit-palette .c64-palette-swatch { border-radius: 3px; border-width: 1px; }
+#toolkit-palette .c64-palette-label { font-size: 0.6rem; }
 
 .panel-label {
   display: block;
@@ -5802,13 +5832,17 @@ body.crt-mode #crt-overlay::after {
 
 /* ── Tool buttons ── */
 .ce-tools { display: flex; flex-direction: column; gap: 5px; }
-.ce-tool-row { display: flex; align-items: center; gap: 4px; }
+.ce-tool-row { display: flex; align-items: center; gap: 5px; }
 .ce-tool-btn {
-  flex: 1;
-  padding: 6px 2px;
+  flex: 0 0 auto;
+  width: 30px;
+  height: 26px;
+  min-height: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-family: inherit;
-  font-size: 0.72rem;
-  font-weight: 500;
   border: 1px solid var(--panel-border);
   background: var(--control-bg);
   color: var(--text);
@@ -5816,6 +5850,7 @@ body.crt-mode #crt-overlay::after {
   cursor: pointer;
   transition: background 0.12s, border-color 0.12s;
 }
+.ce-tool-btn svg { display: block; width: 14px; height: 14px; }
 .ce-tool-btn:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); }
 .ce-tool-btn:active { background: color-mix(in srgb, var(--secondary) 26%, transparent); }
 .ce-shift-lbl {
@@ -5826,9 +5861,15 @@ body.crt-mode #crt-overlay::after {
   flex-shrink: 0;
 }
 .ce-shift-btn {
-  flex: 1;
-  padding: 4px 2px;
-  font-size: 0.9rem;
+  flex: 0 0 auto;
+  width: 30px;
+  height: 26px;
+  min-height: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
   border: 1px solid var(--panel-border);
   background: var(--control-bg);
   color: var(--text);
@@ -5836,7 +5877,7 @@ body.crt-mode #crt-overlay::after {
   cursor: pointer;
   font-family: inherit;
   transition: background 0.12s;
-  line-height: 1.2;
+  line-height: 1;
 }
 .ce-shift-btn:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); }
 .ce-shift-btn:active { background: color-mix(in srgb, var(--secondary) 26%, transparent); }
@@ -5983,9 +6024,12 @@ body.crt-mode #crt-overlay::after {
 .me-tool-group { display: flex; gap: 2px; background: var(--control-bg); border: 1px solid var(--panel-border); border-radius: 2px; padding: 2px; }
 .me-tool {
   font-family: inherit;
-  font-size: 0.78rem;
-  font-weight: 500;
-  padding: 5px 12px;
+  width: 30px;
+  height: 28px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: none;
   border-radius: 2px;
   background: transparent;
@@ -5994,6 +6038,7 @@ body.crt-mode #crt-overlay::after {
   min-height: 0;
   transition: background 0.12s, color 0.12s;
 }
+.me-tool svg { display: block; width: 15px; height: 15px; }
 .me-tool:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); color: var(--text); }
 .me-tool--active { background: var(--primary); color: #fff; }
 .me-tool--active:hover { background: var(--primary); color: #fff; }
@@ -6044,7 +6089,45 @@ body.crt-mode #crt-overlay::after {
   cursor: pointer;
   user-select: none;
 }
-.me-check input { cursor: pointer; min-height: 0; padding: 0; margin: 0; height: auto; }
+/* Toggle-switch checkbox (same as .menu-checkbox-label / run-exomizer-toggle) */
+.me-check input[type="checkbox"],
+.hg-check input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  width: 36px;
+  height: 20px;
+  min-height: unset;
+  flex-shrink: 0;
+  cursor: pointer;
+  background: color-mix(in srgb, var(--secondary) 35%, transparent);
+  border-radius: 2px;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+  transition: background 0.2s;
+  outline: none;
+}
+.me-check input[type="checkbox"]::after,
+.hg-check input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+  background: var(--active-fg);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  transition: transform 0.2s;
+}
+.me-check input[type="checkbox"]:checked,
+.hg-check input[type="checkbox"]:checked { background: var(--primary); }
+.me-check input[type="checkbox"]:checked::after,
+.hg-check input[type="checkbox"]:checked::after { transform: translateX(16px); }
+.me-check input[type="checkbox"]:focus-visible,
+.hg-check input[type="checkbox"]:focus-visible { box-shadow: 0 0 0 2px var(--accent); }
 .me-zoom { width: 90px; accent-color: var(--primary); cursor: pointer; min-height: 0; padding: 0; margin: 0; height: auto; }
 .me-xbtn {
   background: none;
@@ -6174,8 +6257,9 @@ body.crt-mode #crt-overlay::after {
   min-width: 0;
   overflow: auto;
   background: var(--bg-accent);
-  margin: 0 16px 16px 0;
-  padding: 16px;
+  /* Empty space is the margin (between the wrap and me-body), not inner padding. */
+  margin: 14px;
+  border: 1px solid var(--panel-border);
 }
 .me-canvas {
   display: block;
@@ -6284,6 +6368,18 @@ body.crt-mode #crt-overlay::after {
   background: var(--control-bg);
   color: var(--text);
 }
+/* Toolbar buttons are icon-only (hint via title); footer .hg-btn stay textual. */
+.hg-toolbar .hg-tool,
+.hg-toolbar .hg-btn {
+  width: 30px;
+  height: 28px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.hg-toolbar .hg-tool svg,
+.hg-toolbar .hg-btn svg { display: block; width: 15px; height: 15px; }
 .hg-check {
   display: flex;
   align-items: center;
@@ -6295,7 +6391,6 @@ body.crt-mode #crt-overlay::after {
   user-select: none;
   white-space: nowrap;
 }
-.hg-check input { cursor: pointer; min-height: 0; padding: 0; margin: 0; height: auto; }
 .hg-color-lbl, .hg-zoom-lbl, .hg-zoom-val {
   font-family: inherit;
   font-size: 0.72rem;
@@ -6315,6 +6410,12 @@ body.crt-mode #crt-overlay::after {
 }
 .hg-swatch:hover { transform: scale(1.12); }
 .hg-swatch--sel { border-color: var(--primary) !important; outline: 1px solid rgba(0,0,0,0.35); }
+.hg-paper {
+  min-height: 0;
+  padding: 0;
+  border: 2px solid var(--panel-border);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.25);
+}
 .hg-zoom { width: 110px; accent-color: var(--primary); cursor: pointer; min-height: 0; padding: 0; margin: 0; height: auto; }
 
 /* Canvas area */
@@ -6324,8 +6425,11 @@ body.crt-mode #crt-overlay::after {
   min-height: 0;
   overflow: auto;
   background: #000;
-  margin: 0 14px 0 0;
+  margin: 14px;
   padding: 14px;
+  border: 1px solid var(--panel-border);
+  /* Dark scrollbars matching the black canvas backdrop (visible in light theme). */
+  color-scheme: dark;
 }
 .hg-canvas {
   display: block;
@@ -6333,6 +6437,18 @@ body.crt-mode #crt-overlay::after {
   image-rendering: crisp-edges;
   cursor: crosshair;
 }
+
+/* Visible scrollbars on the always-black hi-res canvas area. */
+.hg-canvas-wrap { scrollbar-color: rgba(255,255,255,0.35) transparent; }
+.hg-canvas-wrap::-webkit-scrollbar { width: 12px; height: 12px; }
+.hg-canvas-wrap::-webkit-scrollbar-track { background: transparent; }
+.hg-canvas-wrap::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.3);
+  border-radius: 6px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+.hg-canvas-wrap::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.5); background-clip: padding-box; }
 
 /* Footer */
 .hg-footer {
@@ -6350,3 +6466,52 @@ body.crt-mode #crt-overlay::after {
   color: var(--secondary);
 }
 .hg-footer-btns { margin-left: auto; display: flex; gap: 6px; }
+
+/* ═══ Unified editor File menu (Char / Map / Hi-Res editors) ═══ */
+.ed-file { position: relative; flex-shrink: 0; }
+.ed-file-btn {
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 5px 12px;
+  border: 1px solid var(--panel-border);
+  border-radius: 2px;
+  background: var(--control-bg);
+  color: var(--text);
+  cursor: pointer;
+  min-height: 0;
+  white-space: nowrap;
+  transition: background 0.12s;
+}
+.ed-file-btn:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); }
+.ed-file-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 30;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 2px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  min-width: 210px;
+}
+.ed-file-menu[hidden] { display: none; }
+.ed-file-menu button {
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 500;
+  text-align: left;
+  padding: 7px 10px;
+  border: none;
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+  border-radius: 2px;
+  min-height: 0;
+  white-space: nowrap;
+}
+.ed-file-menu button:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); }
+.ed-file-sep { height: 1px; background: var(--panel-border); margin: 4px 6px; }
