@@ -6237,6 +6237,7 @@ body.crt-mode #crt-overlay::after {
 .me-swatch--sel { border-color: var(--text) !important; outline: 1px solid rgba(0,0,0,0.35); }
 .me-layers { display: flex; flex-direction: column; gap: 6px; }
 .me-layers-hdr { display: flex; align-items: center; justify-content: space-between; }
+.me-layers-hdr-btns { display: flex; gap: 4px; }
 .me-layer-add {
   width: 22px; height: 20px; min-height: 0; padding: 0; line-height: 1;
   display: inline-flex; align-items: center; justify-content: center;
@@ -6674,3 +6675,51 @@ body.crt-mode #crt-overlay::after {
 .se-frame-thumb--active { border-color: var(--primary); }
 .se-anim-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .se-anim-spacer { flex: 1; }
+
+/* SID Editor */
+.sid-dialog { background: transparent; border: none; padding: 0; width: min(1000px, 97vw); max-width: 97vw; height: min(900px, 95vh); max-height: 95vh; overflow: hidden; }
+.sid-dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
+.sid-card { background: var(--panel); border: 1px solid var(--panel-border); display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+.sid-hdr { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-bottom: 1px solid var(--panel-border); background: var(--panel-strong); flex-shrink: 0; }
+.sid-title { font-family: inherit; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text); }
+.sid-hdr .ed-file { margin-left: auto; }
+.sid-xbtn { background: none; border: none; color: var(--secondary); font-size: 1.3rem; cursor: pointer; padding: 0; line-height: 1; min-height: 0; height: 28px; width: 28px; }
+.sid-xbtn:hover { color: var(--text); }
+.sid-body { flex: 1; min-height: 0; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.sid-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.sid-lbl { font-family: inherit; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; color: var(--primary); width: 96px; flex-shrink: 0; }
+.sid-section { font-family: inherit; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; color: var(--primary); display: block; margin-bottom: 8px; }
+.sid-select { font-family: inherit; font-size: 0.78rem; padding: 5px 8px; min-height: 0; border: 1px solid var(--panel-border); border-radius: 2px; background: var(--control-bg); color: var(--text); cursor: pointer; }
+.sid-input { font-family: inherit; font-size: 0.8rem; padding: 5px 8px; min-height: 0; border: 1px solid var(--panel-border); border-radius: 2px; background: var(--control-bg); color: var(--text); }
+#sid-inst-sel { width: 170px; flex: 0 0 auto; }
+#sid-inst-name { width: 180px; flex: 0 0 auto; }
+.sid-wave-row .sid-mini-lbl { margin-left: 20px; }
+.sid-speed { width: 56px; text-align: center; }
+.sid-mini-btn { font-family: inherit; font-size: 0.76rem; font-weight: 500; padding: 5px 11px; min-height: 0; border: 1px solid var(--panel-border); border-radius: 2px; background: var(--control-bg); color: var(--text); cursor: pointer; white-space: nowrap; transition: background 0.12s; }
+.sid-mini-btn:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); }
+.sid-mini-lbl { font-family: inherit; font-size: 0.72rem; color: var(--secondary); }
+.sid-num { font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; color: var(--secondary); min-width: 32px; text-align: right; }
+.sid-check { display: flex; align-items: center; gap: 5px; font-family: inherit; font-size: 0.78rem; color: var(--secondary); cursor: pointer; user-select: none; }
+.sid-check input[type="checkbox"] { appearance: none; -webkit-appearance: none; position: relative; width: 18px; height: 18px; min-height: 0; flex-shrink: 0; cursor: pointer; background: var(--control-bg); border: 1px solid var(--panel-border); border-radius: 3px; padding: 0; margin: 0; }
+.sid-check input[type="checkbox"]:checked { background: var(--primary); border-color: var(--primary); }
+.sid-check input[type="checkbox"]:checked::after { content: ""; position: absolute; left: 5px; top: 1px; width: 5px; height: 10px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.sid-range { accent-color: var(--primary); cursor: pointer; min-height: 0; padding: 0; margin: 0; height: auto; flex: 1; max-width: 260px; }
+.sid-mid { display: flex; gap: 22px; flex-wrap: wrap; align-items: flex-start; }
+.sid-adsr { flex: 0 0 300px; }
+.sid-slider-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.sid-sl-lbl { font-family: "IBM Plex Mono", monospace; font-size: 0.74rem; color: var(--secondary); width: 30px; flex-shrink: 0; }
+.sid-adsr-canvas { border: 1px solid var(--panel-border); border-radius: 2px; background: #0a0e1a; flex-shrink: 0; }
+.sid-filter { flex: 1; min-width: 220px; }
+.sid-filter-types { display: flex; gap: 14px; margin-bottom: 8px; }
+.sid-tracker-row { border-top: 1px solid var(--panel-border); padding-top: 12px; }
+.sid-tracker-spacer { flex: 1; }
+.sid-tracker-wrap { flex: 1; min-height: 0; overflow: auto; border: 1px solid var(--panel-border); background: #0a0e1a; color-scheme: dark; }
+.sid-tracker { border-collapse: collapse; font-family: "IBM Plex Mono", monospace; font-size: 0.82rem; width: 100%; }
+.sid-tracker th { position: sticky; top: 0; background: #111726; color: #ffcc66; font-weight: 700; text-align: left; padding: 5px 10px; letter-spacing: 0.05em; z-index: 1; border-bottom: 1px solid #243; }
+.sid-tracker td { padding: 1px 10px; color: #b8c0d8; white-space: pre; }
+.sid-tracker .sid-rownum { color: #5a6a8a; width: 40px; text-align: right; padding-right: 14px; }
+.sid-tracker tr.sid-beat td { background: rgba(120,140,200,0.06); }
+.sid-tracker tr.sid-beat .sid-rownum { color: #8aa0c8; font-weight: 700; }
+.sid-tracker tr.sid-playing td { background: rgba(120,160,255,0.18); }
+.sid-tracker td.sid-cell { cursor: pointer; }
+.sid-tracker td.sid-cell--sel { background: var(--primary) !important; color: #fff; }

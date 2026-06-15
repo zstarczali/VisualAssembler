@@ -1112,6 +1112,7 @@ function initPalette() {
   setupMapEditor();
   setupHiresEditor();
   setupSpriteEditor();
+  setupSidEditor();
   _setupFileMenus();
   setupOperandDropdown();
   setupD64ExportDialog();
@@ -17007,25 +17008,22 @@ function _meSetCustomCharset(bytes) {
 
 /* ── Draw one map cell into the offscreen buffer ── */
 function _meDrawCellBuf(col, row) {
-  const Z = _meZoom, sub = Z / 8;
+  const Z = _meZoom, sub = Z / 8, ss = Math.ceil(sub);
   const x0 = col * Z, y0 = row * Z;
   const i = row * _ME_COLS + col;
-  // composite: topmost visible layer with a non-empty tile
-  let sc = _ME_EMPTY, colIdx = _meColor;
-  for (let L = _meLayers.length - 1; L >= 0; L--) {
+  // paper background
+  _meBufCtx.fillStyle = _CE_COLORS[_meBgColor];
+  _meBufCtx.fillRect(x0, y0, Z, Z);
+  // Merge: draw every visible layer's tile pixels bottom→top, so two
+  // characters on different layers overlay (combine) in the same cell.
+  for (let L = 0; L < _meLayers.length; L++) {
     if (!_meLayers[L].visible) continue;
     const t = _meLayers[L].screen[i];
-    if (t !== _ME_EMPTY) { sc = t; colIdx = _meLayers[L].color[i]; break; }
-  }
-  const fg  = _CE_COLORS[colIdx];
-  const bg  = _CE_COLORS[_meBgColor];
-  _meBufCtx.fillStyle = bg;
-  _meBufCtx.fillRect(x0, y0, Z, Z);
-  const bits = _meTileBits(sc);
-  _meBufCtx.fillStyle = fg;
-  for (let p = 0; p < 64; p++) {
-    if (bits[p]) {
-      _meBufCtx.fillRect(x0 + (p & 7) * sub, y0 + (p >> 3) * sub, Math.ceil(sub), Math.ceil(sub));
+    if (t === _ME_EMPTY) continue;
+    const bits = _meTileBits(t);
+    _meBufCtx.fillStyle = _CE_COLORS[_meLayers[L].color[i]];
+    for (let p = 0; p < 64; p++) {
+      if (bits[p]) _meBufCtx.fillRect(x0 + (p & 7) * sub, y0 + (p >> 3) * sub, ss, ss);
     }
   }
   if (_meGrid) {
@@ -17192,12 +17190,21 @@ async function _saveBinFile(bytes, fileName) {
 }
 
 function _meExport(kind) {
+  // Per-layer exports — each layer is its own charmap (so a game can composite
+  // / swap them in software).
+  if (kind === "layer-bin") { _saveBinFile(_meLayers[_meActiveLayer].screen, "layer-" + _meActiveLayer + ".bin"); return; }
+  if (kind === "layers-bin") {
+    const n = _ME_COLS * _ME_ROWS, out = new Uint8Array(_meLayers.length * n);
+    _meLayers.forEach(function(L, li){ out.set(L.screen, li * n); });
+    _saveBinFile(out, "layers.bin"); return;
+  }
   const comp = _meComposite();   // flattened visible layers
   if (kind === "bin") {
     _saveBinFile(comp.screen, "map.bin");
     return;
   }
-  const data = kind === "color" ? comp.color : comp.screen;
+  const data = (kind === "color") ? comp.color :
+               (kind === "layer-screen") ? _meLayers[_meActiveLayer].screen : comp.screen;
   let out = "";
   for (let r = 0; r < _ME_ROWS; r++) {
     const row = [];
@@ -17240,6 +17247,7 @@ function _meSetActiveLayer(i) {
   _meScreen = _meLayers[i].screen;
   _meColorRam = _meLayers[i].color;
   _meBuildLayers();
+  if (_meBufCtx) _meRenderAll();   // keep the canvas showing the full composite
 }
 function _meAddLayer() {
   _meLayers.push(_meNewLayer("Layer " + _meLayers.length));
@@ -17289,6 +17297,17 @@ function _meBuildLayers() {
       list.appendChild(row);
     })(i);
   }
+}
+/* Merge all visible layers into a single Background layer (flatten). */
+function _meFlatten() {
+  if (!_meLayers || _meLayers.length <= 1) return;
+  const comp = _meComposite();
+  _meLayers = [{ name: "Background", screen: comp.screen, color: comp.color, visible: true }];
+  _meActiveLayer = 0;
+  _meScreen = _meLayers[0].screen;
+  _meColorRam = _meLayers[0].color;
+  _meBuildLayers();
+  _meRenderAll();
 }
 /* Composite the visible layers into a final {screen,color} (top-down). */
 function _meComposite() {
@@ -17340,6 +17359,7 @@ function setupMapEditor() {
     _meEnsureRomFont(function() { _meTileCache = null; _meRenderBanks(); _meRenderAll(); });
   });
   document.getElementById("me-layer-add")?.addEventListener("click", _meAddLayer);
+  document.getElementById("me-layer-flatten")?.addEventListener("click", _meFlatten);
   // Clear the whole map (toolbar icon + Files menu entry)
   const _meClearMap = function() {
     if (!_meScreen) return;
@@ -18366,4 +18386,337 @@ function _spImportText(txt) {
   const bytes = nums.filter(function(n){ return n>=0 && n<=255; });
   if (!bytes.length) return;
   _spImportBin(Uint8Array.from(bytes));
+}
+
+/* =======================================================
+   SID EDITOR / PLAYER (3-voice tracker, Web Audio preview)
+   ======================================================= */
+const _SID_ROWS = 32;
+let _sidInsts = null;     // instruments
+let _sidPatterns = null;  // [pattern][voice 0..2][row 0..31] = {note, inst}
+let _sidInst = 0, _sidPat = 0, _sidSpeed = 6;
+let _sidSel = { voice: 0, row: 0 };
+let _sidAudio = null;
+let _sidTimer = null, _sidRow = 0;
+let _sidInited = false;
+let _sidOctave = 4;
+
+// SID attack / decay-release time tables (ms) — approximate
+const _SID_ATK = [2,8,16,24,38,56,68,80,100,250,500,800,1000,3000,5000,8000];
+const _SID_DCR = [6,24,48,72,114,168,204,240,300,750,1500,2400,3000,9000,15000,24000];
+
+function _sidNewInst(name) {
+  return { name: name || "New Sound", tri:false, saw:false, pul:true, noi:false,
+           pw:2048, a:2, d:8, s:6, r:4, lp:false, bp:false, hp:false, cut:1400, res:0, vol:15 };
+}
+function _sidNewPattern() {
+  const p = [];
+  for (let v = 0; v < 3; v++) { const col = []; for (let r = 0; r < _SID_ROWS; r++) col.push({ note:null, inst:0 }); p.push(col); }
+  return p;
+}
+function _sidCurInst() { return _sidInsts[_sidInst]; }
+function _sidCurPat() { return _sidPatterns[_sidPat]; }
+
+const _SID_NOTE_NAMES = ["C-","C#","D-","D#","E-","F-","F#","G-","G#","A-","A#","B-"];
+function _sidNoteName(n) {
+  if (n == null) return "...";
+  return _SID_NOTE_NAMES[n % 12] + Math.floor(n / 12);
+}
+function _sidNoteFreq(n) { return 440 * Math.pow(2, (n - 57) / 12); } // n: 0 = C-0
+
+/* ── Instrument panel binding ── */
+function _sidLoadInstUI() {
+  const inst = _sidCurInst();
+  const set = function(id, prop, isCheck) {
+    const el = document.getElementById(id); if (!el) return;
+    if (isCheck) el.checked = !!inst[prop]; else el.value = inst[prop];
+  };
+  document.getElementById("sid-inst-name").value = inst.name;
+  set("sid-tri","tri",true); set("sid-saw","saw",true); set("sid-pul","pul",true); set("sid-noi","noi",true);
+  set("sid-pw","pw"); set("sid-a","a"); set("sid-d","d"); set("sid-s","s"); set("sid-r","r");
+  set("sid-lp","lp",true); set("sid-bp","bp",true); set("sid-hp","hp",true);
+  set("sid-cut","cut"); set("sid-res","res"); set("sid-vol","vol");
+  ["pw","a","d","s","r"].forEach(function(k){ const v=document.getElementById("sid-"+k+"-val"); if(v) v.textContent = inst[k]; });
+  _sidDrawADSR();
+}
+function _sidBuildInstSel() {
+  const sel = document.getElementById("sid-inst-sel"); if (!sel) return;
+  sel.innerHTML = "";
+  _sidInsts.forEach(function(ins, i) {
+    const o = document.createElement("option");
+    o.value = i; o.textContent = (i<16?"0":"") + i.toString(16).toUpperCase() + ": " + ins.name;
+    sel.appendChild(o);
+  });
+  sel.value = _sidInst;
+}
+
+/* ── ADSR graph ── */
+function _sidDrawADSR() {
+  const c = document.getElementById("sid-adsr-canvas"); if (!c) return;
+  const ctx = c.getContext("2d"), W = c.width, H = c.height;
+  ctx.clearRect(0,0,W,H);
+  const inst = _sidCurInst();
+  const pad = 10, x0 = pad, x1 = W - pad, y0 = H - 18, yTop = 10;
+  // grid
+  ctx.strokeStyle = "rgba(120,140,200,0.12)"; ctx.lineWidth = 1;
+  for (let g = 0; g <= 4; g++) { const y = yTop + (y0-yTop)*g/4; ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke(); }
+  const atk = _SID_ATK[inst.a], dec = _SID_DCR[inst.d], rel = _SID_DCR[inst.r];
+  const susY = y0 - (y0 - yTop) * (inst.s / 15);
+  const total = atk + dec + 1200 + rel;
+  const span = x1 - x0;
+  const xA = x0 + span * (atk/total);
+  const xD = xA + span * (dec/total);
+  const xS = xD + span * (1200/total);
+  const xR = x1;
+  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(xA, yTop); ctx.lineTo(xD, susY); ctx.lineTo(xS, susY); ctx.lineTo(xR, y0);
+  ctx.strokeStyle = "#5ec8ff"; ctx.lineWidth = 2; ctx.stroke();
+  ctx.lineTo(x0, y0); ctx.closePath();
+  ctx.fillStyle = "rgba(94,200,255,0.12)"; ctx.fill();
+  // dots
+  ctx.fillStyle = "#5ec8ff";
+  [[xA,yTop],[xD,susY],[xS,susY],[xR,y0]].forEach(function(p){ ctx.beginPath(); ctx.arc(p[0],p[1],3,0,7); ctx.fill(); });
+  // labels
+  ctx.fillStyle = "#6a7a9a"; ctx.font = "10px monospace";
+  ctx.fillText("A", xA-3, H-4); ctx.fillText("D", xD-3, H-4); ctx.fillText("S", xS-3, H-4); ctx.fillText("R", xR-12, H-4);
+}
+
+/* ── Tracker grid ── */
+function _sidCellText(cell) {
+  if (cell.note == null) return "... ..";
+  return _sidNoteName(cell.note) + " " + (cell.inst<16?"0":"") + cell.inst.toString(16).toUpperCase();
+}
+function _sidBuildTracker() {
+  const t = document.getElementById("sid-tracker"); if (!t) return;
+  const pat = _sidCurPat();
+  let html = "<thead><tr><th></th><th>VOICE 1</th><th>VOICE 2</th><th>VOICE 3</th></tr></thead><tbody>";
+  for (let r = 0; r < _SID_ROWS; r++) {
+    const beat = (r % 4 === 0) ? " sid-beat" : "";
+    html += '<tr class="sid-trow'+beat+'" data-row="'+r+'">';
+    html += '<td class="sid-rownum">' + (r<10?"0":"") + r + '</td>';
+    for (let v = 0; v < 3; v++) {
+      const selCls = (_sidSel.voice===v && _sidSel.row===r) ? " sid-cell--sel" : "";
+      html += '<td class="sid-cell'+selCls+'" data-v="'+v+'" data-r="'+r+'">' + _sidCellText(pat[v][r]) + '</td>';
+    }
+    html += "</tr>";
+  }
+  html += "</tbody>";
+  t.innerHTML = html;
+  t.querySelectorAll("td.sid-cell").forEach(function(td) {
+    td.addEventListener("click", function() {
+      _sidSel = { voice: +td.dataset.v, row: +td.dataset.r };
+      _sidRefreshSel();
+      document.getElementById("sid-tracker-wrap").focus();
+    });
+  });
+}
+function _sidRefreshSel() {
+  const t = document.getElementById("sid-tracker"); if (!t) return;
+  t.querySelectorAll("td.sid-cell--sel").forEach(function(td){ td.classList.remove("sid-cell--sel"); });
+  const cell = t.querySelector('td.sid-cell[data-v="'+_sidSel.voice+'"][data-r="'+_sidSel.row+'"]');
+  if (cell) cell.classList.add("sid-cell--sel");
+}
+function _sidSetCellText(v, r) {
+  const t = document.getElementById("sid-tracker"); if (!t) return;
+  const td = t.querySelector('td.sid-cell[data-v="'+v+'"][data-r="'+r+'"]');
+  if (td) td.textContent = _sidCellText(_sidCurPat()[v][r]);
+}
+
+/* Keyboard note mapping (tracker style, one octave + above) */
+const _SID_KEYMAP = { z:0,s:1,x:2,d:3,c:4,v:5,g:6,b:7,h:8,n:9,j:10,m:11,
+  q:12,2:13,w:14,3:15,e:16,r:18,5:19,t:20,6:21,y:22,7:23,u:24,i:26 };
+
+/* ── Audio ── */
+function _sidEnsureAudio() {
+  if (!_sidAudio) _sidAudio = new (window.AudioContext || window.webkitAudioContext)();
+  if (_sidAudio.state === "suspended") _sidAudio.resume();
+  return _sidAudio;
+}
+let _sidNoiseBuf = null;
+function _sidNoise(ac) {
+  if (!_sidNoiseBuf) {
+    _sidNoiseBuf = ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
+    const d = _sidNoiseBuf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random()*2-1;
+  }
+  const s = ac.createBufferSource(); s.buffer = _sidNoiseBuf; s.loop = true; return s;
+}
+function _sidPlayInst(inst, freq, when, holdSec) {
+  const ac = _sidEnsureAudio();
+  let src;
+  if (inst.noi) { src = _sidNoise(ac); }
+  else {
+    src = ac.createOscillator();
+    src.type = inst.pul ? "square" : inst.saw ? "sawtooth" : inst.tri ? "triangle" : "square";
+    src.frequency.value = freq;
+  }
+  const gain = ac.createGain();
+  const atk = _SID_ATK[inst.a]/1000, dec = _SID_DCR[inst.d]/1000, rel = _SID_DCR[inst.r]/1000;
+  const peak = (inst.vol/15) * 0.22;
+  const sus = peak * (inst.s/15);
+  gain.gain.setValueAtTime(0.0001, when);
+  gain.gain.linearRampToValueAtTime(peak, when + Math.max(0.002, atk));
+  gain.gain.linearRampToValueAtTime(Math.max(0.0001, sus), when + Math.max(0.002, atk) + Math.max(0.002, dec));
+  const relStart = when + Math.max(0.05, holdSec);
+  gain.gain.setValueAtTime(Math.max(0.0001, sus), relStart);
+  gain.gain.linearRampToValueAtTime(0.0001, relStart + Math.max(0.01, rel));
+  let node = src;
+  node.connect(gain);
+  let out = gain;
+  if (inst.lp || inst.bp || inst.hp) {
+    const filt = ac.createBiquadFilter();
+    filt.type = inst.hp ? "highpass" : inst.bp ? "bandpass" : "lowpass";
+    filt.frequency.value = 30 + (inst.cut/2047) * 9000;
+    filt.Q.value = 0.5 + (inst.res/15) * 8;
+    gain.connect(filt); out = filt;
+  }
+  out.connect(ac.destination);
+  src.start(when);
+  src.stop(relStart + Math.max(0.01, rel) + 0.05);
+}
+
+function _sidStop() {
+  if (_sidTimer) { clearInterval(_sidTimer); _sidTimer = null; }
+  const t = document.getElementById("sid-tracker");
+  if (t) t.querySelectorAll("tr.sid-playing").forEach(function(r){ r.classList.remove("sid-playing"); });
+}
+function _sidPlay() {
+  _sidStop();
+  _sidEnsureAudio();
+  _sidRow = 0;
+  const rowSec = Math.max(0.04, _sidSpeed / 50);
+  const t = document.getElementById("sid-tracker");
+  const tick = function() {
+    const ac = _sidAudio, when = ac.currentTime + 0.02;
+    const pat = _sidCurPat();
+    for (let v = 0; v < 3; v++) {
+      const cell = pat[v][_sidRow];
+      if (cell.note != null) _sidPlayInst(_sidInsts[cell.inst] || _sidCurInst(), _sidNoteFreq(cell.note), when, rowSec);
+    }
+    if (t) {
+      t.querySelectorAll("tr.sid-playing").forEach(function(r){ r.classList.remove("sid-playing"); });
+      const tr = t.querySelector('tr.sid-trow[data-row="'+_sidRow+'"]');
+      if (tr) { tr.classList.add("sid-playing"); tr.scrollIntoView({ block: "nearest" }); }
+    }
+    _sidRow = (_sidRow + 1) % _SID_ROWS;
+  };
+  tick();
+  _sidTimer = setInterval(tick, rowSec * 1000);
+}
+
+/* ── Export ── */
+function _sidWaveByte(inst) {
+  return (inst.tri?0x10:0) | (inst.saw?0x20:0) | (inst.pul?0x40:0) | (inst.noi?0x80:0) | 0x01;
+}
+function _sidExport(kind) {
+  let lines = [];
+  const hx = function(n){ return "$" + (n&0xFF).toString(16).toUpperCase().padStart(2,"0"); };
+  const dh = function(arr){ return arr.map(hx).join(", "); };
+  const dd = function(arr){ return arr.join(","); };
+  // instruments
+  lines.push("; Instruments (ctrl, AD, SR, PWlo, PWhi, filt-cut-lo/hi, res/filt, mode/vol)");
+  _sidInsts.forEach(function(ins, i) {
+    const ctrl = _sidWaveByte(ins);
+    const ad = (ins.a<<4) | ins.d;
+    const sr = (ins.s<<4) | ins.r;
+    const resFilt = (ins.res<<4) | 0;
+    const modeVol = ((ins.lp?0x10:0)|(ins.bp?0x20:0)|(ins.hp?0x40:0)) | ins.vol;
+    const bytes = [ctrl, ad, sr, ins.pw&0xFF, (ins.pw>>8)&0x0F, ins.cut&0x07, (ins.cut>>3)&0xFF, resFilt, modeVol];
+    if (kind === "asm") lines.push("inst_"+i+":  .byte " + dh(bytes) + "   ; " + ins.name);
+    else lines.push((1000+i*10) + " DATA " + dd(bytes) + " : REM " + ins.name);
+  });
+  // patterns: per voice note + inst
+  _sidPatterns.forEach(function(pat, pi) {
+    lines.push(kind==="asm" ? ("; Pattern "+pi) : ("REM PATTERN "+pi));
+    for (let v = 0; v < 3; v++) {
+      const notes = [];
+      for (let r = 0; r < _SID_ROWS; r++) { const c = pat[v][r]; notes.push(c.note==null ? 0 : (c.note+1)); }
+      if (kind === "asm") lines.push("pat"+pi+"_v"+v+":  .byte " + dh(notes));
+      else lines.push((2000+pi*100+v*30) + " DATA " + dd(notes));
+    }
+  });
+  return lines.join("\n");
+}
+function _sidCopyExport(kind) {
+  navigator.clipboard.writeText(_sidExport(kind)).catch(function(){});
+}
+
+/* ── Init + wiring ── */
+function _sidInit() {
+  if (_sidInited) return;
+  _sidInited = true;
+  _sidInsts = [_sidNewInst("New Sound")];
+  _sidPatterns = [_sidNewPattern()];
+  _sidBuildInstSel();
+  _sidLoadInstUI();
+  _sidBuildPatSel();
+  _sidBuildTracker();
+}
+function _sidBuildPatSel() {
+  const sel = document.getElementById("sid-pat-sel"); if (!sel) return;
+  sel.innerHTML = "";
+  _sidPatterns.forEach(function(p, i) {
+    const o = document.createElement("option"); o.value = i; o.textContent = "Pat " + (i<10?"0":"") + i; sel.appendChild(o);
+  });
+  sel.value = _sidPat;
+}
+
+function setupSidEditor() {
+  const dialog = document.getElementById("sid-editor-dialog");
+  if (!dialog) return;
+  const onId = function(id, ev, fn){ const el=document.getElementById(id); if(el) el.addEventListener(ev, fn); };
+
+  onId("sid-editor-btn", "click", function() {
+    const cm = document.querySelector(".control-menu"); if (cm) cm.removeAttribute("open");
+    _sidInit(); dialog.showModal();
+  });
+  onId("sid-close", "click", function() { _sidStop(); dialog.close(); });
+
+  // instrument param bindings
+  const bindCheck = function(id, prop) { onId(id, "change", function(e){ _sidCurInst()[prop] = e.target.checked; _sidDrawADSR(); }); };
+  const bindRange = function(id, prop, valId) { onId(id, "input", function(e){ _sidCurInst()[prop] = parseInt(e.target.value,10); if(valId){const v=document.getElementById(valId); if(v) v.textContent = e.target.value;} _sidDrawADSR(); }); };
+  bindCheck("sid-tri","tri"); bindCheck("sid-saw","saw"); bindCheck("sid-pul","pul"); bindCheck("sid-noi","noi");
+  bindRange("sid-pw","pw","sid-pw-val");
+  bindRange("sid-a","a","sid-a-val"); bindRange("sid-d","d","sid-d-val"); bindRange("sid-s","s","sid-s-val"); bindRange("sid-r","r","sid-r-val");
+  bindCheck("sid-lp","lp"); bindCheck("sid-bp","bp"); bindCheck("sid-hp","hp");
+  bindRange("sid-cut","cut"); bindRange("sid-res","res"); bindRange("sid-vol","vol");
+  onId("sid-inst-name", "input", function(e){ _sidCurInst().name = e.target.value; _sidBuildInstSel(); });
+  onId("sid-inst-sel", "change", function(e){ _sidInst = parseInt(e.target.value,10); _sidLoadInstUI(); });
+  onId("sid-inst-add", "click", function(){ _sidInsts.push(_sidNewInst("Sound "+_sidInsts.length)); _sidInst = _sidInsts.length-1; _sidBuildInstSel(); _sidLoadInstUI(); });
+  onId("sid-preview", "click", function(){ _sidEnsureAudio(); _sidPlayInst(_sidCurInst(), _sidNoteFreq(57), _sidAudio.currentTime+0.02, 0.5); });
+
+  // tracker
+  onId("sid-pat-sel", "change", function(e){ _sidPat = parseInt(e.target.value,10); _sidBuildTracker(); });
+  onId("sid-pat-add", "click", function(){ _sidPatterns.push(_sidNewPattern()); _sidPat = _sidPatterns.length-1; _sidBuildPatSel(); _sidBuildTracker(); });
+  onId("sid-speed", "input", function(e){ _sidSpeed = Math.max(1, parseInt(e.target.value,10)||6); if(_sidTimer){ _sidPlay(); } });
+  onId("sid-play", "click", _sidPlay);
+  onId("sid-stop", "click", _sidStop);
+  onId("sid-export-asm", "click", function(){ _sidCopyExport("asm"); });
+  onId("sid-export-basic", "click", function(){ _sidCopyExport("basic"); });
+  onId("sid-export-asm2", "click", function(){ _sidCopyExport("asm"); });
+  onId("sid-export-basic2", "click", function(){ _sidCopyExport("basic"); });
+  onId("sid-copy", "click", function(){ _sidCopyExport("asm"); });
+
+  // keyboard note entry / navigation
+  const wrap = document.getElementById("sid-tracker-wrap");
+  if (wrap) wrap.addEventListener("keydown", function(e) {
+    const k = e.key.toLowerCase();
+    if (e.key === "ArrowDown") { _sidSel.row = (_sidSel.row+1)%_SID_ROWS; _sidRefreshSel(); e.preventDefault(); return; }
+    if (e.key === "ArrowUp") { _sidSel.row = (_sidSel.row-1+_SID_ROWS)%_SID_ROWS; _sidRefreshSel(); e.preventDefault(); return; }
+    if (e.key === "ArrowLeft") { _sidSel.voice = (_sidSel.voice+2)%3; _sidRefreshSel(); e.preventDefault(); return; }
+    if (e.key === "ArrowRight") { _sidSel.voice = (_sidSel.voice+1)%3; _sidRefreshSel(); e.preventDefault(); return; }
+    if (e.key === "Delete" || e.key === "Backspace" || k === ".") {
+      _sidCurPat()[_sidSel.voice][_sidSel.row] = { note:null, inst:0 };
+      _sidSetCellText(_sidSel.voice, _sidSel.row);
+      _sidSel.row = (_sidSel.row+1)%_SID_ROWS; _sidRefreshSel(); e.preventDefault(); return;
+    }
+    if (_SID_KEYMAP.hasOwnProperty(k)) {
+      const note = _sidOctave*12 + _SID_KEYMAP[k];
+      _sidCurPat()[_sidSel.voice][_sidSel.row] = { note: note, inst: _sidInst };
+      _sidSetCellText(_sidSel.voice, _sidSel.row);
+      _sidEnsureAudio(); _sidPlayInst(_sidCurInst(), _sidNoteFreq(note), _sidAudio.currentTime+0.01, 0.25);
+      _sidSel.row = (_sidSel.row+1)%_SID_ROWS; _sidRefreshSel(); e.preventDefault(); return;
+    }
+    if (k === "+") { _sidOctave = Math.min(7, _sidOctave+1); e.preventDefault(); }
+    if (k === "-") { _sidOctave = Math.max(0, _sidOctave-1); e.preventDefault(); }
+  });
 }

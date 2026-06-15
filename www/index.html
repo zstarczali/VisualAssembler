@@ -177,6 +177,9 @@
           <button id="sprite-editor-btn" class="main-tb-btn main-tb-icon-btn" type="button" title="Sprite Editor" aria-label="Sprite Editor">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" width="15" height="15" aria-hidden="true"><rect x="2" y="1.5" width="12" height="13" rx="1"/><rect x="4" y="3.5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="9" y="3.5" width="3" height="3" fill="currentColor" stroke="none" opacity="0.5"/><rect x="4" y="8.5" width="3" height="3" fill="currentColor" stroke="none" opacity="0.5"/><rect x="9" y="8.5" width="3" height="3" fill="currentColor" stroke="none"/></svg>
           </button>
+          <button id="sid-editor-btn" class="main-tb-btn main-tb-icon-btn" type="button" title="SID Editor" aria-label="SID Editor">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><path d="M1.5 8.5h2l1.5-5 2.5 10 2-7 1.5 4h3.5"/></svg>
+          </button>
           <div class="main-tb-sep" aria-hidden="true"></div>
           <div class="split-run-group">
             <button id="run-emulator" class="main-tb-btn main-tb-run split-run-main" type="button">
@@ -875,9 +878,13 @@ PRINTABLE CHARACTERS
             <button class="ed-file-btn" type="button">Files ▾</button>
             <div class="ed-file-menu" hidden>
               <button id="me-load-map" type="button">Load map (.bin)…</button>
-              <button data-export="bin" type="button">Save map (.bin)…</button>
-              <button data-export="screen" type="button">Copy screen codes</button>
-              <button data-export="color" type="button">Copy color RAM</button>
+              <button data-export="bin" type="button">Save flattened map (.bin)…</button>
+              <button data-export="screen" type="button">Copy flattened screen codes</button>
+              <button data-export="color" type="button">Copy flattened color RAM</button>
+              <div class="ed-file-sep"></div>
+              <button data-export="layer-bin" type="button">Save active layer (.bin)…</button>
+              <button data-export="layers-bin" type="button">Save all layers (.bin)…</button>
+              <button data-export="layer-screen" type="button">Copy active layer codes</button>
               <div class="ed-file-sep"></div>
               <button id="me-clear-menu" type="button">Clear map</button>
               <div class="ed-file-sep"></div>
@@ -911,7 +918,10 @@ PRINTABLE CHARACTERS
           <div class="me-layers">
             <div class="me-layers-hdr">
               <span class="me-section-lbl">Layers</span>
-              <button id="me-layer-add" class="me-layer-add" type="button" title="Add layer">+</button>
+              <span class="me-layers-hdr-btns">
+                <button id="me-layer-flatten" class="me-layer-add" type="button" title="Merge all layers into one">⤵</button>
+                <button id="me-layer-add" class="me-layer-add" type="button" title="Add layer">+</button>
+              </span>
             </div>
             <div id="me-layers-list" class="me-layers-list"></div>
           </div>
@@ -1078,6 +1088,83 @@ PRINTABLE CHARACTERS
           <button class="se-mini-btn" id="se-fcopy" type="button">Copy</button>
           <button class="se-mini-btn" id="se-fpaste" type="button">Paste</button>
           <button class="se-mini-btn" id="se-fdel" type="button">Del</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- SID Editor -->
+  <dialog id="sid-editor-dialog" class="sid-dialog">
+    <div class="sid-card">
+      <div class="sid-hdr">
+        <span class="sid-title">SID EDITOR</span>
+        <div class="ed-file">
+          <button class="ed-file-btn" type="button">Files ▾</button>
+          <div class="ed-file-menu" hidden>
+            <button id="sid-export-asm" type="button">Copy / Export ASM</button>
+            <button id="sid-export-basic" type="button">Copy / Export BASIC</button>
+          </div>
+        </div>
+        <button id="sid-close" class="sid-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="sid-body">
+        <!-- Instrument + waveform -->
+        <div class="sid-row sid-inst-row">
+          <span class="sid-lbl">INSTRUMENT</span>
+          <select id="sid-inst-sel" class="sid-select"></select>
+          <button id="sid-inst-add" class="sid-mini-btn" type="button" title="Add instrument">+</button>
+          <input id="sid-inst-name" class="sid-input" type="text" value="New Sound">
+          <button id="sid-preview" class="sid-mini-btn" type="button">♪ Preview</button>
+        </div>
+        <div class="sid-row sid-wave-row">
+          <span class="sid-lbl">WAVEFORM</span>
+          <label class="sid-check"><input type="checkbox" id="sid-tri"> <span>TRI</span></label>
+          <label class="sid-check"><input type="checkbox" id="sid-saw"> <span>SAW</span></label>
+          <label class="sid-check"><input type="checkbox" id="sid-pul" checked> <span>PUL</span></label>
+          <label class="sid-check"><input type="checkbox" id="sid-noi"> <span>NOI</span></label>
+          <span class="sid-mini-lbl">PW:</span>
+          <input type="range" id="sid-pw" min="0" max="4095" value="2048" class="sid-range">
+          <span id="sid-pw-val" class="sid-num">2048</span>
+        </div>
+        <!-- ADSR + graph + filter -->
+        <div class="sid-mid">
+          <div class="sid-adsr">
+            <span class="sid-section">ADSR ENVELOPE</span>
+            <div class="sid-slider-row"><span class="sid-sl-lbl">A:</span><input type="range" id="sid-a" min="0" max="15" value="2" class="sid-range"><span id="sid-a-val" class="sid-num">2</span></div>
+            <div class="sid-slider-row"><span class="sid-sl-lbl">D:</span><input type="range" id="sid-d" min="0" max="15" value="8" class="sid-range"><span id="sid-d-val" class="sid-num">8</span></div>
+            <div class="sid-slider-row"><span class="sid-sl-lbl">S:</span><input type="range" id="sid-s" min="0" max="15" value="6" class="sid-range"><span id="sid-s-val" class="sid-num">6</span></div>
+            <div class="sid-slider-row"><span class="sid-sl-lbl">R:</span><input type="range" id="sid-r" min="0" max="15" value="4" class="sid-range"><span id="sid-r-val" class="sid-num">4</span></div>
+          </div>
+          <canvas id="sid-adsr-canvas" class="sid-adsr-canvas" width="280" height="170"></canvas>
+          <div class="sid-filter">
+            <span class="sid-section">FILTER</span>
+            <div class="sid-filter-types">
+              <label class="sid-check"><input type="checkbox" id="sid-lp"> <span>LP</span></label>
+              <label class="sid-check"><input type="checkbox" id="sid-bp"> <span>BP</span></label>
+              <label class="sid-check"><input type="checkbox" id="sid-hp"> <span>HP</span></label>
+            </div>
+            <div class="sid-slider-row"><span class="sid-sl-lbl">Cut:</span><input type="range" id="sid-cut" min="0" max="2047" value="1400" class="sid-range"></div>
+            <div class="sid-slider-row"><span class="sid-sl-lbl">Res:</span><input type="range" id="sid-res" min="0" max="15" value="0" class="sid-range"></div>
+            <div class="sid-slider-row"><span class="sid-sl-lbl">Vol:</span><input type="range" id="sid-vol" min="0" max="15" value="15" class="sid-range"></div>
+          </div>
+        </div>
+        <!-- Tracker controls -->
+        <div class="sid-row sid-tracker-row">
+          <span class="sid-lbl">TRACKER</span>
+          <select id="sid-pat-sel" class="sid-select"></select>
+          <button id="sid-pat-add" class="sid-mini-btn" type="button" title="Add pattern">+</button>
+          <span class="sid-mini-lbl">Speed:</span>
+          <input id="sid-speed" class="sid-input sid-speed" type="number" min="1" max="20" value="6">
+          <button id="sid-play" class="sid-mini-btn" type="button">▶ Play</button>
+          <button id="sid-stop" class="sid-mini-btn" type="button">■ Stop</button>
+          <span class="sid-tracker-spacer"></span>
+          <button id="sid-export-asm2" class="sid-mini-btn" type="button">Export ASM</button>
+          <button id="sid-export-basic2" class="sid-mini-btn" type="button">Export BASIC</button>
+          <button id="sid-copy" class="sid-mini-btn" type="button">Copy</button>
+        </div>
+        <!-- Tracker grid -->
+        <div class="sid-tracker-wrap" id="sid-tracker-wrap" tabindex="0">
+          <table class="sid-tracker" id="sid-tracker"></table>
         </div>
       </div>
     </div>
