@@ -350,6 +350,10 @@
             <div class="output-section-label toolkit-label">
               <span class="panel-label" id="toolkit-output-label">Toolkit</span>
               <div id="toolkit-output" class="toolkit-output">
+                <div class="toolkit-palette-section">
+                  <div class="toolkit-subhdr">C64 COLOR PALETTE</div>
+                  <div id="toolkit-palette" class="c64-palette-grid"></div>
+                </div>
               <pre class="asm-output toolkit-block">COMMON PETSCII CONTROL CODES
 ════════════════════════════════
 
@@ -392,10 +396,6 @@ PRINTABLE CHARACTERS
  96-127:  Graphics characters
 160-191:  Shifted graphics
 192-223:  Same as 96-127</pre>
-                <div class="toolkit-palette-section">
-                  <div class="toolkit-subhdr">C64 COLOR PALETTE</div>
-                  <div id="toolkit-palette" class="c64-palette-grid"></div>
-                </div>
               </div>
             </div>
           </div>
@@ -872,6 +872,8 @@ PRINTABLE CHARACTERS
               <button data-export="bin" type="button">Save map (.bin)…</button>
               <button data-export="screen" type="button">Copy screen codes</button>
               <button data-export="color" type="button">Copy color RAM</button>
+              <div class="ed-file-sep"></div>
+              <button id="me-clear-menu" type="button">Clear map</button>
               <div class="ed-file-sep"></div>
               <button id="me-charset-load" type="button">Load charset (.bin)…</button>
               <button id="me-charset-editor" type="button">Charset from Editor</button>

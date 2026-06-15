@@ -17232,13 +17232,15 @@ function setupMapEditor() {
     _meCharSource = "rom";
     _meRenderBanks(); _meRenderAll();
   });
-  // Clear the whole map
-  document.getElementById("me-clear")?.addEventListener("click", function() {
+  // Clear the whole map (toolbar icon + Files menu entry)
+  const _meClearMap = function() {
     if (!_meScreen) return;
     _meScreen.fill(0x20);
     _meColorRam.fill(_meColor);
     _meRenderAll();
-  });
+  };
+  document.getElementById("me-clear")?.addEventListener("click", _meClearMap);
+  document.getElementById("me-clear-menu")?.addEventListener("click", _meClearMap);
   const csFile = document.getElementById("me-charset-file");
   document.getElementById("me-charset-load")?.addEventListener("click", function() { csFile?.click(); });
   csFile?.addEventListener("change", function(e) {
@@ -17583,56 +17585,75 @@ function _hgSetPaper(col) {
   _hgRenderAll();
 }
 
-/* ── Import image (nearest C64 color) ── */
+/* ── Palette RGB (cached) + nearest-colour ── */
+let _hgPalRGB = null;
+function _hgPal() {
+  if (!_hgPalRGB) {
+    _hgPalRGB = _CE_COLORS.map(function(h) {
+      return [parseInt(h.substr(1,2),16), parseInt(h.substr(3,2),16), parseInt(h.substr(5,2),16)];
+    });
+  }
+  return _hgPalRGB;
+}
 function _hgNearestColor(r, g, b) {
+  const pal = _hgPal();
   let best = 0, bestD = Infinity;
   for (let i = 0; i < 16; i++) {
-    const h = _CE_COLORS[i];
-    const cr = parseInt(h.substr(1,2),16), cg = parseInt(h.substr(3,2),16), cb = parseInt(h.substr(5,2),16);
-    const d = (r-cr)*(r-cr) + (g-cg)*(g-cg) + (b-cb)*(b-cb);
+    const c = pal[i];
+    const d = (r-c[0])*(r-c[0]) + (g-c[1])*(g-c[1]) + (b-c[2])*(b-c[2]);
     if (d < bestD) { bestD = d; best = i; }
   }
   return best;
 }
+
+/* Convert a full-resolution RGB source into hi-res: for each 8×8 cell pick the
+   two dominant palette colours (bg + fg) and assign each pixel to whichever of
+   the two its RGB is CLOSER to. This preserves detail (the old exact-match test
+   collapsed cells to a single colour → blocky). rgbAt(x,y) → [r,g,b]. */
+function _hgHiresFromRGB(rgbAt) {
+  const pal = _hgPal();
+  for (let cy = 0; cy < 25; cy++) {
+    for (let cx = 0; cx < 40; cx++) {
+      const freq = new Array(16).fill(0);
+      for (let yy = 0; yy < 8; yy++)
+        for (let xx = 0; xx < 8; xx++) {
+          const c = rgbAt(cx*8+xx, cy*8+yy);
+          freq[_hgNearestColor(c[0], c[1], c[2])]++;
+        }
+      let c0 = 0, c1 = 0, f0 = -1, f1 = -1;
+      for (let k = 0; k < 16; k++) {
+        if (freq[k] > f0) { f1 = f0; c1 = c0; f0 = freq[k]; c0 = k; }
+        else if (freq[k] > f1) { f1 = freq[k]; c1 = k; }
+      }
+      const cell = cy * 40 + cx;
+      _hgBgCell[cell] = c0;
+      _hgFgCell[cell] = (f1 > 0 && c1 !== c0) ? c1 : c0;
+      const p0 = pal[c0], p1 = pal[_hgFgCell[cell]];
+      for (let yy = 0; yy < 8; yy++)
+        for (let xx = 0; xx < 8; xx++) {
+          const px = cx*8+xx, py = cy*8+yy;
+          const c = rgbAt(px, py);
+          const d0 = (c[0]-p0[0])**2 + (c[1]-p0[1])**2 + (c[2]-p0[2])**2;
+          const d1 = (c[0]-p1[0])**2 + (c[1]-p1[1])**2 + (c[2]-p1[2])**2;
+          _hgBit[py * 320 + px] = (d1 < d0) ? 1 : 0;
+        }
+    }
+  }
+}
+
 function _hgImportImage(img) {
   const W = _hgW(), H = _hgH();
   const tmp = document.createElement("canvas");
   tmp.width = W; tmp.height = H;
   const tc = tmp.getContext("2d");
+  tc.imageSmoothingEnabled = false;   // crisp scaling for pixel-art sources
   tc.drawImage(img, 0, 0, W, H);
   const d = tc.getImageData(0, 0, W, H).data;
   _hgPushUndo();
-  // Nearest C64 colour per pixel
-  const near = new Uint8Array(W * H);
-  for (let i = 0; i < W * H; i++) near[i] = _hgNearestColor(d[i*4], d[i*4+1], d[i*4+2]);
-
   if (_hgMulti) {
-    _hgPixMC.set(near);
+    for (let i = 0; i < W * H; i++) _hgPixMC[i] = _hgNearestColor(d[i*4], d[i*4+1], d[i*4+2]);
   } else {
-    // Proper hi-res conversion: per 8x8 cell reduce to the 2 most frequent
-    // colours (bg = most common, fg = second), set bits accordingly.
-    for (let cy = 0; cy < 25; cy++) {
-      for (let cx = 0; cx < 40; cx++) {
-        const freq = new Array(16).fill(0);
-        for (let yy = 0; yy < 8; yy++)
-          for (let xx = 0; xx < 8; xx++)
-            freq[near[(cy*8+yy) * 320 + (cx*8+xx)]]++;
-        let c0 = 0, c1 = 0, f0 = -1, f1 = -1;
-        for (let i = 0; i < 16; i++) {
-          if (freq[i] > f0) { f1 = f0; c1 = c0; f0 = freq[i]; c0 = i; }
-          else if (freq[i] > f1) { f1 = freq[i]; c1 = i; }
-        }
-        const cell = cy * 40 + cx;
-        _hgBgCell[cell] = c0;
-        _hgFgCell[cell] = (c1 === c0 || f1 === 0) ? c0 : c1;
-        const fg = _hgFgCell[cell];
-        for (let yy = 0; yy < 8; yy++)
-          for (let xx = 0; xx < 8; xx++) {
-            const px = cx*8+xx, py = cy*8+yy;
-            _hgBit[py * 320 + px] = (near[py * 320 + px] === fg && fg !== c0) ? 1 : 0;
-          }
-      }
-    }
+    _hgHiresFromRGB(function(x, y) { const i = (y * W + x) * 4; return [d[i], d[i+1], d[i+2]]; });
   }
   _hgRenderAll();
 }
@@ -17684,16 +17705,19 @@ function _hgImportBytes(src) {
       }
     }
   } else if (len === 64000) {
-    // Legacy hi-res per-pixel colour
+    // Legacy hi-res per-pixel colour → proper per-cell 2-colour reduction
     _hgMulti = false;
-    _hgBit.fill(0); _hgFgCell.fill(1); _hgBgCell.fill(_hgPaper);
-    for (let y = 0; y < 200; y++)
-      for (let x = 0; x < 320; x++) _hgSet(x, y, src[y * 320 + x] & 0x0F);
+    const pal = _hgPal();
+    _hgHiresFromRGB(function(x, y) { return pal[src[y * 320 + x] & 0x0F]; });
   } else {
     // Unknown size — best effort into the current mode
     const W = _hgW(), H = _hgH();
-    for (let y = 0; y < H; y++)
-      for (let x = 0; x < W; x++) { const i = y * W + x; _hgSet(x, y, i < len ? (src[i] & 0x0F) : _hgPaper); }
+    if (!_hgMulti) {
+      const pal = _hgPal();
+      _hgHiresFromRGB(function(x, y) { const i = y * W + x; return pal[(i < len ? src[i] : _hgPaper) & 0x0F]; });
+    } else {
+      for (let i = 0; i < W * H; i++) _hgPixMC[i] = i < len ? (src[i] & 0x0F) : _hgPaper;
+    }
   }
   const mc = document.getElementById("hg-multicolor");
   if (mc) mc.checked = _hgMulti;
