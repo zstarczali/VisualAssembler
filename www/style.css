@@ -5460,10 +5460,11 @@ body.crt-mode #crt-overlay::after {
 }
 .c64-chrrom-title {
   margin: 0;
-  font-family: "IBM Plex Mono", monospace;
+  font-family: inherit;
   font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--text);
   white-space: nowrap;
   flex: 1;
@@ -5522,7 +5523,8 @@ body.crt-mode #crt-overlay::after {
   width: 200px;
   min-width: 200px;
   max-width: 200px;
-  border-right: 1px solid var(--panel-border);
+  margin: 0 0 16px 16px;
+  border: 1px solid var(--panel-border);
   overflow-y: auto;
   background: var(--panel-strong);
 }
@@ -5972,7 +5974,8 @@ body.crt-mode #crt-overlay::after {
   font-family: inherit;
   font-size: 0.74rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--text);
   white-space: nowrap;
 }
@@ -6164,14 +6167,14 @@ body.crt-mode #crt-overlay::after {
 .me-layer--active { background: var(--surface-soft); color: var(--primary); }
 
 /* Canvas area */
+/* Scroller, inset from the dialog's right and bottom edges (gap shows the card
+   background, like the other tool dialogs). */
 .me-canvas-wrap {
   flex: 1;
   min-width: 0;
   overflow: auto;
   background: var(--bg-accent);
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
+  margin: 0 16px 16px 0;
   padding: 16px;
 }
 .me-canvas {
@@ -6180,7 +6183,6 @@ body.crt-mode #crt-overlay::after {
   image-rendering: crisp-edges;
   cursor: crosshair;
   box-shadow: 0 4px 18px rgba(0,0,0,0.3);
-  flex-shrink: 0;
 }
 
 /* Footer / status */
@@ -6196,3 +6198,155 @@ body.crt-mode #crt-overlay::after {
   color: var(--secondary);
   white-space: pre;
 }
+
+/* ═══ Hi-Res Graphics Editor ═══════════════════════════════ */
+.hg-dialog {
+  background: transparent;
+  border: none;
+  padding: 0;
+  width: min(1180px, 97vw);
+  max-width: 97vw;
+  height: min(820px, 95vh);
+  max-height: 95vh;
+  overflow: hidden;
+}
+.hg-dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
+.hg-card {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+.hg-hdr {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--panel-strong);
+  flex-shrink: 0;
+}
+.hg-title {
+  font-family: inherit;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+.hg-xbtn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--secondary);
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  min-height: 0;
+  height: 28px;
+  width: 28px;
+}
+.hg-xbtn:hover { color: var(--text); }
+
+/* Toolbars */
+.hg-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--panel-border);
+  flex-shrink: 0;
+}
+.hg-toolbar--2 { background: var(--panel-strong); }
+.hg-tool-group { display: flex; gap: 2px; background: var(--control-bg); border: 1px solid var(--panel-border); border-radius: 2px; padding: 2px; }
+.hg-tool, .hg-btn {
+  font-family: inherit;
+  font-size: 0.76rem;
+  font-weight: 500;
+  padding: 5px 11px;
+  border: none;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--secondary);
+  cursor: pointer;
+  min-height: 0;
+  white-space: nowrap;
+  transition: background 0.12s, color 0.12s;
+}
+.hg-tool:hover, .hg-btn:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); color: var(--text); }
+.hg-tool--active { background: var(--primary); color: #fff; }
+.hg-tool--active:hover { background: var(--primary); color: #fff; }
+.hg-btn {
+  border: 1px solid var(--panel-border);
+  background: var(--control-bg);
+  color: var(--text);
+}
+.hg-check {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: inherit;
+  font-size: 0.8rem;
+  color: var(--secondary);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+.hg-check input { cursor: pointer; min-height: 0; padding: 0; margin: 0; height: auto; }
+.hg-color-lbl, .hg-zoom-lbl, .hg-zoom-val {
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--secondary);
+}
+.hg-palette { display: flex; gap: 3px; flex-wrap: wrap; }
+.hg-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 2px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  box-sizing: border-box;
+  transition: transform 0.1s;
+}
+.hg-swatch:hover { transform: scale(1.12); }
+.hg-swatch--sel { border-color: var(--primary) !important; outline: 1px solid rgba(0,0,0,0.35); }
+.hg-zoom { width: 110px; accent-color: var(--primary); cursor: pointer; min-height: 0; padding: 0; margin: 0; height: auto; }
+
+/* Canvas area */
+.hg-canvas-wrap {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  background: #000;
+  margin: 0 14px 0 0;
+  padding: 14px;
+}
+.hg-canvas {
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  cursor: crosshair;
+}
+
+/* Footer */
+.hg-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 12px;
+  border-top: 1px solid var(--panel-border);
+  background: var(--panel-strong);
+  flex-shrink: 0;
+}
+.hg-status {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.7rem;
+  color: var(--secondary);
+}
+.hg-footer-btns { margin-left: auto; display: flex; gap: 6px; }

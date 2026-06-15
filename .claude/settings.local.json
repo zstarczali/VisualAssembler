@@ -45,7 +45,18 @@
       "Bash(awk 'NR>=1700 && NR<=1900 && /function |applyTranslations|updateLanguage|setText = /{print NR\": \"$0}' app.js)",
       "Bash(awk 'NR>=1900 && NR<=2000 && /^\\\\s*\\\\}/{print NR\": \"$0; c++; if\\(c>3\\) exit}' app.js)",
       "Bash(node -c i18n.js)",
-      "Bash(node -e \"const t=require\\('./i18n.js'\\)\")"
+      "Bash(node -e \"const t=require\\('./i18n.js'\\)\")",
+      "Bash(sed -i 's/app.js?v=1.9.5/app.js?v=1.9.6/; s/style.css?v=1.9.5/style.css?v=1.9.6/; s/i18n.js?v=1.9.5/i18n.js?v=1.9.6/' index.html)",
+      "Bash(grep -nE '\"version\"' package.json)",
+      "Bash(grep -rnE '\"version\"' src-tauri/tauri.conf.json)",
+      "Bash(grep -nE '^version' src-tauri/Cargo.toml)",
+      "Bash(grep -nB1 'version = \"1.7.4\"' src-tauri/Cargo.lock)",
+      "Bash(sed -i 's/tutorial-data.js?v=1.7.4/tutorial-data.js?v=1.8.0/' www/index.html)",
+      "Bash(sed -i 's/\"version\": \"1.7.4\"/\"version\": \"1.8.0\"/' package.json)",
+      "Bash(sed -i 's/\"version\": \"1.7.4\"/\"version\": \"1.8.0\"/' src-tauri/tauri.conf.json)",
+      "Bash(sed -i '0,/^version = \"1.7.4\"/s//version = \"1.8.0\"/' src-tauri/Cargo.toml)",
+      "Bash(sed -i '/^name = \"c64-visual-assembler\"$/{n;s/^version = \"1.7.4\"$/version = \"1.8.0\"/}' src-tauri/Cargo.lock)",
+      "Bash(grep -A1 '^name = \"c64-visual-assembler\"$' src-tauri/Cargo.lock)"
     ]
   }
 }

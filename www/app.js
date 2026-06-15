@@ -1108,6 +1108,7 @@ function initPalette() {
   setupC64CharRom();
   setupCharEditor();
   setupMapEditor();
+  setupHiresEditor();
   setupOperandDropdown();
   setupD64ExportDialog();
 
@@ -2002,7 +2003,9 @@ function _applyEditorTranslations() {
   setText("#ce-load-rom", t("ceLoadRom"));
   setText("#ce-load-bin", t("ceLoadBin"));
   setText("#ce-save-bin", t("ceSaveBin"));
-  if (typeof _ceUpdateInfo === "function" && typeof _ceData !== "undefined" && _ceData) _ceUpdateInfo();
+  // _ceData/_ceSel are `let`s declared later in the file; at first init they are
+  // still in the temporal dead zone (typeof throws too), so guard with try/catch.
+  try { _ceUpdateInfo(); } catch (_) {}
   // Map Editor
   setText(".me-title", t("meTitle"));
   setText('.me-tool[data-tool="paint"]', t("mePaint"));
@@ -16697,7 +16700,7 @@ function _ceRenderMap() {
 
 function _ceUpdateInfo() {
   const el = document.getElementById("ce-char-info");
-  if (el) el.textContent = "Char: " + _ceSel + " ($" + _ceSel.toString(16).toUpperCase().padStart(2,"0") + ")";
+  if (el) el.textContent = (typeof t === "function" ? t("ceCharLabel") : "Char:") + " " + _ceSel + " ($" + _ceSel.toString(16).toUpperCase().padStart(2,"0") + ")";
 }
 
 function _ceUpdateAsm() {
@@ -16794,7 +16797,7 @@ function _ceLoadRom() {
   }
   _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
   const btn = document.getElementById("ce-load-rom");
-  if (btn) { btn.textContent = "Loaded!"; setTimeout(function() { btn.textContent = "Load ROM"; }, 1400); }
+  if (btn) { const o = btn.textContent; btn.textContent = (typeof t === "function" ? t("loaded") : "Loaded!"); setTimeout(function() { btn.textContent = o; }, 1400); }
 }
 
 function _ceInit() {
@@ -16918,7 +16921,7 @@ function setupCharEditor() {
     if (!el) return;
     navigator.clipboard.writeText(el.textContent).then(function() {
       const btn = document.getElementById("ce-copy-asm");
-      if (btn) { btn.textContent = "Copied!"; setTimeout(function() { btn.textContent = "Copy ASM"; }, 1300); }
+      if (btn) { const o = btn.textContent; btn.textContent = (typeof t === "function" ? t("copied") : "Copied!"); setTimeout(function() { btn.textContent = o; }, 1300); }
     });
   });
 
@@ -17195,7 +17198,7 @@ function _meExport(kind) {
   }
   navigator.clipboard.writeText(out).then(function() {
     const btn = document.getElementById("me-export-btn");
-    if (btn) { const o = btn.textContent; btn.textContent = "Copied!"; setTimeout(function(){ btn.textContent = o; }, 1200); }
+    if (btn) { const o = btn.textContent; btn.textContent = (typeof t === "function" ? t("copied") : "Copied!"); setTimeout(function(){ btn.textContent = o; }, 1200); }
   }).catch(function(){});
 }
 
@@ -17365,4 +17368,354 @@ function setupMapEditor() {
     canvas.addEventListener("pointercancel", endPaint);
     canvas.addEventListener("pointerleave", function() { _meUpdateStatus(null); });
   }
+}
+
+/* ═══════════════════════════════════════════════════════
+   HI-RES / MULTICOLOR GRAPHICS EDITOR
+   ═══════════════════════════════════════════════════════ */
+let _hgMulti = false;        // false = hi-res (320x200), true = multicolor (160x200)
+let _hgPixHi = null;         // Uint8Array(320*200)
+let _hgPixMC = null;         // Uint8Array(160*200)
+let _hgColor = 1;            // selected color index
+let _hgTool  = "pencil";
+let _hgZoom  = 3;
+let _hgGrid  = false;
+let _hgRaster = false;
+let _hgCanvas = null, _hgCtx = null, _hgBuf = null, _hgBufCtx = null;
+let _hgPainting = false, _hgStart = null, _hgLast = null;
+let _hgUndo = [], _hgRedo = [];
+let _hgInited = false;
+
+function _hgW() { return _hgMulti ? 160 : 320; }
+function _hgH() { return 200; }
+function _hgPix() { return _hgMulti ? _hgPixMC : _hgPixHi; }
+function _hgPxW() { return _hgMulti ? _hgZoom * 2 : _hgZoom; }  // display px width of one logical pixel
+function _hgPxH() { return _hgZoom; }
+function _hgDispW() { return _hgW() * _hgPxW(); }   // = 320*zoom always
+function _hgDispH() { return _hgH() * _hgPxH(); }
+
+function _hgGet(x, y) {
+  if (x < 0 || y < 0 || x >= _hgW() || y >= _hgH()) return -1;
+  return _hgPix()[y * _hgW() + x];
+}
+function _hgSet(x, y, col) {
+  if (x < 0 || y < 0 || x >= _hgW() || y >= _hgH()) return;
+  _hgPix()[y * _hgW() + x] = col;
+}
+
+/* ── Rendering ── */
+function _hgDrawPixelBuf(x, y) {
+  const pw = _hgPxW(), ph = _hgPxH();
+  _hgBufCtx.fillStyle = _CE_COLORS[_hgPix()[y * _hgW() + x]];
+  _hgBufCtx.fillRect(x * pw, y * ph, pw, ph);
+}
+function _hgRenderBuf() {
+  const W = _hgDispW(), H = _hgDispH();
+  if (!_hgBuf) _hgBuf = document.createElement("canvas");
+  if (_hgBuf.width !== W) { _hgBuf.width = W; _hgBuf.height = H; }
+  for (let y = 0; y < _hgH(); y++)
+    for (let x = 0; x < _hgW(); x++) _hgDrawPixelBuf(x, y);
+}
+function _hgOverlays() {
+  const W = _hgDispW(), H = _hgDispH();
+  if (_hgGrid) {
+    _hgCtx.strokeStyle = "rgba(120,130,160,0.5)";
+    _hgCtx.lineWidth = 1;
+    const cw = 8 * _hgPxW(), ch = 8 * _hgPxH();
+    _hgCtx.beginPath();
+    for (let x = 0; x <= W; x += cw) { _hgCtx.moveTo(x + 0.5, 0); _hgCtx.lineTo(x + 0.5, H); }
+    for (let y = 0; y <= H; y += ch) { _hgCtx.moveTo(0, y + 0.5); _hgCtx.lineTo(W, y + 0.5); }
+    _hgCtx.stroke();
+  }
+  if (_hgRaster) {
+    _hgCtx.fillStyle = "rgba(0,0,0,0.28)";
+    for (let y = 0; y < H; y += 2) _hgCtx.fillRect(0, y, W, 1);
+  }
+}
+function _hgBlit() {
+  const W = _hgDispW(), H = _hgDispH();
+  if (_hgCanvas.width !== W) { _hgCanvas.width = W; _hgCanvas.height = H; }
+  _hgCtx.drawImage(_hgBuf, 0, 0);
+  _hgOverlays();
+}
+function _hgRenderAll() { _hgRenderBuf(); _hgBlit(); }
+
+/* ── Undo / redo ── */
+function _hgPushUndo() {
+  _hgUndo.push(_hgPix().slice(0));
+  if (_hgUndo.length > 40) _hgUndo.shift();
+  _hgRedo.length = 0;
+}
+function _hgUndoOp() {
+  if (!_hgUndo.length) return;
+  _hgRedo.push(_hgPix().slice(0));
+  const prev = _hgUndo.pop();
+  _hgPix().set(prev);
+  _hgRenderAll();
+}
+function _hgRedoOp() {
+  if (!_hgRedo.length) return;
+  _hgUndo.push(_hgPix().slice(0));
+  const next = _hgRedo.pop();
+  _hgPix().set(next);
+  _hgRenderAll();
+}
+
+/* ── Shape rasterizers (write into a target setter fn) ── */
+function _hgLine(x0, y0, x1, y1, set) {
+  let dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0);
+  let sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
+  let err = dx - dy;
+  while (true) {
+    set(x0, y0);
+    if (x0 === x1 && y0 === y1) break;
+    const e2 = 2 * err;
+    if (e2 > -dy) { err -= dy; x0 += sx; }
+    if (e2 < dx) { err += dx; y0 += sy; }
+  }
+}
+function _hgRect(x0, y0, x1, y1, set, filled) {
+  const xa = Math.min(x0,x1), xb = Math.max(x0,x1), ya = Math.min(y0,y1), yb = Math.max(y0,y1);
+  if (filled) {
+    for (let y = ya; y <= yb; y++) for (let x = xa; x <= xb; x++) set(x, y);
+  } else {
+    for (let x = xa; x <= xb; x++) { set(x, ya); set(x, yb); }
+    for (let y = ya; y <= yb; y++) { set(xa, y); set(xb, y); }
+  }
+}
+function _hgOval(x0, y0, x1, y1, set, filled) {
+  const xa = Math.min(x0,x1), xb = Math.max(x0,x1), ya = Math.min(y0,y1), yb = Math.max(y0,y1);
+  const cx = (xa + xb) / 2, cy = (ya + yb) / 2;
+  const rx = Math.max(0.5, (xb - xa) / 2), ry = Math.max(0.5, (yb - ya) / 2);
+  if (filled) {
+    for (let y = ya; y <= yb; y++) for (let x = xa; x <= xb; x++) {
+      const nx = (x - cx) / rx, ny = (y - cy) / ry;
+      if (nx*nx + ny*ny <= 1) set(x, y);
+    }
+  } else {
+    const steps = Math.max(8, Math.round((rx + ry) * 4));
+    let px = null, py = null;
+    for (let i = 0; i <= steps; i++) {
+      const a = (i / steps) * Math.PI * 2;
+      const x = Math.round(cx + Math.cos(a) * rx), y = Math.round(cy + Math.sin(a) * ry);
+      if (px !== null) _hgLine(px, py, x, y, set); else set(x, y);
+      px = x; py = y;
+    }
+  }
+}
+function _hgFloodFill(x, y, col) {
+  const target = _hgGet(x, y);
+  if (target === col || target === -1) return;
+  const W = _hgW(), H = _hgH(), data = _hgPix();
+  const stack = [[x, y]];
+  while (stack.length) {
+    const [cx, cy] = stack.pop();
+    if (cx < 0 || cy < 0 || cx >= W || cy >= H) continue;
+    if (data[cy * W + cx] !== target) continue;
+    data[cy * W + cx] = col;
+    stack.push([cx+1, cy], [cx-1, cy], [cx, cy+1], [cx, cy-1]);
+  }
+}
+
+/* ── Pointer → pixel ── */
+function _hgPixelFromEvent(e) {
+  const rect = _hgCanvas.getBoundingClientRect();
+  const sx = _hgCanvas.width / rect.width, sy = _hgCanvas.height / rect.height;
+  const x = Math.floor((e.clientX - rect.left) * sx / _hgPxW());
+  const y = Math.floor((e.clientY - rect.top)  * sy / _hgPxH());
+  return { x, y };
+}
+function _hgStatus(x, y) {
+  const el = document.getElementById("hg-status");
+  if (el) el.textContent = (x == null) ? "(-, -)" : "(" + x + ", " + y + ")";
+}
+
+/* ── Palette / status helpers ── */
+function _hgBuildPalette() {
+  const wrap = document.getElementById("hg-palette");
+  if (!wrap || wrap.children.length) return;
+  _CE_COLORS.forEach(function(hex, i) {
+    const sw = document.createElement("div");
+    sw.className = "hg-swatch" + (i === _hgColor ? " hg-swatch--sel" : "");
+    sw.style.background = hex;
+    sw.title = "Color " + i;
+    sw.addEventListener("click", function() {
+      _hgColor = i;
+      wrap.querySelectorAll(".hg-swatch").forEach(function(s, j) { s.classList.toggle("hg-swatch--sel", j === i); });
+    });
+    wrap.appendChild(sw);
+  });
+}
+
+/* ── Import image (nearest C64 color) ── */
+function _hgNearestColor(r, g, b) {
+  let best = 0, bestD = Infinity;
+  for (let i = 0; i < 16; i++) {
+    const h = _CE_COLORS[i];
+    const cr = parseInt(h.substr(1,2),16), cg = parseInt(h.substr(3,2),16), cb = parseInt(h.substr(5,2),16);
+    const d = (r-cr)*(r-cr) + (g-cg)*(g-cg) + (b-cb)*(b-cb);
+    if (d < bestD) { bestD = d; best = i; }
+  }
+  return best;
+}
+function _hgImportImage(img) {
+  const W = _hgW(), H = _hgH();
+  const tmp = document.createElement("canvas");
+  tmp.width = W; tmp.height = H;
+  const tc = tmp.getContext("2d");
+  tc.drawImage(img, 0, 0, W, H);
+  const d = tc.getImageData(0, 0, W, H).data;
+  _hgPushUndo();
+  const data = _hgPix();
+  for (let i = 0; i < W * H; i++) {
+    data[i] = _hgNearestColor(d[i*4], d[i*4+1], d[i*4+2]);
+  }
+  _hgRenderAll();
+}
+
+function _hgInit() {
+  if (_hgInited) return;
+  _hgInited = true;
+  _hgPixHi = new Uint8Array(320 * 200).fill(0);
+  _hgPixMC = new Uint8Array(160 * 200).fill(0);
+  _hgCanvas = document.getElementById("hg-canvas");
+  _hgCtx = _hgCanvas.getContext("2d");
+  _hgBuf = document.createElement("canvas");
+  _hgBufCtx = _hgBuf.getContext("2d");
+  _hgBuildPalette();
+}
+
+function setupHiresEditor() {
+  const dialog = document.getElementById("hires-editor-dialog");
+  if (!dialog) return;
+
+  document.getElementById("hires-editor-btn")?.addEventListener("click", function() {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    _hgInit();
+    _hgRenderAll();
+    _hgStatus(null);
+    dialog.showModal();
+  });
+  document.getElementById("hg-close")?.addEventListener("click", function() { dialog.close(); });
+
+  dialog.querySelectorAll(".hg-tool[data-tool]").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      _hgTool = btn.dataset.tool;
+      dialog.querySelectorAll(".hg-tool[data-tool]").forEach(function(b) { b.classList.toggle("hg-tool--active", b === btn); });
+    });
+  });
+
+  document.getElementById("hg-undo")?.addEventListener("click", _hgUndoOp);
+  document.getElementById("hg-redo")?.addEventListener("click", _hgRedoOp);
+  document.getElementById("hg-clear")?.addEventListener("click", function() {
+    _hgPushUndo(); _hgPix().fill(0); _hgRenderAll();
+  });
+
+  document.getElementById("hg-multicolor")?.addEventListener("change", function(e) {
+    _hgMulti = e.target.checked; _hgRenderAll();
+  });
+  document.getElementById("hg-grid")?.addEventListener("change", function(e) {
+    _hgGrid = e.target.checked; _hgBlit();
+  });
+  document.getElementById("hg-raster")?.addEventListener("change", function(e) {
+    _hgRaster = e.target.checked; _hgBlit();
+  });
+  document.getElementById("hg-zoom")?.addEventListener("input", function(e) {
+    _hgZoom = parseInt(e.target.value, 10);
+    const lbl = document.getElementById("hg-zoom-val");
+    if (lbl) lbl.textContent = _hgZoom + "×";
+    _hgRenderAll();
+  });
+
+  // Import
+  const impFile = document.getElementById("hg-import-file");
+  document.getElementById("hg-import")?.addEventListener("click", function() { impFile?.click(); });
+  impFile?.addEventListener("change", function(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (/\.bin$/i.test(file.name) || file.type === "application/octet-stream") {
+      const reader = new FileReader();
+      reader.onload = function() {
+        const src = new Uint8Array(reader.result);
+        _hgPushUndo();
+        const data = _hgPix();
+        for (let i = 0; i < data.length; i++) data[i] = i < src.length ? (src[i] & 0x0F) : 0;
+        _hgRenderAll();
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      const img = new Image();
+      img.onload = function() { _hgImportImage(img); URL.revokeObjectURL(img.src); };
+      img.src = URL.createObjectURL(file);
+    }
+    e.target.value = "";
+  });
+
+  // Export / Save
+  document.getElementById("hg-export")?.addEventListener("click", function() {
+    _saveBinFile(_hgPix(), _hgMulti ? "image-mc.bin" : "image-hires.bin");
+  });
+  document.getElementById("hg-save-d64")?.addEventListener("click", function() {
+    _saveBinFile(_hgPix(), _hgMulti ? "image-mc.bin" : "image-hires.bin");
+  });
+
+  // Canvas interaction
+  const canvas = document.getElementById("hg-canvas");
+  const applyPoint = function(x, y) {
+    const col = _hgTool === "eraser" ? 0 : _hgColor;
+    _hgSet(x, y, col);
+    _hgDrawPixelBuf(x, y);
+  };
+  canvas.addEventListener("pointerdown", function(e) {
+    if (e.button !== 0) return;
+    _hgInit();
+    const p = _hgPixelFromEvent(e);
+    if (p.x < 0 || p.y < 0 || p.x >= _hgW() || p.y >= _hgH()) return;
+    try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+    _hgPushUndo();
+    _hgPainting = true; _hgStart = p; _hgLast = p;
+    if (_hgTool === "pencil" || _hgTool === "eraser") { applyPoint(p.x, p.y); _hgBlit(); }
+    else if (_hgTool === "fill") { _hgFloodFill(p.x, p.y, _hgColor); _hgRenderAll(); _hgPainting = false; }
+    e.preventDefault();
+  });
+  canvas.addEventListener("pointermove", function(e) {
+    const p = _hgPixelFromEvent(e);
+    _hgStatus(p.x >= 0 && p.y >= 0 && p.x < _hgW() && p.y < _hgH() ? p.x : null, p.y);
+    if (!_hgPainting) return;
+    const col = _hgTool === "eraser" ? 0 : _hgColor;
+    if (_hgTool === "pencil" || _hgTool === "eraser") {
+      _hgLine(_hgLast.x, _hgLast.y, p.x, p.y, function(x, y) { _hgSet(x, y, col); if (_hgGet(x,y) !== -1) _hgDrawPixelBuf(x, y); });
+      _hgLast = p; _hgBlit();
+    } else {
+      // shape preview: blit committed, draw preview on top
+      _hgBlit();
+      _hgCtx.fillStyle = _CE_COLORS[col];
+      const pw = _hgPxW(), ph = _hgPxH();
+      const draw = function(x, y) { if (x>=0&&y>=0&&x<_hgW()&&y<_hgH()) _hgCtx.fillRect(x*pw, y*ph, pw, ph); };
+      _hgPreviewShape(_hgStart, p, draw);
+    }
+  });
+  const endPaint = function(e) {
+    if (!_hgPainting) return;
+    _hgPainting = false;
+    const p = (e && e.clientX != null) ? _hgPixelFromEvent(e) : _hgLast;
+    if (_hgTool !== "pencil" && _hgTool !== "eraser" && _hgTool !== "fill") {
+      const col = _hgColor;
+      const set = function(x, y) { _hgSet(x, y, col); };
+      _hgPreviewShape(_hgStart, p, set);
+      _hgRenderAll();
+    }
+    if (e && e.pointerId != null) { try { canvas.releasePointerCapture(e.pointerId); } catch (_) {} }
+  };
+  canvas.addEventListener("pointerup", endPaint);
+  canvas.addEventListener("pointercancel", endPaint);
+  canvas.addEventListener("pointerleave", function() { _hgStatus(null); });
+}
+
+function _hgPreviewShape(a, b, set) {
+  if (_hgTool === "line") _hgLine(a.x, a.y, b.x, b.y, set);
+  else if (_hgTool === "rect") _hgRect(a.x, a.y, b.x, b.y, set, false);
+  else if (_hgTool === "fillrect") _hgRect(a.x, a.y, b.x, b.y, set, true);
+  else if (_hgTool === "oval") _hgOval(a.x, a.y, b.x, b.y, set, false);
+  else if (_hgTool === "filloval") _hgOval(a.x, a.y, b.x, b.y, set, true);
 }

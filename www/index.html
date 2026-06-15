@@ -12,7 +12,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=1.9.4">
+  <link rel="stylesheet" href="style.css?v=1.8.0">
 </head>
 
 <body>
@@ -173,6 +173,9 @@
           </button>
           <button id="map-editor-btn" class="main-tb-btn main-tb-icon-btn" type="button" title="Map Editor" aria-label="Map Editor">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" width="15" height="15" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" rx="1"/><path d="M1.5 6h13M1.5 10.5h13M6 1.5v13M10.5 1.5v13" stroke-width="0.9"/><rect x="6" y="6" width="4.5" height="4.5" fill="currentColor" stroke="none" opacity="0.7"/></svg>
+          </button>
+          <button id="hires-editor-btn" class="main-tb-btn main-tb-icon-btn" type="button" title="Hi-Res Graphics Editor" aria-label="Hi-Res Graphics Editor">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" width="15" height="15" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="1"/><path d="M3 11l3-3 2 2 3-4 2 2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="5.5" cy="5.5" r="1" fill="currentColor" stroke="none"/></svg>
           </button>
           <div class="main-tb-sep" aria-hidden="true"></div>
           <div class="split-run-group">
@@ -853,6 +856,55 @@
     </div>
   </dialog>
 
+  <!-- Hi-Res Graphics Editor -->
+  <dialog id="hires-editor-dialog" class="hg-dialog">
+    <div class="hg-card">
+      <div class="hg-hdr">
+        <span class="hg-title">HI-RES GRAPHICS EDITOR</span>
+        <button id="hg-close" class="hg-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="hg-toolbar">
+        <div class="hg-tool-group">
+          <button class="hg-tool hg-tool--active" data-tool="pencil" type="button">Pencil</button>
+          <button class="hg-tool" data-tool="eraser" type="button">Eraser</button>
+          <button class="hg-tool" data-tool="line" type="button">Line</button>
+          <button class="hg-tool" data-tool="rect" type="button">Rect</button>
+          <button class="hg-tool" data-tool="fillrect" type="button">FillRect</button>
+          <button class="hg-tool" data-tool="oval" type="button">Oval</button>
+          <button class="hg-tool" data-tool="filloval" type="button">FillOval</button>
+          <button class="hg-tool" data-tool="fill" type="button">Fill</button>
+        </div>
+        <div class="hg-tool-group">
+          <button class="hg-btn" id="hg-undo" type="button">Undo</button>
+          <button class="hg-btn" id="hg-redo" type="button">Redo</button>
+          <button class="hg-btn" id="hg-clear" type="button">Clear</button>
+          <button class="hg-btn" id="hg-import" type="button">Import…</button>
+        </div>
+        <label class="hg-check"><input type="checkbox" id="hg-multicolor"> <span id="hg-multicolor-label">Multi-Color</span></label>
+        <label class="hg-check"><input type="checkbox" id="hg-grid"> <span id="hg-grid-label">Grid</span></label>
+        <input type="file" id="hg-import-file" accept="image/*,.bin,application/octet-stream" hidden>
+      </div>
+      <div class="hg-toolbar hg-toolbar--2">
+        <span class="hg-color-lbl" id="hg-color-lbl">COLOR:</span>
+        <div class="hg-palette" id="hg-palette"></div>
+        <span class="hg-zoom-lbl" id="hg-zoom-lbl">Zoom:</span>
+        <input type="range" id="hg-zoom" min="1" max="8" step="1" value="3" class="hg-zoom">
+        <span class="hg-zoom-val" id="hg-zoom-val">3×</span>
+        <label class="hg-check"><input type="checkbox" id="hg-raster"> <span id="hg-raster-label">Raster</span></label>
+      </div>
+      <div class="hg-canvas-wrap" id="hg-canvas-wrap">
+        <canvas id="hg-canvas" class="hg-canvas"></canvas>
+      </div>
+      <div class="hg-footer">
+        <span id="hg-status" class="hg-status">(0, 0)</span>
+        <div class="hg-footer-btns">
+          <button class="hg-btn" id="hg-export" type="button">Export…</button>
+          <button class="hg-btn" id="hg-save-d64" type="button">Save to D64…</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
   <!-- C64 Color Palette -->
   <dialog id="c64-palette-dialog" class="c64-palette-dialog">
     <div class="c64-palette-card">
@@ -1009,9 +1061,9 @@
   </div>
 
   <script src="tauri-bridge.js"></script>
-  <script src="i18n.js?v=1.7.4"></script>
-  <script src="tutorial-data.js?v=1.7.4"></script>
-  <script src="app.js?v=1.9.4"></script>
+  <script src="i18n.js?v=1.8.0"></script>
+  <script src="tutorial-data.js?v=1.8.0"></script>
+  <script src="app.js?v=1.8.0"></script>
 
 </body>
 
