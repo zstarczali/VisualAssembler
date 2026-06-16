@@ -2022,8 +2022,6 @@ function _applyEditorTranslations() {
   setText('#map-editor-dialog button[data-export="bin"]', t("meExportBin"));
   setText("#me-load-map", t("meLoadMap"));
   setText("#me-grid-label", t("meGrid"));
-  setText("#me-charset-load", t("meLoadBin"));
-  setText("#me-charset-editor", t("meFromEditor"));
   setText(".me-palette-wrap .me-section-lbl", t("meColorLabel"));
   setText(".me-layers .me-section-lbl", t("meLayers"));
 }
@@ -4683,6 +4681,22 @@ function _addSrcLineToBlocks(text, blocks) {
       }
     }
   }
+}
+
+// Universal "Export to blocks" helper used by SID / sprite / char / etc. editors.
+// Parses asm text and appends the resulting blocks to the active program[].
+// Returns the number of blocks inserted.
+function exportAsmToBlocks(asmText) {
+  if (!asmText) return 0;
+  const newBlocks = parseExpertText(asmText);
+  if (!newBlocks.length) return 0;
+  const insertAt = program.length;
+  for (let i = 0; i < newBlocks.length; i++) program.splice(insertAt + i, 0, newBlocks[i]);
+  markTabDirty();
+  parseUserMacros();
+  renderProgram();
+  if (expertMode) _expertSyncFromProgram();
+  return newBlocks.length;
 }
 
 function _expertBuildProgram() {
@@ -17388,7 +17402,7 @@ function setupMapEditor() {
       _meRenderBanks(); _meRenderAll();
     } else {
       const btn = document.getElementById("me-charset-editor");
-      if (btn) { const o = btn.textContent; btn.textContent = "Editor empty"; setTimeout(function(){ btn.textContent = o; }, 1400); }
+      if (btn) { const o = btn.title; btn.title = "Editor empty!"; setTimeout(function(){ btn.title = o; }, 1400); }
     }
   });
 
@@ -18396,6 +18410,7 @@ let _sidInsts = null;     // instruments
 let _sidPatterns = null;  // [pattern][voice 0..2][row 0..31] = {note, inst}
 let _sidInst = 0, _sidPat = 0, _sidSpeed = 6;
 let _sidSel = { voice: 0, row: 0 };
+let _sidClipboard = null;  // copied voice column: array of 32 {note, inst}
 let _sidAudio = null;
 let _sidTimer = null, _sidRow = 0;
 let _sidInited = false;
@@ -18451,39 +18466,57 @@ function _sidBuildInstSel() {
 }
 
 /* ── ADSR graph ── */
+let _sidAdsrGeom = null;
 function _sidDrawADSR() {
   const c = document.getElementById("sid-adsr-canvas"); if (!c) return;
   const ctx = c.getContext("2d"), W = c.width, H = c.height;
   ctx.clearRect(0,0,W,H);
   const inst = _sidCurInst();
-  const pad = 10, x0 = pad, x1 = W - pad, y0 = H - 18, yTop = 10;
-  // grid
+  const x0 = 10, x1 = W - 10, yTop = 10, y0 = H - 18, span = x1 - x0, q = span / 4;
+  // grid (4 horizontal levels + 3 segment dividers)
   ctx.strokeStyle = "rgba(120,140,200,0.12)"; ctx.lineWidth = 1;
   for (let g = 0; g <= 4; g++) { const y = yTop + (y0-yTop)*g/4; ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke(); }
-  const atk = _SID_ATK[inst.a], dec = _SID_DCR[inst.d], rel = _SID_DCR[inst.r];
+  for (let g = 1; g < 4; g++) { const x = x0 + q*g; ctx.beginPath(); ctx.moveTo(x,yTop); ctx.lineTo(x,y0); ctx.stroke(); }
+  // handle positions: A in 1st quarter, D in 2nd, sustain-hold 3rd, R in 4th
   const susY = y0 - (y0 - yTop) * (inst.s / 15);
-  const total = atk + dec + 1200 + rel;
-  const span = x1 - x0;
-  const xA = x0 + span * (atk/total);
-  const xD = xA + span * (dec/total);
-  const xS = xD + span * (1200/total);
-  const xR = x1;
-  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(xA, yTop); ctx.lineTo(xD, susY); ctx.lineTo(xS, susY); ctx.lineTo(xR, y0);
+  const ax = x0 + q * (inst.a / 15);
+  const dx = x0 + q + q * (inst.d / 15);
+  const sx = x0 + 3 * q;
+  const rx = x0 + 3 * q + q * (inst.r / 15);
+  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(ax, yTop); ctx.lineTo(dx, susY); ctx.lineTo(sx, susY); ctx.lineTo(rx, y0);
   ctx.strokeStyle = "#5ec8ff"; ctx.lineWidth = 2; ctx.stroke();
-  ctx.lineTo(x0, y0); ctx.closePath();
-  ctx.fillStyle = "rgba(94,200,255,0.12)"; ctx.fill();
-  // dots
+  ctx.lineTo(x0, y0); ctx.closePath(); ctx.fillStyle = "rgba(94,200,255,0.12)"; ctx.fill();
+  const handles = [{id:"a",x:ax,y:yTop},{id:"d",x:dx,y:susY},{id:"s",x:sx,y:susY},{id:"r",x:rx,y:y0}];
   ctx.fillStyle = "#5ec8ff";
-  [[xA,yTop],[xD,susY],[xS,susY],[xR,y0]].forEach(function(p){ ctx.beginPath(); ctx.arc(p[0],p[1],3,0,7); ctx.fill(); });
-  // labels
+  handles.forEach(function(p){ ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, 7); ctx.fill(); });
   ctx.fillStyle = "#6a7a9a"; ctx.font = "10px monospace";
-  ctx.fillText("A", xA-3, H-4); ctx.fillText("D", xD-3, H-4); ctx.fillText("S", xS-3, H-4); ctx.fillText("R", xR-12, H-4);
+  ctx.fillText("A", ax-3, H-4); ctx.fillText("D", dx-3, H-4); ctx.fillText("S", sx-3, H-4); ctx.fillText("R", rx-3, H-4);
+  _sidAdsrGeom = { x0:x0, x1:x1, yTop:yTop, y0:y0, q:q, handles:handles };
 }
 
 /* ── Tracker grid ── */
 function _sidCellText(cell) {
   if (cell.note == null) return "... ..";
   return _sidNoteName(cell.note) + " " + (cell.inst<16?"0":"") + cell.inst.toString(16).toUpperCase();
+}
+function _sidCopyVoice() {
+  if (!_sidPatterns) return;
+  const col = _sidCurPat()[_sidSel.voice];
+  _sidClipboard = col.map(function(c){ return { note: c.note, inst: c.inst }; });
+  const btn = document.getElementById("sid-voice-copy");
+  if (btn) {
+    const orig = btn.title;
+    btn.title = "Copied!";
+    setTimeout(function(){ btn.title = orig; }, 1000);
+  }
+}
+function _sidPasteVoice() {
+  if (!_sidClipboard || !_sidPatterns) return;
+  const col = _sidCurPat()[_sidSel.voice];
+  for (var r = 0; r < _sidClipboard.length; r++) {
+    col[r] = { note: _sidClipboard[r].note, inst: _sidClipboard[r].inst };
+  }
+  _sidBuildTracker();
 }
 function _sidBuildTracker() {
   const t = document.getElementById("sid-tracker"); if (!t) return;
@@ -18607,13 +18640,47 @@ function _sidPlay() {
 function _sidWaveByte(inst) {
   return (inst.tri?0x10:0) | (inst.saw?0x20:0) | (inst.pul?0x40:0) | (inst.noi?0x80:0) | 0x01;
 }
+function _sidInstBytes(ins) {
+  return [_sidWaveByte(ins), (ins.a<<4)|ins.d, (ins.s<<4)|ins.r,
+          ins.pw&0xFF, (ins.pw>>8)&0x0F, ins.cut&0x07, (ins.cut>>3)&0xFF,
+          (ins.res<<4), ((ins.lp?0x10:0)|(ins.bp?0x20:0)|(ins.hp?0x40:0))|ins.vol];
+}
+/* Binary save/load: [numInst][numPat] + 9 bytes/inst + 2 bytes/cell (note+1, inst) */
+function _sidSerialize() {
+  const out = [_sidInsts.length, _sidPatterns.length];
+  _sidInsts.forEach(function(ins){ _sidInstBytes(ins).forEach(function(b){ out.push(b & 0xFF); }); });
+  _sidPatterns.forEach(function(pat){ for (let v=0;v<3;v++) for (let r=0;r<_SID_ROWS;r++){ const c=pat[v][r]; out.push(c.note==null?0:(c.note+1)&0xFF); out.push(c.inst&0xFF); } });
+  return Uint8Array.from(out);
+}
+function _sidDeserialize(src) {
+  _sidStop();
+  let p = 0;
+  const ni = src[p++] || 0, np = src[p++] || 0;
+  _sidInsts = [];
+  for (let i=0;i<ni;i++) {
+    const ctrl=src[p++], ad=src[p++], sr=src[p++], pwlo=src[p++], pwhi=src[p++], cutlo=src[p++], cuthi=src[p++], resfilt=src[p++], mv=src[p++];
+    _sidInsts.push({ name:"Sound "+i,
+      tri:!!(ctrl&0x10), saw:!!(ctrl&0x20), pul:!!(ctrl&0x40), noi:!!(ctrl&0x80),
+      pw:(pwlo|((pwhi&0x0F)<<8)), a:(ad>>4)&0x0F, d:ad&0x0F, s:(sr>>4)&0x0F, r:sr&0x0F,
+      lp:!!(mv&0x10), bp:!!(mv&0x20), hp:!!(mv&0x40),
+      cut:((cutlo&0x07)|((cuthi&0xFF)<<3)), res:(resfilt>>4)&0x0F, vol:mv&0x0F });
+  }
+  if (!_sidInsts.length) _sidInsts = [_sidNewInst("New Sound")];
+  _sidPatterns = [];
+  for (let pi=0; pi<np; pi++) {
+    const pat = _sidNewPattern();
+    for (let v=0;v<3;v++) for (let r=0;r<_SID_ROWS;r++){ const note=src[p++], inst=src[p++]; pat[v][r] = { note: note ? note-1 : null, inst: inst||0 }; }
+    _sidPatterns.push(pat);
+  }
+  if (!_sidPatterns.length) _sidPatterns = [_sidNewPattern()];
+  _sidInst = 0; _sidPat = 0;
+  _sidBuildInstSel(); _sidLoadInstUI(); _sidBuildPatSel(); _sidBuildTracker();
+}
 function _sidExport(kind) {
+  if (kind === "asm") return _sidExportAsmPlayable();
+  // BASIC DATA dump (unchanged legacy path)
   let lines = [];
-  const hx = function(n){ return "$" + (n&0xFF).toString(16).toUpperCase().padStart(2,"0"); };
-  const dh = function(arr){ return arr.map(hx).join(", "); };
   const dd = function(arr){ return arr.join(","); };
-  // instruments
-  lines.push("; Instruments (ctrl, AD, SR, PWlo, PWhi, filt-cut-lo/hi, res/filt, mode/vol)");
   _sidInsts.forEach(function(ins, i) {
     const ctrl = _sidWaveByte(ins);
     const ad = (ins.a<<4) | ins.d;
@@ -18621,19 +18688,317 @@ function _sidExport(kind) {
     const resFilt = (ins.res<<4) | 0;
     const modeVol = ((ins.lp?0x10:0)|(ins.bp?0x20:0)|(ins.hp?0x40:0)) | ins.vol;
     const bytes = [ctrl, ad, sr, ins.pw&0xFF, (ins.pw>>8)&0x0F, ins.cut&0x07, (ins.cut>>3)&0xFF, resFilt, modeVol];
-    if (kind === "asm") lines.push("inst_"+i+":  .byte " + dh(bytes) + "   ; " + ins.name);
-    else lines.push((1000+i*10) + " DATA " + dd(bytes) + " : REM " + ins.name);
+    lines.push((1000+i*10) + " DATA " + dd(bytes) + " : REM " + ins.name);
   });
-  // patterns: per voice note + inst
   _sidPatterns.forEach(function(pat, pi) {
-    lines.push(kind==="asm" ? ("; Pattern "+pi) : ("REM PATTERN "+pi));
+    lines.push("REM PATTERN " + pi);
     for (let v = 0; v < 3; v++) {
       const notes = [];
       for (let r = 0; r < _SID_ROWS; r++) { const c = pat[v][r]; notes.push(c.note==null ? 0 : (c.note+1)); }
-      if (kind === "asm") lines.push("pat"+pi+"_v"+v+":  .byte " + dh(notes));
-      else lines.push((2000+pi*100+v*30) + " DATA " + dd(notes));
+      lines.push((2000+pi*100+v*30) + " DATA " + dd(notes));
     }
   });
+  return lines.join("\n");
+}
+
+// Build a self-contained, playable C64 SID module in Visual Assembler / Kick
+// syntax: PAL 50Hz IRQ-driven player at $C000 + all instrument/pattern/freq
+// tables. The user calls `JSR sid_init` from their main code to start playback.
+function _sidExportDataOnly() {
+  const lines = [];
+  const hx = function(n){ return "$" + (n&0xFF).toString(16).toUpperCase().padStart(2,"0"); };
+  const dh = function(arr){ return arr.map(hx).join(", "); };
+  const chunk = function(label, arr, perLine) {
+    perLine = perLine || 16;
+    lines.push(label + ":");
+    for (let i = 0; i < arr.length; i += perLine)
+      lines.push("    .byte " + dh(arr.slice(i, i + perLine)));
+  };
+  const maxPatterns = Math.floor(255 / _SID_ROWS);
+  const exportedPatterns = Math.min(_sidPatterns.length, maxPatterns);
+
+  lines.push("; SID music data (generated by Visual Assembler SID editor)");
+  lines.push("; " + exportedPatterns + " pattern(s), " + _SID_ROWS + " rows, 3 voices");
+  lines.push("; ctrl, AD, SR, PWlo, PWhi, cut_lo, cut_hi, res/filt, mode/vol");
+  lines.push("");
+
+  lines.push("sid_instruments:");
+  _sidInsts.forEach(function(ins, i) {
+    const ctrl = _sidWaveByte(ins);
+    const ad = (ins.a<<4) | ins.d;
+    const sr = (ins.s<<4) | ins.r;
+    const filterActive = ins.lp || ins.bp || ins.hp;
+    const resFilt = (ins.res<<4) | (filterActive ? 0x07 : 0x00);
+    const modeVol = ((ins.lp?0x10:0)|(ins.bp?0x20:0)|(ins.hp?0x40:0)) | ins.vol;
+    lines.push("    .byte " + dh([ctrl, ad, sr, ins.pw&0xFF, (ins.pw>>8)&0x0F, ins.cut&0x07, (ins.cut>>3)&0xFF, resFilt, modeVol]) + "   ; #" + i + " " + ins.name);
+  });
+  lines.push("");
+
+  for (let v = 0; v < 3; v++) {
+    const notes = [], insts = [];
+    for (let pi = 0; pi < exportedPatterns; pi++) {
+      const pat = _sidPatterns[pi];
+      for (let r = 0; r < _SID_ROWS; r++) {
+        const c = pat[v][r];
+        notes.push(c.note == null ? 0 : (c.note + 1));
+        insts.push((c.inst|0) & 0xFF);
+      }
+    }
+    chunk("sid_v" + v + "_notes", notes);
+    chunk("sid_v" + v + "_insts", insts);
+  }
+  lines.push("");
+
+  const freqLo = [], freqHi = [];
+  for (let n = 0; n < 96; n++) {
+    const hz = 440 * Math.pow(2, (n - 57) / 12);
+    let f = Math.round(hz * 16777216 / 985248);
+    if (f > 0xFFFF) f = 0xFFFF;
+    freqLo.push(f & 0xFF);
+    freqHi.push((f >> 8) & 0xFF);
+  }
+  lines.push("; PAL frequency table (note 0 = C-0, note 95 = B-7)");
+  chunk("sid_freq_lo", freqLo);
+  chunk("sid_freq_hi", freqHi);
+
+  return lines.join("\n");
+}
+
+function _sidExportAsmPlayable() {
+  const lines = [];
+  const hx = function(n){ return "$" + (n&0xFF).toString(16).toUpperCase().padStart(2,"0"); };
+  const dh = function(arr){ return arr.map(hx).join(", "); };
+  const chunk = function(label, arr, perLine) {
+    perLine = perLine || 16;
+    lines.push(label + ":");
+    for (let i = 0; i < arr.length; i += perLine) {
+      lines.push("    .byte " + dh(arr.slice(i, i + perLine)));
+    }
+  };
+
+  const speed = Math.max(1, Math.min(255, _sidSpeed|0));
+  const maxPatterns = Math.floor(255 / _SID_ROWS);  // single-byte row counter limit
+  const exportedPatterns = Math.min(_sidPatterns.length, maxPatterns);
+  const totalRows = exportedPatterns * _SID_ROWS;
+
+  lines.push("; =========================================================");
+  lines.push("; SID player + tune (generated by Visual Assembler SID editor)");
+  lines.push("; PAL 50 Hz IRQ-driven, 3 voices, " + _SID_ROWS + "-row patterns");
+  lines.push("; Call JSR sid_init once to start playback; JSR sid_stop to silence.");
+  lines.push("; Speed: " + speed + " frames/row, " + exportedPatterns + " pattern(s) = " + totalRows + " rows.");
+  if (exportedPatterns < _sidPatterns.length) {
+    lines.push("; NOTE: only the first " + exportedPatterns + " patterns are exported (" +
+               _sidPatterns.length + " present); player uses an 8-bit row counter.");
+  }
+  lines.push("; =========================================================");
+  lines.push("");
+  lines.push("* = $080D");
+  lines.push("");
+  lines.push("sid_main:");
+  lines.push("    JSR sid_init");
+  lines.push("sid_main_loop:");
+  lines.push("    JMP sid_main_loop");
+  lines.push("");
+  lines.push("* = $C000");
+  lines.push("");
+
+  // ---- sid_init ----------------------------------------------------------
+  lines.push("sid_init:");
+  lines.push("    SEI");
+  lines.push("    LDA #$00");
+  lines.push("    STA $D418");
+  lines.push("    LDX #$18");
+  lines.push("sid_clr:");
+  lines.push("    STA $D400,X");
+  lines.push("    DEX");
+  lines.push("    BPL sid_clr");
+  lines.push("    LDA #" + hx(speed));
+  lines.push("    STA $FB");           // SID_TICK
+  lines.push("    LDA #$00");
+  lines.push("    STA $FC");           // SID_ROW
+  lines.push("    LDA #<sid_irq");
+  lines.push("    STA $0314");
+  lines.push("    LDA #>sid_irq");
+  lines.push("    STA $0315");
+  lines.push("    LDA #$01");
+  lines.push("    STA $D01A");         // enable raster IRQ
+  lines.push("    LDA #$80");
+  lines.push("    STA $D012");         // trigger raster line $80
+  lines.push("    LDA $D011");
+  lines.push("    AND #$7F");
+  lines.push("    STA $D011");         // clear bit 8 of raster
+  lines.push("    LDA #$7F");
+  lines.push("    STA $DC0D");         // CIA1 ints off
+  lines.push("    STA $DD0D");         // CIA2 ints off
+  lines.push("    LDA $DC0D");         // ack pending CIA1
+  lines.push("    LDA $DD0D");         // ack pending CIA2
+  lines.push("    CLI");
+  lines.push("    RTS");
+  lines.push("");
+
+  // ---- sid_stop ----------------------------------------------------------
+  lines.push("sid_stop:");
+  lines.push("    SEI");
+  lines.push("    LDA #$00");
+  lines.push("    STA $D01A");         // disable raster IRQ
+  lines.push("    STA $D404");         // voice 1 gate off
+  lines.push("    STA $D40B");         // voice 2 gate off
+  lines.push("    STA $D412");         // voice 3 gate off
+  lines.push("    STA $D418");         // master vol = 0
+  lines.push("    LDA #$81");
+  lines.push("    STA $DC0D");         // restore CIA1 timer A IRQ
+  lines.push("    LDA #$31");
+  lines.push("    STA $0314");
+  lines.push("    LDA #$EA");
+  lines.push("    STA $0315");         // restore KERNAL IRQ vector
+  lines.push("    CLI");
+  lines.push("    RTS");
+  lines.push("");
+
+  // ---- sid_irq -----------------------------------------------------------
+  lines.push("sid_irq:");
+  lines.push("    LDA #$01");
+  lines.push("    STA $D019");         // ack raster
+  lines.push("    DEC $FB");           // SID_TICK
+  lines.push("    BNE sid_irq_done");
+  lines.push("    LDA #" + hx(speed));
+  lines.push("    STA $FB");
+  lines.push("    JSR sid_play_row");
+  lines.push("sid_irq_done:");
+  lines.push("    JMP $EA31");
+  lines.push("");
+
+  // ---- sid_play_row ------------------------------------------------------
+  lines.push("sid_play_row:");
+  lines.push("    LDY $FC");           // Y = current row
+  lines.push("    LDA sid_v0_notes,Y");
+  lines.push("    BEQ sid_skip_v0");
+  lines.push("    LDX sid_v0_insts,Y");
+  lines.push("    LDY #$00");          // voice base offset
+  lines.push("    JSR sid_set_voice");
+  lines.push("    LDY $FC");
+  lines.push("sid_skip_v0:");
+  lines.push("    LDA sid_v1_notes,Y");
+  lines.push("    BEQ sid_skip_v1");
+  lines.push("    LDX sid_v1_insts,Y");
+  lines.push("    LDY #$07");
+  lines.push("    JSR sid_set_voice");
+  lines.push("    LDY $FC");
+  lines.push("sid_skip_v1:");
+  lines.push("    LDA sid_v2_notes,Y");
+  lines.push("    BEQ sid_skip_v2");
+  lines.push("    LDX sid_v2_insts,Y");
+  lines.push("    LDY #$0E");
+  lines.push("    JSR sid_set_voice");
+  lines.push("sid_skip_v2:");
+  lines.push("    INC $FC");
+  lines.push("    LDA $FC");
+  lines.push("    CMP #" + hx(totalRows & 0xFF));
+  lines.push("    BCC sid_row_done");
+  lines.push("    LDA #$00");
+  lines.push("    STA $FC");
+  lines.push("sid_row_done:");
+  lines.push("    RTS");
+  lines.push("");
+
+  // ---- sid_set_voice (A=note 1..96, X=inst index, Y=voice base 0/7/14) --
+  lines.push("sid_set_voice:");
+  lines.push("    PHA");               // save note
+  lines.push("    TXA");
+  lines.push("    PHA");               // save inst
+  lines.push("    LDA $D404,Y");
+  lines.push("    AND #$FE");
+  lines.push("    STA $D404,Y");       // gate off
+  lines.push("    PLA");               // A = inst
+  lines.push("    TAX");
+  lines.push("    ASL");
+  lines.push("    ASL");
+  lines.push("    ASL");               // A = inst*8
+  lines.push("    STA $FD");           // SID_TMP
+  lines.push("    TXA");
+  lines.push("    CLC");
+  lines.push("    ADC $FD");           // A = inst*9
+  lines.push("    TAX");               // X = offset into sid_instruments
+  lines.push("    LDA sid_instruments+3,X");
+  lines.push("    STA $D402,Y");       // PW lo
+  lines.push("    LDA sid_instruments+4,X");
+  lines.push("    STA $D403,Y");       // PW hi
+  lines.push("    LDA sid_instruments+1,X");
+  lines.push("    STA $D405,Y");       // AD
+  lines.push("    LDA sid_instruments+2,X");
+  lines.push("    STA $D406,Y");       // SR
+  lines.push("    LDA sid_instruments,X");
+  lines.push("    STA $FD");           // stash ctrl (gate-on byte) for later
+  lines.push("    CPY #$00");
+  lines.push("    BNE sid_no_filt");
+  lines.push("    LDA sid_instruments+5,X");
+  lines.push("    STA $D415");         // filter cutoff lo
+  lines.push("    LDA sid_instruments+6,X");
+  lines.push("    STA $D416");         // filter cutoff hi
+  lines.push("    LDA sid_instruments+7,X");
+  lines.push("    STA $D417");         // resonance / filter route
+  lines.push("    LDA sid_instruments+8,X");
+  lines.push("    STA $D418");         // mode + master volume
+  lines.push("sid_no_filt:");
+  lines.push("    PLA");               // A = note (1..96)
+  lines.push("    SEC");
+  lines.push("    SBC #$01");          // note-1 → 0-based freq table index
+  lines.push("    TAX");
+  lines.push("    LDA sid_freq_lo,X");
+  lines.push("    STA $D400,Y");
+  lines.push("    LDA sid_freq_hi,X");
+  lines.push("    STA $D401,Y");
+  lines.push("    LDA $FD");
+  lines.push("    STA $D404,Y");       // gate on with full ctrl byte
+  lines.push("    RTS");
+  lines.push("");
+
+  // ---- Instrument table (9 bytes per instrument, contiguous) ------------
+  lines.push("; Instruments: ctrl, AD, SR, PWlo, PWhi, cut_lo, cut_hi, res/filt, mode/vol");
+  lines.push("sid_instruments:");
+  _sidInsts.forEach(function(ins, i) {
+    const ctrl = _sidWaveByte(ins);
+    const ad = (ins.a<<4) | ins.d;
+    const sr = (ins.s<<4) | ins.r;
+    const filterActive = ins.lp || ins.bp || ins.hp;
+    const resFilt = (ins.res<<4) | (filterActive ? 0x07 : 0x00);
+    const modeVol = ((ins.lp?0x10:0)|(ins.bp?0x20:0)|(ins.hp?0x40:0)) | ins.vol;
+    const bytes = [ctrl, ad, sr, ins.pw&0xFF, (ins.pw>>8)&0x0F, ins.cut&0x07, (ins.cut>>3)&0xFF, resFilt, modeVol];
+    lines.push("    .byte " + dh(bytes) + "   ; #" + i + " " + ins.name);
+  });
+  lines.push("");
+
+  // ---- Notes + instrument-per-cell per voice, all patterns concatenated -
+  for (let v = 0; v < 3; v++) {
+    const notes = [];
+    const insts = [];
+    for (let pi = 0; pi < exportedPatterns; pi++) {
+      const pat = _sidPatterns[pi];
+      for (let r = 0; r < _SID_ROWS; r++) {
+        const c = pat[v][r];
+        notes.push(c.note == null ? 0 : (c.note + 1));
+        insts.push((c.inst|0) & 0xFF);
+      }
+    }
+    chunk("sid_v" + v + "_notes", notes);
+    chunk("sid_v" + v + "_insts", insts);
+  }
+  lines.push("");
+
+  // ---- PAL frequency tables (96 notes: C-0..B-7) -------------------------
+  const freqLo = [], freqHi = [];
+  const Fclk = 985248; // PAL
+  for (let n = 0; n < 96; n++) {
+    const hz = 440 * Math.pow(2, (n - 57) / 12);
+    let f = Math.round(hz * 16777216 / Fclk);
+    if (f > 0xFFFF) f = 0xFFFF;
+    freqLo.push(f & 0xFF);
+    freqHi.push((f >> 8) & 0xFF);
+  }
+  lines.push("; PAL frequency table (note 0 = C-0, note 95 = B-7)");
+  chunk("sid_freq_lo", freqLo);
+  chunk("sid_freq_hi", freqHi);
+
   return lines.join("\n");
 }
 function _sidCopyExport(kind) {
@@ -18650,6 +19015,7 @@ function _sidInit() {
   _sidLoadInstUI();
   _sidBuildPatSel();
   _sidBuildTracker();
+  _sidSetOctave(_sidOctave);
 }
 function _sidBuildPatSel() {
   const sel = document.getElementById("sid-pat-sel"); if (!sel) return;
@@ -18684,22 +19050,65 @@ function setupSidEditor() {
   onId("sid-inst-add", "click", function(){ _sidInsts.push(_sidNewInst("Sound "+_sidInsts.length)); _sidInst = _sidInsts.length-1; _sidBuildInstSel(); _sidLoadInstUI(); });
   onId("sid-preview", "click", function(){ _sidEnsureAudio(); _sidPlayInst(_sidCurInst(), _sidNoteFreq(57), _sidAudio.currentTime+0.02, 0.5); });
 
+  // ADSR graph: drag the A/D/S/R handles with the mouse
+  const adsrC = document.getElementById("sid-adsr-canvas");
+  if (adsrC) {
+    adsrC.style.cursor = "pointer";
+    let drag = null;
+    const pos = function(e){ const r = adsrC.getBoundingClientRect(); return { x:(e.clientX-r.left)*(adsrC.width/r.width), y:(e.clientY-r.top)*(adsrC.height/r.height) }; };
+    const cl = function(v){ return Math.max(0, Math.min(15, Math.round(v))); };
+    const upd = function(p){
+      const g = _sidAdsrGeom; if (!g || !drag) return;
+      const inst = _sidCurInst();
+      if (drag === "a") inst.a = cl((p.x - g.x0)/g.q * 15);
+      else if (drag === "d") { inst.d = cl((p.x - (g.x0+g.q))/g.q * 15); inst.s = cl((g.y0 - p.y)/(g.y0-g.yTop) * 15); }
+      else if (drag === "s") inst.s = cl((g.y0 - p.y)/(g.y0-g.yTop) * 15);
+      else if (drag === "r") inst.r = cl((p.x - (g.x0+3*g.q))/g.q * 15);
+      ["a","d","s","r"].forEach(function(k){ const sl=document.getElementById("sid-"+k); if(sl) sl.value=inst[k]; const vv=document.getElementById("sid-"+k+"-val"); if(vv) vv.textContent=inst[k]; });
+      _sidDrawADSR();
+    };
+    adsrC.addEventListener("pointerdown", function(e){
+      const p = pos(e), g = _sidAdsrGeom; if (!g) return;
+      let best=null, bd=16;
+      g.handles.forEach(function(h){ const d=Math.hypot(p.x-h.x, p.y-h.y); if(d<bd){bd=d;best=h.id;} });
+      if (best) { drag=best; try{adsrC.setPointerCapture(e.pointerId);}catch(_){} upd(p); e.preventDefault(); }
+    });
+    adsrC.addEventListener("pointermove", function(e){ if (drag) upd(pos(e)); });
+    const end = function(e){ drag=null; if(e&&e.pointerId!=null){try{adsrC.releasePointerCapture(e.pointerId);}catch(_){}} };
+    adsrC.addEventListener("pointerup", end);
+    adsrC.addEventListener("pointercancel", end);
+  }
+
   // tracker
   onId("sid-pat-sel", "change", function(e){ _sidPat = parseInt(e.target.value,10); _sidBuildTracker(); });
   onId("sid-pat-add", "click", function(){ _sidPatterns.push(_sidNewPattern()); _sidPat = _sidPatterns.length-1; _sidBuildPatSel(); _sidBuildTracker(); });
   onId("sid-speed", "input", function(e){ _sidSpeed = Math.max(1, parseInt(e.target.value,10)||6); if(_sidTimer){ _sidPlay(); } });
   onId("sid-play", "click", _sidPlay);
   onId("sid-stop", "click", _sidStop);
+  // Files: save/load .bin + export blocks / export asm
   onId("sid-export-asm", "click", function(){ _sidCopyExport("asm"); });
-  onId("sid-export-basic", "click", function(){ _sidCopyExport("basic"); });
-  onId("sid-export-asm2", "click", function(){ _sidCopyExport("asm"); });
-  onId("sid-export-basic2", "click", function(){ _sidCopyExport("basic"); });
-  onId("sid-copy", "click", function(){ _sidCopyExport("asm"); });
+  onId("sid-export-data", "click", function(){
+    if (exportAsmToBlocks(_sidExportDataOnly()) > 0) { _sidStop(); dialog.close(); }
+  });
+  onId("sid-export-player", "click", function(){
+    if (exportAsmToBlocks(_sidExportAsmPlayable()) > 0) { _sidStop(); dialog.close(); }
+  });
+  onId("sid-save-bin", "click", function(){ _saveBinFile(_sidSerialize(), "sound.bin"); });
+  const sidBinFile = document.getElementById("sid-bin-file");
+  onId("sid-load-bin", "click", function(){ if (sidBinFile) sidBinFile.click(); });
+  if (sidBinFile) sidBinFile.addEventListener("change", function(e){
+    const file = e.target.files && e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(){ _sidDeserialize(new Uint8Array(reader.result)); };
+    reader.readAsArrayBuffer(file); e.target.value = "";
+  });
 
   // keyboard note entry / navigation
   const wrap = document.getElementById("sid-tracker-wrap");
   if (wrap) wrap.addEventListener("keydown", function(e) {
     const k = e.key.toLowerCase();
+    if (e.ctrlKey && k === "c") { _sidCopyVoice(); e.preventDefault(); return; }
+    if (e.ctrlKey && k === "v") { _sidPasteVoice(); e.preventDefault(); return; }
     if (e.key === "ArrowDown") { _sidSel.row = (_sidSel.row+1)%_SID_ROWS; _sidRefreshSel(); e.preventDefault(); return; }
     if (e.key === "ArrowUp") { _sidSel.row = (_sidSel.row-1+_SID_ROWS)%_SID_ROWS; _sidRefreshSel(); e.preventDefault(); return; }
     if (e.key === "ArrowLeft") { _sidSel.voice = (_sidSel.voice+2)%3; _sidRefreshSel(); e.preventDefault(); return; }
@@ -18716,7 +19125,20 @@ function setupSidEditor() {
       _sidEnsureAudio(); _sidPlayInst(_sidCurInst(), _sidNoteFreq(note), _sidAudio.currentTime+0.01, 0.25);
       _sidSel.row = (_sidSel.row+1)%_SID_ROWS; _sidRefreshSel(); e.preventDefault(); return;
     }
-    if (k === "+") { _sidOctave = Math.min(7, _sidOctave+1); e.preventDefault(); }
-    if (k === "-") { _sidOctave = Math.max(0, _sidOctave-1); e.preventDefault(); }
+    if (k === "+" || k === "*" || e.key === "PageUp")   { _sidSetOctave(_sidOctave+1); e.preventDefault(); }
+    if (k === "-" || k === "/" || e.key === "PageDown") { _sidSetOctave(_sidOctave-1); e.preventDefault(); }
   });
+
+  // Voice copy/paste
+  onId("sid-voice-copy", "click", _sidCopyVoice);
+  onId("sid-voice-paste", "click", _sidPasteVoice);
+
+  // Octave controls
+  onId("sid-oct-up", "click", function(){ _sidSetOctave(_sidOctave+1); });
+  onId("sid-oct-down", "click", function(){ _sidSetOctave(_sidOctave-1); });
+}
+function _sidSetOctave(o) {
+  _sidOctave = Math.max(0, Math.min(7, o));
+  const el = document.getElementById("sid-oct-val");
+  if (el) el.textContent = _sidOctave;
 }

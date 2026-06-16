@@ -786,13 +786,15 @@ PRINTABLE CHARACTERS
         <div class="ed-file">
           <button class="ed-file-btn" type="button">Files ▾</button>
           <div class="ed-file-menu" hidden>
-            <button id="ce-load-rom" type="button">Load ROM</button>
             <button id="ce-load-bin" type="button">Load .bin</button>
             <div class="ed-file-sep"></div>
             <button id="ce-save-bin" type="button">Save .bin</button>
             <button id="ce-copy-asm" type="button">Copy ASM</button>
           </div>
         </div>
+        <button id="ce-load-rom" class="ce-tool-btn" type="button" title="Load charset from C64 ROM" aria-label="Load charset from ROM">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="8" height="8" rx="1"/><path d="M6.5 4V2M9.5 4V2M6.5 14v-2M9.5 14v-2M4 6.5H2M4 9.5H2M14 6.5h-2M14 9.5h-2" stroke-linecap="round"/></svg>
+        </button>
         <div class="ce-hdr-titles">
           <span class="ce-section-lbl">CHARACTER EDITOR</span>
           <span id="ce-char-info" class="ce-char-info">Char: 0 ($00)</span>
@@ -847,6 +849,19 @@ PRINTABLE CHARACTERS
   <dialog id="map-editor-dialog" class="me-dialog">
     <div class="me-card">
       <div class="me-hdr">
+        <div class="ed-file">
+          <button class="ed-file-btn" type="button">Files ▾</button>
+          <div class="ed-file-menu" hidden>
+            <button id="me-load-map" type="button">Load map (.bin)…</button>
+            <button data-export="bin" type="button">Save flattened map (.bin)…</button>
+            <button data-export="screen" type="button">Copy flattened screen codes</button>
+            <button data-export="color" type="button">Copy flattened color RAM</button>
+            <div class="ed-file-sep"></div>
+            <button data-export="layer-bin" type="button">Save active layer (.bin)…</button>
+            <button data-export="layers-bin" type="button">Save all layers (.bin)…</button>
+            <button data-export="layer-screen" type="button">Copy active layer codes</button>
+          </div>
+        </div>
         <span class="me-title">MAP EDITOR</span>
         <div class="me-toolbar">
           <div class="me-tool-group">
@@ -870,27 +885,17 @@ PRINTABLE CHARACTERS
             <button class="me-tool" id="me-charset-rom" type="button" title="Load charset from C64 ROM" aria-label="Load charset from ROM">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="8" height="8" rx="1"/><path d="M6.5 4V2M9.5 4V2M6.5 14v-2M9.5 14v-2M4 6.5H2M4 9.5H2M14 6.5h-2M14 9.5h-2" stroke-linecap="round"/></svg>
             </button>
+            <button class="me-tool" id="me-charset-load" type="button" title="Load charset (.bin)…" aria-label="Load charset from file">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 5h4.5l1.5 1.5H14V13H2z"/><path d="M8 9v3M6.5 10.5L8 12l1.5-1.5"/></svg>
+            </button>
+            <button class="me-tool" id="me-charset-editor" type="button" title="Load charset from Character Editor" aria-label="Load charset from editor">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="5" height="5" rx="0.5"/><rect x="9" y="2" width="5" height="5" rx="0.5"/><rect x="2" y="9" width="5" height="5" rx="0.5"/><rect x="9" y="9" width="5" height="5" rx="0.5"/></svg>
+            </button>
+          </div>
+          <div class="me-tool-group">
             <button class="me-tool" id="me-clear" type="button" title="Clear map" aria-label="Clear map">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10M6.2 4.5V3h3.6v1.5M5 4.5l.7 8.5h4.6l.7-8.5"/></svg>
             </button>
-          </div>
-          <div class="ed-file">
-            <button class="ed-file-btn" type="button">Files ▾</button>
-            <div class="ed-file-menu" hidden>
-              <button id="me-load-map" type="button">Load map (.bin)…</button>
-              <button data-export="bin" type="button">Save flattened map (.bin)…</button>
-              <button data-export="screen" type="button">Copy flattened screen codes</button>
-              <button data-export="color" type="button">Copy flattened color RAM</button>
-              <div class="ed-file-sep"></div>
-              <button data-export="layer-bin" type="button">Save active layer (.bin)…</button>
-              <button data-export="layers-bin" type="button">Save all layers (.bin)…</button>
-              <button data-export="layer-screen" type="button">Copy active layer codes</button>
-              <div class="ed-file-sep"></div>
-              <button id="me-clear-menu" type="button">Clear map</button>
-              <div class="ed-file-sep"></div>
-              <button id="me-charset-load" type="button">Load charset (.bin)…</button>
-              <button id="me-charset-editor" type="button">Charset from Editor</button>
-            </div>
           </div>
           <input type="file" id="me-map-file" accept=".bin,application/octet-stream" hidden>
         </div>
@@ -1020,10 +1025,10 @@ PRINTABLE CHARACTERS
         <div class="ed-file">
           <button class="ed-file-btn" type="button">Files ▾</button>
           <div class="ed-file-menu" hidden>
-            <button id="se-copy-data" type="button">Copy hex bytes</button>
-            <div class="ed-file-sep"></div>
-            <button id="se-save-bin" type="button">Save .bin…</button>
             <button id="se-open-spd" type="button">Load .bin…</button>
+            <button id="se-save-bin" type="button">Save .bin…</button>
+            <div class="ed-file-sep"></div>
+            <button id="se-copy-data" type="button">Copy bytes</button>
           </div>
         </div>
         <span class="se-title">SPRITE EDITOR</span>
@@ -1078,10 +1083,10 @@ PRINTABLE CHARACTERS
         <div class="se-anim-controls">
           <button class="se-mini-btn" id="se-play" type="button">▶ Play</button>
           <label class="se-check"><input type="checkbox" id="se-pingpong"> <span>Ping-Pong</span></label>
+          <label class="se-check"><input type="checkbox" id="se-onion"> <span>Onion</span></label>
           <span class="se-mini-lbl">FPS</span>
           <input type="range" id="se-fps" min="1" max="30" step="1" value="6" class="se-zoom">
           <span id="se-fps-val" class="se-mini-lbl">6</span>
-          <label class="se-check"><input type="checkbox" id="se-onion"> <span>Onion</span></label>
           <span class="se-anim-spacer"></span>
           <button class="se-mini-btn" id="se-add" type="button">+ Add</button>
           <button class="se-mini-btn" id="se-dup" type="button">Dup</button>
@@ -1097,14 +1102,19 @@ PRINTABLE CHARACTERS
   <dialog id="sid-editor-dialog" class="sid-dialog">
     <div class="sid-card">
       <div class="sid-hdr">
-        <span class="sid-title">SID EDITOR</span>
         <div class="ed-file">
           <button class="ed-file-btn" type="button">Files ▾</button>
           <div class="ed-file-menu" hidden>
-            <button id="sid-export-asm" type="button">Copy / Export ASM</button>
-            <button id="sid-export-basic" type="button">Copy / Export BASIC</button>
+            <button id="sid-load-bin" type="button">Load .bin…</button>
+            <button id="sid-save-bin" type="button">Save .bin…</button>
+            <div class="ed-file-sep"></div>
+            <button id="sid-export-data" type="button">Export blocks (data only)</button>
+            <button id="sid-export-player" type="button">Export blocks + miniplayer</button>
+            <button id="sid-export-asm" type="button">Export asm</button>
           </div>
+          <input type="file" id="sid-bin-file" accept=".bin,application/octet-stream" hidden>
         </div>
+        <span class="sid-title">SID EDITOR</span>
         <button id="sid-close" class="sid-xbtn" type="button" aria-label="Close">×</button>
       </div>
       <div class="sid-body">
@@ -1114,7 +1124,9 @@ PRINTABLE CHARACTERS
           <select id="sid-inst-sel" class="sid-select"></select>
           <button id="sid-inst-add" class="sid-mini-btn" type="button" title="Add instrument">+</button>
           <input id="sid-inst-name" class="sid-input" type="text" value="New Sound">
-          <button id="sid-preview" class="sid-mini-btn" type="button">♪ Preview</button>
+          <button id="sid-preview" class="ce-tool-btn" type="button" title="Preview" aria-label="Preview">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M11 3v6.6a2.4 2.4 0 1 1-1.2-2.08V4.5L7 5.2V11a2.4 2.4 0 1 1-1.2-2.08V4.2z" fill="currentColor"/></svg>
+          </button>
         </div>
         <div class="sid-row sid-wave-row">
           <span class="sid-lbl">WAVEFORM</span>
@@ -1155,12 +1167,22 @@ PRINTABLE CHARACTERS
           <button id="sid-pat-add" class="sid-mini-btn" type="button" title="Add pattern">+</button>
           <span class="sid-mini-lbl">Speed:</span>
           <input id="sid-speed" class="sid-input sid-speed" type="number" min="1" max="20" value="6">
-          <button id="sid-play" class="sid-mini-btn" type="button">▶ Play</button>
-          <button id="sid-stop" class="sid-mini-btn" type="button">■ Stop</button>
-          <span class="sid-tracker-spacer"></span>
-          <button id="sid-export-asm2" class="sid-mini-btn" type="button">Export ASM</button>
-          <button id="sid-export-basic2" class="sid-mini-btn" type="button">Export BASIC</button>
-          <button id="sid-copy" class="sid-mini-btn" type="button">Copy</button>
+          <span class="sid-mini-lbl">Oct:</span>
+          <button id="sid-oct-down" class="sid-mini-btn" type="button" title="Octave down">−</button>
+          <span id="sid-oct-val" class="sid-num">4</span>
+          <button id="sid-oct-up" class="sid-mini-btn" type="button" title="Octave up">+</button>
+          <button id="sid-play" class="ce-tool-btn" type="button" title="Play" aria-label="Play">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5l8 4.5-8 4.5z" fill="currentColor"/></svg>
+          </button>
+          <button id="sid-stop" class="ce-tool-btn" type="button" title="Stop" aria-label="Stop">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="4" width="8" height="8" fill="currentColor"/></svg>
+          </button>
+          <button id="sid-voice-copy" class="ce-tool-btn" type="button" title="Copy voice (Ctrl+C)" aria-label="Copy voice">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="8" height="10" rx="1"/><path d="M3 5H2a1 1 0 00-1 1v7a1 1 0 001 1h8a1 1 0 001-1v-1"/></svg>
+          </button>
+          <button id="sid-voice-paste" class="ce-tool-btn" type="button" title="Paste voice (Ctrl+V)" aria-label="Paste voice">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="10" height="11" rx="1"/><path d="M5 4V3a1 1 0 011-1h4a1 1 0 011 1v1"/><path d="M5 8h6M5 11h4"/></svg>
+          </button>
         </div>
         <!-- Tracker grid -->
         <div class="sid-tracker-wrap" id="sid-tracker-wrap" tabindex="0">
