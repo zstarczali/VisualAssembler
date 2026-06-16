@@ -6725,3 +6725,4 @@ body.crt-mode #crt-overlay::after {
 .sid-tracker tr.sid-playing td { background: rgba(120,160,255,0.18); }
 .sid-tracker td.sid-cell { cursor: pointer; }
 .sid-tracker td.sid-cell--sel { background: var(--primary) !important; color: #fff; }
+.sid-tracker td.sid-cell--sel-range { background: color-mix(in srgb, var(--primary) 35%, transparent) !important; }

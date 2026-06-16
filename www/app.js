@@ -17880,6 +17880,92 @@ function _hgInit() {
   _hgBuildPalette();
 }
 
+function _hgExportBlocks() {
+  const lines = [];
+  const hx = n => "$" + (n & 0xFF).toString(16).toUpperCase().padStart(2, "0");
+  const hx4 = n => n.toString(16).toUpperCase().padStart(4, "0");
+
+  // 4 passes of 250 bytes using .for/.endf VA macros
+  function pushCopy(srcBase, dstBase, pfx) {
+    for (let i = 0; i < 4; i++) {
+      lines.push(".for X, $FA, " + pfx + i);
+      lines.push("LDA $" + hx4(srcBase + i * 250) + ",X");
+      lines.push("STA $" + hx4(dstBase + i * 250) + ",X");
+      lines.push(".endf " + pfx + i);
+    }
+    lines.push("");
+  }
+
+  if (_hgMulti) {
+    lines.push("; Multicolor bitmap loader");
+    lines.push("; 1) image-mc-native.bin (auto-saved) -> D64-en legyen HIRES neven");
+  } else {
+    lines.push("; Hi-res bitmap loader");
+    lines.push("; 1) Export (.bin) -> D64-en legyen HIRES neven");
+  }
+  lines.push("; 2) Compile, SYS 2061");
+  lines.push("");
+  lines.push("* = $080D");
+  lines.push("");
+  lines.push(".loadfile \"HIRES\", 8, $2000");
+  lines.push("");
+  lines.push("; Screen RAM $3F40 → $0400");
+  pushCopy(0x3F40, 0x0400, "scr");
+  if (_hgMulti) {
+    lines.push("; Color RAM $4328 → $D800");
+    pushCopy(0x4328, 0xD800, "col");
+  }
+  lines.push("; VIC-II " + (_hgMulti ? "multicolor" : "hires") + " bitmap");
+  lines.push("LDA #$3B");
+  lines.push("STA $D011");
+  lines.push("LDA #" + (_hgMulti ? "$18" : "$08"));
+  lines.push("STA $D016");
+  lines.push("LDA #$18");
+  lines.push("STA $D018");
+  lines.push("LDA #$00");
+  lines.push("STA $D020");
+  lines.push("LDA #" + hx(_hgMulti ? _hgPaper : 0));
+  lines.push("STA $D021");
+  lines.push("");
+  lines.push("hires_loop:");
+  lines.push("JMP hires_loop");
+  return lines.join("\n");
+}
+
+// Convert internal MC per-pixel format to C64 native multicolor bitmap (10000 bytes):
+// [0..7999] packed bitmap, [8000..8999] screen RAM, [9000..9999] color RAM
+function _hgExportMultiNative() {
+  _hgInit();
+  const out = new Uint8Array(10000);
+  const bg = _hgPaper & 0x0F;
+  for (let cellY = 0; cellY < 25; cellY++) {
+    for (let cellX = 0; cellX < 40; cellX++) {
+      const cell = cellY * 40 + cellX;
+      const cx = cellX * 4, cy = cellY * 8;
+      const extras = [];
+      for (let row = 0; row < 8; row++) {
+        for (let px = 0; px < 4; px++) {
+          const c = _hgPixMC[(cy + row) * 160 + (cx + px)] & 0x0F;
+          if (c !== bg && !extras.includes(c) && extras.length < 3) extras.push(c);
+        }
+      }
+      while (extras.length < 3) extras.push(0);
+      out[8000 + cell] = ((extras[0] & 0x0F) << 4) | (extras[1] & 0x0F);
+      out[9000 + cell] = extras[2] & 0x0F;
+      for (let row = 0; row < 8; row++) {
+        let byte = 0;
+        for (let px = 0; px < 4; px++) {
+          const c = _hgPixMC[(cy + row) * 160 + (cx + px)] & 0x0F;
+          const slot = c === bg ? 0 : c === extras[0] ? 1 : c === extras[1] ? 2 : c === extras[2] ? 3 : 0;
+          byte |= (slot << ((3 - px) * 2));
+        }
+        out[cell * 8 + row] = byte;
+      }
+    }
+  }
+  return out;
+}
+
 function setupHiresEditor() {
   const dialog = document.getElementById("hires-editor-dialog");
   if (!dialog) return;
@@ -17968,6 +18054,10 @@ function setupHiresEditor() {
   // Export / Save
   document.getElementById("hg-export")?.addEventListener("click", function() {
     _saveBinFile(_hgExportBytes(), _hgMulti ? "image-mc.bin" : "image-hires.bin");
+  });
+  document.getElementById("hg-export-blocks")?.addEventListener("click", function() {
+    if (_hgMulti) _saveBinFile(_hgExportMultiNative(), "image-mc-native.bin");
+    if (exportAsmToBlocks(_hgExportBlocks()) > 0) dialog.close();
   });
   document.getElementById("hg-save-d64")?.addEventListener("click", function() {
     _saveBinFile(_hgExportBytes(), _hgMulti ? "image-mc.bin" : "image-hires.bin");
@@ -18410,7 +18500,9 @@ let _sidInsts = null;     // instruments
 let _sidPatterns = null;  // [pattern][voice 0..2][row 0..31] = {note, inst}
 let _sidInst = 0, _sidPat = 0, _sidSpeed = 6;
 let _sidSel = { voice: 0, row: 0 };
+let _sidSelAnchor = null;  // row anchor for range selection, null = no range
 let _sidClipboard = null;  // copied voice column: array of 32 {note, inst}
+let _sidCellClip = null;   // cell-range clipboard: [{note,inst},...] from Ctrl+C
 let _sidAudio = null;
 let _sidTimer = null, _sidRow = 0;
 let _sidInited = false;
@@ -18518,6 +18610,29 @@ function _sidPasteVoice() {
   }
   _sidBuildTracker();
 }
+function _sidCopyCells() {
+  if (!_sidPatterns) return;
+  const v = _sidSel.voice, col = _sidCurPat()[v];
+  if (_sidSelAnchor !== null) {
+    const lo = Math.min(_sidSelAnchor, _sidSel.row);
+    const hi = Math.max(_sidSelAnchor, _sidSel.row);
+    _sidCellClip = [];
+    for (let r = lo; r <= hi; r++) _sidCellClip.push({ note: col[r].note, inst: col[r].inst });
+  } else {
+    _sidCellClip = [{ note: col[_sidSel.row].note, inst: col[_sidSel.row].inst }];
+  }
+  const btn = document.getElementById("sid-voice-copy");
+  if (btn) { const o = btn.title; btn.title = "Copied!"; setTimeout(function(){ btn.title = o; }, 1000); }
+}
+function _sidPasteCells() {
+  if (!_sidCellClip || !_sidPatterns) return;
+  const v = _sidSel.voice, col = _sidCurPat()[v];
+  for (let i = 0; i < _sidCellClip.length; i++) {
+    const r = (_sidSel.row + i) % _SID_ROWS;
+    col[r] = { note: _sidCellClip[i].note, inst: _sidCellClip[i].inst };
+  }
+  _sidBuildTracker();
+}
 function _sidBuildTracker() {
   const t = document.getElementById("sid-tracker"); if (!t) return;
   const pat = _sidCurPat();
@@ -18526,8 +18641,12 @@ function _sidBuildTracker() {
     const beat = (r % 4 === 0) ? " sid-beat" : "";
     html += '<tr class="sid-trow'+beat+'" data-row="'+r+'">';
     html += '<td class="sid-rownum">' + (r<10?"0":"") + r + '</td>';
+    const rangeLo = _sidSelAnchor !== null ? Math.min(_sidSelAnchor, _sidSel.row) : _sidSel.row;
+    const rangeHi = _sidSelAnchor !== null ? Math.max(_sidSelAnchor, _sidSel.row) : _sidSel.row;
     for (let v = 0; v < 3; v++) {
-      const selCls = (_sidSel.voice===v && _sidSel.row===r) ? " sid-cell--sel" : "";
+      const isCursor = _sidSel.voice === v && _sidSel.row === r;
+      const inRange  = _sidSel.voice === v && _sidSelAnchor !== null && r >= rangeLo && r <= rangeHi && !isCursor;
+      const selCls = isCursor ? " sid-cell--sel" : (inRange ? " sid-cell--sel-range" : "");
       html += '<td class="sid-cell'+selCls+'" data-v="'+v+'" data-r="'+r+'">' + _sidCellText(pat[v][r]) + '</td>';
     }
     html += "</tr>";
@@ -18535,8 +18654,15 @@ function _sidBuildTracker() {
   html += "</tbody>";
   t.innerHTML = html;
   t.querySelectorAll("td.sid-cell").forEach(function(td) {
-    td.addEventListener("click", function() {
-      _sidSel = { voice: +td.dataset.v, row: +td.dataset.r };
+    td.addEventListener("click", function(e) {
+      const v = +td.dataset.v, r = +td.dataset.r;
+      if (e.shiftKey && _sidSel.voice === v) {
+        if (_sidSelAnchor === null) _sidSelAnchor = _sidSel.row;
+        _sidSel.row = r;
+      } else {
+        _sidSelAnchor = null;
+        _sidSel = { voice: v, row: r };
+      }
       _sidRefreshSel();
       document.getElementById("sid-tracker-wrap").focus();
     });
@@ -18544,9 +18670,21 @@ function _sidBuildTracker() {
 }
 function _sidRefreshSel() {
   const t = document.getElementById("sid-tracker"); if (!t) return;
-  t.querySelectorAll("td.sid-cell--sel").forEach(function(td){ td.classList.remove("sid-cell--sel"); });
-  const cell = t.querySelector('td.sid-cell[data-v="'+_sidSel.voice+'"][data-r="'+_sidSel.row+'"]');
-  if (cell) cell.classList.add("sid-cell--sel");
+  t.querySelectorAll("td.sid-cell--sel, td.sid-cell--sel-range").forEach(function(td){
+    td.classList.remove("sid-cell--sel");
+    td.classList.remove("sid-cell--sel-range");
+  });
+  const v = _sidSel.voice, r = _sidSel.row;
+  const cursor = t.querySelector('td.sid-cell[data-v="'+v+'"][data-r="'+r+'"]');
+  if (cursor) cursor.classList.add("sid-cell--sel");
+  if (_sidSelAnchor !== null) {
+    const lo = Math.min(_sidSelAnchor, r), hi = Math.max(_sidSelAnchor, r);
+    for (let row = lo; row <= hi; row++) {
+      if (row === r) continue;
+      const rc = t.querySelector('td.sid-cell[data-v="'+v+'"][data-r="'+row+'"]');
+      if (rc) rc.classList.add("sid-cell--sel-range");
+    }
+  }
 }
 function _sidSetCellText(v, r) {
   const t = document.getElementById("sid-tracker"); if (!t) return;
@@ -19107,18 +19245,26 @@ function setupSidEditor() {
   const wrap = document.getElementById("sid-tracker-wrap");
   if (wrap) wrap.addEventListener("keydown", function(e) {
     const k = e.key.toLowerCase();
-    if (e.ctrlKey && k === "c") { _sidCopyVoice(); e.preventDefault(); return; }
-    if (e.ctrlKey && k === "v") { _sidPasteVoice(); e.preventDefault(); return; }
-    if (e.key === "ArrowDown") { _sidSel.row = (_sidSel.row+1)%_SID_ROWS; _sidRefreshSel(); e.preventDefault(); return; }
-    if (e.key === "ArrowUp") { _sidSel.row = (_sidSel.row-1+_SID_ROWS)%_SID_ROWS; _sidRefreshSel(); e.preventDefault(); return; }
-    if (e.key === "ArrowLeft") { _sidSel.voice = (_sidSel.voice+2)%3; _sidRefreshSel(); e.preventDefault(); return; }
-    if (e.key === "ArrowRight") { _sidSel.voice = (_sidSel.voice+1)%3; _sidRefreshSel(); e.preventDefault(); return; }
+    if (e.ctrlKey && k === "c") { _sidCopyCells(); e.preventDefault(); return; }
+    if (e.ctrlKey && k === "v") { _sidPasteCells(); e.preventDefault(); return; }
+    if (e.key === "ArrowDown") {
+      if (e.shiftKey) { if (_sidSelAnchor === null) _sidSelAnchor = _sidSel.row; } else { _sidSelAnchor = null; }
+      _sidSel.row = (_sidSel.row+1)%_SID_ROWS; _sidRefreshSel(); e.preventDefault(); return;
+    }
+    if (e.key === "ArrowUp") {
+      if (e.shiftKey) { if (_sidSelAnchor === null) _sidSelAnchor = _sidSel.row; } else { _sidSelAnchor = null; }
+      _sidSel.row = (_sidSel.row-1+_SID_ROWS)%_SID_ROWS; _sidRefreshSel(); e.preventDefault(); return;
+    }
+    if (e.key === "ArrowLeft") { _sidSelAnchor = null; _sidSel.voice = (_sidSel.voice+2)%3; _sidRefreshSel(); e.preventDefault(); return; }
+    if (e.key === "ArrowRight") { _sidSelAnchor = null; _sidSel.voice = (_sidSel.voice+1)%3; _sidRefreshSel(); e.preventDefault(); return; }
     if (e.key === "Delete" || e.key === "Backspace" || k === ".") {
+      _sidSelAnchor = null;
       _sidCurPat()[_sidSel.voice][_sidSel.row] = { note:null, inst:0 };
       _sidSetCellText(_sidSel.voice, _sidSel.row);
       _sidSel.row = (_sidSel.row+1)%_SID_ROWS; _sidRefreshSel(); e.preventDefault(); return;
     }
     if (_SID_KEYMAP.hasOwnProperty(k)) {
+      _sidSelAnchor = null;
       const note = _sidOctave*12 + _SID_KEYMAP[k];
       _sidCurPat()[_sidSel.voice][_sidSel.row] = { note: note, inst: _sidInst };
       _sidSetCellText(_sidSel.voice, _sidSel.row);
