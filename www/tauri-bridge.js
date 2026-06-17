@@ -21,6 +21,7 @@
     chooseViceExecutable: () => invoke("choose_vice_executable"),
     chooseExomizerExecutable: () => invoke("choose_exomizer_executable"),
     buildExomizerPrg: (payload) => invoke("build_exomizer_prg", { payload }),
+    buildExomizerRaw: (payload) => invoke("build_exomizer_raw", { payload }),
     launchVice: (payload) => invoke("launch_vice", { payload }),
     launchExomizer: (payload) => invoke("launch_exomizer", { payload }),
     getDebuggerConfig: () => invoke("get_debugger_config"),

@@ -1,6 +1,6 @@
-# CLAUDE.md — C64 Visual Assembler
+# AGENTS.md — C64 Visual Assembler
 
-Ez a fájl a **Claude Code** (és a VS Code Claude extension) számára íródott. A projekttel
+Ez a fájl a **Codex** (és a VS Code Codex extension) számára íródott. A projekttel
 végzett munka előtt mindig olvasd át — ez az **elsődleges projekt-instrukció**.
 
 Részletes, soronkénti referenciáért lásd: [.github/copilot-instructions.md](.github/copilot-instructions.md)
@@ -352,7 +352,7 @@ Lásd `tauri-bridge.js` és `src-tauri/src/lib.rs`. Leggyakoribb commands:
 ## 13. Hivatkozások
 
 - **Teljes referencia (1600 sor):** [.github/copilot-instructions.md](.github/copilot-instructions.md) — itt nem dokumentált makró/feature mindenképp ott van
-- **C64 assembly tudásbázis:** `F:\Development\C64AssemblyExpert\knowledge\index-template.md` (globális CLAUDE.md referenciából)
+- **C64 assembly tudásbázis:** `F:\Development\C64AssemblyExpert\knowledge\index-template.md` (globális AGENTS.md referenciából)
 - **C64AssemblyExpert plugin:** `.github/copilot-plugin/agents/c64-assembly-expert.agent.md`
 - **Codebase64 offline mirror:** `F:\Development\C64AssemblyExpert\knowledge\sources\codebase64\pages\` (660+ asm rutin)
 

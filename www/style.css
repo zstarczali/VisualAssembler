@@ -4137,7 +4137,8 @@ html[data-theme="oled"] .expert-err-line {
   padding-block: 0;
 }
 
-.d64-extra-addr {
+.d64-extra-addr,
+.d64-extra-decomp {
   width: 72px;
   flex: none;
   min-height: 28px;

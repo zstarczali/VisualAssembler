@@ -177,6 +177,7 @@ const mnemonicLibrary = {
     { mnemonic: "MOUSE", description: "C64 1351 arányos egér vezérlése: SID POTX/POTY olvasás, standard 1351-szeru 7 bites delta dekódolással, CIA $DC00 felső 2 bitjével portválasztás, 512-ciklusos SID settle wait, X oldalon a klasszikus $D010 toggle mintával, Y oldalon invertált mozgatással. 142 byte inline.", modes: ["implied"], isMouseMacro: true },
     { mnemonic: "SPRITE_COL", description: "Sprite utkozes detektalas: LDA $D01E/$D01F + AND #bitMask. Eredmeny A-ban: nem nulla = utkozes. Utana BEQ/BNE-vel ugri. 5 byte.", modes: ["implied"], isSpriteColMacro: true },
     { mnemonic: "LOADFILE", description: "Fajl betoltese D64-rol KERNAL SETNAM/SETLFS/LOAD rutinokkal. Cim opcionalis (ures = fajl sajat cime, sec=1; kitoltve = override, sec=0). Hiba cimke opcionalis (BCS).", modes: ["implied"], isLoadFileMacro: true },
+    { mnemonic: "EXODECRUNCH", description: "Exomizer raw tomoritett adat kicsomagolasa. Beallitja a ZP forras pointert, majd JSR a depacker rutinra. A depacker rutint (Exomizer wrap.s) INCBIN-nel kell elhelyezni a programban. 10 byte.", modes: ["implied"], isExoDecrunchMacro: true },
     { mnemonic: "REU_CHECK", description: "REU (RAM bovito egyseg) jelenletenek ellenorzese: $DF04 write/read proba $55 es $AA mintaval. Z=0 → REU jelen van (BNE-vel ugri), Z=1 → nincs REU (BEQ-vel ugri). 34 byte.", modes: ["implied"], isReuCheckMacro: true },
     { mnemonic: "REU_STASH", description: "C64 RAM → REU mentes: C64 cim, REU cim/bank es hossz beallitasa ($DF02-$DF08), majd $90 parancs → $DF01 (execute + stash, azonnali DMA). 40 byte inline.", modes: ["implied"], isReuTransferMacro: true },
     { mnemonic: "REU_FETCH", description: "REU → C64 RAM betoltes: C64 cim, REU cim/bank es hossz beallitasa ($DF02-$DF08), majd $91 parancs → $DF01 (execute + fetch, azonnali DMA). 40 byte inline.", modes: ["implied"], isReuTransferMacro: true },
@@ -1955,21 +1956,22 @@ function applyTranslations() {
   if (sampleOptions[14]) sampleOptions[14].textContent = t("sampleUserMacro");
   if (sampleOptions[15]) sampleOptions[15].textContent = t("sampleIncBin");
   if (sampleOptions[16]) sampleOptions[16].textContent = t("sampleLoadFile");
-  if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleInclude");
-  if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleSidDemo");
-  if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleSidDirectDemo");
-  if (sampleOptions[20]) sampleOptions[20].textContent = t("sampleSpriteMacroDemo");
-  if (sampleOptions[21]) sampleOptions[21].textContent = t("sampleJoystickDemo");
-  if (sampleOptions[22]) sampleOptions[22].textContent = t("sampleMouseDemo");
-  if (sampleOptions[23]) sampleOptions[23].textContent = t("sampleCollisionDemo");
-  if (sampleOptions[24]) sampleOptions[24].textContent = t("sample10Print");
-  if (sampleOptions[25]) sampleOptions[25].textContent = t("sampleRasterIrqDemo");
-  if (sampleOptions[26]) sampleOptions[26].textContent = t("sampleOverlappingRasterDemo");
-  if (sampleOptions[27]) sampleOptions[27].textContent = t("sampleMemoryOverlapDemo");
-  if (sampleOptions[28]) sampleOptions[28].textContent = t("sampleRandLinesDemo");
-  if (sampleOptions[29]) sampleOptions[29].textContent = t("sampleReuDemo");
-  if (sampleOptions[30]) sampleOptions[30].textContent = t("sampleScrollTextDemo");
-  if (sampleOptions[31]) sampleOptions[31].textContent = t("sampleNameInputDemo");
+  if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleExoMulticolorDemo");
+  if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleInclude");
+  if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleSidDemo");
+  if (sampleOptions[20]) sampleOptions[20].textContent = t("sampleSidDirectDemo");
+  if (sampleOptions[21]) sampleOptions[21].textContent = t("sampleSpriteMacroDemo");
+  if (sampleOptions[22]) sampleOptions[22].textContent = t("sampleJoystickDemo");
+  if (sampleOptions[23]) sampleOptions[23].textContent = t("sampleMouseDemo");
+  if (sampleOptions[24]) sampleOptions[24].textContent = t("sampleCollisionDemo");
+  if (sampleOptions[25]) sampleOptions[25].textContent = t("sample10Print");
+  if (sampleOptions[26]) sampleOptions[26].textContent = t("sampleRasterIrqDemo");
+  if (sampleOptions[27]) sampleOptions[27].textContent = t("sampleOverlappingRasterDemo");
+  if (sampleOptions[28]) sampleOptions[28].textContent = t("sampleMemoryOverlapDemo");
+  if (sampleOptions[29]) sampleOptions[29].textContent = t("sampleRandLinesDemo");
+  if (sampleOptions[30]) sampleOptions[30].textContent = t("sampleReuDemo");
+  if (sampleOptions[31]) sampleOptions[31].textContent = t("sampleScrollTextDemo");
+  if (sampleOptions[32]) sampleOptions[32].textContent = t("sampleNameInputDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -2943,6 +2945,26 @@ function createBlockFromMnemonic(item) {
     };
   }
 
+  if (item.isExoDecrunchMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isExoDecrunchMacro: true,
+      exoSrcAddr: "C000",
+      exoDestAddr: "2000",
+      exoDepackerAddr: "A000",
+      exoZpBase: "FB"
+    };
+  }
+
   if (item.isSpritePosMacro) {
     return {
       id: crypto.randomUUID(),
@@ -3615,6 +3637,7 @@ function _blockToExpertLine(block) {
   if (block.isPetsciiMacro)   return `.petscii ${fmtAddr(block.petsciiAddress)}, "${block.rawOperand || "HELLO"}"${block.petsciiNullTerminated ? ", null" : ""}${fmtMacroLabel(block.macroLabel)}`;
   if (block.isTableMacro)     return block.tableAddress ? `.table ${block.tableName || "table1"} $${block.tableAddress.replace(/^\$/,"").toUpperCase()}` : `.table ${block.tableName || "table1"}`;  
   if (block.isLoadFileMacro)  return `.loadfile "${block.loadFileName || "DATA"}", ${block.loadFileDevice || "8"}${block.loadFileAddress ? ", $" + block.loadFileAddress.replace(/^\$/,"") : ""}${block.loadFileErrorLabel ? ", " + block.loadFileErrorLabel : ""}`;
+  if (block.isExoDecrunchMacro) return `.exodecrunch $${(block.exoSrcAddr||"C000").toUpperCase()}, dst=$${(block.exoDestAddr||"2000").toUpperCase()}, depacker=$${(block.exoDepackerAddr||"A000").toUpperCase()}, zp=$${(block.exoZpBase||"FB").toUpperCase()}`;
   if (block.isSidMacro)       return `.sid "${block.sidFileName || "music.sid"}"${block.sidCustomAddress ? ", $" + block.sidCustomAddress.replace(/^\$/, "") : ""}`;  
   if (block.isIncludeMacro)   return `.include "${block.includeFileName || "library.json"}"${block.includeAddress ? ", $" + block.includeAddress.replace(/^\$/, "") : ""}`;  
   if (block.isLoopMacro)      return `.loop ${block.loopReg || "X"}, $${(block.loopCount || "0A").toUpperCase()}, ${block.loopLabel || "loop1"}`;
@@ -4293,7 +4316,7 @@ function showBuildInfoDialog() {
         "isTextMacro","isStringMacro","isDataMacro","isRawBytesMacro","isRawTextMacro",
         "isLoopMacro","isNextMacro","isForMacro","isEndfMacro","isSpriteInitMacro","isSpritePosMacro","isWaitRasterMacro",
         "isJoystickMacro","isMouseMacro","isSpriteColMacro","isIncBinMacro","isSidMacro",
-        "isLoadFileMacro","isReuStashMacro","isReuFetchMacro","isReuSwapMacro","isReuCheckMacro",
+        "isLoadFileMacro","isExoDecrunchMacro","isReuStashMacro","isReuFetchMacro","isReuSwapMacro","isReuCheckMacro",
         "isTurboSetMacro","isTurboEnableMacro","isSuperCpuDetectMacro",
       ];
       macroTypes.forEach(t2 => {
@@ -6322,6 +6345,13 @@ function updateProgramBlock(index, field, value) {
     return;
   }
 
+  if (block.isExoDecrunchMacro && (field === "exoSrcAddr" || field === "exoDestAddr" || field === "exoDepackerAddr" || field === "exoZpBase")) {
+    block.validationError = "";
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
   if (block.isSpritePosMacro && (field === "spriteNum" || field === "spriteX" || field === "spriteY")) {
     block.validationError = validateSpritePosMacro(block.spriteNum, block.spriteX, block.spriteY);
     renderBlockPreview(index);
@@ -7659,7 +7689,7 @@ function getProjectPayload() {
       extras: (d64ExportState.extras.length > 0
         ? d64ExportState.extras
         : (d64ExportState._pendingExtras || [])
-      ).map(e => ({ name: e.name, sourcePath: e.sourcePath, loadAddress: e.loadAddress || "" }))
+      ).map(e => ({ name: e.name, sourcePath: e.sourcePath, loadAddress: e.loadAddress || "", decompressAddress: e.decompressAddress || "", crunch: e.crunch || false }))
     }
   };
 }
@@ -8161,7 +8191,7 @@ function defaultDiskName() {
 function d64SaveSettings(diskName, progName) {
   d64ExportState.diskName = diskName;
   d64ExportState.progName = progName;
-  const meta = d64ExportState.extras.map(e => ({ name: e.name, sourcePath: e.sourcePath, loadAddress: e.loadAddress, crunch: e.crunch || false }));
+  const meta = d64ExportState.extras.map(e => ({ name: e.name, sourcePath: e.sourcePath, loadAddress: e.loadAddress, decompressAddress: e.decompressAddress || "", crunch: e.crunch || false }));
   try { localStorage.setItem("d64LastSettings", JSON.stringify({ diskName, progName, extras: meta })); } catch (_) {}
 }
 
@@ -8174,7 +8204,7 @@ async function d64LoadSavedExtras(savedExtras, baseDir = "") {
     const resolvedPath = (baseDir && !isAbsolute) ? baseDir + "/" + meta.sourcePath : meta.sourcePath;
     try {
       const r = await window.electronAPI.readBinFile(resolvedPath);
-      if (r?.ok && r.bytes) restored.push({ name: meta.name, sourcePath: resolvedPath, loadAddress: meta.loadAddress || "", crunch: meta.crunch || false, bytes: r.bytes });
+      if (r?.ok && r.bytes) restored.push({ name: meta.name, sourcePath: resolvedPath, loadAddress: meta.loadAddress || "", decompressAddress: meta.decompressAddress || "", crunch: meta.crunch || false, bytes: r.bytes });
     } catch (_) {}
   }
   return restored;
@@ -8227,8 +8257,9 @@ function renderD64ExtraFiles() {
     item.innerHTML = `
       <div class="d64-export-extra-top">
         <input type="text" maxlength="16" class="d64-extra-name" value="${escapeHtmlAttribute(entry.name)}" placeholder="${t("d64ExtraNamePlaceholder")}">
-        <input type="text" maxlength="5" class="d64-extra-addr" value="${escapeHtmlAttribute(entry.loadAddress || "")}" placeholder="${t("d64ExtraAddrPlaceholder")}">
-        <label class="d64-extra-crunch" title="Tömörítés Exomizerrel (sfx sys)">
+        <input type="text" maxlength="5" class="d64-extra-addr" value="${escapeHtmlAttribute(entry.loadAddress || "")}" placeholder="${t("d64ExtraAddrPlaceholder")}" title="${t("d64ExtraAddrTooltip")}">
+        <input type="text" maxlength="5" class="d64-extra-decomp" value="${escapeHtmlAttribute(entry.decompressAddress || "")}" placeholder="${t("d64ExtraDecompPlaceholder")}" title="${t("d64ExtraDecompTooltip")}">
+        <label class="d64-extra-crunch" title="Tömörítés Exomizerrel (mem mode)">
           <input type="checkbox" class="d64-extra-crunch-cb"${entry.crunch ? " checked" : ""}>
           <span>EXO</span>
         </label>
@@ -8247,6 +8278,12 @@ function renderD64ExtraFiles() {
     item.querySelector(".d64-extra-addr").addEventListener("input", (event) => {
       const cleaned = event.target.value.replace(/^\$/, "").replace(/[^0-9A-Fa-f]/g, "").slice(0, 4);
       d64ExportState.extras[idx].loadAddress = cleaned;
+      event.target.value = cleaned;
+    });
+
+    item.querySelector(".d64-extra-decomp").addEventListener("input", (event) => {
+      const cleaned = event.target.value.replace(/^\$/, "").replace(/[^0-9A-Fa-f]/g, "").slice(0, 4);
+      d64ExportState.extras[idx].decompressAddress = cleaned;
       event.target.value = cleaned;
     });
 
@@ -8312,14 +8349,15 @@ async function confirmD64Export() {
       loadAddr = parsed;
     }
     if (extra.crunch && loadAddr === null) {
-      if (errorBox) { errorBox.hidden = false; errorBox.textContent = `${extra.name}: EXO tömörítéshez Addr mező szükséges`; }
+      if (errorBox) { errorBox.hidden = false; errorBox.textContent = tf("d64ErrorCrunchNeedsAddr", { name: extra.name }); }
       return;
     }
     files.push({
       name: extra.name.toLowerCase(),
       bytes: Array.from(extra.bytes),
       loadAddress: loadAddr,
-      _crunch: extra.crunch || false
+      _crunch: extra.crunch || false,
+      _decompressAddress: (extra.decompressAddress || "").trim()
     });
   }
 
@@ -8338,25 +8376,41 @@ async function confirmD64Export() {
     const needsCrunch = f._crunch;
     delete f._crunch;
     if (!needsCrunch) continue;
-    if (f.loadAddress !== 0x0801) {
-      if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = t(isUltimateMode ? "runOnUltimate" : isRunMode ? "runViaD64Confirm" : "d64ExportConfirm"); }
-      if (cancelBtn) cancelBtn.disabled = false;
-      if (errorBox) { errorBox.hidden = false; errorBox.textContent = `${f.name}: ${t("d64ErrorCrunchNotProgram")}`; }
-      return;
-    }
-    const prgForExo = [f.loadAddress & 0xFF, (f.loadAddress >> 8) & 0xFF, ...f.bytes];
     let crunchResult;
     try {
-      crunchResult = await window.electronAPI.buildExomizerPrg({ bytes: prgForExo, fileName: f.name + ".prg" });
+      if (f.loadAddress === 0x0801) {
+        // sfx sys: self-extracting PRG, load address header prepended for Exomizer
+        const prgForExo = [f.loadAddress & 0xFF, (f.loadAddress >> 8) & 0xFF, ...f.bytes];
+        crunchResult = await window.electronAPI.buildExomizerPrg({ bytes: prgForExo, fileName: f.name + ".prg" });
+        if (crunchResult?.ok) {
+          f.bytes = Array.from(crunchResult.bytes);
+          f.loadAddress = null; // output already has its own load address header
+        }
+      } else {
+        // mem mode: exomizer prepends a 2-byte load address header and embeds the
+        // decompression target into the stream. Output is a complete PRG, so we
+        // clear f.loadAddress so the D64 builder doesn't double-prepend.
+        const loadHex = (typeof f.loadAddress === "number") ? f.loadAddress.toString(16).toUpperCase().padStart(4, "0") : null;
+        const decompHex = f._decompressAddress ? f._decompressAddress.replace(/^\$/, "").toUpperCase().padStart(4, "0") : null;
+        crunchResult = await window.electronAPI.buildExomizerRaw({
+          bytes: f.bytes,
+          fileName: f.name + ".bin",
+          targetAddress: loadHex,
+          decompressAddress: decompHex
+        });
+        if (crunchResult?.ok) {
+          f.bytes = Array.from(crunchResult.bytes);
+          f.loadAddress = null; // PRG header is already in the bytes
+        }
+      }
     } catch (_) { crunchResult = null; }
+    delete f._decompressAddress;
     if (!crunchResult?.ok) {
       if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = t(isUltimateMode ? "runOnUltimate" : isRunMode ? "runViaD64Confirm" : "d64ExportConfirm"); }
       if (cancelBtn) cancelBtn.disabled = false;
       if (errorBox) { errorBox.hidden = false; errorBox.textContent = `${f.name}: ${crunchResult?.error || t("exomizerLaunchFailed")}`; }
       return;
     }
-    f.bytes = Array.from(crunchResult.bytes);
-    f.loadAddress = null;
   }
 
   if (isRunMode) await showWorkProgress(isUltimateMode ? "workProgressRunD64Ultimate" : "workProgressRunD64");
@@ -10534,6 +10588,45 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes, comment: `LOADFILE "${filename}" dev=${device}${addrSuffix}${errSuffix}` };
   }
 
+  if (block.isExoDecrunchMacro) {
+    const srcStr = (block.exoSrcAddr || "C000").replace(/^\$/, "");
+    const srcAddr = parseInt(srcStr, 16);
+    if (isNaN(srcAddr) || srcAddr < 0 || srcAddr > 0xFFFF) {
+      return { ok: false, error: t("exoDecrunchErrBadSrc") };
+    }
+    const dstStr = (block.exoDestAddr || "2000").replace(/^\$/, "");
+    const dstAddr = parseInt(dstStr, 16);
+    if (isNaN(dstAddr) || dstAddr < 0 || dstAddr > 0xFFFF) {
+      return { ok: false, error: t("exoDecrunchErrBadDest") };
+    }
+    const depackStr = (block.exoDepackerAddr || "A000").replace(/^\$/, "");
+    const depackAddr = parseInt(depackStr, 16);
+    if (isNaN(depackAddr) || depackAddr < 0 || depackAddr > 0xFFFF) {
+      return { ok: false, error: t("exoDecrunchErrBadDepacker") };
+    }
+    const zpStr = (block.exoZpBase || "FB").replace(/^\$/, "");
+    const zpBase = parseInt(zpStr, 16);
+    if (isNaN(zpBase) || zpBase < 0 || zpBase > 0xFE) {
+      return { ok: false, error: t("exoDecrunchErrBadZp") };
+    }
+    const bytes = [];
+    // LDA #<src / STA zpBase
+    bytes.push(0xA9, srcAddr & 0xFF, 0x85, zpBase);
+    // LDA #>src / STA zpBase+1
+    bytes.push(0xA9, (srcAddr >> 8) & 0xFF, 0x85, (zpBase + 1) & 0xFF);
+    // LDA #<dst / STA $FE (depacker dest_lo)
+    bytes.push(0xA9, dstAddr & 0xFF, 0x85, 0xFE);
+    // LDA #>dst / STA $FF (depacker dest_hi)
+    bytes.push(0xA9, (dstAddr >> 8) & 0xFF, 0x85, 0xFF);
+    // JSR depackAddr
+    bytes.push(0x20, depackAddr & 0xFF, (depackAddr >> 8) & 0xFF);
+    return {
+      ok: true,
+      bytes,
+      comment: `EXODECRUNCH src=$${srcAddr.toString(16).toUpperCase().padStart(4,"0")} dst=$${dstAddr.toString(16).toUpperCase().padStart(4,"0")} depacker=$${depackAddr.toString(16).toUpperCase().padStart(4,"0")} zp=$${zpBase.toString(16).toUpperCase().padStart(2,"0")}`
+    };
+  }
+
   if (block.isSpritePosMacro) {
     const num = parseInt(block.spriteNum || "0", 10);
     if (isNaN(num) || num < 0 || num > 7) {
@@ -11286,6 +11379,10 @@ function getInstructionSize(block) {
     const useErrorCheck = (block.loadFileErrorLabel || "").trim() !== "";
     // 3 (JMP skip) + fnLen + 9 (SETNAM) + 9 (SETLFS) + (4 if override) + 5 (LDA #0 + JSR LOAD) + 2 (BCS always)
     return 3 + fnLen + 9 + 9 + (useOverride ? 4 : 0) + 5 + 2;
+  }
+
+  if (block.isExoDecrunchMacro) {
+    return 19;  // 4× (LDA #imm + STA zp) for src+dest pointers + JSR depack
   }
 
   if (block.isSpritePosMacro) {
@@ -13722,6 +13819,33 @@ function renderProgram() {
           </div>
         `
       );
+    } else if (block.isExoDecrunchMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${t("fieldExoSrcAddr")}</span>
+              <input class="exo-src-addr" type="text" maxlength="5" value="${escapeHtmlAttribute(block.exoSrcAddr || "C000")}" placeholder="C000">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldExoDestAddr")}</span>
+              <input class="exo-dest-addr" type="text" maxlength="5" value="${escapeHtmlAttribute(block.exoDestAddr || "2000")}" placeholder="2000">
+            </label>
+          </div>
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${t("fieldExoDepackerAddr")}</span>
+              <input class="exo-depacker-addr" type="text" maxlength="5" value="${escapeHtmlAttribute(block.exoDepackerAddr || "A000")}" placeholder="A000">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldExoZpBase")}</span>
+              <input class="exo-zp-base" type="text" maxlength="3" value="${escapeHtmlAttribute(block.exoZpBase || "FB")}" placeholder="FB">
+            </label>
+          </div>
+        `
+      );
     } else if (block.isReuCheckMacro) {
       inlineField.hidden = true;
     } else if (block.isReuTransferMacro) {
@@ -14369,6 +14493,22 @@ function renderProgram() {
           if (!dropdown.contains(e.target) && e.target !== loadFileErrorLabelInput) closeDropdown();
         }, { capture: true });
       }
+    }
+    const exoSrcAddrInput = node.querySelector(".exo-src-addr");
+    if (exoSrcAddrInput) {
+      exoSrcAddrInput.addEventListener("input", (event) => updateProgramBlock(index, "exoSrcAddr", event.target.value));
+    }
+    const exoDestAddrInput = node.querySelector(".exo-dest-addr");
+    if (exoDestAddrInput) {
+      exoDestAddrInput.addEventListener("input", (event) => updateProgramBlock(index, "exoDestAddr", event.target.value));
+    }
+    const exoDepackerAddrInput = node.querySelector(".exo-depacker-addr");
+    if (exoDepackerAddrInput) {
+      exoDepackerAddrInput.addEventListener("input", (event) => updateProgramBlock(index, "exoDepackerAddr", event.target.value));
+    }
+    const exoZpBaseInput = node.querySelector(".exo-zp-base");
+    if (exoZpBaseInput) {
+      exoZpBaseInput.addEventListener("input", (event) => updateProgramBlock(index, "exoZpBase", event.target.value));
     }
     const loopRegSelect = node.querySelector(".loop-reg");
     if (loopRegSelect) {
@@ -15249,6 +15389,8 @@ async function loadSampleFromFile(sampleName) {
         name: e.name || "",
         sourcePath: e.sourcePath || "",
         loadAddress: e.loadAddress || "",
+        decompressAddress: e.decompressAddress || "",
+        crunch: e.crunch || false,
         bytes: e.bytes
       }));
     } else {
@@ -15381,6 +15523,26 @@ async function loadIncBinDemo() {
 
 async function loadIncludeDemo() {
   await loadSampleFromFile("include-demo");
+}
+
+async function loadExoMulticolorDemo() {
+  const ok = await loadSampleFromFile("exo-multicolor-demo");
+  if (!ok) return;
+
+  if (window.electronAPI?.loadIncBinSampleFile) {
+    const result = await window.electronAPI.loadIncBinSampleFile("exo-decrunch.bin");
+    if (result && !result.error) {
+      const incBinIdx = program.findIndex(b => b.isIncBinMacro);
+      if (incBinIdx >= 0) {
+        program[incBinIdx].incBinFileName = result.fileName;
+        program[incBinIdx].incBinFile = result.filePath;
+        program[incBinIdx].incBinBytes = result.bytes;
+        program[incBinIdx].validationError = validateIncBinMacro(result.bytes, program[incBinIdx].incBinAddress);
+        renderProgram();
+        if (expertMode) _expertSyncFromProgram();
+      }
+    }
+  }
 }
 
 async function loadSidDemo() {
@@ -15566,6 +15728,11 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "include-demo") {
     loadIncludeDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "exo-multicolor-demo") {
+    loadExoMulticolorDemo();
     return;
   }
 
@@ -16956,8 +17123,7 @@ function _ceLoadRom() {
     }
   }
   _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
-  const btn = document.getElementById("ce-load-rom");
-  if (btn) { const o = btn.textContent; btn.textContent = (typeof t === "function" ? t("loaded") : "Loaded!"); setTimeout(function() { btn.textContent = o; }, 1400); }
+  showViceToast(t("ceLoadRomDone"), false);
 }
 
 function _ceInit() {

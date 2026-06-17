@@ -363,44 +363,67 @@ struct LaunchVicePayload {
     file_name: Option<String>,
 }
 
-fn crunch_with_exomizer(exomizer_path: &str, input_bytes: &[u8], file_name: &str) -> Result<(PathBuf, Vec<u8>), String> {
-    let temp_dir = std::env::temp_dir().join("c64-visual-assembler");
-    let _ = fs::create_dir_all(&temp_dir);
-    let input_path = temp_dir.join(file_name);
-    fs::write(&input_path, input_bytes).map_err(|e| e.to_string())?;
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct BuildRawPayload {
+    bytes: Vec<u8>,
+    file_name: Option<String>,
+    target_address: Option<String>,     // load address (hex without $), e.g. "C000"
+    decompress_address: Option<String>, // decompress target (hex without $), e.g. "2000"
+}
 
+fn crunch_with_exomizer(exomizer_path: &str, input_bytes: &[u8], file_name: &str, raw_mode: bool, raw_load: Option<&str>, raw_decompress: Option<&str>) -> Result<(PathBuf, Vec<u8>), String> {
+    let temp_dir = std::env::temp_dir().join("c64-visual-assembler");
+    fs::create_dir_all(&temp_dir).map_err(|e| format!("mkdir {:?}: {}", temp_dir, e))?;
+    let input_path = temp_dir.join(file_name);
+    fs::write(&input_path, input_bytes).map_err(|e| format!("write {:?}: {}", input_path, e))?;
+
+    let ext = if raw_mode { "exo" } else { "prg" };
+    let prefix = if raw_mode { "exomizer-raw" } else { "exomizer-sfx" };
     let output_path = temp_dir.join(format!(
-        "exomizer-sfx-{}.prg",
-        std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()
+        "{}-{}.{}",
+        prefix,
+        std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
+        ext
     ));
+
+    if !std::path::Path::new(exomizer_path).exists() {
+        return Err(format!("Exomizer executable not found: {}", exomizer_path));
+    }
 
     let mut cmd = Command::new(exomizer_path);
     #[cfg(target_os = "windows")]
     {
         cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW
     }
+    let load_str;
+    let infile_with_target;
+    let args: Vec<&str> = if raw_mode {
+        // exomizer mem: -l <load> embeds the load address in the output PRG header;
+        // appending ",<decompress>" to the input filename tells exomizer where the
+        // decompressed data is supposed to end up (encoded into the stream).
+        load_str = format!("${}", raw_load.unwrap_or("C000"));
+        infile_with_target = format!("{},${}", input_path.to_str().unwrap(), raw_decompress.unwrap_or("2000"));
+        vec!["mem", "-l", load_str.as_str(), "-o", output_path.to_str().unwrap(), infile_with_target.as_str()]
+    } else {
+        vec!["sfx", "sys", "-o", output_path.to_str().unwrap(), input_path.to_str().unwrap()]
+    };
     let output = cmd
-        .args([
-            "sfx",
-            "sys",
-            "-o",
-            output_path.to_str().unwrap(),
-            input_path.to_str().unwrap(),
-        ])
+        .args(&args)
         .stdin(std::process::Stdio::null())
         .stdout(std::process::Stdio::piped())
         .stderr(std::process::Stdio::piped())
         .output()
-        .map_err(|e| e.to_string())?;
+        .map_err(|e| format!("spawn {}: {} (args: {:?})", exomizer_path, e, args))?;
 
     if !output.status.success() {
         let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
         let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
-        let error = if !stderr.is_empty() { stderr } else if !stdout.is_empty() { stdout } else { "Exomizer futtatas sikertelen.".to_string() };
+        let error = if !stderr.is_empty() { stderr } else if !stdout.is_empty() { stdout } else { format!("Exomizer exit {:?}", output.status.code()) };
         return Err(error);
     }
 
-    let bytes = fs::read(&output_path).map_err(|e| e.to_string())?;
+    let bytes = fs::read(&output_path).map_err(|e| format!("read {:?}: {}", output_path, e))?;
     Ok((output_path, bytes))
 }
 
@@ -421,7 +444,38 @@ async fn build_exomizer_prg(app: AppHandle, payload: LaunchVicePayload) -> serde
             .duration_since(std::time::UNIX_EPOCH).unwrap().as_millis())
     });
 
-    match crunch_with_exomizer(&exomizer_path, &payload.bytes, &file_name) {
+    match crunch_with_exomizer(&exomizer_path, &payload.bytes, &file_name, false, None, None) {
+        Ok((output_path, bytes)) => serde_json::json!({
+            "ok": true,
+            "exomizerPath": exomizer_path,
+            "sourceFilePath": std::env::temp_dir().join("c64-visual-assembler").join(&file_name).to_string_lossy().to_string(),
+            "filePath": output_path.to_string_lossy().to_string(),
+            "bytes": bytes
+        }),
+        Err(error) => serde_json::json!({ "ok": false, "error": error }),
+    }
+}
+
+#[tauri::command]
+async fn build_exomizer_raw(app: AppHandle, payload: BuildRawPayload) -> serde_json::Value {
+    let cfg = read_config(&app);
+    let exomizer_path = get_exomizer_path(&cfg);
+
+    if exomizer_path.is_empty() {
+        return serde_json::json!({
+            "ok": false,
+            "error": "Exomizer nincs beallitva. Kattints az Edit gombra es add meg az eleresi utjat."
+        });
+    }
+
+    let file_name = payload.file_name.unwrap_or_else(|| {
+        format!("data-{}.bin", std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH).unwrap().as_millis())
+    });
+
+    let load_addr = payload.target_address.as_deref();
+    let decomp_addr = payload.decompress_address.as_deref();
+    match crunch_with_exomizer(&exomizer_path, &payload.bytes, &file_name, true, load_addr, decomp_addr) {
         Ok((output_path, bytes)) => serde_json::json!({
             "ok": true,
             "exomizerPath": exomizer_path,
@@ -495,7 +549,7 @@ async fn launch_exomizer(app: AppHandle, payload: LaunchVicePayload) -> serde_js
             .duration_since(std::time::UNIX_EPOCH).unwrap().as_millis())
     });
 
-    let (output_path, _) = match crunch_with_exomizer(&exomizer_path, &payload.bytes, &file_name) {
+    let (output_path, _) = match crunch_with_exomizer(&exomizer_path, &payload.bytes, &file_name, false, None, None) {
         Ok(result) => result,
         Err(error) => return serde_json::json!({ "ok": false, "error": error }),
     };
@@ -1906,6 +1960,8 @@ async fn load_sample(app: AppHandle, sample_name: String) -> serde_json::Value {
                                         "name": entry.get("name").and_then(|v| v.as_str()).unwrap_or(""),
                                         "sourcePath": src,
                                         "loadAddress": entry.get("loadAddress").and_then(|v| v.as_str()).unwrap_or(""),
+                                        "decompressAddress": entry.get("decompressAddress").and_then(|v| v.as_str()).unwrap_or(""),
+                                        "crunch": entry.get("crunch").and_then(|v| v.as_bool()).unwrap_or(false),
                                         "bytes": bytes
                                     }));
                                 }
@@ -1946,6 +2002,7 @@ pub fn run() {
             choose_vice_executable,
             choose_exomizer_executable,
             build_exomizer_prg,
+            build_exomizer_raw,
             launch_vice,
             launch_exomizer,
             get_debugger_config,
