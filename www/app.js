@@ -2004,12 +2004,22 @@ function _applyEditorTranslations() {
   setAttr("#ce-flipv", t("ceFlipV"));
   setText(".ce-export-lbl", t("ceExport"));
   setText("#ce-copy-asm", t("ceCopyAsm"));
-  setText("#ce-load-rom", t("ceLoadRom"));
+  setAttr("#ce-load-rom", t("ceLoadRom"));
   setText("#ce-load-bin", t("ceLoadBin"));
   setText("#ce-save-bin", t("ceSaveBin"));
   // _ceData/_ceSel are `let`s declared later in the file; at first init they are
   // still in the temporal dead zone (typeof throws too), so guard with try/catch.
   try { _ceUpdateInfo(); } catch (_) {}
+  // Files ▾ button (all editors share the same class)
+  document.querySelectorAll(".ed-file-btn").forEach(el => { el.textContent = t("edFilesBtn"); });
+  // Character Editor — FG/BG labels, shift tooltips
+  const ceColorLabels = document.querySelectorAll(".ce-color-row .ce-color-lbl");
+  if (ceColorLabels[0]) ceColorLabels[0].textContent = t("ceFg");
+  if (ceColorLabels[1]) ceColorLabels[1].textContent = t("ceBg");
+  setAttr("#ce-shl", t("shiftLeft"));
+  setAttr("#ce-shr", t("shiftRight"));
+  setAttr("#ce-shu", t("shiftUp"));
+  setAttr("#ce-shd", t("shiftDown"));
   // Map Editor
   setText(".me-title", t("meTitle"));
   setAttr('.me-tool[data-tool="paint"]', t("mePaint"));
@@ -2020,10 +2030,114 @@ function _applyEditorTranslations() {
   setText('#map-editor-dialog button[data-export="screen"]', t("meExportScreen"));
   setText('#map-editor-dialog button[data-export="color"]', t("meExportColor"));
   setText('#map-editor-dialog button[data-export="bin"]', t("meExportBin"));
+  setText('#map-editor-dialog button[data-export="layer-bin"]', t("meExportLayerBin"));
+  setText('#map-editor-dialog button[data-export="layers-bin"]', t("meExportAllLayersBin"));
+  setText('#map-editor-dialog button[data-export="layer-screen"]', t("meExportLayerScreen"));
   setText("#me-load-map", t("meLoadMap"));
   setText("#me-grid-label", t("meGrid"));
   setText(".me-palette-wrap .me-section-lbl", t("meColorLabel"));
   setText(".me-layers .me-section-lbl", t("meLayers"));
+  setAttr("#me-layer-flatten", t("meMergeLayersTitle"));
+  setAttr("#me-layer-add", t("meAddLayerTitle"));
+  setAttr("#me-clear", t("meClearMap"));
+  // Hires Editor
+  setText(".hg-title", t("hgTitle"));
+  setText("#hg-import", t("hgImport"));
+  setText("#hg-export", t("hgExport"));
+  setText("#hg-export-blocks", t("hgExportBlocks"));
+  setText("#hg-save-d64", t("hgSaveD64"));
+  setAttr('.hg-tool[data-tool="pencil"]', t("hgToolPencil"));
+  setAttr('.hg-tool[data-tool="eraser"]', t("hgToolEraser"));
+  setAttr('.hg-tool[data-tool="line"]', t("hgToolLine"));
+  setAttr('.hg-tool[data-tool="rect"]', t("hgToolRect"));
+  setAttr('.hg-tool[data-tool="fillrect"]', t("hgToolFillRect"));
+  setAttr('.hg-tool[data-tool="oval"]', t("hgToolOval"));
+  setAttr('.hg-tool[data-tool="filloval"]', t("hgToolFillOval"));
+  setAttr('.hg-tool[data-tool="fill"]', t("hgToolFill"));
+  setAttr("#hg-undo", t("hgUndo"));
+  setAttr("#hg-redo", t("hgRedo"));
+  setAttr("#hg-clear", t("hgClear"));
+  setText("#hg-multicolor-label", t("hgMulticolor"));
+  setText("#hg-grid-label", t("hgGrid"));
+  setText("#hg-color-lbl", t("hgColorLabel"));
+  setText("#hg-paper-lbl", t("hgPaperLabel"));
+  setText("#hg-zoom-lbl", t("hgZoomLabel"));
+  setText("#hg-raster-label", t("hgRaster"));
+  // Sprite Editor
+  setText(".se-title", t("seTitle"));
+  setText("#se-open-spd", t("seLoadBin"));
+  setText("#se-save-bin", t("seSaveBin"));
+  setText("#se-copy-data", t("seCopyBytes"));
+  setAttr("#se-fliph", t("seFlipH"));
+  setAttr("#se-flipv", t("seFlipV"));
+  setAttr("#se-clear", t("seClearFrame"));
+  const seShiftLbl = document.querySelector(".se-shift-group .se-mini-lbl");
+  if (seShiftLbl) seShiftLbl.textContent = t("seShiftLabel");
+  setAttr("#se-shl", t("shiftLeft"));
+  setAttr("#se-shr", t("shiftRight"));
+  setAttr("#se-shu", t("shiftUp"));
+  setAttr("#se-shd", t("shiftDown"));
+  const seWrapSpan = document.querySelector("#se-wrap + span");
+  if (seWrapSpan) seWrapSpan.textContent = t("seWrap");
+  const seMultiSpan = document.querySelector("#se-multicolor + span");
+  if (seMultiSpan) seMultiSpan.textContent = t("seMulticolor");
+  const seGridSpan = document.querySelector("#se-grid + span");
+  if (seGridSpan) seGridSpan.textContent = t("seGrid");
+  const seZoomLbl = document.querySelector(".se-tb-right .se-mini-lbl");
+  if (seZoomLbl) seZoomLbl.textContent = t("seZoom");
+  const seSectionLbls = document.querySelectorAll(".se-section-lbl");
+  if (seSectionLbls[0]) seSectionLbls[0].textContent = t("seColorsSection");
+  if (seSectionLbls[1]) seSectionLbls[1].textContent = t("sePaletteSection");
+  const sePlayBtn = document.getElementById("se-play");
+  if (sePlayBtn && !sePlayBtn.dataset.playing) sePlayBtn.textContent = t("sePlay");
+  const sePingSpan = document.querySelector("#se-pingpong + span");
+  if (sePingSpan) sePingSpan.textContent = t("sePingPong");
+  const seOnionSpan = document.querySelector("#se-onion + span");
+  if (seOnionSpan) seOnionSpan.textContent = t("seOnion");
+  const seFpsLbl = document.querySelector(".se-anim-controls .se-mini-lbl");
+  if (seFpsLbl) seFpsLbl.textContent = t("seFps");
+  setText("#se-add", t("seAdd"));
+  setText("#se-dup", t("seDup"));
+  setText("#se-fcopy", t("seCopy"));
+  setText("#se-fpaste", t("sePaste"));
+  setText("#se-fdel", t("seDelete"));
+  // SID Editor
+  setText(".sid-title", t("sidTitle"));
+  setText("#sid-load-bin", t("sidLoadBin"));
+  setText("#sid-save-bin", t("sidSaveBin"));
+  setText("#sid-export-data", t("sidExportData"));
+  setText("#sid-export-player", t("sidExportPlayer"));
+  setText("#sid-export-asm", t("sidExportAsm"));
+  setText(".sid-inst-row .sid-lbl", t("sidInstrumentLabel"));
+  setAttr("#sid-inst-add", t("sidAddInstrument"));
+  setAttr("#sid-preview", t("sidPreview"));
+  const sidWaveLbl = document.querySelector(".sid-wave-row .sid-lbl");
+  if (sidWaveLbl) sidWaveLbl.textContent = t("sidWaveformLabel");
+  const sidPwLbl = document.querySelector(".sid-wave-row .sid-mini-lbl");
+  if (sidPwLbl) sidPwLbl.textContent = t("sidPwLabel");
+  const sidSections = document.querySelectorAll(".sid-section");
+  if (sidSections[0]) sidSections[0].textContent = t("sidAdsrLabel");
+  if (sidSections[1]) sidSections[1].textContent = t("sidFilterLabel");
+  const sidAdsrLbls = document.querySelectorAll(".sid-adsr .sid-sl-lbl");
+  if (sidAdsrLbls[0]) sidAdsrLbls[0].textContent = t("sidAttack");
+  if (sidAdsrLbls[1]) sidAdsrLbls[1].textContent = t("sidDecay");
+  if (sidAdsrLbls[2]) sidAdsrLbls[2].textContent = t("sidSustain");
+  if (sidAdsrLbls[3]) sidAdsrLbls[3].textContent = t("sidRelease");
+  const sidFilterLbls = document.querySelectorAll(".sid-filter .sid-sl-lbl");
+  if (sidFilterLbls[0]) sidFilterLbls[0].textContent = t("sidCutoff");
+  if (sidFilterLbls[1]) sidFilterLbls[1].textContent = t("sidResonance");
+  if (sidFilterLbls[2]) sidFilterLbls[2].textContent = t("sidVolume");
+  setText(".sid-tracker-row .sid-lbl", t("sidTrackerLabel"));
+  setAttr("#sid-pat-add", t("sidAddPattern"));
+  const sidTrackerMiniLbls = document.querySelectorAll(".sid-tracker-row .sid-mini-lbl");
+  if (sidTrackerMiniLbls[0]) sidTrackerMiniLbls[0].textContent = t("sidSpeed");
+  if (sidTrackerMiniLbls[1]) sidTrackerMiniLbls[1].textContent = t("sidOctave");
+  setAttr("#sid-oct-down", t("sidOctaveDown"));
+  setAttr("#sid-oct-up", t("sidOctaveUp"));
+  setAttr("#sid-play", t("sidPlay"));
+  setAttr("#sid-stop", t("sidStop"));
+  setAttr("#sid-voice-copy", t("sidVoiceCopy"));
+  setAttr("#sid-voice-paste", t("sidVoicePaste"));
 }
 
 function refreshCategoryOptions() {
@@ -8029,7 +8143,7 @@ async function saveD64ToFile() {
 // written to the same D64 image.
 const d64ExportState = {
   prgBytes: null,
-  extras: [],  // [{ name: string, sourcePath: string, bytes: number[], loadAddress: string }]
+  extras: [],  // [{ name: string, sourcePath: string, bytes: number[], loadAddress: string, crunch: bool }]
   runMode: false,
   diskName: "",
   progName: "",
@@ -8047,7 +8161,7 @@ function defaultDiskName() {
 function d64SaveSettings(diskName, progName) {
   d64ExportState.diskName = diskName;
   d64ExportState.progName = progName;
-  const meta = d64ExportState.extras.map(e => ({ name: e.name, sourcePath: e.sourcePath, loadAddress: e.loadAddress }));
+  const meta = d64ExportState.extras.map(e => ({ name: e.name, sourcePath: e.sourcePath, loadAddress: e.loadAddress, crunch: e.crunch || false }));
   try { localStorage.setItem("d64LastSettings", JSON.stringify({ diskName, progName, extras: meta })); } catch (_) {}
 }
 
@@ -8060,7 +8174,7 @@ async function d64LoadSavedExtras(savedExtras, baseDir = "") {
     const resolvedPath = (baseDir && !isAbsolute) ? baseDir + "/" + meta.sourcePath : meta.sourcePath;
     try {
       const r = await window.electronAPI.readBinFile(resolvedPath);
-      if (r?.ok && r.bytes) restored.push({ name: meta.name, sourcePath: resolvedPath, loadAddress: meta.loadAddress || "", bytes: r.bytes });
+      if (r?.ok && r.bytes) restored.push({ name: meta.name, sourcePath: resolvedPath, loadAddress: meta.loadAddress || "", crunch: meta.crunch || false, bytes: r.bytes });
     } catch (_) {}
   }
   return restored;
@@ -8114,6 +8228,10 @@ function renderD64ExtraFiles() {
       <div class="d64-export-extra-top">
         <input type="text" maxlength="16" class="d64-extra-name" value="${escapeHtmlAttribute(entry.name)}" placeholder="${t("d64ExtraNamePlaceholder")}">
         <input type="text" maxlength="5" class="d64-extra-addr" value="${escapeHtmlAttribute(entry.loadAddress || "")}" placeholder="${t("d64ExtraAddrPlaceholder")}">
+        <label class="d64-extra-crunch" title="Tömörítés Exomizerrel (sfx sys)">
+          <input type="checkbox" class="d64-extra-crunch-cb"${entry.crunch ? " checked" : ""}>
+          <span>EXO</span>
+        </label>
         <button type="button" class="d64-export-extra-remove" title="${t("d64ExtraRemove")}">×</button>
       </div>
       <input type="text" class="d64-extra-source" value="${escapeHtmlAttribute(entry.sourcePath || "")}" readonly tabindex="-1">
@@ -8130,6 +8248,10 @@ function renderD64ExtraFiles() {
       const cleaned = event.target.value.replace(/^\$/, "").replace(/[^0-9A-Fa-f]/g, "").slice(0, 4);
       d64ExportState.extras[idx].loadAddress = cleaned;
       event.target.value = cleaned;
+    });
+
+    item.querySelector(".d64-extra-crunch-cb").addEventListener("change", (event) => {
+      d64ExportState.extras[idx].crunch = event.target.checked;
     });
 
     item.querySelector(".d64-export-extra-remove").addEventListener("click", () => {
@@ -8151,7 +8273,8 @@ async function pickD64ExtraFile() {
     name: baseName,
     sourcePath: result.filePath || result.fileName || "",
     bytes: result.bytes,
-    loadAddress: ""  // empty = save raw, no load addr prepended
+    loadAddress: "",  // empty = save raw, no load addr prepended
+    crunch: false
   });
   renderD64ExtraFiles();
 }
@@ -8188,10 +8311,15 @@ async function confirmD64Export() {
       }
       loadAddr = parsed;
     }
+    if (extra.crunch && loadAddr === null) {
+      if (errorBox) { errorBox.hidden = false; errorBox.textContent = `${extra.name}: EXO tömörítéshez Addr mező szükséges`; }
+      return;
+    }
     files.push({
       name: extra.name.toLowerCase(),
       bytes: Array.from(extra.bytes),
-      loadAddress: loadAddr
+      loadAddress: loadAddr,
+      _crunch: extra.crunch || false
     });
   }
 
@@ -8203,6 +8331,34 @@ async function confirmD64Export() {
 
   const isRunMode = d64ExportState.runMode;
   const isUltimateMode = isRunMode === "ultimate";
+
+  // Compress extras that have EXO checked
+  for (let i = 1; i < files.length; i++) {
+    const f = files[i];
+    const needsCrunch = f._crunch;
+    delete f._crunch;
+    if (!needsCrunch) continue;
+    if (f.loadAddress !== 0x0801) {
+      if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = t(isUltimateMode ? "runOnUltimate" : isRunMode ? "runViaD64Confirm" : "d64ExportConfirm"); }
+      if (cancelBtn) cancelBtn.disabled = false;
+      if (errorBox) { errorBox.hidden = false; errorBox.textContent = `${f.name}: ${t("d64ErrorCrunchNotProgram")}`; }
+      return;
+    }
+    const prgForExo = [f.loadAddress & 0xFF, (f.loadAddress >> 8) & 0xFF, ...f.bytes];
+    let crunchResult;
+    try {
+      crunchResult = await window.electronAPI.buildExomizerPrg({ bytes: prgForExo, fileName: f.name + ".prg" });
+    } catch (_) { crunchResult = null; }
+    if (!crunchResult?.ok) {
+      if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = t(isUltimateMode ? "runOnUltimate" : isRunMode ? "runViaD64Confirm" : "d64ExportConfirm"); }
+      if (cancelBtn) cancelBtn.disabled = false;
+      if (errorBox) { errorBox.hidden = false; errorBox.textContent = `${f.name}: ${crunchResult?.error || t("exomizerLaunchFailed")}`; }
+      return;
+    }
+    f.bytes = Array.from(crunchResult.bytes);
+    f.loadAddress = null;
+  }
+
   if (isRunMode) await showWorkProgress(isUltimateMode ? "workProgressRunD64Ultimate" : "workProgressRunD64");
 
   let result;
@@ -10300,11 +10456,11 @@ function compileLineBytes(line, labels) {
   if (block.isLoadFileMacro) {
     const filename = (block.loadFileName || "").toUpperCase().replace(/[^\x20-\x7E]/g, "").slice(0, 16);
     if (!filename) {
-      return { ok: false, error: "LOADFILE: a fajlnev nem lehet ures." };
+      return { ok: false, error: t("loadfileErrEmptyName") };
     }
     const device = parseInt(block.loadFileDevice || "8", 10);
     if (isNaN(device) || device < 8 || device > 30) {
-      return { ok: false, error: "LOADFILE: az eszkozszam 8 es 30 kozott lehet." };
+      return { ok: false, error: t("loadfileErrBadDevice") };
     }
     const addrStr = (block.loadFileAddress || "").trim().replace(/^\$/, "");
     const useOverride = addrStr !== "";
@@ -10312,7 +10468,7 @@ function compileLineBytes(line, labels) {
     if (useOverride) {
       overrideAddr = parseInt(addrStr, 16);
       if (isNaN(overrideAddr) || overrideAddr < 0 || overrideAddr > 0xFFFF) {
-        return { ok: false, error: "LOADFILE: az override cim ervenytelen ($0000-$FFFF)." };
+        return { ok: false, error: t("loadfileErrBadAddr") };
       }
     }
     const errorLabel = (block.loadFileErrorLabel || "").trim();
@@ -10355,18 +10511,20 @@ function compileLineBytes(line, labels) {
     bytes.push(0xA9, 0x00);
     bytes.push(0x20, 0xD5, 0xFF);
 
-    // Optional BCS errorLabel (carry set on KERNAL load error)
+    // BCS errorLabel on KERNAL load error (carry set); if no label, BCS * (self-loop = halts on error)
     if (useErrorCheck) {
       const target = labels.get(errorLabel);
       if (target === undefined) {
-        return { ok: false, error: `LOADFILE: ismeretlen hiba cimke: ${errorLabel}` };
+        return { ok: false, error: `${t("loadfileErrUnknownLabel")} ${errorLabel}` };
       }
       const bcsAddr = baseAddr + bytes.length;
       const offset = target - (bcsAddr + 2);
       if (offset < -128 || offset > 127) {
-        return { ok: false, error: `LOADFILE: a hiba cimke tul messze van (offset: ${offset}).` };
+        return { ok: false, error: `${t("loadfileErrLabelTooFar")} ${offset}).` };
       }
       bytes.push(0xB0, offset & 0xFF);
+    } else {
+      bytes.push(0xB0, 0xFE);  // BCS * — megáll ha a fájl nem található
     }
 
     const addrSuffix = useOverride
@@ -11126,8 +11284,8 @@ function getInstructionSize(block) {
     const fnLen = Math.max(filename.length, 1);  // reserve at least 1 byte even if empty (compile error will surface separately)
     const useOverride = (block.loadFileAddress || "").trim() !== "";
     const useErrorCheck = (block.loadFileErrorLabel || "").trim() !== "";
-    // 3 (JMP skip) + fnLen + 9 (SETNAM) + 9 (SETLFS) + (4 if override) + 5 (LDA #0 + JSR LOAD) + (2 if BCS)
-    return 3 + fnLen + 9 + 9 + (useOverride ? 4 : 0) + 5 + (useErrorCheck ? 2 : 0);
+    // 3 (JMP skip) + fnLen + 9 (SETNAM) + 9 (SETLFS) + (4 if override) + 5 (LDA #0 + JSR LOAD) + 2 (BCS always)
+    return 3 + fnLen + 9 + 9 + (useOverride ? 4 : 0) + 5 + 2;
   }
 
   if (block.isSpritePosMacro) {
@@ -17242,7 +17400,7 @@ function _meNewLayer(name) {
 function _meInit() {
   if (_meInited) return;
   _meInited = true;
-  _meLayers = [_meNewLayer("Background")];
+  _meLayers = [_meNewLayer(t("meBackground"))];
   _meActiveLayer = 0;
   _meScreen = _meLayers[0].screen;
   _meColorRam = _meLayers[0].color;
@@ -17264,7 +17422,7 @@ function _meSetActiveLayer(i) {
   if (_meBufCtx) _meRenderAll();   // keep the canvas showing the full composite
 }
 function _meAddLayer() {
-  _meLayers.push(_meNewLayer("Layer " + _meLayers.length));
+  _meLayers.push(_meNewLayer(t("meNewLayerName") + " " + _meLayers.length));
   _meSetActiveLayer(_meLayers.length - 1);
   _meRenderAll();
 }
@@ -17287,14 +17445,14 @@ function _meBuildLayers() {
       row.className = "me-layer" + (idx === _meActiveLayer ? " me-layer--active" : "");
       const eye = document.createElement("button");
       eye.type = "button"; eye.className = "me-layer-eye" + (L.visible ? "" : " me-layer-eye--off");
-      eye.title = L.visible ? "Hide layer" : "Show layer";
+      eye.title = L.visible ? t("meLayerHide") : t("meLayerShow");
       eye.innerHTML = L.visible
         ? '<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M1.5 8s2.5-4.5 6.5-4.5S14.5 8 14.5 8s-2.5 4.5-6.5 4.5S1.5 8 1.5 8z"/><circle cx="8" cy="8" r="2"/></svg>'
         : '<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><path d="M2 8s2.5-4.5 6-4.5c1 0 1.9.3 2.7.7M14 8s-2.5 4.5-6 4.5c-1 0-1.9-.3-2.7-.7"/><path d="M2.5 2.5l11 11"/></svg>';
       eye.addEventListener("click", function(e) { e.stopPropagation(); L.visible = !L.visible; _meBuildLayers(); _meRenderAll(); });
       const nm = document.createElement("span");
       nm.className = "me-layer-name"; nm.textContent = L.name;
-      nm.title = "Double-click to rename";
+      nm.title = t("meLayerRename");
       nm.addEventListener("dblclick", function(e) {
         e.stopPropagation();
         const v = prompt("Layer name:", L.name);
@@ -17303,7 +17461,7 @@ function _meBuildLayers() {
       row.appendChild(eye); row.appendChild(nm);
       if (_meLayers.length > 1) {
         const del = document.createElement("button");
-        del.type = "button"; del.className = "me-layer-del"; del.title = "Delete layer"; del.textContent = "×";
+        del.type = "button"; del.className = "me-layer-del"; del.title = t("meLayerDelete"); del.textContent = "×";
         del.addEventListener("click", function(e) { e.stopPropagation(); _meDeleteLayer(idx); });
         row.appendChild(del);
       }
@@ -17831,6 +17989,25 @@ function _hgImportBytes(src) {
     // Multicolor raw per-pixel
     _hgMulti = true;
     for (let i = 0; i < 32000; i++) _hgPixMC[i] = src[i] & 0x0F;
+  } else if (len === 10000) {
+    // C64 native multicolor bitmap (8000 bitmap + 1000 screen RAM + 1000 color RAM)
+    _hgMulti = true;
+    const bg = _hgPaper & 0x0F;
+    for (let cell = 0; cell < 1000; cell++) {
+      const cellX = cell % 40, cellY = (cell / 40) | 0;
+      const cx = cellX * 4, cy = cellY * 8;
+      const c1 = (src[8000 + cell] >> 4) & 0x0F;
+      const c2 = src[8000 + cell] & 0x0F;
+      const c3 = src[9000 + cell] & 0x0F;
+      const palette = [bg, c1, c2, c3];
+      for (let row = 0; row < 8; row++) {
+        const byte = src[cell * 8 + row];
+        for (let px = 0; px < 4; px++) {
+          const bits = (byte >> ((3 - px) * 2)) & 3;
+          _hgPixMC[(cy + row) * 160 + (cx + px)] = palette[bits];
+        }
+      }
+    }
   } else if (len === 9000 || len === 8000) {
     // C64 hi-res bitmap (+ optional screen RAM)
     _hgMulti = false;
@@ -17898,7 +18075,7 @@ function _hgExportBlocks() {
 
   if (_hgMulti) {
     lines.push("; Multicolor bitmap loader");
-    lines.push("; 1) image-mc-native.bin (auto-saved) -> D64-en legyen HIRES neven");
+    lines.push("; 1) Export (.bin) -> D64-en legyen HIRES neven");
   } else {
     lines.push("; Hi-res bitmap loader");
     lines.push("; 1) Export (.bin) -> D64-en legyen HIRES neven");
@@ -18053,14 +18230,25 @@ function setupHiresEditor() {
 
   // Export / Save
   document.getElementById("hg-export")?.addEventListener("click", function() {
-    _saveBinFile(_hgExportBytes(), _hgMulti ? "image-mc.bin" : "image-hires.bin");
+    _saveBinFile(_hgMulti ? _hgExportMultiNative() : _hgExportBytes(), _hgMulti ? "image-mc-native.bin" : "image-hires.bin");
   });
   document.getElementById("hg-export-blocks")?.addEventListener("click", function() {
-    if (_hgMulti) _saveBinFile(_hgExportMultiNative(), "image-mc-native.bin");
     if (exportAsmToBlocks(_hgExportBlocks()) > 0) dialog.close();
   });
   document.getElementById("hg-save-d64")?.addEventListener("click", function() {
-    _saveBinFile(_hgExportBytes(), _hgMulti ? "image-mc.bin" : "image-hires.bin");
+    const imageBytes = _hgMulti ? _hgExportMultiNative() : _hgExportBytes();
+    const entryName = "HIRES";
+    const entryAddr = _hgMulti ? "2000" : "";  // hires: fájl saját cíeme; multi: $2000
+    const existingIdx = d64ExportState.extras.findIndex(e => e.name === entryName);
+    if (existingIdx !== -1) d64ExportState.extras.splice(existingIdx, 1);
+    d64ExportState.extras.push({
+      name: entryName,
+      sourcePath: _hgMulti ? "(multicolor editor — image-mc-native)" : "(hires editor — image-hires)",
+      bytes: Array.from(imageBytes),
+      loadAddress: entryAddr,
+      crunch: false
+    });
+    showViceToast(`HIRES (${imageBytes.length} byte) hozzáadva a D64 Extra fájlokhoz`, false);
   });
 
   // Canvas interaction
@@ -18220,7 +18408,7 @@ function _spRender() {
   _spRenderPreview();
   _spRenderThumbs();
   const fl = document.getElementById("se-frame-label");
-  if (fl) fl.textContent = "Frame " + (_spFrame+1) + " / " + _spFrames.length;
+  if (fl) fl.textContent = t("seFrame") + " " + (_spFrame+1) + " / " + _spFrames.length;
 }
 function _spDrawFrameTo(ctx, frame, cw, ch) {
   const zx = cw / _SP_W, zy = ch / _SP_H;
@@ -18243,7 +18431,7 @@ function _spRenderThumbs() {
     const cv = document.createElement("canvas");
     cv.width = 48; cv.height = 42;
     cv.className = "se-frame-thumb" + (i === _spFrame ? " se-frame-thumb--active" : "");
-    cv.title = "Frame " + (i+1);
+    cv.title = t("seFrame") + " " + (i+1);
     _spDrawFrameTo(cv.getContext("2d"), fr, 48, 42);
     cv.addEventListener("click", function() { _spStop(); _spFrame = i; _spRender(); });
     wrap.appendChild(cv);
@@ -18254,8 +18442,8 @@ function _spBuildColors() {
   const wrap = document.getElementById("se-colors"); if (!wrap) return;
   wrap.innerHTML = "";
   const slots = _spMulti
-    ? [["sprite","Sprite Color"],["mc1","Multi-Color 1"],["mc2","Multi-Color 2"],["bg","Background"]]
-    : [["sprite","Sprite Color"],["bg","Background"]];
+    ? [["sprite",t("seSpriteColor")],["mc1",t("seMultiColor1")],["mc2",t("seMultiColor2")],["bg",t("seBackground")]]
+    : [["sprite",t("seSpriteColor")],["bg",t("seBackground")]];
   slots.forEach(function(s) {
     const row = document.createElement("div");
     row.className = "se-color-slot" + (s[0] === _spSlot ? " se-color-slot--active" : "");
@@ -18348,12 +18536,12 @@ function _spShift(dir) {
   f.set(n); _spRender();
 }
 
-function _spStop() { if (_spPlay) { clearInterval(_spPlay); _spPlay = null; } const b = document.getElementById("se-play"); if (b) b.textContent = "▶ Play"; }
+function _spStop() { if (_spPlay) { clearInterval(_spPlay); _spPlay = null; } const b = document.getElementById("se-play"); if (b) b.textContent = t("sePlay"); }
 function _spTogglePlay() {
   if (_spPlay) { _spStop(); return; }
   if (_spFrames.length < 2) return;
   _spPlayDir = 1;
-  const b = document.getElementById("se-play"); if (b) b.textContent = "■ Stop";
+  const b = document.getElementById("se-play"); if (b) b.textContent = t("seStop");
   _spPlay = setInterval(function() {
     if (_spPingPong) {
       _spFrame += _spPlayDir;
@@ -18513,7 +18701,7 @@ const _SID_ATK = [2,8,16,24,38,56,68,80,100,250,500,800,1000,3000,5000,8000];
 const _SID_DCR = [6,24,48,72,114,168,204,240,300,750,1500,2400,3000,9000,15000,24000];
 
 function _sidNewInst(name) {
-  return { name: name || "New Sound", tri:false, saw:false, pul:true, noi:false,
+  return { name: name || t("sidNewInstrumentName"), tri:false, saw:false, pul:true, noi:false,
            pw:2048, a:2, d:8, s:6, r:4, lp:false, bp:false, hp:false, cut:1400, res:0, vol:15 };
 }
 function _sidNewPattern() {
@@ -18803,7 +18991,7 @@ function _sidDeserialize(src) {
       lp:!!(mv&0x10), bp:!!(mv&0x20), hp:!!(mv&0x40),
       cut:((cutlo&0x07)|((cuthi&0xFF)<<3)), res:(resfilt>>4)&0x0F, vol:mv&0x0F });
   }
-  if (!_sidInsts.length) _sidInsts = [_sidNewInst("New Sound")];
+  if (!_sidInsts.length) _sidInsts = [_sidNewInst()];
   _sidPatterns = [];
   for (let pi=0; pi<np; pi++) {
     const pat = _sidNewPattern();
@@ -19147,7 +19335,7 @@ function _sidCopyExport(kind) {
 function _sidInit() {
   if (_sidInited) return;
   _sidInited = true;
-  _sidInsts = [_sidNewInst("New Sound")];
+  _sidInsts = [_sidNewInst()];
   _sidPatterns = [_sidNewPattern()];
   _sidBuildInstSel();
   _sidLoadInstUI();
@@ -19185,7 +19373,7 @@ function setupSidEditor() {
   bindRange("sid-cut","cut"); bindRange("sid-res","res"); bindRange("sid-vol","vol");
   onId("sid-inst-name", "input", function(e){ _sidCurInst().name = e.target.value; _sidBuildInstSel(); });
   onId("sid-inst-sel", "change", function(e){ _sidInst = parseInt(e.target.value,10); _sidLoadInstUI(); });
-  onId("sid-inst-add", "click", function(){ _sidInsts.push(_sidNewInst("Sound "+_sidInsts.length)); _sidInst = _sidInsts.length-1; _sidBuildInstSel(); _sidLoadInstUI(); });
+  onId("sid-inst-add", "click", function(){ _sidInsts.push(_sidNewInst(t("sidNewInstrumentName") + " " + (_sidInsts.length+1))); _sidInst = _sidInsts.length-1; _sidBuildInstSel(); _sidLoadInstUI(); });
   onId("sid-preview", "click", function(){ _sidEnsureAudio(); _sidPlayInst(_sidCurInst(), _sidNoteFreq(57), _sidAudio.currentTime+0.02, 0.5); });
 
   // ADSR graph: drag the A/D/S/R handles with the mouse

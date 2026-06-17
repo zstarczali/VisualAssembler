@@ -4114,7 +4114,7 @@ html[data-theme="oled"] .expert-err-line {
   align-items: center;
 }
 
-.d64-export-extra-item input {
+.d64-export-extra-item input:not([type="checkbox"]) {
   font-family: "IBM Plex Mono", monospace;
   font-size: 0.8rem;
   padding: 5px 8px;
@@ -4126,7 +4126,7 @@ html[data-theme="oled"] .expert-err-line {
   min-width: 0;
 }
 
-.d64-export-extra-item input:focus {
+.d64-export-extra-item input:not([type="checkbox"]):focus {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
@@ -4143,6 +4143,38 @@ html[data-theme="oled"] .expert-err-line {
   min-height: 28px;
   height: 28px;
   padding-block: 0;
+}
+
+.d64-extra-crunch {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.75rem;
+  font-family: "IBM Plex Mono", monospace;
+  color: var(--muted);
+  white-space: nowrap;
+  height: 28px;
+  padding: 0 6px;
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+}
+
+.d64-extra-crunch:has(input:checked) {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.d64-extra-crunch input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--accent);
+  width: 14px;
+  height: 14px;
+  min-height: 0;
+  flex-shrink: 0;
 }
 
 .d64-extra-source {
