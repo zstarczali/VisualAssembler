@@ -177,6 +177,7 @@ const mnemonicLibrary = {
     { mnemonic: "MOUSE", description: "C64 1351 arányos egér vezérlése: SID POTX/POTY olvasás, standard 1351-szeru 7 bites delta dekódolással, CIA $DC00 felső 2 bitjével portválasztás, 512-ciklusos SID settle wait, X oldalon a klasszikus $D010 toggle mintával, Y oldalon invertált mozgatással. 142 byte inline.", modes: ["implied"], isMouseMacro: true },
     { mnemonic: "SPRITE_COL", description: "Sprite utkozes detektalas: LDA $D01E/$D01F + AND #bitMask. Eredmeny A-ban: nem nulla = utkozes. Utana BEQ/BNE-vel ugri. 5 byte.", modes: ["implied"], isSpriteColMacro: true },
     { mnemonic: "LOADFILE", description: "Fajl betoltese D64-rol KERNAL SETNAM/SETLFS/LOAD rutinokkal. Cim opcionalis (ures = fajl sajat cime, sec=1; kitoltve = override, sec=0). Hiba cimke opcionalis (BCS).", modes: ["implied"], isLoadFileMacro: true },
+    { mnemonic: "EXODECRUNCH", description: "Exomizer raw tomoritett adat kicsomagolasa. Beallitja a ZP forras pointert, majd JSR a depacker rutinra. A depacker rutint (Exomizer wrap.s) INCBIN-nel kell elhelyezni a programban. 10 byte.", modes: ["implied"], isExoDecrunchMacro: true },
     { mnemonic: "REU_CHECK", description: "REU (RAM bovito egyseg) jelenletenek ellenorzese: $DF04 write/read proba $55 es $AA mintaval. Z=0 → REU jelen van (BNE-vel ugri), Z=1 → nincs REU (BEQ-vel ugri). 34 byte.", modes: ["implied"], isReuCheckMacro: true },
     { mnemonic: "REU_STASH", description: "C64 RAM → REU mentes: C64 cim, REU cim/bank es hossz beallitasa ($DF02-$DF08), majd $90 parancs → $DF01 (execute + stash, azonnali DMA). 40 byte inline.", modes: ["implied"], isReuTransferMacro: true },
     { mnemonic: "REU_FETCH", description: "REU → C64 RAM betoltes: C64 cim, REU cim/bank es hossz beallitasa ($DF02-$DF08), majd $91 parancs → $DF01 (execute + fetch, azonnali DMA). 40 byte inline.", modes: ["implied"], isReuTransferMacro: true },
@@ -299,6 +300,7 @@ const helpManualButton = document.getElementById("help-manual-btn");
 const checkUpdateButton = document.getElementById("check-update-btn");
 const reportBugButton = document.getElementById("report-bug-btn");
 const basicSysToggle = document.getElementById("basic-sys-toggle");
+const exomizerBorderFlashToggle = document.getElementById("exomizer-border-flash");
 const expertModeToggle = document.getElementById("expert-mode-toggle");
 const expertPanel = document.getElementById("expert-panel");
 const expertEditor = document.getElementById("expert-editor");
@@ -404,6 +406,7 @@ function saveUiSettings() {
     sample: sampleSelect?.value || "basic-colors",
     memoryPanelOpen: !!globalMemoryPanel?.open,
     basicSys: basicSysToggle ? basicSysToggle.checked : true,
+    exomizerBorderFlash: exomizerBorderFlashToggle ? exomizerBorderFlashToggle.checked : true,
     expertMode: expertMode,
     expertHlEnabled: _expertHlEnabled,
     expertPaletteSyncEnabled: _expertPaletteSyncEnabled,
@@ -917,7 +920,7 @@ function initPalette() {
   reportBugButton?.addEventListener("click", async () => {
     const version = await window.electronAPI.getAppVersion();
     const ua = navigator.userAgent;
-    const os = ua.includes("Win") ? "Windows" : ua.includes("Mac") ? "macOS" : ua.includes("Linux") ? "Linux" : navigator.platform || "Unknown";
+    const os = ua.includes("Win") ? "Windows" : ua.includes("Mac") ? "macOS" : navigator.platform || "Unknown";
     const subject = encodeURIComponent(`Visual Assembler v${version} - Bug Report`);
     const body = encodeURIComponent(`Visual Assembler version: v${version}\nOS: ${os}\n\n--- Describe the bug ---\n\n\n--- Steps to reproduce ---\n\n`);
     window.electronAPI.openExternal(`mailto:retroboj@outlook.com?subject=${subject}&body=${body}`);
@@ -928,6 +931,7 @@ function initPalette() {
     renderOriginPreview();
     renderExpertOriginInfo();
   });
+  exomizerBorderFlashToggle?.addEventListener("change", saveUiSettings);
 
   expertModeToggle?.addEventListener("change", () => {
     setExpertMode(expertModeToggle.checked);
@@ -1104,6 +1108,16 @@ function initPalette() {
     });
   });
   exitAppButton?.addEventListener("click", () => window.electronAPI.quitApp());
+  // Deferred: _C64_COLORS is a const declared later in the file (TDZ at init);
+  // try/catch guards a degraded browser where earlier eval aborted (no Tauri).
+  setTimeout(function() { try { _buildToolkitPalette(); } catch (_) {} }, 0);
+  setupC64CharRom();
+  setupCharEditor();
+  setupMapEditor();
+  setupHiresEditor();
+  setupSpriteEditor();
+  setupSidEditor();
+  _setupFileMenus();
   setupOperandDropdown();
   setupD64ExportDialog();
 
@@ -1550,7 +1564,7 @@ function _applyUiSettingsToDOM() {
   }
 
   if (outputModeTabs.length && savedUiSettings.outputMode) {
-    const mode = ["asm","monitor","both","disasm"].includes(savedUiSettings.outputMode) ? savedUiSettings.outputMode : "asm";
+    const mode = ["asm","monitor","both","disasm","toolkit"].includes(savedUiSettings.outputMode) ? savedUiSettings.outputMode : "asm";
     outputModeTabs.forEach((tab) => {
       const isActive = tab.dataset.mode === mode;
       tab.classList.toggle("active", isActive);
@@ -1564,6 +1578,10 @@ function _applyUiSettingsToDOM() {
 
   if (basicSysToggle) {
     basicSysToggle.checked = savedUiSettings.basicSys !== false;
+  }
+
+  if (exomizerBorderFlashToggle) {
+    exomizerBorderFlashToggle.checked = savedUiSettings.exomizerBorderFlash !== false;
   }
 
   if (savedUiSettings.showMacroSource !== undefined) {
@@ -1739,6 +1757,8 @@ function applyTranslations() {
   if (mnemonicDescLabel) mnemonicDescLabel.textContent = t("mnemonicCardLabel");
   const basicSysLabelEl = document.getElementById("basic-sys-label");
   if (basicSysLabelEl) basicSysLabelEl.textContent = t("basicSysLabel");
+  const exomizerFlashLabelEl = document.getElementById("exomizer-border-flash-label");
+  if (exomizerFlashLabelEl) exomizerFlashLabelEl.textContent = t("exomizerBorderFlashLabel");
   const blockPaletteSyncLabelEl = document.getElementById("block-desc-sync-label");
   if (blockPaletteSyncLabelEl) blockPaletteSyncLabelEl.textContent = t("blockDescSyncLabel");
   const expertModeLabelEl = document.getElementById("expert-mode-label");
@@ -1945,25 +1965,190 @@ function applyTranslations() {
   if (sampleOptions[14]) sampleOptions[14].textContent = t("sampleUserMacro");
   if (sampleOptions[15]) sampleOptions[15].textContent = t("sampleIncBin");
   if (sampleOptions[16]) sampleOptions[16].textContent = t("sampleLoadFile");
-  if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleInclude");
-  if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleSidDemo");
-  if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleSidDirectDemo");
-  if (sampleOptions[20]) sampleOptions[20].textContent = t("sampleSpriteMacroDemo");
-  if (sampleOptions[21]) sampleOptions[21].textContent = t("sampleJoystickDemo");
-  if (sampleOptions[22]) sampleOptions[22].textContent = t("sampleMouseDemo");
-  if (sampleOptions[23]) sampleOptions[23].textContent = t("sampleCollisionDemo");
-  if (sampleOptions[24]) sampleOptions[24].textContent = t("sample10Print");
-  if (sampleOptions[25]) sampleOptions[25].textContent = t("sampleRasterIrqDemo");
-  if (sampleOptions[26]) sampleOptions[26].textContent = t("sampleOverlappingRasterDemo");
-  if (sampleOptions[27]) sampleOptions[27].textContent = t("sampleMemoryOverlapDemo");
-  if (sampleOptions[28]) sampleOptions[28].textContent = t("sampleRandLinesDemo");
-  if (sampleOptions[29]) sampleOptions[29].textContent = t("sampleReuDemo");
-  if (sampleOptions[30]) sampleOptions[30].textContent = t("sampleScrollTextDemo");
-  if (sampleOptions[31]) sampleOptions[31].textContent = t("sampleNameInputDemo");
+  if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleExoMulticolorDemo");
+  if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleInclude");
+  if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleSidDemo");
+  if (sampleOptions[20]) sampleOptions[20].textContent = t("sampleSidDirectDemo");
+  if (sampleOptions[21]) sampleOptions[21].textContent = t("sampleSpriteMacroDemo");
+  if (sampleOptions[22]) sampleOptions[22].textContent = t("sampleJoystickDemo");
+  if (sampleOptions[23]) sampleOptions[23].textContent = t("sampleMouseDemo");
+  if (sampleOptions[24]) sampleOptions[24].textContent = t("sampleCollisionDemo");
+  if (sampleOptions[25]) sampleOptions[25].textContent = t("sample10Print");
+  if (sampleOptions[26]) sampleOptions[26].textContent = t("sampleRasterIrqDemo");
+  if (sampleOptions[27]) sampleOptions[27].textContent = t("sampleOverlappingRasterDemo");
+  if (sampleOptions[28]) sampleOptions[28].textContent = t("sampleMemoryOverlapDemo");
+  if (sampleOptions[29]) sampleOptions[29].textContent = t("sampleRandLinesDemo");
+  if (sampleOptions[30]) sampleOptions[30].textContent = t("sampleReuDemo");
+  if (sampleOptions[31]) sampleOptions[31].textContent = t("sampleScrollTextDemo");
+  if (sampleOptions[32]) sampleOptions[32].textContent = t("sampleNameInputDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
   updateOperandField();
+  _applyEditorTranslations();
+}
+
+/* Translate the new tool dialogs (CharROM, Character Editor, Map Editor) */
+function _applyEditorTranslations() {
+  const setText = (sel, val) => { const el = document.querySelector(sel); if (el) el.textContent = val; };
+  const setAttr = (sel, val) => {
+    const el = document.querySelector(sel);
+    if (el) { el.setAttribute("title", val); el.setAttribute("aria-label", val); }
+  };
+  // Toolbar button tooltips
+  setAttr("#c64-palette-btn", t("paletteBtnTitle"));
+  setAttr("#c64-chrrom-btn", t("chrromBtnTitle"));
+  setAttr("#char-editor-btn", t("charEditorBtnTitle"));
+  setAttr("#map-editor-btn", t("mapEditorBtnTitle"));
+  // CharROM dialog
+  setText(".c64-chrrom-title", t("chrromTitle"));
+  setText("#c64-chrrom-tab1", t("chrromSet1"));
+  setText("#c64-chrrom-tab2", t("chrromSet2"));
+  const hint = document.getElementById("c64-chrrom-info-hint");
+  if (hint && !hint.hidden) hint.textContent = t("chrromHint");
+  // Character Editor
+  setText(".ce-hdr-titles .ce-section-lbl", t("ceEditorLabel"));
+  setText(".ce-map-lbl", t("ceMapLabel"));
+  setAttr("#ce-clear", t("ceClear"));
+  setAttr("#ce-invert", t("ceInvert"));
+  setAttr("#ce-fliph", t("ceFlipH"));
+  setAttr("#ce-flipv", t("ceFlipV"));
+  setText(".ce-export-lbl", t("ceExport"));
+  setText("#ce-copy-asm", t("ceCopyAsm"));
+  setAttr("#ce-load-rom", t("ceLoadRom"));
+  setText("#ce-load-bin", t("ceLoadBin"));
+  setText("#ce-save-bin", t("ceSaveBin"));
+  // _ceData/_ceSel are `let`s declared later in the file; at first init they are
+  // still in the temporal dead zone (typeof throws too), so guard with try/catch.
+  try { _ceUpdateInfo(); } catch (_) {}
+  // Files ▾ button (all editors share the same class)
+  document.querySelectorAll(".ed-file-btn").forEach(el => { el.textContent = t("edFilesBtn"); });
+  // Character Editor — FG/BG labels, shift tooltips
+  const ceColorLabels = document.querySelectorAll(".ce-color-row .ce-color-lbl");
+  if (ceColorLabels[0]) ceColorLabels[0].textContent = t("ceFg");
+  if (ceColorLabels[1]) ceColorLabels[1].textContent = t("ceBg");
+  setAttr("#ce-shl", t("shiftLeft"));
+  setAttr("#ce-shr", t("shiftRight"));
+  setAttr("#ce-shu", t("shiftUp"));
+  setAttr("#ce-shd", t("shiftDown"));
+  // Map Editor
+  setText(".me-title", t("meTitle"));
+  setAttr('.me-tool[data-tool="paint"]', t("mePaint"));
+  setAttr('.me-tool[data-tool="fill"]', t("meFill"));
+  setAttr('.me-tool[data-tool="flood"]', t("meFlood"));
+  setAttr('.me-tool[data-tool="select"]', t("meSelect"));
+  setAttr('.me-tool[data-tool="pick"]', t("mePick"));
+  setText('#map-editor-dialog button[data-export="screen"]', t("meExportScreen"));
+  setText('#map-editor-dialog button[data-export="color"]', t("meExportColor"));
+  setText('#map-editor-dialog button[data-export="bin"]', t("meExportBin"));
+  setText('#map-editor-dialog button[data-export="layer-bin"]', t("meExportLayerBin"));
+  setText('#map-editor-dialog button[data-export="layers-bin"]', t("meExportAllLayersBin"));
+  setText('#map-editor-dialog button[data-export="layer-screen"]', t("meExportLayerScreen"));
+  setText("#me-load-map", t("meLoadMap"));
+  setText("#me-grid-label", t("meGrid"));
+  setText(".me-palette-wrap .me-section-lbl", t("meColorLabel"));
+  setText(".me-layers .me-section-lbl", t("meLayers"));
+  setAttr("#me-layer-flatten", t("meMergeLayersTitle"));
+  setAttr("#me-layer-add", t("meAddLayerTitle"));
+  setAttr("#me-clear", t("meClearMap"));
+  // Hires Editor
+  setText(".hg-title", t("hgTitle"));
+  setText("#hg-import", t("hgImport"));
+  setText("#hg-export", t("hgExport"));
+  setText("#hg-export-blocks", t("hgExportBlocks"));
+  setText("#hg-save-d64", t("hgSaveD64"));
+  setAttr('.hg-tool[data-tool="pencil"]', t("hgToolPencil"));
+  setAttr('.hg-tool[data-tool="eraser"]', t("hgToolEraser"));
+  setAttr('.hg-tool[data-tool="line"]', t("hgToolLine"));
+  setAttr('.hg-tool[data-tool="rect"]', t("hgToolRect"));
+  setAttr('.hg-tool[data-tool="fillrect"]', t("hgToolFillRect"));
+  setAttr('.hg-tool[data-tool="oval"]', t("hgToolOval"));
+  setAttr('.hg-tool[data-tool="filloval"]', t("hgToolFillOval"));
+  setAttr('.hg-tool[data-tool="fill"]', t("hgToolFill"));
+  setAttr("#hg-undo", t("hgUndo"));
+  setAttr("#hg-redo", t("hgRedo"));
+  setAttr("#hg-clear", t("hgClear"));
+  setText("#hg-multicolor-label", t("hgMulticolor"));
+  setText("#hg-grid-label", t("hgGrid"));
+  setText("#hg-color-lbl", t("hgColorLabel"));
+  setText("#hg-paper-lbl", t("hgPaperLabel"));
+  setText("#hg-zoom-lbl", t("hgZoomLabel"));
+  setText("#hg-raster-label", t("hgRaster"));
+  // Sprite Editor
+  setText(".se-title", t("seTitle"));
+  setText("#se-open-spd", t("seLoadBin"));
+  setText("#se-save-bin", t("seSaveBin"));
+  setText("#se-copy-data", t("seCopyBytes"));
+  setAttr("#se-fliph", t("seFlipH"));
+  setAttr("#se-flipv", t("seFlipV"));
+  setAttr("#se-clear", t("seClearFrame"));
+  const seShiftLbl = document.querySelector(".se-shift-group .se-mini-lbl");
+  if (seShiftLbl) seShiftLbl.textContent = t("seShiftLabel");
+  setAttr("#se-shl", t("shiftLeft"));
+  setAttr("#se-shr", t("shiftRight"));
+  setAttr("#se-shu", t("shiftUp"));
+  setAttr("#se-shd", t("shiftDown"));
+  const seWrapSpan = document.querySelector("#se-wrap + span");
+  if (seWrapSpan) seWrapSpan.textContent = t("seWrap");
+  const seMultiSpan = document.querySelector("#se-multicolor + span");
+  if (seMultiSpan) seMultiSpan.textContent = t("seMulticolor");
+  const seGridSpan = document.querySelector("#se-grid + span");
+  if (seGridSpan) seGridSpan.textContent = t("seGrid");
+  const seZoomLbl = document.querySelector(".se-tb-right .se-mini-lbl");
+  if (seZoomLbl) seZoomLbl.textContent = t("seZoom");
+  const seSectionLbls = document.querySelectorAll(".se-section-lbl");
+  if (seSectionLbls[0]) seSectionLbls[0].textContent = t("seColorsSection");
+  if (seSectionLbls[1]) seSectionLbls[1].textContent = t("sePaletteSection");
+  const sePlayBtn = document.getElementById("se-play");
+  if (sePlayBtn && !sePlayBtn.dataset.playing) sePlayBtn.textContent = t("sePlay");
+  const sePingSpan = document.querySelector("#se-pingpong + span");
+  if (sePingSpan) sePingSpan.textContent = t("sePingPong");
+  const seOnionSpan = document.querySelector("#se-onion + span");
+  if (seOnionSpan) seOnionSpan.textContent = t("seOnion");
+  const seFpsLbl = document.querySelector(".se-anim-controls .se-mini-lbl");
+  if (seFpsLbl) seFpsLbl.textContent = t("seFps");
+  setText("#se-add", t("seAdd"));
+  setText("#se-dup", t("seDup"));
+  setText("#se-fcopy", t("seCopy"));
+  setText("#se-fpaste", t("sePaste"));
+  setText("#se-fdel", t("seDelete"));
+  // SID Editor
+  setText(".sid-title", t("sidTitle"));
+  setText("#sid-load-bin", t("sidLoadBin"));
+  setText("#sid-save-bin", t("sidSaveBin"));
+  setText("#sid-export-data", t("sidExportData"));
+  setText("#sid-export-player", t("sidExportPlayer"));
+  setText("#sid-export-asm", t("sidExportAsm"));
+  setText(".sid-inst-row .sid-lbl", t("sidInstrumentLabel"));
+  setAttr("#sid-inst-add", t("sidAddInstrument"));
+  setAttr("#sid-preview", t("sidPreview"));
+  const sidWaveLbl = document.querySelector(".sid-wave-row .sid-lbl");
+  if (sidWaveLbl) sidWaveLbl.textContent = t("sidWaveformLabel");
+  const sidPwLbl = document.querySelector(".sid-wave-row .sid-mini-lbl");
+  if (sidPwLbl) sidPwLbl.textContent = t("sidPwLabel");
+  const sidSections = document.querySelectorAll(".sid-section");
+  if (sidSections[0]) sidSections[0].textContent = t("sidAdsrLabel");
+  if (sidSections[1]) sidSections[1].textContent = t("sidFilterLabel");
+  const sidAdsrLbls = document.querySelectorAll(".sid-adsr .sid-sl-lbl");
+  if (sidAdsrLbls[0]) sidAdsrLbls[0].textContent = t("sidAttack");
+  if (sidAdsrLbls[1]) sidAdsrLbls[1].textContent = t("sidDecay");
+  if (sidAdsrLbls[2]) sidAdsrLbls[2].textContent = t("sidSustain");
+  if (sidAdsrLbls[3]) sidAdsrLbls[3].textContent = t("sidRelease");
+  const sidFilterLbls = document.querySelectorAll(".sid-filter .sid-sl-lbl");
+  if (sidFilterLbls[0]) sidFilterLbls[0].textContent = t("sidCutoff");
+  if (sidFilterLbls[1]) sidFilterLbls[1].textContent = t("sidResonance");
+  if (sidFilterLbls[2]) sidFilterLbls[2].textContent = t("sidVolume");
+  setText(".sid-tracker-row .sid-lbl", t("sidTrackerLabel"));
+  setAttr("#sid-pat-add", t("sidAddPattern"));
+  const sidTrackerMiniLbls = document.querySelectorAll(".sid-tracker-row .sid-mini-lbl");
+  if (sidTrackerMiniLbls[0]) sidTrackerMiniLbls[0].textContent = t("sidSpeed");
+  if (sidTrackerMiniLbls[1]) sidTrackerMiniLbls[1].textContent = t("sidOctave");
+  setAttr("#sid-oct-down", t("sidOctaveDown"));
+  setAttr("#sid-oct-up", t("sidOctaveUp"));
+  setAttr("#sid-play", t("sidPlay"));
+  setAttr("#sid-stop", t("sidStop"));
+  setAttr("#sid-voice-copy", t("sidVoiceCopy"));
+  setAttr("#sid-voice-paste", t("sidVoicePaste"));
 }
 
 function refreshCategoryOptions() {
@@ -1987,6 +2172,7 @@ function setOutputMode(mode) {
     tab.setAttribute("aria-selected", String(isActive));
   });
   outputStack.dataset.mode = mode;
+  if (mode === "toolkit") { try { _buildToolkitPalette(); } catch (_) {} }
   saveUiSettings();
 }
 
@@ -2768,6 +2954,23 @@ function createBlockFromMnemonic(item) {
     };
   }
 
+  if (item.isExoDecrunchMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isExoDecrunchMacro: true,
+      exoDepackerAddr: "B000"
+    };
+  }
+
   if (item.isSpritePosMacro) {
     return {
       id: crypto.randomUUID(),
@@ -3440,6 +3643,7 @@ function _blockToExpertLine(block) {
   if (block.isPetsciiMacro)   return `.petscii ${fmtAddr(block.petsciiAddress)}, "${block.rawOperand || "HELLO"}"${block.petsciiNullTerminated ? ", null" : ""}${fmtMacroLabel(block.macroLabel)}`;
   if (block.isTableMacro)     return block.tableAddress ? `.table ${block.tableName || "table1"} $${block.tableAddress.replace(/^\$/,"").toUpperCase()}` : `.table ${block.tableName || "table1"}`;  
   if (block.isLoadFileMacro)  return `.loadfile "${block.loadFileName || "DATA"}", ${block.loadFileDevice || "8"}${block.loadFileAddress ? ", $" + block.loadFileAddress.replace(/^\$/,"") : ""}${block.loadFileErrorLabel ? ", " + block.loadFileErrorLabel : ""}`;
+  if (block.isExoDecrunchMacro) return `.exodecrunch depacker=$${(block.exoDepackerAddr||"B000").toUpperCase()} (src-end from KERNAL $AE/$AF)`;
   if (block.isSidMacro)       return `.sid "${block.sidFileName || "music.sid"}"${block.sidCustomAddress ? ", $" + block.sidCustomAddress.replace(/^\$/, "") : ""}`;  
   if (block.isIncludeMacro)   return `.include "${block.includeFileName || "library.json"}"${block.includeAddress ? ", $" + block.includeAddress.replace(/^\$/, "") : ""}`;  
   if (block.isLoopMacro)      return `.loop ${block.loopReg || "X"}, $${(block.loopCount || "0A").toUpperCase()}, ${block.loopLabel || "loop1"}`;
@@ -4118,7 +4322,7 @@ function showBuildInfoDialog() {
         "isTextMacro","isStringMacro","isDataMacro","isRawBytesMacro","isRawTextMacro",
         "isLoopMacro","isNextMacro","isForMacro","isEndfMacro","isSpriteInitMacro","isSpritePosMacro","isWaitRasterMacro",
         "isJoystickMacro","isMouseMacro","isSpriteColMacro","isIncBinMacro","isSidMacro",
-        "isLoadFileMacro","isReuStashMacro","isReuFetchMacro","isReuSwapMacro","isReuCheckMacro",
+        "isLoadFileMacro","isExoDecrunchMacro","isReuStashMacro","isReuFetchMacro","isReuSwapMacro","isReuCheckMacro",
         "isTurboSetMacro","isTurboEnableMacro","isSuperCpuDetectMacro",
       ];
       macroTypes.forEach(t2 => {
@@ -4620,6 +4824,22 @@ function _addSrcLineToBlocks(text, blocks) {
       }
     }
   }
+}
+
+// Universal "Export to blocks" helper used by SID / sprite / char / etc. editors.
+// Parses asm text and appends the resulting blocks to the active program[].
+// Returns the number of blocks inserted.
+function exportAsmToBlocks(asmText) {
+  if (!asmText) return 0;
+  const newBlocks = parseExpertText(asmText);
+  if (!newBlocks.length) return 0;
+  const insertAt = program.length;
+  for (let i = 0; i < newBlocks.length; i++) program.splice(insertAt + i, 0, newBlocks[i]);
+  markTabDirty();
+  parseUserMacros();
+  renderProgram();
+  if (expertMode) _expertSyncFromProgram();
+  return newBlocks.length;
 }
 
 function _expertBuildProgram() {
@@ -6131,6 +6351,13 @@ function updateProgramBlock(index, field, value) {
     return;
   }
 
+  if (block.isExoDecrunchMacro && field === "exoDepackerAddr") {
+    block.validationError = "";
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
   if (block.isSpritePosMacro && (field === "spriteNum" || field === "spriteX" || field === "spriteY")) {
     block.validationError = validateSpritePosMacro(block.spriteNum, block.spriteX, block.spriteY);
     renderBlockPreview(index);
@@ -7445,7 +7672,7 @@ function getProjectPayload() {
       extras: (d64ExportState.extras.length > 0
         ? d64ExportState.extras
         : (d64ExportState._pendingExtras || [])
-      ).map(e => ({ name: e.name, sourcePath: e.sourcePath, loadAddress: e.loadAddress || "" }))
+      ).map(e => ({ name: e.name, sourcePath: e.sourcePath, loadAddress: e.loadAddress || "", decompressAddress: e.decompressAddress || "", crunch: e.crunch || false }))
     }
   };
 }
@@ -7929,7 +8156,7 @@ async function saveD64ToFile() {
 // written to the same D64 image.
 const d64ExportState = {
   prgBytes: null,
-  extras: [],  // [{ name: string, sourcePath: string, bytes: number[], loadAddress: string }]
+  extras: [],  // [{ name: string, sourcePath: string, bytes: number[], loadAddress: string, crunch: bool }]
   runMode: false,
   diskName: "",
   progName: "",
@@ -7947,7 +8174,7 @@ function defaultDiskName() {
 function d64SaveSettings(diskName, progName) {
   d64ExportState.diskName = diskName;
   d64ExportState.progName = progName;
-  const meta = d64ExportState.extras.map(e => ({ name: e.name, sourcePath: e.sourcePath, loadAddress: e.loadAddress }));
+  const meta = d64ExportState.extras.map(e => ({ name: e.name, sourcePath: e.sourcePath, loadAddress: e.loadAddress, decompressAddress: e.decompressAddress || "", crunch: e.crunch || false }));
   try { localStorage.setItem("d64LastSettings", JSON.stringify({ diskName, progName, extras: meta })); } catch (_) {}
 }
 
@@ -7960,7 +8187,7 @@ async function d64LoadSavedExtras(savedExtras, baseDir = "") {
     const resolvedPath = (baseDir && !isAbsolute) ? baseDir + "/" + meta.sourcePath : meta.sourcePath;
     try {
       const r = await window.electronAPI.readBinFile(resolvedPath);
-      if (r?.ok && r.bytes) restored.push({ name: meta.name, sourcePath: resolvedPath, loadAddress: meta.loadAddress || "", bytes: r.bytes });
+      if (r?.ok && r.bytes) restored.push({ name: meta.name, sourcePath: resolvedPath, loadAddress: meta.loadAddress || "", decompressAddress: meta.decompressAddress || "", crunch: meta.crunch || false, bytes: r.bytes });
     } catch (_) {}
   }
   return restored;
@@ -8013,7 +8240,12 @@ function renderD64ExtraFiles() {
     item.innerHTML = `
       <div class="d64-export-extra-top">
         <input type="text" maxlength="16" class="d64-extra-name" value="${escapeHtmlAttribute(entry.name)}" placeholder="${t("d64ExtraNamePlaceholder")}">
-        <input type="text" maxlength="5" class="d64-extra-addr" value="${escapeHtmlAttribute(entry.loadAddress || "")}" placeholder="${t("d64ExtraAddrPlaceholder")}">
+        <input type="text" maxlength="5" class="d64-extra-addr" value="${escapeHtmlAttribute(entry.loadAddress || "")}" placeholder="${t("d64ExtraAddrPlaceholder")}" title="${t("d64ExtraAddrTooltip")}">
+        <input type="text" maxlength="5" class="d64-extra-decomp" value="${escapeHtmlAttribute(entry.decompressAddress || "")}" placeholder="${t("d64ExtraDecompPlaceholder")}" title="${t("d64ExtraDecompTooltip")}">
+        <label class="d64-extra-crunch" title="${t("d64ExtraCrunchTooltip")}">
+          <input type="checkbox" class="d64-extra-crunch-cb"${entry.crunch ? " checked" : ""}>
+          <span>EXO</span>
+        </label>
         <button type="button" class="d64-export-extra-remove" title="${t("d64ExtraRemove")}">×</button>
       </div>
       <input type="text" class="d64-extra-source" value="${escapeHtmlAttribute(entry.sourcePath || "")}" readonly tabindex="-1">
@@ -8030,6 +8262,16 @@ function renderD64ExtraFiles() {
       const cleaned = event.target.value.replace(/^\$/, "").replace(/[^0-9A-Fa-f]/g, "").slice(0, 4);
       d64ExportState.extras[idx].loadAddress = cleaned;
       event.target.value = cleaned;
+    });
+
+    item.querySelector(".d64-extra-decomp").addEventListener("input", (event) => {
+      const cleaned = event.target.value.replace(/^\$/, "").replace(/[^0-9A-Fa-f]/g, "").slice(0, 4);
+      d64ExportState.extras[idx].decompressAddress = cleaned;
+      event.target.value = cleaned;
+    });
+
+    item.querySelector(".d64-extra-crunch-cb").addEventListener("change", (event) => {
+      d64ExportState.extras[idx].crunch = event.target.checked;
     });
 
     item.querySelector(".d64-export-extra-remove").addEventListener("click", () => {
@@ -8051,7 +8293,8 @@ async function pickD64ExtraFile() {
     name: baseName,
     sourcePath: result.filePath || result.fileName || "",
     bytes: result.bytes,
-    loadAddress: ""  // empty = save raw, no load addr prepended
+    loadAddress: "",  // empty = save raw, no load addr prepended
+    crunch: false
   });
   renderD64ExtraFiles();
 }
@@ -8088,10 +8331,16 @@ async function confirmD64Export() {
       }
       loadAddr = parsed;
     }
+    if (extra.crunch && loadAddr === null) {
+      if (errorBox) { errorBox.hidden = false; errorBox.textContent = tf("d64ErrorCrunchNeedsAddr", { name: extra.name }); }
+      return;
+    }
     files.push({
       name: extra.name.toLowerCase(),
       bytes: Array.from(extra.bytes),
-      loadAddress: loadAddr
+      loadAddress: loadAddr,
+      _crunch: extra.crunch || false,
+      _decompressAddress: (extra.decompressAddress || "").trim()
     });
   }
 
@@ -8103,6 +8352,50 @@ async function confirmD64Export() {
 
   const isRunMode = d64ExportState.runMode;
   const isUltimateMode = isRunMode === "ultimate";
+
+  // Compress extras that have EXO checked
+  for (let i = 1; i < files.length; i++) {
+    const f = files[i];
+    const needsCrunch = f._crunch;
+    delete f._crunch;
+    if (!needsCrunch) continue;
+    let crunchResult;
+    try {
+      if (f.loadAddress === 0x0801) {
+        // sfx sys: self-extracting PRG, load address header prepended for Exomizer
+        const prgForExo = [f.loadAddress & 0xFF, (f.loadAddress >> 8) & 0xFF, ...f.bytes];
+        crunchResult = await window.electronAPI.buildExomizerPrg({ bytes: prgForExo, fileName: f.name + ".prg" });
+        if (crunchResult?.ok) {
+          f.bytes = Array.from(crunchResult.bytes);
+          f.loadAddress = null; // output already has its own load address header
+        }
+      } else {
+        // mem mode: exomizer prepends a 2-byte load address header and embeds the
+        // decompression target into the stream. Output is a complete PRG, so we
+        // clear f.loadAddress so the D64 builder doesn't double-prepend.
+        const loadHex = (typeof f.loadAddress === "number") ? f.loadAddress.toString(16).toUpperCase().padStart(4, "0") : null;
+        const decompHex = f._decompressAddress ? f._decompressAddress.replace(/^\$/, "").toUpperCase().padStart(4, "0") : null;
+        crunchResult = await window.electronAPI.buildExomizerRaw({
+          bytes: f.bytes,
+          fileName: f.name + ".bin",
+          targetAddress: loadHex,
+          decompressAddress: decompHex
+        });
+        if (crunchResult?.ok) {
+          f.bytes = Array.from(crunchResult.bytes);
+          f.loadAddress = null; // PRG header is already in the bytes
+        }
+      }
+    } catch (_) { crunchResult = null; }
+    delete f._decompressAddress;
+    if (!crunchResult?.ok) {
+      if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = t(isUltimateMode ? "runOnUltimate" : isRunMode ? "runViaD64Confirm" : "d64ExportConfirm"); }
+      if (cancelBtn) cancelBtn.disabled = false;
+      if (errorBox) { errorBox.hidden = false; errorBox.textContent = `${f.name}: ${crunchResult?.error || t("exomizerLaunchFailed")}`; }
+      return;
+    }
+  }
+
   if (isRunMode) await showWorkProgress(isUltimateMode ? "workProgressRunD64Ultimate" : "workProgressRunD64");
 
   let result;
@@ -10200,11 +10493,11 @@ function compileLineBytes(line, labels) {
   if (block.isLoadFileMacro) {
     const filename = (block.loadFileName || "").toUpperCase().replace(/[^\x20-\x7E]/g, "").slice(0, 16);
     if (!filename) {
-      return { ok: false, error: "LOADFILE: a fajlnev nem lehet ures." };
+      return { ok: false, error: t("loadfileErrEmptyName") };
     }
     const device = parseInt(block.loadFileDevice || "8", 10);
     if (isNaN(device) || device < 8 || device > 30) {
-      return { ok: false, error: "LOADFILE: az eszkozszam 8 es 30 kozott lehet." };
+      return { ok: false, error: t("loadfileErrBadDevice") };
     }
     const addrStr = (block.loadFileAddress || "").trim().replace(/^\$/, "");
     const useOverride = addrStr !== "";
@@ -10212,7 +10505,7 @@ function compileLineBytes(line, labels) {
     if (useOverride) {
       overrideAddr = parseInt(addrStr, 16);
       if (isNaN(overrideAddr) || overrideAddr < 0 || overrideAddr > 0xFFFF) {
-        return { ok: false, error: "LOADFILE: az override cim ervenytelen ($0000-$FFFF)." };
+        return { ok: false, error: t("loadfileErrBadAddr") };
       }
     }
     const errorLabel = (block.loadFileErrorLabel || "").trim();
@@ -10255,18 +10548,20 @@ function compileLineBytes(line, labels) {
     bytes.push(0xA9, 0x00);
     bytes.push(0x20, 0xD5, 0xFF);
 
-    // Optional BCS errorLabel (carry set on KERNAL load error)
+    // BCS errorLabel on KERNAL load error (carry set); if no label, BCS * (self-loop = halts on error)
     if (useErrorCheck) {
       const target = labels.get(errorLabel);
       if (target === undefined) {
-        return { ok: false, error: `LOADFILE: ismeretlen hiba cimke: ${errorLabel}` };
+        return { ok: false, error: `${t("loadfileErrUnknownLabel")} ${errorLabel}` };
       }
       const bcsAddr = baseAddr + bytes.length;
       const offset = target - (bcsAddr + 2);
       if (offset < -128 || offset > 127) {
-        return { ok: false, error: `LOADFILE: a hiba cimke tul messze van (offset: ${offset}).` };
+        return { ok: false, error: `${t("loadfileErrLabelTooFar")} ${offset}).` };
       }
       bytes.push(0xB0, offset & 0xFF);
+    } else {
+      bytes.push(0xB0, 0xFE);  // BCS * — megáll ha a fájl nem található
     }
 
     const addrSuffix = useOverride
@@ -10274,6 +10569,36 @@ function compileLineBytes(line, labels) {
       : "";
     const errSuffix = useErrorCheck ? ` BCS ${errorLabel}` : "";
     return { ok: true, bytes, comment: `LOADFILE "${filename}" dev=${device}${addrSuffix}${errSuffix}` };
+  }
+
+  if (block.isExoDecrunchMacro) {
+    // Backward exomizer mem-mode convention. Sequence:
+    //   1) Copy KERNAL's load-end ZP ($AE/$AF) into depacker's src-end ZP ($04/$05).
+    //   2) Turn off BASIC ROM ($01 = $36) so the depacker at $A000-$BFFF
+    //      area is visible as RAM (default $37 maps BASIC ROM over $A000-$BFFF).
+    //   3) JSR to depacker.
+    //   4) Restore default memory mapping ($01 = $37) for downstream code.
+    const depackStr = (block.exoDepackerAddr || "B000").replace(/^\$/, "");
+    const depackAddr = parseInt(depackStr, 16);
+    if (isNaN(depackAddr) || depackAddr < 0 || depackAddr > 0xFFFF) {
+      return { ok: false, error: t("exoDecrunchErrBadDepacker") };
+    }
+    const bytes = [
+      0xA5, 0xAE,           // LDA $AE  (KERNAL load-end lo)
+      0x85, 0x04,           // STA $04  (depacker src-end lo)
+      0xA5, 0xAF,           // LDA $AF  (KERNAL load-end hi)
+      0x85, 0x05,           // STA $05  (depacker src-end hi)
+      0xA9, 0x36,           // LDA #$36 (BASIC ROM off, KERNAL+I/O on)
+      0x85, 0x01,           // STA $01
+      0x20, depackAddr & 0xFF, (depackAddr >> 8) & 0xFF, // JSR depacker
+      0xA9, 0x37,           // LDA #$37 (restore default: BASIC+KERNAL+I/O)
+      0x85, 0x01,           // STA $01
+    ];
+    return {
+      ok: true,
+      bytes,
+      comment: `EXODECRUNCH depacker=$${depackAddr.toString(16).toUpperCase().padStart(4,"0")} (toggles $01 around JSR for ROM-overlay area)`
+    };
   }
 
   if (block.isSpritePosMacro) {
@@ -11026,8 +11351,13 @@ function getInstructionSize(block) {
     const fnLen = Math.max(filename.length, 1);  // reserve at least 1 byte even if empty (compile error will surface separately)
     const useOverride = (block.loadFileAddress || "").trim() !== "";
     const useErrorCheck = (block.loadFileErrorLabel || "").trim() !== "";
-    // 3 (JMP skip) + fnLen + 9 (SETNAM) + 9 (SETLFS) + (4 if override) + 5 (LDA #0 + JSR LOAD) + (2 if BCS)
-    return 3 + fnLen + 9 + 9 + (useOverride ? 4 : 0) + 5 + (useErrorCheck ? 2 : 0);
+    // 3 (JMP skip) + fnLen + 9 (SETNAM) + 9 (SETLFS) + (4 if override) + 5 (LDA #0 + JSR LOAD) + 2 (BCS always)
+    return 3 + fnLen + 9 + 9 + (useOverride ? 4 : 0) + 5 + 2;
+  }
+
+  if (block.isExoDecrunchMacro) {
+    return 19;  // 4×(LDA zp+STA zp)=16 for src-end + $01 toggle + JSR (3)
+                // Actually: 8 (src-end) + 4 ($01=$36) + 3 (JSR) + 4 ($01=$37) = 19
   }
 
   if (block.isSpritePosMacro) {
@@ -13464,6 +13794,19 @@ function renderProgram() {
           </div>
         `
       );
+    } else if (block.isExoDecrunchMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${t("fieldExoDepackerAddr")}</span>
+              <input class="exo-depacker-addr" type="text" maxlength="5" value="${escapeHtmlAttribute(block.exoDepackerAddr || "B000")}" placeholder="B000">
+            </label>
+          </div>
+        `
+      );
     } else if (block.isReuCheckMacro) {
       inlineField.hidden = true;
     } else if (block.isReuTransferMacro) {
@@ -14111,6 +14454,10 @@ function renderProgram() {
           if (!dropdown.contains(e.target) && e.target !== loadFileErrorLabelInput) closeDropdown();
         }, { capture: true });
       }
+    }
+    const exoDepackerAddrInput = node.querySelector(".exo-depacker-addr");
+    if (exoDepackerAddrInput) {
+      exoDepackerAddrInput.addEventListener("input", (event) => updateProgramBlock(index, "exoDepackerAddr", event.target.value));
     }
     const loopRegSelect = node.querySelector(".loop-reg");
     if (loopRegSelect) {
@@ -14991,6 +15338,8 @@ async function loadSampleFromFile(sampleName) {
         name: e.name || "",
         sourcePath: e.sourcePath || "",
         loadAddress: e.loadAddress || "",
+        decompressAddress: e.decompressAddress || "",
+        crunch: e.crunch || false,
         bytes: e.bytes
       }));
     } else {
@@ -15123,6 +15472,26 @@ async function loadIncBinDemo() {
 
 async function loadIncludeDemo() {
   await loadSampleFromFile("include-demo");
+}
+
+async function loadExoMulticolorDemo() {
+  const ok = await loadSampleFromFile("exo-multicolor-demo");
+  if (!ok) return;
+
+  if (window.electronAPI?.loadIncBinSampleFile) {
+    const result = await window.electronAPI.loadIncBinSampleFile("exo-decrunch.bin");
+    if (result && !result.error) {
+      const incBinIdx = program.findIndex(b => b.isIncBinMacro);
+      if (incBinIdx >= 0) {
+        program[incBinIdx].incBinFileName = result.fileName;
+        program[incBinIdx].incBinFile = result.filePath;
+        program[incBinIdx].incBinBytes = result.bytes;
+        program[incBinIdx].validationError = validateIncBinMacro(result.bytes, program[incBinIdx].incBinAddress);
+        renderProgram();
+        if (expertMode) _expertSyncFromProgram();
+      }
+    }
+  }
 }
 
 async function loadSidDemo() {
@@ -15308,6 +15677,11 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "include-demo") {
     loadIncludeDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "exo-multicolor-demo") {
+    loadExoMulticolorDemo();
     return;
   }
 
@@ -15672,19 +16046,36 @@ function _runTutorialStepAction(actionId) {
       });
       break;
     case "open-settings-dialog": {
-      document.getElementById("hardware-settings-dialog")?.showModal();
-      // Re-elevate tour elements above the newly opened settings dialog.
-      // Top-layer order (last = topmost): settings → overlay → spotlight → card
-      const _ov = document.getElementById("tour-overlay");
-      const _sp = document.getElementById("tour-spotlight");
-      const _tc = document.getElementById("tour-card");
-      if (_ov?.matches(":popover-open")) { _ov.hidePopover(); _ov.showPopover(); }
-      if (_sp?.matches(":popover-open")) { _sp.hidePopover(); _sp.showPopover(); }
-      if (_tc?.matches(":popover-open")) { _tc.hidePopover(); _tc.showPopover(); }
+      const dlg = document.getElementById("hardware-settings-dialog");
+      if (dlg) {
+        // Force NON-MODAL show — even if the user clicked the settings button
+        // earlier and the dialog is currently modal. Non-modal dialogs don't
+        // enter the top-layer, don't have a backdrop, and don't block events
+        // on the tour-card popover. If we left the dialog modal, the backdrop
+        // sits above the page below the popovers, but in some browser/timing
+        // paths events on the tour card still get swallowed.
+        try { if (dlg.open) dlg.close(); } catch (_) {}
+        try { dlg.show(); } catch (_) {
+          // Fall back to showModal if show() is unavailable.
+          try { dlg.showModal(); } catch (_) {}
+        }
+        // Re-elevate tour popovers above the dialog (safety net for showModal
+        // fallback path — for the non-modal happy path it's a no-op).
+        const reElevateTour = () => {
+          const _ov = document.getElementById("tour-overlay");
+          const _sp = document.getElementById("tour-spotlight");
+          const _tc = document.getElementById("tour-card");
+          try { if (_ov?.matches(":popover-open")) { _ov.hidePopover(); _ov.showPopover(); } } catch (_) {}
+          try { if (_sp?.matches(":popover-open")) { _sp.hidePopover(); _sp.showPopover(); } } catch (_) {}
+          try { if (_tc?.matches(":popover-open")) { _tc.hidePopover(); _tc.showPopover(); } } catch (_) {}
+        };
+        reElevateTour();
+        setTimeout(reElevateTour, 350);
+      }
       break;
     }
     case "close-settings-dialog":
-      document.getElementById("hardware-settings-dialog")?.close();
+      try { document.getElementById("hardware-settings-dialog")?.close(); } catch (_) {}
       break;
   }
 }
@@ -15999,22 +16390,25 @@ function _tourShowStep(index) {
 
   if (step.target) {
     _tourAllowOverlayClose = !step.openMenu;
-    const doPosition = () => {
+    // Poll up to ~1.5s for the target element to appear AND have a non-zero
+    // bounding box. Handles cases where onEnterActionId opens a dialog and the
+    // target is inside that dialog (layout may take a few frames).
+    const doPosition = (attemptsLeft = 30) => {
       const targetEl = document.querySelector(step.target);
-      if (!targetEl || !spotlight) return;
+      if (!spotlight) return;
+      if (!targetEl) {
+        if (attemptsLeft > 0) setTimeout(() => doPosition(attemptsLeft - 1), 50);
+        return;
+      }
       if (typeof targetEl.scrollIntoView === "function") {
         targetEl.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "auto" });
       }
-      // Extra rAF: lets WebKit apply any pending async scroll before measuring
       requestAnimationFrame(() => {
         const rect = targetEl.getBoundingClientRect();
-        // Retry once if the element has zero area (not yet laid out)
         if (rect.width === 0 && rect.height === 0) {
-          requestAnimationFrame(() => {
-            const rect2 = targetEl.getBoundingClientRect();
-            if (rect2.width === 0 && rect2.height === 0) return;
-            _positionSpotlightAndCard(spotlight, card, rect2, step);
-          });
+          if (attemptsLeft > 0) {
+            setTimeout(() => doPosition(attemptsLeft - 1), 50);
+          }
           return;
         }
         _positionSpotlightAndCard(spotlight, card, rect, step);
@@ -16174,20 +16568,23 @@ function _initTutorialEvents() {
 
   tutBtn?.addEventListener("click", () => openTutorialDialog());
   tutClose?.addEventListener("click", () => tutDlg?.close());
-  tutDlg?.addEventListener("click", (e) => { if (e.target === tutDlg) tutDlg.close(); });
 
   document.getElementById("tour-next")?.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (_tourCurrentStep >= _tourSteps.length - 1) {
-      const wasInteractive = _tourInteractiveMode;
-      _tourEnd();
-      // Don't reopen the dialog for interactive/guided lessons —
-      // the user just built a program and wants to interact with the editor.
-      if (!wasInteractive) openTutorialDialog();
-    } else {
-      _tourCurrentStep++;
-      _tourShowStep(_tourCurrentStep);
+    try {
+      if (_tourCurrentStep >= _tourSteps.length - 1) {
+        const wasInteractive = _tourInteractiveMode;
+        _tourEnd();
+        // Don't reopen the dialog for interactive/guided lessons —
+        // the user just built a program and wants to interact with the editor.
+        if (!wasInteractive) openTutorialDialog();
+      } else {
+        _tourCurrentStep++;
+        _tourShowStep(_tourCurrentStep);
+      }
+    } catch (err) {
+      console.error("tour-next failed:", err);
     }
   });
 
@@ -16229,6 +16626,41 @@ if (tabs.length === 0) {
   activeTabId = _firstTab.id;
 }
 
+/* ─── C64 Color Palette ─────────────────────────────────── */
+const _C64_COLORS = [
+  {n:"Black",       hex:"#000000"}, {n:"White",       hex:"#FFFFFF"},
+  {n:"Red",         hex:"#9F4E44"}, {n:"Cyan",        hex:"#6ABFC6"},
+  {n:"Purple",      hex:"#A057A3"}, {n:"Green",       hex:"#5CAB5E"},
+  {n:"Blue",        hex:"#50459B"}, {n:"Yellow",      hex:"#C9D487"},
+  {n:"Orange",      hex:"#A1683C"}, {n:"Brown",       hex:"#6D5412"},
+  {n:"Light Red",   hex:"#CB7E75"}, {n:"Dark Grey",   hex:"#626262"},
+  {n:"Med. Grey",   hex:"#898989"}, {n:"Light Green", hex:"#9AE29B"},
+  {n:"Light Blue",  hex:"#887ECB"}, {n:"Light Grey",  hex:"#ADADAD"},
+];
+
+// C64 colour palette now lives in the ASM view's Toolkit tab.
+function _buildToolkitPalette() {
+  const grid = document.getElementById("toolkit-palette");
+  if (!grid || grid.children.length > 0) return;
+  _C64_COLORS.forEach((color, i) => {
+    const item = document.createElement("div");
+    item.className = "c64-palette-item";
+    const swatch = document.createElement("div");
+    swatch.className = "c64-palette-swatch";
+    swatch.style.background = color.hex;
+    swatch.title = "Click to copy";
+    swatch.addEventListener("click", () => {
+      navigator.clipboard.writeText(String(i)).catch(() => {});
+    });
+    const label = document.createElement("div");
+    label.className = "c64-palette-label";
+    label.textContent = i + ": " + color.n;
+    item.appendChild(swatch);
+    item.appendChild(label);
+    grid.appendChild(item);
+  });
+}
+
 // Wire up static new-tab button (only used before renderTabBar replaces it)
 document.getElementById("tab-new-btn")?.addEventListener("click", _tabNew);
 
@@ -16245,3 +16677,2941 @@ renderMemoryStrip();
 renderTabBar();
 renderProgram();
 
+
+
+
+// ── C64 Character ROM Viewer ─────────────────────────────────────
+
+// Character names / display strings for Set 1 (uppercase/graphics)
+// Index = screen code 0-127 (reversed chars 128-255 use base = sc-128)
+const _C64_ROM_CHARS = [
+  // SC 0-31: @A-Z[\£]↑←
+  "@","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O",
+  "P","Q","R","S","T","U","V","W","X","Y","Z","[","£","]","↑","←",
+  // SC 32-63: printable ASCII
+  " ","!",'"',"#","$","%","&","'","(",")","*","+",",","-",".","/",
+  "0","1","2","3","4","5","6","7","8","9",":",";","<","=",">","?",
+  // SC 64-95: C64 graphics block 1
+  "─","♠","│","╮","╰","╯","╲","╱","├","▒","└","┐","┌","┼","▔","▗",
+  "▁","▂","▃","▄","▅","▆","▇","█","▏","▎","▍","▌","▋","▊","▉","▔",
+  // SC 96-127: C64 graphics block 2
+  "╲","♣","┤","─","▊","║","┼","▓","─","▒","●","█","○","►","◄","▲",
+  "▼","┼","│","├","─","╮","▒","┌","┘","╯","─","╱","●","╭","─","π",
+];
+
+const _C64_ROM_CHARS_SET2 = [
+  // SC 0-31: @a-z[\£]↑←  (lowercase)
+  "@","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o",
+  "p","q","r","s","t","u","v","w","x","y","z","[","£","]","↑","←",
+  // SC 32-63: printable ASCII (same)
+  " ","!",'"',"#","$","%","&","'","(",")","*","+",",","-",".","/",
+  "0","1","2","3","4","5","6","7","8","9",":",";","<","=",">","?",
+  // SC 64-95: A-Z uppercase (in lowercase charset)
+  "─","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O",
+  "P","Q","R","S","T","U","V","W","X","Y","Z","[","£","]","↑","←",
+  // SC 96-127: C64 graphics block 2 (same as Set 1)
+  "╲","♣","┤","─","▊","║","┼","▓","─","▒","●","█","○","►","◄","▲",
+  "▼","┼","│","├","─","╮","▒","┌","┘","╯","─","╱","●","╭","─","π",
+];
+
+// Return the character name/string for display for a given screen code
+function _c64RomDisplayChar(sc, set) {
+  const base = sc >= 128 ? sc - 128 : sc;
+  const chars = set === 2 ? _C64_ROM_CHARS_SET2 : _C64_ROM_CHARS;
+  return chars[base] !== undefined ? chars[base] : " ";
+}
+
+// PETSCII code for info display only (not used for font rendering)
+function _c64RomPetsciiCode(sc) {
+  const base = sc >= 128 ? sc - 128 : sc;
+  if (base <= 31)  return base + 64;
+  if (base <= 63)  return base;
+  if (base <= 95)  return base + 32;
+  return base + 96;
+}
+
+// Extract 8x8 bitmap via canvas
+let _c64RomCanvas = null;
+function _c64RomBitmapData(sc, set) {
+  const S = 8;          // device px per C64 pixel
+  const N = 8 * S;      // 64×64 canvas
+  if (!_c64RomCanvas) _c64RomCanvas = document.createElement("canvas");
+  if (_c64RomCanvas.width !== N) { _c64RomCanvas.width = N; _c64RomCanvas.height = N; }
+  const ctx = _c64RomCanvas.getContext("2d");
+  ctx.clearRect(0, 0, N, N);
+  ctx.fillStyle = "#000000";
+  ctx.fillRect(0, 0, N, N);
+  ctx.fillStyle = "#ffffff";
+  ctx.font = N + "px C64ProMono";   // 64px → 8 C64 px, each 8 device px
+  ctx.textBaseline = "top";
+  ctx.fillText(_c64RomDisplayChar(sc, set), 0, 0);
+  const img = ctx.getImageData(0, 0, N, N).data;
+  const bits = [];
+  for (let row = 0; row < 8; row++) {
+    for (let col = 0; col < 8; col++) {
+      // Coverage over the inner area of each S×S cell (skip 1px edges to avoid AA bleed)
+      let lit = 0, total = 0;
+      for (let dy = 1; dy < S - 1; dy++) {
+        for (let dx = 1; dx < S - 1; dx++) {
+          const idx = ((row * S + dy) * N + (col * S + dx)) * 4;
+          if (img[idx] > 96) lit++;
+          total++;
+        }
+      }
+      bits.push(lit * 2 >= total ? 1 : 0);
+    }
+  }
+  // Invert for reversed chars (SC 128-255)
+  if (sc >= 128) return bits.map(function(b) { return b ^ 1; });
+  return bits;
+}
+
+let _c64ChrromSet = 1;
+let _c64ChrromSelected = -1;
+function _buildC64CharRomGrid() {
+  const grid = document.getElementById("c64-chrrom-grid");
+  if (!grid) return;
+  grid.innerHTML = "";
+  for (let sc = 0; sc < 256; sc++) {
+    const cell = document.createElement("div");
+    cell.className = "c64-chrrom-cell" + (sc >= 128 ? " c64-chrrom-cell--rev" : "");
+    cell.textContent = _c64RomDisplayChar(sc, _c64ChrromSet);
+    cell.dataset.sc = sc;
+    cell.addEventListener("click", function() { _c64RomSelect(sc); });
+    grid.appendChild(cell);
+  }
+}
+
+function _c64RomRenderPixgrid(bits) {
+  const pixgrid = document.getElementById("c64-chrrom-pixgrid");
+  if (!pixgrid) return;
+  pixgrid.innerHTML = "";
+  bits.forEach(function(b) {
+    const px = document.createElement("div");
+    px.className = "c64-chrrom-pixel c64-chrrom-pixel--" + (b ? "on" : "off");
+    pixgrid.appendChild(px);
+  });
+}
+
+function _c64RomSelect(sc) {
+  document.querySelectorAll(".c64-chrrom-cell").forEach(function(c) { c.classList.remove("c64-chrrom-cell--sel"); });
+  const selCell = document.querySelector(".c64-chrrom-cell[data-sc='" + sc + "']");
+  if (selCell) selCell.classList.add("c64-chrrom-cell--sel");
+  _c64ChrromSelected = sc;
+
+  document.getElementById("c64-chrrom-info-hint").hidden = true;
+  const content = document.getElementById("c64-chrrom-info-content");
+  if (!content) return;
+  content.hidden = false;
+  content.innerHTML = "";
+
+  const base = sc >= 128 ? sc - 128 : sc;
+  const petscii = _c64RomPetsciiCode(sc);
+  const isRev = sc >= 128;
+  const chars = _c64ChrromSet === 1 ? _C64_ROM_CHARS : _C64_ROM_CHARS_SET2;
+  const ch = _c64RomDisplayChar(sc, _c64ChrromSet);
+  const charName = chars[base] || "?";
+
+  // Big char preview box
+  const preview = document.createElement("div");
+  preview.className = "c64-chrrom-char-preview";
+  preview.textContent = ch;
+  preview.style.fontFamily = '"C64ProMono", monospace';
+  preview.style.color = isRev ? "#352879" : "#6c5eb5";
+  preview.style.background = isRev ? "#6c5eb5" : "#352879";
+  content.appendChild(preview);
+
+  const nameEl = document.createElement("div");
+  nameEl.className = "c64-chrrom-name-val";
+  nameEl.textContent = charName;
+  content.appendChild(nameEl);
+
+  // Info rows
+  [
+    ["SC",      sc + " ($" + sc.toString(16).toUpperCase().padStart(2,"0") + ")"],
+    ["PETSCII", petscii + " ($" + petscii.toString(16).toUpperCase().padStart(2,"0") + ")"],
+    ["Offset",  "$" + (base*8).toString(16).toUpperCase().padStart(4,"0")],
+    ["Rev",     isRev ? "Yes" : "No"],
+  ].forEach(function(pair) {
+    const row = document.createElement("div");
+    row.className = "c64-chrrom-info-row";
+    const l = document.createElement("span"); l.className = "c64-chrrom-info-lbl"; l.textContent = pair[0];
+    const v = document.createElement("span"); v.className = "c64-chrrom-info-val"; v.textContent = pair[1];
+    row.appendChild(l); row.appendChild(v);
+    content.appendChild(row);
+  });
+
+  // Bitmap
+  const bits = _c64RomBitmapData(sc, _c64ChrromSet);
+  _c64RomRenderPixgrid(bits);
+
+  // Byte rows — structured (fixed-size pixel squares + right-aligned hex)
+  const rowsDiv = document.createElement("div");
+  rowsDiv.className = "c64-chrrom-pixrows";
+  rowsDiv.id = "c64-chrrom-pixrows";
+  for (let r = 0; r < 8; r++) {
+    let byte = 0;
+    const row = document.createElement("div");
+    row.className = "c64-chrrom-pixrow";
+    const bitsWrap = document.createElement("div");
+    bitsWrap.className = "c64-chrrom-pixrow-bits";
+    for (let c = 0; c < 8; c++) {
+      const b = bits[r*8+c];
+      if (b) byte |= (1<<(7-c));
+      const bit = document.createElement("div");
+      bit.className = "c64-chrrom-bit " + (b ? "c64-chrrom-bit--on" : "c64-chrrom-bit--off");
+      bitsWrap.appendChild(bit);
+    }
+    const hex = document.createElement("span");
+    hex.className = "c64-chrrom-pixrow-hex";
+    hex.textContent = "$" + byte.toString(16).toUpperCase().padStart(2,"0");
+    row.appendChild(bitsWrap);
+    row.appendChild(hex);
+    rowsDiv.appendChild(row);
+  }
+  content.appendChild(rowsDiv);
+
+  // Copy button
+  const copyBtn = document.createElement("button");
+  copyBtn.className = "c64-chrrom-action-btn";
+  const _copyLbl = (typeof t === "function" ? t("chrromCopyBytes") : "Copy bytes");
+  copyBtn.textContent = _copyLbl;
+  copyBtn.addEventListener("click", function() {
+    const bytes = [];
+    for (let r = 0; r < 8; r++) {
+      let byte = 0;
+      for (let c = 0; c < 8; c++) { if (bits[r*8+c]) byte |= (1<<(7-c)); }
+      bytes.push("$" + byte.toString(16).toUpperCase().padStart(2,"0"));
+    }
+    navigator.clipboard.writeText(bytes.join(", ")).then(function() {
+      copyBtn.textContent = (typeof t === "function" ? t("copied") : "Copied!");
+      setTimeout(function() { copyBtn.textContent = _copyLbl; }, 1200);
+    });
+  });
+  content.appendChild(copyBtn);
+}
+
+function setupC64CharRom() {
+  const dialog = document.getElementById("c64-chrrom-dialog");
+  if (!dialog) return;
+
+  document.getElementById("c64-chrrom-btn")?.addEventListener("click", function() {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    _buildC64CharRomGrid();
+    dialog.showModal();
+  });
+  document.getElementById("c64-chrrom-close")?.addEventListener("click", function() { dialog.close(); });
+
+  document.getElementById("c64-chrrom-tab1")?.addEventListener("click", function() {
+    _c64ChrromSet = 1;
+    document.getElementById("c64-chrrom-tab1").classList.add("c64-chrrom-tab--active");
+    document.getElementById("c64-chrrom-tab2").classList.remove("c64-chrrom-tab--active");
+    _buildC64CharRomGrid();
+    if (_c64ChrromSelected >= 0) _c64RomSelect(_c64ChrromSelected);
+  });
+
+  document.getElementById("c64-chrrom-tab2")?.addEventListener("click", function() {
+    _c64ChrromSet = 2;
+    document.getElementById("c64-chrrom-tab2").classList.add("c64-chrrom-tab--active");
+    document.getElementById("c64-chrrom-tab1").classList.remove("c64-chrrom-tab--active");
+    _buildC64CharRomGrid();
+    if (_c64ChrromSelected >= 0) _c64RomSelect(_c64ChrromSelected);
+  });
+
+
+}
+
+/* ═══════════════════════════════════════════════════════
+   CHARACTER SET EDITOR
+   ═══════════════════════════════════════════════════════ */
+const _CE_COLORS = [
+  "#000000","#ffffff","#68372b","#70a4b2",
+  "#6f3d86","#588d43","#352879","#b8c76f",
+  "#6f4f25","#433900","#9a6759","#444444",
+  "#6c6c6c","#9ad284","#6c5eb5","#959595"
+];
+
+let _ceData = null;
+let _ceSel  = 0;
+let _ceFg   = 14;   // Light Blue
+let _ceBg   = 6;    // Blue
+let _cePainting = false;
+let _cePaintVal = 1;
+
+function _ceGetBit(charIdx, row, col) {
+  if (!_ceData) return 0;
+  return (_ceData[charIdx * 8 + row] >> (7 - col)) & 1;
+}
+
+function _ceSetBit(charIdx, row, col, val) {
+  if (!_ceData) return;
+  const i = charIdx * 8 + row;
+  if (val) _ceData[i] |= (1 << (7 - col));
+  else     _ceData[i] &= ~(1 << (7 - col));
+}
+
+function _ceRenderEditor() {
+  const grid = document.getElementById("ce-editor-grid");
+  if (!grid || !_ceData) return;
+  const cells = grid.children;
+  const fg = _CE_COLORS[_ceFg];
+  const bg = _CE_COLORS[_ceBg];
+  for (let i = 0; i < 64; i++) {
+    cells[i].style.background = _ceGetBit(_ceSel, i >> 3, i & 7) ? fg : bg;
+  }
+}
+
+function _ceRenderMap() {
+  const canvas = document.getElementById("ce-map-canvas");
+  if (!canvas || !_ceData) return;
+  const ctx = canvas.getContext("2d");
+  const W    = canvas.width;   // 256
+  const CELL = W / 16;         // 16 px per char
+  const PIX  = CELL / 8;       // 2 px per bit
+  const fg   = _CE_COLORS[_ceFg];
+  const bg   = _CE_COLORS[_ceBg];
+
+  ctx.clearRect(0, 0, W, W);
+
+  for (let n = 0; n < 256; n++) {
+    const cx = (n % 16) * CELL;
+    const cy = Math.floor(n / 16) * CELL;
+
+    ctx.fillStyle = n === _ceSel ? "#4a3a9a" : bg;
+    ctx.fillRect(cx, cy, CELL, CELL);
+
+    ctx.fillStyle = fg;
+    for (let r = 0; r < 8; r++) {
+      const byte = _ceData[n * 8 + r];
+      for (let c = 0; c < 8; c++) {
+        if ((byte >> (7 - c)) & 1) {
+          ctx.fillRect(cx + c * PIX, cy + r * PIX, PIX, PIX);
+        }
+      }
+    }
+
+    if (n === _ceSel) {
+      ctx.strokeStyle = "rgba(255,255,255,0.6)";
+      ctx.lineWidth = 0.5;
+      ctx.strokeRect(cx + 0.5, cy + 0.5, CELL - 1, CELL - 1);
+    }
+  }
+}
+
+function _ceUpdateInfo() {
+  const el = document.getElementById("ce-char-info");
+  if (el) el.textContent = (typeof t === "function" ? t("ceCharLabel") : "Char:") + " " + _ceSel + " ($" + _ceSel.toString(16).toUpperCase().padStart(2,"0") + ")";
+}
+
+function _ceUpdateAsm() {
+  const el = document.getElementById("ce-asm-out");
+  if (!el) return;
+  if (!_ceData) { el.textContent = ""; return; }
+  const n   = _ceSel;
+  const hex = n.toString(16).toUpperCase().padStart(2,"0");
+  const bytes = [];
+  for (let r = 0; r < 8; r++) {
+    bytes.push("$" + _ceData[n * 8 + r].toString(16).toUpperCase().padStart(2,"0"));
+  }
+  el.textContent = "char_" + hex + ":  ; $" + hex + "\n        .byte " + bytes.join(", ");
+}
+
+function _ceSelect(n) {
+  _ceSel = n;
+  _ceUpdateInfo();
+  _ceRenderEditor();
+  _ceRenderMap();
+  _ceUpdateAsm();
+}
+
+function _ceClear() {
+  if (!_ceData) return;
+  for (let r = 0; r < 8; r++) _ceData[_ceSel * 8 + r] = 0;
+  _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+}
+
+function _ceInvert() {
+  if (!_ceData) return;
+  for (let r = 0; r < 8; r++) _ceData[_ceSel * 8 + r] ^= 0xFF;
+  _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+}
+
+function _ceFlipH() {
+  if (!_ceData) return;
+  for (let r = 0; r < 8; r++) {
+    let b = _ceData[_ceSel * 8 + r], rev = 0;
+    for (let i = 0; i < 8; i++) rev |= ((b >> i) & 1) << (7 - i);
+    _ceData[_ceSel * 8 + r] = rev;
+  }
+  _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+}
+
+function _ceFlipV() {
+  if (!_ceData) return;
+  const base = _ceSel * 8;
+  for (let r = 0; r < 4; r++) {
+    const t = _ceData[base + r];
+    _ceData[base + r] = _ceData[base + 7 - r];
+    _ceData[base + 7 - r] = t;
+  }
+  _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+}
+
+function _ceShift(dir) {
+  if (!_ceData) return;
+  const base = _ceSel * 8;
+  if (dir === "up") {
+    const first = _ceData[base];
+    for (let r = 0; r < 7; r++) _ceData[base + r] = _ceData[base + r + 1];
+    _ceData[base + 7] = first;
+  } else if (dir === "down") {
+    const last = _ceData[base + 7];
+    for (let r = 7; r > 0; r--) _ceData[base + r] = _ceData[base + r - 1];
+    _ceData[base] = last;
+  } else if (dir === "left") {
+    for (let r = 0; r < 8; r++) {
+      const b = _ceData[base + r];
+      _ceData[base + r] = ((b << 1) | (b >> 7)) & 0xFF;
+    }
+  } else {
+    for (let r = 0; r < 8; r++) {
+      const b = _ceData[base + r];
+      _ceData[base + r] = ((b >> 1) | (b << 7)) & 0xFF;
+    }
+  }
+  _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+}
+
+function _ceLoadRom() {
+  if (!_ceData) _ceData = new Uint8Array(256 * 8);
+  for (let sc = 0; sc < 256; sc++) {
+    const bits = _c64RomBitmapData(sc, 1);
+    const base = sc * 8;
+    for (let r = 0; r < 8; r++) {
+      let byte = 0;
+      for (let c = 0; c < 8; c++) {
+        if (bits[r * 8 + c]) byte |= (1 << (7 - c));
+      }
+      _ceData[base + r] = byte;
+    }
+  }
+  _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+  showViceToast(t("ceLoadRomDone"), false);
+}
+
+function _ceInit() {
+  if (_ceData) return;
+  _ceData = new Uint8Array(256 * 8);
+
+  const grid = document.getElementById("ce-editor-grid");
+  if (grid) {
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const cell = document.createElement("div");
+        cell.className = "ce-pixel";
+        cell.dataset.r = r;
+        cell.dataset.c = c;
+        grid.appendChild(cell);
+      }
+    }
+  }
+
+  const fgEl = document.getElementById("ce-fg-colors");
+  const bgEl = document.getElementById("ce-bg-colors");
+  if (fgEl && bgEl) {
+    _CE_COLORS.forEach(function(hex, i) {
+      const mkSwatch = function(container, isFg) {
+        const sw = document.createElement("div");
+        sw.className = "ce-color-swatch" + ((isFg ? i === _ceFg : i === _ceBg) ? " ce-color-swatch--sel" : "");
+        sw.style.background = hex;
+        sw.title = "Color " + i;
+        sw.addEventListener("click", function() {
+          if (isFg) { _ceFg = i; fgEl.querySelectorAll(".ce-color-swatch").forEach(function(s,j){ s.classList.toggle("ce-color-swatch--sel",j===i); }); }
+          else       { _ceBg = i; bgEl.querySelectorAll(".ce-color-swatch").forEach(function(s,j){ s.classList.toggle("ce-color-swatch--sel",j===i); }); }
+          _ceRenderEditor(); _ceRenderMap();
+        });
+        container.appendChild(sw);
+      };
+      mkSwatch(fgEl, true);
+      mkSwatch(bgEl, false);
+    });
+  }
+}
+
+function setupCharEditor() {
+  const dialog = document.getElementById("char-editor-dialog");
+  if (!dialog) return;
+
+  document.getElementById("char-editor-btn")?.addEventListener("click", function() {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    _ceInit();
+    _ceUpdateInfo();
+    _ceRenderEditor();
+    _ceRenderMap();
+    _ceUpdateAsm();
+    dialog.showModal();
+  });
+
+  document.getElementById("ce-close")?.addEventListener("click", function() { dialog.close(); });
+
+  const grid = document.getElementById("ce-editor-grid");
+  if (grid) {
+    const _cePaintAt = function(clientX, clientY, firstHit) {
+      const el = document.elementFromPoint(clientX, clientY);
+      const cell = el && el.closest ? el.closest(".ce-pixel") : null;
+      if (!cell || !grid.contains(cell)) return;
+      const r = +cell.dataset.r, c = +cell.dataset.c;
+      if (firstHit) {
+        _cePaintVal = _ceGetBit(_ceSel, r, c) ? 0 : 1;
+      } else if (_ceGetBit(_ceSel, r, c) === _cePaintVal) {
+        return;
+      }
+      _ceSetBit(_ceSel, r, c, _cePaintVal);
+      _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+    };
+    grid.addEventListener("pointerdown", function(e) {
+      if (!_ceData || e.button !== 0) return;
+      _cePainting = true;
+      try { grid.setPointerCapture(e.pointerId); } catch (_) {}
+      _cePaintAt(e.clientX, e.clientY, true);
+      e.preventDefault();
+    });
+    grid.addEventListener("pointermove", function(e) {
+      if (!_cePainting || !_ceData) return;
+      _cePaintAt(e.clientX, e.clientY, false);
+      e.preventDefault();
+    });
+    const _ceEndPaint = function(e) {
+      if (!_cePainting) return;
+      _cePainting = false;
+      if (e && e.pointerId != null) { try { grid.releasePointerCapture(e.pointerId); } catch (_) {} }
+    };
+    grid.addEventListener("pointerup", _ceEndPaint);
+    grid.addEventListener("pointercancel", _ceEndPaint);
+    document.addEventListener("pointerup", _ceEndPaint);
+  }
+
+  const mapCanvas = document.getElementById("ce-map-canvas");
+  if (mapCanvas) {
+    mapCanvas.addEventListener("click", function(e) {
+      const rect = mapCanvas.getBoundingClientRect();
+      const sx = mapCanvas.width / rect.width;
+      const sy = mapCanvas.height / rect.height;
+      const cx = (e.clientX - rect.left) * sx;
+      const cy = (e.clientY - rect.top)  * sy;
+      const CELL = mapCanvas.width / 16;
+      const col  = Math.min(15, Math.floor(cx / CELL));
+      const row  = Math.min(15, Math.floor(cy / CELL));
+      _ceSelect(row * 16 + col);
+    });
+  }
+
+  document.getElementById("ce-clear")?.addEventListener("click", _ceClear);
+  document.getElementById("ce-invert")?.addEventListener("click", _ceInvert);
+  document.getElementById("ce-fliph")?.addEventListener("click", _ceFlipH);
+  document.getElementById("ce-flipv")?.addEventListener("click", _ceFlipV);
+  document.getElementById("ce-shl")?.addEventListener("click", function() { _ceShift("left"); });
+  document.getElementById("ce-shr")?.addEventListener("click", function() { _ceShift("right"); });
+  document.getElementById("ce-shu")?.addEventListener("click", function() { _ceShift("up"); });
+  document.getElementById("ce-shd")?.addEventListener("click", function() { _ceShift("down"); });
+
+  document.getElementById("ce-copy-asm")?.addEventListener("click", function() {
+    const el = document.getElementById("ce-asm-out");
+    if (!el) return;
+    navigator.clipboard.writeText(el.textContent).then(function() {
+      const btn = document.getElementById("ce-copy-asm");
+      if (btn) { const o = btn.textContent; btn.textContent = (typeof t === "function" ? t("copied") : "Copied!"); setTimeout(function() { btn.textContent = o; }, 1300); }
+    });
+  });
+
+  document.getElementById("ce-load-rom")?.addEventListener("click", _ceLoadRom);
+
+  document.getElementById("ce-save-bin")?.addEventListener("click", function() {
+    if (!_ceData) return;
+    _saveBinFile(_ceData, "charset.bin");
+  });
+
+  const ceLoadFile = document.getElementById("ce-load-file");
+  document.getElementById("ce-load-bin")?.addEventListener("click", function() { ceLoadFile?.click(); });
+  ceLoadFile?.addEventListener("change", function(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function() {
+      if (!_ceData) _ceData = new Uint8Array(256 * 8);
+      const src = new Uint8Array(reader.result);
+      _ceData.fill(0);
+      _ceData.set(src.subarray(0, Math.min(src.length, _ceData.length)));
+      _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
+      const btn = document.getElementById("ce-load-bin");
+      if (btn) { const o = btn.textContent; btn.textContent = (typeof t === "function" ? t("loaded") : "Loaded!"); setTimeout(function(){ btn.textContent = o; }, 1400); }
+    };
+    reader.readAsArrayBuffer(file);
+    e.target.value = "";
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   MAP EDITOR
+   ═══════════════════════════════════════════════════════ */
+const _ME_COLS = 40, _ME_ROWS = 25;
+let _meScreen   = null;   // active layer screen codes (alias of _meLayers[active].screen)
+let _meColorRam = null;   // active layer colour indices (alias)
+let _meLayers = null;     // [{ name, screen:Uint8Array, color:Uint8Array, visible }]
+let _meActiveLayer = 0;
+const _ME_EMPTY = 0x20;   // space tile = transparent for layers above
+let _meTile  = 1;         // selected screen code
+let _meColor = 14;        // selected color (Light Blue)
+let _meBgColor = 6;       // map background (Blue)
+let _meTool  = "paint";
+let _meZoom  = 16;        // pixels per tile on main canvas
+let _meGrid  = true;
+let _mePainting = false;
+let _meSelStart = null;   // {col,row} during Select drag
+let _meSelEnd   = null;
+let _meTileCache = null;   // [256][64] ROM bit arrays
+let _meCustomCache = null; // [256][64] custom charset bit arrays
+let _meCustomData = null;  // Uint8Array(2048) custom charset bytes
+let _meCharSource = "rom"; // "rom" | "custom"
+let _meBuffer = null;      // offscreen canvas (map without overlay)
+let _meCtx = null, _meBufCtx = null;
+let _meInited = false;
+
+function _meTileBits(sc) {
+  sc &= 0xFF;
+  if (_meCharSource === "custom" && _meCustomCache) return _meCustomCache[sc];
+  if (!_meTileCache) {
+    _meTileCache = [];
+    for (let i = 0; i < 256; i++) _meTileCache.push(_c64RomBitmapData(i, 1));
+  }
+  return _meTileCache[sc];
+}
+
+/* The ROM tiles are extracted by rendering the C64ProMono font to a canvas.
+   If that cache is built before the font has loaded, the canvas uses a
+   fallback font → garbled tiles. Ensure the font is loaded, then rebuild the
+   cache once and re-run the callback. */
+let _meRomFontReady = false;
+function _meEnsureRomFont(cb) {
+  if (_meRomFontReady || !(document.fonts && document.fonts.load)) { cb(); return; }
+  document.fonts.load('64px "C64ProMono"').then(function() {
+    _meRomFontReady = true; _meTileCache = null; cb();
+  }, function() { cb(); });
+}
+
+/* Build per-tile bit arrays from a 2048-byte (256×8) custom charset */
+function _meSetCustomCharset(bytes) {
+  const data = new Uint8Array(2048);
+  data.set(bytes.subarray(0, Math.min(bytes.length, 2048)));
+  _meCustomData = data;
+  _meCustomCache = [];
+  for (let sc = 0; sc < 256; sc++) {
+    const bits = [];
+    const base = sc * 8;
+    for (let r = 0; r < 8; r++) {
+      const byte = data[base + r];
+      for (let c = 0; c < 8; c++) bits.push((byte >> (7 - c)) & 1);
+    }
+    _meCustomCache.push(bits);
+  }
+  _meCharSource = "custom";
+}
+
+/* ── Draw one map cell into the offscreen buffer ── */
+function _meDrawCellBuf(col, row) {
+  const Z = _meZoom, sub = Z / 8, ss = Math.ceil(sub);
+  const x0 = col * Z, y0 = row * Z;
+  const i = row * _ME_COLS + col;
+  // paper background
+  _meBufCtx.fillStyle = _CE_COLORS[_meBgColor];
+  _meBufCtx.fillRect(x0, y0, Z, Z);
+  // Merge: draw every visible layer's tile pixels bottom→top, so two
+  // characters on different layers overlay (combine) in the same cell.
+  for (let L = 0; L < _meLayers.length; L++) {
+    if (!_meLayers[L].visible) continue;
+    const t = _meLayers[L].screen[i];
+    if (t === _ME_EMPTY) continue;
+    const bits = _meTileBits(t);
+    _meBufCtx.fillStyle = _CE_COLORS[_meLayers[L].color[i]];
+    for (let p = 0; p < 64; p++) {
+      if (bits[p]) _meBufCtx.fillRect(x0 + (p & 7) * sub, y0 + (p >> 3) * sub, ss, ss);
+    }
+  }
+  if (_meGrid) {
+    _meBufCtx.strokeStyle = "rgba(170,160,225,0.22)";
+    _meBufCtx.lineWidth = 1;
+    _meBufCtx.strokeRect(x0 + 0.5, y0 + 0.5, Z - 1, Z - 1);
+  }
+}
+
+/* ── Full render: buffer → main canvas ── */
+function _meRenderAll() {
+  const W = _ME_COLS * _meZoom, H = _ME_ROWS * _meZoom;
+  if (_meBuffer.width !== W) { _meBuffer.width = W; _meBuffer.height = H; }
+  const canvas = document.getElementById("me-canvas");
+  if (canvas.width !== W) { canvas.width = W; canvas.height = H; }
+  for (let r = 0; r < _ME_ROWS; r++)
+    for (let c = 0; c < _ME_COLS; c++) _meDrawCellBuf(c, r);
+  _meBlit();
+}
+
+function _meBlit() { _meCtx.drawImage(_meBuffer, 0, 0); }
+function _meBlitCell(col, row) {
+  const Z = _meZoom, x0 = col * Z, y0 = row * Z;
+  _meCtx.drawImage(_meBuffer, x0, y0, Z, Z, x0, y0, Z, Z);
+}
+
+function _meSetCell(col, row, tile, color) {
+  if (col < 0 || col >= _ME_COLS || row < 0 || row >= _ME_ROWS) return;
+  const i = row * _ME_COLS + col;
+  _meScreen[i] = tile;
+  _meColorRam[i] = color;
+  _meDrawCellBuf(col, row);
+  _meBlitCell(col, row);
+}
+
+/* ── Tools ── */
+function _meFloodFill(col, row) {
+  const target = _meScreen[row * _ME_COLS + col];
+  if (target === _meTile) { _meSetCell(col, row, _meTile, _meColor); return; }
+  const stack = [[col, row]];
+  while (stack.length) {
+    const [c, r] = stack.pop();
+    if (c < 0 || c >= _ME_COLS || r < 0 || r >= _ME_ROWS) continue;
+    if (_meScreen[r * _ME_COLS + c] !== target) continue;
+    _meScreen[r * _ME_COLS + c] = _meTile;
+    _meColorRam[r * _ME_COLS + c] = _meColor;
+    _meDrawCellBuf(c, r);
+    stack.push([c+1, r], [c-1, r], [c, r+1], [c, r-1]);
+  }
+  _meBlit();
+}
+
+function _meFillAll() {
+  for (let i = 0; i < _meScreen.length; i++) { _meScreen[i] = _meTile; _meColorRam[i] = _meColor; }
+  _meRenderAll();
+}
+
+function _meFillRect(c0, r0, c1, r1) {
+  const ca = Math.min(c0,c1), cb = Math.max(c0,c1);
+  const ra = Math.min(r0,r1), rb = Math.max(r0,r1);
+  for (let r = ra; r <= rb; r++)
+    for (let c = ca; c <= cb; c++) {
+      const i = r * _ME_COLS + c;
+      _meScreen[i] = _meTile; _meColorRam[i] = _meColor;
+      _meDrawCellBuf(c, r);
+    }
+  _meBlit();
+}
+
+function _meCellFromEvent(e) {
+  const canvas = document.getElementById("me-canvas");
+  const rect = canvas.getBoundingClientRect();
+  const sx = canvas.width / rect.width, sy = canvas.height / rect.height;
+  const col = Math.floor((e.clientX - rect.left) * sx / _meZoom);
+  const row = Math.floor((e.clientY - rect.top)  * sy / _meZoom);
+  if (col < 0 || col >= _ME_COLS || row < 0 || row >= _ME_ROWS) return null;
+  return { col, row };
+}
+
+function _meUpdateStatus(col, row) {
+  const el = document.getElementById("me-status");
+  if (!el) return;
+  if (col == null) { el.textContent = "Col: -   Row: -   Tile: --   Offset: ----"; return; }
+  const off = row * _ME_COLS + col;
+  const tile = _meScreen[off];
+  el.textContent =
+    "Col: " + col + "   Row: " + row +
+    "   Tile: $" + tile.toString(16).toUpperCase().padStart(2,"0") +
+    "   Offset: $" + off.toString(16).toUpperCase().padStart(4,"0");
+}
+
+function _meDrawSelOverlay() {
+  _meBlit();
+  if (!_meSelStart || !_meSelEnd) return;
+  const Z = _meZoom;
+  const ca = Math.min(_meSelStart.col, _meSelEnd.col), cb = Math.max(_meSelStart.col, _meSelEnd.col);
+  const ra = Math.min(_meSelStart.row, _meSelEnd.row), rb = Math.max(_meSelStart.row, _meSelEnd.row);
+  _meCtx.strokeStyle = "rgba(255,255,255,0.9)";
+  _meCtx.lineWidth = 2;
+  _meCtx.setLineDash([5, 4]);
+  _meCtx.strokeRect(ca*Z+1, ra*Z+1, (cb-ca+1)*Z-2, (rb-ra+1)*Z-2);
+  _meCtx.setLineDash([]);
+}
+
+/* ── Tile banks ── */
+function _meRenderBank(canvasId, startSc) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const TS = 16;            // tile size in bank
+  ctx.fillStyle = "#23263a";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  for (let i = 0; i < 128; i++) {
+    const sc = startSc + i;
+    const bx = (i % 16) * TS, by = Math.floor(i / 16) * TS;
+    const bits = _meTileBits(sc);
+    ctx.fillStyle = "#c2c8dc";
+    for (let p = 0; p < 64; p++) {
+      if (bits[p]) ctx.fillRect(bx + (p & 7) * 2, by + (p >> 3) * 2, 2, 2);
+    }
+    if (sc === _meTile) {
+      ctx.strokeStyle = "#ffcc33";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(bx + 1, by + 1, TS - 2, TS - 2);
+    }
+  }
+}
+function _meRenderBanks() { _meRenderBank("me-bank0", 0); _meRenderBank("me-bank1", 128); }
+
+function _meBuildPalette() {
+  const wrap = document.getElementById("me-palette");
+  if (!wrap || wrap.children.length) return;
+  _CE_COLORS.forEach(function(hex, i) {
+    const sw = document.createElement("div");
+    sw.className = "me-swatch" + (i === _meColor ? " me-swatch--sel" : "");
+    sw.style.background = hex;
+    sw.title = "Color " + i;
+    sw.addEventListener("click", function() {
+      _meColor = i;
+      wrap.querySelectorAll(".me-swatch").forEach(function(s, j) { s.classList.toggle("me-swatch--sel", j === i); });
+    });
+    wrap.appendChild(sw);
+  });
+}
+
+/* Save raw bytes to a file. Uses the native save dialog in the desktop app
+   (the <a download> trick does not work inside the Tauri webview), with a
+   browser blob-download fallback for dev. */
+async function _saveBinFile(bytes, fileName) {
+  const arr = Array.from(bytes);
+  const api = window.electronAPI;
+  if (api?.saveBin) {
+    try { return await api.saveBin({ bytes: arr, fileName: fileName }); } catch (_) {}
+  }
+  if (api?.savePrg) {
+    try { return await api.savePrg({ bytes: arr }); } catch (_) {}
+  }
+  const blob = new Blob([new Uint8Array(arr)], { type: "application/octet-stream" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = fileName;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+}
+
+function _meExport(kind) {
+  // Per-layer exports — each layer is its own charmap (so a game can composite
+  // / swap them in software).
+  if (kind === "layer-bin") { _saveBinFile(_meLayers[_meActiveLayer].screen, "layer-" + _meActiveLayer + ".bin"); return; }
+  if (kind === "layers-bin") {
+    const n = _ME_COLS * _ME_ROWS, out = new Uint8Array(_meLayers.length * n);
+    _meLayers.forEach(function(L, li){ out.set(L.screen, li * n); });
+    _saveBinFile(out, "layers.bin"); return;
+  }
+  const comp = _meComposite();   // flattened visible layers
+  if (kind === "bin") {
+    _saveBinFile(comp.screen, "map.bin");
+    return;
+  }
+  const data = (kind === "color") ? comp.color :
+               (kind === "layer-screen") ? _meLayers[_meActiveLayer].screen : comp.screen;
+  let out = "";
+  for (let r = 0; r < _ME_ROWS; r++) {
+    const row = [];
+    for (let c = 0; c < _ME_COLS; c++) row.push("$" + data[r * _ME_COLS + c].toString(16).toUpperCase().padStart(2,"0"));
+    out += row.join(", ") + (r < _ME_ROWS - 1 ? ",\n" : "\n");
+  }
+  navigator.clipboard.writeText(out).then(function() {
+    const btn = document.querySelector("#map-editor-dialog .ed-file-btn");
+    if (btn) { const o = btn.textContent; btn.textContent = (typeof t === "function" ? t("copied") : "Copied!"); setTimeout(function(){ btn.textContent = o; }, 1200); }
+  }).catch(function(){});
+}
+
+function _meNewLayer(name) {
+  return {
+    name: name,
+    screen: new Uint8Array(_ME_COLS * _ME_ROWS).fill(_ME_EMPTY),
+    color:  new Uint8Array(_ME_COLS * _ME_ROWS).fill(_meColor),
+    visible: true
+  };
+}
+function _meInit() {
+  if (_meInited) return;
+  _meInited = true;
+  _meLayers = [_meNewLayer(t("meBackground"))];
+  _meActiveLayer = 0;
+  _meScreen = _meLayers[0].screen;
+  _meColorRam = _meLayers[0].color;
+  _meBuffer = document.createElement("canvas");
+  _meBufCtx = _meBuffer.getContext("2d");
+  const canvas = document.getElementById("me-canvas");
+  _meCtx = canvas.getContext("2d");
+  _meBuildPalette();
+  _meBuildLayers();
+}
+
+/* ── Layers ── */
+function _meSetActiveLayer(i) {
+  if (i < 0 || i >= _meLayers.length) return;
+  _meActiveLayer = i;
+  _meScreen = _meLayers[i].screen;
+  _meColorRam = _meLayers[i].color;
+  _meBuildLayers();
+  if (_meBufCtx) _meRenderAll();   // keep the canvas showing the full composite
+}
+function _meAddLayer() {
+  _meLayers.push(_meNewLayer(t("meNewLayerName") + " " + _meLayers.length));
+  _meSetActiveLayer(_meLayers.length - 1);
+  _meRenderAll();
+}
+function _meDeleteLayer(i) {
+  if (_meLayers.length <= 1) return;
+  _meLayers.splice(i, 1);
+  if (_meActiveLayer >= _meLayers.length) _meActiveLayer = _meLayers.length - 1;
+  _meSetActiveLayer(_meActiveLayer);
+  _meRenderAll();
+}
+function _meBuildLayers() {
+  const list = document.getElementById("me-layers-list");
+  if (!list) return;
+  list.innerHTML = "";
+  // top layer first (visually like Photoshop)
+  for (let i = _meLayers.length - 1; i >= 0; i--) {
+    (function(idx) {
+      const L = _meLayers[idx];
+      const row = document.createElement("div");
+      row.className = "me-layer" + (idx === _meActiveLayer ? " me-layer--active" : "");
+      const eye = document.createElement("button");
+      eye.type = "button"; eye.className = "me-layer-eye" + (L.visible ? "" : " me-layer-eye--off");
+      eye.title = L.visible ? t("meLayerHide") : t("meLayerShow");
+      eye.innerHTML = L.visible
+        ? '<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M1.5 8s2.5-4.5 6.5-4.5S14.5 8 14.5 8s-2.5 4.5-6.5 4.5S1.5 8 1.5 8z"/><circle cx="8" cy="8" r="2"/></svg>'
+        : '<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><path d="M2 8s2.5-4.5 6-4.5c1 0 1.9.3 2.7.7M14 8s-2.5 4.5-6 4.5c-1 0-1.9-.3-2.7-.7"/><path d="M2.5 2.5l11 11"/></svg>';
+      eye.addEventListener("click", function(e) { e.stopPropagation(); L.visible = !L.visible; _meBuildLayers(); _meRenderAll(); });
+      const nm = document.createElement("span");
+      nm.className = "me-layer-name"; nm.textContent = L.name;
+      nm.title = t("meLayerRename");
+      nm.addEventListener("dblclick", function(e) {
+        e.stopPropagation();
+        const v = prompt("Layer name:", L.name);
+        if (v != null && v.trim()) { L.name = v.trim(); _meBuildLayers(); }
+      });
+      row.appendChild(eye); row.appendChild(nm);
+      if (_meLayers.length > 1) {
+        const del = document.createElement("button");
+        del.type = "button"; del.className = "me-layer-del"; del.title = t("meLayerDelete"); del.textContent = "×";
+        del.addEventListener("click", function(e) { e.stopPropagation(); _meDeleteLayer(idx); });
+        row.appendChild(del);
+      }
+      row.addEventListener("click", function() { _meSetActiveLayer(idx); });
+      list.appendChild(row);
+    })(i);
+  }
+}
+/* Merge all visible layers into a single Background layer (flatten). */
+function _meFlatten() {
+  if (!_meLayers || _meLayers.length <= 1) return;
+  const comp = _meComposite();
+  _meLayers = [{ name: "Background", screen: comp.screen, color: comp.color, visible: true }];
+  _meActiveLayer = 0;
+  _meScreen = _meLayers[0].screen;
+  _meColorRam = _meLayers[0].color;
+  _meBuildLayers();
+  _meRenderAll();
+}
+/* Composite the visible layers into a final {screen,color} (top-down). */
+function _meComposite() {
+  const n = _ME_COLS * _ME_ROWS;
+  const screen = new Uint8Array(n).fill(_ME_EMPTY);
+  const color = new Uint8Array(n).fill(_meColor);
+  for (let i = 0; i < n; i++) {
+    for (let L = _meLayers.length - 1; L >= 0; L--) {
+      if (!_meLayers[L].visible) continue;
+      const t = _meLayers[L].screen[i];
+      if (t !== _ME_EMPTY) { screen[i] = t; color[i] = _meLayers[L].color[i]; break; }
+    }
+  }
+  return { screen: screen, color: color };
+}
+
+function setupMapEditor() {
+  const dialog = document.getElementById("map-editor-dialog");
+  if (!dialog) return;
+
+  document.getElementById("map-editor-btn")?.addEventListener("click", function() {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    _meInit();
+    _meRenderBanks();
+    _meRenderAll();
+    _meUpdateStatus(null);
+    dialog.showModal();
+    // Re-render once the C64 font is ready (first open may extract tiles too early).
+    _meEnsureRomFont(function() { _meRenderBanks(); _meRenderAll(); });
+  });
+  document.getElementById("me-close")?.addEventListener("click", function() { dialog.close(); });
+
+  // Tool selection
+  dialog.querySelectorAll(".me-tool[data-tool]").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      _meTool = btn.dataset.tool;
+      dialog.querySelectorAll(".me-tool[data-tool]").forEach(function(b) { b.classList.toggle("me-tool--active", b === btn); });
+    });
+  });
+
+  // Export items (in the File menu — open/close handled by _setupFileMenus)
+  dialog.querySelectorAll("button[data-export]").forEach(function(b) {
+    b.addEventListener("click", function() { _meExport(b.dataset.export); });
+  });
+
+  // Charset: load from C64 ROM
+  document.getElementById("me-charset-rom")?.addEventListener("click", function() {
+    _meCharSource = "rom";
+    _meEnsureRomFont(function() { _meTileCache = null; _meRenderBanks(); _meRenderAll(); });
+  });
+  document.getElementById("me-layer-add")?.addEventListener("click", _meAddLayer);
+  document.getElementById("me-layer-flatten")?.addEventListener("click", _meFlatten);
+  // Clear the whole map (toolbar icon + Files menu entry)
+  const _meClearMap = function() {
+    if (!_meScreen) return;
+    _meScreen.fill(0x20);
+    _meColorRam.fill(_meColor);
+    _meRenderAll();
+  };
+  document.getElementById("me-clear")?.addEventListener("click", _meClearMap);
+  document.getElementById("me-clear-menu")?.addEventListener("click", _meClearMap);
+  const csFile = document.getElementById("me-charset-file");
+  document.getElementById("me-charset-load")?.addEventListener("click", function() { csFile?.click(); });
+  csFile?.addEventListener("change", function(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function() {
+      _meSetCustomCharset(new Uint8Array(reader.result));
+      _meRenderBanks(); _meRenderAll();
+    };
+    reader.readAsArrayBuffer(file);
+    e.target.value = "";
+  });
+  document.getElementById("me-charset-editor")?.addEventListener("click", function() {
+    if (typeof _ceData !== "undefined" && _ceData) {
+      _meSetCustomCharset(_ceData);
+      _meRenderBanks(); _meRenderAll();
+    } else {
+      const btn = document.getElementById("me-charset-editor");
+      if (btn) { const o = btn.title; btn.title = "Editor empty!"; setTimeout(function(){ btn.title = o; }, 1400); }
+    }
+  });
+
+  // Load map (.bin) — first 1000 bytes = screen codes, optional next 1000 = color RAM
+  const mapFile = document.getElementById("me-map-file");
+  document.getElementById("me-load-map")?.addEventListener("click", function() { mapFile?.click(); });
+  mapFile?.addEventListener("change", function(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function() {
+      const src = new Uint8Array(reader.result);
+      const n = _ME_COLS * _ME_ROWS;
+      for (let i = 0; i < n; i++) _meScreen[i] = i < src.length ? src[i] : 0x20;
+      if (src.length >= n * 2) {
+        for (let i = 0; i < n; i++) _meColorRam[i] = src[n + i] & 0x0F;
+      }
+      _meRenderAll();
+    };
+    reader.readAsArrayBuffer(file);
+    e.target.value = "";
+  });
+
+  // Grid + zoom
+  document.getElementById("me-grid-toggle")?.addEventListener("change", function(e) {
+    _meGrid = e.target.checked; _meRenderAll();
+  });
+  document.getElementById("me-zoom")?.addEventListener("input", function(e) {
+    _meZoom = parseInt(e.target.value, 10); _meRenderAll();
+  });
+
+  // Bank tile selection
+  ["me-bank0", "me-bank1"].forEach(function(id, bank) {
+    const cv = document.getElementById(id);
+    cv?.addEventListener("click", function(e) {
+      const rect = cv.getBoundingClientRect();
+      const col = Math.floor((e.clientX - rect.left) / rect.width * 16);
+      const row = Math.floor((e.clientY - rect.top) / rect.height * 8);
+      const sc = bank * 128 + row * 16 + col;
+      if (sc >= 0 && sc < 256) { _meTile = sc; _meRenderBanks(); }
+    });
+  });
+
+  // Main canvas interaction
+  const canvas = document.getElementById("me-canvas");
+  if (canvas) {
+    const apply = function(cell) {
+      if (!cell) return;
+      if (_meTool === "paint") { _meSetCell(cell.col, cell.row, _meTile, _meColor); }
+      else if (_meTool === "fill") { _meFloodFill(cell.col, cell.row); }
+      else if (_meTool === "flood") { _meFillAll(); }
+      else if (_meTool === "pick") {
+        const i = cell.row * _ME_COLS + cell.col;
+        _meTile = _meScreen[i]; _meColor = _meColorRam[i];
+        _meRenderBanks();
+        document.querySelectorAll("#me-palette .me-swatch").forEach(function(s, j) { s.classList.toggle("me-swatch--sel", j === _meColor); });
+      }
+    };
+    canvas.addEventListener("pointerdown", function(e) {
+      if (e.button !== 0) return;
+      const cell = _meCellFromEvent(e);
+      if (!cell) return;
+      try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+      if (_meTool === "select") {
+        _meSelStart = cell; _meSelEnd = cell; _mePainting = true; _meDrawSelOverlay();
+      } else {
+        _mePainting = true; apply(cell);
+      }
+      e.preventDefault();
+    });
+    canvas.addEventListener("pointermove", function(e) {
+      const cell = _meCellFromEvent(e);
+      _meUpdateStatus(cell ? cell.col : null, cell ? cell.row : null);
+      if (!_mePainting || !cell) return;
+      if (_meTool === "select") { _meSelEnd = cell; _meDrawSelOverlay(); }
+      else if (_meTool === "paint") { _meSetCell(cell.col, cell.row, _meTile, _meColor); }
+    });
+    const endPaint = function(e) {
+      if (!_mePainting) return;
+      _mePainting = false;
+      if (_meTool === "select" && _meSelStart && _meSelEnd) {
+        _meFillRect(_meSelStart.col, _meSelStart.row, _meSelEnd.col, _meSelEnd.row);
+        _meSelStart = _meSelEnd = null;
+      }
+      if (e && e.pointerId != null) { try { canvas.releasePointerCapture(e.pointerId); } catch (_) {} }
+    };
+    canvas.addEventListener("pointerup", endPaint);
+    canvas.addEventListener("pointercancel", endPaint);
+    canvas.addEventListener("pointerleave", function() { _meUpdateStatus(null); });
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   HI-RES / MULTICOLOR GRAPHICS EDITOR
+   ═══════════════════════════════════════════════════════ */
+let _hgMulti = false;        // false = hi-res (320x200), true = multicolor (160x200)
+// Hi-res storage: C64 bitmap is 40x25 cells of 8x8 px; each cell allows only
+// TWO colours — fg (set bits) + bg (clear bits), taken from the screen-RAM
+// byte (hi nibble = fg, lo nibble = bg). So we store a per-pixel BIT plus a
+// per-cell fg/bg colour, and painting a 3rd colour recolours the cell (the
+// classic "colour clash"). Ref: c64-assembly-expert knowledge base — VIC-II
+// standard bitmap mode.
+let _hgBit    = null;        // Uint8Array(320*200) 0/1
+let _hgFgCell = null;        // Uint8Array(40*25) foreground colour per cell
+let _hgBgCell = null;        // Uint8Array(40*25) background colour per cell
+let _hgPixMC  = null;        // Uint8Array(160*200) multicolor: free per-pixel colour
+let _hgColor = 1;            // selected color index (ink)
+let _hgPaper = 0;            // paper / background colour index (bit-0 in hi-res)
+let _hgTool  = "pencil";
+let _hgZoom  = 3;
+let _hgGrid  = false;
+let _hgRaster = false;
+let _hgCanvas = null, _hgCtx = null, _hgBuf = null, _hgBufCtx = null;
+let _hgPainting = false, _hgStart = null, _hgLast = null;
+let _hgUndo = [], _hgRedo = [];
+let _hgInited = false;
+
+function _hgW() { return _hgMulti ? 160 : 320; }
+function _hgH() { return 200; }
+function _hgPxW() { return _hgMulti ? _hgZoom * 2 : _hgZoom; }  // display px width of one logical pixel
+function _hgPxH() { return _hgZoom; }
+function _hgDispW() { return _hgW() * _hgPxW(); }   // = 320*zoom always
+function _hgDispH() { return _hgH() * _hgPxH(); }
+
+function _hgGet(x, y) {
+  if (x < 0 || y < 0 || x >= _hgW() || y >= _hgH()) return -1;
+  if (_hgMulti) return _hgPixMC[y * 160 + x];
+  const cell = (y >> 3) * 40 + (x >> 3);
+  return _hgBit[y * 320 + x] ? _hgFgCell[cell] : _hgBgCell[cell];
+}
+function _hgSet(x, y, col) {
+  if (x < 0 || y < 0 || x >= _hgW() || y >= _hgH()) return;
+  if (_hgMulti) { _hgPixMC[y * 160 + x] = col; return; }
+  // Hi-res: only 2 colours per 8x8 cell. col == bg → clear bit; any other
+  // colour becomes the cell's single foreground (recolouring lit pixels =
+  // C64 colour clash).
+  const idx = y * 320 + x;
+  const cell = (y >> 3) * 40 + (x >> 3);
+  if (col === _hgBgCell[cell]) { _hgBit[idx] = 0; return; }
+  _hgFgCell[cell] = col;
+  _hgBit[idx] = 1;
+}
+
+/* ── Rendering ── */
+function _hgDrawPixelBuf(x, y) {
+  const pw = _hgPxW(), ph = _hgPxH();
+  _hgBufCtx.fillStyle = _CE_COLORS[_hgGet(x, y)];
+  _hgBufCtx.fillRect(x * pw, y * ph, pw, ph);
+}
+/* Redraw the whole 8x8 cell a pixel belongs to (hi-res clash may have
+   recoloured neighbours); multicolor just redraws the single pixel. */
+function _hgRedrawCellBuf(x, y) {
+  if (_hgMulti) { _hgDrawPixelBuf(x, y); return; }
+  const cx = (x >> 3) << 3, cy = (y >> 3) << 3;
+  for (let yy = 0; yy < 8; yy++)
+    for (let xx = 0; xx < 8; xx++) _hgDrawPixelBuf(cx + xx, cy + yy);
+}
+function _hgRenderBuf() {
+  const W = _hgDispW(), H = _hgDispH();
+  if (!_hgBuf) _hgBuf = document.createElement("canvas");
+  if (_hgBuf.width !== W) { _hgBuf.width = W; _hgBuf.height = H; }
+  for (let y = 0; y < _hgH(); y++)
+    for (let x = 0; x < _hgW(); x++) _hgDrawPixelBuf(x, y);
+}
+function _hgOverlays() {
+  const W = _hgDispW(), H = _hgDispH();
+  if (_hgGrid) {
+    _hgCtx.strokeStyle = "rgba(120,130,160,0.5)";
+    _hgCtx.lineWidth = 1;
+    const cw = 8 * _hgPxW(), ch = 8 * _hgPxH();
+    _hgCtx.beginPath();
+    for (let x = 0; x <= W; x += cw) { _hgCtx.moveTo(x + 0.5, 0); _hgCtx.lineTo(x + 0.5, H); }
+    for (let y = 0; y <= H; y += ch) { _hgCtx.moveTo(0, y + 0.5); _hgCtx.lineTo(W, y + 0.5); }
+    _hgCtx.stroke();
+  }
+  if (_hgRaster) {
+    _hgCtx.fillStyle = "rgba(0,0,0,0.28)";
+    for (let y = 0; y < H; y += 2) _hgCtx.fillRect(0, y, W, 1);
+  }
+}
+function _hgBlit() {
+  const W = _hgDispW(), H = _hgDispH();
+  if (_hgCanvas.width !== W) { _hgCanvas.width = W; _hgCanvas.height = H; }
+  _hgCtx.drawImage(_hgBuf, 0, 0);
+  _hgOverlays();
+}
+function _hgRenderAll() { _hgRenderBuf(); _hgBlit(); }
+
+/* ── Undo / redo ── */
+function _hgSnapshot() {
+  if (_hgMulti) return { m: true, mc: _hgPixMC.slice(0) };
+  return { m: false, bit: _hgBit.slice(0), fg: _hgFgCell.slice(0), bg: _hgBgCell.slice(0) };
+}
+function _hgRestore(s) {
+  if (s.m) { _hgPixMC.set(s.mc); }
+  else { _hgBit.set(s.bit); _hgFgCell.set(s.fg); _hgBgCell.set(s.bg); }
+}
+function _hgPushUndo() {
+  _hgUndo.push(_hgSnapshot());
+  if (_hgUndo.length > 40) _hgUndo.shift();
+  _hgRedo.length = 0;
+}
+function _hgUndoOp() {
+  if (!_hgUndo.length) return;
+  _hgRedo.push(_hgSnapshot());
+  _hgRestore(_hgUndo.pop());
+  _hgRenderAll();
+}
+function _hgRedoOp() {
+  if (!_hgRedo.length) return;
+  _hgUndo.push(_hgSnapshot());
+  _hgRestore(_hgRedo.pop());
+  _hgRenderAll();
+}
+
+/* ── Shape rasterizers (write into a target setter fn) ── */
+function _hgLine(x0, y0, x1, y1, set) {
+  let dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0);
+  let sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
+  let err = dx - dy;
+  while (true) {
+    set(x0, y0);
+    if (x0 === x1 && y0 === y1) break;
+    const e2 = 2 * err;
+    if (e2 > -dy) { err -= dy; x0 += sx; }
+    if (e2 < dx) { err += dx; y0 += sy; }
+  }
+}
+function _hgRect(x0, y0, x1, y1, set, filled) {
+  const xa = Math.min(x0,x1), xb = Math.max(x0,x1), ya = Math.min(y0,y1), yb = Math.max(y0,y1);
+  if (filled) {
+    for (let y = ya; y <= yb; y++) for (let x = xa; x <= xb; x++) set(x, y);
+  } else {
+    for (let x = xa; x <= xb; x++) { set(x, ya); set(x, yb); }
+    for (let y = ya; y <= yb; y++) { set(xa, y); set(xb, y); }
+  }
+}
+function _hgOval(x0, y0, x1, y1, set, filled) {
+  const xa = Math.min(x0,x1), xb = Math.max(x0,x1), ya = Math.min(y0,y1), yb = Math.max(y0,y1);
+  const cx = (xa + xb) / 2, cy = (ya + yb) / 2;
+  const rx = Math.max(0.5, (xb - xa) / 2), ry = Math.max(0.5, (yb - ya) / 2);
+  if (filled) {
+    for (let y = ya; y <= yb; y++) for (let x = xa; x <= xb; x++) {
+      const nx = (x - cx) / rx, ny = (y - cy) / ry;
+      if (nx*nx + ny*ny <= 1) set(x, y);
+    }
+  } else {
+    const steps = Math.max(8, Math.round((rx + ry) * 4));
+    let px = null, py = null;
+    for (let i = 0; i <= steps; i++) {
+      const a = (i / steps) * Math.PI * 2;
+      const x = Math.round(cx + Math.cos(a) * rx), y = Math.round(cy + Math.sin(a) * ry);
+      if (px !== null) _hgLine(px, py, x, y, set); else set(x, y);
+      px = x; py = y;
+    }
+  }
+}
+function _hgFloodFill(x, y, col) {
+  const target = _hgGet(x, y);
+  if (target === col || target === -1) return;
+  const W = _hgW(), H = _hgH();
+  // `seen` guard: in hi-res _hgSet recolours a whole cell, which can change a
+  // neighbour's displayed colour mid-fill, so track visited pixels explicitly.
+  const seen = new Uint8Array(W * H);
+  const stack = [[x, y]];
+  while (stack.length) {
+    const [cx, cy] = stack.pop();
+    if (cx < 0 || cy < 0 || cx >= W || cy >= H) continue;
+    if (seen[cy * W + cx]) continue;
+    if (_hgGet(cx, cy) !== target) continue;
+    seen[cy * W + cx] = 1;
+    _hgSet(cx, cy, col);
+    stack.push([cx+1, cy], [cx-1, cy], [cx, cy+1], [cx, cy-1]);
+  }
+}
+
+/* ── Pointer → pixel ── */
+function _hgPixelFromEvent(e) {
+  const rect = _hgCanvas.getBoundingClientRect();
+  const sx = _hgCanvas.width / rect.width, sy = _hgCanvas.height / rect.height;
+  const x = Math.floor((e.clientX - rect.left) * sx / _hgPxW());
+  const y = Math.floor((e.clientY - rect.top)  * sy / _hgPxH());
+  return { x, y };
+}
+function _hgStatus(x, y) {
+  const el = document.getElementById("hg-status");
+  if (el) el.textContent = (x == null) ? "(-, -)" : "(" + x + ", " + y + ")";
+}
+
+/* ── Palette / status helpers ── */
+function _hgBuildPalette() {
+  const wrap = document.getElementById("hg-palette");
+  if (!wrap || wrap.children.length) return;
+  _CE_COLORS.forEach(function(hex, i) {
+    const sw = document.createElement("div");
+    sw.className = "hg-swatch" + (i === _hgColor ? " hg-swatch--sel" : "");
+    sw.style.background = hex;
+    sw.title = "Color " + i + " — left-click: ink, right-click: paper";
+    sw.addEventListener("click", function() {
+      _hgColor = i;
+      wrap.querySelectorAll(".hg-swatch").forEach(function(s, j) { s.classList.toggle("hg-swatch--sel", j === i); });
+    });
+    sw.addEventListener("contextmenu", function(e) { e.preventDefault(); _hgSetPaper(i); });
+    wrap.appendChild(sw);
+  });
+  _hgUpdatePaperSwatch();
+}
+
+function _hgUpdatePaperSwatch() {
+  const el = document.getElementById("hg-paper");
+  if (el) el.style.background = _CE_COLORS[_hgPaper];
+}
+
+function _hgSetPaper(col) {
+  _hgPaper = col;
+  if (_hgBgCell) _hgBgCell.fill(col);   // hi-res: recolour every cell background
+  if (_hgMulti && _hgPixMC) {
+    // multicolor: recolour pixels currently showing the old paper is ambiguous;
+    // paper here just defines the clear/erase colour, so leave existing pixels.
+  }
+  _hgUpdatePaperSwatch();
+  _hgRenderAll();
+}
+
+/* ── Palette RGB (cached) + nearest-colour ── */
+let _hgPalRGB = null;
+function _hgPal() {
+  if (!_hgPalRGB) {
+    _hgPalRGB = _CE_COLORS.map(function(h) {
+      return [parseInt(h.substr(1,2),16), parseInt(h.substr(3,2),16), parseInt(h.substr(5,2),16)];
+    });
+  }
+  return _hgPalRGB;
+}
+function _hgNearestColor(r, g, b) {
+  const pal = _hgPal();
+  let best = 0, bestD = Infinity;
+  for (let i = 0; i < 16; i++) {
+    const c = pal[i];
+    const d = (r-c[0])*(r-c[0]) + (g-c[1])*(g-c[1]) + (b-c[2])*(b-c[2]);
+    if (d < bestD) { bestD = d; best = i; }
+  }
+  return best;
+}
+
+/* Convert a full-resolution RGB source into hi-res: for each 8×8 cell pick the
+   two dominant palette colours (bg + fg) and assign each pixel to whichever of
+   the two its RGB is CLOSER to. This preserves detail (the old exact-match test
+   collapsed cells to a single colour → blocky). rgbAt(x,y) → [r,g,b]. */
+function _hgHiresFromRGB(rgbAt) {
+  const pal = _hgPal();
+  for (let cy = 0; cy < 25; cy++) {
+    for (let cx = 0; cx < 40; cx++) {
+      const freq = new Array(16).fill(0);
+      for (let yy = 0; yy < 8; yy++)
+        for (let xx = 0; xx < 8; xx++) {
+          const c = rgbAt(cx*8+xx, cy*8+yy);
+          freq[_hgNearestColor(c[0], c[1], c[2])]++;
+        }
+      let c0 = 0, c1 = 0, f0 = -1, f1 = -1;
+      for (let k = 0; k < 16; k++) {
+        if (freq[k] > f0) { f1 = f0; c1 = c0; f0 = freq[k]; c0 = k; }
+        else if (freq[k] > f1) { f1 = freq[k]; c1 = k; }
+      }
+      const cell = cy * 40 + cx;
+      _hgBgCell[cell] = c0;
+      _hgFgCell[cell] = (f1 > 0 && c1 !== c0) ? c1 : c0;
+      const p0 = pal[c0], p1 = pal[_hgFgCell[cell]];
+      for (let yy = 0; yy < 8; yy++)
+        for (let xx = 0; xx < 8; xx++) {
+          const px = cx*8+xx, py = cy*8+yy;
+          const c = rgbAt(px, py);
+          const d0 = (c[0]-p0[0])**2 + (c[1]-p0[1])**2 + (c[2]-p0[2])**2;
+          const d1 = (c[0]-p1[0])**2 + (c[1]-p1[1])**2 + (c[2]-p1[2])**2;
+          _hgBit[py * 320 + px] = (d1 < d0) ? 1 : 0;
+        }
+    }
+  }
+}
+
+function _hgImportImage(img) {
+  const W = _hgW(), H = _hgH();
+  const tmp = document.createElement("canvas");
+  tmp.width = W; tmp.height = H;
+  const tc = tmp.getContext("2d");
+  tc.imageSmoothingEnabled = false;   // crisp scaling for pixel-art sources
+  tc.drawImage(img, 0, 0, W, H);
+  const d = tc.getImageData(0, 0, W, H).data;
+  _hgPushUndo();
+  if (_hgMulti) {
+    for (let i = 0; i < W * H; i++) _hgPixMC[i] = _hgNearestColor(d[i*4], d[i*4+1], d[i*4+2]);
+  } else {
+    _hgHiresFromRGB(function(x, y) { const i = (y * W + x) * 4; return [d[i], d[i+1], d[i+2]]; });
+  }
+  _hgRenderAll();
+}
+
+/* Per-pixel displayed-colour buffer (for export). */
+/* Export the picture.
+   Hi-res → standard C64 layout: 8000-byte bitmap + 1000-byte screen RAM
+   (hi nibble = fg/set bits, lo nibble = bg/clear bits).
+   Multicolor → raw 160×200 per-pixel colour indices (32000 bytes). */
+function _hgExportBytes() {
+  if (_hgMulti) return _hgPixMC.slice(0);
+  const out = new Uint8Array(9000);
+  for (let cell = 0; cell < 1000; cell++) {
+    const cx = (cell % 40) * 8, cy = ((cell / 40) | 0) * 8;
+    for (let row = 0; row < 8; row++) {
+      let byte = 0;
+      for (let col = 0; col < 8; col++) {
+        if (_hgBit[(cy + row) * 320 + (cx + col)]) byte |= (1 << (7 - col));
+      }
+      out[cell * 8 + row] = byte;
+    }
+    out[8000 + cell] = ((_hgFgCell[cell] & 0x0F) << 4) | (_hgBgCell[cell] & 0x0F);
+  }
+  return out;
+}
+
+/* Load a .bin, detecting the format by size so the resolution/mode always
+   matches the file (fixes images loading at the wrong resolution). */
+function _hgImportBytes(src) {
+  _hgPushUndo();
+  const len = src.length;
+  if (len === 32000) {
+    // Multicolor raw per-pixel
+    _hgMulti = true;
+    for (let i = 0; i < 32000; i++) _hgPixMC[i] = src[i] & 0x0F;
+  } else if (len === 10000) {
+    // C64 native multicolor bitmap (8000 bitmap + 1000 screen RAM + 1000 color RAM)
+    _hgMulti = true;
+    const bg = _hgPaper & 0x0F;
+    for (let cell = 0; cell < 1000; cell++) {
+      const cellX = cell % 40, cellY = (cell / 40) | 0;
+      const cx = cellX * 4, cy = cellY * 8;
+      const c1 = (src[8000 + cell] >> 4) & 0x0F;
+      const c2 = src[8000 + cell] & 0x0F;
+      const c3 = src[9000 + cell] & 0x0F;
+      const palette = [bg, c1, c2, c3];
+      for (let row = 0; row < 8; row++) {
+        const byte = src[cell * 8 + row];
+        for (let px = 0; px < 4; px++) {
+          const bits = (byte >> ((3 - px) * 2)) & 3;
+          _hgPixMC[(cy + row) * 160 + (cx + px)] = palette[bits];
+        }
+      }
+    }
+  } else if (len === 9000 || len === 8000) {
+    // C64 hi-res bitmap (+ optional screen RAM)
+    _hgMulti = false;
+    for (let cell = 0; cell < 1000; cell++) {
+      const cx = (cell % 40) * 8, cy = ((cell / 40) | 0) * 8;
+      const scr = len === 9000 ? src[8000 + cell] : 0x10; // default white/black
+      _hgFgCell[cell] = (scr >> 4) & 0x0F;
+      _hgBgCell[cell] = scr & 0x0F;
+      for (let row = 0; row < 8; row++) {
+        const byte = src[cell * 8 + row];
+        for (let col = 0; col < 8; col++) {
+          _hgBit[(cy + row) * 320 + (cx + col)] = (byte >> (7 - col)) & 1;
+        }
+      }
+    }
+  } else if (len === 64000) {
+    // Legacy hi-res per-pixel colour → proper per-cell 2-colour reduction
+    _hgMulti = false;
+    const pal = _hgPal();
+    _hgHiresFromRGB(function(x, y) { return pal[src[y * 320 + x] & 0x0F]; });
+  } else {
+    // Unknown size — best effort into the current mode
+    const W = _hgW(), H = _hgH();
+    if (!_hgMulti) {
+      const pal = _hgPal();
+      _hgHiresFromRGB(function(x, y) { const i = y * W + x; return pal[(i < len ? src[i] : _hgPaper) & 0x0F]; });
+    } else {
+      for (let i = 0; i < W * H; i++) _hgPixMC[i] = i < len ? (src[i] & 0x0F) : _hgPaper;
+    }
+  }
+  const mc = document.getElementById("hg-multicolor");
+  if (mc) mc.checked = _hgMulti;
+  _hgRenderAll();
+}
+
+function _hgInit() {
+  if (_hgInited) return;
+  _hgInited = true;
+  _hgBit    = new Uint8Array(320 * 200).fill(0);
+  _hgFgCell = new Uint8Array(40 * 25).fill(1);
+  _hgBgCell = new Uint8Array(40 * 25).fill(_hgPaper);
+  _hgPixMC  = new Uint8Array(160 * 200).fill(_hgPaper);
+  _hgCanvas = document.getElementById("hg-canvas");
+  _hgCtx = _hgCanvas.getContext("2d");
+  _hgBuf = document.createElement("canvas");
+  _hgBufCtx = _hgBuf.getContext("2d");
+  _hgBuildPalette();
+}
+
+function _hgExportBlocks() {
+  const lines = [];
+  const hx = n => "$" + (n & 0xFF).toString(16).toUpperCase().padStart(2, "0");
+  const hx4 = n => n.toString(16).toUpperCase().padStart(4, "0");
+
+  // 4 passes of 250 bytes using .for/.endf VA macros
+  function pushCopy(srcBase, dstBase, pfx) {
+    for (let i = 0; i < 4; i++) {
+      lines.push(".for X, $FA, " + pfx + i);
+      lines.push("LDA $" + hx4(srcBase + i * 250) + ",X");
+      lines.push("STA $" + hx4(dstBase + i * 250) + ",X");
+      lines.push(".endf " + pfx + i);
+    }
+    lines.push("");
+  }
+
+  if (_hgMulti) {
+    lines.push("; Multicolor bitmap loader");
+    lines.push("; 1) Export (.bin) -> D64-en legyen HIRES neven");
+  } else {
+    lines.push("; Hi-res bitmap loader");
+    lines.push("; 1) Export (.bin) -> D64-en legyen HIRES neven");
+  }
+  lines.push("; 2) Compile, SYS 2061");
+  lines.push("");
+  lines.push("* = $080D");
+  lines.push("");
+  lines.push(".loadfile \"HIRES\", 8, $2000");
+  lines.push("");
+  lines.push("; Screen RAM $3F40 → $0400");
+  pushCopy(0x3F40, 0x0400, "scr");
+  if (_hgMulti) {
+    lines.push("; Color RAM $4328 → $D800");
+    pushCopy(0x4328, 0xD800, "col");
+  }
+  lines.push("; VIC-II " + (_hgMulti ? "multicolor" : "hires") + " bitmap");
+  lines.push("LDA #$3B");
+  lines.push("STA $D011");
+  lines.push("LDA #" + (_hgMulti ? "$18" : "$08"));
+  lines.push("STA $D016");
+  lines.push("LDA #$18");
+  lines.push("STA $D018");
+  lines.push("LDA #$00");
+  lines.push("STA $D020");
+  lines.push("LDA #" + hx(_hgMulti ? _hgPaper : 0));
+  lines.push("STA $D021");
+  lines.push("");
+  lines.push("hires_loop:");
+  lines.push("JMP hires_loop");
+  return lines.join("\n");
+}
+
+// Convert internal MC per-pixel format to C64 native multicolor bitmap (10000 bytes):
+// [0..7999] packed bitmap, [8000..8999] screen RAM, [9000..9999] color RAM
+function _hgExportMultiNative() {
+  _hgInit();
+  const out = new Uint8Array(10000);
+  const bg = _hgPaper & 0x0F;
+  for (let cellY = 0; cellY < 25; cellY++) {
+    for (let cellX = 0; cellX < 40; cellX++) {
+      const cell = cellY * 40 + cellX;
+      const cx = cellX * 4, cy = cellY * 8;
+      const extras = [];
+      for (let row = 0; row < 8; row++) {
+        for (let px = 0; px < 4; px++) {
+          const c = _hgPixMC[(cy + row) * 160 + (cx + px)] & 0x0F;
+          if (c !== bg && !extras.includes(c) && extras.length < 3) extras.push(c);
+        }
+      }
+      while (extras.length < 3) extras.push(0);
+      out[8000 + cell] = ((extras[0] & 0x0F) << 4) | (extras[1] & 0x0F);
+      out[9000 + cell] = extras[2] & 0x0F;
+      for (let row = 0; row < 8; row++) {
+        let byte = 0;
+        for (let px = 0; px < 4; px++) {
+          const c = _hgPixMC[(cy + row) * 160 + (cx + px)] & 0x0F;
+          const slot = c === bg ? 0 : c === extras[0] ? 1 : c === extras[1] ? 2 : c === extras[2] ? 3 : 0;
+          byte |= (slot << ((3 - px) * 2));
+        }
+        out[cell * 8 + row] = byte;
+      }
+    }
+  }
+  return out;
+}
+
+function setupHiresEditor() {
+  const dialog = document.getElementById("hires-editor-dialog");
+  if (!dialog) return;
+
+  document.getElementById("hires-editor-btn")?.addEventListener("click", function() {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    _hgInit();
+    _hgRenderAll();
+    _hgStatus(null);
+    dialog.showModal();
+  });
+  document.getElementById("hg-close")?.addEventListener("click", function() { dialog.close(); });
+
+  dialog.querySelectorAll(".hg-tool[data-tool]").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      _hgTool = btn.dataset.tool;
+      dialog.querySelectorAll(".hg-tool[data-tool]").forEach(function(b) { b.classList.toggle("hg-tool--active", b === btn); });
+    });
+  });
+
+  document.getElementById("hg-undo")?.addEventListener("click", _hgUndoOp);
+  document.getElementById("hg-redo")?.addEventListener("click", _hgRedoOp);
+  document.getElementById("hg-clear")?.addEventListener("click", function() {
+    _hgPushUndo();
+    if (_hgMulti) { _hgPixMC.fill(_hgPaper); }
+    else { _hgBit.fill(0); _hgFgCell.fill(1); _hgBgCell.fill(_hgPaper); }
+    _hgRenderAll();
+  });
+
+  document.getElementById("hg-multicolor")?.addEventListener("change", function(e) {
+    const toMulti = !!e.target.checked;
+    if (toMulti === _hgMulti) { _hgRenderAll(); return; }
+    _hgPushUndo();
+    if (toMulti) {
+      // Hi-res (320 wide) → Multicolor (160 wide). Each MC pixel covers hires
+      // columns 2x / 2x+1; keep the non-paper one if they differ (less loss).
+      for (let y = 0; y < 200; y++)
+        for (let x = 0; x < 160; x++) {
+          const a = _hgGet(2 * x, y), b = _hgGet(2 * x + 1, y);
+          _hgPixMC[y * 160 + x] = (a === _hgPaper && b !== _hgPaper) ? b : a;
+        }
+      _hgMulti = true;
+    } else {
+      // Multicolor (160 wide) → Hi-res (320 wide): each MC pixel → 2 hires
+      // columns; reduce to 2 colours per 8×8 cell.
+      const mc = _hgPixMC, pal = _hgPal();
+      _hgMulti = false;
+      _hgHiresFromRGB(function(x, y) { return pal[mc[y * 160 + (x >> 1)] & 0x0F]; });
+    }
+    _hgRenderAll();
+  });
+  document.getElementById("hg-grid")?.addEventListener("change", function(e) {
+    _hgGrid = e.target.checked; _hgBlit();
+  });
+  document.getElementById("hg-raster")?.addEventListener("change", function(e) {
+    _hgRaster = e.target.checked; _hgBlit();
+  });
+  // Paper colour: click sets it from the selected ink; right-click a palette
+  // swatch also sets paper (wired in _hgBuildPalette).
+  document.getElementById("hg-paper")?.addEventListener("click", function() { _hgSetPaper(_hgColor); });
+  document.getElementById("hg-zoom")?.addEventListener("input", function(e) {
+    _hgZoom = parseInt(e.target.value, 10);
+    const lbl = document.getElementById("hg-zoom-val");
+    if (lbl) lbl.textContent = _hgZoom + "×";
+    _hgRenderAll();
+  });
+
+  // Import
+  const impFile = document.getElementById("hg-import-file");
+  document.getElementById("hg-import")?.addEventListener("click", function() { impFile?.click(); });
+  impFile?.addEventListener("change", function(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (/\.bin$/i.test(file.name) || file.type === "application/octet-stream") {
+      const reader = new FileReader();
+      reader.onload = function() { _hgImportBytes(new Uint8Array(reader.result)); };
+      reader.readAsArrayBuffer(file);
+    } else {
+      const img = new Image();
+      img.onload = function() { _hgImportImage(img); URL.revokeObjectURL(img.src); };
+      img.src = URL.createObjectURL(file);
+    }
+    e.target.value = "";
+  });
+
+  // Export / Save
+  document.getElementById("hg-export")?.addEventListener("click", function() {
+    _saveBinFile(_hgMulti ? _hgExportMultiNative() : _hgExportBytes(), _hgMulti ? "image-mc-native.bin" : "image-hires.bin");
+  });
+  document.getElementById("hg-export-blocks")?.addEventListener("click", function() {
+    if (exportAsmToBlocks(_hgExportBlocks()) > 0) dialog.close();
+  });
+  document.getElementById("hg-save-d64")?.addEventListener("click", function() {
+    const imageBytes = _hgMulti ? _hgExportMultiNative() : _hgExportBytes();
+    const entryName = "HIRES";
+    const entryAddr = _hgMulti ? "2000" : "";  // hires: fájl saját cíeme; multi: $2000
+    const existingIdx = d64ExportState.extras.findIndex(e => e.name === entryName);
+    if (existingIdx !== -1) d64ExportState.extras.splice(existingIdx, 1);
+    d64ExportState.extras.push({
+      name: entryName,
+      sourcePath: _hgMulti ? "(multicolor editor — image-mc-native)" : "(hires editor — image-hires)",
+      bytes: Array.from(imageBytes),
+      loadAddress: entryAddr,
+      crunch: false
+    });
+    showViceToast(`HIRES (${imageBytes.length} byte) hozzáadva a D64 Extra fájlokhoz`, false);
+  });
+
+  // Canvas interaction
+  const canvas = document.getElementById("hg-canvas");
+  const applyPoint = function(x, y) {
+    const col = _hgTool === "eraser" ? _hgPaper : _hgColor;
+    _hgSet(x, y, col);
+    _hgRedrawCellBuf(x, y);
+  };
+  canvas.addEventListener("pointerdown", function(e) {
+    if (e.button !== 0) return;
+    _hgInit();
+    const p = _hgPixelFromEvent(e);
+    if (p.x < 0 || p.y < 0 || p.x >= _hgW() || p.y >= _hgH()) return;
+    try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+    _hgPushUndo();
+    _hgPainting = true; _hgStart = p; _hgLast = p;
+    if (_hgTool === "pencil" || _hgTool === "eraser") { applyPoint(p.x, p.y); _hgBlit(); }
+    else if (_hgTool === "fill") { _hgFloodFill(p.x, p.y, _hgColor); _hgRenderAll(); _hgPainting = false; }
+    e.preventDefault();
+  });
+  canvas.addEventListener("pointermove", function(e) {
+    const p = _hgPixelFromEvent(e);
+    _hgStatus(p.x >= 0 && p.y >= 0 && p.x < _hgW() && p.y < _hgH() ? p.x : null, p.y);
+    if (!_hgPainting) return;
+    const col = _hgTool === "eraser" ? _hgPaper : _hgColor;
+    if (_hgTool === "pencil" || _hgTool === "eraser") {
+      _hgLine(_hgLast.x, _hgLast.y, p.x, p.y, function(x, y) { _hgSet(x, y, col); _hgRedrawCellBuf(x, y); });
+      _hgLast = p; _hgBlit();
+    } else {
+      // shape preview: blit committed, draw preview on top
+      _hgBlit();
+      _hgCtx.fillStyle = _CE_COLORS[col];
+      const pw = _hgPxW(), ph = _hgPxH();
+      const draw = function(x, y) { if (x>=0&&y>=0&&x<_hgW()&&y<_hgH()) _hgCtx.fillRect(x*pw, y*ph, pw, ph); };
+      _hgPreviewShape(_hgStart, p, draw);
+    }
+  });
+  const endPaint = function(e) {
+    if (!_hgPainting) return;
+    _hgPainting = false;
+    const p = (e && e.clientX != null) ? _hgPixelFromEvent(e) : _hgLast;
+    if (_hgTool !== "pencil" && _hgTool !== "eraser" && _hgTool !== "fill") {
+      const col = _hgColor;
+      const set = function(x, y) { _hgSet(x, y, col); };
+      _hgPreviewShape(_hgStart, p, set);
+      _hgRenderAll();
+    }
+    if (e && e.pointerId != null) { try { canvas.releasePointerCapture(e.pointerId); } catch (_) {} }
+  };
+  canvas.addEventListener("pointerup", endPaint);
+  canvas.addEventListener("pointercancel", endPaint);
+  canvas.addEventListener("pointerleave", function() { _hgStatus(null); });
+}
+
+function _hgPreviewShape(a, b, set) {
+  if (_hgTool === "line") _hgLine(a.x, a.y, b.x, b.y, set);
+  else if (_hgTool === "rect") _hgRect(a.x, a.y, b.x, b.y, set, false);
+  else if (_hgTool === "fillrect") _hgRect(a.x, a.y, b.x, b.y, set, true);
+  else if (_hgTool === "oval") _hgOval(a.x, a.y, b.x, b.y, set, false);
+  else if (_hgTool === "filloval") _hgOval(a.x, a.y, b.x, b.y, set, true);
+}
+
+/* Generic open/close wiring for all editor File menus (.ed-file). The menu
+   items keep their original ids/data-attrs so existing handlers stay bound. */
+function _setupFileMenus() {
+  const allMenus = function() { return document.querySelectorAll(".ed-file-menu"); };
+  document.querySelectorAll(".ed-file").forEach(function(wrap) {
+    const btn = wrap.querySelector(".ed-file-btn");
+    const menu = wrap.querySelector(".ed-file-menu");
+    if (!btn || !menu) return;
+    btn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      const willOpen = menu.hidden;
+      allMenus().forEach(function(m) { m.hidden = true; });
+      menu.hidden = !willOpen;
+    });
+    menu.addEventListener("click", function(e) { e.stopPropagation(); });
+    menu.querySelectorAll("button").forEach(function(b) {
+      b.addEventListener("click", function() { menu.hidden = true; });
+    });
+  });
+  document.addEventListener("click", function() {
+    allMenus().forEach(function(m) { m.hidden = true; });
+  });
+}
+
+/* =======================================================
+   SPRITE EDITOR (24x21 hi-res / 12x21 multicolor, animated)
+   ======================================================= */
+const _SP_W = 24, _SP_H = 21;
+let _spFrames = null;
+let _spFrame = 0;
+let _spMulti = false;
+let _spGrid = true;
+let _spZoom = 13;
+let _spSlot = "sprite";
+let _spCol = { sprite: 1, bg: 6, mc1: 0, mc2: 11 };
+let _spWrap = false;
+let _spPainting = false, _spPaintVal = 0;
+let _spCanvas = null, _spCtx = null;
+let _spInited = false;
+let _spClip = null;
+let _spPlay = null;
+let _spPlayDir = 1;
+let _spPingPong = false, _spOnion = false, _spFps = 6;
+
+function _spCur() { return _spFrames[_spFrame]; }
+function _spGet(x, y) { return (x<0||y<0||x>=_SP_W||y>=_SP_H) ? 0 : _spCur()[y*_SP_W+x]; }
+function _spSet(x, y, v) {
+  if (x<0||y<0||x>=_SP_W||y>=_SP_H) return;
+  const f = _spCur();
+  if (_spMulti) { const x0 = x & ~1; f[y*_SP_W+x0] = v; f[y*_SP_W+x0+1] = v; }
+  else f[y*_SP_W+x] = v;
+}
+function _spSlotVal(slot) {
+  if (slot === "bg") return 0;
+  if (_spMulti) return slot === "mc1" ? 1 : slot === "mc2" ? 3 : 2;
+  return 1;
+}
+function _spPenColor(v) {
+  if (v === 0) return _spCol.bg;
+  if (!_spMulti) return _spCol.sprite;
+  return v === 1 ? _spCol.mc1 : v === 3 ? _spCol.mc2 : _spCol.sprite;
+}
+
+function _spRender() {
+  const W = _SP_W * _spZoom, H = _SP_H * _spZoom;
+  if (_spCanvas.width !== W) { _spCanvas.width = W; _spCanvas.height = H; }
+  const z = _spZoom;
+  for (let y = 0; y < _SP_H; y++)
+    for (let x = 0; x < _SP_W; x++) {
+      _spCtx.fillStyle = _CE_COLORS[_spPenColor(_spCur()[y*_SP_W+x])];
+      _spCtx.fillRect(x*z, y*z, z, z);
+    }
+  if (_spOnion && _spFrames.length > 1) {
+    const prev = _spFrames[(_spFrame - 1 + _spFrames.length) % _spFrames.length];
+    _spCtx.globalAlpha = 0.3;
+    for (let y = 0; y < _SP_H; y++)
+      for (let x = 0; x < _SP_W; x++) {
+        const v = prev[y*_SP_W+x];
+        if (v !== 0) { _spCtx.fillStyle = _CE_COLORS[_spPenColor(v)]; _spCtx.fillRect(x*z, y*z, z, z); }
+      }
+    _spCtx.globalAlpha = 1;
+  }
+  if (_spGrid) {
+    _spCtx.strokeStyle = "rgba(255,255,255,0.12)"; _spCtx.lineWidth = 1;
+    _spCtx.beginPath();
+    const step = _spMulti ? 2 : 1;
+    for (let x = 0; x <= _SP_W; x += step) { _spCtx.moveTo(x*z+0.5, 0); _spCtx.lineTo(x*z+0.5, H); }
+    for (let y = 0; y <= _SP_H; y++) { _spCtx.moveTo(0, y*z+0.5); _spCtx.lineTo(W, y*z+0.5); }
+    _spCtx.stroke();
+    _spCtx.strokeStyle = "rgba(255,255,255,0.32)"; _spCtx.beginPath();
+    for (let x = 0; x <= _SP_W; x += 8) { _spCtx.moveTo(x*z+0.5, 0); _spCtx.lineTo(x*z+0.5, H); }
+    _spCtx.stroke();
+  }
+  _spRenderPreview();
+  _spRenderThumbs();
+  const fl = document.getElementById("se-frame-label");
+  if (fl) fl.textContent = t("seFrame") + " " + (_spFrame+1) + " / " + _spFrames.length;
+}
+function _spDrawFrameTo(ctx, frame, cw, ch) {
+  const zx = cw / _SP_W, zy = ch / _SP_H;
+  ctx.clearRect(0,0,cw,ch);
+  ctx.fillStyle = _CE_COLORS[_spCol.bg]; ctx.fillRect(0,0,cw,ch);
+  for (let y = 0; y < _SP_H; y++)
+    for (let x = 0; x < _SP_W; x++) {
+      const v = frame[y*_SP_W+x];
+      if (v !== 0) { ctx.fillStyle = _CE_COLORS[_spPenColor(v)]; ctx.fillRect(Math.floor(x*zx), Math.floor(y*zy), Math.ceil(zx), Math.ceil(zy)); }
+    }
+}
+function _spRenderPreview() {
+  const c = document.getElementById("se-preview"); if (!c) return;
+  _spDrawFrameTo(c.getContext("2d"), _spCur(), c.width, c.height);
+}
+function _spRenderThumbs() {
+  const wrap = document.getElementById("se-anim-frames"); if (!wrap) return;
+  wrap.innerHTML = "";
+  _spFrames.forEach(function(fr, i) {
+    const cv = document.createElement("canvas");
+    cv.width = 48; cv.height = 42;
+    cv.className = "se-frame-thumb" + (i === _spFrame ? " se-frame-thumb--active" : "");
+    cv.title = t("seFrame") + " " + (i+1);
+    _spDrawFrameTo(cv.getContext("2d"), fr, 48, 42);
+    cv.addEventListener("click", function() { _spStop(); _spFrame = i; _spRender(); });
+    wrap.appendChild(cv);
+  });
+}
+
+function _spBuildColors() {
+  const wrap = document.getElementById("se-colors"); if (!wrap) return;
+  wrap.innerHTML = "";
+  const slots = _spMulti
+    ? [["sprite",t("seSpriteColor")],["mc1",t("seMultiColor1")],["mc2",t("seMultiColor2")],["bg",t("seBackground")]]
+    : [["sprite",t("seSpriteColor")],["bg",t("seBackground")]];
+  slots.forEach(function(s) {
+    const row = document.createElement("div");
+    row.className = "se-color-slot" + (s[0] === _spSlot ? " se-color-slot--active" : "");
+    const sw = document.createElement("div"); sw.className = "se-color-sw"; sw.style.background = _CE_COLORS[_spCol[s[0]]];
+    const nm = document.createElement("div"); nm.className = "se-color-name"; nm.textContent = s[1];
+    row.appendChild(sw); row.appendChild(nm);
+    row.addEventListener("click", function() { _spSlot = s[0]; _spBuildColors(); });
+    wrap.appendChild(row);
+  });
+}
+function _spBuildPalette() {
+  const wrap = document.getElementById("se-palette"); if (!wrap || wrap.children.length) return;
+  _CE_COLORS.forEach(function(hex, i) {
+    const sw = document.createElement("div");
+    sw.className = "se-swatch"; sw.style.background = hex; sw.title = "Color " + i;
+    sw.addEventListener("click", function() { _spCol[_spSlot] = i; _spBuildColors(); _spRender(); });
+    wrap.appendChild(sw);
+  });
+}
+
+function _spFrameBytes(frame) {
+  const out = new Uint8Array(64);
+  for (let y = 0; y < _SP_H; y++) {
+    for (let b = 0; b < 3; b++) {
+      let byte = 0;
+      if (_spMulti) {
+        for (let j = 0; j < 4; j++) { const v = frame[y*_SP_W + (b*4+j)*2] & 3; byte |= v << ((3-j)*2); }
+      } else {
+        for (let i = 0; i < 8; i++) { if (frame[y*_SP_W + b*8 + i]) byte |= 1 << (7-i); }
+      }
+      out[y*3 + b] = byte;
+    }
+  }
+  return out;
+}
+function _spExportText() {
+  const fmtEl = document.getElementById("se-export-fmt");
+  const fmt = fmtEl ? fmtEl.value : "hex";
+  const allEl = document.getElementById("se-export-all");
+  const all = allEl && allEl.checked;
+  const frames = all ? _spFrames : [_spCur()];
+  let out = "", line = 1000;
+  frames.forEach(function(fr, fi) {
+    const bytes = _spFrameBytes(fr);
+    if (fmt === "basic") {
+      out += line + " REM FRAME " + (all ? fi+1 : _spFrame+1) + "\n"; line += 10;
+      for (let r = 0; r < 8; r++) {
+        const row = [];
+        for (let c = 0; c < 8; c++) row.push(bytes[r*8+c]);
+        out += line + " DATA " + row.join(",") + "\n"; line += 10;
+      }
+    } else if (fmt === "asm") {
+      out += "sprite_" + (all ? fi+1 : _spFrame+1) + ":\n";
+      for (let r = 0; r < 8; r++) {
+        const row = [];
+        for (let c = 0; c < 8; c++) row.push("$" + bytes[r*8+c].toString(16).toUpperCase().padStart(2,"0"));
+        out += "    .byte " + row.join(", ") + "\n";
+      }
+    } else {
+      let s = "";
+      for (let i = 0; i < 64; i++) s += bytes[i].toString(16).toUpperCase().padStart(2,"0") + (i%8===7?"\n":" ");
+      out += s;
+    }
+    out += "\n";
+  });
+  return out.replace(/\s+$/, "");
+}
+/* Current frame as comma-separated hex bytes ($xx, $xx, …) — 63 sprite bytes. */
+function _spHexCSV() {
+  const bytes = _spFrameBytes(_spCur());
+  const arr = [];
+  for (let i = 0; i < 63; i++) arr.push("$" + bytes[i].toString(16).toUpperCase().padStart(2,"0"));
+  return arr.join(", ");
+}
+function _spUpdateExport() {
+  const el = document.getElementById("se-export-out");
+  if (el) el.textContent = _spExportText();
+}
+
+function _spFlipH() { const f = _spCur(); for (let y=0;y<_SP_H;y++) for (let x=0;x<_SP_W/2;x++){ const i=y*_SP_W+x, j=y*_SP_W+(_SP_W-1-x); const t=f[i]; f[i]=f[j]; f[j]=t; } _spRender(); }
+function _spFlipV() { const f = _spCur(); for (let y=0;y<_SP_H/2;y++) for (let x=0;x<_SP_W;x++){ const i=y*_SP_W+x, j=(_SP_H-1-y)*_SP_W+x; const t=f[i]; f[i]=f[j]; f[j]=t; } _spRender(); }
+function _spShift(dir) {
+  const f = _spCur(), n = new Uint8Array(_SP_W*_SP_H);
+  for (let y=0;y<_SP_H;y++) for (let x=0;x<_SP_W;x++) {
+    let sx=x, sy=y;
+    if (dir==="left") sx=x+1; else if (dir==="right") sx=x-1; else if (dir==="up") sy=y+1; else sy=y-1;
+    if (_spWrap) { sx=(sx+_SP_W)%_SP_W; sy=(sy+_SP_H)%_SP_H; n[y*_SP_W+x]=f[sy*_SP_W+sx]; }
+    else { n[y*_SP_W+x] = (sx<0||sy<0||sx>=_SP_W||sy>=_SP_H) ? 0 : f[sy*_SP_W+sx]; }
+  }
+  f.set(n); _spRender();
+}
+
+function _spStop() { if (_spPlay) { clearInterval(_spPlay); _spPlay = null; } const b = document.getElementById("se-play"); if (b) b.textContent = t("sePlay"); }
+function _spTogglePlay() {
+  if (_spPlay) { _spStop(); return; }
+  if (_spFrames.length < 2) return;
+  _spPlayDir = 1;
+  const b = document.getElementById("se-play"); if (b) b.textContent = t("seStop");
+  _spPlay = setInterval(function() {
+    if (_spPingPong) {
+      _spFrame += _spPlayDir;
+      if (_spFrame >= _spFrames.length-1) { _spFrame = _spFrames.length-1; _spPlayDir = -1; }
+      else if (_spFrame <= 0) { _spFrame = 0; _spPlayDir = 1; }
+    } else { _spFrame = (_spFrame + 1) % _spFrames.length; }
+    _spRender();
+  }, Math.round(1000 / _spFps));
+}
+
+function _spInit() {
+  if (_spInited) return;
+  _spInited = true;
+  _spFrames = [new Uint8Array(_SP_W*_SP_H)];
+  _spCanvas = document.getElementById("se-canvas");
+  _spCtx = _spCanvas.getContext("2d");
+  _spBuildColors();
+  _spBuildPalette();
+}
+
+function setupSpriteEditor() {
+  const dialog = document.getElementById("sprite-editor-dialog");
+  if (!dialog) return;
+  const sbtn = document.getElementById("sprite-editor-btn");
+  if (sbtn) sbtn.addEventListener("click", function() {
+    const cm = document.querySelector(".control-menu"); if (cm) cm.removeAttribute("open");
+    _spInit(); _spRender(); dialog.showModal();
+  });
+  const cbtn = document.getElementById("se-close");
+  if (cbtn) cbtn.addEventListener("click", function() { _spStop(); dialog.close(); });
+
+  const canvas = document.getElementById("se-canvas");
+  const cellFromEvent = function(e) {
+    const r = canvas.getBoundingClientRect();
+    const sx = canvas.width / r.width, sy = canvas.height / r.height;
+    return { x: Math.floor((e.clientX-r.left)*sx/_spZoom), y: Math.floor((e.clientY-r.top)*sy/_spZoom) };
+  };
+  canvas.addEventListener("pointerdown", function(e) {
+    if (e.button !== 0) return;
+    _spInit();
+    const p = cellFromEvent(e);
+    if (p.x<0||p.y<0||p.x>=_SP_W||p.y>=_SP_H) return;
+    try { canvas.setPointerCapture(e.pointerId); } catch(_){}
+    const pen = _spSlotVal(_spSlot);
+    _spPaintVal = (_spGet(p.x,p.y) === pen && pen !== 0) ? 0 : pen;
+    _spPainting = true;
+    _spSet(p.x, p.y, _spPaintVal); _spRender();
+    e.preventDefault();
+  });
+  canvas.addEventListener("pointermove", function(e) {
+    if (!_spPainting) return;
+    const p = cellFromEvent(e);
+    if (p.x<0||p.y<0||p.x>=_SP_W||p.y>=_SP_H) return;
+    if (_spGet(p.x,p.y) === _spPaintVal) return;
+    _spSet(p.x, p.y, _spPaintVal); _spRender();
+  });
+  const end = function(e){ _spPainting=false; if(e&&e.pointerId!=null){try{canvas.releasePointerCapture(e.pointerId);}catch(_){}}};
+  canvas.addEventListener("pointerup", end);
+  canvas.addEventListener("pointercancel", end);
+
+  const onClick = function(id, fn){ const el=document.getElementById(id); if(el) el.addEventListener("click", fn); };
+  const onChange = function(id, fn){ const el=document.getElementById(id); if(el) el.addEventListener("change", fn); };
+  const onInput = function(id, fn){ const el=document.getElementById(id); if(el) el.addEventListener("input", fn); };
+
+  onClick("se-fliph", _spFlipH);
+  onClick("se-flipv", _spFlipV);
+  onClick("se-clear", function() { _spCur().fill(0); _spRender(); });
+  onClick("se-shl", function(){ _spShift("left"); });
+  onClick("se-shr", function(){ _spShift("right"); });
+  onClick("se-shu", function(){ _spShift("up"); });
+  onClick("se-shd", function(){ _spShift("down"); });
+  onChange("se-wrap", function(e){ _spWrap = e.target.checked; });
+
+  onChange("se-multicolor", function(e) {
+    _spMulti = e.target.checked;
+    if (_spMulti) { _spFrames.forEach(function(f){ for(let y=0;y<_SP_H;y++) for(let x=0;x<_SP_W;x+=2){ const v=f[y*_SP_W+x]||f[y*_SP_W+x+1]; f[y*_SP_W+x]=v; f[y*_SP_W+x+1]=v; } }); }
+    if (_spSlot==="mc1"||_spSlot==="mc2") _spSlot = "sprite";
+    _spBuildColors(); _spRender();
+  });
+  onChange("se-grid", function(e){ _spGrid = e.target.checked; _spRender(); });
+  onInput("se-zoom", function(e){ _spZoom = parseInt(e.target.value,10); _spRender(); });
+
+  onClick("se-copy-data", function() { navigator.clipboard.writeText(_spHexCSV()).catch(function(){}); });
+
+  onClick("se-play", _spTogglePlay);
+  onChange("se-pingpong", function(e){ _spPingPong = e.target.checked; });
+  onChange("se-onion", function(e){ _spOnion = e.target.checked; _spRender(); });
+  onInput("se-fps", function(e){ _spFps = parseInt(e.target.value,10); const v=document.getElementById("se-fps-val"); if(v)v.textContent=_spFps; if(_spPlay){_spStop();_spTogglePlay();} });
+  onClick("se-add", function(){ _spStop(); _spFrames.splice(_spFrame+1,0,new Uint8Array(_SP_W*_SP_H)); _spFrame++; _spRender(); });
+  onClick("se-dup", function(){ _spStop(); _spFrames.splice(_spFrame+1,0,_spCur().slice(0)); _spFrame++; _spRender(); });
+  onClick("se-fcopy", function(){ _spClip = _spCur().slice(0); });
+  onClick("se-fpaste", function(){ if(_spClip){ _spCur().set(_spClip); _spRender(); } });
+  onClick("se-fdel", function(){ _spStop(); if(_spFrames.length<=1){ _spCur().fill(0); } else { _spFrames.splice(_spFrame,1); if(_spFrame>=_spFrames.length)_spFrame=_spFrames.length-1; } _spRender(); });
+
+  const fileIn = document.createElement("input"); fileIn.type = "file"; fileIn.accept = ".bin,.spd,application/octet-stream"; fileIn.hidden = true;
+  dialog.appendChild(fileIn);
+  onClick("se-open-spd", function(){ fileIn.click(); });
+  fileIn.addEventListener("change", function(e){
+    const file = e.target.files && e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(){ _spImportBin(new Uint8Array(reader.result)); };
+    reader.readAsArrayBuffer(file); e.target.value = "";
+  });
+  onClick("se-save-bin", function(){
+    const allEl = document.getElementById("se-export-all");
+    const all = allEl && allEl.checked;
+    const frames = all ? _spFrames : [_spCur()];
+    const out = new Uint8Array(frames.length * 64);
+    frames.forEach(function(fr,i){ out.set(_spFrameBytes(fr), i*64); });
+    _saveBinFile(out, "sprite.bin");
+  });
+}
+
+function _spImportBin(src) {
+  _spStop();
+  const count = Math.max(1, Math.floor(src.length / 64));
+  _spFrames = [];
+  for (let f = 0; f < count; f++) {
+    const fr = new Uint8Array(_SP_W*_SP_H);
+    for (let y = 0; y < _SP_H; y++)
+      for (let b = 0; b < 3; b++) {
+        const byte = src[f*64 + y*3 + b] || 0;
+        if (_spMulti) { for (let j=0;j<4;j++){ const v=(byte>>((3-j)*2))&3; const x=(b*4+j)*2; fr[y*_SP_W+x]=v; fr[y*_SP_W+x+1]=v; } }
+        else { for (let i=0;i<8;i++) fr[y*_SP_W+b*8+i] = (byte>>(7-i))&1; }
+      }
+    _spFrames.push(fr);
+  }
+  _spFrame = 0; _spRender();
+}
+function _spImportText(txt) {
+  const nums = [];
+  const re = /\$[0-9A-Fa-f]+|\d+/g; let m;
+  while ((m = re.exec(txt)) !== null) { const t = m[0]; nums.push(t[0]==="$" ? parseInt(t.slice(1),16) : parseInt(t,10)); }
+  const bytes = nums.filter(function(n){ return n>=0 && n<=255; });
+  if (!bytes.length) return;
+  _spImportBin(Uint8Array.from(bytes));
+}
+
+/* =======================================================
+   SID EDITOR / PLAYER (3-voice tracker, Web Audio preview)
+   ======================================================= */
+const _SID_ROWS = 32;
+let _sidInsts = null;     // instruments
+let _sidPatterns = null;  // [pattern][voice 0..2][row 0..31] = {note, inst}
+let _sidInst = 0, _sidPat = 0, _sidSpeed = 6;
+let _sidSel = { voice: 0, row: 0 };
+let _sidSelAnchor = null;  // row anchor for range selection, null = no range
+let _sidClipboard = null;  // copied voice column: array of 32 {note, inst}
+let _sidCellClip = null;   // cell-range clipboard: [{note,inst},...] from Ctrl+C
+let _sidAudio = null;
+let _sidTimer = null, _sidRow = 0;
+let _sidInited = false;
+let _sidOctave = 4;
+
+// SID attack / decay-release time tables (ms) — approximate
+const _SID_ATK = [2,8,16,24,38,56,68,80,100,250,500,800,1000,3000,5000,8000];
+const _SID_DCR = [6,24,48,72,114,168,204,240,300,750,1500,2400,3000,9000,15000,24000];
+
+function _sidNewInst(name) {
+  return { name: name || t("sidNewInstrumentName"), tri:false, saw:false, pul:true, noi:false,
+           pw:2048, a:2, d:8, s:6, r:4, lp:false, bp:false, hp:false, cut:1400, res:0, vol:15 };
+}
+function _sidNewPattern() {
+  const p = [];
+  for (let v = 0; v < 3; v++) { const col = []; for (let r = 0; r < _SID_ROWS; r++) col.push({ note:null, inst:0 }); p.push(col); }
+  return p;
+}
+function _sidCurInst() { return _sidInsts[_sidInst]; }
+function _sidCurPat() { return _sidPatterns[_sidPat]; }
+
+const _SID_NOTE_NAMES = ["C-","C#","D-","D#","E-","F-","F#","G-","G#","A-","A#","B-"];
+function _sidNoteName(n) {
+  if (n == null) return "...";
+  return _SID_NOTE_NAMES[n % 12] + Math.floor(n / 12);
+}
+function _sidNoteFreq(n) { return 440 * Math.pow(2, (n - 57) / 12); } // n: 0 = C-0
+
+/* ── Instrument panel binding ── */
+function _sidLoadInstUI() {
+  const inst = _sidCurInst();
+  const set = function(id, prop, isCheck) {
+    const el = document.getElementById(id); if (!el) return;
+    if (isCheck) el.checked = !!inst[prop]; else el.value = inst[prop];
+  };
+  document.getElementById("sid-inst-name").value = inst.name;
+  set("sid-tri","tri",true); set("sid-saw","saw",true); set("sid-pul","pul",true); set("sid-noi","noi",true);
+  set("sid-pw","pw"); set("sid-a","a"); set("sid-d","d"); set("sid-s","s"); set("sid-r","r");
+  set("sid-lp","lp",true); set("sid-bp","bp",true); set("sid-hp","hp",true);
+  set("sid-cut","cut"); set("sid-res","res"); set("sid-vol","vol");
+  ["pw","a","d","s","r"].forEach(function(k){ const v=document.getElementById("sid-"+k+"-val"); if(v) v.textContent = inst[k]; });
+  _sidDrawADSR();
+}
+function _sidBuildInstSel() {
+  const sel = document.getElementById("sid-inst-sel"); if (!sel) return;
+  sel.innerHTML = "";
+  _sidInsts.forEach(function(ins, i) {
+    const o = document.createElement("option");
+    o.value = i; o.textContent = (i<16?"0":"") + i.toString(16).toUpperCase() + ": " + ins.name;
+    sel.appendChild(o);
+  });
+  sel.value = _sidInst;
+}
+
+/* ── ADSR graph ── */
+let _sidAdsrGeom = null;
+function _sidDrawADSR() {
+  const c = document.getElementById("sid-adsr-canvas"); if (!c) return;
+  const ctx = c.getContext("2d"), W = c.width, H = c.height;
+  ctx.clearRect(0,0,W,H);
+  const inst = _sidCurInst();
+  const x0 = 10, x1 = W - 10, yTop = 10, y0 = H - 18, span = x1 - x0, q = span / 4;
+  // grid (4 horizontal levels + 3 segment dividers)
+  ctx.strokeStyle = "rgba(120,140,200,0.12)"; ctx.lineWidth = 1;
+  for (let g = 0; g <= 4; g++) { const y = yTop + (y0-yTop)*g/4; ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke(); }
+  for (let g = 1; g < 4; g++) { const x = x0 + q*g; ctx.beginPath(); ctx.moveTo(x,yTop); ctx.lineTo(x,y0); ctx.stroke(); }
+  // handle positions: A in 1st quarter, D in 2nd, sustain-hold 3rd, R in 4th
+  const susY = y0 - (y0 - yTop) * (inst.s / 15);
+  const ax = x0 + q * (inst.a / 15);
+  const dx = x0 + q + q * (inst.d / 15);
+  const sx = x0 + 3 * q;
+  const rx = x0 + 3 * q + q * (inst.r / 15);
+  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(ax, yTop); ctx.lineTo(dx, susY); ctx.lineTo(sx, susY); ctx.lineTo(rx, y0);
+  ctx.strokeStyle = "#5ec8ff"; ctx.lineWidth = 2; ctx.stroke();
+  ctx.lineTo(x0, y0); ctx.closePath(); ctx.fillStyle = "rgba(94,200,255,0.12)"; ctx.fill();
+  const handles = [{id:"a",x:ax,y:yTop},{id:"d",x:dx,y:susY},{id:"s",x:sx,y:susY},{id:"r",x:rx,y:y0}];
+  ctx.fillStyle = "#5ec8ff";
+  handles.forEach(function(p){ ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, 7); ctx.fill(); });
+  ctx.fillStyle = "#6a7a9a"; ctx.font = "10px monospace";
+  ctx.fillText("A", ax-3, H-4); ctx.fillText("D", dx-3, H-4); ctx.fillText("S", sx-3, H-4); ctx.fillText("R", rx-3, H-4);
+  _sidAdsrGeom = { x0:x0, x1:x1, yTop:yTop, y0:y0, q:q, handles:handles };
+}
+
+/* ── Tracker grid ── */
+function _sidCellText(cell) {
+  if (cell.note == null) return "... ..";
+  return _sidNoteName(cell.note) + " " + (cell.inst<16?"0":"") + cell.inst.toString(16).toUpperCase();
+}
+function _sidCopyVoice() {
+  if (!_sidPatterns) return;
+  const col = _sidCurPat()[_sidSel.voice];
+  _sidClipboard = col.map(function(c){ return { note: c.note, inst: c.inst }; });
+  const btn = document.getElementById("sid-voice-copy");
+  if (btn) {
+    const orig = btn.title;
+    btn.title = "Copied!";
+    setTimeout(function(){ btn.title = orig; }, 1000);
+  }
+}
+function _sidPasteVoice() {
+  if (!_sidClipboard || !_sidPatterns) return;
+  const col = _sidCurPat()[_sidSel.voice];
+  for (var r = 0; r < _sidClipboard.length; r++) {
+    col[r] = { note: _sidClipboard[r].note, inst: _sidClipboard[r].inst };
+  }
+  _sidBuildTracker();
+}
+function _sidCopyCells() {
+  if (!_sidPatterns) return;
+  const v = _sidSel.voice, col = _sidCurPat()[v];
+  if (_sidSelAnchor !== null) {
+    const lo = Math.min(_sidSelAnchor, _sidSel.row);
+    const hi = Math.max(_sidSelAnchor, _sidSel.row);
+    _sidCellClip = [];
+    for (let r = lo; r <= hi; r++) _sidCellClip.push({ note: col[r].note, inst: col[r].inst });
+  } else {
+    _sidCellClip = [{ note: col[_sidSel.row].note, inst: col[_sidSel.row].inst }];
+  }
+  const btn = document.getElementById("sid-voice-copy");
+  if (btn) { const o = btn.title; btn.title = "Copied!"; setTimeout(function(){ btn.title = o; }, 1000); }
+}
+function _sidPasteCells() {
+  if (!_sidCellClip || !_sidPatterns) return;
+  const v = _sidSel.voice, col = _sidCurPat()[v];
+  for (let i = 0; i < _sidCellClip.length; i++) {
+    const r = (_sidSel.row + i) % _SID_ROWS;
+    col[r] = { note: _sidCellClip[i].note, inst: _sidCellClip[i].inst };
+  }
+  _sidBuildTracker();
+}
+function _sidBuildTracker() {
+  const t = document.getElementById("sid-tracker"); if (!t) return;
+  const pat = _sidCurPat();
+  let html = "<thead><tr><th></th><th>VOICE 1</th><th>VOICE 2</th><th>VOICE 3</th></tr></thead><tbody>";
+  for (let r = 0; r < _SID_ROWS; r++) {
+    const beat = (r % 4 === 0) ? " sid-beat" : "";
+    html += '<tr class="sid-trow'+beat+'" data-row="'+r+'">';
+    html += '<td class="sid-rownum">' + (r<10?"0":"") + r + '</td>';
+    const rangeLo = _sidSelAnchor !== null ? Math.min(_sidSelAnchor, _sidSel.row) : _sidSel.row;
+    const rangeHi = _sidSelAnchor !== null ? Math.max(_sidSelAnchor, _sidSel.row) : _sidSel.row;
+    for (let v = 0; v < 3; v++) {
+      const isCursor = _sidSel.voice === v && _sidSel.row === r;
+      const inRange  = _sidSel.voice === v && _sidSelAnchor !== null && r >= rangeLo && r <= rangeHi && !isCursor;
+      const selCls = isCursor ? " sid-cell--sel" : (inRange ? " sid-cell--sel-range" : "");
+      html += '<td class="sid-cell'+selCls+'" data-v="'+v+'" data-r="'+r+'">' + _sidCellText(pat[v][r]) + '</td>';
+    }
+    html += "</tr>";
+  }
+  html += "</tbody>";
+  t.innerHTML = html;
+  t.querySelectorAll("td.sid-cell").forEach(function(td) {
+    td.addEventListener("click", function(e) {
+      const v = +td.dataset.v, r = +td.dataset.r;
+      if (e.shiftKey && _sidSel.voice === v) {
+        if (_sidSelAnchor === null) _sidSelAnchor = _sidSel.row;
+        _sidSel.row = r;
+      } else {
+        _sidSelAnchor = null;
+        _sidSel = { voice: v, row: r };
+      }
+      _sidRefreshSel();
+      document.getElementById("sid-tracker-wrap").focus();
+    });
+  });
+}
+function _sidRefreshSel() {
+  const t = document.getElementById("sid-tracker"); if (!t) return;
+  t.querySelectorAll("td.sid-cell--sel, td.sid-cell--sel-range").forEach(function(td){
+    td.classList.remove("sid-cell--sel");
+    td.classList.remove("sid-cell--sel-range");
+  });
+  const v = _sidSel.voice, r = _sidSel.row;
+  const cursor = t.querySelector('td.sid-cell[data-v="'+v+'"][data-r="'+r+'"]');
+  if (cursor) cursor.classList.add("sid-cell--sel");
+  if (_sidSelAnchor !== null) {
+    const lo = Math.min(_sidSelAnchor, r), hi = Math.max(_sidSelAnchor, r);
+    for (let row = lo; row <= hi; row++) {
+      if (row === r) continue;
+      const rc = t.querySelector('td.sid-cell[data-v="'+v+'"][data-r="'+row+'"]');
+      if (rc) rc.classList.add("sid-cell--sel-range");
+    }
+  }
+}
+function _sidSetCellText(v, r) {
+  const t = document.getElementById("sid-tracker"); if (!t) return;
+  const td = t.querySelector('td.sid-cell[data-v="'+v+'"][data-r="'+r+'"]');
+  if (td) td.textContent = _sidCellText(_sidCurPat()[v][r]);
+}
+
+/* Keyboard note mapping (tracker style, one octave + above) */
+const _SID_KEYMAP = { z:0,s:1,x:2,d:3,c:4,v:5,g:6,b:7,h:8,n:9,j:10,m:11,
+  q:12,2:13,w:14,3:15,e:16,r:18,5:19,t:20,6:21,y:22,7:23,u:24,i:26 };
+
+/* ── Audio ── */
+function _sidEnsureAudio() {
+  if (!_sidAudio) _sidAudio = new (window.AudioContext || window.webkitAudioContext)();
+  if (_sidAudio.state === "suspended") _sidAudio.resume();
+  return _sidAudio;
+}
+let _sidNoiseBuf = null;
+function _sidNoise(ac) {
+  if (!_sidNoiseBuf) {
+    _sidNoiseBuf = ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
+    const d = _sidNoiseBuf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random()*2-1;
+  }
+  const s = ac.createBufferSource(); s.buffer = _sidNoiseBuf; s.loop = true; return s;
+}
+function _sidPlayInst(inst, freq, when, holdSec) {
+  const ac = _sidEnsureAudio();
+  let src;
+  if (inst.noi) { src = _sidNoise(ac); }
+  else {
+    src = ac.createOscillator();
+    src.type = inst.pul ? "square" : inst.saw ? "sawtooth" : inst.tri ? "triangle" : "square";
+    src.frequency.value = freq;
+  }
+  const gain = ac.createGain();
+  const atk = _SID_ATK[inst.a]/1000, dec = _SID_DCR[inst.d]/1000, rel = _SID_DCR[inst.r]/1000;
+  const peak = (inst.vol/15) * 0.22;
+  const sus = peak * (inst.s/15);
+  gain.gain.setValueAtTime(0.0001, when);
+  gain.gain.linearRampToValueAtTime(peak, when + Math.max(0.002, atk));
+  gain.gain.linearRampToValueAtTime(Math.max(0.0001, sus), when + Math.max(0.002, atk) + Math.max(0.002, dec));
+  const relStart = when + Math.max(0.05, holdSec);
+  gain.gain.setValueAtTime(Math.max(0.0001, sus), relStart);
+  gain.gain.linearRampToValueAtTime(0.0001, relStart + Math.max(0.01, rel));
+  let node = src;
+  node.connect(gain);
+  let out = gain;
+  if (inst.lp || inst.bp || inst.hp) {
+    const filt = ac.createBiquadFilter();
+    filt.type = inst.hp ? "highpass" : inst.bp ? "bandpass" : "lowpass";
+    filt.frequency.value = 30 + (inst.cut/2047) * 9000;
+    filt.Q.value = 0.5 + (inst.res/15) * 8;
+    gain.connect(filt); out = filt;
+  }
+  out.connect(ac.destination);
+  src.start(when);
+  src.stop(relStart + Math.max(0.01, rel) + 0.05);
+}
+
+function _sidStop() {
+  if (_sidTimer) { clearInterval(_sidTimer); _sidTimer = null; }
+  const t = document.getElementById("sid-tracker");
+  if (t) t.querySelectorAll("tr.sid-playing").forEach(function(r){ r.classList.remove("sid-playing"); });
+}
+function _sidPlay() {
+  _sidStop();
+  _sidEnsureAudio();
+  _sidRow = 0;
+  const rowSec = Math.max(0.04, _sidSpeed / 50);
+  const t = document.getElementById("sid-tracker");
+  const tick = function() {
+    const ac = _sidAudio, when = ac.currentTime + 0.02;
+    const pat = _sidCurPat();
+    for (let v = 0; v < 3; v++) {
+      const cell = pat[v][_sidRow];
+      if (cell.note != null) _sidPlayInst(_sidInsts[cell.inst] || _sidCurInst(), _sidNoteFreq(cell.note), when, rowSec);
+    }
+    if (t) {
+      t.querySelectorAll("tr.sid-playing").forEach(function(r){ r.classList.remove("sid-playing"); });
+      const tr = t.querySelector('tr.sid-trow[data-row="'+_sidRow+'"]');
+      if (tr) { tr.classList.add("sid-playing"); tr.scrollIntoView({ block: "nearest" }); }
+    }
+    _sidRow = (_sidRow + 1) % _SID_ROWS;
+  };
+  tick();
+  _sidTimer = setInterval(tick, rowSec * 1000);
+}
+
+/* ── Export ── */
+function _sidWaveByte(inst) {
+  return (inst.tri?0x10:0) | (inst.saw?0x20:0) | (inst.pul?0x40:0) | (inst.noi?0x80:0) | 0x01;
+}
+function _sidInstBytes(ins) {
+  return [_sidWaveByte(ins), (ins.a<<4)|ins.d, (ins.s<<4)|ins.r,
+          ins.pw&0xFF, (ins.pw>>8)&0x0F, ins.cut&0x07, (ins.cut>>3)&0xFF,
+          (ins.res<<4), ((ins.lp?0x10:0)|(ins.bp?0x20:0)|(ins.hp?0x40:0))|ins.vol];
+}
+/* Binary save/load: [numInst][numPat] + 9 bytes/inst + 2 bytes/cell (note+1, inst) */
+function _sidSerialize() {
+  const out = [_sidInsts.length, _sidPatterns.length];
+  _sidInsts.forEach(function(ins){ _sidInstBytes(ins).forEach(function(b){ out.push(b & 0xFF); }); });
+  _sidPatterns.forEach(function(pat){ for (let v=0;v<3;v++) for (let r=0;r<_SID_ROWS;r++){ const c=pat[v][r]; out.push(c.note==null?0:(c.note+1)&0xFF); out.push(c.inst&0xFF); } });
+  return Uint8Array.from(out);
+}
+function _sidDeserialize(src) {
+  _sidStop();
+  let p = 0;
+  const ni = src[p++] || 0, np = src[p++] || 0;
+  _sidInsts = [];
+  for (let i=0;i<ni;i++) {
+    const ctrl=src[p++], ad=src[p++], sr=src[p++], pwlo=src[p++], pwhi=src[p++], cutlo=src[p++], cuthi=src[p++], resfilt=src[p++], mv=src[p++];
+    _sidInsts.push({ name:"Sound "+i,
+      tri:!!(ctrl&0x10), saw:!!(ctrl&0x20), pul:!!(ctrl&0x40), noi:!!(ctrl&0x80),
+      pw:(pwlo|((pwhi&0x0F)<<8)), a:(ad>>4)&0x0F, d:ad&0x0F, s:(sr>>4)&0x0F, r:sr&0x0F,
+      lp:!!(mv&0x10), bp:!!(mv&0x20), hp:!!(mv&0x40),
+      cut:((cutlo&0x07)|((cuthi&0xFF)<<3)), res:(resfilt>>4)&0x0F, vol:mv&0x0F });
+  }
+  if (!_sidInsts.length) _sidInsts = [_sidNewInst()];
+  _sidPatterns = [];
+  for (let pi=0; pi<np; pi++) {
+    const pat = _sidNewPattern();
+    for (let v=0;v<3;v++) for (let r=0;r<_SID_ROWS;r++){ const note=src[p++], inst=src[p++]; pat[v][r] = { note: note ? note-1 : null, inst: inst||0 }; }
+    _sidPatterns.push(pat);
+  }
+  if (!_sidPatterns.length) _sidPatterns = [_sidNewPattern()];
+  _sidInst = 0; _sidPat = 0;
+  _sidBuildInstSel(); _sidLoadInstUI(); _sidBuildPatSel(); _sidBuildTracker();
+}
+function _sidExport(kind) {
+  if (kind === "asm") return _sidExportAsmPlayable();
+  // BASIC DATA dump (unchanged legacy path)
+  let lines = [];
+  const dd = function(arr){ return arr.join(","); };
+  _sidInsts.forEach(function(ins, i) {
+    const ctrl = _sidWaveByte(ins);
+    const ad = (ins.a<<4) | ins.d;
+    const sr = (ins.s<<4) | ins.r;
+    const resFilt = (ins.res<<4) | 0;
+    const modeVol = ((ins.lp?0x10:0)|(ins.bp?0x20:0)|(ins.hp?0x40:0)) | ins.vol;
+    const bytes = [ctrl, ad, sr, ins.pw&0xFF, (ins.pw>>8)&0x0F, ins.cut&0x07, (ins.cut>>3)&0xFF, resFilt, modeVol];
+    lines.push((1000+i*10) + " DATA " + dd(bytes) + " : REM " + ins.name);
+  });
+  _sidPatterns.forEach(function(pat, pi) {
+    lines.push("REM PATTERN " + pi);
+    for (let v = 0; v < 3; v++) {
+      const notes = [];
+      for (let r = 0; r < _SID_ROWS; r++) { const c = pat[v][r]; notes.push(c.note==null ? 0 : (c.note+1)); }
+      lines.push((2000+pi*100+v*30) + " DATA " + dd(notes));
+    }
+  });
+  return lines.join("\n");
+}
+
+// Build a self-contained, playable C64 SID module in Visual Assembler / Kick
+// syntax: PAL 50Hz IRQ-driven player at $C000 + all instrument/pattern/freq
+// tables. The user calls `JSR sid_init` from their main code to start playback.
+function _sidExportDataOnly() {
+  const lines = [];
+  const hx = function(n){ return "$" + (n&0xFF).toString(16).toUpperCase().padStart(2,"0"); };
+  const dh = function(arr){ return arr.map(hx).join(", "); };
+  const chunk = function(label, arr, perLine) {
+    perLine = perLine || 16;
+    lines.push(label + ":");
+    for (let i = 0; i < arr.length; i += perLine)
+      lines.push("    .byte " + dh(arr.slice(i, i + perLine)));
+  };
+  const maxPatterns = Math.floor(255 / _SID_ROWS);
+  const exportedPatterns = Math.min(_sidPatterns.length, maxPatterns);
+
+  lines.push("; SID music data (generated by Visual Assembler SID editor)");
+  lines.push("; " + exportedPatterns + " pattern(s), " + _SID_ROWS + " rows, 3 voices");
+  lines.push("; ctrl, AD, SR, PWlo, PWhi, cut_lo, cut_hi, res/filt, mode/vol");
+  lines.push("");
+
+  lines.push("sid_instruments:");
+  _sidInsts.forEach(function(ins, i) {
+    const ctrl = _sidWaveByte(ins);
+    const ad = (ins.a<<4) | ins.d;
+    const sr = (ins.s<<4) | ins.r;
+    const filterActive = ins.lp || ins.bp || ins.hp;
+    const resFilt = (ins.res<<4) | (filterActive ? 0x07 : 0x00);
+    const modeVol = ((ins.lp?0x10:0)|(ins.bp?0x20:0)|(ins.hp?0x40:0)) | ins.vol;
+    lines.push("    .byte " + dh([ctrl, ad, sr, ins.pw&0xFF, (ins.pw>>8)&0x0F, ins.cut&0x07, (ins.cut>>3)&0xFF, resFilt, modeVol]) + "   ; #" + i + " " + ins.name);
+  });
+  lines.push("");
+
+  for (let v = 0; v < 3; v++) {
+    const notes = [], insts = [];
+    for (let pi = 0; pi < exportedPatterns; pi++) {
+      const pat = _sidPatterns[pi];
+      for (let r = 0; r < _SID_ROWS; r++) {
+        const c = pat[v][r];
+        notes.push(c.note == null ? 0 : (c.note + 1));
+        insts.push((c.inst|0) & 0xFF);
+      }
+    }
+    chunk("sid_v" + v + "_notes", notes);
+    chunk("sid_v" + v + "_insts", insts);
+  }
+  lines.push("");
+
+  const freqLo = [], freqHi = [];
+  for (let n = 0; n < 96; n++) {
+    const hz = 440 * Math.pow(2, (n - 57) / 12);
+    let f = Math.round(hz * 16777216 / 985248);
+    if (f > 0xFFFF) f = 0xFFFF;
+    freqLo.push(f & 0xFF);
+    freqHi.push((f >> 8) & 0xFF);
+  }
+  lines.push("; PAL frequency table (note 0 = C-0, note 95 = B-7)");
+  chunk("sid_freq_lo", freqLo);
+  chunk("sid_freq_hi", freqHi);
+
+  return lines.join("\n");
+}
+
+function _sidExportAsmPlayable() {
+  const lines = [];
+  const hx = function(n){ return "$" + (n&0xFF).toString(16).toUpperCase().padStart(2,"0"); };
+  const dh = function(arr){ return arr.map(hx).join(", "); };
+  const chunk = function(label, arr, perLine) {
+    perLine = perLine || 16;
+    lines.push(label + ":");
+    for (let i = 0; i < arr.length; i += perLine) {
+      lines.push("    .byte " + dh(arr.slice(i, i + perLine)));
+    }
+  };
+
+  const speed = Math.max(1, Math.min(255, _sidSpeed|0));
+  const maxPatterns = Math.floor(255 / _SID_ROWS);  // single-byte row counter limit
+  const exportedPatterns = Math.min(_sidPatterns.length, maxPatterns);
+  const totalRows = exportedPatterns * _SID_ROWS;
+
+  lines.push("; =========================================================");
+  lines.push("; SID player + tune (generated by Visual Assembler SID editor)");
+  lines.push("; PAL 50 Hz IRQ-driven, 3 voices, " + _SID_ROWS + "-row patterns");
+  lines.push("; Call JSR sid_init once to start playback; JSR sid_stop to silence.");
+  lines.push("; Speed: " + speed + " frames/row, " + exportedPatterns + " pattern(s) = " + totalRows + " rows.");
+  if (exportedPatterns < _sidPatterns.length) {
+    lines.push("; NOTE: only the first " + exportedPatterns + " patterns are exported (" +
+               _sidPatterns.length + " present); player uses an 8-bit row counter.");
+  }
+  lines.push("; =========================================================");
+  lines.push("");
+  lines.push("* = $080D");
+  lines.push("");
+  lines.push("sid_main:");
+  lines.push("    JSR sid_init");
+  lines.push("sid_main_loop:");
+  lines.push("    JMP sid_main_loop");
+  lines.push("");
+  lines.push("* = $C000");
+  lines.push("");
+
+  // ---- sid_init ----------------------------------------------------------
+  lines.push("sid_init:");
+  lines.push("    SEI");
+  lines.push("    LDA #$00");
+  lines.push("    STA $D418");
+  lines.push("    LDX #$18");
+  lines.push("sid_clr:");
+  lines.push("    STA $D400,X");
+  lines.push("    DEX");
+  lines.push("    BPL sid_clr");
+  lines.push("    LDA #" + hx(speed));
+  lines.push("    STA $FB");           // SID_TICK
+  lines.push("    LDA #$00");
+  lines.push("    STA $FC");           // SID_ROW
+  lines.push("    LDA #<sid_irq");
+  lines.push("    STA $0314");
+  lines.push("    LDA #>sid_irq");
+  lines.push("    STA $0315");
+  lines.push("    LDA #$01");
+  lines.push("    STA $D01A");         // enable raster IRQ
+  lines.push("    LDA #$80");
+  lines.push("    STA $D012");         // trigger raster line $80
+  lines.push("    LDA $D011");
+  lines.push("    AND #$7F");
+  lines.push("    STA $D011");         // clear bit 8 of raster
+  lines.push("    LDA #$7F");
+  lines.push("    STA $DC0D");         // CIA1 ints off
+  lines.push("    STA $DD0D");         // CIA2 ints off
+  lines.push("    LDA $DC0D");         // ack pending CIA1
+  lines.push("    LDA $DD0D");         // ack pending CIA2
+  lines.push("    CLI");
+  lines.push("    RTS");
+  lines.push("");
+
+  // ---- sid_stop ----------------------------------------------------------
+  lines.push("sid_stop:");
+  lines.push("    SEI");
+  lines.push("    LDA #$00");
+  lines.push("    STA $D01A");         // disable raster IRQ
+  lines.push("    STA $D404");         // voice 1 gate off
+  lines.push("    STA $D40B");         // voice 2 gate off
+  lines.push("    STA $D412");         // voice 3 gate off
+  lines.push("    STA $D418");         // master vol = 0
+  lines.push("    LDA #$81");
+  lines.push("    STA $DC0D");         // restore CIA1 timer A IRQ
+  lines.push("    LDA #$31");
+  lines.push("    STA $0314");
+  lines.push("    LDA #$EA");
+  lines.push("    STA $0315");         // restore KERNAL IRQ vector
+  lines.push("    CLI");
+  lines.push("    RTS");
+  lines.push("");
+
+  // ---- sid_irq -----------------------------------------------------------
+  lines.push("sid_irq:");
+  lines.push("    LDA #$01");
+  lines.push("    STA $D019");         // ack raster
+  lines.push("    DEC $FB");           // SID_TICK
+  lines.push("    BNE sid_irq_done");
+  lines.push("    LDA #" + hx(speed));
+  lines.push("    STA $FB");
+  lines.push("    JSR sid_play_row");
+  lines.push("sid_irq_done:");
+  lines.push("    JMP $EA31");
+  lines.push("");
+
+  // ---- sid_play_row ------------------------------------------------------
+  lines.push("sid_play_row:");
+  lines.push("    LDY $FC");           // Y = current row
+  lines.push("    LDA sid_v0_notes,Y");
+  lines.push("    BEQ sid_skip_v0");
+  lines.push("    LDX sid_v0_insts,Y");
+  lines.push("    LDY #$00");          // voice base offset
+  lines.push("    JSR sid_set_voice");
+  lines.push("    LDY $FC");
+  lines.push("sid_skip_v0:");
+  lines.push("    LDA sid_v1_notes,Y");
+  lines.push("    BEQ sid_skip_v1");
+  lines.push("    LDX sid_v1_insts,Y");
+  lines.push("    LDY #$07");
+  lines.push("    JSR sid_set_voice");
+  lines.push("    LDY $FC");
+  lines.push("sid_skip_v1:");
+  lines.push("    LDA sid_v2_notes,Y");
+  lines.push("    BEQ sid_skip_v2");
+  lines.push("    LDX sid_v2_insts,Y");
+  lines.push("    LDY #$0E");
+  lines.push("    JSR sid_set_voice");
+  lines.push("sid_skip_v2:");
+  lines.push("    INC $FC");
+  lines.push("    LDA $FC");
+  lines.push("    CMP #" + hx(totalRows & 0xFF));
+  lines.push("    BCC sid_row_done");
+  lines.push("    LDA #$00");
+  lines.push("    STA $FC");
+  lines.push("sid_row_done:");
+  lines.push("    RTS");
+  lines.push("");
+
+  // ---- sid_set_voice (A=note 1..96, X=inst index, Y=voice base 0/7/14) --
+  lines.push("sid_set_voice:");
+  lines.push("    PHA");               // save note
+  lines.push("    TXA");
+  lines.push("    PHA");               // save inst
+  lines.push("    LDA $D404,Y");
+  lines.push("    AND #$FE");
+  lines.push("    STA $D404,Y");       // gate off
+  lines.push("    PLA");               // A = inst
+  lines.push("    TAX");
+  lines.push("    ASL");
+  lines.push("    ASL");
+  lines.push("    ASL");               // A = inst*8
+  lines.push("    STA $FD");           // SID_TMP
+  lines.push("    TXA");
+  lines.push("    CLC");
+  lines.push("    ADC $FD");           // A = inst*9
+  lines.push("    TAX");               // X = offset into sid_instruments
+  lines.push("    LDA sid_instruments+3,X");
+  lines.push("    STA $D402,Y");       // PW lo
+  lines.push("    LDA sid_instruments+4,X");
+  lines.push("    STA $D403,Y");       // PW hi
+  lines.push("    LDA sid_instruments+1,X");
+  lines.push("    STA $D405,Y");       // AD
+  lines.push("    LDA sid_instruments+2,X");
+  lines.push("    STA $D406,Y");       // SR
+  lines.push("    LDA sid_instruments,X");
+  lines.push("    STA $FD");           // stash ctrl (gate-on byte) for later
+  lines.push("    CPY #$00");
+  lines.push("    BNE sid_no_filt");
+  lines.push("    LDA sid_instruments+5,X");
+  lines.push("    STA $D415");         // filter cutoff lo
+  lines.push("    LDA sid_instruments+6,X");
+  lines.push("    STA $D416");         // filter cutoff hi
+  lines.push("    LDA sid_instruments+7,X");
+  lines.push("    STA $D417");         // resonance / filter route
+  lines.push("    LDA sid_instruments+8,X");
+  lines.push("    STA $D418");         // mode + master volume
+  lines.push("sid_no_filt:");
+  lines.push("    PLA");               // A = note (1..96)
+  lines.push("    SEC");
+  lines.push("    SBC #$01");          // note-1 → 0-based freq table index
+  lines.push("    TAX");
+  lines.push("    LDA sid_freq_lo,X");
+  lines.push("    STA $D400,Y");
+  lines.push("    LDA sid_freq_hi,X");
+  lines.push("    STA $D401,Y");
+  lines.push("    LDA $FD");
+  lines.push("    STA $D404,Y");       // gate on with full ctrl byte
+  lines.push("    RTS");
+  lines.push("");
+
+  // ---- Instrument table (9 bytes per instrument, contiguous) ------------
+  lines.push("; Instruments: ctrl, AD, SR, PWlo, PWhi, cut_lo, cut_hi, res/filt, mode/vol");
+  lines.push("sid_instruments:");
+  _sidInsts.forEach(function(ins, i) {
+    const ctrl = _sidWaveByte(ins);
+    const ad = (ins.a<<4) | ins.d;
+    const sr = (ins.s<<4) | ins.r;
+    const filterActive = ins.lp || ins.bp || ins.hp;
+    const resFilt = (ins.res<<4) | (filterActive ? 0x07 : 0x00);
+    const modeVol = ((ins.lp?0x10:0)|(ins.bp?0x20:0)|(ins.hp?0x40:0)) | ins.vol;
+    const bytes = [ctrl, ad, sr, ins.pw&0xFF, (ins.pw>>8)&0x0F, ins.cut&0x07, (ins.cut>>3)&0xFF, resFilt, modeVol];
+    lines.push("    .byte " + dh(bytes) + "   ; #" + i + " " + ins.name);
+  });
+  lines.push("");
+
+  // ---- Notes + instrument-per-cell per voice, all patterns concatenated -
+  for (let v = 0; v < 3; v++) {
+    const notes = [];
+    const insts = [];
+    for (let pi = 0; pi < exportedPatterns; pi++) {
+      const pat = _sidPatterns[pi];
+      for (let r = 0; r < _SID_ROWS; r++) {
+        const c = pat[v][r];
+        notes.push(c.note == null ? 0 : (c.note + 1));
+        insts.push((c.inst|0) & 0xFF);
+      }
+    }
+    chunk("sid_v" + v + "_notes", notes);
+    chunk("sid_v" + v + "_insts", insts);
+  }
+  lines.push("");
+
+  // ---- PAL frequency tables (96 notes: C-0..B-7) -------------------------
+  const freqLo = [], freqHi = [];
+  const Fclk = 985248; // PAL
+  for (let n = 0; n < 96; n++) {
+    const hz = 440 * Math.pow(2, (n - 57) / 12);
+    let f = Math.round(hz * 16777216 / Fclk);
+    if (f > 0xFFFF) f = 0xFFFF;
+    freqLo.push(f & 0xFF);
+    freqHi.push((f >> 8) & 0xFF);
+  }
+  lines.push("; PAL frequency table (note 0 = C-0, note 95 = B-7)");
+  chunk("sid_freq_lo", freqLo);
+  chunk("sid_freq_hi", freqHi);
+
+  return lines.join("\n");
+}
+function _sidCopyExport(kind) {
+  navigator.clipboard.writeText(_sidExport(kind)).catch(function(){});
+}
+
+/* ── Init + wiring ── */
+function _sidInit() {
+  if (_sidInited) return;
+  _sidInited = true;
+  _sidInsts = [_sidNewInst()];
+  _sidPatterns = [_sidNewPattern()];
+  _sidBuildInstSel();
+  _sidLoadInstUI();
+  _sidBuildPatSel();
+  _sidBuildTracker();
+  _sidSetOctave(_sidOctave);
+}
+function _sidBuildPatSel() {
+  const sel = document.getElementById("sid-pat-sel"); if (!sel) return;
+  sel.innerHTML = "";
+  _sidPatterns.forEach(function(p, i) {
+    const o = document.createElement("option"); o.value = i; o.textContent = "Pat " + (i<10?"0":"") + i; sel.appendChild(o);
+  });
+  sel.value = _sidPat;
+}
+
+function setupSidEditor() {
+  const dialog = document.getElementById("sid-editor-dialog");
+  if (!dialog) return;
+  const onId = function(id, ev, fn){ const el=document.getElementById(id); if(el) el.addEventListener(ev, fn); };
+
+  onId("sid-editor-btn", "click", function() {
+    const cm = document.querySelector(".control-menu"); if (cm) cm.removeAttribute("open");
+    _sidInit(); dialog.showModal();
+  });
+  onId("sid-close", "click", function() { _sidStop(); dialog.close(); });
+
+  // instrument param bindings
+  const bindCheck = function(id, prop) { onId(id, "change", function(e){ _sidCurInst()[prop] = e.target.checked; _sidDrawADSR(); }); };
+  const bindRange = function(id, prop, valId) { onId(id, "input", function(e){ _sidCurInst()[prop] = parseInt(e.target.value,10); if(valId){const v=document.getElementById(valId); if(v) v.textContent = e.target.value;} _sidDrawADSR(); }); };
+  bindCheck("sid-tri","tri"); bindCheck("sid-saw","saw"); bindCheck("sid-pul","pul"); bindCheck("sid-noi","noi");
+  bindRange("sid-pw","pw","sid-pw-val");
+  bindRange("sid-a","a","sid-a-val"); bindRange("sid-d","d","sid-d-val"); bindRange("sid-s","s","sid-s-val"); bindRange("sid-r","r","sid-r-val");
+  bindCheck("sid-lp","lp"); bindCheck("sid-bp","bp"); bindCheck("sid-hp","hp");
+  bindRange("sid-cut","cut"); bindRange("sid-res","res"); bindRange("sid-vol","vol");
+  onId("sid-inst-name", "input", function(e){ _sidCurInst().name = e.target.value; _sidBuildInstSel(); });
+  onId("sid-inst-sel", "change", function(e){ _sidInst = parseInt(e.target.value,10); _sidLoadInstUI(); });
+  onId("sid-inst-add", "click", function(){ _sidInsts.push(_sidNewInst(t("sidNewInstrumentName") + " " + (_sidInsts.length+1))); _sidInst = _sidInsts.length-1; _sidBuildInstSel(); _sidLoadInstUI(); });
+  onId("sid-preview", "click", function(){ _sidEnsureAudio(); _sidPlayInst(_sidCurInst(), _sidNoteFreq(57), _sidAudio.currentTime+0.02, 0.5); });
+
+  // ADSR graph: drag the A/D/S/R handles with the mouse
+  const adsrC = document.getElementById("sid-adsr-canvas");
+  if (adsrC) {
+    adsrC.style.cursor = "pointer";
+    let drag = null;
+    const pos = function(e){ const r = adsrC.getBoundingClientRect(); return { x:(e.clientX-r.left)*(adsrC.width/r.width), y:(e.clientY-r.top)*(adsrC.height/r.height) }; };
+    const cl = function(v){ return Math.max(0, Math.min(15, Math.round(v))); };
+    const upd = function(p){
+      const g = _sidAdsrGeom; if (!g || !drag) return;
+      const inst = _sidCurInst();
+      if (drag === "a") inst.a = cl((p.x - g.x0)/g.q * 15);
+      else if (drag === "d") { inst.d = cl((p.x - (g.x0+g.q))/g.q * 15); inst.s = cl((g.y0 - p.y)/(g.y0-g.yTop) * 15); }
+      else if (drag === "s") inst.s = cl((g.y0 - p.y)/(g.y0-g.yTop) * 15);
+      else if (drag === "r") inst.r = cl((p.x - (g.x0+3*g.q))/g.q * 15);
+      ["a","d","s","r"].forEach(function(k){ const sl=document.getElementById("sid-"+k); if(sl) sl.value=inst[k]; const vv=document.getElementById("sid-"+k+"-val"); if(vv) vv.textContent=inst[k]; });
+      _sidDrawADSR();
+    };
+    adsrC.addEventListener("pointerdown", function(e){
+      const p = pos(e), g = _sidAdsrGeom; if (!g) return;
+      let best=null, bd=16;
+      g.handles.forEach(function(h){ const d=Math.hypot(p.x-h.x, p.y-h.y); if(d<bd){bd=d;best=h.id;} });
+      if (best) { drag=best; try{adsrC.setPointerCapture(e.pointerId);}catch(_){} upd(p); e.preventDefault(); }
+    });
+    adsrC.addEventListener("pointermove", function(e){ if (drag) upd(pos(e)); });
+    const end = function(e){ drag=null; if(e&&e.pointerId!=null){try{adsrC.releasePointerCapture(e.pointerId);}catch(_){}} };
+    adsrC.addEventListener("pointerup", end);
+    adsrC.addEventListener("pointercancel", end);
+  }
+
+  // tracker
+  onId("sid-pat-sel", "change", function(e){ _sidPat = parseInt(e.target.value,10); _sidBuildTracker(); });
+  onId("sid-pat-add", "click", function(){ _sidPatterns.push(_sidNewPattern()); _sidPat = _sidPatterns.length-1; _sidBuildPatSel(); _sidBuildTracker(); });
+  onId("sid-speed", "input", function(e){ _sidSpeed = Math.max(1, parseInt(e.target.value,10)||6); if(_sidTimer){ _sidPlay(); } });
+  onId("sid-play", "click", _sidPlay);
+  onId("sid-stop", "click", _sidStop);
+  // Files: save/load .bin + export blocks / export asm
+  onId("sid-export-asm", "click", function(){ _sidCopyExport("asm"); });
+  onId("sid-export-data", "click", function(){
+    if (exportAsmToBlocks(_sidExportDataOnly()) > 0) { _sidStop(); dialog.close(); }
+  });
+  onId("sid-export-player", "click", function(){
+    if (exportAsmToBlocks(_sidExportAsmPlayable()) > 0) { _sidStop(); dialog.close(); }
+  });
+  onId("sid-save-bin", "click", function(){ _saveBinFile(_sidSerialize(), "sound.bin"); });
+  const sidBinFile = document.getElementById("sid-bin-file");
+  onId("sid-load-bin", "click", function(){ if (sidBinFile) sidBinFile.click(); });
+  if (sidBinFile) sidBinFile.addEventListener("change", function(e){
+    const file = e.target.files && e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(){ _sidDeserialize(new Uint8Array(reader.result)); };
+    reader.readAsArrayBuffer(file); e.target.value = "";
+  });
+
+  // keyboard note entry / navigation
+  const wrap = document.getElementById("sid-tracker-wrap");
+  if (wrap) wrap.addEventListener("keydown", function(e) {
+    const k = e.key.toLowerCase();
+    if (e.ctrlKey && k === "c") { _sidCopyCells(); e.preventDefault(); return; }
+    if (e.ctrlKey && k === "v") { _sidPasteCells(); e.preventDefault(); return; }
+    if (e.key === "ArrowDown") {
+      if (e.shiftKey) { if (_sidSelAnchor === null) _sidSelAnchor = _sidSel.row; } else { _sidSelAnchor = null; }
+      _sidSel.row = (_sidSel.row+1)%_SID_ROWS; _sidRefreshSel(); e.preventDefault(); return;
+    }
+    if (e.key === "ArrowUp") {
+      if (e.shiftKey) { if (_sidSelAnchor === null) _sidSelAnchor = _sidSel.row; } else { _sidSelAnchor = null; }
+      _sidSel.row = (_sidSel.row-1+_SID_ROWS)%_SID_ROWS; _sidRefreshSel(); e.preventDefault(); return;
+    }
+    if (e.key === "ArrowLeft") { _sidSelAnchor = null; _sidSel.voice = (_sidSel.voice+2)%3; _sidRefreshSel(); e.preventDefault(); return; }
+    if (e.key === "ArrowRight") { _sidSelAnchor = null; _sidSel.voice = (_sidSel.voice+1)%3; _sidRefreshSel(); e.preventDefault(); return; }
+    if (e.key === "Delete" || e.key === "Backspace" || k === ".") {
+      _sidSelAnchor = null;
+      _sidCurPat()[_sidSel.voice][_sidSel.row] = { note:null, inst:0 };
+      _sidSetCellText(_sidSel.voice, _sidSel.row);
+      _sidSel.row = (_sidSel.row+1)%_SID_ROWS; _sidRefreshSel(); e.preventDefault(); return;
+    }
+    if (_SID_KEYMAP.hasOwnProperty(k)) {
+      _sidSelAnchor = null;
+      const note = _sidOctave*12 + _SID_KEYMAP[k];
+      _sidCurPat()[_sidSel.voice][_sidSel.row] = { note: note, inst: _sidInst };
+      _sidSetCellText(_sidSel.voice, _sidSel.row);
+      _sidEnsureAudio(); _sidPlayInst(_sidCurInst(), _sidNoteFreq(note), _sidAudio.currentTime+0.01, 0.25);
+      _sidSel.row = (_sidSel.row+1)%_SID_ROWS; _sidRefreshSel(); e.preventDefault(); return;
+    }
+    if (k === "+" || k === "*" || e.key === "PageUp")   { _sidSetOctave(_sidOctave+1); e.preventDefault(); }
+    if (k === "-" || k === "/" || e.key === "PageDown") { _sidSetOctave(_sidOctave-1); e.preventDefault(); }
+  });
+
+  // Voice copy/paste
+  onId("sid-voice-copy", "click", _sidCopyVoice);
+  onId("sid-voice-paste", "click", _sidPasteVoice);
+
+  // Octave controls
+  onId("sid-oct-up", "click", function(){ _sidSetOctave(_sidOctave+1); });
+  onId("sid-oct-down", "click", function(){ _sidSetOctave(_sidOctave-1); });
+}
+function _sidSetOctave(o) {
+  _sidOctave = Math.max(0, Math.min(7, o));
+  const el = document.getElementById("sid-oct-val");
+  if (el) el.textContent = _sidOctave;
+}

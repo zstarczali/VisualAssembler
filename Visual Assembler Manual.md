@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 1.7.4**
+**Version 2.0.0**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -16,6 +16,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Operand input](#operand-input)
   - [4. ASM View](#4-asm-view)
     - [Output modes](#output-modes)
+    - [Toolkit tab](#toolkit-tab)
     - [Options tab](#options-tab)
     - [Clicking an ASM line](#clicking-an-asm-line)
     - [ASM line numbers](#asm-line-numbers)
@@ -89,6 +90,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [MOUSE](#mouse)
     - [SPRITE\_COL](#sprite_col)
     - [LOADFILE](#loadfile)
+    - [EXODECRUNCH](#exodecrunch)
     - [REU\_CHECK](#reu_check)
     - [REU\_STASH / REU\_FETCH / REU\_SWAP](#reu_stash--reu_fetch--reu_swap)
     - [TURBO\_SET](#turbo_set)
@@ -108,6 +110,13 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Exomizer](#exomizer)
     - [Retro Debugger](#retro-debugger)
     - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
+  - [14. Visual Editors (Toolkit)](#14-visual-editors-toolkit)
+    - [Hi-Res / Multicolor Editor](#hi-res--multicolor-editor)
+    - [Sprite Editor](#sprite-editor)
+    - [C64 Character ROM Browser ("Char map")](#c64-character-rom-browser-char-map)
+    - [Character Editor (Charset)](#character-editor-charset)
+    - [Map Editor (Multilayer Tilemaps)](#map-editor-multilayer-tilemaps)
+    - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
 
 ---
 
@@ -170,7 +179,20 @@ The right panel shows the generated output in real time.
 | **Monitor** | Hex / byte dump (C64 monitor style) |
 | **Disasm** | Pure 6502 disassembly: address · hex bytes · mnemonics with resolved numeric operands. Macros are expanded to individual instructions (TEXT → LDA/STA pairs, LOOP → LDX, etc.). BYTE/WORD/FILL data shown as chunked hex dump. No macro names, comments, or annotations in output. |
 | **Both** | ASM on top, monitor below |
+| **Disassembler** | Same as Disasm — dedicated tab for the disassembly view |
+| **Toolkit** | C64 reference panel: 16-colour palette swatch + PETSCII control-code and printable-character cheat sheet. Read-only — see the "Toolkit tab" subsection below for details. |
 | **Options** | Program settings panel — number format, macro source toggle, debugger params |
+
+### Toolkit tab
+
+The **Toolkit** tab in the ASM view is a read-only quick-reference panel — it never modifies your program. Two sections:
+
+| Section | Content |
+|---|---|
+| **C64 colour palette** | 16-swatch grid showing every C64 colour with its index (0–15 / `$00`–`$0F`) and name. Click a swatch to copy its hex index to the clipboard. Hover for the colour name (Light Blue, Brown, etc.). |
+| **PETSCII control codes** | Common control codes for `CHROUT` ($FFD2): colour change codes (`$05` white, `$1C` red, `$1E` green, `$1F` blue, …), cursor movement (`$11`/`$1D`/`$91`/`$9D`), reverse on/off (`$12`/`$92`), `$93` clear screen, `$8E`/`$0E` charset switches. Also a printable-range cheat sheet (32-64 punctuation, 65-90 A-Z, 91-95 brackets, 96-127 graphics, 160-191 shifted graphics, 192-223 mirror). |
+
+The Toolkit is the fastest way to look up a colour index or a PETSCII control byte without leaving the editor.
 
 ### Options tab
 
@@ -1619,6 +1641,43 @@ skip_filename:
 
 ---
 
+### EXODECRUNCH
+
+In-program **Exomizer decompression**. Use this macro right after a `LOADFILE` that loaded an Exomizer `mem`-mode compressed stream — EXODECRUNCH unpacks it backward into the address embedded in the stream.
+
+| Field | Description |
+|---|---|
+| Depacker address | Where the depacker code lives in memory (default `B000`). Must be a 16-bit hex address. |
+
+**Generated code (19 bytes):**
+```
+    LDA $AE           ; KERNAL load-end lo (set by previous LOAD)
+    STA $04           ; depacker src-end pointer lo
+    LDA $AF           ; KERNAL load-end hi
+    STA $05           ; depacker src-end pointer hi
+    LDA #$36          ; BASIC ROM off ($A000-$BFFF becomes RAM)
+    STA $01
+    JSR depacker      ; depacker reads back-to-front via $04/$05
+    LDA #$37          ; restore default mapping (BASIC + KERNAL + I/O)
+    STA $01
+```
+
+**How it works:**
+
+1. KERNAL `LOAD` ($FFD5) updates ZP `$AE/$AF` to point one past the last loaded byte. EXODECRUNCH copies this to ZP `$04/$05`, which is the official Exomizer backward source-end convention.
+2. The depacker is typically placed at `$B000` (within the BASIC ROM mapped region). The macro toggles `$01 = $36` so the CPU sees RAM there during the JSR, then restores `$01 = $37` afterward.
+3. The decompression target address is **encoded into the compressed stream itself** when you compress with `exomizer mem -l <load> file,<target>` — the depacker reads it from the stream's first bytes.
+
+**Depacker binary:** the pre-built backward depacker is `samples/exo-decrunch.bin` (477 bytes, ORG $B000). It's a Kick Assembler wrap of the official `exodecrunch.asm` with `INC $D020` added to every read for a visible border-flash effect during decompression. Place it into your program with an `INCBIN` block at the depacker address.
+
+**Safety offset compensation:** Exomizer's default mem mode applies a 2-byte safety offset — data lands 2 bytes earlier than the requested target. The Run via D64 dialog **automatically adds 2 to the Dst field** before calling exomizer, so the visible behaviour matches the address you typed.
+
+> **See also:** the `exo-multicolor-demo` sample — full end-to-end example: LOADFILE a compressed multicolor bitmap to $C000, EXODECRUNCH unpacks it to $2000, then copy screen → $0400 and color → $D800, and switch VIC-II to multicolor bitmap mode.
+
+> **Integration test:** `cargo test --test exomizer_integration` (in `src-tauri/`) verifies the full compression + decompression roundtrip on a 6502 emulator with the real depacker binary. Pass criteria: 10000 bytes byte-equal to the source `multi-color.bin`.
+
+---
+
 ### REU_CHECK
 
 Detects whether a Commodore RAM Expansion Unit (REU) is plugged in — like checking `PEEK($D010)` to see if hardware is present. Tests by writing and reading back two patterns to REU register `$DF04`.
@@ -1861,8 +1920,12 @@ Open via the **Save PRG ▾** dropdown → **Export to D64**. The dialog lets yo
 1. Set the **disk name** (max 16 chars) and **program name** — these are the names that appear in the C64 disk directory.
 2. **Add extra files** — click **+** to pick any binary file (`.prg`, `.bin`, `.sid`, etc.). For each extra:
    - **Name** — how it appears in the D64 directory (max 16 chars, auto-uppercase).
-   - **Load address (optional)** — if provided, a 2-byte PRG header is prepended. Leave empty to write raw bytes with no header.
+   - **Addr** (load address, optional) — if provided, a 2-byte PRG header is prepended. Leave empty to write raw bytes with no header.
+   - **Dst** (decompression target, only with EXO) — where the depacker should land the data on the C64. When EXO is enabled, the extra is compressed with `exomizer mem -l <Addr> file,<Dst>` before being written to the D64. The +2 safety-offset compensation is applied automatically.
+   - **EXO** — checkbox that turns on backward `mem`-mode crunching for this entry. The on-disk size is typically 5-20% of the original.
 3. Click **Export** to generate the `.d64` file using VICE's `c1541` tool.
+
+**Pairing with EXODECRUNCH:** when you ship a file with EXO=on, the program reading it should LOAD it to the **Addr** address (sec=1, file's own PRG header), then call the **EXODECRUNCH** macro to unpack it backward into **Dst**. See the `exo-multicolor-demo` sample for the complete pattern.
 
 ### D64 metadata in projects
 
@@ -1892,15 +1955,29 @@ VICE is required for **Run as PRG**, **Run via D64**, and **Export to D64**.
 | Setting | Description |
 |---|---|
 | **Select Exomizer** | Browse to the `exomizer` executable |
+| **Border flash during decompression** | When enabled, SFX-compressed PRGs use exomizer's built-in `-x1` fast border-flash effect; when disabled, `-n` is passed for silent decompression |
 | **Status** | Shows whether the executable path is valid and accessible |
 
 **Workflow:**
-1. Place the Exomizer binary on your system (download from https://csdb.dk/release/?id=244342 or build from https://github.com/pfusik/exomizer).
+1. Install the Exomizer binary:
+   - **Windows:** download the pre-built `win32/exomizer.exe` from https://bitbucket.org/magli143/exomizer/wiki/Home or https://csdb.dk/release/?id=244342.
+   - **macOS:** `brew install exomizer` (installs Magnus Lind's official 3.1.2 build).
 2. Configure the path in **Hardware Settings → Exomizer section**.
 3. Enable the **Run with Exomizer** checkbox in the **Settings menu**.
 4. All **Run** actions (PRG, D64, hardware) and **Build** actions (Build PRG, Build D64) will now crunch the assembled program through `exomizer sfx sys` before launching or saving.
 
+Exomizer works the same way on Windows and macOS — the CLI is invoked from the Tauri backend; nothing about the integration is platform-specific.
+
+**Two compression modes are used internally:**
+
+| Mode | Used by | Calling convention |
+|------|---------|--------------------|
+| `sfx sys` | Build/Run with Exomizer toggle (main PRG path) | Self-extracting PRG with a built-in decruncher; the Border-flash setting controls `-x1` vs `-n` |
+| `mem` (backward) | Run via D64 → per-file **EXO** checkbox | Compresses each extra file to a `mem`-mode stream; the program decompresses it at runtime via the **EXODECRUNCH** macro and a pre-built depacker (`samples/exo-decrunch.bin`) |
+
 > **Tip:** If the Exomizer path is not configured but the checkbox is enabled, a clear error toast is shown instead of launching. Disable the checkbox to run without compression.
+
+> **Integration test:** `cargo test --test exomizer_integration` (in `src-tauri/`) verifies the full mem-mode compression + decompression roundtrip on a 6502 emulator.
 
 ### Retro Debugger
 
@@ -1928,6 +2005,108 @@ Run assembled PRGs directly on real hardware over the local network using the Ul
 4. Click **▶ Run** — the PRG is compiled and sent to the device via HTTP POST to `/v3/runners/prg`. The device loads and runs it on the C64 immediately.
 
 > **Tip:** No USB cable or driver needed — the REST API is built into the Ultimate firmware. Your computer and the device must be on the same local network.
+
+---
+
+## 14. Visual Editors (Toolkit)
+
+The toolbar **Toolkit** menu groups the visual data editors that all share a common Files menu (`Files ▾`) for Load BIN / Save BIN / Export to blocks / Save to D64. Each editor produces raw `.bin` data that can be placed in a program with `INCBIN`, or directly added to a D64 disk via the **Save to D64** entry.
+
+### Hi-Res / Multicolor Editor
+
+Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor modes. Open via Toolkit → Hi-Res Editor.
+
+| Feature | Description |
+|---|---|
+| Mode toggle | **Multicolor** checkbox switches between hi-res (mono per cell) and multicolor (4 colors per cell). |
+| Tools | Pencil, eraser, line, rectangle, filled rectangle, oval, filled oval, flood fill. |
+| Color palette | Foreground (ink) + paper (background) pickers. Multicolor mode tracks 3 per-cell extras automatically. |
+| Undo / Redo | Per-stroke history, ctrl-Z / ctrl-Y. |
+| Grid + Raster | Optional 8×8 grid and raster row overlay for cell alignment. |
+| Import image | PNG/JPEG/GIF dropped into the canvas auto-quantizes to the 16-color C64 palette. |
+| Export blocks | Appends BYTE/RAWBYTES blocks to the program with the encoded bitmap, screen, and color data. |
+| Export `.bin` | Saves the native multicolor format (10000 bytes: 8000 bitmap + 1000 screen + 1000 color) ready for LOADFILE to $2000. |
+
+### Sprite Editor
+
+24×21 pixel sprite editor with multi-frame animation. Open via Toolkit → Sprite Editor.
+
+| Feature | Description |
+|---|---|
+| Frames | Add / remove / reorder frames; frame strip shown at the bottom. |
+| Mode | Mono / multicolor toggle. |
+| Tools | Pencil, fill, flip horizontal, flip vertical, shift left/right/up/down (with optional wrap). |
+| Animation preview | Play / Stop with configurable speed. |
+| Export blocks | Inserts a RAWBYTES block at a 64-byte-aligned address for every frame, plus a sprite pointer setup. |
+| Save `.bin` | Writes 64 bytes per frame (raw sprite data without padding). |
+
+### C64 Character ROM Browser ("Char map")
+
+Read-only viewer of the C64 character ROM (the built-in PETSCII font). Open via the **C64 chargen** entry in the Toolkit menu. Useful for finding the screen-code of a glyph before writing it with `RAWBYTES` or `TEXT`.
+
+| Feature | Description |
+|---|---|
+| Two character sets | Tab 1: **Set 1 — Upper/Graphics** (default mode after power-on). Tab 2: **Set 2 — Lower/Upper** (after `$0E` switch). |
+| Glyph grid | 16×16 grid of all 256 characters. Click a glyph to see its detail panel: zoomed 8×8 pixel view, screen code (decimal + hex), PETSCII codes (both default and shifted), and the raw 8-byte bitmap. |
+| Detail panel | Shows the selected glyph's screen code, PETSCII codes, and the eight raw bytes — ready to paste into a `RAWBYTES` or BYTE block. |
+| Read-only | No editing here — use the Character Editor (below) to modify glyphs. |
+
+### Character Editor (Charset)
+
+256-character 8×8 charset editor. Open via Toolkit → Character Editor.
+
+| Feature | Description |
+|---|---|
+| Load ROM | Imports the C64 ROM charset directly from VICE's `chargen` (no file picker). |
+| Load `.bin` | Imports an external 2048-byte charset binary. |
+| Per-char preview | 16-wide grid of all 256 glyphs with the current cell highlighted. |
+| Pixel editor | 8×8 single-character editor with toggle/invert/clear tools. |
+| Export blocks | Appends RAWBYTES at $0800 (block 2) or $3800 (block 7) with the encoded charset. |
+
+### Map Editor (Multilayer Tilemaps)
+
+Layered tilemap editor for static scenery, sprite spawn maps, collision data, and similar. Open via Toolkit → Map Editor.
+
+| Feature | Description |
+|---|---|
+| Layers | Multiple named layers, each with its own tileset and opacity. |
+| Brushes | Single-tile, fill, line and rectangle modes. |
+| Clear menu | Per-layer or whole-map clear with confirmation. |
+| Image import | Drop a PNG of a tilemap; the editor auto-slices into tiles. |
+| Export blocks | Emits RAWBYTES blocks for tileset graphics + map data. |
+
+### SID Editor (3-Voice Tracker)
+
+Multi-instrument 3-voice tracker with a Web Audio preview engine. Open via Toolkit → SID Editor.
+
+**Per-instrument controls:**
+- Waveform checkboxes (TRI / SAW / PUL / NOI) — multiple waveforms can be ORed together.
+- ADSR (attack / decay / sustain / release) shown as a drag-graph above the four sliders.
+- Pulse width slider (0-4095) with optional ring/sync flags.
+- Filter routing checkbox per voice; global filter cutoff / resonance / volume / mode (LP/BP/HP).
+
+**Tracker grid:**
+- 3 voices × up to 7 patterns × 32 rows = 7 × 32 = 224 rows max (8-bit row counter constrains it).
+- Per-row: note + instrument index. Empty rows hold the previous note.
+- Click-and-drag to paint a range of notes. Octave selector for the input note (0-7).
+- Range copy / paste: select a span with shift-click, then **Copy** / **Paste** in the tracker toolbar.
+- Speed slider sets the IRQ tick divisor (frames between rows).
+
+**Files menu exports:**
+| Export | What it does |
+|---|---|
+| `Save .bin…` | Writes the editor's native serialized format (instruments + patterns + sequence). |
+| `Export blocks (data only)` | Appends instrument table + pattern blocks to the program at `* = $C000`. |
+| `Export blocks + miniplayer` | Adds the full player (sid_init / sid_irq / sid_play_row / sid_set_voice) plus PAL frequency tables. After export, place a `JSR sid_init` in your main code where the music should start. |
+| `Export asm (clipboard)` | Copies the full assembly source to the clipboard. |
+
+**Player ZP usage:** `$FB` (tick counter), `$FC` (row index), `$FD` (set_voice temp). These conflict if your main code uses them — relocate via Expert mode if needed.
+
+**Known limits:**
+- Single linear pattern list (no per-voice sequence table yet).
+- 8-bit row counter limits to 7 patterns × 32 rows.
+- C64 `$D418` global volume is shared across voices — the per-instrument volume slider is informational; sustain level (`S` of ADSR) is the effective per-voice volume.
+- Web Audio preview is approximate: PWM modulation, ring/sync, and the SID filter character differ from the real chip.
 
 ---
 

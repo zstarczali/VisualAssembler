@@ -177,6 +177,11 @@ fn get_exomizer_path(cfg: &serde_json::Value) -> String {
     cfg["exomizerPath"].as_str().unwrap_or("").to_string()
 }
 
+fn get_exomizer_border_flash(cfg: &serde_json::Value) -> bool {
+    // Defaults to true if unset, so existing configs keep the visual feedback.
+    cfg["uiSettings"]["exomizerBorderFlash"].as_bool().unwrap_or(true)
+}
+
 // ── SID parsing ─────────────────────────────────────────────────────────────
 
 #[derive(Serialize)]
@@ -363,44 +368,78 @@ struct LaunchVicePayload {
     file_name: Option<String>,
 }
 
-fn crunch_with_exomizer(exomizer_path: &str, input_bytes: &[u8], file_name: &str) -> Result<(PathBuf, Vec<u8>), String> {
-    let temp_dir = std::env::temp_dir().join("c64-visual-assembler");
-    let _ = fs::create_dir_all(&temp_dir);
-    let input_path = temp_dir.join(file_name);
-    fs::write(&input_path, input_bytes).map_err(|e| e.to_string())?;
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct BuildRawPayload {
+    bytes: Vec<u8>,
+    file_name: Option<String>,
+    target_address: Option<String>,     // load address (hex without $), e.g. "C000"
+    decompress_address: Option<String>, // decompress target (hex without $), e.g. "2000"
+}
 
+fn crunch_with_exomizer(exomizer_path: &str, input_bytes: &[u8], file_name: &str, raw_mode: bool, raw_load: Option<&str>, raw_decompress: Option<&str>, border_flash: bool) -> Result<(PathBuf, Vec<u8>), String> {
+    let temp_dir = std::env::temp_dir().join("c64-visual-assembler");
+    fs::create_dir_all(&temp_dir).map_err(|e| format!("mkdir {:?}: {}", temp_dir, e))?;
+    let input_path = temp_dir.join(file_name);
+    fs::write(&input_path, input_bytes).map_err(|e| format!("write {:?}: {}", input_path, e))?;
+
+    let ext = if raw_mode { "exo" } else { "prg" };
+    let prefix = if raw_mode { "exomizer-raw" } else { "exomizer-sfx" };
     let output_path = temp_dir.join(format!(
-        "exomizer-sfx-{}.prg",
-        std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()
+        "{}-{}.{}",
+        prefix,
+        std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
+        ext
     ));
+
+    if !std::path::Path::new(exomizer_path).exists() {
+        return Err(format!("Exomizer executable not found: {}", exomizer_path));
+    }
 
     let mut cmd = Command::new(exomizer_path);
     #[cfg(target_os = "windows")]
     {
         cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW
     }
+    let load_str;
+    let infile_with_target;
+    let args: Vec<&str> = if raw_mode {
+        // exomizer mem (backward, default): -l <load> sets the PRG load address;
+        // appending ",<target>" to the input filename tells exomizer the original
+        // address of the file, which gets encoded into the stream.
+        // Decoder reads ZP $04/$05 = end-of-crunched-data, JSR decrunch.
+        //
+        // Exomizer's default safety_offset is 2 bytes — decompressed data lands
+        // 2 bytes EARLIER than the address we pass. Compensate by adding 2.
+        load_str = format!("${}", raw_load.unwrap_or("C000"));
+        let target_user = raw_decompress.unwrap_or("2000");
+        let target_adjusted = u32::from_str_radix(target_user.trim_start_matches('$'), 16)
+            .map(|v| v.saturating_add(2))
+            .unwrap_or(0x2002);
+        infile_with_target = format!("{},${:04X}", input_path.to_str().unwrap(), target_adjusted);
+        vec!["mem", "-l", load_str.as_str(), "-o", output_path.to_str().unwrap(), infile_with_target.as_str()]
+    } else {
+        // sfx sys: self-extracting PRG. -x1 = fast accumulator-based border-flash
+        // decrunch effect; -n disables any effect. Controlled by UI setting.
+        let effect_flag = if border_flash { "-x1" } else { "-n" };
+        vec!["sfx", "sys", effect_flag, "-o", output_path.to_str().unwrap(), input_path.to_str().unwrap()]
+    };
     let output = cmd
-        .args([
-            "sfx",
-            "sys",
-            "-o",
-            output_path.to_str().unwrap(),
-            input_path.to_str().unwrap(),
-        ])
+        .args(&args)
         .stdin(std::process::Stdio::null())
         .stdout(std::process::Stdio::piped())
         .stderr(std::process::Stdio::piped())
         .output()
-        .map_err(|e| e.to_string())?;
+        .map_err(|e| format!("spawn {}: {} (args: {:?})", exomizer_path, e, args))?;
 
     if !output.status.success() {
         let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
         let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
-        let error = if !stderr.is_empty() { stderr } else if !stdout.is_empty() { stdout } else { "Exomizer futtatas sikertelen.".to_string() };
+        let error = if !stderr.is_empty() { stderr } else if !stdout.is_empty() { stdout } else { format!("Exomizer exit {:?}", output.status.code()) };
         return Err(error);
     }
 
-    let bytes = fs::read(&output_path).map_err(|e| e.to_string())?;
+    let bytes = fs::read(&output_path).map_err(|e| format!("read {:?}: {}", output_path, e))?;
     Ok((output_path, bytes))
 }
 
@@ -421,7 +460,42 @@ async fn build_exomizer_prg(app: AppHandle, payload: LaunchVicePayload) -> serde
             .duration_since(std::time::UNIX_EPOCH).unwrap().as_millis())
     });
 
-    match crunch_with_exomizer(&exomizer_path, &payload.bytes, &file_name) {
+    let border_flash = get_exomizer_border_flash(&cfg);
+    match crunch_with_exomizer(&exomizer_path, &payload.bytes, &file_name, false, None, None, border_flash) {
+        Ok((output_path, bytes)) => serde_json::json!({
+            "ok": true,
+            "exomizerPath": exomizer_path,
+            "sourceFilePath": std::env::temp_dir().join("c64-visual-assembler").join(&file_name).to_string_lossy().to_string(),
+            "filePath": output_path.to_string_lossy().to_string(),
+            "bytes": bytes
+        }),
+        Err(error) => serde_json::json!({ "ok": false, "error": error }),
+    }
+}
+
+#[tauri::command]
+async fn build_exomizer_raw(app: AppHandle, payload: BuildRawPayload) -> serde_json::Value {
+    let cfg = read_config(&app);
+    let exomizer_path = get_exomizer_path(&cfg);
+
+    if exomizer_path.is_empty() {
+        return serde_json::json!({
+            "ok": false,
+            "error": "Exomizer nincs beallitva. Kattints az Edit gombra es add meg az eleresi utjat."
+        });
+    }
+
+    let file_name = payload.file_name.unwrap_or_else(|| {
+        format!("data-{}.bin", std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH).unwrap().as_millis())
+    });
+
+    let load_addr = payload.target_address.as_deref();
+    let decomp_addr = payload.decompress_address.as_deref();
+    // border_flash unused in mem mode (which uses our own depacker, not sfx),
+    // but pass current setting for completeness.
+    let border_flash = get_exomizer_border_flash(&cfg);
+    match crunch_with_exomizer(&exomizer_path, &payload.bytes, &file_name, true, load_addr, decomp_addr, border_flash) {
         Ok((output_path, bytes)) => serde_json::json!({
             "ok": true,
             "exomizerPath": exomizer_path,
@@ -495,7 +569,8 @@ async fn launch_exomizer(app: AppHandle, payload: LaunchVicePayload) -> serde_js
             .duration_since(std::time::UNIX_EPOCH).unwrap().as_millis())
     });
 
-    let (output_path, _) = match crunch_with_exomizer(&exomizer_path, &payload.bytes, &file_name) {
+    let border_flash = get_exomizer_border_flash(&cfg);
+    let (output_path, _) = match crunch_with_exomizer(&exomizer_path, &payload.bytes, &file_name, false, None, None, border_flash) {
         Ok(result) => result,
         Err(error) => return serde_json::json!({ "ok": false, "error": error }),
     };
@@ -1051,6 +1126,14 @@ struct SavePrgPayload {
     bytes: Vec<u8>,
 }
 
+#[derive(serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct SaveBinPayload {
+    bytes: Vec<u8>,
+    #[serde(default)]
+    file_name: Option<String>,
+}
+
 #[tauri::command]
 fn read_bin_file(path: String) -> serde_json::Value {
     match fs::read(&path) {
@@ -1065,6 +1148,30 @@ async fn save_prg(app: AppHandle, payload: SavePrgPayload) -> serde_json::Value 
         .add_filter("Commodore 64 PRG", &["prg"])
         .add_filter("All files", &["*"])
         .blocking_save_file();
+
+    match result {
+        Some(path) => {
+            let path_str = path.to_string();
+            match fs::write(&path_str, &payload.bytes) {
+                Ok(_) => serde_json::json!({ "ok": true, "filePath": path_str }),
+                Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+            }
+        }
+        None => serde_json::json!({ "canceled": true }),
+    }
+}
+
+#[tauri::command]
+async fn save_bin(app: AppHandle, payload: SaveBinPayload) -> serde_json::Value {
+    let mut dialog = app.dialog().file()
+        .add_filter("Binary", &["bin"])
+        .add_filter("All files", &["*"]);
+    if let Some(name) = payload.file_name.as_deref() {
+        if !name.is_empty() {
+            dialog = dialog.set_file_name(name);
+        }
+    }
+    let result = dialog.blocking_save_file();
 
     match result {
         Some(path) => {
@@ -1874,6 +1981,8 @@ async fn load_sample(app: AppHandle, sample_name: String) -> serde_json::Value {
                                         "name": entry.get("name").and_then(|v| v.as_str()).unwrap_or(""),
                                         "sourcePath": src,
                                         "loadAddress": entry.get("loadAddress").and_then(|v| v.as_str()).unwrap_or(""),
+                                        "decompressAddress": entry.get("decompressAddress").and_then(|v| v.as_str()).unwrap_or(""),
+                                        "crunch": entry.get("crunch").and_then(|v| v.as_bool()).unwrap_or(false),
                                         "bytes": bytes
                                     }));
                                 }
@@ -1914,6 +2023,7 @@ pub fn run() {
             choose_vice_executable,
             choose_exomizer_executable,
             build_exomizer_prg,
+            build_exomizer_raw,
             launch_vice,
             launch_exomizer,
             get_debugger_config,
@@ -1928,6 +2038,7 @@ pub fn run() {
             choose_include_file,
             reload_include_file,
             save_prg,
+            save_bin,
             save_d64,
             run_d64,
             run_d64_on_ultimate,
