@@ -920,7 +920,7 @@ function initPalette() {
   reportBugButton?.addEventListener("click", async () => {
     const version = await window.electronAPI.getAppVersion();
     const ua = navigator.userAgent;
-    const os = ua.includes("Win") ? "Windows" : ua.includes("Mac") ? "macOS" : ua.includes("Linux") ? "Linux" : navigator.platform || "Unknown";
+    const os = ua.includes("Win") ? "Windows" : ua.includes("Mac") ? "macOS" : navigator.platform || "Unknown";
     const subject = encodeURIComponent(`Visual Assembler v${version} - Bug Report`);
     const body = encodeURIComponent(`Visual Assembler version: v${version}\nOS: ${os}\n\n--- Describe the bug ---\n\n\n--- Steps to reproduce ---\n\n`);
     window.electronAPI.openExternal(`mailto:retroboj@outlook.com?subject=${subject}&body=${body}`);
@@ -1605,7 +1605,7 @@ function _applyUiSettingsToDOM() {
     if (blockPaletteSyncToggle) blockPaletteSyncToggle.checked = blockPaletteSync;
   }
 
-  exomizerEnabled = _isOsx() ? false : !!savedUiSettings.exomizerEnabled;
+  exomizerEnabled = !!savedUiSettings.exomizerEnabled;
   if (runExomizerToggle) runExomizerToggle.checked = exomizerEnabled;
 
   if (savedUiSettings.asmOutputBase) {
@@ -7420,30 +7420,7 @@ async function loadViceConfig() {
   updateEmulatorStatus();
 }
 
-function _isOsx() {
-  return /Mac|iPhone|iPad|iPod/.test(navigator.platform) ||
-    /Mac OS X|macOS/.test(navigator.userAgent);
-}
-
 async function loadExomizerConfig() {
-  if (_isOsx()) {
-    if (runExomizerToggle) {
-      runExomizerToggle.checked = false;
-      runExomizerToggle.disabled = true;
-      runExomizerToggle.title = currentLanguage !== "hu"
-        ? "Exomizer is not supported on macOS"
-        : "Exomizer nem elérhető macOS-en";
-    }
-    const lbl = document.getElementById("run-exomizer-toggle-label");
-    if (lbl) lbl.style.opacity = "0.4";
-    if (chooseExomizerButton) chooseExomizerButton.disabled = true;
-    if (exomizerStatus) exomizerStatus.textContent = currentLanguage !== "hu"
-      ? "Exomizer is not supported on macOS."
-      : "Exomizer nem elérhető macOS-en.";
-    exomizerEnabled = false;
-    return;
-  }
-
   if (!window.electronAPI?.getExomizerConfig) {
     updateExomizerPathPreview("");
     return;
@@ -8265,7 +8242,7 @@ function renderD64ExtraFiles() {
         <input type="text" maxlength="16" class="d64-extra-name" value="${escapeHtmlAttribute(entry.name)}" placeholder="${t("d64ExtraNamePlaceholder")}">
         <input type="text" maxlength="5" class="d64-extra-addr" value="${escapeHtmlAttribute(entry.loadAddress || "")}" placeholder="${t("d64ExtraAddrPlaceholder")}" title="${t("d64ExtraAddrTooltip")}">
         <input type="text" maxlength="5" class="d64-extra-decomp" value="${escapeHtmlAttribute(entry.decompressAddress || "")}" placeholder="${t("d64ExtraDecompPlaceholder")}" title="${t("d64ExtraDecompTooltip")}">
-        <label class="d64-extra-crunch" title="Tömörítés Exomizerrel (mem mode)">
+        <label class="d64-extra-crunch" title="${t("d64ExtraCrunchTooltip")}">
           <input type="checkbox" class="d64-extra-crunch-cb"${entry.crunch ? " checked" : ""}>
           <span>EXO</span>
         </label>
@@ -16069,19 +16046,36 @@ function _runTutorialStepAction(actionId) {
       });
       break;
     case "open-settings-dialog": {
-      document.getElementById("hardware-settings-dialog")?.showModal();
-      // Re-elevate tour elements above the newly opened settings dialog.
-      // Top-layer order (last = topmost): settings → overlay → spotlight → card
-      const _ov = document.getElementById("tour-overlay");
-      const _sp = document.getElementById("tour-spotlight");
-      const _tc = document.getElementById("tour-card");
-      if (_ov?.matches(":popover-open")) { _ov.hidePopover(); _ov.showPopover(); }
-      if (_sp?.matches(":popover-open")) { _sp.hidePopover(); _sp.showPopover(); }
-      if (_tc?.matches(":popover-open")) { _tc.hidePopover(); _tc.showPopover(); }
+      const dlg = document.getElementById("hardware-settings-dialog");
+      if (dlg) {
+        // Force NON-MODAL show — even if the user clicked the settings button
+        // earlier and the dialog is currently modal. Non-modal dialogs don't
+        // enter the top-layer, don't have a backdrop, and don't block events
+        // on the tour-card popover. If we left the dialog modal, the backdrop
+        // sits above the page below the popovers, but in some browser/timing
+        // paths events on the tour card still get swallowed.
+        try { if (dlg.open) dlg.close(); } catch (_) {}
+        try { dlg.show(); } catch (_) {
+          // Fall back to showModal if show() is unavailable.
+          try { dlg.showModal(); } catch (_) {}
+        }
+        // Re-elevate tour popovers above the dialog (safety net for showModal
+        // fallback path — for the non-modal happy path it's a no-op).
+        const reElevateTour = () => {
+          const _ov = document.getElementById("tour-overlay");
+          const _sp = document.getElementById("tour-spotlight");
+          const _tc = document.getElementById("tour-card");
+          try { if (_ov?.matches(":popover-open")) { _ov.hidePopover(); _ov.showPopover(); } } catch (_) {}
+          try { if (_sp?.matches(":popover-open")) { _sp.hidePopover(); _sp.showPopover(); } } catch (_) {}
+          try { if (_tc?.matches(":popover-open")) { _tc.hidePopover(); _tc.showPopover(); } } catch (_) {}
+        };
+        reElevateTour();
+        setTimeout(reElevateTour, 350);
+      }
       break;
     }
     case "close-settings-dialog":
-      document.getElementById("hardware-settings-dialog")?.close();
+      try { document.getElementById("hardware-settings-dialog")?.close(); } catch (_) {}
       break;
   }
 }
@@ -16396,22 +16390,25 @@ function _tourShowStep(index) {
 
   if (step.target) {
     _tourAllowOverlayClose = !step.openMenu;
-    const doPosition = () => {
+    // Poll up to ~1.5s for the target element to appear AND have a non-zero
+    // bounding box. Handles cases where onEnterActionId opens a dialog and the
+    // target is inside that dialog (layout may take a few frames).
+    const doPosition = (attemptsLeft = 30) => {
       const targetEl = document.querySelector(step.target);
-      if (!targetEl || !spotlight) return;
+      if (!spotlight) return;
+      if (!targetEl) {
+        if (attemptsLeft > 0) setTimeout(() => doPosition(attemptsLeft - 1), 50);
+        return;
+      }
       if (typeof targetEl.scrollIntoView === "function") {
         targetEl.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "auto" });
       }
-      // Extra rAF: lets WebKit apply any pending async scroll before measuring
       requestAnimationFrame(() => {
         const rect = targetEl.getBoundingClientRect();
-        // Retry once if the element has zero area (not yet laid out)
         if (rect.width === 0 && rect.height === 0) {
-          requestAnimationFrame(() => {
-            const rect2 = targetEl.getBoundingClientRect();
-            if (rect2.width === 0 && rect2.height === 0) return;
-            _positionSpotlightAndCard(spotlight, card, rect2, step);
-          });
+          if (attemptsLeft > 0) {
+            setTimeout(() => doPosition(attemptsLeft - 1), 50);
+          }
           return;
         }
         _positionSpotlightAndCard(spotlight, card, rect, step);
@@ -16575,15 +16572,19 @@ function _initTutorialEvents() {
   document.getElementById("tour-next")?.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (_tourCurrentStep >= _tourSteps.length - 1) {
-      const wasInteractive = _tourInteractiveMode;
-      _tourEnd();
-      // Don't reopen the dialog for interactive/guided lessons —
-      // the user just built a program and wants to interact with the editor.
-      if (!wasInteractive) openTutorialDialog();
-    } else {
-      _tourCurrentStep++;
-      _tourShowStep(_tourCurrentStep);
+    try {
+      if (_tourCurrentStep >= _tourSteps.length - 1) {
+        const wasInteractive = _tourInteractiveMode;
+        _tourEnd();
+        // Don't reopen the dialog for interactive/guided lessons —
+        // the user just built a program and wants to interact with the editor.
+        if (!wasInteractive) openTutorialDialog();
+      } else {
+        _tourCurrentStep++;
+        _tourShowStep(_tourCurrentStep);
+      }
+    } catch (err) {
+      console.error("tour-next failed:", err);
     }
   });
 

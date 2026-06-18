@@ -31,11 +31,15 @@ xattr -cr "/Applications/C64 Visual Assembler.app"
 
 Compress PRG files with Exomizer for smaller binaries and faster loading:
 
-1. Download Exomizer: https://csdb.dk/release/?id=244342 (Windows) or build from source (https://github.com/pfusik/exomizer)
-2. In Visual Assembler: Menu → Settings → **"Beállítások..."** → Exomizer section → **"Exomizer kiválasztása"**
-3. Enable via the checkbox in Menu → Settings
+1. Install Exomizer:
+   - **Homebrew (recommended):** `brew install exomizer` — installs Magnus Lind's official 3.1.2 build to `/opt/homebrew/bin/exomizer` (Apple Silicon) or `/usr/local/bin/exomizer` (Intel).
+   - **From source:** clone https://bitbucket.org/magli143/exomizer/ and `make` in the `src/` folder.
+2. In Visual Assembler: Menu → Settings → **"Beállítások..."** → Exomizer section → **"Exomizer kiválasztása"** and pick the binary.
+3. Enable via the **"Run with Exomizer"** checkbox in Menu → Settings.
+
+Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in the Run via D64 dialog) work the same way on macOS as on Windows.
 
 ---
 
-**Version:** 1.7.4 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.0.0 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
 

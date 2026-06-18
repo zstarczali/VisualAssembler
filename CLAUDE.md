@@ -367,9 +367,202 @@ Lásd `tauri-bridge.js` és `src-tauri/src/lib.rs`. Leggyakoribb commands:
 
 ---
 
-## 14. Jelenlegi verzió
+## 14. Tutorial rendszer — hogyan tedd hozzá
 
-`1.7.4` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
-What's New dialógus, `README.md`, és ez a fájl + copilot-instructions.md.
+A tutorial rendszer **interaktív tour-okból** (spotlight + card, lépésenként vezérel egy UI elemre) és **passzív lessonokból** (szöveg + sample loader gomb) áll.
+
+### Fájlok
+
+| Fájl | Mit tartalmaz |
+|------|---------------|
+| `www/tutorial-data.js` | `TUTORIAL_DATA` objektum: `categories`, `lessons` array. **MINDEN új tutorial ide kerül.** |
+| `www/app.js` 15780-16630 | Renderelés, navigation, tour engine. `_tourStart`, `_tourShowStep`, `_runTutorialStepAction`, `_runTutorialAction`. |
+| `www/index.html` 1330-1345 | Három `popover="manual"` div: `#tour-overlay`, `#tour-spotlight`, `#tour-card`. |
+| `www/style.css` 5261-5318 | Tour CSS: overlay dim, spotlight outline+box-shadow cutout, card pozíció+z-index. |
+
+### A `TUTORIAL_DATA` szerkezete
+
+```js
+{
+  categories: [
+    { id: "tour", labelHu: "Bemutatók", labelEn: "Tours", labelEs: "..." },
+    { id: "basics", labelHu: "Alapok", labelEn: "Basics", ... },
+    // ...
+  ],
+  lessons: [
+    {
+      id: "unique-id",
+      category: "tour" | "basics" | "macros" | "advanced" | ...,
+      type: "tour" | "lesson",
+      difficulty: 0,        // 0 = TOUR badge, 1-3 = star difficulty
+      titleHu/En/Es: "...",
+      descHu/En/Es: "...",
+      sample: "sample-id",  // opcionális — Load sample gombot mutat
+      interactive: false,   // ha true → guided/build mód, eltérő flow
+      steps: [...]          // tour és interactive lesson esetén
+    },
+  ]
+}
+```
+
+### Step mezők (tour)
+
+| Mező | Mit csinál |
+|------|-----------|
+| `target` | CSS selector — ide kerül a spotlight. `null` = nincs target, card centerre. |
+| `titleHu/En/Es` | Card title nyelvenként |
+| `descHu/En/Es` | Card description nyelvenként (több sor `\n`-nel) |
+| `openMenu: true` | Tour kinyitja a fő `<details class="control-menu">`-t a step előtt (és tartja amíg a következő step `openMenu` nem true). |
+| `onEnterActionId: "..."` | Step belépésekor `_runTutorialStepAction(actionId)` fut. Lásd alább a beépített action-öket. |
+| `positionDelay: N` | ms várakozás `onEnterActionId` után, mielőtt a target-et megméri és pozícionálja. Default 0. Settings dialog-hoz pl. 300. |
+| `advanceOnTargetClick: true` | A target click-jére automatikus advance (nem kell Next). |
+| `advanceOnTargetChange: true` | A target `change` eseményére advance. |
+| `advanceOnTargetInput: true` | A target `input` eseményére advance. |
+| `targetValue: "..."` | Csak akkor advance, ha a target value match-el (string egyenlőség). |
+| `caseInsensitiveTargetValue: true` | Value összehasonlítás case-insensitive. |
+| `centerCard: true` | Card a képernyő közepén (null target esetén). |
+| `loadSample: "id"` | "Load sample" gomb a card-on, betölti a sample-t click-re. |
+| `actionId: "..."` | "Action" gomb a card-on, `_runTutorialAction(actionId)` hívja click-re. |
+| `highlight: ".selector"` | Class hozzáadás egy elemhez vizuális kiemeléshez. |
+
+### Beépített `onEnterActionId` action-ök (`_runTutorialStepAction`)
+
+`app.js:15927`-től kezdődik a switch.
+
+| ActionId | Mit csinál |
+|----------|-----------|
+| `prepare-name-input-demo` | Expert mode off, sample = `name-input-demo`, betölti |
+| `prepare-guided-color-text` | Expert mode off, clear program, render |
+| `prep-text-block`, `prep-lda-border`, `prep-sta-border`, `prep-lda-background` ... | Mnemonik palette előkészítés (kategória + mnemonik + addressing + operand auto-set) |
+| `open-settings-dialog` | **Non-modal** `dialog.show()`-val nyitja a Hardware Settings dialogot. Lásd a Tutorial bug-ot lent. |
+| `close-settings-dialog` | `dlg.close()` a Hardware Settings dialoghoz |
+
+### Beépített `actionId`-k (`_runTutorialAction`)
+
+`app.js:15884`-től. Jelenleg csak `build-color-text-program` — komplett szín+text program automatikus felépítése.
+
+### Tour DOM és top-layer
+
+Három popover (`popover="manual"`) van a top-layer-ben:
+
+```
+#tour-overlay      — full-screen transparent, click = exit tour (ha allowed)
+#tour-spotlight    — pozíció+méret a target köré, body cutout box-shadow-val
+#tour-card         — info card a target mellett, Next/Prev/Skip gombok
+```
+
+**Top-layer stacking**: a legutoljára `showPopover()`-elt elem van felül. Tour induláskor sorrend: overlay → spotlight → card.
+
+### ⚠️ TUTORIAL BUG ÉS NON-MODAL DIALOG TRICK
+
+**Probléma**: ha egy step `onEnterActionId`-t használ ami `<dialog>.showModal()`-t hív, a modal dialog **`::backdrop`** elemet generál ami a top-layer-be kerül. Ez bizonyos browser/timing path-okon megakadályozza hogy a `tour-card` popover gombjai (Next, Prev) megkapják a clicket — a click a backdropra megy.
+
+**Megoldás**: a tour-ból **mindig `dialog.show()` (non-modal)** módban nyitjuk a dialogot:
+
+```js
+case "open-settings-dialog": {
+  const dlg = document.getElementById("hardware-settings-dialog");
+  if (dlg) {
+    if (dlg.open) dlg.close();       // ha modal volt, zárjuk
+    try { dlg.show(); }              // non-modal — nincs backdrop, nincs top-layer
+    catch (_) { dlg.showModal(); }   // fallback régi WebView-ra
+  }
+  // re-elevation safety net (3× hide/show)
+}
+```
+
+Non-modal show() **NEM kap backdropot** és **NEM kerül top-layerbe**. A tour-card popover (z-index: max int) garantáltan felül marad.
+
+A non-modal dialog explicit central pozíciónt igényel (user-agent csak modalokat centerel):
+
+```css
+.hardware-settings-dialog[open] {
+  position: fixed; inset: 0; margin: auto;
+  height: fit-content; z-index: 9985;
+}
+```
+
+### Új tutorial hozzáadása — checklist
+
+#### A) Új tour (interaktív, spotlight-tal)
+
+1. **`tutorial-data.js`** — `lessons` array végére új objektum:
+   ```js
+   {
+     id: "my-new-tour",
+     category: "tour" | "basics" | ...,
+     type: "tour",
+     difficulty: 0,
+     titleHu/En/Es: "Tour neve",
+     descHu/En/Es: "Mit mutat be",
+     steps: [
+       { target: null, titleHu/En/Es: "Intro", descHu/En/Es: "..." },
+       { target: "#some-id", titleHu/En/Es: "...", descHu/En/Es: "..." },
+       // ...
+     ]
+   }
+   ```
+
+2. **Ha új action kell** (pl. egy dialogot kell nyitni): `app.js:15927` `_runTutorialStepAction` switch-be új case.
+
+3. **Ha dialog megnyitás van benne**: használj `dlg.show()`-t **nem** `showModal()`-t (lásd bug fent). A dialog CSS-nek explicit central pozíció kell `[open]` selector alatt.
+
+4. **Translation kulcsok**: ha statikus szöveget használsz a step description-ben az inline `currentLanguage !== "hu" ?` ternary-vel, OK. Ha `t()`-vel akarsz, `i18n.js`-be új kulcsok mindhárom nyelvhez.
+
+5. **Tesztelni**: indítsd el a tour-t (Tutorial dialog → válaszd ki), járd végig minden lépést, ellenőrizd hogy a Next/Prev/Skip működik mindenhol és a card NEM tűnik el random helyeken.
+
+#### B) Új lesson (passzív, csak olvasás + sample link)
+
+```js
+{
+  id: "my-new-lesson",
+  category: "basics",
+  type: "lesson",
+  difficulty: 1,                     // 1-3 = stars
+  titleHu/En/Es: "...",
+  descHu/En/Es: "...",
+  sample: "sample-id",                // opcionális — Load sample gomb
+  steps: [                            // opcionális — több lépéses lesson
+    { titleHu/En/Es: "...", descHu/En/Es: "...", loadSample: "id" },
+  ]
+}
+```
+
+#### C) Új interactive guided lesson (program építés step-by-step)
+
+```js
+{
+  id: "guided-something",
+  category: "basics",
+  type: "tour",
+  interactive: true,                  // <-- KULCS: a tour végén nem nyitja vissza a dialogot
+  difficulty: 1,
+  titleHu/En/Es: "...",
+  steps: [
+    {
+      target: ".palette-categories",
+      onEnterActionId: "prep-lda-border",  // előre beállítja a palette-et
+      titleHu/En/Es: "Válaszd ki...",
+      advanceOnTargetClick: true,           // user clicke advanceol
+    },
+    // ...
+  ]
+}
+```
+
+### Sample-loader pattern step actionre
+
+Ha egy step betölt egy sample-t mielőtt megmutatja a UI-t:
+
+1. Add `_runTutorialStepAction`-be új case: `case "prepare-my-sample": { ...; loadSelectedSample(); break; }`
+2. A step-ben: `onEnterActionId: "prepare-my-sample"`
+3. `_tourPreparedLessonId` guard kerüld el a duplikált betöltést (lásd példa a meglévő `prepare-name-input-demo`-nál).
+
+---
+
+## 15. Jelenlegi verzió
+
+`2.0.0` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
+What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, és ez a fájl + copilot-instructions.md.
 
 Verziónöveléshez lásd a 3. szakasz végén lévő 7-lépéses checklistet.

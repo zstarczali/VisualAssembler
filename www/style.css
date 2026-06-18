@@ -340,11 +340,17 @@ html[data-theme="light"] .main-toolbar .split-run-arrow {
   border-inline-start-color: color-mix(in srgb, #1a8a3f 35%, transparent);
 }
 
-/* Debug button — red */
+/* Debug button — red (mirrors the green Run styling) */
 .main-tb-debug { color: #e05252; }
 .main-tb-debug:hover {
   background: color-mix(in srgb, #e05252 18%, transparent);
   color: #e05252;
+}
+
+html[data-theme="light"] .main-tb-debug { color: #b3251f; }
+html[data-theme="light"] .main-tb-debug:hover {
+  background: color-mix(in srgb, #b3251f 14%, transparent);
+  color: #b3251f;
 }
 
 /* Split run group inside toolbar */
@@ -2846,16 +2852,8 @@ html[data-theme="oled"] .emulator-actions .link-button.primary {
   font-weight: 600;
 }
 
-#run-debugger {
-  background: #c0392b;
-  color: #fff;
-  border-color: #c0392b;
-}
-
-#run-debugger:hover {
-  background: #e74c3c;
-  border-color: #e74c3c;
-}
+/* #run-debugger uses .main-tb-btn .main-tb-debug from the toolbar styles —
+   transparent background + red text/icon, mirroring the Run button's green. */
 
 .emulator-note p {
   margin-bottom: 0;
@@ -4906,6 +4904,19 @@ body.crt-mode #crt-overlay::after {
   width: 90vw;
 }
 
+/* Explicit centering so the dialog looks correct whether opened with show()
+   (non-modal, e.g. from the setup tour) or showModal() (normal usage). User
+   agents only auto-center modal dialogs; non-modal ones land in the natural
+   flow without this. The high z-index keeps the dialog above the main app
+   chrome but below the tour-card (z-index: max int) when the tour is active. */
+.hardware-settings-dialog[open] {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  height: fit-content;
+  z-index: 9985;
+}
+
 .hardware-settings-dialog::backdrop {
   background: rgba(0, 0, 0, 0.5);
   -webkit-backdrop-filter: blur(4px);
@@ -5302,7 +5313,8 @@ body.crt-mode #crt-overlay::after {
 
 .tour-card {
   position: fixed;
-  z-index: 9999;
+  z-index: 2147483647; /* maximum 32-bit int — guarantees we sit above any modal dialog */
+  pointer-events: auto;
   width: 310px;
   background: var(--panel-strong);
   border: 1px solid var(--panel-border);
@@ -5311,6 +5323,10 @@ body.crt-mode #crt-overlay::after {
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
   transition: left 300ms ease, top 300ms ease;
 }
+
+/* Ensure all child controls inherit clickability even when nested popovers
+   or modal dialogs are below. */
+.tour-card * { pointer-events: auto; }
 
 .tour-card::backdrop {
   pointer-events: none;

@@ -336,7 +336,7 @@ dependencies = [
 
 [[package]]
 name = "c64-visual-assembler"
-version = "1.8.0"
+version = "2.0.0"
 dependencies = [
  "emulator_6502",
  "reqwest 0.12.28",

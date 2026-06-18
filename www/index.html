@@ -12,7 +12,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=1.8.0">
+  <link rel="stylesheet" href="style.css?v=2.0.0">
 </head>
 
 <body>
@@ -641,43 +641,46 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v1.7.4</p>
+      <p class="whats-new-version">v2.0.0</p>
       <ul class="whats-new-list">
         <li>
-          <strong>Exomizer integration</strong> &mdash; optional Exomizer crunching for all run and build paths via a single checkbox in the Settings menu. Configure the Exomizer executable in Hardware Settings, then enable the checkbox to compress PRG and D64 output with <code>exomizer sfx sys</code>. Works with VICE launch, D64 export, and C64 Ultimate hardware runs.
+          <strong>Exomizer <code>mem</code> mode for D64 extras</strong> &mdash; raw binary files added to a D64 (e.g. multicolor bitmaps, sample data) can now be compressed with <code>exomizer mem</code> backward mode. The Run via D64 dialog gets a per-file <strong>EXO</strong> checkbox plus a second address column (<strong>Dst</strong>) for the decompression target. Safety offset is compensated automatically.
         </li>
         <li>
-          <strong>UI overhaul — clean, professional look</strong> &mdash; removed all gradients, replaced purple/indigo AI-colors with a professional slate-blue palette. Light, Dark and OLED themes all updated.
+          <strong>EXODECRUNCH block macro</strong> &mdash; new macro for in-program decompression. Generates 19 bytes: copies KERNAL's load-end ($AE/$AF) into the depacker src-end ($04/$05), toggles $01 to expose RAM at $A000-$BFFF, JSRs the depacker, restores $01. A pre-built backward depacker (<code>samples/exo-decrunch.bin</code>, 477 bytes) is auto-loaded in the EXO multicolor demo sample.
         </li>
         <li>
-          <strong>Output toolbar → tabs</strong> &mdash; ASM / Monitor / Both / Disassembler selector is now a proper tab bar with bottom-border active indicator instead of radio-button pills.
+          <strong>Border-flash toggle in Settings</strong> &mdash; new checkbox in Hardware Settings → Exomizer to enable/disable the <code>-x1</code> accumulator-based fast border-flash effect on SFX-compressed PRGs. The mem-mode depacker has its own built-in <code>INC $D020</code> flash that runs unconditionally.
         </li>
         <li>
-          <strong>Square, angular UI</strong> &mdash; border-radius reduced throughout: buttons, inputs, panels, and controls now use crisp 2–3 px corners. Toggle-switch knobs are square. Blocks keep a comfortable 15 px radius.
+          <strong>Exomizer integration test</strong> &mdash; new Rust integration test (<code>cargo test --test exomizer_integration</code>) that compresses <code>multi-color.bin</code> end-to-end, runs the depacker in an embedded 6502 emulator, and asserts byte-for-byte equality with the original 10000 bytes. Catches regressions in the compression flags, safety-offset compensation, and depacker bytecode.
         </li>
         <li>
-          <strong>Block category color wraps all sides</strong> &mdash; each block's category-tone colour now appears as a full border plus a wider 6 px left accent bar. Selection no longer overrides the block's identity colour.
+          <strong>EXO multicolor demo sample</strong> &mdash; complete example showing the full LOADFILE → EXODECRUNCH → display flow for a compressed multicolor bitmap loaded from D64 at runtime.
         </li>
         <li>
-          <strong>Light-theme outputs</strong> &mdash; ASM, Monitor and Disassembler panels now use a light background in light mode. Monitor text is dark green. Dark/OLED themes keep the classic CRT look.
+          <strong>SID editor &mdash; full 3-voice tracker</strong> &mdash; multi-instrument SID editor with waveform selection, ADSR drag-graph, filter, drag-to-paint tracker grid, range copy/paste, Web Audio preview, and three export modes: <em>Export blocks (data only)</em>, <em>Export blocks + miniplayer</em>, and <em>Export asm</em> (clipboard). Generates a complete C64-runnable player with sid_init / sid_irq / sid_play_row routines.
         </li>
         <li>
-          <strong>Fluid layout</strong> &mdash; removed the 1400 px max-width; palette, program and output panels now scale proportionally with the window.
+          <strong>Sprite editor</strong> &mdash; dedicated dialog for sprite design with frame management, multi-frame animation, fliph/flipv/shift tools, .bin load/save, and Export blocks to the program.
         </li>
         <li>
-          <strong><code>.call</code> alias for <code>.invoke</code></strong> &mdash; macro invocations can now use <code>.call macroName(arg1, arg2)</code> as a synonym for <code>.invoke</code>, matching familiar assembler syntax.
+          <strong>Multilayer map editor</strong> &mdash; tilemap editor with multiple layers, brush tools, clear menu, and improved image import for tilesets.
         </li>
         <li>
-          <strong>Macro argument parsing improvements</strong> &mdash; quoted arguments with commas inside them are now handled correctly. Argument splitting and normalisation rewritten for robustness across expert mode, ASM import and block mode.
+          <strong>Toolkit tab</strong> &mdash; centralized dialog hub for all the visual editors (hires, multicolor, sprite, char, SID, map). Refactored hires/multicolor editor for cleaner UX and a unified Files-menu structure across editors.
         </li>
         <li>
-          <strong>Auto buffer allocation for deferred macros</strong> &mdash; macros like <code>.rawbytes</code>, <code>.rawtext</code>, <code>.petscii</code> that use address parameters now support automatic buffer address assignment via generated buffer labels and a <code>_autoBufferAddress</code> allocator.
+          <strong>Bitmap export</strong> &mdash; native multicolor save format (<code>image-mc-native.bin</code>, 10000 bytes: bitmap + screen + color) for D64 integration. Direct LOADFILE compatibility when used with a $2000 load address.
         </li>
         <li>
-          <strong>Decimal <code>.org</code> syntax</strong> &mdash; the ORG directive now accepts plain decimal numbers (e.g. <code>.org 2049</code>) in addition to hex (<code>.org $0801</code>).
+          <strong>D64 extras &mdash; "Dst" column</strong> &mdash; per-file decompression-target field next to the load-address field, only relevant when EXO is enabled. Tooltips for both columns, fully translated.
         </li>
         <li>
-          <strong>Unified label/metadata collection</strong> &mdash; <code>addLayoutLabels()</code> helper consolidates label map population across all layout functions, reducing duplication and fixing edge cases with symbol resolution.
+          <strong>Robust tour positioning</strong> &mdash; the interactive setup tour now polls for the target element up to 1.5 s when an action opens a dialog (fixes the Settings tour getting stuck at the VICE picker step). Safer dialog open/close that no longer throws when the dialog is already open.
+        </li>
+        <li>
+          <strong>I18n coverage</strong> &mdash; added missing translation keys for D64 extras (Crunch tooltip, Dst placeholder/tooltip), Exomizer border-flash toggle label, EXODECRUNCH error messages, and the new sample names.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -743,10 +746,16 @@ PRINTABLE CHARACTERS
             <span class="knowledge-base-link-url">commodore.net</span>
           </a>
         </li>
-        <li></li>
+        <li>
           <a class="knowledge-base-link" href="#" data-url="https://github.com/slajerek/RetroDebugger">
             <span class="knowledge-base-link-title">RetroDebugger</span>
             <span class="knowledge-base-link-url">github.com/slajerek/RetroDebugger</span>
+          </a>
+        </li>
+        <li>
+          <a class="knowledge-base-link" href="#" data-url="https://csdb.dk/release/?id=238365">
+            <span class="knowledge-base-link-title">Exomizer</span>
+            <span class="knowledge-base-link-url">csdb.dk</span>
           </a>
         </li>
       </ul>
@@ -1343,9 +1352,9 @@ PRINTABLE CHARACTERS
   </div>
 
   <script src="tauri-bridge.js"></script>
-  <script src="i18n.js?v=1.8.0"></script>
-  <script src="tutorial-data.js?v=1.8.0"></script>
-  <script src="app.js?v=1.8.0"></script>
+  <script src="i18n.js?v=2.0.0"></script>
+  <script src="tutorial-data.js?v=2.0.0"></script>
+  <script src="app.js?v=2.0.0"></script>
 
 </body>
 

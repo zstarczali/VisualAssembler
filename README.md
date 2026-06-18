@@ -2,7 +2,7 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v1.7.4**
+**Current version: v2.0.0**
 
 ---
 
@@ -226,6 +226,22 @@ Each block in `program[]` is a plain object:
 - **Name-input demo and tutorial** — new sample `name-input-demo.json` demonstrating PETSCII text + CHROUT print loop + CHRIN keyboard input, with a guided interactive tutorial.
 - **Lowercase sample text normalisation** — sample demo text operands normalised to lowercase across all samples. PETSCII encoder improved: newlines map to 13, characters uppercase for C64 charset, lowercase→uppercase fallback.
 - **Palette sync and UI fixes** — palette item highlighting refactored; active palette items scroll into view. Table macros no longer show operand field. Hungarian translation fixes.
+## What's New in v2.0.0
+
+- **Exomizer `mem` mode for D64 extras** — raw binary files added to a D64 (e.g. multicolor bitmaps, sample data) can now be compressed with `exomizer mem` backward mode. The Run via D64 dialog gets a per-file **EXO** checkbox plus a second address column (**Dst**) for the decompression target. The safety offset of 2 bytes is compensated automatically when calling exomizer.
+- **EXODECRUNCH block macro** — new macro for in-program decompression. Generates 19 bytes: copies KERNAL's load-end ($AE/$AF) into the depacker src-end ($04/$05), toggles `$01 = $36` to expose RAM at `$A000-$BFFF`, JSRs the depacker at the configured address, then restores `$01 = $37`. A pre-built backward depacker (`samples/exo-decrunch.bin`, 477 bytes) is auto-loaded with the EXO multicolor demo sample.
+- **Border-flash toggle in Settings** — new checkbox in Hardware Settings → Exomizer to enable/disable the `-x1` accumulator-based fast border-flash effect on SFX-compressed PRGs. The mem-mode depacker has its own built-in `INC $D020` flash that runs unconditionally for visual progress feedback.
+- **Exomizer integration test** — new Rust integration test (`cargo test --test exomizer_integration`) that compresses `multi-color.bin` end-to-end, runs the depacker in an embedded 6502 emulator, and asserts byte-for-byte equality with the original 10000 bytes. Catches regressions in compression flags, safety-offset compensation, and depacker bytecode.
+- **EXO multicolor demo sample** — complete example showing the full LOADFILE → EXODECRUNCH → display flow for a compressed multicolor bitmap loaded from D64 at runtime, including screen/color RAM copy and VIC-II multicolor setup.
+- **SID editor — full 3-voice tracker** — multi-instrument SID editor with waveform selection, ADSR drag-graph, filter, drag-to-paint tracker grid, range copy/paste, Web Audio preview, and three export modes: *Export blocks (data only)*, *Export blocks + miniplayer*, and *Export asm* (clipboard). Generates a complete C64-runnable player with `sid_init` / `sid_irq` / `sid_play_row` routines.
+- **Sprite editor** — dedicated dialog for sprite design with frame management, multi-frame animation, fliph/flipv/shift tools, `.bin` load/save, and Export blocks to the program.
+- **Multilayer map editor** — tilemap editor with multiple layers, brush tools, clear menu, and improved image import for tilesets.
+- **Toolkit tab** — centralised dialog hub for all the visual editors (hires, multicolor, sprite, char, SID, map). Refactored hires/multicolor editor for cleaner UX and a unified Files-menu structure across editors.
+- **Bitmap export** — native multicolor save format (`image-mc-native.bin`, 10000 bytes: bitmap + screen + color) for D64 integration. Direct LOADFILE compatibility when used with a $2000 load address.
+- **D64 extras — "Dst" column** — per-file decompression-target field next to the load-address field, only relevant when EXO is enabled. Tooltips for both columns, fully translated.
+- **Robust tour positioning** — the interactive setup tour polls for the target element up to 1.5 s when an action opens a dialog (fixes the Settings tour getting stuck at the VICE picker step). Safer dialog open/close that no longer throws when the dialog is already open.
+- **I18n coverage** — added missing translation keys for D64 extras (Crunch tooltip, Dst placeholder/tooltip), Exomizer border-flash toggle label, EXODECRUNCH error messages, and the new sample names.
+
 ## What's New in v1.7.4
 
 - **Exomizer integration** — optional Exomizer crunching for all run and build paths via a single checkbox in the Settings menu. Configure the Exomizer executable in Hardware Settings, then enable the checkbox to compress PRG and D64 output with `exomizer sfx sys`. Works with VICE launch, D64 export, and C64 Ultimate hardware runs. If the Exomizer path is not configured, a clear error toast is shown instead of launching.
