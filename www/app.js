@@ -2958,10 +2958,7 @@ function createBlockFromMnemonic(item) {
       validationError: "",
       collapsed: true,
       isExoDecrunchMacro: true,
-      exoSrcAddr: "C000",
-      exoDestAddr: "2000",
-      exoDepackerAddr: "A000",
-      exoZpBase: "FB"
+      exoDepackerAddr: "B000"
     };
   }
 
@@ -3637,7 +3634,7 @@ function _blockToExpertLine(block) {
   if (block.isPetsciiMacro)   return `.petscii ${fmtAddr(block.petsciiAddress)}, "${block.rawOperand || "HELLO"}"${block.petsciiNullTerminated ? ", null" : ""}${fmtMacroLabel(block.macroLabel)}`;
   if (block.isTableMacro)     return block.tableAddress ? `.table ${block.tableName || "table1"} $${block.tableAddress.replace(/^\$/,"").toUpperCase()}` : `.table ${block.tableName || "table1"}`;  
   if (block.isLoadFileMacro)  return `.loadfile "${block.loadFileName || "DATA"}", ${block.loadFileDevice || "8"}${block.loadFileAddress ? ", $" + block.loadFileAddress.replace(/^\$/,"") : ""}${block.loadFileErrorLabel ? ", " + block.loadFileErrorLabel : ""}`;
-  if (block.isExoDecrunchMacro) return `.exodecrunch $${(block.exoSrcAddr||"C000").toUpperCase()}, dst=$${(block.exoDestAddr||"2000").toUpperCase()}, depacker=$${(block.exoDepackerAddr||"A000").toUpperCase()}, zp=$${(block.exoZpBase||"FB").toUpperCase()}`;
+  if (block.isExoDecrunchMacro) return `.exodecrunch depacker=$${(block.exoDepackerAddr||"B000").toUpperCase()} (src-end from KERNAL $AE/$AF)`;
   if (block.isSidMacro)       return `.sid "${block.sidFileName || "music.sid"}"${block.sidCustomAddress ? ", $" + block.sidCustomAddress.replace(/^\$/, "") : ""}`;  
   if (block.isIncludeMacro)   return `.include "${block.includeFileName || "library.json"}"${block.includeAddress ? ", $" + block.includeAddress.replace(/^\$/, "") : ""}`;  
   if (block.isLoopMacro)      return `.loop ${block.loopReg || "X"}, $${(block.loopCount || "0A").toUpperCase()}, ${block.loopLabel || "loop1"}`;
@@ -6345,7 +6342,7 @@ function updateProgramBlock(index, field, value) {
     return;
   }
 
-  if (block.isExoDecrunchMacro && (field === "exoSrcAddr" || field === "exoDestAddr" || field === "exoDepackerAddr" || field === "exoZpBase")) {
+  if (block.isExoDecrunchMacro && field === "exoDepackerAddr") {
     block.validationError = "";
     renderBlockPreview(index);
     renderAsmOutput();
@@ -10589,41 +10586,32 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isExoDecrunchMacro) {
-    const srcStr = (block.exoSrcAddr || "C000").replace(/^\$/, "");
-    const srcAddr = parseInt(srcStr, 16);
-    if (isNaN(srcAddr) || srcAddr < 0 || srcAddr > 0xFFFF) {
-      return { ok: false, error: t("exoDecrunchErrBadSrc") };
-    }
-    const dstStr = (block.exoDestAddr || "2000").replace(/^\$/, "");
-    const dstAddr = parseInt(dstStr, 16);
-    if (isNaN(dstAddr) || dstAddr < 0 || dstAddr > 0xFFFF) {
-      return { ok: false, error: t("exoDecrunchErrBadDest") };
-    }
-    const depackStr = (block.exoDepackerAddr || "A000").replace(/^\$/, "");
+    // Backward exomizer mem-mode convention. Sequence:
+    //   1) Copy KERNAL's load-end ZP ($AE/$AF) into depacker's src-end ZP ($04/$05).
+    //   2) Turn off BASIC ROM ($01 = $36) so the depacker at $A000-$BFFF
+    //      area is visible as RAM (default $37 maps BASIC ROM over $A000-$BFFF).
+    //   3) JSR to depacker.
+    //   4) Restore default memory mapping ($01 = $37) for downstream code.
+    const depackStr = (block.exoDepackerAddr || "B000").replace(/^\$/, "");
     const depackAddr = parseInt(depackStr, 16);
     if (isNaN(depackAddr) || depackAddr < 0 || depackAddr > 0xFFFF) {
       return { ok: false, error: t("exoDecrunchErrBadDepacker") };
     }
-    const zpStr = (block.exoZpBase || "FB").replace(/^\$/, "");
-    const zpBase = parseInt(zpStr, 16);
-    if (isNaN(zpBase) || zpBase < 0 || zpBase > 0xFE) {
-      return { ok: false, error: t("exoDecrunchErrBadZp") };
-    }
-    const bytes = [];
-    // LDA #<src / STA zpBase
-    bytes.push(0xA9, srcAddr & 0xFF, 0x85, zpBase);
-    // LDA #>src / STA zpBase+1
-    bytes.push(0xA9, (srcAddr >> 8) & 0xFF, 0x85, (zpBase + 1) & 0xFF);
-    // LDA #<dst / STA $FE (depacker dest_lo)
-    bytes.push(0xA9, dstAddr & 0xFF, 0x85, 0xFE);
-    // LDA #>dst / STA $FF (depacker dest_hi)
-    bytes.push(0xA9, (dstAddr >> 8) & 0xFF, 0x85, 0xFF);
-    // JSR depackAddr
-    bytes.push(0x20, depackAddr & 0xFF, (depackAddr >> 8) & 0xFF);
+    const bytes = [
+      0xA5, 0xAE,           // LDA $AE  (KERNAL load-end lo)
+      0x85, 0x04,           // STA $04  (depacker src-end lo)
+      0xA5, 0xAF,           // LDA $AF  (KERNAL load-end hi)
+      0x85, 0x05,           // STA $05  (depacker src-end hi)
+      0xA9, 0x36,           // LDA #$36 (BASIC ROM off, KERNAL+I/O on)
+      0x85, 0x01,           // STA $01
+      0x20, depackAddr & 0xFF, (depackAddr >> 8) & 0xFF, // JSR depacker
+      0xA9, 0x37,           // LDA #$37 (restore default: BASIC+KERNAL+I/O)
+      0x85, 0x01,           // STA $01
+    ];
     return {
       ok: true,
       bytes,
-      comment: `EXODECRUNCH src=$${srcAddr.toString(16).toUpperCase().padStart(4,"0")} dst=$${dstAddr.toString(16).toUpperCase().padStart(4,"0")} depacker=$${depackAddr.toString(16).toUpperCase().padStart(4,"0")} zp=$${zpBase.toString(16).toUpperCase().padStart(2,"0")}`
+      comment: `EXODECRUNCH depacker=$${depackAddr.toString(16).toUpperCase().padStart(4,"0")} (toggles $01 around JSR for ROM-overlay area)`
     };
   }
 
@@ -11382,7 +11370,8 @@ function getInstructionSize(block) {
   }
 
   if (block.isExoDecrunchMacro) {
-    return 19;  // 4× (LDA #imm + STA zp) for src+dest pointers + JSR depack
+    return 19;  // 4×(LDA zp+STA zp)=16 for src-end + $01 toggle + JSR (3)
+                // Actually: 8 (src-end) + 4 ($01=$36) + 3 (JSR) + 4 ($01=$37) = 19
   }
 
   if (block.isSpritePosMacro) {
@@ -13826,22 +13815,8 @@ function renderProgram() {
         `
           <div class="macro-grid">
             <label class="mini-field">
-              <span>${t("fieldExoSrcAddr")}</span>
-              <input class="exo-src-addr" type="text" maxlength="5" value="${escapeHtmlAttribute(block.exoSrcAddr || "C000")}" placeholder="C000">
-            </label>
-            <label class="mini-field">
-              <span>${t("fieldExoDestAddr")}</span>
-              <input class="exo-dest-addr" type="text" maxlength="5" value="${escapeHtmlAttribute(block.exoDestAddr || "2000")}" placeholder="2000">
-            </label>
-          </div>
-          <div class="macro-grid">
-            <label class="mini-field">
               <span>${t("fieldExoDepackerAddr")}</span>
-              <input class="exo-depacker-addr" type="text" maxlength="5" value="${escapeHtmlAttribute(block.exoDepackerAddr || "A000")}" placeholder="A000">
-            </label>
-            <label class="mini-field">
-              <span>${t("fieldExoZpBase")}</span>
-              <input class="exo-zp-base" type="text" maxlength="3" value="${escapeHtmlAttribute(block.exoZpBase || "FB")}" placeholder="FB">
+              <input class="exo-depacker-addr" type="text" maxlength="5" value="${escapeHtmlAttribute(block.exoDepackerAddr || "B000")}" placeholder="B000">
             </label>
           </div>
         `
@@ -14494,21 +14469,9 @@ function renderProgram() {
         }, { capture: true });
       }
     }
-    const exoSrcAddrInput = node.querySelector(".exo-src-addr");
-    if (exoSrcAddrInput) {
-      exoSrcAddrInput.addEventListener("input", (event) => updateProgramBlock(index, "exoSrcAddr", event.target.value));
-    }
-    const exoDestAddrInput = node.querySelector(".exo-dest-addr");
-    if (exoDestAddrInput) {
-      exoDestAddrInput.addEventListener("input", (event) => updateProgramBlock(index, "exoDestAddr", event.target.value));
-    }
     const exoDepackerAddrInput = node.querySelector(".exo-depacker-addr");
     if (exoDepackerAddrInput) {
       exoDepackerAddrInput.addEventListener("input", (event) => updateProgramBlock(index, "exoDepackerAddr", event.target.value));
-    }
-    const exoZpBaseInput = node.querySelector(".exo-zp-base");
-    if (exoZpBaseInput) {
-      exoZpBaseInput.addEventListener("input", (event) => updateProgramBlock(index, "exoZpBase", event.target.value));
     }
     const loopRegSelect = node.querySelector(".loop-reg");
     if (loopRegSelect) {

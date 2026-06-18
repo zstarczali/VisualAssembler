@@ -37,8 +37,8 @@
       "id": "exomc-comment-1",
       "isComment": true,
       "mnemonic": "COMMENT",
-      "operand": "EXO Multicolor Demo — loads an Exomizer-compressed multicolor bitmap from D64, decompresses it to $2000, then displays it.",
-      "rawOperand": "EXO Multicolor Demo — loads an Exomizer-compressed multicolor bitmap from D64, decompresses it to $2000, then displays it.",
+      "operand": "EXO Multicolor Demo — LOADFILE compressed bitmap to $C000, EXODECRUNCH decompresses to $2000, then displays it.",
+      "rawOperand": "EXO Multicolor Demo — LOADFILE compressed bitmap to $C000, EXODECRUNCH decompresses to $2000, then displays it.",
       "validationError": ""
     },
     {
@@ -50,8 +50,8 @@
       "id": "exomc-comment-2",
       "isComment": true,
       "mnemonic": "COMMENT",
-      "operand": "Run via D64 setup: the HIRES extra file is pre-configured (multi-color.bin, Addr=$2000, EXO checked). VA compresses it with exomizer raw and puts it on the D64.",
-      "rawOperand": "Run via D64 setup: the HIRES extra file is pre-configured (multi-color.bin, Addr=$2000, EXO checked). VA compresses it with exomizer raw and puts it on the D64.",
+      "operand": "Run via D64 setup: MULTI-COLOR is pre-configured (Addr=C000, Dst=2000, EXO=on). VA compresses multi-color.bin with exomizer mem backward mode, target $2000, loads to $C000.",
+      "rawOperand": "Run via D64 setup: MULTI-COLOR is pre-configured (Addr=C000, Dst=2000, EXO=on). VA compresses multi-color.bin with exomizer mem backward mode, target $2000, loads to $C000.",
       "validationError": ""
     },
     {
@@ -63,8 +63,8 @@
       "id": "exomc-comment-3",
       "isComment": true,
       "mnemonic": "COMMENT",
-      "operand": "Depacker: compile decrunch.asm from the Exomizer distribution, save as exo-decrunch.bin, then place it via INCBIN at $B000 (see second ORG segment below).",
-      "rawOperand": "Depacker: compile decrunch.asm from the Exomizer distribution, save as exo-decrunch.bin, then place it via INCBIN at $B000 (see second ORG segment below).",
+      "operand": "After LOADFILE, KERNAL sets ZP $AE/$AF to end-of-load. EXODECRUNCH copies those to ZP $04/$05 (depacker source-end pointer), then JSRs depacker at $B000 which decompresses backward to $2000.",
+      "rawOperand": "After LOADFILE, KERNAL sets ZP $AE/$AF to end-of-load. EXODECRUNCH copies those to ZP $04/$05 (depacker source-end pointer), then JSRs depacker at $B000 which decompresses backward to $2000.",
       "validationError": ""
     },
     {
@@ -124,8 +124,8 @@
       "id": "exomc-text-loading",
       "isTextMacro": true,
       "mnemonic": "TEXT",
-      "operand": "loading hires.exo...",
-      "rawOperand": "loading hires.exo...",
+      "operand": "loading multi-color...   ",
+      "rawOperand": "loading multi-color...   ",
       "textX": 10,
       "textY": 12,
       "validationError": ""
@@ -138,7 +138,7 @@
       "description": "",
       "id": "exomc-loadfile",
       "isLoadFileMacro": true,
-      "loadFileAddress": "C000",
+      "loadFileAddress": "",
       "loadFileDevice": "8",
       "loadFileErrorLabel": "failtramp",
       "loadFileName": "MULTI-COLOR",
@@ -206,14 +206,35 @@
       "collapsed": true,
       "description": "",
       "exoDepackerAddr": "B000",
-      "exoDestAddr": "2000",
-      "exoSrcAddr": "C000",
-      "exoZpBase": "FB",
       "id": "exomc-exodecrunch",
       "isExoDecrunchMacro": true,
       "mnemonic": "EXODECRUNCH",
       "operand": "",
       "rawOperand": "",
+      "validationError": ""
+    },
+    {
+      "addressingMode": "immediate",
+      "base": "hex",
+      "category": "Adatmozgas",
+      "collapsed": true,
+      "description": "",
+      "id": "exomc-lda-bordrst",
+      "mnemonic": "LDA",
+      "operand": "#$00",
+      "rawOperand": "00",
+      "validationError": ""
+    },
+    {
+      "addressingMode": "absolute",
+      "base": "hex",
+      "category": "Adatmozgas",
+      "collapsed": true,
+      "description": "",
+      "id": "exomc-sta-d020-rst",
+      "mnemonic": "STA",
+      "operand": "$D020",
+      "rawOperand": "D020",
       "validationError": ""
     },
     {
@@ -225,8 +246,8 @@
       "id": "exomc-comment-copy",
       "isComment": true,
       "mnemonic": "COMMENT",
-      "operand": "Koala layout: bitmap at $2000, screen data at $3F40, color data at $4328. Copy screen→$1800 (VIC screen RAM for D018=$68) and color→$D800 (color RAM). LDX loop, 4 pages each (3x256 + 232 bytes).",
-      "rawOperand": "Koala layout: bitmap at $2000, screen data at $3F40, color data at $4328. Copy screen→$1800 (VIC screen RAM for D018=$68) and color→$D800 (color RAM). LDX loop, 4 pages each (3x256 + 232 bytes).",
+      "operand": "Koala layout: bitmap $2000, screen $3F40, color $4328. Copy screen→$0400 (default screen RAM, D018=$18) and color→$D800. 4×250-byte loops each.",
+      "rawOperand": "Koala layout: bitmap $2000, screen $3F40, color $4328. Copy screen→$0400 (default screen RAM, D018=$18) and color→$D800. 4×250-byte loops each.",
       "validationError": ""
     },
     {
@@ -238,8 +259,8 @@
       "id": "exomc-copy-routine",
       "isByteMacro": true,
       "mnemonic": "BYTE",
-      "operand": "$A2,$00,$BD,$40,$3F,$9D,$00,$18,$E8,$D0,$F7,$BD,$40,$40,$9D,$00,$19,$E8,$D0,$F7,$BD,$40,$41,$9D,$00,$1A,$E8,$D0,$F7,$BD,$40,$42,$9D,$00,$1B,$E8,$E0,$E8,$D0,$F5,$A2,$00,$BD,$28,$43,$9D,$00,$D8,$E8,$D0,$F7,$BD,$28,$44,$9D,$00,$D9,$E8,$D0,$F7,$BD,$28,$45,$9D,$00,$DA,$E8,$D0,$F7,$BD,$28,$46,$9D,$00,$DB,$E8,$E0,$E8,$D0,$F5",
-      "rawOperand": "$A2,$00,$BD,$40,$3F,$9D,$00,$18,$E8,$D0,$F7,$BD,$40,$40,$9D,$00,$19,$E8,$D0,$F7,$BD,$40,$41,$9D,$00,$1A,$E8,$D0,$F7,$BD,$40,$42,$9D,$00,$1B,$E8,$E0,$E8,$D0,$F5,$A2,$00,$BD,$28,$43,$9D,$00,$D8,$E8,$D0,$F7,$BD,$28,$44,$9D,$00,$D9,$E8,$D0,$F7,$BD,$28,$45,$9D,$00,$DA,$E8,$D0,$F7,$BD,$28,$46,$9D,$00,$DB,$E8,$E0,$E8,$D0,$F5",
+      "operand": "$A2,$00,$BD,$40,$3F,$9D,$00,$04,$E8,$E0,$FA,$D0,$F5,$A2,$00,$BD,$3A,$40,$9D,$FA,$04,$E8,$E0,$FA,$D0,$F5,$A2,$00,$BD,$34,$41,$9D,$F4,$05,$E8,$E0,$FA,$D0,$F5,$A2,$00,$BD,$2E,$42,$9D,$EE,$06,$E8,$E0,$FA,$D0,$F5,$A2,$00,$BD,$28,$43,$9D,$00,$D8,$E8,$E0,$FA,$D0,$F5,$A2,$00,$BD,$22,$44,$9D,$FA,$D8,$E8,$E0,$FA,$D0,$F5,$A2,$00,$BD,$1C,$45,$9D,$F4,$D9,$E8,$E0,$FA,$D0,$F5,$A2,$00,$BD,$16,$46,$9D,$EE,$DA,$E8,$E0,$FA,$D0,$F5",
+      "rawOperand": "$A2,$00,$BD,$40,$3F,$9D,$00,$04,$E8,$E0,$FA,$D0,$F5,$A2,$00,$BD,$3A,$40,$9D,$FA,$04,$E8,$E0,$FA,$D0,$F5,$A2,$00,$BD,$34,$41,$9D,$F4,$05,$E8,$E0,$FA,$D0,$F5,$A2,$00,$BD,$2E,$42,$9D,$EE,$06,$E8,$E0,$FA,$D0,$F5,$A2,$00,$BD,$28,$43,$9D,$00,$D8,$E8,$E0,$FA,$D0,$F5,$A2,$00,$BD,$22,$44,$9D,$FA,$D8,$E8,$E0,$FA,$D0,$F5,$A2,$00,$BD,$1C,$45,$9D,$F4,$D9,$E8,$E0,$FA,$D0,$F5,$A2,$00,$BD,$16,$46,$9D,$EE,$DA,$E8,$E0,$FA,$D0,$F5",
       "validationError": ""
     },
     {
@@ -251,8 +272,8 @@
       "id": "exomc-comment-vic",
       "isComment": true,
       "mnemonic": "COMMENT",
-      "operand": "Screen and color data copied. Bitmap at $2000, screen RAM at $1800, color RAM at $D800. Set up VIC-II for multicolor bitmap.",
-      "rawOperand": "Screen and color data copied. Bitmap at $2000, screen RAM at $1800, color RAM at $D800. Set up VIC-II for multicolor bitmap.",
+      "operand": "Screen and color data copied. Bitmap $2000, screen $0400, color $D800. Set up VIC-II for multicolor bitmap.",
+      "rawOperand": "Screen and color data copied. Bitmap $2000, screen $0400, color $D800. Set up VIC-II for multicolor bitmap.",
       "validationError": ""
     },
     {
@@ -263,8 +284,8 @@
       "description": "",
       "id": "exomc-lda-d018",
       "mnemonic": "LDA",
-      "operand": "#$68",
-      "rawOperand": "68",
+      "operand": "#$18",
+      "rawOperand": "18",
       "validationError": ""
     },
     {

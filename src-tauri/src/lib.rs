@@ -399,11 +399,19 @@ fn crunch_with_exomizer(exomizer_path: &str, input_bytes: &[u8], file_name: &str
     let load_str;
     let infile_with_target;
     let args: Vec<&str> = if raw_mode {
-        // exomizer mem: -l <load> embeds the load address in the output PRG header;
-        // appending ",<decompress>" to the input filename tells exomizer where the
-        // decompressed data is supposed to end up (encoded into the stream).
+        // exomizer mem (backward, default): -l <load> sets the PRG load address;
+        // appending ",<target>" to the input filename tells exomizer the original
+        // address of the file, which gets encoded into the stream.
+        // Decoder reads ZP $04/$05 = end-of-crunched-data, JSR decrunch.
+        //
+        // Exomizer's default safety_offset is 2 bytes — decompressed data lands
+        // 2 bytes EARLIER than the address we pass. Compensate by adding 2.
         load_str = format!("${}", raw_load.unwrap_or("C000"));
-        infile_with_target = format!("{},${}", input_path.to_str().unwrap(), raw_decompress.unwrap_or("2000"));
+        let target_user = raw_decompress.unwrap_or("2000");
+        let target_adjusted = u32::from_str_radix(target_user.trim_start_matches('$'), 16)
+            .map(|v| v.saturating_add(2))
+            .unwrap_or(0x2002);
+        infile_with_target = format!("{},${:04X}", input_path.to_str().unwrap(), target_adjusted);
         vec!["mem", "-l", load_str.as_str(), "-o", output_path.to_str().unwrap(), infile_with_target.as_str()]
     } else {
         vec!["sfx", "sys", "-o", output_path.to_str().unwrap(), input_path.to_str().unwrap()]
