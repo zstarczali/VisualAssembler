@@ -300,6 +300,7 @@ const helpManualButton = document.getElementById("help-manual-btn");
 const checkUpdateButton = document.getElementById("check-update-btn");
 const reportBugButton = document.getElementById("report-bug-btn");
 const basicSysToggle = document.getElementById("basic-sys-toggle");
+const exomizerBorderFlashToggle = document.getElementById("exomizer-border-flash");
 const expertModeToggle = document.getElementById("expert-mode-toggle");
 const expertPanel = document.getElementById("expert-panel");
 const expertEditor = document.getElementById("expert-editor");
@@ -405,6 +406,7 @@ function saveUiSettings() {
     sample: sampleSelect?.value || "basic-colors",
     memoryPanelOpen: !!globalMemoryPanel?.open,
     basicSys: basicSysToggle ? basicSysToggle.checked : true,
+    exomizerBorderFlash: exomizerBorderFlashToggle ? exomizerBorderFlashToggle.checked : true,
     expertMode: expertMode,
     expertHlEnabled: _expertHlEnabled,
     expertPaletteSyncEnabled: _expertPaletteSyncEnabled,
@@ -929,6 +931,7 @@ function initPalette() {
     renderOriginPreview();
     renderExpertOriginInfo();
   });
+  exomizerBorderFlashToggle?.addEventListener("change", saveUiSettings);
 
   expertModeToggle?.addEventListener("change", () => {
     setExpertMode(expertModeToggle.checked);
@@ -1577,6 +1580,10 @@ function _applyUiSettingsToDOM() {
     basicSysToggle.checked = savedUiSettings.basicSys !== false;
   }
 
+  if (exomizerBorderFlashToggle) {
+    exomizerBorderFlashToggle.checked = savedUiSettings.exomizerBorderFlash !== false;
+  }
+
   if (savedUiSettings.showMacroSource !== undefined) {
     showMacroSource = !!savedUiSettings.showMacroSource;
     if (macroSourceToggle) macroSourceToggle.checked = showMacroSource;
@@ -1750,6 +1757,8 @@ function applyTranslations() {
   if (mnemonicDescLabel) mnemonicDescLabel.textContent = t("mnemonicCardLabel");
   const basicSysLabelEl = document.getElementById("basic-sys-label");
   if (basicSysLabelEl) basicSysLabelEl.textContent = t("basicSysLabel");
+  const exomizerFlashLabelEl = document.getElementById("exomizer-border-flash-label");
+  if (exomizerFlashLabelEl) exomizerFlashLabelEl.textContent = t("exomizerBorderFlashLabel");
   const blockPaletteSyncLabelEl = document.getElementById("block-desc-sync-label");
   if (blockPaletteSyncLabelEl) blockPaletteSyncLabelEl.textContent = t("blockDescSyncLabel");
   const expertModeLabelEl = document.getElementById("expert-mode-label");

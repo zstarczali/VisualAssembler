@@ -177,6 +177,11 @@ fn get_exomizer_path(cfg: &serde_json::Value) -> String {
     cfg["exomizerPath"].as_str().unwrap_or("").to_string()
 }
 
+fn get_exomizer_border_flash(cfg: &serde_json::Value) -> bool {
+    // Defaults to true if unset, so existing configs keep the visual feedback.
+    cfg["uiSettings"]["exomizerBorderFlash"].as_bool().unwrap_or(true)
+}
+
 // ── SID parsing ─────────────────────────────────────────────────────────────
 
 #[derive(Serialize)]
@@ -372,7 +377,7 @@ struct BuildRawPayload {
     decompress_address: Option<String>, // decompress target (hex without $), e.g. "2000"
 }
 
-fn crunch_with_exomizer(exomizer_path: &str, input_bytes: &[u8], file_name: &str, raw_mode: bool, raw_load: Option<&str>, raw_decompress: Option<&str>) -> Result<(PathBuf, Vec<u8>), String> {
+fn crunch_with_exomizer(exomizer_path: &str, input_bytes: &[u8], file_name: &str, raw_mode: bool, raw_load: Option<&str>, raw_decompress: Option<&str>, border_flash: bool) -> Result<(PathBuf, Vec<u8>), String> {
     let temp_dir = std::env::temp_dir().join("c64-visual-assembler");
     fs::create_dir_all(&temp_dir).map_err(|e| format!("mkdir {:?}: {}", temp_dir, e))?;
     let input_path = temp_dir.join(file_name);
@@ -414,7 +419,10 @@ fn crunch_with_exomizer(exomizer_path: &str, input_bytes: &[u8], file_name: &str
         infile_with_target = format!("{},${:04X}", input_path.to_str().unwrap(), target_adjusted);
         vec!["mem", "-l", load_str.as_str(), "-o", output_path.to_str().unwrap(), infile_with_target.as_str()]
     } else {
-        vec!["sfx", "sys", "-o", output_path.to_str().unwrap(), input_path.to_str().unwrap()]
+        // sfx sys: self-extracting PRG. -x1 = fast accumulator-based border-flash
+        // decrunch effect; -n disables any effect. Controlled by UI setting.
+        let effect_flag = if border_flash { "-x1" } else { "-n" };
+        vec!["sfx", "sys", effect_flag, "-o", output_path.to_str().unwrap(), input_path.to_str().unwrap()]
     };
     let output = cmd
         .args(&args)
@@ -452,7 +460,8 @@ async fn build_exomizer_prg(app: AppHandle, payload: LaunchVicePayload) -> serde
             .duration_since(std::time::UNIX_EPOCH).unwrap().as_millis())
     });
 
-    match crunch_with_exomizer(&exomizer_path, &payload.bytes, &file_name, false, None, None) {
+    let border_flash = get_exomizer_border_flash(&cfg);
+    match crunch_with_exomizer(&exomizer_path, &payload.bytes, &file_name, false, None, None, border_flash) {
         Ok((output_path, bytes)) => serde_json::json!({
             "ok": true,
             "exomizerPath": exomizer_path,
@@ -483,7 +492,10 @@ async fn build_exomizer_raw(app: AppHandle, payload: BuildRawPayload) -> serde_j
 
     let load_addr = payload.target_address.as_deref();
     let decomp_addr = payload.decompress_address.as_deref();
-    match crunch_with_exomizer(&exomizer_path, &payload.bytes, &file_name, true, load_addr, decomp_addr) {
+    // border_flash unused in mem mode (which uses our own depacker, not sfx),
+    // but pass current setting for completeness.
+    let border_flash = get_exomizer_border_flash(&cfg);
+    match crunch_with_exomizer(&exomizer_path, &payload.bytes, &file_name, true, load_addr, decomp_addr, border_flash) {
         Ok((output_path, bytes)) => serde_json::json!({
             "ok": true,
             "exomizerPath": exomizer_path,
@@ -557,7 +569,8 @@ async fn launch_exomizer(app: AppHandle, payload: LaunchVicePayload) -> serde_js
             .duration_since(std::time::UNIX_EPOCH).unwrap().as_millis())
     });
 
-    let (output_path, _) = match crunch_with_exomizer(&exomizer_path, &payload.bytes, &file_name, false, None, None) {
+    let border_flash = get_exomizer_border_flash(&cfg);
+    let (output_path, _) = match crunch_with_exomizer(&exomizer_path, &payload.bytes, &file_name, false, None, None, border_flash) {
         Ok(result) => result,
         Err(error) => return serde_json::json!({ "ok": false, "error": error }),
     };
