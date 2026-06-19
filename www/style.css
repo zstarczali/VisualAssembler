@@ -4187,13 +4187,13 @@ html[data-theme="oled"] .expert-err-line {
   background: transparent;
   border: 1px solid var(--panel-border);
   border-radius: 6px;
-  color: var(--error, #d97706);
+  color: var(--text);
   padding: 0;
   width: 28px;
   height: 28px;
   min-height: 28px;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0;
   line-height: 1;
   flex: none;
   display: flex;
@@ -4202,8 +4202,8 @@ html[data-theme="oled"] .expert-err-line {
 }
 
 .d64-export-extra-remove:hover {
-  background: color-mix(in srgb, var(--error, #d97706) 12%, transparent);
-  border-color: color-mix(in srgb, var(--error, #d97706) 40%, transparent);
+  background: var(--secondary);
+  border-color: var(--secondary);
 }
 
 #d64-export-add-file {
@@ -4880,6 +4880,11 @@ body.crt-mode #crt-overlay::after {
 .region-select-asm-btn:hover,
 .region-copy-btn:hover,
 .region-paste-btn:hover {
+  background: var(--secondary);
+  border-color: var(--secondary);
+}
+
+.block-actions button:hover {
   background: var(--secondary);
   border-color: var(--secondary);
 }
