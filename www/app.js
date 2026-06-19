@@ -18532,6 +18532,33 @@ function _hgImportImage(img) {
   _hgRenderAll();
 }
 
+function _hgIsBinFile(file) {
+  return /\.(bin|prg|raw)$/i.test(file.name) || file.type === "application/octet-stream";
+}
+
+function _hgIsImageFile(file) {
+  return /^image\//i.test(file.type) || /\.(png|jpe?g|gif|webp|bmp|avif|tiff?)$/i.test(file.name);
+}
+
+function _hgImportImageFile(file) {
+  const loadFromObjectUrl = function() {
+    const img = new Image();
+    img.onload = function() { _hgImportImage(img); URL.revokeObjectURL(img.src); };
+    img.onerror = function() { URL.revokeObjectURL(img.src); };
+    img.src = URL.createObjectURL(file);
+  };
+  if (window.createImageBitmap) {
+    createImageBitmap(file).then(function(bitmap) {
+      _hgImportImage(bitmap);
+      if (bitmap && bitmap.close) bitmap.close();
+    }, function() {
+      loadFromObjectUrl();
+    });
+  } else {
+    loadFromObjectUrl();
+  }
+}
+
 /* Per-pixel displayed-colour buffer (for export). */
 /* Export the picture.
    Hi-res → standard C64 layout: 8000-byte bitmap + 1000-byte screen RAM
@@ -18790,14 +18817,12 @@ function setupHiresEditor() {
   impFile?.addEventListener("change", function(e) {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
-    if (/\.bin$/i.test(file.name) || file.type === "application/octet-stream") {
+    if (_hgIsBinFile(file) && !_hgIsImageFile(file)) {
       const reader = new FileReader();
       reader.onload = function() { _hgImportBytes(new Uint8Array(reader.result)); };
       reader.readAsArrayBuffer(file);
     } else {
-      const img = new Image();
-      img.onload = function() { _hgImportImage(img); URL.revokeObjectURL(img.src); };
-      img.src = URL.createObjectURL(file);
+      _hgImportImageFile(file);
     }
     e.target.value = "";
   });
