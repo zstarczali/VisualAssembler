@@ -177,7 +177,7 @@ const mnemonicLibrary = {
     { mnemonic: "MOUSE", description: "C64 1351 arányos egér vezérlése: SID POTX/POTY olvasás, standard 1351-szeru 7 bites delta dekódolással, CIA $DC00 felső 2 bitjével portválasztás, 512-ciklusos SID settle wait, X oldalon a klasszikus $D010 toggle mintával, Y oldalon invertált mozgatással. 142 byte inline.", modes: ["implied"], isMouseMacro: true },
     { mnemonic: "SPRITE_COL", description: "Sprite utkozes detektalas: LDA $D01E/$D01F + AND #bitMask. Eredmeny A-ban: nem nulla = utkozes. Utana BEQ/BNE-vel ugri. 5 byte.", modes: ["implied"], isSpriteColMacro: true },
     { mnemonic: "LOADFILE", description: "Fajl betoltese D64-rol KERNAL SETNAM/SETLFS/LOAD rutinokkal. Cim opcionalis (ures = fajl sajat cime, sec=1; kitoltve = override, sec=0). Hiba cimke opcionalis (BCS).", modes: ["implied"], isLoadFileMacro: true },
-    { mnemonic: "EXODECRUNCH", description: "Exomizer raw tomoritett adat kicsomagolasa. Beallitja a ZP forras pointert, majd JSR a depacker rutinra. A depacker rutint (Exomizer wrap.s) INCBIN-nel kell elhelyezni a programban. 10 byte.", modes: ["implied"], isExoDecrunchMacro: true },
+    { mnemonic: "EXODECRUNCH", description: "Exomizer mem-mode tömörített adat kicsomagolása. Átmásolja a KERNAL load-end mutatóját ($AE/$AF) a depacker forrás-vég ZP mutatójára ($04/$05), átkapcsolja $01-et $36-ra (BASIC ROM ki, hogy $B000 RAM legyen), JSR a depacker rutinra (alapból $B000), majd visszaállítja $01-et $37-re. A depacker külön (exo-decrunch.bin, 480 byte) INCBIN-nel kell betölteni. 19 byte.", modes: ["implied"], isExoDecrunchMacro: true },
     { mnemonic: "REU_CHECK", description: "REU (RAM bovito egyseg) jelenletenek ellenorzese: $DF04 write/read proba $55 es $AA mintaval. Z=0 → REU jelen van (BNE-vel ugri), Z=1 → nincs REU (BEQ-vel ugri). 34 byte.", modes: ["implied"], isReuCheckMacro: true },
     { mnemonic: "REU_STASH", description: "C64 RAM → REU mentes: C64 cim, REU cim/bank es hossz beallitasa ($DF02-$DF08), majd $90 parancs → $DF01 (execute + stash, azonnali DMA). 40 byte inline.", modes: ["implied"], isReuTransferMacro: true },
     { mnemonic: "REU_FETCH", description: "REU → C64 RAM betoltes: C64 cim, REU cim/bank es hossz beallitasa ($DF02-$DF08), majd $91 parancs → $DF01 (execute + fetch, azonnali DMA). 40 byte inline.", modes: ["implied"], isReuTransferMacro: true },
@@ -570,6 +570,7 @@ const mnemonicDescriptionsEn = {
   COMMENT: "Program comment that does not generate bytes.",
   SPRITE_INIT: "Initialize a sprite: set data page pointer ($07F8+N), enable bit ($D015), and color ($D027+N).",
   LOADFILE: "Load a file from disk via KERNAL SETNAM/SETLFS/LOAD. Address optional (empty = file's own load address with secondary=1; filled = override with secondary=0). Error label optional (BCS to label on carry/error).",
+  EXODECRUNCH: "Decompress Exomizer mem-mode data in place. Copies KERNAL's load-end pointer ($AE/$AF) into the depacker's source-end ZP ($04/$05), toggles $01 to $36 (BASIC ROM off so $A000-$BFFF is RAM), JSRs the depacker (default $B000), then restores $01 to $37. The depacker itself (exo-decrunch.bin, 480 bytes) must be INCBIN'd separately. 19 bytes.",
   SPRITE_POS: "Set sprite position: X (0–319) and Y (0–255). Handles the $D010 MSB for X > 255.",
   WAIT_RASTER: "Busy-wait for a raster line: LDA $D012 / CMP #line / BNE -7. Inline, 7 bytes, no JSR.",
   JOYSTICK: "Read joystick and move sprite: UP/DOWN/LEFT/RIGHT via LSR+BCS+DEC/INC. Port 1=$DC01, Port 2=$DC00. 27 bytes inline.",
@@ -702,6 +703,7 @@ const mnemonicDescriptionsEs = {
   COMMENT: "Comentario del programa que no genera bytes.",
   SPRITE_INIT: "Inicializa un sprite: puntero de datos ($07F8+N), bit de habilitación ($D015) y color ($D027+N).",
   LOADFILE: "Carga un archivo del disco mediante KERNAL SETNAM/SETLFS/LOAD. Dirección opcional; etiqueta de error opcional (BCS).",
+  EXODECRUNCH: "Descomprime datos comprimidos con Exomizer en modo mem. Copia el puntero de fin de carga del KERNAL ($AE/$AF) al puntero ZP de fin de fuente del depacker ($04/$05), cambia $01 a $36 (BASIC ROM desactivado para que $A000-$BFFF sea RAM), llama JSR al depacker (por defecto $B000), y luego restaura $01 a $37. El depacker en sí (exo-decrunch.bin, 480 bytes) debe incluirse por separado con INCBIN. 19 bytes.",
   SPRITE_POS: "Establece la posición del sprite: X (0–319) e Y (0–255). Gestiona el MSB de $D010 para X > 255.",
   WAIT_RASTER: "Espera activa una línea de raster: LDA $D012 / CMP #línea / BNE -7. Inline, 7 bytes, sin JSR.",
   JOYSTICK: "Lee el joystick y mueve el sprite: UP/DOWN/LEFT/RIGHT mediante LSR+BCS+DEC/INC. Puerto 1=$DC01, Puerto 2=$DC00. 27 bytes inline.",
@@ -1208,6 +1210,14 @@ function initPalette() {
     document.querySelector(".control-menu")?.removeAttribute("open");
   });
   document.getElementById("menu-save-project")?.addEventListener("click", async () => {
+    // Force a file dialog every time the menu item is clicked (Save As behaviour).
+    // Bootstrap an empty project if there isn't one yet, then clear the cached
+    // path so _expertSaveProject always prompts for a location.
+    if (!_expertProjectData) {
+      _expertProjectData = { name: "Új projekt", files: [], _projPath: "" };
+    } else {
+      _expertProjectData._projPath = "";
+    }
     await _expertSaveProject();
     document.querySelector(".control-menu")?.removeAttribute("open");
   });
@@ -1326,10 +1336,15 @@ function initPalette() {
   loadExomizerConfig();
   loadDebuggerConfig();
 
-  // Populate version on splash screen
+  // Populate version on splash screen AND About dialog text node up-front so
+  // any code that reads #about-version before the user opens About (e.g. the
+  // copy-ASM header — although that now queries the backend directly) sees
+  // the current version, not the placeholder in index.html.
   window.electronAPI.getAppVersion().then(version => {
     const splashVersion = document.getElementById('splash-version');
     if (splashVersion) splashVersion.textContent = `v${version}`;
+    const aboutVersion = document.getElementById('about-version');
+    if (aboutVersion) aboutVersion.textContent = `v${version}`;
   });
 
   // Hide splash screen after initialization
@@ -3643,7 +3658,7 @@ function _blockToExpertLine(block) {
   if (block.isPetsciiMacro)   return `.petscii ${fmtAddr(block.petsciiAddress)}, "${block.rawOperand || "HELLO"}"${block.petsciiNullTerminated ? ", null" : ""}${fmtMacroLabel(block.macroLabel)}`;
   if (block.isTableMacro)     return block.tableAddress ? `.table ${block.tableName || "table1"} $${block.tableAddress.replace(/^\$/,"").toUpperCase()}` : `.table ${block.tableName || "table1"}`;  
   if (block.isLoadFileMacro)  return `.loadfile "${block.loadFileName || "DATA"}", ${block.loadFileDevice || "8"}${block.loadFileAddress ? ", $" + block.loadFileAddress.replace(/^\$/,"") : ""}${block.loadFileErrorLabel ? ", " + block.loadFileErrorLabel : ""}`;
-  if (block.isExoDecrunchMacro) return `.exodecrunch depacker=$${(block.exoDepackerAddr||"B000").toUpperCase()} (src-end from KERNAL $AE/$AF)`;
+  if (block.isExoDecrunchMacro) return `.exodecrunch depacker=$${(block.exoDepackerAddr||"B000").toUpperCase()}`;
   if (block.isSidMacro)       return `.sid "${block.sidFileName || "music.sid"}"${block.sidCustomAddress ? ", $" + block.sidCustomAddress.replace(/^\$/, "") : ""}`;  
   if (block.isIncludeMacro)   return `.include "${block.includeFileName || "library.json"}"${block.includeAddress ? ", $" + block.includeAddress.replace(/^\$/, "") : ""}`;  
   if (block.isLoopMacro)      return `.loop ${block.loopReg || "X"}, $${(block.loopCount || "0A").toUpperCase()}, ${block.loopLabel || "loop1"}`;
@@ -4568,6 +4583,27 @@ function parseExpertText(text) {
     const loadfileM = line.match(/^\.loadfile\s+"([^"]*)"\s*,\s*(\d+)\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*(?:,\s*([A-Za-z_][A-Za-z0-9_]*))?\s*$/i);
     if (loadfileM) {
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "LOADFILE", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isLoadFileMacro: true, loadFileName: loadfileM[1].toUpperCase(), loadFileDevice: loadfileM[2], loadFileAddress: loadfileM[3] ? loadfileM[3].toUpperCase() : "", loadFileErrorLabel: loadfileM[4] || "" });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .exodecrunch [depacker=$XXXX]
+    const exoDecrM = line.match(/^\.exodecrunch(?:\s+depacker\s*=\s*\$?([0-9A-Fa-f]{1,4}))?\s*$/i);
+    if (exoDecrM) {
+      blocks.push({
+        id: crypto.randomUUID(),
+        category: "Makrok",
+        mnemonic: "EXODECRUNCH",
+        operand: "",
+        rawOperand: "",
+        description: "",
+        addressingMode: "implied",
+        base: "hex",
+        validationError: "",
+        collapsed: true,
+        isExoDecrunchMacro: true,
+        exoDepackerAddr: exoDecrM[1] ? exoDecrM[1].toUpperCase() : "B000"
+      });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -8244,7 +8280,7 @@ function renderD64ExtraFiles() {
         <input type="text" maxlength="5" class="d64-extra-decomp" value="${escapeHtmlAttribute(entry.decompressAddress || "")}" placeholder="${t("d64ExtraDecompPlaceholder")}" title="${t("d64ExtraDecompTooltip")}">
         <label class="d64-extra-crunch" title="${t("d64ExtraCrunchTooltip")}">
           <input type="checkbox" class="d64-extra-crunch-cb"${entry.crunch ? " checked" : ""}>
-          <span>EXO</span>
+          <span>Exomizer</span>
         </label>
         <button type="button" class="d64-export-extra-remove" title="${t("d64ExtraRemove")}">×</button>
       </div>
@@ -8353,6 +8389,17 @@ async function confirmD64Export() {
   const isRunMode = d64ExportState.runMode;
   const isUltimateMode = isRunMode === "ultimate";
 
+  // If any extra needs EXO crunching, the loop below blocks on `exomizer`
+  // for several seconds per file. Show the work-progress modal up front so
+  // the user gets immediate feedback instead of an unresponsive dialog.
+  const willCrunchAny = files.some((f, i) => i > 0 && f._crunch);
+  if (willCrunchAny) {
+    await showWorkProgress("workProgressExomizerCompress", { indeterminate: true });
+    // Force one layout + paint cycle so the modal is actually on-screen
+    // before we start the multi-second synchronous-looking IPC chain.
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  }
+
   // Compress extras that have EXO checked
   for (let i = 1; i < files.length; i++) {
     const f = files[i];
@@ -8389,6 +8436,7 @@ async function confirmD64Export() {
     } catch (_) { crunchResult = null; }
     delete f._decompressAddress;
     if (!crunchResult?.ok) {
+      if (willCrunchAny) hideWorkProgress();
       if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = t(isUltimateMode ? "runOnUltimate" : isRunMode ? "runViaD64Confirm" : "d64ExportConfirm"); }
       if (cancelBtn) cancelBtn.disabled = false;
       if (errorBox) { errorBox.hidden = false; errorBox.textContent = `${f.name}: ${crunchResult?.error || t("exomizerLaunchFailed")}`; }
@@ -8396,7 +8444,15 @@ async function confirmD64Export() {
     }
   }
 
-  if (isRunMode) await showWorkProgress(isUltimateMode ? "workProgressRunD64Ultimate" : "workProgressRunD64");
+  // Switch the progress modal's subtitle to the D64 packaging message. If we
+  // didn't open it during compression and we're in run mode, open it now.
+  if (isRunMode) {
+    await showWorkProgress(isUltimateMode ? "workProgressRunD64Ultimate" : "workProgressRunD64");
+  } else if (willCrunchAny) {
+    // Save-only mode: progress modal is up but the EXO loop is done — close it
+    // so the OS save dialog (if any) isn't blocked behind it.
+    hideWorkProgress();
+  }
 
   let result;
   try {
@@ -9741,7 +9797,15 @@ async function copyAsmToClipboard() {
   }
 
   try {
-    const version = document.getElementById("about-version")?.textContent?.trim() || "v?";
+    // Always fetch the current version from the Tauri backend (single source of
+    // truth = src-tauri/Cargo.toml). The DOM #about-version element is only
+    // populated when the user opens the About dialog, so reading from there
+    // gives stale text (whatever was hardcoded in index.html).
+    let version = "v?";
+    try {
+      const raw = await window.electronAPI?.getAppVersion?.();
+      if (raw) version = `v${raw}`;
+    } catch (_) { /* fallback to "v?" */ }
     const header = `; Generated by C64 Visual Assembler ${version}\n; https://zstarczali.itch.io/visual-assembler-commodore-64\n;\n`;
     await navigator.clipboard.writeText(header + asmPlainText);
     copyAsmButton.textContent = currentLanguage !== "hu" ? "ASM copied" : "ASM kimasolva";

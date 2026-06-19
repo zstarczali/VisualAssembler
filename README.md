@@ -2,7 +2,7 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.0.0**
+**Current version: v2.0.1**
 
 ---
 
@@ -226,6 +226,10 @@ Each block in `program[]` is a plain object:
 - **Name-input demo and tutorial** — new sample `name-input-demo.json` demonstrating PETSCII text + CHROUT print loop + CHRIN keyboard input, with a guided interactive tutorial.
 - **Lowercase sample text normalisation** — sample demo text operands normalised to lowercase across all samples. PETSCII encoder improved: newlines map to 13, characters uppercase for C64 charset, lowercase→uppercase fallback.
 - **Palette sync and UI fixes** — palette item highlighting refactored; active palette items scroll into view. Table macros no longer show operand field. Hungarian translation fixes.
+## What's New in v2.0.1
+
+- **Version bump and cache refresh** — metadata, docs, and frontend cache-busting references are aligned on v2.0.1.
+
 ## What's New in v2.0.0
 
 - **Exomizer `mem` mode for D64 extras** — raw binary files added to a D64 (e.g. multicolor bitmaps, sample data) can now be compressed with `exomizer mem` backward mode. The Run via D64 dialog gets a per-file **EXO** checkbox plus a second address column (**Dst**) for the decompression target. The safety offset of 2 bytes is compensated automatically when calling exomizer.
