@@ -34,7 +34,7 @@ Compress PRG files with Exomizer for smaller binaries and faster loading:
 1. Install Exomizer:
    - **Homebrew (recommended):** `brew install exomizer` — installs Magnus Lind's official 3.1.2 build to `/opt/homebrew/bin/exomizer` (Apple Silicon) or `/usr/local/bin/exomizer` (Intel).
    - **From source:** clone https://bitbucket.org/magli143/exomizer/ and `make` in the `src/` folder.
-2. In Visual Assembler: Menu → Settings → **"Beállítások..."** → Exomizer section → **"Exomizer kiválasztása"** and pick the binary.
+2. In Visual Assembler: Menu → Settings → **"Settings..."** → Exomizer section → **"Choose Exomizer"** and pick the binary.
 3. Enable via the **"Run with Exomizer"** checkbox in Menu → Settings.
 
 Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in the Run via D64 dialog) work the same way on macOS as on Windows.
