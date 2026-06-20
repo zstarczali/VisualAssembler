@@ -7700,7 +7700,8 @@ function getProjectPayload() {
       numberBase: getSelectedBase(),
       zoom: blockScale,
       language: currentLanguage,
-      theme: document.documentElement.dataset.theme || "light"
+      theme: document.documentElement.dataset.theme || "light",
+      runMode: runMode
     },
     d64: {
       diskName: d64ExportState.diskName,
@@ -9759,6 +9760,11 @@ async function loadProjectFromFile() {
   if (typeof projectData.ui?.zoom === "number") {
     blockScale = Math.max(0.72, Math.min(1.25, Number(projectData.ui.zoom)));
     applyZoom();
+  }
+
+  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64"];
+  if (projectData.ui?.runMode && validRunModes.includes(projectData.ui.runMode)) {
+    setRunMode(projectData.ui.runMode);
   }
 
   renderOriginPreview();
