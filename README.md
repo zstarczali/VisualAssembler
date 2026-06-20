@@ -2,7 +2,7 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.0.1**
+**Current version: v2.0.2**
 
 ---
 
@@ -226,6 +226,10 @@ Each block in `program[]` is a plain object:
 - **Name-input demo and tutorial** — new sample `name-input-demo.json` demonstrating PETSCII text + CHROUT print loop + CHRIN keyboard input, with a guided interactive tutorial.
 - **Lowercase sample text normalisation** — sample demo text operands normalised to lowercase across all samples. PETSCII encoder improved: newlines map to 13, characters uppercase for C64 charset, lowercase→uppercase fallback.
 - **Palette sync and UI fixes** — palette item highlighting refactored; active palette items scroll into view. Table macros no longer show operand field. Hungarian translation fixes.
+## What's New in v2.0.2
+
+- **Linux support** — official Linux (Ubuntu/Debian) support. Window close button works correctly. VICE and D64 launch fixed: display session variables propagated to the emulator process, PRG autostart uses inject mode (no drive ROM required), D64 mode forces software-level 1541 emulation. GTK dialog border artifact resolved.
+
 ## What's New in v2.0.1
 
 - **Version bump and cache refresh** — metadata, docs, and frontend cache-busting references are aligned on v2.0.1.

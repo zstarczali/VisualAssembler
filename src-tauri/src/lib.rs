@@ -161,7 +161,17 @@ fn spawn_vice_with_file(vice_path: &str, file_path: &std::path::Path) -> Result<
         }
         #[cfg(not(target_os = "windows"))]
         {
-            Command::new(&binary)
+            let mut cmd = Command::new(&binary);
+            // Propagate display session variables — Tauri may not inherit them
+            // on all desktop configurations (especially Wayland compositors).
+            for var in &["DISPLAY", "WAYLAND_DISPLAY", "XDG_RUNTIME_DIR",
+                         "DBUS_SESSION_BUS_ADDRESS", "GDK_BACKEND"] {
+                if let Ok(val) = std::env::var(var) {
+                    cmd.env(var, val);
+                }
+            }
+            // apt-installed VICE lacks drive ROMs; mode 1 injects PRG directly.
+            cmd.arg("-autostartprgmode").arg("1")
                 .arg(file_path.to_str().unwrap())
                 .stdin(std::process::Stdio::null())
                 .stdout(std::process::Stdio::null())
@@ -1517,7 +1527,13 @@ async fn run_d64(app: AppHandle, payload: RunD64Payload) -> serde_json::Value {
         }
         #[cfg(not(target_os = "windows"))]
         {
-            Command::new(&vice_path).arg(&d64_str)
+            let mut cmd = Command::new(&vice_path);
+            for var in &["DISPLAY", "WAYLAND_DISPLAY", "XDG_RUNTIME_DIR",
+                         "DBUS_SESSION_BUS_ADDRESS", "GDK_BACKEND"] {
+                if let Ok(val) = std::env::var(var) { cmd.env(var, val); }
+            }
+            cmd.arg("-drive8type").arg("1541")
+                .arg(&d64_str)
                 .stdin(std::process::Stdio::null()).stdout(std::process::Stdio::null()).stderr(std::process::Stdio::null())
                 .spawn()
         }
@@ -2007,7 +2023,21 @@ async fn load_sample(app: AppHandle, sample_name: String) -> serde_json::Value {
 
 pub fn run() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_window_state::Builder::default().skip_initial_state("about").build())
+        .plugin({
+            // On Linux/Wayland: position is always 0,0 (compositor doesn't expose it)
+            // and MAXIMIZED state causes GTK CSD buttons to malfunction when restored.
+            // Save only SIZE so the user's window size is remembered, nothing else.
+            // On macOS/Windows: save everything as before.
+            #[cfg(not(any(target_os = "macos", target_os = "windows")))]
+            let flags = tauri_plugin_window_state::StateFlags::SIZE
+                | tauri_plugin_window_state::StateFlags::VISIBLE;
+            #[cfg(any(target_os = "macos", target_os = "windows"))]
+            let flags = tauri_plugin_window_state::StateFlags::all();
+            tauri_plugin_window_state::Builder::default()
+                .with_state_flags(flags)
+                .skip_initial_state("about")
+                .build()
+        })
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
@@ -2056,6 +2086,11 @@ pub fn run() {
             run_on_ultimate,
             test_ultimate_connection,
         ])
+        .on_window_event(|window, event| {
+            if let tauri::WindowEvent::CloseRequested { .. } = event {
+                window.app_handle().exit(0);
+            }
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

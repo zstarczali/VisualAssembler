@@ -145,6 +145,12 @@ html[data-theme="oled"] {
   box-sizing: border-box;
 }
 
+dialog {
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
+}
+
 html {
   background-color: #e8ecf1;
   scrollbar-width: thin;
