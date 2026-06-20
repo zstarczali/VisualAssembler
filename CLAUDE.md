@@ -562,7 +562,7 @@ Ha egy step betölt egy sample-t mielőtt megmutatja a UI-t:
 
 ## 15. Jelenlegi verzió
 
-`2.0.1` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
+`2.0.2` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, és ez a fájl + copilot-instructions.md.
 
 Verziónöveléshez lásd a 3. szakasz végén lévő 7-lépéses checklistet.

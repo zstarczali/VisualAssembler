@@ -2,12 +2,12 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.0.1**
+**Current version: v2.0.2**
 
 ---
 
 
-<img title="a title" alt="Alt text" src="/assets//20260328_002258712_iOS.png" width="400">
+<img title="a title" alt="Alt text" src="/assets/logo.png" width="400">
 
 > *Drag blocks from the left panel, arrange them in the center, and see live ASM output on the right.*
 
@@ -218,112 +218,19 @@ Each block in `program[]` is a plain object:
 
 ---
 
-## What's New in v1.6.9
+## Visual Editors
 
-- **FOR / ENDF forward-counting loops** — new loop macros: `FOR X, count, label` loads X/Y with zero, `ENDF label` emits `INX/INY + CPX/CPY #limit + BNE`. Loop body runs 0..limit−1. Supports nested loops, auto-labeling (`for1`, `for2`…), expert text import/export, full assembly/PRG/disassembly. ENDF is 5 bytes.
-- **PETSCII null terminator option** — PETSCII blocks now support an optional trailing `$00` byte via a compact checkbox. Expert mode and parser accept/emit `, null` for `.petscii` lines.
-- **Interactive tutorial system** — built-in tutorial system with categorized lessons, guided step-by-step tours, and sample links. Fully localised (HU/EN). Tour steps advance on user interactions; menu overlay state respects active tours. Tutorial data lives in `www/tutorial-data.js`.
-- **Name-input demo and tutorial** — new sample `name-input-demo.json` demonstrating PETSCII text + CHROUT print loop + CHRIN keyboard input, with a guided interactive tutorial.
-- **Lowercase sample text normalisation** — sample demo text operands normalised to lowercase across all samples. PETSCII encoder improved: newlines map to 13, characters uppercase for C64 charset, lowercase→uppercase fallback.
-- **Palette sync and UI fixes** — palette item highlighting refactored; active palette items scroll into view. Table macros no longer show operand field. Hungarian translation fixes.
-## What's New in v2.0.1
+The **Toolkit tab** provides access to built-in visual editors, all with *Export to blocks* support:
 
-- **Version bump and cache refresh** — metadata, docs, and frontend cache-busting references are aligned on v2.0.1.
+- **SID editor** — 3-voice tracker with waveform, ADSR drag-graph, filter, Web Audio preview, and full C64-runnable IRQ player export (`sid_init` / `sid_irq` / `sid_play_row`)
+- **Sprite editor** — frame-by-frame sprite design, flip/shift tools, multi-frame animation, `.bin` load/save
+- **Hires / multicolor bitmap editor** — pixel editor with native multicolor `.bin` export (10 000 bytes: bitmap + screen + color RAM)
+- **Charset editor** — custom character set design
+- **Tilemap editor** — multi-layer map with brush tools and image import for tilesets
 
-## What's New in v2.0.0
+## Interactive Tutorials
 
-- **Exomizer `mem` mode for D64 extras** — raw binary files added to a D64 (e.g. multicolor bitmaps, sample data) can now be compressed with `exomizer mem` backward mode. The Run via D64 dialog gets a per-file **EXO** checkbox plus a second address column (**Dst**) for the decompression target. The safety offset of 2 bytes is compensated automatically when calling exomizer.
-- **EXODECRUNCH block macro** — new macro for in-program decompression. Generates 19 bytes: copies KERNAL's load-end ($AE/$AF) into the depacker src-end ($04/$05), toggles `$01 = $36` to expose RAM at `$A000-$BFFF`, JSRs the depacker at the configured address, then restores `$01 = $37`. A pre-built backward depacker (`samples/exo-decrunch.bin`, 477 bytes) is auto-loaded with the EXO multicolor demo sample.
-- **Border-flash toggle in Settings** — new checkbox in Hardware Settings → Exomizer to enable/disable the `-x1` accumulator-based fast border-flash effect on SFX-compressed PRGs. The mem-mode depacker has its own built-in `INC $D020` flash that runs unconditionally for visual progress feedback.
-- **Exomizer integration test** — new Rust integration test (`cargo test --test exomizer_integration`) that compresses `multi-color.bin` end-to-end, runs the depacker in an embedded 6502 emulator, and asserts byte-for-byte equality with the original 10000 bytes. Catches regressions in compression flags, safety-offset compensation, and depacker bytecode.
-- **EXO multicolor demo sample** — complete example showing the full LOADFILE → EXODECRUNCH → display flow for a compressed multicolor bitmap loaded from D64 at runtime, including screen/color RAM copy and VIC-II multicolor setup.
-- **SID editor — full 3-voice tracker** — multi-instrument SID editor with waveform selection, ADSR drag-graph, filter, drag-to-paint tracker grid, range copy/paste, Web Audio preview, and three export modes: *Export blocks (data only)*, *Export blocks + miniplayer*, and *Export asm* (clipboard). Generates a complete C64-runnable player with `sid_init` / `sid_irq` / `sid_play_row` routines.
-- **Sprite editor** — dedicated dialog for sprite design with frame management, multi-frame animation, fliph/flipv/shift tools, `.bin` load/save, and Export blocks to the program.
-- **Multilayer map editor** — tilemap editor with multiple layers, brush tools, clear menu, and improved image import for tilesets.
-- **Toolkit tab** — centralised dialog hub for all the visual editors (hires, multicolor, sprite, char, SID, map). Refactored hires/multicolor editor for cleaner UX and a unified Files-menu structure across editors.
-- **Bitmap export** — native multicolor save format (`image-mc-native.bin`, 10000 bytes: bitmap + screen + color) for D64 integration. Direct LOADFILE compatibility when used with a $2000 load address.
-- **D64 extras — "Dst" column** — per-file decompression-target field next to the load-address field, only relevant when EXO is enabled. Tooltips for both columns, fully translated.
-- **Robust tour positioning** — the interactive setup tour polls for the target element up to 1.5 s when an action opens a dialog (fixes the Settings tour getting stuck at the VICE picker step). Safer dialog open/close that no longer throws when the dialog is already open.
-- **I18n coverage** — added missing translation keys for D64 extras (Crunch tooltip, Dst placeholder/tooltip), Exomizer border-flash toggle label, EXODECRUNCH error messages, and the new sample names.
-
-## What's New in v1.7.4
-
-- **Exomizer integration** — optional Exomizer crunching for all run and build paths via a single checkbox in the Settings menu. Configure the Exomizer executable in Hardware Settings, then enable the checkbox to compress PRG and D64 output with `exomizer sfx sys`. Works with VICE launch, D64 export, and C64 Ultimate hardware runs. If the Exomizer path is not configured, a clear error toast is shown instead of launching.
-
-## What's New in v1.7.3
-
-- **UI overhaul — clean, professional look** — removed all gradients, replaced purple/indigo AI-colors with a professional slate-blue palette. Light, Dark and OLED themes all updated.
-- **Output toolbar → tabs** — ASM / Monitor / Both / Disassembler selector is now a proper tab bar with bottom-border active indicator instead of radio-button pills.
-- **Square, angular UI** — border-radius reduced throughout: buttons, inputs, panels, and controls now use crisp 2–3 px corners. Toggle-switch knobs are square. Blocks keep a comfortable 15 px radius.
-- **Block category color wraps all sides** — each block's category-tone colour now appears as a full border plus a wider 6 px left accent bar. Selection no longer overrides the block's identity colour.
-- **Light-theme outputs** — ASM, Monitor and Disassembler panels now use a light background in light mode. Monitor text is dark green. Dark/OLED themes keep the classic CRT look.
-- **Fluid layout** — removed the 1400 px max-width; palette, program and output panels now scale proportionally with the window.
-- **Removed current-file indicator** from the ASM tab heading.
-- **`.call` alias for `.invoke`** — macro invocations can now use `.call macroName(arg1, arg2)` as a synonym for `.invoke`, matching familiar assembler syntax.
-- **Macro argument parsing improvements** — quoted arguments with commas inside them are now handled correctly. Argument splitting and normalisation rewritten for robustness across expert mode, ASM import and block mode.
-- **Auto buffer allocation for deferred macros** — macros like `.rawbytes`, `.rawtext`, `.petscii` that use address parameters now support automatic buffer address assignment via generated buffer labels and a `_autoBufferAddress` allocator.
-- **Decimal `.org` syntax** — the ORG directive now accepts plain decimal numbers (e.g. `.org 2049`) in addition to hex (`.org $0801`).
-- **Unified label/metadata collection** — `addLayoutLabels()` helper consolidates label map population across all layout functions, reducing duplication and fixing edge cases with symbol resolution.
-
-## What's New in v1.7.2
-
-- **INVOKE + INCLUDE fix** — macros defined in a fixed-address `.include` library (e.g. `$1500`) are now correctly found by `.invoke`. Previously only inline (no address) includes were scanned for macro definitions.
-- **MACRO / LABEL block full-color styling** — MACRO/ENDM blocks render with a solid blue accent background; LABEL blocks render with a solid purple accent background, making them visually distinct from regular instruction blocks.
-- **Guided tour bubble follows spotlight** — in the *Setting Up VICE & RetroDebugger* tour the card bubble now moves next to the highlighted element instead of staying centred.
-- **Tour: menu-button step** — the *Setting Up VICE & RetroDebugger* tour now first spotlights the ☰ menu button, then the Settings entry inside the opened menu, matching the flow of the main app tour.
-- **Compilation Errors dialog wider** — max-width increased from 460 px to 720 px; error message text (after the `—` separator) is now highlighted in red.
-- **ASM export INVOKE fix** — INVOKE-expanded LOOP, NEXT, REGION/ENDREGION and regular instruction blocks now render with correct syntax instead of raw mnemonic names.
-- **Symbol tree: inline macro labels** — `:labelName` suffixes on `.petscii`, `.rawbytes`, `.table` and similar lines now appear in the Expert mode symbol tree (Labels section) and are clickable.
-- **Sample-programs highlight fix** — the sample-programs group in the menu is no longer highlighted for non-sample tour steps that use `openMenu`.
-
-## What's New in v1.7.1
-
-- **Label address support for deferred data macros** — `.rawbytes`, `.rawtext`, `.string`, `.data`, `.petscii` now accept a **label name** as the address parameter in Expert mode (e.g. `.rawbytes sprite_data, $00, $01`). The label is resolved at assembly time from the program's label map (CONST, TABLE, LABEL blocks, loop labels).
-- **`:macroLabel` suffix in Expert mode** — deferred data macros can define a named label for their target address using `:labelName` at the end of the line (e.g. `.rawbytes $0C50, $00, $00 :nev`). This label is then usable in instructions like `STA nev,X`. The suffix round-trips correctly between block mode and Expert mode.
-- **Expert mode validator recognises macroLabel** — the real-time error highlighter in Expert mode now includes `macroLabel` entries in its label map, so instructions referencing those labels no longer show false "cannot be resolved" errors.
-
-- **Settings dialog** — program settings (BASIC SYS stub, block description sync, Expert mode toggle) and ASM output settings (macro source, region comments, memory overlays) moved from the menu into a dedicated Settings dialog. The menu button is now labeled *Settings…* / *Beállítások…*
-- **Memory overlays toggle** — new checkbox in Settings → ASM output to show or hide the overlay/collision strips in the memory map view. State persists across restarts.
-- **Tour system improvements** — tour card is now a `<dialog>` element rendered in the browser's top-layer, always visible above `showModal()` dialogs. Tour overlay and spotlight use the Popover API for the same guarantee. Spotlight position no longer drifts on macOS WebKit after menu open.
-- **New interactive tour: Setting Up VICE & RetroDebugger** — step-by-step guided tour that opens the Settings dialog, highlights the VICE and RetroDebugger path fields, and closes the dialog on finish.
-- **Ctrl+Shift+E shortcut** — toggles Expert mode on/off from anywhere in the app (Cmd+Shift+E on macOS).
-- **RetroDebugger only** — removed references to C64 Debugger from the manual and UI; the app exclusively supports RetroDebugger as the external debugger.
-- **Bug fixes** — settings toggle state now correctly persists across restarts; memory overlay visibility survives all re-renders; tour spotlight no longer misaligns horizontally on first menu open.
-
-## What's New in v1.7.0
-
-- **Macro parameters** — MACRO blocks now support optional parameter lists (`color`, `x, y`, …). Use `{paramName}` placeholders anywhere in the macro body. Invoke with arguments using parentheses: `.invoke setColor(#$07)`. Multiple parameters: `.invoke drawPixel($10, $20)`. Backwards-compatible: space-separated invokes without parens still work.
-- **Expert mode blank line preservation** — empty lines in the Expert editor are no longer discarded on save or mode-switch. They survive block mode round-trips and appear as thin dashed spacers in the block list (0 bytes).
-- **Spanish language (Español)** — full Spanish UI localisation: all menus, dialogs, tooltips, error messages, block labels, and memory map annotations. Spanish mnemonic descriptions for all 100+ opcodes and macros. Tutorial system fully translated to Spanish (all 5 categories, 15 lessons, 98 steps). Switch via Menu → Settings → Language.
-- **Hungarian text encoding fixes** — all accented characters (á, é, í, ó, ö, ő, ú, ü, ű) restored across the entire Hungarian UI locale. Over 170 strings corrected: menus, sample names, field labels, error messages, memory map annotations, debugger strings, and tutorial hints.
-- **Tutorial UI polish** — tutorial panel close button correctly sized (no longer elongated by the global button min-height rule).
-### Previous: v1.6.8
-
-- **Lowercase charset TEXT/STRING/RAWTEXT auto-detection** — TEXT, STRING, and RAWTEXT macros now automatically detect alphabetic input and encode it for the C64 lowercase charset (`$D018=$17`). `TEXT "Hello World"` produces mixed-case screen codes: lowercase `a`-`z` → scr 1–26, uppercase `A`-`Z` → scr 65–90. Pure numbers/symbols stay backward-compatible. No special flag needed — just switch to lowercase charset with `LDA #$17` / `STA $D018` and type normally.
-- **New sample: Lowercase TEXT demo** — demonstrates lowercase charset mode with mixed-case TEXT output. Switches to lowercase charset, then prints three TEXT lines: `hello c64!`, `Visual Assembler`, and `HELLO WORLD` — all rendered correctly with proper case.
-- **Load `.asm` opens a new tab** — the Load .asm button in Expert mode now opens the file in a **new tab** with the filename as the tab label, instead of replacing the current tab's content. The file is parsed into program blocks and marked clean on open.
-- **Close Project menu item** — new **Close Project** button in Menu → File closes the currently open project and all its file tabs at once, with unsaved-change confirmation.
-- **Run respects project startup file** — when a project has a startup file (★ in the tree), the Run button assembles that file's code regardless of which tab is active. Works in both block mode and Expert mode, and across all run targets (PRG, D64, Ultimate).
-- **Project panel language fix** — the Expert project panel now correctly reflects the current UI language (no more hardcoded Hungarian text when English is selected).
-- **New translations** — `menuCloseProject`, `projClosed`, `projNoOpen` added to both Hungarian and English.
-
-### Previous: v1.6.6
-
-- **Build Info dialog** — toolbar button (block mode and expert mode) opens a summary showing origin address, end address, total size, all labels with their resolved addresses, constants, macros used, and any compile errors.
-- **Save / Load `.asm` files in Expert mode** — load a raw `.asm` source file directly into the Expert editor; save the editor content back to a `.asm` file. Works independently of `.c64asm` project files.
-- **Expert mode error line highlighting** — lines that fail to compile are highlighted in red (background tint + left accent border) in real time, 350 ms after each keystroke.
-
-### Previous: v1.6.5
-
-- MOUSE macro (142 bytes — C64 1351 proportional mouse via SID POTX/POTY)
-- REU_CHECK / REU_STASH / REU_FETCH / REU_SWAP macros (RAM Expansion Unit DMA)
-- TURBO_SET / SUPERCPU_DETECT / TURBO_ENABLE macros (U64 + CMD SuperCPU)
-- Region copy & paste buttons
-- Track block selection in palette (Settings toggle)
-| `REGION` / `ENDREGION` | Visual grouping block — collapsible named section; zero bytes; supports nesting |
-| `LABEL` | Zero-byte named symbol; resolves in branch/jump operands |
-| `COMMENT` | Zero-byte annotation; generates no machine code |
-| `MOUSE` | C64 1351 proportional mouse via SID POTX/POTY and sprite movement (142 bytes) |
+The built-in **tutorial system** offers guided step-by-step tours (spotlight + card, advancing on user interactions) and passive lessons with sample links. Fully localised in Hungarian, English, and Spanish.
 
 ### Output generation
 

@@ -56,7 +56,30 @@
       "Bash(sed -i 's/\"version\": \"1.7.4\"/\"version\": \"1.8.0\"/' src-tauri/tauri.conf.json)",
       "Bash(sed -i '0,/^version = \"1.7.4\"/s//version = \"1.8.0\"/' src-tauri/Cargo.toml)",
       "Bash(sed -i '/^name = \"c64-visual-assembler\"$/{n;s/^version = \"1.7.4\"$/version = \"1.8.0\"/}' src-tauri/Cargo.lock)",
-      "Bash(grep -A1 '^name = \"c64-visual-assembler\"$' src-tauri/Cargo.lock)"
+      "Bash(grep -A1 '^name = \"c64-visual-assembler\"$' src-tauri/Cargo.lock)",
+      "Bash(rustc --version)",
+      "Bash(cargo --version)",
+      "Bash(npm run *)",
+      "Bash(rustup --version)",
+      "Read(//home/zsolt/.cargo/bin/**)",
+      "Bash(dpkg -l pkg-config)",
+      "Read(//home/zsolt/.config/hu.zstarczali.c64visualassembler/**)",
+      "Read(//home/zsolt/.config/**)",
+      "Bash(xargs cat)",
+      "Read(//usr/bin/**)",
+      "Bash(x64sc --version)",
+      "Read(//usr/lib/vice/**)",
+      "Bash(DISPLAY=:0 x64sc --help)",
+      "Bash(WAYLAND_DISPLAY=wayland-0 x64sc --help)",
+      "Bash(DISPLAY=:0 WAYLAND_DISPLAY=wayland-0 /usr/bin/x64sc /tmp/c64-visual-assembler/c64-visual-assembler-1781957445849.prg)",
+      "Read(//home/zsolt/**)",
+      "Bash(DISPLAY=:0 x64sc -dumpconfig /tmp/vice-defaults.txt --help)",
+      "Bash(DISPLAY=:0 WAYLAND_DISPLAY=wayland-0 /usr/bin/x64sc -autostart-prg-mode 1 /tmp/c64-visual-assembler/c64-visual-assembler-1781957969792.prg)",
+      "Bash(x64sc -help)",
+      "Bash(DISPLAY=:0 WAYLAND_DISPLAY=wayland-0 /usr/bin/x64sc -autostartprgmode 1 /tmp/c64-visual-assembler/c64-visual-assembler-1781957969792.prg)",
+      "Bash(ls /usr/share/vice/C64/dos1541* /usr/share/vice/C64/1541* 2>/dev/null; ls ~/.local/share/vice/ 2>/dev/null)",
+      "Read(//usr/share/vice/C64/**)",
+      "Bash(xargs ls -la)"
     ]
   }
 }

@@ -12,7 +12,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2.0.1">
+  <link rel="stylesheet" href="style.css?v=2.0.2">
 </head>
 
 <body>
@@ -629,7 +629,7 @@ PRINTABLE CHARACTERS
         <img src="assets/logo.png" alt="C64 Visual Assembler" width="160" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v2.0.1</p>
+      <p class="about-version" id="about-version">v2.0.2</p>
       <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
         dropping instruction blocks.</p>
       <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
@@ -641,8 +641,11 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.0.1</p>
+      <p class="whats-new-version">v2.0.2</p>
       <ul class="whats-new-list">
+        <li>
+          <strong>Linux support</strong> &mdash; v2.0.2 adds official Linux (Ubuntu/Debian) support. The window close button now works correctly. VICE and D64 launch are fixed: display session variables are propagated to the emulator process, PRG autostart uses inject mode (no drive ROM required), and D64 mode forces software-level 1541 emulation. A GTK-specific dialog border artifact is also resolved.
+        </li>
         <li>
           <strong>Hotfixes</strong> &mdash; v2.0.1 bundles a round of small fixes and polish updates.
         </li>
@@ -1355,9 +1358,9 @@ PRINTABLE CHARACTERS
   </div>
 
   <script src="tauri-bridge.js"></script>
-  <script src="i18n.js?v=2.0.1"></script>
-  <script src="tutorial-data.js?v=2.0.1"></script>
-  <script src="app.js?v=2.0.1"></script>
+  <script src="i18n.js?v=2.0.2"></script>
+  <script src="tutorial-data.js?v=2.0.2"></script>
+  <script src="app.js?v=2.0.2"></script>
 
 </body>
 
