@@ -1867,6 +1867,57 @@ async fn save_proj_file(app: AppHandle, path: String, content: String) -> serde_
 }
 
 #[tauri::command]
+async fn save_game_builder_file(app: AppHandle, path: String, content: String) -> serde_json::Value {
+    let save_path = if path.is_empty() {
+        let result = app.dialog().file()
+            .add_filter("Game Builder Project", &["builder", "json"])
+            .set_file_name("game.builder")
+            .blocking_save_file();
+        match result {
+            Some(p) => p.to_string(),
+            None => return serde_json::json!({ "canceled": true }),
+        }
+    } else {
+        path
+    };
+    let save_path = {
+        let mut p = save_path.replace('\\', "/");
+        if !p.to_lowercase().ends_with(".builder") {
+            if let Some(dot) = p.rfind('.') {
+                if p.rfind('/').map(|slash| slash > dot).unwrap_or(true) {
+                    p.truncate(dot);
+                }
+            }
+            p.push_str(".builder");
+        }
+        p
+    };
+
+    match fs::write(&save_path, content.as_bytes()) {
+        Ok(_)  => serde_json::json!({ "ok": true, "filePath": save_path }),
+        Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+    }
+}
+
+#[tauri::command]
+async fn load_game_builder_file(app: AppHandle) -> serde_json::Value {
+    let result = app.dialog().file()
+        .add_filter("Game Builder Project", &["builder", "json"])
+        .blocking_pick_file();
+
+    match result {
+        Some(path) => {
+            let path_str = path.to_string();
+            match fs::read_to_string(&path_str) {
+                Ok(content) => serde_json::json!({ "ok": true, "filePath": path_str, "content": content }),
+                Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+            }
+        }
+        None => serde_json::json!({ "canceled": true }),
+    }
+}
+
+#[tauri::command]
 fn read_text_file(path: String) -> serde_json::Value {
     match fs::read_to_string(&path) {
         Ok(content) => serde_json::json!({ "ok": true, "content": content }),
@@ -2077,6 +2128,8 @@ pub fn run() {
             load_project,
             open_proj_file,
             save_proj_file,
+            save_game_builder_file,
+            load_game_builder_file,
             read_text_file,
             save_asm_file,
             choose_asm_file,

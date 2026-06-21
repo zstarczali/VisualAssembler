@@ -322,7 +322,12 @@ const knowledgeBaseCloseButton = document.getElementById("knowledge-base-close")
 const gameBuilderButton = document.getElementById("game-builder-btn");
 const gameBuilderDialog = document.getElementById("game-builder-dialog");
 const gameBuilderCloseButton = document.getElementById("game-close");
+const gameBuilderExitButton = document.getElementById("game-exit-builder");
 const gameBuilderCopyAsmBtn = document.getElementById("game-copy-asm");
+const gameBuilderSaveBtn = document.getElementById("game-save-builder");
+const gameBuilderLoadBtn = document.getElementById("game-load-builder");
+const gameBuilderRunBtn = document.getElementById("game-run-program-toolbar");
+const gameBuilderRunMenuBtn = document.getElementById("game-run-program");
 const gameBuilderExportBlocksBtn = document.getElementById("game-export-blocks");
 const gameBuilderTestProgramBtn = document.getElementById("game-test-program");
 const gameBuilderResetBtn = document.getElementById("game-reset");
@@ -390,7 +395,7 @@ const _GAME_BLOCK_LIBRARY = {
   player: {
     titleKey: "gameBlockPlayer",
     hintKey: "gameBlockPlayerHint",
-    defaults: { spriteNum: 0, spriteColor: 1, spritePage: "80", startX: 80, startY: 100 }
+    defaults: { spriteNum: 0, spriteColor: 1, spritePage: "80", startX: 148, startY: 220 }
   },
   sprite: {
     titleKey: "gameBlockSprite",
@@ -417,6 +422,26 @@ const _GAME_BLOCK_LIBRARY = {
     hintKey: "gameBlockSpriteMoveHint",
     defaults: { spriteNum: 0, deltaX: 1, deltaY: 0 }
   },
+  spriteBounce: {
+    titleKey: "gameBlockSpriteBounce",
+    hintKey: "gameBlockSpriteBounceHint",
+    defaults: { spriteNum: 1, axis: "y" }
+  },
+  text: {
+    titleKey: "gameBlockText",
+    hintKey: "gameBlockTextHint",
+    defaults: { textX: 10, textY: 12, petsciiAddress: "C000", text: "GAME OVER" }
+  },
+  exit: {
+    titleKey: "gameBlockExit",
+    hintKey: "gameBlockExitHint",
+    defaults: {}
+  },
+  spriteBottom: {
+    titleKey: "gameBlockSpriteBottom",
+    hintKey: "gameBlockSpriteBottomHint",
+    defaults: { spriteNum: 1, bottomY: 230 }
+  },
   spriteEdge: {
     titleKey: "gameBlockSpriteEdge",
     hintKey: "gameBlockSpriteEdgeHint",
@@ -425,10 +450,11 @@ const _GAME_BLOCK_LIBRARY = {
       edgeMode: "any",
       startDirX: "right",
       startDirY: "down",
-      minX: 0,
-      maxX: 319,
-      minY: 0,
-      maxY: 255
+      minX: 24,
+      maxX: 295,
+      minY: 48,
+      maxY: 230,
+      speed: 1
     }
   },
   group: {
@@ -492,6 +518,7 @@ const _GAME_BLOCK_LIBRARY = {
 
 let gameBuilderState = _gameBuilderDefaults();
 let gameBuilderSelectedId = "root";
+let gameBuilderProjectPath = "";
 const _GAME_GLOBAL_BLOCK_TYPES = new Set(["border", "background", "group"]);
 
 // ΓöÇΓöÇ Tab system ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
@@ -1781,17 +1808,6 @@ function _applyUiSettingsToDOM() {
   if (savedUiSettings.debuggerUnpause !== undefined) debuggerUnpause = !!savedUiSettings.debuggerUnpause;
   if (dbgUnpause) dbgUnpause.checked = debuggerUnpause;
 
-  if (savedUiSettings.gameBuilder && typeof savedUiSettings.gameBuilder === "object") {
-    gameBuilderState = {
-      ...gameBuilderState,
-      ...savedUiSettings.gameBuilder
-    };
-    if (savedUiSettings.gameBuilder.scene && !savedUiSettings.gameBuilder.loopLabel) {
-      gameBuilderState.loopLabel = savedUiSettings.gameBuilder.scene;
-    }
-    delete gameBuilderState.scene;
-  }
-
   if (savedUiSettings.expertMode) {
     // Capture toolbar states BEFORE setExpertMode(true) — it calls saveUiSettings()
     // which overwrites savedUiSettings with current (default) variable values.
@@ -2229,6 +2245,10 @@ function _applyEditorTranslations() {
   // Game Builder
   setText(".ge-title", t("gameBuilderTitle"));
   setText("#game-copy-asm", t("gameCopyAsm"));
+  setText("#game-load-builder", t("gameLoadBuilder"));
+  setText("#game-save-builder", t("gameSaveBuilder"));
+    setText("#game-run-program", t("gameRunProgram"));
+    setText("#game-run-program-toolbar", t("gameRunProgram"));
   setText("#game-export-blocks", t("gameExportBlocks"));
   setText("#game-test-program", t("gameTestProgram"));
   setText("#game-reset", t("gameReset"));
@@ -9581,16 +9601,16 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
     } else if (/^\$[0-9A-Fa-f]+,X$/i.test(op)) {
       const m = op.match(/^(\$[0-9A-Fa-f]+),X$/i);
       rawOperand = m[1].slice(1).toUpperCase(); base = "hex";
-      addressingMode = parseInt(rawOperand, 16) > 0xFF ? "absoluteX" : "zeroPageX";
+      addressingMode = rawOperand.length > 2 ? "absoluteX" : "zeroPageX";
       displayOperand = "$" + rawOperand + ",X";
     } else if (/^\$[0-9A-Fa-f]+,Y$/i.test(op)) {
       const m = op.match(/^(\$[0-9A-Fa-f]+),Y$/i);
       rawOperand = m[1].slice(1).toUpperCase(); base = "hex";
-      addressingMode = parseInt(rawOperand, 16) > 0xFF ? "absoluteY" : "zeroPageY";
+      addressingMode = rawOperand.length > 2 ? "absoluteY" : "zeroPageY";
       displayOperand = "$" + rawOperand + ",Y";
     } else if (/^\$[0-9A-Fa-f]+$/i.test(op)) {
       rawOperand = op.slice(1).toUpperCase(); base = "hex";
-      addressingMode = parseInt(rawOperand, 16) > 0xFF ? "absolute" : "zeroPage";
+      addressingMode = rawOperand.length > 2 ? "absolute" : "zeroPage";
       displayOperand = "$" + rawOperand;
     } else if (/^\([A-Za-z_][A-Za-z0-9_]*,X\)$/i.test(op)) {
       // (label,X) indirectX with label
@@ -10548,7 +10568,22 @@ async function runInEmulator() {
   try {
     setWorkProgress(20);
 
-    const prg = await buildRunPrgForCurrentMode();
+    const prg = expertMode
+      ? (() => {
+          const blocks = _expertBuildProgram();
+          const savedProgram = program;
+          const savedUserMacros = userMacros;
+          try {
+            program = blocks;
+            userMacros = {};
+            parseUserMacros();
+            return _buildAutostartPrgCore();
+          } finally {
+            program = savedProgram;
+            userMacros = savedUserMacros;
+          }
+        })()
+      : await buildRunPrgForCurrentMode();
     if (!prg.ok) {
       if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
       if (emulatorStatus) emulatorStatus.textContent = prg.error;
@@ -13196,7 +13231,7 @@ function getBlockDescription(block) {
 
   if (block.isIncBinMacro) {
     const size = (block.incBinBytes || []).length;
-    const name = block.incBinFileName || (currentLanguage !== "hu" ? "no file" : "nincs fajl");
+    const name = _gameBuilderBaseFileName(block.incBinFileName || block.incBinFile || "") || (currentLanguage !== "hu" ? "no file" : "nincs fajl");
     return block.validationError || `${currentLanguage !== "hu" ? "INCBIN macro" : "INCBIN makro"}: "${name}" (${size} bytes) @ ${block.incBinAddress || "$C000"}`;
   }
 
@@ -19068,6 +19103,14 @@ function _gameBuilderHexWord(value, fallback) {
   return num.toString(16).toUpperCase().padStart(4, "0").slice(-4);
 }
 
+function _gameBuilderBaseFileName(pathOrName) {
+  const raw = String(pathOrName ?? "").trim().replace(/["']/g, "");
+  if (!raw) return "";
+  const normalized = raw.replace(/\\/g, "/").replace(/\/+$/, "");
+  const parts = normalized.split("/");
+  return parts[parts.length - 1] || normalized;
+}
+
 function _gameBuilderDefaultLayout(type, index = 0, depth = 0) {
   const base = [
     { x: 80, y: 80 },
@@ -19090,6 +19133,9 @@ function _gameBuilderDefaultLayout(type, index = 0, depth = 0) {
     spriteCol: { x: 390, y: 580 },
     joy: { x: 390, y: 740 },
     spriteMove: { x: 580, y: 900 },
+    text: { x: 580, y: 1040 },
+    exit: { x: 580, y: 1180 },
+    spriteBottom: { x: 580, y: 1200 },
     spriteEdge: { x: 580, y: 760 },
     wait: { x: 80, y: 400 },
     incbin: { x: 390, y: 440 },
@@ -19130,38 +19176,7 @@ function _gameBuilderDefaultBlock(type, overrides = {}) {
 
 function _gameBuilderDefaultBlocks() {
   return [
-    _gameBuilderDefaultBlock("group", { index: 0, layout: { x: 80, y: 80 } }),
-    _gameBuilderDefaultBlock("gameLoop", {
-      index: 1,
-      children: [
-        _gameBuilderDefaultBlock("player", { index: 0, depth: 1, layout: { x: 80, y: 80 } }),
-        _gameBuilderDefaultBlock("joystick", { index: 1, depth: 1, layout: { x: 80, y: 220 } }),
-        _gameBuilderDefaultBlock("wait", { index: 2, depth: 1, layout: { x: 80, y: 360 } }),
-        _gameBuilderDefaultBlock("spriteCol", { index: 3, depth: 1, layout: { x: 80, y: 500 } }),
-        _gameBuilderDefaultBlock("joy", {
-          index: 4,
-          depth: 1,
-          layout: { x: 80, y: 660 },
-          children: [
-            _gameBuilderDefaultBlock("spriteMove", { index: 0, depth: 2, layout: { x: 80, y: 80 } })
-          ]
-        }),
-        _gameBuilderDefaultBlock("ifJoy", {
-          index: 5,
-          depth: 1,
-          layout: { x: 80, y: 820 },
-          children: [
-            _gameBuilderDefaultBlock("spriteMove", { index: 0, depth: 2, layout: { x: 80, y: 80 } })
-          ]
-        }),
-        _gameBuilderDefaultBlock("spriteEdge", {
-          index: 6,
-          depth: 1,
-          layout: { x: 80, y: 980 },
-          props: { spriteNum: 1, edgeMode: "any", startDirX: "right", startDirY: "down", minX: 0, maxX: 319, minY: 0, maxY: 255 }
-        })
-      ]
-    })
+    _gameBuilderDefaultBlock("gameLoop", { index: 0, layout: { x: 80, y: 80 } })
   ];
 }
 
@@ -19206,7 +19221,7 @@ function _gameBuilderTestProgramBlocks() {
           index: 5,
           depth: 1,
           layout: { x: 80, y: 780 },
-          props: { spriteNum: 0, spriteColor: 5, spritePage: "80", startX: 100, startY: 100 }
+          props: { spriteNum: 0, spriteColor: 5, spritePage: "80", startX: 148, startY: 220 }
         }),
         _gameBuilderDefaultBlock("sprite", {
           index: 6,
@@ -19290,8 +19305,14 @@ function _gameBuilderTestProgramBlocks() {
           layout: { x: 80, y: 1000 },
           props: { spriteNum: 0, colType: "sprite" },
           children: [
-            _gameBuilderDefaultBlock("border", {
+            _gameBuilderDefaultBlock("spriteBounce", {
               index: 0,
+              depth: 2,
+              layout: { x: 80, y: 80 },
+              props: { spriteNum: 1, axis: "y" }
+            }),
+            _gameBuilderDefaultBlock("border", {
+              index: 1,
               depth: 2,
               layout: { x: 80, y: 80 },
               props: { color: 2 }
@@ -19307,10 +19328,11 @@ function _gameBuilderTestProgramBlocks() {
             edgeMode: "any",
             startDirX: "right",
             startDirY: "down",
-            minX: 0,
-            maxX: 319,
-            minY: 0,
-            maxY: 255
+            minX: 24,
+            maxX: 295,
+            minY: 48,
+            maxY: 230,
+            speed: 2
           },
           children: [
             _gameBuilderDefaultBlock("border", {
@@ -19321,10 +19343,33 @@ function _gameBuilderTestProgramBlocks() {
             })
           ]
         }),
-        _gameBuilderDefaultBlock("wait", {
+        _gameBuilderDefaultBlock("spriteBottom", {
           index: 3,
           depth: 1,
-          layout: { x: 80, y: 1360 },
+          layout: { x: 80, y: 1520 },
+          props: {
+            spriteNum: 1,
+            bottomY: 230
+          },
+          children: [
+            _gameBuilderDefaultBlock("text", {
+              index: 0,
+              depth: 2,
+              layout: { x: 80, y: 80 },
+              props: { petsciiAddress: "C000", textX: 12, textY: 12, text: "GAME OVER" }
+            }),
+            _gameBuilderDefaultBlock("exit", {
+              index: 1,
+              depth: 2,
+              layout: { x: 80, y: 240 },
+              props: {}
+            })
+          ]
+        }),
+        _gameBuilderDefaultBlock("wait", {
+          index: 4,
+          depth: 1,
+          layout: { x: 80, y: 1900 },
           props: { line: "F8" }
         })
       ]
@@ -19375,6 +19420,9 @@ function _gameBuilderNormalizeBlock(block) {
     },
     children: []
   };
+  if (block.type === "incbin") {
+    normalized.props.incBinFileName = _gameBuilderBaseFileName(normalized.props.incBinFileName || normalized.props.incBinFile || "");
+  }
   if (Array.isArray(block.children)) {
     normalized.children = block.children.map(_gameBuilderNormalizeBlock).filter(Boolean);
   }
@@ -19402,6 +19450,15 @@ function _gameBuilderEstimateBlockMetrics(block) {
     width = 280;
   } else if (type === "spriteMove") {
     height = 118;
+  } else if (type === "spriteBounce") {
+    height = 118;
+  } else if (type === "text") {
+    height = 144;
+  } else if (type === "exit") {
+    height = 98;
+  } else if (type === "spriteBottom") {
+    const childHeight = _gameBuilderEstimateContainerHeight(childBlocks);
+    height = 112 + childHeight;
   } else if (type === "spriteEdge") {
     const childHeight = _gameBuilderEstimateContainerHeight(childBlocks);
     height = 164 + childHeight;
@@ -19624,6 +19681,10 @@ function _gameBuilderPaletteItems() {
     "ifJoy",
     "joy",
     "spriteMove",
+    "spriteBounce",
+    "text",
+    "exit",
+    "spriteBottom",
     "spriteEdge",
     "group",
     "spriteCol",
@@ -19653,7 +19714,6 @@ function _gameBuilderRenderPalette() {
 
 function _gameBuilderFieldMarkup(node) {
   const p = node.props || {};
-  const layout = node.layout || {};
   const numField = (prop, label, min, max, value, cls = "") => `
     <label class="gb-field ${cls}">
       <span>${label}</span>
@@ -19681,15 +19741,9 @@ function _gameBuilderFieldMarkup(node) {
         }).join("")}
       </select>
     </label>`;
-  const positionFields = `
-      <div class="gb-field-grid">
-        ${numField("layoutX", t("gameXLabel"), 0, 9999, _gameBuilderClamp(layout.x, 0, 9999, 80))}
-        ${numField("layoutY", t("gameYLabel"), 0, 9999, _gameBuilderClamp(layout.y, 0, 9999, 80))}
-      </div>`;
 
   if (node.type === "player" || node.type === "sprite") {
     return `
-      ${positionFields}
       <div class="gb-field-grid gb-field-grid--3">
         ${numField("spriteNum", t("gameSpriteLabel"), 0, 7, _gameBuilderClamp(p.spriteNum, 0, 7, 0))}
         ${numField("spriteColor", t("gameSpriteColorLabel"), 0, 15, _gameBuilderClamp(p.spriteColor, 0, 15, 1))}
@@ -19704,7 +19758,6 @@ function _gameBuilderFieldMarkup(node) {
 
   if (node.type === "joystick") {
     return `
-      ${positionFields}
       <div class="gb-field-grid">
         ${selectField("port", t("gameJoystickLabel"), String(p.port === "1" ? "1" : "2"), [["1", "1"], ["2", "2"]])}
         ${numField("spriteNum", t("gameSpriteLabel"), 0, 7, _gameBuilderClamp(p.spriteNum, 0, 7, 0))}
@@ -19714,7 +19767,6 @@ function _gameBuilderFieldMarkup(node) {
 
   if (node.type === "ifJoy") {
     return `
-      ${positionFields}
       <div class="gb-field-grid">
         ${selectField("port", t("gameJoystickLabel"), String(p.port === "1" ? "1" : "2"), [["1", "1"], ["2", "2"]])}
         ${selectField("direction", t("gameDirectionLabel"), String(p.direction || "up"), [
@@ -19730,7 +19782,6 @@ function _gameBuilderFieldMarkup(node) {
 
   if (node.type === "joy") {
     return `
-      ${positionFields}
       <div class="gb-field-grid">
         ${selectField("port", t("gameJoystickLabel"), String(p.port === "1" ? "1" : "2"), [["1", "1"], ["2", "2"]])}
       </div>
@@ -19739,7 +19790,6 @@ function _gameBuilderFieldMarkup(node) {
 
   if (node.type === "spriteMove") {
     return `
-      ${positionFields}
       <div class="gb-field-grid gb-field-grid--3">
         ${numField("spriteNum", t("gameSpriteLabel"), 0, 7, _gameBuilderClamp(p.spriteNum, 0, 7, 0))}
         ${numField("deltaX", t("gameMoveXLabel"), -8, 8, _gameBuilderClamp(p.deltaX, -8, 8, 1))}
@@ -19748,11 +19798,60 @@ function _gameBuilderFieldMarkup(node) {
     `;
   }
 
+  if (node.type === "spriteBounce") {
+    return `
+      <div class="gb-field-grid gb-field-grid--2">
+        ${numField("spriteNum", t("gameBounceSpriteLabel"), 0, 7, _gameBuilderClamp(p.spriteNum, 0, 7, 1))}
+        ${selectField("axis", t("gameBounceAxisLabel"), String(p.axis || "y"), [
+          ["y", t("gameBounceAxisY")],
+          ["x", t("gameBounceAxisX")],
+          ["both", t("gameBounceAxisBoth")],
+          ["none", t("gameBounceAxisNone")]
+        ])}
+      </div>
+    `;
+  }
+
+  if (node.type === "text") {
+    return `
+      <div class="gb-field-grid gb-field-grid--2">
+        ${numField("textX", "X", 0, 39, _gameBuilderClamp(p.textX, 0, 39, 10))}
+        ${numField("textY", "Y", 0, 24, _gameBuilderClamp(p.textY, 0, 24, 12))}
+      </div>
+      <div class="gb-field-grid">
+        ${textField("petsciiAddress", t("fieldAddress"), _gameBuilderHexWord(p.petsciiAddress, "C000"), 4, "C000")}
+      </div>
+      <div class="gb-field-grid">
+        ${textField("text", t("gameTextLabel"), String(p.text || "GAME OVER"), 32, "GAME OVER")}
+      </div>
+    `;
+  }
+
+  if (node.type === "exit") {
+    return `
+      <div class="gb-field-grid">
+        <div class="gb-field gb-field--readonly">
+          <span>${t("gameExitLabel")}</span>
+          <div class="gb-note">${t("gameExitHint")}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  if (node.type === "spriteBottom") {
+    return `
+      <div class="gb-field-grid gb-field-grid--2">
+        ${numField("spriteNum", t("gameSpriteLabel"), 0, 7, _gameBuilderClamp(p.spriteNum, 0, 7, 1))}
+        ${numField("bottomY", t("gameBottomYLabel"), 0, 255, _gameBuilderClamp(p.bottomY, 0, 255, 230))}
+      </div>
+    `;
+  }
+
   if (node.type === "spriteEdge") {
     return `
-      ${positionFields}
       <div class="gb-field-grid gb-field-grid--3">
         ${numField("spriteNum", t("gameSpriteLabel"), 0, 7, _gameBuilderClamp(p.spriteNum, 0, 7, 1))}
+        ${numField("speed", t("gameEdgeSpeedLabel"), 1, 8, _gameBuilderClamp(p.speed, 1, 8, 1))}
         ${selectField("edgeMode", t("gameEdgeModeLabel"), String(p.edgeMode || "any"), [
           ["any", t("gameEdgeAny")],
           ["left", t("gameEdgeLeft")],
@@ -19760,33 +19859,32 @@ function _gameBuilderFieldMarkup(node) {
           ["top", t("gameEdgeTop")],
           ["bottom", t("gameEdgeBottom")]
         ])}
+      </div>
+      <div class="gb-field-grid gb-field-grid--2">
         ${selectField("startDirX", t("gameVectorXLabel"), String(p.startDirX || "right"), [
           ["left", t("gameDirectionLeft")],
           ["right", t("gameDirectionRight")],
           ["none", t("gameDirectionNone")]
         ])}
-      </div>
-      <div class="gb-field-grid gb-field-grid--2">
-        ${numField("minX", t("gameEdgeLeftLabel"), 0, 319, _gameBuilderClamp(p.minX, 0, 319, 0))}
-        ${numField("maxX", t("gameEdgeRightLabel"), 0, 319, _gameBuilderClamp(p.maxX, 0, 319, 319))}
-      </div>
-      <div class="gb-field-grid gb-field-grid--2">
-        ${numField("minY", t("gameEdgeTopLabel"), 0, 255, _gameBuilderClamp(p.minY, 0, 255, 0))}
-        ${numField("maxY", t("gameEdgeBottomLabel"), 0, 255, _gameBuilderClamp(p.maxY, 0, 255, 255))}
-      </div>
-      <div class="gb-field-grid">
         ${selectField("startDirY", t("gameVectorYLabel"), String(p.startDirY || "down"), [
           ["up", t("gameDirectionUp")],
           ["down", t("gameDirectionDown")],
           ["none", t("gameDirectionNone")]
         ])}
       </div>
+      <div class="gb-field-grid gb-field-grid--2">
+        ${numField("minX", t("gameEdgeLeftLabel"), 0, 319, _gameBuilderClamp(p.minX, 0, 319, 24))}
+        ${numField("maxX", t("gameEdgeRightLabel"), 0, 319, _gameBuilderClamp(p.maxX, 0, 319, 295))}
+      </div>
+      <div class="gb-field-grid gb-field-grid--2">
+        ${numField("minY", t("gameEdgeTopLabel"), 0, 255, _gameBuilderClamp(p.minY, 0, 255, 48))}
+        ${numField("maxY", t("gameEdgeBottomLabel"), 0, 255, _gameBuilderClamp(p.maxY, 0, 255, 230))}
+      </div>
     `;
   }
 
   if (node.type === "group") {
     return `
-      ${positionFields}
       <div class="gb-field-grid">
         ${textField("groupName", t("gameGroupNameLabel"), String(p.groupName || "Initialize"), 24, t("gameGroupNamePlaceholder"))}
       </div>
@@ -19795,7 +19893,6 @@ function _gameBuilderFieldMarkup(node) {
 
   if (node.type === "spriteCol") {
     return `
-      ${positionFields}
       <div class="gb-field-grid">
         ${numField("spriteNum", t("gameSpriteLabel"), 0, 7, _gameBuilderClamp(p.spriteNum, 0, 7, 0))}
         ${selectField("colType", t("gameCollisionLabel"), String(p.colType || "sprite"), [
@@ -19809,7 +19906,6 @@ function _gameBuilderFieldMarkup(node) {
 
   if (node.type === "wait") {
     return `
-      ${positionFields}
       <div class="gb-field-grid">
         ${textField("line", t("gameWaitLabel"), _gameBuilderHexByte(p.line, "F8"), 2, "F8")}
       </div>
@@ -19817,20 +19913,19 @@ function _gameBuilderFieldMarkup(node) {
   }
 
   if (node.type === "incbin") {
-    const fileName = String(p.incBinFileName || "").trim();
+    const fileName = _gameBuilderBaseFileName(p.incBinFileName || p.incBinFile || "");
     const fileSize = _gameBuilderClamp(p.incBinSize, 0, 999999, 0);
     const folderIcon = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 5a1 1 0 0 1 1-1h3.5l1.5 1.5H14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V5z"/></svg>`;
     const displayName = fileName ? `${fileName}${fileSize ? ` (${fileSize} bytes)` : ""}` : "";
     return `
-      ${positionFields}
       <div class="gb-field-grid">
-        <label class="gb-field gb-file-field">
+        <div class="gb-field gb-file-field">
           <span>${t("fieldIncBinFile")}</span>
           <div class="incbin-file-row">
-            <input class="gb-file-name" type="text" readonly value="${escapeHtmlAttribute(displayName)}" placeholder="${t("incBinNoFile")}" title="${escapeHtmlAttribute(p.incBinFile || "")}">
+            <input class="gb-file-name" type="text" readonly value="${escapeHtmlAttribute(displayName)}" placeholder="${t("incBinNoFile")}" title="${escapeHtmlAttribute(p.incBinFile || p.incBinFileName || "")}">
             <button class="icon-btn gb-file-pick" type="button" data-action="pick-incbin" data-node-id="${node.id}" title="${t("incBinBrowse")}">${folderIcon}</button>
           </div>
-        </label>
+        </div>
       </div>
       <div class="gb-field-grid">
         ${textField("incBinAddress", t("fieldAddress"), _gameBuilderHexWord(p.incBinAddress, "C000"), 4, "C000")}
@@ -19841,7 +19936,6 @@ function _gameBuilderFieldMarkup(node) {
   if (node.type === "mapcopy") {
     const isCombined = !!p.mapCopyCombined;
     return `
-      ${positionFields}
       <div class="gb-field-grid">
         ${textField("mapCopySrc", t("fieldMapCopySrc"), _gameBuilderHexWord(p.mapCopySrc, "C000"), 4, "C000")}
         ${textField("mapCopyDst", t("fieldMapCopyDst"), _gameBuilderHexWord(p.mapCopyDst, "0400"), 4, "0400")}
@@ -19866,7 +19960,6 @@ function _gameBuilderFieldMarkup(node) {
   if (node.type === "border" || node.type === "background") {
     const label = node.type === "border" ? t("gameBorderLabel") : t("gameBgLabel");
     return `
-      ${positionFields}
       <div class="gb-field-grid">
         ${colorSelectField("color", label, _gameBuilderClamp(p.color, 0, 15, 0))}
       </div>
@@ -19875,7 +19968,6 @@ function _gameBuilderFieldMarkup(node) {
 
   if (node.type === "setpos") {
     return `
-      ${positionFields}
       <div class="gb-field-grid">
         ${numField("spriteNum", t("gameSpriteLabel"), 0, 7, _gameBuilderClamp(p.spriteNum, 0, 7, 0))}
         ${numField("x", t("gameXLabel"), 0, 319, _gameBuilderClamp(p.x, 0, 319, 80))}
@@ -19886,7 +19978,6 @@ function _gameBuilderFieldMarkup(node) {
 
   if (node.type === "setcolor") {
     return `
-      ${positionFields}
       <div class="gb-field-grid">
         ${numField("spriteNum", t("gameSpriteLabel"), 0, 7, _gameBuilderClamp(p.spriteNum, 0, 7, 0))}
         ${numField("color", t("gameSpriteColorLabel"), 0, 15, _gameBuilderClamp(p.color, 0, 15, 1))}
@@ -19896,7 +19987,6 @@ function _gameBuilderFieldMarkup(node) {
 
   if (node.type === "comment") {
     return `
-      ${positionFields}
       <div class="gb-field-grid">
         ${textField("text", t("gameCommentLabel"), String(p.text || "note"), 64, t("gameCommentPlaceholder"))}
       </div>
@@ -19907,7 +19997,7 @@ function _gameBuilderFieldMarkup(node) {
 }
 
 function _gameBuilderCanContainChildren(node) {
-  return node?.type === "ifJoy" || node?.type === "joy" || node?.type === "gameLoop" || node?.type === "group" || node?.type === "spriteCol" || node?.type === "spriteEdge";
+  return node?.type === "ifJoy" || node?.type === "joy" || node?.type === "gameLoop" || node?.type === "group" || node?.type === "spriteCol" || node?.type === "spriteBottom" || node?.type === "spriteEdge";
 }
 
 function _gameBuilderNodeSummary(node) {
@@ -19927,6 +20017,19 @@ function _gameBuilderNodeSummary(node) {
   if (node.type === "spriteMove") {
     return `sprite ${_gameBuilderClamp(p.spriteNum, 0, 7, 0)} move ${_gameBuilderClamp(p.deltaX, -8, 8, 1)},${_gameBuilderClamp(p.deltaY, -8, 8, 0)}`;
   }
+  if (node.type === "spriteBounce") {
+    return `sprite ${_gameBuilderClamp(p.spriteNum, 0, 7, 1)} bounce ${String(p.axis || "y")}`;
+  }
+  if (node.type === "text") {
+    const addr = _gameBuilderHexWord(p.petsciiAddress, "C000");
+    return `text $${addr} → screen ${_gameBuilderClamp(p.textX, 0, 39, 10)},${_gameBuilderClamp(p.textY, 0, 24, 12)} "${String(p.text || "GAME OVER").slice(0, 16)}"`;
+  }
+  if (node.type === "exit") {
+    return `exit program`;
+  }
+  if (node.type === "spriteBottom") {
+    return `sprite ${_gameBuilderClamp(p.spriteNum, 0, 7, 1)} bottom >= ${_gameBuilderClamp(p.bottomY, 0, 255, 230)}${(node.children || []).length ? ` · ${(node.children || []).length} blocks` : ""}`;
+  }
   if (node.type === "spriteEdge") {
     const edgeMode = String(p.edgeMode || "any");
     const edgeLabel = edgeMode === "left"
@@ -19938,7 +20041,7 @@ function _gameBuilderNodeSummary(node) {
           : edgeMode === "bottom"
             ? t("gameEdgeBottom")
             : t("gameEdgeAny");
-    return `sprite ${_gameBuilderClamp(p.spriteNum, 0, 7, 0)} edge ${edgeLabel} ${_gameBuilderClamp(p.minX, 0, 319, 0)}..${_gameBuilderClamp(p.maxX, 0, 319, 319)} / ${_gameBuilderClamp(p.minY, 0, 255, 0)}..${_gameBuilderClamp(p.maxY, 0, 255, 255)}${(node.children || []).length ? ` · ${(node.children || []).length} blocks` : ""}`;
+    return `sprite ${_gameBuilderClamp(p.spriteNum, 0, 7, 0)} edge ${edgeLabel} ${_gameBuilderClamp(p.minX, 0, 319, 24)}..${_gameBuilderClamp(p.maxX, 0, 319, 295)} / ${_gameBuilderClamp(p.minY, 0, 255, 48)}..${_gameBuilderClamp(p.maxY, 0, 255, 230)} speed ${_gameBuilderClamp(p.speed, 1, 8, 1)}${(node.children || []).length ? ` · ${(node.children || []).length} blocks` : ""}`;
   }
   if (node.type === "group") {
     const name = String(p.groupName || "Initialize");
@@ -19960,7 +20063,8 @@ function _gameBuilderNodeSummary(node) {
     return `raster $${_gameBuilderHexByte(p.line, "F8")}`;
   }
   if (node.type === "incbin") {
-    return p.incBinFileName ? `${p.incBinFileName}${p.incBinAddress ? ` @ $${_gameBuilderHexWord(p.incBinAddress, "C000")}` : ""}` : "no file selected";
+    const name = _gameBuilderBaseFileName(p.incBinFileName || p.incBinFile || "");
+    return name ? `${name}${p.incBinAddress ? ` @ $${_gameBuilderHexWord(p.incBinAddress, "C000")}` : ""}` : "no file selected";
   }
   if (node.type === "mapcopy") {
     return `$${_gameBuilderHexWord(p.mapCopySrc, "C000")} → $${_gameBuilderHexWord(p.mapCopyDst, "0400")} (${_gameBuilderClamp(p.mapCopySize, 1, 65000, 1000)} bytes)`;
@@ -20247,6 +20351,18 @@ function _gameBuilderUpdateBlockProp(nodeId, prop, value) {
     block.props[prop] = _gameBuilderClamp(value, -8, 8, prop === "deltaX" ? 1 : 0);
     return;
   }
+  if (prop === "speed") {
+    block.props.speed = _gameBuilderClamp(value, 1, 8, 1);
+    return;
+  }
+  if (prop === "textX" || prop === "textY") {
+    block.props[prop] = _gameBuilderClamp(value, 0, prop === "textX" ? 39 : 24, prop === "textX" ? 10 : 12);
+    return;
+  }
+  if (prop === "petsciiAddress") {
+    block.props.petsciiAddress = _gameBuilderHexWord(value, "C000");
+    return;
+  }
   if (prop === "minX" || prop === "maxX" || prop === "minY" || prop === "maxY") {
     block.props[prop] = _gameBuilderClamp(value, 0, prop === "minX" || prop === "maxX" ? 319 : 255, prop === "minX" ? 0 : prop === "maxX" ? 319 : prop === "minY" ? 0 : 255);
     return;
@@ -20294,9 +20410,12 @@ function _gameBuilderEmitBlock(lines, block, depth, labels) {
     const dir = String(p.direction || "up");
     const masks = { up: "$01", down: "$02", left: "$04", right: "$08", fire: "$10" };
     const skipLabel = `gb_if_skip_${labels.if++}`;
+    const bodyLabel = `${skipLabel}_body`;
     lines.push(`${indent}LDA ${portAddr}`);
     lines.push(`${indent}AND #${masks[dir] || "$01"}`);
-    lines.push(`${indent}BNE ${skipLabel}`);
+    lines.push(`${indent}BEQ ${bodyLabel}`);
+    lines.push(`${indent}JMP ${skipLabel}`);
+    lines.push(`${bodyLabel}:`);
     _gameBuilderOrderedBlocks(block.children || []).forEach((child) => _gameBuilderEmitBlock(lines, child, depth + 1, labels));
     lines.push(`${skipLabel}:`);
     return;
@@ -20305,9 +20424,13 @@ function _gameBuilderEmitBlock(lines, block, depth, labels) {
   if (block.type === "joy") {
     const portAddr = p.port === "1" ? "$DC01" : "$DC00";
     const skipLabel = `gb_joy_skip_${labels.joy++}`;
+    const bodyLabel = `${skipLabel}_body`;
     lines.push(`${indent}LDA ${portAddr}`);
     lines.push(`${indent}AND #$1F`);
-    lines.push(`${indent}BEQ ${skipLabel}`);
+    lines.push(`${indent}CMP #$1F`);
+    lines.push(`${indent}BNE ${bodyLabel}`);
+    lines.push(`${indent}JMP ${skipLabel}`);
+    lines.push(`${bodyLabel}:`);
     _gameBuilderOrderedBlocks(block.children || []).forEach((child) => _gameBuilderEmitBlock(lines, child, depth + 1, labels));
     lines.push(`${skipLabel}:`);
     return;
@@ -20321,37 +20444,50 @@ function _gameBuilderEmitBlock(lines, block, depth, labels) {
     const xReg = `$${xAddr.toString(16).toUpperCase().padStart(4, "0")}`;
     const yReg = `$${yAddr.toString(16).toUpperCase().padStart(4, "0")}`;
     const xMask = `#$${(1 << spriteNum).toString(16).toUpperCase().padStart(2, "0")}`;
-    const emitXStep = (step) => {
-      const labelId = labels.spriteMove++;
-      if (step > 0) {
-        const doneLabel = `gb_sprite_move_x_done_${labelId}`;
-        lines.push(`${indent}INC ${xReg}`);
-        lines.push(`${indent}BNE ${doneLabel}`);
-        lines.push(`${indent}LDA $D010`);
-        lines.push(`${indent}EOR ${xMask}`);
-        lines.push(`${indent}STA $D010`);
-        lines.push(`${doneLabel}:`);
-        return;
-      }
-      const decLabel = `gb_sprite_move_x_dec_${labelId}`;
+    const moveId = labels.spriteMove++;
+    const xDoneLabel = `gb_sprite_move_x_done_${moveId}`;
+    const yDoneLabel = `gb_sprite_move_y_done_${moveId}`;
+    if (deltaX > 0) {
       lines.push(`${indent}LDA ${xReg}`);
-      lines.push(`${indent}BNE ${decLabel}`);
+      lines.push(`${indent}CLC`);
+      lines.push(`${indent}ADC #$${deltaX.toString(16).toUpperCase().padStart(2, "0")}`);
+      lines.push(`${indent}STA ${xReg}`);
+      lines.push(`${indent}BCC ${xDoneLabel}`);
       lines.push(`${indent}LDA $D010`);
       lines.push(`${indent}EOR ${xMask}`);
       lines.push(`${indent}STA $D010`);
-      lines.push(`${decLabel}:`);
-      lines.push(`${indent}DEC ${xReg}`);
-    };
-    const emitYStep = (step) => {
-      lines.push(`${indent}${step > 0 ? "INC" : "DEC"} ${yReg}`);
-    };
-    for (let i = 0; i < Math.abs(deltaX); i++) emitXStep(deltaX >= 0 ? 1 : -1);
-    for (let i = 0; i < Math.abs(deltaY); i++) emitYStep(deltaY >= 0 ? 1 : -1);
+      lines.push(`${xDoneLabel}:`);
+    } else if (deltaX < 0) {
+      const step = Math.abs(deltaX);
+      lines.push(`${indent}LDA ${xReg}`);
+      lines.push(`${indent}SEC`);
+      lines.push(`${indent}SBC #$${step.toString(16).toUpperCase().padStart(2, "0")}`);
+      lines.push(`${indent}STA ${xReg}`);
+      lines.push(`${indent}BCS ${xDoneLabel}`);
+      lines.push(`${indent}LDA $D010`);
+      lines.push(`${indent}EOR ${xMask}`);
+      lines.push(`${indent}STA $D010`);
+      lines.push(`${xDoneLabel}:`);
+    }
+    if (deltaY > 0) {
+      lines.push(`${indent}LDA ${yReg}`);
+      lines.push(`${indent}CLC`);
+      lines.push(`${indent}ADC #$${deltaY.toString(16).toUpperCase().padStart(2, "0")}`);
+      lines.push(`${indent}STA ${yReg}`);
+    } else if (deltaY < 0) {
+      const step = Math.abs(deltaY);
+      lines.push(`${indent}LDA ${yReg}`);
+      lines.push(`${indent}SEC`);
+      lines.push(`${indent}SBC #$${step.toString(16).toUpperCase().padStart(2, "0")}`);
+      lines.push(`${indent}STA ${yReg}`);
+    }
+    lines.push(`${yDoneLabel}:`);
     return;
   }
 
   if (block.type === "spriteEdge") {
     const edgeId = labels.spriteEdge++;
+    const speed = _gameBuilderClamp(p.speed, 1, 8, 1);
     const xAddr = 0xD000 + spriteNum * 2;
     const yAddr = 0xD001 + spriteNum * 2;
     const xReg = `$${xAddr.toString(16).toUpperCase().padStart(4, "0")}`;
@@ -20362,19 +20498,34 @@ function _gameBuilderEmitBlock(lines, block, depth, labels) {
     const edgeMode = String(p.edgeMode || "any");
     const initDx = String(p.startDirX || "right") === "left" ? "FF" : String(p.startDirX || "right") === "none" ? "00" : "01";
     const initDy = String(p.startDirY || "down") === "up" ? "FF" : String(p.startDirY || "down") === "none" ? "00" : "01";
-    const minXVal = _gameBuilderClamp(p.minX, 0, 319, 0);
-    const maxXVal = _gameBuilderClamp(p.maxX, 0, 319, 319);
-    const minYVal = _gameBuilderClamp(p.minY, 0, 255, 50);
-    const maxYVal = _gameBuilderClamp(p.maxY, 0, 255, 200);
+    const minXVal = _gameBuilderClamp(p.minX, 0, 319, 24);
+    const maxXVal = _gameBuilderClamp(p.maxX, 0, 319, 295);
+    const minYVal = _gameBuilderClamp(p.minY, 0, 255, 48);
+    const maxYVal = _gameBuilderClamp(p.maxY, 0, 255, 230);
     const minX = Math.min(minXVal, maxXVal);
     const maxX = Math.max(minXVal, maxXVal);
-    const minY = Math.min(minYVal, maxYVal).toString(16).toUpperCase().padStart(2, "0");
-    const maxY = Math.max(minYVal, maxYVal).toString(16).toUpperCase().padStart(2, "0");
-    const dxLabel = `gb_sprite_edge_dx_${edgeId}`;
-    const dyLabel = `gb_sprite_edge_dy_${edgeId}`;
-    const bodyLabel = `gb_sprite_edge_body_${edgeId}`;
-    const fullX = minX <= 0 && maxX >= 319;
-    const fullY = minYVal <= 0 && maxYVal >= 255;
+    const minY = Math.min(minYVal, maxYVal);
+    const maxY = Math.max(minYVal, maxYVal);
+    const minXLo = minX & 0xFF;
+    const minXHi = (minX >> 8) & 0xFF;
+    const maxXLo = maxX & 0xFF;
+    const maxXHi = (maxX >> 8) & 0xFF;
+    const minYHex = minY.toString(16).toUpperCase().padStart(2, "0");
+    const maxYHex = maxY.toString(16).toUpperCase().padStart(2, "0");
+    let subId = 0;
+    const s = (name) => `gb_sprite_edge_${name}_${edgeId}_${subId++}`;
+    const edgeKey = spriteNum;
+    const xLoLabel = `gb_sprite_edge_xlo_${edgeKey}`;
+    const xHiLabel = `gb_sprite_edge_xhi_${edgeKey}`;
+    const yLabel = `gb_sprite_edge_y_${edgeKey}`;
+    const dxLabel = `gb_sprite_edge_dx_${edgeKey}`;
+    const dyLabel = `gb_sprite_edge_dy_${edgeKey}`;
+    const bodyLabel = `gb_sprite_edge_body_${edgeKey}`;
+    const hitLabel = s("hit");
+    const childrenLabel = s("children");
+    const loopLabel = s("loop");
+    const afterLoopLabel = s("after_loop");
+    const childrenBodyLabel = `${childrenLabel}_body`;
     const flipByte = (label) => {
       lines.push(`${indent}LDA ${label}`);
       lines.push(`${indent}EOR #$FF`);
@@ -20382,161 +20533,214 @@ function _gameBuilderEmitBlock(lines, block, depth, labels) {
       lines.push(`${indent}ADC #$01`);
       lines.push(`${indent}STA ${label}`);
     };
-    const emitXEdgeBounce = () => {
-      const moveLeftLabel = `gb_sprite_edge_x_left_${edgeId}`;
-      const afterMoveLabel = `gb_sprite_edge_x_after_${edgeId}`;
-      const hitRightLabel = `gb_sprite_edge_x_hit_right_${edgeId}`;
-      const hitLeftLabel = `gb_sprite_edge_x_hit_left_${edgeId}`;
-      const doneLabel = `gb_sprite_edge_x_done_${edgeId}`;
-      if (!fullX) {
-        const minHex = minX.toString(16).toUpperCase().padStart(2, "0");
-        const maxHex = Math.min(maxX, 255).toString(16).toUpperCase().padStart(2, "0");
-        lines.push(`${indent}LDA ${dxLabel}`);
-        lines.push(`${indent}BEQ ${doneLabel}`);
-        lines.push(`${indent}BMI ${moveLeftLabel}`);
-        lines.push(`${indent}INC ${xReg}`);
-        lines.push(`${indent}LDA ${xReg}`);
-        lines.push(`${indent}CMP #$${maxHex}`);
-        lines.push(`${indent}BCC ${doneLabel}`);
-        lines.push(`${indent}LDA #$${maxHex}`);
-        lines.push(`${indent}STA ${xReg}`);
-        flipByte(dxLabel);
-        lines.push(`${indent}JMP ${doneLabel}`);
-        lines.push(`${moveLeftLabel}:`);
-        lines.push(`${indent}LDA ${xReg}`);
-        lines.push(`${indent}BEQ ${hitLeftLabel}`);
-        lines.push(`${indent}DEC ${xReg}`);
-        lines.push(`${indent}JMP ${afterMoveLabel}`);
-        lines.push(`${hitLeftLabel}:`);
-        lines.push(`${indent}LDA #$${minHex}`);
-        lines.push(`${indent}STA ${xReg}`);
-        flipByte(dxLabel);
-        lines.push(`${indent}JMP ${doneLabel}`);
-        lines.push(`${afterMoveLabel}:`);
-        lines.push(`${indent}LDA ${xReg}`);
-        lines.push(`${indent}CMP #$${minHex}`);
-        lines.push(`${indent}BCS ${doneLabel}`);
-        lines.push(`${indent}LDA #$${minHex}`);
-        lines.push(`${indent}STA ${xReg}`);
-        flipByte(dxLabel);
-        lines.push(`${doneLabel}:`);
-        return;
-      }
-      lines.push(`${indent}LDA ${dxLabel}`);
-      lines.push(`${indent}BEQ ${doneLabel}`);
-      lines.push(`${indent}BMI ${moveLeftLabel}`);
-      lines.push(`${indent}INC ${xReg}`);
-      lines.push(`${indent}BNE ${afterMoveLabel}`);
-      lines.push(`${indent}LDA $D010`);
-      lines.push(`${indent}EOR #$${xMaskByte}`);
-      lines.push(`${indent}STA $D010`);
-      lines.push(`${afterMoveLabel}:`);
-      lines.push(`${indent}LDA $D010`);
-      lines.push(`${indent}AND #$${xMaskByte}`);
-      lines.push(`${indent}BEQ ${doneLabel}`);
-      lines.push(`${indent}LDA ${xReg}`);
-      lines.push(`${indent}CMP #$40`);
-      lines.push(`${indent}BCC ${doneLabel}`);
-      lines.push(`${indent}LDA #$3F`);
+    const emitSyncX = (tag) => {
+      const clearLabel = `${tag}_clear`;
+      const doneLabel = `${tag}_done`;
+      lines.push(`${indent}LDA ${xLoLabel}`);
       lines.push(`${indent}STA ${xReg}`);
+      lines.push(`${indent}LDA ${xHiLabel}`);
+      lines.push(`${indent}BEQ ${clearLabel}`);
       lines.push(`${indent}LDA $D010`);
       lines.push(`${indent}ORA #$${xMaskByte}`);
       lines.push(`${indent}STA $D010`);
-      flipByte(dxLabel);
       lines.push(`${indent}JMP ${doneLabel}`);
-      lines.push(`${moveLeftLabel}:`);
-      lines.push(`${indent}LDA ${xReg}`);
-      lines.push(`${indent}BNE ${hitLeftLabel}`);
-      lines.push(`${indent}LDA $D010`);
-      lines.push(`${indent}EOR #$${xMaskByte}`);
-      lines.push(`${indent}STA $D010`);
-      lines.push(`${hitLeftLabel}:`);
-      lines.push(`${indent}DEC ${xReg}`);
-      lines.push(`${indent}LDA $D010`);
-      lines.push(`${indent}AND #$${xMaskByte}`);
-      lines.push(`${indent}BEQ ${doneLabel}`);
-      lines.push(`${indent}LDA ${xReg}`);
-      lines.push(`${indent}CMP #$40`);
-      lines.push(`${indent}BCC ${doneLabel}`);
-      lines.push(`${indent}LDA #$00`);
-      lines.push(`${indent}STA ${xReg}`);
+      lines.push(`${clearLabel}:`);
       lines.push(`${indent}LDA $D010`);
       lines.push(`${indent}AND #$${xMaskClearByte}`);
       lines.push(`${indent}STA $D010`);
-      flipByte(dxLabel);
       lines.push(`${doneLabel}:`);
     };
-    const emitYEdgeBounce = () => {
-      const moveUpLabel = `gb_sprite_edge_y_up_${edgeId}`;
-      const doneLabel = `gb_sprite_edge_y_done_${edgeId}`;
-      if (!fullY) {
-        const minHex = minY.toString(16).toUpperCase().padStart(2, "0");
-        const maxHex = maxY.toString(16).toUpperCase().padStart(2, "0");
-        lines.push(`${indent}LDA ${dyLabel}`);
-        lines.push(`${indent}BEQ ${doneLabel}`);
-        lines.push(`${indent}BMI ${moveUpLabel}`);
-        lines.push(`${indent}INC ${yReg}`);
-        lines.push(`${indent}LDA ${yReg}`);
-        lines.push(`${indent}CMP #$${maxHex}`);
-        lines.push(`${indent}BCC ${doneLabel}`);
-        lines.push(`${indent}LDA #$${maxHex}`);
-        lines.push(`${indent}STA ${yReg}`);
-        flipByte(dyLabel);
-        lines.push(`${indent}JMP ${doneLabel}`);
-        lines.push(`${moveUpLabel}:`);
-        lines.push(`${indent}LDA ${yReg}`);
-        lines.push(`${indent}BNE ${doneLabel}_dec`);
-        lines.push(`${indent}LDA #$${minHex}`);
-        lines.push(`${indent}STA ${yReg}`);
-        flipByte(dyLabel);
-        lines.push(`${indent}JMP ${doneLabel}`);
-        lines.push(`${doneLabel}_dec:`);
-        lines.push(`${indent}DEC ${yReg}`);
-        lines.push(`${indent}LDA ${yReg}`);
-        lines.push(`${indent}CMP #$${minHex}`);
-        lines.push(`${indent}BCS ${doneLabel}`);
-        lines.push(`${indent}LDA #$${minHex}`);
-        lines.push(`${indent}STA ${yReg}`);
-        flipByte(dyLabel);
-        lines.push(`${doneLabel}:`);
-        return;
-      }
-      lines.push(`${indent}LDA ${dyLabel}`);
-      lines.push(`${indent}BEQ ${doneLabel}`);
-      lines.push(`${indent}BMI ${moveUpLabel}`);
-      lines.push(`${indent}INC ${yReg}`);
-      lines.push(`${indent}BNE ${doneLabel}`);
-      lines.push(`${indent}LDA #$FF`);
+    const emitSyncY = () => {
+      lines.push(`${indent}LDA ${yLabel}`);
       lines.push(`${indent}STA ${yReg}`);
-      flipByte(dyLabel);
-      lines.push(`${indent}JMP ${doneLabel}`);
-      lines.push(`${moveUpLabel}:`);
-      lines.push(`${indent}LDA ${yReg}`);
-      lines.push(`${indent}BNE ${doneLabel}_dec`);
-      lines.push(`${indent}LDA #$00`);
-      lines.push(`${indent}STA ${yReg}`);
-      flipByte(dyLabel);
-      lines.push(`${indent}JMP ${doneLabel}`);
-      lines.push(`${doneLabel}_dec:`);
-      lines.push(`${indent}DEC ${yReg}`);
-      lines.push(`${doneLabel}:`);
     };
     const emitHitChildren = () => {
       _gameBuilderOrderedBlocks(block.children || []).forEach((child) => _gameBuilderEmitBlock(lines, child, depth + 1, labels));
     };
+    const emitStep = () => {
+      const yPartLabel = s("y_part");
+      const stepEndLabel = s("step_end");
+      emitSyncY();
+      if (edgeMode === "any" || edgeMode === "left" || edgeMode === "right") {
+        const xMoveLabel = s("x_move");
+        const xRightLabel = s("x_right");
+        const xRightKeepLabel = s("x_right_keep");
+        const xHitMaxLabel = s("x_hit_max");
+        const xLeftLabel = s("x_left");
+        const xLeftKeepLabel = s("x_left_keep");
+        const xHitMinLabel = s("x_hit_min");
+        lines.push(`${indent}LDA ${dxLabel}`);
+        lines.push(`${indent}BNE ${xMoveLabel}`);
+        lines.push(`${indent}JMP ${yPartLabel}`);
+        lines.push(`${xMoveLabel}:`);
+        lines.push(`${indent}BMI ${xLeftLabel}`);
+        lines.push(`${indent}JMP ${xRightLabel}`);
+        lines.push(`${xRightLabel}:`);
+        lines.push(`${indent}INC ${xLoLabel}`);
+        lines.push(`${indent}BNE ${xRightKeepLabel}`);
+        lines.push(`${indent}INC ${xHiLabel}`);
+        lines.push(`${xRightKeepLabel}:`);
+        emitSyncX(s("x_sync_r"));
+        lines.push(`${indent}LDA ${xHiLabel}`);
+        lines.push(`${indent}CMP #$${maxXHi.toString(16).toUpperCase().padStart(2, "0")}`);
+        lines.push(`${indent}BCC ${xRightKeepLabel}_exit`);
+        lines.push(`${indent}BNE ${xHitMaxLabel}`);
+        lines.push(`${indent}LDA ${xLoLabel}`);
+        lines.push(`${indent}CMP #$${maxXLo.toString(16).toUpperCase().padStart(2, "0")}`);
+        lines.push(`${indent}BCC ${xRightKeepLabel}_exit`);
+        lines.push(`${xHitMaxLabel}:`);
+        lines.push(`${indent}LDA #$${maxXLo.toString(16).toUpperCase().padStart(2, "0")}`);
+        lines.push(`${indent}STA ${xLoLabel}`);
+        lines.push(`${indent}LDA #$${maxXHi.toString(16).toUpperCase().padStart(2, "0")}`);
+        lines.push(`${indent}STA ${xHiLabel}`);
+        emitSyncX(s("x_sync_r2"));
+        lines.push(`${indent}LDA #$01`);
+        lines.push(`${indent}STA ${hitLabel}`);
+        flipByte(dxLabel);
+        lines.push(`${xRightKeepLabel}_exit:`);
+        lines.push(`${indent}JMP ${yPartLabel}`);
+        lines.push(`${xLeftLabel}:`);
+        lines.push(`${indent}LDA ${xLoLabel}`);
+        lines.push(`${indent}BNE ${xLeftKeepLabel}`);
+        lines.push(`${indent}LDA ${xHiLabel}`);
+        lines.push(`${indent}BEQ ${xHitMinLabel}`);
+        lines.push(`${indent}DEC ${xHiLabel}`);
+        lines.push(`${indent}LDA #$FF`);
+        lines.push(`${indent}STA ${xLoLabel}`);
+        lines.push(`${indent}JMP ${xLeftKeepLabel}_sync`);
+        lines.push(`${xLeftKeepLabel}:`);
+        lines.push(`${indent}DEC ${xLoLabel}`);
+        lines.push(`${xLeftKeepLabel}_sync:`);
+        emitSyncX(s("x_sync_l"));
+        lines.push(`${indent}LDA ${xHiLabel}`);
+        lines.push(`${indent}CMP #$${minXHi.toString(16).toUpperCase().padStart(2, "0")}`);
+        lines.push(`${indent}BCC ${xHitMinLabel}`);
+        lines.push(`${indent}BNE ${xLeftKeepLabel}_exit`);
+        lines.push(`${indent}LDA ${xLoLabel}`);
+        lines.push(`${indent}CMP #$${minXLo.toString(16).toUpperCase().padStart(2, "0")}`);
+        lines.push(`${indent}BCS ${xLeftKeepLabel}_exit`);
+        lines.push(`${xHitMinLabel}:`);
+        lines.push(`${indent}LDA #$${minXLo.toString(16).toUpperCase().padStart(2, "0")}`);
+        lines.push(`${indent}STA ${xLoLabel}`);
+        lines.push(`${indent}LDA #$${minXHi.toString(16).toUpperCase().padStart(2, "0")}`);
+        lines.push(`${indent}STA ${xHiLabel}`);
+        emitSyncX(s("x_sync_l2"));
+        lines.push(`${indent}LDA #$01`);
+        lines.push(`${indent}STA ${hitLabel}`);
+        flipByte(dxLabel);
+        lines.push(`${xLeftKeepLabel}_exit:`);
+        lines.push(`${indent}JMP ${yPartLabel}`);
+      } else {
+        lines.push(`${indent}JMP ${yPartLabel}`);
+      }
+      lines.push(`${yPartLabel}:`);
+      if (edgeMode === "any" || edgeMode === "top" || edgeMode === "bottom") {
+        const yMoveLabel = s("y_move");
+        const yDownLabel = s("y_down");
+        const yUpLabel = s("y_up");
+        const yHitMinLabel = s("y_hit_min");
+        const yHitMaxLabel = s("y_hit_max");
+        const yStaticExitLabel = s("y_static_exit");
+        lines.push(`${indent}LDA ${dyLabel}`);
+        lines.push(`${indent}BNE ${yMoveLabel}`);
+        if (edgeMode === "bottom") {
+          lines.push(`${indent}LDA ${yLabel}`);
+          lines.push(`${indent}CMP #$${maxYHex}`);
+          lines.push(`${indent}BCC ${yStaticExitLabel}`);
+          lines.push(`${indent}LDA #$${maxYHex}`);
+          lines.push(`${indent}STA ${yLabel}`);
+          emitSyncY();
+          lines.push(`${indent}LDA #$01`);
+          lines.push(`${indent}STA ${hitLabel}`);
+          lines.push(`${indent}JMP ${stepEndLabel}`);
+          lines.push(`${yStaticExitLabel}:`);
+          lines.push(`${indent}JMP ${stepEndLabel}`);
+        } else if (edgeMode === "top") {
+          lines.push(`${indent}LDA ${yLabel}`);
+          lines.push(`${indent}CMP #$${minYHex}`);
+          lines.push(`${indent}BCS ${yStaticExitLabel}`);
+          lines.push(`${indent}LDA #$${minYHex}`);
+          lines.push(`${indent}STA ${yLabel}`);
+          emitSyncY();
+          lines.push(`${indent}LDA #$01`);
+          lines.push(`${indent}STA ${hitLabel}`);
+          lines.push(`${indent}JMP ${stepEndLabel}`);
+          lines.push(`${yStaticExitLabel}:`);
+          lines.push(`${indent}JMP ${stepEndLabel}`);
+        } else {
+          lines.push(`${indent}JMP ${stepEndLabel}`);
+        }
+        lines.push(`${yMoveLabel}:`);
+        lines.push(`${indent}BMI ${yUpLabel}`);
+        lines.push(`${indent}JMP ${yDownLabel}`);
+        lines.push(`${yDownLabel}:`);
+        lines.push(`${indent}INC ${yLabel}`);
+        emitSyncY();
+        lines.push(`${indent}LDA ${yLabel}`);
+        lines.push(`${indent}CMP #$${maxYHex}`);
+        lines.push(`${indent}BCC ${yDownLabel}_exit`);
+        lines.push(`${yHitMaxLabel}:`);
+        lines.push(`${indent}LDA #$${maxYHex}`);
+        lines.push(`${indent}STA ${yLabel}`);
+        emitSyncY();
+        lines.push(`${indent}LDA #$01`);
+        lines.push(`${indent}STA ${hitLabel}`);
+        flipByte(dyLabel);
+        lines.push(`${indent}JMP ${stepEndLabel}`);
+        lines.push(`${yDownLabel}_exit:`);
+        lines.push(`${indent}JMP ${stepEndLabel}`);
+        lines.push(`${yUpLabel}:`);
+        lines.push(`${indent}LDA ${yLabel}`);
+        lines.push(`${indent}BEQ ${yHitMinLabel}`);
+        lines.push(`${indent}DEC ${yLabel}`);
+        emitSyncY();
+        lines.push(`${indent}LDA ${yLabel}`);
+        lines.push(`${indent}CMP #$${minYHex}`);
+        lines.push(`${indent}BCS ${yUpLabel}_exit`);
+        lines.push(`${yHitMinLabel}:`);
+        lines.push(`${indent}LDA #$${minYHex}`);
+        lines.push(`${indent}STA ${yLabel}`);
+        emitSyncY();
+        lines.push(`${indent}LDA #$01`);
+        lines.push(`${indent}STA ${hitLabel}`);
+        flipByte(dyLabel);
+        lines.push(`${indent}JMP ${stepEndLabel}`);
+        lines.push(`${yUpLabel}_exit:`);
+        lines.push(`${indent}JMP ${stepEndLabel}`);
+      } else {
+        lines.push(`${indent}JMP ${stepEndLabel}`);
+      }
+      lines.push(`${stepEndLabel}:`);
+    };
     lines.push(`${indent}JMP ${bodyLabel}`);
+    lines.push(`${xLoLabel}:`);
+    lines.push(`${indent}.byte $${(startX & 0xFF).toString(16).toUpperCase().padStart(2, "0")}`);
+    lines.push(`${xHiLabel}:`);
+    lines.push(`${indent}.byte $${startX > 255 ? "01" : "00"}`);
+    lines.push(`${yLabel}:`);
+    lines.push(`${indent}.byte $${startY.toString(16).toUpperCase().padStart(2, "0")}`);
     lines.push(`${dxLabel}:`);
     lines.push(`${indent}.byte $${initDx}`);
     lines.push(`${dyLabel}:`);
     lines.push(`${indent}.byte $${initDy}`);
+    lines.push(`${hitLabel}:`);
+    lines.push(`${indent}.byte $00`);
     lines.push(`${bodyLabel}:`);
-    if (edgeMode === "any" || edgeMode === "left" || edgeMode === "right") {
-      emitXEdgeBounce();
-    }
-    if (edgeMode === "any" || edgeMode === "top" || edgeMode === "bottom") {
-      emitYEdgeBounce();
-    }
+    lines.push(`${indent}LDX #$${speed.toString(16).toUpperCase().padStart(2, "0")}`);
+    lines.push(`${loopLabel}:`);
+    lines.push(`${indent}LDA #$00`);
+    lines.push(`${indent}STA ${hitLabel}`);
+    emitStep();
+    lines.push(`${indent}DEX`);
+    lines.push(`${indent}BEQ ${afterLoopLabel}`);
+    lines.push(`${indent}JMP ${loopLabel}`);
+    lines.push(`${afterLoopLabel}:`);
+    lines.push(`${indent}LDA ${hitLabel}`);
+    lines.push(`${indent}BNE ${childrenBodyLabel}`);
+    lines.push(`${indent}JMP ${childrenLabel}_skip`);
+    lines.push(`${childrenBodyLabel}:`);
     emitHitChildren();
+    lines.push(`${childrenLabel}_skip:`);
     return;
   }
 
@@ -20549,6 +20753,7 @@ function _gameBuilderEmitBlock(lines, block, depth, labels) {
   if (block.type === "spriteCol") {
     const colType = String(p.colType || "sprite");
     const skipLabel = `gb_spritecol_skip_${labels.spriteCol++}`;
+    const bodyLabel = `${skipLabel}_body`;
     if (colType === "both") {
       lines.push(`${indent}LDA $D01E`);
       lines.push(`${indent}ORA $D01F`);
@@ -20556,7 +20761,60 @@ function _gameBuilderEmitBlock(lines, block, depth, labels) {
     } else {
       lines.push(`${indent}.sprite_col ${spriteNum}, ${colType === "background" ? "background" : "sprite"}`);
     }
-    lines.push(`${indent}BEQ ${skipLabel}`);
+    lines.push(`${indent}BNE ${bodyLabel}`);
+    lines.push(`${indent}JMP ${skipLabel}`);
+    lines.push(`${bodyLabel}:`);
+    _gameBuilderOrderedBlocks(block.children || []).forEach((child) => _gameBuilderEmitBlock(lines, child, depth + 1, labels));
+    lines.push(`${skipLabel}:`);
+    return;
+  }
+
+  if (block.type === "spriteBounce") {
+    const targetSprite = _gameBuilderClamp(p.spriteNum, 0, 7, 1);
+    const axis = String(p.axis || "y");
+    const dxLabel = `gb_sprite_edge_dx_${targetSprite}`;
+    const dyLabel = `gb_sprite_edge_dy_${targetSprite}`;
+    const flipByte = (label) => {
+      lines.push(`${indent}LDA ${label}`);
+      lines.push(`${indent}EOR #$FF`);
+      lines.push(`${indent}CLC`);
+      lines.push(`${indent}ADC #$01`);
+      lines.push(`${indent}STA ${label}`);
+    };
+    if (axis === "x" || axis === "both") flipByte(dxLabel);
+    if (axis === "y" || axis === "both") flipByte(dyLabel);
+    return;
+  }
+
+  if (block.type === "text") {
+    const text = String(p.text || "GAME OVER").replace(/"/g, "'");
+    const textX = _gameBuilderClamp(p.textX, 0, 39, 10);
+    const textY = _gameBuilderClamp(p.textY, 0, 24, 12);
+    lines.push(`${indent}.text ${textX}, ${textY}, "${text}"`);
+    return;
+  }
+
+  if (block.type === "exit") {
+    const exitLabel = `gb_exit_program_${labels.exit++}`;
+    lines.push(`${exitLabel}:`);
+    lines.push(`${indent}JMP ${exitLabel}`);
+    return;
+  }
+
+  if (block.type === "spriteBottom") {
+    const bottomYHex = _gameBuilderClamp(p.bottomY, 0, 255, 230).toString(16).toUpperCase().padStart(2, "0");
+    const yAddr = 0xD001 + _gameBuilderClamp(p.spriteNum, 0, 7, 1) * 2;
+    const yReg = `$${yAddr.toString(16).toUpperCase().padStart(4, "0")}`;
+    const skipLabel = `gb_sprite_bottom_skip_${labels.spriteBottom++}`;
+    const skipJumpLabel = `${skipLabel}_jump`;
+    const bodyLabel = `${skipLabel}_body`;
+    lines.push(`${indent}LDA ${yReg}`);
+    lines.push(`${indent}CMP #$${bottomYHex}`);
+    lines.push(`${indent}BCC ${skipJumpLabel}`);
+    lines.push(`${indent}JMP ${bodyLabel}`);
+    lines.push(`${skipJumpLabel}:`);
+    lines.push(`${indent}JMP ${skipLabel}`);
+    lines.push(`${bodyLabel}:`);
     _gameBuilderOrderedBlocks(block.children || []).forEach((child) => _gameBuilderEmitBlock(lines, child, depth + 1, labels));
     lines.push(`${skipLabel}:`);
     return;
@@ -20573,7 +20831,7 @@ function _gameBuilderEmitBlock(lines, block, depth, labels) {
   }
 
   if (block.type === "incbin") {
-    const fileName = String(p.incBinFileName || p.incBinFile || "").replace(/"/g, "").trim();
+    const fileName = _gameBuilderBaseFileName(p.incBinFileName || p.incBinFile || "");
     const addr = _gameBuilderHexWord(p.incBinAddress, "");
     if (!fileName) {
       lines.push(`${indent}; .incbin (no file selected)`);
@@ -20640,7 +20898,7 @@ function _gameBuilderGenerateAsm() {
     `    LDA #$${bg}`,
     "    STA $D021"
   ];
-  const labels = { if: 0, joy: 0, spriteCol: 0, spriteMove: 0, spriteEdge: 0 };
+  const labels = { if: 0, joy: 0, spriteCol: 0, spriteMove: 0, spriteBounce: 0, exit: 0, spriteBottom: 0, spriteEdge: 0 };
   const blocks = _gameBuilderOrderedBlocks(gameBuilderState.blocks);
   const loopBlock = blocks.find((block) => block?.type === "gameLoop") || null;
   const rootBlocks = blocks.filter((block) => block?.type !== "gameLoop");
@@ -20666,20 +20924,240 @@ function _gameBuilderCopyAsm() {
   navigator.clipboard.writeText(_gameBuilderGenerateAsm()).catch(() => {});
 }
 
-function _gameBuilderExportBlocks() {
-  const inserted = exportAsmToBlocks(_gameBuilderGenerateAsm());
-  if (inserted > 0 && gameBuilderDialog?.open) {
-    gameBuilderDialog.close();
+function _gameBuilderBuildSavePayload() {
+  _gameBuilderNormalizeState();
+  return {
+    version: 1,
+    app: "c64-visual-assembler",
+    type: "game-builder",
+    gameBuilder: {
+      title: gameBuilderState.title || "New game",
+      loopLabel: gameBuilderState.loopLabel || "main_loop",
+      borderColor: _gameBuilderClamp(gameBuilderState.borderColor, 0, 15, 0),
+      bgColor: _gameBuilderClamp(gameBuilderState.bgColor, 0, 15, 0),
+      zoom: _gameBuilderClampFloat(gameBuilderState.zoom, 0.6, 1.6, 1),
+      blocks: JSON.parse(JSON.stringify(gameBuilderState.blocks || []))
+    }
+  };
+}
+
+function _gameBuilderApplyLoadedData(data) {
+  const source = data && typeof data === "object"
+    ? (data.gameBuilder && typeof data.gameBuilder === "object" ? data.gameBuilder : data)
+    : null;
+  if (!source) return false;
+  const blocks = Array.isArray(source.blocks) ? source.blocks.map(_gameBuilderNormalizeBlock).filter(Boolean) : null;
+  if (!blocks) return false;
+  gameBuilderState = {
+    ..._gameBuilderDefaults(),
+    title: String(source.title || "New game"),
+    loopLabel: String(source.loopLabel || source.scene || "main_loop"),
+    borderColor: _gameBuilderClamp(source.borderColor, 0, 15, 0),
+    bgColor: _gameBuilderClamp(source.bgColor, 0, 15, 0),
+    zoom: _gameBuilderClampFloat(source.zoom, 0.6, 1.6, 1),
+    blocks
+  };
+  gameBuilderProjectPath = String(data?._filePath || data?.filePath || data?.path || "");
+  gameBuilderSelectedId = "root";
+  _gameBuilderRenderAll();
+  saveUiSettings();
+  return true;
+}
+
+async function _gameBuilderSaveToFile() {
+  if (!window.electronAPI?.saveGameBuilderFile) return;
+  const payload = JSON.stringify(_gameBuilderBuildSavePayload(), null, 2);
+  const result = await window.electronAPI.saveGameBuilderFile(gameBuilderProjectPath || "", payload);
+  if (!result || result.canceled) return;
+  if (!result.ok) {
+    if (emulatorStatus) emulatorStatus.textContent = result.error || t("gameBuilderSaveFailed");
+    return;
+  }
+  gameBuilderProjectPath = result.filePath || gameBuilderProjectPath;
+  if (emulatorStatus) emulatorStatus.textContent = `${t("gameBuilderSaved")}: ${result.filePath}`;
+}
+
+async function _gameBuilderLoadFromFile() {
+  if (!window.electronAPI?.loadGameBuilderFile) return;
+  const result = await window.electronAPI.loadGameBuilderFile();
+  if (!result || result.canceled) return;
+  if (!result.ok) {
+    if (emulatorStatus) emulatorStatus.textContent = result.error || t("gameBuilderLoadFailed");
+    return;
+  }
+  let data;
+  try {
+    data = JSON.parse(result.content || "{}");
+  } catch (err) {
+    if (emulatorStatus) emulatorStatus.textContent = err.message || t("gameBuilderLoadFailed");
+    return;
+  }
+  if (!_gameBuilderApplyLoadedData(data)) {
+    if (emulatorStatus) emulatorStatus.textContent = t("gameBuilderLoadFailed");
+    return;
+  }
+  gameBuilderProjectPath = result.filePath || gameBuilderProjectPath;
+  if (emulatorStatus) emulatorStatus.textContent = `${t("gameBuilderLoaded")}: ${result.filePath}`;
+}
+
+function _gameBuilderBuildRunPrg() {
+  const asmText = _gameBuilderGenerateAsm();
+  const savedProgram = program;
+  const savedUserMacros = userMacros;
+  try {
+    program = parseExpertText(asmText);
+    userMacros = {};
+    parseUserMacros();
+    const sourceIncBins = [];
+    const collectIncBins = (blocks) => {
+      (blocks || []).forEach((block) => {
+        if (!block) return;
+        if (block.type === "incbin" || block.isIncBinMacro) {
+          const addr = String(block.props?.incBinAddress ?? block.incBinAddress ?? "").trim().replace(/^\$/, "").toUpperCase();
+          const filePath = String(block.props?.incBinFile ?? block.incBinFile ?? "").trim();
+          const fileName = _gameBuilderBaseFileName(block.props?.incBinFileName ?? block.incBinFileName ?? filePath);
+          sourceIncBins.push({
+            fileName,
+            filePath,
+            address: addr,
+            bytes: Array.isArray(block.props?.incBinBytes)
+              ? block.props.incBinBytes
+              : Array.isArray(block.incBinBytes)
+                ? block.incBinBytes
+                : []
+          });
+        }
+        if (Array.isArray(block.children) && block.children.length) collectIncBins(block.children);
+      });
+    };
+    collectIncBins(gameBuilderState.blocks || []);
+    const parsedIncBins = [];
+    const collectParsedIncBins = (blocks) => {
+      (blocks || []).forEach((block) => {
+        if (!block) return;
+        if (block.isIncBinMacro) parsedIncBins.push(block);
+        if (Array.isArray(block.children) && block.children.length) collectParsedIncBins(block.children);
+      });
+    };
+    collectParsedIncBins(program);
+    parsedIncBins.forEach((block, index) => {
+      const src = sourceIncBins[index] || sourceIncBins.find((item) => {
+        const fileName = _gameBuilderBaseFileName(block.incBinFileName || block.incBinFile || "");
+        const filePath = String(block.incBinFile || "").trim();
+        const fileMatch = item.fileName && fileName && item.fileName === fileName;
+        const filePathMatch = item.filePath && filePath && item.filePath === filePath;
+        const addrMatch = item.address && block.incBinAddress && item.address === String(block.incBinAddress).replace(/^\$/, "").toUpperCase();
+        return addrMatch && (fileMatch || filePathMatch);
+      });
+      if (src && Array.isArray(src.bytes) && src.bytes.length) {
+        block.incBinBytes = src.bytes.slice();
+        block.incBinFileName = block.incBinFileName || src.fileName;
+        block.incBinFile = block.incBinFile || src.filePath || "";
+      }
+    });
+    const origin = parseOriginValue();
+    const rawOrigin = (origin.value === 0x0801) ? 0x080D : origin.value;
+    const stubDigits = String(rawOrigin).length;
+    const stubDataSize = 2 + 2 + 1 + stubDigits + 1 + 2;
+    const stubEndAddr = 0x0801 + stubDataSize;
+    const sysAddress = Math.max(rawOrigin, stubEndAddr);
+    const codePrg = assembleProgramToPrg(sysAddress);
+    if (!codePrg.ok) return codePrg;
+
+    const basicStub = buildBasicSysStub(sysAddress);
+    const stubData = basicStub.slice(2);
+    const codeData = codePrg.bytes.slice(2);
+    const gapSize = sysAddress - 0x0801 - stubData.length;
+    const bytes = new Uint8Array(2 + stubData.length + gapSize + codeData.length);
+    bytes[0] = 0x01;
+    bytes[1] = 0x08;
+    bytes.set(stubData, 2);
+    bytes.set(codeData, 2 + stubData.length + gapSize);
+    return { ok: true, bytes, sysAddress };
+  } finally {
+    program = savedProgram;
+    userMacros = savedUserMacros;
   }
 }
 
-function openGameBuilderDialog() {
+async function _gameBuilderRunProgram() {
+  try {
+    if (!vicePath) {
+      showViceToast(currentLanguage !== "hu" ? "VICE is not configured. Select it in the menu first." : "A VICE nincs beallitva. Valaszd ki a menuben.", true);
+      return;
+    }
+    if (!window.electronAPI?.launchVice) {
+      showViceToast(currentLanguage !== "hu" ? "VICE launch is not available." : "A VICE inditasa nem elerheto.", true);
+      return;
+    }
+
+    await showWorkProgress("workProgressRun");
+    let success = false;
+    try {
+      setWorkProgress(20);
+      const prg = _gameBuilderBuildRunPrg();
+      if (!prg.ok) {
+        if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
+        if (emulatorStatus) emulatorStatus.textContent = prg.error;
+        showViceToast(prg.error || (currentLanguage !== "hu" ? "Game Builder run failed." : "A Game Builder futtatasa sikertelen."), true);
+        return;
+      }
+      setWorkProgress(72);
+      const result = await window.electronAPI.launchVice({
+        bytes: Array.from(prg.bytes),
+        fileName: `game-builder-${Date.now()}.prg`
+      });
+      if (!result?.ok) {
+        const msg = result?.error || (currentLanguage !== "hu" ? "Launching VICE failed." : "A VICE inditasa sikertelen.");
+        showViceToast(msg, true);
+        if (emulatorStatus) emulatorStatus.textContent = msg;
+        return;
+      }
+      setWorkProgress(100);
+      updateVicePathPreview(result.vicePath || vicePath);
+      const parts = (result.filePath || "").replace(/\\/g, "/").split("/");
+      const fileName = parts[parts.length - 1] || result.filePath;
+      showViceToast(fileName);
+      success = true;
+    } finally {
+      if (success) {
+        await completeWorkProgress("workProgressSuccessRun");
+      } else {
+        hideWorkProgress();
+      }
+    }
+  } catch (err) {
+    console.error("_gameBuilderRunProgram failed:", err);
+    showViceToast(String(err?.message || err), true);
+    if (emulatorStatus) emulatorStatus.textContent = String(err?.message || err);
+  }
+}
+
+function _gameBuilderExportBlocks() {
+  const inserted = exportAsmToBlocks(_gameBuilderGenerateAsm());
+  if (inserted > 0 && _gameBuilderIsOpen()) {
+    _gameBuilderClosePanel();
+  }
+}
+
+function _gameBuilderIsOpen() {
+  return !!gameBuilderDialog && !gameBuilderDialog.hidden;
+}
+
+function _gameBuilderOpenPanel() {
   if (!gameBuilderDialog) return;
   _gameBuilderNormalizeState();
   _gameBuilderRenderAll();
-  if (!gameBuilderDialog.open) gameBuilderDialog.showModal();
+  gameBuilderDialog.hidden = false;
+  gameBuilderDialog.classList.add("is-open");
   gameTitleInput?.focus();
   gameTitleInput?.select?.();
+}
+
+function _gameBuilderClosePanel() {
+  if (!gameBuilderDialog) return;
+  gameBuilderDialog.classList.remove("is-open");
+  gameBuilderDialog.hidden = true;
 }
 
 function setupGameBuilderDialog() {
@@ -20928,15 +21406,15 @@ function setupGameBuilderDialog() {
 
   gameBuilderButton?.addEventListener("click", function() {
     document.querySelector(".control-menu")?.removeAttribute("open");
-    openGameBuilderDialog();
+    _gameBuilderOpenPanel();
   });
 
   gameBuilderCloseButton?.addEventListener("click", function() {
-    gameBuilderDialog.close();
+    _gameBuilderClosePanel();
   });
 
-  gameBuilderDialog.addEventListener("click", function(e) {
-    if (e.target === gameBuilderDialog) gameBuilderDialog.close();
+  gameBuilderExitButton?.addEventListener("click", function() {
+    _gameBuilderClosePanel();
   });
 
   gameBuilderDialog.addEventListener("click", function(e) {
@@ -20944,6 +21422,8 @@ function setupGameBuilderDialog() {
     if (!actionBtn) return;
     const nodeId = actionBtn.dataset.nodeId;
     if (actionBtn.dataset.action === "pick-incbin" && nodeId) {
+      e.preventDefault();
+      e.stopPropagation();
       (async () => {
         if (!window.electronAPI?.chooseIncBinFile) return;
         const result = await window.electronAPI.chooseIncBinFile();
@@ -20951,15 +21431,33 @@ function setupGameBuilderDialog() {
         const found = _gameBuilderFindNodeById(nodeId);
         if (!found) return;
         found.block.props.incBinFile = result.filePath;
-        found.block.props.incBinFileName = result.fileName || found.block.props.incBinFileName || "";
-        found.block.props.incBinSize = Array.isArray(result.bytes) ? result.bytes.length : (Number.isFinite(result.size) ? result.size : found.block.props.incBinSize || 0);
+        found.block.props.incBinFileName = result.fileName || _gameBuilderBaseFileName(result.filePath) || found.block.props.incBinFileName || "";
+        found.block.props.incBinBytes = Array.isArray(result.bytes) ? result.bytes.slice() : [];
+        found.block.props.incBinSize = found.block.props.incBinBytes.length || (Number.isFinite(result.size) ? result.size : found.block.props.incBinSize || 0);
+        found.block.incBinFile = found.block.props.incBinFile;
+        found.block.incBinFileName = found.block.props.incBinFileName;
+        found.block.incBinBytes = found.block.props.incBinBytes.slice();
+        found.block.incBinSize = found.block.props.incBinSize;
         _gameBuilderRenderAll();
         saveUiSettings();
       })();
       return;
     }
+    if (gameBuilderSuppressNextClick) {
+      gameBuilderSuppressNextClick = false;
+      return;
+    }
     if (actionBtn.dataset.action === "remove" && nodeId) {
       _gameBuilderDeleteBlock(nodeId);
+    }
+  });
+
+  gameBuilderDialog.addEventListener("pointerdown", function(e) {
+    const actionBtn = e.target.closest("[data-action]");
+    if (!actionBtn) return;
+    const nodeId = actionBtn.dataset.nodeId;
+    if (actionBtn.dataset.action === "remove" && nodeId) {
+      e.stopPropagation();
     }
   });
 
@@ -21118,6 +21616,25 @@ function setupGameBuilderDialog() {
   gameBuilderCopyAsmBtn?.addEventListener("click", function() {
     _gameBuilderSyncRootFromInputs();
     _gameBuilderCopyAsm();
+  });
+
+  gameBuilderRunBtn?.addEventListener("click", async function() {
+    _gameBuilderSyncRootFromInputs();
+    await _gameBuilderRunProgram();
+  });
+
+  gameBuilderRunMenuBtn?.addEventListener("click", async function() {
+    _gameBuilderSyncRootFromInputs();
+    await _gameBuilderRunProgram();
+  });
+
+  gameBuilderSaveBtn?.addEventListener("click", async function() {
+    _gameBuilderSyncRootFromInputs();
+    await _gameBuilderSaveToFile();
+  });
+
+  gameBuilderLoadBtn?.addEventListener("click", async function() {
+    await _gameBuilderLoadFromFile();
   });
 
   gameBuilderExportBlocksBtn?.addEventListener("click", function() {

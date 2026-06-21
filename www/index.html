@@ -980,12 +980,15 @@ PRINTABLE CHARACTERS
   </dialog>
 
   <!-- Game Builder -->
-  <dialog id="game-builder-dialog" class="ge-dialog">
+  <section id="game-builder-dialog" class="ge-dialog" hidden>
     <div class="ge-card">
       <div class="ge-hdr">
         <div class="ed-file">
           <button class="ed-file-btn" type="button">Files ▾</button>
           <div class="ed-file-menu" hidden>
+            <button id="game-load-builder" type="button">Load .builder…</button>
+            <button id="game-save-builder" type="button">Save .builder…</button>
+            <button id="game-run-program" type="button">Run program</button>
             <button id="game-copy-asm" type="button">Export ASM</button>
             <button id="game-export-blocks" type="button">Export to blocks</button>
             <div class="ed-file-sep"></div>
@@ -994,6 +997,10 @@ PRINTABLE CHARACTERS
           </div>
         </div>
         <span class="ge-title">GAME BUILDER</span>
+        <div class="ge-actions">
+          <button id="game-run-program-toolbar" class="ge-action-btn" type="button">Run</button>
+          <button id="game-exit-builder" class="ge-action-btn ge-action-btn--ghost" type="button">Exit</button>
+        </div>
         <button id="game-close" class="ge-xbtn" type="button" aria-label="Close">×</button>
       </div>
       <div class="ge-body">
@@ -1046,7 +1053,7 @@ PRINTABLE CHARACTERS
         </div>
       </div>
     </div>
-  </dialog>
+  </section>
 
   <!-- Hi-Res Graphics Editor -->
   <dialog id="hires-editor-dialog" class="hg-dialog">

@@ -43,6 +43,8 @@
     loadProject: () => invoke("load_project"),
     openProjFile: () => invoke("open_proj_file"),
     saveProjFile: (path, content) => invoke("save_proj_file", { path, content }),
+    saveGameBuilderFile: (path, content) => invoke("save_game_builder_file", { path, content }),
+    loadGameBuilderFile: () => invoke("load_game_builder_file"),
     readTextFile: (path) => invoke("read_text_file", { path }),
     saveAsmFile: (path, content) => invoke("save_asm_file", { path, content }),
     chooseAsmFile: () => invoke("choose_asm_file"),
