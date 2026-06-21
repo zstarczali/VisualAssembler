@@ -173,6 +173,9 @@
           <button id="map-editor-btn" class="main-tb-btn main-tb-icon-btn" type="button" title="Map Editor" aria-label="Map Editor">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" width="15" height="15" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" rx="1"/><path d="M1.5 6h13M1.5 10.5h13M6 1.5v13M10.5 1.5v13" stroke-width="0.9"/><rect x="6" y="6" width="4.5" height="4.5" fill="currentColor" stroke="none" opacity="0.7"/></svg>
           </button>
+          <button id="game-builder-btn" class="main-tb-btn main-tb-icon-btn" type="button" title="Game Builder" aria-label="Game Builder">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" width="15" height="15" aria-hidden="true"><rect x="2" y="3" width="12" height="10" rx="2"/><path d="M5 6h2M4 7h2M11 6h0.1M10 7h0.1M6.5 9.5h3" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 10.5l1-1m0 0 1 1m-1-1v2M9.5 10.5l1-1m0 0 1 1m-1-1v2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
           <button id="hires-editor-btn" class="main-tb-btn main-tb-icon-btn" type="button" title="Hi-Res Graphics Editor" aria-label="Hi-Res Graphics Editor">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" width="15" height="15" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="1"/><path d="M3 11l3-3 2 2 3-4 2 2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="5.5" cy="5.5" r="1" fill="currentColor" stroke="none"/></svg>
           </button>
@@ -972,6 +975,75 @@ PRINTABLE CHARACTERS
       </div>
       <div class="me-footer">
         <span id="me-status" class="me-status">Col: 0   Row: 0   Tile: $20   Offset: $0000</span>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Game Builder -->
+  <dialog id="game-builder-dialog" class="ge-dialog">
+    <div class="ge-card">
+      <div class="ge-hdr">
+        <div class="ed-file">
+          <button class="ed-file-btn" type="button">Files ▾</button>
+          <div class="ed-file-menu" hidden>
+            <button id="game-copy-asm" type="button">Export ASM</button>
+            <button id="game-export-blocks" type="button">Export to blocks</button>
+            <div class="ed-file-sep"></div>
+            <button id="game-test-program" type="button">Test program</button>
+            <button id="game-reset" type="button">Reset template</button>
+          </div>
+        </div>
+        <span class="ge-title">GAME BUILDER</span>
+        <button id="game-close" class="ge-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="ge-body">
+        <aside class="ge-panel ge-palette-panel">
+          <div class="ge-section-lbl" id="game-blocks-section">Blocks</div>
+          <div class="ge-hint" id="game-palette-hint">Drag blocks into the game loop</div>
+          <div id="game-palette" class="gb-palette"></div>
+        </aside>
+        <section class="ge-panel ge-workspace-panel">
+          <div class="ge-section-lbl" id="game-canvas-section">Game loop</div>
+          <div class="gb-rootbar">
+            <span class="gb-loop-badge">ROOT</span>
+            <label class="gb-mini-field">
+              <span id="game-title-label">Game name</span>
+              <input id="game-title" type="text" maxlength="32" value="New game">
+            </label>
+            <label class="gb-mini-field">
+              <span id="game-scene-label">Loop label</span>
+              <input id="game-scene" type="text" maxlength="24" value="main_loop">
+            </label>
+            <label class="gb-mini-field">
+              <span id="game-border-label">Border color</span>
+              <select id="game-border"></select>
+            </label>
+            <label class="gb-mini-field">
+              <span id="game-bg-label">Background color</span>
+              <select id="game-bg"></select>
+            </label>
+            <label class="gb-mini-field gb-zoom-field">
+              <span id="game-zoom-label">Zoom</span>
+              <div class="gb-zoom-row">
+                <input id="game-zoom" type="range" min="0.6" max="1.6" step="0.05" value="1">
+                <span id="game-zoom-val" class="gb-zoom-val">100%</span>
+              </div>
+            </label>
+          </div>
+          <div class="gb-canvas-shell">
+            <div id="game-workspace" class="gb-canvas" data-container-id="root"></div>
+          </div>
+        </section>
+        <div class="ge-sidepanel">
+          <section class="ge-side-section">
+            <div class="ge-section-lbl" id="game-inspector-label">Inspector</div>
+            <div id="game-inspector" class="gb-inspector"></div>
+          </section>
+          <section class="ge-side-section">
+          <div class="ge-section-lbl" id="game-preview-label">Generated ASM</div>
+          <pre id="game-preview" class="ge-preview"></pre>
+          </section>
+        </div>
       </div>
     </div>
   </dialog>

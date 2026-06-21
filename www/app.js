@@ -319,6 +319,24 @@ const whatsNewCloseButton = document.getElementById("whats-new-close");
 const knowledgeBaseButton = document.getElementById("knowledge-base-btn");
 const knowledgeBaseDialog = document.getElementById("knowledge-base-dialog");
 const knowledgeBaseCloseButton = document.getElementById("knowledge-base-close");
+const gameBuilderButton = document.getElementById("game-builder-btn");
+const gameBuilderDialog = document.getElementById("game-builder-dialog");
+const gameBuilderCloseButton = document.getElementById("game-close");
+const gameBuilderCopyAsmBtn = document.getElementById("game-copy-asm");
+const gameBuilderExportBlocksBtn = document.getElementById("game-export-blocks");
+const gameBuilderTestProgramBtn = document.getElementById("game-test-program");
+const gameBuilderResetBtn = document.getElementById("game-reset");
+const gameBuilderPreview = document.getElementById("game-preview");
+const gameBuilderInspector = document.getElementById("game-inspector");
+const gameBuilderPalette = document.getElementById("game-palette");
+const gameBuilderWorkspace = document.getElementById("game-workspace");
+const gameBuilderCanvasShell = document.querySelector(".gb-canvas-shell");
+const gameTitleInput = document.getElementById("game-title");
+const gameSceneInput = document.getElementById("game-scene");
+const gameBorderInput = document.getElementById("game-border");
+const gameBgInput = document.getElementById("game-bg");
+const gameZoomInput = document.getElementById("game-zoom");
+const gameZoomValue = document.getElementById("game-zoom-val");
 let workProgressTimer = null;
 let workProgressValue = 10;
 const exitAppButton = document.getElementById("exit-app");
@@ -360,6 +378,121 @@ let debuggerWaitMs = 3000;
 let debuggerUnpause = false;
 let savedUiSettings = {};
 let userMacros = {};  // Stores user-defined macros: { macroName: [blocks...] }
+let gameBuilderDragState = null;
+let gameBuilderSuppressNextClick = false;
+
+const _GAME_BLOCK_LIBRARY = {
+  gameLoop: {
+    titleKey: "gameLoopSection",
+    hintKey: "gameBodyLabel",
+    defaults: {}
+  },
+  player: {
+    titleKey: "gameBlockPlayer",
+    hintKey: "gameBlockPlayerHint",
+    defaults: { spriteNum: 0, spriteColor: 1, spritePage: "80", startX: 80, startY: 100 }
+  },
+  sprite: {
+    titleKey: "gameBlockSprite",
+    hintKey: "gameBlockSpriteHint",
+    defaults: { spriteNum: 1, spriteColor: 7, spritePage: "80", startX: 0, startY: 0 }
+  },
+  joystick: {
+    titleKey: "gameBlockJoystick",
+    hintKey: "gameBlockJoystickHint",
+    defaults: { port: "2", spriteNum: 0 }
+  },
+  ifJoy: {
+    titleKey: "gameBlockIfJoy",
+    hintKey: "gameBlockIfJoyHint",
+    defaults: { port: "2", direction: "up" }
+  },
+  joy: {
+    titleKey: "gameBlockJoy",
+    hintKey: "gameBlockJoyHint",
+    defaults: { port: "2" }
+  },
+  spriteMove: {
+    titleKey: "gameBlockSpriteMove",
+    hintKey: "gameBlockSpriteMoveHint",
+    defaults: { spriteNum: 0, deltaX: 1, deltaY: 0 }
+  },
+  spriteEdge: {
+    titleKey: "gameBlockSpriteEdge",
+    hintKey: "gameBlockSpriteEdgeHint",
+    defaults: {
+      spriteNum: 1,
+      edgeMode: "any",
+      startDirX: "right",
+      startDirY: "down",
+      minX: 0,
+      maxX: 319,
+      minY: 0,
+      maxY: 255
+    }
+  },
+  group: {
+    titleKey: "gameBlockGroup",
+    hintKey: "gameBlockGroupHint",
+    defaults: { groupName: "Initialize" }
+  },
+  spriteCol: {
+    titleKey: "gameBlockSpriteCol",
+    hintKey: "gameBlockSpriteColHint",
+    defaults: { spriteNum: 0, colType: "sprite" }
+  },
+  wait: {
+    titleKey: "gameBlockWait",
+    hintKey: "gameBlockWaitHint",
+    defaults: { line: "F8" }
+  },
+  incbin: {
+    titleKey: "gameBlockIncBin",
+    hintKey: "gameBlockIncBinHint",
+    defaults: { incBinFileName: "", incBinFile: "", incBinSize: 0, incBinAddress: "C000" }
+  },
+  mapcopy: {
+    titleKey: "gameBlockMapCopy",
+    hintKey: "gameBlockMapCopyHint",
+    defaults: {
+      mapCopySrc: "C000",
+      mapCopyDst: "0400",
+      mapCopySize: 1000,
+      mapCopyCombined: false,
+      mapCopyColorSrc: "",
+      mapCopyColorDst: "D800"
+    }
+  },
+  border: {
+    titleKey: "gameBlockBorder",
+    hintKey: "gameBlockBorderHint",
+    defaults: { color: 0 }
+  },
+  background: {
+    titleKey: "gameBlockBackground",
+    hintKey: "gameBlockBackgroundHint",
+    defaults: { color: 0 }
+  },
+  setpos: {
+    titleKey: "gameBlockSetPos",
+    hintKey: "gameBlockSetPosHint",
+    defaults: { spriteNum: 0, x: 80, y: 100 }
+  },
+  setcolor: {
+    titleKey: "gameBlockSetColor",
+    hintKey: "gameBlockSetColorHint",
+    defaults: { spriteNum: 0, color: 1 }
+  },
+  comment: {
+    titleKey: "gameBlockComment",
+    hintKey: "gameBlockCommentHint",
+    defaults: { text: "note" }
+  }
+};
+
+let gameBuilderState = _gameBuilderDefaults();
+let gameBuilderSelectedId = "root";
+const _GAME_GLOBAL_BLOCK_TYPES = new Set(["border", "background", "group"]);
 
 // ΓöÇΓöÇ Tab system ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 let tabs = [];
@@ -427,7 +560,8 @@ function saveUiSettings() {
     debuggerJmp,
     debuggerWait,
     debuggerWaitMs,
-    debuggerUnpause
+    debuggerUnpause,
+    gameBuilder: { ...gameBuilderState }
   };
 
   localStorage.setItem("c64-ui-settings", JSON.stringify(settings));
@@ -1125,6 +1259,7 @@ function initPalette() {
   setupC64CharRom();
   setupCharEditor();
   setupMapEditor();
+  setupGameBuilderDialog();
   setupHiresEditor();
   setupSpriteEditor();
   setupSidEditor();
@@ -1646,6 +1781,17 @@ function _applyUiSettingsToDOM() {
   if (savedUiSettings.debuggerUnpause !== undefined) debuggerUnpause = !!savedUiSettings.debuggerUnpause;
   if (dbgUnpause) dbgUnpause.checked = debuggerUnpause;
 
+  if (savedUiSettings.gameBuilder && typeof savedUiSettings.gameBuilder === "object") {
+    gameBuilderState = {
+      ...gameBuilderState,
+      ...savedUiSettings.gameBuilder
+    };
+    if (savedUiSettings.gameBuilder.scene && !savedUiSettings.gameBuilder.loopLabel) {
+      gameBuilderState.loopLabel = savedUiSettings.gameBuilder.scene;
+    }
+    delete gameBuilderState.scene;
+  }
+
   if (savedUiSettings.expertMode) {
     // Capture toolbar states BEFORE setExpertMode(true) — it calls saveUiSettings()
     // which overwrites savedUiSettings with current (default) variable values.
@@ -2025,6 +2171,7 @@ function _applyEditorTranslations() {
   setAttr("#c64-chrrom-btn", t("chrromBtnTitle"));
   setAttr("#char-editor-btn", t("charEditorBtnTitle"));
   setAttr("#map-editor-btn", t("mapEditorBtnTitle"));
+  setAttr("#game-builder-btn", t("gameBuilderBtnTitle"));
   // CharROM dialog
   setText(".c64-chrrom-title", t("chrromTitle"));
   setText("#c64-chrrom-tab1", t("chrromSet1"));
@@ -2079,6 +2226,23 @@ function _applyEditorTranslations() {
   setAttr("#me-layer-flatten", t("meMergeLayersTitle"));
   setAttr("#me-layer-add", t("meAddLayerTitle"));
   setAttr("#me-clear", t("meClearMap"));
+  // Game Builder
+  setText(".ge-title", t("gameBuilderTitle"));
+  setText("#game-copy-asm", t("gameCopyAsm"));
+  setText("#game-export-blocks", t("gameExportBlocks"));
+  setText("#game-test-program", t("gameTestProgram"));
+  setText("#game-reset", t("gameReset"));
+  setAttr("#game-close", t("gameClose"));
+  setText("#game-blocks-section", t("gameBlocksSection"));
+  setText("#game-canvas-section", t("gameLoopSection"));
+  setText("#game-inspector-label", t("gameInspectorLabel"));
+  setText("#game-palette-hint", t("gamePaletteHint"));
+  setText("#game-preview-label", t("gamePreviewLabel"));
+  setText("#game-title-label", t("gameTitleLabel"));
+  setText("#game-scene-label", t("gameSceneLabel"));
+  setText("#game-border-label", t("gameBorderLabel"));
+  setText("#game-bg-label", t("gameBgLabel"));
+  setText("#game-zoom-label", t("gameZoomLabel"));
   // Hires Editor
   setText(".hg-title", t("hgTitle"));
   setText("#hg-import", t("hgImport"));
@@ -3687,6 +3851,7 @@ function _blockToExpertLine(block) {
   };
   if (block.isOrgMacro)       return `* = $${(block.orgAddress || "0801").toUpperCase()}`;
   if (block.isLabel)          return `${block.labelName || "start"}:`;
+  if (block.isAddressAliasMacro) return `${block.aliasName || "start"} = *+${block.aliasOffset || 1}`;
   if (block.isAnonymousLabel) return "-";
   if (block.isComment)        return `; ${block.rawOperand || ""}`;
   if (block.isTextMacro)      return `.text ${block.textX || 0}, ${block.textY || 0}, "${block.rawOperand || ""}"`;
@@ -4640,6 +4805,14 @@ function parseExpertText(text) {
     const tableM = line.match(/^\.table\s+([A-Za-z_][A-Za-z0-9_]*)\s*(?:\$([0-9A-Fa-f]{1,4}))?\s*$/i);
     if (tableM) {
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "TABLE", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isTableMacro: true, tableName: tableM[1], tableAddress: tableM[2] ? tableM[2].toUpperCase().padStart(4,"0") : "" });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // label = *+1  →  address alias to the following operand byte
+    const aliasM = line.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*\*\s*\+\s*(\d+)\s*$/);
+    if (aliasM) {
+      blocks.push(_importMakeAddressAlias(aliasM[1], parseInt(aliasM[2], 10) || 1));
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -9160,6 +9333,18 @@ function _importMakeLabel(name) {
   };
 }
 
+function _importMakeAddressAlias(name, offset = 1) {
+  return {
+    id: crypto.randomUUID(),
+    category: "Szerkezet", mnemonic: "LABEL",
+    operand: name, rawOperand: name, description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: "", collapsed: true, isAddressAliasMacro: true,
+    aliasName: name,
+    aliasOffset: offset
+  };
+}
+
 function _importMakeByte(rawByteStr) {
   const { base, normalized } = _importDetectListBase(rawByteStr.trim());
   const display = base === "hex"
@@ -9748,6 +9933,7 @@ function addLayoutLabels(labelMap, line) {
   if (!line || line.conditionallySkipped) return;
   const block = line.block || {};
   if (block.isLabel && block.labelName) labelMap.set(block.labelName, line.address);
+  if (block.isAddressAliasMacro && block.aliasName) labelMap.set(block.aliasName, line.address + _gameBuilderClamp(block.aliasOffset, 1, 255, 1));
   if (block.isLoopMacro && block.loopLabel) labelMap.set(block.loopLabel, line.address + 2);
   if (block.isForMacro && block.loopLabel) labelMap.set(block.loopLabel, line.address + 2);
   if (block.isTableMacro && block.tableName) {
@@ -10639,6 +10825,10 @@ function compileLineBytes(line, labels) {
 
   if (block._macroSourceBlock) {
     return { ok: true, bytes: [] };
+  }
+
+  if (block.isAddressAliasMacro) {
+    return { ok: true, bytes: [], comment: `LABEL ${block.aliasName || "?"} = *+${block.aliasOffset || 1}` };
   }
 
   // Macro body at definition site with unresolved {param} placeholders — skip compilation
@@ -12973,6 +13163,10 @@ function getBlockDescription(block) {
 
   if (block.isLabel) {
     return `${currentLanguage !== "hu" ? "Label" : "Label"}: ${block.labelName || "start"}`;
+  }
+
+  if (block.isAddressAliasMacro) {
+    return `${block.aliasName || "start"} = *+${block.aliasOffset || 1}`;
   }
 
   if (block.isComment) {
@@ -18846,6 +19040,2098 @@ function setupMapEditor() {
     canvas.addEventListener("pointerup", endPaint);
     canvas.addEventListener("pointercancel", endPaint);
   }
+}
+
+function _gameBuilderClamp(value, min, max, fallback) {
+  const num = Number.parseInt(String(value), 10);
+  if (Number.isNaN(num)) return fallback;
+  return Math.max(min, Math.min(max, num));
+}
+
+function _gameBuilderClampFloat(value, min, max, fallback) {
+  const num = Number.parseFloat(String(value));
+  if (Number.isNaN(num)) return fallback;
+  return Math.max(min, Math.min(max, num));
+}
+
+function _gameBuilderHexByte(value, fallback) {
+  const raw = String(value ?? "").trim().replace(/^\$/, "");
+  const num = Number.parseInt(raw, 16);
+  if (Number.isNaN(num)) return fallback;
+  return num.toString(16).toUpperCase().padStart(2, "0").slice(-2);
+}
+
+function _gameBuilderHexWord(value, fallback) {
+  const raw = String(value ?? "").trim().replace(/^\$/, "");
+  const num = Number.parseInt(raw, 16);
+  if (Number.isNaN(num)) return fallback;
+  return num.toString(16).toUpperCase().padStart(4, "0").slice(-4);
+}
+
+function _gameBuilderDefaultLayout(type, index = 0, depth = 0) {
+  const base = [
+    { x: 80, y: 80 },
+    { x: 80, y: 240 },
+    { x: 80, y: 400 },
+    { x: 390, y: 80 },
+    { x: 390, y: 260 },
+    { x: 390, y: 440 },
+    { x: 80, y: 560 },
+    { x: 330, y: 560 },
+    { x: 580, y: 560 },
+    { x: 80, y: 740 }
+  ];
+  const preset = {
+    player: { x: 80, y: 80 },
+    sprite: { x: 390, y: 80 },
+    joystick: { x: 80, y: 240 },
+    ifJoy: { x: 390, y: 260 },
+    group: { x: 390, y: 420 },
+    spriteCol: { x: 390, y: 580 },
+    joy: { x: 390, y: 740 },
+    spriteMove: { x: 580, y: 900 },
+    spriteEdge: { x: 580, y: 760 },
+    wait: { x: 80, y: 400 },
+    incbin: { x: 390, y: 440 },
+    mapcopy: { x: 650, y: 440 },
+    border: { x: 80, y: 80 },
+    background: { x: 330, y: 80 },
+    setpos: { x: 580, y: 560 },
+    setcolor: { x: 820, y: 560 },
+    comment: { x: 80, y: 740 },
+    gameLoop: { x: 80, y: 260 }
+  };
+  const fallback = base[index % base.length] || { x: 80 + (index % 4) * 220, y: 80 + Math.floor(index / 4) * 160 };
+  const chosen = preset[type] || fallback;
+  return {
+    x: chosen.x + depth * 28,
+    y: chosen.y + depth * 22
+  };
+}
+
+function _gameBuilderDefaultBlock(type, overrides = {}) {
+  const def = _GAME_BLOCK_LIBRARY[type];
+  const children = Array.isArray(overrides.children) ? overrides.children : [];
+  const layout = {
+    ..._gameBuilderDefaultLayout(type, overrides.index || 0, overrides.depth || 0),
+    ...(overrides.layout || {})
+  };
+  return {
+    id: crypto.randomUUID(),
+    type,
+    layout,
+    props: {
+      ...def.defaults,
+      ...(overrides.props || {})
+    },
+    children: children.map((child, idx) => _gameBuilderDefaultBlock(child.type, { ...child, depth: (overrides.depth || 0) + 1, index: idx }))
+  };
+}
+
+function _gameBuilderDefaultBlocks() {
+  return [
+    _gameBuilderDefaultBlock("group", { index: 0, layout: { x: 80, y: 80 } }),
+    _gameBuilderDefaultBlock("gameLoop", {
+      index: 1,
+      children: [
+        _gameBuilderDefaultBlock("player", { index: 0, depth: 1, layout: { x: 80, y: 80 } }),
+        _gameBuilderDefaultBlock("joystick", { index: 1, depth: 1, layout: { x: 80, y: 220 } }),
+        _gameBuilderDefaultBlock("wait", { index: 2, depth: 1, layout: { x: 80, y: 360 } }),
+        _gameBuilderDefaultBlock("spriteCol", { index: 3, depth: 1, layout: { x: 80, y: 500 } }),
+        _gameBuilderDefaultBlock("joy", {
+          index: 4,
+          depth: 1,
+          layout: { x: 80, y: 660 },
+          children: [
+            _gameBuilderDefaultBlock("spriteMove", { index: 0, depth: 2, layout: { x: 80, y: 80 } })
+          ]
+        }),
+        _gameBuilderDefaultBlock("ifJoy", {
+          index: 5,
+          depth: 1,
+          layout: { x: 80, y: 820 },
+          children: [
+            _gameBuilderDefaultBlock("spriteMove", { index: 0, depth: 2, layout: { x: 80, y: 80 } })
+          ]
+        }),
+        _gameBuilderDefaultBlock("spriteEdge", {
+          index: 6,
+          depth: 1,
+          layout: { x: 80, y: 980 },
+          props: { spriteNum: 1, edgeMode: "any", startDirX: "right", startDirY: "down", minX: 0, maxX: 319, minY: 0, maxY: 255 }
+        })
+      ]
+    })
+  ];
+}
+
+function _gameBuilderTestProgramBlocks() {
+  return [
+    _gameBuilderDefaultBlock("group", {
+      index: 0,
+      layout: { x: 80, y: 80 },
+      props: { groupName: "Initialize" },
+      children: [
+        _gameBuilderDefaultBlock("comment", {
+          index: 0,
+          depth: 1,
+          layout: { x: 80, y: 80 },
+          props: { text: "sprite1.bin loaded twice for player/ball (pages $80/$81)" }
+        }),
+        _gameBuilderDefaultBlock("incbin", {
+          index: 1,
+          depth: 1,
+          layout: { x: 80, y: 220 },
+          props: { incBinFileName: "sprite1.bin", incBinFile: "sprite1.bin", incBinSize: 64, incBinAddress: "2000" }
+        }),
+        _gameBuilderDefaultBlock("incbin", {
+          index: 2,
+          depth: 1,
+          layout: { x: 80, y: 360 },
+          props: { incBinFileName: "sprite1.bin", incBinFile: "sprite1.bin", incBinSize: 64, incBinAddress: "2040" }
+        }),
+        _gameBuilderDefaultBlock("border", {
+          index: 3,
+          depth: 1,
+          layout: { x: 80, y: 500 },
+          props: { color: 0 }
+        }),
+        _gameBuilderDefaultBlock("background", {
+          index: 4,
+          depth: 1,
+          layout: { x: 80, y: 640 },
+          props: { color: 6 }
+        }),
+        _gameBuilderDefaultBlock("player", {
+          index: 5,
+          depth: 1,
+          layout: { x: 80, y: 780 },
+          props: { spriteNum: 0, spriteColor: 5, spritePage: "80", startX: 100, startY: 100 }
+        }),
+        _gameBuilderDefaultBlock("sprite", {
+          index: 6,
+          depth: 1,
+          layout: { x: 80, y: 920 },
+          props: { spriteNum: 1, spriteColor: 7, spritePage: "81", startX: 200, startY: 120 }
+        })
+      ]
+    }),
+    _gameBuilderDefaultBlock("gameLoop", {
+      index: 1,
+      layout: { x: 390, y: 80 },
+      children: [
+        _gameBuilderDefaultBlock("joy", {
+          index: 0,
+          depth: 1,
+          layout: { x: 80, y: 80 },
+          props: { port: "2" },
+          children: [
+            _gameBuilderDefaultBlock("ifJoy", {
+              index: 0,
+              depth: 2,
+              layout: { x: 80, y: 80 },
+              props: { port: "2", direction: "left" },
+              children: [
+                _gameBuilderDefaultBlock("spriteMove", {
+                  index: 0,
+                  depth: 3,
+                  layout: { x: 80, y: 80 },
+                  props: { spriteNum: 0, deltaX: -1, deltaY: 0 }
+                })
+              ]
+            }),
+            _gameBuilderDefaultBlock("ifJoy", {
+              index: 1,
+              depth: 2,
+              layout: { x: 80, y: 260 },
+              props: { port: "2", direction: "right" },
+              children: [
+                _gameBuilderDefaultBlock("spriteMove", {
+                  index: 0,
+                  depth: 3,
+                  layout: { x: 80, y: 80 },
+                  props: { spriteNum: 0, deltaX: 1, deltaY: 0 }
+                })
+              ]
+            }),
+            _gameBuilderDefaultBlock("ifJoy", {
+              index: 2,
+              depth: 2,
+              layout: { x: 80, y: 440 },
+              props: { port: "2", direction: "up" },
+              children: [
+                _gameBuilderDefaultBlock("spriteMove", {
+                  index: 0,
+                  depth: 3,
+                  layout: { x: 80, y: 80 },
+                  props: { spriteNum: 0, deltaX: 0, deltaY: -1 }
+                })
+              ]
+            }),
+            _gameBuilderDefaultBlock("ifJoy", {
+              index: 3,
+              depth: 2,
+              layout: { x: 80, y: 620 },
+              props: { port: "2", direction: "down" },
+              children: [
+                _gameBuilderDefaultBlock("spriteMove", {
+                  index: 0,
+                  depth: 3,
+                  layout: { x: 80, y: 80 },
+                  props: { spriteNum: 0, deltaX: 0, deltaY: 1 }
+                })
+              ]
+            })
+          ]
+        }),
+        _gameBuilderDefaultBlock("spriteCol", {
+          index: 1,
+          depth: 1,
+          layout: { x: 80, y: 1000 },
+          props: { spriteNum: 0, colType: "sprite" },
+          children: [
+            _gameBuilderDefaultBlock("border", {
+              index: 0,
+              depth: 2,
+              layout: { x: 80, y: 80 },
+              props: { color: 2 }
+            })
+          ]
+        }),
+        _gameBuilderDefaultBlock("spriteEdge", {
+          index: 2,
+          depth: 1,
+          layout: { x: 80, y: 1180 },
+          props: {
+            spriteNum: 1,
+            edgeMode: "any",
+            startDirX: "right",
+            startDirY: "down",
+            minX: 0,
+            maxX: 319,
+            minY: 0,
+            maxY: 255
+          },
+          children: [
+            _gameBuilderDefaultBlock("border", {
+              index: 0,
+              depth: 2,
+              layout: { x: 80, y: 80 },
+              props: { color: 6 }
+            })
+          ]
+        }),
+        _gameBuilderDefaultBlock("wait", {
+          index: 3,
+          depth: 1,
+          layout: { x: 80, y: 1360 },
+          props: { line: "F8" }
+        })
+      ]
+    })
+  ];
+}
+
+function _gameBuilderLoadTestProgram() {
+  gameBuilderState = {
+    title: "Collision test",
+    loopLabel: "main_loop",
+    borderColor: 0,
+    bgColor: 6,
+    zoom: 1,
+    blocks: _gameBuilderTestProgramBlocks()
+  };
+  gameBuilderSelectedId = "root";
+  _gameBuilderRenderAll();
+  saveUiSettings();
+}
+
+function _gameBuilderDefaults() {
+  return {
+    title: "New game",
+    loopLabel: "main_loop",
+    borderColor: 0,
+    bgColor: 0,
+    zoom: 1,
+    blocks: _gameBuilderDefaultBlocks()
+  };
+}
+
+function _gameBuilderNormalizeBlock(block) {
+  if (!block || typeof block !== "object") return null;
+  const def = _GAME_BLOCK_LIBRARY[block.type];
+  if (!def) return null;
+  const layout = block.layout && typeof block.layout === "object" ? block.layout : {};
+  const normalized = {
+    id: typeof block.id === "string" && block.id ? block.id : crypto.randomUUID(),
+    type: block.type,
+    layout: {
+      x: _gameBuilderClamp(layout.x, 0, 9999, _gameBuilderDefaultLayout(block.type).x),
+      y: _gameBuilderClamp(layout.y, 0, 9999, _gameBuilderDefaultLayout(block.type).y)
+    },
+    props: {
+      ...def.defaults,
+      ...(block.props || {})
+    },
+    children: []
+  };
+  if (Array.isArray(block.children)) {
+    normalized.children = block.children.map(_gameBuilderNormalizeBlock).filter(Boolean);
+  }
+  return normalized;
+}
+
+function _gameBuilderEstimateBlockMetrics(block) {
+  const type = block?.type;
+  const childBlocks = Array.isArray(block?.children) ? block.children : [];
+  let height = 98;
+  let width = 220;
+  if (type === "player" || type === "sprite") {
+    height = 152;
+  } else if (type === "joystick") {
+    height = 122;
+  } else if (type === "ifJoy") {
+    const childHeight = _gameBuilderEstimateContainerHeight(childBlocks);
+    height = 112 + childHeight;
+  } else if (type === "joy") {
+    const childHeight = _gameBuilderEstimateContainerHeight(childBlocks);
+    height = 112 + childHeight;
+  } else if (type === "group") {
+    const childHeight = _gameBuilderEstimateContainerHeight(childBlocks);
+    height = 102 + childHeight;
+    width = 280;
+  } else if (type === "spriteMove") {
+    height = 118;
+  } else if (type === "spriteEdge") {
+    const childHeight = _gameBuilderEstimateContainerHeight(childBlocks);
+    height = 164 + childHeight;
+    width = 300;
+  } else if (type === "spriteCol") {
+    const childHeight = _gameBuilderEstimateContainerHeight(childBlocks);
+    height = 112 + childHeight;
+  } else if (type === "gameLoop") {
+    const childHeight = _gameBuilderEstimateContainerHeight(childBlocks);
+    height = 106 + childHeight;
+    width = 520;
+  } else if (type === "wait") {
+    height = 118;
+  } else if (type === "incbin" || type === "mapcopy") {
+    height = 134;
+  } else if (type === "border" || type === "background" || type === "setpos" || type === "setcolor" || type === "comment") {
+    height = 108;
+  }
+  return { width, height };
+}
+
+function _gameBuilderEstimateContainerHeight(blocks) {
+  if (!Array.isArray(blocks) || !blocks.length) return 72;
+  let total = 12;
+  blocks.forEach((block) => {
+    total += _gameBuilderEstimateBlockMetrics(block).height + 8;
+  });
+  return total + 8;
+}
+
+function _gameBuilderRectsOverlap(a, b, gap = 12) {
+  return !(
+    a.right + gap <= b.left ||
+    b.right + gap <= a.left ||
+    a.bottom + gap <= b.top ||
+    b.bottom + gap <= a.top
+  );
+}
+
+function _gameBuilderFindFreeLayout(containerBlocks, block, desiredLayout, ignoreNodeId = null) {
+  const metrics = _gameBuilderEstimateBlockMetrics(block);
+  let layout = {
+    x: _gameBuilderClamp(desiredLayout?.x, 0, 9999, 80),
+    y: Math.max(0, Math.round(_gameBuilderClamp(desiredLayout?.y, 0, 9999, 80) / 18) * 18)
+  };
+  let guard = 0;
+  while (guard++ < 200) {
+    const rect = {
+      left: layout.x,
+      top: layout.y,
+      right: layout.x + metrics.width,
+      bottom: layout.y + metrics.height
+    };
+    const overlap = (containerBlocks || []).find((other) => {
+      if (!other || other.id === ignoreNodeId) return false;
+      const otherMetrics = _gameBuilderEstimateBlockMetrics(other);
+      const otherLeft = _gameBuilderClamp(other.layout?.x, 0, 9999, 80);
+      const otherTop = _gameBuilderClamp(other.layout?.y, 0, 9999, 80);
+      const otherRect = {
+        left: otherLeft,
+        top: otherTop,
+        right: otherLeft + otherMetrics.width,
+        bottom: otherTop + otherMetrics.height
+      };
+      return _gameBuilderRectsOverlap(rect, otherRect);
+    });
+    if (!overlap) return layout;
+    const otherTop = _gameBuilderClamp(overlap.layout?.y, 0, 9999, 80);
+    layout.y = otherTop + _gameBuilderEstimateBlockMetrics(overlap).height + 18;
+  }
+  return layout;
+}
+
+function _gameBuilderResolveContainerLayouts(blocks, depth = 0) {
+  if (!Array.isArray(blocks) || !blocks.length) return;
+  const ordered = _gameBuilderOrderedBlocks(blocks);
+  let cursorY = depth === 0 ? 12 : 10;
+  ordered.forEach((block) => {
+    const fallback = _gameBuilderDefaultLayout(block.type, 0, depth);
+    block.layout = {
+      x: _gameBuilderClamp(block.layout?.x, 0, 9999, fallback.x),
+      y: Math.max(cursorY, _gameBuilderClamp(block.layout?.y, 0, 9999, cursorY))
+    };
+    cursorY = block.layout.y + _gameBuilderEstimateBlockMetrics(block).height + 10;
+    if (Array.isArray(block.children) && block.children.length) {
+      _gameBuilderResolveContainerLayouts(block.children, depth + 1);
+    }
+  });
+}
+
+function _gameBuilderLuma(hex) {
+  const rgb = String(hex || "#000000").replace("#", "");
+  const r = parseInt(rgb.slice(0, 2), 16) || 0;
+  const g = parseInt(rgb.slice(2, 4), 16) || 0;
+  const b = parseInt(rgb.slice(4, 6), 16) || 0;
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+}
+
+function _gameBuilderColorOptions(value) {
+  return _C64_COLORS.map((color, i) => {
+    const fg = _gameBuilderLuma(color.hex) > 0.55 ? "#111" : "#fff";
+    return `<option value="${i}" style="background:${color.hex};color:${fg};"${String(i) === String(value) ? " selected" : ""}>${i}</option>`;
+  }).join("");
+}
+
+function _gameBuilderPopulateColorSelects() {
+  if (gameBorderInput && !gameBorderInput.options.length) {
+    gameBorderInput.innerHTML = _gameBuilderColorOptions(gameBuilderState?.borderColor ?? 0);
+  }
+  if (gameBgInput && !gameBgInput.options.length) {
+    gameBgInput.innerHTML = _gameBuilderColorOptions(gameBuilderState?.bgColor ?? 0);
+  }
+}
+
+function _gameBuilderSyncColorSelectAppearance(selectEl) {
+  if (!selectEl) return;
+  const idx = _gameBuilderClamp(selectEl.value, 0, 15, 0);
+  const color = _C64_COLORS[idx] || _C64_COLORS[0];
+  const fg = _gameBuilderLuma(color.hex) > 0.55 ? "#111" : "#fff";
+  selectEl.style.background = color.hex;
+  selectEl.style.color = fg;
+}
+
+function _gameBuilderRefreshColorSelectAppearance() {
+  _gameBuilderSyncColorSelectAppearance(gameBorderInput);
+  _gameBuilderSyncColorSelectAppearance(gameBgInput);
+  document.querySelectorAll('.gb-field select[data-prop="color"]').forEach(_gameBuilderSyncColorSelectAppearance);
+}
+
+function _gameBuilderNormalizeState() {
+  gameBuilderState.title = String(gameBuilderState.title || "New game");
+  gameBuilderState.loopLabel = String(gameBuilderState.loopLabel || gameBuilderState.scene || "main_loop");
+  gameBuilderState.borderColor = _gameBuilderClamp(gameBuilderState.borderColor, 0, 15, 0);
+  gameBuilderState.bgColor = _gameBuilderClamp(gameBuilderState.bgColor, 0, 15, 0);
+  gameBuilderState.zoom = _gameBuilderClampFloat(gameBuilderState.zoom, 0.6, 1.6, 1);
+  if (!Array.isArray(gameBuilderState.blocks)) {
+    gameBuilderState.blocks = _gameBuilderDefaultBlocks();
+    return;
+  }
+  const normalized = gameBuilderState.blocks.map(_gameBuilderNormalizeBlock).filter(Boolean);
+  const globals = [];
+  const loopChildren = [];
+  let loopBlock = null;
+  normalized.forEach((block) => {
+    if (block.type === "gameLoop") {
+      if (!loopBlock) {
+        loopBlock = block;
+      }
+      loopChildren.push(...(block.children || []));
+      return;
+    }
+    if (_GAME_GLOBAL_BLOCK_TYPES.has(block.type)) {
+      globals.push(block);
+      return;
+    }
+    loopChildren.push(block);
+  });
+  if (!loopBlock) {
+    loopBlock = _gameBuilderDefaultBlock("gameLoop", { children: loopChildren });
+  } else {
+    loopBlock.children = loopChildren;
+  }
+  globals.sort((a, b) => {
+    const ay = _gameBuilderClamp(a.layout?.y, 0, 9999, 0);
+    const by = _gameBuilderClamp(b.layout?.y, 0, 9999, 0);
+    if (ay !== by) return ay - by;
+    const ax = _gameBuilderClamp(a.layout?.x, 0, 9999, 0);
+    const bx = _gameBuilderClamp(b.layout?.x, 0, 9999, 0);
+    return ax - bx;
+  });
+  globals.forEach((block, idx) => {
+    block.layout = {
+      x: _gameBuilderClamp(block.layout?.x, 0, 9999, _gameBuilderDefaultLayout(block.type, idx).x),
+      y: 80 + idx * 140
+    };
+  });
+  loopBlock.layout = {
+    x: _gameBuilderClamp(loopBlock.layout?.x, 0, 9999, _gameBuilderDefaultLayout("gameLoop").x),
+    y: 80 + globals.length * 140 + 40
+  };
+  gameBuilderState.blocks = [...globals, loopBlock];
+  _gameBuilderResolveContainerLayouts(gameBuilderState.blocks);
+  if (!gameBuilderSelectedId || (!(_gameBuilderFindNodeById(gameBuilderSelectedId)) && gameBuilderSelectedId !== "root")) {
+    gameBuilderSelectedId = "root";
+  }
+}
+
+function _gameBuilderSyncRootFromInputs() {
+  if (gameTitleInput) gameBuilderState.title = gameTitleInput.value.trim() || "New game";
+  if (gameSceneInput) gameBuilderState.loopLabel = gameSceneInput.value.trim() || "main_loop";
+  if (gameBorderInput) gameBuilderState.borderColor = _gameBuilderClamp(gameBorderInput.value, 0, 15, 0);
+  if (gameBgInput) gameBuilderState.bgColor = _gameBuilderClamp(gameBgInput.value, 0, 15, 0);
+}
+
+function _gameBuilderApplyRootToInputs() {
+  _gameBuilderPopulateColorSelects();
+  if (gameTitleInput) gameTitleInput.value = gameBuilderState.title || "New game";
+  if (gameSceneInput) gameSceneInput.value = gameBuilderState.loopLabel || "main_loop";
+  if (gameBorderInput) gameBorderInput.value = String(_gameBuilderClamp(gameBuilderState.borderColor, 0, 15, 0));
+  if (gameBgInput) gameBgInput.value = String(_gameBuilderClamp(gameBuilderState.bgColor, 0, 15, 0));
+  _gameBuilderRefreshColorSelectAppearance();
+  _gameBuilderApplyZoom();
+}
+
+function _gameBuilderApplyZoom() {
+  const zoom = _gameBuilderClampFloat(gameBuilderState.zoom, 0.6, 1.6, 1);
+  gameBuilderState.zoom = zoom;
+  if (gameBuilderWorkspace) {
+    gameBuilderWorkspace.style.setProperty("--gb-zoom", zoom.toFixed(2));
+  }
+  if (gameZoomInput) gameZoomInput.value = String(zoom);
+  if (gameZoomValue) gameZoomValue.textContent = `${Math.round(zoom * 100)}%`;
+}
+
+function _gameBuilderPaletteItems() {
+  return [
+    "player",
+    "sprite",
+    "joystick",
+    "ifJoy",
+    "joy",
+    "spriteMove",
+    "spriteEdge",
+    "group",
+    "spriteCol",
+    "wait",
+    "incbin",
+    "mapcopy",
+    "border",
+    "background",
+    "setpos",
+    "setcolor",
+    "comment"
+  ];
+}
+
+function _gameBuilderRenderPalette() {
+  if (!gameBuilderPalette) return;
+  gameBuilderPalette.innerHTML = _gameBuilderPaletteItems().map((type) => {
+    const def = _GAME_BLOCK_LIBRARY[type];
+    return `
+      <button class="gb-palette-btn" type="button" draggable="false" data-palette-type="${type}">
+        <strong>${t(def.titleKey)}</strong>
+        <span>${t(def.hintKey)}</span>
+      </button>
+    `;
+  }).join("");
+}
+
+function _gameBuilderFieldMarkup(node) {
+  const p = node.props || {};
+  const layout = node.layout || {};
+  const numField = (prop, label, min, max, value, cls = "") => `
+    <label class="gb-field ${cls}">
+      <span>${label}</span>
+      <input data-node-id="${node.id}" data-prop="${prop}" data-value-type="int" type="number" min="${min}" max="${max}" step="1" value="${value}">
+    </label>`;
+  const textField = (prop, label, value, maxlength, placeholder = "") => `
+    <label class="gb-field">
+      <span>${label}</span>
+      <input data-node-id="${node.id}" data-prop="${prop}" data-value-type="text" type="text" maxlength="${maxlength}" value="${value}" placeholder="${placeholder}">
+    </label>`;
+  const selectField = (prop, label, value, options) => `
+    <label class="gb-field">
+      <span>${label}</span>
+      <select data-node-id="${node.id}" data-prop="${prop}" data-value-type="text">
+        ${options.map(([optValue, optLabel]) => `<option value="${optValue}"${String(optValue) === String(value) ? " selected" : ""}>${optLabel}</option>`).join("")}
+      </select>
+    </label>`;
+  const colorSelectField = (prop, label, value) => `
+    <label class="gb-field">
+      <span>${label}</span>
+      <select class="gb-color-select" data-node-id="${node.id}" data-prop="${prop}" data-value-type="text">
+        ${_C64_COLORS.map((color, i) => {
+          const fg = _gameBuilderLuma(color.hex) > 0.55 ? "#111" : "#fff";
+          return `<option value="${i}" style="background:${color.hex};color:${fg};"${String(i) === String(value) ? " selected" : ""}>${i}</option>`;
+        }).join("")}
+      </select>
+    </label>`;
+  const positionFields = `
+      <div class="gb-field-grid">
+        ${numField("layoutX", t("gameXLabel"), 0, 9999, _gameBuilderClamp(layout.x, 0, 9999, 80))}
+        ${numField("layoutY", t("gameYLabel"), 0, 9999, _gameBuilderClamp(layout.y, 0, 9999, 80))}
+      </div>`;
+
+  if (node.type === "player" || node.type === "sprite") {
+    return `
+      ${positionFields}
+      <div class="gb-field-grid gb-field-grid--3">
+        ${numField("spriteNum", t("gameSpriteLabel"), 0, 7, _gameBuilderClamp(p.spriteNum, 0, 7, 0))}
+        ${numField("spriteColor", t("gameSpriteColorLabel"), 0, 15, _gameBuilderClamp(p.spriteColor, 0, 15, 1))}
+        ${textField("spritePage", t("gameSpritePageLabel"), _gameBuilderHexByte(p.spritePage, "80"), 2, "80")}
+      </div>
+      <div class="gb-field-grid">
+        ${numField("startX", t("gameXLabel"), 0, 319, _gameBuilderClamp(p.startX, 0, 319, 80))}
+        ${numField("startY", t("gameYLabel"), 0, 255, _gameBuilderClamp(p.startY, 0, 255, 100))}
+      </div>
+    `;
+  }
+
+  if (node.type === "joystick") {
+    return `
+      ${positionFields}
+      <div class="gb-field-grid">
+        ${selectField("port", t("gameJoystickLabel"), String(p.port === "1" ? "1" : "2"), [["1", "1"], ["2", "2"]])}
+        ${numField("spriteNum", t("gameSpriteLabel"), 0, 7, _gameBuilderClamp(p.spriteNum, 0, 7, 0))}
+      </div>
+    `;
+  }
+
+  if (node.type === "ifJoy") {
+    return `
+      ${positionFields}
+      <div class="gb-field-grid">
+        ${selectField("port", t("gameJoystickLabel"), String(p.port === "1" ? "1" : "2"), [["1", "1"], ["2", "2"]])}
+        ${selectField("direction", t("gameDirectionLabel"), String(p.direction || "up"), [
+          ["up", t("gameDirectionUp")],
+          ["down", t("gameDirectionDown")],
+          ["left", t("gameDirectionLeft")],
+          ["right", t("gameDirectionRight")],
+          ["fire", t("gameDirectionFire")]
+        ])}
+      </div>
+    `;
+  }
+
+  if (node.type === "joy") {
+    return `
+      ${positionFields}
+      <div class="gb-field-grid">
+        ${selectField("port", t("gameJoystickLabel"), String(p.port === "1" ? "1" : "2"), [["1", "1"], ["2", "2"]])}
+      </div>
+    `;
+  }
+
+  if (node.type === "spriteMove") {
+    return `
+      ${positionFields}
+      <div class="gb-field-grid gb-field-grid--3">
+        ${numField("spriteNum", t("gameSpriteLabel"), 0, 7, _gameBuilderClamp(p.spriteNum, 0, 7, 0))}
+        ${numField("deltaX", t("gameMoveXLabel"), -8, 8, _gameBuilderClamp(p.deltaX, -8, 8, 1))}
+        ${numField("deltaY", t("gameMoveYLabel"), -8, 8, _gameBuilderClamp(p.deltaY, -8, 8, 0))}
+      </div>
+    `;
+  }
+
+  if (node.type === "spriteEdge") {
+    return `
+      ${positionFields}
+      <div class="gb-field-grid gb-field-grid--3">
+        ${numField("spriteNum", t("gameSpriteLabel"), 0, 7, _gameBuilderClamp(p.spriteNum, 0, 7, 1))}
+        ${selectField("edgeMode", t("gameEdgeModeLabel"), String(p.edgeMode || "any"), [
+          ["any", t("gameEdgeAny")],
+          ["left", t("gameEdgeLeft")],
+          ["right", t("gameEdgeRight")],
+          ["top", t("gameEdgeTop")],
+          ["bottom", t("gameEdgeBottom")]
+        ])}
+        ${selectField("startDirX", t("gameVectorXLabel"), String(p.startDirX || "right"), [
+          ["left", t("gameDirectionLeft")],
+          ["right", t("gameDirectionRight")],
+          ["none", t("gameDirectionNone")]
+        ])}
+      </div>
+      <div class="gb-field-grid gb-field-grid--2">
+        ${numField("minX", t("gameEdgeLeftLabel"), 0, 319, _gameBuilderClamp(p.minX, 0, 319, 0))}
+        ${numField("maxX", t("gameEdgeRightLabel"), 0, 319, _gameBuilderClamp(p.maxX, 0, 319, 319))}
+      </div>
+      <div class="gb-field-grid gb-field-grid--2">
+        ${numField("minY", t("gameEdgeTopLabel"), 0, 255, _gameBuilderClamp(p.minY, 0, 255, 0))}
+        ${numField("maxY", t("gameEdgeBottomLabel"), 0, 255, _gameBuilderClamp(p.maxY, 0, 255, 255))}
+      </div>
+      <div class="gb-field-grid">
+        ${selectField("startDirY", t("gameVectorYLabel"), String(p.startDirY || "down"), [
+          ["up", t("gameDirectionUp")],
+          ["down", t("gameDirectionDown")],
+          ["none", t("gameDirectionNone")]
+        ])}
+      </div>
+    `;
+  }
+
+  if (node.type === "group") {
+    return `
+      ${positionFields}
+      <div class="gb-field-grid">
+        ${textField("groupName", t("gameGroupNameLabel"), String(p.groupName || "Initialize"), 24, t("gameGroupNamePlaceholder"))}
+      </div>
+    `;
+  }
+
+  if (node.type === "spriteCol") {
+    return `
+      ${positionFields}
+      <div class="gb-field-grid">
+        ${numField("spriteNum", t("gameSpriteLabel"), 0, 7, _gameBuilderClamp(p.spriteNum, 0, 7, 0))}
+        ${selectField("colType", t("gameCollisionLabel"), String(p.colType || "sprite"), [
+          ["sprite", t("colTypeSprite")],
+          ["background", t("colTypeBackground")],
+          ["both", t("colTypeBoth")]
+        ])}
+      </div>
+    `;
+  }
+
+  if (node.type === "wait") {
+    return `
+      ${positionFields}
+      <div class="gb-field-grid">
+        ${textField("line", t("gameWaitLabel"), _gameBuilderHexByte(p.line, "F8"), 2, "F8")}
+      </div>
+    `;
+  }
+
+  if (node.type === "incbin") {
+    const fileName = String(p.incBinFileName || "").trim();
+    const fileSize = _gameBuilderClamp(p.incBinSize, 0, 999999, 0);
+    const folderIcon = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 5a1 1 0 0 1 1-1h3.5l1.5 1.5H14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V5z"/></svg>`;
+    const displayName = fileName ? `${fileName}${fileSize ? ` (${fileSize} bytes)` : ""}` : "";
+    return `
+      ${positionFields}
+      <div class="gb-field-grid">
+        <label class="gb-field gb-file-field">
+          <span>${t("fieldIncBinFile")}</span>
+          <div class="incbin-file-row">
+            <input class="gb-file-name" type="text" readonly value="${escapeHtmlAttribute(displayName)}" placeholder="${t("incBinNoFile")}" title="${escapeHtmlAttribute(p.incBinFile || "")}">
+            <button class="icon-btn gb-file-pick" type="button" data-action="pick-incbin" data-node-id="${node.id}" title="${t("incBinBrowse")}">${folderIcon}</button>
+          </div>
+        </label>
+      </div>
+      <div class="gb-field-grid">
+        ${textField("incBinAddress", t("fieldAddress"), _gameBuilderHexWord(p.incBinAddress, "C000"), 4, "C000")}
+      </div>
+    `;
+  }
+
+  if (node.type === "mapcopy") {
+    const isCombined = !!p.mapCopyCombined;
+    return `
+      ${positionFields}
+      <div class="gb-field-grid">
+        ${textField("mapCopySrc", t("fieldMapCopySrc"), _gameBuilderHexWord(p.mapCopySrc, "C000"), 4, "C000")}
+        ${textField("mapCopyDst", t("fieldMapCopyDst"), _gameBuilderHexWord(p.mapCopyDst, "0400"), 4, "0400")}
+      </div>
+      <div class="gb-field-grid">
+        ${numField("mapCopySize", t("fieldMapCopySize"), 1, 65000, _gameBuilderClamp(p.mapCopySize, 1, 65000, 1000))}
+        <label class="gb-field gb-checkbox-field">
+          <span>${t("fieldMapCopyCombined")}</span>
+          <input data-node-id="${node.id}" data-prop="mapCopyCombined" type="checkbox"${isCombined ? " checked" : ""}>
+        </label>
+      </div>
+      <div class="gb-field-grid gb-mapcopy-color-row"${isCombined ? ' hidden' : ""}>
+        ${textField("mapCopyColorSrc", t("fieldMapCopyColorSrc"), _gameBuilderHexWord(p.mapCopyColorSrc, ""), 4, "")}
+        ${textField("mapCopyColorDst", t("fieldMapCopyColorDst"), _gameBuilderHexWord(p.mapCopyColorDst, "D800"), 4, "D800")}
+      </div>
+      <div class="gb-field-grid gb-mapcopy-combined-row"${!isCombined ? ' hidden' : ""}>
+        ${textField("mapCopyColorDst", t("fieldMapCopyColorDst"), _gameBuilderHexWord(p.mapCopyColorDst, "D800"), 4, "D800")}
+      </div>
+    `;
+  }
+
+  if (node.type === "border" || node.type === "background") {
+    const label = node.type === "border" ? t("gameBorderLabel") : t("gameBgLabel");
+    return `
+      ${positionFields}
+      <div class="gb-field-grid">
+        ${colorSelectField("color", label, _gameBuilderClamp(p.color, 0, 15, 0))}
+      </div>
+    `;
+  }
+
+  if (node.type === "setpos") {
+    return `
+      ${positionFields}
+      <div class="gb-field-grid">
+        ${numField("spriteNum", t("gameSpriteLabel"), 0, 7, _gameBuilderClamp(p.spriteNum, 0, 7, 0))}
+        ${numField("x", t("gameXLabel"), 0, 319, _gameBuilderClamp(p.x, 0, 319, 80))}
+        ${numField("y", t("gameYLabel"), 0, 255, _gameBuilderClamp(p.y, 0, 255, 100))}
+      </div>
+    `;
+  }
+
+  if (node.type === "setcolor") {
+    return `
+      ${positionFields}
+      <div class="gb-field-grid">
+        ${numField("spriteNum", t("gameSpriteLabel"), 0, 7, _gameBuilderClamp(p.spriteNum, 0, 7, 0))}
+        ${numField("color", t("gameSpriteColorLabel"), 0, 15, _gameBuilderClamp(p.color, 0, 15, 1))}
+      </div>
+    `;
+  }
+
+  if (node.type === "comment") {
+    return `
+      ${positionFields}
+      <div class="gb-field-grid">
+        ${textField("text", t("gameCommentLabel"), String(p.text || "note"), 64, t("gameCommentPlaceholder"))}
+      </div>
+    `;
+  }
+
+  return "";
+}
+
+function _gameBuilderCanContainChildren(node) {
+  return node?.type === "ifJoy" || node?.type === "joy" || node?.type === "gameLoop" || node?.type === "group" || node?.type === "spriteCol" || node?.type === "spriteEdge";
+}
+
+function _gameBuilderNodeSummary(node) {
+  const p = node.props || {};
+  if (node.type === "player" || node.type === "sprite") {
+    return `sprite ${_gameBuilderClamp(p.spriteNum, 0, 7, 0)}, color ${_gameBuilderClamp(p.spriteColor, 0, 15, 1)}, ${_gameBuilderHexByte(p.spritePage, "80")} @ ${_gameBuilderClamp(node.layout?.x, 0, 9999, 0)},${_gameBuilderClamp(node.layout?.y, 0, 9999, 0)}`;
+  }
+  if (node.type === "joystick") {
+    return `port ${p.port === "1" ? "1" : "2"}, sprite ${_gameBuilderClamp(p.spriteNum, 0, 7, 0)}`;
+  }
+  if (node.type === "ifJoy") {
+    return `if joy ${p.port === "1" ? "1" : "2"} ${String(p.direction || "up")}`;
+  }
+  if (node.type === "joy") {
+    return `joy ${p.port === "1" ? "1" : "2"}${(node.children || []).length ? ` · ${(node.children || []).length} blocks` : ""}`;
+  }
+  if (node.type === "spriteMove") {
+    return `sprite ${_gameBuilderClamp(p.spriteNum, 0, 7, 0)} move ${_gameBuilderClamp(p.deltaX, -8, 8, 1)},${_gameBuilderClamp(p.deltaY, -8, 8, 0)}`;
+  }
+  if (node.type === "spriteEdge") {
+    const edgeMode = String(p.edgeMode || "any");
+    const edgeLabel = edgeMode === "left"
+      ? t("gameEdgeLeft")
+      : edgeMode === "right"
+        ? t("gameEdgeRight")
+        : edgeMode === "top"
+          ? t("gameEdgeTop")
+          : edgeMode === "bottom"
+            ? t("gameEdgeBottom")
+            : t("gameEdgeAny");
+    return `sprite ${_gameBuilderClamp(p.spriteNum, 0, 7, 0)} edge ${edgeLabel} ${_gameBuilderClamp(p.minX, 0, 319, 0)}..${_gameBuilderClamp(p.maxX, 0, 319, 319)} / ${_gameBuilderClamp(p.minY, 0, 255, 0)}..${_gameBuilderClamp(p.maxY, 0, 255, 255)}${(node.children || []).length ? ` · ${(node.children || []).length} blocks` : ""}`;
+  }
+  if (node.type === "group") {
+    const name = String(p.groupName || "Initialize");
+    return `${name}${(node.children || []).length ? ` · ${(node.children || []).length} blocks` : ""}`;
+  }
+  if (node.type === "spriteCol") {
+    const colType = String(p.colType || "sprite");
+    const typeLabel = colType === "background"
+      ? (currentLanguage === "hu" ? "hatter" : "bg")
+      : colType === "both"
+        ? (currentLanguage === "hu" ? "mindkettő" : "both")
+        : (currentLanguage === "hu" ? "sprite" : "spr");
+    return `if sprite ${_gameBuilderClamp(p.spriteNum, 0, 7, 0)} ${typeLabel}${(node.children || []).length ? ` · ${(node.children || []).length} blocks` : ""}`;
+  }
+  if (node.type === "gameLoop") {
+    return `${gameBuilderState.loopLabel || "main_loop"}${(node.children || []).length ? ` · ${(node.children || []).length} blocks` : ""}`;
+  }
+  if (node.type === "wait") {
+    return `raster $${_gameBuilderHexByte(p.line, "F8")}`;
+  }
+  if (node.type === "incbin") {
+    return p.incBinFileName ? `${p.incBinFileName}${p.incBinAddress ? ` @ $${_gameBuilderHexWord(p.incBinAddress, "C000")}` : ""}` : "no file selected";
+  }
+  if (node.type === "mapcopy") {
+    return `$${_gameBuilderHexWord(p.mapCopySrc, "C000")} → $${_gameBuilderHexWord(p.mapCopyDst, "0400")} (${_gameBuilderClamp(p.mapCopySize, 1, 65000, 1000)} bytes)`;
+  }
+  if (node.type === "border" || node.type === "background") {
+    return `color ${_gameBuilderClamp(p.color, 0, 15, 0)}`;
+  }
+  if (node.type === "setpos") {
+    return `sprite ${_gameBuilderClamp(p.spriteNum, 0, 7, 0)} to ${_gameBuilderClamp(p.x, 0, 319, 80)},${_gameBuilderClamp(p.y, 0, 255, 100)}`;
+  }
+  if (node.type === "setcolor") {
+    return `sprite ${_gameBuilderClamp(p.spriteNum, 0, 7, 0)} color ${_gameBuilderClamp(p.color, 0, 15, 1)}`;
+  }
+  if (node.type === "comment") {
+    return String(p.text || "note");
+  }
+  return "";
+}
+
+function _gameBuilderRenderNode(node) {
+  const def = _GAME_BLOCK_LIBRARY[node.type];
+  const selected = gameBuilderSelectedId === node.id;
+  const canContain = _gameBuilderCanContainChildren(node);
+  const childBlocks = node.children || [];
+  const childHeight = canContain ? _gameBuilderEstimateContainerHeight(node.children || []) : 0;
+  const childMarkup = canContain
+    ? `
+      <div class="gb-node-body">
+        <div class="gb-branch-lbl">${t("gameBodyLabel")}</div>
+        <div class="gb-child-canvas" data-container-id="${node.id}" style="min-height:${childBlocks.length ? 0 : childHeight}px;">
+          ${_gameBuilderRenderCanvas(node.children || [], node.id)}
+        </div>
+      </div>`
+    : "";
+  return `
+    <article class="gb-node${selected ? " gb-node--selected" : ""}" data-node-id="${node.id}" ${canContain ? `data-container-id="${node.id}"` : ""} data-kind="${node.type}" draggable="false">
+      <div class="gb-node-hdr" data-drag-handle="1">
+        <span class="gb-grip" aria-hidden="true">≡</span>
+        <strong class="gb-node-title">${t(def.titleKey)}</strong>
+        <div class="gb-node-tools">
+          ${node.type === "gameLoop" ? "" : `<button class="gb-node-tool" type="button" data-action="remove" data-node-id="${node.id}" aria-label="${currentLanguage === "hu" ? "Törlés" : "Remove"}">×</button>`}
+        </div>
+      </div>
+      <div class="gb-node-summary">${escapeHtmlAttribute(_gameBuilderNodeSummary(node))}</div>
+      ${childMarkup}
+    </article>
+  `;
+}
+
+function _gameBuilderRenderCanvas(blocks, containerId) {
+  if (!Array.isArray(blocks) || !blocks.length) {
+    return `<div class="gb-canvas-empty" data-container-id="${containerId}">${currentLanguage === "hu" ? "Húzz ide blokkokat" : "Drop blocks here"}</div>`;
+  }
+  return _gameBuilderOrderedBlocks(blocks).map((block) => _gameBuilderRenderNode(block)).join("");
+}
+
+function _gameBuilderRenderWorkspace() {
+  if (!gameBuilderWorkspace) return;
+  _gameBuilderNormalizeState();
+  gameBuilderWorkspace.innerHTML = _gameBuilderRenderCanvas(gameBuilderState.blocks, "root");
+}
+
+function _gameBuilderRenderInspector() {
+  if (!gameBuilderInspector) return;
+  const found = gameBuilderSelectedId === "root" ? null : _gameBuilderFindNodeById(gameBuilderSelectedId);
+  if (!found) {
+    gameBuilderInspector.innerHTML = `
+      <div class="gb-inspector-card">
+        <div class="gb-inspector-head">
+          <span class="gb-inspector-title">${t("gameInspectorLabel")}</span>
+          <span class="gb-inspector-sub">${gameBuilderState.blocks.length} blocks</span>
+        </div>
+        <div class="ge-hint">${currentLanguage === "hu" ? "Jelölj ki egy blokkot a vásznon, vagy használd a felső sávot a játék beállításaihoz." : "Select a block on the canvas, or use the top bar for scene settings."}</div>
+      </div>
+    `;
+    return;
+  }
+  const def = _GAME_BLOCK_LIBRARY[found.block.type];
+  gameBuilderInspector.innerHTML = `
+    <div class="gb-inspector-card">
+      <div class="gb-inspector-head">
+        <span class="gb-inspector-title">${t(def.titleKey)}</span>
+        <span class="gb-inspector-sub">${escapeHtmlAttribute(_gameBuilderNodeSummary(found.block))}</span>
+      </div>
+      ${_gameBuilderFieldMarkup(found.block)}
+    </div>
+  `;
+}
+
+function _gameBuilderRenderPreview() {
+  if (gameBuilderPreview) {
+    gameBuilderPreview.textContent = _gameBuilderGenerateAsm();
+  }
+}
+
+function _gameBuilderRenderAll() {
+  _gameBuilderApplyRootToInputs();
+  _gameBuilderRenderPalette();
+  _gameBuilderRenderWorkspace();
+  _gameBuilderRenderInspector();
+  _gameBuilderRefreshColorSelectAppearance();
+  _gameBuilderRenderPreview();
+}
+
+function _gameBuilderSelectNode(nodeId = "root") {
+  gameBuilderSelectedId = nodeId || "root";
+  _gameBuilderNormalizeState();
+  _gameBuilderRenderWorkspace();
+  _gameBuilderRenderInspector();
+}
+
+function _gameBuilderOrderedBlocks(blocks) {
+  return [...(blocks || [])].sort((a, b) => {
+    const ay = _gameBuilderClamp(a?.layout?.y, 0, 9999, 0);
+    const by = _gameBuilderClamp(b?.layout?.y, 0, 9999, 0);
+    if (ay !== by) return ay - by;
+    const ax = _gameBuilderClamp(a?.layout?.x, 0, 9999, 0);
+    const bx = _gameBuilderClamp(b?.layout?.x, 0, 9999, 0);
+    return ax - bx;
+  });
+}
+
+function _gameBuilderFindGameLoopBlock() {
+  return (gameBuilderState.blocks || []).find((block) => block?.type === "gameLoop") || null;
+}
+
+function _gameBuilderFindInitGroupBlock() {
+  const rootBlocks = gameBuilderState.blocks || [];
+  return rootBlocks.find((block) => block?.type === "group" && String(block?.props?.groupName || "").toLowerCase() === "initialize")
+    || rootBlocks.find((block) => block?.type === "group")
+    || null;
+}
+
+function _gameBuilderResolveDropContainer(containerId, blockType) {
+  if (_GAME_GLOBAL_BLOCK_TYPES.has(blockType)) return "root";
+  if (blockType === "incbin" && containerId === "root") {
+    const initGroup = _gameBuilderFindInitGroupBlock();
+    return initGroup ? initGroup.id : "root";
+  }
+  if (containerId === "root") {
+    const loopBlock = _gameBuilderFindGameLoopBlock();
+    return loopBlock ? loopBlock.id : "root";
+  }
+  return containerId;
+}
+
+function _gameBuilderRootGlobalInsertIndex() {
+  const blocks = gameBuilderState.blocks || [];
+  const loopIndex = blocks.findIndex((block) => block?.type === "gameLoop");
+  return loopIndex === -1 ? blocks.length : loopIndex;
+}
+
+function _gameBuilderInsertionLayout(containerId, type) {
+  const fallback = _gameBuilderDefaultLayout(type, 0);
+  if (_GAME_GLOBAL_BLOCK_TYPES.has(type) && containerId === "root") {
+    const globalCount = _gameBuilderRootGlobalInsertIndex();
+    return {
+      x: fallback.x,
+      y: 80 + globalCount * 140
+    };
+  }
+  const container = _gameBuilderContainerBlocks(containerId);
+  const count = Array.isArray(container) ? container.length : 0;
+  return {
+    x: fallback.x,
+    y: 80 + count * 140
+  };
+}
+
+function _gameBuilderCreateBlock(type, overrides = {}) {
+  return _gameBuilderDefaultBlock(type, overrides);
+}
+
+function _gameBuilderContainerBlocks(containerId) {
+  if (containerId === "root") return gameBuilderState.blocks;
+  const found = _gameBuilderFindNodeById(containerId);
+  return found ? found.block.children : null;
+}
+
+function _gameBuilderFindNodeById(nodeId, blocks = gameBuilderState.blocks, parent = null) {
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i];
+    if (block.id === nodeId) {
+      return { block, parent, index: i, container: blocks };
+    }
+    const childFound = _gameBuilderFindNodeById(nodeId, block.children || [], block);
+    if (childFound) return childFound;
+  }
+  return null;
+}
+
+function _gameBuilderBlockContainsId(block, searchId) {
+  if (!block || !searchId) return false;
+  if (block.id === searchId) return true;
+  return (block.children || []).some((child) => _gameBuilderBlockContainsId(child, searchId));
+}
+
+function _gameBuilderInsertBlock(containerId, block, index = null) {
+  const container = _gameBuilderContainerBlocks(containerId);
+  if (!container) return;
+  const insertAt = index === null ? container.length : Math.max(0, Math.min(index, container.length));
+  container.splice(insertAt, 0, block);
+  return block;
+}
+
+function _gameBuilderAddBlockToContainer(containerId, type, layout = null) {
+  const targetContainerId = _gameBuilderResolveDropContainer(containerId, type);
+  const container = _gameBuilderContainerBlocks(targetContainerId);
+  if (!container) return;
+  const block = _gameBuilderCreateBlock(type, { layout: layout || _gameBuilderInsertionLayout(targetContainerId, type) });
+  const insertAt = targetContainerId === "root" && _GAME_GLOBAL_BLOCK_TYPES.has(type)
+    ? _gameBuilderRootGlobalInsertIndex()
+    : null;
+  _gameBuilderInsertBlock(targetContainerId, block, insertAt);
+  _gameBuilderRenderAll();
+  saveUiSettings();
+}
+
+function _gameBuilderMoveBlock(nodeId, targetContainerId, targetLayout) {
+  const found = _gameBuilderFindNodeById(nodeId);
+  if (!found) return;
+  if (found.block.type === "gameLoop") return;
+  const resolvedTargetContainerId = _gameBuilderResolveDropContainer(targetContainerId, found.block.type);
+  if (resolvedTargetContainerId !== "root" && _gameBuilderBlockContainsId(found.block, resolvedTargetContainerId)) return;
+  const targetContainer = _gameBuilderContainerBlocks(resolvedTargetContainerId);
+  if (!targetContainer) return;
+  const sourceContainer = found.container;
+  const moved = found.block;
+  if (sourceContainer !== targetContainer) {
+    sourceContainer.splice(found.index, 1);
+    const insertAt = resolvedTargetContainerId === "root" && _GAME_GLOBAL_BLOCK_TYPES.has(moved.type)
+      ? _gameBuilderRootGlobalInsertIndex()
+      : null;
+    _gameBuilderInsertBlock(resolvedTargetContainerId, moved, insertAt);
+  }
+  moved.layout = {
+    x: _gameBuilderClamp(targetLayout?.x, 0, 9999, _gameBuilderDefaultLayout(moved.type).x),
+    y: _gameBuilderClamp(targetLayout?.y, 0, 9999, _gameBuilderDefaultLayout(moved.type).y)
+  };
+  _gameBuilderRenderAll();
+  saveUiSettings();
+}
+
+function _gameBuilderDeleteBlock(nodeId) {
+  const found = _gameBuilderFindNodeById(nodeId);
+  if (!found || !found.container) return;
+  if (found.block.type === "gameLoop") return;
+  found.container.splice(found.index, 1);
+  if (gameBuilderSelectedId === nodeId) gameBuilderSelectedId = "root";
+  _gameBuilderRenderAll();
+  saveUiSettings();
+}
+
+function _gameBuilderUpdateBlockProp(nodeId, prop, value) {
+  const found = _gameBuilderFindNodeById(nodeId);
+  if (!found) return;
+  const block = found.block;
+  if (block.type === "ifJoy" && prop === "direction") {
+    block.props.direction = String(value || "up");
+    return;
+  }
+  if (prop === "layoutX" || prop === "layoutY") {
+    block.layout = block.layout || {};
+    block.layout[prop === "layoutX" ? "x" : "y"] = _gameBuilderClamp(value, 0, 9999, 80);
+    return;
+  }
+  if (["port", "spritePage", "line", "text", "groupName", "colType", "edgeMode", "startDirX", "startDirY"].includes(prop)) {
+    block.props[prop] = String(value ?? "");
+    return;
+  }
+  if (["incBinAddress", "mapCopySrc", "mapCopyDst", "mapCopyColorSrc", "mapCopyColorDst"].includes(prop)) {
+    block.props[prop] = String(value ?? "").replace(/^\$/, "").replace(/[^0-9A-Fa-f]/g, "").toUpperCase().slice(0, 4);
+    return;
+  }
+  if (prop === "mapCopyCombined") {
+    block.props.mapCopyCombined = !!value;
+    return;
+  }
+  if (prop === "incBinFileName" || prop === "incBinFile") {
+    block.props[prop] = String(value ?? "");
+    return;
+  }
+  if (prop === "deltaX" || prop === "deltaY") {
+    block.props[prop] = _gameBuilderClamp(value, -8, 8, prop === "deltaX" ? 1 : 0);
+    return;
+  }
+  if (prop === "minX" || prop === "maxX" || prop === "minY" || prop === "maxY") {
+    block.props[prop] = _gameBuilderClamp(value, 0, prop === "minX" || prop === "maxX" ? 319 : 255, prop === "minX" ? 0 : prop === "maxX" ? 319 : prop === "minY" ? 0 : 255);
+    return;
+  }
+  if (prop === "mapCopySize") {
+    block.props.mapCopySize = _gameBuilderClamp(value, 1, 65000, 1000);
+    return;
+  }
+  if (prop === "incBinSize") {
+    block.props.incBinSize = _gameBuilderClamp(value, 0, 999999, 0);
+    return;
+  }
+  if (prop === "spriteNum" || prop === "spriteColor" || prop === "startX" || prop === "startY" || prop === "color") {
+    block.props[prop] = _gameBuilderClamp(value, 0, 999999, 0);
+    return;
+  }
+  block.props[prop] = _gameBuilderClamp(value, 0, 999, 0);
+}
+
+function _gameBuilderEmitBlock(lines, block, depth, labels) {
+  const indent = "    ".repeat(depth);
+  const p = block.props || {};
+  const spriteNum = _gameBuilderClamp(p.spriteNum, 0, 7, 0);
+  const spriteColor = _gameBuilderClamp(p.spriteColor, 0, 15, 1);
+  const spritePage = _gameBuilderHexByte(p.spritePage, "80");
+  const startX = _gameBuilderClamp(p.startX, 0, 319, 80);
+  const startY = _gameBuilderClamp(p.startY, 0, 255, 100);
+  const line = _gameBuilderHexByte(p.line, "F8");
+  const color = _gameBuilderClamp(p.color, 0, 15, 0).toString(16).toUpperCase().padStart(2, "0");
+
+  if (block.type === "player" || block.type === "sprite") {
+    lines.push(`${indent}.sprite_init ${spriteNum}, ${spriteColor}, $${spritePage}`);
+    lines.push(`${indent}.sprite_pos ${spriteNum}, ${startX}, ${startY}`);
+    return;
+  }
+
+  if (block.type === "joystick") {
+    const port = p.port === "1" ? "1" : "2";
+    lines.push(`${indent}.joystick ${port}, ${spriteNum}`);
+    return;
+  }
+
+  if (block.type === "ifJoy") {
+    const portAddr = p.port === "1" ? "$DC01" : "$DC00";
+    const dir = String(p.direction || "up");
+    const masks = { up: "$01", down: "$02", left: "$04", right: "$08", fire: "$10" };
+    const skipLabel = `gb_if_skip_${labels.if++}`;
+    lines.push(`${indent}LDA ${portAddr}`);
+    lines.push(`${indent}AND #${masks[dir] || "$01"}`);
+    lines.push(`${indent}BNE ${skipLabel}`);
+    _gameBuilderOrderedBlocks(block.children || []).forEach((child) => _gameBuilderEmitBlock(lines, child, depth + 1, labels));
+    lines.push(`${skipLabel}:`);
+    return;
+  }
+
+  if (block.type === "joy") {
+    const portAddr = p.port === "1" ? "$DC01" : "$DC00";
+    const skipLabel = `gb_joy_skip_${labels.joy++}`;
+    lines.push(`${indent}LDA ${portAddr}`);
+    lines.push(`${indent}AND #$1F`);
+    lines.push(`${indent}BEQ ${skipLabel}`);
+    _gameBuilderOrderedBlocks(block.children || []).forEach((child) => _gameBuilderEmitBlock(lines, child, depth + 1, labels));
+    lines.push(`${skipLabel}:`);
+    return;
+  }
+
+  if (block.type === "spriteMove") {
+    const deltaX = _gameBuilderClamp(p.deltaX, -8, 8, 1);
+    const deltaY = _gameBuilderClamp(p.deltaY, -8, 8, 0);
+    const xAddr = 0xD000 + spriteNum * 2;
+    const yAddr = 0xD001 + spriteNum * 2;
+    const xReg = `$${xAddr.toString(16).toUpperCase().padStart(4, "0")}`;
+    const yReg = `$${yAddr.toString(16).toUpperCase().padStart(4, "0")}`;
+    const xMask = `#$${(1 << spriteNum).toString(16).toUpperCase().padStart(2, "0")}`;
+    const emitXStep = (step) => {
+      const labelId = labels.spriteMove++;
+      if (step > 0) {
+        const doneLabel = `gb_sprite_move_x_done_${labelId}`;
+        lines.push(`${indent}INC ${xReg}`);
+        lines.push(`${indent}BNE ${doneLabel}`);
+        lines.push(`${indent}LDA $D010`);
+        lines.push(`${indent}EOR ${xMask}`);
+        lines.push(`${indent}STA $D010`);
+        lines.push(`${doneLabel}:`);
+        return;
+      }
+      const decLabel = `gb_sprite_move_x_dec_${labelId}`;
+      lines.push(`${indent}LDA ${xReg}`);
+      lines.push(`${indent}BNE ${decLabel}`);
+      lines.push(`${indent}LDA $D010`);
+      lines.push(`${indent}EOR ${xMask}`);
+      lines.push(`${indent}STA $D010`);
+      lines.push(`${decLabel}:`);
+      lines.push(`${indent}DEC ${xReg}`);
+    };
+    const emitYStep = (step) => {
+      lines.push(`${indent}${step > 0 ? "INC" : "DEC"} ${yReg}`);
+    };
+    for (let i = 0; i < Math.abs(deltaX); i++) emitXStep(deltaX >= 0 ? 1 : -1);
+    for (let i = 0; i < Math.abs(deltaY); i++) emitYStep(deltaY >= 0 ? 1 : -1);
+    return;
+  }
+
+  if (block.type === "spriteEdge") {
+    const edgeId = labels.spriteEdge++;
+    const xAddr = 0xD000 + spriteNum * 2;
+    const yAddr = 0xD001 + spriteNum * 2;
+    const xReg = `$${xAddr.toString(16).toUpperCase().padStart(4, "0")}`;
+    const yReg = `$${yAddr.toString(16).toUpperCase().padStart(4, "0")}`;
+    const xMask = 1 << spriteNum;
+    const xMaskByte = xMask.toString(16).toUpperCase().padStart(2, "0");
+    const xMaskClearByte = ((~xMask) & 0xFF).toString(16).toUpperCase().padStart(2, "0");
+    const edgeMode = String(p.edgeMode || "any");
+    const initDx = String(p.startDirX || "right") === "left" ? "FF" : String(p.startDirX || "right") === "none" ? "00" : "01";
+    const initDy = String(p.startDirY || "down") === "up" ? "FF" : String(p.startDirY || "down") === "none" ? "00" : "01";
+    const minXVal = _gameBuilderClamp(p.minX, 0, 319, 0);
+    const maxXVal = _gameBuilderClamp(p.maxX, 0, 319, 319);
+    const minYVal = _gameBuilderClamp(p.minY, 0, 255, 50);
+    const maxYVal = _gameBuilderClamp(p.maxY, 0, 255, 200);
+    const minX = Math.min(minXVal, maxXVal);
+    const maxX = Math.max(minXVal, maxXVal);
+    const minY = Math.min(minYVal, maxYVal).toString(16).toUpperCase().padStart(2, "0");
+    const maxY = Math.max(minYVal, maxYVal).toString(16).toUpperCase().padStart(2, "0");
+    const dxLabel = `gb_sprite_edge_dx_${edgeId}`;
+    const dyLabel = `gb_sprite_edge_dy_${edgeId}`;
+    const bodyLabel = `gb_sprite_edge_body_${edgeId}`;
+    const fullX = minX <= 0 && maxX >= 319;
+    const fullY = minYVal <= 0 && maxYVal >= 255;
+    const flipByte = (label) => {
+      lines.push(`${indent}LDA ${label}`);
+      lines.push(`${indent}EOR #$FF`);
+      lines.push(`${indent}CLC`);
+      lines.push(`${indent}ADC #$01`);
+      lines.push(`${indent}STA ${label}`);
+    };
+    const emitXEdgeBounce = () => {
+      const moveLeftLabel = `gb_sprite_edge_x_left_${edgeId}`;
+      const afterMoveLabel = `gb_sprite_edge_x_after_${edgeId}`;
+      const hitRightLabel = `gb_sprite_edge_x_hit_right_${edgeId}`;
+      const hitLeftLabel = `gb_sprite_edge_x_hit_left_${edgeId}`;
+      const doneLabel = `gb_sprite_edge_x_done_${edgeId}`;
+      if (!fullX) {
+        const minHex = minX.toString(16).toUpperCase().padStart(2, "0");
+        const maxHex = Math.min(maxX, 255).toString(16).toUpperCase().padStart(2, "0");
+        lines.push(`${indent}LDA ${dxLabel}`);
+        lines.push(`${indent}BEQ ${doneLabel}`);
+        lines.push(`${indent}BMI ${moveLeftLabel}`);
+        lines.push(`${indent}INC ${xReg}`);
+        lines.push(`${indent}LDA ${xReg}`);
+        lines.push(`${indent}CMP #$${maxHex}`);
+        lines.push(`${indent}BCC ${doneLabel}`);
+        lines.push(`${indent}LDA #$${maxHex}`);
+        lines.push(`${indent}STA ${xReg}`);
+        flipByte(dxLabel);
+        lines.push(`${indent}JMP ${doneLabel}`);
+        lines.push(`${moveLeftLabel}:`);
+        lines.push(`${indent}LDA ${xReg}`);
+        lines.push(`${indent}BEQ ${hitLeftLabel}`);
+        lines.push(`${indent}DEC ${xReg}`);
+        lines.push(`${indent}JMP ${afterMoveLabel}`);
+        lines.push(`${hitLeftLabel}:`);
+        lines.push(`${indent}LDA #$${minHex}`);
+        lines.push(`${indent}STA ${xReg}`);
+        flipByte(dxLabel);
+        lines.push(`${indent}JMP ${doneLabel}`);
+        lines.push(`${afterMoveLabel}:`);
+        lines.push(`${indent}LDA ${xReg}`);
+        lines.push(`${indent}CMP #$${minHex}`);
+        lines.push(`${indent}BCS ${doneLabel}`);
+        lines.push(`${indent}LDA #$${minHex}`);
+        lines.push(`${indent}STA ${xReg}`);
+        flipByte(dxLabel);
+        lines.push(`${doneLabel}:`);
+        return;
+      }
+      lines.push(`${indent}LDA ${dxLabel}`);
+      lines.push(`${indent}BEQ ${doneLabel}`);
+      lines.push(`${indent}BMI ${moveLeftLabel}`);
+      lines.push(`${indent}INC ${xReg}`);
+      lines.push(`${indent}BNE ${afterMoveLabel}`);
+      lines.push(`${indent}LDA $D010`);
+      lines.push(`${indent}EOR #$${xMaskByte}`);
+      lines.push(`${indent}STA $D010`);
+      lines.push(`${afterMoveLabel}:`);
+      lines.push(`${indent}LDA $D010`);
+      lines.push(`${indent}AND #$${xMaskByte}`);
+      lines.push(`${indent}BEQ ${doneLabel}`);
+      lines.push(`${indent}LDA ${xReg}`);
+      lines.push(`${indent}CMP #$40`);
+      lines.push(`${indent}BCC ${doneLabel}`);
+      lines.push(`${indent}LDA #$3F`);
+      lines.push(`${indent}STA ${xReg}`);
+      lines.push(`${indent}LDA $D010`);
+      lines.push(`${indent}ORA #$${xMaskByte}`);
+      lines.push(`${indent}STA $D010`);
+      flipByte(dxLabel);
+      lines.push(`${indent}JMP ${doneLabel}`);
+      lines.push(`${moveLeftLabel}:`);
+      lines.push(`${indent}LDA ${xReg}`);
+      lines.push(`${indent}BNE ${hitLeftLabel}`);
+      lines.push(`${indent}LDA $D010`);
+      lines.push(`${indent}EOR #$${xMaskByte}`);
+      lines.push(`${indent}STA $D010`);
+      lines.push(`${hitLeftLabel}:`);
+      lines.push(`${indent}DEC ${xReg}`);
+      lines.push(`${indent}LDA $D010`);
+      lines.push(`${indent}AND #$${xMaskByte}`);
+      lines.push(`${indent}BEQ ${doneLabel}`);
+      lines.push(`${indent}LDA ${xReg}`);
+      lines.push(`${indent}CMP #$40`);
+      lines.push(`${indent}BCC ${doneLabel}`);
+      lines.push(`${indent}LDA #$00`);
+      lines.push(`${indent}STA ${xReg}`);
+      lines.push(`${indent}LDA $D010`);
+      lines.push(`${indent}AND #$${xMaskClearByte}`);
+      lines.push(`${indent}STA $D010`);
+      flipByte(dxLabel);
+      lines.push(`${doneLabel}:`);
+    };
+    const emitYEdgeBounce = () => {
+      const moveUpLabel = `gb_sprite_edge_y_up_${edgeId}`;
+      const doneLabel = `gb_sprite_edge_y_done_${edgeId}`;
+      if (!fullY) {
+        const minHex = minY.toString(16).toUpperCase().padStart(2, "0");
+        const maxHex = maxY.toString(16).toUpperCase().padStart(2, "0");
+        lines.push(`${indent}LDA ${dyLabel}`);
+        lines.push(`${indent}BEQ ${doneLabel}`);
+        lines.push(`${indent}BMI ${moveUpLabel}`);
+        lines.push(`${indent}INC ${yReg}`);
+        lines.push(`${indent}LDA ${yReg}`);
+        lines.push(`${indent}CMP #$${maxHex}`);
+        lines.push(`${indent}BCC ${doneLabel}`);
+        lines.push(`${indent}LDA #$${maxHex}`);
+        lines.push(`${indent}STA ${yReg}`);
+        flipByte(dyLabel);
+        lines.push(`${indent}JMP ${doneLabel}`);
+        lines.push(`${moveUpLabel}:`);
+        lines.push(`${indent}LDA ${yReg}`);
+        lines.push(`${indent}BNE ${doneLabel}_dec`);
+        lines.push(`${indent}LDA #$${minHex}`);
+        lines.push(`${indent}STA ${yReg}`);
+        flipByte(dyLabel);
+        lines.push(`${indent}JMP ${doneLabel}`);
+        lines.push(`${doneLabel}_dec:`);
+        lines.push(`${indent}DEC ${yReg}`);
+        lines.push(`${indent}LDA ${yReg}`);
+        lines.push(`${indent}CMP #$${minHex}`);
+        lines.push(`${indent}BCS ${doneLabel}`);
+        lines.push(`${indent}LDA #$${minHex}`);
+        lines.push(`${indent}STA ${yReg}`);
+        flipByte(dyLabel);
+        lines.push(`${doneLabel}:`);
+        return;
+      }
+      lines.push(`${indent}LDA ${dyLabel}`);
+      lines.push(`${indent}BEQ ${doneLabel}`);
+      lines.push(`${indent}BMI ${moveUpLabel}`);
+      lines.push(`${indent}INC ${yReg}`);
+      lines.push(`${indent}BNE ${doneLabel}`);
+      lines.push(`${indent}LDA #$FF`);
+      lines.push(`${indent}STA ${yReg}`);
+      flipByte(dyLabel);
+      lines.push(`${indent}JMP ${doneLabel}`);
+      lines.push(`${moveUpLabel}:`);
+      lines.push(`${indent}LDA ${yReg}`);
+      lines.push(`${indent}BNE ${doneLabel}_dec`);
+      lines.push(`${indent}LDA #$00`);
+      lines.push(`${indent}STA ${yReg}`);
+      flipByte(dyLabel);
+      lines.push(`${indent}JMP ${doneLabel}`);
+      lines.push(`${doneLabel}_dec:`);
+      lines.push(`${indent}DEC ${yReg}`);
+      lines.push(`${doneLabel}:`);
+    };
+    const emitHitChildren = () => {
+      _gameBuilderOrderedBlocks(block.children || []).forEach((child) => _gameBuilderEmitBlock(lines, child, depth + 1, labels));
+    };
+    lines.push(`${indent}JMP ${bodyLabel}`);
+    lines.push(`${dxLabel}:`);
+    lines.push(`${indent}.byte $${initDx}`);
+    lines.push(`${dyLabel}:`);
+    lines.push(`${indent}.byte $${initDy}`);
+    lines.push(`${bodyLabel}:`);
+    if (edgeMode === "any" || edgeMode === "left" || edgeMode === "right") {
+      emitXEdgeBounce();
+    }
+    if (edgeMode === "any" || edgeMode === "top" || edgeMode === "bottom") {
+      emitYEdgeBounce();
+    }
+    emitHitChildren();
+    return;
+  }
+
+  if (block.type === "group") {
+    lines.push(`${indent}; group ${String(p.groupName || "Initialize").replace(/;/g, ",")}`);
+    _gameBuilderOrderedBlocks(block.children || []).forEach((child) => _gameBuilderEmitBlock(lines, child, depth, labels));
+    return;
+  }
+
+  if (block.type === "spriteCol") {
+    const colType = String(p.colType || "sprite");
+    const skipLabel = `gb_spritecol_skip_${labels.spriteCol++}`;
+    if (colType === "both") {
+      lines.push(`${indent}LDA $D01E`);
+      lines.push(`${indent}ORA $D01F`);
+      lines.push(`${indent}AND #$${(1 << spriteNum).toString(16).toUpperCase().padStart(2, "0")}`);
+    } else {
+      lines.push(`${indent}.sprite_col ${spriteNum}, ${colType === "background" ? "background" : "sprite"}`);
+    }
+    lines.push(`${indent}BEQ ${skipLabel}`);
+    _gameBuilderOrderedBlocks(block.children || []).forEach((child) => _gameBuilderEmitBlock(lines, child, depth + 1, labels));
+    lines.push(`${skipLabel}:`);
+    return;
+  }
+
+  if (block.type === "gameLoop") {
+    _gameBuilderOrderedBlocks(block.children || []).forEach((child) => _gameBuilderEmitBlock(lines, child, depth, labels));
+    return;
+  }
+
+  if (block.type === "wait") {
+    lines.push(`${indent}.wait_raster $${line}`);
+    return;
+  }
+
+  if (block.type === "incbin") {
+    const fileName = String(p.incBinFileName || p.incBinFile || "").replace(/"/g, "").trim();
+    const addr = _gameBuilderHexWord(p.incBinAddress, "");
+    if (!fileName) {
+      lines.push(`${indent}; .incbin (no file selected)`);
+      return;
+    }
+    lines.push(`${indent}.incbin "${fileName}"${addr ? `, $${addr}` : ""}`);
+    return;
+  }
+
+  if (block.type === "mapcopy") {
+    const src = _gameBuilderHexWord(p.mapCopySrc, "C000");
+    const dst = _gameBuilderHexWord(p.mapCopyDst, "0400");
+    const size = _gameBuilderClamp(p.mapCopySize, 1, 65000, 1000);
+    if (p.mapCopyCombined) {
+      const cDst = _gameBuilderHexWord(p.mapCopyColorDst, "D800");
+      lines.push(`${indent}.map_copy $${src}, $${dst}, ${size}, auto, $${cDst}`);
+    } else {
+      const cSrc = String(p.mapCopyColorSrc || "").trim().replace(/^\$/, "").toUpperCase();
+      const cDst = _gameBuilderHexWord(p.mapCopyColorDst, "D800");
+      lines.push(`${indent}.map_copy $${src}, $${dst}, ${size}${cSrc ? `, $${cSrc}, $${cDst}` : ""}`);
+    }
+    return;
+  }
+
+  if (block.type === "border") {
+    lines.push(`${indent}LDA #$${color}`);
+    lines.push(`${indent}STA $D020`);
+    return;
+  }
+
+  if (block.type === "background") {
+    lines.push(`${indent}LDA #$${color}`);
+    lines.push(`${indent}STA $D021`);
+    return;
+  }
+
+  if (block.type === "setpos") {
+    lines.push(`${indent}.sprite_pos ${spriteNum}, ${startX}, ${startY}`);
+    return;
+  }
+
+  if (block.type === "setcolor") {
+    lines.push(`${indent}.sprite_col ${spriteNum}, ${spriteColor}`);
+    return;
+  }
+
+  if (block.type === "comment") {
+    lines.push(`${indent}; ${(p.text || "note").replace(/;/g, ",")}`);
+  }
+}
+
+function _gameBuilderGenerateAsm() {
+  _gameBuilderNormalizeState();
+  const title = String(gameBuilderState.title || "New game").replace(/;/g, ",");
+  const loopLabel = String(gameBuilderState.loopLabel || "main_loop").replace(/[^A-Za-z0-9_]/g, "_") || "main_loop";
+  const border = _gameBuilderClamp(gameBuilderState.borderColor, 0, 15, 0).toString(16).toUpperCase().padStart(2, "0");
+  const bg = _gameBuilderClamp(gameBuilderState.bgColor, 0, 15, 0).toString(16).toUpperCase().padStart(2, "0");
+  const lines = [
+    "* = $0801",
+    `; ${title} - Game Builder`,
+    "    SEI",
+    `    LDA #$${border}`,
+    "    STA $D020",
+    `    LDA #$${bg}`,
+    "    STA $D021"
+  ];
+  const labels = { if: 0, joy: 0, spriteCol: 0, spriteMove: 0, spriteEdge: 0 };
+  const blocks = _gameBuilderOrderedBlocks(gameBuilderState.blocks);
+  const loopBlock = blocks.find((block) => block?.type === "gameLoop") || null;
+  const rootBlocks = blocks.filter((block) => block?.type !== "gameLoop");
+  const dataBlocks = rootBlocks.filter((block) => block?.type === "incbin");
+  const codeBlocks = rootBlocks.filter((block) => block?.type !== "incbin");
+  if (dataBlocks.length) {
+    dataBlocks.forEach((block) => _gameBuilderEmitBlock(lines, block, 1, labels));
+  }
+  codeBlocks.forEach((block) => _gameBuilderEmitBlock(lines, block, 1, labels));
+  lines.push(`${loopLabel}:`);
+  _gameBuilderOrderedBlocks(loopBlock?.children || []).forEach((block) => _gameBuilderEmitBlock(lines, block, 1, labels));
+  lines.push(`    JMP ${loopLabel}`);
+  return lines.join("\n");
+}
+
+function _gameBuilderResetTemplate() {
+  gameBuilderState = _gameBuilderDefaults();
+  _gameBuilderRenderAll();
+  saveUiSettings();
+}
+
+function _gameBuilderCopyAsm() {
+  navigator.clipboard.writeText(_gameBuilderGenerateAsm()).catch(() => {});
+}
+
+function _gameBuilderExportBlocks() {
+  const inserted = exportAsmToBlocks(_gameBuilderGenerateAsm());
+  if (inserted > 0 && gameBuilderDialog?.open) {
+    gameBuilderDialog.close();
+  }
+}
+
+function openGameBuilderDialog() {
+  if (!gameBuilderDialog) return;
+  _gameBuilderNormalizeState();
+  _gameBuilderRenderAll();
+  if (!gameBuilderDialog.open) gameBuilderDialog.showModal();
+  gameTitleInput?.focus();
+  gameTitleInput?.select?.();
+}
+
+function setupGameBuilderDialog() {
+  if (!gameBuilderDialog) return;
+
+  const syncRootAndPreview = () => {
+    _gameBuilderSyncRootFromInputs();
+    _gameBuilderRenderPreview();
+    saveUiSettings();
+  };
+
+  const clearCanvasDragState = () => {
+    gameBuilderDialog.querySelectorAll(".gb-canvas--active").forEach((node) => node.classList.remove("gb-canvas--active"));
+  };
+
+  const endCanvasDrag = () => {
+    clearCanvasDragState();
+    delete document.body.dataset.gbDragging;
+  };
+
+  const getCanvasFromPoint = (clientX, clientY) => {
+    const el = document.elementFromPoint(clientX, clientY);
+    const canvas = el?.closest?.("[data-container-id]");
+    return canvas && gameBuilderWorkspace?.contains(canvas) ? canvas : null;
+  };
+
+  const beginBlockDrag = (handle, nodeId, e) => {
+    if (e.button !== 0) return;
+    if (e.target.closest("button, input, select, textarea, a, [data-action]")) return;
+    const found = _gameBuilderFindNodeById(nodeId);
+    if (!found) return;
+    if (found.block.type === "gameLoop") return;
+    const nodeEl = handle.closest("[data-node-id]");
+    if (!nodeEl) return;
+    const rect = nodeEl.getBoundingClientRect();
+    gameBuilderDragState = {
+      nodeId,
+      nodeEl,
+      handleEl: handle,
+      originX: rect.left,
+      originY: rect.top,
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      lastX: e.clientX,
+      lastY: e.clientY,
+      moved: false,
+      active: false
+    };
+    try { handle.setPointerCapture(e.pointerId); } catch (_) {}
+    e.preventDefault();
+  };
+
+  const beginPaletteDrag = (button, type, e) => {
+    if (e.button !== 0) return;
+    gameBuilderDragState = {
+      kind: "palette",
+      paletteType: type,
+      sourceEl: button,
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      lastX: e.clientX,
+      lastY: e.clientY,
+      moved: false,
+      active: false
+    };
+    try { button.setPointerCapture(e.pointerId); } catch (_) {}
+  };
+
+  const beginCanvasPan = (shell, e) => {
+    if (e.button !== 2) return;
+    if (e.target.closest("button, input, select, textarea, a, [data-action]")) return;
+    gameBuilderDragState = {
+      kind: "pan",
+      panEl: shell,
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      startScrollLeft: shell.scrollLeft,
+      startScrollTop: shell.scrollTop,
+      lastX: e.clientX,
+      lastY: e.clientY,
+      moved: false,
+      active: false
+    };
+    try { shell.setPointerCapture(e.pointerId); } catch (_) {}
+    e.preventDefault();
+  };
+
+  const moveDrag = (e) => {
+    const drag = gameBuilderDragState;
+    if (!drag || (drag.pointerId != null && e.pointerId !== drag.pointerId)) return;
+    drag.lastX = e.clientX;
+    drag.lastY = e.clientY;
+    const dx = e.clientX - drag.startX;
+    const dy = e.clientY - drag.startY;
+    if (!drag.moved && Math.hypot(dx, dy) < 3) return;
+    drag.moved = true;
+    if (!drag.active) {
+      drag.active = true;
+      document.body.dataset.gbDragging = "1";
+      if (drag.kind === "block") {
+        drag.nodeEl.classList.add("gb-node--dragging");
+        drag.nodeEl.style.zIndex = "20";
+        drag.nodeEl.style.pointerEvents = "none";
+      } else if (drag.kind === "palette") {
+        drag.sourceEl?.classList.add("gb-palette-btn--dragging");
+      } else if (drag.kind === "pan") {
+        drag.panEl?.classList.add("gb-canvas-shell--panning");
+      }
+    }
+    if (drag.kind === "block") {
+      drag.nodeEl.style.transform = `translate(${dx}px, ${dy}px)`;
+      drag.nodeEl.style.boxShadow = "0 12px 26px rgba(0,0,0,0.18)";
+      const canvas = getCanvasFromPoint(e.clientX, e.clientY);
+      clearCanvasDragState();
+      if (canvas) canvas.classList.add("gb-canvas--active");
+      e.preventDefault();
+      return;
+    }
+    if (drag.kind === "pan") {
+      drag.panEl.scrollLeft = Math.max(0, drag.startScrollLeft - dx);
+      drag.panEl.scrollTop = Math.max(0, drag.startScrollTop - dy);
+      clearCanvasDragState();
+      e.preventDefault();
+      return;
+    }
+    const canvas = getCanvasFromPoint(e.clientX, e.clientY);
+    clearCanvasDragState();
+    if (canvas) canvas.classList.add("gb-canvas--active");
+    e.preventDefault();
+  };
+
+  const endDrag = (e) => {
+    const drag = gameBuilderDragState;
+    if (!drag) return;
+    const clientX = e?.clientX ?? drag.lastX;
+    const clientY = e?.clientY ?? drag.lastY;
+    const releaseCapture = () => {
+      try { drag.handleEl?.releasePointerCapture?.(drag.pointerId); } catch (_) {}
+      try { drag.sourceEl?.releasePointerCapture?.(drag.pointerId); } catch (_) {}
+      try { drag.panEl?.releasePointerCapture?.(drag.pointerId); } catch (_) {}
+    };
+    const restore = () => {
+      if (drag.kind !== "block") return;
+      const nodeEl = drag.nodeEl;
+      if (!nodeEl || !nodeEl.isConnected) return;
+      nodeEl.classList.remove("gb-node--dragging");
+      nodeEl.style.zIndex = "";
+      nodeEl.style.pointerEvents = "";
+      nodeEl.style.boxShadow = "";
+      nodeEl.style.transform = "";
+    };
+    const restorePan = () => {
+      if (drag.kind !== "pan") return;
+      drag.panEl?.classList.remove("gb-canvas-shell--panning");
+    };
+    if (!drag.moved) {
+      releaseCapture();
+      gameBuilderDragState = null;
+      restorePan();
+      endCanvasDrag();
+      return;
+    }
+    if (drag.kind === "pan") {
+      releaseCapture();
+      restorePan();
+      gameBuilderDragState = null;
+      endCanvasDrag();
+      return;
+    }
+    const canvas = getCanvasFromPoint(clientX, clientY);
+    if (!canvas) {
+      restore();
+      restorePan();
+      if (drag.kind === "palette") drag.sourceEl?.classList.remove("gb-palette-btn--dragging");
+      releaseCapture();
+      if (drag.kind === "palette") gameBuilderSuppressNextClick = true;
+      gameBuilderDragState = null;
+      endCanvasDrag();
+      return;
+    }
+    const layout = getDropLayout(canvas, { clientX, clientY });
+    if (drag.kind === "palette") {
+      drag.sourceEl?.classList.remove("gb-palette-btn--dragging");
+      releaseCapture();
+      gameBuilderSuppressNextClick = true;
+      gameBuilderDragState = null;
+      endCanvasDrag();
+      const created = _gameBuilderCreateBlock(drag.paletteType, { layout });
+      _gameBuilderInsertBlock(canvas.dataset.containerId, created);
+      gameBuilderSelectedId = created.id;
+      _gameBuilderRenderAll();
+      saveUiSettings();
+      return;
+    }
+    releaseCapture();
+    restorePan();
+    gameBuilderSuppressNextClick = true;
+    gameBuilderDragState = null;
+    endCanvasDrag();
+    _gameBuilderMoveBlock(drag.nodeId, canvas.dataset.containerId, layout);
+    gameBuilderSelectedId = drag.nodeId;
+  };
+
+  const syncPaletteDrag = (e, type) => {
+    e.dataTransfer?.setData("text/plain", JSON.stringify({ kind: "palette", type }));
+    e.dataTransfer.effectAllowed = "copy";
+    document.body.dataset.gbDragging = "1";
+  };
+
+  const syncBlockDrag = (e, nodeId) => {
+    e.dataTransfer?.setData("text/plain", JSON.stringify({ kind: "block", nodeId }));
+    e.dataTransfer.effectAllowed = "move";
+    document.body.dataset.gbDragging = "1";
+  };
+
+  const getDropCanvas = (target) => target?.closest?.("[data-container-id]");
+
+  const getDropLayout = (canvas, e) => {
+    const rect = canvas.getBoundingClientRect();
+    const zoom = _gameBuilderClampFloat(gameBuilderState.zoom, 0.6, 1.6, 1);
+    const width = Math.max(0, rect.width / zoom);
+    const height = Math.max(0, rect.height / zoom);
+  const nested = canvas.classList.contains("gb-child-canvas");
+    const blockWidth = nested ? 200 : 220;
+    const x = _gameBuilderClamp(Math.round(((e.clientX - rect.left) / zoom) - (blockWidth / 2)), 0, Math.max(0, width - blockWidth), 80);
+    const y = _gameBuilderClamp(Math.round(((e.clientY - rect.top) / zoom) - 40), 0, Math.max(0, height - 120), 80);
+    return { x, y };
+  };
+
+  const syncInspectorField = (field, renderWorkspace = false) => {
+    if (!field?.dataset?.nodeId) return;
+    _gameBuilderUpdateBlockProp(field.dataset.nodeId, field.dataset.prop, field.type === "checkbox" ? field.checked : field.value);
+    if (field.matches?.("select[data-prop='color']")) {
+      _gameBuilderSyncColorSelectAppearance(field);
+    }
+    if (renderWorkspace) {
+      _gameBuilderRenderAll();
+    } else {
+      _gameBuilderRenderPreview();
+    }
+    saveUiSettings();
+  };
+
+  gameBuilderButton?.addEventListener("click", function() {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    openGameBuilderDialog();
+  });
+
+  gameBuilderCloseButton?.addEventListener("click", function() {
+    gameBuilderDialog.close();
+  });
+
+  gameBuilderDialog.addEventListener("click", function(e) {
+    if (e.target === gameBuilderDialog) gameBuilderDialog.close();
+  });
+
+  gameBuilderDialog.addEventListener("click", function(e) {
+    const actionBtn = e.target.closest("[data-action]");
+    if (!actionBtn) return;
+    const nodeId = actionBtn.dataset.nodeId;
+    if (actionBtn.dataset.action === "pick-incbin" && nodeId) {
+      (async () => {
+        if (!window.electronAPI?.chooseIncBinFile) return;
+        const result = await window.electronAPI.chooseIncBinFile();
+        if (result?.canceled || result?.error || !result?.filePath) return;
+        const found = _gameBuilderFindNodeById(nodeId);
+        if (!found) return;
+        found.block.props.incBinFile = result.filePath;
+        found.block.props.incBinFileName = result.fileName || found.block.props.incBinFileName || "";
+        found.block.props.incBinSize = Array.isArray(result.bytes) ? result.bytes.length : (Number.isFinite(result.size) ? result.size : found.block.props.incBinSize || 0);
+        _gameBuilderRenderAll();
+        saveUiSettings();
+      })();
+      return;
+    }
+    if (actionBtn.dataset.action === "remove" && nodeId) {
+      _gameBuilderDeleteBlock(nodeId);
+    }
+  });
+
+  [gameTitleInput, gameSceneInput, gameBorderInput, gameBgInput].forEach((input) => {
+    input?.addEventListener("input", (event) => {
+      syncRootAndPreview(event);
+      if (event.target === gameBorderInput || event.target === gameBgInput) {
+        _gameBuilderSyncColorSelectAppearance(event.target);
+      }
+    });
+    input?.addEventListener("change", (event) => {
+      syncRootAndPreview(event);
+      if (event.target === gameBorderInput || event.target === gameBgInput) {
+        _gameBuilderSyncColorSelectAppearance(event.target);
+      }
+    });
+  });
+  gameZoomInput?.addEventListener("input", function() {
+    gameBuilderState.zoom = _gameBuilderClampFloat(gameZoomInput.value, 0.6, 1.6, 1);
+    _gameBuilderApplyZoom();
+    saveUiSettings();
+  });
+  gameZoomInput?.addEventListener("change", function() {
+    gameBuilderState.zoom = _gameBuilderClampFloat(gameZoomInput.value, 0.6, 1.6, 1);
+    _gameBuilderApplyZoom();
+    saveUiSettings();
+  });
+
+  gameBuilderPalette?.addEventListener("click", function(e) {
+    const btn = e.target.closest("[data-palette-type]");
+    if (!btn) return;
+    _gameBuilderSyncRootFromInputs();
+    const targetContainerId = _gameBuilderResolveDropContainer("root", btn.dataset.paletteType);
+    const created = _gameBuilderCreateBlock(btn.dataset.paletteType, { layout: _gameBuilderInsertionLayout(targetContainerId, btn.dataset.paletteType) });
+    const insertAt = targetContainerId === "root" && _GAME_GLOBAL_BLOCK_TYPES.has(btn.dataset.paletteType)
+      ? _gameBuilderRootGlobalInsertIndex()
+      : null;
+    _gameBuilderInsertBlock(targetContainerId, created, insertAt);
+    gameBuilderSelectedId = created.id;
+    _gameBuilderRenderAll();
+    saveUiSettings();
+  });
+
+  gameBuilderDialog.addEventListener("input", function(e) {
+    const field = e.target.closest("[data-node-id][data-prop]");
+    if (!field) return;
+    syncInspectorField(field, false);
+  });
+
+  gameBuilderDialog.addEventListener("change", function(e) {
+    const field = e.target.closest("[data-node-id][data-prop]");
+    if (!field) return;
+    syncInspectorField(field, true);
+  });
+
+  gameBuilderPalette?.addEventListener("pointerdown", function(e) {
+    const btn = e.target.closest("[data-palette-type]");
+    if (!btn) return;
+    beginPaletteDrag(btn, btn.dataset.paletteType, e);
+  });
+
+  gameBuilderWorkspace?.addEventListener("pointerdown", function(e) {
+    const block = e.target.closest("[data-node-id]");
+    if (!block) return;
+    beginBlockDrag(block, block.dataset.nodeId, e);
+  });
+
+  gameBuilderCanvasShell?.addEventListener("pointerdown", function(e) {
+    beginCanvasPan(gameBuilderCanvasShell, e);
+  });
+
+  gameBuilderCanvasShell?.addEventListener("contextmenu", function(e) {
+    e.preventDefault();
+  });
+
+  document.addEventListener("pointermove", moveDrag);
+  document.addEventListener("pointerup", endDrag);
+  document.addEventListener("pointercancel", endDrag);
+
+  gameBuilderWorkspace?.addEventListener("dragover", function(e) {
+    const canvas = getDropCanvas(e.target);
+    if (!canvas) return;
+    e.preventDefault();
+    clearCanvasDragState();
+    canvas.classList.add("gb-canvas--active");
+  });
+
+  gameBuilderWorkspace?.addEventListener("dragleave", function(e) {
+    const canvas = getDropCanvas(e.target);
+    if (!canvas) return;
+    canvas.classList.remove("gb-canvas--active");
+  });
+
+  gameBuilderWorkspace?.addEventListener("drop", function(e) {
+    const payloadText = e.dataTransfer?.getData("text/plain");
+    const canvas = getDropCanvas(e.target);
+    if (!payloadText || !canvas) return;
+    e.preventDefault();
+    endCanvasDrag();
+    let payload = null;
+    try {
+      payload = JSON.parse(payloadText);
+    } catch (_) {
+      return;
+    }
+    const containerId = canvas.dataset.containerId;
+    const layout = getDropLayout(canvas, e);
+    if (payload.kind === "palette" && payload.type) {
+      const created = _gameBuilderCreateBlock(payload.type, { layout });
+      const targetContainerId = _gameBuilderResolveDropContainer(containerId, payload.type);
+      const insertAt = targetContainerId === "root" && _GAME_GLOBAL_BLOCK_TYPES.has(payload.type)
+        ? _gameBuilderRootGlobalInsertIndex()
+        : null;
+      _gameBuilderInsertBlock(targetContainerId, created, insertAt);
+      gameBuilderSelectedId = created.id;
+      _gameBuilderRenderAll();
+      saveUiSettings();
+      return;
+    }
+    if (payload.kind === "block" && payload.nodeId) {
+      _gameBuilderMoveBlock(payload.nodeId, containerId, layout);
+      gameBuilderSelectedId = payload.nodeId;
+    }
+  });
+
+  gameBuilderWorkspace?.addEventListener("click", function(e) {
+    if (gameBuilderSuppressNextClick) {
+      gameBuilderSuppressNextClick = false;
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    const node = e.target.closest("[data-node-id]");
+    if (node?.dataset?.nodeId) {
+      gameBuilderSelectedId = node.dataset.nodeId;
+      _gameBuilderRenderWorkspace();
+      _gameBuilderRenderInspector();
+      return;
+    }
+    const canvas = e.target.closest("[data-container-id]");
+    if (canvas && canvas.dataset.containerId === "root") {
+      gameBuilderSelectedId = "root";
+      _gameBuilderRenderWorkspace();
+      _gameBuilderRenderInspector();
+    }
+  });
+
+  gameBuilderInspector?.addEventListener("click", function(e) {
+    const field = e.target.closest("[data-node-id][data-prop]");
+    if (field && field.dataset.nodeId) {
+      gameBuilderSelectedId = field.dataset.nodeId;
+      _gameBuilderRenderWorkspace();
+    }
+  });
+
+  gameBuilderCopyAsmBtn?.addEventListener("click", function() {
+    _gameBuilderSyncRootFromInputs();
+    _gameBuilderCopyAsm();
+  });
+
+  gameBuilderExportBlocksBtn?.addEventListener("click", function() {
+    _gameBuilderSyncRootFromInputs();
+    _gameBuilderExportBlocks();
+  });
+
+  gameBuilderTestProgramBtn?.addEventListener("click", function() {
+    _gameBuilderLoadTestProgram();
+  });
+
+  gameBuilderResetBtn?.addEventListener("click", function() {
+    _gameBuilderResetTemplate();
+  });
 }
 
 /* ═══════════════════════════════════════════════════════
