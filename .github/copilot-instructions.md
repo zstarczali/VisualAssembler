@@ -327,14 +327,15 @@ Aktuális sorrend az `index.html` `#sample-select` elemben (0-indexelt):
 | 11 | `"if-else"` | DEFINE / IF / ELSE / ENDIF feltételes assembly demo |
 | 12 | `"user-macro-demo"` | User MACRO / ENDM / INVOKE példa |
 | 13 | `"incbin-demo"` | INCBIN makró demo |
-| 14 | `"loadfile-demo"` | LOADFILE makró — futásidőben tölt fájlt D64-ről, hibakezeléssel |
-| 15 | `"include-demo"` | INCLUDE makró demo |
-| 16 | `"sid-demo"` | SID lejátszó — Ikari Warriors, IRQ-alapú, INCBIN |
-| 17 | `"sid-direct-demo"` | SID lejátszó — SID makróval, INCBIN nélkül |
-| 18 | `"sprite-macro-demo"` | SPRITE_INIT + SPRITE_POS + WAIT_RASTER demo; spritemate sprite balra-jobbra |
-| 19 | `"joystick-demo"` | JOYSTICK makró demo; sprite #0 joystick port 2-vel mozog |
+| 14 | `"map-copy-demo"` | MAP_COPY makró demo — `map-color.bin` betöltése és screen + Color RAM másolás |
+| 15 | `"loadfile-demo"` | LOADFILE makró — futásidőben tölt fájlt D64-ről, hibakezeléssel |
+| 16 | `"include-demo"` | INCLUDE makró demo |
+| 17 | `"sid-demo"` | SID lejátszó — Ikari Warriors, IRQ-alapú, INCBIN |
+| 18 | `"sid-direct-demo"` | SID lejátszó — SID makróval, INCBIN nélkül |
+| 19 | `"sprite-macro-demo"` | SPRITE_INIT + SPRITE_POS + WAIT_RASTER demo; spritemate sprite balra-jobbra |
+| 20 | `"joystick-demo"` | JOYSTICK makró demo; sprite #0 joystick port 2-vel mozog |
 
-> **Megjegyzés:** A `collision-demo`, `10-print`, `irq-demo`, `overlapping-raster-demo` sample-ok szintén szerepelnek a `#sample-select`-ben 20–23 indexen (lásd `index.html` aktuális sorrendjét).
+> **Megjegyzés:** A `collision-demo`, `10-print`, `irq-demo`, `overlapping-raster-demo` sample-ok szintén szerepelnek a `#sample-select`-ben 21–24 indexen (lásd `index.html` aktuális sorrendjét).
 
 ---
 
@@ -661,7 +662,7 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`2.0.2` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `AGENTS.md`, `CLAUDE.md`.
+`2.0.3` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `AGENTS.md`, `CLAUDE.md`.
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező
@@ -876,12 +877,12 @@ wait_vblank:
 **Példa:**
 ```javascript
 // index.html aktuális sorrendje (lásd a "Meglévő mintaprogramok" táblát feljebb):
-// 17: sprite-macro-demo
-// 18: joystick-demo
+// 18: sprite-macro-demo
+// 19: joystick-demo
 
 // applyTranslations()-ban:
-if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleSpriteMacroDemo");
-if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleJoystickDemo");
+if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleSpriteMacroDemo");
+if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleJoystickDemo");
 ```
 
 ---

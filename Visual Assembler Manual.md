@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.0.2**
+**Version 2.0.3**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -96,6 +96,9 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [TURBO\_SET](#turbo_set)
     - [SUPERCPU\_DETECT](#supercpu_detect)
     - [TURBO\_ENABLE](#turbo_enable)
+    - [MAP\_COPY](#map_copy)
+    - [SPRITE\_ANIM](#sprite_anim)
+    - [SCORE\_BCD](#score_bcd)
   - [10. Debugger Integration](#10-debugger-integration)
     - [RetroDebugger](#retrodebugger)
     - [Breakpoint Blocks](#breakpoint-blocks)
@@ -146,7 +149,7 @@ The palette on the left lists all available blocks grouped by category:
 - **System** — CLC, SEC, NOP, BRK, …
 - **Illegal instructions** — LAX, SAX, DCP, …
 - **Structure** — LABEL, COMMENT, REGION, ENDREGION
-- **Macros** — LOOP, NEXT, FOR, ENDF, PUSH, PULL, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, INCBIN, SID, INCLUDE, TABLE, ORG, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, MOUSE, SPRITE_COL, LOADFILE, REU_CHECK, REU_STASH, REU_FETCH, REU_SWAP, TURBO_SET, SUPERCPU_DETECT, TURBO_ENABLE
+- **Macros** — LOOP, NEXT, FOR, ENDF, PUSH, PULL, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, INCBIN, SID, INCLUDE, TABLE, ORG, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, MOUSE, SPRITE_COL, LOADFILE, REU_CHECK, REU_STASH, REU_FETCH, REU_SWAP, TURBO_SET, SUPERCPU_DETECT, TURBO_ENABLE, MAP_COPY, SPRITE_ANIM, SCORE_BCD
 
 Use the **search box** at the top of the palette to filter by name. Click the **Add selected block** button or drag a block into the program area.
 
@@ -1837,6 +1840,173 @@ A9 00         LDA #$00
 
 ---
 
+<a id="map_copy"></a>
+### MAP_COPY
+
+Copies a tilemap from a source address to screen RAM (and optionally color RAM) using a series of `LDA abs,X` / `STA abs,X` loops. One 256-byte page is copied per loop iteration; a partial page at the end uses `CPX #rem / BNE` to stop. No JSR needed — all code is generated inline.
+
+| Field | Description |
+|---|---|
+| Source addr (screen) | Hex address where the map data lives after loading (e.g. `C000`) |
+| Screen RAM dest | Where to copy screen codes (e.g. `0400`) |
+| Size (bytes) | Total bytes to copy — typically `$03E8` = 1000 (40×25 chars) |
+| Combined .bin | When checked, expects screen codes immediately followed by color data at `source + size`; copies color data to **Color RAM dest** in a second pass |
+| Color RAM dest | Destination for color data — default `D800` (C64 color RAM) |
+
+**Generated ASM (1000-byte map, screen only):**
+```
+    LDX #$00
+    LDA $C000,X   ; page 0
+    STA $0400,X
+    INX
+    BNE *-9       ; loops until X wraps to 0 (256 iters)
+    LDA $C100,X   ; page 1
+    STA $0500,X
+    INX
+    BNE *-9
+    LDA $C200,X   ; page 2
+    STA $0600,X
+    INX
+    BNE *-9
+    LDA $C300,X   ; remainder — 232 bytes
+    STA $0700,X
+    INX
+    CPX #$E8
+    BNE *-11
+```
+
+**Size:** `2 (LDX) + fullPages×9 + (rem > 0 ? 11 : 0)` bytes per section. Combined mode doubles it (screen section + identical color section).
+
+**Pairing with the Map Editor:**
+
+The Map Editor's **Files → Save map + color RAM (.bin)** exports a single binary where the first `size` bytes are screen codes and the next `size` bytes are color RAM values. Use MAP_COPY with **Combined .bin** checked and point **Source addr** at where this file is loaded (e.g. via INCBIN at `$C000`):
+
+```
+* = $C000
+    INCBIN "map-color.bin" @ $C000   ; screen codes $C000–$C3E7, color $C3E8–$C7CF
+* = $0801
+    ; ...
+    MAP_COPY src=$C000 dst=$0400 size=1000 combined color_dst=$D800
+```
+
+**Expert mode syntax:**
+```
+.map_copy $C000, $0400, 1000               ; screen only
+.map_copy $C000, $0400, 1000, auto, $D800  ; combined (color at src+size)
+.map_copy $C000, $0400, 1000, $C3E8, $D800 ; explicit color source address
+```
+
+---
+
+<a id="sprite_anim"></a>
+### SPRITE_ANIM
+
+Advances a sprite's animation frame each call and updates the VIC-II sprite data pointer. Store one byte per frame in a table (the sprite data page number = `data_address / 64`), point SPRITE_ANIM at it, and call it once per game frame — no JSR needed.
+
+| Field | Description |
+|---|---|
+| Sprite # | Sprite number 0–7 |
+| Frame list address | Hex address of the frame table — one byte per frame, each byte = sprite page (`data_addr / 64`) |
+| Frame count | Total number of frames (1–255) |
+| Frame ZP | Zero-page byte used as the frame counter (e.g. `FB`) |
+
+**Generated ASM (sprite 0, 4 frames, ZP `$FB`, list at `$C100`):**
+```
+    INC $FB         ; advance frame counter
+    LDA $FB
+    CMP #$04        ; frame count
+    BCC *+6         ; if counter < count, skip reset
+    LDA #$00
+    STA $FB
+    TAX             ; X = current frame index
+    LDA $C100,X     ; load sprite data page for this frame
+    STA $07F8       ; update sprite 0 pointer ($07F8 + sprite#)
+```
+
+**Size:** 19 bytes.
+
+**Typical usage:**
+```
+frameTable:
+    .byte $21, $22, $23, $24   ; 4 frames at $0840, $0880, $08C0, $0900
+
+gameloop:
+    WAIT_RASTER ($FF)
+    SPRITE_ANIM (sprite=0, list=$C100, count=4, zp=$FB)
+    JMP gameloop
+```
+
+**Expert mode syntax:**
+```
+.sprite_anim spriteNum, frameListAddr, frameCount, zpByte
+; example:
+.sprite_anim 0, C100, 4, FB
+```
+
+> **Tip:** Place the frame table as a RAWBYTES block at a fixed address. The counter ZP byte (`$FB`) must be initialized to `$00` before the first call. If your code uses `$FB` for something else, pick a free ZP location.
+
+---
+
+<a id="score_bcd"></a>
+### SCORE_BCD
+
+Adds a fixed point value to a multi-byte BCD score stored in memory, then renders each digit to screen RAM as a screen-code character. Uses the 6502 decimal mode (`SED`/`CLD`) for carry-safe BCD arithmetic — no manual carry juggling needed.
+
+| Field | Description |
+|---|---|
+| Score address | Hex address of the BCD score bytes (e.g. `C200`). Low byte first. |
+| Digits | Number of BCD bytes (each byte holds two digits: `$99` = "99"). `4` bytes = up to 99999999. |
+| Add points | Decimal value to add per call (e.g. `100`). |
+| Screen address | Where to write the digit screen codes (e.g. `0400`). One byte per digit (high nibble first). |
+
+**Generated ASM (4 bytes, +100 pts, score at `$C200`, screen at `$0400`):**
+```
+    SED              ; enable BCD / decimal mode
+    CLC
+    LDA $C200        ; byte 0 (digits 1–2)
+    ADC #$00         ; low byte of 100 in BCD = $00
+    STA $C200
+    LDA $C201        ; byte 1 (digits 3–4)
+    ADC #$01         ; mid byte of 100 in BCD = $01 (carry propagates)
+    STA $C201
+    LDA $C202
+    ADC #$00
+    STA $C202
+    LDA $C203
+    ADC #$00
+    STA $C203
+    CLD              ; back to binary mode
+
+    ; render digits
+    LDX #$00
+digit_loop:
+    LDA $C200,X
+    PHA
+    LSR : LSR : LSR : LSR  ; high nibble → low nibble
+    ORA #$30         ; + '0' screen code
+    STA $0406,X      ; right-justified: screen_addr + (digits*2 - 2) - X*2
+    PLA
+    AND #$0F         ; low nibble
+    ORA #$30
+    STA $0407,X
+    INX
+    CPX #$04
+    BNE digit_loop
+```
+
+**Size:** `3 + digits×8` bytes (SED + CLC + CLD overhead + 8 bytes per BCD byte for ADC + display loop).
+
+**Expert mode syntax:**
+```
+.score_bcd $C200, 4, 100, $0400
+```
+
+> **Tip:** Initialize the score bytes to `$00` at startup. The score address should be in zero page or absolute RAM — not ROM. The screen address should point to the leftmost digit cell; digits are written left-to-right (most-significant byte first).
+
+> **BCD range:** `digits=4` bytes → 8 decimal digits → max score 99,999,999. Each byte encodes two BCD digits: `$00`–`$99`.
+
+---
+
 ## 10. Debugger Integration
 
 The app supports **RetroDebugger** as the external C64 debugger. It receives breakpoints, symbols, and autostart flags generated from the assembled program.
@@ -2073,7 +2243,10 @@ Layered tilemap editor for static scenery, sprite spawn maps, collision data, an
 | Brushes | Single-tile, fill, line and rectangle modes. |
 | Clear menu | Per-layer or whole-map clear with confirmation. |
 | Image import | Drop a PNG of a tilemap; the editor auto-slices into tiles. |
+| Copy / paste | Copy a selected tile region, then paste normally or use transparent paste to keep empty tiles transparent. |
 | Export blocks | Emits RAWBYTES blocks for tileset graphics + map data. |
+| Save .bin… | Saves only the screen codes for the current map layer (40×25 = 1000 bytes). |
+| Save map + color RAM (.bin)… | Saves screen codes concatenated with color RAM values as a single 2000-byte file (`screen[0..999]` followed by `color[0..999]`). Use this with the **MAP_COPY** macro (Combined .bin mode) to restore both screen and color in one operation at runtime. |
 
 ### SID Editor (3-Voice Tracker)
 

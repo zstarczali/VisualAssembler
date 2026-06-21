@@ -12,7 +12,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2.0.2">
+  <link rel="stylesheet" href="style.css?v=2.0.3">
 </head>
 
 <body>
@@ -75,6 +75,7 @@
                     <option value="if-else">IF / ELSE / ENDIF demo</option>
                     <option value="user-macro-demo">User MACRO / ENDM demo</option>
                     <option value="incbin-demo">INCBIN demo</option>
+                    <option value="map-copy-demo">MAP_COPY demo (map-color.bin)</option>
                     <option value="loadfile-demo">LOADFILE demo (D64 betoltes)</option>
                     <option value="exo-multicolor-demo">EXODECRUNCH demo (EXO tömörítés + multicolor)</option>
                     <option value="include-demo">INCLUDE demo</option>
@@ -629,7 +630,7 @@ PRINTABLE CHARACTERS
         <img src="assets/logo.png" alt="C64 Visual Assembler" width="160" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v2.0.2</p>
+      <p class="about-version" id="about-version">v2.0.3</p>
       <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
         dropping instruction blocks.</p>
       <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
@@ -641,8 +642,14 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.0.2</p>
+      <p class="whats-new-version">v2.0.3</p>
       <ul class="whats-new-list">
+        <li>
+          <strong>Map editor transparent paste</strong> &mdash; the Map Editor now has a transparent paste mode alongside normal paste. Empty tiles stay transparent, so copied regions can be stamped over existing maps without repainting the background. Use Ctrl+Shift+V or the new toolbar button.
+        </li>
+        <li>
+          <strong>Macro pack and map export</strong> &mdash; MAP_COPY, SPRITE_ANIM, and SCORE_BCD are now first-class blocks with Expert mode parsing, operand validation, size estimates, and export/disassembly support. The Map Editor also gained combined screen + color RAM <code>.bin</code> export and selection copy/paste.
+        </li>
         <li>
           <strong>Linux support</strong> &mdash; v2.0.2 adds official Linux (Ubuntu/Debian) support. The window close button now works correctly. VICE and D64 launch are fixed: display session variables are propagated to the emulator process, PRG autostart uses inject mode (no drive ROM required), and D64 mode forces software-level 1541 emulation. A GTK-specific dialog border artifact is also resolved.
         </li>
@@ -870,6 +877,7 @@ PRINTABLE CHARACTERS
           <div class="ed-file-menu" hidden>
             <button id="me-load-map" type="button">Load map (.bin)…</button>
             <button data-export="bin" type="button">Save flattened map (.bin)…</button>
+            <button data-export="bin-color" type="button">Save map + color RAM (.bin)…</button>
             <button data-export="screen" type="button">Copy flattened screen codes</button>
             <button data-export="color" type="button">Copy flattened color RAM</button>
             <div class="ed-file-sep"></div>
@@ -890,12 +898,23 @@ PRINTABLE CHARACTERS
             <button class="me-tool" data-tool="flood" type="button" title="Fill All" aria-label="Fill All">
               <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" rx="1" fill="currentColor" opacity="0.35"/><rect x="2.5" y="2.5" width="11" height="11" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
             </button>
-            <button class="me-tool" data-tool="select" type="button" title="Select / Rectangle" aria-label="Select">
+            <button class="me-tool" data-tool="select" type="button" title="Select region" aria-label="Select">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="0.5" stroke-dasharray="2.2 1.6"/></svg>
             </button>
             <button class="me-tool" data-tool="pick" type="button" title="Pick (eyedropper)" aria-label="Pick">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 2.5l3 3-1.4 1.4-1.1-1.1-5.2 5.2L3 12l-.5 1.5L4 13l1-1.5 5.2-5.2-1.1-1.1z"/></svg>
             </button>
+          </div>
+          <div class="me-tool-group">
+          <button class="me-tool" id="me-copy" type="button" title="Copy selection (Ctrl+C)" aria-label="Copy selection" disabled>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg>
+          </button>
+          <button class="me-tool" id="me-paste" type="button" title="Paste (Ctrl+V)" aria-label="Paste" disabled>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="8" height="9" rx="1"/><path d="M5 5V3.5A.5.5 0 0 1 5.5 3h5a.5.5 0 0 1 .5.5V5"/><path d="M5.5 3h5"/></svg>
+          </button>
+          <button class="me-tool" id="me-paste-transparent" type="button" title="Transparent paste (Ctrl+Shift+V)" aria-label="Transparent paste" disabled>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="4" height="4" rx="0.5" opacity="0.55"/><rect x="6" y="2" width="4" height="4" rx="0.5" opacity="0.25"/><rect x="10" y="2" width="4" height="4" rx="0.5" opacity="0.55"/><rect x="4" y="6" width="4" height="4" rx="0.5" opacity="0.25"/><rect x="8" y="6" width="4" height="4" rx="0.5" opacity="0.55"/><path d="M6 11h4v2.2M8 10l2 2-2 2"/></svg>
+          </button>
           </div>
           <div class="me-tool-group">
             <button class="me-tool" id="me-charset-rom" type="button" title="Load charset from C64 ROM" aria-label="Load charset from ROM">
@@ -1000,6 +1019,9 @@ PRINTABLE CHARACTERS
           <button class="hg-tool" data-tool="fill" type="button" title="Flood Fill" aria-label="Flood Fill">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l5-5 5 5-5 5z"/><path d="M3 7l5 5 5-5" fill="currentColor" stroke="none" opacity="0.45"/></svg>
           </button>
+          <button class="hg-tool" data-tool="select" type="button" title="Select (drag to mark a region)" aria-label="Select">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" stroke-dasharray="2 1.5"/></svg>
+          </button>
         </div>
         <div class="hg-tool-group">
           <button class="hg-btn" id="hg-undo" type="button" title="Undo" aria-label="Undo">
@@ -1007,6 +1029,15 @@ PRINTABLE CHARACTERS
           </button>
           <button class="hg-btn" id="hg-redo" type="button" title="Redo" aria-label="Redo">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 5L13 7.5 10.5 10"/><path d="M13 7.5H6a3.5 3.5 0 000 7H8"/></svg>
+          </button>
+          <button class="hg-btn" id="hg-copy" type="button" title="Copy selection (Ctrl+C)" aria-label="Copy">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1"/><path d="M3 11V3h8"/></svg>
+          </button>
+          <button class="hg-btn" id="hg-paste" type="button" title="Paste (Ctrl+V) — click on canvas to place" aria-label="Paste">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3.5" width="10" height="11" rx="1"/><rect x="5.5" y="2" width="5" height="3" rx="0.6" fill="currentColor" stroke="none"/></svg>
+          </button>
+          <button class="hg-btn" id="hg-paste-transparent" type="button" title="Transparent paste (Ctrl+Shift+V) — click on canvas to place" aria-label="Transparent paste">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="4" height="4" rx="0.5" opacity="0.55"/><rect x="6" y="2" width="4" height="4" rx="0.5" opacity="0.25"/><rect x="10" y="2" width="4" height="4" rx="0.5" opacity="0.55"/><rect x="4" y="6" width="4" height="4" rx="0.5" opacity="0.25"/><rect x="8" y="6" width="4" height="4" rx="0.5" opacity="0.55"/><path d="M6 11h4v2.2M8 10l2 2-2 2"/></svg>
           </button>
           <button class="hg-btn" id="hg-clear" type="button" title="Clear" aria-label="Clear">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10M6.2 4.5V3h3.6v1.5M5 4.5l.7 8.5h4.6l.7-8.5"/></svg>
@@ -1358,9 +1389,9 @@ PRINTABLE CHARACTERS
   </div>
 
   <script src="tauri-bridge.js"></script>
-  <script src="i18n.js?v=2.0.2"></script>
-  <script src="tutorial-data.js?v=2.0.2"></script>
-  <script src="app.js?v=2.0.2"></script>
+  <script src="i18n.js?v=2.0.3"></script>
+  <script src="tutorial-data.js?v=2.0.3"></script>
+  <script src="app.js?v=2.0.3"></script>
 
 </body>
 
