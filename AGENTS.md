@@ -216,10 +216,13 @@ Teljes lista: [copilot-instructions.md#meglévő-mintaprogramok](.github/copilot
 | 4–6 | `sprite-demo`, `setpixel-demo`, `bitmap-demo` | Grafika |
 | 8–9 | `loop-demo`, `hello-loop-demo` | LOOP/NEXT |
 | 10–12 | `push-pull-demo`, `if-else`, `user-macro-demo` | Stack, feltételes asm, user macro |
-| 13–15 | `incbin-demo`, `loadfile-demo`, `include-demo` | Fájl I/O |
-| 16–17 | `sid-demo`, `sid-direct-demo` | SID lejátszó (külső .bin/.sid) |
-| 18 | `sprite-macro-demo` | SPRITE_INIT/POS/WAIT_RASTER |
-| 19 | `joystick-demo` | CIA1 port 2 input |
+| 13 | `incbin-demo` | INCBIN makró demo |
+| 14 | `map-copy-demo` | MAP_COPY demo (`map-color.bin` → screen + Color RAM) |
+| 15 | `loadfile-demo` | LOADFILE makró demo |
+| 16 | `include-demo` | INCLUDE makró demo |
+| 17–18 | `sid-demo`, `sid-direct-demo` | SID lejátszó (külső .bin/.sid) |
+| 19 | `sprite-macro-demo` | SPRITE_INIT/POS/WAIT_RASTER |
+| 20 | `joystick-demo` | CIA1 port 2 input |
 
 **Új sample hozzáadásakor:**
 
@@ -369,7 +372,7 @@ Lásd `tauri-bridge.js` és `src-tauri/src/lib.rs`. Leggyakoribb commands:
 
 ## 14. Jelenlegi verzió
 
-`2.0.1` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
+`2.0.3` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, és ez a fájl + copilot-instructions.md.
 
 Verziónöveléshez lásd a 3. szakasz végén lévő 7-lépéses checklistet.

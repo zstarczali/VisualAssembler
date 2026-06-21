@@ -1988,23 +1988,24 @@ function applyTranslations() {
   if (sampleOptions[13]) sampleOptions[13].textContent = t("sampleIfElse");
   if (sampleOptions[14]) sampleOptions[14].textContent = t("sampleUserMacro");
   if (sampleOptions[15]) sampleOptions[15].textContent = t("sampleIncBin");
-  if (sampleOptions[16]) sampleOptions[16].textContent = t("sampleLoadFile");
-  if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleExoMulticolorDemo");
-  if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleInclude");
-  if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleSidDemo");
-  if (sampleOptions[20]) sampleOptions[20].textContent = t("sampleSidDirectDemo");
-  if (sampleOptions[21]) sampleOptions[21].textContent = t("sampleSpriteMacroDemo");
-  if (sampleOptions[22]) sampleOptions[22].textContent = t("sampleJoystickDemo");
-  if (sampleOptions[23]) sampleOptions[23].textContent = t("sampleMouseDemo");
-  if (sampleOptions[24]) sampleOptions[24].textContent = t("sampleCollisionDemo");
-  if (sampleOptions[25]) sampleOptions[25].textContent = t("sample10Print");
-  if (sampleOptions[26]) sampleOptions[26].textContent = t("sampleRasterIrqDemo");
-  if (sampleOptions[27]) sampleOptions[27].textContent = t("sampleOverlappingRasterDemo");
-  if (sampleOptions[28]) sampleOptions[28].textContent = t("sampleMemoryOverlapDemo");
-  if (sampleOptions[29]) sampleOptions[29].textContent = t("sampleRandLinesDemo");
-  if (sampleOptions[30]) sampleOptions[30].textContent = t("sampleReuDemo");
-  if (sampleOptions[31]) sampleOptions[31].textContent = t("sampleScrollTextDemo");
-  if (sampleOptions[32]) sampleOptions[32].textContent = t("sampleNameInputDemo");
+  if (sampleOptions[16]) sampleOptions[16].textContent = t("sampleMapCopyDemo");
+  if (sampleOptions[17]) sampleOptions[17].textContent = t("sampleLoadFile");
+  if (sampleOptions[18]) sampleOptions[18].textContent = t("sampleExoMulticolorDemo");
+  if (sampleOptions[19]) sampleOptions[19].textContent = t("sampleInclude");
+  if (sampleOptions[20]) sampleOptions[20].textContent = t("sampleSidDemo");
+  if (sampleOptions[21]) sampleOptions[21].textContent = t("sampleSidDirectDemo");
+  if (sampleOptions[22]) sampleOptions[22].textContent = t("sampleSpriteMacroDemo");
+  if (sampleOptions[23]) sampleOptions[23].textContent = t("sampleJoystickDemo");
+  if (sampleOptions[24]) sampleOptions[24].textContent = t("sampleMouseDemo");
+  if (sampleOptions[25]) sampleOptions[25].textContent = t("sampleCollisionDemo");
+  if (sampleOptions[26]) sampleOptions[26].textContent = t("sample10Print");
+  if (sampleOptions[27]) sampleOptions[27].textContent = t("sampleRasterIrqDemo");
+  if (sampleOptions[28]) sampleOptions[28].textContent = t("sampleOverlappingRasterDemo");
+  if (sampleOptions[29]) sampleOptions[29].textContent = t("sampleMemoryOverlapDemo");
+  if (sampleOptions[30]) sampleOptions[30].textContent = t("sampleRandLinesDemo");
+  if (sampleOptions[31]) sampleOptions[31].textContent = t("sampleReuDemo");
+  if (sampleOptions[32]) sampleOptions[32].textContent = t("sampleScrollTextDemo");
+  if (sampleOptions[33]) sampleOptions[33].textContent = t("sampleNameInputDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -2062,6 +2063,9 @@ function _applyEditorTranslations() {
   setAttr('.me-tool[data-tool="flood"]', t("meFlood"));
   setAttr('.me-tool[data-tool="select"]', t("meSelect"));
   setAttr('.me-tool[data-tool="pick"]', t("mePick"));
+  setAttr("#me-copy", t("meCopy"));
+  setAttr("#me-paste", t("mePaste"));
+  setAttr("#me-paste-transparent", t("mePasteTransparent"));
   setText('#map-editor-dialog button[data-export="screen"]', t("meExportScreen"));
   setText('#map-editor-dialog button[data-export="color"]', t("meExportColor"));
   setText('#map-editor-dialog button[data-export="bin"]', t("meExportBin"));
@@ -2089,8 +2093,12 @@ function _applyEditorTranslations() {
   setAttr('.hg-tool[data-tool="oval"]', t("hgToolOval"));
   setAttr('.hg-tool[data-tool="filloval"]', t("hgToolFillOval"));
   setAttr('.hg-tool[data-tool="fill"]', t("hgToolFill"));
+  setAttr('.hg-tool[data-tool="select"]', t("hgToolSelect"));
   setAttr("#hg-undo", t("hgUndo"));
   setAttr("#hg-redo", t("hgRedo"));
+  setAttr("#hg-copy", t("hgCopy"));
+  setAttr("#hg-paste", t("hgPaste"));
+  setAttr("#hg-paste-transparent", t("hgPasteTransparent"));
   setAttr("#hg-clear", t("hgClear"));
   setText("#hg-multicolor-label", t("hgMulticolor"));
   setText("#hg-grid-label", t("hgGrid"));
@@ -16346,6 +16354,26 @@ async function loadIncBinDemo() {
   }
 }
 
+async function loadMapCopyDemo() {
+  const ok = await loadSampleFromFile("map-copy-demo");
+  if (!ok) return;
+
+  if (window.electronAPI?.loadIncBinSampleFile) {
+    const result = await window.electronAPI.loadIncBinSampleFile("map-color.bin");
+    if (result && !result.error) {
+      const incBinIdx = program.findIndex(b => b.isIncBinMacro);
+      if (incBinIdx >= 0) {
+        program[incBinIdx].incBinFileName = result.fileName;
+        program[incBinIdx].incBinFile = result.filePath;
+        program[incBinIdx].incBinBytes = result.bytes;
+        program[incBinIdx].validationError = validateIncBinMacro(result.bytes, program[incBinIdx].incBinAddress);
+        renderProgram();
+        if (expertMode) _expertSyncFromProgram();
+      }
+    }
+  }
+}
+
 async function loadIncludeDemo() {
   await loadSampleFromFile("include-demo");
 }
@@ -16543,6 +16571,11 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "incbin-demo") {
     loadIncBinDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "map-copy-demo") {
+    loadMapCopyDemo();
     return;
   }
 
@@ -18147,6 +18180,7 @@ let _meSelStart = null;   // {col,row} during Select drag
 let _meSelEnd   = null;
 let _meClipboard = null;  // { w, h, screen: Uint8Array, color: Uint8Array }
 let _mePasteMode = false; // true while hovering to place paste preview
+let _mePasteTransparent = false; // transparent paste skips empty tiles
 let _meTileCache = null;   // [256][64] ROM bit arrays
 let _meCustomCache = null; // [256][64] custom charset bit arrays
 let _meCustomData = null;  // Uint8Array(2048) custom charset bytes
@@ -18330,9 +18364,10 @@ function _meCopy() {
     }
   _meClipboard = { w, h, screen: scr, color: col };
   document.getElementById("me-paste")?.removeAttribute("disabled");
+  document.getElementById("me-paste-transparent")?.removeAttribute("disabled");
 }
 
-function _mePasteCommit(col, row) {
+function _mePasteCommit(col, row, transparent = false) {
   if (!_meClipboard) return;
   const { w, h, screen: scr, color: col_data } = _meClipboard;
   for (let r = 0; r < h; r++)
@@ -18340,13 +18375,14 @@ function _mePasteCommit(col, row) {
       const dc = col + c, dr = row + r;
       if (dc >= 0 && dc < _ME_COLS && dr >= 0 && dr < _ME_ROWS) {
         const si = r * w + c;
+        if (transparent && scr[si] === _ME_EMPTY) continue;
         _meSetCell(dc, dr, scr[si], col_data[si]);
       }
     }
   _meBlit();
 }
 
-function _meDrawPastePreview(col, row) {
+function _meDrawPastePreview(col, row, transparent = false) {
   _meBlit();
   if (!_meClipboard) return;
   const { w, h, screen: scr, color: col_data } = _meClipboard;
@@ -18358,6 +18394,7 @@ function _meDrawPastePreview(col, row) {
       const dc = col + c, dr = row + r;
       if (dc < 0 || dc >= _ME_COLS || dr < 0 || dr >= _ME_ROWS) continue;
       const si = r * w + c;
+      if (transparent && scr[si] === _ME_EMPTY) continue;
       const bits = _meTileBits(scr[si]);
       _meCtx.fillStyle = _CE_COLORS[_meBgColor];
       _meCtx.fillRect(dc * Z, dr * Z, Z, Z);
@@ -18601,6 +18638,7 @@ function setupMapEditor() {
       dialog.querySelectorAll(".me-tool[data-tool]").forEach(function(b) { b.classList.toggle("me-tool--active", b === btn); });
       if (_mePasteMode) {
         _mePasteMode = false;
+        _mePasteTransparent = false;
         const cv = document.getElementById("me-canvas");
         if (cv) cv.style.cursor = "";
         _meBlit();
@@ -18625,11 +18663,22 @@ function setupMapEditor() {
   document.getElementById("me-paste")?.addEventListener("click", function() {
     if (!_meClipboard) return;
     _mePasteMode = true;
+    _mePasteTransparent = false;
     _meSelStart = _meSelEnd = null;
     _meBlit();
     const canvas = document.getElementById("me-canvas");
     if (canvas) canvas.style.cursor = "copy";
     // switch to select tool visually so paste-mode is clear
+    dialog.querySelectorAll(".me-tool[data-tool]").forEach(function(b) { b.classList.remove("me-tool--active"); });
+  });
+  document.getElementById("me-paste-transparent")?.addEventListener("click", function() {
+    if (!_meClipboard) return;
+    _mePasteMode = true;
+    _mePasteTransparent = true;
+    _meSelStart = _meSelEnd = null;
+    _meBlit();
+    const canvas = document.getElementById("me-canvas");
+    if (canvas) canvas.style.cursor = "copy";
     dialog.querySelectorAll(".me-tool[data-tool]").forEach(function(b) { b.classList.remove("me-tool--active"); });
   });
   dialog.addEventListener("keydown", function(e) {
@@ -18639,6 +18688,7 @@ function setupMapEditor() {
     if ((e.ctrlKey || e.metaKey) && e.key === "v") {
       if (!_meClipboard) return;
       _mePasteMode = true;
+      _mePasteTransparent = !!e.shiftKey;
       _meSelStart = _meSelEnd = null;
       _meBlit();
       const cv = document.getElementById("me-canvas");
@@ -18649,6 +18699,7 @@ function setupMapEditor() {
     if (e.key === "Escape") {
       if (_mePasteMode) {
         _mePasteMode = false;
+        _mePasteTransparent = false;
         const cv = document.getElementById("me-canvas");
         if (cv) cv.style.cursor = "";
         _meBlit();
@@ -18751,12 +18802,12 @@ function setupMapEditor() {
       }
     };
     canvas.addEventListener("pointerdown", function(e) {
-      if (e.button !== 0) return;
+    if (e.button !== 0) return;
       const cell = _meCellFromEvent(e);
       if (!cell) return;
       if (_mePasteMode) {
-        _mePasteCommit(cell.col, cell.row);
-        _meDrawPastePreview(cell.col, cell.row);
+        _mePasteCommit(cell.col, cell.row, _mePasteTransparent);
+        _meDrawPastePreview(cell.col, cell.row, _mePasteTransparent);
         e.preventDefault(); return;
       }
       try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
@@ -18772,7 +18823,7 @@ function setupMapEditor() {
     canvas.addEventListener("pointermove", function(e) {
       const cell = _meCellFromEvent(e);
       _meUpdateStatus(cell ? cell.col : null, cell ? cell.row : null);
-      if (_mePasteMode && cell) { _meDrawPastePreview(cell.col, cell.row); return; }
+      if (_mePasteMode && cell) { _meDrawPastePreview(cell.col, cell.row, _mePasteTransparent); return; }
       if (!_mePainting || !cell) return;
       if (_meTool === "select") { _meSelEnd = cell; _meDrawSelOverlay(); }
       else if (_meTool === "paint") { _meSetCell(cell.col, cell.row, _meTile, _meColor); }
@@ -18821,6 +18872,17 @@ let _hgCanvas = null, _hgCtx = null, _hgBuf = null, _hgBufCtx = null;
 let _hgPainting = false, _hgStart = null, _hgLast = null;
 let _hgUndo = [], _hgRedo = [];
 let _hgInited = false;
+
+// Selection rectangle for copy/paste (logical pixel coords, w/h > 0 when active).
+let _hgSelection = null;          // { x, y, w, h } or null
+// In-memory clipboard for hires/multicolor pixel regions. Independent from the
+// OS clipboard; the editor doesn't roundtrip via system clipboard for now.
+let _hgClipboard = null;          // { w, h, multi, transparentColor, pixels: Uint8Array } or null
+// When true, the next canvas click stamps _hgClipboard at the click position
+// and exits paste mode (Photoshop-style ghost-then-place workflow).
+let _hgPasteMode = false;
+let _hgPasteTransparent = false;
+let _hgPasteGhost = null;         // { x, y } current cursor position in paste preview
 
 function _hgW() { return _hgMulti ? 160 : 320; }
 function _hgH() { return 200; }
@@ -18884,6 +18946,58 @@ function _hgOverlays() {
     _hgCtx.fillStyle = "rgba(0,0,0,0.28)";
     for (let y = 0; y < H; y += 2) _hgCtx.fillRect(0, y, W, 1);
   }
+  // Selection marquee — dashed outline around the current selection.
+  if (_hgSelection) {
+    const pw = _hgPxW(), ph = _hgPxH();
+    _hgCtx.save();
+    _hgCtx.lineWidth = 1;
+    _hgCtx.setLineDash([4, 3]);
+    _hgCtx.strokeStyle = "white";
+    _hgCtx.strokeRect(
+      _hgSelection.x * pw + 0.5,
+      _hgSelection.y * ph + 0.5,
+      _hgSelection.w * pw - 1,
+      _hgSelection.h * ph - 1
+    );
+    _hgCtx.strokeStyle = "black";
+    _hgCtx.lineDashOffset = 4;
+    _hgCtx.strokeRect(
+      _hgSelection.x * pw + 0.5,
+      _hgSelection.y * ph + 0.5,
+      _hgSelection.w * pw - 1,
+      _hgSelection.h * ph - 1
+    );
+    _hgCtx.restore();
+  }
+  // Paste ghost — translucent preview of the clipboard contents at cursor.
+  if (_hgPasteMode && _hgClipboard && _hgPasteGhost) {
+    const pw = _hgPxW(), ph = _hgPxH();
+    const cb = _hgClipboard;
+    _hgCtx.save();
+    _hgCtx.globalAlpha = 0.6;
+    for (let dy = 0; dy < cb.h; dy++) {
+      for (let dx = 0; dx < cb.w; dx++) {
+        const x = _hgPasteGhost.x + dx;
+        const y = _hgPasteGhost.y + dy;
+        if (x < 0 || y < 0 || x >= _hgW() || y >= _hgH()) continue;
+        const px = cb.pixels[dy * cb.w + dx];
+        if (_hgPasteTransparent && px === cb.transparentColor) continue;
+        _hgCtx.fillStyle = _CE_COLORS[px];
+        _hgCtx.fillRect(x * pw, y * ph, pw, ph);
+      }
+    }
+    _hgCtx.globalAlpha = 1;
+    _hgCtx.lineWidth = 1;
+    _hgCtx.setLineDash([3, 2]);
+    _hgCtx.strokeStyle = "yellow";
+    _hgCtx.strokeRect(
+      _hgPasteGhost.x * pw + 0.5,
+      _hgPasteGhost.y * ph + 0.5,
+      cb.w * pw - 1,
+      cb.h * ph - 1
+    );
+    _hgCtx.restore();
+  }
 }
 function _hgBlit() {
   const W = _hgDispW(), H = _hgDispH();
@@ -18892,6 +19006,63 @@ function _hgBlit() {
   _hgOverlays();
 }
 function _hgRenderAll() { _hgRenderBuf(); _hgBlit(); }
+
+/* ── Selection / clipboard ────────────────────────────────────────────────── */
+function _hgCopySelection() {
+  if (!_hgSelection) {
+    _hgStatusFlash("Select an area first");
+    return false;
+  }
+  const { x, y, w, h } = _hgSelection;
+  if (w <= 0 || h <= 0) return false;
+  const pixels = new Uint8Array(w * h);
+  for (let dy = 0; dy < h; dy++) {
+    for (let dx = 0; dx < w; dx++) {
+      pixels[dy * w + dx] = _hgGet(x + dx, y + dy) & 0x0F;
+    }
+  }
+  _hgClipboard = { w, h, multi: _hgMulti, transparentColor: _hgPaper & 0x0F, pixels };
+  _hgStatusFlash(`Copied ${w}×${h} pixels`);
+  return true;
+}
+
+function _hgStartPaste(transparent = false) {
+  if (!_hgClipboard) {
+    _hgStatusFlash("Nothing to paste");
+    return false;
+  }
+  _hgPasteMode = true;
+  _hgPasteTransparent = !!transparent;
+  _hgPasteGhost = _hgSelection
+    ? { x: _hgSelection.x, y: _hgSelection.y }
+    : { x: 0, y: 0 };
+  _hgBlit();
+  _hgStatusFlash(_hgPasteTransparent ? t("hgPasteTransparentHint") : "Click on canvas to place — Esc to cancel");
+  return true;
+}
+
+function _hgStampClipboard(px, py, transparent = false) {
+  const cb = _hgClipboard;
+  if (!cb) return;
+  for (let dy = 0; dy < cb.h; dy++) {
+    for (let dx = 0; dx < cb.w; dx++) {
+      const col = cb.pixels[dy * cb.w + dx];
+      if (transparent && col === cb.transparentColor) continue;
+      _hgSet(px + dx, py + dy, col);
+    }
+  }
+}
+
+// Lightweight transient status text — uses the existing _hgStatus indicator
+// region when available; otherwise no-op. Auto-clears after a short delay.
+let _hgStatusTimer = null;
+function _hgStatusFlash(msg) {
+  const el = document.getElementById("hg-status");
+  if (!el) return;
+  if (_hgStatusTimer) { clearTimeout(_hgStatusTimer); _hgStatusTimer = null; }
+  el.textContent = msg;
+  _hgStatusTimer = setTimeout(() => { el.textContent = ""; _hgStatusTimer = null; }, 1800);
+}
 
 /* ── Undo / redo ── */
 function _hgSnapshot() {
@@ -19336,11 +19507,42 @@ function setupHiresEditor() {
 
   document.getElementById("hg-undo")?.addEventListener("click", _hgUndoOp);
   document.getElementById("hg-redo")?.addEventListener("click", _hgRedoOp);
+  document.getElementById("hg-copy")?.addEventListener("click", _hgCopySelection);
+  document.getElementById("hg-paste")?.addEventListener("click", _hgStartPaste);
+  document.getElementById("hg-paste-transparent")?.addEventListener("click", function() { _hgStartPaste(true); });
   document.getElementById("hg-clear")?.addEventListener("click", function() {
     _hgPushUndo();
     if (_hgMulti) { _hgPixMC.fill(_hgPaper); }
     else { _hgBit.fill(0); _hgFgCell.fill(1); _hgBgCell.fill(_hgPaper); }
     _hgRenderAll();
+  });
+
+  // Ctrl/Cmd+C / Ctrl/Cmd+V / Esc while the editor dialog has focus.
+  dialog.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") {
+      if (_hgPasteMode) {
+        _hgPasteMode = false;
+        _hgPasteTransparent = false;
+        _hgPasteGhost = null;
+        _hgBlit();
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      if (_hgSelection) {
+        _hgSelection = null;
+        _hgBlit();
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+    }
+    if (!(e.ctrlKey || e.metaKey)) return;
+    if (e.key === "c" || e.key === "C") {
+      if (_hgCopySelection()) { e.preventDefault(); e.stopPropagation(); }
+    } else if (e.key === "v" || e.key === "V") {
+      if (_hgStartPaste(!!e.shiftKey)) { e.preventDefault(); e.stopPropagation(); }
+    }
   });
 
   document.getElementById("hg-multicolor")?.addEventListener("change", function(e) {
@@ -19432,7 +19634,27 @@ function setupHiresEditor() {
     _hgInit();
     const p = _hgPixelFromEvent(e);
     if (p.x < 0 || p.y < 0 || p.x >= _hgW() || p.y >= _hgH()) return;
+    // Paste-mode click: stamp clipboard contents at the click point.
+    if (_hgPasteMode && _hgClipboard) {
+      _hgPushUndo();
+      _hgStampClipboard(p.x, p.y, _hgPasteTransparent);
+      _hgPasteMode = false;
+      _hgPasteTransparent = false;
+      _hgPasteGhost = null;
+      _hgSelection = { x: p.x, y: p.y, w: _hgClipboard.w, h: _hgClipboard.h };
+      _hgRenderAll();
+      e.preventDefault();
+      return;
+    }
     try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+    if (_hgTool === "select") {
+      _hgPainting = true;
+      _hgStart = p; _hgLast = p;
+      _hgSelection = { x: p.x, y: p.y, w: 1, h: 1 };
+      _hgBlit();
+      e.preventDefault();
+      return;
+    }
     _hgPushUndo();
     _hgPainting = true; _hgStart = p; _hgLast = p;
     if (_hgTool === "pencil" || _hgTool === "eraser") { applyPoint(p.x, p.y); _hgBlit(); }
@@ -19442,7 +19664,20 @@ function setupHiresEditor() {
   canvas.addEventListener("pointermove", function(e) {
     const p = _hgPixelFromEvent(e);
     _hgStatus(p.x >= 0 && p.y >= 0 && p.x < _hgW() && p.y < _hgH() ? p.x : null, p.y);
+    // Update the paste-ghost preview as the cursor moves.
+    if (_hgPasteMode && _hgClipboard) {
+      _hgPasteGhost = { x: p.x, y: p.y };
+      _hgBlit();
+      return;
+    }
     if (!_hgPainting) return;
+    if (_hgTool === "select") {
+      const x0 = Math.min(_hgStart.x, p.x), y0 = Math.min(_hgStart.y, p.y);
+      const x1 = Math.max(_hgStart.x, p.x), y1 = Math.max(_hgStart.y, p.y);
+      _hgSelection = { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 };
+      _hgBlit();
+      return;
+    }
     const col = _hgTool === "eraser" ? _hgPaper : _hgColor;
     if (_hgTool === "pencil" || _hgTool === "eraser") {
       _hgLine(_hgLast.x, _hgLast.y, p.x, p.y, function(x, y) { _hgSet(x, y, col); _hgRedrawCellBuf(x, y); });
@@ -19460,6 +19695,14 @@ function setupHiresEditor() {
     if (!_hgPainting) return;
     _hgPainting = false;
     const p = (e && e.clientX != null) ? _hgPixelFromEvent(e) : _hgLast;
+    if (_hgTool === "select") {
+      const x0 = Math.min(_hgStart.x, p.x), y0 = Math.min(_hgStart.y, p.y);
+      const x1 = Math.max(_hgStart.x, p.x), y1 = Math.max(_hgStart.y, p.y);
+      _hgSelection = { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 };
+      _hgBlit();
+      if (e && e.pointerId != null) { try { canvas.releasePointerCapture(e.pointerId); } catch (_) {} }
+      return;
+    }
     if (_hgTool !== "pencil" && _hgTool !== "eraser" && _hgTool !== "fill") {
       const col = _hgColor;
       const set = function(x, y) { _hgSet(x, y, col); };

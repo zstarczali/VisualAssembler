@@ -41,5 +41,5 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.0.2 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.0.3 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
 

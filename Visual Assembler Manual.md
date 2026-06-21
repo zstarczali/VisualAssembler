@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.0.2**
+**Version 2.0.3**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -2243,6 +2243,7 @@ Layered tilemap editor for static scenery, sprite spawn maps, collision data, an
 | Brushes | Single-tile, fill, line and rectangle modes. |
 | Clear menu | Per-layer or whole-map clear with confirmation. |
 | Image import | Drop a PNG of a tilemap; the editor auto-slices into tiles. |
+| Copy / paste | Copy a selected tile region, then paste normally or use transparent paste to keep empty tiles transparent. |
 | Export blocks | Emits RAWBYTES blocks for tileset graphics + map data. |
 | Save .bin… | Saves only the screen codes for the current map layer (40×25 = 1000 bytes). |
 | Save map + color RAM (.bin)… | Saves screen codes concatenated with color RAM values as a single 2000-byte file (`screen[0..999]` followed by `color[0..999]`). Use this with the **MAP_COPY** macro (Combined .bin mode) to restore both screen and color in one operation at runtime. |
