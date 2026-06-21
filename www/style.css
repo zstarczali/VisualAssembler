@@ -4712,67 +4712,35 @@ body.crt-mode #crt-overlay::after {
 .splash-content {
   text-align: center;
   padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
 }
 
-.splash-title {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 3rem;
-  font-weight: 700;
-  color: var(--text);
-  margin: 0 0 0.5rem 0;
-  letter-spacing: 0.05em;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.splash-subtitle {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 1rem;
-  color: var(--muted);
-  margin: 0 0 0.5rem 0;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+.splash-logo {
+  max-width: 320px;
+  width: 60vw;
+  height: auto;
 }
 
 .splash-version {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.8rem;
   font-weight: 700;
   color: var(--muted);
-  margin: 0 0 2rem 0;
-}
-
-.splash-ultimate {
-  margin-top: 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.splash-ultimate-logos {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-}
-
-.splash-ultimate-logo {
-  height: 58px;
-  width: auto;
-}
-
-.splash-ultimate-text {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.72rem;
-  color: var(--muted);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
   margin: 0;
+  white-space: nowrap;
 }
 
 .splash-loader {
   width: 200px;
   height: 4px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(128, 128, 128, 0.2);
   border-radius: 2px;
   margin: 0 auto;
   overflow: hidden;
@@ -6641,6 +6609,10 @@ body.crt-mode #crt-overlay::after {
 }
 .se-tool svg { display: block; width: 15px; height: 15px; }
 .se-tool:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); color: var(--text); }
+.se-tool--active {
+  background: color-mix(in srgb, var(--primary) 22%, transparent);
+  color: var(--primary);
+}
 .se-mini-lbl { font-family: inherit; font-size: 0.7rem; color: var(--secondary); white-space: nowrap; }
 .se-check {
   display: flex; align-items: center; gap: 5px; font-family: inherit;
