@@ -870,6 +870,7 @@ PRINTABLE CHARACTERS
           <div class="ed-file-menu" hidden>
             <button id="me-load-map" type="button">Load map (.bin)…</button>
             <button data-export="bin" type="button">Save flattened map (.bin)…</button>
+            <button data-export="bin-color" type="button">Save map + color RAM (.bin)…</button>
             <button data-export="screen" type="button">Copy flattened screen codes</button>
             <button data-export="color" type="button">Copy flattened color RAM</button>
             <div class="ed-file-sep"></div>
@@ -890,11 +891,19 @@ PRINTABLE CHARACTERS
             <button class="me-tool" data-tool="flood" type="button" title="Fill All" aria-label="Fill All">
               <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" rx="1" fill="currentColor" opacity="0.35"/><rect x="2.5" y="2.5" width="11" height="11" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
             </button>
-            <button class="me-tool" data-tool="select" type="button" title="Select / Rectangle" aria-label="Select">
+            <button class="me-tool" data-tool="select" type="button" title="Select region" aria-label="Select">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="0.5" stroke-dasharray="2.2 1.6"/></svg>
             </button>
             <button class="me-tool" data-tool="pick" type="button" title="Pick (eyedropper)" aria-label="Pick">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 2.5l3 3-1.4 1.4-1.1-1.1-5.2 5.2L3 12l-.5 1.5L4 13l1-1.5 5.2-5.2-1.1-1.1z"/></svg>
+            </button>
+          </div>
+          <div class="me-tool-group">
+            <button class="me-tool" id="me-copy" type="button" title="Copy selection (Ctrl+C)" aria-label="Copy selection" disabled>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg>
+            </button>
+            <button class="me-tool" id="me-paste" type="button" title="Paste (Ctrl+V)" aria-label="Paste" disabled>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="8" height="9" rx="1"/><path d="M5 5V3.5A.5.5 0 0 1 5.5 3h5a.5.5 0 0 1 .5.5V5"/><path d="M5.5 3h5"/></svg>
             </button>
           </div>
           <div class="me-tool-group">

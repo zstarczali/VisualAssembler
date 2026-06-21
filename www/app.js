@@ -176,6 +176,9 @@ const mnemonicLibrary = {
     { mnemonic: "JOYSTICK", description: "Joystick olvasas es sprite mozgatasa: UP/DOWN/LEFT/RIGHT bitek LSR+BCS+DEC/INC-cel. Port 1=$DC01, Port 2=$DC00 (alap). 27 byte inline.", modes: ["implied"], isJoystickMacro: true },
     { mnemonic: "MOUSE", description: "C64 1351 arányos egér vezérlése: SID POTX/POTY olvasás, standard 1351-szeru 7 bites delta dekódolással, CIA $DC00 felső 2 bitjével portválasztás, 512-ciklusos SID settle wait, X oldalon a klasszikus $D010 toggle mintával, Y oldalon invertált mozgatással. 142 byte inline.", modes: ["implied"], isMouseMacro: true },
     { mnemonic: "SPRITE_COL", description: "Sprite utkozes detektalas: LDA $D01E/$D01F + AND #bitMask. Eredmeny A-ban: nem nulla = utkozes. Utana BEQ/BNE-vel ugri. 5 byte.", modes: ["implied"], isSpriteColMacro: true },
+    { mnemonic: "MAP_COPY", description: "Terkep masolasa screen RAM-ba (es opcionalisan Color RAM-ba) tobb 256 byte-os LDX/LDA abs,X/STA abs,X ciklussal. Forras, cel, meret es szin-forras parameterezheto.", modes: ["implied"], isMapCopyMacro: true },
+    { mnemonic: "SPRITE_ANIM", description: "Sprite animacio: ZP frame szamlalot leptet (0..count-1), majd a frame lista (1 byte/frame = sprite adatlap pointer) alapjan frissiti a $07F8+N regisztert. 19 byte.", modes: ["implied"], isSpriteAnimMacro: true },
+    { mnemonic: "SCORE_BCD", description: "BCD pontszam noveles es kijelzes: SED/CLC/ADC pattern a pontszam hozzaadasahoz, majd BCD nibble → screen kod konverzioval kiiratja a screen RAM-ra. 2/4/6 jegy, inline.", modes: ["implied"], isScoreBcdMacro: true },
     { mnemonic: "LOADFILE", description: "Fajl betoltese D64-rol KERNAL SETNAM/SETLFS/LOAD rutinokkal. Cim opcionalis (ures = fajl sajat cime, sec=1; kitoltve = override, sec=0). Hiba cimke opcionalis (BCS).", modes: ["implied"], isLoadFileMacro: true },
     { mnemonic: "EXODECRUNCH", description: "Exomizer mem-mode tömörített adat kicsomagolása. Átmásolja a KERNAL load-end mutatóját ($AE/$AF) a depacker forrás-vég ZP mutatójára ($04/$05), átkapcsolja $01-et $36-ra (BASIC ROM ki, hogy $B000 RAM legyen), JSR a depacker rutinra (alapból $B000), majd visszaállítja $01-et $37-re. A depacker külön (exo-decrunch.bin, 480 byte) INCBIN-nel kell betölteni. 19 byte.", modes: ["implied"], isExoDecrunchMacro: true },
     { mnemonic: "REU_CHECK", description: "REU (RAM bovito egyseg) jelenletenek ellenorzese: $DF04 write/read proba $55 es $AA mintaval. Z=0 → REU jelen van (BNE-vel ugri), Z=1 → nincs REU (BEQ-vel ugri). 34 byte.", modes: ["implied"], isReuCheckMacro: true },
@@ -576,6 +579,9 @@ const mnemonicDescriptionsEn = {
   JOYSTICK: "Read joystick and move sprite: UP/DOWN/LEFT/RIGHT via LSR+BCS+DEC/INC. Port 1=$DC01, Port 2=$DC00. 27 bytes inline.",
   MOUSE: "Read 1351 proportional mouse via SID POTX/POTY ($D419/$D41A) and move sprite. The macro follows standard 1351-style 7-bit delta decoding, waits one SID conversion window after CIA port selection, uses the classic low-byte-add plus $D010 toggle pattern on X, and inverts Y for VICE. 142 bytes inline.",
   SPRITE_COL: "Sprite collision detection: LDA $D01E/$D01F + AND #bitMask. Result in A: non-zero = collision. Follow with BEQ/BNE. 5 bytes.",
+  MAP_COPY: "Copy map data to screen RAM (and optionally Color RAM) using multiple 256-byte LDX/LDA abs,X/STA abs,X loops. Source, destination, size and color source are configurable.",
+  SPRITE_ANIM: "Sprite animation: increments a ZP frame counter (0..count-1) and updates $07F8+N from a 1-byte-per-frame pointer list. 19 bytes.",
+  SCORE_BCD: "BCD score increment and display: SED/CLC/ADC pattern adds points, then converts BCD nibbles to screen codes and writes to screen RAM. 2/4/6 digits, inline.",
   DEFINE: "Define a symbol for conditional assembly. When present, IF blocks evaluate the condition.",
   CONST: "Named constant definition. Can be used as an operand in any mnemonic (LDA, STA, JSR, etc.).",
   REGION: "Group blocks into a collapsible named section. Close with ENDREGION.",
@@ -709,6 +715,9 @@ const mnemonicDescriptionsEs = {
   JOYSTICK: "Lee el joystick y mueve el sprite: UP/DOWN/LEFT/RIGHT mediante LSR+BCS+DEC/INC. Puerto 1=$DC01, Puerto 2=$DC00. 27 bytes inline.",
   MOUSE: "Lee el ratón 1351 proporcional mediante SID POTX/POTY ($D419/$D41A) y mueve el sprite. 142 bytes inline.",
   SPRITE_COL: "Detección de colisión de sprite: LDA $D01E/$D01F + AND #bitMask. Resultado en A: no-cero = colisión. 5 bytes.",
+  MAP_COPY: "Copia datos del mapa a Screen RAM (y opcionalmente Color RAM) con bucles LDX/LDA abs,X/STA abs,X de 256 bytes. Fuente, destino, tamaño y fuente de color configurables.",
+  SPRITE_ANIM: "Animación de sprite: incrementa un contador ZP de frame (0..N-1) y actualiza $07F8+N desde una lista de punteros (1 byte/frame). 19 bytes.",
+  SCORE_BCD: "Incremento y visualización de puntuación BCD: patrón SED/CLC/ADC para sumar puntos, convierte nibbles BCD a códigos de pantalla. 2/4/6 dígitos, inline.",
   DEFINE: "Define un símbolo para ensamblado condicional. Cuando está presente, los bloques IF evalúan la condición.",
   CONST: "Definición de constante con nombre. Se puede usar como operando en cualquier mnemónico.",
   REGION: "Agrupa bloques en una sección con nombre colapsable. Cerrar con ENDREGION.",
@@ -3078,6 +3087,43 @@ function createBlockFromMnemonic(item) {
     };
   }
 
+  if (item.isMapCopyMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "", rawOperand: "", description: item.description,
+      addressingMode: "implied", base: "hex", validationError: "",
+      collapsed: true, isMapCopyMacro: true,
+      mapCopySrc: "C000", mapCopyDst: "0400", mapCopySize: 1000,
+      mapCopyCombined: false, mapCopyColorSrc: "", mapCopyColorDst: "D800"
+    };
+  }
+
+  if (item.isSpriteAnimMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "", rawOperand: "", description: item.description,
+      addressingMode: "implied", base: "hex", validationError: "",
+      collapsed: true, isSpriteAnimMacro: true,
+      animSpriteNum: 0, animFrameListAddr: "C100", animFrameCount: 4, animFrameZP: "FB"
+    };
+  }
+
+  if (item.isScoreBcdMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "", rawOperand: "", description: item.description,
+      addressingMode: "implied", base: "hex", validationError: "",
+      collapsed: true, isScoreBcdMacro: true,
+      scoreBcdAddr: "C200", scoreDigits: 4, scoreAddPoints: "100", scoreScreenAddr: "0400"
+    };
+  }
+
   if (item.isTurboSetMacro) {
     return {
       id: crypto.randomUUID(),
@@ -3702,6 +3748,14 @@ function _blockToExpertLine(block) {
   if (block.isJoystickMacro)  return `.joystick ${block.joyPort || 2}, ${block.joySpriteNum || 0}`;
   if (block.isMouseMacro)     return `.mouse ${block.mousePort || 2}, ${block.mouseSpriteNum || 0}, ${(block.mousePotXZP || "FD").toUpperCase()}, ${(block.mousePotYZP || "FE").toUpperCase()}`;
   if (block.isSpriteColMacro) return `.sprite_col ${block.spriteNum || 0}, ${block.colType || "background"}`;
+  if (block.isMapCopyMacro) {
+    const base = `.map_copy $${(block.mapCopySrc || "C000").toUpperCase()}, $${(block.mapCopyDst || "0400").toUpperCase()}, ${block.mapCopySize || 1000}`;
+    return block.mapCopyCombined
+      ? base + `, auto, $${(block.mapCopyColorDst || "D800").toUpperCase()}`
+      : block.mapCopyColorSrc ? base + `, $${block.mapCopyColorSrc.toUpperCase()}, $${(block.mapCopyColorDst || "D800").toUpperCase()}` : base;
+  }
+  if (block.isSpriteAnimMacro) return `.sprite_anim ${block.animSpriteNum || 0}, $${(block.animFrameListAddr || "C100").toUpperCase()}, ${block.animFrameCount || 4}, $${(block.animFrameZP || "FB").toUpperCase()}`;
+  if (block.isScoreBcdMacro) return `.score_bcd $${(block.scoreBcdAddr || "C200").toUpperCase()}, ${block.scoreDigits || 4}, ${block.scoreAddPoints || 100}, $${(block.scoreScreenAddr || "0400").toUpperCase()}`;
   if (block.isReuCheckMacro)  return `.reu_check`;
   if (block.isReuTransferMacro) {
     const t = block.mnemonic.toLowerCase(); // reu_stash/reu_fetch/reu_swap
@@ -3881,6 +3935,7 @@ const _DIRECTIVE_TO_MNEM = {
   macro:"MACRO", endm:"ENDM", invoke:"INVOKE", call:"INVOKE",
   sprite_init:"SPRITE_INIT", sprite_pos:"SPRITE_POS", wait_raster:"WAIT_RASTER",
   joystick:"JOYSTICK", mouse:"MOUSE", sprite_col:"SPRITE_COL", turbo_set:"TURBO_SET",
+  map_copy:"MAP_COPY", sprite_anim:"SPRITE_ANIM", score_bcd:"SCORE_BCD",
   supercpu_detect:"SUPERCPU_DETECT", turbo_enable:"TURBO_ENABLE",
   reu_check:"REU_CHECK", reu_stash:"REU_STASH", reu_fetch:"REU_FETCH", reu_swap:"REU_SWAP",
   define:"DEFINE", if:"IF", else:"ELSE", endif:"ENDIF", const:"CONST", org:"ORG",
@@ -3917,7 +3972,8 @@ const _AC_DIRECTIVE_DESC = {
   ".supercpu_detect":"detect SuperCPU",
   ".turbo_enable":"SuperCPU turbo on/off",
   ".reu_check":"detect REU", ".reu_stash":"C64→REU DMA", ".reu_fetch":"REU→C64 DMA", ".reu_swap":"C64↔REU DMA",
-  ".region":"visual region", ".endregion":"end region"
+  ".region":"visual region", ".endregion":"end region",
+  ".map_copy":"copy map to screen RAM", ".sprite_anim":"sprite animation frames", ".score_bcd":"BCD score update+display"
 };
 
 let _acActive = -1;
@@ -4339,6 +4395,7 @@ function showBuildInfoDialog() {
         "isJoystickMacro","isMouseMacro","isSpriteColMacro","isIncBinMacro","isSidMacro",
         "isLoadFileMacro","isExoDecrunchMacro","isReuStashMacro","isReuFetchMacro","isReuSwapMacro","isReuCheckMacro",
         "isTurboSetMacro","isTurboEnableMacro","isSuperCpuDetectMacro",
+        "isMapCopyMacro","isSpriteAnimMacro","isScoreBcdMacro",
       ];
       macroTypes.forEach(t2 => {
         if (b[t2]) {
@@ -4405,7 +4462,7 @@ function _expertHighlightLine(raw) {
   if (!code.trim()) return esc(code) + commentHtml;
 
   // Token regex (order matters)
-  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|loop|next|push|pull|const|define|if|else|endif|region|endregion|macro|endm|invoke|call|incbin|include|sid|petscii|table|loadfile|sprite_init|sprite_pos|wait_raster|joystick|sprite_col)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)/gi;
+  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|loop|next|push|pull|const|define|if|else|endif|region|endregion|macro|endm|invoke|call|incbin|include|sid|petscii|table|loadfile|sprite_init|sprite_pos|wait_raster|joystick|sprite_col|map_copy|sprite_anim|score_bcd)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)/gi;
 
   let result = "";
   let lastIdx = 0;
@@ -4742,6 +4799,31 @@ function parseExpertText(text) {
     const scColM = line.match(/^\.sprite_col\s+(\d)\s*,\s*(sprite|background)\s*$/i);
     if (scColM) {
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SPRITE_COL", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSpriteColMacro: true, spriteNum: parseInt(scColM[1],10), colType: scColM[2].toLowerCase() });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .map_copy $src, $dst, size[, auto, $colorDst | $colorSrc, $colorDst]
+    const mcpM = line.match(/^\.map_copy\s+\$?([0-9A-Fa-f]{1,4})\s*,\s*\$?([0-9A-Fa-f]{1,4})\s*,\s*(\d+)(?:\s*,\s*(auto|\$?[0-9A-Fa-f]{1,4})\s*,\s*\$?([0-9A-Fa-f]{1,4}))?\s*$/i);
+    if (mcpM) {
+      const isCombined = mcpM[4] && mcpM[4].toLowerCase() === "auto";
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "MAP_COPY", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isMapCopyMacro: true, mapCopySrc: mcpM[1].toUpperCase(), mapCopyDst: mcpM[2].toUpperCase(), mapCopySize: parseInt(mcpM[3], 10), mapCopyCombined: isCombined, mapCopyColorSrc: (!isCombined && mcpM[4]) ? mcpM[4].replace(/^\$/, "").toUpperCase() : "", mapCopyColorDst: mcpM[5] ? mcpM[5].toUpperCase() : "D800" });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .sprite_anim spriteNum, $frameListAddr, frameCount, $zpByte
+    const sAnimM = line.match(/^\.sprite_anim\s+(\d)\s*,\s*\$?([0-9A-Fa-f]{1,4})\s*,\s*(\d+)\s*,\s*\$?([0-9A-Fa-f]{1,2})\s*$/i);
+    if (sAnimM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SPRITE_ANIM", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSpriteAnimMacro: true, animSpriteNum: parseInt(sAnimM[1], 10), animFrameListAddr: sAnimM[2].toUpperCase(), animFrameCount: parseInt(sAnimM[3], 10), animFrameZP: sAnimM[4].toUpperCase() });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .score_bcd $bcdAddr, digits, addPoints, $screenAddr
+    const sBcdM = line.match(/^\.score_bcd\s+\$?([0-9A-Fa-f]{1,4})\s*,\s*([246])\s*,\s*(\d+)\s*,\s*\$?([0-9A-Fa-f]{1,4})\s*$/i);
+    if (sBcdM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SCORE_BCD", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isScoreBcdMacro: true, scoreBcdAddr: sBcdM[1].toUpperCase(), scoreDigits: parseInt(sBcdM[2], 10), scoreAddPoints: sBcdM[3], scoreScreenAddr: sBcdM[4].toUpperCase() });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -6340,6 +6422,47 @@ function updateProgramBlock(index, field, value) {
     block.validationError = (isNaN(num) || num < 0 || num > 7)
       ? (currentLanguage !== "hu" ? "Sprite number must be 0–7." : "A sprite szama 0 es 7 kozott lehet.")
       : "";
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isMapCopyMacro) {
+    const src = parseInt((block.mapCopySrc || "C000"), 16);
+    const dst = parseInt((block.mapCopyDst || "0400"), 16);
+    const sz = block.mapCopySize || 1000;
+    block.validationError =
+      (isNaN(src) || src < 0 || src > 0xFFFF) ? (currentLanguage !== "hu" ? "Invalid source address." : "Ervenytelen forras cim.") :
+      (isNaN(dst) || dst < 0 || dst > 0xFFFF) ? (currentLanguage !== "hu" ? "Invalid destination address." : "Ervenytelen cel cim.") :
+      (sz < 1 || sz > 65000) ? (currentLanguage !== "hu" ? "Size must be 1–65000." : "Meret 1 es 65000 kozott legyen.") : "";
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isSpriteAnimMacro) {
+    const num = parseInt(block.animSpriteNum || "0", 10);
+    const count = parseInt(block.animFrameCount || "4", 10);
+    const zp = parseInt((block.animFrameZP || "FB"), 16);
+    const listAddr = parseInt((block.animFrameListAddr || "C100"), 16);
+    block.validationError =
+      (isNaN(num) || num < 0 || num > 7) ? (currentLanguage !== "hu" ? "Sprite number must be 0–7." : "A sprite szama 0 es 7 kozott lehet.") :
+      (isNaN(count) || count < 1 || count > 255) ? (currentLanguage !== "hu" ? "Frame count must be 1–255." : "Frame szam 1 es 255 kozott legyen.") :
+      (isNaN(zp) || zp > 0xFF) ? (currentLanguage !== "hu" ? "ZP must be $00–$FF." : "ZP $00-$FF kozott legyen.") :
+      (isNaN(listAddr) || listAddr > 0xFFFF) ? (currentLanguage !== "hu" ? "Invalid frame list address." : "Ervenytelen frame lista cim.") : "";
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isScoreBcdMacro) {
+    const addr = parseInt((block.scoreBcdAddr || "C200"), 16);
+    const scr = parseInt((block.scoreScreenAddr || "0400"), 16);
+    const pts = parseInt(block.scoreAddPoints || "100", 10);
+    block.validationError =
+      (isNaN(addr) || addr > 0xFFFF) ? (currentLanguage !== "hu" ? "Invalid BCD address." : "Ervenytelen BCD cim.") :
+      (isNaN(scr) || scr > 0xFFFF) ? (currentLanguage !== "hu" ? "Invalid screen address." : "Ervenytelen screen cim.") :
+      (isNaN(pts) || pts < 0) ? (currentLanguage !== "hu" ? "Add value must be >= 0." : "Hozzaadando ertek >= 0 legyen.") : "";
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -10901,6 +11024,125 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes, comment: `${block.mnemonic} ${cmdLabel}: $${c64Hex} → REU${bank}:$${expHex} len=$${lenHex}` };
   }
 
+  if (block.isMapCopyMacro) {
+    const srcStr = (block.mapCopySrc || "C000").replace(/^\$/, "");
+    const dstStr = (block.mapCopyDst || "0400").replace(/^\$/, "");
+    const srcInt = parseInt(srcStr, 16);
+    const dstInt = parseInt(dstStr, 16);
+    if (isNaN(srcInt) || srcInt < 0 || srcInt > 0xFFFF)
+      return { ok: false, error: currentLanguage !== "hu" ? "MAP_COPY: invalid source address." : "MAP_COPY: ervenytelen forras cim." };
+    if (isNaN(dstInt) || dstInt < 0 || dstInt > 0xFFFF)
+      return { ok: false, error: currentLanguage !== "hu" ? "MAP_COPY: invalid destination address." : "MAP_COPY: ervenytelen cel cim." };
+    const n = parseInt(block.mapCopySize, 10) || 1000;
+    if (n < 1 || n > 0x10000)
+      return { ok: false, error: currentLanguage !== "hu" ? "MAP_COPY: size must be 1–65536." : "MAP_COPY: meret 1 es 65536 kozott legyen." };
+    const genSection = (src, dst) => {
+      const out = [];
+      const fp = Math.floor(n / 256);
+      const rem = n % 256;
+      out.push(0xA2, 0x00);  // LDX #0
+      for (let i = 0; i < fp; i++) {
+        const ps = (src + i * 256) & 0xFFFF, pd = (dst + i * 256) & 0xFFFF;
+        out.push(0xBD, ps & 0xFF, ps >> 8, 0x9D, pd & 0xFF, pd >> 8, 0xE8, 0xD0, 0xF7);
+      }
+      if (rem > 0) {
+        const ps = (src + fp * 256) & 0xFFFF, pd = (dst + fp * 256) & 0xFFFF;
+        out.push(0xBD, ps & 0xFF, ps >> 8, 0x9D, pd & 0xFF, pd >> 8, 0xE8, 0xE0, rem, 0xD0, 0xF5);
+      }
+      return out;
+    };
+    const bytes = genSection(srcInt, dstInt);
+    if (block.mapCopyCombined) {
+      const cSrc = (srcInt + n) & 0xFFFF;
+      const cDst = parseInt((block.mapCopyColorDst || "D800").replace(/^\$/, ""), 16);
+      if (!isNaN(cDst)) bytes.push(...genSection(cSrc, cDst));
+    } else if (block.mapCopyColorSrc) {
+      const cSrcStr = (block.mapCopyColorSrc || "C3E8").replace(/^\$/, "");
+      const cDstStr = (block.mapCopyColorDst || "D800").replace(/^\$/, "");
+      const cSrc = parseInt(cSrcStr, 16), cDst = parseInt(cDstStr, 16);
+      if (!isNaN(cSrc) && !isNaN(cDst)) bytes.push(...genSection(cSrc, cDst));
+    }
+    return { ok: true, bytes, comment: `MAP_COPY $${srcStr.toUpperCase()}→$${dstStr.toUpperCase()} ${n}b${block.mapCopyCombined ? " +col" : ""}` };
+  }
+
+  if (block.isSpriteAnimMacro) {
+    const num = parseInt(block.animSpriteNum || "0", 10);
+    if (isNaN(num) || num < 0 || num > 7)
+      return { ok: false, error: currentLanguage !== "hu" ? "SPRITE_ANIM: sprite number must be 0–7." : "SPRITE_ANIM: a sprite szama 0 es 7 kozott lehet." };
+    const count = parseInt(block.animFrameCount || "4", 10);
+    if (isNaN(count) || count < 1 || count > 255)
+      return { ok: false, error: currentLanguage !== "hu" ? "SPRITE_ANIM: frame count must be 1–255." : "SPRITE_ANIM: a frame szam 1 es 255 kozott lehet." };
+    const zpStr = (block.animFrameZP || "FB").replace(/^\$/, "");
+    const zp = parseInt(zpStr, 16);
+    if (isNaN(zp) || zp < 0 || zp > 0xFF)
+      return { ok: false, error: currentLanguage !== "hu" ? "SPRITE_ANIM: ZP counter must be $00–$FF." : "SPRITE_ANIM: a ZP szamlalo $00-$FF kozott lehet." };
+    const listStr = (block.animFrameListAddr || "C100").replace(/^\$/, "");
+    const listAddr = parseInt(listStr, 16);
+    if (isNaN(listAddr) || listAddr < 0 || listAddr > 0xFFFF)
+      return { ok: false, error: currentLanguage !== "hu" ? "SPRITE_ANIM: invalid frame list address." : "SPRITE_ANIM: ervenytelen frame lista cim." };
+    const ptrAddr = 0x07F8 + num;
+    const bytes = [
+      0xE6, zp,                             // INC $ZP
+      0xA5, zp,                             // LDA $ZP
+      0xC9, count,                          // CMP #count
+      0x90, 0x04,                           // BCC +4 (skip reset)
+      0xA9, 0x00,                           // LDA #0
+      0x85, zp,                             // STA $ZP
+      0xAA,                                 // TAX
+      0xBD, listAddr & 0xFF, listAddr >> 8, // LDA frameList,X
+      0x8D, ptrAddr & 0xFF, ptrAddr >> 8    // STA $07F8+N
+    ];
+    return { ok: true, bytes, comment: `SPRITE_ANIM #${num} ${count}f zp=$${zpStr.toUpperCase()}` };
+  }
+
+  if (block.isScoreBcdMacro) {
+    const addrStr = (block.scoreBcdAddr || "C200").replace(/^\$/, "");
+    const addr = parseInt(addrStr, 16);
+    if (isNaN(addr) || addr < 0 || addr > 0xFFFF)
+      return { ok: false, error: currentLanguage !== "hu" ? "SCORE_BCD: invalid BCD storage address." : "SCORE_BCD: ervenytelen BCD tarolasi cim." };
+    const digits = block.scoreDigits || 4;
+    const scrStr = (block.scoreScreenAddr || "0400").replace(/^\$/, "");
+    const scr = parseInt(scrStr, 16);
+    if (isNaN(scr) || scr < 0 || scr > 0xFFFF)
+      return { ok: false, error: currentLanguage !== "hu" ? "SCORE_BCD: invalid screen address." : "SCORE_BCD: ervenytelen screen cim." };
+    const pts = parseInt(block.scoreAddPoints || "100", 10) || 0;
+    const bcdByte = v => (Math.floor(v / 10) % 10) * 16 + (v % 10);
+    const b0 = bcdByte(pts % 100);
+    const b1 = bcdByte(Math.floor(pts / 100) % 100);
+    const b2 = bcdByte(Math.floor(pts / 10000) % 100);
+    const bcdBytes = digits / 2;
+    const bcdAddrs = [addr, addr + 1, addr + 2];
+    const bcdVals = [b0, b1, b2];
+    const bytes = [];
+    // BCD add
+    bytes.push(0xF8, 0x18);  // SED, CLC
+    for (let i = 0; i < bcdBytes; i++) {
+      const a = bcdAddrs[i];
+      bytes.push(0xAD, a & 0xFF, a >> 8);  // LDA abs
+      bytes.push(0x69, bcdVals[i]);          // ADC #bcdN
+      bytes.push(0x8D, a & 0xFF, a >> 8);  // STA abs
+    }
+    bytes.push(0xD8);  // CLD
+    // BCD display (most significant byte first → left to right on screen)
+    for (let i = bcdBytes - 1; i >= 0; i--) {
+      const a = bcdAddrs[i];
+      const screenPos = scr + (bcdBytes - 1 - i) * 2;
+      const sp0 = screenPos & 0xFFFF, sp1 = (screenPos + 1) & 0xFFFF;
+      bytes.push(
+        0xAD, a & 0xFF, a >> 8,          // LDA abs (BCD byte)
+        0x48,                              // PHA
+        0x4A, 0x4A, 0x4A, 0x4A,          // LSR×4 → high nibble
+        0x09, 0x30,                        // ORA #$30 → screen code
+        0x8D, sp0 & 0xFF, sp0 >> 8,       // STA screen+pos
+        0x68,                              // PLA
+        0x29, 0x0F,                        // AND #$0F → low nibble
+        0x09, 0x30,                        // ORA #$30
+        0x8D, sp1 & 0xFF, sp1 >> 8        // STA screen+pos+1
+      );
+    }
+    return { ok: true, bytes, comment: `SCORE_BCD $${addrStr.toUpperCase()} +${pts} → $${scrStr.toUpperCase()} (${digits}d)` };
+  }
+
   if (block.isSpriteInitMacro) {
     const num = parseInt(block.spriteNum || "0", 10);
     if (isNaN(num) || num < 0 || num > 7) {
@@ -11781,6 +12023,26 @@ function getInstructionSize(block) {
 
   if (block.isSpriteColMacro) {
     return 5;  // LDA $D01E/$D01F + AND #mask
+  }
+
+  if (block.isMapCopyMacro) {
+    const n = block.mapCopySize || 1000;
+    const fp = Math.floor(n / 256);
+    const rem = n % 256;
+    const sec = 2 + fp * 9 + (rem > 0 ? 11 : 0);  // LDX#0 + fp full loops + partial
+    return sec * (block.mapCopyCombined || block.mapCopyColorSrc ? 2 : 1);
+  }
+
+  if (block.isSpriteAnimMacro) {
+    return 19;  // INC zp + LDA zp + CMP #N + BCC +4 + LDA #0 + STA zp + TAX + LDA abs,X + STA abs
+  }
+
+  if (block.isScoreBcdMacro) {
+    const digits = block.scoreDigits || 4;
+    const bcdBytes = digits / 2;  // 1, 2, or 3
+    const addSize = 3 + bcdBytes * 8;  // SED+CLC+CLD + (LDA+ADC+STA) × bcdBytes
+    const dispSize = bcdBytes * 21;    // (LDA+PHA+LSR×4+ORA+STA+PLA+AND+ORA+STA) per BCD byte
+    return addSize + dispSize;
   }
 
   if (block.isSpriteInitMacro) {
@@ -13138,6 +13400,26 @@ function getCollapsedOperandText(block) {
     return `#${block.spriteNum || "0"} ${typeLabel} → BEQ/BNE`;
   }
 
+  if (block.isMapCopyMacro) {
+    const src = (block.mapCopySrc || "C000").toUpperCase();
+    const dst = (block.mapCopyDst || "0400").toUpperCase();
+    const sz = block.mapCopySize || 1000;
+    const colPart = block.mapCopyCombined
+      ? ` + col auto→$${(block.mapCopyColorDst || "D800").toUpperCase()}`
+      : block.mapCopyColorSrc
+        ? ` + col $${block.mapCopyColorSrc.toUpperCase()}→$${(block.mapCopyColorDst || "D800").toUpperCase()}`
+        : "";
+    return `$${src}→$${dst} ${sz}b${colPart}`;
+  }
+
+  if (block.isSpriteAnimMacro) {
+    return `#${block.animSpriteNum || 0} ${block.animFrameCount || 4}f $${(block.animFrameListAddr || "C100").toUpperCase()} zp=$${(block.animFrameZP || "FB").toUpperCase()}`;
+  }
+
+  if (block.isScoreBcdMacro) {
+    return `$${(block.scoreBcdAddr || "C200").toUpperCase()} +${block.scoreAddPoints || 100} → $${(block.scoreScreenAddr || "0400").toUpperCase()} (${block.scoreDigits || 4}d)`;
+  }
+
   if (block.isReuCheckMacro) {
     return currentLanguage !== "hu" ? "probe $DF04 with $55/$AA" : "$DF04 proba $55/$AA mintaval";
   }
@@ -14208,6 +14490,105 @@ function renderProgram() {
           </div>
         `
       );
+    } else if (block.isMapCopyMacro) {
+      inlineField.hidden = true;
+      const isCombined = !!block.mapCopyCombined;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${t("fieldMapCopySrc")}</span>
+              <input class="map-copy-src" type="text" maxlength="4" value="${(block.mapCopySrc || "C000").toUpperCase()}" placeholder="C000">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldMapCopyDst")}</span>
+              <input class="map-copy-dst" type="text" maxlength="4" value="${(block.mapCopyDst || "0400").toUpperCase()}" placeholder="0400">
+            </label>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;column-gap:calc(6px * var(--block-scale));row-gap:calc(3px * var(--block-scale));margin-top:calc(4px * var(--block-scale))">
+            <span style="font-size:calc(0.7rem * var(--block-scale));color:var(--muted);grid-area:1/1">${t("fieldMapCopySize")}</span>
+            <input class="map-copy-size" type="number" min="1" max="65000" value="${block.mapCopySize || 1000}" style="grid-area:2/1">
+            <label style="display:flex;align-items:center;gap:4px;font-size:0.72rem;color:var(--muted);white-space:nowrap;cursor:pointer;grid-area:2/2;align-self:center">
+              <input class="map-copy-combined mini-checkbox" type="checkbox"${isCombined ? " checked" : ""}> ${t("fieldMapCopyCombined")}
+            </label>
+          </div>
+          <div class="macro-grid map-copy-color-row"${isCombined ? ' style="display:none"' : ""}>
+            <label class="mini-field">
+              <span>${t("fieldMapCopyColorSrc")}</span>
+              <input class="map-copy-color-src" type="text" maxlength="4" value="${(block.mapCopyColorSrc || "").toUpperCase()}" placeholder="">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldMapCopyColorDst")}</span>
+              <input class="map-copy-color-dst" type="text" maxlength="4" value="${(block.mapCopyColorDst || "D800").toUpperCase()}" placeholder="D800">
+            </label>
+          </div>
+          <div class="macro-grid map-copy-combined-dst-row"${!isCombined ? ' style="display:none"' : ""}>
+            <label class="mini-field">
+              <span>${t("fieldMapCopyColorDst")}</span>
+              <input class="map-copy-color-dst" type="text" maxlength="4" value="${(block.mapCopyColorDst || "D800").toUpperCase()}" placeholder="D800">
+            </label>
+          </div>
+        `
+      );
+    } else if (block.isSpriteAnimMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${t("fieldAnimSpriteNum")}</span>
+              <input class="anim-sprite-num" type="number" min="0" max="7" value="${block.animSpriteNum || "0"}">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldAnimFrameCount")}</span>
+              <input class="anim-frame-count" type="number" min="1" max="255" value="${block.animFrameCount || 4}">
+            </label>
+          </div>
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${t("fieldAnimFrameListAddr")}</span>
+              <input class="anim-frame-list-addr" type="text" maxlength="4" value="${(block.animFrameListAddr || "C100").toUpperCase()}" placeholder="C100">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldAnimFrameZP")}</span>
+              <input class="anim-frame-zp" type="text" maxlength="2" value="${(block.animFrameZP || "FB").toUpperCase()}" placeholder="FB">
+            </label>
+          </div>
+        `
+      );
+    } else if (block.isScoreBcdMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${t("fieldScoreBcdAddr")}</span>
+              <input class="score-bcd-addr" type="text" maxlength="4" value="${(block.scoreBcdAddr || "C200").toUpperCase()}" placeholder="C200">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldScoreDigits")}</span>
+              <select class="score-digits">
+                <option value="2"${(block.scoreDigits || 4) === 2 ? " selected" : ""}>2</option>
+                <option value="4"${(block.scoreDigits || 4) === 4 ? " selected" : ""}>4</option>
+                <option value="6"${block.scoreDigits === 6 ? " selected" : ""}>6</option>
+              </select>
+            </label>
+          </div>
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${t("fieldScoreAddPoints")}</span>
+              <input class="score-add-points" type="number" min="0" max="999999" value="${block.scoreAddPoints || 100}">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldScoreScreenAddr")}</span>
+              <input class="score-screen-addr" type="text" maxlength="4" value="${(block.scoreScreenAddr || "0400").toUpperCase()}" placeholder="0400">
+            </label>
+          </div>
+        `
+      );
     } else if (block.isLoadFileMacro) {
       inlineField.hidden = true;
       blockControls.insertAdjacentHTML(
@@ -14831,6 +15212,42 @@ function renderProgram() {
     if (colTypeSelect) {
       colTypeSelect.addEventListener("change", (event) => updateProgramBlock(index, "colType", event.target.value));
     }
+    const mapCopySrcInput = node.querySelector(".map-copy-src");
+    if (mapCopySrcInput) mapCopySrcInput.addEventListener("input", e => updateProgramBlock(index, "mapCopySrc", e.target.value.toUpperCase()));
+    const mapCopyDstInput = node.querySelector(".map-copy-dst");
+    if (mapCopyDstInput) mapCopyDstInput.addEventListener("input", e => updateProgramBlock(index, "mapCopyDst", e.target.value.toUpperCase()));
+    const mapCopySizeInput = node.querySelector(".map-copy-size");
+    if (mapCopySizeInput) mapCopySizeInput.addEventListener("input", e => updateProgramBlock(index, "mapCopySize", parseInt(e.target.value, 10) || 1000));
+    const mapCopyCombinedChk = node.querySelector(".map-copy-combined");
+    if (mapCopyCombinedChk) {
+      mapCopyCombinedChk.addEventListener("change", e => {
+        const combined = e.target.checked;
+        updateProgramBlock(index, "mapCopyCombined", combined);
+        const colorRow = node.querySelector(".map-copy-color-row");
+        const combinedDstRow = node.querySelector(".map-copy-combined-dst-row");
+        if (colorRow) colorRow.style.display = combined ? "none" : "";
+        if (combinedDstRow) combinedDstRow.style.display = combined ? "" : "none";
+      });
+    }
+    const mapCopyColorSrcInput = node.querySelector(".map-copy-color-src");
+    if (mapCopyColorSrcInput) mapCopyColorSrcInput.addEventListener("input", e => updateProgramBlock(index, "mapCopyColorSrc", e.target.value.toUpperCase()));
+    node.querySelectorAll(".map-copy-color-dst").forEach(el => el.addEventListener("input", e => updateProgramBlock(index, "mapCopyColorDst", e.target.value.toUpperCase())));
+    const animSpriteNumInput = node.querySelector(".anim-sprite-num");
+    if (animSpriteNumInput) animSpriteNumInput.addEventListener("input", e => updateProgramBlock(index, "animSpriteNum", parseInt(e.target.value, 10)));
+    const animFrameCountInput = node.querySelector(".anim-frame-count");
+    if (animFrameCountInput) animFrameCountInput.addEventListener("input", e => updateProgramBlock(index, "animFrameCount", parseInt(e.target.value, 10)));
+    const animFrameListAddrInput = node.querySelector(".anim-frame-list-addr");
+    if (animFrameListAddrInput) animFrameListAddrInput.addEventListener("input", e => updateProgramBlock(index, "animFrameListAddr", e.target.value.toUpperCase()));
+    const animFrameZPInput = node.querySelector(".anim-frame-zp");
+    if (animFrameZPInput) animFrameZPInput.addEventListener("input", e => updateProgramBlock(index, "animFrameZP", e.target.value.toUpperCase()));
+    const scoreBcdAddrInput = node.querySelector(".score-bcd-addr");
+    if (scoreBcdAddrInput) scoreBcdAddrInput.addEventListener("input", e => updateProgramBlock(index, "scoreBcdAddr", e.target.value.toUpperCase()));
+    const scoreDigitsSelect = node.querySelector(".score-digits");
+    if (scoreDigitsSelect) scoreDigitsSelect.addEventListener("change", e => updateProgramBlock(index, "scoreDigits", parseInt(e.target.value, 10)));
+    const scoreAddPointsInput = node.querySelector(".score-add-points");
+    if (scoreAddPointsInput) scoreAddPointsInput.addEventListener("input", e => updateProgramBlock(index, "scoreAddPoints", e.target.value));
+    const scoreScreenAddrInput = node.querySelector(".score-screen-addr");
+    if (scoreScreenAddrInput) scoreScreenAddrInput.addEventListener("input", e => updateProgramBlock(index, "scoreScreenAddr", e.target.value.toUpperCase()));
     const loadFileNameInput = node.querySelector(".loadfile-name");
     if (loadFileNameInput) {
       loadFileNameInput.addEventListener("input", (event) => updateProgramBlock(index, "loadFileName", event.target.value));
@@ -15603,6 +16020,24 @@ function renderAsmOutput() {
 
     if (line.block.isSpriteColMacro) {
       return `; .sprite_col #${line.block.spriteNum || "0"} ${line.block.colType || "sprite"}`;
+    }
+
+    if (line.block.isMapCopyMacro) {
+      const src = (line.block.mapCopySrc || "C000").toUpperCase();
+      const dst = (line.block.mapCopyDst || "0400").toUpperCase();
+      const sz = line.block.mapCopySize || 1000;
+      const colPart = line.block.mapCopyCombined
+        ? `, auto, $${(line.block.mapCopyColorDst || "D800").toUpperCase()}`
+        : line.block.mapCopyColorSrc ? `, $${line.block.mapCopyColorSrc.toUpperCase()}, $${(line.block.mapCopyColorDst || "D800").toUpperCase()}` : "";
+      return `; .map_copy $${src}, $${dst}, ${sz}${colPart}`;
+    }
+
+    if (line.block.isSpriteAnimMacro) {
+      return `; .sprite_anim ${line.block.animSpriteNum || 0}, $${(line.block.animFrameListAddr || "C100").toUpperCase()}, ${line.block.animFrameCount || 4}, $${(line.block.animFrameZP || "FB").toUpperCase()}`;
+    }
+
+    if (line.block.isScoreBcdMacro) {
+      return `; .score_bcd $${(line.block.scoreBcdAddr || "C200").toUpperCase()}, ${line.block.scoreDigits || 4}, ${line.block.scoreAddPoints || 100}, $${(line.block.scoreScreenAddr || "0400").toUpperCase()}`;
     }
 
     if (line.block.isReuCheckMacro) {
@@ -17710,6 +18145,8 @@ let _meGrid  = true;
 let _mePainting = false;
 let _meSelStart = null;   // {col,row} during Select drag
 let _meSelEnd   = null;
+let _meClipboard = null;  // { w, h, screen: Uint8Array, color: Uint8Array }
+let _mePasteMode = false; // true while hovering to place paste preview
 let _meTileCache = null;   // [256][64] ROM bit arrays
 let _meCustomCache = null; // [256][64] custom charset bit arrays
 let _meCustomData = null;  // Uint8Array(2048) custom charset bytes
@@ -17880,6 +18317,63 @@ function _meDrawSelOverlay() {
   _meCtx.setLineDash([]);
 }
 
+function _meCopy() {
+  if (!_meSelStart || !_meSelEnd) return;
+  const ca = Math.min(_meSelStart.col, _meSelEnd.col), cb = Math.max(_meSelStart.col, _meSelEnd.col);
+  const ra = Math.min(_meSelStart.row, _meSelEnd.row), rb = Math.max(_meSelStart.row, _meSelEnd.row);
+  const w = cb - ca + 1, h = rb - ra + 1;
+  const scr = new Uint8Array(w * h), col = new Uint8Array(w * h);
+  for (let r = ra; r <= rb; r++)
+    for (let c = ca; c <= cb; c++) {
+      const si = (r - ra) * w + (c - ca), mi = r * _ME_COLS + c;
+      scr[si] = _meScreen[mi]; col[si] = _meColorRam[mi];
+    }
+  _meClipboard = { w, h, screen: scr, color: col };
+  document.getElementById("me-paste")?.removeAttribute("disabled");
+}
+
+function _mePasteCommit(col, row) {
+  if (!_meClipboard) return;
+  const { w, h, screen: scr, color: col_data } = _meClipboard;
+  for (let r = 0; r < h; r++)
+    for (let c = 0; c < w; c++) {
+      const dc = col + c, dr = row + r;
+      if (dc >= 0 && dc < _ME_COLS && dr >= 0 && dr < _ME_ROWS) {
+        const si = r * w + c;
+        _meSetCell(dc, dr, scr[si], col_data[si]);
+      }
+    }
+  _meBlit();
+}
+
+function _meDrawPastePreview(col, row) {
+  _meBlit();
+  if (!_meClipboard) return;
+  const { w, h, screen: scr, color: col_data } = _meClipboard;
+  const Z = _meZoom, sub = Z / 8, ss = Math.ceil(sub);
+  _meCtx.save();
+  _meCtx.globalAlpha = 0.6;
+  for (let r = 0; r < h; r++) {
+    for (let c = 0; c < w; c++) {
+      const dc = col + c, dr = row + r;
+      if (dc < 0 || dc >= _ME_COLS || dr < 0 || dr >= _ME_ROWS) continue;
+      const si = r * w + c;
+      const bits = _meTileBits(scr[si]);
+      _meCtx.fillStyle = _CE_COLORS[_meBgColor];
+      _meCtx.fillRect(dc * Z, dr * Z, Z, Z);
+      _meCtx.fillStyle = _CE_COLORS[col_data[si]];
+      for (let p = 0; p < 64; p++)
+        if (bits[p]) _meCtx.fillRect(dc * Z + (p & 7) * sub, dr * Z + (p >> 3) * sub, ss, ss);
+    }
+  }
+  _meCtx.restore();
+  _meCtx.strokeStyle = "rgba(255,230,0,0.9)";
+  _meCtx.lineWidth = 2;
+  _meCtx.setLineDash([5, 4]);
+  _meCtx.strokeRect(col * Z + 1, row * Z + 1, w * Z - 2, h * Z - 2);
+  _meCtx.setLineDash([]);
+}
+
 /* ── Tile banks ── */
 function _meRenderBank(canvasId, startSc) {
   const canvas = document.getElementById(canvasId);
@@ -17953,6 +18447,14 @@ function _meExport(kind) {
   const comp = _meComposite();   // flattened visible layers
   if (kind === "bin") {
     _saveBinFile(comp.screen, "map.bin");
+    return;
+  }
+  if (kind === "bin-color") {
+    const n = _ME_COLS * _ME_ROWS;
+    const out = new Uint8Array(n * 2);
+    out.set(comp.screen, 0);
+    out.set(comp.color, n);
+    _saveBinFile(out, "map-color.bin");
     return;
   }
   const data = (kind === "color") ? comp.color :
@@ -18097,6 +18599,13 @@ function setupMapEditor() {
     btn.addEventListener("click", function() {
       _meTool = btn.dataset.tool;
       dialog.querySelectorAll(".me-tool[data-tool]").forEach(function(b) { b.classList.toggle("me-tool--active", b === btn); });
+      if (_mePasteMode) {
+        _mePasteMode = false;
+        const cv = document.getElementById("me-canvas");
+        if (cv) cv.style.cursor = "";
+        _meBlit();
+      }
+      if (_meTool !== "select") { _meSelStart = _meSelEnd = null; _meBlit(); }
     });
   });
 
@@ -18109,6 +18618,48 @@ function setupMapEditor() {
   document.getElementById("me-charset-rom")?.addEventListener("click", function() {
     _meCharSource = "rom";
     _meEnsureRomFont(function() { _meTileCache = null; _meRenderBanks(); _meRenderAll(); });
+  });
+  document.getElementById("me-copy")?.addEventListener("click", function() {
+    _meCopy();
+  });
+  document.getElementById("me-paste")?.addEventListener("click", function() {
+    if (!_meClipboard) return;
+    _mePasteMode = true;
+    _meSelStart = _meSelEnd = null;
+    _meBlit();
+    const canvas = document.getElementById("me-canvas");
+    if (canvas) canvas.style.cursor = "copy";
+    // switch to select tool visually so paste-mode is clear
+    dialog.querySelectorAll(".me-tool[data-tool]").forEach(function(b) { b.classList.remove("me-tool--active"); });
+  });
+  dialog.addEventListener("keydown", function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === "c") {
+      _meCopy(); e.preventDefault(); return;
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === "v") {
+      if (!_meClipboard) return;
+      _mePasteMode = true;
+      _meSelStart = _meSelEnd = null;
+      _meBlit();
+      const cv = document.getElementById("me-canvas");
+      if (cv) cv.style.cursor = "copy";
+      dialog.querySelectorAll(".me-tool[data-tool]").forEach(function(b) { b.classList.remove("me-tool--active"); });
+      e.preventDefault(); return;
+    }
+    if (e.key === "Escape") {
+      if (_mePasteMode) {
+        _mePasteMode = false;
+        const cv = document.getElementById("me-canvas");
+        if (cv) cv.style.cursor = "";
+        _meBlit();
+        // restore active tool button
+        dialog.querySelectorAll(".me-tool[data-tool]").forEach(function(b) {
+          b.classList.toggle("me-tool--active", b.dataset.tool === _meTool);
+        });
+      }
+      _meSelStart = _meSelEnd = null;
+      _meBlit();
+    }
   });
   document.getElementById("me-layer-add")?.addEventListener("click", _meAddLayer);
   document.getElementById("me-layer-flatten")?.addEventListener("click", _meFlatten);
@@ -18203,9 +18754,16 @@ function setupMapEditor() {
       if (e.button !== 0) return;
       const cell = _meCellFromEvent(e);
       if (!cell) return;
+      if (_mePasteMode) {
+        _mePasteCommit(cell.col, cell.row);
+        _meDrawPastePreview(cell.col, cell.row);
+        e.preventDefault(); return;
+      }
       try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
       if (_meTool === "select") {
-        _meSelStart = cell; _meSelEnd = cell; _mePainting = true; _meDrawSelOverlay();
+        _meSelStart = cell; _meSelEnd = cell; _mePainting = true;
+        document.getElementById("me-copy")?.setAttribute("disabled", "");
+        _meDrawSelOverlay();
       } else {
         _mePainting = true; apply(cell);
       }
@@ -18214,22 +18772,28 @@ function setupMapEditor() {
     canvas.addEventListener("pointermove", function(e) {
       const cell = _meCellFromEvent(e);
       _meUpdateStatus(cell ? cell.col : null, cell ? cell.row : null);
+      if (_mePasteMode && cell) { _meDrawPastePreview(cell.col, cell.row); return; }
       if (!_mePainting || !cell) return;
       if (_meTool === "select") { _meSelEnd = cell; _meDrawSelOverlay(); }
       else if (_meTool === "paint") { _meSetCell(cell.col, cell.row, _meTile, _meColor); }
+    });
+    canvas.addEventListener("pointerleave", function() {
+      _meUpdateStatus(null);
+      if (_mePasteMode) _meBlit();
     });
     const endPaint = function(e) {
       if (!_mePainting) return;
       _mePainting = false;
       if (_meTool === "select" && _meSelStart && _meSelEnd) {
-        _meFillRect(_meSelStart.col, _meSelStart.row, _meSelEnd.col, _meSelEnd.row);
-        _meSelStart = _meSelEnd = null;
+        _meDrawSelOverlay();
+        const ca = Math.min(_meSelStart.col, _meSelEnd.col), cb = Math.max(_meSelStart.col, _meSelEnd.col);
+        const ra = Math.min(_meSelStart.row, _meSelEnd.row), rb = Math.max(_meSelStart.row, _meSelEnd.row);
+        if (ca !== cb || ra !== rb) document.getElementById("me-copy")?.removeAttribute("disabled");
       }
       if (e && e.pointerId != null) { try { canvas.releasePointerCapture(e.pointerId); } catch (_) {} }
     };
     canvas.addEventListener("pointerup", endPaint);
     canvas.addEventListener("pointercancel", endPaint);
-    canvas.addEventListener("pointerleave", function() { _meUpdateStatus(null); });
   }
 }
 
