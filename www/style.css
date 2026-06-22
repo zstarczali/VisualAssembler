@@ -4737,6 +4737,24 @@ body.crt-mode #crt-overlay::after {
   white-space: nowrap;
 }
 
+.splash-ready {
+  font-family: "C64Pro", monospace;
+  font-size: 1.1rem;
+  color: #aaa4ff;
+  letter-spacing: 0.05em;
+  min-height: 1.6em;
+}
+
+.splash-cursor {
+  animation: splash-cursor-blink 0.6s step-end infinite;
+  opacity: 0;
+}
+
+@keyframes splash-cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
 .splash-loader {
   width: 200px;
   height: 4px;

@@ -1356,6 +1356,25 @@ function initPalette() {
     if (aboutVersion) aboutVersion.textContent = `v${version}`;
   });
 
+  // READY. typewriter effect
+  (() => {
+    const textEl = document.getElementById('splash-ready-text');
+    const cursorEl = textEl && textEl.nextElementSibling;
+    if (!textEl || !cursorEl) return;
+    const msg = 'READY.';
+    let i = 0;
+    const type = () => {
+      if (i < msg.length) {
+        textEl.textContent += msg[i++];
+        setTimeout(type, 80 + Math.random() * 40);
+      } else {
+        cursorEl.style.animation = 'splash-cursor-blink 0.6s step-end infinite';
+      }
+    };
+    cursorEl.style.animation = 'none';
+    setTimeout(type, 700);
+  })();
+
   // Hide splash screen after initialization
   setTimeout(() => {
     const splashScreen = document.getElementById('splash-screen');

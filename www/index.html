@@ -12,7 +12,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2.0.3">
+  <link rel="stylesheet" href="style.css?v=2.0.4">
 </head>
 
 <body>
@@ -22,6 +22,7 @@
       <div class="splash-loader">
         <div class="splash-loader-bar"></div>
       </div>
+      <div class="splash-ready" aria-live="polite"><span id="splash-ready-text"></span><span class="splash-cursor">&#x2588;</span></div>
     </div>
     <p class="splash-version" id="splash-version"></p>
   </div>
@@ -622,7 +623,7 @@ PRINTABLE CHARACTERS
         <img src="assets/logo.png" alt="C64 Visual Assembler" width="160" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v2.0.3</p>
+      <p class="about-version" id="about-version">v2.0.4</p>
       <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
         dropping instruction blocks.</p>
       <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
@@ -634,8 +635,20 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.0.3</p>
+      <p class="whats-new-version">v2.0.4</p>
       <ul class="whats-new-list">
+        <li>
+          <strong>Shape tools in Map and Sprite editors</strong> &mdash; line, rectangle, and circle drawing tools added to both editors with live preview. Click to start, move to resize, release to commit. The active tool is highlighted in the toolbar.
+        </li>
+        <li>
+          <strong>Undo / redo in editors</strong> &mdash; full undo/redo stack in the Map Editor (per-layer snapshots) and the Sprite Editor (per-frame snapshots). Use <kbd>Ctrl+Z</kbd> / <kbd>Ctrl+Y</kbd> (or <kbd>Cmd</kbd> on macOS) or the toolbar buttons.
+        </li>
+        <li>
+          <strong>Sprite image import</strong> &mdash; import a PNG or JPEG directly into the Sprite Editor. The importer automatically detects the closest C64 palette colours and converts the image pixel-by-pixel into the current frame.
+        </li>
+        <li>
+          <strong>CONST <code>*+N</code> — PC-relative address alias</strong> &mdash; the CONST block now accepts <code>*+N</code> and <code>*-N</code> expressions. The value resolves to the current compile address plus the offset, enabling self-modifying code patterns such as <code>CONST op = *+1</code> placed before an <code>LDA #$00</code> block — <code>op</code> then labels the immediate operand byte so it can be patched at runtime with <code>STA op</code>.
+        </li>
         <li>
           <strong>Map editor transparent paste</strong> &mdash; the Map Editor now has a transparent paste mode alongside normal paste. Empty tiles stay transparent, so copied regions can be stamped over existing maps without repainting the background. Use Ctrl+Shift+V or the new toolbar button.
         </li>
@@ -644,48 +657,6 @@ PRINTABLE CHARACTERS
         </li>
         <li>
           <strong>Linux support</strong> &mdash; v2.0.2 adds official Linux (Ubuntu/Debian) support. The window close button now works correctly. VICE and D64 launch are fixed: display session variables are propagated to the emulator process, PRG autostart uses inject mode (no drive ROM required), and D64 mode forces software-level 1541 emulation. A GTK-specific dialog border artifact is also resolved.
-        </li>
-        <li>
-          <strong>Hotfixes</strong> &mdash; v2.0.1 bundles a round of small fixes and polish updates.
-        </li>
-        <li>
-          <strong>Exomizer <code>mem</code> mode for D64 extras</strong> &mdash; raw binary files added to a D64 (e.g. multicolor bitmaps, sample data) can now be compressed with <code>exomizer mem</code> backward mode. The Run via D64 dialog gets a per-file <strong>EXO</strong> checkbox plus a second address column (<strong>Dst</strong>) for the decompression target. Safety offset is compensated automatically.
-        </li>
-        <li>
-          <strong>EXODECRUNCH block macro</strong> &mdash; new macro for in-program decompression. Generates 19 bytes: copies KERNAL's load-end ($AE/$AF) into the depacker src-end ($04/$05), toggles $01 to expose RAM at $A000-$BFFF, JSRs the depacker, restores $01. A pre-built backward depacker (<code>samples/exo-decrunch.bin</code>, 477 bytes) is auto-loaded in the EXO multicolor demo sample.
-        </li>
-        <li>
-          <strong>Border-flash toggle in Settings</strong> &mdash; new checkbox in Hardware Settings → Exomizer to enable/disable the <code>-x1</code> accumulator-based fast border-flash effect on SFX-compressed PRGs. The mem-mode depacker has its own built-in <code>INC $D020</code> flash that runs unconditionally.
-        </li>
-        <li>
-          <strong>Exomizer integration test</strong> &mdash; new Rust integration test (<code>cargo test --test exomizer_integration</code>) that compresses <code>multi-color.bin</code> end-to-end, runs the depacker in an embedded 6502 emulator, and asserts byte-for-byte equality with the original 10000 bytes. Catches regressions in the compression flags, safety-offset compensation, and depacker bytecode.
-        </li>
-        <li>
-          <strong>EXO multicolor demo sample</strong> &mdash; complete example showing the full LOADFILE → EXODECRUNCH → display flow for a compressed multicolor bitmap loaded from D64 at runtime.
-        </li>
-        <li>
-          <strong>SID editor &mdash; full 3-voice tracker</strong> &mdash; multi-instrument SID editor with waveform selection, ADSR drag-graph, filter, drag-to-paint tracker grid, range copy/paste, Web Audio preview, and three export modes: <em>Export blocks (data only)</em>, <em>Export blocks + miniplayer</em>, and <em>Export asm</em> (clipboard). Generates a complete C64-runnable player with sid_init / sid_irq / sid_play_row routines.
-        </li>
-        <li>
-          <strong>Sprite editor</strong> &mdash; dedicated dialog for sprite design with frame management, multi-frame animation, fliph/flipv/shift tools, .bin load/save, and Export blocks to the program.
-        </li>
-        <li>
-          <strong>Multilayer map editor</strong> &mdash; tilemap editor with multiple layers, brush tools, clear menu, and improved image import for tilesets.
-        </li>
-        <li>
-          <strong>Toolkit tab</strong> &mdash; centralized dialog hub for all the visual editors (hires, multicolor, sprite, char, SID, map). Refactored hires/multicolor editor for cleaner UX and a unified Files-menu structure across editors.
-        </li>
-        <li>
-          <strong>Bitmap export</strong> &mdash; native multicolor save format (<code>image-mc-native.bin</code>, 10000 bytes: bitmap + screen + color) for D64 integration. Direct LOADFILE compatibility when used with a $2000 load address.
-        </li>
-        <li>
-          <strong>D64 extras &mdash; "Dst" column</strong> &mdash; per-file decompression-target field next to the load-address field, only relevant when EXO is enabled. Tooltips for both columns, fully translated.
-        </li>
-        <li>
-          <strong>Robust tour positioning</strong> &mdash; the interactive setup tour now polls for the target element up to 1.5 s when an action opens a dialog (fixes the Settings tour getting stuck at the VICE picker step). Safer dialog open/close that no longer throws when the dialog is already open.
-        </li>
-        <li>
-          <strong>I18n coverage</strong> &mdash; added missing translation keys for D64 extras (Crunch tooltip, Dst placeholder/tooltip), Exomizer border-flash toggle label, EXODECRUNCH error messages, and the new sample names.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -1419,9 +1390,9 @@ PRINTABLE CHARACTERS
   </div>
 
   <script src="tauri-bridge.js"></script>
-  <script src="i18n.js?v=2.0.3"></script>
-  <script src="tutorial-data.js?v=2.0.3"></script>
-  <script src="app.js?v=2.0.3"></script>
+  <script src="i18n.js?v=2.0.4"></script>
+  <script src="tutorial-data.js?v=2.0.4"></script>
+  <script src="app.js?v=2.0.4"></script>
 
 </body>
 
