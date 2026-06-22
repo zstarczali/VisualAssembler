@@ -24,7 +24,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: asset: https://asset.localhost; connect-src 'self' ipc: http://ipc.localhost"
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: asset: https://asset.localhost; connect-src 'self' ipc: http://ipc.localhost; frame-src 'self' http: https: file: asset:"
     }
   },
   "bundle": {
@@ -40,7 +40,11 @@
     ],
     "resources": {
       "../samples/*": "samples/",
-      "../docs/*": "docs/"
+      "../docs/*": "docs/",
+      "../assets/vc64web/*": "assets/vc64web/",
+      "../assets/vc64web/js/*": "assets/vc64web/js/",
+      "../assets/vc64web/css/*": "assets/vc64web/css/",
+      "../assets/vc64web/img/*": "assets/vc64web/img/"
     }
   }
 }

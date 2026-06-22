@@ -4235,6 +4235,89 @@ html[data-theme="oled"] .expert-err-line {
   color: var(--error, #d97706);
 }
 
+/* ── Browser Emulator Dialog ─────────────────────────────────────── */
+.browser-emulator-dialog {
+  border: none;
+  padding: 0;
+  width: min(1240px, 96vw);
+  height: min(920px, 92vh);
+  max-width: 96vw;
+  max-height: 92vh;
+  overflow: hidden;
+  background: transparent;
+}
+
+.browser-emulator-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.58);
+  backdrop-filter: blur(4px);
+}
+
+.browser-emulator-card {
+  width: 100%;
+  height: 100%;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 3px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.browser-emulator-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--panel-strong);
+  flex-shrink: 0;
+}
+
+.browser-emulator-title {
+  margin: 0;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.browser-emulator-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.browser-emulator-icon-btn {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  min-height: 34px !important;
+  padding: 0;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.browser-emulator-icon-btn svg {
+  width: 15px;
+  height: 15px;
+  display: block;
+}
+
+.browser-emulator-frame {
+  width: 100%;
+  flex: 1;
+  border: none !important;
+  background: #000;
+}
+
 /* ── About Dialog ────────────────────────────────────────────────── */
 .about-dialog {
   border: none;

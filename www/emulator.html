@@ -1,21 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en-us">
 <head>
   <meta charset="UTF-8">
   <title>C64 Visual Assembler — Browser Run</title>
-  <script src="https://vc64web.github.io/js/vc64web_player.js"></script>
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    html,body{width:100%;height:100vh;background:#000;overflow:hidden;font-family:sans-serif}
-    #emulator{width:100%;height:100%}
-    #err{display:none;position:fixed;inset:0;color:#f55;padding:2rem;white-space:pre-wrap}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100vh; background: #000; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    canvas { display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
+    #err { display: none; position: fixed; inset: 0; color: #f55; padding: 2rem; white-space: pre-wrap; }
   </style>
 </head>
 <body>
-  <div id="emulator"></div>
+  <canvas id="canvas" style="border: 0px none;"></canvas>
   <div id="err"></div>
   <script>
-    window.addEventListener('load', function () {
+    (function () {
       var hash = window.location.hash.slice(1);
       if (!hash) {
         var el = document.getElementById('err');
@@ -24,21 +23,24 @@
         return;
       }
       try {
-        var bin = Uint8Array.from(atob(hash), function(c){return c.charCodeAt(0);});
-        var fileName = 'program.prg';
-        vc64web_player.samesite_file = { bin: bin, name: fileName };
-        var config = '#openROMS=true#navbar=hidden#wide=true#border=true#port2=true';
-        vc64web_player.load(
-          document.getElementById('emulator'),
-          config,
-          ''
-        );
+        var data = atob(hash);
+        var bytes = new Uint8Array(data.length);
+        for (var i = 0; i < data.length; i++) bytes[i] = data.charCodeAt(i);
+        function loadFiles() {
+          FS.createDataFile('/', 'program.prg', bytes, true, true);
+        }
+        window.Module = {
+          preRun: [loadFiles],
+          arguments: ['-autostart', 'program.prg', '+sound'],
+          canvas: document.getElementById('canvas'),
+        };
       } catch (e) {
         var el2 = document.getElementById('err');
         el2.style.display = 'block';
         el2.textContent = 'Failed to start emulator:\n' + e.message;
       }
-    });
+    })();
   </script>
+  <script src="x64.js"></script>
 </body>
 </html>

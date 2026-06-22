@@ -60,7 +60,6 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **Memory strip** — full 64 KB C64 memory map visualised as a colour-coded strip (RAM / ROM / I/O)
 - **Monitor view** — hex + ASCII character dump, 8 bytes per row
 - **VICE integration** — assemble and launch directly in the VICE C64 emulator
-- **Run in Browser (VirtualC64Web)** — two new run modes that launch the compiled PRG or a built D64 disk image in the [VirtualC64Web](https://vc64web.github.io/) emulator opened in your default browser. The PRG mode requires no VICE installation; the D64 mode reuses the existing export dialog (extras, EXO crunching) and needs VICE only for the `c1541` utility
 - **Build Info dialog** — one-click summary of origin, end address, size, labels, constants, and macros used
 - **Expert mode .asm file save/load** — load and save raw `.asm` source files in Expert mode
 - **Expert mode error highlighting** — lines that fail to compile are highlighted in red in real time

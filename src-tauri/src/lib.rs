@@ -2019,114 +2019,200 @@ async fn load_sample(app: AppHandle, sample_name: String) -> serde_json::Value {
     }
 }
 
-// ── Browser emulator (default browser) ───────────────────────────────────────
+// ── Browser emulator via vc64web (local HTTP server) ─────────────────────────
 
-// Embed the 1541 DOS ROM at compile time so the browser emulator can
-// run D64 disk operations even when vc64web's openROMS replacement is
-// not sufficient for full drive emulation.
 const FLOPPY_ROM_1541: &[u8] = include_bytes!("../../assets/dos1541ii-251968-03.bin");
+
+struct Vc64WebPort(u16);
+struct Vc64WebRunHtml(std::sync::Arc<std::sync::Mutex<String>>);
+
+fn get_mime_type(path: &str) -> &'static str {
+    match path.rsplit('.').next().unwrap_or("") {
+        "html" => "text/html; charset=utf-8",
+        "js"   => "application/javascript",
+        "wasm" => "application/wasm",
+        "css"  => "text/css",
+        "ttf" | "woff" | "woff2" => "font/ttf",
+        "svg"  => "image/svg+xml",
+        "ico"  => "image/x-icon",
+        "png"  => "image/png",
+        "json" => "application/json",
+        _      => "application/octet-stream",
+    }
+}
+
+fn start_vc64web_server(
+    app: &AppHandle,
+    run_html: std::sync::Arc<std::sync::Mutex<String>>,
+) -> Result<u16, String> {
+    let vc64js = resolve_resource_file(app, "assets/vc64web/vc64.js")
+        .map_err(|e| format!("vc64web assets not found: {}", e))?;
+    if !vc64js.exists() {
+        return Err("vc64.js not found".to_string());
+    }
+    let serve_dir = vc64js.parent()
+        .ok_or("cannot determine vc64web directory")?
+        .to_path_buf();
+
+    let server = tiny_http::Server::http("127.0.0.1:0")
+        .map_err(|e| format!("HTTP server: {}", e))?;
+    let port = server.server_addr().to_ip()
+        .ok_or("server address not IP")?.port();
+
+    std::thread::spawn(move || {
+        for request in server.incoming_requests() {
+            let raw = request.url().to_string();
+            let stripped = raw.split('?').next().unwrap_or(&raw)
+                .trim_start_matches('/').to_string();
+            let path = if stripped.is_empty() { "index.html".to_string() } else { stripped };
+
+            if path == "c64run.html" {
+                let html = run_html.lock().unwrap().clone();
+                let ct = tiny_http::Header::from_bytes(
+                    "Content-Type", "text/html; charset=utf-8"
+                ).unwrap();
+                let _ = request.respond(
+                    tiny_http::Response::from_string(html).with_header(ct)
+                );
+                continue;
+            }
+
+            let file_path = serve_dir.join(&path);
+            let mime = get_mime_type(&path);
+            match fs::read(&file_path) {
+                Ok(data) => {
+                    let ct = tiny_http::Header::from_bytes("Content-Type", mime).unwrap();
+                    let _ = request.respond(
+                        tiny_http::Response::from_data(data).with_header(ct)
+                    );
+                }
+                Err(_) => {
+                    let _ = request.respond(
+                        tiny_http::Response::from_string("Not Found")
+                            .with_status_code(tiny_http::StatusCode(404))
+                    );
+                }
+            }
+        }
+    });
+
+    Ok(port)
+}
 
 fn write_browser_run_html(
     app: &AppHandle,
     b64: &str,
     file_name: &str,
-    autoload_name: Option<&str>,
+    _autoload_name: Option<&str>,
 ) -> Result<String, String> {
-    use base64::Engine;
-    let floppy_rom_b64 = base64::engine::general_purpose::STANDARD.encode(FLOPPY_ROM_1541);
+    let port = app.state::<Vc64WebPort>().0;
+    if port == 0 {
+        return Err("vc64web server nem indult el (assets hianyzanak?).".to_string());
+    }
 
-    let temp_dir = std::env::temp_dir().join("c64-visual-assembler");
-    fs::create_dir_all(&temp_dir).map_err(|e| e.to_string())?;
+    let is_d64 = file_name.to_lowercase().ends_with(".d64");
+    let floppy_entry = if is_d64 {
+        use base64::Engine;
+        let fb64 = base64::engine::general_purpose::STANDARD.encode(FLOPPY_ROM_1541);
+        format!("floppy_rom_base64: {},\n    ", serde_json::to_string(&fb64).unwrap())
+    } else {
+        String::new()
+    };
 
-    let html_path = temp_dir.join("c64-browser-run.html");
+    let config = serde_json::json!({
+        "openROMS": true,
+        "navbar": false,
+        "border": 0.3,
+        "wide": true,
+        "dialog_on_disk": true,
+        "dialog_on_missing_roms": false,
+        "port2": true
+    });
+    let config_enc = urlencoding::encode(&serde_json::to_string(&config).unwrap()).into_owned();
+
     let html = format!(
-        r#"<!DOCTYPE html>
-<html lang="en">
+        r#"<!doctype html>
+<html lang="en-us">
 <head>
 <meta charset="UTF-8">
 <title>C64 Visual Assembler &mdash; Browser Run</title>
-<script src="https://vc64web.github.io/js/vc64web_player.js"></script>
+<script src="js/vc64web_player.js"></script>
 <style>
 *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
-html,body{{width:100%;height:100vh;background:#000;overflow:hidden;font-family:sans-serif}}
-#emulator{{width:100%;height:100%}}
-#err{{display:none;position:fixed;inset:0;color:#f55;padding:2rem;white-space:pre-wrap}}
+html,body{{width:100%;height:100vh;background:#000;overflow:hidden}}
+#shell{{width:100%;height:100%;display:flex;flex-direction:column}}
+#topbar{{display:flex;align-items:center;justify-content:flex-end;gap:.5rem;padding:.5rem .75rem;background:#111;color:#fff;flex:0 0 auto}}
+#audio-btn{{appearance:none;border:1px solid #3a3a3a;background:#1d1d1d;color:#fff;border-radius:3px;padding:.45rem .7rem;font:600 13px/1 system-ui;cursor:pointer}}
+#audio-btn:hover{{background:#2a2a2a}}
+#emulator{{width:100%;flex:1 1 auto;min-height:0}}
+#player_container > div:last-child{{display:none !important;}}
 </style>
 </head>
 <body>
-<div id="emulator"></div>
-<div id="err"></div>
+<div id="shell">
+  <div id="topbar">
+    <button id="audio-btn" type="button">Unlock audio</button>
+  </div>
+  <div id="emulator"></div>
+</div>
 <script>
 (function(){{
-  var b64 = {b64_literal};
-  var fileName = {name_literal};
-  var autoloadName = {autoload_literal};
-  var floppyRomB64 = {floppy_rom_literal};
-  try {{
-    function b64ToBytes(value){{
-      return Uint8Array.from(atob(value), function(c){{return c.charCodeAt(0);}});
-    }}
-    var bin = b64ToBytes(b64);
-    var config = '#openROMS=true#navbar=hidden#wide=true#border=true#port2=true';
-    function start(){{
-      var isD64 = /\.d64$/i.test(fileName);
-      vc64web_player.samesite_file = {{
-        bin: bin,
-        name: fileName
-      }};
-      if (isD64) {{
-        vc64web_player.samesite_file.floppy_rom_base64 = floppyRomB64;
+  function unlockAudio(){{
+    try {{
+      const frame = document.getElementById('vc64web');
+      const win = frame && frame.contentWindow;
+      if (win && typeof win.unlock_WebAudio === 'function') {{
+        win.unlock_WebAudio();
+        return true;
       }}
-      vc64web_player.load(
-        document.getElementById('emulator'),
-        config,
-        ''
-      );
-      if (isD64 && autoloadName) {{
-        var autoloadSent = false;
-        function sendAutoload(){{
-          if (autoloadSent) return;
-          autoloadSent = true;
-          window.removeEventListener('message', onPlayerState);
-          var safeName = String(autoloadName).replace(/["\\]/g, '');
-          var loadCommand = 'load"' + safeName + '",8,1:\n';
-          var runCommand = '\nrun:\n';
-          vc64web_player.send_script(
-            "wasm_auto_type(" + JSON.stringify(loadCommand) + ");" +
-            "await disk_loading_finished();" +
-            "wasm_auto_type(" + JSON.stringify(runCommand) + ");"
-          );
-        }}
-        function onPlayerState(event){{
-          if (event.data && event.data.msg === 'render_run_state') {{
-            setTimeout(sendAutoload, 750);
-          }}
-        }}
-        window.addEventListener('message', onPlayerState);
-        setTimeout(sendAutoload, 6000);
+      if (win) {{
+        win.postMessage('toggle_audio()', '*');
+        return true;
       }}
-    }}
-    if (window.vc64web_player) {{ start(); }}
-    else {{ window.addEventListener('load', start); }}
-  }} catch (e) {{
-    var el = document.getElementById('err');
-    el.style.display = 'block';
-    el.textContent = 'Failed to start emulator:\n' + e.message;
+    }} catch (e) {{}}
+    return false;
   }}
+  const btn = document.getElementById('audio-btn');
+  btn.addEventListener('click', () => {{
+    unlockAudio();
+    btn.textContent = 'Audio requested';
+  }});
+  document.addEventListener('keydown', (e) => {{
+    if (e.code === 'Space' || e.code === 'Enter') {{
+      unlockAudio();
+    }}
+  }});
+  window.__unlockBrowserAudio = unlockAudio;
+}})();
+(function(){{
+  vc64web_player.vc64web_url = window.location.origin + '/';
+  vc64web_player.samesite_file = {{
+    base64: {b64_json},
+    name: {name_json},
+    {floppy}
+  }};
+  vc64web_player.load(
+    document.getElementById('emulator'),
+    '',
+    {config_json}
+  );
+  setTimeout(() => {{
+    try {{ window.__unlockBrowserAudio(); }} catch (e) {{}}
+  }}, 250);
 }})();
 </script>
 </body>
 </html>
 "#,
-        b64_literal = serde_json::to_string(b64).unwrap(),
-        name_literal = serde_json::to_string(file_name).unwrap(),
-        autoload_literal = serde_json::to_string(&autoload_name).unwrap(),
-        floppy_rom_literal = serde_json::to_string(&floppy_rom_b64).unwrap(),
+        b64_json = serde_json::to_string(b64).unwrap(),
+        name_json = serde_json::to_string(file_name).unwrap(),
+        floppy = floppy_entry,
+        config_json = serde_json::to_string(&config_enc).unwrap(),
     );
 
-    fs::write(&html_path, html).map_err(|e| e.to_string())?;
-    let url = format!("file:///{}", html_path.to_string_lossy().replace('\\', "/"));
-    app.opener().open_url(&url, None::<String>).map_err(|e| e.to_string())?;
+    *app.state::<Vc64WebRunHtml>().0.lock().unwrap() = html;
+
+    let url = format!("http://127.0.0.1:{}/c64run.html", port);
     Ok(url)
 }
 
@@ -2273,6 +2359,16 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
+        .setup(|app| {
+            let run_html = std::sync::Arc::new(std::sync::Mutex::new(String::new()));
+            let port = start_vc64web_server(app.handle(), run_html.clone()).unwrap_or_else(|e| {
+                eprintln!("vc64web server: {}", e);
+                0
+            });
+            app.manage(Vc64WebPort(port));
+            app.manage(Vc64WebRunHtml(run_html));
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             get_app_version,
             set_title,
