@@ -1,5 +1,5 @@
 C64 Visual Assembler - Installation Guide
-Version 2.0.3
+Version 2.0.4
 Support: https://zstarczali.itch.io/visual-assembler-commodore-64
 ==========================================================================
 
@@ -13,7 +13,7 @@ Tested on Ubuntu 22.04 and 24.04.
 -----------------------
 Download the .deb package from the releases page and install:
 
-  sudo dpkg -i "c64-visual-assembler_2.0.3_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.0.4_amd64.deb"
   sudo apt-get install -f   # fix any missing dependencies
 
 Launch from the Applications menu or:
@@ -106,7 +106,7 @@ Requirements: macOS 11.0+, Apple Silicon (M1/M2/M3)
 
 1. C64 Visual Assembler
 -----------------------
-1. Download: C64 Visual Assembler-1.1.0-arm64-final.dmg
+1. Download: C64 C64 Visual Assembler_2.0.4_aarch64.dmg or C64 Visual Assembler_2.0.4_x64.dmg (Depends on architecture))
 2. Mount the DMG and drag the app to /Applications
 3. First launch: Right-click the app -> "Open" (macOS will block double-click)
 4. Click "Open" in the security dialog

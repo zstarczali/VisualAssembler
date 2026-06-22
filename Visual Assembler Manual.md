@@ -2092,9 +2092,13 @@ The toolbar **Run** button has been replaced by a **split button**:
 |---|---|
 | **Run as PRG** | Assemble to a temporary `.prg` and launch VICE directly. Classic behaviour. |
 | **Run via D64** | Assemble, build a `.d64` disk image (using c1541), add any configured extra files, then launch VICE from the disk. Use this whenever your program loads files at runtime (e.g. with the LOADFILE macro). |
+| **Run in Browser** | Assemble to PRG and run it in the **VirtualC64Web** emulator opened in your default web browser. No VICE installation required — useful for quick tests, demos, and sharing. |
+| **D64 in Browser** | Same as **Run via D64** (uses the D64 export dialog with extras and EXO crunching) but the resulting `.d64` is mounted in the **VirtualC64Web** emulator in your default browser instead of VICE. Requires VICE only for the c1541 utility. |
 | **Run on hardware** | Assemble to PRG and send it to a **1541 Ultimate / Ultimate 64** device over the local network. See [Section 13](#13-hardware-settings). |
 
 The selected mode is saved between sessions.
+
+> **Browser modes:** the app writes a self-contained HTML wrapper (with the PRG/D64 embedded as base64) to your system temp directory and opens it in the default browser. The wrapper loads `vc64web_player.js` from `https://vc64web.github.io`, so an internet connection is required the first time (the script and ROMs are cached after that). The browser tab is fully independent of the Visual Assembler window — close it any time.
 
 ### Export to D64 dialog
 

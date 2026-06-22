@@ -2019,6 +2019,238 @@ async fn load_sample(app: AppHandle, sample_name: String) -> serde_json::Value {
     }
 }
 
+// ── Browser emulator (default browser) ───────────────────────────────────────
+
+// Embed the 1541 DOS ROM at compile time so the browser emulator can
+// run D64 disk operations even when vc64web's openROMS replacement is
+// not sufficient for full drive emulation.
+const FLOPPY_ROM_1541: &[u8] = include_bytes!("../../assets/dos1541ii-251968-03.bin");
+
+fn write_browser_run_html(
+    app: &AppHandle,
+    b64: &str,
+    file_name: &str,
+    autoload_name: Option<&str>,
+) -> Result<String, String> {
+    use base64::Engine;
+    let floppy_rom_b64 = base64::engine::general_purpose::STANDARD.encode(FLOPPY_ROM_1541);
+
+    let temp_dir = std::env::temp_dir().join("c64-visual-assembler");
+    fs::create_dir_all(&temp_dir).map_err(|e| e.to_string())?;
+
+    let html_path = temp_dir.join("c64-browser-run.html");
+    let html = format!(
+        r#"<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>C64 Visual Assembler &mdash; Browser Run</title>
+<script src="https://vc64web.github.io/js/vc64web_player.js"></script>
+<style>
+*,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
+html,body{{width:100%;height:100vh;background:#000;overflow:hidden;font-family:sans-serif}}
+#emulator{{width:100%;height:100%}}
+#err{{display:none;position:fixed;inset:0;color:#f55;padding:2rem;white-space:pre-wrap}}
+</style>
+</head>
+<body>
+<div id="emulator"></div>
+<div id="err"></div>
+<script>
+(function(){{
+  var b64 = {b64_literal};
+  var fileName = {name_literal};
+  var autoloadName = {autoload_literal};
+  var floppyRomB64 = {floppy_rom_literal};
+  try {{
+    function b64ToBytes(value){{
+      return Uint8Array.from(atob(value), function(c){{return c.charCodeAt(0);}});
+    }}
+    var bin = b64ToBytes(b64);
+    var config = '#openROMS=true#navbar=hidden#wide=true#border=true#port2=true';
+    function start(){{
+      var isD64 = /\.d64$/i.test(fileName);
+      vc64web_player.samesite_file = {{
+        bin: bin,
+        name: fileName
+      }};
+      if (isD64) {{
+        vc64web_player.samesite_file.floppy_rom_base64 = floppyRomB64;
+      }}
+      vc64web_player.load(
+        document.getElementById('emulator'),
+        config,
+        ''
+      );
+      if (isD64 && autoloadName) {{
+        var autoloadSent = false;
+        function sendAutoload(){{
+          if (autoloadSent) return;
+          autoloadSent = true;
+          window.removeEventListener('message', onPlayerState);
+          var safeName = String(autoloadName).replace(/["\\]/g, '');
+          var loadCommand = 'load"' + safeName + '",8,1:\n';
+          var runCommand = '\nrun:\n';
+          vc64web_player.send_script(
+            "wasm_auto_type(" + JSON.stringify(loadCommand) + ");" +
+            "await disk_loading_finished();" +
+            "wasm_auto_type(" + JSON.stringify(runCommand) + ");"
+          );
+        }}
+        function onPlayerState(event){{
+          if (event.data && event.data.msg === 'render_run_state') {{
+            setTimeout(sendAutoload, 750);
+          }}
+        }}
+        window.addEventListener('message', onPlayerState);
+        setTimeout(sendAutoload, 6000);
+      }}
+    }}
+    if (window.vc64web_player) {{ start(); }}
+    else {{ window.addEventListener('load', start); }}
+  }} catch (e) {{
+    var el = document.getElementById('err');
+    el.style.display = 'block';
+    el.textContent = 'Failed to start emulator:\n' + e.message;
+  }}
+}})();
+</script>
+</body>
+</html>
+"#,
+        b64_literal = serde_json::to_string(b64).unwrap(),
+        name_literal = serde_json::to_string(file_name).unwrap(),
+        autoload_literal = serde_json::to_string(&autoload_name).unwrap(),
+        floppy_rom_literal = serde_json::to_string(&floppy_rom_b64).unwrap(),
+    );
+
+    fs::write(&html_path, html).map_err(|e| e.to_string())?;
+    let url = format!("file:///{}", html_path.to_string_lossy().replace('\\', "/"));
+    app.opener().open_url(&url, None::<String>).map_err(|e| e.to_string())?;
+    Ok(url)
+}
+
+#[tauri::command]
+async fn run_in_browser_emulator(
+    app: AppHandle,
+    prg_b64: String,
+) -> Result<String, String> {
+    write_browser_run_html(&app, &prg_b64, "program.prg", None)
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct RunD64InBrowserPayload {
+    files: Vec<D64FileEntry>,
+    #[serde(default)]
+    disk_name: Option<String>,
+}
+
+#[tauri::command]
+async fn run_d64_in_browser_emulator(
+    app: AppHandle,
+    payload: RunD64InBrowserPayload,
+) -> serde_json::Value {
+    if payload.files.is_empty() {
+        return serde_json::json!({ "ok": false, "error": "Nincs fajl a D64-re irashoz." });
+    }
+
+    let cfg = read_config(&app);
+    let vice_path = {
+        let p = cfg["vicePath"].as_str().unwrap_or("").to_string();
+        if p.is_empty() { detect_vice_executable() } else { p }
+    };
+
+    let c1541_path = match resolve_c1541_path(&vice_path) {
+        Some(p) => p,
+        None => return serde_json::json!({
+            "ok": false,
+            "error": "c1541 nem talalhato. Allitsd be a VICE eleresi utjat (a c1541 a VICE bin/ mappajaban van)."
+        }),
+    };
+
+    let temp_dir = std::env::temp_dir().join("c64-visual-assembler");
+    let _ = fs::create_dir_all(&temp_dir);
+    let now_ms = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH).unwrap().as_millis();
+
+    let raw_disk = payload.disk_name.unwrap_or_else(|| "disk".to_string());
+    let disk_name = sanitize_disk_name(&raw_disk, 16);
+    let disk_id = "01";
+    let d64_path = temp_dir.join(format!("browser-d64-{}.d64", now_ms));
+
+    let mut staged: Vec<(PathBuf, String)> = Vec::new();
+    for (idx, entry) in payload.files.iter().enumerate() {
+        let prg_path = temp_dir.join(format!("browser-d64-{}-{}.prg", now_ms, idx));
+        let mut data: Vec<u8> = Vec::with_capacity(entry.bytes.len() + 2);
+        if let Some(addr) = entry.load_address {
+            data.push((addr & 0xFF) as u8);
+            data.push((addr >> 8) as u8);
+        }
+        data.extend_from_slice(&entry.bytes);
+        if let Err(e) = fs::write(&prg_path, &data) {
+            for (p, _) in &staged { let _ = fs::remove_file(p); }
+            return serde_json::json!({ "ok": false, "error": e.to_string() });
+        }
+        let c64_name = sanitize_disk_name(&entry.name, 16);
+        staged.push((prg_path, c64_name));
+    }
+
+    let format_arg = format!("{},{}", disk_name, disk_id);
+    #[allow(unused_mut)]
+    let mut cmd = if cfg!(target_os = "macos") {
+        let mut c = Command::new("bash");
+        c.arg(c1541_path.to_string_lossy().to_string());
+        c
+    } else {
+        Command::new(&c1541_path)
+    };
+    cmd.arg("-format").arg(&format_arg).arg("d64").arg(&d64_path);
+    for (prg_path, c64_name) in &staged {
+        cmd.arg("-write").arg(prg_path.to_string_lossy().to_string()).arg(c64_name);
+    }
+    #[cfg(target_os = "windows")]
+    {
+        const CREATE_NO_WINDOW: u32 = 0x08000000;
+        cmd.creation_flags(CREATE_NO_WINDOW);
+    }
+
+    let c1541_out = match cmd.output() {
+        Ok(o) => o,
+        Err(e) => {
+            for (p, _) in &staged { let _ = fs::remove_file(p); }
+            return serde_json::json!({ "ok": false, "error": e.to_string() });
+        }
+    };
+    for (p, _) in &staged { let _ = fs::remove_file(p); }
+
+    if !c1541_out.status.success() {
+        let _ = fs::remove_file(&d64_path);
+        return serde_json::json!({
+            "ok": false,
+            "error": format!("c1541 hiba: {}{}", String::from_utf8_lossy(&c1541_out.stderr), String::from_utf8_lossy(&c1541_out.stdout))
+        });
+    }
+
+    let d64_bytes = match fs::read(&d64_path) {
+        Ok(b) => b,
+        Err(e) => {
+            let _ = fs::remove_file(&d64_path);
+            return serde_json::json!({ "ok": false, "error": e.to_string() });
+        }
+    };
+    let _ = fs::remove_file(&d64_path);
+
+    use base64::Engine;
+    let b64 = base64::engine::general_purpose::STANDARD.encode(&d64_bytes);
+
+    let file_name = format!("{}.d64", disk_name);
+    match write_browser_run_html(&app, &b64, &file_name, None) {
+        Ok(url) => serde_json::json!({ "ok": true, "url": url }),
+        Err(e) => serde_json::json!({ "ok": false, "error": e }),
+    }
+}
+
 // ── App setup ────────────────────────────────────────────────────────────────
 
 pub fn run() {
@@ -2085,6 +2317,8 @@ pub fn run() {
             open_manual,
             run_on_ultimate,
             test_ultimate_connection,
+            run_in_browser_emulator,
+            run_d64_in_browser_emulator,
         ])
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { .. } = event {

@@ -1309,7 +1309,9 @@ function initPalette() {
   });
   chooseViceButton?.addEventListener("click", chooseViceExecutable);
   runEmulatorButton?.addEventListener("click", () => {
-    if (runMode === "d64") runViaD64();
+    if (runMode === "browser") runInBrowser();
+    else if (runMode === "browser-d64") runD64InBrowser();
+    else if (runMode === "d64") runViaD64();
     else if (runMode === "ultimate") runOnUltimate();
     else if (runMode === "ultimate-d64") runUltimateD64();
     else runInEmulator();
@@ -1866,6 +1868,8 @@ function applyTranslations() {
     setText("#dbg-unpause-label", t("debuggerUnpauseLabel"));
     setText("#run-emulator .run-label", getRunModeLabel(runMode));
     setText("#run-prg-label", t("runAsPrg"));
+    setText("#run-browser-label", t("runInBrowser"));
+    setText("#run-browser-d64-label", t("runD64InBrowser"));
     setText("#run-exomizer-toggle-label", t("runWithExomizer"));
     setText("#run-d64-label", t("runViaD64"));
     setText("#run-ultimate-label", t("runOnUltimate"));
@@ -8553,6 +8557,7 @@ async function confirmD64Export() {
 
   const isRunMode = d64ExportState.runMode;
   const isUltimateMode = isRunMode === "ultimate";
+  const isBrowserMode = isRunMode === "browser";
 
   // If any extra needs EXO crunching, the loop below blocks on `exomizer`
   // for several seconds per file. Show the work-progress modal up front so
@@ -8602,7 +8607,7 @@ async function confirmD64Export() {
     delete f._decompressAddress;
     if (!crunchResult?.ok) {
       if (willCrunchAny) hideWorkProgress();
-      if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = t(isUltimateMode ? "runOnUltimate" : isRunMode ? "runViaD64Confirm" : "d64ExportConfirm"); }
+      if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = t(isUltimateMode ? "runOnUltimate" : isBrowserMode ? "runD64InBrowser" : isRunMode ? "runViaD64Confirm" : "d64ExportConfirm"); }
       if (cancelBtn) cancelBtn.disabled = false;
       if (errorBox) { errorBox.hidden = false; errorBox.textContent = `${f.name}: ${crunchResult?.error || t("exomizerLaunchFailed")}`; }
       return;
@@ -8612,7 +8617,7 @@ async function confirmD64Export() {
   // Switch the progress modal's subtitle to the D64 packaging message. If we
   // didn't open it during compression and we're in run mode, open it now.
   if (isRunMode) {
-    await showWorkProgress(isUltimateMode ? "workProgressRunD64Ultimate" : "workProgressRunD64");
+    await showWorkProgress(isUltimateMode ? "workProgressRunD64Ultimate" : isBrowserMode ? "workProgressRunD64Browser" : "workProgressRunD64");
   } else if (willCrunchAny) {
     // Save-only mode: progress modal is up but the EXO loop is done — close it
     // so the OS save dialog (if any) isn't blocked behind it.
@@ -8632,6 +8637,8 @@ async function confirmD64Export() {
         return;
       }
       result = await window.electronAPI.runD64OnUltimate({ host, password, diskName, files });
+    } else if (isBrowserMode) {
+      result = await window.electronAPI.runD64InBrowserEmulator({ diskName, files });
     } else if (isRunMode) {
       result = await window.electronAPI.runD64({ diskName, files });
     } else {
@@ -8640,7 +8647,7 @@ async function confirmD64Export() {
   } finally {
     if (confirmBtn) {
       confirmBtn.disabled = false;
-      confirmBtn.textContent = t(isUltimateMode ? "runOnUltimate" : isRunMode ? "runViaD64Confirm" : "d64ExportConfirm");
+      confirmBtn.textContent = t(isUltimateMode ? "runOnUltimate" : isBrowserMode ? "runD64InBrowser" : isRunMode ? "runViaD64Confirm" : "d64ExportConfirm");
     }
     if (cancelBtn) cancelBtn.disabled = false;
   }
@@ -8662,7 +8669,7 @@ async function confirmD64Export() {
   d64SaveSettings((diskInput?.value || "").trim() || "DISK", (progInput?.value || "").trim() || "PROGRAM");
   dialog.close();
   if (isRunMode) {
-    await completeWorkProgress(isUltimateMode ? "workProgressSuccessD64Ultimate" : "workProgressSuccessRunD64");
+    await completeWorkProgress(isUltimateMode ? "workProgressSuccessD64Ultimate" : isBrowserMode ? "workProgressSuccessD64Browser" : "workProgressSuccessRunD64");
   } else if (emulatorStatus) {
     const fileName = (result.filePath || "").split(/[\\/]/).pop();
     const count = result.fileCount || files.length;
@@ -8675,6 +8682,8 @@ async function confirmD64Export() {
 let runMode = "prg";
 
 function getRunModeLabel(mode) {
+  if (mode === "browser") return t("runInBrowser");
+  if (mode === "browser-d64") return t("runD64InBrowser");
   if (mode === "d64") return t("runViaD64");
   if (mode === "ultimate") return t("runOnUltimate");
   if (mode === "ultimate-d64") return t("runD64OnHardware");
@@ -8721,11 +8730,13 @@ function setupRunModeDropdown() {
 
   document.getElementById("run-prg-mode")?.addEventListener("click", () => { setRunMode("prg"); closeMenu(); });
   document.getElementById("run-d64-mode")?.addEventListener("click", () => { setRunMode("d64"); closeMenu(); });
+  document.getElementById("run-browser-mode")?.addEventListener("click", () => { setRunMode("browser"); closeMenu(); });
+  document.getElementById("run-browser-d64-mode")?.addEventListener("click", () => { setRunMode("browser-d64"); closeMenu(); });
   document.getElementById("run-ultimate-mode")?.addEventListener("click", () => { setRunMode("ultimate"); closeMenu(); });
   document.getElementById("run-ultimate-d64-mode")?.addEventListener("click", () => { setRunMode("ultimate-d64"); closeMenu(); });
 
   const saved = localStorage.getItem("runMode");
-  if (saved === "prg" || saved === "d64" || saved === "ultimate" || saved === "ultimate-d64") setRunMode(saved);
+  if (["prg", "d64", "browser", "browser-d64", "ultimate", "ultimate-d64"].includes(saved)) setRunMode(saved);
 }
 
 function setRunMode(mode) {
@@ -8733,10 +8744,14 @@ function setRunMode(mode) {
   localStorage.setItem("runMode", mode);
   const prgBtn = document.getElementById("run-prg-mode");
   const d64Btn = document.getElementById("run-d64-mode");
+  const browserBtn = document.getElementById("run-browser-mode");
+  const browserD64Btn = document.getElementById("run-browser-d64-mode");
   const ulBtn = document.getElementById("run-ultimate-mode");
   const ulD64Btn = document.getElementById("run-ultimate-d64-mode");
   if (prgBtn) prgBtn.classList.toggle("active", mode === "prg");
   if (d64Btn) d64Btn.classList.toggle("active", mode === "d64");
+  if (browserBtn) browserBtn.classList.toggle("active", mode === "browser");
+  if (browserD64Btn) browserD64Btn.classList.toggle("active", mode === "browser-d64");
   if (ulBtn) ulBtn.classList.toggle("active", mode === "ultimate");
   if (ulD64Btn) ulD64Btn.classList.toggle("active", mode === "ultimate-d64");
   const label = document.querySelector("#run-emulator .run-label");
@@ -8746,6 +8761,99 @@ function setRunMode(mode) {
     runEmulatorButton.setAttribute("title", runLabel);
     runEmulatorButton.setAttribute("aria-label", runLabel);
   }
+}
+
+function runInBrowser() {
+  if (isProgramEmpty()) {
+    showViceToast(currentLanguage !== "hu" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
+    return;
+  }
+  const prg = buildAutostartPrgForEmulator();
+  if (!prg.ok) {
+    if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
+    showViceToast(prg.error || (currentLanguage !== "hu" ? "Compilation failed." : "Fordítási hiba."), true);
+    return;
+  }
+  try {
+    const bytes = prg.bytes instanceof Uint8Array ? prg.bytes : new Uint8Array(prg.bytes);
+    // Chunked btoa — avoids call stack overflow on large PRGs
+    let b64 = '';
+    const chunk = 8192;
+    for (let i = 0; i < bytes.length; i += chunk) {
+      b64 += btoa(String.fromCharCode(...bytes.subarray(i, i + chunk)));
+    }
+    if (window.electronAPI?.runInBrowserEmulator) {
+      // Tauri: write self-contained HTML to temp, open in default browser
+      window.electronAPI.runInBrowserEmulator(b64).catch(e => {
+        showViceToast((currentLanguage !== "hu" ? "Browser run error: " : "Browser futtatás hiba: ") + e, true);
+      });
+    } else {
+      // Non-Tauri fallback: pass PRG via URL hash to bundled emulator.html
+      const url = 'emulator.html#' + b64;
+      window.open(url, 'c64browser', 'width=960,height=720,menubar=no,toolbar=no,location=no,scrollbars=no,resizable=yes');
+    }
+  } catch (e) {
+    showViceToast((currentLanguage !== "hu" ? "Browser run failed: " : "Browser futtatás sikertelen: ") + e.message, true);
+  }
+}
+
+async function runD64InBrowser() {
+  if (isProgramEmpty()) {
+    showViceToast(currentLanguage !== "hu" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
+    return;
+  }
+  if (!vicePath) {
+    showViceToast(currentLanguage !== "hu" ? "VICE is not configured (c1541 needed to build the D64). Select it in the menu first." : "A VICE nincs beallitva (c1541 kell a D64 keszitesehez). Valaszd ki a menuben.", true);
+    return;
+  }
+  if (!window.electronAPI?.runD64InBrowserEmulator) {
+    showViceToast(currentLanguage !== "hu" ? "D64 in browser is not available." : "A D64 böngészőben futtatás nem elerheto.", true);
+    return;
+  }
+
+  const prg = await buildRunPrgForCurrentMode();
+  if (!prg.ok) {
+    if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
+    if (emulatorStatus) emulatorStatus.textContent = prg.error;
+    return;
+  }
+
+  d64ExportState.prgBytes = prg.bytes;
+  d64ExportState.runMode = "browser";
+
+  const dialog = document.getElementById("d64-export-dialog");
+  const diskInput = document.getElementById("d64-export-diskname");
+  const progInput = document.getElementById("d64-export-progname");
+  const errorBox = document.getElementById("d64-export-error");
+  const confirmBtn = document.getElementById("d64-export-confirm");
+
+  let diskName = d64ExportState.diskName || defaultDiskName();
+  let progName = d64ExportState.progName || defaultDiskName();
+  if (d64ExportState.extras.length === 0) {
+    if (d64ExportState._pendingExtras?.length) {
+      d64ExportState.extras = await d64LoadSavedExtras(d64ExportState._pendingExtras, d64ExportState._pendingExtrasBaseDir);
+      d64ExportState._pendingExtras = null;
+      d64ExportState._pendingExtrasBaseDir = "";
+    } else {
+      try {
+        const saved = JSON.parse(localStorage.getItem("d64LastSettings") || "null");
+        if (saved) {
+          if (!d64ExportState.diskName && saved.diskName) diskName = saved.diskName;
+          if (!d64ExportState.progName && saved.progName) progName = saved.progName;
+          if (saved.extras?.length) d64ExportState.extras = await d64LoadSavedExtras(saved.extras);
+        }
+      } catch (_) {}
+    }
+  }
+
+  if (diskInput) diskInput.value = diskName;
+  if (progInput) progInput.value = progName;
+  if (errorBox) { errorBox.hidden = true; errorBox.textContent = ""; }
+  if (confirmBtn) confirmBtn.textContent = t("runD64InBrowser");
+  const titleEl = document.getElementById("d64-export-title");
+  if (titleEl) titleEl.textContent = t("runD64InBrowser");
+  renderD64ExtraFiles();
+  dialog?.showModal();
 }
 
 async function runViaD64() {
