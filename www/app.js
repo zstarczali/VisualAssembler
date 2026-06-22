@@ -316,6 +316,11 @@ const aboutDialog = document.getElementById("about-dialog");
 const aboutCloseButton = document.getElementById("about-close");
 const whatsNewDialog = document.getElementById("whats-new-dialog");
 const whatsNewCloseButton = document.getElementById("whats-new-close");
+const browserEmulatorDialog = document.getElementById("browser-emulator-dialog");
+const browserEmulatorFrame = document.getElementById("browser-emulator-frame");
+const browserEmulatorRestart = document.getElementById("browser-emulator-restart");
+const browserEmulatorClose = document.getElementById("browser-emulator-close");
+const browserEmulatorOpenExternal = document.getElementById("browser-emulator-open-external");
 const knowledgeBaseButton = document.getElementById("knowledge-base-btn");
 const knowledgeBaseDialog = document.getElementById("knowledge-base-dialog");
 const knowledgeBaseCloseButton = document.getElementById("knowledge-base-close");
@@ -384,6 +389,64 @@ function tf(key, values = {}) {
     (text, [name, value]) => text.replaceAll(`{${name}}`, String(value)),
     t(key)
   );
+}
+
+function closeBrowserEmulatorDialog() {
+  try {
+    browserEmulatorDialog?.close();
+  } catch (_) {}
+}
+
+function _pokeBrowserEmulatorAudioUnlock() {
+  const frame = browserEmulatorFrame?.contentWindow;
+  if (!frame) return false;
+  let unlocked = false;
+  try {
+    if (typeof frame.unlock_WebAudio === "function") {
+      frame.unlock_WebAudio();
+      unlocked = true;
+    }
+  } catch (_) {}
+  try {
+    frame.postMessage("toggle_audio()", "*");
+    unlocked = true;
+  } catch (_) {}
+  return unlocked;
+}
+
+function openBrowserEmulatorDialog(url, titleKey = "browserEmulatorTitle") {
+  if (!browserEmulatorDialog || !browserEmulatorFrame || !url) return;
+  if (browserEmulatorDialog.open) {
+    closeBrowserEmulatorDialog();
+  }
+  browserEmulatorDialog.dataset.rawUrl = url;
+  browserEmulatorDialog.dataset.titleKey = titleKey;
+  const titleEl = document.getElementById("browser-emulator-title");
+  if (titleEl) titleEl.textContent = t(titleKey);
+  browserEmulatorFrame.onload = () => {
+    _pokeBrowserEmulatorAudioUnlock();
+    setTimeout(_pokeBrowserEmulatorAudioUnlock, 250);
+    setTimeout(_pokeBrowserEmulatorAudioUnlock, 900);
+  };
+  browserEmulatorFrame.src = url;
+  browserEmulatorDialog.showModal();
+  setTimeout(_pokeBrowserEmulatorAudioUnlock, 150);
+}
+
+function restartBrowserEmulatorDialog() {
+  if (!browserEmulatorDialog || !browserEmulatorFrame) return;
+  const rawUrl = browserEmulatorDialog.dataset.rawUrl || browserEmulatorFrame.src || "";
+  if (!rawUrl || rawUrl === "about:blank") return;
+  try {
+    browserEmulatorFrame.contentWindow?.location?.reload();
+  } catch (_) {
+    browserEmulatorFrame.src = rawUrl;
+  }
+  setTimeout(() => {
+    _pokeBrowserEmulatorAudioUnlock();
+    setTimeout(_pokeBrowserEmulatorAudioUnlock, 300);
+    setTimeout(_pokeBrowserEmulatorAudioUnlock, 900);
+  }, 150);
 }
 
 function readUiSettings() {
@@ -1131,6 +1194,25 @@ function initPalette() {
   _setupFileMenus();
   setupOperandDropdown();
   setupD64ExportDialog();
+  browserEmulatorRestart?.addEventListener("click", restartBrowserEmulatorDialog);
+  browserEmulatorClose?.addEventListener("click", closeBrowserEmulatorDialog);
+  browserEmulatorOpenExternal?.addEventListener("click", () => {
+    const rawUrl = browserEmulatorDialog?.dataset.rawUrl || browserEmulatorFrame?.src || "";
+    if (!rawUrl || rawUrl === "about:blank") return;
+    if (window.electronAPI?.openExternal) {
+      window.electronAPI.openExternal(rawUrl).catch(() => {});
+    } else {
+      window.open(rawUrl, "_blank", "noopener");
+    }
+  });
+  browserEmulatorDialog?.addEventListener("close", () => {
+    if (browserEmulatorFrame) browserEmulatorFrame.src = "about:blank";
+    if (browserEmulatorDialog) delete browserEmulatorDialog.dataset.rawUrl;
+    if (browserEmulatorDialog) delete browserEmulatorDialog.dataset.titleKey;
+  });
+  browserEmulatorDialog?.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeBrowserEmulatorDialog();
+  });
 
   // Menu open/close animation
   const controlMenu = document.querySelector(".control-menu");
@@ -1853,6 +1935,13 @@ function applyTranslations() {
     setText("#hardware-settings-btn", t("hardwareSettings"));
     setText("#hardware-settings-title", t("hardwareSettingsTitle"));
     setText("#hardware-settings-close", t("hardwareSettingsClose"));
+    setText("#browser-emulator-title", t(browserEmulatorDialog?.dataset.titleKey || "browserEmulatorTitle"));
+    browserEmulatorRestart?.setAttribute("title", t("browserEmulatorRestart"));
+    browserEmulatorRestart?.setAttribute("aria-label", t("browserEmulatorRestart"));
+    browserEmulatorOpenExternal?.setAttribute("title", t("browserEmulatorOpenExternal"));
+    browserEmulatorOpenExternal?.setAttribute("aria-label", t("browserEmulatorOpenExternal"));
+    browserEmulatorClose?.setAttribute("title", t("browserEmulatorClose"));
+    browserEmulatorClose?.setAttribute("aria-label", t("browserEmulatorClose"));
     setText("#hw-vice-section-label", t("hwViceSectionLabel"));
     setText("#hw-exomizer-section-label", t("hwExomizerSectionLabel"));
     setText("#hw-debugger-section-label", t("hwDebuggerSectionLabel"));
@@ -8668,6 +8757,9 @@ async function confirmD64Export() {
 
   d64SaveSettings((diskInput?.value || "").trim() || "DISK", (progInput?.value || "").trim() || "PROGRAM");
   dialog.close();
+  if (isBrowserMode && result?.url) {
+    openBrowserEmulatorDialog(result.url, "runD64InBrowser");
+  }
   if (isRunMode) {
     await completeWorkProgress(isUltimateMode ? "workProgressSuccessD64Ultimate" : isBrowserMode ? "workProgressSuccessD64Browser" : "workProgressSuccessRunD64");
   } else if (emulatorStatus) {
@@ -8763,7 +8855,7 @@ function setRunMode(mode) {
   }
 }
 
-function runInBrowser() {
+async function runInBrowser() {
   if (isProgramEmpty()) {
     showViceToast(currentLanguage !== "hu" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
     return;
@@ -8783,14 +8875,10 @@ function runInBrowser() {
       b64 += btoa(String.fromCharCode(...bytes.subarray(i, i + chunk)));
     }
     if (window.electronAPI?.runInBrowserEmulator) {
-      // Tauri: write self-contained HTML to temp, open in default browser
-      window.electronAPI.runInBrowserEmulator(b64).catch(e => {
-        showViceToast((currentLanguage !== "hu" ? "Browser run error: " : "Browser futtatás hiba: ") + e, true);
-      });
+      const url = await window.electronAPI.runInBrowserEmulator(b64);
+      openBrowserEmulatorDialog(url, "runInBrowser");
     } else {
-      // Non-Tauri fallback: pass PRG via URL hash to bundled emulator.html
-      const url = 'emulator.html#' + b64;
-      window.open(url, 'c64browser', 'width=960,height=720,menubar=no,toolbar=no,location=no,scrollbars=no,resizable=yes');
+      openBrowserEmulatorDialog(`emulator.html#${b64}`, "runInBrowser");
     }
   } catch (e) {
     showViceToast((currentLanguage !== "hu" ? "Browser run failed: " : "Browser futtatás sikertelen: ") + e.message, true);
