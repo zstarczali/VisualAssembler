@@ -196,6 +196,14 @@
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" aria-hidden="true"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2"/></svg>
                 <span id="run-d64-label">Run via D64</span>
               </button>
+              <button id="run-browser-mode" class="run-mode-item" role="menuitem" data-mode="browser">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M8 2c-2 2-3 4-3 6s1 4 3 6M8 2c2 2 3 4 3 6s-1 4-3 6M2 8h12" stroke-linecap="round"/></svg>
+                <span id="run-browser-label">Run in Browser</span>
+              </button>
+              <button id="run-browser-d64-mode" class="run-mode-item" role="menuitem" data-mode="browser-d64">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M8 2c-2 2-3 4-3 6s1 4 3 6M8 2c2 2 3 4 3 6s-1 4-3 6M2 8h12" stroke-linecap="round"/><circle cx="8" cy="8" r="2" fill="currentColor" stroke="none"/></svg>
+                <span id="run-browser-d64-label">D64 in Browser</span>
+              </button>
               <button id="run-ultimate-mode" class="run-mode-item" role="menuitem" data-mode="ultimate">
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" aria-hidden="true"><rect x="3" y="5" width="10" height="7" rx="1"/><path d="M5 5V3M8 5V3M11 5V3M5 12v1M8 12v1M11 12v1M1 7h2M1 9h2M13 7h2M13 9h2"/></svg>
                 <span id="run-ultimate-label">Run on hardware</span>
@@ -648,6 +656,9 @@ PRINTABLE CHARACTERS
         </li>
         <li>
           <strong>CONST <code>*+N</code> — PC-relative address alias</strong> &mdash; the CONST block now accepts <code>*+N</code> and <code>*-N</code> expressions. The value resolves to the current compile address plus the offset, enabling self-modifying code patterns such as <code>CONST op = *+1</code> placed before an <code>LDA #$00</code> block — <code>op</code> then labels the immediate operand byte so it can be patched at runtime with <code>STA op</code>.
+        </li>
+        <li>
+          <strong>Run in Browser (VirtualC64Web)</strong> &mdash; two new run modes in the Run split-button menu: <em>Run in Browser</em> launches the compiled PRG, and <em>D64 in Browser</em> builds a D64 disk image (via c1541) and mounts it, both inside an embedded VirtualC64Web emulator opened in your default web browser. No VICE installation needed for the PRG mode — perfect for quick tests, demos, or sharing screenshots. The D64 mode reuses the existing D64 export dialog (disk name, program name, EXO-crunched extras) and requires VICE only for the c1541 utility.
         </li>
         <li>
           <strong>Map editor transparent paste</strong> &mdash; the Map Editor now has a transparent paste mode alongside normal paste. Empty tiles stay transparent, so copied regions can be stamped over existing maps without repainting the background. Use Ctrl+Shift+V or the new toolbar button.

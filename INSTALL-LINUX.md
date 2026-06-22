@@ -21,7 +21,22 @@ c64-visual-assembler
 
 ---
 
-## 2. VICE Emulator
+## 2. Run modes overview
+
+Visual Assembler can run the assembled program in several ways. Only the VICE-based modes need a local VICE installation:
+
+| Run mode | Local install needed |
+|---|---|
+| **Run as PRG** / **Run via D64** | VICE (sections 2–3 below) |
+| **Run in Browser** | Nothing extra — opens [VirtualC64Web](https://vc64web.github.io/) in your default browser |
+| **D64 in Browser** | VICE (only for the `c1541` utility used to build the disk image) |
+| **Run on hardware** | A 1541 Ultimate / Ultimate 64 on your local network |
+
+The browser modes are the simplest way to try the app on Linux without dealing with VICE ROMs at all.
+
+---
+
+## 3. VICE Emulator
 
 ### Install via apt
 
@@ -75,7 +90,7 @@ If ROMs are missing, VICE prints lines like `Cannot open kernal ROM`.
 
 ---
 
-## 3. Exomizer (Optional)
+## 4. Exomizer (Optional)
 
 Exomizer is not in the Ubuntu apt repository — compile from source.
 
@@ -100,7 +115,7 @@ Both `sfx sys` (Run/Build toggle) and `mem` mode (per-file EXO in the Run via D6
 
 ---
 
-## 4. Wayland / Display issues
+## 5. Wayland / Display issues
 
 If VICE fails to launch from the app, it may be a display session variable issue. Run the app from a terminal first to check for error output:
 

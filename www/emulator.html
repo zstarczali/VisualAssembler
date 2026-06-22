@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>C64 Visual Assembler — Browser Run</title>
+  <script src="https://vc64web.github.io/js/vc64web_player.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html,body{width:100%;height:100vh;background:#000;overflow:hidden;font-family:sans-serif}
+    #emulator{width:100%;height:100%}
+    #err{display:none;position:fixed;inset:0;color:#f55;padding:2rem;white-space:pre-wrap}
+  </style>
+</head>
+<body>
+  <div id="emulator"></div>
+  <div id="err"></div>
+  <script>
+    window.addEventListener('load', function () {
+      var hash = window.location.hash.slice(1);
+      if (!hash) {
+        var el = document.getElementById('err');
+        el.style.display = 'block';
+        el.textContent = 'No program data.';
+        return;
+      }
+      try {
+        var bin = Uint8Array.from(atob(hash), function(c){return c.charCodeAt(0);});
+        var fileName = 'program.prg';
+        vc64web_player.samesite_file = { bin: bin, name: fileName };
+        var config = '#openROMS=true#navbar=hidden#wide=true#border=true#port2=true';
+        vc64web_player.load(
+          document.getElementById('emulator'),
+          config,
+          ''
+        );
+      } catch (e) {
+        var el2 = document.getElementById('err');
+        el2.style.display = 'block';
+        el2.textContent = 'Failed to start emulator:\n' + e.message;
+      }
+    });
+  </script>
+</body>
+</html>

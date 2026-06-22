@@ -338,6 +338,7 @@ dependencies = [
 name = "c64-visual-assembler"
 version = "2.0.4"
 dependencies = [
+ "base64 0.22.1",
  "emulator_6502",
  "reqwest 0.12.28",
  "serde",
