@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.0.3**
+**Version 2.0.4**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -1298,7 +1298,7 @@ Like **a named variable that never changes** — `SCREEN = $0400`. Use the name 
 | Field | Description |
 |---|---|
 | Name | Identifier for the constant (e.g. `SCREEN`) |
-| Value | Numeric value in the selected base (e.g. `0400` in HEX = address $0400) |
+| Value | Numeric value in the selected base (e.g. `0400` in HEX = address $0400), or a PC-relative expression (see below) |
 | Format | HEX or DEC — controls how the value is entered and displayed |
 
 **Generated ASM:**
@@ -1307,6 +1307,19 @@ Like **a named variable that never changes** — `SCREEN = $0400`. Use the name 
 ```
 
 The constant name appears in the **label picker** dropdown on instruction blocks — just click it to insert.
+
+**PC-relative expressions (`*+N` / `*-N`):**
+
+The value field also accepts `*+N` or `*-N`, where `*` is the compile address of the CONST block itself. This is used to create a named alias for a byte inside a nearby instruction — the classic self-modifying code pattern:
+
+```
+CONST op = *+1      ; op → address of the immediate operand of the next LDA
+LDA #$00            ; $00 will be patched at runtime
+...
+STA op              ; overwrites the #$00 byte → LDA reads the new value next time
+```
+
+The CONST emits 0 bytes; the label resolves at compile time to `current_address + 1`.
 
 **Size:** 0 bytes.
 
@@ -2205,7 +2218,9 @@ Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor mode
 |---|---|
 | Frames | Add / remove / reorder frames; frame strip shown at the bottom. |
 | Mode | Mono / multicolor toggle. |
-| Tools | Pencil, fill, flip horizontal, flip vertical, shift left/right/up/down (with optional wrap). |
+| Tools | Pencil, fill, line, rectangle, circle — plus flip horizontal, flip vertical, shift left/right/up/down (with optional wrap). Shape tools show a live preview while dragging; release to commit. |
+| Undo / redo | Full undo/redo stack per frame. Ctrl/Cmd+Z / Ctrl/Cmd+Y or the toolbar buttons. |
+| Image import | Import a PNG or JPEG via Files → Import image. The importer maps each pixel to the nearest C64 palette colour and writes it into the current frame. |
 | Animation preview | Play / Stop with configurable speed. |
 | Export blocks | Inserts a RAWBYTES block at a 64-byte-aligned address for every frame, plus a sprite pointer setup. |
 | Save `.bin` | Writes 64 bytes per frame (raw sprite data without padding). |
@@ -2240,7 +2255,8 @@ Layered tilemap editor for static scenery, sprite spawn maps, collision data, an
 | Feature | Description |
 |---|---|
 | Layers | Multiple named layers, each with its own tileset and opacity. |
-| Brushes | Single-tile, fill, line and rectangle modes. |
+| Brushes | Single-tile, fill, line, rectangle, and circle modes. Shape tools show a live preview while dragging; release to commit. |
+| Undo / redo | Full undo/redo stack per layer. Ctrl/Cmd+Z / Ctrl/Cmd+Y or the toolbar buttons. |
 | Clear menu | Per-layer or whole-map clear with confirmation. |
 | Image import | Drop a PNG of a tilemap; the editor auto-slices into tiles. |
 | Copy / paste | Copy a selected tile region, then paste normally or use transparent paste to keep empty tiles transparent. |
