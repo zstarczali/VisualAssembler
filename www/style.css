@@ -313,6 +313,15 @@ a {
   display: block;
 }
 
+.main-tb-btn--active {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
+}
+
+.main-tb-btn--active:hover {
+  background: color-mix(in srgb, var(--accent) 26%, transparent);
+}
+
 /* Override legacy control-menu-trigger inside toolbar */
 .main-toolbar .control-menu-trigger {
   min-width: unset;
@@ -3347,6 +3356,115 @@ html[data-theme="oled"] .expert-err-line {
   background: color-mix(in srgb, var(--accent) 9%, transparent);
 }
 
+/* Find bar — floating overlay in top-right of editor wrap */
+.expert-find-bar {
+  position: absolute;
+  top: 8px;
+  right: 14px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 3px 4px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  pointer-events: all;
+  line-height: 1;
+}
+
+.expert-find-bar[hidden] { display: none; }
+
+.expert-find-input {
+  width: 160px;
+  height: 24px !important;
+  min-height: 24px !important;
+  padding: 0 7px !important;
+  font-size: 0.8rem;
+  font-family: inherit;
+  background: var(--bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+  color: var(--text);
+  outline: none;
+  box-shadow: none;
+  line-height: 22px;
+  flex-shrink: 0;
+}
+
+.expert-find-input:focus {
+  border-color: var(--accent);
+  box-shadow: none;
+}
+
+.expert-find-counter {
+  font-size: 0.72rem;
+  color: var(--secondary);
+  white-space: nowrap;
+  padding: 0 6px;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.expert-find-sep {
+  width: 1px;
+  height: 14px;
+  background: var(--panel-border);
+  flex-shrink: 0;
+  margin: 0 2px;
+}
+
+.expert-find-nav {
+  width: 20px;
+  height: 20px;
+  min-height: unset;
+  border: 1px solid transparent;
+  background: none;
+  color: var(--secondary);
+  cursor: pointer;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.expert-find-nav:hover {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--text);
+}
+
+.expert-find-nav--close {
+  margin-left: 2px;
+}
+
+/* Find match highlight in the syntax overlay */
+.expert-hl mark.hl-find-match {
+  background: color-mix(in srgb, #e8a020 35%, transparent);
+  color: inherit;
+  border-radius: 2px;
+}
+
+.expert-hl mark.hl-find-current {
+  background: color-mix(in srgb, #e8a020 75%, transparent);
+  color: inherit;
+  border-radius: 2px;
+  outline: 1px solid #e8a020;
+}
+
+html[data-theme="dark"] .expert-hl mark.hl-find-match,
+html[data-theme="oled"] .expert-hl mark.hl-find-match {
+  background: color-mix(in srgb, #d4880c 40%, transparent);
+}
+
+html[data-theme="dark"] .expert-hl mark.hl-find-current,
+html[data-theme="oled"] .expert-hl mark.hl-find-current {
+  background: color-mix(in srgb, #d4880c 80%, transparent);
+  outline-color: #d4880c;
+}
+
 .expert-body {
   display: flex;
   flex: 1;
@@ -3642,6 +3760,50 @@ html[data-theme="oled"] .expert-err-line {
   opacity: 0.45;
   padding: 4px 9px 1px;
   user-select: none;
+}
+
+/* Line number gutter */
+.expert-line-numbers {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--expert-ln-w, 0px);
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 2;
+  background: var(--expert-editor-bg);
+  border-right: 1px solid var(--panel-border);
+  box-sizing: border-box;
+  display: none;
+}
+
+.expert-editor-wrap.expert-show-ln .expert-line-numbers {
+  display: block;
+}
+
+.expert-line-numbers-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding-top: 16px;
+  text-align: right;
+  padding-right: 8px;
+  font-family: 'JetBrains Mono', 'Fira Mono', 'Cascadia Code', 'Consolas', monospace;
+  font-size: inherit;
+  line-height: 1.6;
+  color: var(--secondary);
+  opacity: 0.55;
+  user-select: none;
+  white-space: pre;
+}
+
+/* When line numbers shown: shift editor + hl overlay right */
+.expert-editor-wrap.expert-show-ln .expert-hl,
+.expert-editor-wrap.expert-show-ln .expert-editor {
+  left: var(--expert-ln-w, 0px);
+  width: auto;
 }
 
 .expert-hl,
