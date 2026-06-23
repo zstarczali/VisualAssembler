@@ -2360,13 +2360,16 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
+            eprintln!("DEBUG: Setup starting...");
             let run_html = std::sync::Arc::new(std::sync::Mutex::new(String::new()));
             let port = start_vc64web_server(app.handle(), run_html.clone()).unwrap_or_else(|e| {
                 eprintln!("vc64web server: {}", e);
                 0
             });
+            eprintln!("DEBUG: vc64web server started on port {}", port);
             app.manage(Vc64WebPort(port));
             app.manage(Vc64WebRunHtml(run_html));
+            eprintln!("DEBUG: Setup complete");
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

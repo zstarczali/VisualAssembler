@@ -175,6 +175,9 @@
           <button id="sid-editor-btn" class="main-tb-btn main-tb-icon-btn" type="button" title="SID Editor" aria-label="SID Editor">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><path d="M1.5 8.5h2l1.5-5 2.5 10 2-7 1.5 4h3.5"/></svg>
           </button>
+          <button id="expert-mode-tb-btn" class="main-tb-btn main-tb-icon-btn" type="button" title="Expert mode" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.25" width="15" height="15" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M4 6l2.5 2.5L4 11" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 11h3" stroke-linecap="round"/></svg>
+          </button>
           <div class="main-tb-sep" aria-hidden="true"></div>
           <div class="split-run-group">
             <button id="run-emulator" class="main-tb-btn main-tb-run split-run-main" type="button">
@@ -445,6 +448,28 @@ PRINTABLE CHARACTERS
           <button id="expert-build-info-btn" class="expert-hl-toggle" title="Build Info" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 7V12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="5" r="0.8" fill="currentColor"/></svg>
           </button>
+          <div class="expert-toolbar-sep"></div>
+          <button id="expert-line-numbers-btn" class="expert-hl-toggle" title="Line numbers" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M6 4h8M6 8h8M6 12h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><text x="1" y="5.5" font-family="monospace" font-size="4.5" fill="currentColor" opacity="0.7">1</text><text x="1" y="9.5" font-family="monospace" font-size="4.5" fill="currentColor" opacity="0.7">2</text><text x="1" y="13.5" font-family="monospace" font-size="4.5" fill="currentColor" opacity="0.7">3</text></svg>
+          </button>
+          <button id="expert-find-btn" class="expert-hl-toggle" title="Find (Ctrl+F)" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M10 10L14 14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          </button>
+          <div class="expert-toolbar-sep"></div>
+          <button id="expert-zoom-out-btn" class="expert-hl-toggle" title="Zoom out">
+            <svg viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="15" height="12" aria-hidden="true">
+              <text x="1" y="11" font-family="serif" font-size="9" fill="currentColor" opacity="0.55">A</text>
+              <text x="8" y="13" font-family="serif" font-size="12" fill="currentColor">A</text>
+              <path d="M8 6h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <button id="expert-zoom-in-btn" class="expert-hl-toggle" title="Zoom in">
+            <svg viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="15" height="12" aria-hidden="true">
+              <text x="1" y="11" font-family="serif" font-size="9" fill="currentColor" opacity="0.55">A</text>
+              <text x="8" y="13" font-family="serif" font-size="12" fill="currentColor">A</text>
+              <path d="M8 3v6M5 6h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+          </button>
           <span id="expert-file-name" class="expert-file-name"></span>
         </div>
         <div class="expert-body">
@@ -470,8 +495,23 @@ PRINTABLE CHARACTERS
             <div class="expert-project-symbols" id="expert-project-symbols" hidden></div>
           </div>
           <div class="expert-editor-wrap">
+            <div id="expert-line-numbers" class="expert-line-numbers" aria-hidden="true"></div>
             <pre class="expert-hl" id="expert-hl" aria-hidden="true"><div id="expert-region-bg" class="expert-region-bg" hidden></div><code id="expert-hl-code"></code></pre>
             <textarea id="expert-editor" class="expert-editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" wrap="off" placeholder="; Expert mode — write 6502 assembly here&#10;; * = $0801&#10;; start:&#10;;     LDA #$00&#10;;     STA $D020&#10;;     RTS"></textarea>
+            <div id="expert-find-bar" class="expert-find-bar" hidden>
+              <input id="expert-find-input" class="expert-find-input" type="text" placeholder="Find…" autocomplete="off" spellcheck="false">
+              <span id="expert-find-counter" class="expert-find-counter"></span>
+              <span class="expert-find-sep"></span>
+              <button id="expert-find-prev" class="expert-find-nav" title="Previous (Shift+Enter)">
+                <svg viewBox="0 0 16 16" fill="none" width="10" height="10" aria-hidden="true"><path d="M4 10l4-5 4 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <button id="expert-find-next" class="expert-find-nav" title="Next (Enter)">
+                <svg viewBox="0 0 16 16" fill="none" width="10" height="10" aria-hidden="true"><path d="M4 6l4 5 4-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <button id="expert-find-close" class="expert-find-nav expert-find-nav--close" title="Close (Esc)">
+                <svg viewBox="0 0 16 16" fill="none" width="10" height="10" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </button>
+            </div>
           </div>
           <div class="expert-disasm-resizer" id="expert-disasm-resizer" hidden></div>
           <div class="expert-disasm-panel" id="expert-disasm-panel" hidden>
@@ -1364,10 +1404,7 @@ PRINTABLE CHARACTERS
             <input type="checkbox" id="block-desc-sync-toggle" checked>
             <span id="block-desc-sync-label">Leírás szinkron blokk módban</span>
           </label>
-          <label class="menu-checkbox-label">
-            <input type="checkbox" id="expert-mode-toggle">
-            <span id="expert-mode-label">Expert mode</span>
-          </label>
+
         </section>
 
         <section class="hw-settings-section">

@@ -341,6 +341,10 @@ const expertFormatBtn      = document.getElementById("expert-format-btn");
 const expertLoadAsmBtn     = document.getElementById("expert-load-asm-btn");
 const expertSaveAsmBtn     = document.getElementById("expert-save-asm-btn");
 const expertBuildInfoBtn   = document.getElementById("expert-build-info-btn");
+const expertModeTbBtn      = document.getElementById("expert-mode-tb-btn");
+const expertFindBtn        = document.getElementById("expert-find-btn");
+const expertZoomInBtn      = document.getElementById("expert-zoom-in-btn");
+const expertZoomOutBtn     = document.getElementById("expert-zoom-out-btn");
 const buildInfoBtn         = document.getElementById("build-info-btn");
 const expertProjectBtn     = document.getElementById("expert-project-btn");
 const expertProjectPanel   = document.getElementById("expert-project-panel");
@@ -377,6 +381,12 @@ let _expertDisasmVisible = false;
 let _expertDisasmWidth   = 340;
 let _expertMonitorVisible = false;
 let _expertProjectVisible = false;
+let _expertFontSize = 13.44; // px (= 0.84rem at 16px base)
+let _expertLineNumbersEnabled = false;
+let _expertFindVisible = false;
+let _expertFindTerm = "";
+let _expertFindMatches = []; // [{start, end}] flat textarea positions
+let _expertFindIdx = -1;
 let _expertProjectData = null; // { name, files, _projPath }
 
 // translations object is defined in i18n.js (loaded before app.js)
@@ -490,7 +500,9 @@ function saveUiSettings() {
     debuggerJmp,
     debuggerWait,
     debuggerWaitMs,
-    debuggerUnpause
+    debuggerUnpause,
+    expertFontSize: _expertFontSize,
+    expertLineNumbers: _expertLineNumbersEnabled
   };
 
   localStorage.setItem("c64-ui-settings", JSON.stringify(settings));
@@ -1010,6 +1022,9 @@ function initPalette() {
   expertModeToggle?.addEventListener("change", () => {
     setExpertMode(expertModeToggle.checked);
   });
+  expertModeTbBtn?.addEventListener("click", () => {
+    setExpertMode(!expertMode);
+  });
 
   expertHlToggleBtn?.addEventListener("click", () => {
     _expertHlEnabled = !_expertHlEnabled;
@@ -1093,6 +1108,30 @@ function initPalette() {
   expertBuildInfoBtn?.addEventListener("click", showBuildInfoDialog);
   buildInfoBtn?.addEventListener("click", showBuildInfoDialog);
 
+  // Find
+  expertFindBtn?.addEventListener("click", () => {
+    if (_expertFindVisible) _expertFindClose(); else _expertFindOpen();
+  });
+  document.getElementById("expert-find-input")?.addEventListener("input", _expertFindExecute);
+  document.getElementById("expert-find-input")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter")  { e.preventDefault(); _expertFindNavigate(e.shiftKey ? -1 : 1); }
+    if (e.key === "Escape") { e.preventDefault(); _expertFindClose(); }
+  });
+  document.getElementById("expert-find-prev")?.addEventListener("click", () => _expertFindNavigate(-1));
+  document.getElementById("expert-find-next")?.addEventListener("click", () => _expertFindNavigate(1));
+  document.getElementById("expert-find-close")?.addEventListener("click", _expertFindClose);
+
+  // Zoom
+  expertZoomInBtn?.addEventListener("click",  () => _expertZoom(1));
+  expertZoomOutBtn?.addEventListener("click", () => _expertZoom(-1));
+
+  // Line numbers
+  document.getElementById("expert-line-numbers-btn")?.addEventListener("click", () => {
+    _expertLineNumbersEnabled = !_expertLineNumbersEnabled;
+    _expertApplyLineNumbers();
+    saveUiSettings();
+  });
+
   // Build info dialog close
   document.getElementById("build-info-close")?.addEventListener("click", () => {
     document.getElementById("build-info-dialog")?.close();
@@ -1128,6 +1167,17 @@ function initPalette() {
   });
 
   expertEditor?.addEventListener("keydown", (e) => {
+    // Open find bar with Ctrl+F / Cmd+F
+    if ((e.ctrlKey || e.metaKey) && e.key === "f") {
+      e.preventDefault();
+      _expertFindOpen();
+      return;
+    }
+    // Escape closes find bar if open
+    if (e.key === "Escape" && _expertFindVisible) {
+      _expertFindClose();
+      return;
+    }
     // Autocomplete navigation
     if (_expertAcVisible()) {
       if (e.key === "ArrowDown")  { e.preventDefault(); _expertAcMove(1);  return; }
@@ -1159,6 +1209,10 @@ function initPalette() {
     const _regionBg = document.getElementById("expert-region-bg");
     if (_regionBg && !_regionBg.hidden) {
       _regionBg.style.transform = `translateY(${-expertEditor.scrollTop}px)`;
+    }
+    if (_expertLineNumbersEnabled) {
+      const inner = document.querySelector(".expert-line-numbers-inner");
+      if (inner) inner.style.transform = `translateY(${-expertEditor.scrollTop}px)`;
     }
     _expertAcHide();
   });
@@ -1748,6 +1802,16 @@ function _applyUiSettingsToDOM() {
 
   if (savedUiSettings.debuggerUnpause !== undefined) debuggerUnpause = !!savedUiSettings.debuggerUnpause;
   if (dbgUnpause) dbgUnpause.checked = debuggerUnpause;
+
+  if (typeof savedUiSettings.expertFontSize === "number" && Number.isFinite(savedUiSettings.expertFontSize)) {
+    _expertFontSize = Math.max(8, Math.min(28, savedUiSettings.expertFontSize));
+    _applyExpertFontSize();
+  }
+
+  if (savedUiSettings.expertLineNumbers) {
+    _expertLineNumbersEnabled = true;
+    _expertApplyLineNumbers();
+  }
 
   if (savedUiSettings.expertMode) {
     // Capture toolbar states BEFORE setExpertMode(true) — it calls saveUiSettings()
@@ -3821,6 +3885,12 @@ function _blockToExpertLine(block) {
   if (block.isDataMacro)      return `.data ${fmtAddr(block.dataAddress)}, ${fmtRaw(block.rawOperand, block.base)}${fmtMacroLabel(block.macroLabel)}`;
   if (block.isRawBytesMacro)  return `.rawbytes ${fmtAddr(block.rawBytesAddress)}, ${fmtRaw(block.rawOperand, block.base)}${fmtMacroLabel(block.macroLabel)}`;
   if (block.isByteMacro) {
+      const hasLabelRef = /^[<>]|,[<>]/.test((block.rawOperand || "").replace(/\s/g, ""));
+      if (hasLabelRef) {
+        const parts = (block.rawOperand || "").split(",").map(p => p.trim()).filter(Boolean);
+        const chunks = chunkBytes(parts, 8);
+        return chunks.map(chunk => `.byte ${chunk.join(", ")}`).join("\n");
+      }
       const asmBytes = parseByteMacro(block.rawOperand, block.base);
       const chunks = chunkBytes(asmBytes, 8);
       return chunks.map(chunk => `.byte ${chunk.map(b => "$" + b.toString(16).toUpperCase().padStart(2, "0")).join(", ")}`).join("\n");
@@ -4004,6 +4074,10 @@ function setExpertMode(on) {
   document.body.classList.toggle("expert-mode", on);
   if (expertPanel) expertPanel.hidden = !on;
   if (expertModeToggle) expertModeToggle.checked = on;
+  if (expertModeTbBtn) {
+    expertModeTbBtn.setAttribute("aria-pressed", String(on));
+    expertModeTbBtn.classList.toggle("main-tb-btn--active", on);
+  }
   if (on) { _expertSyncFromProgram(); renderExpertOriginInfo(); }
   else renderProgram();
   saveUiSettings();
@@ -4635,13 +4709,38 @@ function _expertApplyHighlight() {
       const escaped = raw.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
       return escaped + (i < allLines.length - 1 ? "\n" : "");
     }).join("");
+    if (_expertLineNumbersEnabled) _expertUpdateLineNumbers();
     return;
   }
 
   // CRITICAL: \n must be OUTSIDE spans — display:block + \n inside causes
   // the pre to render extra blank lines, desyncing it from the textarea.
+
+  // Precompute line start offsets for find highlighting
+  const lineOffsets = [];
+  { let off = 0; for (const l of allLines) { lineOffsets.push(off); off += l.length + 1; } }
+
   const html = allLines.map((raw, i) => {
-    const hl = _expertHighlightLine(raw);
+    let hl = _expertHighlightLine(raw);
+
+    // Inject find match highlights
+    if (_expertFindVisible && _expertFindTerm && _expertFindMatches.length) {
+      const lineStart = lineOffsets[i];
+      const lineEnd   = lineStart + raw.length;
+      const lineMarks = [];
+      for (let mi = 0; mi < _expertFindMatches.length; mi++) {
+        const m = _expertFindMatches[mi];
+        if (m.start < lineEnd && m.end > lineStart) {
+          lineMarks.push({
+            start: Math.max(0, m.start - lineStart),
+            end:   Math.min(raw.length, m.end - lineStart),
+            cls:   mi === _expertFindIdx ? "hl-find-current" : "hl-find-match"
+          });
+        }
+      }
+      if (lineMarks.length) hl = _injectMarksInHtml(hl, lineMarks);
+    }
+
     const nl = i < allLines.length - 1 ? "\n" : "";
     let lineHtml = hl;
     if (rh) {
@@ -4658,7 +4757,210 @@ function _expertApplyHighlight() {
   }).join("");
   expertHlCode.innerHTML = html;
   _updateExpertRegionBg();
+  if (_expertLineNumbersEnabled) _expertUpdateLineNumbers();
 }
+
+// ── Find ────────────────────────────────────────────────────────────────────
+
+function _injectMarksInHtml(html, marks) {
+  // marks: [{start, end, cls}] positions in raw line text
+  if (!marks.length) return html;
+  let out = "";
+  let rawPos = 0;
+  let i = 0;
+  let activeMarkCls = null;
+
+  const markAtPos = (pos) => {
+    for (const m of marks) if (pos >= m.start && pos < m.end) return m.cls;
+    return null;
+  };
+
+  while (i < html.length) {
+    if (html[i] === "<") {
+      // Close active mark before the tag, reopen after
+      if (activeMarkCls) { out += "</mark>"; }
+      const end = html.indexOf(">", i);
+      if (end === -1) { if (activeMarkCls) out += `<mark class="${activeMarkCls}">`; out += html.slice(i); break; }
+      out += html.slice(i, end + 1);
+      i = end + 1;
+      if (activeMarkCls) out += `<mark class="${activeMarkCls}">`;
+    } else {
+      const needed = html[i] === "&" ? null : markAtPos(rawPos); // entity: handle below
+      if (html[i] === "&") {
+        const end = html.indexOf(";", i);
+        const cls = markAtPos(rawPos);
+        if (cls !== activeMarkCls) {
+          if (activeMarkCls) out += "</mark>";
+          activeMarkCls = cls;
+          if (activeMarkCls) out += `<mark class="${activeMarkCls}">`;
+        }
+        if (end === -1) { out += html[i]; i++; rawPos++; }
+        else { out += html.slice(i, end + 1); i = end + 1; rawPos++; }
+      } else {
+        if (needed !== activeMarkCls) {
+          if (activeMarkCls) out += "</mark>";
+          activeMarkCls = needed;
+          if (activeMarkCls) out += `<mark class="${activeMarkCls}">`;
+        }
+        out += html[i]; i++; rawPos++;
+      }
+    }
+  }
+  if (activeMarkCls) out += "</mark>";
+  return out;
+}
+
+function _expertFindOpen() {
+  const bar = document.getElementById("expert-find-bar");
+  if (!bar) return;
+  _expertFindVisible = true;
+  bar.hidden = false;
+  document.getElementById("expert-find-btn")?.setAttribute("aria-pressed", "true");
+  const inp = document.getElementById("expert-find-input");
+  if (inp) {
+    // Pre-fill with current selection if short
+    const sel = expertEditor?.value.slice(expertEditor.selectionStart, expertEditor.selectionEnd) || "";
+    if (sel.length > 0 && sel.length < 80 && !sel.includes("\n")) inp.value = sel;
+    inp.focus();
+    inp.select();
+  }
+  _expertFindExecute();
+}
+
+function _expertFindClose() {
+  const bar = document.getElementById("expert-find-bar");
+  if (!bar) return;
+  _expertFindVisible = false;
+  bar.hidden = true;
+  document.getElementById("expert-find-btn")?.setAttribute("aria-pressed", "false");
+  _expertFindTerm = "";
+  _expertFindMatches = [];
+  _expertFindIdx = -1;
+  _expertApplyHighlight();
+  expertEditor?.focus();
+}
+
+function _expertFindExecute() {
+  const inp = document.getElementById("expert-find-input");
+  _expertFindTerm = inp?.value || "";
+  _expertFindMatches = [];
+  if (_expertFindTerm && expertEditor) {
+    const escaped = _expertFindTerm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    try {
+      const re = new RegExp(escaped, "gi");
+      const text = expertEditor.value;
+      let m;
+      while ((m = re.exec(text)) !== null) {
+        _expertFindMatches.push({ start: m.index, end: m.index + m[0].length });
+        if (_expertFindMatches.length > 5000) break;
+      }
+    } catch(_) {}
+  }
+  _expertFindIdx = _expertFindMatches.length > 0 ? 0 : -1;
+  if (_expertFindIdx >= 0) _expertFindGotoIdx(_expertFindIdx);
+  _expertFindUpdateCounter();
+  _expertApplyHighlight();
+}
+
+function _expertFindNavigate(dir) {
+  if (!_expertFindMatches.length) return;
+  _expertFindIdx = ((_expertFindIdx + dir) % _expertFindMatches.length + _expertFindMatches.length) % _expertFindMatches.length;
+  _expertFindGotoIdx(_expertFindIdx, true);
+  _expertFindUpdateCounter();
+  _expertApplyHighlight();
+}
+
+function _expertFindGotoIdx(idx, moveFocus = false) {
+  if (!_expertFindMatches.length || !expertEditor) return;
+  const match = _expertFindMatches[idx];
+  if (moveFocus) expertEditor.focus();
+  expertEditor.setSelectionRange(match.start, match.end);
+  // Scroll so match is vertically centered
+  const textBefore = expertEditor.value.substring(0, match.start);
+  const lineNo = textBefore.split("\n").length - 1;
+  const lh = parseFloat(getComputedStyle(expertEditor).lineHeight) || 21;
+  const pt = parseFloat(getComputedStyle(expertEditor).paddingTop) || 16;
+  expertEditor.scrollTop = Math.max(0, pt + lineNo * lh - expertEditor.clientHeight / 2);
+}
+
+function _expertFindUpdateCounter() {
+  const el = document.getElementById("expert-find-counter");
+  if (!el) return;
+  if (!_expertFindTerm) { el.textContent = ""; el.style.color = ""; return; }
+  if (!_expertFindMatches.length) {
+    el.textContent = currentLanguage === "hu" ? "Nincs találat." : currentLanguage === "es" ? "Sin resultados." : "No results.";
+    el.style.color = "var(--error, #f44)";
+  } else {
+    el.textContent = `${_expertFindIdx + 1} / ${_expertFindMatches.length}`;
+    el.style.color = "";
+  }
+}
+
+// ── Zoom ────────────────────────────────────────────────────────────────────
+
+function _applyExpertFontSize() {
+  if (expertEditor) expertEditor.style.fontSize = _expertFontSize + "px";
+  const hl = document.getElementById("expert-hl");
+  if (hl) hl.style.fontSize = _expertFontSize + "px";
+  const gutter = document.getElementById("expert-line-numbers");
+  if (gutter) gutter.style.fontSize = _expertFontSize + "px";
+}
+
+function _expertZoom(delta) {
+  _expertFontSize = Math.max(8, Math.min(28, _expertFontSize + delta));
+  _applyExpertFontSize();
+  if (_expertLineNumbersEnabled) _expertUpdateLineNumbers();
+  saveUiSettings();
+}
+
+// ── Line numbers ─────────────────────────────────────────────────────────────
+
+function _expertApplyLineNumbers() {
+  const wrap = document.querySelector(".expert-editor-wrap");
+  const gutter = document.getElementById("expert-line-numbers");
+  const btn = document.getElementById("expert-line-numbers-btn");
+  if (!wrap || !gutter) return;
+
+  wrap.classList.toggle("expert-show-ln", _expertLineNumbersEnabled);
+  btn?.setAttribute("aria-pressed", String(_expertLineNumbersEnabled));
+  btn?.classList.toggle("expert-hl-toggle--on", _expertLineNumbersEnabled);
+
+  if (!_expertLineNumbersEnabled) {
+    wrap.style.removeProperty("--expert-ln-w");
+    return;
+  }
+  _expertUpdateLineNumbers();
+}
+
+function _expertUpdateLineNumbers() {
+  if (!_expertLineNumbersEnabled || !expertEditor) return;
+  const gutter = document.getElementById("expert-line-numbers");
+  if (!gutter) return;
+
+  const count = (expertEditor.value.match(/\n/g) || []).length + 1;
+  const digits = String(count).length;
+  // Width: digits × ~0.6em + padding (8px right + 4px left + border)
+  const charW = _expertFontSize * 0.62;
+  const gutterW = Math.max(36, digits * charW + 22);
+  const wrap = document.querySelector(".expert-editor-wrap");
+  if (wrap) wrap.style.setProperty("--expert-ln-w", gutterW + "px");
+
+  // Build line number text — one number per line, right-aligned via CSS
+  let inner = gutter.querySelector(".expert-line-numbers-inner");
+  if (!inner) {
+    inner = document.createElement("div");
+    inner.className = "expert-line-numbers-inner";
+    gutter.appendChild(inner);
+  }
+  const lines = [];
+  for (let i = 1; i <= count; i++) lines.push(i);
+  inner.textContent = lines.join("\n");
+
+  // Sync vertical scroll
+  inner.style.transform = `translateY(${-expertEditor.scrollTop}px)`;
+}
+
+// ────────────────────────────────────────────────────────────────────────────
 
 function _updateExpertRegionBg() {
   const bgDiv = document.getElementById("expert-region-bg");
@@ -7166,12 +7468,16 @@ function convertByteArray(bytes, targetBase) {
     .join(",");
 }
 
-function parseByteMacro(raw, base = "dec") {
+function parseByteMacro(raw, base = "dec", labels = null) {
   return raw
     .split(",")
     .map((part) => part.trim())
     .filter(Boolean)
     .map((part) => {
+      const loM = part.match(/^<([A-Za-z_.][A-Za-z0-9_.]*)$/);
+      if (loM) return labels ? ((labels[loM[1]] ?? 0) & 0xFF) : 0;
+      const hiM = part.match(/^>([A-Za-z_.][A-Za-z0-9_.]*)$/);
+      if (hiM) return labels ? (((labels[hiM[1]] ?? 0) >> 8) & 0xFF) : 0;
       if (/^%[01]+$/.test(part)) {
         return Number.parseInt(part.slice(1), 2);
       }
@@ -7197,6 +7503,7 @@ function validateByteMacro(raw, base = "dec") {
   }
 
   for (const part of parts) {
+    if (/^[<>][A-Za-z_.][A-Za-z0-9_.]*$/.test(part)) continue; // lo/hi byte label ref
     const validBinary = /^%[01]+$/.test(part);
     const validHexPrefixed = /^\$[0-9A-Fa-f]+$/.test(part) || /^0x[0-9A-Fa-f]+$/i.test(part);
     const validBare = base === "bin" ? /^[01]+$/.test(part) : (base === "hex" ? /^[0-9A-Fa-f]+$/.test(part) : /^\d+$/.test(part));
@@ -9408,6 +9715,10 @@ function _importMakeByte(rawByteStr) {
 function _importDetectListBase(rawList) {
   const parts = rawList.split(",").map(p => p.trim()).filter(Boolean);
   if (!parts.length) return { base: "hex", normalized: rawList.trim() };
+  // Lo/hi byte label refs: <label or >label — preserve as-is
+  if (parts.some(p => /^[<>][A-Za-z_.][A-Za-z0-9_.]*$/.test(p))) {
+    return { base: "dec", normalized: parts.join(",") };
+  }
   const allBin = parts.every(p => /^%[01]+$/.test(p));
   const allHex = parts.every(p => /^\$[0-9A-Fa-f]+$/.test(p) || /^0x[0-9A-Fa-f]+$/i.test(p));
   const allDec = parts.every(p => /^\d+$/.test(p));
@@ -10913,7 +11224,7 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isByteMacro) {
-    const bytes = parseByteMacro(block.rawOperand, block.base);
+    const bytes = parseByteMacro(block.rawOperand, block.base, labels);
     return {
       ok: true,
       bytes,
