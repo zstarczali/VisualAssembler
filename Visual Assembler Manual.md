@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.0.4**
+**Version 2.0.5**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -316,6 +316,9 @@ Expert Mode is a full-featured direct-text 6502 assembly editor that lives along
 | **Save .asm** | `#expert-save-asm-btn` | Save editor content to a `.asm` file (file dialog on first save) |
 | **Build Info** | `#expert-build-info-btn` | Open the Build Info dialog (origin, size, labels, errors) |
 | **HL** | `#expert-hl-btn` | Toggle syntax highlighting (disable for very large files) |
+| **Line numbers** | `#expert-line-numbers-btn` | Toggle the line number gutter on the left side of the editor. The gutter stays in sync with the scroll position and updates live as you type. |
+| **Find** | `#expert-find-btn` | Open the floating Find bar (`Ctrl+F`). Type to search; matches are highlighted in the overlay. `Enter` / `Shift+Enter` navigate between matches. `Escape` closes the bar. |
+| **Zoom out / in** | `#expert-zoom-out-btn` / `#expert-zoom-in-btn` | Decrease / increase the editor font size (8–28 px). The setting is persisted. |
 | **Palette** | `#expert-palette-btn` | Show/hide the left mnemonic palette |
 | **Disasm** | `#expert-disasm-btn` | Show/hide the disassembly panel (pure 6502, macros expanded) |
 | **Monitor** | `#expert-monitor-btn` | Show/hide the monitor hex-dump panel |
@@ -570,6 +573,14 @@ Like **DATA in BASIC** — stores a list of raw byte values inline in the progra
 ```
     .byte $01, $02, $FF
 ```
+
+**Lo/hi byte label references:** BYTE accepts KickAssembler / ca65 style `<label` (low byte) and `>label` (high byte) tokens alongside numeric values. The assembler resolves the label address at compile time and inserts the appropriate byte. Example:
+
+```
+    .byte <frame_0, >frame_0, <frame_1, >frame_1
+```
+
+This stores the low byte of `frame_0`'s address, then the high byte, then the same for `frame_1`. Useful for building jump tables and address lists.
 
 **Size:** Number of bytes in the list.
 
