@@ -372,7 +372,7 @@ Lásd `tauri-bridge.js` és `src-tauri/src/lib.rs`. Leggyakoribb commands:
 
 ## 14. Jelenlegi verzió
 
-`2.0.3` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
+`2.0.6` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, és ez a fájl + copilot-instructions.md.
 
 Verziónöveléshez lásd a 3. szakasz végén lévő 7-lépéses checklistet.

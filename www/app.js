@@ -329,6 +329,7 @@ let workProgressValue = 10;
 const exitAppButton = document.getElementById("exit-app");
 const expertHlToggleBtn = document.getElementById("expert-hl-toggle");
 const expertPaletteSyncBtn = document.getElementById("expert-palette-sync-btn");
+const expertAutocompleteBtn = document.getElementById("expert-autocomplete-btn");
 const expertPaletteBtn     = document.getElementById("expert-palette-btn");
 const expertDisasmBtn      = document.getElementById("expert-disasm-btn");
 const expertDisasmPanel    = document.getElementById("expert-disasm-panel");
@@ -376,6 +377,7 @@ let activeTabId = null;
 let _tabCounter = 0;
 let _expertHlEnabled = true;
 let _expertPaletteSyncEnabled = true;
+let _expertAcEnabled = true;
 let _expertPaletteVisible = false;
 let _expertDisasmVisible = false;
 let _expertDisasmWidth   = 340;
@@ -486,6 +488,7 @@ function saveUiSettings() {
     expertMode: expertMode,
     expertHlEnabled: _expertHlEnabled,
     expertPaletteSyncEnabled: _expertPaletteSyncEnabled,
+    expertAutocompleteEnabled: _expertAcEnabled,
     expertPaletteVisible: _expertPaletteVisible,
     expertDisasmVisible: _expertDisasmVisible,
     expertDisasmWidth: _expertDisasmWidth,
@@ -1049,6 +1052,15 @@ function initPalette() {
     saveUiSettings();
   });
 
+  expertAutocompleteBtn?.addEventListener("click", () => {
+    _expertAcEnabled = !_expertAcEnabled;
+    expertAutocompleteBtn.classList.toggle("expert-hl-toggle--on", _expertAcEnabled);
+    expertAutocompleteBtn.setAttribute("aria-pressed", String(_expertAcEnabled));
+    if (!_expertAcEnabled) _expertAcHide();
+    else _expertAcUpdate();
+    saveUiSettings();
+  });
+
   expertDisasmBtn?.addEventListener("click", () => {
     _expertDisasmVisible = !_expertDisasmVisible;
     expertDisasmBtn.classList.toggle("expert-hl-toggle--on", _expertDisasmVisible);
@@ -1166,6 +1178,10 @@ function initPalette() {
     _expertAcUpdate();
   });
 
+  expertEditor?.addEventListener("blur", () => {
+    setTimeout(_expertAcHide, 0);
+  });
+
   expertEditor?.addEventListener("keydown", (e) => {
     // Open find bar with Ctrl+F / Cmd+F
     if ((e.ctrlKey || e.metaKey) && e.key === "f") {
@@ -1216,6 +1232,12 @@ function initPalette() {
     }
     _expertAcHide();
   });
+
+  document.addEventListener("pointerdown", (e) => {
+    if (!e.target.closest("#expert-ac") && e.target !== expertEditor) {
+      _expertAcHide();
+    }
+  }, true);
   aboutCloseButton?.addEventListener("click", () => aboutDialog?.close());
   whatsNewButton?.addEventListener("click", () => {
     document.querySelector(".control-menu")?.removeAttribute("open");
@@ -1813,11 +1835,16 @@ function _applyUiSettingsToDOM() {
     _expertApplyLineNumbers();
   }
 
+  if (savedUiSettings.expertAutocompleteEnabled !== undefined) {
+    _expertAcEnabled = !!savedUiSettings.expertAutocompleteEnabled;
+  }
+
   if (savedUiSettings.expertMode) {
     // Capture toolbar states BEFORE setExpertMode(true) — it calls saveUiSettings()
     // which overwrites savedUiSettings with current (default) variable values.
     const _savedHlEnabled          = savedUiSettings.expertHlEnabled;
     const _savedPaletteSyncEnabled = savedUiSettings.expertPaletteSyncEnabled;
+    const _savedAutocompleteEnabled = savedUiSettings.expertAutocompleteEnabled;
     const _savedPaletteVisible     = savedUiSettings.expertPaletteVisible;
     const _savedDisasmWidth        = savedUiSettings.expertDisasmWidth;
     const _savedDisasmVisible      = savedUiSettings.expertDisasmVisible;
@@ -1836,6 +1863,11 @@ function _applyUiSettingsToDOM() {
       _expertPaletteSyncEnabled = false;
       expertPaletteSyncBtn?.classList.remove("expert-hl-toggle--on");
       expertPaletteSyncBtn?.setAttribute("aria-pressed", "false");
+    }
+    if (_savedAutocompleteEnabled === false) {
+      _expertAcEnabled = false;
+      expertAutocompleteBtn?.classList.remove("expert-hl-toggle--on");
+      expertAutocompleteBtn?.setAttribute("aria-pressed", "false");
     }
     if (_savedPaletteVisible) {
       _expertPaletteVisible = true;
@@ -1970,6 +2002,8 @@ function applyTranslations() {
   document.getElementById("expert-project-add-btn")?.setAttribute("aria-label", t("projAddFileBtn"));
   expertPaletteSyncBtn?.setAttribute("title", t("expertPaletteSync"));
   expertPaletteSyncBtn?.setAttribute("aria-label", t("expertPaletteSync"));
+  expertAutocompleteBtn?.setAttribute("title", t("expertAutocomplete"));
+  expertAutocompleteBtn?.setAttribute("aria-label", t("expertAutocomplete"));
   expertDisasmBtn?.setAttribute("title", t("expertDisasm"));
   expertDisasmBtn?.setAttribute("aria-label", t("expertDisasm"));
   expertMonitorBtn?.setAttribute("title", t("expertMonitor"));
@@ -2182,6 +2216,7 @@ function applyTranslations() {
   if (sampleOptions[31]) sampleOptions[31].textContent = t("sampleReuDemo");
   if (sampleOptions[32]) sampleOptions[32].textContent = t("sampleScrollTextDemo");
   if (sampleOptions[33]) sampleOptions[33].textContent = t("sampleNameInputDemo");
+  if (sampleOptions[34]) sampleOptions[34].textContent = t("sampleBoxDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -4070,8 +4105,11 @@ function setExpertMode(on) {
       program = blocks.map(b => ({ ...b, collapsed: false }));
     }
   }
+  if (!on) _expertAcHide();
   expertMode = on;
   document.body.classList.toggle("expert-mode", on);
+  expertAutocompleteBtn?.classList.toggle("expert-hl-toggle--on", _expertAcEnabled);
+  expertAutocompleteBtn?.setAttribute("aria-pressed", String(_expertAcEnabled));
   if (expertPanel) expertPanel.hidden = !on;
   if (expertModeToggle) expertModeToggle.checked = on;
   if (expertModeTbBtn) {
@@ -4265,6 +4303,7 @@ function _expertAcInsert(value, kind) {
 
 function _expertAcUpdate() {
   if (!expertEditor) return;
+  if (!_expertAcEnabled) { _expertAcHide(); return; }
   const ta = expertEditor;
   const pos = ta.selectionStart;
   const lineStart = ta.value.lastIndexOf("\n", pos - 1) + 1;
@@ -4302,9 +4341,8 @@ function _expertAcUpdate() {
     return;
   }
 
-  // Label completion: line is whitespace + mnemonic + whitespace + optional typed word (operand position)
-  // Triggers immediately after the space following the mnemonic, even before any letter is typed.
-  const mLabel = lineText.match(/^\s+[A-Za-z]{2,4}\s+([A-Za-z_]\w*)?$/);
+  // Label completion: line is whitespace + mnemonic + whitespace + typed word (operand position)
+  const mLabel = lineText.match(/^\s+[A-Za-z]{2,4}\s+([A-Za-z_]\w*)$/);
   if (mLabel !== null) {
     const typed = mLabel[1] || "";
     const allLabels = _expertGetLabels(ta.value);
@@ -7475,9 +7513,9 @@ function parseByteMacro(raw, base = "dec", labels = null) {
     .filter(Boolean)
     .map((part) => {
       const loM = part.match(/^<([A-Za-z_.][A-Za-z0-9_.]*)$/);
-      if (loM) return labels ? ((labels[loM[1]] ?? 0) & 0xFF) : 0;
+      if (loM) return labels ? ((( typeof labels.get === 'function' ? labels.get(loM[1]) : labels[loM[1]]) ?? 0) & 0xFF) : 0;
       const hiM = part.match(/^>([A-Za-z_.][A-Za-z0-9_.]*)$/);
-      if (hiM) return labels ? (((labels[hiM[1]] ?? 0) >> 8) & 0xFF) : 0;
+      if (hiM) return labels ? ((( typeof labels.get === 'function' ? labels.get(hiM[1]) : labels[hiM[1]]) ?? 0) >> 8) & 0xFF : 0;
       if (/^%[01]+$/.test(part)) {
         return Number.parseInt(part.slice(1), 2);
       }

@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.0.5**
+**Version 2.0.6**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -316,6 +316,7 @@ Expert Mode is a full-featured direct-text 6502 assembly editor that lives along
 | **Save .asm** | `#expert-save-asm-btn` | Save editor content to a `.asm` file (file dialog on first save) |
 | **Build Info** | `#expert-build-info-btn` | Open the Build Info dialog (origin, size, labels, errors) |
 | **HL** | `#expert-hl-btn` | Toggle syntax highlighting (disable for very large files) |
+| **Autocomplete** | `#expert-autocomplete-btn` | Toggle expert autocomplete suggestions on/off. When disabled, no directive, mnemonic, or label popup appears in the expert editor. |
 | **Line numbers** | `#expert-line-numbers-btn` | Toggle the line number gutter on the left side of the editor. The gutter stays in sync with the scroll position and updates live as you type. |
 | **Find** | `#expert-find-btn` | Open the floating Find bar (`Ctrl+F`). Type to search; matches are highlighted in the overlay. `Enter` / `Shift+Enter` navigate between matches. `Escape` closes the bar. |
 | **Zoom out / in** | `#expert-zoom-out-btn` / `#expert-zoom-in-btn` | Decrease / increase the editor font size (8–28 px). The setting is persisted. |
