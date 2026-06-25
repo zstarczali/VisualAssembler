@@ -2216,6 +2216,7 @@ function applyTranslations() {
   if (sampleOptions[31]) sampleOptions[31].textContent = t("sampleReuDemo");
   if (sampleOptions[32]) sampleOptions[32].textContent = t("sampleScrollTextDemo");
   if (sampleOptions[33]) sampleOptions[33].textContent = t("sampleNameInputDemo");
+  if (sampleOptions[34]) sampleOptions[34].textContent = t("sampleBoxDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
