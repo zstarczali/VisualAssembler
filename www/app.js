@@ -7512,9 +7512,9 @@ function parseByteMacro(raw, base = "dec", labels = null) {
     .filter(Boolean)
     .map((part) => {
       const loM = part.match(/^<([A-Za-z_.][A-Za-z0-9_.]*)$/);
-      if (loM) return labels ? ((labels[loM[1]] ?? 0) & 0xFF) : 0;
+      if (loM) return labels ? ((( typeof labels.get === 'function' ? labels.get(loM[1]) : labels[loM[1]]) ?? 0) & 0xFF) : 0;
       const hiM = part.match(/^>([A-Za-z_.][A-Za-z0-9_.]*)$/);
-      if (hiM) return labels ? (((labels[hiM[1]] ?? 0) >> 8) & 0xFF) : 0;
+      if (hiM) return labels ? ((( typeof labels.get === 'function' ? labels.get(hiM[1]) : labels[hiM[1]]) ?? 0) >> 8) & 0xFF : 0;
       if (/^%[01]+$/.test(part)) {
         return Number.parseInt(part.slice(1), 2);
       }
