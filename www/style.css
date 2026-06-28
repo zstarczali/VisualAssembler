@@ -5433,6 +5433,31 @@ body.crt-mode #crt-overlay::after {
   display: flex;
   height: min(680px, 88vh);
   overflow: hidden;
+  position: relative;
+}
+
+.tutorial-dialog-close-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 5;
+  background: none;
+  border: none;
+  color: var(--secondary);
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  min-height: 0;
+  height: 28px;
+  width: 28px;
+  border-radius: 0;
+  transition: background 0.12s, color 0.12s;
+}
+
+.tutorial-dialog-close-btn:hover {
+  background: rgba(0,0,0,0.08);
+  color: var(--text);
 }
 
 .tutorial-sidebar {

@@ -752,9 +752,6 @@ PRINTABLE CHARACTERS
           <strong>Basic versioning &mdash; project snapshots</strong> &mdash; lightweight version control built into every project: take a named snapshot at any point, browse the timeline with notes and timestamps, restore an older state, or delete entries you no longer need. Snapshots live in sidecar JSON files next to the project on disk, so the history survives restarts and travels with the project file.
         </li>
         <li>
-          <strong>Browser run modes (VirtualC64Web)</strong> &mdash; run a PRG or D64 directly in the browser-based VirtualC64Web emulator without installing VICE. New Run menu entries: "VirtualC64" for PRG and "D64 in VirtualC64" for disk image.
-        </li>
-        <li>
           <strong>Code search</strong> &mdash; new search box on the main toolbar finds mnemonics, labels, comments, and operand text across the entire program. Jumps to matching blocks and highlights them; works in both block mode and expert mode.
         </li>
         <li>
@@ -1363,10 +1360,10 @@ PRINTABLE CHARACTERS
 
   <dialog id="tutorial-dialog" class="tutorial-dialog">
     <div class="tutorial-card">
+      <button id="tutorial-dialog-close" class="tutorial-dialog-close-btn" type="button" aria-label="Close">×</button>
       <div class="tutorial-sidebar">
         <div class="tutorial-sidebar-header">
           <h2 id="tutorial-dialog-title" class="tutorial-sidebar-title">Tutorials</h2>
-          <button id="tutorial-close" class="tutorial-close-btn" type="button" aria-label="Close">×</button>
         </div>
         <div id="tutorial-lesson-list" class="tutorial-lesson-list"></div>
       </div>
