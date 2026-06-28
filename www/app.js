@@ -18161,10 +18161,10 @@ function _tutRenderDialog() {
     const catLessons = TUTORIAL_DATA.lessons.filter(l => l.category === cat.id);
     if (catLessons.length === 0) return "";
     return `<div class="tutorial-category">
-      <div class="tutorial-category-label">${lang === "hu" ? cat.labelHu : (lang === "es" && cat.labelEs ? cat.labelEs : cat.labelEn)}</div>
+      <div class="tutorial-category-label">${lang === "hu" ? cat.labelHu : (lang === "es" && cat.labelEs ? cat.labelEs : (lang === "de" && cat.labelDe ? cat.labelDe : cat.labelEn))}</div>
       ${catLessons.map(lesson => {
         const done = _tutorialProgress[lesson.id]?.completed;
-        const title = lang === "hu" ? lesson.titleHu : (lang === "es" && lesson.titleEs ? lesson.titleEs : lesson.titleEn);
+        const title = lang === "hu" ? lesson.titleHu : (lang === "es" && lesson.titleEs ? lesson.titleEs : (lang === "de" && lesson.titleDe ? lesson.titleDe : lesson.titleEn));
         const stars = lesson.difficulty > 0
           ? `${lesson.difficulty}/3`
           : "TOUR";
@@ -18196,15 +18196,15 @@ function _tutShowLesson(lessonId) {
   if (!lesson || !contentEl) return;
   const canStartTour = lesson.type === "tour" || lesson.interactive === true;
 
-  const title = lang === "hu" ? lesson.titleHu : (lang === "es" && lesson.titleEs ? lesson.titleEs : lesson.titleEn);
-  const desc = lang === "hu" ? lesson.descHu : (lang === "es" && lesson.descEs ? lesson.descEs : lesson.descEn);
+  const title = lang === "hu" ? lesson.titleHu : (lang === "es" && lesson.titleEs ? lesson.titleEs : (lang === "de" && lesson.titleDe ? lesson.titleDe : lesson.titleEn));
+  const desc = lang === "hu" ? lesson.descHu : (lang === "es" && lesson.descEs ? lesson.descEs : (lang === "de" && lesson.descDe ? lesson.descDe : lesson.descEn));
   const diffStars = lesson.difficulty > 0
     ? `(${lesson.difficulty}/3)`
     : null;
   const diffLabel = lesson.difficulty === 0 ? "Tour"
-    : lesson.difficulty === 1 ? (lang === "hu" ? "Kezdo" : (lang === "es" ? "Principiante" : "Beginner"))
-    : lesson.difficulty === 2 ? (lang === "hu" ? "Kozepes" : (lang === "es" ? "Intermedio" : "Intermediate"))
-    : (lang === "hu" ? "Halado" : (lang === "es" ? "Avanzado" : "Advanced"));
+    : lesson.difficulty === 1 ? (lang === "hu" ? "Kezdo" : (lang === "es" ? "Principiante" : (lang === "de" ? "Anfänger" : "Beginner")))
+    : lesson.difficulty === 2 ? (lang === "hu" ? "Kozepes" : (lang === "es" ? "Intermedio" : (lang === "de" ? "Mittel" : "Intermediate")))
+    : (lang === "hu" ? "Halado" : (lang === "es" ? "Avanzado" : (lang === "de" ? "Fortgeschritten" : "Advanced")));
 
   const stepsHtml = lesson.steps.map((step, i) => {
     return `<div class="tutorial-step">
@@ -18241,10 +18241,10 @@ function _tutShowLesson(lessonId) {
   lesson.steps.forEach((step, i) => {
     const stepEl = contentEl.querySelectorAll(".tutorial-step")[i];
     if (!stepEl) return;
-    stepEl.querySelector(".tutorial-step-title").textContent = lang === "hu" ? step.titleHu : (lang === "es" && step.titleEs ? step.titleEs : step.titleEn);
-    stepEl.querySelector(".tutorial-step-desc").textContent = lang === "hu" ? step.descHu : (lang === "es" && step.descEs ? step.descEs : step.descEn);
+    stepEl.querySelector(".tutorial-step-title").textContent = lang === "hu" ? step.titleHu : (lang === "es" && step.titleEs ? step.titleEs : (lang === "de" && step.titleDe ? step.titleDe : step.titleEn));
+    stepEl.querySelector(".tutorial-step-desc").textContent = lang === "hu" ? step.descHu : (lang === "es" && step.descEs ? step.descEs : (lang === "de" && step.descDe ? step.descDe : step.descEn));
     const actionBtn = stepEl.querySelector(".tutorial-step-action-btn");
-    if (actionBtn) actionBtn.textContent = lang === "hu" ? step.actionLabelHu : (lang === "es" && step.actionLabelEs ? step.actionLabelEs : step.actionLabelEn);
+    if (actionBtn) actionBtn.textContent = lang === "hu" ? step.actionLabelHu : (lang === "es" && step.actionLabelEs ? step.actionLabelEs : (lang === "de" && step.actionLabelDe ? step.actionLabelDe : step.actionLabelEn));
   });
 
   contentEl.querySelectorAll(".tutorial-load-sample-btn").forEach(btn => {
@@ -18348,8 +18348,8 @@ function _tourShowStep(index) {
   const skipBtn = document.getElementById("tour-skip");
 
   if (stepLabel) stepLabel.textContent = `${index + 1} / ${_tourSteps.length}`;
-  if (cardTitle) cardTitle.textContent = lang === "hu" ? step.titleHu : (lang === "es" && step.titleEs ? step.titleEs : step.titleEn);
-  if (cardDesc) cardDesc.textContent = lang === "hu" ? step.descHu : (lang === "es" && step.descEs ? step.descEs : step.descEn);
+  if (cardTitle) cardTitle.textContent = lang === "hu" ? step.titleHu : (lang === "es" && step.titleEs ? step.titleEs : (lang === "de" && step.titleDe ? step.titleDe : step.titleEn));
+  if (cardDesc) cardDesc.textContent = lang === "hu" ? step.descHu : (lang === "es" && step.descEs ? step.descEs : (lang === "de" && step.descDe ? step.descDe : step.descEn));
   if (prevBtn) prevBtn.disabled = index === 0;
   if (nextBtn) nextBtn.textContent = index === _tourSteps.length - 1
     ? t("tourFinish") : t("tourNext");
@@ -18553,6 +18553,7 @@ function _initTutorialEvents() {
 
   tutBtn?.addEventListener("click", () => openTutorialDialog());
   tutClose?.addEventListener("click", () => tutDlg?.close());
+  document.getElementById("tutorial-dialog-close")?.addEventListener("click", () => tutDlg?.close());
 
   document.getElementById("tour-next")?.addEventListener("click", (e) => {
     e.preventDefault();
