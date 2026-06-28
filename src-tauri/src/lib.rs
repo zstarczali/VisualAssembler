@@ -1875,6 +1875,44 @@ fn read_text_file(path: String) -> serde_json::Value {
 }
 
 #[tauri::command]
+async fn save_text_file(path: String, content: String) -> serde_json::Value {
+    if path.is_empty() {
+        return serde_json::json!({ "ok": false, "error": "Empty path" });
+    }
+    let path_buf = PathBuf::from(&path);
+    if let Some(parent) = path_buf.parent() {
+        let _ = fs::create_dir_all(parent);
+    }
+    match fs::write(&path_buf, content.as_bytes()) {
+        Ok(_) => serde_json::json!({ "ok": true, "path": path }),
+        Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+    }
+}
+
+#[tauri::command]
+fn get_project_snapshot_path(app: AppHandle, project_path: String, snapshot_id: String) -> serde_json::Value {
+    let path = if project_path.is_empty() {
+        let dir = app.path().app_config_dir().unwrap();
+        let name = if snapshot_id.is_empty() {
+            "untitled".to_string()
+        } else {
+            format!("tab-{}", snapshot_id)
+        };
+        dir.join(format!("{}.snapshots.json", name))
+    } else {
+        let source = PathBuf::from(&project_path);
+        let stem = source.file_stem().and_then(|s| s.to_str()).unwrap_or("project");
+        let snapshot_name = format!("{}.snapshots.json", stem);
+        if let Some(parent) = source.parent() {
+            parent.join(snapshot_name)
+        } else {
+            app.path().app_config_dir().unwrap().join(snapshot_name)
+        }
+    };
+    serde_json::json!({ "ok": true, "path": path.to_string_lossy().to_string() })
+}
+
+#[tauri::command]
 async fn save_asm_file(app: AppHandle, path: String, content: String) -> serde_json::Value {
     let save_path = if path.is_empty() {
         let result = app.dialog().file()
@@ -2409,6 +2447,8 @@ pub fn run() {
             open_proj_file,
             save_proj_file,
             read_text_file,
+            save_text_file,
+            get_project_snapshot_path,
             save_asm_file,
             choose_asm_file,
             choose_proj_member,

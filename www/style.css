@@ -4027,8 +4027,8 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   padding: 0;
   background: var(--panel);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-  min-width: 300px;
-  max-width: 480px;
+  min-width: 360px;
+  max-width: 560px;
   width: 90vw;
 }
 .build-info-dialog::backdrop {
@@ -4037,7 +4037,7 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   backdrop-filter: blur(4px);
 }
 .build-info-card {
-  padding: 20px 24px 16px;
+  padding: 20px 22px 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -4065,33 +4065,52 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   padding-bottom: 4px;
   border-bottom: 1px solid var(--panel-border);
 }
+.build-info-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
 .build-info-row {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
   font-size: 0.78rem;
   color: var(--text);
-  padding: 2px 0;
-  line-height: 1.5;
+  line-height: 1.45;
 }
 .build-info-row-key {
+  display: table-cell;
   color: var(--muted);
-  min-width: 80px;
-  flex-shrink: 0;
+  width: 40%;
+  padding: 4px 10px 4px 0;
+  vertical-align: top;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .build-info-row-val {
+  display: table-cell;
   font-family: "IBM Plex Mono", monospace;
   color: var(--text);
   font-weight: 500;
   word-break: break-all;
+  overflow-wrap: anywhere;
+  padding: 4px 10px 4px 0;
+  vertical-align: top;
 }
 .build-info-row-note {
+  display: table-cell;
   color: var(--muted);
   font-size: 0.75em;
   font-family: "IBM Plex Mono", monospace;
+  padding: 4px 0;
+  vertical-align: top;
+  width: 34%;
+  overflow-wrap: anywhere;
 }
 .build-info-err .build-info-row-val {
   color: var(--error);
+}
+.build-info-row-message {
+  display: table-cell;
+  padding: 4px 0;
+  word-break: break-word;
 }
 .build-info-card .primary {
   min-height: unset;
@@ -4099,6 +4118,183 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   font-size: 0.82rem;
   align-self: center;
   margin-top: 4px;
+}
+
+/* ── Project snapshot dialog ────────────────────────────────────────────── */
+.project-snapshot-dialog {
+  border: none;
+  border-radius: 3px;
+  padding: 0;
+  background: var(--panel);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  min-width: 480px;
+  max-width: 760px;
+  width: 92vw;
+  max-height: 90vh;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.project-snapshot-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.48);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.project-snapshot-card {
+  padding: 22px 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.project-snapshot-hdr {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.project-snapshot-hdr-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.project-snapshot-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.project-snapshot-subtitle {
+  margin: -4px 0 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.project-snapshot-xbtn {
+  background: none;
+  border: none;
+  color: var(--secondary);
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  min-height: 0;
+  height: 28px;
+  width: 28px;
+  flex: 0 0 auto;
+}
+
+.project-snapshot-xbtn:hover {
+  color: var(--text);
+}
+
+.project-snapshot-note-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.8rem;
+}
+
+.project-snapshot-note-field span {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.project-snapshot-note-field textarea {
+  resize: vertical;
+  min-height: 64px;
+  max-height: 160px;
+  padding: 8px 10px;
+  border: 1px solid var(--panel-border);
+  border-radius: 2px;
+  background: var(--input-bg);
+  color: var(--text);
+  font: inherit;
+  outline: none;
+}
+
+.project-snapshot-note-field textarea:focus {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.project-snapshot-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.project-snapshot-actions button {
+  min-height: unset;
+  padding: 8px 16px;
+}
+
+.project-snapshot-empty {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px dashed var(--panel-border);
+  border-radius: 2px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.project-snapshot-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.project-snapshot-item {
+  border: 1px solid var(--panel-border);
+  border-radius: 2px;
+  background: var(--surface-soft);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.project-snapshot-item-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.project-snapshot-item-title {
+  font-size: 0.82rem;
+  color: var(--text);
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.project-snapshot-item-kind {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.project-snapshot-item-meta {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.project-snapshot-item-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.project-snapshot-item-actions button {
+  min-height: unset;
+  padding: 7px 14px;
+  font-size: 0.82rem;
 }
 
 .work-progress-dialog {

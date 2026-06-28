@@ -2,7 +2,7 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.0.6**
+**Current version: v2.0.7**
 
 ---
 
@@ -61,11 +61,13 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **Monitor view** — hex + ASCII character dump, 8 bytes per row
 - **VICE integration** — assemble and launch directly in the VICE C64 emulator
 - **Build Info dialog** — one-click summary of origin, end address, size, labels, constants, and macros used
+- **Project snapshots** — save, restore, and review on-disk snapshot history with notes and timestamps; snapshots survive restarts and live next to the project
+- **Save Program As** — a dedicated Save Program As action in the File menu for forcing a new save location
 - **Expert mode .asm file save/load** — load and save raw `.asm` source files in Expert mode
 - **Expert mode error highlighting** — lines that fail to compile are highlighted in red in real time
 - **Dark / light theme**, zoom, HEX / DEC operand mode
 - **Hungarian and English and Spanish UI**
-- **Save / load projects** as `.c64asm` JSON files
+- **Save / Save As / load projects** as `.c64asm` JSON files
 
 ---
 

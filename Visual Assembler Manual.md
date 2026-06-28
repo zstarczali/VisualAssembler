@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.0.6**
+**Version 2.0.7**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -244,6 +244,7 @@ The modal closes automatically when the action completes or fails.
 | **Sample** | Load a built-in example program |
 | **Zoom in / out** | Scale the block UI (affects all block elements) |
 | **Save Project** | Save the current program as a `.json` project file |
+| **Save Program As** | Save the current program as a `.json` project file using a new file dialog every time |
 | **Load Project** | Load a previously saved project |
 | **Open Project** (`Menu → File`) | Open a multi-file `.proj` project and open all source files as tabs |
 | **Save Project** (`Menu → File`) | Save the current `.proj` project (project panel must be open) |
@@ -258,6 +259,15 @@ The modal closes automatically when the action completes or fails.
 | **Collapse All** | Collapse all blocks |
 | **About** | Version info |
 | **What's New** | Changelog |
+
+### Project snapshots
+
+Project snapshots are stored as on-disk sidecar JSON files, not in localStorage. They are tied to the current project file when one exists, so the history survives restarts and follows the project around.
+
+- **Menu → Build → Save snapshot** opens the snapshot dialog and saves the current block state plus Expert ASM text.
+- **Menu → Build → Restore previous version** restores the latest snapshot directly.
+- **Menu → Build → Snapshot history** opens the dialog where you can add notes, restore older entries, or delete them.
+- If a project has not been saved yet, snapshots are stored in the app config directory until the project gets a file path.
 | **Knowledge Base** | Reference links (6502 opcodes, C64 KERNAL, memory map, colors) |
 | **Check for Update** | Open the itch.io page to check for a newer release |
 

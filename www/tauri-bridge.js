@@ -44,6 +44,8 @@
     openProjFile: () => invoke("open_proj_file"),
     saveProjFile: (path, content) => invoke("save_proj_file", { path, content }),
     readTextFile: (path) => invoke("read_text_file", { path }),
+    saveTextFile: (path, content) => invoke("save_text_file", { path, content }),
+    getProjectSnapshotPath: (projectPath, snapshotId) => invoke("get_project_snapshot_path", { projectPath, snapshotId }),
     saveAsmFile: (path, content) => invoke("save_asm_file", { path, content }),
     chooseAsmFile: () => invoke("choose_asm_file"),
     chooseProjMember: () => invoke("choose_proj_member"),
