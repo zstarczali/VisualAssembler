@@ -228,6 +228,10 @@ const languageSelect = document.getElementById("language-select");
 const loadSampleButton = document.getElementById("load-sample");
 const sampleSelect = document.getElementById("sample-select");
 const saveProjectButton = document.getElementById("save-project");
+const saveProjectAsButton = document.getElementById("save-project-as");
+const saveSnapshotButton = document.getElementById("save-snapshot");
+const restoreSnapshotButton = document.getElementById("restore-snapshot");
+const snapshotHistoryButton = document.getElementById("snapshot-history");
 const savePrgButton = document.getElementById("save-prg");
 const saveD64Button = document.getElementById("save-d64");
 const loadProjectButton = document.getElementById("load-project");
@@ -324,6 +328,16 @@ const browserEmulatorOpenExternal = document.getElementById("browser-emulator-op
 const knowledgeBaseButton = document.getElementById("knowledge-base-btn");
 const knowledgeBaseDialog = document.getElementById("knowledge-base-dialog");
 const knowledgeBaseCloseButton = document.getElementById("knowledge-base-close");
+const projectSnapshotDialog = document.getElementById("project-snapshot-dialog");
+const projectSnapshotTitle = document.getElementById("project-snapshot-title");
+const projectSnapshotTabName = document.getElementById("project-snapshot-tab-name");
+const projectSnapshotNoteLabel = document.getElementById("project-snapshot-note-label");
+const projectSnapshotNoteInput = document.getElementById("project-snapshot-note");
+const projectSnapshotList = document.getElementById("project-snapshot-list");
+const projectSnapshotEmpty = document.getElementById("project-snapshot-empty");
+const projectSnapshotSaveButton = document.getElementById("project-snapshot-save");
+const projectSnapshotRestoreButton = document.getElementById("project-snapshot-restore-latest");
+const projectSnapshotCloseButton = document.getElementById("project-snapshot-close");
 let workProgressTimer = null;
 let workProgressValue = 10;
 const exitAppButton = document.getElementById("exit-app");
@@ -390,6 +404,10 @@ let _expertFindTerm = "";
 let _expertFindMatches = []; // [{start, end}] flat textarea positions
 let _expertFindIdx = -1;
 let _expertProjectData = null; // { name, files, _projPath }
+const _PROJECT_SNAPSHOT_MAX_ENTRIES = 10;
+const _PROJECT_SNAPSHOT_AUTO_DELAY_MS = 2500;
+const _PROJECT_SNAPSHOT_HISTORY_CACHE = new Map();
+const _projectSnapshotTimers = new Map();
 
 // translations object is defined in i18n.js (loaded before app.js)
 function t(key) {
@@ -1372,6 +1390,22 @@ function initPalette() {
     await saveProjectToFile();
     document.querySelector(".control-menu")?.removeAttribute("open");
   });
+  saveProjectAsButton?.addEventListener("click", async () => {
+    await saveProjectToFile({ forceSaveAs: true });
+    document.querySelector(".control-menu")?.removeAttribute("open");
+  });
+  saveSnapshotButton?.addEventListener("click", async () => {
+    await _openProjectSnapshotDialog();
+    document.querySelector(".control-menu")?.removeAttribute("open");
+  });
+  restoreSnapshotButton?.addEventListener("click", async () => {
+    await _restoreLatestProjectSnapshot();
+    document.querySelector(".control-menu")?.removeAttribute("open");
+  });
+  snapshotHistoryButton?.addEventListener("click", async () => {
+    await _openProjectSnapshotDialog();
+    document.querySelector(".control-menu")?.removeAttribute("open");
+  });
   document.getElementById("menu-open-project")?.addEventListener("click", async () => {
     await _openProjectFromMenu();
     document.querySelector(".control-menu")?.removeAttribute("open");
@@ -1422,6 +1456,21 @@ function initPalette() {
   loadProjectButton?.addEventListener("click", async () => {
     const ok = await loadProjectFromFile();
     if (ok) document.querySelector(".control-menu")?.removeAttribute("open");
+  });
+  projectSnapshotSaveButton?.addEventListener("click", async () => {
+    await _saveManualProjectSnapshot();
+  });
+  projectSnapshotRestoreButton?.addEventListener("click", async () => {
+    await _restoreLatestProjectSnapshot();
+  });
+  projectSnapshotCloseButton?.addEventListener("click", () => {
+    _closeProjectSnapshotDialog();
+  });
+  projectSnapshotDialog?.addEventListener("cancel", () => {
+    _closeProjectSnapshotDialog();
+  });
+  projectSnapshotDialog?.addEventListener("click", (e) => {
+    if (e.target === projectSnapshotDialog) _closeProjectSnapshotDialog();
   });
   zoomOutButton.addEventListener("click", () => adjustZoom(-0.08));
   zoomInButton.addEventListener("click", () => adjustZoom(0.08));
@@ -1743,7 +1792,7 @@ function _handleBlockCtxAction(action, index) {
 
 function applySavedLanguage() {
   const savedLanguage = localStorage.getItem("c64-block-language") || "en";
-  currentLanguage = ["en", "es", "hu"].includes(savedLanguage) ? savedLanguage : "hu";
+  currentLanguage = ["en", "es", "hu", "de"].includes(savedLanguage) ? savedLanguage : "hu";
   document.documentElement.lang = currentLanguage;
   if (languageSelect) {
     languageSelect.value = currentLanguage;
@@ -1922,7 +1971,7 @@ function applySavedUiSettings() {
 }
 
 function handleLanguageChange() {
-  currentLanguage = ["en", "es", "hu"].includes(languageSelect.value) ? languageSelect.value : "hu";
+  currentLanguage = ["en", "es", "hu", "de"].includes(languageSelect.value) ? languageSelect.value : "hu";
   localStorage.setItem("c64-block-language", currentLanguage);
   document.documentElement.lang = currentLanguage;
   applyTranslations();
@@ -2069,8 +2118,12 @@ function applyTranslations() {
     setText("#run-debugger .run-label", t("runInDebugger"));
     setText("#copy-asm", t("copyAsm"));
     setText("#save-project", t("saveProject"));
+    setText("#save-project-as", t("saveProgramAs"));
     setText("#menu-open-project", t("menuOpenProject"));
     setText("#menu-save-project", t("menuSaveProject"));
+    setText("#save-snapshot", t("saveSnapshot"));
+    setText("#restore-snapshot", t("restorePreviousVersion"));
+    setText("#snapshot-history", t("snapshotHistory"));
     setText("#menu-close-project", t("menuCloseProject"));
     setText("#save-prg", t("savePrg"));
     setText("#build-section-label", t("buildSection"));
@@ -2102,6 +2155,14 @@ function applyTranslations() {
     copyAsmButton?.setAttribute("aria-label", t("copyAsm"));
     saveProjectButton?.setAttribute("title", t("saveProject"));
     saveProjectButton?.setAttribute("aria-label", t("saveProject"));
+    saveProjectAsButton?.setAttribute("title", t("saveProgramAs"));
+    saveProjectAsButton?.setAttribute("aria-label", t("saveProgramAs"));
+    saveSnapshotButton?.setAttribute("title", t("saveSnapshot"));
+    saveSnapshotButton?.setAttribute("aria-label", t("saveSnapshot"));
+    restoreSnapshotButton?.setAttribute("title", t("restorePreviousVersion"));
+    restoreSnapshotButton?.setAttribute("aria-label", t("restorePreviousVersion"));
+    snapshotHistoryButton?.setAttribute("title", t("snapshotHistory"));
+    snapshotHistoryButton?.setAttribute("aria-label", t("snapshotHistory"));
     savePrgButton?.setAttribute("title", t("savePrg"));
     savePrgButton?.setAttribute("aria-label", t("savePrg"));
     saveD64Button?.setAttribute("title", t("saveD64"));
@@ -2123,6 +2184,16 @@ function applyTranslations() {
       runDebuggerButton.setAttribute("title", t("runInDebuggerTitle"));
       runDebuggerButton.setAttribute("aria-label", t("runInDebuggerTitle"));
     }
+    if (projectSnapshotTitle) projectSnapshotTitle.textContent = t("snapshotDialogTitle");
+    if (projectSnapshotNoteLabel) projectSnapshotNoteLabel.textContent = t("snapshotNoteLabel");
+    if (projectSnapshotNoteInput) projectSnapshotNoteInput.setAttribute("placeholder", t("snapshotNotePlaceholder"));
+    if (projectSnapshotSaveButton) projectSnapshotSaveButton.textContent = t("saveSnapshot");
+    if (projectSnapshotRestoreButton) projectSnapshotRestoreButton.textContent = t("restoreLatestSnapshot");
+    if (projectSnapshotCloseButton) {
+      projectSnapshotCloseButton.setAttribute("title", t("close"));
+      projectSnapshotCloseButton.setAttribute("aria-label", t("close"));
+    }
+    if (projectSnapshotTabName) projectSnapshotTabName.textContent = _getActiveTab()?.name || (currentLanguage === "hu" ? "Aktív program" : "Current program");
     chooseDebuggerButton?.setAttribute("title", t("chooseDebugger"));
     chooseDebuggerButton?.setAttribute("aria-label", t("chooseDebugger"));
     chooseExomizerButton?.setAttribute("title", t("chooseExomizer"));
@@ -2217,6 +2288,7 @@ function applyTranslations() {
   if (sampleOptions[32]) sampleOptions[32].textContent = t("sampleScrollTextDemo");
   if (sampleOptions[33]) sampleOptions[33].textContent = t("sampleNameInputDemo");
   if (sampleOptions[34]) sampleOptions[34].textContent = t("sampleBoxDemo");
+  if (sampleOptions[35]) sampleOptions[35].textContent = t("sampleRotcubeDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -4575,10 +4647,20 @@ function showBuildInfoDialog() {
   if (buildInfoTitle) buildInfoTitle.textContent = t("buildInfoTitle");
 
   const makeRow = (key, val, extra = "") =>
-    `<div class="build-info-row"><span class="build-info-row-key">${key}</span><span class="build-info-row-val">${val}</span>${extra ? `<span class="build-info-row-note">${extra}</span>` : ""}</div>`;
+    `<tr class="build-info-row"><th class="build-info-row-key">${key}</th><td class="build-info-row-val">${val}</td><td class="build-info-row-note">${extra}</td></tr>`;
+  const makeMessageRow = (message, isError = false) =>
+    `<tr class="build-info-row${isError ? " build-info-err" : ""}"><td class="build-info-row-val build-info-row-message" colspan="3">${message}</td></tr>`;
   const makeSection = (label, rows) => {
     if (!rows.length) return "";
-    return `<div class="build-info-section"><div class="build-info-section-label">${label}</div>${rows.join("")}</div>`;
+    return `
+      <section class="build-info-section">
+        <div class="build-info-section-label">${label}</div>
+        <table class="build-info-table">
+          <tbody>
+            ${rows.join("")}
+          </tbody>
+        </table>
+      </section>`;
   };
 
   let blocks;
@@ -4657,8 +4739,7 @@ function showBuildInfoDialog() {
     infoHtml += makeSection(t("buildInfoTitle"), summaryRows);
 
     if (compileErrors.length) {
-      const errRows = compileErrors.map(e =>
-        `<div class="build-info-row build-info-err"><span class="build-info-row-val">${e}</span></div>`);
+      const errRows = compileErrors.map(e => makeMessageRow(e, true));
       infoHtml += makeSection(t("buildInfoErrors"), errRows);
     }
     if (labelList.length) {
@@ -4672,10 +4753,10 @@ function showBuildInfoDialog() {
         [...macroCount.entries()].map(([k, v]) => makeRow(k, v + "×")));
     }
     if (!compileErrors.length && !labelList.length && !constList.length && !macroCount.size) {
-      infoHtml += `<div class="build-info-row"><span class="build-info-row-val">${t("buildInfoNoErrors")}</span></div>`;
+      infoHtml += makeMessageRow(t("buildInfoNoErrors"));
     }
   } catch (e) {
-    infoHtml = `<div class="build-info-row build-info-err"><span class="build-info-row-val">Error: ${e.message}</span></div>`;
+    infoHtml = makeMessageRow(`Error: ${e.message}`, true);
   } finally {
     program = savedProgram;
     userMacros = savedUserMacros;
@@ -8342,6 +8423,7 @@ function _tabCreate(name) {
   const untitledName = `Untitled ${_tabCounter}`;
   return {
     id: _tabCounter,
+    snapshotId: crypto.randomUUID(),
     name: name || untitledName,
     _untitledName: untitledName,
     filePath: null,
@@ -8353,9 +8435,373 @@ function _tabCreate(name) {
   };
 }
 
+function _getActiveTab() {
+  return tabs?.find(t => t.id === activeTabId) || null;
+}
+
+function _getLegacyProjectSnapshotStorageKey(tab = _getActiveTab()) {
+  if (!tab) return "";
+  const tabKey = tab.filePath
+    ? `file:${_normFilePath(tab.filePath)}`
+    : `tab:${tab.snapshotId || tab.id}`;
+  return `c64-project-snapshots-v1::${tabKey}`;
+}
+
+async function _getProjectSnapshotStoragePath(tab = _getActiveTab()) {
+  if (!tab || !window.electronAPI?.getProjectSnapshotPath) return "";
+  const result = await window.electronAPI.getProjectSnapshotPath(tab.filePath || "", tab.snapshotId || String(tab.id || ""));
+  if (typeof result === "string") return result;
+  return result?.path || "";
+}
+
+function _readLegacyProjectSnapshotEntries(tab = _getActiveTab()) {
+  const key = _getLegacyProjectSnapshotStorageKey(tab);
+  if (!key) return [];
+  try {
+    const parsed = JSON.parse(localStorage.getItem(key) || "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function _normalizeProjectSnapshotEntries(entries) {
+  const merged = [];
+  const seen = new Set();
+  for (const entry of entries || []) {
+    if (!entry) continue;
+    let signature = entry.id || "";
+    if (!signature && entry.payload) {
+      try {
+        signature = JSON.stringify(entry.payload);
+      } catch {
+        signature = String(entry.createdAt || "");
+      }
+    }
+    if (seen.has(signature)) continue;
+    seen.add(signature);
+    merged.push(entry);
+  }
+  return merged.slice(0, _PROJECT_SNAPSHOT_MAX_ENTRIES);
+}
+
+async function _readProjectSnapshotEntries(tab = _getActiveTab()) {
+  const storagePath = await _getProjectSnapshotStoragePath(tab);
+  if (!storagePath) return [];
+  const cached = _PROJECT_SNAPSHOT_HISTORY_CACHE.get(storagePath);
+  if (cached) return JSON.parse(JSON.stringify(cached));
+
+  const legacyEntries = _readLegacyProjectSnapshotEntries(tab);
+  if (legacyEntries.length) {
+    const normalizedLegacy = _normalizeProjectSnapshotEntries(legacyEntries);
+    await _writeProjectSnapshotEntries(tab, normalizedLegacy);
+    const legacyKey = _getLegacyProjectSnapshotStorageKey(tab);
+    if (legacyKey) localStorage.removeItem(legacyKey);
+    return JSON.parse(JSON.stringify(normalizedLegacy));
+  }
+
+  const result = await window.electronAPI?.readTextFile?.(storagePath);
+  if (!result?.ok || typeof result.content !== "string" || !result.content.trim()) {
+    _PROJECT_SNAPSHOT_HISTORY_CACHE.set(storagePath, []);
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(result.content);
+    const normalized = _normalizeProjectSnapshotEntries(Array.isArray(parsed) ? parsed : []);
+    _PROJECT_SNAPSHOT_HISTORY_CACHE.set(storagePath, normalized);
+    return JSON.parse(JSON.stringify(normalized));
+  } catch {
+    _PROJECT_SNAPSHOT_HISTORY_CACHE.set(storagePath, []);
+    return [];
+  }
+}
+
+async function _writeProjectSnapshotEntries(tab = _getActiveTab(), entries = []) {
+  const storagePath = await _getProjectSnapshotStoragePath(tab);
+  if (!storagePath || !window.electronAPI?.saveTextFile) return false;
+  const normalized = _normalizeProjectSnapshotEntries(entries);
+  const result = await window.electronAPI.saveTextFile(storagePath, JSON.stringify(normalized, null, 2));
+  if (result?.ok) {
+    _PROJECT_SNAPSHOT_HISTORY_CACHE.set(storagePath, normalized);
+    return true;
+  }
+  return false;
+}
+
+function _formatProjectSnapshotDate(value) {
+  try {
+    const locale = currentLanguage === "hu" ? "hu-HU" : "en-US";
+    return new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+  } catch {
+    return value || "";
+  }
+}
+
+function _projectSnapshotLabel(entry) {
+  if (!entry) return "";
+  const note = typeof entry.note === "string" ? entry.note.trim() : "";
+  if (note) return note;
+  return entry.kind === "auto" ? (currentLanguage === "hu" ? "Automatikus snapshot" : "Auto snapshot") : (currentLanguage === "hu" ? "Kézi snapshot" : "Manual snapshot");
+}
+
+function _buildSnapshotPayloadFromTab(tab) {
+  if (!tab) return null;
+  const programBlocks = JSON.parse(JSON.stringify(tab.program || []));
+  return {
+    version: 1,
+    app: "c64-visual-assembler",
+    expertText: tab.expertText || "",
+    program: programBlocks.map(block => {
+      if (!block?.isIncludeMacro) return block;
+      const { includedBlocks, ...rest } = block;
+      return rest;
+    }),
+    ui: {
+      sample: sampleSelect?.value || "basic-colors",
+      outputMode: getSelectedOutputMode(),
+      numberBase: getSelectedBase(),
+      zoom: blockScale,
+      language: currentLanguage,
+      theme: document.documentElement.dataset.theme || "light",
+      runMode: runMode
+    },
+    d64: {
+      diskName: d64ExportState.diskName,
+      progName: d64ExportState.progName,
+      extras: (d64ExportState.extras.length > 0
+        ? d64ExportState.extras
+        : (d64ExportState._pendingExtras || [])
+      ).map(e => ({ name: e.name, sourcePath: e.sourcePath, loadAddress: e.loadAddress || "", decompressAddress: e.decompressAddress || "", crunch: e.crunch || false }))
+    }
+  };
+}
+
+function _getCurrentProjectSnapshotPayload(tab = _getActiveTab()) {
+  if (!tab) return null;
+  if (tab.id === activeTabId) {
+    return getProjectPayload();
+  }
+  return _buildSnapshotPayloadFromTab(tab);
+}
+
+function _clearProjectSnapshotTimer(tabId) {
+  const timer = _projectSnapshotTimers.get(tabId);
+  if (timer) {
+    clearTimeout(timer);
+    _projectSnapshotTimers.delete(tabId);
+  }
+}
+
+function _scheduleProjectSnapshot(tabId) {
+  if (!tabId) return;
+  _clearProjectSnapshotTimer(tabId);
+  const timer = setTimeout(async () => {
+    _projectSnapshotTimers.delete(tabId);
+    const tab = tabs.find(t => t.id === tabId);
+    if (!tab || !tab.dirty) return;
+    const payload = tab.id === activeTabId ? getProjectPayload() : _buildSnapshotPayloadFromTab(tab);
+    if (!payload) return;
+    const entries = await _readProjectSnapshotEntries(tab);
+    const latest = entries[0]?.payload;
+    if (latest && JSON.stringify(latest) === JSON.stringify(payload)) return;
+    entries.unshift({
+      id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
+      kind: "auto",
+      note: "",
+      payload
+    });
+    await _writeProjectSnapshotEntries(tab, entries);
+    if (projectSnapshotDialog?.open) {
+      await _renderProjectSnapshotHistory();
+    }
+  }, _PROJECT_SNAPSHOT_AUTO_DELAY_MS);
+  _projectSnapshotTimers.set(tabId, timer);
+}
+
+async function _renderProjectSnapshotHistory() {
+  if (!projectSnapshotList || !projectSnapshotEmpty || !projectSnapshotTabName) return;
+  const tab = _getActiveTab();
+  const entries = await _readProjectSnapshotEntries(tab);
+  const tabLabel = tab?.name || (currentLanguage === "hu" ? "Aktív program" : "Current program");
+  projectSnapshotTabName.textContent = tabLabel;
+  if (projectSnapshotNoteInput) {
+    projectSnapshotNoteInput.placeholder = t("snapshotNotePlaceholder");
+  }
+  if (projectSnapshotEmpty) {
+    projectSnapshotEmpty.textContent = t("snapshotEmpty");
+  }
+  if (projectSnapshotSaveButton) {
+    projectSnapshotSaveButton.disabled = false;
+  }
+  if (projectSnapshotRestoreButton) {
+    projectSnapshotRestoreButton.disabled = entries.length === 0;
+  }
+  projectSnapshotEmpty.hidden = entries.length > 0;
+  if (entries.length === 0) {
+    projectSnapshotList.innerHTML = "";
+    return;
+  }
+  projectSnapshotList.innerHTML = entries.map((entry, index) => {
+    const title = _projectSnapshotLabel(entry).replace(/</g, "&lt;");
+    const when = _formatProjectSnapshotDate(entry.createdAt).replace(/</g, "&lt;");
+    const kind = entry.kind === "auto"
+      ? (currentLanguage === "hu" ? "Automatikus" : "Auto")
+      : (currentLanguage === "hu" ? "Kézi" : "Manual");
+    return `
+      <article class="project-snapshot-item" data-index="${index}">
+        <div class="project-snapshot-item-head">
+          <strong class="project-snapshot-item-title">${title}</strong>
+          <span class="project-snapshot-item-kind">${kind}</span>
+        </div>
+        <div class="project-snapshot-item-meta">${when}</div>
+        <div class="project-snapshot-item-actions">
+          <button class="secondary project-snapshot-restore-btn" type="button" data-index="${index}">${t("snapshotRestore")}</button>
+          <button class="secondary project-snapshot-delete-btn" type="button" data-index="${index}">${t("snapshotDelete")}</button>
+        </div>
+      </article>`;
+  }).join("");
+
+  projectSnapshotList.querySelectorAll(".project-snapshot-restore-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const idx = parseInt(btn.dataset.index || "-1", 10);
+      if (!Number.isNaN(idx)) {
+          void _restoreProjectSnapshotByIndex(idx);
+      }
+    });
+  });
+  projectSnapshotList.querySelectorAll(".project-snapshot-delete-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const idx = parseInt(btn.dataset.index || "-1", 10);
+      if (!Number.isNaN(idx)) {
+        _deleteProjectSnapshotByIndex(idx);
+      }
+    });
+  });
+}
+
+async function _openProjectSnapshotDialog() {
+  if (!projectSnapshotDialog) return;
+  await _renderProjectSnapshotHistory();
+  projectSnapshotDialog.showModal();
+  setTimeout(() => projectSnapshotNoteInput?.focus(), 0);
+}
+
+function _closeProjectSnapshotDialog() {
+  projectSnapshotDialog?.close();
+}
+
+async function _saveManualProjectSnapshot() {
+  const note = (projectSnapshotNoteInput?.value || "").trim();
+  const tab = _getActiveTab();
+  if (!tab) return false;
+  const payload = _getCurrentProjectSnapshotPayload(tab);
+  if (!payload) return false;
+  const entries = await _readProjectSnapshotEntries(tab);
+  const latest = entries[0]?.payload;
+  if (latest && JSON.stringify(latest) === JSON.stringify(payload)) {
+    if (emulatorStatus) {
+      emulatorStatus.textContent = currentLanguage === "hu" ? "A snapshot már létezik." : "Snapshot already exists.";
+    }
+    return false;
+  }
+  entries.unshift({
+    id: crypto.randomUUID(),
+    createdAt: new Date().toISOString(),
+    kind: "manual",
+    note,
+    payload
+  });
+  await _writeProjectSnapshotEntries(tab, entries);
+  await _renderProjectSnapshotHistory();
+  if (projectSnapshotNoteInput) projectSnapshotNoteInput.value = "";
+  if (emulatorStatus) {
+    emulatorStatus.textContent = t("snapshotSaved");
+  }
+  return true;
+}
+
+async function _restoreProjectSnapshotByIndex(index) {
+  const tab = _getActiveTab();
+  if (!tab) return false;
+  const entries = await _readProjectSnapshotEntries(tab);
+  const entry = entries[index];
+  if (!entry?.payload) return false;
+  const msg = currentLanguage === "hu"
+    ? "Visszaállítod ezt a snapshotot? A jelenlegi, nem mentett változások elveszhetnek."
+    : "Restore this snapshot? Current unsaved changes may be lost.";
+  if (!await _showConfirm(msg)) return false;
+  const ok = await _applyProjectPayload(entry.payload, { keepFilePath: true, sourceLabel: entry.note || entry.createdAt || "" });
+  if (ok) {
+    if (emulatorStatus) {
+      emulatorStatus.textContent = t("snapshotRestored");
+    }
+    await _renderProjectSnapshotHistory();
+  }
+  return ok;
+}
+
+async function _restoreLatestProjectSnapshot() {
+  const tab = _getActiveTab();
+  if (!tab) return false;
+  const entries = await _readProjectSnapshotEntries(tab);
+  if (entries.length === 0) return false;
+  return _restoreProjectSnapshotByIndex(0);
+}
+
+async function _deleteProjectSnapshotByIndex(index) {
+  const tab = _getActiveTab();
+  if (!tab) return false;
+  const entries = await _readProjectSnapshotEntries(tab);
+  if (!entries[index]) return false;
+  const msg = currentLanguage === "hu"
+    ? "Törlöd ezt a snapshotot?"
+    : "Delete this snapshot?";
+  if (!await _showConfirm(msg)) return false;
+  entries.splice(index, 1);
+  await _writeProjectSnapshotEntries(tab, entries);
+  await _renderProjectSnapshotHistory();
+  if (emulatorStatus) {
+    emulatorStatus.textContent = t("snapshotDeleted");
+  }
+  return true;
+}
+
+async function _migrateProjectSnapshotHistory(tab, oldSnapshotPath) {
+  if (!tab || !oldSnapshotPath) return;
+  const newSnapshotPath = await _getProjectSnapshotStoragePath(tab);
+  if (!newSnapshotPath || oldSnapshotPath === newSnapshotPath) return;
+  let oldEntries = [];
+  let currentEntries = [];
+  const oldResult = await window.electronAPI?.readTextFile?.(oldSnapshotPath);
+  const newResult = await window.electronAPI?.readTextFile?.(newSnapshotPath);
+  if (oldResult?.ok && typeof oldResult.content === "string" && oldResult.content.trim()) {
+    try {
+      const parsed = JSON.parse(oldResult.content);
+      oldEntries = Array.isArray(parsed) ? parsed : [];
+    } catch {
+      oldEntries = [];
+    }
+  }
+  if (newResult?.ok && typeof newResult.content === "string" && newResult.content.trim()) {
+    try {
+      const parsed = JSON.parse(newResult.content);
+      currentEntries = Array.isArray(parsed) ? parsed : [];
+    } catch {
+      currentEntries = [];
+    }
+  }
+  const merged = _normalizeProjectSnapshotEntries([...oldEntries, ...currentEntries]);
+  await _writeProjectSnapshotEntries(tab, merged);
+  _PROJECT_SNAPSHOT_HISTORY_CACHE.delete(oldSnapshotPath);
+}
+
 function markTabDirty() {
   const tab = tabs?.find(t => t.id === activeTabId);
-  if (!tab || tab.dirty) return;
+  if (!tab) return;
+  _scheduleProjectSnapshot(tab.id);
+  if (tab.dirty) return;
   tab.dirty = true;
   renderTabBar();
 }
@@ -8364,6 +8810,7 @@ function markTabClean() {
   const tab = tabs?.find(t => t.id === activeTabId);
   if (!tab || !tab.dirty) return;
   tab.dirty = false;
+  _clearProjectSnapshotTimer(tab.id);
   renderTabBar();
 }
 
@@ -8594,7 +9041,7 @@ function _updateTabScrollButtons() {
   new ResizeObserver(_updateTabScrollButtons).observe(tabBar);
 }());
 
-async function saveProjectToFile() {
+async function saveProjectToFile({ forceSaveAs = false } = {}) {
   if (!window.electronAPI?.saveProject) {
     if (emulatorStatus) {
       emulatorStatus.textContent = t("projectSaveFailed");
@@ -8603,7 +9050,8 @@ async function saveProjectToFile() {
   }
 
   const tab = tabs?.find(t => t.id === activeTabId);
-  const existingPath = tab?.filePath || "";
+  const existingPath = forceSaveAs ? "" : (tab?.filePath || "");
+  const previousSnapshotPath = await _getProjectSnapshotStoragePath(tab);
   const defaultName  = (tab?.name || "program").replace(/\.(json|c64va)$/i, "") + ".json";
 
   const payload = {
@@ -8630,7 +9078,14 @@ async function saveProjectToFile() {
   // Update current file display
   if (result.filePath) {
     const fileName = result.filePath.split(/[\\/]/).pop();
+    const oldSnapshotPath = previousSnapshotPath;
     _setCurrentFile(fileName, fileName, result.filePath);
+    if (tab) {
+      const nextSnapshotPath = await _getProjectSnapshotStoragePath(tab);
+      if (oldSnapshotPath && nextSnapshotPath && oldSnapshotPath !== nextSnapshotPath) {
+        await _migrateProjectSnapshotHistory(tab, oldSnapshotPath);
+      }
+    }
   }
   markTabClean();
 }
@@ -10365,6 +10820,153 @@ function addLayoutLabels(labelMap, line) {
 
 // ── End ASM Import parser ─────────────────────────────────────────
 
+async function _applyProjectPayload(projectData, { sourceFilePath = "", keepFilePath = false } = {}) {
+  if (!projectData || projectData.app !== "c64-visual-assembler" || !Array.isArray(projectData.program)) {
+    return false;
+  }
+
+  let loadedProgram = projectData.program.map((block) => ({
+    ...block,
+    id: block.id || crypto.randomUUID()
+  }));
+
+  // Backward compatibility for old INCLUDE projects:
+  // some files store only includeFileName (includeFile is empty).
+  for (const block of loadedProgram) {
+    if (!block?.isIncludeMacro) continue;
+    const hasIncludeFile = typeof block.includeFile === "string" && block.includeFile.trim() !== "";
+    if (hasIncludeFile) continue;
+    const name = typeof block.includeFileName === "string" ? block.includeFileName.trim() : "";
+    if (!name) continue;
+    block.includeFile = /\.json$/i.test(name) ? name : `${name}.json`;
+  }
+
+  // Backward compatibility for old INCBIN projects:
+  // some files store only incBinFileName (incBinFile is empty).
+  for (const block of loadedProgram) {
+    if (!block?.isIncBinMacro) continue;
+    const hasIncBinFile = typeof block.incBinFile === "string" && block.incBinFile.trim() !== "";
+    if (hasIncBinFile) continue;
+    const name = typeof block.incBinFileName === "string" ? block.incBinFileName.trim() : "";
+    if (!name) continue;
+    block.incBinFile = name;
+  }
+
+  // Backward compatibility for old SID projects:
+  // some files store only sidFileName (sidFile is empty).
+  for (const block of loadedProgram) {
+    if (!block?.isSidMacro) continue;
+    const hasSidFile = typeof block.sidFile === "string" && block.sidFile.trim() !== "";
+    if (hasSidFile) continue;
+    const name = typeof block.sidFileName === "string" ? block.sidFileName.trim() : "";
+    if (!name) continue;
+    block.sidFile = name;
+  }
+
+  // Migrate old projects: if no ORG block at start, prepend one from saved origin
+  if (!loadedProgram.some(b => b.isOrgMacro)) {
+    const orgAddr = (projectData.origin || "0801").replace(/^\$/, "").toUpperCase().padStart(4, "0");
+    loadedProgram.unshift({ ...makeDefaultOrgBlock(), orgAddress: orgAddr });
+  }
+
+  if (!tabs.length) {
+    tabs.push(_tabCreate());
+    activeTabId = tabs[0].id;
+  }
+
+  const tab = _getActiveTab();
+  if (!tab) return false;
+
+  const loadedFilePath = sourceFilePath || (keepFilePath ? tab.filePath || "" : "");
+  const sourceName = loadedFilePath ? loadedFilePath.split(/[\\/]/).pop() : (tab.name || tab._untitledName || "Untitled");
+
+  tab.program = JSON.parse(JSON.stringify(loadedProgram));
+  tab.userMacros = {};
+  tab.selectedBlockId = null;
+  tab.expertText = typeof projectData.expertText === "string" ? projectData.expertText : "";
+  tab.filePath = loadedFilePath || null;
+  tab.name = sourceName || tab.name || tab._untitledName || "Untitled";
+  tab.dirty = false;
+
+  program = JSON.parse(JSON.stringify(loadedProgram));
+  userMacros = {};
+  selectedBlockId = null;
+
+  await reloadIncludeBlocks(loadedFilePath || "");
+  await reloadIncBinBlocks(loadedFilePath || "");
+  await reloadSidBlocks(loadedFilePath || "");
+
+  d64ExportState.extras = [];
+  const _d64BaseDir = (() => {
+    const fp = typeof loadedFilePath === "string" ? loadedFilePath : "";
+    const s = Math.max(fp.lastIndexOf("/"), fp.lastIndexOf("\\"));
+    return s >= 0 ? fp.slice(0, s) : "";
+  })();
+  if (projectData.d64) {
+    d64ExportState.diskName = projectData.d64.diskName || "";
+    d64ExportState.progName = projectData.d64.progName || "";
+    d64ExportState._pendingExtras = Array.isArray(projectData.d64.extras) ? projectData.d64.extras : [];
+    d64ExportState._pendingExtrasBaseDir = _d64BaseDir;
+  } else {
+    d64ExportState.diskName = "";
+    d64ExportState.progName = "";
+    d64ExportState._pendingExtras = null;
+    d64ExportState._pendingExtrasBaseDir = "";
+  }
+
+  if (projectData.ui?.numberBase && baseInputs.length) {
+    baseInputs.forEach((input) => {
+      input.checked = input.value === projectData.ui.numberBase;
+    });
+  }
+
+  if (projectData.ui?.outputMode && outputModeTabs.length) {
+    outputModeTabs.forEach((tabEl) => {
+      const isActive = tabEl.dataset.mode === projectData.ui.outputMode;
+      tabEl.classList.toggle("active", isActive);
+      tabEl.setAttribute("aria-selected", String(isActive));
+    });
+  }
+
+  if (typeof projectData.ui?.zoom === "number") {
+    blockScale = Math.max(0.72, Math.min(1.25, Number(projectData.ui.zoom)));
+    applyZoom();
+  }
+
+  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64"];
+  if (projectData.ui?.runMode && validRunModes.includes(projectData.ui.runMode)) {
+    setRunMode(projectData.ui.runMode);
+  }
+
+  renderOriginPreview();
+  renderEmulatorRunHint();
+  renderOutputMode();
+  parseUserMacros();
+  renderProgram();
+  if (expertMode) {
+    _expertAcHide();
+    if (typeof projectData.expertText === "string") {
+      expertEditor.value = projectData.expertText;
+      expertEditor.dispatchEvent(new Event("input"));
+    } else {
+      _expertSyncFromProgram();
+    }
+  }
+  saveUiSettings();
+  markTabClean();
+  _clearProjectSnapshotTimer(tab.id);
+
+  if (loadedFilePath) {
+    _setCurrentFile(sourceName, sourceName, loadedFilePath);
+  } else {
+    if (currentFileDisplay) currentFileDisplay.textContent = tab.name || "";
+    if (expertFileName) expertFileName.textContent = tab.name || "";
+    updateWindowTitle(tab.name || "");
+  }
+
+  return true;
+}
+
 async function loadProjectFromFile() {
   if (!window.electronAPI?.loadProject) {
     if (emulatorStatus) {
@@ -10392,125 +10994,11 @@ async function loadProjectFromFile() {
     }
     return;
   }
-
-  program = projectData.program.map((block) => ({
-    ...block,
-    id: block.id || crypto.randomUUID()
-  }));
-
-  // Backward compatibility for old INCLUDE projects:
-  // some files store only includeFileName (includeFile is empty).
-  for (const block of program) {
-    if (!block?.isIncludeMacro) continue;
-    const hasIncludeFile = typeof block.includeFile === "string" && block.includeFile.trim() !== "";
-    if (hasIncludeFile) continue;
-    const name = typeof block.includeFileName === "string" ? block.includeFileName.trim() : "";
-    if (!name) continue;
-    block.includeFile = /\.json$/i.test(name) ? name : `${name}.json`;
-  }
-
-  // Backward compatibility for old INCBIN projects:
-  // some files store only incBinFileName (incBinFile is empty).
-  for (const block of program) {
-    if (!block?.isIncBinMacro) continue;
-    const hasIncBinFile = typeof block.incBinFile === "string" && block.incBinFile.trim() !== "";
-    if (hasIncBinFile) continue;
-    const name = typeof block.incBinFileName === "string" ? block.incBinFileName.trim() : "";
-    if (!name) continue;
-    block.incBinFile = name;
-  }
-
-  // Backward compatibility for old SID projects:
-  // some files store only sidFileName (sidFile is empty).
-  for (const block of program) {
-    if (!block?.isSidMacro) continue;
-    const hasSidFile = typeof block.sidFile === "string" && block.sidFile.trim() !== "";
-    if (hasSidFile) continue;
-    const name = typeof block.sidFileName === "string" ? block.sidFileName.trim() : "";
-    if (!name) continue;
-    block.sidFile = name;
-  }
-
-  // Migrate old projects: if no ORG block at start, prepend one from saved origin
-  if (!program.some(b => b.isOrgMacro)) {
-    const orgAddr = (projectData.origin || "0801").replace(/^\$/, "").toUpperCase().padStart(4, "0");
-    program.unshift({ ...makeDefaultOrgBlock(), orgAddress: orgAddr });
-  }
-
-  await reloadIncludeBlocks(result.filePath || "");
-  await reloadIncBinBlocks(result.filePath || "");
-  await reloadSidBlocks(result.filePath || "");
-
-  d64ExportState.extras = [];
-  const _d64BaseDir = (() => {
-    const fp = typeof result.filePath === "string" ? result.filePath : "";
-    const s = Math.max(fp.lastIndexOf("/"), fp.lastIndexOf("\\"));
-    return s >= 0 ? fp.slice(0, s) : "";
-  })();
-  if (projectData.d64) {
-    d64ExportState.diskName = projectData.d64.diskName || "";
-    d64ExportState.progName = projectData.d64.progName || "";
-    d64ExportState._pendingExtras = Array.isArray(projectData.d64.extras) ? projectData.d64.extras : [];
-    d64ExportState._pendingExtrasBaseDir = _d64BaseDir;
-  } else {
-    d64ExportState.diskName = "";
-    d64ExportState.progName = "";
-    d64ExportState._pendingExtras = null;
-    d64ExportState._pendingExtrasBaseDir = "";
-  }
-
-  if (projectData.ui?.numberBase && baseInputs.length) {
-    baseInputs.forEach((input) => {
-      input.checked = input.value === projectData.ui.numberBase;
-    });
-  }
-
-  if (projectData.ui?.outputMode && outputModeTabs.length) {
-    outputModeTabs.forEach((tab) => {
-      const isActive = tab.dataset.mode === projectData.ui.outputMode;
-      tab.classList.toggle("active", isActive);
-      tab.setAttribute("aria-selected", String(isActive));
-    });
-  }
-
-  if (typeof projectData.ui?.zoom === "number") {
-    blockScale = Math.max(0.72, Math.min(1.25, Number(projectData.ui.zoom)));
-    applyZoom();
-  }
-
-  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64"];
-  if (projectData.ui?.runMode && validRunModes.includes(projectData.ui.runMode)) {
-    setRunMode(projectData.ui.runMode);
-  }
-
-  renderOriginPreview();
-  renderEmulatorRunHint();
-  renderOutputMode();
-  parseUserMacros();  // Parse any user-defined macros in the loaded project
-  renderProgram();
-  if (expertMode) {
-    _expertAcHide();
-    if (typeof projectData.expertText === "string") {
-      expertEditor.value = projectData.expertText;
-      expertEditor.dispatchEvent(new Event("input"));
-    } else {
-      _expertSyncFromProgram();
-    }
-  }
-  saveUiSettings();
-
   if (emulatorStatus) {
     emulatorStatus.textContent = `${t("projectLoaded")}: ${result.filePath}`;
   }
 
-  // Update current file display
-  if (result.filePath) {
-    const fileName = result.filePath.split(/[\\/]/).pop();
-    _setCurrentFile(fileName, fileName, result.filePath);
-  }
-  markTabClean();
-
-  return true;
+  return _applyProjectPayload(projectData, { sourceFilePath: result.filePath || "" });
 }
 
 async function _getAsmExportHeader() {
@@ -12855,13 +13343,15 @@ function getProgramLayout(originOverride) {
         // Skip ORG blocks from included libraries — they have no meaning in the including program's address space
         let insideIncludedMacroDef = false;
         let includedMacroName = null;
+        let includedMacroHasParams = false;
         for (const subBlock of block.includedBlocks) {
           if (subBlock.isOrgMacro) continue;
           if (subBlock.isMacroDefStart) {
             insideIncludedMacroDef = true;
             includedMacroName = subBlock.macroName || "";
-            if (block.includeAddress) {
-              // Library at fixed address: macros become subroutines
+            includedMacroHasParams = (subBlock.macroParams || "").trim().length > 0;
+            if (block.includeAddress && !includedMacroHasParams) {
+              // Library at fixed address: zero-param macros become subroutines
               // Show source comment first (if toggled on), then synthetic label for JSR target
               if (showMacroSource) expandedProgram.push({ ...subBlock, _fromInclude: block.id });
               if (includedMacroName) {
@@ -12886,11 +13376,12 @@ function getProgramLayout(originOverride) {
           if (subBlock.isMacroDefEnd) {
             insideIncludedMacroDef = false;
             includedMacroName = null;
+            includedMacroHasParams = false;
             if (showMacroSource) expandedProgram.push({ ...subBlock, _fromInclude: block.id });
             continue;
           }
           if (insideIncludedMacroDef) {
-            if (block.includeAddress) {
+            if (block.includeAddress && !includedMacroHasParams) {
               // Emit as actual subroutine code so JSR macroName resolves correctly
               expandedProgram.push({ ...subBlock, _fromInclude: block.id, _includeFileName: block.includeFileName, _fromLibraryMacro: includedMacroName });
             } else if (showMacroSource) {
