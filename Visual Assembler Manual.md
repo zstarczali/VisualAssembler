@@ -58,6 +58,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [RAWBYTES](#rawbytes)
     - [RAWTEXT](#rawtext)
     - [PETSCII](#petscii)
+    - [CHARSET](#charset)
     - [INCBIN](#incbin)
     - [SID](#sid)
     - [INCLUDE](#include)
@@ -149,7 +150,7 @@ The palette on the left lists all available blocks grouped by category:
 - **System** — CLC, SEC, NOP, BRK, …
 - **Illegal instructions** — LAX, SAX, DCP, …
 - **Structure** — LABEL, COMMENT, REGION, ENDREGION
-- **Macros** — LOOP, NEXT, FOR, ENDF, PUSH, PULL, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, INCBIN, SID, INCLUDE, TABLE, ORG, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, MOUSE, SPRITE_COL, LOADFILE, REU_CHECK, REU_STASH, REU_FETCH, REU_SWAP, TURBO_SET, SUPERCPU_DETECT, TURBO_ENABLE, MAP_COPY, SPRITE_ANIM, SCORE_BCD
+- **Macros** — LOOP, NEXT, FOR, ENDF, PUSH, PULL, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, CHARSET, INCBIN, SID, INCLUDE, TABLE, ORG, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, MOUSE, SPRITE_COL, LOADFILE, REU_CHECK, REU_STASH, REU_FETCH, REU_SWAP, TURBO_SET, SUPERCPU_DETECT, TURBO_ENABLE, MAP_COPY, SPRITE_ANIM, SCORE_BCD
 
 Use the **search box** at the top of the palette to filter by name. Click the **Add selected block** button or drag a block into the program area.
 
@@ -660,16 +661,33 @@ Like **PRINT AT** — writes text directly to the C64 screen at a given column a
 | X | Column (0–39) |
 | Y | Row (0–24) |
 | Label (optional) | Assigns a label pointing to the computed screen address |
+| Lowercase charset | Checkbox — see below |
 
-**Case auto-detection:** If the text contains any letter, the macro uses lowercase charset screen codes (`a`–`z` → 1–26). This works correctly when the C64 charset is set to lowercase mode (`LDA #$17 : STA $D018`). Numbers and symbols always use standard screen codes.
+**Charset modes:**
 
-**Generated ASM:**
+The C64 has two character sets selectable at runtime:
+
+| Mode | $D018 bit 1 | Uppercase input | Lowercase input |
+|---|---|---|---|
+| **Uppercase/graphics** (default) | 0 | `A`–`Z` → screen codes $01–$1A ✓ | treated as uppercase too |
+| **Lowercase/uppercase** (after CHARSET lower) | 1 | `A`–`Z` → $01–$1A (uppercase) | `a`–`z` → $41–$5A (lowercase) ✓ |
+
+- **Uppercase charset (default, checkbox unchecked):** Type what you want to see in uppercase. `"HELLO"` displays as `HELLO`. Lowercase input is mapped to uppercase screen codes.
+- **Lowercase charset (checkbox checked):** Type the exact case you want to see. `"hello"` → lowercase display, `"HELLO"` → uppercase display. Requires a runtime charset switch before the screen is written (use the **CHARSET lower** macro).
+
+**Generated ASM (uppercase mode, `"HELLO"`):**
 ```
-    LDA #$08      ; 'H' (screen code, upper-case in standard charset)
+    LDA #$08      ; 'H' screen code $08
     STA $0400
-    LDA #$05      ; 'E' (screen code)
+    LDA #$05      ; 'E' screen code $05
     STA $0401
     ...
+```
+
+**Expert syntax:**
+```
+.text 0, 2, "HELLO"           ; uppercase charset (default)
+.text 0, 2, "hello", lower    ; lowercase charset
 ```
 
 Characters are encoded as **screen codes** (not PETSCII). **Size:** `text.length × 5` bytes (LDA + STA per character).
@@ -678,7 +696,7 @@ Characters are encoded as **screen codes** (not PETSCII). **Size:** `text.length
 
 ### STRING
 
-Like **POKEing a string** into any memory address at runtime. Generates LDA/STA pairs that copy each character's screen code to consecutive addresses. Same case auto-detection as TEXT.
+Like **POKEing a string** into any memory address at runtime. Generates LDA/STA pairs that copy each character's screen code to consecutive addresses.
 
 | Field | Description |
 |---|---|
@@ -686,12 +704,15 @@ Like **POKEing a string** into any memory address at runtime. Generates LDA/STA 
 | Address | Target memory address — `$C000` hex or a **label name** |
 | Label (optional) | Assigns a label pointing to the target address |
 | Shift | Hex value (00–FF) added to each screen code byte (e.g. `$80` = reverse video) |
+| Lowercase charset | Checkbox — same semantics as TEXT (see TEXT section) |
 
 **Expert syntax:**
 ```
-.string $C000, "HELLO"              ; hex address
-.string my_buf, "HELLO"             ; label address (resolved at assembly time)
-.string $C000, "HELLO" :my_string   ; with macroLabel
+.string $C000, "HELLO"                  ; uppercase charset (default)
+.string $C000, "hello", lower           ; lowercase charset
+.string $C000, "HELLO", 80             ; with shift (reverse video)
+.string $C000, "hello", 80, lower      ; shift + lowercase
+.string $C000, "HELLO" :my_string      ; with macroLabel
 ```
 
 **Generated ASM:**
@@ -762,7 +783,7 @@ Like **DATA that loads directly into memory** — no runtime code at all. The by
 
 ### RAWTEXT
 
-Like RAWBYTES but for text — encodes the string as screen codes and places the bytes at a fixed address with **no runtime code**. The text is ready in memory the instant the PRG loads. Same case auto-detection as TEXT and STRING.
+Like RAWBYTES but for text — encodes the string as screen codes and places the bytes at a fixed address with **no runtime code**. The text is ready in memory the instant the PRG loads.
 
 | Field | Description |
 |---|---|
@@ -770,19 +791,26 @@ Like RAWBYTES but for text — encodes the string as screen codes and places the
 | Address | Target memory address — `$C000` hex or a **label name** |
 | Label (optional) | Assigns a label pointing to the target address |
 | Shift | Hex value (00–FF) added to each screen code byte (e.g. `$80` = reverse video) |
+| Lowercase charset | Checkbox — same semantics as TEXT (see TEXT section) |
 
 **Expert syntax:**
 ```
-.rawtext $C000, "HELLO"             ; hex address
-.rawtext screen_pos, "HELLO"        ; label address
-.rawtext $0400, "HELLO" :my_text    ; with macroLabel
+.rawtext $C000, "HELLO"                 ; uppercase charset (default)
+.rawtext $C000, "hello", lower          ; lowercase charset
+.rawtext $C000, "HELLO", 80            ; with shift (reverse video)
+.rawtext $C000, "hello", 80, lower     ; shift + lowercase
+.rawtext $0400, "HELLO" :my_text       ; with macroLabel
 ```
 
 **Generated ASM:**
 ```
 ; .rawtext "HELLO" -> $C000
 ; $C000
-    .byte $08, $05, $0C, $0C, $0F   ; H E L L O (screen codes)
+    .byte $08, $05, $0C, $0C, $0F   ; H E L L O (uppercase screen codes)
+
+; .rawtext "hello", lower -> $C000
+; $C000
+    .byte $48, $45, $4C, $4C, $4F   ; h e l l o (lowercase screen codes $41–$5A range)
 ```
 
 **Size in code:** 0 bytes. The data is placed at the given address in the output.
@@ -795,56 +823,118 @@ Like RAWBYTES but for text — encodes the string as screen codes and places the
 
 Like **RAWBYTES but for KERNAL output** — encodes the string as PETSCII bytes (compatible with CHROUT at `$FFD2`) and places them at a fixed address with no runtime code. Use this when you want to print characters via `JSR $FFD2` in a loop.
 
+> **PETSCII vs screen codes:** PETSCII and screen codes are two different encodings. Screen code `$01` = letter A; PETSCII `$41` = letter A (via CHROUT). Use PETSCII only when printing through the KERNAL; use TEXT/STRING/RAWTEXT for writing directly to screen RAM.
+
 | Field | Description |
 |---|---|
 | Text | String to encode as PETSCII bytes |
 | Address | Target memory address — `$C000` hex or a **label name** |
 | Label (optional) | Assigns a label pointing to the target address |
+| Lowercase PETSCII | Checkbox — see below |
+
+**Charset modes:**
+
+| Mode | Uppercase input (`A`–`Z`) | Lowercase input (`a`–`z`) |
+|---|---|---|
+| **Uppercase (default, unchecked)** | `$41`–`$5A` (PETSCII uppercase via CHROUT) | also mapped to `$41`–`$5A` |
+| **Lowercase (checked)** | `$41`–`$5A` (uppercase still works) | `$61`–`$7A` (PETSCII lowercase — requires C64 in lowercase charset mode) |
 
 **Expert syntax:**
 ```
-.petscii $C000, "HELLO"             ; hex address
-.petscii msg_buf, "HELLO"           ; label address
-.petscii $C000, "HELLO", null       ; with null terminator
-.petscii $C000, "HELLO" :my_msg     ; with macroLabel
-.petscii $C000, "HELLO", null :msg  ; combined
+.petscii $C000, "HELLO"              ; uppercase PETSCII (default)
+.petscii $C000, "hello", lower       ; lowercase PETSCII ($61–$7A)
+.petscii $C000, "HELLO", null        ; with null terminator
+.petscii $C000, "hello", lower, null ; lowercase + null terminator
+.petscii $C000, "HELLO" :my_msg      ; with macroLabel
 ```
 
-**Generated ASM:**
+**Generated bytes (uppercase, `"HELLO"`):**
 ```
-; .petscii "HELLO" -> $C000
 ; $C000
-    .byte $48, $45, $4C, $4C, $4F   ; H E L L O
+    .byte $48, $45, $4C, $4C, $4F   ; H E L L O (PETSCII $41–$5A range)
 ```
 
 **Size in code:** 0 bytes. The data is placed at the target address as a deferred data section (like RAWBYTES).
 
-**Null terminator:** Check the *"Append `$00` (null terminator)"* checkbox in the PETSCII block to automatically add a `$00` byte after the text. This is ideal for null-terminated string loops:
+**Null terminator:** Check the *"Append `$00` (null terminator)"* checkbox to automatically add a `$00` byte after the text. Ideal for null-terminated loops:
 
 ```
     LDX #$00
-for0:
+loop:
     LDA msg,X
     BEQ done        ; $00 stops the loop
     JSR $FFD2
     INX
-    CPX #$20
-    BNE for0
+    BNE loop
 done:
     RTS
 ```
 
-In expert mode, add `, null` after the text: `.petscii $C000, "HELLO", null`
-
 **Encoding rules:**
 
-| Input | Byte value |
-|---|---|
-| Printable ASCII (space, letters, digits, punctuation) | Standard ASCII code (32–126) |
-| Newline | `$0D` (RETURN) |
-| Everything else | `$20` (space) |
+| Input | Uppercase mode | Lowercase mode |
+|---|---|---|
+| `A`–`Z` | `$41`–`$5A` | `$41`–`$5A` |
+| `a`–`z` | `$41`–`$5A` (forced uppercase) | `$61`–`$7A` |
+| Space, digits, punctuation (32–126) | as-is | as-is |
+| Newline | `$0D` (RETURN) | `$0D` |
+| Other | `$20` (space) | `$20` |
 
-> **Tip:** Use PETSCII for data that will be output via CHROUT (`$FFD2`). For screen-code strings (different mapping), use the STRING macro instead.
+> **Tip:** Use PETSCII for data that will be output via CHROUT (`$FFD2`). For writing directly to screen RAM, use STRING or RAWTEXT instead.
+
+---
+
+### CHARSET
+
+Switches the VIC-II character ROM between uppercase/graphics mode (C64 default) and lowercase/uppercase mode, by modifying bit 1 of `$D018` at runtime.
+
+| Field | Description |
+|---|---|
+| Mode | **Lowercase** — enables the lowercase/uppercase charset; **Uppercase** — restores the default uppercase/graphics charset |
+
+**Expert syntax:**
+```
+.charset lower    ; switch to lowercase charset
+.charset upper    ; switch back to uppercase/graphics charset
+```
+
+**Generated ASM:**
+
+Lowercase mode:
+```
+    LDA $D018
+    ORA #$02      ; set bit 1 → lowercase/uppercase ROM at $1800
+    STA $D018
+```
+
+Uppercase mode:
+```
+    LDA $D018
+    AND #$FD      ; clear bit 1 → uppercase/graphics ROM at $1000
+    STA $D018
+```
+
+**Size:** 8 bytes (LDA abs + ORA/AND imm + STA abs).
+
+**Why ORA/AND instead of a direct write?** `$D018` also controls screen RAM location (bits 7–4). Toggling only bit 1 preserves the rest of the register.
+
+**Typical workflow:**
+
+```
+    CHARSET lower             ; switch to lowercase charset
+    TEXT 0, 0, "hello world"  ; [checkbox: Lowercase charset]
+    ...
+    CHARSET upper             ; restore default when done
+```
+
+Or in expert mode:
+```
+.charset lower
+.text 0, 0, "hello world", lower
+.charset upper
+```
+
+> **Note:** The CHARSET macro only changes the VIC character ROM pointer. It does not call `$E544` (KERNAL charset init). For most cases this is sufficient; call `JSR $E544` first only if you need the KERNAL's own print routines to respect the change.
 
 ---
 
