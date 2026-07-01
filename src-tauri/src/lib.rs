@@ -1033,35 +1033,54 @@ async fn reload_sid_file(app: AppHandle, file_path: String, base_dir: Option<Str
 #[tauri::command]
 async fn choose_include_file(app: AppHandle) -> serde_json::Value {
     let result = app.dialog().file()
+        .add_filter("Include (project or assembly)", &["json", "inc", "asm", "s"])
         .add_filter("C64 Visual Assembler project", &["json"])
+        .add_filter("Assembly source", &["inc", "asm", "s"])
         .add_filter("All files", &["*"])
         .blocking_pick_file();
 
     match result {
         Some(path) => {
             let path_str = path.to_string();
+            let path_obj = std::path::Path::new(&path_str);
+            let is_json = path_obj
+                .extension()
+                .and_then(|e| e.to_str())
+                .map(|e| e.eq_ignore_ascii_case("json"))
+                .unwrap_or(false);
+            let file_name = path_obj
+                .file_stem().and_then(|n| n.to_str()).unwrap_or("").to_string();
             match fs::read_to_string(&path_str) {
-                Ok(raw) => match serde_json::from_str::<serde_json::Value>(&raw) {
-                    Ok(project) => {
-                        if project["app"].as_str() != Some("c64-visual-assembler")
-                            || !project["program"].is_array()
-                        {
-                            return serde_json::json!({
-                                "canceled": false,
-                                "error": "Not a valid C64 Visual Assembler project."
-                            });
+                Ok(raw) => {
+                    if is_json {
+                        match serde_json::from_str::<serde_json::Value>(&raw) {
+                            Ok(project) => {
+                                if project["app"].as_str() != Some("c64-visual-assembler")
+                                    || !project["program"].is_array()
+                                {
+                                    return serde_json::json!({
+                                        "canceled": false,
+                                        "error": "Not a valid C64 Visual Assembler project."
+                                    });
+                                }
+                                serde_json::json!({
+                                    "canceled": false,
+                                    "filePath": path_str,
+                                    "fileName": file_name,
+                                    "blocks": project["program"]
+                                })
+                            }
+                            Err(e) => serde_json::json!({ "canceled": false, "error": e.to_string() }),
                         }
-                        let file_name = std::path::Path::new(&path_str)
-                            .file_stem().and_then(|n| n.to_str()).unwrap_or("").to_string();
+                    } else {
                         serde_json::json!({
                             "canceled": false,
                             "filePath": path_str,
                             "fileName": file_name,
-                            "blocks": project["program"]
+                            "text": raw
                         })
                     }
-                    Err(e) => serde_json::json!({ "canceled": false, "error": e.to_string() }),
-                },
+                }
                 Err(e) => serde_json::json!({ "canceled": false, "error": e.to_string() }),
             }
         }
@@ -1112,20 +1131,31 @@ async fn reload_include_file(app: AppHandle, file_path: String, base_dir: Option
         return serde_json::json!({ "error": format!("The system cannot find the file specified. (os error 2): {}", file_path) });
     };
 
+    let is_json = resolved
+        .extension()
+        .and_then(|e| e.to_str())
+        .map(|e| e.eq_ignore_ascii_case("json"))
+        .unwrap_or(false);
+    let file_name = resolved
+        .file_stem().and_then(|n| n.to_str()).unwrap_or("").to_string();
     match fs::read_to_string(&resolved) {
-        Ok(raw) => match serde_json::from_str::<serde_json::Value>(&raw) {
-            Ok(project) => {
-                if project["app"].as_str() != Some("c64-visual-assembler")
-                    || !project["program"].is_array()
-                {
-                    return serde_json::json!({ "error": "Not a valid C64 Visual Assembler project." });
+        Ok(raw) => {
+            if is_json {
+                match serde_json::from_str::<serde_json::Value>(&raw) {
+                    Ok(project) => {
+                        if project["app"].as_str() != Some("c64-visual-assembler")
+                            || !project["program"].is_array()
+                        {
+                            return serde_json::json!({ "error": "Not a valid C64 Visual Assembler project." });
+                        }
+                        serde_json::json!({ "fileName": file_name, "blocks": project["program"] })
+                    }
+                    Err(e) => serde_json::json!({ "error": e.to_string() }),
                 }
-                let file_name = resolved
-                    .file_stem().and_then(|n| n.to_str()).unwrap_or("").to_string();
-                serde_json::json!({ "fileName": file_name, "blocks": project["program"] })
+            } else {
+                serde_json::json!({ "fileName": file_name, "text": raw })
             }
-            Err(e) => serde_json::json!({ "error": e.to_string() }),
-        },
+        }
         Err(e) => serde_json::json!({ "error": e.to_string() }),
     }
 }

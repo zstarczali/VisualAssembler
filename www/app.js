@@ -168,6 +168,7 @@ const mnemonicLibrary = {
     { mnemonic: "ENDF", description: "Elore szamlalo ciklus vege: IN* / CP* #limit / BNE cimkere. Parosa a FOR blokk.", modes: ["implied"], isEndfMacro: true },
     { mnemonic: "PUSH", description: "Regiszterek mentese a stackre (A, X, Y kombinaciok).", modes: ["implied"], isPushMacro: true },
     { mnemonic: "PULL", description: "Regiszterek visszatoltese a stackrol (A, X, Y kombinaciok).", modes: ["implied"], isPullMacro: true },
+    { mnemonic: "END", description: "RTS alias: szubrutin-vege makro, amely RTS-t general.", modes: ["implied"], isEndMacro: true },
     { mnemonic: "MACRO", description: "Felhasznaloi makro definicio kezdete. Nevet var, ENDM-mel zarjuk.", modes: ["implied"], isMacroDefStart: true },
     { mnemonic: "ENDM", description: "Felhasznaloi makro definicio vege.", modes: ["implied"], isMacroDefEnd: true },
     { mnemonic: "INVOKE", description: "Felhasznaloi makro hivasa. Valaszd ki a listabol a makro nevet.", modes: ["implied"], isMacroInvoke: true },
@@ -194,6 +195,29 @@ const mnemonicLibrary = {
     { mnemonic: "ELSE", description: "Alternativ ag IF blokkon belul.", modes: ["implied"], isElseMacro: true },
     { mnemonic: "ENDIF", description: "Felteteles forditas vege.", modes: ["implied"], isEndIfMacro: true },
     { mnemonic: "CONST", description: "Nevesitett konstans definialasa. Barmely fontos mnemoniknal felhasznalhato (LDA, STA, JSR, stb.).", modes: ["implied"], isConstMacro: true },
+    { mnemonic: "VAR", description: "Zero page valtozo automatikus cimfoglalasal ($02-tol). Meret 1 (alap) vagy tobb byte. 0 byte-ot foglal a kodban, csak label.", modes: ["implied"], isVarMacro: true },
+    { mnemonic: "IF_A", description: "Futasideju feltetel: CMP {value} + felteteles branch a body kihagyasahoz. Operatorok: = vagy ==, != < >= (unsigned). ELSE es ENDIF blokkok zarjak.", modes: ["implied"], isRuntimeIfMacro: true, runtimeIfReg: "A" },
+    { mnemonic: "IF_X", description: "Futasideju feltetel X-en: CPX {value} + felteteles branch. Csak # abs es zeroPage cimzes.", modes: ["implied"], isRuntimeIfMacro: true, runtimeIfReg: "X" },
+    { mnemonic: "IF_Y", description: "Futasideju feltetel Y-on: CPY {value} + felteteles branch. Csak # abs es zeroPage cimzes.", modes: ["implied"], isRuntimeIfMacro: true, runtimeIfReg: "Y" },
+    { mnemonic: "WHILE_A", description: "Feltetelhez kotott hurok: amig A op {value} igaz, ismetli a body-t. ENDW zarja. Operatorok: = vagy ==, != < >=.", modes: ["implied"], isRuntimeWhileMacro: true, runtimeIfReg: "A" },
+    { mnemonic: "WHILE_X", description: "WHILE hurok X-en: amig X op {value} igaz, ismetli a body-t. ENDW zarja.", modes: ["implied"], isRuntimeWhileMacro: true, runtimeIfReg: "X" },
+    { mnemonic: "WHILE_Y", description: "WHILE hurok Y-on: amig Y op {value} igaz, ismetli a body-t. ENDW zarja.", modes: ["implied"], isRuntimeWhileMacro: true, runtimeIfReg: "Y" },
+    { mnemonic: "ENDW", description: "WHILE hurok zarasa. Visszaugrik a hurok elejere feltetel-ujraellenorzeshez.", modes: ["implied"], isRuntimeEndwMacro: true },
+    { mnemonic: "REPEAT", description: "Legalabb egyszer futo hurok kezdete. Ismetlodik amig az UNTIL feltetele igazza nem valik.", modes: ["implied"], isRuntimeRepeatMacro: true },
+    { mnemonic: "UNTIL_A", description: "REPEAT hurok zarasa A alapjan: kilep ha A op {value} igaz. Operatorok: = vagy ==, != < >=.", modes: ["implied"], isRuntimeUntilMacro: true, runtimeIfReg: "A" },
+    { mnemonic: "UNTIL_X", description: "REPEAT hurok zarasa X alapjan.", modes: ["implied"], isRuntimeUntilMacro: true, runtimeIfReg: "X" },
+    { mnemonic: "UNTIL_Y", description: "REPEAT hurok zarasa Y alapjan.", modes: ["implied"], isRuntimeUntilMacro: true, runtimeIfReg: "Y" },
+    { mnemonic: "MEMCPY", description: "Memoria masolas: LDX/LDA src,X/STA dst,X/INX loop. Meret 1..N byte; N>256 eseten teljes lapokra bontja. Regisztereket felulir (A, X).", modes: ["implied"], isMemCpyMacro: true },
+    { mnemonic: "MEMSET", description: "Memoria feltoltese egyseges bytal: LDA #val + LDX/STA/INX loop. Meret 1..N byte; N>256 eseten tobb lap. A, X felulirodik.", modes: ["implied"], isMemSetMacro: true },
+    { mnemonic: "PRINT", description: "PETSCII szoveg kiirasa CHROUT-tal. Nullaval zart inline stringet es X-es loopot general. Kisbetu/nagybetu checkbox a PETSCII encodinghoz.", modes: ["implied"], isPrintMacro: true },
+    { mnemonic: "PRINT_CHAR", description: "Egyetlen PETSCII karakter kiirasa numerikus kod alapjan. Pl. 65 vagy $41 → CHROUT-tal kiertekeli.", modes: ["implied"], isPrintCharMacro: true },
+    { mnemonic: "PRINT_HEX", description: "A/X/Y regiszter kiirasa ketjegyu hexadecimális ertekkent CHROUT-tal.", modes: ["implied"], isPrintHexMacro: true },
+    { mnemonic: "CLEAR_SCREEN", description: "Kepernyotorles CHROUT-tal: LDA #$93 / JSR $FFD2.", modes: ["implied"], isClearScreenMacro: true },
+    { mnemonic: "WAIT_KEY", description: "Billentyure varakozas KERNAL GETIN ($FFE4) loop-pal. A megnyomott billentyu A-ban marad.", modes: ["implied"], isWaitKeyMacro: true },
+    { mnemonic: "SET_BORDER", description: "Keretszin beallitasa: LDA #color / STA $D020.", modes: ["implied"], isSetBorderMacro: true },
+    { mnemonic: "SET_BG", description: "Hatter szin beallitasa: LDA #color / STA $D021.", modes: ["implied"], isSetBgMacro: true },
+    { mnemonic: "IRQ_SETUP", description: "Raszter IRQ alapbeallitas handlerrel es rasztersorral: vektor, $D012, $D01A, CIA1 IRQ off, CLI.", modes: ["implied"], isIrqSetupMacro: true },
+    { mnemonic: "RAND", description: "8-bites Galois LFSR PRNG. Seed byte-ot frissit, az uj random ertek A-ban marad.", modes: ["implied"], isRandMacro: true },
     { mnemonic: "ORG", description: "Cimzestarto atvaltasa (*= direktiva). A kovetkező blokkokat az itt megadott cimtol forditja.", modes: ["implied"], isOrgMacro: true }
   ],
   Illegalis: [
@@ -649,6 +673,7 @@ const mnemonicDescriptionsEn = {
   ENDF: "Forward loop end: IN* increments, CP* #limit compares, BNE branches back to the FOR label.",
   PUSH: "Save registers to the stack (A, X, Y combinations).",
   PULL: "Restore registers from the stack (A, X, Y combinations).",
+  END: "RTS alias: subroutine end macro that generates RTS.",
   MACRO: "User macro definition start. Expects a name, close with ENDM.",
   ENDM: "User macro definition end.",
   INVOKE: "User macro invocation. Select the macro name from the list.",
@@ -682,6 +707,29 @@ const mnemonicDescriptionsEn = {
   SCORE_BCD: "BCD score increment and display: SED/CLC/ADC pattern adds points, then converts BCD nibbles to screen codes and writes to screen RAM. 2/4/6 digits, inline.",
   DEFINE: "Define a symbol for conditional assembly. When present, IF blocks evaluate the condition.",
   CONST: "Named constant definition. Can be used as an operand in any mnemonic (LDA, STA, JSR, etc.).",
+  VAR: "Zero-page variable with automatic address allocation (starting at $02). Size 1 (default) or more bytes. Emits 0 bytes of code — just a named label.",
+  IF_A: "Runtime conditional on A: CMP {value} + conditional branch to skip the body. Operators: = or ==, != < >= (unsigned). Closed by ELSE and ENDIF.",
+  IF_X: "Runtime conditional on X: CPX {value} + conditional branch. Immediate / absolute / zero page addressing only.",
+  IF_Y: "Runtime conditional on Y: CPY {value} + conditional branch. Immediate / absolute / zero page addressing only.",
+  WHILE_A: "While-loop on A: while (A op value) is true, repeat the body. Closed by ENDW. Operators: = or ==, != < >=.",
+  WHILE_X: "While-loop on X.",
+  WHILE_Y: "While-loop on Y.",
+  ENDW: "End of WHILE loop: unconditional JMP back to the top for re-check.",
+  REPEAT: "Start of a do-while loop that runs at least once. Repeats until the UNTIL condition becomes true.",
+  UNTIL_A: "Close a REPEAT loop based on A: exit when (A op value) is true. Operators: = or ==, != < >=.",
+  UNTIL_X: "Close a REPEAT loop based on X.",
+  UNTIL_Y: "Close a REPEAT loop based on Y.",
+  MEMCPY: "Copy memory: LDX / LDA src,X / STA dst,X / INX loop. Size 1..N bytes; N>256 emits full 256-byte page loops. Clobbers A and X.",
+  MEMSET: "Fill memory with a constant byte: LDA #val + LDX / STA / INX loop. Size 1..N bytes; N>256 emits page loops. Clobbers A and X.",
+  PRINT: "Print a PETSCII string through CHROUT. Emits an inline null-terminated string and an X-indexed loop. Supports the PETSCII lowercase/uppercase checkbox.",
+  PRINT_CHAR: "Print one PETSCII character by numeric code. Example: 65 or $41, then CHROUT emits it.",
+  PRINT_HEX: "Print A/X/Y as a two-digit hexadecimal value through CHROUT.",
+  CLEAR_SCREEN: "Clear the screen through CHROUT: LDA #$93 / JSR $FFD2.",
+  WAIT_KEY: "Wait for a key with a KERNAL GETIN ($FFE4) loop. The pressed key remains in A.",
+  SET_BORDER: "Set border color: LDA #color / STA $D020.",
+  SET_BG: "Set background color: LDA #color / STA $D021.",
+  IRQ_SETUP: "Basic raster IRQ setup with handler and raster line: vector, $D012, $D01A, CIA1 IRQ off, CLI.",
+  RAND: "8-bit Galois LFSR PRNG. Updates the seed byte and leaves the new random value in A.",
   REGION: "Group blocks into a collapsible named section. Close with ENDREGION.",
   ENDREGION: "End of a REGION section.",
   ORG: "Set the origin address (*= directive). The following blocks are assembled starting from this address.",
@@ -786,6 +834,7 @@ const mnemonicDescriptionsEs = {
   ENDF: "Fin del bucle hacia adelante: IN* incrementa, CP* #limit compara, BNE vuelve a la etiqueta FOR.",
   PUSH: "Guarda registros en la pila (combinaciones de A, X, Y).",
   PULL: "Restaura registros de la pila (combinaciones de A, X, Y).",
+  END: "Alias de RTS: macro de fin de subrutina que genera RTS.",
   MACRO: "Inicio de definición de macro de usuario. Requiere un nombre; cerrar con ENDM.",
   ENDM: "Fin de definición de macro de usuario.",
   INVOKE: "Invocación de macro de usuario. Selecciona el nombre de la macro de la lista.",
@@ -819,6 +868,21 @@ const mnemonicDescriptionsEs = {
   SCORE_BCD: "Incremento y visualización de puntuación BCD: patrón SED/CLC/ADC para sumar puntos, convierte nibbles BCD a códigos de pantalla. 2/4/6 dígitos, inline.",
   DEFINE: "Define un símbolo para ensamblado condicional. Cuando está presente, los bloques IF evalúan la condición.",
   CONST: "Definición de constante con nombre. Se puede usar como operando en cualquier mnemónico.",
+  VAR: "Variable en zero page con asignación automática de dirección (desde $02). Tamaño 1 (por defecto) o más bytes. No emite código, solo una etiqueta.",
+  IF_A: "Condicional en tiempo de ejecución con A: CMP {valor} + salto condicional para saltarse el cuerpo. Operadores: = o ==, != < >= (sin signo). Cerrado por ELSE y ENDIF.",
+  IF_X: "Condicional en tiempo de ejecución con X: CPX {valor} + salto condicional. Solo modos inmediato / absoluto / página cero.",
+  IF_Y: "Condicional en tiempo de ejecución con Y: CPY {valor} + salto condicional. Solo modos inmediato / absoluto / página cero.",
+  WHILE_A: "Bucle while sobre A: mientras (A op valor) sea cierto, repite el cuerpo. Cerrado por ENDW. Operadores: = o ==, != < >=.",
+  WHILE_X: "Bucle while sobre X.",
+  WHILE_Y: "Bucle while sobre Y.",
+  ENDW: "Fin del bucle WHILE: JMP incondicional al inicio para re-evaluar la condición.",
+  REPEAT: "Inicio de bucle do-while que se ejecuta al menos una vez. Repite hasta que la condición UNTIL sea cierta.",
+  UNTIL_A: "Cierra un bucle REPEAT según A: sale cuando (A op valor) sea cierto. Operadores: = o ==, != < >=.",
+  UNTIL_X: "Cierra un bucle REPEAT según X.",
+  UNTIL_Y: "Cierra un bucle REPEAT según Y.",
+  MEMCPY: "Copia memoria: LDX / LDA src,X / STA dst,X / INX bucle. Tamaño 1..N bytes; N>256 emite bucles de página completa. Modifica A y X.",
+  MEMSET: "Rellena memoria con un byte constante: LDA #val + LDX / STA / INX bucle. Tamaño 1..N bytes. Modifica A y X.",
+  PRINT_CHAR: "Imprime un único carácter PETSCII por código numérico. Ejemplo: 65 o $41, y CHROUT lo emite.",
   REGION: "Agrupa bloques en una sección con nombre colapsable. Cerrar con ENDREGION.",
   ENDREGION: "Fin de una sección REGION.",
   ORG: "Establece la dirección de origen (directiva *=). Los bloques siguientes se ensamblan desde esta dirección.",
@@ -909,6 +973,7 @@ const mnemonicDescriptionsDe = {
   ENDF: "Vorwärtsschleifenende: IN* inkrementiert, CP* #Limit vergleicht, BNE verzweigt zurück zum FOR-Label.",
   PUSH: "Register auf den Stack sichern (A, X, Y Kombinationen).",
   PULL: "Register vom Stack wiederherstellen (A, X, Y Kombinationen).",
+  END: "RTS-Alias: Makro zum Beenden einer Subroutine, erzeugt RTS.",
   MACRO: "Beginn einer Benutzermakro-Definition. Erwartet einen Namen, mit ENDM abschließen.",
   ENDM: "Ende einer Benutzermakro-Definition.",
   INVOKE: "Benutzermakro aufrufen. Makronamen aus der Liste wählen.",
@@ -942,6 +1007,21 @@ const mnemonicDescriptionsDe = {
   SCORE_BCD: "BCD-Punktestand inkrementieren und anzeigen: SED/CLC/ADC-Muster für Punkte, BCD-Nibbles in Bildschirmcodes umwandeln. 2/4/6 Stellen, inline.",
   DEFINE: "Symbol für bedingte Assemblierung definieren. Bei Vorhandensein werten IF-Blöcke die Bedingung aus.",
   CONST: "Benannte Konstantendefinition. Als Operand in jedem Mnemonic verwendbar.",
+  VAR: "Zero-Page-Variable mit automatischer Adressvergabe (ab $02). Größe 1 (Standard) oder mehr Bytes. Emittiert keinen Code, nur ein Label.",
+  IF_A: "Laufzeit-Bedingung auf A: CMP {Wert} + bedingter Sprung, überspringt den Body. Operatoren: = oder ==, != < >= (unsigned). Wird durch ELSE und ENDIF geschlossen.",
+  IF_X: "Laufzeit-Bedingung auf X: CPX {Wert} + bedingter Sprung. Nur Immediate / Absolute / Zero-Page.",
+  IF_Y: "Laufzeit-Bedingung auf Y: CPY {Wert} + bedingter Sprung. Nur Immediate / Absolute / Zero-Page.",
+  WHILE_A: "While-Schleife auf A: solange (A op Wert) wahr ist, wiederhole den Body. Wird durch ENDW geschlossen. Operatoren: = oder ==, != < >=.",
+  WHILE_X: "While-Schleife auf X.",
+  WHILE_Y: "While-Schleife auf Y.",
+  ENDW: "Ende der WHILE-Schleife: bedingungsloser JMP zurück zum Anfang für erneute Prüfung.",
+  REPEAT: "Anfang einer do-while-Schleife, die mindestens einmal läuft. Wiederholt bis die UNTIL-Bedingung wahr wird.",
+  UNTIL_A: "Schließt REPEAT-Schleife basierend auf A: verlässt wenn (A op Wert) wahr ist.",
+  UNTIL_X: "Schließt REPEAT-Schleife basierend auf X.",
+  UNTIL_Y: "Schließt REPEAT-Schleife basierend auf Y.",
+  MEMCPY: "Speicher kopieren: LDX / LDA src,X / STA dst,X / INX-Schleife. Größe 1..N Bytes; N>256 emittiert 256-Byte-Seiten-Schleifen. Verändert A und X.",
+  MEMSET: "Speicher mit konstantem Byte füllen: LDA #wert + LDX / STA / INX-Schleife. Größe 1..N Bytes. Verändert A und X.",
+  PRINT_CHAR: "Ein einzelnes PETSCII-Zeichen per numerischem Code ausgeben. Beispiel: 65 oder $41, dann emittiert CHROUT es.",
   REGION: "Blöcke in einen einklappbaren benannten Abschnitt gruppieren. Mit ENDREGION abschließen.",
   ENDREGION: "Ende eines REGION-Abschnitts.",
   ORG: "Ursprungsadresse setzen (*=-Direktive). Folgende Blöcke werden ab dieser Adresse assembliert.",
@@ -3846,6 +3926,263 @@ function createBlockFromMnemonic(item) {
     };
   }
 
+  if (item.isVarMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isVarMacro: true,
+      varName: "my_var",
+      varSize: 1
+    };
+  }
+
+  if (item.isRuntimeIfMacro) {
+    const id = crypto.randomUUID();
+    const suffix = id.replace(/-/g, "").slice(0, 8);
+    return {
+      id,
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "#$00",
+      rawOperand: "#$00",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isRuntimeIfMacro: true,
+      runtimeIfReg: item.runtimeIfReg || "A",
+      runtimeIfOp: "==",
+      runtimeIfElseLabel: `_if_else_${suffix}`,
+      runtimeIfEndLabel: `_if_end_${suffix}`
+    };
+  }
+
+  if (item.isRuntimeWhileMacro) {
+    const id = crypto.randomUUID();
+    const suffix = id.replace(/-/g, "").slice(0, 8);
+    return {
+      id,
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "#$00",
+      rawOperand: "#$00",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isRuntimeWhileMacro: true,
+      runtimeIfReg: item.runtimeIfReg || "A",
+      runtimeIfOp: "==",
+      whileStartLabel: `_while_start_${suffix}`,
+      whileEndLabel: `_while_end_${suffix}`
+    };
+  }
+
+  if (item.isRuntimeEndwMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "ENDW",
+      operand: "", rawOperand: "", description: item.description,
+      addressingMode: "implied", base: "hex",
+      validationError: "", collapsed: true,
+      isRuntimeEndwMacro: true
+      // whileStartLabel/whileEndLabel are back-filled at parse time
+    };
+  }
+
+  if (item.isRuntimeRepeatMacro) {
+    const id = crypto.randomUUID();
+    const suffix = id.replace(/-/g, "").slice(0, 8);
+    return {
+      id,
+      category: categorySelect.value,
+      mnemonic: "REPEAT",
+      operand: "", rawOperand: "", description: item.description,
+      addressingMode: "implied", base: "hex",
+      validationError: "", collapsed: true,
+      isRuntimeRepeatMacro: true,
+      repeatStartLabel: `_repeat_start_${suffix}`
+    };
+  }
+
+  if (item.isRuntimeUntilMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "#$00",
+      rawOperand: "#$00",
+      description: item.description,
+      addressingMode: "implied", base: "hex",
+      validationError: "", collapsed: true,
+      isRuntimeUntilMacro: true,
+      runtimeIfReg: item.runtimeIfReg || "A",
+      runtimeIfOp: "=="
+      // repeatStartLabel back-filled at parse time
+    };
+  }
+
+  if (item.isMemCpyMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "MEMCPY",
+      operand: "", rawOperand: "", description: item.description,
+      addressingMode: "implied", base: "hex",
+      validationError: "", collapsed: true,
+      isMemCpyMacro: true,
+      memcpySrc: "C000",
+      memcpyDst: "0400",
+      memcpySize: "0100"
+    };
+  }
+
+  if (item.isMemSetMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "MEMSET",
+      operand: "", rawOperand: "", description: item.description,
+      addressingMode: "implied", base: "hex",
+      validationError: "", collapsed: true,
+      isMemSetMacro: true,
+      memsetDst: "0400",
+      memsetValue: "20",
+      memsetSize: "03E8"
+    };
+  }
+
+  if (item.isPrintMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "PRINT",
+      operand: "HELLO",
+      rawOperand: "HELLO",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isPrintMacro: true,
+      printCharset: "upper"
+    };
+  }
+
+  if (item.isPrintCharMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "PRINT_CHAR",
+      operand: "$41",
+      rawOperand: "$41",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isPrintCharMacro: true
+    };
+  }
+
+  if (item.isPrintHexMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "PRINT_HEX",
+      operand: "A",
+      rawOperand: "A",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isPrintHexMacro: true,
+      printReg: "A"
+    };
+  }
+
+  if (item.isClearScreenMacro || item.isWaitKeyMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isClearScreenMacro: !!item.isClearScreenMacro,
+      isWaitKeyMacro: !!item.isWaitKeyMacro
+    };
+  }
+
+  if (item.isSetBorderMacro || item.isSetBgMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "00",
+      rawOperand: "00",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isSetBorderMacro: !!item.isSetBorderMacro,
+      isSetBgMacro: !!item.isSetBgMacro,
+      colorValue: "00"
+    };
+  }
+
+  if (item.isIrqSetupMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "IRQ_SETUP",
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isIrqSetupMacro: true,
+      irqHandler: "my_irq",
+      irqRaster: "FA"
+    };
+  }
+
+  if (item.isRandMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "RAND",
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isRandMacro: true,
+      randSeed: "$FB"
+    };
+  }
+
   if (item.isIfMacro) {
     const rawOperand = operandInput.value.trim() || "DEBUG";
     return {
@@ -3927,6 +4264,22 @@ function createBlockFromMnemonic(item) {
       collapsed: true,
       isPullMacro: true,
       pullRegs: "A"  // default: only A register
+    };
+  }
+
+  if (item.isEndMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "END",
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isEndMacro: true
     };
   }
 
@@ -4049,7 +4402,9 @@ function collapseLoadedProgram(blocks) {
   // suffix/prefix mismatches (,X / ,Y / #) from older saved files
   result.forEach((block) => {
     const isMacroOrSpecial = block.isLabel || block.isComment || block.isAnonymousLabel || block.isLoopMacro ||
-      block.isNextMacro || block.isForMacro || block.isEndfMacro || block.isTableMacro || block.isDefineMacro || block.isConstMacro ||
+      block.isNextMacro || block.isForMacro || block.isEndfMacro || block.isTableMacro || block.isDefineMacro || block.isConstMacro || block.isVarMacro ||
+      block.isRuntimeIfMacro || block.isRuntimeElseMacro || block.isRuntimeEndIfMacro ||
+      block.isRuntimeWhileMacro || block.isRuntimeEndwMacro || block.isRuntimeRepeatMacro || block.isRuntimeUntilMacro ||
       block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isByteMacro ||
       block.isWordMacro || block.isDataMacro || block.isRawBytesMacro || block.isFillMacro ||
       block.isAlignMacro || block.isTextMacro || block.isStringMacro || block.isRawTextMacro ||
@@ -4162,13 +4517,19 @@ function _blockToExpertLine(block) {
   if (block.isLoadFileMacro)  return `.loadfile "${block.loadFileName || "DATA"}", ${block.loadFileDevice || "8"}${block.loadFileAddress ? ", $" + block.loadFileAddress.replace(/^\$/,"") : ""}${block.loadFileErrorLabel ? ", " + block.loadFileErrorLabel : ""}`;
   if (block.isExoDecrunchMacro) return `.exodecrunch depacker=$${(block.exoDepackerAddr||"B000").toUpperCase()}`;
   if (block.isSidMacro)       return `.sid "${block.sidFileName || "music.sid"}"${block.sidCustomAddress ? ", $" + block.sidCustomAddress.replace(/^\$/, "") : ""}`;  
-  if (block.isIncludeMacro)   return `.include "${block.includeFileName || "library.json"}"${block.includeAddress ? ", $" + block.includeAddress.replace(/^\$/, "") : ""}`;  
+  if (block.isIncludeMacro) {
+    // Preserve non-JSON extension (.inc/.asm/.s) so text round-trip doesn't lose it.
+    const rawFile = (block.includeFile || "").split(/[\/\\]/).pop() || "";
+    const emitName = /\.(inc|asm|s)$/i.test(rawFile) ? rawFile : (block.includeFileName || "library.json");
+    return `.include "${emitName}"${block.includeAddress ? ", $" + block.includeAddress.replace(/^\$/, "") : ""}`;
+  }
   if (block.isLoopMacro)      return `.loop ${block.loopReg || "X"}, $${(block.loopCount || "0A").toUpperCase()}, ${block.loopLabel || "loop1"}`;
   if (block.isNextMacro)      return `.next ${block.nextLabel || "loop1"}`;
   if (block.isForMacro)     return `.for ${block.loopReg || "X"}, $${(block.loopCount || "0A").toUpperCase()}, ${block.loopLabel || "loop1"}`;
   if (block.isEndfMacro)     return `.endf ${block.nextLabel || "loop1"}`;
   if (block.isPushMacro)      return `.push ${block.pushRegs || "A"}`;
   if (block.isPullMacro)      return `.pull ${block.pullRegs || "A"}`;
+  if (block.isEndMacro)       return `.end`;
   if (block.isConstMacro) {
     const raw = String(block.rawOperand ?? block.constValue ?? "0").trim();
     const base = block.base || "hex";
@@ -4186,6 +4547,51 @@ function _blockToExpertLine(block) {
     }
     return `.const ${block.constName || "MY_CONST"} = ${formatted}`;
   }
+  if (block.isVarMacro) {
+    const size = Math.max(1, Math.min(255, block.varSize || 1));
+    return size > 1
+      ? `.var ${block.varName || "my_var"}, ${size}`
+      : `.var ${block.varName || "my_var"}`;
+  }
+  if (block.isRuntimeIfMacro) {
+    const reg = (block.runtimeIfReg || "A").toUpperCase();
+    const op  = block.runtimeIfOp || "==";
+    const val = block.rawOperand || "#$00";
+    return `.if ${reg} ${op} ${val}`;
+  }
+  if (block.isRuntimeElseMacro) return ".else";
+  if (block.isRuntimeEndIfMacro) return ".endif";
+  if (block.isRuntimeWhileMacro) {
+    const reg = (block.runtimeIfReg || "A").toUpperCase();
+    const op  = block.runtimeIfOp || "==";
+    const val = block.rawOperand || "#$00";
+    return `.while ${reg} ${op} ${val}`;
+  }
+  if (block.isRuntimeEndwMacro) return ".endw";
+  if (block.isRuntimeRepeatMacro) return ".repeat";
+  if (block.isRuntimeUntilMacro) {
+    const reg = (block.runtimeIfReg || "A").toUpperCase();
+    const op  = block.runtimeIfOp || "==";
+    const val = block.rawOperand || "#$00";
+    return `.until ${reg} ${op} ${val}`;
+  }
+  if (block.isMemCpyMacro) {
+    const fmtToken = v => /^[A-Za-z_]/.test(v || "") ? v : "$" + (v || "0").replace(/^\$/, "").toUpperCase();
+    return `.memcpy src=${fmtToken(block.memcpySrc || "C000")}, dst=${fmtToken(block.memcpyDst || "0400")}, size=${fmtToken(block.memcpySize || "0100")}`;
+  }
+  if (block.isMemSetMacro) {
+    const fmtToken = v => /^[A-Za-z_]/.test(v || "") ? v : "$" + (v || "0").replace(/^\$/, "").toUpperCase();
+    return `.memset addr=${fmtToken(block.memsetDst || "0400")}, value=#$${(block.memsetValue || "00").replace(/^#?\$/, "").toUpperCase()}, size=${fmtToken(block.memsetSize || "03E8")}`;
+  }
+  if (block.isPrintMacro) return `.print "${block.rawOperand || ""}"${block.printCharset === "lower" ? ", lower" : ""}`;
+  if (block.isPrintCharMacro) return `.print_char ${block.rawOperand || "$41"}`;
+  if (block.isPrintHexMacro) return `.print_hex ${(block.printReg || block.rawOperand || "A").toUpperCase()}`;
+  if (block.isClearScreenMacro) return `.clear_screen`;
+  if (block.isWaitKeyMacro) return `.wait_key`;
+  if (block.isSetBorderMacro) return `.set_border $${(block.colorValue || block.rawOperand || "00").replace(/^#?\$/, "").toUpperCase()}`;
+  if (block.isSetBgMacro) return `.set_bg $${(block.colorValue || block.rawOperand || "00").replace(/^#?\$/, "").toUpperCase()}`;
+  if (block.isIrqSetupMacro) return `.irq_setup handler=${block.irqHandler || "my_irq"}, raster=$${(block.irqRaster || "FA").replace(/^#?\$/, "").toUpperCase()}`;
+  if (block.isRandMacro) return `.rand ${block.randSeed || "$FB"}`;
   if (block.isDefineMacro)    return `.define ${block.rawOperand || "SYMBOL"}`;
   if (block.isIfMacro)        return `.if ${block.rawOperand || "SYMBOL"}`;
   if (block.isElseMacro)      return `.else`;
@@ -4401,8 +4807,12 @@ const _DIRECTIVE_TO_MNEM = {
   map_copy:"MAP_COPY", sprite_anim:"SPRITE_ANIM", score_bcd:"SCORE_BCD",
   supercpu_detect:"SUPERCPU_DETECT", turbo_enable:"TURBO_ENABLE",
   reu_check:"REU_CHECK", reu_stash:"REU_STASH", reu_fetch:"REU_FETCH", reu_swap:"REU_SWAP",
-  define:"DEFINE", if:"IF", else:"ELSE", endif:"ENDIF", const:"CONST", org:"ORG",
-  region:"REGION", endregion:"ENDREGION"
+  define:"DEFINE", if:"IF", else:"ELSE", endif:"ENDIF", const:"CONST", "var":"VAR", org:"ORG",
+  region:"REGION", endregion:"ENDREGION",
+  while:"WHILE", endw:"ENDW", repeat:"REPEAT", until:"UNTIL",
+  memcpy:"MEMCPY", memset:"MEMSET", print:"PRINT", print_char:"PRINT_CHAR", print_hex:"PRINT_HEX",
+  clear_screen:"CLEAR_SCREEN", wait_key:"WAIT_KEY", set_border:"SET_BORDER", set_bg:"SET_BG",
+  irq_setup:"IRQ_SETUP", rand:"RAND"
 };
 
 // Lazy-built: mnemonic → category
@@ -4428,7 +4838,13 @@ const _AC_DIRECTIVE_DESC = {
   ".push":"push registers", ".pull":"pop registers",
   ".macro":"define macro", ".endm":"end macro", ".invoke":"call macro", ".call":"call macro",
   ".define":"define symbol", ".if":"conditional", ".else":"else branch", ".endif":"end if",
-  ".const":"constant", ".table":"lookup table", ".petscii":"PETSCII string",
+  ".const":"constant", ".var":"zero-page variable", ".table":"lookup table", ".petscii":"PETSCII string",
+  ".charset":"switch charset", ".while":"runtime while", ".endw":"while end", ".repeat":"runtime repeat", ".until":"repeat end",
+  ".memcpy":"copy memory", ".memset":"fill memory", ".print":"print PETSCII",
+  ".print_char":"print PETSCII char",
+  ".print_hex":"print hex", ".clear_screen":"clear screen", ".wait_key":"wait key",
+  ".set_border":"set border", ".set_bg":"set background", ".irq_setup":"setup IRQ", ".rand":"random byte",
+  ".end":"RTS alias",
   ".loadfile":"load file KERNAL", ".sprite_init":"init sprite", ".sprite_pos":"set sprite pos",
   ".wait_raster":"wait raster line", ".joystick":"joystick macro", ".mouse":"1351 mouse macro", ".sprite_col":"sprite collision",
   ".turbo_set":"U64 turbo speed",
@@ -4862,6 +5278,9 @@ function showBuildInfoDialog() {
         const v = parseNumberByBase((b.rawOperand || "").replace(/^\$/, ""), b.base);
         constList.push({ name: b.constName, val: v !== null ? fmtAddr(v) : (b.rawOperand || "?") });
       }
+      if (b.isVarMacro && b.varName && typeof b._varAddress === "number") {
+        labelList.push({ name: b.varName, addr: "$" + b._varAddress.toString(16).toUpperCase().padStart(2, "0") });
+      }
       const macroTypes = [
         "isTextMacro","isStringMacro","isDataMacro","isRawBytesMacro","isRawTextMacro",
         "isLoopMacro","isNextMacro","isForMacro","isEndfMacro","isSpriteInitMacro","isSpritePosMacro","isWaitRasterMacro",
@@ -4934,7 +5353,7 @@ function _expertHighlightLine(raw) {
   if (!code.trim()) return esc(code) + commentHtml;
 
   // Token regex (order matters)
-  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|loop|next|push|pull|const|define|if|else|endif|region|endregion|macro|endm|invoke|call|incbin|include|sid|petscii|charset|table|loadfile|sprite_init|sprite_pos|wait_raster|joystick|sprite_col|map_copy|sprite_anim|score_bcd)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)/gi;
+  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|loop|next|push|pull|endif|endregion|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|set_border|set_bg|irq_setup|sprite_init|sprite_pos|wait_raster|joystick|sprite_col|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|include|sid|petscii|charset|table|loadfile|invoke|call|rand)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)/gi;
 
   let result = "";
   let lastIdx = 0;
@@ -5247,6 +5666,12 @@ function _updateExpertRegionBg() {
 function parseExpertText(text) {
   const BRANCH_MNEMS = new Set(["BEQ","BNE","BCC","BCS","BMI","BPL","BVC","BVS","BRA"]);
   const blocks = [];
+  // Track nested runtime IF blocks so that .else/.endif can resolve to
+  // the runtime-if variant when appropriate; otherwise they fall through to
+  // the conditional-assembly variant.
+  const runtimeIfStack = [];  // entries: { elseLabel, endLabel, hasElse }
+  const whileStack = [];      // entries: { startLabel, endLabel }
+  const repeatStack = [];     // entries: { startLabel }
 
   for (let rawLine of text.split("\n")) {
     const scIdx = rawLine.indexOf(";");
@@ -5390,11 +5815,11 @@ function parseExpertText(text) {
       continue;
     }
 
-    // .include "filename.json" [, $ADDR]
+    // .include "filename.{json,inc,asm,s}" [, $ADDR]
     const includeDirM = line.match(/^\.include\s+"([^"]*)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$/i);
     if (includeDirM) {
       const _incName = includeDirM[1];
-      const _incFile = /\.json$/i.test(_incName) ? _incName : `${_incName}.json`;
+      const _incFile = /\.(json|inc|asm|s)$/i.test(_incName) ? _incName : `${_incName}.json`;
       const _incAddr = includeDirM[2] ? includeDirM[2].toUpperCase() : "";
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "INCLUDE", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isIncludeMacro: true, includeFile: _incFile, includeFileName: _incName, includeAddress: _incAddr, includeCollapsed: false, includedBlocks: [] });
       if (commentText) blocks.push(_importMakeComment(commentText));
@@ -5571,15 +5996,280 @@ function parseExpertText(text) {
     const constM = line.match(/^\.const\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)\s*$/i);
     if (constM) { blocks.push(_importMakeConst(constM[1], constM[2].trim())); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
 
+    // .var NAME [, size]
+    const varM = line.match(/^\.var\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s*,\s*(\d+|\$[0-9A-Fa-f]+))?\s*$/i);
+    if (varM) {
+      const size = varM[2]
+        ? (varM[2].startsWith("$") ? parseInt(varM[2].slice(1), 16) : parseInt(varM[2], 10))
+        : 1;
+      blocks.push(_importMakeVar(varM[1], size));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
     // .define SYM [, SYM2]
     const defineM = line.match(/^\.define\s+(.+)$/i);
     if (defineM) { blocks.push(_importMakeDefine(defineM[1].trim())); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
 
+    // .memcpy src=$XXXX|label, dst=$YYYY|label, size=$NNNN
+    const memcpyM = line.match(/^\.memcpy\s+src\s*=\s*([^,]+)\s*,\s*dst\s*=\s*([^,]+)\s*,\s*size\s*=\s*([^,]+)\s*$/i);
+    if (memcpyM) {
+      blocks.push({
+        id: crypto.randomUUID(),
+        category: "Makrok", mnemonic: "MEMCPY",
+        operand: "", rawOperand: "", description: "",
+        addressingMode: "implied", base: "hex",
+        validationError: "", collapsed: true,
+        isMemCpyMacro: true,
+        memcpySrc: _importNormalizeAddressToken(memcpyM[1]),
+        memcpyDst: _importNormalizeAddressToken(memcpyM[2]),
+        memcpySize: _importNormalizeAddressToken(memcpyM[3])
+      });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+    // .memset addr=$XXXX|label, value=#$NN, size=$NNNN  (dst= is accepted as alias)
+    const memsetM = line.match(/^\.memset\s+(?:addr|dst)\s*=\s*([^,]+)\s*,\s*value\s*=\s*(#?\$?[0-9A-Fa-f]+)\s*,\s*size\s*=\s*([^,]+)\s*$/i);
+    if (memsetM) {
+      blocks.push({
+        id: crypto.randomUUID(),
+        category: "Makrok", mnemonic: "MEMSET",
+        operand: "", rawOperand: "", description: "",
+        addressingMode: "implied", base: "hex",
+        validationError: "", collapsed: true,
+        isMemSetMacro: true,
+        memsetDst: _importNormalizeAddressToken(memsetM[1]),
+        memsetValue: memsetM[2].trim().replace(/^#?\$/, "").toUpperCase(),
+        memsetSize: _importNormalizeAddressToken(memsetM[3])
+      });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .print "TEXT" [, lower]
+    const printM = line.match(/^\.print\s+"([^"]*)"(?:\s*,\s*(lower))?\s*$/i);
+    if (printM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "PRINT", operand: printM[1], rawOperand: printM[1], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isPrintMacro: true, printCharset: printM[2] ? "lower" : "upper" });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+    const printCharM = line.match(/^\.print_char\s+(.+)$/i);
+    if (printCharM) {
+      const rawValue = printCharM[1].trim();
+      blocks.push({
+        id: crypto.randomUUID(),
+        category: "Makrok", mnemonic: "PRINT_CHAR",
+        operand: rawValue, rawOperand: rawValue, description: "",
+        addressingMode: "implied", base: "hex",
+        validationError: "", collapsed: true,
+        isPrintCharMacro: true
+      });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+    const printHexM = line.match(/^\.print_hex\s+([AXY])\s*$/i);
+    if (printHexM) {
+      const reg = printHexM[1].toUpperCase();
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "PRINT_HEX", operand: reg, rawOperand: reg, description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isPrintHexMacro: true, printReg: reg });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+    if (/^\.clear_screen\s*$/i.test(line)) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "CLEAR_SCREEN", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isClearScreenMacro: true });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+    if (/^\.wait_key\s*$/i.test(line)) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "WAIT_KEY", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isWaitKeyMacro: true });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+    const setColorM = line.match(/^\.(set_border|set_bg)\s+#?\$?([0-9A-Fa-f]{1,2})\s*$/i);
+    if (setColorM) {
+      const isBorder = setColorM[1].toLowerCase() === "set_border";
+      const value = setColorM[2].toUpperCase().padStart(2, "0");
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: isBorder ? "SET_BORDER" : "SET_BG", operand: value, rawOperand: value, description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSetBorderMacro: isBorder, isSetBgMacro: !isBorder, colorValue: value });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+    const irqM = line.match(/^\.irq_setup\s+handler\s*=\s*([A-Za-z_][A-Za-z0-9_]*)\s*,\s*raster\s*=\s*#?\$?([0-9A-Fa-f]{1,2})\s*$/i);
+    if (irqM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "IRQ_SETUP", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isIrqSetupMacro: true, irqHandler: irqM[1], irqRaster: irqM[2].toUpperCase().padStart(2, "0") });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+    const randM = line.match(/^\.rand(?:\s+([A-Za-z_][A-Za-z0-9_]*|\$[0-9A-Fa-f]{1,4}|[0-9A-Fa-f]{1,4}))?\s*$/i);
+    if (randM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "RAND", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isRandMacro: true, randSeed: randM[1] || "$FB" });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .while A ... and legacy .while_a ... — runtime while loop
+    const wM = line.match(/^\.while(?:_([axy])|\s+([AXY]))\s+(==|=|!=|<=|>=|<|>)\s+(.+)$/i);
+    if (wM) {
+      const reg = (wM[1] || wM[2]).toUpperCase();
+      const op = wM[3] === "=" ? "==" : wM[3];
+      const val = wM[4].trim();
+      const id = crypto.randomUUID();
+      const suffix = id.replace(/-/g, "").slice(0, 8);
+      const startLabel = `_while_start_${suffix}`;
+      const endLabel = `_while_end_${suffix}`;
+      whileStack.push({ startLabel, endLabel });
+      let base = "hex";
+      if (/^#?%/.test(val)) base = "bin";
+      else if (/^#?[0-9]+$/.test(val)) base = "dec";
+      blocks.push({
+        id,
+        category: "Makrok", mnemonic: `WHILE_${reg}`,
+        operand: val, rawOperand: val, description: "",
+        addressingMode: "implied", base,
+        validationError: "", collapsed: true,
+        isRuntimeWhileMacro: true,
+        runtimeIfReg: reg,
+        runtimeIfOp: op,
+        whileStartLabel: startLabel,
+        whileEndLabel: endLabel
+      });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+    // .endw
+    if (/^\.endw\s*$/i.test(line)) {
+      const top = whileStack.pop();
+      if (top) {
+        blocks.push({
+          id: crypto.randomUUID(),
+          category: "Makrok", mnemonic: "ENDW",
+          operand: "", rawOperand: "", description: "",
+          addressingMode: "implied", base: "hex",
+          validationError: "", collapsed: true,
+          isRuntimeEndwMacro: true,
+          whileStartLabel: top.startLabel,
+          whileEndLabel: top.endLabel
+        });
+      }
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+    // .repeat
+    if (/^\.repeat\s*$/i.test(line)) {
+      const id = crypto.randomUUID();
+      const suffix = id.replace(/-/g, "").slice(0, 8);
+      const startLabel = `_repeat_start_${suffix}`;
+      repeatStack.push({ startLabel });
+      blocks.push({
+        id,
+        category: "Makrok", mnemonic: "REPEAT",
+        operand: "", rawOperand: "", description: "",
+        addressingMode: "implied", base: "hex",
+        validationError: "", collapsed: true,
+        isRuntimeRepeatMacro: true,
+        repeatStartLabel: startLabel
+      });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+    // .until A ... and legacy .until_a ...
+    const uM = line.match(/^\.until(?:_([axy])|\s+([AXY]))\s+(==|=|!=|<=|>=|<|>)\s+(.+)$/i);
+    if (uM) {
+      const reg = (uM[1] || uM[2]).toUpperCase();
+      const op = uM[3] === "=" ? "==" : uM[3];
+      const val = uM[4].trim();
+      const top = repeatStack.pop();
+      let base = "hex";
+      if (/^#?%/.test(val)) base = "bin";
+      else if (/^#?[0-9]+$/.test(val)) base = "dec";
+      blocks.push({
+        id: crypto.randomUUID(),
+        category: "Makrok", mnemonic: `UNTIL_${reg}`,
+        operand: val, rawOperand: val, description: "",
+        addressingMode: "implied", base,
+        validationError: "", collapsed: true,
+        isRuntimeUntilMacro: true,
+        runtimeIfReg: reg,
+        runtimeIfOp: op,
+        repeatStartLabel: top ? top.startLabel : ""
+      });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .if A ... and legacy .if_a ... — runtime conditional
+    // Syntax: .if A == #$10 / .if_x < counter / .if Y != #$FF
+    const rifM = line.match(/^\.if(?:_([axy])|\s+([AXY]))\s+(==|=|!=|<=|>=|<|>)\s+(.+)$/i);
+    if (rifM) {
+      const reg = (rifM[1] || rifM[2]).toUpperCase();
+      const op = rifM[3] === "=" ? "==" : rifM[3];
+      const val = rifM[4].trim();
+      const id = crypto.randomUUID();
+      const suffix = id.replace(/-/g, "").slice(0, 8);
+      const elseLabel = `_if_else_${suffix}`;
+      const endLabel = `_if_end_${suffix}`;
+      runtimeIfStack.push({ elseLabel, endLabel, hasElse: false });
+      // Detect base from operand (rough): if starts with #$ or $ → hex; #%/%: bin; else dec
+      let base = "hex";
+      if (/^#?%/.test(val)) base = "bin";
+      else if (/^#?[0-9]+$/.test(val)) base = "dec";
+      blocks.push({
+        id,
+        category: "Makrok", mnemonic: `IF_${reg}`,
+        operand: val, rawOperand: val, description: "",
+        addressingMode: "implied", base,
+        validationError: "", collapsed: true,
+        isRuntimeIfMacro: true,
+        runtimeIfReg: reg,
+        runtimeIfOp: op,
+        runtimeIfElseLabel: elseLabel,
+        runtimeIfEndLabel: endLabel
+      });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
     // .if / .else / .endif
     const ifM = line.match(/^\.if\s+(.+)$/i);
     if (ifM) { blocks.push(_importMakeIf(ifM[1].trim())); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
-    if (/^\.else\s*$/i.test(line)) { blocks.push(_importMakeElse()); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
-    if (/^\.endif\s*$/i.test(line)) { blocks.push(_importMakeEndIf()); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
+    if (/^\.else\s*$/i.test(line)) {
+      if (runtimeIfStack.length > 0) {
+        const top = runtimeIfStack[runtimeIfStack.length - 1];
+        top.hasElse = true;
+        blocks.push({
+          id: crypto.randomUUID(),
+          category: "Makrok", mnemonic: "ELSE",
+          operand: "", rawOperand: "", description: "",
+          addressingMode: "implied", base: "hex",
+          validationError: "", collapsed: true,
+          isRuntimeElseMacro: true,
+          runtimeIfElseLabel: top.elseLabel,
+          runtimeIfEndLabel: top.endLabel
+        });
+      } else {
+        blocks.push(_importMakeElse());
+      }
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+    if (/^\.endif\s*$/i.test(line)) {
+      if (runtimeIfStack.length > 0) {
+        const top = runtimeIfStack.pop();
+        blocks.push({
+          id: crypto.randomUUID(),
+          category: "Makrok", mnemonic: "ENDIF",
+          operand: "", rawOperand: "", description: "",
+          addressingMode: "implied", base: "hex",
+          validationError: "", collapsed: true,
+          isRuntimeEndIfMacro: true,
+          runtimeIfElseLabel: top.elseLabel,
+          runtimeIfEndLabel: top.endLabel,
+          hasElse: top.hasElse
+        });
+      } else {
+        blocks.push(_importMakeEndIf());
+      }
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
 
     // .region / .endregion
     const regionM = line.match(/^\.region\s+(.+)$/i);
@@ -5593,6 +6283,7 @@ function parseExpertText(text) {
       blocks.push(_importMakeMacroDefStart(macroM[1], macroParams)); if (commentText) blocks.push(_importMakeComment(commentText)); continue;
     }
     if (/^\.endm\s*$/i.test(line)) { blocks.push(_importMakeMacroDefEnd()); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
+    if (/^\.end\s*$/i.test(line)) { blocks.push(_importMakeEndMacro()); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
 
     // .invoke/.call macroname(arg1, arg2, ...) or .invoke/.call macroname arg1, arg2
     const invokeM = line.match(/^\.(invoke|call)\s+([A-Za-z_][A-Za-z0-9_]*)(?:\(([^)]*)\)|\s+(.*?))?\s*$/i);
@@ -6705,7 +7396,7 @@ async function _expertProjectOpenFile(fileEntry) {
   for (const block of loadedProgram) {
     if (block.isIncludeMacro && !block.includeFile) {
       const name = block.includeFileName || "";
-      if (name) block.includeFile = /\.json$/i.test(name) ? name : `${name}.json`;
+      if (name) block.includeFile = /\.(json|inc|asm|s)$/i.test(name) ? name : `${name}.json`;
     }
     if (block.isIncBinMacro && !block.incBinFile) {
       const name = block.incBinFileName || "";
@@ -6930,6 +7621,35 @@ function updateProgramBlock(index, field, value) {
     return;
   }
 
+  if (block.isVarMacro && field === "varName") {
+    block.varName = sanitizeLabelName(value);
+    renderAsmOutput();        // recomputes _varAddress via getProgramLayout
+    renderBlockPreview(index); // now shows the freshly-assigned address
+    return;
+  }
+
+  if (block.isVarMacro && field === "varSize") {
+    const n = Math.max(1, Math.min(255, parseInt(value, 10) || 1));
+    block.varSize = n;
+    renderAsmOutput();
+    renderBlockPreview(index);
+    return;
+  }
+
+  if (block.isRuntimeIfMacro && (field === "runtimeIfOp" || field === "runtimeIfReg")) {
+    block[field] = value;
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isCharsetMacro && field === "charsetMode") {
+    block.charsetMode = value === "upper" ? "upper" : "lower";
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
   if (block.isComment && field === "rawOperand") {
     block.operand = block.rawOperand.trim();
     renderBlockPreview(index);
@@ -7011,6 +7731,13 @@ function updateProgramBlock(index, field, value) {
       block.operand = block.rawOperand.trim();
       block.constValue = parseNumberByBase(block.rawOperand.replace(/^\$/, ""), block.base);
       block.validationError = validateConstMacro(block.constName, block.rawOperand, block.base);
+    } else if (block.isRuntimeIfMacro || block.isRuntimeWhileMacro || block.isRuntimeUntilMacro ||
+               block.isPrintMacro || block.isPrintCharMacro || block.isPrintHexMacro || block.isSetBorderMacro || block.isSetBgMacro) {
+      block.operand = block.rawOperand.trim();
+      block.validationError = block.isPrintCharMacro ? validatePrintCharMacro(block.rawOperand) : "";
+      if (block.isPrintCharMacro) block.printCharValue = parsePetsciiCharValue(block.rawOperand);
+      if (block.isPrintHexMacro) block.printReg = block.rawOperand.trim().toUpperCase() || "A";
+      if (block.isSetBorderMacro || block.isSetBgMacro) block.colorValue = block.rawOperand.trim();
     } else if (block.isIfMacro) {
       block.operand = block.rawOperand.trim();
       block.ifCondition = block.rawOperand.trim();
@@ -7418,6 +8145,20 @@ function updateProgramBlock(index, field, value) {
 
   if (block.isMacroInvoke && field === "invokeArgs") {
     block.invokeArgs = value;
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isIrqSetupMacro && field === "irqHandler") {
+    block.irqHandler = sanitizeLabelName(value);
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if ((block.isIrqSetupMacro && field === "irqRaster") || (block.isRandMacro && field === "randSeed")) {
+    block.validationError = "";
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -8084,6 +8825,13 @@ function validateTextWithOffset(rawOperand, charOffset) {
   return "";
 }
 
+function validatePrintCharMacro(raw) {
+  const text = String(raw ?? "").trim().replace(/^#/, "");
+  if (!text) return t("invalidOperand");
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(text)) return "";
+  return parsePetsciiCharValue(text) === null ? t("invalidOperand") : "";
+}
+
 function validateDataMacro(rawBytes, rawAddress, base = "dec") {
   const byteError = validateByteMacro(rawBytes, base);
   if (byteError) return byteError;
@@ -8138,16 +8886,29 @@ function toLowercaseScreenCode(char) {
 // Kisbetus megjeleniteshez $D018 bit 1=1 (lowercase mode) szukseges
 function encodePetsciiMacro(text, charset = "upper") {
   // charset: "upper" = $41-$5A (PETSCII nagybetű, C64 alapmód)
-  //          "lower" = kisbetű → $61-$7A (PETSCII kisbetű, lowercase charset kell)
+  //          "lower" = a lowercase ROM-hoz igazított alphabetikus PETSCII
   const isLower = charset === "lower";
   return [...(text || "HELLO")].map(char => {
     if (char === "\n") return 13;
     const code = char.charCodeAt(0);
-    if (code >= 65 && code <= 90) return code;                              // A-Z → $41-$5A PETSCII nagybetű
-    if (code >= 97 && code <= 122) return isLower ? code : code - 32;      // lower: $61-$7A, upper: $41-$5A
+    if (code >= 65 && code <= 90) return isLower ? code + 32 : code;      // lower: visual case stays consistent
+    if (code >= 97 && code <= 122) return isLower ? code - 32 : code;      // upper: normalize to uppercase PETSCII
     if (code >= 32 && code <= 126) return code;
     return 32;
   });
+}
+
+function parsePetsciiCharValue(raw, labels = null) {
+  const text = String(raw ?? "").trim().replace(/^#/, "");
+  if (!text) return null;
+  if (/^%[01]+$/.test(text)) return Number.parseInt(text.slice(1), 2);
+  if (/^\$[0-9A-Fa-f]+$/.test(text)) return Number.parseInt(text.slice(1), 16);
+  if (/^0x[0-9A-Fa-f]+$/i.test(text)) return Number.parseInt(text.slice(2), 16);
+  if (/^\d+$/.test(text)) return Number(text);
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(text)) {
+    return labels ? (labels.get(text) ?? null) : null;
+  }
+  return null;
 }
 
 function toPetsciiCharCode(char) {
@@ -10228,7 +10989,9 @@ async function reloadIncludeBlocks(projectFilePath = "") {
     if (block.isIncludeMacro && block.includeFile) {
       const result = await window.electronAPI.reloadIncludeFile(block.includeFile, baseDir);
       if (!result.error) {
-        block.includedBlocks = result.blocks || [];
+        block.includedBlocks = typeof result.text === "string"
+          ? parseExpertText(result.text)
+          : (result.blocks || []);
         block.includeFileName = result.fileName;
         block.validationError = "";
       } else {
@@ -10458,6 +11221,23 @@ function _importMakeConst(name, rawValue) {
   };
 }
 
+function _importMakeVar(name, size) {
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "VAR",
+    operand: "", rawOperand: "", description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: "", collapsed: true, isVarMacro: true,
+    varName: name,
+    varSize: Math.max(1, Math.min(255, size || 1))
+  };
+}
+
+function _importNormalizeAddressToken(raw) {
+  const token = String(raw || "").trim().replace(/^\$/, "");
+  return /^[0-9A-Fa-f]+$/.test(token) ? token.toUpperCase() : token;
+}
+
 function _importMakeRegion(name) {
   return {
     id: crypto.randomUUID(),
@@ -10518,6 +11298,16 @@ function _importMakeEndIf() {
     operand: "", rawOperand: "", description: "",
     addressingMode: "implied", base: "hex",
     validationError: "", collapsed: true, isEndIfMacro: true
+  };
+}
+
+function _importMakeEndMacro() {
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "END",
+    operand: "", rawOperand: "", description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: "", collapsed: true, isEndMacro: true
   };
 }
 
@@ -10954,6 +11744,30 @@ function addLayoutLabels(labelMap, line) {
       if (v !== null) labelMap.set(block.constName, v);
     }
   }
+  if (block.isVarMacro && block.varName && typeof block._varAddress === "number") {
+    labelMap.set(block.varName, block._varAddress);
+  }
+  if (block.isRuntimeElseMacro && block.runtimeIfElseLabel) {
+    // .else anchors the else_label at this position (after JMP emitted here)
+    labelMap.set(block.runtimeIfElseLabel, line.address + 3);
+  }
+  if (block.isRuntimeEndIfMacro && block.runtimeIfEndLabel) {
+    labelMap.set(block.runtimeIfEndLabel, line.address);
+    // If no ELSE was present, else_label collapses to end_label
+    if (!block.hasElse && block.runtimeIfElseLabel) {
+      labelMap.set(block.runtimeIfElseLabel, line.address);
+    }
+  }
+  if (block.isRuntimeWhileMacro && block.whileStartLabel) {
+    labelMap.set(block.whileStartLabel, line.address);
+  }
+  if (block.isRuntimeEndwMacro && block.whileEndLabel) {
+    // .endw emits JMP loop_start (3 bytes), then anchors loop_end after that
+    labelMap.set(block.whileEndLabel, line.address + 3);
+  }
+  if (block.isRuntimeRepeatMacro && block.repeatStartLabel) {
+    labelMap.set(block.repeatStartLabel, line.address);
+  }
   if (block._autoBufferLabel) {
     labelMap.set(block._autoBufferLabel, block._autoBufferAddress ?? line.address);
   }
@@ -10992,7 +11806,7 @@ async function _applyProjectPayload(projectData, { sourceFilePath = "", keepFile
     if (hasIncludeFile) continue;
     const name = typeof block.includeFileName === "string" ? block.includeFileName.trim() : "";
     if (!name) continue;
-    block.includeFile = /\.json$/i.test(name) ? name : `${name}.json`;
+    block.includeFile = /\.(json|inc|asm|s)$/i.test(name) ? name : `${name}.json`;
   }
 
   // Backward compatibility for old INCBIN projects:
@@ -11326,6 +12140,17 @@ function _getPlainAsmSourceText() {
         pushLine(`${block.constName} = ${formatOperand("absolute", constVal, block.base || "hex")}`);
       } else {
         pushLine(`; CONST ${block.constName || "?"} = ${block.rawOperand || "?"}`);
+      }
+      return;
+    }
+
+    if (block.isVarMacro) {
+      if (block.varName && typeof block._varAddress === "number") {
+        const size = Math.max(1, Math.min(255, block.varSize || 1));
+        const addr = "$" + block._varAddress.toString(16).toUpperCase().padStart(2, "0");
+        pushLine(`${block.varName} = ${addr}${size > 1 ? "  ; " + size + " bytes" : ""}`);
+      } else {
+        pushLine(`; VAR ${block.varName || "?"} (size ${block.varSize || 1}) — allocation failed`);
       }
       return;
     }
@@ -12676,6 +13501,10 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes, comment };
   }
 
+  if (block.isEndMacro) {
+    return { ok: true, bytes: [0x60], comment: "END → RTS" };
+  }
+
   if (block.isWordMacro) {
     const words = parseWordMacro(block.rawOperand, block.base);
     const bytes = [];
@@ -12742,6 +13571,344 @@ function compileLineBytes(line, labels) {
       bytes: [],
       comment: block.isDefineMacro ? `DEFINE ${block.defineSymbol || "?"}` : block.isIfMacro ? `IF ${block.ifCondition || "?"}` : (block.isElseMacro ? "ELSE" : block.isConstMacro ? `CONST ${block.constName || "?"} = ${block.rawOperand || "?"}` : "ENDIF")
     };
+  }
+
+  if (block.isVarMacro) {
+    const addr = typeof block._varAddress === "number"
+      ? "$" + block._varAddress.toString(16).toUpperCase().padStart(2, "0")
+      : "?";
+    return { ok: true, bytes: [], comment: `VAR ${block.varName || "?"} = ${addr}` };
+  }
+
+  if (block.isRuntimeIfMacro) {
+    const reg = (block.runtimeIfReg || "A").toUpperCase();
+    const op  = block.runtimeIfOp || "==";
+    const raw = (block.rawOperand || "").trim();
+    const cmpMnem = reg === "A" ? "CMP" : reg === "X" ? "CPX" : "CPY";
+    const isImm = raw.startsWith("#");
+    const cmpMode = isImm ? "immediate" : "absolute";  // 3-byte absolute (safe for labels/16-bit)
+    const opcode = opcodeMap[cmpMnem]?.[cmpMode];
+    if (opcode === undefined) {
+      return { ok: false, error: `${cmpMnem}: unsupported addressing for runtime IF` };
+    }
+    let cmpVal;
+    if (isImm) {
+      cmpVal = parseNumberByBase(raw, block.base || "hex");
+    } else {
+      cmpVal = parseAddressValue(raw, labels);
+    }
+    if (cmpVal === null || cmpVal === undefined || isNaN(cmpVal)) {
+      return { ok: false, error: `Runtime IF: cannot resolve operand "${raw}"` };
+    }
+    const cmpBytes = isImm
+      ? [opcode, cmpVal & 0xFF]
+      : [opcode, cmpVal & 0xFF, (cmpVal >> 8) & 0xFF];
+
+    const skipMnem = ({
+      "==": "BNE",
+      "!=": "BEQ",
+      "<":  "BCS",
+      ">=": "BCC"
+    })[op];
+    const branchTargetLabel = block.runtimeIfElseLabel;
+    const targetAddr = labels.get(branchTargetLabel);
+    if (typeof targetAddr !== "number") {
+      return { ok: false, error: `Runtime IF: internal — target label ${branchTargetLabel} not resolved` };
+    }
+    const branchFromAddr = line.address + cmpBytes.length;
+    let branchBytes;
+    if (skipMnem) {
+      const branchOpcode = opcodeMap[skipMnem].relative;
+      const offset = targetAddr - (branchFromAddr + 2);
+      if (offset < -128 || offset > 127) {
+        return { ok: false, error: `Runtime IF body too large for branch (offset ${offset})` };
+      }
+      branchBytes = [branchOpcode, offset & 0xFF];
+    } else if (op === "<=") {
+      const bcsFrom = branchFromAddr + 2;
+      const bcsOffset = targetAddr - (bcsFrom + 2);
+      if (bcsOffset < -128 || bcsOffset > 127) {
+        return { ok: false, error: `Runtime IF body too large for branch (offset ${bcsOffset})` };
+      }
+      branchBytes = [opcodeMap.BEQ.relative, 0x02, opcodeMap.BCS.relative, bcsOffset & 0xFF];
+    } else if (op === ">") {
+      const beqOffset = targetAddr - (branchFromAddr + 2);
+      const bccFrom = branchFromAddr + 2;
+      const bccOffset = targetAddr - (bccFrom + 2);
+      if (beqOffset < -128 || beqOffset > 127 || bccOffset < -128 || bccOffset > 127) {
+        return { ok: false, error: `Runtime IF body too large for branch` };
+      }
+      branchBytes = [opcodeMap.BEQ.relative, beqOffset & 0xFF, opcodeMap.BCC.relative, bccOffset & 0xFF];
+    } else {
+      return { ok: false, error: `Runtime IF: operator "${op}" not supported` };
+    }
+    return {
+      ok: true,
+      bytes: [...cmpBytes, ...branchBytes],
+      comment: `IF ${reg} ${op} ${raw} → skip to ${branchTargetLabel}`
+    };
+  }
+
+  if (block.isRuntimeElseMacro) {
+    // JMP to end_label + anchor for else_label (handled by addLayoutLabels)
+    const endLabel = block.runtimeIfEndLabel;
+    const targetAddr = labels.get(endLabel);
+    if (typeof targetAddr !== "number") {
+      return { ok: false, error: `Runtime ELSE: end label ${endLabel} not resolved` };
+    }
+    return {
+      ok: true,
+      bytes: [0x4C, targetAddr & 0xFF, (targetAddr >> 8) & 0xFF],
+      comment: `ELSE → JMP ${endLabel}`
+    };
+  }
+
+  if (block.isRuntimeEndIfMacro) {
+    return { ok: true, bytes: [], comment: `ENDIF` };
+  }
+
+  // Shared helper: compile a "CMP/CPX/CPY + branch" pair for WHILE/UNTIL
+  function _compileCmpBranch(block, line, labels, branchTargetLabel, opBranchMap) {
+    const reg = (block.runtimeIfReg || "A").toUpperCase();
+    const op  = block.runtimeIfOp === "=" ? "==" : (block.runtimeIfOp || "==");
+    const raw = (block.rawOperand || "").trim();
+    const cmpMnem = reg === "A" ? "CMP" : reg === "X" ? "CPX" : "CPY";
+    const isImm = raw.startsWith("#");
+    const cmpMode = isImm ? "immediate" : "absolute";
+    const opcode = opcodeMap[cmpMnem]?.[cmpMode];
+    if (opcode === undefined) return { ok: false, error: `${cmpMnem}: unsupported addressing` };
+    const cmpVal = isImm
+      ? parseNumberByBase(raw, block.base || "hex")
+      : parseAddressValue(raw, labels);
+    if (cmpVal === null || cmpVal === undefined || isNaN(cmpVal)) {
+      return { ok: false, error: `Runtime loop: cannot resolve operand "${raw}"` };
+    }
+    const cmpBytes = isImm
+      ? [opcode, cmpVal & 0xFF]
+      : [opcode, cmpVal & 0xFF, (cmpVal >> 8) & 0xFF];
+    const branchMnem = opBranchMap[op];
+    const targetAddr = labels.get(branchTargetLabel);
+    if (typeof targetAddr !== "number") {
+      return { ok: false, error: `Runtime loop: label ${branchTargetLabel} not resolved` };
+    }
+    const branchFromAddr = line.address + cmpBytes.length;
+    let branchBytes;
+    if (branchMnem) {
+      const branchOpcode = opcodeMap[branchMnem].relative;
+      const offset = targetAddr - (branchFromAddr + 2);
+      if (offset < -128 || offset > 127) {
+        return { ok: false, error: `Runtime loop body too large for branch (offset ${offset})` };
+      }
+      branchBytes = [branchOpcode, offset & 0xFF];
+    } else if (op === "<=") {
+      const bcsFrom = branchFromAddr + 2;
+      const bcsOffset = targetAddr - (bcsFrom + 2);
+      if (bcsOffset < -128 || bcsOffset > 127) {
+        return { ok: false, error: `Runtime loop body too large for branch (offset ${bcsOffset})` };
+      }
+      branchBytes = [opcodeMap.BEQ.relative, 0x02, opcodeMap.BCS.relative, bcsOffset & 0xFF];
+    } else if (op === ">") {
+      const beqOffset = targetAddr - (branchFromAddr + 2);
+      const bccFrom = branchFromAddr + 2;
+      const bccOffset = targetAddr - (bccFrom + 2);
+      if (beqOffset < -128 || beqOffset > 127 || bccOffset < -128 || bccOffset > 127) {
+        return { ok: false, error: `Runtime loop body too large for branch` };
+      }
+      branchBytes = [opcodeMap.BEQ.relative, beqOffset & 0xFF, opcodeMap.BCC.relative, bccOffset & 0xFF];
+    } else {
+      return { ok: false, error: `Runtime loop: operator "${op}" not supported` };
+    }
+    return { ok: true, bytes: [...cmpBytes, ...branchBytes] };
+  }
+
+  if (block.isRuntimeWhileMacro) {
+    // Skip out of loop when condition is FALSE — same mapping as IF skip
+    const skipMap = { "==": "BNE", "=": "BNE", "!=": "BEQ", "<": "BCS", ">=": "BCC" };
+    const r = _compileCmpBranch(block, line, labels, block.whileEndLabel, skipMap);
+    if (!r.ok) return r;
+    return { ok: true, bytes: r.bytes, comment: `WHILE ${block.runtimeIfReg || "A"} ${block.runtimeIfOp || "=="} ${block.rawOperand || "?"}` };
+  }
+  if (block.isRuntimeEndwMacro) {
+    const target = labels.get(block.whileStartLabel);
+    if (typeof target !== "number") {
+      return { ok: false, error: `ENDW: whileStartLabel ${block.whileStartLabel} not resolved` };
+    }
+    return { ok: true, bytes: [0x4C, target & 0xFF, (target >> 8) & 0xFF], comment: `ENDW → JMP ${block.whileStartLabel}` };
+  }
+  if (block.isRuntimeRepeatMacro) {
+    return { ok: true, bytes: [], comment: `REPEAT (label ${block.repeatStartLabel})` };
+  }
+  if (block.isRuntimeUntilMacro) {
+    // Loop back to start while condition is FALSE — same mapping as IF skip (branch when NOT met)
+    const backMap = { "==": "BNE", "=": "BNE", "!=": "BEQ", "<": "BCS", ">=": "BCC" };
+    const r = _compileCmpBranch(block, line, labels, block.repeatStartLabel, backMap);
+    if (!r.ok) return r;
+    return { ok: true, bytes: r.bytes, comment: `UNTIL ${block.runtimeIfReg || "A"} ${block.runtimeIfOp || "=="} ${block.rawOperand || "?"}` };
+  }
+
+  if (block.isMemCpyMacro) {
+    const size = parseMacroNumber(block.memcpySize || "0", labels, "hex");
+    const src = parseMacroAddress(block.memcpySrc || "C000", labels);
+    const dst = parseMacroAddress(block.memcpyDst || "0400", labels);
+    if (!size || src === null || dst === null) {
+      return { ok: false, error: `MEMCPY: invalid src/dst/size` };
+    }
+    const bytes = [];
+    const fullPages = Math.floor(size / 256);
+    const partial = size % 256;
+    for (let p = 0; p < fullPages; p++) {
+      const s = (src + p * 256) & 0xFFFF;
+      const d = (dst + p * 256) & 0xFFFF;
+      // LDX #$00 / LDA s,X / STA d,X / INX / BNE -8
+      bytes.push(0xA2, 0x00);
+      bytes.push(0xBD, s & 0xFF, (s >> 8) & 0xFF);
+      bytes.push(0x9D, d & 0xFF, (d >> 8) & 0xFF);
+      bytes.push(0xE8);
+      bytes.push(0xD0, 0xF7);  // -9 offset from BNE end back to LDA start
+    }
+    if (partial > 0) {
+      const s = (src + fullPages * 256) & 0xFFFF;
+      const d = (dst + fullPages * 256) & 0xFFFF;
+      // LDX #$00 / LDA s,X / STA d,X / INX / CPX #partial / BNE -11
+      bytes.push(0xA2, 0x00);
+      bytes.push(0xBD, s & 0xFF, (s >> 8) & 0xFF);
+      bytes.push(0x9D, d & 0xFF, (d >> 8) & 0xFF);
+      bytes.push(0xE8);
+      bytes.push(0xE0, partial & 0xFF);
+      bytes.push(0xD0, 0xF5);  // -11 offset back to LDA start
+    }
+    return { ok: true, bytes, comment: `MEMCPY $${src.toString(16).padStart(4,"0").toUpperCase()} → $${dst.toString(16).padStart(4,"0").toUpperCase()}, ${size} B` };
+  }
+
+  if (block.isMemSetMacro) {
+    const size = parseMacroNumber(block.memsetSize || "0", labels, "hex");
+    const value = parseMacroNumber(block.memsetValue || "0", labels, "hex");
+    const dst = parseMacroAddress(block.memsetDst || "0400", labels);
+    if (!size || dst === null) {
+      return { ok: false, error: `MEMSET: invalid dst/size` };
+    }
+    if (value === null || value < 0 || value > 255) {
+      return { ok: false, error: `MEMSET: invalid byte value` };
+    }
+    const bytes = [];
+    bytes.push(0xA9, value & 0xFF);  // LDA #value once
+    const fullPages = Math.floor(size / 256);
+    const partial = size % 256;
+    for (let p = 0; p < fullPages; p++) {
+      const d = (dst + p * 256) & 0xFFFF;
+      // LDX #$00 / STA d,X / INX / BNE -6
+      bytes.push(0xA2, 0x00);
+      bytes.push(0x9D, d & 0xFF, (d >> 8) & 0xFF);
+      bytes.push(0xE8);
+      bytes.push(0xD0, 0xFA);  // -6 offset from BNE end back to STA start
+    }
+    if (partial > 0) {
+      const d = (dst + fullPages * 256) & 0xFFFF;
+      // LDX #$00 / STA d,X / INX / CPX #partial / BNE -8
+      bytes.push(0xA2, 0x00);
+      bytes.push(0x9D, d & 0xFF, (d >> 8) & 0xFF);
+      bytes.push(0xE8);
+      bytes.push(0xE0, partial & 0xFF);
+      bytes.push(0xD0, 0xF8);  // -8 back to STA start
+    }
+    return { ok: true, bytes, comment: `MEMSET $${dst.toString(16).padStart(4,"0").toUpperCase()} = $${value.toString(16).padStart(2,"0").toUpperCase()} × ${size}` };
+  }
+
+  if (block.isPrintMacro) {
+    const text = block.rawOperand || "";
+    const charset = block.printCharset || "upper";
+    const data = encodePetsciiMacro(text, charset);
+    if (data.length > 255) {
+      return { ok: false, error: `PRINT: text too long (${data.length}, max 255)` };
+    }
+    const dataAddr = line.address + 3;
+    const codeAddr = dataAddr + data.length + 1;
+    const bytes = [
+      0x4C, codeAddr & 0xFF, (codeAddr >> 8) & 0xFF,
+      ...data,
+      0x00,
+      0xA2, 0x00,
+      0xBD, dataAddr & 0xFF, (dataAddr >> 8) & 0xFF,
+      0xF0, 0x06,
+      0x20, 0xD2, 0xFF,
+      0xE8,
+      0xD0, 0xF5
+    ];
+    return { ok: true, bytes, comment: `PRINT "${text}"${charset === "lower" ? " lower" : ""}` };
+  }
+
+  if (block.isPrintCharMacro) {
+    const raw = block.rawOperand || "";
+    const value = parsePetsciiCharValue(raw, labels);
+    if (value === null || value < 0 || value > 255) {
+      return { ok: false, error: `PRINT_CHAR: cannot resolve value "${raw}"` };
+    }
+    return { ok: true, bytes: [0xA9, value & 0xFF, 0x20, 0xD2, 0xFF], comment: `PRINT_CHAR ${value}` };
+  }
+
+  if (block.isPrintHexMacro) {
+    const reg = (block.printReg || block.rawOperand || "A").toUpperCase();
+    const prefix = reg === "X" ? [0x8A] : reg === "Y" ? [0x98] : reg === "A" ? [] : null;
+    if (!prefix) return { ok: false, error: `PRINT_HEX: register must be A, X or Y` };
+    return { ok: true, bytes: compilePrintHexA(prefix), comment: `PRINT_HEX ${reg}` };
+  }
+
+  if (block.isClearScreenMacro) {
+    return { ok: true, bytes: [0xA9, 0x93, 0x20, 0xD2, 0xFF], comment: "CLEAR_SCREEN" };
+  }
+
+  if (block.isWaitKeyMacro) {
+    return { ok: true, bytes: [0x20, 0xE4, 0xFF, 0xC9, 0x00, 0xF0, 0xF9], comment: "WAIT_KEY" };
+  }
+
+  if (block.isSetBorderMacro || block.isSetBgMacro) {
+    const value = parseMacroNumber(block.colorValue || block.rawOperand || "0", labels, "hex");
+    if (value === null || value < 0 || value > 15) {
+      return { ok: false, error: `${block.mnemonic}: color must be 0-15` };
+    }
+    const addr = block.isSetBorderMacro ? 0xD020 : 0xD021;
+    return { ok: true, bytes: compileAbsoluteStore(addr, value), comment: `${block.mnemonic} $${value.toString(16).toUpperCase()}` };
+  }
+
+  if (block.isIrqSetupMacro) {
+    const handler = labels.get(block.irqHandler || "");
+    const raster = parseMacroNumber(block.irqRaster || "FA", labels, "hex");
+    if (typeof handler !== "number") {
+      return { ok: false, error: `IRQ_SETUP: handler label not found` };
+    }
+    if (raster === null || raster < 0 || raster > 255) {
+      return { ok: false, error: `IRQ_SETUP: raster must be $00-$FF` };
+    }
+    const bytes = [
+      0x78,
+      0xA9, handler & 0xFF, 0x8D, 0x14, 0x03,
+      0xA9, (handler >> 8) & 0xFF, 0x8D, 0x15, 0x03,
+      0xA9, raster & 0xFF, 0x8D, 0x12, 0xD0,
+      0xAD, 0x11, 0xD0, 0x29, 0x7F, 0x8D, 0x11, 0xD0,
+      0xA9, 0x01, 0x8D, 0x19, 0xD0,
+      0xAD, 0x1A, 0xD0, 0x09, 0x01, 0x8D, 0x1A, 0xD0,
+      0xA9, 0x7F, 0x8D, 0x0D, 0xDC,
+      0xAD, 0x0D, 0xDC,
+      0x58
+    ];
+    return { ok: true, bytes, comment: `IRQ_SETUP ${block.irqHandler} @ $${raster.toString(16).toUpperCase().padStart(2, "0")}` };
+  }
+
+  if (block.isRandMacro) {
+    const seed = parseMacroAddress(block.randSeed || "$FB", labels);
+    if (seed === null || seed < 0 || seed > 0xFFFF) {
+      return { ok: false, error: `RAND: invalid seed address` };
+    }
+    const bytes = [
+      0xAD, seed & 0xFF, (seed >> 8) & 0xFF,
+      0xD0, 0x02,
+      0xA9, 0xA5,
+      0x0A,
+      0x90, 0x02,
+      0x49, 0x1D,
+      0x8D, seed & 0xFF, (seed >> 8) & 0xFF
+    ];
+    return { ok: true, bytes, comment: `RAND ${block.randSeed || "$FB"} → A` };
   }
 
   if (block.isMacroDefStart || block.isMacroDefEnd) {
@@ -13011,6 +14178,46 @@ function parseNumberByBase(value, base) {
   }
 
   return /^-?\d+$/.test(value) ? Number(value) : null;
+}
+
+function parseMacroNumber(raw, labels = null, fallbackBase = "hex") {
+  const text = String(raw ?? "").trim();
+  if (!text) return null;
+  const parsed = parseNumberByBase(text, fallbackBase);
+  if (parsed !== null) return parsed;
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(text)) {
+    return labels ? (labels.get(text) ?? null) : null;
+  }
+  return null;
+}
+
+function parseMacroAddress(raw, labels = null) {
+  const text = String(raw ?? "").trim();
+  if (!text) return null;
+  return parseAddressValue(text, labels);
+}
+
+function compileAbsoluteStore(addr, value) {
+  return [0xA9, value & 0xFF, 0x8D, addr & 0xFF, (addr >> 8) & 0xFF];
+}
+
+function compilePrintHexA(prefixBytes = []) {
+  const emitNibble = [
+    0xC9, 0x0A,
+    0x90, 0x02,
+    0x69, 0x06,
+    0x69, 0x30,
+    0x20, 0xD2, 0xFF
+  ];
+  return [
+    ...prefixBytes,
+    0x48,
+    0x4A, 0x4A, 0x4A, 0x4A,
+    ...emitNibble,
+    0x68,
+    0x29, 0x0F,
+    ...emitNibble
+  ];
 }
 
 function getNumberFormatError(base) {
@@ -13359,6 +14566,10 @@ function getInstructionSize(block) {
     return size;
   }
 
+  if (block.isEndMacro) {
+    return 1;
+  }
+
   if (block.isWordMacro) {
     return parseWordMacro(block.rawOperand, block.base).length * 2;  // 2 bytes per word
   }
@@ -13381,6 +14592,72 @@ function getInstructionSize(block) {
   if (block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isConstMacro) {
     return 0;
   }
+
+  if (block.isVarMacro) {
+    return 0;  // Just a label, allocated in ZP separately
+  }
+
+  if (block.isRuntimeIfMacro) {
+    const isImm = (block.rawOperand || "").trim().startsWith("#");
+    const op = block.runtimeIfOp === "=" ? "==" : (block.runtimeIfOp || "==");
+    const branchSize = (op === "<=" || op === ">") ? 4 : 2;
+    return (isImm ? 2 : 3) + branchSize;  // CMP/CPX/CPY + skip branch
+  }
+  if (block.isRuntimeElseMacro) {
+    return 3;  // JMP end
+  }
+  if (block.isRuntimeEndIfMacro) {
+    return 0;  // label anchor
+  }
+  if (block.isRuntimeWhileMacro) {
+    const isImm = (block.rawOperand || "").trim().startsWith("#");
+    const op = block.runtimeIfOp === "=" ? "==" : (block.runtimeIfOp || "==");
+    const branchSize = (op === "<=" || op === ">") ? 4 : 2;
+    return (isImm ? 2 : 3) + branchSize;  // CMP + skip-to-end branch
+  }
+  if (block.isRuntimeEndwMacro) {
+    return 3;  // JMP loop_start
+  }
+  if (block.isRuntimeRepeatMacro) {
+    return 0;  // label anchor
+  }
+  if (block.isRuntimeUntilMacro) {
+    const isImm = (block.rawOperand || "").trim().startsWith("#");
+    const op = block.runtimeIfOp === "=" ? "==" : (block.runtimeIfOp || "==");
+    const branchSize = (op === "<=" || op === ">") ? 4 : 2;
+    return (isImm ? 2 : 3) + branchSize;  // CMP + loop-back branch
+  }
+
+  if (block.isMemCpyMacro) {
+    const size = parseMacroNumber(block.memcpySize || "0", null, "hex");
+    if (!size) return 0;
+    const fullPages = Math.floor(size / 256);
+    const partial = size % 256;
+    return fullPages * 11 + (partial > 0 ? 13 : 0);
+  }
+  if (block.isMemSetMacro) {
+    const size = parseMacroNumber(block.memsetSize || "0", null, "hex");
+    if (!size) return 0;
+    const fullPages = Math.floor(size / 256);
+    const partial = size % 256;
+    return 2 + fullPages * 8 + (partial > 0 ? 10 : 0);  // LDA #val once + loops
+  }
+
+  if (block.isPrintMacro) {
+    return 17 + encodePetsciiMacro(block.rawOperand || "", block.printCharset || "upper").length;
+  }
+  if (block.isPrintCharMacro) {
+    return 5;
+  }
+  if (block.isPrintHexMacro) {
+    const reg = (block.printReg || block.rawOperand || "A").toUpperCase();
+    return (reg === "X" || reg === "Y") ? 31 : 30;
+  }
+  if (block.isClearScreenMacro) return 5;
+  if (block.isWaitKeyMacro) return 7;
+  if (block.isSetBorderMacro || block.isSetBgMacro) return 5;
+  if (block.isIrqSetupMacro) return 46;
+  if (block.isRandMacro) return 15;
 
   if (block.isMacroDefStart || block.isMacroDefEnd) {
     return 0;  // Macro definitions don't take space
@@ -13662,6 +14939,27 @@ function getProgramLayout(originOverride) {
       }
     } else {
       expandedProgram.push(block);
+    }
+  }
+
+  // Assign auto ZP addresses to VAR blocks. Walk the fully-expanded program
+  // (so VARs coming from INCLUDE files are picked up) and give each one a
+  // fresh slot starting at $02. Wraps only around $FE — the user is expected
+  // not to overflow ZP. Contiguous multi-byte VARs get consecutive addresses.
+  {
+    let zpCursor = 0x02;
+    for (const block of expandedProgram) {
+      if (!block.isVarMacro) continue;
+      if (!block.varName) continue;
+      const size = Math.max(1, Math.min(255, block.varSize || 1));
+      if (zpCursor + size > 0xFF) {
+        block.validationError = "VAR: out of zero-page space";
+        block._varAddress = null;
+        continue;
+      }
+      block._varAddress = zpCursor;
+      block.validationError = "";
+      zpCursor += size;
     }
   }
 
@@ -14287,6 +15585,50 @@ function getBlockDescription(block) {
     return block.validationError || `CONST: ${block.constName || "?"} = ${formatted}`;
   }
 
+  if (block.isVarMacro) {
+    const addr = typeof block._varAddress === "number"
+      ? "$" + block._varAddress.toString(16).toUpperCase().padStart(2, "0")
+      : "(auto)";
+    const size = Math.max(1, Math.min(255, block.varSize || 1));
+    return block.validationError || `VAR: ${block.varName || "?"} @ ${addr}${size > 1 ? " (" + size + "b)" : ""}`;
+  }
+
+  if (block.isRuntimeIfMacro) {
+    return block.validationError || `IF ${block.runtimeIfReg || "A"} ${block.runtimeIfOp || "=="} ${block.rawOperand || "?"}`;
+  }
+  if (block.isRuntimeElseMacro) return "ELSE";
+  if (block.isRuntimeEndIfMacro) return "ENDIF";
+  if (block.isRuntimeWhileMacro) {
+    return block.validationError || `WHILE ${block.runtimeIfReg || "A"} ${block.runtimeIfOp || "=="} ${block.rawOperand || "?"}`;
+  }
+  if (block.isRuntimeEndwMacro) return "ENDW";
+  if (block.isRuntimeRepeatMacro) return "REPEAT";
+  if (block.isRuntimeUntilMacro) {
+    return block.validationError || `UNTIL ${block.runtimeIfReg || "A"} ${block.runtimeIfOp || "=="} ${block.rawOperand || "?"}`;
+  }
+
+  if (block.isPrintMacro) {
+    const charsetNote = block.printCharset === "lower" ? " lower" : "";
+    return block.validationError || `PRINT: "${block.rawOperand || ""}"${charsetNote}`;
+  }
+  if (block.isPrintCharMacro) {
+    return block.validationError || `PRINT_CHAR ${block.rawOperand || "$41"}`;
+  }
+  if (block.isPrintHexMacro) {
+    return block.validationError || `PRINT_HEX ${(block.printReg || block.rawOperand || "A").toUpperCase()}`;
+  }
+  if (block.isClearScreenMacro) return "CLEAR_SCREEN";
+  if (block.isWaitKeyMacro) return "WAIT_KEY";
+  if (block.isSetBorderMacro || block.isSetBgMacro) {
+    return block.validationError || `${block.mnemonic}: $${(block.colorValue || block.rawOperand || "00").replace(/^#?\$/, "").toUpperCase()}`;
+  }
+  if (block.isIrqSetupMacro) {
+    return block.validationError || `IRQ_SETUP: ${block.irqHandler || "?"} @ $${(block.irqRaster || "FA").replace(/^#?\$/, "").toUpperCase()}`;
+  }
+  if (block.isRandMacro) {
+    return block.validationError || `RAND: ${block.randSeed || "$FB"} -> A`;
+  }
+
   if (block.isIfMacro) {
     return block.validationError || `${t("if")}: ${block.ifCondition || "?"}`;
   }
@@ -14374,6 +15716,15 @@ function getBlockModeCaption(block) {
     return `PETSCII @ ${block.petsciiAddress || "C000"}  (${n} byte)`;
   }
 
+  if (block.isPrintMacro) {
+    const n = encodePetsciiMacro(block.rawOperand, block.printCharset || "upper").length;
+    const cs = block.printCharset === "lower" ? "lower" : "upper";
+    return `PRINT ${cs}  (${n} byte)`;
+  }
+  if (block.isPrintCharMacro) {
+    return `PRINT_CHAR ${block.rawOperand || "$41"}  (5 byte)`;
+  }
+
   if (block.isIncBinMacro) {
     const size = (block.incBinBytes || []).length;
     return `${t("binaryFileMemory")} | ${block.incBinAddress || "$C000"}  (${size} byte)`;
@@ -14414,6 +15765,10 @@ function getBlockModeCaption(block) {
 
   if (block.isConstMacro) {
     return t("macroConst");
+  }
+
+  if (block.isVarMacro) {
+    return t("macroVar") || "Zero-page variable";
   }
 
   if (block.isIfMacro) {
@@ -14737,6 +16092,10 @@ function getCollapsedOperandText(block) {
     return block.pullRegs ? `${block.pullRegs}` : "A";
   }
 
+  if (block.isEndMacro) {
+    return "END";
+  }
+
   if (block.isWordMacro) {
     if (!block.rawOperand) return "";
     const parts = block.rawOperand.split(",").map(s => s.trim()).filter(Boolean);
@@ -14768,6 +16127,14 @@ function getCollapsedOperandText(block) {
     const constVal = parseNumberByBase((block.rawOperand || "").replace(/^\$/, ""), block.base);
     const formatted = constVal !== null ? formatOperand("absolute", constVal, block.base) : "?";
     return `${block.constName || "?"} = ${formatted}`;
+  }
+
+  if (block.isVarMacro) {
+    const addr = typeof block._varAddress === "number"
+      ? "$" + block._varAddress.toString(16).toUpperCase().padStart(2, "0")
+      : "(auto)";
+    const size = Math.max(1, Math.min(255, block.varSize || 1));
+    return `${block.varName || "?"} @ ${addr}${size > 1 ? " (" + size + "b)" : ""}`;
   }
 
   if (block.isIfMacro) {
@@ -14862,6 +16229,7 @@ function renderProgram() {
       node.dataset.categoryTone = getCategoryTone(block.category);
       node.dataset.collapsed = block.collapsed ? "true" : "false";
       if (block.isConstMacro) node.dataset.macroKind = "const";
+      if (block.isVarMacro) node.dataset.macroKind = "var";
       if (block.isMacroDefStart) node.dataset.blockKind = "macro-def-start";
       if (block.isMacroDefEnd) node.dataset.blockKind = "macro-def-end";
       if (block.isLabel) node.dataset.blockKind = "label";
@@ -14871,7 +16239,7 @@ function renderProgram() {
       const bpBtn = node.querySelector(".bp-toggle");
       if (bpBtn) {
         const bpAllowed = !block.isOrgMacro && !block.isRegionMacro && !block.isEndRegionMacro
-          && !block.isComment && !block.isConstMacro && !block.isDefineMacro
+          && !block.isComment && !block.isConstMacro && !block.isVarMacro && !block.isDefineMacro
           && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro
           && !block.isMacroDefStart && !block.isMacroDefEnd && !block.isIncludeMacro;
         if (!bpAllowed) {
@@ -15265,7 +16633,9 @@ function renderProgram() {
         if (result.canceled || result.error) return;
         program[index].includeFile = result.filePath;
         program[index].includeFileName = result.fileName;
-        program[index].includedBlocks = result.blocks || [];
+        program[index].includedBlocks = typeof result.text === "string"
+          ? parseExpertText(result.text)
+          : (result.blocks || []);
         program[index].validationError = "";
         parseUserMacros();
         renderProgram();
@@ -15975,12 +17345,175 @@ function renderProgram() {
           </div>
         `
       );
+    } else if (block.isVarMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${t("name")}</span>
+              <input class="var-name" type="text" value="${block.varName || "my_var"}" placeholder="my_var">
+            </label>
+            <label class="mini-field">
+              <span>${t("sizeBytes") || "Size (bytes)"}</span>
+              <input class="var-size" type="number" min="1" max="255" value="${block.varSize || 1}">
+            </label>
+            <label class="mini-field">
+              <span>ZP</span>
+              <input type="text" disabled value="${typeof block._varAddress === "number" ? "$" + block._varAddress.toString(16).toUpperCase().padStart(2, "0") : "(auto)"}">
+            </label>
+          </div>
+        `
+      );
+      blockControls.querySelector(".var-name")?.addEventListener("input", (e) => updateProgramBlock(index, "varName", e.target.value));
+      blockControls.querySelector(".var-size")?.addEventListener("input", (e) => updateProgramBlock(index, "varSize", parseInt(e.target.value, 10) || 1));
     } else if (block.isIfMacro) {
       inlineField.querySelector("span").textContent = t("condition");
       inlineField.hidden = false;
       operandField.value = block.ifCondition || "";
       operandField.placeholder = "DEBUG";
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+    } else if (block.isRuntimeIfMacro) {
+      inlineField.hidden = true;
+      const currentOp = block.runtimeIfOp || "==";
+      const opts = ["==","!=","<","<=",">",">="].map(op =>
+        `<option value="${op}"${op === currentOp ? " selected" : ""}>${op}</option>`).join("");
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>Reg</span>
+              <input type="text" disabled value="${(block.runtimeIfReg || "A")}">
+            </label>
+            <label class="mini-field">
+              <span>Op</span>
+              <select class="rif-op">${opts}</select>
+            </label>
+            <label class="mini-field">
+              <span>${t("value") || "Value"}</span>
+              <input class="rif-value" type="text" value="${block.rawOperand || "#$00"}" placeholder="#$10 / label">
+            </label>
+          </div>
+        `
+      );
+      blockControls.querySelector(".rif-op")?.addEventListener("change", (e) => updateProgramBlock(index, "runtimeIfOp", e.target.value));
+      blockControls.querySelector(".rif-value")?.addEventListener("input", (e) => updateProgramBlock(index, "rawOperand", e.target.value));
+    } else if (block.isRuntimeElseMacro || block.isRuntimeEndIfMacro) {
+      inlineField.hidden = true;
+    } else if (block.isRuntimeWhileMacro || block.isRuntimeUntilMacro) {
+      inlineField.hidden = true;
+      const currentOp = block.runtimeIfOp || "==";
+      const opts = ["==","!=","<","<=",">",">="].map(op =>
+        `<option value="${op}"${op === currentOp ? " selected" : ""}>${op}</option>`).join("");
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>Reg</span>
+              <input type="text" disabled value="${(block.runtimeIfReg || "A")}">
+            </label>
+            <label class="mini-field">
+              <span>Op</span>
+              <select class="rif-op">${opts}</select>
+            </label>
+            <label class="mini-field">
+              <span>${t("value") || "Value"}</span>
+              <input class="rif-value" type="text" value="${block.rawOperand || "#$00"}" placeholder="#$10 / label">
+            </label>
+          </div>
+        `
+      );
+      blockControls.querySelector(".rif-op")?.addEventListener("change", (e) => updateProgramBlock(index, "runtimeIfOp", e.target.value));
+      blockControls.querySelector(".rif-value")?.addEventListener("input", (e) => updateProgramBlock(index, "rawOperand", e.target.value));
+    } else if (block.isPrintMacro) {
+      inlineField.querySelector("span").textContent = "Text";
+      inlineField.hidden = false;
+      operandField.value = block.rawOperand || "";
+      operandField.placeholder = "HELLO";
+      operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div style="display:flex;align-items:center;gap:6px;margin-top:4px;font-size:0.72rem;color:var(--muted);">
+            <input class="charset-lower-check mini-checkbox" type="checkbox"${block.printCharset === "lower" ? " checked" : ""}>
+            ${t("charsetPetsciiLowerLabel")}
+          </div>
+        `
+      );
+    } else if (block.isPrintCharMacro) {
+      inlineField.querySelector("span").textContent = t("value") || "Value";
+      inlineField.hidden = false;
+      operandField.value = block.rawOperand || "$41";
+      operandField.placeholder = "$41 / 65";
+      operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+    } else if (block.isPrintHexMacro) {
+      inlineField.hidden = true;
+      const reg = (block.printReg || block.rawOperand || "A").toUpperCase();
+      const opts = ["A", "X", "Y"].map(r => `<option value="${r}"${r === reg ? " selected" : ""}>${r}</option>`).join("");
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `<div class="macro-grid single-macro-row">
+          <label class="mini-field">
+            <span>Reg</span>
+            <select class="print-reg">${opts}</select>
+          </label>
+        </div>`
+      );
+      blockControls.querySelector(".print-reg")?.addEventListener("change", (e) => {
+        updateProgramBlock(index, "printReg", e.target.value);
+        updateProgramBlock(index, "rawOperand", e.target.value);
+      });
+    } else if (block.isClearScreenMacro || block.isWaitKeyMacro) {
+      inlineField.hidden = true;
+    } else if (block.isSetBorderMacro || block.isSetBgMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `<div class="macro-grid single-macro-row">
+          <label class="mini-field">
+            <span>${t("value") || "Value"}</span>
+            <input class="color-value" type="text" value="${block.colorValue || block.rawOperand || "00"}" placeholder="00">
+          </label>
+        </div>`
+      );
+      blockControls.querySelector(".color-value")?.addEventListener("input", (e) => {
+        updateProgramBlock(index, "colorValue", e.target.value);
+        updateProgramBlock(index, "rawOperand", e.target.value);
+      });
+    } else if (block.isIrqSetupMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `<div class="macro-grid">
+          <label class="mini-field">
+            <span>Handler</span>
+            <input class="irq-handler" type="text" value="${block.irqHandler || "my_irq"}" placeholder="my_irq">
+          </label>
+          <label class="mini-field">
+            <span>Raster</span>
+            <input class="irq-raster" type="text" value="${block.irqRaster || "FA"}" placeholder="FA">
+          </label>
+        </div>`
+      );
+      blockControls.querySelector(".irq-handler")?.addEventListener("input", (e) => updateProgramBlock(index, "irqHandler", e.target.value));
+      blockControls.querySelector(".irq-raster")?.addEventListener("input", (e) => updateProgramBlock(index, "irqRaster", e.target.value));
+    } else if (block.isRandMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `<div class="macro-grid single-macro-row">
+          <label class="mini-field">
+            <span>Seed</span>
+            <input class="rand-seed" type="text" value="${block.randSeed || "$FB"}" placeholder="$FB / seed_var">
+          </label>
+        </div>`
+      );
+      blockControls.querySelector(".rand-seed")?.addEventListener("input", (e) => updateProgramBlock(index, "randSeed", e.target.value));
+    } else if (block.isRuntimeEndwMacro || block.isRuntimeRepeatMacro) {
+      inlineField.hidden = true;
     } else if (block.isElseMacro || block.isEndIfMacro) {
       inlineField.hidden = true;
     } else if (block.isMacroDefStart) {
@@ -16204,6 +17737,9 @@ function renderProgram() {
           ? []
           : program.filter(b => b.isLabel && b.labelName).map(b => b.labelName);
         const constNames = program.filter(b => b.isConstMacro && b.constName).map(b => b.constName);
+        const varNames = block.addressingMode === "immediate"
+          ? []
+          : program.filter(b => b.isVarMacro && b.varName).map(b => b.varName);
         const tableNames = block.addressingMode === "immediate"
           ? []
           : program.filter(b => b.isTableMacro && b.tableName).map(b => b.tableName);
@@ -16214,6 +17750,7 @@ function renderProgram() {
           const labels = isImm ? [] : program.filter(b => b.isLabel && b.labelName).map(b => b.labelName);
           const macroLabels = isImm ? [] : program.filter(b => b.macroLabel).map(b => b.macroLabel.trim()).filter(Boolean);
           const consts = program.filter(b => b.isConstMacro && b.constName).map(b => b.constName);
+          const vars = isImm ? [] : program.filter(b => b.isVarMacro && b.varName).map(b => b.varName);
           const tables = isImm ? [] : program.filter(b => b.isTableMacro && b.tableName).map(b => b.tableName);
           const included = isImm ? [] : program
             .filter(b => b.isIncludeMacro && b.includedBlocks?.length)
@@ -16231,7 +17768,7 @@ function renderProgram() {
               }
               return names;
             });
-          return [...labels, ...macroLabels, ...included, ...consts, ...tables];
+          return [...labels, ...macroLabels, ...included, ...consts, ...vars, ...tables];
         }
 
         // Always create the picker container; populate dynamically on focus
@@ -16403,7 +17940,7 @@ function renderProgram() {
     }
     const charsetLowerCheck = node.querySelector(".charset-lower-check");
     if (charsetLowerCheck) {
-      const csField = block.isPetsciiMacro ? "petsciiCharset" : "textCharset";
+      const csField = block.isPetsciiMacro ? "petsciiCharset" : block.isPrintMacro ? "printCharset" : "textCharset";
       charsetLowerCheck.addEventListener("change", (event) => updateProgramBlock(index, csField, event.target.checked ? "lower" : "upper"));
     }
     const charsetModeSelect = node.querySelector(".charset-mode-select");
@@ -17235,6 +18772,42 @@ function renderAsmOutput() {
       const formatted = constVal !== null ? formatOperand("absolute", constVal, line.block.base || "hex") : "?";
       return `; .CONST ${line.block.constName || "?"} = ${formatted}`;
     }
+
+    if (line.block.isVarMacro) {
+      const addr = typeof line.block._varAddress === "number"
+        ? "$" + line.block._varAddress.toString(16).toUpperCase().padStart(2, "0")
+        : "?";
+      const size = Math.max(1, Math.min(255, line.block.varSize || 1));
+      return `; .VAR ${line.block.varName || "?"} @ ${addr}${size > 1 ? " (" + size + "b)" : ""}`;
+    }
+
+    if (line.block.isRuntimeIfMacro) {
+      return `; .if ${line.block.runtimeIfReg || "A"} ${line.block.runtimeIfOp || "=="} ${line.block.rawOperand || "?"}`;
+    }
+
+    if (line.block.isRuntimeElseMacro) return `; .else`;
+    if (line.block.isRuntimeEndIfMacro) return `; .endif`;
+
+    if (line.block.isRuntimeWhileMacro) {
+      return `; .while ${line.block.runtimeIfReg || "A"} ${line.block.runtimeIfOp || "=="} ${line.block.rawOperand || "?"}`;
+    }
+
+    if (line.block.isRuntimeEndwMacro) return `; .endw`;
+    if (line.block.isRuntimeRepeatMacro) return `; .repeat`;
+
+    if (line.block.isRuntimeUntilMacro) {
+      return `; .until ${line.block.runtimeIfReg || "A"} ${line.block.runtimeIfOp || "=="} ${line.block.rawOperand || "?"}`;
+    }
+
+    if (line.block.isPrintMacro) return `; .print "${line.block.rawOperand || ""}"${line.block.printCharset === "lower" ? ", lower" : ""}`;
+    if (line.block.isPrintCharMacro) return `; .print_char ${line.block.rawOperand || "$41"}`;
+    if (line.block.isPrintHexMacro) return `; .print_hex ${(line.block.printReg || line.block.rawOperand || "A").toUpperCase()}`;
+    if (line.block.isClearScreenMacro) return `; .clear_screen`;
+    if (line.block.isWaitKeyMacro) return `; .wait_key`;
+    if (line.block.isSetBorderMacro) return `; .set_border $${(line.block.colorValue || line.block.rawOperand || "00").replace(/^#?\$/, "").toUpperCase()}`;
+    if (line.block.isSetBgMacro) return `; .set_bg $${(line.block.colorValue || line.block.rawOperand || "00").replace(/^#?\$/, "").toUpperCase()}`;
+    if (line.block.isIrqSetupMacro) return `; .irq_setup handler=${line.block.irqHandler || "?"}, raster=$${(line.block.irqRaster || "FA").replace(/^#?\$/, "").toUpperCase()}`;
+    if (line.block.isRandMacro) return `; .rand ${line.block.randSeed || "$FB"}`;
 
     if (line.block.isIfMacro) {
       return `; .IF ${line.block.ifCondition || "?"}`;
