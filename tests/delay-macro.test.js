@@ -1,9 +1,10 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
+const path = require("node:path");
 const vm = require("node:vm");
 
-const appJs = fs.readFileSync("F:/Development/VisualAssembler/www/app.js", "utf8");
+const appJs = fs.readFileSync(path.join(__dirname, "..", "www", "app.js"), "utf8");
 
 function extractFunctionSource(name) {
   const marker = `function ${name}(`;
