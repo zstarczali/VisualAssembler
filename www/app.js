@@ -175,6 +175,7 @@ const mnemonicLibrary = {
     { mnemonic: "SPRITE_INIT", description: "Sprite inicializalasa: adatlap pointer, engedely bit es szin beallitasa ($D015, $D027+N, $07F8+N).", modes: ["implied"], isSpriteInitMacro: true },
     { mnemonic: "SPRITE_POS", description: "Sprite pozicio beallitasa: X (0-319) es Y (0-255), kezeli a $D010 felso bitet X>255 eseten.", modes: ["implied"], isSpritePosMacro: true },
     { mnemonic: "WAIT_RASTER", description: "Rasztervonal varakozas: LDA $D012 / CMP #sor / BNE -7. Inline, 7 byte, nincs JSR.", modes: ["implied"], isWaitRasterMacro: true },
+    { mnemonic: "DELAY", description: "Frame-kesesztetes: kozos helper rutinra epul, amely N frame-et varakozik. `.delay N` vagy `.wait N` formatum.", modes: ["implied"], isDelayMacro: true },
     { mnemonic: "JOYSTICK", description: "Joystick olvasas es sprite mozgatasa: UP/DOWN/LEFT/RIGHT bitek LSR+BCS+DEC/INC-cel. Port 1=$DC01, Port 2=$DC00 (alap). 27 byte inline.", modes: ["implied"], isJoystickMacro: true },
     { mnemonic: "MOUSE", description: "C64 1351 arányos egér vezérlése: SID POTX/POTY olvasás, standard 1351-szeru 7 bites delta dekódolással, CIA $DC00 felső 2 bitjével portválasztás, 512-ciklusos SID settle wait, X oldalon a klasszikus $D010 toggle mintával, Y oldalon invertált mozgatással. 142 byte inline.", modes: ["implied"], isMouseMacro: true },
     { mnemonic: "SPRITE_COL", description: "Sprite utkozes detektalas: LDA $D01E/$D01F + AND #bitMask. Eredmeny A-ban: nem nulla = utkozes. Utana BEQ/BNE-vel ugri. 5 byte.", modes: ["implied"], isSpriteColMacro: true },
@@ -431,6 +432,7 @@ let _expertFindIdx = -1;
 let _expertProjectData = null; // { name, files, _projPath }
 const _PROJECT_SNAPSHOT_MAX_ENTRIES = 10;
 const _PROJECT_SNAPSHOT_AUTO_DELAY_MS = 2500;
+const DELAY_HELPER_LABEL = "__delay_wait_frames";
 const _PROJECT_SNAPSHOT_HISTORY_CACHE = new Map();
 const _projectSnapshotTimers = new Map();
 
@@ -699,6 +701,7 @@ const mnemonicDescriptionsEn = {
   EXODECRUNCH: "Decompress Exomizer mem-mode data in place. Copies KERNAL's load-end pointer ($AE/$AF) into the depacker's source-end ZP ($04/$05), toggles $01 to $36 (BASIC ROM off so $A000-$BFFF is RAM), JSRs the depacker (default $B000), then restores $01 to $37. The depacker itself (exo-decrunch.bin, 480 bytes) must be INCBIN'd separately. 19 bytes.",
   SPRITE_POS: "Set sprite position: X (0–319) and Y (0–255). Handles the $D010 MSB for X > 255.",
   WAIT_RASTER: "Busy-wait for a raster line: LDA $D012 / CMP #line / BNE -7. Inline, 7 bytes, no JSR.",
+  DELAY: "Frame delay macro: shared helper routine that waits for N frames. Use `.delay N` or `.wait N`.",
   JOYSTICK: "Read joystick and move sprite: UP/DOWN/LEFT/RIGHT via LSR+BCS+DEC/INC. Port 1=$DC01, Port 2=$DC00. 27 bytes inline.",
   MOUSE: "Read 1351 proportional mouse via SID POTX/POTY ($D419/$D41A) and move sprite. The macro follows standard 1351-style 7-bit delta decoding, waits one SID conversion window after CIA port selection, uses the classic low-byte-add plus $D010 toggle pattern on X, and inverts Y for VICE. 142 bytes inline.",
   SPRITE_COL: "Sprite collision detection: LDA $D01E/$D01F + AND #bitMask. Result in A: non-zero = collision. Follow with BEQ/BNE. 5 bytes.",
@@ -860,6 +863,7 @@ const mnemonicDescriptionsEs = {
   EXODECRUNCH: "Descomprime datos comprimidos con Exomizer en modo mem. Copia el puntero de fin de carga del KERNAL ($AE/$AF) al puntero ZP de fin de fuente del depacker ($04/$05), cambia $01 a $36 (BASIC ROM desactivado para que $A000-$BFFF sea RAM), llama JSR al depacker (por defecto $B000), y luego restaura $01 a $37. El depacker en sí (exo-decrunch.bin, 480 bytes) debe incluirse por separado con INCBIN. 19 bytes.",
   SPRITE_POS: "Establece la posición del sprite: X (0–319) e Y (0–255). Gestiona el MSB de $D010 para X > 255.",
   WAIT_RASTER: "Espera activa una línea de raster: LDA $D012 / CMP #línea / BNE -7. Inline, 7 bytes, sin JSR.",
+  DELAY: "Retardo por frames: rutina auxiliar compartida que espera N frames. Usa `.delay N` o `.wait N`.",
   JOYSTICK: "Lee el joystick y mueve el sprite: UP/DOWN/LEFT/RIGHT mediante LSR+BCS+DEC/INC. Puerto 1=$DC01, Puerto 2=$DC00. 27 bytes inline.",
   MOUSE: "Lee el ratón 1351 proporcional mediante SID POTX/POTY ($D419/$D41A) y mueve el sprite. 142 bytes inline.",
   SPRITE_COL: "Detección de colisión de sprite: LDA $D01E/$D01F + AND #bitMask. Resultado en A: no-cero = colisión. 5 bytes.",
@@ -999,6 +1003,7 @@ const mnemonicDescriptionsDe = {
   EXODECRUNCH: "Exomizer mem-mode Daten dekomprimieren. Kopiert KERNALs Ladeendzeiger ($AE/$AF) in den Depacker-ZP ($04/$05), schaltet $01 auf $36 (BASIC-ROM aus, $A000-$BFFF als RAM), JSR zum Depacker (Standard $B000), stellt $01 auf $37 zurück. Der Depacker (exo-decrunch.bin, 480 Bytes) muss separat per INCBIN eingebunden werden. 19 Bytes.",
   SPRITE_POS: "Sprite-Position setzen: X (0–319) und Y (0–255). Behandelt das $D010-MSB für X > 255.",
   WAIT_RASTER: "Auf eine Rasterzeile warten: LDA $D012 / CMP #Zeile / BNE -7. Inline, 7 Bytes, kein JSR.",
+  DELAY: "Frame-Verzögerung: geteilte Hilfsroutine, die N Frames wartet. Verwende `.delay N` oder `.wait N`.",
   JOYSTICK: "Joystick lesen und Sprite bewegen: UP/DOWN/LEFT/RIGHT via LSR+BCS+DEC/INC. Port 1=$DC01, Port 2=$DC00. 27 Bytes inline.",
   MOUSE: "1351-Proportionalmaus via SID POTX/POTY ($D419/$D41A) lesen und Sprite bewegen. 142 Bytes inline.",
   SPRITE_COL: "Sprite-Kollisionserkennung: LDA $D01E/$D01F + AND #bitMaske. Ergebnis in A: ungleich null = Kollision. 5 Bytes.",
@@ -2723,8 +2728,9 @@ function syncMnemonicMenu() {
   const category = categorySelect.value;
   const items = mnemonicLibrary[category] || [];
 
+  const getMnemonicOptionLabel = (mnemonic) => mnemonic === "END" ? ".end" : mnemonic;
   mnemonicSelect.innerHTML = items
-    .map(({ mnemonic }) => `<option value="${mnemonic}">${mnemonic}</option>`)
+    .map(({ mnemonic }) => `<option value="${mnemonic}">${getMnemonicOptionLabel(mnemonic)}</option>`)
     .join("");
   const preferredMnemonic = items.some((item) => item.mnemonic === savedUiSettings.mnemonic)
     ? savedUiSettings.mnemonic
@@ -4113,6 +4119,23 @@ function createBlockFromMnemonic(item) {
     };
   }
 
+  if (item.isDelayMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "DELAY",
+      operand: "8",
+      rawOperand: "8",
+      description: item.description,
+      addressingMode: "implied",
+      base: "dec",
+      validationError: "",
+      collapsed: true,
+      isDelayMacro: true,
+      delayFrames: 8
+    };
+  }
+
   if (item.isClearScreenMacro || item.isWaitKeyMacro) {
     return {
       id: crypto.randomUUID(),
@@ -4481,6 +4504,11 @@ function _blockToExpertLine(block) {
       return s.startsWith("$") || s === "" ? s : "$" + s;
     }).join(", ");
   };
+  const fmtColorMacroValue = (raw) => {
+    const value = String(raw ?? "00").trim();
+    if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(value)) return value;
+    return "$" + value.replace(/^#?\$/, "").toUpperCase();
+  };
   if (block.isOrgMacro)       return `* = $${(block.orgAddress || "0801").toUpperCase()}`;
   if (block.isLabel)          return `${block.labelName || "start"}:`;
   if (block.isAnonymousLabel) return "-";
@@ -4588,8 +4616,9 @@ function _blockToExpertLine(block) {
   if (block.isPrintHexMacro) return `.print_hex ${(block.printReg || block.rawOperand || "A").toUpperCase()}`;
   if (block.isClearScreenMacro) return `.clear_screen`;
   if (block.isWaitKeyMacro) return `.wait_key`;
-  if (block.isSetBorderMacro) return `.set_border $${(block.colorValue || block.rawOperand || "00").replace(/^#?\$/, "").toUpperCase()}`;
-  if (block.isSetBgMacro) return `.set_bg $${(block.colorValue || block.rawOperand || "00").replace(/^#?\$/, "").toUpperCase()}`;
+  if (block.isDelayMacro) return `.delay ${String(block.delayFrames || "1").trim()}`;
+  if (block.isSetBorderMacro) return `.set_border ${fmtColorMacroValue(block.colorValue || block.rawOperand || "00")}`;
+  if (block.isSetBgMacro) return `.set_bg ${fmtColorMacroValue(block.colorValue || block.rawOperand || "00")}`;
   if (block.isIrqSetupMacro) return `.irq_setup handler=${block.irqHandler || "my_irq"}, raster=$${(block.irqRaster || "FA").replace(/^#?\$/, "").toUpperCase()}`;
   if (block.isRandMacro) return `.rand ${block.randSeed || "$FB"}`;
   if (block.isDefineMacro)    return `.define ${block.rawOperand || "SYMBOL"}`;
@@ -4802,12 +4831,12 @@ const _DIRECTIVE_TO_MNEM = {
   petscii:"PETSCII", table:"TABLE", loadfile:"LOADFILE", sid:"SID", include:"INCLUDE",
   loop:"LOOP", next:"NEXT", for:"FOR", endf:"ENDF", push:"PUSH", pull:"PULL",
   macro:"MACRO", endm:"ENDM", invoke:"INVOKE", call:"INVOKE",
-  sprite_init:"SPRITE_INIT", sprite_pos:"SPRITE_POS", wait_raster:"WAIT_RASTER",
+  sprite_init:"SPRITE_INIT", sprite_pos:"SPRITE_POS", wait_raster:"WAIT_RASTER", delay:"DELAY", wait:"DELAY",
   joystick:"JOYSTICK", mouse:"MOUSE", sprite_col:"SPRITE_COL", turbo_set:"TURBO_SET",
   map_copy:"MAP_COPY", sprite_anim:"SPRITE_ANIM", score_bcd:"SCORE_BCD",
   supercpu_detect:"SUPERCPU_DETECT", turbo_enable:"TURBO_ENABLE",
   reu_check:"REU_CHECK", reu_stash:"REU_STASH", reu_fetch:"REU_FETCH", reu_swap:"REU_SWAP",
-  define:"DEFINE", if:"IF", else:"ELSE", endif:"ENDIF", const:"CONST", "var":"VAR", org:"ORG",
+  define:"DEFINE", if:"IF", else:"ELSE", endif:"ENDIF", const:"CONST", "var":"VAR", org:"ORG", end:"END", charset:"CHARSET",
   region:"REGION", endregion:"ENDREGION",
   while:"WHILE", endw:"ENDW", repeat:"REPEAT", until:"UNTIL",
   memcpy:"MEMCPY", memset:"MEMSET", print:"PRINT", print_char:"PRINT_CHAR", print_hex:"PRINT_HEX",
@@ -4842,11 +4871,11 @@ const _AC_DIRECTIVE_DESC = {
   ".charset":"switch charset", ".while":"runtime while", ".endw":"while end", ".repeat":"runtime repeat", ".until":"repeat end",
   ".memcpy":"copy memory", ".memset":"fill memory", ".print":"print PETSCII",
   ".print_char":"print PETSCII char",
-  ".print_hex":"print hex", ".clear_screen":"clear screen", ".wait_key":"wait key",
+  ".print_hex":"print hex", ".clear_screen":"clear screen", ".wait_key":"wait key", ".delay":"frame delay", ".wait":"frame delay",
   ".set_border":"set border", ".set_bg":"set background", ".irq_setup":"setup IRQ", ".rand":"random byte",
   ".end":"RTS alias",
   ".loadfile":"load file KERNAL", ".sprite_init":"init sprite", ".sprite_pos":"set sprite pos",
-  ".wait_raster":"wait raster line", ".joystick":"joystick macro", ".mouse":"1351 mouse macro", ".sprite_col":"sprite collision",
+  ".wait_raster":"wait raster line", ".delay":"frame delay", ".wait":"frame delay", ".joystick":"joystick macro", ".mouse":"1351 mouse macro", ".sprite_col":"sprite collision",
   ".turbo_set":"U64 turbo speed",
   ".supercpu_detect":"detect SuperCPU",
   ".turbo_enable":"SuperCPU turbo on/off",
@@ -5283,7 +5312,7 @@ function showBuildInfoDialog() {
       }
       const macroTypes = [
         "isTextMacro","isStringMacro","isDataMacro","isRawBytesMacro","isRawTextMacro",
-        "isLoopMacro","isNextMacro","isForMacro","isEndfMacro","isSpriteInitMacro","isSpritePosMacro","isWaitRasterMacro",
+        "isLoopMacro","isNextMacro","isForMacro","isEndfMacro","isSpriteInitMacro","isSpritePosMacro","isWaitRasterMacro","isDelayMacro",
         "isJoystickMacro","isMouseMacro","isSpriteColMacro","isIncBinMacro","isSidMacro",
         "isLoadFileMacro","isExoDecrunchMacro","isReuStashMacro","isReuFetchMacro","isReuSwapMacro","isReuCheckMacro",
         "isTurboSetMacro","isTurboEnableMacro","isSuperCpuDetectMacro",
@@ -5353,7 +5382,7 @@ function _expertHighlightLine(raw) {
   if (!code.trim()) return esc(code) + commentHtml;
 
   // Token regex (order matters)
-  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|loop|next|push|pull|endif|endregion|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|set_border|set_bg|irq_setup|sprite_init|sprite_pos|wait_raster|joystick|sprite_col|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|include|sid|petscii|charset|table|loadfile|invoke|call|rand)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)/gi;
+  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|loop|next|push|pull|endif|endregion|region|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|delay|wait|set_border|set_bg|irq_setup|sprite_init|sprite_pos|wait_raster|joystick|sprite_col|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|include|sid|petscii|charset|table|loadfile|invoke|call|rand)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)/gi;
 
   let result = "";
   let lastIdx = 0;
@@ -5866,10 +5895,10 @@ function parseExpertText(text) {
       continue;
     }
 
-    // .sprite_init spriteNum, color, $page
-    const siM = line.match(/^\.sprite_init\s+(\d)\s*,\s*(\d{1,2})\s*,\s*\$([0-9A-Fa-f]{1,2})\s*$/i);
+    // .sprite_init spriteNum, color, page
+    const siM = line.match(/^\.sprite_init\s+([A-Za-z_][A-Za-z0-9_]*|\d)\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d{1,2})\s*,\s*(?:#?\$)?([A-Za-z_][A-Za-z0-9_]*|[0-9A-Fa-f]{1,2})\s*$/i);
     if (siM) {
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SPRITE_INIT", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSpriteInitMacro: true, spriteNum: parseInt(siM[1],10), spriteColor: parseInt(siM[2],10), spriteDataPage: siM[3].toUpperCase().padStart(2,"0") });
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SPRITE_INIT", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSpriteInitMacro: true, spriteNum: siM[1], spriteColor: siM[2], spriteDataPage: siM[3].toUpperCase().replace(/^\$/, "").padStart(2,"0") });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -5882,16 +5911,24 @@ function parseExpertText(text) {
       continue;
     }
 
-    // .wait_raster $line
-    const wrM = line.match(/^\.wait_raster\s+\$([0-9A-Fa-f]{1,2})\s*$/i);
+    // .delay N | .wait N
+    const delayM = line.match(/^\.?(?:delay|wait)\s+(?:frames\s*=\s*)?([A-Za-z_][A-Za-z0-9_]*|\$[0-9A-Fa-f]{1,4}|[0-9]+)\s*$/i);
+    if (delayM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "DELAY", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "dec", validationError: "", collapsed: true, isDelayMacro: true, delayFrames: delayM[1].trim() });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .wait_raster line
+    const wrM = line.match(/^\.wait_raster\s+(?:#?\$)?([A-Za-z_][A-Za-z0-9_]*|[0-9A-Fa-f]{1,2})\s*$/i);
     if (wrM) {
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "WAIT_RASTER", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isWaitRasterMacro: true, rasterLine: wrM[1].toUpperCase().padStart(2,"0") });
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "WAIT_RASTER", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isWaitRasterMacro: true, rasterLine: wrM[1].toUpperCase().replace(/^\$/, "").padStart(2,"0") });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
 
     // .turbo_set speed,badline
-    const turboM = line.match(/^\.turbo_set\s+(\d{1,2})\s*,\s*([01])\s*$/i);
+    const turboM = line.match(/^\.turbo_set\s+([A-Za-z_][A-Za-z0-9_]*|\d{1,2})\s*,\s*([A-Za-z_][A-Za-z0-9_]*|[01])\s*$/i);
     if (turboM) {
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "TURBO_SET", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isTurboSetMacro: true, turboSpeed: turboM[1], turboBadline: turboM[2] });
       if (commentText) blocks.push(_importMakeComment(commentText));
@@ -6084,17 +6121,26 @@ function parseExpertText(text) {
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
-    const setColorM = line.match(/^\.(set_border|set_bg)\s+#?\$?([0-9A-Fa-f]{1,2})\s*$/i);
+    const delayM2 = line.match(/^\.?(?:delay|wait)\s+(?:frames\s*=\s*)?([A-Za-z_][A-Za-z0-9_]*|\$[0-9A-Fa-f]{1,4}|[0-9]+)\s*$/i);
+    if (delayM2) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "DELAY", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "dec", validationError: "", collapsed: true, isDelayMacro: true, delayFrames: delayM2[1].trim() });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+    const setColorM = line.match(/^\.(set_border|set_bg)\s+(?:#?\$)?([A-Za-z_][A-Za-z0-9_]*|[0-9A-Fa-f]{1,2})\s*$/i);
     if (setColorM) {
       const isBorder = setColorM[1].toLowerCase() === "set_border";
-      const value = setColorM[2].toUpperCase().padStart(2, "0");
+      const rawValue = setColorM[2].trim();
+      const value = /^[A-Za-z_][A-Za-z0-9_]*$/.test(rawValue)
+        ? rawValue
+        : rawValue.toUpperCase().replace(/^\$/, "").padStart(2, "0");
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: isBorder ? "SET_BORDER" : "SET_BG", operand: value, rawOperand: value, description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSetBorderMacro: isBorder, isSetBgMacro: !isBorder, colorValue: value });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
-    const irqM = line.match(/^\.irq_setup\s+handler\s*=\s*([A-Za-z_][A-Za-z0-9_]*)\s*,\s*raster\s*=\s*#?\$?([0-9A-Fa-f]{1,2})\s*$/i);
+    const irqM = line.match(/^\.irq_setup\s+handler\s*=\s*([A-Za-z_][A-Za-z0-9_]*)\s*,\s*raster\s*=\s*(?:#?\$)?([A-Za-z_][A-Za-z0-9_]*|[0-9A-Fa-f]{1,2})\s*$/i);
     if (irqM) {
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "IRQ_SETUP", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isIrqSetupMacro: true, irqHandler: irqM[1], irqRaster: irqM[2].toUpperCase().padStart(2, "0") });
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "IRQ_SETUP", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isIrqSetupMacro: true, irqHandler: irqM[1], irqRaster: irqM[2].toUpperCase().replace(/^\$/, "").padStart(2, "0") });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -6562,7 +6608,7 @@ function _expertValidate() {
       if (errors.length) {
         _expertSetStatus(errors[0].msg + (errors.length > 1 ? ` (+${errors.length - 1} more)` : ""), "error");
       } else {
-        _expertSetStatus(`${blocks.length} ${blocks.length === 1 ? t("expertBlock1") : t("expertBlockN")} — OK`, "ok");
+        _expertSetStatus(`${blocks.length} ${blocks.length === 1 ? t("expertBlock1") : t("expertBlockN")} : OK`, "ok");
       }
       if (_expertDisasmVisible) _expertRenderDisasm();
       if (_expertMonitorVisible) _expertRenderMonitor();
@@ -7621,6 +7667,16 @@ function updateProgramBlock(index, field, value) {
     return;
   }
 
+  if ((block.isSetBorderMacro || block.isSetBgMacro) && (field === "rawOperand" || field === "colorValue" || field === "base")) {
+    const raw = String(value ?? "").trim();
+    block.rawOperand = raw;
+    block.colorValue = raw;
+    block.operand = raw;
+    block.validationError = validateColorMacroValue(raw);
+    renderAsmOutput();
+    return;
+  }
+
   if (block.isVarMacro && field === "varName") {
     block.varName = sanitizeLabelName(value);
     renderAsmOutput();        // recomputes _varAddress via getProgramLayout
@@ -7734,7 +7790,11 @@ function updateProgramBlock(index, field, value) {
     } else if (block.isRuntimeIfMacro || block.isRuntimeWhileMacro || block.isRuntimeUntilMacro ||
                block.isPrintMacro || block.isPrintCharMacro || block.isPrintHexMacro || block.isSetBorderMacro || block.isSetBgMacro) {
       block.operand = block.rawOperand.trim();
-      block.validationError = block.isPrintCharMacro ? validatePrintCharMacro(block.rawOperand) : "";
+      block.validationError = block.isPrintCharMacro
+        ? validatePrintCharMacro(block.rawOperand)
+        : (block.isSetBorderMacro || block.isSetBgMacro)
+          ? validateColorMacroValue(block.rawOperand)
+          : "";
       if (block.isPrintCharMacro) block.printCharValue = parsePetsciiCharValue(block.rawOperand);
       if (block.isPrintHexMacro) block.printReg = block.rawOperand.trim().toUpperCase() || "A";
       if (block.isSetBorderMacro || block.isSetBgMacro) block.colorValue = block.rawOperand.trim();
@@ -7903,11 +7963,19 @@ function updateProgramBlock(index, field, value) {
   }
 
   if (block.isWaitRasterMacro && field === "rasterLine") {
-    const v = value.replace(/^\$/, "");
-    const parsed = parseInt(v, 16);
+    const v = String(value || "").trim().replace(/^\$/, "");
+    const parsed = /^[A-Za-z_][A-Za-z0-9_]*$/.test(v) ? 0 : parseInt(v, 16);
     block.validationError = (isNaN(parsed) || parsed < 0 || parsed > 255)
       ? (t("rasterLineMustBeAHexByte00Ff"))
       : "";
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isDelayMacro && field === "delayFrames") {
+    block.delayFrames = String(value ?? "").trim();
+    block.validationError = "";
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -8158,7 +8226,14 @@ function updateProgramBlock(index, field, value) {
   }
 
   if ((block.isIrqSetupMacro && field === "irqRaster") || (block.isRandMacro && field === "randSeed")) {
-    block.validationError = "";
+    if (block.isIrqSetupMacro && field === "irqRaster") {
+      const v = String(value || "").trim().replace(/^\$/, "");
+      block.validationError = /^[A-Za-z_][A-Za-z0-9_]*$/.test(v) || (!isNaN(parseInt(v, 16)) && parseInt(v, 16) >= 0 && parseInt(v, 16) <= 255)
+        ? ""
+        : t("rasterLineMustBeAHexByte00Ff");
+    } else {
+      block.validationError = "";
+    }
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -8811,6 +8886,20 @@ function validateStringMacroAddress(raw) {
   return "";
 }
 
+function validateColorMacroValue(raw) {
+  const trimmed = (raw || "").trim();
+  if (!trimmed) {
+    return t("colorMustBe015");
+  }
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(trimmed)) {
+    return "";
+  }
+  const parsed = parseMacroNumber(trimmed, null, "hex");
+  return (parsed === null || parsed < 0 || parsed > 15)
+    ? t("colorMustBe015")
+    : "";
+}
+
 function validateTextWithOffset(rawOperand, charOffset) {
   const offset = parseInt(charOffset || "0", 16);
   if (isNaN(offset) || offset < 0 || offset > 255) {
@@ -8906,7 +8995,13 @@ function parsePetsciiCharValue(raw, labels = null) {
   if (/^0x[0-9A-Fa-f]+$/i.test(text)) return Number.parseInt(text.slice(2), 16);
   if (/^\d+$/.test(text)) return Number(text);
   if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(text)) {
-    return labels ? (labels.get(text) ?? null) : null;
+    if (labels) {
+      return labels.get(text)
+        ?? labels.get(text.toLowerCase())
+        ?? labels.get(text.toUpperCase())
+        ?? null;
+    }
+    return resolveProgramConstValue(text);
   }
   return null;
 }
@@ -12568,6 +12663,19 @@ function assembleProgramToPrg(originOverride) {
 
   layout.lines.forEach((line) => addLayoutLabels(labels, line));
   labels._anonAddrs = _collectAnonLabels(layout);
+  const deferredSectionsPreview = getDeferredMemorySections(layout);
+  const hasDelayMacro = layout.lines.some((line) => line.block?.isDelayMacro);
+  const highestExistingEnd = [
+    layout.end,
+    ...deferredSectionsPreview.map((section) => section.end)
+  ].reduce((maxEnd, currentEnd) => Math.max(maxEnd, currentEnd), layout.end);
+  const delayHelperAddress = hasDelayMacro ? highestExistingEnd + 1 : null;
+  if (delayHelperAddress !== null) {
+    labels.set(DELAY_HELPER_LABEL, delayHelperAddress);
+  }
+  const delayHelperBytes = hasDelayMacro && delayHelperAddress !== null
+    ? buildDelayHelperBytes(delayHelperAddress)
+    : [];
 
   // Assemble inline code bytes as sections (split by ORG blocks)
   const inlineSections = [{ addr: layout.origin.value, bytes: [] }];
@@ -12640,6 +12748,9 @@ function assembleProgramToPrg(originOverride) {
       const addr = customAddr ?? block.sidLoadAddress ?? 0;
       if (chunkBytes.length > 0 && addr > 0) deferredChunks.push({ addr, bytes: Array.from(chunkBytes) });
     }
+  }
+  if (hasDelayMacro && delayHelperAddress !== null) {
+    deferredChunks.push({ addr: delayHelperAddress, bytes: delayHelperBytes });
   }
 
   // Collect all non-empty chunks: inline sections + deferred chunks
@@ -12995,8 +13106,7 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isWaitRasterMacro) {
-    const lineStr = (block.rasterLine || "FF").replace(/^\$/, "");
-    const rl = parseInt(lineStr, 16);
+    const rl = parseMacroNumber(block.rasterLine || "FF", labels, "hex");
     if (isNaN(rl) || rl < 0 || rl > 255) {
       return { ok: false, error: "WAIT_RASTER: a rasztersor 1 hex byte legyen ($00-$FF)." };
     }
@@ -13020,11 +13130,11 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isTurboSetMacro) {
-    const spd = parseInt(block.turboSpeed || "7", 10);
+    const spd = parseMacroNumber(block.turboSpeed || "7", labels, "dec");
     if (isNaN(spd) || spd < 0 || spd > 15) {
       return { ok: false, error: t("turboSetSpeedMustBe015") };
     }
-    const badline = parseInt(block.turboBadline || "0", 10) === 1 ? 0x80 : 0x00;
+    const badline = parseMacroNumber(block.turboBadline || "0", labels, "dec") === 1 ? 0x80 : 0x00;
     const val = (spd & 0x0F) | badline;
     // LDA #val (A9 val) + STA $D031 (8D 31 D0)
     return { ok: true, bytes: [0xA9, val, 0x8D, 0x31, 0xD0], comment: `TURBO_SET speed=${spd} badline=${block.turboBadline === "1" ? "off" : "on"}` };
@@ -13217,16 +13327,15 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isSpriteInitMacro) {
-    const num = parseInt(block.spriteNum || "0", 10);
+    const num = parseMacroNumber(block.spriteNum || "0", labels, "dec");
     if (isNaN(num) || num < 0 || num > 7) {
       return { ok: false, error: "SPRITE_INIT: a sprite szama 0 es 7 kozott lehet." };
     }
-    const color = parseInt(block.spriteColor || "7", 10);
+    const color = parseMacroNumber(block.spriteColor || "7", labels, "dec");
     if (isNaN(color) || color < 0 || color > 15) {
       return { ok: false, error: "SPRITE_INIT: a szin erteke 0 es 15 kozott lehet." };
     }
-    const pageStr = (block.spriteDataPage || "21").replace(/^\$/, "");
-    const page = parseInt(pageStr, 16);
+    const page = parseMacroNumber(block.spriteDataPage || "21", labels, "hex");
     if (isNaN(page) || page < 0 || page > 255) {
       return { ok: false, error: "SPRITE_INIT: az adatlap ertek 1 hex byte ($00-$FF) lehet." };
     }
@@ -13861,6 +13970,20 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes: [0x20, 0xE4, 0xFF, 0xC9, 0x00, 0xF0, 0xF9], comment: "WAIT_KEY" };
   }
 
+  if (block.isDelayMacro) {
+    const framesRaw = String(block.delayFrames || "1").trim();
+    const frames = parseDelayFrameCount(framesRaw, labels);
+    if (frames === null) {
+      return { ok: false, error: `DELAY: value must be 1-255 or a defined const` };
+    }
+    const helperAddr = labels.get(DELAY_HELPER_LABEL);
+    if (typeof helperAddr !== "number") {
+      return { ok: false, error: "DELAY: helper address not available" };
+    }
+    const bytes = [0xA2, frames & 0xFF, 0x20, helperAddr & 0xFF, (helperAddr >> 8) & 0xFF];
+    return { ok: true, bytes, comment: `DELAY ${frames} frame${frames !== 1 ? "s" : ""}` };
+  }
+
   if (block.isSetBorderMacro || block.isSetBgMacro) {
     const value = parseMacroNumber(block.colorValue || block.rawOperand || "0", labels, "hex");
     if (value === null || value < 0 || value > 15) {
@@ -14186,9 +14309,86 @@ function parseMacroNumber(raw, labels = null, fallbackBase = "hex") {
   const parsed = parseNumberByBase(text, fallbackBase);
   if (parsed !== null) return parsed;
   if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(text)) {
-    return labels ? (labels.get(text) ?? null) : null;
+    if (!labels) return null;
+    return labels.get(text)
+      ?? labels.get(text.toLowerCase())
+      ?? labels.get(text.toUpperCase())
+      ?? null;
   }
   return null;
+}
+
+function resolveProgramConstValue(name) {
+  const target = String(name ?? "").trim();
+  if (!target) return null;
+  const lower = target.toLowerCase();
+  for (const block of program) {
+    if (!block?.isConstMacro || !block.constName) continue;
+    if (block.constName.toLowerCase() !== lower) continue;
+    if (typeof block.constValue === "number" && !Number.isNaN(block.constValue)) return block.constValue;
+    const raw = String(block.rawOperand ?? "").trim();
+    const parsed = parseNumberByBase(raw.replace(/^\$/, ""), block.base || "hex");
+    if (parsed !== null) return parsed;
+  }
+  return null;
+}
+
+function getProgramConstNames() {
+  return [...new Set(program.filter(b => b.isConstMacro && b.constName).map(b => b.constName))];
+}
+
+function parseDelayFrameCount(raw, labels = null) {
+  const text = String(raw ?? "").trim();
+  const value = parseMacroNumber(text, labels, "dec");
+  if (value !== null) {
+    return value >= 1 && value <= 255 ? value : null;
+  }
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(text)) {
+    const resolved = resolveProgramConstValue(text);
+    return (resolved !== null && resolved >= 1 && resolved <= 255) ? resolved : null;
+  }
+  return null;
+}
+
+function buildDelayHelperBytes(baseAddress) {
+  const bytes = [
+    0x48,
+    0x8A,
+    0x48,
+    0x98,
+    0x48,
+    0x8E, 0x00, 0x00,
+    0xAD, 0x12, 0xD0,
+    0xC9, 0xFF,
+    0xD0, 0xF9,
+    0xAD, 0x12, 0xD0,
+    0xC9, 0xFF,
+    0xF0, 0xF9,
+    0xCE, 0x00, 0x00,
+    0xD0, 0xED,
+    0x68,
+    0xA8,
+    0x68,
+    0xAA,
+    0x68,
+    0x60
+  ];
+  const countAddr = (baseAddress + bytes.length) & 0xFFFF;
+  bytes[6] = countAddr & 0xFF;
+  bytes[7] = (countAddr >> 8) & 0xFF;
+  bytes[23] = countAddr & 0xFF;
+  bytes[24] = (countAddr >> 8) & 0xFF;
+  return [...bytes, 0x00];
+}
+
+function formatDelayFramesValue(raw) {
+  const text = String(raw ?? "1").trim();
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(text)) {
+    const resolved = resolveProgramConstValue(text);
+    return resolved !== null ? `${resolved} frame${resolved !== 1 ? "s" : ""}` : text;
+  }
+  const parsed = Math.max(1, Math.min(255, parseInt(text, 10) || 1));
+  return `${parsed} frame${parsed !== 1 ? "s" : ""}`;
 }
 
 function parseMacroAddress(raw, labels = null) {
@@ -14655,6 +14855,9 @@ function getInstructionSize(block) {
   }
   if (block.isClearScreenMacro) return 5;
   if (block.isWaitKeyMacro) return 7;
+  if (block.isDelayMacro) {
+    return 5;  // LDX #frames + JSR shared helper
+  }
   if (block.isSetBorderMacro || block.isSetBgMacro) return 5;
   if (block.isIrqSetupMacro) return 46;
   if (block.isRandMacro) return 15;
@@ -15619,6 +15822,9 @@ function getBlockDescription(block) {
   }
   if (block.isClearScreenMacro) return "CLEAR_SCREEN";
   if (block.isWaitKeyMacro) return "WAIT_KEY";
+  if (block.isDelayMacro) {
+    return formatDelayFramesValue(block.delayFrames || "1");
+  }
   if (block.isSetBorderMacro || block.isSetBgMacro) {
     return block.validationError || `${block.mnemonic}: $${(block.colorValue || block.rawOperand || "00").replace(/^#?\$/, "").toUpperCase()}`;
   }
@@ -15972,6 +16178,9 @@ function getCollapsedOperandText(block) {
   if (block.isWaitRasterMacro) {
     const rl = (block.rasterLine || "FF").replace(/^\$/, "").toUpperCase().padStart(2, "0");
     return `$D012 = $${rl}`;
+  }
+  if (block.isDelayMacro) {
+    return formatDelayFramesValue(block.delayFrames || "1");
   }
 
   if (block.isTurboSetMacro) {
@@ -17024,6 +17233,71 @@ function renderProgram() {
           </div>
         `
       );
+    } else if (block.isDelayMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid single-macro-row">
+            <label class="mini-field">
+              <span>${t("fieldAnimFrameCount")}</span>
+              <input class="delay-frames block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${String(block.delayFrames || "8").trim()}" placeholder="8 / CONST">
+            </label>
+          </div>
+        `
+      );
+      const delayField = blockControls.querySelector(".delay-frames");
+      if (delayField) {
+        delayField.addEventListener("input", (e) => updateProgramBlock(index, "delayFrames", e.target.value));
+        const wrapper = document.createElement("div");
+        wrapper.className = "label-picker-wrap";
+        delayField.parentNode.insertBefore(wrapper, delayField);
+        wrapper.appendChild(delayField);
+        const dropdown = document.createElement("div");
+        dropdown.className = "label-picker-dropdown";
+        dropdown.hidden = true;
+        document.body.appendChild(dropdown);
+        let dropdownHovered = false;
+        function positionDelayDropdown() {
+          const r = delayField.getBoundingClientRect();
+          dropdown.style.top = (r.bottom + window.scrollY + 4) + "px";
+          dropdown.style.left = (r.left + window.scrollX) + "px";
+          dropdown.style.width = r.width + "px";
+        }
+        function closeDelayDropdown() {
+          dropdown.hidden = true;
+          window.removeEventListener("scroll", positionDelayDropdown, { capture: true });
+        }
+        function attachDelayPickerItemHandlers() {
+          dropdown.querySelectorAll(".label-picker-item").forEach(item => {
+            item.addEventListener("pointerdown", e => {
+              e.preventDefault();
+              delayField.value = item.textContent;
+              delayField.dispatchEvent(new Event("input"));
+              closeDelayDropdown();
+              dropdownHovered = false;
+            });
+          });
+        }
+        delayField.addEventListener("focus", () => {
+          const delayConsts = getProgramConstNames();
+          if (!delayConsts.length) return;
+          dropdown.innerHTML = delayConsts.map(n => `<div class="label-picker-item">${n}</div>`).join("");
+          attachDelayPickerItemHandlers();
+          positionDelayDropdown();
+          dropdown.hidden = false;
+          window.addEventListener("scroll", positionDelayDropdown, { capture: true, passive: true });
+        });
+        delayField.addEventListener("blur", () => {
+          if (!dropdownHovered) closeDelayDropdown();
+        });
+        delayField.addEventListener("keydown", e => { if (e.key === "Escape") closeDelayDropdown(); });
+        dropdown.addEventListener("mouseenter", () => { dropdownHovered = true; });
+        dropdown.addEventListener("mouseleave", () => { dropdownHovered = false; });
+        document.addEventListener("pointerdown", e => {
+          if (!dropdown.contains(e.target) && e.target !== delayField) closeDelayDropdown();
+        }, { capture: true });
+      }
     } else if (block.isSuperCpuDetectMacro) {
       inlineField.hidden = true;
     } else if (block.isTurboEnableMacro) {
@@ -17446,9 +17720,58 @@ function renderProgram() {
     } else if (block.isPrintCharMacro) {
       inlineField.querySelector("span").textContent = t("value") || "Value";
       inlineField.hidden = false;
+      operandField.classList.add("print-char-value", "block-operand", "has-label-picker");
       operandField.value = block.rawOperand || "$41";
-      operandField.placeholder = "$41 / 65";
+      operandField.placeholder = "$41 / 65 / CONST";
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+      const wrapper = document.createElement("div");
+      wrapper.className = "label-picker-wrap";
+      operandField.parentNode.insertBefore(wrapper, operandField);
+      wrapper.appendChild(operandField);
+      const dropdown = document.createElement("div");
+      dropdown.className = "label-picker-dropdown";
+      dropdown.hidden = true;
+      document.body.appendChild(dropdown);
+      let dropdownHovered = false;
+      function positionCharDropdown() {
+        const r = operandField.getBoundingClientRect();
+        dropdown.style.top = (r.bottom + window.scrollY + 4) + "px";
+        dropdown.style.left = (r.left + window.scrollX) + "px";
+        dropdown.style.width = r.width + "px";
+      }
+      function closeCharDropdown() {
+        dropdown.hidden = true;
+        window.removeEventListener("scroll", positionCharDropdown, { capture: true });
+      }
+      function attachCharPickerItemHandlers() {
+        dropdown.querySelectorAll(".label-picker-item").forEach(item => {
+          item.addEventListener("pointerdown", e => {
+            e.preventDefault();
+            operandField.value = item.textContent;
+            operandField.dispatchEvent(new Event("input"));
+            closeCharDropdown();
+            dropdownHovered = false;
+          });
+        });
+      }
+      operandField.addEventListener("focus", () => {
+        const charConsts = getProgramConstNames();
+        if (!charConsts.length) return;
+        dropdown.innerHTML = charConsts.map(n => `<div class="label-picker-item">${n}</div>`).join("");
+        attachCharPickerItemHandlers();
+        positionCharDropdown();
+        dropdown.hidden = false;
+        window.addEventListener("scroll", positionCharDropdown, { capture: true, passive: true });
+      });
+      operandField.addEventListener("blur", () => {
+        if (!dropdownHovered) closeCharDropdown();
+      });
+      operandField.addEventListener("keydown", e => { if (e.key === "Escape") closeCharDropdown(); });
+      dropdown.addEventListener("mouseenter", () => { dropdownHovered = true; });
+      dropdown.addEventListener("mouseleave", () => { dropdownHovered = false; });
+      document.addEventListener("pointerdown", e => {
+        if (!dropdown.contains(e.target) && e.target !== operandField) closeCharDropdown();
+      }, { capture: true });
     } else if (block.isPrintHexMacro) {
       inlineField.hidden = true;
       const reg = (block.printReg || block.rawOperand || "A").toUpperCase();
@@ -17475,14 +17798,67 @@ function renderProgram() {
         `<div class="macro-grid single-macro-row">
           <label class="mini-field">
             <span>${t("value") || "Value"}</span>
-            <input class="color-value" type="text" value="${block.colorValue || block.rawOperand || "00"}" placeholder="00">
+            <input class="color-value block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.colorValue || block.rawOperand || "00"}" placeholder="00">
           </label>
         </div>`
       );
-      blockControls.querySelector(".color-value")?.addEventListener("input", (e) => {
-        updateProgramBlock(index, "colorValue", e.target.value);
-        updateProgramBlock(index, "rawOperand", e.target.value);
-      });
+      document.querySelectorAll('datalist[id^="color-consts-"]').forEach(el => el.remove());
+      const colorField = blockControls.querySelector(".color-value");
+      if (colorField) {
+        colorField.addEventListener("input", (e) => {
+          updateProgramBlock(index, "colorValue", e.target.value);
+          updateProgramBlock(index, "rawOperand", e.target.value);
+        });
+        colorField.classList.add("has-label-picker");
+        const wrapper = document.createElement("div");
+        wrapper.className = "label-picker-wrap";
+        colorField.parentNode.insertBefore(wrapper, colorField);
+        wrapper.appendChild(colorField);
+        const dropdown = document.createElement("div");
+        dropdown.className = "label-picker-dropdown";
+        dropdown.hidden = true;
+        document.body.appendChild(dropdown);
+        let dropdownHovered = false;
+        function positionColorDropdown() {
+          const r = colorField.getBoundingClientRect();
+          dropdown.style.top = (r.bottom + window.scrollY + 4) + "px";
+          dropdown.style.left = (r.left + window.scrollX) + "px";
+          dropdown.style.width = r.width + "px";
+        }
+        function closeColorDropdown() {
+          dropdown.hidden = true;
+          window.removeEventListener("scroll", positionColorDropdown, { capture: true });
+        }
+        function attachColorPickerItemHandlers() {
+          dropdown.querySelectorAll(".label-picker-item").forEach(item => {
+            item.addEventListener("pointerdown", e => {
+              e.preventDefault();
+              colorField.value = item.textContent;
+              colorField.dispatchEvent(new Event("input"));
+              closeColorDropdown();
+              dropdownHovered = false;
+            });
+          });
+        }
+        colorField.addEventListener("focus", () => {
+          const colorConsts = getProgramConstNames();
+          if (!colorConsts.length) return;
+          dropdown.innerHTML = colorConsts.map(n => `<div class="label-picker-item">${n}</div>`).join("");
+          attachColorPickerItemHandlers();
+          positionColorDropdown();
+          dropdown.hidden = false;
+          window.addEventListener("scroll", positionColorDropdown, { capture: true, passive: true });
+        });
+        colorField.addEventListener("blur", () => {
+          if (!dropdownHovered) closeColorDropdown();
+        });
+        colorField.addEventListener("keydown", e => { if (e.key === "Escape") closeColorDropdown(); });
+        dropdown.addEventListener("mouseenter", () => { dropdownHovered = true; });
+        dropdown.addEventListener("mouseleave", () => { dropdownHovered = false; });
+        document.addEventListener("pointerdown", e => {
+          if (!dropdown.contains(e.target) && e.target !== colorField) closeColorDropdown();
+        }, { capture: true });
+      }
     } else if (block.isIrqSetupMacro) {
       inlineField.hidden = true;
       blockControls.insertAdjacentHTML(
@@ -17831,7 +18207,7 @@ function renderProgram() {
     blockControls.insertAdjacentHTML(
       "beforeend",
       `
-          ${(mode.needsOperand && !block.isLabel && !block.isAnonymousLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isForMacro && !block.isEndfMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke && !block.isRegionMacro && !block.isEndRegionMacro && !block.isLoadFileMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
+          ${(mode.needsOperand && !block.isLabel && !block.isAnonymousLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isForMacro && !block.isEndfMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke && !block.isRegionMacro && !block.isEndRegionMacro && !block.isLoadFileMacro && !block.isDelayMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
           <label class="mini-field">
             <span>${t("fieldFormat")}</span>
           <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
@@ -17978,6 +18354,10 @@ function renderProgram() {
     const rasterLineInput = node.querySelector(".raster-line");
     if (rasterLineInput) {
       rasterLineInput.addEventListener("input", (event) => updateProgramBlock(index, "rasterLine", event.target.value));
+    }
+    const delayFramesInput = node.querySelector(".delay-frames");
+    if (delayFramesInput) {
+      delayFramesInput.addEventListener("input", (event) => updateProgramBlock(index, "delayFrames", event.target.value));
     }
     const turboSpeedSelect = node.querySelector(".turbo-speed");
     if (turboSpeedSelect) {
@@ -18612,6 +18992,20 @@ function renderAsmOutput() {
       return `; .include "${fname}"${addrNote} — ${count} ${t("includeBlocksCount")}`;
     }
 
+    if (line.block.isMemCpyMacro) {
+      const src = (line.block.memcpySrc || "C000").replace(/^\$/, "").toUpperCase().padStart(4, "0");
+      const dst = (line.block.memcpyDst || "0400").replace(/^\$/, "").toUpperCase().padStart(4, "0");
+      const size = (line.block.memcpySize || "0100").replace(/^\$/, "").toUpperCase().padStart(4, "0");
+      return `; .memcpy src=$${src}, dst=$${dst}, size=$${size}`;
+    }
+
+    if (line.block.isMemSetMacro) {
+      const dst = (line.block.memsetDst || "0400").replace(/^\$/, "").toUpperCase().padStart(4, "0");
+      const value = (line.block.memsetValue || "00").replace(/^\$/, "").toUpperCase().padStart(2, "0");
+      const size = (line.block.memsetSize || "0100").replace(/^\$/, "").toUpperCase().padStart(4, "0");
+      return `; .memset addr=$${dst}, value=#$${value}, size=$${size}`;
+    }
+
     if (line.block.isRawTextMacro) {
       const rawOffset = parseInt(line.block.charOffset || "0", 16);
       const chars = encodeTextMacro(line.block.rawOperand).map(b => (b + (isNaN(rawOffset) ? 0 : rawOffset)) & 0xFF);
@@ -18763,6 +19157,10 @@ function renderAsmOutput() {
       return `; endregion ${regionName}`;
     }
 
+    if (line.block.isCharsetMacro) {
+      return `; .charset ${line.block.charsetMode || "lower"}`;
+    }
+
     if (line.block.isDefineMacro) {
       return `; .DEFINE ${line.block.defineSymbol || "?"}`;
     }
@@ -18804,10 +19202,17 @@ function renderAsmOutput() {
     if (line.block.isPrintHexMacro) return `; .print_hex ${(line.block.printReg || line.block.rawOperand || "A").toUpperCase()}`;
     if (line.block.isClearScreenMacro) return `; .clear_screen`;
     if (line.block.isWaitKeyMacro) return `; .wait_key`;
-    if (line.block.isSetBorderMacro) return `; .set_border $${(line.block.colorValue || line.block.rawOperand || "00").replace(/^#?\$/, "").toUpperCase()}`;
-    if (line.block.isSetBgMacro) return `; .set_bg $${(line.block.colorValue || line.block.rawOperand || "00").replace(/^#?\$/, "").toUpperCase()}`;
+    if (line.block.isDelayMacro) {
+      return `; .delay ${String(line.block.delayFrames || "1").trim()}`;
+    }
+    if (line.block.isSetBorderMacro) return `; .set_border ${/^[A-Za-z_][A-Za-z0-9_]*$/.test(String(line.block.colorValue || line.block.rawOperand || "00").trim()) ? String(line.block.colorValue || line.block.rawOperand || "00").trim() : "$" + String(line.block.colorValue || line.block.rawOperand || "00").trim().replace(/^#?\$/, "").toUpperCase()}`;
+    if (line.block.isSetBgMacro) return `; .set_bg ${/^[A-Za-z_][A-Za-z0-9_]*$/.test(String(line.block.colorValue || line.block.rawOperand || "00").trim()) ? String(line.block.colorValue || line.block.rawOperand || "00").trim() : "$" + String(line.block.colorValue || line.block.rawOperand || "00").trim().replace(/^#?\$/, "").toUpperCase()}`;
     if (line.block.isIrqSetupMacro) return `; .irq_setup handler=${line.block.irqHandler || "?"}, raster=$${(line.block.irqRaster || "FA").replace(/^#?\$/, "").toUpperCase()}`;
     if (line.block.isRandMacro) return `; .rand ${line.block.randSeed || "$FB"}`;
+
+    if (line.block.isEndMacro) {
+      return `; .end`;
+    }
 
     if (line.block.isIfMacro) {
       return `; .IF ${line.block.ifCondition || "?"}`;

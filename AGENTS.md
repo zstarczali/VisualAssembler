@@ -14,7 +14,7 @@ Részletes, soronkénti referenciáért lásd: [.github/copilot-instructions.md]
 programok vizuális, drag-and-drop szerkesztéséhez. Nincs UI framework — Vanilla JS + HTML
 + CSS, build step nélkül a frontendre. Backend: Rust (Tauri).
 
-- Nyelv: magyar **és** angol (haromnyelvu UI, `www/i18n.js)
+- Nyelv: magyar **és** angol (négy nyelvű UI, `www/i18n.js)
 - A kódkommentek és a copilot-instructions fő nyelve **magyar**
 - A felhasználó értékeli a tömör, gyakorlatias válaszokat magyarul
 
@@ -372,8 +372,8 @@ Lásd `tauri-bridge.js` és `src-tauri/src/lib.rs`. Leggyakoribb commands:
 
 ## 14. Jelenlegi verzió
 
-`2.1.0` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
+`2.1.1` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `CLAUDE.md`, és ez a fájl + copilot-instructions.md.
-Fő 2.1.0 újdonságok: `VAR`, runtime `IF`/`WHILE`/`REPEAT`, `MEMCPY`/`MEMSET`, `PRINT_CHAR`, `.end` alias, és a `.charset` Expert-mode round-trip.
+Fő 2.1.1 újdonságok: `DELAY` / `WAIT` const-támogatás, `PRINT_CHAR` const-támogatás, `SET_BORDER` / `SET_BG` const-támogatás, és a `.region` Expert-mode highlight.
 
 Verziónöveléshez lásd a 3. szakasz végén lévő 7-lépéses checklistet.

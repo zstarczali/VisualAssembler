@@ -12,7 +12,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2.1.0">
+  <link rel="stylesheet" href="style.css?v=2.1.1">
 </head>
 
 <body>
@@ -731,7 +731,7 @@ PRINTABLE CHARACTERS
         <img src="assets/logo.png" alt="C64 Visual Assembler" width="160" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v2.1.0</p>
+      <p class="about-version" id="about-version">v2.1.1</p>
       <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
         dropping instruction blocks.</p>
       <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
@@ -743,52 +743,31 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.1.0</p>
+      <p class="whats-new-version">v2.1.1</p>
       <ul class="whats-new-list">
         <li>
-          <strong>Automatic ZP allocation</strong> &mdash; new <code>.var</code> blocks reserve zero-page bytes on their own, so you no longer need to pick addresses manually. Collisions warn instead of silently overwriting.
+          <strong>Automatic ZP allocation</strong> &mdash; <code>.var</code> blocks reserve zero-page bytes on their own, so you do not need to pick addresses manually, and collisions warn instead of overwriting.
         </li>
         <li>
           <strong>Runtime flow control</strong> &mdash; <code>.if / .else / .endif</code>, <code>.while / .endw</code>, and <code>.repeat / .until</code> now expand to real 6502 branches for A/X/Y comparisons.
         </li>
         <li>
-          <strong>Memory helpers</strong> &mdash; <code>.memcpy</code> and <code>.memset</code> cover the most common buffer-copy and screen-fill patterns with inline loops sized for 8-bit or 16-bit counts.
+          <strong>Memory helpers</strong> &mdash; <code>.memcpy</code> and <code>.memset</code> cover the common buffer-copy and screen-fill patterns, and the new showcase demos use them heavily.
         </li>
         <li>
-          <strong>Print sugar</strong> &mdash; <code>.print</code> now uses the PETSCII encoder and the same lowercase checkbox as the PETSCII macro, and <code>.print_hex</code> adds quick hex output when you just want to dump a value.
+          <strong>Text and output helpers</strong> &mdash; <code>.print</code>, <code>.print_char</code>, <code>.charset</code>, and the PETSCII path now round-trip cleanly between Block and Expert mode, including lowercase handling.
         </li>
         <li>
-          <strong>Numeric PETSCII output</strong> &mdash; <code>.print_char</code> prints one PETSCII byte by number, so you can emit control codes and characters directly with a single value.
+          <strong>Const-aware helpers</strong> &mdash; <code>.delay</code> / <code>.wait</code>, <code>.print_char</code>, and <code>.set_border</code> / <code>.set_bg</code> now accept named <code>.const</code> values; <code>.delay</code> now calls a shared frame-delay helper instead of repeating the wait body. The block editor inputs stay compact instead of the browser's native dropdowns.
         </li>
         <li>
-          <strong>END alias</strong> &mdash; <code>.end</code> is now a one-byte alias for <code>RTS</code> in expert mode, so subroutine endings read a little more naturally.
+          <strong>IRQ, random, and sugar</strong> &mdash; <code>.irq_setup</code>, <code>.rand</code>, and the <code>.end</code> RTS alias make common C64 boilerplate much shorter.
         </li>
         <li>
-          <strong>Screen helpers</strong> &mdash; <code>.clear_screen</code>, <code>.wait_key</code>, <code>.set_border</code>, and <code>.set_bg</code> wrap the usual KERNAL and VIC setup boilerplate.
+          <strong>Expert mode polish</strong> &mdash; the new directives now get proper syntax coloring in Expert mode, including <code>.region</code> / <code>.endregion</code> and the newer macro blocks.
         </li>
         <li>
-          <strong>IRQ setup</strong> &mdash; <code>.irq_setup</code> wires up a raster IRQ in one line instead of a half-dozen register writes.
-        </li>
-        <li>
-          <strong>RAND</strong> &mdash; a tiny 8-bit PRNG is now available as a standard helper for gameplay and effects.
-        </li>
-        <li>
-          <strong>PETSCII / CHARSET / text macros</strong> &mdash; the PETSCII macro now matches the text encoders, including the lowercase checkbox, and the existing charset/text tools continue to round-trip cleanly between block mode and expert mode.
-        </li>
-        <li>
-          <strong>Charset editor sync</strong> &mdash; <code>.charset</code> now updates cleanly in Expert mode when you switch the mode dropdown, so the block preview and exported source stay in sync.
-        </li>
-        <li>
-          <strong>Anonymous local labels</strong> &mdash; the <code>-</code> label (negative anonymous reference) is now supported in block mode and expert mode. Use it for short backward branch targets without naming every loop.
-        </li>
-        <li>
-          <strong>German tutorials</strong> &mdash; all interactive tours and lessons now show full German text when the UI language is set to Deutsch.
-        </li>
-        <li>
-          <strong>SID editor: voice paste (Ctrl+V)</strong> &mdash; copy a voice's settings and paste them to another voice with Ctrl+V in the SID editor.
-        </li>
-        <li>
-          <strong>Full i18n for validation messages</strong> &mdash; all macro and operand validation error messages are now fully localised in Hungarian, English, Spanish, and German — no more hardcoded English strings.
+          <strong>New demos and docs</strong> &mdash; the sample menu now includes the new macro showcase and the memcpy scroll demo, while the docs, manual, and installer notes are refreshed for 2.1.1 across all four UI languages.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -1523,9 +1502,9 @@ PRINTABLE CHARACTERS
   </div>
 
   <script src="tauri-bridge.js"></script>
-  <script src="i18n.js?v=2.1.0"></script>
-  <script src="tutorial-data.js?v=2.1.0"></script>
-  <script src="app.js?v=2.1.0"></script>
+  <script src="i18n.js?v=2.1.1"></script>
+  <script src="tutorial-data.js?v=2.1.1"></script>
+  <script src="app.js?v=2.1.1"></script>
 
 </body>
 
