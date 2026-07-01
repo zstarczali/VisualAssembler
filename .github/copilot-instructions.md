@@ -462,7 +462,7 @@ codesign --force --deep --sign - "dist/mac-arm64/C64 Visual Assembler.app"
 cd dist
 hdiutil create -volname "C64 Visual Assembler" \
   -srcfolder "mac-arm64/C64 Visual Assembler.app" \
-  -ov -format UDZO "C64-Visual-Assembler-1.1.0-signed.dmg"
+  -ov -format UDZO "C64-Visual-Assembler-2.1.0-signed.dmg"
 ```
 
 Az `identity: null` a `package.json` `mac` szekciójában azért kell, hogy ne akadjon el a codesign verify phase-ben (OneDrive metadata problémák miatt).
@@ -662,7 +662,8 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`2.0.8` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, `CLAUDE.md`.
+`2.1.0` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, `CLAUDE.md`.
+Főbb újdonságok: `VAR`, runtime `IF`/`WHILE`/`REPEAT`, `MEMCPY`/`MEMSET`, `PRINT_CHAR`, `.end` alias, és a `.charset` Expert-mode round-trip.
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező

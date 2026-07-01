@@ -562,7 +562,8 @@ Ha egy step betölt egy sample-t mielőtt megmutatja a UI-t:
 
 ## 15. Jelenlegi verzió
 
-`2.0.8` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
+`2.1.0` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, és ez a fájl + copilot-instructions.md.
+Fő 2.1.0 újdonságok: `VAR`, runtime `IF`/`WHILE`/`REPEAT`, `MEMCPY`/`MEMSET`, `PRINT_CHAR`, `.end` alias, és a `.charset` Expert-mode round-trip.
 
 Verziónöveléshez lásd a 3. szakasz végén lévő 7-lépéses checklistet.
