@@ -731,7 +731,7 @@ PRINTABLE CHARACTERS
         <img src="assets/logo.png" alt="C64 Visual Assembler" width="160" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v2.0.7</p>
+      <p class="about-version" id="about-version">v2.0.8</p>
       <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
         dropping instruction blocks.</p>
       <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
@@ -743,37 +743,31 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.0.7</p>
+      <p class="whats-new-version">v2.0.8</p>
       <ul class="whats-new-list">
         <li>
-          <strong>German language (Deutsch)</strong> &mdash; full German UI translation added alongside the existing Hungarian, English, and Spanish. Select it from the language dropdown to switch the entire interface, dialogs, tooltips, and mnemonic descriptions.
+          <strong>PETSCII macro</strong> &mdash; new <code>.petscii $ADDR, "text"</code> macro stores text as raw PETSCII bytes at a fixed memory address — no runtime code generated, CHROUT ($FFD2) compatible. Supports <code>lower</code> charset flag and an optional null terminator checkbox.
         </li>
         <li>
-          <strong>Basic versioning &mdash; project snapshots</strong> &mdash; lightweight version control built into every project: take a named snapshot at any point, browse the timeline with notes and timestamps, restore an older state, or delete entries you no longer need. Snapshots live in sidecar JSON files next to the project on disk, so the history survives restarts and travels with the project file.
+          <strong>CHARSET macro</strong> &mdash; new <code>.charset lower|upper</code> macro switches the VIC character set inline. Generates 8 bytes of code: <code>LDA $D018 / ORA #$02 / STA $D018</code> for lowercase mode, <code>AND #$FD</code> variant for uppercase mode.
         </li>
         <li>
-          <strong>Code search</strong> &mdash; new search box on the main toolbar finds mnemonics, labels, comments, and operand text across the entire program. Jumps to matching blocks and highlights them; works in both block mode and expert mode.
+          <strong>Lowercase charset for TEXT / STRING / RAWTEXT</strong> &mdash; all three text macros now have a <em>lowercase</em> checkbox. When checked the text encoder maps input to the C64 lowercase character ROM instead of the default uppercase/graphics ROM.
         </li>
         <li>
-          <strong>Save Program As</strong> &mdash; the File menu now has a separate Save Program As action that always opens a new save dialog, even when the current project already has a path.
+          <strong>Anonymous local labels</strong> &mdash; the <code>-</code> label (negative anonymous reference) is now supported in block mode and expert mode. Use it for short backward branch targets without naming every loop.
         </li>
         <li>
-          <strong>Expert editor: autocomplete toggle</strong> &mdash; the expert toolbar now includes a master autocomplete switch. Turn it off to suppress popup suggestions completely, or back on to restore directive, mnemonic, and label completion.
+          <strong>German tutorials</strong> &mdash; all interactive tours and lessons now show full German text when the UI language is set to Deutsch.
         </li>
         <li>
-          <strong>Expert editor: Find (Ctrl+F)</strong> &mdash; floating find bar in the expert editor with real-time match highlighting, match counter, and Prev/Next navigation. Matches are highlighted in the syntax overlay without disturbing the cursor. Trilingual "No results" message (hu/en/es).
+          <strong>Tutorial close button</strong> &mdash; the tutorial dialog now has an ✕ button in the top-right corner, consistent with all other editors.
         </li>
         <li>
-          <strong>Expert editor: font size zoom</strong> &mdash; zoom in/out buttons in the expert toolbar change the editor font size from 8 to 28 px. The setting is persisted across sessions.
+          <strong>SID editor: voice paste (Ctrl+V)</strong> &mdash; copy a voice's settings and paste them to another voice with Ctrl+V in the SID editor.
         </li>
         <li>
-          <strong>Expert editor: line numbers</strong> &mdash; toggleable line number gutter in the expert editor. The gutter stays in sync with the editor scroll position and updates live as you type.
-        </li>
-        <li>
-          <strong>KickAssembler lo/hi byte syntax</strong> &mdash; BYTE blocks now accept <code>&lt;label</code> and <code>&gt;label</code> tokens for low/high byte extraction of label addresses, matching KickAssembler / ca65 convention. Example: <code>.byte &lt;frame_0, &gt;frame_0</code>.
-        </li>
-        <li>
-          <strong>CONST <code>*+N</code> — PC-relative address alias</strong> &mdash; the CONST block now accepts <code>*+N</code> and <code>*-N</code> expressions. The value resolves to the current compile address plus the offset, enabling self-modifying code patterns such as <code>CONST op = *+1</code> placed before an <code>LDA #$00</code> block — <code>op</code> then labels the immediate operand byte so it can be patched at runtime with <code>STA op</code>.
+          <strong>Full i18n for validation messages</strong> &mdash; all macro and operand validation error messages are now fully localised in Hungarian, English, Spanish, and German — no more hardcoded English strings.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>

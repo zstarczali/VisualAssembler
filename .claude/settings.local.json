@@ -85,7 +85,8 @@
       "Bash(grep -n \"template\\\\|`<div\\\\|`<form\\\\|`<label\\\\|`<input\" /Users/ztarczali/dev/VisualAssembler/www/app.js)",
       "Bash(cp /Users/ztarczali/dev/VisualAssembler/www/app.js /private/tmp/claude-501/-Users-ztarczali-dev-VisualAssembler/de66dc6c-7d43-4fa1-ae40-7d8f7533900b/scratchpad/app_full.js && echo \"copied\")",
       "Bash(grep '\\\\${')",
-      "Bash(python3 /private/tmp/claude-501/-Users-ztarczali-dev-VisualAssembler/de66dc6c-7d43-4fa1-ae40-7d8f7533900b/scratchpad/gen_i18n.py)"
+      "Bash(python3 /private/tmp/claude-501/-Users-ztarczali-dev-VisualAssembler/de66dc6c-7d43-4fa1-ae40-7d8f7533900b/scratchpad/gen_i18n.py)",
+      "Bash(grep -v \"//\\\\|description\\\\|encodePetscii\\\\|encodeText\\\\|charsetM\\\\|textM\\\\|petsciiM\\\\|stringM\")"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"
