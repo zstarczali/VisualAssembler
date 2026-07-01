@@ -41,6 +41,7 @@
   --input-bg: rgba(248, 250, 252, 0.98);
   --output-bg: #f1f5f9;
   --output-text: #1e293b;
+  --monitor-text: #15803d;
   --error: #dc2626;
   --accent: var(--primary);
   --asm-mnemonic: #0369a1;
@@ -89,6 +90,7 @@ html[data-theme="dark"] {
   --input-bg: rgba(13, 17, 23, 0.98);
   --output-bg: #0d1117;
   --output-text: #94a3b8;
+  --monitor-text: #4dff91;
   --error: #f87171;
   --accent: #f8fafc;
   --asm-mnemonic: #38bdf8;
@@ -129,6 +131,7 @@ html[data-theme="oled"] {
   --input-bg: rgba(10, 10, 16, 0.99);
   --output-bg: #08080c;
   --output-text: #64748b;
+  --monitor-text: #4dff91;
   --error: #f87171;
   --accent: #f8fafc;
   --asm-mnemonic: #38bdf8;
@@ -1861,6 +1864,27 @@ body.dnd-active {
   cursor: pointer;
 }
 
+.delay-frames {
+  width: 18ch;
+  max-width: 18ch;
+  min-width: 18ch;
+  align-self: flex-start;
+}
+
+.print-char-value {
+  width: 18ch;
+  max-width: 18ch;
+  min-width: 18ch;
+  align-self: flex-start;
+}
+
+.color-value {
+  width: 18ch;
+  max-width: 18ch;
+  min-width: 18ch;
+  align-self: flex-start;
+}
+
 .label-picker-wrap {
   position: relative;
   width: 100%;
@@ -2402,7 +2426,7 @@ html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
 .monitor-output {
   display: none;
   background: var(--output-bg) !important;
-  color: #15803d !important;
+  color: var(--monitor-text) !important;
   border: 1px solid var(--panel-border) !important;
   border-radius: 3px !important;
   font-family: "IBM Plex Mono", "Courier New", monospace !important;
@@ -2414,7 +2438,6 @@ html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
 
 html[data-theme="dark"] .monitor-output,
 html[data-theme="oled"] .monitor-output {
-  color: #4dff91 !important;
   background: #0a0e1a !important;
   border-color: #1a2a1a !important;
   text-shadow: 0 0 8px rgba(77, 255, 145, 0.45);
@@ -3523,7 +3546,8 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
 }
 
 .expert-monitor-panel {
-  width: 340px;
+  width: 365px;
+  min-width: 365px;
   flex-shrink: 0;
   border-left: 1px solid var(--panel-border);
   display: flex;
@@ -3540,7 +3564,7 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   font-family: 'JetBrains Mono', 'Fira Mono', 'Cascadia Code', 'Consolas', monospace;
   font-size: 0.78rem;
   line-height: 1.6;
-  color: var(--output-text);
+  color: var(--monitor-text);
   overflow: auto;
   white-space: pre;
   tab-size: 4;

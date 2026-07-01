@@ -2,18 +2,15 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.1.0**
+**Current version: v2.1.1**
 
-**What's new in 2.1.0**
+**What's new in 2.1.1**
 
-- Runtime `IF` / `WHILE` / `REPEAT` blocks now support the shorter block syntax with `A`, `X`, or `Y` register selection and `==`, `!=`, `<`, `<=`, `>`, `>=` comparisons.
-- `VAR` now auto-allocates zero-page labels from a running cursor, which removes the need to hand-pick ZP slots for scratch variables.
-- `MEMCPY` and `MEMSET` cover the common copy/fill cases directly, including page-sized loops for larger ranges.
-- `PRINT` now uses the same PETSCII lowercase/uppercase checkbox behavior as the PETSCII macro, and `PRINT_CHAR` prints a single PETSCII byte by numeric code.
-- `CHARSET` now round-trips properly in Expert mode when you switch the mode dropdown.
-- `.end` is now an `RTS` alias for short subroutine endings in expert mode.
-- `IRQ_SETUP`, `RAND`, `CLEAR_SCREEN`, `WAIT_KEY`, `SET_BORDER`, `SET_BG`, and `PRINT_HEX` add everyday sugar for games and demos.
-- The manual and bundled docs were refreshed to match the new macro set and version.
+- `DELAY` / `WAIT` can now use named `CONST` values, and the delay block uses a compact const picker instead of the browser's native list.
+- `PRINT_CHAR` now accepts const names too, so single-byte PETSCII output can stay symbolic when that reads better than raw numbers.
+- `SET_BORDER` / `SET_BG` now accept const names in both block mode and Expert mode, with the same custom const picker.
+- `.region` / `.endregion` get directive coloring in Expert mode, so named visual groups stand out the same way the other macros do.
+- The bundled docs, manual, and installer notes were refreshed to match the 2.1.1 release.
 
 ---
 
@@ -32,7 +29,9 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **Mnemonic search** — filter the palette by name or description
 - **TEXT macro** — write text to the C64 screen at an X/Y coordinate; auto-detects case for lowercase charset output
 - **CHARSET macro** — switch the VIC-II character ROM between uppercase/graphics and lowercase/uppercase modes
-- **PRINT / PRINT_CHAR / PRINT_HEX macros** — KERNAL output helpers; PRINT shares the PETSCII lowercase/uppercase checkbox behavior and PRINT_CHAR emits a single PETSCII byte by numeric code
+- **PRINT / PRINT_CHAR / PRINT_HEX macros** — KERNAL output helpers; PRINT shares the PETSCII lowercase/uppercase checkbox behavior and PRINT_CHAR emits a single PETSCII byte, including const-name operands
+- **DELAY / WAIT macro** — shared frame-delay helper; accepts numbers or const names and keeps the picker compact in block mode
+- **SET_BORDER / SET_BG macros** — quick VIC-II color writes; accept const names in block mode and Expert mode
 - **BYTE macro** — insert arbitrary raw byte arrays inline
 - **WORD macro** — insert 16-bit values as LO/HI byte pairs
 - **STRING macro** — copy a string (as screen codes) to a fixed memory address; same case auto-detection as TEXT
@@ -79,7 +78,7 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **Expert mode .asm file save/load** — load and save raw `.asm` source files in Expert mode
 - **Expert mode error highlighting** — lines that fail to compile are highlighted in red in real time
 - **Dark / light theme**, zoom, HEX / DEC operand mode
-- **Hungarian and English and Spanish UI**
+- **Hungarian, English, Spanish, and German UI**
 - **Save / Save As / load projects** as `.c64asm` JSON files
 
 ---
@@ -98,6 +97,16 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 npm install
 npm run dev
 ```
+
+### Run tests
+
+```bash
+npm test
+cd src-tauri
+cargo test --test exomizer_integration
+```
+
+`npm test` runs the renderer-side unit tests. The Rust Exomizer integration test is optional and only passes when Exomizer is configured on this machine.
 
 ### Build installer
 

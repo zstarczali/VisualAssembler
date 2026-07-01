@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.1.0**
+**Version 2.1.1**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -90,7 +90,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [WHILE / ENDW](#while--endw)
     - [REPEAT / UNTIL](#repeat--until)
     - [MEMCPY / MEMSET](#memcpy--memset)
-    - [PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / SET_BORDER / SET_BG](#print--print_char--print_hex--clear_screen--wait_key--set_border--set_bg)
+    - [PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG](#print--print_char--print_hex--clear_screen--wait_key--delay--set_border--set_bg)
     - [IRQ_SETUP](#irq_setup)
     - [RAND](#rand)
     - [SPRITE\_INIT](#sprite_init)
@@ -159,7 +159,7 @@ The palette on the left lists all available blocks grouped by category:
 - **System** — CLC, SEC, NOP, BRK, …
 - **Illegal instructions** — LAX, SAX, DCP, …
 - **Structure** — LABEL, COMMENT, REGION, ENDREGION
-- **Macros** — LOOP, NEXT, FOR, ENDF, PUSH, PULL, END, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, CHARSET, INCBIN, SID, INCLUDE, TABLE, ORG, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, VAR, WHILE, ENDW, REPEAT, UNTIL, MEMCPY, MEMSET, PRINT, PRINT_CHAR, PRINT_HEX, CLEAR_SCREEN, WAIT_KEY, SET_BORDER, SET_BG, IRQ_SETUP, RAND, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, MOUSE, SPRITE_COL, LOADFILE, REU_CHECK, REU_STASH, REU_FETCH, REU_SWAP, TURBO_SET, SUPERCPU_DETECT, TURBO_ENABLE, MAP_COPY, SPRITE_ANIM, SCORE_BCD
+- **Macros** — LOOP, NEXT, FOR, ENDF, PUSH, PULL, END, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, CHARSET, INCBIN, SID, INCLUDE, TABLE, ORG, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, VAR, WHILE, ENDW, REPEAT, UNTIL, MEMCPY, MEMSET, PRINT, PRINT_CHAR, PRINT_HEX, CLEAR_SCREEN, WAIT_KEY, DELAY, SET_BORDER, SET_BG, IRQ_SETUP, RAND, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, MOUSE, SPRITE_COL, LOADFILE, REU_CHECK, REU_STASH, REU_FETCH, REU_SWAP, TURBO_SET, SUPERCPU_DETECT, TURBO_ENABLE, MAP_COPY, SPRITE_ANIM, SCORE_BCD
 
 Use the **search box** at the top of the palette to filter by name. Click the **Add selected block** button or drag a block into the program area.
 
@@ -1603,7 +1603,7 @@ Sizes up to 256 bytes use a short 8-bit loop. Larger sizes switch to a 16-bit co
 
 ---
 
-### PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / SET_BORDER / SET_BG
+### PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG
 
 #### PRINT
 
@@ -1617,12 +1617,13 @@ Like **PETSCII output without the boilerplate** — prints a string through `CHR
 
 #### PRINT_CHAR
 
-Prints one PETSCII byte by numeric code and sends it through `CHROUT`.
+Prints one PETSCII byte by numeric code and sends it through `CHROUT`. The value can also be a named const or label that resolves to a byte at assemble time.
 
 **Expert syntax:**
 ```
 .print_char 65
 .print_char $41
+.print_char color
 ```
 
 #### PRINT_HEX
@@ -1652,14 +1653,27 @@ Waits until a key is pressed, so you do not have to hand-roll the `GETIN` loop e
 .wait_key
 ```
 
+#### DELAY
+
+Waits the requested number of frames through a shared helper routine. Use this for short pauses and timing gaps when a full custom loop would be overkill. The frame count can be a raw number or a named const.
+
+**Expert syntax:**
+```
+.delay 29
+.wait 29
+.delay frames=FRAMES_1S
+```
+
 #### SET_BORDER / SET_BG
 
-Convenience wrappers for the VIC-II color registers.
+Convenience wrappers for the VIC-II color registers. The color value can be a raw number or a named const that resolves to 0–15.
 
 **Expert syntax:**
 ```
 .set_border 6
 .set_bg 0
+.set_border color
+.set_bg color
 ```
 
 **Size:** Each helper expands to a tiny register write sequence or a short KERNAL call.

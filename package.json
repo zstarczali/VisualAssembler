@@ -1,10 +1,11 @@
 {
   "name": "c64-visual-assembler",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Commodore 64 visual assembler desktop app.",
   "author": "Zsolt Tarczali",
   "scripts": {
     "dev": "concurrently -k -n SERVE,TAURI \"npx serve -l 1430 ./www\" \"tauri dev\"",
+    "test": "node --test tests/*.test.js",
     "build": "tauri build",
     "build:win:x64": "tauri build --target x86_64-pc-windows-msvc",
     "build:win:arm64": "tauri build --target aarch64-pc-windows-msvc"
