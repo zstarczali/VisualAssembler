@@ -2495,7 +2495,7 @@ function applyTranslations() {
   if (sampleOptions[32]) sampleOptions[32].textContent = t("sampleScrollTextDemo");
   if (sampleOptions[33]) sampleOptions[33].textContent = t("sampleNameInputDemo");
   if (sampleOptions[34]) sampleOptions[34].textContent = t("sampleBoxDemo");
-  if (sampleOptions[35]) sampleOptions[35].textContent = t("sampleRotcubeDemo");
+  if (sampleOptions[35]) sampleOptions[35].textContent = t("sampleMacroShowcase");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -19492,6 +19492,11 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "name-input-demo") {
     loadSampleFromFile("name-input-demo");
+    return;
+  }
+
+  if (sampleSelect.value === "rotcube") {
+    loadSampleFromFile("macro-showcase");
     return;
   }
 

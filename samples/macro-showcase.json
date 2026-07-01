@@ -1,0 +1,10 @@
+{
+  "app": "c64-visual-assembler",
+  "d64": {
+    "diskName": "",
+    "extras": [],
+    "progName": ""
+  },
+  "useExpertTextProgram": true,
+  "expertText": "* = $0801\n\n.clear_screen\n.set_border $00\n.set_bg $06\n.charset lower\n\n.var scratch, 16\n\n.memset addr=scratch, value=#$3C, size=$0010\n.memset addr=$D800, value=#$01, size=$0280\n.rawtext $C400, \"new macros demo \", lower\n.memcpy src=$C400, dst=$0400, size=$0010\n\n.print \"new macros demo\", lower\n.print_char #$0D\n.print \"var / memcpy / memset\", lower\n.print_char #$0D\n.print \"print / print_char / print_hex\", lower\n.print_char #$0D\n.print \"repeat / while / if / wait_key\", lower\n.print_char #$0D\n.print \"irq_setup / rand / .end\", lower\n.print_char #$0D\n.print_char #$5F\n\n.wait_key\n\nldx #$10\n.while X != #$00\n    .rand scratch\n    and #$0F\n    sta $D020\n    dex\n.endw\n\n.irq_setup handler=my_irq, raster=$FA\n\nkey_loop:\n.repeat\n    JSR $FFE4\n.until A != #$00\n\n.if A = #$0D\n    JMP done\n.endif\nJSR $FFD2\nJMP key_loop\n\ndone:\n.print_char #$0D\n.print \"last rand: \", lower\n.rand scratch\n.print_hex A\n.print_char #$0D\n.end\n\nmy_irq:\n    LDA #$01\n    STA $D019\n    .rand scratch\n    and #$0F\n    sta $D021\n    jmp $EA31"
+}
