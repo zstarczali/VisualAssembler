@@ -98,6 +98,16 @@ npm install
 npm run dev
 ```
 
+### Run tests
+
+```bash
+npm test
+cd src-tauri
+cargo test --test exomizer_integration
+```
+
+`npm test` runs the renderer-side unit tests. The Rust Exomizer integration test is optional and only passes when Exomizer is configured on this machine.
+
 ### Build installer
 
 ```bash
