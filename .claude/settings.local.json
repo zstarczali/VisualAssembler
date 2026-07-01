@@ -79,7 +79,17 @@
       "Bash(DISPLAY=:0 WAYLAND_DISPLAY=wayland-0 /usr/bin/x64sc -autostartprgmode 1 /tmp/c64-visual-assembler/c64-visual-assembler-1781957969792.prg)",
       "Bash(ls /usr/share/vice/C64/dos1541* /usr/share/vice/C64/1541* 2>/dev/null; ls ~/.local/share/vice/ 2>/dev/null)",
       "Read(//usr/share/vice/C64/**)",
-      "Bash(xargs ls -la)"
+      "Bash(xargs ls -la)",
+      "Bash(<div\\\\|)",
+      "Bash(<label\\\\|)",
+      "Bash(grep -n \"template\\\\|`<div\\\\|`<form\\\\|`<label\\\\|`<input\" /Users/ztarczali/dev/VisualAssembler/www/app.js)",
+      "Bash(cp /Users/ztarczali/dev/VisualAssembler/www/app.js /private/tmp/claude-501/-Users-ztarczali-dev-VisualAssembler/de66dc6c-7d43-4fa1-ae40-7d8f7533900b/scratchpad/app_full.js && echo \"copied\")",
+      "Bash(grep '\\\\${')",
+      "Bash(python3 /private/tmp/claude-501/-Users-ztarczali-dev-VisualAssembler/de66dc6c-7d43-4fa1-ae40-7d8f7533900b/scratchpad/gen_i18n.py)",
+      "Bash(grep -v \"//\\\\|description\\\\|encodePetscii\\\\|encodeText\\\\|charsetM\\\\|textM\\\\|petsciiM\\\\|stringM\")"
+    ],
+    "additionalDirectories": [
+      "/Users/ztarczali/dev/VisualAssembler/www"
     ]
   }
 }

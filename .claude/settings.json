@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep '\\\\${')",
+      "Bash(python3 /private/tmp/claude-501/-Users-ztarczali-dev-VisualAssembler/de66dc6c-7d43-4fa1-ae40-7d8f7533900b/scratchpad/extract_ternaries.py)",
+      "Bash(python3 /private/tmp/claude-501/-Users-ztarczali-dev-VisualAssembler/de66dc6c-7d43-4fa1-ae40-7d8f7533900b/scratchpad/migrate_i18n.py)",
+      "Bash(python3 /private/tmp/claude-501/-Users-ztarczali-dev-VisualAssembler/de66dc6c-7d43-4fa1-ae40-7d8f7533900b/scratchpad/do_migration.py)",
+      "Bash(python3 /private/tmp/claude-501/-Users-ztarczali-dev-VisualAssembler/de66dc6c-7d43-4fa1-ae40-7d8f7533900b/scratchpad/gen_i18n.py)",
+      "Bash(git -C /Users/ztarczali/dev/VisualAssembler show HEAD:www/app.js)",
+      "Bash(python3 /private/tmp/claude-501/-Users-ztarczali-dev-VisualAssembler/de66dc6c-7d43-4fa1-ae40-7d8f7533900b/scratchpad/extract_pairs.py)",
+      "Bash(python3 /private/tmp/claude-501/-Users-ztarczali-dev-VisualAssembler/de66dc6c-7d43-4fa1-ae40-7d8f7533900b/scratchpad/insert_i18n.py)",
+      "Bash(python3 /private/tmp/claude-501/-Users-ztarczali-dev-VisualAssembler/de66dc6c-7d43-4fa1-ae40-7d8f7533900b/scratchpad/dedup_i18n.py)",
+      "Bash(python3 /private/tmp/claude-501/-Users-ztarczali-dev-VisualAssembler/de66dc6c-7d43-4fa1-ae40-7d8f7533900b/scratchpad/fix_i18n_structure.py)",
+      "Bash(node --input-type=module)",
+      "Bash(sed -i '' 's/    16BitValuesLoHiPairs:/\"16BitValuesLoHiPairs\":/g' /Users/ztarczali/dev/VisualAssembler/www/i18n.js)",
+      "Bash(sed -i '' 's/    16BitValues:/\"16BitValues\":/g' /Users/ztarczali/dev/VisualAssembler/www/i18n.js)",
+      "Bash(sed -i '' \"s/\\\\\"16BitValues\\\\\":/\\\\\"16BitValues\\\\\":/g; s/\\\\\"16BitValuesLoHiPairs\\\\\":/\\\\\"16BitValuesLoHiPairs\\\\\":/g\" /Users/ztarczali/dev/VisualAssembler/www/i18n.js)",
+      "Bash(node -e \"require\\('/Users/ztarczali/dev/VisualAssembler/www/i18n.js'\\)\")",
+      "Bash(git -C /Users/ztarczali/dev/VisualAssembler show HEAD:www/i18n.js)",
+      "Bash(python3 /private/tmp/claude-501/-Users-ztarczali-dev-VisualAssembler/de66dc6c-7d43-4fa1-ae40-7d8f7533900b/scratchpad/rebuild_i18n.py)",
+      "Bash(node -e ' *)"
+    ]
+  }
+}

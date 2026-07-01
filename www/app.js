@@ -158,6 +158,7 @@ const mnemonicLibrary = {
     { mnemonic: "RAWBYTES", description: "Nyers byte-ok elhelyezese egy megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isRawBytesMacro: true },
     { mnemonic: "RAWTEXT", description: "Szoveg elhelyezese kepernyo kodkent (screen code) egy megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isRawTextMacro: true },
     { mnemonic: "PETSCII", description: "Szoveg PETSCII kodolassal egy megadott memoriacimtol, kod generalas nelkul. CHROUT ($FFD2) kompatibilis. Null lezaro checkbox.", modes: ["implied"], isPetsciiMacro: true },
+    { mnemonic: "CHARSET", description: "VIC karakterkeszlet valtasa (nagybetu/kisbetu). LDA $D018 + ORA/AND + STA generalas, 8 byte.", modes: ["implied"], isCharsetMacro: true },
     { mnemonic: "INCBIN", description: "Kulso binarfajl beillesztese megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isIncBinMacro: true },
     { mnemonic: "SID", description: "SID zenefajl betoltese kozvetlenul a memoriaba. A fejlecet automatikusan eltavolitja, a Load/Init/Play cimeket kinyeri.", modes: ["implied"], isSidMacro: true },
     { mnemonic: "INCLUDE", description: "Masik projekt JSON fajl blokkjainak beillesztese erre a helyre (csak olvasható).", modes: ["implied"], isIncludeMacro: true },
@@ -638,6 +639,7 @@ const mnemonicDescriptionsEn = {
   RAWBYTES: "Place raw bytes at a given memory address without generating any runtime code.",
   RAWTEXT: "Place text as screen codes at a given memory address without generating any runtime code.",
   PETSCII: "Place text as PETSCII bytes at a given memory address without generating runtime code. Compatible with CHROUT ($FFD2). Null terminator checkbox appends $00.",
+  CHARSET: "Switch VIC character set: lower = ORA #$02 on $D018 (enables lowercase ROM), upper = AND #$FD (restores uppercase/graphics ROM). 8 bytes inline.",
   SID: "Load a SID music file directly into memory. The header is stripped automatically and the Load/Init/Play addresses are extracted.",
   INCBIN: "Include an external binary file at a given memory address without generating any runtime code.",
   INCLUDE: "Include another project JSON file's blocks inline at this position (read-only).",
@@ -774,6 +776,7 @@ const mnemonicDescriptionsEs = {
   RAWBYTES: "Coloca bytes sin procesar en una dirección de memoria sin generar código en tiempo de ejecución.",
   RAWTEXT: "Coloca texto como códigos de pantalla en una dirección de memoria sin generar código en tiempo de ejecución.",
   PETSCII: "Coloca texto como bytes PETSCII en una dirección de memoria sin generar código. Compatible con CHROUT ($FFD2).",
+  CHARSET: "Cambia el juego de caracteres VIC: lower = ORA #$02 en $D018 (ROM minúsculas), upper = AND #$FD (ROM mayúsculas/gráficos). 8 bytes.",
   SID: "Carga un archivo de música SID directamente en memoria. La cabecera se elimina y se extraen las direcciones Load/Init/Play.",
   INCBIN: "Incluye un archivo binario externo en una dirección de memoria sin generar código en tiempo de ejecución.",
   INCLUDE: "Incluye los bloques de otro archivo JSON de proyecto en esta posición (solo lectura).",
@@ -828,8 +831,132 @@ const mnemonicDescriptionsEs = {
   TURBO_ENABLE: "CMD SuperCPU turbo on/off: ON → LDA #$00 / STA $D07A, OFF → LDA #$00 / STA $D07B. 5 bytes."
 };
 
+const mnemonicDescriptionsDe = {
+  LDA: "Akkumulator aus Speicher oder Konstante laden.",
+  LDX: "X-Register laden.",
+  LDY: "Y-Register laden.",
+  STA: "Akkumulator in eine Speicheradresse schreiben.",
+  STX: "X-Register schreiben.",
+  STY: "Y-Register schreiben.",
+  ADC: "Mit Übertrag addieren.",
+  SBC: "Mit Übertrag subtrahieren.",
+  INC: "Speicheradresse inkrementieren.",
+  DEC: "Speicheradresse dekrementieren.",
+  CMP: "Mit dem Akkumulator vergleichen.",
+  CPX: "Mit dem X-Register vergleichen.",
+  CPY: "Mit dem Y-Register vergleichen.",
+  AND: "Logisches AND mit dem Akkumulator.",
+  ORA: "Logisches OR mit dem Akkumulator.",
+  EOR: "Exklusives OR mit dem Akkumulator.",
+  BIT: "Bits aus dem Speicher testen.",
+  JMP: "Unbedingter Sprung zu einer Adresse.",
+  JSR: "Unterprogramm aufrufen.",
+  RTS: "Aus Unterprogramm zurückkehren.",
+  BNE: "Verzweigung wenn vorheriges Ergebnis ungleich null.",
+  BEQ: "Verzweigung wenn vorheriges Ergebnis gleich null.",
+  BCC: "Verzweigung wenn Übertrag gelöscht.",
+  BCS: "Verzweigung wenn Übertrag gesetzt.",
+  BMI: "Verzweigung wenn Ergebnis negativ.",
+  BPL: "Verzweigung wenn Ergebnis positiv.",
+  BVC: "Verzweigung wenn Überlauf gelöscht.",
+  BVS: "Verzweigung wenn Überlauf gesetzt.",
+  RTI: "Aus Interrupt zurückkehren.",
+  TAX: "Akkumulator in X kopieren.",
+  TAY: "Akkumulator in Y kopieren.",
+  INX: "X-Register inkrementieren.",
+  DEX: "X-Register dekrementieren.",
+  INY: "Y-Register inkrementieren.",
+  DEY: "Y-Register dekrementieren.",
+  TSX: "Stack-Pointer in X kopieren.",
+  TXA: "X-Register in Akkumulator kopieren.",
+  TXS: "X-Register in Stack-Pointer kopieren.",
+  TYA: "Y-Register in Akkumulator kopieren.",
+  ASL: "Um ein Bit nach links schieben.",
+  LSR: "Um ein Bit nach rechts schieben.",
+  ROL: "Durch Übertrag nach links rotieren.",
+  ROR: "Durch Übertrag nach rechts rotieren.",
+  PHA: "Akkumulator auf den Stack legen.",
+  PHP: "Prozessorstatus auf den Stack legen.",
+  PLA: "Akkumulator vom Stack holen.",
+  PLP: "Prozessorstatus vom Stack holen.",
+  CLC: "Übertrag-Flag löschen.",
+  CLD: "Dezimal-Flag löschen.",
+  CLI: "Interrupts wieder freigeben.",
+  CLV: "Überlauf-Flag löschen.",
+  SEC: "Übertrag-Flag setzen.",
+  SED: "Dezimalmodus aktivieren.",
+  SEI: "IRQ-Interrupts sperren.",
+  NOP: "Keine Operation, einfach weiter.",
+  BRK: "Break/Interrupt zur Fehlersuche.",
+  TEXT: "Text auf dem Bildschirm ausgeben.",
+  BYTE: "Beliebiges Byte-Array kommagetrennt einfügen.",
+  WORD: "16-Bit-Werte als LO/HI-Bytepaare kommagetrennt einfügen.",
+  FILL: "Wiederholte Bytes mit angegebener Anzahl erzeugen.",
+  ALIGN: "Speicherausrichtung. Z.B. 64 → nächste 64-Byte-Grenze (Sprite), 256 → Seitengrenze, $2000 → Bitmap.",
+  TABLE: "Nachschlagtabelle mit Label und Startadresse definieren.",
+  STRING: "String an eine Speicheradresse schreiben.",
+  DATA: "Rohe Bytes via LDA/STA-Code an eine Speicheradresse schreiben.",
+  RAWBYTES: "Rohe Bytes an einer Speicheradresse ablegen ohne Laufzeitcode zu erzeugen.",
+  RAWTEXT: "Text als Bildschirmcodes an eine Speicheradresse ablegen ohne Laufzeitcode zu erzeugen.",
+  PETSCII: "Text als PETSCII-Bytes ablegen ohne Laufzeitcode. Kompatibel mit CHROUT ($FFD2). Null-Terminator-Checkbox hängt $00 an.",
+  CHARSET: "VIC-Zeichensatz umschalten: lower = ORA #$02 auf $D018 (Kleinbuchstaben-ROM), upper = AND #$FD (Großbuchstaben/Grafik-ROM). 8 Bytes inline.",
+  SID: "SID-Musikdatei direkt in den Speicher laden. Der Header wird automatisch entfernt und Load/Init/Play-Adressen extrahiert.",
+  INCBIN: "Externe Binärdatei an einer Speicheradresse einbinden ohne Laufzeitcode zu erzeugen.",
+  INCLUDE: "Blöcke einer anderen Projekt-JSON-Datei an dieser Position einbinden (nur lesen).",
+  LOOP: "Zählschleife: LD* #Anzahl lädt den Zähler, ein Label markiert den Schleifenstart. Mit NEXT abschließen.",
+  NEXT: "Schleifenende: DE* dekrementiert den Zähler, BNE verzweigt zurück zum LOOP-Label.",
+  FOR: "Vorwärtszählschleife: LD* #0, ein Label markiert den Schleifenstart. Mit ENDF abschließen.",
+  ENDF: "Vorwärtsschleifenende: IN* inkrementiert, CP* #Limit vergleicht, BNE verzweigt zurück zum FOR-Label.",
+  PUSH: "Register auf den Stack sichern (A, X, Y Kombinationen).",
+  PULL: "Register vom Stack wiederherstellen (A, X, Y Kombinationen).",
+  MACRO: "Beginn einer Benutzermakro-Definition. Erwartet einen Namen, mit ENDM abschließen.",
+  ENDM: "Ende einer Benutzermakro-Definition.",
+  INVOKE: "Benutzermakro aufrufen. Makronamen aus der Liste wählen.",
+  IF: "Beginn der bedingten Assemblierung. Erwartet eine Bedingung (z.B. DEBUG). Mit ENDIF abschließen.",
+  ELSE: "Alternativer Zweig innerhalb eines IF-Blocks.",
+  ENDIF: "Ende der bedingten Assemblierung.",
+  LAX: "A und X gleichzeitig aus derselben Adresse laden (illegal: LDA+LDX).",
+  SAX: "A AND X in eine Speicheradresse schreiben (illegal).",
+  DCP: "Speicher dekrementieren dann mit Akkumulator vergleichen (illegal: DEC+CMP).",
+  ISC: "Speicher inkrementieren dann vom Akkumulator subtrahieren (illegal: INC+SBC).",
+  SLO: "Speicher links schieben dann OR mit Akkumulator (illegal: ASL+ORA).",
+  RLA: "Speicher links rotieren dann AND mit Akkumulator (illegal: ROL+AND).",
+  SRE: "Speicher rechts schieben dann EOR mit Akkumulator (illegal: LSR+EOR).",
+  RRA: "Speicher rechts rotieren dann mit Übertrag addieren (illegal: ROR+ADC).",
+  ANC: "AND sofort dann Übertrag aus Bit 7 setzen (illegal).",
+  ALR: "AND dann logisch rechts schieben in einem Schritt (illegal: AND+LSR).",
+  ARR: "AND dann rechts rotieren in einem Schritt (illegal: AND+ROR).",
+  AXS: "Sofortwert von A AND X subtrahieren, Ergebnis in X (illegal: SBX).",
+  LABEL: "Benanntes Label im Code als Sprungziel.",
+  COMMENT: "Programmkommentar ohne Byte-Ausgabe.",
+  SPRITE_INIT: "Sprite initialisieren: Datenseitenzeiger ($07F8+N), Enable-Bit ($D015) und Farbe ($D027+N) setzen.",
+  LOADFILE: "Datei vom Disk via KERNAL SETNAM/SETLFS/LOAD laden. Adresse optional; Fehler-Label optional (BCS).",
+  EXODECRUNCH: "Exomizer mem-mode Daten dekomprimieren. Kopiert KERNALs Ladeendzeiger ($AE/$AF) in den Depacker-ZP ($04/$05), schaltet $01 auf $36 (BASIC-ROM aus, $A000-$BFFF als RAM), JSR zum Depacker (Standard $B000), stellt $01 auf $37 zurück. Der Depacker (exo-decrunch.bin, 480 Bytes) muss separat per INCBIN eingebunden werden. 19 Bytes.",
+  SPRITE_POS: "Sprite-Position setzen: X (0–319) und Y (0–255). Behandelt das $D010-MSB für X > 255.",
+  WAIT_RASTER: "Auf eine Rasterzeile warten: LDA $D012 / CMP #Zeile / BNE -7. Inline, 7 Bytes, kein JSR.",
+  JOYSTICK: "Joystick lesen und Sprite bewegen: UP/DOWN/LEFT/RIGHT via LSR+BCS+DEC/INC. Port 1=$DC01, Port 2=$DC00. 27 Bytes inline.",
+  MOUSE: "1351-Proportionalmaus via SID POTX/POTY ($D419/$D41A) lesen und Sprite bewegen. 142 Bytes inline.",
+  SPRITE_COL: "Sprite-Kollisionserkennung: LDA $D01E/$D01F + AND #bitMaske. Ergebnis in A: ungleich null = Kollision. 5 Bytes.",
+  MAP_COPY: "Kartendaten in Screen-RAM (und optional Color-RAM) kopieren via LDX/LDA abs,X/STA abs,X-Schleifen. Quelle, Ziel, Größe und Farbquelle konfigurierbar.",
+  SPRITE_ANIM: "Sprite-Animation: ZP-Frame-Zähler (0..N-1) inkrementieren und $07F8+N aus Zeigerliste (1 Byte/Frame) aktualisieren. 19 Bytes.",
+  SCORE_BCD: "BCD-Punktestand inkrementieren und anzeigen: SED/CLC/ADC-Muster für Punkte, BCD-Nibbles in Bildschirmcodes umwandeln. 2/4/6 Stellen, inline.",
+  DEFINE: "Symbol für bedingte Assemblierung definieren. Bei Vorhandensein werten IF-Blöcke die Bedingung aus.",
+  CONST: "Benannte Konstantendefinition. Als Operand in jedem Mnemonic verwendbar.",
+  REGION: "Blöcke in einen einklappbaren benannten Abschnitt gruppieren. Mit ENDREGION abschließen.",
+  ENDREGION: "Ende eines REGION-Abschnitts.",
+  ORG: "Ursprungsadresse setzen (*=-Direktive). Folgende Blöcke werden ab dieser Adresse assembliert.",
+  REU_CHECK: "RAM Expansion Unit (REU) erkennen via $DF04-Schreib/Lese-Test. Z=0 → REU vorhanden. 34 Bytes.",
+  REU_STASH: "C64-RAM → REU-Transfer (sichern): C64/REU-Adresse, Bank und Länge setzen, dann $90 in $DF01 schreiben. 40 Bytes.",
+  REU_FETCH: "REU → C64-RAM-Transfer (laden): C64/REU-Adresse, Bank und Länge setzen, dann $91 in $DF01 schreiben. 40 Bytes.",
+  REU_SWAP: "C64-RAM ↔ REU-Tausch: C64/REU-Adresse, Bank und Länge setzen, dann $92 in $DF01 schreiben. 40 Bytes.",
+  TURBO_SET: "U64-Turbogeschwindigkeit setzen: Geschwindigkeitsindex (0–15) und Badline-Steuerung (Bit 7) in $D031 schreiben. 5 Bytes.",
+  SUPERCPU_DETECT: "CMD SuperCPU erkennen: LDA $D0B8 / CMP #$FF. Z=0 → SuperCPU vorhanden. 5 Bytes.",
+  TURBO_ENABLE: "CMD SuperCPU Turbo ein/aus: EIN → LDA #$00 / STA $D07A, AUS → LDA #$00 / STA $D07B. 5 Bytes."
+};
+
 function getItemDescription(item) {
   if (currentLanguage === "es") return mnemonicDescriptionsEs[item.mnemonic] || mnemonicDescriptionsEn[item.mnemonic] || item.description;
+  if (currentLanguage === "de") return mnemonicDescriptionsDe[item.mnemonic] || mnemonicDescriptionsEn[item.mnemonic] || item.description;
   if (currentLanguage !== "hu") return mnemonicDescriptionsEn[item.mnemonic] || item.description;
   return item.description;
 }
@@ -2960,7 +3087,7 @@ function renderSearchResults(query) {
   if (!results.length) {
     const empty = document.createElement("p");
     empty.className = "palette-no-results";
-    empty.textContent = currentLanguage !== "hu" ? "No results." : "Nincs talalat.";
+    empty.textContent = t("noResults");
     paletteList.appendChild(empty);
     return;
   }
@@ -2979,7 +3106,7 @@ function renderSearchResults(query) {
     const node = paletteItemTemplate.content.firstElementChild.cloneNode(true);
     node.querySelector(".palette-mnemonic").textContent = userMacroName ? `INVOKE: ${userMacroName}` : item.mnemonic;
     node.querySelector(".palette-description").textContent = userMacroName
-      ? `${currentLanguage !== "hu" ? "Call user macro" : "Felhasznaloi makro hivasa"}`
+      ? `${t("callUserMacro")}`
       : getItemDescription(item);
 
     node.addEventListener("click", () => {
@@ -3064,7 +3191,7 @@ function createBlockFromMnemonic(item) {
       validationError: validateTextMacroPosition(0, 0, rawOperand),
       collapsed: true,
       isTextMacro: true,
-      textCharset: "standard",
+      textCharset: "upper",
       textX: 0,
       textY: 0
     };
@@ -3102,7 +3229,7 @@ function createBlockFromMnemonic(item) {
       collapsed: true,
       isStringMacro: true,
       stringAddress: "C000",
-      textCharset: "standard"
+      textCharset: "upper"
     };
   }
 
@@ -3156,7 +3283,8 @@ function createBlockFromMnemonic(item) {
       validationError: validateStringMacroAddress("C000"),
       collapsed: true,
       isRawTextMacro: true,
-      rawTextAddress: "C000"
+      rawTextAddress: "C000",
+      textCharset: "upper"
     };
   }
 
@@ -3175,7 +3303,25 @@ function createBlockFromMnemonic(item) {
       collapsed: true,
       isPetsciiMacro: true,
       petsciiAddress: "C000",
-      petsciiNullTerminated: false
+      petsciiNullTerminated: false,
+      petsciiCharset: "upper"
+    };
+  }
+
+  if (item.isCharsetMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "CHARSET",
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isCharsetMacro: true,
+      charsetMode: "lower"
     };
   }
 
@@ -3832,7 +3978,7 @@ function createBlockFromMnemonic(item) {
       description: item.description,
       addressingMode: "implied",
       base: "hex",
-      validationError: macroNames.length === 0 ? (currentLanguage !== "hu" ? "No macros defined yet" : "Meg nincs definialva makro") : "",
+      validationError: macroNames.length === 0 ? (t("noMacrosDefinedYet")) : "",
       collapsed: true,
       isMacroInvoke: true,
       invokeMacroName: firstMacro,
@@ -3984,11 +4130,11 @@ function _blockToExpertLine(block) {
   if (block.isLabel)          return `${block.labelName || "start"}:`;
   if (block.isAnonymousLabel) return "-";
   if (block.isComment)        return `; ${block.rawOperand || ""}`;
-  if (block.isTextMacro)      return `.text ${block.textX || 0}, ${block.textY || 0}, "${block.rawOperand || ""}"`;
+  if (block.isTextMacro)      return `.text ${block.textX || 0}, ${block.textY || 0}, "${block.rawOperand || ""}"${block.textCharset === "lower" ? ", lower" : ""}`;
   const fmtAddr = a => /^[A-Za-z_]/.test(a || "") ? a : "$" + (a || "C000").replace(/^\$/, "").toUpperCase();
   const fmtMacroLabel = ml => ml ? ` :${ml}` : "";
-  if (block.isStringMacro)    return `.string ${fmtAddr(block.stringAddress)}, "${block.rawOperand || ""}"${fmtMacroLabel(block.macroLabel)}`;
-  if (block.isRawTextMacro)   return `.rawtext ${fmtAddr(block.rawTextAddress)}, "${block.rawOperand || ""}"${fmtMacroLabel(block.macroLabel)}`;
+  if (block.isStringMacro)    return `.string ${fmtAddr(block.stringAddress)}, "${block.rawOperand || ""}"${block.textCharset === "lower" ? ", lower" : ""}${fmtMacroLabel(block.macroLabel)}`;
+  if (block.isRawTextMacro)   return `.rawtext ${fmtAddr(block.rawTextAddress)}, "${block.rawOperand || ""}"${block.textCharset === "lower" ? ", lower" : ""}${fmtMacroLabel(block.macroLabel)}`;
   if (block.isDataMacro)      return `.data ${fmtAddr(block.dataAddress)}, ${fmtRaw(block.rawOperand, block.base)}${fmtMacroLabel(block.macroLabel)}`;
   if (block.isRawBytesMacro)  return `.rawbytes ${fmtAddr(block.rawBytesAddress)}, ${fmtRaw(block.rawOperand, block.base)}${fmtMacroLabel(block.macroLabel)}`;
   if (block.isByteMacro) {
@@ -4010,7 +4156,8 @@ function _blockToExpertLine(block) {
   if (block.isFillMacro)      return `.fill ${fmtRaw(block.rawOperand, block.base)}`;
   if (block.isAlignMacro)     return `.align ${block.rawOperand || "64"}`;
   if (block.isIncBinMacro)    return `.incbin "${block.incBinFileName || "data.bin"}"${block.incBinAddress && block.incBinAddress !== "$C000" ? ", $" + block.incBinAddress.replace(/^\$/,"") : ""}`;
-  if (block.isPetsciiMacro)   return `.petscii ${fmtAddr(block.petsciiAddress)}, "${block.rawOperand || "HELLO"}"${block.petsciiNullTerminated ? ", null" : ""}${fmtMacroLabel(block.macroLabel)}`;
+  if (block.isPetsciiMacro)   return `.petscii ${fmtAddr(block.petsciiAddress)}, "${block.rawOperand || "HELLO"}"${block.petsciiCharset === "lower" ? ", lower" : ""}${block.petsciiNullTerminated ? ", null" : ""}${fmtMacroLabel(block.macroLabel)}`;
+  if (block.isCharsetMacro)   return `.charset ${block.charsetMode || "lower"}`;
   if (block.isTableMacro)     return block.tableAddress ? `.table ${block.tableName || "table1"} $${block.tableAddress.replace(/^\$/,"").toUpperCase()}` : `.table ${block.tableName || "table1"}`;  
   if (block.isLoadFileMacro)  return `.loadfile "${block.loadFileName || "DATA"}", ${block.loadFileDevice || "8"}${block.loadFileAddress ? ", $" + block.loadFileAddress.replace(/^\$/,"") : ""}${block.loadFileErrorLabel ? ", " + block.loadFileErrorLabel : ""}`;
   if (block.isExoDecrunchMacro) return `.exodecrunch depacker=$${(block.exoDepackerAddr||"B000").toUpperCase()}`;
@@ -4541,7 +4688,7 @@ function _expertFormatSource() {
 
     const result = out.join("\n");
     if (result === expertEditor.value) {
-      _expertSetStatus(currentLanguage !== "hu" ? "Already formatted" : "Már formázott", "ok");
+      _expertSetStatus(t("alreadyFormatted"), "ok");
       return;
     }
     const sel = expertEditor.selectionStart;
@@ -4552,7 +4699,7 @@ function _expertFormatSource() {
     markTabDirty();
     clearTimeout(_expertParseTimer);
     _expertParseTimer = setTimeout(() => _expertValidate(), 0);
-    _expertSetStatus(currentLanguage !== "hu" ? "Formatted" : "Formázva", "ok");
+    _expertSetStatus(t("formatted"), "ok");
   } catch (err) {
     _expertSetStatus("Format error: " + String(err), "error");
     console.error("_expertFormatSource error:", err);
@@ -4787,7 +4934,7 @@ function _expertHighlightLine(raw) {
   if (!code.trim()) return esc(code) + commentHtml;
 
   // Token regex (order matters)
-  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|loop|next|push|pull|const|define|if|else|endif|region|endregion|macro|endm|invoke|call|incbin|include|sid|petscii|table|loadfile|sprite_init|sprite_pos|wait_raster|joystick|sprite_col|map_copy|sprite_anim|score_bcd)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)/gi;
+  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|loop|next|push|pull|const|define|if|else|endif|region|endregion|macro|endm|invoke|call|incbin|include|sid|petscii|charset|table|loadfile|sprite_init|sprite_pos|wait_raster|joystick|sprite_col|map_copy|sprite_anim|score_bcd)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)/gi;
 
   let result = "";
   let lastIdx = 0;
@@ -5128,28 +5275,29 @@ function parseExpertText(text) {
       continue;
     }
 
-    // .text X, Y, "string" [, shift]
-    const textM = line.match(/^\.text\s+(\d+)\s*,\s*(\d+)\s*,\s*"([^"]*)"\s*(?:,\s*([0-9A-Fa-f]{1,2}))?\s*$/i);
+    // .text X, Y, "string" [, lower|shift]
+    const textM = line.match(/^\.text\s+(\d+)\s*,\s*(\d+)\s*,\s*"([^"]*)"(?:\s*,\s*(lower|[0-9A-Fa-f]{1,2}))?\s*$/i);
     if (textM) {
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "TEXT", operand: textM[3], rawOperand: textM[3], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isTextMacro: true, textX: parseInt(textM[1],10), textY: parseInt(textM[2],10), charOffset: textM[4] ? textM[4].toUpperCase().padStart(2,"0") : "00" });
+      const _textIsLower = (textM[4] || "").toLowerCase() === "lower";
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "TEXT", operand: textM[3], rawOperand: textM[3], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isTextMacro: true, textX: parseInt(textM[1],10), textY: parseInt(textM[2],10), textCharset: _textIsLower ? "lower" : "upper", charOffset: (!_textIsLower && textM[4]) ? textM[4].toUpperCase().padStart(2,"0") : "00" });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
 
-    // .string $ADDR|label, "string" [, shift] [:macroLabel]
-    const stringM = line.match(/^\.string\s+(?:\$([0-9A-Fa-f]{1,4})|([A-Za-z_][A-Za-z0-9_]*))\s*,\s*"([^"]*)"\s*(?:,\s*([0-9A-Fa-f]{1,2}))?\s*(?::([A-Za-z_][A-Za-z0-9_]*))?\s*$/i);
+    // .string $ADDR|label, "string" [, shift] [, lower] [:macroLabel]
+    const stringM = line.match(/^\.string\s+(?:\$([0-9A-Fa-f]{1,4})|([A-Za-z_][A-Za-z0-9_]*))\s*,\s*"([^"]*)"(?:\s*,\s*([0-9A-Fa-f]{1,2}))?(?:\s*,\s*(lower))?\s*(?::([A-Za-z_][A-Za-z0-9_]*))?\s*$/i);
     if (stringM) {
       const strAddr = stringM[1] ? "$" + stringM[1].toUpperCase().padStart(4,"0") : stringM[2];
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "STRING", operand: stringM[3], rawOperand: stringM[3], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isStringMacro: true, stringAddress: strAddr, charOffset: stringM[4] ? stringM[4].toUpperCase().padStart(2,"0") : "00", macroLabel: stringM[5] || "" });
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "STRING", operand: stringM[3], rawOperand: stringM[3], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isStringMacro: true, stringAddress: strAddr, charOffset: stringM[4] ? stringM[4].toUpperCase().padStart(2,"0") : "00", textCharset: stringM[5] ? "lower" : "upper", macroLabel: stringM[6] || "" });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
 
-    // .rawtext $ADDR|label, "string" [, shift] [:macroLabel]
-    const rawtextM = line.match(/^\.rawtext\s+(?:\$([0-9A-Fa-f]{1,4})|([A-Za-z_][A-Za-z0-9_]*))\s*,\s*"([^"]*)"\s*(?:,\s*([0-9A-Fa-f]{1,2}))?\s*(?::([A-Za-z_][A-Za-z0-9_]*))?\s*$/i);
+    // .rawtext $ADDR|label, "string" [, shift] [, lower] [:macroLabel]
+    const rawtextM = line.match(/^\.rawtext\s+(?:\$([0-9A-Fa-f]{1,4})|([A-Za-z_][A-Za-z0-9_]*))\s*,\s*"([^"]*)"(?:\s*,\s*([0-9A-Fa-f]{1,2}))?(?:\s*,\s*(lower))?\s*(?::([A-Za-z_][A-Za-z0-9_]*))?\s*$/i);
     if (rawtextM) {
       const rtAddr = rawtextM[1] ? "$" + rawtextM[1].toUpperCase().padStart(4,"0") : rawtextM[2];
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "RAWTEXT", operand: rawtextM[3], rawOperand: rawtextM[3], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isRawTextMacro: true, rawTextAddress: rtAddr, charOffset: rawtextM[4] ? rawtextM[4].toUpperCase().padStart(2,"0") : "00", macroLabel: rawtextM[5] || "" });
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "RAWTEXT", operand: rawtextM[3], rawOperand: rawtextM[3], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isRawTextMacro: true, rawTextAddress: rtAddr, charOffset: rawtextM[4] ? rawtextM[4].toUpperCase().padStart(2,"0") : "00", textCharset: rawtextM[5] ? "lower" : "upper", macroLabel: rawtextM[6] || "" });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -5172,11 +5320,19 @@ function parseExpertText(text) {
       continue;
     }
 
-    // .petscii $ADDR|label, "text" [, shift] [, null] [:macroLabel]
-    const petsciiM = line.match(/^\.petscii\s+(?:\$([0-9A-Fa-f]{1,4})|([A-Za-z_][A-Za-z0-9_]*))\s*,\s*"([^"]*)"\s*(?:,\s*([0-9A-Fa-f]{1,2}))?(?:\s*,\s*(null))?\s*(?::([A-Za-z_][A-Za-z0-9_]*))?\s*$/i);
+    // .petscii $ADDR|label, "text" [, lower] [, null] [:macroLabel]
+    const petsciiM = line.match(/^\.petscii\s+(?:\$([0-9A-Fa-f]{1,4})|([A-Za-z_][A-Za-z0-9_]*))\s*,\s*"([^"]*)"(?:\s*,\s*(lower))?(?:\s*,\s*(null))?\s*(?::([A-Za-z_][A-Za-z0-9_]*))?\s*$/i);
     if (petsciiM) {
       const peAddr = petsciiM[1] ? petsciiM[1].toUpperCase().padStart(4,"0") : petsciiM[2];
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "PETSCII", operand: petsciiM[3], rawOperand: petsciiM[3], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isPetsciiMacro: true, petsciiAddress: peAddr, charOffset: petsciiM[4] ? petsciiM[4].toUpperCase().padStart(2,"0") : "00", petsciiNullTerminated: !!petsciiM[5], macroLabel: petsciiM[6] || "" });
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "PETSCII", operand: petsciiM[3], rawOperand: petsciiM[3], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isPetsciiMacro: true, petsciiAddress: peAddr, petsciiCharset: petsciiM[4] ? "lower" : "upper", petsciiNullTerminated: !!petsciiM[5], macroLabel: petsciiM[6] || "" });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .charset lower|upper
+    const charsetM = line.match(/^\.charset\s+(lower|upper)\s*$/i);
+    if (charsetM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "CHARSET", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isCharsetMacro: true, charsetMode: charsetM[1].toLowerCase() });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -5715,9 +5871,7 @@ function _expertValidate() {
       if (errors.length) {
         _expertSetStatus(errors[0].msg + (errors.length > 1 ? ` (+${errors.length - 1} more)` : ""), "error");
       } else {
-        _expertSetStatus(currentLanguage !== "hu"
-          ? `${blocks.length} ${blocks.length === 1 ? "block" : "blocks"} — OK`
-          : `${blocks.length} blokk — OK`, "ok");
+        _expertSetStatus(`${blocks.length} ${blocks.length === 1 ? t("expertBlock1") : t("expertBlockN")} — OK`, "ok");
       }
       if (_expertDisasmVisible) _expertRenderDisasm();
       if (_expertMonitorVisible) _expertRenderMonitor();
@@ -5862,7 +6016,7 @@ function _buildDisasmHTML() {
             .map(b => (b + (isNaN(rawOffset) ? 0 : rawOffset)) & 0xFF);
           deferredAddr = parseAddressValue(block.rawTextAddress, labelMap) ?? 0xC000;
         } else if (block.isPetsciiMacro) {
-          deferredBytes = encodePetsciiMacro(block.rawOperand);
+          deferredBytes = encodePetsciiMacro(block.rawOperand, block.petsciiCharset || "upper");
           if (block.petsciiNullTerminated) deferredBytes.push(0x00);
           deferredAddr = parseAddressValue(block.petsciiAddress, labelMap) ?? 0xC000;
         }
@@ -5989,7 +6143,7 @@ function renderDisasmOutput() {
   const el = document.getElementById("disasm-output");
   if (!el) return;
   if (!program.length) {
-    el.innerHTML = `<span class="asm-tok-comment">; ${currentLanguage !== "hu" ? "Disassembly will appear here" : "A disassembler kimenet itt jelenik meg"}</span>`;
+    el.innerHTML = `<span class="asm-tok-comment">; ${t("disassemblyWillAppearHere")}</span>`;
     return;
   }
   el.innerHTML = _buildDisasmHTML();
@@ -6642,9 +6796,9 @@ function parseUserMacros() {
       if (name && userMacros[name]) {
         block.validationError = "";
       } else if (!name) {
-        block.validationError = currentLanguage !== "hu" ? "No macros defined yet" : "Meg nincs definialva makro";
+        block.validationError = t("noMacrosDefinedYet");
       } else {
-        block.validationError = currentLanguage !== "hu" ? `Macro not found: ${name}` : `Makro nem talalhato: ${name}`;
+        block.validationError = tf("macroNotFound", {name});
       }
     }
   }
@@ -6770,7 +6924,7 @@ function updateProgramBlock(index, field, value) {
   if (field === "invokeMacroName") {
     block.invokeMacroName = value;
     // Keep mnemonic as "INVOKE", don't change it
-    block.validationError = userMacros[value] ? "" : (currentLanguage !== "hu" ? "Macro not found" : "Makro nem talalhato");
+    block.validationError = userMacros[value] ? "" : (t("macroNotFound"));
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -6946,8 +7100,8 @@ function updateProgramBlock(index, field, value) {
     const port = parseInt(field === "joyPort" ? value : block.joyPort, 10);
     const num = parseInt(field === "joySpriteNum" ? value : block.joySpriteNum, 10);
     block.validationError =
-      (port !== 1 && port !== 2) ? (currentLanguage !== "hu" ? "Port must be 1 or 2." : "A port 1 vagy 2 lehet.") :
-      (isNaN(num) || num < 0 || num > 7) ? (currentLanguage !== "hu" ? "Sprite number must be 0–7." : "A sprite szama 0 es 7 kozott lehet.") :
+      (port !== 1 && port !== 2) ? (t("portMustBe1Or2")) :
+      (isNaN(num) || num < 0 || num > 7) ? (t("spriteNumberMustBe07")) :
       "";
     renderBlockPreview(index);
     renderAsmOutput();
@@ -6960,10 +7114,10 @@ function updateProgramBlock(index, field, value) {
     const zpX = (field === "mousePotXZP" ? value : block.mousePotXZP || "FD").replace(/^\$/, "");
     const zpY = (field === "mousePotYZP" ? value : block.mousePotYZP || "FE").replace(/^\$/, "");
     block.validationError =
-      (port !== 1 && port !== 2) ? (currentLanguage !== "hu" ? "Port must be 1 or 2." : "A port 1 vagy 2 lehet.") :
-      (isNaN(num) || num < 0 || num > 7) ? (currentLanguage !== "hu" ? "Sprite number must be 0–7." : "A sprite szama 0 es 7 kozott lehet.") :
-      (!/^[0-9A-Fa-f]{1,2}$/.test(zpX)) ? (currentLanguage !== "hu" ? "ZP X must be a hex byte (00–FF)." : "ZP X 1 hex byte legyen (00–FF).") :
-      (!/^[0-9A-Fa-f]{1,2}$/.test(zpY)) ? (currentLanguage !== "hu" ? "ZP Y must be a hex byte (00–FF)." : "ZP Y 1 hex byte legyen (00–FF).") :
+      (port !== 1 && port !== 2) ? (t("portMustBe1Or2")) :
+      (isNaN(num) || num < 0 || num > 7) ? (t("spriteNumberMustBe07")) :
+      (!/^[0-9A-Fa-f]{1,2}$/.test(zpX)) ? (t("zpXMustBeAHexByte00Ff")) :
+      (!/^[0-9A-Fa-f]{1,2}$/.test(zpY)) ? (t("zpYMustBeAHexByte00Ff")) :
       "";
     renderBlockPreview(index);
     renderAsmOutput();
@@ -6973,7 +7127,7 @@ function updateProgramBlock(index, field, value) {
   if (block.isSpriteColMacro && (field === "spriteNum" || field === "colType")) {
     const num = parseInt(field === "spriteNum" ? value : block.spriteNum, 10);
     block.validationError = (isNaN(num) || num < 0 || num > 7)
-      ? (currentLanguage !== "hu" ? "Sprite number must be 0–7." : "A sprite szama 0 es 7 kozott lehet.")
+      ? (t("spriteNumberMustBe07"))
       : "";
     renderBlockPreview(index);
     renderAsmOutput();
@@ -6985,9 +7139,9 @@ function updateProgramBlock(index, field, value) {
     const dst = parseInt((block.mapCopyDst || "0400"), 16);
     const sz = block.mapCopySize || 1000;
     block.validationError =
-      (isNaN(src) || src < 0 || src > 0xFFFF) ? (currentLanguage !== "hu" ? "Invalid source address." : "Ervenytelen forras cim.") :
-      (isNaN(dst) || dst < 0 || dst > 0xFFFF) ? (currentLanguage !== "hu" ? "Invalid destination address." : "Ervenytelen cel cim.") :
-      (sz < 1 || sz > 65000) ? (currentLanguage !== "hu" ? "Size must be 1–65000." : "Meret 1 es 65000 kozott legyen.") : "";
+      (isNaN(src) || src < 0 || src > 0xFFFF) ? (t("invalidSourceAddress")) :
+      (isNaN(dst) || dst < 0 || dst > 0xFFFF) ? (t("invalidDestinationAddress")) :
+      (sz < 1 || sz > 65000) ? (t("sizeMustBe165000")) : "";
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -6999,10 +7153,10 @@ function updateProgramBlock(index, field, value) {
     const zp = parseInt((block.animFrameZP || "FB"), 16);
     const listAddr = parseInt((block.animFrameListAddr || "C100"), 16);
     block.validationError =
-      (isNaN(num) || num < 0 || num > 7) ? (currentLanguage !== "hu" ? "Sprite number must be 0–7." : "A sprite szama 0 es 7 kozott lehet.") :
-      (isNaN(count) || count < 1 || count > 255) ? (currentLanguage !== "hu" ? "Frame count must be 1–255." : "Frame szam 1 es 255 kozott legyen.") :
-      (isNaN(zp) || zp > 0xFF) ? (currentLanguage !== "hu" ? "ZP must be $00–$FF." : "ZP $00-$FF kozott legyen.") :
-      (isNaN(listAddr) || listAddr > 0xFFFF) ? (currentLanguage !== "hu" ? "Invalid frame list address." : "Ervenytelen frame lista cim.") : "";
+      (isNaN(num) || num < 0 || num > 7) ? (t("spriteNumberMustBe07")) :
+      (isNaN(count) || count < 1 || count > 255) ? (t("frameCountMustBe1255")) :
+      (isNaN(zp) || zp > 0xFF) ? (t("zpMustBe00Ff")) :
+      (isNaN(listAddr) || listAddr > 0xFFFF) ? (t("invalidFrameListAddress")) : "";
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -7013,9 +7167,9 @@ function updateProgramBlock(index, field, value) {
     const scr = parseInt((block.scoreScreenAddr || "0400"), 16);
     const pts = parseInt(block.scoreAddPoints || "100", 10);
     block.validationError =
-      (isNaN(addr) || addr > 0xFFFF) ? (currentLanguage !== "hu" ? "Invalid BCD address." : "Ervenytelen BCD cim.") :
-      (isNaN(scr) || scr > 0xFFFF) ? (currentLanguage !== "hu" ? "Invalid screen address." : "Ervenytelen screen cim.") :
-      (isNaN(pts) || pts < 0) ? (currentLanguage !== "hu" ? "Add value must be >= 0." : "Hozzaadando ertek >= 0 legyen.") : "";
+      (isNaN(addr) || addr > 0xFFFF) ? (t("invalidBcdAddress")) :
+      (isNaN(scr) || scr > 0xFFFF) ? (t("invalidScreenAddress")) :
+      (isNaN(pts) || pts < 0) ? (t("addValueMustBe0")) : "";
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -7025,7 +7179,7 @@ function updateProgramBlock(index, field, value) {
     const v = value.replace(/^\$/, "");
     const parsed = parseInt(v, 16);
     block.validationError = (isNaN(parsed) || parsed < 0 || parsed > 255)
-      ? (currentLanguage !== "hu" ? "Raster line must be a hex byte ($00–$FF)." : "A rasztersor 1 hex byte legyen ($00-$FF).")
+      ? (t("rasterLineMustBeAHexByte00Ff"))
       : "";
     renderBlockPreview(index);
     renderAsmOutput();
@@ -7035,7 +7189,7 @@ function updateProgramBlock(index, field, value) {
   if (block.isTurboSetMacro && (field === "turboSpeed" || field === "turboBadline")) {
     const spd = parseInt(block.turboSpeed || "7", 10);
     block.validationError = (isNaN(spd) || spd < 0 || spd > 15)
-      ? (currentLanguage !== "hu" ? "Turbo speed must be 0–15." : "A turbo sebesseg 0 es 15 kozott lehet.")
+      ? (t("turboSpeedMustBe015"))
       : "";
     renderBlockPreview(index);
     renderAsmOutput();
@@ -7083,13 +7237,13 @@ function updateProgramBlock(index, field, value) {
     const bankVal = parseInt(block.reuBank || "0", 10);
     const length  = parseInt((block.reuLength || "0100").replace(/^\$/, ""), 16);
     if (isNaN(c64Addr) || c64Addr < 0 || c64Addr > 0xFFFF) {
-      block.validationError = currentLanguage !== "hu" ? "C64 address must be $0000–$FFFF." : "A C64 cim $0000-$FFFF kozott lehet.";
+      block.validationError = t("c64AddressMustBe0000Ffff");
     } else if (isNaN(expAddr) || expAddr < 0 || expAddr > 0xFFFF) {
-      block.validationError = currentLanguage !== "hu" ? "REU address must be $0000–$FFFF." : "A REU cim $0000-$FFFF kozott lehet.";
+      block.validationError = t("reuAddressMustBe0000Ffff");
     } else if (isNaN(bankVal) || bankVal < 0 || bankVal > 7) {
-      block.validationError = currentLanguage !== "hu" ? "REU bank must be 0–7." : "A REU bank 0-7 lehet.";
+      block.validationError = t("reuBankMustBe07");
     } else if (isNaN(length) || length < 1 || length > 0xFFFF) {
-      block.validationError = currentLanguage !== "hu" ? "Length must be $0001–$FFFF." : "A hossz $0001-$FFFF kozott lehet.";
+      block.validationError = t("lengthMustBe0001Ffff");
     } else {
       block.validationError = "";
     }
@@ -7461,7 +7615,7 @@ function buildOperandPreview(modeKey, rawValue, base) {
   const value = (modeKey === "immediate" ? rawValue.trim().replace(/^#/, "") : rawValue.trim());
 
   if (!mode.needsOperand) {
-    return { operand: "", text: currentLanguage !== "hu" ? "no operand" : "operandus nelkul", error: "" };
+    return { operand: "", text: t("noOperand"), error: "" };
   }
 
   // * = current program counter (e.g. JMP *, JSR *, BNE *)
@@ -7487,7 +7641,7 @@ function buildOperandPreview(modeKey, rawValue, base) {
   }
 
   if (!value) {
-    return { operand: "", text: currentLanguage !== "hu" ? "missing operand" : "hianyzo operandus", error: currentLanguage !== "hu" ? "This addressing mode requires an operand." : "Ehhez a cimzesi modhoz operandus kell." };
+    return { operand: "", text: t("missingOperand"), error: t("thisAddressingModeRequiresAnOperand") };
   }
 
   if (modeKey === "relative" && parseNumberByBase(value, base) === null) {
@@ -7558,19 +7712,19 @@ function formatByteMacroPreview(value, base = "dec") {
 
 function validateTextMacroPosition(x, y, text = "") {
   if (!Number.isInteger(x) || !Number.isInteger(y)) {
-    return currentLanguage !== "hu" ? "TEXT macro X and Y must be whole numbers." : "A TEXT makro X es Y erteke csak egesz szam lehet.";
+    return t("textMacroXAndYMustBeWholeNumbers");
   }
 
   if (x < 0 || x > 39) {
-    return currentLanguage !== "hu" ? "TEXT macro X must be between 0 and 39." : "A TEXT makro X erteke 0 es 39 kozott lehet.";
+    return t("textMacroXMustBeBetween0And39");
   }
 
   if (y < 0 || y > 24) {
-    return currentLanguage !== "hu" ? "TEXT macro Y must be between 0 and 24." : "A TEXT makro Y erteke 0 es 24 kozott lehet.";
+    return t("textMacroYMustBeBetween0And24");
   }
 
   if ((x + Math.max(0, (text || "").length - 1)) > 39) {
-    return currentLanguage !== "hu" ? "TEXT macro would run past the right edge of the row." : "A TEXT makro szovege kifutna a sor jobb szelere.";
+    return t("textMacroWouldRunPastTheRightEdgeOfTheRo");
   }
 
   return "";
@@ -7613,12 +7767,12 @@ function parseByteMacro(raw, base = "dec", labels = null) {
 function validateByteMacro(raw, base = "dec") {
   const trimmed = raw.trim();
   if (!trimmed) {
-    return currentLanguage !== "hu" ? "BYTE macro needs at least one byte." : "A BYTE makrohoz legalabb egy byte kell.";
+    return t("byteMacroNeedsAtLeastOneByte");
   }
 
   const parts = trimmed.split(",").map((part) => part.trim()).filter(Boolean);
   if (!parts.length) {
-    return currentLanguage !== "hu" ? "BYTE macro needs at least one byte." : "A BYTE makrohoz legalabb egy byte kell.";
+    return t("byteMacroNeedsAtLeastOneByte");
   }
 
   for (const part of parts) {
@@ -7628,10 +7782,10 @@ function validateByteMacro(raw, base = "dec") {
     const validBare = base === "bin" ? /^[01]+$/.test(part) : (base === "hex" ? /^[0-9A-Fa-f]+$/.test(part) : /^\d+$/.test(part));
     if (!validBinary && !validHexPrefixed && !validBare) {
       return base === "bin"
-        ? (currentLanguage !== "hu" ? "In binary mode use only 0 and 1 separated by commas, optionally with % prefix." : "Binaris modban csak 0-kat es 1-eseket hasznalj, opcionis % elotaggal.")
+        ? (t("inBinaryModeUseOnly0And1SeparatedByComma"))
         : base === "hex"
-          ? (currentLanguage !== "hu" ? "BYTE macro only accepts hex bytes separated by commas, for example FF,00,8D." : "A BYTE makroban csak hex byte-ok lehetnek, peldaul FF,00,8D.")
-          : (currentLanguage !== "hu" ? "BYTE macro only accepts decimal or hex bytes separated by commas." : "A BYTE makroban csak decimalis vagy hex byte-ok lehetnek, vesszovel elvalasztva.");
+          ? (t("byteMacroOnlyAcceptsHexBytesSeparatedByC"))
+          : (t("byteMacroOnlyAcceptsDecimalOrHexBytesSep"));
     }
 
     const value = validBinary
@@ -7641,7 +7795,7 @@ function validateByteMacro(raw, base = "dec") {
         : Number.parseInt(part, base === "bin" ? 2 : (base === "hex" ? 16 : 10));
 
     if (value < 0 || value > 255) {
-      return currentLanguage !== "hu" ? "Every BYTE macro element must be a byte between 0 and 255." : "A BYTE makro minden eleme 0 es 255 kozotti byte kell legyen.";
+      return t("everyByteMacroElementMustBeAByteBetween0");
     }
   }
 
@@ -7667,12 +7821,12 @@ function parseWordMacro(raw, base = "dec") {
 function validateWordMacro(raw, base = "dec") {
   const trimmed = raw.trim();
   if (!trimmed) {
-    return currentLanguage !== "hu" ? "WORD macro needs at least one 16-bit value." : "A WORD makrohoz legalabb egy 16-bites ertek kell.";
+    return t("wordMacroNeedsAtLeastOne16BitValue");
   }
 
   const parts = trimmed.split(",").map((part) => part.trim()).filter(Boolean);
   if (!parts.length) {
-    return currentLanguage !== "hu" ? "WORD macro needs at least one 16-bit value." : "A WORD makrohoz legalabb egy 16-bites ertek kell.";
+    return t("wordMacroNeedsAtLeastOne16BitValue");
   }
 
   for (const part of parts) {
@@ -7680,8 +7834,8 @@ function validateWordMacro(raw, base = "dec") {
     const validBare = base === "hex" ? /^[0-9A-Fa-f]+$/.test(part) : /^\d+$/.test(part);
     if (!validHexPrefixed && !validBare) {
       return base === "hex"
-        ? (currentLanguage !== "hu" ? "WORD macro only accepts hex values separated by commas." : "A WORD makroban csak hex ertekek lehetnek, vesszovel elvalasztva.")
-        : (currentLanguage !== "hu" ? "WORD macro only accepts decimal or hex values separated by commas." : "A WORD makroban csak decimalis vagy hex ertekek lehetnek, vesszovel elvalasztva.");
+        ? (t("wordMacroOnlyAcceptsHexValuesSeparatedBy"))
+        : (t("wordMacroOnlyAcceptsDecimalOrHexValuesSe"));
     }
 
     const value = validHexPrefixed
@@ -7689,7 +7843,7 @@ function validateWordMacro(raw, base = "dec") {
       : Number.parseInt(part, base === "hex" ? 16 : 10);
 
     if (value < 0 || value > 65535) {
-      return currentLanguage !== "hu" ? "Every WORD macro element must be between 0 and 65535." : "A WORD makro minden eleme 0 es 65535 kozotti kell legyen.";
+      return t("everyWordMacroElementMustBeBetween0And65");
     }
   }
 
@@ -7719,25 +7873,25 @@ function parseFillMacro(raw, base = "dec") {
 function validateFillMacro(raw, base = "dec") {
   const trimmed = raw.trim();
   if (!trimmed) {
-    return currentLanguage !== "hu" ? "FILL macro needs count and value (e.g., FILL 256,$00)." : "A FILL makrohoz darabszam es ertek kell (pl. FILL 256,$00).";
+    return t("fillMacroNeedsCountAndValueEGFill25600");
   }
 
   const parts = trimmed.split(",").map((part) => part.trim()).filter(Boolean);
   if (parts.length !== 2) {
-    return currentLanguage !== "hu" ? "FILL macro needs exactly two parameters: count,value." : "A FILL makrohoz pontosan ket parameter kell: darabszam,ertek.";
+    return t("fillMacroNeedsExactlyTwoParametersCountV");
   }
 
   const parsed = parseFillMacro(raw, base);
   if (!parsed) {
-    return currentLanguage !== "hu" ? "FILL macro parameters are invalid." : "A FILL makro parameterei ervenytelenek.";
+    return t("fillMacroParametersAreInvalid");
   }
 
   if (isNaN(parsed.count) || parsed.count < 1 || parsed.count > 65536) {
-    return currentLanguage !== "hu" ? "FILL count must be between 1 and 65536." : "A FILL darabszam 1 es 65536 kozott kell legyen.";
+    return t("fillCountMustBeBetween1And65536");
   }
 
   if (isNaN(parsed.value) || parsed.value < 0 || parsed.value > 255) {
-    return currentLanguage !== "hu" ? "FILL value must be a byte between 0 and 255." : "A FILL ertek 0 es 255 kozotti byte kell legyen.";
+    return t("fillValueMustBeAByteBetween0And255");
   }
 
   return "";
@@ -7746,16 +7900,16 @@ function validateFillMacro(raw, base = "dec") {
 function validateAlignMacro(raw, base = "hex") {
   const trimmed = raw.trim();
   if (!trimmed) {
-    return currentLanguage !== "hu" ? "ALIGN macro needs a boundary value (e.g., 64, 256, $2000)." : "Az ALIGN makrohoz hatar ertek kell (pl. 64, 256, $2000).";
+    return t("alignMacroNeedsABoundaryValueEG642562000");
   }
 
   const parsed = parseNumberByBase(trimmed.replace(/^\$/, ""), base);
   if (parsed === null || isNaN(parsed)) {
-    return currentLanguage !== "hu" ? "ALIGN boundary must be a valid number." : "Az ALIGN hatar ervenyes szam kell legyen.";
+    return t("alignBoundaryMustBeAValidNumber");
   }
 
   if (parsed < 1 || parsed > 65536) {
-    return currentLanguage !== "hu" ? "ALIGN boundary must be between 1 and 65536." : "Az ALIGN hatar 1 es 65536 kozott kell legyen.";
+    return t("alignBoundaryMustBeBetween1And65536");
   }
 
   // Check if it's a power of 2 or common boundary
@@ -7769,16 +7923,16 @@ function validateAlignMacro(raw, base = "hex") {
 
 function validateTableMacro(labelName, address) {
   if (!labelName || !labelName.trim()) {
-    return currentLanguage !== "hu" ? "TABLE macro needs a label name." : "A TABLE makrohoz cimke nev kell.";
+    return t("tableMacroNeedsALabelName");
   }
 
   const value = parseAddressValue(address);
   if (value === null) {
-    return currentLanguage !== "hu" ? "TABLE macro needs a valid start address, for example $C000." : "A TABLE makrohoz ervenyes kezdocim kell, peldaul $C000.";
+    return t("tableMacroNeedsAValidStartAddressForExam");
   }
 
   if (value < 0 || value > 0xFFFF) {
-    return currentLanguage !== "hu" ? "TABLE macro address must be between 0 and 65535." : "A TABLE makro cime 0 es 65535 kozott lehet.";
+    return t("tableMacroAddressMustBeBetween0And65535");
   }
 
   return "";
@@ -7787,16 +7941,16 @@ function validateTableMacro(labelName, address) {
 function validateSpriteInitMacro(spriteNum, spriteColor, spriteDataPage) {
   const num = parseInt(spriteNum, 10);
   if (isNaN(num) || num < 0 || num > 7) {
-    return currentLanguage !== "hu" ? "Sprite number must be 0–7." : "A sprite szama 0 es 7 kozott lehet.";
+    return t("spriteNumberMustBe07");
   }
   const color = parseInt(spriteColor, 10);
   if (isNaN(color) || color < 0 || color > 15) {
-    return currentLanguage !== "hu" ? "Color must be 0–15." : "A szin erteke 0 es 15 kozott lehet.";
+    return t("colorMustBe015");
   }
   const pageStr = (spriteDataPage || "").replace(/^\$/, "");
   const page = parseInt(pageStr, 16);
   if (isNaN(page) || page < 0 || page > 255) {
-    return currentLanguage !== "hu" ? "Data page must be a hex byte ($00–$FF), e.g. $21 for $0840." : "Az adatlap 1 hex byte legyen ($00-$FF), pl. $21 = $0840.";
+    return t("dataPageMustBeAHexByte00FfEG21For0840");
   }
   return "";
 }
@@ -7804,52 +7958,52 @@ function validateSpriteInitMacro(spriteNum, spriteColor, spriteDataPage) {
 function validateSpritePosMacro(spriteNum, spriteX, spriteY) {
   const num = parseInt(spriteNum, 10);
   if (isNaN(num) || num < 0 || num > 7) {
-    return currentLanguage !== "hu" ? "Sprite number must be 0–7." : "A sprite szama 0 es 7 kozott lehet.";
+    return t("spriteNumberMustBe07");
   }
   const x = parseInt(spriteX, 10);
   if (isNaN(x) || x < 0 || x > 319) {
-    return currentLanguage !== "hu" ? "X must be 0–319." : "Az X erteke 0 es 319 kozott lehet.";
+    return t("xMustBe0319");
   }
   const y = parseInt(spriteY, 10);
   if (isNaN(y) || y < 0 || y > 255) {
-    return currentLanguage !== "hu" ? "Y must be 0–255." : "Az Y erteke 0 es 255 kozott lehet.";
+    return t("yMustBe0255");
   }
   return "";
 }
 
 function validateDefineMacro(symbols) {
   if (!symbols || !symbols.trim()) {
-    return currentLanguage !== "hu" ? "DEFINE needs at least one symbol (e.g., DEBUG or DEBUG, PAL)." : "A DEFINE-hoz legalabb egy szimbolum kell (pl. DEBUG vagy DEBUG, PAL).";
+    return t("defineNeedsAtLeastOneSymbolEGDebugOrDebu");
   }
   const parts = symbols.split(",").map(s => s.trim()).filter(Boolean);
   const invalid = parts.find(p => !/^[A-Za-z_][A-Za-z0-9_]*$/.test(p));
   if (invalid) {
-    return currentLanguage !== "hu" ? `"${invalid}" is not a valid identifier.` : `"${invalid}" nem ervenyes azonosito.`;
+    return tf("invalidIdentifier", {name: invalid});
   }
   return "";
 }
 
 function validateConstMacro(name, value, base) {
   if (!name || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) {
-    return currentLanguage !== "hu" ? "CONST name must be a valid identifier (e.g., SCORE_ADDR)." : "A CONST neve ervenyes azonosito kell legyen (pl. SCORE_ADDR).";
+    return t("constNameMustBeAValidIdentifierEGScoreAd");
   }
   const trimmed = (value || "").trim();
   if (/^\*\s*[+-]\s*\d+$/.test(trimmed)) return "";
   const numericValue = parseNumberByBase(trimmed.replace(/^\$/, ""), base);
   if (numericValue === null || numericValue < 0 || numericValue > 65535) {
-    return currentLanguage !== "hu" ? "CONST value must be a number between 0 and 65535." : "A CONST erteke 0 es 65535 kozott kell legyen.";
+    return t("constValueMustBeANumberBetween0And65535");
   }
   return "";
 }
 
 function validateIfMacro(condition) {
   if (!condition || !condition.trim()) {
-    return currentLanguage !== "hu" ? "IF macro needs a condition (e.g., DEBUG)." : "Az IF makrohoz feltetel kell (pl. DEBUG).";
+    return t("ifMacroNeedsAConditionEGDebug");
   }
 
   // Simple validation - just check it's a valid identifier
   if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(condition.trim())) {
-    return currentLanguage !== "hu" ? "IF condition must be a valid identifier." : "Az IF feltetelnek ervenyes azonositonak kell lennie.";
+    return t("ifConditionMustBeAValidIdentifier");
   }
 
   return "";
@@ -7894,10 +8048,10 @@ function parseAddressValue(raw, labelMap) {
 function validateIncBinMacro(incBinBytes, rawAddress) {
   const value = parseAddressValue(rawAddress);
   if (value === null) {
-    return currentLanguage !== "hu" ? "INCBIN macro needs a valid start address, for example $C000." : "Az INCBIN makrohoz ervenyes kezdocim kell, peldaul $C000.";
+    return t("incbinMacroNeedsAValidStartAddressForExa");
   }
   if (value < 0 || value > 0xFFFF) {
-    return currentLanguage !== "hu" ? "INCBIN macro address must be between 0 and 65535." : "Az INCBIN makro cime 0 es 65535 kozott lehet.";
+    return t("incbinMacroAddressMustBeBetween0And65535");
   }
   return "";
 }
@@ -7906,11 +8060,11 @@ function validateStringMacroAddress(raw) {
   if (/^[A-Za-z_][A-Za-z0-9_]*$/.test((raw || "").trim())) return ""; // label identifier — resolved at assembly time
   const value = parseAddressValue(raw);
   if (value === null) {
-    return currentLanguage !== "hu" ? "STRING macro needs a valid start address, for example $C000." : "A STRING makrohoz ervenyes kezdocim kell, peldaul $C000.";
+    return t("stringMacroNeedsAValidStartAddressForExa");
   }
 
   if (value < 0 || value > 0xFFFF) {
-    return currentLanguage !== "hu" ? "STRING macro address must be between 0 and 65535." : "A STRING makro cime 0 es 65535 kozott lehet.";
+    return t("stringMacroAddressMustBeBetween0And65535");
   }
 
   return "";
@@ -7919,15 +8073,13 @@ function validateStringMacroAddress(raw) {
 function validateTextWithOffset(rawOperand, charOffset) {
   const offset = parseInt(charOffset || "0", 16);
   if (isNaN(offset) || offset < 0 || offset > 255) {
-    return currentLanguage !== "hu" ? "+Byte offset must be a hex value between 00 and FF." : "A +Byte offset 00 es FF kozotti hex ertek lehet.";
+    return t("byteOffsetMustBeAHexValueBetween00AndFf");
   }
   if (offset === 0) return "";
   const chars = encodeTextMacro(rawOperand);
   const overflow = chars.find(c => (c + offset) > 255);
   if (overflow !== undefined) {
-    return currentLanguage !== "hu"
-      ? `+Byte offset $${offset.toString(16).toUpperCase().padStart(2,"0")} causes overflow (char code $${overflow.toString(16).toUpperCase().padStart(2,"0")} + offset > $FF).`
-      : `A +Byte offset $${offset.toString(16).toUpperCase().padStart(2,"0")} tulcsordulast okoz (karakter kod $${overflow.toString(16).toUpperCase().padStart(2,"0")} + offset > $FF).`;
+    return tf("byteOffsetOverflow", {off: offset.toString(16).toUpperCase().padStart(2,"0"), ch: overflow.toString(16).toUpperCase().padStart(2,"0")});
   }
   return "";
 }
@@ -7939,24 +8091,34 @@ function validateDataMacro(rawBytes, rawAddress, base = "dec") {
   if (/^[A-Za-z_][A-Za-z0-9_]*$/.test((rawAddress || "").trim())) return ""; // label identifier — resolved at assembly time
   const value = parseAddressValue(rawAddress);
   if (value === null) {
-    return currentLanguage !== "hu" ? "DATA macro needs a valid start address, for example $C000." : "A DATA makrohoz ervenyes kezdocim kell, peldaul $C000.";
+    return t("dataMacroNeedsAValidStartAddressForExamp");
   }
 
   if (value < 0 || value > 0xFFFF) {
-    return currentLanguage !== "hu" ? "DATA macro address must be between 0 and 65535." : "A DATA makro cime 0 es 65535 kozott lehet.";
+    return t("dataMacroAddressMustBeBetween0And65535");
   }
 
   return "";
 }
 
-function encodeTextMacro(text, charset = "standard") {
-  // Auto-detect: any letter triggers lowercase charset encoding.
-  // "HELLO WORLD" → HELLO WORLD, "Hello World" → Hello World.
-  // Pure numbers/symbols stay standard for backward compat.
-  const hasLetters = /[A-Za-z]/.test(text || "");
-  const effectiveCharset = charset === "lowercase" || (charset === "standard" && hasLetters) ? "lowercase" : "standard";
-  const mapper = effectiveCharset === "lowercase" ? toLowercaseScreenCode : toPetsciiCharCode;
-  return [...(text || "HELLO C64")].map((char) => mapper(char));
+function encodeTextMacro(text, charset = "upper") {
+  // charset: "upper"/"standard" = minden betű nagybetűként jelenik meg (C64 alapmód)
+  //          "lower"/"lowercase" = lowercase charset-ben: kisbetű input → kisbetű, nagybetű → nagybetű
+  // C64 screen kód logika:
+  //   $01-$1A → upper charset: nagybetű A-Z  |  lower charset: kisbetű a-z
+  //   $41-$5A → upper charset: grafika       |  lower charset: nagybetű A-Z
+  const isLower = charset === "lower" || charset === "lowercase";
+  return [...(text || "HELLO C64")].map(char => {
+    if (char === "\n") return 13;
+    const code = char.charCodeAt(0);
+    if (code >= 65 && code <= 90) return isLower ? code : code - 64;
+    // upper: A-Z → $01-$1A (nagybetű az uppercase charset-ben)
+    // lower: A-Z → $41-$5A (nagybetű a lowercase charset-ben)
+    if (code >= 97 && code <= 122) return code - 96;
+    // a-z → $01-$1A (lowercase charset-ben kisbetű, uppercase charset-ben nagybetű jelenik meg)
+    if (code >= 32) return code;
+    return 32;
+  });
 }
 
 // Lowercase charset screen code mapping (C64 char ROM at $1800, $D018=$17):
@@ -7974,14 +8136,16 @@ function toLowercaseScreenCode(char) {
 // PETSCII makro: szoveg → PETSCII byte-ok (CHROUT-kompatibilis)
 // Mindig uppercase: C64 alap charset-ben $61-$7A = grafikus karakterek
 // Kisbetus megjeleniteshez $D018 bit 1=1 (lowercase mode) szukseges
-function encodePetsciiMacro(text) {
-  return [...(text || "HELLO")].map((char) => {
+function encodePetsciiMacro(text, charset = "upper") {
+  // charset: "upper" = $41-$5A (PETSCII nagybetű, C64 alapmód)
+  //          "lower" = kisbetű → $61-$7A (PETSCII kisbetű, lowercase charset kell)
+  const isLower = charset === "lower";
+  return [...(text || "HELLO")].map(char => {
     if (char === "\n") return 13;
-    const upper = char.toUpperCase();
-    const code = upper.charCodeAt(0);
-    // Only printable ASCII range maps to PETSCII in default charset
-    if (code >= 32 && code <= 90) return code;
-    if (code >= 97 && code <= 122) return code - 32; // lowercase→uppercase PETSCII
+    const code = char.charCodeAt(0);
+    if (code >= 65 && code <= 90) return code;                              // A-Z → $41-$5A PETSCII nagybetű
+    if (code >= 97 && code <= 122) return isLower ? code : code - 32;      // lower: $61-$7A, upper: $41-$5A
+    if (code >= 32 && code <= 126) return code;
     return 32;
   });
 }
@@ -8005,19 +8169,19 @@ function toPetsciiCharCode(char) {
 
 function validateRange(modeKey, value) {
   if (!Number.isInteger(value)) {
-    return currentLanguage !== "hu" ? "Only whole numbers are supported." : "Csak egesz szam tamogatott.";
+    return t("onlyWholeNumbersAreSupported");
   }
 
   if (modeKey === "immediate" || modeKey === "zeroPage" || modeKey === "zeroPageX" || modeKey === "indirectX" || modeKey === "indirectY" || modeKey === "zeroPageY") {
-    return value < 0 || value > 255 ? (currentLanguage !== "hu" ? "This mode expects a value between 0 and 255." : "Ez a mod 0 es 255 kozotti erteket var.") : "";
+    return value < 0 || value > 255 ? (t("thisModeExpectsAValueBetween0And255")) : "";
   }
 
   if (modeKey === "absolute" || modeKey === "absoluteX" || modeKey === "absoluteY" || modeKey === "indirect") {
-    return value < 0 || value > 65535 ? (currentLanguage !== "hu" ? "Absolute addressing requires a value between 0 and 65535." : "Absolute cimzesnel 0 es 65535 kozotti ertek kell.") : "";
+    return value < 0 || value > 65535 ? (t("absoluteAddressingRequiresAValueBetween0")) : "";
   }
 
   if (modeKey === "relative") {
-    return value < -128 || value > 65535 ? (currentLanguage !== "hu" ? "Relative/label mode needs a label or a sensible address/offset." : "Relative/label modban label vagy esszeru cim/offset kell.") : "";
+    return value < -128 || value > 65535 ? (t("relativeLabelModeNeedsALabelOrASensibleA")) : "";
   }
 
   return "";
@@ -8162,7 +8326,7 @@ function updateVicePathPreview(nextPath) {
     }
     vicePathInput.value = displayPath;
     vicePathInput.title = vicePath; // Show full path on hover
-    vicePathInput.placeholder = currentLanguage !== "hu" ? "VICE not configured" : "Nincs beallitva";
+    vicePathInput.placeholder = t("viceNotConfigured");
   }
 }
 
@@ -8178,7 +8342,7 @@ function updateExomizerPathPreview(nextPath) {
     }
     exomizerPathInput.value = displayPath;
     exomizerPathInput.title = exomizerPath;
-    exomizerPathInput.placeholder = currentLanguage !== "hu" ? "Exomizer not configured" : "Nincs beallitva";
+    exomizerPathInput.placeholder = t("exomizerNotConfigured");
   }
   if (exomizerStatus) {
     exomizerStatus.textContent = exomizerPath
@@ -8190,9 +8354,7 @@ function updateExomizerPathPreview(nextPath) {
 async function chooseViceExecutable() {
   if (!window.electronAPI?.chooseViceExecutable) {
     if (emulatorStatus) {
-      emulatorStatus.textContent = currentLanguage !== "hu"
-        ? "VICE selection is only available in the Electron app."
-        : "A VICE valasztasa csak az Electron appban erheto el.";
+      emulatorStatus.textContent = t("viceSelectionIsOnlyAvailableInTheElectro");
     }
     return;
   }
@@ -8209,9 +8371,7 @@ async function chooseViceExecutable() {
 async function chooseExomizerExecutable() {
   if (!window.electronAPI?.chooseExomizerExecutable) {
     if (exomizerStatus) {
-      exomizerStatus.textContent = currentLanguage !== "hu"
-        ? "Exomizer selection is only available in the desktop app."
-        : "Az Exomizer kivalasztasa csak a desktop appban erheto el.";
+      exomizerStatus.textContent = t("exomizerSelectionIsOnlyAvailableInTheDes");
     }
     return;
   }
@@ -8258,7 +8418,7 @@ async function chooseDebuggerExecutable() {
 
 async function runInDebugger() {
   if (isProgramEmpty()) {
-    showViceToast(currentLanguage !== "hu" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
+    showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
     return;
   }
   if (!debuggerPath) {
@@ -8347,19 +8507,13 @@ function updateEmulatorStatus() {
   }
 
   if (!window.electronAPI) {
-    emulatorStatus.textContent = currentLanguage !== "hu"
-      ? "VICE launching is available only inside the Electron desktop app."
-      : "A VICE inditasa csak az Electron desktop appban erheto el.";
+    emulatorStatus.textContent = t("viceLaunchingIsAvailableOnlyInsideTheEle");
     return;
   }
 
   emulatorStatus.textContent = vicePath
-    ? (currentLanguage !== "hu"
-      ? `VICE is ready. Executable: ${vicePath}`
-      : `A VICE keszen all. Exe: ${vicePath}`)
-    : (currentLanguage !== "hu"
-      ? "Choose the VICE executable first, then use Run in emulator."
-      : "Eloszor valaszd ki a VICE executable fajlt, utana hasznald a Run in emulator gombot.");
+    ? tf("viceReady", {path: vicePath})
+    : t("chooseTheViceExecutableFirstThenUseRunIn");
 }
 
 function getProjectPayload() {
@@ -9657,13 +9811,13 @@ function setRunMode(mode) {
 
 async function runInBrowser() {
   if (isProgramEmpty()) {
-    showViceToast(currentLanguage !== "hu" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
+    showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
     return;
   }
   const prg = buildAutostartPrgForEmulator();
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
-    showViceToast(prg.error || (currentLanguage !== "hu" ? "Compilation failed." : "Fordítási hiba."), true);
+    showViceToast(prg.error || (t("compilationFailed")), true);
     return;
   }
   try {
@@ -9681,21 +9835,21 @@ async function runInBrowser() {
       openBrowserEmulatorDialog(`emulator.html#${b64}`, "runInBrowser");
     }
   } catch (e) {
-    showViceToast((currentLanguage !== "hu" ? "Browser run failed: " : "Browser futtatás sikertelen: ") + e.message, true);
+    showViceToast((t("browserRunFailed")) + e.message, true);
   }
 }
 
 async function runD64InBrowser() {
   if (isProgramEmpty()) {
-    showViceToast(currentLanguage !== "hu" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
+    showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
     return;
   }
   if (!vicePath) {
-    showViceToast(currentLanguage !== "hu" ? "VICE is not configured (c1541 needed to build the D64). Select it in the menu first." : "A VICE nincs beallitva (c1541 kell a D64 keszitesehez). Valaszd ki a menuben.", true);
+    showViceToast(t("viceIsNotConfiguredC1541NeededToBuildThe"), true);
     return;
   }
   if (!window.electronAPI?.runD64InBrowserEmulator) {
-    showViceToast(currentLanguage !== "hu" ? "D64 in browser is not available." : "A D64 böngészőben futtatás nem elerheto.", true);
+    showViceToast(t("d64InBrowserIsNotAvailable"), true);
     return;
   }
 
@@ -9746,15 +9900,15 @@ async function runD64InBrowser() {
 
 async function runViaD64() {
   if (isProgramEmpty()) {
-    showViceToast(currentLanguage !== "hu" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
+    showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
     return;
   }
   if (!vicePath) {
-    showViceToast(currentLanguage !== "hu" ? "VICE is not configured. Select it in the menu first." : "A VICE nincs beallitva. Valaszd ki a menuben.", true);
+    showViceToast(t("viceIsNotConfiguredSelectItInTheMenuFirs"), true);
     return;
   }
   if (!window.electronAPI?.runD64) {
-    showViceToast(currentLanguage !== "hu" ? "D64 run is not available." : "A D64 futtatás nem elerheto.", true);
+    showViceToast(t("d64RunIsNotAvailable"), true);
     return;
   }
 
@@ -9805,7 +9959,7 @@ async function runViaD64() {
 
 async function runViaExomizer() {
   if (isProgramEmpty()) {
-    showViceToast(currentLanguage !== "hu" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
+    showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
     return;
   }
   if (!exomizerPath) {
@@ -9813,7 +9967,7 @@ async function runViaExomizer() {
     return;
   }
   if (!vicePath) {
-    showViceToast(currentLanguage !== "hu" ? "VICE is not configured. Select it in the menu first." : "A VICE nincs beallitva. Valaszd ki a menuben.", true);
+    showViceToast(t("viceIsNotConfiguredSelectItInTheMenuFirs"), true);
     return;
   }
   if (!window.electronAPI?.launchExomizer) {
@@ -9983,7 +10137,7 @@ async function testUltimateConnection() {
 
 async function runOnUltimate() {
   if (isProgramEmpty()) {
-    showViceToast(currentLanguage !== "hu" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
+    showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
     return;
   }
   const host = (document.getElementById("ultimate-host")?.value || ultimateHost).trim();
@@ -10010,7 +10164,7 @@ async function runOnUltimate() {
 
 async function runUltimateD64() {
   if (isProgramEmpty()) {
-    showViceToast(currentLanguage !== "hu" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
+    showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
     return;
   }
   const host = (document.getElementById("ultimate-host")?.value || ultimateHost).trim();
@@ -10643,7 +10797,7 @@ function parseAsmText(text) {
         operand: anonChar,
         rawOperand: anonChar,
         labelName: anonChar,
-        description: currentLanguage !== "hu" ? "Anonymous local label" : "Nevtelen helyi cimke",
+        description: t("anonymousLocalLabel"),
         addressingMode: "implied",
         base: "hex",
         validationError: "",
@@ -10664,7 +10818,7 @@ function parseAsmText(text) {
         operand: anonWithInstrM[1],
         rawOperand: anonWithInstrM[1],
         labelName: anonWithInstrM[1],
-        description: currentLanguage !== "hu" ? "Anonymous local label" : "Nevtelen helyi cimke",
+        description: t("anonymousLocalLabel"),
         addressingMode: "implied",
         base: "hex",
         validationError: "",
@@ -11067,7 +11221,7 @@ function _getPlainAsmSourceText() {
   const layout = getProgramLayout();
 
   if (!program.length) {
-    return `* = ${layout.origin.text}\n; ${currentLanguage !== "hu" ? "The C64 assembly source will appear here" : "Itt fog megjelenni a C64 assembly kod"}`;
+    return `* = ${layout.origin.text}\n; ${t("theC64AssemblySourceWillAppearHere")}`;
   }
 
   if (expertMode && expertEditor) {
@@ -11285,7 +11439,7 @@ function _getPlainAsmSourceText() {
 
     if (block.isPetsciiMacro) {
       const address = parseAddressValue(block.petsciiAddress, labels) ?? 0xC000;
-      const bytes = encodePetsciiMacro(block.rawOperand);
+      const bytes = encodePetsciiMacro(block.rawOperand, block.petsciiCharset || "upper");
       if (block.petsciiNullTerminated) bytes.push(0x00);
       const byteLines = _formatPlainByteLines(bytes);
       if (byteLines.length) {
@@ -11336,7 +11490,7 @@ function _getPlainAsmSourceText() {
           `sid_${String(index + 1).padStart(2, "0")}`
         );
       } else {
-        pushLine(`; SID "${block.sidFileName || block.sidFile || "?"}" (${currentLanguage !== "hu" ? "no file loaded" : "nincs betoltott fajl"})`);
+        pushLine(`; SID "${block.sidFileName || block.sidFile || "?"}" (${t("noFileLoaded")})`);
       }
       return;
     }
@@ -11358,7 +11512,7 @@ function _getPlainAsmSourceText() {
   if (deferredSections.length) {
     deferredSections.sort((left, right) => left.address - right.address || left.label.localeCompare(right.label));
     pushLine("");
-    pushLine(`; ${currentLanguage !== "hu" ? "Deferred data" : "Elhalasztott adatok"}`);
+    pushLine(`; ${t("deferredData")}`);
     pushLine("");
     deferredSections.forEach((section) => {
       pushLine(`* = ${formatAddress(section.address)}`);
@@ -11369,7 +11523,7 @@ function _getPlainAsmSourceText() {
         pushLine(_commentifyAsmLines(byteLines).join("\n"));
         byteLines.forEach(pushLine);
       } else {
-        pushLine(`    ; ${currentLanguage !== "hu" ? "no data loaded" : "nincs betoltott adat"}`);
+        pushLine(`    ; ${t("noDataLoaded")}`);
       }
       pushLine("");
     });
@@ -11389,12 +11543,12 @@ async function copyAsmToClipboard() {
   try {
     const header = await _getAsmExportHeader();
     await navigator.clipboard.writeText(header + _getPlainAsmSourceText());
-    copyAsmButton.textContent = currentLanguage !== "hu" ? "ASM copied" : "ASM kimasolva";
+    copyAsmButton.textContent = t("asmCopied");
     window.setTimeout(() => {
       copyAsmButton.textContent = t("copyAsm");
     }, 1400);
   } catch (error) {
-    copyAsmButton.textContent = currentLanguage !== "hu" ? "Copy failed" : "Masolas sikertelen";
+    copyAsmButton.textContent = t("copyFailed");
     window.setTimeout(() => {
       copyAsmButton.textContent = t("copyAsm");
     }, 1800);
@@ -11417,16 +11571,16 @@ function showViceToast(fileName, isError = false) {
 
 async function runInEmulator() {
   if (isProgramEmpty()) {
-    showViceToast(currentLanguage !== "hu" ? "Nothing to run — add some instructions first." : "Nincs mit futtatni — adj hozzá utasításokat.", true);
+    showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
     return;
   }
   if (!vicePath) {
-    showViceToast(currentLanguage !== "hu" ? "VICE is not configured. Select it in the menu first." : "A VICE nincs beallitva. Valaszd ki a menuben.", true);
+    showViceToast(t("viceIsNotConfiguredSelectItInTheMenuFirs"), true);
     return;
   }
 
   if (!window.electronAPI?.launchVice) {
-    showViceToast(currentLanguage !== "hu" ? "VICE launch is not available." : "A VICE inditasa nem elerheto.", true);
+    showViceToast(t("viceLaunchIsNotAvailable"), true);
     return;
   }
 
@@ -11450,7 +11604,7 @@ async function runInEmulator() {
     });
 
     if (!result?.ok) {
-      showViceToast(result?.error || (currentLanguage !== "hu" ? "Launching VICE failed." : "A VICE inditasa sikertelen."), true);
+      showViceToast(result?.error || (t("launchingViceFailed")), true);
       return;
     }
 
@@ -11647,7 +11801,7 @@ function assembleProgramToPrg(originOverride) {
       const addr = parseAddressValue(block.rawTextAddress, labels) ?? 0xC000;
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
     } else if (block.isPetsciiMacro) {
-      const chunkBytes = encodePetsciiMacro(block.rawOperand);
+      const chunkBytes = encodePetsciiMacro(block.rawOperand, block.petsciiCharset || "upper");
       if (block.petsciiNullTerminated) chunkBytes.push(0x00);
       const addr = parseAddressValue(block.petsciiAddress, labels) ?? 0xC000;
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
@@ -12027,10 +12181,23 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes, comment: `WAIT_RASTER $${rlHex}` };
   }
 
+  if (block.isCharsetMacro) {
+    // lower: LDA $D018 / ORA #$02 / STA $D018  (bit 1 set → kisbetűs charset ROM)
+    // upper: LDA $D018 / AND #$FD / STA $D018  (bit 1 clear → nagybetűs/grafikus ROM)
+    const isLower = (block.charsetMode || "lower") === "lower";
+    const bytes = [
+      0xAD, 0x18, 0xD0,
+      isLower ? 0x09 : 0x29,
+      isLower ? 0x02 : 0xFD,
+      0x8D, 0x18, 0xD0
+    ];
+    return { ok: true, bytes, comment: `CHARSET ${isLower ? "lower" : "upper"}` };
+  }
+
   if (block.isTurboSetMacro) {
     const spd = parseInt(block.turboSpeed || "7", 10);
     if (isNaN(spd) || spd < 0 || spd > 15) {
-      return { ok: false, error: currentLanguage !== "hu" ? "TURBO_SET: speed must be 0–15." : "TURBO_SET: a sebesseg 0 es 15 kozott lehet." };
+      return { ok: false, error: t("turboSetSpeedMustBe015") };
     }
     const badline = parseInt(block.turboBadline || "0", 10) === 1 ? 0x80 : 0x00;
     const val = (spd & 0x0F) | badline;
@@ -12041,7 +12208,7 @@ function compileLineBytes(line, labels) {
   if (block.isSpriteColMacro) {
     const num = parseInt(block.spriteNum || "0", 10);
     if (isNaN(num) || num < 0 || num > 7) {
-      return { ok: false, error: currentLanguage !== "hu" ? "SPRITE_COL: sprite number must be 0–7." : "SPRITE_COL: a sprite szama 0 es 7 kozott lehet." };
+      return { ok: false, error: t("spriteColSpriteNumberMustBe07") };
     }
     const isBg = (block.colType || "sprite") === "background";
     // $D01E = sprite-sprite, $D01F = sprite-background; reading clears the register
@@ -12111,12 +12278,12 @@ function compileLineBytes(line, labels) {
     const srcInt = parseInt(srcStr, 16);
     const dstInt = parseInt(dstStr, 16);
     if (isNaN(srcInt) || srcInt < 0 || srcInt > 0xFFFF)
-      return { ok: false, error: currentLanguage !== "hu" ? "MAP_COPY: invalid source address." : "MAP_COPY: ervenytelen forras cim." };
+      return { ok: false, error: t("mapCopyInvalidSourceAddress") };
     if (isNaN(dstInt) || dstInt < 0 || dstInt > 0xFFFF)
-      return { ok: false, error: currentLanguage !== "hu" ? "MAP_COPY: invalid destination address." : "MAP_COPY: ervenytelen cel cim." };
+      return { ok: false, error: t("mapCopyInvalidDestinationAddress") };
     const n = parseInt(block.mapCopySize, 10) || 1000;
     if (n < 1 || n > 0x10000)
-      return { ok: false, error: currentLanguage !== "hu" ? "MAP_COPY: size must be 1–65536." : "MAP_COPY: meret 1 es 65536 kozott legyen." };
+      return { ok: false, error: t("mapCopySizeMustBe165536") };
     const genSection = (src, dst) => {
       const out = [];
       const fp = Math.floor(n / 256);
@@ -12149,18 +12316,18 @@ function compileLineBytes(line, labels) {
   if (block.isSpriteAnimMacro) {
     const num = parseInt(block.animSpriteNum || "0", 10);
     if (isNaN(num) || num < 0 || num > 7)
-      return { ok: false, error: currentLanguage !== "hu" ? "SPRITE_ANIM: sprite number must be 0–7." : "SPRITE_ANIM: a sprite szama 0 es 7 kozott lehet." };
+      return { ok: false, error: t("spriteAnimSpriteNumberMustBe07") };
     const count = parseInt(block.animFrameCount || "4", 10);
     if (isNaN(count) || count < 1 || count > 255)
-      return { ok: false, error: currentLanguage !== "hu" ? "SPRITE_ANIM: frame count must be 1–255." : "SPRITE_ANIM: a frame szam 1 es 255 kozott lehet." };
+      return { ok: false, error: t("spriteAnimFrameCountMustBe1255") };
     const zpStr = (block.animFrameZP || "FB").replace(/^\$/, "");
     const zp = parseInt(zpStr, 16);
     if (isNaN(zp) || zp < 0 || zp > 0xFF)
-      return { ok: false, error: currentLanguage !== "hu" ? "SPRITE_ANIM: ZP counter must be $00–$FF." : "SPRITE_ANIM: a ZP szamlalo $00-$FF kozott lehet." };
+      return { ok: false, error: t("spriteAnimZpCounterMustBe00Ff") };
     const listStr = (block.animFrameListAddr || "C100").replace(/^\$/, "");
     const listAddr = parseInt(listStr, 16);
     if (isNaN(listAddr) || listAddr < 0 || listAddr > 0xFFFF)
-      return { ok: false, error: currentLanguage !== "hu" ? "SPRITE_ANIM: invalid frame list address." : "SPRITE_ANIM: ervenytelen frame lista cim." };
+      return { ok: false, error: t("spriteAnimInvalidFrameListAddress") };
     const ptrAddr = 0x07F8 + num;
     const bytes = [
       0xE6, zp,                             // INC $ZP
@@ -12180,12 +12347,12 @@ function compileLineBytes(line, labels) {
     const addrStr = (block.scoreBcdAddr || "C200").replace(/^\$/, "");
     const addr = parseInt(addrStr, 16);
     if (isNaN(addr) || addr < 0 || addr > 0xFFFF)
-      return { ok: false, error: currentLanguage !== "hu" ? "SCORE_BCD: invalid BCD storage address." : "SCORE_BCD: ervenytelen BCD tarolasi cim." };
+      return { ok: false, error: t("scoreBcdInvalidBcdStorageAddress") };
     const digits = block.scoreDigits || 4;
     const scrStr = (block.scoreScreenAddr || "0400").replace(/^\$/, "");
     const scr = parseInt(scrStr, 16);
     if (isNaN(scr) || scr < 0 || scr > 0xFFFF)
-      return { ok: false, error: currentLanguage !== "hu" ? "SCORE_BCD: invalid screen address." : "SCORE_BCD: ervenytelen screen cim." };
+      return { ok: false, error: t("scoreBcdInvalidScreenAddress") };
     const pts = parseInt(block.scoreAddPoints || "100", 10) || 0;
     const bcdByte = v => (Math.floor(v / 10) % 10) * 16 + (v % 10);
     const b0 = bcdByte(pts % 100);
@@ -12848,13 +13015,11 @@ function parseNumberByBase(value, base) {
 
 function getNumberFormatError(base) {
   if (base === "bin") {
-    return currentLanguage !== "hu"
-      ? "In binary mode use only 0 and 1 characters, optionally with a % prefix."
-      : "Binaris modban csak 0 es 1 karaktereket hasznalj, opcionis % elotaggal.";
+    return t("inBinaryModeUseOnly0And1CharactersOption");
   }
   return base === "hex"
-    ? (currentLanguage !== "hu" ? "In hex mode use only 0-9 and A-F characters, optionally with a $ prefix. Binary literals (%00001111) are also accepted." : "Hex modban csak 0-9 es A-F karaktereket hasznalj, opcionis $ elotaggal. Binaris literalok is elfogadottak (%00001111).")
-    : (currentLanguage !== "hu" ? "In decimal mode provide only whole numbers. Binary literals (%00001111) are also accepted." : "Decimalis modban csak egesz szamot adj meg. Binaris literalok is elfogadottak (%00001111).");
+    ? (t("inHexModeUseOnly09AndAFCharactersOptiona"))
+    : (t("inDecimalModeProvideOnlyWholeNumbersBina"));
 }
 
 // For regular 6502 instruction blocks, always re-evaluate validation error from current rawOperand.
@@ -12882,24 +13047,24 @@ function getOperandPlaceholder(mode, base) {
 
   if (base === "hex") {
     if (modeText(modeKey, "label") === "Immediate") {
-      return currentLanguage !== "hu" ? "for example 01 or $FF" : "peldaul 01 vagy $FF";
+      return t("forExample01OrFf");
     }
 
     if (modeText(modeKey, "label") === "Absolute") {
-      return currentLanguage !== "hu" ? "for example C000 or $D020" : "peldaul C000 vagy $D020";
+      return t("forExampleC000OrD020");
     }
 
     if (modeText(modeKey, "label") === "Zero page") {
-      return currentLanguage !== "hu" ? "for example 10 or $A0" : "peldaul 10 vagy $A0";
+      return t("forExample10OrA0");
     }
   }
 
   if (base === "bin") {
     if (modeText(modeKey, "label") === "Immediate" || modeText(modeKey, "label") === "Zero page") {
-      return currentLanguage !== "hu" ? "for example 11111000" : "peldaul 11111000";
+      return t("forExample11111000");
     }
     if (modeText(modeKey, "label") === "Absolute") {
-      return currentLanguage !== "hu" ? "for example 1101000000010001" : "peldaul 1101000000010001";
+      return t("forExample1101000000010001");
     }
   }
 
@@ -12949,14 +13114,10 @@ function renderOriginPreview() {
       const stubEndAddr = 0x0801 + stubDataSize;
       const codeAddr = Math.max(rawOrigin, stubEndAddr);
       const codeText = formatAddress(codeAddr);
-      return currentLanguage !== "hu"
-        ? `<small>BASIC stub: $0801 &nbsp;|&nbsp; <code>SYS ${codeAddr}</code> &nbsp;|&nbsp; Code: ${codeText}</small>`
-        : `<small>BASIC stub: $0801 &nbsp;|&nbsp; <code>SYS ${codeAddr}</code> &nbsp;|&nbsp; Gépi kód: ${codeText}</small>`;
+      return tf("basicStubInfo", {addr: codeAddr, text: codeText});
     }
     if (isFirst && !useBasicSys && addr === 0x0801) {
-      const warning = currentLanguage !== "hu"
-        ? "Auto-switched to $C000 (Free RAM)<br><span style='color: #d97706;'>⚠ Sample programs may not work without BASIC SYS stub</span>"
-        : "Automatikusan átváltva: $C000 (Szabad RAM)<br><span style='color: #d97706;'>⚠ Mintaprogramok nem biztos hogy működnek BASIC SYS stub nélkül</span>";
+      const warning = t("autoSwitchedToC000FreeRamBrSpanStyleColo");
       return `<small>${warning}</small>`;
     }
     return `<small>${addr} dec | $${addrHex} hex</small>`;
@@ -12989,24 +13150,18 @@ function renderEmulatorRunHint() {
   if (!useBasicSys) {
     const targetOrigin = (origin.value === 0x0801) ? 0xC000 : origin.value;
     const targetText = formatAddress(targetOrigin);
-    const warning = currentLanguage !== "hu"
-      ? `<strong>Run hint:</strong> BASIC SYS stub disabled — program loads at ${targetText}. Use <code>SYS ${targetOrigin}</code> to run.<br><span style='color: #d97706;'>⚠ Warning: Sample programs with RAWBYTES, sprites, or fixed memory addresses may not work correctly without BASIC SYS stub.</span>`
-      : `<strong>Futtatas tipp:</strong> BASIC SYS stub kikapcsolva — program betöltve ide: ${targetText}. Futtatas: <code>SYS ${targetOrigin}</code><br><span style='color: #d97706;'>⚠ Figyelem: RAWBYTES, sprite-ok vagy fix memóriacímeket használó mintaprogramok nem biztos, hogy helyesen működnek BASIC SYS stub nélkül.</span>`;
+    const warning = tf("runHintNoBasic", {text: targetText, addr: targetOrigin});
     emulatorRunHint.innerHTML = warning;
     return;
   }
 
   if (origin.error) {
-    emulatorRunHint.innerHTML = currentLanguage !== "hu"
-      ? `<strong>Run hint:</strong> fix the start address so we can show a valid ` + "`SYS`" + ` entry point.`
-      : `<strong>Futtatas tipp:</strong> javitsd a kezdocimet, hogy helyes ` + "`SYS`" + ` cimet tudjunk mutatni.`;
+    emulatorRunHint.innerHTML = t("runHintFixAddr");
     return;
   }
 
   const runAddress = 0x080D;
-  emulatorRunHint.innerHTML = currentLanguage !== "hu"
-    ? `<strong>Run hint:</strong> if you want to start it manually in the emulator, use: <code>SYS ${runAddress}</code> <span>(${formatAddress(runAddress)})</span>`
-    : `<strong>Futtatas tipp:</strong> ha az emulatorban kezzel inditanad, hasznald ezt: <code>SYS ${runAddress}</code> <span>(${formatAddress(runAddress)})</span>`;
+  emulatorRunHint.innerHTML = tf("runHintSys", {addr: runAddress, fmt: formatAddress(runAddress)});
 }
 
 function formatAddress(value) {
@@ -13064,6 +13219,10 @@ function getInstructionSize(block) {
 
   if (block.isPetsciiMacro) {
     return 0;
+  }
+
+  if (block.isCharsetMacro) {
+    return 8;
   }
 
   if (block.isIncBinMacro) {
@@ -13592,7 +13751,7 @@ function getProgramLayout(originOverride) {
     if (!addrFieldName || !block._autoBufferLabel) continue;
     const autoBytes = block.isPetsciiMacro
       ? (() => {
-          const bytes = encodePetsciiMacro(block.rawOperand);
+          const bytes = encodePetsciiMacro(block.rawOperand, block.petsciiCharset || "upper");
           if (block.petsciiNullTerminated) bytes.push(0x00);
           return bytes;
         })()
@@ -13721,7 +13880,7 @@ function getDeferredMemorySections(layout) {
       }
 
       if (line.block.isPetsciiMacro) {
-        const chars = encodePetsciiMacro(line.block.rawOperand);
+        const chars = encodePetsciiMacro(line.block.rawOperand, line.block.petsciiCharset || "upper");
         const startAddress = parseAddressValue(line.block.petsciiAddress, labelMap) ?? 0xC000;
         return {
           type: "petscii",
@@ -14044,74 +14203,74 @@ function isRomOrIoSegment(segment) {
 
 function getBlockDescription(block) {
   if (block.isAnonymousLabel) {
-    return currentLanguage !== "hu" ? "Anonymous local label (-)" : "Nevtelen helyi cimke (-)";
+    return t("anonymousLocalLabel2");
   }
 
   if (block.isLabel) {
-    return `${currentLanguage !== "hu" ? "Label" : "Label"}: ${block.labelName || "start"}`;
+    return `${t("label")}: ${block.labelName || "start"}`;
   }
 
   if (block.isComment) {
-    return `${currentLanguage !== "hu" ? "Comment" : "Komment"}: ${block.rawOperand || ""}`;
+    return `${t("comment")}: ${block.rawOperand || ""}`;
   }
 
   if (block.isTextMacro) {
-    return block.validationError || `${currentLanguage !== "hu" ? "TEXT macro" : "TEXT makro"}: "${block.rawOperand || ""}" @ (${block.textX ?? 0}, ${block.textY ?? 0})`;
+    return block.validationError || `${t("textMacro")}: "${block.rawOperand || ""}" @ (${block.textX ?? 0}, ${block.textY ?? 0})`;
   }
 
   if (block.isByteMacro) {
-    return block.validationError || `${currentLanguage !== "hu" ? "BYTE macro" : "BYTE makro"}: ${block.rawOperand || ""}`;
+    return block.validationError || `${t("byteMacro")}: ${block.rawOperand || ""}`;
   }
 
   if (block.isStringMacro) {
-    const offsetNote = (() => { const v = parseInt(block.charOffset || "0", 16); return (!isNaN(v) && v !== 0) ? ` (+$${v.toString(16).toUpperCase().padStart(2,"0")} ${currentLanguage !== "hu" ? "added to each char" : "hozzaadva minden karakterhez"})` : ""; })();
-    return block.validationError || `${currentLanguage !== "hu" ? "STRING macro" : "STRING makro"}: "${block.rawOperand || ""}" @ ${block.stringAddress || "C000"}${offsetNote}`;
+    const offsetNote = (() => { const v = parseInt(block.charOffset || "0", 16); return (!isNaN(v) && v !== 0) ? ` (+$${v.toString(16).toUpperCase().padStart(2,"0")} ${t("addedToEachChar")})` : ""; })();
+    return block.validationError || `${t("stringMacro")}: "${block.rawOperand || ""}" @ ${block.stringAddress || "C000"}${offsetNote}`;
   }
 
   if (block.isDataMacro) {
-    return block.validationError || `${currentLanguage !== "hu" ? "DATA macro" : "DATA makro"}: ${block.rawOperand || ""} @ ${block.dataAddress || "C000"}`;
+    return block.validationError || `${t("dataMacro")}: ${block.rawOperand || ""} @ ${block.dataAddress || "C000"}`;
   }
 
   if (block.isRawBytesMacro) {
-    return block.validationError || `${currentLanguage !== "hu" ? "RAWBYTES macro" : "RAWBYTES makro"}: ${block.rawOperand || ""} @ ${block.rawBytesAddress || "C000"}`;
+    return block.validationError || `${t("rawbytesMacro")}: ${block.rawOperand || ""} @ ${block.rawBytesAddress || "C000"}`;
   }
 
   if (block.isIncBinMacro) {
     const size = (block.incBinBytes || []).length;
-    const name = block.incBinFileName || (currentLanguage !== "hu" ? "no file" : "nincs fajl");
-    return block.validationError || `${currentLanguage !== "hu" ? "INCBIN macro" : "INCBIN makro"}: "${name}" (${size} bytes) @ ${block.incBinAddress || "$C000"}`;
+    const name = block.incBinFileName || (t("noFile"));
+    return block.validationError || `${t("incbinMacro")}: "${name}" (${size} bytes) @ ${block.incBinAddress || "$C000"}`;
   }
 
   if (block.isIncludeMacro) {
     const count = (block.includedBlocks || []).length;
-    const name = block.includeFileName || (currentLanguage !== "hu" ? "no file" : "nincs fajl");
+    const name = block.includeFileName || (t("noFile"));
     const addrNote = block.includeAddress ? ` @ $${block.includeAddress.replace(/^\$/, "").toUpperCase().padStart(4, "0")}` : "";
-    return block.validationError || `${currentLanguage !== "hu" ? "INCLUDE" : "INCLUDE"}: "${name}" (${count} ${t("includeBlocksCount")})${addrNote}`;
+    return block.validationError || `${t("include")}: "${name}" (${count} ${t("includeBlocksCount")})${addrNote}`;
   }
 
   if (block.isRawTextMacro) {
-    const offsetNote = (() => { const v = parseInt(block.charOffset || "0", 16); return (!isNaN(v) && v !== 0) ? ` (+$${v.toString(16).toUpperCase().padStart(2,"0")} ${currentLanguage !== "hu" ? "added to each char" : "hozzaadva minden karakterhez"})` : ""; })();
-    return block.validationError || `${currentLanguage !== "hu" ? "RAWTEXT macro" : "RAWTEXT makro"}: "${block.rawOperand || ""}" @ ${block.rawTextAddress || "C000"}${offsetNote}`;
+    const offsetNote = (() => { const v = parseInt(block.charOffset || "0", 16); return (!isNaN(v) && v !== 0) ? ` (+$${v.toString(16).toUpperCase().padStart(2,"0")} ${t("addedToEachChar")})` : ""; })();
+    return block.validationError || `${t("rawtextMacro")}: "${block.rawOperand || ""}" @ ${block.rawTextAddress || "C000"}${offsetNote}`;
   }
 
   if (block.isPetsciiMacro) {
-    return block.validationError || `${currentLanguage !== "hu" ? "PETSCII macro" : "PETSCII makro"}: "${block.rawOperand || ""}" @ ${block.petsciiAddress || "C000"}`;
+    return block.validationError || `${t("petsciiMacro")}: "${block.rawOperand || ""}" @ ${block.petsciiAddress || "C000"}`;
   }
 
   if (block.isWordMacro) {
-    return block.validationError || `${currentLanguage !== "hu" ? "WORD macro" : "WORD makro"}: ${block.rawOperand || ""}`;
+    return block.validationError || `${t("wordMacro")}: ${block.rawOperand || ""}`;
   }
 
   if (block.isFillMacro) {
-    return block.validationError || `${currentLanguage !== "hu" ? "FILL macro" : "FILL makro"}: ${block.rawOperand || ""}`;
+    return block.validationError || `${t("fillMacro")}: ${block.rawOperand || ""}`;
   }
 
   if (block.isAlignMacro) {
-    return block.validationError || `${currentLanguage !== "hu" ? "ALIGN macro" : "ALIGN makro"}: ${block.rawOperand || ""}`;
+    return block.validationError || `${t("alignMacro")}: ${block.rawOperand || ""}`;
   }
 
   if (block.isTableMacro) {
-    return block.validationError || `${currentLanguage !== "hu" ? "TABLE" : "TABLA"}: ${block.tableName || "?"} @ ${block.tableAddress || "C000"}`;
+    return block.validationError || `${t("table")}: ${block.tableName || "?"} @ ${block.tableAddress || "C000"}`;
   }
 
   if (block.isOrgMacro) {
@@ -14129,87 +14288,85 @@ function getBlockDescription(block) {
   }
 
   if (block.isIfMacro) {
-    return block.validationError || `${currentLanguage !== "hu" ? "IF" : "HA"}: ${block.ifCondition || "?"}`;
+    return block.validationError || `${t("if")}: ${block.ifCondition || "?"}`;
   }
 
   if (block.isElseMacro) {
-    return currentLanguage !== "hu" ? "ELSE" : "KULONBEN";
+    return t("else");
   }
 
   if (block.isEndIfMacro) {
-    return currentLanguage !== "hu" ? "ENDIF" : "HA_VEGE";
+    return t("endif");
   }
 
   if (block.isMacroInvoke) {
     const name = block.invokeMacroName || "?";
     if (userMacros[name]) {
       const bodyCount = userMacros[name].body.length;
-      return currentLanguage !== "hu"
-        ? `Invokes user-defined macro "${name}" (${bodyCount} instruction${bodyCount !== 1 ? 's' : ''})`
-        : `Felhasználói makró "${name}" hívása (${bodyCount} utasítás)`;
+      return tf("invokeMacroDefined", {name, count: bodyCount, s: bodyCount !== 1 ? "s" : ""});
     }
-    return currentLanguage !== "hu" ? `Invoke macro "${name}" (not defined yet)` : `Makró "${name}" hívása (még nincs definiálva)`;
+    return tf("invokeMacroNotDefined", {name});
   }
 
   if (block.isRegionMacro) {
-    return currentLanguage !== "hu" ? `Region: ${block.regionName || "region"}` : `Régió: ${block.regionName || "region"}`;
+    return tf("regionPreview", {name: block.regionName || "region"});
   }
   if (block.isEndRegionMacro) {
-    return currentLanguage !== "hu" ? "End of region" : "Régió vége";
+    return t("endOfRegion");
   }
 
   // Check if this block invokes a user macro (legacy format)
   if (userMacros[block.mnemonic]) {
     const bodyCount = userMacros[block.mnemonic].length;
-    return currentLanguage !== "hu"
-      ? `Invokes user-defined macro "${block.mnemonic}" (${bodyCount} instruction${bodyCount !== 1 ? 's' : ''})`
-      : `Felhasználói makró "${block.mnemonic}" hívása (${bodyCount} utasítás)`;
+    return tf("invokeMacroDefined", {name: block.mnemonic, count: bodyCount, s: bodyCount !== 1 ? "s" : ""});
   }
 
   return block.validationError || (currentLanguage === "es"
     ? mnemonicDescriptionsEs[block.mnemonic] || mnemonicDescriptionsEn[block.mnemonic] || block.description
-    : currentLanguage !== "hu"
-      ? mnemonicDescriptionsEn[block.mnemonic] || block.description
-      : block.description);
+    : currentLanguage === "de"
+      ? mnemonicDescriptionsDe[block.mnemonic] || mnemonicDescriptionsEn[block.mnemonic] || block.description
+      : currentLanguage !== "hu"
+        ? mnemonicDescriptionsEn[block.mnemonic] || block.description
+        : block.description);
 }
 
 function getBlockModeCaption(block) {
   if (block.isComment) {
-    return `${getCategoryLabel(block.category)} | ${currentLanguage !== "hu" ? "comment" : "komment"}`;
+    return `${getCategoryLabel(block.category)} | ${t("comment2")}`;
   }
 
   if (block.isTextMacro) {
     const n = encodeTextMacro(block.rawOperand).length;
-    return `${currentLanguage !== "hu" ? "Screen" : "Kepernyo"} | X:${block.textX ?? 0} Y:${block.textY ?? 0}  (${n} byte)`;
+    return `${t("screen")} | X:${block.textX ?? 0} Y:${block.textY ?? 0}  (${n} byte)`;
   }
 
   if (block.isByteMacro) {
     const n = parseByteMacro(block.rawOperand, block.base).length;
-    return (currentLanguage !== "hu" ? "Byte array | current address" : "Byte tomb | aktualis cim") + `  (${n} byte)`;
+    return (t("byteArrayCurrentAddress")) + `  (${n} byte)`;
   }
 
   if (block.isStringMacro) {
     const off = parseInt(block.charOffset || "0", 16);
     const offNote = (!isNaN(off) && off !== 0) ? ` +$${off.toString(16).toUpperCase().padStart(2,"0")}` : "";
     const n = encodeTextMacro(block.rawOperand).length;
-    return `${currentLanguage !== "hu" ? "Screen code" : "Kepernyo kod"} | ${block.stringAddress || "C000"}${offNote}  (${n} byte)`;
+    return `${t("screenCode")} | ${block.stringAddress || "C000"}${offNote}  (${n} byte)`;
   }
 
   if (block.isDataMacro) {
     const n = parseByteMacro(block.rawOperand, block.base).length;
-    return `${currentLanguage !== "hu" ? "Memory" : "Memoria"} | ${block.dataAddress || "C000"}  (${n} byte)`;
+    return `${t("memory")} | ${block.dataAddress || "C000"}  (${n} byte)`;
   }
 
   if (block.isRawBytesMacro) {
     const n = parseByteMacro(block.rawOperand, block.base).length;
-    return `${currentLanguage !== "hu" ? "Raw bytes @ mem" : "Nyers byte @ mem"} | ${block.rawBytesAddress || "C000"}  (${n} byte)`;
+    return `${t("rawBytesMem")} | ${block.rawBytesAddress || "C000"}  (${n} byte)`;
   }
 
   if (block.isRawTextMacro) {
     const off = parseInt(block.charOffset || "0", 16);
     const offNote = (!isNaN(off) && off !== 0) ? ` +$${off.toString(16).toUpperCase().padStart(2,"0")}` : "";
     const n = encodeTextMacro(block.rawOperand).length;
-    return `${currentLanguage !== "hu" ? "Screen codes @ mem" : "Kepernyo kod @ mem"} | ${block.rawTextAddress || "C000"}${offNote}  (${n} byte)`;
+    return `${t("screenCodesMem")} | ${block.rawTextAddress || "C000"}${offNote}  (${n} byte)`;
   }
 
   if (block.isPetsciiMacro) {
@@ -14219,86 +14376,86 @@ function getBlockModeCaption(block) {
 
   if (block.isIncBinMacro) {
     const size = (block.incBinBytes || []).length;
-    return `${currentLanguage !== "hu" ? "Binary file @ memory" : "Binarfajl @ memoria"} | ${block.incBinAddress || "$C000"}  (${size} byte)`;
+    return `${t("binaryFileMemory")} | ${block.incBinAddress || "$C000"}  (${size} byte)`;
   }
 
   if (block.isIncludeMacro) {
     const count = (block.includedBlocks || []).length;
-    return `${currentLanguage !== "hu" ? "Included project" : "Beillesztett projekt"} | ${count} ${t("includeBlocksCount")}`;
+    return `${t("includedProject")} | ${count} ${t("includeBlocksCount")}`;
   }
 
   if (block.isWordMacro) {
     const n = parseWordMacro(block.rawOperand, block.base).length * 2;
-    return (currentLanguage !== "hu" ? "16-bit values | LO/HI pairs" : "16-bites ertekek | LO/HI parok") + `  (${n} byte)`;
+    return (t("16BitValuesLoHiPairs")) + `  (${n} byte)`;
   }
 
   if (block.isFillMacro) {
     const parsed = parseFillMacro(block.rawOperand, block.base);
     const n = parsed ? parsed.count : 0;
-    return (currentLanguage !== "hu" ? "Fill | repeated bytes" : "Toltes | ismetlodo byte-ok") + `  (${n} byte)`;
+    return (t("fillRepeatedBytes")) + `  (${n} byte)`;
   }
 
   if (block.isAlignMacro) {
     const boundary = block.rawOperand || "?";
-    return currentLanguage !== "hu" ? `Align | boundary: ${boundary}` : `Igazitas | hatar: ${boundary}`;
+    return tf("alignPreview", {boundary});
   }
 
   if (block.isTableMacro) {
-    return `${currentLanguage !== "hu" ? "Lookup table" : "Kereso tabla"} | ${block.tableAddress || "C000"}`;
+    return `${t("lookupTable")} | ${block.tableAddress || "C000"}`;
   }
 
   if (block.isOrgMacro) {
-    return `${currentLanguage !== "hu" ? "Origin" : "Forditasi cim"} | $${(block.orgAddress || "0900").toUpperCase()}`;
+    return `${t("origin")} | $${(block.orgAddress || "0900").toUpperCase()}`;
   }
 
   if (block.isDefineMacro) {
-    return currentLanguage !== "hu" ? "Conditional | DEFINE" : "Felteteles | DEFINE";
+    return t("conditionalDefine");
   }
 
   if (block.isConstMacro) {
-    return currentLanguage !== "hu" ? "Macro | Const" : "Makro | Const";
+    return t("macroConst");
   }
 
   if (block.isIfMacro) {
-    return currentLanguage !== "hu" ? "Conditional | IF" : "Felteteles | HA";
+    return t("conditionalIf");
   }
 
   if (block.isElseMacro) {
-    return currentLanguage !== "hu" ? "Conditional | ELSE" : "Felteteles | KULONBEN";
+    return t("conditionalElse");
   }
 
   if (block.isEndIfMacro) {
-    return currentLanguage !== "hu" ? "Conditional | ENDIF" : "Felteteles | HA_VEGE";
+    return t("conditionalEndif");
   }
 
   if (block.isPushMacro) {
     const regs = block.pushRegs || "A";
-    return currentLanguage !== "hu" ? `Stack | Push ${regs}` : `Stack | Ment ${regs}`;
+    return tf("stackPushPreview", {regs});
   }
 
   if (block.isPullMacro) {
     const regs = block.pullRegs || "A";
-    return currentLanguage !== "hu" ? `Stack | Pull ${regs}` : `Stack | Visszatolt ${regs}`;
+    return tf("stackPullPreview", {regs});
   }
 
   if (block.isMacroDefStart) {
-    return currentLanguage !== "hu" ? "User Macro | Definition" : "Felhasznaloi Makro | Definicio";
+    return t("userMacroDefinition");
   }
 
   if (block.isMacroDefEnd) {
-    return currentLanguage !== "hu" ? "User Macro | End" : "Felhasznaloi Makro | Vege";
+    return t("userMacroEnd");
   }
 
   if (block.isMacroInvoke) {
-    return currentLanguage !== "hu" ? "User Macro | Invoke" : "Felhasznaloi Makro | Hivas";
+    return t("userMacroInvoke");
   }
 
   if (block.isRegionMacro) {
-    return currentLanguage !== "hu" ? "Structure | Region" : "Szerkezet | Régió";
+    return t("structureRegion");
   }
 
   if (block.isEndRegionMacro) {
-    return currentLanguage !== "hu" ? "Structure | End Region" : "Szerkezet | Régió vége";
+    return t("structureEndRegion");
   }
 
   if (block.isAnonymousLabel) {
@@ -14307,7 +14464,7 @@ function getBlockModeCaption(block) {
 
   // Check if this block invokes a user macro (legacy format)
   if (userMacros[block.mnemonic]) {
-    return currentLanguage !== "hu" ? "User Macro | Invoke" : "Felhasznaloi Makro | Hivas";
+    return t("userMacroInvoke");
   }
 
   if (block.isLabel) {
@@ -14420,19 +14577,19 @@ function getCollapsedOperandText(block) {
   if (block.isIncBinMacro) {
     const size = (block.incBinBytes || []).length;
     if (block.incBinFileName) return `"${block.incBinFileName}" (${size} bytes)`;
-    return currentLanguage !== "hu" ? "no file" : "nincs fajl";
+    return t("noFile");
   }
 
   if (block.isSidMacro) {
     const size = (block.sidBytes || []).length;
     if (block.sidFileName) return `"${block.sidFileName}"${size ? ` (${size} bytes)` : ""}`;
-    return currentLanguage !== "hu" ? "no file" : "nincs fajl";
+    return t("noFile");
   }
 
   if (block.isIncludeMacro) {
     const count = (block.includedBlocks || []).length;
     if (block.includeFileName) return `"${block.includeFileName}" (${count} ${t("includeBlocksCount")})`;
-    return currentLanguage !== "hu" ? "no file" : "nincs fajl";
+    return t("noFile");
   }
 
   if (block.isRawTextMacro) {
@@ -14441,6 +14598,10 @@ function getCollapsedOperandText(block) {
 
   if (block.isPetsciiMacro) {
     return block.rawOperand ? `"${block.rawOperand}"` : "";
+  }
+
+  if (block.isCharsetMacro) {
+    return block.charsetMode === "upper" ? t("charsetCollapsedUpper") : t("charsetCollapsedLower");
   }
 
   if (block.isJoystickMacro) {
@@ -14461,26 +14622,26 @@ function getCollapsedOperandText(block) {
   if (block.isTurboSetMacro) {
     const spd = parseInt(block.turboSpeed || "7", 10);
     const badlineLabel = block.turboBadline === "1"
-      ? (currentLanguage !== "hu" ? "badline off" : "badline ki")
-      : (currentLanguage !== "hu" ? "badline on" : "badline be");
+      ? (t("badlineOff"))
+      : (t("badlineOn"));
     return `$D031 = spd${spd} ${badlineLabel}`;
   }
 
   if (block.isSuperCpuDetectMacro) {
-    return currentLanguage !== "hu" ? "$D0B8 vs $FF" : "$D0B8 vs $FF";
+    return t("d0b8VsFf");
   }
 
   if (block.isTurboEnableMacro) {
     const mode = (block.turboEnableMode || "on") === "on"
-      ? (currentLanguage !== "hu" ? "ON" : "BE")
-      : (currentLanguage !== "hu" ? "OFF" : "KI");
+      ? (t("on"))
+      : (t("off"));
     return `$D07${(block.turboEnableMode || "on") === "on" ? "A" : "B"} (${mode})`;
   }
 
   if (block.isSpriteColMacro) {
     const typeLabel = (block.colType || "sprite") === "background"
-      ? (currentLanguage !== "hu" ? "bg" : "hatter")
-      : (currentLanguage !== "hu" ? "spr" : "sprite");
+      ? (t("bg"))
+      : (t("spr"));
     return `#${block.spriteNum || "0"} ${typeLabel} → BEQ/BNE`;
   }
 
@@ -14505,7 +14666,7 @@ function getCollapsedOperandText(block) {
   }
 
   if (block.isReuCheckMacro) {
-    return currentLanguage !== "hu" ? "probe $DF04 with $55/$AA" : "$DF04 proba $55/$AA mintaval";
+    return t("probeDf04With55Aa");
   }
 
   if (block.isReuTransferMacro) {
@@ -14761,21 +14922,21 @@ function renderProgram() {
         inlineField.querySelector("span").textContent = "Label";
         operandField.value = block.labelName || "";
         operandField.disabled = false;
-        operandField.placeholder = currentLanguage !== "hu" ? "for example start_loop" : "peldaul start_loop";
+        operandField.placeholder = t("forExampleStartLoop");
         operandField.addEventListener("input", (event) => updateProgramBlock(index, "labelName", event.target.value));
       } else if (block.isComment) {
         inlineField.hidden = false;
         inlineField.querySelector("span").textContent = t("fieldComment");
         operandField.value = block.rawOperand || "";
         operandField.disabled = false;
-        operandField.placeholder = currentLanguage !== "hu" ? "For example border scroll demo" : "Peldaul border scroll demo";
+        operandField.placeholder = t("forExampleBorderScrollDemo");
         operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
       } else if (block.isTextMacro) {
         inlineField.hidden = false;
         inlineField.querySelector("span").textContent = t("fieldText");
         operandField.value = block.rawOperand || "";
         operandField.disabled = false;
-        operandField.placeholder = currentLanguage !== "hu" ? "For example HELLO C64" : "Peldaul HELLO C64";
+        operandField.placeholder = t("forExampleHelloC64");
         operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
         blockControls.insertAdjacentHTML(
         "beforeend",
@@ -14790,9 +14951,13 @@ function renderProgram() {
               <input class="macro-y" type="number" min="0" max="24" value="${block.textY ?? 0}">
             </label>
             <label class="mini-field">
-              <span>${currentLanguage !== "hu" ? "Label (optional)" : "Label (opcionális)"}</span>
-              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage !== "hu" ? "e.g. mytext" : "pl. sajatszoveg"}">
+              <span>${t("labelOptional")}</span>
+              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${t("eGMytext")}">
             </label>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:4px;font-size:0.72rem;color:var(--muted);">
+            <input class="charset-lower-check mini-checkbox" type="checkbox"${block.textCharset === "lower" ? " checked" : ""}>
+            ${t("charsetLowerLabel")}
           </div>
         `
       );
@@ -14802,15 +14967,15 @@ function renderProgram() {
       operandField.value = block.rawOperand || "";
       operandField.disabled = false;
       operandField.placeholder = block.base === "hex"
-        ? (currentLanguage !== "hu" ? "For example FF,00,8D,20,D0" : "Peldaul FF,00,8D,20,D0")
-        : (currentLanguage !== "hu" ? "For example 169,0,141,32,208" : "Peldaul 169,0,141,32,208");
+        ? (t("forExampleFf008D20D0"))
+        : (t("forExample169014132208"));
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
     } else if (block.isStringMacro) {
       inlineField.hidden = false;
       inlineField.querySelector("span").textContent = t("fieldText");
       operandField.value = block.rawOperand || "";
       operandField.disabled = false;
-      operandField.placeholder = currentLanguage !== "hu" ? "For example HELLO" : "Peldaul HELLO";
+      operandField.placeholder = t("forExampleHello");
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
       blockControls.insertAdjacentHTML(
         "beforeend",
@@ -14823,13 +14988,17 @@ function renderProgram() {
           </div>
           <div class="macro-grid" style="grid-template-columns:1fr auto">
             <label class="mini-field">
-              <span>${currentLanguage !== "hu" ? "Label (optional)" : "Label (opcionális)"}</span>
-              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage !== "hu" ? "e.g. mystr" : "pl. sajatstr"}">
+              <span>${t("labelOptional")}</span>
+              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${t("eGMystr")}">
             </label>
             <label class="mini-field">
-              <span>${currentLanguage !== "hu" ? "Shift" : "Eltolas"}</span>
+              <span>${t("shift")}</span>
               <input class="macro-char-offset" type="text" value="${block.charOffset !== undefined ? block.charOffset : "00"}" placeholder="00" style="width:2.8em;min-width:0">
             </label>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:4px;font-size:0.72rem;color:var(--muted);">
+            <input class="charset-lower-check mini-checkbox" type="checkbox"${block.textCharset === "lower" ? " checked" : ""}>
+            ${t("charsetLowerLabel")}
           </div>
         `
       );
@@ -14839,8 +15008,8 @@ function renderProgram() {
       operandField.value = block.rawOperand || "";
       operandField.disabled = false;
       operandField.placeholder = block.base === "hex"
-        ? (currentLanguage !== "hu" ? "For example FF,00,8D,20,D0" : "Peldaul FF,00,8D,20,D0")
-        : (currentLanguage !== "hu" ? "For example 169,0,141,32,208" : "Peldaul 169,0,141,32,208");
+        ? (t("forExampleFf008D20D0"))
+        : (t("forExample169014132208"));
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
       blockControls.insertAdjacentHTML(
         "beforeend",
@@ -14851,8 +15020,8 @@ function renderProgram() {
               <input class="macro-address" data-address-field="dataAddress" type="text" value="${block.dataAddress || "C000"}" placeholder="$C000">
             </label>
             <label class="mini-field">
-              <span>${currentLanguage !== "hu" ? "Label (optional)" : "Label (opcionális)"}</span>
-              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage !== "hu" ? "e.g. mydata" : "pl. sajatadat"}">
+              <span>${t("labelOptional")}</span>
+              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${t("eGMydata")}">
             </label>
           </div>
         `
@@ -14863,8 +15032,8 @@ function renderProgram() {
       operandField.value = block.rawOperand || "";
       operandField.disabled = false;
       operandField.placeholder = block.base === "hex"
-        ? (currentLanguage !== "hu" ? "For example FF,00,8D,20,D0" : "Peldaul FF,00,8D,20,D0")
-        : (currentLanguage !== "hu" ? "For example 169,0,141,32,208" : "Peldaul 169,0,141,32,208");
+        ? (t("forExampleFf008D20D0"))
+        : (t("forExample169014132208"));
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
       blockControls.insertAdjacentHTML(
         "beforeend",
@@ -14875,8 +15044,8 @@ function renderProgram() {
               <input class="macro-address" data-address-field="rawBytesAddress" type="text" value="${block.rawBytesAddress || "C000"}" placeholder="$C000">
             </label>
             <label class="mini-field">
-              <span>${currentLanguage !== "hu" ? "Label (optional)" : "Label (opcionális)"}</span>
-              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage !== "hu" ? "e.g. myraw" : "pl. sajatnyers"}">
+              <span>${t("labelOptional")}</span>
+              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${t("eGMyraw")}">
             </label>
           </div>
         `
@@ -14886,7 +15055,7 @@ function renderProgram() {
       inlineField.querySelector("span").textContent = t("fieldText");
       operandField.value = block.rawOperand || "";
       operandField.disabled = false;
-      operandField.placeholder = currentLanguage !== "hu" ? "For example HELLO" : "Peldaul HELLO";
+      operandField.placeholder = t("forExampleHello");
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
       blockControls.insertAdjacentHTML(
         "beforeend",
@@ -14899,13 +15068,17 @@ function renderProgram() {
           </div>
           <div class="macro-grid" style="grid-template-columns:1fr auto">
             <label class="mini-field">
-              <span>${currentLanguage !== "hu" ? "Label (optional)" : "Label (opcionális)"}</span>
-              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage !== "hu" ? "e.g. mytext" : "pl. sajatszoveg"}">
+              <span>${t("labelOptional")}</span>
+              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${t("eGMytext")}">
             </label>
             <label class="mini-field">
-              <span>${currentLanguage !== "hu" ? "Shift" : "Eltolas"}</span>
+              <span>${t("shift")}</span>
               <input class="macro-char-offset" type="text" value="${block.charOffset !== undefined ? block.charOffset : "00"}" placeholder="00" style="width:2.8em;min-width:0">
             </label>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:4px;font-size:0.72rem;color:var(--muted);">
+            <input class="charset-lower-check mini-checkbox" type="checkbox"${block.textCharset === "lower" ? " checked" : ""}>
+            ${t("charsetLowerLabel")}
           </div>
         `
       );
@@ -14914,7 +15087,7 @@ function renderProgram() {
       inlineField.querySelector("span").textContent = t("fieldText");
       operandField.value = block.rawOperand || "";
       operandField.disabled = false;
-      operandField.placeholder = currentLanguage !== "hu" ? "For example HELLO" : "Peldaul HELLO";
+      operandField.placeholder = t("forExampleHello");
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
       blockControls.insertAdjacentHTML(
         "beforeend",
@@ -14925,13 +15098,33 @@ function renderProgram() {
               <input class="macro-address" data-address-field="petsciiAddress" type="text" value="${block.petsciiAddress || "C000"}" placeholder="$C000">
             </label>
             <label class="mini-field">
-              <span>${currentLanguage !== "hu" ? "Label (optional)" : "Label (opcionális)"}</span>
-              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${currentLanguage !== "hu" ? "e.g. mypetscii" : "pl. sajatpetscii"}">
+              <span>${t("labelOptional")}</span>
+              <input class="macro-label" type="text" value="${block.macroLabel || ""}" placeholder="${t("eGMypetscii")}">
             </label>
           </div>
           <div style="display:flex;align-items:center;gap:6px;margin-top:4px;font-size:0.72rem;color:var(--muted);">
             <input class="petscii-null-check mini-checkbox" data-field="petsciiNullTerminated" type="checkbox"${block.petsciiNullTerminated ? " checked" : ""}>
-            ${currentLanguage !== "hu" ? "Append $00 (null terminator)" : "Null lezaro ($00) hozzafuzese"}
+            ${t("append00NullTerminator")}
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:4px;font-size:0.72rem;color:var(--muted);">
+            <input class="charset-lower-check mini-checkbox" type="checkbox"${block.petsciiCharset === "lower" ? " checked" : ""}>
+            ${t("charsetPetsciiLowerLabel")}
+          </div>
+        `
+      );
+    } else if (block.isCharsetMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid single-macro-row" style="margin-top:6px;">
+            <label class="mini-field">
+              <span>${t("charsetModeLabel")}</span>
+              <select class="charset-mode-select" style="font-size:0.8rem;">
+                <option value="lower"${(block.charsetMode || "lower") === "lower" ? " selected" : ""}>${t("charsetModeLower")}</option>
+                <option value="upper"${block.charsetMode === "upper" ? " selected" : ""}>${t("charsetModeUpper")}</option>
+              </select>
+            </label>
           </div>
         `
       );
@@ -15058,10 +15251,10 @@ function renderProgram() {
           </div>
           <div class="macro-grid single-macro-row">
             <label class="mini-field">
-              <span>${currentLanguage !== "hu" ? "Load address (optional)" : "Betoltesi cim (opcionalis)"}</span>
+              <span>${t("loadAddressOptional")}</span>
               <input type="text" class="include-address-input" maxlength="4"
                 value="${block.includeAddress || ""}"
-                placeholder="${currentLanguage !== "hu" ? "e.g. C000" : "Pl. C000"}">
+                placeholder="${t("eGC000")}">
             </label>
           </div>
         `
@@ -15326,30 +15519,30 @@ function renderProgram() {
       );
     } else if (block.isWordMacro) {
       inlineField.hidden = false;
-      inlineField.querySelector("span").textContent = currentLanguage !== "hu" ? "16-bit values" : "16-bites ertekek";
+      inlineField.querySelector("span").textContent = t("16BitValues");
       operandField.value = block.rawOperand || "";
       operandField.disabled = false;
       operandField.placeholder = block.base === "hex"
-        ? (currentLanguage !== "hu" ? "For example 03E8,07D0,0BB8" : "Peldaul 03E8,07D0,0BB8")
-        : (currentLanguage !== "hu" ? "For example 1000,2000,3000" : "Peldaul 1000,2000,3000");
+        ? (t("forExample03E807D00Bb8"))
+        : (t("forExample100020003000"));
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
     } else if (block.isFillMacro) {
       inlineField.hidden = false;
-      inlineField.querySelector("span").textContent = currentLanguage !== "hu" ? "Count,Value" : "Darab,Ertek";
+      inlineField.querySelector("span").textContent = t("countValue");
       operandField.value = block.rawOperand || "";
       operandField.disabled = false;
       operandField.placeholder = block.base === "hex"
-        ? (currentLanguage !== "hu" ? "For example 100,00" : "Peldaul 100,00")
-        : (currentLanguage !== "hu" ? "For example 256,0" : "Peldaul 256,0");
+        ? (t("forExample10000"))
+        : (t("forExample2560"));
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
     } else if (block.isAlignMacro) {
       inlineField.hidden = false;
-      inlineField.querySelector("span").textContent = currentLanguage !== "hu" ? "Boundary" : "Hatar";
+      inlineField.querySelector("span").textContent = t("boundary");
       operandField.value = block.rawOperand || "";
       operandField.disabled = false;
       operandField.placeholder = block.base === "hex"
-        ? (currentLanguage !== "hu" ? "For example 40 (64), 100 (256), 2000" : "Peldaul 40 (64), 100 (256), 2000")
-        : (currentLanguage !== "hu" ? "For example 64, 256, 8192" : "Peldaul 64, 256, 8192");
+        ? (t("forExample40641002562000"))
+        : (t("forExample642568192"));
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
     } else if (block.isTableMacro) {
       inlineField.hidden = true;
@@ -15358,11 +15551,11 @@ function renderProgram() {
         `
           <div class="macro-grid">
             <label class="mini-field">
-              <span>${currentLanguage !== "hu" ? "Table name" : "Tabla nev"}</span>
+              <span>${t("tableName")}</span>
               <input class="table-name" type="text" value="${block.tableName || "table1"}" placeholder="table1">
             </label>
             <label class="mini-field">
-              <span>${currentLanguage !== "hu" ? "Address" : "Cim"}</span>
+              <span>${t("address")}</span>
               <input class="table-address" type="text" value="${block.tableAddress || "C000"}" placeholder="C000">
             </label>
           </div>
@@ -15381,7 +15574,7 @@ function renderProgram() {
         `
           <div class="macro-grid">
             <label class="mini-field">
-              <span>${currentLanguage !== "hu" ? "New origin" : "Uj forditasi cim"}</span>
+              <span>${t("newOrigin")}</span>
               <input class="org-address" type="text" maxlength="${orgMaxLen}" value="${orgDisplayVal}" placeholder="${orgPlaceholder}">
             </label>
             <label class="mini-field">
@@ -15471,10 +15664,10 @@ function renderProgram() {
         `
           <div class="macro-grid single-macro-row">
             <label class="mini-field">
-              <span>${currentLanguage !== "hu" ? "Turbo" : "Turbo"}</span>
+              <span>${t("turbo")}</span>
               <select class="turbo-enable-mode">
-                <option value="on" ${curMode === "on" ? "selected" : ""}>${currentLanguage !== "hu" ? "Enable ($D07A)" : "Bekapcsol ($D07A)"}</option>
-                <option value="off" ${curMode === "off" ? "selected" : ""}>${currentLanguage !== "hu" ? "Disable ($D07B)" : "Kikapcsol ($D07B)"}</option>
+                <option value="on" ${curMode === "on" ? "selected" : ""}>${t("enableD07A")}</option>
+                <option value="off" ${curMode === "off" ? "selected" : ""}>${t("disableD07B")}</option>
               </select>
             </label>
           </div>
@@ -15495,14 +15688,14 @@ function renderProgram() {
         `
           <div class="macro-grid">
             <label class="mini-field">
-              <span>${currentLanguage !== "hu" ? "Speed" : "Sebesseg"}</span>
+              <span>${t("speed")}</span>
               <select class="turbo-speed">${spdOptions}</select>
             </label>
             <label class="mini-field">
-              <span>${currentLanguage !== "hu" ? "Badline" : "Badline"}</span>
+              <span>${t("badline")}</span>
               <select class="turbo-badline">
-                <option value="0" ${curBl === "0" ? "selected" : ""}>${currentLanguage !== "hu" ? "Enabled (C64 compat)" : "Engedelyezve (C64 kompatibilis)"}</option>
-                <option value="1" ${curBl === "1" ? "selected" : ""}>${currentLanguage !== "hu" ? "Disabled (turbo)" : "Letiltva (turbo)"}</option>
+                <option value="0" ${curBl === "0" ? "selected" : ""}>${t("enabledC64Compat")}</option>
+                <option value="1" ${curBl === "1" ? "selected" : ""}>${t("disabledTurbo")}</option>
               </select>
             </label>
           </div>
@@ -15722,28 +15915,28 @@ function renderProgram() {
         `
           <div class="macro-grid">
             <label class="mini-field">
-              <span>${currentLanguage !== "hu" ? "C64 addr" : "C64 cim"}</span>
+              <span>${t("c64Addr")}</span>
               <input class="reu-c64-addr" type="text" maxlength="5" value="${block.reuC64Addr || "C000"}" placeholder="C000">
             </label>
             <label class="mini-field">
-              <span>${currentLanguage !== "hu" ? "REU addr" : "REU cim"}</span>
+              <span>${t("reuAddr")}</span>
               <input class="reu-exp-addr" type="text" maxlength="5" value="${block.reuExpAddr || "0000"}" placeholder="0000">
             </label>
           </div>
           <div class="macro-grid">
             <label class="mini-field">
-              <span>${currentLanguage !== "hu" ? "Bank (0–7)" : "Bank (0–7)"}</span>
+              <span>${t("bank07")}</span>
               <input class="reu-bank" type="number" min="0" max="7" value="${block.reuBank || "0"}">
             </label>
             <label class="mini-field">
-              <span>${currentLanguage !== "hu" ? "Length (hex)" : "Hossz (hex)"}</span>
+              <span>${t("lengthHex")}</span>
               <input class="reu-length" type="text" maxlength="5" value="${block.reuLength || "0100"}" placeholder="0100">
             </label>
           </div>
         `
       );
     } else if (block.isDefineMacro) {
-      inlineField.querySelector("span").textContent = currentLanguage !== "hu" ? "Symbol" : "Szimbolum";
+      inlineField.querySelector("span").textContent = t("symbol");
       inlineField.hidden = false;
       operandField.value = block.defineSymbol || "";
       operandField.placeholder = "DEBUG";
@@ -15755,15 +15948,15 @@ function renderProgram() {
         `
           <div class="macro-grid">
             <label class="mini-field">
-              <span>${currentLanguage !== "hu" ? "Name" : "Nev"}</span>
+              <span>${t("name")}</span>
               <input class="const-name" type="text" value="${block.constName || "MY_CONST"}" placeholder="MY_CONST">
             </label>
             <label class="mini-field">
-              <span>${currentLanguage !== "hu" ? "Value" : "Ertek"}</span>
+              <span>${t("value")}</span>
               <input class="const-value" type="text" value="${block.rawOperand || "0000"}" placeholder="${block.base === "hex" ? "0400" : "1024"}">
             </label>
             <label class="mini-field">
-              <span>${currentLanguage !== "hu" ? "Format" : "Formatum"}</span>
+              <span>${t("format")}</span>
               <div class="mini-toggle" role="radiogroup" aria-label="Format">
                 <label class="mini-toggle-option">
                   <input class="block-base" type="radio" name="block-base-${block.id}" value="hex"${block.base === "hex" ? " checked" : ""}>
@@ -15783,7 +15976,7 @@ function renderProgram() {
         `
       );
     } else if (block.isIfMacro) {
-      inlineField.querySelector("span").textContent = currentLanguage !== "hu" ? "Condition" : "Feltetel";
+      inlineField.querySelector("span").textContent = t("condition");
       inlineField.hidden = false;
       operandField.value = block.ifCondition || "";
       operandField.placeholder = "DEBUG";
@@ -15794,11 +15987,11 @@ function renderProgram() {
       blockControls.insertAdjacentHTML("beforeend", `
         <div class="macro-grid">
           <label class="mini-field">
-            <span>${currentLanguage !== "hu" ? "Macro name" : "Makro nev"}</span>
+            <span>${t("macroName")}</span>
             <input class="macro-def-name" type="text" value="${block.macroName || ""}" placeholder="my_macro">
           </label>
           <label class="mini-field">
-            <span>${currentLanguage !== "hu" ? "Params (comma-sep.)" : "Paraméterek (vesszővel)"}</span>
+            <span>${t("paramsCommaSep")}</span>
             <input class="macro-def-params" type="text" value="${block.macroParams || ""}" placeholder="color, addr">
           </label>
         </div>
@@ -15810,20 +16003,20 @@ function renderProgram() {
       inlineField.hidden = true;
     } else if (block.isRegionMacro) {
       inlineField.hidden = false;
-      inlineField.querySelector("span").textContent = currentLanguage !== "hu" ? "Region name" : "Régió neve";
+      inlineField.querySelector("span").textContent = t("regionName");
       operandField.value = block.regionName || "region";
       operandField.disabled = false;
-      operandField.placeholder = currentLanguage !== "hu" ? "for example init_section" : "peldaul init_szekció";
+      operandField.placeholder = t("forExampleInitSection");
       operandField.addEventListener("input", (event) => {
         updateProgramBlock(index, "regionName", event.target.value);
       });
       collapseToggle.insertAdjacentHTML(
         "beforebegin",
         `<div class="region-topline-btns">
-          <button type="button" class="region-expand-all-btn" title="${currentLanguage !== "hu" ? "Expand all blocks in region" : "Régió blokkjainak kinyitása"}">&#8597;</button>
-          <button type="button" class="region-select-asm-btn" title="${currentLanguage !== "hu" ? "Select region range in ASM view" : "Régió kijelölése az ASM nézetben"}">&#9678;</button>
-          <button type="button" class="region-copy-btn" title="${currentLanguage !== "hu" ? "Copy region with all blocks" : "Régió másolása az összes blokkal"}">&#10697;</button>
-          <button type="button" class="region-paste-btn" title="${currentLanguage !== "hu" ? "Paste copied region after this region" : "Másolt régió beillesztése e régió után"}" style="${_clipboardRegion ? '' : 'opacity:0.4'}">&#9112;</button>
+          <button type="button" class="region-expand-all-btn" title="${t("expandAllBlocksInRegion")}">&#8597;</button>
+          <button type="button" class="region-select-asm-btn" title="${t("selectRegionRangeInAsmView")}">&#9678;</button>
+          <button type="button" class="region-copy-btn" title="${t("copyRegionWithAllBlocks")}">&#10697;</button>
+          <button type="button" class="region-paste-btn" title="${t("pasteCopiedRegionAfterThisRegion")}" style="${_clipboardRegion ? '' : 'opacity:0.4'}">&#9112;</button>
         </div>`
       );
       node.querySelector(".region-expand-all-btn")?.addEventListener("click", () => {
@@ -15963,7 +16156,7 @@ function renderProgram() {
         }
       }
       inlineField.hidden = false;
-      inlineField.querySelector("span").textContent = currentLanguage !== "hu" ? "Region" : "Régió";
+      inlineField.querySelector("span").textContent = t("region");
       operandField.value = matchingRegionName;
       operandField.disabled = true;
     } else if (block.isMacroInvoke) {
@@ -15971,7 +16164,7 @@ function renderProgram() {
       const macroNames = Object.keys(userMacros);
       const options = macroNames.length > 0
         ? macroNames.map(name => `<option value="${name}"${block.invokeMacroName === name ? " selected" : ""}>${name}</option>`).join("")
-        : `<option value="">${currentLanguage !== "hu" ? "No macros defined" : "Nincs definialva makro"}</option>`;
+        : `<option value="">${t("noMacrosDefined")}</option>`;
 
       const selectedMacro = block.invokeMacroName && userMacros[block.invokeMacroName];
       const paramNames = selectedMacro ? (userMacros[block.invokeMacroName].params || []) : [];
@@ -15982,7 +16175,7 @@ function renderProgram() {
         `
           <div class="macro-grid single-macro-row">
             <label class="mini-field">
-              <span>${currentLanguage !== "hu" ? "Macro name" : "Makro nev"}</span>
+              <span>${t("macroName")}</span>
               <select class="invoke-macro-select">
                 ${options}
               </select>
@@ -15990,8 +16183,8 @@ function renderProgram() {
           </div>
           <div class="macro-grid single-macro-row">
             <label class="mini-field">
-              <span>${currentLanguage !== "hu" ? "Arguments" : "Argumentumok"}${paramPlaceholder ? " (" + paramPlaceholder + ")" : ""}</span>
-              <input class="invoke-macro-args" type="text" value="${(block.invokeArgs || "").replace(/"/g, "&quot;")}" placeholder="${paramPlaceholder || currentLanguage !== "hu" ? "arg1, arg2" : "arg1, arg2"}">
+              <span>${t("arguments")}${paramPlaceholder ? " (" + paramPlaceholder + ")" : ""}</span>
+              <input class="invoke-macro-args" type="text" value="${(block.invokeArgs || "").replace(/"/g, "&quot;")}" placeholder="${paramPlaceholder || t("arg1Arg2")}">
             </label>
           </div>
         `
@@ -16119,7 +16312,7 @@ function renderProgram() {
             </label>` : ""}
           </div>
         </label>` : ""}
-          <label class="mini-field"${block.isLabel || block.isAnonymousLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isForMacro || block.isEndfMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro || block.isRegionMacro || block.isEndRegionMacro || block.isLoadFileMacro || getMnemonicModes(block.mnemonic).length <= 1 ? ` hidden` : ""}>
+          <label class="mini-field"${block.isLabel || block.isAnonymousLabel || block.isComment || block.isTextMacro || block.isByteMacro || block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || block.isCharsetMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isLoopMacro || block.isNextMacro || block.isForMacro || block.isEndfMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro || block.isTableMacro || block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isMacroInvoke || block.isMacroDefStart || block.isMacroDefEnd || block.isPushMacro || block.isPullMacro || block.isRegionMacro || block.isEndRegionMacro || block.isLoadFileMacro || getMnemonicModes(block.mnemonic).length <= 1 ? ` hidden` : ""}>
             <span>${t("addressingMode")}</span>
           <select class="block-mode">
             ${getMnemonicModes(block.mnemonic).map((modeKey) => `<option value="${modeKey}"${block.addressingMode === modeKey ? " selected" : ""}>${modeText(modeKey, "label")}</option>`).join("")}
@@ -16207,6 +16400,15 @@ function renderProgram() {
     const petsciiNullCheck = node.querySelector(".petscii-null-check");
     if (petsciiNullCheck) {
       petsciiNullCheck.addEventListener("change", (event) => updateProgramBlock(index, "petsciiNullTerminated", event.target.checked));
+    }
+    const charsetLowerCheck = node.querySelector(".charset-lower-check");
+    if (charsetLowerCheck) {
+      const csField = block.isPetsciiMacro ? "petsciiCharset" : "textCharset";
+      charsetLowerCheck.addEventListener("change", (event) => updateProgramBlock(index, csField, event.target.checked ? "lower" : "upper"));
+    }
+    const charsetModeSelect = node.querySelector(".charset-mode-select");
+    if (charsetModeSelect) {
+      charsetModeSelect.addEventListener("change", (event) => updateProgramBlock(index, "charsetMode", event.target.value));
     }
     const macroCharOffsetInput = node.querySelector(".macro-char-offset");
     if (macroCharOffsetInput) {
@@ -16672,7 +16874,7 @@ function renderAsmOutput() {
   const layout = getProgramLayout();
 
   if (!program.length) {
-    asmPlainText = `*= ${layout.origin.text}\n; ${currentLanguage !== "hu" ? "The C64 assembly source will appear here" : "Itt fog megjelenni a C64 assembly kod"}`;
+    asmPlainText = `*= ${layout.origin.text}\n; ${t("theC64AssemblySourceWillAppearHere")}`;
     asmDisplayText = withAsmLineNumbers(asmPlainText);
     asmOutput.innerHTML = highlightAsmHtml(asmDisplayText);
     renderMonitorOutput(layout);
@@ -16847,7 +17049,7 @@ function renderAsmOutput() {
         });
         return `; .incbin incbin_${lineNumber} (${bytes.length} bytes)`;
       }
-      return `; .incbin "${fileName}" @ ${formatAddress(startAddress)} (${currentLanguage !== "hu" ? "no file loaded" : "nincs betoltott fajl"})`;
+      return `; .incbin "${fileName}" @ ${formatAddress(startAddress)} (${t("noFileLoaded")})`;
     }
 
     if (line.block.isSidMacro) {
@@ -16862,14 +17064,14 @@ function renderAsmOutput() {
         const overrideNote = addrOffset !== 0 ? " [relocated]" : "";
         return `; .sid "${fileName}" @ ${formatAddress(load)}${overrideNote}  init:${formatAddress(init)}  play:${formatAddress(play)}  (${bytes.length} bytes)`;
       }
-      return `; .sid "${fileName}" (${currentLanguage !== "hu" ? "no file loaded" : "nincs betoltott fajl"})`;
+      return `; .sid "${fileName}" (${t("noFileLoaded")})`;
     }
 
     if (line.block.isIncludeMacro) {
       const count = (line.block.includedBlocks || []).length;
       const fname = line.block.includeFileName || "?";
       const addrNote = line.block.includeAddress ? ` @ $${line.block.includeAddress.replace(/^\$/, "").toUpperCase().padStart(4, "0")}` : "";
-      if (count === 0) return `; .include "${fname}"${addrNote} (${currentLanguage !== "hu" ? "no blocks loaded" : "nincsenek blokkok betoltve"})`;
+      if (count === 0) return `; .include "${fname}"${addrNote} (${t("noBlocksLoaded")})`;
       return `; .include "${fname}"${addrNote} — ${count} ${t("includeBlocksCount")}`;
     }
 
@@ -16891,7 +17093,7 @@ function renderAsmOutput() {
     }
 
     if (line.block.isPetsciiMacro) {
-      const chars = encodePetsciiMacro(line.block.rawOperand);
+      const chars = encodePetsciiMacro(line.block.rawOperand, line.block.petsciiCharset || "upper");
       const startAddress = parseAddressValue(line.block.petsciiAddress) ?? 0xC000;
       const nullNote = line.block.petsciiNullTerminated ? ", null" : "";
       const expanded = chunkBytes(chars, 16).map((chunk, chunkIndex) => {
@@ -17826,7 +18028,7 @@ function _tutorialBuildColorTextProgram() {
       validationError: validateTextMacroPosition(10, 8, "HELLO C64"),
       collapsed: false,
       isTextMacro: true,
-      textCharset: "standard",
+      textCharset: "upper",
       textX: 10,
       textY: 8
     },
