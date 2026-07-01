@@ -1,5 +1,5 @@
 C64 Visual Assembler - Installation Guide
-Version 2.0.7
+Version 2.0.8
 Support: https://zstarczali.itch.io/visual-assembler-commodore-64
 ==========================================================================
 
@@ -13,7 +13,7 @@ Tested on Ubuntu 22.04 and 24.04.
 -----------------------
 Download the .deb package from the releases page and install:
 
-  sudo dpkg -i "c64-visual-assembler_2.0.7_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.0.8_amd64.deb"
   sudo apt-get install -f   # fix any missing dependencies
 
 Launch from the Applications menu or:
