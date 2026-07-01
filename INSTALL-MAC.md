@@ -2,7 +2,7 @@
 
 ## Quick Install
 
-1. **Download**: `C64 Visual Assembler-1.1.0-arm64-final.dmg`
+1. **Download** the 2.1.0 DMG for your architecture from the releases page
 2. **Mount** the DMG and drag the app to `/Applications`
 3. **First launch**: Right-click the app → **"Open"** (macOS will block double-click)
 4. Click **"Open"** in the security dialog
@@ -54,5 +54,4 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.0.8 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
-
+**Version:** 2.1.0 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

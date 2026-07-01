@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.0.8**
+**Version 2.1.0**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -73,6 +73,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [PUSH / PULL](#push--pull)
       - [PUSH](#push)
       - [PULL](#pull)
+    - [END / RTS alias](#end--rts-alias)
     - [MACRO / ENDM / INVOKE](#macro--endm--invoke)
       - [MACRO (definition start)](#macro-definition-start)
       - [ENDM (definition end)](#endm-definition-end)
@@ -82,8 +83,16 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
       - [DEFINE](#define)
       - [IF](#if)
       - [ELSE](#else)
-      - [ENDIF](#endif)
+    - [ENDIF](#endif)
     - [CONST](#const)
+    - [VAR](#var)
+    - [Runtime IF / ELSE / ENDIF](#runtime-if--else--endif)
+    - [WHILE / ENDW](#while--endw)
+    - [REPEAT / UNTIL](#repeat--until)
+    - [MEMCPY / MEMSET](#memcpy--memset)
+    - [PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / SET_BORDER / SET_BG](#print--print_char--print_hex--clear_screen--wait_key--set_border--set_bg)
+    - [IRQ_SETUP](#irq_setup)
+    - [RAND](#rand)
     - [SPRITE\_INIT](#sprite_init)
     - [SPRITE\_POS](#sprite_pos)
     - [WAIT\_RASTER](#wait_raster)
@@ -150,7 +159,7 @@ The palette on the left lists all available blocks grouped by category:
 - **System** — CLC, SEC, NOP, BRK, …
 - **Illegal instructions** — LAX, SAX, DCP, …
 - **Structure** — LABEL, COMMENT, REGION, ENDREGION
-- **Macros** — LOOP, NEXT, FOR, ENDF, PUSH, PULL, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, CHARSET, INCBIN, SID, INCLUDE, TABLE, ORG, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, MOUSE, SPRITE_COL, LOADFILE, REU_CHECK, REU_STASH, REU_FETCH, REU_SWAP, TURBO_SET, SUPERCPU_DETECT, TURBO_ENABLE, MAP_COPY, SPRITE_ANIM, SCORE_BCD
+- **Macros** — LOOP, NEXT, FOR, ENDF, PUSH, PULL, END, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, CHARSET, INCBIN, SID, INCLUDE, TABLE, ORG, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, VAR, WHILE, ENDW, REPEAT, UNTIL, MEMCPY, MEMSET, PRINT, PRINT_CHAR, PRINT_HEX, CLEAR_SCREEN, WAIT_KEY, SET_BORDER, SET_BG, IRQ_SETUP, RAND, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, MOUSE, SPRITE_COL, LOADFILE, REU_CHECK, REU_STASH, REU_FETCH, REU_SWAP, TURBO_SET, SUPERCPU_DETECT, TURBO_ENABLE, MAP_COPY, SPRITE_ANIM, SCORE_BCD
 
 Use the **search box** at the top of the palette to filter by name. Click the **Add selected block** button or drag a block into the program area.
 
@@ -821,7 +830,7 @@ Like RAWBYTES but for text — encodes the string as screen codes and places the
 
 ### PETSCII
 
-Like **RAWBYTES but for KERNAL output** — encodes the string as PETSCII bytes (compatible with CHROUT at `$FFD2`) and places them at a fixed address with no runtime code. Use this when you want to print characters via `JSR $FFD2` in a loop.
+Like **RAWBYTES but for KERNAL output** — encodes the string as PETSCII bytes (compatible with CHROUT at `$FFD2`) and places them at a fixed address with no runtime code. Use this when you want to print characters via `JSR $FFD2` in a loop, and note that the new `PRINT` macro uses the same encoder and lowercase checkbox behavior.
 
 > **PETSCII vs screen codes:** PETSCII and screen codes are two different encodings. Screen code `$01` = letter A; PETSCII `$41` = letter A (via CHROUT). Use PETSCII only when printing through the KERNAL; use TEXT/STRING/RAWTEXT for writing directly to screen RAM.
 
@@ -837,7 +846,7 @@ Like **RAWBYTES but for KERNAL output** — encodes the string as PETSCII bytes 
 | Mode | Uppercase input (`A`–`Z`) | Lowercase input (`a`–`z`) |
 |---|---|---|
 | **Uppercase (default, unchecked)** | `$41`–`$5A` (PETSCII uppercase via CHROUT) | also mapped to `$41`–`$5A` |
-| **Lowercase (checked)** | `$41`–`$5A` (uppercase still works) | `$61`–`$7A` (PETSCII lowercase — requires C64 in lowercase charset mode) |
+| **Lowercase (checked)** | Alphabetic letters are remapped so the visible case stays consistent on the lowercase/uppercase charset | Same rule |
 
 **Expert syntax:**
 ```
@@ -874,8 +883,8 @@ done:
 
 | Input | Uppercase mode | Lowercase mode |
 |---|---|---|
-| `A`–`Z` | `$41`–`$5A` | `$41`–`$5A` |
-| `a`–`z` | `$41`–`$5A` (forced uppercase) | `$61`–`$7A` |
+| `A`–`Z` | `$41`–`$5A` | `$61`–`$7A` |
+| `a`–`z` | `$41`–`$5A` (forced uppercase) | `$41`–`$5A` |
 | Space, digits, punctuation (32–126) | as-is | as-is |
 | Newline | `$0D` (RETURN) | `$0D` |
 | Other | `$20` (space) | `$20` |
@@ -934,6 +943,8 @@ Or in expert mode:
 .charset upper
 ```
 
+In Expert mode the `.charset` block now round-trips through the mode dropdown too, so the block preview and exported source stay aligned.
+
 > **Note:** The CHARSET macro only changes the VIC character ROM pointer. It does not call `$E544` (KERNAL charset init). For most cases this is sufficient; call `JSR $E544` first only if you need the KERNAL's own print routines to respect the change.
 
 ---
@@ -988,12 +999,26 @@ The block displays:
 
 ### INCLUDE
 
-Like **MERGE in BASIC** — pulls in another Visual Assembler project file and expands its blocks inline at this position. Perfect for reusable subroutine libraries. The included blocks are read-only in the current project.
+Like **MERGE in BASIC** — pulls in another file and expands its blocks inline at this position. Perfect for reusable subroutine libraries. The included blocks are read-only in the current project.
+
+Two file kinds are supported:
+- **Visual Assembler project** (`.json`) — the project's blocks are inserted as-is.
+- **Plain assembly source** (`.inc`, `.asm`, `.s`) — the file is read as text and parsed the same way as expert mode. Every time you compile, the file is re-read from disk (source of truth = the file), so you can edit it externally with any editor.
 
 | Field | Description |
 |---|---|
-| File | Browse to select a `.json` Visual Assembler project |
+| File | Browse to select a `.json` project or a `.inc`/`.asm`/`.s` assembly source |
 | Load address (optional) | If set (hex, e.g. `C000`), the included blocks are placed at that address — a synthetic `ORG` is injected before them, overriding any ORG block inside the included file. Leave empty to let the included file's own ORG blocks control placement. |
+
+**Expert-mode syntax:**
+```
+.include "library.json"
+.include "macros.inc", $1500
+.include "sprites.asm"
+```
+
+- The **file extension is required in expert mode** — a bare name like `.include "macros"` is treated as `.include "macros.json"`.
+- Path resolution: first tries next to the project file (relative), then falls back to the app's bundled `samples/` directory.
 
 **Generated ASM (no address override):**
 ```
@@ -1008,7 +1033,7 @@ Like **MERGE in BASIC** — pulls in another Visual Assembler project file and e
     ... (expanded blocks follow)
 ```
 
-> **Tip:** Use INCLUDE to build reusable subroutine libraries that you can share across projects. Set a load address when the library has no ORG of its own, or when you want to override its default placement.
+> **Tip:** Use INCLUDE to build reusable subroutine libraries that you can share across projects. `.inc`/`.asm`/`.s` files are best when you want to edit the library in a plain text editor or share it with other 6502 assemblers; `.json` when the library is authored in Visual Assembler itself. Set a load address when the library has no ORG of its own, or when you want to override its default placement.
 
 ---
 
@@ -1211,6 +1236,26 @@ Restores registers from the stack in **reverse order** (Y → X → A).
 
 ---
 
+### END / RTS alias
+
+Like **RTS with a friendlier macro name** — `.end` emits a single `RTS` byte and behaves as a short subroutine terminator in expert mode.
+
+**Expert syntax:**
+```
+.end
+```
+
+**Generated ASM:**
+```
+    RTS
+```
+
+**Size:** 1 byte.
+
+Use this when you want an end-of-subroutine marker that reads a little more like a macro than a raw instruction.
+
+---
+
 ### MACRO / ENDM / INVOKE
 
 Like **a named GOSUB with parameters** — define a reusable chunk of code once (MACRO…ENDM), then call it anywhere with INVOKE. Pass different argument values each time instead of copy-pasting blocks.
@@ -1401,6 +1446,8 @@ No fields. Closes the conditional block.
 
 Nested `IF` blocks are supported. If an outer block is skipped, inner blocks are skipped too.
 
+> **Note:** This is compile-time condition handling. For runtime compare/branch sugar, see **Runtime IF / ELSE / ENDIF** below.
+
 ---
 
 ### CONST
@@ -1434,6 +1481,218 @@ STA op              ; overwrites the #$00 byte → LDA reads the new value next 
 The CONST emits 0 bytes; the label resolves at compile time to `current_address + 1`.
 
 **Size:** 0 bytes.
+
+---
+
+### VAR
+
+Like **CONST, but auto-allocated** — `VAR` reserves zero-page storage for a label without you having to type the address. Use it for counters, pointers, and short-lived state that belongs in ZP.
+
+| Field | Description |
+|---|---|
+| Name | Variable name / label |
+| Size (optional) | Number of bytes to reserve. Omit for a single byte. |
+
+**Expert syntax:**
+```
+.var counter
+.var timer, 2
+.var lives
+```
+
+**Generated ASM:**
+```
+; .var counter
+```
+
+**Size:** 1 byte by default, or `N` bytes when size is specified.
+
+The allocator walks a configurable zero-page cursor (`$02` to `$FE`) and assigns the next free slot. If the requested region overlaps an already-used label, the compiler emits a warning.
+
+---
+
+### Runtime IF / ELSE / ENDIF
+
+Like **a real branch template** — this version works at runtime, not compile time. It compares `A`, `X`, or `Y` against an immediate value and emits the correct `CMP` / `CPX` / `CPY` + branch sequence for you.
+
+| Field | Description |
+|---|---|
+| Register | `A`, `X`, or `Y` |
+| Operator | `==`, `!=`, `<`, `<=`, `>`, `>=` |
+| Value | Immediate value in HEX or DEC format |
+
+**Expert syntax:**
+```
+.if A == #$10
+    LDA #$07
+.else
+    LDA #$0F
+.endif
+```
+
+**Size:** Depends on the chosen branches and compare form.
+
+The comparison is unsigned by default. For `<=` and `>` the macro expands to the shortest equivalent branch chain for the selected register.
+
+---
+
+### WHILE / ENDW
+
+Like **a runtime loop with a test at the top** — the body runs while the condition stays true.
+
+| Field | Description |
+|---|---|
+| Register | `A`, `X`, or `Y` |
+| Operator | `==`, `!=`, `<`, `<=`, `>`, `>=` |
+| Value | Immediate value in HEX or DEC format |
+
+**Expert syntax:**
+```
+.while A != #$00
+    JSR getchar
+.endw
+```
+
+**Size:** Depends on the loop body and compare form.
+
+Use `WHILE` when the loop may end before the first iteration finishes. It is the runtime counterpart of the count-based `LOOP / NEXT` helper.
+
+---
+
+### REPEAT / UNTIL
+
+Like **a runtime loop with a test at the bottom** — the body always runs at least once, then the condition decides whether to stop.
+
+| Field | Description |
+|---|---|
+| Register | `A`, `X`, or `Y` |
+| Operator | `==`, `!=`, `<`, `<=`, `>`, `>=` |
+| Value | Immediate value in HEX or DEC format |
+
+**Expert syntax:**
+```
+.repeat
+    JSR getchar
+.until A == #$00
+```
+
+**Size:** Depends on the loop body and compare form.
+
+Use `REPEAT / UNTIL` when you want the body to execute at least once before the exit check.
+
+---
+
+### MEMCPY / MEMSET
+
+Like **small memory routines you reach for constantly** — `MEMCPY` copies a contiguous block, `MEMSET` fills a range with one byte.
+
+| Macro | Fields |
+|---|---|
+| `MEMCPY` | `src`, `dst`, `size` |
+| `MEMSET` | `addr`, `value`, `size` |
+
+**Expert syntax:**
+```
+.memcpy src=$C000, dst=$D000, size=$0100
+.memset addr=$0400, value=#$20, size=$03E8
+```
+
+**Generated ASM:** inline copy/fill loops, chosen to match the requested size.
+
+Sizes up to 256 bytes use a short 8-bit loop. Larger sizes switch to a 16-bit counter automatically.
+
+---
+
+### PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / SET_BORDER / SET_BG
+
+#### PRINT
+
+Like **PETSCII output without the boilerplate** — prints a string through `CHROUT` with the same uppercase/lowercase handling as the PETSCII block. The lowercase checkbox is shared with the PETSCII encoder, so the text path stays consistent.
+
+**Expert syntax:**
+```
+.print "HELLO"
+.print "hello", lower
+```
+
+#### PRINT_CHAR
+
+Prints one PETSCII byte by numeric code and sends it through `CHROUT`.
+
+**Expert syntax:**
+```
+.print_char 65
+.print_char $41
+```
+
+#### PRINT_HEX
+
+Prints an 8-bit value as hexadecimal text through the normal KERNAL output path.
+
+**Expert syntax:**
+```
+.print_hex A
+```
+
+#### CLEAR_SCREEN
+
+Shortcut for the standard C64 clear-screen control code.
+
+**Expert syntax:**
+```
+.clear_screen
+```
+
+#### WAIT_KEY
+
+Waits until a key is pressed, so you do not have to hand-roll the `GETIN` loop every time.
+
+**Expert syntax:**
+```
+.wait_key
+```
+
+#### SET_BORDER / SET_BG
+
+Convenience wrappers for the VIC-II color registers.
+
+**Expert syntax:**
+```
+.set_border 6
+.set_bg 0
+```
+
+**Size:** Each helper expands to a tiny register write sequence or a short KERNAL call.
+
+---
+
+### IRQ_SETUP
+
+Sets up a raster IRQ handler in one step. The macro writes the IRQ vector, enables raster IRQs, sets the line, disables the common CIA IRQ sources, and returns to normal execution with `CLI`.
+
+**Expert syntax:**
+```
+.irq_setup handler=my_irq, raster=$FA
+```
+
+**Size:** A small setup sequence; exact length depends on the selected raster line.
+
+Use this when you want the common "SEI / install handler / enable IRQ / CLI" boilerplate without scattering it through the program.
+
+---
+
+### RAND
+
+Like **a tiny built-in PRNG** — returns an 8-bit pseudo-random value from a compact zero-page seed.
+
+**Expert syntax:**
+```
+.rand
+```
+
+**Size:** A handful of bytes, depending on the chosen implementation path.
+
+The generator is meant for gameplay, effect variation, and quick test data. It is deliberately small rather than cryptographically fancy.
 
 ---
 

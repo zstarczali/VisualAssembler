@@ -2,7 +2,18 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.0.8**
+**Current version: v2.1.0**
+
+**What's new in 2.1.0**
+
+- Runtime `IF` / `WHILE` / `REPEAT` blocks now support the shorter block syntax with `A`, `X`, or `Y` register selection and `==`, `!=`, `<`, `<=`, `>`, `>=` comparisons.
+- `VAR` now auto-allocates zero-page labels from a running cursor, which removes the need to hand-pick ZP slots for scratch variables.
+- `MEMCPY` and `MEMSET` cover the common copy/fill cases directly, including page-sized loops for larger ranges.
+- `PRINT` now uses the same PETSCII lowercase/uppercase checkbox behavior as the PETSCII macro, and `PRINT_CHAR` prints a single PETSCII byte by numeric code.
+- `CHARSET` now round-trips properly in Expert mode when you switch the mode dropdown.
+- `.end` is now an `RTS` alias for short subroutine endings in expert mode.
+- `IRQ_SETUP`, `RAND`, `CLEAR_SCREEN`, `WAIT_KEY`, `SET_BORDER`, `SET_BG`, and `PRINT_HEX` add everyday sugar for games and demos.
+- The manual and bundled docs were refreshed to match the new macro set and version.
 
 ---
 
@@ -20,6 +31,8 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **Block collapsing** — collapse individual blocks or all at once to reduce visual noise
 - **Mnemonic search** — filter the palette by name or description
 - **TEXT macro** — write text to the C64 screen at an X/Y coordinate; auto-detects case for lowercase charset output
+- **CHARSET macro** — switch the VIC-II character ROM between uppercase/graphics and lowercase/uppercase modes
+- **PRINT / PRINT_CHAR / PRINT_HEX macros** — KERNAL output helpers; PRINT shares the PETSCII lowercase/uppercase checkbox behavior and PRINT_CHAR emits a single PETSCII byte by numeric code
 - **BYTE macro** — insert arbitrary raw byte arrays inline
 - **WORD macro** — insert 16-bit values as LO/HI byte pairs
 - **STRING macro** — copy a string (as screen codes) to a fixed memory address; same case auto-detection as TEXT
