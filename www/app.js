@@ -261,6 +261,7 @@ const snapshotHistoryButton = document.getElementById("snapshot-history");
 const savePrgButton = document.getElementById("save-prg");
 const saveD64Button = document.getElementById("save-d64");
 const loadProjectButton = document.getElementById("load-project");
+const setWorkingFolderButton = document.getElementById("set-working-folder");
 const zoomOutButton = document.getElementById("zoom-out");
 const zoomInButton = document.getElementById("zoom-in");
 const addSelectedButton = document.getElementById("add-selected");
@@ -285,6 +286,7 @@ const dbgJmp = document.getElementById("dbg-jmp");
 const dbgWait = document.getElementById("dbg-wait");
 const dbgUnpause = document.getElementById("dbg-unpause");
 const currentFileDisplay = document.getElementById("current-file");
+const workingFolderPanel = document.getElementById("working-folder-panel");
 const originInput = document.getElementById("origin-input");
 const originPreview = document.getElementById("origin-preview");
 const memoryMap = document.getElementById("memory-map");
@@ -314,6 +316,7 @@ let showMemoryOverlays = true;
 let blockPaletteSync = true;
 let asmOutputBase = "hex";
 let originBase = "hex";
+let workingFolder = "";
 const macroSourceToggle = document.getElementById("macro-source-toggle");
 const macroSourceToggleText = document.getElementById("macro-source-toggle-text");
 const regionCommentsToggle = document.getElementById("region-comments-toggle");
@@ -368,6 +371,8 @@ const projectSnapshotRestoreButton = document.getElementById("project-snapshot-r
 const projectSnapshotCloseButton = document.getElementById("project-snapshot-close");
 let workProgressTimer = null;
 let workProgressValue = 10;
+let appVersionText = "v?";
+let appVersionPromise = null;
 const exitAppButton = document.getElementById("exit-app");
 const expertHlToggleBtn = document.getElementById("expert-hl-toggle");
 const expertPaletteSyncBtn = document.getElementById("expert-palette-sync-btn");
@@ -380,6 +385,7 @@ const expertDisasmResizer  = document.getElementById("expert-disasm-resizer");
 const expertMonitorBtn     = document.getElementById("expert-monitor-btn");
 const expertMonitorPanel   = document.getElementById("expert-monitor-panel");
 const expertMonitorOutput  = document.getElementById("expert-monitor-output");
+const expertRegionSelectionBtn = document.getElementById("expert-region-selection-btn");
 const expertFormatBtn      = document.getElementById("expert-format-btn");
 const expertLoadAsmBtn     = document.getElementById("expert-load-asm-btn");
 const expertSaveAsmBtn     = document.getElementById("expert-save-asm-btn");
@@ -388,6 +394,18 @@ const expertModeTbBtn      = document.getElementById("expert-mode-tb-btn");
 const expertFindBtn        = document.getElementById("expert-find-btn");
 const expertZoomInBtn      = document.getElementById("expert-zoom-in-btn");
 const expertZoomOutBtn     = document.getElementById("expert-zoom-out-btn");
+
+function getAppVersionText() {
+  if (!appVersionPromise) {
+    appVersionPromise = window.electronAPI.getAppVersion()
+      .then((version) => {
+        appVersionText = `v${version}`;
+        return appVersionText;
+      })
+      .catch(() => appVersionText);
+  }
+  return appVersionPromise;
+}
 const buildInfoBtn         = document.getElementById("build-info-btn");
 const expertProjectBtn     = document.getElementById("expert-project-btn");
 const expertProjectPanel   = document.getElementById("expert-project-panel");
@@ -422,6 +440,7 @@ let activeTabId = null;
 let _tabCounter = 0;
 let _expertHlEnabled = true;
 let _expertPaletteSyncEnabled = true;
+let _expertRegionSelectionEnabled = true;
 let _expertCaretCanvas = null;
 let _expertSourceText = "";
 let _expertProjectionActive = false;
@@ -549,6 +568,7 @@ function saveUiSettings() {
     expertMode: expertMode,
     expertHlEnabled: _expertHlEnabled,
     expertPaletteSyncEnabled: _expertPaletteSyncEnabled,
+    expertRegionSelectionEnabled: _expertRegionSelectionEnabled,
     expertAutocompleteEnabled: _expertAcEnabled,
     expertPaletteVisible: _expertPaletteVisible,
     expertDisasmVisible: _expertDisasmVisible,
@@ -1239,8 +1259,7 @@ function initPalette() {
   languageSelect.addEventListener("change", handleLanguageChange);
   aboutButton?.addEventListener("click", async () => {
     document.querySelector(".control-menu")?.removeAttribute("open");
-    const version = await window.electronAPI.getAppVersion();
-    document.getElementById("about-version").textContent = `v${version}`;
+    document.getElementById("about-version").textContent = await getAppVersionText();
     const dlg = document.getElementById("about-dialog");
     dlg?.querySelectorAll("a[href^='mailto:']").forEach(a => {
       a.addEventListener("click", e => { e.preventDefault(); window.electronAPI.openExternal(a.href); }, { once: true });
@@ -1254,11 +1273,11 @@ function initPalette() {
     window.electronAPI.openExternal("https://zstarczali.itch.io/visual-assembler-commodore-64");
   });
   reportBugButton?.addEventListener("click", async () => {
-    const version = await window.electronAPI.getAppVersion();
+    const version = await getAppVersionText();
     const ua = navigator.userAgent;
     const os = ua.includes("Win") ? "Windows" : ua.includes("Mac") ? "macOS" : navigator.platform || "Unknown";
-    const subject = encodeURIComponent(`Visual Assembler v${version} - Bug Report`);
-    const body = encodeURIComponent(`Visual Assembler version: v${version}\nOS: ${os}\n\n--- Describe the bug ---\n\n\n--- Steps to reproduce ---\n\n`);
+    const subject = encodeURIComponent(`Visual Assembler ${version} - Bug Report`);
+    const body = encodeURIComponent(`Visual Assembler version: ${version}\nOS: ${os}\n\n--- Describe the bug ---\n\n\n--- Steps to reproduce ---\n\n`);
     window.electronAPI.openExternal(`mailto:retroboj@outlook.com?subject=${subject}&body=${body}`);
   });
   basicSysToggle?.addEventListener("change", () => {
@@ -1296,6 +1315,15 @@ function initPalette() {
     _expertPaletteSyncEnabled = !_expertPaletteSyncEnabled;
     expertPaletteSyncBtn.classList.toggle("expert-hl-toggle--on", _expertPaletteSyncEnabled);
     expertPaletteSyncBtn.setAttribute("aria-pressed", String(_expertPaletteSyncEnabled));
+    saveUiSettings();
+  });
+
+  expertRegionSelectionBtn?.addEventListener("click", () => {
+    _expertRegionSelectionEnabled = !_expertRegionSelectionEnabled;
+    expertRegionSelectionBtn.classList.toggle("expert-hl-toggle--on", _expertRegionSelectionEnabled);
+    expertRegionSelectionBtn.setAttribute("aria-pressed", String(_expertRegionSelectionEnabled));
+    _expertResetRegionHighlight();
+    _expertApplyHighlight();
     saveUiSettings();
   });
 
@@ -1729,6 +1757,10 @@ function initPalette() {
     const ok = await loadProjectFromFile();
     if (ok) document.querySelector(".control-menu")?.removeAttribute("open");
   });
+  setWorkingFolderButton?.addEventListener("click", async () => {
+    await chooseWorkingFolder();
+    document.querySelector(".control-menu")?.removeAttribute("open");
+  });
   projectSnapshotSaveButton?.addEventListener("click", async () => {
     await _saveManualProjectSnapshot();
   });
@@ -1825,16 +1857,17 @@ function initPalette() {
   loadViceConfig();
   loadExomizerConfig();
   loadDebuggerConfig();
+  loadWorkingFolderConfig();
 
   // Populate version on splash screen AND About dialog text node up-front so
   // any code that reads #about-version before the user opens About (e.g. the
   // copy-ASM header — although that now queries the backend directly) sees
   // the current version, not the placeholder in index.html.
-  window.electronAPI.getAppVersion().then(version => {
+  getAppVersionText().then(versionText => {
     const splashVersion = document.getElementById('splash-version');
-    if (splashVersion) splashVersion.textContent = `v${version}`;
+    if (splashVersion) splashVersion.textContent = versionText;
     const aboutVersion = document.getElementById('about-version');
-    if (aboutVersion) aboutVersion.textContent = `v${version}`;
+    if (aboutVersion) aboutVersion.textContent = versionText;
   });
 
   // READY. typewriter effect
@@ -2165,11 +2198,16 @@ function _applyUiSettingsToDOM() {
     _expertAcEnabled = !!savedUiSettings.expertAutocompleteEnabled;
   }
 
+  if (savedUiSettings.expertRegionSelectionEnabled !== undefined) {
+    _expertRegionSelectionEnabled = !!savedUiSettings.expertRegionSelectionEnabled;
+  }
+
   if (savedUiSettings.expertMode) {
     // Capture toolbar states BEFORE setExpertMode(true) — it calls saveUiSettings()
     // which overwrites savedUiSettings with current (default) variable values.
     const _savedHlEnabled          = savedUiSettings.expertHlEnabled;
     const _savedPaletteSyncEnabled = savedUiSettings.expertPaletteSyncEnabled;
+    const _savedRegionSelectionEnabled = savedUiSettings.expertRegionSelectionEnabled;
     const _savedAutocompleteEnabled = savedUiSettings.expertAutocompleteEnabled;
     const _savedPaletteVisible     = savedUiSettings.expertPaletteVisible;
     const _savedDisasmWidth        = savedUiSettings.expertDisasmWidth;
@@ -2190,6 +2228,11 @@ function _applyUiSettingsToDOM() {
       _expertPaletteSyncEnabled = false;
       expertPaletteSyncBtn?.classList.remove("expert-hl-toggle--on");
       expertPaletteSyncBtn?.setAttribute("aria-pressed", "false");
+    }
+    if (_savedRegionSelectionEnabled === false) {
+      _expertRegionSelectionEnabled = false;
+      expertRegionSelectionBtn?.classList.remove("expert-hl-toggle--on");
+      expertRegionSelectionBtn?.setAttribute("aria-pressed", "false");
     }
     if (_savedAutocompleteEnabled === false) {
       _expertAcEnabled = false;
@@ -2232,6 +2275,8 @@ function _applyUiSettingsToDOM() {
       _applyExpertProjectSymbolsHeight();
     }
   }
+
+  saveUiSettings();
 }
 
 function applySavedUiSettings() {
@@ -2333,6 +2378,8 @@ function applyTranslations() {
   document.getElementById("expert-project-add-btn")?.setAttribute("aria-label", t("projAddFileBtn"));
   expertPaletteSyncBtn?.setAttribute("title", t("expertPaletteSync"));
   expertPaletteSyncBtn?.setAttribute("aria-label", t("expertPaletteSync"));
+  expertRegionSelectionBtn?.setAttribute("title", t("expertRegionSelection"));
+  expertRegionSelectionBtn?.setAttribute("aria-label", t("expertRegionSelection"));
   expertAutocompleteBtn?.setAttribute("title", t("expertAutocomplete"));
   expertAutocompleteBtn?.setAttribute("aria-label", t("expertAutocomplete"));
   expertDisasmBtn?.setAttribute("title", t("expertDisasm"));
@@ -2408,6 +2455,7 @@ function applyTranslations() {
     setText("#snapshot-history", t("snapshotHistory"));
     setText("#menu-close-project", t("menuCloseProject"));
     setText("#save-prg", t("savePrg"));
+    setText("#set-working-folder", t("setWorkingFolder"));
     setText("#build-section-label", t("buildSection"));
     setText("#save-d64", t("saveD64"));
     setText("#d64-export-title", t("d64ExportTitle"));
@@ -2447,6 +2495,8 @@ function applyTranslations() {
     snapshotHistoryButton?.setAttribute("aria-label", t("snapshotHistory"));
     savePrgButton?.setAttribute("title", t("savePrg"));
     savePrgButton?.setAttribute("aria-label", t("savePrg"));
+    setWorkingFolderButton?.setAttribute("title", t("setWorkingFolder"));
+    setWorkingFolderButton?.setAttribute("aria-label", t("setWorkingFolder"));
     saveD64Button?.setAttribute("title", t("saveD64"));
     saveD64Button?.setAttribute("aria-label", t("saveD64"));
     loadProjectButton?.setAttribute("title", t("loadProject"));
@@ -2480,6 +2530,7 @@ function applyTranslations() {
     chooseDebuggerButton?.setAttribute("aria-label", t("chooseDebugger"));
     chooseExomizerButton?.setAttribute("title", t("chooseExomizer"));
     chooseExomizerButton?.setAttribute("aria-label", t("chooseExomizer"));
+    updateWorkingFolderPreview(workingFolder);
     updateVicePathPreview(vicePath);
     updateExomizerPathPreview(exomizerPath);
     updateDebuggerPathPreview(debuggerPath);
@@ -3557,7 +3608,8 @@ function createBlockFromMnemonic(item) {
       isSpriteInitMacro: true,
       spriteNum: "0",
       spriteColor: "7",
-      spriteDataPage: "21"
+      spriteDataPage: "21",
+      spriteMulticolor: false
     };
   }
 
@@ -4634,9 +4686,9 @@ function _blockToExpertLine(block) {
     return `.const ${block.constName || "MY_CONST"} = ${formatted}`;
   }
   if (block.isVarMacro) {
-    const size = Math.max(1, Math.min(255, block.varSize || 1));
-    return size > 1
-      ? `.var ${block.varName || "my_var"}, ${size}`
+    const rawSize = String(block.varSize || "1").trim();
+    return rawSize !== "1"
+      ? `.var ${block.varName || "my_var"}, ${rawSize}`
       : `.var ${block.varName || "my_var"}`;
   }
   if (block.isRuntimeIfMacro) {
@@ -4667,7 +4719,7 @@ function _blockToExpertLine(block) {
   }
   if (block.isMemSetMacro) {
     const fmtToken = v => /^[A-Za-z_]/.test(v || "") ? v : "$" + (v || "0").replace(/^\$/, "").toUpperCase();
-    return `.memset addr=${fmtToken(block.memsetDst || "0400")}, value=#$${(block.memsetValue || "00").replace(/^#?\$/, "").toUpperCase()}, size=${fmtToken(block.memsetSize || "03E8")}`;
+    return `.memset addr=${fmtToken(block.memsetDst || "0400")}, value=${fmtToken(block.memsetValue || "00")}, size=${fmtToken(block.memsetSize || "03E8")}`;
   }
   if (block.isPrintMacro) return `.print "${block.rawOperand || ""}"${block.printCharset === "lower" ? ", lower" : ""}`;
   if (block.isPrintCharMacro) return `.print_char ${block.rawOperand || "$41"}`;
@@ -4688,8 +4740,8 @@ function _blockToExpertLine(block) {
   if (block.isMacroDefStart)  return `.macro ${block.macroName || block.rawOperand || "myMacro"}${block.macroParams ? "(" + block.macroParams + ")" : ""}`;
   if (block.isMacroDefEnd)    return `.endm`;
   if (block.isMacroInvoke)    return `.${block.invokeSyntax || "invoke"} ${block.invokeMacroName || "myMacro"}${block.invokeArgs ? "(" + block.invokeArgs + ")" : ""}`;  
-  if (block.isSpriteInitMacro)return `.sprite_init ${block.spriteNum || 0}, ${block.spriteColor || 7}, $${(block.spriteDataPage || "21").toUpperCase()}`;
-  if (block.isSpritePosMacro) return `.sprite_pos ${block.spriteNum || 0}, ${block.spriteX || 152}, ${block.spriteY || 100}`;
+if (block.isSpriteInitMacro)return `.sprite_init ${block.spriteNum || 0}, ${block.spriteColor || 7}, $${(block.spriteDataPage || "21").toUpperCase()}${block.spriteMulticolor ? ", multicolor" : ""}`;
+if (block.isSpritePosMacro) return `.sprite_pos ${block.spriteNum || 0}, ${block.spriteX || 152}, ${block.spriteY || 100}`;
   if (block.isWaitRasterMacro)return `.wait_raster $${(block.rasterLine || "FF").toUpperCase()}`;
   if (block.isTurboSetMacro) return `.turbo_set ${block.turboSpeed || "7"},${block.turboBadline || "0"}`;
   if (block.isSuperCpuDetectMacro) return `.supercpu_detect`;
@@ -4723,6 +4775,7 @@ function _expertSyncFromProgram() {
   _expertAcHide();
   const lines = program.map(_blockToExpertLine).join("\n");
   _expertSourceText = lines;
+  _expertResetRegionHighlight();
   _expertProjectionActive = false;
   _expertDisplayToSourceLines = [];
   _expertSourceToDisplayLines = [];
@@ -4834,6 +4887,8 @@ function setExpertMode(on) {
   document.body.classList.toggle("expert-mode", on);
   expertAutocompleteBtn?.classList.toggle("expert-hl-toggle--on", _expertAcEnabled);
   expertAutocompleteBtn?.setAttribute("aria-pressed", String(_expertAcEnabled));
+  expertRegionSelectionBtn?.classList.toggle("expert-hl-toggle--on", _expertRegionSelectionEnabled);
+  expertRegionSelectionBtn?.setAttribute("aria-pressed", String(_expertRegionSelectionEnabled));
   if (expertPanel) expertPanel.hidden = !on;
   if (expertModeToggle) expertModeToggle.checked = on;
   if (expertModeTbBtn) {
@@ -5485,6 +5540,11 @@ function _expertHighlightLine(raw) {
 
 // Current region range for highlight (set by _expertUpdateCursor, consumed by _expertApplyHighlight)
 let _expertRegionHighlight = null; // null | { start: number, end: number }
+
+function _expertResetRegionHighlight() {
+  _expertRegionHighlight = null;
+  if (expertMode && expertEditor) _expertApplyHighlight();
+}
 
 function _expertNormalizeRegionName(name) {
   return String(name || "region").trim().toLowerCase();
@@ -6180,10 +6240,10 @@ function parseExpertText(text) {
     }
 
     // .text X, Y, "string" [, lower|shift]
-    const textM = line.match(/^\.text\s+(\d+)\s*,\s*(\d+)\s*,\s*"([^"]*)"(?:\s*,\s*(lower|[0-9A-Fa-f]{1,2}))?\s*$/i);
+    const textM = line.match(/^\.text\s+([A-Za-z_][A-Za-z0-9_]*|\d+)\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d+)\s*,\s*"([^"]*)"(?:\s*,\s*(lower|[0-9A-Fa-f]{1,2}))?\s*$/i);
     if (textM) {
       const _textIsLower = (textM[4] || "").toLowerCase() === "lower";
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "TEXT", operand: textM[3], rawOperand: textM[3], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isTextMacro: true, textX: parseInt(textM[1],10), textY: parseInt(textM[2],10), textCharset: _textIsLower ? "lower" : "upper", charOffset: (!_textIsLower && textM[4]) ? textM[4].toUpperCase().padStart(2,"0") : "00" });
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "TEXT", operand: textM[3], rawOperand: textM[3], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isTextMacro: true, textX: textM[1], textY: textM[2], textCharset: _textIsLower ? "lower" : "upper", charOffset: (!_textIsLower && textM[4]) ? textM[4].toUpperCase().padStart(2,"0") : "00" });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -6250,7 +6310,7 @@ function parseExpertText(text) {
     }
 
     // .loadfile "NAME", device [, $addr] [, errorLabel]
-    const loadfileM = line.match(/^\.loadfile\s+"([^"]*)"\s*,\s*(\d+)\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*(?:,\s*([A-Za-z_][A-Za-z0-9_]*))?\s*$/i);
+    const loadfileM = line.match(/^\.loadfile\s+"([^"]*)"\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d+|\$[0-9A-Fa-f]{1,4})\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*(?:,\s*([A-Za-z_][A-Za-z0-9_]*))?\s*$/i);
     if (loadfileM) {
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "LOADFILE", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isLoadFileMacro: true, loadFileName: loadfileM[1].toUpperCase(), loadFileDevice: loadfileM[2], loadFileAddress: loadfileM[3] ? loadfileM[3].toUpperCase() : "", loadFileErrorLabel: loadfileM[4] || "" });
       if (commentText) blocks.push(_importMakeComment(commentText));
@@ -6345,18 +6405,18 @@ function parseExpertText(text) {
       continue;
     }
 
-    // .sprite_init spriteNum, color, page
-    const siM = line.match(/^\.sprite_init\s+([A-Za-z_][A-Za-z0-9_]*|\d)\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d{1,2})\s*,\s*(?:#?\$)?([A-Za-z_][A-Za-z0-9_]*|[0-9A-Fa-f]{1,2})\s*$/i);
+    // .sprite_init spriteNum, color, page[, multicolor]
+    const siM = line.match(/^\.sprite_init\s+([A-Za-z_][A-Za-z0-9_]*|\d)\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d{1,2})\s*,\s*(?:#?\$)?([A-Za-z_][A-Za-z0-9_]*|[0-9A-Fa-f]{1,2})(?:\s*,\s*(multicolor|mc|mono|off|on|true|false|1|0))?\s*$/i);
     if (siM) {
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SPRITE_INIT", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSpriteInitMacro: true, spriteNum: siM[1], spriteColor: siM[2], spriteDataPage: siM[3].toUpperCase().replace(/^\$/, "").padStart(2,"0") });
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SPRITE_INIT", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSpriteInitMacro: true, spriteNum: siM[1], spriteColor: siM[2], spriteDataPage: siM[3].toUpperCase().replace(/^\$/, "").padStart(2,"0"), spriteMulticolor: !!siM[4] && !/^(mono|off|false|0)$/i.test(siM[4]) });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
 
     // .sprite_pos spriteNum, x, y
-    const spM = line.match(/^\.sprite_pos\s+(\d)\s*,\s*(\d+)\s*,\s*(\d+)\s*$/i);
+    const spM = line.match(/^\.sprite_pos\s+([A-Za-z_][A-Za-z0-9_]*|\d)\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d+)\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d+)\s*$/i);
     if (spM) {
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SPRITE_POS", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSpritePosMacro: true, spriteNum: parseInt(spM[1],10), spriteX: parseInt(spM[2],10), spriteY: parseInt(spM[3],10) });
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SPRITE_POS", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSpritePosMacro: true, spriteNum: spM[1], spriteX: spM[2], spriteY: spM[3] });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -6401,25 +6461,25 @@ function parseExpertText(text) {
     }
 
     // .joystick port, spriteNum
-    const joyM = line.match(/^\.joystick\s+([12])\s*,\s*(\d)\s*$/i);
+    const joyM = line.match(/^\.joystick\s+([12]|[A-Za-z_][A-Za-z0-9_]*)\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d)\s*$/i);
     if (joyM) {
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "JOYSTICK", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isJoystickMacro: true, joyPort: joyM[1], joySpriteNum: parseInt(joyM[2],10) });
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "JOYSTICK", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isJoystickMacro: true, joyPort: joyM[1], joySpriteNum: joyM[2] });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
 
     // .mouse port, spriteNum, zpX, zpY
-    const mouseM = line.match(/^\.mouse\s+([12])\s*,\s*(\d)\s*,\s*\$?([0-9A-Fa-f]{1,2})\s*,\s*\$?([0-9A-Fa-f]{1,2})\s*$/i);
+    const mouseM = line.match(/^\.mouse\s+([12]|[A-Za-z_][A-Za-z0-9_]*)\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d)\s*,\s*(?:#?\$)?([A-Za-z_][A-Za-z0-9_]*|[0-9A-Fa-f]{1,2})\s*,\s*(?:#?\$)?([A-Za-z_][A-Za-z0-9_]*|[0-9A-Fa-f]{1,2})\s*$/i);
     if (mouseM) {
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "MOUSE", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isMouseMacro: true, mousePort: mouseM[1], mouseSpriteNum: parseInt(mouseM[2], 10), mousePotXZP: mouseM[3].toUpperCase(), mousePotYZP: mouseM[4].toUpperCase() });
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "MOUSE", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isMouseMacro: true, mousePort: mouseM[1], mouseSpriteNum: mouseM[2], mousePotXZP: mouseM[3].toUpperCase(), mousePotYZP: mouseM[4].toUpperCase() });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
 
     // .sprite_col spriteNum, sprite|background
-    const scColM = line.match(/^\.sprite_col\s+(\d)\s*,\s*(sprite|background)\s*$/i);
+    const scColM = line.match(/^\.sprite_col\s+([A-Za-z_][A-Za-z0-9_]*|\d)\s*,\s*(sprite|background)\s*$/i);
     if (scColM) {
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SPRITE_COL", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSpriteColMacro: true, spriteNum: parseInt(scColM[1],10), colType: scColM[2].toLowerCase() });
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SPRITE_COL", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSpriteColMacro: true, spriteNum: scColM[1], colType: scColM[2].toLowerCase() });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -6434,9 +6494,9 @@ function parseExpertText(text) {
     }
 
     // .sprite_anim spriteNum, $frameListAddr, frameCount, $zpByte
-    const sAnimM = line.match(/^\.sprite_anim\s+(\d)\s*,\s*\$?([0-9A-Fa-f]{1,4})\s*,\s*(\d+)\s*,\s*\$?([0-9A-Fa-f]{1,2})\s*$/i);
+    const sAnimM = line.match(/^\.sprite_anim\s+([A-Za-z_][A-Za-z0-9_]*|\d)\s*,\s*(?:#?\$)?([A-Za-z_][A-Za-z0-9_]*|[0-9A-Fa-f]{1,4})\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d+)\s*,\s*(?:#?\$)?([A-Za-z_][A-Za-z0-9_]*|[0-9A-Fa-f]{1,2})\s*$/i);
     if (sAnimM) {
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SPRITE_ANIM", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSpriteAnimMacro: true, animSpriteNum: parseInt(sAnimM[1], 10), animFrameListAddr: sAnimM[2].toUpperCase(), animFrameCount: parseInt(sAnimM[3], 10), animFrameZP: sAnimM[4].toUpperCase() });
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SPRITE_ANIM", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSpriteAnimMacro: true, animSpriteNum: sAnimM[1], animFrameListAddr: sAnimM[2].toUpperCase(), animFrameCount: sAnimM[3], animFrameZP: sAnimM[4].toUpperCase() });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -6484,12 +6544,9 @@ function parseExpertText(text) {
     if (constM) { blocks.push(_importMakeConst(constM[1], constM[2].trim())); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
 
     // .var NAME [, size]
-    const varM = line.match(/^\.var\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s*,\s*(\d+|\$[0-9A-Fa-f]+))?\s*$/i);
+    const varM = line.match(/^\.var\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d+|\$[0-9A-Fa-f]+))?\s*$/i);
     if (varM) {
-      const size = varM[2]
-        ? (varM[2].startsWith("$") ? parseInt(varM[2].slice(1), 16) : parseInt(varM[2], 10))
-        : 1;
-      blocks.push(_importMakeVar(varM[1], size));
+      blocks.push(_importMakeVar(varM[1], varM[2] ? varM[2].trim() : "1"));
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -6516,7 +6573,7 @@ function parseExpertText(text) {
       continue;
     }
     // .memset addr=$XXXX|label, value=#$NN, size=$NNNN  (dst= is accepted as alias)
-    const memsetM = line.match(/^\.memset\s+(?:addr|dst)\s*=\s*([^,]+)\s*,\s*value\s*=\s*(#?\$?[0-9A-Fa-f]+)\s*,\s*size\s*=\s*([^,]+)\s*$/i);
+    const memsetM = line.match(/^\.memset\s+(?:addr|dst)\s*=\s*([^,]+)\s*,\s*value\s*=\s*([^,]+)\s*,\s*size\s*=\s*([^,]+)\s*$/i);
     if (memsetM) {
       blocks.push({
         id: crypto.randomUUID(),
@@ -6930,10 +6987,11 @@ function _expertUpdateCursor() {
   const sourceLines = sourceText.split("\n");
   const sourceLine = sourceText.slice(0, sourcePos).split("\n").length - 1;
   const regionInfo = _expertFindCurrentRegionBounds(sourceLines, sourceLine);
+  const effectiveRegionInfo = _expertRegionSelectionEnabled ? regionInfo : null;
 
   if (expertCursorPos) {
-    expertCursorPos.textContent = regionInfo?.name
-      ? `Ln ${ln}, Col ${col}  ·  ${regionInfo.name}`
+    expertCursorPos.textContent = effectiveRegionInfo?.name
+      ? `Ln ${ln}, Col ${col}  ·  ${effectiveRegionInfo.name}`
       : `Ln ${ln}, Col ${col}`;
   }
 
@@ -6972,7 +7030,9 @@ function _expertUpdateCursor() {
   }
 
   // Update region highlight state and rebuild overlay
-  const newRegionHighlight = regionInfo ? { start: regionInfo.start, end: regionInfo.end } : null;
+  const newRegionHighlight = effectiveRegionInfo
+    ? { start: effectiveRegionInfo.start, end: effectiveRegionInfo.end }
+    : null;
 
   // Only rebuild if region highlight changed
   const prev = _expertRegionHighlight;
@@ -7169,7 +7229,7 @@ function _buildDisasmHTML() {
           deferredBytes = parseByteMacro(block.rawOperand, block.base);
           deferredAddr = parseAddressValue(block.rawBytesAddress, labelMap) ?? 0xC000;
         } else if (block.isRawTextMacro) {
-          const rawOffset = parseInt(block.charOffset || "0", 16);
+          const rawOffset = resolveProgramValueWithConst(block.charOffset || "0", "hex");
           deferredBytes = encodeTextMacro(block.rawOperand, block.textCharset || "standard")
             .map(b => (b + (isNaN(rawOffset) ? 0 : rawOffset)) & 0xFF);
           deferredAddr = parseAddressValue(block.rawTextAddress, labelMap) ?? 0xC000;
@@ -8129,8 +8189,9 @@ function updateProgramBlock(index, field, value) {
   }
 
   if (block.isVarMacro && field === "varSize") {
-    const n = Math.max(1, Math.min(255, parseInt(value, 10) || 1));
-    block.varSize = n;
+    block.varSize = String(value ?? "").trim();
+    const n = resolveProgramNumericValue(block.varSize || "1", null, "dec");
+    block.validationError = (isNaN(n) || n < 1 || n > 255) ? "VAR: a meret 1 es 255 kozott lehet." : "";
     renderAsmOutput();
     renderBlockPreview(index);
     return;
@@ -8277,7 +8338,7 @@ function updateProgramBlock(index, field, value) {
   }
 
   if (field === "textX" || field === "textY") {
-    const numeric = Number.parseInt(value, 10);
+    const numeric = resolveProgramNumericValue(value, null, "dec");
     block[field] = Number.isInteger(numeric) ? numeric : 0;
     block.validationError = validateTextMacroPosition(block.textX, block.textY, block.rawOperand);
     renderBlockPreview(index);
@@ -8328,8 +8389,8 @@ function updateProgramBlock(index, field, value) {
   }
 
   if (block.isJoystickMacro && (field === "joyPort" || field === "joySpriteNum")) {
-    const port = parseInt(field === "joyPort" ? value : block.joyPort, 10);
-    const num = parseInt(field === "joySpriteNum" ? value : block.joySpriteNum, 10);
+    const port = resolveProgramNumericValue(field === "joyPort" ? value : block.joyPort, null, "dec");
+    const num = resolveProgramNumericValue(field === "joySpriteNum" ? value : block.joySpriteNum, null, "dec");
     block.validationError =
       (port !== 1 && port !== 2) ? (t("portMustBe1Or2")) :
       (isNaN(num) || num < 0 || num > 7) ? (t("spriteNumberMustBe07")) :
@@ -8340,15 +8401,15 @@ function updateProgramBlock(index, field, value) {
   }
 
   if (block.isMouseMacro && (field === "mousePort" || field === "mouseSpriteNum" || field === "mousePotXZP" || field === "mousePotYZP")) {
-    const port = parseInt(field === "mousePort" ? value : block.mousePort, 10);
-    const num = parseInt(field === "mouseSpriteNum" ? value : block.mouseSpriteNum, 10);
-    const zpX = (field === "mousePotXZP" ? value : block.mousePotXZP || "FD").replace(/^\$/, "");
-    const zpY = (field === "mousePotYZP" ? value : block.mousePotYZP || "FE").replace(/^\$/, "");
+    const port = resolveProgramNumericValue(field === "mousePort" ? value : block.mousePort, null, "dec");
+    const num = resolveProgramNumericValue(field === "mouseSpriteNum" ? value : block.mouseSpriteNum, null, "dec");
+    const zpX = resolveProgramNumericValue(field === "mousePotXZP" ? value : block.mousePotXZP || "FD", null, "hex");
+    const zpY = resolveProgramNumericValue(field === "mousePotYZP" ? value : block.mousePotYZP || "FE", null, "hex");
     block.validationError =
       (port !== 1 && port !== 2) ? (t("portMustBe1Or2")) :
       (isNaN(num) || num < 0 || num > 7) ? (t("spriteNumberMustBe07")) :
-      (!/^[0-9A-Fa-f]{1,2}$/.test(zpX)) ? (t("zpXMustBeAHexByte00Ff")) :
-      (!/^[0-9A-Fa-f]{1,2}$/.test(zpY)) ? (t("zpYMustBeAHexByte00Ff")) :
+      (isNaN(zpX) || zpX < 0 || zpX > 255) ? (t("zpXMustBeAHexByte00Ff")) :
+      (isNaN(zpY) || zpY < 0 || zpY > 255) ? (t("zpYMustBeAHexByte00Ff")) :
       "";
     renderBlockPreview(index);
     renderAsmOutput();
@@ -8356,7 +8417,7 @@ function updateProgramBlock(index, field, value) {
   }
 
   if (block.isSpriteColMacro && (field === "spriteNum" || field === "colType")) {
-    const num = parseInt(field === "spriteNum" ? value : block.spriteNum, 10);
+    const num = resolveProgramNumericValue(field === "spriteNum" ? value : block.spriteNum, null, "dec");
     block.validationError = (isNaN(num) || num < 0 || num > 7)
       ? (t("spriteNumberMustBe07"))
       : "";
@@ -8379,9 +8440,9 @@ function updateProgramBlock(index, field, value) {
   }
 
   if (block.isSpriteAnimMacro) {
-    const num = parseInt(block.animSpriteNum || "0", 10);
-    const count = parseInt(block.animFrameCount || "4", 10);
-    const zp = parseInt((block.animFrameZP || "FB"), 16);
+    const num = resolveProgramNumericValue(block.animSpriteNum || "0", null, "dec");
+    const count = resolveProgramNumericValue(block.animFrameCount || "4", null, "dec");
+    const zp = resolveProgramNumericValue(block.animFrameZP || "FB", null, "hex");
     const listAddr = parseInt((block.animFrameListAddr || "C100"), 16);
     block.validationError =
       (isNaN(num) || num < 0 || num > 7) ? (t("spriteNumberMustBe07")) :
@@ -8396,7 +8457,7 @@ function updateProgramBlock(index, field, value) {
   if (block.isScoreBcdMacro) {
     const addr = parseInt((block.scoreBcdAddr || "C200"), 16);
     const scr = parseInt((block.scoreScreenAddr || "0400"), 16);
-    const pts = parseInt(block.scoreAddPoints || "100", 10);
+    const pts = resolveProgramNumericValue(block.scoreAddPoints || "100", null, "dec");
     block.validationError =
       (isNaN(addr) || addr > 0xFFFF) ? (t("invalidBcdAddress")) :
       (isNaN(scr) || scr > 0xFFFF) ? (t("invalidScreenAddress")) :
@@ -8407,8 +8468,7 @@ function updateProgramBlock(index, field, value) {
   }
 
   if (block.isWaitRasterMacro && field === "rasterLine") {
-    const v = String(value || "").trim().replace(/^\$/, "");
-    const parsed = /^[A-Za-z_][A-Za-z0-9_]*$/.test(v) ? 0 : parseInt(v, 16);
+    const parsed = resolveProgramNumericValue(value, null, "hex");
     block.validationError = (isNaN(parsed) || parsed < 0 || parsed > 255)
       ? (t("rasterLineMustBeAHexByte00Ff"))
       : "";
@@ -8435,7 +8495,7 @@ function updateProgramBlock(index, field, value) {
     return;
   }
 
-  if (block.isSpriteInitMacro && (field === "spriteNum" || field === "spriteColor" || field === "spriteDataPage")) {
+  if (block.isSpriteInitMacro && (field === "spriteNum" || field === "spriteColor" || field === "spriteDataPage" || field === "spriteMulticolor")) {
     block.validationError = validateSpriteInitMacro(block.spriteNum, block.spriteColor, block.spriteDataPage);
     renderBlockPreview(index);
     renderAsmOutput();
@@ -8447,10 +8507,20 @@ function updateProgramBlock(index, field, value) {
       // Sanitize: ASCII printable only, max 16 chars, uppercase (PETSCII A-Z = $41-$5A)
       block.loadFileName = (value || "").toUpperCase().replace(/[^\x20-\x7E]/g, "").replace(/["\,\/\\:\*\?<>\|]/g, "").slice(0, 16);
     }
+    if (field === "loadFileDevice") {
+      block.loadFileDevice = value;
+    }
+    if (field === "loadFileAddress") {
+      block.loadFileAddress = value.toUpperCase();
+    }
     if (field === "loadFileErrorLabel") {
       block.loadFileErrorLabel = sanitizeLabelName(value);
     }
-    block.validationError = "";
+    const device = resolveProgramNumericValue(block.loadFileDevice || "8", null, "dec");
+    block.validationError =
+      (device === null || device < 8 || device > 30) ? t("loadfileErrBadDevice") :
+      (block.loadFileAddress && parseAddressValue(block.loadFileAddress) === null) ? t("loadfileErrBadAddr") :
+      "";
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -8473,7 +8543,7 @@ function updateProgramBlock(index, field, value) {
   if (block.isReuTransferMacro && (field === "reuC64Addr" || field === "reuExpAddr" || field === "reuBank" || field === "reuLength")) {
     const c64Addr = parseInt((block.reuC64Addr || "C000").replace(/^\$/, ""), 16);
     const expAddr = parseInt((block.reuExpAddr || "0000").replace(/^\$/, ""), 16);
-    const bankVal = parseInt(block.reuBank || "0", 10);
+    const bankVal = resolveProgramNumericValue(block.reuBank || "0", null, "dec");
     const length  = parseInt((block.reuLength || "0100").replace(/^\$/, ""), 16);
     if (isNaN(c64Addr) || c64Addr < 0 || c64Addr > 0xFFFF) {
       block.validationError = t("c64AddressMustBe0000Ffff");
@@ -8971,19 +9041,21 @@ function formatByteMacroPreview(value, base = "dec") {
 }
 
 function validateTextMacroPosition(x, y, text = "") {
-  if (!Number.isInteger(x) || !Number.isInteger(y)) {
+  const resolvedX = resolveProgramNumericValue(x, null, "dec");
+  const resolvedY = resolveProgramNumericValue(y, null, "dec");
+  if (!Number.isInteger(resolvedX) || !Number.isInteger(resolvedY)) {
     return t("textMacroXAndYMustBeWholeNumbers");
   }
 
-  if (x < 0 || x > 39) {
+  if (resolvedX < 0 || resolvedX > 39) {
     return t("textMacroXMustBeBetween0And39");
   }
 
-  if (y < 0 || y > 24) {
+  if (resolvedY < 0 || resolvedY > 24) {
     return t("textMacroYMustBeBetween0And24");
   }
 
-  if ((x + Math.max(0, (text || "").length - 1)) > 39) {
+  if ((resolvedX + Math.max(0, (text || "").length - 1)) > 39) {
     return t("textMacroWouldRunPastTheRightEdgeOfTheRo");
   }
 
@@ -9011,15 +9083,8 @@ function parseByteMacro(raw, base = "dec", labels = null) {
       if (loM) return labels ? ((( typeof labels.get === 'function' ? labels.get(loM[1]) : labels[loM[1]]) ?? 0) & 0xFF) : 0;
       const hiM = part.match(/^>([A-Za-z_.][A-Za-z0-9_.]*)$/);
       if (hiM) return labels ? ((( typeof labels.get === 'function' ? labels.get(hiM[1]) : labels[hiM[1]]) ?? 0) >> 8) & 0xFF : 0;
-      if (/^%[01]+$/.test(part)) {
-        return Number.parseInt(part.slice(1), 2);
-      }
-      if (/^\$[0-9A-Fa-f]+$/.test(part)) {
-        return Number.parseInt(part.slice(1), 16);
-      }
-      if (/^0x[0-9A-Fa-f]+$/i.test(part)) {
-        return Number.parseInt(part.slice(2), 16);
-      }
+      const resolved = resolveProgramNumericValue(part, labels, base);
+      if (resolved !== null) return resolved;
       return Number.parseInt(part, base === "bin" ? 2 : (base === "hex" ? 16 : 10));
     });
 }
@@ -9037,6 +9102,20 @@ function validateByteMacro(raw, base = "dec") {
 
   for (const part of parts) {
     if (/^[<>][A-Za-z_.][A-Za-z0-9_.]*$/.test(part)) continue; // lo/hi byte label ref
+    if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(part)) {
+      const constValue = resolveProgramConstValue(part);
+      if (constValue === null) {
+        return base === "bin"
+          ? (t("inBinaryModeUseOnly0And1SeparatedByComma"))
+          : base === "hex"
+            ? (t("byteMacroOnlyAcceptsHexBytesSeparatedByC"))
+            : (t("byteMacroOnlyAcceptsDecimalOrHexBytesSep"));
+      }
+      if (constValue < 0 || constValue > 255) {
+        return t("everyByteMacroElementMustBeAByteBetween0");
+      }
+      continue;
+    }
     const validBinary = /^%[01]+$/.test(part);
     const validHexPrefixed = /^\$[0-9A-Fa-f]+$/.test(part) || /^0x[0-9A-Fa-f]+$/i.test(part);
     const validBare = base === "bin" ? /^[01]+$/.test(part) : (base === "hex" ? /^[0-9A-Fa-f]+$/.test(part) : /^\d+$/.test(part));
@@ -9115,12 +9194,8 @@ function parseFillMacro(raw, base = "dec") {
   if (parts.length !== 2) return null;
 
   const parseValue = (part) => {
-    if (/^\$[0-9A-Fa-f]+$/.test(part)) {
-      return Number.parseInt(part.slice(1), 16);
-    }
-    if (/^0x[0-9A-Fa-f]+$/i.test(part)) {
-      return Number.parseInt(part.slice(2), 16);
-    }
+    const resolved = resolveProgramNumericValue(part, null, base);
+    if (resolved !== null) return resolved;
     return Number.parseInt(part, base === "bin" ? 2 : (base === "hex" ? 16 : 10));
   };
 
@@ -9163,7 +9238,7 @@ function validateAlignMacro(raw, base = "hex") {
     return t("alignMacroNeedsABoundaryValueEG642562000");
   }
 
-  const parsed = parseNumberByBase(trimmed.replace(/^\$/, ""), base);
+  const parsed = resolveProgramNumericValue(trimmed, null, base);
   if (parsed === null || isNaN(parsed)) {
     return t("alignBoundaryMustBeAValidNumber");
   }
@@ -9199,33 +9274,32 @@ function validateTableMacro(labelName, address) {
 }
 
 function validateSpriteInitMacro(spriteNum, spriteColor, spriteDataPage) {
-  const num = parseInt(spriteNum, 10);
-  if (isNaN(num) || num < 0 || num > 7) {
+  const num = resolveProgramValueWithConst(spriteNum, "dec");
+  if (num === null || num < 0 || num > 7) {
     return t("spriteNumberMustBe07");
   }
-  const color = parseInt(spriteColor, 10);
-  if (isNaN(color) || color < 0 || color > 15) {
+  const color = resolveProgramValueWithConst(spriteColor, "dec");
+  if (color === null || color < 0 || color > 15) {
     return t("colorMustBe015");
   }
-  const pageStr = (spriteDataPage || "").replace(/^\$/, "");
-  const page = parseInt(pageStr, 16);
-  if (isNaN(page) || page < 0 || page > 255) {
+  const page = resolveProgramValueWithConst(spriteDataPage, "hex");
+  if (page === null || page < 0 || page > 255) {
     return t("dataPageMustBeAHexByte00FfEG21For0840");
   }
   return "";
 }
 
 function validateSpritePosMacro(spriteNum, spriteX, spriteY) {
-  const num = parseInt(spriteNum, 10);
-  if (isNaN(num) || num < 0 || num > 7) {
+  const num = resolveProgramValueWithConst(spriteNum, "dec");
+  if (num === null || num < 0 || num > 7) {
     return t("spriteNumberMustBe07");
   }
-  const x = parseInt(spriteX, 10);
-  if (isNaN(x) || x < 0 || x > 319) {
+  const x = resolveProgramValueWithConst(spriteX, "dec");
+  if (x === null || x < 0 || x > 319) {
     return t("xMustBe0319");
   }
-  const y = parseInt(spriteY, 10);
-  if (isNaN(y) || y < 0 || y > 255) {
+  const y = resolveProgramValueWithConst(spriteY, "dec");
+  if (y === null || y < 0 || y > 255) {
     return t("yMustBe0255");
   }
   return "";
@@ -9345,7 +9419,7 @@ function validateColorMacroValue(raw) {
 }
 
 function validateTextWithOffset(rawOperand, charOffset) {
-  const offset = parseInt(charOffset || "0", 16);
+  const offset = resolveProgramNumericValue(charOffset || "0", null, "hex");
   if (isNaN(offset) || offset < 0 || offset > 255) {
     return t("byteOffsetMustBeAHexValueBetween00AndFf");
   }
@@ -9714,6 +9788,47 @@ async function chooseDebuggerExecutable() {
   const result = await window.electronAPI.chooseDebuggerExecutable();
   if (result?.canceled) return;
   updateDebuggerPathPreview(result?.debuggerPath || "");
+}
+
+async function loadWorkingFolderConfig() {
+  if (!window.electronAPI?.getWorkingFolder) {
+    updateWorkingFolderPreview("");
+    return;
+  }
+  const config = await window.electronAPI.getWorkingFolder();
+  updateWorkingFolderPreview(config?.workingFolder || "");
+}
+
+function updateWorkingFolderPreview(nextPath) {
+  workingFolder = nextPath || "";
+  if (workingFolderPanel) {
+    const normalized = String(workingFolder || "").replace(/\\/g, "/").replace(/\/+/g, "/");
+    let displayPath = normalized;
+    if (normalized.length > 60) {
+      const parts = normalized.split("/").filter(Boolean);
+      for (let keep = Math.min(3, parts.length); keep >= 1; keep--) {
+        const candidate = `.../${parts.slice(-keep).join("/")}`;
+        if (candidate.length <= 60) {
+          displayPath = candidate;
+          break;
+        }
+      }
+      if (displayPath === normalized) {
+        displayPath = `.../${normalized.slice(-56)}`;
+      }
+    }
+    workingFolderPanel.textContent = workingFolder
+      ? `${t("workingFolderStatusLabel")}: ${displayPath}`
+      : t("workingFolderStatusPending");
+    workingFolderPanel.title = workingFolder;
+  }
+}
+
+async function chooseWorkingFolder() {
+  if (!window.electronAPI?.chooseWorkingFolder) return;
+  const result = await window.electronAPI.chooseWorkingFolder();
+  if (result?.canceled) return;
+  updateWorkingFolderPreview(result?.workingFolder || "");
 }
 
 async function runInDebugger() {
@@ -10313,6 +10428,7 @@ function _tabActivate(tabId) {
   if (expertMode && expertEditor) {
     if (tab.expertText) {
       _expertSourceText = tab.expertText;
+      _expertResetRegionHighlight();
       _expertRefreshProjection(0, 0);
       expertEditor.dispatchEvent(new Event("input"));
     } else {
@@ -11775,7 +11891,7 @@ function _importMakeVar(name, size) {
     addressingMode: "implied", base: "hex",
     validationError: "", collapsed: true, isVarMacro: true,
     varName: name,
-    varSize: Math.max(1, Math.min(255, size || 1))
+    varSize: String(size || "1").trim()
   };
 }
 
@@ -12321,7 +12437,7 @@ function addLayoutLabels(labelMap, line) {
     const ml = block.macroLabel.trim();
     if (ml) {
       let addr = null;
-      if (block.isTextMacro)      addr = 0x0400 + ((block.textY ?? 0) * 40) + (block.textX ?? 0);
+      if (block.isTextMacro)      addr = 0x0400 + ((resolveProgramValueWithConst(block.textY ?? "0", "dec") || 0) * 40) + (resolveProgramValueWithConst(block.textX ?? "0", "dec") || 0);
       else if (block.isStringMacro)  addr = parseAddressValue(block.stringAddress) ?? 0xC000;
       else if (block.isDataMacro)    addr = parseAddressValue(block.dataAddress) ?? 0xC000;
       else if (block.isRawBytesMacro) addr = parseAddressValue(block.rawBytesAddress) ?? 0xC000;
@@ -12463,6 +12579,7 @@ async function _applyProjectPayload(projectData, { sourceFilePath = "", keepFile
     _expertAcHide();
     if (typeof projectData.expertText === "string") {
       _expertSourceText = projectData.expertText;
+      _expertResetRegionHighlight();
       _expertRefreshProjection(0, 0);
       expertEditor.dispatchEvent(new Event("input"));
     } else {
@@ -12695,11 +12812,14 @@ function _getPlainAsmSourceText() {
 
     if (block.isVarMacro) {
       if (block.varName && typeof block._varAddress === "number") {
-        const size = Math.max(1, Math.min(255, block.varSize || 1));
+        const size = resolveProgramValueWithConst(block.varSize || "1", "dec");
+        const safeSize = isNaN(size) ? 1 : Math.max(1, Math.min(255, size));
         const addr = "$" + block._varAddress.toString(16).toUpperCase().padStart(2, "0");
-        pushLine(`${block.varName} = ${addr}${size > 1 ? "  ; " + size + " bytes" : ""}`);
+        pushLine(`${block.varName} = ${addr}${safeSize > 1 ? "  ; " + safeSize + " bytes" : ""}`);
       } else {
-        pushLine(`; VAR ${block.varName || "?"} (size ${block.varSize || 1}) — allocation failed`);
+        const size = resolveProgramValueWithConst(block.varSize || "1", "dec");
+        const safeSize = isNaN(size) ? 1 : Math.max(1, Math.min(255, size));
+        pushLine(`; VAR ${block.varName || "?"} (size ${safeSize}) — allocation failed`);
       }
       return;
     }
@@ -12794,7 +12914,7 @@ function _getPlainAsmSourceText() {
 
     if (block.isRawTextMacro) {
       const address = parseAddressValue(block.rawTextAddress, labels) ?? 0xC000;
-      const rawOffset = parseInt(block.charOffset || "0", 16);
+      const rawOffset = resolveProgramNumericValue(block.charOffset || "0", labelMap, "hex");
       const bytes = encodeTextMacro(block.rawOperand, block.textCharset || "standard")
         .map((byte) => (byte + (isNaN(rawOffset) ? 0 : rawOffset)) & 0xFF);
       const byteLines = _formatPlainByteLines(bytes);
@@ -13176,7 +13296,7 @@ function assembleProgramToPrg(originOverride) {
       const addr = parseAddressValue(block.rawBytesAddress, labels) ?? 0xC000;
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
     } else if (block.isRawTextMacro) {
-      const rawOffset = parseInt(block.charOffset || "0", 16);
+      const rawOffset = resolveProgramNumericValue(block.charOffset || "0", labels, "hex");
       const chunkBytes = encodeTextMacro(block.rawOperand, block.textCharset || "standard").map(b => (b + (isNaN(rawOffset) ? 0 : rawOffset)) & 0xFF);
       const addr = parseAddressValue(block.rawTextAddress, labels) ?? 0xC000;
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
@@ -13272,7 +13392,9 @@ function compileLineBytes(line, labels) {
   if (block.isTextMacro) {
     const charset = block.textCharset || "standard";
     const chars = encodeTextMacro(block.rawOperand, charset);
-    const startAddress = 0x0400 + ((block.textY ?? 0) * 40) + (block.textX ?? 0);
+    const textX = resolveProgramNumericValue(block.textX ?? "0", labels, "dec");
+    const textY = resolveProgramNumericValue(block.textY ?? "0", labels, "dec");
+    const startAddress = 0x0400 + ((isNaN(textY) ? 0 : textY) * 40) + (isNaN(textX) ? 0 : textX);
     const bytes = [];
     chars.forEach((charCode, charIndex) => {
       const targetAddress = startAddress + charIndex;
@@ -13297,7 +13419,7 @@ function compileLineBytes(line, labels) {
 
   if (block.isStringMacro) {
     const chars = encodeTextMacro(block.rawOperand, block.textCharset || "standard");
-    const offset = parseInt(block.charOffset || "0", 16);
+    const offset = resolveProgramNumericValue(block.charOffset || "0", labels, "hex");
     const startAddress = parseAddressValue(block.stringAddress, labels) ?? 0xC000;
     const bytes = [];
     chars.forEach((charCode, charIndex) => {
@@ -13375,18 +13497,18 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isMouseMacro) {
-    const port = parseInt(block.mousePort || "2", 10);
+    const port = resolveProgramNumericValue(block.mousePort || "2", labels, "dec");
     if (port !== 1 && port !== 2) {
       return { ok: false, error: "MOUSE: a port 1 vagy 2 lehet." };
     }
-    const num = parseInt(block.mouseSpriteNum || "0", 10);
+    const num = resolveProgramNumericValue(block.mouseSpriteNum || "0", labels, "dec");
     if (isNaN(num) || num < 0 || num > 7) {
       return { ok: false, error: "MOUSE: a sprite szama 0 es 7 kozott lehet." };
     }
     const zpXStr = (block.mousePotXZP || "FD").replace(/^\$/, "");
     const zpYStr = (block.mousePotYZP || "FE").replace(/^\$/, "");
-    const zpX = parseInt(zpXStr, 16);
-    const zpY = parseInt(zpYStr, 16);
+    const zpX = resolveProgramNumericValue(zpXStr, labels, "hex");
+    const zpY = resolveProgramNumericValue(zpYStr, labels, "hex");
     if (isNaN(zpX) || zpX < 0 || zpX > 255) {
       return { ok: false, error: "MOUSE: ZP X 1 hex byte legyen (00-FF)." };
     }
@@ -13400,10 +13522,10 @@ function compileLineBytes(line, labels) {
     const xLo = xAddr & 0xFF, xHi = xAddr >> 8;
     const yLo = yAddr & 0xFF, yHi = yAddr >> 8;
     const bytes = [];
-    const labels = new Map();
+    const asmLabels = new Map();
     const fixups = [];
     const emit = (...values) => values.forEach((value) => bytes.push(value & 0xFF));
-    const mark = (name) => labels.set(name, bytes.length);
+    const mark = (name) => asmLabels.set(name, bytes.length);
     const branch = (opcode, label) => {
       emit(opcode, 0x00);
       fixups.push({ kind: "rel", index: bytes.length - 1, label });
@@ -13497,7 +13619,7 @@ function compileLineBytes(line, labels) {
     mark("yDone");
 
     fixups.forEach((fixup) => {
-      const target = labels.get(fixup.label);
+      const target = asmLabels.get(fixup.label);
       if (typeof target !== "number") {
         throw new Error(`Missing MOUSE label: ${fixup.label}`);
       }
@@ -13518,11 +13640,11 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isJoystickMacro) {
-    const port = parseInt(block.joyPort || "2", 10);
+    const port = resolveProgramNumericValue(block.joyPort || "2", labels, "dec");
     if (port !== 1 && port !== 2) {
       return { ok: false, error: "JOYSTICK: a port 1 vagy 2 lehet." };
     }
-    const num = parseInt(block.joySpriteNum || "0", 10);
+    const num = resolveProgramNumericValue(block.joySpriteNum || "0", labels, "dec");
     if (isNaN(num) || num < 0 || num > 7) {
       return { ok: false, error: "JOYSTICK: a sprite szama 0 es 7 kozott lehet." };
     }
@@ -13606,7 +13728,7 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isSpriteColMacro) {
-    const num = parseInt(block.spriteNum || "0", 10);
+    const num = resolveProgramNumericValue(block.spriteNum || "0", labels, "dec");
     if (isNaN(num) || num < 0 || num > 7) {
       return { ok: false, error: t("spriteColSpriteNumberMustBe07") };
     }
@@ -13648,7 +13770,7 @@ function compileLineBytes(line, labels) {
   if (block.isReuTransferMacro) {
     const c64Addr = parseInt((block.reuC64Addr || "C000").replace(/^\$/, ""), 16);
     const expAddr = parseInt((block.reuExpAddr || "0000").replace(/^\$/, ""), 16);
-    const bank    = parseInt(block.reuBank || "0", 10);
+    const bank    = resolveProgramNumericValue(block.reuBank || "0", labels, "dec");
     const length  = parseInt((block.reuLength || "0100").replace(/^\$/, ""), 16);
     if (isNaN(c64Addr) || c64Addr < 0 || c64Addr > 0xFFFF) return { ok: false, error: "REU: ervenytelen C64 cim ($0000-$FFFF)." };
     if (isNaN(expAddr) || expAddr < 0 || expAddr > 0xFFFF) return { ok: false, error: "REU: ervenytelen REU cim ($0000-$FFFF)." };
@@ -13714,14 +13836,14 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isSpriteAnimMacro) {
-    const num = parseInt(block.animSpriteNum || "0", 10);
+    const num = resolveProgramNumericValue(block.animSpriteNum || "0", labels, "dec");
     if (isNaN(num) || num < 0 || num > 7)
       return { ok: false, error: t("spriteAnimSpriteNumberMustBe07") };
-    const count = parseInt(block.animFrameCount || "4", 10);
+    const count = resolveProgramNumericValue(block.animFrameCount || "4", labels, "dec");
     if (isNaN(count) || count < 1 || count > 255)
       return { ok: false, error: t("spriteAnimFrameCountMustBe1255") };
     const zpStr = (block.animFrameZP || "FB").replace(/^\$/, "");
-    const zp = parseInt(zpStr, 16);
+    const zp = resolveProgramNumericValue(zpStr, labels, "hex");
     if (isNaN(zp) || zp < 0 || zp > 0xFF)
       return { ok: false, error: t("spriteAnimZpCounterMustBe00Ff") };
     const listStr = (block.animFrameListAddr || "C100").replace(/^\$/, "");
@@ -13807,17 +13929,22 @@ function compileLineBytes(line, labels) {
     const ptrAddr = 0x07F8 + num;
     const colorAddr = 0xD027 + num;
     const bitMask = 1 << num;
+    const multiMask = 0xFF ^ bitMask;
     const bytes = [
       0xA9, page,                                // LDA #dataPage
       0x8D, ptrAddr & 0xFF, ptrAddr >> 8,        // STA $07F8+N
       0xAD, 0x15, 0xD0,                          // LDA $D015
       0x09, bitMask,                             // ORA #bitMask
       0x8D, 0x15, 0xD0,                          // STA $D015
+      0xAD, 0x1C, 0xD0,                          // LDA $D01C
+      block.spriteMulticolor ? 0x09 : 0x29,      // ORA #bitMask / AND #~bitMask
+      block.spriteMulticolor ? bitMask : multiMask,
+      0x8D, 0x1C, 0xD0,                          // STA $D01C
       0xA9, color,                               // LDA #color
       0x8D, colorAddr & 0xFF, colorAddr >> 8     // STA $D027+N
     ];
     const pageHex = page.toString(16).toUpperCase().padStart(2, "0");
-    return { ok: true, bytes, comment: `SPRITE_INIT #${num} col=${color} page=$${pageHex}` };
+    return { ok: true, bytes, comment: `SPRITE_INIT #${num} col=${color} page=$${pageHex}${block.spriteMulticolor ? " mc" : ""}` };
   }
 
   if (block.isLoadFileMacro) {
@@ -13825,7 +13952,7 @@ function compileLineBytes(line, labels) {
     if (!filename) {
       return { ok: false, error: t("loadfileErrEmptyName") };
     }
-    const device = parseInt(block.loadFileDevice || "8", 10);
+    const device = resolveProgramNumericValue(block.loadFileDevice || "8", labels, "dec");
     if (isNaN(device) || device < 8 || device > 30) {
       return { ok: false, error: t("loadfileErrBadDevice") };
     }
@@ -13932,16 +14059,16 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isSpritePosMacro) {
-    const num = parseInt(block.spriteNum || "0", 10);
-    if (isNaN(num) || num < 0 || num > 7) {
+    const num = parseMacroNumber(block.spriteNum || "0", labels, "dec");
+    if (num === null || num < 0 || num > 7) {
       return { ok: false, error: "SPRITE_POS: a sprite szama 0 es 7 kozott lehet." };
     }
-    const x = parseInt(block.spriteX || "152", 10);
-    if (isNaN(x) || x < 0 || x > 319) {
+    const x = parseMacroNumber(block.spriteX || "152", labels, "dec");
+    if (x === null || x < 0 || x > 319) {
       return { ok: false, error: "SPRITE_POS: X erteke 0 es 319 kozott lehet." };
     }
-    const y = parseInt(block.spriteY || "100", 10);
-    if (isNaN(y) || y < 0 || y > 255) {
+    const y = parseMacroNumber(block.spriteY || "100", labels, "dec");
+    if (y === null || y < 0 || y > 255) {
       return { ok: false, error: "SPRITE_POS: Y erteke 0 es 255 kozott lehet." };
     }
     const xLow = x & 0xFF;
@@ -14771,7 +14898,7 @@ function parseNumberByBase(value, base) {
 function parseMacroNumber(raw, labels = null, fallbackBase = "hex") {
   const text = String(raw ?? "").trim();
   if (!text) return null;
-  const parsed = parseNumberByBase(text, fallbackBase);
+  const parsed = parseNumberByBase(text.replace(/^#/, "").replace(fallbackBase === "hex" ? /^\$/ : /^$/, ""), fallbackBase);
   if (parsed !== null) return parsed;
   if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(text)) {
     if (!labels) return null;
@@ -14800,6 +14927,93 @@ function resolveProgramConstValue(name) {
 
 function getProgramConstNames() {
   return [...new Set(program.filter(b => b.isConstMacro && b.constName).map(b => b.constName))];
+}
+
+function resolveProgramValueWithConst(raw, fallbackBase = "hex") {
+  const text = String(raw ?? "").trim();
+  if (!text) return null;
+  const normalized = text.replace(/^#/, "").replace(fallbackBase === "hex" ? /^\$/ : /^$/, "");
+  const parsed = parseNumberByBase(normalized, fallbackBase);
+  if (parsed !== null) return parsed;
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(text)) {
+    return resolveProgramConstValue(text);
+  }
+  return null;
+}
+
+function resolveProgramNumericValue(raw, labels = null, fallbackBase = "hex") {
+  const text = String(raw ?? "").trim();
+  if (!text) return null;
+  if (labels) {
+    const parsed = parseMacroNumber(text, labels, fallbackBase);
+    if (parsed !== null) return parsed;
+  }
+  return resolveProgramValueWithConst(text, fallbackBase);
+}
+
+function setupProgramConstPicker(inputEl) {
+  if (!inputEl) return null;
+  inputEl.classList.add("has-label-picker");
+  const wrapper = document.createElement("div");
+  wrapper.className = "label-picker-wrap";
+  inputEl.parentNode.insertBefore(wrapper, inputEl);
+  wrapper.appendChild(inputEl);
+  const dropdown = document.createElement("div");
+  dropdown.className = "label-picker-dropdown";
+  dropdown.hidden = true;
+  document.body.appendChild(dropdown);
+  let dropdownHovered = false;
+
+  function positionDropdown() {
+    const r = inputEl.getBoundingClientRect();
+    dropdown.style.top = (r.bottom + window.scrollY + 4) + "px";
+    dropdown.style.left = (r.left + window.scrollX) + "px";
+    dropdown.style.width = r.width + "px";
+  }
+
+  function closeDropdown() {
+    dropdown.hidden = true;
+    window.removeEventListener("scroll", positionDropdown, { capture: true });
+  }
+
+  function openDropdown() {
+    const names = getProgramConstNames();
+    if (!names.length) return false;
+    dropdown.innerHTML = names.map((name) => `<div class="label-picker-item">${name}</div>`).join("");
+    dropdown.querySelectorAll(".label-picker-item").forEach((item) => {
+      item.addEventListener("pointerdown", (event) => {
+        event.preventDefault();
+        inputEl.value = item.textContent;
+        inputEl.dispatchEvent(new Event("input"));
+        closeDropdown();
+        dropdownHovered = false;
+      });
+    });
+    positionDropdown();
+    dropdown.hidden = false;
+    window.addEventListener("scroll", positionDropdown, { capture: true, passive: true });
+    return true;
+  }
+
+  inputEl.addEventListener("focus", () => {
+    openDropdown();
+  });
+  inputEl.addEventListener("blur", () => {
+    if (!dropdownHovered) closeDropdown();
+  });
+  inputEl.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeDropdown();
+  });
+  dropdown.addEventListener("mouseenter", () => {
+    dropdownHovered = true;
+  });
+  dropdown.addEventListener("mouseleave", () => {
+    dropdownHovered = false;
+  });
+  document.addEventListener("pointerdown", (event) => {
+    if (!dropdown.contains(event.target) && event.target !== inputEl) closeDropdown();
+  }, { capture: true });
+  return { closeDropdown, dropdown };
 }
 
 function parseDelayFrameCount(raw, labels = null) {
@@ -15170,7 +15384,7 @@ function getInstructionSize(block) {
   }
 
   if (block.isSpriteInitMacro) {
-    return 18;  // LDA/STA ptr + LDA/ORA/STA $D015 + LDA/STA color
+    return 26;  // LDA/STA ptr + LDA/ORA/STA $D015 + LDA/$D01C/ORA|AND/STA + LDA/STA color
   }
 
   if (block.isLoadFileMacro) {
@@ -15631,15 +15845,21 @@ function getProgramLayout(originOverride) {
     for (const block of expandedProgram) {
       if (!block.isVarMacro) continue;
       if (!block.varName) continue;
-      const size = Math.max(1, Math.min(255, block.varSize || 1));
-      if (zpCursor + size > 0xFF) {
+      const size = resolveProgramValueWithConst(block.varSize || "1", "dec");
+      if (isNaN(size) || size < 1 || size > 255) {
+        block.validationError = "VAR: a meret 1 es 255 kozott lehet.";
+        block._varAddress = null;
+        continue;
+      }
+      const safeSize = Math.max(1, Math.min(255, size));
+      if (zpCursor + safeSize > 0xFF) {
         block.validationError = "VAR: out of zero-page space";
         block._varAddress = null;
         continue;
       }
       block._varAddress = zpCursor;
       block.validationError = "";
-      zpCursor += size;
+      zpCursor += safeSize;
     }
   }
 
@@ -15736,13 +15956,13 @@ function getProgramLayout(originOverride) {
       : block.isStringMacro
         ? (() => {
             const rawChars = encodeTextMacro(block.rawOperand);
-            const offset = parseInt(block.charOffset || "0", 16);
+            const offset = resolveProgramValueWithConst(block.charOffset || "0", "hex");
             return isNaN(offset) || offset === 0 ? rawChars : rawChars.map(b => (b + offset) & 0xFF);
           })()
         : block.isRawTextMacro
           ? (() => {
               const rawChars = encodeTextMacro(block.rawOperand, block.textCharset || "standard");
-              const offset = parseInt(block.charOffset || "0", 16);
+              const offset = resolveProgramValueWithConst(block.charOffset || "0", "hex");
               return isNaN(offset) || offset === 0 ? rawChars : rawChars.map(b => (b + offset) & 0xFF);
             })()
           : [];
@@ -15771,7 +15991,7 @@ function getDeferredMemorySections(layout) {
 
       if (line.block.isTextMacro) {
         const chars = encodeTextMacro(line.block.rawOperand);
-        const startAddress = 0x0400 + ((line.block.textY ?? 0) * 40) + (line.block.textX ?? 0);
+        const startAddress = 0x0400 + ((resolveProgramValueWithConst(line.block.textY ?? "0", "dec") || 0) * 40) + (resolveProgramValueWithConst(line.block.textX ?? "0", "dec") || 0);
         return {
           type: "text",
           lineNumber,
@@ -15785,7 +16005,7 @@ function getDeferredMemorySections(layout) {
 
       if (line.block.isStringMacro) {
         const rawChars = encodeTextMacro(line.block.rawOperand);
-        const offset = parseInt(line.block.charOffset || "0", 16);
+        const offset = resolveProgramValueWithConst(line.block.charOffset || "0", "hex");
         const chars = isNaN(offset) || offset === 0 ? rawChars : rawChars.map(b => (b + offset) & 0xFF);
         const startAddress = parseAddressValue(line.block.stringAddress, labelMap) ?? 0xC000;
         return {
@@ -15843,7 +16063,7 @@ function getDeferredMemorySections(layout) {
 
       if (line.block.isRawTextMacro) {
         const rawChars = encodeTextMacro(line.block.rawOperand);
-        const offset = parseInt(line.block.charOffset || "0", 16);
+        const offset = resolveProgramValueWithConst(line.block.charOffset || "0", "hex");
         const chars = isNaN(offset) || offset === 0 ? rawChars : rawChars.map(b => (b + offset) & 0xFF);
         const startAddress = parseAddressValue(line.block.rawTextAddress, labelMap) ?? 0xC000;
         return {
@@ -16201,7 +16421,7 @@ function getBlockDescription(block) {
   }
 
   if (block.isStringMacro) {
-    const offsetNote = (() => { const v = parseInt(block.charOffset || "0", 16); return (!isNaN(v) && v !== 0) ? ` (+$${v.toString(16).toUpperCase().padStart(2,"0")} ${t("addedToEachChar")})` : ""; })();
+    const offsetNote = (() => { const v = resolveProgramValueWithConst(block.charOffset || "0", "hex"); return (!isNaN(v) && v !== 0) ? ` (+$${v.toString(16).toUpperCase().padStart(2,"0")} ${t("addedToEachChar")})` : ""; })();
     return block.validationError || `${t("stringMacro")}: "${block.rawOperand || ""}" @ ${block.stringAddress || "C000"}${offsetNote}`;
   }
 
@@ -16227,7 +16447,7 @@ function getBlockDescription(block) {
   }
 
   if (block.isRawTextMacro) {
-    const offsetNote = (() => { const v = parseInt(block.charOffset || "0", 16); return (!isNaN(v) && v !== 0) ? ` (+$${v.toString(16).toUpperCase().padStart(2,"0")} ${t("addedToEachChar")})` : ""; })();
+    const offsetNote = (() => { const v = resolveProgramValueWithConst(block.charOffset || "0", "hex"); return (!isNaN(v) && v !== 0) ? ` (+$${v.toString(16).toUpperCase().padStart(2,"0")} ${t("addedToEachChar")})` : ""; })();
     return block.validationError || `${t("rawtextMacro")}: "${block.rawOperand || ""}" @ ${block.rawTextAddress || "C000"}${offsetNote}`;
   }
 
@@ -16269,8 +16489,9 @@ function getBlockDescription(block) {
     const addr = typeof block._varAddress === "number"
       ? "$" + block._varAddress.toString(16).toUpperCase().padStart(2, "0")
       : "(auto)";
-    const size = Math.max(1, Math.min(255, block.varSize || 1));
-    return block.validationError || `VAR: ${block.varName || "?"} @ ${addr}${size > 1 ? " (" + size + "b)" : ""}`;
+    const size = resolveProgramValueWithConst(block.varSize || "1", "dec");
+    const safeSize = isNaN(size) ? 1 : Math.max(1, Math.min(255, size));
+    return block.validationError || `VAR: ${block.varName || "?"} @ ${addr}${safeSize > 1 ? " (" + safeSize + "b)" : ""}`;
   }
 
   if (block.isRuntimeIfMacro) {
@@ -16371,7 +16592,7 @@ function getBlockModeCaption(block) {
   }
 
   if (block.isStringMacro) {
-    const off = parseInt(block.charOffset || "0", 16);
+    const off = resolveProgramValueWithConst(block.charOffset || "0", "hex");
     const offNote = (!isNaN(off) && off !== 0) ? ` +$${off.toString(16).toUpperCase().padStart(2,"0")}` : "";
     const n = encodeTextMacro(block.rawOperand).length;
     return `${t("screenCode")} | ${block.stringAddress || "C000"}${offNote}  (${n} byte)`;
@@ -16388,7 +16609,7 @@ function getBlockModeCaption(block) {
   }
 
   if (block.isRawTextMacro) {
-    const off = parseInt(block.charOffset || "0", 16);
+    const off = resolveProgramValueWithConst(block.charOffset || "0", "hex");
     const offNote = (!isNaN(off) && off !== 0) ? ` +$${off.toString(16).toUpperCase().padStart(2,"0")}` : "";
     const n = encodeTextMacro(block.rawOperand).length;
     return `${t("screenCodesMem")} | ${block.rawTextAddress || "C000"}${offNote}  (${n} byte)`;
@@ -16721,7 +16942,7 @@ function getCollapsedOperandText(block) {
 
   if (block.isSpriteInitMacro) {
     const pageHex = (block.spriteDataPage || "21").replace(/^\$/, "").toUpperCase().padStart(2, "0");
-    return `#${block.spriteNum || "0"} col=${block.spriteColor || "7"} page=$${pageHex}`;
+    return `#${block.spriteNum || "0"} col=${block.spriteColor || "7"} page=$${pageHex}${block.spriteMulticolor ? " mc" : ""}`;
   }
 
   if (block.isLoadFileMacro) {
@@ -16819,8 +17040,9 @@ function getCollapsedOperandText(block) {
     const addr = typeof block._varAddress === "number"
       ? "$" + block._varAddress.toString(16).toUpperCase().padStart(2, "0")
       : "(auto)";
-    const size = Math.max(1, Math.min(255, block.varSize || 1));
-    return `${block.varName || "?"} @ ${addr}${size > 1 ? " (" + size + "b)" : ""}`;
+    const size = resolveProgramValueWithConst(block.varSize || "1", "dec");
+    const safeSize = isNaN(size) ? 1 : Math.max(1, Math.min(255, size));
+    return `${block.varName || "?"} @ ${addr}${safeSize > 1 ? " (" + safeSize + "b)" : ""}`;
   }
 
   if (block.isIfMacro) {
@@ -16998,11 +17220,11 @@ function renderProgram() {
           <div class="macro-grid">
             <label class="mini-field">
               <span>X</span>
-              <input class="macro-x" type="number" min="0" max="39" value="${block.textX ?? 0}">
+              <input class="macro-x block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.textX ?? 0}" placeholder="0 / CONST">
             </label>
             <label class="mini-field">
               <span>Y</span>
-              <input class="macro-y" type="number" min="0" max="24" value="${block.textY ?? 0}">
+              <input class="macro-y block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.textY ?? 0}" placeholder="0 / CONST">
             </label>
             <label class="mini-field">
               <span>${t("labelOptional")}</span>
@@ -17047,7 +17269,7 @@ function renderProgram() {
             </label>
             <label class="mini-field">
               <span>${t("shift")}</span>
-              <input class="macro-char-offset" type="text" value="${block.charOffset !== undefined ? block.charOffset : "00"}" placeholder="00" style="width:2.8em;min-width:0">
+              <input class="macro-char-offset block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.charOffset !== undefined ? block.charOffset : "00"}" placeholder="00 / CONST" style="width:2.8em;min-width:0">
             </label>
           </div>
           <div style="display:flex;align-items:center;gap:6px;margin-top:4px;font-size:0.72rem;color:var(--muted);">
@@ -17127,7 +17349,7 @@ function renderProgram() {
             </label>
             <label class="mini-field">
               <span>${t("shift")}</span>
-              <input class="macro-char-offset" type="text" value="${block.charOffset !== undefined ? block.charOffset : "00"}" placeholder="00" style="width:2.8em;min-width:0">
+              <input class="macro-char-offset block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.charOffset !== undefined ? block.charOffset : "00"}" placeholder="00 / CONST" style="width:2.8em;min-width:0">
             </label>
           </div>
           <div style="display:flex;align-items:center;gap:6px;margin-top:4px;font-size:0.72rem;color:var(--muted);">
@@ -17664,11 +17886,13 @@ function renderProgram() {
             </label>
             <label class="mini-field">
               <span>${t("fieldJoySpriteNum")}</span>
-              <input class="joy-sprite-num" type="number" min="0" max="7" value="${block.joySpriteNum || "0"}">
+              <input class="joy-sprite-num block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.joySpriteNum || "0"}" placeholder="0 / CONST">
             </label>
           </div>
         `
       );
+      const joySpriteNumInput = blockControls.querySelector(".joy-sprite-num");
+      if (joySpriteNumInput) setupProgramConstPicker(joySpriteNumInput);
     } else if (block.isMouseMacro) {
       inlineField.hidden = true;
       blockControls.insertAdjacentHTML(
@@ -17684,19 +17908,25 @@ function renderProgram() {
             </label>
             <label class="mini-field">
               <span>${t("fieldMouseSpriteNum")}</span>
-              <input class="mouse-sprite-num" type="number" min="0" max="7" value="${block.mouseSpriteNum || "0"}">
+              <input class="mouse-sprite-num block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.mouseSpriteNum || "0"}" placeholder="0 / CONST">
             </label>
             <label class="mini-field">
               <span>${t("fieldMousePotX")}</span>
-              <input class="mouse-pot-x-zp" type="text" maxlength="2" value="${(block.mousePotXZP || "FD").toUpperCase()}" placeholder="FD">
+              <input class="mouse-pot-x-zp block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" maxlength="2" value="${(block.mousePotXZP || "FD").toUpperCase()}" placeholder="FD / CONST">
             </label>
             <label class="mini-field">
               <span>${t("fieldMousePotY")}</span>
-              <input class="mouse-pot-y-zp" type="text" maxlength="2" value="${(block.mousePotYZP || "FE").toUpperCase()}" placeholder="FE">
+              <input class="mouse-pot-y-zp block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" maxlength="2" value="${(block.mousePotYZP || "FE").toUpperCase()}" placeholder="FE / CONST">
             </label>
           </div>
         `
       );
+      const mouseSpriteNumInput = blockControls.querySelector(".mouse-sprite-num");
+      if (mouseSpriteNumInput) setupProgramConstPicker(mouseSpriteNumInput);
+      const mousePotXZPInput = blockControls.querySelector(".mouse-pot-x-zp");
+      if (mousePotXZPInput) setupProgramConstPicker(mousePotXZPInput);
+      const mousePotYZPInput = blockControls.querySelector(".mouse-pot-y-zp");
+      if (mousePotYZPInput) setupProgramConstPicker(mousePotYZPInput);
     } else if (block.isWaitRasterMacro) {
       inlineField.hidden = true;
       blockControls.insertAdjacentHTML(
@@ -17705,21 +17935,23 @@ function renderProgram() {
           <div class="macro-grid single-macro-row">
             <label class="mini-field">
               <span>${t("fieldRasterLine")}</span>
-              <input class="raster-line" type="text" maxlength="3" value="${block.rasterLine || "FF"}" placeholder="FF">
+              <input class="raster-line block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" maxlength="3" value="${block.rasterLine || "FF"}" placeholder="FF / CONST">
             </label>
           </div>
         `
       );
+      const rasterLineInput2 = blockControls.querySelector(".raster-line");
+      if (rasterLineInput2) setupProgramConstPicker(rasterLineInput2);
     } else if (block.isDelayMacro) {
       inlineField.hidden = true;
       blockControls.insertAdjacentHTML(
         "beforeend",
         `
           <div class="macro-grid single-macro-row">
-            <label class="mini-field">
+            <div class="mini-field">
               <span>${t("fieldAnimFrameCount")}</span>
               <input class="delay-frames block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${String(block.delayFrames || "8").trim()}" placeholder="8 / CONST">
-            </label>
+            </div>
           </div>
         `
       );
@@ -17830,21 +18062,35 @@ function renderProgram() {
           <div class="macro-grid">
             <label class="mini-field">
               <span>${t("fieldSpriteNum")}</span>
-              <input class="sprite-num" type="number" min="0" max="7" value="${block.spriteNum || "0"}">
+              <input class="sprite-num block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.spriteNum || "0"}" placeholder="0 / CONST">
             </label>
             <label class="mini-field">
               <span>${t("fieldSpriteColor")}</span>
-              <input class="sprite-color" type="number" min="0" max="15" value="${block.spriteColor || "7"}">
+              <input class="sprite-color block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.spriteColor || "7"}" placeholder="7 / CONST">
             </label>
           </div>
           <div class="macro-grid single-macro-row">
             <label class="mini-field">
               <span>${t("fieldSpriteDataPage")}</span>
-              <input class="sprite-data-page" type="text" maxlength="3" value="${block.spriteDataPage || "21"}" placeholder="21">
+              <input class="sprite-data-page block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" maxlength="3" value="${block.spriteDataPage || "21"}" placeholder="21 / CONST">
             </label>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:4px;font-size:0.72rem;color:var(--muted);">
+            <input class="sprite-multicolor-check mini-checkbox" type="checkbox"${block.spriteMulticolor ? " checked" : ""}>
+            ${t("fieldSpriteMulticolor")}
           </div>
         `
       );
+      const spriteNumInput = blockControls.querySelector(".sprite-num");
+      if (spriteNumInput) setupProgramConstPicker(spriteNumInput);
+      const spriteColorInput = blockControls.querySelector(".sprite-color");
+      if (spriteColorInput) setupProgramConstPicker(spriteColorInput);
+      const spriteDataPageInput = blockControls.querySelector(".sprite-data-page");
+      if (spriteDataPageInput) setupProgramConstPicker(spriteDataPageInput);
+      const spriteMulticolorCheck = blockControls.querySelector(".sprite-multicolor-check");
+      if (spriteMulticolorCheck) {
+        spriteMulticolorCheck.addEventListener("change", (e) => updateProgramBlock(index, "spriteMulticolor", !!e.target.checked));
+      }
     } else if (block.isSpritePosMacro) {
       inlineField.hidden = true;
       blockControls.insertAdjacentHTML(
@@ -17853,21 +18099,27 @@ function renderProgram() {
           <div class="macro-grid">
             <label class="mini-field">
               <span>${t("fieldSpriteNum")}</span>
-              <input class="sprite-num" type="number" min="0" max="7" value="${block.spriteNum || "0"}">
+              <input class="sprite-num block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.spriteNum || "0"}" placeholder="0 / CONST">
             </label>
             <label class="mini-field">
               <span>${t("fieldSpriteX")}</span>
-              <input class="sprite-x" type="number" min="0" max="319" value="${block.spriteX || "152"}">
+              <input class="sprite-x block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.spriteX || "152"}" placeholder="152 / CONST">
             </label>
           </div>
           <div class="macro-grid single-macro-row">
             <label class="mini-field">
               <span>${t("fieldSpriteY")}</span>
-              <input class="sprite-y" type="number" min="0" max="255" value="${block.spriteY || "100"}">
+              <input class="sprite-y block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.spriteY || "100"}" placeholder="100 / CONST">
             </label>
           </div>
         `
       );
+      const spritePosNumInput = blockControls.querySelector(".sprite-num");
+      if (spritePosNumInput) setupProgramConstPicker(spritePosNumInput);
+      const spriteXInput = blockControls.querySelector(".sprite-x");
+      if (spriteXInput) setupProgramConstPicker(spriteXInput);
+      const spriteYInput = blockControls.querySelector(".sprite-y");
+      if (spriteYInput) setupProgramConstPicker(spriteYInput);
     } else if (block.isSpriteColMacro) {
       inlineField.hidden = true;
       blockControls.insertAdjacentHTML(
@@ -17876,7 +18128,7 @@ function renderProgram() {
           <div class="macro-grid">
             <label class="mini-field">
               <span>${t("fieldSpriteNum")}</span>
-              <input class="col-sprite-num" type="number" min="0" max="7" value="${block.spriteNum || "0"}">
+              <input class="col-sprite-num block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.spriteNum || "0"}" placeholder="0 / CONST">
             </label>
             <label class="mini-field">
               <span>${t("fieldColType")}</span>
@@ -17888,6 +18140,8 @@ function renderProgram() {
           </div>
         `
       );
+      const colSpriteNumInput = blockControls.querySelector(".col-sprite-num");
+      if (colSpriteNumInput) setupProgramConstPicker(colSpriteNumInput);
     } else if (block.isMapCopyMacro) {
       inlineField.hidden = true;
       const isCombined = !!block.mapCopyCombined;
@@ -17937,11 +18191,11 @@ function renderProgram() {
           <div class="macro-grid">
             <label class="mini-field">
               <span>${t("fieldAnimSpriteNum")}</span>
-              <input class="anim-sprite-num" type="number" min="0" max="7" value="${block.animSpriteNum || "0"}">
+              <input class="anim-sprite-num block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.animSpriteNum || "0"}" placeholder="0 / CONST">
             </label>
             <label class="mini-field">
               <span>${t("fieldAnimFrameCount")}</span>
-              <input class="anim-frame-count" type="number" min="1" max="255" value="${block.animFrameCount || 4}">
+              <input class="anim-frame-count block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.animFrameCount || 4}" placeholder="4 / CONST">
             </label>
           </div>
           <div class="macro-grid">
@@ -17956,6 +18210,10 @@ function renderProgram() {
           </div>
         `
       );
+      const animSpriteNumInput = blockControls.querySelector(".anim-sprite-num");
+      if (animSpriteNumInput) setupProgramConstPicker(animSpriteNumInput);
+      const animFrameCountInput = blockControls.querySelector(".anim-frame-count");
+      if (animFrameCountInput) setupProgramConstPicker(animFrameCountInput);
     } else if (block.isScoreBcdMacro) {
       inlineField.hidden = true;
       blockControls.insertAdjacentHTML(
@@ -17999,7 +18257,7 @@ function renderProgram() {
             </label>
             <label class="mini-field">
               <span>${t("fieldLoadFileDevice")}</span>
-              <input class="loadfile-device" type="number" min="8" max="30" value="${block.loadFileDevice || "8"}">
+              <input class="loadfile-device block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.loadFileDevice || "8"}" placeholder="8 / CONST">
             </label>
           </div>
           <div class="macro-grid">
@@ -18014,6 +18272,8 @@ function renderProgram() {
           </div>
         `
       );
+      const loadFileDeviceInput = blockControls.querySelector(".loadfile-device");
+      if (loadFileDeviceInput) setupProgramConstPicker(loadFileDeviceInput);
     } else if (block.isExoDecrunchMacro) {
       inlineField.hidden = true;
       blockControls.insertAdjacentHTML(
@@ -18047,7 +18307,7 @@ function renderProgram() {
           <div class="macro-grid">
             <label class="mini-field">
               <span>${t("bank07")}</span>
-              <input class="reu-bank" type="number" min="0" max="7" value="${block.reuBank || "0"}">
+              <input class="reu-bank block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.reuBank || "0"}" placeholder="0 / CONST">
             </label>
             <label class="mini-field">
               <span>${t("lengthHex")}</span>
@@ -18056,6 +18316,8 @@ function renderProgram() {
           </div>
         `
       );
+      const reuBankInput = blockControls.querySelector(".reu-bank");
+      if (reuBankInput) setupProgramConstPicker(reuBankInput);
     } else if (block.isDefineMacro) {
       inlineField.querySelector("span").textContent = t("symbol");
       inlineField.hidden = false;
@@ -18108,7 +18370,7 @@ function renderProgram() {
             </label>
             <label class="mini-field">
               <span>${t("sizeBytes") || "Size (bytes)"}</span>
-              <input class="var-size" type="number" min="1" max="255" value="${block.varSize || 1}">
+              <input class="var-size block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.varSize || 1}" placeholder="1 / CONST">
             </label>
             <label class="mini-field">
               <span>ZP</span>
@@ -18118,7 +18380,11 @@ function renderProgram() {
         `
       );
       blockControls.querySelector(".var-name")?.addEventListener("input", (e) => updateProgramBlock(index, "varName", e.target.value));
-      blockControls.querySelector(".var-size")?.addEventListener("input", (e) => updateProgramBlock(index, "varSize", parseInt(e.target.value, 10) || 1));
+      const varSizeInput = blockControls.querySelector(".var-size");
+      if (varSizeInput) {
+        setupProgramConstPicker(varSizeInput);
+        varSizeInput.addEventListener("input", (e) => updateProgramBlock(index, "varSize", e.target.value));
+      }
     } else if (block.isIfMacro) {
       inlineField.querySelector("span").textContent = t("condition");
       inlineField.hidden = false;
@@ -18195,23 +18461,33 @@ function renderProgram() {
         `
       );
     } else if (block.isPrintCharMacro) {
-      inlineField.querySelector("span").textContent = t("value") || "Value";
-      inlineField.hidden = false;
-      operandField.classList.add("print-char-value", "block-operand", "has-label-picker");
-      operandField.value = block.rawOperand || "$41";
-      operandField.placeholder = "$41 / 65 / CONST";
-      operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
-      const wrapper = document.createElement("div");
-      wrapper.className = "label-picker-wrap";
-      operandField.parentNode.insertBefore(wrapper, operandField);
-      wrapper.appendChild(operandField);
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid single-macro-row">
+            <div class="mini-field">
+              <span>${t("value") || "Value"}</span>
+              <input class="print-char-value block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.rawOperand || "$41"}" placeholder="$41 / 65 / CONST">
+            </div>
+          </div>
+        `
+      );
+      const printCharField = blockControls.querySelector(".print-char-value");
+      if (printCharField) {
+        printCharField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+        const wrapper = document.createElement("div");
+        wrapper.className = "label-picker-wrap";
+        printCharField.parentNode.insertBefore(wrapper, printCharField);
+        wrapper.appendChild(printCharField);
+      }
       const dropdown = document.createElement("div");
       dropdown.className = "label-picker-dropdown";
       dropdown.hidden = true;
       document.body.appendChild(dropdown);
       let dropdownHovered = false;
       function positionCharDropdown() {
-        const r = operandField.getBoundingClientRect();
+        const r = printCharField.getBoundingClientRect();
         dropdown.style.top = (r.bottom + window.scrollY + 4) + "px";
         dropdown.style.left = (r.left + window.scrollX) + "px";
         dropdown.style.width = r.width + "px";
@@ -18224,14 +18500,14 @@ function renderProgram() {
         dropdown.querySelectorAll(".label-picker-item").forEach(item => {
           item.addEventListener("pointerdown", e => {
             e.preventDefault();
-            operandField.value = item.textContent;
-            operandField.dispatchEvent(new Event("input"));
+            printCharField.value = item.textContent;
+            printCharField.dispatchEvent(new Event("input"));
             closeCharDropdown();
             dropdownHovered = false;
           });
         });
       }
-      operandField.addEventListener("focus", () => {
+      printCharField?.addEventListener("focus", () => {
         const charConsts = getProgramConstNames();
         if (!charConsts.length) return;
         dropdown.innerHTML = charConsts.map(n => `<div class="label-picker-item">${n}</div>`).join("");
@@ -18240,14 +18516,14 @@ function renderProgram() {
         dropdown.hidden = false;
         window.addEventListener("scroll", positionCharDropdown, { capture: true, passive: true });
       });
-      operandField.addEventListener("blur", () => {
+      printCharField?.addEventListener("blur", () => {
         if (!dropdownHovered) closeCharDropdown();
       });
-      operandField.addEventListener("keydown", e => { if (e.key === "Escape") closeCharDropdown(); });
+      printCharField?.addEventListener("keydown", e => { if (e.key === "Escape") closeCharDropdown(); });
       dropdown.addEventListener("mouseenter", () => { dropdownHovered = true; });
       dropdown.addEventListener("mouseleave", () => { dropdownHovered = false; });
       document.addEventListener("pointerdown", e => {
-        if (!dropdown.contains(e.target) && e.target !== operandField) closeCharDropdown();
+        if (!dropdown.contains(e.target) && e.target !== printCharField) closeCharDropdown();
       }, { capture: true });
     } else if (block.isPrintHexMacro) {
       inlineField.hidden = true;
@@ -18256,10 +18532,10 @@ function renderProgram() {
       blockControls.insertAdjacentHTML(
         "beforeend",
         `<div class="macro-grid single-macro-row">
-          <label class="mini-field">
+          <div class="mini-field">
             <span>Reg</span>
             <select class="print-reg">${opts}</select>
-          </label>
+          </div>
         </div>`
       );
       blockControls.querySelector(".print-reg")?.addEventListener("change", (e) => {
@@ -18273,10 +18549,10 @@ function renderProgram() {
       blockControls.insertAdjacentHTML(
         "beforeend",
         `<div class="macro-grid single-macro-row">
-          <label class="mini-field">
+          <div class="mini-field">
             <span>${t("value") || "Value"}</span>
             <input class="color-value block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.colorValue || block.rawOperand || "00"}" placeholder="00">
-          </label>
+          </div>
         </div>`
       );
       document.querySelectorAll('datalist[id^="color-consts-"]').forEach(el => el.remove());
@@ -18772,6 +19048,8 @@ function renderProgram() {
     });
     const macroXInput = node.querySelector(".macro-x");
     const macroYInput = node.querySelector(".macro-y");
+    if (macroXInput) setupProgramConstPicker(macroXInput);
+    if (macroYInput) setupProgramConstPicker(macroYInput);
     if (macroXInput) {
       macroXInput.addEventListener("input", (event) => updateProgramBlock(index, "textX", event.target.value));
     }
@@ -18802,6 +19080,7 @@ function renderProgram() {
     }
     const macroCharOffsetInput = node.querySelector(".macro-char-offset");
     if (macroCharOffsetInput) {
+      setupProgramConstPicker(macroCharOffsetInput);
       macroCharOffsetInput.addEventListener("input", (event) => updateProgramBlock(index, "charOffset", event.target.value));
     }
     const joyPortSelect = node.querySelector(".joy-port");
@@ -18913,9 +19192,9 @@ function renderProgram() {
     if (mapCopyColorSrcInput) mapCopyColorSrcInput.addEventListener("input", e => updateProgramBlock(index, "mapCopyColorSrc", e.target.value.toUpperCase()));
     node.querySelectorAll(".map-copy-color-dst").forEach(el => el.addEventListener("input", e => updateProgramBlock(index, "mapCopyColorDst", e.target.value.toUpperCase())));
     const animSpriteNumInput = node.querySelector(".anim-sprite-num");
-    if (animSpriteNumInput) animSpriteNumInput.addEventListener("input", e => updateProgramBlock(index, "animSpriteNum", parseInt(e.target.value, 10)));
+    if (animSpriteNumInput) animSpriteNumInput.addEventListener("input", e => updateProgramBlock(index, "animSpriteNum", e.target.value));
     const animFrameCountInput = node.querySelector(".anim-frame-count");
-    if (animFrameCountInput) animFrameCountInput.addEventListener("input", e => updateProgramBlock(index, "animFrameCount", parseInt(e.target.value, 10)));
+    if (animFrameCountInput) animFrameCountInput.addEventListener("input", e => updateProgramBlock(index, "animFrameCount", e.target.value));
     const animFrameListAddrInput = node.querySelector(".anim-frame-list-addr");
     if (animFrameListAddrInput) animFrameListAddrInput.addEventListener("input", e => updateProgramBlock(index, "animFrameListAddr", e.target.value.toUpperCase()));
     const animFrameZPInput = node.querySelector(".anim-frame-zp");
@@ -19358,7 +19637,7 @@ function renderAsmOutput() {
 
     if (line.block.isTextMacro) {
       const chars = encodeTextMacro(line.block.rawOperand);
-      const startAddress = 0x0400 + ((line.block.textY ?? 0) * 40) + (line.block.textX ?? 0);
+      const startAddress = 0x0400 + ((resolveProgramValueWithConst(line.block.textY ?? "0", "dec") || 0) * 40) + (resolveProgramValueWithConst(line.block.textX ?? "0", "dec") || 0);
       const expanded = chunkBytes(chars, 16).map((chunk, chunkIndex) => {
         const chunkAddress = startAddress + (chunkIndex * 16);
         const byteList = chunk.map((byte) => toHex(byte, 2)).join(", ");
@@ -19379,7 +19658,7 @@ function renderAsmOutput() {
     }
 
     if (line.block.isStringMacro) {
-      const rawOffset = parseInt(line.block.charOffset || "0", 16);
+      const rawOffset = resolveProgramValueWithConst(line.block.charOffset || "0", "hex");
       const chars = encodeTextMacro(line.block.rawOperand).map(b => (b + (isNaN(rawOffset) ? 0 : rawOffset)) & 0xFF);
       const startAddress = parseAddressValue(line.block.stringAddress) ?? 0xC000;
       const expanded = chunkBytes(chars, 16).map((chunk, chunkIndex) => {
@@ -19478,13 +19757,16 @@ function renderAsmOutput() {
 
     if (line.block.isMemSetMacro) {
       const dst = (line.block.memsetDst || "0400").replace(/^\$/, "").toUpperCase().padStart(4, "0");
-      const value = (line.block.memsetValue || "00").replace(/^\$/, "").toUpperCase().padStart(2, "0");
+      const valueRaw = String(line.block.memsetValue || "00").trim();
+      const value = /^[A-Za-z_]/.test(valueRaw)
+        ? valueRaw
+        : "$" + valueRaw.replace(/^#?\$/, "").toUpperCase().padStart(2, "0");
       const size = (line.block.memsetSize || "0100").replace(/^\$/, "").toUpperCase().padStart(4, "0");
-      return `; .memset addr=$${dst}, value=#$${value}, size=$${size}`;
+      return `; .memset addr=$${dst}, value=${value}, size=$${size}`;
     }
 
     if (line.block.isRawTextMacro) {
-      const rawOffset = parseInt(line.block.charOffset || "0", 16);
+      const rawOffset = resolveProgramValueWithConst(line.block.charOffset || "0", "hex");
       const chars = encodeTextMacro(line.block.rawOperand).map(b => (b + (isNaN(rawOffset) ? 0 : rawOffset)) & 0xFF);
       const startAddress = parseAddressValue(line.block.rawTextAddress) ?? 0xC000;
       const expanded = chunkBytes(chars, 16).map((chunk, chunkIndex) => {
@@ -19652,8 +19934,9 @@ function renderAsmOutput() {
       const addr = typeof line.block._varAddress === "number"
         ? "$" + line.block._varAddress.toString(16).toUpperCase().padStart(2, "0")
         : "?";
-      const size = Math.max(1, Math.min(255, line.block.varSize || 1));
-      return `; .VAR ${line.block.varName || "?"} @ ${addr}${size > 1 ? " (" + size + "b)" : ""}`;
+      const size = resolveProgramValueWithConst(line.block.varSize || "1", "dec");
+      const safeSize = isNaN(size) ? 1 : Math.max(1, Math.min(255, size));
+      return `; .VAR ${line.block.varName || "?"} @ ${addr}${safeSize > 1 ? " (" + safeSize + "b)" : ""}`;
     }
 
     if (line.block.isRuntimeIfMacro) {
@@ -19712,10 +19995,10 @@ function renderAsmOutput() {
       return `; .ENDM`;
     }
 
-    if (line.block.isSpriteInitMacro) {
-      const pageHex = (line.block.spriteDataPage || "21").replace(/^\$/, "").toUpperCase().padStart(2, "0");
-      return `; .sprite_init #${line.block.spriteNum || "0"} col=${line.block.spriteColor || "7"} page=$${pageHex}`;
-    }
+  if (line.block.isSpriteInitMacro) {
+    const pageHex = (line.block.spriteDataPage || "21").replace(/^\$/, "").toUpperCase().padStart(2, "0");
+    return `; .sprite_init #${line.block.spriteNum || "0"} col=${line.block.spriteColor || "7"} page=$${pageHex}${line.block.spriteMulticolor ? " mc" : ""}`;
+  }
 
     if (line.block.isLoadFileMacro) {
       const fname = (line.block.loadFileName || "").trim() || "?";

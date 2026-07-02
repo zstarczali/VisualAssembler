@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.1.1**
+**Version 2.1.2**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -22,7 +22,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [ASM line numbers](#asm-line-numbers)
     - [Compile progress modal](#compile-progress-modal)
   - [5. Settings \& Toolbar](#5-settings--toolbar)
-    - [Import ASM (quick reference)](#import-asm-quick-reference)
+    - [Load .asm file (quick reference)](#load-asm-file-quick-reference)
       - [Import parsing notes and best practices](#import-parsing-notes-and-best-practices)
   - [6. Expert Mode](#6-expert-mode)
     - [Switching modes](#switching-modes)
@@ -236,7 +236,7 @@ During heavier actions, a centered progress modal appears with a progress bar:
 
 - **Run in VICE** — compiling/building PRG and launching emulator.
 - **Debug** — compiling/building PRG and launching debugger.
-- **Import ASM** — parsing and materializing blocks from pasted source.
+- **Load .asm file** — open an `.asm` file in Expert mode and materialize blocks from the source.
 
 The modal closes automatically when the action completes or fails.
 
@@ -256,10 +256,11 @@ The modal closes automatically when the action completes or fails.
 | **Save Project** | Save the current program as a `.json` project file |
 | **Save Program As** | Save the current program as a `.json` project file using a new file dialog every time |
 | **Load Project** | Load a previously saved project |
+| **Set working folder** | Choose the default folder used by file pickers and save dialogs. The path is stored in the app config, and menu previews keep the end of the path visible. |
 | **Open Project** (`Menu → File`) | Open a multi-file `.proj` project and open all source files as tabs |
 | **Save Project** (`Menu → File`) | Save the current `.proj` project (project panel must be open) |
 | **Close Project** (`Menu → File`) | Close the currently open project and all its file tabs. Prompts to save unsaved changes. The project panel resets to its empty state. |
-| **Import ASM** | Opens a paste dialog and imports textual 6502 ASM into blocks |
+| **Load .asm file** | Opens a `.asm` file in Expert mode and imports textual 6502 ASM into the current tab |
 | **Save PRG** | Export the compiled binary as a `.prg` file |
 | **Run (split button)** | The main **▶ Run** button runs the current mode; click the **▾** arrow to switch between: **Run as PRG** (compile and launch VICE directly), **Run via D64** (package into a .d64 disk image and launch VICE), or **Run on hardware** (send PRG to a C64 Ultimate / 1541 Ultimate device). See [Section 12](#12-d64-export--run) and [Section 13](#13-hardware-settings). |
 | **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 9](#9-debugger-integration)) |
@@ -281,9 +282,9 @@ Project snapshots are stored as on-disk sidecar JSON files, not in localStorage.
 | **Knowledge Base** | Reference links (6502 opcodes, C64 KERNAL, memory map, colors) |
 | **Check for Update** | Open the itch.io page to check for a newer release |
 
-### Import ASM (quick reference)
+### Load .asm file (quick reference)
 
-The Import dialog accepts common 6502 source patterns and converts them into blocks:
+The Expert-mode `.asm` loader accepts common 6502 source patterns and converts them into blocks:
 
 - `* = $1500` → ORG block
 - `Label:` → LABEL block
@@ -337,6 +338,7 @@ Expert Mode is a full-featured direct-text 6502 assembly editor that lives along
 | **Build Info** | `#expert-build-info-btn` | Open the Build Info dialog (origin, size, labels, errors) |
 | **HL** | `#expert-hl-btn` | Toggle syntax highlighting (disable for very large files) |
 | **Autocomplete** | `#expert-autocomplete-btn` | Toggle expert autocomplete suggestions on/off. When disabled, no directive, mnemonic, or label popup appears in the expert editor. |
+| **Region selection** | `#expert-region-selection-btn` | Toggle the automatic region highlight in Expert mode. The fold state stays stored, but when this is off the editor keeps the full source visible and does not auto-select the current region. |
 | **Line numbers** | `#expert-line-numbers-btn` | Toggle the line number gutter on the left side of the editor. The gutter stays in sync with the scroll position and updates live as you type. |
 | **Find** | `#expert-find-btn` | Open the floating Find bar (`Ctrl+F`). Type to search; matches are highlighted in the overlay. `Enter` / `Shift+Enter` navigate between matches. `Escape` closes the bar. |
 | **Zoom out / in** | `#expert-zoom-out-btn` / `#expert-zoom-in-btn` | Decrease / increase the editor font size (8–28 px). The setting is persisted. |
@@ -361,7 +363,7 @@ The editor uses a transparent `<div>` overlay (`expert-hl`) that mirrors the tex
 | Teal | String literals |
 | Dark green | Comments (`; …`) |
 
-`REGION` / `ENDREGION` directives are highlighted like the other assembler directives, and collapsed regions keep only the region header visible in the editor until you reopen them.
+`REGION` / `ENDREGION` directives are highlighted like the other assembler directives. Collapsed regions keep only the region header visible in the editor until you reopen them. The new **Region selection** toolbar toggle only controls the automatic current-region highlight in Expert mode; turning it off keeps the source visible without changing the fold state.
 
 ### Source formatter
 
@@ -1503,6 +1505,17 @@ Like **CONST, but auto-allocated** — `VAR` reserves zero-page storage for a la
 .var lives
 ```
 
+**Practical example:**
+```
+.region Vars
+.var counter
+.var timer, 2
+.endregion
+
+LDA #$00
+STA counter
+```
+
 **Generated ASM:**
 ```
 ; .var counter
@@ -1720,13 +1733,14 @@ The generator is meant for gameplay, effect variation, and quick test data. It i
 <a id="sprite_init"></a>
 ### SPRITE_INIT
 
-Sets up a VIC-II sprite in one block — instead of writing ~6 POKE statements in BASIC, just fill in three fields. Sets the sprite's data pointer, turns it on, and sets its colour.
+Sets up a VIC-II sprite in one block — instead of writing ~6 POKE statements in BASIC, just fill in the fields. Sets the sprite's data pointer, turns it on, optionally enables multicolor mode, and sets its colour.
 
 | Field | Description |
 |---|---|
 | Sprite # | Sprite number 0–7 |
 | Colour | Colour index 0–15 (C64 palette) |
 | Data page | Sprite data address / 64 (e.g. `$21` if data is at `$0840`) |
+| Multicolor | Toggles the sprite's multicolor bit (`$D01C`) |
 
 **Generated ASM:**
 ```
@@ -1735,11 +1749,14 @@ Sets up a VIC-II sprite in one block — instead of writing ~6 POKE statements i
     LDA $D015
     ORA #$01        ; set enable bit for sprite 0
     STA $D015
+    LDA $D01C
+    AND #$FE        ; clear multicolor bit for sprite 0
+    STA $D01C
     LDA #$07
     STA $D027       ; sprite 0 colour register
 ```
 
-**Size:** 18 bytes.
+**Size:** 26 bytes.
 
 > **Sprite data page:** `data_address ÷ 64`. With the default BASIC SYS stub, `ALIGN 64` after `JMP main` places sprite data at `$0840` → page = `$21`.
 
@@ -1748,7 +1765,7 @@ Sets up a VIC-II sprite in one block — instead of writing ~6 POKE statements i
 <a id="sprite_pos"></a>
 ### SPRITE_POS
 
-Like **`POKE 53248, x : POKE 53249, y`** in BASIC — sets a sprite's starting position. The coordinates are baked in at assemble time; for animation use `INC`/`DEC` on the sprite register directly.
+Like **`POKE 53248, x : POKE 53249, y`** in BASIC — sets a sprite's starting position. The coordinates are baked in at assemble time, and the fields accept consts in Block mode; for animation use `INC`/`DEC` on the sprite register directly.
 
 | Field | Description |
 |---|---|

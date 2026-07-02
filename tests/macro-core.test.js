@@ -50,6 +50,8 @@ function createMacroContext(extraContext = {}) {
       "parseFillMacro",
       "parseNumberByBase",
       "parseMacroNumber",
+      "resolveProgramValueWithConst",
+      "resolveProgramNumericValue",
       "parseDelayFrameCount",
       "parseMacroAddress",
       "resolveProgramConstValue",
@@ -60,12 +62,16 @@ function createMacroContext(extraContext = {}) {
       "getAsmDisplayOperand",
       "getDeferredMemorySections",
       "_expertNormalizeRegionName",
+      "_expertResetRegionHighlight",
       "_expertStampRegionFoldSignatures",
       "_expertCopyRegionFoldState",
       "_expertGetHiddenRegionLines",
       "_expertFindCurrentRegionBounds",
       "_expertVisibleLineToSourceLine",
+      "parseExpertText",
       "_blockToExpertLine",
+      "validateSpriteInitMacro",
+      "validateSpritePosMacro",
       "compileAbsoluteStore",
       "compilePrintHexA",
       "getDeferredMacroAddressField",
@@ -385,6 +391,21 @@ test("_expertGetHiddenRegionLines hides nested content inside collapsed regions"
   assert.deepEqual(Array.from(hidden).sort((a, b) => a - b), [1, 2, 3, 4]);
 });
 
+test("_expertResetRegionHighlight clears stale region highlight state", () => {
+  let applied = 0;
+  const ctx = createMacroContext({
+    expertMode: true,
+    expertEditor: {},
+    _expertRegionHighlight: { start: 2, end: 4 },
+    _expertApplyHighlight: () => { applied += 1; }
+  });
+
+  ctx._expertResetRegionHighlight();
+
+  assert.equal(ctx._expertRegionHighlight, null);
+  assert.equal(applied, 1);
+});
+
 test("folded inner regions do not confuse current region detection", () => {
   const ctx = createMacroContext();
   const sourceLines = [
@@ -439,14 +460,15 @@ test("PULL restores registers in reverse stack order", () => {
   assert.equal(ctx.getInstructionSize({ isPullMacro: true, pullRegs: "AXY" }), 5);
 });
 
-test("SPRITE_INIT writes sprite pointer, enable bit, and color", () => {
+test("SPRITE_INIT writes sprite pointer, enable bit, multicolor bit, and color", () => {
   const ctx = createMacroContext();
   const bytes = compileBlock(ctx, {
     mnemonic: "SPRITE_INIT",
     isSpriteInitMacro: true,
     spriteNum: "2",
     spriteColor: "5",
-    spriteDataPage: "40"
+    spriteDataPage: "40",
+    spriteMulticolor: false
   }, new Map(), 0x3300);
 
   assert.deepEqual(bytes, [
@@ -455,10 +477,54 @@ test("SPRITE_INIT writes sprite pointer, enable bit, and color", () => {
     0xAD, 0x15, 0xD0,
     0x09, 0x04,
     0x8D, 0x15, 0xD0,
+    0xAD, 0x1C, 0xD0,
+    0x29, 0xFB,
+    0x8D, 0x1C, 0xD0,
     0xA9, 0x05,
     0x8D, 0x29, 0xD0
   ]);
-  assert.equal(ctx.getInstructionSize({ isSpriteInitMacro: true }), 18);
+  assert.equal(ctx.getInstructionSize({ isSpriteInitMacro: true }), 26);
+});
+
+test("SPRITE_INIT accepts consts and multicolor in compile", () => {
+  const ctx = createMacroContext();
+  const labels = new Map([
+    ["SPRITE_NUM", 2],
+    ["SPRITE_COLOR", 5],
+    ["SPRITE_PAGE", 0x40]
+  ]);
+  const bytes = compileBlock(ctx, {
+    mnemonic: "SPRITE_INIT",
+    isSpriteInitMacro: true,
+    spriteNum: "SPRITE_NUM",
+    spriteColor: "SPRITE_COLOR",
+    spriteDataPage: "SPRITE_PAGE",
+    spriteMulticolor: true
+  }, labels, 0x3380);
+
+  assert.deepEqual(bytes, [
+    0xA9, 0x40,
+    0x8D, 0xFA, 0x07,
+    0xAD, 0x15, 0xD0,
+    0x09, 0x04,
+    0x8D, 0x15, 0xD0,
+    0xAD, 0x1C, 0xD0,
+    0x09, 0x04,
+    0x8D, 0x1C, 0xD0,
+    0xA9, 0x05,
+    0x8D, 0x29, 0xD0
+  ]);
+});
+
+test("SPRITE_INIT validation accepts consts for byte-sized fields", () => {
+  const ctx = createMacroContext({
+    program: [
+      { isConstMacro: true, constName: "SPRITE_NUM", constValue: 2 },
+      { isConstMacro: true, constName: "SPRITE_COLOR", constValue: 5 },
+      { isConstMacro: true, constName: "SPRITE_PAGE", constValue: 0x40 }
+    ]
+  });
+  assert.equal(ctx.validateSpriteInitMacro("SPRITE_NUM", "SPRITE_COLOR", "SPRITE_PAGE"), "");
 });
 
 test("SPRITE_POS updates X low byte, D010 bit, and Y position", () => {
@@ -481,6 +547,60 @@ test("SPRITE_POS updates X low byte, D010 bit, and Y position", () => {
     0x8D, 0x05, 0xD0
   ]);
   assert.equal(ctx.getInstructionSize({ isSpritePosMacro: true }), 18);
+});
+
+test("SPRITE_POS accepts consts for sprite number and coordinates", () => {
+  const ctx = createMacroContext({
+    program: [
+      { isConstMacro: true, constName: "SPRITE_NUM", constValue: 2 },
+      { isConstMacro: true, constName: "SPRITE_X", constValue: 300 },
+      { isConstMacro: true, constName: "SPRITE_Y", constValue: 99 }
+    ]
+  });
+  assert.equal(ctx.validateSpritePosMacro("SPRITE_NUM", "SPRITE_X", "SPRITE_Y"), "");
+  const labels = new Map([["SPRITE_NUM", 2], ["SPRITE_X", 300], ["SPRITE_Y", 99]]);
+  const bytes = compileBlock(ctx, {
+    mnemonic: "SPRITE_POS",
+    isSpritePosMacro: true,
+    spriteNum: "SPRITE_NUM",
+    spriteX: "SPRITE_X",
+    spriteY: "SPRITE_Y"
+  }, labels, 0x3400);
+
+  assert.deepEqual(bytes, [
+    0xA9, 0x2C,
+    0x8D, 0x04, 0xD0,
+    0xAD, 0x10, 0xD0,
+    0x09, 0x04,
+    0x8D, 0x10, 0xD0,
+    0xA9, 0x63,
+    0x8D, 0x05, 0xD0
+  ]);
+});
+
+test("expert SPRITE_INIT roundtrips multicolor and const operands", () => {
+  const ctx = createMacroContext();
+  const blocks = ctx.parseExpertText(".sprite_init SPRITE_NUM, SPRITE_COLOR, $40, multicolor");
+
+  assert.equal(blocks.length, 1);
+  assert.equal(blocks[0].isSpriteInitMacro, true);
+  assert.equal(blocks[0].spriteNum, "SPRITE_NUM");
+  assert.equal(blocks[0].spriteColor, "SPRITE_COLOR");
+  assert.equal(blocks[0].spriteDataPage, "40");
+  assert.equal(blocks[0].spriteMulticolor, true);
+  assert.equal(ctx._blockToExpertLine(blocks[0]), ".sprite_init SPRITE_NUM, SPRITE_COLOR, $40, multicolor");
+});
+
+test("expert SPRITE_POS roundtrips const operands", () => {
+  const ctx = createMacroContext();
+  const blocks = ctx.parseExpertText(".sprite_pos SPRITE_NUM, SPRITE_X, SPRITE_Y");
+
+  assert.equal(blocks.length, 1);
+  assert.equal(blocks[0].isSpritePosMacro, true);
+  assert.equal(blocks[0].spriteNum, "SPRITE_NUM");
+  assert.equal(blocks[0].spriteX, "SPRITE_X");
+  assert.equal(blocks[0].spriteY, "SPRITE_Y");
+  assert.equal(ctx._blockToExpertLine(blocks[0]), ".sprite_pos SPRITE_NUM, SPRITE_X, SPRITE_Y");
 });
 
 test("LOADFILE emits KERNAL setup, override address, and error branch", () => {

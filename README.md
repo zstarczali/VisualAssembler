@@ -2,16 +2,20 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.1.1**
+**Current version: v2.1.2**
 
-**What's new in 2.1.1**
+**What's new in 2.1.2**
 
+- Hotfix: the Expert mode Region selection toggle now only controls the automatic region highlight, leaving the actual fold state untouched.
+- Hotfix: region selection and cursor placement stay aligned after collapsing or reopening regions.
+- New: the File menu now has a working folder picker, and file dialogs use it as their default starting folder.
+- `SPRITE_INIT` / `SPRITE_POS` now accept const names in Block mode, and `SPRITE_INIT` can toggle the sprite multicolor bit too.
 - `DELAY` / `WAIT` can now use named `CONST` values, and the delay block uses a compact const picker instead of the browser's native list.
 - `PRINT_CHAR` now accepts const names too, so single-byte PETSCII output can stay symbolic when that reads better than raw numbers.
 - `SET_BORDER` / `SET_BG` now accept const names in both block mode and Expert mode, with the same custom const picker.
 - `.region` / `.endregion` get directive coloring in Expert mode, so named visual groups stand out the same way the other macros do.
 - The Expert project panel's symbols area can now be resized vertically with a divider, so long symbol lists have more room when needed.
-- The bundled docs, manual, and installer notes were refreshed to match the 2.1.1 release.
+- The bundled docs, manual, and installer notes were refreshed to match the 2.1.2 release.
 
 ---
 
@@ -54,8 +58,8 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **INCBIN macro** — include an external binary file at a given memory address
 - **INCLUDE macro** — embed another `.c64asm` project file inline (read-only)
 - **SID macro** — load a SID music file directly into memory; header stripped, load/init/play addresses extracted automatically
-- **SPRITE_INIT macro** — initialise a VIC-II sprite: sets data pointer (`$07F8+N`), enable bit (`$D015`), and colour (`$D027+N`); parameters: sprite number, colour, data page
-- **SPRITE_POS macro** — set a sprite's static X/Y position; handles `$D010` MSB for X > 255; parameters: sprite number, X (0–319), Y (0–255)
+- **SPRITE_INIT macro** — initialise a VIC-II sprite: sets data pointer (`$07F8+N`), enable bit (`$D015`), multicolor bit (`$D01C`), and colour (`$D027+N`); parameters: sprite number, colour, data page, multicolor toggle
+- **SPRITE_POS macro** — set a sprite's static X/Y position; handles `$D010` MSB for X > 255; parameters: sprite number, X (0–319), Y (0–255), all const-aware in block mode
 - **WAIT_RASTER macro** — inline VIC-II raster line busy-wait (`LDA $D012 / CMP #line / BNE −7`); no JSR or label needed; 7 bytes
 - **JOYSTICK macro** — reads a CIA joystick port (1 = `$DC01`, 2 = `$DC00`) and moves a sprite via INC/DEC; 27 bytes inline
 - **MOUSE macro** — reads a C64 1351 proportional mouse via SID POTX/POTY and moves a sprite; CIA `$DC00` bits 7:6 select the control port, one SID conversion settle wait, standard 1351-style 7-bit delta decode, sprite X `$D010` MSB maintenance, Y-axis inverted for VICE, sprite X/Y update; 142 bytes inline
@@ -227,7 +231,7 @@ Each block in `program[]` is a plain object:
 | `INCBIN` | Embeds an external binary file at a given address |
 | `INCLUDE` | Inlines another `.c64asm` project at the current position |
 | `SID` | Loads a SID file into memory; strips the header, extracts load/init/play addresses |
-| `SPRITE_INIT` | Initialise a sprite: data pointer, enable bit, colour (18 bytes) |
+| `SPRITE_INIT` | Initialise a sprite: data pointer, enable bit, multicolor bit, colour (26 bytes) |
 | `SPRITE_POS` | Set static sprite X/Y position; handles $D010 MSB for X > 255 (18 bytes) |
 | `WAIT_RASTER` | Inline raster-line busy-wait; no JSR or label needed (7 bytes) |
 | `JOYSTICK` | Read CIA joystick port and move a sprite via INC/DEC (27 bytes) |

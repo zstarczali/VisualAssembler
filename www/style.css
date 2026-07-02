@@ -1061,10 +1061,36 @@ html[data-theme="oled"] .primary {
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 4px;
+  min-width: 0;
 }
 
 .panel-heading-top h2 {
   margin: 0;
+  flex: 0 0 auto;
+}
+
+.panel-heading-meta {
+  min-width: 0;
+  flex: 1 1 auto;
+  text-align: right;
+  font-size: 0.72rem;
+  line-height: 1.2;
+  color: var(--muted);
+}
+
+.panel-heading-meta--path {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.origin-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  margin-bottom: 6px;
 }
 
 .panel-heading-row {
@@ -1186,6 +1212,12 @@ html[data-theme="oled"] .primary {
   word-wrap: break-word;
   overflow-wrap: break-word;
   max-width: 100%;
+}
+
+.menu-note--path {
+  white-space: pre-line;
+  overflow: hidden;
+  line-height: 1.2;
 }
 
 .menu-note-strong code {
@@ -1313,6 +1345,18 @@ select {
   background-position: calc(100% - 14px) 50%;
   background-size: 12px 8px;
   background-repeat: no-repeat;
+}
+
+input[type="number"] {
+  -webkit-appearance: textfield;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 select:focus,
