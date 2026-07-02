@@ -65,6 +65,7 @@ function createMacroContext(extraContext = {}) {
       "getDeferredMacroAddressField",
       "getProgramLayout",
       "compileLineBytes",
+      "parseWordMacro",
       "getInstructionSize"
     ],
     {
@@ -123,6 +124,31 @@ test("runtime IF emits CMP+BNE skip with the right relative offset", () => {
   }), 4);
 });
 
+test("runtime IF supports X and Y registers too", () => {
+  const ctx = createMacroContext();
+  const xBytes = compileBlock(ctx, {
+    mnemonic: "IF_X",
+    isRuntimeIfMacro: true,
+    runtimeIfReg: "X",
+    runtimeIfOp: "==",
+    rawOperand: "#$10",
+    base: "hex",
+    runtimeIfElseLabel: "else_x"
+  }, new Map([["else_x", 0x1008]]), 0x1000);
+  const yBytes = compileBlock(ctx, {
+    mnemonic: "IF_Y",
+    isRuntimeIfMacro: true,
+    runtimeIfReg: "Y",
+    runtimeIfOp: "==",
+    rawOperand: "#$10",
+    base: "hex",
+    runtimeIfElseLabel: "else_y"
+  }, new Map([["else_y", 0x1008]]), 0x1000);
+
+  assert.deepEqual(xBytes, [0xE0, 0x10, 0xD0, 0x04]);
+  assert.deepEqual(yBytes, [0xC0, 0x10, 0xD0, 0x04]);
+});
+
 test("runtime WHILE and ENDW compile to loop skip plus jump-back", () => {
   const ctx = createMacroContext();
   const whileLabels = new Map([["while_end_1", 0x200A]]);
@@ -144,6 +170,55 @@ test("runtime WHILE and ENDW compile to loop skip plus jump-back", () => {
 
   assert.deepEqual(whileBytes, [0xC9, 0x00, 0xF0, 0x06]);
   assert.deepEqual(endwBytes, [0x4C, 0x00, 0x20]);
+});
+
+test("runtime WHILE and UNTIL also support X/Y register variants", () => {
+  const ctx = createMacroContext();
+  const whileX = compileBlock(ctx, {
+    mnemonic: "WHILE_X",
+    isRuntimeWhileMacro: true,
+    runtimeIfReg: "X",
+    runtimeIfOp: "!=",
+    rawOperand: "#$00",
+    base: "hex",
+    whileEndLabel: "while_end_x"
+  }, new Map([["while_end_x", 0x2008]]), 0x2000);
+  const whileY = compileBlock(ctx, {
+    mnemonic: "WHILE_Y",
+    isRuntimeWhileMacro: true,
+    runtimeIfReg: "Y",
+    runtimeIfOp: "!=",
+    rawOperand: "#$00",
+    base: "hex",
+    whileEndLabel: "while_end_y"
+  }, new Map([["while_end_y", 0x2008]]), 0x2000);
+  const untilX = compileBlock(ctx, {
+    mnemonic: "UNTIL_X",
+    isRuntimeUntilMacro: true,
+    runtimeIfReg: "X",
+    runtimeIfOp: "!=",
+    rawOperand: "#$00",
+    base: "hex",
+    repeatStartLabel: "repeat_x"
+  }, new Map([["repeat_x", 0x3000]]), 0x3004);
+  const untilY = compileBlock(ctx, {
+    mnemonic: "UNTIL_Y",
+    isRuntimeUntilMacro: true,
+    runtimeIfReg: "Y",
+    runtimeIfOp: "!=",
+    rawOperand: "#$00",
+    base: "hex",
+    repeatStartLabel: "repeat_y"
+  }, new Map([["repeat_y", 0x3000]]), 0x3004);
+
+  assert.equal(whileX.length, 4);
+  assert.equal(whileY.length, 4);
+  assert.equal(untilX.length, 4);
+  assert.equal(untilY.length, 4);
+  assert.deepEqual(whileX.slice(0, 3), [0xE0, 0x00, 0xF0]);
+  assert.deepEqual(whileY.slice(0, 3), [0xC0, 0x00, 0xF0]);
+  assert.deepEqual(untilX.slice(0, 3), [0xE0, 0x00, 0xF0]);
+  assert.deepEqual(untilY.slice(0, 3), [0xC0, 0x00, 0xF0]);
 });
 
 test("MEMCPY partial copy emits counted indexed loop and correct size", () => {
@@ -402,6 +477,38 @@ test("PRINT_HEX renders X with the register prefix", () => {
     0xC9, 0x0A, 0x90, 0x02, 0x69, 0x06, 0x69, 0x30, 0x20, 0xD2, 0xFF
   ]);
   assert.equal(ctx.getInstructionSize({ isPrintHexMacro: true, printReg: "X" }), 31);
+});
+
+test("buildBasicSysStub emits a valid BASIC SYS line", () => {
+  const ctx = loadFunctions(["buildBasicSysStub"], {});
+  const bytes = Array.from(ctx.buildBasicSysStub(0x1234));
+
+  assert.deepEqual(bytes.slice(0, 8), [0x01, 0x08, 0x0B, 0x08, 0x0A, 0x00, 0x9E, 0x34]);
+  assert.equal(bytes[8], 0x36);
+  assert.equal(bytes[9], 0x36);
+  assert.equal(bytes[10], 0x30);
+  assert.deepEqual(bytes.slice(-2), [0x00, 0x00]);
+});
+
+test("_buildAutostartPrgCore routes default origin to $C000 when BASIC SYS is off", () => {
+  const seenOrigins = [];
+  const ctx = loadFunctions(["_buildAutostartPrgCore"], {
+    basicSysToggle: { checked: false },
+    parseOriginValue: () => ({ value: 0x0801 }),
+    assembleProgramToPrg: (origin) => {
+      seenOrigins.push(origin);
+      return { ok: true, bytes: new Uint8Array([0x10, 0x20]) };
+    },
+    parseUserMacros: () => {},
+    program: [],
+    userMacros: {}
+  });
+
+  const result = ctx._buildAutostartPrgCore();
+
+  assert.deepEqual(seenOrigins, [0xC000]);
+  assert.equal(result.ok, true);
+  assert.deepEqual(Array.from(result.bytes), [0x10, 0x20]);
 });
 
 test("parseExpertText recognizes .region, .endregion, and .end", () => {
@@ -766,4 +873,286 @@ test("EXODECRUNCH emits the depacker setup, ROM toggle and JSR", () => {
     0x85, 0x01
   ]);
   assert.equal(ctx.getInstructionSize({ isExoDecrunchMacro: true }), 19);
+});
+
+test("runtime ELSE and ENDIF compile to jump and anchor bytes", () => {
+  const ctx = createMacroContext();
+  const labels = new Map([["if_end_1", 0x2015]]);
+  const elseBytes = compileBlock(ctx, {
+    mnemonic: "ELSE",
+    isRuntimeElseMacro: true,
+    runtimeIfEndLabel: "if_end_1"
+  }, labels, 0x2000);
+  const endBytes = compileBlock(ctx, {
+    mnemonic: "ENDIF",
+    isRuntimeEndIfMacro: true,
+    runtimeIfEndLabel: "if_end_1"
+  }, labels, 0x2010);
+
+  assert.deepEqual(elseBytes, [0x4C, 0x15, 0x20]);
+  assert.deepEqual(endBytes, []);
+  assert.equal(ctx.getInstructionSize({ isRuntimeElseMacro: true }), 3);
+  assert.equal(ctx.getInstructionSize({ isRuntimeEndIfMacro: true }), 0);
+});
+
+test("core helper macros emit stable bytes and sizes", () => {
+  const ctx = createMacroContext();
+  const cases = [
+    {
+      block: {
+        mnemonic: "TURBO_SET",
+        isTurboSetMacro: true,
+        turboSpeed: "3",
+        turboBadline: "1"
+      },
+      bytes: [0xA9, 0x83, 0x8D, 0x31, 0xD0],
+      size: 5
+    },
+    {
+      block: { mnemonic: "SUPERCPU_DETECT", isSuperCpuDetectMacro: true },
+      bytes: [0xAD, 0xB8, 0xD0, 0xC9, 0xFF],
+      size: 5
+    },
+    {
+      block: {
+        mnemonic: "TURBO_ENABLE",
+        isTurboEnableMacro: true,
+        turboEnableMode: "on"
+      },
+      bytes: [0xA9, 0x00, 0x8D, 0x7A, 0xD0],
+      size: 5
+    },
+    {
+      block: {
+        mnemonic: "TURBO_ENABLE",
+        isTurboEnableMacro: true,
+        turboEnableMode: "off"
+      },
+      bytes: [0xA9, 0x00, 0x8D, 0x7B, 0xD0],
+      size: 5
+    },
+    {
+      block: {
+        mnemonic: "JOYSTICK",
+        isJoystickMacro: true,
+        joyPort: "2",
+        joySpriteNum: "1"
+      },
+      bytes: [
+        0xAD, 0x00, 0xDC,
+        0x4A, 0xB0, 0x03, 0xCE, 0x03, 0xD0,
+        0x4A, 0xB0, 0x03, 0xEE, 0x03, 0xD0,
+        0x4A, 0xB0, 0x03, 0xCE, 0x02, 0xD0,
+        0x4A, 0xB0, 0x03, 0xEE, 0x02, 0xD0
+      ],
+      size: 27
+    },
+    {
+      block: {
+        mnemonic: "SPRITE_COL",
+        isSpriteColMacro: true,
+        spriteNum: "3",
+        colType: "background"
+      },
+      bytes: [0xAD, 0x1F, 0xD0, 0x29, 0x08],
+      size: 5
+    },
+    {
+      block: {
+        mnemonic: "MAP_COPY",
+        isMapCopyMacro: true,
+        mapCopySrc: "C000",
+        mapCopyDst: "0400",
+        mapCopySize: "3",
+        mapCopyCombined: false
+      },
+      bytes: [0xA2, 0x00, 0xBD, 0x00, 0xC0, 0x9D, 0x00, 0x04, 0xE8, 0xE0, 0x03, 0xD0, 0xF5],
+      size: 13
+    },
+    {
+      block: {
+        mnemonic: "SPRITE_ANIM",
+        isSpriteAnimMacro: true,
+        animSpriteNum: "0",
+        animFrameListAddr: "C100",
+        animFrameCount: "4",
+        animFrameZP: "FB"
+      },
+      bytes: [0xE6, 0xFB, 0xA5, 0xFB, 0xC9, 0x04, 0x90, 0x04, 0xA9, 0x00, 0x85, 0xFB, 0xAA, 0xBD, 0x00, 0xC1, 0x8D, 0xF8, 0x07],
+      size: 19
+    },
+    {
+      block: {
+        mnemonic: "REU_CHECK",
+        isReuCheckMacro: true
+      },
+      bytes: [
+        0xA9, 0x55, 0x8D, 0x04, 0xDF, 0xAD, 0x04, 0xDF, 0xC9, 0x55, 0xD0, 0x12,
+        0xA9, 0xAA, 0x8D, 0x04, 0xDF, 0xAD, 0x04, 0xDF, 0xC9, 0xAA, 0xD0, 0x06,
+        0xA9, 0x00, 0xC9, 0xFF, 0xD0, 0x04, 0xA9, 0xFF, 0xC9, 0xFF
+      ],
+      size: 34
+    },
+    {
+      block: {
+        mnemonic: "REU_STASH",
+        isReuTransferMacro: true,
+        reuC64Addr: "C000",
+        reuExpAddr: "0000",
+        reuBank: "0",
+        reuLength: "0100"
+      },
+      bytes: [
+        0xA9, 0x00, 0x8D, 0x02, 0xDF, 0xA9, 0xC0, 0x8D, 0x03, 0xDF,
+        0xA9, 0x00, 0x8D, 0x04, 0xDF, 0xA9, 0x00, 0x8D, 0x05, 0xDF,
+        0xA9, 0x00, 0x8D, 0x06, 0xDF, 0xA9, 0x00, 0x8D, 0x07, 0xDF,
+        0xA9, 0x01, 0x8D, 0x08, 0xDF, 0xA9, 0x90, 0x8D, 0x01, 0xDF
+      ],
+      size: 40
+    },
+    {
+      block: {
+        mnemonic: "REU_FETCH",
+        isReuTransferMacro: true,
+        reuC64Addr: "C000",
+        reuExpAddr: "0000",
+        reuBank: "0",
+        reuLength: "0100"
+      },
+      bytes: [
+        0xA9, 0x00, 0x8D, 0x02, 0xDF, 0xA9, 0xC0, 0x8D, 0x03, 0xDF,
+        0xA9, 0x00, 0x8D, 0x04, 0xDF, 0xA9, 0x00, 0x8D, 0x05, 0xDF,
+        0xA9, 0x00, 0x8D, 0x06, 0xDF, 0xA9, 0x00, 0x8D, 0x07, 0xDF,
+        0xA9, 0x01, 0x8D, 0x08, 0xDF, 0xA9, 0x91, 0x8D, 0x01, 0xDF
+      ],
+      size: 40
+    },
+    {
+      block: {
+        mnemonic: "REU_SWAP",
+        isReuTransferMacro: true,
+        reuC64Addr: "C000",
+        reuExpAddr: "0000",
+        reuBank: "0",
+        reuLength: "0100"
+      },
+      bytes: [
+        0xA9, 0x00, 0x8D, 0x02, 0xDF, 0xA9, 0xC0, 0x8D, 0x03, 0xDF,
+        0xA9, 0x00, 0x8D, 0x04, 0xDF, 0xA9, 0x00, 0x8D, 0x05, 0xDF,
+        0xA9, 0x00, 0x8D, 0x06, 0xDF, 0xA9, 0x00, 0x8D, 0x07, 0xDF,
+        0xA9, 0x01, 0x8D, 0x08, 0xDF, 0xA9, 0x92, 0x8D, 0x01, 0xDF
+      ],
+      size: 40
+    },
+    {
+      block: {
+        mnemonic: "MOUSE",
+        isMouseMacro: true,
+        mousePort: "2",
+        mouseSpriteNum: "1",
+        mousePotXZP: "FD",
+        mousePotYZP: "FE"
+      },
+      prefix: [0xAD, 0x00, 0xDC, 0x29, 0x3F, 0x09, 0x80, 0x8D, 0x00, 0xDC, 0xA2, 0x67, 0xCA, 0xD0, 0xFD],
+      size: 142
+    },
+    {
+      block: {
+        mnemonic: "SCORE_BCD",
+        isScoreBcdMacro: true,
+        scoreBcdAddr: "C200",
+        scoreDigits: 2,
+        scoreAddPoints: "5",
+        scoreScreenAddr: "0400"
+      },
+      bytes: [
+        0xF8, 0x18, 0xAD, 0x00, 0xC2, 0x69, 0x05, 0x8D, 0x00, 0xC2, 0xD8,
+        0xAD, 0x00, 0xC2, 0x48, 0x4A, 0x4A, 0x4A, 0x4A, 0x09, 0x30, 0x8D, 0x00, 0x04,
+        0x68, 0x29, 0x0F, 0x09, 0x30, 0x8D, 0x01, 0x04
+      ],
+      size: 32
+    }
+  ];
+
+  for (const entry of cases) {
+    const bytes = compileBlock(ctx, entry.block, new Map(), 0x4400);
+    assert.equal(bytes.length, entry.size, entry.block.mnemonic);
+    assert.equal(ctx.getInstructionSize(entry.block), entry.size, entry.block.mnemonic);
+    if (entry.bytes) {
+      assert.deepEqual(bytes, entry.bytes, entry.block.mnemonic);
+    }
+    if (entry.prefix) {
+      assert.deepEqual(bytes.slice(0, entry.prefix.length), entry.prefix, entry.block.mnemonic);
+    }
+  }
+});
+
+test("WORD emits little-endian pairs and reports the right size", () => {
+  const ctx = createMacroContext();
+  const bytes = compileBlock(ctx, {
+    mnemonic: "WORD",
+    isWordMacro: true,
+    rawOperand: "$1234, $ABCD",
+    base: "hex"
+  }, new Map(), 0x4500);
+
+  assert.deepEqual(bytes, [0x34, 0x12, 0xCD, 0xAB]);
+  assert.equal(ctx.getInstructionSize({ isWordMacro: true, rawOperand: "$1234, $ABCD", base: "hex" }), 4);
+});
+
+test("INCBIN becomes a deferred section at its target address", () => {
+  const ctx = createMacroContext({
+    program: [
+      {
+        id: "inc1",
+        mnemonic: "INCBIN",
+        isIncBinMacro: true,
+        incBinFileName: "demo.bin",
+        incBinAddress: "$C300",
+        incBinBytes: [0x11, 0x22, 0x33]
+      }
+    ]
+  });
+
+  const layout = ctx.getProgramLayout(0x0801);
+  const sections = ctx.getDeferredMemorySections(layout);
+  const plainSections = JSON.parse(JSON.stringify(sections.map((section) => ({
+    type: section.type,
+    address: section.address,
+    bytes: Array.from(section.bytes)
+  }))));
+
+  assert.deepEqual(plainSections, [
+    { type: "incbin", address: 0xC300, bytes: [0x11, 0x22, 0x33] }
+  ]);
+});
+
+test("ORG, TABLE, SID, INCBIN, and INCLUDE round-trip in expert text", () => {
+  const ctx = loadFunctions(
+    ["_importMakeIncBin", "parseExpertText", "_blockToExpertLine"],
+    {
+      crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
+      formatAddress: (value) => `$${value.toString(16).toUpperCase().padStart(4, "0")}`,
+      t: (key) => key
+    }
+  );
+
+  const blocks = ctx.parseExpertText([
+    "* = $0801",
+    ".table lookup $C200",
+    ".incbin \"demo.bin\", $C300",
+    ".sid \"music.sid\", $C400",
+    ".include \"lib.json\", $C500"
+  ].join("\n"));
+
+  assert.equal(blocks[0].isOrgMacro, true);
+  assert.equal(blocks[1].isTableMacro, true);
+  assert.equal(blocks[2].isIncBinMacro, true);
+  assert.equal(blocks[3].isSidMacro, true);
+  assert.equal(blocks[4].isIncludeMacro, true);
+  assert.equal(ctx._blockToExpertLine(blocks[0]), "* = $0801");
+  assert.equal(ctx._blockToExpertLine(blocks[1]), ".table lookup $C200");
+  assert.equal(ctx._blockToExpertLine(blocks[2]), ".incbin \"demo.bin\", $C300");
+  assert.equal(ctx._blockToExpertLine(blocks[3]), ".sid \"music.sid\", $C400");
+  assert.equal(ctx._blockToExpertLine(blocks[4]), ".include \"lib.json\", $C500");
 });

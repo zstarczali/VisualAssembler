@@ -361,6 +361,8 @@ The editor uses a transparent `<div>` overlay (`expert-hl`) that mirrors the tex
 | Teal | String literals |
 | Dark green | Comments (`; …`) |
 
+`REGION` / `ENDREGION` directives are highlighted like the other assembler directives, and collapsed regions keep only the region header visible in the editor until you reopen them.
+
 ### Source formatter
 
 Click the **Format** button (`#expert-format-btn`) to auto-format the current source:
@@ -1617,7 +1619,7 @@ Like **PETSCII output without the boilerplate** — prints a string through `CHR
 
 #### PRINT_CHAR
 
-Prints one PETSCII byte by numeric code and sends it through `CHROUT`. The value can also be a named const or label that resolves to a byte at assemble time.
+Prints one PETSCII byte by numeric code and sends it through `CHROUT`. The value can also be a named const or label that resolves to a byte at assemble time, in both Block mode and Expert mode.
 
 **Expert syntax:**
 ```
@@ -1655,7 +1657,7 @@ Waits until a key is pressed, so you do not have to hand-roll the `GETIN` loop e
 
 #### DELAY
 
-Waits the requested number of frames through a shared helper routine. Use this for short pauses and timing gaps when a full custom loop would be overkill. The frame count can be a raw number or a named const.
+Waits the requested number of frames through a shared helper routine. Use this for short pauses and timing gaps when a full custom loop would be overkill. The frame count can be a raw number or a named const, and `.wait` is just an alias of `.delay`.
 
 **Expert syntax:**
 ```
@@ -1664,9 +1666,11 @@ Waits the requested number of frames through a shared helper routine. Use this f
 .delay frames=FRAMES_1S
 ```
 
+In Block mode the delay field uses a compact const picker when a symbolic value is available, so you do not have to type the name manually every time.
+
 #### SET_BORDER / SET_BG
 
-Convenience wrappers for the VIC-II color registers. The color value can be a raw number or a named const that resolves to 0–15.
+Convenience wrappers for the VIC-II color registers. The color value can be a raw number or a named const that resolves to 0–15. Both Block mode and Expert mode accept symbolic const names here.
 
 **Expert syntax:**
 ```
@@ -1677,6 +1681,8 @@ Convenience wrappers for the VIC-II color registers. The color value can be a ra
 ```
 
 **Size:** Each helper expands to a tiny register write sequence or a short KERNAL call.
+
+In Block mode these fields also use the const picker, so the symbolic value stays visible instead of being replaced by a raw number.
 
 ---
 

@@ -13516,6 +13516,24 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes: [0xA9, val, 0x8D, 0x31, 0xD0], comment: `TURBO_SET speed=${spd} badline=${block.turboBadline === "1" ? "off" : "on"}` };
   }
 
+  if (block.isSuperCpuDetectMacro) {
+    return {
+      ok: true,
+      bytes: [0xAD, 0xB8, 0xD0, 0xC9, 0xFF],
+      comment: "SUPERCPU_DETECT"
+    };
+  }
+
+  if (block.isTurboEnableMacro) {
+    const isOn = (block.turboEnableMode || "on") === "on";
+    const targetAddr = isOn ? 0xD07A : 0xD07B;
+    return {
+      ok: true,
+      bytes: [0xA9, 0x00, 0x8D, targetAddr & 0xFF, targetAddr >> 8],
+      comment: `TURBO_ENABLE ${isOn ? "on" : "off"}`
+    };
+  }
+
   if (block.isSpriteColMacro) {
     const num = parseInt(block.spriteNum || "0", 10);
     if (isNaN(num) || num < 0 || num > 7) {
