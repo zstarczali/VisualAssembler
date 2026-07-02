@@ -37,6 +37,15 @@ function loadFunction(name, extraContext = {}) {
   return context.fn;
 }
 
+function loadFunctions(names, extraContext = {}) {
+  const context = { ...extraContext };
+  vm.createContext(context);
+  for (const name of names) {
+    vm.runInContext(`${extractFunctionSource(name)}; this["${name}"] = ${name};`, context);
+  }
+  return context;
+}
+
 test("DELAY helper preserves registers and returns with RTS", () => {
   const buildDelayHelperBytes = loadFunction("buildDelayHelperBytes");
   const bytes = Array.from(buildDelayHelperBytes(0x2000));
@@ -65,4 +74,47 @@ test("DELAY instruction size does not expand for invalid values either", () => {
   });
   const size = getInstructionSize({ isDelayMacro: true, delayFrames: "bad" });
   assert.equal(size, 5);
+});
+
+test("assembleProgramToPrg handles DELAY helper injection without ReferenceError", () => {
+  const ctx = loadFunctions(
+    ["assembleProgramToPrg"],
+    {
+      Map,
+      Uint8Array,
+      DELAY_HELPER_LABEL: "__delay_wait_frames",
+      asmBlockRanges: {},
+      getProgramLayout: () => ({
+        origin: { value: 0x0801 },
+        end: 0x0805,
+        lines: [
+          {
+            address: 0x0801,
+            block: {
+              mnemonic: "DELAY",
+              isDelayMacro: true,
+              operand: "",
+              id: "delay-1"
+            }
+          }
+        ]
+      }),
+      addLayoutLabels: () => {},
+      _collectAnonLabels: () => [],
+      appendDelayHelperLabel: (labels) => labels.set("__delay_wait_frames", 0x0900),
+      buildDelayHelperBytes: () => [0x48, 0x60],
+      compileLineBytes: () => ({ ok: true, bytes: [0x20, 0x00, 0x09, 0xA2, 0x05] }),
+      parseByteMacro: () => [],
+      encodeTextMacro: () => [],
+      encodePetsciiMacro: () => [],
+      parseAddressValue: () => null
+    }
+  );
+
+  const result = ctx.assembleProgramToPrg(0x0801);
+
+  assert.equal(result.ok, true);
+  assert.deepEqual(Array.from(result.bytes.slice(0, 2)), [0x01, 0x08]);
+  assert.ok(Array.from(result.bytes).includes(0x48));
+  assert.ok(Array.from(result.bytes).includes(0x60));
 });

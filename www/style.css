@@ -3501,6 +3501,57 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   min-width: 0;
   min-height: 0;
   overflow: hidden;
+  --expert-fold-w: 16px;
+}
+
+.expert-region-folds {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--expert-fold-w, 16px);
+  overflow: hidden;
+  z-index: 3;
+  background: var(--expert-editor-bg);
+  border-right: 1px solid var(--panel-border);
+  box-sizing: border-box;
+  pointer-events: auto;
+}
+
+.expert-region-folds-inner {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+.expert-region-fold-btn {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  min-height: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  color: var(--secondary);
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  opacity: 0.65;
+  border-radius: 0 3px 3px 0;
+  transition: opacity 0.12s, background 0.12s, color 0.12s;
+}
+
+.expert-region-fold-btn:hover {
+  opacity: 1;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--text);
+}
+
+.expert-region-fold-btn--collapsed {
+  color: var(--accent);
+  opacity: 1;
 }
 
 .expert-disasm-resizer {
@@ -3790,7 +3841,7 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
 .expert-line-numbers {
   position: absolute;
   top: 0;
-  left: 0;
+  left: var(--expert-fold-w, 16px);
   bottom: 0;
   width: var(--expert-ln-w, 0px);
   overflow: hidden;
@@ -3826,7 +3877,7 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
 /* When line numbers shown: shift editor + hl overlay right */
 .expert-editor-wrap.expert-show-ln .expert-hl,
 .expert-editor-wrap.expert-show-ln .expert-editor {
-  left: var(--expert-ln-w, 0px);
+  left: calc(var(--expert-fold-w, 16px) + var(--expert-ln-w, 0px));
   width: auto;
 }
 
@@ -3842,10 +3893,17 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   tab-size: 4;
   white-space: pre;
   overflow: auto;
-  width: 100%;
+  left: var(--expert-fold-w, 16px);
+  width: auto;
   height: 100%;
   box-sizing: border-box;
   word-wrap: normal;
+}
+
+.expert-hl,
+.expert-editor,
+.expert-line-numbers {
+  transition: left 0.12s ease, width 0.12s ease;
 }
 
 .expert-hl {
@@ -3885,6 +3943,26 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
 
 .expert-editor::placeholder {
   -webkit-text-fill-color: color-mix(in srgb, var(--secondary) 35%, transparent);
+}
+
+.expert-caret {
+  position: absolute;
+  width: 2px;
+  background: var(--accent);
+  pointer-events: none;
+  z-index: 4;
+  opacity: 0;
+  border-radius: 1px;
+  animation: expert-caret-blink 1s step-end infinite;
+}
+
+.expert-caret[hidden] {
+  display: none;
+}
+
+@keyframes expert-caret-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
 }
 
 /* Syntax highlight token colours (use per-theme CSS vars) */
@@ -5180,7 +5258,15 @@ body.crt-mode #crt-overlay::after {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
+  gap: 0.04rem;
+}
+
+.splash-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0;
 }
 
 .splash-logo {
@@ -5208,6 +5294,7 @@ body.crt-mode #crt-overlay::after {
   color: #aaa4ff;
   letter-spacing: 0.05em;
   min-height: 1.6em;
+  margin-top: 0;
 }
 
 .splash-cursor {
@@ -5225,7 +5312,7 @@ body.crt-mode #crt-overlay::after {
   height: 4px;
   background: rgba(128, 128, 128, 0.2);
   border-radius: 2px;
-  margin: 0 auto;
+  margin: 0;
   overflow: hidden;
 }
 

@@ -340,7 +340,9 @@ const expertEditor = document.getElementById("expert-editor");
 const expertStatus = document.getElementById("expert-status");
 const expertHlCode  = document.getElementById("expert-hl-code");
 const expertHlPre   = document.getElementById("expert-hl");
+const expertRegionFolds = document.getElementById("expert-region-folds");
 const expertCursorPos = document.getElementById("expert-cursor-pos");
+const expertCaret = document.getElementById("expert-caret");
 const expertFileName = document.getElementById("expert-file-name");
 const aboutDialog = document.getElementById("about-dialog");
 const aboutCloseButton = document.getElementById("about-close");
@@ -417,6 +419,11 @@ let activeTabId = null;
 let _tabCounter = 0;
 let _expertHlEnabled = true;
 let _expertPaletteSyncEnabled = true;
+let _expertCaretCanvas = null;
+let _expertSourceText = "";
+let _expertProjectionActive = false;
+let _expertDisplayToSourceLines = [];
+let _expertSourceToDisplayLines = [];
 let _expertAcEnabled = true;
 let _expertPaletteVisible = false;
 let _expertDisasmVisible = false;
@@ -1402,14 +1409,20 @@ function initPalette() {
   document.getElementById("expert-project-add-btn")?.addEventListener("click",  _expertAddProjMember);
 
   expertEditor?.addEventListener("input", () => {
+    const sourceSelStart = _expertDisplayPosToSourcePos(expertEditor.selectionStart ?? 0);
+    const sourceSelEnd = _expertDisplayPosToSourcePos(expertEditor.selectionEnd ?? expertEditor.selectionStart ?? 0);
+    _expertSyncSourceTextFromEditor();
+    _expertRefreshProjection(sourceSelStart, sourceSelEnd);
     markTabDirty();
     _expertValidate();
     renderExpertOriginInfo();
     _expertAcUpdate();
+    _expertUpdateCaret();
   });
 
   expertEditor?.addEventListener("blur", () => {
     setTimeout(_expertAcHide, 0);
+    if (expertCaret) expertCaret.hidden = true;
   });
 
   expertEditor?.addEventListener("keydown", (e) => {
@@ -1440,27 +1453,35 @@ function initPalette() {
       const end   = ta.selectionEnd;
       ta.value = ta.value.slice(0, start) + "  " + ta.value.slice(end);
       ta.selectionStart = ta.selectionEnd = start + 2;
+      _expertSyncSourceTextFromEditor();
+      _expertRefreshProjection(_expertDisplayPosToSourcePos(ta.selectionStart), _expertDisplayPosToSourcePos(ta.selectionEnd));
       _expertApplyHighlight();
       _expertValidate();
     }
   });
   expertEditor?.addEventListener("keyup",   _expertUpdateCursor);
   expertEditor?.addEventListener("click",   _expertUpdateCursor);
+  expertEditor?.addEventListener("select",  _expertUpdateCursor);
+  expertEditor?.addEventListener("focus",   _expertUpdateCursor);
 
   expertEditor?.addEventListener("scroll", () => {
+    const visibleScrollTop = _expertGetVisibleScrollTop();
     if (expertHlCode) {
       expertHlCode.style.transform =
-        `translate(${-expertEditor.scrollLeft}px, ${-expertEditor.scrollTop}px)`;
+        `translate(${-expertEditor.scrollLeft}px, ${-visibleScrollTop}px)`;
     }
     const _regionBg = document.getElementById("expert-region-bg");
     if (_regionBg && !_regionBg.hidden) {
-      _regionBg.style.transform = `translateY(${-expertEditor.scrollTop}px)`;
+      _regionBg.style.transform = `translateY(${-visibleScrollTop}px)`;
     }
+    const foldInner = document.querySelector(".expert-region-folds-inner");
+    if (foldInner) foldInner.style.transform = `translateY(${-visibleScrollTop}px)`;
     if (_expertLineNumbersEnabled) {
       const inner = document.querySelector(".expert-line-numbers-inner");
-      if (inner) inner.style.transform = `translateY(${-expertEditor.scrollTop}px)`;
+      if (inner) inner.style.transform = `translateY(${-visibleScrollTop}px)`;
     }
     _expertAcHide();
+    _expertUpdateCaret();
   });
 
   document.addEventListener("pointerdown", (e) => {
@@ -4663,7 +4684,14 @@ function _expertSyncFromProgram() {
   if (!expertEditor) return;
   _expertAcHide();
   const lines = program.map(_blockToExpertLine).join("\n");
+  _expertSourceText = lines;
+  _expertProjectionActive = false;
+  _expertDisplayToSourceLines = [];
+  _expertSourceToDisplayLines = [];
   expertEditor.value = lines;
+  const parsedBlocks = _expertBuildProgram();
+  if (parsedBlocks && parsedBlocks.length) program = parsedBlocks;
+  _expertRefreshProjection();
   _expertApplyHighlight();
   _expertValidate();
 }
@@ -4753,13 +4781,17 @@ let _expertAsmFilePath = "";          // current .asm file path (empty = unsaved
 
 function setExpertMode(on) {
   if (!on && expertMode) {
+    _expertSyncSourceTextFromEditor();
     // Convert expert text → program blocks before switching off
     const blocks = _expertBuildProgram();
     if (blocks && blocks.length > 0) {
       program = blocks.map(b => ({ ...b, collapsed: false }));
     }
   }
-  if (!on) _expertAcHide();
+  if (!on) {
+    _expertAcHide();
+    if (expertCaret) expertCaret.hidden = true;
+  }
   expertMode = on;
   document.body.classList.toggle("expert-mode", on);
   expertAutocompleteBtn?.classList.toggle("expert-hl-toggle--on", _expertAcEnabled);
@@ -4770,7 +4802,7 @@ function setExpertMode(on) {
     expertModeTbBtn.setAttribute("aria-pressed", String(on));
     expertModeTbBtn.classList.toggle("main-tb-btn--active", on);
   }
-  if (on) { _expertSyncFromProgram(); renderExpertOriginInfo(); }
+  if (on) { _expertSyncFromProgram(); renderExpertOriginInfo(); _expertUpdateCaret(); }
   else renderProgram();
   saveUiSettings();
 }
@@ -4784,7 +4816,7 @@ function _expertSetStatus(text, type) {
 function renderExpertOriginInfo() {
   const el = document.getElementById("expert-origin-info");
   if (!el) return;
-  const text = expertEditor ? expertEditor.value : "";
+  const text = _expertGetSourceText();
   const useBasicSys = basicSysToggle ? basicSysToggle.checked : true;
 
   // Find first * = $XXXX or * = XXXX directive (not in a comment)
@@ -5098,7 +5130,8 @@ function _expertFormatSource() {
   }
 
   try {
-    const lines = expertEditor.value.split("\n");
+    const sourceText = _expertGetSourceText();
+    const lines = sourceText.split("\n");
     const out = lines.map(raw => {
       if (!raw.trim()) return "";
 
@@ -5132,14 +5165,14 @@ function _expertFormatSource() {
     });
 
     const result = out.join("\n");
-    if (result === expertEditor.value) {
+    if (result === sourceText) {
       _expertSetStatus(t("alreadyFormatted"), "ok");
       return;
     }
-    const sel = expertEditor.selectionStart;
-    expertEditor.value = result;
-    expertEditor.selectionStart = Math.min(sel, result.length);
-    expertEditor.selectionEnd   = Math.min(sel, result.length);
+    const srcSelStart = _expertDisplayPosToSourcePos(expertEditor.selectionStart ?? 0);
+    const srcSelEnd = _expertDisplayPosToSourcePos(expertEditor.selectionEnd ?? expertEditor.selectionStart ?? 0);
+    _expertSourceText = result;
+    _expertRefreshProjection(Math.min(srcSelStart, result.length), Math.min(srcSelEnd, result.length));
     _expertApplyHighlight();
     markTabDirty();
     clearTimeout(_expertParseTimer);
@@ -5155,7 +5188,8 @@ function _expertFormatSource() {
 
 async function _expertSaveAsm() {
   if (!expertEditor) return;
-  const content = expertEditor.value;
+  _expertSyncSourceTextFromEditor();
+  const content = _expertGetSourceText();
   try {
     const res = await window.electronAPI?.saveAsmFile?.(_expertAsmFilePath || "", content);
     if (!res || res.canceled) return;
@@ -5212,7 +5246,8 @@ async function _expertLoadAsm() {
 
     // Update expert editor if in expert mode
     if (expertMode && expertEditor) {
-      expertEditor.value = res.content;
+      _expertSourceText = res.content;
+      _expertRefreshProjection(0, 0);
       expertEditor.dispatchEvent(new Event("input"));
     }
 
@@ -5272,6 +5307,7 @@ function showBuildInfoDialog() {
     const labels = new Map();
     layout.lines.forEach(line => addLayoutLabels(labels, line));
     labels._anonAddrs = _collectAnonLabels(layout);
+    appendDelayHelperLabel(labels, layout);
 
     const origin = layout.lines.length ? layout.lines[0].address : 0;
     let totalBytes = 0, maxAddr = origin;
@@ -5412,18 +5448,320 @@ function _expertHighlightLine(raw) {
 // Current region range for highlight (set by _expertUpdateCursor, consumed by _expertApplyHighlight)
 let _expertRegionHighlight = null; // null | { start: number, end: number }
 
+function _expertNormalizeRegionName(name) {
+  return String(name || "region").trim().toLowerCase();
+}
+
+function _expertStampRegionFoldSignatures(blocks) {
+  if (!Array.isArray(blocks)) return;
+  const stack = [];
+  const rootCounts = new Map();
+  for (const block of blocks) {
+    if (block.isRegionMacro) {
+      const parent = stack[stack.length - 1] || null;
+      const counts = parent ? parent.childCounts : rootCounts;
+      const name = _expertNormalizeRegionName(block.regionName);
+      const occ = (counts.get(name) || 0) + 1;
+      counts.set(name, occ);
+      const sig = `${parent ? parent.sig : ""}/${name}#${occ}`;
+      block._regionFoldSig = sig;
+      stack.push({ sig, childCounts: new Map() });
+    } else if (block.isEndRegionMacro) {
+      if (stack.length) stack.pop();
+    }
+  }
+}
+
+function _expertCopyRegionFoldState(sourceBlocks, targetBlocks) {
+  if (!Array.isArray(sourceBlocks) || !Array.isArray(targetBlocks) || !targetBlocks.length) return;
+  _expertStampRegionFoldSignatures(sourceBlocks);
+  const stateBySig = new Map();
+  sourceBlocks.forEach((block) => {
+    if (block.isRegionMacro && block._regionFoldSig) {
+      stateBySig.set(block._regionFoldSig, !!block.regionCollapsed);
+    }
+  });
+  _expertStampRegionFoldSignatures(targetBlocks);
+  targetBlocks.forEach((block) => {
+    if (block.isRegionMacro && block._regionFoldSig && stateBySig.has(block._regionFoldSig)) {
+      const collapsed = !!stateBySig.get(block._regionFoldSig);
+      block.regionCollapsed = collapsed;
+      block.collapsed = collapsed;
+    }
+  });
+}
+
+function _expertGetHiddenRegionLines(blocks) {
+  const hidden = new Set();
+  const stack = [];
+  for (const block of blocks || []) {
+    const ancestorCollapsed = stack.some(item => item.collapsed);
+    if (block.isRegionMacro) {
+      if (ancestorCollapsed && block._srcLine !== undefined) hidden.add(block._srcLine);
+      stack.push({ collapsed: !!block.regionCollapsed });
+    } else if (block.isEndRegionMacro) {
+      if (ancestorCollapsed && block._srcLine !== undefined) hidden.add(block._srcLine);
+      if (stack.length) stack.pop();
+    } else if (ancestorCollapsed && block._srcLine !== undefined) {
+      hidden.add(block._srcLine);
+    }
+  }
+  return hidden;
+}
+
+function _expertGetFoldViewState() {
+  const lines = expertEditor ? expertEditor.value.split("\n") : [];
+  return { lines, hiddenLines: new Set(), hiddenBefore: null, visibleLines: lines.length };
+}
+
+function _expertGetSourceText() {
+  if (_expertProjectionActive) return _expertSourceText || "";
+  return expertEditor?.value || _expertSourceText || "";
+}
+
+function _expertHasCollapsedRegions(blocks) {
+  return Array.isArray(blocks) && blocks.some(block => block.isRegionMacro && block.regionCollapsed);
+}
+
+function _expertDisplayPosToSourcePos(pos) {
+  const displayText = expertEditor?.value || "";
+  const sourceText = _expertSourceText || displayText;
+  const before = displayText.slice(0, pos).split("\n");
+  const displayLine = Math.max(0, before.length - 1);
+  const displayCol = before[before.length - 1].length;
+  const sourceLine = _expertProjectionActive
+    ? (_expertDisplayToSourceLines[displayLine] ?? displayLine)
+    : displayLine;
+  const sourceLines = sourceText.split("\n");
+  return _expertLineStartIndex(sourceText, sourceLine) + Math.min(displayCol, (sourceLines[sourceLine] || "").length);
+}
+
+function _expertSourcePosToDisplayPos(pos) {
+  const sourceText = _expertSourceText || "";
+  const displayText = expertEditor?.value || "";
+  const before = sourceText.slice(0, pos).split("\n");
+  let sourceLine = Math.max(0, before.length - 1);
+  let sourceCol = before[before.length - 1].length;
+  let displayLine = sourceLine;
+  if (_expertProjectionActive) {
+    displayLine = _expertSourceToDisplayLines[sourceLine];
+    if (displayLine === undefined || displayLine < 0) {
+      let probe = sourceLine;
+      while (probe >= 0 && (_expertSourceToDisplayLines[probe] === undefined || _expertSourceToDisplayLines[probe] < 0)) probe--;
+      if (probe < 0) {
+        probe = sourceLine + 1;
+        while (probe < _expertSourceToDisplayLines.length && (_expertSourceToDisplayLines[probe] === undefined || _expertSourceToDisplayLines[probe] < 0)) probe++;
+      }
+      if (probe < 0 || probe >= _expertSourceToDisplayLines.length) return displayText.length;
+      displayLine = _expertSourceToDisplayLines[probe];
+      sourceCol = 0;
+    }
+  }
+  const displayLines = displayText.split("\n");
+  return _expertLineStartIndex(displayText, displayLine) + Math.min(sourceCol, (displayLines[displayLine] || "").length);
+}
+
+function _expertSyncSourceTextFromEditor() {
+  if (!expertEditor) return;
+  if (!_expertProjectionActive) {
+    _expertSourceText = expertEditor.value || "";
+    return;
+  }
+  const sourceLines = (_expertSourceText || "").split("\n");
+  const displayLines = (expertEditor.value || "").split("\n");
+  let displayIdx = 0;
+  for (let srcIdx = 0; srcIdx < sourceLines.length; srcIdx++) {
+    if (_expertSourceToDisplayLines[srcIdx] === undefined || _expertSourceToDisplayLines[srcIdx] < 0) continue;
+    sourceLines[srcIdx] = displayLines[displayIdx] ?? "";
+    displayIdx++;
+  }
+  _expertSourceText = sourceLines.join("\n");
+}
+
+function _expertRefreshProjection(sourceSelStart = null, sourceSelEnd = sourceSelStart) {
+  if (!expertEditor) return;
+  const sourceText = _expertSourceText || "";
+  const blocks = _expertBuildProgramFromText(sourceText, program);
+  const sourceLines = sourceText.split("\n");
+  const hiddenLines = (_expertHlEnabled && expertMode && _expertHasCollapsedRegions(blocks))
+    ? _expertGetHiddenRegionLines(blocks)
+    : new Set();
+  const displayLines = [];
+  const displayToSource = [];
+  const sourceToDisplay = new Array(sourceLines.length).fill(-1);
+
+  for (let srcIdx = 0; srcIdx < sourceLines.length; srcIdx++) {
+    if (hiddenLines.has(srcIdx)) continue;
+    sourceToDisplay[srcIdx] = displayLines.length;
+    displayToSource.push(srcIdx);
+    displayLines.push(sourceLines[srcIdx]);
+  }
+
+  _expertProjectionActive = hiddenLines.size > 0;
+  _expertDisplayToSourceLines = displayToSource;
+  _expertSourceToDisplayLines = sourceToDisplay;
+
+  const nextValue = displayLines.join("\n");
+  const valueChanged = expertEditor.value !== nextValue;
+  if (valueChanged) expertEditor.value = nextValue;
+
+  if (sourceSelStart !== null) {
+    const nextStart = _expertSourcePosToDisplayPos(sourceSelStart);
+    const nextEnd = _expertSourcePosToDisplayPos(sourceSelEnd ?? sourceSelStart);
+    expertEditor.setSelectionRange(nextStart, nextEnd);
+  }
+}
+
+function _expertGetVisibleScrollTop() {
+  if (!expertEditor) return 0;
+  return expertEditor.scrollTop;
+}
+
+function _expertMeasureTextWidth(text) {
+  if (!expertEditor) return 0;
+  if (!_expertCaretCanvas) _expertCaretCanvas = document.createElement("canvas");
+  const ctx = _expertCaretCanvas.getContext("2d");
+  if (!ctx) return 0;
+  const style = getComputedStyle(expertEditor);
+  ctx.font = style.font || `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+  return ctx.measureText(String(text || "").replace(/\t/g, "    ")).width;
+}
+
+function _expertVisibleLineToSourceLine(visibleLine, view) {
+  const hiddenBefore = view?.hiddenBefore || [];
+  const totalLines = view?.lines?.length || 0;
+  if (totalLines <= 0) return 0;
+  const target = Math.max(0, visibleLine);
+  let lo = 0;
+  let hi = totalLines - 1;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    const midVisible = mid - (hiddenBefore[mid] || 0);
+    if (midVisible < target) lo = mid + 1;
+    else hi = mid - 1;
+  }
+  return Math.max(0, Math.min(totalLines - 1, lo));
+}
+
+function _expertCharIndexFromX(lineText, relativeX) {
+  const text = String(lineText || "");
+  if (relativeX <= 0) return 0;
+  const spaceW = _expertMeasureTextWidth(" ");
+  const tabW = spaceW * 4;
+  let acc = 0;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    acc += ch === "\t" ? tabW : _expertMeasureTextWidth(ch);
+    if (relativeX < acc) return i + 1;
+  }
+  return text.length;
+}
+
+function _expertLineStartIndex(text, lineIdx) {
+  if (lineIdx <= 0) return 0;
+  let idx = -1;
+  let from = 0;
+  for (let i = 0; i < lineIdx; i++) {
+    idx = text.indexOf("\n", from);
+    if (idx === -1) return text.length;
+    from = idx + 1;
+  }
+  return from;
+}
+
+function _expertUpdateCaret() {
+  if (!expertCaret || !expertEditor) return;
+  expertCaret.hidden = true;
+}
+
+function _expertSetCaretFromMouse(e) {
+  if (!expertEditor) return false;
+  const view = _expertGetFoldViewState();
+  if (!view.lines.length) return false;
+
+  const ta = expertEditor;
+  const rect = ta.getBoundingClientRect();
+  const style = getComputedStyle(ta);
+  const lh = parseFloat(style.lineHeight) || 21;
+  const pt = parseFloat(style.paddingTop) || 16;
+  const pl = parseFloat(style.paddingLeft) || 20;
+  const visibleScrollTop = _expertGetVisibleScrollTop();
+  const localY = e.clientY - rect.top + visibleScrollTop - pt;
+  const visibleLine = Math.max(0, Math.floor(localY / lh));
+  const sourceLine = _expertVisibleLineToSourceLine(visibleLine, view);
+  const lineText = view.lines[sourceLine] || "";
+  const localX = e.clientX - rect.left + ta.scrollLeft - pl;
+  const charIdx = _expertCharIndexFromX(lineText, localX);
+  const linePos = _expertLineStartIndex(ta.value, sourceLine);
+  const caretPos = linePos + charIdx;
+
+  ta.focus();
+  ta.setSelectionRange(caretPos, caretPos);
+  _expertUpdateCursor();
+  _expertUpdateCaret();
+  return true;
+}
+
+function _expertUpdateRegionFolds() {
+  const gutter = expertRegionFolds;
+  if (!gutter || !expertEditor) return;
+  let inner = gutter.querySelector(".expert-region-folds-inner");
+  if (!inner) {
+    inner = document.createElement("div");
+    inner.className = "expert-region-folds-inner";
+    gutter.appendChild(inner);
+  }
+  inner.innerHTML = "";
+  if (!expertMode || !Array.isArray(program) || !program.length) return;
+
+  const lh = parseFloat(getComputedStyle(expertEditor).lineHeight) || 21;
+  const pt = parseFloat(getComputedStyle(expertEditor).paddingTop) || 16;
+  const scrollTop = _expertGetVisibleScrollTop();
+  const btnH = Math.max(12, Math.round(lh - 2));
+
+  program.forEach((block, index) => {
+    if (!block.isRegionMacro || block._srcLine === undefined) return;
+    const displayLine = _expertProjectionActive
+      ? _expertSourceToDisplayLines[block._srcLine]
+      : block._srcLine;
+    if (displayLine === undefined || displayLine < 0) return;
+    const btn = document.createElement("button");
+    const collapsed = !!block.regionCollapsed;
+    btn.type = "button";
+    btn.className = "expert-region-fold-btn" + (collapsed ? " expert-region-fold-btn--collapsed" : "");
+    btn.textContent = collapsed ? "\u25B8" : "\u25BE";
+    btn.style.top = `${pt + displayLine * lh}px`;
+    btn.style.height = `${btnH}px`;
+    btn.setAttribute("aria-label", `${collapsed ? t("expand") : t("collapse")} ${block.regionName || "region"}`);
+    btn.setAttribute("title", `${collapsed ? t("expand") : t("collapse")} ${block.regionName || "region"}`);
+    btn.addEventListener("mousedown", (e) => e.preventDefault());
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleRegionCollapsed(index);
+      _expertApplyHighlight();
+      _expertUpdateRegionFolds();
+      expertEditor.focus();
+    });
+    inner.appendChild(btn);
+  });
+  inner.style.transform = `translateY(${-scrollTop}px)`;
+}
+
 function _expertApplyHighlight() {
   if (!expertHlCode || !expertEditor) return;
-  const allLines = expertEditor.value.split("\n");
+  const view = _expertGetFoldViewState();
+  const allLines = view.lines;
   const rh = _expertRegionHighlight;
 
   if (!_expertHlEnabled) {
     // No highlight — just escape HTML to prevent injection
-    expertHlCode.innerHTML = allLines.map((raw, i) => {
-      const escaped = raw.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-      return escaped + (i < allLines.length - 1 ? "\n" : "");
-    }).join("");
+    expertHlCode.innerHTML = allLines
+      .map((raw) => raw.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"))
+      .join("\n");
+    _expertUpdateRegionFolds();
     if (_expertLineNumbersEnabled) _expertUpdateLineNumbers();
+    _expertUpdateCaret();
     return;
   }
 
@@ -5434,7 +5772,9 @@ function _expertApplyHighlight() {
   const lineOffsets = [];
   { let off = 0; for (const l of allLines) { lineOffsets.push(off); off += l.length + 1; } }
 
-  const html = allLines.map((raw, i) => {
+  const html = [];
+  for (let i = 0; i < allLines.length; i++) {
+    const raw = allLines[i];
     let hl = _expertHighlightLine(raw);
 
     // Inject find match highlights
@@ -5455,7 +5795,6 @@ function _expertApplyHighlight() {
       if (lineMarks.length) hl = _injectMarksInHtml(hl, lineMarks);
     }
 
-    const nl = i < allLines.length - 1 ? "\n" : "";
     let lineHtml = hl;
     if (rh) {
       if (i === rh.start || i === rh.end)
@@ -5465,13 +5804,16 @@ function _expertApplyHighlight() {
     if (_expertErrorLineNos.has(i)) {
       // \n must be INSIDE the display:block span — same rule as asm-line-highlight:
       // display:block + \n outside creates an extra blank line, desyncing the textarea.
-      return `<span class="expert-err-line">${lineHtml}${nl}</span>`;
+      html.push(`<span class="expert-err-line">${lineHtml}</span>`);
+    } else {
+      html.push(lineHtml);
     }
-    return lineHtml + nl;
-  }).join("");
-  expertHlCode.innerHTML = html;
+  }
+  expertHlCode.innerHTML = html.join("\n");
   _updateExpertRegionBg();
+  _expertUpdateRegionFolds();
   if (_expertLineNumbersEnabled) _expertUpdateLineNumbers();
+  _expertUpdateCaret();
 }
 
 // ── Find ────────────────────────────────────────────────────────────────────
@@ -5618,6 +5960,7 @@ function _applyExpertFontSize() {
   if (hl) hl.style.fontSize = _expertFontSize + "px";
   const gutter = document.getElementById("expert-line-numbers");
   if (gutter) gutter.style.fontSize = _expertFontSize + "px";
+  _expertUpdateRegionFolds();
 }
 
 function _expertZoom(delta) {
@@ -5651,7 +5994,9 @@ function _expertUpdateLineNumbers() {
   const gutter = document.getElementById("expert-line-numbers");
   if (!gutter) return;
 
-  const count = (expertEditor.value.match(/\n/g) || []).length + 1;
+  const view = _expertGetFoldViewState();
+  const sourceCount = Math.max(1, _expertGetSourceText().split("\n").length);
+  const count = Math.max(sourceCount, view.lines.length);
   const digits = String(count).length;
   // Width: digits × ~0.6em + padding (8px right + 4px left + border)
   const charW = _expertFontSize * 0.62;
@@ -5667,11 +6012,16 @@ function _expertUpdateLineNumbers() {
     gutter.appendChild(inner);
   }
   const lines = [];
-  for (let i = 1; i <= count; i++) lines.push(i);
+  for (let i = 0; i < view.lines.length; i++) {
+    const sourceLine = _expertProjectionActive
+      ? (_expertDisplayToSourceLines[i] ?? i)
+      : i;
+    lines.push(String(sourceLine + 1));
+  }
   inner.textContent = lines.join("\n");
 
   // Sync vertical scroll
-  inner.style.transform = `translateY(${-expertEditor.scrollTop}px)`;
+  inner.style.transform = `translateY(${-_expertGetVisibleScrollTop()}px)`;
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -5686,9 +6036,15 @@ function _updateExpertRegionBg() {
   }
   const lh = parseFloat(getComputedStyle(expertEditor).lineHeight);
   const pt = parseFloat(getComputedStyle(expertEditor).paddingTop);
-  bgDiv.style.top    = (pt + rh.start * lh) + "px";
-  bgDiv.style.height = ((rh.end - rh.start + 1) * lh) + "px";
-  bgDiv.style.transform = `translateY(${-expertEditor.scrollTop}px)`;
+  const start = _expertProjectionActive ? _expertSourceToDisplayLines[rh.start] : rh.start;
+  const end = _expertProjectionActive ? _expertSourceToDisplayLines[rh.end] : rh.end;
+  if (start === undefined || start < 0 || end === undefined || end < 0) {
+    bgDiv.hidden = true;
+    return;
+  }
+  bgDiv.style.top    = (pt + start * lh) + "px";
+  bgDiv.style.height = ((end - start + 1) * lh) + "px";
+  bgDiv.style.transform = `translateY(${-_expertGetVisibleScrollTop()}px)`;
   bgDiv.hidden = false;
 }
 
@@ -6406,16 +6762,16 @@ function exportAsmToBlocks(asmText) {
   return newBlocks.length;
 }
 
-function _expertBuildProgram() {
-  const text = expertEditor?.value || "";
+function _expertBuildProgramFromText(text, stateSource = program) {
   const blocks = parseExpertText(text);
   _addSrcLineToBlocks(text, blocks);
+  _expertCopyRegionFoldState(stateSource, blocks);
 
   // Preserve binary data from existing program[] blocks — can't be encoded in text form.
   // Match by filename so loaded bytes survive mode-switches and compile calls.
   blocks.forEach(newBlock => {
     if (newBlock.isIncBinMacro && newBlock.incBinFileName) {
-      const existing = program.find(b =>
+      const existing = stateSource.find(b =>
         b.isIncBinMacro && b.incBinFileName === newBlock.incBinFileName &&
         (b.incBinBytes || []).length > 0
       );
@@ -6426,7 +6782,7 @@ function _expertBuildProgram() {
       }
     }
     if (newBlock.isSidMacro && newBlock.sidFileName) {
-      const existing = program.find(b =>
+      const existing = stateSource.find(b =>
         b.isSidMacro && b.sidFileName === newBlock.sidFileName &&
         (b.sidBytes || []).length > 0
       );
@@ -6443,7 +6799,7 @@ function _expertBuildProgram() {
       }
     }
     if (newBlock.isIncludeMacro && newBlock.includeFileName) {
-      const existing = program.find(b =>
+      const existing = stateSource.find(b =>
         b.isIncludeMacro && b.includeFileName === newBlock.includeFileName &&
         (b.includedBlocks || []).length > 0
       );
@@ -6457,8 +6813,11 @@ function _expertBuildProgram() {
       }
     }
   });
-
   return blocks;
+}
+
+function _expertBuildProgram() {
+  return _expertBuildProgramFromText(_expertGetSourceText(), program);
 }
 
 // Update Ln/Col display and region bracket highlighting
@@ -6560,6 +6919,7 @@ function _expertUpdateCursor() {
   const changed = (prev?.start !== newRegionHighlight?.start) || (prev?.end !== newRegionHighlight?.end);
   _expertRegionHighlight = newRegionHighlight;
   if (changed) _expertApplyHighlight();
+  _expertUpdateCaret();
 }
 
 function _expertValidate() {
@@ -6580,6 +6940,7 @@ function _expertValidate() {
         const labels = new Map();
         layout.lines.forEach((line) => addLayoutLabels(labels, line));
         labels._anonAddrs = _collectAnonLabels(layout);
+        appendDelayHelperLabel(labels, layout);
         // Run compileLineBytes to detect unknown mnemonics / bad operands
         for (const line of layout.lines) {
           if (line.conditionallySkipped) continue;
@@ -6934,7 +7295,7 @@ function _expertRenderSymbols() {
   let labels  = [];
 
   if (expertMode && expertEditor) {
-    const lines = expertEditor.value.split("\n");
+    const lines = _expertGetSourceText().split("\n");
     lines.forEach((line, idx) => {
       const rm = line.match(/^\s*\.region\s+(.+?)(?:\s*;.*)?$/i);
       if (rm) { regions.push({ _textName: rm[1].trim(), _lineIdx: idx }); return; }
@@ -6970,19 +7331,25 @@ function _expertRenderSymbols() {
   // Jump cursor in expert editor to a specific line index
   function gotoEditorLine(lineIdx) {
     if (!expertEditor) return;
-    const lines = expertEditor.value.split("\n");
-    const pos = lines.slice(0, lineIdx).reduce((a, l) => a + l.length + 1, 0);
-    const endPos = pos + (lines[lineIdx] || "").trimEnd().length;
+    const sourceText = _expertGetSourceText();
+    const lines = sourceText.split("\n");
+    const srcPos = lines.slice(0, lineIdx).reduce((a, l) => a + l.length + 1, 0);
+    const srcEndPos = srcPos + (lines[lineIdx] || "").trimEnd().length;
+    const pos = _expertSourcePosToDisplayPos(srcPos);
+    const endPos = _expertSourcePosToDisplayPos(srcEndPos);
     expertEditor.focus();
     expertEditor.setSelectionRange(pos, endPos);
     const lineH = parseFloat(getComputedStyle(expertEditor).lineHeight) || 18;
-    expertEditor.scrollTop = Math.max(0, lineIdx * lineH - expertEditor.clientHeight / 3);
+    const displayLine = _expertProjectionActive
+      ? (_expertSourceToDisplayLines[lineIdx] ?? lineIdx)
+      : lineIdx;
+    expertEditor.scrollTop = Math.max(0, displayLine * lineH - expertEditor.clientHeight / 3);
   }
 
   // Jump by regex scan (fallback for block-mode derived data)
   function gotoEditorPattern(pattern) {
     if (!expertEditor) return;
-    const lines = expertEditor.value.split("\n");
+    const lines = _expertGetSourceText().split("\n");
     for (let i = 0; i < lines.length; i++) {
       if (pattern.test(lines[i])) { gotoEditorLine(i); return; }
     }
@@ -7201,6 +7568,10 @@ async function _closeAllTabsWithConfirm() {
   userMacros = {};
   selectedBlockId = null;
   if (expertMode && expertEditor) {
+    _expertSourceText = "";
+    _expertProjectionActive = false;
+    _expertDisplayToSourceLines = [];
+    _expertSourceToDisplayLines = [];
     expertEditor.value = "";
     expertEditor.dispatchEvent(new Event("input"));
   }
@@ -7614,6 +7985,11 @@ function toggleRegionCollapsed(index) {
   if (!block) return;
   block.regionCollapsed = !block.regionCollapsed;
   block.collapsed = block.regionCollapsed; // also collapse the REGION block body
+  if (expertMode) {
+    _expertRefreshProjection();
+    _expertApplyHighlight();
+    return;
+  }
   renderProgram();
   renderAsmOutput();
   renderMemoryMap();
@@ -9381,7 +9757,7 @@ function getProjectPayload() {
   return {
     version: 1,
     app: "c64-visual-assembler",
-    expertText: expertMode && expertEditor ? expertEditor.value : undefined,
+    expertText: expertMode && expertEditor ? _expertGetSourceText() : undefined,
     program: program.map(block => {
       if (!block.isIncludeMacro) return block;
       const { includedBlocks, ...rest } = block;
@@ -9828,7 +10204,8 @@ function _tabSaveCurrent() {
   const tab = tabs.find(t => t.id === activeTabId);
   if (!tab) return;
   if (expertMode && expertEditor) {
-    tab.expertText = expertEditor.value;
+    _expertSyncSourceTextFromEditor();
+    tab.expertText = _expertGetSourceText();
   } else {
     tab.expertText = "";
   }
@@ -9866,7 +10243,8 @@ function _tabActivate(tabId) {
   // Restore expert editor if active
   if (expertMode && expertEditor) {
     if (tab.expertText) {
-      expertEditor.value = tab.expertText;
+      _expertSourceText = tab.expertText;
+      _expertRefreshProjection(0, 0);
       expertEditor.dispatchEvent(new Event("input"));
     } else {
       _expertSyncFromProgram();
@@ -9940,6 +10318,10 @@ async function _tabClose(tabId) {
     tab.filePath = null;
     tab.expertText = "";
     if (expertMode && expertEditor) {
+      _expertSourceText = "";
+      _expertProjectionActive = false;
+      _expertDisplayToSourceLines = [];
+      _expertSourceToDisplayLines = [];
       expertEditor.value = "";
       expertEditor.dispatchEvent(new Event("input"));
     }
@@ -12009,7 +12391,8 @@ async function _applyProjectPayload(projectData, { sourceFilePath = "", keepFile
   if (expertMode) {
     _expertAcHide();
     if (typeof projectData.expertText === "string") {
-      expertEditor.value = projectData.expertText;
+      _expertSourceText = projectData.expertText;
+      _expertRefreshProjection(0, 0);
       expertEditor.dispatchEvent(new Event("input"));
     } else {
       _expertSyncFromProgram();
@@ -12134,7 +12517,7 @@ function _getPlainAsmSourceText() {
   }
 
   if (expertMode && expertEditor) {
-    return expertEditor.value || "";
+    return _expertGetSourceText();
   }
 
   return asmPlainText || "";
@@ -12660,20 +13043,13 @@ function buildBasicSysStub(sysAddress) {
 function assembleProgramToPrg(originOverride) {
   const layout = getProgramLayout(originOverride);
   const labels = new Map();
+  const hasDelayMacro = layout.lines.some((line) => line.block?.isDelayMacro);
 
   layout.lines.forEach((line) => addLayoutLabels(labels, line));
   labels._anonAddrs = _collectAnonLabels(layout);
-  const deferredSectionsPreview = getDeferredMemorySections(layout);
-  const hasDelayMacro = layout.lines.some((line) => line.block?.isDelayMacro);
-  const highestExistingEnd = [
-    layout.end,
-    ...deferredSectionsPreview.map((section) => section.end)
-  ].reduce((maxEnd, currentEnd) => Math.max(maxEnd, currentEnd), layout.end);
-  const delayHelperAddress = hasDelayMacro ? highestExistingEnd + 1 : null;
-  if (delayHelperAddress !== null) {
-    labels.set(DELAY_HELPER_LABEL, delayHelperAddress);
-  }
-  const delayHelperBytes = hasDelayMacro && delayHelperAddress !== null
+  appendDelayHelperLabel(labels, layout);
+  const delayHelperAddress = labels.get(DELAY_HELPER_LABEL);
+  const delayHelperBytes = typeof delayHelperAddress === "number"
     ? buildDelayHelperBytes(delayHelperAddress)
     : [];
 
@@ -13138,6 +13514,24 @@ function compileLineBytes(line, labels) {
     const val = (spd & 0x0F) | badline;
     // LDA #val (A9 val) + STA $D031 (8D 31 D0)
     return { ok: true, bytes: [0xA9, val, 0x8D, 0x31, 0xD0], comment: `TURBO_SET speed=${spd} badline=${block.turboBadline === "1" ? "off" : "on"}` };
+  }
+
+  if (block.isSuperCpuDetectMacro) {
+    return {
+      ok: true,
+      bytes: [0xAD, 0xB8, 0xD0, 0xC9, 0xFF],
+      comment: "SUPERCPU_DETECT"
+    };
+  }
+
+  if (block.isTurboEnableMacro) {
+    const isOn = (block.turboEnableMode || "on") === "on";
+    const targetAddr = isOn ? 0xD07A : 0xD07B;
+    return {
+      ok: true,
+      bytes: [0xA9, 0x00, 0x8D, targetAddr & 0xFF, targetAddr >> 8],
+      comment: `TURBO_ENABLE ${isOn ? "on" : "off"}`
+    };
   }
 
   if (block.isSpriteColMacro) {
@@ -14379,6 +14773,18 @@ function buildDelayHelperBytes(baseAddress) {
   bytes[23] = countAddr & 0xFF;
   bytes[24] = (countAddr >> 8) & 0xFF;
   return [...bytes, 0x00];
+}
+
+function appendDelayHelperLabel(labels, layout) {
+  if (!labels || !layout) return;
+  const hasDelayMacro = layout.lines.some((line) => line.block?.isDelayMacro);
+  if (!hasDelayMacro) return;
+  const deferredSectionsPreview = getDeferredMemorySections(layout);
+  const highestExistingEnd = [
+    layout.end,
+    ...deferredSectionsPreview.map((section) => section.end)
+  ].reduce((maxEnd, currentEnd) => Math.max(maxEnd, currentEnd), layout.end);
+  labels.set(DELAY_HELPER_LABEL, highestExistingEnd + 1);
 }
 
 function formatDelayFramesValue(raw) {
@@ -19374,6 +19780,7 @@ function _buildMonitorText(layout) {
 
   layout.lines.forEach((line) => addLayoutLabels(labels, line));
   labels._anonAddrs = _collectAnonLabels(layout);
+  appendDelayHelperLabel(labels, layout);
 
   for (const line of layout.lines) {
     if (line.block.isLabel || line.block.isComment) continue;

@@ -2405,6 +2405,55 @@ async fn run_d64_in_browser_emulator(
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+    use std::path::PathBuf;
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    fn unique_temp_dir(prefix: &str) -> PathBuf {
+        let stamp = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        std::env::temp_dir().join(format!("{}-{}-{}", prefix, std::process::id(), stamp))
+    }
+
+    #[test]
+    fn sanitize_disk_name_strips_forbidden_chars_and_lowercases() {
+        assert_eq!(sanitize_disk_name("Disk: Name/One,Two", 16), "disk nameonetwo");
+        assert_eq!(sanitize_disk_name("\"/:\\\0", 16), "disk");
+        assert_eq!(sanitize_disk_name("ABCDEFGHIJKLMN", 4), "abcd");
+    }
+
+    #[test]
+    fn resolve_c1541_path_finds_sibling_binary_next_to_vice() {
+        let root = unique_temp_dir("c64va-c1541");
+        fs::create_dir_all(&root).unwrap();
+
+        #[cfg(target_os = "windows")]
+        let vice_name = "x64sc.exe";
+        #[cfg(not(target_os = "windows"))]
+        let vice_name = "x64sc";
+
+        #[cfg(target_os = "windows")]
+        let c1541_name = "c1541.exe";
+        #[cfg(not(target_os = "windows"))]
+        let c1541_name = "c1541";
+
+        let vice_path = root.join(vice_name);
+        let c1541_path = root.join(c1541_name);
+        fs::write(&vice_path, b"vice").unwrap();
+        fs::write(&c1541_path, b"c1541").unwrap();
+
+        let resolved = resolve_c1541_path(vice_path.to_str().unwrap()).unwrap();
+        assert_eq!(resolved, c1541_path);
+
+        let _ = fs::remove_dir_all(&root);
+    }
+}
+
 // ── App setup ────────────────────────────────────────────────────────────────
 
 pub fn run() {
