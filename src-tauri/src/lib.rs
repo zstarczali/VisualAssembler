@@ -58,6 +58,14 @@ fn write_config(app: &AppHandle, cfg: &serde_json::Value) {
     let _ = fs::write(&path, serde_json::to_string_pretty(cfg).unwrap());
 }
 
+fn get_working_folder_path(cfg: &serde_json::Value) -> Option<PathBuf> {
+    cfg["workingFolder"]
+        .as_str()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .map(PathBuf::from)
+}
+
 fn detect_vice_executable() -> String {
     #[cfg(target_os = "macos")]
     let candidates = [
@@ -310,9 +318,49 @@ fn get_exomizer_config(app: AppHandle) -> serde_json::Value {
 }
 
 #[tauri::command]
+fn get_working_folder(app: AppHandle) -> serde_json::Value {
+    let cfg = read_config(&app);
+    serde_json::json!({
+        "workingFolder": cfg["workingFolder"].as_str().unwrap_or("")
+    })
+}
+
+#[tauri::command]
+async fn choose_working_folder(app: AppHandle) -> serde_json::Value {
+    let current_folder = {
+        let cfg = read_config(&app);
+        get_working_folder_path(&cfg)
+    };
+
+    let mut dialog = app.dialog().file().set_title("Choose working folder");
+    if let Some(folder) = current_folder {
+        dialog = dialog.set_directory(folder);
+    }
+
+    match dialog.blocking_pick_folder() {
+        Some(path) => {
+            let path_str = path.to_string();
+            let mut cfg = read_config(&app);
+            cfg["workingFolder"] = serde_json::json!(path_str);
+            write_config(&app, &cfg);
+            serde_json::json!({ "canceled": false, "workingFolder": path_str })
+        }
+        None => serde_json::json!({ "canceled": true }),
+    }
+}
+
+#[tauri::command]
 async fn choose_vice_executable(app: AppHandle) -> serde_json::Value {
+    let working_folder = {
+        let cfg = read_config(&app);
+        get_working_folder_path(&cfg)
+    };
     let dialog = app.dialog().clone();
-    let file_dialog = dialog.file();
+    let mut file_dialog = dialog.file();
+
+    if let Some(folder) = working_folder {
+        file_dialog = file_dialog.set_directory(folder);
+    }
 
     // On Windows: filter .exe files
     #[cfg(target_os = "windows")]
@@ -322,19 +370,23 @@ async fn choose_vice_executable(app: AppHandle) -> serde_json::Value {
     // Open the dialog directly in the VICE bin/ folder where the real scripts live.
     #[cfg(target_os = "macos")]
     let file_dialog = {
-        let vice_bin_candidates = [
-            "/Applications/vice-arm64-gtk3-3.10/bin",
-            "/Applications/vice-arm64-gtk3-3.9/bin",
-            "/Applications/vice-arm64-gtk3-3.8/bin",
-            "/Applications/GTK3VICE-3.10/bin",
-            "/Applications/GTK3VICE-3.9/bin",
-            "/Applications",
-        ];
-        let start_dir = vice_bin_candidates
-            .iter()
-            .find(|p| std::path::Path::new(p).exists())
-            .unwrap_or(&"/");
-        file_dialog.set_directory(start_dir)
+        if working_folder.is_some() {
+            file_dialog
+        } else {
+            let vice_bin_candidates = [
+                "/Applications/vice-arm64-gtk3-3.10/bin",
+                "/Applications/vice-arm64-gtk3-3.9/bin",
+                "/Applications/vice-arm64-gtk3-3.8/bin",
+                "/Applications/GTK3VICE-3.10/bin",
+                "/Applications/GTK3VICE-3.9/bin",
+                "/Applications",
+            ];
+            let start_dir = vice_bin_candidates
+                .iter()
+                .find(|p| std::path::Path::new(p).exists())
+                .unwrap_or(&"/");
+            file_dialog.set_directory(start_dir)
+        }
     };
 
     let result = file_dialog.blocking_pick_file();
@@ -353,8 +405,16 @@ async fn choose_vice_executable(app: AppHandle) -> serde_json::Value {
 
 #[tauri::command]
 async fn choose_exomizer_executable(app: AppHandle) -> serde_json::Value {
+    let working_folder = {
+        let cfg = read_config(&app);
+        get_working_folder_path(&cfg)
+    };
     let dialog = app.dialog().clone();
-    let file_dialog = dialog.file();
+    let mut file_dialog = dialog.file();
+
+    if let Some(folder) = working_folder {
+        file_dialog = file_dialog.set_directory(folder);
+    }
 
     #[cfg(target_os = "windows")]
     let file_dialog = file_dialog.add_filter("Executable", &["exe"]);
@@ -609,23 +669,35 @@ fn get_debugger_config(app: AppHandle) -> serde_json::Value {
 
 #[tauri::command]
 async fn choose_debugger_executable(app: AppHandle) -> serde_json::Value {
+    let working_folder = {
+        let cfg = read_config(&app);
+        get_working_folder_path(&cfg)
+    };
     let dialog = app.dialog().clone();
-    let file_dialog = dialog.file();
+    let mut file_dialog = dialog.file();
+
+    if let Some(folder) = working_folder {
+        file_dialog = file_dialog.set_directory(folder);
+    }
 
     #[cfg(target_os = "windows")]
     let file_dialog = file_dialog.add_filter("Executable", &["exe"]);
 
     #[cfg(target_os = "macos")]
     let file_dialog = {
-        let candidates = [
-            "/Applications",
-            "/Applications/RetroDebugger",
-        ];
-        let start_dir = candidates
-            .iter()
-            .find(|p| std::path::Path::new(p).exists())
-            .unwrap_or(&"/");
-        file_dialog.set_directory(start_dir)
+        if working_folder.is_some() {
+            file_dialog
+        } else {
+            let candidates = [
+                "/Applications",
+                "/Applications/RetroDebugger",
+            ];
+            let start_dir = candidates
+                .iter()
+                .find(|p| std::path::Path::new(p).exists())
+                .unwrap_or(&"/");
+            file_dialog.set_directory(start_dir)
+        }
     };
 
     match file_dialog.blocking_pick_file() {
@@ -828,10 +900,18 @@ async fn launch_debugger(app: AppHandle, payload: LaunchDebuggerPayload) -> serd
 
 #[tauri::command]
 async fn choose_incbin_file(app: AppHandle) -> serde_json::Value {
-    let result = app.dialog().file()
+    let working_folder = {
+        let cfg = read_config(&app);
+        get_working_folder_path(&cfg)
+    };
+    let mut dialog = app.dialog().file()
         .add_filter("Binary files", &["bin", "prg", "sid", "raw"])
         .add_filter("All files", &["*"])
-        .blocking_pick_file();
+        ;
+    if let Some(folder) = working_folder {
+        dialog = dialog.set_directory(folder);
+    }
+    let result = dialog.blocking_pick_file();
 
     match result {
         Some(path) => {
@@ -925,10 +1005,18 @@ async fn reload_incbin_file(app: AppHandle, file_path: String, base_dir: Option<
 
 #[tauri::command]
 async fn choose_sid_file(app: AppHandle) -> serde_json::Value {
-    let result = app.dialog().file()
+    let working_folder = {
+        let cfg = read_config(&app);
+        get_working_folder_path(&cfg)
+    };
+    let mut dialog = app.dialog().file()
         .add_filter("SID files", &["sid"])
         .add_filter("All files", &["*"])
-        .blocking_pick_file();
+        ;
+    if let Some(folder) = working_folder {
+        dialog = dialog.set_directory(folder);
+    }
+    let result = dialog.blocking_pick_file();
 
     match result {
         Some(path) => {
@@ -1032,12 +1120,20 @@ async fn reload_sid_file(app: AppHandle, file_path: String, base_dir: Option<Str
 
 #[tauri::command]
 async fn choose_include_file(app: AppHandle) -> serde_json::Value {
-    let result = app.dialog().file()
+    let working_folder = {
+        let cfg = read_config(&app);
+        get_working_folder_path(&cfg)
+    };
+    let mut dialog = app.dialog().file()
         .add_filter("Include (project or assembly)", &["json", "inc", "asm", "s"])
         .add_filter("C64 Visual Assembler project", &["json"])
         .add_filter("Assembly source", &["inc", "asm", "s"])
         .add_filter("All files", &["*"])
-        .blocking_pick_file();
+        ;
+    if let Some(folder) = working_folder {
+        dialog = dialog.set_directory(folder);
+    }
+    let result = dialog.blocking_pick_file();
 
     match result {
         Some(path) => {
@@ -1184,10 +1280,17 @@ fn read_bin_file(path: String) -> serde_json::Value {
 
 #[tauri::command]
 async fn save_prg(app: AppHandle, payload: SavePrgPayload) -> serde_json::Value {
-    let result = app.dialog().file()
+    let working_folder = {
+        let cfg = read_config(&app);
+        get_working_folder_path(&cfg)
+    };
+    let mut dialog = app.dialog().file()
         .add_filter("Commodore 64 PRG", &["prg"])
-        .add_filter("All files", &["*"])
-        .blocking_save_file();
+        .add_filter("All files", &["*"]);
+    if let Some(folder) = working_folder {
+        dialog = dialog.set_directory(folder);
+    }
+    let result = dialog.blocking_save_file();
 
     match result {
         Some(path) => {
@@ -1203,9 +1306,16 @@ async fn save_prg(app: AppHandle, payload: SavePrgPayload) -> serde_json::Value 
 
 #[tauri::command]
 async fn save_bin(app: AppHandle, payload: SaveBinPayload) -> serde_json::Value {
+    let working_folder = {
+        let cfg = read_config(&app);
+        get_working_folder_path(&cfg)
+    };
     let mut dialog = app.dialog().file()
         .add_filter("Binary", &["bin"])
         .add_filter("All files", &["*"]);
+    if let Some(folder) = working_folder {
+        dialog = dialog.set_directory(folder);
+    }
     if let Some(name) = payload.file_name.as_deref() {
         if !name.is_empty() {
             dialog = dialog.set_file_name(name);
@@ -1315,11 +1425,14 @@ async fn save_d64(app: AppHandle, payload: SaveD64Payload) -> serde_json::Value 
     };
 
     // 2. Ask user where to save
-    let save_path = match app.dialog().file()
+    let working_folder = get_working_folder_path(&cfg);
+    let mut dialog = app.dialog().file()
         .add_filter("Commodore 64 disk image", &["d64"])
-        .add_filter("All files", &["*"])
-        .blocking_save_file()
-    {
+        .add_filter("All files", &["*"]);
+    if let Some(folder) = working_folder {
+        dialog = dialog.set_directory(folder);
+    }
+    let save_path = match dialog.blocking_save_file() {
         Some(p) => p.to_string(),
         None => return serde_json::json!({ "canceled": true }),
     };
@@ -1830,10 +1943,17 @@ async fn save_project(app: AppHandle, payload: serde_json::Value) -> serde_json:
     let save_path: String = if !existing_path.is_empty() {
         existing_path
     } else {
-        let result = app.dialog().file()
+        let working_folder = {
+            let cfg = read_config(&app);
+            get_working_folder_path(&cfg)
+        };
+        let mut dialog = app.dialog().file()
             .add_filter("C64 Visual Assembler Project", &["json", "c64va"])
-            .set_file_name(&default_name)
-            .blocking_save_file();
+            .set_file_name(&default_name);
+        if let Some(folder) = working_folder {
+            dialog = dialog.set_directory(folder);
+        }
+        let result = dialog.blocking_save_file();
         match result {
             Some(path) => path.to_string(),
             None => return serde_json::json!({ "canceled": true }),
@@ -1855,10 +1975,18 @@ async fn save_project(app: AppHandle, payload: serde_json::Value) -> serde_json:
 
 #[tauri::command]
 async fn open_proj_file(app: AppHandle) -> serde_json::Value {
-    let result = app.dialog().file()
+    let working_folder = {
+        let cfg = read_config(&app);
+        get_working_folder_path(&cfg)
+    };
+    let mut dialog = app.dialog().file()
         .add_filter("Visual Assembler Project", &["proj"])
         .add_filter("All files", &["*"])
-        .blocking_pick_file();
+        ;
+    if let Some(folder) = working_folder {
+        dialog = dialog.set_directory(folder);
+    }
+    let result = dialog.blocking_pick_file();
 
     match result {
         Some(path) => {
@@ -1878,10 +2006,17 @@ async fn open_proj_file(app: AppHandle) -> serde_json::Value {
 #[tauri::command]
 async fn save_proj_file(app: AppHandle, path: String, content: String) -> serde_json::Value {
     let save_path = if path.is_empty() {
-        let result = app.dialog().file()
+        let working_folder = {
+            let cfg = read_config(&app);
+            get_working_folder_path(&cfg)
+        };
+        let mut dialog = app.dialog().file()
             .add_filter("Visual Assembler Project", &["proj"])
-            .set_file_name("project.proj")
-            .blocking_save_file();
+            .set_file_name("project.proj");
+        if let Some(folder) = working_folder {
+            dialog = dialog.set_directory(folder);
+        }
+        let result = dialog.blocking_save_file();
         match result {
             Some(p) => p.to_string(),
             None    => return serde_json::json!({ "canceled": true }),
@@ -1945,11 +2080,18 @@ fn get_project_snapshot_path(app: AppHandle, project_path: String, snapshot_id: 
 #[tauri::command]
 async fn save_asm_file(app: AppHandle, path: String, content: String) -> serde_json::Value {
     let save_path = if path.is_empty() {
-        let result = app.dialog().file()
+        let working_folder = {
+            let cfg = read_config(&app);
+            get_working_folder_path(&cfg)
+        };
+        let mut dialog = app.dialog().file()
             .add_filter("Assembly Source", &["asm", "s", "a65"])
             .add_filter("All files", &["*"])
-            .set_file_name("program.asm")
-            .blocking_save_file();
+            .set_file_name("program.asm");
+        if let Some(folder) = working_folder {
+            dialog = dialog.set_directory(folder);
+        }
+        let result = dialog.blocking_save_file();
         match result {
             Some(p) => p.to_string(),
             None    => return serde_json::json!({ "canceled": true }),
@@ -1966,10 +2108,18 @@ async fn save_asm_file(app: AppHandle, path: String, content: String) -> serde_j
 
 #[tauri::command]
 async fn choose_asm_file(app: AppHandle) -> serde_json::Value {
-    let result = app.dialog().file()
+    let working_folder = {
+        let cfg = read_config(&app);
+        get_working_folder_path(&cfg)
+    };
+    let mut dialog = app.dialog().file()
         .add_filter("Assembly Source", &["asm", "s", "a65"])
         .add_filter("All files", &["*"])
-        .blocking_pick_file();
+        ;
+    if let Some(folder) = working_folder {
+        dialog = dialog.set_directory(folder);
+    }
+    let result = dialog.blocking_pick_file();
 
     match result {
         Some(path) => {
@@ -1985,9 +2135,17 @@ async fn choose_asm_file(app: AppHandle) -> serde_json::Value {
 
 #[tauri::command]
 async fn choose_proj_member(app: AppHandle) -> serde_json::Value {
-    let result = app.dialog().file()
+    let working_folder = {
+        let cfg = read_config(&app);
+        get_working_folder_path(&cfg)
+    };
+    let mut dialog = app.dialog().file()
         .add_filter("C64 Visual Assembler Project", &["json", "c64va"])
-        .blocking_pick_file();
+        ;
+    if let Some(folder) = working_folder {
+        dialog = dialog.set_directory(folder);
+    }
+    let result = dialog.blocking_pick_file();
 
     match result {
         Some(path) => {
@@ -2005,9 +2163,17 @@ async fn choose_proj_member(app: AppHandle) -> serde_json::Value {
 
 #[tauri::command]
 async fn load_project(app: AppHandle) -> serde_json::Value {
-    let result = app.dialog().file()
+    let working_folder = {
+        let cfg = read_config(&app);
+        get_working_folder_path(&cfg)
+    };
+    let mut dialog = app.dialog().file()
         .add_filter("C64 Visual Assembler Project", &["json", "c64va"])
-        .blocking_pick_file();
+        ;
+    if let Some(folder) = working_folder {
+        dialog = dialog.set_directory(folder);
+    }
+    let result = dialog.blocking_pick_file();
 
     match result {
         Some(path) => {
@@ -2498,8 +2664,10 @@ pub fn run() {
             save_ui_settings,
             get_vice_config,
             get_exomizer_config,
+            get_working_folder,
             choose_vice_executable,
             choose_exomizer_executable,
+            choose_working_folder,
             build_exomizer_prg,
             build_exomizer_raw,
             launch_vice,

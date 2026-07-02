@@ -45,6 +45,7 @@
                 <button id="save-project" class="secondary" type="button">Save program</button>
                 <button id="save-project-as" class="secondary" type="button">Save Program As</button>
                 <button id="load-project" class="secondary" type="button">Load program</button>
+                <button id="set-working-folder" class="secondary" type="button">Set working folder</button>
                 <button id="menu-open-project" class="secondary" type="button">Open project</button>
                 <button id="menu-save-project" class="secondary" type="button">Save project</button>
                 <button id="menu-close-project" class="secondary" type="button">Close project</button>
@@ -351,7 +352,10 @@
           </div>
           <div id="output-stack" class="output-stack">
             <div class="origin-preview-section">
-              <span class="panel-label" id="origin-preview-label">Compile info</span>
+              <div class="origin-preview-header">
+                <span class="panel-label" id="origin-preview-label">Compile info</span>
+                <div id="working-folder-panel" class="panel-heading-meta panel-heading-meta--path"></div>
+              </div>
               <div id="origin-preview" class="origin-preview"></div>
             </div>
             <div class="output-section-label asm-label">
@@ -785,6 +789,9 @@ PRINTABLE CHARACTERS
         </li>
         <li>
           <strong>Region selection toggle</strong> &mdash; Expert mode now has a toolbar button that turns the automatic region highlight on or off without changing the actual fold state.
+        </li>
+        <li>
+          <strong>Working folder picker</strong> &mdash; the File menu now has a default working folder setting, and file dialogs start from that folder instead of jumping back to the last unrelated path.
         </li>
         <li>
           <strong>Resizable project symbols panel</strong> &mdash; the Expert project panel now lets you drag the divider to give the symbols list more vertical space when a project has many labels and regions.

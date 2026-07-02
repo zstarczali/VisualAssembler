@@ -256,6 +256,7 @@ The modal closes automatically when the action completes or fails.
 | **Save Project** | Save the current program as a `.json` project file |
 | **Save Program As** | Save the current program as a `.json` project file using a new file dialog every time |
 | **Load Project** | Load a previously saved project |
+| **Set working folder** | Choose the default folder used by file pickers and save dialogs. The path is stored in the app config, and menu previews keep the end of the path visible. |
 | **Open Project** (`Menu → File`) | Open a multi-file `.proj` project and open all source files as tabs |
 | **Save Project** (`Menu → File`) | Save the current `.proj` project (project panel must be open) |
 | **Close Project** (`Menu → File`) | Close the currently open project and all its file tabs. Prompts to save unsaved changes. The project panel resets to its empty state. |
@@ -1502,6 +1503,17 @@ Like **CONST, but auto-allocated** — `VAR` reserves zero-page storage for a la
 .var counter
 .var timer, 2
 .var lives
+```
+
+**Practical example:**
+```
+.region Vars
+.var counter
+.var timer, 2
+.endregion
+
+LDA #$00
+STA counter
 ```
 
 **Generated ASM:**

@@ -8,6 +8,7 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 
 - Hotfix: the Expert mode Region selection toggle now only controls the automatic region highlight, leaving the actual fold state untouched.
 - Hotfix: region selection and cursor placement stay aligned after collapsing or reopening regions.
+- New: the File menu now has a working folder picker, and file dialogs use it as their default starting folder.
 - `SPRITE_INIT` / `SPRITE_POS` now accept const names in Block mode, and `SPRITE_INIT` can toggle the sprite multicolor bit too.
 - `DELAY` / `WAIT` can now use named `CONST` values, and the delay block uses a compact const picker instead of the browser's native list.
 - `PRINT_CHAR` now accepts const names too, so single-byte PETSCII output can stay symbolic when that reads better than raw numbers.

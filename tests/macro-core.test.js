@@ -51,6 +51,7 @@ function createMacroContext(extraContext = {}) {
       "parseNumberByBase",
       "parseMacroNumber",
       "resolveProgramValueWithConst",
+      "resolveProgramNumericValue",
       "parseDelayFrameCount",
       "parseMacroAddress",
       "resolveProgramConstValue",
