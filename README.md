@@ -10,6 +10,7 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - `PRINT_CHAR` now accepts const names too, so single-byte PETSCII output can stay symbolic when that reads better than raw numbers.
 - `SET_BORDER` / `SET_BG` now accept const names in both block mode and Expert mode, with the same custom const picker.
 - `.region` / `.endregion` get directive coloring in Expert mode, so named visual groups stand out the same way the other macros do.
+- Expert mode now has a Region selection toggle, so you can turn the automatic region highlight on or off without changing the actual fold state.
 - The Expert project panel's symbols area can now be resized vertically with a divider, so long symbol lists have more room when needed.
 - The bundled docs, manual, and installer notes were refreshed to match the 2.1.1 release.
 

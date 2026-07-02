@@ -337,6 +337,7 @@ Expert Mode is a full-featured direct-text 6502 assembly editor that lives along
 | **Build Info** | `#expert-build-info-btn` | Open the Build Info dialog (origin, size, labels, errors) |
 | **HL** | `#expert-hl-btn` | Toggle syntax highlighting (disable for very large files) |
 | **Autocomplete** | `#expert-autocomplete-btn` | Toggle expert autocomplete suggestions on/off. When disabled, no directive, mnemonic, or label popup appears in the expert editor. |
+| **Region selection** | `#expert-region-selection-btn` | Toggle the automatic region highlight in Expert mode. The fold state stays stored, but when this is off the editor keeps the full source visible and does not auto-select the current region. |
 | **Line numbers** | `#expert-line-numbers-btn` | Toggle the line number gutter on the left side of the editor. The gutter stays in sync with the scroll position and updates live as you type. |
 | **Find** | `#expert-find-btn` | Open the floating Find bar (`Ctrl+F`). Type to search; matches are highlighted in the overlay. `Enter` / `Shift+Enter` navigate between matches. `Escape` closes the bar. |
 | **Zoom out / in** | `#expert-zoom-out-btn` / `#expert-zoom-in-btn` | Decrease / increase the editor font size (8–28 px). The setting is persisted. |
@@ -361,7 +362,7 @@ The editor uses a transparent `<div>` overlay (`expert-hl`) that mirrors the tex
 | Teal | String literals |
 | Dark green | Comments (`; …`) |
 
-`REGION` / `ENDREGION` directives are highlighted like the other assembler directives, and collapsed regions keep only the region header visible in the editor until you reopen them.
+`REGION` / `ENDREGION` directives are highlighted like the other assembler directives. Collapsed regions keep only the region header visible in the editor until you reopen them. The new **Region selection** toolbar toggle only controls the automatic current-region highlight in Expert mode; turning it off keeps the source visible without changing the fold state.
 
 ### Source formatter
 

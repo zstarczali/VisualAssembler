@@ -380,6 +380,7 @@ const expertDisasmResizer  = document.getElementById("expert-disasm-resizer");
 const expertMonitorBtn     = document.getElementById("expert-monitor-btn");
 const expertMonitorPanel   = document.getElementById("expert-monitor-panel");
 const expertMonitorOutput  = document.getElementById("expert-monitor-output");
+const expertRegionSelectionBtn = document.getElementById("expert-region-selection-btn");
 const expertFormatBtn      = document.getElementById("expert-format-btn");
 const expertLoadAsmBtn     = document.getElementById("expert-load-asm-btn");
 const expertSaveAsmBtn     = document.getElementById("expert-save-asm-btn");
@@ -422,6 +423,7 @@ let activeTabId = null;
 let _tabCounter = 0;
 let _expertHlEnabled = true;
 let _expertPaletteSyncEnabled = true;
+let _expertRegionSelectionEnabled = true;
 let _expertCaretCanvas = null;
 let _expertSourceText = "";
 let _expertProjectionActive = false;
@@ -549,6 +551,7 @@ function saveUiSettings() {
     expertMode: expertMode,
     expertHlEnabled: _expertHlEnabled,
     expertPaletteSyncEnabled: _expertPaletteSyncEnabled,
+    expertRegionSelectionEnabled: _expertRegionSelectionEnabled,
     expertAutocompleteEnabled: _expertAcEnabled,
     expertPaletteVisible: _expertPaletteVisible,
     expertDisasmVisible: _expertDisasmVisible,
@@ -1296,6 +1299,15 @@ function initPalette() {
     _expertPaletteSyncEnabled = !_expertPaletteSyncEnabled;
     expertPaletteSyncBtn.classList.toggle("expert-hl-toggle--on", _expertPaletteSyncEnabled);
     expertPaletteSyncBtn.setAttribute("aria-pressed", String(_expertPaletteSyncEnabled));
+    saveUiSettings();
+  });
+
+  expertRegionSelectionBtn?.addEventListener("click", () => {
+    _expertRegionSelectionEnabled = !_expertRegionSelectionEnabled;
+    expertRegionSelectionBtn.classList.toggle("expert-hl-toggle--on", _expertRegionSelectionEnabled);
+    expertRegionSelectionBtn.setAttribute("aria-pressed", String(_expertRegionSelectionEnabled));
+    _expertResetRegionHighlight();
+    _expertApplyHighlight();
     saveUiSettings();
   });
 
@@ -2165,11 +2177,16 @@ function _applyUiSettingsToDOM() {
     _expertAcEnabled = !!savedUiSettings.expertAutocompleteEnabled;
   }
 
+  if (savedUiSettings.expertRegionSelectionEnabled !== undefined) {
+    _expertRegionSelectionEnabled = !!savedUiSettings.expertRegionSelectionEnabled;
+  }
+
   if (savedUiSettings.expertMode) {
     // Capture toolbar states BEFORE setExpertMode(true) — it calls saveUiSettings()
     // which overwrites savedUiSettings with current (default) variable values.
     const _savedHlEnabled          = savedUiSettings.expertHlEnabled;
     const _savedPaletteSyncEnabled = savedUiSettings.expertPaletteSyncEnabled;
+    const _savedRegionSelectionEnabled = savedUiSettings.expertRegionSelectionEnabled;
     const _savedAutocompleteEnabled = savedUiSettings.expertAutocompleteEnabled;
     const _savedPaletteVisible     = savedUiSettings.expertPaletteVisible;
     const _savedDisasmWidth        = savedUiSettings.expertDisasmWidth;
@@ -2190,6 +2207,11 @@ function _applyUiSettingsToDOM() {
       _expertPaletteSyncEnabled = false;
       expertPaletteSyncBtn?.classList.remove("expert-hl-toggle--on");
       expertPaletteSyncBtn?.setAttribute("aria-pressed", "false");
+    }
+    if (_savedRegionSelectionEnabled === false) {
+      _expertRegionSelectionEnabled = false;
+      expertRegionSelectionBtn?.classList.remove("expert-hl-toggle--on");
+      expertRegionSelectionBtn?.setAttribute("aria-pressed", "false");
     }
     if (_savedAutocompleteEnabled === false) {
       _expertAcEnabled = false;
@@ -2232,6 +2254,8 @@ function _applyUiSettingsToDOM() {
       _applyExpertProjectSymbolsHeight();
     }
   }
+
+  saveUiSettings();
 }
 
 function applySavedUiSettings() {
@@ -2333,6 +2357,8 @@ function applyTranslations() {
   document.getElementById("expert-project-add-btn")?.setAttribute("aria-label", t("projAddFileBtn"));
   expertPaletteSyncBtn?.setAttribute("title", t("expertPaletteSync"));
   expertPaletteSyncBtn?.setAttribute("aria-label", t("expertPaletteSync"));
+  expertRegionSelectionBtn?.setAttribute("title", t("expertRegionSelection"));
+  expertRegionSelectionBtn?.setAttribute("aria-label", t("expertRegionSelection"));
   expertAutocompleteBtn?.setAttribute("title", t("expertAutocomplete"));
   expertAutocompleteBtn?.setAttribute("aria-label", t("expertAutocomplete"));
   expertDisasmBtn?.setAttribute("title", t("expertDisasm"));
@@ -4723,6 +4749,7 @@ function _expertSyncFromProgram() {
   _expertAcHide();
   const lines = program.map(_blockToExpertLine).join("\n");
   _expertSourceText = lines;
+  _expertResetRegionHighlight();
   _expertProjectionActive = false;
   _expertDisplayToSourceLines = [];
   _expertSourceToDisplayLines = [];
@@ -4834,6 +4861,8 @@ function setExpertMode(on) {
   document.body.classList.toggle("expert-mode", on);
   expertAutocompleteBtn?.classList.toggle("expert-hl-toggle--on", _expertAcEnabled);
   expertAutocompleteBtn?.setAttribute("aria-pressed", String(_expertAcEnabled));
+  expertRegionSelectionBtn?.classList.toggle("expert-hl-toggle--on", _expertRegionSelectionEnabled);
+  expertRegionSelectionBtn?.setAttribute("aria-pressed", String(_expertRegionSelectionEnabled));
   if (expertPanel) expertPanel.hidden = !on;
   if (expertModeToggle) expertModeToggle.checked = on;
   if (expertModeTbBtn) {
@@ -5485,6 +5514,11 @@ function _expertHighlightLine(raw) {
 
 // Current region range for highlight (set by _expertUpdateCursor, consumed by _expertApplyHighlight)
 let _expertRegionHighlight = null; // null | { start: number, end: number }
+
+function _expertResetRegionHighlight() {
+  _expertRegionHighlight = null;
+  if (expertMode && expertEditor) _expertApplyHighlight();
+}
 
 function _expertNormalizeRegionName(name) {
   return String(name || "region").trim().toLowerCase();
@@ -6930,10 +6964,11 @@ function _expertUpdateCursor() {
   const sourceLines = sourceText.split("\n");
   const sourceLine = sourceText.slice(0, sourcePos).split("\n").length - 1;
   const regionInfo = _expertFindCurrentRegionBounds(sourceLines, sourceLine);
+  const effectiveRegionInfo = _expertRegionSelectionEnabled ? regionInfo : null;
 
   if (expertCursorPos) {
-    expertCursorPos.textContent = regionInfo?.name
-      ? `Ln ${ln}, Col ${col}  ·  ${regionInfo.name}`
+    expertCursorPos.textContent = effectiveRegionInfo?.name
+      ? `Ln ${ln}, Col ${col}  ·  ${effectiveRegionInfo.name}`
       : `Ln ${ln}, Col ${col}`;
   }
 
@@ -6972,7 +7007,9 @@ function _expertUpdateCursor() {
   }
 
   // Update region highlight state and rebuild overlay
-  const newRegionHighlight = regionInfo ? { start: regionInfo.start, end: regionInfo.end } : null;
+  const newRegionHighlight = effectiveRegionInfo
+    ? { start: effectiveRegionInfo.start, end: effectiveRegionInfo.end }
+    : null;
 
   // Only rebuild if region highlight changed
   const prev = _expertRegionHighlight;
@@ -10313,6 +10350,7 @@ function _tabActivate(tabId) {
   if (expertMode && expertEditor) {
     if (tab.expertText) {
       _expertSourceText = tab.expertText;
+      _expertResetRegionHighlight();
       _expertRefreshProjection(0, 0);
       expertEditor.dispatchEvent(new Event("input"));
     } else {
@@ -12463,6 +12501,7 @@ async function _applyProjectPayload(projectData, { sourceFilePath = "", keepFile
     _expertAcHide();
     if (typeof projectData.expertText === "string") {
       _expertSourceText = projectData.expertText;
+      _expertResetRegionHighlight();
       _expertRefreshProjection(0, 0);
       expertEditor.dispatchEvent(new Event("input"));
     } else {
@@ -17716,10 +17755,10 @@ function renderProgram() {
         "beforeend",
         `
           <div class="macro-grid single-macro-row">
-            <label class="mini-field">
+            <div class="mini-field">
               <span>${t("fieldAnimFrameCount")}</span>
               <input class="delay-frames block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${String(block.delayFrames || "8").trim()}" placeholder="8 / CONST">
-            </label>
+            </div>
           </div>
         `
       );
@@ -18195,23 +18234,33 @@ function renderProgram() {
         `
       );
     } else if (block.isPrintCharMacro) {
-      inlineField.querySelector("span").textContent = t("value") || "Value";
-      inlineField.hidden = false;
-      operandField.classList.add("print-char-value", "block-operand", "has-label-picker");
-      operandField.value = block.rawOperand || "$41";
-      operandField.placeholder = "$41 / 65 / CONST";
-      operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
-      const wrapper = document.createElement("div");
-      wrapper.className = "label-picker-wrap";
-      operandField.parentNode.insertBefore(wrapper, operandField);
-      wrapper.appendChild(operandField);
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid single-macro-row">
+            <div class="mini-field">
+              <span>${t("value") || "Value"}</span>
+              <input class="print-char-value block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.rawOperand || "$41"}" placeholder="$41 / 65 / CONST">
+            </div>
+          </div>
+        `
+      );
+      const printCharField = blockControls.querySelector(".print-char-value");
+      if (printCharField) {
+        printCharField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+        const wrapper = document.createElement("div");
+        wrapper.className = "label-picker-wrap";
+        printCharField.parentNode.insertBefore(wrapper, printCharField);
+        wrapper.appendChild(printCharField);
+      }
       const dropdown = document.createElement("div");
       dropdown.className = "label-picker-dropdown";
       dropdown.hidden = true;
       document.body.appendChild(dropdown);
       let dropdownHovered = false;
       function positionCharDropdown() {
-        const r = operandField.getBoundingClientRect();
+        const r = printCharField.getBoundingClientRect();
         dropdown.style.top = (r.bottom + window.scrollY + 4) + "px";
         dropdown.style.left = (r.left + window.scrollX) + "px";
         dropdown.style.width = r.width + "px";
@@ -18224,14 +18273,14 @@ function renderProgram() {
         dropdown.querySelectorAll(".label-picker-item").forEach(item => {
           item.addEventListener("pointerdown", e => {
             e.preventDefault();
-            operandField.value = item.textContent;
-            operandField.dispatchEvent(new Event("input"));
+            printCharField.value = item.textContent;
+            printCharField.dispatchEvent(new Event("input"));
             closeCharDropdown();
             dropdownHovered = false;
           });
         });
       }
-      operandField.addEventListener("focus", () => {
+      printCharField?.addEventListener("focus", () => {
         const charConsts = getProgramConstNames();
         if (!charConsts.length) return;
         dropdown.innerHTML = charConsts.map(n => `<div class="label-picker-item">${n}</div>`).join("");
@@ -18240,14 +18289,14 @@ function renderProgram() {
         dropdown.hidden = false;
         window.addEventListener("scroll", positionCharDropdown, { capture: true, passive: true });
       });
-      operandField.addEventListener("blur", () => {
+      printCharField?.addEventListener("blur", () => {
         if (!dropdownHovered) closeCharDropdown();
       });
-      operandField.addEventListener("keydown", e => { if (e.key === "Escape") closeCharDropdown(); });
+      printCharField?.addEventListener("keydown", e => { if (e.key === "Escape") closeCharDropdown(); });
       dropdown.addEventListener("mouseenter", () => { dropdownHovered = true; });
       dropdown.addEventListener("mouseleave", () => { dropdownHovered = false; });
       document.addEventListener("pointerdown", e => {
-        if (!dropdown.contains(e.target) && e.target !== operandField) closeCharDropdown();
+        if (!dropdown.contains(e.target) && e.target !== printCharField) closeCharDropdown();
       }, { capture: true });
     } else if (block.isPrintHexMacro) {
       inlineField.hidden = true;
@@ -18256,10 +18305,10 @@ function renderProgram() {
       blockControls.insertAdjacentHTML(
         "beforeend",
         `<div class="macro-grid single-macro-row">
-          <label class="mini-field">
+          <div class="mini-field">
             <span>Reg</span>
             <select class="print-reg">${opts}</select>
-          </label>
+          </div>
         </div>`
       );
       blockControls.querySelector(".print-reg")?.addEventListener("change", (e) => {
@@ -18273,10 +18322,10 @@ function renderProgram() {
       blockControls.insertAdjacentHTML(
         "beforeend",
         `<div class="macro-grid single-macro-row">
-          <label class="mini-field">
+          <div class="mini-field">
             <span>${t("value") || "Value"}</span>
             <input class="color-value block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.colorValue || block.rawOperand || "00"}" placeholder="00">
-          </label>
+          </div>
         </div>`
       );
       document.querySelectorAll('datalist[id^="color-consts-"]').forEach(el => el.remove());

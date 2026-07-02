@@ -60,6 +60,7 @@ function createMacroContext(extraContext = {}) {
       "getAsmDisplayOperand",
       "getDeferredMemorySections",
       "_expertNormalizeRegionName",
+      "_expertResetRegionHighlight",
       "_expertStampRegionFoldSignatures",
       "_expertCopyRegionFoldState",
       "_expertGetHiddenRegionLines",
@@ -383,6 +384,21 @@ test("_expertGetHiddenRegionLines hides nested content inside collapsed regions"
   const hidden = ctx._expertGetHiddenRegionLines(blocks);
 
   assert.deepEqual(Array.from(hidden).sort((a, b) => a - b), [1, 2, 3, 4]);
+});
+
+test("_expertResetRegionHighlight clears stale region highlight state", () => {
+  let applied = 0;
+  const ctx = createMacroContext({
+    expertMode: true,
+    expertEditor: {},
+    _expertRegionHighlight: { start: 2, end: 4 },
+    _expertApplyHighlight: () => { applied += 1; }
+  });
+
+  ctx._expertResetRegionHighlight();
+
+  assert.equal(ctx._expertRegionHighlight, null);
+  assert.equal(applied, 1);
 });
 
 test("folded inner regions do not confuse current region detection", () => {

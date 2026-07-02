@@ -441,6 +441,9 @@ PRINTABLE CHARACTERS
           <button id="expert-monitor-btn" class="expert-hl-toggle" title="Monitor" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><rect x="1" y="1" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="3" y="3" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.7"/><rect x="6" y="3" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.7"/><rect x="9" y="3" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.7"/><rect x="3" y="6.5" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.4"/><rect x="6" y="6.5" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.4"/><rect x="9" y="6.5" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.4"/><rect x="6" y="12" width="4" height="1.5" rx="0.5" fill="currentColor" opacity="0.5"/><rect x="4" y="13.5" width="8" height="1" rx="0.5" fill="currentColor" opacity="0.3"/></svg>
           </button>
+          <button id="expert-region-selection-btn" class="expert-hl-toggle expert-hl-toggle--on" title="Region selection" aria-pressed="true">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M3 3h8M3 8h5M3 13h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M11.5 4l1.8 2-1.8 2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/><path d="M11.5 9l1.8 2-1.8 2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/></svg>
+          </button>
           <div class="expert-toolbar-sep"></div>
           <button id="expert-format-btn" class="expert-hl-toggle" title="Format source" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M3 3h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M5 6.5h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M5 10h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M2 5.5l1.5 1.5-1.5 1.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 9l1.5 1.5-1.5 1.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -773,6 +776,9 @@ PRINTABLE CHARACTERS
         </li>
         <li>
           <strong>Expert region folding fix</strong> &mdash; collapsed <code>.region</code> blocks now really hide their body in Expert mode without leaving giant blank gaps, while caret placement, line numbers, tab switching, formatting, and save/load keep using the full source correctly behind the scenes.
+        </li>
+        <li>
+          <strong>Region selection toggle</strong> &mdash; Expert mode now has a toolbar button that turns the automatic region highlight on or off without changing the actual fold state.
         </li>
         <li>
           <strong>Resizable project symbols panel</strong> &mdash; the Expert project panel now lets you drag the divider to give the symbols list more vertical space when a project has many labels and regions.
