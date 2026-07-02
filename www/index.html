@@ -500,6 +500,7 @@ PRINTABLE CHARACTERS
             <div class="expert-project-tree" id="expert-project-tree">
               <div class="expert-project-empty">Click the folder button<br>to open a project</div>
             </div>
+            <div class="expert-project-splitter" id="expert-project-splitter" hidden></div>
             <div class="expert-project-symbols" id="expert-project-symbols" hidden></div>
           </div>
           <div class="expert-editor-wrap">
@@ -772,6 +773,9 @@ PRINTABLE CHARACTERS
         </li>
         <li>
           <strong>Expert region folding fix</strong> &mdash; collapsed <code>.region</code> blocks now really hide their body in Expert mode without leaving giant blank gaps, while caret placement, line numbers, tab switching, formatting, and save/load keep using the full source correctly behind the scenes.
+        </li>
+        <li>
+          <strong>Resizable project symbols panel</strong> &mdash; the Expert project panel now lets you drag the divider to give the symbols list more vertical space when a project has many labels and regions.
         </li>
         <li>
           <strong>New demos and docs</strong> &mdash; the sample menu now includes the new macro showcase and the memcpy scroll demo, while the docs, manual, and installer notes are refreshed for 2.1.1 across all four UI languages.

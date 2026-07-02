@@ -391,6 +391,9 @@ const expertZoomOutBtn     = document.getElementById("expert-zoom-out-btn");
 const buildInfoBtn         = document.getElementById("build-info-btn");
 const expertProjectBtn     = document.getElementById("expert-project-btn");
 const expertProjectPanel   = document.getElementById("expert-project-panel");
+const expertProjectTree    = document.getElementById("expert-project-tree");
+const expertProjectSymbols = document.getElementById("expert-project-symbols");
+const expertProjectSplitter = document.getElementById("expert-project-splitter");
 
 let program = [];
 let dragState = null;
@@ -430,6 +433,7 @@ let _expertDisasmVisible = false;
 let _expertDisasmWidth   = 340;
 let _expertMonitorVisible = false;
 let _expertProjectVisible = false;
+let _expertProjectSymbolsHeight = 160;
 let _expertFontSize = 13.44; // px (= 0.84rem at 16px base)
 let _expertLineNumbersEnabled = false;
 let _expertFindVisible = false;
@@ -525,6 +529,11 @@ function _applyMemoryOverlaysVisibility() {
   document.body.dataset.memoryOverlays = showMemoryOverlays ? "1" : "0";
 }
 
+function _applyExpertProjectSymbolsHeight() {
+  if (!expertProjectSymbols) return;
+  expertProjectSymbols.style.height = `${Math.max(48, Math.min(1200, _expertProjectSymbolsHeight || 160))}px`;
+}
+
 function saveUiSettings() {
   const settings = {
     category: categorySelect?.value || "",
@@ -546,6 +555,7 @@ function saveUiSettings() {
     expertDisasmWidth: _expertDisasmWidth,
     expertMonitorVisible: _expertMonitorVisible,
     expertProjectVisible: _expertProjectVisible,
+    expertProjectSymbolsHeight: _expertProjectSymbolsHeight,
     showMacroSource,
     showRegionComments,
     showMemoryOverlays,
@@ -1397,11 +1407,40 @@ function initPalette() {
     if (_expertProjectVisible) {
       expertProjectPanel?.removeAttribute("hidden");
       _expertRenderProjectTree();
+      _applyExpertProjectSymbolsHeight();
     } else {
       expertProjectPanel?.setAttribute("hidden", "");
     }
     saveUiSettings();
   });
+
+  if (expertProjectSplitter && expertProjectPanel && expertProjectSymbols) {
+    expertProjectSplitter.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      const startY = e.clientY;
+      const startHeight = expertProjectSymbols.getBoundingClientRect().height || _expertProjectSymbolsHeight || 160;
+      const panelHeight = expertProjectPanel.getBoundingClientRect().height || 0;
+      const minH = 48;
+      const maxH = Math.max(minH, panelHeight - 56);
+      expertProjectSplitter.classList.add("dragging");
+
+      const onMove = (ev) => {
+        const delta = startY - ev.clientY;
+        _expertProjectSymbolsHeight = Math.max(minH, Math.min(maxH, startHeight + delta));
+        _applyExpertProjectSymbolsHeight();
+      };
+
+      const onUp = () => {
+        expertProjectSplitter.classList.remove("dragging");
+        document.removeEventListener("mousemove", onMove);
+        document.removeEventListener("mouseup", onUp);
+        saveUiSettings();
+      };
+
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup", onUp);
+    });
+  }
 
   document.getElementById("expert-project-open-btn")?.addEventListener("click", _expertOpenProject);
   document.getElementById("expert-project-new-btn")?.addEventListener("click",  _expertNewProject);
@@ -2117,6 +2156,11 @@ function _applyUiSettingsToDOM() {
     _expertApplyLineNumbers();
   }
 
+  if (typeof savedUiSettings.expertProjectSymbolsHeight === "number" && Number.isFinite(savedUiSettings.expertProjectSymbolsHeight)) {
+    _expertProjectSymbolsHeight = Math.max(48, Math.min(1200, savedUiSettings.expertProjectSymbolsHeight));
+    _applyExpertProjectSymbolsHeight();
+  }
+
   if (savedUiSettings.expertAutocompleteEnabled !== undefined) {
     _expertAcEnabled = !!savedUiSettings.expertAutocompleteEnabled;
   }
@@ -2132,6 +2176,7 @@ function _applyUiSettingsToDOM() {
     const _savedDisasmVisible      = savedUiSettings.expertDisasmVisible;
     const _savedMonitorVisible     = savedUiSettings.expertMonitorVisible;
     const _savedProjectVisible     = savedUiSettings.expertProjectVisible;
+    const _savedProjectSymbolsHeight = savedUiSettings.expertProjectSymbolsHeight;
 
     setExpertMode(true);
 
@@ -2181,6 +2226,10 @@ function _applyUiSettingsToDOM() {
       expertProjectBtn?.classList.add("expert-hl-toggle--on");
       expertProjectBtn?.setAttribute("aria-pressed", "true");
       expertProjectPanel?.removeAttribute("hidden");
+      if (typeof _savedProjectSymbolsHeight === "number" && Number.isFinite(_savedProjectSymbolsHeight)) {
+        _expertProjectSymbolsHeight = Math.max(48, Math.min(1200, _savedProjectSymbolsHeight));
+      }
+      _applyExpertProjectSymbolsHeight();
     }
   }
 }
@@ -2798,10 +2847,8 @@ function handleBaseChange() {
 
 function getAsmDisplayOperand(block) {
   if (!block.rawOperand || !block.addressingMode) return block.operand || "";
-  const numericValue = parseNumberByBase(block.rawOperand, block.base || "hex");
-  if (numericValue === null) return block.operand || "";
-  if (validateRange(block.addressingMode, numericValue)) return block.operand || "";
-  return formatOperand(block.addressingMode, numericValue, block.base || "hex");
+  const preview = buildOperandPreview(block.addressingMode, block.rawOperand, block.base || "hex");
+  return preview.error ? (block.operand || "") : preview.operand;
 }
 
 
@@ -4436,35 +4483,11 @@ function createBlockFromMnemonic(item) {
 }
 
 function collapseLoadedProgram(blocks) {
-  const result = blocks.map((block) => ({
+  const result = normalizeProgramOperands(blocks).map((block) => ({
     ...block,
     collapsed: true,
     ...(block.isRegionMacro ? { regionCollapsed: true } : {})
   }));
-
-  // Rebuild operand from rawOperand for all regular instruction blocks to fix
-  // suffix/prefix mismatches (,X / ,Y / #) from older saved files
-  result.forEach((block) => {
-    const isMacroOrSpecial = block.isLabel || block.isComment || block.isAnonymousLabel || block.isLoopMacro ||
-      block.isNextMacro || block.isForMacro || block.isEndfMacro || block.isTableMacro || block.isDefineMacro || block.isConstMacro || block.isVarMacro ||
-      block.isRuntimeIfMacro || block.isRuntimeElseMacro || block.isRuntimeEndIfMacro ||
-      block.isRuntimeWhileMacro || block.isRuntimeEndwMacro || block.isRuntimeRepeatMacro || block.isRuntimeUntilMacro ||
-      block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isByteMacro ||
-      block.isWordMacro || block.isDataMacro || block.isRawBytesMacro || block.isFillMacro ||
-      block.isAlignMacro || block.isTextMacro || block.isStringMacro || block.isRawTextMacro ||
-      block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro || block.isIncludeMacro || block.isPushMacro ||
-      block.isPullMacro || block.isMacroDefStart || block.isMacroDefEnd || block.isMacroInvoke ||
-      block.isRegionMacro || block.isEndRegionMacro || block.isOrgMacro;
-    if (!isMacroOrSpecial && block.rawOperand && block.addressingMode) {
-      const preview = buildOperandPreview(block.addressingMode, block.rawOperand, block.base || "hex");
-      if (!preview.error) block.operand = preview.operand;
-      // Always clear stale validationError — live validation runs again on render
-      block.validationError = preview.error;
-    } else if (!isMacroOrSpecial) {
-      // No operand or addressing mode → not an error state
-      block.validationError = "";
-    }
-  });
 
   // Initialize nextReg for NEXT blocks based on their matching LOOP
   result.forEach((block, index) => {
@@ -4484,6 +4507,20 @@ function collapseLoadedProgram(blocks) {
   });
 
   return result;
+}
+
+function normalizeProgramOperands(blocks) {
+  return (blocks || []).map((block) => {
+    const copy = { ...block };
+    if (copy.mnemonic && copy.addressingMode && opcodeMap?.[copy.mnemonic]) {
+      const preview = buildOperandPreview(copy.addressingMode, String(copy.rawOperand ?? "").trim(), copy.base || "hex");
+      if (!preview.error) {
+        copy.operand = preview.operand;
+      }
+      copy.validationError = preview.error;
+    }
+    return copy;
+  });
 }
 
 function addSelectedBlock() {
@@ -4675,7 +4712,8 @@ function _blockToExpertLine(block) {
   }
   // Plain instruction
   const mnem = block.mnemonic || "NOP";
-  const op = block.operand ? `    ${mnem} ${block.operand}` : `    ${mnem}`;
+  const opText = getAsmDisplayOperand(block);
+  const op = opText ? `    ${mnem} ${opText}` : `    ${mnem}`;
   return op.trimEnd();
 }
 
@@ -5509,6 +5547,61 @@ function _expertGetHiddenRegionLines(blocks) {
   return hidden;
 }
 
+function _expertFindCurrentRegionBounds(lines, sourceLine) {
+  const allLines = Array.isArray(lines) ? lines : [];
+  if (!allLines.length) return null;
+  const curLine = Math.max(0, Math.min(allLines.length - 1, sourceLine | 0));
+
+  const stack = [];
+  let current = null;
+
+  for (let i = 0; i <= curLine; i++) {
+    const raw = allLines[i] || "";
+    const regionMatch = raw.match(/^\s*\.region\s+(.+)$/i);
+    const endMatch = /^\s*\.endregion\b/i.test(raw);
+
+    if (regionMatch) {
+      stack.push({ start: i, name: regionMatch[1].trim() });
+      if (i === curLine) {
+        current = stack[stack.length - 1] || null;
+        break;
+      }
+      continue;
+    }
+
+    if (endMatch) {
+      if (i === curLine) {
+        current = stack[stack.length - 1] || null;
+        if (current) current = { ...current, end: i };
+        break;
+      }
+      stack.pop();
+      continue;
+    }
+
+    if (i === curLine) {
+      current = stack[stack.length - 1] || null;
+    }
+  }
+
+  if (!current) return null;
+  if (typeof current.end === "number") return current;
+
+  let depth = 0;
+  for (let i = current.start; i < allLines.length; i++) {
+    const raw = allLines[i] || "";
+    if (/^\s*\.region\b/i.test(raw)) {
+      if (i !== current.start) depth++;
+    } else if (/^\s*\.endregion\b/i.test(raw)) {
+      if (depth === 0) {
+        return { ...current, end: i };
+      }
+      depth--;
+    }
+  }
+  return null;
+}
+
 function _expertGetFoldViewState() {
   const lines = expertEditor ? expertEditor.value.split("\n") : [];
   return { lines, hiddenLines: new Set(), hiddenBefore: null, visibleLines: lines.length };
@@ -5628,19 +5721,13 @@ function _expertMeasureTextWidth(text) {
 }
 
 function _expertVisibleLineToSourceLine(visibleLine, view) {
-  const hiddenBefore = view?.hiddenBefore || [];
+  const target = Math.max(0, visibleLine);
+  if (_expertProjectionActive && Array.isArray(_expertDisplayToSourceLines) && _expertDisplayToSourceLines.length) {
+    return _expertDisplayToSourceLines[Math.min(target, _expertDisplayToSourceLines.length - 1)] ?? target;
+  }
   const totalLines = view?.lines?.length || 0;
   if (totalLines <= 0) return 0;
-  const target = Math.max(0, visibleLine);
-  let lo = 0;
-  let hi = totalLines - 1;
-  while (lo <= hi) {
-    const mid = (lo + hi) >> 1;
-    const midVisible = mid - (hiddenBefore[mid] || 0);
-    if (midVisible < target) lo = mid + 1;
-    else hi = mid - 1;
-  }
-  return Math.max(0, Math.min(totalLines - 1, lo));
+  return Math.min(target, totalLines - 1);
 }
 
 function _expertCharIndexFromX(lineText, relativeX) {
@@ -5689,10 +5776,12 @@ function _expertSetCaretFromMouse(e) {
   const localY = e.clientY - rect.top + visibleScrollTop - pt;
   const visibleLine = Math.max(0, Math.floor(localY / lh));
   const sourceLine = _expertVisibleLineToSourceLine(visibleLine, view);
-  const lineText = view.lines[sourceLine] || "";
+  const displayLine = Math.min(visibleLine, Math.max(0, view.lines.length - 1));
+  const lineText = view.lines[displayLine] || "";
   const localX = e.clientX - rect.left + ta.scrollLeft - pl;
   const charIdx = _expertCharIndexFromX(lineText, localX);
-  const linePos = _expertLineStartIndex(ta.value, sourceLine);
+  const sourceText = _expertSourceText || ta.value || "";
+  const linePos = _expertLineStartIndex(sourceText, sourceLine);
   const caretPos = linePos + charIdx;
 
   ta.focus();
@@ -5753,6 +5842,12 @@ function _expertApplyHighlight() {
   const view = _expertGetFoldViewState();
   const allLines = view.lines;
   const rh = _expertRegionHighlight;
+  const rhStart = rh
+    ? (_expertProjectionActive ? _expertSourceToDisplayLines[rh.start] : rh.start)
+    : -1;
+  const rhEnd = rh
+    ? (_expertProjectionActive ? _expertSourceToDisplayLines[rh.end] : rh.end)
+    : -1;
 
   if (!_expertHlEnabled) {
     // No highlight — just escape HTML to prevent injection
@@ -5796,8 +5891,7 @@ function _expertApplyHighlight() {
     }
 
     let lineHtml = hl;
-    if (rh) {
-      if (i === rh.start || i === rh.end)
+    if (rh && ((rhStart >= 0 && i === rhStart) || (rhEnd >= 0 && i === rhEnd))) {
         lineHtml = `<span class="hl-region-bracket">${hl}</span>`;
       // body lines: background covered by #expert-region-bg div (no per-line span needed)
     }
@@ -6823,33 +6917,23 @@ function _expertBuildProgram() {
 // Update Ln/Col display and region bracket highlighting
 function _expertUpdateCursor() {
   if (!expertEditor) return;
-  const val  = expertEditor.value;
+  const displayText = expertEditor.value;
   const pos  = expertEditor.selectionStart;
-  const lines = val.slice(0, pos).split("\n");
+  const allLines = displayText.split("\n");
+  const curLine = displayText.slice(0, pos).split("\n").length - 1;
+  const lines = displayText.slice(0, pos).split("\n");
   const ln  = lines.length;
   const col = lines[lines.length - 1].length + 1;
 
-  // Find current region by scanning backwards (depth-aware)
-  const allLines = val.split("\n");
-  const curLine  = ln - 1; // 0-based
-  let currentRegion = null;
-  let depth = 0;
-  for (let i = curLine; i >= 0; i--) {
-    const raw = allLines[i] || "";
-    if (/^\s*\.endregion\b/i.test(raw)) {
-      depth++;
-    } else {
-      const m = raw.match(/^\s*\.region\s+(.+)$/i);
-      if (m) {
-        if (depth === 0) { currentRegion = m[1].trim(); break; }
-        depth--;
-      }
-    }
-  }
+  const sourcePos = _expertDisplayPosToSourcePos(pos ?? 0);
+  const sourceText = _expertSourceText || displayText;
+  const sourceLines = sourceText.split("\n");
+  const sourceLine = sourceText.slice(0, sourcePos).split("\n").length - 1;
+  const regionInfo = _expertFindCurrentRegionBounds(sourceLines, sourceLine);
 
   if (expertCursorPos) {
-    expertCursorPos.textContent = currentRegion
-      ? `Ln ${ln}, Col ${col}  ·  ${currentRegion}`
+    expertCursorPos.textContent = regionInfo?.name
+      ? `Ln ${ln}, Col ${col}  ·  ${regionInfo.name}`
       : `Ln ${ln}, Col ${col}`;
   }
 
@@ -6888,31 +6972,7 @@ function _expertUpdateCursor() {
   }
 
   // Update region highlight state and rebuild overlay
-  const isRegionLine    = /^\s*\.region\b/i.test(curRaw);
-  const isEndRegionLine = /^\s*\.endregion\b/i.test(curRaw);
-
-  let newRegionHighlight = null;
-  if (isRegionLine || isEndRegionLine) {
-    let regionStart = -1, regionEnd = -1;
-    if (isRegionLine) {
-      regionStart = curLine;
-      let d = 0;
-      for (let i = curLine; i < allLines.length; i++) {
-        if (/^\s*\.region\b/i.test(allLines[i])) d++;
-        else if (/^\s*\.endregion\b/i.test(allLines[i])) { d--; if (d === 0) { regionEnd = i; break; } }
-      }
-    } else {
-      regionEnd = curLine;
-      let d = 0;
-      for (let i = curLine; i >= 0; i--) {
-        if (/^\s*\.endregion\b/i.test(allLines[i])) d++;
-        else if (/^\s*\.region\b/i.test(allLines[i])) { d--; if (d === 0) { regionStart = i; break; } }
-      }
-    }
-    if (regionStart !== -1 && regionEnd !== -1) {
-      newRegionHighlight = { start: regionStart, end: regionEnd };
-    }
-  }
+  const newRegionHighlight = regionInfo ? { start: regionInfo.start, end: regionInfo.end } : null;
 
   // Only rebuild if region highlight changed
   const prev = _expertRegionHighlight;
@@ -7286,6 +7346,7 @@ function _expertRenderMonitor() {
 
 function _expertRenderSymbols() {
   const el = document.getElementById("expert-project-symbols");
+  const splitter = document.getElementById("expert-project-splitter");
   if (!el) return;
 
   // In expert mode: scan textarea text directly so typing immediately reflects
@@ -7321,10 +7382,7 @@ function _expertRenderSymbols() {
     });
   }
 
-  if (regions.length === 0 && macros.length === 0 && labels.length === 0) {
-    el.hidden = true;
-    return;
-  }
+  if (splitter) splitter.hidden = false;
   el.hidden = false;
   el.innerHTML = "";
 
@@ -7429,6 +7487,16 @@ function _expertRenderSymbols() {
       }
     }
   );
+
+  if (regions.length === 0 && macros.length === 0 && labels.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "expert-project-empty";
+    empty.style.cssText = "padding: 10px 12px; font-size: 0.68rem;";
+    empty.textContent = t("projAddFileHint");
+    el.appendChild(empty);
+  }
+
+  _applyExpertProjectSymbolsHeight();
 }
 
 // ── Project tree SVG icons ─────────────────────────────────────────────────
@@ -9754,11 +9822,12 @@ function getProjectPayload() {
     const blocks = _expertBuildProgram();
     if (blocks && blocks.length > 0) program = blocks;
   }
+  const normalizedProgram = normalizeProgramOperands(program);
   return {
     version: 1,
     app: "c64-visual-assembler",
     expertText: expertMode && expertEditor ? _expertGetSourceText() : undefined,
-    program: program.map(block => {
+    program: normalizedProgram.map(block => {
       if (!block.isIncludeMacro) return block;
       const { includedBlocks, ...rest } = block;
       return rest;
@@ -9933,7 +10002,7 @@ function _projectSnapshotLabel(entry) {
 
 function _buildSnapshotPayloadFromTab(tab) {
   if (!tab) return null;
-  const programBlocks = JSON.parse(JSON.stringify(tab.program || []));
+  const programBlocks = normalizeProgramOperands(JSON.parse(JSON.stringify(tab.program || [])));
   return {
     version: 1,
     app: "c64-visual-assembler",
@@ -12307,6 +12376,8 @@ async function _applyProjectPayload(projectData, { sourceFilePath = "", keepFile
     if (!name) continue;
     block.sidFile = name;
   }
+
+  loadedProgram = normalizeProgramOperands(loadedProgram);
 
   // Migrate old projects: if no ORG block at start, prepend one from saved origin
   if (!loadedProgram.some(b => b.isOrgMacro)) {

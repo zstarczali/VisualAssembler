@@ -54,11 +54,17 @@ function createMacroContext(extraContext = {}) {
       "parseMacroAddress",
       "resolveProgramConstValue",
       "addLayoutLabels",
+      "buildOperandPreview",
+      "validateRange",
+      "normalizeProgramOperands",
+      "getAsmDisplayOperand",
       "getDeferredMemorySections",
       "_expertNormalizeRegionName",
       "_expertStampRegionFoldSignatures",
       "_expertCopyRegionFoldState",
       "_expertGetHiddenRegionLines",
+      "_expertFindCurrentRegionBounds",
+      "_expertVisibleLineToSourceLine",
       "_blockToExpertLine",
       "compileAbsoluteStore",
       "compilePrintHexA",
@@ -72,6 +78,7 @@ function createMacroContext(extraContext = {}) {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
       getLiveValidationError: () => "",
       opcodeMap: {
+        LDA: { absolute: 0xAD, absoluteX: 0xBD, absoluteY: 0xB9, immediate: 0xA9, zeroPage: 0xA5 },
         CMP: { immediate: 0xC9, absolute: 0xCD },
         CPX: { immediate: 0xE0, absolute: 0xEC },
         CPY: { immediate: 0xC0, absolute: 0xCC },
@@ -82,6 +89,20 @@ function createMacroContext(extraContext = {}) {
       },
       t: (key) => key,
       tf: (_key, values) => values?.mnemonic || "?",
+      addressingModes: {
+        implied: { needsOperand: false },
+        immediate: { needsOperand: true },
+        zeroPage: { needsOperand: true },
+        zeroPageX: { needsOperand: true },
+        zeroPageY: { needsOperand: true },
+        absolute: { needsOperand: true },
+        absoluteX: { needsOperand: true },
+        absoluteY: { needsOperand: true },
+        indirect: { needsOperand: true },
+        indirectX: { needsOperand: true },
+        indirectY: { needsOperand: true },
+        relative: { needsOperand: true }
+      },
       DELAY_HELPER_LABEL: "__delay_wait_frames",
       parseOriginValue: () => ({ value: 0x0801, text: "$0801", error: "" }),
       resolveProgramConstValue: () => null,
@@ -364,6 +385,36 @@ test("_expertGetHiddenRegionLines hides nested content inside collapsed regions"
   assert.deepEqual(Array.from(hidden).sort((a, b) => a - b), [1, 2, 3, 4]);
 });
 
+test("folded inner regions do not confuse current region detection", () => {
+  const ctx = createMacroContext();
+  const sourceLines = [
+    ".region Outer",
+    ".region Inner",
+    ".print \"hello\"",
+    ".endregion",
+    "LDA #$00",
+    ".endregion",
+    ".end"
+  ];
+
+  const region = ctx._expertFindCurrentRegionBounds(sourceLines, 4);
+  const outside = ctx._expertFindCurrentRegionBounds(sourceLines, 6);
+
+  assert.deepEqual(JSON.parse(JSON.stringify(region)), { start: 0, end: 5, name: "Outer" });
+  assert.equal(outside, null);
+});
+
+test("_expertVisibleLineToSourceLine uses the projected line map when regions are collapsed", () => {
+  const ctx = createMacroContext({
+    _expertProjectionActive: true,
+    _expertDisplayToSourceLines: [0, 1, 4, 5]
+  });
+
+  assert.equal(ctx._expertVisibleLineToSourceLine(0, { lines: ["a", "b", "c", "d"] }), 0);
+  assert.equal(ctx._expertVisibleLineToSourceLine(2, { lines: ["a", "b", "c", "d"] }), 4);
+  assert.equal(ctx._expertVisibleLineToSourceLine(99, { lines: ["a", "b", "c", "d"] }), 5);
+});
+
 test("PUSH expands registers in stack order", () => {
   const ctx = createMacroContext();
   const bytes = compileBlock(ctx, {
@@ -562,6 +613,44 @@ test("DELAY resolves const names when the helper label is present", () => {
   const bytes = compileBlock(ctx, ctx.program[1], labels, 0x1000);
 
   assert.deepEqual(bytes, [0xA2, 0x1E, 0x20, 0x00, 0x20]);
+});
+
+test("loaded instruction operands are normalized from raw labels", () => {
+  const ctx = createMacroContext();
+  const blocks = ctx.normalizeProgramOperands([
+    {
+      id: "b1",
+      mnemonic: "LDA",
+      addressingMode: "absoluteX",
+      rawOperand: "row320lo",
+      operand: "$row320lo,X",
+      base: "hex"
+    },
+    {
+      id: "b2",
+      mnemonic: "LDA",
+      addressingMode: "absoluteX",
+      rawOperand: "bitmask",
+      operand: "$bitmask,X",
+      base: "hex"
+    }
+  ]);
+
+  assert.equal(blocks[0].operand, "row320lo,X");
+  assert.equal(blocks[1].operand, "bitmask,X");
+});
+
+test("expert display prefers the raw label form over stale serialized operands", () => {
+  const ctx = createMacroContext();
+  const block = {
+    mnemonic: "LDA",
+    addressingMode: "absoluteX",
+    rawOperand: "row320lo",
+    operand: "$row320lo,X",
+    base: "hex"
+  };
+
+  assert.equal(ctx.getAsmDisplayOperand(block), "row320lo,X");
 });
 
 test("STRING and DATA emit inline store sequences", () => {
