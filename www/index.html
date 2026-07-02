@@ -41,7 +41,7 @@
             </summary>
             <div class="control-menu-panel">
               <section class="control-menu-group">
-                <h3 class="control-menu-label">File</h3>
+                <h3 class="control-menu-label" id="menu-file-label">File</h3>
                 <button id="save-project" class="secondary" type="button">Save program</button>
                 <button id="save-project-as" class="secondary" type="button">Save Program As</button>
                 <button id="load-project" class="secondary" type="button">Load program</button>
@@ -52,7 +52,7 @@
                 <button id="exit-app" class="secondary" type="button">Kilepes</button>
               </section>
               <section id="sample-programs-group" class="control-menu-group">
-                <h3 class="control-menu-label">Peldak</h3>
+                <h3 class="control-menu-label" id="menu-examples-label">Peldak</h3>
                 <label class="sample-picker">
                   <span class="sr-only">Mintaprogram</span>
                   <select id="sample-select">
@@ -99,12 +99,13 @@
                 <button id="save-prg" class="secondary" type="button">Build PRG</button>
                 <button id="save-d64" class="secondary" type="button">Build D64</button>
                 <button id="build-info-btn" class="secondary" type="button">Build Info</button>
+                <h3 class="control-menu-label control-menu-label--section" id="versioning-section-label">Versioning</h3>
                 <button id="save-snapshot" class="secondary" type="button">Save snapshot</button>
                 <button id="restore-snapshot" class="secondary" type="button">Restore previous version</button>
                 <button id="snapshot-history" class="secondary" type="button">Snapshot history</button>
               </section>
               <section class="control-menu-group">
-                <h3 class="control-menu-label">Beallitasok</h3>
+                <h3 class="control-menu-label" id="menu-settings-label">Beallitasok</h3>
                 <label class="sample-picker">
                   <span id="language-label">Nyelv</span>
                   <select id="language-select">
@@ -115,7 +116,7 @@
                   </select>
                 </label>
                 <button id="hardware-settings-btn" class="secondary" type="button">Beállítások...</button>
-                <h3 class="control-menu-label control-menu-label--section" id="view-section-label">Nezet</h3>
+                <h3 class="control-menu-label control-menu-label--section" id="menu-view-label">Nezet</h3>
                 <details class="theme-picker-menu" id="theme-picker">
                   <summary id="theme-toggle" class="secondary icon-button theme-toggle-button" aria-label="Dark mode" title="Dark mode">
                     <span class="theme-toggle-glyph" aria-hidden="true"></span>
@@ -146,10 +147,10 @@
                 </div>
               </section>
               <section class="control-menu-group">
-                <h3 class="control-menu-label control-menu-label--section">Program</h3>
+                <h3 class="control-menu-label control-menu-label--section" id="menu-program-label">Program</h3>
                 <button id="copy-asm" class="secondary" type="button">ASM export</button>
                 <button id="clear-program" class="secondary" type="button">Program torlese</button>
-                <h3 class="control-menu-label control-menu-label--section">Info</h3>
+                <h3 class="control-menu-label control-menu-label--section" id="menu-info-label">Info</h3>
                 <button id="help-manual-btn" class="secondary" type="button">Manual</button>
                 <button id="about-btn" class="secondary" type="button">About</button>
                 <button id="whats-new-btn" class="secondary" type="button">What's New</button>
