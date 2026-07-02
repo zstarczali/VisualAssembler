@@ -332,6 +332,11 @@ $FFD2 (CHROUT) PETSCII-t vár. Kisbetűk ($61–$7A) C64 alapértelmezett karakt
 toolbar state-et akarsz visszaállítani, **a setExpertMode(true) hívás ELŐTT** menstd ki
 local változókba.
 
+### Kompakt expert gombok min-height csapdája
+Ha egy expert-editoros gomb vagy ikon saját méretet kap, a globális `button`
+`min-height` könnyen felülírja. Ilyenkor a saját osztályon külön állítsd
+`min-height: unset;`-re vagy `0`-ra, különben a gomb magasabb marad, mint amit a CSS alapján várnál.
+
 ---
 
 ## 12. Tauri IPC

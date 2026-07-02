@@ -52,8 +52,14 @@ function createMacroContext(extraContext = {}) {
       "parseMacroNumber",
       "parseDelayFrameCount",
       "parseMacroAddress",
+      "resolveProgramConstValue",
       "addLayoutLabels",
       "getDeferredMemorySections",
+      "_expertNormalizeRegionName",
+      "_expertStampRegionFoldSignatures",
+      "_expertCopyRegionFoldState",
+      "_expertGetHiddenRegionLines",
+      "_blockToExpertLine",
       "compileAbsoluteStore",
       "compilePrintHexA",
       "getDeferredMacroAddressField",
@@ -226,6 +232,63 @@ test("PRINT_CHAR resolves const labels case-insensitively", () => {
   assert.deepEqual(bytes, [0xA9, 0x0D, 0x20, 0xD2, 0xFF]);
 });
 
+test("expert region fold state carries over by region signature", () => {
+  const ctx = createMacroContext();
+  const oldBlocks = [
+    { isRegionMacro: true, regionName: "Print", regionCollapsed: true },
+    { isEndRegionMacro: true },
+    { isRegionMacro: true, regionName: "Loop", regionCollapsed: false },
+    { isEndRegionMacro: true }
+  ];
+  const newBlocks = [
+    { isRegionMacro: true, regionName: "Print", regionCollapsed: false, collapsed: false },
+    { isEndRegionMacro: true },
+    { isRegionMacro: true, regionName: "Loop", regionCollapsed: false, collapsed: false },
+    { isEndRegionMacro: true }
+  ];
+
+  ctx._expertCopyRegionFoldState(oldBlocks, newBlocks);
+
+  assert.equal(newBlocks[0].regionCollapsed, true);
+  assert.equal(newBlocks[0].collapsed, true);
+  assert.equal(newBlocks[2].regionCollapsed, false);
+  assert.equal(newBlocks[2].collapsed, false);
+});
+
+test("_expertStampRegionFoldSignatures distinguishes nested and repeated regions", () => {
+  const ctx = createMacroContext();
+  const blocks = [
+    { isRegionMacro: true, regionName: "Print" },
+    { isRegionMacro: true, regionName: "Inner" },
+    { isEndRegionMacro: true },
+    { isEndRegionMacro: true },
+    { isRegionMacro: true, regionName: "print" },
+    { isEndRegionMacro: true }
+  ];
+
+  ctx._expertStampRegionFoldSignatures(blocks);
+
+  assert.equal(blocks[0]._regionFoldSig, "/print#1");
+  assert.equal(blocks[1]._regionFoldSig, "/print#1/inner#1");
+  assert.equal(blocks[4]._regionFoldSig, "/print#2");
+});
+
+test("_expertGetHiddenRegionLines hides nested content inside collapsed regions", () => {
+  const ctx = createMacroContext();
+  const blocks = [
+    { isRegionMacro: true, regionName: "Outer", regionCollapsed: true, _srcLine: 0 },
+    { isRegionMacro: true, regionName: "Inner", regionCollapsed: false, _srcLine: 1 },
+    { isPrintMacro: true, _srcLine: 2 },
+    { isEndRegionMacro: true, _srcLine: 3 },
+    { isEndRegionMacro: true, _srcLine: 4 },
+    { isEndMacro: true, _srcLine: 5 }
+  ];
+
+  const hidden = ctx._expertGetHiddenRegionLines(blocks);
+
+  assert.deepEqual(Array.from(hidden).sort((a, b) => a - b), [1, 2, 3, 4]);
+});
+
 test("PUSH expands registers in stack order", () => {
   const ctx = createMacroContext();
   const bytes = compileBlock(ctx, {
@@ -339,6 +402,59 @@ test("PRINT_HEX renders X with the register prefix", () => {
     0xC9, 0x0A, 0x90, 0x02, 0x69, 0x06, 0x69, 0x30, 0x20, 0xD2, 0xFF
   ]);
   assert.equal(ctx.getInstructionSize({ isPrintHexMacro: true, printReg: "X" }), 31);
+});
+
+test("parseExpertText recognizes .region, .endregion, and .end", () => {
+  const ctx = loadFunctions(
+    ["_importMakeRegion", "_importMakeEndRegion", "_importMakeEndMacro", "parseExpertText"],
+    {
+      crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" }
+    }
+  );
+
+  const blocks = ctx.parseExpertText(".region Print\n.endregion\n.end");
+
+  assert.equal(blocks[0].isRegionMacro, true);
+  assert.equal(blocks[0].regionName, "Print");
+  assert.equal(blocks[1].isEndRegionMacro, true);
+  assert.equal(blocks[2].isEndMacro, true);
+});
+
+test("DELAY keeps const names in expert mode", () => {
+  const ctx = createMacroContext({
+    program: [
+      { id: "c1", mnemonic: "CONST", isConstMacro: true, constName: "_delay", rawOperand: "30", base: "dec", constValue: 30 },
+      { id: "d1", mnemonic: "DELAY", isDelayMacro: true, delayFrames: "_delay" }
+    ]
+  });
+
+  assert.equal(ctx._blockToExpertLine(ctx.program[1]), ".delay _delay");
+});
+
+test("DELAY accepts numeric frame counts in expert mode", () => {
+  const ctx = createMacroContext({
+    program: [
+      { id: "c1", mnemonic: "CONST", isConstMacro: true, constName: "_delay", rawOperand: "30", base: "dec", constValue: 30 },
+      { id: "d1", mnemonic: "DELAY", isDelayMacro: true, delayFrames: "30" }
+    ]
+  });
+  const labels = new Map([["__delay_wait_frames", 0x2000], ["_delay", 30]]);
+  const bytes = compileBlock(ctx, ctx.program[1], labels, 0x1000);
+
+  assert.deepEqual(bytes, [0xA2, 0x1E, 0x20, 0x00, 0x20]);
+});
+
+test("DELAY resolves const names when the helper label is present", () => {
+  const ctx = createMacroContext({
+    program: [
+      { id: "c1", mnemonic: "CONST", isConstMacro: true, constName: "_delay", rawOperand: "30", base: "dec", constValue: 30 },
+      { id: "d1", mnemonic: "DELAY", isDelayMacro: true, delayFrames: "_delay" }
+    ]
+  });
+  const labels = new Map([["__delay_wait_frames", 0x2000], ["_delay", 30]]);
+  const bytes = compileBlock(ctx, ctx.program[1], labels, 0x1000);
+
+  assert.deepEqual(bytes, [0xA2, 0x1E, 0x20, 0x00, 0x20]);
 });
 
 test("STRING and DATA emit inline store sequences", () => {

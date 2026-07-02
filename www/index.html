@@ -19,10 +19,12 @@
   <div id="splash-screen" class="splash-screen">
     <div class="splash-content">
       <img src="assets/logo0.PNG" alt="C64 Visual Assembler" class="splash-logo">
-      <div class="splash-loader">
-        <div class="splash-loader-bar"></div>
+      <div class="splash-status">
+        <div class="splash-loader">
+          <div class="splash-loader-bar"></div>
+        </div>
+        <div class="splash-ready" aria-live="polite"><span id="splash-ready-text"></span><span class="splash-cursor">&#x2588;</span></div>
       </div>
-      <div class="splash-ready" aria-live="polite"><span id="splash-ready-text"></span><span class="splash-cursor">&#x2588;</span></div>
     </div>
     <p class="splash-version" id="splash-version"></p>
   </div>
@@ -501,9 +503,11 @@ PRINTABLE CHARACTERS
             <div class="expert-project-symbols" id="expert-project-symbols" hidden></div>
           </div>
           <div class="expert-editor-wrap">
+            <div id="expert-region-folds" class="expert-region-folds"></div>
             <div id="expert-line-numbers" class="expert-line-numbers" aria-hidden="true"></div>
             <pre class="expert-hl" id="expert-hl" aria-hidden="true"><div id="expert-region-bg" class="expert-region-bg" hidden></div><code id="expert-hl-code"></code></pre>
             <textarea id="expert-editor" class="expert-editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" wrap="off" placeholder="; Expert mode — write 6502 assembly here&#10;; * = $0801&#10;; start:&#10;;     LDA #$00&#10;;     STA $D020&#10;;     RTS"></textarea>
+            <div id="expert-caret" class="expert-caret" aria-hidden="true"></div>
             <div id="expert-find-bar" class="expert-find-bar" hidden>
               <input id="expert-find-input" class="expert-find-input" type="text" placeholder="Find…" autocomplete="off" spellcheck="false">
               <span id="expert-find-counter" class="expert-find-counter"></span>
@@ -765,6 +769,12 @@ PRINTABLE CHARACTERS
         </li>
         <li>
           <strong>Expert mode polish</strong> &mdash; the new directives now get proper syntax coloring in Expert mode, including <code>.region</code> / <code>.endregion</code> and the newer macro blocks.
+        </li>
+        <li>
+          <strong>Expert region folding fix</strong> &mdash; collapsed <code>.region</code> blocks now really hide their body in Expert mode without leaving giant blank gaps, while caret placement, line numbers, tab switching, formatting, and save/load keep using the full source correctly behind the scenes.
+        </li>
+        <li>
+          <strong>Splash screen tuning</strong> &mdash; the startup logo, progress bar, and READY line were re-balanced so the loading bar sits closer to the logo while the READY text keeps a cleaner gap below it.
         </li>
         <li>
           <strong>New demos and docs</strong> &mdash; the sample menu now includes the new macro showcase and the memcpy scroll demo, while the docs, manual, and installer notes are refreshed for 2.1.1 across all four UI languages.
