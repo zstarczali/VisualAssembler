@@ -3683,6 +3683,7 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   overflow-y: auto;
   padding: 4px 0;
   scrollbar-width: thin;
+  min-height: 40px;
 }
 
 .expert-project-item {
@@ -3815,10 +3816,37 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   text-align: center;
 }
 
+.expert-project-splitter {
+  flex: 0 0 auto;
+  height: 8px;
+  margin: 0 2px;
+  cursor: row-resize;
+  position: relative;
+  user-select: none;
+  touch-action: none;
+}
+
+.expert-project-splitter::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 50%;
+  height: 1px;
+  background: color-mix(in srgb, var(--panel-border) 85%, transparent);
+  transform: translateY(-50%);
+}
+
+.expert-project-splitter:hover::before,
+.expert-project-splitter.dragging::before {
+  background: color-mix(in srgb, var(--accent) 85%, transparent);
+}
+
 .expert-project-symbols {
   flex-shrink: 0;
   border-top: 1px solid var(--panel-border);
-  max-height: min(320px, 42vh);
+  height: 160px;
+  max-height: min(1200px, 86vh);
   overflow-y: auto;
   scrollbar-width: thin;
   padding: 3px 0 5px;
