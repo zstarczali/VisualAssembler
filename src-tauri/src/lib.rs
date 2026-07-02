@@ -676,7 +676,7 @@ async fn choose_debugger_executable(app: AppHandle) -> serde_json::Value {
     let dialog = app.dialog().clone();
     let mut file_dialog = dialog.file();
 
-    if let Some(folder) = working_folder {
+    if let Some(folder) = working_folder.as_ref() {
         file_dialog = file_dialog.set_directory(folder);
     }
 

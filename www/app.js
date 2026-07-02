@@ -2332,12 +2332,12 @@ function applyTranslations() {
     setText(".global-memory-panel .panel-heading h2", t("memoryTitle"));
     setText(".global-memory-panel .panel-heading p", t("memoryHelp"));
 
-  const menuLabels = document.querySelectorAll(".control-menu-label");
-    if (menuLabels[0]) menuLabels[0].textContent = t("menuFile");
-    if (menuLabels[1]) menuLabels[1].textContent = t("menuExamples");
-    if (menuLabels[2]) menuLabels[2].textContent = t("menuSettings");
-    if (menuLabels[3]) menuLabels[3].textContent = t("menuView");
-    if (menuLabels[4]) menuLabels[4].textContent = t("menuProgram");
+    setText("#menu-file-label", t("menuFile"));
+    setText("#menu-examples-label", t("menuExamples"));
+    setText("#menu-settings-label", t("menuSettings"));
+    setText("#menu-view-label", t("menuView"));
+    setText("#menu-program-label", t("menuProgram"));
+    setText("#menu-info-label", t("menuInfo"));
   if (helpManualButton) helpManualButton.textContent = t("helpManual");
   if (checkUpdateButton) checkUpdateButton.textContent = t("checkForUpdate");
   if (reportBugButton) reportBugButton.textContent = t("reportBug");
@@ -2457,6 +2457,7 @@ function applyTranslations() {
     setText("#save-prg", t("savePrg"));
     setText("#set-working-folder", t("setWorkingFolder"));
     setText("#build-section-label", t("buildSection"));
+    setText("#versioning-section-label", t("versioningSection"));
     setText("#save-d64", t("saveD64"));
     setText("#d64-export-title", t("d64ExportTitle"));
     setText("#d64-export-diskname-label", t("d64ExportDiskName"));
