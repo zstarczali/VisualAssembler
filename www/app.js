@@ -368,6 +368,8 @@ const projectSnapshotRestoreButton = document.getElementById("project-snapshot-r
 const projectSnapshotCloseButton = document.getElementById("project-snapshot-close");
 let workProgressTimer = null;
 let workProgressValue = 10;
+let appVersionText = "v?";
+let appVersionPromise = null;
 const exitAppButton = document.getElementById("exit-app");
 const expertHlToggleBtn = document.getElementById("expert-hl-toggle");
 const expertPaletteSyncBtn = document.getElementById("expert-palette-sync-btn");
@@ -389,6 +391,18 @@ const expertModeTbBtn      = document.getElementById("expert-mode-tb-btn");
 const expertFindBtn        = document.getElementById("expert-find-btn");
 const expertZoomInBtn      = document.getElementById("expert-zoom-in-btn");
 const expertZoomOutBtn     = document.getElementById("expert-zoom-out-btn");
+
+function getAppVersionText() {
+  if (!appVersionPromise) {
+    appVersionPromise = window.electronAPI.getAppVersion()
+      .then((version) => {
+        appVersionText = `v${version}`;
+        return appVersionText;
+      })
+      .catch(() => appVersionText);
+  }
+  return appVersionPromise;
+}
 const buildInfoBtn         = document.getElementById("build-info-btn");
 const expertProjectBtn     = document.getElementById("expert-project-btn");
 const expertProjectPanel   = document.getElementById("expert-project-panel");
@@ -1242,8 +1256,7 @@ function initPalette() {
   languageSelect.addEventListener("change", handleLanguageChange);
   aboutButton?.addEventListener("click", async () => {
     document.querySelector(".control-menu")?.removeAttribute("open");
-    const version = await window.electronAPI.getAppVersion();
-    document.getElementById("about-version").textContent = `v${version}`;
+    document.getElementById("about-version").textContent = await getAppVersionText();
     const dlg = document.getElementById("about-dialog");
     dlg?.querySelectorAll("a[href^='mailto:']").forEach(a => {
       a.addEventListener("click", e => { e.preventDefault(); window.electronAPI.openExternal(a.href); }, { once: true });
@@ -1257,11 +1270,11 @@ function initPalette() {
     window.electronAPI.openExternal("https://zstarczali.itch.io/visual-assembler-commodore-64");
   });
   reportBugButton?.addEventListener("click", async () => {
-    const version = await window.electronAPI.getAppVersion();
+    const version = await getAppVersionText();
     const ua = navigator.userAgent;
     const os = ua.includes("Win") ? "Windows" : ua.includes("Mac") ? "macOS" : navigator.platform || "Unknown";
-    const subject = encodeURIComponent(`Visual Assembler v${version} - Bug Report`);
-    const body = encodeURIComponent(`Visual Assembler version: v${version}\nOS: ${os}\n\n--- Describe the bug ---\n\n\n--- Steps to reproduce ---\n\n`);
+    const subject = encodeURIComponent(`Visual Assembler ${version} - Bug Report`);
+    const body = encodeURIComponent(`Visual Assembler version: ${version}\nOS: ${os}\n\n--- Describe the bug ---\n\n\n--- Steps to reproduce ---\n\n`);
     window.electronAPI.openExternal(`mailto:retroboj@outlook.com?subject=${subject}&body=${body}`);
   });
   basicSysToggle?.addEventListener("change", () => {
@@ -1842,11 +1855,11 @@ function initPalette() {
   // any code that reads #about-version before the user opens About (e.g. the
   // copy-ASM header — although that now queries the backend directly) sees
   // the current version, not the placeholder in index.html.
-  window.electronAPI.getAppVersion().then(version => {
+  getAppVersionText().then(versionText => {
     const splashVersion = document.getElementById('splash-version');
-    if (splashVersion) splashVersion.textContent = `v${version}`;
+    if (splashVersion) splashVersion.textContent = versionText;
     const aboutVersion = document.getElementById('about-version');
-    if (aboutVersion) aboutVersion.textContent = `v${version}`;
+    if (aboutVersion) aboutVersion.textContent = versionText;
   });
 
   // READY. typewriter effect
@@ -3583,7 +3596,8 @@ function createBlockFromMnemonic(item) {
       isSpriteInitMacro: true,
       spriteNum: "0",
       spriteColor: "7",
-      spriteDataPage: "21"
+      spriteDataPage: "21",
+      spriteMulticolor: false
     };
   }
 
@@ -4714,8 +4728,8 @@ function _blockToExpertLine(block) {
   if (block.isMacroDefStart)  return `.macro ${block.macroName || block.rawOperand || "myMacro"}${block.macroParams ? "(" + block.macroParams + ")" : ""}`;
   if (block.isMacroDefEnd)    return `.endm`;
   if (block.isMacroInvoke)    return `.${block.invokeSyntax || "invoke"} ${block.invokeMacroName || "myMacro"}${block.invokeArgs ? "(" + block.invokeArgs + ")" : ""}`;  
-  if (block.isSpriteInitMacro)return `.sprite_init ${block.spriteNum || 0}, ${block.spriteColor || 7}, $${(block.spriteDataPage || "21").toUpperCase()}`;
-  if (block.isSpritePosMacro) return `.sprite_pos ${block.spriteNum || 0}, ${block.spriteX || 152}, ${block.spriteY || 100}`;
+if (block.isSpriteInitMacro)return `.sprite_init ${block.spriteNum || 0}, ${block.spriteColor || 7}, $${(block.spriteDataPage || "21").toUpperCase()}${block.spriteMulticolor ? ", multicolor" : ""}`;
+if (block.isSpritePosMacro) return `.sprite_pos ${block.spriteNum || 0}, ${block.spriteX || 152}, ${block.spriteY || 100}`;
   if (block.isWaitRasterMacro)return `.wait_raster $${(block.rasterLine || "FF").toUpperCase()}`;
   if (block.isTurboSetMacro) return `.turbo_set ${block.turboSpeed || "7"},${block.turboBadline || "0"}`;
   if (block.isSuperCpuDetectMacro) return `.supercpu_detect`;
@@ -6379,18 +6393,18 @@ function parseExpertText(text) {
       continue;
     }
 
-    // .sprite_init spriteNum, color, page
-    const siM = line.match(/^\.sprite_init\s+([A-Za-z_][A-Za-z0-9_]*|\d)\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d{1,2})\s*,\s*(?:#?\$)?([A-Za-z_][A-Za-z0-9_]*|[0-9A-Fa-f]{1,2})\s*$/i);
+    // .sprite_init spriteNum, color, page[, multicolor]
+    const siM = line.match(/^\.sprite_init\s+([A-Za-z_][A-Za-z0-9_]*|\d)\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d{1,2})\s*,\s*(?:#?\$)?([A-Za-z_][A-Za-z0-9_]*|[0-9A-Fa-f]{1,2})(?:\s*,\s*(multicolor|mc|mono|off|on|true|false|1|0))?\s*$/i);
     if (siM) {
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SPRITE_INIT", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSpriteInitMacro: true, spriteNum: siM[1], spriteColor: siM[2], spriteDataPage: siM[3].toUpperCase().replace(/^\$/, "").padStart(2,"0") });
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SPRITE_INIT", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSpriteInitMacro: true, spriteNum: siM[1], spriteColor: siM[2], spriteDataPage: siM[3].toUpperCase().replace(/^\$/, "").padStart(2,"0"), spriteMulticolor: !!siM[4] && !/^(mono|off|false|0)$/i.test(siM[4]) });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
 
     // .sprite_pos spriteNum, x, y
-    const spM = line.match(/^\.sprite_pos\s+(\d)\s*,\s*(\d+)\s*,\s*(\d+)\s*$/i);
+    const spM = line.match(/^\.sprite_pos\s+([A-Za-z_][A-Za-z0-9_]*|\d)\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d+)\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d+)\s*$/i);
     if (spM) {
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SPRITE_POS", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSpritePosMacro: true, spriteNum: parseInt(spM[1],10), spriteX: parseInt(spM[2],10), spriteY: parseInt(spM[3],10) });
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SPRITE_POS", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSpritePosMacro: true, spriteNum: spM[1], spriteX: spM[2], spriteY: spM[3] });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -8472,7 +8486,7 @@ function updateProgramBlock(index, field, value) {
     return;
   }
 
-  if (block.isSpriteInitMacro && (field === "spriteNum" || field === "spriteColor" || field === "spriteDataPage")) {
+  if (block.isSpriteInitMacro && (field === "spriteNum" || field === "spriteColor" || field === "spriteDataPage" || field === "spriteMulticolor")) {
     block.validationError = validateSpriteInitMacro(block.spriteNum, block.spriteColor, block.spriteDataPage);
     renderBlockPreview(index);
     renderAsmOutput();
@@ -9236,33 +9250,32 @@ function validateTableMacro(labelName, address) {
 }
 
 function validateSpriteInitMacro(spriteNum, spriteColor, spriteDataPage) {
-  const num = parseInt(spriteNum, 10);
-  if (isNaN(num) || num < 0 || num > 7) {
+  const num = resolveProgramValueWithConst(spriteNum, "dec");
+  if (num === null || num < 0 || num > 7) {
     return t("spriteNumberMustBe07");
   }
-  const color = parseInt(spriteColor, 10);
-  if (isNaN(color) || color < 0 || color > 15) {
+  const color = resolveProgramValueWithConst(spriteColor, "dec");
+  if (color === null || color < 0 || color > 15) {
     return t("colorMustBe015");
   }
-  const pageStr = (spriteDataPage || "").replace(/^\$/, "");
-  const page = parseInt(pageStr, 16);
-  if (isNaN(page) || page < 0 || page > 255) {
+  const page = resolveProgramValueWithConst(spriteDataPage, "hex");
+  if (page === null || page < 0 || page > 255) {
     return t("dataPageMustBeAHexByte00FfEG21For0840");
   }
   return "";
 }
 
 function validateSpritePosMacro(spriteNum, spriteX, spriteY) {
-  const num = parseInt(spriteNum, 10);
-  if (isNaN(num) || num < 0 || num > 7) {
+  const num = resolveProgramValueWithConst(spriteNum, "dec");
+  if (num === null || num < 0 || num > 7) {
     return t("spriteNumberMustBe07");
   }
-  const x = parseInt(spriteX, 10);
-  if (isNaN(x) || x < 0 || x > 319) {
+  const x = resolveProgramValueWithConst(spriteX, "dec");
+  if (x === null || x < 0 || x > 319) {
     return t("xMustBe0319");
   }
-  const y = parseInt(spriteY, 10);
-  if (isNaN(y) || y < 0 || y > 255) {
+  const y = resolveProgramValueWithConst(spriteY, "dec");
+  if (y === null || y < 0 || y > 255) {
     return t("yMustBe0255");
   }
   return "";
@@ -13846,17 +13859,22 @@ function compileLineBytes(line, labels) {
     const ptrAddr = 0x07F8 + num;
     const colorAddr = 0xD027 + num;
     const bitMask = 1 << num;
+    const multiMask = 0xFF ^ bitMask;
     const bytes = [
       0xA9, page,                                // LDA #dataPage
       0x8D, ptrAddr & 0xFF, ptrAddr >> 8,        // STA $07F8+N
       0xAD, 0x15, 0xD0,                          // LDA $D015
       0x09, bitMask,                             // ORA #bitMask
       0x8D, 0x15, 0xD0,                          // STA $D015
+      0xAD, 0x1C, 0xD0,                          // LDA $D01C
+      block.spriteMulticolor ? 0x09 : 0x29,      // ORA #bitMask / AND #~bitMask
+      block.spriteMulticolor ? bitMask : multiMask,
+      0x8D, 0x1C, 0xD0,                          // STA $D01C
       0xA9, color,                               // LDA #color
       0x8D, colorAddr & 0xFF, colorAddr >> 8     // STA $D027+N
     ];
     const pageHex = page.toString(16).toUpperCase().padStart(2, "0");
-    return { ok: true, bytes, comment: `SPRITE_INIT #${num} col=${color} page=$${pageHex}` };
+    return { ok: true, bytes, comment: `SPRITE_INIT #${num} col=${color} page=$${pageHex}${block.spriteMulticolor ? " mc" : ""}` };
   }
 
   if (block.isLoadFileMacro) {
@@ -13971,16 +13989,16 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isSpritePosMacro) {
-    const num = parseInt(block.spriteNum || "0", 10);
-    if (isNaN(num) || num < 0 || num > 7) {
+    const num = parseMacroNumber(block.spriteNum || "0", labels, "dec");
+    if (num === null || num < 0 || num > 7) {
       return { ok: false, error: "SPRITE_POS: a sprite szama 0 es 7 kozott lehet." };
     }
-    const x = parseInt(block.spriteX || "152", 10);
-    if (isNaN(x) || x < 0 || x > 319) {
+    const x = parseMacroNumber(block.spriteX || "152", labels, "dec");
+    if (x === null || x < 0 || x > 319) {
       return { ok: false, error: "SPRITE_POS: X erteke 0 es 319 kozott lehet." };
     }
-    const y = parseInt(block.spriteY || "100", 10);
-    if (isNaN(y) || y < 0 || y > 255) {
+    const y = parseMacroNumber(block.spriteY || "100", labels, "dec");
+    if (y === null || y < 0 || y > 255) {
       return { ok: false, error: "SPRITE_POS: Y erteke 0 es 255 kozott lehet." };
     }
     const xLow = x & 0xFF;
@@ -14810,7 +14828,7 @@ function parseNumberByBase(value, base) {
 function parseMacroNumber(raw, labels = null, fallbackBase = "hex") {
   const text = String(raw ?? "").trim();
   if (!text) return null;
-  const parsed = parseNumberByBase(text, fallbackBase);
+  const parsed = parseNumberByBase(text.replace(/^#/, "").replace(fallbackBase === "hex" ? /^\$/ : /^$/, ""), fallbackBase);
   if (parsed !== null) return parsed;
   if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(text)) {
     if (!labels) return null;
@@ -14839,6 +14857,83 @@ function resolveProgramConstValue(name) {
 
 function getProgramConstNames() {
   return [...new Set(program.filter(b => b.isConstMacro && b.constName).map(b => b.constName))];
+}
+
+function resolveProgramValueWithConst(raw, fallbackBase = "hex") {
+  const text = String(raw ?? "").trim();
+  if (!text) return null;
+  const normalized = text.replace(/^#/, "").replace(fallbackBase === "hex" ? /^\$/ : /^$/, "");
+  const parsed = parseNumberByBase(normalized, fallbackBase);
+  if (parsed !== null) return parsed;
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(text)) {
+    return resolveProgramConstValue(text);
+  }
+  return null;
+}
+
+function setupProgramConstPicker(inputEl) {
+  if (!inputEl) return null;
+  inputEl.classList.add("has-label-picker");
+  const wrapper = document.createElement("div");
+  wrapper.className = "label-picker-wrap";
+  inputEl.parentNode.insertBefore(wrapper, inputEl);
+  wrapper.appendChild(inputEl);
+  const dropdown = document.createElement("div");
+  dropdown.className = "label-picker-dropdown";
+  dropdown.hidden = true;
+  document.body.appendChild(dropdown);
+  let dropdownHovered = false;
+
+  function positionDropdown() {
+    const r = inputEl.getBoundingClientRect();
+    dropdown.style.top = (r.bottom + window.scrollY + 4) + "px";
+    dropdown.style.left = (r.left + window.scrollX) + "px";
+    dropdown.style.width = r.width + "px";
+  }
+
+  function closeDropdown() {
+    dropdown.hidden = true;
+    window.removeEventListener("scroll", positionDropdown, { capture: true });
+  }
+
+  function openDropdown() {
+    const names = getProgramConstNames();
+    if (!names.length) return false;
+    dropdown.innerHTML = names.map((name) => `<div class="label-picker-item">${name}</div>`).join("");
+    dropdown.querySelectorAll(".label-picker-item").forEach((item) => {
+      item.addEventListener("pointerdown", (event) => {
+        event.preventDefault();
+        inputEl.value = item.textContent;
+        inputEl.dispatchEvent(new Event("input"));
+        closeDropdown();
+        dropdownHovered = false;
+      });
+    });
+    positionDropdown();
+    dropdown.hidden = false;
+    window.addEventListener("scroll", positionDropdown, { capture: true, passive: true });
+    return true;
+  }
+
+  inputEl.addEventListener("focus", () => {
+    openDropdown();
+  });
+  inputEl.addEventListener("blur", () => {
+    if (!dropdownHovered) closeDropdown();
+  });
+  inputEl.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeDropdown();
+  });
+  dropdown.addEventListener("mouseenter", () => {
+    dropdownHovered = true;
+  });
+  dropdown.addEventListener("mouseleave", () => {
+    dropdownHovered = false;
+  });
+  document.addEventListener("pointerdown", (event) => {
+    if (!dropdown.contains(event.target) && event.target !== inputEl) closeDropdown();
+  }, { capture: true });
+  return { closeDropdown, dropdown };
 }
 
 function parseDelayFrameCount(raw, labels = null) {
@@ -15209,7 +15304,7 @@ function getInstructionSize(block) {
   }
 
   if (block.isSpriteInitMacro) {
-    return 18;  // LDA/STA ptr + LDA/ORA/STA $D015 + LDA/STA color
+    return 26;  // LDA/STA ptr + LDA/ORA/STA $D015 + LDA/$D01C/ORA|AND/STA + LDA/STA color
   }
 
   if (block.isLoadFileMacro) {
@@ -16760,7 +16855,7 @@ function getCollapsedOperandText(block) {
 
   if (block.isSpriteInitMacro) {
     const pageHex = (block.spriteDataPage || "21").replace(/^\$/, "").toUpperCase().padStart(2, "0");
-    return `#${block.spriteNum || "0"} col=${block.spriteColor || "7"} page=$${pageHex}`;
+    return `#${block.spriteNum || "0"} col=${block.spriteColor || "7"} page=$${pageHex}${block.spriteMulticolor ? " mc" : ""}`;
   }
 
   if (block.isLoadFileMacro) {
@@ -17869,21 +17964,35 @@ function renderProgram() {
           <div class="macro-grid">
             <label class="mini-field">
               <span>${t("fieldSpriteNum")}</span>
-              <input class="sprite-num" type="number" min="0" max="7" value="${block.spriteNum || "0"}">
+              <input class="sprite-num block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.spriteNum || "0"}" placeholder="0 / CONST">
             </label>
             <label class="mini-field">
               <span>${t("fieldSpriteColor")}</span>
-              <input class="sprite-color" type="number" min="0" max="15" value="${block.spriteColor || "7"}">
+              <input class="sprite-color block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.spriteColor || "7"}" placeholder="7 / CONST">
             </label>
           </div>
           <div class="macro-grid single-macro-row">
             <label class="mini-field">
               <span>${t("fieldSpriteDataPage")}</span>
-              <input class="sprite-data-page" type="text" maxlength="3" value="${block.spriteDataPage || "21"}" placeholder="21">
+              <input class="sprite-data-page block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" maxlength="3" value="${block.spriteDataPage || "21"}" placeholder="21 / CONST">
             </label>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:4px;font-size:0.72rem;color:var(--muted);">
+            <input class="sprite-multicolor-check mini-checkbox" type="checkbox"${block.spriteMulticolor ? " checked" : ""}>
+            ${t("fieldSpriteMulticolor")}
           </div>
         `
       );
+      const spriteNumInput = blockControls.querySelector(".sprite-num");
+      if (spriteNumInput) setupProgramConstPicker(spriteNumInput);
+      const spriteColorInput = blockControls.querySelector(".sprite-color");
+      if (spriteColorInput) setupProgramConstPicker(spriteColorInput);
+      const spriteDataPageInput = blockControls.querySelector(".sprite-data-page");
+      if (spriteDataPageInput) setupProgramConstPicker(spriteDataPageInput);
+      const spriteMulticolorCheck = blockControls.querySelector(".sprite-multicolor-check");
+      if (spriteMulticolorCheck) {
+        spriteMulticolorCheck.addEventListener("change", (e) => updateProgramBlock(index, "spriteMulticolor", !!e.target.checked));
+      }
     } else if (block.isSpritePosMacro) {
       inlineField.hidden = true;
       blockControls.insertAdjacentHTML(
@@ -17892,21 +18001,27 @@ function renderProgram() {
           <div class="macro-grid">
             <label class="mini-field">
               <span>${t("fieldSpriteNum")}</span>
-              <input class="sprite-num" type="number" min="0" max="7" value="${block.spriteNum || "0"}">
+              <input class="sprite-num block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.spriteNum || "0"}" placeholder="0 / CONST">
             </label>
             <label class="mini-field">
               <span>${t("fieldSpriteX")}</span>
-              <input class="sprite-x" type="number" min="0" max="319" value="${block.spriteX || "152"}">
+              <input class="sprite-x block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.spriteX || "152"}" placeholder="152 / CONST">
             </label>
           </div>
           <div class="macro-grid single-macro-row">
             <label class="mini-field">
               <span>${t("fieldSpriteY")}</span>
-              <input class="sprite-y" type="number" min="0" max="255" value="${block.spriteY || "100"}">
+              <input class="sprite-y block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.spriteY || "100"}" placeholder="100 / CONST">
             </label>
           </div>
         `
       );
+      const spritePosNumInput = blockControls.querySelector(".sprite-num");
+      if (spritePosNumInput) setupProgramConstPicker(spritePosNumInput);
+      const spriteXInput = blockControls.querySelector(".sprite-x");
+      if (spriteXInput) setupProgramConstPicker(spriteXInput);
+      const spriteYInput = blockControls.querySelector(".sprite-y");
+      if (spriteYInput) setupProgramConstPicker(spriteYInput);
     } else if (block.isSpriteColMacro) {
       inlineField.hidden = true;
       blockControls.insertAdjacentHTML(
@@ -19761,10 +19876,10 @@ function renderAsmOutput() {
       return `; .ENDM`;
     }
 
-    if (line.block.isSpriteInitMacro) {
-      const pageHex = (line.block.spriteDataPage || "21").replace(/^\$/, "").toUpperCase().padStart(2, "0");
-      return `; .sprite_init #${line.block.spriteNum || "0"} col=${line.block.spriteColor || "7"} page=$${pageHex}`;
-    }
+  if (line.block.isSpriteInitMacro) {
+    const pageHex = (line.block.spriteDataPage || "21").replace(/^\$/, "").toUpperCase().padStart(2, "0");
+    return `; .sprite_init #${line.block.spriteNum || "0"} col=${line.block.spriteColor || "7"} page=$${pageHex}${line.block.spriteMulticolor ? " mc" : ""}`;
+  }
 
     if (line.block.isLoadFileMacro) {
       const fname = (line.block.loadFileName || "").trim() || "?";

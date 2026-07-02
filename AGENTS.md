@@ -377,8 +377,8 @@ Lásd `tauri-bridge.js` és `src-tauri/src/lib.rs`. Leggyakoribb commands:
 
 ## 14. Jelenlegi verzió
 
-`2.1.1` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
+`2.1.2` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `CLAUDE.md`, és ez a fájl + copilot-instructions.md.
-Fő 2.1.1 újdonságok: `DELAY` / `WAIT` const-támogatás, `PRINT_CHAR` const-támogatás, `SET_BORDER` / `SET_BG` const-támogatás, és a `.region` Expert-mode highlight.
+Fő 2.1.2 hotfixek: a `.region` Expert-mode kiválasztás most kapcsolható, és nem módosítja a fold állapotot; a kollabált régiókhoz tartozó kurzor/kijelölés logika stabilizálva lett.
 
 Verziónöveléshez lásd a 3. szakasz végén lévő 7-lépéses checklistet.

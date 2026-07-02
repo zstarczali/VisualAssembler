@@ -1,11 +1,11 @@
 # macOS Installation Guide
-Version 2.1.1
+Version 2.1.2
 
-2.1.1 highlights: const-aware DELAY / WAIT, PRINT_CHAR, SET_BORDER / SET_BG, refreshed const pickers, and `.region` highlighting.
+2.1.2 hotfixes: the Expert mode Region selection toggle now only controls the automatic region highlight, and collapsed regions keep cursor/selection behavior aligned.
 
 ## Quick Install
 
-1. **Download** the 2.1.1 DMG for your architecture from the releases page
+1. **Download** the 2.1.2 DMG for your architecture from the releases page
 2. **Mount** the DMG and drag the app to `/Applications`
 3. **First launch**: Right-click the app → **"Open"** (macOS will block double-click)
 4. Click **"Open"** in the security dialog
@@ -57,4 +57,4 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.1.1 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.1.2 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

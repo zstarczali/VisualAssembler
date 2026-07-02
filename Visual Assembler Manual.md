@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.1.1**
+**Version 2.1.2**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -22,7 +22,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [ASM line numbers](#asm-line-numbers)
     - [Compile progress modal](#compile-progress-modal)
   - [5. Settings \& Toolbar](#5-settings--toolbar)
-    - [Import ASM (quick reference)](#import-asm-quick-reference)
+    - [Load .asm file (quick reference)](#load-asm-file-quick-reference)
       - [Import parsing notes and best practices](#import-parsing-notes-and-best-practices)
   - [6. Expert Mode](#6-expert-mode)
     - [Switching modes](#switching-modes)
@@ -236,7 +236,7 @@ During heavier actions, a centered progress modal appears with a progress bar:
 
 - **Run in VICE** — compiling/building PRG and launching emulator.
 - **Debug** — compiling/building PRG and launching debugger.
-- **Import ASM** — parsing and materializing blocks from pasted source.
+- **Load .asm file** — open an `.asm` file in Expert mode and materialize blocks from the source.
 
 The modal closes automatically when the action completes or fails.
 
@@ -259,7 +259,7 @@ The modal closes automatically when the action completes or fails.
 | **Open Project** (`Menu → File`) | Open a multi-file `.proj` project and open all source files as tabs |
 | **Save Project** (`Menu → File`) | Save the current `.proj` project (project panel must be open) |
 | **Close Project** (`Menu → File`) | Close the currently open project and all its file tabs. Prompts to save unsaved changes. The project panel resets to its empty state. |
-| **Import ASM** | Opens a paste dialog and imports textual 6502 ASM into blocks |
+| **Load .asm file** | Opens a `.asm` file in Expert mode and imports textual 6502 ASM into the current tab |
 | **Save PRG** | Export the compiled binary as a `.prg` file |
 | **Run (split button)** | The main **▶ Run** button runs the current mode; click the **▾** arrow to switch between: **Run as PRG** (compile and launch VICE directly), **Run via D64** (package into a .d64 disk image and launch VICE), or **Run on hardware** (send PRG to a C64 Ultimate / 1541 Ultimate device). See [Section 12](#12-d64-export--run) and [Section 13](#13-hardware-settings). |
 | **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 9](#9-debugger-integration)) |
@@ -281,9 +281,9 @@ Project snapshots are stored as on-disk sidecar JSON files, not in localStorage.
 | **Knowledge Base** | Reference links (6502 opcodes, C64 KERNAL, memory map, colors) |
 | **Check for Update** | Open the itch.io page to check for a newer release |
 
-### Import ASM (quick reference)
+### Load .asm file (quick reference)
 
-The Import dialog accepts common 6502 source patterns and converts them into blocks:
+The Expert-mode `.asm` loader accepts common 6502 source patterns and converts them into blocks:
 
 - `* = $1500` → ORG block
 - `Label:` → LABEL block
@@ -1721,13 +1721,14 @@ The generator is meant for gameplay, effect variation, and quick test data. It i
 <a id="sprite_init"></a>
 ### SPRITE_INIT
 
-Sets up a VIC-II sprite in one block — instead of writing ~6 POKE statements in BASIC, just fill in three fields. Sets the sprite's data pointer, turns it on, and sets its colour.
+Sets up a VIC-II sprite in one block — instead of writing ~6 POKE statements in BASIC, just fill in the fields. Sets the sprite's data pointer, turns it on, optionally enables multicolor mode, and sets its colour.
 
 | Field | Description |
 |---|---|
 | Sprite # | Sprite number 0–7 |
 | Colour | Colour index 0–15 (C64 palette) |
 | Data page | Sprite data address / 64 (e.g. `$21` if data is at `$0840`) |
+| Multicolor | Toggles the sprite's multicolor bit (`$D01C`) |
 
 **Generated ASM:**
 ```
@@ -1736,11 +1737,14 @@ Sets up a VIC-II sprite in one block — instead of writing ~6 POKE statements i
     LDA $D015
     ORA #$01        ; set enable bit for sprite 0
     STA $D015
+    LDA $D01C
+    AND #$FE        ; clear multicolor bit for sprite 0
+    STA $D01C
     LDA #$07
     STA $D027       ; sprite 0 colour register
 ```
 
-**Size:** 18 bytes.
+**Size:** 26 bytes.
 
 > **Sprite data page:** `data_address ÷ 64`. With the default BASIC SYS stub, `ALIGN 64` after `JMP main` places sprite data at `$0840` → page = `$21`.
 
@@ -1749,7 +1753,7 @@ Sets up a VIC-II sprite in one block — instead of writing ~6 POKE statements i
 <a id="sprite_pos"></a>
 ### SPRITE_POS
 
-Like **`POKE 53248, x : POKE 53249, y`** in BASIC — sets a sprite's starting position. The coordinates are baked in at assemble time; for animation use `INC`/`DEC` on the sprite register directly.
+Like **`POKE 53248, x : POKE 53249, y`** in BASIC — sets a sprite's starting position. The coordinates are baked in at assemble time, and the fields accept consts in Block mode; for animation use `INC`/`DEC` on the sprite register directly.
 
 | Field | Description |
 |---|---|
