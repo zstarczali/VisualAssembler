@@ -486,7 +486,9 @@ PRINTABLE CHARACTERS
               <path d="M8 3v6M5 6h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
             </svg>
           </button>
-          <span id="expert-file-name" class="expert-file-name"></span>
+          <div class="expert-toolbar-meta">
+            <span id="expert-working-folder" class="expert-working-folder"></span>
+          </div>
         </div>
         <div class="expert-body">
           <div class="expert-project-panel" id="expert-project-panel" hidden>
@@ -760,6 +762,9 @@ PRINTABLE CHARACTERS
       <ul class="whats-new-list">
         <li>
           <strong>Hotfixes</strong> &mdash; the Expert mode Region selection toggle now only controls the automatic region highlight, and collapsed regions keep their cursor/selection behavior aligned.
+        </li>
+        <li>
+          <strong>Mnemonic cards</strong> &mdash; opcode and macro cards now render a consistent Syntax / Description layout, and the expert hint stays aligned with the current addressing mode.
         </li>
         <li>
           <strong>Sprite macro upgrade</strong> &mdash; <code>.sprite_init</code> and <code>.sprite_pos</code> now accept const values in Block mode, and <code>.sprite_init</code> can also toggle the sprite's multicolor bit.

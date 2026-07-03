@@ -1419,6 +1419,56 @@ button:focus-visible,
   margin-top: 8px;
 }
 
+.mnemonic-field {
+  display: block;
+  margin-top: 10px;
+}
+
+.mnemonic-field-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--secondary);
+}
+
+.mnemonic-field-value {
+  display: block;
+  line-height: 1.45;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.mnemonic-field--syntax .mnemonic-field-value,
+.mnemonic-field--example .mnemonic-field-value {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8rem;
+  color: var(--text);
+  background: color-mix(in srgb, var(--panel-strong) 70%, transparent);
+  border: 1px solid var(--panel-border);
+  border-radius: 2px;
+  padding: 4px 6px;
+}
+
+.mnemonic-field--description .mnemonic-field-value {
+  font-size: 0.92rem;
+  color: var(--text);
+}
+
+.mnemonic-field--note {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--secondary);
+}
+
+.mnemonic-field--error {
+  margin-top: 8px;
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
 .mnemonic-card::-webkit-scrollbar {
   width: 8px;
 }
@@ -3286,15 +3336,26 @@ body.expert-mode .expert-panel {
   border-radius: 4px;
 }
 
-.expert-file-name {
-  white-space: nowrap;
-  flex: 1;
+.expert-working-folder {
+  flex: 0 1 auto;
+  max-width: 52vw;
   min-width: 0;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   opacity: 0.65;
   text-align: right;
   font-size: 0.65rem;
+}
+
+.expert-toolbar-meta {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .expert-toolbar-sep {
