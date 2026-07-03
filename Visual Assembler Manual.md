@@ -567,6 +567,11 @@ Like a **line number in BASIC** — but with a name instead of a number. Jump ta
 |---|---|
 | Label name | Identifier used in `JMP`, `JSR`, `BNE`, etc. |
 
+**Expert syntax:**
+```
+loop:
+```
+
 **Generated ASM:**
 ```
 loop:  ; $0820
@@ -579,6 +584,11 @@ The current address is shown as a comment. Labels have **0 byte size**.
 ### COMMENT
 
 Like **REM in BASIC** — a note for yourself that the assembler ignores completely.
+
+**Expert syntax:**
+```
+; Your comment text here
+```
 
 **Generated ASM:**
 ```
@@ -594,6 +604,11 @@ Like **DATA in BASIC** — stores a list of raw byte values inline in the progra
 | Field | Description |
 |---|---|
 | Operand | Comma-separated byte values (e.g. `$01, $02, $FF` or `1, 2, 255`) |
+
+**Expert syntax:**
+```
+.byte $01, $02, $FF
+```
 
 **Generated ASM:**
 ```
@@ -620,6 +635,11 @@ Like **DATA in BASIC but for 16-bit numbers**. Each value is stored as two bytes
 |---|---|
 | Operand | Comma-separated 16-bit values (e.g. `$0400, $C000`) |
 
+**Expert syntax:**
+```
+.word $0400, $C000
+```
+
 **Generated ASM:**
 ```
     .word $0400, $C000
@@ -637,6 +657,11 @@ Like `FOR I=1 TO N : POKE addr+I, val : NEXT` — fills a block of memory with t
 |---|---|
 | Operand | `count,value` — e.g. `256,0` fills 256 bytes with zero |
 
+**Expert syntax:**
+```
+.fill 256, $00
+```
+
 **Generated ASM:**
 ```
     .fill 256, $00
@@ -653,6 +678,12 @@ Slides the current address forward to the next clean boundary by inserting zero-
 | Field | Description |
 |---|---|
 | Boundary | Alignment value — e.g. `64` (sprite boundary), `256` (page), `$2000` (bitmap) |
+
+**Expert syntax:**
+```
+.align 64
+.align $2000
+```
 
 **Generated ASM:**
 ```
@@ -963,6 +994,11 @@ Like **BLOAD in BASIC** — picks up an external binary file (`.bin`, `.prg`, `.
 | File | Browse to select a `.bin`, `.prg`, `.sid`, or `.raw` file |
 | Address | Target load address (e.g. `$C000`) |
 
+**Expert syntax:**
+```
+.incbin "music.bin", $C000
+```
+
 **Generated ASM comment:**
 ```
     ; INCBIN "music.bin" @ $C000 (2048 bytes)
@@ -988,6 +1024,12 @@ The block displays:
 - **Init address** — call this with JSR to initialize the music (adjusted for relocation if a custom address is used)
 - **Play address** — call this with JSR on every frame in an IRQ handler (adjusted for relocation)
 - A **(relocated)** badge appears when a custom address shifts the data from its original position
+
+**Expert syntax:**
+```
+.sid "Ikari_Warriors.sid"
+.sid "Ikari_Warriors.sid", $1000
+```
 
 **Generated ASM comment:**
 ```
@@ -1051,6 +1093,11 @@ Like **DIM at a specific address** — names a lookup table and sets where it li
 | Name | Label identifier for the table (e.g. `color_table`) |
 | Address | Fixed address where the table starts (e.g. `$C000`) |
 
+**Expert syntax:**
+```
+.table color_table, $C000
+```
+
 **Generated ASM:**
 ```
 color_table:
@@ -1070,6 +1117,11 @@ Sets where in memory the program (or a section of it) is placed — like choosin
 |---|---|
 | Address | The new origin address (e.g. `0801` in HEX, or `2049` in DEC) |
 | HEX / DEC | Toggle the address input between hexadecimal and decimal display |
+
+**Expert syntax:**
+```
+* = $C000
+```
 
 **Generated ASM:**
 ```
@@ -1111,6 +1163,11 @@ Like **`FOR X=N TO 1 STEP -1 : ... : NEXT X`** in BASIC — counts down from N t
 | Count | Loop iteration count (hex or decimal, e.g. `0A` = 10) |
 | Label | Auto-generated loop label (e.g. `loop0`) |
 
+**Expert syntax:**
+```
+.loop X, 10, loop0
+```
+
 **Generated ASM:**
 ```
     LDX #$0A
@@ -1125,6 +1182,11 @@ loop0:
 |---|---|
 | Register | Automatically matched to the LOOP register |
 | Label | Automatically linked to the LOOP label |
+
+**Expert syntax:**
+```
+.next loop0
+```
 
 **Generated ASM:**
 ```
@@ -1158,6 +1220,11 @@ Like **`FOR X=0 TO N-1 : ... : NEXT X`** in BASIC — counts *up* from 0. Ideal 
 | Count | Loop limit (hex or decimal, e.g. `$12` = 18). X/Y runs from 0 up to limit-1. |
 | Label | Auto-generated loop label (e.g. `for0`) |
 
+**Expert syntax:**
+```
+.for X, $12, for0
+```
+
 **Generated ASM:**
 ```
     LDX #$00
@@ -1173,6 +1240,11 @@ for0:
 | Register | Automatically matched to the FOR register |
 | Label | Automatically linked to the FOR label |
 | Count | Automatically copied from the paired FOR |
+
+**Expert syntax:**
+```
+.endf for0
+```
 
 **Generated ASM:**
 ```
@@ -1213,6 +1285,11 @@ Pushes one or more registers onto the stack. The order is always A → X → Y (
 |---|---|
 | Registers | Any combination: `A`, `X`, `Y`, `AX`, `AY`, `XY`, `AXY` |
 
+**Expert syntax:**
+```
+.push AXY
+```
+
 **Generated ASM (example: `AX`):**
 ```
     PHA
@@ -1229,6 +1306,11 @@ Restores registers from the stack in **reverse order** (Y → X → A).
 | Field | Description |
 |---|---|
 | Registers | Same as PUSH — must match the corresponding PUSH block |
+
+**Expert syntax:**
+```
+.pull AXY
+```
 
 **Generated ASM (example: `AX`):**
 ```
@@ -1346,6 +1428,13 @@ Purely visual grouping — **zero bytes**, zero effect on the assembled code. Li
 |---|---|
 | Region name | Free-text label for the section (e.g. `init`, `game_loop`, `sprite_setup`) |
 
+**Expert syntax:**
+```
+.region init
+    ; blocks...
+.endregion
+```
+
 **Controls on the REGION block header (always visible):**
 - **▸ / ▾ toggle** — collapses or expands the entire region. When collapsed, all blocks between REGION and ENDREGION are hidden.
 - **↕ Expand all** — un-collapses every individually collapsed block inside the region and expands the region itself if needed.
@@ -1384,6 +1473,11 @@ Like **a switch the assembler reads** — `DEFINE DEBUG` turns on a symbol, then
 |---|---|
 | Symbol | One or more comma-separated identifiers to activate (e.g. `DEBUG` or `DEBUG, PAL`) |
 
+**Expert syntax:**
+```
+.define DEBUG, PAL
+```
+
 **Generated ASM:**
 ```
 ; .DEFINE DEBUG
@@ -1398,6 +1492,11 @@ A `DEFINE` block can activate multiple symbols at once (comma-separated). Place 
 |---|---|
 | Condition | Identifier to test (must match a `DEFINE` symbol to be active) |
 
+**Expert syntax:**
+```
+.if DEBUG
+```
+
 **Generated ASM:**
 ```
 ; .IF DEBUG
@@ -1409,6 +1508,11 @@ Blocks between `IF` and `ENDIF` (or `ELSE`) are included or skipped based on whe
 
 No fields. Marks the alternative branch — assembled when the `IF` condition is *not* active.
 
+**Expert syntax:**
+```
+.else
+```
+
 **Generated ASM:**
 ```
 ; .ELSE
@@ -1417,6 +1521,11 @@ No fields. Marks the alternative branch — assembled when the `IF` condition is
 #### ENDIF
 
 No fields. Closes the conditional block.
+
+**Expert syntax:**
+```
+.endif
+```
 
 **Generated ASM:**
 ```
@@ -1464,6 +1573,12 @@ Like **a named variable that never changes** — `SCREEN = $0400`. Use the name 
 | Name | Identifier for the constant (e.g. `SCREEN`) |
 | Value | Numeric value in the selected base (e.g. `0400` in HEX = address $0400), or a PC-relative expression (see below) |
 | Format | HEX or DEC — controls how the value is entered and displayed |
+
+**Expert syntax:**
+```
+.const SCREEN = $0400
+.const FRAMES_1S = 60
+```
 
 **Generated ASM:**
 ```
@@ -1704,6 +1819,11 @@ In Block mode these fields also use the const picker, so the symbolic value stay
 
 Sets up a raster IRQ handler in one step. The macro writes the IRQ vector, enables raster IRQs, sets the line, disables the common CIA IRQ sources, and returns to normal execution with `CLI`.
 
+| Field | Description |
+|---|---|
+| Handler | IRQ routine label (e.g. `my_irq`) |
+| Raster | Raster line in hex or decimal (e.g. `$FA`) |
+
 **Expert syntax:**
 ```
 .irq_setup handler=my_irq, raster=$FA
@@ -1718,6 +1838,10 @@ Use this when you want the common "SEI / install handler / enable IRQ / CLI" boi
 ### RAND
 
 Like **a tiny built-in PRNG** — returns an 8-bit pseudo-random value from a compact zero-page seed.
+
+| Field | Description |
+|---|---|
+| Seed | Optional zero-page seed byte or label (default `$FB`) |
 
 **Expert syntax:**
 ```
@@ -1741,6 +1865,13 @@ Sets up a VIC-II sprite in one block — instead of writing ~6 POKE statements i
 | Colour | Colour index 0–15 (C64 palette) |
 | Data page | Sprite data address / 64 (e.g. `$21` if data is at `$0840`) |
 | Multicolor | Toggles the sprite's multicolor bit (`$D01C`) |
+
+**Expert syntax:**
+```
+.sprite_init 0, 7, $21
+.sprite_init 0, 7, $21, multicolor
+.sprite_init 0, 7, $21, mono
+```
 
 **Generated ASM:**
 ```
@@ -1773,6 +1904,11 @@ Like **`POKE 53248, x : POKE 53249, y`** in BASIC — sets a sprite's starting p
 | X | Horizontal position 0–319 |
 | Y | Vertical position 0–255 |
 
+**Expert syntax:**
+```
+.sprite_pos 0, 152, 100
+```
+
 **Generated ASM (example: sprite 0, X=152, Y=100):**
 ```
     LDA #$98        ; X low byte
@@ -1801,6 +1937,11 @@ Waits for the VIC-II electron beam to reach a specific scan line — like syncin
 |---|---|
 | Raster line | Target raster line in hex (e.g. `FF` = line 255) |
 
+**Expert syntax:**
+```
+.wait_raster $FF
+```
+
 **Generated ASM:**
 ```
 wait:
@@ -1823,6 +1964,11 @@ Like reading **`PEEK($DC00)`** and then POKEing the sprite position — but in o
 |---|---|
 | Port | `1` = port 1 (`$DC01`) or `2` = port 2 (`$DC00`) |
 | Sprite # | Sprite number 0–7 (controls which X/Y register pair is updated) |
+
+**Expert syntax:**
+```
+.joystick 2, 0
+```
 
 **Generated ASM (port 2, sprite 0):**
 ```
@@ -1996,6 +2142,12 @@ Like **`PEEK($D01E)`** in BASIC — checks the VIC-II hardware collision registe
 | Sprite # | Sprite number 0–7 (which sprite's bit to check) |
 | Collision type | `Sprite-Sprite ($D01E)` — collision with another sprite; `Sprite-Background ($D01F)` — collision with background graphics |
 
+**Expert syntax:**
+```
+.sprite_col 0, sprite
+.sprite_col 0, background
+```
+
 **Generated ASM (sprite 0, sprite–sprite):**
 ```
     LDA $D01E       ; read sprite-sprite collision register (clears it!)
@@ -2038,6 +2190,13 @@ Like **`LOAD "file",8`** in BASIC — loads a file from a D64 disk at runtime us
 | Override address (optional) | Hex load address (e.g. `C000`). If set, the file is loaded to this address (`sec=0`, ignoring the PRG header). Leave empty to use the file's own 2-byte PRG header (`sec=1`). |
 | Error label (optional) | If set, a `BCS` instruction is generated after JSR LOAD. If the KERNAL returns with carry set (error), execution jumps to this label. |
 
+**Expert syntax:**
+```
+.loadfile "DEMO-COLORS", 8
+.loadfile "DEMO-COLORS", 8, $C000
+.loadfile "DEMO-COLORS", 8, $C000, error_label
+```
+
 **Generated code structure:**
 ```
     JMP skip_filename      ; jump over the inline filename
@@ -2074,6 +2233,12 @@ In-program **Exomizer decompression**. Use this macro right after a `LOADFILE` t
 |---|---|
 | Depacker address | Where the depacker code lives in memory (default `B000`). Must be a 16-bit hex address. |
 
+**Expert syntax:**
+```
+.exodecrunch
+.exodecrunch depacker=$B000
+```
+
 **Generated code (19 bytes):**
 ```
     LDA $AE           ; KERNAL load-end lo (set by previous LOAD)
@@ -2107,6 +2272,10 @@ In-program **Exomizer decompression**. Use this macro right after a `LOADFILE` t
 
 Detects whether a Commodore RAM Expansion Unit (REU) is plugged in — like checking `PEEK($D010)` to see if hardware is present. Tests by writing and reading back two patterns to REU register `$DF04`.
 
+| Field | Description |
+|---|---|
+| None | No operands |
+
 **Generated code (34 bytes):**
 ```
 LDA #$55
@@ -2128,6 +2297,11 @@ CMP #$FF   ; Z=1 => no REU
 done:
 ```
 > The macro normalizes the result so the following branch stays simple: `BNE` means REU present, `BEQ` means REU missing.
+
+**Expert syntax:**
+```
+.reu_check
+```
 
 **Result in flags:**
 - **Z = 0** (result ≠ 0) → REU present → use `BNE`
@@ -2163,6 +2337,13 @@ DMA block transfer between C64 RAM and REU expansion memory — like a very fast
 | REU address | Source/dest in REU (hex, 16-bit) | `0000` |
 | REU bank | REU memory bank (0–7) | `0` |
 | Length | Number of bytes to transfer (hex, 16-bit) | `1000` |
+
+**Expert syntax:**
+```
+.reu_stash $C000, $0000, 0, $1000
+.reu_fetch $C000, $0000, 0, $1000
+.reu_swap $C000, $0000, 0, $1000
+```
 
 **Generated code (40 bytes):**
 ```
@@ -2226,6 +2407,11 @@ C9 FF      CMP #$FF
 - **Z = 1** → SuperCPU not found → use `BEQ`
 
 **No configurable fields.**
+
+**Expert syntax:**
+```
+.supercpu_detect
+```
 
 **Typical usage:**
 ```assembly
@@ -2380,6 +2566,11 @@ Adds a fixed point value to a multi-byte BCD score stored in memory, then render
 | Digits | Number of BCD bytes (each byte holds two digits: `$99` = "99"). `4` bytes = up to 99999999. |
 | Add points | Decimal value to add per call (e.g. `100`). |
 | Screen address | Where to write the digit screen codes (e.g. `0400`). One byte per digit (high nibble first). |
+
+**Expert syntax:**
+```
+.score_bcd $C200, 4, 100, $0400
+```
 
 **Generated ASM (4 bytes, +100 pts, score at `$C200`, screen at `$0400`):**
 ```

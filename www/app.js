@@ -347,6 +347,7 @@ const expertRegionFolds = document.getElementById("expert-region-folds");
 const expertCursorPos = document.getElementById("expert-cursor-pos");
 const expertCaret = document.getElementById("expert-caret");
 const expertFileName = document.getElementById("expert-file-name");
+const expertWorkingFolder = document.getElementById("expert-working-folder");
 const aboutDialog = document.getElementById("about-dialog");
 const aboutCloseButton = document.getElementById("about-close");
 const whatsNewDialog = document.getElementById("whats-new-dialog");
@@ -1081,6 +1082,192 @@ function getItemDescription(item) {
   if (currentLanguage === "de") return mnemonicDescriptionsDe[item.mnemonic] || mnemonicDescriptionsEn[item.mnemonic] || item.description;
   if (currentLanguage !== "hu") return mnemonicDescriptionsEn[item.mnemonic] || item.description;
   return item.description;
+}
+
+const mnemonicSyntax = (name, ...parts) => `.${name.toLowerCase()} ${parts.join(", ")}`;
+
+const mnemonicExpertHints = {
+  TEXT: mnemonicSyntax("text", `"HELLO"`, "lower"),
+  BYTE: `.BYTE $A9, $11, $00`,
+  WORD: mnemonicSyntax("word", "$1000", "$C000"),
+  FILL: mnemonicSyntax("fill", "64", "$00"),
+  ALIGN: mnemonicSyntax("align", "64"),
+  TABLE: mnemonicSyntax("table", "lookup", "$C000"),
+  STRING: mnemonicSyntax("string", "$C000", `"HELLO"`),
+  DATA: mnemonicSyntax("data", "$C000", "$01", "$02"),
+  RAWBYTES: mnemonicSyntax("rawbytes", "$C000", "$01", "$02"),
+  RAWTEXT: mnemonicSyntax("rawtext", "$C000", `"HELLO"`, "lower"),
+  PETSCII: mnemonicSyntax("petscii", "$C000", `"HELLO"`, "lower", "null"),
+  CHARSET: mnemonicSyntax("charset", "lower"),
+  SID: mnemonicSyntax("sid", `"music.sid"`),
+  INCBIN: mnemonicSyntax("incbin", `"sprite.bin"`, "$2000"),
+  INCLUDE: mnemonicSyntax("include", `"other.json"`),
+  LOOP: mnemonicSyntax("loop", "X", "4"),
+  NEXT: ".next",
+  FOR: mnemonicSyntax("for", "X", "0", "8"),
+  ENDF: ".endf",
+  PUSH: mnemonicSyntax("push", "A", "X", "Y"),
+  PULL: mnemonicSyntax("pull", "A", "X", "Y"),
+  END: ".end",
+  MACRO: mnemonicSyntax("macro", "my_macro"),
+  ENDM: ".endm",
+  INVOKE: mnemonicSyntax("invoke", "my_macro"),
+  LABEL: `my_label:`,
+  COMMENT: `; note`,
+  REGION: ".region Print",
+  ENDREGION: ".endregion",
+  DEFINE: mnemonicSyntax("define", "DEBUG"),
+  IF: mnemonicSyntax("if", "DEBUG"),
+  ELSE: ".else",
+  ENDIF: ".endif",
+  CONST: ".const color = $0",
+  VAR: ".var counter",
+  IF_A: mnemonicSyntax("if", "A == #$10"),
+  IF_X: mnemonicSyntax("if", "X != #$00"),
+  IF_Y: mnemonicSyntax("if", "Y < #$20"),
+  WHILE_A: mnemonicSyntax("while", "A != #$00"),
+  WHILE_X: mnemonicSyntax("while", "X != #$00"),
+  WHILE_Y: mnemonicSyntax("while", "Y != #$00"),
+  ENDW: ".endw",
+  REPEAT: ".repeat",
+  UNTIL_A: mnemonicSyntax("until", "A == #$0D"),
+  UNTIL_X: mnemonicSyntax("until", "X == #$00"),
+  UNTIL_Y: mnemonicSyntax("until", "Y == #$00"),
+  MEMCPY: mnemonicSyntax("memcpy", "src=$C000", "dst=$0400", "size=$0280"),
+  MEMSET: mnemonicSyntax("memset", "addr=$0400", "value=#$20", "size=$0280"),
+  PRINT: mnemonicSyntax("print", `"HELLO"`, "lower"),
+  PRINT_CHAR: mnemonicSyntax("print_char", "#$0D"),
+  PRINT_HEX: mnemonicSyntax("print_hex", "A"),
+  CLEAR_SCREEN: ".clear_screen",
+  WAIT_KEY: ".wait_key",
+  SET_BORDER: mnemonicSyntax("set_border", "color"),
+  SET_BG: mnemonicSyntax("set_bg", "color"),
+  IRQ_SETUP: mnemonicSyntax("irq_setup", "handler=my_irq", "raster=$FA"),
+  RAND: mnemonicSyntax("rand", "seed"),
+  SPRITE_INIT: mnemonicSyntax("sprite_init", "0", "$2000", "1", "2"),
+  SPRITE_POS: mnemonicSyntax("sprite_pos", "0", "120", "80"),
+  WAIT_RASTER: mnemonicSyntax("wait_raster", "$FA"),
+  DELAY: mnemonicSyntax("delay", "30"),
+  JOYSTICK: mnemonicSyntax("joystick", "2", "sprite=0"),
+  MOUSE: mnemonicSyntax("mouse", "0", "sprite=0"),
+  SPRITE_COL: mnemonicSyntax("sprite_col", "0", "1"),
+  MAP_COPY: mnemonicSyntax("map_copy", "src=$C000", "dst=$0400", "size=$0280"),
+  SPRITE_ANIM: mnemonicSyntax("sprite_anim", "0", "frames=anim_frames"),
+  SCORE_BCD: mnemonicSyntax("score_bcd", "12345"),
+  LOADFILE: mnemonicSyntax("loadfile", `"data.bin"`, "$C000"),
+  EXODECRUNCH: mnemonicSyntax("exodecrunch", "$B000"),
+  REU_CHECK: ".reu_check",
+  REU_STASH: mnemonicSyntax("reu_stash", "src=$C000", "reu=$000000", "size=$1000"),
+  REU_FETCH: mnemonicSyntax("reu_fetch", "src=$0000", "reu=$000000", "size=$1000"),
+  REU_SWAP: mnemonicSyntax("reu_swap", "src=$C000", "reu=$000000", "size=$1000"),
+  TURBO_SET: mnemonicSyntax("turbo_set", "7", "badlines=on"),
+  SUPERCPU_DETECT: ".supercpu_detect",
+  TURBO_ENABLE: mnemonicSyntax("turbo_enable", "on"),
+  ORG: "* = $C000",
+  LAX: mnemonicSyntax("lax", "$C000"),
+  SAX: mnemonicSyntax("sax", "$C000"),
+  DCP: mnemonicSyntax("dcp", "$C000"),
+  ISC: mnemonicSyntax("isc", "$C000"),
+  SLO: mnemonicSyntax("slo", "$C000"),
+  RLA: mnemonicSyntax("rla", "$C000"),
+  SRE: mnemonicSyntax("sre", "$C000"),
+  RRA: mnemonicSyntax("rra", "$C000"),
+  ANC: mnemonicSyntax("anc", "#$80"),
+  ALR: mnemonicSyntax("alr", "#$80"),
+  ARR: mnemonicSyntax("arr", "#$80"),
+  AXS: mnemonicSyntax("axs", "#$10"),
+  LABEL: `my_label:`,
+  COMMENT: `; note`,
+  REGION: `.region Print`,
+  ENDREGION: `.endregion`
+};
+
+function buildOpcodeSyntax(item, modeKey) {
+  const mode = addressingModes[modeKey] ? modeKey : item?.modes?.[0] || "implied";
+  const mnemonic = item?.mnemonic || "";
+  const operandByMode = {
+    implied: "",
+    immediate: "#$10",
+    zeroPage: "$FB",
+    zeroPageX: "$FB,X",
+    zeroPageY: "$FB,Y",
+    absolute: "$C000",
+    absoluteX: "$C000,X",
+    absoluteY: "$C000,Y",
+    indirectX: "($FB,X)",
+    indirectY: "($FB),Y",
+    indirect: "($C000)",
+    relative: "label"
+  };
+  const operand = operandByMode[mode] ?? "";
+  return operand ? `${mnemonic} ${operand}` : mnemonic;
+}
+
+function getMnemonicExpertHint(item, modeKey = addressingSelect?.value || "implied") {
+  if (!item?.mnemonic) return "";
+  const explicit = mnemonicExpertHints[item.mnemonic];
+  if (explicit) return explicit;
+  if (item.isComment) return `; note`;
+  if (item.isLabel) return `my_label:`;
+  if (item.isAnonymousLabel) return `* = *`;
+  if (item.isRegionMacro) return `.region Print`;
+  if (item.isEndRegionMacro) return `.endregion`;
+  if (item.isMacroDefStart) return `.macro my_macro`;
+  if (item.isMacroDefEnd) return `.endm`;
+  if (item.isMacroInvoke) return `.invoke my_macro`;
+  if (item.isDefineMacro) return `.define DEBUG`;
+  if (item.isIfMacro) return `.if DEBUG`;
+  if (item.isElseMacro) return `.else`;
+  if (item.isEndIfMacro) return `.endif`;
+  if (item.isVarMacro) return `.var counter`;
+  if (item.isConstMacro) return `.const color = $0`;
+  if (item.isRuntimeIfMacro) return item.runtimeIfReg ? `.if ${item.runtimeIfReg} == #$10` : `.if A == #$10`;
+  if (item.isRuntimeWhileMacro) return item.runtimeIfReg ? `.while ${item.runtimeIfReg} != #$00` : `.while A != #$00`;
+  if (item.isRuntimeUntilMacro) return item.runtimeIfReg ? `.until ${item.runtimeIfReg} == #$0D` : `.until A == #$0D`;
+  if (item.isRuntimeRepeatMacro) return `.repeat`;
+  if (item.isRuntimeEndwMacro) return `.endw`;
+  if (item.isEndMacro) return `.end`;
+  if (item.isOrgMacro) return `* = $C000`;
+  if (item.modes?.length) return buildOpcodeSyntax(item, modeKey);
+  return "";
+}
+
+function buildMnemonicDescriptionMarkup(item, { lines = [], example = "", exampleError = "" } = {}) {
+  const parts = [
+    `<strong>${item.mnemonic}</strong>`,
+  ];
+  const syntax = getMnemonicExpertHint(item);
+  if (syntax) {
+    parts.push(`
+      <div class="mnemonic-field mnemonic-field--syntax">
+        <div class="mnemonic-field-label">${t("mnemonicSyntaxLabel")}</div>
+        <code class="mnemonic-field-value">${escapeHtmlAttribute(syntax)}</code>
+      </div>
+    `);
+  }
+  parts.push(`
+    <div class="mnemonic-field mnemonic-field--description">
+      <div class="mnemonic-field-label">${t("mnemonicDescriptionLabel")}</div>
+      <div class="mnemonic-field-value">${escapeHtmlAttribute(getItemDescription(item))}</div>
+    </div>
+  `);
+  for (const line of lines) {
+    if (line) {
+      parts.push(`<div class="mnemonic-field mnemonic-field--note">${line}</div>`);
+    }
+  }
+  if (example) {
+    parts.push(`
+      <div class="mnemonic-field mnemonic-field--example">
+        <div class="mnemonic-field-label">${t("mnemonicExampleLabel")}</div>
+        <code class="mnemonic-field-value">${escapeHtmlAttribute(example)}</code>
+      </div>
+    `);
+  }
+  if (exampleError) {
+    parts.push(`<div class="mnemonic-field mnemonic-field--error error-text">${escapeHtmlAttribute(exampleError)}</div>`);
+  }
+  return parts.join("\n");
 }
 
 
@@ -3047,94 +3234,74 @@ function renderMnemonicDescription() {
   }
   if (item.isTextMacro) {
     const textPreview = formatTextMacroPreview(operandInput.value.trim());
-    mnemonicDescription.innerHTML = `
-      <strong>${item.mnemonic}</strong>
-      <p>${getItemDescription(item)}</p>
-      <p>${currentLanguage === "hu" ? "Makro-cimzes: kepernyo pozicio X/Y alapon." : "Macro addressing: screen position by X/Y."}</p>
-      <small>${currentLanguage === "hu" ? "Elonezet" : "Preview"}: ${textPreview.preview}</small>
-    `;
+    mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
+      lines: [currentLanguage === "hu" ? "Makro-cimzes: kepernyo pozicio X/Y alapon." : "Macro addressing: screen position by X/Y."],
+      example: textPreview.preview
+    });
     return;
   }
   if (item.isByteMacro) {
     const bytePreview = formatByteMacroPreview(operandInput.value.trim());
-    mnemonicDescription.innerHTML = `
-      <strong>${item.mnemonic}</strong>
-      <p>${getItemDescription(item)}</p>
-      <p>${currentLanguage === "hu" ? "Makro-cimzes: a byte-ok a jelenlegi assembly cimre kerulnek." : "Macro addressing: bytes are inserted at the current assembly address."}</p>
-      <small>${currentLanguage === "hu" ? "Elonezet" : "Preview"}: ${bytePreview.preview}</small>
-      ${bytePreview.error ? `<br><small class="error-text">${bytePreview.error}</small>` : ""}
-    `;
+    mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
+      lines: [currentLanguage === "hu" ? "Makro-cimzes: a byte-ok a jelenlegi assembly cimre kerulnek." : "Macro addressing: bytes are inserted at the current assembly address."],
+      example: bytePreview.preview,
+      exampleError: bytePreview.error
+    });
     return;
   }
   if (item.isStringMacro) {
     const textPreview = formatTextMacroPreview(operandInput.value.trim());
-    mnemonicDescription.innerHTML = `
-      <strong>${item.mnemonic}</strong>
-      <p>${getItemDescription(item)}</p>
-      <p>${currentLanguage === "hu" ? "Makro-cimzes: szoveget kepernyo kodkent kodol, majd LDA #kod / STA $cim parokat general futasidokor." : "Macro addressing: encodes text as screen codes, then generates LDA #code / STA $addr pairs at runtime."}</p>
-      <small>${currentLanguage === "hu" ? "Elonezet" : "Preview"}: ${textPreview.preview}</small>
-    `;
+    mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
+      lines: [currentLanguage === "hu" ? "Makro-cimzes: szoveget kepernyo kodkent kodol, majd LDA #kod / STA $cim parokat general futasidokor." : "Macro addressing: encodes text as screen codes, then generates LDA #code / STA $addr pairs at runtime."],
+      example: textPreview.preview
+    });
     return;
   }
   if (item.isRawBytesMacro) {
     const bytePreview = formatByteMacroPreview(operandInput.value.trim());
-    mnemonicDescription.innerHTML = `
-      <strong>${item.mnemonic}</strong>
-      <p>${getItemDescription(item)}</p>
-      <p>${currentLanguage === "hu" ? "Makro-cimzes: nyers byte-okat helyez el kozvetlenul egy abszolut memoriacimre, LDA/STA kod generalas nelkul." : "Macro addressing: places raw bytes directly at an absolute memory address, no LDA/STA code generated."}</p>
-      <small>${currentLanguage === "hu" ? "Elonezet" : "Preview"}: ${bytePreview.preview}</small>
-      ${bytePreview.error ? `<br><small class="error-text">${bytePreview.error}</small>` : ""}
-    `;
+    mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
+      lines: [currentLanguage === "hu" ? "Makro-cimzes: nyers byte-okat helyez el kozvetlenul egy abszolut memoriacimre, LDA/STA kod generalas nelkul." : "Macro addressing: places raw bytes directly at an absolute memory address, no LDA/STA code generated."],
+      example: bytePreview.preview,
+      exampleError: bytePreview.error
+    });
     return;
   }
   if (item.isIncBinMacro) {
-    mnemonicDescription.innerHTML = `
-      <strong>${item.mnemonic}</strong>
-      <p>${getItemDescription(item)}</p>
-      <p>${currentLanguage === "hu" ? "Makro-cimzes: kulso binarfajl adatait helyezi el egy abszolut memoriacimre, runtime kod generalas nelkul." : "Macro addressing: includes an external binary file at a given memory address, no runtime code generated."}</p>
-      <small>${currentLanguage === "hu" ? "A fajlt a Tallozas gombbal valaszthatod ki a beillesztes utan." : "Select a binary file with the Browse button after inserting."}</small>
-    `;
+    mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
+      lines: [currentLanguage === "hu" ? "Makro-cimzes: kulso binarfajl adatait helyezi el egy abszolut memoriacimre, runtime kod generalas nelkul." : "Macro addressing: includes an external binary file at a given memory address, no runtime code generated.", currentLanguage === "hu" ? "A fajlt a Tallozas gombbal valaszthatod ki a beillesztes utan." : "Select a binary file with the Browse button after inserting."]
+    });
     return;
   }
   if (item.isIncludeMacro) {
-    mnemonicDescription.innerHTML = `
-      <strong>${item.mnemonic}</strong>
-      <p>${getItemDescription(item)}</p>
-      <p>${currentLanguage === "hu" ? "Egy masik projekt JSON fajl blokkjait illeszti be erre a helyre. A blokkok szurkitve, csak olvashatoan jelennek meg." : "Embeds another project JSON file's blocks inline at this position. The blocks appear grayed out and read-only."}</p>
-      <small>${currentLanguage === "hu" ? "A projektet a Tallozas gombbal valaszthatod ki a beillesztes utan." : "Select a project file with the Browse button after inserting."}</small>
-    `;
+    mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
+      lines: [currentLanguage === "hu" ? "Egy masik projekt JSON fajl blokkjait illeszti be erre a helyre. A blokkok szurkitve, csak olvashatoan jelennek meg." : "Embeds another project JSON file's blocks inline at this position. The blocks appear grayed out and read-only.", currentLanguage === "hu" ? "A projektet a Tallozas gombbal valaszthatod ki a beillesztes utan." : "Select a project file with the Browse button after inserting."]
+    });
     return;
   }
   if (item.isRawTextMacro) {
     const textPreview = formatTextMacroPreview(operandInput.value.trim());
-    mnemonicDescription.innerHTML = `
-      <strong>${item.mnemonic}</strong>
-      <p>${getItemDescription(item)}</p>
-      <p>${currentLanguage === "hu" ? "Makro-cimzes: szoveget kepernyo kodkent helyez el kozvetlenul egy abszolut memoriacimre, LDA/STA kod generalas nelkul." : "Macro addressing: places text as screen codes directly at an absolute memory address, no LDA/STA code generated."}</p>
-      <small>${currentLanguage === "hu" ? "Elonezet" : "Preview"}: ${textPreview.preview}</small>
-    `;
+    mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
+      lines: [currentLanguage === "hu" ? "Makro-cimzes: szoveget kepernyo kodkent helyez el kozvetlenul egy abszolut memoriacimre, LDA/STA kod generalas nelkul." : "Macro addressing: places text as screen codes directly at an absolute memory address, no LDA/STA code generated."],
+      example: textPreview.preview
+    });
     return;
   }
   if (item.isComment) {
-    mnemonicDescription.innerHTML = `
-      <strong>${item.mnemonic}</strong>
-      <p>${getItemDescription(item)}</p>
-      <p>${currentLanguage === "hu" ? "Kommentsor, ami az ASM-ben es a monitorban is latszik, de nem general byte-ot." : "Comment line visible in ASM and monitor, but it generates no bytes."}</p>
-      <small>${currentLanguage === "hu" ? "Elonezet" : "Preview"}: ; ${operandInput.value.trim() || (currentLanguage === "hu" ? "uj komment" : "new comment")}</small>
-    `;
+    mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
+      lines: [currentLanguage === "hu" ? "Kommentsor, ami az ASM-ben es a monitorban is latszik, de nem general byte-ot." : "Comment line visible in ASM and monitor, but it generates no bytes."],
+      example: `; ${operandInput.value.trim() || (currentLanguage === "hu" ? "uj komment" : "new comment")}`
+    });
     return;
   }
   const preview = buildOperandPreview(modeKey, operandInput.value.trim(), getSelectedBase());
-
-  mnemonicDescription.innerHTML = `
-    <strong>${item.mnemonic}</strong>
-    <p>${getItemDescription(item)}</p>
-    <p>${currentLanguage === "hu" ? "Cimzes" : "Addressing"}: ${modeText(modeKey, "label")}. ${modeText(modeKey, "help")}</p>
-    <small>${currentLanguage === "hu" ? "Engedett modok" : "Allowed modes"}: ${item.modes.map((key) => modeText(key, "label")).join(", ")}</small>
-    <br>
-    <small>${currentLanguage === "hu" ? "Elonezet" : "Preview"}: ${preview.text}</small>
-    ${preview.error ? `<br><small class="error-text">${preview.error}</small>` : ""}
-  `;
+  mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
+    lines: [
+      `${currentLanguage === "hu" ? "Cimzes" : "Addressing"}: ${modeText(modeKey, "label")}. ${modeText(modeKey, "help")}`,
+      `${currentLanguage === "hu" ? "Engedett modok" : "Allowed modes"}: ${item.modes.map((key) => modeText(key, "label")).join(", ")}`
+    ],
+    example: preview.text,
+    exampleError: preview.error
+  });
 }
 
 function renderPaletteItems() {
@@ -4898,6 +5065,7 @@ function setExpertMode(on) {
   }
   if (on) { _expertSyncFromProgram(); renderExpertOriginInfo(); _expertUpdateCaret(); }
   else renderProgram();
+  renderMnemonicDescription();
   saveUiSettings();
 }
 
@@ -9822,6 +9990,27 @@ function updateWorkingFolderPreview(nextPath) {
       ? `${t("workingFolderStatusLabel")}: ${displayPath}`
       : t("workingFolderStatusPending");
     workingFolderPanel.title = workingFolder;
+  }
+  if (expertWorkingFolder) {
+    const normalized = String(workingFolder || "").replace(/\\/g, "/").replace(/\/+/g, "/");
+    let displayPath = normalized;
+    if (normalized.length > 60) {
+      const parts = normalized.split("/").filter(Boolean);
+      for (let keep = Math.min(3, parts.length); keep >= 1; keep--) {
+        const candidate = `.../${parts.slice(-keep).join("/")}`;
+        if (candidate.length <= 60) {
+          displayPath = candidate;
+          break;
+        }
+      }
+      if (displayPath === normalized) {
+        displayPath = `.../${normalized.slice(-56)}`;
+      }
+    }
+    expertWorkingFolder.textContent = workingFolder
+      ? `${t("workingFolderStatusLabel")}: ${displayPath}`
+      : t("workingFolderStatusPending");
+    expertWorkingFolder.title = workingFolder;
   }
 }
 
