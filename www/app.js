@@ -387,6 +387,7 @@ const expertMonitorBtn     = document.getElementById("expert-monitor-btn");
 const expertMonitorPanel   = document.getElementById("expert-monitor-panel");
 const expertMonitorOutput  = document.getElementById("expert-monitor-output");
 const expertRegionSelectionBtn = document.getElementById("expert-region-selection-btn");
+const expertRegionFoldAllBtn   = document.getElementById("expert-region-fold-all-btn");
 const expertFormatBtn      = document.getElementById("expert-format-btn");
 const expertLoadAsmBtn     = document.getElementById("expert-load-asm-btn");
 const expertSaveAsmBtn     = document.getElementById("expert-save-asm-btn");
@@ -1515,6 +1516,11 @@ function initPalette() {
     saveUiSettings();
   });
 
+  expertRegionFoldAllBtn?.addEventListener("click", () => {
+    _expertToggleAllRegions();
+    expertEditor?.focus();
+  });
+
   expertAutocompleteBtn?.addEventListener("click", () => {
     _expertAcEnabled = !_expertAcEnabled;
     expertAutocompleteBtn.classList.toggle("expert-hl-toggle--on", _expertAcEnabled);
@@ -2585,6 +2591,8 @@ function applyTranslations() {
   expertPaletteSyncBtn?.setAttribute("aria-label", t("expertPaletteSync"));
   expertRegionSelectionBtn?.setAttribute("title", t("expertRegionSelection"));
   expertRegionSelectionBtn?.setAttribute("aria-label", t("expertRegionSelection"));
+  expertRegionFoldAllBtn?.setAttribute("title", t("expertRegionFoldAll"));
+  expertRegionFoldAllBtn?.setAttribute("aria-label", t("expertRegionFoldAll"));
   expertAutocompleteBtn?.setAttribute("title", t("expertAutocomplete"));
   expertAutocompleteBtn?.setAttribute("aria-label", t("expertAutocomplete"));
   expertDisasmBtn?.setAttribute("title", t("expertDisasm"));
@@ -3726,7 +3734,7 @@ function createBlockFromMnemonic(item) {
       description: item.description,
       addressingMode: "implied",
       base: "hex",
-      validationError: "",
+      validationError: t("incbinMacroNeedsFile"),
       collapsed: true,
       isIncBinMacro: true,
       incBinFile: "",
@@ -3745,7 +3753,7 @@ function createBlockFromMnemonic(item) {
       description: item.description,
       addressingMode: "implied",
       base: "hex",
-      validationError: "",
+      validationError: t("sidMacroNeedsFile"),
       collapsed: true,
       isSidMacro: true,
       sidFile: "",
@@ -3769,7 +3777,7 @@ function createBlockFromMnemonic(item) {
       description: item.description,
       addressingMode: "implied",
       base: "hex",
-      validationError: "",
+      validationError: t("includeMacroNeedsFile"),
       collapsed: true,
       isIncludeMacro: true,
       includeFile: "",
@@ -5059,7 +5067,16 @@ let _expertIncludeReloadTimer = null;
 let _expertIncludeReloadSeq = 0;
 
 function setExpertMode(on) {
+  let cursorSourceLine = -1;
   if (!on && expertMode) {
+    // Capture the caret's source line BEFORE syncing / rebuilding, so we can
+    // reselect the equivalent block after the switch.
+    if (expertEditor) {
+      const displayPos = expertEditor.selectionStart ?? 0;
+      const sourcePos = _expertDisplayPosToSourcePos(displayPos);
+      const sourceText = _expertSourceText || expertEditor.value || "";
+      cursorSourceLine = sourceText.slice(0, sourcePos).split("\n").length - 1;
+    }
     _expertSyncSourceTextFromEditor();
     // Convert expert text → program blocks before switching off
     const blocks = _expertBuildProgram();
@@ -5084,9 +5101,40 @@ function setExpertMode(on) {
     expertModeTbBtn.classList.toggle("main-tb-btn--active", on);
   }
   if (on) { _expertSyncFromProgram(); renderExpertOriginInfo(); _expertUpdateCaret(); }
-  else renderProgram();
+  else {
+    renderProgram();
+    if (cursorSourceLine >= 0) _selectBlockBySourceLine(cursorSourceLine);
+  }
   renderMnemonicDescription();
   saveUiSettings();
+}
+
+// Select the block whose _srcLine best matches the given source line (used
+// when switching from Expert mode to Block mode to preserve caret context).
+function _selectBlockBySourceLine(sourceLine) {
+  if (!Array.isArray(program) || program.length === 0) return;
+  // Prefer exact match; otherwise pick the last block with _srcLine <= sourceLine.
+  let exact = null;
+  let bestBelow = null;
+  for (const block of program) {
+    const sl = typeof block._srcLine === "number" ? block._srcLine : -1;
+    if (sl === sourceLine) { exact = block; break; }
+    if (sl >= 0 && sl <= sourceLine) {
+      if (!bestBelow || (typeof bestBelow._srcLine === "number" && sl > bestBelow._srcLine)) {
+        bestBelow = block;
+      }
+    }
+  }
+  const target = exact || bestBelow || program[0];
+  if (!target?.id) return;
+  // Wait one frame so renderProgram() has attached DOM nodes.
+  requestAnimationFrame(() => {
+    selectBlockInAsm(target.id);
+    const node = programList?.querySelector(`[data-block-id="${target.id}"]`);
+    if (node && typeof node.scrollIntoView === "function") {
+      node.scrollIntoView({ block: "center", behavior: "auto" });
+    }
+  });
 }
 
 function _expertSetStatus(text, type) {
@@ -6187,6 +6235,29 @@ function _expertSetCaretFromMouse(e) {
   return true;
 }
 
+function _expertToggleAllRegions() {
+  if (!Array.isArray(program) || !program.length) return;
+  const regionBlocks = program.filter(b => b?.isRegionMacro);
+  if (!regionBlocks.length) return;
+  // If any region is currently expanded, collapse all; otherwise expand all.
+  const anyExpanded = regionBlocks.some(b => !b.regionCollapsed);
+  const target = anyExpanded;
+  regionBlocks.forEach((block) => {
+    block.regionCollapsed = target;
+    block.collapsed = target;
+  });
+  markTabDirty();
+  if (expertMode) {
+    _expertRefreshProjection();
+    _expertApplyHighlight();
+    _expertUpdateRegionFolds();
+  } else {
+    renderProgram();
+  }
+  expertRegionFoldAllBtn?.classList.toggle("expert-hl-toggle--on", target);
+  expertRegionFoldAllBtn?.setAttribute("aria-pressed", String(target));
+}
+
 function _expertUpdateRegionFolds() {
   const gutter = expertRegionFolds;
   if (!gutter || !expertEditor) return;
@@ -6688,7 +6759,8 @@ function parseExpertText(text) {
     // .sid "filename.sid" [, $ADDR]
     const sidDirM = line.match(/^\.sid\s+"([^"]*)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$/i);
     if (sidDirM) {
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SID", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSidMacro: true, sidFile: sidDirM[1], sidFileName: sidDirM[1], sidTitle: "", sidAuthor: "", sidLoadAddress: 0, sidInitAddress: 0, sidPlayAddress: 0, sidBytes: [], sidCustomAddress: sidDirM[2] ? sidDirM[2].toUpperCase() : "" });
+      const _sidName = sidDirM[1];
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SID", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: _sidName.trim() ? "" : t("sidMacroNeedsFile"), collapsed: true, isSidMacro: true, sidFile: _sidName, sidFileName: _sidName, sidTitle: "", sidAuthor: "", sidLoadAddress: 0, sidInitAddress: 0, sidPlayAddress: 0, sidBytes: [], sidCustomAddress: sidDirM[2] ? sidDirM[2].toUpperCase() : "" });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -6697,9 +6769,26 @@ function parseExpertText(text) {
     const includeDirM = line.match(/^\.include\s+"([^"]*)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$/i);
     if (includeDirM) {
       const _incName = includeDirM[1];
-      const _incFile = /\.(json|inc|asm|s)$/i.test(_incName) ? _incName : `${_incName}.json`;
+      const _incFile = _incName ? (/\.(json|inc|asm|s)$/i.test(_incName) ? _incName : `${_incName}.json`) : "";
       const _incAddr = includeDirM[2] ? includeDirM[2].toUpperCase() : "";
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "INCLUDE", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isIncludeMacro: true, includeFile: _incFile, includeFileName: _incName, includeAddress: _incAddr, includeCollapsed: false, includedBlocks: [] });
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "INCLUDE", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: _incName.trim() ? "" : t("includeMacroNeedsFile"), collapsed: true, isIncludeMacro: true, includeFile: _incFile, includeFileName: _incName, includeAddress: _incAddr, includeCollapsed: false, includedBlocks: [] });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Malformed asset directives — `.include`, `.incbin`, `.sid` without a
+    // quoted filename must still surface as an error instead of silently
+    // becoming a comment via the fallback path.
+    const bareAssetDirM = line.match(/^\.(include|incbin|sid)\b(.*)$/i);
+    if (bareAssetDirM) {
+      const kind = bareAssetDirM[1].toLowerCase();
+      if (kind === "include") {
+        blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "INCLUDE", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: t("includeMacroNeedsFile"), collapsed: true, isIncludeMacro: true, includeFile: "", includeFileName: "", includeAddress: "", includeCollapsed: false, includedBlocks: [] });
+      } else if (kind === "incbin") {
+        blocks.push(_importMakeIncBin("", ""));
+      } else {
+        blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SID", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: t("sidMacroNeedsFile"), collapsed: true, isSidMacro: true, sidFile: "", sidFileName: "", sidTitle: "", sidAuthor: "", sidLoadAddress: 0, sidInitAddress: 0, sidPlayAddress: 0, sidBytes: [], sidCustomAddress: "" });
+      }
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -7182,6 +7271,29 @@ function parseExpertText(text) {
     if (invokeM) {
       const invokeArgs = (invokeM[3] !== undefined ? invokeM[3] : (invokeM[4] || "")).trim();
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "INVOKE", operand: invokeM[2], rawOperand: invokeM[2], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isMacroInvoke: true, invokeMacroName: invokeM[2], invokeArgs, invokeSyntax: invokeM[1].toLowerCase() });  
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Any line that starts with a directive-looking token (`.foo`) but did not
+    // match one of the explicit patterns above is an unknown directive — do
+    // not silently swallow it as a comment.
+    const unknownDirM = line.match(/^\.([A-Za-z_][A-Za-z0-9_]*)/);
+    if (unknownDirM) {
+      blocks.push({
+        id: crypto.randomUUID(),
+        category: "Szerkezet",
+        mnemonic: "COMMENT",
+        operand: line,
+        rawOperand: line,
+        description: "",
+        addressingMode: "implied",
+        base: "comment",
+        validationError: tf("unknownDirective", { directive: `.${unknownDirM[1]}` }),
+        collapsed: true,
+        isComment: true,
+        commentText: line
+      });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -8936,7 +9048,19 @@ function updateProgramBlock(index, field, value) {
   }
 
   if (field === "incBinAddress" || field === "incBinFile" || field === "incBinFileName" || field === "incBinBytes") {
-    block.validationError = validateIncBinMacro(block.incBinBytes, block.incBinAddress);
+    block.validationError = validateAssetMacroHasFile(block) || validateIncBinMacro(block.incBinBytes, block.incBinAddress);
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+  if (field === "includeFile" || field === "includeFileName") {
+    block.validationError = validateAssetMacroHasFile(block);
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+  if (field === "sidFile" || field === "sidFileName") {
+    block.validationError = validateAssetMacroHasFile(block);
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -9954,6 +10078,28 @@ function validateIncBinMacro(incBinBytes, rawAddress) {
   }
   if (value < 0 || value > 0xFFFF) {
     return t("incbinMacroAddressMustBeBetween0And65535");
+  }
+  return "";
+}
+
+// Returns an error string if an INCLUDE / INCBIN / SID block has no file
+// specified. Empty string means "file is set" (the load may still fail
+// separately — that produces a different error).
+function validateAssetMacroHasFile(block) {
+  if (!block) return "";
+  const nonEmpty = (s) => typeof s === "string" && s.trim() !== "";
+  if (block.isIncludeMacro) {
+    if (!nonEmpty(block.includeFile) && !nonEmpty(block.includeFileName)) {
+      return t("includeMacroNeedsFile");
+    }
+  } else if (block.isIncBinMacro) {
+    if (!nonEmpty(block.incBinFile) && !nonEmpty(block.incBinFileName)) {
+      return t("incbinMacroNeedsFile");
+    }
+  } else if (block.isSidMacro) {
+    if (!nonEmpty(block.sidFile) && !nonEmpty(block.sidFileName)) {
+      return t("sidMacroNeedsFile");
+    }
   }
   return "";
 }
@@ -12478,7 +12624,8 @@ function _importMakeIncBin(fileName, addressHex) {
     category: "Makrok", mnemonic: "INCBIN",
     operand: "", rawOperand: "", description: "",
     addressingMode: "implied", base: "hex",
-    validationError: "", collapsed: true, isIncBinMacro: true,
+    validationError: (fileName || "").trim() ? "" : t("incbinMacroNeedsFile"),
+    collapsed: true, isIncBinMacro: true,
     incBinFileName: fileName,
     incBinFile: fileName,
     incBinBytes: [],
@@ -13848,6 +13995,33 @@ function buildBasicSysStub(sysAddress) {
 }
 
 function assembleProgramToPrg(originOverride) {
+  // Pre-check: any INCLUDE / INCBIN / SID macro without a file specified, and
+  // any unknown-directive comment carrying a validationError, must fail the
+  // compile. The regular per-line pass skips both categories, so their errors
+  // would otherwise be swallowed silently.
+  const assetErrors = [];
+  const assetSource = Array.isArray(typeof program !== "undefined" ? program : null) ? program : [];
+  for (const [idx, block] of assetSource.entries()) {
+    let msg = validateAssetMacroHasFile(block);
+    if (!msg && block?.isComment && typeof block.validationError === "string" && block.validationError) {
+      msg = block.validationError;
+    }
+    if (msg) {
+      const asmLine = asmBlockRanges[block.id]?.firstLine;
+      const lineTag = typeof asmLine === "number"
+        ? `L${String(asmLine + 1).padStart(3, "0")}`
+        : `P${String(idx + 1).padStart(3, "0")}`;
+      assetErrors.push({
+        text: `[${lineTag}] ${block.mnemonic || "?"} — ${msg}`,
+        asmLine: typeof asmLine === "number" ? asmLine + 1 : null,
+        sourceLine: typeof block._srcLine === "number" ? block._srcLine : null
+      });
+    }
+  }
+  if (assetErrors.length > 0) {
+    return { ok: false, error: assetErrors[0].text, errors: assetErrors };
+  }
+
   const layout = getProgramLayout(originOverride);
   const labels = new Map();
   const hasDelayMacro = layout.lines.some((line) => line.block?.isDelayMacro);
@@ -14119,21 +14293,21 @@ function compileLineBytes(line, labels) {
   if (block.isMouseMacro) {
     const port = resolveProgramNumericValue(block.mousePort || "2", labels, "dec");
     if (port !== 1 && port !== 2) {
-      return { ok: false, error: "MOUSE: a port 1 vagy 2 lehet." };
+      return { ok: false, error: t("compileMousePortRange") };
     }
     const num = resolveProgramNumericValue(block.mouseSpriteNum || "0", labels, "dec");
     if (isNaN(num) || num < 0 || num > 7) {
-      return { ok: false, error: "MOUSE: a sprite szama 0 es 7 kozott lehet." };
+      return { ok: false, error: t("compileMouseSpriteRange") };
     }
     const zpXStr = (block.mousePotXZP || "FD").replace(/^\$/, "");
     const zpYStr = (block.mousePotYZP || "FE").replace(/^\$/, "");
     const zpX = resolveProgramNumericValue(zpXStr, labels, "hex");
     const zpY = resolveProgramNumericValue(zpYStr, labels, "hex");
     if (isNaN(zpX) || zpX < 0 || zpX > 255) {
-      return { ok: false, error: "MOUSE: ZP X 1 hex byte legyen (00-FF)." };
+      return { ok: false, error: t("compileMouseZpXByte") };
     }
     if (isNaN(zpY) || zpY < 0 || zpY > 255) {
-      return { ok: false, error: "MOUSE: ZP Y 1 hex byte legyen (00-FF)." };
+      return { ok: false, error: t("compileMouseZpYByte") };
     }
     const ciaSelect = port === 1 ? 0x40 : 0x80; // paddle mux on CIA1 PRA bits 7:6: port1=%01xxxxxx, port2=%10xxxxxx
     const xAddr = 0xD000 + num * 2;
@@ -14262,11 +14436,11 @@ function compileLineBytes(line, labels) {
   if (block.isJoystickMacro) {
     const port = resolveProgramNumericValue(block.joyPort || "2", labels, "dec");
     if (port !== 1 && port !== 2) {
-      return { ok: false, error: "JOYSTICK: a port 1 vagy 2 lehet." };
+      return { ok: false, error: t("compileJoystickPortRange") };
     }
     const num = resolveProgramNumericValue(block.joySpriteNum || "0", labels, "dec");
     if (isNaN(num) || num < 0 || num > 7) {
-      return { ok: false, error: "JOYSTICK: a sprite szama 0 es 7 kozott lehet." };
+      return { ok: false, error: t("compileJoystickSpriteRange") };
     }
     const portAddr = port === 2 ? 0xDC00 : 0xDC01;
     const xAddr = 0xD000 + num * 2;
@@ -14297,7 +14471,7 @@ function compileLineBytes(line, labels) {
   if (block.isWaitRasterMacro) {
     const rl = parseMacroNumber(block.rasterLine || "FF", labels, "hex");
     if (isNaN(rl) || rl < 0 || rl > 255) {
-      return { ok: false, error: "WAIT_RASTER: a rasztersor 1 hex byte legyen ($00-$FF)." };
+      return { ok: false, error: t("compileWaitRasterByte") };
     }
     const rlHex = rl.toString(16).toUpperCase().padStart(2, "0");
     // LDA $D012 (AD 12 D0) + CMP #rl (C9 rl) + BNE -7 (D0 F9)
@@ -14392,10 +14566,10 @@ function compileLineBytes(line, labels) {
     const expAddr = parseInt((block.reuExpAddr || "0000").replace(/^\$/, ""), 16);
     const bank    = resolveProgramNumericValue(block.reuBank || "0", labels, "dec");
     const length  = parseInt((block.reuLength || "0100").replace(/^\$/, ""), 16);
-    if (isNaN(c64Addr) || c64Addr < 0 || c64Addr > 0xFFFF) return { ok: false, error: "REU: ervenytelen C64 cim ($0000-$FFFF)." };
-    if (isNaN(expAddr) || expAddr < 0 || expAddr > 0xFFFF) return { ok: false, error: "REU: ervenytelen REU cim ($0000-$FFFF)." };
-    if (isNaN(bank)    || bank < 0    || bank > 7)         return { ok: false, error: "REU: a bank erteke 0-7 lehet." };
-    if (isNaN(length)  || length < 1  || length > 0xFFFF)  return { ok: false, error: "REU: a hossz $0001-$FFFF lehet." };
+    if (isNaN(c64Addr) || c64Addr < 0 || c64Addr > 0xFFFF) return { ok: false, error: t("compileReuInvalidC64Addr") };
+    if (isNaN(expAddr) || expAddr < 0 || expAddr > 0xFFFF) return { ok: false, error: t("compileReuInvalidReuAddr") };
+    if (isNaN(bank)    || bank < 0    || bank > 7)         return { ok: false, error: t("compileReuBankRange") };
+    if (isNaN(length)  || length < 1  || length > 0xFFFF)  return { ok: false, error: t("compileReuLengthRange") };
     const cmd = block.mnemonic === "REU_STASH" ? 0x90 : block.mnemonic === "REU_FETCH" ? 0x91 : 0x92;
     const cmdLabel = block.mnemonic === "REU_STASH" ? "C64→REU" : block.mnemonic === "REU_FETCH" ? "REU→C64" : "C64↔REU";
     const bytes = [
@@ -14536,15 +14710,15 @@ function compileLineBytes(line, labels) {
   if (block.isSpriteInitMacro) {
     const num = parseMacroNumber(block.spriteNum || "0", labels, "dec");
     if (isNaN(num) || num < 0 || num > 7) {
-      return { ok: false, error: "SPRITE_INIT: a sprite szama 0 es 7 kozott lehet." };
+      return { ok: false, error: t("compileSpriteInitSpriteRange") };
     }
     const color = parseMacroNumber(block.spriteColor || "7", labels, "dec");
     if (isNaN(color) || color < 0 || color > 15) {
-      return { ok: false, error: "SPRITE_INIT: a szin erteke 0 es 15 kozott lehet." };
+      return { ok: false, error: t("compileSpriteInitColorRange") };
     }
     const page = parseMacroNumber(block.spriteDataPage || "21", labels, "hex");
     if (isNaN(page) || page < 0 || page > 255) {
-      return { ok: false, error: "SPRITE_INIT: az adatlap ertek 1 hex byte ($00-$FF) lehet." };
+      return { ok: false, error: t("compileSpriteInitPageByte") };
     }
     const ptrAddr = 0x07F8 + num;
     const colorAddr = 0xD027 + num;
@@ -14681,15 +14855,15 @@ function compileLineBytes(line, labels) {
   if (block.isSpritePosMacro) {
     const num = parseMacroNumber(block.spriteNum || "0", labels, "dec");
     if (num === null || num < 0 || num > 7) {
-      return { ok: false, error: "SPRITE_POS: a sprite szama 0 es 7 kozott lehet." };
+      return { ok: false, error: t("compileSpritePosSpriteRange") };
     }
     const x = parseMacroNumber(block.spriteX || "152", labels, "dec");
     if (x === null || x < 0 || x > 319) {
-      return { ok: false, error: "SPRITE_POS: X erteke 0 es 319 kozott lehet." };
+      return { ok: false, error: t("compileSpritePosXRange") };
     }
     const y = parseMacroNumber(block.spriteY || "100", labels, "dec");
     if (y === null || y < 0 || y > 255) {
-      return { ok: false, error: "SPRITE_POS: Y erteke 0 es 255 kozott lehet." };
+      return { ok: false, error: t("compileSpritePosYRange") };
     }
     const xLow = x & 0xFF;
     const xAddr = 0xD000 + num * 2;
@@ -14726,7 +14900,7 @@ function compileLineBytes(line, labels) {
     const deOpcode = reg === "Y" ? 0x88 : 0xCA;
     const label = block.nextLabel || "";
     if (!label) {
-      return { ok: false, error: "NEXT: hianyzik a LOOP cimke neve." };
+      return { ok: false, error: t("compileNextMissingLoop") };
     }
     const target = labels.get(label);
     if (target === undefined) {
@@ -14757,7 +14931,7 @@ function compileLineBytes(line, labels) {
     const cpOpcode  = reg === "Y" ? 0xC0 : 0xE0;  // CPY / CPX immediate
     const label = block.nextLabel || "";
     if (!label) {
-      return { ok: false, error: "ENDF: hianyzik a FOR cimke neve." };
+      return { ok: false, error: t("compileEndfMissingFor") };
     }
     const rawCount = (block.nextCount || "0A").trim();
     const count = (block.base === "dec") ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
@@ -15190,7 +15364,7 @@ function compileLineBytes(line, labels) {
     }
     const helperAddr = labels.get(DELAY_HELPER_LABEL);
     if (typeof helperAddr !== "number") {
-      return { ok: false, error: "DELAY: helper address not available" };
+      return { ok: false, error: t("compileDelayHelperUnavailable") };
     }
     const bytes = [0xA2, frames & 0xFF, 0x20, helperAddr & 0xFF, (helperAddr >> 8) & 0xFF];
     return { ok: true, bytes, comment: `DELAY ${frames} frame${frames !== 1 ? "s" : ""}` };

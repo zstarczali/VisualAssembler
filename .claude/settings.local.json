@@ -87,7 +87,13 @@
       "Bash(grep '\\\\${')",
       "Bash(python3 /private/tmp/claude-501/-Users-ztarczali-dev-VisualAssembler/de66dc6c-7d43-4fa1-ae40-7d8f7533900b/scratchpad/gen_i18n.py)",
       "Bash(grep -v \"//\\\\|description\\\\|encodePetscii\\\\|encodeText\\\\|charsetM\\\\|textM\\\\|petsciiM\\\\|stringM\")",
-      "Bash(node -c www/app.js)"
+      "Bash(node -c www/app.js)",
+      "Bash(git ls-files *)",
+      "Bash(node --test tests/macro-core.test.js)",
+      "Bash(grep -vE \"t\\\\\\(\\\\\"|\\\\\\\\bt\\\\\\\\\\(\")",
+      "Bash(node --test tests/)",
+      "Bash(node --test tests/macro-core.test.js tests/delay-macro.test.js)",
+      "Bash(grep -n \"// Fallback\\\\|unknown\\\\|fallback\\\\|// If nothing matched\\\\|blocks.push.*COMMENT\\\\|isComment: true\" F:/Development/VisualAssembler/www/app.js)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"

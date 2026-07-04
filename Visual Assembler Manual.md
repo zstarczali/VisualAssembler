@@ -339,6 +339,7 @@ Expert Mode is a full-featured direct-text 6502 assembly editor that lives along
 | **HL** | `#expert-hl-btn` | Toggle syntax highlighting (disable for very large files) |
 | **Autocomplete** | `#expert-autocomplete-btn` | Toggle expert autocomplete suggestions on/off. When disabled, no directive, mnemonic, or label popup appears in the expert editor. |
 | **Region selection** | `#expert-region-selection-btn` | Toggle the automatic region highlight in Expert mode. The fold state stays stored, but when this is off the editor keeps the full source visible and does not auto-select the current region. |
+| **Collapse / expand all regions** | `#expert-region-fold-all-btn` | Fold or unfold every `.region` block in one click. If any region is currently open, the button collapses them all; if every region is already collapsed, the next click expands them all. The button lights up when all regions are collapsed. |
 | **Line numbers** | `#expert-line-numbers-btn` | Toggle the line number gutter on the left side of the editor. The gutter stays in sync with the scroll position and updates live as you type. |
 | **Find** | `#expert-find-btn` | Open the floating Find bar (`Ctrl+F`). Type to search; matches are highlighted in the overlay. `Enter` / `Shift+Enter` navigate between matches. `Escape` closes the bar. |
 | **Zoom out / in** | `#expert-zoom-out-btn` / `#expert-zoom-in-btn` | Decrease / increase the editor font size (8–28 px). The setting is persisted. |
