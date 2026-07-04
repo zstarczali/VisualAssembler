@@ -26,3 +26,6 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+
+# Auto-generated sample snapshots
+samples/*.snapshots.json

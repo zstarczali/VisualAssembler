@@ -1359,9 +1359,119 @@ test("ORG, TABLE, SID, INCBIN, and INCLUDE round-trip in expert text", () => {
   assert.equal(blocks[2].isIncBinMacro, true);
   assert.equal(blocks[3].isSidMacro, true);
   assert.equal(blocks[4].isIncludeMacro, true);
+  assert.equal(blocks[2].validationError, "");
+  assert.equal(blocks[3].validationError, "");
+  assert.equal(blocks[4].validationError, "");
   assert.equal(ctx._blockToExpertLine(blocks[0]), "* = $0801");
   assert.equal(ctx._blockToExpertLine(blocks[1]), ".table lookup $C200");
   assert.equal(ctx._blockToExpertLine(blocks[2]), ".incbin \"demo.bin\", $C300");
   assert.equal(ctx._blockToExpertLine(blocks[3]), ".sid \"music.sid\", $C400");
   assert.equal(ctx._blockToExpertLine(blocks[4]), ".include \"lib.json\", $C500");
+});
+
+test("INCLUDE / INCBIN / SID with empty filename flag validationError", () => {
+  const ctx = loadFunctions(
+    ["_importMakeIncBin", "parseExpertText"],
+    {
+      crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
+      t: (key) => key
+    }
+  );
+
+  const blocks = ctx.parseExpertText([
+    ".incbin \"\"",
+    ".sid \"\"",
+    ".include \"\""
+  ].join("\n"));
+
+  assert.equal(blocks[0].isIncBinMacro, true);
+  assert.equal(blocks[0].validationError, "incbinMacroNeedsFile");
+  assert.equal(blocks[1].isSidMacro, true);
+  assert.equal(blocks[1].validationError, "sidMacroNeedsFile");
+  assert.equal(blocks[2].isIncludeMacro, true);
+  assert.equal(blocks[2].validationError, "includeMacroNeedsFile");
+});
+
+test("bare .include / .incbin / .sid without a quoted filename produce error blocks", () => {
+  const ctx = loadFunctions(
+    ["_importMakeIncBin", "parseExpertText"],
+    {
+      crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
+      t: (key) => key,
+      tf: (key, values) => `${key}:${values?.directive ?? ""}`
+    }
+  );
+
+  const blocks = ctx.parseExpertText([
+    ".include",
+    ".incbin",
+    ".sid"
+  ].join("\n"));
+
+  assert.equal(blocks[0].isIncludeMacro, true);
+  assert.equal(blocks[0].validationError, "includeMacroNeedsFile");
+  assert.equal(blocks[1].isIncBinMacro, true);
+  assert.equal(blocks[1].validationError, "incbinMacroNeedsFile");
+  assert.equal(blocks[2].isSidMacro, true);
+  assert.equal(blocks[2].validationError, "sidMacroNeedsFile");
+});
+
+test("unknown directive tokens surface as errors instead of silent comments", () => {
+  const ctx = loadFunctions(
+    ["_importMakeIncBin", "parseExpertText"],
+    {
+      crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
+      t: (key) => key,
+      tf: (key, values) => `${key}:${values?.directive ?? ""}`
+    }
+  );
+
+  const blocks = ctx.parseExpertText([
+    ".text",
+    ".notarealthing foo bar",
+    ".nope"
+  ].join("\n"));
+
+  assert.equal(blocks[0].isComment, true);
+  assert.equal(blocks[0].validationError, "unknownDirective:.text");
+  assert.equal(blocks[1].isComment, true);
+  assert.equal(blocks[1].validationError, "unknownDirective:.notarealthing");
+  assert.equal(blocks[2].isComment, true);
+  assert.equal(blocks[2].validationError, "unknownDirective:.nope");
+});
+
+test("validateAssetMacroHasFile catches empty INCLUDE / INCBIN / SID blocks", () => {
+  const ctx = loadFunctions(
+    ["validateAssetMacroHasFile"],
+    { t: (key) => key }
+  );
+
+  assert.equal(
+    ctx.validateAssetMacroHasFile({ isIncBinMacro: true, incBinFile: "", incBinFileName: "" }),
+    "incbinMacroNeedsFile"
+  );
+  assert.equal(
+    ctx.validateAssetMacroHasFile({ isSidMacro: true, sidFile: "", sidFileName: "" }),
+    "sidMacroNeedsFile"
+  );
+  assert.equal(
+    ctx.validateAssetMacroHasFile({ isIncludeMacro: true, includeFile: "", includeFileName: "" }),
+    "includeMacroNeedsFile"
+  );
+  // Once either the file path or the file name is populated, no error.
+  assert.equal(
+    ctx.validateAssetMacroHasFile({ isIncBinMacro: true, incBinFile: "sprite.bin", incBinFileName: "" }),
+    ""
+  );
+  assert.equal(
+    ctx.validateAssetMacroHasFile({ isSidMacro: true, sidFile: "", sidFileName: "music.sid" }),
+    ""
+  );
+  assert.equal(
+    ctx.validateAssetMacroHasFile({ isIncludeMacro: true, includeFile: "lib.json", includeFileName: "" }),
+    ""
+  );
+  // Non-asset blocks return "".
+  assert.equal(ctx.validateAssetMacroHasFile({ isOrgMacro: true }), "");
+  assert.equal(ctx.validateAssetMacroHasFile(null), "");
 });
