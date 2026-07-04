@@ -761,6 +761,9 @@ PRINTABLE CHARACTERS
       <p class="whats-new-version">v2.1.3</p>
       <ul class="whats-new-list">
         <li>
+          <strong>Expert asset auto-reload</strong> &mdash; typing <code>.include</code>, <code>.incbin</code>, or <code>.sid</code> directly in Expert mode now loads the referenced file (source, binary, or SID tune) automatically, resolving names against the working folder and the bundled <code>samples/</code> directory. Fixes an identity mismatch that previously dropped included blocks after the first reload.
+        </li>
+        <li>
           <strong>Expert editor fix</strong> &mdash; Expert mode now keeps the typed text, highlight overlay, error lines, and caret position aligned even when multiple compile errors are present.
         </li>
         <li>
