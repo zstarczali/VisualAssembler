@@ -1969,7 +1969,7 @@ function initPalette() {
     setOutputMode(tab.dataset.mode);
   }));
   compileErrorClose?.addEventListener("click", () => compileErrorDialog?.close());
-  compileErrorDialog?.addEventListener("click", (e) => { if (e.target === compileErrorDialog) compileErrorDialog.close(); });
+  compileErrorDialog?.addEventListener("cancel", (e) => e.preventDefault());
 
   document.getElementById("new-program-confirm")?.addEventListener("click", () => {
     document.getElementById("new-program-dialog")?.close();
@@ -5959,6 +5959,53 @@ function _expertVisibleLineToSourceLine(visibleLine, view) {
   return Math.min(target, totalLines - 1);
 }
 
+function _expertSourceLineToVisibleLine(sourceLine) {
+  if (!_expertProjectionActive) return sourceLine;
+  if (!Array.isArray(_expertSourceToDisplayLines) || !_expertSourceToDisplayLines.length) return sourceLine;
+
+  const direct = _expertSourceToDisplayLines[sourceLine];
+  if (direct !== undefined && direct >= 0) return direct;
+
+  let probe = sourceLine - 1;
+  while (probe >= 0) {
+    const mapped = _expertSourceToDisplayLines[probe];
+    if (mapped !== undefined && mapped >= 0) return mapped;
+    probe--;
+  }
+
+  probe = sourceLine + 1;
+  while (probe < _expertSourceToDisplayLines.length) {
+    const mapped = _expertSourceToDisplayLines[probe];
+    if (mapped !== undefined && mapped >= 0) return mapped;
+    probe++;
+  }
+
+  return -1;
+}
+
+function _expertGotoSourceLine(lineIdx, opts = {}) {
+  if (!expertEditor) return false;
+  const sourceText = _expertGetSourceText();
+  const lines = sourceText.split("\n");
+  if (!lines.length) return false;
+
+  const safeLineIdx = Math.max(0, Math.min(lineIdx, lines.length - 1));
+  const srcPos = _expertLineStartIndex(sourceText, safeLineIdx);
+  const srcEndPos = srcPos + (lines[safeLineIdx] || "").trimEnd().length;
+  const pos = _expertSourcePosToDisplayPos(srcPos);
+  const endPos = _expertSourcePosToDisplayPos(srcEndPos);
+  const lineH = parseFloat(getComputedStyle(expertEditor).lineHeight) || 18;
+  const displayLine = _expertSourceLineToVisibleLine(safeLineIdx);
+
+  if (opts.focus !== false) expertEditor.focus();
+  expertEditor.setSelectionRange(pos, endPos);
+  if (displayLine >= 0) {
+    expertEditor.scrollTop = Math.max(0, displayLine * lineH - expertEditor.clientHeight / 3);
+  }
+  _expertUpdateCursor();
+  return true;
+}
+
 function _expertCharIndexFromX(lineText, relativeX) {
   const text = String(lineText || "");
   if (relativeX <= 0) return 0;
@@ -6089,12 +6136,15 @@ function _expertApplyHighlight() {
     return;
   }
 
-  // CRITICAL: \n must be OUTSIDE spans — display:block + \n inside causes
-  // the pre to render extra blank lines, desyncing it from the textarea.
+  // Render every visible line through the same block wrapper so error
+  // highlights cannot change line flow inside the <pre> overlay.
 
   // Precompute line start offsets for find highlighting
   const lineOffsets = [];
   { let off = 0; for (const l of allLines) { lineOffsets.push(off); off += l.length + 1; } }
+  const errorLines = _expertProjectionActive
+    ? new Set([..._expertErrorLineNos].map(_expertSourceLineToVisibleLine).filter(n => n >= 0))
+    : _expertErrorLineNos;
 
   const html = [];
   for (let i = 0; i < allLines.length; i++) {
@@ -6124,15 +6174,12 @@ function _expertApplyHighlight() {
         lineHtml = `<span class="hl-region-bracket">${hl}</span>`;
       // body lines: background covered by #expert-region-bg div (no per-line span needed)
     }
-    if (_expertErrorLineNos.has(i)) {
-      // \n must be INSIDE the display:block span — same rule as asm-line-highlight:
-      // display:block + \n outside creates an extra blank line, desyncing the textarea.
-      html.push(`<span class="expert-err-line">${lineHtml}</span>`);
-    } else {
-      html.push(lineHtml);
-    }
+    const lineClasses = errorLines.has(i) ? "expert-hl-line expert-err-line" : "expert-hl-line";
+    const lineBody = lineHtml || "&#8203;";
+    const lineBreak = i < allLines.length - 1 ? "\n" : "";
+    html.push(`<span class="${lineClasses}">${lineBody}${lineBreak}</span>`);
   }
-  expertHlCode.innerHTML = html.join("\n");
+  expertHlCode.innerHTML = html.join("");
   _updateExpertRegionBg();
   _expertUpdateRegionFolds();
   if (_expertLineNumbersEnabled) _expertUpdateLineNumbers();
@@ -10864,26 +10911,50 @@ function showCompileErrorDialog(errors) {
   if (compileErrorTitle) compileErrorTitle.textContent = t("compileErrorTitle");
   _lastCompileErrors = errors;
   compileErrorList.innerHTML = errors.map((err, idx) => {
-    const lineTagMatch = err.match(/^\[L(\d+)\]/);
-    const asmLine = lineTagMatch ? parseInt(lineTagMatch[1], 10) : null;
-    const sepIdx = err.indexOf(" \u2014 ");
+    const errText = typeof err === "string" ? err : (err?.text || err?.message || String(err));
+    const lineTagMatch = errText.match(/^\[L(\d+)\]/);
+    const asmLine = typeof err === "object" && err !== null && typeof err.asmLine === "number"
+      ? err.asmLine
+      : (lineTagMatch ? parseInt(lineTagMatch[1], 10) : null);
+    const sourceLine = typeof err === "object" && err !== null && typeof err.sourceLine === "number"
+      ? err.sourceLine
+      : null;
+    const sepIdx = errText.indexOf(" \u2014 ");
     let html;
     if (sepIdx !== -1) {
-      const prefix = err.slice(0, sepIdx).replace(/</g, "&lt;");
-      const msg = err.slice(sepIdx + 3).replace(/</g, "&lt;");
+      const prefix = errText.slice(0, sepIdx).replace(/</g, "&lt;");
+      const msg = errText.slice(sepIdx + 3).replace(/</g, "&lt;");
       html = `${prefix} <span class="compile-error-msg">\u2014 ${msg}</span>`;
     } else {
-      html = `<span class="compile-error-msg">${err.replace(/</g, "&lt;")}</span>`;
+      html = `<span class="compile-error-msg">${errText.replace(/</g, "&lt;")}</span>`;
     }
-    return `<li data-index="${idx}" data-asm-line="${asmLine ?? ""}">${html}</li>`;
+    const navigable = (Number.isFinite(asmLine) || Number.isFinite(sourceLine)) ? "true" : "false";
+    return `<li data-index="${idx}" data-asm-line="${asmLine ?? ""}" data-source-line="${sourceLine ?? ""}" data-navigable="${navigable}" tabindex="${navigable === "true" ? "0" : "-1"}">${html}</li>`;
   }).join("");
+
+  const setSelectedErrorItem = (activeLi) => {
+    compileErrorList.querySelectorAll("li").forEach((item) => {
+      item.dataset.selected = item === activeLi ? "true" : "false";
+    });
+  };
 
   compileErrorList.querySelectorAll("li").forEach(li => {
     li.addEventListener("click", () => {
       const asmLine = parseInt(li.dataset.asmLine, 10);
-      compileErrorDialog.close();
-      if (!isNaN(asmLine)) {
+      const sourceLine = parseInt(li.dataset.sourceLine, 10);
+      setSelectedErrorItem(li);
+      if (expertMode && expertEditor && Number.isFinite(sourceLine)) {
+        _expertGotoSourceLine(sourceLine, { focus: false });
+        return;
+      }
+      if (Number.isFinite(asmLine)) {
         scrollAsmOutputToLine(asmLine);
+      }
+    });
+    li.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        li.click();
       }
     });
   });
@@ -13466,13 +13537,17 @@ function assembleProgramToPrg(originOverride) {
       const lineTag = asmLine
         ? `L${String(asmLine).padStart(3, "0")}`
         : `P${String(layoutIndex + 1).padStart(3, "0")}`;
-      compileErrors.push(`[${lineTag}] ${addr}  ${mnemonic}${operand} — ${compiled.error}`);
+      compileErrors.push({
+        text: `[${lineTag}] ${addr}  ${mnemonic}${operand} — ${compiled.error}`,
+        asmLine,
+        sourceLine: typeof line.block._srcLine === "number" ? line.block._srcLine : null
+      });
     } else {
       currentSection.bytes.push(...compiled.bytes);
     }
   }
   if (compileErrors.length > 0) {
-    return { ok: false, error: compileErrors[0], errors: compileErrors };
+    return { ok: false, error: compileErrors[0].text, errors: compileErrors };
   }
 
   const origin = layout.origin.value;

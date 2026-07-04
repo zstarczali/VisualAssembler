@@ -2,20 +2,13 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.1.2**
+**Current version: v2.1.3**
 
-**What's new in 2.1.2**
+**What's new in 2.1.3**
 
-- Hotfix: the Expert mode Region selection toggle now only controls the automatic region highlight, leaving the actual fold state untouched.
-- Hotfix: region selection and cursor placement stay aligned after collapsing or reopening regions.
-- New: the File menu now has a working folder picker, and file dialogs use it as their default starting folder.
-- `SPRITE_INIT` / `SPRITE_POS` now accept const names in Block mode, and `SPRITE_INIT` can toggle the sprite multicolor bit too.
-- `DELAY` / `WAIT` can now use named `CONST` values, and the delay block uses a compact const picker instead of the browser's native list.
-- `PRINT_CHAR` now accepts const names too, so single-byte PETSCII output can stay symbolic when that reads better than raw numbers.
-- `SET_BORDER` / `SET_BG` now accept const names in both block mode and Expert mode, with the same custom const picker.
-- `.region` / `.endregion` get directive coloring in Expert mode, so named visual groups stand out the same way the other macros do.
-- The Expert project panel's symbols area can now be resized vertically with a divider, so long symbol lists have more room when needed.
-- The bundled docs, manual, and installer notes were refreshed to match the 2.1.2 release.
+- Hotfix: the Expert mode editor now keeps the typed text, highlight overlay, error lines, and caret aligned even with multiple compile errors.
+- Hotfix: the compile error dialog now keeps the selected error visible, shows a proper pointer cursor, and jumps to the matching Expert mode line without closing.
+- The bundled docs, manual, and installer notes were refreshed to match the 2.1.3 release.
 
 ---
 
