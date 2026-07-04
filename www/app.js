@@ -461,6 +461,7 @@ let _expertFindTerm = "";
 let _expertFindMatches = []; // [{start, end}] flat textarea positions
 let _expertFindIdx = -1;
 let _expertProjectData = null; // { name, files, _projPath }
+let _expertPendingEditMeta = null;
 const _PROJECT_SNAPSHOT_MAX_ENTRIES = 10;
 const _PROJECT_SNAPSHOT_AUTO_DELAY_MS = 2500;
 const DELAY_HELPER_LABEL = "__delay_wait_frames";
@@ -1662,10 +1663,26 @@ function initPalette() {
   document.getElementById("expert-project-save-btn")?.addEventListener("click", _expertSaveProject);
   document.getElementById("expert-project-add-btn")?.addEventListener("click",  _expertAddProjMember);
 
+  expertEditor?.addEventListener("beforeinput", (e) => {
+    const displaySelStart = expertEditor.selectionStart ?? 0;
+    const displaySelEnd = expertEditor.selectionEnd ?? displaySelStart;
+    _expertPendingEditMeta = {
+      inputType: e.inputType || "",
+      data: typeof e.data === "string" ? e.data : "",
+      displaySelStart,
+      displaySelEnd,
+      sourceSelStart: _expertDisplayPosToSourcePos(displaySelStart),
+      sourceSelEnd: _expertDisplayPosToSourcePos(displaySelEnd)
+    };
+  });
+
   expertEditor?.addEventListener("input", () => {
-    const sourceSelStart = _expertDisplayPosToSourcePos(expertEditor.selectionStart ?? 0);
-    const sourceSelEnd = _expertDisplayPosToSourcePos(expertEditor.selectionEnd ?? expertEditor.selectionStart ?? 0);
-    _expertSyncSourceTextFromEditor();
+    const displaySelStart = expertEditor.selectionStart ?? 0;
+    const displaySelEnd = expertEditor.selectionEnd ?? displaySelStart;
+    const mirroredSel = _expertSyncSourceTextFromEditor(_expertPendingEditMeta);
+    _expertPendingEditMeta = null;
+    const sourceSelStart = mirroredSel?.start ?? _expertDisplayPosToSourcePos(displaySelStart);
+    const sourceSelEnd = mirroredSel?.end ?? _expertDisplayPosToSourcePos(displaySelEnd);
     _expertRefreshProjection(sourceSelStart, sourceSelEnd);
     markTabDirty();
     _expertValidate();
@@ -1969,7 +1986,7 @@ function initPalette() {
     setOutputMode(tab.dataset.mode);
   }));
   compileErrorClose?.addEventListener("click", () => compileErrorDialog?.close());
-  compileErrorDialog?.addEventListener("click", (e) => { if (e.target === compileErrorDialog) compileErrorDialog.close(); });
+  compileErrorDialog?.addEventListener("cancel", (e) => e.preventDefault());
 
   document.getElementById("new-program-confirm")?.addEventListener("click", () => {
     document.getElementById("new-program-dialog")?.close();
@@ -5883,11 +5900,57 @@ function _expertSourcePosToDisplayPos(pos) {
   return _expertLineStartIndex(displayText, displayLine) + Math.min(sourceCol, (displayLines[displayLine] || "").length);
 }
 
-function _expertSyncSourceTextFromEditor() {
+function _expertApplyPendingEditToSource(editMeta) {
+  if (!editMeta) return null;
+  const sourceText = _expertSourceText || "";
+  const start = Math.max(0, Math.min(editMeta.sourceSelStart ?? 0, sourceText.length));
+  const end = Math.max(start, Math.min(editMeta.sourceSelEnd ?? start, sourceText.length));
+  const inputType = String(editMeta.inputType || "");
+  const insertText = typeof editMeta.data === "string" ? editMeta.data : "";
+
+  const replaceRange = (from, to, text) => {
+    _expertSourceText = sourceText.slice(0, from) + text + sourceText.slice(to);
+    const caret = from + text.length;
+    return { start: caret, end: caret };
+  };
+
+  if (inputType === "insertText" || inputType === "insertCompositionText") {
+    return replaceRange(start, end, insertText);
+  }
+  if (inputType === "insertLineBreak" || inputType === "insertParagraph") {
+    return replaceRange(start, end, "\n");
+  }
+  if (inputType === "insertFromPaste" || inputType === "insertFromDrop") {
+    return replaceRange(start, end, insertText);
+  }
+  if (inputType === "deleteContentBackward") {
+    if (start !== end) return replaceRange(start, end, "");
+    if (start <= 0) return { start: 0, end: 0 };
+    _expertSourceText = sourceText.slice(0, start - 1) + sourceText.slice(end);
+    return { start: start - 1, end: start - 1 };
+  }
+  if (inputType === "deleteContentForward") {
+    if (start !== end) return replaceRange(start, end, "");
+    if (start >= sourceText.length) return { start, end: start };
+    _expertSourceText = sourceText.slice(0, start) + sourceText.slice(start + 1);
+    return { start, end: start };
+  }
+  if (inputType.startsWith("delete")) {
+    return replaceRange(start, end, "");
+  }
+
+  return null;
+}
+
+function _expertSyncSourceTextFromEditor(editMeta = null) {
   if (!expertEditor) return;
   if (!_expertProjectionActive) {
     _expertSourceText = expertEditor.value || "";
-    return;
+    return null;
+  }
+  const mirroredSel = _expertApplyPendingEditToSource(editMeta);
+  if (mirroredSel) {
+    return mirroredSel;
   }
   const sourceLines = (_expertSourceText || "").split("\n");
   const displayLines = (expertEditor.value || "").split("\n");
@@ -5898,11 +5961,14 @@ function _expertSyncSourceTextFromEditor() {
     displayIdx++;
   }
   _expertSourceText = sourceLines.join("\n");
+  return null;
 }
 
 function _expertRefreshProjection(sourceSelStart = null, sourceSelEnd = sourceSelStart) {
   if (!expertEditor) return;
   const sourceText = _expertSourceText || "";
+  const prevProjectionActive = _expertProjectionActive;
+  const prevDisplayToSource = Array.isArray(_expertDisplayToSourceLines) ? _expertDisplayToSourceLines.slice() : [];
   const blocks = _expertBuildProgramFromText(sourceText, program);
   const sourceLines = sourceText.split("\n");
   const hiddenLines = (_expertHlEnabled && expertMode && _expertHasCollapsedRegions(blocks))
@@ -5927,7 +5993,11 @@ function _expertRefreshProjection(sourceSelStart = null, sourceSelEnd = sourceSe
   const valueChanged = expertEditor.value !== nextValue;
   if (valueChanged) expertEditor.value = nextValue;
 
-  if (sourceSelStart !== null) {
+  const projectionChanged = prevProjectionActive !== _expertProjectionActive
+    || prevDisplayToSource.length !== displayToSource.length
+    || prevDisplayToSource.some((lineNo, idx) => lineNo !== displayToSource[idx]);
+  const shouldRestoreSelection = sourceSelStart !== null && (valueChanged || projectionChanged);
+  if (shouldRestoreSelection) {
     const nextStart = _expertSourcePosToDisplayPos(sourceSelStart);
     const nextEnd = _expertSourcePosToDisplayPos(sourceSelEnd ?? sourceSelStart);
     expertEditor.setSelectionRange(nextStart, nextEnd);
@@ -5959,6 +6029,53 @@ function _expertVisibleLineToSourceLine(visibleLine, view) {
   return Math.min(target, totalLines - 1);
 }
 
+function _expertSourceLineToVisibleLine(sourceLine) {
+  if (!_expertProjectionActive) return sourceLine;
+  if (!Array.isArray(_expertSourceToDisplayLines) || !_expertSourceToDisplayLines.length) return sourceLine;
+
+  const direct = _expertSourceToDisplayLines[sourceLine];
+  if (direct !== undefined && direct >= 0) return direct;
+
+  let probe = sourceLine - 1;
+  while (probe >= 0) {
+    const mapped = _expertSourceToDisplayLines[probe];
+    if (mapped !== undefined && mapped >= 0) return mapped;
+    probe--;
+  }
+
+  probe = sourceLine + 1;
+  while (probe < _expertSourceToDisplayLines.length) {
+    const mapped = _expertSourceToDisplayLines[probe];
+    if (mapped !== undefined && mapped >= 0) return mapped;
+    probe++;
+  }
+
+  return -1;
+}
+
+function _expertGotoSourceLine(lineIdx, opts = {}) {
+  if (!expertEditor) return false;
+  const sourceText = _expertGetSourceText();
+  const lines = sourceText.split("\n");
+  if (!lines.length) return false;
+
+  const safeLineIdx = Math.max(0, Math.min(lineIdx, lines.length - 1));
+  const srcPos = _expertLineStartIndex(sourceText, safeLineIdx);
+  const srcEndPos = srcPos + (lines[safeLineIdx] || "").trimEnd().length;
+  const pos = _expertSourcePosToDisplayPos(srcPos);
+  const endPos = _expertSourcePosToDisplayPos(srcEndPos);
+  const lineH = parseFloat(getComputedStyle(expertEditor).lineHeight) || 18;
+  const displayLine = _expertSourceLineToVisibleLine(safeLineIdx);
+
+  if (opts.focus !== false) expertEditor.focus();
+  expertEditor.setSelectionRange(pos, endPos);
+  if (displayLine >= 0) {
+    expertEditor.scrollTop = Math.max(0, displayLine * lineH - expertEditor.clientHeight / 3);
+  }
+  _expertUpdateCursor();
+  return true;
+}
+
 function _expertCharIndexFromX(lineText, relativeX) {
   const text = String(lineText || "");
   if (relativeX <= 0) return 0;
@@ -5988,6 +6105,53 @@ function _expertLineStartIndex(text, lineIdx) {
 function _expertUpdateCaret() {
   if (!expertCaret || !expertEditor) return;
   expertCaret.hidden = true;
+}
+
+function _expertScanRegionLines(sourceText, stateSource = program) {
+  const entries = [];
+  const lines = String(sourceText || "").split("\n");
+  const stack = [];
+  const rootCounts = new Map();
+
+  _expertStampRegionFoldSignatures(stateSource);
+  const stateBySig = new Map();
+  const indexBySig = new Map();
+  stateSource.forEach((block, index) => {
+    if (block?.isRegionMacro && block._regionFoldSig) {
+      stateBySig.set(block._regionFoldSig, !!block.regionCollapsed);
+      indexBySig.set(block._regionFoldSig, index);
+    }
+  });
+
+  for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+    const rawLine = lines[lineIdx];
+    const scIdx = rawLine.indexOf(";");
+    const codePart = (scIdx >= 0 ? rawLine.slice(0, scIdx) : rawLine).trim();
+    const regionMatch = codePart.match(/^\.region\s+(.+)$/i);
+    if (regionMatch) {
+      const parent = stack[stack.length - 1] || null;
+      const counts = parent ? parent.childCounts : rootCounts;
+      const regionName = regionMatch[1].trim();
+      const normalized = _expertNormalizeRegionName(regionName);
+      const occ = (counts.get(normalized) || 0) + 1;
+      counts.set(normalized, occ);
+      const sig = `${parent ? parent.sig : ""}/${normalized}#${occ}`;
+      entries.push({
+        srcLine: lineIdx,
+        regionName,
+        sig,
+        collapsed: !!stateBySig.get(sig),
+        programIndex: indexBySig.has(sig) ? indexBySig.get(sig) : -1
+      });
+      stack.push({ sig, childCounts: new Map() });
+      continue;
+    }
+    if (/^\.endregion(?:\s+.+)?$/i.test(codePart)) {
+      if (stack.length) stack.pop();
+    }
+  }
+
+  return entries;
 }
 
 function _expertSetCaretFromMouse(e) {
@@ -6030,33 +6194,36 @@ function _expertUpdateRegionFolds() {
     gutter.appendChild(inner);
   }
   inner.innerHTML = "";
-  if (!expertMode || !Array.isArray(program) || !program.length) return;
+  if (!expertMode) return;
+
+  const sourceText = _expertGetSourceText();
+  const regionEntries = _expertScanRegionLines(sourceText, program);
+  if (!regionEntries.length) return;
 
   const lh = parseFloat(getComputedStyle(expertEditor).lineHeight) || 21;
   const pt = parseFloat(getComputedStyle(expertEditor).paddingTop) || 16;
   const scrollTop = _expertGetVisibleScrollTop();
   const btnH = Math.max(12, Math.round(lh - 2));
 
-  program.forEach((block, index) => {
-    if (!block.isRegionMacro || block._srcLine === undefined) return;
+  regionEntries.forEach((entry) => {
     const displayLine = _expertProjectionActive
-      ? _expertSourceToDisplayLines[block._srcLine]
-      : block._srcLine;
+      ? _expertSourceToDisplayLines[entry.srcLine]
+      : entry.srcLine;
     if (displayLine === undefined || displayLine < 0) return;
     const btn = document.createElement("button");
-    const collapsed = !!block.regionCollapsed;
+    const collapsed = !!entry.collapsed;
     btn.type = "button";
     btn.className = "expert-region-fold-btn" + (collapsed ? " expert-region-fold-btn--collapsed" : "");
     btn.textContent = collapsed ? "\u25B8" : "\u25BE";
     btn.style.top = `${pt + displayLine * lh}px`;
     btn.style.height = `${btnH}px`;
-    btn.setAttribute("aria-label", `${collapsed ? t("expand") : t("collapse")} ${block.regionName || "region"}`);
-    btn.setAttribute("title", `${collapsed ? t("expand") : t("collapse")} ${block.regionName || "region"}`);
+    btn.setAttribute("aria-label", `${collapsed ? t("expand") : t("collapse")} ${entry.regionName || "region"}`);
+    btn.setAttribute("title", `${collapsed ? t("expand") : t("collapse")} ${entry.regionName || "region"}`);
     btn.addEventListener("mousedown", (e) => e.preventDefault());
     btn.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      toggleRegionCollapsed(index);
+      if (entry.programIndex >= 0) toggleRegionCollapsed(entry.programIndex);
       _expertApplyHighlight();
       _expertUpdateRegionFolds();
       expertEditor.focus();
@@ -6089,12 +6256,15 @@ function _expertApplyHighlight() {
     return;
   }
 
-  // CRITICAL: \n must be OUTSIDE spans — display:block + \n inside causes
-  // the pre to render extra blank lines, desyncing it from the textarea.
+  // Render every visible line through the same block wrapper so error
+  // highlights cannot change line flow inside the <pre> overlay.
 
   // Precompute line start offsets for find highlighting
   const lineOffsets = [];
   { let off = 0; for (const l of allLines) { lineOffsets.push(off); off += l.length + 1; } }
+  const errorLines = _expertProjectionActive
+    ? new Set([..._expertErrorLineNos].map(_expertSourceLineToVisibleLine).filter(n => n >= 0))
+    : _expertErrorLineNos;
 
   const html = [];
   for (let i = 0; i < allLines.length; i++) {
@@ -6124,15 +6294,12 @@ function _expertApplyHighlight() {
         lineHtml = `<span class="hl-region-bracket">${hl}</span>`;
       // body lines: background covered by #expert-region-bg div (no per-line span needed)
     }
-    if (_expertErrorLineNos.has(i)) {
-      // \n must be INSIDE the display:block span — same rule as asm-line-highlight:
-      // display:block + \n outside creates an extra blank line, desyncing the textarea.
-      html.push(`<span class="expert-err-line">${lineHtml}</span>`);
-    } else {
-      html.push(lineHtml);
-    }
+    const lineClasses = errorLines.has(i) ? "expert-hl-line expert-err-line" : "expert-hl-line";
+    const lineBody = lineHtml || "&#8203;";
+    const lineBreak = i < allLines.length - 1 ? "\n" : "";
+    html.push(`<span class="${lineClasses}">${lineBody}${lineBreak}</span>`);
   }
-  expertHlCode.innerHTML = html.join("\n");
+  expertHlCode.innerHTML = html.join("");
   _updateExpertRegionBg();
   _expertUpdateRegionFolds();
   if (_expertLineNumbersEnabled) _expertUpdateLineNumbers();
@@ -7211,12 +7378,33 @@ function _expertUpdateCursor() {
   _expertUpdateCaret();
 }
 
+function _expertGetTransientTypingSourceLine(sourceText) {
+  if (!expertEditor) return -1;
+  const sourcePos = _expertDisplayPosToSourcePos(expertEditor.selectionStart ?? 0);
+  const sourceLine = Math.max(0, sourceText.slice(0, sourcePos).split("\n").length - 1);
+  const line = (sourceText.split("\n")[sourceLine] || "").trim();
+
+  if (/^\.[A-Za-z_][A-Za-z0-9_]*$/.test(line)) {
+    const directiveName = line.slice(1).toLowerCase();
+    if (!_DIRECTIVE_TO_MNEM[directiveName]) return sourceLine;
+  }
+
+  if (/^[A-Za-z]{1,3}$/.test(line)) {
+    const mnemonicName = line.toUpperCase();
+    if (!_EXPERT_MNEM_SET.has(mnemonicName)) return sourceLine;
+  }
+
+  return -1;
+}
+
 function _expertValidate() {
   if (!expertMode || !expertEditor) return;
   _expertApplyHighlight();
   clearTimeout(_expertParseTimer);
   _expertParseTimer = setTimeout(() => {
     try {
+      const sourceText = _expertGetSourceText();
+      const transientTypingLine = _expertGetTransientTypingSourceLine(sourceText);
       const blocks = _expertBuildProgram();
       const saved = program;
       const savedUserMacros = userMacros;
@@ -7249,6 +7437,9 @@ function _expertValidate() {
       } finally {
         program = saved;
         userMacros = savedUserMacros;
+      }
+      if (transientTypingLine >= 0) {
+        errors = errors.filter((entry) => entry.srcLine !== transientTypingLine);
       }
       // Update error line set and re-highlight
       const prevErrSize = _expertErrorLineNos.size;
@@ -10864,26 +11055,50 @@ function showCompileErrorDialog(errors) {
   if (compileErrorTitle) compileErrorTitle.textContent = t("compileErrorTitle");
   _lastCompileErrors = errors;
   compileErrorList.innerHTML = errors.map((err, idx) => {
-    const lineTagMatch = err.match(/^\[L(\d+)\]/);
-    const asmLine = lineTagMatch ? parseInt(lineTagMatch[1], 10) : null;
-    const sepIdx = err.indexOf(" \u2014 ");
+    const errText = typeof err === "string" ? err : (err?.text || err?.message || String(err));
+    const lineTagMatch = errText.match(/^\[L(\d+)\]/);
+    const asmLine = typeof err === "object" && err !== null && typeof err.asmLine === "number"
+      ? err.asmLine
+      : (lineTagMatch ? parseInt(lineTagMatch[1], 10) : null);
+    const sourceLine = typeof err === "object" && err !== null && typeof err.sourceLine === "number"
+      ? err.sourceLine
+      : null;
+    const sepIdx = errText.indexOf(" \u2014 ");
     let html;
     if (sepIdx !== -1) {
-      const prefix = err.slice(0, sepIdx).replace(/</g, "&lt;");
-      const msg = err.slice(sepIdx + 3).replace(/</g, "&lt;");
+      const prefix = errText.slice(0, sepIdx).replace(/</g, "&lt;");
+      const msg = errText.slice(sepIdx + 3).replace(/</g, "&lt;");
       html = `${prefix} <span class="compile-error-msg">\u2014 ${msg}</span>`;
     } else {
-      html = `<span class="compile-error-msg">${err.replace(/</g, "&lt;")}</span>`;
+      html = `<span class="compile-error-msg">${errText.replace(/</g, "&lt;")}</span>`;
     }
-    return `<li data-index="${idx}" data-asm-line="${asmLine ?? ""}">${html}</li>`;
+    const navigable = (Number.isFinite(asmLine) || Number.isFinite(sourceLine)) ? "true" : "false";
+    return `<li data-index="${idx}" data-asm-line="${asmLine ?? ""}" data-source-line="${sourceLine ?? ""}" data-navigable="${navigable}" tabindex="${navigable === "true" ? "0" : "-1"}">${html}</li>`;
   }).join("");
+
+  const setSelectedErrorItem = (activeLi) => {
+    compileErrorList.querySelectorAll("li").forEach((item) => {
+      item.dataset.selected = item === activeLi ? "true" : "false";
+    });
+  };
 
   compileErrorList.querySelectorAll("li").forEach(li => {
     li.addEventListener("click", () => {
       const asmLine = parseInt(li.dataset.asmLine, 10);
-      compileErrorDialog.close();
-      if (!isNaN(asmLine)) {
+      const sourceLine = parseInt(li.dataset.sourceLine, 10);
+      setSelectedErrorItem(li);
+      if (expertMode && expertEditor && Number.isFinite(sourceLine)) {
+        _expertGotoSourceLine(sourceLine, { focus: false });
+        return;
+      }
+      if (Number.isFinite(asmLine)) {
         scrollAsmOutputToLine(asmLine);
+      }
+    });
+    li.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        li.click();
       }
     });
   });
@@ -13466,13 +13681,17 @@ function assembleProgramToPrg(originOverride) {
       const lineTag = asmLine
         ? `L${String(asmLine).padStart(3, "0")}`
         : `P${String(layoutIndex + 1).padStart(3, "0")}`;
-      compileErrors.push(`[${lineTag}] ${addr}  ${mnemonic}${operand} — ${compiled.error}`);
+      compileErrors.push({
+        text: `[${lineTag}] ${addr}  ${mnemonic}${operand} — ${compiled.error}`,
+        asmLine,
+        sourceLine: typeof line.block._srcLine === "number" ? line.block._srcLine : null
+      });
     } else {
       currentSection.bytes.push(...compiled.bytes);
     }
   }
   if (compileErrors.length > 0) {
-    return { ok: false, error: compileErrors[0], errors: compileErrors };
+    return { ok: false, error: compileErrors[0].text, errors: compileErrors };
   }
 
   const origin = layout.origin.value;

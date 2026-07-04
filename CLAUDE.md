@@ -562,8 +562,8 @@ Ha egy step betölt egy sample-t mielőtt megmutatja a UI-t:
 
 ## 15. Jelenlegi verzió
 
-`2.1.2` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
+`2.1.3` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, és ez a fájl + copilot-instructions.md.
-Fő 2.1.2 hotfixek: a `.region` Expert-mode kiválasztás most kapcsolható, és nem módosítja a fold állapotot; a kollabált régiókhoz tartozó kurzor/kijelölés logika stabilizálva lett.
+Fő 2.1.3 hotfixek: az Expert mode editor több compile hiba mellett is egyben tartja a szöveget, caret-et és hibajelölést; a compile error dialógus pedig kijelölve tartja a kiválasztott hibát és bezárás nélkül a megfelelő sorra ugrik.
 
 Verziónöveléshez lásd a 3. szakasz végén lévő 7-lépéses checklistet.

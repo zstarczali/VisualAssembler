@@ -662,8 +662,8 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`2.1.1` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, `CLAUDE.md`.
-Főbb újdonságok: `DELAY` / `WAIT` const-támogatás, `PRINT_CHAR` const-támogatás, `SET_BORDER` / `SET_BG` const-támogatás, és a `.region` Expert-mode highlight.
+`2.1.3` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, `CLAUDE.md`.
+Főbb újdonságok: Expert mode editor szinkron javítás több compile hiba mellett, valamint compile error dialógus kijelölés + sorra ugrás bezárás nélkül.
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező

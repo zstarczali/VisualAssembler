@@ -3461,9 +3461,12 @@ body.expert-mode .expert-panel {
   outline: 1px solid color-mix(in srgb, var(--accent) 60%, transparent);
   border-radius: 2px;
 }
+.expert-hl-line {
+  display: block;
+}
+
 /* Error line highlight in expert editor */
 .expert-err-line {
-  display: block;
   background: color-mix(in srgb, #ff4444 14%, transparent);
   box-shadow: inset 2px 0 0 #ff4444;
 }
@@ -4237,15 +4240,32 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   padding: 5px 9px;
   border-radius: 0 5px 5px 0;
   line-height: 1.35;
+  outline: none;
+  transition: background 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease;
+}
+
+.compile-error-list li[data-navigable="true"] {
+  cursor: pointer;
+}
+
+.compile-error-list li[data-navigable="true"]:hover {
+  background: color-mix(in srgb, var(--primary) 16%, transparent);
+  border-left-color: color-mix(in srgb, var(--primary) 55%, #ff6666);
+}
+
+.compile-error-list li[data-navigable="true"]:focus-visible {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 28%, transparent);
+}
+
+.compile-error-list li[data-selected="true"] {
+  background: color-mix(in srgb, #ff4444 16%, var(--primary) 10%);
+  border-left-color: #ff4444;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #ff4444 35%, transparent);
 }
 
 .compile-error-msg {
   color: #ff4444;
   font-weight: 600;
-}
-
-.compile-error-list li[data-asm-line]:not([data-asm-line=""]) {
-  cursor: pointer;
 }
 
 .compile-error-card .primary {
