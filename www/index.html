@@ -12,7 +12,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2.1.2">
+  <link rel="stylesheet" href="style.css?v=2.1.3">
 </head>
 
 <body>
@@ -746,7 +746,7 @@ PRINTABLE CHARACTERS
         <img src="assets/logo.png" alt="C64 Visual Assembler" width="160" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v2.1.2</p>
+      <p class="about-version" id="about-version">v2.1.3</p>
       <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
         dropping instruction blocks.</p>
       <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
@@ -758,52 +758,25 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.1.2</p>
+      <p class="whats-new-version">v2.1.3</p>
       <ul class="whats-new-list">
         <li>
-          <strong>Hotfixes</strong> &mdash; the Expert mode Region selection toggle now only controls the automatic region highlight, and collapsed regions keep their cursor/selection behavior aligned.
+          <strong>Expert editor fix</strong> &mdash; Expert mode now keeps the typed text, highlight overlay, error lines, and caret position aligned even when multiple compile errors are present.
         </li>
         <li>
-          <strong>Mnemonic cards</strong> &mdash; opcode and macro cards now render a consistent Syntax / Description layout, and the expert hint stays aligned with the current addressing mode.
+          <strong>Compile dialog fix</strong> &mdash; the compile error dialog now keeps the selected entry highlighted, uses a proper pointer cursor, and jumps to the matching Expert mode line without closing the dialog.
         </li>
         <li>
-          <strong>Sprite macro upgrade</strong> &mdash; <code>.sprite_init</code> and <code>.sprite_pos</code> now accept const values in Block mode, and <code>.sprite_init</code> can also toggle the sprite's multicolor bit.
-        </li>
-        <li>
-          <strong>Automatic ZP allocation</strong> &mdash; <code>.var</code> blocks reserve zero-page bytes on their own, so you do not need to pick addresses manually, and collisions warn instead of overwriting.
-        </li>
-        <li>
-          <strong>Runtime flow control</strong> &mdash; <code>.if / .else / .endif</code>, <code>.while / .endw</code>, and <code>.repeat / .until</code> now expand to real 6502 branches for A/X/Y comparisons.
-        </li>
-        <li>
-          <strong>Memory helpers</strong> &mdash; <code>.memcpy</code> and <code>.memset</code> cover the common buffer-copy and screen-fill patterns, and the new showcase demos use them heavily.
-        </li>
-        <li>
-          <strong>Text and output helpers</strong> &mdash; <code>.print</code>, <code>.print_char</code>, <code>.charset</code>, and the PETSCII path now round-trip cleanly between Block and Expert mode, including lowercase handling.
-        </li>
-        <li>
-          <strong>Const-aware helpers</strong> &mdash; <code>.delay</code> / <code>.wait</code>, <code>.print_char</code>, and <code>.set_border</code> / <code>.set_bg</code> now accept named <code>.const</code> values; <code>.delay</code> now calls a shared frame-delay helper instead of repeating the wait body. The block editor inputs stay compact instead of the browser's native dropdowns.
-        </li>
-        <li>
-          <strong>IRQ, random, and sugar</strong> &mdash; <code>.irq_setup</code>, <code>.rand</code>, and the <code>.end</code> RTS alias make common C64 boilerplate much shorter.
-        </li>
-        <li>
-          <strong>Expert mode polish</strong> &mdash; the new directives now get proper syntax coloring in Expert mode, including <code>.region</code> / <code>.endregion</code> and the newer macro blocks.
+          <strong>Expert mode polish</strong> &mdash; the new directives still get proper syntax coloring in Expert mode, including <code>.region</code> / <code>.endregion</code> and the newer macro blocks.
         </li>
         <li>
           <strong>Expert region folding fix</strong> &mdash; collapsed <code>.region</code> blocks now really hide their body in Expert mode without leaving giant blank gaps, while caret placement, line numbers, tab switching, formatting, and save/load keep using the full source correctly behind the scenes.
         </li>
         <li>
-          <strong>Region selection toggle</strong> &mdash; Expert mode now has a toolbar button that turns the automatic region highlight on or off without changing the actual fold state.
+          <strong>Region selection toggle</strong> &mdash; Expert mode still has a toolbar button that turns the automatic region highlight on or off without changing the actual fold state.
         </li>
         <li>
-          <strong>Working folder picker</strong> &mdash; the File menu now has a default working folder setting, and file dialogs start from that folder instead of jumping back to the last unrelated path.
-        </li>
-        <li>
-          <strong>Resizable project symbols panel</strong> &mdash; the Expert project panel now lets you drag the divider to give the symbols list more vertical space when a project has many labels and regions.
-        </li>
-        <li>
-          <strong>New demos and docs</strong> &mdash; the sample menu now includes the new macro showcase and the memcpy scroll demo, while the docs, manual, and installer notes are refreshed for 2.1.2 across all four UI languages.
+          <strong>Release sync</strong> &mdash; the bundled docs, manual, and installer notes are refreshed for the 2.1.3 hotfix release.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -1538,9 +1511,9 @@ PRINTABLE CHARACTERS
   </div>
 
   <script src="tauri-bridge.js"></script>
-  <script src="i18n.js?v=2.1.2"></script>
-  <script src="tutorial-data.js?v=2.1.2"></script>
-  <script src="app.js?v=2.1.2"></script>
+  <script src="i18n.js?v=2.1.3"></script>
+  <script src="tutorial-data.js?v=2.1.3"></script>
+  <script src="app.js?v=2.1.3"></script>
 
 </body>
 
