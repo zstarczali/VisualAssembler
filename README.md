@@ -4,12 +4,6 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 
 **Current version: v2.1.3**
 
-**What's new in 2.1.3**
-
-- Hotfix: the Expert mode editor now keeps the typed text, highlight overlay, error lines, and caret aligned even with multiple compile errors.
-- Hotfix: the compile error dialog now keeps the selected error visible, shows a proper pointer cursor, and jumps to the matching Expert mode line without closing.
-- The bundled docs, manual, and installer notes were refreshed to match the 2.1.3 release.
-
 ---
 
 

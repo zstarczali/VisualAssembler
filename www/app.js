@@ -461,6 +461,7 @@ let _expertFindTerm = "";
 let _expertFindMatches = []; // [{start, end}] flat textarea positions
 let _expertFindIdx = -1;
 let _expertProjectData = null; // { name, files, _projPath }
+let _expertPendingEditMeta = null;
 const _PROJECT_SNAPSHOT_MAX_ENTRIES = 10;
 const _PROJECT_SNAPSHOT_AUTO_DELAY_MS = 2500;
 const DELAY_HELPER_LABEL = "__delay_wait_frames";
@@ -1662,13 +1663,30 @@ function initPalette() {
   document.getElementById("expert-project-save-btn")?.addEventListener("click", _expertSaveProject);
   document.getElementById("expert-project-add-btn")?.addEventListener("click",  _expertAddProjMember);
 
+  expertEditor?.addEventListener("beforeinput", (e) => {
+    const displaySelStart = expertEditor.selectionStart ?? 0;
+    const displaySelEnd = expertEditor.selectionEnd ?? displaySelStart;
+    _expertPendingEditMeta = {
+      inputType: e.inputType || "",
+      data: typeof e.data === "string" ? e.data : "",
+      displaySelStart,
+      displaySelEnd,
+      sourceSelStart: _expertDisplayPosToSourcePos(displaySelStart),
+      sourceSelEnd: _expertDisplayPosToSourcePos(displaySelEnd)
+    };
+  });
+
   expertEditor?.addEventListener("input", () => {
-    const sourceSelStart = _expertDisplayPosToSourcePos(expertEditor.selectionStart ?? 0);
-    const sourceSelEnd = _expertDisplayPosToSourcePos(expertEditor.selectionEnd ?? expertEditor.selectionStart ?? 0);
-    _expertSyncSourceTextFromEditor();
+    const displaySelStart = expertEditor.selectionStart ?? 0;
+    const displaySelEnd = expertEditor.selectionEnd ?? displaySelStart;
+    const mirroredSel = _expertSyncSourceTextFromEditor(_expertPendingEditMeta);
+    _expertPendingEditMeta = null;
+    const sourceSelStart = mirroredSel?.start ?? _expertDisplayPosToSourcePos(displaySelStart);
+    const sourceSelEnd = mirroredSel?.end ?? _expertDisplayPosToSourcePos(displaySelEnd);
     _expertRefreshProjection(sourceSelStart, sourceSelEnd);
     markTabDirty();
     _expertValidate();
+    _expertScheduleIncludeReload();
     renderExpertOriginInfo();
     _expertAcUpdate();
     _expertUpdateCaret();
@@ -5037,6 +5055,8 @@ let expertMode = false;
 let _expertParseTimer = null;
 let _expertErrorLineNos = new Set();  // source line indices (0-based) with compile errors
 let _expertAsmFilePath = "";          // current .asm file path (empty = unsaved)
+let _expertIncludeReloadTimer = null;
+let _expertIncludeReloadSeq = 0;
 
 function setExpertMode(on) {
   if (!on && expertMode) {
@@ -5883,11 +5903,57 @@ function _expertSourcePosToDisplayPos(pos) {
   return _expertLineStartIndex(displayText, displayLine) + Math.min(sourceCol, (displayLines[displayLine] || "").length);
 }
 
-function _expertSyncSourceTextFromEditor() {
+function _expertApplyPendingEditToSource(editMeta) {
+  if (!editMeta) return null;
+  const sourceText = _expertSourceText || "";
+  const start = Math.max(0, Math.min(editMeta.sourceSelStart ?? 0, sourceText.length));
+  const end = Math.max(start, Math.min(editMeta.sourceSelEnd ?? start, sourceText.length));
+  const inputType = String(editMeta.inputType || "");
+  const insertText = typeof editMeta.data === "string" ? editMeta.data : "";
+
+  const replaceRange = (from, to, text) => {
+    _expertSourceText = sourceText.slice(0, from) + text + sourceText.slice(to);
+    const caret = from + text.length;
+    return { start: caret, end: caret };
+  };
+
+  if (inputType === "insertText" || inputType === "insertCompositionText") {
+    return replaceRange(start, end, insertText);
+  }
+  if (inputType === "insertLineBreak" || inputType === "insertParagraph") {
+    return replaceRange(start, end, "\n");
+  }
+  if (inputType === "insertFromPaste" || inputType === "insertFromDrop") {
+    return replaceRange(start, end, insertText);
+  }
+  if (inputType === "deleteContentBackward") {
+    if (start !== end) return replaceRange(start, end, "");
+    if (start <= 0) return { start: 0, end: 0 };
+    _expertSourceText = sourceText.slice(0, start - 1) + sourceText.slice(end);
+    return { start: start - 1, end: start - 1 };
+  }
+  if (inputType === "deleteContentForward") {
+    if (start !== end) return replaceRange(start, end, "");
+    if (start >= sourceText.length) return { start, end: start };
+    _expertSourceText = sourceText.slice(0, start) + sourceText.slice(start + 1);
+    return { start, end: start };
+  }
+  if (inputType.startsWith("delete")) {
+    return replaceRange(start, end, "");
+  }
+
+  return null;
+}
+
+function _expertSyncSourceTextFromEditor(editMeta = null) {
   if (!expertEditor) return;
   if (!_expertProjectionActive) {
     _expertSourceText = expertEditor.value || "";
-    return;
+    return null;
+  }
+  const mirroredSel = _expertApplyPendingEditToSource(editMeta);
+  if (mirroredSel) {
+    return mirroredSel;
   }
   const sourceLines = (_expertSourceText || "").split("\n");
   const displayLines = (expertEditor.value || "").split("\n");
@@ -5898,11 +5964,14 @@ function _expertSyncSourceTextFromEditor() {
     displayIdx++;
   }
   _expertSourceText = sourceLines.join("\n");
+  return null;
 }
 
 function _expertRefreshProjection(sourceSelStart = null, sourceSelEnd = sourceSelStart) {
   if (!expertEditor) return;
   const sourceText = _expertSourceText || "";
+  const prevProjectionActive = _expertProjectionActive;
+  const prevDisplayToSource = Array.isArray(_expertDisplayToSourceLines) ? _expertDisplayToSourceLines.slice() : [];
   const blocks = _expertBuildProgramFromText(sourceText, program);
   const sourceLines = sourceText.split("\n");
   const hiddenLines = (_expertHlEnabled && expertMode && _expertHasCollapsedRegions(blocks))
@@ -5927,7 +5996,11 @@ function _expertRefreshProjection(sourceSelStart = null, sourceSelEnd = sourceSe
   const valueChanged = expertEditor.value !== nextValue;
   if (valueChanged) expertEditor.value = nextValue;
 
-  if (sourceSelStart !== null) {
+  const projectionChanged = prevProjectionActive !== _expertProjectionActive
+    || prevDisplayToSource.length !== displayToSource.length
+    || prevDisplayToSource.some((lineNo, idx) => lineNo !== displayToSource[idx]);
+  const shouldRestoreSelection = sourceSelStart !== null && (valueChanged || projectionChanged);
+  if (shouldRestoreSelection) {
     const nextStart = _expertSourcePosToDisplayPos(sourceSelStart);
     const nextEnd = _expertSourcePosToDisplayPos(sourceSelEnd ?? sourceSelStart);
     expertEditor.setSelectionRange(nextStart, nextEnd);
@@ -6037,6 +6110,53 @@ function _expertUpdateCaret() {
   expertCaret.hidden = true;
 }
 
+function _expertScanRegionLines(sourceText, stateSource = program) {
+  const entries = [];
+  const lines = String(sourceText || "").split("\n");
+  const stack = [];
+  const rootCounts = new Map();
+
+  _expertStampRegionFoldSignatures(stateSource);
+  const stateBySig = new Map();
+  const indexBySig = new Map();
+  stateSource.forEach((block, index) => {
+    if (block?.isRegionMacro && block._regionFoldSig) {
+      stateBySig.set(block._regionFoldSig, !!block.regionCollapsed);
+      indexBySig.set(block._regionFoldSig, index);
+    }
+  });
+
+  for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+    const rawLine = lines[lineIdx];
+    const scIdx = rawLine.indexOf(";");
+    const codePart = (scIdx >= 0 ? rawLine.slice(0, scIdx) : rawLine).trim();
+    const regionMatch = codePart.match(/^\.region\s+(.+)$/i);
+    if (regionMatch) {
+      const parent = stack[stack.length - 1] || null;
+      const counts = parent ? parent.childCounts : rootCounts;
+      const regionName = regionMatch[1].trim();
+      const normalized = _expertNormalizeRegionName(regionName);
+      const occ = (counts.get(normalized) || 0) + 1;
+      counts.set(normalized, occ);
+      const sig = `${parent ? parent.sig : ""}/${normalized}#${occ}`;
+      entries.push({
+        srcLine: lineIdx,
+        regionName,
+        sig,
+        collapsed: !!stateBySig.get(sig),
+        programIndex: indexBySig.has(sig) ? indexBySig.get(sig) : -1
+      });
+      stack.push({ sig, childCounts: new Map() });
+      continue;
+    }
+    if (/^\.endregion(?:\s+.+)?$/i.test(codePart)) {
+      if (stack.length) stack.pop();
+    }
+  }
+
+  return entries;
+}
+
 function _expertSetCaretFromMouse(e) {
   if (!expertEditor) return false;
   const view = _expertGetFoldViewState();
@@ -6077,33 +6197,36 @@ function _expertUpdateRegionFolds() {
     gutter.appendChild(inner);
   }
   inner.innerHTML = "";
-  if (!expertMode || !Array.isArray(program) || !program.length) return;
+  if (!expertMode) return;
+
+  const sourceText = _expertGetSourceText();
+  const regionEntries = _expertScanRegionLines(sourceText, program);
+  if (!regionEntries.length) return;
 
   const lh = parseFloat(getComputedStyle(expertEditor).lineHeight) || 21;
   const pt = parseFloat(getComputedStyle(expertEditor).paddingTop) || 16;
   const scrollTop = _expertGetVisibleScrollTop();
   const btnH = Math.max(12, Math.round(lh - 2));
 
-  program.forEach((block, index) => {
-    if (!block.isRegionMacro || block._srcLine === undefined) return;
+  regionEntries.forEach((entry) => {
     const displayLine = _expertProjectionActive
-      ? _expertSourceToDisplayLines[block._srcLine]
-      : block._srcLine;
+      ? _expertSourceToDisplayLines[entry.srcLine]
+      : entry.srcLine;
     if (displayLine === undefined || displayLine < 0) return;
     const btn = document.createElement("button");
-    const collapsed = !!block.regionCollapsed;
+    const collapsed = !!entry.collapsed;
     btn.type = "button";
     btn.className = "expert-region-fold-btn" + (collapsed ? " expert-region-fold-btn--collapsed" : "");
     btn.textContent = collapsed ? "\u25B8" : "\u25BE";
     btn.style.top = `${pt + displayLine * lh}px`;
     btn.style.height = `${btnH}px`;
-    btn.setAttribute("aria-label", `${collapsed ? t("expand") : t("collapse")} ${block.regionName || "region"}`);
-    btn.setAttribute("title", `${collapsed ? t("expand") : t("collapse")} ${block.regionName || "region"}`);
+    btn.setAttribute("aria-label", `${collapsed ? t("expand") : t("collapse")} ${entry.regionName || "region"}`);
+    btn.setAttribute("title", `${collapsed ? t("expand") : t("collapse")} ${entry.regionName || "region"}`);
     btn.addEventListener("mousedown", (e) => e.preventDefault());
     btn.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      toggleRegionCollapsed(index);
+      if (entry.programIndex >= 0) toggleRegionCollapsed(entry.programIndex);
       _expertApplyHighlight();
       _expertUpdateRegionFolds();
       expertEditor.focus();
@@ -6565,7 +6688,7 @@ function parseExpertText(text) {
     // .sid "filename.sid" [, $ADDR]
     const sidDirM = line.match(/^\.sid\s+"([^"]*)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$/i);
     if (sidDirM) {
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SID", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "SID: valassz fajlt normalis modban", collapsed: true, isSidMacro: true, sidFile: "", sidFileName: sidDirM[1], sidTitle: "", sidAuthor: "", sidLoadAddress: 0, sidInitAddress: 0, sidPlayAddress: 0, sidBytes: [], sidCustomAddress: sidDirM[2] ? sidDirM[2].toUpperCase() : "" });
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SID", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSidMacro: true, sidFile: sidDirM[1], sidFileName: sidDirM[1], sidTitle: "", sidAuthor: "", sidLoadAddress: 0, sidInitAddress: 0, sidPlayAddress: 0, sidBytes: [], sidCustomAddress: sidDirM[2] ? sidDirM[2].toUpperCase() : "" });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -7165,14 +7288,32 @@ function _expertBuildProgramFromText(text, stateSource = program) {
         newBlock.validationError = existing.validationError || "";
       }
     }
-    if (newBlock.isIncludeMacro && newBlock.includeFileName) {
-      const existing = stateSource.find(b =>
-        b.isIncludeMacro && b.includeFileName === newBlock.includeFileName &&
-        (b.includedBlocks || []).length > 0
-      );
+    if (newBlock.isIncludeMacro && (newBlock.includeFileName || newBlock.includeFile)) {
+      // Match by basename so freshly parsed "hello.asm" finds an existing block whose
+      // includeFile was rewritten to a full path and includeFileName to the file stem.
+      const _baseName = (s) => (typeof s === "string" ? s.split(/[\/\\]/).pop() : "");
+      const _stripExt = (s) => _baseName(s).replace(/\.[^.]+$/, "");
+      const nbFileBase = _baseName(newBlock.includeFile || "");
+      const nbFileStem = nbFileBase.replace(/\.[^.]+$/, "");
+      const nbNameRaw  = newBlock.includeFileName || "";
+      const nbNameStem = _stripExt(nbNameRaw);
+      const existing = stateSource.find(b => {
+        if (!b?.isIncludeMacro) return false;
+        if (!(b.includedBlocks || []).length) return false;
+        const bFileBase = _baseName(b.includeFile || "");
+        const bFileStem = bFileBase.replace(/\.[^.]+$/, "");
+        const bNameRaw  = b.includeFileName || "";
+        const bNameStem = _stripExt(bNameRaw);
+        if (nbFileBase && bFileBase && nbFileBase === bFileBase) return true;
+        if (nbNameRaw  && bNameRaw  && nbNameRaw  === bNameRaw)  return true;
+        if (nbFileStem && bFileStem && nbFileStem === bFileStem) return true;
+        if (nbNameStem && bNameStem && nbNameStem === bNameStem) return true;
+        return false;
+      });
       if (existing) {
         newBlock.includedBlocks  = existing.includedBlocks;
         newBlock.includeFile     = existing.includeFile || newBlock.includeFile || "";
+        newBlock.includeFileName = existing.includeFileName || newBlock.includeFileName || "";
         // Only copy address from existing if the text didn't specify one
         if (!newBlock.includeAddress && existing.includeAddress)
           newBlock.includeAddress = existing.includeAddress;
@@ -7185,6 +7326,193 @@ function _expertBuildProgramFromText(text, stateSource = program) {
 
 function _expertBuildProgram() {
   return _expertBuildProgramFromText(_expertGetSourceText(), program);
+}
+
+function _normalizeIncludeBlockSource(block) {
+  if (!block?.isIncludeMacro) return "";
+  const filePath = typeof block.includeFile === "string" ? block.includeFile.trim() : "";
+  if (filePath) return filePath;
+  const fileName = typeof block.includeFileName === "string" ? block.includeFileName.trim() : "";
+  if (fileName) {
+    block.includeFile = fileName;
+    return fileName;
+  }
+  return "";
+}
+
+function _getExpertIncludeReloadPath() {
+  const activeTab = _getActiveTab();
+  return activeTab?.filePath || _expertAsmFilePath || workingFolder || "";
+}
+
+function _normalizeIncBinBlockSource(block) {
+  if (!block?.isIncBinMacro) return "";
+  const filePath = typeof block.incBinFile === "string" ? block.incBinFile.trim() : "";
+  if (filePath) return filePath;
+  const fileName = typeof block.incBinFileName === "string" ? block.incBinFileName.trim() : "";
+  if (fileName) {
+    block.incBinFile = fileName;
+    return fileName;
+  }
+  return "";
+}
+
+function _normalizeSidBlockSource(block) {
+  if (!block?.isSidMacro) return "";
+  const filePath = typeof block.sidFile === "string" ? block.sidFile.trim() : "";
+  if (filePath) return filePath;
+  const fileName = typeof block.sidFileName === "string" ? block.sidFileName.trim() : "";
+  if (fileName) {
+    block.sidFile = fileName;
+    return fileName;
+  }
+  return "";
+}
+
+// Basename-based identity match (handles the case where the backend rewrites
+// includeFile / incBinFile / sidFile to a full resolved path after reload).
+function _makeAssetIdentity(fileField, nameField) {
+  const baseName = (s) => (typeof s === "string" ? s.split(/[\/\\]/).pop() : "");
+  const stripExt = (s) => baseName(s).replace(/\.[^.]+$/, "");
+  return (block) => {
+    const file = baseName(block[fileField] || "");
+    const name = block[nameField] || "";
+    return {
+      fileBase: file,
+      fileStem: file.replace(/\.[^.]+$/, ""),
+      nameRaw: name,
+      nameStem: stripExt(name)
+    };
+  };
+}
+
+function _assetIdentityMatches(a, b) {
+  if (a.fileBase && b.fileBase && a.fileBase === b.fileBase) return true;
+  if (a.nameRaw && b.nameRaw && a.nameRaw === b.nameRaw) return true;
+  if (a.fileStem && b.fileStem && a.fileStem === b.fileStem) return true;
+  if (a.nameStem && b.nameStem && a.nameStem === b.nameStem) return true;
+  return false;
+}
+
+function _mergeResolvedIncBinBlocks(sourceBlocks, targetBlocks) {
+  if (!Array.isArray(sourceBlocks) || !Array.isArray(targetBlocks)) return;
+  const identity = _makeAssetIdentity("incBinFile", "incBinFileName");
+  targetBlocks.forEach((block) => {
+    if (!block?.isIncBinMacro) return;
+    const b = identity(block);
+    const match = sourceBlocks.find((candidate) => {
+      if (!candidate?.isIncBinMacro) return false;
+      return _assetIdentityMatches(b, identity(candidate));
+    });
+    if (!match) return;
+    block.incBinFile = match.incBinFile || block.incBinFile || "";
+    block.incBinFileName = match.incBinFileName || block.incBinFileName || "";
+    block.incBinBytes = Array.isArray(match.incBinBytes) ? match.incBinBytes : [];
+    block.validationError = match.validationError || "";
+  });
+}
+
+function _mergeResolvedSidBlocks(sourceBlocks, targetBlocks) {
+  if (!Array.isArray(sourceBlocks) || !Array.isArray(targetBlocks)) return;
+  const identity = _makeAssetIdentity("sidFile", "sidFileName");
+  targetBlocks.forEach((block) => {
+    if (!block?.isSidMacro) return;
+    const b = identity(block);
+    const match = sourceBlocks.find((candidate) => {
+      if (!candidate?.isSidMacro) return false;
+      return _assetIdentityMatches(b, identity(candidate));
+    });
+    if (!match) return;
+    block.sidFile = match.sidFile || block.sidFile || "";
+    block.sidFileName = match.sidFileName || block.sidFileName || "";
+    block.sidTitle = match.sidTitle || block.sidTitle || "";
+    block.sidAuthor = match.sidAuthor || block.sidAuthor || "";
+    block.sidLoadAddress = match.sidLoadAddress || 0;
+    block.sidInitAddress = match.sidInitAddress || 0;
+    block.sidPlayAddress = match.sidPlayAddress || 0;
+    block.sidBytes = Array.isArray(match.sidBytes) ? match.sidBytes : [];
+    block.validationError = match.validationError || "";
+  });
+}
+
+function _mergeResolvedIncludeBlocks(sourceBlocks, targetBlocks) {
+  if (!Array.isArray(sourceBlocks) || !Array.isArray(targetBlocks)) return;
+  // Compare by basename so a freshly parsed block ("hello.asm") matches a reloaded block
+  // whose includeFile was rewritten to a full resolved path and includeFileName to the file stem.
+  const baseName = (s) => (typeof s === "string" ? s.split(/[\/\\]/).pop() : "");
+  const stripExt = (s) => baseName(s).replace(/\.[^.]+$/, "");
+  const identity = (block) => {
+    const file = baseName(block.includeFile || "");
+    const name = block.includeFileName || "";
+    return {
+      fileBase: file,
+      fileStem: file.replace(/\.[^.]+$/, ""),
+      nameRaw: name,
+      nameStem: stripExt(name)
+    };
+  };
+  targetBlocks.forEach((block) => {
+    if (!block?.isIncludeMacro) return;
+    const b = identity(block);
+    const match = sourceBlocks.find((candidate) => {
+      if (!candidate?.isIncludeMacro) return false;
+      const c = identity(candidate);
+      if (b.fileBase && c.fileBase && b.fileBase === c.fileBase) return true;
+      if (b.nameRaw && c.nameRaw && b.nameRaw === c.nameRaw) return true;
+      if (b.fileStem && c.fileStem && b.fileStem === c.fileStem) return true;
+      if (b.nameStem && c.nameStem && b.nameStem === c.nameStem) return true;
+      return false;
+    });
+    if (!match) return;
+    block.includeFile = match.includeFile || block.includeFile || "";
+    block.includeFileName = match.includeFileName || block.includeFileName || "";
+    block.includedBlocks = Array.isArray(match.includedBlocks) ? match.includedBlocks : [];
+    block.validationError = match.validationError || "";
+  });
+}
+
+function _expertScheduleIncludeReload() {
+  clearTimeout(_expertIncludeReloadTimer);
+  _expertIncludeReloadTimer = setTimeout(async () => {
+    if (!expertMode) return;
+    const api = window.electronAPI;
+    if (!api) return;
+
+    const requestSeq = ++_expertIncludeReloadSeq;
+    const sourceText = _expertGetSourceText();
+    const reloadBlocks = _expertBuildProgramFromText(sourceText, program);
+    let hasInclude = false, hasIncBin = false, hasSid = false;
+    for (const block of reloadBlocks) {
+      if (block?.isIncludeMacro && _normalizeIncludeBlockSource(block)) hasInclude = true;
+      if (block?.isIncBinMacro  && _normalizeIncBinBlockSource(block))  hasIncBin  = true;
+      if (block?.isSidMacro     && _normalizeSidBlockSource(block))     hasSid     = true;
+    }
+    if (!hasInclude && !hasIncBin && !hasSid) return;
+
+    const reloadPath = _getExpertIncludeReloadPath();
+    const savedProgram = program;
+    try {
+      program = reloadBlocks;
+      if (hasInclude && api.reloadIncludeFile) await reloadIncludeBlocks(reloadPath);
+      if (hasIncBin  && api.reloadIncBinFile)  await reloadIncBinBlocks(reloadPath);
+      if (hasSid     && api.reloadSidFile)     await reloadSidBlocks(reloadPath);
+    } finally {
+      program = savedProgram;
+    }
+
+    if (requestSeq !== _expertIncludeReloadSeq) return;
+
+    const mergedBlocks = _expertBuildProgram();
+    if (hasInclude) _mergeResolvedIncludeBlocks(reloadBlocks, mergedBlocks);
+    if (hasIncBin)  _mergeResolvedIncBinBlocks(reloadBlocks, mergedBlocks);
+    if (hasSid)     _mergeResolvedSidBlocks(reloadBlocks, mergedBlocks);
+    program = mergedBlocks;
+    parseUserMacros();
+    if (_expertProjectVisible) _expertRenderSymbols();
+    if (_expertDisasmVisible) _expertRenderDisasm();
+    if (_expertMonitorVisible) _expertRenderMonitor();
+    if (_expertGetSourceText() === sourceText) _expertValidate();
+  }, 180);
 }
 
 // Update Ln/Col display and region bracket highlighting
@@ -7258,12 +7586,33 @@ function _expertUpdateCursor() {
   _expertUpdateCaret();
 }
 
+function _expertGetTransientTypingSourceLine(sourceText) {
+  if (!expertEditor) return -1;
+  const sourcePos = _expertDisplayPosToSourcePos(expertEditor.selectionStart ?? 0);
+  const sourceLine = Math.max(0, sourceText.slice(0, sourcePos).split("\n").length - 1);
+  const line = (sourceText.split("\n")[sourceLine] || "").trim();
+
+  if (/^\.[A-Za-z_][A-Za-z0-9_]*$/.test(line)) {
+    const directiveName = line.slice(1).toLowerCase();
+    if (!_DIRECTIVE_TO_MNEM[directiveName]) return sourceLine;
+  }
+
+  if (/^[A-Za-z]{1,3}$/.test(line)) {
+    const mnemonicName = line.toUpperCase();
+    if (!_EXPERT_MNEM_SET.has(mnemonicName)) return sourceLine;
+  }
+
+  return -1;
+}
+
 function _expertValidate() {
   if (!expertMode || !expertEditor) return;
   _expertApplyHighlight();
   clearTimeout(_expertParseTimer);
   _expertParseTimer = setTimeout(() => {
     try {
+      const sourceText = _expertGetSourceText();
+      const transientTypingLine = _expertGetTransientTypingSourceLine(sourceText);
       const blocks = _expertBuildProgram();
       const saved = program;
       const savedUserMacros = userMacros;
@@ -7296,6 +7645,9 @@ function _expertValidate() {
       } finally {
         program = saved;
         userMacros = savedUserMacros;
+      }
+      if (transientTypingLine >= 0) {
+        errors = errors.filter((entry) => entry.srcLine !== transientTypingLine);
       }
       // Update error line set and re-highlight
       const prevErrSize = _expertErrorLineNos.size;
@@ -11909,13 +12261,16 @@ async function reloadIncludeBlocks(projectFilePath = "") {
     : -1;
   const baseDir = lastSlash >= 0 ? projectFilePath.slice(0, lastSlash) : "";
   for (const block of program) {
-    if (block.isIncludeMacro && block.includeFile) {
-      const result = await window.electronAPI.reloadIncludeFile(block.includeFile, baseDir);
+    if (block.isIncludeMacro) {
+      const sourcePath = _normalizeIncludeBlockSource(block);
+      if (!sourcePath) continue;
+      const result = await window.electronAPI.reloadIncludeFile(sourcePath, baseDir);
       if (!result.error) {
         block.includedBlocks = typeof result.text === "string"
           ? parseExpertText(result.text)
           : (result.blocks || []);
         block.includeFileName = result.fileName;
+        block.includeFile = result.filePath || sourcePath;
         block.validationError = "";
       } else {
         // Keep last successfully loaded content visible if a transient reload fails.

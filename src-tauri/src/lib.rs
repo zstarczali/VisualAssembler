@@ -1206,19 +1206,75 @@ async fn reload_include_file(app: AppHandle, file_path: String, base_dir: Option
             }
         }
 
+        let working_folder = {
+            let cfg = read_config(&app);
+            get_working_folder_path(&cfg)
+        };
+        if let Some(folder) = working_folder.as_ref() {
+            candidates.push(folder.join(&normalized_file_path));
+        }
+
         let is_bare_file_name = input_path
             .parent()
             .map(|p| p.as_os_str().is_empty())
             .unwrap_or(true);
 
         if is_bare_file_name {
+            if input_path.extension().is_none() {
+                let mut guessed: Vec<PathBuf> = Vec::new();
+                if let Some(base) = base_dir.as_deref() {
+                    let base = base.trim();
+                    if !base.is_empty() {
+                        let base_path = std::path::Path::new(base);
+                        guessed.push(base_path.join(format!("{}.json", normalized_file_path)));
+                        guessed.push(base_path.join(format!("{}.asm", normalized_file_path)));
+                        guessed.push(base_path.join(format!("{}.inc", normalized_file_path)));
+                        guessed.push(base_path.join(format!("{}.s", normalized_file_path)));
+                    }
+                }
+                if let Some(folder) = working_folder.as_ref() {
+                    guessed.push(folder.join(format!("{}.json", normalized_file_path)));
+                    guessed.push(folder.join(format!("{}.asm", normalized_file_path)));
+                    guessed.push(folder.join(format!("{}.inc", normalized_file_path)));
+                    guessed.push(folder.join(format!("{}.s", normalized_file_path)));
+                }
+                candidates.extend(guessed);
+            }
             if let Ok(p) = resolve_resource_file(&app, &format!("samples/{}", normalized_file_path)) {
                 candidates.push(p);
+            }
+            if input_path.extension().is_none() {
+                if let Ok(p) = resolve_resource_file(&app, &format!("samples/{}.json", normalized_file_path)) {
+                    candidates.push(p);
+                }
+                if let Ok(p) = resolve_resource_file(&app, &format!("samples/{}.asm", normalized_file_path)) {
+                    candidates.push(p);
+                }
+                if let Ok(p) = resolve_resource_file(&app, &format!("samples/{}.inc", normalized_file_path)) {
+                    candidates.push(p);
+                }
+                if let Ok(p) = resolve_resource_file(&app, &format!("samples/{}.s", normalized_file_path)) {
+                    candidates.push(p);
+                }
             }
         }
 
         if let Ok(p) = resolve_resource_file(&app, &normalized_file_path) {
             candidates.push(p);
+        }
+        if input_path.extension().is_none() {
+            if let Ok(p) = resolve_resource_file(&app, &format!("{}.json", normalized_file_path)) {
+                candidates.push(p);
+            }
+            if let Ok(p) = resolve_resource_file(&app, &format!("{}.asm", normalized_file_path)) {
+                candidates.push(p);
+            }
+            if let Ok(p) = resolve_resource_file(&app, &format!("{}.inc", normalized_file_path)) {
+                candidates.push(p);
+            }
+            if let Ok(p) = resolve_resource_file(&app, &format!("{}.s", normalized_file_path)) {
+                candidates.push(p);
+            }
         }
     }
 
@@ -1232,8 +1288,11 @@ async fn reload_include_file(app: AppHandle, file_path: String, base_dir: Option
         .and_then(|e| e.to_str())
         .map(|e| e.eq_ignore_ascii_case("json"))
         .unwrap_or(false);
+    // Return the full basename with extension (e.g. "hello.asm"), matching INCBIN's
+    // convention and the value parseExpertText assigns when reading `.include "hello.asm"`.
+    // Returning only file_stem broke the fileName match after the first reload.
     let file_name = resolved
-        .file_stem().and_then(|n| n.to_str()).unwrap_or("").to_string();
+        .file_name().and_then(|n| n.to_str()).unwrap_or("").to_string();
     match fs::read_to_string(&resolved) {
         Ok(raw) => {
             if is_json {
@@ -1244,12 +1303,20 @@ async fn reload_include_file(app: AppHandle, file_path: String, base_dir: Option
                         {
                             return serde_json::json!({ "error": "Not a valid C64 Visual Assembler project." });
                         }
-                        serde_json::json!({ "fileName": file_name, "blocks": project["program"] })
+                        serde_json::json!({
+                            "fileName": file_name,
+                            "filePath": resolved.to_string_lossy().to_string(),
+                            "blocks": project["program"]
+                        })
                     }
                     Err(e) => serde_json::json!({ "error": e.to_string() }),
                 }
             } else {
-                serde_json::json!({ "fileName": file_name, "text": raw })
+                serde_json::json!({
+                    "fileName": file_name,
+                    "filePath": resolved.to_string_lossy().to_string(),
+                    "text": raw
+                })
             }
         }
         Err(e) => serde_json::json!({ "error": e.to_string() }),

@@ -1,0 +1,68 @@
+{
+  "app": "c64-visual-assembler",
+  "d64": {
+    "diskName": "",
+    "extras": [],
+    "progName": ""
+  },
+  "expertText": "* = $0801\n\n.include \"hello\"",
+  "program": [
+    {
+      "_srcLine": 0,
+      "addressingMode": "implied",
+      "base": "hex",
+      "category": "Makrok",
+      "collapsed": true,
+      "description": "",
+      "id": "58cd6662-9433-4e0e-8165-9aff391c2144",
+      "isOrgMacro": true,
+      "mnemonic": "ORG",
+      "operand": "",
+      "orgAddress": "0801",
+      "rawOperand": "",
+      "validationError": ""
+    },
+    {
+      "_srcLine": 1,
+      "addressingMode": "implied",
+      "base": "hex",
+      "category": "Makrok",
+      "collapsed": true,
+      "description": "",
+      "id": "672e9d16-d3f6-4b5a-ba61-0da89a86c243",
+      "isBlankLine": true,
+      "mnemonic": "BLANK",
+      "operand": "",
+      "rawOperand": "",
+      "validationError": ""
+    },
+    {
+      "_srcLine": 2,
+      "addressingMode": "implied",
+      "base": "hex",
+      "category": "Makrok",
+      "collapsed": true,
+      "description": "",
+      "id": "4312e21c-8298-45c1-999e-f1d2422ff06f",
+      "includeAddress": "",
+      "includeCollapsed": false,
+      "includeFile": "F:\\Development\\VisualAssembler\\samples\\hello.json",
+      "includeFileName": "hello",
+      "isIncludeMacro": true,
+      "mnemonic": "INCLUDE",
+      "operand": "",
+      "rawOperand": "",
+      "validationError": ""
+    }
+  ],
+  "ui": {
+    "language": "en",
+    "numberBase": "hex",
+    "outputMode": "asm",
+    "runMode": "prg",
+    "sample": "basic-colors",
+    "theme": "dark",
+    "zoom": 1.09
+  },
+  "version": 1
+}
