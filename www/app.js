@@ -274,6 +274,7 @@ const runDebuggerButton = document.getElementById("run-debugger");
 const chooseViceButton = document.getElementById("choose-vice");
 const chooseExomizerButton = document.getElementById("choose-exomizer");
 const runExomizerToggle = document.getElementById("run-exomizer-toggle");
+const autoSnapshotToggle = document.getElementById("auto-snapshot-toggle");
 const chooseDebuggerButton = document.getElementById("choose-debugger");
 const emulatorStatus = document.getElementById("emulator-status");
 const emulatorRunHint = document.getElementById("emulator-run-hint");
@@ -592,7 +593,8 @@ function saveUiSettings() {
     debuggerWaitMs,
     debuggerUnpause,
     expertFontSize: _expertFontSize,
-    expertLineNumbers: _expertLineNumbersEnabled
+    expertLineNumbers: _expertLineNumbersEnabled,
+    autoSnapshotEnabled: autoSnapshotToggle ? autoSnapshotToggle.checked : true
   };
 
   localStorage.setItem("c64-ui-settings", JSON.stringify(settings));
@@ -2061,6 +2063,7 @@ function initPalette() {
     exomizerEnabled = !!runExomizerToggle.checked;
     saveUiSettings();
   });
+  autoSnapshotToggle?.addEventListener("change", saveUiSettings);
   chooseDebuggerButton?.addEventListener("click", chooseDebuggerExecutable);
   runDebuggerButton?.addEventListener("click", runInDebugger);
   dbgJmp?.addEventListener("change", () => { debuggerJmp = dbgJmp.checked; saveUiSettings(); });
@@ -2391,6 +2394,10 @@ function _applyUiSettingsToDOM() {
   exomizerEnabled = !!savedUiSettings.exomizerEnabled;
   if (runExomizerToggle) runExomizerToggle.checked = exomizerEnabled;
 
+  if (autoSnapshotToggle) {
+    autoSnapshotToggle.checked = savedUiSettings.autoSnapshotEnabled !== false;
+  }
+
   if (savedUiSettings.asmOutputBase) {
     asmOutputBase = savedUiSettings.asmOutputBase;
   }
@@ -2586,6 +2593,8 @@ function applyTranslations() {
   if (exomizerFlashLabelEl) exomizerFlashLabelEl.textContent = t("exomizerBorderFlashLabel");
   const blockPaletteSyncLabelEl = document.getElementById("block-desc-sync-label");
   if (blockPaletteSyncLabelEl) blockPaletteSyncLabelEl.textContent = t("blockDescSyncLabel");
+  const autoSnapshotLabelEl = document.getElementById("auto-snapshot-toggle-label");
+  if (autoSnapshotLabelEl) autoSnapshotLabelEl.textContent = t("autoSnapshotLabel");
   const expertModeLabelEl = document.getElementById("expert-mode-label");
   if (expertModeLabelEl) expertModeLabelEl.textContent = t("expertModeLabel");
   if (_confirmYes) _confirmYes.textContent = t("tabCloseConfirmOk");
@@ -2711,6 +2720,7 @@ function applyTranslations() {
     setText("#d64-export-cancel", t("d64ExportCancel"));
     setText("#program-settings-label", t("programSettings"));
     setText("#asm-output-settings-label", t("asmOutputSettings"));
+    setText("#snapshot-settings-label", t("snapshotSettings"));
     if (macroSourceToggleText) macroSourceToggleText.textContent = t("macroSourceToggle");
     setText("#asm-numbers-label", t("asmNumbersLabel"));
     setText("#region-comments-label", t("regionCommentsLabel"));
@@ -8376,7 +8386,7 @@ function _expertRenderProjectTree() {
     // Startup star button
     const starBtn = document.createElement("button");
     starBtn.className = "expert-project-item-star" + (isStartup ? " expert-project-item-star--on" : "");
-    starBtn.title = isStartup ? t("projUnsetStartup") : t("projSetStartup");
+    starBtn.setAttribute("aria-label", isStartup ? t("projUnsetStartup") : t("projSetStartup"));
     starBtn.innerHTML = isStartup
       ? `<svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="11" height="11"><path d="M7 1L8.5 5.5H13L9.5 8.5L11 13L7 10L3 13L4.5 8.5L1 5.5H5.5L7 1Z" fill="currentColor" stroke="currentColor" stroke-width="0.5"/></svg>`
       : `<svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="11" height="11"><path d="M7 1L8.5 5.5H13L9.5 8.5L11 13L7 10L3 13L4.5 8.5L1 5.5H5.5L7 1Z" stroke="currentColor" stroke-width="1" opacity="0.5"/></svg>`;
@@ -8409,7 +8419,7 @@ function _expertRenderProjectTree() {
 function _makeProjDelBtn(onDelete) {
   const btn = document.createElement("button");
   btn.className = "expert-project-item-del";
-  btn.title = t("projRemove");
+  btn.setAttribute("aria-label", t("projRemove"));
   btn.textContent = "✕";
   btn.addEventListener("click", e => { e.stopPropagation(); onDelete(); });
   return btn;
@@ -10978,6 +10988,7 @@ function _clearProjectSnapshotTimer(tabId) {
 
 function _scheduleProjectSnapshot(tabId) {
   if (!tabId) return;
+  if (savedUiSettings.autoSnapshotEnabled === false) return;
   _clearProjectSnapshotTimer(tabId);
   const timer = setTimeout(async () => {
     _projectSnapshotTimers.delete(tabId);
@@ -11366,7 +11377,7 @@ function renderTabBar() {
 
     const closeBtn = document.createElement("button");
     closeBtn.className = "tab-close";
-    closeBtn.title = "Close tab";
+    closeBtn.setAttribute("aria-label", t("tabCloseBtn"));
     closeBtn.innerHTML = "&#x2715;";
     closeBtn.addEventListener("click", e => { e.stopPropagation(); _tabClose(tab.id); });
     div.appendChild(closeBtn);
@@ -11378,7 +11389,7 @@ function renderTabBar() {
   const newBtn = document.createElement("button");
   newBtn.id = "tab-new-btn";
   newBtn.className = "tab-new-btn";
-  newBtn.title = "New tab";
+  newBtn.setAttribute("aria-label", t("tabNewBtn"));
   newBtn.textContent = "+";
   newBtn.addEventListener("click", _tabNew);
   tabBar.appendChild(newBtn);

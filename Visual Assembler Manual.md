@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.1.5**
+**Version 2.1.6**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -265,6 +265,7 @@ The modal closes automatically when the action completes or fails.
 | **Run (split button)** | The main **▶ Run** button runs the current mode; click the **▾** arrow to switch between: **Run as PRG** (compile and launch VICE directly), **Run via D64** (package into a .d64 disk image and launch VICE), or **Run on hardware** (send PRG to a C64 Ultimate / 1541 Ultimate device). See [Section 12](#12-d64-export--run) and [Section 13](#13-hardware-settings). |
 | **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 9](#9-debugger-integration)) |
 | **Run with Exomizer** | Checkbox in the Settings menu — when enabled, all Run and Build operations crunch the PRG through `exomizer sfx sys` before launching or saving. Works with Run as PRG, Run via D64, Run on Hardware, Build PRG, and Build D64. Configure the Exomizer executable in **Hardware Settings** first. |
+| **Automatic snapshot saving** | Checkbox in **Hardware Settings → Snapshot**. When enabled, the app creates a snapshot automatically about 2.5 seconds after you stop editing a tab. Turn it off if you only want manual snapshot saves. |
 | **Hardware Settings** | Open the hardware configuration dialog — configure VICE, Exomizer, RetroDebugger, and C64 Ultimate (host, password, connection test). See [Section 13](#13-hardware-settings). |
 | **New program…** | Opens a confirmation dialog, then clears all blocks from the program area |
 | **Collapse All** | Collapse all blocks |
@@ -278,6 +279,7 @@ Project snapshots are stored as on-disk sidecar JSON files, not in localStorage.
 - **Menu → Build → Save snapshot** opens the snapshot dialog and saves the current block state plus Expert ASM text.
 - **Menu → Build → Restore previous version** restores the latest snapshot directly.
 - **Menu → Build → Snapshot history** opens the dialog where you can add notes, restore older entries, or delete them.
+- **Hardware Settings → Snapshot → Automatic snapshot saving** controls whether the app creates snapshots automatically after edits. The default delay is about 2.5 seconds, and the setting applies per tab.
 - If a project has not been saved yet, snapshots are stored in the app config directory until the project gets a file path.
 | **Knowledge Base** | Reference links (6502 opcodes, C64 KERNAL, memory map, colors) |
 | **Check for Update** | Open the itch.io page to check for a newer release |

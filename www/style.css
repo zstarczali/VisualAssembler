@@ -63,6 +63,7 @@
 }
 
 html[data-theme="dark"] {
+  color-scheme: dark;
   /* expert syntax highlight — dark theme */
   --hl-comment:   #6a9955;
   --hl-directive: #569cd6;
@@ -104,6 +105,7 @@ html[data-theme="dark"] {
 }
 
 html[data-theme="oled"] {
+  color-scheme: dark;
   /* expert syntax highlight — oled theme */
   --hl-comment:   #5a8a4a;
   --hl-directive: #4c9ee0;
@@ -7698,3 +7700,70 @@ body.crt-mode #crt-overlay::after {
 .sid-tracker td.sid-cell { cursor: pointer; }
 .sid-tracker td.sid-cell--sel { background: var(--primary) !important; color: #fff; }
 .sid-tracker td.sid-cell--sel-range { background: color-mix(in srgb, var(--primary) 35%, transparent) !important; }
+
+/* ============================================================
+   Shared custom aria-label tooltip — buttons missing ::after
+   Same mechanism as .expert-hl-toggle and .expert-project-icon-btn;
+   no native `title` should be set on these elements (stripped in JS).
+   ============================================================ */
+
+/* Ensure relative positioning so ::after can float below */
+.expert-project-item-star,
+.expert-project-item-del,
+.tab-close,
+.tab-new-btn,
+.block-actions button,
+.collapse-toggle {
+  position: relative;
+}
+
+/* Shared tooltip appearance */
+.expert-project-item-star[aria-label]::after,
+.expert-project-item-del[aria-label]::after,
+.tab-close[aria-label]::after,
+.tab-new-btn[aria-label]::after,
+.block-actions button[aria-label]::after,
+.collapse-toggle[aria-label]::after {
+  content: attr(aria-label);
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  padding: 4px 8px;
+  border-radius: 3px;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--panel-border);
+  font-size: 0.72rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s ease 0.35s;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Right-anchored variant: project item buttons and block-action buttons
+   sit near the right edge, so anchor to the right to stay in view */
+.expert-project-item-star[aria-label]::after,
+.expert-project-item-del[aria-label]::after,
+.block-actions button[aria-label]::after {
+  left: auto;
+  right: 0;
+}
+
+/* Show on hover / keyboard focus */
+.expert-project-item-star:hover[aria-label]::after,
+.expert-project-item-del:hover[aria-label]::after,
+.tab-close:hover[aria-label]::after,
+.tab-new-btn:hover[aria-label]::after,
+.block-actions button:hover[aria-label]::after,
+.collapse-toggle:hover[aria-label]::after,
+.expert-project-item-star:focus-visible[aria-label]::after,
+.expert-project-item-del:focus-visible[aria-label]::after,
+.tab-close:focus-visible[aria-label]::after,
+.tab-new-btn:focus-visible[aria-label]::after,
+.block-actions button:focus-visible[aria-label]::after,
+.collapse-toggle:focus-visible[aria-label]::after {
+  opacity: 1;
+}
