@@ -7289,6 +7289,29 @@ function parseExpertText(text) {
       continue;
     }
 
+    // Any line that starts with a directive-looking token (`.foo`) but did not
+    // match one of the explicit patterns above is an unknown directive — do
+    // not silently swallow it as a comment.
+    const unknownDirM = line.match(/^\.([A-Za-z_][A-Za-z0-9_]*)/);
+    if (unknownDirM) {
+      blocks.push({
+        id: crypto.randomUUID(),
+        category: "Szerkezet",
+        mnemonic: "COMMENT",
+        operand: line,
+        rawOperand: line,
+        description: "",
+        addressingMode: "implied",
+        base: "comment",
+        validationError: tf("unknownDirective", { directive: `.${unknownDirM[1]}` }),
+        collapsed: true,
+        isComment: true,
+        commentText: line
+      });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
     // Delegate the rest to the existing parser patterns (ORG already handled above)
     const delegated = parseAsmText(line + (commentText ? " ; " + commentText : ""));
 
