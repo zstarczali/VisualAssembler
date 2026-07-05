@@ -332,6 +332,7 @@ const workProgressDialog = document.getElementById("work-progress-dialog");
 const workProgressTitle = document.getElementById("work-progress-title");
 const workProgressSubtitle = document.getElementById("work-progress-subtitle");
 const workProgressBar = document.getElementById("work-progress-bar");
+const workingFolderPanelText = workingFolderPanel?.querySelector(".panel-heading-meta__text");
 const helpManualButton = document.getElementById("help-manual-btn");
 const checkUpdateButton = document.getElementById("check-update-btn");
 const reportBugButton = document.getElementById("report-bug-btn");
@@ -348,6 +349,7 @@ const expertCursorPos = document.getElementById("expert-cursor-pos");
 const expertCaret = document.getElementById("expert-caret");
 const expertFileName = document.getElementById("expert-file-name");
 const expertWorkingFolder = document.getElementById("expert-working-folder");
+const expertWorkingFolderText = expertWorkingFolder?.querySelector(".expert-working-folder__text");
 const aboutDialog = document.getElementById("about-dialog");
 const aboutCloseButton = document.getElementById("about-close");
 const whatsNewDialog = document.getElementById("whats-new-dialog");
@@ -2621,6 +2623,20 @@ function applyTranslations() {
   expertBuildInfoBtn?.setAttribute("title", t("buildInfoBtn"));
   expertBuildInfoBtn?.setAttribute("aria-label", t("buildInfoBtn"));
   buildInfoBtn?.setAttribute("title", t("buildInfoBtn"));
+
+  // Sync aria-label from title on every expert toolbar button and every
+  // project-header icon button that didn't get an explicit setAttribute above.
+  // The custom CSS tooltip reads aria-label, so keeping them in sync ensures
+  // every button has a working tooltip after a language switch even if we
+  // forget to add an i18n key for it. Then strip `title` so the native browser
+  // tooltip does not double up with our CSS one.
+  document.querySelectorAll(".expert-toolbar .expert-hl-toggle, .expert-project-header .expert-project-icon-btn").forEach((btn) => {
+    const titleAttr = btn.getAttribute("title");
+    if (titleAttr && (!btn.hasAttribute("aria-label") || btn.getAttribute("aria-label") !== titleAttr)) {
+      btn.setAttribute("aria-label", titleAttr);
+    }
+    if (btn.hasAttribute("title")) btn.removeAttribute("title");
+  });
 
   document.querySelector('label[for="category-select"]');
   setText(".palette-panel .field:nth-of-type(1) span", t("fieldCategory"));
@@ -10575,10 +10591,17 @@ function updateWorkingFolderPreview(nextPath) {
         displayPath = `.../${normalized.slice(-56)}`;
       }
     }
-    workingFolderPanel.textContent = workingFolder
-      ? `${t("workingFolderStatusLabel")}: ${displayPath}`
-      : t("workingFolderStatusPending");
-    workingFolderPanel.title = workingFolder;
+    if (workingFolderPanelText) {
+      workingFolderPanelText.textContent = workingFolder
+        ? `${t("workingFolderStatusLabel")}: ${displayPath}`
+        : t("workingFolderStatusPending");
+    }
+    if (workingFolder) {
+      workingFolderPanel.setAttribute("aria-label", workingFolder);
+    } else {
+      workingFolderPanel.removeAttribute("aria-label");
+    }
+    if (workingFolderPanel.hasAttribute("title")) workingFolderPanel.removeAttribute("title");
   }
   if (expertWorkingFolder) {
     const normalized = String(workingFolder || "").replace(/\\/g, "/").replace(/\/+/g, "/");
@@ -10596,10 +10619,20 @@ function updateWorkingFolderPreview(nextPath) {
         displayPath = `.../${normalized.slice(-56)}`;
       }
     }
-    expertWorkingFolder.textContent = workingFolder
-      ? `${t("workingFolderStatusLabel")}: ${displayPath}`
-      : t("workingFolderStatusPending");
-    expertWorkingFolder.title = workingFolder;
+    if (expertWorkingFolderText) {
+      expertWorkingFolderText.textContent = workingFolder
+        ? `${t("workingFolderStatusLabel")}: ${displayPath}`
+        : t("workingFolderStatusPending");
+    }
+    // Use aria-label as the tooltip source (rendered via the custom CSS
+    // ::after pseudo-element) and strip the native `title` so WKWebView /
+    // WebKitGTK do not stack a second flaky native tooltip on top.
+    if (workingFolder) {
+      expertWorkingFolder.setAttribute("aria-label", workingFolder);
+    } else {
+      expertWorkingFolder.removeAttribute("aria-label");
+    }
+    if (expertWorkingFolder.hasAttribute("title")) expertWorkingFolder.removeAttribute("title");
   }
 }
 

@@ -189,6 +189,36 @@ html::-webkit-scrollbar-thumb:hover {
   background-clip: padding-box;
 }
 
+/* WKWebView on macOS does not inherit scrollbar-color from html for form
+   controls (textarea, select) or elements that scroll independently, so it
+   falls back to the bright native overlay scrollbar even in dark mode. Apply
+   a universal fallback with lowest specificity — individual selectors below
+   can still override for panels that want a different accent. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--secondary) 45%, transparent) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--secondary) 42%, transparent);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--secondary) 62%, transparent);
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -1079,6 +1109,16 @@ html[data-theme="oled"] .primary {
 }
 
 .panel-heading-meta--path {
+  display: flex;
+  justify-content: flex-end;
+  overflow: visible;
+  position: relative;
+}
+
+.panel-heading-meta__text {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1091,6 +1131,7 @@ html[data-theme="oled"] .primary {
   gap: 12px;
   min-width: 0;
   margin-bottom: 6px;
+  overflow: visible;
 }
 
 .panel-heading-row {
@@ -1116,6 +1157,35 @@ html[data-theme="oled"] .primary {
   font-size: 0.7rem;
   justify-content: center;
   align-items: center;
+}
+
+/* Custom tooltip for the working folder path in the compile-info header. */
+.panel-heading-meta--path[aria-label]::after {
+  content: attr(aria-label);
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  max-width: 70vw;
+  padding: 4px 8px;
+  border-radius: 3px;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--panel-border);
+  font-size: 0.72rem;
+  line-height: 1.35;
+  white-space: normal;
+  word-break: break-all;
+  pointer-events: none;
+  opacity: 0;
+  transform-origin: top right;
+  transition: opacity 0.12s ease 0.35s;
+  z-index: 9998;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.panel-heading-meta--path:hover[aria-label]::after,
+.panel-heading-meta--path:focus-visible[aria-label]::after {
+  opacity: 1;
 }
 
 .panel-heading p {
@@ -3154,6 +3224,9 @@ body.expert-mode .expert-panel {
   background: color-mix(in srgb, var(--panel-strong) 80%, transparent);
   height: 32px;
   flex-shrink: 0;
+  /* Ensure the custom CSS tooltip that hangs below each button is not clipped
+     by an ancestor `overflow: hidden` (e.g. .expert-panel). */
+  overflow: visible;
 }
 
 .expert-statusbar {
@@ -3340,12 +3413,53 @@ body.expert-mode .expert-panel {
   flex: 0 1 auto;
   max-width: 52vw;
   min-width: 0;
+  /* Anchor for the custom CSS tooltip showing the full path (see JS). */
+  position: relative;
+  overflow: visible;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.expert-working-folder__text {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   opacity: 0.65;
   text-align: right;
   font-size: 0.65rem;
+}
+
+/* Custom tooltip for the working-folder pill on the toolbar right edge.
+   Anchored to the right so a long path extends leftward instead of off-screen. */
+.expert-working-folder[aria-label]::after {
+  content: attr(aria-label);
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  max-width: 70vw;
+  padding: 4px 8px;
+  border-radius: 3px;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--panel-border);
+  font-size: 0.72rem;
+  line-height: 1.35;
+  white-space: normal;
+  word-break: break-all;
+  pointer-events: none;
+  opacity: 0;
+  transform-origin: top right;
+  transition: opacity 0.12s ease 0.35s;
+  z-index: 9998;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.expert-working-folder:hover[aria-label]::after {
+  opacity: 1;
 }
 
 .expert-toolbar-meta {
@@ -3436,11 +3550,47 @@ body.expert-mode .expert-panel {
   padding: 0;
   opacity: 0.55;
   transition: opacity 0.12s, background 0.12s, border-color 0.12s;
+  /* Anchor for the custom CSS tooltip; relative position lets ::after float
+     above the button. Native title tooltips in WKWebView / WebKitGTK are
+     notoriously flaky in Tauri, so we render our own from aria-label. */
+  position: relative;
 }
 
 .expert-hl-toggle:hover {
   opacity: 1;
   background: color-mix(in srgb, var(--accent) 15%, transparent);
+}
+
+/* Custom tooltip driven by aria-label — reliable across all Tauri WebViews
+   and instant enough to be usable. Native `title` still works as a fallback
+   for screen readers and long hovers. */
+.expert-hl-toggle[aria-label]::after {
+  content: attr(aria-label);
+  position: absolute;
+  top: calc(100% + 6px);
+  /* Anchor to the button's left edge so the tooltip extends rightward and
+     never gets clipped by an ancestor `overflow: hidden` (e.g. .expert-panel)
+     when the button sits near the left edge of the toolbar. */
+  left: 0;
+  padding: 4px 8px;
+  border-radius: 3px;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--panel-border);
+  font-size: 0.72rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform-origin: top left;
+  transition: opacity 0.12s ease 0.35s;
+  z-index: 9998;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.expert-hl-toggle:hover[aria-label]::after,
+.expert-hl-toggle:focus-visible[aria-label]::after {
+  opacity: 1;
 }
 
 .expert-hl-toggle--on {
@@ -3751,6 +3901,9 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   background: color-mix(in srgb, var(--panel-strong) 65%, transparent);
   min-height: 30px;
   flex-shrink: 0;
+  /* Let the custom CSS tooltip on child buttons hang below the header without
+     being clipped by the surrounding overflow:hidden panels. */
+  overflow: visible;
 }
 
 .expert-project-name {
@@ -3779,11 +3932,42 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   justify-content: center;
   padding: 0;
   transition: background 0.12s, color 0.12s;
+  /* Anchor for the custom CSS tooltip (see .expert-hl-toggle for details). */
+  position: relative;
 }
 
 .expert-project-icon-btn:hover {
   background: color-mix(in srgb, var(--accent) 22%, transparent);
   color: var(--text);
+}
+
+/* Custom tooltip driven by aria-label — same behaviour as the main expert
+   toolbar buttons, so the project-header icons no longer rely on the flaky
+   native `title` tooltip either. */
+.expert-project-icon-btn[aria-label]::after {
+  content: attr(aria-label);
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  padding: 4px 8px;
+  border-radius: 3px;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--panel-border);
+  font-size: 0.72rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform-origin: top left;
+  transition: opacity 0.12s ease 0.35s;
+  z-index: 9998;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.expert-project-icon-btn:hover[aria-label]::after,
+.expert-project-icon-btn:focus-visible[aria-label]::after {
+  opacity: 1;
 }
 
 .expert-project-tree {
