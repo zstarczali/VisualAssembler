@@ -1417,27 +1417,48 @@ test("bare .include / .incbin / .sid without a quoted filename produce error blo
 });
 
 test("unknown directive tokens surface as errors instead of silent comments", () => {
+  // Mock parseAsmText: known directives (.word/.byte/etc.) return a structural
+  // block; unknown ones return a fall-through comment. parseExpertText's new
+  // guard must only tag the comment path with an unknownDirective error.
+  const knownDirectives = new Set([".word", ".byte", ".fill", ".align"]);
   const ctx = loadFunctions(
-    ["_importMakeIncBin", "parseExpertText"],
+    ["_importMakeIncBin", "_importMakeComment", "parseExpertText"],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
       t: (key) => key,
-      tf: (key, values) => `${key}:${values?.directive ?? ""}`
+      tf: (key, values) => `${key}:${values?.directive ?? ""}`,
+      parseAsmText(text) {
+        const line = String(text).split(";")[0].trim();
+        const dir = line.split(/\s+/)[0].toLowerCase();
+        if (knownDirectives.has(dir)) {
+          return [{ id: "mock", mnemonic: dir.slice(1).toUpperCase(), isWordMacro: dir === ".word" }];
+        }
+        return [{ id: "mock-c", mnemonic: "COMMENT", isComment: true, commentText: line, validationError: "" }];
+      }
     }
   );
 
   const blocks = ctx.parseExpertText([
     ".text",
     ".notarealthing foo bar",
-    ".nope"
+    ".nope",
+    ".word $1234",
+    ".byte 1, 2, 3"
   ].join("\n"));
 
+  // Unknown directives get flagged.
   assert.equal(blocks[0].isComment, true);
   assert.equal(blocks[0].validationError, "unknownDirective:.text");
   assert.equal(blocks[1].isComment, true);
   assert.equal(blocks[1].validationError, "unknownDirective:.notarealthing");
   assert.equal(blocks[2].isComment, true);
   assert.equal(blocks[2].validationError, "unknownDirective:.nope");
+
+  // Known directives keep working through parseAsmText — not comments, no error.
+  assert.notEqual(blocks[3].isComment, true);
+  assert.equal(blocks[3].validationError || "", "");
+  assert.notEqual(blocks[4].isComment, true);
+  assert.equal(blocks[4].validationError || "", "");
 });
 
 test("validateAssetMacroHasFile catches empty INCLUDE / INCBIN / SID blocks", () => {

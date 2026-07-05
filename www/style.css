@@ -5648,6 +5648,17 @@ body.crt-mode #crt-overlay::after {
   border: 1px solid color-mix(in srgb, var(--panel-border) 82%, transparent);
   background: color-mix(in srgb, var(--control-bg) 76%, transparent);
   color: var(--text);
+  /* Grid items default to min-width:auto, which lets a long path in the status
+     text force the whole dialog wider than the viewport. Allow the section to
+     shrink below its intrinsic content width so the ellipsis rules below can
+     take effect. */
+  min-width: 0;
+}
+
+.hw-settings-section .menu-note {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .hw-settings-section button,

@@ -377,8 +377,8 @@ Lásd `tauri-bridge.js` és `src-tauri/src/lib.rs`. Leggyakoribb commands:
 
 ## 14. Jelenlegi verzió
 
-`2.1.3` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
+`2.1.4` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `CLAUDE.md`, és ez a fájl + copilot-instructions.md.
-Fő 2.1.3 hotfixek: az Expert mode editor több compile hiba mellett is egyben tartja a szöveget, caret-et és hibajelölést; a compile error dialógus pedig kijelölve tartja a kiválasztott hibát és bezárás nélkül a megfelelő sorra ugrik.
+Fő 2.1.4 hotfixek: kritikus hibák javítása expert módban a `.include` / `.incbin` / `.sid` betöltésénél és a fájl-hiány érvényesítésénél mindkét módban; ismeretlen direktíva-fogó; érthetőbb runtime IF / WHILE / UNTIL / INVOKE hibaüzenetek belső címkenevek nélkül; nagyobb compile error i18n lefedettség (HU / EN / ES / DE); új toolbar gomb az összes régió becsukására/nyitására; szintaxiskiemelés `.for` / `.endf` / `.mouse` / `.exodecrunch` / `.reu_*` / `.turbo_*` / `.supercpu_detect` makrókhoz; ellipsis a Hardware Settings dialógus hosszú útvonalaira.
 
 Verziónöveléshez lásd a 3. szakasz végén lévő 7-lépéses checklistet.

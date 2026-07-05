@@ -12,7 +12,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2.1.3">
+  <link rel="stylesheet" href="style.css?v=2.1.4">
 </head>
 
 <body>
@@ -749,7 +749,7 @@ PRINTABLE CHARACTERS
         <img src="assets/logo.png" alt="C64 Visual Assembler" width="160" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v2.1.3</p>
+      <p class="about-version" id="about-version">v2.1.4</p>
       <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
         dropping instruction blocks.</p>
       <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
@@ -761,10 +761,31 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.1.3</p>
+      <p class="whats-new-version">v2.1.4</p>
       <ul class="whats-new-list">
         <li>
+          <strong>Critical bug fixes</strong> &mdash; several critical issues have been fixed in this release, covering Expert mode asset loading, compile error clarity, syntax highlighting for macros that were missing, missing-file validation for <code>.include</code> / <code>.incbin</code> / <code>.sid</code> in both modes, unknown-directive detection, cleaner runtime IF / WHILE / UNTIL / INVOKE error messages, and a wider set of localized compile error strings across HU / EN / ES / DE.
+        </li>
+        <li>
           <strong>Expert asset auto-reload</strong> &mdash; typing <code>.include</code>, <code>.incbin</code>, or <code>.sid</code> directly in Expert mode now loads the referenced file (source, binary, or SID tune) automatically, resolving names against the working folder and the bundled <code>samples/</code> directory. Fixes an identity mismatch that previously dropped included blocks after the first reload.
+        </li>
+        <li>
+          <strong>Missing-file guard</strong> &mdash; empty or omitted filenames on <code>.include</code>, <code>.incbin</code>, and <code>.sid</code> now surface as clear errors in Expert and Block mode instead of silently compiling to nothing.
+        </li>
+        <li>
+          <strong>Unknown directive detection</strong> &mdash; Expert mode no longer swallows typos like <code>.notarealthing</code> as comments; unknown directives fail the compile with a targeted error.
+        </li>
+        <li>
+          <strong>Clearer runtime errors</strong> &mdash; missing <code>.endif</code>, <code>.endw</code>, <code>.repeat</code>, or unresolved INVOKE targets now emit user-friendly, localized messages instead of leaking internal auto-generated label names.
+        </li>
+        <li>
+          <strong>Expert toolbar</strong> &mdash; new button collapses or expands every <code>.region</code> in one click; the region caret position is preserved when switching from Expert back to Block mode.
+        </li>
+        <li>
+          <strong>Syntax highlighting</strong> &mdash; <code>.for</code>, <code>.endf</code>, <code>.mouse</code>, <code>.exodecrunch</code>, <code>.reu_*</code>, <code>.turbo_*</code>, and <code>.supercpu_detect</code> are now colored in the Expert editor.
+        </li>
+        <li>
+          <strong>Hardware settings dialog</strong> &mdash; long Exomizer, RetroDebugger, and VICE paths no longer force a horizontal scrollbar; the status line truncates with an ellipsis and shows the full path on hover.
         </li>
         <li>
           <strong>Expert editor fix</strong> &mdash; Expert mode now keeps the typed text, highlight overlay, error lines, and caret position aligned even when multiple compile errors are present.
@@ -782,7 +803,7 @@ PRINTABLE CHARACTERS
           <strong>Region selection toggle</strong> &mdash; Expert mode still has a toolbar button that turns the automatic region highlight on or off without changing the actual fold state.
         </li>
         <li>
-          <strong>Release sync</strong> &mdash; the bundled docs, manual, and installer notes are refreshed for the 2.1.3 hotfix release.
+          <strong>Release sync</strong> &mdash; the bundled docs, manual, and installer notes are refreshed for the 2.1.4 hotfix release.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -1517,9 +1538,9 @@ PRINTABLE CHARACTERS
   </div>
 
   <script src="tauri-bridge.js"></script>
-  <script src="i18n.js?v=2.1.3"></script>
-  <script src="tutorial-data.js?v=2.1.3"></script>
-  <script src="app.js?v=2.1.3"></script>
+  <script src="i18n.js?v=2.1.4"></script>
+  <script src="tutorial-data.js?v=2.1.4"></script>
+  <script src="app.js?v=2.1.4"></script>
 
 </body>
 

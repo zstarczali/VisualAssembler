@@ -1,11 +1,11 @@
 # macOS Installation Guide
-Version 2.1.3
+Version 2.1.4
 
-2.1.3 hotfixes: the Expert mode editor now keeps text, caret, and error highlighting aligned, and the compile error dialog now keeps the selected error visible while jumping to the matching expert line.
+2.1.4 hotfixes: critical bug fixes across Expert mode asset loading (`.include` / `.incbin` / `.sid`), missing-file validation, unknown-directive detection, clearer runtime IF / WHILE / UNTIL / INVOKE errors, a wider set of localized compile error strings (HU / EN / ES / DE), a new toolbar button to fold or expand every `.region`, syntax coloring for `.for` / `.endf` / `.mouse` / `.exodecrunch` / `.reu_*` / `.turbo_*` / `.supercpu_detect`, and an ellipsis for long paths in the Hardware Settings dialog.
 
 ## Quick Install
 
-1. **Download** the 2.1.3 DMG for your architecture from the releases page
+1. **Download** the 2.1.4 DMG for your architecture from the releases page
 2. **Mount** the DMG and drag the app to `/Applications`
 3. **First launch**: Right-click the app → **"Open"** (macOS will block double-click)
 4. Click **"Open"** in the security dialog
@@ -57,4 +57,4 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.1.3 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.1.4 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
