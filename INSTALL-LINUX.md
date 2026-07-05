@@ -1,7 +1,7 @@
 # Linux Installation Guide (Ubuntu / Debian)
-Version 2.1.5
+Version 2.1.6
 
-2.1.5 hotfixes: critical bug fixes across Expert mode asset loading (`.include` / `.incbin` / `.sid`), missing-file validation, unknown-directive detection, clearer runtime IF / WHILE / UNTIL / INVOKE errors, a wider set of localized compile error strings (HU / EN / ES / DE), a new toolbar button to fold or expand every `.region`, syntax coloring for `.for` / `.endf` / `.mouse` / `.exodecrunch` / `.reu_*` / `.turbo_*` / `.supercpu_detect`, and an ellipsis for long paths in the Hardware Settings dialog.
+2.1.6: custom CSS tooltips wired to all remaining buttons; auto-snapshot toggle in Hardware Settings; dark-mode scrollbar fix for macOS; rotcube sample addressing-mode glitch fixed.
 
 Tested on Ubuntu 22.04 and 24.04.
 
@@ -12,7 +12,7 @@ Tested on Ubuntu 22.04 and 24.04.
 Download the `.deb` package from the releases page and install:
 
 ```bash
-  sudo dpkg -i "c64-visual-assembler_2.1.5_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.1.6_amd64.deb"
 sudo apt-get install -f   # fix any missing dependencies
 ```
 
@@ -130,4 +130,4 @@ The app propagates `DISPLAY`, `WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR`, `DBUS_SESSIO
 
 ---
 
-**Version:** 2.1.5 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.1.6 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

@@ -1,11 +1,11 @@
 # macOS Installation Guide
-Version 2.1.5
+Version 2.1.6
 
-2.1.5 hotfixes: critical bug fixes across Expert mode asset loading (`.include` / `.incbin` / `.sid`), missing-file validation, unknown-directive detection, clearer runtime IF / WHILE / UNTIL / INVOKE errors, a wider set of localized compile error strings (HU / EN / ES / DE), a new toolbar button to fold or expand every `.region`, syntax coloring for `.for` / `.endf` / `.mouse` / `.exodecrunch` / `.reu_*` / `.turbo_*` / `.supercpu_detect`, and an ellipsis for long paths in the Hardware Settings dialog.
+2.1.6: custom CSS tooltips wired to all remaining buttons; auto-snapshot toggle in Hardware Settings; dark-mode scrollbar fix for macOS; rotcube sample addressing-mode glitch fixed.
 
 ## Quick Install
 
-1. **Download** the 2.1.5 DMG for your architecture from the releases page
+1. **Download** the 2.1.6 DMG for your architecture from the releases page
 2. **Mount** the DMG and drag the app to `/Applications`
 3. **First launch**: Right-click the app → **"Open"** (macOS will block double-click)
 4. Click **"Open"** in the security dialog
@@ -57,4 +57,4 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.1.5 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.1.6 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
