@@ -189,6 +189,36 @@ html::-webkit-scrollbar-thumb:hover {
   background-clip: padding-box;
 }
 
+/* WKWebView on macOS does not inherit scrollbar-color from html for form
+   controls (textarea, select) or elements that scroll independently, so it
+   falls back to the bright native overlay scrollbar even in dark mode. Apply
+   a universal fallback with lowest specificity — individual selectors below
+   can still override for panels that want a different accent. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--secondary) 45%, transparent) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--secondary) 42%, transparent);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--secondary) 62%, transparent);
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
