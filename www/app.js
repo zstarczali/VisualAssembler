@@ -7294,7 +7294,10 @@ function parseExpertText(text) {
 
     // If the line looked like a directive (`.foo`) but parseAsmText only produced
     // a single fall-through comment (nothing structural), tag it as an unknown
-    // directive so it does not silently compile to nothing.
+    // directive so it does not silently compile to nothing. Running this AFTER
+    // parseAsmText — not before — lets legitimate directives like `.word`,
+    // `.byte`, `.fill`, `.align` (handled inside parseAsmText) fall through
+    // cleanly instead of being wrongly flagged.
     const unknownDirM = line.match(/^\.([A-Za-z_][A-Za-z0-9_]*)/);
     if (unknownDirM && delegated.length === 1 && delegated[0]?.isComment) {
       const commentBlock = delegated[0];
