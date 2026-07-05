@@ -9254,6 +9254,20 @@ function updateProgramBlock(index, field, value) {
     return;
   }
 
+  if (block.isMemCpyMacro && (field === "memcpySrc" || field === "memcpyDst" || field === "memcpySize")) {
+    block.validationError = validateMemCpyMacro(block.memcpySrc, block.memcpyDst, block.memcpySize);
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isMemSetMacro && (field === "memsetDst" || field === "memsetValue" || field === "memsetSize")) {
+    block.validationError = validateMemSetMacro(block.memsetDst, block.memsetValue, block.memsetSize);
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
   if (block.isTurboSetMacro && (field === "turboSpeed" || field === "turboBadline")) {
     const spd = parseInt(block.turboSpeed || "7", 10);
     block.validationError = (isNaN(spd) || spd < 0 || spd > 15)
@@ -10070,6 +10084,38 @@ function validateSpritePosMacro(spriteNum, spriteX, spriteY) {
   const y = resolveProgramValueWithConst(spriteY, "dec");
   if (y === null || y < 0 || y > 255) {
     return t("yMustBe0255");
+  }
+  return "";
+}
+
+function validateMemCpyMacro(srcRaw, dstRaw, sizeRaw) {
+  const src = parseMacroAddress(srcRaw || "C000");
+  if (src === null || src < 0 || src > 0xFFFF) {
+    return t("invalidSourceAddress");
+  }
+  const dst = parseMacroAddress(dstRaw || "0400");
+  if (dst === null || dst < 0 || dst > 0xFFFF) {
+    return t("invalidDestinationAddress");
+  }
+  const size = parseMacroNumber(sizeRaw || "0", null, "hex");
+  if (size === null || size < 1 || size > 0xFFFF) {
+    return t("lengthMustBe0001Ffff");
+  }
+  return "";
+}
+
+function validateMemSetMacro(dstRaw, valueRaw, sizeRaw) {
+  const dst = parseMacroAddress(dstRaw || "0400");
+  if (dst === null || dst < 0 || dst > 0xFFFF) {
+    return t("c64AddressMustBe0000Ffff");
+  }
+  const value = parseMacroNumber(valueRaw || "0", null, "hex");
+  if (value === null || value < 0 || value > 0xFF) {
+    return t("valueMustBeAHexByte00Ff");
+  }
+  const size = parseMacroNumber(sizeRaw || "0", null, "hex");
+  if (size === null || size < 1 || size > 0xFFFF) {
+    return t("lengthMustBe0001Ffff");
   }
   return "";
 }
@@ -15827,20 +15873,24 @@ function parseNumberByBase(value, base) {
 function parseMacroNumber(raw, labels = null, fallbackBase = "hex") {
   const text = String(raw ?? "").trim();
   if (!text) return null;
-  const parsed = parseNumberByBase(text.replace(/^#/, "").replace(fallbackBase === "hex" ? /^\$/ : /^$/, ""), fallbackBase);
+  const normalized = text.replace(/^#/, "");
+  const parsed = parseNumberByBase(normalized.replace(fallbackBase === "hex" ? /^\$/ : /^$/, ""), fallbackBase);
   if (parsed !== null) return parsed;
-  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(text)) {
-    if (!labels) return null;
-    return labels.get(text)
-      ?? labels.get(text.toLowerCase())
-      ?? labels.get(text.toUpperCase())
-      ?? null;
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(normalized)) {
+    const labelValue = labels
+      ? (labels.get(normalized)
+        ?? labels.get(normalized.toLowerCase())
+        ?? labels.get(normalized.toUpperCase())
+        ?? null)
+      : null;
+    if (labelValue !== null) return labelValue;
+    return resolveProgramConstValue(normalized);
   }
   return null;
 }
 
 function resolveProgramConstValue(name) {
-  const target = String(name ?? "").trim();
+  const target = String(name ?? "").trim().replace(/^#/, "");
   if (!target) return null;
   const lower = target.toLowerCase();
   for (const block of program) {
@@ -15864,8 +15914,8 @@ function resolveProgramValueWithConst(raw, fallbackBase = "hex") {
   const normalized = text.replace(/^#/, "").replace(fallbackBase === "hex" ? /^\$/ : /^$/, "");
   const parsed = parseNumberByBase(normalized, fallbackBase);
   if (parsed !== null) return parsed;
-  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(text)) {
-    return resolveProgramConstValue(text);
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(normalized)) {
+    return resolveProgramConstValue(normalized);
   }
   return null;
 }
@@ -16014,7 +16064,9 @@ function formatDelayFramesValue(raw) {
 function parseMacroAddress(raw, labels = null) {
   const text = String(raw ?? "").trim();
   if (!text) return null;
-  return parseAddressValue(text, labels);
+  const parsed = parseAddressValue(text, labels);
+  if (parsed !== null) return parsed;
+  return resolveProgramConstValue(text);
 }
 
 function compileAbsoluteStore(addr, value) {
@@ -17808,6 +17860,20 @@ function getCollapsedOperandText(block) {
   }
   if (block.isDelayMacro) {
     return formatDelayFramesValue(block.delayFrames || "1");
+  }
+
+  if (block.isMemCpyMacro) {
+    const src = (block.memcpySrc || "C000").replace(/^\$/, "").toUpperCase();
+    const dst = (block.memcpyDst || "0400").replace(/^\$/, "").toUpperCase();
+    const size = (block.memcpySize || "0100").replace(/^\$/, "").toUpperCase();
+    return `$${src}→$${dst} len=$${size}`;
+  }
+
+  if (block.isMemSetMacro) {
+    const dst = (block.memsetDst || "0400").replace(/^\$/, "").toUpperCase();
+    const value = (String(block.memsetValue || "20").trim().replace(/^#?\$/, "") || "20").toUpperCase();
+    const size = (block.memsetSize || "03E8").replace(/^\$/, "").toUpperCase();
+    return `$${dst}=$${value} len=$${size}`;
   }
 
   if (block.isTurboSetMacro) {
