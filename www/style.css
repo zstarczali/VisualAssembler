@@ -164,6 +164,9 @@ html {
 html[data-theme="dark"] {
   background-color: #1a1b26;
 }
+html[data-theme="light"] {
+  color-scheme: light;
+}
 html[data-theme="oled"] {
   background-color: #0d0d12;
 }
@@ -305,6 +308,38 @@ a {
   border: 1px solid var(--panel-border);
   border-radius: 2px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  overflow: visible;
+  position: relative;
+}
+
+.main-toolbar [aria-label] {
+  position: relative;
+}
+
+.main-toolbar [aria-label]::after {
+  content: attr(aria-label);
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  padding: 4px 8px;
+  border-radius: 3px;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--panel-border);
+  font-size: 0.72rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform-origin: top left;
+  transition: opacity 0.12s ease 0.35s;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.main-toolbar [aria-label]:hover::after,
+.main-toolbar [aria-label]:focus-visible::after {
+  opacity: 1;
 }
 
 .main-tb-sep {
@@ -372,7 +407,6 @@ a {
 .main-toolbar .control-menu-trigger:hover {
   background: color-mix(in srgb, var(--secondary) 18%, transparent);
 }
-.main-toolbar .control-menu-trigger::after { display: none; }
 
 /* Run buttons — green */
 .main-tb-run { color: #3ac96a; }
@@ -1736,11 +1770,23 @@ button:focus-visible,
     0 2px 8px color-mix(in srgb, black 12%, transparent);
   user-select: none;
   -webkit-user-drag: element;
+  position: relative;
+  overflow: visible;
+}
+
+.asm-block:hover,
+.asm-block:focus-within {
+  z-index: 2;
 }
 
 .asm-block[data-collapsed="true"] {
   content-visibility: auto;
   contain-intrinsic-size: auto 64px;
+}
+
+.asm-block[data-collapsed="true"]:hover,
+.asm-block[data-collapsed="true"]:focus-within {
+  content-visibility: visible;
 }
 
 .asm-block[data-category-tone="data"] {
@@ -2367,7 +2413,7 @@ html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
 
 .asm-block[data-collapsed="true"] .block-topline {
   margin-bottom: 0;
-  overflow: hidden;
+  overflow: visible;
   flex: 1 1 auto;
   min-width: 0;
 }
@@ -2688,9 +2734,35 @@ html[data-theme="oled"] .monitor-output {
   letter-spacing: 0.06em;
   color: var(--text);
 }
-#toolkit-palette { grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 460px; }
+#toolkit-palette { grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 460px; overflow: visible; }
 #toolkit-palette .c64-palette-swatch { border-radius: 3px; border-width: 1px; }
 #toolkit-palette .c64-palette-label { font-size: 0.6rem; }
+#toolkit-palette .c64-palette-swatch[aria-label] {
+  position: relative;
+}
+#toolkit-palette .c64-palette-swatch[aria-label]::after {
+  content: attr(aria-label);
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  padding: 4px 8px;
+  border-radius: 3px;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--panel-border);
+  font-size: 0.72rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s ease 0.35s;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+#toolkit-palette .c64-palette-swatch:hover[aria-label]::after,
+#toolkit-palette .c64-palette-swatch:focus-visible[aria-label]::after {
+  opacity: 1;
+}
 
 .panel-label {
   display: block;
@@ -3888,8 +3960,10 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   border-right: 1px solid var(--panel-border);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
   background: color-mix(in srgb, var(--panel-strong) 40%, transparent);
+  position: relative;
+  z-index: 2;
 }
 
 .expert-project-panel[hidden] { display: none; }
@@ -3950,7 +4024,7 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   content: attr(aria-label);
   position: absolute;
   top: calc(100% + 6px);
-  left: 0;
+  right: 0;
   padding: 4px 8px;
   border-radius: 3px;
   background: var(--panel);
@@ -3961,7 +4035,7 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   white-space: nowrap;
   pointer-events: none;
   opacity: 0;
-  transform-origin: top left;
+  transform-origin: top right;
   transition: opacity 0.12s ease 0.35s;
   z-index: 9998;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
@@ -7712,6 +7786,13 @@ body.crt-mode #crt-overlay::after {
 .expert-project-item-del,
 .tab-close,
 .tab-new-btn,
+.panel-heading-actions button,
+.drag-handle,
+.bp-toggle,
+.region-expand-all-btn,
+.region-select-asm-btn,
+.region-copy-btn,
+.region-paste-btn,
 .block-actions button,
 .collapse-toggle {
   position: relative;
@@ -7722,6 +7803,13 @@ body.crt-mode #crt-overlay::after {
 .expert-project-item-del[aria-label]::after,
 .tab-close[aria-label]::after,
 .tab-new-btn[aria-label]::after,
+.panel-heading-actions button[aria-label]::after,
+.drag-handle[aria-label]::after,
+.bp-toggle[aria-label]::after,
+.region-expand-all-btn[aria-label]::after,
+.region-select-asm-btn[aria-label]::after,
+.region-copy-btn[aria-label]::after,
+.region-paste-btn[aria-label]::after,
 .block-actions button[aria-label]::after,
 .collapse-toggle[aria-label]::after {
   content: attr(aria-label);
@@ -7747,6 +7835,9 @@ body.crt-mode #crt-overlay::after {
    sit near the right edge, so anchor to the right to stay in view */
 .expert-project-item-star[aria-label]::after,
 .expert-project-item-del[aria-label]::after,
+.bp-toggle[aria-label]::after,
+.region-copy-btn[aria-label]::after,
+.region-paste-btn[aria-label]::after,
 .block-actions button[aria-label]::after {
   left: auto;
   right: 0;
@@ -7757,13 +7848,89 @@ body.crt-mode #crt-overlay::after {
 .expert-project-item-del:hover[aria-label]::after,
 .tab-close:hover[aria-label]::after,
 .tab-new-btn:hover[aria-label]::after,
+.panel-heading-actions button:hover[aria-label]::after,
+.drag-handle:hover[aria-label]::after,
+.bp-toggle:hover[aria-label]::after,
+.region-expand-all-btn:hover[aria-label]::after,
+.region-select-asm-btn:hover[aria-label]::after,
+.region-copy-btn:hover[aria-label]::after,
+.region-paste-btn:hover[aria-label]::after,
 .block-actions button:hover[aria-label]::after,
 .collapse-toggle:hover[aria-label]::after,
 .expert-project-item-star:focus-visible[aria-label]::after,
 .expert-project-item-del:focus-visible[aria-label]::after,
 .tab-close:focus-visible[aria-label]::after,
 .tab-new-btn:focus-visible[aria-label]::after,
+.panel-heading-actions button:focus-visible[aria-label]::after,
+.drag-handle:focus-visible[aria-label]::after,
+.bp-toggle:focus-visible[aria-label]::after,
+.region-expand-all-btn:focus-visible[aria-label]::after,
+.region-select-asm-btn:focus-visible[aria-label]::after,
+.region-copy-btn:focus-visible[aria-label]::after,
+.region-paste-btn:focus-visible[aria-label]::after,
 .block-actions button:focus-visible[aria-label]::after,
 .collapse-toggle:focus-visible[aria-label]::after {
+  opacity: 1;
+}
+
+/* Editor dialogs use the same aria-label tooltip system as the main toolbar,
+   so icon/tool buttons keep working after we strip native `title` tooltips. */
+#c64-chrrom-dialog button[aria-label],
+#char-editor-dialog button[aria-label],
+#map-editor-dialog button[aria-label],
+#hires-editor-dialog button[aria-label],
+#sprite-editor-dialog button[aria-label],
+#sid-editor-dialog button[aria-label] {
+  position: relative;
+}
+
+#char-editor-dialog .ce-hdr,
+#char-editor-dialog .ce-tool-row,
+#map-editor-dialog .me-toolbar,
+#hires-editor-dialog .hg-toolbar,
+#hires-editor-dialog .hg-footer,
+#sprite-editor-dialog .se-toolbar,
+#sid-editor-dialog .sid-hdr,
+#sid-editor-dialog .sid-row {
+  overflow: visible;
+}
+
+#c64-chrrom-dialog button[aria-label]::after,
+#char-editor-dialog button[aria-label]::after,
+#map-editor-dialog button[aria-label]::after,
+#hires-editor-dialog button[aria-label]::after,
+#sprite-editor-dialog button[aria-label]::after,
+#sid-editor-dialog button[aria-label]::after {
+  content: attr(aria-label);
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  padding: 4px 8px;
+  border-radius: 3px;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--panel-border);
+  font-size: 0.72rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s ease 0.35s;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+#c64-chrrom-dialog button:hover[aria-label]::after,
+#char-editor-dialog button:hover[aria-label]::after,
+#map-editor-dialog button:hover[aria-label]::after,
+#hires-editor-dialog button:hover[aria-label]::after,
+#sprite-editor-dialog button:hover[aria-label]::after,
+#sid-editor-dialog button:hover[aria-label]::after,
+#c64-chrrom-dialog button:focus-visible[aria-label]::after,
+#char-editor-dialog button:focus-visible[aria-label]::after,
+#map-editor-dialog button:focus-visible[aria-label]::after,
+#hires-editor-dialog button:focus-visible[aria-label]::after,
+#sprite-editor-dialog button:focus-visible[aria-label]::after,
+#sid-editor-dialog button:focus-visible[aria-label]::after {
   opacity: 1;
 }

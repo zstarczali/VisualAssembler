@@ -2579,7 +2579,6 @@ function applyTranslations() {
   const tutorialBtnLabelEl = document.getElementById("tutorial-toolbar-label");
   if (tutorialBtnLabelEl) tutorialBtnLabelEl.textContent = t("tutorials");
   if (tutorialBtnEl) {
-    tutorialBtnEl.setAttribute("title", t("tutorials"));
     tutorialBtnEl.setAttribute("aria-label", t("tutorials"));
   }
   if (paletteSearchInput) paletteSearchInput.placeholder = t("paletteSearchPlaceholder");
@@ -2632,6 +2631,9 @@ function applyTranslations() {
   expertBuildInfoBtn?.setAttribute("title", t("buildInfoBtn"));
   expertBuildInfoBtn?.setAttribute("aria-label", t("buildInfoBtn"));
   buildInfoBtn?.setAttribute("title", t("buildInfoBtn"));
+  buildInfoBtn?.setAttribute("aria-label", t("buildInfoBtn"));
+
+  syncMainToolbarTooltips();
 
   // Sync aria-label from title on every expert toolbar button and every
   // project-header icon button that didn't get an explicit setAttribute above.
@@ -2696,6 +2698,11 @@ function applyTranslations() {
     document.getElementById("ultimate-password")?.setAttribute("placeholder", t("ultimatePasswordPlaceholder"));
     setText("#ultimate-connect-test", t("ultimateConnectTest"));
     setText("#run-debugger .run-label", t("runInDebugger"));
+    const runModeArrow = document.getElementById("run-mode-arrow");
+    if (runModeArrow) {
+      runModeArrow.setAttribute("aria-label", t("runModeSelect"));
+      runModeArrow.removeAttribute("title");
+    }
     setText("#copy-asm", t("copyAsm"));
     setText("#save-project", t("saveProject"));
     setText("#save-project-as", t("saveProgramAs"));
@@ -2762,11 +2769,9 @@ function applyTranslations() {
     clearProgramButton?.setAttribute("aria-label", t("clearProgram"));
     if (runEmulatorButton) {
       const runLabel = getRunModeLabel(runMode);
-      runEmulatorButton.setAttribute("title", runLabel);
       runEmulatorButton.setAttribute("aria-label", runLabel);
     }
     if (runDebuggerButton) {
-      runDebuggerButton.setAttribute("title", t("runInDebuggerTitle"));
       runDebuggerButton.setAttribute("aria-label", t("runInDebuggerTitle"));
     }
     if (projectSnapshotTitle) projectSnapshotTitle.textContent = t("snapshotDialogTitle");
@@ -2816,9 +2821,9 @@ function applyTranslations() {
       emulatorStatus.textContent = t("chooseViceStatusPending");
     }
     collapseAllButton?.setAttribute("aria-label", t("collapseAll"));
-    collapseAllButton?.setAttribute("title", t("collapseAll"));
+    collapseAllButton?.removeAttribute("title");
     expandAllButton?.setAttribute("aria-label", t("expandAll"));
-    expandAllButton?.setAttribute("title", t("expandAll"));
+    expandAllButton?.removeAttribute("title");
 
     const legendItems = document.querySelectorAll(".memory-strip-legend span");
   if (legendItems[0]) legendItems[0].lastChild.textContent = t("memoryLegendRam");
@@ -2887,7 +2892,10 @@ function _applyEditorTranslations() {
   const setText = (sel, val) => { const el = document.querySelector(sel); if (el) el.textContent = val; };
   const setAttr = (sel, val) => {
     const el = document.querySelector(sel);
-    if (el) { el.setAttribute("title", val); el.setAttribute("aria-label", val); }
+    if (el) {
+      el.setAttribute("aria-label", val);
+      el.removeAttribute("title");
+    }
   };
   // Toolbar button tooltips
   setAttr("#c64-palette-btn", t("paletteBtnTitle"));
@@ -3062,6 +3070,7 @@ function _applyEditorTranslations() {
   setAttr("#sid-stop", t("sidStop"));
   setAttr("#sid-voice-copy", t("sidVoiceCopy"));
   setAttr("#sid-voice-paste", t("sidVoicePaste"));
+  syncEditorDialogTooltips();
 }
 
 function refreshCategoryOptions() {
@@ -8849,7 +8858,7 @@ function toggleBlockCollapsed(index) {
     if (toggle) {
       toggle.textContent = block.collapsed ? "\u25B8" : "\u25BE";
       toggle.setAttribute("aria-label", block.collapsed ? t("expand") : t("collapse"));
-      toggle.setAttribute("title", block.collapsed ? t("expand") : t("collapse"));
+      toggle.removeAttribute("title");
     }
   } else {
     renderProgram();
@@ -10443,7 +10452,37 @@ function updateThemeToggleLabel() {
     }
   });
   themeToggleButton.setAttribute("aria-label", t("themeToggle"));
-  themeToggleButton.setAttribute("title", t("themeToggle"));
+  themeToggleButton.removeAttribute("title");
+  syncMainToolbarTooltips();
+}
+
+function syncMainToolbarTooltips() {
+  const toolbar = document.querySelector(".main-toolbar");
+  if (!toolbar) return;
+  toolbar.querySelectorAll("[title]").forEach((btn) => {
+    const titleAttr = btn.getAttribute("title");
+    if (titleAttr && (!btn.hasAttribute("aria-label") || btn.getAttribute("aria-label") !== titleAttr)) {
+      btn.setAttribute("aria-label", titleAttr);
+    }
+    btn.removeAttribute("title");
+  });
+}
+
+function syncEditorDialogTooltips() {
+  document.querySelectorAll(
+    "#c64-chrrom-dialog button[title], " +
+    "#char-editor-dialog button[title], " +
+    "#map-editor-dialog button[title], " +
+    "#hires-editor-dialog button[title], " +
+    "#sprite-editor-dialog button[title], " +
+    "#sid-editor-dialog button[title]"
+  ).forEach((btn) => {
+    const titleAttr = btn.getAttribute("title");
+    if (titleAttr && (!btn.hasAttribute("aria-label") || btn.getAttribute("aria-label") !== titleAttr)) {
+      btn.setAttribute("aria-label", titleAttr);
+    }
+    btn.removeAttribute("title");
+  });
 }
 
 async function loadViceConfig() {
@@ -12075,9 +12114,9 @@ function setRunMode(mode) {
   const runLabel = getRunModeLabel(mode);
   if (label) label.textContent = runLabel;
   if (runEmulatorButton) {
-    runEmulatorButton.setAttribute("title", runLabel);
     runEmulatorButton.setAttribute("aria-label", runLabel);
   }
+  syncMainToolbarTooltips();
 }
 
 async function runInBrowser() {
@@ -18045,7 +18084,7 @@ function renderProgram() {
         } else {
           bpBtn.classList.toggle("bp-active", !!block.isBreakpoint);
           bpBtn.setAttribute("aria-label", t("breakpointToggle"));
-          bpBtn.setAttribute("title", t("breakpointToggle"));
+          bpBtn.removeAttribute("title");
           bpBtn.addEventListener("click", (e) => {
             e.stopPropagation();
             block.isBreakpoint = !block.isBreakpoint;
@@ -18070,8 +18109,9 @@ function renderProgram() {
       const groupIsCollapsed = block.isRegionMacro ? (block.regionCollapsed || false) : block.collapsed;
       collapseToggle.textContent = groupIsCollapsed ? "\u25B8" : "\u25BE";
       collapseToggle.setAttribute("aria-label", groupIsCollapsed ? t("expand") : t("collapse"));
-      collapseToggle.setAttribute("title", groupIsCollapsed ? t("expand") : t("collapse"));
-      dragHandle.setAttribute("title", t("dragBlock"));
+      collapseToggle.removeAttribute("title");
+      dragHandle.setAttribute("aria-label", t("dragBlock"));
+      dragHandle.removeAttribute("title");
       if (block.isRegionMacro) {
         collapseToggle.addEventListener("click", () => toggleRegionCollapsed(index));
       } else {
@@ -19498,10 +19538,48 @@ function renderProgram() {
         colorField.addEventListener("keydown", e => { if (e.key === "Escape") closeColorDropdown(); });
         dropdown.addEventListener("mouseenter", () => { dropdownHovered = true; });
         dropdown.addEventListener("mouseleave", () => { dropdownHovered = false; });
-        document.addEventListener("pointerdown", e => {
+      document.addEventListener("pointerdown", e => {
           if (!dropdown.contains(e.target) && e.target !== colorField) closeColorDropdown();
         }, { capture: true });
       }
+    } else if (block.isMemCpyMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `<div class="macro-grid">
+          <label class="mini-field">
+            <span>${t("fieldSource")}</span>
+            <input class="memcpy-src has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memcpySrc || "C000"}" placeholder="$C000 / src_label">
+          </label>
+          <label class="mini-field">
+            <span>${t("fieldDestination")}</span>
+            <input class="memcpy-dst has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memcpyDst || "0400"}" placeholder="$0400 / dst_label">
+          </label>
+          <label class="mini-field">
+            <span>${t("fieldSize")}</span>
+            <input class="memcpy-size has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memcpySize || "0100"}" placeholder="$0100 / size_const">
+          </label>
+        </div>`
+      );
+    } else if (block.isMemSetMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `<div class="macro-grid">
+          <label class="mini-field">
+            <span>${t("fieldAddress")}</span>
+            <input class="memset-dst has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memsetDst || "0400"}" placeholder="$0400 / dst_label">
+          </label>
+          <label class="mini-field">
+            <span>${t("value")}</span>
+            <input class="memset-value has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memsetValue || "20"}" placeholder="20 / FF / value_const">
+          </label>
+          <label class="mini-field">
+            <span>${t("fieldSize")}</span>
+            <input class="memset-size has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memsetSize || "03E8"}" placeholder="$03E8 / size_const">
+          </label>
+        </div>`
+      );
     } else if (block.isIrqSetupMacro) {
       inlineField.hidden = true;
       blockControls.insertAdjacentHTML(
@@ -19565,10 +19643,10 @@ function renderProgram() {
       collapseToggle.insertAdjacentHTML(
         "beforebegin",
         `<div class="region-topline-btns">
-          <button type="button" class="region-expand-all-btn" title="${t("expandAllBlocksInRegion")}">&#8597;</button>
-          <button type="button" class="region-select-asm-btn" title="${t("selectRegionRangeInAsmView")}">&#9678;</button>
-          <button type="button" class="region-copy-btn" title="${t("copyRegionWithAllBlocks")}">&#10697;</button>
-          <button type="button" class="region-paste-btn" title="${t("pasteCopiedRegionAfterThisRegion")}" style="${_clipboardRegion ? '' : 'opacity:0.4'}">&#9112;</button>
+          <button type="button" class="region-expand-all-btn" aria-label="${t("expandAllBlocksInRegion")}">&#8597;</button>
+          <button type="button" class="region-select-asm-btn" aria-label="${t("selectRegionRangeInAsmView")}">&#9678;</button>
+          <button type="button" class="region-copy-btn" aria-label="${t("copyRegionWithAllBlocks")}">&#10697;</button>
+          <button type="button" class="region-paste-btn" aria-label="${t("pasteCopiedRegionAfterThisRegion")}" style="${_clipboardRegion ? '' : 'opacity:0.4'}">&#9112;</button>
         </div>`
       );
       node.querySelector(".region-expand-all-btn")?.addEventListener("click", () => {
@@ -19973,6 +20051,36 @@ function renderProgram() {
       setupProgramConstPicker(macroCharOffsetInput);
       macroCharOffsetInput.addEventListener("input", (event) => updateProgramBlock(index, "charOffset", event.target.value));
     }
+    const memcpySrcInput = node.querySelector(".memcpy-src");
+    if (memcpySrcInput) {
+      setupProgramConstPicker(memcpySrcInput);
+      memcpySrcInput.addEventListener("input", (event) => updateProgramBlock(index, "memcpySrc", event.target.value));
+    }
+    const memcpyDstInput = node.querySelector(".memcpy-dst");
+    if (memcpyDstInput) {
+      setupProgramConstPicker(memcpyDstInput);
+      memcpyDstInput.addEventListener("input", (event) => updateProgramBlock(index, "memcpyDst", event.target.value));
+    }
+    const memcpySizeInput = node.querySelector(".memcpy-size");
+    if (memcpySizeInput) {
+      setupProgramConstPicker(memcpySizeInput);
+      memcpySizeInput.addEventListener("input", (event) => updateProgramBlock(index, "memcpySize", event.target.value));
+    }
+    const memsetDstInput = node.querySelector(".memset-dst");
+    if (memsetDstInput) {
+      setupProgramConstPicker(memsetDstInput);
+      memsetDstInput.addEventListener("input", (event) => updateProgramBlock(index, "memsetDst", event.target.value));
+    }
+    const memsetValueInput = node.querySelector(".memset-value");
+    if (memsetValueInput) {
+      setupProgramConstPicker(memsetValueInput);
+      memsetValueInput.addEventListener("input", (event) => updateProgramBlock(index, "memsetValue", event.target.value));
+    }
+    const memsetSizeInput = node.querySelector(".memset-size");
+    if (memsetSizeInput) {
+      setupProgramConstPicker(memsetSizeInput);
+      memsetSizeInput.addEventListener("input", (event) => updateProgramBlock(index, "memsetSize", event.target.value));
+    }
     const joyPortSelect = node.querySelector(".joy-port");
     if (joyPortSelect) {
       joyPortSelect.addEventListener("change", (event) => updateProgramBlock(index, "joyPort", event.target.value));
@@ -20223,11 +20331,11 @@ function renderProgram() {
       const moveDownButton = node.querySelector(".move-down");
       const deleteButton = node.querySelector(".delete");
       moveUpButton.setAttribute("aria-label", t("moveUp"));
-      moveUpButton.setAttribute("title", t("moveUp"));
+      moveUpButton.removeAttribute("title");
       moveDownButton.setAttribute("aria-label", t("moveDown"));
-      moveDownButton.setAttribute("title", t("moveDown"));
+      moveDownButton.removeAttribute("title");
       deleteButton.setAttribute("aria-label", t("delete"));
-      deleteButton.setAttribute("title", t("delete"));
+      deleteButton.removeAttribute("title");
       moveUpButton.addEventListener("click", () => moveBlock(index, -1));
       moveDownButton.addEventListener("click", () => moveBlock(index, 1));
       deleteButton.addEventListener("click", () => deleteBlock(index));
@@ -22470,9 +22578,17 @@ function _buildToolkitPalette() {
     const swatch = document.createElement("div");
     swatch.className = "c64-palette-swatch";
     swatch.style.background = color.hex;
-    swatch.title = "Click to copy";
+    swatch.setAttribute("aria-label", `${i}: ${color.n}`);
+    swatch.setAttribute("role", "button");
+    swatch.tabIndex = 0;
     swatch.addEventListener("click", () => {
       navigator.clipboard.writeText(String(i)).catch(() => {});
+    });
+    swatch.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        swatch.click();
+      }
     });
     const label = document.createElement("div");
     label.className = "c64-palette-label";
