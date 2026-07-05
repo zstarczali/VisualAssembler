@@ -93,7 +93,11 @@
       "Bash(grep -vE \"t\\\\\\(\\\\\"|\\\\\\\\bt\\\\\\\\\\(\")",
       "Bash(node --test tests/)",
       "Bash(node --test tests/macro-core.test.js tests/delay-macro.test.js)",
-      "Bash(grep -n \"// Fallback\\\\|unknown\\\\|fallback\\\\|// If nothing matched\\\\|blocks.push.*COMMENT\\\\|isComment: true\" F:/Development/VisualAssembler/www/app.js)"
+      "Bash(grep -n \"// Fallback\\\\|unknown\\\\|fallback\\\\|// If nothing matched\\\\|blocks.push.*COMMENT\\\\|isComment: true\" F:/Development/VisualAssembler/www/app.js)",
+      "Bash(grep -n \"\\\\\\\\.text\\\\|isTextMacro\" F:/Development/VisualAssembler/www/app.js)",
+      "Bash(awk 'NR>=1{print}')",
+      "Bash(grep -A1 \"expandedProgram.push\\({ ...block, _isMacroInvokeHeader\")",
+      "Bash(grep -n 'return { ok: false, error: \"\\\\|return { ok: false, error: `' F:/Development/VisualAssembler/www/app.js)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"

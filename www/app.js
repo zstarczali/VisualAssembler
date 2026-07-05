@@ -1672,23 +1672,36 @@ function initPalette() {
   expertEditor?.addEventListener("beforeinput", (e) => {
     const displaySelStart = expertEditor.selectionStart ?? 0;
     const displaySelEnd = expertEditor.selectionEnd ?? displaySelStart;
+    const sourceSelStart = _expertDisplayPosToSourcePos(displaySelStart);
+    const sourceSelEnd = _expertDisplayPosToSourcePos(displaySelEnd);
+    // Capture the pre-edit source line count so the input handler can shift
+    // stale error line numbers in step with newline insertions / deletions,
+    // avoiding a red highlight lag until the 350 ms validation debounce fires.
+    const preSourceText = _expertSourceText || expertEditor.value || "";
     _expertPendingEditMeta = {
       inputType: e.inputType || "",
       data: typeof e.data === "string" ? e.data : "",
       displaySelStart,
       displaySelEnd,
-      sourceSelStart: _expertDisplayPosToSourcePos(displaySelStart),
-      sourceSelEnd: _expertDisplayPosToSourcePos(displaySelEnd)
+      sourceSelStart,
+      sourceSelEnd,
+      preSourceLineCount: preSourceText.split("\n").length,
+      preSourceCursorLine: preSourceText.slice(0, sourceSelStart).split("\n").length - 1,
+      preSourceCursorLineEnd: preSourceText.slice(0, sourceSelEnd).split("\n").length - 1
     };
   });
 
   expertEditor?.addEventListener("input", () => {
     const displaySelStart = expertEditor.selectionStart ?? 0;
     const displaySelEnd = expertEditor.selectionEnd ?? displaySelStart;
-    const mirroredSel = _expertSyncSourceTextFromEditor(_expertPendingEditMeta);
+    const pendingMeta = _expertPendingEditMeta;
+    const mirroredSel = _expertSyncSourceTextFromEditor(pendingMeta);
     _expertPendingEditMeta = null;
     const sourceSelStart = mirroredSel?.start ?? _expertDisplayPosToSourcePos(displaySelStart);
     const sourceSelEnd = mirroredSel?.end ?? _expertDisplayPosToSourcePos(displaySelEnd);
+    // Optimistically shift error line numbers so the red highlight tracks the
+    // moved code before the next _expertValidate() tick reconciles them.
+    _expertShiftErrorLinesForEdit(pendingMeta);
     _expertRefreshProjection(sourceSelStart, sourceSelEnd);
     markTabDirty();
     _expertValidate();
@@ -5226,6 +5239,7 @@ const _AC_DIRECTIVE_DESC = {
   ".string":"string at address", ".rawtext":"raw screen codes", ".rawbytes":"raw bytes at addr",
   ".data":"data macro", ".incbin":"include binary", ".sid":"SID player macro",
   ".include":"include file", ".loop":"loop start", ".next":"loop end",
+  ".for":"counted loop start", ".endf":"counted loop end", ".exodecrunch":"Exomizer depack",
   ".push":"push registers", ".pull":"pop registers",
   ".macro":"define macro", ".endm":"end macro", ".invoke":"call macro", ".call":"call macro",
   ".define":"define symbol", ".if":"conditional", ".else":"else branch", ".endif":"end if",
@@ -5748,7 +5762,7 @@ function _expertHighlightLine(raw) {
   if (!code.trim()) return esc(code) + commentHtml;
 
   // Token regex (order matters)
-  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|loop|next|push|pull|endif|endregion|region|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|delay|wait|set_border|set_bg|irq_setup|sprite_init|sprite_pos|wait_raster|joystick|sprite_col|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|include|sid|petscii|charset|table|loadfile|invoke|call|rand)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)/gi;
+  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|loop|next|for|endf|push|pull|endif|endregion|region|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|delay|wait|set_border|set_bg|irq_setup|sprite_init|sprite_pos|wait_raster|joystick|mouse|sprite_col|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|include|sid|petscii|charset|table|loadfile|invoke|call|rand|exodecrunch|reu_check|reu_stash|reu_fetch|reu_swap|turbo_set|turbo_enable|supercpu_detect)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)/gi;
 
   let result = "";
   let lastIdx = 0;
@@ -7300,6 +7314,18 @@ function parseExpertText(text) {
 
     // Delegate the rest to the existing parser patterns (ORG already handled above)
     const delegated = parseAsmText(line + (commentText ? " ; " + commentText : ""));
+
+    // If the line looked like a directive (`.foo`) but parseAsmText only produced
+    // a single fall-through comment (nothing structural), tag it as an unknown
+    // directive so it does not silently compile to nothing.
+    const unknownDirM = line.match(/^\.([A-Za-z_][A-Za-z0-9_]*)/);
+    if (unknownDirM && delegated.length === 1 && delegated[0]?.isComment) {
+      const commentBlock = delegated[0];
+      commentBlock.validationError = tf("unknownDirective", { directive: `.${unknownDirM[1]}` });
+      blocks.push(commentBlock);
+      continue;
+    }
+
     if (delegated.length) { blocks.push(...delegated); continue; }
 
     // Fallback comment
@@ -7715,6 +7741,42 @@ function _expertGetTransientTypingSourceLine(sourceText) {
   }
 
   return -1;
+}
+
+// Optimistic pre-validation adjustment: shift stale error line indices in
+// _expertErrorLineNos so the red highlight travels with the code when the
+// user inserts/deletes lines. The next _expertValidate() run (350 ms
+// debounce) reconciles them from scratch — this only bridges the gap.
+function _expertShiftErrorLinesForEdit(meta) {
+  if (!meta || !_expertErrorLineNos.size) return;
+  const postSourceText = _expertSourceText || (expertEditor?.value ?? "");
+  const postLineCount = postSourceText.split("\n").length;
+  const delta = postLineCount - (meta.preSourceLineCount ?? postLineCount);
+  if (delta === 0) return;
+  const cursorLineStart = Math.min(meta.preSourceCursorLine ?? 0, meta.preSourceCursorLineEnd ?? 0);
+  const cursorLineEnd   = Math.max(meta.preSourceCursorLine ?? 0, meta.preSourceCursorLineEnd ?? 0);
+  const shifted = new Set();
+  for (const ln of _expertErrorLineNos) {
+    if (delta > 0) {
+      // Newlines were inserted at cursorLineStart (or a selection got replaced
+      // by content containing more newlines). Every error strictly below the
+      // cursor line moves down by `delta`.
+      if (ln > cursorLineStart) shifted.add(ln + delta);
+      else shifted.add(ln);
+    } else {
+      // Newlines were removed. Errors inside the collapsed range drop; errors
+      // below the range shift up by -delta.
+      const removedStart = cursorLineStart;
+      const removedEnd = cursorLineEnd; // inclusive lines that were part of the deletion span
+      if (ln <= removedStart) {
+        shifted.add(ln);
+      } else if (ln > removedEnd) {
+        shifted.add(ln + delta); // delta is negative
+      }
+      // Otherwise: line was inside the deleted range → drop it.
+    }
+  }
+  _expertErrorLineNos = shifted;
 }
 
 function _expertValidate() {
@@ -10436,6 +10498,7 @@ function updateExomizerPathPreview(nextPath) {
     exomizerStatus.textContent = exomizerPath
       ? tf("exomizerStatusReady", { path: exomizerPath })
       : t("exomizerStatusPending");
+    exomizerStatus.title = exomizerStatus.textContent;
   }
 }
 
@@ -10494,6 +10557,7 @@ function updateDebuggerPathPreview(nextPath) {
     debuggerStatus.textContent = debuggerPath
       ? tf("debuggerStatusReady", { path: debuggerPath })
       : t("debuggerStatusPending");
+    debuggerStatus.title = debuggerStatus.textContent;
   }
 }
 
@@ -10664,6 +10728,7 @@ function updateEmulatorStatus() {
   emulatorStatus.textContent = vicePath
     ? tf("viceReady", {path: vicePath})
     : t("chooseTheViceExecutableFirstThenUseRunIn");
+  emulatorStatus.title = emulatorStatus.textContent;
 }
 
 function getProjectPayload() {
@@ -14165,6 +14230,13 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes: [] };
   }
 
+  // Raw INVOKE block that reached compile without being expanded → the target
+  // macro is not defined. Emit a clear error instead of falling through to the
+  // generic "invalid operand" message.
+  if (block.isMacroInvoke) {
+    return { ok: false, error: tf("compileUnknownMacro", { name: block.invokeMacroName || "?" }) };
+  }
+
   // Macro body at definition site with unresolved {param} placeholders — skip compilation
   if (block._fromMacroDef && /\{[A-Za-z_][A-Za-z0-9_]*\}/.test(block.rawOperand || "")) {
     return { ok: true, bytes: [] };
@@ -14178,7 +14250,7 @@ function compileLineBytes(line, labels) {
   if (blockError) {
     // If the rawOperand still has an unresolved {param} placeholder, give a clearer message
     if (/\{[A-Za-z_][A-Za-z0-9_]*\}/.test(block.rawOperand || "")) {
-      return { ok: false, error: `Unresolved macro parameter in ${block.mnemonic}: ${block.rawOperand}` };
+      return { ok: false, error: tf("compileUnresolvedMacroParam", { mnemonic: block.mnemonic, operand: block.rawOperand }) };
     }
     return { ok: false, error: tf("compileInvalidOperand", { mnemonic: block.mnemonic }) };
   }
@@ -15084,7 +15156,7 @@ function compileLineBytes(line, labels) {
     const cmpMode = isImm ? "immediate" : "absolute";  // 3-byte absolute (safe for labels/16-bit)
     const opcode = opcodeMap[cmpMnem]?.[cmpMode];
     if (opcode === undefined) {
-      return { ok: false, error: `${cmpMnem}: unsupported addressing for runtime IF` };
+      return { ok: false, error: tf("compileUnsupportedAddressing", { mnemonic: cmpMnem }) };
     }
     let cmpVal;
     if (isImm) {
@@ -15093,7 +15165,7 @@ function compileLineBytes(line, labels) {
       cmpVal = parseAddressValue(raw, labels);
     }
     if (cmpVal === null || cmpVal === undefined || isNaN(cmpVal)) {
-      return { ok: false, error: `Runtime IF: cannot resolve operand "${raw}"` };
+      return { ok: false, error: tf("compileIfCannotResolveOperand", { operand: raw }) };
     }
     const cmpBytes = isImm
       ? [opcode, cmpVal & 0xFF]
@@ -15108,7 +15180,7 @@ function compileLineBytes(line, labels) {
     const branchTargetLabel = block.runtimeIfElseLabel;
     const targetAddr = labels.get(branchTargetLabel);
     if (typeof targetAddr !== "number") {
-      return { ok: false, error: `Runtime IF: internal — target label ${branchTargetLabel} not resolved` };
+      return { ok: false, error: t("compileIfMissingEndif") };
     }
     const branchFromAddr = line.address + cmpBytes.length;
     let branchBytes;
@@ -15116,14 +15188,14 @@ function compileLineBytes(line, labels) {
       const branchOpcode = opcodeMap[skipMnem].relative;
       const offset = targetAddr - (branchFromAddr + 2);
       if (offset < -128 || offset > 127) {
-        return { ok: false, error: `Runtime IF body too large for branch (offset ${offset})` };
+        return { ok: false, error: tf("compileIfBranchTooLarge", { offset }) };
       }
       branchBytes = [branchOpcode, offset & 0xFF];
     } else if (op === "<=") {
       const bcsFrom = branchFromAddr + 2;
       const bcsOffset = targetAddr - (bcsFrom + 2);
       if (bcsOffset < -128 || bcsOffset > 127) {
-        return { ok: false, error: `Runtime IF body too large for branch (offset ${bcsOffset})` };
+        return { ok: false, error: tf("compileIfBranchTooLarge", { offset: bcsOffset }) };
       }
       branchBytes = [opcodeMap.BEQ.relative, 0x02, opcodeMap.BCS.relative, bcsOffset & 0xFF];
     } else if (op === ">") {
@@ -15131,11 +15203,11 @@ function compileLineBytes(line, labels) {
       const bccFrom = branchFromAddr + 2;
       const bccOffset = targetAddr - (bccFrom + 2);
       if (beqOffset < -128 || beqOffset > 127 || bccOffset < -128 || bccOffset > 127) {
-        return { ok: false, error: `Runtime IF body too large for branch` };
+        return { ok: false, error: tf("compileIfBranchTooLarge", { offset: Math.max(Math.abs(beqOffset), Math.abs(bccOffset)) }) };
       }
       branchBytes = [opcodeMap.BEQ.relative, beqOffset & 0xFF, opcodeMap.BCC.relative, bccOffset & 0xFF];
     } else {
-      return { ok: false, error: `Runtime IF: operator "${op}" not supported` };
+      return { ok: false, error: tf("compileIfOperatorNotSupported", { op }) };
     }
     return {
       ok: true,
@@ -15149,7 +15221,7 @@ function compileLineBytes(line, labels) {
     const endLabel = block.runtimeIfEndLabel;
     const targetAddr = labels.get(endLabel);
     if (typeof targetAddr !== "number") {
-      return { ok: false, error: `Runtime ELSE: end label ${endLabel} not resolved` };
+      return { ok: false, error: t("compileElseMissingEndif") };
     }
     return {
       ok: true,
@@ -15163,7 +15235,7 @@ function compileLineBytes(line, labels) {
   }
 
   // Shared helper: compile a "CMP/CPX/CPY + branch" pair for WHILE/UNTIL
-  function _compileCmpBranch(block, line, labels, branchTargetLabel, opBranchMap) {
+  function _compileCmpBranch(block, line, labels, branchTargetLabel, opBranchMap, missingLabelKey = "compileWhileMissingEndw") {
     const reg = (block.runtimeIfReg || "A").toUpperCase();
     const op  = block.runtimeIfOp === "=" ? "==" : (block.runtimeIfOp || "==");
     const raw = (block.rawOperand || "").trim();
@@ -15171,12 +15243,12 @@ function compileLineBytes(line, labels) {
     const isImm = raw.startsWith("#");
     const cmpMode = isImm ? "immediate" : "absolute";
     const opcode = opcodeMap[cmpMnem]?.[cmpMode];
-    if (opcode === undefined) return { ok: false, error: `${cmpMnem}: unsupported addressing` };
+    if (opcode === undefined) return { ok: false, error: tf("compileUnsupportedAddressing", { mnemonic: cmpMnem }) };
     const cmpVal = isImm
       ? parseNumberByBase(raw, block.base || "hex")
       : parseAddressValue(raw, labels);
     if (cmpVal === null || cmpVal === undefined || isNaN(cmpVal)) {
-      return { ok: false, error: `Runtime loop: cannot resolve operand "${raw}"` };
+      return { ok: false, error: tf("compileLoopCannotResolveOperand", { operand: raw }) };
     }
     const cmpBytes = isImm
       ? [opcode, cmpVal & 0xFF]
@@ -15184,7 +15256,7 @@ function compileLineBytes(line, labels) {
     const branchMnem = opBranchMap[op];
     const targetAddr = labels.get(branchTargetLabel);
     if (typeof targetAddr !== "number") {
-      return { ok: false, error: `Runtime loop: label ${branchTargetLabel} not resolved` };
+      return { ok: false, error: t(missingLabelKey) };
     }
     const branchFromAddr = line.address + cmpBytes.length;
     let branchBytes;
@@ -15192,14 +15264,14 @@ function compileLineBytes(line, labels) {
       const branchOpcode = opcodeMap[branchMnem].relative;
       const offset = targetAddr - (branchFromAddr + 2);
       if (offset < -128 || offset > 127) {
-        return { ok: false, error: `Runtime loop body too large for branch (offset ${offset})` };
+        return { ok: false, error: tf("compileLoopBranchTooLarge", { offset }) };
       }
       branchBytes = [branchOpcode, offset & 0xFF];
     } else if (op === "<=") {
       const bcsFrom = branchFromAddr + 2;
       const bcsOffset = targetAddr - (bcsFrom + 2);
       if (bcsOffset < -128 || bcsOffset > 127) {
-        return { ok: false, error: `Runtime loop body too large for branch (offset ${bcsOffset})` };
+        return { ok: false, error: tf("compileLoopBranchTooLarge", { offset: bcsOffset }) };
       }
       branchBytes = [opcodeMap.BEQ.relative, 0x02, opcodeMap.BCS.relative, bcsOffset & 0xFF];
     } else if (op === ">") {
@@ -15207,11 +15279,11 @@ function compileLineBytes(line, labels) {
       const bccFrom = branchFromAddr + 2;
       const bccOffset = targetAddr - (bccFrom + 2);
       if (beqOffset < -128 || beqOffset > 127 || bccOffset < -128 || bccOffset > 127) {
-        return { ok: false, error: `Runtime loop body too large for branch` };
+        return { ok: false, error: tf("compileLoopBranchTooLarge", { offset: Math.max(Math.abs(beqOffset), Math.abs(bccOffset)) }) };
       }
       branchBytes = [opcodeMap.BEQ.relative, beqOffset & 0xFF, opcodeMap.BCC.relative, bccOffset & 0xFF];
     } else {
-      return { ok: false, error: `Runtime loop: operator "${op}" not supported` };
+      return { ok: false, error: tf("compileLoopOperatorNotSupported", { op }) };
     }
     return { ok: true, bytes: [...cmpBytes, ...branchBytes] };
   }
@@ -15226,7 +15298,7 @@ function compileLineBytes(line, labels) {
   if (block.isRuntimeEndwMacro) {
     const target = labels.get(block.whileStartLabel);
     if (typeof target !== "number") {
-      return { ok: false, error: `ENDW: whileStartLabel ${block.whileStartLabel} not resolved` };
+      return { ok: false, error: t("compileEndwMissingWhile") };
     }
     return { ok: true, bytes: [0x4C, target & 0xFF, (target >> 8) & 0xFF], comment: `ENDW → JMP ${block.whileStartLabel}` };
   }
@@ -15236,7 +15308,7 @@ function compileLineBytes(line, labels) {
   if (block.isRuntimeUntilMacro) {
     // Loop back to start while condition is FALSE — same mapping as IF skip (branch when NOT met)
     const backMap = { "==": "BNE", "=": "BNE", "!=": "BEQ", "<": "BCS", ">=": "BCC" };
-    const r = _compileCmpBranch(block, line, labels, block.repeatStartLabel, backMap);
+    const r = _compileCmpBranch(block, line, labels, block.repeatStartLabel, backMap, "compileUntilMissingRepeat");
     if (!r.ok) return r;
     return { ok: true, bytes: r.bytes, comment: `UNTIL ${block.runtimeIfReg || "A"} ${block.runtimeIfOp || "=="} ${block.rawOperand || "?"}` };
   }
@@ -15383,10 +15455,10 @@ function compileLineBytes(line, labels) {
     const handler = labels.get(block.irqHandler || "");
     const raster = parseMacroNumber(block.irqRaster || "FA", labels, "hex");
     if (typeof handler !== "number") {
-      return { ok: false, error: `IRQ_SETUP: handler label not found` };
+      return { ok: false, error: tf("compileIrqHandlerNotFound", { label: block.irqHandler || "?" }) };
     }
     if (raster === null || raster < 0 || raster > 255) {
-      return { ok: false, error: `IRQ_SETUP: raster must be $00-$FF` };
+      return { ok: false, error: t("compileIrqRasterRange") };
     }
     const bytes = [
       0x78,
@@ -16641,13 +16713,13 @@ function getProgramLayout(originOverride) {
       if (!block.varName) continue;
       const size = resolveProgramValueWithConst(block.varSize || "1", "dec");
       if (isNaN(size) || size < 1 || size > 255) {
-        block.validationError = "VAR: a meret 1 es 255 kozott lehet.";
+        block.validationError = t("compileVarSizeRange");
         block._varAddress = null;
         continue;
       }
       const safeSize = Math.max(1, Math.min(255, size));
       if (zpCursor + safeSize > 0xFF) {
-        block.validationError = "VAR: out of zero-page space";
+        block.validationError = t("compileVarZpOutOfSpace");
         block._varAddress = null;
         continue;
       }
