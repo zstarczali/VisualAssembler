@@ -5369,6 +5369,7 @@ function _expertAcInsert(value, kind) {
   ta.value = before.slice(0, replaceFrom) + replaceWith + after;
   const newPos = replaceFrom + replaceWith.length;
   ta.selectionStart = ta.selectionEnd = newPos;
+  _expertSyncSourceTextFromEditor();  // ta.value közvetlen módosítása nem triggerel input eventet
   _expertAcHide();
   _expertApplyHighlight();
   _expertValidate();
@@ -7987,6 +7988,38 @@ function _buildDisasmHTML() {
       if (!compiled.ok) continue;
 
       const block = line.block;
+
+      // INCBIN: deferred binary file — show hex dump at incBinAddress
+      if (block.isIncBinMacro) {
+        const incBytes = Array.isArray(block.incBinBytes) ? block.incBinBytes : [];
+        const incAddr = parseMacroAddress(block.incBinAddress || "$C000", labelMap) ?? 0xC000;
+        const incAddrHex = incAddr.toString(16).toUpperCase().padStart(4, "0");
+        if (incBytes.length === 0) {
+          lines.push(`<span class="dsm-addr">$${incAddrHex}</span>  <span class="asm-tok-comment">; INCBIN "${esc(block.incBinFileName || "?")}" (not loaded)</span>`);
+        } else {
+          const MAX_SHOW = 256;
+          const showBytes = incBytes.slice(0, MAX_SHOW);
+          const DCHUNK = 8;
+          const DCOLW = DCHUNK * 3 - 1;
+          const isShort = showBytes.length <= DCHUNK;
+          for (let ci = 0; ci < showBytes.length; ci += DCHUNK) {
+            const chunk = showBytes.slice(ci, ci + DCHUNK);
+            const chunkAddrHex = (incAddr + ci).toString(16).toUpperCase().padStart(4, "0");
+            const hexDump = chunk.map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+            const padTo = isShort ? Math.max(hexDump.length, 8) : DCOLW;
+            lines.push(
+              `<span class="dsm-addr">$${chunkAddrHex}</span>  ` +
+              `<span class="dsm-bytes">${hexDump.padEnd(padTo)}</span>  ` +
+              `<span class="asm-tok-mnemonic">.BYTE</span>  ` +
+              `<span class="asm-tok-operand">${esc(chunk.map(b => "$" + b.toString(16).toUpperCase().padStart(2, "0")).join(", "))}</span>`
+            );
+          }
+          if (incBytes.length > MAX_SHOW) {
+            lines.push(`<span class="asm-tok-comment">; ... ${incBytes.length - MAX_SHOW} more bytes (${esc(block.incBinFileName || "?")})</span>`);
+          }
+        }
+        continue;
+      }
 
       // Deferred data blocks: RAWBYTES, RAWTEXT, PETSCII — no inline code; show data at target address
       if (block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro) {
