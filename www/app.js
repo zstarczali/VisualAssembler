@@ -2010,6 +2010,13 @@ function initPalette() {
     setOutputMode(tab.dataset.mode);
   }));
   compileErrorClose?.addEventListener("click", () => compileErrorDialog?.close());
+  document.getElementById("compile-error-copy")?.addEventListener("click", () => {
+    const text = (_lastCompileErrors || [])
+      .map(e => typeof e === "string" ? e : (e?.text || e?.message || String(e)))
+      .join("\n");
+    if (!text) return;
+    navigator.clipboard.writeText(text).catch(() => {});
+  });
   compileErrorDialog?.addEventListener("cancel", (e) => e.preventDefault());
 
   document.getElementById("new-program-confirm")?.addEventListener("click", () => {
@@ -9851,10 +9858,16 @@ function buildOperandPreview(modeKey, rawValue, base) {
 
   const numericValue = parseNumberByBase(value, base);
   if (numericValue === null) {
-    // Handle #<label and #>label low/high byte operators in immediate mode
+    // Handle #<label / #>label AND #<numeric / #>numeric low/high byte operators in immediate mode
     if (modeKey === "immediate" && (value.startsWith("<") || value.startsWith(">"))) {
       const name = value.slice(1).trim();
       if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) {
+        const operand = `#${value}`;
+        return { operand, text: operand, error: "" };
+      }
+      // Numeric literal: #<319, #>319, #<$013F, #>$013F etc.
+      const num = parseNumberByBase(name.replace(/^[\$%]/, ""), base);
+      if (num !== null && num >= 0 && num <= 0xFFFF) {
         const operand = `#${value}`;
         return { operand, text: operand, error: "" };
       }
@@ -12674,7 +12687,7 @@ async function reloadIncludeBlocks(projectFilePath = "") {
       if (!sourcePath) continue;
       const result = await window.electronAPI.reloadIncludeFile(sourcePath, baseDir);
       if (!result.error) {
-        block.includedBlocks = typeof result.text === "string"
+        block.includedBlocks = (typeof result.text === "string" && result.text.trim().length > 0)
           ? parseExpertText(result.text)
           : (result.blocks || []);
         block.includeFileName = result.fileName;
@@ -14315,7 +14328,7 @@ function assembleProgramToPrg(originOverride) {
     if (line.block.isLabel || line.block.isComment || line.block.isIncludeMacro || line.block.isBlankLine) continue;
     if (line.block._isSavedAddress) continue;
     // Skip macro definition-site blocks that still contain unresolved {param} placeholders
-    if (line.block._fromMacroDef && /\{[A-Za-z_][A-Za-z0-9_]*\}/.test(line.block.rawOperand || "")) continue;
+    if ((line.block._fromMacroDef || line.block._macroSourceBlock) && /\{[A-Za-z_][A-Za-z0-9_]*\}/.test(line.block.rawOperand || "")) continue;
     if (line.block._isRestoreAddress) {
       currentSection = { addr: line.address, bytes: [] };
       inlineSections.push(currentSection);
@@ -14446,7 +14459,7 @@ function compileLineBytes(line, labels) {
   }
 
   // Macro body at definition site with unresolved {param} placeholders — skip compilation
-  if (block._fromMacroDef && /\{[A-Za-z_][A-Za-z0-9_]*\}/.test(block.rawOperand || "")) {
+  if ((block._fromMacroDef || block._macroSourceBlock) && /\{[A-Za-z_][A-Za-z0-9_]*\}/.test(block.rawOperand || "")) {
     return { ok: true, bytes: [] };
   }
 
@@ -15812,16 +15825,24 @@ function resolveNumericOperand(block, labels) {
 
   const stripped = block.rawOperand.replace(/^#/, "");
 
-  // #<label  → low byte of label address
+  // #<X  → low byte of label address OR numeric literal
   if (stripped.startsWith("<")) {
     const name = stripped.slice(1).trim();
     if (labels.has(name)) return { ok: true, value: labels.get(name) & 0xFF };
+    const num = parseNumberByBase(name.replace(/^[\$%]/, ""), block.base);
+    if (num !== null) return { ok: true, value: num & 0xFF };
+    const constVal = resolveProgramConstValue(name);
+    if (constVal !== null) return { ok: true, value: constVal & 0xFF };
     return { ok: false, error: tf("operandNotResolvable", { mnemonic: block.mnemonic }) };
   }
-  // #>label  → high byte of label address
+  // #>X  → high byte of label address OR numeric literal
   if (stripped.startsWith(">")) {
     const name = stripped.slice(1).trim();
     if (labels.has(name)) return { ok: true, value: (labels.get(name) >> 8) & 0xFF };
+    const num = parseNumberByBase(name.replace(/^[\$%]/, ""), block.base);
+    if (num !== null) return { ok: true, value: (num >> 8) & 0xFF };
+    const constVal = resolveProgramConstValue(name);
+    if (constVal !== null) return { ok: true, value: (constVal >> 8) & 0xFF };
     return { ok: false, error: tf("operandNotResolvable", { mnemonic: block.mnemonic }) };
   }
 
@@ -16914,7 +16935,12 @@ function getProgramLayout(originOverride) {
           // If param substitution changed the operand (had {param}), re-derive addressing mode
           // because the original block was parsed with a placeholder (e.g. "absolute" for "{color}")
           if (newRaw !== macroBlock.rawOperand && opcodeMap[macroBlock.mnemonic]) {
-            const reparsedOperand = rewriteOperand(macroBlock.operand || macroBlock.rawOperand);
+            // For immediate mode, reconstruct from "#" + newRaw so bare-decimal args
+            // like `100` don't inherit the pre-formatted `$` prefix from macroBlock.operand
+            // (which was baked in at macro-definition time as a hex display hint).
+            const reparsedOperand = macroBlock.addressingMode === "immediate"
+              ? "#" + newRaw
+              : rewriteOperand(macroBlock.operand || macroBlock.rawOperand);
             const reparsed = _importMakeInstruction(macroBlock.mnemonic, reparsedOperand, new Set(["BEQ","BNE","BCC","BCS","BMI","BPL","BVC","BVS","BRA"]));
             expanded.addressingMode = reparsed.addressingMode;
             expanded.rawOperand = reparsed.rawOperand;
@@ -18750,7 +18776,7 @@ function renderProgram() {
         if (result.canceled || result.error) return;
         program[index].includeFile = result.filePath;
         program[index].includeFileName = result.fileName;
-        program[index].includedBlocks = typeof result.text === "string"
+        program[index].includedBlocks = (typeof result.text === "string" && result.text.trim().length > 0)
           ? parseExpertText(result.text)
           : (result.blocks || []);
         program[index].validationError = "";
@@ -18793,7 +18819,7 @@ function renderProgram() {
         } else {
           program[index].includeFile = isAbsolute ? (result.filePath || typedPath) : typedPath;
           program[index].includeFileName = result.fileName || typedPath;
-          program[index].includedBlocks = typeof result.text === "string"
+          program[index].includedBlocks = (typeof result.text === "string" && result.text.trim().length > 0)
             ? parseExpertText(result.text)
             : (result.blocks || []);
           program[index].validationError = "";

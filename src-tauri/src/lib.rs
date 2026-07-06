@@ -1303,11 +1303,18 @@ async fn reload_include_file(app: AppHandle, file_path: String, base_dir: Option
                         {
                             return serde_json::json!({ "error": "Not a valid C64 Visual Assembler project." });
                         }
-                        serde_json::json!({
-                            "fileName": file_name,
-                            "filePath": resolved.to_string_lossy().to_string(),
-                            "blocks": project["program"]
-                        })
+                        {
+                            let expert_text = project["expertText"].as_str().unwrap_or("");
+                            let mut resp = serde_json::json!({
+                                "fileName": file_name,
+                                "filePath": resolved.to_string_lossy().to_string(),
+                                "blocks": project["program"]
+                            });
+                            if !expert_text.is_empty() {
+                                resp["text"] = serde_json::Value::String(expert_text.to_string());
+                            }
+                            resp
+                        }
                     }
                     Err(e) => serde_json::json!({ "error": e.to_string() }),
                 }

@@ -98,7 +98,20 @@
       "Bash(awk 'NR>=1{print}')",
       "Bash(grep -A1 \"expandedProgram.push\\({ ...block, _isMacroInvokeHeader\")",
       "Bash(grep -n 'return { ok: false, error: \"\\\\|return { ok: false, error: `' F:/Development/VisualAssembler/www/app.js)",
-      "Bash(npm test *)"
+      "Bash(npm test *)",
+      "Bash(grep -n \"operand.*#\\\\\\\\\\\\\\\\{\\\\\\\\|_fromMacroDef\" F:/Development/VisualAssembler/www/app.js)",
+      "Bash(grep -n \"opcodeMap\\\\\\\\[mnem\\\\\\\\]\\\\|mnemLine\\\\.match\\\\|const mnem\\\\\\\\b\\\\|opcodeMap\\\\\\\\[uc\\\\\\\\]\" F:/Development/VisualAssembler/www/app.js)",
+      "Bash(grep -n \"\\\\\"ENDM\\\\\"\\\\\\\\|isMacroDefEnd\" F:/Development/VisualAssembler/samples/macros.json)",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('F:/Development/VisualAssembler/samples/macros.json','utf8'\\)\\); console.log\\('OK'\\)\")",
+      "Bash(node -e \"const j = JSON.parse\\(require\\('fs'\\).readFileSync\\('F:/Development/VisualAssembler/samples/macros.json','utf8'\\)\\); const p = j.program; const idx = p.findIndex\\(b => b.macroName === 'SetColor'\\); console.log\\('SetColor at index', idx\\); console.log\\('Total blocks:', p.length\\); const end = p.slice\\(idx\\).findIndex\\(b => b.isMacroDefEnd\\); console.log\\('End at offset', end, 'index', idx + end\\); const body = p.slice\\(idx, idx + end + 1\\); console.log\\('Body length:', body.length\\); console.log\\('Params:', p[idx].macroParams\\);\")",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('F:/Development/VisualAssembler/samples/include-demo.json','utf8'\\)\\); console.log\\('OK'\\)\")",
+      "Bash(grep -n \"\\\\\"ASL\\\\\"\\\\\\\\|\\\\\"ROL\\\\\"\" F:/Development/VisualAssembler/www/app.js)",
+      "Bash(grep -n \"\\\\\"STA\\\\\"\\\\\\\\|draw_line\" F:/Development/VisualAssembler/samples/box.json)",
+      "Bash(grep \"\\\\\"rawOperand\\\\\": \\\\\"2C\\\\\"\\\\\\\\|\\\\\"rawOperand\\\\\": \\\\\"2D\\\\\"\\\\\\\\|\\\\\"rawOperand\\\\\": \\\\\"2E\\\\\"\\\\\\\\|\\\\\"rawOperand\\\\\": \\\\\"2F\\\\\"\" F:/Development/VisualAssembler/samples/box.json)",
+      "Bash(grep \"\\\\\"rawOperand\\\\\": \\\\\"12\\\\\"\\\\\\\\|\\\\\"rawOperand\\\\\": \\\\\"13\\\\\"\\\\\\\\|\\\\\"rawOperand\\\\\": \\\\\"14\\\\\"\\\\\\\\|\\\\\"rawOperand\\\\\": \\\\\"15\\\\\"\\\\\\\\|\\\\\"rawOperand\\\\\": \\\\\"70\\\\\"\\\\\\\\|\\\\\"rawOperand\\\\\": \\\\\"71\\\\\"\\\\\\\\|\\\\\"rawOperand\\\\\": \\\\\"72\\\\\"\\\\\\\\|\\\\\"rawOperand\\\\\": \\\\\"73\\\\\"\" F:/Development/VisualAssembler/samples/box.json)",
+      "Bash(grep -c \"\\\\\\\\\\\\\\\\\\\\$2C\\\\\\\\|\\\\\\\\\\\\\\\\\\\\$2D\\\\\\\\|\\\\\\\\\\\\\\\\\\\\$2E\\\\\\\\|\\\\\\\\\\\\\\\\\\\\$2F\" F:/Development/VisualAssembler/samples/macros.json)",
+      "Bash(grep -n \"\\\\\\\\\\\\\\\\\\\\$2C\\\\\\\\|\\\\\\\\\\\\\\\\\\\\$2D\\\\\\\\|\\\\\\\\\\\\\\\\\\\\$2E\\\\\\\\|\\\\\\\\\\\\\\\\\\\\$2F\" F:/Development/VisualAssembler/samples/macros.json)",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('F:/Development/VisualAssembler/samples/macros-new.json','utf8'\\)\\); console.log\\('OK'\\)\")"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"
