@@ -4,6 +4,8 @@
     "diskName": "LOADFILEDEMO",
     "extras": [
       {
+        "crunch": false,
+        "decompressAddress": "",
         "loadAddress": "",
         "name": "DEMO-COLORS",
         "sourcePath": "demo-colors.prg"
@@ -16,7 +18,7 @@
       "addressingMode": "implied",
       "base": "hex",
       "category": "Makrok",
-      "collapsed": false,
+      "collapsed": true,
       "description": "Fordítási cím beállítása",
       "id": "cdfcab67-9d60-43ba-b22c-436b84182099",
       "isOrgMacro": true,
@@ -512,9 +514,10 @@
     "language": "en",
     "numberBase": "hex",
     "outputMode": "asm",
+    "runMode": "d64",
     "sample": "loadfile-demo",
-    "theme": "light",
-    "zoom": 0.98
+    "theme": "oled",
+    "zoom": 1.25
   },
   "version": 1
 }

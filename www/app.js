@@ -4956,12 +4956,16 @@ function _blockToExpertLine(block) {
     return `.until ${reg} ${op} ${val}`;
   }
   if (block.isMemCpyMacro) {
-    const fmtToken = v => /^[A-Za-z_]/.test(v || "") ? v : "$" + (v || "0").replace(/^\$/, "").toUpperCase();
-    return `.memcpy src=${fmtToken(block.memcpySrc || "C000")}, dst=${fmtToken(block.memcpyDst || "0400")}, size=${fmtToken(block.memcpySize || "0100")}`;
+    // fmtAddrToken: cím mezőkhöz – _importNormalizeAddressToken stripeli a $-t, vissza kell tenni
+    const fmtAddrToken = v => /^[A-Za-z_]/.test(v || "") ? v : "$" + (v || "0").replace(/^\$/, "").toUpperCase();
+    // fmtSizeToken: size/value mezőkhöz – _importNormalizeSizeToken megőrzi a $-t, ne duplázzuk
+    const fmtSizeToken = v => /^[A-Za-z_]/.test(v || "") ? v : (v || "0");
+    return `.memcpy src=${fmtAddrToken(block.memcpySrc || "C000")}, dst=${fmtAddrToken(block.memcpyDst || "0400")}, size=${fmtSizeToken(block.memcpySize || "$0100")}`;
   }
   if (block.isMemSetMacro) {
-    const fmtToken = v => /^[A-Za-z_]/.test(v || "") ? v : "$" + (v || "0").replace(/^\$/, "").toUpperCase();
-    return `.memset addr=${fmtToken(block.memsetDst || "0400")}, value=${fmtToken(block.memsetValue || "00")}, size=${fmtToken(block.memsetSize || "03E8")}`;
+    const fmtAddrToken = v => /^[A-Za-z_]/.test(v || "") ? v : "$" + (v || "0").replace(/^\$/, "").toUpperCase();
+    const fmtSizeToken = v => /^[A-Za-z_]/.test(v || "") ? v : (v || "0");
+    return `.memset addr=${fmtAddrToken(block.memsetDst || "0400")}, value=${fmtSizeToken(block.memsetValue || "$20")}, size=${fmtSizeToken(block.memsetSize || "1000")}`;
   }
   if (block.isPrintMacro) return `.print "${block.rawOperand || ""}"${block.printCharset === "lower" ? ", lower" : ""}`;
   if (block.isPrintCharMacro) return `.print_char ${block.rawOperand || "$41"}`;
