@@ -19685,15 +19685,15 @@ function renderProgram() {
         `<div class="macro-grid">
           <label class="mini-field">
             <span>${t("fieldSource")}</span>
-            <input class="memcpy-src has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memcpySrc || "C000"}" placeholder="$C000 / src_label">
+            <input class="memcpy-src block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memcpySrc || "C000"}" placeholder="$C000 / src_label">
           </label>
           <label class="mini-field">
             <span>${t("fieldDestination")}</span>
-            <input class="memcpy-dst has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memcpyDst || "0400"}" placeholder="$0400 / dst_label">
+            <input class="memcpy-dst block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memcpyDst || "0400"}" placeholder="$0400 / dst_label">
           </label>
           <label class="mini-field">
             <span>${t("fieldSize")}</span>
-            <input class="memcpy-size has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memcpySize || "0100"}" placeholder="$0100 / size_const">
+            <input class="memcpy-size block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memcpySize || "0100"}" placeholder="$0100 / size_const">
           </label>
         </div>`
       );
@@ -19704,15 +19704,15 @@ function renderProgram() {
         `<div class="macro-grid">
           <label class="mini-field">
             <span>${t("fieldAddress")}</span>
-            <input class="memset-dst has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memsetDst || "0400"}" placeholder="$0400 / dst_label">
+            <input class="memset-dst block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memsetDst || "0400"}" placeholder="$0400 / dst_label">
           </label>
           <label class="mini-field">
             <span>${t("value")}</span>
-            <input class="memset-value has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memsetValue || "20"}" placeholder="20 / FF / value_const">
+            <input class="memset-value block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memsetValue || "20"}" placeholder="20 / FF / value_const">
           </label>
           <label class="mini-field">
             <span>${t("fieldSize")}</span>
-            <input class="memset-size has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memsetSize || "03E8"}" placeholder="$03E8 / size_const">
+            <input class="memset-size block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memsetSize || "03E8"}" placeholder="$03E8 / size_const">
           </label>
         </div>`
       );
