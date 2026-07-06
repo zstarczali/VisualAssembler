@@ -377,8 +377,8 @@ Lásd `tauri-bridge.js` és `src-tauri/src/lib.rs`. Leggyakoribb commands:
 
 ## 14. Jelenlegi verzió
 
-`2.1.6` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
+`2.1.7` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `CLAUDE.md`, és ez a fájl + copilot-instructions.md.
-Fő 2.1.6 változások: custom CSS tooltip bekötése minden hiányzó gombra (project star/del, tab close/new, block action gombok, collapse toggle); auto-snapshot on/off kapcsoló a Hardware Settings → Snapshot szekcióban; macOS sötét mód scrollbar fix (WKWebView `color-scheme: dark`); rotcube minta ZP,X addressing-mode glitch javítás.
+Fő 2.1.7 változás (hotfix): MEMCPY és MEMSET blokkok input mezőin (src/dst/value/size) most már megjelenik a label/const választó lenyíló nyíl — a `block-operand` osztály hiányzott a `has-label-picker` mellől.
 
 Verziónöveléshez lásd a 3. szakasz végén lévő 7-lépéses checklistet.

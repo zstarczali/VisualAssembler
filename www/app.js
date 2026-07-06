@@ -4412,7 +4412,7 @@ function createBlockFromMnemonic(item) {
       isMemCpyMacro: true,
       memcpySrc: "C000",
       memcpyDst: "0400",
-      memcpySize: "0100"
+      memcpySize: "$0100"
     };
   }
 
@@ -4426,8 +4426,8 @@ function createBlockFromMnemonic(item) {
       validationError: "", collapsed: true,
       isMemSetMacro: true,
       memsetDst: "0400",
-      memsetValue: "20",
-      memsetSize: "03E8"
+      memsetValue: "$20",
+      memsetSize: "1000"
     };
   }
 
@@ -4956,12 +4956,16 @@ function _blockToExpertLine(block) {
     return `.until ${reg} ${op} ${val}`;
   }
   if (block.isMemCpyMacro) {
-    const fmtToken = v => /^[A-Za-z_]/.test(v || "") ? v : "$" + (v || "0").replace(/^\$/, "").toUpperCase();
-    return `.memcpy src=${fmtToken(block.memcpySrc || "C000")}, dst=${fmtToken(block.memcpyDst || "0400")}, size=${fmtToken(block.memcpySize || "0100")}`;
+    // fmtAddrToken: cím mezőkhöz – _importNormalizeAddressToken stripeli a $-t, vissza kell tenni
+    const fmtAddrToken = v => /^[A-Za-z_]/.test(v || "") ? v : "$" + (v || "0").replace(/^\$/, "").toUpperCase();
+    // fmtSizeToken: size/value mezőkhöz – _importNormalizeSizeToken megőrzi a $-t, ne duplázzuk
+    const fmtSizeToken = v => /^[A-Za-z_]/.test(v || "") ? v : (v || "0");
+    return `.memcpy src=${fmtAddrToken(block.memcpySrc || "C000")}, dst=${fmtAddrToken(block.memcpyDst || "0400")}, size=${fmtSizeToken(block.memcpySize || "$0100")}`;
   }
   if (block.isMemSetMacro) {
-    const fmtToken = v => /^[A-Za-z_]/.test(v || "") ? v : "$" + (v || "0").replace(/^\$/, "").toUpperCase();
-    return `.memset addr=${fmtToken(block.memsetDst || "0400")}, value=${fmtToken(block.memsetValue || "00")}, size=${fmtToken(block.memsetSize || "03E8")}`;
+    const fmtAddrToken = v => /^[A-Za-z_]/.test(v || "") ? v : "$" + (v || "0").replace(/^\$/, "").toUpperCase();
+    const fmtSizeToken = v => /^[A-Za-z_]/.test(v || "") ? v : (v || "0");
+    return `.memset addr=${fmtAddrToken(block.memsetDst || "0400")}, value=${fmtSizeToken(block.memsetValue || "$20")}, size=${fmtSizeToken(block.memsetSize || "1000")}`;
   }
   if (block.isPrintMacro) return `.print "${block.rawOperand || ""}"${block.printCharset === "lower" ? ", lower" : ""}`;
   if (block.isPrintCharMacro) return `.print_char ${block.rawOperand || "$41"}`;
@@ -5369,6 +5373,7 @@ function _expertAcInsert(value, kind) {
   ta.value = before.slice(0, replaceFrom) + replaceWith + after;
   const newPos = replaceFrom + replaceWith.length;
   ta.selectionStart = ta.selectionEnd = newPos;
+  _expertSyncSourceTextFromEditor();  // ta.value közvetlen módosítása nem triggerel input eventet
   _expertAcHide();
   _expertApplyHighlight();
   _expertValidate();
@@ -6346,7 +6351,17 @@ function _expertUpdateRegionFolds() {
     btn.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      if (entry.programIndex >= 0) toggleRegionCollapsed(entry.programIndex);
+      let pidx = entry.programIndex;
+      if (pidx < 0) {
+        // Új region expert módban begépelve: program[] még nem tartalmazza.
+        // Rebuild program a forrásból, fold state megőrzésével, majd toggle.
+        const newBlocks = _expertBuildProgram();
+        _expertCopyRegionFoldState(program, newBlocks);
+        program = newBlocks;
+        _expertStampRegionFoldSignatures(program);
+        pidx = program.findIndex(b => b.isRegionMacro && b._regionFoldSig === entry.sig);
+      }
+      if (pidx >= 0) toggleRegionCollapsed(pidx);
       _expertApplyHighlight();
       _expertUpdateRegionFolds();
       expertEditor.focus();
@@ -7044,7 +7059,7 @@ function parseExpertText(text) {
         isMemCpyMacro: true,
         memcpySrc: _importNormalizeAddressToken(memcpyM[1]),
         memcpyDst: _importNormalizeAddressToken(memcpyM[2]),
-        memcpySize: _importNormalizeAddressToken(memcpyM[3])
+        memcpySize: _importNormalizeSizeToken(memcpyM[3])
       });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
@@ -7060,8 +7075,8 @@ function parseExpertText(text) {
         validationError: "", collapsed: true,
         isMemSetMacro: true,
         memsetDst: _importNormalizeAddressToken(memsetM[1]),
-        memsetValue: memsetM[2].trim().replace(/^#?\$/, "").toUpperCase(),
-        memsetSize: _importNormalizeAddressToken(memsetM[3])
+        memsetValue: _importNormalizeSizeToken(memsetM[2].trim().replace(/^#/, "")),
+        memsetSize: _importNormalizeSizeToken(memsetM[3])
       });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
@@ -7977,6 +7992,38 @@ function _buildDisasmHTML() {
       if (!compiled.ok) continue;
 
       const block = line.block;
+
+      // INCBIN: deferred binary file — show hex dump at incBinAddress
+      if (block.isIncBinMacro) {
+        const incBytes = Array.isArray(block.incBinBytes) ? block.incBinBytes : [];
+        const incAddr = parseMacroAddress(block.incBinAddress || "$C000", labelMap) ?? 0xC000;
+        const incAddrHex = incAddr.toString(16).toUpperCase().padStart(4, "0");
+        if (incBytes.length === 0) {
+          lines.push(`<span class="dsm-addr">$${incAddrHex}</span>  <span class="asm-tok-comment">; INCBIN "${esc(block.incBinFileName || "?")}" (not loaded)</span>`);
+        } else {
+          const MAX_SHOW = 256;
+          const showBytes = incBytes.slice(0, MAX_SHOW);
+          const DCHUNK = 8;
+          const DCOLW = DCHUNK * 3 - 1;
+          const isShort = showBytes.length <= DCHUNK;
+          for (let ci = 0; ci < showBytes.length; ci += DCHUNK) {
+            const chunk = showBytes.slice(ci, ci + DCHUNK);
+            const chunkAddrHex = (incAddr + ci).toString(16).toUpperCase().padStart(4, "0");
+            const hexDump = chunk.map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+            const padTo = isShort ? Math.max(hexDump.length, 8) : DCOLW;
+            lines.push(
+              `<span class="dsm-addr">$${chunkAddrHex}</span>  ` +
+              `<span class="dsm-bytes">${hexDump.padEnd(padTo)}</span>  ` +
+              `<span class="asm-tok-mnemonic">.BYTE</span>  ` +
+              `<span class="asm-tok-operand">${esc(chunk.map(b => "$" + b.toString(16).toUpperCase().padStart(2, "0")).join(", "))}</span>`
+            );
+          }
+          if (incBytes.length > MAX_SHOW) {
+            lines.push(`<span class="asm-tok-comment">; ... ${incBytes.length - MAX_SHOW} more bytes (${esc(block.incBinFileName || "?")})</span>`);
+          }
+        }
+        continue;
+      }
 
       // Deferred data blocks: RAWBYTES, RAWTEXT, PETSCII — no inline code; show data at target address
       if (block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro) {
@@ -9254,6 +9301,20 @@ function updateProgramBlock(index, field, value) {
     return;
   }
 
+  if (block.isMemCpyMacro && (field === "memcpySrc" || field === "memcpyDst" || field === "memcpySize")) {
+    block.validationError = validateMemCpyMacro(block.memcpySrc, block.memcpyDst, block.memcpySize);
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isMemSetMacro && (field === "memsetDst" || field === "memsetValue" || field === "memsetSize")) {
+    block.validationError = validateMemSetMacro(block.memsetDst, block.memsetValue, block.memsetSize);
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
   if (block.isTurboSetMacro && (field === "turboSpeed" || field === "turboBadline")) {
     const spd = parseInt(block.turboSpeed || "7", 10);
     block.validationError = (isNaN(spd) || spd < 0 || spd > 15)
@@ -10070,6 +10131,38 @@ function validateSpritePosMacro(spriteNum, spriteX, spriteY) {
   const y = resolveProgramValueWithConst(spriteY, "dec");
   if (y === null || y < 0 || y > 255) {
     return t("yMustBe0255");
+  }
+  return "";
+}
+
+function validateMemCpyMacro(srcRaw, dstRaw, sizeRaw) {
+  const src = parseMacroAddress(srcRaw || "C000");
+  if (src === null || src < 0 || src > 0xFFFF) {
+    return t("invalidSourceAddress");
+  }
+  const dst = parseMacroAddress(dstRaw || "0400");
+  if (dst === null || dst < 0 || dst > 0xFFFF) {
+    return t("invalidDestinationAddress");
+  }
+  const size = parseMacroCountOrSize(sizeRaw || "0", null);
+  if (size === null || size < 1 || size > 0xFFFF) {
+    return t("lengthMustBe0001Ffff");
+  }
+  return "";
+}
+
+function validateMemSetMacro(dstRaw, valueRaw, sizeRaw) {
+  const dst = parseMacroAddress(dstRaw || "0400");
+  if (dst === null || dst < 0 || dst > 0xFFFF) {
+    return t("c64AddressMustBe0000Ffff");
+  }
+  const value = parseMacroCountOrSize(valueRaw || "0", null);
+  if (value === null || value < 0 || value > 0xFF) {
+    return t("valueMustBe0255");
+  }
+  const size = parseMacroCountOrSize(sizeRaw || "0", null);
+  if (size === null || size < 1 || size > 0xFFFF) {
+    return t("lengthMustBe0001Ffff");
   }
   return "";
 }
@@ -12791,6 +12884,17 @@ function _importNormalizeAddressToken(raw) {
   return /^[0-9A-Fa-f]+$/.test(token) ? token.toUpperCase() : token;
 }
 
+// Méret/érték tokenekhez: megőrzi a $ prefixet, hogy parseMacroCountOrSize
+// különbséget tegyen hex ($0100=256) és decimális (1000=1000) között.
+// Tisztán decimális (0-9) → megőrzi; A-F tartalmú → $ prefixet kap; $ prefix → megőrzi.
+function _importNormalizeSizeToken(raw) {
+  const token = String(raw || "").trim();
+  if (token.startsWith("$")) return token.toUpperCase();
+  if (/[A-Fa-f]/.test(token)) return ("$" + token).toUpperCase();
+  if (/^[0-9]+$/.test(token)) return token;  // tisztán decimális: változatlan
+  return token;  // label
+}
+
 function _importMakeRegion(name) {
   return {
     id: crypto.randomUUID(),
@@ -15377,7 +15481,7 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isMemCpyMacro) {
-    const size = parseMacroNumber(block.memcpySize || "0", labels, "hex");
+    const size = parseMacroCountOrSize(block.memcpySize || "0", labels);
     const src = parseMacroAddress(block.memcpySrc || "C000", labels);
     const dst = parseMacroAddress(block.memcpyDst || "0400", labels);
     if (!size || src === null || dst === null) {
@@ -15411,8 +15515,8 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isMemSetMacro) {
-    const size = parseMacroNumber(block.memsetSize || "0", labels, "hex");
-    const value = parseMacroNumber(block.memsetValue || "0", labels, "hex");
+    const size = parseMacroCountOrSize(block.memsetSize || "0", labels);
+    const value = parseMacroCountOrSize(block.memsetValue || "0", labels);
     const dst = parseMacroAddress(block.memsetDst || "0400", labels);
     if (!size || dst === null) {
       return { ok: false, error: `MEMSET: invalid dst/size` };
@@ -15824,23 +15928,39 @@ function parseNumberByBase(value, base) {
   return /^-?\d+$/.test(value) ? Number(value) : null;
 }
 
+// Size/count parser: ha nincs $ prefix és nincs A-F betű → decimális, egyébként hex.
+// Így size=1000 → 1000 dec, size=$03E8 → 1000 hex, size=03E8 → 1000 hex (van E betű).
+function parseMacroCountOrSize(raw, labels = null) {
+  const text = String(raw ?? "").trim().replace(/^#/, "");
+  if (!text) return null;
+  if (text.startsWith("$") || /^0x/i.test(text) || /[A-Fa-f]/.test(text)) {
+    return parseMacroNumber(raw, labels, "hex");
+  }
+  if (/^[0-9]+$/.test(text)) return Number.parseInt(text, 10);
+  return parseMacroNumber(raw, labels, "hex");
+}
+
 function parseMacroNumber(raw, labels = null, fallbackBase = "hex") {
   const text = String(raw ?? "").trim();
   if (!text) return null;
-  const parsed = parseNumberByBase(text.replace(/^#/, "").replace(fallbackBase === "hex" ? /^\$/ : /^$/, ""), fallbackBase);
+  const normalized = text.replace(/^#/, "");
+  const parsed = parseNumberByBase(normalized.replace(fallbackBase === "hex" ? /^\$/ : /^$/, ""), fallbackBase);
   if (parsed !== null) return parsed;
-  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(text)) {
-    if (!labels) return null;
-    return labels.get(text)
-      ?? labels.get(text.toLowerCase())
-      ?? labels.get(text.toUpperCase())
-      ?? null;
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(normalized)) {
+    const labelValue = labels
+      ? (labels.get(normalized)
+        ?? labels.get(normalized.toLowerCase())
+        ?? labels.get(normalized.toUpperCase())
+        ?? null)
+      : null;
+    if (labelValue !== null) return labelValue;
+    return resolveProgramConstValue(normalized);
   }
   return null;
 }
 
 function resolveProgramConstValue(name) {
-  const target = String(name ?? "").trim();
+  const target = String(name ?? "").trim().replace(/^#/, "");
   if (!target) return null;
   const lower = target.toLowerCase();
   for (const block of program) {
@@ -15864,8 +15984,8 @@ function resolveProgramValueWithConst(raw, fallbackBase = "hex") {
   const normalized = text.replace(/^#/, "").replace(fallbackBase === "hex" ? /^\$/ : /^$/, "");
   const parsed = parseNumberByBase(normalized, fallbackBase);
   if (parsed !== null) return parsed;
-  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(text)) {
-    return resolveProgramConstValue(text);
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(normalized)) {
+    return resolveProgramConstValue(normalized);
   }
   return null;
 }
@@ -16014,7 +16134,9 @@ function formatDelayFramesValue(raw) {
 function parseMacroAddress(raw, labels = null) {
   const text = String(raw ?? "").trim();
   if (!text) return null;
-  return parseAddressValue(text, labels);
+  const parsed = parseAddressValue(text, labels);
+  if (parsed !== null) return parsed;
+  return resolveProgramConstValue(text);
 }
 
 function compileAbsoluteStore(addr, value) {
@@ -16449,14 +16571,14 @@ function getInstructionSize(block) {
   }
 
   if (block.isMemCpyMacro) {
-    const size = parseMacroNumber(block.memcpySize || "0", null, "hex");
+    const size = parseMacroCountOrSize(block.memcpySize || "0", null);
     if (!size) return 0;
     const fullPages = Math.floor(size / 256);
     const partial = size % 256;
     return fullPages * 11 + (partial > 0 ? 13 : 0);
   }
   if (block.isMemSetMacro) {
-    const size = parseMacroNumber(block.memsetSize || "0", null, "hex");
+    const size = parseMacroCountOrSize(block.memsetSize || "0", null);
     if (!size) return 0;
     const fullPages = Math.floor(size / 256);
     const partial = size % 256;
@@ -17808,6 +17930,20 @@ function getCollapsedOperandText(block) {
   }
   if (block.isDelayMacro) {
     return formatDelayFramesValue(block.delayFrames || "1");
+  }
+
+  if (block.isMemCpyMacro) {
+    const src = (block.memcpySrc || "C000").replace(/^\$/, "").toUpperCase();
+    const dst = (block.memcpyDst || "0400").replace(/^\$/, "").toUpperCase();
+    const size = (block.memcpySize || "0100").replace(/^\$/, "").toUpperCase();
+    return `$${src}→$${dst} len=$${size}`;
+  }
+
+  if (block.isMemSetMacro) {
+    const dst = (block.memsetDst || "0400").replace(/^\$/, "").toUpperCase();
+    const value = (String(block.memsetValue || "20").trim().replace(/^#?\$/, "") || "20").toUpperCase();
+    const size = (block.memsetSize || "03E8").replace(/^\$/, "").toUpperCase();
+    return `$${dst}=$${value} len=$${size}`;
   }
 
   if (block.isTurboSetMacro) {
@@ -19549,15 +19685,15 @@ function renderProgram() {
         `<div class="macro-grid">
           <label class="mini-field">
             <span>${t("fieldSource")}</span>
-            <input class="memcpy-src has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memcpySrc || "C000"}" placeholder="$C000 / src_label">
+            <input class="memcpy-src block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memcpySrc || "C000"}" placeholder="$C000 / src_label">
           </label>
           <label class="mini-field">
             <span>${t("fieldDestination")}</span>
-            <input class="memcpy-dst has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memcpyDst || "0400"}" placeholder="$0400 / dst_label">
+            <input class="memcpy-dst block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memcpyDst || "0400"}" placeholder="$0400 / dst_label">
           </label>
           <label class="mini-field">
             <span>${t("fieldSize")}</span>
-            <input class="memcpy-size has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memcpySize || "0100"}" placeholder="$0100 / size_const">
+            <input class="memcpy-size block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memcpySize || "0100"}" placeholder="$0100 / size_const">
           </label>
         </div>`
       );
@@ -19568,15 +19704,15 @@ function renderProgram() {
         `<div class="macro-grid">
           <label class="mini-field">
             <span>${t("fieldAddress")}</span>
-            <input class="memset-dst has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memsetDst || "0400"}" placeholder="$0400 / dst_label">
+            <input class="memset-dst block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memsetDst || "0400"}" placeholder="$0400 / dst_label">
           </label>
           <label class="mini-field">
             <span>${t("value")}</span>
-            <input class="memset-value has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memsetValue || "20"}" placeholder="20 / FF / value_const">
+            <input class="memset-value block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memsetValue || "20"}" placeholder="20 / FF / value_const">
           </label>
           <label class="mini-field">
             <span>${t("fieldSize")}</span>
-            <input class="memset-size has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memsetSize || "03E8"}" placeholder="$03E8 / size_const">
+            <input class="memset-size block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memsetSize || "03E8"}" placeholder="$03E8 / size_const">
           </label>
         </div>`
       );

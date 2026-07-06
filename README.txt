@@ -1,9 +1,9 @@
 C64 Visual Assembler - Installation Guide
-Version 2.1.6
+Version 2.1.7
 Support: https://zstarczali.itch.io/visual-assembler-commodore-64
 ==========================================================================
 
-2.1.6: custom CSS tooltips wired to all remaining buttons (project star/delete, tab close/new, block action buttons, collapse toggle); auto-snapshot on/off toggle in Hardware Settings → Snapshot; dark-mode scrollbar fix for macOS (WKWebView color-scheme); rotcube sample addressing-mode glitch fixed.
+2.1.7 (hotfix): MEMCPY and MEMSET blocks in Block mode now show the label/const dropdown chevron on their input fields, matching every other macro block.
 
 
 ==========================================================================
@@ -15,7 +15,7 @@ Tested on Ubuntu 22.04 and 24.04.
 -----------------------
 Download the .deb package from the releases page and install:
 
-  sudo dpkg -i "c64-visual-assembler_2.1.6_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.1.7_amd64.deb"
   sudo apt-get install -f   # fix any missing dependencies
 
 Launch from the Applications menu or:
@@ -108,7 +108,7 @@ Requirements: macOS 11.0+, Apple Silicon (M1/M2/M3)
 
 1. C64 Visual Assembler
 -----------------------
-1. Download the 2.1.6 DMG for your architecture from the releases page
+1. Download the 2.1.7 DMG for your architecture from the releases page
 2. Mount the DMG and drag the app to /Applications
 3. First launch: Right-click the app -> "Open" (macOS will block double-click)
 4. Click "Open" in the security dialog
