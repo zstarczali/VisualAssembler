@@ -4412,7 +4412,7 @@ function createBlockFromMnemonic(item) {
       isMemCpyMacro: true,
       memcpySrc: "C000",
       memcpyDst: "0400",
-      memcpySize: "0100"
+      memcpySize: "$0100"
     };
   }
 
@@ -4426,8 +4426,8 @@ function createBlockFromMnemonic(item) {
       validationError: "", collapsed: true,
       isMemSetMacro: true,
       memsetDst: "0400",
-      memsetValue: "20",
-      memsetSize: "03E8"
+      memsetValue: "$20",
+      memsetSize: "1000"
     };
   }
 
@@ -6346,7 +6346,17 @@ function _expertUpdateRegionFolds() {
     btn.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      if (entry.programIndex >= 0) toggleRegionCollapsed(entry.programIndex);
+      let pidx = entry.programIndex;
+      if (pidx < 0) {
+        // Új region expert módban begépelve: program[] még nem tartalmazza.
+        // Rebuild program a forrásból, fold state megőrzésével, majd toggle.
+        const newBlocks = _expertBuildProgram();
+        _expertCopyRegionFoldState(program, newBlocks);
+        program = newBlocks;
+        _expertStampRegionFoldSignatures(program);
+        pidx = program.findIndex(b => b.isRegionMacro && b._regionFoldSig === entry.sig);
+      }
+      if (pidx >= 0) toggleRegionCollapsed(pidx);
       _expertApplyHighlight();
       _expertUpdateRegionFolds();
       expertEditor.focus();
@@ -7044,7 +7054,7 @@ function parseExpertText(text) {
         isMemCpyMacro: true,
         memcpySrc: _importNormalizeAddressToken(memcpyM[1]),
         memcpyDst: _importNormalizeAddressToken(memcpyM[2]),
-        memcpySize: _importNormalizeAddressToken(memcpyM[3])
+        memcpySize: _importNormalizeSizeToken(memcpyM[3])
       });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
@@ -7060,8 +7070,8 @@ function parseExpertText(text) {
         validationError: "", collapsed: true,
         isMemSetMacro: true,
         memsetDst: _importNormalizeAddressToken(memsetM[1]),
-        memsetValue: memsetM[2].trim().replace(/^#?\$/, "").toUpperCase(),
-        memsetSize: _importNormalizeAddressToken(memsetM[3])
+        memsetValue: _importNormalizeSizeToken(memsetM[2].trim().replace(/^#/, "")),
+        memsetSize: _importNormalizeSizeToken(memsetM[3])
       });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
@@ -10097,7 +10107,7 @@ function validateMemCpyMacro(srcRaw, dstRaw, sizeRaw) {
   if (dst === null || dst < 0 || dst > 0xFFFF) {
     return t("invalidDestinationAddress");
   }
-  const size = parseMacroNumber(sizeRaw || "0", null, "hex");
+  const size = parseMacroCountOrSize(sizeRaw || "0", null);
   if (size === null || size < 1 || size > 0xFFFF) {
     return t("lengthMustBe0001Ffff");
   }
@@ -10109,11 +10119,11 @@ function validateMemSetMacro(dstRaw, valueRaw, sizeRaw) {
   if (dst === null || dst < 0 || dst > 0xFFFF) {
     return t("c64AddressMustBe0000Ffff");
   }
-  const value = parseMacroNumber(valueRaw || "0", null, "hex");
+  const value = parseMacroCountOrSize(valueRaw || "0", null);
   if (value === null || value < 0 || value > 0xFF) {
-    return t("valueMustBeAHexByte00Ff");
+    return t("valueMustBe0255");
   }
-  const size = parseMacroNumber(sizeRaw || "0", null, "hex");
+  const size = parseMacroCountOrSize(sizeRaw || "0", null);
   if (size === null || size < 1 || size > 0xFFFF) {
     return t("lengthMustBe0001Ffff");
   }
@@ -12837,6 +12847,17 @@ function _importNormalizeAddressToken(raw) {
   return /^[0-9A-Fa-f]+$/.test(token) ? token.toUpperCase() : token;
 }
 
+// Méret/érték tokenekhez: megőrzi a $ prefixet, hogy parseMacroCountOrSize
+// különbséget tegyen hex ($0100=256) és decimális (1000=1000) között.
+// Tisztán decimális (0-9) → megőrzi; A-F tartalmú → $ prefixet kap; $ prefix → megőrzi.
+function _importNormalizeSizeToken(raw) {
+  const token = String(raw || "").trim();
+  if (token.startsWith("$")) return token.toUpperCase();
+  if (/[A-Fa-f]/.test(token)) return ("$" + token).toUpperCase();
+  if (/^[0-9]+$/.test(token)) return token;  // tisztán decimális: változatlan
+  return token;  // label
+}
+
 function _importMakeRegion(name) {
   return {
     id: crypto.randomUUID(),
@@ -15423,7 +15444,7 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isMemCpyMacro) {
-    const size = parseMacroNumber(block.memcpySize || "0", labels, "hex");
+    const size = parseMacroCountOrSize(block.memcpySize || "0", labels);
     const src = parseMacroAddress(block.memcpySrc || "C000", labels);
     const dst = parseMacroAddress(block.memcpyDst || "0400", labels);
     if (!size || src === null || dst === null) {
@@ -15457,8 +15478,8 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isMemSetMacro) {
-    const size = parseMacroNumber(block.memsetSize || "0", labels, "hex");
-    const value = parseMacroNumber(block.memsetValue || "0", labels, "hex");
+    const size = parseMacroCountOrSize(block.memsetSize || "0", labels);
+    const value = parseMacroCountOrSize(block.memsetValue || "0", labels);
     const dst = parseMacroAddress(block.memsetDst || "0400", labels);
     if (!size || dst === null) {
       return { ok: false, error: `MEMSET: invalid dst/size` };
@@ -15868,6 +15889,18 @@ function parseNumberByBase(value, base) {
   }
 
   return /^-?\d+$/.test(value) ? Number(value) : null;
+}
+
+// Size/count parser: ha nincs $ prefix és nincs A-F betű → decimális, egyébként hex.
+// Így size=1000 → 1000 dec, size=$03E8 → 1000 hex, size=03E8 → 1000 hex (van E betű).
+function parseMacroCountOrSize(raw, labels = null) {
+  const text = String(raw ?? "").trim().replace(/^#/, "");
+  if (!text) return null;
+  if (text.startsWith("$") || /^0x/i.test(text) || /[A-Fa-f]/.test(text)) {
+    return parseMacroNumber(raw, labels, "hex");
+  }
+  if (/^[0-9]+$/.test(text)) return Number.parseInt(text, 10);
+  return parseMacroNumber(raw, labels, "hex");
 }
 
 function parseMacroNumber(raw, labels = null, fallbackBase = "hex") {
@@ -16501,14 +16534,14 @@ function getInstructionSize(block) {
   }
 
   if (block.isMemCpyMacro) {
-    const size = parseMacroNumber(block.memcpySize || "0", null, "hex");
+    const size = parseMacroCountOrSize(block.memcpySize || "0", null);
     if (!size) return 0;
     const fullPages = Math.floor(size / 256);
     const partial = size % 256;
     return fullPages * 11 + (partial > 0 ? 13 : 0);
   }
   if (block.isMemSetMacro) {
-    const size = parseMacroNumber(block.memsetSize || "0", null, "hex");
+    const size = parseMacroCountOrSize(block.memsetSize || "0", null);
     if (!size) return 0;
     const fullPages = Math.floor(size / 256);
     const partial = size % 256;
