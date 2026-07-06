@@ -4956,16 +4956,48 @@ function _blockToExpertLine(block) {
     return `.until ${reg} ${op} ${val}`;
   }
   if (block.isMemCpyMacro) {
-    // fmtAddrToken: cím mezőkhöz – _importNormalizeAddressToken stripeli a $-t, vissza kell tenni
-    const fmtAddrToken = v => /^[A-Za-z_]/.test(v || "") ? v : "$" + (v || "0").replace(/^\$/, "").toUpperCase();
-    // fmtSizeToken: size/value mezőkhöz – _importNormalizeSizeToken megőrzi a $-t, ne duplázzuk
-    const fmtSizeToken = v => /^[A-Za-z_]/.test(v || "") ? v : (v || "0");
-    return `.memcpy src=${fmtAddrToken(block.memcpySrc || "C000")}, dst=${fmtAddrToken(block.memcpyDst || "0400")}, size=${fmtSizeToken(block.memcpySize || "$0100")}`;
+    const mBase = block.base || "hex";
+    // Cím mezők: expert szintaxishoz canonikus hex $XXXX formára hozzuk, hogy roundtrip helyes legyen
+    const fmtAddr = v => {
+      const s = String(v || "").trim();
+      if (!s || /^[A-Za-z_]/.test(s)) return s || "0";
+      const n = parseMacroAddress(s, null, mBase);
+      if (n === null || isNaN(n)) return "$" + s.replace(/^\$/, "").toUpperCase();
+      return "$" + n.toString(16).toUpperCase().padStart(4, "0");
+    };
+    const fmtSize = v => {
+      const s = String(v || "").trim();
+      if (!s || /^[A-Za-z_]/.test(s)) return s || "0";
+      const n = parseMacroCountOrSize(s, null, mBase);
+      if (n === null || isNaN(n)) return s;
+      return "$" + n.toString(16).toUpperCase();
+    };
+    return `.memcpy src=${fmtAddr(block.memcpySrc || "C000")}, dst=${fmtAddr(block.memcpyDst || "0400")}, size=${fmtSize(block.memcpySize || "$0100")}`;
   }
   if (block.isMemSetMacro) {
-    const fmtAddrToken = v => /^[A-Za-z_]/.test(v || "") ? v : "$" + (v || "0").replace(/^\$/, "").toUpperCase();
-    const fmtSizeToken = v => /^[A-Za-z_]/.test(v || "") ? v : (v || "0");
-    return `.memset addr=${fmtAddrToken(block.memsetDst || "0400")}, value=${fmtSizeToken(block.memsetValue || "$20")}, size=${fmtSizeToken(block.memsetSize || "1000")}`;
+    const mBase = block.base || "hex";
+    const fmtAddr = v => {
+      const s = String(v || "").trim();
+      if (!s || /^[A-Za-z_]/.test(s)) return s || "0";
+      const n = parseMacroAddress(s, null, mBase);
+      if (n === null || isNaN(n)) return "$" + s.replace(/^\$/, "").toUpperCase();
+      return "$" + n.toString(16).toUpperCase().padStart(4, "0");
+    };
+    const fmtVal = v => {
+      const s = String(v || "").trim().replace(/^#/, "");
+      if (!s || /^[A-Za-z_]/.test(s)) return s || "0";
+      const n = parseMacroCountOrSize(s, null, mBase);
+      if (n === null || isNaN(n)) return s;
+      return "$" + (n & 0xFF).toString(16).toUpperCase().padStart(2, "0");
+    };
+    const fmtSize = v => {
+      const s = String(v || "").trim();
+      if (!s || /^[A-Za-z_]/.test(s)) return s || "0";
+      const n = parseMacroCountOrSize(s, null, mBase);
+      if (n === null || isNaN(n)) return s;
+      return "$" + n.toString(16).toUpperCase();
+    };
+    return `.memset addr=${fmtAddr(block.memsetDst || "0400")}, value=${fmtVal(block.memsetValue || "$20")}, size=${fmtSize(block.memsetSize || "1000")}`;
   }
   if (block.isPrintMacro) return `.print "${block.rawOperand || ""}"${block.printCharset === "lower" ? ", lower" : ""}`;
   if (block.isPrintCharMacro) return `.print_char ${block.rawOperand || "$41"}`;
@@ -9455,6 +9487,15 @@ function updateProgramBlock(index, field, value) {
   if (block.isTableMacro && (field === "tableName" || field === "tableAddress")) {
     if (field === "tableName") {
       block.tableName = sanitizeLabelName(value);
+    }
+    if (field === "tableAddress") {
+      const tblBase = block.base || "hex";
+      if (tblBase === "dec") {
+        const parsed = parseInt(value, 10);
+        block.tableAddress = !isNaN(parsed) ? parsed.toString(16).toUpperCase().padStart(4, "0") : "";
+      } else {
+        block.tableAddress = String(value ?? "").replace(/[^0-9a-fA-F]/g, "").toUpperCase().slice(0, 4);
+      }
     }
     block.validationError = validateTableMacro(block.tableName, block.tableAddress);
     renderBlockPreview(index);
@@ -15481,9 +15522,10 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isMemCpyMacro) {
-    const size = parseMacroCountOrSize(block.memcpySize || "0", labels);
-    const src = parseMacroAddress(block.memcpySrc || "C000", labels);
-    const dst = parseMacroAddress(block.memcpyDst || "0400", labels);
+    const macroBase = block.base || "hex";
+    const size = parseMacroCountOrSize(block.memcpySize || "0", labels, macroBase);
+    const src = parseMacroAddress(block.memcpySrc || "C000", labels, macroBase);
+    const dst = parseMacroAddress(block.memcpyDst || "0400", labels, macroBase);
     if (!size || src === null || dst === null) {
       return { ok: false, error: `MEMCPY: invalid src/dst/size` };
     }
@@ -15515,9 +15557,10 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isMemSetMacro) {
-    const size = parseMacroCountOrSize(block.memsetSize || "0", labels);
-    const value = parseMacroCountOrSize(block.memsetValue || "0", labels);
-    const dst = parseMacroAddress(block.memsetDst || "0400", labels);
+    const macroBase = block.base || "hex";
+    const size = parseMacroCountOrSize(block.memsetSize || "0", labels, macroBase);
+    const value = parseMacroCountOrSize(block.memsetValue || "0", labels, macroBase);
+    const dst = parseMacroAddress(block.memsetDst || "0400", labels, macroBase);
     if (!size || dst === null) {
       return { ok: false, error: `MEMSET: invalid dst/size` };
     }
@@ -15930,14 +15973,19 @@ function parseNumberByBase(value, base) {
 
 // Size/count parser: ha nincs $ prefix és nincs A-F betű → decimális, egyébként hex.
 // Így size=1000 → 1000 dec, size=$03E8 → 1000 hex, size=03E8 → 1000 hex (van E betű).
-function parseMacroCountOrSize(raw, labels = null) {
+function parseMacroCountOrSize(raw, labels = null, preferredBase = "dec") {
   const text = String(raw ?? "").trim().replace(/^#/, "");
   if (!text) return null;
-  if (text.startsWith("$") || /^0x/i.test(text) || /[A-Fa-f]/.test(text)) {
+  if (text.startsWith("$") || /^0x/i.test(text)) {
     return parseMacroNumber(raw, labels, "hex");
   }
-  if (/^[0-9]+$/.test(text)) return Number.parseInt(text, 10);
-  return parseMacroNumber(raw, labels, "hex");
+  if (/[A-Fa-f]/.test(text) && /^[0-9A-Fa-f]+$/.test(text)) {
+    return parseMacroNumber(raw, labels, "hex");
+  }
+  if (/^[0-9]+$/.test(text)) {
+    return Number.parseInt(text, preferredBase === "hex" ? 16 : 10);
+  }
+  return parseMacroNumber(raw, labels, preferredBase === "dec" ? "dec" : "hex");
 }
 
 function parseMacroNumber(raw, labels = null, fallbackBase = "hex") {
@@ -16131,9 +16179,12 @@ function formatDelayFramesValue(raw) {
   return `${parsed} frame${parsed !== 1 ? "s" : ""}`;
 }
 
-function parseMacroAddress(raw, labels = null) {
+function parseMacroAddress(raw, labels = null, preferredBase = "hex") {
   const text = String(raw ?? "").trim();
   if (!text) return null;
+  if (preferredBase === "dec" && /^[0-9]+$/.test(text)) {
+    return Number.parseInt(text, 10);
+  }
   const parsed = parseAddressValue(text, labels);
   if (parsed !== null) return parsed;
   return resolveProgramConstValue(text);
@@ -16571,14 +16622,14 @@ function getInstructionSize(block) {
   }
 
   if (block.isMemCpyMacro) {
-    const size = parseMacroCountOrSize(block.memcpySize || "0", null);
+    const size = parseMacroCountOrSize(block.memcpySize || "0", null, block.base || "hex");
     if (!size) return 0;
     const fullPages = Math.floor(size / 256);
     const partial = size % 256;
     return fullPages * 11 + (partial > 0 ? 13 : 0);
   }
   if (block.isMemSetMacro) {
-    const size = parseMacroCountOrSize(block.memsetSize || "0", null);
+    const size = parseMacroCountOrSize(block.memsetSize || "0", null, block.base || "hex");
     if (!size) return 0;
     const fullPages = Math.floor(size / 256);
     const partial = size % 256;
@@ -18484,11 +18535,12 @@ function renderProgram() {
             <label class="mini-field">
               <span>${t("fieldIncBinFile")}</span>
               <div class="incbin-file-row">
-                <input type="text" class="include-file-input block-operand" readonly
-                  value="${fileName.replace(/"/g, "&quot;")}${fileName && fileSize ? ` (${fileSize} bytes)` : ""}"
+                <input type="text" class="incbin-file-input block-operand"
+                  value="${fileName.replace(/"/g, "&quot;")}"
                   placeholder="${t("incBinNoFile")}">
                 <button class="icon-btn include-browse-icon" title="${t("incBinBrowse")}">${folderIcon}</button>
               </div>
+              ${fileName && fileSize ? `<small style="color:var(--muted);font-size:0.7rem;">${fileSize} bytes</small>` : ""}
             </label>
           </div>
           <div class="macro-grid single-macro-row">
@@ -18508,6 +18560,46 @@ function renderProgram() {
         updateProgramBlock(index, "incBinBytes", result.bytes);
         renderProgram();
       });
+      const incBinFileInput = blockControls.querySelector(".incbin-file-input");
+      incBinFileInput?.addEventListener("change", async (e) => {
+        const typedPath = String(e.target.value || "").trim();
+        if (!typedPath) {
+          program[index].incBinFile = "";
+          program[index].incBinFileName = "";
+          program[index].incBinBytes = [];
+          program[index].validationError = "";
+          renderProgram();
+          renderAsmOutput();
+          return;
+        }
+        if (!window.electronAPI?.reloadIncBinFile) {
+          program[index].incBinFile = typedPath;
+          program[index].incBinFileName = typedPath;
+          renderProgram();
+          renderAsmOutput();
+          return;
+        }
+        const baseDir = (() => {
+          const p = _getActiveTab()?.filePath || "";
+          const s = Math.max(p.lastIndexOf("/"), p.lastIndexOf("\\"));
+          return s >= 0 ? p.slice(0, s) : "";
+        })();
+        const result = await window.electronAPI.reloadIncBinFile(typedPath, baseDir);
+        const isAbsolute = /^[a-zA-Z]:[\\/]/.test(typedPath) || /^[\\/]/.test(typedPath);
+        if (result?.error) {
+          program[index].incBinFile = typedPath;
+          program[index].incBinFileName = typedPath;
+          program[index].incBinBytes = [];
+          program[index].validationError = result.error;
+        } else {
+          program[index].incBinFile = isAbsolute ? (result.filePath || typedPath) : typedPath;
+          program[index].incBinFileName = result.fileName || typedPath;
+          program[index].incBinBytes = result.bytes || [];
+          program[index].validationError = validateIncBinMacro(program[index].incBinBytes, program[index].incBinAddress);
+        }
+        renderProgram();
+        renderAsmOutput();
+      });
     } else if (block.isSidMacro) {
       inlineField.hidden = true;
       const fileName = block.sidFileName || "";
@@ -18523,11 +18615,12 @@ function renderProgram() {
             <label class="mini-field">
               <span>${t("sidFileLabel")}</span>
               <div class="incbin-file-row">
-                <input type="text" class="include-file-input block-operand" readonly
-                  value="${(fileName + (fileSize ? ` (${fileSize} bytes)` : "")).replace(/"/g, "&quot;")}"
+                <input type="text" class="sid-file-input block-operand"
+                  value="${fileName.replace(/"/g, "&quot;")}"
                   placeholder="${t("sidFilePlaceholder")}">
                 <button class="icon-btn include-browse-icon" title="${t("sidFileBrowse")}">${folderIcon}</button>
               </div>
+              ${fileName && fileSize ? `<small style="color:var(--muted);font-size:0.7rem;">${fileSize} bytes</small>` : ""}
             </label>
           </div>
           <div class="macro-grid single-macro-row">
@@ -18570,6 +18663,56 @@ function renderProgram() {
       blockControls.querySelector(".sid-custom-address")?.addEventListener("input", e => {
         updateProgramBlock(index, "sidCustomAddress", e.target.value);
       });
+      const sidFileInput = blockControls.querySelector(".sid-file-input");
+      sidFileInput?.addEventListener("change", async (e) => {
+        const typedPath = String(e.target.value || "").trim();
+        if (!typedPath) {
+          program[index].sidFile = "";
+          program[index].sidFileName = "";
+          program[index].sidTitle = "";
+          program[index].sidAuthor = "";
+          program[index].sidLoadAddress = 0;
+          program[index].sidInitAddress = 0;
+          program[index].sidPlayAddress = 0;
+          program[index].sidBytes = [];
+          program[index].validationError = "";
+          renderProgram();
+          renderAsmOutput();
+          return;
+        }
+        if (!window.electronAPI?.reloadSidFile) {
+          program[index].sidFile = typedPath;
+          program[index].sidFileName = typedPath;
+          renderProgram();
+          renderAsmOutput();
+          return;
+        }
+        const baseDir = (() => {
+          const p = _getActiveTab()?.filePath || "";
+          const s = Math.max(p.lastIndexOf("/"), p.lastIndexOf("\\"));
+          return s >= 0 ? p.slice(0, s) : "";
+        })();
+        const result = await window.electronAPI.reloadSidFile(typedPath, baseDir);
+        const isAbsolute = /^[a-zA-Z]:[\\/]/.test(typedPath) || /^[\\/]/.test(typedPath);
+        if (result?.error) {
+          program[index].sidFile = typedPath;
+          program[index].sidFileName = typedPath;
+          program[index].sidBytes = [];
+          program[index].validationError = result.error;
+        } else {
+          program[index].sidFile = isAbsolute ? (result.filePath || typedPath) : typedPath;
+          program[index].sidFileName = result.fileName || typedPath;
+          program[index].sidTitle = result.title || "";
+          program[index].sidAuthor = result.author || "";
+          program[index].sidLoadAddress = result.loadAddress;
+          program[index].sidInitAddress = result.initAddress;
+          program[index].sidPlayAddress = result.playAddress;
+          program[index].sidBytes = result.bytes || [];
+          program[index].validationError = "";
+        }
+        renderProgram();
+        renderAsmOutput();
+      });
     } else if (block.isIncludeMacro) {
       inlineField.hidden = true;
       const fileName = block.includeFileName || "";
@@ -18584,7 +18727,7 @@ function renderProgram() {
             <label class="mini-field">
               <span>${t("fieldIncludeFile")}</span>
               <div class="incbin-file-row">
-                <input type="text" class="include-file-input block-operand" readonly
+                <input type="text" class="include-file-input block-operand"
                   value="${fileName.replace(/"/g, "&quot;")}"
                   placeholder="${t("includeNoFile")}">
                 <button class="icon-btn include-browse-icon" title="${t("includeBrowse")}">${folderIcon}</button>
@@ -18611,6 +18754,50 @@ function renderProgram() {
           ? parseExpertText(result.text)
           : (result.blocks || []);
         program[index].validationError = "";
+        parseUserMacros();
+        renderProgram();
+        renderAsmOutput();
+      });
+      const includeFileInput = blockControls.querySelector(".include-file-input");
+      includeFileInput?.addEventListener("change", async (e) => {
+        const typedPath = String(e.target.value || "").trim();
+        if (!typedPath) {
+          program[index].includeFile = "";
+          program[index].includeFileName = "";
+          program[index].includedBlocks = [];
+          program[index].validationError = "";
+          parseUserMacros();
+          renderProgram();
+          renderAsmOutput();
+          return;
+        }
+        if (!window.electronAPI?.reloadIncludeFile) {
+          program[index].includeFile = typedPath;
+          program[index].includeFileName = typedPath;
+          renderProgram();
+          renderAsmOutput();
+          return;
+        }
+        const baseDir = (() => {
+          const p = _getActiveTab()?.filePath || "";
+          const s = Math.max(p.lastIndexOf("/"), p.lastIndexOf("\\"));
+          return s >= 0 ? p.slice(0, s) : "";
+        })();
+        const result = await window.electronAPI.reloadIncludeFile(typedPath, baseDir);
+        const isAbsolute = /^[a-zA-Z]:[\\/]/.test(typedPath) || /^[\\/]/.test(typedPath);
+        if (result?.error) {
+          program[index].includeFile = typedPath;
+          program[index].includeFileName = typedPath;
+          program[index].includedBlocks = Array.isArray(program[index].includedBlocks) ? program[index].includedBlocks : [];
+          program[index].validationError = result.error;
+        } else {
+          program[index].includeFile = isAbsolute ? (result.filePath || typedPath) : typedPath;
+          program[index].includeFileName = result.fileName || typedPath;
+          program[index].includedBlocks = typeof result.text === "string"
+            ? parseExpertText(result.text)
+            : (result.blocks || []);
+          program[index].validationError = "";
+        }
         parseUserMacros();
         renderProgram();
         renderAsmOutput();
@@ -18890,6 +19077,14 @@ function renderProgram() {
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
     } else if (block.isTableMacro) {
       inlineField.hidden = true;
+      const tblBase = block.base || "hex";
+      const tblHexVal = (block.tableAddress || "C000").toUpperCase();
+      const tblNumVal = parseInt(tblHexVal, 16);
+      const tblDisplayVal = tblBase === "dec"
+        ? (isNaN(tblNumVal) ? tblHexVal : String(tblNumVal))
+        : tblHexVal;
+      const tblMaxLen = tblBase === "dec" ? 5 : 4;
+      const tblPlaceholder = tblBase === "dec" ? "49152" : "C000";
       blockControls.insertAdjacentHTML(
         "beforeend",
         `
@@ -18900,9 +19095,22 @@ function renderProgram() {
             </label>
             <label class="mini-field">
               <span>${t("address")}</span>
-              <input class="table-address" type="text" value="${block.tableAddress || "C000"}" placeholder="C000">
+              <input class="table-address" type="text" maxlength="${tblMaxLen}" value="${tblDisplayVal}" placeholder="${tblPlaceholder}">
             </label>
           </div>
+          <label class="mini-field">
+            <span>${t("fieldFormat")}</span>
+            <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
+              <label class="mini-toggle-option">
+                <input class="block-base" type="radio" name="block-base-${block.id}" value="hex"${tblBase !== "dec" ? " checked" : ""}>
+                <span>HEX</span>
+              </label>
+              <label class="mini-toggle-option">
+                <input class="block-base" type="radio" name="block-base-${block.id}" value="dec"${tblBase === "dec" ? " checked" : ""}>
+                <span>DEC</span>
+              </label>
+            </div>
+          </label>
         `
       );
     } else if (block.isOrgMacro) {
@@ -19695,7 +19903,20 @@ function renderProgram() {
             <span>${t("fieldSize")}</span>
             <input class="memcpy-size block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memcpySize || "0100"}" placeholder="$0100 / size_const">
           </label>
-        </div>`
+        </div>
+        <label class="mini-field">
+          <span>${t("fieldFormat")}</span>
+          <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
+            <label class="mini-toggle-option">
+              <input class="block-base" type="radio" name="block-base-${block.id}" value="hex"${(block.base || "hex") === "hex" ? " checked" : ""}>
+              <span>HEX</span>
+            </label>
+            <label class="mini-toggle-option">
+              <input class="block-base" type="radio" name="block-base-${block.id}" value="dec"${block.base === "dec" ? " checked" : ""}>
+              <span>DEC</span>
+            </label>
+          </div>
+        </label>`
       );
     } else if (block.isMemSetMacro) {
       inlineField.hidden = true;
@@ -19714,7 +19935,20 @@ function renderProgram() {
             <span>${t("fieldSize")}</span>
             <input class="memset-size block-operand has-label-picker" type="text" autocomplete="off" spellcheck="false" value="${block.memsetSize || "03E8"}" placeholder="$03E8 / size_const">
           </label>
-        </div>`
+        </div>
+        <label class="mini-field">
+          <span>${t("fieldFormat")}</span>
+          <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">
+            <label class="mini-toggle-option">
+              <input class="block-base" type="radio" name="block-base-${block.id}" value="hex"${(block.base || "hex") === "hex" ? " checked" : ""}>
+              <span>HEX</span>
+            </label>
+            <label class="mini-toggle-option">
+              <input class="block-base" type="radio" name="block-base-${block.id}" value="dec"${block.base === "dec" ? " checked" : ""}>
+              <span>DEC</span>
+            </label>
+          </div>
+        </label>`
       );
     } else if (block.isIrqSetupMacro) {
       inlineField.hidden = true;
@@ -20128,6 +20362,48 @@ function renderProgram() {
             else converted = String(parsed);
             if (countInput) countInput.value = converted;
             updateProgramBlock(index, "loopCount", converted);
+          }
+        }
+        // For TABLE blocks, convert tableAddress display between hex and dec (canonical storage is hex)
+        if (block.isTableMacro) {
+          const tblInput = node.querySelector(".table-address");
+          const hexStored = (block.tableAddress || "C000").toUpperCase();
+          const numVal = parseInt(hexStored, 16);
+          if (tblInput && !isNaN(numVal)) {
+            if (newBase === "dec") {
+              tblInput.value = String(numVal);
+              tblInput.maxLength = 5;
+              tblInput.placeholder = "49152";
+            } else {
+              tblInput.value = hexStored.padStart(4, "0");
+              tblInput.maxLength = 4;
+              tblInput.placeholder = "C000";
+            }
+          }
+        }
+        // For MEMCPY/MEMSET blocks, convert address/value/size fields between hex and dec
+        if (block.isMemCpyMacro || block.isMemSetMacro) {
+          const oldBase = block.base || "hex";
+          const fields = block.isMemCpyMacro
+            ? [{ key: "memcpySrc", sel: ".memcpy-src", width: 4 }, { key: "memcpyDst", sel: ".memcpy-dst", width: 4 }, { key: "memcpySize", sel: ".memcpy-size", width: 4 }]
+            : [{ key: "memsetDst", sel: ".memset-dst", width: 4 }, { key: "memsetValue", sel: ".memset-value", width: 2 }, { key: "memsetSize", sel: ".memset-size", width: 4 }];
+          for (const f of fields) {
+            const inp = node.querySelector(f.sel);
+            const rawVal = String(inp?.value ?? block[f.key] ?? "").trim();
+            if (!rawVal) continue;
+            if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(rawVal)) continue;
+            const hasDollar = rawVal.startsWith("$");
+            const stripped = rawVal.replace(/^\$/, "").replace(/^0x/i, "");
+            let parsed;
+            if (hasDollar) parsed = parseInt(stripped, 16);
+            else if (oldBase === "dec") parsed = /^[0-9]+$/.test(stripped) ? parseInt(stripped, 10) : parseInt(stripped, 16);
+            else parsed = parseInt(stripped, 16);
+            if (isNaN(parsed)) continue;
+            const converted = newBase === "hex"
+              ? parsed.toString(16).toUpperCase().padStart(f.width, "0")
+              : String(parsed);
+            if (inp) inp.value = converted;
+            block[f.key] = converted;
           }
         }
         // For CONST blocks, convert the value input between hex, dec, and bin
@@ -21391,6 +21667,11 @@ async function loadSampleFromFile(sampleName) {
   } else {
     d64ExportState.diskName = "";
     d64ExportState.progName = "";
+  }
+
+  const validRunModes = ["prg", "d64", "browser", "browser-d64", "ultimate", "ultimate-d64"];
+  if (sampleData.ui?.runMode && validRunModes.includes(sampleData.ui.runMode)) {
+    setRunMode(sampleData.ui.runMode);
   }
 
   renderOriginPreview();
