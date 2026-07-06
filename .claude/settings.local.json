@@ -97,7 +97,8 @@
       "Bash(grep -n \"\\\\\\\\.text\\\\|isTextMacro\" F:/Development/VisualAssembler/www/app.js)",
       "Bash(awk 'NR>=1{print}')",
       "Bash(grep -A1 \"expandedProgram.push\\({ ...block, _isMacroInvokeHeader\")",
-      "Bash(grep -n 'return { ok: false, error: \"\\\\|return { ok: false, error: `' F:/Development/VisualAssembler/www/app.js)"
+      "Bash(grep -n 'return { ok: false, error: \"\\\\|return { ok: false, error: `' F:/Development/VisualAssembler/www/app.js)",
+      "Bash(npm test *)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"
