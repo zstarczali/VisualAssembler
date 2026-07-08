@@ -12,7 +12,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2.1.7">
+  <link rel="stylesheet" href="style.css?v=2.1.8">
 </head>
 
 <body>
@@ -756,7 +756,7 @@ PRINTABLE CHARACTERS
         <img src="assets/logo.png" alt="C64 Visual Assembler" width="160" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v2.1.7</p>
+      <p class="about-version" id="about-version">v2.1.8</p>
       <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
         dropping instruction blocks.</p>
       <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
@@ -768,58 +768,28 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.1.7</p>
+      <p class="whats-new-version">v2.1.8</p>
       <ul class="whats-new-list">
         <li>
-          <strong>Hotfix (2.1.7)</strong> &mdash; MEMCPY and MEMSET blocks in Block mode now show the little dropdown arrow on their input fields (source / destination / value / size), matching every other macro block. The label/const picker itself already worked; only the visual chevron was missing.
+          <strong>Project ASM files</strong> &mdash; the project panel can now add raw <code>.asm</code> / <code>.s</code> / <code>.a65</code> / <code>.inc</code> files, and clicking a tree item opens the matching source instead of trying to parse it as a project JSON file.
+        </li>
+        <li>
+          <strong>Fixes (2.1.8)</strong> &mdash; Save ASM now updates the active tab name, file display, and window title in sync; the disassembler follows memory order, so fixed-address INCLUDE blocks no longer jump ahead of the main program.
+        </li>
+        <li>
+          <strong>Expert mode &amp; samples</strong> &mdash; project startup and sample-loading tab handling is fixed, and unresolved macro source blocks are skipped cleanly in Expert mode.
+        </li>
+        <li>
+          <strong>Macro polish</strong> &mdash; MEMCPY, MEMSET, and TABLE now handle HEX / DEC bases consistently, with the related macro parsing covered by tests.
+        </li>
+        <li>
+          <strong>Previous hotfix</strong> &mdash; MEMCPY and MEMSET blocks in Block mode now show the little dropdown arrow on their input fields (source / destination / value / size), matching every other macro block. The label/const picker itself already worked; only the visual chevron was missing.
         </li>
         <li>
           <strong>Custom tooltips everywhere</strong> &mdash; all remaining UI buttons (project file star &amp; delete, tab close/new, block action buttons, collapse toggle) now use the custom CSS aria-label tooltip instead of the flaky native browser tooltip, consistent with the rest of the toolbar.
         </li>
         <li>
           <strong>Auto-snapshot toggle</strong> &mdash; Hardware Settings has a new Snapshot section with a checkbox to enable or disable automatic project snapshot creation. Previously the 2.5-second auto-save ran unconditionally; now you can turn it off if snapshots are not needed.
-        </li>
-        <li>
-          <strong>Dark mode scrollbars</strong> &mdash; macOS native scrollbars now appear dark in Dark and OLED themes (WKWebView <code>color-scheme: dark</code> fix). Previously the scrollbars were always light-themed regardless of the app theme.
-        </li>
-        <li>
-          <strong>Hotfixes (2.1.5)</strong> &mdash; Expert-mode asset loading, compile error clarity, syntax highlighting for previously missing macros, missing-file validation for <code>.include</code> / <code>.incbin</code> / <code>.sid</code> in both modes, unknown-directive detection, cleaner runtime IF / WHILE / UNTIL / INVOKE error messages, and broader localized compile error coverage across HU / EN / ES / DE.
-        </li>
-        <li>
-          <strong>Expert asset auto-reload</strong> &mdash; typing <code>.include</code>, <code>.incbin</code>, or <code>.sid</code> directly in Expert mode now loads the referenced file automatically, resolving names against the working folder and the bundled <code>samples/</code> directory.
-        </li>
-        <li>
-          <strong>Hotfixes</strong> &mdash; this 2.1.5 release bundles the recent Expert-mode and compile-time fixes, including asset loading, compile error clarity, syntax highlighting for previously missing macros, missing-file validation for <code>.include</code> / <code>.incbin</code> / <code>.sid</code> in both modes, unknown-directive detection, cleaner runtime IF / WHILE / UNTIL / INVOKE error messages, and broader localized compile error coverage across HU / EN / ES / DE.
-        </li>
-        <li>
-          <strong>Missing-file guard</strong> &mdash; empty or omitted filenames on <code>.include</code>, <code>.incbin</code>, and <code>.sid</code> now surface as clear errors in Expert and Block mode instead of silently compiling to nothing.
-        </li>
-        <li>
-          <strong>Unknown directive detection</strong> &mdash; Expert mode no longer swallows typos like <code>.notarealthing</code> as comments; unknown directives fail the compile with a targeted error.
-        </li>
-        <li>
-          <strong>Clearer runtime errors</strong> &mdash; missing <code>.endif</code>, <code>.endw</code>, <code>.repeat</code>, or unresolved INVOKE targets now emit user-friendly, localized messages instead of leaking internal auto-generated label names.
-        </li>
-        <li>
-          <strong>Expert toolbar</strong> &mdash; new button collapses or expands every <code>.region</code> in one click; the region caret position is preserved when switching from Expert back to Block mode.
-        </li>
-        <li>
-          <strong>Syntax highlighting</strong> &mdash; <code>.for</code>, <code>.endf</code>, <code>.mouse</code>, <code>.exodecrunch</code>, <code>.reu_*</code>, <code>.turbo_*</code>, and <code>.supercpu_detect</code> are now colored in the Expert editor.
-        </li>
-        <li>
-          <strong>Hardware settings dialog</strong> &mdash; long Exomizer, RetroDebugger, and VICE paths no longer force a horizontal scrollbar; the status line truncates with an ellipsis and shows the full path on hover.
-        </li>
-        <li>
-          <strong>Expert editor fix</strong> &mdash; Expert mode now keeps the typed text, highlight overlay, error lines, and caret position aligned even when multiple compile errors are present.
-        </li>
-        <li>
-          <strong>Compile dialog fix</strong> &mdash; the compile error dialog now keeps the selected entry highlighted, uses a proper pointer cursor, and jumps to the matching Expert mode line without closing the dialog.
-        </li>
-        <li>
-          <strong>Expert region folding fix</strong> &mdash; collapsed <code>.region</code> blocks now really hide their body in Expert mode without leaving giant blank gaps, while caret placement, line numbers, tab switching, formatting, and save/load keep using the full source correctly behind the scenes.
-        </li>
-        <li>
-          <strong>Region selection toggle</strong> &mdash; Expert mode still has a toolbar button that turns the automatic region highlight on or off without changing the actual fold state.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -1562,9 +1532,9 @@ PRINTABLE CHARACTERS
   </div>
 
   <script src="tauri-bridge.js"></script>
-  <script src="i18n.js?v=2.1.7"></script>
-  <script src="tutorial-data.js?v=2.1.7"></script>
-  <script src="app.js?v=2.1.7"></script>
+  <script src="i18n.js?v=2.1.8"></script>
+  <script src="tutorial-data.js?v=2.1.8"></script>
+  <script src="app.js?v=2.1.8"></script>
 
 </body>
 

@@ -5631,6 +5631,55 @@ async function _expertSaveAsm() {
   }
 }
 
+async function _expertLoadAsmFromPath(filePath, content, sourceName = "") {
+  if (!filePath || typeof content !== "string") {
+    throw new Error("Invalid ASM source payload");
+  }
+
+  const name = sourceName || filePath.replace(/\\/g, "/").split("/").pop();
+
+  // Save current tab state
+  _tabSaveCurrent();
+
+  // Parse ASM text into blocks
+  const blocks = parseExpertText(content);
+  _addSrcLineToBlocks(content, blocks);
+
+  // Create new tab
+  const tab = _tabCreate(name);
+  tab.filePath = filePath;
+  tab.program = blocks;
+  tab.expertText = content;
+  tab.userMacros = {};
+  tabs.push(tab);
+  activeTabId = tab.id;
+
+  // Update active state
+  program = JSON.parse(JSON.stringify(blocks));
+  userMacros = {};
+  selectedBlockId = null;
+  _expertAsmFilePath = filePath;
+
+  if (currentFileDisplay) currentFileDisplay.textContent = name;
+  if (expertFileName) expertFileName.textContent = name;
+  updateWindowTitle(name);
+
+  // Update expert editor if in expert mode
+  if (expertMode && expertEditor) {
+    _expertSourceText = content;
+    _expertRefreshProjection(0, 0);
+    expertEditor.dispatchEvent(new Event("input"));
+  }
+
+  parseUserMacros();
+  renderTabBar();
+  renderProgram();
+  renderAsmOutput();
+  markTabClean();
+
+  return name;
+}
+
 async function _expertLoadAsm() {
   try {
     const res = await window.electronAPI?.chooseAsmFile?.();
@@ -5640,48 +5689,7 @@ async function _expertLoadAsm() {
       return;
     }
 
-    const filePath = res.filePath;
-    const name = filePath.replace(/\\/g, "/").split("/").pop();
-
-    // Save current tab state
-    _tabSaveCurrent();
-
-    // Parse ASM text into blocks
-    const blocks = parseExpertText(res.content);
-    _addSrcLineToBlocks(res.content, blocks);
-
-    // Create new tab
-    const tab = _tabCreate(name);
-    tab.filePath = filePath;
-    tab.program = blocks;
-    tab.expertText = res.content;
-    tab.userMacros = {};
-    tabs.push(tab);
-    activeTabId = tab.id;
-
-    // Update active state
-    program = JSON.parse(JSON.stringify(blocks));
-    userMacros = {};
-    selectedBlockId = null;
-    _expertAsmFilePath = filePath;
-
-    if (currentFileDisplay) currentFileDisplay.textContent = name;
-    if (expertFileName) expertFileName.textContent = name;
-    updateWindowTitle(name);
-
-    // Update expert editor if in expert mode
-    if (expertMode && expertEditor) {
-      _expertSourceText = res.content;
-      _expertRefreshProjection(0, 0);
-      expertEditor.dispatchEvent(new Event("input"));
-    }
-
-    parseUserMacros();
-    renderTabBar();
-    renderProgram();
-    renderAsmOutput();
-    markTabClean();
-
+    const name = await _expertLoadAsmFromPath(res.filePath, res.content);
     _expertSetStatus(t("vasmLoadedStatus") + ": " + name, "ok");
   } catch (e) {
     _expertSetStatus(t("vasmLoadError") + ": " + String(e), "error");
@@ -8751,6 +8759,8 @@ async function _expertAddProjMember() {
 async function _expertProjectOpenFile(fileEntry) {
   const absPath = _projResolveAbsPath(fileEntry.path);
   const normAbs = _normFilePath(absPath);
+  const lowerPath = normAbs.toLowerCase();
+  const isAsmSource = /\.(asm|s|a65|inc)$/.test(lowerPath);
 
   // If tab for this file already open, just activate it
   const existing = tabs.find(t => _normFilePath(t.filePath) === normAbs);
@@ -8762,6 +8772,24 @@ async function _expertProjectOpenFile(fileEntry) {
     if (activeEl) activeEl.scrollIntoView({ block: "nearest", inline: "nearest" });
     _expertRenderProjectTree();
     return;
+  }
+
+  if (isAsmSource) {
+    const res = await window.electronAPI?.readTextFile?.(absPath);
+    if (!res || !res.ok) {
+      _expertSetStatus("Nem nyitható meg: " + (res?.error || "ismeretlen hiba"), "error");
+      return;
+    }
+
+    try {
+      const name = await _expertLoadAsmFromPath(absPath, res.content, fileEntry.name || absPath.split(/[/\\]/).pop());
+      _expertRenderProjectTree();
+      _expertSetStatus(t("projOpenFile") + ": " + name, "ok");
+      return;
+    } catch (e) {
+      _expertSetStatus(t("vasmLoadError") + ": " + String(e), "error");
+      return;
+    }
   }
 
   // Load as C64VA project JSON → program blocks

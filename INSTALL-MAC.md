@@ -1,11 +1,11 @@
 # macOS Installation Guide
-Version 2.1.7
+Version 2.1.8
 
-2.1.7 (hotfix): MEMCPY and MEMSET blocks in Block mode now show the label/const dropdown chevron on their input fields, matching every other macro block.
+2.1.8: Save ASM now keeps the active tab name in sync, the disassembler follows memory order for fixed-address INCLUDE blocks, and Expert-mode startup/sample tab handling is fixed.
 
 ## Quick Install
 
-1. **Download** the 2.1.7 DMG for your architecture from the releases page
+1. **Download** the 2.1.8 DMG for your architecture from the releases page
 2. **Mount** the DMG and drag the app to `/Applications`
 3. **First launch**: Right-click the app → **"Open"** (macOS will block double-click)
 4. Click **"Open"** in the security dialog
@@ -57,4 +57,4 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.1.7 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.1.8 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

@@ -2227,6 +2227,7 @@ async fn choose_proj_member(app: AppHandle) -> serde_json::Value {
     };
     let mut dialog = app.dialog().file()
         .add_filter("C64 Visual Assembler Project", &["json", "c64va"])
+        .add_filter("Assembly Source", &["asm", "s", "a65", "inc"])
         ;
     if let Some(folder) = working_folder {
         dialog = dialog.set_directory(folder);
