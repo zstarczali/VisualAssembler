@@ -5624,7 +5624,7 @@ async function _expertSaveAsm() {
     }
     _expertAsmFilePath = res.filePath;
     const name = res.filePath.replace(/\\/g, "/").split("/").pop();
-    if (expertFileName) expertFileName.textContent = name;
+    _setCurrentFile(name, name, res.filePath);
     _expertSetStatus(t("vasmSavedStatus") + ": " + name, "ok");
   } catch (e) {
     _expertSetStatus(t("vasmSaveError") + ": " + String(e), "error");
@@ -8014,19 +8014,26 @@ function _buildDisasmHTML() {
     const addrToLabel = new Map();
     for (const [name, addr] of labelMap) addrToLabel.set(addr, name);
 
-    for (const line of layout.lines) {
+    // Disassembler view should follow memory order, not source order.
+    // This keeps fixed-address INCLUDE chunks after the main program if they
+    // live at a higher address.
+    const orderedLines = layout.lines
+      .map((line, index) => ({ line, index }))
+      .filter(({ line }) => {
+        if (line.conditionallySkipped) return false;
+        if (line.block._isSavedAddress || line.block._isRestoreAddress) return false;
+        if (line.block._macroSourceBlock) return false;
+        if (line.block.isComment) return false;
+        if (line.block.isIncludeMacro) return false;
+        if (line.block.isOrgMacro) return false;
+        if (line.block.isRegionMacro || line.block.isEndRegionMacro) return false;
+        if (line.block.isLabel && line.block._syntheticMacroLabel) return false;
+        return true;
+      })
+      .sort((a, b) => (a.line.address - b.line.address) || (a.index - b.index));
+
+    for (const { line } of orderedLines) {
       // Skip non-code blocks
-      if (line.conditionallySkipped) continue;
-      if (line.block._isSavedAddress || line.block._isRestoreAddress) continue;
-      if (line.block._macroSourceBlock) continue;
-      if (line.block.isComment) continue;
-      if (line.block.isIncludeMacro) continue;
-      if (line.block.isOrgMacro) continue;
-      if (line.block.isRegionMacro || line.block.isEndRegionMacro) continue;
-
-      // Treat synthetic macro labels as invisible (they're internal to macro expansion)
-      if (line.block.isLabel && line.block._syntheticMacroLabel) continue;
-
       const addrHex = line.address.toString(16).toUpperCase().padStart(4, "0");
       const compiled = compileLineBytes(line, labelMap);
 

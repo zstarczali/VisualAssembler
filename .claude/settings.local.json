@@ -111,7 +111,13 @@
       "Bash(grep \"\\\\\"rawOperand\\\\\": \\\\\"12\\\\\"\\\\\\\\|\\\\\"rawOperand\\\\\": \\\\\"13\\\\\"\\\\\\\\|\\\\\"rawOperand\\\\\": \\\\\"14\\\\\"\\\\\\\\|\\\\\"rawOperand\\\\\": \\\\\"15\\\\\"\\\\\\\\|\\\\\"rawOperand\\\\\": \\\\\"70\\\\\"\\\\\\\\|\\\\\"rawOperand\\\\\": \\\\\"71\\\\\"\\\\\\\\|\\\\\"rawOperand\\\\\": \\\\\"72\\\\\"\\\\\\\\|\\\\\"rawOperand\\\\\": \\\\\"73\\\\\"\" F:/Development/VisualAssembler/samples/box.json)",
       "Bash(grep -c \"\\\\\\\\\\\\\\\\\\\\$2C\\\\\\\\|\\\\\\\\\\\\\\\\\\\\$2D\\\\\\\\|\\\\\\\\\\\\\\\\\\\\$2E\\\\\\\\|\\\\\\\\\\\\\\\\\\\\$2F\" F:/Development/VisualAssembler/samples/macros.json)",
       "Bash(grep -n \"\\\\\\\\\\\\\\\\\\\\$2C\\\\\\\\|\\\\\\\\\\\\\\\\\\\\$2D\\\\\\\\|\\\\\\\\\\\\\\\\\\\\$2E\\\\\\\\|\\\\\\\\\\\\\\\\\\\\$2F\" F:/Development/VisualAssembler/samples/macros.json)",
-      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('F:/Development/VisualAssembler/samples/macros-new.json','utf8'\\)\\); console.log\\('OK'\\)\")"
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('F:/Development/VisualAssembler/samples/macros-new.json','utf8'\\)\\); console.log\\('OK'\\)\")",
+      "Bash(grep -o \"BitmapOn\\\\\\\\\\\\\\\\n[^.]*\\\\\\\\.endm\" F:/Development/VisualAssembler/samples/macros-new.json)",
+      "Bash(grep -o \"\\\\.macro BitmapOn.\\\\\\\\{0,600\\\\\\\\}\" F:/Development/VisualAssembler/samples/macros-new.json)",
+      "Bash(grep -o \"\\\\\\\\.macro DisplayO[nf]\\\\+[^.]\\\\\\\\{0,200\\\\\\\\}\" F:/Development/VisualAssembler/samples/macros-new.json)",
+      "Bash(grep -o \"BitmapOn.\\\\\\\\{0,700\\\\\\\\}\" F:/Development/VisualAssembler/samples/macros-new.json)",
+      "Bash(grep -n \"\\\\\\\\.invoke.*\\\\\\\\.macro\\\\\\\\|nested.*invoke\\\\\\\\|invoke.*inside.*macro\" F:/Development/VisualAssembler/www/app.js)",
+      "Bash(grep -o \"\\\\\\\\.macro BitmapOn[^.]\\\\\\\\{0,600\\\\\\\\}\\\\\\\\.endm\" F:/Development/VisualAssembler/samples/macros.json)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"
