@@ -1,5 +1,5 @@
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::Duration;
 #[cfg(target_os = "windows")]
@@ -7,6 +7,7 @@ use std::os::windows::process::CommandExt;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Manager};
 use tauri_plugin_dialog::DialogExt;
+use tauri_plugin_dialog::{MessageDialogButtons, MessageDialogKind};
 use tauri_plugin_opener::OpenerExt;
 
 // ── Resource path resolution ─────────────────────────────────────────────────
@@ -23,12 +24,10 @@ fn resolve_resource_file(app: &AppHandle, relative_path: &str) -> std::io::Resul
 
     #[cfg(debug_assertions)]
     {
-        if !resource_path.exists() {
-            if let Some(workspace_root) = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).parent() {
-                let dev_path = workspace_root.join(relative_path);
-                if dev_path.exists() {
-                    return Ok(dev_path);
-                }
+        if let Some(workspace_root) = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).parent() {
+            let dev_path = workspace_root.join(relative_path);
+            if dev_path.exists() {
+                return Ok(dev_path);
             }
         }
     }
@@ -1303,11 +1302,18 @@ async fn reload_include_file(app: AppHandle, file_path: String, base_dir: Option
                         {
                             return serde_json::json!({ "error": "Not a valid C64 Visual Assembler project." });
                         }
-                        serde_json::json!({
-                            "fileName": file_name,
-                            "filePath": resolved.to_string_lossy().to_string(),
-                            "blocks": project["program"]
-                        })
+                        {
+                            let expert_text = project["expertText"].as_str().unwrap_or("");
+                            let mut resp = serde_json::json!({
+                                "fileName": file_name,
+                                "filePath": resolved.to_string_lossy().to_string(),
+                                "blocks": project["program"]
+                            });
+                            if !expert_text.is_empty() {
+                                resp["text"] = serde_json::Value::String(expert_text.to_string());
+                            }
+                            resp
+                        }
                     }
                     Err(e) => serde_json::json!({ "error": e.to_string() }),
                 }
@@ -2167,6 +2173,19 @@ async fn save_asm_file(app: AppHandle, path: String, content: String) -> serde_j
         path
     };
 
+    if Path::new(&save_path).exists() {
+        let overwrite = app
+            .dialog()
+            .message(format!("The file already exists:\n\n{}\n\nOverwrite it?", save_path))
+            .title("Overwrite existing file?")
+            .kind(MessageDialogKind::Warning)
+            .buttons(MessageDialogButtons::YesNo)
+            .blocking_show();
+        if !overwrite {
+            return serde_json::json!({ "canceled": true });
+        }
+    }
+
     match fs::write(&save_path, content.as_bytes()) {
         Ok(_)  => serde_json::json!({ "ok": true, "filePath": save_path }),
         Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
@@ -2208,6 +2227,7 @@ async fn choose_proj_member(app: AppHandle) -> serde_json::Value {
     };
     let mut dialog = app.dialog().file()
         .add_filter("C64 Visual Assembler Project", &["json", "c64va"])
+        .add_filter("Assembly Source", &["asm", "s", "a65", "inc"])
         ;
     if let Some(folder) = working_folder {
         dialog = dialog.set_directory(folder);

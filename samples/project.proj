@@ -10,6 +10,16 @@
       "type": "file",
       "name": "macros.json",
       "path": "macros.json"
+    },
+    {
+      "type": "file",
+      "name": "macros-new.json",
+      "path": "macros-new.json"
+    },
+    {
+      "type": "file",
+      "name": "macros-new.asm",
+      "path": "macros-new.asm"
     }
   ],
   "startupFile": "include-demo.json"

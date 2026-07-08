@@ -377,8 +377,8 @@ Lásd `tauri-bridge.js` és `src-tauri/src/lib.rs`. Leggyakoribb commands:
 
 ## 14. Jelenlegi verzió
 
-`2.1.7` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
+`2.1.8` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `CLAUDE.md`, és ez a fájl + copilot-instructions.md.
-Fő 2.1.7 változás (hotfix): MEMCPY és MEMSET blokkok input mezőin (src/dst/value/size) most már megjelenik a label/const választó lenyíló nyíl — a `block-operand` osztály hiányzott a `has-label-picker` mellől.
+Fő 2.1.8 változás: a Save ASM most az aktív tab nevét, fájlmezőjét és ablakcímét is szinkronban frissíti, a disassembler memória-sorrendben renderel, a fix című INCLUDE blokkok nem ugranak a fő program elé, és az Expert mód / sample tab kezelés is javult.
 
 Verziónöveléshez lásd a 3. szakasz végén lévő 7-lépéses checklistet.
