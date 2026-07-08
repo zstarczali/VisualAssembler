@@ -1,5 +1,5 @@
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::Duration;
 #[cfg(target_os = "windows")]
@@ -7,6 +7,7 @@ use std::os::windows::process::CommandExt;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Manager};
 use tauri_plugin_dialog::DialogExt;
+use tauri_plugin_dialog::{MessageDialogButtons, MessageDialogKind};
 use tauri_plugin_opener::OpenerExt;
 
 // ── Resource path resolution ─────────────────────────────────────────────────
@@ -23,12 +24,10 @@ fn resolve_resource_file(app: &AppHandle, relative_path: &str) -> std::io::Resul
 
     #[cfg(debug_assertions)]
     {
-        if !resource_path.exists() {
-            if let Some(workspace_root) = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).parent() {
-                let dev_path = workspace_root.join(relative_path);
-                if dev_path.exists() {
-                    return Ok(dev_path);
-                }
+        if let Some(workspace_root) = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).parent() {
+            let dev_path = workspace_root.join(relative_path);
+            if dev_path.exists() {
+                return Ok(dev_path);
             }
         }
     }
@@ -2173,6 +2172,19 @@ async fn save_asm_file(app: AppHandle, path: String, content: String) -> serde_j
     } else {
         path
     };
+
+    if Path::new(&save_path).exists() {
+        let overwrite = app
+            .dialog()
+            .message(format!("The file already exists:\n\n{}\n\nOverwrite it?", save_path))
+            .title("Overwrite existing file?")
+            .kind(MessageDialogKind::Warning)
+            .buttons(MessageDialogButtons::YesNo)
+            .blocking_show();
+        if !overwrite {
+            return serde_json::json!({ "canceled": true });
+        }
+    }
 
     match fs::write(&save_path, content.as_bytes()) {
         Ok(_)  => serde_json::json!({ "ok": true, "filePath": save_path }),

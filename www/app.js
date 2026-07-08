@@ -5614,7 +5614,9 @@ async function _expertSaveAsm() {
   _expertSyncSourceTextFromEditor();
   const content = _expertGetSourceText();
   try {
-    const res = await window.electronAPI?.saveAsmFile?.(_expertAsmFilePath || "", content);
+    const tab = _getActiveTab();
+    const asmPath = tab?.filePath && /\.(asm|s|a65)$/i.test(tab.filePath) ? tab.filePath : "";
+    const res = await window.electronAPI?.saveAsmFile?.(asmPath, content);
     if (!res || res.canceled) return;
     if (!res.ok) {
       _expertSetStatus(t("vasmSaveError") + ": " + res.error, "error");
@@ -14211,9 +14213,18 @@ function _expertGetStartupProgram() {
   const absPath  = _projResolveAbsPath(sf.path);
   const normAbs  = _normFilePath(absPath);
   const activeTab = tabs.find(t => t.id === activeTabId);
+  const activeTabNorm = activeTab?.filePath ? _normFilePath(activeTab.filePath) : "";
+  const activeTabInProject = !!(activeTabNorm && _expertProjectData.files.some(f => _normFilePath(_projResolveAbsPath(f.path)) === activeTabNorm));
+
+  // If the active tab is not part of the current project (for example a sample
+  // or a scratch tab), compile the visible tab instead of silently switching to
+  // the project's startup file.
+  if (activeTab && !activeTabInProject) {
+    return null;
+  }
 
   // If the startup file tab is active, use the current program
-  if (activeTab && _normFilePath(activeTab.filePath) === normAbs) {
+  if (activeTabNorm && activeTabNorm === normAbs) {
     // In expert mode, parse fresh from editor; in block mode use current program[]
     return expertMode ? _expertBuildProgram() : JSON.parse(JSON.stringify(program));
   }
@@ -21655,6 +21666,14 @@ async function loadSampleFromFile(sampleName) {
     ? collapseLoadedProgram(parseExpertText(sampleData.expertText))
     : collapseLoadedProgram(sampleData.program);
 
+  const activeTab = _getActiveTab();
+  if (activeTab) {
+    activeTab.filePath = null;
+    activeTab.selectedBlockId = null;
+    activeTab.userMacros = {};
+    activeTab.expertText = typeof sampleData.expertText === "string" ? sampleData.expertText : "";
+  }
+
   // Migrate old samples: if no ORG block, prepend one from saved origin
   if (!program.some(b => b.isOrgMacro)) {
     const orgAddr = (sampleData.origin || "0801").replace(/^\$/, "").toUpperCase().padStart(4, "0");
@@ -21703,13 +21722,18 @@ async function loadSampleFromFile(sampleName) {
   renderOriginPreview();
   renderEmulatorRunHint();
   parseUserMacros();  // Parse any user-defined macros in the loaded sample
+  if (activeTab) {
+    activeTab.program = JSON.parse(JSON.stringify(program));
+    activeTab.userMacros = JSON.parse(JSON.stringify(userMacros));
+    activeTab.selectedBlockId = null;
+  }
   renderProgram();
   if (expertMode) _expertSyncFromProgram();
   saveUiSettings();
 
   // Update file display with sample name
   const displayName = `${sampleName}.c64va`;
-  _setCurrentFile(displayName, displayName);
+  _setCurrentFile(displayName, displayName, null);
   markTabClean();
 
   return true;
