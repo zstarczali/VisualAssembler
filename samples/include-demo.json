@@ -136,8 +136,8 @@
       "id": "a38f48fd-4262-41ae-94c2-677d59cb5550",
       "includeAddress": "1500",
       "includeCollapsed": false,
-      "includeFile": "F:\\Development\\VisualAssembler\\samples\\macros-new.json",
-      "includeFileName": "macros-new.json",
+      "includeFile": "./macros-new.json",
+      "includeFileName": "./macros-new.json",
       "isIncludeMacro": true,
       "mnemonic": "INCLUDE",
       "operand": "",
@@ -957,10 +957,10 @@
   "ui": {
     "language": "en",
     "numberBase": "hex",
-    "outputMode": "disasm",
+    "outputMode": "toolkit",
     "runMode": "prg",
     "sample": "include-demo",
-    "theme": "dark",
+    "theme": "oled",
     "zoom": 1.25
   },
   "version": 1

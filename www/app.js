@@ -18864,7 +18864,7 @@ function renderProgram() {
           program[index].validationError = result.error;
         } else {
           program[index].includeFile = isAbsolute ? (result.filePath || typedPath) : typedPath;
-          program[index].includeFileName = result.fileName || typedPath;
+          program[index].includeFileName = isAbsolute ? (result.fileName || typedPath) : typedPath;
           program[index].includedBlocks = (typeof result.text === "string" && result.text.trim().length > 0)
             ? parseExpertText(result.text)
             : (result.blocks || []);

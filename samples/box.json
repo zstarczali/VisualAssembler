@@ -5,7 +5,6 @@
     "extras": [],
     "progName": ""
   },
-  "expertText": "* = $0801\n\n.include \"macros.json\", $1500\n; --------------------------------------------------\n; RAM variables\n; --------------------------------------------------\n.const frame_idx = $C100\n.const points = $C110\n\n.const src_lo = $09\n.const src_hi = $0A\n\n.const draw_bmp_hi = $10\n.const dbuf_bank = $11\n\n.const x0v = $20\n.const y0v = $21\n.const x1v = $22\n.const y1v = $23\n.const dxv = $24\n.const dyv = $25\n.const sxv = $26\n.const syv = $27\n.const errv = $28\n.const cntv = $29\n.const dx2v = $2A\n.const dy2v = $2B\n.const edge_idx = $2C\n\nstart:\n    SEI\n.invoke DisplayOff\n\n    JSR Hires\n\n\n; screen color nybbles: white fg / black bg (bank0)\n    LDA #$10\n    LDX #$00\nfill_scr1:\n    STA $0400,X\n    STA $0500,X\n    STA $0600,X\n    INX\n    BNE fill_scr1\n\n    LDX #$00\nfill_scr2:\n    STA $0700,X\n    INX\n    CPX #$E8\n    BNE fill_scr2\n\n; init double buffering (fills bank1 screen at $4400, sets ZP)\n.invoke DbufSetup\n\n    LDA #$00\n    STA frame_idx\n\n; draw frame 0 while display is off, then enable\n    JSR clear_bitmap\n    JSR load_frame\n    JSR draw_cube\n.invoke DbufSwap\n.invoke DisplayOn\n\nmain_loop:\n    JSR clear_bitmap\n    JSR load_frame\n    JSR draw_cube\n.invoke DbufSwap\n\n    INC frame_idx\n    LDA frame_idx\n    AND #$0F\n    STA frame_idx\n\n    JMP main_loop\n\n; --------------------------------------------------\n; load current frame -> points\n; --------------------------------------------------\nload_frame:\n    LDA frame_idx\n    ASL\n    TAX\n    LDA frame_table,X\n    STA src_lo\n    INX\n    LDA frame_table,X\n    STA src_hi\n\n    LDY #$00\nlf_loop:\n    LDA (src_lo),Y\n    STA points,Y\n    INY\n    CPY #$10\n    BNE lf_loop\n    RTS\n\n; --------------------------------------------------\n; draw all 12 edges\n; --------------------------------------------------\ndraw_cube:\n    LDA #$00\n    STA edge_idx\n\ndc_loop:\n    LDY edge_idx\n\n    LDA cube_edges,Y\n    ASL\n    TAX\n    LDA points,X\n    STA x0v\n    LDA points+1,X\n    STA y0v\n\n    INY\n    LDA cube_edges,Y\n    ASL\n    TAX\n    LDA points,X\n    STA x1v\n    LDA points+1,X\n    STA y1v\n\n    JSR draw_line\n\n    LDA edge_idx\n    CLC\n    ADC #$02\n    STA edge_idx\n    CMP #24\n    BNE dc_loop\n    RTS\n\n.include \"data.asm\"\n",
   "program": [
     {
       "_srcLine": 0,
@@ -46,8 +45,8 @@
       "id": "f7c00b69-b112-4b89-904d-aec108506f23",
       "includeAddress": "1500",
       "includeCollapsed": false,
-      "includeFile": "F:\\Development\\VisualAssembler\\samples\\macros.json",
-      "includeFileName": "macros.json",
+      "includeFile": "./macros.json",
+      "includeFileName": "./macros.json",
       "isIncludeMacro": true,
       "mnemonic": "INCLUDE",
       "operand": "",
@@ -1959,8 +1958,8 @@
       "id": "4a2f5ea0-53ea-4efc-bb23-df790b78b1b2",
       "includeAddress": "",
       "includeCollapsed": false,
-      "includeFile": "F:\\Development\\VisualAssembler\\samples\\data.asm",
-      "includeFileName": "data.asm",
+      "includeFile": "./data.asm",
+      "includeFileName": "./data.asm",
       "isIncludeMacro": true,
       "mnemonic": "INCLUDE",
       "operand": "",
@@ -1985,10 +1984,10 @@
   "ui": {
     "language": "en",
     "numberBase": "hex",
-    "outputMode": "asm",
+    "outputMode": "toolkit",
     "runMode": "prg",
     "sample": "box",
-    "theme": "dark",
+    "theme": "oled",
     "zoom": 1.25
   },
   "version": 1
