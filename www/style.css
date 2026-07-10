@@ -4055,6 +4055,7 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
 }
 
 .expert-project-item {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 5px;
@@ -4065,9 +4066,14 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   border-radius: 4px;
   margin: 1px 3px;
   white-space: nowrap;
-  overflow: hidden;
+  overflow: visible;
   user-select: none;
   min-height: 0;
+}
+
+.expert-project-item:hover,
+.expert-project-item:focus-within {
+  z-index: 1;
 }
 
 .expert-project-item--root {
@@ -7784,6 +7790,7 @@ body.crt-mode #crt-overlay::after {
 /* Ensure relative positioning so ::after can float below */
 .expert-project-item-star,
 .expert-project-item-del,
+.expert-project-item-name,
 .tab-close,
 .tab-new-btn,
 .panel-heading-actions button,
@@ -7801,6 +7808,7 @@ body.crt-mode #crt-overlay::after {
 /* Shared tooltip appearance */
 .expert-project-item-star[aria-label]::after,
 .expert-project-item-del[aria-label]::after,
+.expert-project-item-name[aria-label]::after,
 .tab-close[aria-label]::after,
 .tab-new-btn[aria-label]::after,
 .panel-heading-actions button[aria-label]::after,
@@ -7835,6 +7843,7 @@ body.crt-mode #crt-overlay::after {
    sit near the right edge, so anchor to the right to stay in view */
 .expert-project-item-star[aria-label]::after,
 .expert-project-item-del[aria-label]::after,
+.expert-project-item-name[aria-label]::after,
 .bp-toggle[aria-label]::after,
 .region-copy-btn[aria-label]::after,
 .region-paste-btn[aria-label]::after,
@@ -7846,6 +7855,7 @@ body.crt-mode #crt-overlay::after {
 /* Show on hover / keyboard focus */
 .expert-project-item-star:hover[aria-label]::after,
 .expert-project-item-del:hover[aria-label]::after,
+.expert-project-item-name:hover[aria-label]::after,
 .tab-close:hover[aria-label]::after,
 .tab-new-btn:hover[aria-label]::after,
 .panel-heading-actions button:hover[aria-label]::after,
@@ -7859,6 +7869,7 @@ body.crt-mode #crt-overlay::after {
 .collapse-toggle:hover[aria-label]::after,
 .expert-project-item-star:focus-visible[aria-label]::after,
 .expert-project-item-del:focus-visible[aria-label]::after,
+.expert-project-item-name:focus-visible[aria-label]::after,
 .tab-close:focus-visible[aria-label]::after,
 .tab-new-btn:focus-visible[aria-label]::after,
 .panel-heading-actions button:focus-visible[aria-label]::after,

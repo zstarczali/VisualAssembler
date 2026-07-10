@@ -1,11 +1,11 @@
 # macOS Installation Guide
-Version 2.1.8
+Version 2.2.0
 
-2.1.8: Save ASM now keeps the active tab name in sync, the disassembler follows memory order for fixed-address INCLUDE blocks, and Expert-mode startup/sample tab handling is fixed.
+2.2.0: the project panel now supports project folders with direct source-file opening, relative project file names are fixed, and the expert project icons use custom aria-label tooltips.
 
 ## Quick Install
 
-1. **Download** the 2.1.8 DMG for your architecture from the releases page
+1. **Download** the 2.2.0 DMG for your architecture from the releases page
 2. **Mount** the DMG and drag the app to `/Applications`
 3. **First launch**: Right-click the app → **"Open"** (macOS will block double-click)
 4. Click **"Open"** in the security dialog
@@ -57,4 +57,4 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.1.8 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.2.0 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

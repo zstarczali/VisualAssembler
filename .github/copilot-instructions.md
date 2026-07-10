@@ -662,8 +662,8 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`2.1.4` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, `CLAUDE.md`.
-Főbb újdonságok: kritikus hibák javítása expert módban a `.include` / `.incbin` / `.sid` betöltésénél és fájl-hiány érvényesítésénél mindkét módban; ismeretlen direktíva-fogó; érthetőbb runtime IF / WHILE / UNTIL / INVOKE hibaüzenetek; szélesebb compile error i18n lefedettség (HU / EN / ES / DE); új toolbar gomb az összes régió becsukására/nyitására; szintaxiskiemelés `.for`/`.endf`/`.mouse`/`.exodecrunch`/`.reu_*`/`.turbo_*`/`.supercpu_detect`; ellipsis a Hardware Settings dialógus hosszú útvonalaira.
+`2.2.0` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, `CLAUDE.md`.
+Főbb újdonságok: project panel projektfájl-támogatással és közvetlen source-file nyitással; relatív project fájlnevek javítása; expert project ikonok egységes custom aria-label tooltipjei; megmaradt a Save ASM / disassembler memóriasorrend-fix és az Expert mód projektkezelésének stabilitása.
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező

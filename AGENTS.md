@@ -377,8 +377,8 @@ Lásd `tauri-bridge.js` és `src-tauri/src/lib.rs`. Leggyakoribb commands:
 
 ## 14. Jelenlegi verzió
 
-`2.1.8` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
+`2.2.0` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `CLAUDE.md`, és ez a fájl + copilot-instructions.md.
-Fő 2.1.8 változás: a Save ASM most az aktív tab nevét, fájlmezőjét és ablakcímét is szinkronban frissíti, a disassembler memória-sorrendben renderel, a fix című INCLUDE blokkok nem ugranak a fő program elé, és az Expert mód / sample tab kezelés is javult.
+Fő 2.2.0 változás: projektfájlokkal működő project panel, közvetlen source-file megnyitás a tree-ből, javított relatív fájlnevek a project mentésben, és az expert project ikonok egységes custom aria-label tooltipet kaptak.
 
 Verziónöveléshez lásd a 3. szakasz végén lévő 7-lépéses checklistet.
