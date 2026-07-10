@@ -1,0 +1,16 @@
+{
+  "name": "include-demo",
+  "files": [
+    {
+      "type": "file",
+      "name": "include-demo.asm",
+      "path": "include-demo.asm"
+    },
+    {
+      "type": "file",
+      "name": "macros-new.asm",
+      "path": "macros-new.asm"
+    }
+  ],
+  "startupFile": null
+}

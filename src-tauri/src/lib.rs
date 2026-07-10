@@ -1197,6 +1197,18 @@ async fn reload_include_file(app: AppHandle, file_path: String, base_dir: Option
 
     if input_path.is_absolute() {
         candidates.push(input_path.to_path_buf());
+        // Cross-platform fallback: if the stored absolute path is from a different OS
+        // (e.g. a Windows path opened on macOS), try resolving by filename only.
+        if let Some(file_name) = input_path.file_name() {
+            let bare = file_name.to_string_lossy();
+            let wf = { let cfg = read_config(&app); get_working_folder_path(&cfg) };
+            if let Some(folder) = wf.as_ref() {
+                candidates.push(folder.join(bare.as_ref()));
+            }
+            if let Ok(p) = resolve_resource_file(&app, &format!("samples/{}", bare)) {
+                candidates.push(p);
+            }
+        }
     } else {
         if let Some(base) = base_dir.as_deref() {
             let base = base.trim();

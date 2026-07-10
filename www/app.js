@@ -7370,20 +7370,33 @@ function parseExpertText(text) {
     if (regionM) { blocks.push(_importMakeRegion(regionM[1].trim())); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
     if (/^\.endregion(?:\s+.+)?$/i.test(line)) { blocks.push(_importMakeEndRegion()); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
 
-    // .macro name(param1, param2) or .macro name param1, param2 / .endm
-    const macroM = line.match(/^\.macro\s+([A-Za-z_][A-Za-z0-9_]*)(?:\(([^)]*)\)|\s*(.*?))?\s*$/i);
+    const macroLine = line.trimEnd().charCodeAt(line.trimEnd().length - 1) === 123
+      ? line.trimEnd().slice(0, -1).trimEnd()
+      : line;
+
+    // .macro name(param1, param2) or .macro name param1, param2
+    const macroM = macroLine.match(/^\.macro\s+([A-Za-z_][A-Za-z0-9_]*)(?:\(([^)]*)\)|\s*(.*?))?\s*$/i);
     if (macroM) {
       const macroParams = (macroM[2] !== undefined ? macroM[2] : (macroM[3] || "")).trim();
       blocks.push(_importMakeMacroDefStart(macroM[1], macroParams)); if (commentText) blocks.push(_importMakeComment(commentText)); continue;
     }
-    if (/^\.endm\s*$/i.test(line)) { blocks.push(_importMakeMacroDefEnd()); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
+    if (/^(?:\.endm|\x7d)\s*$/i.test(line)) { blocks.push(_importMakeMacroDefEnd()); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
     if (/^\.end\s*$/i.test(line)) { blocks.push(_importMakeEndMacro()); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
 
-    // .invoke/.call macroname(arg1, arg2, ...) or .invoke/.call macroname arg1, arg2
-    const invokeM = line.match(/^\.(invoke|call)\s+([A-Za-z_][A-Za-z0-9_]*)(?:\(([^)]*)\)|\s+(.*?))?\s*$/i);
+    // .invoke/.call macroname(arg1, arg2, ...), Kick-style ":macroname(...)" or "macroname(...)"
+    const kickInvokeM = line.match(/^:\s*([A-Za-z_][A-Za-z0-9_]*)(?:\(([^)]*)\)|\s+(.*?))?\s*$/i);
+    const dotInvokeM = line.match(/^\.(invoke|call)\s+([A-Za-z_][A-Za-z0-9_]*)(?:\(([^)]*)\)|\s+(.*?))?\s*$/i);
+    const bareInvokeM = line.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*\(([^)]*)\)\s*$/i);
+    const invokeM = kickInvokeM || dotInvokeM || bareInvokeM;
     if (invokeM) {
-      const invokeArgs = (invokeM[3] !== undefined ? invokeM[3] : (invokeM[4] || "")).trim();
-      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "INVOKE", operand: invokeM[2], rawOperand: invokeM[2], description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isMacroInvoke: true, invokeMacroName: invokeM[2], invokeArgs, invokeSyntax: invokeM[1].toLowerCase() });  
+      const invokeMacroName = kickInvokeM ? kickInvokeM[1] : (dotInvokeM ? dotInvokeM[2] : bareInvokeM[1]);
+      const invokeArgs = (kickInvokeM
+        ? (kickInvokeM[2] !== undefined ? kickInvokeM[2] : (kickInvokeM[3] || ""))
+        : dotInvokeM
+          ? (dotInvokeM[3] !== undefined ? dotInvokeM[3] : (dotInvokeM[4] || ""))
+          : (bareInvokeM[2] || "")).trim();
+      const invokeSyntax = kickInvokeM ? ":" : (dotInvokeM ? dotInvokeM[1].toLowerCase() : ":");
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "INVOKE", operand: invokeMacroName, rawOperand: invokeMacroName, description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isMacroInvoke: true, invokeMacroName, invokeArgs, invokeSyntax });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -8007,6 +8020,58 @@ function _disasmBytes(bytes, baseAddr) {
   return result;
 }
 
+function _layoutLineSortAddress(line, labelMap = null) {
+  const addr = Number(line?.address);
+  return Number.isFinite(addr) ? addr : Number.MAX_SAFE_INTEGER;
+}
+
+function _disasmLineSortAddress(line, labelMap = null) {
+  const block = line?.block || {};
+  if (block.isTextMacro) {
+    const x = resolveProgramValueWithConst(block.textX ?? "0", "dec") || 0;
+    const y = resolveProgramValueWithConst(block.textY ?? "0", "dec") || 0;
+    return 0x0400 + (y * 40) + x;
+  }
+  if (block.isStringMacro) {
+    return parseAddressValue(block.stringAddress, labelMap) ?? 0xC000;
+  }
+  if (block.isDataMacro) {
+    return parseAddressValue(block.dataAddress, labelMap) ?? _layoutLineSortAddress(line, labelMap);
+  }
+  if (block.isRawBytesMacro) {
+    return parseAddressValue(block.rawBytesAddress, labelMap) ?? 0xC000;
+  }
+  if (block.isRawTextMacro) {
+    return parseAddressValue(block.rawTextAddress, labelMap) ?? 0xC000;
+  }
+  if (block.isPetsciiMacro) {
+    return parseAddressValue(block.petsciiAddress, labelMap) ?? 0xC000;
+  }
+  if (block.isIncBinMacro) {
+    return parseMacroAddress(block.incBinAddress || "$C000", labelMap) ?? 0xC000;
+  }
+  if (block.isSidMacro) {
+    return block.sidCustomAddress
+      ? (parseAddressValue(block.sidCustomAddress, labelMap) ?? _layoutLineSortAddress(line, labelMap))
+      : (Number(block.sidLoadAddress) || _layoutLineSortAddress(line, labelMap));
+  }
+  return _layoutLineSortAddress(line, labelMap);
+}
+
+function _compareLayoutLineRefs(left, right, labelMap = null) {
+  const leftAddr = _layoutLineSortAddress(left.line, labelMap);
+  const rightAddr = _layoutLineSortAddress(right.line, labelMap);
+  if (leftAddr !== rightAddr) return leftAddr - rightAddr;
+  return left.index - right.index;
+}
+
+function _compareDisasmLayoutLineRefs(left, right, labelMap = null) {
+  const leftAddr = _disasmLineSortAddress(left.line, labelMap);
+  const rightAddr = _disasmLineSortAddress(right.line, labelMap);
+  if (leftAddr !== rightAddr) return leftAddr - rightAddr;
+  return left.index - right.index;
+}
+
 // Build syntax-highlighted disassembler HTML from current program[].
 // Caller must ensure program[] is set to the desired block list before calling.
 function _buildDisasmHTML() {
@@ -8038,7 +8103,7 @@ function _buildDisasmHTML() {
         if (line.block.isLabel && line.block._syntheticMacroLabel) return false;
         return true;
       })
-      .sort((a, b) => (a.line.address - b.line.address) || (a.index - b.index));
+      .sort((left, right) => _compareDisasmLayoutLineRefs(left, right, labelMap));
 
     for (const { line } of orderedLines) {
       // Skip non-code blocks
@@ -8493,7 +8558,7 @@ function _expertRenderProjectTree() {
     const nameSpan = document.createElement("span");
     nameSpan.className = "expert-project-item-name";
     nameSpan.textContent = file.name;
-    nameSpan.title = file.path;
+    nameSpan.setAttribute("aria-label", file.path);
 
     // Startup star button
     const starBtn = document.createElement("button");
@@ -13742,6 +13807,211 @@ function _buildDisasmText() {
   return (host.textContent || "").replace(/\u00A0/g, " ");
 }
 
+function _buildUniversalAsmExportText() {
+  const layout = getProgramLayout();
+  const headerLines = [
+    `; Generated by C64 Visual Assembler ${appVersionText || "v?"}`,
+    `; https://zstarczali.itch.io/visual-assembler-commodore-64`
+  ];
+  if (!program.length) {
+    return `${headerLines.join("\n")}\n;\n* = ${layout.origin.text}`;
+  }
+
+  const labelMap = new Map();
+  layout.lines.forEach((line) => addLayoutLabels(labelMap, line));
+  labelMap._anonAddrs = _collectAnonLabels(layout);
+
+  const addrToLabels = new Map();
+  const equNames = new Set();
+  for (const [name, addr] of labelMap) {
+    if (!addrToLabels.has(addr)) addrToLabels.set(addr, []);
+    addrToLabels.get(addr).push(name);
+  }
+  const deferredSections = getDeferredMemorySections(layout);
+  layout.lines.forEach((line) => {
+    const block = line.block || {};
+    if (block.isConstMacro && block.constName) equNames.add(block.constName);
+    if (block.isVarMacro && block.varName) equNames.add(block.varName);
+  });
+
+  const orderedLines = layout.lines
+    .map((line, index) => ({ line, index }))
+    .filter(({ line }) => {
+      if (line.conditionallySkipped) return false;
+      if (line.block._isSavedAddress || line.block._isRestoreAddress) return false;
+      if (line.block._macroSourceBlock || line.block._isMacroInvokeHeader) return false;
+      if (line.block.isComment) return false;
+      if (line.block.isRegionMacro || line.block.isEndRegionMacro) return false;
+      if (line.block.isIncludeMacro) return false;
+      if (line.block.isOrgMacro) return false;
+      return true;
+    })
+    .sort(_compareLayoutLineRefs);
+
+  const lines = [];
+  let currentAddress = null;
+  const emittedLabels = new Set();
+
+  const emitOrg = (address) => {
+    if (typeof address !== "number" || Number.isNaN(address)) return;
+    if (currentAddress !== address) {
+      lines.push(`* = ${formatAddress(address)}`);
+      currentAddress = address;
+    }
+  };
+
+  const advanceAddress = (byteCount) => {
+    if (typeof currentAddress !== "number" || Number.isNaN(currentAddress)) return;
+    if (typeof byteCount !== "number" || Number.isNaN(byteCount)) return;
+    currentAddress += byteCount;
+  };
+
+  const emitLabelsForAddress = (address) => {
+    const labels = addrToLabels.get(address);
+    if (!labels || !labels.length) return;
+    labels.forEach((label) => {
+      if (equNames.has(label) || emittedLabels.has(label)) return;
+      lines.push(`${label}:`);
+      emittedLabels.add(label);
+    });
+  };
+
+  for (const { line } of orderedLines) {
+    const block = line.block || {};
+    const address = line.address;
+
+    if (block.isConstMacro) {
+      const constVal = parseNumberByBase((block.rawOperand || "").replace(/^\$/, ""), block.base);
+      if (block.constName && constVal !== null) {
+        lines.push(`${block.constName} = ${formatAddress(constVal)}`);
+        emittedLabels.add(block.constName);
+      } else if (block.constName) {
+        lines.push(`${block.constName} = ${block.rawOperand || "?"}`);
+        emittedLabels.add(block.constName);
+      }
+      continue;
+    }
+
+    if (block.isVarMacro) {
+      if (block.varName && typeof block._varAddress === "number") {
+        lines.push(`${block.varName} = ${formatAddress(block._varAddress)}`);
+        emittedLabels.add(block.varName);
+      }
+      continue;
+    }
+
+    if (block.isTableMacro) {
+      if (block.tableName) {
+        emitOrg(typeof block.tableAddress === "string" && block.tableAddress
+          ? (parseAddressValue(block.tableAddress, labelMap) ?? address)
+          : address);
+        lines.push(`${block.tableName}:`);
+        emittedLabels.add(block.tableName);
+      }
+      continue;
+    }
+
+    if (block.isLabel) {
+      emitOrg(address);
+      lines.push(`${block.labelName || "label"}:`);
+      if (block.labelName) emittedLabels.add(block.labelName);
+      continue;
+    }
+
+    if (block.isAnonymousLabel) {
+      emitOrg(address);
+      lines.push("-");
+      continue;
+    }
+
+    if (block.isBlankLine) {
+      lines.push("");
+      continue;
+    }
+
+    if (block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro) {
+      continue;
+    }
+
+    const isDataBlock = block.isByteMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro;
+    const compiled = isDataBlock ? { ok: true, bytes: [] } : compileLineBytes(line, labelMap);
+    if (!compiled.ok) {
+      continue;
+    }
+
+    emitOrg(address);
+    emitLabelsForAddress(address);
+
+    if (isDataBlock) {
+      const rawBytes = block.isByteMacro
+        ? parseByteMacro(block.rawOperand, block.base)
+        : block.isFillMacro
+          ? (() => {
+              const parsed = parseFillMacro(block.rawOperand, block.base);
+              return parsed && !isNaN(parsed.count) && !isNaN(parsed.value)
+                ? new Array(parsed.count).fill(parsed.value & 0xFF)
+                : [];
+            })()
+          : block.isAlignMacro
+            ? (() => {
+                const boundary = parseNumberByBase(block.rawOperand.replace(/^\$/, ""), block.base);
+                if (!boundary || boundary < 1) return [];
+                const remainder = address % boundary;
+                const padding = remainder === 0 ? 0 : boundary - remainder;
+                return new Array(padding).fill(0x00);
+              })()
+            : block.isRawBytesMacro
+              ? parseByteMacro(block.rawOperand, block.base)
+              : block.isRawTextMacro
+                ? encodeTextMacro(block.rawOperand, block.textCharset || "standard")
+                    .map((byte) => {
+                      const rawOffset = resolveProgramValueWithConst(block.charOffset || "0", "hex");
+                      return (byte + (isNaN(rawOffset) ? 0 : rawOffset)) & 0xFF;
+                    })
+                : block.isPetsciiMacro
+                  ? (() => {
+                      const bytes = encodePetsciiMacro(block.rawOperand, block.petsciiCharset || "upper");
+                      if (block.petsciiNullTerminated) bytes.push(0x00);
+                      return bytes;
+                    })()
+        : block.isIncBinMacro
+                    ? Array.from(block.incBinBytes || [])
+                    : Array.from(block.sidBytes || []);
+
+      if (block.isWordMacro) {
+        const words = parseWordMacro(block.rawOperand, block.base);
+        _formatPlainWordLines(words).forEach((lineText) => lines.push(lineText));
+        advanceAddress(words.length * 2);
+      } else {
+        _formatPlainByteLines(rawBytes).forEach((lineText) => lines.push(lineText));
+        advanceAddress(rawBytes.length);
+      }
+      continue;
+    }
+
+    if (!compiled.bytes.length) {
+      continue;
+    }
+
+    const disasmLines = _formatPlainDisasmLines(compiled.bytes, address, labelMap);
+    disasmLines.forEach((lineText) => lines.push(lineText));
+    advanceAddress(compiled.bytes.length);
+  }
+
+  if (deferredSections.length) {
+    deferredSections.sort((left, right) => left.address - right.address || left.type.localeCompare(right.type));
+    lines.push("", `; ${t("remoteMemoryData")}`);
+    deferredSections.forEach((section) => {
+      if (!section.bytes.length) return;
+      lines.push(`* = ${formatAddress(section.address)}`);
+      if (section.label) lines.push(`; ${section.label}`);
+      _formatPlainByteLines(section.bytes).forEach((lineText) => lines.push(lineText));
+    });
+  }
+
+  return `${headerLines.join("\n")}\n;\n${lines.join("\n").trimEnd()}`;
+}
+
 function _replaceAddressesWithLabels(text, addrToLabel) {
   if (!text) return "";
   return text.replace(/\$([0-9A-F]{4})\b/gi, (match, hex) => {
@@ -14115,14 +14385,33 @@ function _getPlainAsmSourceText() {
   return mainLines.join("\n");
 }
 
+function _getKickAsmExportText() {
+  const buildExportText = () => _buildUniversalAsmExportText() || "";
+
+  if (expertMode && expertEditor) {
+    const blocks = _expertBuildProgram();
+    const savedProgram = program;
+    const savedUserMacros = userMacros;
+    program = blocks;
+    parseUserMacros();
+    try {
+      return buildExportText();
+    } finally {
+      program = savedProgram;
+      userMacros = savedUserMacros;
+    }
+  }
+
+  return buildExportText();
+}
+
 async function copyAsmToClipboard() {
   if (!copyAsmButton) {
     return;
   }
 
   try {
-    const header = await _getAsmExportHeader();
-    await navigator.clipboard.writeText(header + _getPlainAsmSourceText());
+    await navigator.clipboard.writeText(_getKickAsmExportText());
     copyAsmButton.textContent = t("asmCopied");
     window.setTimeout(() => {
       copyAsmButton.textContent = t("copyAsm");
@@ -18864,7 +19153,7 @@ function renderProgram() {
           program[index].validationError = result.error;
         } else {
           program[index].includeFile = isAbsolute ? (result.filePath || typedPath) : typedPath;
-          program[index].includeFileName = result.fileName || typedPath;
+          program[index].includeFileName = isAbsolute ? (result.fileName || typedPath) : typedPath;
           program[index].includedBlocks = (typeof result.text === "string" && result.text.trim().length > 0)
             ? parseExpertText(result.text)
             : (result.blocks || []);

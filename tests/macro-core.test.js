@@ -69,6 +69,11 @@ function createMacroContext(extraContext = {}) {
       "_expertGetHiddenRegionLines",
       "_expertFindCurrentRegionBounds",
       "_expertVisibleLineToSourceLine",
+      "_layoutLineSortAddress",
+      "_disasmLineSortAddress",
+      "_compareLayoutLineRefs",
+      "_compareDisasmLayoutLineRefs",
+      "_buildDisasmHTML",
       "parseExpertText",
       "_blockToExpertLine",
       "validateSpriteInitMacro",
@@ -83,6 +88,7 @@ function createMacroContext(extraContext = {}) {
     ],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
+      _escHtml: (value) => String(value).replace(/[&<>]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[ch])),
       getLiveValidationError: () => "",
       opcodeMap: {
         LDA: { absolute: 0xAD, absoluteX: 0xBD, absoluteY: 0xB9, immediate: 0xA9, zeroPage: 0xA5 },
@@ -1335,6 +1341,28 @@ test("INCBIN becomes a deferred section at its target address", () => {
   assert.deepEqual(plainSections, [
     { type: "incbin", address: 0xC300, bytes: [0x11, 0x22, 0x33] }
   ]);
+});
+
+test("disassembler sorts deferred data by rendered address, not source order", () => {
+  const ctx = createMacroContext();
+  const codeLine = {
+    address: 0x1000,
+    block: {
+      mnemonic: "SEI",
+      addressingMode: "implied"
+    }
+  };
+  const deferredLine = {
+    address: 0x1001,
+    block: {
+      isRawBytesMacro: true,
+      rawBytesAddress: "$1100"
+    }
+  };
+
+  assert.equal(ctx._disasmLineSortAddress(codeLine, new Map()), 0x1000);
+  assert.equal(ctx._disasmLineSortAddress(deferredLine, new Map()), 0x1100);
+  assert.equal(ctx._compareDisasmLayoutLineRefs({ line: deferredLine, index: 1 }, { line: codeLine, index: 0 }, new Map()) > 0, true);
 });
 
 test("ORG, TABLE, SID, INCBIN, and INCLUDE round-trip in expert text", () => {

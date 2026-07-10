@@ -1,0 +1,21 @@
+{
+  "name": "cube",
+  "files": [
+    {
+      "type": "file",
+      "name": "box.json",
+      "path": "box.json"
+    },
+    {
+      "type": "file",
+      "name": "macros.json",
+      "path": "macros.json"
+    },
+    {
+      "type": "file",
+      "name": "data.asm",
+      "path": "data.asm"
+    }
+  ],
+  "startupFile": "box.json"
+}
