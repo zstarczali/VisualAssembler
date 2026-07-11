@@ -4811,9 +4811,13 @@ function collapseLoadedProgram(blocks) {
 }
 
 function normalizeProgramOperands(blocks) {
+  const BRANCH_MNEMS = new Set(["BEQ","BNE","BCC","BCS","BMI","BPL","BVC","BVS","BRA"]);
   return (blocks || []).map((block) => {
     const copy = { ...block };
     if (copy.mnemonic && copy.addressingMode && opcodeMap?.[copy.mnemonic]) {
+      if (BRANCH_MNEMS.has(copy.mnemonic) && copy.addressingMode !== "relative") {
+        copy.addressingMode = "relative";
+      }
       const preview = buildOperandPreview(copy.addressingMode, String(copy.rawOperand ?? "").trim(), copy.base || "hex");
       if (!preview.error) {
         copy.operand = preview.operand;
@@ -13157,6 +13161,7 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
 
   if (operandRaw) {
     const op = operandRaw;
+    const isBranchMnemonic = branchMnems.has(mnemonic);
 
     if (op.startsWith("#")) {
       // Immediate
@@ -13186,16 +13191,21 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
     } else if (/^\$[0-9A-Fa-f]+,X$/i.test(op)) {
       const m = op.match(/^(\$[0-9A-Fa-f]+),X$/i);
       rawOperand = m[1].slice(1).toUpperCase(); base = "hex";
-      addressingMode = parseInt(rawOperand, 16) > 0xFF ? "absoluteX" : "zeroPageX";
+      const explicitWideHex = rawOperand.length > 2;
+      addressingMode = explicitWideHex || parseInt(rawOperand, 16) > 0xFF ? "absoluteX" : "zeroPageX";
       displayOperand = "$" + rawOperand + ",X";
     } else if (/^\$[0-9A-Fa-f]+,Y$/i.test(op)) {
       const m = op.match(/^(\$[0-9A-Fa-f]+),Y$/i);
       rawOperand = m[1].slice(1).toUpperCase(); base = "hex";
-      addressingMode = parseInt(rawOperand, 16) > 0xFF ? "absoluteY" : "zeroPageY";
+      const explicitWideHex = rawOperand.length > 2;
+      addressingMode = explicitWideHex || parseInt(rawOperand, 16) > 0xFF ? "absoluteY" : "zeroPageY";
       displayOperand = "$" + rawOperand + ",Y";
     } else if (/^\$[0-9A-Fa-f]+$/i.test(op)) {
       rawOperand = op.slice(1).toUpperCase(); base = "hex";
-      addressingMode = parseInt(rawOperand, 16) > 0xFF ? "absolute" : "zeroPage";
+      const explicitWideHex = rawOperand.length > 2;
+      addressingMode = isBranchMnemonic
+        ? "relative"
+        : (explicitWideHex || parseInt(rawOperand, 16) > 0xFF ? "absolute" : "zeroPage");
       displayOperand = "$" + rawOperand;
     } else if (/^\([A-Za-z_][A-Za-z0-9_]*,X\)$/i.test(op)) {
       // (label,X) indirectX with label
@@ -13228,15 +13238,16 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
       displayOperand = op;
     } else if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(op)) {
       rawOperand = op; base = "hex";
-      addressingMode = branchMnems.has(mnemonic) ? "relative" : "absolute";
+      addressingMode = isBranchMnemonic ? "relative" : "absolute";
       displayOperand = op;
     } else if (/^\d+$/.test(op)) {
       rawOperand = op; base = "dec";
-      addressingMode = parseInt(op, 10) > 255 ? "absolute" : "zeroPage";
+      addressingMode = isBranchMnemonic ? "relative" : (parseInt(op, 10) > 255 ? "absolute" : "zeroPage");
       displayOperand = op;
     } else {
       rawOperand = op; base = "hex";
-      addressingMode = "absolute"; displayOperand = op;
+      addressingMode = isBranchMnemonic ? "relative" : "absolute";
+      displayOperand = op;
     }
   }
 
@@ -13303,14 +13314,6 @@ function parseAsmText(text) {
         ? orgM[1].toUpperCase().padStart(4, "0")
         : parseInt(orgM[2], 10).toString(16).toUpperCase().padStart(4, "0");
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "ORG", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isOrgMacro: true, orgAddress });
-      blocks.push({
-        id: crypto.randomUUID(),
-        category: "Makrok", mnemonic: "ORG",
-        operand: "", rawOperand: "", description: "",
-        addressingMode: "implied", base: "hex",
-        validationError: "", collapsed: true,
-        isOrgMacro: true, orgAddress
-      });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -13833,6 +13836,11 @@ function _buildUniversalAsmExportText() {
     if (block.isConstMacro && block.constName) equNames.add(block.constName);
     if (block.isVarMacro && block.varName) equNames.add(block.varName);
   });
+  const addrToLabel = new Map();
+  for (const [addr, names] of addrToLabels) {
+    const preferred = names.find((name) => !equNames.has(name)) || names[0];
+    if (preferred) addrToLabel.set(addr, preferred);
+  }
 
   const orderedLines = layout.lines
     .map((line, index) => ({ line, index }))
@@ -13983,7 +13991,10 @@ function _buildUniversalAsmExportText() {
         _formatPlainWordLines(words).forEach((lineText) => lines.push(lineText));
         advanceAddress(words.length * 2);
       } else {
-        _formatPlainByteLines(rawBytes).forEach((lineText) => lines.push(lineText));
+        const byteLines = block.isByteMacro
+          ? _formatByteMacroAsmLines(block.rawOperand, block.base, labelMap)
+          : _formatPlainByteLines(rawBytes);
+        byteLines.forEach((lineText) => lines.push(lineText));
         advanceAddress(rawBytes.length);
       }
       continue;
@@ -13993,7 +14004,7 @@ function _buildUniversalAsmExportText() {
       continue;
     }
 
-    const disasmLines = _formatPlainDisasmLines(compiled.bytes, address, labelMap);
+    const disasmLines = _formatPlainDisasmLines(compiled.bytes, address, addrToLabel);
     disasmLines.forEach((lineText) => lines.push(lineText));
     advanceAddress(compiled.bytes.length);
   }
@@ -14030,12 +14041,46 @@ function _formatPlainByteLines(bytes, perLine = 16, indent = "    ") {
   return lines;
 }
 
+function _formatByteMacroAsmLines(raw, base = "dec", labels = null, perLine = 8, indent = "    ") {
+  const parts = String(raw || "")
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (!parts.length) return [];
+
+  const rendered = parts.map((part) => {
+    if (/^[<>][A-Za-z_.][A-Za-z0-9_.]*$/.test(part)) return part;
+    if (/^%[01]+$/.test(part)) return part;
+    if (/^\$[0-9A-Fa-f]+$/.test(part)) return `$${part.slice(1).toUpperCase()}`;
+    if (/^0x[0-9A-Fa-f]+$/i.test(part)) return `$${part.slice(2).toUpperCase()}`;
+
+    const numericByBase = parseNumberByBase(part, base);
+    if (numericByBase !== null && !isNaN(numericByBase)) {
+      return toHex(numericByBase & 0xFF, 2);
+    }
+
+    if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(part)) return part;
+
+    const resolved = resolveProgramNumericValue(part, labels, base);
+    if (resolved !== null && !isNaN(resolved)) {
+      return toHex(resolved & 0xFF, 2);
+    }
+    return part;
+  });
+
+  const lines = [];
+  for (let i = 0; i < rendered.length; i += perLine) {
+    lines.push(`${indent}.byte ${rendered.slice(i, i + perLine).join(", ")}`);
+  }
+  return lines;
+}
+
 function _formatPlainWordLines(words, perLine = 8, indent = "    ") {
   if (!Array.isArray(words) || !words.length) return [];
   const lines = [];
   for (let i = 0; i < words.length; i += perLine) {
     const chunk = words.slice(i, i + perLine);
-    lines.push(`${indent}.word ${chunk.map((word) => `$${toHex(word, 4)}`).join(", ")}`);
+    lines.push(`${indent}.word ${chunk.map((word) => toHex(word, 4)).join(", ")}`);
   }
   return lines;
 }
@@ -21326,6 +21371,11 @@ function renderAsmOutput() {
     return;
   }
 
+  const labels = new Map();
+  layout.lines.forEach((line) => addLayoutLabels(labels, line));
+  labels._anonAddrs = _collectAnonLabels(layout);
+  appendDelayHelperLabel(labels, layout);
+
   const deferredDataSections = [];
   const codeLines = layout.lines.map((line, index) => {
     const lineNumber = `${(index + 1).toString().padStart(2, "0")}`;
@@ -21423,9 +21473,7 @@ function renderAsmOutput() {
     }
 
     if (line.block.isByteMacro) {
-      const asmBytes = parseByteMacro(line.block.rawOperand, line.block.base);
-      const chunks = chunkBytes(asmBytes, 8);
-      return chunks.map(chunk => `    .byte ${chunk.map(b => toHex(b, 2)).join(", ")}`).join("\n");
+      return _formatByteMacroAsmLines(line.block.rawOperand, line.block.base, labels).join("\n");
     }
 
     if (line.block.isStringMacro) {
