@@ -268,6 +268,7 @@ const addSelectedButton = document.getElementById("add-selected");
 const clearProgramButton = document.getElementById("clear-program");
 const collapseAllButton = document.getElementById("collapse-all");
 const expandAllButton = document.getElementById("expand-all");
+const importAsmButton = document.getElementById("import-asm");
 const copyAsmButton = document.getElementById("copy-asm");
 const runEmulatorButton = document.getElementById("run-emulator");
 const runDebuggerButton = document.getElementById("run-debugger");
@@ -2049,6 +2050,10 @@ function initPalette() {
   clearProgramButton.addEventListener("click", clearProgram);
   collapseAllButton.addEventListener("click", collapseAllBlocks);
   expandAllButton.addEventListener("click", expandAllBlocks);
+  importAsmButton?.addEventListener("click", () => {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    importAsmFile();
+  });
   copyAsmButton?.addEventListener("click", () => {
     document.querySelector(".control-menu")?.removeAttribute("open");
     copyAsmToClipboard();
@@ -2710,6 +2715,7 @@ function applyTranslations() {
       runModeArrow.setAttribute("aria-label", t("runModeSelect"));
       runModeArrow.removeAttribute("title");
     }
+    setText("#import-asm", t("importAsm"));
     setText("#copy-asm", t("copyAsm"));
     setText("#save-project", t("saveProject"));
     setText("#save-project-as", t("saveProgramAs"));
@@ -2748,6 +2754,8 @@ function applyTranslations() {
     exitAppButton?.setAttribute("aria-label", t("exitApp"));
     chooseViceButton?.setAttribute("title", t("openEmulator"));
     chooseViceButton?.setAttribute("aria-label", t("openEmulator"));
+    importAsmButton?.setAttribute("aria-label", t("importAsmHint"));
+    if (importAsmButton?.hasAttribute("title")) importAsmButton.removeAttribute("title");
     copyAsmButton?.setAttribute("title", t("copyAsm"));
     copyAsmButton?.setAttribute("aria-label", t("copyAsm"));
     saveProjectButton?.setAttribute("title", t("saveProject"));
@@ -4811,9 +4819,13 @@ function collapseLoadedProgram(blocks) {
 }
 
 function normalizeProgramOperands(blocks) {
+  const BRANCH_MNEMS = new Set(["BEQ","BNE","BCC","BCS","BMI","BPL","BVC","BVS","BRA"]);
   return (blocks || []).map((block) => {
     const copy = { ...block };
     if (copy.mnemonic && copy.addressingMode && opcodeMap?.[copy.mnemonic]) {
+      if (BRANCH_MNEMS.has(copy.mnemonic) && copy.addressingMode !== "relative") {
+        copy.addressingMode = "relative";
+      }
       const preview = buildOperandPreview(copy.addressingMode, String(copy.rawOperand ?? "").trim(), copy.base || "hex");
       if (!preview.error) {
         copy.operand = preview.operand;
@@ -5024,7 +5036,14 @@ function _blockToExpertLine(block) {
   if (block.isEndRegionMacro) return `.endregion`;
   if (block.isMacroDefStart)  return `.macro ${block.macroName || block.rawOperand || "myMacro"}${block.macroParams ? "(" + block.macroParams + ")" : ""}`;
   if (block.isMacroDefEnd)    return `.endm`;
-  if (block.isMacroInvoke)    return `.${block.invokeSyntax || "invoke"} ${block.invokeMacroName || "myMacro"}${block.invokeArgs ? "(" + block.invokeArgs + ")" : ""}`;  
+  if (block.isMacroInvoke) {
+    const _invName = block.invokeMacroName || "myMacro";
+    const _invArgs = block.invokeArgs ? "(" + block.invokeArgs + ")" : "";
+    const _invSyntax = block.invokeSyntax || "invoke";
+    // `:` = Kick-style prefix (":NAME(args)") — no dot, no space between prefix and name.
+    // Prior versions emitted `.: NAME(args)` which round-tripped to a dropped invoke.
+    return _invSyntax === ":" ? `:${_invName}${_invArgs}` : `.${_invSyntax} ${_invName}${_invArgs}`;
+  }
 if (block.isSpriteInitMacro)return `.sprite_init ${block.spriteNum || 0}, ${block.spriteColor || 7}, $${(block.spriteDataPage || "21").toUpperCase()}${block.spriteMulticolor ? ", multicolor" : ""}`;
 if (block.isSpritePosMacro) return `.sprite_pos ${block.spriteNum || 0}, ${block.spriteX || 152}, ${block.spriteY || 100}`;
   if (block.isWaitRasterMacro)return `.wait_raster $${(block.rasterLine || "FF").toUpperCase()}`;
@@ -5680,6 +5699,46 @@ async function _expertLoadAsmFromPath(filePath, content, sourceName = "") {
   return name;
 }
 
+async function _importAsmFromPath(filePath, content, sourceName = "") {
+  if (!filePath || typeof content !== "string") {
+    throw new Error("Invalid ASM source payload");
+  }
+
+  const name = sourceName || filePath.replace(/\\/g, "/").split("/").pop();
+
+  _tabSaveCurrent();
+
+  const blocks = parseExpertText(content);
+  _addSrcLineToBlocks(content, blocks);
+
+  const tab = _tabCreate(name);
+  tab.filePath = null;
+  tab.program = blocks;
+  tab.expertText = "";
+  tab.userMacros = {};
+  tabs.push(tab);
+  activeTabId = tab.id;
+
+  program = JSON.parse(JSON.stringify(blocks));
+  userMacros = {};
+  selectedBlockId = null;
+  _expertAsmFilePath = "";
+
+  _setCurrentFile(name, name, null);
+
+  if (expertMode && expertEditor) {
+    _expertSyncFromProgram();
+  }
+
+  parseUserMacros();
+  renderTabBar();
+  renderProgram();
+  renderAsmOutput();
+  markTabClean();
+
+  return name;
+}
+
 async function _expertLoadAsm() {
   try {
     const res = await window.electronAPI?.chooseAsmFile?.();
@@ -5693,6 +5752,24 @@ async function _expertLoadAsm() {
     _expertSetStatus(t("vasmLoadedStatus") + ": " + name, "ok");
   } catch (e) {
     _expertSetStatus(t("vasmLoadError") + ": " + String(e), "error");
+  }
+}
+
+async function importAsmFile() {
+  try {
+    const res = await window.electronAPI?.chooseAsmFile?.();
+    if (!res || res.canceled) return;
+    if (!res.ok) {
+      if (expertMode) _expertSetStatus(t("vasmLoadError") + ": " + res.error, "error");
+      else if (emulatorStatus) emulatorStatus.textContent = t("vasmLoadError") + ": " + res.error;
+      return;
+    }
+
+    const name = await _importAsmFromPath(res.filePath, res.content);
+    if (expertMode) _expertSetStatus(t("vasmLoadedStatus") + ": " + name, "ok");
+  } catch (e) {
+    if (expertMode) _expertSetStatus(t("vasmLoadError") + ": " + String(e), "error");
+    else if (emulatorStatus) emulatorStatus.textContent = t("vasmLoadError") + ": " + String(e);
   }
 }
 
@@ -6725,6 +6802,50 @@ function _updateExpertRegionBg() {
   bgDiv.hidden = false;
 }
 
+function _splitAsmLineComment(rawLine) {
+  const source = String(rawLine || "");
+  let quote = "";
+  let escaped = false;
+
+  for (let i = 0; i < source.length; i++) {
+    const ch = source[i];
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (quote) {
+      if (ch === "\\") {
+        escaped = true;
+        continue;
+      }
+      if (ch === quote) {
+        quote = "";
+      }
+      continue;
+    }
+    if (ch === "\"" || ch === "'") {
+      quote = ch;
+      continue;
+    }
+    if (ch === ";") {
+      return {
+        code: source.slice(0, i),
+        commentText: source.slice(i + 1).trim(),
+        commentPrefix: ";"
+      };
+    }
+    if (ch === "/" && source[i + 1] === "/") {
+      return {
+        code: source.slice(0, i),
+        commentText: source.slice(i + 2).trim(),
+        commentPrefix: "//"
+      };
+    }
+  }
+
+  return { code: source, commentText: "", commentPrefix: "" };
+}
+
 function parseExpertText(text) {
   const BRANCH_MNEMS = new Set(["BEQ","BNE","BCC","BCS","BMI","BPL","BVC","BVS","BRA"]);
   const blocks = [];
@@ -6736,13 +6857,8 @@ function parseExpertText(text) {
   const repeatStack = [];     // entries: { startLabel }
 
   for (let rawLine of text.split("\n")) {
-    const scIdx = rawLine.indexOf(";");
-    let commentText = "";
-    let line = rawLine;
-    if (scIdx >= 0) {
-      commentText = rawLine.slice(scIdx + 1).trim();
-      line = rawLine.slice(0, scIdx);
-    }
+    const { code, commentText } = _splitAsmLineComment(rawLine);
+    let line = code;
     line = line.trim();
 
     if (!line) {
@@ -6757,6 +6873,17 @@ function parseExpertText(text) {
       const orgAddress = orgM[1]
         ? orgM[1].toUpperCase().padStart(4, "0")
         : parseInt(orgM[2], 10).toString(16).toUpperCase().padStart(4, "0");
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "ORG", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isOrgMacro: true, orgAddress });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Kick Assembler: .pc = $XXXX ["segment"]
+    const kickPcM = line.match(/^\.pc\s*=\s*(?:\$([0-9A-Fa-f]{1,4})|(\d{1,5}))(?:\s+"[^"]*")?\s*$/i);
+    if (kickPcM) {
+      const orgAddress = kickPcM[1]
+        ? kickPcM[1].toUpperCase().padStart(4, "0")
+        : parseInt(kickPcM[2], 10).toString(16).toUpperCase().padStart(4, "0");
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "ORG", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isOrgMacro: true, orgAddress });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
@@ -7080,8 +7207,8 @@ function parseExpertText(text) {
       continue;
     }
 
-    // .const NAME = value
-    const constM = line.match(/^\.const\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)\s*$/i);
+    // .const/.label NAME = value
+    const constM = line.match(/^\.(?:const|label)\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)\s*$/i);
     if (constM) { blocks.push(_importMakeConst(constM[1], constM[2].trim())); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
 
     // .var NAME [, size]
@@ -7384,7 +7511,9 @@ function parseExpertText(text) {
     if (/^\.end\s*$/i.test(line)) { blocks.push(_importMakeEndMacro()); if (commentText) blocks.push(_importMakeComment(commentText)); continue; }
 
     // .invoke/.call macroname(arg1, arg2, ...), Kick-style ":macroname(...)" or "macroname(...)"
-    const kickInvokeM = line.match(/^:\s*([A-Za-z_][A-Za-z0-9_]*)(?:\(([^)]*)\)|\s+(.*?))?\s*$/i);
+    // The optional leading dot handles a legacy round-trip artefact where the
+    // exporter emitted `.: NAME(args)` — older saves in the wild still contain it.
+    const kickInvokeM = line.match(/^\.?:\s*([A-Za-z_][A-Za-z0-9_]*)(?:\(([^)]*)\)|\s+(.*?))?\s*$/i);
     const dotInvokeM = line.match(/^\.(invoke|call)\s+([A-Za-z_][A-Za-z0-9_]*)(?:\(([^)]*)\)|\s+(.*?))?\s*$/i);
     const bareInvokeM = line.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*\(([^)]*)\)\s*$/i);
     const invokeM = kickInvokeM || dotInvokeM || bareInvokeM;
@@ -7435,11 +7564,11 @@ function _addSrcLineToBlocks(text, blocks) {
   let bIdx = 0;
   for (let li = 0; li < srcLines.length && bIdx < blocks.length; li++) {
     const raw = srcLines[li];
-    const scIdx = raw.indexOf(";");
-    const codePart = (scIdx >= 0 ? raw.slice(0, scIdx) : raw).trim();
+    const { code, commentText } = _splitAsmLineComment(raw);
+    const codePart = code.trim();
     const hasCode = codePart.length > 0;
-    const hasTrailingComment = scIdx >= 0 && raw.slice(scIdx + 1).trim().length > 0;
-    const isCommentOnly = !hasCode && scIdx >= 0 && raw.slice(scIdx + 1).trim().length > 0;
+    const hasTrailingComment = hasCode && commentText.length > 0;
+    const isCommentOnly = !hasCode && commentText.length > 0;
 
     if (hasCode) {
       // Main block
@@ -13157,6 +13286,7 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
 
   if (operandRaw) {
     const op = operandRaw;
+    const isBranchMnemonic = branchMnems.has(mnemonic);
 
     if (op.startsWith("#")) {
       // Immediate
@@ -13186,35 +13316,46 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
     } else if (/^\$[0-9A-Fa-f]+,X$/i.test(op)) {
       const m = op.match(/^(\$[0-9A-Fa-f]+),X$/i);
       rawOperand = m[1].slice(1).toUpperCase(); base = "hex";
-      addressingMode = parseInt(rawOperand, 16) > 0xFF ? "absoluteX" : "zeroPageX";
+      const explicitWideHex = rawOperand.length > 2;
+      addressingMode = explicitWideHex || parseInt(rawOperand, 16) > 0xFF ? "absoluteX" : "zeroPageX";
       displayOperand = "$" + rawOperand + ",X";
     } else if (/^\$[0-9A-Fa-f]+,Y$/i.test(op)) {
       const m = op.match(/^(\$[0-9A-Fa-f]+),Y$/i);
       rawOperand = m[1].slice(1).toUpperCase(); base = "hex";
-      addressingMode = parseInt(rawOperand, 16) > 0xFF ? "absoluteY" : "zeroPageY";
+      const explicitWideHex = rawOperand.length > 2;
+      addressingMode = explicitWideHex || parseInt(rawOperand, 16) > 0xFF ? "absoluteY" : "zeroPageY";
       displayOperand = "$" + rawOperand + ",Y";
     } else if (/^\$[0-9A-Fa-f]+$/i.test(op)) {
       rawOperand = op.slice(1).toUpperCase(); base = "hex";
-      addressingMode = parseInt(rawOperand, 16) > 0xFF ? "absolute" : "zeroPage";
+      const explicitWideHex = rawOperand.length > 2;
+      addressingMode = isBranchMnemonic
+        ? "relative"
+        : (explicitWideHex || parseInt(rawOperand, 16) > 0xFF ? "absolute" : "zeroPage");
       displayOperand = "$" + rawOperand;
-    } else if (/^\([A-Za-z_][A-Za-z0-9_]*,X\)$/i.test(op)) {
+    } else if (/^\((?:@?[A-Za-z_][A-Za-z0-9_]*|\.[A-Za-z][A-Za-z0-9_]*),X\)$/i.test(op)) {
       // (label,X) indirectX with label
-      const m = op.match(/^\(([A-Za-z_][A-Za-z0-9_]*),X\)$/i);
-      rawOperand = m[1]; base = "hex"; addressingMode = "indirectX";
+      const m = op.match(/^\(((?:@?[A-Za-z_][A-Za-z0-9_]*|\.[A-Za-z][A-Za-z0-9_]*)),X\)$/i);
+      rawOperand = m[1].trim();
+      if (rawOperand.startsWith(".")) rawOperand = rawOperand.slice(1);
+      base = "hex"; addressingMode = "indirectX";
       displayOperand = "(" + rawOperand + ",X)";
-    } else if (/^\([A-Za-z_][A-Za-z0-9_]*\),Y$/i.test(op)) {
+    } else if (/^\((?:@?[A-Za-z_][A-Za-z0-9_]*|\.[A-Za-z][A-Za-z0-9_]*)\),Y$/i.test(op)) {
       // (label),Y indirectY with label
-      const m = op.match(/^\(([A-Za-z_][A-Za-z0-9_]*)\),Y$/i);
-      rawOperand = m[1]; base = "hex"; addressingMode = "indirectY";
+      const m = op.match(/^\(((?:@?[A-Za-z_][A-Za-z0-9_]*|\.[A-Za-z][A-Za-z0-9_]*))\),Y$/i);
+      rawOperand = m[1].trim();
+      if (rawOperand.startsWith(".")) rawOperand = rawOperand.slice(1);
+      base = "hex"; addressingMode = "indirectY";
       displayOperand = "(" + rawOperand + "),Y";
-    } else if (/^[A-Za-z_][A-Za-z0-9_]*(?:\s*[+-]\s*(?:\$[0-9A-Fa-f]+|\d+))?,X$/i.test(op)) {
+    } else if (/^(?:@?[A-Za-z_][A-Za-z0-9_]*|\.[A-Za-z][A-Za-z0-9_]*)(?:\s*[+-]\s*(?:\$[0-9A-Fa-f]+|\d+))?,X$/i.test(op)) {
       // label,X or label+offset,X → absoluteX
       rawOperand = op.slice(0, op.lastIndexOf(",")).trim();
+      if (rawOperand.startsWith(".")) rawOperand = rawOperand.slice(1);
       base = "hex"; addressingMode = "absoluteX";
       displayOperand = rawOperand + ",X";
-    } else if (/^[A-Za-z_][A-Za-z0-9_]*(?:\s*[+-]\s*(?:\$[0-9A-Fa-f]+|\d+))?,Y$/i.test(op)) {
+    } else if (/^(?:@?[A-Za-z_][A-Za-z0-9_]*|\.[A-Za-z][A-Za-z0-9_]*)(?:\s*[+-]\s*(?:\$[0-9A-Fa-f]+|\d+))?,Y$/i.test(op)) {
       // label,Y or label+offset,Y → absoluteY
       rawOperand = op.slice(0, op.lastIndexOf(",")).trim();
+      if (rawOperand.startsWith(".")) rawOperand = rawOperand.slice(1);
       base = "hex"; addressingMode = "absoluteY";
       displayOperand = rawOperand + ",Y";
     } else if (/^\.[A-Za-z][A-Za-z0-9_]*$/.test(op)) {
@@ -13222,21 +13363,22 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
       rawOperand = op.slice(1); base = "hex";
       addressingMode = branchMnems.has(mnemonic) ? "relative" : "absolute";
       displayOperand = rawOperand;
-    } else if (op === "-" || op === "+") {
+    } else if (/^@?[A-Za-z_][A-Za-z0-9_]*$/.test(op)) {
       rawOperand = op; base = "hex";
-      addressingMode = branchMnems.has(mnemonic) ? "relative" : "absolute";
+      addressingMode = isBranchMnemonic ? "relative" : "absolute";
       displayOperand = op;
-    } else if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(op)) {
+    } else if (op === "-" || op === "+") {
       rawOperand = op; base = "hex";
       addressingMode = branchMnems.has(mnemonic) ? "relative" : "absolute";
       displayOperand = op;
     } else if (/^\d+$/.test(op)) {
       rawOperand = op; base = "dec";
-      addressingMode = parseInt(op, 10) > 255 ? "absolute" : "zeroPage";
+      addressingMode = isBranchMnemonic ? "relative" : (parseInt(op, 10) > 255 ? "absolute" : "zeroPage");
       displayOperand = op;
     } else {
       rawOperand = op; base = "hex";
-      addressingMode = "absolute"; displayOperand = op;
+      addressingMode = isBranchMnemonic ? "relative" : "absolute";
+      displayOperand = op;
     }
   }
 
@@ -13253,14 +13395,8 @@ function parseAsmText(text) {
   const blocks = [];
 
   for (let rawLine of text.split("\n")) {
-    // Separate inline comment
-    const scIdx = rawLine.indexOf(";");
-    let commentText = "";
-    let line = rawLine;
-    if (scIdx >= 0) {
-      commentText = rawLine.slice(scIdx + 1).trim();
-      line = rawLine.slice(0, scIdx);
-    }
+    const { code, commentText } = _splitAsmLineComment(rawLine);
+    let line = code;
     line = line.trim();
 
     if (!line) {
@@ -13303,20 +13439,23 @@ function parseAsmText(text) {
         ? orgM[1].toUpperCase().padStart(4, "0")
         : parseInt(orgM[2], 10).toString(16).toUpperCase().padStart(4, "0");
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "ORG", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isOrgMacro: true, orgAddress });
-      blocks.push({
-        id: crypto.randomUUID(),
-        category: "Makrok", mnemonic: "ORG",
-        operand: "", rawOperand: "", description: "",
-        addressingMode: "implied", base: "hex",
-        validationError: "", collapsed: true,
-        isOrgMacro: true, orgAddress
-      });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Kick Assembler: .pc = $XXXX ["segment"]
+    const kickPcM = line.match(/^\.pc\s*=\s*(?:\$([0-9A-Fa-f]{1,4})|(\d{1,5}))(?:\s+"[^"]*")?\s*$/i);
+    if (kickPcM) {
+      const orgAddress = kickPcM[1]
+        ? kickPcM[1].toUpperCase().padStart(4, "0")
+        : parseInt(kickPcM[2], 10).toString(16).toUpperCase().padStart(4, "0");
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "ORG", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isOrgMacro: true, orgAddress });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
 
     // Label: .word value,...  →  LABEL + WORD
-    const lblWordM = line.match(/^([A-Za-z_.][A-Za-z0-9_.]*):\s*\.word\s+(.+)$/i);
+    const lblWordM = line.match(/^((?:@?[A-Za-z_][A-Za-z0-9_]*|\.[A-Za-z][A-Za-z0-9_]*)):\s*\.word\s+(.+)$/i);
     if (lblWordM) {
       blocks.push(_importMakeLabel(lblWordM[1].replace(/^\./, "")));
       blocks.push(_importMakeWord(lblWordM[2].trim()));
@@ -13366,10 +13505,19 @@ function parseAsmText(text) {
     }
 
     // Label: .byte value  →  LABEL + BYTE
-    const lblByteM = line.match(/^([A-Za-z_.][A-Za-z0-9_.]*):\s*\.byte\s+(.+)$/i);
+    const lblByteM = line.match(/^((?:@?[A-Za-z_][A-Za-z0-9_]*|\.[A-Za-z][A-Za-z0-9_]*)):\s*\.byte\s+(.+)$/i);
     if (lblByteM) {
       blocks.push(_importMakeLabel(lblByteM[1].replace(/^\./, "")));
       blocks.push(_importMakeByte(lblByteM[2].trim()));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Label + instruction: "label: LDA #$00" / "@local: BEQ @next"
+    const lblInstrM = line.match(/^((?:@?[A-Za-z_][A-Za-z0-9_]*|\.[A-Za-z][A-Za-z0-9_]*)):\s*([A-Za-z]{2,4})\s*(.*)\s*$/);
+    if (lblInstrM) {
+      blocks.push(_importMakeLabel(lblInstrM[1].replace(/^\./, "")));
+      blocks.push(_importMakeInstruction(lblInstrM[2].toUpperCase(), lblInstrM[3].trim(), BRANCH_MNEMS));
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -13383,7 +13531,7 @@ function parseAsmText(text) {
     }
 
     // Label only: "Name:" or ".name"
-    const lblOnlyM = line.match(/^([A-Za-z_.][A-Za-z0-9_.]*):\s*$/);
+    const lblOnlyM = line.match(/^((?:@?[A-Za-z_][A-Za-z0-9_]*|\.[A-Za-z][A-Za-z0-9_]*)):\s*$/);
     if (lblOnlyM) {
       blocks.push(_importMakeLabel(lblOnlyM[1].replace(/^\./, "")));
       if (commentText) blocks.push(_importMakeComment(commentText));
@@ -13833,6 +13981,11 @@ function _buildUniversalAsmExportText() {
     if (block.isConstMacro && block.constName) equNames.add(block.constName);
     if (block.isVarMacro && block.varName) equNames.add(block.varName);
   });
+  const addrToLabel = new Map();
+  for (const [addr, names] of addrToLabels) {
+    const preferred = names.find((name) => !equNames.has(name)) || names[0];
+    if (preferred) addrToLabel.set(addr, preferred);
+  }
 
   const orderedLines = layout.lines
     .map((line, index) => ({ line, index }))
@@ -13983,7 +14136,10 @@ function _buildUniversalAsmExportText() {
         _formatPlainWordLines(words).forEach((lineText) => lines.push(lineText));
         advanceAddress(words.length * 2);
       } else {
-        _formatPlainByteLines(rawBytes).forEach((lineText) => lines.push(lineText));
+        const byteLines = block.isByteMacro
+          ? _formatByteMacroAsmLines(block.rawOperand, block.base, labelMap)
+          : _formatPlainByteLines(rawBytes);
+        byteLines.forEach((lineText) => lines.push(lineText));
         advanceAddress(rawBytes.length);
       }
       continue;
@@ -13993,7 +14149,7 @@ function _buildUniversalAsmExportText() {
       continue;
     }
 
-    const disasmLines = _formatPlainDisasmLines(compiled.bytes, address, labelMap);
+    const disasmLines = _formatPlainDisasmLines(compiled.bytes, address, addrToLabel);
     disasmLines.forEach((lineText) => lines.push(lineText));
     advanceAddress(compiled.bytes.length);
   }
@@ -14030,12 +14186,46 @@ function _formatPlainByteLines(bytes, perLine = 16, indent = "    ") {
   return lines;
 }
 
+function _formatByteMacroAsmLines(raw, base = "dec", labels = null, perLine = 8, indent = "    ") {
+  const parts = String(raw || "")
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (!parts.length) return [];
+
+  const rendered = parts.map((part) => {
+    if (/^[<>][A-Za-z_.][A-Za-z0-9_.]*$/.test(part)) return part;
+    if (/^%[01]+$/.test(part)) return part;
+    if (/^\$[0-9A-Fa-f]+$/.test(part)) return `$${part.slice(1).toUpperCase()}`;
+    if (/^0x[0-9A-Fa-f]+$/i.test(part)) return `$${part.slice(2).toUpperCase()}`;
+
+    const numericByBase = parseNumberByBase(part, base);
+    if (numericByBase !== null && !isNaN(numericByBase)) {
+      return toHex(numericByBase & 0xFF, 2);
+    }
+
+    if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(part)) return part;
+
+    const resolved = resolveProgramNumericValue(part, labels, base);
+    if (resolved !== null && !isNaN(resolved)) {
+      return toHex(resolved & 0xFF, 2);
+    }
+    return part;
+  });
+
+  const lines = [];
+  for (let i = 0; i < rendered.length; i += perLine) {
+    lines.push(`${indent}.byte ${rendered.slice(i, i + perLine).join(", ")}`);
+  }
+  return lines;
+}
+
 function _formatPlainWordLines(words, perLine = 8, indent = "    ") {
   if (!Array.isArray(words) || !words.length) return [];
   const lines = [];
   for (let i = 0; i < words.length; i += perLine) {
     const chunk = words.slice(i, i + perLine);
-    lines.push(`${indent}.word ${chunk.map((word) => `$${toHex(word, 4)}`).join(", ")}`);
+    lines.push(`${indent}.word ${chunk.map((word) => toHex(word, 4)).join(", ")}`);
   }
   return lines;
 }
@@ -14563,6 +14753,10 @@ function _expertGetStartupProgram() {
 }
 
 function _buildAutostartPrgCore() {
+  if (_programHasEmbeddedBasicAutostart(program)) {
+    return assembleProgramToPrg(parseOriginValue().value);
+  }
+
   const useBasicSys = basicSysToggle ? basicSysToggle.checked : true;
 
   if (!useBasicSys) {
@@ -14597,6 +14791,25 @@ function _buildAutostartPrgCore() {
   bytes.set(codeData, 2 + stubData.length + gapSize);
 
   return { ok: true, bytes, sysAddress };
+}
+
+function _programHasEmbeddedBasicAutostart(blocks) {
+  if (!Array.isArray(blocks) || blocks.length < 2) return false;
+
+  const orgIndex = blocks.findIndex((block) => block?.isOrgMacro && String(block.orgAddress || "").toUpperCase() === "0801");
+  if (orgIndex < 0) return false;
+
+  const normalizedBytes = [];
+  for (let i = orgIndex + 1; i < blocks.length; i++) {
+    const block = blocks[i];
+    if (block?.isComment || block?.isBlankLine || block?.isRegionMacro || block?.isEndRegionMacro) continue;
+    if (!block?.isByteMacro) return false;
+    normalizedBytes.push(String(block.rawOperand || "").replace(/\s+/g, "").toUpperCase());
+    if (normalizedBytes.join(",").startsWith("0B,08,0A,00,9E")) return true;
+    if (normalizedBytes.length > 2) break;
+  }
+
+  return false;
 }
 
 function buildBasicSysStub(sysAddress) {
@@ -16164,7 +16377,10 @@ function resolveNumericOperand(block, labels) {
   if (stripped.startsWith("<")) {
     const name = stripped.slice(1).trim();
     if (labels.has(name)) return { ok: true, value: labels.get(name) & 0xFF };
-    const num = parseNumberByBase(name.replace(/^[\$%]/, ""), block.base);
+    // Bare decimal digits stay decimal even if block.base was set to hex by a
+    // fallback path (e.g. macro invocation reparse of `#<110`).
+    const literalBase = /^\d+$/.test(name) ? "dec" : block.base;
+    const num = parseNumberByBase(name.replace(/^[\$%]/, ""), literalBase);
     if (num !== null) return { ok: true, value: num & 0xFF };
     const constVal = resolveProgramConstValue(name);
     if (constVal !== null) return { ok: true, value: constVal & 0xFF };
@@ -16174,7 +16390,8 @@ function resolveNumericOperand(block, labels) {
   if (stripped.startsWith(">")) {
     const name = stripped.slice(1).trim();
     if (labels.has(name)) return { ok: true, value: (labels.get(name) >> 8) & 0xFF };
-    const num = parseNumberByBase(name.replace(/^[\$%]/, ""), block.base);
+    const literalBase = /^\d+$/.test(name) ? "dec" : block.base;
+    const num = parseNumberByBase(name.replace(/^[\$%]/, ""), literalBase);
     if (num !== null) return { ok: true, value: (num >> 8) & 0xFF };
     const constVal = resolveProgramConstValue(name);
     if (constVal !== null) return { ok: true, value: (constVal >> 8) & 0xFF };
@@ -21326,6 +21543,11 @@ function renderAsmOutput() {
     return;
   }
 
+  const labels = new Map();
+  layout.lines.forEach((line) => addLayoutLabels(labels, line));
+  labels._anonAddrs = _collectAnonLabels(layout);
+  appendDelayHelperLabel(labels, layout);
+
   const deferredDataSections = [];
   const codeLines = layout.lines.map((line, index) => {
     const lineNumber = `${(index + 1).toString().padStart(2, "0")}`;
@@ -21423,9 +21645,7 @@ function renderAsmOutput() {
     }
 
     if (line.block.isByteMacro) {
-      const asmBytes = parseByteMacro(line.block.rawOperand, line.block.base);
-      const chunks = chunkBytes(asmBytes, 8);
-      return chunks.map(chunk => `    .byte ${chunk.map(b => toHex(b, 2)).join(", ")}`).join("\n");
+      return _formatByteMacroAsmLines(line.block.rawOperand, line.block.base, labels).join("\n");
     }
 
     if (line.block.isStringMacro) {

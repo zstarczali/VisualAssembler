@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.2.0**
+**Version 2.2.1**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -301,6 +301,25 @@ The Expert-mode `.asm` loader accepts common 6502 source patterns and converts t
 - For `($zp),Y` / `($zp,X)` style addressing, use a concrete zero-page byte (`$FB`, `$FC`, etc.) for best compatibility.
 - Avoid ambiguous short labels that look like hex (`cc1`, `dead`, `beef`) in branch contexts; prefer names like `loop_cc1`.
 - If your program starts with data (`.byte`) before executable code, add an explicit entry jump (for example `JMP Start`) at the top.
+
+### ASM import (Kick Assembler)
+
+The **ASM import** button on the Program menu ingests raw Kick Assembler source into a new block-mode tab. It is separate from the Expert-mode `Load .asm file` above — its custom tooltip flags that **only Kick Assembler code is supported** (other assemblers may parse partially but are not guaranteed to round-trip).
+
+Supported patterns:
+
+- `.pc = $XXXX` origin directive → ORG block
+- `.const NAME = value`, `.label NAME = value` → CONST equate
+- `.macro NAME(p1, p2, ...) { ... }` with `{`/`}` brace body or `.endm` → user macro definition
+- Macro invocation `NAME(args)`, Kick colon prefix `:NAME(args)`, and `.invoke NAME(args)` — all round-trip via the Kick colon form
+- `@local` labels (`@loop:`, `BEQ @loop`) preserve the `@` prefix as-is
+- Operand `label + N` / `label - N` (e.g. `STA mod1+2`, `LDA xp+1`)
+- Line comments `// ...` and `;` — both accepted, `/* ... */` blocks are treated as a single comment line
+- BASIC autostart passthrough: when the program starts at `$0801` with the standard `SYS 2061` byte stub (`.byte $0B,$08,$0A,$00,$9E,$32,$30,$36,$31,$00,$00,$00`), the compiler emits the PRG verbatim instead of wrapping a second BASIC SYS around it
+
+Known limitation:
+
+- Constants that resolve to a zero-page address (for example `.const BYTEADDR = $FC` used as `STA BYTEADDR`) currently compile to absolute-mode instructions (3 bytes) instead of zero-page (2 bytes). The compiled code still writes to the correct memory location, just with a small size and cycle overhead compared to the same source built by Kick Assembler.
 
 ## 6. Expert Mode
 

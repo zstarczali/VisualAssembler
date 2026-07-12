@@ -1,7 +1,7 @@
 # Linux Installation Guide (Ubuntu / Debian)
-Version 2.2.0
+Version 2.2.1
 
-2.2.0: the project panel now supports project folders with direct source-file opening, relative project file names are fixed, and the expert project icons use custom aria-label tooltips.
+2.2.1: new Kick Assembler ASM import button on the Program menu (with a custom tooltip flagging Kick-only source), embedded BASIC autostart is preserved when re-emitting the PRG, macro invocations with the Kick `:NAME(args)` syntax round-trip correctly, and `#<N` / `#>N` low/high-byte immediates stay decimal in macro expansions.
 
 Tested on Ubuntu 22.04 and 24.04.
 
@@ -12,7 +12,7 @@ Tested on Ubuntu 22.04 and 24.04.
 Download the `.deb` package from the releases page and install:
 
 ```bash
-  sudo dpkg -i "c64-visual-assembler_2.2.0_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.2.1_amd64.deb"
 sudo apt-get install -f   # fix any missing dependencies
 ```
 
@@ -130,4 +130,4 @@ The app propagates `DISPLAY`, `WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR`, `DBUS_SESSIO
 
 ---
 
-**Version:** 2.2.0 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.2.1 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

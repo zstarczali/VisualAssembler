@@ -98,6 +98,10 @@ Kulcs függvények:
 - `_expertSyncFromProgram()` — `program[]` → expert editor szöveg
 - `_expertBuildProgram()` — expert editor szöveg → `program[]` (megőrzi binary mezőket pl. `incBinBytes`)
 
+**Fontos:** az **Export ASM** funkció **nem** az expert mód forrásának nyers visszaadása.
+Az export célja egy **univerzális, önálló ASM kimenet**, amit más assembler is tud
+értelmezni; ezért az export-logika külön útvonal, nem azonos az `expertEditor` tartalmával.
+
 ### Univerzális blokk-export (új, [app.js:4688](www/app.js))
 
 ```js

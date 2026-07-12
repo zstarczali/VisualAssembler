@@ -74,6 +74,7 @@ function createMacroContext(extraContext = {}) {
       "_compareLayoutLineRefs",
       "_compareDisasmLayoutLineRefs",
       "_buildDisasmHTML",
+      "_splitAsmLineComment",
       "parseExpertText",
       "_blockToExpertLine",
       "validateSpriteInitMacro",
@@ -83,6 +84,8 @@ function createMacroContext(extraContext = {}) {
       "getDeferredMacroAddressField",
       "getProgramLayout",
       "compileLineBytes",
+      "resolveNumericOperand",
+      "resolveRelativeOperand",
       "parseWordMacro",
       "getInstructionSize"
     ],
@@ -136,6 +139,73 @@ function compileBlock(ctx, block, labels = new Map(), address = 0x1000) {
   }
   return Array.from(result.bytes);
 }
+
+test("_blockToExpertLine emits Kick `:NAME(args)` for INVOKE with `:` syntax (not `.: NAME`)", () => {
+  const ctx = createMacroContext();
+  const line = ctx._blockToExpertLine({
+    isMacroInvoke: true,
+    invokeMacroName: "DrawCircle",
+    invokeArgs: "110, 70, 35, $02",
+    invokeSyntax: ":"
+  });
+  assert.equal(line, ":DrawCircle(110, 70, 35, $02)");
+
+  const dotLine = ctx._blockToExpertLine({
+    isMacroInvoke: true,
+    invokeMacroName: "DrawCircle",
+    invokeArgs: "110",
+    invokeSyntax: "invoke"
+  });
+  assert.equal(dotLine, ".invoke DrawCircle(110)");
+});
+
+test("parseExpertText round-trips `:NAME(args)` and legacy `.: NAME(args)` back to INVOKE", () => {
+  const ctx = loadFunctions(
+    ["_splitAsmLineComment", "parseExpertText", "_importMakeComment"],
+    {
+      crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
+      t: (k) => k, tf: (k) => k,
+      _importMnemonicCategory: () => "Test",
+      _importMnemonicDescription: () => "",
+      parseAsmText: () => []
+    }
+  );
+  const kick = ctx.parseExpertText(":DrawCircle(110, 70, 35, $02)");
+  assert.equal(kick[0].isMacroInvoke, true);
+  assert.equal(kick[0].invokeMacroName, "DrawCircle");
+  assert.equal(kick[0].invokeArgs, "110, 70, 35, $02");
+
+  const legacy = ctx.parseExpertText(".: DrawCircle(110, 70, 35, $02)");
+  assert.equal(legacy[0].isMacroInvoke, true);
+  assert.equal(legacy[0].invokeMacroName, "DrawCircle");
+  assert.equal(legacy[0].invokeArgs, "110, 70, 35, $02");
+});
+
+test("resolveNumericOperand handles #<N and #>N with bare decimal N (macro expansion)", () => {
+  const ctx = createMacroContext();
+  // After a Kick macro `.macro Foo(x) { lda #<x }` is invoked as `Foo(110)`,
+  // the reparsed block ends up as: rawOperand="<110", base="hex" (fallback).
+  // Without the auto-detect, parseNumberByBase("110","hex") would return 272
+  // and the low byte would be $10 (=16) instead of the intended 110 ($6E).
+  const lowBytes = compileBlock(ctx, {
+    mnemonic: "LDA", addressingMode: "immediate",
+    rawOperand: "<110", operand: "#<110", base: "hex"
+  }, new Map(), 0x1000);
+  assert.deepEqual(lowBytes, [0xA9, 0x6E]);
+
+  const highBytes = compileBlock(ctx, {
+    mnemonic: "LDA", addressingMode: "immediate",
+    rawOperand: ">110", operand: "#>110", base: "hex"
+  }, new Map(), 0x1000);
+  assert.deepEqual(highBytes, [0xA9, 0x00]);
+
+  // A `<$XXXX` still parses as hex.
+  const hexLow = compileBlock(ctx, {
+    mnemonic: "LDA", addressingMode: "immediate",
+    rawOperand: "<$0110", operand: "#<$0110", base: "hex"
+  }, new Map(), 0x1000);
+  assert.deepEqual(hexLow, [0xA9, 0x10]);
+});
 
 test("runtime IF emits CMP+BNE skip with the right relative offset", () => {
   const ctx = createMacroContext();
@@ -678,6 +748,7 @@ test("_buildAutostartPrgCore routes default origin to $C000 when BASIC SYS is of
       return { ok: true, bytes: new Uint8Array([0x10, 0x20]) };
     },
     parseUserMacros: () => {},
+    _programHasEmbeddedBasicAutostart: () => false,
     program: [],
     userMacros: {}
   });
@@ -691,7 +762,7 @@ test("_buildAutostartPrgCore routes default origin to $C000 when BASIC SYS is of
 
 test("parseExpertText recognizes .region, .endregion, and .end", () => {
   const ctx = loadFunctions(
-    ["_importMakeRegion", "_importMakeEndRegion", "_importMakeEndMacro", "parseExpertText"],
+    ["_splitAsmLineComment", "_importMakeRegion", "_importMakeEndRegion", "_importMakeEndMacro", "parseExpertText"],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" }
     }
@@ -703,6 +774,76 @@ test("parseExpertText recognizes .region, .endregion, and .end", () => {
   assert.equal(blocks[0].regionName, "Print");
   assert.equal(blocks[1].isEndRegionMacro, true);
   assert.equal(blocks[2].isEndMacro, true);
+});
+
+test("parseExpertText imports core Kick Assembler syntax used by macro-heavy sources", () => {
+  const ctx = loadFunctions(
+    [
+      "_splitAsmLineComment",
+      "_importMakeComment",
+      "_importParseScalar",
+      "_importDetectListBase",
+      "parseNumberByBase",
+      "_importMakeConst",
+      "_importMakeMacroDefStart",
+      "_importMakeMacroDefEnd",
+      "_importMakeInstruction",
+      "_importMakeLabel",
+      "_importMakeByte",
+      "parseAsmText",
+      "parseExpertText"
+    ],
+    {
+      crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
+      t: (key) => key,
+      tf: (key) => key,
+      _importMnemonicCategory: () => "Teszt",
+      _importMnemonicDescription: () => ""
+    }
+  );
+
+  const blocks = ctx.parseExpertText([
+    ".pc = $0801",
+    "// BASIC autostart",
+    ".const BMPSCREEN = $6000 // screen base",
+    ".macro DrawCircle(px, py, pr, pc) {",
+    "    lda #pc // set color",
+    "}",
+    "start:",
+    "    DrawCircle(110, 70, 35, $02)",
+    "    .byte $01,$02 // payload"
+  ].join("\n"));
+
+  assert.equal(blocks[0].isOrgMacro, true);
+  assert.equal(blocks[0].orgAddress, "0801");
+
+  assert.equal(blocks[1].isComment, true);
+  assert.equal(blocks[1].commentText, "BASIC autostart");
+
+  assert.equal(blocks[2].isConstMacro, true);
+  assert.equal(blocks[2].constName, "BMPSCREEN");
+  assert.equal(blocks[3].isComment, true);
+  assert.equal(blocks[3].commentText, "screen base");
+
+  assert.equal(blocks[4].isMacroDefStart, true);
+  assert.equal(blocks[4].macroName, "DrawCircle");
+  assert.equal(blocks[4].macroParams, "px, py, pr, pc");
+
+  assert.equal(blocks[5].mnemonic, "LDA");
+  assert.equal(blocks[5].addressingMode, "immediate");
+  assert.equal(blocks[5].rawOperand, "pc");
+  assert.equal(blocks[6].isComment, true);
+  assert.equal(blocks[6].commentText, "set color");
+
+  assert.equal(blocks[7].isMacroDefEnd, true);
+  assert.equal(blocks[8].isLabel, true);
+  assert.equal(blocks[8].labelName, "start");
+  assert.equal(blocks[9].isMacroInvoke, true);
+  assert.equal(blocks[9].invokeMacroName, "DrawCircle");
+  assert.equal(blocks[9].invokeArgs, "110, 70, 35, $02");
+  assert.equal(blocks[10].isByteMacro, true);
+  assert.equal(blocks[11].isComment, true);
+  assert.equal(blocks[11].commentText, "payload");
 });
 
 test("DELAY keeps const names in expert mode", () => {
@@ -1367,7 +1508,7 @@ test("disassembler sorts deferred data by rendered address, not source order", (
 
 test("ORG, TABLE, SID, INCBIN, and INCLUDE round-trip in expert text", () => {
   const ctx = loadFunctions(
-    ["_importMakeIncBin", "parseExpertText", "_blockToExpertLine"],
+    ["_splitAsmLineComment", "_importMakeIncBin", "parseExpertText", "_blockToExpertLine"],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
       formatAddress: (value) => `$${value.toString(16).toUpperCase().padStart(4, "0")}`,
@@ -1400,7 +1541,7 @@ test("ORG, TABLE, SID, INCBIN, and INCLUDE round-trip in expert text", () => {
 
 test("INCLUDE / INCBIN / SID with empty filename flag validationError", () => {
   const ctx = loadFunctions(
-    ["_importMakeIncBin", "parseExpertText"],
+    ["_splitAsmLineComment", "_importMakeIncBin", "parseExpertText"],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
       t: (key) => key
@@ -1423,7 +1564,7 @@ test("INCLUDE / INCBIN / SID with empty filename flag validationError", () => {
 
 test("bare .include / .incbin / .sid without a quoted filename produce error blocks", () => {
   const ctx = loadFunctions(
-    ["_importMakeIncBin", "parseExpertText"],
+    ["_splitAsmLineComment", "_importMakeIncBin", "parseExpertText"],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
       t: (key) => key,
@@ -1451,7 +1592,7 @@ test("unknown directive tokens surface as errors instead of silent comments", ()
   // guard must only tag the comment path with an unknownDirective error.
   const knownDirectives = new Set([".word", ".byte", ".fill", ".align"]);
   const ctx = loadFunctions(
-    ["_importMakeIncBin", "_importMakeComment", "parseExpertText"],
+    ["_splitAsmLineComment", "_importMakeIncBin", "_importMakeComment", "parseExpertText"],
     {
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
       t: (key) => key,

@@ -342,7 +342,7 @@ dependencies = [
 
 [[package]]
 name = "c64-visual-assembler"
-version = "2.2.0"
+version = "2.2.1"
 dependencies = [
  "base64 0.22.1",
  "emulator_6502",
