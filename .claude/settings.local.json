@@ -117,7 +117,27 @@
       "Bash(grep -o \"\\\\\\\\.macro DisplayO[nf]\\\\+[^.]\\\\\\\\{0,200\\\\\\\\}\" F:/Development/VisualAssembler/samples/macros-new.json)",
       "Bash(grep -o \"BitmapOn.\\\\\\\\{0,700\\\\\\\\}\" F:/Development/VisualAssembler/samples/macros-new.json)",
       "Bash(grep -n \"\\\\\\\\.invoke.*\\\\\\\\.macro\\\\\\\\|nested.*invoke\\\\\\\\|invoke.*inside.*macro\" F:/Development/VisualAssembler/www/app.js)",
-      "Bash(grep -o \"\\\\\\\\.macro BitmapOn[^.]\\\\\\\\{0,600\\\\\\\\}\\\\\\\\.endm\" F:/Development/VisualAssembler/samples/macros.json)"
+      "Bash(grep -o \"\\\\\\\\.macro BitmapOn[^.]\\\\\\\\{0,600\\\\\\\\}\\\\\\\\.endm\" F:/Development/VisualAssembler/samples/macros.json)",
+      "Bash(node \"C:\\\\Users\\\\rlung\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\F--Development-VisualAssembler\\\\9bfe0764-f5a2-49a5-bab3-1947b71cb19a\\\\scratchpad\\\\test-import.js\")",
+      "Bash(node \"C:\\\\Users\\\\rlung\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\F--Development-VisualAssembler\\\\9bfe0764-f5a2-49a5-bab3-1947b71cb19a\\\\scratchpad\\\\compile-test.js\")",
+      "Bash(ls -la /f/Development/ 2>/dev/null | head -20 && echo \"---\" && ls /f/Development/LexIndex 2>/dev/null || echo \"LexIndex does not exist yet\")",
+      "Bash(mkdir -p /f/Development/LexIndex/backend/Data /f/Development/LexIndex/backend/Services /f/Development/LexIndex/backend/Hubs /f/Development/LexIndex/backend/Models /f/Development/LexIndex/backend/Endpoints /f/Development/LexIndex/frontend/src/pages /f/Development/LexIndex/frontend/src/components /f/Development/LexIndex/frontend/src/api && echo \"created\")",
+      "Bash(node --test tests/*.test.js)",
+      "Bash(node \"C:\\\\Users\\\\rlung\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\F--Development-VisualAssembler\\\\9bfe0764-f5a2-49a5-bab3-1947b71cb19a\\\\scratchpad\\\\full-compile.js\")",
+      "Bash(ls /c/Users/rlung/.claude/projects/F--Development-VisualAssembler/memory/ 2>/dev/null || echo \"memory dir empty or missing\")",
+      "Read(//c/Program Files/WinVICE/**)",
+      "Read(//c/Program Files \\\\\\(x86\\\\\\)/WinVICE/**)",
+      "Bash(ls -la \"C:\\\\Users\\\\rlung\\\\Desktop\\\\circles.prg\" \"C:\\\\Users\\\\rlung\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\F--Development-VisualAssembler\\\\9bfe0764-f5a2-49a5-bab3-1947b71cb19a\\\\scratchpad\\\\circles.prg\")",
+      "Bash(node \"C:\\\\Users\\\\rlung\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\F--Development-VisualAssembler\\\\9bfe0764-f5a2-49a5-bab3-1947b71cb19a\\\\scratchpad\\\\diff-prgs.js\")",
+      "Bash(node \"C:\\\\Users\\\\rlung\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\F--Development-VisualAssembler\\\\9bfe0764-f5a2-49a5-bab3-1947b71cb19a\\\\scratchpad\\\\find-insert.js\")",
+      "Bash(node \"C:\\\\Users\\\\rlung\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\F--Development-VisualAssembler\\\\9bfe0764-f5a2-49a5-bab3-1947b71cb19a\\\\scratchpad\\\\compare-draw.js\")",
+      "Bash(node \"C:\\\\Users\\\\rlung\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\F--Development-VisualAssembler\\\\9bfe0764-f5a2-49a5-bab3-1947b71cb19a\\\\scratchpad\\\\dump-kor.js\")",
+      "Bash(which exomizer; find /c/Users/rlung /d/Development -maxdepth 4 -name \"exomizer*\" 2>/dev/null | head -5)",
+      "Bash(node \"C:\\\\Users\\\\rlung\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\F--Development-VisualAssembler\\\\9bfe0764-f5a2-49a5-bab3-1947b71cb19a\\\\scratchpad\\\\cmp-sfx.js\")",
+      "Bash(/d/Development/exomizer/win32/exomizer.exe sfx *)",
+      "Bash(node \"C:\\\\Users\\\\rlung\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\F--Development-VisualAssembler\\\\9bfe0764-f5a2-49a5-bab3-1947b71cb19a\\\\scratchpad\\\\diff-new-kor.js\")",
+      "Bash(grep -n \"macroLine\\\\|charCodeAt.*123\\\\|\\\\.endm.*\\\\\\\\\\\\\\\\x7d\")",
+      "Bash(rm -f \"C:\\\\Users\\\\rlung\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\F--Development-VisualAssembler\\\\9bfe0764-f5a2-49a5-bab3-1947b71cb19a\\\\scratchpad\"/*.js \"C:\\\\Users\\\\rlung\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\F--Development-VisualAssembler\\\\9bfe0764-f5a2-49a5-bab3-1947b71cb19a\\\\scratchpad\"/*.prg 2>&1)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"

@@ -111,7 +111,7 @@ test("universal ASM export round-trips explicit absolute operands through expert
   ]);
 
   const ctx = loadFunctions(
-    ["_buildUniversalAsmExportText", "parseExpertText", "_importMakeInstruction"],
+    ["_splitAsmLineComment", "_buildUniversalAsmExportText", "parseExpertText", "_importMakeInstruction"],
     {
       Map,
       Set,
@@ -279,7 +279,7 @@ test("_buildUniversalAsmExportText rewrites internal absolute targets back to la
 
 test("parseAsmText emits a single ORG block for one origin line", () => {
   const ctx = loadFunctions(
-    ["parseAsmText"],
+    ["_splitAsmLineComment", "parseAsmText"],
     {
       crypto: { randomUUID: () => "test-id" },
       _importMakeComment: (commentText) => ({ id: "c", mnemonic: "COMMENT", isComment: true, commentText }),
@@ -306,4 +306,72 @@ test("parseAsmText emits a single ORG block for one origin line", () => {
   assert.equal(blocks.length, 1);
   assert.equal(blocks[0].isOrgMacro, true);
   assert.equal(blocks[0].orgAddress, "0801");
+});
+
+test("parseAsmText preserves Kick-style @local labels and branch operands", () => {
+  const ctx = loadFunctions(
+    ["_splitAsmLineComment", "parseAsmText"],
+    {
+      crypto: { randomUUID: () => "test-id" },
+      _importMakeComment: (commentText) => ({ id: "c", mnemonic: "COMMENT", isComment: true, commentText }),
+      _importMakeWord: () => ({ id: "w", mnemonic: "WORD" }),
+      _importMakeFill: () => ({ id: "f", mnemonic: "FILL" }),
+      _importMakeAlign: () => ({ id: "a", mnemonic: "ALIGN" }),
+      _importMakeIncBin: () => ({ id: "i", mnemonic: "INCBIN" }),
+      _importMakeConst: () => ({ id: "k", mnemonic: "CONST" }),
+      _importMakeLabel: (labelName) => ({ id: `l:${labelName}`, mnemonic: "LABEL", isLabel: true, labelName }),
+      _importMakeByte: () => ({ id: "b", mnemonic: "BYTE", isByteMacro: true }),
+      _importMakeRegion: () => ({ id: "r", mnemonic: "REGION" }),
+      _importMakeEndRegion: () => ({ id: "re", mnemonic: "ENDREGION" }),
+      _importMakeDefine: () => ({ id: "d", mnemonic: "DEFINE" }),
+      _importMakeIf: () => ({ id: "if", mnemonic: "IF" }),
+      _importMakeElse: () => ({ id: "el", mnemonic: "ELSE" }),
+      _importMakeEndIf: () => ({ id: "ei", mnemonic: "ENDIF" }),
+      _importMakeInstruction: (mnemonic, rawOperand) => ({ id: `ins:${mnemonic}`, mnemonic, rawOperand, addressingMode: mnemonic === "BEQ" ? "relative" : "implied" }),
+      t: (key) => key
+    }
+  );
+
+  const blocks = ctx.parseAsmText([
+    "@no_xhi_bmp:",
+    "BEQ @no_xhi_bmp",
+    "@no_xhi_col: NOP",
+    "BEQ @no_xhi_col"
+  ].join("\n"));
+
+  assert.equal(blocks[0].isLabel, true);
+  assert.equal(blocks[0].labelName, "@no_xhi_bmp");
+  assert.equal(blocks[1].mnemonic, "BEQ");
+  assert.equal(blocks[1].rawOperand, "@no_xhi_bmp");
+  assert.equal(blocks[2].isLabel, true);
+  assert.equal(blocks[2].labelName, "@no_xhi_col");
+  assert.equal(blocks[3].mnemonic, "NOP");
+  assert.equal(blocks[4].mnemonic, "BEQ");
+  assert.equal(blocks[4].rawOperand, "@no_xhi_col");
+});
+
+test("buildAutostartPrgForEmulator skips BASIC SYS wrapping when the program already has a BASIC autostart stub", () => {
+  let assembleOrigin = null;
+  const ctx = loadFunctions(
+    ["_programHasEmbeddedBasicAutostart", "_buildAutostartPrgCore"],
+    {
+      program: [
+        { isOrgMacro: true, orgAddress: "0801" },
+        { isByteMacro: true, rawOperand: "0B,08,0A,00,9E,32,30,36,31,00,00,00" },
+        { mnemonic: "LDA", addressingMode: "immediate", rawOperand: "$01" }
+      ],
+      basicSysToggle: { checked: true },
+      parseOriginValue: () => ({ value: 0x0801 }),
+      assembleProgramToPrg(origin) {
+        assembleOrigin = origin;
+        return { ok: true, bytes: new Uint8Array([0x01, 0x08, 0xAA]) };
+      }
+    }
+  );
+
+  assert.equal(ctx._programHasEmbeddedBasicAutostart(ctx.program), true);
+  const result = ctx._buildAutostartPrgCore();
+  assert.equal(assembleOrigin, 0x0801);
+  assert.equal(result.ok, true);
+  assert.deepEqual(Array.from(result.bytes), [0x01, 0x08, 0xAA]);
 });

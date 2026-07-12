@@ -562,8 +562,8 @@ Ha egy step betölt egy sample-t mielőtt megmutatja a UI-t:
 
 ## 15. Jelenlegi verzió
 
-`2.2.0` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
+`2.2.1` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, és ez a fájl + copilot-instructions.md.
-Fő 2.2.0 változás: projektfájlokkal működő project panel, közvetlen source-file megnyitás a tree-ből, javított relatív fájlnevek a project mentésben, és az expert project ikonok egységes custom aria-label tooltipet kaptak.
+Fő 2.2.1 változás: új **ASM import** gomb (Program menü) Kick Assembler forrás fogadására egyedi CSS tooltip-pel, `.pc = $0801` + BASIC SYS byte-stub esetén a compiler átengedi az eredeti autostart-ot, a `:NAME(args)` Kick invoke szintaxis round-trip-je javítva (`_blockToExpertLine` már nem `.: NAME(args)`-et ír, és a parser is elfogadja a régi hibás formát backward-compat okán), valamint a `#<N` / `#>N` low/high byte immediate-ek decimálisan maradnak macro expanzió után.
 
 Verziónöveléshez lásd a 3. szakasz végén lévő 7-lépéses checklistet.

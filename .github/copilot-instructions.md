@@ -662,8 +662,8 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`2.2.0` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, `CLAUDE.md`.
-Főbb újdonságok: project panel projektfájl-támogatással és közvetlen source-file nyitással; relatív project fájlnevek javítása; expert project ikonok egységes custom aria-label tooltipjei; megmaradt a Save ASM / disassembler memóriasorrend-fix és az Expert mód projektkezelésének stabilitása.
+`2.2.1` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, `CLAUDE.md`.
+Főbb újdonságok: új Kick Assembler **ASM import** gomb a Program menüben egyedi CSS tooltippel („csak Kick Assembler kód importálható"); `.pc = $0801` + `SYS 2061` byte-stub esetén az assembler átengedi az eredeti autostart-ot; a `:NAME(args)` Kick invoke szintaxis round-trip-je javítva (`_blockToExpertLine` már `:NAME(args)`-et ad, a parser a régi hibás `.: NAME(args)` formát is elfogadja backward-compat okán); a `resolveNumericOperand` a `#<N` / `#>N` low/high byte immediate-eket decimálisan tartja, ha a substituált érték bare digit (macro invoke expanzió).
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező
