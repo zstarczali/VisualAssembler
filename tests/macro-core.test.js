@@ -56,6 +56,8 @@ function createMacroContext(extraContext = {}) {
       "parseMacroAddress",
       "parseMacroCountOrSize",
       "resolveProgramConstValue",
+      "lookupProgramConstValue",
+      "evaluateFillExpression",
       "addLayoutLabels",
       "buildOperandPreview",
       "validateRange",
@@ -121,7 +123,12 @@ function createMacroContext(extraContext = {}) {
       },
       DELAY_HELPER_LABEL: "__delay_wait_frames",
       parseOriginValue: () => ({ value: 0x0801, text: "$0801", error: "" }),
-      resolveProgramConstValue: () => null,
+      resolveProgramConstValue: function(name) {
+        const target = String(name || "").trim().toLowerCase();
+        const blocks = Array.isArray(this.program) ? this.program : [];
+        const match = blocks.find((block) => block.isConstMacro && block.constName && block.constName.toLowerCase() === target);
+        return match ? match.constValue : null;
+      },
       formatAddress: (value) => `$${value.toString(16).toUpperCase().padStart(4, "0")}`,
       showMacroSource: false,
       defaultOrigin: 0x0801,
@@ -731,10 +738,10 @@ test("buildBasicSysStub emits a valid BASIC SYS line", () => {
   const ctx = loadFunctions(["buildBasicSysStub"], {});
   const bytes = Array.from(ctx.buildBasicSysStub(0x1234));
 
-  assert.deepEqual(bytes.slice(0, 8), [0x01, 0x08, 0x0B, 0x08, 0x0A, 0x00, 0x9E, 0x34]);
-  assert.equal(bytes[8], 0x36);
+  assert.deepEqual(bytes.slice(0, 9), [0x01, 0x08, 0x0C, 0x08, 0x0A, 0x00, 0x9E, 0x20, 0x34]);
   assert.equal(bytes[9], 0x36);
-  assert.equal(bytes[10], 0x30);
+  assert.equal(bytes[10], 0x36);
+  assert.equal(bytes[11], 0x30);
   assert.deepEqual(bytes.slice(-2), [0x00, 0x00]);
 });
 
@@ -1003,6 +1010,38 @@ test("FILL expands repeated bytes and ALIGN pads to the next boundary", () => {
   assert.equal(ctx.getInstructionSize({ isFillMacro: true, rawOperand: "4, $7E", base: "hex" }), 4);
   assert.equal(alignLine.address, 0x1003);
   assert.equal(alignLine.size, 1);
+});
+
+test("FILL supports expressions with consts, math functions, and byte masks", () => {
+  const ctx = createMacroContext({
+    program: [
+      {
+        id: "c1",
+        mnemonic: "CONST",
+        isConstMacro: true,
+        constName: "PROJECTION_FOCAL",
+        constValue: 40,
+        rawOperand: "40",
+        base: "dec"
+      }
+    ]
+  });
+  ctx.resolveProgramConstValue = (name) => {
+    const target = String(name || "").trim().toLowerCase();
+    const match = ctx.program.find((block) => block.isConstMacro && block.constName && block.constName.toLowerCase() === target);
+    return match ? match.constValue : null;
+  };
+
+  const bytes = compileBlock(ctx, {
+    mnemonic: "FILL",
+    isFillMacro: true,
+    rawOperand: "256, round( 128 * PROJECTION_FOCAL / max( 1, i ) ) & $FF",
+    base: "dec"
+  }, new Map(), 0x1150);
+
+  assert.equal(bytes.length, 256);
+  assert.equal(bytes[0], 0x00);
+  assert.equal(bytes[255], 0x14);
 });
 
 test("SET_BORDER resolves const labels and writes VIC border color", () => {

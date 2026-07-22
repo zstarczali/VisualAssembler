@@ -386,6 +386,7 @@ const expertPaletteBtn     = document.getElementById("expert-palette-btn");
 const expertDisasmBtn      = document.getElementById("expert-disasm-btn");
 const expertDisasmPanel    = document.getElementById("expert-disasm-panel");
 const expertDisasmOutput   = document.getElementById("expert-disasm-output");
+const expertDisasmCopySourceBtn = document.getElementById("expert-disasm-copy-source-btn");
 const expertDisasmResizer  = document.getElementById("expert-disasm-resizer");
 const expertMonitorBtn     = document.getElementById("expert-monitor-btn");
 const expertMonitorPanel   = document.getElementById("expert-monitor-panel");
@@ -418,6 +419,7 @@ const expertProjectPanel   = document.getElementById("expert-project-panel");
 const expertProjectTree    = document.getElementById("expert-project-tree");
 const expertProjectSymbols = document.getElementById("expert-project-symbols");
 const expertProjectSplitter = document.getElementById("expert-project-splitter");
+const disasmCopySourceBtn  = document.getElementById("disasm-copy-source-btn");
 
 let program = [];
 let dragState = null;
@@ -2058,6 +2060,12 @@ function initPalette() {
     document.querySelector(".control-menu")?.removeAttribute("open");
     copyAsmToClipboard();
   });
+  disasmCopySourceBtn?.addEventListener("click", () => {
+    copyDisasmSourceToClipboard(false);
+  });
+  expertDisasmCopySourceBtn?.addEventListener("click", () => {
+    copyDisasmSourceToClipboard(true);
+  });
   chooseViceButton?.addEventListener("click", chooseViceExecutable);
   runEmulatorButton?.addEventListener("click", () => {
     if (runMode === "browser") runInBrowser();
@@ -2748,6 +2756,8 @@ function applyTranslations() {
     setText("#origin-preview-label", t("originPreviewLabel"));
     setText("#asm-output-label", t("asmOutputLabel"));
     setText("#monitor-output-label", t("monitorOutputLabel"));
+    setText("#disasm-output-label", t("outputDisasm"));
+    setText("#expert-disasm-output-label", t("outputDisasm"));
     setText("#load-project", t("loadProject"));
     setText("#exit-app", t("exitApp"));
     exitAppButton?.setAttribute("title", t("exitApp"));
@@ -2758,6 +2768,10 @@ function applyTranslations() {
     if (importAsmButton?.hasAttribute("title")) importAsmButton.removeAttribute("title");
     copyAsmButton?.setAttribute("title", t("copyAsm"));
     copyAsmButton?.setAttribute("aria-label", t("copyAsm"));
+    disasmCopySourceBtn?.setAttribute("title", t("disasmCopySource"));
+    disasmCopySourceBtn?.setAttribute("aria-label", t("disasmCopySource"));
+    expertDisasmCopySourceBtn?.setAttribute("title", t("disasmCopySource"));
+    expertDisasmCopySourceBtn?.setAttribute("aria-label", t("disasmCopySource"));
     saveProjectButton?.setAttribute("title", t("saveProject"));
     saveProjectButton?.setAttribute("aria-label", t("saveProject"));
     saveProjectAsButton?.setAttribute("title", t("saveProgramAs"));
@@ -4872,7 +4886,10 @@ function _blockToExpertLine(block) {
     if ((base || "hex") !== "hex") return raw || "0";
     return (raw || "0").split(",").map(t => {
       const s = t.trim();
-      return s.startsWith("$") || s === "" ? s : "$" + s;
+      if (!s) return s;
+      if (s.startsWith("$")) return s;
+      if (/^[0-9]+$/.test(s) || /^[0-9A-Fa-f]+$/.test(s)) return "$" + s.toUpperCase();
+      return s;
     }).join(", ");
   };
   const fmtColorMacroValue = (raw) => {
@@ -6867,8 +6884,8 @@ function parseExpertText(text) {
       continue;
     }
 
-    // * = $XXXX or * = decimal → ORG
-    const orgM = line.match(/^\*\s*=\s*(?:\$([0-9A-Fa-f]{1,4})|(\d{1,5}))\s*$/);
+    // * = $XXXX or * = decimal, optionally followed by a quoted title → ORG
+    const orgM = line.match(/^\*\s*=\s*(?:\$([0-9A-Fa-f]{1,4})|(\d{1,5}))(?:\s+"[^"]*")?\s*$/);
     if (orgM) {
       const orgAddress = orgM[1]
         ? orgM[1].toUpperCase().padStart(4, "0")
@@ -10089,6 +10106,13 @@ function buildOperandPreview(modeKey, rawValue, base) {
 
   const numericValue = parseNumberByBase(value, base);
   if (numericValue === null) {
+    // Kick-style immediate expressions like #(SCREEN_CENTER_Y+1) are valid
+    // even when they cannot be reduced to a plain number at edit time.
+    if (modeKey === "immediate" && /^[A-Za-z0-9_.$%<>()+\-*/&|^\s]+$/.test(value)) {
+      const operand = `#${value}`;
+      return { operand, text: operand, error: "" };
+    }
+
     // Handle #<label / #>label AND #<numeric / #>numeric low/high byte operators in immediate mode
     if (modeKey === "immediate" && (value.startsWith("<") || value.startsWith(">"))) {
       const name = value.slice(1).trim();
@@ -10304,17 +10328,105 @@ function validateWordMacro(raw, base = "dec") {
   return "";
 }
 
-function parseFillMacro(raw, base = "dec") {
-  const parts = raw.split(",").map((part) => part.trim()).filter(Boolean);
+function parseFillMacro(raw, base = "dec", labels = null, vars = null) {
+  const parts = [];
+  let current = "";
+  let depth = 0;
+  for (const char of String(raw || "")) {
+    if (char === "(") depth += 1;
+    if (char === ")") depth = Math.max(0, depth - 1);
+    if (char === "," && depth === 0) {
+      parts.push(current.trim());
+      current = "";
+      continue;
+    }
+    current += char;
+  }
+  if (current.trim()) parts.push(current.trim());
   if (parts.length !== 2) return null;
 
+  const evalAsmExpression = (expr, localLabels = null, localVars = null) => {
+    let text = String(expr ?? "").trim();
+    if (!text) return null;
+
+    text = text.replace(/^#/, "");
+    text = text.replace(/\$([A-Za-z_][A-Za-z0-9_]*)/g, (match, name) => {
+      return /^[0-9A-Fa-f]+$/.test(name) ? match : name;
+    });
+    text = text.replace(/\$<\s*\(/g, "lo(");
+    text = text.replace(/\$>\s*\(/g, "hi(");
+    text = text.replace(/<\s*\(/g, "lo(");
+    text = text.replace(/>\s*\(/g, "hi(");
+    text = text.replace(/<\s*([A-Za-z_][A-Za-z0-9_]*)/g, "lo($1)");
+    text = text.replace(/>\s*([A-Za-z_][A-Za-z0-9_]*)/g, "hi($1)");
+    text = text.replace(/\$([0-9A-Fa-f]+)/g, "0x$1");
+    text = text.replace(/%([01]+)/g, "0b$1");
+
+    const resolved = Object.create(null);
+    const setResolved = (name, value) => {
+      if (value === undefined || value === null || Number.isNaN(value)) return;
+      resolved[name] = Number(value);
+      resolved[name.toLowerCase()] = Number(value);
+      resolved[name.toUpperCase()] = Number(value);
+    };
+
+    if (localLabels && typeof localLabels.forEach === "function") {
+      localLabels.forEach((value, name) => setResolved(name, value));
+    }
+    if (localVars && typeof localVars === "object") {
+      for (const [name, value] of Object.entries(localVars)) {
+        setResolved(name, value);
+      }
+    }
+
+    text = text.replace(/\b(round|sin|cos|max|min|abs)\b/gi, (match) => `__FUNC_${match.toUpperCase()}__`);
+    text = text.replace(/\bPI\b/gi, "__CONST_PI__");
+
+    text = text.replace(/\b[A-Za-z_][A-Za-z0-9_]*\b/g, (name) => {
+      if (name.startsWith("__FUNC_") || name === "__CONST_PI__") return name;
+      if (name === "lo" || name === "hi" || name === "Math") return name;
+      if (/^0x[0-9A-Fa-f]+$/.test(name)) return name;
+      if (Object.prototype.hasOwnProperty.call(resolved, name)) return String(resolved[name]);
+
+      const constValue = lookupProgramConstValue(name);
+      if (constValue !== null) return String(constValue);
+
+      return `__UNKNOWN_${name}__`;
+    });
+
+    if (/__UNKNOWN_[A-Za-z0-9_]+__/.test(text)) {
+      return null;
+    }
+
+    text = text.replace(/__FUNC_ROUND__/g, "Math.round");
+    text = text.replace(/__FUNC_SIN__/g, "Math.sin");
+    text = text.replace(/__FUNC_MAX__/g, "Math.max");
+    text = text.replace(/__FUNC_MIN__/g, "Math.min");
+    text = text.replace(/__FUNC_ABS__/g, "Math.abs");
+    text = text.replace(/__CONST_PI__/g, "Math.PI");
+
+    try {
+      const result = Function("lo", "hi", `"use strict"; return (${text});`)(
+        (value) => value & 0xFF,
+        (value) => (value >> 8) & 0xFF
+      );
+      return Number.isFinite(result) ? Number(result) : null;
+    } catch (_) {
+      return null;
+    }
+  };
+
   const parseValue = (part) => {
-    const resolved = resolveProgramNumericValue(part, null, base);
+    const resolved = evalAsmExpression(part, labels, vars);
     if (resolved !== null) return resolved;
+    const numeric = resolveProgramNumericValue(part, labels, base);
+    if (numeric !== null) return numeric;
     return Number.parseInt(part, base === "bin" ? 2 : (base === "hex" ? 16 : 10));
   };
 
   return {
+    countExpr: parts[0],
+    valueExpr: parts[1],
     count: parseValue(parts[0]),
     value: parseValue(parts[1])
   };
@@ -10326,25 +10438,43 @@ function validateFillMacro(raw, base = "dec") {
     return t("fillMacroNeedsCountAndValueEGFill25600");
   }
 
-  const parts = trimmed.split(",").map((part) => part.trim()).filter(Boolean);
+  const parts = [];
+  let current = "";
+  let depth = 0;
+  for (const char of trimmed) {
+    if (char === "(") depth += 1;
+    if (char === ")") depth = Math.max(0, depth - 1);
+    if (char === "," && depth === 0) {
+      parts.push(current.trim());
+      current = "";
+      continue;
+    }
+    current += char;
+  }
+  if (current.trim()) parts.push(current.trim());
   if (parts.length !== 2) {
     return t("fillMacroNeedsExactlyTwoParametersCountV");
   }
 
-  const parsed = parseFillMacro(raw, base);
-  if (!parsed) {
-    return t("fillMacroParametersAreInvalid");
+  const parsed = parseFillMacro(raw, base, null, { i: 0, I: 0 });
+  if (parsed) {
+    if (!isNaN(parsed.count) && (parsed.count < 1 || parsed.count > 65536)) {
+      return t("fillCountMustBeBetween1And65536");
+    }
+
+    if (!isNaN(parsed.value) && (parsed.value < 0 || parsed.value > 255)) {
+      return t("fillValueMustBeAByteBetween0And255");
+    }
+
+    return "";
   }
 
-  if (isNaN(parsed.count) || parsed.count < 1 || parsed.count > 65536) {
-    return t("fillCountMustBeBetween1And65536");
+  const looksLikeExpr = (part) => /^[A-Za-z0-9_.$%<>()+\-*/&|^\s]+$/.test(part) && /[A-Za-z0-9_.$%]/.test(part);
+  if (parts.length === 2 && parts.every(looksLikeExpr)) {
+    return "";
   }
 
-  if (isNaN(parsed.value) || parsed.value < 0 || parsed.value > 255) {
-    return t("fillValueMustBeAByteBetween0And255");
-  }
-
-  return "";
+  return t("fillMacroParametersAreInvalid");
 }
 
 function validateAlignMacro(raw, base = "hex") {
@@ -11070,6 +11200,163 @@ async function chooseWorkingFolder() {
   updateWorkingFolderPreview(result?.workingFolder || "");
 }
 
+function _getDebuggerPrimarySourcePath() {
+  const activeTab = _getActiveTab();
+  const sourcePath = _expertAsmFilePath || activeTab?.filePath || "";
+  if (sourcePath && /\.(asm|s|a65)$/i.test(sourcePath)) return sourcePath;
+  if (sourcePath) return sourcePath.replace(/\.[^.]+$/, ".asm");
+  const fallbackName = (activeTab?.name || activeTab?._untitledName || "program").replace(/\.[^.]+$/, "");
+  return `${fallbackName || "program"}.asm`;
+}
+
+function _getDebuggerCodeOrigin(prg) {
+  if (typeof prg?.sysAddress === "number") return prg.sysAddress;
+  const origin = parseOriginValue();
+  return (origin.value === 0x0801) ? 0xC000 : origin.value;
+}
+
+function _escapeXmlText(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function _formatDebuggerAddress(value) {
+  return `$${(value & 0xFFFF).toString(16).toLowerCase().padStart(4, "0")}`;
+}
+
+function _formatDebuggerSymbolAddress(value) {
+  return `$${(value & 0xFFFF).toString(16).toLowerCase().padStart(4, "0")}`;
+}
+
+function _collectDebuggerSymbols(layout) {
+  const labels = new Map();
+  const symbols = [];
+  const breakpoints = [];
+  const pushSymbol = (name, address) => {
+    const safeName = String(name || "").trim();
+    if (!safeName || !Number.isFinite(address)) return;
+    if (!labels.has(safeName)) labels.set(safeName, address & 0xFFFF);
+  };
+
+  layout.lines.forEach((line) => {
+    const block = line.block || {};
+    if (block.isLabel && block.labelName) pushSymbol(block.labelName, line.address);
+    if (block.isLoopMacro && block.loopLabel) pushSymbol(block.loopLabel, line.address + 2);
+    if (block.isForMacro && block.loopLabel) pushSymbol(block.loopLabel, line.address + 2);
+    if (block._autoBufferLabel) pushSymbol(block._autoBufferLabel, line.address);
+    if (block.isTableMacro && block.tableName) pushSymbol(block.tableName, line.address);
+    if (block.isConstMacro && block.constName) {
+      const value = typeof block.constValue === "number" && Number.isFinite(block.constValue)
+        ? block.constValue
+        : parseAddressValue(block.rawOperand || "", labels);
+      if (Number.isFinite(value)) pushSymbol(block.constName, value);
+    }
+    if (block.isVarMacro && block.varName && typeof block._varAddress === "number") {
+      pushSymbol(block.varName, block._varAddress);
+    }
+    if (block.isBreakpoint) {
+      breakpoints.push(line.address & 0xFFFF);
+    }
+  });
+
+  labels.forEach((address, name) => {
+    symbols.push({ name, address });
+  });
+
+  symbols.sort((left, right) => (left.address - right.address) || left.name.localeCompare(right.name));
+
+  return { symbols, breakpoints };
+}
+
+function _buildDebuggerSidecarTexts(layout, originOverride) {
+  const primarySourcePath = _getDebuggerPrimarySourcePath();
+  const includeBlocksById = new Map(
+    program.filter((block) => block && block.isIncludeMacro && block.id).map((block) => [block.id, block])
+  );
+  const sourcePaths = [];
+  const sourceIndexByPath = new Map();
+  const getSourceIndex = (path) => {
+    const safePath = String(path || primarySourcePath || "program.asm");
+    if (!sourceIndexByPath.has(safePath)) {
+      sourceIndexByPath.set(safePath, sourcePaths.length);
+      sourcePaths.push(safePath);
+    }
+    return sourceIndexByPath.get(safePath);
+  };
+  const getLineSourcePath = (line) => {
+    const block = line.block || {};
+    if (block._fromInclude) {
+      const includeBlock = includeBlocksById.get(block._fromInclude);
+      const includePath = _normalizeIncludeBlockSource(includeBlock) || includeBlock?.includeFileName || "";
+      if (includePath) return includePath;
+    }
+    return primarySourcePath;
+  };
+  const getBlockName = (line, sourcePath) => {
+    if (sourcePath === primarySourcePath) {
+      if (Number.isFinite(originOverride) && line.address < originOverride) return "BASIC Stub";
+      return "Main";
+    }
+    const baseName = String(sourcePath || "Program").replace(/\\/g, "/").split("/").pop().replace(/\.[^.]+$/, "");
+    return baseName || "Program";
+  };
+  const dbgBlocks = new Map();
+
+  layout.lines.forEach((line) => {
+    if (line.conditionallySkipped || line.size <= 0) return;
+    const sourcePath = getLineSourcePath(line);
+    const sourceIndex = getSourceIndex(sourcePath);
+    const sourceLine = typeof line.block?._srcLine === "number" ? (line.block._srcLine + 1) : (sourceIndex + 1);
+    const blockName = getBlockName(line, sourcePath);
+    const entry = `${_formatDebuggerAddress(line.address)},${_formatDebuggerAddress(line.end)},${sourceIndex},${sourceLine},1,${sourceLine},1`;
+    if (!dbgBlocks.has(blockName)) dbgBlocks.set(blockName, []);
+    dbgBlocks.get(blockName).push(entry);
+  });
+
+  const dbgText = [
+    `<C64debugger version="1.0">`,
+    `   <Sources values="INDEX,FILE">`,
+    ...sourcePaths.map((sourcePath, index) => `      ${index},${_escapeXmlText(sourcePath)}`),
+    `   </Sources>`,
+    ``,
+    `   <Segment name="Default" dest="" values="START,END,FILE_IDX,LINE1,COL1,LINE2,COL2">`,
+    ...[...dbgBlocks.entries()].flatMap(([blockName, entries]) => ([
+      `      <Block name="${_escapeXmlText(blockName)}">`,
+      ...entries.map((entry) => `         ${entry}`),
+      `      </Block>`
+    ])),
+    `   </Segment>`,
+    `</C64debugger>`
+  ].join("\n");
+
+  const uniqueSymbols = new Map();
+  const { symbols } = _collectDebuggerSymbols(layout);
+  symbols.forEach((symbol) => {
+    if (!symbol || !symbol.name) return;
+    if (!uniqueSymbols.has(symbol.name)) uniqueSymbols.set(symbol.name, symbol.address & 0xFFFF);
+  });
+
+  const sortedSymbols = [...uniqueSymbols.entries()].sort((left, right) => (left[1] - right[1]) || left[0].localeCompare(right[0]));
+  const symText = sortedSymbols.map(([name, address]) => `.label ${name}=${_formatDebuggerSymbolAddress(address)}`).join("\n");
+  const vsText = sortedSymbols.map(([name, address]) => `al C:${_formatDebuggerSymbolAddress(address).slice(1)} .${name}`).join("\n");
+
+  return { dbg: dbgText, sym: symText, vs: vsText };
+}
+
+function _buildDebuggerSidecarPayload(prg) {
+  try {
+    const originOverride = _getDebuggerCodeOrigin(prg);
+    const layout = getProgramLayout(originOverride);
+    return _buildDebuggerSidecarTexts(layout, originOverride);
+  } catch (e) {
+    console.error("Debugger sidecar generation failed:", e);
+    return null;
+  }
+}
+
 async function runInDebugger() {
   if (isProgramEmpty()) {
     showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
@@ -11099,32 +11386,9 @@ async function runInDebugger() {
 
     setWorkProgress(50);
 
-    const debugCodeOrigin = prg.sysAddress ?? (() => {
-      const o = parseOriginValue();
-      return (o.value === 0x0801) ? 0xC000 : o.value;
-    })();
+    const debugCodeOrigin = _getDebuggerCodeOrigin(prg);
     const layout = getProgramLayout(debugCodeOrigin);
-
-    const symbols = [];
-    const breakpoints = [];
-
-    layout.lines.forEach(line => {
-      if (line.block.isLabel && line.block.labelName) {
-        symbols.push({ name: line.block.labelName, address: line.address });
-      }
-      if (line.block.isLoopMacro && line.block.loopLabel) {
-        symbols.push({ name: line.block.loopLabel, address: line.address + 2 });
-      }
-      if (line.block._autoBufferLabel) {
-        symbols.push({ name: line.block._autoBufferLabel, address: line.address });
-      }
-      if (line.block.isTableMacro && line.block.tableName) {
-        symbols.push({ name: line.block.tableName, address: line.address });
-      }
-      if (line.block.isBreakpoint) {
-        breakpoints.push(line.address);
-      }
-    });
+    const { symbols, breakpoints } = _collectDebuggerSymbols(layout);
 
     setWorkProgress(80);
     const result = await window.electronAPI.launchDebugger({
@@ -11132,6 +11396,7 @@ async function runInDebugger() {
       fileName: `c64-visual-assembler-${Date.now()}.prg`,
       symbols,
       breakpoints,
+      sidecars: _buildDebuggerSidecarPayload(prg),
       autoJmp: false,
       jmpAddress: debuggerJmp ? debugCodeOrigin : undefined,
       waitMs: debuggerWait ? debuggerWaitMs : 0,
@@ -12054,7 +12319,10 @@ async function savePrgToFile() {
     return;
   }
 
-  const result = await window.electronAPI.savePrg({ bytes: Array.from(prg.bytes) });
+  const result = await window.electronAPI.savePrg({
+    bytes: Array.from(prg.bytes),
+    sidecars: _buildDebuggerSidecarPayload(prg)
+  });
   if (result?.canceled) return;
 
   if (!result?.ok) {
@@ -12083,7 +12351,7 @@ async function saveD64ToFile() {
     return;
   }
 
-  openD64ExportDialog(prg.bytes);
+  openD64ExportDialog(prg.bytes, _buildDebuggerSidecarPayload(prg));
 }
 
 // ── D64 Export Dialog ─────────────────────────────────────────────────
@@ -12092,6 +12360,7 @@ async function saveD64ToFile() {
 // written to the same D64 image.
 const d64ExportState = {
   prgBytes: null,
+  sidecars: null,
   extras: [],  // [{ name: string, sourcePath: string, bytes: number[], loadAddress: string, crunch: bool }]
   runMode: false,
   diskName: "",
@@ -12129,10 +12398,11 @@ async function d64LoadSavedExtras(savedExtras, baseDir = "") {
   return restored;
 }
 
-async function openD64ExportDialog(prgBytes) {
+async function openD64ExportDialog(prgBytes, sidecars = null) {
   const dialog = document.getElementById("d64-export-dialog");
   if (!dialog) return;
   d64ExportState.prgBytes = prgBytes;
+  d64ExportState.sidecars = sidecars;
 
   const diskInput = document.getElementById("d64-export-diskname");
   const progInput = document.getElementById("d64-export-progname");
@@ -12371,9 +12641,9 @@ async function confirmD64Export() {
     } else if (isBrowserMode) {
       result = await window.electronAPI.runD64InBrowserEmulator({ diskName, files });
     } else if (isRunMode) {
-      result = await window.electronAPI.runD64({ diskName, files });
+      result = await window.electronAPI.runD64({ diskName, files, sidecars: d64ExportState.sidecars });
     } else {
-      result = await window.electronAPI.saveD64({ diskName, files });
+      result = await window.electronAPI.saveD64({ diskName, files, sidecars: d64ExportState.sidecars });
     }
   } finally {
     if (confirmBtn) {
@@ -12399,6 +12669,7 @@ async function confirmD64Export() {
 
   d64SaveSettings((diskInput?.value || "").trim() || "DISK", (progInput?.value || "").trim() || "PROGRAM");
   dialog.close();
+  d64ExportState.sidecars = null;
   if (isBrowserMode && result?.url) {
     openBrowserEmulatorDialog(result.url, "runD64InBrowser");
   }
@@ -12676,7 +12947,8 @@ async function runViaExomizer() {
 
     const result = await window.electronAPI.launchExomizer({
       bytes: Array.from(prg.bytes),
-      fileName: `c64-visual-assembler-${Date.now()}.prg`
+      fileName: `c64-visual-assembler-${Date.now()}.prg`,
+      sidecars: _buildDebuggerSidecarPayload(prg)
     });
 
     if (!result?.ok) {
@@ -12703,7 +12975,7 @@ async function buildRunPrgForCurrentMode() {
   const prg = buildAutostartPrgForEmulator();
   if (!prg.ok) return prg;
 
-  if (!exomizerEnabled) return prg;
+  if (!exomizerEnabled) return { ...prg, sysAddress: prg.sysAddress };
 
   if (!exomizerPath) {
     return { ok: false, error: t("exomizerNotConfiguredMsg") };
@@ -12740,7 +13012,8 @@ async function buildRunPrgForCurrentMode() {
       ok: true,
       bytes: Uint8Array.from(result.bytes || []),
       exomizerPath: result.exomizerPath,
-      filePath: result.filePath
+      filePath: result.filePath,
+      sysAddress: prg.sysAddress
     };
   } finally {
     // Hide progress only if we opened it (don't close an outer dialog)
@@ -13092,16 +13365,23 @@ function _importMakeWord(rawList) {
 
 function _importMakeFill(rawList) {
   // FILL accepts "count, value"
-  const parts = rawList.split(",").map(p => p.trim()).filter(Boolean);
-  let base = "dec";
-  let normalized = rawList.trim();
-  if (parts.length === 2) {
-    const a = _importParseScalar(parts[0]);
-    const b = _importParseScalar(parts[1]);
-    // Pick the value's base for the macro (count usually fits any base).
-    base = b.base;
-    normalized = `${a.value},${b.value}`;
+  const parts = [];
+  let current = "";
+  let depth = 0;
+  for (const char of String(rawList || "")) {
+    if (char === "(") depth += 1;
+    if (char === ")") depth = Math.max(0, depth - 1);
+    if (char === "," && depth === 0) {
+      parts.push(current.trim());
+      current = "";
+      continue;
+    }
+    current += char;
   }
+  if (current.trim()) parts.push(current.trim());
+  const normalized = String(rawList || "").trim();
+  const countToken = parts.length >= 1 ? _importParseScalar(parts[0]) : { base: "dec" };
+  const base = countToken.base === "hex" ? "hex" : "dec";
   return {
     id: crypto.randomUUID(),
     category: "Makrok", mnemonic: "FILL",
@@ -13275,9 +13555,36 @@ function _importMakeMacroDefEnd() {
   };
 }
 
+// Normalize whitespace in operand strings so that patterns like
+// "( ZP_PTR_1 ), y" and "back_buffer + $000, x" match the canonical
+// regexes that expect "(ZP_PTR_1),Y" and "back_buffer+$000,X".
+function _importNormalizeOperand(op) {
+  let s = op;
+  // Strip spaces inside parentheses: ( ZP_PTR_1 ), y → (ZP_PTR_1), y
+  s = s.replace(/\(\s+/g, "(");
+  s = s.replace(/\s+\)/g, ")");
+  // Strip spaces between comma and X/Y register at end of string
+  s = s.replace(/,\s*([XYxy])\s*$/g, ",$1");
+  // Strip spaces around + when followed by $ or digit (label+$offset pattern)
+  s = s.replace(/\s*\+\s*(?=[\$0-9])/g, "+");
+  // Strip spaces around - when followed by $ or digit
+  s = s.replace(/\s*-\s*(?=[\$0-9])/g, "-");
+  return s;
+}
+
 function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
   const category = _importMnemonicCategory(mnemonic);
   const description = _importMnemonicDescription(mnemonic);
+
+  const normalizeOperand = (op) => {
+    let s = String(op || "");
+    s = s.replace(/\(\s+/g, "(");
+    s = s.replace(/\s+\)/g, ")");
+    s = s.replace(/,\s*([XYxy])\s*$/g, ",$1");
+    s = s.replace(/\s*\+\s*(?=[\$0-9])/g, "+");
+    s = s.replace(/\s*-\s*(?=[\$0-9])/g, "-");
+    return s;
+  };
 
   let addressingMode = "implied";
   let rawOperand = "";
@@ -13285,7 +13592,7 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
   let displayOperand = "";
 
   if (operandRaw) {
-    const op = operandRaw;
+    const op = normalizeOperand(operandRaw);
     const isBranchMnemonic = branchMnems.has(mnemonic);
 
     if (op.startsWith("#")) {
@@ -13463,6 +13770,15 @@ function parseAsmText(text) {
       continue;
     }
 
+    // Label: .fill count,value  →  LABEL + FILL
+    const lblFillM = line.match(/^((?:@?[A-Za-z_][A-Za-z0-9_]*|\.[A-Za-z][A-Za-z0-9_]*)):\s*\.fill\s+(.+)$/i);
+    if (lblFillM) {
+      blocks.push(_importMakeLabel(lblFillM[1].replace(/^\./, "")));
+      blocks.push(_importMakeFill(lblFillM[2].trim()));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
     // Standalone .word val,... (also accepts ACME-style !word)
     const standaloneWordM = line.match(/^(?:\.word|!word)\s+(.+)$/i);
     if (standaloneWordM) {
@@ -13496,10 +13812,37 @@ function parseAsmText(text) {
       continue;
     }
 
-    // CONST equate: name = $value  or  name .equ $value
+    // CONST equate: name = $value  or  name .equ $value  or  .const name = $value
     const equateM = line.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*(?:=|\.equ\b)\s*(\$[0-9A-Fa-f]+|0x[0-9A-Fa-f]+|%[01]+|\d+)\s*$/i);
     if (equateM) {
       blocks.push(_importMakeConst(equateM[1], equateM[2]));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Kick Assembler .const NAME = value  (supports expressions like PIXEL_COLUMNS / 2)
+    const kickConstM = line.match(/^\.const\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+?)\s*$/i);
+    if (kickConstM) {
+      const constName = kickConstM[1];
+      const constVal = kickConstM[2].trim();
+      // Try to resolve simple scalars; fall back to a named CONST with a best-effort value
+      const scalar = _importParseScalar(constVal);
+      // If the value looks like an expression (contains non-scalar tokens), try to
+      // treat it as a plain identifier that might resolve via symbol lookup later.
+      if (scalar.base === "hex" && !/^[0-9A-Fa-f]+$/.test(scalar.value)) {
+        // Value is an expression or identifier — create the CONST with raw text;
+        // if it's a bare name of a previously defined CONST the compiler may resolve it.
+        blocks.push({
+          id: crypto.randomUUID(),
+          category: "Makrok", mnemonic: "CONST",
+          operand: constVal, rawOperand: constVal, description: "",
+          addressingMode: "implied", base: "hex",
+          validationError: "", collapsed: true, isConstMacro: true,
+          constName, constValue: 0
+        });
+      } else {
+        blocks.push(_importMakeConst(constName, constVal));
+      }
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -13685,6 +14028,76 @@ function makeMacroBufferLabel(invokeId, paramName) {
 function addLayoutLabels(labelMap, line) {
   if (!line || line.conditionallySkipped) return;
   const block = line.block || {};
+  const evalAsmExpression = (expr, localLabels = null, localVars = null) => {
+    let text = String(expr ?? "").trim();
+    if (!text) return null;
+
+    text = text.replace(/^#/, "");
+    text = text.replace(/\$([A-Za-z_][A-Za-z0-9_]*)/g, (match, name) => {
+      return /^[0-9A-Fa-f]+$/.test(name) ? match : name;
+    });
+    text = text.replace(/\$<\s*\(/g, "lo(");
+    text = text.replace(/\$>\s*\(/g, "hi(");
+    text = text.replace(/<\s*\(/g, "lo(");
+    text = text.replace(/>\s*\(/g, "hi(");
+    text = text.replace(/<\s*([A-Za-z_][A-Za-z0-9_]*)/g, "lo($1)");
+    text = text.replace(/>\s*([A-Za-z_][A-Za-z0-9_]*)/g, "hi($1)");
+    text = text.replace(/\$([0-9A-Fa-f]+)/g, "0x$1");
+    text = text.replace(/%([01]+)/g, "0b$1");
+
+    const resolved = Object.create(null);
+    const setResolved = (name, value) => {
+      if (value === undefined || value === null || Number.isNaN(value)) return;
+      resolved[name] = Number(value);
+      resolved[name.toLowerCase()] = Number(value);
+      resolved[name.toUpperCase()] = Number(value);
+    };
+
+    if (localLabels && typeof localLabels.forEach === "function") {
+      localLabels.forEach((value, name) => setResolved(name, value));
+    }
+    if (localVars && typeof localVars === "object") {
+      for (const [name, value] of Object.entries(localVars)) {
+        setResolved(name, value);
+      }
+    }
+
+    text = text.replace(/\b(round|sin|cos|max|min|abs)\b/gi, (match) => `__FUNC_${match.toUpperCase()}__`);
+    text = text.replace(/\bPI\b/gi, "__CONST_PI__");
+
+    text = text.replace(/\b[A-Za-z_][A-Za-z0-9_]*\b/g, (name) => {
+      if (name.startsWith("__FUNC_") || name === "__CONST_PI__") return name;
+      if (name === "lo" || name === "hi" || name === "Math") return name;
+      if (/^0x[0-9A-Fa-f]+$/.test(name)) return name;
+      if (Object.prototype.hasOwnProperty.call(resolved, name)) return String(resolved[name]);
+
+      const constValue = lookupProgramConstValue(name);
+      if (constValue !== null) return String(constValue);
+
+      return `__UNKNOWN_${name}__`;
+    });
+
+    if (/__UNKNOWN_[A-Za-z0-9_]+__/.test(text)) {
+      return null;
+    }
+
+    text = text.replace(/__FUNC_ROUND__/g, "Math.round");
+    text = text.replace(/__FUNC_SIN__/g, "Math.sin");
+    text = text.replace(/__FUNC_MAX__/g, "Math.max");
+    text = text.replace(/__FUNC_MIN__/g, "Math.min");
+    text = text.replace(/__FUNC_ABS__/g, "Math.abs");
+    text = text.replace(/__CONST_PI__/g, "Math.PI");
+
+    try {
+      const result = Function("lo", "hi", `"use strict"; return (${text});`)(
+        (value) => value & 0xFF,
+        (value) => (value >> 8) & 0xFF
+      );
+      return Number.isFinite(result) ? Number(result) : null;
+    } catch (_) {
+      return null;
+    }
+  };
   if (block.isLabel && block.labelName) labelMap.set(block.labelName, line.address);
   if (block.isLoopMacro && block.loopLabel) labelMap.set(block.loopLabel, line.address + 2);
   if (block.isForMacro && block.loopLabel) labelMap.set(block.loopLabel, line.address + 2);
@@ -13699,10 +14112,22 @@ function addLayoutLabels(labelMap, line) {
     const starExpr = raw.match(/^\*\s*([+-])\s*(\d+)$/);
     if (starExpr) {
       const offset = parseInt(starExpr[2], 10) * (starExpr[1] === '+' ? 1 : -1);
-      labelMap.set(block.constName, line.address + offset);
+      const value = (line.address + offset) & 0xFFFF;
+      block.constValue = value;
+      labelMap.set(block.constName, value);
     } else {
-      const v = parseNumberByBase(raw.replace(/^\$/, ""), block.base);
-      if (v !== null) labelMap.set(block.constName, v);
+      const n = parseNumberByBase(raw.replace(/^\$/, ""), block.base);
+      if (n !== null) {
+        block.constValue = n;
+        labelMap.set(block.constName, n);
+      } else {
+        const v = evalAsmExpression(raw, labelMap, { i: line.address, I: line.address });
+        if (v !== null) {
+          const value = v & 0xFFFF;
+          block.constValue = value;
+          labelMap.set(block.constName, value);
+        }
+      }
     }
   }
   if (block.isVarMacro && block.varName && typeof block._varAddress === "number") {
@@ -13953,6 +14378,20 @@ function _buildDisasmText() {
   const host = document.createElement("div");
   host.innerHTML = html;
   return (host.textContent || "").replace(/\u00A0/g, " ");
+}
+
+function _getDisasmSourceText(forExpert = false) {
+  const el = forExpert ? expertDisasmOutput : document.getElementById("disasm-output");
+  return (el?.textContent || "").replace(/\u00A0/g, " ");
+}
+
+async function copyDisasmSourceToClipboard(forExpert = false) {
+  const text = _getDisasmSourceText(forExpert);
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 function _buildUniversalAsmExportText() {
@@ -14659,7 +15098,8 @@ async function runInEmulator() {
 
     const result = await window.electronAPI.launchVice({
       bytes: Array.from(prg.bytes),
-      fileName: `c64-visual-assembler-${Date.now()}.prg`
+      fileName: `c64-visual-assembler-${Date.now()}.prg`,
+      sidecars: _buildDebuggerSidecarPayload(prg)
     });
 
     if (!result?.ok) {
@@ -14805,7 +15245,8 @@ function _programHasEmbeddedBasicAutostart(blocks) {
     if (block?.isComment || block?.isBlankLine || block?.isRegionMacro || block?.isEndRegionMacro) continue;
     if (!block?.isByteMacro) return false;
     normalizedBytes.push(String(block.rawOperand || "").replace(/\s+/g, "").toUpperCase());
-    if (normalizedBytes.join(",").startsWith("0B,08,0A,00,9E")) return true;
+    if (normalizedBytes.join(",").startsWith("0B,08,0A,00,9E") ||
+        normalizedBytes.join(",").startsWith("0C,08,0A,00,9E,20")) return true;
     if (normalizedBytes.length > 2) break;
   }
 
@@ -14986,6 +15427,53 @@ function assembleProgramToPrg(originOverride) {
 }
 
 function compileLineBytes(line, labels) {
+  const evalAsmExpression = (expr, localLabels = null, localVars = null) => {
+    let text = String(expr ?? "").trim();
+    if (!text) return null;
+    text = text.replace(/^#/, "");
+    text = text.replace(/\$([A-Za-z_][A-Za-z0-9_]*)/g, (match, name) => {
+      return /^[0-9A-Fa-f]+$/.test(name) ? match : name;
+    });
+    text = text.replace(/\$<\s*\(/g, "lo(");
+    text = text.replace(/\$>\s*\(/g, "hi(");
+    text = text.replace(/<\s*\(/g, "lo(");
+    text = text.replace(/>\s*\(/g, "hi(");
+    text = text.replace(/<\s*([A-Za-z_][A-Za-z0-9_]*)/g, "lo($1)");
+    text = text.replace(/>\s*([A-Za-z_][A-Za-z0-9_]*)/g, "hi($1)");
+    text = text.replace(/\$([0-9A-Fa-f]+)/g, "0x$1");
+    text = text.replace(/%([01]+)/g, "0b$1");
+    text = text.replace(/\b(round|sin|cos|max|min|abs)\b/gi, (match) => `__FUNC_${match.toUpperCase()}__`);
+    text = text.replace(/\bPI\b/gi, "__CONST_PI__");
+    text = text.replace(/\b[A-Za-z_][A-Za-z0-9_]*\b/g, (name) => {
+      if (name.startsWith("__FUNC_") || name === "__CONST_PI__") return name;
+      if (name === "lo" || name === "hi" || name === "Math") return name;
+      if (/^0x[0-9A-Fa-f]+$/.test(name)) return name;
+      if (localLabels && typeof localLabels.get === "function") {
+        const value = localLabels.get(name) ?? localLabels.get(name.toLowerCase()) ?? localLabels.get(name.toUpperCase());
+        if (value !== undefined) return String(value);
+      }
+      const constValue = lookupProgramConstValue(name);
+      if (constValue !== null) return String(constValue);
+      return `__UNKNOWN_${name}__`;
+    });
+    if (/__UNKNOWN_[A-Za-z0-9_]+__/.test(text)) return null;
+    text = text.replace(/__FUNC_ROUND__/g, "Math.round");
+    text = text.replace(/__FUNC_SIN__/g, "Math.sin");
+    text = text.replace(/__FUNC_MAX__/g, "Math.max");
+    text = text.replace(/__FUNC_MIN__/g, "Math.min");
+    text = text.replace(/__FUNC_ABS__/g, "Math.abs");
+    text = text.replace(/__CONST_PI__/g, "Math.PI");
+    try {
+      const result = Function("lo", "hi", `"use strict"; return (${text});`)(
+        (value) => value & 0xFF,
+        (value) => (value >> 8) & 0xFF
+      );
+      return Number.isFinite(result) ? Number(result) : null;
+    } catch (_) {
+      return null;
+    }
+  };
+
   if (line.conditionallySkipped) {
     return { ok: true, bytes: [], comment: "conditionally skipped" };
   }
@@ -15855,15 +16343,31 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isFillMacro) {
-    const parsed = parseFillMacro(block.rawOperand, block.base);
-    if (!parsed || isNaN(parsed.count) || isNaN(parsed.value)) {
+    const parsed = parseFillMacro(block.rawOperand, block.base, labels, { i: line.address, I: line.address });
+    if (!parsed) {
       return { ok: false, error: `FILL: ${t("invalidOperand") || "invalid parameters"}` };
     }
-    const bytes = new Array(parsed.count).fill(parsed.value & 0xFF);
+    const resolvedCount = Number.isFinite(parsed.count)
+      ? parsed.count
+      : evaluateFillExpression(parsed.countExpr, labels, { i: line.address, I: line.address });
+    if (!Number.isFinite(resolvedCount) || resolvedCount < 0 || resolvedCount > 65536) {
+      return { ok: false, error: `FILL: ${t("invalidOperand") || "invalid parameters"}` };
+    }
+    const count = Math.max(0, resolvedCount | 0);
+    const bytes = [];
+    for (let i = 0; i < count; i++) {
+      const value = Number.isFinite(parsed.value) && !/\bi\b|\bI\b/.test(parsed.valueExpr || "")
+        ? parsed.value
+        : evaluateFillExpression(parsed.valueExpr, labels, { i, I: i });
+      if (value === null || Number.isNaN(value)) {
+        return { ok: false, error: `FILL: ${t("invalidOperand") || "invalid parameters"}` };
+      }
+      bytes.push(value & 0xFF);
+    }
     return {
       ok: true,
       bytes,
-      comment: `FILL ${parsed.count},$${parsed.value.toString(16).toUpperCase().padStart(2, '0')}`
+      comment: `FILL ${parsed.count},${parsed.valueExpr}`
     };
   }
 
@@ -16352,6 +16856,53 @@ function compileLineBytes(line, labels) {
 }
 
 function resolveNumericOperand(block, labels) {
+  const evalAsmExpression = (expr, localLabels = null) => {
+    let text = String(expr ?? "").trim();
+    if (!text) return null;
+    text = text.replace(/^#/, "");
+    text = text.replace(/\$([A-Za-z_][A-Za-z0-9_]*)/g, (match, name) => {
+      return /^[0-9A-Fa-f]+$/.test(name) ? match : name;
+    });
+    text = text.replace(/\$<\s*\(/g, "lo(");
+    text = text.replace(/\$>\s*\(/g, "hi(");
+    text = text.replace(/<\s*\(/g, "lo(");
+    text = text.replace(/>\s*\(/g, "hi(");
+    text = text.replace(/<\s*([A-Za-z_][A-Za-z0-9_]*)/g, "lo($1)");
+    text = text.replace(/>\s*([A-Za-z_][A-Za-z0-9_]*)/g, "hi($1)");
+    text = text.replace(/\$([0-9A-Fa-f]+)/g, "0x$1");
+    text = text.replace(/%([01]+)/g, "0b$1");
+    text = text.replace(/\b(round|sin|cos|max|min|abs)\b/gi, (match) => `__FUNC_${match.toUpperCase()}__`);
+    text = text.replace(/\bPI\b/gi, "__CONST_PI__");
+    text = text.replace(/\b[A-Za-z_][A-Za-z0-9_]*\b/g, (name) => {
+      if (name.startsWith("__FUNC_") || name === "__CONST_PI__") return name;
+      if (name === "lo" || name === "hi" || name === "Math") return name;
+      if (/^0x[0-9A-Fa-f]+$/.test(name)) return name;
+      if (localLabels && typeof localLabels.get === "function") {
+        const value = localLabels.get(name) ?? localLabels.get(name.toLowerCase()) ?? localLabels.get(name.toUpperCase());
+        if (value !== undefined) return String(value);
+      }
+      const constValue = lookupProgramConstValue(name);
+      if (constValue !== null) return String(constValue);
+      return `__UNKNOWN_${name}__`;
+    });
+    if (/__UNKNOWN_[A-Za-z0-9_]+__/.test(text)) return null;
+    text = text.replace(/__FUNC_ROUND__/g, "Math.round");
+    text = text.replace(/__FUNC_SIN__/g, "Math.sin");
+    text = text.replace(/__FUNC_MAX__/g, "Math.max");
+    text = text.replace(/__FUNC_MIN__/g, "Math.min");
+    text = text.replace(/__FUNC_ABS__/g, "Math.abs");
+    text = text.replace(/__CONST_PI__/g, "Math.PI");
+    try {
+      const result = Function("lo", "hi", `"use strict"; return (${text});`)(
+        (value) => value & 0xFF,
+        (value) => (value >> 8) & 0xFF
+      );
+      return Number.isFinite(result) ? Number(result) : null;
+    } catch (_) {
+      return null;
+    }
+  };
+
   if (labels.has(block.rawOperand)) {
     return { ok: true, value: labels.get(block.rawOperand) };
   }
@@ -16382,8 +16933,10 @@ function resolveNumericOperand(block, labels) {
     const literalBase = /^\d+$/.test(name) ? "dec" : block.base;
     const num = parseNumberByBase(name.replace(/^[\$%]/, ""), literalBase);
     if (num !== null) return { ok: true, value: num & 0xFF };
-    const constVal = resolveProgramConstValue(name);
+    const constVal = lookupProgramConstValue(name);
     if (constVal !== null) return { ok: true, value: constVal & 0xFF };
+    const evaluated = evalAsmExpression(name, labels);
+    if (evaluated !== null) return { ok: true, value: evaluated & 0xFF };
     return { ok: false, error: tf("operandNotResolvable", { mnemonic: block.mnemonic }) };
   }
   // #>X  → high byte of label address OR numeric literal
@@ -16393,8 +16946,10 @@ function resolveNumericOperand(block, labels) {
     const literalBase = /^\d+$/.test(name) ? "dec" : block.base;
     const num = parseNumberByBase(name.replace(/^[\$%]/, ""), literalBase);
     if (num !== null) return { ok: true, value: (num >> 8) & 0xFF };
-    const constVal = resolveProgramConstValue(name);
+    const constVal = lookupProgramConstValue(name);
     if (constVal !== null) return { ok: true, value: (constVal >> 8) & 0xFF };
+    const evaluated = evalAsmExpression(name, labels);
+    if (evaluated !== null) return { ok: true, value: (evaluated >> 8) & 0xFF };
     return { ok: false, error: tf("operandNotResolvable", { mnemonic: block.mnemonic }) };
   }
 
@@ -16404,6 +16959,10 @@ function resolveNumericOperand(block, labels) {
     // Try label lookup with stripped value (handles #LABEL_NAME for immediate mode)
     if (labels.has(stripped)) {
       return { ok: true, value: labels.get(stripped) };
+    }
+    const evaluated = evalAsmExpression(stripped, labels);
+    if (evaluated !== null) {
+      return { ok: true, value: evaluated };
     }
     return { ok: false, error: tf("operandNotResolvable", { mnemonic: block.mnemonic }) };
   }
@@ -16544,9 +17103,80 @@ function parseNumberByBase(value, base) {
   return /^-?\d+$/.test(value) ? Number(value) : null;
 }
 
+function _evalAsmExpression(expr, labels = null, vars = null) {
+  let text = String(expr ?? "").trim();
+  if (!text) return null;
+
+  text = text.replace(/^#/, "");
+  text = text.replace(/\$([A-Za-z_][A-Za-z0-9_]*)/g, (match, name) => {
+    return /^[0-9A-Fa-f]+$/.test(name) ? match : name;
+  });
+  text = text.replace(/\$<\s*\(/g, "lo(");
+  text = text.replace(/\$>\s*\(/g, "hi(");
+  text = text.replace(/<\s*\(/g, "lo(");
+  text = text.replace(/>\s*\(/g, "hi(");
+  text = text.replace(/<\s*([A-Za-z_][A-Za-z0-9_]*)/g, "lo($1)");
+  text = text.replace(/>\s*([A-Za-z_][A-Za-z0-9_]*)/g, "hi($1)");
+  text = text.replace(/\$([0-9A-Fa-f]+)/g, "0x$1");
+  text = text.replace(/%([01]+)/g, "0b$1");
+
+  const resolved = Object.create(null);
+  const setResolved = (name, value) => {
+    if (value === undefined || value === null || Number.isNaN(value)) return;
+    resolved[name] = Number(value);
+    resolved[name.toLowerCase()] = Number(value);
+    resolved[name.toUpperCase()] = Number(value);
+  };
+
+  if (labels && typeof labels.forEach === "function") {
+    labels.forEach((value, name) => setResolved(name, value));
+  }
+  if (vars && typeof vars === "object") {
+    for (const [name, value] of Object.entries(vars)) {
+      setResolved(name, value);
+    }
+  }
+
+  text = text.replace(/\b(round|sin|cos|max|min|abs)\b/gi, (match) => `__FUNC_${match.toUpperCase()}__`);
+  text = text.replace(/\bPI\b/gi, "__CONST_PI__");
+
+  text = text.replace(/\b[A-Za-z_][A-Za-z0-9_]*\b/g, (name) => {
+    if (name.startsWith("__FUNC_") || name === "__CONST_PI__") return name;
+    if (name === "lo" || name === "hi" || name === "Math") return name;
+    if (/^0x[0-9A-Fa-f]+$/.test(name)) return name;
+    if (Object.prototype.hasOwnProperty.call(resolved, name)) return String(resolved[name]);
+
+    const constValue = lookupProgramConstValue(name);
+    if (constValue !== null) return String(constValue);
+
+    return `__UNKNOWN_${name}__`;
+  });
+
+  if (/__UNKNOWN_[A-Za-z0-9_]+__/.test(text)) {
+    return null;
+  }
+
+  text = text.replace(/__FUNC_ROUND__/g, "Math.round");
+  text = text.replace(/__FUNC_SIN__/g, "Math.sin");
+  text = text.replace(/__FUNC_MAX__/g, "Math.max");
+  text = text.replace(/__FUNC_MIN__/g, "Math.min");
+  text = text.replace(/__FUNC_ABS__/g, "Math.abs");
+  text = text.replace(/__CONST_PI__/g, "Math.PI");
+
+  try {
+    const result = Function("lo", "hi", `"use strict"; return (${text});`)(
+      (value) => value & 0xFF,
+      (value) => (value >> 8) & 0xFF
+    );
+    return Number.isFinite(result) ? Number(result) : null;
+  } catch (_) {
+    return null;
+  }
+}
+
 // Size/count parser: ha nincs $ prefix és nincs A-F betű → decimális, egyébként hex.
 // Így size=1000 → 1000 dec, size=$03E8 → 1000 hex, size=03E8 → 1000 hex (van E betű).
-function parseMacroCountOrSize(raw, labels = null, preferredBase = "dec") {
+function parseMacroCountOrSize(raw, labels = null, preferredBase = "dec", vars = null) {
   const text = String(raw ?? "").trim().replace(/^#/, "");
   if (!text) return null;
   if (text.startsWith("$") || /^0x/i.test(text)) {
@@ -16558,6 +17188,8 @@ function parseMacroCountOrSize(raw, labels = null, preferredBase = "dec") {
   if (/^[0-9]+$/.test(text)) {
     return Number.parseInt(text, preferredBase === "hex" ? 16 : 10);
   }
+  const evaluated = _evalAsmExpression(text, labels, vars);
+  if (evaluated !== null) return evaluated;
   return parseMacroNumber(raw, labels, preferredBase === "dec" ? "dec" : "hex");
 }
 
@@ -16577,6 +17209,53 @@ function parseMacroNumber(raw, labels = null, fallbackBase = "hex") {
     if (labelValue !== null) return labelValue;
     return resolveProgramConstValue(normalized);
   }
+  const evaluated = (() => {
+    let expr = normalized;
+    if (!expr) return null;
+    expr = expr.replace(/\$([A-Za-z_][A-Za-z0-9_]*)/g, (match, name) => {
+      return /^[0-9A-Fa-f]+$/.test(name) ? match : name;
+    });
+    expr = expr.replace(/\$<\s*\(/g, "lo(");
+    expr = expr.replace(/\$>\s*\(/g, "hi(");
+    expr = expr.replace(/<\s*\(/g, "lo(");
+    expr = expr.replace(/>\s*\(/g, "hi(");
+    expr = expr.replace(/<\s*([A-Za-z_][A-Za-z0-9_]*)/g, "lo($1)");
+    expr = expr.replace(/>\s*([A-Za-z_][A-Za-z0-9_]*)/g, "hi($1)");
+    expr = expr.replace(/\$([0-9A-Fa-f]+)/g, "0x$1");
+    expr = expr.replace(/%([01]+)/g, "0b$1");
+    expr = expr.replace(/\b(round|sin|cos|max|min|abs)\b/gi, (match) => `__FUNC_${match.toUpperCase()}__`);
+    expr = expr.replace(/\bPI\b/gi, "__CONST_PI__");
+    expr = expr.replace(/\b[A-Za-z_][A-Za-z0-9_]*\b/g, (name) => {
+      if (name.startsWith("__FUNC_") || name === "__CONST_PI__") return name;
+      if (name === "lo" || name === "hi" || name === "Math") return name;
+      if (/^0x[0-9A-Fa-f]+$/.test(name)) return name;
+      if (labels && typeof labels.get === "function") {
+        const labelValue = labels.get(name) ?? labels.get(name.toLowerCase()) ?? labels.get(name.toUpperCase());
+        if (labelValue !== undefined) return String(labelValue);
+      }
+      const constValue = lookupProgramConstValue(name);
+
+      if (constValue !== null) return String(constValue);
+      return `__UNKNOWN_${name}__`;
+    });
+    if (/__UNKNOWN_[A-Za-z0-9_]+__/.test(expr)) return null;
+    expr = expr.replace(/__FUNC_ROUND__/g, "Math.round");
+    expr = expr.replace(/__FUNC_SIN__/g, "Math.sin");
+    expr = expr.replace(/__FUNC_MAX__/g, "Math.max");
+    expr = expr.replace(/__FUNC_MIN__/g, "Math.min");
+    expr = expr.replace(/__FUNC_ABS__/g, "Math.abs");
+    expr = expr.replace(/__CONST_PI__/g, "Math.PI");
+    try {
+      const result = Function("lo", "hi", `"use strict"; return (${expr});`)(
+        (value) => value & 0xFF,
+        (value) => (value >> 8) & 0xFF
+      );
+      return Number.isFinite(result) ? Number(result) : null;
+    } catch (_) {
+      return null;
+    }
+  })();
+  if (evaluated !== null) return evaluated;
   return null;
 }
 
@@ -16593,6 +17272,82 @@ function resolveProgramConstValue(name) {
     if (parsed !== null) return parsed;
   }
   return null;
+}
+
+function lookupProgramConstValue(name) {
+  if (typeof globalThis !== "undefined" && typeof globalThis.resolveProgramConstValue === "function" && globalThis.resolveProgramConstValue !== lookupProgramConstValue) {
+    return globalThis.resolveProgramConstValue(name);
+  }
+  return resolveProgramConstValue(name);
+}
+
+function evaluateFillExpression(expr, labels = null, vars = null) {
+  let text = String(expr ?? "").trim();
+  if (!text) return null;
+
+  text = text.replace(/^#/, "");
+  text = text.replace(/\$([A-Za-z_][A-Za-z0-9_]*)/g, (match, name) => {
+    return /^[0-9A-Fa-f]+$/.test(name) ? match : name;
+  });
+  text = text.replace(/\$<\s*\(/g, "lo(");
+  text = text.replace(/\$>\s*\(/g, "hi(");
+  text = text.replace(/<\s*\(/g, "lo(");
+  text = text.replace(/>\s*\(/g, "hi(");
+  text = text.replace(/<\s*([A-Za-z_][A-Za-z0-9_]*)/g, "lo($1)");
+  text = text.replace(/>\s*([A-Za-z_][A-Za-z0-9_]*)/g, "hi($1)");
+  text = text.replace(/\$([0-9A-Fa-f]+)/g, "0x$1");
+  text = text.replace(/%([01]+)/g, "0b$1");
+
+  const resolved = Object.create(null);
+  const setResolved = (name, value) => {
+    if (value === undefined || value === null || Number.isNaN(value)) return;
+    resolved[name] = Number(value);
+    resolved[name.toLowerCase()] = Number(value);
+    resolved[name.toUpperCase()] = Number(value);
+  };
+
+  if (labels && typeof labels.forEach === "function") {
+    labels.forEach((value, name) => setResolved(name, value));
+  }
+  if (vars && typeof vars === "object") {
+    for (const [name, value] of Object.entries(vars)) {
+      setResolved(name, value);
+    }
+  }
+
+  text = text.replace(/\b(round|sin|cos|max|min|abs)\b/gi, (match) => `__FUNC_${match.toUpperCase()}__`);
+  text = text.replace(/\bPI\b/gi, "__CONST_PI__");
+
+  text = text.replace(/\b[A-Za-z_][A-Za-z0-9_]*\b/g, (name) => {
+    if (name.startsWith("__FUNC_") || name === "__CONST_PI__") return name;
+    if (name === "lo" || name === "hi" || name === "Math") return name;
+    if (/^0x[0-9A-Fa-f]+$/.test(name)) return name;
+    if (Object.prototype.hasOwnProperty.call(resolved, name)) return String(resolved[name]);
+
+    const constValue = lookupProgramConstValue(name);
+    if (constValue !== null) return String(constValue);
+
+    return `__UNKNOWN_${name}__`;
+  });
+
+  if (/__UNKNOWN_[A-Za-z0-9_]+__/.test(text)) return null;
+
+  text = text.replace(/__FUNC_ROUND__/g, "Math.round");
+  text = text.replace(/__FUNC_SIN__/g, "Math.sin");
+  text = text.replace(/__FUNC_MAX__/g, "Math.max");
+  text = text.replace(/__FUNC_MIN__/g, "Math.min");
+  text = text.replace(/__FUNC_ABS__/g, "Math.abs");
+  text = text.replace(/__CONST_PI__/g, "Math.PI");
+
+  try {
+    const result = Function("lo", "hi", `"use strict"; return (${text});`)(
+      (value) => value & 0xFF,
+      (value) => (value >> 8) & 0xFF
+    );
+    return Number.isFinite(result) ? Number(result) : null;
+  } catch (_) {
+    return null;
+  }
 }
 
 function getProgramConstNames() {
@@ -23087,7 +23842,7 @@ function _tourTargetValueMatches(step, actualValue) {
   const expected = String(step.targetValue).trim();
   const allowCaseInsensitiveHex = step.target === "#operand-input" && /^[0-9A-F]+$/i.test(expected);
 
-  if (step.caseInsensitiveTargetValue || allowCaseInsensitiveHex) {
+  if (allowCaseInsensitiveHex) {
     return actual.toUpperCase() === expected.toUpperCase();
   }
 
@@ -23096,7 +23851,6 @@ function _tourTargetValueMatches(step, actualValue) {
 
 function openTutorialDialog() {
   const dlg = document.getElementById("tutorial-dialog");
-  if (!dlg) return;
   _tutRenderDialog();
   document.querySelector(".control-menu")?.removeAttribute("open");
   dlg.showModal();
@@ -23112,7 +23866,7 @@ function _tutRenderDialog() {
   if (hintEl) hintEl.textContent = t("tutorialSelectHint");
   if (!listEl || !contentEl) return;
 
-  listEl.innerHTML = TUTORIAL_DATA.categories.map(cat => {
+  listEl.innerHTML = TUTORIAL_DATA.categories.map((cat) => {
     const catLessons = TUTORIAL_DATA.lessons.filter(l => l.category === cat.id);
     if (catLessons.length === 0) return "";
     return `<div class="tutorial-category">
@@ -23126,7 +23880,6 @@ function _tutRenderDialog() {
         return `<button class="tutorial-lesson-item${done ? " tutorial-lesson-item--done" : ""}" data-lesson-id="${lesson.id}" type="button">
           <span class="tutorial-lesson-check">${done ? "✓" : ""}</span>
           <span class="tutorial-lesson-title">${title}</span>
-          <span class="tutorial-lesson-stars">${stars}</span>
         </button>`;
       }).join("")}
     </div>`;

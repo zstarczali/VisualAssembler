@@ -689,6 +689,18 @@ Like `FOR I=1 TO N : POKE addr+I, val : NEXT` — fills a block of memory with t
     .fill 256, $00
 ```
 
+**Expression syntax:** Both `count` and `value` accept arithmetic expressions. You can reference CONST names, use hex/binary literals, and call built-in math functions:
+
+| Expression | Meaning |
+|---|---|
+| `TILE_COUNT, $00` | count from a CONST, value hex literal |
+| `40*25, 0` | inline multiplication |
+| `round(sin(PI/4)*255), $80` | trigonometry |
+
+**Built-in functions:** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, constant `PI`
+
+Operators: `+  -  *  /`  Literals: `$FF` (hex), `%10110000` (binary)  Low/high byte: `lo(expr)`, `hi(expr)`
+
 **Size:** The count value in bytes.
 
 ---
@@ -1621,6 +1633,22 @@ STA op              ; overwrites the #$00 byte → LDA reads the new value next 
 ```
 
 The CONST emits 0 bytes; the label resolves at compile time to `current_address + 1`.
+
+**Arithmetic expressions:**
+
+The value field accepts general arithmetic, including references to previously defined CONST names, hex/binary literals, and built-in math functions:
+
+```
+.const SCREEN      = $0400
+.const SCREEN_END  = SCREEN + 40*25   ; 1000 bytes later
+.const COLOR_RAM   = $D800
+.const MID_X       = 160
+.const SIN_TABLE   = round(sin(PI/8) * 127)   ; pre-computed sine value
+```
+
+**Built-in functions:** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, constant `PI`
+
+Operators: `+  -  *  /`  Literals: `$FF` (hex), `%10110000` (binary)  Low/high byte: `lo(expr)`, `hi(expr)`
 
 **Size:** 0 bytes.
 
@@ -2657,7 +2685,8 @@ The app supports **RetroDebugger** as the external C64 debugger. It receives bre
 1. Assemble the program to a `.prg` file in a temporary directory.
 2. Write a **breakpoints file** (`breakpoints.txt`) — one `break $ADDR` per flagged block.
 3. Write a **symbols file** (`symbols.txt`) in Vice/RetroDebugger label format (`al C:addr .name`). All LABEL and CONST blocks are included.
-4. Launch RetroDebugger with:
+4. Also write C64Debugger-style sidecars next to the compiled PRG: `.dbg`, `.sym`, and `.vs`.
+5. Launch RetroDebugger with:
    ```
    RetroDebugger -prg <file.prg> -breakpoints <breakpoints.txt> -symbols <symbols.txt> [flags]
    ```

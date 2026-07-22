@@ -369,7 +369,12 @@
               <pre id="monitor-output" class="asm-output monitor-output"></pre>
             </div>
             <div class="output-section-label disasm-label">
-              <span class="panel-label" id="disasm-output-label">Disassembly</span>
+              <div class="output-section-header">
+                <span class="panel-label" id="disasm-output-label">Disassembly</span>
+                <button id="disasm-copy-source-btn" class="icon-btn" type="button" aria-label="Copy source" title="Copy source">
+                  <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12" aria-hidden="true"><path d="M6 4.5H4.5A1.5 1.5 0 0 0 3 6v5A1.5 1.5 0 0 0 4.5 12.5h4A1.5 1.5 0 0 0 10 11v-1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 3.5h2.5A1.5 1.5 0 0 1 13 5v5a1.5 1.5 0 0 1-1.5 1.5H8A1.5 1.5 0 0 1 6.5 10V8.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 6.5h3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M7 8.5h3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                </button>
+              </div>
               <pre id="disasm-output" class="asm-output disasm-output"></pre>
             </div>
             <div class="output-section-label toolkit-label">
@@ -542,6 +547,12 @@ PRINTABLE CHARACTERS
           </div>
           <div class="expert-disasm-resizer" id="expert-disasm-resizer" hidden></div>
           <div class="expert-disasm-panel" id="expert-disasm-panel" hidden>
+            <div class="expert-disasm-header">
+              <span class="panel-label" id="expert-disasm-output-label">Disassembly</span>
+              <button id="expert-disasm-copy-source-btn" class="icon-btn" type="button" aria-label="Copy source" title="Copy source">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12" aria-hidden="true"><path d="M6 4.5H4.5A1.5 1.5 0 0 0 3 6v5A1.5 1.5 0 0 0 4.5 12.5h4A1.5 1.5 0 0 0 10 11v-1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 3.5h2.5A1.5 1.5 0 0 1 13 5v5a1.5 1.5 0 0 1-1.5 1.5H8A1.5 1.5 0 0 1 6.5 10V8.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 6.5h3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M7 8.5h3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              </button>
+            </div>
             <pre id="expert-disasm-output" class="expert-disasm-output"></pre>
           </div>
           <div class="expert-monitor-panel" id="expert-monitor-panel" hidden>

@@ -435,6 +435,8 @@ async fn choose_exomizer_executable(app: AppHandle) -> serde_json::Value {
 struct LaunchVicePayload {
     bytes: Vec<u8>,
     file_name: Option<String>,
+    #[serde(default)]
+    sidecars: Option<DebuggerSidecars>,
 }
 
 #[derive(Deserialize)]
@@ -444,6 +446,36 @@ struct BuildRawPayload {
     file_name: Option<String>,
     target_address: Option<String>,     // load address (hex without $), e.g. "C000"
     decompress_address: Option<String>, // decompress target (hex without $), e.g. "2000"
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct DebuggerSidecars {
+    dbg: Option<String>,
+    sym: Option<String>,
+    vs: Option<String>,
+}
+
+fn write_debugger_sidecars(base_path: &Path, sidecars: &DebuggerSidecars) -> Result<(), String> {
+    let parent = base_path.parent().unwrap_or_else(|| Path::new("."));
+    let stem = base_path
+        .file_stem()
+        .and_then(|value| value.to_str())
+        .filter(|value| !value.is_empty())
+        .unwrap_or("program");
+
+    let write_file = |extension: &str, content: &Option<String>| -> Result<(), String> {
+        if let Some(text) = content {
+            let path = parent.join(format!("{}.{}", stem, extension));
+            fs::write(&path, text).map_err(|e| e.to_string())?;
+        }
+        Ok(())
+    };
+
+    write_file("dbg", &sidecars.dbg)?;
+    write_file("sym", &sidecars.sym)?;
+    write_file("vs", &sidecars.vs)?;
+    Ok(())
 }
 
 fn crunch_with_exomizer(exomizer_path: &str, input_bytes: &[u8], file_name: &str, raw_mode: bool, raw_load: Option<&str>, raw_decompress: Option<&str>, border_flash: bool) -> Result<(PathBuf, Vec<u8>), String> {
@@ -602,6 +634,12 @@ async fn launch_vice(app: AppHandle, payload: LaunchVicePayload) -> serde_json::
         return serde_json::json!({ "ok": false, "error": e.to_string() });
     }
 
+    if let Some(sidecars) = &payload.sidecars {
+        if let Err(e) = write_debugger_sidecars(&file_path, sidecars) {
+            return serde_json::json!({ "ok": false, "error": e });
+        }
+    }
+
     let result = spawn_vice_with_file(&vice_path, &file_path);
 
     match result {
@@ -643,6 +681,12 @@ async fn launch_exomizer(app: AppHandle, payload: LaunchVicePayload) -> serde_js
         Ok(result) => result,
         Err(error) => return serde_json::json!({ "ok": false, "error": error }),
     };
+
+    if let Some(sidecars) = &payload.sidecars {
+        if let Err(e) = write_debugger_sidecars(&output_path, sidecars) {
+            return serde_json::json!({ "ok": false, "error": e });
+        }
+    }
 
     if let Err(e) = spawn_vice_with_file(&vice_path, &output_path) {
         return serde_json::json!({ "ok": false, "error": e });
@@ -724,6 +768,8 @@ struct LaunchDebuggerPayload {
     file_name: Option<String>,
     symbols: Option<Vec<DebugSymbol>>,
     breakpoints: Option<Vec<u32>>,
+    #[serde(default)]
+    sidecars: Option<DebuggerSidecars>,
     auto_jmp: Option<bool>,
     jmp_address: Option<u32>,
     wait_ms: Option<u32>,
@@ -751,6 +797,12 @@ async fn launch_debugger(app: AppHandle, payload: LaunchDebuggerPayload) -> serd
     let file_path = temp_dir.join(&file_name);
     if let Err(e) = fs::write(&file_path, &payload.bytes) {
         return serde_json::json!({ "ok": false, "error": e.to_string() });
+    }
+
+    if let Some(sidecars) = &payload.sidecars {
+        if let Err(e) = write_debugger_sidecars(&file_path, sidecars) {
+            return serde_json::json!({ "ok": false, "error": e });
+        }
     }
 
     let prg_arg = file_path.to_str().unwrap().to_string();
@@ -1345,6 +1397,8 @@ async fn reload_include_file(app: AppHandle, file_path: String, base_dir: Option
 #[serde(rename_all = "camelCase")]
 struct SavePrgPayload {
     bytes: Vec<u8>,
+    #[serde(default)]
+    sidecars: Option<DebuggerSidecars>,
 }
 
 #[derive(serde::Deserialize)]
@@ -1381,7 +1435,14 @@ async fn save_prg(app: AppHandle, payload: SavePrgPayload) -> serde_json::Value 
         Some(path) => {
             let path_str = path.to_string();
             match fs::write(&path_str, &payload.bytes) {
-                Ok(_) => serde_json::json!({ "ok": true, "filePath": path_str }),
+                Ok(_) => {
+                    if let Some(sidecars) = &payload.sidecars {
+                        if let Err(e) = write_debugger_sidecars(Path::new(&path_str), sidecars) {
+                            return serde_json::json!({ "ok": false, "error": e });
+                        }
+                    }
+                    serde_json::json!({ "ok": true, "filePath": path_str })
+                }
                 Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
             }
         }
@@ -1486,6 +1547,8 @@ struct SaveD64Payload {
     files: Vec<D64FileEntry>,
     #[serde(default)]
     disk_name: Option<String>,
+    #[serde(default)]
+    sidecars: Option<DebuggerSidecars>,
 }
 
 #[tauri::command]
@@ -1617,6 +1680,12 @@ async fn save_d64(app: AppHandle, payload: SaveD64Payload) -> serde_json::Value 
         });
     }
 
+    if let Some(sidecars) = &payload.sidecars {
+        if let Err(e) = write_debugger_sidecars(Path::new(&save_path), sidecars) {
+            return serde_json::json!({ "ok": false, "error": e });
+        }
+    }
+
     serde_json::json!({
         "ok": true,
         "filePath": save_path,
@@ -1634,6 +1703,8 @@ struct RunD64Payload {
     files: Vec<D64FileEntry>,
     #[serde(default)]
     disk_name: Option<String>,
+    #[serde(default)]
+    sidecars: Option<DebuggerSidecars>,
 }
 
 #[tauri::command]
@@ -1719,6 +1790,13 @@ async fn run_d64(app: AppHandle, payload: RunD64Payload) -> serde_json::Value {
             "ok": false,
             "error": format!("c1541 hiba: {}{}", String::from_utf8_lossy(&c1541_out.stderr), String::from_utf8_lossy(&c1541_out.stdout))
         });
+    }
+
+    if let Some(sidecars) = &payload.sidecars {
+        if let Err(e) = write_debugger_sidecars(&d64_path, sidecars) {
+            let _ = fs::remove_file(&d64_path);
+            return serde_json::json!({ "ok": false, "error": e });
+        }
     }
 
     // Launch VICE with the temp D64 (same pattern as launch_vice)
