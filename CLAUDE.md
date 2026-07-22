@@ -562,8 +562,8 @@ Ha egy step betölt egy sample-t mielőtt megmutatja a UI-t:
 
 ## 15. Jelenlegi verzió
 
-`2.2.1` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
+`2.2.2` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, és ez a fájl + copilot-instructions.md.
-Fő 2.2.1 változás: új **ASM import** gomb (Program menü) Kick Assembler forrás fogadására egyedi CSS tooltip-pel, `.pc = $0801` + BASIC SYS byte-stub esetén a compiler átengedi az eredeti autostart-ot, a `:NAME(args)` Kick invoke szintaxis round-trip-je javítva (`_blockToExpertLine` már nem `.: NAME(args)`-et ír, és a parser is elfogadja a régi hibás formát backward-compat okán), valamint a `#<N` / `#>N` low/high byte immediate-ek decimálisan maradnak macro expanzió után.
+Fő 2.2.2 változás: **expert editor minimap** (canvas-alapú kód-áttekintő csík az expert editor jobb oldalán, toolbar gombbal kapcsolható, RAF-throttled rajzolás comment/label/directive/mnem színekkel, viewport indicator click/drag scrollolással, DPR-aware, UI settings-ben perzisztálva); **block panel minimap** (Program panel jobb szélén megjelenő toggleable minimap, blokk típus szerinti színezéssel, click/drag scrollolás, `blockMinimap` state); **disasm copy gombok custom tooltip** (mindkét disasm "Copy source" gomb `title` attribútuma eltávolítva, CSS `aria-label` tooltip rendszerbe illesztve).
 
 Verziónöveléshez lásd a 3. szakasz végén lévő 7-lépéses checklistet.

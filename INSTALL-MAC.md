@@ -1,11 +1,11 @@
 # macOS Installation Guide
-Version 2.2.1
+Version 2.2.2
 
-2.2.1: new Kick Assembler ASM import button on the Program menu (with a custom tooltip flagging Kick-only source), embedded BASIC autostart is preserved when re-emitting the PRG, macro invocations with the Kick `:NAME(args)` syntax round-trip correctly, and `#<N` / `#>N` low/high-byte immediates stay decimal in macro expansions.
+2.2.2: expert editor minimap, block panel minimap, disasm copy button tooltip fix.
 
 ## Quick Install
 
-1. **Download** the 2.2.1 DMG for your architecture from the releases page
+1. **Download** the 2.2.2 DMG for your architecture from the releases page
 2. **Mount** the DMG and drag the app to `/Applications`
 3. **First launch**: Right-click the app → **"Open"** (macOS will block double-click)
 4. Click **"Open"** in the security dialog
@@ -57,4 +57,4 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.2.1 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.2.2 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

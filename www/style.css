@@ -1032,13 +1032,14 @@ html[data-theme="oled"] .primary {
 }
 
 .program-panel {
-  flex-direction: row;
+  flex-direction: column;
   position: relative;
 }
 
 .program-panel > .panel-scroll {
   flex: 1;
   min-width: 0;
+  min-height: 0;
 }
 
 .block-minimap {
@@ -1046,7 +1047,6 @@ html[data-theme="oled"] .primary {
   position: absolute;
   top: 0;
   right: 0;
-  bottom: 0;
   width: 56px;
   cursor: pointer;
   border-left: 1px solid var(--panel-border);
@@ -1061,7 +1061,7 @@ html[data-theme="oled"] .primary {
 }
 
 .program-panel.block-show-minimap > .panel-scroll {
-  margin-right: 56px;
+  padding-right: calc(56px + 16px);
 }
 
 #block-minimap-btn {
@@ -7974,7 +7974,7 @@ body.crt-mode #crt-overlay::after {
   content: attr(aria-label);
   position: absolute;
   top: calc(100% + 5px);
-  left: 0;
+  right: 0;
   padding: 4px 8px;
   border-radius: 3px;
   background: var(--panel);

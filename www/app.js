@@ -6951,7 +6951,10 @@ function _blockApplyMinimap() {
   panel.classList.toggle("block-show-minimap", _blockMinimapEnabled);
   btn?.setAttribute("aria-pressed", String(_blockMinimapEnabled));
   btn?.classList.toggle("expert-hl-toggle--on", _blockMinimapEnabled);
-  if (_blockMinimapEnabled) _blockScheduleMinimapRedraw();
+  if (_blockMinimapEnabled) {
+    // defer to let the browser compute layout before reading offsetHeight
+    setTimeout(() => _blockScheduleMinimapRedraw(), 0);
+  }
 }
 
 function _blockScheduleMinimapRedraw() {
@@ -6962,13 +6965,20 @@ function _blockScheduleMinimapRedraw() {
 
 function _blockDrawMinimap() {
   const canvas = document.getElementById("block-minimap");
+  const panel  = document.querySelector(".program-panel");
   const scroll = document.querySelector(".program-panel .panel-scroll");
-  if (!canvas || !scroll) return;
+  if (!canvas || !panel || !scroll) return;
   const ctx = canvas.getContext("2d");
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  const W = canvas.offsetWidth;
-  const H = canvas.offsetHeight;
-  if (!W || !H) return;
+  const W = 56;
+  const H = panel.offsetHeight;
+  if (!W || !H) {
+    if (_blockMinimapEnabled) setTimeout(() => _blockScheduleMinimapRedraw(), 30);
+    return;
+  }
+
+  // Explicitly keep the canvas filling the panel height via inline style
+  canvas.style.height = H + "px";
 
   const cw = Math.round(W * dpr);
   const ch = Math.round(H * dpr);
@@ -7075,6 +7085,10 @@ function _blockDrawMinimap() {
   const _bmPanel = document.querySelector(".program-panel");
   if (_bmPanel && typeof ResizeObserver !== "undefined") {
     new ResizeObserver(() => _blockScheduleMinimapRedraw()).observe(_bmPanel);
+  }
+  // also observe the canvas itself — fires when it first gets a non-zero size
+  if (_bmCanvas && typeof ResizeObserver !== "undefined") {
+    new ResizeObserver(() => { if (_blockMinimapEnabled) _blockScheduleMinimapRedraw(); }).observe(_bmCanvas);
   }
 }
 
@@ -11300,6 +11314,10 @@ function setTheme(theme) {
   localStorage.setItem("c64-block-theme", theme);
   updateThemeToggleLabel();
   saveUiSettings();
+  requestAnimationFrame(() => {
+    _expertScheduleMinimapRedraw();
+    _blockScheduleMinimapRedraw();
+  });
 }
 
 function applySavedCrtMode() {

@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.2.1**
+**Version 2.2.2**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -172,6 +172,20 @@ Use the **search box** at the top of the palette to filter by name. Click the **
 - Click the **▸ / ▾** toggle to collapse or expand a block.
 - Use the **× (delete)** button on a block to remove it.
 - **Collapse All** button folds all blocks at once.
+
+### Block panel minimap
+
+The Program panel has a toggleable **minimap** button in its heading. When enabled, a narrow `56 px` canvas strip appears on the right edge of the panel, showing all blocks as colour-coded horizontal bars:
+
+| Bar colour | Block type |
+|------------|-----------|
+| Cyan | Labels |
+| Blue/purple | Macros and directives |
+| Yellow | Instructions |
+| Green | Comments and blank lines |
+| Red | Blocks with a validation error |
+
+Collapsed blocks are rendered at reduced opacity. Click or drag anywhere on the minimap to scroll the program list to that position. The viewport indicator (accent-coloured rectangle) tracks the visible portion of the list. State is persisted in UI settings (`blockMinimap` key).
 
 ### Operand input
 
@@ -367,6 +381,20 @@ Expert Mode is a full-featured direct-text 6502 assembly editor that lives along
 | **Palette** | `#expert-palette-btn` | Show/hide the left mnemonic palette |
 | **Disasm** | `#expert-disasm-btn` | Show/hide the disassembly panel (pure 6502, macros expanded) |
 | **Monitor** | `#expert-monitor-btn` | Show/hide the monitor hex-dump panel |
+| **Minimap** | `#expert-minimap-btn` | Show/hide the code minimap strip on the right side of the editor |
+
+### Expert editor minimap
+
+The Expert editor minimap is a narrow canvas strip (`88 px`) on the far right of the editor area. It renders a scaled-down representation of every source line:
+
+| Bar colour | Token type |
+|------------|-----------|
+| Comment colour | Lines starting with `;` |
+| Label colour | Lines with a `label:` definition |
+| Directive colour | `.byte`, `.macro`, `.region`, and all other directives |
+| Mnemonic colour | Everything else (instructions) |
+
+A **semi-transparent viewport indicator** (accent-coloured rectangle) shows which part of the source is currently visible. Click anywhere on the minimap to jump to that position; drag to scroll continuously. The minimap scrolls independently to keep the viewport indicator centred. The state is persisted in UI settings (`expertMinimap` key).
 
 ### Error highlighting
 

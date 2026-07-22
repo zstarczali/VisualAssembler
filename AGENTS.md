@@ -381,8 +381,8 @@ Lásd `tauri-bridge.js` és `src-tauri/src/lib.rs`. Leggyakoribb commands:
 
 ## 14. Jelenlegi verzió
 
-`2.2.0` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
+`2.2.2` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `CLAUDE.md`, és ez a fájl + copilot-instructions.md.
-Fő 2.2.0 változás: projektfájlokkal működő project panel, közvetlen source-file megnyitás a tree-ből, javított relatív fájlnevek a project mentésben, és az expert project ikonok egységes custom aria-label tooltipet kaptak.
+Fő 2.2.2 változás: **expert editor minimap** (canvas-alapú kód-áttekintő csík, toolbar gombbal kapcsolható, viewport indicator, click/drag scroll, DPR-aware, perzisztálva); **block panel minimap** (Program panel jobb szélén, blokk típus szerinti színezéssel, click/drag scroll, `blockMinimap` state); **disasm copy gombok** `title` attribútum eltávolítva, CSS `aria-label` tooltip rendszerbe illesztve.
 
 Verziónöveléshez lásd a 3. szakasz végén lévő 7-lépéses checklistet.
