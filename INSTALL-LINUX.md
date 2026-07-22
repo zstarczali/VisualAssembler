@@ -31,11 +31,7 @@ Visual Assembler can run the assembled program in several ways. Only the VICE-ba
 | Run mode | Local install needed |
 |---|---|
 | **Run as PRG** / **Run via D64** | VICE (sections 2–3 below) |
-| **Run in Browser** | Nothing extra — opens [VirtualC64Web](https://vc64web.github.io/) in your default browser |
-| **D64 in Browser** | VICE (only for the `c1541` utility used to build the disk image) |
 | **Run on hardware** | A 1541 Ultimate / Ultimate 64 on your local network |
-
-The browser modes are the simplest way to try the app on Linux without dealing with VICE ROMs at all.
 
 ---
 
