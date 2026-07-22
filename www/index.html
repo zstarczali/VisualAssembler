@@ -477,6 +477,9 @@ PRINTABLE CHARACTERS
           <button id="expert-line-numbers-btn" class="expert-hl-toggle" title="Line numbers" aria-label="Line numbers" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M6 4h8M6 8h8M6 12h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><text x="1" y="5.5" font-family="monospace" font-size="4.5" fill="currentColor" opacity="0.7">1</text><text x="1" y="9.5" font-family="monospace" font-size="4.5" fill="currentColor" opacity="0.7">2</text><text x="1" y="13.5" font-family="monospace" font-size="4.5" fill="currentColor" opacity="0.7">3</text></svg>
           </button>
+          <button id="expert-minimap-btn" class="expert-hl-toggle" title="Minimap" aria-label="Minimap" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><rect x="1.5" y="1.5" width="5" height="13" rx="0.6" stroke="currentColor" stroke-width="1.1"/><path d="M3 4h2.5M3 5.8h3.5M3 7.6h2M3 9.4h3M3 11.2h2.5M3 13h1.5" stroke="currentColor" stroke-width="0.85" stroke-linecap="round" opacity="0.75"/><rect x="1.5" y="7" width="5" height="4" fill="currentColor" opacity="0.2"/><path d="M9 4h5.5M9 6h4M9 8h5.5M9 10h3.5M9 12h4.5" stroke="currentColor" stroke-width="0.85" stroke-linecap="round" opacity="0.45"/></svg>
+          </button>
           <button id="expert-find-btn" class="expert-hl-toggle" title="Find (Ctrl+F)" aria-label="Find (Ctrl+F)" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M10 10L14 14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
           </button>
@@ -529,6 +532,7 @@ PRINTABLE CHARACTERS
             <div id="expert-line-numbers" class="expert-line-numbers" aria-hidden="true"></div>
             <pre class="expert-hl" id="expert-hl" aria-hidden="true"><div id="expert-region-bg" class="expert-region-bg" hidden></div><code id="expert-hl-code"></code></pre>
             <textarea id="expert-editor" class="expert-editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" wrap="off" placeholder="; Expert mode — write 6502 assembly here&#10;; * = $0801&#10;; start:&#10;;     LDA #$00&#10;;     STA $D020&#10;;     RTS"></textarea>
+            <canvas id="expert-minimap" class="expert-minimap" aria-hidden="true"></canvas>
             <div id="expert-caret" class="expert-caret" aria-hidden="true"></div>
             <div id="expert-find-bar" class="expert-find-bar" hidden>
               <input id="expert-find-input" class="expert-find-input" type="text" placeholder="Find…" autocomplete="off" spellcheck="false">

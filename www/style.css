@@ -4379,7 +4379,32 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
 .expert-hl,
 .expert-editor,
 .expert-line-numbers {
-  transition: left 0.12s ease, width 0.12s ease;
+  transition: left 0.12s ease, right 0.12s ease, width 0.12s ease;
+}
+
+/* ── Expert Minimap ─────────────────────────────────────────────── */
+.expert-minimap {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 0;
+  display: none;
+  cursor: pointer;
+  z-index: 4;
+  box-sizing: border-box;
+  border-left: 1px solid var(--panel-border);
+  background: var(--expert-editor-bg);
+  user-select: none;
+}
+.expert-editor-wrap.expert-show-minimap .expert-minimap {
+  display: block;
+  width: 88px;
+}
+.expert-editor-wrap.expert-show-minimap .expert-hl,
+.expert-editor-wrap.expert-show-minimap .expert-editor {
+  right: 88px;
+  width: auto;
 }
 
 .expert-hl {

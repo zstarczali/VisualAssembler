@@ -463,6 +463,8 @@ let _expertProjectVisible = false;
 let _expertProjectSymbolsHeight = 160;
 let _expertFontSize = 13.44; // px (= 0.84rem at 16px base)
 let _expertLineNumbersEnabled = false;
+let _expertMinimapEnabled = false;
+let _expertMinimapRaf = 0;
 let _expertFindVisible = false;
 let _expertFindTerm = "";
 let _expertFindMatches = []; // [{start, end}] flat textarea positions
@@ -597,6 +599,7 @@ function saveUiSettings() {
     debuggerUnpause,
     expertFontSize: _expertFontSize,
     expertLineNumbers: _expertLineNumbersEnabled,
+    expertMinimap: _expertMinimapEnabled,
     autoSnapshotEnabled: autoSnapshotToggle ? autoSnapshotToggle.checked : true
   };
 
@@ -1620,6 +1623,12 @@ function initPalette() {
     saveUiSettings();
   });
 
+  document.getElementById("expert-minimap-btn")?.addEventListener("click", () => {
+    _expertMinimapEnabled = !_expertMinimapEnabled;
+    _expertApplyMinimap();
+    saveUiSettings();
+  });
+
   // Build info dialog close
   document.getElementById("build-info-close")?.addEventListener("click", () => {
     document.getElementById("build-info-dialog")?.close();
@@ -1780,6 +1789,7 @@ function initPalette() {
     }
     _expertAcHide();
     _expertUpdateCaret();
+    _expertScheduleMinimapRedraw();
   });
 
   document.addEventListener("pointerdown", (e) => {
@@ -2440,6 +2450,11 @@ function _applyUiSettingsToDOM() {
   if (savedUiSettings.expertLineNumbers) {
     _expertLineNumbersEnabled = true;
     _expertApplyLineNumbers();
+  }
+
+  if (savedUiSettings.expertMinimap) {
+    _expertMinimapEnabled = true;
+    _expertApplyMinimap();
   }
 
   if (typeof savedUiSettings.expertProjectSymbolsHeight === "number" && Number.isFinite(savedUiSettings.expertProjectSymbolsHeight)) {
@@ -6585,6 +6600,7 @@ function _expertApplyHighlight() {
   _expertUpdateRegionFolds();
   if (_expertLineNumbersEnabled) _expertUpdateLineNumbers();
   _expertUpdateCaret();
+  _expertScheduleMinimapRedraw();
 }
 
 // ── Find ────────────────────────────────────────────────────────────────────
@@ -6739,6 +6755,131 @@ function _expertZoom(delta) {
   _applyExpertFontSize();
   if (_expertLineNumbersEnabled) _expertUpdateLineNumbers();
   saveUiSettings();
+}
+
+// ── Minimap ───────────────────────────────────────────────────────────────────
+
+function _expertApplyMinimap() {
+  const wrap = document.querySelector(".expert-editor-wrap");
+  const btn  = document.getElementById("expert-minimap-btn");
+  if (!wrap) return;
+  wrap.classList.toggle("expert-show-minimap", _expertMinimapEnabled);
+  btn?.setAttribute("aria-pressed", String(_expertMinimapEnabled));
+  btn?.classList.toggle("expert-hl-toggle--on", _expertMinimapEnabled);
+  if (_expertMinimapEnabled) _expertScheduleMinimapRedraw();
+}
+
+function _expertScheduleMinimapRedraw() {
+  if (!_expertMinimapEnabled) return;
+  cancelAnimationFrame(_expertMinimapRaf);
+  _expertMinimapRaf = requestAnimationFrame(_expertDrawMinimap);
+}
+
+function _expertDrawMinimap() {
+  const canvas = document.getElementById("expert-minimap");
+  if (!canvas || !expertEditor) return;
+  const ctx = canvas.getContext("2d");
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const W = canvas.offsetWidth;
+  const H = canvas.offsetHeight;
+  if (!W || !H) return;
+
+  const cw = Math.round(W * dpr);
+  const ch = Math.round(H * dpr);
+  if (canvas.width !== cw || canvas.height !== ch) {
+    canvas.width  = cw;
+    canvas.height = ch;
+  }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const rs = getComputedStyle(document.documentElement);
+  const bg         = rs.getPropertyValue("--expert-editor-bg").trim() || "#1a1b26";
+  const cComment   = rs.getPropertyValue("--hl-comment").trim()   || "#6a9955";
+  const cMnem      = rs.getPropertyValue("--hl-mnem").trim()      || "#dcdcaa";
+  const cLabel     = rs.getPropertyValue("--hl-label").trim()     || "#9cdcfe";
+  const cDirective = rs.getPropertyValue("--hl-directive").trim() || "#569cd6";
+  const cNumber    = rs.getPropertyValue("--hl-number").trim()    || "#b5cea8";
+
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  const lines = expertEditor.value.split("\n");
+  const total = lines.length || 1;
+  const lineH = Math.max(1.5, Math.min(4, H / total));
+  const xPad = 3;
+  const maxW  = W - xPad * 2;
+
+  for (let i = 0; i < total; i++) {
+    const raw = lines[i];
+    const trimmed = raw.trimStart();
+    if (!trimmed) continue;
+
+    let color;
+    if (trimmed.startsWith(";")) {
+      color = cComment;
+    } else if (/^[A-Za-z_][A-Za-z0-9_]*:/.test(trimmed)) {
+      color = cLabel;
+    } else if (/^\.(const|if|else|endif|macro|endm|invoke|region|endregion|define|org|byte|word|fill|text|string|data|rawbytes|rawtext|align|table|push|pull|for|endf|loop|next|blank|incbin|sid|include|loadfile|sprite|wait|joystick|mouse|reu|turbo|supercpu)\b/i.test(trimmed)) {
+      color = cDirective;
+    } else if (/^\d|#\$|^\$[0-9A-Fa-f]/.test(trimmed)) {
+      color = cNumber;
+    } else {
+      color = cMnem;
+    }
+
+    const indent  = raw.length - trimmed.length;
+    const indentX = Math.min(indent * 1.5, maxW * 0.35);
+    const barW    = Math.min(trimmed.length * 1.3, maxW - indentX);
+
+    ctx.globalAlpha = 0.7;
+    ctx.fillStyle = color;
+    ctx.fillRect(xPad + indentX, i * lineH, Math.max(3, barW), Math.max(1, lineH - 0.6));
+  }
+  ctx.globalAlpha = 1;
+
+  // Viewport indicator
+  const totalH = expertEditor.scrollHeight;
+  const viewH  = expertEditor.clientHeight;
+  const scrollY = expertEditor.scrollTop;
+
+  if (totalH > viewH) {
+    const vpTop = (scrollY / totalH) * H;
+    const vpH   = Math.max(10, (viewH / totalH) * H);
+    ctx.fillStyle = "rgba(200,210,255,0.1)";
+    ctx.fillRect(0, vpTop, W, vpH);
+    ctx.strokeStyle = "rgba(200,210,255,0.28)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(0.5, vpTop + 0.5, W - 1, vpH - 1);
+  }
+}
+
+// Click / drag on minimap → scroll editor
+{
+  let _mmPointerDown = false;
+  const _mmCanvas = document.getElementById("expert-minimap");
+  _mmCanvas?.addEventListener("pointerdown", (e) => {
+    if (!_expertMinimapEnabled) return;
+    e.preventDefault();
+    _mmPointerDown = true;
+    _mmScrollToY(e.clientY);
+    const onMove = (ev) => { if (_mmPointerDown) _mmScrollToY(ev.clientY); };
+    const onUp   = () => { _mmPointerDown = false; window.removeEventListener("pointermove", onMove); window.removeEventListener("pointerup", onUp); };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup",   onUp);
+  });
+
+  // Redraw on container resize
+  const _mmWrap = document.querySelector(".expert-editor-wrap");
+  if (_mmWrap && typeof ResizeObserver !== "undefined") {
+    new ResizeObserver(() => _expertScheduleMinimapRedraw()).observe(_mmWrap);
+  }
+}
+function _mmScrollToY(clientY) {
+  const canvas = document.getElementById("expert-minimap");
+  if (!canvas || !expertEditor) return;
+  const rect  = canvas.getBoundingClientRect();
+  const ratio = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+  expertEditor.scrollTop = ratio * expertEditor.scrollHeight - expertEditor.clientHeight / 2;
 }
 
 // ── Line numbers ─────────────────────────────────────────────────────────────
