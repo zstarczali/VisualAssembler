@@ -1,4 +1,4 @@
-// i18n.js — translations for the C64 Visual Assembler
+﻿// i18n.js — translations for the C64 Visual Assembler
 // Loaded before app.js; exposes the global `translations` object.
 
 const translations = {

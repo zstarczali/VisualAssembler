@@ -1754,7 +1754,6 @@ function initPalette() {
   _setupFileMenus();
   setupOperandDropdown();
   setupD64ExportDialog();
-
   // Menu open/close animation
   const controlMenu = document.querySelector(".control-menu");
   const controlMenuPanel = document.querySelector(".control-menu-panel");
