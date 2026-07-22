@@ -662,8 +662,8 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`2.2.1` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, `CLAUDE.md`.
-Főbb újdonságok: új Kick Assembler **ASM import** gomb a Program menüben egyedi CSS tooltippel („csak Kick Assembler kód importálható"); `.pc = $0801` + `SYS 2061` byte-stub esetén az assembler átengedi az eredeti autostart-ot; a `:NAME(args)` Kick invoke szintaxis round-trip-je javítva (`_blockToExpertLine` már `:NAME(args)`-et ad, a parser a régi hibás `.: NAME(args)` formát is elfogadja backward-compat okán); a `resolveNumericOperand` a `#<N` / `#>N` low/high byte immediate-eket decimálisan tartja, ha a substituált érték bare digit (macro invoke expanzió).
+`2.2.2` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, `CLAUDE.md`.
+Főbb újdonságok: **expert editor minimap** — canvas-alapú kód-áttekintő csík az expert editor jobb oldalán, toolbar gombbal kapcsolható, RAF-throttled rajzolás (comment/label/directive/mnem színekkel), viewport indicator click/drag scrollolással, DPR-aware, UI settings-ben perzisztálva; **block panel minimap** — a Program panel jobb szélén megjelenő toggleable minimap, blokk típus szerinti színezéssel (label=cián, makró=kék, utasítás=sárga, comment=zöld, hiba=piros), click/drag scrollolás, `blockMinimap` state; **disasm copy gombok custom tooltip** — mindkét disasm "Copy source" gomb `title` attribútuma eltávolítva, CSS `aria-label` tooltip rendszerbe illesztve.
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező

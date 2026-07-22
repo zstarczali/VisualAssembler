@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.2.1**
+**Version 2.2.2**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -172,6 +172,20 @@ Use the **search box** at the top of the palette to filter by name. Click the **
 - Click the **▸ / ▾** toggle to collapse or expand a block.
 - Use the **× (delete)** button on a block to remove it.
 - **Collapse All** button folds all blocks at once.
+
+### Block panel minimap
+
+The Program panel has a toggleable **minimap** button in its heading. When enabled, a narrow `56 px` canvas strip appears on the right edge of the panel, showing all blocks as colour-coded horizontal bars:
+
+| Bar colour | Block type |
+|------------|-----------|
+| Cyan | Labels |
+| Blue/purple | Macros and directives |
+| Yellow | Instructions |
+| Green | Comments and blank lines |
+| Red | Blocks with a validation error |
+
+Collapsed blocks are rendered at reduced opacity. Click or drag anywhere on the minimap to scroll the program list to that position. The viewport indicator (accent-coloured rectangle) tracks the visible portion of the list. State is persisted in UI settings (`blockMinimap` key).
 
 ### Operand input
 
@@ -367,6 +381,20 @@ Expert Mode is a full-featured direct-text 6502 assembly editor that lives along
 | **Palette** | `#expert-palette-btn` | Show/hide the left mnemonic palette |
 | **Disasm** | `#expert-disasm-btn` | Show/hide the disassembly panel (pure 6502, macros expanded) |
 | **Monitor** | `#expert-monitor-btn` | Show/hide the monitor hex-dump panel |
+| **Minimap** | `#expert-minimap-btn` | Show/hide the code minimap strip on the right side of the editor |
+
+### Expert editor minimap
+
+The Expert editor minimap is a narrow canvas strip (`88 px`) on the far right of the editor area. It renders a scaled-down representation of every source line:
+
+| Bar colour | Token type |
+|------------|-----------|
+| Comment colour | Lines starting with `;` |
+| Label colour | Lines with a `label:` definition |
+| Directive colour | `.byte`, `.macro`, `.region`, and all other directives |
+| Mnemonic colour | Everything else (instructions) |
+
+A **semi-transparent viewport indicator** (accent-coloured rectangle) shows which part of the source is currently visible. Click anywhere on the minimap to jump to that position; drag to scroll continuously. The minimap scrolls independently to keep the viewport indicator centred. The state is persisted in UI settings (`expertMinimap` key).
 
 ### Error highlighting
 
@@ -688,6 +716,18 @@ Like `FOR I=1 TO N : POKE addr+I, val : NEXT` — fills a block of memory with t
 ```
     .fill 256, $00
 ```
+
+**Expression syntax:** Both `count` and `value` accept arithmetic expressions. You can reference CONST names, use hex/binary literals, and call built-in math functions:
+
+| Expression | Meaning |
+|---|---|
+| `TILE_COUNT, $00` | count from a CONST, value hex literal |
+| `40*25, 0` | inline multiplication |
+| `round(sin(PI/4)*255), $80` | trigonometry |
+
+**Built-in functions:** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, constant `PI`
+
+Operators: `+  -  *  /`  Literals: `$FF` (hex), `%10110000` (binary)  Low/high byte: `lo(expr)`, `hi(expr)`
 
 **Size:** The count value in bytes.
 
@@ -1621,6 +1661,22 @@ STA op              ; overwrites the #$00 byte → LDA reads the new value next 
 ```
 
 The CONST emits 0 bytes; the label resolves at compile time to `current_address + 1`.
+
+**Arithmetic expressions:**
+
+The value field accepts general arithmetic, including references to previously defined CONST names, hex/binary literals, and built-in math functions:
+
+```
+.const SCREEN      = $0400
+.const SCREEN_END  = SCREEN + 40*25   ; 1000 bytes later
+.const COLOR_RAM   = $D800
+.const MID_X       = 160
+.const SIN_TABLE   = round(sin(PI/8) * 127)   ; pre-computed sine value
+```
+
+**Built-in functions:** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, constant `PI`
+
+Operators: `+  -  *  /`  Literals: `$FF` (hex), `%10110000` (binary)  Low/high byte: `lo(expr)`, `hi(expr)`
 
 **Size:** 0 bytes.
 
@@ -2657,7 +2713,8 @@ The app supports **RetroDebugger** as the external C64 debugger. It receives bre
 1. Assemble the program to a `.prg` file in a temporary directory.
 2. Write a **breakpoints file** (`breakpoints.txt`) — one `break $ADDR` per flagged block.
 3. Write a **symbols file** (`symbols.txt`) in Vice/RetroDebugger label format (`al C:addr .name`). All LABEL and CONST blocks are included.
-4. Launch RetroDebugger with:
+4. Also write C64Debugger-style sidecars next to the compiled PRG: `.dbg`, `.sym`, and `.vs`.
+5. Launch RetroDebugger with:
    ```
    RetroDebugger -prg <file.prg> -breakpoints <breakpoints.txt> -symbols <symbols.txt> [flags]
    ```

@@ -356,11 +356,6 @@ const aboutDialog = document.getElementById("about-dialog");
 const aboutCloseButton = document.getElementById("about-close");
 const whatsNewDialog = document.getElementById("whats-new-dialog");
 const whatsNewCloseButton = document.getElementById("whats-new-close");
-const browserEmulatorDialog = document.getElementById("browser-emulator-dialog");
-const browserEmulatorFrame = document.getElementById("browser-emulator-frame");
-const browserEmulatorRestart = document.getElementById("browser-emulator-restart");
-const browserEmulatorClose = document.getElementById("browser-emulator-close");
-const browserEmulatorOpenExternal = document.getElementById("browser-emulator-open-external");
 const knowledgeBaseButton = document.getElementById("knowledge-base-btn");
 const knowledgeBaseDialog = document.getElementById("knowledge-base-dialog");
 const knowledgeBaseCloseButton = document.getElementById("knowledge-base-close");
@@ -386,6 +381,7 @@ const expertPaletteBtn     = document.getElementById("expert-palette-btn");
 const expertDisasmBtn      = document.getElementById("expert-disasm-btn");
 const expertDisasmPanel    = document.getElementById("expert-disasm-panel");
 const expertDisasmOutput   = document.getElementById("expert-disasm-output");
+const expertDisasmCopySourceBtn = document.getElementById("expert-disasm-copy-source-btn");
 const expertDisasmResizer  = document.getElementById("expert-disasm-resizer");
 const expertMonitorBtn     = document.getElementById("expert-monitor-btn");
 const expertMonitorPanel   = document.getElementById("expert-monitor-panel");
@@ -418,6 +414,7 @@ const expertProjectPanel   = document.getElementById("expert-project-panel");
 const expertProjectTree    = document.getElementById("expert-project-tree");
 const expertProjectSymbols = document.getElementById("expert-project-symbols");
 const expertProjectSplitter = document.getElementById("expert-project-splitter");
+const disasmCopySourceBtn  = document.getElementById("disasm-copy-source-btn");
 
 let program = [];
 let dragState = null;
@@ -461,6 +458,10 @@ let _expertProjectVisible = false;
 let _expertProjectSymbolsHeight = 160;
 let _expertFontSize = 13.44; // px (= 0.84rem at 16px base)
 let _expertLineNumbersEnabled = false;
+let _expertMinimapEnabled = false;
+let _expertMinimapRaf = 0;
+let _blockMinimapEnabled = false;
+let _blockMinimapRaf = 0;
 let _expertFindVisible = false;
 let _expertFindTerm = "";
 let _expertFindMatches = []; // [{start, end}] flat textarea positions
@@ -483,64 +484,6 @@ function tf(key, values = {}) {
     (text, [name, value]) => text.replaceAll(`{${name}}`, String(value)),
     t(key)
   );
-}
-
-function closeBrowserEmulatorDialog() {
-  try {
-    browserEmulatorDialog?.close();
-  } catch (_) {}
-}
-
-function _pokeBrowserEmulatorAudioUnlock() {
-  const frame = browserEmulatorFrame?.contentWindow;
-  if (!frame) return false;
-  let unlocked = false;
-  try {
-    if (typeof frame.unlock_WebAudio === "function") {
-      frame.unlock_WebAudio();
-      unlocked = true;
-    }
-  } catch (_) {}
-  try {
-    frame.postMessage("toggle_audio()", "*");
-    unlocked = true;
-  } catch (_) {}
-  return unlocked;
-}
-
-function openBrowserEmulatorDialog(url, titleKey = "browserEmulatorTitle") {
-  if (!browserEmulatorDialog || !browserEmulatorFrame || !url) return;
-  if (browserEmulatorDialog.open) {
-    closeBrowserEmulatorDialog();
-  }
-  browserEmulatorDialog.dataset.rawUrl = url;
-  browserEmulatorDialog.dataset.titleKey = titleKey;
-  const titleEl = document.getElementById("browser-emulator-title");
-  if (titleEl) titleEl.textContent = t(titleKey);
-  browserEmulatorFrame.onload = () => {
-    _pokeBrowserEmulatorAudioUnlock();
-    setTimeout(_pokeBrowserEmulatorAudioUnlock, 250);
-    setTimeout(_pokeBrowserEmulatorAudioUnlock, 900);
-  };
-  browserEmulatorFrame.src = url;
-  browserEmulatorDialog.showModal();
-  setTimeout(_pokeBrowserEmulatorAudioUnlock, 150);
-}
-
-function restartBrowserEmulatorDialog() {
-  if (!browserEmulatorDialog || !browserEmulatorFrame) return;
-  const rawUrl = browserEmulatorDialog.dataset.rawUrl || browserEmulatorFrame.src || "";
-  if (!rawUrl || rawUrl === "about:blank") return;
-  try {
-    browserEmulatorFrame.contentWindow?.location?.reload();
-  } catch (_) {
-    browserEmulatorFrame.src = rawUrl;
-  }
-  setTimeout(() => {
-    _pokeBrowserEmulatorAudioUnlock();
-    setTimeout(_pokeBrowserEmulatorAudioUnlock, 300);
-    setTimeout(_pokeBrowserEmulatorAudioUnlock, 900);
-  }, 150);
 }
 
 function readUiSettings() {
@@ -595,6 +538,8 @@ function saveUiSettings() {
     debuggerUnpause,
     expertFontSize: _expertFontSize,
     expertLineNumbers: _expertLineNumbersEnabled,
+    expertMinimap: _expertMinimapEnabled,
+    blockMinimap: _blockMinimapEnabled,
     autoSnapshotEnabled: autoSnapshotToggle ? autoSnapshotToggle.checked : true
   };
 
@@ -1618,6 +1563,12 @@ function initPalette() {
     saveUiSettings();
   });
 
+  document.getElementById("expert-minimap-btn")?.addEventListener("click", () => {
+    _expertMinimapEnabled = !_expertMinimapEnabled;
+    _expertApplyMinimap();
+    saveUiSettings();
+  });
+
   // Build info dialog close
   document.getElementById("build-info-close")?.addEventListener("click", () => {
     document.getElementById("build-info-dialog")?.close();
@@ -1778,6 +1729,11 @@ function initPalette() {
     }
     _expertAcHide();
     _expertUpdateCaret();
+    _expertScheduleMinimapRedraw();
+  });
+
+  document.querySelector(".program-panel .panel-scroll")?.addEventListener("scroll", () => {
+    _blockScheduleMinimapRedraw();
   });
 
   document.addEventListener("pointerdown", (e) => {
@@ -1817,26 +1773,6 @@ function initPalette() {
   _setupFileMenus();
   setupOperandDropdown();
   setupD64ExportDialog();
-  browserEmulatorRestart?.addEventListener("click", restartBrowserEmulatorDialog);
-  browserEmulatorClose?.addEventListener("click", closeBrowserEmulatorDialog);
-  browserEmulatorOpenExternal?.addEventListener("click", () => {
-    const rawUrl = browserEmulatorDialog?.dataset.rawUrl || browserEmulatorFrame?.src || "";
-    if (!rawUrl || rawUrl === "about:blank") return;
-    if (window.electronAPI?.openExternal) {
-      window.electronAPI.openExternal(rawUrl).catch(() => {});
-    } else {
-      window.open(rawUrl, "_blank", "noopener");
-    }
-  });
-  browserEmulatorDialog?.addEventListener("close", () => {
-    if (browserEmulatorFrame) browserEmulatorFrame.src = "about:blank";
-    if (browserEmulatorDialog) delete browserEmulatorDialog.dataset.rawUrl;
-    if (browserEmulatorDialog) delete browserEmulatorDialog.dataset.titleKey;
-  });
-  browserEmulatorDialog?.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeBrowserEmulatorDialog();
-  });
-
   // Menu open/close animation
   const controlMenu = document.querySelector(".control-menu");
   const controlMenuPanel = document.querySelector(".control-menu-panel");
@@ -2050,6 +1986,11 @@ function initPalette() {
   clearProgramButton.addEventListener("click", clearProgram);
   collapseAllButton.addEventListener("click", collapseAllBlocks);
   expandAllButton.addEventListener("click", expandAllBlocks);
+  document.getElementById("block-minimap-btn")?.addEventListener("click", () => {
+    _blockMinimapEnabled = !_blockMinimapEnabled;
+    _blockApplyMinimap();
+    saveUiSettings();
+  });
   importAsmButton?.addEventListener("click", () => {
     document.querySelector(".control-menu")?.removeAttribute("open");
     importAsmFile();
@@ -2058,11 +1999,15 @@ function initPalette() {
     document.querySelector(".control-menu")?.removeAttribute("open");
     copyAsmToClipboard();
   });
+  disasmCopySourceBtn?.addEventListener("click", () => {
+    copyDisasmSourceToClipboard(false);
+  });
+  expertDisasmCopySourceBtn?.addEventListener("click", () => {
+    copyDisasmSourceToClipboard(true);
+  });
   chooseViceButton?.addEventListener("click", chooseViceExecutable);
   runEmulatorButton?.addEventListener("click", () => {
-    if (runMode === "browser") runInBrowser();
-    else if (runMode === "browser-d64") runD64InBrowser();
-    else if (runMode === "d64") runViaD64();
+    if (runMode === "d64") runViaD64();
     else if (runMode === "ultimate") runOnUltimate();
     else if (runMode === "ultimate-d64") runUltimateD64();
     else runInEmulator();
@@ -2434,6 +2379,16 @@ function _applyUiSettingsToDOM() {
     _expertApplyLineNumbers();
   }
 
+  if (savedUiSettings.expertMinimap) {
+    _expertMinimapEnabled = true;
+    _expertApplyMinimap();
+  }
+
+  if (savedUiSettings.blockMinimap) {
+    _blockMinimapEnabled = true;
+    _blockApplyMinimap();
+  }
+
   if (typeof savedUiSettings.expertProjectSymbolsHeight === "number" && Number.isFinite(savedUiSettings.expertProjectSymbolsHeight)) {
     _expertProjectSymbolsHeight = Math.max(48, Math.min(1200, savedUiSettings.expertProjectSymbolsHeight));
     _applyExpertProjectSymbolsHeight();
@@ -2676,13 +2631,6 @@ function applyTranslations() {
     setText("#hardware-settings-btn", t("hardwareSettings"));
     setText("#hardware-settings-title", t("hardwareSettingsTitle"));
     setText("#hardware-settings-close", t("hardwareSettingsClose"));
-    setText("#browser-emulator-title", t(browserEmulatorDialog?.dataset.titleKey || "browserEmulatorTitle"));
-    browserEmulatorRestart?.setAttribute("title", t("browserEmulatorRestart"));
-    browserEmulatorRestart?.setAttribute("aria-label", t("browserEmulatorRestart"));
-    browserEmulatorOpenExternal?.setAttribute("title", t("browserEmulatorOpenExternal"));
-    browserEmulatorOpenExternal?.setAttribute("aria-label", t("browserEmulatorOpenExternal"));
-    browserEmulatorClose?.setAttribute("title", t("browserEmulatorClose"));
-    browserEmulatorClose?.setAttribute("aria-label", t("browserEmulatorClose"));
     setText("#hw-vice-section-label", t("hwViceSectionLabel"));
     setText("#hw-exomizer-section-label", t("hwExomizerSectionLabel"));
     setText("#hw-debugger-section-label", t("hwDebuggerSectionLabel"));
@@ -2698,8 +2646,6 @@ function applyTranslations() {
     setText("#dbg-unpause-label", t("debuggerUnpauseLabel"));
     setText("#run-emulator .run-label", getRunModeLabel(runMode));
     setText("#run-prg-label", t("runAsPrg"));
-    setText("#run-browser-label", t("runInBrowser"));
-    setText("#run-browser-d64-label", t("runD64InBrowser"));
     setText("#run-exomizer-toggle-label", t("runWithExomizer"));
     setText("#run-d64-label", t("runViaD64"));
     setText("#run-ultimate-label", t("runOnUltimate"));
@@ -2748,6 +2694,8 @@ function applyTranslations() {
     setText("#origin-preview-label", t("originPreviewLabel"));
     setText("#asm-output-label", t("asmOutputLabel"));
     setText("#monitor-output-label", t("monitorOutputLabel"));
+    setText("#disasm-output-label", t("outputDisasm"));
+    setText("#expert-disasm-output-label", t("outputDisasm"));
     setText("#load-project", t("loadProject"));
     setText("#exit-app", t("exitApp"));
     exitAppButton?.setAttribute("title", t("exitApp"));
@@ -2758,6 +2706,8 @@ function applyTranslations() {
     if (importAsmButton?.hasAttribute("title")) importAsmButton.removeAttribute("title");
     copyAsmButton?.setAttribute("title", t("copyAsm"));
     copyAsmButton?.setAttribute("aria-label", t("copyAsm"));
+    disasmCopySourceBtn?.setAttribute("aria-label", t("disasmCopySource"));
+    expertDisasmCopySourceBtn?.setAttribute("aria-label", t("disasmCopySource"));
     saveProjectButton?.setAttribute("title", t("saveProject"));
     saveProjectButton?.setAttribute("aria-label", t("saveProject"));
     saveProjectAsButton?.setAttribute("title", t("saveProgramAs"));
@@ -4872,7 +4822,10 @@ function _blockToExpertLine(block) {
     if ((base || "hex") !== "hex") return raw || "0";
     return (raw || "0").split(",").map(t => {
       const s = t.trim();
-      return s.startsWith("$") || s === "" ? s : "$" + s;
+      if (!s) return s;
+      if (s.startsWith("$")) return s;
+      if (/^[0-9]+$/.test(s) || /^[0-9A-Fa-f]+$/.test(s)) return "$" + s.toUpperCase();
+      return s;
     }).join(", ");
   };
   const fmtColorMacroValue = (raw) => {
@@ -6568,6 +6521,7 @@ function _expertApplyHighlight() {
   _expertUpdateRegionFolds();
   if (_expertLineNumbersEnabled) _expertUpdateLineNumbers();
   _expertUpdateCaret();
+  _expertScheduleMinimapRedraw();
 }
 
 // ── Find ────────────────────────────────────────────────────────────────────
@@ -6724,7 +6678,352 @@ function _expertZoom(delta) {
   saveUiSettings();
 }
 
-// ── Line numbers ─────────────────────────────────────────────────────────────
+// ── Minimap ───────────────────────────────────────────────────────────────────
+
+function _expertApplyMinimap() {
+  const wrap = document.querySelector(".expert-editor-wrap");
+  const btn  = document.getElementById("expert-minimap-btn");
+  if (!wrap) return;
+  wrap.classList.toggle("expert-show-minimap", _expertMinimapEnabled);
+  btn?.setAttribute("aria-pressed", String(_expertMinimapEnabled));
+  btn?.classList.toggle("expert-hl-toggle--on", _expertMinimapEnabled);
+  if (_expertMinimapEnabled) _expertScheduleMinimapRedraw();
+}
+
+function _expertScheduleMinimapRedraw() {
+  if (!_expertMinimapEnabled) return;
+  cancelAnimationFrame(_expertMinimapRaf);
+  _expertMinimapRaf = requestAnimationFrame(_expertDrawMinimap);
+}
+
+function _expertDrawMinimap() {
+  const canvas = document.getElementById("expert-minimap");
+  if (!canvas || !expertEditor) return;
+  const ctx = canvas.getContext("2d");
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const W = canvas.offsetWidth;
+  const H = canvas.offsetHeight;
+  if (!W || !H) return;
+
+  const cw = Math.round(W * dpr);
+  const ch = Math.round(H * dpr);
+  if (canvas.width !== cw || canvas.height !== ch) {
+    canvas.width  = cw;
+    canvas.height = ch;
+  }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const rs = getComputedStyle(document.documentElement);
+  const bg         = rs.getPropertyValue("--expert-editor-bg").trim() || "#1a1b26";
+  const cComment   = rs.getPropertyValue("--hl-comment").trim()   || "#6a9955";
+  const cMnem      = rs.getPropertyValue("--hl-mnem").trim()      || "#dcdcaa";
+  const cLabel     = rs.getPropertyValue("--hl-label").trim()     || "#9cdcfe";
+  const cDirective = rs.getPropertyValue("--hl-directive").trim() || "#569cd6";
+  const cNumber    = rs.getPropertyValue("--hl-number").trim()    || "#b5cea8";
+
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  const lines = expertEditor.value.split("\n");
+  const total = lines.length || 1;
+  const LINE_PX = 2; // fixed minimap scale: 2px per line
+
+  const totalH  = expertEditor.scrollHeight;
+  const viewH   = expertEditor.clientHeight;
+  const scrollY = expertEditor.scrollTop;
+
+  // Which line is at the top of the viewport?
+  const lineHeightPx = totalH / Math.max(total, 1);
+  const topLine   = (scrollY / lineHeightPx);
+  const linesVis  = viewH   / lineHeightPx;
+
+  // Minimap scroll offset: keep viewport indicator visible in the center
+  let mmOffset = 0;
+  const contentH = total * LINE_PX;
+  if (contentH > H) {
+    // center the viewport band in the minimap canvas
+    const vpMidMm = (topLine + linesVis / 2) * LINE_PX;
+    mmOffset = Math.max(0, Math.min(contentH - H, vpMidMm - H / 2));
+  }
+
+  const xPad = 3;
+  const maxW  = W - xPad * 2;
+
+  for (let i = 0; i < total; i++) {
+    const y = i * LINE_PX - mmOffset;
+    if (y + LINE_PX < 0 || y > H) continue;
+
+    const raw = lines[i];
+    const trimmed = raw.trimStart();
+    if (!trimmed) continue;
+
+    let color;
+    if (trimmed.startsWith(";")) {
+      color = cComment;
+    } else if (/^[A-Za-z_][A-Za-z0-9_]*:/.test(trimmed)) {
+      color = cLabel;
+    } else if (/^\.(const|if|else|endif|macro|endm|invoke|region|endregion|define|org|byte|word|fill|text|string|data|rawbytes|rawtext|align|table|push|pull|for|endf|loop|next|blank|incbin|sid|include|loadfile|sprite|wait|joystick|mouse|reu|turbo|supercpu)\b/i.test(trimmed)) {
+      color = cDirective;
+    } else if (/^\d|#\$|^\$[0-9A-Fa-f]/.test(trimmed)) {
+      color = cNumber;
+    } else {
+      color = cMnem;
+    }
+
+    const indent  = raw.length - trimmed.length;
+    const indentX = Math.min(indent * 1.5, maxW * 0.35);
+    const barW    = Math.min(trimmed.length * 1.3, maxW - indentX);
+
+    ctx.globalAlpha = 0.72;
+    ctx.fillStyle = color;
+    ctx.fillRect(xPad + indentX, y, Math.max(3, barW), Math.max(1, LINE_PX - 0.3));
+  }
+  ctx.globalAlpha = 1;
+
+  // Viewport indicator
+  const vpTop = topLine * LINE_PX - mmOffset;
+  const vpH   = Math.max(8, linesVis * LINE_PX);
+  const primary = rs.getPropertyValue("--primary").trim() || "#2563eb";
+  ctx.fillStyle = _mmAlphaColor(primary, 0.12);
+  ctx.fillRect(0, vpTop, W, vpH);
+  ctx.strokeStyle = _mmAlphaColor(primary, 0.5);
+  ctx.lineWidth = 1;
+  ctx.strokeRect(0.5, vpTop + 0.5, W - 1, vpH - 1);
+}
+
+// Click / drag on minimap → scroll editor
+{
+  let _mmPointerDown = false;
+  const _mmCanvas = document.getElementById("expert-minimap");
+  _mmCanvas?.addEventListener("pointerdown", (e) => {
+    if (!_expertMinimapEnabled) return;
+    e.preventDefault();
+    _mmPointerDown = true;
+    _mmScrollToY(e.clientY);
+    const onMove = (ev) => { if (_mmPointerDown) _mmScrollToY(ev.clientY); };
+    const onUp   = () => { _mmPointerDown = false; window.removeEventListener("pointermove", onMove); window.removeEventListener("pointerup", onUp); };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup",   onUp);
+  });
+
+  // Redraw on container resize
+  const _mmWrap = document.querySelector(".expert-editor-wrap");
+  if (_mmWrap && typeof ResizeObserver !== "undefined") {
+    new ResizeObserver(() => _expertScheduleMinimapRedraw()).observe(_mmWrap);
+  }
+}
+function _mmAlphaColor(hex, alpha) {
+  let h = hex.replace("#", "");
+  if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  const r = parseInt(h.substring(0, 2), 16);
+  const g = parseInt(h.substring(2, 4), 16);
+  const b = parseInt(h.substring(4, 6), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+function _mmScrollToY(clientY) {
+  const canvas = document.getElementById("expert-minimap");
+  if (!canvas || !expertEditor) return;
+  const rect   = canvas.getBoundingClientRect();
+  const H      = rect.height;
+  const LINE_PX = 2;
+  const total  = expertEditor.value.split("\n").length || 1;
+  const totalH = expertEditor.scrollHeight;
+  const viewH  = expertEditor.clientHeight;
+  const contentH = total * LINE_PX;
+
+  // Compute current mmOffset (same logic as _expertDrawMinimap)
+  let mmOffset = 0;
+  if (contentH > H) {
+    const lineHeightPx = totalH / Math.max(total, 1);
+    const topLine  = expertEditor.scrollTop / lineHeightPx;
+    const linesVis = viewH / lineHeightPx;
+    const vpMidMm  = (topLine + linesVis / 2) * LINE_PX;
+    mmOffset = Math.max(0, Math.min(contentH - H, vpMidMm - H / 2));
+  }
+
+  const clickY  = clientY - rect.top;
+  const mmLine  = (clickY + mmOffset) / LINE_PX;
+  const lineHeightPx = totalH / Math.max(total, 1);
+  expertEditor.scrollTop = mmLine * lineHeightPx - viewH / 2;
+}
+
+// ── Block minimap ─────────────────────────────────────────────────────────────
+
+function _blockApplyMinimap() {
+  const panel  = document.querySelector(".program-panel");
+  const btn    = document.getElementById("block-minimap-btn");
+  if (!panel) return;
+  panel.classList.toggle("block-show-minimap", _blockMinimapEnabled);
+  btn?.setAttribute("aria-pressed", String(_blockMinimapEnabled));
+  btn?.classList.toggle("expert-hl-toggle--on", _blockMinimapEnabled);
+  if (_blockMinimapEnabled) {
+    // defer to let the browser compute layout before reading offsetHeight
+    setTimeout(() => _blockScheduleMinimapRedraw(), 0);
+  }
+}
+
+function _blockScheduleMinimapRedraw() {
+  if (!_blockMinimapEnabled) return;
+  cancelAnimationFrame(_blockMinimapRaf);
+  _blockMinimapRaf = requestAnimationFrame(_blockDrawMinimap);
+}
+
+function _blockDrawMinimap() {
+  const canvas = document.getElementById("block-minimap");
+  const panel  = document.querySelector(".program-panel");
+  const scroll = document.querySelector(".program-panel .panel-scroll");
+  if (!canvas || !panel || !scroll) return;
+  const ctx = canvas.getContext("2d");
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const W = 56;
+  const H = panel.offsetHeight;
+  if (!W || !H) {
+    if (_blockMinimapEnabled) setTimeout(() => _blockScheduleMinimapRedraw(), 30);
+    return;
+  }
+
+  // Explicitly keep the canvas filling the panel height via inline style
+  canvas.style.height = H + "px";
+
+  const cw = Math.round(W * dpr);
+  const ch = Math.round(H * dpr);
+  if (canvas.width !== cw || canvas.height !== ch) {
+    canvas.width  = cw;
+    canvas.height = ch;
+  }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const rs = getComputedStyle(document.documentElement);
+  const bg      = rs.getPropertyValue("--bg").trim()          || "#e8ecf1";
+  const cLabel  = rs.getPropertyValue("--hl-label").trim()    || "#9cdcfe";
+  const cMacro  = rs.getPropertyValue("--hl-directive").trim()|| "#569cd6";
+  const cInstr  = rs.getPropertyValue("--hl-mnem").trim()     || "#dcdcaa";
+  const cComment= rs.getPropertyValue("--hl-comment").trim()  || "#6a9955";
+  const cError  = "#e05050";
+  const primary = rs.getPropertyValue("--primary").trim()     || "#2563eb";
+
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  if (!program.length) return;
+
+  const LINE_PX = 3;
+  const total   = program.length;
+  const contentH = total * LINE_PX;
+
+  const scrollTop = scroll.scrollTop;
+  const viewH     = scroll.clientHeight;
+  const scrollH   = scroll.scrollHeight;
+
+  // Estimate which block indices are in the viewport
+  const linesVis  = viewH  / (scrollH / Math.max(total, 1));
+  const topLine   = scrollTop / (scrollH / Math.max(total, 1));
+
+  let mmOffset = 0;
+  if (contentH > H) {
+    const vpMidMm = (topLine + linesVis / 2) * LINE_PX;
+    mmOffset = Math.max(0, Math.min(contentH - H, vpMidMm - H / 2));
+  }
+
+  const xPad = 4;
+  const maxW  = W - xPad;
+
+  for (let i = 0; i < total; i++) {
+    const y = i * LINE_PX - mmOffset;
+    if (y + LINE_PX < 0 || y > H) continue;
+
+    const b = program[i];
+    let color;
+    if (b.validationError) {
+      color = cError;
+    } else if (b.isLabel) {
+      color = cLabel;
+    } else if (b.isComment || b.isBlankLine) {
+      color = cComment;
+    } else if (b.isByteMacro || b.isWordMacro || b.isFillMacro || b.isAlignMacro ||
+               b.isRawBytesMacro || b.isRawTextMacro || b.isIncBinMacro || b.isSidMacro ||
+               b.isTextMacro || b.isStringMacro || b.isDataMacro || b.isConstMacro ||
+               b.isDefineMacro || b.isLoopMacro || b.isNextMacro || b.isForMacro || b.isEndfMacro ||
+               b.isPushMacro || b.isPullMacro || b.isRegionMacro || b.isEndRegionMacro ||
+               b.isIfMacro || b.isElseMacro || b.isEndIfMacro || b.isMacroDefStart || b.isMacroDefEnd ||
+               b.isMacroInvoke || b.isSpriteInitMacro || b.isSpritePosMacro || b.isWaitRasterMacro ||
+               b.isJoystickMacro || b.isMouseMacro || b.isLoadFileMacro || b.isReuCheckMacro ||
+               b.isReuStashMacro || b.isReuFetchMacro || b.isReuSwapMacro || b.isTurboSetMacro ||
+               b.isTurboEnableMacro || b.isSuperCpuDetectMacro || b.isSpriteColMacro) {
+      color = cMacro;
+    } else {
+      color = cInstr;
+    }
+
+    const barW = Math.max(3, maxW * 0.75);
+    ctx.globalAlpha = b.collapsed ? 0.45 : 0.78;
+    ctx.fillStyle = color;
+    ctx.fillRect(xPad, y, barW, Math.max(1, LINE_PX - 0.5));
+  }
+  ctx.globalAlpha = 1;
+
+  // Viewport indicator
+  const vpTop = topLine * LINE_PX - mmOffset;
+  const vpH   = Math.max(8, linesVis * LINE_PX);
+  ctx.fillStyle = _mmAlphaColor(primary, 0.12);
+  ctx.fillRect(0, vpTop, W, vpH);
+  ctx.strokeStyle = _mmAlphaColor(primary, 0.5);
+  ctx.lineWidth = 1;
+  ctx.strokeRect(0.5, vpTop + 0.5, W - 1, vpH - 1);
+}
+
+// Click/drag on block minimap → scroll program list
+{
+  let _bmPointerDown = false;
+  const _bmCanvas = document.getElementById("block-minimap");
+  _bmCanvas?.addEventListener("pointerdown", (e) => {
+    if (!_blockMinimapEnabled) return;
+    e.preventDefault();
+    _bmPointerDown = true;
+    _bmScrollToY(e.clientY);
+    const onMove = (ev) => { if (_bmPointerDown) _bmScrollToY(ev.clientY); };
+    const onUp   = () => { _bmPointerDown = false; window.removeEventListener("pointermove", onMove); window.removeEventListener("pointerup", onUp); };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup",   onUp);
+  });
+
+  const _bmPanel = document.querySelector(".program-panel");
+  if (_bmPanel && typeof ResizeObserver !== "undefined") {
+    new ResizeObserver(() => _blockScheduleMinimapRedraw()).observe(_bmPanel);
+  }
+  // also observe the canvas itself — fires when it first gets a non-zero size
+  if (_bmCanvas && typeof ResizeObserver !== "undefined") {
+    new ResizeObserver(() => { if (_blockMinimapEnabled) _blockScheduleMinimapRedraw(); }).observe(_bmCanvas);
+  }
+}
+
+function _bmScrollToY(clientY) {
+  const canvas = document.getElementById("block-minimap");
+  const scroll = document.querySelector(".program-panel .panel-scroll");
+  if (!canvas || !scroll || !program.length) return;
+  const rect    = canvas.getBoundingClientRect();
+  const H       = rect.height;
+  const LINE_PX = 3;
+  const total   = program.length;
+  const scrollH = scroll.scrollHeight;
+  const viewH   = scroll.clientHeight;
+  const contentH = total * LINE_PX;
+
+  let mmOffset = 0;
+  if (contentH > H) {
+    const topLine  = scroll.scrollTop / (scrollH / Math.max(total, 1));
+    const linesVis = viewH / (scrollH / Math.max(total, 1));
+    const vpMidMm  = (topLine + linesVis / 2) * LINE_PX;
+    mmOffset = Math.max(0, Math.min(contentH - H, vpMidMm - H / 2));
+  }
+
+  const clickY = clientY - rect.top;
+  const mmLine = (clickY + mmOffset) / LINE_PX;
+  scroll.scrollTop = mmLine * (scrollH / Math.max(total, 1)) - viewH / 2;
+}
+
+
 
 function _expertApplyLineNumbers() {
   const wrap = document.querySelector(".expert-editor-wrap");
@@ -6867,8 +7166,8 @@ function parseExpertText(text) {
       continue;
     }
 
-    // * = $XXXX or * = decimal → ORG
-    const orgM = line.match(/^\*\s*=\s*(?:\$([0-9A-Fa-f]{1,4})|(\d{1,5}))\s*$/);
+    // * = $XXXX or * = decimal, optionally followed by a quoted title → ORG
+    const orgM = line.match(/^\*\s*=\s*(?:\$([0-9A-Fa-f]{1,4})|(\d{1,5}))(?:\s+"[^"]*")?\s*$/);
     if (orgM) {
       const orgAddress = orgM[1]
         ? orgM[1].toUpperCase().padStart(4, "0")
@@ -9177,6 +9476,7 @@ function toggleBlockCollapsed(index) {
       toggle.setAttribute("aria-label", block.collapsed ? t("expand") : t("collapse"));
       toggle.removeAttribute("title");
     }
+    requestAnimationFrame(() => _blockScheduleMinimapRedraw());
   } else {
     renderProgram();
   }
@@ -10089,6 +10389,13 @@ function buildOperandPreview(modeKey, rawValue, base) {
 
   const numericValue = parseNumberByBase(value, base);
   if (numericValue === null) {
+    // Kick-style immediate expressions like #(SCREEN_CENTER_Y+1) are valid
+    // even when they cannot be reduced to a plain number at edit time.
+    if (modeKey === "immediate" && /^[A-Za-z0-9_.$%<>()+\-*/&|^\s]+$/.test(value)) {
+      const operand = `#${value}`;
+      return { operand, text: operand, error: "" };
+    }
+
     // Handle #<label / #>label AND #<numeric / #>numeric low/high byte operators in immediate mode
     if (modeKey === "immediate" && (value.startsWith("<") || value.startsWith(">"))) {
       const name = value.slice(1).trim();
@@ -10304,17 +10611,105 @@ function validateWordMacro(raw, base = "dec") {
   return "";
 }
 
-function parseFillMacro(raw, base = "dec") {
-  const parts = raw.split(",").map((part) => part.trim()).filter(Boolean);
+function parseFillMacro(raw, base = "dec", labels = null, vars = null) {
+  const parts = [];
+  let current = "";
+  let depth = 0;
+  for (const char of String(raw || "")) {
+    if (char === "(") depth += 1;
+    if (char === ")") depth = Math.max(0, depth - 1);
+    if (char === "," && depth === 0) {
+      parts.push(current.trim());
+      current = "";
+      continue;
+    }
+    current += char;
+  }
+  if (current.trim()) parts.push(current.trim());
   if (parts.length !== 2) return null;
 
+  const evalAsmExpression = (expr, localLabels = null, localVars = null) => {
+    let text = String(expr ?? "").trim();
+    if (!text) return null;
+
+    text = text.replace(/^#/, "");
+    text = text.replace(/\$([A-Za-z_][A-Za-z0-9_]*)/g, (match, name) => {
+      return /^[0-9A-Fa-f]+$/.test(name) ? match : name;
+    });
+    text = text.replace(/\$<\s*\(/g, "lo(");
+    text = text.replace(/\$>\s*\(/g, "hi(");
+    text = text.replace(/<\s*\(/g, "lo(");
+    text = text.replace(/>\s*\(/g, "hi(");
+    text = text.replace(/<\s*([A-Za-z_][A-Za-z0-9_]*)/g, "lo($1)");
+    text = text.replace(/>\s*([A-Za-z_][A-Za-z0-9_]*)/g, "hi($1)");
+    text = text.replace(/\$([0-9A-Fa-f]+)/g, "0x$1");
+    text = text.replace(/%([01]+)/g, "0b$1");
+
+    const resolved = Object.create(null);
+    const setResolved = (name, value) => {
+      if (value === undefined || value === null || Number.isNaN(value)) return;
+      resolved[name] = Number(value);
+      resolved[name.toLowerCase()] = Number(value);
+      resolved[name.toUpperCase()] = Number(value);
+    };
+
+    if (localLabels && typeof localLabels.forEach === "function") {
+      localLabels.forEach((value, name) => setResolved(name, value));
+    }
+    if (localVars && typeof localVars === "object") {
+      for (const [name, value] of Object.entries(localVars)) {
+        setResolved(name, value);
+      }
+    }
+
+    text = text.replace(/\b(round|sin|cos|max|min|abs)\b/gi, (match) => `__FUNC_${match.toUpperCase()}__`);
+    text = text.replace(/\bPI\b/gi, "__CONST_PI__");
+
+    text = text.replace(/\b[A-Za-z_][A-Za-z0-9_]*\b/g, (name) => {
+      if (name.startsWith("__FUNC_") || name === "__CONST_PI__") return name;
+      if (name === "lo" || name === "hi" || name === "Math") return name;
+      if (/^0x[0-9A-Fa-f]+$/.test(name)) return name;
+      if (Object.prototype.hasOwnProperty.call(resolved, name)) return String(resolved[name]);
+
+      const constValue = lookupProgramConstValue(name);
+      if (constValue !== null) return String(constValue);
+
+      return `__UNKNOWN_${name}__`;
+    });
+
+    if (/__UNKNOWN_[A-Za-z0-9_]+__/.test(text)) {
+      return null;
+    }
+
+    text = text.replace(/__FUNC_ROUND__/g, "Math.round");
+    text = text.replace(/__FUNC_SIN__/g, "Math.sin");
+    text = text.replace(/__FUNC_MAX__/g, "Math.max");
+    text = text.replace(/__FUNC_MIN__/g, "Math.min");
+    text = text.replace(/__FUNC_ABS__/g, "Math.abs");
+    text = text.replace(/__CONST_PI__/g, "Math.PI");
+
+    try {
+      const result = Function("lo", "hi", `"use strict"; return (${text});`)(
+        (value) => value & 0xFF,
+        (value) => (value >> 8) & 0xFF
+      );
+      return Number.isFinite(result) ? Number(result) : null;
+    } catch (_) {
+      return null;
+    }
+  };
+
   const parseValue = (part) => {
-    const resolved = resolveProgramNumericValue(part, null, base);
+    const resolved = evalAsmExpression(part, labels, vars);
     if (resolved !== null) return resolved;
+    const numeric = resolveProgramNumericValue(part, labels, base);
+    if (numeric !== null) return numeric;
     return Number.parseInt(part, base === "bin" ? 2 : (base === "hex" ? 16 : 10));
   };
 
   return {
+    countExpr: parts[0],
+    valueExpr: parts[1],
     count: parseValue(parts[0]),
     value: parseValue(parts[1])
   };
@@ -10326,25 +10721,43 @@ function validateFillMacro(raw, base = "dec") {
     return t("fillMacroNeedsCountAndValueEGFill25600");
   }
 
-  const parts = trimmed.split(",").map((part) => part.trim()).filter(Boolean);
+  const parts = [];
+  let current = "";
+  let depth = 0;
+  for (const char of trimmed) {
+    if (char === "(") depth += 1;
+    if (char === ")") depth = Math.max(0, depth - 1);
+    if (char === "," && depth === 0) {
+      parts.push(current.trim());
+      current = "";
+      continue;
+    }
+    current += char;
+  }
+  if (current.trim()) parts.push(current.trim());
   if (parts.length !== 2) {
     return t("fillMacroNeedsExactlyTwoParametersCountV");
   }
 
-  const parsed = parseFillMacro(raw, base);
-  if (!parsed) {
-    return t("fillMacroParametersAreInvalid");
+  const parsed = parseFillMacro(raw, base, null, { i: 0, I: 0 });
+  if (parsed) {
+    if (!isNaN(parsed.count) && (parsed.count < 1 || parsed.count > 65536)) {
+      return t("fillCountMustBeBetween1And65536");
+    }
+
+    if (!isNaN(parsed.value) && (parsed.value < 0 || parsed.value > 255)) {
+      return t("fillValueMustBeAByteBetween0And255");
+    }
+
+    return "";
   }
 
-  if (isNaN(parsed.count) || parsed.count < 1 || parsed.count > 65536) {
-    return t("fillCountMustBeBetween1And65536");
+  const looksLikeExpr = (part) => /^[A-Za-z0-9_.$%<>()+\-*/&|^\s]+$/.test(part) && /[A-Za-z0-9_.$%]/.test(part);
+  if (parts.length === 2 && parts.every(looksLikeExpr)) {
+    return "";
   }
 
-  if (isNaN(parsed.value) || parsed.value < 0 || parsed.value > 255) {
-    return t("fillValueMustBeAByteBetween0And255");
-  }
-
-  return "";
+  return t("fillMacroParametersAreInvalid");
 }
 
 function validateAlignMacro(raw, base = "hex") {
@@ -10807,6 +11220,10 @@ function setTheme(theme) {
   localStorage.setItem("c64-block-theme", theme);
   updateThemeToggleLabel();
   saveUiSettings();
+  requestAnimationFrame(() => {
+    _expertScheduleMinimapRedraw();
+    _blockScheduleMinimapRedraw();
+  });
 }
 
 function applySavedCrtMode() {
@@ -11070,6 +11487,163 @@ async function chooseWorkingFolder() {
   updateWorkingFolderPreview(result?.workingFolder || "");
 }
 
+function _getDebuggerPrimarySourcePath() {
+  const activeTab = _getActiveTab();
+  const sourcePath = _expertAsmFilePath || activeTab?.filePath || "";
+  if (sourcePath && /\.(asm|s|a65)$/i.test(sourcePath)) return sourcePath;
+  if (sourcePath) return sourcePath.replace(/\.[^.]+$/, ".asm");
+  const fallbackName = (activeTab?.name || activeTab?._untitledName || "program").replace(/\.[^.]+$/, "");
+  return `${fallbackName || "program"}.asm`;
+}
+
+function _getDebuggerCodeOrigin(prg) {
+  if (typeof prg?.sysAddress === "number") return prg.sysAddress;
+  const origin = parseOriginValue();
+  return (origin.value === 0x0801) ? 0xC000 : origin.value;
+}
+
+function _escapeXmlText(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function _formatDebuggerAddress(value) {
+  return `$${(value & 0xFFFF).toString(16).toLowerCase().padStart(4, "0")}`;
+}
+
+function _formatDebuggerSymbolAddress(value) {
+  return `$${(value & 0xFFFF).toString(16).toLowerCase().padStart(4, "0")}`;
+}
+
+function _collectDebuggerSymbols(layout) {
+  const labels = new Map();
+  const symbols = [];
+  const breakpoints = [];
+  const pushSymbol = (name, address) => {
+    const safeName = String(name || "").trim();
+    if (!safeName || !Number.isFinite(address)) return;
+    if (!labels.has(safeName)) labels.set(safeName, address & 0xFFFF);
+  };
+
+  layout.lines.forEach((line) => {
+    const block = line.block || {};
+    if (block.isLabel && block.labelName) pushSymbol(block.labelName, line.address);
+    if (block.isLoopMacro && block.loopLabel) pushSymbol(block.loopLabel, line.address + 2);
+    if (block.isForMacro && block.loopLabel) pushSymbol(block.loopLabel, line.address + 2);
+    if (block._autoBufferLabel) pushSymbol(block._autoBufferLabel, line.address);
+    if (block.isTableMacro && block.tableName) pushSymbol(block.tableName, line.address);
+    if (block.isConstMacro && block.constName) {
+      const value = typeof block.constValue === "number" && Number.isFinite(block.constValue)
+        ? block.constValue
+        : parseAddressValue(block.rawOperand || "", labels);
+      if (Number.isFinite(value)) pushSymbol(block.constName, value);
+    }
+    if (block.isVarMacro && block.varName && typeof block._varAddress === "number") {
+      pushSymbol(block.varName, block._varAddress);
+    }
+    if (block.isBreakpoint) {
+      breakpoints.push(line.address & 0xFFFF);
+    }
+  });
+
+  labels.forEach((address, name) => {
+    symbols.push({ name, address });
+  });
+
+  symbols.sort((left, right) => (left.address - right.address) || left.name.localeCompare(right.name));
+
+  return { symbols, breakpoints };
+}
+
+function _buildDebuggerSidecarTexts(layout, originOverride) {
+  const primarySourcePath = _getDebuggerPrimarySourcePath();
+  const includeBlocksById = new Map(
+    program.filter((block) => block && block.isIncludeMacro && block.id).map((block) => [block.id, block])
+  );
+  const sourcePaths = [];
+  const sourceIndexByPath = new Map();
+  const getSourceIndex = (path) => {
+    const safePath = String(path || primarySourcePath || "program.asm");
+    if (!sourceIndexByPath.has(safePath)) {
+      sourceIndexByPath.set(safePath, sourcePaths.length);
+      sourcePaths.push(safePath);
+    }
+    return sourceIndexByPath.get(safePath);
+  };
+  const getLineSourcePath = (line) => {
+    const block = line.block || {};
+    if (block._fromInclude) {
+      const includeBlock = includeBlocksById.get(block._fromInclude);
+      const includePath = _normalizeIncludeBlockSource(includeBlock) || includeBlock?.includeFileName || "";
+      if (includePath) return includePath;
+    }
+    return primarySourcePath;
+  };
+  const getBlockName = (line, sourcePath) => {
+    if (sourcePath === primarySourcePath) {
+      if (Number.isFinite(originOverride) && line.address < originOverride) return "BASIC Stub";
+      return "Main";
+    }
+    const baseName = String(sourcePath || "Program").replace(/\\/g, "/").split("/").pop().replace(/\.[^.]+$/, "");
+    return baseName || "Program";
+  };
+  const dbgBlocks = new Map();
+
+  layout.lines.forEach((line) => {
+    if (line.conditionallySkipped || line.size <= 0) return;
+    const sourcePath = getLineSourcePath(line);
+    const sourceIndex = getSourceIndex(sourcePath);
+    const sourceLine = typeof line.block?._srcLine === "number" ? (line.block._srcLine + 1) : (sourceIndex + 1);
+    const blockName = getBlockName(line, sourcePath);
+    const entry = `${_formatDebuggerAddress(line.address)},${_formatDebuggerAddress(line.end)},${sourceIndex},${sourceLine},1,${sourceLine},1`;
+    if (!dbgBlocks.has(blockName)) dbgBlocks.set(blockName, []);
+    dbgBlocks.get(blockName).push(entry);
+  });
+
+  const dbgText = [
+    `<C64debugger version="1.0">`,
+    `   <Sources values="INDEX,FILE">`,
+    ...sourcePaths.map((sourcePath, index) => `      ${index},${_escapeXmlText(sourcePath)}`),
+    `   </Sources>`,
+    ``,
+    `   <Segment name="Default" dest="" values="START,END,FILE_IDX,LINE1,COL1,LINE2,COL2">`,
+    ...[...dbgBlocks.entries()].flatMap(([blockName, entries]) => ([
+      `      <Block name="${_escapeXmlText(blockName)}">`,
+      ...entries.map((entry) => `         ${entry}`),
+      `      </Block>`
+    ])),
+    `   </Segment>`,
+    `</C64debugger>`
+  ].join("\n");
+
+  const uniqueSymbols = new Map();
+  const { symbols } = _collectDebuggerSymbols(layout);
+  symbols.forEach((symbol) => {
+    if (!symbol || !symbol.name) return;
+    if (!uniqueSymbols.has(symbol.name)) uniqueSymbols.set(symbol.name, symbol.address & 0xFFFF);
+  });
+
+  const sortedSymbols = [...uniqueSymbols.entries()].sort((left, right) => (left[1] - right[1]) || left[0].localeCompare(right[0]));
+  const symText = sortedSymbols.map(([name, address]) => `.label ${name}=${_formatDebuggerSymbolAddress(address)}`).join("\n");
+  const vsText = sortedSymbols.map(([name, address]) => `al C:${_formatDebuggerSymbolAddress(address).slice(1)} .${name}`).join("\n");
+
+  return { dbg: dbgText, sym: symText, vs: vsText };
+}
+
+function _buildDebuggerSidecarPayload(prg) {
+  try {
+    const originOverride = _getDebuggerCodeOrigin(prg);
+    const layout = getProgramLayout(originOverride);
+    return _buildDebuggerSidecarTexts(layout, originOverride);
+  } catch (e) {
+    console.error("Debugger sidecar generation failed:", e);
+    return null;
+  }
+}
+
 async function runInDebugger() {
   if (isProgramEmpty()) {
     showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
@@ -11099,32 +11673,9 @@ async function runInDebugger() {
 
     setWorkProgress(50);
 
-    const debugCodeOrigin = prg.sysAddress ?? (() => {
-      const o = parseOriginValue();
-      return (o.value === 0x0801) ? 0xC000 : o.value;
-    })();
+    const debugCodeOrigin = _getDebuggerCodeOrigin(prg);
     const layout = getProgramLayout(debugCodeOrigin);
-
-    const symbols = [];
-    const breakpoints = [];
-
-    layout.lines.forEach(line => {
-      if (line.block.isLabel && line.block.labelName) {
-        symbols.push({ name: line.block.labelName, address: line.address });
-      }
-      if (line.block.isLoopMacro && line.block.loopLabel) {
-        symbols.push({ name: line.block.loopLabel, address: line.address + 2 });
-      }
-      if (line.block._autoBufferLabel) {
-        symbols.push({ name: line.block._autoBufferLabel, address: line.address });
-      }
-      if (line.block.isTableMacro && line.block.tableName) {
-        symbols.push({ name: line.block.tableName, address: line.address });
-      }
-      if (line.block.isBreakpoint) {
-        breakpoints.push(line.address);
-      }
-    });
+    const { symbols, breakpoints } = _collectDebuggerSymbols(layout);
 
     setWorkProgress(80);
     const result = await window.electronAPI.launchDebugger({
@@ -11132,6 +11683,7 @@ async function runInDebugger() {
       fileName: `c64-visual-assembler-${Date.now()}.prg`,
       symbols,
       breakpoints,
+      sidecars: _buildDebuggerSidecarPayload(prg),
       autoJmp: false,
       jmpAddress: debuggerJmp ? debugCodeOrigin : undefined,
       waitMs: debuggerWait ? debuggerWaitMs : 0,
@@ -12054,7 +12606,10 @@ async function savePrgToFile() {
     return;
   }
 
-  const result = await window.electronAPI.savePrg({ bytes: Array.from(prg.bytes) });
+  const result = await window.electronAPI.savePrg({
+    bytes: Array.from(prg.bytes),
+    sidecars: _buildDebuggerSidecarPayload(prg)
+  });
   if (result?.canceled) return;
 
   if (!result?.ok) {
@@ -12083,7 +12638,7 @@ async function saveD64ToFile() {
     return;
   }
 
-  openD64ExportDialog(prg.bytes);
+  openD64ExportDialog(prg.bytes, _buildDebuggerSidecarPayload(prg));
 }
 
 // ── D64 Export Dialog ─────────────────────────────────────────────────
@@ -12092,6 +12647,7 @@ async function saveD64ToFile() {
 // written to the same D64 image.
 const d64ExportState = {
   prgBytes: null,
+  sidecars: null,
   extras: [],  // [{ name: string, sourcePath: string, bytes: number[], loadAddress: string, crunch: bool }]
   runMode: false,
   diskName: "",
@@ -12129,10 +12685,11 @@ async function d64LoadSavedExtras(savedExtras, baseDir = "") {
   return restored;
 }
 
-async function openD64ExportDialog(prgBytes) {
+async function openD64ExportDialog(prgBytes, sidecars = null) {
   const dialog = document.getElementById("d64-export-dialog");
   if (!dialog) return;
   d64ExportState.prgBytes = prgBytes;
+  d64ExportState.sidecars = sidecars;
 
   const diskInput = document.getElementById("d64-export-diskname");
   const progInput = document.getElementById("d64-export-progname");
@@ -12288,7 +12845,6 @@ async function confirmD64Export() {
 
   const isRunMode = d64ExportState.runMode;
   const isUltimateMode = isRunMode === "ultimate";
-  const isBrowserMode = isRunMode === "browser";
 
   // If any extra needs EXO crunching, the loop below blocks on `exomizer`
   // for several seconds per file. Show the work-progress modal up front so
@@ -12338,7 +12894,7 @@ async function confirmD64Export() {
     delete f._decompressAddress;
     if (!crunchResult?.ok) {
       if (willCrunchAny) hideWorkProgress();
-      if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = t(isUltimateMode ? "runOnUltimate" : isBrowserMode ? "runD64InBrowser" : isRunMode ? "runViaD64Confirm" : "d64ExportConfirm"); }
+      if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = t(isUltimateMode ? "runOnUltimate" : isRunMode ? "runViaD64Confirm" : "d64ExportConfirm"); }
       if (cancelBtn) cancelBtn.disabled = false;
       if (errorBox) { errorBox.hidden = false; errorBox.textContent = `${f.name}: ${crunchResult?.error || t("exomizerLaunchFailed")}`; }
       return;
@@ -12348,7 +12904,7 @@ async function confirmD64Export() {
   // Switch the progress modal's subtitle to the D64 packaging message. If we
   // didn't open it during compression and we're in run mode, open it now.
   if (isRunMode) {
-    await showWorkProgress(isUltimateMode ? "workProgressRunD64Ultimate" : isBrowserMode ? "workProgressRunD64Browser" : "workProgressRunD64");
+    await showWorkProgress(isUltimateMode ? "workProgressRunD64Ultimate" : "workProgressRunD64");
   } else if (willCrunchAny) {
     // Save-only mode: progress modal is up but the EXO loop is done — close it
     // so the OS save dialog (if any) isn't blocked behind it.
@@ -12368,17 +12924,15 @@ async function confirmD64Export() {
         return;
       }
       result = await window.electronAPI.runD64OnUltimate({ host, password, diskName, files });
-    } else if (isBrowserMode) {
-      result = await window.electronAPI.runD64InBrowserEmulator({ diskName, files });
     } else if (isRunMode) {
-      result = await window.electronAPI.runD64({ diskName, files });
+      result = await window.electronAPI.runD64({ diskName, files, sidecars: d64ExportState.sidecars });
     } else {
-      result = await window.electronAPI.saveD64({ diskName, files });
+      result = await window.electronAPI.saveD64({ diskName, files, sidecars: d64ExportState.sidecars });
     }
   } finally {
     if (confirmBtn) {
       confirmBtn.disabled = false;
-      confirmBtn.textContent = t(isUltimateMode ? "runOnUltimate" : isBrowserMode ? "runD64InBrowser" : isRunMode ? "runViaD64Confirm" : "d64ExportConfirm");
+      confirmBtn.textContent = t(isUltimateMode ? "runOnUltimate" : isRunMode ? "runViaD64Confirm" : "d64ExportConfirm");
     }
     if (cancelBtn) cancelBtn.disabled = false;
   }
@@ -12399,11 +12953,9 @@ async function confirmD64Export() {
 
   d64SaveSettings((diskInput?.value || "").trim() || "DISK", (progInput?.value || "").trim() || "PROGRAM");
   dialog.close();
-  if (isBrowserMode && result?.url) {
-    openBrowserEmulatorDialog(result.url, "runD64InBrowser");
-  }
+  d64ExportState.sidecars = null;
   if (isRunMode) {
-    await completeWorkProgress(isUltimateMode ? "workProgressSuccessD64Ultimate" : isBrowserMode ? "workProgressSuccessD64Browser" : "workProgressSuccessRunD64");
+    await completeWorkProgress(isUltimateMode ? "workProgressSuccessD64Ultimate" : "workProgressSuccessRunD64");
   } else if (emulatorStatus) {
     const fileName = (result.filePath || "").split(/[\\/]/).pop();
     const count = result.fileCount || files.length;
@@ -12416,8 +12968,6 @@ async function confirmD64Export() {
 let runMode = "prg";
 
 function getRunModeLabel(mode) {
-  if (mode === "browser") return t("runInBrowser");
-  if (mode === "browser-d64") return t("runD64InBrowser");
   if (mode === "d64") return t("runViaD64");
   if (mode === "ultimate") return t("runOnUltimate");
   if (mode === "ultimate-d64") return t("runD64OnHardware");
@@ -12464,13 +13014,11 @@ function setupRunModeDropdown() {
 
   document.getElementById("run-prg-mode")?.addEventListener("click", () => { setRunMode("prg"); closeMenu(); });
   document.getElementById("run-d64-mode")?.addEventListener("click", () => { setRunMode("d64"); closeMenu(); });
-  document.getElementById("run-browser-mode")?.addEventListener("click", () => { setRunMode("browser"); closeMenu(); });
-  document.getElementById("run-browser-d64-mode")?.addEventListener("click", () => { setRunMode("browser-d64"); closeMenu(); });
   document.getElementById("run-ultimate-mode")?.addEventListener("click", () => { setRunMode("ultimate"); closeMenu(); });
   document.getElementById("run-ultimate-d64-mode")?.addEventListener("click", () => { setRunMode("ultimate-d64"); closeMenu(); });
 
   const saved = localStorage.getItem("runMode");
-  if (["prg", "d64", "browser", "browser-d64", "ultimate", "ultimate-d64"].includes(saved)) setRunMode(saved);
+  if (["prg", "d64", "ultimate", "ultimate-d64"].includes(saved)) setRunMode(saved);
 }
 
 function setRunMode(mode) {
@@ -12478,14 +13026,10 @@ function setRunMode(mode) {
   localStorage.setItem("runMode", mode);
   const prgBtn = document.getElementById("run-prg-mode");
   const d64Btn = document.getElementById("run-d64-mode");
-  const browserBtn = document.getElementById("run-browser-mode");
-  const browserD64Btn = document.getElementById("run-browser-d64-mode");
   const ulBtn = document.getElementById("run-ultimate-mode");
   const ulD64Btn = document.getElementById("run-ultimate-d64-mode");
   if (prgBtn) prgBtn.classList.toggle("active", mode === "prg");
   if (d64Btn) d64Btn.classList.toggle("active", mode === "d64");
-  if (browserBtn) browserBtn.classList.toggle("active", mode === "browser");
-  if (browserD64Btn) browserD64Btn.classList.toggle("active", mode === "browser-d64");
   if (ulBtn) ulBtn.classList.toggle("active", mode === "ultimate");
   if (ulD64Btn) ulD64Btn.classList.toggle("active", mode === "ultimate-d64");
   const label = document.querySelector("#run-emulator .run-label");
@@ -12495,95 +13039,6 @@ function setRunMode(mode) {
     runEmulatorButton.setAttribute("aria-label", runLabel);
   }
   syncMainToolbarTooltips();
-}
-
-async function runInBrowser() {
-  if (isProgramEmpty()) {
-    showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
-    return;
-  }
-  const prg = buildAutostartPrgForEmulator();
-  if (!prg.ok) {
-    if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
-    showViceToast(prg.error || (t("compilationFailed")), true);
-    return;
-  }
-  try {
-    const bytes = prg.bytes instanceof Uint8Array ? prg.bytes : new Uint8Array(prg.bytes);
-    // Chunked btoa — avoids call stack overflow on large PRGs
-    let b64 = '';
-    const chunk = 8192;
-    for (let i = 0; i < bytes.length; i += chunk) {
-      b64 += btoa(String.fromCharCode(...bytes.subarray(i, i + chunk)));
-    }
-    if (window.electronAPI?.runInBrowserEmulator) {
-      const url = await window.electronAPI.runInBrowserEmulator(b64);
-      openBrowserEmulatorDialog(url, "runInBrowser");
-    } else {
-      openBrowserEmulatorDialog(`emulator.html#${b64}`, "runInBrowser");
-    }
-  } catch (e) {
-    showViceToast((t("browserRunFailed")) + e.message, true);
-  }
-}
-
-async function runD64InBrowser() {
-  if (isProgramEmpty()) {
-    showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
-    return;
-  }
-  if (!vicePath) {
-    showViceToast(t("viceIsNotConfiguredC1541NeededToBuildThe"), true);
-    return;
-  }
-  if (!window.electronAPI?.runD64InBrowserEmulator) {
-    showViceToast(t("d64InBrowserIsNotAvailable"), true);
-    return;
-  }
-
-  const prg = await buildRunPrgForCurrentMode();
-  if (!prg.ok) {
-    if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
-    if (emulatorStatus) emulatorStatus.textContent = prg.error;
-    return;
-  }
-
-  d64ExportState.prgBytes = prg.bytes;
-  d64ExportState.runMode = "browser";
-
-  const dialog = document.getElementById("d64-export-dialog");
-  const diskInput = document.getElementById("d64-export-diskname");
-  const progInput = document.getElementById("d64-export-progname");
-  const errorBox = document.getElementById("d64-export-error");
-  const confirmBtn = document.getElementById("d64-export-confirm");
-
-  let diskName = d64ExportState.diskName || defaultDiskName();
-  let progName = d64ExportState.progName || defaultDiskName();
-  if (d64ExportState.extras.length === 0) {
-    if (d64ExportState._pendingExtras?.length) {
-      d64ExportState.extras = await d64LoadSavedExtras(d64ExportState._pendingExtras, d64ExportState._pendingExtrasBaseDir);
-      d64ExportState._pendingExtras = null;
-      d64ExportState._pendingExtrasBaseDir = "";
-    } else {
-      try {
-        const saved = JSON.parse(localStorage.getItem("d64LastSettings") || "null");
-        if (saved) {
-          if (!d64ExportState.diskName && saved.diskName) diskName = saved.diskName;
-          if (!d64ExportState.progName && saved.progName) progName = saved.progName;
-          if (saved.extras?.length) d64ExportState.extras = await d64LoadSavedExtras(saved.extras);
-        }
-      } catch (_) {}
-    }
-  }
-
-  if (diskInput) diskInput.value = diskName;
-  if (progInput) progInput.value = progName;
-  if (errorBox) { errorBox.hidden = true; errorBox.textContent = ""; }
-  if (confirmBtn) confirmBtn.textContent = t("runD64InBrowser");
-  const titleEl = document.getElementById("d64-export-title");
-  if (titleEl) titleEl.textContent = t("runD64InBrowser");
-  renderD64ExtraFiles();
-  dialog?.showModal();
 }
 
 async function runViaD64() {
@@ -12676,7 +13131,8 @@ async function runViaExomizer() {
 
     const result = await window.electronAPI.launchExomizer({
       bytes: Array.from(prg.bytes),
-      fileName: `c64-visual-assembler-${Date.now()}.prg`
+      fileName: `c64-visual-assembler-${Date.now()}.prg`,
+      sidecars: _buildDebuggerSidecarPayload(prg)
     });
 
     if (!result?.ok) {
@@ -12703,7 +13159,7 @@ async function buildRunPrgForCurrentMode() {
   const prg = buildAutostartPrgForEmulator();
   if (!prg.ok) return prg;
 
-  if (!exomizerEnabled) return prg;
+  if (!exomizerEnabled) return { ...prg, sysAddress: prg.sysAddress };
 
   if (!exomizerPath) {
     return { ok: false, error: t("exomizerNotConfiguredMsg") };
@@ -12740,7 +13196,8 @@ async function buildRunPrgForCurrentMode() {
       ok: true,
       bytes: Uint8Array.from(result.bytes || []),
       exomizerPath: result.exomizerPath,
-      filePath: result.filePath
+      filePath: result.filePath,
+      sysAddress: prg.sysAddress
     };
   } finally {
     // Hide progress only if we opened it (don't close an outer dialog)
@@ -13092,16 +13549,23 @@ function _importMakeWord(rawList) {
 
 function _importMakeFill(rawList) {
   // FILL accepts "count, value"
-  const parts = rawList.split(",").map(p => p.trim()).filter(Boolean);
-  let base = "dec";
-  let normalized = rawList.trim();
-  if (parts.length === 2) {
-    const a = _importParseScalar(parts[0]);
-    const b = _importParseScalar(parts[1]);
-    // Pick the value's base for the macro (count usually fits any base).
-    base = b.base;
-    normalized = `${a.value},${b.value}`;
+  const parts = [];
+  let current = "";
+  let depth = 0;
+  for (const char of String(rawList || "")) {
+    if (char === "(") depth += 1;
+    if (char === ")") depth = Math.max(0, depth - 1);
+    if (char === "," && depth === 0) {
+      parts.push(current.trim());
+      current = "";
+      continue;
+    }
+    current += char;
   }
+  if (current.trim()) parts.push(current.trim());
+  const normalized = String(rawList || "").trim();
+  const countToken = parts.length >= 1 ? _importParseScalar(parts[0]) : { base: "dec" };
+  const base = countToken.base === "hex" ? "hex" : "dec";
   return {
     id: crypto.randomUUID(),
     category: "Makrok", mnemonic: "FILL",
@@ -13275,9 +13739,36 @@ function _importMakeMacroDefEnd() {
   };
 }
 
+// Normalize whitespace in operand strings so that patterns like
+// "( ZP_PTR_1 ), y" and "back_buffer + $000, x" match the canonical
+// regexes that expect "(ZP_PTR_1),Y" and "back_buffer+$000,X".
+function _importNormalizeOperand(op) {
+  let s = op;
+  // Strip spaces inside parentheses: ( ZP_PTR_1 ), y → (ZP_PTR_1), y
+  s = s.replace(/\(\s+/g, "(");
+  s = s.replace(/\s+\)/g, ")");
+  // Strip spaces between comma and X/Y register at end of string
+  s = s.replace(/,\s*([XYxy])\s*$/g, ",$1");
+  // Strip spaces around + when followed by $ or digit (label+$offset pattern)
+  s = s.replace(/\s*\+\s*(?=[\$0-9])/g, "+");
+  // Strip spaces around - when followed by $ or digit
+  s = s.replace(/\s*-\s*(?=[\$0-9])/g, "-");
+  return s;
+}
+
 function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
   const category = _importMnemonicCategory(mnemonic);
   const description = _importMnemonicDescription(mnemonic);
+
+  const normalizeOperand = (op) => {
+    let s = String(op || "");
+    s = s.replace(/\(\s+/g, "(");
+    s = s.replace(/\s+\)/g, ")");
+    s = s.replace(/,\s*([XYxy])\s*$/g, ",$1");
+    s = s.replace(/\s*\+\s*(?=[\$0-9])/g, "+");
+    s = s.replace(/\s*-\s*(?=[\$0-9])/g, "-");
+    return s;
+  };
 
   let addressingMode = "implied";
   let rawOperand = "";
@@ -13285,7 +13776,7 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
   let displayOperand = "";
 
   if (operandRaw) {
-    const op = operandRaw;
+    const op = normalizeOperand(operandRaw);
     const isBranchMnemonic = branchMnems.has(mnemonic);
 
     if (op.startsWith("#")) {
@@ -13432,8 +13923,8 @@ function parseAsmText(text) {
       continue;
     }
 
-    // * = $XXXX or * = decimal → ORG
-    const orgM = line.match(/^\*\s*=\s*(?:\$([0-9A-Fa-f]{1,4})|(\d{1,5}))\s*$/);
+    // * = $XXXX or * = decimal, optionally followed by a quoted title → ORG
+    const orgM = line.match(/^\*\s*=\s*(?:\$([0-9A-Fa-f]{1,4})|(\d{1,5}))(?:\s+"[^"]*")?\s*$/);
     if (orgM) {
       const orgAddress = orgM[1]
         ? orgM[1].toUpperCase().padStart(4, "0")
@@ -13459,6 +13950,15 @@ function parseAsmText(text) {
     if (lblWordM) {
       blocks.push(_importMakeLabel(lblWordM[1].replace(/^\./, "")));
       blocks.push(_importMakeWord(lblWordM[2].trim()));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Label: .fill count,value  →  LABEL + FILL
+    const lblFillM = line.match(/^((?:@?[A-Za-z_][A-Za-z0-9_]*|\.[A-Za-z][A-Za-z0-9_]*)):\s*\.fill\s+(.+)$/i);
+    if (lblFillM) {
+      blocks.push(_importMakeLabel(lblFillM[1].replace(/^\./, "")));
+      blocks.push(_importMakeFill(lblFillM[2].trim()));
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -13496,10 +13996,37 @@ function parseAsmText(text) {
       continue;
     }
 
-    // CONST equate: name = $value  or  name .equ $value
+    // CONST equate: name = $value  or  name .equ $value  or  .const name = $value
     const equateM = line.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*(?:=|\.equ\b)\s*(\$[0-9A-Fa-f]+|0x[0-9A-Fa-f]+|%[01]+|\d+)\s*$/i);
     if (equateM) {
       blocks.push(_importMakeConst(equateM[1], equateM[2]));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // Kick Assembler .const NAME = value  (supports expressions like PIXEL_COLUMNS / 2)
+    const kickConstM = line.match(/^\.const\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+?)\s*$/i);
+    if (kickConstM) {
+      const constName = kickConstM[1];
+      const constVal = kickConstM[2].trim();
+      // Try to resolve simple scalars; fall back to a named CONST with a best-effort value
+      const scalar = _importParseScalar(constVal);
+      // If the value looks like an expression (contains non-scalar tokens), try to
+      // treat it as a plain identifier that might resolve via symbol lookup later.
+      if (scalar.base === "hex" && !/^[0-9A-Fa-f]+$/.test(scalar.value)) {
+        // Value is an expression or identifier — create the CONST with raw text;
+        // if it's a bare name of a previously defined CONST the compiler may resolve it.
+        blocks.push({
+          id: crypto.randomUUID(),
+          category: "Makrok", mnemonic: "CONST",
+          operand: constVal, rawOperand: constVal, description: "",
+          addressingMode: "implied", base: "hex",
+          validationError: "", collapsed: true, isConstMacro: true,
+          constName, constValue: 0
+        });
+      } else {
+        blocks.push(_importMakeConst(constName, constVal));
+      }
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -13685,6 +14212,76 @@ function makeMacroBufferLabel(invokeId, paramName) {
 function addLayoutLabels(labelMap, line) {
   if (!line || line.conditionallySkipped) return;
   const block = line.block || {};
+  const evalAsmExpression = (expr, localLabels = null, localVars = null) => {
+    let text = String(expr ?? "").trim();
+    if (!text) return null;
+
+    text = text.replace(/^#/, "");
+    text = text.replace(/\$([A-Za-z_][A-Za-z0-9_]*)/g, (match, name) => {
+      return /^[0-9A-Fa-f]+$/.test(name) ? match : name;
+    });
+    text = text.replace(/\$<\s*\(/g, "lo(");
+    text = text.replace(/\$>\s*\(/g, "hi(");
+    text = text.replace(/<\s*\(/g, "lo(");
+    text = text.replace(/>\s*\(/g, "hi(");
+    text = text.replace(/<\s*([A-Za-z_][A-Za-z0-9_]*)/g, "lo($1)");
+    text = text.replace(/>\s*([A-Za-z_][A-Za-z0-9_]*)/g, "hi($1)");
+    text = text.replace(/\$([0-9A-Fa-f]+)/g, "0x$1");
+    text = text.replace(/%([01]+)/g, "0b$1");
+
+    const resolved = Object.create(null);
+    const setResolved = (name, value) => {
+      if (value === undefined || value === null || Number.isNaN(value)) return;
+      resolved[name] = Number(value);
+      resolved[name.toLowerCase()] = Number(value);
+      resolved[name.toUpperCase()] = Number(value);
+    };
+
+    if (localLabels && typeof localLabels.forEach === "function") {
+      localLabels.forEach((value, name) => setResolved(name, value));
+    }
+    if (localVars && typeof localVars === "object") {
+      for (const [name, value] of Object.entries(localVars)) {
+        setResolved(name, value);
+      }
+    }
+
+    text = text.replace(/\b(round|sin|cos|max|min|abs)\b/gi, (match) => `__FUNC_${match.toUpperCase()}__`);
+    text = text.replace(/\bPI\b/gi, "__CONST_PI__");
+
+    text = text.replace(/\b[A-Za-z_][A-Za-z0-9_]*\b/g, (name) => {
+      if (name.startsWith("__FUNC_") || name === "__CONST_PI__") return name;
+      if (name === "lo" || name === "hi" || name === "Math") return name;
+      if (/^0x[0-9A-Fa-f]+$/.test(name)) return name;
+      if (Object.prototype.hasOwnProperty.call(resolved, name)) return String(resolved[name]);
+
+      const constValue = lookupProgramConstValue(name);
+      if (constValue !== null) return String(constValue);
+
+      return `__UNKNOWN_${name}__`;
+    });
+
+    if (/__UNKNOWN_[A-Za-z0-9_]+__/.test(text)) {
+      return null;
+    }
+
+    text = text.replace(/__FUNC_ROUND__/g, "Math.round");
+    text = text.replace(/__FUNC_SIN__/g, "Math.sin");
+    text = text.replace(/__FUNC_MAX__/g, "Math.max");
+    text = text.replace(/__FUNC_MIN__/g, "Math.min");
+    text = text.replace(/__FUNC_ABS__/g, "Math.abs");
+    text = text.replace(/__CONST_PI__/g, "Math.PI");
+
+    try {
+      const result = Function("lo", "hi", `"use strict"; return (${text});`)(
+        (value) => value & 0xFF,
+        (value) => (value >> 8) & 0xFF
+      );
+      return Number.isFinite(result) ? Number(result) : null;
+    } catch (_) {
+      return null;
+    }
+  };
   if (block.isLabel && block.labelName) labelMap.set(block.labelName, line.address);
   if (block.isLoopMacro && block.loopLabel) labelMap.set(block.loopLabel, line.address + 2);
   if (block.isForMacro && block.loopLabel) labelMap.set(block.loopLabel, line.address + 2);
@@ -13699,10 +14296,22 @@ function addLayoutLabels(labelMap, line) {
     const starExpr = raw.match(/^\*\s*([+-])\s*(\d+)$/);
     if (starExpr) {
       const offset = parseInt(starExpr[2], 10) * (starExpr[1] === '+' ? 1 : -1);
-      labelMap.set(block.constName, line.address + offset);
+      const value = (line.address + offset) & 0xFFFF;
+      block.constValue = value;
+      labelMap.set(block.constName, value);
     } else {
-      const v = parseNumberByBase(raw.replace(/^\$/, ""), block.base);
-      if (v !== null) labelMap.set(block.constName, v);
+      const n = parseNumberByBase(raw.replace(/^\$/, ""), block.base);
+      if (n !== null) {
+        block.constValue = n;
+        labelMap.set(block.constName, n);
+      } else {
+        const v = evalAsmExpression(raw, labelMap, { i: line.address, I: line.address });
+        if (v !== null) {
+          const value = v & 0xFFFF;
+          block.constValue = value;
+          labelMap.set(block.constName, value);
+        }
+      }
     }
   }
   if (block.isVarMacro && block.varName && typeof block._varAddress === "number") {
@@ -13953,6 +14562,20 @@ function _buildDisasmText() {
   const host = document.createElement("div");
   host.innerHTML = html;
   return (host.textContent || "").replace(/\u00A0/g, " ");
+}
+
+function _getDisasmSourceText(forExpert = false) {
+  const el = forExpert ? expertDisasmOutput : document.getElementById("disasm-output");
+  return (el?.textContent || "").replace(/\u00A0/g, " ");
+}
+
+async function copyDisasmSourceToClipboard(forExpert = false) {
+  const text = _getDisasmSourceText(forExpert);
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 function _buildUniversalAsmExportText() {
@@ -14659,7 +15282,8 @@ async function runInEmulator() {
 
     const result = await window.electronAPI.launchVice({
       bytes: Array.from(prg.bytes),
-      fileName: `c64-visual-assembler-${Date.now()}.prg`
+      fileName: `c64-visual-assembler-${Date.now()}.prg`,
+      sidecars: _buildDebuggerSidecarPayload(prg)
     });
 
     if (!result?.ok) {
@@ -14805,7 +15429,8 @@ function _programHasEmbeddedBasicAutostart(blocks) {
     if (block?.isComment || block?.isBlankLine || block?.isRegionMacro || block?.isEndRegionMacro) continue;
     if (!block?.isByteMacro) return false;
     normalizedBytes.push(String(block.rawOperand || "").replace(/\s+/g, "").toUpperCase());
-    if (normalizedBytes.join(",").startsWith("0B,08,0A,00,9E")) return true;
+    if (normalizedBytes.join(",").startsWith("0B,08,0A,00,9E") ||
+        normalizedBytes.join(",").startsWith("0C,08,0A,00,9E,20")) return true;
     if (normalizedBytes.length > 2) break;
   }
 
@@ -14815,13 +15440,13 @@ function _programHasEmbeddedBasicAutostart(blocks) {
 function buildBasicSysStub(sysAddress) {
   const sysDigits = String(sysAddress).split("").map((char) => char.charCodeAt(0));
   const lineAddress = 0x0801;
-  const nextLineAddress = lineAddress + 2 + 2 + 1 + sysDigits.length + 1;
+  const nextLineAddress = lineAddress + 2 + 2 + 1 + 1 + sysDigits.length + 1;
 
   return new Uint8Array([
     0x01, 0x08,
     nextLineAddress & 0xFF, (nextLineAddress >> 8) & 0xFF,
     0x0A, 0x00,
-    0x9E,
+    0x9E, 0x20,
     ...sysDigits,
     0x00,
     0x00, 0x00
@@ -14986,6 +15611,53 @@ function assembleProgramToPrg(originOverride) {
 }
 
 function compileLineBytes(line, labels) {
+  const evalAsmExpression = (expr, localLabels = null, localVars = null) => {
+    let text = String(expr ?? "").trim();
+    if (!text) return null;
+    text = text.replace(/^#/, "");
+    text = text.replace(/\$([A-Za-z_][A-Za-z0-9_]*)/g, (match, name) => {
+      return /^[0-9A-Fa-f]+$/.test(name) ? match : name;
+    });
+    text = text.replace(/\$<\s*\(/g, "lo(");
+    text = text.replace(/\$>\s*\(/g, "hi(");
+    text = text.replace(/<\s*\(/g, "lo(");
+    text = text.replace(/>\s*\(/g, "hi(");
+    text = text.replace(/<\s*([A-Za-z_][A-Za-z0-9_]*)/g, "lo($1)");
+    text = text.replace(/>\s*([A-Za-z_][A-Za-z0-9_]*)/g, "hi($1)");
+    text = text.replace(/\$([0-9A-Fa-f]+)/g, "0x$1");
+    text = text.replace(/%([01]+)/g, "0b$1");
+    text = text.replace(/\b(round|sin|cos|max|min|abs)\b/gi, (match) => `__FUNC_${match.toUpperCase()}__`);
+    text = text.replace(/\bPI\b/gi, "__CONST_PI__");
+    text = text.replace(/\b[A-Za-z_][A-Za-z0-9_]*\b/g, (name) => {
+      if (name.startsWith("__FUNC_") || name === "__CONST_PI__") return name;
+      if (name === "lo" || name === "hi" || name === "Math") return name;
+      if (/^0x[0-9A-Fa-f]+$/.test(name)) return name;
+      if (localLabels && typeof localLabels.get === "function") {
+        const value = localLabels.get(name) ?? localLabels.get(name.toLowerCase()) ?? localLabels.get(name.toUpperCase());
+        if (value !== undefined) return String(value);
+      }
+      const constValue = lookupProgramConstValue(name);
+      if (constValue !== null) return String(constValue);
+      return `__UNKNOWN_${name}__`;
+    });
+    if (/__UNKNOWN_[A-Za-z0-9_]+__/.test(text)) return null;
+    text = text.replace(/__FUNC_ROUND__/g, "Math.round");
+    text = text.replace(/__FUNC_SIN__/g, "Math.sin");
+    text = text.replace(/__FUNC_MAX__/g, "Math.max");
+    text = text.replace(/__FUNC_MIN__/g, "Math.min");
+    text = text.replace(/__FUNC_ABS__/g, "Math.abs");
+    text = text.replace(/__CONST_PI__/g, "Math.PI");
+    try {
+      const result = Function("lo", "hi", `"use strict"; return (${text});`)(
+        (value) => value & 0xFF,
+        (value) => (value >> 8) & 0xFF
+      );
+      return Number.isFinite(result) ? Number(result) : null;
+    } catch (_) {
+      return null;
+    }
+  };
+
   if (line.conditionallySkipped) {
     return { ok: true, bytes: [], comment: "conditionally skipped" };
   }
@@ -15855,15 +16527,31 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isFillMacro) {
-    const parsed = parseFillMacro(block.rawOperand, block.base);
-    if (!parsed || isNaN(parsed.count) || isNaN(parsed.value)) {
+    const parsed = parseFillMacro(block.rawOperand, block.base, labels, { i: line.address, I: line.address });
+    if (!parsed) {
       return { ok: false, error: `FILL: ${t("invalidOperand") || "invalid parameters"}` };
     }
-    const bytes = new Array(parsed.count).fill(parsed.value & 0xFF);
+    const resolvedCount = Number.isFinite(parsed.count)
+      ? parsed.count
+      : evaluateFillExpression(parsed.countExpr, labels, { i: line.address, I: line.address });
+    if (!Number.isFinite(resolvedCount) || resolvedCount < 0 || resolvedCount > 65536) {
+      return { ok: false, error: `FILL: ${t("invalidOperand") || "invalid parameters"}` };
+    }
+    const count = Math.max(0, resolvedCount | 0);
+    const bytes = [];
+    for (let i = 0; i < count; i++) {
+      const value = Number.isFinite(parsed.value) && !/\bi\b|\bI\b/.test(parsed.valueExpr || "")
+        ? parsed.value
+        : evaluateFillExpression(parsed.valueExpr, labels, { i, I: i });
+      if (value === null || Number.isNaN(value)) {
+        return { ok: false, error: `FILL: ${t("invalidOperand") || "invalid parameters"}` };
+      }
+      bytes.push(value & 0xFF);
+    }
     return {
       ok: true,
       bytes,
-      comment: `FILL ${parsed.count},$${parsed.value.toString(16).toUpperCase().padStart(2, '0')}`
+      comment: `FILL ${parsed.count},${parsed.valueExpr}`
     };
   }
 
@@ -16352,6 +17040,53 @@ function compileLineBytes(line, labels) {
 }
 
 function resolveNumericOperand(block, labels) {
+  const evalAsmExpression = (expr, localLabels = null) => {
+    let text = String(expr ?? "").trim();
+    if (!text) return null;
+    text = text.replace(/^#/, "");
+    text = text.replace(/\$([A-Za-z_][A-Za-z0-9_]*)/g, (match, name) => {
+      return /^[0-9A-Fa-f]+$/.test(name) ? match : name;
+    });
+    text = text.replace(/\$<\s*\(/g, "lo(");
+    text = text.replace(/\$>\s*\(/g, "hi(");
+    text = text.replace(/<\s*\(/g, "lo(");
+    text = text.replace(/>\s*\(/g, "hi(");
+    text = text.replace(/<\s*([A-Za-z_][A-Za-z0-9_]*)/g, "lo($1)");
+    text = text.replace(/>\s*([A-Za-z_][A-Za-z0-9_]*)/g, "hi($1)");
+    text = text.replace(/\$([0-9A-Fa-f]+)/g, "0x$1");
+    text = text.replace(/%([01]+)/g, "0b$1");
+    text = text.replace(/\b(round|sin|cos|max|min|abs)\b/gi, (match) => `__FUNC_${match.toUpperCase()}__`);
+    text = text.replace(/\bPI\b/gi, "__CONST_PI__");
+    text = text.replace(/\b[A-Za-z_][A-Za-z0-9_]*\b/g, (name) => {
+      if (name.startsWith("__FUNC_") || name === "__CONST_PI__") return name;
+      if (name === "lo" || name === "hi" || name === "Math") return name;
+      if (/^0x[0-9A-Fa-f]+$/.test(name)) return name;
+      if (localLabels && typeof localLabels.get === "function") {
+        const value = localLabels.get(name) ?? localLabels.get(name.toLowerCase()) ?? localLabels.get(name.toUpperCase());
+        if (value !== undefined) return String(value);
+      }
+      const constValue = lookupProgramConstValue(name);
+      if (constValue !== null) return String(constValue);
+      return `__UNKNOWN_${name}__`;
+    });
+    if (/__UNKNOWN_[A-Za-z0-9_]+__/.test(text)) return null;
+    text = text.replace(/__FUNC_ROUND__/g, "Math.round");
+    text = text.replace(/__FUNC_SIN__/g, "Math.sin");
+    text = text.replace(/__FUNC_MAX__/g, "Math.max");
+    text = text.replace(/__FUNC_MIN__/g, "Math.min");
+    text = text.replace(/__FUNC_ABS__/g, "Math.abs");
+    text = text.replace(/__CONST_PI__/g, "Math.PI");
+    try {
+      const result = Function("lo", "hi", `"use strict"; return (${text});`)(
+        (value) => value & 0xFF,
+        (value) => (value >> 8) & 0xFF
+      );
+      return Number.isFinite(result) ? Number(result) : null;
+    } catch (_) {
+      return null;
+    }
+  };
+
   if (labels.has(block.rawOperand)) {
     return { ok: true, value: labels.get(block.rawOperand) };
   }
@@ -16382,8 +17117,10 @@ function resolveNumericOperand(block, labels) {
     const literalBase = /^\d+$/.test(name) ? "dec" : block.base;
     const num = parseNumberByBase(name.replace(/^[\$%]/, ""), literalBase);
     if (num !== null) return { ok: true, value: num & 0xFF };
-    const constVal = resolveProgramConstValue(name);
+    const constVal = lookupProgramConstValue(name);
     if (constVal !== null) return { ok: true, value: constVal & 0xFF };
+    const evaluated = evalAsmExpression(name, labels);
+    if (evaluated !== null) return { ok: true, value: evaluated & 0xFF };
     return { ok: false, error: tf("operandNotResolvable", { mnemonic: block.mnemonic }) };
   }
   // #>X  → high byte of label address OR numeric literal
@@ -16393,8 +17130,10 @@ function resolveNumericOperand(block, labels) {
     const literalBase = /^\d+$/.test(name) ? "dec" : block.base;
     const num = parseNumberByBase(name.replace(/^[\$%]/, ""), literalBase);
     if (num !== null) return { ok: true, value: (num >> 8) & 0xFF };
-    const constVal = resolveProgramConstValue(name);
+    const constVal = lookupProgramConstValue(name);
     if (constVal !== null) return { ok: true, value: (constVal >> 8) & 0xFF };
+    const evaluated = evalAsmExpression(name, labels);
+    if (evaluated !== null) return { ok: true, value: (evaluated >> 8) & 0xFF };
     return { ok: false, error: tf("operandNotResolvable", { mnemonic: block.mnemonic }) };
   }
 
@@ -16404,6 +17143,10 @@ function resolveNumericOperand(block, labels) {
     // Try label lookup with stripped value (handles #LABEL_NAME for immediate mode)
     if (labels.has(stripped)) {
       return { ok: true, value: labels.get(stripped) };
+    }
+    const evaluated = evalAsmExpression(stripped, labels);
+    if (evaluated !== null) {
+      return { ok: true, value: evaluated };
     }
     return { ok: false, error: tf("operandNotResolvable", { mnemonic: block.mnemonic }) };
   }
@@ -16544,9 +17287,80 @@ function parseNumberByBase(value, base) {
   return /^-?\d+$/.test(value) ? Number(value) : null;
 }
 
+function _evalAsmExpression(expr, labels = null, vars = null) {
+  let text = String(expr ?? "").trim();
+  if (!text) return null;
+
+  text = text.replace(/^#/, "");
+  text = text.replace(/\$([A-Za-z_][A-Za-z0-9_]*)/g, (match, name) => {
+    return /^[0-9A-Fa-f]+$/.test(name) ? match : name;
+  });
+  text = text.replace(/\$<\s*\(/g, "lo(");
+  text = text.replace(/\$>\s*\(/g, "hi(");
+  text = text.replace(/<\s*\(/g, "lo(");
+  text = text.replace(/>\s*\(/g, "hi(");
+  text = text.replace(/<\s*([A-Za-z_][A-Za-z0-9_]*)/g, "lo($1)");
+  text = text.replace(/>\s*([A-Za-z_][A-Za-z0-9_]*)/g, "hi($1)");
+  text = text.replace(/\$([0-9A-Fa-f]+)/g, "0x$1");
+  text = text.replace(/%([01]+)/g, "0b$1");
+
+  const resolved = Object.create(null);
+  const setResolved = (name, value) => {
+    if (value === undefined || value === null || Number.isNaN(value)) return;
+    resolved[name] = Number(value);
+    resolved[name.toLowerCase()] = Number(value);
+    resolved[name.toUpperCase()] = Number(value);
+  };
+
+  if (labels && typeof labels.forEach === "function") {
+    labels.forEach((value, name) => setResolved(name, value));
+  }
+  if (vars && typeof vars === "object") {
+    for (const [name, value] of Object.entries(vars)) {
+      setResolved(name, value);
+    }
+  }
+
+  text = text.replace(/\b(round|sin|cos|max|min|abs)\b/gi, (match) => `__FUNC_${match.toUpperCase()}__`);
+  text = text.replace(/\bPI\b/gi, "__CONST_PI__");
+
+  text = text.replace(/\b[A-Za-z_][A-Za-z0-9_]*\b/g, (name) => {
+    if (name.startsWith("__FUNC_") || name === "__CONST_PI__") return name;
+    if (name === "lo" || name === "hi" || name === "Math") return name;
+    if (/^0x[0-9A-Fa-f]+$/.test(name)) return name;
+    if (Object.prototype.hasOwnProperty.call(resolved, name)) return String(resolved[name]);
+
+    const constValue = lookupProgramConstValue(name);
+    if (constValue !== null) return String(constValue);
+
+    return `__UNKNOWN_${name}__`;
+  });
+
+  if (/__UNKNOWN_[A-Za-z0-9_]+__/.test(text)) {
+    return null;
+  }
+
+  text = text.replace(/__FUNC_ROUND__/g, "Math.round");
+  text = text.replace(/__FUNC_SIN__/g, "Math.sin");
+  text = text.replace(/__FUNC_MAX__/g, "Math.max");
+  text = text.replace(/__FUNC_MIN__/g, "Math.min");
+  text = text.replace(/__FUNC_ABS__/g, "Math.abs");
+  text = text.replace(/__CONST_PI__/g, "Math.PI");
+
+  try {
+    const result = Function("lo", "hi", `"use strict"; return (${text});`)(
+      (value) => value & 0xFF,
+      (value) => (value >> 8) & 0xFF
+    );
+    return Number.isFinite(result) ? Number(result) : null;
+  } catch (_) {
+    return null;
+  }
+}
+
 // Size/count parser: ha nincs $ prefix és nincs A-F betű → decimális, egyébként hex.
 // Így size=1000 → 1000 dec, size=$03E8 → 1000 hex, size=03E8 → 1000 hex (van E betű).
-function parseMacroCountOrSize(raw, labels = null, preferredBase = "dec") {
+function parseMacroCountOrSize(raw, labels = null, preferredBase = "dec", vars = null) {
   const text = String(raw ?? "").trim().replace(/^#/, "");
   if (!text) return null;
   if (text.startsWith("$") || /^0x/i.test(text)) {
@@ -16558,6 +17372,8 @@ function parseMacroCountOrSize(raw, labels = null, preferredBase = "dec") {
   if (/^[0-9]+$/.test(text)) {
     return Number.parseInt(text, preferredBase === "hex" ? 16 : 10);
   }
+  const evaluated = _evalAsmExpression(text, labels, vars);
+  if (evaluated !== null) return evaluated;
   return parseMacroNumber(raw, labels, preferredBase === "dec" ? "dec" : "hex");
 }
 
@@ -16577,6 +17393,53 @@ function parseMacroNumber(raw, labels = null, fallbackBase = "hex") {
     if (labelValue !== null) return labelValue;
     return resolveProgramConstValue(normalized);
   }
+  const evaluated = (() => {
+    let expr = normalized;
+    if (!expr) return null;
+    expr = expr.replace(/\$([A-Za-z_][A-Za-z0-9_]*)/g, (match, name) => {
+      return /^[0-9A-Fa-f]+$/.test(name) ? match : name;
+    });
+    expr = expr.replace(/\$<\s*\(/g, "lo(");
+    expr = expr.replace(/\$>\s*\(/g, "hi(");
+    expr = expr.replace(/<\s*\(/g, "lo(");
+    expr = expr.replace(/>\s*\(/g, "hi(");
+    expr = expr.replace(/<\s*([A-Za-z_][A-Za-z0-9_]*)/g, "lo($1)");
+    expr = expr.replace(/>\s*([A-Za-z_][A-Za-z0-9_]*)/g, "hi($1)");
+    expr = expr.replace(/\$([0-9A-Fa-f]+)/g, "0x$1");
+    expr = expr.replace(/%([01]+)/g, "0b$1");
+    expr = expr.replace(/\b(round|sin|cos|max|min|abs)\b/gi, (match) => `__FUNC_${match.toUpperCase()}__`);
+    expr = expr.replace(/\bPI\b/gi, "__CONST_PI__");
+    expr = expr.replace(/\b[A-Za-z_][A-Za-z0-9_]*\b/g, (name) => {
+      if (name.startsWith("__FUNC_") || name === "__CONST_PI__") return name;
+      if (name === "lo" || name === "hi" || name === "Math") return name;
+      if (/^0x[0-9A-Fa-f]+$/.test(name)) return name;
+      if (labels && typeof labels.get === "function") {
+        const labelValue = labels.get(name) ?? labels.get(name.toLowerCase()) ?? labels.get(name.toUpperCase());
+        if (labelValue !== undefined) return String(labelValue);
+      }
+      const constValue = lookupProgramConstValue(name);
+
+      if (constValue !== null) return String(constValue);
+      return `__UNKNOWN_${name}__`;
+    });
+    if (/__UNKNOWN_[A-Za-z0-9_]+__/.test(expr)) return null;
+    expr = expr.replace(/__FUNC_ROUND__/g, "Math.round");
+    expr = expr.replace(/__FUNC_SIN__/g, "Math.sin");
+    expr = expr.replace(/__FUNC_MAX__/g, "Math.max");
+    expr = expr.replace(/__FUNC_MIN__/g, "Math.min");
+    expr = expr.replace(/__FUNC_ABS__/g, "Math.abs");
+    expr = expr.replace(/__CONST_PI__/g, "Math.PI");
+    try {
+      const result = Function("lo", "hi", `"use strict"; return (${expr});`)(
+        (value) => value & 0xFF,
+        (value) => (value >> 8) & 0xFF
+      );
+      return Number.isFinite(result) ? Number(result) : null;
+    } catch (_) {
+      return null;
+    }
+  })();
+  if (evaluated !== null) return evaluated;
   return null;
 }
 
@@ -16593,6 +17456,82 @@ function resolveProgramConstValue(name) {
     if (parsed !== null) return parsed;
   }
   return null;
+}
+
+function lookupProgramConstValue(name) {
+  if (typeof globalThis !== "undefined" && typeof globalThis.resolveProgramConstValue === "function" && globalThis.resolveProgramConstValue !== lookupProgramConstValue) {
+    return globalThis.resolveProgramConstValue(name);
+  }
+  return resolveProgramConstValue(name);
+}
+
+function evaluateFillExpression(expr, labels = null, vars = null) {
+  let text = String(expr ?? "").trim();
+  if (!text) return null;
+
+  text = text.replace(/^#/, "");
+  text = text.replace(/\$([A-Za-z_][A-Za-z0-9_]*)/g, (match, name) => {
+    return /^[0-9A-Fa-f]+$/.test(name) ? match : name;
+  });
+  text = text.replace(/\$<\s*\(/g, "lo(");
+  text = text.replace(/\$>\s*\(/g, "hi(");
+  text = text.replace(/<\s*\(/g, "lo(");
+  text = text.replace(/>\s*\(/g, "hi(");
+  text = text.replace(/<\s*([A-Za-z_][A-Za-z0-9_]*)/g, "lo($1)");
+  text = text.replace(/>\s*([A-Za-z_][A-Za-z0-9_]*)/g, "hi($1)");
+  text = text.replace(/\$([0-9A-Fa-f]+)/g, "0x$1");
+  text = text.replace(/%([01]+)/g, "0b$1");
+
+  const resolved = Object.create(null);
+  const setResolved = (name, value) => {
+    if (value === undefined || value === null || Number.isNaN(value)) return;
+    resolved[name] = Number(value);
+    resolved[name.toLowerCase()] = Number(value);
+    resolved[name.toUpperCase()] = Number(value);
+  };
+
+  if (labels && typeof labels.forEach === "function") {
+    labels.forEach((value, name) => setResolved(name, value));
+  }
+  if (vars && typeof vars === "object") {
+    for (const [name, value] of Object.entries(vars)) {
+      setResolved(name, value);
+    }
+  }
+
+  text = text.replace(/\b(round|sin|cos|max|min|abs)\b/gi, (match) => `__FUNC_${match.toUpperCase()}__`);
+  text = text.replace(/\bPI\b/gi, "__CONST_PI__");
+
+  text = text.replace(/\b[A-Za-z_][A-Za-z0-9_]*\b/g, (name) => {
+    if (name.startsWith("__FUNC_") || name === "__CONST_PI__") return name;
+    if (name === "lo" || name === "hi" || name === "Math") return name;
+    if (/^0x[0-9A-Fa-f]+$/.test(name)) return name;
+    if (Object.prototype.hasOwnProperty.call(resolved, name)) return String(resolved[name]);
+
+    const constValue = lookupProgramConstValue(name);
+    if (constValue !== null) return String(constValue);
+
+    return `__UNKNOWN_${name}__`;
+  });
+
+  if (/__UNKNOWN_[A-Za-z0-9_]+__/.test(text)) return null;
+
+  text = text.replace(/__FUNC_ROUND__/g, "Math.round");
+  text = text.replace(/__FUNC_SIN__/g, "Math.sin");
+  text = text.replace(/__FUNC_MAX__/g, "Math.max");
+  text = text.replace(/__FUNC_MIN__/g, "Math.min");
+  text = text.replace(/__FUNC_ABS__/g, "Math.abs");
+  text = text.replace(/__CONST_PI__/g, "Math.PI");
+
+  try {
+    const result = Function("lo", "hi", `"use strict"; return (${text});`)(
+      (value) => value & 0xFF,
+      (value) => (value >> 8) & 0xFF
+    );
+    return Number.isFinite(result) ? Number(result) : null;
+  } catch (_) {
+    return null;
+  }
 }
 
 function getProgramConstNames() {
@@ -21375,6 +22314,8 @@ function renderProgram() {
   }
 
   _expertRenderSymbols();
+  // Double-rAF: wait for layout to settle after DOM changes before drawing minimap
+  requestAnimationFrame(() => _blockScheduleMinimapRedraw());
 }
 
 function getMnemonicModes(mnemonic) {
@@ -22258,7 +23199,7 @@ async function loadSampleFromFile(sampleName) {
     d64ExportState.progName = "";
   }
 
-  const validRunModes = ["prg", "d64", "browser", "browser-d64", "ultimate", "ultimate-d64"];
+  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64"];
   if (sampleData.ui?.runMode && validRunModes.includes(sampleData.ui.runMode)) {
     setRunMode(sampleData.ui.runMode);
   }
@@ -23087,7 +24028,7 @@ function _tourTargetValueMatches(step, actualValue) {
   const expected = String(step.targetValue).trim();
   const allowCaseInsensitiveHex = step.target === "#operand-input" && /^[0-9A-F]+$/i.test(expected);
 
-  if (step.caseInsensitiveTargetValue || allowCaseInsensitiveHex) {
+  if (allowCaseInsensitiveHex) {
     return actual.toUpperCase() === expected.toUpperCase();
   }
 
@@ -23096,7 +24037,6 @@ function _tourTargetValueMatches(step, actualValue) {
 
 function openTutorialDialog() {
   const dlg = document.getElementById("tutorial-dialog");
-  if (!dlg) return;
   _tutRenderDialog();
   document.querySelector(".control-menu")?.removeAttribute("open");
   dlg.showModal();
@@ -23112,7 +24052,7 @@ function _tutRenderDialog() {
   if (hintEl) hintEl.textContent = t("tutorialSelectHint");
   if (!listEl || !contentEl) return;
 
-  listEl.innerHTML = TUTORIAL_DATA.categories.map(cat => {
+  listEl.innerHTML = TUTORIAL_DATA.categories.map((cat) => {
     const catLessons = TUTORIAL_DATA.lessons.filter(l => l.category === cat.id);
     if (catLessons.length === 0) return "";
     return `<div class="tutorial-category">
@@ -23126,7 +24066,6 @@ function _tutRenderDialog() {
         return `<button class="tutorial-lesson-item${done ? " tutorial-lesson-item--done" : ""}" data-lesson-id="${lesson.id}" type="button">
           <span class="tutorial-lesson-check">${done ? "✓" : ""}</span>
           <span class="tutorial-lesson-title">${title}</span>
-          <span class="tutorial-lesson-stars">${stars}</span>
         </button>`;
       }).join("")}
     </div>`;

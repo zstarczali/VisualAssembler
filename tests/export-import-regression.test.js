@@ -308,6 +308,39 @@ test("parseAsmText emits a single ORG block for one origin line", () => {
   assert.equal(blocks[0].orgAddress, "0801");
 });
 
+test("parseAsmText accepts quoted Kick-style titles after ORG lines", () => {
+  const ctx = loadFunctions(
+    ["_splitAsmLineComment", "parseAsmText"],
+    {
+      crypto: { randomUUID: () => "test-id" },
+      _importMakeComment: (commentText) => ({ id: "c", mnemonic: "COMMENT", isComment: true, commentText }),
+      _importMakeWord: () => ({ id: "w", mnemonic: "WORD" }),
+      _importMakeFill: () => ({ id: "f", mnemonic: "FILL" }),
+      _importMakeAlign: () => ({ id: "a", mnemonic: "ALIGN" }),
+      _importMakeIncBin: () => ({ id: "i", mnemonic: "INCBIN" }),
+      _importMakeConst: () => ({ id: "k", mnemonic: "CONST" }),
+      _importMakeLabel: (labelName) => ({ id: "l", mnemonic: "LABEL", isLabel: true, labelName }),
+      _importMakeByte: () => ({ id: "b", mnemonic: "BYTE" }),
+      _importMakeRegion: () => ({ id: "r", mnemonic: "REGION" }),
+      _importMakeEndRegion: () => ({ id: "re", mnemonic: "ENDREGION" }),
+      _importMakeDefine: () => ({ id: "d", mnemonic: "DEFINE" }),
+      _importMakeIf: () => ({ id: "if", mnemonic: "IF" }),
+      _importMakeElse: () => ({ id: "el", mnemonic: "ELSE" }),
+      _importMakeEndIf: () => ({ id: "ei", mnemonic: "ENDIF" }),
+      _importMakeInstruction: (mnemonic, rawOperand) => ({ id: "ins", mnemonic, rawOperand }),
+      t: (key) => key
+    }
+  );
+
+  const blocks = ctx.parseAsmText('*=$0800 "BASIC Start"\n*=$1000 "Main Start"');
+
+  assert.equal(blocks.length, 2);
+  assert.equal(blocks[0].isOrgMacro, true);
+  assert.equal(blocks[0].orgAddress, "0800");
+  assert.equal(blocks[1].isOrgMacro, true);
+  assert.equal(blocks[1].orgAddress, "1000");
+});
+
 test("parseAsmText preserves Kick-style @local labels and branch operands", () => {
   const ctx = loadFunctions(
     ["_splitAsmLineComment", "parseAsmText"],
@@ -357,7 +390,7 @@ test("buildAutostartPrgForEmulator skips BASIC SYS wrapping when the program alr
     {
       program: [
         { isOrgMacro: true, orgAddress: "0801" },
-        { isByteMacro: true, rawOperand: "0B,08,0A,00,9E,32,30,36,31,00,00,00" },
+        { isByteMacro: true, rawOperand: "0C,08,0A,00,9E,20,32,30,36,31,00,00,00" },
         { mnemonic: "LDA", addressingMode: "immediate", rawOperand: "$01" }
       ],
       basicSysToggle: { checked: true },

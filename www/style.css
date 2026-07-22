@@ -1031,6 +1031,53 @@ html[data-theme="oled"] .primary {
   max-height: var(--editor-max-depth);
 }
 
+.program-panel {
+  flex-direction: column;
+  position: relative;
+}
+
+.program-panel > .panel-scroll {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+.block-minimap {
+  display: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 56px;
+  cursor: pointer;
+  border-left: 1px solid var(--panel-border);
+  background: var(--bg);
+  user-select: none;
+  z-index: 4;
+  box-sizing: border-box;
+}
+
+.program-panel.block-show-minimap .block-minimap {
+  display: block;
+}
+
+.program-panel.block-show-minimap > .panel-scroll {
+  padding-right: calc(56px + 16px);
+}
+
+#block-minimap-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 5px;
+  min-height: unset;
+}
+
+#block-minimap-btn[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--primary) 15%, transparent);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
 .panel-scroll {
   flex: 1;
   overflow-y: auto;
@@ -2714,6 +2761,19 @@ html[data-theme="oled"] .monitor-output {
   overflow: hidden;
 }
 
+.output-section-header,
+.expert-disasm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.output-section-header .panel-label,
+.expert-disasm-header .panel-label {
+  margin-bottom: 0;
+}
+
 .output-stack[data-mode="both"] .asm-label,
 .output-stack[data-mode="both"] .monitor-label {
   flex: 1;
@@ -3955,6 +4015,35 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   background: var(--output-bg);
 }
 
+.expert-disasm-header {
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid var(--panel-border);
+  flex-shrink: 0;
+}
+
+#disasm-copy-source-btn,
+#expert-disasm-copy-source-btn {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  min-height: unset;
+  padding: 0;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: var(--secondary);
+  opacity: 0.6;
+  transition: opacity 0.12s, background 0.12s;
+  flex-shrink: 0;
+}
+#disasm-copy-source-btn:hover,
+#expert-disasm-copy-source-btn:hover {
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  border-color: transparent;
+  color: var(--text);
+  opacity: 1;
+}
+
 .expert-disasm-panel[hidden],
 .expert-monitor-panel[hidden] {
   display: none;
@@ -4337,7 +4426,33 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
 .expert-hl,
 .expert-editor,
 .expert-line-numbers {
-  transition: left 0.12s ease, width 0.12s ease;
+  transition: left 0.12s ease, right 0.12s ease, width 0.12s ease;
+}
+
+/* ── Expert Minimap ─────────────────────────────────────────────── */
+.expert-minimap {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 0;
+  display: none;
+  cursor: pointer;
+  z-index: 4;
+  box-sizing: border-box;
+  border-left: 1px solid var(--panel-border);
+  background: var(--expert-editor-bg);
+  user-select: none;
+}
+.expert-editor-wrap.expert-show-minimap .expert-minimap {
+  display: block;
+  width: 88px;
+  height: 100%;
+}
+.expert-editor-wrap.expert-show-minimap .expert-hl,
+.expert-editor-wrap.expert-show-minimap .expert-editor {
+  right: 88px;
+  width: auto;
 }
 
 .expert-hl {
@@ -5146,88 +5261,6 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   color: var(--error, #d97706);
 }
 
-/* ── Browser Emulator Dialog ─────────────────────────────────────── */
-.browser-emulator-dialog {
-  border: none;
-  padding: 0;
-  width: min(1240px, 96vw);
-  height: min(920px, 92vh);
-  max-width: 96vw;
-  max-height: 92vh;
-  overflow: hidden;
-  background: transparent;
-}
-
-.browser-emulator-dialog::backdrop {
-  background: rgba(0, 0, 0, 0.58);
-  backdrop-filter: blur(4px);
-}
-
-.browser-emulator-card {
-  width: 100%;
-  height: 100%;
-  background: var(--panel);
-  border: 1px solid var(--panel-border);
-  border-radius: 3px;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.browser-emulator-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--panel-border);
-  background: var(--panel-strong);
-  flex-shrink: 0;
-}
-
-.browser-emulator-title {
-  margin: 0;
-  font-family: inherit;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text);
-}
-
-.browser-emulator-actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.browser-emulator-icon-btn {
-  width: 34px !important;
-  height: 34px !important;
-  min-width: 34px !important;
-  min-height: 34px !important;
-  padding: 0;
-  box-sizing: border-box;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-}
-
-.browser-emulator-icon-btn svg {
-  width: 15px;
-  height: 15px;
-  display: block;
-}
-
-.browser-emulator-frame {
-  width: 100%;
-  flex: 1;
-  border: none !important;
-  background: #000;
-}
 
 /* ── About Dialog ────────────────────────────────────────────────── */
 .about-dialog {
@@ -7833,7 +7866,9 @@ body.crt-mode #crt-overlay::after {
 .region-copy-btn,
 .region-paste-btn,
 .block-actions button,
-.collapse-toggle {
+.collapse-toggle,
+#disasm-copy-source-btn,
+#expert-disasm-copy-source-btn {
   position: relative;
 }
 
@@ -7851,11 +7886,13 @@ body.crt-mode #crt-overlay::after {
 .region-copy-btn[aria-label]::after,
 .region-paste-btn[aria-label]::after,
 .block-actions button[aria-label]::after,
-.collapse-toggle[aria-label]::after {
+.collapse-toggle[aria-label]::after,
+#disasm-copy-source-btn[aria-label]::after,
+#expert-disasm-copy-source-btn[aria-label]::after {
   content: attr(aria-label);
   position: absolute;
   top: calc(100% + 5px);
-  left: 0;
+  right: 0;
   padding: 4px 8px;
   border-radius: 3px;
   background: var(--panel);
@@ -7899,6 +7936,8 @@ body.crt-mode #crt-overlay::after {
 .region-paste-btn:hover[aria-label]::after,
 .block-actions button:hover[aria-label]::after,
 .collapse-toggle:hover[aria-label]::after,
+#disasm-copy-source-btn:hover[aria-label]::after,
+#expert-disasm-copy-source-btn:hover[aria-label]::after,
 .expert-project-item-star:focus-visible[aria-label]::after,
 .expert-project-item-del:focus-visible[aria-label]::after,
 .expert-project-item-name:focus-visible[aria-label]::after,
@@ -7912,7 +7951,9 @@ body.crt-mode #crt-overlay::after {
 .region-copy-btn:focus-visible[aria-label]::after,
 .region-paste-btn:focus-visible[aria-label]::after,
 .block-actions button:focus-visible[aria-label]::after,
-.collapse-toggle:focus-visible[aria-label]::after {
+.collapse-toggle:focus-visible[aria-label]::after,
+#disasm-copy-source-btn:focus-visible[aria-label]::after,
+#expert-disasm-copy-source-btn:focus-visible[aria-label]::after {
   opacity: 1;
 }
 
