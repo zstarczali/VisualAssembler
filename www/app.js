@@ -356,11 +356,6 @@ const aboutDialog = document.getElementById("about-dialog");
 const aboutCloseButton = document.getElementById("about-close");
 const whatsNewDialog = document.getElementById("whats-new-dialog");
 const whatsNewCloseButton = document.getElementById("whats-new-close");
-const browserEmulatorDialog = document.getElementById("browser-emulator-dialog");
-const browserEmulatorFrame = document.getElementById("browser-emulator-frame");
-const browserEmulatorRestart = document.getElementById("browser-emulator-restart");
-const browserEmulatorClose = document.getElementById("browser-emulator-close");
-const browserEmulatorOpenExternal = document.getElementById("browser-emulator-open-external");
 const knowledgeBaseButton = document.getElementById("knowledge-base-btn");
 const knowledgeBaseDialog = document.getElementById("knowledge-base-dialog");
 const knowledgeBaseCloseButton = document.getElementById("knowledge-base-close");
@@ -483,64 +478,6 @@ function tf(key, values = {}) {
     (text, [name, value]) => text.replaceAll(`{${name}}`, String(value)),
     t(key)
   );
-}
-
-function closeBrowserEmulatorDialog() {
-  try {
-    browserEmulatorDialog?.close();
-  } catch (_) {}
-}
-
-function _pokeBrowserEmulatorAudioUnlock() {
-  const frame = browserEmulatorFrame?.contentWindow;
-  if (!frame) return false;
-  let unlocked = false;
-  try {
-    if (typeof frame.unlock_WebAudio === "function") {
-      frame.unlock_WebAudio();
-      unlocked = true;
-    }
-  } catch (_) {}
-  try {
-    frame.postMessage("toggle_audio()", "*");
-    unlocked = true;
-  } catch (_) {}
-  return unlocked;
-}
-
-function openBrowserEmulatorDialog(url, titleKey = "browserEmulatorTitle") {
-  if (!browserEmulatorDialog || !browserEmulatorFrame || !url) return;
-  if (browserEmulatorDialog.open) {
-    closeBrowserEmulatorDialog();
-  }
-  browserEmulatorDialog.dataset.rawUrl = url;
-  browserEmulatorDialog.dataset.titleKey = titleKey;
-  const titleEl = document.getElementById("browser-emulator-title");
-  if (titleEl) titleEl.textContent = t(titleKey);
-  browserEmulatorFrame.onload = () => {
-    _pokeBrowserEmulatorAudioUnlock();
-    setTimeout(_pokeBrowserEmulatorAudioUnlock, 250);
-    setTimeout(_pokeBrowserEmulatorAudioUnlock, 900);
-  };
-  browserEmulatorFrame.src = url;
-  browserEmulatorDialog.showModal();
-  setTimeout(_pokeBrowserEmulatorAudioUnlock, 150);
-}
-
-function restartBrowserEmulatorDialog() {
-  if (!browserEmulatorDialog || !browserEmulatorFrame) return;
-  const rawUrl = browserEmulatorDialog.dataset.rawUrl || browserEmulatorFrame.src || "";
-  if (!rawUrl || rawUrl === "about:blank") return;
-  try {
-    browserEmulatorFrame.contentWindow?.location?.reload();
-  } catch (_) {
-    browserEmulatorFrame.src = rawUrl;
-  }
-  setTimeout(() => {
-    _pokeBrowserEmulatorAudioUnlock();
-    setTimeout(_pokeBrowserEmulatorAudioUnlock, 300);
-    setTimeout(_pokeBrowserEmulatorAudioUnlock, 900);
-  }, 150);
 }
 
 function readUiSettings() {
@@ -1817,25 +1754,6 @@ function initPalette() {
   _setupFileMenus();
   setupOperandDropdown();
   setupD64ExportDialog();
-  browserEmulatorRestart?.addEventListener("click", restartBrowserEmulatorDialog);
-  browserEmulatorClose?.addEventListener("click", closeBrowserEmulatorDialog);
-  browserEmulatorOpenExternal?.addEventListener("click", () => {
-    const rawUrl = browserEmulatorDialog?.dataset.rawUrl || browserEmulatorFrame?.src || "";
-    if (!rawUrl || rawUrl === "about:blank") return;
-    if (window.electronAPI?.openExternal) {
-      window.electronAPI.openExternal(rawUrl).catch(() => {});
-    } else {
-      window.open(rawUrl, "_blank", "noopener");
-    }
-  });
-  browserEmulatorDialog?.addEventListener("close", () => {
-    if (browserEmulatorFrame) browserEmulatorFrame.src = "about:blank";
-    if (browserEmulatorDialog) delete browserEmulatorDialog.dataset.rawUrl;
-    if (browserEmulatorDialog) delete browserEmulatorDialog.dataset.titleKey;
-  });
-  browserEmulatorDialog?.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeBrowserEmulatorDialog();
-  });
 
   // Menu open/close animation
   const controlMenu = document.querySelector(".control-menu");
@@ -2060,9 +1978,7 @@ function initPalette() {
   });
   chooseViceButton?.addEventListener("click", chooseViceExecutable);
   runEmulatorButton?.addEventListener("click", () => {
-    if (runMode === "browser") runInBrowser();
-    else if (runMode === "browser-d64") runD64InBrowser();
-    else if (runMode === "d64") runViaD64();
+    if (runMode === "d64") runViaD64();
     else if (runMode === "ultimate") runOnUltimate();
     else if (runMode === "ultimate-d64") runUltimateD64();
     else runInEmulator();
@@ -2676,13 +2592,6 @@ function applyTranslations() {
     setText("#hardware-settings-btn", t("hardwareSettings"));
     setText("#hardware-settings-title", t("hardwareSettingsTitle"));
     setText("#hardware-settings-close", t("hardwareSettingsClose"));
-    setText("#browser-emulator-title", t(browserEmulatorDialog?.dataset.titleKey || "browserEmulatorTitle"));
-    browserEmulatorRestart?.setAttribute("title", t("browserEmulatorRestart"));
-    browserEmulatorRestart?.setAttribute("aria-label", t("browserEmulatorRestart"));
-    browserEmulatorOpenExternal?.setAttribute("title", t("browserEmulatorOpenExternal"));
-    browserEmulatorOpenExternal?.setAttribute("aria-label", t("browserEmulatorOpenExternal"));
-    browserEmulatorClose?.setAttribute("title", t("browserEmulatorClose"));
-    browserEmulatorClose?.setAttribute("aria-label", t("browserEmulatorClose"));
     setText("#hw-vice-section-label", t("hwViceSectionLabel"));
     setText("#hw-exomizer-section-label", t("hwExomizerSectionLabel"));
     setText("#hw-debugger-section-label", t("hwDebuggerSectionLabel"));
@@ -2698,8 +2607,6 @@ function applyTranslations() {
     setText("#dbg-unpause-label", t("debuggerUnpauseLabel"));
     setText("#run-emulator .run-label", getRunModeLabel(runMode));
     setText("#run-prg-label", t("runAsPrg"));
-    setText("#run-browser-label", t("runInBrowser"));
-    setText("#run-browser-d64-label", t("runD64InBrowser"));
     setText("#run-exomizer-toggle-label", t("runWithExomizer"));
     setText("#run-d64-label", t("runViaD64"));
     setText("#run-ultimate-label", t("runOnUltimate"));
@@ -12288,7 +12195,6 @@ async function confirmD64Export() {
 
   const isRunMode = d64ExportState.runMode;
   const isUltimateMode = isRunMode === "ultimate";
-  const isBrowserMode = isRunMode === "browser";
 
   // If any extra needs EXO crunching, the loop below blocks on `exomizer`
   // for several seconds per file. Show the work-progress modal up front so
@@ -12338,7 +12244,7 @@ async function confirmD64Export() {
     delete f._decompressAddress;
     if (!crunchResult?.ok) {
       if (willCrunchAny) hideWorkProgress();
-      if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = t(isUltimateMode ? "runOnUltimate" : isBrowserMode ? "runD64InBrowser" : isRunMode ? "runViaD64Confirm" : "d64ExportConfirm"); }
+      if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = t(isUltimateMode ? "runOnUltimate" : isRunMode ? "runViaD64Confirm" : "d64ExportConfirm"); }
       if (cancelBtn) cancelBtn.disabled = false;
       if (errorBox) { errorBox.hidden = false; errorBox.textContent = `${f.name}: ${crunchResult?.error || t("exomizerLaunchFailed")}`; }
       return;
@@ -12348,7 +12254,7 @@ async function confirmD64Export() {
   // Switch the progress modal's subtitle to the D64 packaging message. If we
   // didn't open it during compression and we're in run mode, open it now.
   if (isRunMode) {
-    await showWorkProgress(isUltimateMode ? "workProgressRunD64Ultimate" : isBrowserMode ? "workProgressRunD64Browser" : "workProgressRunD64");
+    await showWorkProgress(isUltimateMode ? "workProgressRunD64Ultimate" : "workProgressRunD64");
   } else if (willCrunchAny) {
     // Save-only mode: progress modal is up but the EXO loop is done — close it
     // so the OS save dialog (if any) isn't blocked behind it.
@@ -12368,8 +12274,6 @@ async function confirmD64Export() {
         return;
       }
       result = await window.electronAPI.runD64OnUltimate({ host, password, diskName, files });
-    } else if (isBrowserMode) {
-      result = await window.electronAPI.runD64InBrowserEmulator({ diskName, files });
     } else if (isRunMode) {
       result = await window.electronAPI.runD64({ diskName, files });
     } else {
@@ -12378,7 +12282,7 @@ async function confirmD64Export() {
   } finally {
     if (confirmBtn) {
       confirmBtn.disabled = false;
-      confirmBtn.textContent = t(isUltimateMode ? "runOnUltimate" : isBrowserMode ? "runD64InBrowser" : isRunMode ? "runViaD64Confirm" : "d64ExportConfirm");
+      confirmBtn.textContent = t(isUltimateMode ? "runOnUltimate" : isRunMode ? "runViaD64Confirm" : "d64ExportConfirm");
     }
     if (cancelBtn) cancelBtn.disabled = false;
   }
@@ -12399,11 +12303,8 @@ async function confirmD64Export() {
 
   d64SaveSettings((diskInput?.value || "").trim() || "DISK", (progInput?.value || "").trim() || "PROGRAM");
   dialog.close();
-  if (isBrowserMode && result?.url) {
-    openBrowserEmulatorDialog(result.url, "runD64InBrowser");
-  }
   if (isRunMode) {
-    await completeWorkProgress(isUltimateMode ? "workProgressSuccessD64Ultimate" : isBrowserMode ? "workProgressSuccessD64Browser" : "workProgressSuccessRunD64");
+    await completeWorkProgress(isUltimateMode ? "workProgressSuccessD64Ultimate" : "workProgressSuccessRunD64");
   } else if (emulatorStatus) {
     const fileName = (result.filePath || "").split(/[\\/]/).pop();
     const count = result.fileCount || files.length;
@@ -12416,8 +12317,6 @@ async function confirmD64Export() {
 let runMode = "prg";
 
 function getRunModeLabel(mode) {
-  if (mode === "browser") return t("runInBrowser");
-  if (mode === "browser-d64") return t("runD64InBrowser");
   if (mode === "d64") return t("runViaD64");
   if (mode === "ultimate") return t("runOnUltimate");
   if (mode === "ultimate-d64") return t("runD64OnHardware");
@@ -12464,13 +12363,11 @@ function setupRunModeDropdown() {
 
   document.getElementById("run-prg-mode")?.addEventListener("click", () => { setRunMode("prg"); closeMenu(); });
   document.getElementById("run-d64-mode")?.addEventListener("click", () => { setRunMode("d64"); closeMenu(); });
-  document.getElementById("run-browser-mode")?.addEventListener("click", () => { setRunMode("browser"); closeMenu(); });
-  document.getElementById("run-browser-d64-mode")?.addEventListener("click", () => { setRunMode("browser-d64"); closeMenu(); });
   document.getElementById("run-ultimate-mode")?.addEventListener("click", () => { setRunMode("ultimate"); closeMenu(); });
   document.getElementById("run-ultimate-d64-mode")?.addEventListener("click", () => { setRunMode("ultimate-d64"); closeMenu(); });
 
   const saved = localStorage.getItem("runMode");
-  if (["prg", "d64", "browser", "browser-d64", "ultimate", "ultimate-d64"].includes(saved)) setRunMode(saved);
+  if (["prg", "d64", "ultimate", "ultimate-d64"].includes(saved)) setRunMode(saved);
 }
 
 function setRunMode(mode) {
@@ -12478,14 +12375,10 @@ function setRunMode(mode) {
   localStorage.setItem("runMode", mode);
   const prgBtn = document.getElementById("run-prg-mode");
   const d64Btn = document.getElementById("run-d64-mode");
-  const browserBtn = document.getElementById("run-browser-mode");
-  const browserD64Btn = document.getElementById("run-browser-d64-mode");
   const ulBtn = document.getElementById("run-ultimate-mode");
   const ulD64Btn = document.getElementById("run-ultimate-d64-mode");
   if (prgBtn) prgBtn.classList.toggle("active", mode === "prg");
   if (d64Btn) d64Btn.classList.toggle("active", mode === "d64");
-  if (browserBtn) browserBtn.classList.toggle("active", mode === "browser");
-  if (browserD64Btn) browserD64Btn.classList.toggle("active", mode === "browser-d64");
   if (ulBtn) ulBtn.classList.toggle("active", mode === "ultimate");
   if (ulD64Btn) ulD64Btn.classList.toggle("active", mode === "ultimate-d64");
   const label = document.querySelector("#run-emulator .run-label");
@@ -12495,95 +12388,6 @@ function setRunMode(mode) {
     runEmulatorButton.setAttribute("aria-label", runLabel);
   }
   syncMainToolbarTooltips();
-}
-
-async function runInBrowser() {
-  if (isProgramEmpty()) {
-    showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
-    return;
-  }
-  const prg = buildAutostartPrgForEmulator();
-  if (!prg.ok) {
-    if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
-    showViceToast(prg.error || (t("compilationFailed")), true);
-    return;
-  }
-  try {
-    const bytes = prg.bytes instanceof Uint8Array ? prg.bytes : new Uint8Array(prg.bytes);
-    // Chunked btoa — avoids call stack overflow on large PRGs
-    let b64 = '';
-    const chunk = 8192;
-    for (let i = 0; i < bytes.length; i += chunk) {
-      b64 += btoa(String.fromCharCode(...bytes.subarray(i, i + chunk)));
-    }
-    if (window.electronAPI?.runInBrowserEmulator) {
-      const url = await window.electronAPI.runInBrowserEmulator(b64);
-      openBrowserEmulatorDialog(url, "runInBrowser");
-    } else {
-      openBrowserEmulatorDialog(`emulator.html#${b64}`, "runInBrowser");
-    }
-  } catch (e) {
-    showViceToast((t("browserRunFailed")) + e.message, true);
-  }
-}
-
-async function runD64InBrowser() {
-  if (isProgramEmpty()) {
-    showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
-    return;
-  }
-  if (!vicePath) {
-    showViceToast(t("viceIsNotConfiguredC1541NeededToBuildThe"), true);
-    return;
-  }
-  if (!window.electronAPI?.runD64InBrowserEmulator) {
-    showViceToast(t("d64InBrowserIsNotAvailable"), true);
-    return;
-  }
-
-  const prg = await buildRunPrgForCurrentMode();
-  if (!prg.ok) {
-    if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
-    if (emulatorStatus) emulatorStatus.textContent = prg.error;
-    return;
-  }
-
-  d64ExportState.prgBytes = prg.bytes;
-  d64ExportState.runMode = "browser";
-
-  const dialog = document.getElementById("d64-export-dialog");
-  const diskInput = document.getElementById("d64-export-diskname");
-  const progInput = document.getElementById("d64-export-progname");
-  const errorBox = document.getElementById("d64-export-error");
-  const confirmBtn = document.getElementById("d64-export-confirm");
-
-  let diskName = d64ExportState.diskName || defaultDiskName();
-  let progName = d64ExportState.progName || defaultDiskName();
-  if (d64ExportState.extras.length === 0) {
-    if (d64ExportState._pendingExtras?.length) {
-      d64ExportState.extras = await d64LoadSavedExtras(d64ExportState._pendingExtras, d64ExportState._pendingExtrasBaseDir);
-      d64ExportState._pendingExtras = null;
-      d64ExportState._pendingExtrasBaseDir = "";
-    } else {
-      try {
-        const saved = JSON.parse(localStorage.getItem("d64LastSettings") || "null");
-        if (saved) {
-          if (!d64ExportState.diskName && saved.diskName) diskName = saved.diskName;
-          if (!d64ExportState.progName && saved.progName) progName = saved.progName;
-          if (saved.extras?.length) d64ExportState.extras = await d64LoadSavedExtras(saved.extras);
-        }
-      } catch (_) {}
-    }
-  }
-
-  if (diskInput) diskInput.value = diskName;
-  if (progInput) progInput.value = progName;
-  if (errorBox) { errorBox.hidden = true; errorBox.textContent = ""; }
-  if (confirmBtn) confirmBtn.textContent = t("runD64InBrowser");
-  const titleEl = document.getElementById("d64-export-title");
-  if (titleEl) titleEl.textContent = t("runD64InBrowser");
-  renderD64ExtraFiles();
-  dialog?.showModal();
 }
 
 async function runViaD64() {

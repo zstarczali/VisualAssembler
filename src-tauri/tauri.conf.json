@@ -40,11 +40,7 @@
     ],
     "resources": {
       "../samples/*": "samples/",
-      "../docs/*": "docs/",
-      "../assets/vc64web/*": "assets/vc64web/",
-      "../assets/vc64web/js/*": "assets/vc64web/js/",
-      "../assets/vc64web/css/*": "assets/vc64web/css/",
-      "../assets/vc64web/img/*": "assets/vc64web/img/"
+      "../docs/*": "docs/"
     }
   }
 }
