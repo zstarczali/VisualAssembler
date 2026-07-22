@@ -1031,6 +1031,53 @@ html[data-theme="oled"] .primary {
   max-height: var(--editor-max-depth);
 }
 
+.program-panel {
+  flex-direction: row;
+  position: relative;
+}
+
+.program-panel > .panel-scroll {
+  flex: 1;
+  min-width: 0;
+}
+
+.block-minimap {
+  display: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 56px;
+  cursor: pointer;
+  border-left: 1px solid var(--panel-border);
+  background: var(--bg);
+  user-select: none;
+  z-index: 4;
+  box-sizing: border-box;
+}
+
+.program-panel.block-show-minimap .block-minimap {
+  display: block;
+}
+
+.program-panel.block-show-minimap > .panel-scroll {
+  margin-right: 56px;
+}
+
+#block-minimap-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 5px;
+  min-height: unset;
+}
+
+#block-minimap-btn[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--primary) 15%, transparent);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
 .panel-scroll {
   flex: 1;
   overflow-y: auto;
@@ -4400,6 +4447,7 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
 .expert-editor-wrap.expert-show-minimap .expert-minimap {
   display: block;
   width: 88px;
+  height: 100%;
 }
 .expert-editor-wrap.expert-show-minimap .expert-hl,
 .expert-editor-wrap.expert-show-minimap .expert-editor {
@@ -7900,7 +7948,9 @@ body.crt-mode #crt-overlay::after {
 .region-copy-btn,
 .region-paste-btn,
 .block-actions button,
-.collapse-toggle {
+.collapse-toggle,
+#disasm-copy-source-btn,
+#expert-disasm-copy-source-btn {
   position: relative;
 }
 
@@ -7918,7 +7968,9 @@ body.crt-mode #crt-overlay::after {
 .region-copy-btn[aria-label]::after,
 .region-paste-btn[aria-label]::after,
 .block-actions button[aria-label]::after,
-.collapse-toggle[aria-label]::after {
+.collapse-toggle[aria-label]::after,
+#disasm-copy-source-btn[aria-label]::after,
+#expert-disasm-copy-source-btn[aria-label]::after {
   content: attr(aria-label);
   position: absolute;
   top: calc(100% + 5px);
@@ -7966,6 +8018,8 @@ body.crt-mode #crt-overlay::after {
 .region-paste-btn:hover[aria-label]::after,
 .block-actions button:hover[aria-label]::after,
 .collapse-toggle:hover[aria-label]::after,
+#disasm-copy-source-btn:hover[aria-label]::after,
+#expert-disasm-copy-source-btn:hover[aria-label]::after,
 .expert-project-item-star:focus-visible[aria-label]::after,
 .expert-project-item-del:focus-visible[aria-label]::after,
 .expert-project-item-name:focus-visible[aria-label]::after,
@@ -7979,7 +8033,9 @@ body.crt-mode #crt-overlay::after {
 .region-copy-btn:focus-visible[aria-label]::after,
 .region-paste-btn:focus-visible[aria-label]::after,
 .block-actions button:focus-visible[aria-label]::after,
-.collapse-toggle:focus-visible[aria-label]::after {
+.collapse-toggle:focus-visible[aria-label]::after,
+#disasm-copy-source-btn:focus-visible[aria-label]::after,
+#expert-disasm-copy-source-btn:focus-visible[aria-label]::after {
   opacity: 1;
 }
 

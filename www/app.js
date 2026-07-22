@@ -465,6 +465,8 @@ let _expertFontSize = 13.44; // px (= 0.84rem at 16px base)
 let _expertLineNumbersEnabled = false;
 let _expertMinimapEnabled = false;
 let _expertMinimapRaf = 0;
+let _blockMinimapEnabled = false;
+let _blockMinimapRaf = 0;
 let _expertFindVisible = false;
 let _expertFindTerm = "";
 let _expertFindMatches = []; // [{start, end}] flat textarea positions
@@ -600,6 +602,7 @@ function saveUiSettings() {
     expertFontSize: _expertFontSize,
     expertLineNumbers: _expertLineNumbersEnabled,
     expertMinimap: _expertMinimapEnabled,
+    blockMinimap: _blockMinimapEnabled,
     autoSnapshotEnabled: autoSnapshotToggle ? autoSnapshotToggle.checked : true
   };
 
@@ -1792,6 +1795,10 @@ function initPalette() {
     _expertScheduleMinimapRedraw();
   });
 
+  document.querySelector(".program-panel .panel-scroll")?.addEventListener("scroll", () => {
+    _blockScheduleMinimapRedraw();
+  });
+
   document.addEventListener("pointerdown", (e) => {
     if (!e.target.closest("#expert-ac") && e.target !== expertEditor) {
       _expertAcHide();
@@ -2062,6 +2069,11 @@ function initPalette() {
   clearProgramButton.addEventListener("click", clearProgram);
   collapseAllButton.addEventListener("click", collapseAllBlocks);
   expandAllButton.addEventListener("click", expandAllBlocks);
+  document.getElementById("block-minimap-btn")?.addEventListener("click", () => {
+    _blockMinimapEnabled = !_blockMinimapEnabled;
+    _blockApplyMinimap();
+    saveUiSettings();
+  });
   importAsmButton?.addEventListener("click", () => {
     document.querySelector(".control-menu")?.removeAttribute("open");
     importAsmFile();
@@ -2457,6 +2469,11 @@ function _applyUiSettingsToDOM() {
     _expertApplyMinimap();
   }
 
+  if (savedUiSettings.blockMinimap) {
+    _blockMinimapEnabled = true;
+    _blockApplyMinimap();
+  }
+
   if (typeof savedUiSettings.expertProjectSymbolsHeight === "number" && Number.isFinite(savedUiSettings.expertProjectSymbolsHeight)) {
     _expertProjectSymbolsHeight = Math.max(48, Math.min(1200, savedUiSettings.expertProjectSymbolsHeight));
     _applyExpertProjectSymbolsHeight();
@@ -2783,9 +2800,7 @@ function applyTranslations() {
     if (importAsmButton?.hasAttribute("title")) importAsmButton.removeAttribute("title");
     copyAsmButton?.setAttribute("title", t("copyAsm"));
     copyAsmButton?.setAttribute("aria-label", t("copyAsm"));
-    disasmCopySourceBtn?.setAttribute("title", t("disasmCopySource"));
     disasmCopySourceBtn?.setAttribute("aria-label", t("disasmCopySource"));
-    expertDisasmCopySourceBtn?.setAttribute("title", t("disasmCopySource"));
     expertDisasmCopySourceBtn?.setAttribute("aria-label", t("disasmCopySource"));
     saveProjectButton?.setAttribute("title", t("saveProject"));
     saveProjectButton?.setAttribute("aria-label", t("saveProject"));
@@ -6805,11 +6820,33 @@ function _expertDrawMinimap() {
 
   const lines = expertEditor.value.split("\n");
   const total = lines.length || 1;
-  const lineH = Math.max(1.5, Math.min(4, H / total));
+  const LINE_PX = 2; // fixed minimap scale: 2px per line
+
+  const totalH  = expertEditor.scrollHeight;
+  const viewH   = expertEditor.clientHeight;
+  const scrollY = expertEditor.scrollTop;
+
+  // Which line is at the top of the viewport?
+  const lineHeightPx = totalH / Math.max(total, 1);
+  const topLine   = (scrollY / lineHeightPx);
+  const linesVis  = viewH   / lineHeightPx;
+
+  // Minimap scroll offset: keep viewport indicator visible in the center
+  let mmOffset = 0;
+  const contentH = total * LINE_PX;
+  if (contentH > H) {
+    // center the viewport band in the minimap canvas
+    const vpMidMm = (topLine + linesVis / 2) * LINE_PX;
+    mmOffset = Math.max(0, Math.min(contentH - H, vpMidMm - H / 2));
+  }
+
   const xPad = 3;
   const maxW  = W - xPad * 2;
 
   for (let i = 0; i < total; i++) {
+    const y = i * LINE_PX - mmOffset;
+    if (y + LINE_PX < 0 || y > H) continue;
+
     const raw = lines[i];
     const trimmed = raw.trimStart();
     if (!trimmed) continue;
@@ -6831,26 +6868,21 @@ function _expertDrawMinimap() {
     const indentX = Math.min(indent * 1.5, maxW * 0.35);
     const barW    = Math.min(trimmed.length * 1.3, maxW - indentX);
 
-    ctx.globalAlpha = 0.7;
+    ctx.globalAlpha = 0.72;
     ctx.fillStyle = color;
-    ctx.fillRect(xPad + indentX, i * lineH, Math.max(3, barW), Math.max(1, lineH - 0.6));
+    ctx.fillRect(xPad + indentX, y, Math.max(3, barW), Math.max(1, LINE_PX - 0.3));
   }
   ctx.globalAlpha = 1;
 
   // Viewport indicator
-  const totalH = expertEditor.scrollHeight;
-  const viewH  = expertEditor.clientHeight;
-  const scrollY = expertEditor.scrollTop;
-
-  if (totalH > viewH) {
-    const vpTop = (scrollY / totalH) * H;
-    const vpH   = Math.max(10, (viewH / totalH) * H);
-    ctx.fillStyle = "rgba(200,210,255,0.1)";
-    ctx.fillRect(0, vpTop, W, vpH);
-    ctx.strokeStyle = "rgba(200,210,255,0.28)";
-    ctx.lineWidth = 1;
-    ctx.strokeRect(0.5, vpTop + 0.5, W - 1, vpH - 1);
-  }
+  const vpTop = topLine * LINE_PX - mmOffset;
+  const vpH   = Math.max(8, linesVis * LINE_PX);
+  const primary = rs.getPropertyValue("--primary").trim() || "#2563eb";
+  ctx.fillStyle = _mmAlphaColor(primary, 0.12);
+  ctx.fillRect(0, vpTop, W, vpH);
+  ctx.strokeStyle = _mmAlphaColor(primary, 0.5);
+  ctx.lineWidth = 1;
+  ctx.strokeRect(0.5, vpTop + 0.5, W - 1, vpH - 1);
 }
 
 // Click / drag on minimap → scroll editor
@@ -6874,15 +6906,204 @@ function _expertDrawMinimap() {
     new ResizeObserver(() => _expertScheduleMinimapRedraw()).observe(_mmWrap);
   }
 }
+function _mmAlphaColor(hex, alpha) {
+  let h = hex.replace("#", "");
+  if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  const r = parseInt(h.substring(0, 2), 16);
+  const g = parseInt(h.substring(2, 4), 16);
+  const b = parseInt(h.substring(4, 6), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
 function _mmScrollToY(clientY) {
   const canvas = document.getElementById("expert-minimap");
   if (!canvas || !expertEditor) return;
-  const rect  = canvas.getBoundingClientRect();
-  const ratio = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
-  expertEditor.scrollTop = ratio * expertEditor.scrollHeight - expertEditor.clientHeight / 2;
+  const rect   = canvas.getBoundingClientRect();
+  const H      = rect.height;
+  const LINE_PX = 2;
+  const total  = expertEditor.value.split("\n").length || 1;
+  const totalH = expertEditor.scrollHeight;
+  const viewH  = expertEditor.clientHeight;
+  const contentH = total * LINE_PX;
+
+  // Compute current mmOffset (same logic as _expertDrawMinimap)
+  let mmOffset = 0;
+  if (contentH > H) {
+    const lineHeightPx = totalH / Math.max(total, 1);
+    const topLine  = expertEditor.scrollTop / lineHeightPx;
+    const linesVis = viewH / lineHeightPx;
+    const vpMidMm  = (topLine + linesVis / 2) * LINE_PX;
+    mmOffset = Math.max(0, Math.min(contentH - H, vpMidMm - H / 2));
+  }
+
+  const clickY  = clientY - rect.top;
+  const mmLine  = (clickY + mmOffset) / LINE_PX;
+  const lineHeightPx = totalH / Math.max(total, 1);
+  expertEditor.scrollTop = mmLine * lineHeightPx - viewH / 2;
 }
 
-// ── Line numbers ─────────────────────────────────────────────────────────────
+// ── Block minimap ─────────────────────────────────────────────────────────────
+
+function _blockApplyMinimap() {
+  const panel  = document.querySelector(".program-panel");
+  const btn    = document.getElementById("block-minimap-btn");
+  if (!panel) return;
+  panel.classList.toggle("block-show-minimap", _blockMinimapEnabled);
+  btn?.setAttribute("aria-pressed", String(_blockMinimapEnabled));
+  btn?.classList.toggle("expert-hl-toggle--on", _blockMinimapEnabled);
+  if (_blockMinimapEnabled) _blockScheduleMinimapRedraw();
+}
+
+function _blockScheduleMinimapRedraw() {
+  if (!_blockMinimapEnabled) return;
+  cancelAnimationFrame(_blockMinimapRaf);
+  _blockMinimapRaf = requestAnimationFrame(_blockDrawMinimap);
+}
+
+function _blockDrawMinimap() {
+  const canvas = document.getElementById("block-minimap");
+  const scroll = document.querySelector(".program-panel .panel-scroll");
+  if (!canvas || !scroll) return;
+  const ctx = canvas.getContext("2d");
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const W = canvas.offsetWidth;
+  const H = canvas.offsetHeight;
+  if (!W || !H) return;
+
+  const cw = Math.round(W * dpr);
+  const ch = Math.round(H * dpr);
+  if (canvas.width !== cw || canvas.height !== ch) {
+    canvas.width  = cw;
+    canvas.height = ch;
+  }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const rs = getComputedStyle(document.documentElement);
+  const bg      = rs.getPropertyValue("--bg").trim()          || "#e8ecf1";
+  const cLabel  = rs.getPropertyValue("--hl-label").trim()    || "#9cdcfe";
+  const cMacro  = rs.getPropertyValue("--hl-directive").trim()|| "#569cd6";
+  const cInstr  = rs.getPropertyValue("--hl-mnem").trim()     || "#dcdcaa";
+  const cComment= rs.getPropertyValue("--hl-comment").trim()  || "#6a9955";
+  const cError  = "#e05050";
+  const primary = rs.getPropertyValue("--primary").trim()     || "#2563eb";
+
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  if (!program.length) return;
+
+  const LINE_PX = 3;
+  const total   = program.length;
+  const contentH = total * LINE_PX;
+
+  const scrollTop = scroll.scrollTop;
+  const viewH     = scroll.clientHeight;
+  const scrollH   = scroll.scrollHeight;
+
+  // Estimate which block indices are in the viewport
+  const linesVis  = viewH  / (scrollH / Math.max(total, 1));
+  const topLine   = scrollTop / (scrollH / Math.max(total, 1));
+
+  let mmOffset = 0;
+  if (contentH > H) {
+    const vpMidMm = (topLine + linesVis / 2) * LINE_PX;
+    mmOffset = Math.max(0, Math.min(contentH - H, vpMidMm - H / 2));
+  }
+
+  const xPad = 4;
+  const maxW  = W - xPad;
+
+  for (let i = 0; i < total; i++) {
+    const y = i * LINE_PX - mmOffset;
+    if (y + LINE_PX < 0 || y > H) continue;
+
+    const b = program[i];
+    let color;
+    if (b.validationError) {
+      color = cError;
+    } else if (b.isLabel) {
+      color = cLabel;
+    } else if (b.isComment || b.isBlankLine) {
+      color = cComment;
+    } else if (b.isByteMacro || b.isWordMacro || b.isFillMacro || b.isAlignMacro ||
+               b.isRawBytesMacro || b.isRawTextMacro || b.isIncBinMacro || b.isSidMacro ||
+               b.isTextMacro || b.isStringMacro || b.isDataMacro || b.isConstMacro ||
+               b.isDefineMacro || b.isLoopMacro || b.isNextMacro || b.isForMacro || b.isEndfMacro ||
+               b.isPushMacro || b.isPullMacro || b.isRegionMacro || b.isEndRegionMacro ||
+               b.isIfMacro || b.isElseMacro || b.isEndIfMacro || b.isMacroDefStart || b.isMacroDefEnd ||
+               b.isMacroInvoke || b.isSpriteInitMacro || b.isSpritePosMacro || b.isWaitRasterMacro ||
+               b.isJoystickMacro || b.isMouseMacro || b.isLoadFileMacro || b.isReuCheckMacro ||
+               b.isReuStashMacro || b.isReuFetchMacro || b.isReuSwapMacro || b.isTurboSetMacro ||
+               b.isTurboEnableMacro || b.isSuperCpuDetectMacro || b.isSpriteColMacro) {
+      color = cMacro;
+    } else {
+      color = cInstr;
+    }
+
+    const barW = Math.max(3, maxW * 0.75);
+    ctx.globalAlpha = b.collapsed ? 0.45 : 0.78;
+    ctx.fillStyle = color;
+    ctx.fillRect(xPad, y, barW, Math.max(1, LINE_PX - 0.5));
+  }
+  ctx.globalAlpha = 1;
+
+  // Viewport indicator
+  const vpTop = topLine * LINE_PX - mmOffset;
+  const vpH   = Math.max(8, linesVis * LINE_PX);
+  ctx.fillStyle = _mmAlphaColor(primary, 0.12);
+  ctx.fillRect(0, vpTop, W, vpH);
+  ctx.strokeStyle = _mmAlphaColor(primary, 0.5);
+  ctx.lineWidth = 1;
+  ctx.strokeRect(0.5, vpTop + 0.5, W - 1, vpH - 1);
+}
+
+// Click/drag on block minimap → scroll program list
+{
+  let _bmPointerDown = false;
+  const _bmCanvas = document.getElementById("block-minimap");
+  _bmCanvas?.addEventListener("pointerdown", (e) => {
+    if (!_blockMinimapEnabled) return;
+    e.preventDefault();
+    _bmPointerDown = true;
+    _bmScrollToY(e.clientY);
+    const onMove = (ev) => { if (_bmPointerDown) _bmScrollToY(ev.clientY); };
+    const onUp   = () => { _bmPointerDown = false; window.removeEventListener("pointermove", onMove); window.removeEventListener("pointerup", onUp); };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup",   onUp);
+  });
+
+  const _bmPanel = document.querySelector(".program-panel");
+  if (_bmPanel && typeof ResizeObserver !== "undefined") {
+    new ResizeObserver(() => _blockScheduleMinimapRedraw()).observe(_bmPanel);
+  }
+}
+
+function _bmScrollToY(clientY) {
+  const canvas = document.getElementById("block-minimap");
+  const scroll = document.querySelector(".program-panel .panel-scroll");
+  if (!canvas || !scroll || !program.length) return;
+  const rect    = canvas.getBoundingClientRect();
+  const H       = rect.height;
+  const LINE_PX = 3;
+  const total   = program.length;
+  const scrollH = scroll.scrollHeight;
+  const viewH   = scroll.clientHeight;
+  const contentH = total * LINE_PX;
+
+  let mmOffset = 0;
+  if (contentH > H) {
+    const topLine  = scroll.scrollTop / (scrollH / Math.max(total, 1));
+    const linesVis = viewH / (scrollH / Math.max(total, 1));
+    const vpMidMm  = (topLine + linesVis / 2) * LINE_PX;
+    mmOffset = Math.max(0, Math.min(contentH - H, vpMidMm - H / 2));
+  }
+
+  const clickY = clientY - rect.top;
+  const mmLine = (clickY + mmOffset) / LINE_PX;
+  scroll.scrollTop = mmLine * (scrollH / Math.max(total, 1)) - viewH / 2;
+}
+
+
 
 function _expertApplyLineNumbers() {
   const wrap = document.querySelector(".expert-editor-wrap");
@@ -9335,6 +9556,7 @@ function toggleBlockCollapsed(index) {
       toggle.setAttribute("aria-label", block.collapsed ? t("expand") : t("collapse"));
       toggle.removeAttribute("title");
     }
+    requestAnimationFrame(() => _blockScheduleMinimapRedraw());
   } else {
     renderProgram();
   }
@@ -22271,6 +22493,8 @@ function renderProgram() {
   }
 
   _expertRenderSymbols();
+  // Double-rAF: wait for layout to settle after DOM changes before drawing minimap
+  requestAnimationFrame(() => _blockScheduleMinimapRedraw());
 }
 
 function getMnemonicModes(mnemonic) {

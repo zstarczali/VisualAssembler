@@ -325,12 +325,16 @@
               <div class="panel-heading-actions">
                 <button id="collapse-all" class="secondary" type="button" aria-label="Osszes osszecsukasa">&#9662;</button>
                 <button id="expand-all" class="secondary" type="button" aria-label="Osszes kinyitasa">&#9656;</button>
+                <button id="block-minimap-btn" class="secondary" type="button" aria-label="Minimap" aria-pressed="false">
+                  <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="11" height="11" aria-hidden="true"><rect x="1.5" y="1.5" width="5" height="13" rx="0.6" stroke="currentColor" stroke-width="1.1"/><path d="M3 4h2.5M3 5.8h3.5M3 7.6h2M3 9.4h3M3 11.2h2.5M3 13h1.5" stroke="currentColor" stroke-width="0.85" stroke-linecap="round" opacity="0.75"/><rect x="1.5" y="7" width="5" height="4" fill="currentColor" opacity="0.2"/><path d="M9 4h5.5M9 6h4M9 8h5.5M9 10h3.5M9 12h4.5" stroke="currentColor" stroke-width="0.85" stroke-linecap="round" opacity="0.45"/></svg>
+                </button>
               </div>
             </div>
             <p>Ide ejtsd a bal oldali blokkot, vagy rendezd at a mar bent levo sorokat.</p>
           </div>
           <div id="program-list" class="program-list" aria-live="polite"></div>
         </div>
+        <canvas id="block-minimap" class="block-minimap" aria-hidden="true"></canvas>
       </section>
 
       <section class="output-panel">
@@ -371,7 +375,7 @@
             <div class="output-section-label disasm-label">
               <div class="output-section-header">
                 <span class="panel-label" id="disasm-output-label">Disassembly</span>
-                <button id="disasm-copy-source-btn" class="icon-btn" type="button" aria-label="Copy source" title="Copy source">
+                <button id="disasm-copy-source-btn" class="icon-btn" type="button" aria-label="Copy source">
                   <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12" aria-hidden="true"><path d="M6 4.5H4.5A1.5 1.5 0 0 0 3 6v5A1.5 1.5 0 0 0 4.5 12.5h4A1.5 1.5 0 0 0 10 11v-1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 3.5h2.5A1.5 1.5 0 0 1 13 5v5a1.5 1.5 0 0 1-1.5 1.5H8A1.5 1.5 0 0 1 6.5 10V8.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 6.5h3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M7 8.5h3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
                 </button>
               </div>
@@ -553,7 +557,7 @@ PRINTABLE CHARACTERS
           <div class="expert-disasm-panel" id="expert-disasm-panel" hidden>
             <div class="expert-disasm-header">
               <span class="panel-label" id="expert-disasm-output-label">Disassembly</span>
-              <button id="expert-disasm-copy-source-btn" class="icon-btn" type="button" aria-label="Copy source" title="Copy source">
+              <button id="expert-disasm-copy-source-btn" class="icon-btn" type="button" aria-label="Copy source">
                 <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12" aria-hidden="true"><path d="M6 4.5H4.5A1.5 1.5 0 0 0 3 6v5A1.5 1.5 0 0 0 4.5 12.5h4A1.5 1.5 0 0 0 10 11v-1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 3.5h2.5A1.5 1.5 0 0 1 13 5v5a1.5 1.5 0 0 1-1.5 1.5H8A1.5 1.5 0 0 1 6.5 10V8.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 6.5h3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M7 8.5h3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
               </button>
             </div>
