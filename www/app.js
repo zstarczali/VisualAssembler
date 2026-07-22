@@ -10683,6 +10683,7 @@ function parseFillMacro(raw, base = "dec", labels = null, vars = null) {
 
     text = text.replace(/__FUNC_ROUND__/g, "Math.round");
     text = text.replace(/__FUNC_SIN__/g, "Math.sin");
+    text = text.replace(/__FUNC_COS__/g, "Math.cos");
     text = text.replace(/__FUNC_MAX__/g, "Math.max");
     text = text.replace(/__FUNC_MIN__/g, "Math.min");
     text = text.replace(/__FUNC_ABS__/g, "Math.abs");
@@ -15643,6 +15644,7 @@ function compileLineBytes(line, labels) {
     if (/__UNKNOWN_[A-Za-z0-9_]+__/.test(text)) return null;
     text = text.replace(/__FUNC_ROUND__/g, "Math.round");
     text = text.replace(/__FUNC_SIN__/g, "Math.sin");
+    text = text.replace(/__FUNC_COS__/g, "Math.cos");
     text = text.replace(/__FUNC_MAX__/g, "Math.max");
     text = text.replace(/__FUNC_MIN__/g, "Math.min");
     text = text.replace(/__FUNC_ABS__/g, "Math.abs");
@@ -17072,6 +17074,7 @@ function resolveNumericOperand(block, labels) {
     if (/__UNKNOWN_[A-Za-z0-9_]+__/.test(text)) return null;
     text = text.replace(/__FUNC_ROUND__/g, "Math.round");
     text = text.replace(/__FUNC_SIN__/g, "Math.sin");
+    text = text.replace(/__FUNC_COS__/g, "Math.cos");
     text = text.replace(/__FUNC_MAX__/g, "Math.max");
     text = text.replace(/__FUNC_MIN__/g, "Math.min");
     text = text.replace(/__FUNC_ABS__/g, "Math.abs");
@@ -17342,6 +17345,7 @@ function _evalAsmExpression(expr, labels = null, vars = null) {
 
   text = text.replace(/__FUNC_ROUND__/g, "Math.round");
   text = text.replace(/__FUNC_SIN__/g, "Math.sin");
+  text = text.replace(/__FUNC_COS__/g, "Math.cos");
   text = text.replace(/__FUNC_MAX__/g, "Math.max");
   text = text.replace(/__FUNC_MIN__/g, "Math.min");
   text = text.replace(/__FUNC_ABS__/g, "Math.abs");
@@ -17425,6 +17429,7 @@ function parseMacroNumber(raw, labels = null, fallbackBase = "hex") {
     if (/__UNKNOWN_[A-Za-z0-9_]+__/.test(expr)) return null;
     expr = expr.replace(/__FUNC_ROUND__/g, "Math.round");
     expr = expr.replace(/__FUNC_SIN__/g, "Math.sin");
+    expr = expr.replace(/__FUNC_COS__/g, "Math.cos");
     expr = expr.replace(/__FUNC_MAX__/g, "Math.max");
     expr = expr.replace(/__FUNC_MIN__/g, "Math.min");
     expr = expr.replace(/__FUNC_ABS__/g, "Math.abs");
@@ -17518,6 +17523,7 @@ function evaluateFillExpression(expr, labels = null, vars = null) {
 
   text = text.replace(/__FUNC_ROUND__/g, "Math.round");
   text = text.replace(/__FUNC_SIN__/g, "Math.sin");
+  text = text.replace(/__FUNC_COS__/g, "Math.cos");
   text = text.replace(/__FUNC_MAX__/g, "Math.max");
   text = text.replace(/__FUNC_MIN__/g, "Math.min");
   text = text.replace(/__FUNC_ABS__/g, "Math.abs");
