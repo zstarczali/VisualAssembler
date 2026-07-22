@@ -734,15 +734,17 @@ test("PRINT_HEX renders X with the register prefix", () => {
   assert.equal(ctx.getInstructionSize({ isPrintHexMacro: true, printReg: "X" }), 31);
 });
 
-test("buildBasicSysStub emits a valid BASIC SYS line", () => {
+test("buildBasicSysStub emits a valid BASIC SYS line (classic no-space format)", () => {
   const ctx = loadFunctions(["buildBasicSysStub"], {});
+  // 0x1234 = 4660 decimal → "4660" digits → nextLine = $080B, no space after SYS token
   const bytes = Array.from(ctx.buildBasicSysStub(0x1234));
 
-  assert.deepEqual(bytes.slice(0, 9), [0x01, 0x08, 0x0C, 0x08, 0x0A, 0x00, 0x9E, 0x20, 0x34]);
-  assert.equal(bytes[9], 0x36);
-  assert.equal(bytes[10], 0x36);
-  assert.equal(bytes[11], 0x30);
-  assert.deepEqual(bytes.slice(-2), [0x00, 0x00]);
+  // [load=$0801][nextLine=$080B][line10][SYS]['4']['6']['6']['0'][EOL][end $00 $00]
+  assert.deepEqual(bytes.slice(0, 9), [0x01, 0x08, 0x0B, 0x08, 0x0A, 0x00, 0x9E, 0x34, 0x36]);
+  assert.equal(bytes[9],  0x36);   // '6' third digit
+  assert.equal(bytes[10], 0x30);   // '0' fourth digit
+  assert.equal(bytes[11], 0x00);   // EOL
+  assert.deepEqual(bytes.slice(-2), [0x00, 0x00]);  // BASIC end marker
 });
 
 test("_buildAutostartPrgCore routes default origin to $C000 when BASIC SYS is off", () => {

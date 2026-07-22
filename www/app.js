@@ -15391,12 +15391,12 @@ function _buildAutostartPrgCore() {
   }
 
   // Use user's origin as the SYS target address.
-  // Stub occupies $0801..$080C (for 4-digit decimal addresses) so code
-  // must start at $080D or later. Clamp if needed.
+  // Stub occupies $0801..$080C (for 4-digit decimal addresses), code starts at $080D.
+  // Classic C64 SYS stub format: SYS2061 (no space), exactly 12 bytes, gap = 0.
   const origin = parseOriginValue();
   const rawOrigin = (origin.value === 0x0801) ? 0x080D : origin.value;
   const stubDigits = String(rawOrigin).length;
-  const stubDataSize = 2 + 2 + 1 + stubDigits + 1 + 2; // nextptr+lineno+SYS+digits+EOL+BASIC_END
+  const stubDataSize = 2 + 2 + 1 + stubDigits + 1 + 2; // nextptr+lineno+SYS+digits+EOL+BASIC_END (no space)
   const stubEndAddr = 0x0801 + stubDataSize;
   const sysAddress = Math.max(rawOrigin, stubEndAddr);
 
@@ -15441,13 +15441,14 @@ function _programHasEmbeddedBasicAutostart(blocks) {
 function buildBasicSysStub(sysAddress) {
   const sysDigits = String(sysAddress).split("").map((char) => char.charCodeAt(0));
   const lineAddress = 0x0801;
-  const nextLineAddress = lineAddress + 2 + 2 + 1 + 1 + sysDigits.length + 1;
+  // Classic format: SYS<digits> without space — nextLine = $080B for 4-digit address
+  const nextLineAddress = lineAddress + 2 + 2 + 1 + sysDigits.length + 1;
 
   return new Uint8Array([
     0x01, 0x08,
     nextLineAddress & 0xFF, (nextLineAddress >> 8) & 0xFF,
     0x0A, 0x00,
-    0x9E, 0x20,
+    0x9E,         // SYS token (no space — LIST adds one visually)
     ...sysDigits,
     0x00,
     0x00, 0x00
