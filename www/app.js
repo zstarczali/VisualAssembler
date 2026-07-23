@@ -339,6 +339,7 @@ const helpManualButton = document.getElementById("help-manual-btn");
 const checkUpdateButton = document.getElementById("check-update-btn");
 const reportBugButton = document.getElementById("report-bug-btn");
 const basicSysToggle = document.getElementById("basic-sys-toggle");
+const writeDebugSidecarsToggle = document.getElementById("write-debug-sidecars-toggle");
 const exomizerBorderFlashToggle = document.getElementById("exomizer-border-flash");
 const expertModeToggle = document.getElementById("expert-mode-toggle");
 const expertPanel = document.getElementById("expert-panel");
@@ -514,6 +515,7 @@ function saveUiSettings() {
     sample: sampleSelect?.value || "basic-colors",
     memoryPanelOpen: !!globalMemoryPanel?.open,
     basicSys: basicSysToggle ? basicSysToggle.checked : true,
+    writeDebugSidecars: writeDebugSidecarsToggle ? writeDebugSidecarsToggle.checked : false,
     exomizerBorderFlash: exomizerBorderFlashToggle ? exomizerBorderFlashToggle.checked : true,
     expertMode: expertMode,
     expertHlEnabled: _expertHlEnabled,
@@ -1426,6 +1428,7 @@ function initPalette() {
     renderExpertOriginInfo();
   });
   exomizerBorderFlashToggle?.addEventListener("change", saveUiSettings);
+  writeDebugSidecarsToggle?.addEventListener("change", saveUiSettings);
 
   expertModeToggle?.addEventListener("change", () => {
     setExpertMode(expertModeToggle.checked);
@@ -2323,6 +2326,10 @@ function _applyUiSettingsToDOM() {
     basicSysToggle.checked = savedUiSettings.basicSys !== false;
   }
 
+  if (writeDebugSidecarsToggle) {
+    writeDebugSidecarsToggle.checked = !!savedUiSettings.writeDebugSidecars;
+  }
+
   if (exomizerBorderFlashToggle) {
     exomizerBorderFlashToggle.checked = savedUiSettings.exomizerBorderFlash !== false;
   }
@@ -2555,6 +2562,8 @@ function applyTranslations() {
   if (mnemonicDescLabel) mnemonicDescLabel.textContent = t("mnemonicCardLabel");
   const basicSysLabelEl = document.getElementById("basic-sys-label");
   if (basicSysLabelEl) basicSysLabelEl.textContent = t("basicSysLabel");
+  const writeDebugSidecarsLabelEl = document.getElementById("write-debug-sidecars-label");
+  if (writeDebugSidecarsLabelEl) writeDebugSidecarsLabelEl.textContent = t("writeDebugSidecarsLabel");
   const exomizerFlashLabelEl = document.getElementById("exomizer-border-flash-label");
   if (exomizerFlashLabelEl) exomizerFlashLabelEl.textContent = t("exomizerBorderFlashLabel");
   const blockPaletteSyncLabelEl = document.getElementById("block-desc-sync-label");
@@ -11634,7 +11643,13 @@ function _buildDebuggerSidecarTexts(layout, originOverride) {
   return { dbg: dbgText, sym: symText, vs: vsText };
 }
 
-function _buildDebuggerSidecarPayload(prg) {
+function _buildDebuggerSidecarPayload(prg, { force = false } = {}) {
+  // Skip generation unless the user explicitly opted in via the settings toggle.
+  // `force` bypasses the setting (used by launch_debugger where RetroDebugger
+  // needs the .dbg/.sym files regardless of user preference).
+  if (!force && !(writeDebugSidecarsToggle && writeDebugSidecarsToggle.checked)) {
+    return null;
+  }
   try {
     const originOverride = _getDebuggerCodeOrigin(prg);
     const layout = getProgramLayout(originOverride);
@@ -11684,7 +11699,7 @@ async function runInDebugger() {
       fileName: `c64-visual-assembler-${Date.now()}.prg`,
       symbols,
       breakpoints,
-      sidecars: _buildDebuggerSidecarPayload(prg),
+      sidecars: _buildDebuggerSidecarPayload(prg, { force: true }),
       autoJmp: false,
       jmpAddress: debuggerJmp ? debugCodeOrigin : undefined,
       waitMs: debuggerWait ? debuggerWaitMs : 0,

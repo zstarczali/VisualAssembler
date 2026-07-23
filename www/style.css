@@ -3820,6 +3820,11 @@ html[data-theme="oled"] .expert-err-line {
   pointer-events: all;
   line-height: 1;
 }
+/* Minimap visible: shift find bar left of the minimap so the search stays
+   fully visible instead of getting clipped by the minimap column. */
+.expert-editor-wrap.expert-show-minimap .expert-find-bar {
+  right: 102px; /* 88px minimap + 14px gap */
+}
 
 .expert-find-bar[hidden] { display: none; }
 
