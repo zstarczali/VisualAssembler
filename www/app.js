@@ -339,6 +339,7 @@ const helpManualButton = document.getElementById("help-manual-btn");
 const checkUpdateButton = document.getElementById("check-update-btn");
 const reportBugButton = document.getElementById("report-bug-btn");
 const basicSysToggle = document.getElementById("basic-sys-toggle");
+const writeDebugSidecarsToggle = document.getElementById("write-debug-sidecars-toggle");
 const exomizerBorderFlashToggle = document.getElementById("exomizer-border-flash");
 const expertModeToggle = document.getElementById("expert-mode-toggle");
 const expertPanel = document.getElementById("expert-panel");
@@ -373,6 +374,7 @@ let workProgressTimer = null;
 let workProgressValue = 10;
 let appVersionText = "v?";
 let appVersionPromise = null;
+let _sidPlayMode = "all";
 const exitAppButton = document.getElementById("exit-app");
 const expertHlToggleBtn = document.getElementById("expert-hl-toggle");
 const expertPaletteSyncBtn = document.getElementById("expert-palette-sync-btn");
@@ -514,6 +516,7 @@ function saveUiSettings() {
     sample: sampleSelect?.value || "basic-colors",
     memoryPanelOpen: !!globalMemoryPanel?.open,
     basicSys: basicSysToggle ? basicSysToggle.checked : true,
+    writeDebugSidecars: writeDebugSidecarsToggle ? writeDebugSidecarsToggle.checked : false,
     exomizerBorderFlash: exomizerBorderFlashToggle ? exomizerBorderFlashToggle.checked : true,
     expertMode: expertMode,
     expertHlEnabled: _expertHlEnabled,
@@ -1426,6 +1429,7 @@ function initPalette() {
     renderExpertOriginInfo();
   });
   exomizerBorderFlashToggle?.addEventListener("change", saveUiSettings);
+  writeDebugSidecarsToggle?.addEventListener("change", saveUiSettings);
 
   expertModeToggle?.addEventListener("change", () => {
     setExpertMode(expertModeToggle.checked);
@@ -2323,6 +2327,10 @@ function _applyUiSettingsToDOM() {
     basicSysToggle.checked = savedUiSettings.basicSys !== false;
   }
 
+  if (writeDebugSidecarsToggle) {
+    writeDebugSidecarsToggle.checked = !!savedUiSettings.writeDebugSidecars;
+  }
+
   if (exomizerBorderFlashToggle) {
     exomizerBorderFlashToggle.checked = savedUiSettings.exomizerBorderFlash !== false;
   }
@@ -2555,6 +2563,8 @@ function applyTranslations() {
   if (mnemonicDescLabel) mnemonicDescLabel.textContent = t("mnemonicCardLabel");
   const basicSysLabelEl = document.getElementById("basic-sys-label");
   if (basicSysLabelEl) basicSysLabelEl.textContent = t("basicSysLabel");
+  const writeDebugSidecarsLabelEl = document.getElementById("write-debug-sidecars-label");
+  if (writeDebugSidecarsLabelEl) writeDebugSidecarsLabelEl.textContent = t("writeDebugSidecarsLabel");
   const exomizerFlashLabelEl = document.getElementById("exomizer-border-flash-label");
   if (exomizerFlashLabelEl) exomizerFlashLabelEl.textContent = t("exomizerBorderFlashLabel");
   const blockPaletteSyncLabelEl = document.getElementById("block-desc-sync-label");
@@ -3027,8 +3037,15 @@ function _applyEditorTranslations() {
   setText(".sid-tracker-row .sid-lbl", t("sidTrackerLabel"));
   setAttr("#sid-pat-add", t("sidAddPattern"));
   const sidTrackerMiniLbls = document.querySelectorAll(".sid-tracker-row .sid-mini-lbl");
-  if (sidTrackerMiniLbls[0]) sidTrackerMiniLbls[0].textContent = t("sidSpeed");
-  if (sidTrackerMiniLbls[1]) sidTrackerMiniLbls[1].textContent = t("sidOctave");
+  if (sidTrackerMiniLbls[0]) sidTrackerMiniLbls[0].textContent = t("sidPlayMode");
+  if (sidTrackerMiniLbls[1]) sidTrackerMiniLbls[1].textContent = t("sidSpeed");
+  if (sidTrackerMiniLbls[2]) sidTrackerMiniLbls[2].textContent = t("sidOctave");
+  const sidPlayModeSel = document.getElementById("sid-play-mode");
+  if (sidPlayModeSel) {
+    if (sidPlayModeSel.options[0]) sidPlayModeSel.options[0].textContent = t("sidPlayModeCurrent");
+    if (sidPlayModeSel.options[1]) sidPlayModeSel.options[1].textContent = t("sidPlayModeAll");
+    sidPlayModeSel.value = _sidPlayMode;
+  }
   setAttr("#sid-oct-down", t("sidOctaveDown"));
   setAttr("#sid-oct-up", t("sidOctaveUp"));
   setAttr("#sid-play", t("sidPlay"));
@@ -11634,7 +11651,13 @@ function _buildDebuggerSidecarTexts(layout, originOverride) {
   return { dbg: dbgText, sym: symText, vs: vsText };
 }
 
-function _buildDebuggerSidecarPayload(prg) {
+function _buildDebuggerSidecarPayload(prg, { force = false } = {}) {
+  // Skip generation unless the user explicitly opted in via the settings toggle.
+  // `force` bypasses the setting (used by launch_debugger where RetroDebugger
+  // needs the .dbg/.sym files regardless of user preference).
+  if (!force && !(writeDebugSidecarsToggle && writeDebugSidecarsToggle.checked)) {
+    return null;
+  }
   try {
     const originOverride = _getDebuggerCodeOrigin(prg);
     const layout = getProgramLayout(originOverride);
@@ -11684,7 +11707,7 @@ async function runInDebugger() {
       fileName: `c64-visual-assembler-${Date.now()}.prg`,
       symbols,
       breakpoints,
-      sidecars: _buildDebuggerSidecarPayload(prg),
+      sidecars: _buildDebuggerSidecarPayload(prg, { force: true }),
       autoJmp: false,
       jmpAddress: debuggerJmp ? debugCodeOrigin : undefined,
       waitMs: debuggerWait ? debuggerWaitMs : 0,
@@ -27519,7 +27542,7 @@ let _sidSelAnchor = null;  // row anchor for range selection, null = no range
 let _sidClipboard = null;  // copied voice column: array of 32 {note, inst}
 let _sidCellClip = null;   // cell-range clipboard: [{note,inst},...] from Ctrl+C
 let _sidAudio = null;
-let _sidTimer = null, _sidRow = 0;
+let _sidTimer = null, _sidRow = 0, _sidPlayPat = 0;
 let _sidInited = false;
 let _sidOctave = 4;
 
@@ -27538,6 +27561,17 @@ function _sidNewPattern() {
 }
 function _sidCurInst() { return _sidInsts[_sidInst]; }
 function _sidCurPat() { return _sidPatterns[_sidPat]; }
+function _sidSyncPlayModeSel() {
+  const sel = document.getElementById("sid-play-mode");
+  if (sel) sel.value = _sidPlayMode;
+}
+function _sidSetPattern(index, rebuildTracker) {
+  if (!_sidPatterns || !_sidPatterns.length) return;
+  _sidPat = Math.max(0, Math.min(_sidPatterns.length - 1, index|0));
+  const sel = document.getElementById("sid-pat-sel");
+  if (sel) sel.value = _sidPat;
+  if (rebuildTracker) _sidBuildTracker();
+}
 
 const _SID_NOTE_NAMES = ["C-","C#","D-","D#","E-","F-","F#","G-","G#","A-","A#","B-"];
 function _sidNoteName(n) {
@@ -27768,12 +27802,14 @@ function _sidStop() {
 function _sidPlay() {
   _sidStop();
   _sidEnsureAudio();
+  _sidPlayPat = _sidPat;
   _sidRow = 0;
+  const playAll = _sidPlayMode === "all";
   const rowSec = Math.max(0.04, _sidSpeed / 50);
   const t = document.getElementById("sid-tracker");
   const tick = function() {
     const ac = _sidAudio, when = ac.currentTime + 0.02;
-    const pat = _sidCurPat();
+    const pat = _sidPatterns[_sidPlayPat] || _sidCurPat();
     for (let v = 0; v < 3; v++) {
       const cell = pat[v][_sidRow];
       if (cell.note != null) _sidPlayInst(_sidInsts[cell.inst] || _sidCurInst(), _sidNoteFreq(cell.note), when, rowSec);
@@ -27783,8 +27819,16 @@ function _sidPlay() {
       const tr = t.querySelector('tr.sid-trow[data-row="'+_sidRow+'"]');
       if (tr) { tr.classList.add("sid-playing"); tr.scrollIntoView({ block: "nearest" }); }
     }
-    _sidRow = (_sidRow + 1) % _SID_ROWS;
+    _sidRow++;
+    if (_sidRow >= _SID_ROWS) {
+      _sidRow = 0;
+      if (playAll) {
+        _sidPlayPat = (_sidPlayPat + 1) % _sidPatterns.length;
+        if (_sidPat !== _sidPlayPat) _sidSetPattern(_sidPlayPat, true);
+      }
+    }
   };
+  _sidSetPattern(_sidPlayPat, true);
   tick();
   _sidTimer = setInterval(tick, rowSec * 1000);
 }
@@ -27826,7 +27870,8 @@ function _sidDeserialize(src) {
     _sidPatterns.push(pat);
   }
   if (!_sidPatterns.length) _sidPatterns = [_sidNewPattern()];
-  _sidInst = 0; _sidPat = 0;
+  _sidInst = 0; _sidPat = 0; _sidPlayPat = 0;
+  _sidSyncPlayModeSel();
   _sidBuildInstSel(); _sidLoadInstUI(); _sidBuildPatSel(); _sidBuildTracker();
 }
 function _sidExport(kind) {
@@ -28165,6 +28210,8 @@ function _sidInit() {
   _sidInited = true;
   _sidInsts = [_sidNewInst()];
   _sidPatterns = [_sidNewPattern()];
+  _sidPlayPat = 0;
+  _sidSyncPlayModeSel();
   _sidBuildInstSel();
   _sidLoadInstUI();
   _sidBuildPatSel();
@@ -28234,8 +28281,9 @@ function setupSidEditor() {
   }
 
   // tracker
-  onId("sid-pat-sel", "change", function(e){ _sidPat = parseInt(e.target.value,10); _sidBuildTracker(); });
-  onId("sid-pat-add", "click", function(){ _sidPatterns.push(_sidNewPattern()); _sidPat = _sidPatterns.length-1; _sidBuildPatSel(); _sidBuildTracker(); });
+  onId("sid-pat-sel", "change", function(e){ _sidSetPattern(parseInt(e.target.value,10), true); });
+  onId("sid-pat-add", "click", function(){ _sidPatterns.push(_sidNewPattern()); _sidBuildPatSel(); _sidSetPattern(_sidPatterns.length-1, true); });
+  onId("sid-play-mode", "change", function(e){ _sidPlayMode = e.target.value === "current" ? "current" : "all"; if(_sidTimer){ _sidPlay(); } });
   onId("sid-speed", "input", function(e){ _sidSpeed = Math.max(1, parseInt(e.target.value,10)||6); if(_sidTimer){ _sidPlay(); } });
   onId("sid-play", "click", _sidPlay);
   onId("sid-stop", "click", _sidStop);

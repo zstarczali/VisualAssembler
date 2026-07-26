@@ -1,11 +1,11 @@
 # macOS Installation Guide
-Version 2.2.2
+Version 2.2.4
 
-2.2.2: expert editor minimap, block panel minimap, disasm copy button tooltip fix.
+2.2.4: SID editor fixes, Build Info dialog polish, debug sidecar toggle, FILL/import parser improvements, minimap refinements, classic BASIC SYS stub.
 
 ## Quick Install
 
-1. **Download** the 2.2.2 DMG for your architecture from the releases page
+1. **Download** the 2.2.4 DMG for your architecture from the releases page
 2. **Mount** the DMG and drag the app to `/Applications`
 3. **First launch**: Right-click the app → **"Open"** (macOS will block double-click)
 4. Click **"Open"** in the security dialog
@@ -53,4 +53,4 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.2.2 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.2.4 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

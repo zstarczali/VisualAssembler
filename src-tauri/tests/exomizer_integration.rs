@@ -7,8 +7,8 @@
 //      correctly reproduces the original 10000-byte bitmap at $2000-$472F.
 //
 // The 6502 execution is done with the `emulator_6502` crate. We give the depacker
-// a 64K flat RAM, push a sentinel return address ($FFFD) on the stack, and run
-// until PC reaches that sentinel (which means the top-level RTS fired).
+// a 64K flat RAM, execute the same inline EXODECRUNCH byte sequence the app emits,
+// then stop via a trailing JMP sentinel.
 
 use emulator_6502::{Interface6502, MOS6502};
 use std::path::PathBuf;
@@ -17,7 +17,8 @@ use std::process::Command;
 const DEPACKER_LOAD: u16 = 0xB000;
 const COMPRESSED_LOAD: u16 = 0xC000;
 const DECOMPRESS_TARGET: u16 = 0x2000;
-const SENTINEL_PC: u16 = 0xFFFE; // RTS pulls $FFFD, increments → $FFFE
+const WRAPPER_LOAD: u16 = 0x0800;
+const SENTINEL_PC: u16 = 0xFFFE;
 
 struct FlatRam(Box<[u8; 65536]>);
 
@@ -120,42 +121,33 @@ fn run_depacker(
     let crunched_end = compressed_load as usize + payload.len();
     assert!(crunched_end <= 65536, "payload overflows 64K");
 
-    // KERNAL sets $AE/$AF to end-of-load. Simulate that, so the EXODECRUNCH
-    // macro's `LDA $AE / STA $04 / LDA $AF / STA $05` path would work — but we
-    // bypass the macro and set $04/$05 directly to the same value.
+    // KERNAL sets $AE/$AF to end-of-load. Simulate that so the EXODECRUNCH
+    // wrapper can copy the source-end pointer into the depacker ZP addresses.
     ram.0[0x00AE] = (crunched_end & 0xFF) as u8;
     ram.0[0x00AF] = ((crunched_end >> 8) & 0xFF) as u8;
-    ram.0[0x0004] = ram.0[0x00AE];
-    ram.0[0x0005] = ram.0[0x00AF];
     eprintln!("[setup] crunched at ${:04X}-${:04X}, end ptr=${:04X}",
         compressed_load, crunched_end - 1, crunched_end);
 
-    // Push sentinel return address on the stack. RTS pulls lo then hi and
-    // adds 1, so push (SENTINEL_PC - 1) high then low.
-    let ret = SENTINEL_PC.wrapping_sub(1);
-    let ret_hi = (ret >> 8) as u8;
-    let ret_lo = (ret & 0xFF) as u8;
-    // Stack grows down from $01FF. SP starts at $FF.
-    ram.0[0x01FF] = ret_hi;
-    ram.0[0x01FE] = ret_lo;
+    // Real app flow: execute the inline EXODECRUNCH sequence, which copies
+    // $AE/$AF to $04/$05, toggles $01 to $36 around the depacker JSR, then
+    // restores $01 to $37 and continues with the next instruction.
+    let wrapper: [u8; 22] = [
+        0xA5, 0xAE,       // LDA $AE
+        0x85, 0x04,       // STA $04
+        0xA5, 0xAF,       // LDA $AF
+        0x85, 0x05,       // STA $05
+        0xA9, 0x36,       // LDA #$36
+        0x85, 0x01,       // STA $01
+        0x20, (depacker_load & 0xFF) as u8, (depacker_load >> 8) as u8, // JSR depacker
+        0xA9, 0x37,       // LDA #$37
+        0x85, 0x01,       // STA $01
+        0x4C, (SENTINEL_PC & 0xFF) as u8, (SENTINEL_PC >> 8) as u8, // JMP sentinel
+    ];
+    ram.load_at(WRAPPER_LOAD, &wrapper);
+    ram.0[0x0001] = 0x37;
 
     let mut cpu = MOS6502::new();
-    cpu.set_program_counter(depacker_load);
-    // Manually align SP to $FD (we pushed 2 bytes onto $FF/$FE).
-    // The crate doesn't expose set_stack_pointer directly; we work around by
-    // executing a fake stack-prime sequence: RTS in reset would also be ok.
-    // Instead, write the bytes to $01FE/$01FF and use the crate's reset to set
-    // SP to FD via a fake routine. Simpler: just JSR to depacker_load from
-    // an inert "JSR / JMP $FFFE" trampoline placed at a known address.
-    // We do that by setting PC = trampoline.
-    const TRAMP: u16 = 0x0200;
-    ram.0[TRAMP as usize] = 0x20; // JSR
-    ram.0[TRAMP as usize + 1] = (depacker_load & 0xFF) as u8;
-    ram.0[TRAMP as usize + 2] = (depacker_load >> 8) as u8;
-    ram.0[TRAMP as usize + 3] = 0x4C; // JMP $FFFE
-    ram.0[TRAMP as usize + 4] = (SENTINEL_PC & 0xFF) as u8;
-    ram.0[TRAMP as usize + 5] = (SENTINEL_PC >> 8) as u8;
-    cpu.set_program_counter(TRAMP);
+    cpu.set_program_counter(WRAPPER_LOAD);
 
     // Run until PC reaches sentinel (or a step budget is exhausted).
     let mut steps = 0usize;

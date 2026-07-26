@@ -1,7 +1,7 @@
 # Linux Installation Guide (Ubuntu / Debian)
-Version 2.2.2
+Version 2.2.4
 
-2.2.2: expert editor minimap, block panel minimap, disasm copy button tooltip fix.
+2.2.4: SID editor fixes, Build Info dialog polish, debug sidecar toggle, FILL/import parser improvements, minimap refinements, classic BASIC SYS stub.
 
 Tested on Ubuntu 22.04 and 24.04.
 
@@ -12,7 +12,7 @@ Tested on Ubuntu 22.04 and 24.04.
 Download the `.deb` package from the releases page and install:
 
 ```bash
-  sudo dpkg -i "c64-visual-assembler_2.2.2_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.2.4_amd64.deb"
 sudo apt-get install -f   # fix any missing dependencies
 ```
 
@@ -126,4 +126,4 @@ The app propagates `DISPLAY`, `WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR`, `DBUS_SESSIO
 
 ---
 
-**Version:** 2.2.2 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.2.4 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

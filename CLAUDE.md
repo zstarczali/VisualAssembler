@@ -562,8 +562,8 @@ Ha egy step betölt egy sample-t mielőtt megmutatja a UI-t:
 
 ## 15. Jelenlegi verzió
 
-`2.2.2` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
+`2.2.4` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, és ez a fájl + copilot-instructions.md.
-Fő 2.2.2 változás: **expert editor minimap** (canvas-alapú kód-áttekintő csík az expert editor jobb oldalán, toolbar gombbal kapcsolható, RAF-throttled rajzolás comment/label/directive/mnem színekkel, viewport indicator click/drag scrollolással, DPR-aware, UI settings-ben perzisztálva); **block panel minimap** (Program panel jobb szélén megjelenő toggleable minimap, blokk típus szerinti színezéssel, click/drag scrollolás, `blockMinimap` state); **disasm copy gombok custom tooltip** (mindkét disasm "Copy source" gomb `title` attribútuma eltávolítva, CSS `aria-label` tooltip rendszerbe illesztve).
+Fő 2.2.4 változások: **SID editor fixek** (multi-pattern preview lejátszás, kompaktabb selector/control sor); **Build Info dialog polish** (belső scroll, mindig látható close); **debug sidecar toggle** és **FILL / import parser fejlesztések**; továbbá minimap finomítások és klasszikus `SYS2061` stub.
 
 Verziónöveléshez lásd a 3. szakasz végén lévő 7-lépéses checklistet.
