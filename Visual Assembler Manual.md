@@ -1,8 +1,10 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.2.2**
+**Version 2.2.4**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
+
+Release highlights (v2.2.4): SID editor playback/control fixes, Build Info dialog scroll/close polish, debug sidecar toggle in Settings, expression-aware `FILL` / `CONST` workflows, Kick Assembler import/parser fixes, classic BASIC `SYS2061` stub output, and minimap refinements.
 
 ---
 

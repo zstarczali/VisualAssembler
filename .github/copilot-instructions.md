@@ -662,8 +662,8 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`2.2.2` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, `CLAUDE.md`.
-Főbb újdonságok: **expert editor minimap** — canvas-alapú kód-áttekintő csík az expert editor jobb oldalán, toolbar gombbal kapcsolható, RAF-throttled rajzolás (comment/label/directive/mnem színekkel), viewport indicator click/drag scrollolással, DPR-aware, UI settings-ben perzisztálva; **block panel minimap** — a Program panel jobb szélén megjelenő toggleable minimap, blokk típus szerinti színezéssel (label=cián, makró=kék, utasítás=sárga, comment=zöld, hiba=piros), click/drag scrollolás, `blockMinimap` state; **disasm copy gombok custom tooltip** — mindkét disasm "Copy source" gomb `title` attribútuma eltávolítva, CSS `aria-label` tooltip rendszerbe illesztve.
+`2.2.4` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, `CLAUDE.md`.
+Főbb újdonságok: **SID editor fixek** — multi-pattern preview lejátszás és kompaktabb selector/control sor; **Build Info dialog polish** — belső scroll + mindig látható close; **debug sidecar toggle**; **FILL / import parser fejlesztések**; valamint expert/block minimap finomítások és klasszikus `SYS2061` BASIC stub.
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező

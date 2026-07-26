@@ -2,7 +2,17 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.2.2**
+**Current version: v2.2.4**
+
+## What's New in v2.2.4
+
+- **SID editor fixes** — preview playback can now step through multiple patterns in sequence, and the instrument/pattern selector row uses more compact controls.
+- **Dialog polish** — the Build Info dialog scrolls its inner content while keeping the close button visible.
+- **Debug sidecar toggle** — the Settings menu can now control whether normal save/build/run flows write C64Debugger sidecar files (`.dbg`, `.sym`, `.vs`).
+- **Expression-aware FILL / CONST workflows** — `FILL` now supports richer arithmetic expressions with CONST names, `lo()` / `hi()`, math helpers, `PI`, and the `i` index variable.
+- **Kick Assembler import / parser fixes** — ORG titles, `.const` / `.label` equates, `label+.fill N`, normalized spacing, and more immediate-expression cases round-trip more reliably.
+- **Classic BASIC SYS stub** — autostart wrapping now emits the standard no-space `SYS2061` BASIC token layout.
+- **Minimap refinements** — the Expert and Program-panel minimaps received layout and viewport-tracking fixes.
 
 ---
 

@@ -374,6 +374,7 @@ let workProgressTimer = null;
 let workProgressValue = 10;
 let appVersionText = "v?";
 let appVersionPromise = null;
+let _sidPlayMode = "all";
 const exitAppButton = document.getElementById("exit-app");
 const expertHlToggleBtn = document.getElementById("expert-hl-toggle");
 const expertPaletteSyncBtn = document.getElementById("expert-palette-sync-btn");
@@ -3036,8 +3037,15 @@ function _applyEditorTranslations() {
   setText(".sid-tracker-row .sid-lbl", t("sidTrackerLabel"));
   setAttr("#sid-pat-add", t("sidAddPattern"));
   const sidTrackerMiniLbls = document.querySelectorAll(".sid-tracker-row .sid-mini-lbl");
-  if (sidTrackerMiniLbls[0]) sidTrackerMiniLbls[0].textContent = t("sidSpeed");
-  if (sidTrackerMiniLbls[1]) sidTrackerMiniLbls[1].textContent = t("sidOctave");
+  if (sidTrackerMiniLbls[0]) sidTrackerMiniLbls[0].textContent = t("sidPlayMode");
+  if (sidTrackerMiniLbls[1]) sidTrackerMiniLbls[1].textContent = t("sidSpeed");
+  if (sidTrackerMiniLbls[2]) sidTrackerMiniLbls[2].textContent = t("sidOctave");
+  const sidPlayModeSel = document.getElementById("sid-play-mode");
+  if (sidPlayModeSel) {
+    if (sidPlayModeSel.options[0]) sidPlayModeSel.options[0].textContent = t("sidPlayModeCurrent");
+    if (sidPlayModeSel.options[1]) sidPlayModeSel.options[1].textContent = t("sidPlayModeAll");
+    sidPlayModeSel.value = _sidPlayMode;
+  }
   setAttr("#sid-oct-down", t("sidOctaveDown"));
   setAttr("#sid-oct-up", t("sidOctaveUp"));
   setAttr("#sid-play", t("sidPlay"));
@@ -27553,6 +27561,10 @@ function _sidNewPattern() {
 }
 function _sidCurInst() { return _sidInsts[_sidInst]; }
 function _sidCurPat() { return _sidPatterns[_sidPat]; }
+function _sidSyncPlayModeSel() {
+  const sel = document.getElementById("sid-play-mode");
+  if (sel) sel.value = _sidPlayMode;
+}
 function _sidSetPattern(index, rebuildTracker) {
   if (!_sidPatterns || !_sidPatterns.length) return;
   _sidPat = Math.max(0, Math.min(_sidPatterns.length - 1, index|0));
@@ -27792,6 +27804,7 @@ function _sidPlay() {
   _sidEnsureAudio();
   _sidPlayPat = _sidPat;
   _sidRow = 0;
+  const playAll = _sidPlayMode === "all";
   const rowSec = Math.max(0.04, _sidSpeed / 50);
   const t = document.getElementById("sid-tracker");
   const tick = function() {
@@ -27809,8 +27822,10 @@ function _sidPlay() {
     _sidRow++;
     if (_sidRow >= _SID_ROWS) {
       _sidRow = 0;
-      _sidPlayPat = (_sidPlayPat + 1) % _sidPatterns.length;
-      if (_sidPat !== _sidPlayPat) _sidSetPattern(_sidPlayPat, true);
+      if (playAll) {
+        _sidPlayPat = (_sidPlayPat + 1) % _sidPatterns.length;
+        if (_sidPat !== _sidPlayPat) _sidSetPattern(_sidPlayPat, true);
+      }
     }
   };
   _sidSetPattern(_sidPlayPat, true);
@@ -27856,6 +27871,7 @@ function _sidDeserialize(src) {
   }
   if (!_sidPatterns.length) _sidPatterns = [_sidNewPattern()];
   _sidInst = 0; _sidPat = 0; _sidPlayPat = 0;
+  _sidSyncPlayModeSel();
   _sidBuildInstSel(); _sidLoadInstUI(); _sidBuildPatSel(); _sidBuildTracker();
 }
 function _sidExport(kind) {
@@ -28195,6 +28211,7 @@ function _sidInit() {
   _sidInsts = [_sidNewInst()];
   _sidPatterns = [_sidNewPattern()];
   _sidPlayPat = 0;
+  _sidSyncPlayModeSel();
   _sidBuildInstSel();
   _sidLoadInstUI();
   _sidBuildPatSel();
@@ -28266,6 +28283,7 @@ function setupSidEditor() {
   // tracker
   onId("sid-pat-sel", "change", function(e){ _sidSetPattern(parseInt(e.target.value,10), true); });
   onId("sid-pat-add", "click", function(){ _sidPatterns.push(_sidNewPattern()); _sidBuildPatSel(); _sidSetPattern(_sidPatterns.length-1, true); });
+  onId("sid-play-mode", "change", function(e){ _sidPlayMode = e.target.value === "current" ? "current" : "all"; if(_sidTimer){ _sidPlay(); } });
   onId("sid-speed", "input", function(e){ _sidSpeed = Math.max(1, parseInt(e.target.value,10)||6); if(_sidTimer){ _sidPlay(); } });
   onId("sid-play", "click", _sidPlay);
   onId("sid-stop", "click", _sidStop);

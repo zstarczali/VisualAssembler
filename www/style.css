@@ -7825,6 +7825,7 @@ body.crt-mode #crt-overlay::after {
 .sid-input { font-family: inherit; font-size: 0.8rem; height: 28px; min-height: 0; padding: 3px 8px; line-height: 1.2; border: 1px solid var(--panel-border); border-radius: 2px; background: var(--control-bg); color: var(--text); }
 #sid-inst-sel { width: 170px; flex: 0 0 170px; }
 #sid-pat-sel { width: 92px; flex: 0 0 92px; }
+#sid-play-mode { width: 92px; flex: 0 0 92px; }
 #sid-inst-name { width: 180px; flex: 0 0 auto; }
 .sid-wave-row .sid-mini-lbl { margin-left: 20px; }
 .sid-speed { width: 56px; text-align: center; }
