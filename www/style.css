@@ -4715,13 +4715,19 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   flex-direction: column;
   gap: 12px;
   max-height: 80vh;
-  overflow-y: auto;
+  overflow: hidden;
 }
 .build-info-title {
   font-size: 0.9rem;
   font-weight: 700;
   color: var(--text);
   margin: 0;
+}
+#build-info-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 .build-info-section {
   display: flex;
@@ -4790,6 +4796,7 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   padding: 7px 24px;
   font-size: 0.82rem;
   align-self: center;
+  flex-shrink: 0;
   margin-top: 4px;
 }
 
@@ -7814,13 +7821,14 @@ body.crt-mode #crt-overlay::after {
 .sid-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .sid-lbl { font-family: inherit; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; color: var(--primary); width: 96px; flex-shrink: 0; }
 .sid-section { font-family: inherit; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; color: var(--primary); display: block; margin-bottom: 8px; }
-.sid-select { font-family: inherit; font-size: 0.78rem; padding: 5px 8px; min-height: 0; border: 1px solid var(--panel-border); border-radius: 2px; background: var(--control-bg); color: var(--text); cursor: pointer; }
-.sid-input { font-family: inherit; font-size: 0.8rem; padding: 5px 8px; min-height: 0; border: 1px solid var(--panel-border); border-radius: 2px; background: var(--control-bg); color: var(--text); }
-#sid-inst-sel { width: 170px; flex: 0 0 auto; }
+.sid-select { font-family: inherit; font-size: 0.78rem; height: 28px; min-height: 0; padding: 3px 28px 3px 8px; line-height: 1.2; border: 1px solid var(--panel-border); border-radius: 2px; background: var(--control-bg); color: var(--text); cursor: pointer; }
+.sid-input { font-family: inherit; font-size: 0.8rem; height: 28px; min-height: 0; padding: 3px 8px; line-height: 1.2; border: 1px solid var(--panel-border); border-radius: 2px; background: var(--control-bg); color: var(--text); }
+#sid-inst-sel { width: 170px; flex: 0 0 170px; }
+#sid-pat-sel { width: 92px; flex: 0 0 92px; }
 #sid-inst-name { width: 180px; flex: 0 0 auto; }
 .sid-wave-row .sid-mini-lbl { margin-left: 20px; }
 .sid-speed { width: 56px; text-align: center; }
-.sid-mini-btn { font-family: inherit; font-size: 0.76rem; font-weight: 500; padding: 5px 10px; min-height: 0; border: none; border-radius: 2px; background: transparent; color: var(--secondary); cursor: pointer; white-space: nowrap; transition: background 0.12s, color 0.12s; }
+.sid-mini-btn { font-family: inherit; font-size: 0.76rem; font-weight: 500; height: 28px; min-height: 0; padding: 0 10px; line-height: 1; border: none; border-radius: 2px; background: transparent; color: var(--secondary); cursor: pointer; white-space: nowrap; transition: background 0.12s, color 0.12s; }
 .sid-mini-btn:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); color: var(--text); }
 .sid-mini-btn:active { background: color-mix(in srgb, var(--secondary) 26%, transparent); }
 .sid-mini-lbl { font-family: inherit; font-size: 0.72rem; color: var(--secondary); }

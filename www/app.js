@@ -27534,7 +27534,7 @@ let _sidSelAnchor = null;  // row anchor for range selection, null = no range
 let _sidClipboard = null;  // copied voice column: array of 32 {note, inst}
 let _sidCellClip = null;   // cell-range clipboard: [{note,inst},...] from Ctrl+C
 let _sidAudio = null;
-let _sidTimer = null, _sidRow = 0;
+let _sidTimer = null, _sidRow = 0, _sidPlayPat = 0;
 let _sidInited = false;
 let _sidOctave = 4;
 
@@ -27553,6 +27553,13 @@ function _sidNewPattern() {
 }
 function _sidCurInst() { return _sidInsts[_sidInst]; }
 function _sidCurPat() { return _sidPatterns[_sidPat]; }
+function _sidSetPattern(index, rebuildTracker) {
+  if (!_sidPatterns || !_sidPatterns.length) return;
+  _sidPat = Math.max(0, Math.min(_sidPatterns.length - 1, index|0));
+  const sel = document.getElementById("sid-pat-sel");
+  if (sel) sel.value = _sidPat;
+  if (rebuildTracker) _sidBuildTracker();
+}
 
 const _SID_NOTE_NAMES = ["C-","C#","D-","D#","E-","F-","F#","G-","G#","A-","A#","B-"];
 function _sidNoteName(n) {
@@ -27783,12 +27790,13 @@ function _sidStop() {
 function _sidPlay() {
   _sidStop();
   _sidEnsureAudio();
+  _sidPlayPat = _sidPat;
   _sidRow = 0;
   const rowSec = Math.max(0.04, _sidSpeed / 50);
   const t = document.getElementById("sid-tracker");
   const tick = function() {
     const ac = _sidAudio, when = ac.currentTime + 0.02;
-    const pat = _sidCurPat();
+    const pat = _sidPatterns[_sidPlayPat] || _sidCurPat();
     for (let v = 0; v < 3; v++) {
       const cell = pat[v][_sidRow];
       if (cell.note != null) _sidPlayInst(_sidInsts[cell.inst] || _sidCurInst(), _sidNoteFreq(cell.note), when, rowSec);
@@ -27798,8 +27806,14 @@ function _sidPlay() {
       const tr = t.querySelector('tr.sid-trow[data-row="'+_sidRow+'"]');
       if (tr) { tr.classList.add("sid-playing"); tr.scrollIntoView({ block: "nearest" }); }
     }
-    _sidRow = (_sidRow + 1) % _SID_ROWS;
+    _sidRow++;
+    if (_sidRow >= _SID_ROWS) {
+      _sidRow = 0;
+      _sidPlayPat = (_sidPlayPat + 1) % _sidPatterns.length;
+      if (_sidPat !== _sidPlayPat) _sidSetPattern(_sidPlayPat, true);
+    }
   };
+  _sidSetPattern(_sidPlayPat, true);
   tick();
   _sidTimer = setInterval(tick, rowSec * 1000);
 }
@@ -27841,7 +27855,7 @@ function _sidDeserialize(src) {
     _sidPatterns.push(pat);
   }
   if (!_sidPatterns.length) _sidPatterns = [_sidNewPattern()];
-  _sidInst = 0; _sidPat = 0;
+  _sidInst = 0; _sidPat = 0; _sidPlayPat = 0;
   _sidBuildInstSel(); _sidLoadInstUI(); _sidBuildPatSel(); _sidBuildTracker();
 }
 function _sidExport(kind) {
@@ -28180,6 +28194,7 @@ function _sidInit() {
   _sidInited = true;
   _sidInsts = [_sidNewInst()];
   _sidPatterns = [_sidNewPattern()];
+  _sidPlayPat = 0;
   _sidBuildInstSel();
   _sidLoadInstUI();
   _sidBuildPatSel();
@@ -28249,8 +28264,8 @@ function setupSidEditor() {
   }
 
   // tracker
-  onId("sid-pat-sel", "change", function(e){ _sidPat = parseInt(e.target.value,10); _sidBuildTracker(); });
-  onId("sid-pat-add", "click", function(){ _sidPatterns.push(_sidNewPattern()); _sidPat = _sidPatterns.length-1; _sidBuildPatSel(); _sidBuildTracker(); });
+  onId("sid-pat-sel", "change", function(e){ _sidSetPattern(parseInt(e.target.value,10), true); });
+  onId("sid-pat-add", "click", function(){ _sidPatterns.push(_sidNewPattern()); _sidBuildPatSel(); _sidSetPattern(_sidPatterns.length-1, true); });
   onId("sid-speed", "input", function(e){ _sidSpeed = Math.max(1, parseInt(e.target.value,10)||6); if(_sidTimer){ _sidPlay(); } });
   onId("sid-play", "click", _sidPlay);
   onId("sid-stop", "click", _sidStop);
