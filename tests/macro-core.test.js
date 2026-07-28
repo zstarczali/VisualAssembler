@@ -855,6 +855,48 @@ test("parseExpertText imports core Kick Assembler syntax used by macro-heavy sou
   assert.equal(blocks[11].commentText, "payload");
 });
 
+test("parseExpertText keeps decimal indexed operands as decimal absolute modes", () => {
+  const ctx = loadFunctions(
+    [
+      "_splitAsmLineComment",
+      "_importMakeComment",
+      "_importParseScalar",
+      "_importDetectListBase",
+      "parseNumberByBase",
+      "_importMakeConst",
+      "_importMakeMacroDefStart",
+      "_importMakeMacroDefEnd",
+      "_importMakeInstruction",
+      "_importMakeLabel",
+      "_importMakeByte",
+      "parseAsmText",
+      "parseExpertText"
+    ],
+    {
+      crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
+      t: (key) => key,
+      tf: (key) => key,
+      _importMnemonicCategory: () => "Teszt",
+      _importMnemonicDescription: () => ""
+    }
+  );
+
+  const blocks = ctx.parseExpertText([
+    "STA 1024,Y",
+    "LDA 49152,X"
+  ].join("\n"));
+
+  assert.equal(blocks[0].mnemonic, "STA");
+  assert.equal(blocks[0].addressingMode, "absoluteY");
+  assert.equal(blocks[0].base, "dec");
+  assert.equal(blocks[0].rawOperand, "1024");
+
+  assert.equal(blocks[1].mnemonic, "LDA");
+  assert.equal(blocks[1].addressingMode, "absoluteX");
+  assert.equal(blocks[1].base, "dec");
+  assert.equal(blocks[1].rawOperand, "49152");
+});
+
 test("DELAY keeps const names in expert mode", () => {
   const ctx = createMacroContext({
     program: [

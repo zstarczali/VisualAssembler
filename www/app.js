@@ -13834,12 +13834,22 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
       const explicitWideHex = rawOperand.length > 2;
       addressingMode = explicitWideHex || parseInt(rawOperand, 16) > 0xFF ? "absoluteX" : "zeroPageX";
       displayOperand = "$" + rawOperand + ",X";
+    } else if (/^\d+,X$/i.test(op)) {
+      const m = op.match(/^(\d+),X$/i);
+      rawOperand = m[1]; base = "dec";
+      addressingMode = parseInt(rawOperand, 10) > 0xFF ? "absoluteX" : "zeroPageX";
+      displayOperand = rawOperand + ",X";
     } else if (/^\$[0-9A-Fa-f]+,Y$/i.test(op)) {
       const m = op.match(/^(\$[0-9A-Fa-f]+),Y$/i);
       rawOperand = m[1].slice(1).toUpperCase(); base = "hex";
       const explicitWideHex = rawOperand.length > 2;
       addressingMode = explicitWideHex || parseInt(rawOperand, 16) > 0xFF ? "absoluteY" : "zeroPageY";
       displayOperand = "$" + rawOperand + ",Y";
+    } else if (/^\d+,Y$/i.test(op)) {
+      const m = op.match(/^(\d+),Y$/i);
+      rawOperand = m[1]; base = "dec";
+      addressingMode = parseInt(rawOperand, 10) > 0xFF ? "absoluteY" : "zeroPageY";
+      displayOperand = rawOperand + ",Y";
     } else if (/^\$[0-9A-Fa-f]+$/i.test(op)) {
       rawOperand = op.slice(1).toUpperCase(); base = "hex";
       const explicitWideHex = rawOperand.length > 2;
