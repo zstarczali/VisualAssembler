@@ -7140,10 +7140,10 @@ body.crt-mode #crt-overlay::after {
   background: transparent;
   border: none;
   padding: 0;
-  width: min(1040px, 96vw);
+  width: min(1080px, 96vw);
   max-width: 96vw;
-  height: min(820px, 94vh);
-  max-height: 94vh;
+  height: min(874px, 98vh);
+  max-height: 98vh;
   overflow: hidden;
 }
 .cc-dialog::backdrop { background: rgba(0,0,0,0.6); }
@@ -7159,7 +7159,7 @@ body.crt-mode #crt-overlay::after {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 12px;
+  padding: 7px 12px;
   border-bottom: 1px solid var(--panel-border);
   background: var(--panel-strong);
   flex-shrink: 0;
@@ -7198,6 +7198,63 @@ body.crt-mode #crt-overlay::after {
 .cc-tool svg { display: block; width: 15px; height: 15px; }
 .cc-tool:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); color: var(--text); }
 .cc-tool--active { background: var(--primary); color: #fff; }
+.tool-dropdown {
+  position: relative;
+  display: inline-flex;
+}
+.cc-tool--dropdown,
+.hg-tool--dropdown {
+  width: 38px;
+  justify-content: flex-start;
+  padding-left: 7px;
+  padding-right: 14px;
+  position: relative;
+}
+.tool-dropdown-caret {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  width: 0;
+  height: 0;
+  margin-top: -1px;
+  border-left: 3.5px solid transparent;
+  border-right: 3.5px solid transparent;
+  border-top: 5px solid currentColor;
+  opacity: 0.9;
+}
+.tool-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 30;
+  min-width: 44px;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--shadow);
+}
+.tool-dropdown-menu[hidden] {
+  display: none;
+}
+.tool-dropdown-item {
+  min-height: 24px;
+  height: 24px;
+  padding: 0 8px;
+  border: none;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--text);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+.tool-dropdown-item:hover,
+.tool-dropdown-item.is-active {
+  background: color-mix(in srgb, var(--primary) 18%, transparent);
+  color: var(--text);
+}
 .cc-check { margin-left: auto; flex-shrink: 0; }
 .cc-xbtn {
   background: none;
@@ -7258,6 +7315,7 @@ body.crt-mode #crt-overlay::after {
   padding-top: 8px;
   border-top: 1px solid var(--panel-border);
 }
+.cc-mc-colors--hidden { display: none; }
 .cc-mc-colors label {
   display: flex;
   flex-direction: column;
@@ -7289,7 +7347,7 @@ body.crt-mode #crt-overlay::after {
   flex: 1;
   min-width: 0;
   overflow: auto;
-  padding: 14px;
+  padding: 12px 14px;
   background: var(--bg-accent);
 }
 .cc-canvas {

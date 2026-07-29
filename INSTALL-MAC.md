@@ -1,11 +1,11 @@
 # macOS Installation Guide
-Version 2.2.4
+Version 2.2.6
 
-2.2.4: SID editor fixes, Build Info dialog polish, debug sidecar toggle, FILL/import parser improvements, minimap refinements, classic BASIC SYS stub.
+2.2.6: Charset Canvas editor, per-character Color RAM metadata, MAP_COPY16X16 macro, bitmap/charset spray tools with intensity, Map Editor save/layout polish, plus the recent SID/build/parser fixes.
 
 ## Quick Install
 
-1. **Download** the 2.2.4 DMG for your architecture from the releases page
+1. **Download** the 2.2.6 DMG for your architecture from the releases page
 2. **Mount** the DMG and drag the app to `/Applications`
 3. **First launch**: Right-click the app → **"Open"** (macOS will block double-click)
 4. Click **"Open"** in the security dialog
@@ -53,4 +53,4 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.2.4 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.2.6 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

@@ -180,6 +180,7 @@ const mnemonicLibrary = {
     { mnemonic: "MOUSE", description: "C64 1351 arányos egér vezérlése: SID POTX/POTY olvasás, standard 1351-szeru 7 bites delta dekódolással, CIA $DC00 felső 2 bitjével portválasztás, 512-ciklusos SID settle wait, X oldalon a klasszikus $D010 toggle mintával, Y oldalon invertált mozgatással. 142 byte inline.", modes: ["implied"], isMouseMacro: true },
     { mnemonic: "SPRITE_COL", description: "Sprite utkozes detektalas: LDA $D01E/$D01F + AND #bitMask. Eredmeny A-ban: nem nulla = utkozes. Utana BEQ/BNE-vel ugri. 5 byte.", modes: ["implied"], isSpriteColMacro: true },
     { mnemonic: "MAP_COPY", description: "Terkep masolasa screen RAM-ba (es opcionalisan Color RAM-ba) tobb 256 byte-os LDX/LDA abs,X/STA abs,X ciklussal. Forras, cel, meret es szin-forras parameterezheto.", modes: ["implied"], isMapCopyMacro: true },
+    { mnemonic: "MAP_COPY16X16", description: "16x16 karakteres map masolasa screen RAM-ba es Color RAM-ba, oszlop/sor pozicioval. Alap: screen $0400, color $D800, color source = src+256.", modes: ["implied"], isMapCopy16Macro: true },
     { mnemonic: "SPRITE_ANIM", description: "Sprite animacio: ZP frame szamlalot leptet (0..count-1), majd a frame lista (1 byte/frame = sprite adatlap pointer) alapjan frissiti a $07F8+N regisztert. 19 byte.", modes: ["implied"], isSpriteAnimMacro: true },
     { mnemonic: "SCORE_BCD", description: "BCD pontszam noveles es kijelzes: SED/CLC/ADC pattern a pontszam hozzaadasahoz, majd BCD nibble → screen kod konverzioval kiiratja a screen RAM-ra. 2/4/6 jegy, inline.", modes: ["implied"], isScoreBcdMacro: true },
     { mnemonic: "LOADFILE", description: "Fajl betoltese D64-rol KERNAL SETNAM/SETLFS/LOAD rutinokkal. Cim opcionalis (ures = fajl sajat cime, sec=1; kitoltve = override, sec=0). Hiba cimke opcionalis (BCS).", modes: ["implied"], isLoadFileMacro: true },
@@ -701,6 +702,7 @@ const mnemonicDescriptionsEn = {
   MOUSE: "Read 1351 proportional mouse via SID POTX/POTY ($D419/$D41A) and move sprite. The macro follows standard 1351-style 7-bit delta decoding, waits one SID conversion window after CIA port selection, uses the classic low-byte-add plus $D010 toggle pattern on X, and inverts Y for VICE. 142 bytes inline.",
   SPRITE_COL: "Sprite collision detection: LDA $D01E/$D01F + AND #bitMask. Result in A: non-zero = collision. Follow with BEQ/BNE. 5 bytes.",
   MAP_COPY: "Copy map data to screen RAM (and optionally Color RAM) using multiple 256-byte LDX/LDA abs,X/STA abs,X loops. Source, destination, size and color source are configurable.",
+  MAP_COPY16X16: "Copy a 16x16 character map to screen RAM and Color RAM at a target column/row. Defaults: screen $0400, color $D800, color source src+256.",
   SPRITE_ANIM: "Sprite animation: increments a ZP frame counter (0..count-1) and updates $07F8+N from a 1-byte-per-frame pointer list. 19 bytes.",
   SCORE_BCD: "BCD score increment and display: SED/CLC/ADC pattern adds points, then converts BCD nibbles to screen codes and writes to screen RAM. 2/4/6 digits, inline.",
   DEFINE: "Define a symbol for conditional assembly. When present, IF blocks evaluate the condition.",
@@ -863,6 +865,7 @@ const mnemonicDescriptionsEs = {
   MOUSE: "Lee el ratón 1351 proporcional mediante SID POTX/POTY ($D419/$D41A) y mueve el sprite. 142 bytes inline.",
   SPRITE_COL: "Detección de colisión de sprite: LDA $D01E/$D01F + AND #bitMask. Resultado en A: no-cero = colisión. 5 bytes.",
   MAP_COPY: "Copia datos del mapa a Screen RAM (y opcionalmente Color RAM) con bucles LDX/LDA abs,X/STA abs,X de 256 bytes. Fuente, destino, tamaño y fuente de color configurables.",
+  MAP_COPY16X16: "Copia un mapa de caracteres 16x16 a Screen RAM y Color RAM en una columna/fila destino.",
   SPRITE_ANIM: "Animación de sprite: incrementa un contador ZP de frame (0..N-1) y actualiza $07F8+N desde una lista de punteros (1 byte/frame). 19 bytes.",
   SCORE_BCD: "Incremento y visualización de puntuación BCD: patrón SED/CLC/ADC para sumar puntos, convierte nibbles BCD a códigos de pantalla. 2/4/6 dígitos, inline.",
   DEFINE: "Define un símbolo para ensamblado condicional. Cuando está presente, los bloques IF evalúan la condición.",
@@ -1003,6 +1006,7 @@ const mnemonicDescriptionsDe = {
   MOUSE: "1351-Proportionalmaus via SID POTX/POTY ($D419/$D41A) lesen und Sprite bewegen. 142 Bytes inline.",
   SPRITE_COL: "Sprite-Kollisionserkennung: LDA $D01E/$D01F + AND #bitMaske. Ergebnis in A: ungleich null = Kollision. 5 Bytes.",
   MAP_COPY: "Kartendaten in Screen-RAM (und optional Color-RAM) kopieren via LDX/LDA abs,X/STA abs,X-Schleifen. Quelle, Ziel, Größe und Farbquelle konfigurierbar.",
+  MAP_COPY16X16: "Kopiert eine 16x16-Zeichermap an eine Zielspalte/-zeile in Screen-RAM und Color-RAM.",
   SPRITE_ANIM: "Sprite-Animation: ZP-Frame-Zähler (0..N-1) inkrementieren und $07F8+N aus Zeigerliste (1 Byte/Frame) aktualisieren. 19 Bytes.",
   SCORE_BCD: "BCD-Punktestand inkrementieren und anzeigen: SED/CLC/ADC-Muster für Punkte, BCD-Nibbles in Bildschirmcodes umwandeln. 2/4/6 Stellen, inline.",
   DEFINE: "Symbol für bedingte Assemblierung definieren. Bei Vorhandensein werten IF-Blöcke die Bedingung aus.",
@@ -1109,6 +1113,7 @@ const mnemonicExpertHints = {
   MOUSE: mnemonicSyntax("mouse", "0", "sprite=0"),
   SPRITE_COL: mnemonicSyntax("sprite_col", "0", "1"),
   MAP_COPY: mnemonicSyntax("map_copy", "src=$C000", "dst=$0400", "size=$0280"),
+  MAP_COPY16X16: mnemonicSyntax("map_copy16x16", "src=$3000", "col=12", "row=4"),
   SPRITE_ANIM: mnemonicSyntax("sprite_anim", "0", "frames=anim_frames"),
   SCORE_BCD: mnemonicSyntax("score_bcd", "12345"),
   LOADFILE: mnemonicSyntax("loadfile", `"data.bin"`, "$C000"),
@@ -2918,13 +2923,19 @@ function _applyEditorTranslations() {
   // Charset Canvas Editor
   setText("#cc-title", t("ccTitle"));
   setText("#cc-multicolor-label", t("ceMulticolorMode"));
+  setText("#cc-grid-label", t("meGrid"));
   setText("#cc-load-bin", t("ccLoadCharset"));
   setText("#cc-save-charset", t("ccSaveCharset"));
   setText("#cc-save-map", t("ccSaveMapColor"));
   setAttr('#charset-canvas-dialog [data-cc-tool="pencil"]', t("mePaint"));
+  setAttr('#charset-canvas-dialog [data-cc-tool="eraser"]', t("hgToolEraser"));
+  setAttr('#charset-canvas-dialog [data-cc-tool="spray"]', t("hgToolSpray"));
   setAttr('#charset-canvas-dialog [data-cc-tool="line"]', t("meLine"));
   setAttr('#charset-canvas-dialog [data-cc-tool="rect"]', t("meRect"));
+  setAttr('#charset-canvas-dialog [data-cc-tool="oval"]', t("meCircle"));
   setAttr('#charset-canvas-dialog [data-cc-tool="fill"]', t("meFill"));
+  setAttr("#cc-undo", t("hgUndo"));
+  setAttr("#cc-redo", t("hgRedo"));
   setAttr("#cc-clear", t("ceClear"));
   setText("#cc-bg-label", t("ceBg"));
   setText("#cc-mc1-label", t("ceMc1"));
@@ -2971,6 +2982,7 @@ function _applyEditorTranslations() {
   setText("#hg-save-d64", t("hgSaveD64"));
   setAttr('.hg-tool[data-tool="pencil"]', t("hgToolPencil"));
   setAttr('.hg-tool[data-tool="eraser"]', t("hgToolEraser"));
+  setAttr('.hg-tool[data-tool="spray"]', t("hgToolSpray"));
   setAttr('.hg-tool[data-tool="line"]', t("hgToolLine"));
   setAttr('.hg-tool[data-tool="rect"]', t("hgToolRect"));
   setAttr('.hg-tool[data-tool="fillrect"]', t("hgToolFillRect"));
@@ -4003,6 +4015,19 @@ function createBlockFromMnemonic(item) {
       collapsed: true, isMapCopyMacro: true,
       mapCopySrc: "C000", mapCopyDst: "0400", mapCopySize: 1000,
       mapCopyCombined: false, mapCopyColorSrc: "", mapCopyColorDst: "D800"
+    };
+  }
+
+  if (item.isMapCopy16Macro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: "", rawOperand: "", description: item.description,
+      addressingMode: "implied", base: "hex", validationError: "",
+      collapsed: true, isMapCopy16Macro: true,
+      map16Src: "3000", map16Col: 12, map16Row: 4,
+      map16ScreenDst: "0400", map16ColorSrc: "", map16ColorDst: "D800"
     };
   }
 
@@ -5056,6 +5081,15 @@ if (block.isSpritePosMacro) return `.sprite_pos ${block.spriteNum || 0}, ${block
       ? base + `, auto, $${(block.mapCopyColorDst || "D800").toUpperCase()}`
       : block.mapCopyColorSrc ? base + `, $${block.mapCopyColorSrc.toUpperCase()}, $${(block.mapCopyColorDst || "D800").toUpperCase()}` : base;
   }
+  if (block.isMapCopy16Macro) {
+    const base = `.map_copy16x16 $${(block.map16Src || "3000").toUpperCase()}, ${block.map16Col ?? 12}, ${block.map16Row ?? 4}`;
+    const screen = (block.map16ScreenDst || "0400").toUpperCase();
+    const colorSrc = (block.map16ColorSrc || "").toUpperCase();
+    const colorDst = (block.map16ColorDst || "D800").toUpperCase();
+    if (screen === "0400" && !colorSrc && colorDst === "D800") return base;
+    if (!colorSrc && colorDst === "D800") return base + `, $${screen}`;
+    return base + `, $${screen}, $${colorSrc || (((parseInt((block.map16Src || "3000"), 16) + 0x100) & 0xFFFF).toString(16).toUpperCase().padStart(4, "0"))}, $${colorDst}`;
+  }
   if (block.isSpriteAnimMacro) return `.sprite_anim ${block.animSpriteNum || 0}, $${(block.animFrameListAddr || "C100").toUpperCase()}, ${block.animFrameCount || 4}, $${(block.animFrameZP || "FB").toUpperCase()}`;
   if (block.isScoreBcdMacro) return `.score_bcd $${(block.scoreBcdAddr || "C200").toUpperCase()}, ${block.scoreDigits || 4}, ${block.scoreAddPoints || 100}, $${(block.scoreScreenAddr || "0400").toUpperCase()}`;
   if (block.isReuCheckMacro)  return `.reu_check`;
@@ -5302,7 +5336,7 @@ const _DIRECTIVE_TO_MNEM = {
   macro:"MACRO", endm:"ENDM", invoke:"INVOKE", call:"INVOKE",
   sprite_init:"SPRITE_INIT", sprite_pos:"SPRITE_POS", wait_raster:"WAIT_RASTER", delay:"DELAY", wait:"DELAY",
   joystick:"JOYSTICK", mouse:"MOUSE", sprite_col:"SPRITE_COL", turbo_set:"TURBO_SET",
-  map_copy:"MAP_COPY", sprite_anim:"SPRITE_ANIM", score_bcd:"SCORE_BCD",
+  map_copy:"MAP_COPY", map_copy16x16:"MAP_COPY16X16", sprite_anim:"SPRITE_ANIM", score_bcd:"SCORE_BCD",
   supercpu_detect:"SUPERCPU_DETECT", turbo_enable:"TURBO_ENABLE",
   reu_check:"REU_CHECK", reu_stash:"REU_STASH", reu_fetch:"REU_FETCH", reu_swap:"REU_SWAP",
   define:"DEFINE", if:"IF", else:"ELSE", endif:"ENDIF", const:"CONST", "var":"VAR", org:"ORG", end:"END", charset:"CHARSET",
@@ -5859,7 +5893,7 @@ function showBuildInfoDialog() {
         "isJoystickMacro","isMouseMacro","isSpriteColMacro","isIncBinMacro","isSidMacro",
         "isLoadFileMacro","isExoDecrunchMacro","isReuStashMacro","isReuFetchMacro","isReuSwapMacro","isReuCheckMacro",
         "isTurboSetMacro","isTurboEnableMacro","isSuperCpuDetectMacro",
-        "isMapCopyMacro","isSpriteAnimMacro","isScoreBcdMacro",
+        "isMapCopyMacro","isMapCopy16Macro","isSpriteAnimMacro","isScoreBcdMacro",
       ];
       macroTypes.forEach(t2 => {
         if (b[t2]) {
@@ -5925,7 +5959,7 @@ function _expertHighlightLine(raw) {
   if (!code.trim()) return esc(code) + commentHtml;
 
   // Token regex (order matters)
-  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|loop|next|for|endf|push|pull|endif|endregion|region|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|delay|wait|set_border|set_bg|irq_setup|sprite_init|sprite_pos|wait_raster|joystick|mouse|sprite_col|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|include|sid|petscii|charset|table|loadfile|invoke|call|rand|exodecrunch|reu_check|reu_stash|reu_fetch|reu_swap|turbo_set|turbo_enable|supercpu_detect)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)/gi;
+  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|loop|next|for|endf|push|pull|endif|endregion|region|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|delay|wait|set_border|set_bg|irq_setup|sprite_init|sprite_pos|wait_raster|joystick|mouse|sprite_col|map_copy16x16|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|include|sid|petscii|charset|table|loadfile|invoke|call|rand|exodecrunch|reu_check|reu_stash|reu_fetch|reu_swap|turbo_set|turbo_enable|supercpu_detect)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)/gi;
 
   let result = "";
   let lastIdx = 0;
@@ -7500,6 +7534,14 @@ function parseExpertText(text) {
     if (mcpM) {
       const isCombined = mcpM[4] && mcpM[4].toLowerCase() === "auto";
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "MAP_COPY", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isMapCopyMacro: true, mapCopySrc: mcpM[1].toUpperCase(), mapCopyDst: mcpM[2].toUpperCase(), mapCopySize: parseInt(mcpM[3], 10), mapCopyCombined: isCombined, mapCopyColorSrc: (!isCombined && mcpM[4]) ? mcpM[4].replace(/^\$/, "").toUpperCase() : "", mapCopyColorDst: mcpM[5] ? mcpM[5].toUpperCase() : "D800" });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .map_copy16x16 $src, col, row[, $screenDst, $colorSrc, $colorDst]
+    const m16M = line.match(/^\.map_copy16x16\s+\$?([0-9A-Fa-f]{1,4})\s*,\s*(\d{1,2})\s*,\s*(\d{1,2})(?:\s*,\s*\$?([0-9A-Fa-f]{1,4})(?:\s*,\s*\$?([0-9A-Fa-f]{1,4})(?:\s*,\s*\$?([0-9A-Fa-f]{1,4}))?)?)?\s*$/i);
+    if (m16M) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "MAP_COPY16X16", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isMapCopy16Macro: true, map16Src: m16M[1].toUpperCase(), map16Col: parseInt(m16M[2], 10), map16Row: parseInt(m16M[3], 10), map16ScreenDst: (m16M[4] || "0400").toUpperCase(), map16ColorSrc: m16M[5] ? m16M[5].toUpperCase() : "", map16ColorDst: (m16M[6] || "D800").toUpperCase() });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -9864,6 +9906,24 @@ function updateProgramBlock(index, field, value) {
       (isNaN(src) || src < 0 || src > 0xFFFF) ? (t("invalidSourceAddress")) :
       (isNaN(dst) || dst < 0 || dst > 0xFFFF) ? (t("invalidDestinationAddress")) :
       (sz < 1 || sz > 65000) ? (t("sizeMustBe165000")) : "";
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isMapCopy16Macro) {
+    const src = parseInt((block.map16Src || "3000"), 16);
+    const screen = parseInt((block.map16ScreenDst || "0400"), 16);
+    const colorSrc = parseInt((block.map16ColorSrc || (((src + 0x100) & 0xFFFF).toString(16))), 16);
+    const colorDst = parseInt((block.map16ColorDst || "D800"), 16);
+    const col = parseInt(block.map16Col ?? 12, 10);
+    const row = parseInt(block.map16Row ?? 4, 10);
+    block.validationError =
+      (isNaN(src) || src < 0 || src > 0xFFFF) ? (t("invalidSourceAddress")) :
+      (isNaN(screen) || screen < 0 || screen > 0xFFFF) ? (t("invalidDestinationAddress")) :
+      (isNaN(colorSrc) || colorSrc < 0 || colorSrc > 0xFFFF) ? (t("invalidSourceAddress")) :
+      (isNaN(colorDst) || colorDst < 0 || colorDst > 0xFFFF) ? (t("invalidDestinationAddress")) :
+      (isNaN(col) || col < 0 || col > 24 || isNaN(row) || row < 0 || row > 9) ? t("mapCopy16PositionRange") : "";
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -16205,6 +16265,48 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes, comment: `MAP_COPY $${srcStr.toUpperCase()}→$${dstStr.toUpperCase()} ${n}b${block.mapCopyCombined ? " +col" : ""}` };
   }
 
+  if (block.isMapCopy16Macro) {
+    const srcStr = (block.map16Src || "3000").replace(/^\$/, "");
+    const screenStr = (block.map16ScreenDst || "0400").replace(/^\$/, "");
+    const colorDstStr = (block.map16ColorDst || "D800").replace(/^\$/, "");
+    const srcInt = parseInt(srcStr, 16);
+    const screenInt = parseInt(screenStr, 16);
+    const colorSrcInt = block.map16ColorSrc
+      ? parseInt(String(block.map16ColorSrc).replace(/^\$/, ""), 16)
+      : ((srcInt + 0x100) & 0xFFFF);
+    const colorDstInt = parseInt(colorDstStr, 16);
+    const col = parseInt(block.map16Col ?? 12, 10);
+    const row = parseInt(block.map16Row ?? 4, 10);
+    if (isNaN(srcInt) || srcInt < 0 || srcInt > 0xFFFF)
+      return { ok: false, error: t("mapCopyInvalidSourceAddress") };
+    if (isNaN(screenInt) || screenInt < 0 || screenInt > 0xFFFF)
+      return { ok: false, error: t("mapCopyInvalidDestinationAddress") };
+    if (isNaN(colorSrcInt) || colorSrcInt < 0 || colorSrcInt > 0xFFFF)
+      return { ok: false, error: t("mapCopyInvalidSourceAddress") };
+    if (isNaN(colorDstInt) || colorDstInt < 0 || colorDstInt > 0xFFFF)
+      return { ok: false, error: t("mapCopyInvalidDestinationAddress") };
+    if (isNaN(col) || col < 0 || col > 24 || isNaN(row) || row < 0 || row > 9)
+      return { ok: false, error: t("mapCopy16PositionRange") };
+    const bytes = [];
+    for (let r = 0; r < 16; r++) {
+      const s = (srcInt + r * 16) & 0xFFFF;
+      const d = (screenInt + (row + r) * 40 + col) & 0xFFFF;
+      const cs = (colorSrcInt + r * 16) & 0xFFFF;
+      const cd = (colorDstInt + (row + r) * 40 + col) & 0xFFFF;
+      bytes.push(
+        0xA2, 0x00,             // LDX #0
+        0xBD, s & 0xFF, s >> 8, // LDA screenSrc,X
+        0x9D, d & 0xFF, d >> 8, // STA screenDst,X
+        0xBD, cs & 0xFF, cs >> 8,
+        0x9D, cd & 0xFF, cd >> 8,
+        0xE8,                   // INX
+        0xE0, 0x10,             // CPX #16
+        0xD0, 0xEF              // BNE back to first LDA
+      );
+    }
+    return { ok: true, bytes, comment: `MAP_COPY16X16 $${srcStr.toUpperCase()} → (${col},${row}) + Color RAM` };
+  }
+
   if (block.isSpriteAnimMacro) {
     const num = resolveProgramNumericValue(block.animSpriteNum || "0", labels, "dec");
     if (isNaN(num) || num < 0 || num > 7)
@@ -18052,6 +18154,10 @@ function getInstructionSize(block) {
     return sec * (block.mapCopyCombined || block.mapCopyColorSrc ? 2 : 1);
   }
 
+  if (block.isMapCopy16Macro) {
+    return 16 * 19;
+  }
+
   if (block.isSpriteAnimMacro) {
     return 19;  // INC zp + LDA zp + CMP #N + BCC +4 + LDA #0 + STA zp + TAX + LDA abs,X + STA abs
   }
@@ -19619,6 +19725,16 @@ function getCollapsedOperandText(block) {
     return `$${src}→$${dst} ${sz}b${colPart}`;
   }
 
+  if (block.isMapCopy16Macro) {
+    const src = (block.map16Src || "3000").toUpperCase();
+    const col = block.map16Col ?? 12;
+    const row = block.map16Row ?? 4;
+    const screen = (block.map16ScreenDst || "0400").toUpperCase();
+    const colorSrc = (block.map16ColorSrc || (((parseInt(src, 16) + 0x100) & 0xFFFF).toString(16).toUpperCase().padStart(4, "0"))).toUpperCase();
+    const colorDst = (block.map16ColorDst || "D800").toUpperCase();
+    return `$${src}→$${screen}+(${col},${row}) 16x16 + col $${colorSrc}→$${colorDst}`;
+  }
+
   if (block.isSpriteAnimMacro) {
     return `#${block.animSpriteNum || 0} ${block.animFrameCount || 4}f $${(block.animFrameListAddr || "C100").toUpperCase()} zp=$${(block.animFrameZP || "FB").toUpperCase()}`;
   }
@@ -21041,6 +21157,43 @@ function renderProgram() {
           </div>
         `
       );
+    } else if (block.isMapCopy16Macro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${t("fieldMapCopySrc")}</span>
+              <input class="map16-src" type="text" maxlength="4" value="${(block.map16Src || "3000").toUpperCase()}" placeholder="3000">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldMapCopyDst")}</span>
+              <input class="map16-screen-dst" type="text" maxlength="4" value="${(block.map16ScreenDst || "0400").toUpperCase()}" placeholder="0400">
+            </label>
+          </div>
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>Col</span>
+              <input class="map16-col" type="number" min="0" max="24" value="${block.map16Col ?? 12}">
+            </label>
+            <label class="mini-field">
+              <span>Row</span>
+              <input class="map16-row" type="number" min="0" max="9" value="${block.map16Row ?? 4}">
+            </label>
+          </div>
+          <div class="macro-grid">
+            <label class="mini-field">
+              <span>${t("fieldMapCopyColorSrc")}</span>
+              <input class="map16-color-src" type="text" maxlength="4" value="${(block.map16ColorSrc || "").toUpperCase()}" placeholder="auto">
+            </label>
+            <label class="mini-field">
+              <span>${t("fieldMapCopyColorDst")}</span>
+              <input class="map16-color-dst" type="text" maxlength="4" value="${(block.map16ColorDst || "D800").toUpperCase()}" placeholder="D800">
+            </label>
+          </div>
+        `
+      );
     } else if (block.isSpriteAnimMacro) {
       inlineField.hidden = true;
       blockControls.insertAdjacentHTML(
@@ -22185,6 +22338,18 @@ function renderProgram() {
     const mapCopyColorSrcInput = node.querySelector(".map-copy-color-src");
     if (mapCopyColorSrcInput) mapCopyColorSrcInput.addEventListener("input", e => updateProgramBlock(index, "mapCopyColorSrc", e.target.value.toUpperCase()));
     node.querySelectorAll(".map-copy-color-dst").forEach(el => el.addEventListener("input", e => updateProgramBlock(index, "mapCopyColorDst", e.target.value.toUpperCase())));
+    const map16SrcInput = node.querySelector(".map16-src");
+    if (map16SrcInput) map16SrcInput.addEventListener("input", e => updateProgramBlock(index, "map16Src", e.target.value.toUpperCase()));
+    const map16ScreenInput = node.querySelector(".map16-screen-dst");
+    if (map16ScreenInput) map16ScreenInput.addEventListener("input", e => updateProgramBlock(index, "map16ScreenDst", e.target.value.toUpperCase()));
+    const map16ColInput = node.querySelector(".map16-col");
+    if (map16ColInput) map16ColInput.addEventListener("input", e => updateProgramBlock(index, "map16Col", parseInt(e.target.value, 10) || 0));
+    const map16RowInput = node.querySelector(".map16-row");
+    if (map16RowInput) map16RowInput.addEventListener("input", e => updateProgramBlock(index, "map16Row", parseInt(e.target.value, 10) || 0));
+    const map16ColorSrcInput = node.querySelector(".map16-color-src");
+    if (map16ColorSrcInput) map16ColorSrcInput.addEventListener("input", e => updateProgramBlock(index, "map16ColorSrc", e.target.value.toUpperCase()));
+    const map16ColorDstInput = node.querySelector(".map16-color-dst");
+    if (map16ColorDstInput) map16ColorDstInput.addEventListener("input", e => updateProgramBlock(index, "map16ColorDst", e.target.value.toUpperCase()));
     const animSpriteNumInput = node.querySelector(".anim-sprite-num");
     if (animSpriteNumInput) animSpriteNumInput.addEventListener("input", e => updateProgramBlock(index, "animSpriteNum", e.target.value));
     const animFrameCountInput = node.querySelector(".anim-frame-count");
@@ -23053,6 +23218,15 @@ function renderAsmOutput() {
         ? `, auto, $${(line.block.mapCopyColorDst || "D800").toUpperCase()}`
         : line.block.mapCopyColorSrc ? `, $${line.block.mapCopyColorSrc.toUpperCase()}, $${(line.block.mapCopyColorDst || "D800").toUpperCase()}` : "";
       return `; .map_copy $${src}, $${dst}, ${sz}${colPart}`;
+    }
+
+    if (line.block.isMapCopy16Macro) {
+      const src = (line.block.map16Src || "3000").toUpperCase();
+      const screen = (line.block.map16ScreenDst || "0400").toUpperCase();
+      const colorSrc = (line.block.map16ColorSrc || "").toUpperCase();
+      const colorDst = (line.block.map16ColorDst || "D800").toUpperCase();
+      const base = `; .map_copy16x16 $${src}, ${line.block.map16Col ?? 12}, ${line.block.map16Row ?? 4}`;
+      return (screen !== "0400" || colorSrc || colorDst !== "D800") ? `${base}, $${screen}, $${colorSrc || "auto"}, $${colorDst}` : base;
     }
 
     if (line.block.isSpriteAnimMacro) {
@@ -24887,6 +25061,7 @@ const _CE_COLORS = [
 ];
 
 let _ceData = null;
+let _ceCharColors = null;
 let _ceSel  = 0;
 let _ceFg   = 14;   // Light Blue
 let _ceBg   = 6;    // Blue
@@ -24896,6 +25071,22 @@ let _ceMulticolor = false;
 let _ceInk = 3;
 let _cePainting = false;
 let _cePaintVal = 1;
+
+function _ceEnsureCharColors() {
+  if (_ceCharColors) return;
+  _ceCharColors = new Uint8Array(256).fill(_ceFg & 0x0F);
+}
+
+function _ceDefaultColor(charIdx) {
+  _ceEnsureCharColors();
+  return _ceCharColors[charIdx & 0xFF] & 0x0F;
+}
+
+function _ceSetDefaultColor(charIdx, color) {
+  _ceEnsureCharColors();
+  _ceCharColors[charIdx & 0xFF] = color & 0x0F;
+  if ((charIdx & 0xFF) === _ceSel) _ceFg = color & (_ceMulticolor ? 0x07 : 0x0F);
+}
 
 function _ceGetPixel(charIdx, row, col) {
   if (!_ceData) return 0;
@@ -24937,9 +25128,10 @@ function _ceRenderEditor() {
   if (!grid || !_ceData) return;
   const cells = grid.children;
   const cols = _ceMulticolor ? 4 : 8;
+  const fg = _ceDefaultColor(_ceSel);
   const colors = _ceMulticolor
-    ? [_CE_COLORS[_ceBg], _CE_COLORS[_ceMc1], _CE_COLORS[_ceMc2], _CE_COLORS[_ceFg & 7]]
-    : [_CE_COLORS[_ceBg], _CE_COLORS[_ceFg]];
+    ? [_CE_COLORS[_ceBg], _CE_COLORS[_ceMc1], _CE_COLORS[_ceMc2], _CE_COLORS[fg & 7]]
+    : [_CE_COLORS[_ceBg], _CE_COLORS[fg]];
   for (let i = 0; i < cells.length; i++) {
     cells[i].style.background = colors[_ceGetPixel(_ceSel, Math.floor(i / cols), i % cols)];
   }
@@ -24952,15 +25144,15 @@ function _ceRenderMap() {
   const W    = canvas.width;   // 256
   const CELL = W / 16;         // 16 px per char
   const PIX  = CELL / 8;       // 2 px per hires pixel
-  const colors = _ceMulticolor
-    ? [_CE_COLORS[_ceBg], _CE_COLORS[_ceMc1], _CE_COLORS[_ceMc2], _CE_COLORS[_ceFg & 7]]
-    : [_CE_COLORS[_ceBg], _CE_COLORS[_ceFg]];
-
   ctx.clearRect(0, 0, W, W);
 
   for (let n = 0; n < 256; n++) {
     const cx = (n % 16) * CELL;
     const cy = Math.floor(n / 16) * CELL;
+    const fg = _ceDefaultColor(n);
+    const colors = _ceMulticolor
+      ? [_CE_COLORS[_ceBg], _CE_COLORS[_ceMc1], _CE_COLORS[_ceMc2], _CE_COLORS[fg & 7]]
+      : [_CE_COLORS[_ceBg], _CE_COLORS[fg]];
 
     ctx.fillStyle = n === _ceSel ? "#4a3a9a" : colors[0];
     ctx.fillRect(cx, cy, CELL, CELL);
@@ -25012,14 +25204,16 @@ function _ceUpdateAsm() {
     ? "; Multicolor: $D016 bit 4 = 1, $D021=$" + _ceBg.toString(16).toUpperCase() +
       ", $D022=$" + _ceMc1.toString(16).toUpperCase() +
       ", $D023=$" + _ceMc2.toString(16).toUpperCase() +
-      ", Color RAM=$" + (8 | (_ceFg & 7)).toString(16).toUpperCase() + "\n"
-    : "";
+      ", Color RAM=$" + (8 | (_ceDefaultColor(n) & 7)).toString(16).toUpperCase() + "\n"
+    : "; Color RAM=$" + (_ceDefaultColor(n) & 0x0F).toString(16).toUpperCase() + "\n";
   el.textContent = mcInfo + "char_" + hex + ":  ; $" + hex + "\n        .byte " + bytes.join(", ");
 }
 
 function _ceSelect(n) {
   _ceSel = n;
+  _ceFg = _ceDefaultColor(_ceSel) & (_ceMulticolor ? 0x07 : 0x0F);
   _ceUpdateInfo();
+  _ceBuildColorRows();
   _ceRenderEditor();
   _ceRenderMap();
   _ceUpdateAsm();
@@ -25110,7 +25304,7 @@ function _ceLoadRom() {
 
 function _ceBuildColorRows() {
   const rows = [
-    { id: "ce-fg-colors", ink: 3, get: function() { return _ceFg; }, set: function(v) { _ceFg = v; }, count: _ceMulticolor ? 8 : 16 },
+    { id: "ce-fg-colors", ink: 3, get: function() { return _ceDefaultColor(_ceSel) & (_ceMulticolor ? 0x07 : 0x0F); }, set: function(v) { _ceSetDefaultColor(_ceSel, v); }, count: _ceMulticolor ? 8 : 16 },
     { id: "ce-bg-colors", ink: 0, get: function() { return _ceBg; }, set: function(v) { _ceBg = v; }, count: 16 },
     { id: "ce-mc1-colors", ink: 1, get: function() { return _ceMc1; }, set: function(v) { _ceMc1 = v; }, count: 16 },
     { id: "ce-mc2-colors", ink: 2, get: function() { return _ceMc2; }, set: function(v) { _ceMc2 = v; }, count: 16 }
@@ -25131,6 +25325,7 @@ function _ceBuildColorRows() {
         _ceBuildColorRows();
         _ceRenderEditor();
         _ceRenderMap();
+        _ceUpdateAsm();
       });
       container.appendChild(sw);
     }
@@ -25143,6 +25338,7 @@ function _ceBuildColorRows() {
 function _ceInit() {
   if (_ceData) return;
   _ceData = new Uint8Array(256 * 8);
+  _ceEnsureCharColors();
   _ceBuildGrid();
   _ceBuildColorRows();
 }
@@ -25154,6 +25350,7 @@ function _ceApplySerializedState(settings) {
   _ceBg = settings.bg == null ? _ceBg : (settings.bg & 0x0F);
   _ceMc1 = settings.mc1 == null ? _ceMc1 : (settings.mc1 & 0x0F);
   _ceMc2 = settings.mc2 == null ? _ceMc2 : (settings.mc2 & 0x0F);
+  _ceFg = _ceDefaultColor(_ceSel) & (_ceMulticolor ? 0x07 : 0x0F);
   _ceInk = _ceMulticolor ? 3 : 1;
   const toggle = document.getElementById("ce-multicolor");
   if (toggle) toggle.checked = _ceMulticolor;
@@ -25276,6 +25473,9 @@ function setupCharEditor() {
         bg: _ceBg,
         mc1: _ceMc1,
         mc2: _ceMc2
+      },
+      extras: {
+        charColors: _ceCharColors.slice(0)
       }
     }), "charset.bin");
   });
@@ -25292,7 +25492,13 @@ function setupCharEditor() {
       const src = parsed.payload;
       _ceData.fill(0);
       _ceData.set(src.subarray(0, Math.min(src.length, _ceData.length)));
-      if (parsed.manifest?.kind === "ce-charset") _ceApplySerializedState(parsed.manifest.settings);
+      _ceEnsureCharColors();
+      _ceCharColors.fill(14);
+      const charColors = parsed.extras.charColors || parsed.extras.color;
+      if (charColors) _ceCharColors.set(charColors.subarray(0, Math.min(256, charColors.length)));
+      if (parsed.manifest?.kind === "ce-charset" || parsed.manifest?.kind === "cc-charset") _ceApplySerializedState(parsed.manifest.settings);
+      else _ceFg = _ceDefaultColor(_ceSel) & (_ceMulticolor ? 0x07 : 0x0F);
+      _ceBuildColorRows();
       _ceRenderEditor(); _ceRenderMap(); _ceUpdateAsm();
       const btn = document.getElementById("ce-load-bin");
       if (btn) { const o = btn.textContent; btn.textContent = (typeof t === "function" ? t("loaded") : "Loaded!"); setTimeout(function(){ btn.textContent = o; }, 1400); }
@@ -25314,9 +25520,13 @@ let _ccColor = 14;
 let _ccBg = 6;
 let _ccMc1 = 5;
 let _ccMc2 = 13;
+let _ccInk = 3;
+let _ccGrid = true;
 let _ccPainting = false;
 let _ccStart = null;
 let _ccPreview = null;
+let _ccSprayIntensity = 3;
+let _ccUndo = [], _ccRedo = [];
 
 function _ccW() { return _ccMulticolor ? 64 : 128; }
 function _ccH() { return 128; }
@@ -25345,11 +25555,11 @@ function _ccSetPixel(x, y, value) {
   if (_ccMulticolor) {
     const shift = 6 - p.col * 2;
     _ccData[idx] = (_ccData[idx] & ~(3 << shift)) | ((value & 3) << shift);
-    _ccColorRam[p.charIdx] = 8 | (_ccColor & 7);
+    _ccColorRam[p.charIdx] = 8 | ((value & 3) === 3 ? (_ccColor & 7) : (_ccColorRam[p.charIdx] & 7));
   } else {
     if (value) _ccData[idx] |= (1 << (7 - p.col));
     else _ccData[idx] &= ~(1 << (7 - p.col));
-    _ccColorRam[p.charIdx] = _ccColor & 0x0F;
+    if (value) _ccColorRam[p.charIdx] = _ccColor & 0x0F;
   }
 }
 function _ccDrawLine(x0, y0, x1, y1, set) {
@@ -25370,6 +25580,20 @@ function _ccDrawRect(x0, y0, x1, y1, set) {
   for (let x = xa; x <= xb; x++) { set(x, ya); set(x, yb); }
   for (let y = ya; y <= yb; y++) { set(xa, y); set(xb, y); }
 }
+function _ccDrawOval(x0, y0, x1, y1, set) {
+  const xa = Math.min(x0, x1), xb = Math.max(x0, x1);
+  const ya = Math.min(y0, y1), yb = Math.max(y0, y1);
+  const cx = (xa + xb) / 2, cy = (ya + yb) / 2;
+  const rx = Math.max(0.5, (xb - xa) / 2), ry = Math.max(0.5, (yb - ya) / 2);
+  const steps = Math.max(8, Math.round((rx + ry) * 4));
+  let px = null, py = null;
+  for (let i = 0; i <= steps; i++) {
+    const a = (i / steps) * Math.PI * 2;
+    const x = Math.round(cx + Math.cos(a) * rx), y = Math.round(cy + Math.sin(a) * ry);
+    if (px !== null) _ccDrawLine(px, py, x, y, set); else set(x, y);
+    px = x; py = y;
+  }
+}
 function _ccFill(x, y, value) {
   const target = _ccGetPixel(x, y);
   if (target === value) return;
@@ -25384,18 +25608,79 @@ function _ccFill(x, y, value) {
   }
 }
 function _ccInkValue() {
+  if (_ccTool === "eraser") return 0;
   if (!_ccMulticolor) return _ccColor === _ccBg ? 0 : 1;
-  if (_ccColor === _ccBg) return 0;
-  if (_ccColor === _ccMc1) return 1;
-  if (_ccColor === _ccMc2) return 2;
-  return 3;
+  return _ccInk;
 }
 function _ccPixelColor(value, charIdx) {
   if (_ccMulticolor) {
-    const fg = (_ccColorRam[charIdx] || (8 | (_ccColor & 7))) & 7;
+    const fg = _ccColorRam[charIdx] & 7;
     return [_ccBg, _ccMc1, _ccMc2, fg][value] & 0x0F;
   }
   return value ? (_ccColorRam[charIdx] & 0x0F) : _ccBg;
+}
+
+function _ccSpray(x, y, value) {
+  const radius = _ccMulticolor ? 2 : 3;
+  const drops = 4 + _ccSprayIntensity * 4;
+  for (let i = 0; i < drops; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const d = Math.sqrt(Math.random()) * radius;
+    _ccSetPixel(Math.round(x + Math.cos(a) * d), Math.round(y + Math.sin(a) * d), value);
+  }
+}
+
+function _ccExportColorRam() {
+  const out = new Uint8Array(256);
+  for (let i = 0; i < out.length; i++) {
+    const color = _ccColorRam[i] & 0x0F;
+    out[i] = _ccMulticolor ? (8 | (color & 7)) : color;
+  }
+  return out;
+}
+function _ccSnapshot() {
+  return {
+    data: _ccData ? _ccData.slice(0) : new Uint8Array(2048),
+    colorRam: _ccColorRam ? _ccColorRam.slice(0) : new Uint8Array(256),
+    multicolor: !!_ccMulticolor,
+    color: _ccColor & 0x0F,
+    bg: _ccBg & 0x0F,
+    mc1: _ccMc1 & 0x0F,
+    mc2: _ccMc2 & 0x0F,
+    ink: _ccInk | 0
+  };
+}
+function _ccRestore(snapshot) {
+  if (!_ccData) _ccData = new Uint8Array(2048);
+  if (!_ccColorRam) _ccColorRam = new Uint8Array(256);
+  _ccData.set(snapshot.data);
+  _ccColorRam.set(snapshot.colorRam);
+  _ccMulticolor = !!snapshot.multicolor;
+  _ccColor = snapshot.color & 0x0F;
+  _ccBg = snapshot.bg & 0x0F;
+  _ccMc1 = snapshot.mc1 & 0x0F;
+  _ccMc2 = snapshot.mc2 & 0x0F;
+  _ccInk = snapshot.ink | 0;
+  const toggle = document.getElementById("cc-multicolor");
+  if (toggle) toggle.checked = _ccMulticolor;
+  _ccSyncColorSelects();
+  _ccSyncPaletteSelection();
+  _ccRender();
+}
+function _ccPushUndo() {
+  _ccUndo.push(_ccSnapshot());
+  if (_ccUndo.length > 60) _ccUndo.shift();
+  _ccRedo.length = 0;
+}
+function _ccUndoOp() {
+  if (!_ccUndo.length) return;
+  _ccRedo.push(_ccSnapshot());
+  _ccRestore(_ccUndo.pop());
+}
+function _ccRedoOp() {
+  if (!_ccRedo.length) return;
+  _ccUndo.push(_ccSnapshot());
+  _ccRestore(_ccRedo.pop());
 }
 function _ccRender(preview) {
   const canvas = document.getElementById("cc-canvas");
@@ -25415,15 +25700,17 @@ function _ccRender(preview) {
       ctx.fillRect(x * pixelW, y * pixelH, pixelW, pixelH);
     }
   }
-  ctx.strokeStyle = "rgba(170,160,225,0.28)";
-  ctx.lineWidth = 1;
-  for (let c = 0; c <= 16; c++) {
-    const x = c * _ccCellCols() * pixelW + 0.5;
-    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
-  }
-  for (let r = 0; r <= 16; r++) {
-    const y = r * 8 * pixelH + 0.5;
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+  if (_ccGrid) {
+    ctx.strokeStyle = "rgba(170,160,225,0.28)";
+    ctx.lineWidth = 1;
+    for (let c = 0; c <= 16; c++) {
+      const x = c * _ccCellCols() * pixelW + 0.5;
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+    }
+    for (let r = 0; r <= 16; r++) {
+      const y = r * 8 * pixelH + 0.5;
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+    }
   }
   if (preview) {
     ctx.save();
@@ -25448,8 +25735,47 @@ function _ccShapePoints(a, b) {
   };
   if (_ccTool === "line") _ccDrawLine(a.x, a.y, b.x, b.y, push);
   else if (_ccTool === "rect") _ccDrawRect(a.x, a.y, b.x, b.y, push);
+  else if (_ccTool === "oval") _ccDrawOval(a.x, a.y, b.x, b.y, push);
   return points;
 }
+
+function _ccSyncColorSelects() {
+  document.querySelector(".cc-mc-colors")?.classList.toggle("cc-mc-colors--hidden", !_ccMulticolor);
+  [
+    ["cc-bg-color", _ccBg],
+    ["cc-mc1-color", _ccMc1],
+    ["cc-mc2-color", _ccMc2]
+  ].forEach(function(entry) {
+    const sel = document.getElementById(entry[0]);
+    if (sel) sel.value = String(entry[1] & 0x0F);
+  });
+}
+function _ccSyncPaletteSelection() {
+  const wrap = document.getElementById("cc-palette");
+  if (!wrap) return;
+  wrap.querySelectorAll(".cc-swatch").forEach(function(s, i) {
+    s.classList.toggle("cc-swatch--sel", i === (_ccColor & 0x0F));
+  });
+}
+
+function _ccPickColor(color) {
+  _ccColor = color & 0x0F;
+  if (_ccMulticolor) {
+    if (_ccColor === _ccBg) _ccInk = 0;
+    else if (_ccColor === _ccMc1) _ccInk = 1;
+    else if (_ccColor === _ccMc2) _ccInk = 2;
+    else if (_ccColor > 7) {
+      _ccMc2 = _ccColor;
+      _ccInk = 2;
+      _ccSyncColorSelects();
+      _ccRender();
+    } else {
+      _ccInk = 3;
+    }
+  }
+  _ccSyncPaletteSelection();
+}
+
 function _ccBuildPalette() {
   const wrap = document.getElementById("cc-palette");
   if (!wrap || wrap.children.length) return;
@@ -25459,8 +25785,7 @@ function _ccBuildPalette() {
     sw.style.background = hex;
     sw.title = "Color " + i;
     sw.addEventListener("click", function() {
-      _ccColor = i;
-      wrap.querySelectorAll(".cc-swatch").forEach(function(s, j) { s.classList.toggle("cc-swatch--sel", j === i); });
+      _ccPickColor(i);
     });
     wrap.appendChild(sw);
   });
@@ -25482,8 +25807,37 @@ function _ccBuildColorSelects() {
     sel.value = String(spec.get());
     sel.addEventListener("change", function() {
       spec.set(parseInt(sel.value, 10) & 0x0F);
+      if (_ccMulticolor) {
+        if (spec.id === "cc-mc1-color") {
+          _ccInk = 1;
+          _ccColor = _ccMc1 & 0x0F;
+        } else if (spec.id === "cc-mc2-color") {
+          _ccInk = 2;
+          _ccColor = _ccMc2 & 0x0F;
+        } else if (_ccInk === 0) {
+          _ccColor = _ccBg & 0x0F;
+        }
+      } else if (spec.id === "cc-bg-color" && _ccColor === _ccBg) {
+        _ccColor = _ccBg & 0x0F;
+      }
+      _ccSyncPaletteSelection();
       _ccRender();
     });
+  });
+  _ccSyncColorSelects();
+}
+function _toolDropdownSetOpen(buttonId, menuId, open) {
+  const button = document.getElementById(buttonId);
+  const menu = document.getElementById(menuId);
+  if (!button || !menu) return;
+  menu.hidden = !open;
+  button.setAttribute("aria-expanded", open ? "true" : "false");
+}
+function _toolDropdownSyncActive(menuId, itemAttr, value) {
+  const menu = document.getElementById(menuId);
+  if (!menu) return;
+  menu.querySelectorAll("[" + itemAttr + "]").forEach(function(item) {
+    item.classList.toggle("is-active", String(item.getAttribute(itemAttr)) === String(value));
   });
 }
 function _ccInit() {
@@ -25491,20 +25845,26 @@ function _ccInit() {
     _ccData = new Uint8Array(2048);
     _ccColorRam = new Uint8Array(256).fill(14);
   }
+  _toolDropdownSyncActive("cc-spray-menu", "data-cc-spray-intensity", _ccSprayIntensity);
+  _toolDropdownSetOpen("cc-spray-tool", "cc-spray-menu", false);
+  const grid = document.getElementById("cc-grid");
+  if (grid) grid.checked = _ccGrid;
   _ccBuildPalette();
   _ccBuildColorSelects();
+  _ccSyncPaletteSelection();
   _ccRender();
 }
 function _ccExportMapColor() {
   const screen = new Uint8Array(256);
   for (let i = 0; i < 256; i++) screen[i] = i;
+  const colorRam = _ccExportColorRam();
   const out = new Uint8Array(512);
   out.set(screen, 0);
-  out.set(_ccColorRam, 256);
+  out.set(colorRam, 256);
   return _vaBuildBinWithMeta(out, {
     kind: "cc-map",
     settings: { multicolor: _ccMulticolor, bgColor: _ccBg, mc1Color: _ccMc1, mc2Color: _ccMc2 },
-    extras: { charset: _ccData.slice(0) }
+    extras: { charset: _ccData.slice(0), charColors: colorRam }
   });
 }
 function setupCharsetCanvasEditor() {
@@ -25522,25 +25882,67 @@ function setupCharsetCanvasEditor() {
       dialog.querySelectorAll("[data-cc-tool]").forEach(function(b) { b.classList.toggle("cc-tool--active", b === btn); });
     });
   });
+  document.getElementById("cc-spray-tool")?.addEventListener("click", function(e) {
+    e.stopPropagation();
+    _ccTool = "spray";
+    dialog.querySelectorAll("[data-cc-tool]").forEach(function(b) { b.classList.toggle("cc-tool--active", b.dataset.ccTool === "spray"); });
+    const isOpen = document.getElementById("cc-spray-tool")?.getAttribute("aria-expanded") === "true";
+    _toolDropdownSetOpen("cc-spray-tool", "cc-spray-menu", !isOpen);
+  });
+  dialog.querySelectorAll("[data-cc-spray-intensity]").forEach(function(btn) {
+    btn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      _ccSprayIntensity = parseInt(btn.getAttribute("data-cc-spray-intensity"), 10) || 3;
+      _toolDropdownSyncActive("cc-spray-menu", "data-cc-spray-intensity", _ccSprayIntensity);
+      _toolDropdownSetOpen("cc-spray-tool", "cc-spray-menu", false);
+    });
+  });
   document.getElementById("cc-multicolor")?.addEventListener("change", function(e) {
     _ccMulticolor = !!e.target.checked;
     if (_ccMulticolor) {
       for (let i = 0; i < _ccColorRam.length; i++) _ccColorRam[i] = 8 | (_ccColorRam[i] & 7);
+      _ccPickColor(_ccColor);
     }
+    _ccSyncColorSelects();
     _ccRender();
+  });
+  document.getElementById("cc-grid")?.addEventListener("change", function(e) {
+    _ccGrid = !!e.target.checked;
+    _ccRender();
+  });
+  document.getElementById("cc-undo")?.addEventListener("click", _ccUndoOp);
+  document.getElementById("cc-redo")?.addEventListener("click", _ccRedoOp);
+  dialog.addEventListener("click", function(e) {
+    if (!e.target.closest(".tool-dropdown--cc")) {
+      _toolDropdownSetOpen("cc-spray-tool", "cc-spray-menu", false);
+    }
+  });
+  dialog.addEventListener("keydown", function(e) {
+    if (!(e.ctrlKey || e.metaKey)) return;
+    const key = e.key.toLowerCase();
+    if (key === "z") {
+      if (e.shiftKey) _ccRedoOp();
+      else _ccUndoOp();
+      e.preventDefault();
+    } else if (key === "y") {
+      _ccRedoOp();
+      e.preventDefault();
+    }
   });
   document.getElementById("cc-clear")?.addEventListener("click", function() {
     _ccInit();
+    _ccPushUndo();
     _ccData.fill(0);
     _ccColorRam.fill(_ccMulticolor ? (8 | (_ccColor & 7)) : (_ccColor & 0x0F));
     _ccRender();
   });
   document.getElementById("cc-save-charset")?.addEventListener("click", function() {
     _ccInit();
+    const colorRam = _ccExportColorRam();
     _saveBinFile(_vaBuildBinWithMeta(_ccData, {
       kind: "cc-charset",
       settings: { multicolor: _ccMulticolor, fg: _ccColor, bg: _ccBg, mc1: _ccMc1, mc2: _ccMc2 },
-      extras: { color: _ccColorRam.slice(0) }
+      extras: { color: colorRam, charColors: colorRam }
     }), "charset-canvas.bin");
   });
   document.getElementById("cc-save-map")?.addEventListener("click", function() {
@@ -25555,6 +25957,7 @@ function setupCharsetCanvasEditor() {
     const reader = new FileReader();
     reader.onload = function() {
       _ccInit();
+      _ccPushUndo();
       const parsed = _vaReadBinWithMeta(new Uint8Array(reader.result));
       _ccData.fill(0);
       const charsetBytes = parsed.extras.charset || parsed.payload;
@@ -25563,6 +25966,7 @@ function setupCharsetCanvasEditor() {
         _ccColorRam.set(parsed.payload.subarray(256, 512));
       }
       if (parsed.extras.color) _ccColorRam.set(parsed.extras.color.subarray(0, 256));
+      if (parsed.extras.charColors) _ccColorRam.set(parsed.extras.charColors.subarray(0, 256));
       const settings = parsed.manifest?.settings || {};
       _ccMulticolor = !!settings.multicolor;
       _ccColor = settings.fg == null ? _ccColor : (settings.fg & 0x0F);
@@ -25571,10 +25975,8 @@ function setupCharsetCanvasEditor() {
       _ccMc2 = settings.mc2 == null ? (settings.mc2Color == null ? _ccMc2 : settings.mc2Color & 0x0F) : (settings.mc2 & 0x0F);
       const toggle = document.getElementById("cc-multicolor");
       if (toggle) toggle.checked = _ccMulticolor;
-      ["cc-bg-color", "cc-mc1-color", "cc-mc2-color"].forEach(function(id) {
-        const sel = document.getElementById(id);
-        if (sel) sel.value = String(id === "cc-bg-color" ? _ccBg : id === "cc-mc1-color" ? _ccMc1 : _ccMc2);
-      });
+      _ccSyncColorSelects();
+      _ccPickColor(_ccColor);
       document.querySelectorAll("#cc-palette .cc-swatch").forEach(function(s, j) { s.classList.toggle("cc-swatch--sel", j === _ccColor); });
       _ccRender();
     };
@@ -25587,6 +25989,7 @@ function setupCharsetCanvasEditor() {
       if (!point) return;
       const value = _ccInkValue();
       if (_ccTool === "fill") _ccFill(point.x, point.y, value);
+      else if (_ccTool === "spray") _ccSpray(point.x, point.y, value);
       else _ccSetPixel(point.x, point.y, value);
       _ccRender();
     };
@@ -25595,9 +25998,10 @@ function setupCharsetCanvasEditor() {
       _ccInit();
       const point = _ccPointFromEvent(e);
       if (!point) return;
+      _ccPushUndo();
       _ccPainting = true;
       try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
-      if (_ccTool === "line" || _ccTool === "rect") {
+      if (_ccTool === "line" || _ccTool === "rect" || _ccTool === "oval") {
         _ccStart = point;
         _ccPreview = _ccShapePoints(_ccStart, point);
         _ccRender(_ccPreview);
@@ -25610,10 +26014,10 @@ function setupCharsetCanvasEditor() {
       if (!_ccPainting) return;
       const point = _ccPointFromEvent(e);
       if (!point) return;
-      if (_ccTool === "line" || _ccTool === "rect") {
+      if (_ccTool === "line" || _ccTool === "rect" || _ccTool === "oval") {
         _ccPreview = _ccShapePoints(_ccStart, point);
         _ccRender(_ccPreview);
-      } else if (_ccTool === "pencil") {
+      } else if (_ccTool === "pencil" || _ccTool === "eraser" || _ccTool === "spray") {
         apply(point);
       }
       e.preventDefault();
@@ -25621,7 +26025,7 @@ function setupCharsetCanvasEditor() {
     const end = function(e, commit) {
       if (!_ccPainting) return;
       const point = e && e.clientX != null ? _ccPointFromEvent(e) : null;
-      if (commit && point && (_ccTool === "line" || _ccTool === "rect")) {
+      if (commit && point && (_ccTool === "line" || _ccTool === "rect" || _ccTool === "oval")) {
         const value = _ccInkValue();
         _ccShapePoints(_ccStart, point).forEach(function(p) { _ccSetPixel(p[0], p[1], value); });
       }
@@ -25664,6 +26068,7 @@ let _mePasteTransparent = false; // transparent paste skips empty tiles
 let _meTileCache = null;   // [256][64] ROM bit arrays
 let _meCustomCache = null; // [256][64] custom charset bit arrays
 let _meCustomData = null;  // Uint8Array(2048) custom charset bytes
+let _meCustomColors = null; // optional default Color RAM per screen code
 let _meCharSource = "rom"; // "rom" | "custom"
 let _meBuffer = null;      // offscreen canvas (map without overlay)
 let _meCtx = null, _meBufCtx = null;
@@ -25693,10 +26098,15 @@ function _meEnsureRomFont(cb) {
 }
 
 /* Build per-tile bit arrays from a 2048-byte (256×8) custom charset */
-function _meSetCustomCharset(bytes) {
+function _meSetCustomCharset(bytes, defaultColors) {
   const data = new Uint8Array(2048);
   data.set(bytes.subarray(0, Math.min(bytes.length, 2048)));
   _meCustomData = data;
+  _meCustomColors = null;
+  if (defaultColors instanceof Uint8Array && defaultColors.length) {
+    _meCustomColors = new Uint8Array(256).fill(_meColor & 0x0F);
+    _meCustomColors.set(defaultColors.subarray(0, Math.min(256, defaultColors.length)));
+  }
   _meCustomCache = [];
   for (let sc = 0; sc < 256; sc++) {
     const bits = [];
@@ -25708,6 +26118,26 @@ function _meSetCustomCharset(bytes) {
     _meCustomCache.push(bits);
   }
   _meCharSource = "custom";
+}
+
+function _meDefaultColorForTile(sc) {
+  if (_meCharSource !== "custom" || !_meCustomColors) return _meColor & 0x0F;
+  const color = _meCustomColors[sc & 0xFF] & 0x0F;
+  return _meMulticolor ? (8 | (color & 0x07)) : color;
+}
+
+function _meSetSelectedColor(color, renderBanks) {
+  _meColor = color & 0x0F;
+  document.querySelectorAll("#me-palette .me-swatch").forEach(function(s, j) {
+    s.classList.toggle("me-swatch--sel", j === _meColor);
+  });
+  if (renderBanks) _meRenderBanks();
+}
+
+function _meSelectTile(sc) {
+  _meTile = sc & 0xFF;
+  if (_meCharSource === "custom" && _meCustomColors) _meSetSelectedColor(_meDefaultColorForTile(_meTile), false);
+  _meRenderBanks();
 }
 
 function _meDrawTilePixels(ctx, bits, x0, y0, size, color) {
@@ -25994,11 +26424,12 @@ function _meRenderBank(canvasId, startSc) {
     const sc = startSc + i;
     const bx = (i % 16) * TS, by = Math.floor(i / 16) * TS;
     const bits = _meTileBits(sc);
-    if (_meMulticolor && (_meColor & 8)) {
+    const tileColor = (_meCharSource === "custom" && _meCustomColors) ? _meDefaultColorForTile(sc) : _meColor;
+    if (_meMulticolor && (tileColor & 8)) {
       ctx.fillStyle = _CE_COLORS[_meBgColor];
       ctx.fillRect(bx, by, TS, TS);
     }
-    _meDrawTilePixels(ctx, bits, bx, by, TS, _meColor);
+    _meDrawTilePixels(ctx, bits, bx, by, TS, tileColor);
     if (sc === _meTile) {
       ctx.strokeStyle = "#ffcc33";
       ctx.lineWidth = 2;
@@ -26017,9 +26448,7 @@ function _meBuildPalette() {
     sw.style.background = hex;
     sw.title = "Color " + i;
     sw.addEventListener("click", function() {
-      _meColor = i;
-      wrap.querySelectorAll(".me-swatch").forEach(function(s, j) { s.classList.toggle("me-swatch--sel", j === i); });
-      _meRenderBanks();
+      _meSetSelectedColor(i, true);
     });
     wrap.appendChild(sw);
   });
@@ -26063,6 +26492,7 @@ function _meSnapshot() {
     activeLayer: _meActiveLayer,
     charSource: _meCharSource,
     customData: _meCustomData ? _meCustomData.slice(0) : null,
+    customColors: _meCustomColors ? _meCustomColors.slice(0) : null,
     multicolor: _meMulticolor,
     bgColor: _meBgColor,
     mc1Color: _meMc1Color,
@@ -26096,10 +26526,11 @@ function _meRestore(snapshot) {
   _meMc2Color = snapshot.mc2Color == null ? 13 : snapshot.mc2Color & 0x0F;
   _meCharSource = snapshot.charSource || "rom";
   if (_meCharSource === "custom" && snapshot.customData) {
-    _meSetCustomCharset(snapshot.customData);
+    _meSetCustomCharset(snapshot.customData, snapshot.customColors);
   } else {
     _meCustomData = null;
     _meCustomCache = null;
+    _meCustomColors = null;
   }
   _meSelStart = _meSelEnd = null;
   _mePasteMode = false;
@@ -26250,6 +26681,7 @@ function _meExport(kind) {
     extras: {}
   };
   if (_meCharSource === "custom" && _meCustomData) mapMeta.extras.charset = _meCustomData.slice(0);
+  if (_meCharSource === "custom" && _meCustomColors) mapMeta.extras.charColors = _meCustomColors.slice(0);
   if (kind === "bin") {
     mapMeta.extras.color = comp.color.slice(0);
     _saveBinFile(_vaBuildBinWithMeta(comp.screen, mapMeta), "map.bin");
@@ -26428,6 +26860,7 @@ function setupMapEditor() {
   // Charset: load from C64 ROM
   document.getElementById("me-charset-rom")?.addEventListener("click", function() {
     _meCharSource = "rom";
+    _meCustomColors = null;
     _meEnsureRomFont(function() { _meTileCache = null; _meRenderBanks(); _meRenderAll(); });
   });
   document.getElementById("me-copy")?.addEventListener("click", function() {
@@ -26516,8 +26949,9 @@ function setupMapEditor() {
     reader.onload = function() {
       const parsed = _vaReadBinWithMeta(new Uint8Array(reader.result));
       _mePushUndo();
-      _meSetCustomCharset(parsed.payload);
-      if (parsed.manifest?.kind === "ce-charset") {
+      const defaultColors = parsed.extras.charColors || parsed.extras.color;
+      _meSetCustomCharset(parsed.payload, defaultColors);
+      if (parsed.manifest?.kind === "ce-charset" || parsed.manifest?.kind === "cc-charset") {
         const settings = parsed.manifest.settings || {};
         _meMulticolor = !!settings.multicolor;
         _meBgColor = settings.bg == null ? _meBgColor : (settings.bg & 0x0F);
@@ -26525,6 +26959,7 @@ function setupMapEditor() {
         _meMc2Color = settings.mc2 == null ? _meMc2Color : (settings.mc2 & 0x0F);
         _meBuildMulticolorControls();
       }
+      if (_meCustomColors) _meSetSelectedColor(_meDefaultColorForTile(_meTile), false);
       _meRenderBanks(); _meRenderAll();
     };
     reader.readAsArrayBuffer(file);
@@ -26532,12 +26967,13 @@ function setupMapEditor() {
   });
   document.getElementById("me-charset-editor")?.addEventListener("click", function() {
     if (typeof _ceData !== "undefined" && _ceData) {
-      _meSetCustomCharset(_ceData);
+      _meSetCustomCharset(_ceData, typeof _ceCharColors !== "undefined" ? _ceCharColors : null);
       _meMulticolor = _ceMulticolor;
       _meBgColor = _ceBg;
       _meMc1Color = _ceMc1;
       _meMc2Color = _ceMc2;
       _meBuildMulticolorControls();
+      if (_meCustomColors) _meSetSelectedColor(_meDefaultColorForTile(_meTile), false);
       _meRenderBanks(); _meRenderAll();
     } else {
       const btn = document.getElementById("me-charset-editor");
@@ -26563,20 +26999,22 @@ function setupMapEditor() {
       } else if (parsed.extras.color && parsed.extras.color.length >= n) {
         for (let i = 0; i < n; i++) _meColorRam[i] = parsed.extras.color[i] & 0x0F;
       }
-      if (parsed.manifest?.kind === "me-map") {
+      if (parsed.manifest?.kind === "me-map" || parsed.manifest?.kind === "cc-map") {
         const settings = parsed.manifest.settings || {};
         _meMulticolor = !!settings.multicolor;
         _meBgColor = settings.bgColor == null ? _meBgColor : (settings.bgColor & 0x0F);
         _meMc1Color = settings.mc1Color == null ? _meMc1Color : (settings.mc1Color & 0x0F);
         _meMc2Color = settings.mc2Color == null ? _meMc2Color : (settings.mc2Color & 0x0F);
-        if (settings.charSource === "custom" && parsed.extras.charset) {
-          _meSetCustomCharset(parsed.extras.charset);
+        if (parsed.extras.charset && (settings.charSource === "custom" || parsed.manifest.kind === "cc-map")) {
+          _meSetCustomCharset(parsed.extras.charset, parsed.extras.charColors);
         } else if (settings.charSource === "rom") {
           _meCharSource = "rom";
           _meCustomData = null;
           _meCustomCache = null;
+          _meCustomColors = null;
         }
       }
+      if (_meCustomColors) _meSetSelectedColor(_meDefaultColorForTile(_meTile), false);
       _meBuildMulticolorControls();
       _meRenderBanks();
       _meRenderAll();
@@ -26592,6 +27030,7 @@ function setupMapEditor() {
   document.getElementById("me-multicolor")?.addEventListener("change", function(e) {
     _mePushUndo();
     _meMulticolor = !!e.target.checked;
+    if (_meCustomColors) _meSetSelectedColor(_meDefaultColorForTile(_meTile), false);
     _meBuildMulticolorControls();
     _meRenderBanks();
     _meRenderAll();
@@ -26608,7 +27047,7 @@ function setupMapEditor() {
       const col = Math.floor((e.clientX - rect.left) / rect.width * 16);
       const row = Math.floor((e.clientY - rect.top) / rect.height * 8);
       const sc = bank * 128 + row * 16 + col;
-      if (sc >= 0 && sc < 256) { _meTile = sc; _meRenderBanks(); }
+      if (sc >= 0 && sc < 256) _meSelectTile(sc);
     });
   });
 
@@ -26622,9 +27061,9 @@ function setupMapEditor() {
       else if (_meTool === "flood") { _meFillAll(); }
       else if (_meTool === "pick") {
         const i = cell.row * _ME_COLS + cell.col;
-        _meTile = _meScreen[i]; _meColor = _meColorRam[i];
+        _meTile = _meScreen[i];
+        _meSetSelectedColor(_meColorRam[i], false);
         _meRenderBanks();
-        document.querySelectorAll("#me-palette .me-swatch").forEach(function(s, j) { s.classList.toggle("me-swatch--sel", j === _meColor); });
       }
     };
     canvas.addEventListener("pointerdown", function(e) {
@@ -26711,6 +27150,7 @@ let _hgTool  = "pencil";
 let _hgZoom  = 3;
 let _hgGrid  = false;
 let _hgRaster = false;
+let _hgSprayIntensity = 3;
 let _hgCanvas = null, _hgCtx = null, _hgBuf = null, _hgBufCtx = null;
 let _hgPainting = false, _hgStart = null, _hgLast = null;
 let _hgUndo = [], _hgRedo = [];
@@ -26992,6 +27432,20 @@ function _hgFloodFill(x, y, col) {
     seen[cy * W + cx] = 1;
     _hgSet(cx, cy, col);
     stack.push([cx+1, cy], [cx-1, cy], [cx, cy+1], [cx, cy-1]);
+  }
+}
+
+function _hgSpray(x, y, col) {
+  const radius = _hgMulti ? 3 : 5;
+  const drops = 6 + _hgSprayIntensity * 6;
+  for (let i = 0; i < drops; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const d = Math.sqrt(Math.random()) * radius;
+    const px = Math.round(x + Math.cos(a) * d);
+    const py = Math.round(y + Math.sin(a) * d);
+    if (px < 0 || py < 0 || px >= _hgW() || py >= _hgH()) continue;
+    _hgSet(px, py, col);
+    _hgRedrawCellBuf(px, py);
   }
 }
 
@@ -27335,6 +27789,8 @@ function setupHiresEditor() {
   document.getElementById("hires-editor-btn")?.addEventListener("click", function() {
     document.querySelector(".control-menu")?.removeAttribute("open");
     _hgInit();
+    _toolDropdownSyncActive("hg-spray-menu", "data-hg-spray-intensity", _hgSprayIntensity);
+    _toolDropdownSetOpen("hg-spray-tool", "hg-spray-menu", false);
     _hgRenderAll();
     _hgStatus(null);
     dialog.showModal();
@@ -27355,6 +27811,23 @@ function setupHiresEditor() {
       }
       _hgTool = newTool;
       dialog.querySelectorAll(".hg-tool[data-tool]").forEach(function(b) { b.classList.toggle("hg-tool--active", b === btn); });
+    });
+  });
+  document.getElementById("hg-spray-tool")?.addEventListener("click", function(e) {
+    e.stopPropagation();
+    if (_hgTool !== "spray") {
+      _hgTool = "spray";
+      dialog.querySelectorAll(".hg-tool[data-tool]").forEach(function(b) { b.classList.toggle("hg-tool--active", b.dataset.tool === "spray"); });
+    }
+    const isOpen = document.getElementById("hg-spray-tool")?.getAttribute("aria-expanded") === "true";
+    _toolDropdownSetOpen("hg-spray-tool", "hg-spray-menu", !isOpen);
+  });
+  dialog.querySelectorAll("[data-hg-spray-intensity]").forEach(function(btn) {
+    btn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      _hgSprayIntensity = parseInt(btn.getAttribute("data-hg-spray-intensity"), 10) || 3;
+      _toolDropdownSyncActive("hg-spray-menu", "data-hg-spray-intensity", _hgSprayIntensity);
+      _toolDropdownSetOpen("hg-spray-tool", "hg-spray-menu", false);
     });
   });
 
@@ -27435,6 +27908,11 @@ function setupHiresEditor() {
     if (lbl) lbl.textContent = _hgZoom + "×";
     _hgRenderAll();
   });
+  dialog.addEventListener("click", function(e) {
+    if (!e.target.closest(".tool-dropdown--hg")) {
+      _toolDropdownSetOpen("hg-spray-tool", "hg-spray-menu", false);
+    }
+  });
 
   // Import
   const impFile = document.getElementById("hg-import-file");
@@ -27511,6 +27989,7 @@ function setupHiresEditor() {
     _hgPushUndo();
     _hgPainting = true; _hgStart = p; _hgLast = p;
     if (_hgTool === "pencil" || _hgTool === "eraser") { applyPoint(p.x, p.y); _hgBlit(); }
+    else if (_hgTool === "spray") { _hgSpray(p.x, p.y, _hgColor); _hgBlit(); }
     else if (_hgTool === "fill") { _hgFloodFill(p.x, p.y, _hgColor); _hgRenderAll(); _hgPainting = false; }
     e.preventDefault();
   });
@@ -27535,6 +28014,9 @@ function setupHiresEditor() {
     if (_hgTool === "pencil" || _hgTool === "eraser") {
       _hgLine(_hgLast.x, _hgLast.y, p.x, p.y, function(x, y) { _hgSet(x, y, col); _hgRedrawCellBuf(x, y); });
       _hgLast = p; _hgBlit();
+    } else if (_hgTool === "spray") {
+      _hgSpray(p.x, p.y, _hgColor);
+      _hgLast = p; _hgBlit();
     } else {
       // shape preview: blit committed, draw preview on top
       _hgBlit();
@@ -27556,7 +28038,7 @@ function setupHiresEditor() {
       if (e && e.pointerId != null) { try { canvas.releasePointerCapture(e.pointerId); } catch (_) {} }
       return;
     }
-    if (_hgTool !== "pencil" && _hgTool !== "eraser" && _hgTool !== "fill") {
+    if (_hgTool !== "pencil" && _hgTool !== "eraser" && _hgTool !== "spray" && _hgTool !== "fill") {
       const col = _hgColor;
       const set = function(x, y) { _hgSet(x, y, col); };
       _hgPreviewShape(_hgStart, p, set);
