@@ -593,6 +593,12 @@ const addressingModeText = {
   }
 };
 
+function modeText(modeKey, field) {
+  const mode = addressingModeText[modeKey];
+  const language = mode?.[currentLanguage] || mode?.en || mode?.hu;
+  return language?.[field] || modeKey;
+}
+
 const mnemonicDescriptionsEn = {
   LDA: "Load accumulator from memory or constant.",
   LDX: "Load X register.",
@@ -752,13 +758,7 @@ const mnemonicDescriptionsHu = (() => {
   return map;
 })();
 
-function modeText(modeKey, field) {
-  return addressingModeText[modeKey]?.[currentLanguage]?.[field] ?? addressingModes[modeKey]?.[field] ?? "";
-}
-
 const mnemonicDescriptionsEs = {
-  LDA: "Carga el acumulador desde memoria o constante.",
-  LDX: "Carga el registro X.",
   LDY: "Carga el registro Y.",
   STA: "Almacena el acumulador en una dirección de memoria.",
   STX: "Almacena el registro X.",
@@ -1410,8 +1410,13 @@ function initPalette() {
     document.querySelector(".control-menu")?.removeAttribute("open");
     document.getElementById("about-version").textContent = await getAppVersionText();
     const dlg = document.getElementById("about-dialog");
-    dlg?.querySelectorAll("a[href^='mailto:']").forEach(a => {
-      a.addEventListener("click", e => { e.preventDefault(); window.electronAPI.openExternal(a.href); }, { once: true });
+    dlg?.querySelectorAll("a[href^='mailto:'], a[href^='http://'], a[href^='https://']").forEach(a => {
+      if (a.dataset.externalBound) return;
+      a.dataset.externalBound = "true";
+      a.addEventListener("click", e => {
+        e.preventDefault();
+        window.electronAPI?.openExternal(a.href);
+      });
     });
     dlg?.showModal();
   });
@@ -2554,6 +2559,9 @@ function applyTranslations() {
     setText("#menu-view-label", t("menuView"));
     setText("#menu-program-label", t("menuProgram"));
     setText("#menu-info-label", t("menuInfo"));
+    setText("#about-sid-credit-label", t("aboutSidCreditLabel"));
+    setText("#about-sid-credit-license", t("aboutSidCreditLicense"));
+    setText("#about-repo-label", t("aboutRepoLabel"));
   if (helpManualButton) helpManualButton.textContent = t("helpManual");
   if (checkUpdateButton) checkUpdateButton.textContent = t("checkForUpdate");
   if (reportBugButton) reportBugButton.textContent = t("reportBug");
@@ -3051,6 +3059,11 @@ function _applyEditorTranslations() {
   setText(".sid-title", t("sidTitle"));
   setText("#sid-load-bin", t("sidLoadBin"));
   setText("#sid-save-bin", t("sidSaveBin"));
+  setText("#sid-play-sid", t("sidPlaySid"));
+  setText("#sid-master-vol-lbl", t("sidMasterVolume"));
+  setText("#websid-play-title", t("websidPlayTitle"));
+  setText("#websid-play-note", t("websidPlayNote"));
+  setText("#websid-play-stop", t("websidPlayStop"));
   setText("#sid-export-data", t("sidExportData"));
   setText("#sid-export-player", t("sidExportPlayer"));
   setText("#sid-export-asm", t("sidExportAsm"));
@@ -5193,9 +5206,9 @@ function doClearProgram() {
 function isProgramEmpty() {
   if (expertMode) {
     const blocks = _expertGetStartupProgram() || _expertBuildProgram();
-    return blocks.every(b => b.isOrgMacro || b.isRegionMacro || b.isEndRegionMacro || b.isComment || b.isDefineMacro);
+    return !blocks.some(b => b.isOrgMacro) || blocks.every(b => b.isOrgMacro || b.isRegionMacro || b.isEndRegionMacro || b.isComment || b.isDefineMacro);
   }
-  return program.every(b => b.isOrgMacro || b.isRegionMacro || b.isEndRegionMacro || b.isComment || b.isDefineMacro);
+  return !program.some(b => b.isOrgMacro) || program.every(b => b.isOrgMacro || b.isRegionMacro || b.isEndRegionMacro || b.isComment || b.isDefineMacro);
 }
 
 // ── Expert Mode ────────────────────────────────────────────────────────────
@@ -28687,8 +28700,14 @@ const _SID_ROWS = 32;
 let _sidInsts = null;     // instruments
 let _sidPatterns = null;  // [pattern][voice 0..2][row 0..31] = {note, inst}
 let _sidInst = 0, _sidPat = 0, _sidSpeed = 6;
+let _sidMetronomeEnabled = false;
+let _sidMetroCtx = null;
+const _SID_ROWS_PER_BEAT = 4;
+const _SID_BEATS_PER_BAR = 4;
+let _sidMasterVol = 0.6;      // 0..1, drives both Web Audio and WebSid preview
+let _sidMasterGain = null;    // shared GainNode injected between _sidPlayInst output and destination
 let _sidSel = { voice: 0, row: 0 };
-let _sidSelAnchor = null;  // row anchor for range selection, null = no range
+let _sidSelAnchor = null;  // { voice, row } anchor for rectangular range selection
 let _sidClipboard = null;  // copied voice column: array of 32 {note, inst}
 let _sidCellClip = null;   // cell-range clipboard: [{note,inst},...] from Ctrl+C
 let _sidAudio = null;
@@ -28793,7 +28812,7 @@ function _sidCellText(cell) {
 function _sidCopyVoice() {
   if (!_sidPatterns) return;
   const col = _sidCurPat()[_sidSel.voice];
-  _sidClipboard = col.map(function(c){ return { note: c.note, inst: c.inst }; });
+  _sidClipboard = col.map(function(c){ return { ...c }; });
   const btn = document.getElementById("sid-voice-copy");
   if (btn) {
     const orig = btn.title;
@@ -28805,30 +28824,40 @@ function _sidPasteVoice() {
   if (!_sidClipboard || !_sidPatterns) return;
   const col = _sidCurPat()[_sidSel.voice];
   for (var r = 0; r < _sidClipboard.length; r++) {
-    col[r] = { note: _sidClipboard[r].note, inst: _sidClipboard[r].inst };
+    col[r] = { ..._sidClipboard[r] };
   }
   _sidBuildTracker();
 }
 function _sidCopyCells() {
   if (!_sidPatterns) return;
-  const v = _sidSel.voice, col = _sidCurPat()[v];
-  if (_sidSelAnchor !== null) {
-    const lo = Math.min(_sidSelAnchor, _sidSel.row);
-    const hi = Math.max(_sidSelAnchor, _sidSel.row);
-    _sidCellClip = [];
-    for (let r = lo; r <= hi; r++) _sidCellClip.push({ note: col[r].note, inst: col[r].inst });
-  } else {
-    _sidCellClip = [{ note: col[_sidSel.row].note, inst: col[_sidSel.row].inst }];
+  const pat = _sidCurPat();
+  const anchor = _sidSelAnchor || _sidSel;
+  const voiceLo = Math.min(anchor.voice, _sidSel.voice);
+  const voiceHi = Math.max(anchor.voice, _sidSel.voice);
+  const rowLo = Math.min(anchor.row, _sidSel.row);
+  const rowHi = Math.max(anchor.row, _sidSel.row);
+  _sidCellClip = { voices: voiceHi - voiceLo + 1, rows: rowHi - rowLo + 1, cells: [] };
+  for (let v = voiceLo; v <= voiceHi; v++) {
+    const voice = [];
+    for (let r = rowLo; r <= rowHi; r++) voice.push({ ...pat[v][r] });
+    _sidCellClip.cells.push(voice);
   }
+  /* Keep the clipboard independent from the source pattern. */
+  _sidCellClip.startVoice = voiceLo;
+  _sidCellClip.startRow = rowLo;
   const btn = document.getElementById("sid-voice-copy");
   if (btn) { const o = btn.title; btn.title = "Copied!"; setTimeout(function(){ btn.title = o; }, 1000); }
 }
 function _sidPasteCells() {
   if (!_sidCellClip || !_sidPatterns) return;
-  const v = _sidSel.voice, col = _sidCurPat()[v];
-  for (let i = 0; i < _sidCellClip.length; i++) {
-    const r = (_sidSel.row + i) % _SID_ROWS;
-    col[r] = { note: _sidCellClip[i].note, inst: _sidCellClip[i].inst };
+  const pat = _sidCurPat();
+  for (let v = 0; v < _sidCellClip.voices; v++) {
+    const targetVoice = (_sidSel.voice + v) % 3;
+    for (let r = 0; r < _sidCellClip.rows; r++) {
+      const targetRow = (_sidSel.row + r) % _SID_ROWS;
+      const cell = _sidCellClip.cells[v][r];
+      pat[targetVoice][targetRow] = { ...cell };
+    }
   }
   _sidBuildTracker();
 }
@@ -28840,11 +28869,14 @@ function _sidBuildTracker() {
     const beat = (r % 4 === 0) ? " sid-beat" : "";
     html += '<tr class="sid-trow'+beat+'" data-row="'+r+'">';
     html += '<td class="sid-rownum">' + (r<10?"0":"") + r + '</td>';
-    const rangeLo = _sidSelAnchor !== null ? Math.min(_sidSelAnchor, _sidSel.row) : _sidSel.row;
-    const rangeHi = _sidSelAnchor !== null ? Math.max(_sidSelAnchor, _sidSel.row) : _sidSel.row;
+    const rangeLo = _sidSelAnchor !== null ? Math.min(_sidSelAnchor.row, _sidSel.row) : _sidSel.row;
+    const rangeHi = _sidSelAnchor !== null ? Math.max(_sidSelAnchor.row, _sidSel.row) : _sidSel.row;
+    const rangeVoice = _sidSelAnchor !== null && _sidSelAnchor.voice === _sidSel.voice
+      ? _sidSel.voice
+      : null;
     for (let v = 0; v < 3; v++) {
       const isCursor = _sidSel.voice === v && _sidSel.row === r;
-      const inRange  = _sidSel.voice === v && _sidSelAnchor !== null && r >= rangeLo && r <= rangeHi && !isCursor;
+      const inRange  = rangeVoice === v && r >= rangeLo && r <= rangeHi && !isCursor;
       const selCls = isCursor ? " sid-cell--sel" : (inRange ? " sid-cell--sel-range" : "");
       html += '<td class="sid-cell'+selCls+'" data-v="'+v+'" data-r="'+r+'">' + _sidCellText(pat[v][r]) + '</td>';
     }
@@ -28855,8 +28887,9 @@ function _sidBuildTracker() {
   t.querySelectorAll("td.sid-cell").forEach(function(td) {
     td.addEventListener("click", function(e) {
       const v = +td.dataset.v, r = +td.dataset.r;
-      if (e.shiftKey && _sidSel.voice === v) {
-        if (_sidSelAnchor === null) _sidSelAnchor = _sidSel.row;
+      if (e.shiftKey) {
+        if (_sidSelAnchor === null || _sidSelAnchor.voice !== v) _sidSelAnchor = { voice: v, row: _sidSel.row };
+        _sidSel.voice = v;
         _sidSel.row = r;
       } else {
         _sidSelAnchor = null;
@@ -28865,7 +28898,101 @@ function _sidBuildTracker() {
       _sidRefreshSel();
       document.getElementById("sid-tracker-wrap").focus();
     });
+    td.addEventListener("dblclick", function(e) {
+      e.preventDefault();
+      _sidBeginManualEdit(+td.dataset.v, +td.dataset.r, td);
+    });
   });
+}
+
+/* Parse a manual cell entry like "C-4 01", "C#4", "c4 a", "..." → { note, inst }.
+ * note is 0-based (C-0 = 0). Instrument is hex 0..FF. Empty/"..." clears the cell. */
+function _sidParseCellEntry(text) {
+  const s = (text || "").trim();
+  if (!s || s === "..." || s === "... ..") return { clear: true };
+  // Note portion (C, C#, D, D#, … or C-, C#) followed by octave digit.
+  const m = s.match(/^([a-gA-G])([#b\-]?)(\d)\s*([0-9a-fA-F]{1,2})?$/);
+  if (!m) return { error: true };
+  const noteLetters = { c:0, d:2, e:4, f:5, g:7, a:9, b:11 };
+  const letter = m[1].toLowerCase();
+  let semi = noteLetters[letter];
+  if (semi == null) return { error: true };
+  if (m[2] === "#") semi += 1;
+  else if (m[2] === "b") semi -= 1;
+  const oct = parseInt(m[3], 10);
+  const note = oct * 12 + ((semi + 12) % 12);
+  if (note < 0 || note >= 96) return { error: true };
+  const inst = m[4] != null ? Math.max(0, Math.min(255, parseInt(m[4], 16))) : null;
+  return { note, inst };
+}
+
+/* Turn a cell into a temporary text input for manual editing. */
+function _sidBeginManualEdit(v, r, td) {
+  if (!td || td.querySelector("input")) return;
+  _sidSelAnchor = null;
+  _sidSel = { voice: v, row: r };
+  const pat = _sidCurPat();
+  const cell = pat[v][r];
+  const initial = cell.note == null
+    ? ""
+    : _sidNoteName(cell.note) + " " + (cell.inst < 16 ? "0" : "") + cell.inst.toString(16).toUpperCase();
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "sid-cell-edit";
+  input.value = initial;
+  input.spellcheck = false;
+  input.autocomplete = "off";
+  input.setAttribute("maxlength", "8");
+  input.placeholder = "C-4 01";
+  input.title = "Format: note + optional instrument (e.g. C-4 01, C#5, D3 0A). Empty = clear.";
+  const original = td.innerHTML;
+  td.innerHTML = "";
+  td.appendChild(input);
+  input.addEventListener("mousedown", function(e) {
+    e.stopPropagation();
+  });
+  input.addEventListener("click", function(e) {
+    e.stopPropagation();
+  });
+  const commit = function() {
+    const parsed = _sidParseCellEntry(input.value);
+    if (parsed.error) {
+      input.classList.add("sid-cell-edit--err");
+      input.focus();
+      input.select();
+      return false;
+    }
+    if (parsed.clear) {
+      pat[v][r] = { note: null, inst: cell.inst };
+    } else {
+      pat[v][r] = { note: parsed.note, inst: parsed.inst != null ? parsed.inst : cell.inst };
+    }
+    _sidBuildTracker();
+    _sidRefreshSel();
+    return true;
+  };
+  const cancel = function() { td.innerHTML = original; };
+  input.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+      if (commit()) {
+        e.preventDefault();
+        // advance to next row so consecutive edits feel like typing
+        _sidSel.row = Math.min(_SID_ROWS - 1, r + 1);
+        _sidRefreshSel();
+        document.getElementById("sid-tracker-wrap").focus();
+      }
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      cancel();
+      document.getElementById("sid-tracker-wrap").focus();
+    }
+  });
+  input.addEventListener("blur", function() {
+    // Blur commits like Enter, but silently keeps the cell if parse fails.
+    if (!commit()) cancel();
+  });
+  input.focus();
+  input.select();
 }
 function _sidRefreshSel() {
   const t = document.getElementById("sid-tracker"); if (!t) return;
@@ -28876,9 +29003,9 @@ function _sidRefreshSel() {
   const v = _sidSel.voice, r = _sidSel.row;
   const cursor = t.querySelector('td.sid-cell[data-v="'+v+'"][data-r="'+r+'"]');
   if (cursor) cursor.classList.add("sid-cell--sel");
-  if (_sidSelAnchor !== null) {
-    const lo = Math.min(_sidSelAnchor, r), hi = Math.max(_sidSelAnchor, r);
-    for (let row = lo; row <= hi; row++) {
+  if (_sidSelAnchor !== null && _sidSelAnchor.voice === v) {
+    const rowLo = Math.min(_sidSelAnchor.row, r), rowHi = Math.max(_sidSelAnchor.row, r);
+    for (let row = rowLo; row <= rowHi; row++) {
       if (row === r) continue;
       const rc = t.querySelector('td.sid-cell[data-v="'+v+'"][data-r="'+row+'"]');
       if (rc) rc.classList.add("sid-cell--sel-range");
@@ -28899,7 +29026,27 @@ const _SID_KEYMAP = { z:0,s:1,x:2,d:3,c:4,v:5,g:6,b:7,h:8,n:9,j:10,m:11,
 function _sidEnsureAudio() {
   if (!_sidAudio) _sidAudio = new (window.AudioContext || window.webkitAudioContext)();
   if (_sidAudio.state === "suspended") _sidAudio.resume();
+  if (!_sidMasterGain) {
+    _sidMasterGain = _sidAudio.createGain();
+    _sidMasterGain.gain.value = _sidMasterVol;
+    _sidMasterGain.connect(_sidAudio.destination);
+  }
   return _sidAudio;
+}
+function _sidApplyMasterVolume() {
+  // Web Audio path: adjust the shared gain node in real time
+  if (_sidMasterGain) {
+    try { _sidMasterGain.gain.setTargetAtTime(_sidMasterVol, _sidMasterGain.context.currentTime, 0.02); }
+    catch(_) { _sidMasterGain.gain.value = _sidMasterVol; }
+  }
+  // WebSid path: ScriptNodePlayer has its own GainNode
+  try {
+    if (typeof ScriptNodePlayer !== "undefined") {
+      // WebSid's setVolume takes a linear multiplier; boost by ~1.6x so 100%
+      // slider ≈ typical DeepSID loud output, and 60% default sits comfortably.
+      ScriptNodePlayer.getInstance()?.setVolume(_sidMasterVol * 1.6);
+    }
+  } catch(_) {}
 }
 let _sidNoiseBuf = null;
 function _sidNoise(ac) {
@@ -28939,30 +29086,298 @@ function _sidPlayInst(inst, freq, when, holdSec) {
     filt.Q.value = 0.5 + (inst.res/15) * 8;
     gain.connect(filt); out = filt;
   }
-  out.connect(ac.destination);
+  out.connect(_sidMasterGain || ac.destination);
   src.start(when);
   src.stop(relStart + Math.max(0.01, rel) + 0.05);
 }
 
+/* ── Metronome + BPM helpers ────────────────────────────────────────────
+ * BPM derives from the frames-per-row Speed input: PAL 50 Hz, 4 rows/beat.
+ * The metronome runs off the same setInterval tick that drives the tracker
+ * row highlight, so it stays in phase with both Web Audio and WebSid preview. */
+function _sidComputeBpm() {
+  const rowSec = Math.max(_sidSpeed, 1) / 50;
+  return Math.round(60 / (rowSec * _SID_ROWS_PER_BEAT));
+}
+function _sidUpdateBpmDisplay() {
+  const el = document.getElementById("sid-bpm");
+  if (el) el.textContent = String(_sidComputeBpm());
+}
+function _sidPlayMetronomeClick(accent) {
+  if (!_sidMetronomeEnabled) return;
+  try {
+    if (!_sidMetroCtx) _sidMetroCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (_sidMetroCtx.state === "suspended") _sidMetroCtx.resume();
+    const ac = _sidMetroCtx, t = ac.currentTime + 0.005;
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.type = "sine";
+    osc.frequency.value = accent ? 1600 : 900;
+    // Scale click volume with master so metronome tracks user's preference.
+    const peak = 0.32 * Math.max(0.2, _sidMasterVol);
+    gain.gain.setValueAtTime(peak, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+    osc.connect(gain).connect(ac.destination);
+    osc.start(t);
+    osc.stop(t + 0.06);
+  } catch (_) {}
+}
+function _sidToggleMetronome() {
+  _sidMetronomeEnabled = !_sidMetronomeEnabled;
+  const btn = document.getElementById("sid-metronome");
+  if (btn) {
+    btn.setAttribute("aria-pressed", String(_sidMetronomeEnabled));
+    btn.classList.toggle("sid-metronome-on", _sidMetronomeEnabled);
+  }
+}
+
+/* ── WebSid (Wothke) integration ─────────────────────────────────────────
+ * Runs the compiled SID player + tune bytes through a real cycle-exact
+ * 6510 + SID emulator (WASM). The preview button prefers this path; on
+ * any init/load error it falls back to the built-in Web Audio approximation.
+ * Loaded via scriptprocessor_player.min.js + backend_websid.js in index.html. */
+let _webSidBackend = null;
+let _webSidReady = false;
+let _webSidInitPromise = null;
+let _webSidBlobUrl = null;
+let _webSidActive = false;
+
+function _webSidAvailable() {
+  return typeof SIDBackendAdapter !== "undefined" && typeof ScriptNodePlayer !== "undefined";
+}
+
+function _webSidInit() {
+  if (_webSidInitPromise) return _webSidInitPromise;
+  if (!_webSidAvailable()) return Promise.resolve(false);
+  _webSidInitPromise = new Promise((resolve) => {
+    try {
+      _webSidBackend = new SIDBackendAdapter();
+      const p = ScriptNodePlayer.initialize(_webSidBackend, function(){ _webSidActive = false; });
+      const done = () => { _webSidReady = true; resolve(true); };
+      const fail = (e) => { console.warn("WebSid init failed:", e); resolve(false); };
+      if (p && typeof p.then === "function") p.then(done).catch(fail);
+      else done();
+    } catch (e) {
+      console.warn("WebSid init threw:", e);
+      resolve(false);
+    }
+  });
+  return _webSidInitPromise;
+}
+
+function _buildPsidBytes(prgBytes, initAddr, playAddr, name) {
+  const HEADER_LEN = 0x7C;
+  const out = new Uint8Array(HEADER_LEN + prgBytes.length);
+  const wStr = (off, str, maxLen) => {
+    const bytes = new TextEncoder().encode((str || "").substring(0, maxLen - 1));
+    for (let i = 0; i < bytes.length; i++) out[off + i] = bytes[i];
+  };
+  // Magic 'PSID', version 2, dataOffset $7C
+  out[0]=0x50; out[1]=0x53; out[2]=0x49; out[3]=0x44;
+  out[4]=0x00; out[5]=0x02;
+  out[6]=0x00; out[7]=0x7C;
+  // LoadAddress = 0 → read from first two bytes of PRG data
+  out[8]=0x00; out[9]=0x00;
+  // InitAddress (big-endian)
+  out[10]=(initAddr>>8)&0xFF; out[11]=initAddr&0xFF;
+  // PlayAddress (0 = use IRQ vector installed by init)
+  out[12]=(playAddr>>8)&0xFF; out[13]=playAddr&0xFF;
+  // Songs / StartSong
+  out[14]=0x00; out[15]=0x01;
+  out[16]=0x00; out[17]=0x01;
+  // Speed (0 = all songs vsync-driven)
+  out[18]=0x00; out[19]=0x00; out[20]=0x00; out[21]=0x00;
+  wStr(0x16, name || "Visual Assembler preview", 32);
+  wStr(0x36, "Visual Assembler", 32);
+  wStr(0x56, "2026", 32);
+  // Flags: bit2..3 = PAL (01), bit4..5 = 6581 (01) → 0x14
+  out[0x76]=0x00; out[0x77]=0x14;
+  // startPage, pageLength, secondSIDAddress = 0
+  out.set(prgBytes, HEADER_LEN);
+  return out;
+}
+
+function _buildSidPreviewPrg() {
+  if (typeof _sidExportAsmPlayable !== "function") return null;
+  if (typeof parseExpertText !== "function" || typeof assembleProgramToPrg !== "function") return null;
+  const asmText = _sidExportAsmPlayable();
+  const savedProgram = program;
+  const savedMacros = userMacros;
+  try {
+    program = parseExpertText(asmText);
+    parseUserMacros();
+    const result = assembleProgramToPrg();
+    if (!result || !result.ok) {
+      console.warn("SID preview compile failed:", result && result.error);
+      return null;
+    }
+    return result.bytes;
+  } catch (e) {
+    console.warn("SID preview build error:", e);
+    return null;
+  } finally {
+    program = savedProgram;
+    userMacros = savedMacros;
+    try { parseUserMacros(); } catch(_) {}
+  }
+}
+
+async function _webSidPlayCurrent() {
+  if (!(await _webSidInit())) return false;
+  const prgBytes = _buildSidPreviewPrg();
+  if (!prgBytes || prgBytes.length < 3) return false;
+  // sid_init is hardcoded at $C000 by _sidExportAsmPlayable's `* = $C000` ORG;
+  // playAddress=0 tells the PSID player to use the IRQ vector installed by init.
+  const psid = _buildPsidBytes(prgBytes, 0xC000, 0x0000, "VA SID preview");
+  if (_webSidBlobUrl) { try { URL.revokeObjectURL(_webSidBlobUrl); } catch(_) {} }
+  _webSidBlobUrl = URL.createObjectURL(new Blob([psid], { type: "application/octet-stream" }));
+  return new Promise((resolve) => {
+    let settled = false;
+    const done = (ok) => { if (settled) return; settled = true; resolve(ok); };
+    try {
+      const p = ScriptNodePlayer.loadMusicFromURL(
+        _webSidBlobUrl,
+        { track: -1, timeout: -1, traceSID: false },
+        function() { done(false); },
+        function() {}
+      );
+      if (p && typeof p.then === "function") {
+        p.then(function() {
+          try {
+            ScriptNodePlayer.getInstance().resume();
+            _webSidActive = true;
+            _sidApplyMasterVolume();
+            done(true);
+          } catch(e) { console.warn("WebSid resume failed:", e); done(false); }
+        }).catch(function(e){ console.warn("WebSid load failed:", e); done(false); });
+      } else {
+        try {
+          ScriptNodePlayer.getInstance().resume();
+          _webSidActive = true;
+          done(true);
+        } catch(e) { done(false); }
+      }
+    } catch (e) {
+      console.warn("WebSid loadMusicFromURL threw:", e);
+      done(false);
+    }
+  });
+}
+
+function _webSidPause() {
+  if (!_webSidActive) return;
+  try { ScriptNodePlayer.getInstance()?.pause(); } catch(_) {}
+  _webSidActive = false;
+  _webSidHideExternalDialog();
+}
+
+function _webSidShowExternalDialog(filename) {
+  const dlg = document.getElementById("websid-play-dialog");
+  if (!dlg) return;
+  const fileEl = document.getElementById("websid-play-file");
+  if (fileEl) fileEl.textContent = filename || "";
+  try {
+    // showModal() over the already-modal SID editor: two modals stack in the
+    // top layer in open order, and the topmost captures all clicks — so Stop
+    // is reliably reachable. dlg.show() and popover both hit backdrop-swallowed
+    // click paths in the Tauri WebView.
+    if (!dlg.open) dlg.showModal();
+  } catch(_) {
+    try { if (!dlg.open) dlg.show(); } catch(__) {}
+  }
+}
+function _webSidHideExternalDialog() {
+  const dlg = document.getElementById("websid-play-dialog");
+  if (!dlg) return;
+  try { if (dlg.open) dlg.close(); } catch(_) {}
+}
+
+async function _webSidPlayFileBytes(bytes, filename) {
+  // Accepts a raw .sid file (PSID/RSID header + code). WebSid parses it natively.
+  if (!bytes || bytes.length < 0x7C) {
+    showViceToast("A fájl túl kicsi vagy sérült .sid.", true);
+    return false;
+  }
+  const magic = String.fromCharCode(bytes[0], bytes[1], bytes[2], bytes[3]);
+  if (magic !== "PSID" && magic !== "RSID") {
+    showViceToast("Nem PSID/RSID fájl: " + filename, true);
+    return false;
+  }
+  _sidStop();  // stops both the Web Audio preview and any running WebSid instance
+  if (!(await _webSidInit())) {
+    showViceToast("WebSid nem elérhető ebben a WebView-ban.", true);
+    return false;
+  }
+  if (_webSidBlobUrl) { try { URL.revokeObjectURL(_webSidBlobUrl); } catch(_) {} }
+  _webSidBlobUrl = URL.createObjectURL(new Blob([bytes], { type: "application/octet-stream" }));
+  return new Promise((resolve) => {
+    let settled = false;
+    const done = (ok, msg) => {
+      if (settled) return; settled = true;
+      if (!ok && msg) showViceToast(msg, true);
+      else if (ok) _webSidShowExternalDialog(filename);
+      resolve(ok);
+    };
+    try {
+      const p = ScriptNodePlayer.loadMusicFromURL(
+        _webSidBlobUrl,
+        { track: -1, timeout: -1, traceSID: false },
+        function() { done(false, "SID betöltés sikertelen: " + filename); },
+        function() {}
+      );
+      if (p && typeof p.then === "function") {
+        p.then(function() {
+          try { ScriptNodePlayer.getInstance().resume(); _webSidActive = true; _sidApplyMasterVolume(); done(true); }
+          catch(e) { done(false, "SID lejátszás hiba."); }
+        }).catch(function(){ done(false, "SID betöltés hiba."); });
+      } else {
+        try { ScriptNodePlayer.getInstance().resume(); _webSidActive = true; _sidApplyMasterVolume(); done(true); }
+        catch(e) { done(false, "SID lejátszás hiba."); }
+      }
+    } catch (e) {
+      done(false, "SID lejátszás hiba: " + (e && e.message ? e.message : e));
+    }
+  });
+}
+
 function _sidStop() {
   if (_sidTimer) { clearInterval(_sidTimer); _sidTimer = null; }
+  _webSidPause();
   const t = document.getElementById("sid-tracker");
   if (t) t.querySelectorAll("tr.sid-playing").forEach(function(r){ r.classList.remove("sid-playing"); });
 }
-function _sidPlay() {
+async function _sidPlay() {
   _sidStop();
-  _sidEnsureAudio();
-  _sidPlayPat = _sidPat;
+  _sidPlayPat = 0;
+  _sidSetPattern(0, true);
   _sidRow = 0;
   const playAll = _sidPlayMode === "all";
   const rowSec = Math.max(0.04, _sidSpeed / 50);
   const t = document.getElementById("sid-tracker");
+
+  // Try WebSid first (real cycle-exact SID). Only "all" mode maps to the exported
+  // tune; for single-pattern loop we fall back to the Web Audio approximation so
+  // the user still gets the isolated-pattern preview they asked for.
+  let usingWebSid = false;
+  if (playAll) {
+    try { usingWebSid = await _webSidPlayCurrent(); }
+    catch (e) { console.warn("WebSid path errored:", e); usingWebSid = false; }
+  }
+  if (!usingWebSid) _sidEnsureAudio();
+
   const tick = function() {
-    const ac = _sidAudio, when = ac.currentTime + 0.02;
     const pat = _sidPatterns[_sidPlayPat] || _sidCurPat();
-    for (let v = 0; v < 3; v++) {
-      const cell = pat[v][_sidRow];
-      if (cell.note != null) _sidPlayInst(_sidInsts[cell.inst] || _sidCurInst(), _sidNoteFreq(cell.note), when, rowSec);
+    if (!usingWebSid) {
+      const ac = _sidAudio, when = ac.currentTime + 0.02;
+      for (let v = 0; v < 3; v++) {
+        const cell = pat[v][_sidRow];
+        if (cell.note != null) _sidPlayInst(_sidInsts[cell.inst] || _sidCurInst(), _sidNoteFreq(cell.note), when, rowSec);
+      }
+    }
+    if (_sidMetronomeEnabled && (_sidRow % _SID_ROWS_PER_BEAT) === 0) {
+      // Accent on the downbeat of every bar (4 beats = 16 rows).
+      const beatIndex = (_sidRow / _SID_ROWS_PER_BEAT) | 0;
+      _sidPlayMetronomeClick(beatIndex % _SID_BEATS_PER_BAR === 0);
     }
     if (t) {
       t.querySelectorAll("tr.sid-playing").forEach(function(r){ r.classList.remove("sid-playing"); });
@@ -29277,8 +29692,6 @@ function _sidExportAsmPlayable() {
   lines.push("    STA $D406,Y");       // SR
   lines.push("    LDA sid_instruments,X");
   lines.push("    STA $FD");           // stash ctrl (gate-on byte) for later
-  lines.push("    CPY #$00");
-  lines.push("    BNE sid_no_filt");
   lines.push("    LDA sid_instruments+5,X");
   lines.push("    STA $D415");         // filter cutoff lo
   lines.push("    LDA sid_instruments+6,X");
@@ -29287,7 +29700,6 @@ function _sidExportAsmPlayable() {
   lines.push("    STA $D417");         // resonance / filter route
   lines.push("    LDA sid_instruments+8,X");
   lines.push("    STA $D418");         // mode + master volume
-  lines.push("sid_no_filt:");
   lines.push("    PLA");               // A = note (1..96)
   lines.push("    SEC");
   lines.push("    SBC #$01");          // note-1 → 0-based freq table index
@@ -29362,6 +29774,12 @@ function _sidInit() {
   _sidPatterns = [_sidNewPattern()];
   _sidPlayPat = 0;
   _sidSyncPlayModeSel();
+  _sidUpdateBpmDisplay();
+  const volPct = Math.round(_sidMasterVol * 100);
+  const volEl = document.getElementById("sid-master-vol");
+  if (volEl) volEl.value = String(volPct);
+  const volValEl = document.getElementById("sid-master-vol-val");
+  if (volValEl) volValEl.textContent = String(volPct);
   _sidBuildInstSel();
   _sidLoadInstUI();
   _sidBuildPatSel();
@@ -29434,7 +29852,19 @@ function setupSidEditor() {
   onId("sid-pat-sel", "change", function(e){ _sidSetPattern(parseInt(e.target.value,10), true); });
   onId("sid-pat-add", "click", function(){ _sidPatterns.push(_sidNewPattern()); _sidBuildPatSel(); _sidSetPattern(_sidPatterns.length-1, true); });
   onId("sid-play-mode", "change", function(e){ _sidPlayMode = e.target.value === "current" ? "current" : "all"; if(_sidTimer){ _sidPlay(); } });
-  onId("sid-speed", "input", function(e){ _sidSpeed = Math.max(1, parseInt(e.target.value,10)||6); if(_sidTimer){ _sidPlay(); } });
+  onId("sid-speed", "input", function(e){
+    _sidSpeed = Math.max(1, parseInt(e.target.value,10)||6);
+    _sidUpdateBpmDisplay();
+    if (_sidTimer) { _sidPlay(); }
+  });
+  onId("sid-metronome", "click", _sidToggleMetronome);
+  onId("sid-master-vol", "input", function(e){
+    const pct = Math.max(0, Math.min(100, parseInt(e.target.value, 10) || 0));
+    _sidMasterVol = pct / 100;
+    const valEl = document.getElementById("sid-master-vol-val");
+    if (valEl) valEl.textContent = String(pct);
+    _sidApplyMasterVolume();
+  });
   onId("sid-play", "click", _sidPlay);
   onId("sid-stop", "click", _sidStop);
   // Files: save/load .bin + export blocks / export asm
@@ -29455,18 +29885,29 @@ function setupSidEditor() {
     reader.readAsArrayBuffer(file); e.target.value = "";
   });
 
+  const sidSidFile = document.getElementById("sid-sid-file");
+  onId("sid-play-sid", "click", function(){ if (sidSidFile) sidSidFile.click(); });
+  if (sidSidFile) sidSidFile.addEventListener("change", function(e){
+    const file = e.target.files && e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(){ _webSidPlayFileBytes(new Uint8Array(reader.result), file.name); };
+    reader.readAsArrayBuffer(file); e.target.value = "";
+  });
+  onId("websid-play-stop", "click", function(){ _webSidPause(); });
+
   // keyboard note entry / navigation
   const wrap = document.getElementById("sid-tracker-wrap");
   if (wrap) wrap.addEventListener("keydown", function(e) {
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLSelectElement || e.target.isContentEditable) return;
     const k = e.key.toLowerCase();
     if (e.ctrlKey && k === "c") { _sidCopyCells(); e.preventDefault(); return; }
     if (e.ctrlKey && k === "v") { _sidPasteCells(); e.preventDefault(); return; }
     if (e.key === "ArrowDown") {
-      if (e.shiftKey) { if (_sidSelAnchor === null) _sidSelAnchor = _sidSel.row; } else { _sidSelAnchor = null; }
+      if (e.shiftKey) { if (_sidSelAnchor === null) _sidSelAnchor = { voice: _sidSel.voice, row: _sidSel.row }; } else { _sidSelAnchor = null; }
       _sidSel.row = (_sidSel.row+1)%_SID_ROWS; _sidRefreshSel(); e.preventDefault(); return;
     }
     if (e.key === "ArrowUp") {
-      if (e.shiftKey) { if (_sidSelAnchor === null) _sidSelAnchor = _sidSel.row; } else { _sidSelAnchor = null; }
+      if (e.shiftKey) { if (_sidSelAnchor === null) _sidSelAnchor = { voice: _sidSel.voice, row: _sidSel.row }; } else { _sidSelAnchor = null; }
       _sidSel.row = (_sidSel.row-1+_SID_ROWS)%_SID_ROWS; _sidRefreshSel(); e.preventDefault(); return;
     }
     if (e.key === "ArrowLeft") { _sidSelAnchor = null; _sidSel.voice = (_sidSel.voice+2)%3; _sidRefreshSel(); e.preventDefault(); return; }
@@ -29490,8 +29931,14 @@ function setupSidEditor() {
   });
 
   // Voice copy/paste
-  onId("sid-voice-copy", "click", _sidCopyVoice);
-  onId("sid-voice-paste", "click", _sidPasteVoice);
+  onId("sid-voice-copy", "click", function(){
+    if (_sidSelAnchor !== null) _sidCopyCells();
+    else _sidCopyVoice();
+  });
+  onId("sid-voice-paste", "click", function(){
+    if (_sidCellClip) _sidPasteCells();
+    else _sidPasteVoice();
+  });
 
   // Octave controls
   onId("sid-oct-up", "click", function(){ _sidSetOctave(_sidOctave+1); });
