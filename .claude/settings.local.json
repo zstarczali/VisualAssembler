@@ -137,7 +137,23 @@
       "Bash(/d/Development/exomizer/win32/exomizer.exe sfx *)",
       "Bash(node \"C:\\\\Users\\\\rlung\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\F--Development-VisualAssembler\\\\9bfe0764-f5a2-49a5-bab3-1947b71cb19a\\\\scratchpad\\\\diff-new-kor.js\")",
       "Bash(grep -n \"macroLine\\\\|charCodeAt.*123\\\\|\\\\.endm.*\\\\\\\\\\\\\\\\x7d\")",
-      "Bash(rm -f \"C:\\\\Users\\\\rlung\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\F--Development-VisualAssembler\\\\9bfe0764-f5a2-49a5-bab3-1947b71cb19a\\\\scratchpad\"/*.js \"C:\\\\Users\\\\rlung\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\F--Development-VisualAssembler\\\\9bfe0764-f5a2-49a5-bab3-1947b71cb19a\\\\scratchpad\"/*.prg 2>&1)"
+      "Bash(rm -f \"C:\\\\Users\\\\rlung\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\F--Development-VisualAssembler\\\\9bfe0764-f5a2-49a5-bab3-1947b71cb19a\\\\scratchpad\"/*.js \"C:\\\\Users\\\\rlung\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\F--Development-VisualAssembler\\\\9bfe0764-f5a2-49a5-bab3-1947b71cb19a\\\\scratchpad\"/*.prg 2>&1)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:jhohertz.github.io)",
+      "WebFetch(domain:www.wothke.ch)",
+      "WebFetch(domain:bitbucket.org)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(gh api *)",
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:api.bitbucket.org)",
+      "Bash(curl -sSLf -o backend_websid.js 'https://bitbucket.org/wothke/websid/raw/master/htdocs/backend_websid.js')",
+      "Bash(curl -sSLf -o websid.wasm 'https://bitbucket.org/wothke/websid/raw/master/htdocs/websid.wasm')",
+      "Bash(curl -sSLf -o scriptprocessor_player.min.js 'https://bitbucket.org/wothke/websid/raw/master/htdocs/stdlib/scriptprocessor_player.min.js')",
+      "Bash(grep -oE '\\(static |\\)loadMusicData\\\\\\([^{]{0,200}\\\\{[^}]{0,200}' F:/Development/VisualAssembler/www/lib/websid/scriptprocessor_player.min.js)",
+      "Bash(node -c F:/Development/VisualAssembler/www/app.js)",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('F:/Development/VisualAssembler/src-tauri/tauri.conf.json','utf8'\\)\\)\")",
+      "Bash(node -c F:/Development/VisualAssembler/www/i18n.js)",
+      "Bash(grep -oE 'setVolume\\\\\\([^\\)]{0,60}\\\\\\)|gainNode[^;]{0,60}' F:/Development/VisualAssembler/www/lib/websid/scriptprocessor_player.min.js)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"
