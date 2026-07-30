@@ -60,6 +60,7 @@
   --hl-string:    #7c2d12;
   --hl-label:     #854d0e;
   --expert-editor-bg: #f1f5f9;
+  --cg-canvas-bg: #20263a;
 }
 
 html[data-theme="dark"] {
@@ -102,6 +103,7 @@ html[data-theme="dark"] {
   --asm-number: #fb923c;
   --asm-region: #80b880;
   --asm-operand: #facc15;
+  --cg-canvas-bg: #20263a;
 }
 
 html[data-theme="oled"] {
@@ -114,6 +116,7 @@ html[data-theme="oled"] {
   --hl-string:    #bf7a58;
   --hl-label:     #7ac8ee;
   --expert-editor-bg: #0d0d12;
+  --cg-canvas-bg: #20263a;
   --bg: #0d0d12;
   --bg-accent: #0a0a0e;
   --panel: rgba(18, 18, 26, 0.98);
@@ -144,6 +147,7 @@ html[data-theme="oled"] {
   --asm-number: #fb923c;
   --asm-region: #70a870;
   --asm-operand: #facc15;
+  --cg-canvas-bg: #20263a;
 }
 
 * {
@@ -8416,6 +8420,22 @@ body.crt-mode #crt-overlay::after {
   border-radius: 4px;
   margin-top: -4px;
 }
+.cg-combine-sections {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+.cg-combine-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.cg-combine-section--bottom {
+  border-left: 1px solid color-mix(in srgb, var(--panel-border) 70%, transparent);
+  padding-left: 12px;
+}
 .cg-combine-panel[hidden] { display: none; }
 
 /* Graph (center) */
@@ -8431,13 +8451,8 @@ body.crt-mode #crt-overlay::after {
 .cg-graph {
   width: 100%;
   height: 300px;
-  /* Fixed dark background regardless of theme — matches .sid-adsr-canvas /
-     .sid-tracker-wrap so scope-style widgets stay readable in light mode. */
-  /* Theme-aware slate: in light mode this mixes the light --bg with a dark
-     base → medium slate (~#495066), so the widget is clearly lighter than a
-     pure dark scope but still gives enough contrast for the curves and text.
-     In dark/OLED modes the mix stays close to the dark base (~#252a3c). */
-  background: color-mix(in srgb, var(--bg) 30%, #2d3548);
+  /* Fixed dark canvas in every theme for consistent contrast. */
+  background: #0a0e1a;
   color-scheme: dark;
   border: 1px solid var(--panel-border);
   border-radius: 4px;
@@ -8482,11 +8497,8 @@ body.crt-mode #crt-overlay::after {
 .cg-anim {
   width: 100%;
   aspect-ratio: 1;
-  /* Theme-aware slate: in light mode this mixes the light --bg with a dark
-     base → medium slate (~#495066), so the widget is clearly lighter than a
-     pure dark scope but still gives enough contrast for the curves and text.
-     In dark/OLED modes the mix stays close to the dark base (~#252a3c). */
-  background: color-mix(in srgb, var(--bg) 30%, #2d3548);
+  /* Fixed dark canvas in every theme for consistent contrast. */
+  background: #0a0e1a;
   color-scheme: dark;
   border: 1px solid var(--panel-border);
   border-radius: 4px;
@@ -8528,7 +8540,7 @@ body.crt-mode #crt-overlay::after {
      base → medium slate (~#495066), so the widget is clearly lighter than a
      pure dark scope but still gives enough contrast for the curves and text.
      In dark/OLED modes the mix stays close to the dark base (~#252a3c). */
-  background: color-mix(in srgb, var(--bg) 30%, #2d3548);
+  background: var(--cg-canvas-bg);
   color-scheme: dark;
   border: 1px solid var(--panel-border);
   border-radius: 4px;

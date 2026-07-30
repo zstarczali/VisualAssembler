@@ -186,7 +186,7 @@
           <button id="sid-editor-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="SID Editor">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><path d="M1.5 8.5h2l1.5-5 2.5 10 2-7 1.5 4h3.5"/></svg>
           </button>
-          <button id="curve-gen-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Table Forge">
+          <button id="curve-gen-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Curve Generator">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><path d="M1.5 8c1.5-4 3.5-4 5 0s3.5 4 5 0 2.5-2 3 0"/></svg>
           </button>
           <button id="expert-mode-tb-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Expert mode" aria-pressed="false">
@@ -1552,6 +1552,11 @@ PRINTABLE CHARACTERS
       <div class="cg-body">
         <!-- Left: controls -->
         <div class="cg-controls">
+          <label class="menu-checkbox-label cg-combine-label">
+            <input type="checkbox" id="cg-sprite-y">
+            <span>Sprite Y output (0-179)</span>
+          </label>
+
           <label class="cg-field">
             <span class="cg-lbl" id="cg-curve-lbl">Curve</span>
             <select id="cg-curve" class="cg-select">
@@ -1647,50 +1652,56 @@ PRINTABLE CHARACTERS
              appears only when "Combine second curve" is checked -->
         <div id="cg-combine-panel" class="cg-combine-panel" hidden>
           <div class="cg-combine-title" id="cg-combine-title">Curve 2</div>
-          <label class="cg-field">
-            <span class="cg-lbl" id="cg-curve2-lbl">Curve 2</span>
-            <select id="cg-curve2" class="cg-select">
-              <option value="sine">Sine</option>
-              <option value="cosine">Cosine</option>
-              <option value="linear">Linear</option>
-              <option value="triangle">Triangle</option>
-              <option value="sawtooth">Sawtooth</option>
-              <option value="easeOutQuad">Ease Out (Quad)</option>
-              <option value="easeInOutCubic">Ease InOut (Cubic)</option>
-            </select>
-          </label>
-          <label class="cg-field">
-            <span class="cg-lbl" id="cg-combmode-lbl">Combination</span>
-            <select id="cg-combmode" class="cg-select">
-              <option value="mix">Mix / Average</option>
-              <option value="add">Add (clamped)</option>
-              <option value="mul">Multiply</option>
-              <option value="min">Min</option>
-              <option value="max">Max</option>
-              <option value="sub">Subtract</option>
-            </select>
-          </label>
-          <label class="cg-field" id="cg-curve2-cycles-field">
-            <span class="cg-lbl" id="cg-curve2-cycles-lbl">Curve 2 Cycles</span>
-            <div class="cg-slider-row">
-              <input type="range" id="cg-curve2-cycles" class="cg-range" min="0.125" max="16" value="1" step="0.125">
-              <input type="number" id="cg-curve2-cycles-num" class="cg-num-in" min="0.125" max="16" value="1" step="0.125">
+          <div class="cg-combine-sections">
+            <div class="cg-combine-section">
+              <label class="cg-field">
+                <span class="cg-lbl" id="cg-curve2-lbl">Curve 2</span>
+                <select id="cg-curve2" class="cg-select">
+                  <option value="sine">Sine</option>
+                  <option value="cosine">Cosine</option>
+                  <option value="linear">Linear</option>
+                  <option value="triangle">Triangle</option>
+                  <option value="sawtooth">Sawtooth</option>
+                  <option value="easeOutQuad">Ease Out (Quad)</option>
+                  <option value="easeInOutCubic">Ease InOut (Cubic)</option>
+                </select>
+              </label>
+              <label class="cg-field">
+                <span class="cg-lbl" id="cg-combmode-lbl">Combination</span>
+                <select id="cg-combmode" class="cg-select">
+                  <option value="mix">Mix / Average</option>
+                  <option value="add">Add (clamped)</option>
+                  <option value="mul">Multiply</option>
+                  <option value="min">Min</option>
+                  <option value="max">Max</option>
+                  <option value="sub">Subtract</option>
+                </select>
+              </label>
             </div>
-          </label>
-          <label class="cg-field" id="cg-curve2-phase-field">
-            <span class="cg-lbl" id="cg-curve2-phase-lbl">Curve 2 Phase (deg)</span>
-            <div class="cg-slider-row">
-              <input type="range" id="cg-curve2-phase" class="cg-range" min="0" max="360" value="270">
-              <input type="number" id="cg-curve2-phase-num" class="cg-num-in" min="0" max="360" value="270">
+            <div class="cg-combine-section cg-combine-section--bottom">
+              <label class="cg-field" id="cg-curve2-cycles-field">
+                <span class="cg-lbl" id="cg-curve2-cycles-lbl">Curve 2 Cycles</span>
+                <div class="cg-slider-row">
+                  <input type="range" id="cg-curve2-cycles" class="cg-range" min="0.125" max="16" value="1" step="0.125">
+                  <input type="number" id="cg-curve2-cycles-num" class="cg-num-in" min="0.125" max="16" value="1" step="0.125">
+                </div>
+              </label>
+              <label class="cg-field" id="cg-curve2-phase-field">
+                <span class="cg-lbl" id="cg-curve2-phase-lbl">Curve 2 Phase (deg)</span>
+                <div class="cg-slider-row">
+                  <input type="range" id="cg-curve2-phase" class="cg-range" min="0" max="360" value="270">
+                  <input type="number" id="cg-curve2-phase-num" class="cg-num-in" min="0" max="360" value="270">
+                </div>
+              </label>
+              <label class="cg-field">
+                <span class="cg-lbl" id="cg-mix-lbl">Curve 2 Amount</span>
+                <div class="cg-slider-row">
+                  <input type="range" id="cg-mix" class="cg-range" min="0" max="100" value="50">
+                  <input type="number" id="cg-mix-num" class="cg-num-in" min="0" max="100" value="50">
+                </div>
+              </label>
             </div>
-          </label>
-          <label class="cg-field">
-            <span class="cg-lbl" id="cg-mix-lbl">Curve 2 Amount</span>
-            <div class="cg-slider-row">
-              <input type="range" id="cg-mix" class="cg-range" min="0" max="100" value="50">
-              <input type="number" id="cg-mix-num" class="cg-num-in" min="0" max="100" value="50">
-            </div>
-          </label>
+          </div>
         </div>
 
         <!-- Center: graph -->
@@ -1729,7 +1740,7 @@ PRINTABLE CHARACTERS
       </div>
 
       <!-- Bottom: output -->
-      <div class="cg-output-section">
+      <div class="cg-output-section" hidden>
         <div class="cg-output-hdr">
           <span class="cg-output-lbl" id="cg-output-lbl">.byte output</span>
           <span class="cg-output-hint" id="cg-output-hint">Hex · 16 per line</span>

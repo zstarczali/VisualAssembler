@@ -29973,6 +29973,7 @@ const _CG_STATE = {
   label: "sinusTable",
   base: "hex",
   perLine: 16,
+  spriteY: false,
   tempo: 50,
   animPlaying: true,
   animIndex: 0,
@@ -30076,15 +30077,22 @@ function _cgGenerateSamples() {
   return out;
 }
 
+function _cgGetOutputSamples() {
+  const s = _CG_STATE;
+  if (!s.samples || !s.spriteY) return s.samples;
+  return Uint8Array.from(s.samples, (value) => Math.round((255 - value) * 179 / 255));
+}
+
 function _cgFormatBytes() {
   const s = _CG_STATE;
-  if (!s.samples) return "";
+  const samples = _cgGetOutputSamples();
+  if (!samples) return "";
   const per = Math.max(1, s.perLine | 0);
   const asHex = s.base === "hex";
   const cell = (b) => asHex ? "$" + b.toString(16).toUpperCase().padStart(2, "0") : String(b);
   const lines = [(s.label || "table") + ":"];
-  for (let i = 0; i < s.samples.length; i += per) {
-    const chunk = Array.from(s.samples.slice(i, i + per)).map(cell).join(", ");
+  for (let i = 0; i < samples.length; i += per) {
+    const chunk = Array.from(samples.slice(i, i + per)).map(cell).join(", ");
     lines.push("    .byte " + chunk);
   }
   return lines.join("\n");
@@ -30096,10 +30104,11 @@ function _cgUpdateOutput() {
   if (outEl) outEl.value = _cgFormatBytes();
   const bytesEl = document.getElementById("cg-meta-bytes");
   if (bytesEl) bytesEl.textContent = s.samples ? (s.samples.length + " Bytes") : "0 Bytes";
+  const outputSamples = _cgGetOutputSamples();
   let minV = 255, maxV = 0;
-  if (s.samples) for (let i = 0; i < s.samples.length; i++) {
-    if (s.samples[i] < minV) minV = s.samples[i];
-    if (s.samples[i] > maxV) maxV = s.samples[i];
+  if (outputSamples) for (let i = 0; i < outputSamples.length; i++) {
+    if (outputSamples[i] < minV) minV = outputSamples[i];
+    if (outputSamples[i] > maxV) maxV = outputSamples[i];
   } else { minV = 0; }
   const rangeEl = document.getElementById("cg-meta-range");
   if (rangeEl) rangeEl.textContent = "Min " + minV + " · Max " + maxV;
@@ -30372,6 +30381,10 @@ function _cgWireDialog() {
     if (panel) panel.hidden = !s.combine;
     _cgApplyControlVisibility();
     _cgRefreshAll();
+  });
+  document.getElementById("cg-sprite-y")?.addEventListener("change", (e) => {
+    s.spriteY = !!e.target.checked;
+    _cgUpdateOutput();
   });
   // Label / base / per-line
   document.getElementById("cg-label")?.addEventListener("input", (e) => { s.label = e.target.value; _cgUpdateOutput(); });
