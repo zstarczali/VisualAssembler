@@ -29949,3 +29949,479 @@ function _sidSetOctave(o) {
   const el = document.getElementById("sid-oct-val");
   if (el) el.textContent = _sidOctave;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * Curve / Easing Table Generator
+ * Produces .byte tables for Kick Assembler: pick a curve (sine, easings,
+ * triangle, sawtooth, square, bounce), configure start/end/count/cycles/phase,
+ * see it graphed live, watch a bouncing-ball preview, then Copy or Insert
+ * into the current program.
+ * ═══════════════════════════════════════════════════════════════════════ */
+const _CG_STATE = {
+  curve: "sine",
+  start: 0,
+  end: 255,
+  count: 256,
+  cycles: 1,
+  phase: 270,
+  combine: false,
+  curve2: "cosine",
+  curve2Cycles: 1,
+  curve2Phase: 270,
+  mix: 50,
+  combineMode: "mix",
+  label: "sinusTable",
+  base: "hex",
+  perLine: 16,
+  tempo: 50,
+  animPlaying: true,
+  animIndex: 0,
+  animLastTime: 0,
+  animRaf: 0,
+  samples: null,
+  samples1: null,   // curve 1 alone (for graph overlay in combine mode)
+  samples2: null,   // curve 2 alone
+};
+
+/* Curve library. Each fn takes t in 0..1 (+ optional phase in radians) and
+ * returns a value in 0..1. Only sine/cosine use phase. */
+const _CG_CURVES = (function() {
+  const bounceOut = (t) => {
+    const n = 7.5625, d = 2.75;
+    if (t < 1 / d) return n * t * t;
+    if (t < 2 / d) { t -= 1.5 / d; return n * t * t + 0.75; }
+    if (t < 2.5 / d) { t -= 2.25 / d; return n * t * t + 0.9375; }
+    t -= 2.625 / d; return n * t * t + 0.984375;
+  };
+  const bounceIn = (t) => 1 - bounceOut(1 - t);
+  return {
+    sine: (t, ph) => 0.5 - 0.5 * Math.cos(2 * Math.PI * t + ph),
+    cosine: (t, ph) => 0.5 + 0.5 * Math.cos(2 * Math.PI * t + ph),
+    linear: (t) => t,
+    easeInQuad: (t) => t * t,
+    easeOutQuad: (t) => 1 - (1 - t) * (1 - t),
+    easeInOutQuad: (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2,
+    easeInCubic: (t) => t * t * t,
+    easeOutCubic: (t) => 1 - Math.pow(1 - t, 3),
+    easeInOutCubic: (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
+    easeInCirc: (t) => 1 - Math.sqrt(1 - t * t),
+    easeOutCirc: (t) => Math.sqrt(1 - (t - 1) * (t - 1)),
+    triangle: (t) => 1 - Math.abs(2 * t - 1),
+    sawtooth: (t) => t,
+    square: (t) => t < 0.5 ? 0 : 1,
+    easeInBounce: bounceIn,
+    easeOutBounce: bounceOut,
+    easeInOutBounce: (t) => t < 0.5 ? 0.5 * bounceIn(2 * t) : 0.5 + 0.5 * bounceOut(2 * t - 1),
+  };
+})();
+const _CG_CURVE_LABELS = {
+  sine: "Sine", cosine: "Cosine", linear: "Linear",
+  easeInQuad: "Ease In (Quad)", easeOutQuad: "Ease Out (Quad)", easeInOutQuad: "Ease InOut (Quad)",
+  easeInCubic: "Ease In (Cubic)", easeOutCubic: "Ease Out (Cubic)", easeInOutCubic: "Ease InOut (Cubic)",
+  easeInCirc: "Ease In (Circ)", easeOutCirc: "Ease Out (Circ)",
+  triangle: "Triangle", sawtooth: "Sawtooth", square: "Square",
+  easeInBounce: "Ease In Bounce", easeOutBounce: "Ease Out Bounce", easeInOutBounce: "Ease InOut Bounce",
+};
+/* Which curves need Cycles / Phase controls exposed. */
+const _CG_CYCLIC = new Set(["sine","cosine","triangle","sawtooth","square"]);
+const _CG_PHASED = new Set(["sine","cosine"]);
+
+function _cgSampleCurve(name, t, phaseRad, cycles) {
+  const fn = _CG_CURVES[name] || _CG_CURVES.sine;
+  const tt = _CG_CYCLIC.has(name) ? ((t * cycles) % 1 + 1) % 1 : t;
+  return fn(tt, phaseRad || 0);
+}
+
+function _cgCombine(v1, v2, mode, amount) {
+  // amount 0..1 — how much of v2 to blend/apply on top of v1.
+  const w = Math.max(0, Math.min(1, amount));
+  switch (mode) {
+    case "add":  return Math.max(0, Math.min(1, v1 + v2 * w));
+    case "mul":  return Math.max(0, Math.min(1, v1 * (v2 * w + (1 - w))));
+    case "min":  return Math.min(v1, v2 * w + v1 * (1 - w));
+    case "max":  return Math.max(v1, v2 * w);
+    case "sub":  return Math.max(0, Math.min(1, v1 - v2 * w));
+    case "mix":
+    default:     return v1 * (1 - w) + v2 * w;
+  }
+}
+
+function _cgGenerateSamples() {
+  const s = _CG_STATE;
+  const n = Math.max(2, Math.min(4096, s.count | 0));
+  const lo = Math.max(0, Math.min(255, s.start | 0));
+  const hi = Math.max(0, Math.min(255, s.end | 0));
+  const phase1 = (s.phase / 360) * 2 * Math.PI;
+  const phase2 = (s.curve2Phase / 360) * 2 * Math.PI;
+  const out = new Uint8Array(n);
+  const guide1 = new Uint8Array(n);
+  const guide2 = s.combine ? new Uint8Array(n) : null;
+  const amount = s.mix / 100;
+  for (let i = 0; i < n; i++) {
+    const t = i / n;
+    const v1 = _cgSampleCurve(s.curve, t, phase1, s.cycles);
+    guide1[i] = Math.round(lo + (hi - lo) * Math.max(0, Math.min(1, v1))) & 0xFF;
+    let v = v1;
+    if (s.combine) {
+      const v2 = _cgSampleCurve(s.curve2, t, phase2, s.curve2Cycles);
+      guide2[i] = Math.round(lo + (hi - lo) * Math.max(0, Math.min(1, v2))) & 0xFF;
+      v = _cgCombine(v1, v2, s.combineMode, amount);
+    }
+    v = Math.max(0, Math.min(1, v));
+    out[i] = Math.round(lo + (hi - lo) * v) & 0xFF;
+  }
+  s.samples = out;
+  s.samples1 = guide1;
+  s.samples2 = guide2;
+  return out;
+}
+
+function _cgFormatBytes() {
+  const s = _CG_STATE;
+  if (!s.samples) return "";
+  const per = Math.max(1, s.perLine | 0);
+  const asHex = s.base === "hex";
+  const cell = (b) => asHex ? "$" + b.toString(16).toUpperCase().padStart(2, "0") : String(b);
+  const lines = [(s.label || "table") + ":"];
+  for (let i = 0; i < s.samples.length; i += per) {
+    const chunk = Array.from(s.samples.slice(i, i + per)).map(cell).join(", ");
+    lines.push("    .byte " + chunk);
+  }
+  return lines.join("\n");
+}
+
+function _cgUpdateOutput() {
+  const s = _CG_STATE;
+  const outEl = document.getElementById("cg-output");
+  if (outEl) outEl.value = _cgFormatBytes();
+  const bytesEl = document.getElementById("cg-meta-bytes");
+  if (bytesEl) bytesEl.textContent = s.samples ? (s.samples.length + " Bytes") : "0 Bytes";
+  let minV = 255, maxV = 0;
+  if (s.samples) for (let i = 0; i < s.samples.length; i++) {
+    if (s.samples[i] < minV) minV = s.samples[i];
+    if (s.samples[i] > maxV) maxV = s.samples[i];
+  } else { minV = 0; }
+  const rangeEl = document.getElementById("cg-meta-range");
+  if (rangeEl) rangeEl.textContent = "Min " + minV + " · Max " + maxV;
+  const curveEl = document.getElementById("cg-meta-curve");
+  if (curveEl) {
+    const c1 = _CG_CURVE_LABELS[s.curve] || s.curve;
+    const c2 = _CG_CURVE_LABELS[s.curve2] || s.curve2;
+    curveEl.textContent = s.combine ? (c1 + " + " + c2) : c1;
+  }
+  const hintEl = document.getElementById("cg-output-hint");
+  if (hintEl) hintEl.textContent = (s.base === "hex" ? "Hex" : "Dec") + " · " + s.perLine + " per line";
+}
+
+function _cgDrawGraph() {
+  const s = _CG_STATE;
+  const canvas = document.getElementById("cg-graph");
+  if (!canvas || !s.samples) return;
+  // Match backing store to CSS size for crisp rendering — but only when the
+  // canvas has actually been laid out. Right after showModal() the rect can
+  // still be 0×0; in that case fall back to the HTML width/height attributes.
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  if (rect.width > 0 && rect.height > 0) {
+    const wantW = Math.round(rect.width * dpr);
+    const wantH = Math.round(rect.height * dpr);
+    if (canvas.width !== wantW || canvas.height !== wantH) {
+      canvas.width = wantW; canvas.height = wantH;
+    }
+  }
+  const ctx = canvas.getContext("2d");
+  const W = rect.width > 0 ? rect.width : canvas.width;
+  const H = rect.height > 0 ? rect.height : canvas.height;
+  ctx.setTransform(rect.width > 0 ? dpr : 1, 0, 0, rect.width > 0 ? dpr : 1, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  // Grid
+  ctx.strokeStyle = "rgba(255,255,255,0.06)";
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = (H - 1) * (i / 4);
+    ctx.beginPath(); ctx.moveTo(0, y + 0.5); ctx.lineTo(W, y + 0.5); ctx.stroke();
+  }
+  // Y-axis labels (0/64/128/192/255)
+  ctx.fillStyle = "rgba(255,255,255,0.35)";
+  ctx.font = "10px monospace";
+  ["255","192","128","64","0"].forEach((lbl, i) => {
+    ctx.fillText(lbl, 4, 12 + i * (H - 12) / 4);
+  });
+  const n = s.samples.length;
+  const xAt = (i) => (i / (n - 1)) * (W - 30) + 25;
+  const yAt = (v) => H - 6 - (v / 255) * (H - 18);
+  const drawCurve = (arr, color, dashed) => {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = dashed ? 1.2 : 2;
+    ctx.setLineDash(dashed ? [4, 4] : []);
+    ctx.beginPath();
+    for (let i = 0; i < n; i++) {
+      const x = xAt(i), y = yAt(arr[i]);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  };
+  // In combine mode, draw source curves as dashed guides underneath the combined line.
+  if (s.combine && s.samples1 && s.samples2) {
+    drawCurve(s.samples1, "rgba(251,146,60,0.65)", true);   // curve 1 = orange dashed
+    drawCurve(s.samples2, "rgba(96,165,250,0.65)", true);   // curve 2 = blue dashed
+  }
+  drawCurve(s.samples, "#4ade80", false);                    // combined / main = solid green
+  ctx.setLineDash([]);
+}
+
+function _cgDrawAnimation() {
+  const s = _CG_STATE;
+  const canvas = document.getElementById("cg-anim");
+  if (!canvas || !s.samples) return;
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  if (rect.width > 0 && rect.height > 0) {
+    const wantW = Math.round(rect.width * dpr);
+    const wantH = Math.round(rect.height * dpr);
+    if (canvas.width !== wantW || canvas.height !== wantH) {
+      canvas.width = wantW; canvas.height = wantH;
+    }
+  }
+  const ctx = canvas.getContext("2d");
+  const W = rect.width > 0 ? rect.width : canvas.width;
+  const H = rect.height > 0 ? rect.height : canvas.height;
+  ctx.setTransform(rect.width > 0 ? dpr : 1, 0, 0, rect.width > 0 ? dpr : 1, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  // Grid
+  ctx.strokeStyle = "rgba(255,255,255,0.08)";
+  ctx.lineWidth = 1;
+  for (let i = 1; i < 4; i++) {
+    ctx.beginPath(); ctx.moveTo(0, (H * i) / 4); ctx.lineTo(W, (H * i) / 4); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo((W * i) / 4, 0); ctx.lineTo((W * i) / 4, H); ctx.stroke();
+  }
+  // Ball: X = index/count * width, Y = value/255 * height (0 top, 255 bottom).
+  // animIndex is a float (for smooth motion); typed-array lookup needs an int.
+  const n = s.samples.length;
+  const idxFloat = ((s.animIndex % n) + n) % n;
+  const idxInt = Math.floor(idxFloat);
+  const value = s.samples[idxInt];
+  const x = 20 + (idxFloat / (n - 1)) * (W - 40);
+  const y = 20 + ((255 - value) / 255) * (H - 40);
+  // Trail (last ~24 samples)
+  ctx.strokeStyle = "rgba(74,222,128,0.25)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  const trail = Math.min(24, n);
+  for (let k = 0; k < trail; k++) {
+    const i2 = ((idxInt - k) % n + n) % n;
+    const x2 = 20 + (i2 / (n - 1)) * (W - 40);
+    const y2 = 20 + ((255 - s.samples[i2]) / 255) * (H - 40);
+    if (k === 0) ctx.moveTo(x2, y2); else ctx.lineTo(x2, y2);
+  }
+  ctx.stroke();
+  // Ball
+  ctx.fillStyle = "#facc15";
+  ctx.beginPath(); ctx.arc(x, y, 8, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = "rgba(0,0,0,0.35)"; ctx.lineWidth = 1.5; ctx.stroke();
+  // Sub-title
+  const sub = document.getElementById("cg-anim-sub");
+  if (sub) sub.textContent = "Index " + idxInt + " · Value " + value;
+}
+
+function _cgAnimTick(now) {
+  const s = _CG_STATE;
+  if (!s.animPlaying || !s.samples) { s.animRaf = 0; return; }
+  if (!s.animLastTime) s.animLastTime = now;
+  const dt = (now - s.animLastTime) / 1000;
+  const advance = dt * Math.max(1, s.tempo);
+  s.animIndex = (s.animIndex + advance) % s.samples.length;
+  s.animLastTime = now;
+  _cgDrawAnimation();
+  s.animRaf = requestAnimationFrame(_cgAnimTick);
+}
+function _cgAnimStart() {
+  const s = _CG_STATE;
+  if (s.animRaf) return;
+  s.animLastTime = 0;
+  s.animRaf = requestAnimationFrame(_cgAnimTick);
+}
+function _cgAnimStop() {
+  const s = _CG_STATE;
+  if (s.animRaf) cancelAnimationFrame(s.animRaf);
+  s.animRaf = 0;
+}
+
+function _cgRefreshAll() {
+  _cgGenerateSamples();
+  _cgUpdateOutput();
+  _cgDrawGraph();
+  _cgDrawAnimation();
+}
+
+/* Play/pause SVG swap for the animation control. Kept in JS so we don't have
+ * to maintain two <svg> subtrees in the HTML. */
+function _cgUpdatePlayButtonIcon() {
+  const btn = document.getElementById("cg-anim-play");
+  if (!btn) return;
+  const playing = _CG_STATE.animPlaying;
+  // Playing → show pause bars; paused → show play triangle.
+  btn.innerHTML = playing
+    ? '<svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13" aria-hidden="true"><path d="M4 3.5h2v9H4zM10 3.5h2v9h-2z"/></svg>'
+    : '<svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13" aria-hidden="true"><path d="M4 3l9 5-9 5V3z"/></svg>';
+  btn.setAttribute("aria-label", playing ? "Pause" : "Play");
+  btn.removeAttribute("title");   // custom tooltip drives from aria-label
+}
+
+/* Hide Cycles / Phase controls for curves that don't have oscillation or phase.
+ * Applies to both the primary curve and the secondary (combine) curve. */
+function _cgApplyControlVisibility() {
+  const s = _CG_STATE;
+  const set = (id, visible) => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = visible ? "" : "none";
+  };
+  set("cg-cycles-field", _CG_CYCLIC.has(s.curve));
+  set("cg-phase-field", _CG_PHASED.has(s.curve));
+  set("cg-curve2-cycles-field", _CG_CYCLIC.has(s.curve2));
+  set("cg-curve2-phase-field", _CG_PHASED.has(s.curve2));
+}
+
+function _cgSyncSliderPair(sliderId, numId, stateKey, opts) {
+  const { isFloat = false, extra } = opts || {};
+  const slider = document.getElementById(sliderId);
+  const num = document.getElementById(numId);
+  const push = (raw) => {
+    const v = isFloat ? parseFloat(raw) : parseInt(raw, 10);
+    if (isNaN(v)) return;
+    _CG_STATE[stateKey] = v;
+    const str = isFloat ? String(v) : String(v | 0);
+    if (slider && slider.value !== str) slider.value = str;
+    if (num && num.value !== str) num.value = str;
+    if (extra) extra(v);
+    _cgRefreshAll();
+  };
+  slider?.addEventListener("input", (e) => push(e.target.value));
+  num?.addEventListener("input", (e) => push(e.target.value));
+}
+
+function _cgSuggestLabel() {
+  // Auto-rename the label when curve changes, but only if it still looks default.
+  const s = _CG_STATE;
+  const defaultNames = ["sinusTable","cosineTable","linearTable","easeInTable","easeOutTable",
+                        "easeInOutTable","triangleTable","sawtoothTable","squareTable","bounceTable","table"];
+  const el = document.getElementById("cg-label");
+  if (!el) return;
+  if (!defaultNames.includes(el.value.trim())) return;
+  const map = {
+    sine: "sinusTable", cosine: "cosineTable", linear: "linearTable",
+    easeInQuad: "easeInTable", easeOutQuad: "easeOutTable", easeInOutQuad: "easeInOutTable",
+    easeInCubic: "easeInTable", easeOutCubic: "easeOutTable", easeInOutCubic: "easeInOutTable",
+    triangle: "triangleTable", sawtooth: "sawtoothTable", square: "squareTable", bounceOut: "bounceTable",
+  };
+  const newName = map[s.curve] || "table";
+  el.value = newName;
+  s.label = newName;
+}
+
+function _cgOpenDialog() {
+  const dlg = document.getElementById("curve-gen-dialog");
+  if (!dlg) return;
+  if (!dlg.dataset.wired) _cgWireDialog();
+  dlg.dataset.wired = "1";
+  try { dlg.showModal(); } catch(_) { dlg.show(); }
+  _cgApplyControlVisibility();
+  _cgUpdatePlayButtonIcon();
+  // Two RAFs so the canvas has its final CSS size before we compute the DPR-scaled backing store.
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    _cgRefreshAll();
+    if (_CG_STATE.animPlaying) _cgAnimStart();
+  }));
+}
+
+function _cgCloseDialog() {
+  const dlg = document.getElementById("curve-gen-dialog");
+  _cgAnimStop();
+  if (dlg && dlg.open) { try { dlg.close(); } catch(_) {} }
+}
+
+function _cgWireDialog() {
+  const s = _CG_STATE;
+  // Curve dropdowns
+  document.getElementById("cg-curve")?.addEventListener("change", (e) => {
+    s.curve = e.target.value;
+    _cgSuggestLabel();
+    _cgApplyControlVisibility();
+    _cgRefreshAll();
+  });
+  document.getElementById("cg-curve2")?.addEventListener("change", (e) => {
+    s.curve2 = e.target.value;
+    _cgApplyControlVisibility();
+    _cgRefreshAll();
+  });
+  document.getElementById("cg-combmode")?.addEventListener("change", (e) => {
+    s.combineMode = e.target.value; _cgRefreshAll();
+  });
+  _cgSyncSliderPair("cg-start", "cg-start-num", "start");
+  _cgSyncSliderPair("cg-end", "cg-end-num", "end");
+  _cgSyncSliderPair("cg-count", "cg-count-num", "count");
+  _cgSyncSliderPair("cg-cycles", "cg-cycles-num", "cycles", { isFloat: true });
+  _cgSyncSliderPair("cg-phase", "cg-phase-num", "phase");
+  _cgSyncSliderPair("cg-curve2-cycles", "cg-curve2-cycles-num", "curve2Cycles", { isFloat: true });
+  _cgSyncSliderPair("cg-curve2-phase", "cg-curve2-phase-num", "curve2Phase");
+  _cgSyncSliderPair("cg-mix", "cg-mix-num", "mix");
+  // Combine toggle
+  document.getElementById("cg-combine")?.addEventListener("change", (e) => {
+    s.combine = !!e.target.checked;
+    const panel = document.getElementById("cg-combine-panel");
+    if (panel) panel.hidden = !s.combine;
+    _cgApplyControlVisibility();
+    _cgRefreshAll();
+  });
+  // Label / base / per-line
+  document.getElementById("cg-label")?.addEventListener("input", (e) => { s.label = e.target.value; _cgUpdateOutput(); });
+  document.getElementById("cg-base")?.addEventListener("change", (e) => { s.base = e.target.value; _cgUpdateOutput(); });
+  document.getElementById("cg-perline")?.addEventListener("change", (e) => { s.perLine = parseInt(e.target.value, 10) || 16; _cgUpdateOutput(); });
+  // Tempo
+  const tempoEl = document.getElementById("cg-tempo");
+  const tempoValEl = document.getElementById("cg-tempo-val");
+  tempoEl?.addEventListener("input", (e) => {
+    s.tempo = Math.max(1, parseInt(e.target.value, 10) || 50);
+    if (tempoValEl) tempoValEl.textContent = String(s.tempo);
+  });
+  // Animation controls
+  document.getElementById("cg-anim-play")?.addEventListener("click", () => {
+    s.animPlaying = !s.animPlaying;
+    if (s.animPlaying) _cgAnimStart(); else _cgAnimStop();
+    _cgUpdatePlayButtonIcon();
+  });
+  document.getElementById("cg-anim-restart")?.addEventListener("click", () => {
+    s.animIndex = 0;
+    s.animLastTime = 0;
+    _cgDrawAnimation();
+  });
+  // Copy / Insert
+  document.getElementById("cg-copy")?.addEventListener("click", () => {
+    const txt = _cgFormatBytes();
+    navigator.clipboard.writeText(txt).then(() => {
+      showViceToast?.("Copied to clipboard");
+    }).catch(() => {
+      showViceToast?.("Copy failed", true);
+    });
+  });
+  document.getElementById("cg-insert")?.addEventListener("click", () => {
+    const txt = _cgFormatBytes();
+    if (typeof exportAsmToBlocks === "function") {
+      const count = exportAsmToBlocks(txt);
+      if (count > 0) {
+        showViceToast?.("Inserted " + count + " block" + (count === 1 ? "" : "s"));
+        _cgCloseDialog();
+      } else {
+        showViceToast?.("Insert failed", true);
+      }
+    }
+  });
+  // Close
+  document.getElementById("cg-close")?.addEventListener("click", _cgCloseDialog);
+  document.getElementById("curve-gen-dialog")?.addEventListener("close", _cgAnimStop);
+}
+
+// Toolbar button wiring — attach once after DOM ready
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("curve-gen-btn")?.addEventListener("click", _cgOpenDialog);
+});

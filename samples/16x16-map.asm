@@ -32,28 +32,7 @@
     LDA #$18
     STA $D018
 
-; clear full screen before drawing the 16x16 map
-    LDX #$00
-    LDA #$20
-clear_screen:
-    STA $0400,X
-    STA $04FA,X
-    STA $05F4,X
-    STA $06EE,X
-    INX
-    CPX #250
-    BNE clear_screen
-
-    LDX #$00
-    LDA #$00
-clear_color:
-    STA $D800,X
-    STA $D8FA,X
-    STA $D9F4,X
-    STA $DAEE,X
-    INX
-    CPX #250
-    BNE clear_color
+.clear_screen 
 
 ; 16x16 map, centered at column 12 / row 4.
 ; The .bin may contain VA metadata after byte 511, so copy only these rows.

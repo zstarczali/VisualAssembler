@@ -1515,6 +1515,21 @@ input {
   padding: 10px 14px;
 }
 
+/* Range sliders don't want the base `input` rule's box (46px min-height,
+   1px border, top box-shadow highlight, input background). That top
+   highlight bled through as a thin line above every slider track. Reset
+   the slider back to native transparent styling; per-dialog CSS (SID,
+   curve gen, etc.) can size and colour them via `accent-color`. */
+input[type="range"] {
+  min-height: 0;
+  padding: 0;
+  height: auto;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+}
+
 input[list] {
   padding-right: 14px;
 }
@@ -8212,6 +8227,321 @@ body.crt-mode #crt-overlay::after {
   border-color: #f87171;
   box-shadow: 0 0 0 1px rgba(248,113,113,0.5);
 }
+
+/* ── Curve / Easing Table Generator dialog ────────────────────────── */
+.curve-gen-dialog {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  max-width: 1080px;
+  width: 92vw;
+  max-height: 92vh;
+}
+.curve-gen-dialog:not([open]) { display: none; }
+.curve-gen-dialog::backdrop {
+  background: color-mix(in srgb, #000 55%, transparent);
+  backdrop-filter: blur(2px);
+}
+.cg-card {
+  background: var(--panel-strong, var(--panel-bg));
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  max-height: 92vh;
+  overflow: hidden;
+}
+.cg-hdr {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+}
+.cg-hdr-title { display: flex; align-items: center; gap: 10px; color: var(--text); }
+.cg-title { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.02em; }
+.cg-xbtn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--secondary);
+  font-size: 1.3rem;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  min-height: 0;
+  line-height: 1;
+  padding: 0;
+}
+.cg-xbtn:hover { color: var(--text); }
+
+/* Toolbar row below the header — same pattern as .se-toolbar in the sprite
+ * editor and the other editor dialogs: horizontal strip of icon-button
+ * groups, own border, no wrap on tools within a group. */
+.cg-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  flex-shrink: 0;
+}
+.cg-tool-group {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  background: var(--control-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 2px;
+  padding: 2px;
+}
+.cg-tool {
+  font-family: inherit;
+  width: 28px;
+  height: 26px;
+  min-height: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--secondary);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.cg-tool svg { display: block; width: 15px; height: 15px; }
+.cg-tool:hover {
+  background: color-mix(in srgb, var(--secondary) 18%, transparent);
+  color: var(--text);
+}
+.cg-tool--accent {
+  color: var(--accent, #4ade80);
+}
+.cg-tool--accent:hover {
+  background: color-mix(in srgb, var(--accent, #4ade80) 20%, transparent);
+  color: var(--accent, #4ade80);
+}
+
+.cg-body {
+  display: grid;
+  grid-template-columns: 240px 1fr 240px;
+  grid-template-rows: auto auto;
+  gap: 14px;
+  padding: 14px 16px;
+  overflow: auto;
+  min-height: 340px;
+}
+
+/* Controls (left) — scroll independently so long combine panels stay in view */
+.cg-controls {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  max-height: 66vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.cg-field { display: flex; flex-direction: column; gap: 4px; }
+.cg-lbl {
+  font-size: 0.72rem;
+  color: var(--secondary);
+  letter-spacing: 0.03em;
+  text-transform: none;
+}
+.cg-slider-row { display: flex; align-items: center; gap: 8px; }
+.cg-range {
+  flex: 1;
+  height: 4px;
+  accent-color: var(--accent, #4ade80);
+  min-width: 0;
+}
+.cg-num-in, .cg-text-in {
+  width: 62px;
+  height: 26px;
+  min-height: 0;      /* override global `input { min-height: 46px }` */
+  padding: 3px 6px;
+  background: var(--bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 3px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.82rem;
+  text-align: center;
+  box-sizing: border-box;
+  line-height: 1.2;
+}
+.cg-text-in { width: 100%; text-align: left; }
+.cg-num-in:focus, .cg-text-in:focus {
+  outline: none;
+  border-color: var(--accent, #4ade80);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent, #4ade80) 40%, transparent);
+}
+.cg-select {
+  height: 28px;
+  min-height: 0;
+  padding: 3px 26px 3px 8px;   /* right padding leaves room for the dropdown arrow */
+  background: var(--bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 3px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+  line-height: 1.2;
+}
+/* Curve generator's "Combine second curve" uses the shared VA toggle-switch
+ * style (.menu-checkbox-label). This wrapper just tightens the spacing so it
+ * sits flush with the other controls in the left column. */
+.cg-combine-label {
+  padding: 4px 0;
+  font-size: 0.82rem;
+}
+.cg-combine-panel {
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  background: color-mix(in srgb, var(--panel-border) 30%, transparent);
+  border-radius: 4px;
+  margin-top: -4px;
+}
+.cg-combine-panel[hidden] { display: none; }
+
+/* Graph (center) */
+.cg-graph-wrap {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  min-height: 0;
+}
+.cg-graph {
+  width: 100%;
+  height: 300px;
+  /* Fixed dark background regardless of theme — matches .sid-adsr-canvas /
+     .sid-tracker-wrap so scope-style widgets stay readable in light mode. */
+  /* Theme-aware slate: in light mode this mixes the light --bg with a dark
+     base → medium slate (~#495066), so the widget is clearly lighter than a
+     pure dark scope but still gives enough contrast for the curves and text.
+     In dark/OLED modes the mix stays close to the dark base (~#252a3c). */
+  background: color-mix(in srgb, var(--bg) 30%, #2d3548);
+  color-scheme: dark;
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+  display: block;
+}
+.cg-graph-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--secondary);
+  padding: 0 4px;
+}
+
+/* Animation (right) */
+.cg-anim-wrap {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.cg-anim-hdr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cg-anim-title { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+.cg-anim-sub { font-size: 0.7rem; color: var(--secondary); font-family: var(--mono-font, monospace); }
+.cg-anim-btns { margin-left: auto; display: flex; gap: 4px; }
+.cg-icon-btn {
+  background: var(--bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 3px;
+  padding: 4px 6px;
+  color: var(--secondary);
+  cursor: pointer;
+  min-height: 0;
+  height: 24px;
+}
+.cg-icon-btn:hover { color: var(--text); border-color: var(--accent, #4ade80); }
+.cg-anim {
+  width: 100%;
+  aspect-ratio: 1;
+  /* Theme-aware slate: in light mode this mixes the light --bg with a dark
+     base → medium slate (~#495066), so the widget is clearly lighter than a
+     pure dark scope but still gives enough contrast for the curves and text.
+     In dark/OLED modes the mix stays close to the dark base (~#252a3c). */
+  background: color-mix(in srgb, var(--bg) 30%, #2d3548);
+  color-scheme: dark;
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+  display: block;
+}
+.cg-anim-tempo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cg-anim-tempo .cg-range { flex: 1; }
+.cg-mini-lbl {
+  font-size: 0.7rem;
+  color: var(--secondary);
+  white-space: nowrap;
+}
+
+/* Output */
+.cg-output-section {
+  padding: 10px 16px 6px;
+  border-top: 1px solid var(--panel-border);
+  background: color-mix(in srgb, var(--bg) 94%, black);
+}
+.cg-output-hdr {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 0.72rem;
+  color: var(--secondary);
+}
+.cg-output-lbl { font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+.cg-output {
+  width: 100%;
+  height: 130px;
+  padding: 8px;
+  /* Same dark scope background as the graph/animation — keeps code readable
+     in light mode without depending on theme colours. */
+  /* Theme-aware slate: in light mode this mixes the light --bg with a dark
+     base → medium slate (~#495066), so the widget is clearly lighter than a
+     pure dark scope but still gives enough contrast for the curves and text.
+     In dark/OLED modes the mix stays close to the dark base (~#252a3c). */
+  background: color-mix(in srgb, var(--bg) 30%, #2d3548);
+  color-scheme: dark;
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+  color: #e5e7eb;
+  font-family: var(--mono-font, monospace);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  resize: none;
+  box-sizing: border-box;
+  white-space: pre;
+  overflow: auto;
+}
+
 .sid-mini-btn { font-family: inherit; font-size: 0.76rem; font-weight: 500; height: 28px; min-height: 0; padding: 0 10px; line-height: 1; border: none; border-radius: 2px; background: transparent; color: var(--secondary); cursor: pointer; white-space: nowrap; transition: background 0.12s, color 0.12s; }
 .sid-mini-btn:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); color: var(--text); }
 .sid-mini-btn:active { background: color-mix(in srgb, var(--secondary) 26%, transparent); }
@@ -8265,6 +8595,9 @@ body.crt-mode #crt-overlay::after {
 .region-paste-btn,
 .block-actions button,
 .collapse-toggle,
+.cg-icon-btn,
+.cg-tool,
+#curve-gen-btn,
 #disasm-copy-source-btn,
 #expert-disasm-copy-source-btn {
   position: relative;
@@ -8285,6 +8618,9 @@ body.crt-mode #crt-overlay::after {
 .region-paste-btn[aria-label]::after,
 .block-actions button[aria-label]::after,
 .collapse-toggle[aria-label]::after,
+.cg-icon-btn[aria-label]::after,
+.cg-tool[aria-label]::after,
+#curve-gen-btn[aria-label]::after,
 #disasm-copy-source-btn[aria-label]::after,
 #expert-disasm-copy-source-btn[aria-label]::after {
   content: attr(aria-label);
@@ -8304,6 +8640,15 @@ body.crt-mode #crt-overlay::after {
   transition: opacity 0.12s ease 0.35s;
   z-index: 9999;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Left-anchored variant: toolbar tools sit near the LEFT edge of their
+   dialog, so the default `right: 0` pushes the tooltip off-canvas where
+   the card's `overflow: hidden` clips it. Anchor left instead. */
+.cg-tool[aria-label]::after,
+#curve-gen-btn[aria-label]::after {
+  left: 0;
+  right: auto;
 }
 
 /* Right-anchored variant: project item buttons and block-action buttons
@@ -8334,6 +8679,9 @@ body.crt-mode #crt-overlay::after {
 .region-paste-btn:hover[aria-label]::after,
 .block-actions button:hover[aria-label]::after,
 .collapse-toggle:hover[aria-label]::after,
+.cg-icon-btn:hover[aria-label]::after,
+.cg-tool:hover[aria-label]::after,
+#curve-gen-btn:hover[aria-label]::after,
 #disasm-copy-source-btn:hover[aria-label]::after,
 #expert-disasm-copy-source-btn:hover[aria-label]::after,
 .expert-project-item-star:focus-visible[aria-label]::after,
@@ -8350,6 +8698,9 @@ body.crt-mode #crt-overlay::after {
 .region-paste-btn:focus-visible[aria-label]::after,
 .block-actions button:focus-visible[aria-label]::after,
 .collapse-toggle:focus-visible[aria-label]::after,
+.cg-icon-btn:focus-visible[aria-label]::after,
+.cg-tool:focus-visible[aria-label]::after,
+#curve-gen-btn:focus-visible[aria-label]::after,
 #disasm-copy-source-btn:focus-visible[aria-label]::after,
 #expert-disasm-copy-source-btn:focus-visible[aria-label]::after {
   opacity: 1;

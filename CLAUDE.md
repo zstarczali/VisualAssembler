@@ -560,7 +560,138 @@ Ha egy step betölt egy sample-t mielőtt megmutatja a UI-t:
 
 ---
 
-## 15. Jelenlegi verzió
+## 15. Editor dialog konvenciók — kötelező pattern
+
+Minden editor / tool dialog (Sprite, SID, Hires, Char, Map, Charset Canvas, Curve
+Generator) **ugyanazt a szerkezeti mintát** követi. Új dialogot ide igazíts, ne
+találj ki új layout-ot.
+
+### 15.1 DOM szerkezet
+
+```html
+<dialog id="xxx-editor-dialog" class="xxx-dialog">
+  <div class="xxx-card">
+    <!-- 1. HEADER: cím + Files ▾ menü + metadata + × -->
+    <div class="xxx-hdr">
+      <div class="ed-file">
+        <button class="ed-file-btn">Files ▾</button>
+        <div class="ed-file-menu" hidden>…</div>
+      </div>
+      <span class="xxx-title">EDITOR NAME</span>
+      <span class="xxx-meta">Frame 1 / 1</span>          <!-- opcionális -->
+      <button class="xxx-xbtn" aria-label="Close">×</button>
+    </div>
+
+    <!-- 2. TOOLBAR: külön sor a fejléc alatt, ikon-gomb csoportokkal -->
+    <div class="xxx-toolbar">
+      <div class="xxx-tool-group">
+        <button class="xxx-tool" aria-label="Pencil"><svg…/></button>
+        <button class="xxx-tool" aria-label="Line"><svg…/></button>
+      </div>
+      <div class="xxx-tool-group">…</div>
+    </div>
+
+    <!-- 3. BODY: a szerkesztő fő tartalma -->
+    <div class="xxx-body">…</div>
+  </div>
+</dialog>
+```
+
+**FONTOS**: az action gombok (Copy, Insert, Export stb.) a **toolbar**-ba
+kerülnek `.xxx-tool` osztályú icon-gomb-ként, **nem** a fejlécbe és **nem**
+külön alsó gombsávba. A sprite editor `.se-toolbar` a referencia — bármit
+csinálsz, azt utánozd.
+
+### 15.2 Kötelező CSS pattern
+
+Header:
+```css
+.xxx-hdr {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--panel-strong);
+}
+.xxx-title { font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+.xxx-xbtn  { margin-left: auto; background: none; border: none; width: 28px; height: 28px; min-height: 0; }
+```
+
+Toolbar (a `.se-toolbar` mintája):
+```css
+.xxx-toolbar {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+}
+.xxx-tool-group {
+  display: flex; gap: 2px; align-items: center;
+  background: var(--control-bg);
+  border: 1px solid var(--panel-border); border-radius: 2px;
+  padding: 2px;
+}
+.xxx-tool {
+  width: 28px; height: 26px; min-height: 0; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: none; border-radius: 2px; background: transparent;
+  color: var(--secondary); cursor: pointer;
+}
+.xxx-tool svg { display: block; width: 15px; height: 15px; }
+.xxx-tool:hover {
+  background: color-mix(in srgb, var(--secondary) 18%, transparent);
+  color: var(--text);
+}
+.xxx-tool--active {
+  background: color-mix(in srgb, var(--primary) 22%, transparent);
+  color: var(--primary);
+}
+```
+
+### 15.3 Tooltip — csak custom, natív `title` **tilos**
+
+Minden `.xxx-tool` és `.xxx-icon-btn` gomb **kizárólag** `aria-label`-ot
+használ. A natív `title="..."` a Tauri WebView-ban esetleges (WebKitGTK-n
+egyáltalán nem villan fel, WebView2-n késve).
+
+A shared CSS tooltip block a [style.css:8511](www/style.css) körül van
+(`Shared custom aria-label tooltip` szekció). **Új dialog toolbar osztályát
+három listába kell hozzáadni**:
+
+1. `position: relative` anchor lista
+2. `[aria-label]::after` content + megjelenés lista
+3. `:hover / :focus-visible` reveal lista
+
+Példa curve-gen bekötésre:
+```css
+/* 1. anchor */ .cg-tool, #curve-gen-btn { position: relative; }
+/* 2. content */ .cg-tool[aria-label]::after, #curve-gen-btn[aria-label]::after { content: attr(aria-label); … }
+/* 3. reveal  */ .cg-tool:hover[aria-label]::after, #curve-gen-btn:hover[aria-label]::after { opacity: 1; }
+```
+
+### 15.4 Modal / popover szabályok
+
+- **Editor dialog** = `<dialog>` + `showModal()` (top layer, backdrop dim)
+- **Modal fölé** kell fölé jelenő UI: **második** `<dialog>.showModal()`
+  (két modal stack-el, utolsó nyer clickeket — lásd websid-play-dialog)
+- **Nem-blokkoló** overlay (tour, tooltip): `popover="manual"` + `showPopover()`
+- **Non-modal dialog show()** és sima z-index nem elég — a top-layer ::backdrop
+  eszi a clicket, még nagy z-index mellett is
+
+### 15.5 Slider és input override
+
+A globális `input { min-height: 46px; border: 1px; box-shadow: inset white; }`
+**minden** `<input>`-re érvényes. Range slider-eken ez fehér vonalat és puffadt
+hit-areát okoz. A [style.css:1517](www/style.css) körüli
+`input[type="range"] { min-height: 0; border: none; box-shadow: none; padding: 0 }`
+override megoldja. Új dialog számmezőknél is állítsd be explicit:
+```css
+.xxx-num-in { height: 26px; min-height: 0; padding: 3px 6px; }
+.xxx-select { height: 28px; min-height: 0; padding: 3px 26px 3px 8px; }
+```
+
+---
+
+## 16. Jelenlegi verzió
 
 `2.2.6` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, és ez a fájl + copilot-instructions.md.
