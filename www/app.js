@@ -25622,7 +25622,9 @@ function _ccPixelColor(value, charIdx) {
 
 function _ccSpray(x, y, value) {
   const radius = _ccMulticolor ? 2 : 3;
-  const drops = 4 + _ccSprayIntensity * 4;
+  const intensity = Math.max(1, Math.min(5, _ccSprayIntensity | 0));
+  const dropsByIntensity = _ccMulticolor ? [2, 4, 6, 9, 12] : [3, 5, 8, 11, 15];
+  const drops = dropsByIntensity[intensity - 1];
   for (let i = 0; i < drops; i++) {
     const a = Math.random() * Math.PI * 2;
     const d = Math.sqrt(Math.random()) * radius;

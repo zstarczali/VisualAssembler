@@ -2933,7 +2933,8 @@ Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor mode
 | Feature | Description |
 |---|---|
 | Mode toggle | **Multicolor** checkbox switches between hi-res (mono per cell) and multicolor (4 colors per cell). |
-| Tools | Pencil, eraser, spray, line, rectangle, filled rectangle, oval, filled oval, flood fill. |
+| Tools | Pencil, eraser, line, rectangle, filled rectangle, oval, filled oval, flood fill. |
+| Spray tool | Airbrush-style painter that scatters pixels around the cursor while drawing. |
 | Spray intensity | Dropdown next to the spray tool controls how dense each spray stroke is. |
 | Color palette | Foreground (ink) + paper (background) pickers. Multicolor mode tracks 3 per-cell extras automatically. |
 | Undo / Redo | Per-stroke history, ctrl-Z / ctrl-Y. |
@@ -2979,6 +2980,7 @@ Read-only viewer of the C64 character ROM (the built-in PETSCII font). Open via 
 | Per-char preview | 16-wide grid of all 256 glyphs with the current cell highlighted. |
 | Pixel editor | 8×8 single-character editor with toggle/invert/clear tools. |
 | Per-character color | Stores a default Color RAM value for each glyph. In multicolor character mode this also preserves the per-cell multicolor enable bit and the character's own lower-3-bit color. |
+| Metadata round-trip | When loading compatible data from Charset Canvas / Map workflows, per-character color metadata is preserved so edits can continue without losing color intent. |
 | Export blocks | Appends RAWBYTES at $0800 (block 2) or $3800 (block 7) with the encoded charset. |
 
 ### Charset Canvas Editor
@@ -2991,7 +2993,8 @@ The canvas is 16×16 characters. In mono mode that gives a 128×128 pixel workin
 |---|---|
 | Mono / multicolor | Mono mode stores 1-bit 8×8 glyphs. Multicolor mode stores two-bit horizontal pixel pairs and marks used cells with Color RAM bit 3. |
 | C64 color model | Background uses `$D021`; shared multicolor 1 uses `$D022`; shared multicolor 2 uses `$D023`; each character's own color comes from Color RAM bits 0–2. |
-| Drawing tools | Pencil, eraser, spray, line, rectangle, oval, and flood fill work across character boundaries. |
+| Drawing tools | Pencil, eraser, line, rectangle, oval, and flood fill work across character boundaries. |
+| Spray tool | Airbrush-style drawing that scatters pixels across neighboring cells/characters. |
 | Spray intensity | Dropdown next to the spray tool sets the stroke density. |
 | Grid toggle | The Grid checkbox shows or hides the 16×16 character grid. |
 | Save charset `.bin` | Saves the 2048-byte character bitmap data. |
@@ -3012,6 +3015,7 @@ Layered tilemap editor for static scenery, sprite spawn maps, collision data, an
 | Clear menu | Per-layer or whole-map clear with confirmation. |
 | Image import | Drop a PNG of a tilemap; the editor auto-slices into tiles. |
 | Copy / paste | Copy a selected tile region, then paste normally or use transparent paste to keep empty tiles transparent. |
+| Multicolor-aware tile coloring | With compatible charset metadata, painting uses the tile's stored Color RAM defaults (including multicolor-related encoding) instead of a generic flat color. |
 | Custom charset colors | When a charset carries `charColors` metadata, the Map Editor uses the selected tile's default Color RAM value while painting. |
 | Export blocks | Emits RAWBYTES blocks for tileset graphics + map data. |
 | Save Screen RAM (.bin)… | Saves only the screen codes for the current map layer (40×25 = 1000 bytes). |

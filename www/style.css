@@ -7140,9 +7140,9 @@ body.crt-mode #crt-overlay::after {
   background: transparent;
   border: none;
   padding: 0;
-  width: min(1080px, 96vw);
+  width: min(1020px, 96vw);
   max-width: 96vw;
-  height: min(874px, 98vh);
+  height: min(850px, 98vh);
   max-height: 98vh;
   overflow: hidden;
 }
