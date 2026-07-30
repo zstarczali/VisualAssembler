@@ -562,8 +562,8 @@ Ha egy step betölt egy sample-t mielőtt megmutatja a UI-t:
 
 ## 15. Jelenlegi verzió
 
-`2.2.4` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
+`2.2.6` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, és ez a fájl + copilot-instructions.md.
-Fő 2.2.4 változások: **SID editor fixek** (multi-pattern preview lejátszás, kompaktabb selector/control sor); **Build Info dialog polish** (belső scroll, mindig látható close); **debug sidecar toggle** és **FILL / import parser fejlesztések**; továbbá minimap finomítások és klasszikus `SYS2061` stub.
+Fő 2.2.6 változások: **Charset Canvas editor** (16×16 / 256 karakteres vászon mono és multicolor módban); **per-character Color RAM metadata** a Character Editor / Charset Canvas / Map Editor körben; **MAP_COPY16X16** makró 16×16 screen+color blokkokhoz; **spray tool + intenzitás** bitmap és charset vásznon; Map Editor mentési címkék és layout polish; továbbá a friss SID/build/parser/minimap fixek.
 
 Verziónöveléshez lásd a 3. szakasz végén lévő 7-lépéses checklistet.

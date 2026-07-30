@@ -2,17 +2,16 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.2.4**
+**Current version: v2.2.6**
 
-## What's New in v2.2.4
+## What's New in v2.2.6
 
-- **SID editor fixes** — preview playback can now step through multiple patterns in sequence, and the instrument/pattern selector row uses more compact controls.
-- **Dialog polish** — the Build Info dialog scrolls its inner content while keeping the close button visible.
-- **Debug sidecar toggle** — the Settings menu can now control whether normal save/build/run flows write C64Debugger sidecar files (`.dbg`, `.sym`, `.vs`).
-- **Expression-aware FILL / CONST workflows** — `FILL` now supports richer arithmetic expressions with CONST names, `lo()` / `hi()`, math helpers, `PI`, and the `i` index variable.
-- **Kick Assembler import / parser fixes** — ORG titles, `.const` / `.label` equates, `label+.fill N`, normalized spacing, and more immediate-expression cases round-trip more reliably.
-- **Classic BASIC SYS stub** — autostart wrapping now emits the standard no-space `SYS2061` BASIC token layout.
-- **Minimap refinements** — the Expert and Program-panel minimaps received layout and viewport-tracking fixes.
+- **Charset Canvas editor** — paint a full 16×16 / 256-character charset as one canvas, in mono or C64 multicolor character mode.
+- **C64-correct character color round-tripping** — Character Editor, Charset Canvas, and Map Editor now preserve per-character Color RAM defaults and multicolor metadata.
+- **MAP_COPY16X16 macro** — copy a 16×16 screen/color block with one macro instead of sixteen row copies.
+- **Spray tools** — Bitmap Editor and Charset Canvas now include spray drawing with dropdown intensity.
+- **Map Editor polish** — clearer screen-only vs Screen RAM + Color RAM save labels, improved multicolor toolbar placement, and a wider layout.
+- **Recent fixes included** — SID multi-pattern preview, compact SID controls, Build Info dialog scroll/close behavior, debug sidecar toggle, FILL/import parser fixes, minimap refinements, and the classic `SYS2061` stub.
 
 ---
 
@@ -41,6 +40,7 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **RAWBYTES macro** — place raw bytes at a given address without generating runtime code
 - **RAWTEXT macro** — place text as screen codes at a given address without generating runtime code; same case auto-detection
 - **FILL macro** — generate repeated bytes with a specified count
+- **MAP_COPY / MAP_COPY16X16 macros** — restore full maps or compact 16×16 screen/color blocks from binary data
 - **ALIGN macro** — jump to the next memory boundary (e.g. 64 for sprites, `$2000` for bitmap)
 - **TABLE macro** — define a named lookup table at a given address
 - **LOOP / NEXT macro** — visual counter loop pair; LOOP loads X or Y with a count, NEXT emits `DEX/DEY + BNE`; nested loops supported
@@ -69,6 +69,8 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **TURBO_ENABLE macro** — CMD SuperCPU turbo on (`STA $D07A`) / off (`STA $D07B`); 5 bytes
 - **Disassembler view** — real-time pure 6502 disassembly: shows address, hex bytes, and resolved numeric operands for every instruction; macros are expanded to individual instructions (TEXT → LDA/STA pairs, LOOP → LDX, MOUSE → full 142-byte decode); BYTE/WORD/FILL data shown as chunked hex dump; no macros, comments, or annotations in output
 - **Exomizer compression** — optional Exomizer sfx sys crunching via a Settings checkbox; compresses PRGs before launching VICE, saving to file, or running on C64 Ultimate hardware; works with all run modes and Build PRG / Build D64
+- **Visual graphics editors** — bitmap, sprite, character, charset-canvas, and map editors for preparing C64 assets without leaving the app
+- **Charset Canvas** — draw a full 256-character charset as a single picture, save the charset and matching 16×16 Screen RAM + Color RAM data, and reuse it from the Map Editor
 - **`*` (current PC) operand** — operand fields accept `*` as a shorthand for the current instruction address; branches with `*` generate an infinite self-loop (`BNE *` → offset `$FE`)
 - **LABEL & COMMENT blocks** — named jump targets and zero-byte annotations
 - **Memory strip** — full 64 KB C64 memory map visualised as a colour-coded strip (RAM / ROM / I/O)

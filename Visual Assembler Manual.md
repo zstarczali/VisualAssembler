@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.2.4**
+**Version 2.2.6**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -107,6 +107,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [SUPERCPU\_DETECT](#supercpu_detect)
     - [TURBO\_ENABLE](#turbo_enable)
     - [MAP\_COPY](#map_copy)
+    - [MAP\_COPY16X16](#map_copy16x16)
     - [SPRITE\_ANIM](#sprite_anim)
     - [SCORE\_BCD](#score_bcd)
   - [10. Debugger Integration](#10-debugger-integration)
@@ -128,6 +129,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Sprite Editor](#sprite-editor)
     - [C64 Character ROM Browser ("Char map")](#c64-character-rom-browser-char-map)
     - [Character Editor (Charset)](#character-editor-charset)
+    - [Charset Canvas Editor](#charset-canvas-editor)
     - [Map Editor (Multilayer Tilemaps)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
 
@@ -159,7 +161,7 @@ The palette on the left lists all available blocks grouped by category:
 - **System** — CLC, SEC, NOP, BRK, …
 - **Illegal instructions** — LAX, SAX, DCP, …
 - **Structure** — LABEL, COMMENT, REGION, ENDREGION
-- **Macros** — LOOP, NEXT, FOR, ENDF, PUSH, PULL, END, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, CHARSET, INCBIN, SID, INCLUDE, TABLE, ORG, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, VAR, WHILE, ENDW, REPEAT, UNTIL, MEMCPY, MEMSET, PRINT, PRINT_CHAR, PRINT_HEX, CLEAR_SCREEN, WAIT_KEY, DELAY, SET_BORDER, SET_BG, IRQ_SETUP, RAND, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, MOUSE, SPRITE_COL, LOADFILE, REU_CHECK, REU_STASH, REU_FETCH, REU_SWAP, TURBO_SET, SUPERCPU_DETECT, TURBO_ENABLE, MAP_COPY, SPRITE_ANIM, SCORE_BCD
+- **Macros** — LOOP, NEXT, FOR, ENDF, PUSH, PULL, END, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, CHARSET, INCBIN, SID, INCLUDE, TABLE, ORG, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, VAR, WHILE, ENDW, REPEAT, UNTIL, MEMCPY, MEMSET, PRINT, PRINT_CHAR, PRINT_HEX, CLEAR_SCREEN, WAIT_KEY, DELAY, SET_BORDER, SET_BG, IRQ_SETUP, RAND, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, MOUSE, SPRITE_COL, LOADFILE, REU_CHECK, REU_STASH, REU_FETCH, REU_SWAP, TURBO_SET, SUPERCPU_DETECT, TURBO_ENABLE, MAP_COPY, MAP_COPY16X16, SPRITE_ANIM, SCORE_BCD
 
 Use the **search box** at the top of the palette to filter by name. Click the **Add selected block** button or drag a block into the program area.
 
@@ -2584,6 +2586,56 @@ The Map Editor's **Files → Save map + color RAM (.bin)** exports a single bina
 
 ---
 
+<a id="map_copy16x16"></a>
+### MAP_COPY16X16
+
+Copies a 16×16 character area from a compact 256-byte screen-code block plus a matching 256-byte Color RAM block. It is intended for Charset Canvas exports and small tile/picture chunks, where writing sixteen separate MAP_COPY rows would be noisy.
+
+**Default layout:**
+
+| Data | Default address |
+|---|---|
+| 16×16 screen codes | Source address (`src`) |
+| 16×16 color values | `src + 256` |
+| Screen RAM destination | `$0400 + row×40 + col` |
+| Color RAM destination | `$D800 + row×40 + col` |
+
+**Expert mode syntax:**
+```
+.map_copy16x16 $3000, 12, 4
+.map_copy16x16 $3000, 12, 4, $0400, $3100, $D800
+```
+
+The short form copies screen bytes from `$3000`, color bytes from `$3100`, and places the 16×16 block at column 12, row 4. Valid top-left positions are `col = 0..24` and `row = 0..9`, so the full 16×16 area remains on the 40×25 C64 text screen.
+
+**Generated behavior:**
+
+- Generates sixteen inline row copies.
+- Each row copies 16 screen bytes and 16 color bytes.
+- No JSR is needed; the code is emitted directly at the macro position.
+- Works with normal character mode and multicolor character mode; the Color RAM bytes carry each cell's character color / multicolor enable bit.
+
+Typical pairing with Charset Canvas:
+
+```
+* = $0801
+    SEI
+    LDA #$00
+    STA $D021
+    LDA #$05
+    STA $D022
+    LDA #$0D
+    STA $D023
+    .map_copy16x16 $3000, 12, 4
+loop:
+    JMP loop
+
+.incbin "16x16+ram+color.bin", $3000
+.incbin "16x16+charset.bin", $2000
+```
+
+---
+
 <a id="sprite_anim"></a>
 ### SPRITE_ANIM
 
@@ -2882,6 +2934,8 @@ Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor mode
 |---|---|
 | Mode toggle | **Multicolor** checkbox switches between hi-res (mono per cell) and multicolor (4 colors per cell). |
 | Tools | Pencil, eraser, line, rectangle, filled rectangle, oval, filled oval, flood fill. |
+| Spray tool | Airbrush-style painter that scatters pixels around the cursor while drawing. |
+| Spray intensity | Dropdown next to the spray tool controls how dense each spray stroke is. |
 | Color palette | Foreground (ink) + paper (background) pickers. Multicolor mode tracks 3 per-cell extras automatically. |
 | Undo / Redo | Per-stroke history, ctrl-Z / ctrl-Y. |
 | Grid + Raster | Optional 8×8 grid and raster row overlay for cell alignment. |
@@ -2925,7 +2979,29 @@ Read-only viewer of the C64 character ROM (the built-in PETSCII font). Open via 
 | Load `.bin` | Imports an external 2048-byte charset binary. |
 | Per-char preview | 16-wide grid of all 256 glyphs with the current cell highlighted. |
 | Pixel editor | 8×8 single-character editor with toggle/invert/clear tools. |
+| Per-character color | Stores a default Color RAM value for each glyph. In multicolor character mode this also preserves the per-cell multicolor enable bit and the character's own lower-3-bit color. |
+| Metadata round-trip | When loading compatible data from Charset Canvas / Map workflows, per-character color metadata is preserved so edits can continue without losing color intent. |
 | Export blocks | Appends RAWBYTES at $0800 (block 2) or $3800 (block 7) with the encoded charset. |
+
+### Charset Canvas Editor
+
+Full-canvas charset painter for building screens from a complete 256-character charset. Open via Toolkit → Charset Canvas.
+
+The canvas is 16×16 characters. In mono mode that gives a 128×128 pixel working area; in multicolor character mode it gives a 64×128 wide-pixel working area using the C64's real character multicolor rules.
+
+| Feature | Description |
+|---|---|
+| Mono / multicolor | Mono mode stores 1-bit 8×8 glyphs. Multicolor mode stores two-bit horizontal pixel pairs and marks used cells with Color RAM bit 3. |
+| C64 color model | Background uses `$D021`; shared multicolor 1 uses `$D022`; shared multicolor 2 uses `$D023`; each character's own color comes from Color RAM bits 0–2. |
+| Drawing tools | Pencil, eraser, line, rectangle, oval, and flood fill work across character boundaries. |
+| Spray tool | Airbrush-style drawing that scatters pixels across neighboring cells/characters. |
+| Spray intensity | Dropdown next to the spray tool sets the stroke density. |
+| Grid toggle | The Grid checkbox shows or hides the 16×16 character grid. |
+| Save charset `.bin` | Saves the 2048-byte character bitmap data. |
+| Save 16×16 map + Color RAM `.bin` | Saves 256 screen codes followed by 256 Color RAM values. Use this with `MAP_COPY16X16`. |
+| Loading | Can load charset-canvas saves, plain charset data, and compatible Character Editor charset data including stored per-character colors when present. |
+
+**Important C64 limitation:** in multicolor character mode the two shared colors are global for the whole screen (`$D022` / `$D023`). Only the character's own color is per cell, and it is limited to colors 0–7 because Color RAM bit 3 selects multicolor mode.
 
 ### Map Editor (Multilayer Tilemaps)
 
@@ -2939,9 +3015,11 @@ Layered tilemap editor for static scenery, sprite spawn maps, collision data, an
 | Clear menu | Per-layer or whole-map clear with confirmation. |
 | Image import | Drop a PNG of a tilemap; the editor auto-slices into tiles. |
 | Copy / paste | Copy a selected tile region, then paste normally or use transparent paste to keep empty tiles transparent. |
+| Multicolor-aware tile coloring | With compatible charset metadata, painting uses the tile's stored Color RAM defaults (including multicolor-related encoding) instead of a generic flat color. |
+| Custom charset colors | When a charset carries `charColors` metadata, the Map Editor uses the selected tile's default Color RAM value while painting. |
 | Export blocks | Emits RAWBYTES blocks for tileset graphics + map data. |
-| Save .bin… | Saves only the screen codes for the current map layer (40×25 = 1000 bytes). |
-| Save map + color RAM (.bin)… | Saves screen codes concatenated with color RAM values as a single 2000-byte file (`screen[0..999]` followed by `color[0..999]`). Use this with the **MAP_COPY** macro (Combined .bin mode) to restore both screen and color in one operation at runtime. |
+| Save Screen RAM (.bin)… | Saves only the screen codes for the current map layer (40×25 = 1000 bytes). |
+| Save Screen RAM + Color RAM (.bin)… | Saves screen codes concatenated with Color RAM values as a single 2000-byte file (`screen[0..999]` followed by `color[0..999]`). Use this with the **MAP_COPY** macro (Combined .bin mode) to restore both screen and color in one operation at runtime. |
 
 ### SID Editor (3-Voice Tracker)
 
