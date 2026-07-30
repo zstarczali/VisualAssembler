@@ -593,6 +593,12 @@ const addressingModeText = {
   }
 };
 
+function modeText(modeKey, field) {
+  const mode = addressingModeText[modeKey];
+  const language = mode?.[currentLanguage] || mode?.en || mode?.hu;
+  return language?.[field] || modeKey;
+}
+
 const mnemonicDescriptionsEn = {
   LDA: "Load accumulator from memory or constant.",
   LDX: "Load X register.",
@@ -752,13 +758,7 @@ const mnemonicDescriptionsHu = (() => {
   return map;
 })();
 
-function modeText(modeKey, field) {
-  return addressingModeText[modeKey]?.[currentLanguage]?.[field] ?? addressingModes[modeKey]?.[field] ?? "";
-}
-
 const mnemonicDescriptionsEs = {
-  LDA: "Carga el acumulador desde memoria o constante.",
-  LDX: "Carga el registro X.",
   LDY: "Carga el registro Y.",
   STA: "Almacena el acumulador en una dirección de memoria.",
   STX: "Almacena el registro X.",
@@ -1410,8 +1410,13 @@ function initPalette() {
     document.querySelector(".control-menu")?.removeAttribute("open");
     document.getElementById("about-version").textContent = await getAppVersionText();
     const dlg = document.getElementById("about-dialog");
-    dlg?.querySelectorAll("a[href^='mailto:']").forEach(a => {
-      a.addEventListener("click", e => { e.preventDefault(); window.electronAPI.openExternal(a.href); }, { once: true });
+    dlg?.querySelectorAll("a[href^='mailto:'], a[href^='http://'], a[href^='https://']").forEach(a => {
+      if (a.dataset.externalBound) return;
+      a.dataset.externalBound = "true";
+      a.addEventListener("click", e => {
+        e.preventDefault();
+        window.electronAPI?.openExternal(a.href);
+      });
     });
     dlg?.showModal();
   });
@@ -2554,6 +2559,9 @@ function applyTranslations() {
     setText("#menu-view-label", t("menuView"));
     setText("#menu-program-label", t("menuProgram"));
     setText("#menu-info-label", t("menuInfo"));
+    setText("#about-sid-credit-label", t("aboutSidCreditLabel"));
+    setText("#about-sid-credit-license", t("aboutSidCreditLicense"));
+    setText("#about-repo-label", t("aboutRepoLabel"));
   if (helpManualButton) helpManualButton.textContent = t("helpManual");
   if (checkUpdateButton) checkUpdateButton.textContent = t("checkForUpdate");
   if (reportBugButton) reportBugButton.textContent = t("reportBug");
@@ -5198,9 +5206,9 @@ function doClearProgram() {
 function isProgramEmpty() {
   if (expertMode) {
     const blocks = _expertGetStartupProgram() || _expertBuildProgram();
-    return blocks.every(b => b.isOrgMacro || b.isRegionMacro || b.isEndRegionMacro || b.isComment || b.isDefineMacro);
+    return !blocks.some(b => b.isOrgMacro) || blocks.every(b => b.isOrgMacro || b.isRegionMacro || b.isEndRegionMacro || b.isComment || b.isDefineMacro);
   }
-  return program.every(b => b.isOrgMacro || b.isRegionMacro || b.isEndRegionMacro || b.isComment || b.isDefineMacro);
+  return !program.some(b => b.isOrgMacro) || program.every(b => b.isOrgMacro || b.isRegionMacro || b.isEndRegionMacro || b.isComment || b.isDefineMacro);
 }
 
 // ── Expert Mode ────────────────────────────────────────────────────────────
@@ -28699,7 +28707,7 @@ const _SID_BEATS_PER_BAR = 4;
 let _sidMasterVol = 0.6;      // 0..1, drives both Web Audio and WebSid preview
 let _sidMasterGain = null;    // shared GainNode injected between _sidPlayInst output and destination
 let _sidSel = { voice: 0, row: 0 };
-let _sidSelAnchor = null;  // row anchor for range selection, null = no range
+let _sidSelAnchor = null;  // { voice, row } anchor for rectangular range selection
 let _sidClipboard = null;  // copied voice column: array of 32 {note, inst}
 let _sidCellClip = null;   // cell-range clipboard: [{note,inst},...] from Ctrl+C
 let _sidAudio = null;
@@ -28804,7 +28812,7 @@ function _sidCellText(cell) {
 function _sidCopyVoice() {
   if (!_sidPatterns) return;
   const col = _sidCurPat()[_sidSel.voice];
-  _sidClipboard = col.map(function(c){ return { note: c.note, inst: c.inst }; });
+  _sidClipboard = col.map(function(c){ return { ...c }; });
   const btn = document.getElementById("sid-voice-copy");
   if (btn) {
     const orig = btn.title;
@@ -28816,30 +28824,40 @@ function _sidPasteVoice() {
   if (!_sidClipboard || !_sidPatterns) return;
   const col = _sidCurPat()[_sidSel.voice];
   for (var r = 0; r < _sidClipboard.length; r++) {
-    col[r] = { note: _sidClipboard[r].note, inst: _sidClipboard[r].inst };
+    col[r] = { ..._sidClipboard[r] };
   }
   _sidBuildTracker();
 }
 function _sidCopyCells() {
   if (!_sidPatterns) return;
-  const v = _sidSel.voice, col = _sidCurPat()[v];
-  if (_sidSelAnchor !== null) {
-    const lo = Math.min(_sidSelAnchor, _sidSel.row);
-    const hi = Math.max(_sidSelAnchor, _sidSel.row);
-    _sidCellClip = [];
-    for (let r = lo; r <= hi; r++) _sidCellClip.push({ note: col[r].note, inst: col[r].inst });
-  } else {
-    _sidCellClip = [{ note: col[_sidSel.row].note, inst: col[_sidSel.row].inst }];
+  const pat = _sidCurPat();
+  const anchor = _sidSelAnchor || _sidSel;
+  const voiceLo = Math.min(anchor.voice, _sidSel.voice);
+  const voiceHi = Math.max(anchor.voice, _sidSel.voice);
+  const rowLo = Math.min(anchor.row, _sidSel.row);
+  const rowHi = Math.max(anchor.row, _sidSel.row);
+  _sidCellClip = { voices: voiceHi - voiceLo + 1, rows: rowHi - rowLo + 1, cells: [] };
+  for (let v = voiceLo; v <= voiceHi; v++) {
+    const voice = [];
+    for (let r = rowLo; r <= rowHi; r++) voice.push({ ...pat[v][r] });
+    _sidCellClip.cells.push(voice);
   }
+  /* Keep the clipboard independent from the source pattern. */
+  _sidCellClip.startVoice = voiceLo;
+  _sidCellClip.startRow = rowLo;
   const btn = document.getElementById("sid-voice-copy");
   if (btn) { const o = btn.title; btn.title = "Copied!"; setTimeout(function(){ btn.title = o; }, 1000); }
 }
 function _sidPasteCells() {
   if (!_sidCellClip || !_sidPatterns) return;
-  const v = _sidSel.voice, col = _sidCurPat()[v];
-  for (let i = 0; i < _sidCellClip.length; i++) {
-    const r = (_sidSel.row + i) % _SID_ROWS;
-    col[r] = { note: _sidCellClip[i].note, inst: _sidCellClip[i].inst };
+  const pat = _sidCurPat();
+  for (let v = 0; v < _sidCellClip.voices; v++) {
+    const targetVoice = (_sidSel.voice + v) % 3;
+    for (let r = 0; r < _sidCellClip.rows; r++) {
+      const targetRow = (_sidSel.row + r) % _SID_ROWS;
+      const cell = _sidCellClip.cells[v][r];
+      pat[targetVoice][targetRow] = { ...cell };
+    }
   }
   _sidBuildTracker();
 }
@@ -28851,11 +28869,14 @@ function _sidBuildTracker() {
     const beat = (r % 4 === 0) ? " sid-beat" : "";
     html += '<tr class="sid-trow'+beat+'" data-row="'+r+'">';
     html += '<td class="sid-rownum">' + (r<10?"0":"") + r + '</td>';
-    const rangeLo = _sidSelAnchor !== null ? Math.min(_sidSelAnchor, _sidSel.row) : _sidSel.row;
-    const rangeHi = _sidSelAnchor !== null ? Math.max(_sidSelAnchor, _sidSel.row) : _sidSel.row;
+    const rangeLo = _sidSelAnchor !== null ? Math.min(_sidSelAnchor.row, _sidSel.row) : _sidSel.row;
+    const rangeHi = _sidSelAnchor !== null ? Math.max(_sidSelAnchor.row, _sidSel.row) : _sidSel.row;
+    const rangeVoice = _sidSelAnchor !== null && _sidSelAnchor.voice === _sidSel.voice
+      ? _sidSel.voice
+      : null;
     for (let v = 0; v < 3; v++) {
       const isCursor = _sidSel.voice === v && _sidSel.row === r;
-      const inRange  = _sidSel.voice === v && _sidSelAnchor !== null && r >= rangeLo && r <= rangeHi && !isCursor;
+      const inRange  = rangeVoice === v && r >= rangeLo && r <= rangeHi && !isCursor;
       const selCls = isCursor ? " sid-cell--sel" : (inRange ? " sid-cell--sel-range" : "");
       html += '<td class="sid-cell'+selCls+'" data-v="'+v+'" data-r="'+r+'">' + _sidCellText(pat[v][r]) + '</td>';
     }
@@ -28866,8 +28887,9 @@ function _sidBuildTracker() {
   t.querySelectorAll("td.sid-cell").forEach(function(td) {
     td.addEventListener("click", function(e) {
       const v = +td.dataset.v, r = +td.dataset.r;
-      if (e.shiftKey && _sidSel.voice === v) {
-        if (_sidSelAnchor === null) _sidSelAnchor = _sidSel.row;
+      if (e.shiftKey) {
+        if (_sidSelAnchor === null || _sidSelAnchor.voice !== v) _sidSelAnchor = { voice: v, row: _sidSel.row };
+        _sidSel.voice = v;
         _sidSel.row = r;
       } else {
         _sidSelAnchor = null;
@@ -28926,6 +28948,12 @@ function _sidBeginManualEdit(v, r, td) {
   const original = td.innerHTML;
   td.innerHTML = "";
   td.appendChild(input);
+  input.addEventListener("mousedown", function(e) {
+    e.stopPropagation();
+  });
+  input.addEventListener("click", function(e) {
+    e.stopPropagation();
+  });
   const commit = function() {
     const parsed = _sidParseCellEntry(input.value);
     if (parsed.error) {
@@ -28975,9 +29003,9 @@ function _sidRefreshSel() {
   const v = _sidSel.voice, r = _sidSel.row;
   const cursor = t.querySelector('td.sid-cell[data-v="'+v+'"][data-r="'+r+'"]');
   if (cursor) cursor.classList.add("sid-cell--sel");
-  if (_sidSelAnchor !== null) {
-    const lo = Math.min(_sidSelAnchor, r), hi = Math.max(_sidSelAnchor, r);
-    for (let row = lo; row <= hi; row++) {
+  if (_sidSelAnchor !== null && _sidSelAnchor.voice === v) {
+    const rowLo = Math.min(_sidSelAnchor.row, r), rowHi = Math.max(_sidSelAnchor.row, r);
+    for (let row = rowLo; row <= rowHi; row++) {
       if (row === r) continue;
       const rc = t.querySelector('td.sid-cell[data-v="'+v+'"][data-r="'+row+'"]');
       if (rc) rc.classList.add("sid-cell--sel-range");
@@ -29320,7 +29348,8 @@ function _sidStop() {
 }
 async function _sidPlay() {
   _sidStop();
-  _sidPlayPat = _sidPat;
+  _sidPlayPat = 0;
+  _sidSetPattern(0, true);
   _sidRow = 0;
   const playAll = _sidPlayMode === "all";
   const rowSec = Math.max(0.04, _sidSpeed / 50);
@@ -29663,8 +29692,6 @@ function _sidExportAsmPlayable() {
   lines.push("    STA $D406,Y");       // SR
   lines.push("    LDA sid_instruments,X");
   lines.push("    STA $FD");           // stash ctrl (gate-on byte) for later
-  lines.push("    CPY #$00");
-  lines.push("    BNE sid_no_filt");
   lines.push("    LDA sid_instruments+5,X");
   lines.push("    STA $D415");         // filter cutoff lo
   lines.push("    LDA sid_instruments+6,X");
@@ -29673,7 +29700,6 @@ function _sidExportAsmPlayable() {
   lines.push("    STA $D417");         // resonance / filter route
   lines.push("    LDA sid_instruments+8,X");
   lines.push("    STA $D418");         // mode + master volume
-  lines.push("sid_no_filt:");
   lines.push("    PLA");               // A = note (1..96)
   lines.push("    SEC");
   lines.push("    SBC #$01");          // note-1 → 0-based freq table index
@@ -29872,15 +29898,16 @@ function setupSidEditor() {
   // keyboard note entry / navigation
   const wrap = document.getElementById("sid-tracker-wrap");
   if (wrap) wrap.addEventListener("keydown", function(e) {
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLSelectElement || e.target.isContentEditable) return;
     const k = e.key.toLowerCase();
     if (e.ctrlKey && k === "c") { _sidCopyCells(); e.preventDefault(); return; }
     if (e.ctrlKey && k === "v") { _sidPasteCells(); e.preventDefault(); return; }
     if (e.key === "ArrowDown") {
-      if (e.shiftKey) { if (_sidSelAnchor === null) _sidSelAnchor = _sidSel.row; } else { _sidSelAnchor = null; }
+      if (e.shiftKey) { if (_sidSelAnchor === null) _sidSelAnchor = { voice: _sidSel.voice, row: _sidSel.row }; } else { _sidSelAnchor = null; }
       _sidSel.row = (_sidSel.row+1)%_SID_ROWS; _sidRefreshSel(); e.preventDefault(); return;
     }
     if (e.key === "ArrowUp") {
-      if (e.shiftKey) { if (_sidSelAnchor === null) _sidSelAnchor = _sidSel.row; } else { _sidSelAnchor = null; }
+      if (e.shiftKey) { if (_sidSelAnchor === null) _sidSelAnchor = { voice: _sidSel.voice, row: _sidSel.row }; } else { _sidSelAnchor = null; }
       _sidSel.row = (_sidSel.row-1+_SID_ROWS)%_SID_ROWS; _sidRefreshSel(); e.preventDefault(); return;
     }
     if (e.key === "ArrowLeft") { _sidSelAnchor = null; _sidSel.voice = (_sidSel.voice+2)%3; _sidRefreshSel(); e.preventDefault(); return; }
@@ -29904,8 +29931,14 @@ function setupSidEditor() {
   });
 
   // Voice copy/paste
-  onId("sid-voice-copy", "click", _sidCopyVoice);
-  onId("sid-voice-paste", "click", _sidPasteVoice);
+  onId("sid-voice-copy", "click", function(){
+    if (_sidSelAnchor !== null) _sidCopyCells();
+    else _sidCopyVoice();
+  });
+  onId("sid-voice-paste", "click", function(){
+    if (_sidCellClip) _sidPasteCells();
+    else _sidPasteVoice();
+  });
 
   // Octave controls
   onId("sid-oct-up", "click", function(){ _sidSetOctave(_sidOctave+1); });

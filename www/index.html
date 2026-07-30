@@ -742,6 +742,8 @@ PRINTABLE CHARACTERS
       <p class="about-version" id="about-version">v2.2.6</p>
       <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
         dropping instruction blocks.</p>
+      <p class="about-sid-credit" id="about-sid-credit"><span id="about-sid-credit-label">Web SID player: WebSid (WebAudio version of Tiny'R'Sid) by Juergen Wothke. GitHub repository:</span> <a href="https://github.com/wothke/websid" target="_blank" rel="noopener noreferrer">https://github.com/wothke/websid</a><br><span id="about-sid-credit-license">(CC BY-NC-SA 4.0)</span></p>
+      <p class="about-repo" id="about-repo"><span id="about-repo-label">Visual Assembler GitHub repository:</span><br><a href="https://github.com/zstarczali/VisualAssembler" target="_blank" rel="noopener noreferrer">https://github.com/zstarczali/VisualAssembler</a></p>
       <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
       <p class="about-contact"><a href="mailto:retroboj@outlook.com">retroboj@outlook.com</a></p>
       <button id="about-close" class="primary" type="button">Close</button>
@@ -1410,11 +1412,6 @@ PRINTABLE CHARACTERS
           <input type="file" id="sid-sid-file" accept=".sid,application/octet-stream" hidden>
         </div>
         <span class="sid-title">SID EDITOR</span>
-        <div class="sid-master-vol-wrap">
-          <label class="sid-master-vol-lbl" for="sid-master-vol" id="sid-master-vol-lbl">Master volume</label>
-          <input id="sid-master-vol" class="sid-master-vol" type="range" min="0" max="100" value="60" title="Master preview volume" aria-label="Master volume">
-          <span id="sid-master-vol-val" class="sid-master-vol-val">60</span>
-        </div>
         <button id="sid-close" class="sid-xbtn" type="button" aria-label="Close">×</button>
       </div>
       <div class="sid-body">
@@ -1427,6 +1424,11 @@ PRINTABLE CHARACTERS
           <button id="sid-preview" class="ce-tool-btn" type="button" title="Preview" aria-label="Preview">
             <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M11 3v6.6a2.4 2.4 0 1 1-1.2-2.08V4.5L7 5.2V11a2.4 2.4 0 1 1-1.2-2.08V4.2z" fill="currentColor"/></svg>
           </button>
+          <div class="sid-master-vol-wrap">
+            <label class="sid-master-vol-lbl" for="sid-master-vol" id="sid-master-vol-lbl">Master volume</label>
+            <input id="sid-master-vol" class="sid-master-vol" type="range" min="0" max="100" value="60" title="Master preview volume" aria-label="Master volume">
+            <span id="sid-master-vol-val" class="sid-master-vol-val">60</span>
+          </div>
         </div>
         <div class="sid-row sid-wave-row">
           <span class="sid-lbl">WAVEFORM</span>

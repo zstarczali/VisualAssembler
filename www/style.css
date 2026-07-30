@@ -5332,6 +5332,21 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   color: var(--muted);
 }
 
+.about-sid-credit {
+  max-width: 340px;
+  margin: 2px 0 4px;
+  font-size: 0.72rem;
+  line-height: 1.3;
+  color: var(--text);
+}
+
+.about-repo {
+  max-width: 340px;
+  margin: 0 0 4px;
+  font-size: 0.68rem;
+  line-height: 1.3;
+}
+
 .about-author {
   margin: 0 0 4px;
   font-size: 0.9rem;
@@ -8157,6 +8172,7 @@ body.crt-mode #crt-overlay::after {
 .sid-master-vol {
   width: 130px;
   height: 4px;
+  min-height: 0;
   accent-color: var(--accent, #4ade80);
   vertical-align: middle;
   margin: 0;
@@ -8169,23 +8185,27 @@ body.crt-mode #crt-overlay::after {
   text-align: right;
 }
 .sid-cell-edit {
-  /* Force the input to shrink to the cell — the browser default intrinsic
-     min-width on <input type="text"> is ~200px, which otherwise stretches
-     the whole tracker row when the edit box appears. */
+  display: block;
   box-sizing: border-box;
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  height: 100%;
+  width: 72px;
+  min-width: 72px;
+  max-width: 72px;
+  height: 18px;
+  min-height: 18px;
+  max-height: 18px;
   padding: 0 2px;
+  margin: 0;
   border: 1px solid var(--accent, #4ade80);
   border-radius: 2px;
   background: var(--bg);
   color: var(--text);
   font-family: inherit;
-  font-size: inherit;
+  font-size: 0.72rem;
+  line-height: 16px;
   text-align: center;
   outline: none;
+  white-space: nowrap;
+  overflow: hidden;
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent, #4ade80) 40%, transparent);
 }
 .sid-cell-edit.sid-cell-edit--err {
@@ -8212,14 +8232,15 @@ body.crt-mode #crt-overlay::after {
 .sid-tracker-row { border-top: 1px solid var(--panel-border); padding-top: 12px; }
 .sid-tracker-spacer { flex: 1; }
 .sid-tracker-wrap { flex: 1; min-height: 0; overflow: auto; border: 1px solid var(--panel-border); background: #0a0e1a; color-scheme: dark; }
-.sid-tracker { border-collapse: collapse; font-family: "IBM Plex Mono", monospace; font-size: 0.82rem; width: 100%; }
+.sid-tracker { border-collapse: collapse; font-family: "IBM Plex Mono", monospace; font-size: 0.82rem; width: 100%; user-select: none; -webkit-user-select: none; }
 .sid-tracker th { position: sticky; top: 0; background: #111726; color: #ffcc66; font-weight: 700; text-align: left; padding: 5px 10px; letter-spacing: 0.05em; z-index: 1; border-bottom: 1px solid #243; }
-.sid-tracker td { padding: 1px 10px; color: #b8c0d8; white-space: pre; }
-.sid-tracker .sid-rownum { color: #5a6a8a; width: 40px; text-align: right; padding-right: 14px; }
+.sid-tracker td { padding: 1px 4px; color: #b8c0d8; white-space: nowrap; height: 18px; line-height: 1; }
+.sid-tracker .sid-rownum { color: #5a6a8a; width: 40px; text-align: right; padding-right: 14px; height: 18px; line-height: 1; }
 .sid-tracker tr.sid-beat td { background: rgba(120,140,200,0.06); }
 .sid-tracker tr.sid-beat .sid-rownum { color: #8aa0c8; font-weight: 700; }
 .sid-tracker tr.sid-playing td { background: rgba(120,160,255,0.18); }
-.sid-tracker td.sid-cell { cursor: pointer; }
+.sid-tracker td.sid-cell { cursor: pointer; width: 84px; min-width: 84px; max-width: 84px; height: 18px; line-height: 1; }
+.sid-tracker .sid-cell-edit { user-select: text; -webkit-user-select: text; }
 .sid-tracker td.sid-cell--sel { background: var(--primary) !important; color: #fff; }
 .sid-tracker td.sid-cell--sel-range { background: color-mix(in srgb, var(--primary) 35%, transparent) !important; }
 
