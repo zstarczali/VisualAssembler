@@ -7,22 +7,22 @@ const vm = require("node:vm");
 const appJs = fs.readFileSync(path.join(__dirname, "..", "www", "app.js"), "utf8");
 
 // The Curve/Table Forge core is a contiguous DOM-free slice: everything from
-// `const _CG_STATE = {` through the end of `_cgFormatBytes`. Functions after
+// `const _CG_STATE = {` through the end of `_cgExportDemoAsm`. Functions after
 // that point (_cgUpdateOutput, _cgDrawGraph, ...) touch `document`, so we stop
 // before them. Extract the slice and eval it in a sandbox.
 function loadCgCore() {
   const start = appJs.indexOf("const _CG_STATE = {");
   assert.notStrictEqual(start, -1, "Missing _CG_STATE");
-  const fnMarker = "function _cgFormatBytes(";
+  const fnMarker = "function _cgExportDemoAsm(";
   const fnStart = appJs.indexOf(fnMarker);
-  assert.notStrictEqual(fnStart, -1, "Missing _cgFormatBytes");
+  assert.notStrictEqual(fnStart, -1, "Missing _cgExportDemoAsm");
   let depth = 0, end = -1, seenBrace = false;
   for (let i = fnStart; i < appJs.length; i++) {
     const ch = appJs[i];
     if (ch === "{") { depth += 1; seenBrace = true; }
     else if (ch === "}") { depth -= 1; if (seenBrace && depth === 0) { end = i + 1; break; } }
   }
-  assert.notStrictEqual(end, -1, "Could not parse _cgFormatBytes");
+  assert.notStrictEqual(end, -1, "Could not parse _cgExportDemoAsm");
   const src = appJs.slice(start, end);
   const context = {};
   vm.createContext(context);
@@ -30,7 +30,8 @@ function loadCgCore() {
     src + "\n; this._CG_STATE = _CG_STATE;" +
     " this._cgRefMax = _cgRefMax;" +
     " this._cgGenerateSamples = _cgGenerateSamples;" +
-    " this._cgFormatBytes = _cgFormatBytes;",
+    " this._cgFormatBytes = _cgFormatBytes;" +
+    " this._cgExportDemoAsm = _cgExportDemoAsm;",
     context
   );
   return context;
@@ -123,6 +124,19 @@ test("reader routine masks/address track the selected sprite number", () => {
   assert.match(output, /\$D010 bit 2/);           // header documents the bit
 });
 
+test("8-bit mode emits a sprite-Y reader when emitReader is set", () => {
+  const off = run({ ...DEFAULTS, bits: 8, emitReader: false, label: "bt" });
+  assert.doesNotMatch(off.output, /bt_set_y:/);
+
+  const on = run({ ...DEFAULTS, bits: 8, emitReader: true, spriteNum: 0, label: "bt" });
+  assert.match(on.output, /bt_set_y:/);
+  assert.match(on.output, /lda bt,x/);
+  assert.match(on.output, /sta \$D001/);          // sprite 0 Y register
+
+  const sp2 = run({ ...DEFAULTS, bits: 8, emitReader: true, spriteNum: 2, label: "bt" });
+  assert.match(sp2.output, /sta \$D005/);         // sprite 2 Y = $D001 + 2*2
+});
+
 test("decimal base emits plain numbers, hex base emits $ prefix", () => {
   const hex = run({ ...DEFAULTS, bits: 8, base: "hex", curve: "linear", start: 0, end: 16, count: 4, label: "t" });
   assert.match(hex.output, /\$00/);
@@ -145,4 +159,40 @@ test("header reports actual min/max and entry count", () => {
   const { output } = run({ ...DEFAULTS, bits: 8, curve: "linear", start: 10, end: 250, count: 32, label: "t" });
   assert.match(output, /Range: \d+\.\.\d+/);
   assert.match(output, /Count: 32 bytes/);
+});
+
+test("demo export (8-bit) is a runnable program with Y reader and X sweep", () => {
+  const { ctx } = run({ ...DEFAULTS, bits: 8, curve: "easeOutBounce", start: 50, end: 229, count: 114, label: "bounceTable" });
+  const demo = ctx._cgExportDemoAsm();
+  assert.match(demo, /\* = \$0801/);
+  assert.match(demo, /jsr bounceTable_set_y/);        // Y from table
+  assert.match(demo, /sta \$D001/);                  // sprite 0 Y register
+  assert.match(demo, /adc #\$D5/);                   // sweep step lo: round(320*256/114) = $02D5
+  assert.match(demo, /sta \$d000/);                  // sprite 0 X low byte
+  assert.match(demo, /ora #%00000001/);              // $D010 MSB set
+  assert.match(demo, /cmp #\$72/);                   // 114 entries -> explicit wrap
+  assert.match(demo, /bounceTable:/);                // embedded table
+  assert.match(demo, /\* = \$2000/);                 // sprite data segment
+  assert.match(demo, /sprite_ball:/);
+  // 64 sprite bytes: 21 rows * 3 + trailing byte
+  const spriteSection = demo.slice(demo.indexOf("sprite_ball:"));
+  assert.equal((spriteSection.match(/\.byte/g) || []).length, 22);
+});
+
+test("demo export (8-bit, 256 entries) uses automatic index wrap", () => {
+  const { ctx } = run({ ...DEFAULTS, bits: 8, curve: "cosine", start: 0, end: 255, count: 256, label: "cosineTable" });
+  const demo = ctx._cgExportDemoAsm();
+  assert.match(demo, /inc idx\s+; 256 entries -> wraps automatically/);
+  assert.doesNotMatch(demo, /cmp #/);
+  assert.match(demo, /adc #\$40/);                   // step lo of $0140 = 1.25 px/frame
+});
+
+test("demo export (16-bit) drives sprite X via the lo/hi reader", () => {
+  const { ctx } = run({ ...DEFAULTS, bits: 16, curve: "easeOutBounce", start: 0, end: 320, count: 114, label: "table" });
+  const demo = ctx._cgExportDemoAsm();
+  assert.match(demo, /jsr table_set_x/);
+  assert.match(demo, /table_lo:/);
+  assert.match(demo, /table_hi:/);
+  assert.doesNotMatch(demo, /xfrac/);                // no sweep in 16-bit mode
+  assert.match(demo, /cmp #\$72/);
 });

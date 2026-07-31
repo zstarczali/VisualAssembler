@@ -1,1181 +1,146 @@
-{
-  "app": "c64-visual-assembler",
-  "d64": {
-    "diskName": "",
-    "extras": [],
-    "progName": ""
-  },
-  "expertText": "* = $0801\n\nstart:\n    sei\n\n    lda #$00\n    sta $d020\n    sta $d021\n\n    .sprite_init 0, 7, $80\n    .sprite_pos 0, 120, 80\n\n    lda #$00\n    sta frame\n    sta dir\n\nmain:\n    .wait_raster $f8\n\n    lda frame\n    clc\n    adc #$20\n    sta $d000\n\n    lda $d010\n    and #$fe\n    sta $d010\n    bcc x_done\n    lda $d010\n    ora #$01\n    sta $d010\nx_done:\n\n    ldx frame\n    lda table,x\n    sta $d001\n\n    lda dir\n    beq move_forward\n\nmove_backward:\n    lda frame\n    beq turn_forward\n    dec frame\n    jmp main\n\nturn_forward:\n    lda #$00\n    sta dir\n    inc frame\n    jmp main\n\nmove_forward:\n    lda frame\n    cmp #$35\n    beq turn_backward\n    inc frame\n    jmp main\n\nturn_backward:\n    lda #$01\n    sta dir\n    dec frame\n    jmp main\n\nframe:\n    .byte $00\n\ndir:\n    .byte $00\n\ntable:\n    .byte $00, $01, $02, $02, $02, $02, $02, $02, $01, $00, $02, $04, $05, $07, $08, $09\n    .byte $09, $0A, $0A, $0A, $09, $09, $08, $07, $06, $04, $03, $01, $03, $07, $0B, $0E\n    .byte $12, $15, $17, $1A, $1C, $1E, $20, $22, $23, $24, $25, $26, $27, $27, $27, $26\n    .byte $26, $25, $24, $23, $22, $20, $1E, $1C, $1A, $17, $14, $11, $0E, $0A, $07, $03\n    .byte $03, $0B, $13, $1B, $23, $2A, $32, $38, $3F, $46, $4C, $52, $57, $5D, $62, $67\n    .byte $6C, $71, $75, $79, $7D, $81, $84, $87, $8A, $8D, $8F, $92, $93, $95, $97, $98\n    .byte $99, $9A, $9B, $9B\n\n* = $2000\n\n.include \"ball.asm\"\n",
-  "program": [
-    {
-      "_srcLine": 0,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "a6f6889f-736b-41d6-83d1-1a832779b036",
-      "isOrgMacro": true,
-      "mnemonic": "ORG",
-      "operand": "",
-      "orgAddress": "0801",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 1,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "02681791-20e1-4c5c-92b8-b491f8ece32d",
-      "isBlankLine": true,
-      "mnemonic": "BLANK",
-      "operand": "",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 2,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Szerkezet",
-      "collapsed": true,
-      "description": "",
-      "id": "7a6e9c2a-b45b-4fc7-88fa-2179f7857895",
-      "isLabel": true,
-      "labelName": "start",
-      "mnemonic": "LABEL",
-      "operand": "start",
-      "rawOperand": "start",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 3,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Rendszer",
-      "collapsed": true,
-      "description": "IRQ megszakitasok tiltasa.",
-      "id": "7acdde2b-20a5-4b66-a16f-00c5cb423236",
-      "mnemonic": "SEI",
-      "operand": "",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 4,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "718d869d-8098-48db-a0f0-53f99276aef2",
-      "isBlankLine": true,
-      "mnemonic": "BLANK",
-      "operand": "",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 5,
-      "addressingMode": "immediate",
-      "base": "hex",
-      "category": "Adatmozgas",
-      "collapsed": true,
-      "description": "Akkumulator betoltese memoriabol vagy konstansbol.",
-      "id": "1af69b5f-4698-4656-8b35-63fe95f565f3",
-      "mnemonic": "LDA",
-      "operand": "#$00",
-      "rawOperand": "00",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 6,
-      "addressingMode": "absolute",
-      "base": "hex",
-      "category": "Adatmozgas",
-      "collapsed": true,
-      "description": "Akkumulator kiirasa memoriacimre.",
-      "id": "233b1c00-f682-447a-a9fa-cafd31763e18",
-      "mnemonic": "STA",
-      "operand": "$D020",
-      "rawOperand": "D020",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 7,
-      "addressingMode": "absolute",
-      "base": "hex",
-      "category": "Adatmozgas",
-      "collapsed": true,
-      "description": "Akkumulator kiirasa memoriacimre.",
-      "id": "6763e9d2-7ef2-45f3-84fe-4766cde370e2",
-      "mnemonic": "STA",
-      "operand": "$D021",
-      "rawOperand": "D021",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 8,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "54ab09c7-e49c-479b-af0c-98f62dad24f1",
-      "isBlankLine": true,
-      "mnemonic": "BLANK",
-      "operand": "",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 9,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "cefa335f-d3a7-434d-9270-a3771bee877d",
-      "isSpriteInitMacro": true,
-      "mnemonic": "SPRITE_INIT",
-      "operand": "",
-      "rawOperand": "",
-      "spriteColor": "7",
-      "spriteDataPage": "80",
-      "spriteMulticolor": false,
-      "spriteNum": "0",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 10,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "7ff154cc-daa9-4c6d-8821-a9073af8b20b",
-      "isSpritePosMacro": true,
-      "mnemonic": "SPRITE_POS",
-      "operand": "",
-      "rawOperand": "",
-      "spriteNum": "0",
-      "spriteX": "120",
-      "spriteY": "80",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 11,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "2246fab0-9530-447f-b8a8-0238923aef13",
-      "isBlankLine": true,
-      "mnemonic": "BLANK",
-      "operand": "",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 12,
-      "addressingMode": "immediate",
-      "base": "hex",
-      "category": "Adatmozgas",
-      "collapsed": true,
-      "description": "Akkumulator betoltese memoriabol vagy konstansbol.",
-      "id": "c9b46bd8-a58b-401c-9493-5770a1e73cd8",
-      "mnemonic": "LDA",
-      "operand": "#$00",
-      "rawOperand": "00",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 13,
-      "addressingMode": "absolute",
-      "base": "hex",
-      "category": "Adatmozgas",
-      "collapsed": true,
-      "description": "Akkumulator kiirasa memoriacimre.",
-      "id": "f15f26a0-9162-4854-9cf7-7638a0989940",
-      "mnemonic": "STA",
-      "operand": "frame",
-      "rawOperand": "frame",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 14,
-      "addressingMode": "absolute",
-      "base": "hex",
-      "category": "Adatmozgas",
-      "collapsed": true,
-      "description": "Akkumulator kiirasa memoriacimre.",
-      "id": "693efdd8-9bee-4307-8fed-aa6a260ac54e",
-      "mnemonic": "STA",
-      "operand": "dir",
-      "rawOperand": "dir",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 15,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "386d3901-4646-4b5a-a211-c1ab8172a036",
-      "isBlankLine": true,
-      "mnemonic": "BLANK",
-      "operand": "",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 16,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Szerkezet",
-      "collapsed": true,
-      "description": "",
-      "id": "57d7fb0a-ad0c-4b02-baa0-bd7b44e1d5f7",
-      "isLabel": true,
-      "labelName": "main",
-      "mnemonic": "LABEL",
-      "operand": "main",
-      "rawOperand": "main",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 17,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "f7142997-96ce-4f17-9340-d593afd879ee",
-      "isWaitRasterMacro": true,
-      "mnemonic": "WAIT_RASTER",
-      "operand": "",
-      "rasterLine": "F8",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 18,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "b135d0e1-588a-45bc-962d-295bf5492c90",
-      "isBlankLine": true,
-      "mnemonic": "BLANK",
-      "operand": "",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 19,
-      "addressingMode": "absolute",
-      "base": "hex",
-      "category": "Adatmozgas",
-      "collapsed": true,
-      "description": "Akkumulator betoltese memoriabol vagy konstansbol.",
-      "id": "7c51ab1e-f892-48e2-87cf-5af0f1ce09c7",
-      "mnemonic": "LDA",
-      "operand": "frame",
-      "rawOperand": "frame",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 20,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Rendszer",
-      "collapsed": true,
-      "description": "Carry flag torlese.",
-      "id": "f6ce3837-82d3-4c26-a34a-44afcbe2aecd",
-      "mnemonic": "CLC",
-      "operand": "",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 21,
-      "addressingMode": "immediate",
-      "base": "hex",
-      "category": "Aritmetika",
-      "collapsed": true,
-      "description": "Osszeadas carry figyelembevetele mellett.",
-      "id": "d5525cbc-0f3a-400b-9041-e678530a03b3",
-      "mnemonic": "ADC",
-      "operand": "#$20",
-      "rawOperand": "20",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 22,
-      "addressingMode": "absolute",
-      "base": "hex",
-      "category": "Adatmozgas",
-      "collapsed": true,
-      "description": "Akkumulator kiirasa memoriacimre.",
-      "id": "5c3d89f0-5a9e-4d98-aeff-57412332f5b5",
-      "mnemonic": "STA",
-      "operand": "$D000",
-      "rawOperand": "D000",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 23,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "98e49827-b4e5-49ba-9477-e5b5ecf77112",
-      "isBlankLine": true,
-      "mnemonic": "BLANK",
-      "operand": "",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 24,
-      "addressingMode": "absolute",
-      "base": "hex",
-      "category": "Adatmozgas",
-      "collapsed": true,
-      "description": "Akkumulator betoltese memoriabol vagy konstansbol.",
-      "id": "3acbf219-420f-4f46-ab5c-388f5ef8c5cd",
-      "mnemonic": "LDA",
-      "operand": "$D010",
-      "rawOperand": "D010",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 25,
-      "addressingMode": "immediate",
-      "base": "hex",
-      "category": "Logika",
-      "collapsed": true,
-      "description": "Logikai ES muvelet az akkumulatorral.",
-      "id": "d6d29bb3-0ff6-46e2-9619-7b922fd75557",
-      "mnemonic": "AND",
-      "operand": "#$FE",
-      "rawOperand": "FE",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 26,
-      "addressingMode": "absolute",
-      "base": "hex",
-      "category": "Adatmozgas",
-      "collapsed": true,
-      "description": "Akkumulator kiirasa memoriacimre.",
-      "id": "736c701d-f1d3-45c7-83a4-f1e600b1ad1d",
-      "mnemonic": "STA",
-      "operand": "$D010",
-      "rawOperand": "D010",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 27,
-      "addressingMode": "relative",
-      "base": "hex",
-      "category": "Ugrasok",
-      "collapsed": true,
-      "description": "Ugras, ha a carry torolve van.",
-      "id": "f1efd351-bc04-4088-af25-eda9560eea31",
-      "mnemonic": "BCC",
-      "operand": "x_done",
-      "rawOperand": "x_done",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 28,
-      "addressingMode": "absolute",
-      "base": "hex",
-      "category": "Adatmozgas",
-      "collapsed": true,
-      "description": "Akkumulator betoltese memoriabol vagy konstansbol.",
-      "id": "27041233-8a6c-4beb-991d-2f4d358cb892",
-      "mnemonic": "LDA",
-      "operand": "$D010",
-      "rawOperand": "D010",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 29,
-      "addressingMode": "immediate",
-      "base": "hex",
-      "category": "Logika",
-      "collapsed": true,
-      "description": "Logikai VAGY muvelet az akkumulatorral.",
-      "id": "65286ca9-faf5-4d3a-9f0a-8d0c7dcdd407",
-      "mnemonic": "ORA",
-      "operand": "#$01",
-      "rawOperand": "01",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 30,
-      "addressingMode": "absolute",
-      "base": "hex",
-      "category": "Adatmozgas",
-      "collapsed": true,
-      "description": "Akkumulator kiirasa memoriacimre.",
-      "id": "b539292b-d439-4a9a-81d3-bf42e4e58a6d",
-      "mnemonic": "STA",
-      "operand": "$D010",
-      "rawOperand": "D010",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 31,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Szerkezet",
-      "collapsed": true,
-      "description": "",
-      "id": "346893c9-590b-4329-869d-9f787efe676f",
-      "isLabel": true,
-      "labelName": "x_done",
-      "mnemonic": "LABEL",
-      "operand": "x_done",
-      "rawOperand": "x_done",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 32,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "efd9ffdd-e7a0-4d1b-80b5-faf5dc07e140",
-      "isBlankLine": true,
-      "mnemonic": "BLANK",
-      "operand": "",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 33,
-      "addressingMode": "absolute",
-      "base": "hex",
-      "category": "Adatmozgas",
-      "collapsed": true,
-      "description": "X regiszter betoltese.",
-      "id": "df8f0564-475a-44ae-a326-c9ce77d51a76",
-      "mnemonic": "LDX",
-      "operand": "frame",
-      "rawOperand": "frame",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 34,
-      "addressingMode": "absoluteX",
-      "base": "hex",
-      "category": "Adatmozgas",
-      "collapsed": true,
-      "description": "Akkumulator betoltese memoriabol vagy konstansbol.",
-      "id": "74c8901c-4814-4ea2-ab30-b305aa612470",
-      "mnemonic": "LDA",
-      "operand": "table,X",
-      "rawOperand": "table",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 35,
-      "addressingMode": "absolute",
-      "base": "hex",
-      "category": "Adatmozgas",
-      "collapsed": true,
-      "description": "Akkumulator kiirasa memoriacimre.",
-      "id": "bd8a755c-1ad0-4f15-b57c-4f7a42a318c2",
-      "mnemonic": "STA",
-      "operand": "$D001",
-      "rawOperand": "D001",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 36,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "21e32a18-3379-42ee-8969-1827be16afde",
-      "isBlankLine": true,
-      "mnemonic": "BLANK",
-      "operand": "",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 37,
-      "addressingMode": "absolute",
-      "base": "hex",
-      "category": "Adatmozgas",
-      "collapsed": true,
-      "description": "Akkumulator betoltese memoriabol vagy konstansbol.",
-      "id": "883e3c78-c6d5-4371-957c-72824455d5be",
-      "mnemonic": "LDA",
-      "operand": "dir",
-      "rawOperand": "dir",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 38,
-      "addressingMode": "relative",
-      "base": "hex",
-      "category": "Ugrasok",
-      "collapsed": true,
-      "description": "Ugras, ha az elozo eredmeny nulla.",
-      "id": "1738d457-4293-442e-af61-9ec3f73a91c4",
-      "mnemonic": "BEQ",
-      "operand": "move_forward",
-      "rawOperand": "move_forward",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 39,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "67b51995-01ef-41ba-a43a-e64d1fbbbf3a",
-      "isBlankLine": true,
-      "mnemonic": "BLANK",
-      "operand": "",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 40,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Szerkezet",
-      "collapsed": true,
-      "description": "",
-      "id": "f07d96a4-c58a-4e89-81b5-842eea63a239",
-      "isLabel": true,
-      "labelName": "move_backward",
-      "mnemonic": "LABEL",
-      "operand": "move_backward",
-      "rawOperand": "move_backward",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 41,
-      "addressingMode": "absolute",
-      "base": "hex",
-      "category": "Adatmozgas",
-      "collapsed": true,
-      "description": "Akkumulator betoltese memoriabol vagy konstansbol.",
-      "id": "52b52941-7dd6-4ecc-9304-94282771dbef",
-      "mnemonic": "LDA",
-      "operand": "frame",
-      "rawOperand": "frame",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 42,
-      "addressingMode": "relative",
-      "base": "hex",
-      "category": "Ugrasok",
-      "collapsed": true,
-      "description": "Ugras, ha az elozo eredmeny nulla.",
-      "id": "22834b25-d911-45d5-85a5-ecadf0d4a881",
-      "mnemonic": "BEQ",
-      "operand": "turn_forward",
-      "rawOperand": "turn_forward",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 43,
-      "addressingMode": "absolute",
-      "base": "hex",
-      "category": "Aritmetika",
-      "collapsed": true,
-      "description": "Memoriacim csokkentes.",
-      "id": "e1bad3d8-8d5a-496f-afc6-591ed9378989",
-      "mnemonic": "DEC",
-      "operand": "frame",
-      "rawOperand": "frame",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 44,
-      "addressingMode": "absolute",
-      "base": "hex",
-      "category": "Ugrasok",
-      "collapsed": true,
-      "description": "Feltetel nelkuli ugras egy cimre.",
-      "id": "fcadbc80-c303-48d5-ab0f-1af423ffa495",
-      "mnemonic": "JMP",
-      "operand": "main",
-      "rawOperand": "main",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 45,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "310f552e-e685-4efc-ad5e-47728039195d",
-      "isBlankLine": true,
-      "mnemonic": "BLANK",
-      "operand": "",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 46,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Szerkezet",
-      "collapsed": true,
-      "description": "",
-      "id": "97710652-e603-4775-8ca2-987c4f3eb8a6",
-      "isLabel": true,
-      "labelName": "turn_forward",
-      "mnemonic": "LABEL",
-      "operand": "turn_forward",
-      "rawOperand": "turn_forward",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 47,
-      "addressingMode": "immediate",
-      "base": "hex",
-      "category": "Adatmozgas",
-      "collapsed": true,
-      "description": "Akkumulator betoltese memoriabol vagy konstansbol.",
-      "id": "f75a0d2f-2ce9-4dfe-b066-9fcc77766ab0",
-      "mnemonic": "LDA",
-      "operand": "#$00",
-      "rawOperand": "00",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 48,
-      "addressingMode": "absolute",
-      "base": "hex",
-      "category": "Adatmozgas",
-      "collapsed": true,
-      "description": "Akkumulator kiirasa memoriacimre.",
-      "id": "41970467-84f8-42b1-af46-d500ce871d5a",
-      "mnemonic": "STA",
-      "operand": "dir",
-      "rawOperand": "dir",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 49,
-      "addressingMode": "absolute",
-      "base": "hex",
-      "category": "Aritmetika",
-      "collapsed": true,
-      "description": "Memoriacim noveles.",
-      "id": "f08c2875-dd00-4659-b232-c204e36d988a",
-      "mnemonic": "INC",
-      "operand": "frame",
-      "rawOperand": "frame",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 50,
-      "addressingMode": "absolute",
-      "base": "hex",
-      "category": "Ugrasok",
-      "collapsed": true,
-      "description": "Feltetel nelkuli ugras egy cimre.",
-      "id": "2e3e179b-b4f0-484d-83c3-87bb7ff0b0d1",
-      "mnemonic": "JMP",
-      "operand": "main",
-      "rawOperand": "main",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 51,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "f4b72cf2-e481-4234-bba7-693c32323870",
-      "isBlankLine": true,
-      "mnemonic": "BLANK",
-      "operand": "",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 52,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Szerkezet",
-      "collapsed": true,
-      "description": "",
-      "id": "fb6aad3c-cfa2-46a9-8ac0-55ad4129e537",
-      "isLabel": true,
-      "labelName": "move_forward",
-      "mnemonic": "LABEL",
-      "operand": "move_forward",
-      "rawOperand": "move_forward",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 53,
-      "addressingMode": "absolute",
-      "base": "hex",
-      "category": "Adatmozgas",
-      "collapsed": true,
-      "description": "Akkumulator betoltese memoriabol vagy konstansbol.",
-      "id": "dfd98955-111a-45e1-8a4c-4d218bc6c508",
-      "mnemonic": "LDA",
-      "operand": "frame",
-      "rawOperand": "frame",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 54,
-      "addressingMode": "immediate",
-      "base": "hex",
-      "category": "Aritmetika",
-      "collapsed": true,
-      "description": "Osszehasonlitas az akkumulatorral.",
-      "id": "ee661ae0-24f4-4061-b619-9c832284e290",
-      "mnemonic": "CMP",
-      "operand": "#$35",
-      "rawOperand": "35",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 55,
-      "addressingMode": "relative",
-      "base": "hex",
-      "category": "Ugrasok",
-      "collapsed": true,
-      "description": "Ugras, ha az elozo eredmeny nulla.",
-      "id": "06bf6de2-d96c-4716-8c31-7068d9598c75",
-      "mnemonic": "BEQ",
-      "operand": "turn_backward",
-      "rawOperand": "turn_backward",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 56,
-      "addressingMode": "absolute",
-      "base": "hex",
-      "category": "Aritmetika",
-      "collapsed": true,
-      "description": "Memoriacim noveles.",
-      "id": "72797387-ace0-43d7-86a4-fbf57adbfd01",
-      "mnemonic": "INC",
-      "operand": "frame",
-      "rawOperand": "frame",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 57,
-      "addressingMode": "absolute",
-      "base": "hex",
-      "category": "Ugrasok",
-      "collapsed": true,
-      "description": "Feltetel nelkuli ugras egy cimre.",
-      "id": "af2adb52-e62c-4c87-88cc-c95db0ffeaa3",
-      "mnemonic": "JMP",
-      "operand": "main",
-      "rawOperand": "main",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 58,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "c03e889e-c6c3-4020-9907-88e62f2c3c22",
-      "isBlankLine": true,
-      "mnemonic": "BLANK",
-      "operand": "",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 59,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Szerkezet",
-      "collapsed": true,
-      "description": "",
-      "id": "9fbb7c07-d68d-43d7-91a0-fd74553fbb4b",
-      "isLabel": true,
-      "labelName": "turn_backward",
-      "mnemonic": "LABEL",
-      "operand": "turn_backward",
-      "rawOperand": "turn_backward",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 60,
-      "addressingMode": "immediate",
-      "base": "hex",
-      "category": "Adatmozgas",
-      "collapsed": true,
-      "description": "Akkumulator betoltese memoriabol vagy konstansbol.",
-      "id": "59ce2b7b-aa4e-4aa9-9366-8a0745e6c84f",
-      "mnemonic": "LDA",
-      "operand": "#$01",
-      "rawOperand": "01",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 61,
-      "addressingMode": "absolute",
-      "base": "hex",
-      "category": "Adatmozgas",
-      "collapsed": true,
-      "description": "Akkumulator kiirasa memoriacimre.",
-      "id": "c0d065eb-c4de-44b1-929a-cf571c637402",
-      "mnemonic": "STA",
-      "operand": "dir",
-      "rawOperand": "dir",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 62,
-      "addressingMode": "absolute",
-      "base": "hex",
-      "category": "Aritmetika",
-      "collapsed": true,
-      "description": "Memoriacim csokkentes.",
-      "id": "fc5ce227-e4f7-49ec-a313-8d5dd3e8a28f",
-      "mnemonic": "DEC",
-      "operand": "frame",
-      "rawOperand": "frame",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 63,
-      "addressingMode": "absolute",
-      "base": "hex",
-      "category": "Ugrasok",
-      "collapsed": true,
-      "description": "Feltetel nelkuli ugras egy cimre.",
-      "id": "79a71049-06a8-4ff7-bf71-8e55b70484f8",
-      "mnemonic": "JMP",
-      "operand": "main",
-      "rawOperand": "main",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 64,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "cf7902bc-63cf-488e-810e-3bf4a4abb29c",
-      "isBlankLine": true,
-      "mnemonic": "BLANK",
-      "operand": "",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 65,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Szerkezet",
-      "collapsed": true,
-      "description": "",
-      "id": "0ba9d6ef-16bd-42da-a26f-7de2a1c0c798",
-      "isLabel": true,
-      "labelName": "frame",
-      "mnemonic": "LABEL",
-      "operand": "frame",
-      "rawOperand": "frame",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 66,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "16453553-28dc-48df-aa12-ca63f1eaadba",
-      "isByteMacro": true,
-      "mnemonic": "BYTE",
-      "operand": "$00",
-      "rawOperand": "00",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 67,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "2e66f35d-3e38-45ec-a64f-9b744ff515a8",
-      "isBlankLine": true,
-      "mnemonic": "BLANK",
-      "operand": "",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 68,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Szerkezet",
-      "collapsed": true,
-      "description": "",
-      "id": "83fb1248-4a32-4c45-852e-a148f6f95268",
-      "isLabel": true,
-      "labelName": "dir",
-      "mnemonic": "LABEL",
-      "operand": "dir",
-      "rawOperand": "dir",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 69,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "d1fa9d77-1578-4fc5-a71f-e6ebc7ffabb0",
-      "isByteMacro": true,
-      "mnemonic": "BYTE",
-      "operand": "$00",
-      "rawOperand": "00",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 70,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "f729e571-100a-4e3d-bac8-5a4f085d96f2",
-      "isBlankLine": true,
-      "mnemonic": "BLANK",
-      "operand": "",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 71,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Szerkezet",
-      "collapsed": true,
-      "description": "",
-      "id": "304b86e0-851d-40ad-b623-4743a99bfad3",
-      "isLabel": true,
-      "labelName": "table",
-      "mnemonic": "LABEL",
-      "operand": "table",
-      "rawOperand": "table",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 72,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "e5c3fc5b-67e3-4434-95ad-f30465529eec",
-      "isByteMacro": true,
-      "mnemonic": "BYTE",
-      "operand": "$00, $01, $02, $02, $02, $02, $02, $02, $01, $00, $02, $04, $05, $07, $08, $09",
-      "rawOperand": "00,01,02,02,02,02,02,02,01,00,02,04,05,07,08,09",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 73,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "04ea9583-9f66-4cfe-98a1-303cb5e0d151",
-      "isByteMacro": true,
-      "mnemonic": "BYTE",
-      "operand": "$09, $0A, $0A, $0A, $09, $09, $08, $07, $06, $04, $03, $01, $03, $07, $0B, $0E",
-      "rawOperand": "09,0A,0A,0A,09,09,08,07,06,04,03,01,03,07,0B,0E",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 74,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "5d4be900-a596-4993-a56d-1a38af7c5ab3",
-      "isByteMacro": true,
-      "mnemonic": "BYTE",
-      "operand": "$12, $15, $17, $1A, $1C, $1E, $20, $22, $23, $24, $25, $26, $27, $27, $27, $26",
-      "rawOperand": "12,15,17,1A,1C,1E,20,22,23,24,25,26,27,27,27,26",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 75,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "ecbd279f-aa55-46f4-a0f8-f8a28295ae64",
-      "isByteMacro": true,
-      "mnemonic": "BYTE",
-      "operand": "$26, $25, $24, $23, $22, $20, $1E, $1C, $1A, $17, $14, $11, $0E, $0A, $07, $03",
-      "rawOperand": "26,25,24,23,22,20,1E,1C,1A,17,14,11,0E,0A,07,03",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 76,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "6a94f559-c774-4ccb-b8b8-f1542dfcb043",
-      "isByteMacro": true,
-      "mnemonic": "BYTE",
-      "operand": "$03, $0B, $13, $1B, $23, $2A, $32, $38, $3F, $46, $4C, $52, $57, $5D, $62, $67",
-      "rawOperand": "03,0B,13,1B,23,2A,32,38,3F,46,4C,52,57,5D,62,67",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 77,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "39172f2f-2abd-44f7-b2cb-84dd4c6b9769",
-      "isByteMacro": true,
-      "mnemonic": "BYTE",
-      "operand": "$6C, $71, $75, $79, $7D, $81, $84, $87, $8A, $8D, $8F, $92, $93, $95, $97, $98",
-      "rawOperand": "6C,71,75,79,7D,81,84,87,8A,8D,8F,92,93,95,97,98",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 78,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "8ce172f6-2025-4699-8ad9-7008bbdf399d",
-      "isByteMacro": true,
-      "mnemonic": "BYTE",
-      "operand": "$99, $9A, $9B, $9B",
-      "rawOperand": "99,9A,9B,9B",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 79,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "60774814-9e39-43ce-bc15-edd019e5ad53",
-      "isBlankLine": true,
-      "mnemonic": "BLANK",
-      "operand": "",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 80,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "26877267-8a91-4b7d-af0d-835fb00bdb2a",
-      "isOrgMacro": true,
-      "mnemonic": "ORG",
-      "operand": "",
-      "orgAddress": "2000",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 81,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "9c21d9c2-20f8-493f-b1e8-109f8d4e3267",
-      "isBlankLine": true,
-      "mnemonic": "BLANK",
-      "operand": "",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 82,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "7952d8ce-881c-4653-89ff-12ebb1cc8efd",
-      "includeAddress": "",
-      "includeCollapsed": false,
-      "includeFile": "F:\\Development\\VisualAssembler\\samples\\ball.asm",
-      "includeFileName": "ball.asm",
-      "isIncludeMacro": true,
-      "mnemonic": "INCLUDE",
-      "operand": "",
-      "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 83,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
-      "id": "65adfd41-ef8f-43a8-8585-f23c7a98a71c",
-      "isBlankLine": true,
-      "mnemonic": "BLANK",
-      "operand": "",
-      "rawOperand": "",
-      "validationError": ""
-    }
-  ],
-  "ui": {
-    "language": "en",
-    "numberBase": "hex",
-    "outputMode": "asm",
-    "runMode": "prg",
-    "sample": "map-copy-demo",
-    "theme": "dark",
-    "zoom": 1.25
-  },
-  "version": 1
-}
+
+; ===============================================================
+; Curve Editor demo - Ease In (Circ) (sprite 0, embedded table)
+; X sweeps the screen linearly, the table drives sprite Y -
+; matches the Curve Editor preview. One table step per frame.
+; ===============================================================
+
+* = $0801
+
+start:
+    SEI
+
+    LDA #$00
+    STA $D020
+; border black
+    STA $D021
+; background black
+
+.sprite_init 0, 7, $80
+; sprite 0, yellow, data page $80 ($2000)
+.sprite_pos 0, 24, 120
+
+    LDA #$00
+    STA idx
+    STA xpos
+; 16-bit sprite X, integer part
+    STA xpos+1
+    STA xfrac
+; fractional accumulator (8.8 fixed point)
+
+main:
+.wait_raster $F8
+
+    LDX idx
+    JSR table_set_y
+; sprite Y = table[idx]
+
+; X += 320/148 px per frame (8.8 fixed point, step = $022A)
+    LDA xfrac
+    CLC
+    ADC #$2A
+    STA xfrac
+    LDA xpos
+    ADC #$02
+    STA xpos
+    LDA xpos+1
+    ADC #$00
+    STA xpos+1
+
+    LDA xpos
+    STA $D000
+; sprite 0 X low byte
+    LDA xpos+1
+    BEQ demo_clr_msb
+    LDA $D010
+    ORA #%00000001
+; set sprite 0 MSB (X > 255)
+    STA $D010
+    JMP demo_next
+demo_clr_msb:
+    LDA $D010
+    AND #%11111110
+; clear sprite 0 MSB
+    STA $D010
+demo_next:
+    INC idx
+    LDA idx
+    CMP #$94
+; 148 entries -> wrap back to 0
+    BCC main
+    LDA #$00
+    STA idx
+    STA xpos
+    STA xpos+1
+    STA xfrac
+    JMP main
+
+idx:
+.byte $00
+xpos:
+.word $0000
+xfrac:
+.byte $00
+
+; -----------------------------------------------
+; Curve Editor - Ease In (Circ) + Linear
+; Range: 48..231   Count: 148 bytes
+; X (index): 0..147  ->  Y (value): table[X]
+; Usage:  LDX #index  /  LDA table,X  -> value in A
+; Combine: sub - Amount 0%
+; -----------------------------------------------
+table:
+.byte $30, $30, $30, $30, $30, $30, $30, $30
+.byte $30, $30, $30, $31, $31, $31, $31, $31
+.byte $31, $31, $32, $32, $32, $32, $32, $33
+.byte $33, $33, $33, $33, $34, $34, $34, $35
+.byte $35, $35, $36, $36, $36, $37, $37, $37
+.byte $38, $38, $39, $39, $39, $3A, $3A, $3B
+.byte $3B, $3C, $3C, $3D, $3D, $3E, $3E, $3F
+.byte $3F, $40, $41, $41, $42, $42, $43, $44
+.byte $44, $45, $46, $46, $47, $48, $49, $49
+.byte $4A, $4B, $4C, $4D, $4D, $4E, $4F, $50
+.byte $51, $52, $53, $54, $55, $56, $57, $58
+.byte $59, $5A, $5B, $5C, $5D, $5E, $5F, $60
+.byte $61, $63, $64, $65, $66, $68, $69, $6A
+.byte $6C, $6D, $6F, $70, $71, $73, $75, $76
+.byte $78, $79, $7B, $7D, $7E, $80, $82, $84
+.byte $86, $88, $8A, $8C, $8E, $90, $92, $95
+.byte $97, $9A, $9C, $9F, $A1, $A4, $A7, $AA
+.byte $AD, $B1, $B4, $B8, $BC, $C0, $C5, $CA
+.byte $CF, $D6, $DD, $E7
+
+; --- Set sprite 0 Y from the table (index in X) ---
+; Usage:  LDX #index  /  JSR table_set_y
+table_set_y:
+    LDA table,X
+    STA $D001
+; sprite 0 Y
+    RTS
+
+* = $2000
+
+; sprite 0 data: ball (64 bytes, 64-aligned)
+sprite_ball:
+.byte $00, $00, $00
+.byte $00, $3C, $00
+.byte $01, $FF, $80
+.byte $07, $FF, $E0
+.byte $0F, $FF, $F0
+.byte $1F, $FF, $F8
+.byte $3F, $FF, $FC
+.byte $3F, $FF, $FC
+.byte $7F, $FF, $FE
+.byte $7F, $FF, $FE
+.byte $7F, $FF, $FE
+.byte $7F, $FF, $FE
+.byte $7F, $FF, $FE
+.byte $3F, $FF, $FC
+.byte $3F, $FF, $FC
+.byte $1F, $FF, $F8
+.byte $0F, $FF, $F0
+.byte $07, $FF, $E0
+.byte $01, $FF, $80
+.byte $00, $3C, $00
+.byte $00, $00, $00
+.byte $00

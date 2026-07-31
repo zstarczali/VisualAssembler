@@ -3067,6 +3067,7 @@ function _applyEditorTranslations() {
   setText("#sid-export-data", t("sidExportData"));
   setText("#sid-export-player", t("sidExportPlayer"));
   setText("#sid-export-asm", t("sidExportAsm"));
+  setText("#cg-export-demo", t("cgExportDemo"));
   setText(".sid-inst-row .sid-lbl", t("sidInstrumentLabel"));
   setAttr("#sid-inst-add", t("sidAddInstrument"));
   setAttr("#sid-preview", t("sidPreview"));
@@ -29974,7 +29975,7 @@ const _CG_STATE = {
   base: "hex",
   perLine: 16,
   bits: 8,            // 8 = single .byte table; 16 = lo/hi split byte-table pair
-  emitReader: false,  // 16-bit only: also emit a sprite-X reader routine
+  emitReader: false,  // also emit a sprite reader routine (8-bit: Y reader; 16-bit: X reader)
   spriteNum: 0,       // 16-bit reader: which sprite (0..7) the routine targets
   tempo: 50,
   animPlaying: true,
@@ -30164,7 +30165,161 @@ function _cgFormatBytes() {
     if (combineLine) lines.push(combineLine);
     lines.push("; -----------------------------------------------");
     emitTable(lines, label, samples);
+    if (s.emitReader) {
+      // 8-bit values fit the sprite Y register directly — one LDA/STA is the
+      // whole reader. Register base $D001 + sprite*2 (Y regs interleave with X).
+      const sp = Math.max(0, Math.min(7, s.spriteNum | 0));
+      const yReg = "$" + (0xD001 + sp * 2).toString(16).toUpperCase();
+      lines.push("");
+      lines.push("; --- Set sprite " + sp + " Y from the table (index in X) ---");
+      lines.push("; Usage:  LDX #index  /  JSR " + label + "_set_y");
+      lines.push(label + "_set_y:");
+      lines.push("    lda " + label + ",x");
+      lines.push("    sta " + yReg + "           ; sprite " + sp + " Y");
+      lines.push("    rts");
+    }
   }
+  return lines.join("\n");
+}
+
+/* Build a complete, runnable demo program around the current table (sprite
+ * init + raster-synced main loop + embedded table + ball sprite data).
+ * 8-bit: X sweeps the screen linearly while the table drives sprite Y —
+ * matches the preview. 16-bit: the table drives sprite X via the lo/hi
+ * reader (its native use case), Y stays fixed. DOM-free on purpose so the
+ * unit tests can exercise it (see tests/curve-generator.test.js). */
+function _cgExportDemoAsm() {
+  const s = _CG_STATE;
+  const label = s.label || "table";
+  const curveName = _CG_CURVE_LABELS[s.curve] || s.curve;
+  const n = s.samples ? s.samples.length : Math.max(2, Math.min(4096, s.count | 0));
+  const wrap = Math.min(256, n);   // LDA abs,X can only reach the first 256 entries
+  const is16 = s.bits === 16;
+  const hex2 = (v) => "$" + (v & 0xFF).toString(16).toUpperCase().padStart(2, "0");
+
+  const savedEmit = s.emitReader;
+  s.emitReader = true;             // the demo always needs the reader routine
+  const tableText = _cgFormatBytes();
+  s.emitReader = savedEmit;
+
+  const lines = [];
+  lines.push("; ===============================================================");
+  lines.push("; Curve Editor demo - " + curveName + " (sprite 0, embedded table)");
+  if (is16) {
+    lines.push("; The table drives sprite X (0..320 via lo/hi + $D010), Y is fixed.");
+  } else {
+    lines.push("; X sweeps the screen linearly, the table drives sprite Y -");
+    lines.push("; matches the Curve Editor preview. One table step per frame.");
+  }
+  if (n > 256) lines.push("; NOTE: table has " + n + " entries; the demo loops over the first 256.");
+  lines.push("; ===============================================================");
+  lines.push("");
+  lines.push("* = $0801");
+  lines.push("");
+  lines.push("start:");
+  lines.push("    sei");
+  lines.push("");
+  lines.push("    lda #$00");
+  lines.push("    sta $d020            ; border black");
+  lines.push("    sta $d021            ; background black");
+  lines.push("");
+  lines.push("    .sprite_init 0, 7, $80   ; sprite 0, yellow, data page $80 ($2000)");
+  lines.push("    .sprite_pos 0, 24, 120");
+  lines.push("");
+  lines.push("    lda #$00");
+  lines.push("    sta idx");
+  if (!is16) {
+    lines.push("    sta xpos             ; 16-bit sprite X, integer part");
+    lines.push("    sta xpos+1");
+    lines.push("    sta xfrac            ; fractional accumulator (8.8 fixed point)");
+  }
+  lines.push("");
+  lines.push("main:");
+  lines.push("    .wait_raster $f8");
+  lines.push("");
+  lines.push("    ldx idx");
+  if (is16) {
+    lines.push("    jsr " + label + "_set_x  ; sprite X = table[idx] (handles $D010 MSB)");
+  } else {
+    lines.push("    jsr " + label + "_set_y  ; sprite Y = table[idx]");
+    const step = Math.max(1, Math.round(320 * 256 / wrap));
+    lines.push("");
+    lines.push("    ; X += 320/" + wrap + " px per frame (8.8 fixed point, step = $" + step.toString(16).toUpperCase().padStart(4, "0") + ")");
+    lines.push("    lda xfrac");
+    lines.push("    clc");
+    lines.push("    adc #" + hex2(step));
+    lines.push("    sta xfrac");
+    lines.push("    lda xpos");
+    lines.push("    adc #" + hex2(step >> 8));
+    lines.push("    sta xpos");
+    lines.push("    lda xpos+1");
+    lines.push("    adc #$00");
+    lines.push("    sta xpos+1");
+    lines.push("");
+    lines.push("    lda xpos");
+    lines.push("    sta $d000            ; sprite 0 X low byte");
+    lines.push("    lda xpos+1");
+    lines.push("    beq demo_clr_msb");
+    lines.push("    lda $d010");
+    lines.push("    ora #%00000001       ; set sprite 0 MSB (X > 255)");
+    lines.push("    sta $d010");
+    lines.push("    jmp demo_next");
+    lines.push("demo_clr_msb:");
+    lines.push("    lda $d010");
+    lines.push("    and #%11111110       ; clear sprite 0 MSB");
+    lines.push("    sta $d010");
+    lines.push("demo_next:");
+  }
+  if (wrap === 256) {
+    lines.push("    inc idx              ; 256 entries -> wraps automatically");
+    if (!is16) {
+      lines.push("    bne main");
+      lines.push("    lda #$00             ; X back to the left edge");
+      lines.push("    sta xpos");
+      lines.push("    sta xpos+1");
+      lines.push("    sta xfrac");
+    }
+    lines.push("    jmp main");
+  } else {
+    lines.push("    inc idx");
+    lines.push("    lda idx");
+    lines.push("    cmp #" + hex2(wrap) + "             ; " + wrap + " entries -> wrap back to 0");
+    lines.push("    bcc main");
+    lines.push("    lda #$00");
+    lines.push("    sta idx");
+    if (!is16) {
+      lines.push("    sta xpos");
+      lines.push("    sta xpos+1");
+      lines.push("    sta xfrac");
+    }
+    lines.push("    jmp main");
+  }
+  lines.push("");
+  lines.push("idx:");
+  lines.push("    .byte $00");
+  if (!is16) {
+    lines.push("xpos:");
+    lines.push("    .word $0000");
+    lines.push("xfrac:");
+    lines.push("    .byte $00");
+  }
+  lines.push("");
+  lines.push(tableText);
+  lines.push("");
+  lines.push("* = $2000");
+  lines.push("");
+  lines.push("; sprite 0 data: ball (64 bytes, 64-aligned)");
+  lines.push("sprite_ball:");
+  // Same ball shape as samples/ball.asm, inlined so the demo is self-contained.
+  const ballRows = [
+    "$00,$00,$00", "$00,$3C,$00", "$01,$FF,$80", "$07,$FF,$E0", "$0F,$FF,$F0",
+    "$1F,$FF,$F8", "$3F,$FF,$FC", "$3F,$FF,$FC", "$7F,$FF,$FE", "$7F,$FF,$FE",
+    "$7F,$FF,$FE", "$7F,$FF,$FE", "$7F,$FF,$FE", "$3F,$FF,$FC", "$3F,$FF,$FC",
+    "$1F,$FF,$F8", "$0F,$FF,$F0", "$07,$FF,$E0", "$01,$FF,$80", "$00,$3C,$00",
+    "$00,$00,$00"
+  ];
+  ballRows.forEach((row) => lines.push("    .byte " + row));
+  lines.push("    .byte $00");
   return lines.join("\n");
 }
 
@@ -30388,8 +30543,14 @@ function _cgApplyBitsRange() {
   setVal("cg-start", s.start); setVal("cg-start-num", s.start);
   setVal("cg-end", s.end); setVal("cg-end-num", s.end);
   const setVis = (id, vis) => { const el = document.getElementById(id); if (el) el.style.display = vis ? "" : "none"; };
-  setVis("cg-reader-field", s.bits === 16);
-  setVis("cg-sprite-field", s.bits === 16 && s.emitReader);
+  setVis("cg-reader-field", true);
+  setVis("cg-sprite-field", s.emitReader);
+  const readerLbl = document.getElementById("cg-reader-lbl");
+  if (readerLbl) {
+    readerLbl.textContent = s.bits === 16
+      ? "Include sprite-X reader routine (lo/hi + $D010)"
+      : "Include sprite-Y reader routine";
+  }
 }
 
 function _cgSyncSliderPair(sliderId, numId, stateKey, opts) {
@@ -30540,6 +30701,19 @@ function _cgWireDialog() {
       const count = exportAsmToBlocks(txt);
       if (count > 0) {
         showViceToast?.("Inserted " + count + " block" + (count === 1 ? "" : "s"));
+        _cgCloseDialog();
+      } else {
+        showViceToast?.("Insert failed", true);
+      }
+    }
+  });
+  // Files menu: runnable demo (init + main loop + embedded table + sprite data)
+  document.getElementById("cg-export-demo")?.addEventListener("click", () => {
+    const txt = _cgExportDemoAsm();
+    if (typeof exportAsmToBlocks === "function") {
+      const count = exportAsmToBlocks(txt);
+      if (count > 0) {
+        showViceToast?.("Demo inserted (" + count + " blocks)");
         _cgCloseDialog();
       } else {
         showViceToast?.("Insert failed", true);
