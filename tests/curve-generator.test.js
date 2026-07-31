@@ -74,7 +74,7 @@ test("8-bit output is a single .byte table with header, no lo/hi split", () => {
   assert.match(output, /\.byte /);
   assert.doesNotMatch(output, /myTbl_lo:/);
   assert.doesNotMatch(output, /myTbl_hi:/);
-  assert.match(output, /; Table Forge - Linear/);
+  assert.match(output, /; Curve Editor - Linear/);
   assert.match(output, /LDA myTbl,X/);
 });
 
