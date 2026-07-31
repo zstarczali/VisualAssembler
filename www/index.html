@@ -899,44 +899,46 @@ PRINTABLE CHARACTERS
             <button id="ce-copy-asm" type="button">Export ASM</button>
           </div>
         </div>
+        <div class="ce-hdr-titles">
+          <span class="ce-title">CHARACTER EDITOR</span>
+          <span id="ce-char-info" class="ce-char-info">Char: 0 ($00)</span>
+        </div>
+        <button id="ce-close" class="ce-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="ce-toolbar">
         <button id="ce-load-rom" class="ce-tool-btn" type="button" title="Load charset from C64 ROM" aria-label="Load charset from ROM">
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="8" height="8" rx="1"/><path d="M6.5 4V2M9.5 4V2M6.5 14v-2M9.5 14v-2M4 6.5H2M4 9.5H2M14 6.5h-2M14 9.5h-2" stroke-linecap="round"/></svg>
         </button>
+        <div class="ce-tool-group">
+          <button class="ce-tool-btn" id="ce-clear" type="button" title="Clear" aria-label="Clear">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10M6.2 4.5V3h3.6v1.5M5 4.5l.7 8.5h4.6l.7-8.5"/></svg>
+          </button>
+          <button class="ce-tool-btn" id="ce-invert" type="button" title="Invert" aria-label="Invert">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8 3.6h4.4v8.8H8z" fill="currentColor"/></svg>
+          </button>
+          <button class="ce-tool-btn" id="ce-fliph" type="button" title="Flip Horizontal" aria-label="Flip Horizontal">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v12" stroke-dasharray="1.5 1.4"/><path d="M6.2 5L3 8l3.2 3z" fill="currentColor" stroke="none"/><path d="M9.8 5L13 8l-3.2 3z" fill="currentColor" stroke="none" opacity="0.45"/></svg>
+          </button>
+          <button class="ce-tool-btn" id="ce-flipv" type="button" title="Flip Vertical" aria-label="Flip Vertical">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" aria-hidden="true"><path d="M2 8h12" stroke-dasharray="1.5 1.4"/><path d="M5 6.2L8 3l3 3.2z" fill="currentColor" stroke="none"/><path d="M5 9.8L8 13l3-3.2z" fill="currentColor" stroke="none" opacity="0.45"/></svg>
+          </button>
+        </div>
+        <div class="ce-tool-group">
+          <button class="ce-shift-btn" id="ce-shl" type="button" title="Shift Left">←</button>
+          <button class="ce-shift-btn" id="ce-shr" type="button" title="Shift Right">→</button>
+          <button class="ce-shift-btn" id="ce-shu" type="button" title="Shift Up">↑</button>
+          <button class="ce-shift-btn" id="ce-shd" type="button" title="Shift Down">↓</button>
+        </div>
         <label class="ce-mode-check me-check" title="Multicolor mode">
           <input type="checkbox" id="ce-multicolor">
           <span id="ce-multicolor-label">Multicolor mode</span>
         </label>
-        <div class="ce-hdr-titles">
-          <span class="ce-section-lbl">CHARACTER EDITOR</span>
-          <span id="ce-char-info" class="ce-char-info">Char: 0 ($00)</span>
-        </div>
         <span class="ce-section-lbl ce-map-lbl">CHARACTER MAP</span>
-        <button id="ce-close" class="ce-xbtn" type="button" aria-label="Close">×</button>
       </div>
       <div class="ce-body">
         <div class="ce-left">
           <div id="ce-editor-grid" class="ce-editor-grid"></div>
           <div class="ce-tools">
-            <div class="ce-tool-row">
-              <button class="ce-tool-btn" id="ce-clear" type="button" title="Clear" aria-label="Clear">
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10M6.2 4.5V3h3.6v1.5M5 4.5l.7 8.5h4.6l.7-8.5"/></svg>
-              </button>
-              <button class="ce-tool-btn" id="ce-invert" type="button" title="Invert" aria-label="Invert">
-                <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8 3.6h4.4v8.8H8z" fill="currentColor"/></svg>
-              </button>
-              <button class="ce-tool-btn" id="ce-fliph" type="button" title="Flip Horizontal" aria-label="Flip Horizontal">
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v12" stroke-dasharray="1.5 1.4"/><path d="M6.2 5L3 8l3.2 3z" fill="currentColor" stroke="none"/><path d="M9.8 5L13 8l-3.2 3z" fill="currentColor" stroke="none" opacity="0.45"/></svg>
-              </button>
-              <button class="ce-tool-btn" id="ce-flipv" type="button" title="Flip Vertical" aria-label="Flip Vertical">
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" aria-hidden="true"><path d="M2 8h12" stroke-dasharray="1.5 1.4"/><path d="M5 6.2L8 3l3 3.2z" fill="currentColor" stroke="none"/><path d="M5 9.8L8 13l3-3.2z" fill="currentColor" stroke="none" opacity="0.45"/></svg>
-              </button>
-            </div>
-            <div class="ce-tool-row">
-              <button class="ce-shift-btn" id="ce-shl" type="button" title="Shift Left">←</button>
-              <button class="ce-shift-btn" id="ce-shr" type="button" title="Shift Right">→</button>
-              <button class="ce-shift-btn" id="ce-shu" type="button" title="Shift Up">↑</button>
-              <button class="ce-shift-btn" id="ce-shd" type="button" title="Shift Down">↓</button>
-            </div>
             <div class="ce-color-row">
               <button class="ce-color-lbl" type="button" data-ce-ink="3">FG:</button>
               <div id="ce-fg-colors" class="ce-colors"></div>
@@ -1070,8 +1072,10 @@ PRINTABLE CHARACTERS
           </div>
         </div>
         <span class="me-title">MAP EDITOR</span>
-        <div class="me-toolbar">
-          <div class="me-tool-group">
+        <button id="me-close" class="me-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="me-toolbar">
+        <div class="me-tool-group">
             <button class="me-tool me-tool--active" data-tool="paint" type="button" title="Paint" aria-label="Paint">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 14l1.2-3.5L10.5 3.2l2.3 2.3-7.3 7.3z"/><path d="M9.5 4.2l2.3 2.3"/></svg>
             </button>
@@ -1131,7 +1135,6 @@ PRINTABLE CHARACTERS
             </button>
           </div>
           <input type="file" id="me-map-file" accept=".bin,application/octet-stream" hidden>
-        </div>
         <div class="me-tb-right">
           <label class="me-check me-toolbar-check">
             <input type="checkbox" id="me-multicolor">
@@ -1140,7 +1143,6 @@ PRINTABLE CHARACTERS
           <label class="me-check"><input type="checkbox" id="me-grid-toggle" checked> <span id="me-grid-label">Grid</span></label>
           <input type="range" id="me-zoom" min="8" max="32" step="2" value="16" class="me-zoom" title="Zoom">
         </div>
-        <button id="me-close" class="me-xbtn" type="button" aria-label="Close">×</button>
       </div>
       <div class="me-body">
         <div class="me-sidebar">

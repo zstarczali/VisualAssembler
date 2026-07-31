@@ -2901,7 +2901,7 @@ function _applyEditorTranslations() {
   const hint = document.getElementById("c64-chrrom-info-hint");
   if (hint && !hint.hidden) hint.textContent = t("chrromHint");
   // Character Editor
-  setText(".ce-hdr-titles .ce-section-lbl", t("ceEditorLabel"));
+  setText(".ce-hdr-titles .ce-title", t("ceEditorLabel"));
   setText(".ce-map-lbl", t("ceMapLabel"));
   setAttr("#ce-clear", t("ceClear"));
   setAttr("#ce-invert", t("ceInvert"));

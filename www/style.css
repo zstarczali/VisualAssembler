@@ -6894,7 +6894,7 @@ body.crt-mode #crt-overlay::after {
   max-height: 92vh;
   overflow: hidden;
 }
-.ce-dialog::backdrop { background: rgba(0,0,0,0.6); }
+.ce-dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
 .ce-card {
   background: var(--panel);
   border: 1px solid var(--panel-border);
@@ -6908,14 +6908,53 @@ body.crt-mode #crt-overlay::after {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 14px;
+  padding: 8px 12px;
   border-bottom: 1px solid var(--panel-border);
+  background: var(--panel-strong);
   flex-shrink: 0;
 }
 .ce-hdr-titles {
   display: flex;
   align-items: baseline;
   gap: 10px;
+}
+.ce-title {
+  font-family: inherit;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+/* Külön toolbar sor a title bar alatt (Hires minta) */
+.ce-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--panel-border);
+  flex-shrink: 0;
+}
+.ce-tool-group {
+  display: flex;
+  gap: 2px;
+  background: var(--control-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 2px;
+  padding: 2px;
+}
+.ce-tool-group .ce-tool-btn,
+.ce-tool-group .ce-shift-btn {
+  border: none;
+  background: transparent;
+  color: var(--secondary);
+  height: 28px;
+}
+.ce-tool-group .ce-tool-btn:hover,
+.ce-tool-group .ce-shift-btn:hover {
+  background: color-mix(in srgb, var(--secondary) 18%, transparent);
+  color: var(--text);
 }
 .ce-section-lbl {
   font-family: inherit;
@@ -6944,10 +6983,11 @@ body.crt-mode #crt-overlay::after {
   width: 28px;
   align-self: center;
   border-radius: 0;
-  margin-left: 4px;
+  margin-left: auto;
+  flex-shrink: 0;
   transition: background 0.12s, color 0.12s;
 }
-.ce-xbtn:hover { background: rgba(0,0,0,0.08); color: var(--text); }
+.ce-xbtn:hover { color: var(--text); }
 .ce-body {
   display: flex;
   flex-direction: row;
@@ -7180,7 +7220,7 @@ body.crt-mode #crt-overlay::after {
   max-height: 98vh;
   overflow: hidden;
 }
-.cc-dialog::backdrop { background: rgba(0,0,0,0.6); }
+.cc-dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
 .cc-card {
   height: 100%;
   background: var(--panel);
@@ -7206,7 +7246,7 @@ body.crt-mode #crt-overlay::after {
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
-  padding: 7px 12px;
+  padding: 8px 12px;
   border-bottom: 1px solid var(--panel-border);
   flex-shrink: 0;
 }
@@ -7445,7 +7485,16 @@ body.crt-mode #crt-overlay::after {
   color: var(--text);
   white-space: nowrap;
 }
-.me-toolbar { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+/* Külön toolbar sor a title bar alatt (Hires minta) */
+.me-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--panel-border);
+  flex-shrink: 0;
+}
 .me-tool-group { display: flex; gap: 2px; background: var(--control-bg); border: 1px solid var(--panel-border); border-radius: 2px; padding: 2px; }
 .me-tool {
   font-family: inherit;
@@ -7503,7 +7552,7 @@ body.crt-mode #crt-overlay::after {
   min-height: 0;
 }
 .me-export-menu button:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); }
-.me-tb-right { margin-left: 20px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.me-tb-right { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .me-check {
   display: flex;
   align-items: center;
