@@ -187,12 +187,32 @@ test("demo export (8-bit, 256 entries) uses automatic index wrap", () => {
   assert.match(demo, /adc #\$40/);                   // step lo of $0140 = 1.25 px/frame
 });
 
-test("demo export (16-bit) drives sprite X via the lo/hi reader", () => {
+test("demo export (16-bit) sweeps X and drives Y via the scaled demo reader", () => {
   const { ctx } = run({ ...DEFAULTS, bits: 16, curve: "easeOutBounce", start: 0, end: 320, count: 114, label: "table" });
   const demo = ctx._cgExportDemoAsm();
-  assert.match(demo, /jsr table_set_x/);
+  assert.match(demo, /jsr table_demo_y/);            // Y = table[idx] scaled to 0..200
+  assert.match(demo, /table_demo_y:/);
+  assert.match(demo, /asl vtmp/);                    // 16-bit v*4
+  assert.match(demo, /adc table_lo,x/);              // +v -> v*5
+  assert.match(demo, /lsr vtmp\+1/);                 // (v*5) >> 3 scaling
+  assert.match(demo, /sta \$d001/i);                 // sprite 0 Y register
   assert.match(demo, /table_lo:/);
   assert.match(demo, /table_hi:/);
-  assert.doesNotMatch(demo, /xfrac/);                // no sweep in 16-bit mode
+  assert.match(demo, /table_set_x:/);                // native sprite-X reader still included
+  assert.match(demo, /xpos:/);                       // X sweep vars, like the 8-bit demo
+  assert.match(demo, /xfrac:/);
+  assert.doesNotMatch(demo, /ypos|yfrac/);           // no Y sweep anymore
+  assert.match(demo, /adc #\$D5/);                   // X sweep step lo: round(320*256/113) = $02D5
+  assert.match(demo, /ora #%00000001/);              // $D010 MSB set
   assert.match(demo, /cmp #\$72/);
+});
+
+test("demo export (16-bit, 256 entries) resets the X sweep on automatic wrap", () => {
+  const { ctx } = run({ ...DEFAULTS, bits: 16, curve: "linear", start: 0, end: 320, count: 256, label: "table" });
+  const demo = ctx._cgExportDemoAsm();
+  assert.match(demo, /inc idx\s+; 256 entries -> wraps automatically/);
+  assert.match(demo, /bne main/);
+  assert.match(demo, /sta xpos/);
+  assert.match(demo, /sta xfrac/);
+  assert.match(demo, /adc #\$40/);                   // X step lo of $0140 = 1.25 px/frame
 });

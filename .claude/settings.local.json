@@ -168,7 +168,10 @@
       "Bash(awk 'NR>=7785 && NR<=7830 {print NR\": \"$0}' www/style.css)",
       "Bash(grep -nE \"^\\\\`2\\\\.2\\\\.6\\\\`|Fő 2\\\\.2\\\\.6\" CLAUDE.md AGENTS.md .github/copilot-instructions.md)",
       "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('package.json','utf8'\\)\\);JSON.parse\\(require\\('fs'\\).readFileSync\\('src-tauri/tauri.conf.json','utf8'\\)\\);console.log\\('JSON ok'\\)\")",
-      "Bash(awk 'NR>=7201 && NR<=7310' www/style.css)"
+      "Bash(awk 'NR>=7201 && NR<=7310' www/style.css)",
+      "Bash(awk '/id=\"curve-gen-dialog\"/,/cg-body/' www/index.html)",
+      "Bash(awk '/const _CG_STATE = \\\\{/,/^\\\\};/' www/app.js)",
+      "Bash(grep -n 'adc.*xfrac\\\\|adc #\\\\$CF\\\\|step = ' www/app.js)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"
