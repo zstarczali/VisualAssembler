@@ -1419,6 +1419,10 @@ function initPalette() {
       });
     });
     dlg?.showModal();
+    // Focus the Close button so Enter / Space immediately dismisses the dialog
+    // (browsers autofocus the first form control otherwise, which lands on a
+    // link and makes Enter trigger the mailto/openExternal handler instead).
+    requestAnimationFrame(() => aboutCloseButton?.focus());
   });
   helpManualButton?.addEventListener("click", () => {
     window.electronAPI?.openManual();
@@ -2901,7 +2905,7 @@ function _applyEditorTranslations() {
   const hint = document.getElementById("c64-chrrom-info-hint");
   if (hint && !hint.hidden) hint.textContent = t("chrromHint");
   // Character Editor
-  setText(".ce-hdr-titles .ce-section-lbl", t("ceEditorLabel"));
+  setText(".ce-hdr-titles .ce-title", t("ceEditorLabel"));
   setText(".ce-map-lbl", t("ceMapLabel"));
   setAttr("#ce-clear", t("ceClear"));
   setAttr("#ce-invert", t("ceInvert"));
@@ -3067,6 +3071,7 @@ function _applyEditorTranslations() {
   setText("#sid-export-data", t("sidExportData"));
   setText("#sid-export-player", t("sidExportPlayer"));
   setText("#sid-export-asm", t("sidExportAsm"));
+  setText("#cg-export-demo", t("cgExportDemo"));
   setText(".sid-inst-row .sid-lbl", t("sidInstrumentLabel"));
   setAttr("#sid-inst-add", t("sidAddInstrument"));
   setAttr("#sid-preview", t("sidPreview"));
@@ -7995,11 +8000,17 @@ function _addSrcLineToBlocks(text, blocks) {
 
 // Universal "Export to blocks" helper used by SID / sprite / char / etc. editors.
 // Parses asm text and appends the resulting blocks to the active program[].
+// `insertTag` (optional) stamps `_cgSource` on every inserted block so a later
+// insert can replace this batch. The tag is set on the block objects BEFORE any
+// expert-mode rebuild — positional tagging after a rebuild misses blocks,
+// because a rebuild can change the block count (BYTE blocks render as chunks
+// of 8 per line, so one parsed block can become two after a sync round-trip).
 // Returns the number of blocks inserted.
-function exportAsmToBlocks(asmText) {
+function exportAsmToBlocks(asmText, insertTag) {
   if (!asmText) return 0;
   const newBlocks = parseExpertText(asmText);
   if (!newBlocks.length) return 0;
+  if (insertTag) newBlocks.forEach(b => { b._cgSource = insertTag; });
   const insertAt = program.length;
   for (let i = 0; i < newBlocks.length; i++) program.splice(insertAt + i, 0, newBlocks[i]);
   markTabDirty();
@@ -8013,6 +8024,34 @@ function _expertBuildProgramFromText(text, stateSource = program) {
   const blocks = parseExpertText(text);
   _addSrcLineToBlocks(text, blocks);
   _expertCopyRegionFoldState(stateSource, blocks);
+
+  // Preserve editor-insert tags (Curve Editor `_cgSource`) across expert rebuilds.
+  // A block can render as several text lines (BYTE blocks chunk 8 values per
+  // line), so match by rendered line SPAN: verify each tagged block's render
+  // against the text at its cumulative position, then tag every rebuilt block
+  // whose source line falls inside a verified span. When the user edited the
+  // text by hand the slices stop matching and nothing is copied (safe fallback).
+  if (stateSource.some(b => b && b._cgSource)) {
+    const textLines = String(text || "").split("\n");
+    const taggedSpans = [];
+    let lineNo = 0;
+    stateSource.forEach(b => {
+      if (!b) return;
+      const rendered = _blockToExpertLine(b);
+      const span = rendered.split("\n").length;
+      if (b._cgSource && textLines.slice(lineNo, lineNo + span).join("\n") === rendered) {
+        taggedSpans.push({ start: lineNo, end: lineNo + span, tag: b._cgSource });
+      }
+      lineNo += span;
+    });
+    if (taggedSpans.length) {
+      blocks.forEach(b => {
+        if (!b || b._srcLine === undefined || b._cgSource) return;
+        const m = taggedSpans.find(sp => b._srcLine >= sp.start && b._srcLine < sp.end);
+        if (m) b._cgSource = m.tag;
+      });
+    }
+  }
 
   // Preserve binary data from existing program[] blocks — can't be encoded in text form.
   // Match by filename so loaded bytes survive mode-switches and compile calls.
@@ -29949,3 +29988,890 @@ function _sidSetOctave(o) {
   const el = document.getElementById("sid-oct-val");
   if (el) el.textContent = _sidOctave;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * Curve / Easing Table Generator
+ * Produces .byte tables for Kick Assembler: pick a curve (sine, easings,
+ * triangle, sawtooth, square, bounce), configure start/end/count/cycles/phase,
+ * see it graphed live, watch a bouncing-ball preview, then Copy or Insert
+ * into the current program.
+ * ═══════════════════════════════════════════════════════════════════════ */
+const _CG_STATE = {
+  curve: "sine",
+  start: 0,
+  end: 255,
+  count: 256,
+  cycles: 1,
+  phase: 270,
+  combine: false,
+  curve2: "cosine",
+  curve2Cycles: 1,
+  curve2Phase: 270,
+  mix: 50,
+  combineMode: "mix",
+  label: "sinusTable",
+  base: "hex",
+  perLine: 16,
+  bits: 8,            // 8 = single .byte table; 16 = lo/hi split byte-table pair
+  emitReader: false,  // also emit a sprite reader routine (8-bit: Y reader; 16-bit: X reader)
+  spriteNum: 0,       // 16-bit reader: which sprite (0..7) the routine targets
+  tempo: 50,
+  animPlaying: true,
+  animIndex: 0,
+  animLastTime: 0,
+  animRaf: 0,
+  samples: null,
+  samples1: null,   // curve 1 alone (for graph overlay in combine mode)
+  samples2: null,   // curve 2 alone
+};
+
+/* Curve library. Each fn takes t in 0..1 (+ optional phase in radians) and
+ * returns a value in 0..1. Only sine/cosine use phase. */
+const _CG_CURVES = (function() {
+  const bounceOut = (t) => {
+    const n = 7.5625, d = 2.75;
+    if (t < 1 / d) return n * t * t;
+    if (t < 2 / d) { t -= 1.5 / d; return n * t * t + 0.75; }
+    if (t < 2.5 / d) { t -= 2.25 / d; return n * t * t + 0.9375; }
+    t -= 2.625 / d; return n * t * t + 0.984375;
+  };
+  const bounceIn = (t) => 1 - bounceOut(1 - t);
+  return {
+    sine: (t, ph) => 0.5 - 0.5 * Math.cos(2 * Math.PI * t + ph),
+    cosine: (t, ph) => 0.5 + 0.5 * Math.cos(2 * Math.PI * t + ph),
+    linear: (t) => t,
+    easeInQuad: (t) => t * t,
+    easeOutQuad: (t) => 1 - (1 - t) * (1 - t),
+    easeInOutQuad: (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2,
+    easeInCubic: (t) => t * t * t,
+    easeOutCubic: (t) => 1 - Math.pow(1 - t, 3),
+    easeInOutCubic: (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
+    easeInCirc: (t) => 1 - Math.sqrt(1 - t * t),
+    easeOutCirc: (t) => Math.sqrt(1 - (t - 1) * (t - 1)),
+    triangle: (t) => 1 - Math.abs(2 * t - 1),
+    sawtooth: (t) => t,
+    square: (t) => t < 0.5 ? 0 : 1,
+    easeInBounce: bounceIn,
+    easeOutBounce: bounceOut,
+    easeInOutBounce: (t) => t < 0.5 ? 0.5 * bounceIn(2 * t) : 0.5 + 0.5 * bounceOut(2 * t - 1),
+  };
+})();
+const _CG_CURVE_LABELS = {
+  sine: "Sine", cosine: "Cosine", linear: "Linear",
+  easeInQuad: "Ease In (Quad)", easeOutQuad: "Ease Out (Quad)", easeInOutQuad: "Ease InOut (Quad)",
+  easeInCubic: "Ease In (Cubic)", easeOutCubic: "Ease Out (Cubic)", easeInOutCubic: "Ease InOut (Cubic)",
+  easeInCirc: "Ease In (Circ)", easeOutCirc: "Ease Out (Circ)",
+  triangle: "Triangle", sawtooth: "Sawtooth", square: "Square",
+  easeInBounce: "Ease In Bounce", easeOutBounce: "Ease Out Bounce", easeInOutBounce: "Ease InOut Bounce",
+};
+/* Which curves need Cycles / Phase controls exposed. */
+const _CG_CYCLIC = new Set(["sine","cosine","triangle","sawtooth","square"]);
+const _CG_PHASED = new Set(["sine","cosine"]);
+
+function _cgSampleCurve(name, t, phaseRad, cycles) {
+  const fn = _CG_CURVES[name] || _CG_CURVES.sine;
+  const tt = _CG_CYCLIC.has(name) ? ((t * cycles) % 1 + 1) % 1 : t;
+  return fn(tt, phaseRad || 0);
+}
+
+function _cgCombine(v1, v2, mode, amount) {
+  // amount 0..1 — how much of v2 to blend/apply on top of v1.
+  const w = Math.max(0, Math.min(1, amount));
+  switch (mode) {
+    case "add":  return Math.max(0, Math.min(1, v1 + v2 * w));
+    case "mul":  return Math.max(0, Math.min(1, v1 * (v2 * w + (1 - w))));
+    case "min":  return Math.min(v1, v2 * w + v1 * (1 - w));
+    case "max":  return Math.max(v1, v2 * w);
+    case "sub":  return Math.max(0, Math.min(1, v1 - v2 * w));
+    case "mix":
+    default:     return v1 * (1 - w) + v2 * w;
+  }
+}
+
+/* Max representable / reference value for the current bit depth.
+ * 8-bit → 255 (one byte). 16-bit → 320 (C64 screen width, the sprite-X use
+ * case) so the graph scales to screen coordinates, not the full 0..65535. */
+function _cgRefMax() {
+  return _CG_STATE.bits === 16 ? 320 : 255;
+}
+
+function _cgGenerateSamples() {
+  const s = _CG_STATE;
+  const n = Math.max(2, Math.min(4096, s.count | 0));
+  const refMax = _cgRefMax();
+  const lo = Math.max(0, Math.min(refMax, s.start | 0));
+  const hi = Math.max(0, Math.min(refMax, s.end | 0));
+  const phase1 = (s.phase / 360) * 2 * Math.PI;
+  const phase2 = (s.curve2Phase / 360) * 2 * Math.PI;
+  // Uint16Array holds both depths (0..320 fits in 16 bits); the graph and the
+  // formatter read the value range from _cgRefMax(), not a fixed 255.
+  const out = new Uint16Array(n);
+  const guide1 = new Uint16Array(n);
+  const guide2 = s.combine ? new Uint16Array(n) : null;
+  const amount = s.mix / 100;
+  const clampV = (raw) => Math.max(0, Math.min(refMax, Math.round(lo + (hi - lo) * Math.max(0, Math.min(1, raw)))));
+  for (let i = 0; i < n; i++) {
+    const t = i / n;
+    const v1 = _cgSampleCurve(s.curve, t, phase1, s.cycles);
+    guide1[i] = clampV(v1);
+    let v = v1;
+    if (s.combine) {
+      const v2 = _cgSampleCurve(s.curve2, t, phase2, s.curve2Cycles);
+      guide2[i] = clampV(v2);
+      v = _cgCombine(v1, v2, s.combineMode, amount);
+    }
+    out[i] = clampV(v);
+  }
+  s.samples = out;
+  s.samples1 = guide1;
+  s.samples2 = guide2;
+  return out;
+}
+
+function _cgFormatBytes() {
+  const s = _CG_STATE;
+  const samples = s.samples;
+  if (!samples) return "";
+  const per = Math.max(1, s.perLine | 0);
+  const asHex = s.base === "hex";
+  const cell = (b) => asHex ? "$" + b.toString(16).toUpperCase().padStart(2, "0") : String(b);
+  const label = s.label || "table";
+  const n = samples.length;
+  let minV = 320, maxV = 0;
+  for (let i = 0; i < n; i++) {
+    if (samples[i] < minV) minV = samples[i];
+    if (samples[i] > maxV) maxV = samples[i];
+  }
+  const curveName = _CG_CURVE_LABELS[s.curve] || s.curve;
+  const curveDesc = curveName + (s.combine ? " + " + (_CG_CURVE_LABELS[s.curve2] || s.curve2) : "");
+  const combineLine = s.combine ? "; Combine: " + s.combineMode + " - Amount " + s.mix + "%" : null;
+
+  const emitTable = (lines, name, arr) => {
+    lines.push(name + ":");
+    for (let i = 0; i < arr.length; i += per) {
+      const chunk = Array.from(arr.slice(i, i + per)).map(cell).join(", ");
+      lines.push("    .byte " + chunk);
+    }
+  };
+
+  const lines = [];
+  if (s.bits === 16) {
+    // 16-bit values (0..320) don't fit in one byte, so split into two parallel
+    // byte tables indexed by the SAME X: lo = low 8 bits, hi = 9th bit / MSB.
+    const loArr = Uint8Array.from(samples, (v) => v & 0xFF);
+    const hiArr = Uint8Array.from(samples, (v) => (v >> 8) & 0xFF);   // 0 or 1
+    const sp = Math.max(0, Math.min(7, s.spriteNum | 0));
+    const xLo = "$" + (0xD000 + sp * 2).toString(16).toUpperCase();   // sprite X lo reg
+    lines.push("; -----------------------------------------------");
+    lines.push("; Curve Editor - " + curveDesc + "  (16-bit, sprite " + sp + ")");
+    lines.push("; Range: " + minV + ".." + maxV + "   Count: " + n + " entries (" + (n * 2) + " bytes)");
+    lines.push("; Two parallel tables, index BOTH with the same X:");
+    lines.push(";   " + label + "_lo[X] = low 8 bits  -> " + xLo);
+    lines.push(";   " + label + "_hi[X] = 9th bit (0/1) -> $D010 bit " + sp);
+    if (combineLine) lines.push(combineLine);
+    lines.push("; -----------------------------------------------");
+    emitTable(lines, label + "_lo", loArr);
+    emitTable(lines, label + "_hi", hiArr);
+    if (s.emitReader) {
+      const bit = 1 << sp;
+      const inv = (~bit) & 0xFF;
+      const maskHex = "%" + inv.toString(2).padStart(8, "0");
+      lines.push("");
+      lines.push("; --- Set sprite " + sp + " X from the 16-bit table (index in X) ---");
+      lines.push("; Usage:  LDX #index  /  JSR " + label + "_set_x");
+      lines.push(label + "_set_x:");
+      lines.push("    lda " + label + "_lo,x");
+      lines.push("    sta " + xLo + "           ; sprite " + sp + " X low byte");
+      lines.push("    lda " + label + "_hi,x");
+      lines.push("    beq " + label + "_clr_msb");
+      lines.push("    lda $D010");
+      lines.push("    ora #" + ("%" + bit.toString(2).padStart(8, "0")) + "   ; set sprite " + sp + " MSB");
+      lines.push("    sta $D010");
+      lines.push("    rts");
+      lines.push(label + "_clr_msb:");
+      lines.push("    lda $D010");
+      lines.push("    and #" + maskHex + "   ; clear sprite " + sp + " MSB");
+      lines.push("    sta $D010");
+      lines.push("    rts");
+    }
+  } else {
+    lines.push("; -----------------------------------------------");
+    lines.push("; Curve Editor - " + curveDesc);
+    lines.push("; Range: " + minV + ".." + maxV + "   Count: " + n + " bytes");
+    lines.push("; X (index): 0.." + (n - 1) + "  ->  Y (value): " + label + "[X]");
+    lines.push("; Usage:  LDX #index  /  LDA " + label + ",X  -> value in A");
+    if (combineLine) lines.push(combineLine);
+    lines.push("; -----------------------------------------------");
+    emitTable(lines, label, samples);
+    if (s.emitReader) {
+      // 8-bit values fit the sprite Y register directly — one LDA/STA is the
+      // whole reader. Register base $D001 + sprite*2 (Y regs interleave with X).
+      const sp = Math.max(0, Math.min(7, s.spriteNum | 0));
+      const yReg = "$" + (0xD001 + sp * 2).toString(16).toUpperCase();
+      lines.push("");
+      lines.push("; --- Set sprite " + sp + " Y from the table (index in X) ---");
+      lines.push("; Usage:  LDX #index  /  JSR " + label + "_set_y");
+      lines.push(label + "_set_y:");
+      lines.push("    lda " + label + ",x");
+      lines.push("    sta " + yReg + "           ; sprite " + sp + " Y");
+      lines.push("    rts");
+    }
+  }
+  return lines.join("\n");
+}
+
+/* Build a complete, runnable demo program around the current table (sprite
+ * init + raster-synced main loop + embedded table + ball sprite data).
+ * Both modes look like the editor graph: X sweeps the full 0..320 width
+ * linearly (8.8 fixed point + $D010 MSB) while the table drives sprite Y.
+ * 8-bit: Y = table[idx] directly. 16-bit: Y = table[idx] scaled 0..320->0..200
+ * by the generated <label>_demo_y routine (the native <label>_set_x reader is
+ * still included for real sprite-X use). DOM-free on purpose so the
+ * unit tests can exercise it (see tests/curve-generator.test.js). */
+function _cgExportDemoAsm() {
+  const s = _CG_STATE;
+  const label = s.label || "table";
+  const curveName = _CG_CURVE_LABELS[s.curve] || s.curve;
+  const n = s.samples ? s.samples.length : Math.max(2, Math.min(4096, s.count | 0));
+  const wrap = Math.min(256, n);   // LDA abs,X can only reach the first 256 entries
+  const is16 = s.bits === 16;
+  const hex2 = (v) => "$" + (v & 0xFF).toString(16).toUpperCase().padStart(2, "0");
+
+  const savedEmit = s.emitReader;
+  s.emitReader = true;             // the demo always needs the reader routine
+  const tableText = _cgFormatBytes();
+  s.emitReader = savedEmit;
+
+  const lines = [];
+  lines.push("; ===============================================================");
+  lines.push("; Curve Editor demo - " + curveName + " (sprite 0, embedded table)");
+  if (is16) {
+    lines.push("; X sweeps 0..320, Y = table[idx] scaled 0..320 -> 0..200 -");
+    lines.push("; matches the Curve Editor preview. One table step per frame.");
+    lines.push("; (" + label + "_set_x is included for native sprite-X use.)");
+  } else {
+    lines.push("; X sweeps the screen linearly, the table drives sprite Y -");
+    lines.push("; matches the Curve Editor preview. One table step per frame.");
+  }
+  if (n > 256) lines.push("; NOTE: table has " + n + " entries; the demo loops over the first 256.");
+  lines.push("; ===============================================================");
+  lines.push("");
+  lines.push("* = $0801");
+  lines.push("");
+  lines.push("start:");
+  lines.push("    sei");
+  lines.push("");
+  lines.push("    lda #$00");
+  lines.push("    sta $d020            ; border black");
+  lines.push("    sta $d021            ; background black");
+  lines.push("");
+  lines.push("    .sprite_init 0, 7, $80   ; sprite 0, yellow, data page $80 ($2000)");
+  lines.push("    .sprite_pos 0, 24, 120");
+  lines.push("");
+  lines.push("    lda #$00");
+  lines.push("    sta idx");
+  lines.push("    sta xpos             ; 16-bit sprite X, integer part");
+  lines.push("    sta xpos+1");
+  lines.push("    sta xfrac            ; fractional accumulator (8.8 fixed point)");
+  lines.push("");
+  lines.push("main:");
+  lines.push("    .wait_raster $f8");
+  lines.push("");
+  lines.push("    ldx idx");
+  lines.push(is16
+    ? "    jsr " + label + "_demo_y  ; sprite Y = table[idx] scaled to 0..200"
+    : "    jsr " + label + "_set_y  ; sprite Y = table[idx]");
+  // 256 entries auto-wrap on INC → divisor N (each frame = one step of 320/N);
+  // shorter tables use explicit `cmp #N` → divisor N-1 so the sweep reaches
+  // 320 exactly on the last frame before wrapping.
+  const denom = wrap === 256 ? 256 : Math.max(1, wrap - 1);
+  const step = Math.max(1, Math.round(320 * 256 / denom));
+  lines.push("");
+  lines.push("    ; X += 320/" + wrap + " px per frame (8.8 fixed point, step = " + step + " = $" + step.toString(16).toUpperCase().padStart(4, "0") + ")");
+  lines.push("    lda xfrac");
+  lines.push("    clc");
+  lines.push("    adc #" + hex2(step));
+  lines.push("    sta xfrac");
+  lines.push("    lda xpos");
+  lines.push("    adc #" + hex2(step >> 8));
+  lines.push("    sta xpos");
+  lines.push("    lda xpos+1");
+  lines.push("    adc #$00");
+  lines.push("    sta xpos+1");
+  lines.push("");
+  lines.push("    lda xpos");
+  lines.push("    sta $d000            ; sprite 0 X low byte");
+  lines.push("    lda xpos+1");
+  lines.push("    beq demo_clr_msb");
+  lines.push("    lda $d010");
+  lines.push("    ora #%00000001       ; set sprite 0 MSB (X > 255)");
+  lines.push("    sta $d010");
+  lines.push("    jmp demo_next");
+  lines.push("demo_clr_msb:");
+  lines.push("    lda $d010");
+  lines.push("    and #%11111110       ; clear sprite 0 MSB");
+  lines.push("    sta $d010");
+  lines.push("demo_next:");
+  if (wrap === 256) {
+    lines.push("    inc idx              ; 256 entries -> wraps automatically");
+    lines.push("    bne main");
+    lines.push("    lda #$00             ; X back to the left edge");
+    lines.push("    sta xpos");
+    lines.push("    sta xpos+1");
+    lines.push("    sta xfrac");
+    lines.push("    jmp main");
+  } else {
+    lines.push("    inc idx");
+    lines.push("    lda idx");
+    lines.push("    cmp #" + hex2(wrap) + "             ; " + wrap + " entries -> wrap back to 0");
+    lines.push("    bcc main");
+    lines.push("    lda #$00");
+    lines.push("    sta idx");
+    lines.push("    sta xpos");
+    lines.push("    sta xpos+1");
+    lines.push("    sta xfrac");
+    lines.push("    jmp main");
+  }
+  lines.push("");
+  lines.push("idx:");
+  lines.push("    .byte $00");
+  lines.push("xpos:");
+  lines.push("    .word $0000");
+  lines.push("xfrac:");
+  lines.push("    .byte $00");
+  if (is16) {
+    lines.push("vtmp:");
+    lines.push("    .word $0000");
+    lines.push("");
+    // Demo-only reader: scale the 0..320 table value down to the visible
+    // height (0..200) so the curve renders like the editor graph. Exact
+    // v*200/320 as (v*5)>>3 in 16 bits — the cheaper (v>>3)*5 order would
+    // quantize Y to 5 px steps and the ball visibly stair-steps.
+    lines.push("; --- Demo reader: Y = table[idx] * 200 / 320 (index in X) ---");
+    lines.push(label + "_demo_y:");
+    lines.push("    lda " + label + "_lo,x");
+    lines.push("    sta vtmp             ; value low byte");
+    lines.push("    lda " + label + "_hi,x");
+    lines.push("    sta vtmp+1           ; 9th bit");
+    lines.push("    asl vtmp");
+    lines.push("    rol vtmp+1           ; v*2");
+    lines.push("    asl vtmp");
+    lines.push("    rol vtmp+1           ; v*4 (max 1280)");
+    lines.push("    lda vtmp");
+    lines.push("    clc");
+    lines.push("    adc " + label + "_lo,x ; +v low byte");
+    lines.push("    sta vtmp");
+    lines.push("    lda vtmp+1");
+    lines.push("    adc " + label + "_hi,x ; +v 9th bit -> v*5 (max 1600)");
+    lines.push("    sta vtmp+1");
+    lines.push("    lsr vtmp+1");
+    lines.push("    ror vtmp             ; /2");
+    lines.push("    lsr vtmp+1");
+    lines.push("    ror vtmp             ; /4");
+    lines.push("    lsr vtmp+1");
+    lines.push("    ror vtmp             ; /8 -> 0..200, 1 px steps");
+    lines.push("    lda vtmp");
+    lines.push("    sta $d001            ; sprite 0 Y");
+    lines.push("    rts");
+  }
+  lines.push("");
+  lines.push(tableText);
+  lines.push("");
+  lines.push("* = $2000");
+  lines.push("");
+  lines.push("; sprite 0 data: ball (64 bytes, 64-aligned)");
+  lines.push("sprite_ball:");
+  // Same ball shape as samples/ball.asm, inlined so the demo is self-contained.
+  const ballRows = [
+    "$00,$00,$00", "$00,$3C,$00", "$01,$FF,$80", "$07,$FF,$E0", "$0F,$FF,$F0",
+    "$1F,$FF,$F8", "$3F,$FF,$FC", "$3F,$FF,$FC", "$7F,$FF,$FE", "$7F,$FF,$FE",
+    "$7F,$FF,$FE", "$7F,$FF,$FE", "$7F,$FF,$FE", "$3F,$FF,$FC", "$3F,$FF,$FC",
+    "$1F,$FF,$F8", "$0F,$FF,$F0", "$07,$FF,$E0", "$01,$FF,$80", "$00,$3C,$00",
+    "$00,$00,$00"
+  ];
+  ballRows.forEach((row) => lines.push("    .byte " + row));
+  lines.push("    .byte $00");
+  return lines.join("\n");
+}
+
+function _cgUpdateOutput() {
+  const s = _CG_STATE;
+  const outEl = document.getElementById("cg-output");
+  if (outEl) outEl.value = _cgFormatBytes();
+  const bytesEl = document.getElementById("cg-meta-bytes");
+  if (bytesEl) {
+    const nb = s.samples ? (s.bits === 16 ? s.samples.length * 2 : s.samples.length) : 0;
+    bytesEl.textContent = nb + " Bytes" + (s.bits === 16 ? " (lo+hi)" : "");
+  }
+  let minV = 320, maxV = 0;
+  if (s.samples) for (let i = 0; i < s.samples.length; i++) {
+    if (s.samples[i] < minV) minV = s.samples[i];
+    if (s.samples[i] > maxV) maxV = s.samples[i];
+  } else { minV = 0; }
+  const rangeEl = document.getElementById("cg-meta-range");
+  if (rangeEl) rangeEl.textContent = "Min " + minV + " · Max " + maxV;
+  const curveEl = document.getElementById("cg-meta-curve");
+  if (curveEl) {
+    const c1 = _CG_CURVE_LABELS[s.curve] || s.curve;
+    const c2 = _CG_CURVE_LABELS[s.curve2] || s.curve2;
+    curveEl.textContent = s.combine ? (c1 + " + " + c2) : c1;
+  }
+  const hintEl = document.getElementById("cg-output-hint");
+  if (hintEl) hintEl.textContent = (s.base === "hex" ? "Hex" : "Dec") + " · " + s.perLine + " per line";
+}
+
+function _cgDrawGraph() {
+  const s = _CG_STATE;
+  const canvas = document.getElementById("cg-graph");
+  if (!canvas || !s.samples) return;
+  // Match backing store to CSS size for crisp rendering — but only when the
+  // canvas has actually been laid out. Right after showModal() the rect can
+  // still be 0×0; in that case fall back to the HTML width/height attributes.
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  if (rect.width > 0 && rect.height > 0) {
+    const wantW = Math.round(rect.width * dpr);
+    const wantH = Math.round(rect.height * dpr);
+    if (canvas.width !== wantW || canvas.height !== wantH) {
+      canvas.width = wantW; canvas.height = wantH;
+    }
+  }
+  const ctx = canvas.getContext("2d");
+  const W = rect.width > 0 ? rect.width : canvas.width;
+  const H = rect.height > 0 ? rect.height : canvas.height;
+  ctx.setTransform(rect.width > 0 ? dpr : 1, 0, 0, rect.width > 0 ? dpr : 1, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  // Grid
+  ctx.strokeStyle = "rgba(255,255,255,0.06)";
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = (H - 1) * (i / 4);
+    ctx.beginPath(); ctx.moveTo(0, y + 0.5); ctx.lineTo(W, y + 0.5); ctx.stroke();
+  }
+  // Y-axis labels (top=0, bottom=refMax) — C64 screen convention so what you
+  // see here matches how sprite Y ($D001) or sprite X positions look on the
+  // real machine. refMax is 255 for 8-bit, 320 for 16-bit (screen width).
+  const refMax = _cgRefMax();
+  ctx.fillStyle = "rgba(255,255,255,0.35)";
+  ctx.font = "10px monospace";
+  [0, 1, 2, 3, 4].forEach((i) => {
+    const lbl = String(Math.round(refMax * i / 4));
+    ctx.fillText(lbl, 4, 12 + i * (H - 12) / 4);
+  });
+  const n = s.samples.length;
+  const xAt = (i) => (i / (n - 1)) * (W - 30) + 25;
+  // Screen-space Y: value 0 sits at the top, refMax at the bottom — same as
+  // C64 sprite Y ($D001) and raster line addressing. This lets the preview
+  // look exactly like what the byte table will drive on real hardware.
+  const yAt = (v) => 6 + (v / refMax) * (H - 18);
+  const drawCurve = (arr, color, dashed) => {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = dashed ? 1.2 : 2;
+    ctx.setLineDash(dashed ? [4, 4] : []);
+    ctx.beginPath();
+    for (let i = 0; i < n; i++) {
+      const x = xAt(i), y = yAt(arr[i]);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  };
+  // In combine mode, draw source curves as dashed guides underneath the combined line.
+  if (s.combine && s.samples1 && s.samples2) {
+    drawCurve(s.samples1, "rgba(251,146,60,0.65)", true);   // curve 1 = orange dashed
+    drawCurve(s.samples2, "rgba(96,165,250,0.65)", true);   // curve 2 = blue dashed
+  }
+  drawCurve(s.samples, "#4ade80", false);                    // combined / main = solid green
+  ctx.setLineDash([]);
+}
+
+function _cgDrawAnimation() {
+  const s = _CG_STATE;
+  const canvas = document.getElementById("cg-anim");
+  if (!canvas || !s.samples) return;
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  if (rect.width > 0 && rect.height > 0) {
+    const wantW = Math.round(rect.width * dpr);
+    const wantH = Math.round(rect.height * dpr);
+    if (canvas.width !== wantW || canvas.height !== wantH) {
+      canvas.width = wantW; canvas.height = wantH;
+    }
+  }
+  const ctx = canvas.getContext("2d");
+  const W = rect.width > 0 ? rect.width : canvas.width;
+  const H = rect.height > 0 ? rect.height : canvas.height;
+  ctx.setTransform(rect.width > 0 ? dpr : 1, 0, 0, rect.width > 0 ? dpr : 1, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  // Grid
+  ctx.strokeStyle = "rgba(255,255,255,0.08)";
+  ctx.lineWidth = 1;
+  for (let i = 1; i < 4; i++) {
+    ctx.beginPath(); ctx.moveTo(0, (H * i) / 4); ctx.lineTo(W, (H * i) / 4); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo((W * i) / 4, 0); ctx.lineTo((W * i) / 4, H); ctx.stroke();
+  }
+  // Ball: X = index/count * width, Y = value/refMax * height (0 top, refMax
+  // bottom) — same orientation as the graph above and as the exported demo
+  // (X sweeps, the table drives Y), in both 8-bit and 16-bit mode.
+  // animIndex is a float (for smooth motion); typed-array lookup needs an int.
+  const refMax = _cgRefMax();
+  const n = s.samples.length;
+  const idxFloat = ((s.animIndex % n) + n) % n;
+  const idxInt = Math.floor(idxFloat);
+  const value = s.samples[idxInt];
+  const x = 20 + (idxFloat / (n - 1)) * (W - 40);
+  const y = 20 + (value / refMax) * (H - 40);
+  // Trail (last ~24 samples)
+  ctx.strokeStyle = "rgba(74,222,128,0.25)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  const trail = Math.min(24, n);
+  for (let k = 0; k < trail; k++) {
+    const i2 = ((idxInt - k) % n + n) % n;
+    const x2 = 20 + (i2 / (n - 1)) * (W - 40);
+    const y2 = 20 + (s.samples[i2] / refMax) * (H - 40);
+    if (k === 0) ctx.moveTo(x2, y2); else ctx.lineTo(x2, y2);
+  }
+  ctx.stroke();
+  // Ball
+  ctx.fillStyle = "#facc15";
+  ctx.beginPath(); ctx.arc(x, y, 8, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = "rgba(0,0,0,0.35)"; ctx.lineWidth = 1.5; ctx.stroke();
+  // Sub-title
+  const sub = document.getElementById("cg-anim-sub");
+  if (sub) sub.textContent = "Index " + idxInt + " · Value " + value;
+}
+
+function _cgAnimTick(now) {
+  const s = _CG_STATE;
+  if (!s.animPlaying || !s.samples) { s.animRaf = 0; return; }
+  if (!s.animLastTime) s.animLastTime = now;
+  const dt = (now - s.animLastTime) / 1000;
+  const advance = dt * Math.max(1, s.tempo);
+  s.animIndex = (s.animIndex + advance) % s.samples.length;
+  s.animLastTime = now;
+  _cgDrawAnimation();
+  s.animRaf = requestAnimationFrame(_cgAnimTick);
+}
+function _cgAnimStart() {
+  const s = _CG_STATE;
+  if (s.animRaf) return;
+  s.animLastTime = 0;
+  s.animRaf = requestAnimationFrame(_cgAnimTick);
+}
+function _cgAnimStop() {
+  const s = _CG_STATE;
+  if (s.animRaf) cancelAnimationFrame(s.animRaf);
+  s.animRaf = 0;
+}
+
+function _cgRefreshAll() {
+  _cgGenerateSamples();
+  _cgUpdateOutput();
+  _cgDrawGraph();
+  _cgDrawAnimation();
+}
+
+/* Play/pause SVG swap for the animation control. Kept in JS so we don't have
+ * to maintain two <svg> subtrees in the HTML. */
+function _cgUpdatePlayButtonIcon() {
+  const btn = document.getElementById("cg-anim-play");
+  if (!btn) return;
+  const playing = _CG_STATE.animPlaying;
+  // Playing → show pause bars; paused → show play triangle.
+  btn.innerHTML = playing
+    ? '<svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13" aria-hidden="true"><path d="M4 3.5h2v9H4zM10 3.5h2v9h-2z"/></svg>'
+    : '<svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13" aria-hidden="true"><path d="M4 3l9 5-9 5V3z"/></svg>';
+  btn.setAttribute("aria-label", playing ? "Pause" : "Play");
+  btn.removeAttribute("title");   // custom tooltip drives from aria-label
+}
+
+/* Hide Cycles / Phase controls for curves that don't have oscillation or phase.
+ * Applies to both the primary curve and the secondary (combine) curve. */
+function _cgApplyControlVisibility() {
+  const s = _CG_STATE;
+  const set = (id, visible) => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = visible ? "" : "none";
+  };
+  set("cg-cycles-field", _CG_CYCLIC.has(s.curve));
+  set("cg-phase-field", _CG_PHASED.has(s.curve));
+  set("cg-curve2-cycles-field", _CG_CYCLIC.has(s.curve2));
+  set("cg-curve2-phase-field", _CG_PHASED.has(s.curve2));
+}
+
+/* Adjust the Start/End range to the current bit depth (8-bit → 0..255,
+ * 16-bit → 0..320) and toggle the reader/sprite controls' visibility. */
+function _cgApplyBitsRange() {
+  const s = _CG_STATE;
+  const refMax = _cgRefMax();
+  ["cg-start", "cg-start-num", "cg-end", "cg-end-num"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.max = String(refMax);
+  });
+  s.start = Math.max(0, Math.min(refMax, s.start | 0));
+  s.end = Math.max(0, Math.min(refMax, s.end | 0));
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = String(v); };
+  setVal("cg-start", s.start); setVal("cg-start-num", s.start);
+  setVal("cg-end", s.end); setVal("cg-end-num", s.end);
+  const setVis = (id, vis) => { const el = document.getElementById(id); if (el) el.style.display = vis ? "" : "none"; };
+  setVis("cg-reader-field", true);
+  setVis("cg-sprite-field", s.emitReader);
+  const readerLbl = document.getElementById("cg-reader-lbl");
+  if (readerLbl) {
+    readerLbl.textContent = s.bits === 16
+      ? "Include sprite-X reader routine (lo/hi + $D010)"
+      : "Include sprite-Y reader routine";
+  }
+}
+
+function _cgSyncSliderPair(sliderId, numId, stateKey, opts) {
+  const { isFloat = false, extra } = opts || {};
+  const slider = document.getElementById(sliderId);
+  const num = document.getElementById(numId);
+  const push = (raw) => {
+    const v = isFloat ? parseFloat(raw) : parseInt(raw, 10);
+    if (isNaN(v)) return;
+    _CG_STATE[stateKey] = v;
+    const str = isFloat ? String(v) : String(v | 0);
+    if (slider && slider.value !== str) slider.value = str;
+    if (num && num.value !== str) num.value = str;
+    if (extra) extra(v);
+    _cgRefreshAll();
+  };
+  slider?.addEventListener("input", (e) => push(e.target.value));
+  num?.addEventListener("input", (e) => push(e.target.value));
+}
+
+function _cgSuggestLabel() {
+  // Auto-rename the label when curve changes, but only if it still looks default.
+  const s = _CG_STATE;
+  const defaultNames = ["sinusTable","cosineTable","linearTable","easeInTable","easeOutTable",
+                        "easeInOutTable","triangleTable","sawtoothTable","squareTable","bounceTable","table"];
+  const el = document.getElementById("cg-label");
+  if (!el) return;
+  if (!defaultNames.includes(el.value.trim())) return;
+  const map = {
+    sine: "sinusTable", cosine: "cosineTable", linear: "linearTable",
+    easeInQuad: "easeInTable", easeOutQuad: "easeOutTable", easeInOutQuad: "easeInOutTable",
+    easeInCubic: "easeInTable", easeOutCubic: "easeOutTable", easeInOutCubic: "easeInOutTable",
+    triangle: "triangleTable", sawtooth: "sawtoothTable", square: "squareTable", bounceOut: "bounceTable",
+  };
+  const newName = map[s.curve] || "table";
+  el.value = newName;
+  s.label = newName;
+}
+
+function _cgOpenDialog() {
+  const dlg = document.getElementById("curve-gen-dialog");
+  if (!dlg) return;
+  if (!dlg.dataset.wired) _cgWireDialog();
+  dlg.dataset.wired = "1";
+  try { dlg.showModal(); } catch(_) { dlg.show(); }
+  _cgApplyControlVisibility();
+  _cgApplyBitsRange();
+  _cgUpdatePlayButtonIcon();
+  // Two RAFs so the canvas has its final CSS size before we compute the DPR-scaled backing store.
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    _cgRefreshAll();
+    if (_CG_STATE.animPlaying) _cgAnimStart();
+  }));
+}
+
+function _cgCloseDialog() {
+  const dlg = document.getElementById("curve-gen-dialog");
+  _cgAnimStop();
+  if (dlg && dlg.open) { try { dlg.close(); } catch(_) {} }
+}
+
+/* Raw table bytes for a .bin save — the same bytes the C64 sees via INCBIN.
+ * 8-bit: N table bytes. 16-bit: N lo bytes followed by N hi bytes (so on the
+ * C64 the file is `<label>_lo` immediately followed by `<label>_hi`). */
+function _cgSamplesToBin() {
+  const s = _CG_STATE;
+  if (!s.samples || !s.samples.length) return new Uint8Array(0);
+  const n = s.samples.length;
+  if (s.bits === 16) {
+    const out = new Uint8Array(n * 2);
+    for (let i = 0; i < n; i++) { out[i] = s.samples[i] & 0xFF; out[n + i] = (s.samples[i] >> 8) & 0xFF; }
+    return out;
+  }
+  return Uint8Array.from(s.samples, (v) => v & 0xFF);
+}
+
+/* Load raw table bytes back into the editor. Interpreted per the current bit
+ * depth: 8-bit → one value per byte; 16-bit → first half = lo bytes, second
+ * half = hi bytes (matching _cgSamplesToBin). The loaded table is shown as-is;
+ * changing any curve control regenerates a fresh curve. */
+function _cgLoadBinBytes(raw) {
+  const s = _CG_STATE;
+  if (!raw || !raw.length) { showViceToast?.("Empty .bin file", true); return; }
+  let samples;
+  if (s.bits === 16) {
+    const n = raw.length >> 1;
+    samples = new Uint16Array(n);
+    for (let i = 0; i < n; i++) samples[i] = raw[i] | (raw[n + i] << 8);
+  } else {
+    samples = Uint16Array.from(raw);
+  }
+  s.samples = samples;
+  s.samples1 = samples;
+  s.samples2 = null;
+  s.count = samples.length;
+  const cnt = document.getElementById("cg-count");
+  const cntNum = document.getElementById("cg-count-num");
+  if (cnt) cnt.value = String(Math.min(samples.length, parseInt(cnt.max, 10) || samples.length));
+  if (cntNum) cntNum.value = String(samples.length);
+  _cgUpdateOutput();
+  _cgDrawGraph();
+  _cgAnimStop();
+  s.animIndex = 0;
+  s.animLastTime = 0;
+  _cgDrawAnimation();
+  if (s.animPlaying) _cgAnimStart();
+  showViceToast?.("Curve loaded (" + samples.length + " value" + (samples.length === 1 ? "" : "s") + ")");
+}
+
+/* Insert generated ASM into the program, replacing whatever the Curve Editor
+ * inserted before. Both Insert and Export use the same shared `_CG_INSERT_KEY`,
+ * so a re-insert never stacks a second copy next to a previous table or demo
+ * (the demo embeds the table — separate keys left both in the program).
+ * Blocks are tagged with `_cgSource = key` at insertion time (see
+ * exportAsmToBlocks) so the next insert can remove the previous batch first;
+ * the tags survive expert-mode rebuilds via `_expertBuildProgramFromText`. */
+const _CG_INSERT_KEY = "curve-editor";
+
+function _cgInsertTagged(txt, key, verb) {
+  if (typeof exportAsmToBlocks !== "function") return;
+  if (!txt) { showViceToast?.("Nothing to insert", true); return; }
+  // Remove blocks tagged with this key from a previous insert.
+  for (let i = program.length - 1; i >= 0; i--) {
+    if (program[i] && program[i]._cgSource === key) program.splice(i, 1);
+  }
+  const count = exportAsmToBlocks(txt, key);
+  if (count > 0) {
+    showViceToast?.(verb + " (" + count + " block" + (count === 1 ? "" : "s") + ")");
+    _cgCloseDialog();
+  } else {
+    showViceToast?.("Insert failed", true);
+  }
+}
+
+function _cgWireDialog() {
+  const s = _CG_STATE;
+  // Curve dropdowns
+  document.getElementById("cg-curve")?.addEventListener("change", (e) => {
+    s.curve = e.target.value;
+    _cgSuggestLabel();
+    _cgApplyControlVisibility();
+    _cgRefreshAll();
+  });
+  document.getElementById("cg-curve2")?.addEventListener("change", (e) => {
+    s.curve2 = e.target.value;
+    _cgApplyControlVisibility();
+    _cgRefreshAll();
+  });
+  document.getElementById("cg-combmode")?.addEventListener("change", (e) => {
+    s.combineMode = e.target.value; _cgRefreshAll();
+  });
+  _cgSyncSliderPair("cg-start", "cg-start-num", "start");
+  _cgSyncSliderPair("cg-end", "cg-end-num", "end");
+  _cgSyncSliderPair("cg-count", "cg-count-num", "count");
+  _cgSyncSliderPair("cg-cycles", "cg-cycles-num", "cycles", { isFloat: true });
+  _cgSyncSliderPair("cg-phase", "cg-phase-num", "phase");
+  _cgSyncSliderPair("cg-curve2-cycles", "cg-curve2-cycles-num", "curve2Cycles", { isFloat: true });
+  _cgSyncSliderPair("cg-curve2-phase", "cg-curve2-phase-num", "curve2Phase");
+  _cgSyncSliderPair("cg-mix", "cg-mix-num", "mix");
+  // Combine toggle
+  document.getElementById("cg-combine")?.addEventListener("change", (e) => {
+    s.combine = !!e.target.checked;
+    const panel = document.getElementById("cg-combine-panel");
+    if (panel) panel.hidden = !s.combine;
+    _cgApplyControlVisibility();
+    _cgRefreshAll();
+  });
+  // Label / base / per-line
+  document.getElementById("cg-label")?.addEventListener("input", (e) => { s.label = e.target.value; _cgUpdateOutput(); });
+  document.getElementById("cg-base")?.addEventListener("change", (e) => { s.base = e.target.value; _cgUpdateOutput(); });
+  document.getElementById("cg-perline")?.addEventListener("change", (e) => { s.perLine = parseInt(e.target.value, 10) || 16; _cgUpdateOutput(); });
+  // Bit depth (8 = single .byte table, 16 = lo/hi split + optional reader)
+  document.getElementById("cg-bits")?.addEventListener("change", (e) => {
+    const prevMax = _cgRefMax();
+    s.bits = parseInt(e.target.value, 10) === 16 ? 16 : 8;
+    // If End sat at the previous depth's max, snap it to the new max so
+    // switching to 16-bit immediately uses the full 0..320 screen width.
+    if (s.end === prevMax) s.end = _cgRefMax();
+    _cgApplyBitsRange();
+    _cgRefreshAll();
+  });
+  document.getElementById("cg-reader")?.addEventListener("change", (e) => {
+    s.emitReader = !!e.target.checked;
+    _cgApplyBitsRange();
+    _cgUpdateOutput();
+  });
+  document.getElementById("cg-sprite-num")?.addEventListener("change", (e) => {
+    s.spriteNum = Math.max(0, Math.min(7, parseInt(e.target.value, 10) || 0));
+    _cgUpdateOutput();
+  });
+  // Tempo
+  const tempoEl = document.getElementById("cg-tempo");
+  const tempoValEl = document.getElementById("cg-tempo-val");
+  tempoEl?.addEventListener("input", (e) => {
+    s.tempo = Math.max(1, parseInt(e.target.value, 10) || 50);
+    if (tempoValEl) tempoValEl.textContent = String(s.tempo);
+  });
+  // Animation controls
+  document.getElementById("cg-anim-play")?.addEventListener("click", () => {
+    s.animPlaying = !s.animPlaying;
+    if (s.animPlaying) _cgAnimStart(); else _cgAnimStop();
+    _cgUpdatePlayButtonIcon();
+  });
+  document.getElementById("cg-anim-restart")?.addEventListener("click", () => {
+    s.animIndex = 0;
+    s.animLastTime = 0;
+    _cgDrawAnimation();
+  });
+  // Copy / Insert
+  document.getElementById("cg-copy")?.addEventListener("click", () => {
+    const txt = _cgFormatBytes();
+    navigator.clipboard.writeText(txt).then(() => {
+      showViceToast?.("Copied to clipboard");
+    }).catch(() => {
+      showViceToast?.("Copy failed", true);
+    });
+  });
+  document.getElementById("cg-insert")?.addEventListener("click", () => {
+    // Shared key: re-inserting replaces the editor's previous output
+    // (table or demo) instead of stacking a copy next to it.
+    _cgInsertTagged(_cgFormatBytes(), _CG_INSERT_KEY, "Inserted");
+  });
+  // Files menu: Save / Load raw table .bin (C64-usable via INCBIN, editor-reloadable)
+  document.getElementById("cg-save-bin")?.addEventListener("click", () => {
+    const bytes = _cgSamplesToBin();
+    if (!bytes.length) { showViceToast?.("Nothing to save", true); return; }
+    _saveBinFile(bytes, (s.label || "curve") + ".bin");
+  });
+  const cgBinFile = document.getElementById("cg-bin-file");
+  document.getElementById("cg-load-bin")?.addEventListener("click", () => { cgBinFile?.click(); });
+  cgBinFile?.addEventListener("change", (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => { _cgLoadBinBytes(new Uint8Array(reader.result)); };
+    reader.readAsArrayBuffer(file);
+    e.target.value = "";
+  });
+  // Files menu: runnable demo (init + main loop + embedded table + sprite data)
+  document.getElementById("cg-export-demo")?.addEventListener("click", () => {
+    // Same shared key as Insert: the demo embeds the table, so it must also
+    // replace a previously inserted standalone table (and vice versa).
+    _cgInsertTagged(_cgExportDemoAsm(), _CG_INSERT_KEY, "Demo inserted");
+  });
+  // Close
+  document.getElementById("cg-close")?.addEventListener("click", _cgCloseDialog);
+  document.getElementById("curve-gen-dialog")?.addEventListener("close", _cgAnimStop);
+}
+
+// Toolbar button wiring — attach once after DOM ready
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("curve-gen-btn")?.addEventListener("click", _cgOpenDialog);
+});

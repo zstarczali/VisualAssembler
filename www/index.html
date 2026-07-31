@@ -12,7 +12,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2.2.6">
+  <link rel="stylesheet" href="style.css?v=2.2.8">
 </head>
 
 <body>
@@ -185,6 +185,9 @@
           </button>
           <button id="sid-editor-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="SID Editor">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><path d="M1.5 8.5h2l1.5-5 2.5 10 2-7 1.5 4h3.5"/></svg>
+          </button>
+          <button id="curve-gen-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Curve Editor">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><path d="M1.5 8c1.5-4 3.5-4 5 0s3.5 4 5 0 2.5-2 3 0"/></svg>
           </button>
           <button id="expert-mode-tb-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Expert mode" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.25" width="15" height="15" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M4 6l2.5 2.5L4 11" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 11h3" stroke-linecap="round"/></svg>
@@ -739,7 +742,7 @@ PRINTABLE CHARACTERS
         <img src="assets/logo.png" alt="C64 Visual Assembler" width="160" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v2.2.6</p>
+      <p class="about-version" id="about-version">v2.2.8</p>
       <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
         dropping instruction blocks.</p>
       <p class="about-sid-credit" id="about-sid-credit"><span id="about-sid-credit-label">Web SID player: WebSid (WebAudio version of Tiny'R'Sid) by Juergen Wothke. GitHub repository:</span> <a href="https://github.com/wothke/websid" target="_blank" rel="noopener noreferrer">https://github.com/wothke/websid</a><br><span id="about-sid-credit-license">(CC BY-NC-SA 4.0)</span></p>
@@ -753,34 +756,28 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.2.6</p>
+      <p class="whats-new-version">v2.2.8</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: Charset Canvas editor</strong> &mdash; paint a full 16&times;16 / 256-character charset as one picture in mono or C64 multicolor character mode, with pencil, eraser, line, rectangle, oval, fill, spray, adjustable intensity, and grid toggle controls.
+          <strong>New: Curve Editor</strong> &mdash; generate <code>.byte</code> lookup tables from math curves (sine, easings, triangle/sawtooth/square, bounce) with a live graph and a bouncing-ball preview. Outputs an 8-bit table or a 16-bit lo/hi split pair with an optional sprite-X reader routine for full-width motion.
         </li>
         <li>
-          <strong>New: MAP_COPY16X16 macro</strong> &mdash; use <code>.map_copy16x16 $3000, 12, 4</code> to place a 16&times;16 screen/color block without writing sixteen separate <code>MAP_COPY</code> rows.
+          <strong>New: real SID preview (WebSid)</strong> &mdash; the SID Editor preview now plays through a cycle-exact SID emulator, so PWM, ring/sync, and filter character match the real chip. Falls back to the built-in Web Audio engine if unavailable.
         </li>
         <li>
-          <strong>New: spray tools</strong> &mdash; the bitmap editor and Charset Canvas both include a spray tool with a dropdown intensity selector for noisier texture work.
+          <strong>New: play external .sid files</strong> &mdash; the SID Editor Files menu can load and play HVSC-style <code>.sid</code> tunes directly, with a floating playback dialog and Stop button.
         </li>
         <li>
-          <strong>Fixed: C64-correct character colors</strong> &mdash; Character Editor, Charset Canvas, and Map Editor now preserve per-character Color RAM defaults and multicolor metadata, so custom charsets round-trip into map exports with the expected colors.
+          <strong>New: metronome &amp; BPM</strong> &mdash; the SID tracker shows the effective BPM and offers an audible metronome that stays in phase with playback.
         </li>
         <li>
-          <strong>Fixed: Map Editor save/export workflow</strong> &mdash; the Files menu now clearly separates Screen RAM-only saves from Screen RAM + Color RAM exports, and embedded charset color metadata is carried with compatible map files.
+          <strong>New: master volume &amp; manual note entry</strong> &mdash; a master preview volume slider in the SID header, plus double-click a tracker cell to type a note directly (e.g. <code>C-4 01</code>).
         </li>
         <li>
-          <strong>Fixed: SID editor playback and layout</strong> &mdash; SID preview can now step through multiple patterns in sequence, and the instrument/pattern selector row plus tracker mini-controls use a tighter layout.
+          <strong>New: debug files toggle</strong> &mdash; Hardware Settings can now skip generating <code>.dbg</code> / <code>.sym</code> / <code>.vs</code> sidecar files next to your PRG (the debugger still gets them when launched).
         </li>
         <li>
-          <strong>Fixed: dialog and build polish</strong> &mdash; Build Info now scrolls inside the dialog while the close button stays visible, debug sidecar output can be toggled from Settings, and autostart BASIC wrapping uses the classic <code>SYS2061</code> stub again.
-        </li>
-        <li>
-          <strong>Fixed: parser and minimap improvements</strong> &mdash; <code>FILL</code>, constants, and import parsing handle more expression cases reliably, while the Expert and Program minimaps received layout and viewport-tracking fixes.
-        </li>
-        <li>
-          <strong>New: decimal indexed addressing support</strong> &mdash; Expert mode and ASM import now accept decimal indexed operands such as <code>label,10,X</code> and <code>1234,Y</code> without requiring hex-only notation.
+          <strong>Fixed: Expert mode &amp; slider polish</strong> &mdash; the Find bar no longer hides behind the minimap, range sliders lost their puffed hit-area and stray top line, and editor dialogs share one consistent theme-aware style across light / dark / OLED.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -902,44 +899,46 @@ PRINTABLE CHARACTERS
             <button id="ce-copy-asm" type="button">Export ASM</button>
           </div>
         </div>
+        <div class="ce-hdr-titles">
+          <span class="ce-title">CHARACTER EDITOR</span>
+          <span id="ce-char-info" class="ce-char-info">Char: 0 ($00)</span>
+        </div>
+        <button id="ce-close" class="ce-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="ce-toolbar">
         <button id="ce-load-rom" class="ce-tool-btn" type="button" title="Load charset from C64 ROM" aria-label="Load charset from ROM">
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="8" height="8" rx="1"/><path d="M6.5 4V2M9.5 4V2M6.5 14v-2M9.5 14v-2M4 6.5H2M4 9.5H2M14 6.5h-2M14 9.5h-2" stroke-linecap="round"/></svg>
         </button>
+        <div class="ce-tool-group">
+          <button class="ce-tool-btn" id="ce-clear" type="button" title="Clear" aria-label="Clear">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10M6.2 4.5V3h3.6v1.5M5 4.5l.7 8.5h4.6l.7-8.5"/></svg>
+          </button>
+          <button class="ce-tool-btn" id="ce-invert" type="button" title="Invert" aria-label="Invert">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8 3.6h4.4v8.8H8z" fill="currentColor"/></svg>
+          </button>
+          <button class="ce-tool-btn" id="ce-fliph" type="button" title="Flip Horizontal" aria-label="Flip Horizontal">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v12" stroke-dasharray="1.5 1.4"/><path d="M6.2 5L3 8l3.2 3z" fill="currentColor" stroke="none"/><path d="M9.8 5L13 8l-3.2 3z" fill="currentColor" stroke="none" opacity="0.45"/></svg>
+          </button>
+          <button class="ce-tool-btn" id="ce-flipv" type="button" title="Flip Vertical" aria-label="Flip Vertical">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" aria-hidden="true"><path d="M2 8h12" stroke-dasharray="1.5 1.4"/><path d="M5 6.2L8 3l3 3.2z" fill="currentColor" stroke="none"/><path d="M5 9.8L8 13l3-3.2z" fill="currentColor" stroke="none" opacity="0.45"/></svg>
+          </button>
+        </div>
+        <div class="ce-tool-group">
+          <button class="ce-shift-btn" id="ce-shl" type="button" title="Shift Left">←</button>
+          <button class="ce-shift-btn" id="ce-shr" type="button" title="Shift Right">→</button>
+          <button class="ce-shift-btn" id="ce-shu" type="button" title="Shift Up">↑</button>
+          <button class="ce-shift-btn" id="ce-shd" type="button" title="Shift Down">↓</button>
+        </div>
         <label class="ce-mode-check me-check" title="Multicolor mode">
           <input type="checkbox" id="ce-multicolor">
           <span id="ce-multicolor-label">Multicolor mode</span>
         </label>
-        <div class="ce-hdr-titles">
-          <span class="ce-section-lbl">CHARACTER EDITOR</span>
-          <span id="ce-char-info" class="ce-char-info">Char: 0 ($00)</span>
-        </div>
         <span class="ce-section-lbl ce-map-lbl">CHARACTER MAP</span>
-        <button id="ce-close" class="ce-xbtn" type="button" aria-label="Close">×</button>
       </div>
       <div class="ce-body">
         <div class="ce-left">
           <div id="ce-editor-grid" class="ce-editor-grid"></div>
           <div class="ce-tools">
-            <div class="ce-tool-row">
-              <button class="ce-tool-btn" id="ce-clear" type="button" title="Clear" aria-label="Clear">
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10M6.2 4.5V3h3.6v1.5M5 4.5l.7 8.5h4.6l.7-8.5"/></svg>
-              </button>
-              <button class="ce-tool-btn" id="ce-invert" type="button" title="Invert" aria-label="Invert">
-                <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8 3.6h4.4v8.8H8z" fill="currentColor"/></svg>
-              </button>
-              <button class="ce-tool-btn" id="ce-fliph" type="button" title="Flip Horizontal" aria-label="Flip Horizontal">
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v12" stroke-dasharray="1.5 1.4"/><path d="M6.2 5L3 8l3.2 3z" fill="currentColor" stroke="none"/><path d="M9.8 5L13 8l-3.2 3z" fill="currentColor" stroke="none" opacity="0.45"/></svg>
-              </button>
-              <button class="ce-tool-btn" id="ce-flipv" type="button" title="Flip Vertical" aria-label="Flip Vertical">
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" aria-hidden="true"><path d="M2 8h12" stroke-dasharray="1.5 1.4"/><path d="M5 6.2L8 3l3 3.2z" fill="currentColor" stroke="none"/><path d="M5 9.8L8 13l3-3.2z" fill="currentColor" stroke="none" opacity="0.45"/></svg>
-              </button>
-            </div>
-            <div class="ce-tool-row">
-              <button class="ce-shift-btn" id="ce-shl" type="button" title="Shift Left">←</button>
-              <button class="ce-shift-btn" id="ce-shr" type="button" title="Shift Right">→</button>
-              <button class="ce-shift-btn" id="ce-shu" type="button" title="Shift Up">↑</button>
-              <button class="ce-shift-btn" id="ce-shd" type="button" title="Shift Down">↓</button>
-            </div>
             <div class="ce-color-row">
               <button class="ce-color-lbl" type="button" data-ce-ink="3">FG:</button>
               <div id="ce-fg-colors" class="ce-colors"></div>
@@ -981,6 +980,9 @@ PRINTABLE CHARACTERS
           </div>
         </div>
         <span id="cc-title" class="cc-title">CHARSET CANVAS</span>
+        <button id="cc-close" class="cc-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="cc-toolbar">
         <div class="cc-tools">
           <button class="cc-tool cc-tool--active" data-cc-tool="pencil" type="button" title="Pencil" aria-label="Pencil">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 14l1.2-3.5L10.5 3.2l2.3 2.3-7.3 7.3z"/><path d="M9.5 4.2l2.3 2.3"/></svg>
@@ -1031,7 +1033,6 @@ PRINTABLE CHARACTERS
           <input type="checkbox" id="cc-grid" checked>
           <span id="cc-grid-label">Grid</span>
         </label>
-        <button id="cc-close" class="cc-xbtn" type="button" aria-label="Close">×</button>
       </div>
       <div class="cc-body">
         <div class="cc-sidebar">
@@ -1071,8 +1072,10 @@ PRINTABLE CHARACTERS
           </div>
         </div>
         <span class="me-title">MAP EDITOR</span>
-        <div class="me-toolbar">
-          <div class="me-tool-group">
+        <button id="me-close" class="me-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="me-toolbar">
+        <div class="me-tool-group">
             <button class="me-tool me-tool--active" data-tool="paint" type="button" title="Paint" aria-label="Paint">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 14l1.2-3.5L10.5 3.2l2.3 2.3-7.3 7.3z"/><path d="M9.5 4.2l2.3 2.3"/></svg>
             </button>
@@ -1132,7 +1135,6 @@ PRINTABLE CHARACTERS
             </button>
           </div>
           <input type="file" id="me-map-file" accept=".bin,application/octet-stream" hidden>
-        </div>
         <div class="me-tb-right">
           <label class="me-check me-toolbar-check">
             <input type="checkbox" id="me-multicolor">
@@ -1141,7 +1143,6 @@ PRINTABLE CHARACTERS
           <label class="me-check"><input type="checkbox" id="me-grid-toggle" checked> <span id="me-grid-label">Grid</span></label>
           <input type="range" id="me-zoom" min="8" max="32" step="2" value="16" class="me-zoom" title="Zoom">
         </div>
-        <button id="me-close" class="me-xbtn" type="button" aria-label="Close">×</button>
       </div>
       <div class="me-body">
         <div class="me-sidebar">
@@ -1523,6 +1524,265 @@ PRINTABLE CHARACTERS
     </div>
   </dialog>
 
+  <dialog id="curve-gen-dialog" class="curve-gen-dialog">
+    <div class="cg-card">
+      <div class="cg-hdr">
+        <div class="ed-file">
+          <button class="ed-file-btn" type="button">Files ▾</button>
+          <div class="ed-file-menu" hidden>
+            <button id="cg-save-bin" type="button">Save curve (.bin)…</button>
+            <button id="cg-load-bin" type="button">Load curve (.bin)…</button>
+            <div class="ed-file-sep"></div>
+            <button id="cg-export-demo" type="button">Export demo to blocks</button>
+          </div>
+          <input type="file" id="cg-bin-file" accept=".bin,application/octet-stream" hidden>
+        </div>
+        <div class="cg-hdr-title">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M1.5 8c1.5-4 3.5-4 5 0s3.5 4 5 0 2.5-2 3 0"/></svg>
+          <div>
+            <div class="cg-title" id="cg-title">CURVE EDITOR</div>
+          </div>
+        </div>
+        <button id="cg-close" class="cg-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+
+      <div class="cg-toolbar">
+        <div class="cg-tool-group">
+          <button id="cg-copy" class="cg-tool" type="button" aria-label="Copy to clipboard">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2.5" width="8" height="10" rx="1"/><path d="M3 5H2a1 1 0 00-1 1v7a1 1 0 001 1h8a1 1 0 001-1v-1"/></svg>
+          </button>
+          <button id="cg-insert" class="cg-tool cg-tool--accent" type="button" aria-label="Insert into editor">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4L2 8l4 4M10 4l4 4-4 4"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="cg-body">
+        <!-- Left: controls -->
+        <div class="cg-controls">
+          <label class="cg-field">
+            <span class="cg-lbl" id="cg-curve-lbl">Curve</span>
+            <select id="cg-curve" class="cg-select">
+              <option value="sine">Sine</option>
+              <option value="cosine">Cosine</option>
+              <option value="linear">Linear</option>
+              <option value="easeInQuad">Ease In (Quad)</option>
+              <option value="easeOutQuad">Ease Out (Quad)</option>
+              <option value="easeInOutQuad">Ease InOut (Quad)</option>
+              <option value="easeInCubic">Ease In (Cubic)</option>
+              <option value="easeOutCubic">Ease Out (Cubic)</option>
+              <option value="easeInOutCubic">Ease InOut (Cubic)</option>
+              <option value="easeInCirc">Ease In (Circ)</option>
+              <option value="easeOutCirc">Ease Out (Circ)</option>
+              <option value="triangle">Triangle</option>
+              <option value="sawtooth">Sawtooth</option>
+              <option value="square">Square</option>
+              <option value="easeInBounce">Ease In Bounce</option>
+              <option value="easeOutBounce">Ease Out Bounce</option>
+              <option value="easeInOutBounce">Ease InOut Bounce</option>
+            </select>
+          </label>
+
+          <label class="cg-field">
+            <span class="cg-lbl" id="cg-start-lbl">Start value</span>
+            <div class="cg-slider-row">
+              <input type="range" id="cg-start" class="cg-range" min="0" max="255" value="0">
+              <input type="number" id="cg-start-num" class="cg-num-in" min="0" max="255" value="0">
+            </div>
+          </label>
+
+          <label class="cg-field">
+            <span class="cg-lbl" id="cg-end-lbl">End value</span>
+            <div class="cg-slider-row">
+              <input type="range" id="cg-end" class="cg-range" min="0" max="255" value="255">
+              <input type="number" id="cg-end-num" class="cg-num-in" min="0" max="255" value="255">
+            </div>
+          </label>
+
+          <label class="cg-field">
+            <span class="cg-lbl" id="cg-count-lbl">Number of values</span>
+            <div class="cg-slider-row">
+              <input type="range" id="cg-count" class="cg-range" min="4" max="512" value="256">
+              <input type="number" id="cg-count-num" class="cg-num-in" min="4" max="512" value="256">
+            </div>
+          </label>
+
+          <label class="cg-field" id="cg-cycles-field">
+            <span class="cg-lbl" id="cg-cycles-lbl">Cycles</span>
+            <div class="cg-slider-row">
+              <input type="range" id="cg-cycles" class="cg-range" min="0.125" max="16" value="1" step="0.125">
+              <input type="number" id="cg-cycles-num" class="cg-num-in" min="0.125" max="16" value="1" step="0.125">
+            </div>
+          </label>
+
+          <label class="cg-field" id="cg-phase-field">
+            <span class="cg-lbl" id="cg-phase-lbl">Phase (deg)</span>
+            <div class="cg-slider-row">
+              <input type="range" id="cg-phase" class="cg-range" min="0" max="360" value="270">
+              <input type="number" id="cg-phase-num" class="cg-num-in" min="0" max="360" value="270">
+            </div>
+          </label>
+
+          <label class="menu-checkbox-label cg-combine-label">
+            <input type="checkbox" id="cg-combine">
+            <span id="cg-combine-lbl">Combine second curve</span>
+          </label>
+
+          <label class="cg-field">
+            <span class="cg-lbl" id="cg-label-lbl">Label</span>
+            <input type="text" id="cg-label" class="cg-text-in" value="sinusTable">
+          </label>
+
+          <label class="cg-field">
+            <span class="cg-lbl" id="cg-base-lbl">Number format</span>
+            <select id="cg-base" class="cg-select">
+              <option value="hex">Hexadecimal ($XX)</option>
+              <option value="dec">Decimal</option>
+            </select>
+          </label>
+
+          <label class="cg-field">
+            <span class="cg-lbl" id="cg-perline-lbl">Values per line</span>
+            <select id="cg-perline" class="cg-select">
+              <option value="8">8</option>
+              <option value="16" selected>16</option>
+              <option value="32">32</option>
+            </select>
+          </label>
+
+          <label class="cg-field">
+            <span class="cg-lbl" id="cg-bits-lbl">Output</span>
+            <select id="cg-bits" class="cg-select">
+              <option value="8">8-bit — one .byte table (0..255)</option>
+              <option value="16">16-bit — lo/hi split (0..320, sprite X)</option>
+            </select>
+          </label>
+
+          <div class="cg-field" id="cg-reader-field" style="display:none">
+            <label class="menu-checkbox-label cg-combine-label">
+              <input type="checkbox" id="cg-reader">
+              <span id="cg-reader-lbl">Include sprite reader routine</span>
+            </label>
+          </div>
+
+          <label class="cg-field" id="cg-sprite-field" style="display:none">
+            <span class="cg-lbl" id="cg-sprite-num-lbl">Reader targets sprite</span>
+            <select id="cg-sprite-num" class="cg-select">
+              <option value="0">Sprite 0</option>
+              <option value="1">Sprite 1</option>
+              <option value="2">Sprite 2</option>
+              <option value="3">Sprite 3</option>
+              <option value="4">Sprite 4</option>
+              <option value="5">Sprite 5</option>
+              <option value="6">Sprite 6</option>
+              <option value="7">Sprite 7</option>
+            </select>
+          </label>
+        </div>
+
+        <!-- Combine column: sits between the primary controls and the graph,
+             appears only when "Combine second curve" is checked -->
+        <div id="cg-combine-panel" class="cg-combine-panel" hidden>
+          <div class="cg-combine-title" id="cg-combine-title">Curve 2</div>
+          <div class="cg-combine-sections">
+            <div class="cg-combine-section">
+              <label class="cg-field">
+                <span class="cg-lbl" id="cg-curve2-lbl">Curve 2</span>
+                <select id="cg-curve2" class="cg-select">
+                  <option value="sine">Sine</option>
+                  <option value="cosine">Cosine</option>
+                  <option value="linear">Linear</option>
+                  <option value="triangle">Triangle</option>
+                  <option value="sawtooth">Sawtooth</option>
+                  <option value="easeOutQuad">Ease Out (Quad)</option>
+                  <option value="easeInOutCubic">Ease InOut (Cubic)</option>
+                </select>
+              </label>
+              <label class="cg-field">
+                <span class="cg-lbl" id="cg-combmode-lbl">Combination</span>
+                <select id="cg-combmode" class="cg-select">
+                  <option value="mix">Mix / Average</option>
+                  <option value="add">Add (clamped)</option>
+                  <option value="mul">Multiply</option>
+                  <option value="min">Min</option>
+                  <option value="max">Max</option>
+                  <option value="sub">Subtract</option>
+                </select>
+              </label>
+            </div>
+            <div class="cg-combine-section cg-combine-section--bottom">
+              <label class="cg-field" id="cg-curve2-cycles-field">
+                <span class="cg-lbl" id="cg-curve2-cycles-lbl">Curve 2 Cycles</span>
+                <div class="cg-slider-row">
+                  <input type="range" id="cg-curve2-cycles" class="cg-range" min="0.125" max="16" value="1" step="0.125">
+                  <input type="number" id="cg-curve2-cycles-num" class="cg-num-in" min="0.125" max="16" value="1" step="0.125">
+                </div>
+              </label>
+              <label class="cg-field" id="cg-curve2-phase-field">
+                <span class="cg-lbl" id="cg-curve2-phase-lbl">Curve 2 Phase (deg)</span>
+                <div class="cg-slider-row">
+                  <input type="range" id="cg-curve2-phase" class="cg-range" min="0" max="360" value="270">
+                  <input type="number" id="cg-curve2-phase-num" class="cg-num-in" min="0" max="360" value="270">
+                </div>
+              </label>
+              <label class="cg-field">
+                <span class="cg-lbl" id="cg-mix-lbl">Curve 2 Amount</span>
+                <div class="cg-slider-row">
+                  <input type="range" id="cg-mix" class="cg-range" min="0" max="100" value="50">
+                  <input type="number" id="cg-mix-num" class="cg-num-in" min="0" max="100" value="50">
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Center: graph -->
+        <div class="cg-graph-wrap">
+          <canvas id="cg-graph" class="cg-graph" width="480" height="300"></canvas>
+          <div class="cg-graph-meta">
+            <span id="cg-meta-bytes">256 Bytes</span>
+            <span id="cg-meta-range">Min 0 · Max 255</span>
+            <span id="cg-meta-curve">Sine</span>
+          </div>
+        </div>
+
+        <!-- Right: bouncing ball animation -->
+        <div class="cg-anim-wrap">
+          <div class="cg-anim-hdr">
+            <div>
+              <div class="cg-anim-title" id="cg-anim-title">Bouncing Ball</div>
+              <div class="cg-anim-sub" id="cg-anim-sub">Index 0 · Value 0</div>
+            </div>
+            <div class="cg-anim-btns">
+              <button id="cg-anim-play" class="cg-icon-btn" type="button" aria-label="Play/Pause">
+                <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13" aria-hidden="true"><path d="M4 3.5h2v9H4zM10 3.5h2v9h-2z"/></svg>
+              </button>
+              <button id="cg-anim-restart" class="cg-icon-btn" type="button" aria-label="Restart">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" aria-hidden="true"><path d="M14 8a6 6 0 1 1-1.8-4.3M14 3v3.5h-3.5"/></svg>
+              </button>
+            </div>
+          </div>
+          <canvas id="cg-anim" class="cg-anim" width="220" height="220"></canvas>
+          <div class="cg-anim-tempo">
+            <span class="cg-mini-lbl" id="cg-tempo-lbl">Tempo (values/sec)</span>
+            <input type="range" id="cg-tempo" class="cg-range" min="5" max="240" value="50">
+            <span id="cg-tempo-val" class="cg-num">50</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom: output -->
+      <div class="cg-output-section" hidden>
+        <div class="cg-output-hdr">
+          <span class="cg-output-lbl" id="cg-output-lbl">.byte output</span>
+          <span class="cg-output-hint" id="cg-output-hint">Hex · 16 per line</span>
+        </div>
+        <textarea id="cg-output" class="cg-output" readonly spellcheck="false"></textarea>
+      </div>
+
+    </div>
+  </dialog>
+
   <dialog id="tutorial-dialog" class="tutorial-dialog">
     <div class="tutorial-card">
       <button id="tutorial-dialog-close" class="tutorial-dialog-close-btn" type="button" aria-label="Close">×</button>
@@ -1685,12 +1945,12 @@ PRINTABLE CHARACTERS
   </div>
 
   <script src="tauri-bridge.js"></script>
-  <script src="i18n.js?v=2.2.6"></script>
-  <script src="tutorial-data.js?v=2.2.6"></script>
+  <script src="i18n.js?v=2.2.8"></script>
+  <script src="tutorial-data.js?v=2.2.8"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.2.6"></script>
+  <script src="app.js?v=2.2.8"></script>
 
 </body>
 

@@ -662,8 +662,8 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`2.2.6` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, `CLAUDE.md`.
-Főbb újdonságok: **Charset Canvas editor** — 16×16 / 256 karakteres vászon mono és multicolor karakter módban; **per-character Color RAM metadata** — Character Editor / Charset Canvas / Map Editor round-trip; **MAP_COPY16X16** makró; **spray tool + intenzitás** bitmap és charset vásznon; Map Editor mentési címkék/layout polish; valamint a friss SID/build/parser/minimap fixek.
+`2.2.8` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, `CLAUDE.md`.
+Főbb újdonságok: **Curve Editor** — görbe/easing `.byte` tábla generátor (sine/easing/triangle/saw/square/bounce), élő graph + pattogó labda preview, 8-bites vagy 16-bites lo/hi split sprite-X reader rutinnal; **valódi SID preview WebSid-del** (cycle-exact WASM emu + Web Audio fallback); **külső `.sid` lejátszás** a SID editorban; **metronóm + BPM + master volume + manuális note bevitel** a trackerben; **debug fájlok toggle**; Expert find-bar / slider / dialog egységesítés (Hires mint minta).
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező

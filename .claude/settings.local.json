@@ -153,7 +153,25 @@
       "Bash(node -c F:/Development/VisualAssembler/www/app.js)",
       "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('F:/Development/VisualAssembler/src-tauri/tauri.conf.json','utf8'\\)\\)\")",
       "Bash(node -c F:/Development/VisualAssembler/www/i18n.js)",
-      "Bash(grep -oE 'setVolume\\\\\\([^\\)]{0,60}\\\\\\)|gainNode[^;]{0,60}' F:/Development/VisualAssembler/www/lib/websid/scriptprocessor_player.min.js)"
+      "Bash(grep -oE 'setVolume\\\\\\([^\\)]{0,60}\\\\\\)|gainNode[^;]{0,60}' F:/Development/VisualAssembler/www/lib/websid/scriptprocessor_player.min.js)",
+      "Bash(cat)",
+      "Bash(node /tmp/cgtest.js)",
+      "Bash(node -e \"try{const p=require\\('./package.json'\\);console.log\\(JSON.stringify\\(p.scripts||{},null,2\\)\\)}catch\\(e\\){console.log\\('no package.json scripts'\\)}\")",
+      "Bash(grep -iE \"match|regex|\\\\.test|indexOf|startsWith|\\\\\\\\\\\\\\\\.sprite|\\\\\\\\\\\\\\\\.spr|\\\\\\\\\\\\\\\\.wait\")",
+      "Bash(awk -F: '$1>=8248 && $1<=8480')",
+      "Bash(awk 'NR>=7408 && NR<=7435 {print NR\": \"$0}' www/style.css)",
+      "Bash(awk 'NR>=6898 && NR<=6930 {print NR\": \"$0}' www/style.css)",
+      "Bash(awk 'NR>=8013 && NR<=8024 {print NR\": \"$0}' www/style.css)",
+      "Bash(awk 'NR>=7785 && NR<=7803 {print NR\": \"$0}' www/style.css)",
+      "Bash(awk '/id=\"hires-editor-dialog\"/,/hg-toolbar|hg-body/' www/index.html)",
+      "Bash(awk 'NR>=970 && NR<=1000' www/index.html)",
+      "Bash(awk 'NR>=7785 && NR<=7830 {print NR\": \"$0}' www/style.css)",
+      "Bash(grep -nE \"^\\\\`2\\\\.2\\\\.6\\\\`|Fő 2\\\\.2\\\\.6\" CLAUDE.md AGENTS.md .github/copilot-instructions.md)",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('package.json','utf8'\\)\\);JSON.parse\\(require\\('fs'\\).readFileSync\\('src-tauri/tauri.conf.json','utf8'\\)\\);console.log\\('JSON ok'\\)\")",
+      "Bash(awk 'NR>=7201 && NR<=7310' www/style.css)",
+      "Bash(awk '/id=\"curve-gen-dialog\"/,/cg-body/' www/index.html)",
+      "Bash(awk '/const _CG_STATE = \\\\{/,/^\\\\};/' www/app.js)",
+      "Bash(grep -n 'adc.*xfrac\\\\|adc #\\\\$CF\\\\|step = ' www/app.js)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"

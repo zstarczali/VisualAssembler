@@ -1,0 +1,23 @@
+sprite_ball:
+    .byte $00,$00,$00
+    .byte $00,$3C,$00
+    .byte $01,$FF,$80
+    .byte $07,$FF,$E0
+    .byte $0F,$FF,$F0
+    .byte $1F,$FF,$F8
+    .byte $3F,$FF,$FC
+    .byte $3F,$FF,$FC
+    .byte $7F,$FF,$FE
+    .byte $7F,$FF,$FE
+    .byte $7F,$FF,$FE
+    .byte $7F,$FF,$FE
+    .byte $7F,$FF,$FE
+    .byte $3F,$FF,$FC
+    .byte $3F,$FF,$FC
+    .byte $1F,$FF,$F8
+    .byte $0F,$FF,$F0
+    .byte $07,$FF,$E0
+    .byte $01,$FF,$80
+    .byte $00,$3C,$00
+    .byte $00,$00,$00
+    .byte $00
