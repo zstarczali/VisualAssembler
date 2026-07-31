@@ -49,7 +49,10 @@ test("_cgInsertTagged with the shared key replaces the previous Curve Editor bat
       return lines.length;
     },
     showViceToast: () => {},
-    _cgCloseDialog: () => {}
+    _cgCloseDialog: () => {},
+    t: (key) => key,
+    tf: (key, values = {}) => Object.entries(values).reduce(
+      (text, [name, value]) => text.replaceAll(`{${name}}`, String(value)), key)
   });
 
   // First insert: table (2 lines) appended after the user's own block.
