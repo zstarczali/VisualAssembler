@@ -29973,7 +29973,9 @@ const _CG_STATE = {
   label: "sinusTable",
   base: "hex",
   perLine: 16,
-  spriteY: false,
+  bits: 8,            // 8 = single .byte table; 16 = lo/hi split byte-table pair
+  emitReader: false,  // 16-bit only: also emit a sprite-X reader routine
+  spriteNum: 0,       // 16-bit reader: which sprite (0..7) the routine targets
   tempo: 50,
   animPlaying: true,
   animIndex: 0,
@@ -30047,29 +30049,39 @@ function _cgCombine(v1, v2, mode, amount) {
   }
 }
 
+/* Max representable / reference value for the current bit depth.
+ * 8-bit → 255 (one byte). 16-bit → 320 (C64 screen width, the sprite-X use
+ * case) so the graph scales to screen coordinates, not the full 0..65535. */
+function _cgRefMax() {
+  return _CG_STATE.bits === 16 ? 320 : 255;
+}
+
 function _cgGenerateSamples() {
   const s = _CG_STATE;
   const n = Math.max(2, Math.min(4096, s.count | 0));
-  const lo = Math.max(0, Math.min(255, s.start | 0));
-  const hi = Math.max(0, Math.min(255, s.end | 0));
+  const refMax = _cgRefMax();
+  const lo = Math.max(0, Math.min(refMax, s.start | 0));
+  const hi = Math.max(0, Math.min(refMax, s.end | 0));
   const phase1 = (s.phase / 360) * 2 * Math.PI;
   const phase2 = (s.curve2Phase / 360) * 2 * Math.PI;
-  const out = new Uint8Array(n);
-  const guide1 = new Uint8Array(n);
-  const guide2 = s.combine ? new Uint8Array(n) : null;
+  // Uint16Array holds both depths (0..320 fits in 16 bits); the graph and the
+  // formatter read the value range from _cgRefMax(), not a fixed 255.
+  const out = new Uint16Array(n);
+  const guide1 = new Uint16Array(n);
+  const guide2 = s.combine ? new Uint16Array(n) : null;
   const amount = s.mix / 100;
+  const clampV = (raw) => Math.max(0, Math.min(refMax, Math.round(lo + (hi - lo) * Math.max(0, Math.min(1, raw)))));
   for (let i = 0; i < n; i++) {
     const t = i / n;
     const v1 = _cgSampleCurve(s.curve, t, phase1, s.cycles);
-    guide1[i] = Math.round(lo + (hi - lo) * Math.max(0, Math.min(1, v1))) & 0xFF;
+    guide1[i] = clampV(v1);
     let v = v1;
     if (s.combine) {
       const v2 = _cgSampleCurve(s.curve2, t, phase2, s.curve2Cycles);
-      guide2[i] = Math.round(lo + (hi - lo) * Math.max(0, Math.min(1, v2))) & 0xFF;
+      guide2[i] = clampV(v2);
       v = _cgCombine(v1, v2, s.combineMode, amount);
     }
-    v = Math.max(0, Math.min(1, v));
-    out[i] = Math.round(lo + (hi - lo) * v) & 0xFF;
+    out[i] = clampV(v);
   }
   s.samples = out;
   s.samples1 = guide1;
@@ -30077,23 +30089,81 @@ function _cgGenerateSamples() {
   return out;
 }
 
-function _cgGetOutputSamples() {
-  const s = _CG_STATE;
-  if (!s.samples || !s.spriteY) return s.samples;
-  return Uint8Array.from(s.samples, (value) => Math.round((255 - value) * 179 / 255));
-}
-
 function _cgFormatBytes() {
   const s = _CG_STATE;
-  const samples = _cgGetOutputSamples();
+  const samples = s.samples;
   if (!samples) return "";
   const per = Math.max(1, s.perLine | 0);
   const asHex = s.base === "hex";
   const cell = (b) => asHex ? "$" + b.toString(16).toUpperCase().padStart(2, "0") : String(b);
-  const lines = [(s.label || "table") + ":"];
-  for (let i = 0; i < samples.length; i += per) {
-    const chunk = Array.from(samples.slice(i, i + per)).map(cell).join(", ");
-    lines.push("    .byte " + chunk);
+  const label = s.label || "table";
+  const n = samples.length;
+  let minV = 320, maxV = 0;
+  for (let i = 0; i < n; i++) {
+    if (samples[i] < minV) minV = samples[i];
+    if (samples[i] > maxV) maxV = samples[i];
+  }
+  const curveName = _CG_CURVE_LABELS[s.curve] || s.curve;
+  const curveDesc = curveName + (s.combine ? " + " + (_CG_CURVE_LABELS[s.curve2] || s.curve2) : "");
+  const combineLine = s.combine ? "; Combine: " + s.combineMode + " - Amount " + s.mix + "%" : null;
+
+  const emitTable = (lines, name, arr) => {
+    lines.push(name + ":");
+    for (let i = 0; i < arr.length; i += per) {
+      const chunk = Array.from(arr.slice(i, i + per)).map(cell).join(", ");
+      lines.push("    .byte " + chunk);
+    }
+  };
+
+  const lines = [];
+  if (s.bits === 16) {
+    // 16-bit values (0..320) don't fit in one byte, so split into two parallel
+    // byte tables indexed by the SAME X: lo = low 8 bits, hi = 9th bit / MSB.
+    const loArr = Uint8Array.from(samples, (v) => v & 0xFF);
+    const hiArr = Uint8Array.from(samples, (v) => (v >> 8) & 0xFF);   // 0 or 1
+    const sp = Math.max(0, Math.min(7, s.spriteNum | 0));
+    const xLo = "$" + (0xD000 + sp * 2).toString(16).toUpperCase();   // sprite X lo reg
+    lines.push("; -----------------------------------------------");
+    lines.push("; Curve Editor - " + curveDesc + "  (16-bit, sprite " + sp + ")");
+    lines.push("; Range: " + minV + ".." + maxV + "   Count: " + n + " entries (" + (n * 2) + " bytes)");
+    lines.push("; Two parallel tables, index BOTH with the same X:");
+    lines.push(";   " + label + "_lo[X] = low 8 bits  -> " + xLo);
+    lines.push(";   " + label + "_hi[X] = 9th bit (0/1) -> $D010 bit " + sp);
+    if (combineLine) lines.push(combineLine);
+    lines.push("; -----------------------------------------------");
+    emitTable(lines, label + "_lo", loArr);
+    emitTable(lines, label + "_hi", hiArr);
+    if (s.emitReader) {
+      const bit = 1 << sp;
+      const inv = (~bit) & 0xFF;
+      const maskHex = "%" + inv.toString(2).padStart(8, "0");
+      lines.push("");
+      lines.push("; --- Set sprite " + sp + " X from the 16-bit table (index in X) ---");
+      lines.push("; Usage:  LDX #index  /  JSR " + label + "_set_x");
+      lines.push(label + "_set_x:");
+      lines.push("    lda " + label + "_lo,x");
+      lines.push("    sta " + xLo + "           ; sprite " + sp + " X low byte");
+      lines.push("    lda " + label + "_hi,x");
+      lines.push("    beq " + label + "_clr_msb");
+      lines.push("    lda $D010");
+      lines.push("    ora #" + ("%" + bit.toString(2).padStart(8, "0")) + "   ; set sprite " + sp + " MSB");
+      lines.push("    sta $D010");
+      lines.push("    rts");
+      lines.push(label + "_clr_msb:");
+      lines.push("    lda $D010");
+      lines.push("    and #" + maskHex + "   ; clear sprite " + sp + " MSB");
+      lines.push("    sta $D010");
+      lines.push("    rts");
+    }
+  } else {
+    lines.push("; -----------------------------------------------");
+    lines.push("; Curve Editor - " + curveDesc);
+    lines.push("; Range: " + minV + ".." + maxV + "   Count: " + n + " bytes");
+    lines.push("; X (index): 0.." + (n - 1) + "  ->  Y (value): " + label + "[X]");
+    lines.push("; Usage:  LDX #index  /  LDA " + label + ",X  -> value in A");
+    if (combineLine) lines.push(combineLine);
+    lines.push("; -----------------------------------------------");
+    emitTable(lines, label, samples);
   }
   return lines.join("\n");
 }
@@ -30103,12 +30173,14 @@ function _cgUpdateOutput() {
   const outEl = document.getElementById("cg-output");
   if (outEl) outEl.value = _cgFormatBytes();
   const bytesEl = document.getElementById("cg-meta-bytes");
-  if (bytesEl) bytesEl.textContent = s.samples ? (s.samples.length + " Bytes") : "0 Bytes";
-  const outputSamples = _cgGetOutputSamples();
-  let minV = 255, maxV = 0;
-  if (outputSamples) for (let i = 0; i < outputSamples.length; i++) {
-    if (outputSamples[i] < minV) minV = outputSamples[i];
-    if (outputSamples[i] > maxV) maxV = outputSamples[i];
+  if (bytesEl) {
+    const nb = s.samples ? (s.bits === 16 ? s.samples.length * 2 : s.samples.length) : 0;
+    bytesEl.textContent = nb + " Bytes" + (s.bits === 16 ? " (lo+hi)" : "");
+  }
+  let minV = 320, maxV = 0;
+  if (s.samples) for (let i = 0; i < s.samples.length; i++) {
+    if (s.samples[i] < minV) minV = s.samples[i];
+    if (s.samples[i] > maxV) maxV = s.samples[i];
   } else { minV = 0; }
   const rangeEl = document.getElementById("cg-meta-range");
   if (rangeEl) rangeEl.textContent = "Min " + minV + " · Max " + maxV;
@@ -30150,15 +30222,22 @@ function _cgDrawGraph() {
     const y = (H - 1) * (i / 4);
     ctx.beginPath(); ctx.moveTo(0, y + 0.5); ctx.lineTo(W, y + 0.5); ctx.stroke();
   }
-  // Y-axis labels (0/64/128/192/255)
+  // Y-axis labels (top=0, bottom=refMax) — C64 screen convention so what you
+  // see here matches how sprite Y ($D001) or sprite X positions look on the
+  // real machine. refMax is 255 for 8-bit, 320 for 16-bit (screen width).
+  const refMax = _cgRefMax();
   ctx.fillStyle = "rgba(255,255,255,0.35)";
   ctx.font = "10px monospace";
-  ["255","192","128","64","0"].forEach((lbl, i) => {
+  [0, 1, 2, 3, 4].forEach((i) => {
+    const lbl = String(Math.round(refMax * i / 4));
     ctx.fillText(lbl, 4, 12 + i * (H - 12) / 4);
   });
   const n = s.samples.length;
   const xAt = (i) => (i / (n - 1)) * (W - 30) + 25;
-  const yAt = (v) => H - 6 - (v / 255) * (H - 18);
+  // Screen-space Y: value 0 sits at the top, refMax at the bottom — same as
+  // C64 sprite Y ($D001) and raster line addressing. This lets the preview
+  // look exactly like what the byte table will drive on real hardware.
+  const yAt = (v) => 6 + (v / refMax) * (H - 18);
   const drawCurve = (arr, color, dashed) => {
     ctx.strokeStyle = color;
     ctx.lineWidth = dashed ? 1.2 : 2;
@@ -30204,14 +30283,17 @@ function _cgDrawAnimation() {
     ctx.beginPath(); ctx.moveTo(0, (H * i) / 4); ctx.lineTo(W, (H * i) / 4); ctx.stroke();
     ctx.beginPath(); ctx.moveTo((W * i) / 4, 0); ctx.lineTo((W * i) / 4, H); ctx.stroke();
   }
-  // Ball: X = index/count * width, Y = value/255 * height (0 top, 255 bottom).
+  // Ball: X = index/count * width, Y = value/refMax * height (0 top, refMax bottom).
   // animIndex is a float (for smooth motion); typed-array lookup needs an int.
+  const refMax = _cgRefMax();
   const n = s.samples.length;
   const idxFloat = ((s.animIndex % n) + n) % n;
   const idxInt = Math.floor(idxFloat);
   const value = s.samples[idxInt];
   const x = 20 + (idxFloat / (n - 1)) * (W - 40);
-  const y = 20 + ((255 - value) / 255) * (H - 40);
+  // Screen-space Y (0 top, refMax bottom) so the ball moves exactly like a
+  // sprite driven by this table on the C64 will move.
+  const y = 20 + (value / refMax) * (H - 40);
   // Trail (last ~24 samples)
   ctx.strokeStyle = "rgba(74,222,128,0.25)";
   ctx.lineWidth = 2;
@@ -30220,7 +30302,7 @@ function _cgDrawAnimation() {
   for (let k = 0; k < trail; k++) {
     const i2 = ((idxInt - k) % n + n) % n;
     const x2 = 20 + (i2 / (n - 1)) * (W - 40);
-    const y2 = 20 + ((255 - s.samples[i2]) / 255) * (H - 40);
+    const y2 = 20 + (s.samples[i2] / refMax) * (H - 40);
     if (k === 0) ctx.moveTo(x2, y2); else ctx.lineTo(x2, y2);
   }
   ctx.stroke();
@@ -30291,6 +30373,25 @@ function _cgApplyControlVisibility() {
   set("cg-curve2-phase-field", _CG_PHASED.has(s.curve2));
 }
 
+/* Adjust the Start/End range to the current bit depth (8-bit → 0..255,
+ * 16-bit → 0..320) and toggle the reader/sprite controls' visibility. */
+function _cgApplyBitsRange() {
+  const s = _CG_STATE;
+  const refMax = _cgRefMax();
+  ["cg-start", "cg-start-num", "cg-end", "cg-end-num"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.max = String(refMax);
+  });
+  s.start = Math.max(0, Math.min(refMax, s.start | 0));
+  s.end = Math.max(0, Math.min(refMax, s.end | 0));
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = String(v); };
+  setVal("cg-start", s.start); setVal("cg-start-num", s.start);
+  setVal("cg-end", s.end); setVal("cg-end-num", s.end);
+  const setVis = (id, vis) => { const el = document.getElementById(id); if (el) el.style.display = vis ? "" : "none"; };
+  setVis("cg-reader-field", s.bits === 16);
+  setVis("cg-sprite-field", s.bits === 16 && s.emitReader);
+}
+
 function _cgSyncSliderPair(sliderId, numId, stateKey, opts) {
   const { isFloat = false, extra } = opts || {};
   const slider = document.getElementById(sliderId);
@@ -30335,6 +30436,7 @@ function _cgOpenDialog() {
   dlg.dataset.wired = "1";
   try { dlg.showModal(); } catch(_) { dlg.show(); }
   _cgApplyControlVisibility();
+  _cgApplyBitsRange();
   _cgUpdatePlayButtonIcon();
   // Two RAFs so the canvas has its final CSS size before we compute the DPR-scaled backing store.
   requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -30382,14 +30484,29 @@ function _cgWireDialog() {
     _cgApplyControlVisibility();
     _cgRefreshAll();
   });
-  document.getElementById("cg-sprite-y")?.addEventListener("change", (e) => {
-    s.spriteY = !!e.target.checked;
-    _cgUpdateOutput();
-  });
   // Label / base / per-line
   document.getElementById("cg-label")?.addEventListener("input", (e) => { s.label = e.target.value; _cgUpdateOutput(); });
   document.getElementById("cg-base")?.addEventListener("change", (e) => { s.base = e.target.value; _cgUpdateOutput(); });
   document.getElementById("cg-perline")?.addEventListener("change", (e) => { s.perLine = parseInt(e.target.value, 10) || 16; _cgUpdateOutput(); });
+  // Bit depth (8 = single .byte table, 16 = lo/hi split + optional reader)
+  document.getElementById("cg-bits")?.addEventListener("change", (e) => {
+    const prevMax = _cgRefMax();
+    s.bits = parseInt(e.target.value, 10) === 16 ? 16 : 8;
+    // If End sat at the previous depth's max, snap it to the new max so
+    // switching to 16-bit immediately uses the full 0..320 screen width.
+    if (s.end === prevMax) s.end = _cgRefMax();
+    _cgApplyBitsRange();
+    _cgRefreshAll();
+  });
+  document.getElementById("cg-reader")?.addEventListener("change", (e) => {
+    s.emitReader = !!e.target.checked;
+    _cgApplyBitsRange();
+    _cgUpdateOutput();
+  });
+  document.getElementById("cg-sprite-num")?.addEventListener("change", (e) => {
+    s.spriteNum = Math.max(0, Math.min(7, parseInt(e.target.value, 10) || 0));
+    _cgUpdateOutput();
+  });
   // Tempo
   const tempoEl = document.getElementById("cg-tempo");
   const tempoValEl = document.getElementById("cg-tempo-val");

@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.2.6**
+**Version 2.2.8**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -132,6 +132,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Charset Canvas Editor](#charset-canvas-editor)
     - [Map Editor (Multilayer Tilemaps)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
+    - [Curve Editor](#curve-editor)
 
 ---
 
@@ -3053,6 +3054,43 @@ Multi-instrument 3-voice tracker with a Web Audio preview engine. Open via Toolk
 - 8-bit row counter limits to 7 patterns × 32 rows.
 - C64 `$D418` global volume is shared across voices — the per-instrument volume slider is informational; sustain level (`S` of ADSR) is the effective per-voice volume.
 - Web Audio preview is approximate: PWM modulation, ring/sync, and the SID filter character differ from the real chip.
+
+---
+
+### Curve Editor
+
+Generates ready-to-use `.byte` lookup tables from mathematical curves — sine, easings, triangle/sawtooth/square, and bounce. Ideal for sprite movement, raster effects, colour cycling, or any animation driven by a precomputed table. Open via the **Curve Editor** icon in the top toolbar (next to the SID Editor button).
+
+**Curves:**
+Sine, Cosine, Linear, Ease In/Out/InOut (Quad and Cubic), Ease In/Out (Circ), Triangle, Sawtooth, Square, and Ease In/Out/InOut Bounce.
+
+**Controls:**
+| Control | Purpose |
+|---|---|
+| **Start / End value** | Output range. 0..255 in 8-bit mode, 0..320 in 16-bit mode. |
+| **Number of values** | Table length (index count). |
+| **Cycles** | How many oscillations across the table (sine/cosine/triangle/sawtooth/square only). Accepts fractions (e.g. `3.625`). |
+| **Phase** | Phase offset in degrees (sine/cosine only). |
+| **Combine second curve** | Blend a second curve with **Mix / Add / Multiply / Min / Max / Subtract**, its own cycles/phase, and a mix amount. Both source curves are drawn as dashed guides on the graph. |
+| **Label** | Table label (auto-suggested from the curve name). |
+| **Number format** | `$XX` hex or decimal. |
+| **Values per line** | 8 / 16 / 32 bytes per `.byte` line. |
+
+**Output modes:**
+| Mode | Emits |
+|---|---|
+| **8-bit** | A single `.byte` table (values 0..255). Read with `LDX #index / LDA table,X`. |
+| **16-bit** | Two parallel byte tables — `<label>_lo` (low 8 bits) and `<label>_hi` (9th bit, 0/1) — indexed by the **same** X. Needed for sprite X across the full screen (0..320 > one byte). Optionally emits a **sprite-X reader routine** (`<label>_set_x`) that writes the low byte to `$D000+2N` and sets/clears the sprite's MSB in `$D010`, for a selectable sprite number 0-7. |
+
+Every Copy / Insert output starts with a header comment documenting the curve, actual min/max range, entry count, and exact usage (which register each table feeds).
+
+**Preview:**
+- **Graph** — the curve plotted with value 0 at the **top** and max at the **bottom**, matching the C64 sprite-Y / raster convention (so what you see is what the table drives on hardware).
+- **Bouncing ball** — animates a marker through the table at the **Tempo** (values/sec). At tempo 50 this equals one value per frame on PAL (50 Hz), i.e. one `.wait_raster` step per index.
+
+**Copy / Insert:** the toolbar's two icons — **Copy** puts the table on the clipboard; **Insert into editor** appends the table (and reader, if enabled) as blocks to the current program.
+
+**Matching the preview on the C64:** the preview reads the table **linearly, looping 0 → N-1 → 0, one value per frame**. To reproduce it exactly, drive the table the same way (increment the index once per frame, wrap at the table length). A ping-pong or partial-range playback will move differently even though the byte values are identical. See `samples/curve-new-demo.asm` for a working 16-bit sprite-X example.
 
 ---
 

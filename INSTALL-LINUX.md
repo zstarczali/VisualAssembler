@@ -1,7 +1,7 @@
 # Linux Installation Guide (Ubuntu / Debian)
-Version 2.2.6
+Version 2.2.8
 
-2.2.6: Charset Canvas editor, per-character Color RAM metadata, MAP_COPY16X16 macro, bitmap/charset spray tools with intensity, Map Editor save/layout polish, plus the recent SID/build/parser fixes.
+2.2.8: Curve Editor (curve/easing .byte table generator with 8-bit and 16-bit sprite-X output), real cycle-exact SID preview via WebSid plus external .sid playback, SID metronome/BPM/master-volume and manual note entry, debug-files toggle, and Expert/slider/dialog polish.
 
 Tested on Ubuntu 22.04 and 24.04.
 
@@ -12,7 +12,7 @@ Tested on Ubuntu 22.04 and 24.04.
 Download the `.deb` package from the releases page and install:
 
 ```bash
-  sudo dpkg -i "c64-visual-assembler_2.2.6_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.2.8_amd64.deb"
 sudo apt-get install -f   # fix any missing dependencies
 ```
 
@@ -126,4 +126,4 @@ The app propagates `DISPLAY`, `WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR`, `DBUS_SESSIO
 
 ---
 
-**Version:** 2.2.6 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.2.8 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

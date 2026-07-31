@@ -2,16 +2,17 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.2.6**
+**Current version: v2.2.8**
 
-## What's New in v2.2.6
+## What's New in v2.2.8
 
-- **Charset Canvas editor** — paint a full 16×16 / 256-character charset as one canvas, in mono or C64 multicolor character mode.
-- **C64-correct character color round-tripping** — Character Editor, Charset Canvas, and Map Editor now preserve per-character Color RAM defaults and multicolor metadata.
-- **MAP_COPY16X16 macro** — copy a 16×16 screen/color block with one macro instead of sixteen row copies.
-- **Spray tools** — Bitmap Editor and Charset Canvas now include spray drawing with dropdown intensity.
-- **Map Editor polish** — clearer screen-only vs Screen RAM + Color RAM save labels, improved multicolor toolbar placement, and a wider layout.
-- **Recent fixes included** — SID multi-pattern preview, compact SID controls, Build Info dialog scroll/close behavior, debug sidecar toggle, FILL/import parser fixes, minimap refinements, and the classic `SYS2061` stub.
+- **Curve Editor** — generate `.byte` lookup tables from math curves (sine, easings, triangle/sawtooth/square, bounce) with a live graph and a bouncing-ball preview. Outputs an 8-bit table or a 16-bit lo/hi split pair with an optional sprite-X reader routine.
+- **Real SID preview (WebSid)** — the SID Editor preview plays through a cycle-exact SID emulator (WASM), matching PWM, ring/sync, and filter character on the real chip, with a Web Audio fallback.
+- **Play external .sid files** — load and play HVSC-style `.sid` tunes from the SID Editor Files menu, with a floating playback dialog and Stop button.
+- **Metronome, BPM & master volume** — the SID tracker shows the effective BPM and an audible metronome; a master preview volume slider lives in the SID header.
+- **Manual note entry** — double-click a tracker cell to type a note directly (e.g. `C-4 01`).
+- **Debug files toggle** — Hardware Settings can skip `.dbg` / `.sym` / `.vs` sidecar generation next to the PRG.
+- **Expert & slider polish** — the Find bar no longer hides behind the minimap, range sliders lost their puffed hit-area, and editor dialogs share one theme-aware style across light / dark / OLED.
 
 ---
 
