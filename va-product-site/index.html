@@ -41,14 +41,16 @@ nav{background:#0d0d22;border-bottom:2px solid var(--brd);position:sticky;top:7p
 nav .sp{flex:1}
 .nav-link{color:var(--txt-dim);font-size:12px;letter-spacing:1px;padding:8px 14px;border:1px solid transparent;white-space:nowrap;transition:all .1s}
 .nav-link:hover{color:var(--txt-hi);border-color:var(--brd);background:rgba(100,100,200,.15)}
-.nav-dl{border-color:var(--brd-hi) !important;color:var(--txt-hi) !important}
-.nav-dl:hover{background:var(--scr) !important}
+.nav-dl{border-color:var(--ylw) !important;color:var(--ylw) !important}
+.nav-dl:hover{background:var(--ylw) !important;color:#000 !important}
 
 /* ── HERO ── */
-.hero{background:var(--scr);min-height:calc(100vh - 61px);display:grid;grid-template-columns:1fr 1fr;gap:0;position:relative;overflow:hidden}
+.hero{background:var(--scr);min-height:calc(100vh - 61px);display:grid;grid-template-columns:1fr 1.35fr;gap:0;position:relative;overflow:hidden}
 .hero::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.14) 2px,rgba(0,0,0,.14) 4px);pointer-events:none}
 .hero-left{padding:80px 60px 80px 80px;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:1}
-.hero-right{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;padding:40px 60px 40px 0}
+.hero-right{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;padding:40px 40px 40px 0}
+.hero-right .screen-wrap{max-width:100%}
+.hero-box-img{width:100%;max-width:980px;display:block;filter:drop-shadow(0 0 40px rgba(80,80,255,.4))}
 
 .badge{display:inline-block;border:1px solid var(--brd-hi);color:var(--cyn);font-size:11px;letter-spacing:3px;padding:5px 14px;margin-bottom:28px}
 .hero-title{font-family:'C64Pro',monospace;font-size:clamp(22px,3.2vw,46px);color:var(--txt-hi);letter-spacing:3px;line-height:1.25;margin-bottom:20px}
@@ -82,6 +84,7 @@ hr.div{border:none;border-top:1px solid var(--brd)}
 
 /* ── ABOUT ── */
 .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+.tut-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px}
 .about-right .screen-wrap{max-width:100%}
 .about-right .screen-wrap::before{content:'C64VA  ●  PROGRAM BLOCKS + ASM VIEW'}
 .feature-list{margin-top:28px;display:flex;flex-direction:column;gap:12px}
@@ -145,10 +148,15 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
 .foot-copy{font-size:11px;color:var(--txt-dim);letter-spacing:1px}
 
 @media(max-width:900px){
+  nav{padding:0 16px;height:auto;min-height:54px;flex-wrap:wrap;gap:0}
+  .nav-brand{padding:12px 0;font-size:11px}
+  .nav-link{font-size:10px;padding:6px 8px;letter-spacing:0}
   .hero{grid-template-columns:1fr}
-  .hero-right{display:none}
-  .hero-left{padding:60px 30px}
+  .hero-right{display:flex;padding:0 24px 48px;justify-content:center}
+  .hero-right .screen-wrap{max-width:100%}
+  .hero-left{padding:60px 30px 32px}
   .about-grid{grid-template-columns:1fr}
+  .tut-grid{grid-template-columns:1fr}
   .feat-grid{grid-template-columns:1fr}
   .spec-inner{grid-template-columns:repeat(2,1fr)}
   .sec,.editors-sec,.feat-inner,.spec-bar,.dl-bg,.foot-inner{padding-left:24px;padding-right:24px}
@@ -188,17 +196,15 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
       <div><span class="g">RUN</span><span class="cur"></span></div>
     </div>
     <div class="badge">V2.2.8 — LATEST RELEASE</div>
-    <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>VISUALLY.</span></h1>
-    <p class="hero-sub">Drag-and-drop 6502 assembly blocks, see real-time ASM output, and run directly in VICE — no prior assembly knowledge required.</p>
+    <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS OR MACRO-ASM.</span></h1>
+    <p class="hero-sub">Drag-and-drop 6502 assembly blocks or switch to a full text editor — see real-time ASM output and run directly in VICE.</p>
     <div class="hero-ctas">
       <a class="btn btn-y" href="#download">► DOWNLOAD FREE</a>
       <a class="btn btn-o" href="#editors">VIEW EDITORS</a>
     </div>
   </div>
   <div class="hero-right">
-    <div class="screen-wrap">
-      <img src="uploads/Screenshot 2026-08-01 191519.png" alt="C64 Visual Assembler — program blocks and ASM view">
-    </div>
+    <img class="hero-box-img" src="uploads/box2.png" alt="C64 Visual Assembler — product box">
   </div>
 </section>
 
@@ -283,18 +289,24 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   <div class="sec-s">// VISUAL EDITORS</div>
   <h2 class="sec-t" style="margin-bottom:40px">BUILT-IN TOOLS FOR<br>EVERY C64 ASSET</h2>
   <div class="tabs">
-    <div class="tab on" onclick="showTab('prog')">PROGRAM</div>
-    <div class="tab" onclick="showTab('sid')">SID MUSIC</div>
-    <div class="tab" onclick="showTab('sprite')">SPRITES</div>
-    <div class="tab" onclick="showTab('map')">TILEMAP</div>
-    <div class="tab" onclick="showTab('hires')">GRAPHICS</div>
-    <div class="tab" onclick="showTab('curve')">CURVES</div>
-    <div class="tab" onclick="showTab('char')">CHARACTERS</div>
-    <div class="tab" onclick="showTab('canvas')">CHARSET CANVAS</div>
+    <div class="tab on" data-tab="prog" onclick="showTab('prog')">PROGRAM</div>
+    <div class="tab" data-tab="code" onclick="showTab('code')">ASM EDITOR</div>
+    <div class="tab" data-tab="sid" onclick="showTab('sid')">SID MUSIC</div>
+    <div class="tab" data-tab="sprite" onclick="showTab('sprite')">SPRITES</div>
+    <div class="tab" data-tab="map" onclick="showTab('map')">TILEMAP</div>
+    <div class="tab" data-tab="hires" onclick="showTab('hires')">GRAPHICS</div>
+    <div class="tab" data-tab="curve" onclick="showTab('curve')">CURVES</div>
+    <div class="tab" data-tab="char" onclick="showTab('char')">CHARACTERS</div>
+    <div class="tab" data-tab="charrom" onclick="showTab('charrom')">CHAR ROM</div>
+    <div class="tab" data-tab="canvas" onclick="showTab('canvas')">CHARSET CANVAS</div>
   </div>
   <div class="tab-panel on" id="tab-prog">
     <img src="uploads/Screenshot 2026-08-01 191519.png" alt="Block program editor">
     <div class="tab-cap"><span class="tab-cap-t">BLOCK PROGRAM EDITOR + ASM VIEW</span><span class="tab-cap-d">DRAG BLOCKS FROM LEFT → COMPILE LIVE → RUN IN VICE</span></div>
+  </div>
+  <div class="tab-panel" id="tab-code">
+    <img src="uploads/code.png" alt="Expert ASM editor">
+    <div class="tab-cap"><span class="tab-cap-t">EXPERT MODE — FULL ASM TEXT EDITOR</span><span class="tab-cap-d">SYNTAX HIGHLIGHTING, LIVE ERROR FEEDBACK, FIND BAR, MINIMAP, REGIONS</span></div>
   </div>
   <div class="tab-panel" id="tab-sid">
     <img src="uploads/sided.png" alt="SID music editor">
@@ -318,11 +330,40 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   </div>
   <div class="tab-panel" id="tab-char">
     <img src="uploads/chared.png" alt="Character editor">
-    <div class="tab-cap"><span class="tab-cap-t">CHARACTER EDITOR — 8×8 PIXEL CHARSET</span><span class="tab-cap-d">MONO & MULTICOLOR, CHARACTER MAP BROWSER, .BIN EXPORT</span></div>
+    <div class="tab-cap"><span class="tab-cap-t">CHARACTER EDITOR — 8×8 PIXEL CHARSET</span><span class="tab-cap-d">MONO & MULTICOLOR, SHIFT/FLIP TOOLS, .BIN EXPORT</span></div>
   </div>
-    <div class="tab-panel" id="tab-canvas">
+  <div class="tab-panel" id="tab-charrom">
+    <img src="uploads/charrom.png" alt="Character ROM browser">
+    <div class="tab-cap"><span class="tab-cap-t">CHARACTER ROM BROWSER — BUILT-IN C64 CHARSET</span><span class="tab-cap-d">BROWSE UPPERCASE/GRAPHICS AND LOWERCASE/UPPERCASE ROM CHARSETS</span></div>
+  </div>
+  <div class="tab-panel" id="tab-canvas">
     <img src="uploads/canvased.png" alt="Charset Canvas">
-    <div class="tab-cap"><span class="tab-cap-t">CHARACTER CANVAS EDITOR — 64×64 PIXEL CHARSET</span><span class="tab-cap-d">MONO & MULTICOLOR, CHARACTER MAP BROWSER, .BIN EXPORT</span></div>
+    <div class="tab-cap"><span class="tab-cap-t">CHARSET CANVAS — DRAW 256 CHARS AS ONE PICTURE</span><span class="tab-cap-d">PENCIL, SPRAY, SHAPE TOOLS — SAVE CHARSET + 16×16 SCREEN/COLOR MAP</span></div>
+  </div>
+</div>
+</div>
+
+<hr class="div">
+
+<!-- HARDWARE SETTINGS -->
+<div style="background:var(--bg);padding:80px 0">
+<div class="sec about-grid" style="padding-top:0;padding-bottom:0">
+  <div class="about-right">
+    <div class="screen-wrap" style="max-width:100%">
+      <div style="background:#111130;color:var(--txt-dim);font-size:10px;padding:7px 14px;letter-spacing:2px;border-bottom:1px solid var(--brd)">C64VA  ●  HARDWARE SETTINGS</div>
+      <img src="uploads/config.png" alt="Hardware Settings — C64 Ultimate support">
+    </div>
+  </div>
+  <div>
+    <div class="sec-s">// HARDWARE INTEGRATION</div>
+    <h2 class="sec-t">C64 ULTIMATE &<br>VICE SUPPORT</h2>
+    <p class="sec-d">Configure every hardware target from one settings panel. VICE, RetroDebugger, C64 Ultimate cartridge REST API, Exomizer compression and debug sidecar generation — all in one place.</p>
+    <div class="feature-list">
+      <div class="fi"><div class="fi-dot">►</div><div><b>C64 Ultimate</b> <span>— upload and run PRG directly on real hardware via the Ultimate REST API.</span></div></div>
+      <div class="fi"><div class="fi-dot">►</div><div><b>VICE + RetroDebugger</b> <span>— one-click launch with breakpoints, symbol files and monitor commands.</span></div></div>
+      <div class="fi"><div class="fi-dot">►</div><div><b>D64 disk images</b> <span>— build and run .d64 files via c1541, add extra files to the disk.</span></div></div>
+      <div class="fi"><div class="fi-dot">►</div><div><b>Exomizer</b> <span>— optional SFX crunch before launch to squeeze every byte.</span></div></div>
+    </div>
   </div>
 </div>
 </div>
@@ -331,7 +372,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
 
 <!-- TUTORIALS -->
 <div style="background:var(--scr-darker);padding:80px 0" id="docs">
-<div class="sec" style="display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center">
+<div class="sec tut-grid" style="align-items:center">
   <div>
     <div class="sec-s">// LEARN</div>
     <h2 class="sec-t">INTERACTIVE<br>TUTORIALS</h2>
@@ -346,7 +387,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   <div>
     <div class="screen-wrap">
       <div style="position:relative">
-        <img src="uploads/Screenshot 2026-08-01 191229.png" alt="Interactive tutorials" style="width:100%;display:block">
+        <img src="uploads/tutor.png" alt="Interactive tutorials" style="width:100%;display:block">
       </div>
     </div>
   </div>
@@ -378,8 +419,9 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
       </a>
     </div>
     <div class="dl-sub">OPEN SOURCE — MIT LICENSE — BUILT WITH TAURI + RUST</div>
-    <div style="margin-top:20px">
-      <a class="btn btn-o" href="https://github.com" style="font-size:12px;padding:10px 22px">► VIEW ON GITHUB</a>
+    <div style="margin-top:20px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+      <a class="btn btn-o" href="https://github.com/zstarczali/VisualAssembler" style="font-size:12px;padding:10px 22px">► VIEW ON GITHUB</a>
+      <a class="btn" href="https://paypal.me/ZsoltTarczali" target="_blank" rel="noopener" style="font-size:12px;padding:10px 22px;border-color:#0070ba;color:#0070ba">♥ SUPPORT DEVELOPMENT</a>
     </div>
   </div>
 </div>
@@ -401,9 +443,8 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
 
 <script>
 function showTab(id){
-  document.querySelectorAll('.tab').forEach((t,i)=>{
-    const ids=['prog','sid','sprite','map','hires','curve','char'];
-    t.classList.toggle('on',ids[i]===id);
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.classList.toggle('on',t.dataset.tab===id);
   });
   document.querySelectorAll('.tab-panel').forEach(p=>{
     p.classList.toggle('on',p.id==='tab-'+id);
