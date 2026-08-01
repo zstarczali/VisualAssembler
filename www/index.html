@@ -242,7 +242,7 @@
     <div class="tab-bar-wrap">
       <button class="tab-scroll-btn tab-scroll-btn--left" id="tab-scroll-left" aria-label="Scroll tabs left" tabindex="-1">&#x2039;</button>
       <div id="tab-bar" class="tab-bar">
-        <button class="tab-new-btn" id="tab-new-btn" title="New tab">+</button>
+        <button class="tab-new-btn" id="tab-new-btn" aria-label="New tab">+</button>
       </div>
       <button class="tab-scroll-btn tab-scroll-btn--right" id="tab-scroll-right" aria-label="Scroll tabs right" tabindex="-1">&#x203A;</button>
     </div>
@@ -433,65 +433,65 @@ PRINTABLE CHARACTERS
 
       <section class="expert-panel" id="expert-panel" hidden>
         <div class="expert-toolbar">
-          <button id="expert-project-btn" class="expert-hl-toggle" title="Projekt panel" aria-pressed="false">
+          <button id="expert-project-btn" class="expert-hl-toggle" aria-label="Projekt panel" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><rect x="1" y="2" width="5" height="4" rx="1" fill="currentColor" opacity="0.9"/><rect x="1" y="8" width="5" height="4" rx="1" fill="currentColor" opacity="0.5"/><rect x="8" y="3" width="7" height="1.8" rx="0.7" fill="currentColor" opacity="0.7"/><rect x="8" y="7" width="5" height="1.8" rx="0.7" fill="currentColor" opacity="0.5"/><rect x="8" y="11" width="6" height="1.8" rx="0.7" fill="currentColor" opacity="0.3"/></svg>
           </button>
           <div class="expert-toolbar-sep"></div>
-          <button id="expert-palette-btn" class="expert-hl-toggle" title="Palette panel" aria-pressed="false">
+          <button id="expert-palette-btn" class="expert-hl-toggle" aria-label="Palette panel" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><rect x="1" y="1" width="5" height="14" rx="1" fill="currentColor" opacity="0.9"/><rect x="8" y="1" width="7" height="3" rx="1" fill="currentColor" opacity="0.6"/><rect x="8" y="6" width="7" height="3" rx="1" fill="currentColor" opacity="0.4"/><rect x="8" y="11" width="7" height="3" rx="1" fill="currentColor" opacity="0.25"/></svg>
           </button>
-          <button id="expert-palette-sync-btn" class="expert-hl-toggle expert-hl-toggle--on" title="Mnemonik panel szinkron" aria-pressed="true">
+          <button id="expert-palette-sync-btn" class="expert-hl-toggle expert-hl-toggle--on" aria-label="Mnemonik panel szinkron" aria-pressed="true">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><rect x="1" y="2" width="6" height="3" rx="1" fill="currentColor"/><rect x="1" y="7" width="6" height="3" rx="1" fill="currentColor" opacity="0.6"/><rect x="1" y="12" width="6" height="2" rx="1" fill="currentColor" opacity="0.3"/><path d="M10 5l4 3-4 3V5z" fill="currentColor"/></svg>
           </button>
-          <button id="expert-autocomplete-btn" class="expert-hl-toggle expert-hl-toggle--on" title="Autocomplete" aria-pressed="true">
+          <button id="expert-autocomplete-btn" class="expert-hl-toggle expert-hl-toggle--on" aria-label="Autocomplete" aria-pressed="true">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M3 11.5V4.5C3 3.67 3.67 3 4.5 3H8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 6.5H9.5M4.5 9H7.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M11 4.5h2M12 3.5v2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="11.5" cy="10.5" r="1.2" stroke="currentColor" stroke-width="1.1"/></svg>
           </button>
-          <button id="expert-disasm-btn" class="expert-hl-toggle" title="Disassembler" aria-pressed="false">
+          <button id="expert-disasm-btn" class="expert-hl-toggle" aria-label="Disassembler" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><rect x="1" y="2" width="14" height="2" rx="1" fill="currentColor" opacity="0.4"/><rect x="1" y="6" width="9" height="2" rx="1" fill="currentColor"/><rect x="11" y="6" width="4" height="2" rx="1" fill="currentColor" opacity="0.5"/><rect x="1" y="10" width="6" height="2" rx="1" fill="currentColor"/><rect x="8" y="10" width="7" height="2" rx="1" fill="currentColor" opacity="0.5"/><rect x="1" y="14" width="11" height="1" rx="0.5" fill="currentColor" opacity="0.3"/></svg>
           </button>
-          <button id="expert-monitor-btn" class="expert-hl-toggle" title="Monitor" aria-pressed="false">
+          <button id="expert-monitor-btn" class="expert-hl-toggle" aria-label="Monitor" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><rect x="1" y="1" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="3" y="3" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.7"/><rect x="6" y="3" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.7"/><rect x="9" y="3" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.7"/><rect x="3" y="6.5" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.4"/><rect x="6" y="6.5" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.4"/><rect x="9" y="6.5" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.4"/><rect x="6" y="12" width="4" height="1.5" rx="0.5" fill="currentColor" opacity="0.5"/><rect x="4" y="13.5" width="8" height="1" rx="0.5" fill="currentColor" opacity="0.3"/></svg>
           </button>
-          <button id="expert-region-selection-btn" class="expert-hl-toggle expert-hl-toggle--on" title="Region selection" aria-pressed="true">
+          <button id="expert-region-selection-btn" class="expert-hl-toggle expert-hl-toggle--on" aria-label="Region selection" aria-pressed="true">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M3 3h8M3 8h5M3 13h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M11.5 4l1.8 2-1.8 2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/><path d="M11.5 9l1.8 2-1.8 2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/></svg>
           </button>
-          <button id="expert-region-fold-all-btn" class="expert-hl-toggle" title="Collapse / expand all regions" aria-pressed="false">
+          <button id="expert-region-fold-all-btn" class="expert-hl-toggle" aria-label="Collapse / expand all regions" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M3 3l2.5 2.5L3 8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 5.5h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M3 8l2.5 2.5L3 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/><path d="M7 10.5h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity="0.7"/></svg>
           </button>
           <div class="expert-toolbar-sep"></div>
-          <button id="expert-format-btn" class="expert-hl-toggle" title="Format source" aria-pressed="false">
+          <button id="expert-format-btn" class="expert-hl-toggle" aria-label="Format source" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M3 3h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M5 6.5h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M5 10h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M2 5.5l1.5 1.5-1.5 1.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 9l1.5 1.5-1.5 1.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
           <div class="expert-toolbar-sep"></div>
-          <button id="expert-load-asm-btn" class="expert-hl-toggle" title="Load .asm file" aria-pressed="false">
+          <button id="expert-load-asm-btn" class="expert-hl-toggle" aria-label="Load .asm file" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M3 2H9L13 6V13C13 13.55 12.55 14 12 14H4C3.45 14 3 13.55 3 13V3C3 2.45 3.45 2 4 2Z" stroke="currentColor" stroke-width="1.2"/><path d="M9 2V6H13" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/><path d="M8 9L6 11L8 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 11H11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
           </button>
-          <button id="expert-save-asm-btn" class="expert-hl-toggle" title="Save .asm file" aria-pressed="false">
+          <button id="expert-save-asm-btn" class="expert-hl-toggle" aria-label="Save .asm file" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M3 2H9L13 6V13C13 13.55 12.55 14 12 14H4C3.45 14 3 13.55 3 13V3C3 2.45 3.45 2 4 2Z" stroke="currentColor" stroke-width="1.2"/><path d="M9 2V6H13" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/><path d="M8 8L10 10L8 12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 10H5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
           </button>
           <div class="expert-toolbar-sep"></div>
-          <button id="expert-build-info-btn" class="expert-hl-toggle" title="Build Info" aria-pressed="false">
+          <button id="expert-build-info-btn" class="expert-hl-toggle" aria-label="Build Info" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 7V12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="5" r="0.8" fill="currentColor"/></svg>
           </button>
           <div class="expert-toolbar-sep"></div>
-          <button id="expert-line-numbers-btn" class="expert-hl-toggle" title="Line numbers" aria-label="Line numbers" aria-pressed="false">
+          <button id="expert-line-numbers-btn" class="expert-hl-toggle" aria-label="Line numbers" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M6 4h8M6 8h8M6 12h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><text x="1" y="5.5" font-family="monospace" font-size="4.5" fill="currentColor" opacity="0.7">1</text><text x="1" y="9.5" font-family="monospace" font-size="4.5" fill="currentColor" opacity="0.7">2</text><text x="1" y="13.5" font-family="monospace" font-size="4.5" fill="currentColor" opacity="0.7">3</text></svg>
           </button>
-          <button id="expert-minimap-btn" class="expert-hl-toggle" title="Minimap" aria-label="Minimap" aria-pressed="false">
+          <button id="expert-minimap-btn" class="expert-hl-toggle" aria-label="Minimap" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><rect x="1.5" y="1.5" width="5" height="13" rx="0.6" stroke="currentColor" stroke-width="1.1"/><path d="M3 4h2.5M3 5.8h3.5M3 7.6h2M3 9.4h3M3 11.2h2.5M3 13h1.5" stroke="currentColor" stroke-width="0.85" stroke-linecap="round" opacity="0.75"/><rect x="1.5" y="7" width="5" height="4" fill="currentColor" opacity="0.2"/><path d="M9 4h5.5M9 6h4M9 8h5.5M9 10h3.5M9 12h4.5" stroke="currentColor" stroke-width="0.85" stroke-linecap="round" opacity="0.45"/></svg>
           </button>
-          <button id="expert-find-btn" class="expert-hl-toggle" title="Find (Ctrl+F)" aria-label="Find (Ctrl+F)" aria-pressed="false">
+          <button id="expert-find-btn" class="expert-hl-toggle" aria-label="Find (Ctrl+F)" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M10 10L14 14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
           </button>
           <div class="expert-toolbar-sep"></div>
-          <button id="expert-zoom-out-btn" class="expert-hl-toggle" title="Zoom out" aria-label="Zoom out">
+          <button id="expert-zoom-out-btn" class="expert-hl-toggle" aria-label="Zoom out">
             <svg viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="15" height="12" aria-hidden="true">
               <text x="1" y="11" font-family="serif" font-size="9" fill="currentColor" opacity="0.55">A</text>
               <text x="8" y="13" font-family="serif" font-size="12" fill="currentColor">A</text>
               <path d="M8 6h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
             </svg>
           </button>
-          <button id="expert-zoom-in-btn" class="expert-hl-toggle" title="Zoom in" aria-label="Zoom in">
+          <button id="expert-zoom-in-btn" class="expert-hl-toggle" aria-label="Zoom in">
             <svg viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg" width="15" height="12" aria-hidden="true">
               <text x="1" y="11" font-family="serif" font-size="9" fill="currentColor" opacity="0.55">A</text>
               <text x="8" y="13" font-family="serif" font-size="12" fill="currentColor">A</text>
@@ -647,7 +647,7 @@ PRINTABLE CHARACTERS
       <h2 class="compile-error-title" id="compile-error-title">Compilation errors</h2>
       <ul class="compile-error-list" id="compile-error-list"></ul>
       <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:8px;">
-        <button id="compile-error-copy" class="ce-tool-btn" type="button" title="Copy errors" aria-label="Copy errors">
+        <button id="compile-error-copy" class="ce-tool-btn" type="button" aria-label="Copy errors">
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="5" width="8" height="9" rx="1"/><path d="M3 11V3a1 1 0 0 1 1-1h7"/></svg>
         </button>
         <button id="compile-error-close" class="primary" type="button">OK</button>
@@ -670,7 +670,7 @@ PRINTABLE CHARACTERS
           <h2 class="project-snapshot-title" id="project-snapshot-title">Project snapshots</h2>
           <p class="project-snapshot-subtitle"><span id="project-snapshot-tab-name"></span></p>
         </div>
-        <button id="project-snapshot-close" class="project-snapshot-xbtn" type="button" aria-label="Close" title="Close">×</button>
+        <button id="project-snapshot-close" class="project-snapshot-xbtn" type="button" aria-label="Close">×</button>
       </div>
       <label class="project-snapshot-note-field">
         <span id="project-snapshot-note-label">Note</span>
@@ -906,28 +906,28 @@ PRINTABLE CHARACTERS
         <button id="ce-close" class="ce-xbtn" type="button" aria-label="Close">×</button>
       </div>
       <div class="ce-toolbar">
-        <button id="ce-load-rom" class="ce-tool-btn" type="button" title="Load charset from C64 ROM" aria-label="Load charset from ROM">
+        <button id="ce-load-rom" class="ce-tool-btn" type="button" aria-label="Load charset from ROM">
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="8" height="8" rx="1"/><path d="M6.5 4V2M9.5 4V2M6.5 14v-2M9.5 14v-2M4 6.5H2M4 9.5H2M14 6.5h-2M14 9.5h-2" stroke-linecap="round"/></svg>
         </button>
         <div class="ce-tool-group">
-          <button class="ce-tool-btn" id="ce-clear" type="button" title="Clear" aria-label="Clear">
+          <button class="ce-tool-btn" id="ce-clear" type="button" aria-label="Clear">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10M6.2 4.5V3h3.6v1.5M5 4.5l.7 8.5h4.6l.7-8.5"/></svg>
           </button>
-          <button class="ce-tool-btn" id="ce-invert" type="button" title="Invert" aria-label="Invert">
+          <button class="ce-tool-btn" id="ce-invert" type="button" aria-label="Invert">
             <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8 3.6h4.4v8.8H8z" fill="currentColor"/></svg>
           </button>
-          <button class="ce-tool-btn" id="ce-fliph" type="button" title="Flip Horizontal" aria-label="Flip Horizontal">
+          <button class="ce-tool-btn" id="ce-fliph" type="button" aria-label="Flip Horizontal">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v12" stroke-dasharray="1.5 1.4"/><path d="M6.2 5L3 8l3.2 3z" fill="currentColor" stroke="none"/><path d="M9.8 5L13 8l-3.2 3z" fill="currentColor" stroke="none" opacity="0.45"/></svg>
           </button>
-          <button class="ce-tool-btn" id="ce-flipv" type="button" title="Flip Vertical" aria-label="Flip Vertical">
+          <button class="ce-tool-btn" id="ce-flipv" type="button" aria-label="Flip Vertical">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" aria-hidden="true"><path d="M2 8h12" stroke-dasharray="1.5 1.4"/><path d="M5 6.2L8 3l3 3.2z" fill="currentColor" stroke="none"/><path d="M5 9.8L8 13l3-3.2z" fill="currentColor" stroke="none" opacity="0.45"/></svg>
           </button>
         </div>
         <div class="ce-tool-group">
-          <button class="ce-shift-btn" id="ce-shl" type="button" title="Shift Left">←</button>
-          <button class="ce-shift-btn" id="ce-shr" type="button" title="Shift Right">→</button>
-          <button class="ce-shift-btn" id="ce-shu" type="button" title="Shift Up">↑</button>
-          <button class="ce-shift-btn" id="ce-shd" type="button" title="Shift Down">↓</button>
+          <button class="ce-shift-btn" id="ce-shl" type="button" aria-label="Shift Left">←</button>
+          <button class="ce-shift-btn" id="ce-shr" type="button" aria-label="Shift Right">→</button>
+          <button class="ce-shift-btn" id="ce-shu" type="button" aria-label="Shift Up">↑</button>
+          <button class="ce-shift-btn" id="ce-shd" type="button" aria-label="Shift Down">↓</button>
         </div>
         <label class="ce-mode-check me-check" title="Multicolor mode">
           <input type="checkbox" id="ce-multicolor">
@@ -984,14 +984,14 @@ PRINTABLE CHARACTERS
       </div>
       <div class="cc-toolbar">
         <div class="cc-tools">
-          <button class="cc-tool cc-tool--active" data-cc-tool="pencil" type="button" title="Pencil" aria-label="Pencil">
+          <button class="cc-tool cc-tool--active" data-cc-tool="pencil" type="button" aria-label="Pencil">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 14l1.2-3.5L10.5 3.2l2.3 2.3-7.3 7.3z"/><path d="M9.5 4.2l2.3 2.3"/></svg>
           </button>
-          <button class="cc-tool" data-cc-tool="eraser" type="button" title="Eraser" aria-label="Eraser">
+          <button class="cc-tool" data-cc-tool="eraser" type="button" aria-label="Eraser">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l5-5 4 4-3 3H6z"/><path d="M5 13h8"/></svg>
           </button>
           <div class="tool-dropdown tool-dropdown--cc">
-            <button class="cc-tool cc-tool--dropdown" id="cc-spray-tool" data-cc-tool="spray" type="button" title="Spray" aria-label="Spray" aria-haspopup="true" aria-expanded="false">
+            <button class="cc-tool cc-tool--dropdown" id="cc-spray-tool" data-cc-tool="spray" type="button" aria-label="Spray" aria-haspopup="true" aria-expanded="false">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11h3l1-4H5z"/><path d="M6 7V5h3"/><circle cx="11.5" cy="4" r=".7" fill="currentColor" stroke="none"/><circle cx="12.8" cy="7" r=".6" fill="currentColor" stroke="none"/><circle cx="10.8" cy="9.5" r=".55" fill="currentColor" stroke="none"/></svg>
               <span class="tool-dropdown-caret" aria-hidden="true"></span>
             </button>
@@ -1003,25 +1003,25 @@ PRINTABLE CHARACTERS
               <button class="tool-dropdown-item" data-cc-spray-intensity="5" type="button">5</button>
             </div>
           </div>
-          <button class="cc-tool" id="cc-undo" type="button" title="Undo" aria-label="Undo">
+          <button class="cc-tool" id="cc-undo" type="button" aria-label="Undo">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 5L3 7.5 5.5 10"/><path d="M3 7.5h7a3.5 3.5 0 010 7H8"/></svg>
           </button>
-          <button class="cc-tool" id="cc-redo" type="button" title="Redo" aria-label="Redo">
+          <button class="cc-tool" id="cc-redo" type="button" aria-label="Redo">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 5L13 7.5 10.5 10"/><path d="M13 7.5H6a3.5 3.5 0 000 7H8"/></svg>
           </button>
-          <button class="cc-tool" data-cc-tool="line" type="button" title="Line" aria-label="Line">
+          <button class="cc-tool" data-cc-tool="line" type="button" aria-label="Line">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M3 13L13 3"/></svg>
           </button>
-          <button class="cc-tool" data-cc-tool="rect" type="button" title="Rectangle" aria-label="Rectangle">
+          <button class="cc-tool" data-cc-tool="rect" type="button" aria-label="Rectangle">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="0.5"/></svg>
           </button>
-          <button class="cc-tool" data-cc-tool="oval" type="button" title="Circle / oval" aria-label="Circle / oval">
+          <button class="cc-tool" data-cc-tool="oval" type="button" aria-label="Circle / oval">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><ellipse cx="8" cy="8" rx="5.5" ry="4.5"/></svg>
           </button>
-          <button class="cc-tool" data-cc-tool="fill" type="button" title="Fill" aria-label="Fill">
+          <button class="cc-tool" data-cc-tool="fill" type="button" aria-label="Fill">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l5-5 5 5-5 5z"/><path d="M3 7l5 5 5-5" fill="currentColor" stroke="none" opacity="0.45"/></svg>
           </button>
-          <button class="cc-tool" id="cc-clear" type="button" title="Clear" aria-label="Clear">
+          <button class="cc-tool" id="cc-clear" type="button" aria-label="Clear">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10M6.2 4.5V3h3.6v1.5M5 4.5l.7 8.5h4.6l.7-8.5"/></svg>
           </button>
         </div>
@@ -1076,61 +1076,61 @@ PRINTABLE CHARACTERS
       </div>
       <div class="me-toolbar">
         <div class="me-tool-group">
-            <button class="me-tool me-tool--active" data-tool="paint" type="button" title="Paint" aria-label="Paint">
+            <button class="me-tool me-tool--active" data-tool="paint" type="button" aria-label="Paint">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 14l1.2-3.5L10.5 3.2l2.3 2.3-7.3 7.3z"/><path d="M9.5 4.2l2.3 2.3"/></svg>
             </button>
-            <button class="me-tool" data-tool="line" type="button" title="Line" aria-label="Line">
+            <button class="me-tool" data-tool="line" type="button" aria-label="Line">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M3 13L13 3"/></svg>
             </button>
-            <button class="me-tool" data-tool="rect" type="button" title="Square / rectangle" aria-label="Square / rectangle">
+            <button class="me-tool" data-tool="rect" type="button" aria-label="Square / rectangle">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="0.5"/></svg>
             </button>
-            <button class="me-tool" data-tool="circle" type="button" title="Circle / oval" aria-label="Circle / oval">
+            <button class="me-tool" data-tool="circle" type="button" aria-label="Circle / oval">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><circle cx="8" cy="8" r="5"/></svg>
             </button>
-            <button class="me-tool" data-tool="fill" type="button" title="Bucket Fill" aria-label="Bucket Fill">
+            <button class="me-tool" data-tool="fill" type="button" aria-label="Bucket Fill">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l5-5 5 5-5 5z"/><path d="M3 7l5 5 5-5" fill="currentColor" stroke="none" opacity="0.45"/></svg>
             </button>
-            <button class="me-tool" data-tool="flood" type="button" title="Fill All" aria-label="Fill All">
+            <button class="me-tool" data-tool="flood" type="button" aria-label="Fill All">
               <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" rx="1" fill="currentColor" opacity="0.35"/><rect x="2.5" y="2.5" width="11" height="11" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
             </button>
-            <button class="me-tool" data-tool="select" type="button" title="Select region" aria-label="Select">
+            <button class="me-tool" data-tool="select" type="button" aria-label="Select">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="0.5" stroke-dasharray="2.2 1.6"/></svg>
             </button>
-            <button class="me-tool" data-tool="pick" type="button" title="Pick (eyedropper)" aria-label="Pick">
+            <button class="me-tool" data-tool="pick" type="button" aria-label="Pick">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 2.5l3 3-1.4 1.4-1.1-1.1-5.2 5.2L3 12l-.5 1.5L4 13l1-1.5 5.2-5.2-1.1-1.1z"/></svg>
             </button>
           </div>
           <div class="me-tool-group">
-            <button class="me-tool" id="me-undo" type="button" title="Undo" aria-label="Undo">
+            <button class="me-tool" id="me-undo" type="button" aria-label="Undo">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 5L3 7.5 5.5 10"/><path d="M3 7.5h7a3.5 3.5 0 010 7H8"/></svg>
             </button>
-            <button class="me-tool" id="me-redo" type="button" title="Redo" aria-label="Redo">
+            <button class="me-tool" id="me-redo" type="button" aria-label="Redo">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 5L13 7.5 10.5 10"/><path d="M13 7.5H6a3.5 3.5 0 000 7H8"/></svg>
             </button>
-            <button class="me-tool" id="me-copy" type="button" title="Copy selection (Ctrl+C)" aria-label="Copy selection" disabled>
+            <button class="me-tool" id="me-copy" type="button" aria-label="Copy selection" disabled>
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg>
             </button>
-            <button class="me-tool" id="me-paste" type="button" title="Paste (Ctrl+V)" aria-label="Paste" disabled>
+            <button class="me-tool" id="me-paste" type="button" aria-label="Paste" disabled>
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="8" height="9" rx="1"/><path d="M5 5V3.5A.5.5 0 0 1 5.5 3h5a.5.5 0 0 1 .5.5V5"/><path d="M5.5 3h5"/></svg>
             </button>
-            <button class="me-tool" id="me-paste-transparent" type="button" title="Transparent paste (Ctrl+Shift+V)" aria-label="Transparent paste" disabled>
+            <button class="me-tool" id="me-paste-transparent" type="button" aria-label="Transparent paste" disabled>
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="4" height="4" rx="0.5" opacity="0.55"/><rect x="6" y="2" width="4" height="4" rx="0.5" opacity="0.25"/><rect x="10" y="2" width="4" height="4" rx="0.5" opacity="0.55"/><rect x="4" y="6" width="4" height="4" rx="0.5" opacity="0.25"/><rect x="8" y="6" width="4" height="4" rx="0.5" opacity="0.55"/><path d="M6 11h4v2.2M8 10l2 2-2 2"/></svg>
             </button>
           </div>
           <div class="me-tool-group">
-            <button class="me-tool" id="me-charset-rom" type="button" title="Load charset from C64 ROM" aria-label="Load charset from ROM">
+            <button class="me-tool" id="me-charset-rom" type="button" aria-label="Load charset from ROM">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="8" height="8" rx="1"/><path d="M6.5 4V2M9.5 4V2M6.5 14v-2M9.5 14v-2M4 6.5H2M4 9.5H2M14 6.5h-2M14 9.5h-2" stroke-linecap="round"/></svg>
             </button>
-            <button class="me-tool" id="me-charset-load" type="button" title="Load charset (.bin)…" aria-label="Load charset from file">
+            <button class="me-tool" id="me-charset-load" type="button" aria-label="Load charset from file">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 5h4.5l1.5 1.5H14V13H2z"/><path d="M8 9v3M6.5 10.5L8 12l1.5-1.5"/></svg>
             </button>
-            <button class="me-tool" id="me-charset-editor" type="button" title="Load charset from Character Editor" aria-label="Load charset from editor">
+            <button class="me-tool" id="me-charset-editor" type="button" aria-label="Load charset from editor">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="5" height="5" rx="0.5"/><rect x="9" y="2" width="5" height="5" rx="0.5"/><rect x="2" y="9" width="5" height="5" rx="0.5"/><rect x="9" y="9" width="5" height="5" rx="0.5"/></svg>
             </button>
           </div>
           <div class="me-tool-group">
-            <button class="me-tool" id="me-clear" type="button" title="Clear map" aria-label="Clear map">
+            <button class="me-tool" id="me-clear" type="button" aria-label="Clear map">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10M6.2 4.5V3h3.6v1.5M5 4.5l.7 8.5h4.6l.7-8.5"/></svg>
             </button>
           </div>
@@ -1171,8 +1171,8 @@ PRINTABLE CHARACTERS
             <div class="me-layers-hdr">
               <span class="me-section-lbl">Layers</span>
               <span class="me-layers-hdr-btns">
-                <button id="me-layer-flatten" class="me-layer-add" type="button" title="Merge all layers into one">⤵</button>
-                <button id="me-layer-add" class="me-layer-add" type="button" title="Add layer">+</button>
+                <button id="me-layer-flatten" class="me-layer-add" type="button" aria-label="Merge all layers into one">⤵</button>
+                <button id="me-layer-add" class="me-layer-add" type="button" aria-label="Add layer">+</button>
               </span>
             </div>
             <div id="me-layers-list" class="me-layers-list"></div>
@@ -1207,14 +1207,14 @@ PRINTABLE CHARACTERS
       </div>
       <div class="hg-toolbar">
         <div class="hg-tool-group">
-          <button class="hg-tool hg-tool--active" data-tool="pencil" type="button" title="Pencil" aria-label="Pencil">
+          <button class="hg-tool hg-tool--active" data-tool="pencil" type="button" aria-label="Pencil">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 14l1.2-3.5L10.5 3.2l2.3 2.3-7.3 7.3z"/><path d="M9.5 4.2l2.3 2.3"/></svg>
           </button>
-          <button class="hg-tool" data-tool="eraser" type="button" title="Eraser" aria-label="Eraser">
+          <button class="hg-tool" data-tool="eraser" type="button" aria-label="Eraser">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l5-5 4 4-3 3H6z"/><path d="M5 13h8"/></svg>
           </button>
           <div class="tool-dropdown tool-dropdown--hg">
-            <button class="hg-tool hg-tool--dropdown" id="hg-spray-tool" data-tool="spray" type="button" title="Spray" aria-label="Spray" aria-haspopup="true" aria-expanded="false">
+            <button class="hg-tool hg-tool--dropdown" id="hg-spray-tool" data-tool="spray" type="button" aria-label="Spray" aria-haspopup="true" aria-expanded="false">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11h3l1-4H5z"/><path d="M6 7V5h3"/><circle cx="11.5" cy="4" r=".7" fill="currentColor" stroke="none"/><circle cx="12.8" cy="7" r=".6" fill="currentColor" stroke="none"/><circle cx="10.8" cy="9.5" r=".55" fill="currentColor" stroke="none"/></svg>
               <span class="tool-dropdown-caret" aria-hidden="true"></span>
             </button>
@@ -1226,45 +1226,45 @@ PRINTABLE CHARACTERS
               <button class="tool-dropdown-item" data-hg-spray-intensity="5" type="button">5</button>
             </div>
           </div>
-          <button class="hg-tool" data-tool="line" type="button" title="Line" aria-label="Line">
+          <button class="hg-tool" data-tool="line" type="button" aria-label="Line">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="13" x2="13" y2="3"/></svg>
           </button>
-          <button class="hg-tool" data-tool="rect" type="button" title="Rectangle" aria-label="Rectangle">
+          <button class="hg-tool" data-tool="rect" type="button" aria-label="Rectangle">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="3" y="4" width="10" height="8"/></svg>
           </button>
-          <button class="hg-tool" data-tool="fillrect" type="button" title="Filled Rectangle" aria-label="Filled Rectangle">
+          <button class="hg-tool" data-tool="fillrect" type="button" aria-label="Filled Rectangle">
             <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="3" y="4" width="10" height="8" rx="0.5"/></svg>
           </button>
-          <button class="hg-tool" data-tool="oval" type="button" title="Oval" aria-label="Oval">
+          <button class="hg-tool" data-tool="oval" type="button" aria-label="Oval">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><ellipse cx="8" cy="8" rx="5.5" ry="4.5"/></svg>
           </button>
-          <button class="hg-tool" data-tool="filloval" type="button" title="Filled Oval" aria-label="Filled Oval">
+          <button class="hg-tool" data-tool="filloval" type="button" aria-label="Filled Oval">
             <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><ellipse cx="8" cy="8" rx="5.5" ry="4.5"/></svg>
           </button>
-          <button class="hg-tool" data-tool="fill" type="button" title="Flood Fill" aria-label="Flood Fill">
+          <button class="hg-tool" data-tool="fill" type="button" aria-label="Flood Fill">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l5-5 5 5-5 5z"/><path d="M3 7l5 5 5-5" fill="currentColor" stroke="none" opacity="0.45"/></svg>
           </button>
-          <button class="hg-tool" data-tool="select" type="button" title="Select (drag to mark a region)" aria-label="Select">
+          <button class="hg-tool" data-tool="select" type="button" aria-label="Select">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" stroke-dasharray="2 1.5"/></svg>
           </button>
         </div>
         <div class="hg-tool-group">
-          <button class="hg-btn" id="hg-undo" type="button" title="Undo" aria-label="Undo">
+          <button class="hg-btn" id="hg-undo" type="button" aria-label="Undo">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 5L3 7.5 5.5 10"/><path d="M3 7.5h7a3.5 3.5 0 010 7H8"/></svg>
           </button>
-          <button class="hg-btn" id="hg-redo" type="button" title="Redo" aria-label="Redo">
+          <button class="hg-btn" id="hg-redo" type="button" aria-label="Redo">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 5L13 7.5 10.5 10"/><path d="M13 7.5H6a3.5 3.5 0 000 7H8"/></svg>
           </button>
-          <button class="hg-btn" id="hg-copy" type="button" title="Copy selection (Ctrl+C)" aria-label="Copy">
+          <button class="hg-btn" id="hg-copy" type="button" aria-label="Copy">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1"/><path d="M3 11V3h8"/></svg>
           </button>
-          <button class="hg-btn" id="hg-paste" type="button" title="Paste (Ctrl+V) — click on canvas to place" aria-label="Paste">
+          <button class="hg-btn" id="hg-paste" type="button" aria-label="Paste">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3.5" width="10" height="11" rx="1"/><rect x="5.5" y="2" width="5" height="3" rx="0.6" fill="currentColor" stroke="none"/></svg>
           </button>
-          <button class="hg-btn" id="hg-paste-transparent" type="button" title="Transparent paste (Ctrl+Shift+V) — click on canvas to place" aria-label="Transparent paste">
+          <button class="hg-btn" id="hg-paste-transparent" type="button" aria-label="Transparent paste">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="4" height="4" rx="0.5" opacity="0.55"/><rect x="6" y="2" width="4" height="4" rx="0.5" opacity="0.25"/><rect x="10" y="2" width="4" height="4" rx="0.5" opacity="0.55"/><rect x="4" y="6" width="4" height="4" rx="0.5" opacity="0.25"/><rect x="8" y="6" width="4" height="4" rx="0.5" opacity="0.55"/><path d="M6 11h4v2.2M8 10l2 2-2 2"/></svg>
           </button>
-          <button class="hg-btn" id="hg-clear" type="button" title="Clear" aria-label="Clear">
+          <button class="hg-btn" id="hg-clear" type="button" aria-label="Clear">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10M6.2 4.5V3h3.6v1.5M5 4.5l.7 8.5h4.6l.7-8.5"/></svg>
           </button>
         </div>
@@ -1311,43 +1311,43 @@ PRINTABLE CHARACTERS
       </div>
       <div class="se-toolbar">
         <div class="se-tool-group">
-          <button class="se-tool se-tool--active" data-tool="pencil" type="button" title="Pencil" aria-label="Pencil">
+          <button class="se-tool se-tool--active" data-tool="pencil" type="button" aria-label="Pencil">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11.5 2.5l2 2L5.2 12.8 2.5 13.5l.7-2.7z"/><path d="M10.2 3.8l2 2"/></svg>
           </button>
-          <button class="se-tool" data-tool="line" type="button" title="Line" aria-label="Line">
+          <button class="se-tool" data-tool="line" type="button" aria-label="Line">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M3 13L13 3"/></svg>
           </button>
-          <button class="se-tool" data-tool="rect" type="button" title="Square / rectangle" aria-label="Square / rectangle">
+          <button class="se-tool" data-tool="rect" type="button" aria-label="Square / rectangle">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="0.5"/></svg>
           </button>
-          <button class="se-tool" data-tool="circle" type="button" title="Circle / oval" aria-label="Circle / oval">
+          <button class="se-tool" data-tool="circle" type="button" aria-label="Circle / oval">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><circle cx="8" cy="8" r="5"/></svg>
           </button>
         </div>
         <div class="se-tool-group">
-          <button class="se-tool" id="se-undo" type="button" title="Undo" aria-label="Undo">
+          <button class="se-tool" id="se-undo" type="button" aria-label="Undo">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 5L3 7.5 5.5 10"/><path d="M3 7.5h7a3.5 3.5 0 010 7H8"/></svg>
           </button>
-          <button class="se-tool" id="se-redo" type="button" title="Redo" aria-label="Redo">
+          <button class="se-tool" id="se-redo" type="button" aria-label="Redo">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 5L13 7.5 10.5 10"/><path d="M13 7.5H6a3.5 3.5 0 000 7H8"/></svg>
           </button>
         </div>
         <div class="se-tool-group">
-          <button class="se-tool" id="se-fliph" type="button" title="Flip Horizontal" aria-label="Flip Horizontal">
+          <button class="se-tool" id="se-fliph" type="button" aria-label="Flip Horizontal">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v12" stroke-dasharray="1.5 1.4"/><path d="M6.2 5L3 8l3.2 3z" fill="currentColor" stroke="none"/><path d="M9.8 5L13 8l-3.2 3z" fill="currentColor" stroke="none" opacity="0.45"/></svg>
           </button>
-          <button class="se-tool" id="se-flipv" type="button" title="Flip Vertical" aria-label="Flip Vertical">
+          <button class="se-tool" id="se-flipv" type="button" aria-label="Flip Vertical">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" aria-hidden="true"><path d="M2 8h12" stroke-dasharray="1.5 1.4"/><path d="M5 6.2L8 3l3 3.2z" fill="currentColor" stroke="none"/><path d="M5 9.8L8 13l3-3.2z" fill="currentColor" stroke="none" opacity="0.45"/></svg>
           </button>
-          <button class="se-tool" id="se-clear" type="button" title="Clear frame" aria-label="Clear frame">
+          <button class="se-tool" id="se-clear" type="button" aria-label="Clear frame">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10M6.2 4.5V3h3.6v1.5M5 4.5l.7 8.5h4.6l.7-8.5"/></svg>
           </button>
         </div>
         <div class="se-tool-group se-shift-group">
-          <button class="se-tool" id="se-shl" type="button" title="Shift Left" aria-label="Shift Left">←</button>
-          <button class="se-tool" id="se-shr" type="button" title="Shift Right" aria-label="Shift Right">→</button>
-          <button class="se-tool" id="se-shu" type="button" title="Shift Up" aria-label="Shift Up">↑</button>
-          <button class="se-tool" id="se-shd" type="button" title="Shift Down" aria-label="Shift Down">↓</button>
+          <button class="se-tool" id="se-shl" type="button" aria-label="Shift Left">←</button>
+          <button class="se-tool" id="se-shr" type="button" aria-label="Shift Right">→</button>
+          <button class="se-tool" id="se-shu" type="button" aria-label="Shift Up">↑</button>
+          <button class="se-tool" id="se-shd" type="button" aria-label="Shift Down">↓</button>
           <label class="se-check"><input type="checkbox" id="se-wrap"> <span>Wrap</span></label>
         </div>
         <label class="se-check"><input type="checkbox" id="se-multicolor"> <span>Multi-Color</span></label>
@@ -1420,9 +1420,9 @@ PRINTABLE CHARACTERS
         <div class="sid-row sid-inst-row">
           <span class="sid-lbl">INSTRUMENT</span>
           <select id="sid-inst-sel" class="sid-select"></select>
-          <button id="sid-inst-add" class="sid-mini-btn" type="button" title="Add instrument">+</button>
+          <button id="sid-inst-add" class="sid-mini-btn" type="button" aria-label="Add instrument">+</button>
           <input id="sid-inst-name" class="sid-input" type="text" value="New Sound">
-          <button id="sid-preview" class="ce-tool-btn" type="button" title="Preview" aria-label="Preview">
+          <button id="sid-preview" class="ce-tool-btn" type="button" aria-label="Preview">
             <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M11 3v6.6a2.4 2.4 0 1 1-1.2-2.08V4.5L7 5.2V11a2.4 2.4 0 1 1-1.2-2.08V4.2z" fill="currentColor"/></svg>
           </button>
           <div class="sid-master-vol-wrap">
@@ -1467,7 +1467,7 @@ PRINTABLE CHARACTERS
         <div class="sid-row sid-tracker-row">
           <span class="sid-lbl">TRACKER</span>
           <select id="sid-pat-sel" class="sid-select"></select>
-          <button id="sid-pat-add" class="sid-mini-btn" type="button" title="Add pattern">+</button>
+          <button id="sid-pat-add" class="sid-mini-btn" type="button" aria-label="Add pattern">+</button>
           <span class="sid-mini-lbl">Play:</span>
           <select id="sid-play-mode" class="sid-select">
             <option value="current">Pattern</option>
@@ -1477,23 +1477,23 @@ PRINTABLE CHARACTERS
           <input id="sid-speed" class="sid-input sid-speed" type="number" min="1" max="20" value="6">
           <span class="sid-mini-lbl" id="sid-bpm-lbl">BPM:</span>
           <span id="sid-bpm" class="sid-num" title="Beats per minute (4 rows per beat)">125</span>
-          <button id="sid-metronome" class="ce-tool-btn sid-metronome-btn" type="button" title="Metronome" aria-label="Metronome" aria-pressed="false">
+          <button id="sid-metronome" class="ce-tool-btn sid-metronome-btn" type="button" aria-label="Metronome" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 14h6M6 14l1.5-11h1L10 14M8 3v0M8 8l3-1.5"/></svg>
           </button>
           <span class="sid-mini-lbl">Oct:</span>
-          <button id="sid-oct-down" class="sid-mini-btn" type="button" title="Octave down">−</button>
+          <button id="sid-oct-down" class="sid-mini-btn" type="button" aria-label="Octave down">−</button>
           <span id="sid-oct-val" class="sid-num">4</span>
-          <button id="sid-oct-up" class="sid-mini-btn" type="button" title="Octave up">+</button>
-          <button id="sid-play" class="ce-tool-btn" type="button" title="Play" aria-label="Play">
+          <button id="sid-oct-up" class="sid-mini-btn" type="button" aria-label="Octave up">+</button>
+          <button id="sid-play" class="ce-tool-btn" type="button" aria-label="Play">
             <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5l8 4.5-8 4.5z" fill="currentColor"/></svg>
           </button>
-          <button id="sid-stop" class="ce-tool-btn" type="button" title="Stop" aria-label="Stop">
+          <button id="sid-stop" class="ce-tool-btn" type="button" aria-label="Stop">
             <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="4" width="8" height="8" fill="currentColor"/></svg>
           </button>
-          <button id="sid-voice-copy" class="ce-tool-btn" type="button" title="Copy voice (Ctrl+C)" aria-label="Copy voice">
+          <button id="sid-voice-copy" class="ce-tool-btn" type="button" aria-label="Copy voice">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="8" height="10" rx="1"/><path d="M3 5H2a1 1 0 00-1 1v7a1 1 0 001 1h8a1 1 0 001-1v-1"/></svg>
           </button>
-          <button id="sid-voice-paste" class="ce-tool-btn" type="button" title="Paste voice (Ctrl+V)" aria-label="Paste voice">
+          <button id="sid-voice-paste" class="ce-tool-btn" type="button" aria-label="Paste voice">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="10" height="11" rx="1"/><path d="M5 4V3a1 1 0 011-1h4a1 1 0 011 1v1"/><path d="M5 8h6M5 11h4"/></svg>
           </button>
         </div>
