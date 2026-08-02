@@ -49,7 +49,6 @@ nav .sp{flex:1}
 .hero::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.14) 2px,rgba(0,0,0,.14) 4px);pointer-events:none}
 .hero-left{padding:80px 60px 80px 80px;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:1}
 .hero-right{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;padding:40px 40px 40px 0}
-.hero-right .screen-wrap{max-width:100%}
 .hero-box-img{width:100%;max-width:980px;display:block;filter:drop-shadow(0 0 40px rgba(80,80,255,.4))}
 
 .badge{display:inline-block;border:1px solid var(--brd-hi);color:var(--cyn);font-size:11px;letter-spacing:3px;padding:5px 14px;margin-bottom:28px}
@@ -147,14 +146,12 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
 .foot-links a:hover{color:var(--txt)}
 .foot-copy{font-size:11px;color:var(--txt-dim);letter-spacing:1px}
 
-
 @media(max-width:900px){
   nav{padding:8px 12px;height:auto;flex-wrap:wrap;gap:0}
   .nav-brand{width:100%;padding:4px 0 8px;font-size:11px}
   .nav-link{font-size:10px;padding:6px 10px;letter-spacing:0}
   .hero{grid-template-columns:1fr}
   .hero-right{display:flex;padding:0 24px 48px;justify-content:center}
-  .hero-right .screen-wrap{max-width:100%}
   .hero-left{padding:60px 30px 32px}
   .about-grid{grid-template-columns:1fr}
   .tut-grid{grid-template-columns:1fr}
@@ -230,6 +227,19 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
     </div>
   </div>
 </div>
+</div>
+
+<hr class="div">
+
+<!-- DEMO -->
+<div style="background:var(--scr-darker);padding:80px 0;text-align:center">
+  <div class="sec" style="padding-top:0;padding-bottom:0">
+    <div class="sec-s">// SEE IT IN ACTION</div>
+    <h2 class="sec-t" style="margin-bottom:40px">C64 CUBE DEMO — BUILT WITH VISUAL ASSEMBLER</h2>
+    <div class="screen-wrap" style="max-width:900px;margin:0 auto">
+      <img src="uploads/demo.gif" alt="C64 demo built with Visual Assembler" style="width:100%;display:block">
+    </div>
+  </div>
 </div>
 
 <hr class="div">
@@ -409,15 +419,9 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
     <h2 class="sec-t" style="text-align:center">C64 VISUAL ASSEMBLER<br><span style="color:var(--ylw)">V2.2.8 — FREE</span></h2>
     <p class="sec-d" style="text-align:center;margin:0 auto 8px;max-width:460px">Desktop app for Windows, macOS and Linux. Requires Node.js and Rust to build from source, or download a prebuilt installer.</p>
     <div class="dl-plats">
-      <a class="dl-p btn" href="#" onclick="openItch();return false" style="border-color:var(--brd-hi)">
-        <span style="color:var(--ylw)">■</span> WINDOWS
-      </a>
-      <a class="dl-p btn" href="#" onclick="openItch();return false" style="border-color:var(--brd-hi)">
-        <span style="color:var(--ylw)">■</span> MACOS
-      </a>
-      <a class="dl-p btn" href="#" onclick="openItch();return false" style="border-color:var(--brd-hi)">
-        <span style="color:var(--ylw)">■</span> LINUX
-      </a>
+      <a class="dl-p btn" href="#" onclick="openItch();return false" style="border-color:var(--brd-hi)"><span style="color:var(--ylw)">■</span> WINDOWS</a>
+      <a class="dl-p btn" href="#" onclick="openItch();return false" style="border-color:var(--brd-hi)"><span style="color:var(--ylw)">■</span> MACOS</a>
+      <a class="dl-p btn" href="#" onclick="openItch();return false" style="border-color:var(--brd-hi)"><span style="color:var(--ylw)">■</span> LINUX</a>
     </div>
     <div class="dl-sub">OPEN SOURCE — MIT LICENSE — BUILT WITH TAURI + RUST</div>
     <div style="margin-top:20px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
@@ -434,10 +438,10 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
 <div class="foot-inner">
   <div class="foot-brand">C64 VISUAL ASSEMBLER — © 2026</div>
   <div class="foot-links">
-    <a href="#">GITHUB</a>
-    <a href="#">DOCS</a>
-    <a href="#">LICENSE</a>
-    <a href="#">SAMPLES</a>
+    <a href="https://github.com/zstarczali/VisualAssembler" target="_blank">GITHUB</a>
+    <a href="#docs">DOCS</a>
+    <a href="https://github.com/zstarczali/VisualAssembler/blob/main/LICENSE" target="_blank">LICENSE</a>
+    <a href="#editors">SAMPLES</a>
   </div>
   <div class="foot-copy">MIT LICENSE — FREE & OPEN SOURCE</div>
 </div>
