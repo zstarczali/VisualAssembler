@@ -149,9 +149,9 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
 
 
 @media(max-width:900px){
-  nav{padding:0 16px;height:auto;min-height:54px;flex-wrap:wrap;gap:0}
-  .nav-brand{padding:12px 0;font-size:11px}
-  .nav-link{font-size:10px;padding:6px 8px;letter-spacing:0}
+  nav{padding:8px 12px;height:auto;flex-wrap:wrap;gap:0}
+  .nav-brand{width:100%;padding:4px 0 8px;font-size:11px}
+  .nav-link{font-size:10px;padding:6px 10px;letter-spacing:0}
   .hero{grid-template-columns:1fr}
   .hero-right{display:flex;padding:0 24px 48px;justify-content:center}
   .hero-right .screen-wrap{max-width:100%}
@@ -226,7 +226,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   </div>
   <div class="about-right">
     <div class="screen-wrap">
-      <img src="uploads/Screenshot 2026-08-01 191432.png" alt="Program blocks editor with disassembler">
+      <img src="uploads/editor.png" alt="Program blocks editor with disassembler">
     </div>
   </div>
 </div>
@@ -358,7 +358,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   <div>
     <div class="sec-s">// HARDWARE INTEGRATION</div>
     <h2 class="sec-t">C64 ULTIMATE &<br>VICE SUPPORT</h2>
-    <p class="sec-d">Configure every hardware target from one settings panel. VICE, RetroDebugger, C64 Ultimate cartridge REST API, Exomizer compression and debug sidecar generation — all in one place.</p>
+    <p class="sec-d">Configure every hardware target from one settings panel. VICE, RetroDebugger, C64 Ultimate REST API, Exomizer compression and debug sidecar generation — all in one place.</p>
     <div class="feature-list">
       <div class="fi"><div class="fi-dot">►</div><div><b>C64 Ultimate</b> <span>— upload and run PRG directly on real hardware via the Ultimate REST API.</span></div></div>
       <div class="fi"><div class="fi-dot">►</div><div><b>VICE + RetroDebugger</b> <span>— one-click launch with breakpoints, symbol files and monitor commands.</span></div></div>
@@ -408,11 +408,6 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
     <div class="sec-s" style="text-align:center;margin-bottom:16px">// DOWNLOAD</div>
     <h2 class="sec-t" style="text-align:center">C64 VISUAL ASSEMBLER<br><span style="color:var(--ylw)">V2.2.8 — FREE</span></h2>
     <p class="sec-d" style="text-align:center;margin:0 auto 8px;max-width:460px">Desktop app for Windows, macOS and Linux. Requires Node.js and Rust to build from source, or download a prebuilt installer.</p>
-    <div style="margin-bottom:24px">
-      <a class="btn btn-y" href="#" onclick="openItch();return false" style="font-size:14px;padding:14px 36px;display:inline-block">
-        ▼ DOWNLOAD ON ITCH.IO
-      </a>
-    </div>
     <div class="dl-plats">
       <a class="dl-p btn" href="#" onclick="openItch();return false" style="border-color:var(--brd-hi)">
         <span style="color:var(--ylw)">■</span> WINDOWS
