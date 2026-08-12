@@ -662,8 +662,8 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`2.2.9` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, `CLAUDE.md`.
-Főbb újdonságok: **inline komment-megőrzés Expert módban** — `LDA $12 ; note` egyben marad Expert ↔ Block váltáskor; **blokkszintű inline komment marker** zöld italic header badge-dzsel + tooltip-pel; **Ctrl/Cmd+/ comment toggle** Expert módban (`Shift` = uncomment); valamint bővített `macro-core` regressziós tesztek a kommentes round-tripre.
+`2.3.0` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, `CLAUDE.md`.
+Főbb újdonságok: teljes **Ultimate Basic IDE mód** `.ub` szerkesztővel, projektekkel és startup fájllal; build/run/debug, VICE/C64 Ultimate/D64 és Exomizer integráció; szimbólumos disassembly és debug sidecarok; beágyazott UB kézikönyv; lokalizált induló customer message.
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező

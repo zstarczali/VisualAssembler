@@ -1,9 +1,9 @@
 C64 Visual Assembler - Installation Guide
-Version 2.2.9
+Version 2.3.0
 Support: https://zstarczali.itch.io/visual-assembler-commodore-64
 ==========================================================================
 
-2.2.9: Expert mode now preserves inline `; comments` on their source lines, Block mode shows them as compact header markers, Ctrl/Cmd+/ comments or uncomments selected lines, and macro-core tests now cover the new comment behavior.
+2.3.0: Adds the complete Ultimate Basic IDE mode with projects, editor tooling, compilation, VICE/C64 Ultimate/D64 execution, RetroDebugger symbols, Exomizer support, and the bundled Ultimate Basic manual.
 
 
 ==========================================================================
@@ -15,7 +15,7 @@ Tested on Ubuntu 22.04 and 24.04.
 -----------------------
 Download the .deb package from the releases page and install:
 
-  sudo dpkg -i "c64-visual-assembler_2.2.9_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.3.0_amd64.deb"
   sudo apt-get install -f   # fix any missing dependencies
 
 Launch from the Applications menu or:
@@ -108,7 +108,7 @@ Requirements: macOS 11.0+, Apple Silicon (M1/M2/M3)
 
 1. C64 Visual Assembler
 -----------------------
-1. Download the 2.2.9 DMG for your architecture from the releases page
+1. Download the 2.3.0 DMG for your architecture from the releases page
 2. Mount the DMG and drag the app to /Applications
 3. First launch: Right-click the app -> "Open" (macOS will block double-click)
 4. Click "Open" in the security dialog

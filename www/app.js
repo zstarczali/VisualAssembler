@@ -73,6 +73,46 @@ const addressingModes = {
   }
 };
 
+// Customer-facing startup message. Change `id` to show a new message once to
+// every user, or set `enabled` to false to disable it completely.
+const CUSTOMER_MESSAGE = {
+  enabled: true,
+  id: "ultimate-basic-introduction-2",
+  url: "https://github.com/zstarczali/UltimateBasic",
+  hu: {
+    eyebrow: "Újdonság",
+    title: "Megérkezett az Ultimate Basic",
+    body: `<p>Az <strong>Ultimate Basic</strong> egy modern, C64-re készült fordított BASIC nyelv. <strong>Mostantól az Ultimate Basic közvetlenül a Visual Assembler IDE-ben is elérhető</strong>, a teljes értékű UB szerkesztőmódban.</p><ul><li><strong>Mire jó?</strong> Gyors C64 program-, játék- és demófejlesztésre, alacsony szintű assembly írása nélkül.</li><li><strong>Mit tartalmaz?</strong> Szintaxiskiemelést, kódkiegészítést, parancssúgót, projektkezelést, formázást, fordítást és hibajelzést.</li><li><strong>Futtatás:</strong> PRG vagy D64 VICE-ban és C64 Ultimate-en, valamint RetroDebugger támogatás szimbólumokkal.</li><li><strong>Debug kimenet:</strong> KickAssembler <code>.sym</code>, C64Debugger <code>.dbg</code> és VICE <code>.vs</code> címkék.</li></ul><p>Az Ultimate Basic önálló, nyílt forrású projektként is elérhető a GitHubon.</p>`,
+    link: "Ultimate Basic a GitHubon",
+    dismiss: "Ne jelenjen meg többé",
+    close: "Bezárás"
+  },
+  en: {
+    eyebrow: "New",
+    title: "Introducing Ultimate Basic",
+    body: `<p><strong>Ultimate Basic</strong> is a modern compiled BASIC language for the C64. <strong>Ultimate Basic is now available directly inside the Visual Assembler IDE</strong> through the full-featured UB editor mode.</p><ul><li><strong>What is it for?</strong> Rapid C64 program, game and demo development without writing everything in low-level assembly.</li><li><strong>What is included?</strong> Syntax highlighting, completion, command help, projects, formatting, compilation and error reporting.</li><li><strong>Run targets:</strong> PRG or D64 in VICE and on C64 Ultimate, plus RetroDebugger support with symbols.</li><li><strong>Debug output:</strong> KickAssembler <code>.sym</code>, C64Debugger <code>.dbg</code> and VICE <code>.vs</code> labels.</li></ul><p>Ultimate Basic is also available as a standalone open-source project on GitHub.</p>`,
+    link: "Ultimate Basic on GitHub",
+    dismiss: "Don't show again",
+    close: "Close"
+  },
+  es: {
+    eyebrow: "Novedad",
+    title: "Ha llegado Ultimate Basic",
+    body: `<p><strong>Ultimate Basic</strong> es un lenguaje BASIC moderno y compilado para C64. <strong>A partir de ahora, Ultimate Basic también está disponible directamente en el IDE Visual Assembler</strong> mediante el completo modo de edición UB.</p><ul><li><strong>¿Para qué sirve?</strong> Para desarrollar rápidamente programas, juegos y demos de C64 sin tener que escribirlo todo en ensamblador de bajo nivel.</li><li><strong>¿Qué incluye?</strong> Resaltado de sintaxis, autocompletado, ayuda de comandos, gestión de proyectos, formateo, compilación e indicación de errores.</li><li><strong>Ejecución:</strong> PRG o D64 en VICE y C64 Ultimate, además de compatibilidad con RetroDebugger y símbolos.</li><li><strong>Información de depuración:</strong> archivos KickAssembler <code>.sym</code>, C64Debugger <code>.dbg</code> y etiquetas VICE <code>.vs</code>.</li></ul><p>Ultimate Basic también está disponible como proyecto independiente y de código abierto en GitHub.</p>`,
+    link: "Ultimate Basic en GitHub",
+    dismiss: "No volver a mostrar",
+    close: "Cerrar"
+  },
+  de: {
+    eyebrow: "Neu",
+    title: "Ultimate Basic ist da",
+    body: `<p><strong>Ultimate Basic</strong> ist eine moderne, kompilierte BASIC-Sprache für den C64. <strong>Ab sofort ist Ultimate Basic auch direkt in der Visual Assembler IDE verfügbar</strong> – mit einem vollständigen UB-Editormodus.</p><ul><li><strong>Wofür ist es gedacht?</strong> Für die schnelle Entwicklung von C64-Programmen, Spielen und Demos, ohne alles in maschinennahem Assembler schreiben zu müssen.</li><li><strong>Was ist enthalten?</strong> Syntaxhervorhebung, Codevervollständigung, Befehlshilfe, Projektverwaltung, Formatierung, Kompilierung und Fehleranzeige.</li><li><strong>Ausführung:</strong> PRG oder D64 in VICE und auf C64 Ultimate sowie RetroDebugger-Unterstützung mit Symbolen.</li><li><strong>Debug-Ausgabe:</strong> KickAssembler-<code>.sym</code>, C64Debugger-<code>.dbg</code> und VICE-<code>.vs</code>-Labels.</li></ul><p>Ultimate Basic ist außerdem als eigenständiges Open-Source-Projekt auf GitHub verfügbar.</p>`,
+    link: "Ultimate Basic auf GitHub",
+    dismiss: "Nicht mehr anzeigen",
+    close: "Schließen"
+  }
+};
+
 const mnemonicLibrary = {
   Adatmozgas: [
     { mnemonic: "LDA", description: "Akkumulator betoltese memoriabol vagy konstansbol.", modes: ["immediate", "zeroPage", "zeroPageX", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
@@ -358,6 +398,10 @@ const aboutDialog = document.getElementById("about-dialog");
 const aboutCloseButton = document.getElementById("about-close");
 const whatsNewDialog = document.getElementById("whats-new-dialog");
 const whatsNewCloseButton = document.getElementById("whats-new-close");
+const customerMessageDialog = document.getElementById("customer-message-dialog");
+const customerMessageCloseButton = document.getElementById("customer-message-close");
+const customerMessageDismissButton = document.getElementById("customer-message-dismiss");
+const customerMessageLinkButton = document.getElementById("customer-message-link");
 const knowledgeBaseButton = document.getElementById("knowledge-base-btn");
 const knowledgeBaseDialog = document.getElementById("knowledge-base-dialog");
 const knowledgeBaseCloseButton = document.getElementById("knowledge-base-close");
@@ -396,6 +440,11 @@ const expertLoadAsmBtn     = document.getElementById("expert-load-asm-btn");
 const expertSaveAsmBtn     = document.getElementById("expert-save-asm-btn");
 const expertBuildInfoBtn   = document.getElementById("expert-build-info-btn");
 const expertModeTbBtn      = document.getElementById("expert-mode-tb-btn");
+const ubModeTbBtn          = document.getElementById("ub-mode-tb-btn");
+const ubPanel              = document.getElementById("ub-panel");
+const ubEditor             = document.getElementById("ub-editor");
+const ubStatus             = document.getElementById("ub-status");
+const ubBuildOutput        = document.getElementById("ub-build-output");
 const expertFindBtn        = document.getElementById("expert-find-btn");
 const expertZoomInBtn      = document.getElementById("expert-zoom-in-btn");
 const expertZoomOutBtn     = document.getElementById("expert-zoom-out-btn");
@@ -522,6 +571,7 @@ function saveUiSettings() {
     writeDebugSidecars: writeDebugSidecarsToggle ? writeDebugSidecarsToggle.checked : false,
     exomizerBorderFlash: exomizerBorderFlashToggle ? exomizerBorderFlashToggle.checked : true,
     expertMode: expertMode,
+    ultimateBasicMode: ultimateBasicMode,
     expertHlEnabled: _expertHlEnabled,
     expertPaletteSyncEnabled: _expertPaletteSyncEnabled,
     expertRegionSelectionEnabled: _expertRegionSelectionEnabled,
@@ -529,6 +579,12 @@ function saveUiSettings() {
     expertPaletteVisible: _expertPaletteVisible,
     expertDisasmVisible: _expertDisasmVisible,
     expertDisasmWidth: _expertDisasmWidth,
+    ubDisasmWidth: _ubDisasmWidth,
+    ubDisasmPaneWidth: _ubDisasmPaneWidth,
+    ubProjectVisible: _ubProjectVisible,
+    ubCommandsVisible: _ubCommandsVisible,
+    ubOutputVisible: _ubOutputVisible,
+    ubAutocompleteEnabled: _ubAutocompleteEnabled,
     expertMonitorVisible: _expertMonitorVisible,
     expertProjectVisible: _expertProjectVisible,
     expertProjectSymbolsHeight: _expertProjectSymbolsHeight,
@@ -1409,6 +1465,9 @@ function initPalette() {
   aboutButton?.addEventListener("click", async () => {
     document.querySelector(".control-menu")?.removeAttribute("open");
     document.getElementById("about-version").textContent = await getAppVersionText();
+    const ubVersion = await window.electronAPI?.getUltimateBasicVersion?.();
+    const ubVersionValue = document.getElementById("about-ub-version-value");
+    if (ubVersionValue) ubVersionValue.textContent = ubVersion ? `v${ubVersion}` : "v?";
     const dlg = document.getElementById("about-dialog");
     dlg?.querySelectorAll("a[href^='mailto:'], a[href^='http://'], a[href^='https://']").forEach(a => {
       if (a.dataset.externalBound) return;
@@ -1452,6 +1511,104 @@ function initPalette() {
   });
   expertModeTbBtn?.addEventListener("click", () => {
     setExpertMode(!expertMode);
+  });
+  ubModeTbBtn?.addEventListener("click", () => setUltimateBasicMode(!ultimateBasicMode));
+  document.getElementById("ub-new-btn")?.addEventListener("click", _ubNew);
+  document.getElementById("ub-open-btn")?.addEventListener("click", () => _ubOpen(true));
+  document.getElementById("ub-save-btn")?.addEventListener("click", _ubSave);
+  document.getElementById("ub-format-btn")?.addEventListener("click", _ubFormatSource);
+  document.getElementById("ub-build-btn")?.addEventListener("click", () => _ubCompile(true));
+  document.getElementById("ub-output-btn")?.addEventListener("click", _ubToggleOutput);
+  document.getElementById("ub-autocomplete-btn")?.addEventListener("click", _ubToggleAutocomplete);
+  document.getElementById("ub-project-btn")?.addEventListener("click", _ubToggleProject);
+  document.getElementById("ub-help-btn")?.addEventListener("click", _ubToggleCommands);
+  document.getElementById("ub-manual-btn")?.addEventListener("click", () => window.electronAPI?.openUltimateBasicManual?.());
+  document.getElementById("ub-project-open-btn")?.addEventListener("click", _ubOpenProject);
+  document.getElementById("ub-project-new-btn")?.addEventListener("click", _ubNewProject);
+  document.getElementById("ub-project-save-btn")?.addEventListener("click", _ubSaveProject);
+  document.getElementById("ub-project-add-btn")?.addEventListener("click", () => _ubOpen(true));
+  document.getElementById("ub-verbose-btn")?.addEventListener("click", _ubToggleVerbose);
+  document.getElementById("ub-disasm-btn")?.addEventListener("click", _ubToggleDisasm);
+  const ubDisasmResizer = document.getElementById("ub-disasm-resizer");
+  ubDisasmResizer?.addEventListener("mousedown", event => {
+    event.preventDefault();
+    const startX = event.clientX;
+    const startWidth = _ubDisasmWidth;
+    ubDisasmResizer.classList.add("dragging");
+    const onMove = moveEvent => {
+      const sidePanelsWidth = (_ubProjectVisible ? (_ubCommandsVisible ? 195 : 220) : 0) + (_ubCommandsVisible ? 220 : 0);
+      const maxWidth = Math.max(240, window.innerWidth - sidePanelsWidth - 300);
+      _ubDisasmWidth = Math.max(180, Math.min(maxWidth, startWidth + startX - moveEvent.clientX));
+      ubPanel?.style.setProperty("--ub-disasm-width", `${_ubDisasmWidth}px`);
+    };
+    const onUp = () => {
+      ubDisasmResizer.classList.remove("dragging");
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+      saveUiSettings();
+    };
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  });
+  const ubPanelsResizer = document.getElementById("ub-panels-resizer");
+  ubPanelsResizer?.addEventListener("mousedown", event => {
+    event.preventDefault();
+    const rightPanels = ubPanelsResizer.closest(".ub-right-panels");
+    const startX = event.clientX;
+    const startWidth = _ubDisasmPaneWidth;
+    ubPanelsResizer.classList.add("dragging");
+    const onMove = moveEvent => {
+      const available = rightPanels?.clientWidth || 480;
+      const maxWidth = Math.max(120, available - 125);
+      _ubDisasmPaneWidth = Math.max(120, Math.min(maxWidth, startWidth + startX - moveEvent.clientX));
+      ubPanel?.style.setProperty("--ub-disasm-pane-width", `${_ubDisasmPaneWidth}px`);
+    };
+    const onUp = () => {
+      ubPanelsResizer.classList.remove("dragging");
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+      saveUiSettings();
+    };
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  });
+  document.getElementById("ub-command-search")?.addEventListener("input", _ubRenderCommandReference);
+  document.getElementById("ub-hl-btn")?.addEventListener("click", _ubToggleHighlight);
+  document.getElementById("ub-lines-btn")?.addEventListener("click", _ubToggleLines);
+  document.getElementById("ub-minimap-btn")?.addEventListener("click", _ubToggleMinimap);
+  document.getElementById("ub-find-btn")?.addEventListener("click", _ubOpenFind);
+  document.getElementById("ub-find-close")?.addEventListener("click", _ubCloseFind);
+  document.getElementById("ub-find-next")?.addEventListener("click", () => _ubFind(1));
+  document.getElementById("ub-find-prev")?.addEventListener("click", () => _ubFind(-1));
+  document.getElementById("ub-find-input")?.addEventListener("input", () => _ubFind(0));
+  document.querySelectorAll("#ub-panel [aria-label][title]").forEach(element => element.removeAttribute("title"));
+  document.getElementById("ub-find-input")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); _ubFind(e.shiftKey ? -1 : 1); }
+    if (e.key === "Escape") _ubCloseFind();
+  });
+  document.getElementById("ub-zoom-in-btn")?.addEventListener("click", () => _ubZoom(1));
+  document.getElementById("ub-zoom-out-btn")?.addEventListener("click", () => _ubZoom(-1));
+  ubEditor?.addEventListener("input", () => { _ubDirty = true; markTabDirty(); _ubRefreshEditor(); _ubAcUpdate(); });
+  ubEditor?.addEventListener("keyup", _ubUpdateCursor);
+  ubEditor?.addEventListener("click", _ubUpdateCursor);
+  ubEditor?.addEventListener("scroll", _ubSyncScroll);
+  document.getElementById("ub-minimap")?.addEventListener("click", (e) => {
+    const canvas = e.currentTarget;
+    const ratio = (e.clientY - canvas.getBoundingClientRect().top) / canvas.clientHeight;
+    ubEditor.scrollTop = ratio * Math.max(0, ubEditor.scrollHeight - ubEditor.clientHeight);
+  });
+  ubEditor?.addEventListener("keydown", (e) => {
+    if (_ubAcVisible()) {
+      if (e.key === "ArrowDown") { e.preventDefault(); _ubAcMove(1); return; }
+      if (e.key === "ArrowUp") { e.preventDefault(); _ubAcMove(-1); return; }
+      if (e.key === "Enter" || e.key === "Tab") { if (_ubAcCommit()) { e.preventDefault(); return; } }
+      if (e.key === "Escape") { _ubAcHide(); return; }
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "f") { e.preventDefault(); _ubOpenFind(); return; }
+    if (e.key !== "Tab") return;
+    e.preventDefault();
+    ubEditor.setRangeText("  ", ubEditor.selectionStart, ubEditor.selectionEnd, "end");
+    _ubDirty = true;
   });
 
   expertHlToggleBtn?.addEventListener("click", () => {
@@ -1773,6 +1930,16 @@ function initPalette() {
     whatsNewDialog?.showModal();
   });
   whatsNewCloseButton?.addEventListener("click", () => whatsNewDialog?.close());
+  customerMessageCloseButton?.addEventListener("click", () => {
+    customerMessageDialog?.close();
+  });
+  customerMessageDismissButton?.addEventListener("click", () => {
+    localStorage.setItem("customerMessageSeen", CUSTOMER_MESSAGE.id);
+    customerMessageDialog?.close();
+  });
+  customerMessageLinkButton?.addEventListener("click", () => {
+    if (CUSTOMER_MESSAGE.url) window.electronAPI?.openExternal(CUSTOMER_MESSAGE.url);
+  });
   knowledgeBaseButton?.addEventListener("click", () => {
     document.querySelector(".control-menu")?.removeAttribute("open");
     knowledgeBaseDialog?.showModal();
@@ -1925,6 +2092,7 @@ function initPalette() {
   document.addEventListener("keydown", (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === "s") {
       e.preventDefault();
+      if (ultimateBasicMode) { _ubSave(); return; }
       saveProjectToFile().then(() => {
         markTabClean();
         if (expertMode) {
@@ -2034,7 +2202,8 @@ function initPalette() {
   });
   chooseViceButton?.addEventListener("click", chooseViceExecutable);
   runEmulatorButton?.addEventListener("click", () => {
-    if (runMode === "d64") runViaD64();
+    if (ultimateBasicMode) _ubRun(runMode);
+    else if (runMode === "d64") runViaD64();
     else if (runMode === "ultimate") runOnUltimate();
     else if (runMode === "ultimate-d64") runUltimateD64();
     else runInEmulator();
@@ -2078,10 +2247,14 @@ function initPalette() {
   // the current version, not the placeholder in index.html.
   getAppVersionText().then(versionText => {
     const splashVersion = document.getElementById('splash-version');
-    if (splashVersion) splashVersion.textContent = versionText;
+    if (splashVersion) splashVersion.textContent = `Visual Assembler ${String(versionText).replace(/^v/i, "")}`;
     const aboutVersion = document.getElementById('about-version');
     if (aboutVersion) aboutVersion.textContent = versionText;
   });
+  window.electronAPI?.getUltimateBasicVersion?.().then(version => {
+    const splashUbVersion = document.getElementById("splash-ub-version");
+    if (splashUbVersion && version) splashUbVersion.textContent = `Ultimate Basic ${version}`;
+  }).catch(() => {});
 
   // READY. typewriter effect
   (() => {
@@ -2109,6 +2282,7 @@ function initPalette() {
       splashScreen.classList.add('fade-out');
       setTimeout(() => {
         splashScreen.remove();
+        showCustomerMessageIfNeeded();
       }, 500);
     }
   }, 2000);
@@ -2317,6 +2491,26 @@ function applySavedLanguage() {
   }
 }
 
+function showCustomerMessageIfNeeded() {
+  if (!CUSTOMER_MESSAGE.enabled || !customerMessageDialog) return;
+  if (localStorage.getItem("customerMessageSeen") === CUSTOMER_MESSAGE.id) return;
+  const content = CUSTOMER_MESSAGE[currentLanguage] || CUSTOMER_MESSAGE.en;
+  const eyebrow = document.getElementById("customer-message-eyebrow");
+  const title = document.getElementById("customer-message-title");
+  const body = document.getElementById("customer-message-body");
+  if (eyebrow) eyebrow.textContent = content.eyebrow;
+  if (title) title.textContent = content.title;
+  if (body) body.innerHTML = content.body;
+  if (customerMessageLinkButton) {
+    customerMessageLinkButton.textContent = content.link;
+    customerMessageLinkButton.hidden = !CUSTOMER_MESSAGE.url;
+  }
+  if (customerMessageDismissButton) customerMessageDismissButton.textContent = content.dismiss;
+  if (customerMessageCloseButton) customerMessageCloseButton.textContent = content.close;
+  customerMessageDialog.showModal();
+  requestAnimationFrame(() => customerMessageCloseButton?.focus());
+}
+
 function _applyUiSettingsToDOM() {
   if (sampleSelect && savedUiSettings.sample) {
     sampleSelect.value = savedUiSettings.sample;
@@ -2432,8 +2626,22 @@ function _applyUiSettingsToDOM() {
   if (savedUiSettings.expertRegionSelectionEnabled !== undefined) {
     _expertRegionSelectionEnabled = !!savedUiSettings.expertRegionSelectionEnabled;
   }
+  if (Number.isFinite(savedUiSettings.ubDisasmWidth)) {
+    _ubDisasmWidth = Math.max(180, Number(savedUiSettings.ubDisasmWidth));
+    ubPanel?.style.setProperty("--ub-disasm-width", `${_ubDisasmWidth}px`);
+  }
+  if (Number.isFinite(savedUiSettings.ubDisasmPaneWidth)) {
+    _ubDisasmPaneWidth = Math.max(120, Number(savedUiSettings.ubDisasmPaneWidth));
+    ubPanel?.style.setProperty("--ub-disasm-pane-width", `${_ubDisasmPaneWidth}px`);
+  }
+  if (savedUiSettings.ubProjectVisible !== undefined) _ubProjectVisible = !!savedUiSettings.ubProjectVisible;
+  if (savedUiSettings.ubCommandsVisible !== undefined) _ubCommandsVisible = !!savedUiSettings.ubCommandsVisible;
+  if (savedUiSettings.ubOutputVisible !== undefined) _ubOutputVisible = !!savedUiSettings.ubOutputVisible;
+  if (savedUiSettings.ubAutocompleteEnabled !== undefined) _ubAutocompleteEnabled = !!savedUiSettings.ubAutocompleteEnabled;
 
-  if (savedUiSettings.expertMode) {
+  if (savedUiSettings.ultimateBasicMode) {
+    setUltimateBasicMode(true);
+  } else if (savedUiSettings.expertMode) {
     // Capture toolbar states BEFORE setExpertMode(true) — it calls saveUiSettings()
     // which overwrites savedUiSettings with current (default) variable values.
     const _savedHlEnabled          = savedUiSettings.expertHlEnabled;
@@ -2540,6 +2748,7 @@ function handleLanguageChange() {
   renderEmulatorRunHint();
   renderProgram();
   if (expertMode) _expertRenderProjectTree();
+  if (ultimateBasicMode) { _ubRenderProjectFiles(); _ubRenderCommandReference(); }
   saveUiSettings();
 }
 
@@ -2572,6 +2781,7 @@ function applyTranslations() {
     setText("#about-sid-credit-label", t("aboutSidCreditLabel"));
     setText("#about-sid-credit-license", t("aboutSidCreditLicense"));
     setText("#about-repo-label", t("aboutRepoLabel"));
+    setText("#about-ub-version-label", t("aboutUbVersionLabel"));
   if (helpManualButton) helpManualButton.textContent = t("helpManual");
   if (checkUpdateButton) checkUpdateButton.textContent = t("checkForUpdate");
   if (reportBugButton) reportBugButton.textContent = t("reportBug");
@@ -2635,6 +2845,26 @@ function applyTranslations() {
   expertBuildInfoBtn?.setAttribute("aria-label", t("buildInfoBtn"));
   buildInfoBtn?.setAttribute("title", t("buildInfoBtn"));
   buildInfoBtn?.setAttribute("aria-label", t("buildInfoBtn"));
+
+  const ubLabels = {
+    "ub-new-btn": "ubNewSource", "ub-open-btn": "ubOpenSource", "ub-save-btn": "ubSaveSource", "ub-format-btn": "ubFormatSource",
+    "ub-build-btn": "ubBuild", "ub-output-btn": "ubBuildOutput", "ub-verbose-btn": "ubVerbose", "ub-disasm-btn": "expertDisasm", "ub-autocomplete-btn": "expertAutocomplete",
+    "ub-project-btn": "expertProjectPanel", "ub-help-btn": "ubCommandHelpToggle", "ub-manual-btn": "ubManual", "ub-project-open-btn": "projOpenProjectBtn",
+    "ub-project-new-btn": "projNewProjectBtn", "ub-project-save-btn": "projSaveProjectBtn",
+    "ub-project-add-btn": "projAddFileBtn", "ub-hl-btn": "ubSyntaxHighlight",
+    "ub-lines-btn": "ubLineNumbers", "ub-minimap-btn": "ubMinimap",
+    "ub-find-btn": "ubFind", "ub-zoom-out-btn": "zoomOut", "ub-zoom-in-btn": "zoomIn"
+  };
+  Object.entries(ubLabels).forEach(([id, key]) => document.getElementById(id)?.setAttribute("aria-label", t(key)));
+  setText("#ub-commands-title", t("ubCommands"));
+  setText("#ub-commands-help", t("ubCommandsHelp"));
+  setText("#ub-search-label", t("ubSearch"));
+  setText("#ub-command-select", t("ubSelectCommand"));
+  setText("#ub-command-hint", t("ubCommandHint"));
+  setText("#ub-build-output-title", t("ubBuildOutput"));
+  setText("#ub-disassembly-title", t("ubDisassembly"));
+  const ubCommandSearch = document.getElementById("ub-command-search");
+  if (ubCommandSearch) ubCommandSearch.placeholder = t("ubSearchPlaceholder");
 
   syncMainToolbarTooltips();
 
@@ -5278,6 +5508,7 @@ let _expertIncludeReloadTimer = null;
 let _expertIncludeReloadSeq = 0;
 
 function setExpertMode(on) {
+  if (on && ultimateBasicMode) setUltimateBasicMode(false);
   let cursorSourceLine = -1;
   if (!on && expertMode) {
     // Capture the caret's source line BEFORE syncing / rebuilding, so we can
@@ -5318,6 +5549,1022 @@ function setExpertMode(on) {
   }
   renderMnemonicDescription();
   saveUiSettings();
+}
+
+// ── UltimateBasic Mode ─────────────────────────────────────────────────────
+let ultimateBasicMode = false;
+let _ubFilePath = "";
+let _ubDirty = false;
+let _ubHighlightEnabled = true;
+let _ubLinesEnabled = true;
+let _ubMinimapEnabled = true;
+let _ubProjectVisible = true;
+let _ubCommandsVisible = false;
+let _ubVerbose = false;
+let _ubOutputVisible = true;
+let _ubAutocompleteEnabled = true;
+let _ubDisasmVisible = false;
+let _ubDisasmWidth = 340;
+let _ubDisasmPaneWidth = 240;
+let _ubFontSize = 14;
+let _ubFindMatches = [];
+let _ubFindIndex = -1;
+let _ubSelectedCommand = "print";
+let _ubStartupTabId = null;
+let _ubProjectData = null;
+
+const _UB_COMMAND_REFERENCE = [
+  ["var", "var name[: type] = expression", "Declares a byte, word, float, string, or array variable."],
+  ["const", "const NAME = expression", "Declares a compile-time constant."],
+  ["print", "print [expression [, expression ...]]\nprint spc(count)\nprint tab(column)\nprint chr$(code)", "Prints values and formatting helpers through the C64 KERNAL output routine."],
+  ["print at", "print at column, row [, expression ...]", "Moves the cursor, then prints optional values."],
+  ["input", "input [\"prompt\",] variable", "Reads a value from the keyboard into a variable."],
+  ["if", "if condition then\n  statements\n[else\n  statements]\nend", "Conditional execution with an optional else branch."],
+  ["for", "for variable = start to limit [step amount]\n  statements\nnext [variable]", "Runs a counted loop."],
+  ["while", "while condition\n  statements\nend", "Repeats while the condition is true."],
+  ["repeat", "repeat\n  statements\nuntil condition", "Repeats until the condition becomes true."],
+  ["loop", "loop [count]\n  statements\nend", "Creates an infinite or counted loop."],
+  ["break", "break", "Leaves the current loop."],
+  ["continue", "continue", "Continues with the next loop iteration."],
+  ["sub", "sub name([parameters])\n  statements\nend", "Defines a non-recursive subroutine."],
+  ["fn", "fn name([parameters])[: type]\n  statements\n  return expression\nend", "Defines a function with an optional return type."],
+  ["call", "call name([arguments])", "Calls a named subroutine."],
+  ["goto", "goto label", "Jumps to a label."],
+  ["label", "label name", "Defines a goto target."],
+  ["graphics", "graphics on [hires|multi|block] [double]\ngraphics off", "Enables or disables a graphics mode."],
+  ["plot", "plot x, y [, color]\nplot erase x, y\nplot xor x, y", "Draws, erases, or XORs a bitmap pixel."],
+  ["line", "line x1, y1, x2, y2\nline erase x1, y1, x2, y2\nline xor x1, y1, x2, y2", "Draws, clears, or XORs a bitmap line."],
+  ["circle", "circle x, y, radius [, color]", "Draws a bitmap circle."],
+  ["rect", "rect x1, y1, x2, y2\nrect erase x1, y1, x2, y2\nrect xor x1, y1, x2, y2", "Draws, clears, or XORs a rectangle outline."],
+  ["gcls", "gcls [color]", "Clears the active graphics screen."],
+  ["flip", "flip", "Swaps visible and draw buffers in double-buffer mode."],
+  ["sprite", "sprite id, x, y [, data_address]", "Positions a hardware sprite and optionally sets its data pointer."],
+  ["sprdef", "sprdef id\n  byte values...\nend", "Embeds and installs a 63-byte sprite definition."],
+  ["sound", "sound channel, frequency, duration", "Plays a SID voice with fixed ADSR and sawtooth waveform."],
+  ["load sid", "load sid \"file.sid\" [at address]", "Embeds a PSID/RSID file at compile time."],
+  ["music", "music play | stop | pause | resume", "Controls music loaded with load sid."],
+  ["irq", "irq handler [, raster_line]", "Installs a raster interrupt handler at line 0 or the given raster line."],
+  ["irq_exit", "irq_exit", "Exits a raster IRQ through the KERNAL."],
+  ["poke", "poke address, value\npoke16 address, value", "Writes an 8-bit or 16-bit value to memory."],
+  ["peek", "peek(address)\npeek16(address)", "Reads an 8-bit or 16-bit value from memory."],
+  ["sys", "sys address [, accumulator]", "Calls a machine-code routine with JSR."],
+  ["asm", "asm byte [, byte ...]\nasm {\n  6502 instructions\n}", "Embeds raw bytes or a full inline 6502 assembly block."],
+  ["include", "include \"file.ub\"", "Includes another UltimateBasic source file."],
+  ["incbin", "incbin \"file.bin\"", "Embeds binary data at compile time."],
+  ["data", "data value [, value ...]\nread variable", "Defines compile-time byte data and reads it sequentially."],
+  ["reu", "reu stash|fetch|swap c64_address, bank, reu_address, length", "Transfers memory using the REU DMA controller."],
+  ["turbo", "turbo on | off\nspeed mhz", "Controls C64 Ultimate/SuperCPU acceleration."],
+  ["wait", "wait transitions\nwait raster raster_line", "Waits for raster transitions or for a specific raster line."],
+  ["bye", "bye", "Returns cleanly to BASIC."],
+  ["exit", "exit", "Alias for BYE; returns cleanly to BASIC."],
+  ["comments", "# comment\nrem comment\nstatement # inline comment", "Adds full-line or inline source comments."],
+  ["compound assignment", "x += n | x -= n | x *= n | x /= n\nx and= n | x or= n | x xor= n | x shl= n | x shr= n", "Updates a variable with an arithmetic or bitwise operation."],
+  ["arrays", "var bytes = array(count)\nvar words = array_word(count)\nbytes[index] = value", "Declares and accesses byte or word arrays in heap RAM."],
+  ["times", "times count\n  statements\nend", "Runs a counted loop the given number of times."],
+  ["select", "select expression\ncase value:\n  statements\n[else:]\n  statements\nend", "Selects one branch from multiple cases."],
+  ["return", "return [expression]", "Returns from a subroutine or function."],
+  ["gosub", "gosub label", "Calls a label with JSR; return resumes execution."],
+  ["cls", "cls\ncls fast", "Clears the text screen; FAST directly fills screen and color RAM."],
+  ["display", "display on | off", "Enables or disables VIC-II display output."],
+  ["color", "color text value\ncolor border value\ncolor bg value", "Sets the text, border, or background color."],
+  ["text", "text column, row, string [, color]", "Writes text at a screen position."],
+  ["screen", "screen column, row, character [, color]", "Writes directly to screen and color RAM."],
+  ["cursor", "cursor column, row", "Moves the text cursor."],
+  ["lowercase", "lowercase", "Switches to the lowercase/uppercase VIC character set."],
+  ["uppercase", "uppercase", "Switches to the uppercase/graphics VIC character set."],
+  ["plot4", "plot4 x, y [, color]\nplot4 erase x, y", "Draws a 4×4 block pixel."],
+  ["mplot", "mplot x, y, color", "Draws a multicolor bitmap pixel."],
+  ["circle4", "circle4 x, y, radius [, color]", "Draws a circle in block-pixel mode."],
+  ["paint", "paint x, y [, color]", "Flood-fills a connected bitmap area."],
+  ["fill", "fill screen value\nfill color value\nfill address, length, value", "Fills screen RAM, color RAM, or an arbitrary memory range."],
+  ["sprite control", "sprite id, on|off|color value|multi on|off|expand x|y|priority front|back", "Controls hardware sprite attributes."],
+  ["sprite_frame", "sprite_frame id, data_address", "Changes a sprite's data pointer."],
+  ["sprite collision", "sprite_hit()\nsprite_bg_hit()", "Reads sprite/sprite or sprite/background collision flags."],
+  ["sprite position", "sprite_x(id)\nsprite_y(id)", "Reads a hardware sprite coordinate."],
+  ["chardef", "chardef character\n  byte values...\nend", "Embeds an 8-byte custom character definition."],
+  ["charset", "charset address", "Sets the RAM character-set base address."],
+  ["sid volume", "sid volume value\nsid stop", "Sets SID volume or stops SID playback."],
+  ["nmi", "nmi handler", "Installs an NMI handler."],
+  ["nmi_exit", "nmi_exit", "Exits an NMI through the KERNAL."],
+  ["cia_timer", "cia_timer period, handler", "Configures CIA1 Timer A interrupt handling."],
+  ["onerr", "onerr goto label", "Installs a KERNAL I/O error handler."],
+  ["open", "open channel, device, secondary [, filename]", "Opens a KERNAL logical file."],
+  ["close", "close channel", "Closes a KERNAL logical file."],
+  ["print#", "print# channel, expression [, expression ...]", "Writes values to an open logical file."],
+  ["load", "load filename [, address]", "Loads a disk file at its native or an overridden address."],
+  ["save", "save filename, start_address, length", "Saves a memory range to device 8 through the KERNAL."],
+  ["memcopy", "memcopy source, destination, length", "Copies a block of memory."],
+  ["drawmem", "drawmem source, destination, width, height, stride", "Copies a packed 2-D rectangle to strided destination memory."],
+  ["delay", "delay frames", "Waits for the given number of video frames."],
+  ["raster", "raster()", "Returns the current raster line."],
+  ["scroll", "scroll x amount [narrow|wide]\nscroll y amount\nscroll row row_number left", "Controls VIC-II fine scrolling, display width, or shifts a screen row."],
+  ["badlines", "badlines on | off", "Controls Ultimate badline timing."],
+  ["speed", "speed value | max | off", "Sets the C64 Ultimate CPU speed."],
+  ["fast", "fast", "Enables the compiler's fast execution mode where supported."],
+  ["getch", "getch()", "Reads a character using the KERNAL."],
+  ["inkey", "inkey()", "Reads the keyboard without waiting."],
+  ["waitkey", "waitkey()", "Waits for a key using direct keyboard scanning."],
+  ["joy", "joy(port)", "Reads a joystick port."],
+  ["mouse", "mouse_x()\nmouse_x_hi()\nmouse_y()\nmouse_btn()", "Reads the connected mouse position and buttons."],
+  ["reu detect", "reu_present()\nreudet()", "Checks whether a REU is available."],
+  ["turbo detect", "turbo()", "Returns whether Ultimate turbo mode is active."],
+  ["types", "int | word | float | string | array | array_word", "UltimateBasic variable and array types."],
+  ["string conversion", "chr$(code)\nstr$(number)\nstr_to_int(string)\nval(string)", "Converts between strings, characters, and numbers."],
+  ["numstr", "numstr value, destination_address", "Writes a zero-padded three-digit string to an absolute address."],
+  ["string functions", "len(string)\nasc(string)\nspc(count)\ntab(column)", "String and PRINT formatting helpers."],
+  ["math", "abs(x) | min(a,b) | max(a,b) | sgn(x) | clamp(x,lo,hi)", "Integer math helper functions."],
+  ["random", "rnd()\nrnd(limit)", "Returns a pseudo-random byte or a value below the limit."],
+  ["trigonometry", "sin(angle)\ncos(angle)", "Returns a fixed-point trigonometric value."],
+  ["number formatting", "hex(value)\nbin(value)\ndec(value, width)", "Formats a number as hexadecimal, binary, or padded decimal text."],
+  ["operators", "and or xor not bnot mod shl shr", "Logical, bitwise, modulo, and shift operators."],
+  ["inc/dec", "inc variable\ndec variable", "Increments or decrements a variable."],
+];
+
+function setUltimateBasicMode(on) {
+  if (!on && ultimateBasicMode) {
+    const current = _getActiveTab();
+    if (current?.editorMode === "ub" && ubEditor) {
+      current.ubText = ubEditor.value;
+      current.ubFilePath = _ubFilePath;
+      current.editorMode = "block";
+    }
+  }
+  if (on && expertMode) setExpertMode(false);
+  ultimateBasicMode = !!on;
+  document.body.classList.toggle("ub-mode", ultimateBasicMode);
+  if (ubPanel) ubPanel.hidden = !ultimateBasicMode;
+  ubModeTbBtn?.classList.toggle("main-tb-btn--active", ultimateBasicMode);
+  ubModeTbBtn?.setAttribute("aria-pressed", String(ultimateBasicMode));
+  if (ultimateBasicMode) {
+    const current = _getActiveTab();
+    if (current) current.editorMode = "ub";
+    if (!ubEditor.value) ubEditor.value = 'color bg 0\ncolor border 0\n\nprint "HELLO FROM ULTIMATE BASIC"';
+    ubEditor.focus();
+    _ubUpdateCursor();
+    ubPanel.classList.toggle("ub-show-lines", _ubLinesEnabled);
+    ubPanel.classList.toggle("ub-show-minimap", _ubMinimapEnabled);
+    ubPanel.classList.toggle("ub-hide-output", !_ubOutputVisible);
+    _ubSetToggle("ub-output-btn", _ubOutputVisible);
+    _ubSetToggle("ub-autocomplete-btn", _ubAutocompleteEnabled);
+    _ubApplyLeftViews(false);
+    _ubRefreshEditor();
+    _ubRenderProjectFiles();
+    _ubRenderCommandReference();
+  }
+  saveUiSettings();
+}
+
+function _ubApplyLeftViews(persist = true) {
+  const projectView = document.getElementById("ub-project-view");
+  const commandsView = document.getElementById("ub-commands-view");
+  const commandsPanel = document.getElementById("ub-commands-panel");
+  if (projectView) { projectView.hidden = !_ubProjectVisible; projectView.classList.toggle("ub-left-view--active", _ubProjectVisible); }
+  if (commandsPanel) commandsPanel.hidden = !_ubCommandsVisible;
+  if (commandsView) commandsView.classList.toggle("ub-left-view--active", _ubCommandsVisible);
+  ubPanel?.classList.toggle("ub-show-project", _ubProjectVisible);
+  ubPanel?.classList.toggle("ub-show-commands", _ubCommandsVisible);
+  _ubSetToggle("ub-project-btn", _ubProjectVisible);
+  _ubSetToggle("ub-help-btn", _ubCommandsVisible);
+  if (_ubCommandsVisible) _ubRenderCommandReference();
+  if (persist) saveUiSettings();
+}
+
+const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read restore asm include incbin load open close save memcopy drawmem poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll").split(" "));
+const _UB_TYPES = new Set(["int", "word", "float", "string", "array", "array_word"]);
+const _UB_FUNCTIONS = new Set(("str_to_int numstr chr$ str$ inkey waitkey len asc val reudet reu_present turbo clamp peek peek16 rnd abs min max sgn spc tab joy mouse_x mouse_x_hi mouse_y mouse_btn sprhit sprbghit sprite_hit sprite_bg_hit sprite_x sprite_y sin cos hex bin getch").split(" "));
+const _UB_ASM_MNEMONICS = new Set(("adc and asl bcc bcs beq bit bmi bne bpl brk bvc bvs clc cld cli clv cmp cpx cpy dec dex dey eor inc inx iny jmp jsr lda ldx ldy lsr nop ora pha php pla plp rol ror rti rts sbc sec sed sei sta stx sty tax tay tsx txa txs tya").split(" "));
+
+function _ubEsc(value) { return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+let _ubAcActive = -1;
+function _ubAcEl() {
+  let el = document.getElementById("ub-ac");
+  if (!el) { el = document.createElement("div"); el.id = "ub-ac"; el.className = "expert-autocomplete"; el.hidden = true; document.body.appendChild(el); }
+  return el;
+}
+function _ubAcVisible() { const el = document.getElementById("ub-ac"); return !!el && !el.hidden; }
+function _ubAcHide() { const el = document.getElementById("ub-ac"); if (el) el.hidden = true; _ubAcActive = -1; }
+function _ubAcMove(direction) {
+  const items = _ubAcEl().querySelectorAll(".expert-ac-item"); if (!items.length) return;
+  items[_ubAcActive]?.classList.remove("active"); _ubAcActive = (_ubAcActive + direction + items.length) % items.length;
+  items[_ubAcActive].classList.add("active"); items[_ubAcActive].scrollIntoView({ block: "nearest" });
+}
+function _ubAcCommit() {
+  const el = _ubAcEl(); const item = el.querySelector(".expert-ac-item.active") || el.querySelector(".expert-ac-item");
+  if (!item || !ubEditor) return false;
+  const pos = ubEditor.selectionStart; const before = ubEditor.value.slice(0, pos); const match = before.match(/[A-Za-z_][A-Za-z0-9_]*\$?$/);
+  if (!match) return false;
+  ubEditor.setRangeText(item.dataset.value, pos - match[0].length, pos, "end");
+  _ubAcHide(); ubEditor.dispatchEvent(new Event("input", { bubbles: true })); return true;
+}
+function _ubAcUpdate() {
+  if (!_ubAutocompleteEnabled || !ubEditor || document.activeElement !== ubEditor) { _ubAcHide(); return; }
+  const pos = ubEditor.selectionStart; const before = ubEditor.value.slice(0, pos); const match = before.match(/[A-Za-z_][A-Za-z0-9_]*\$?$/);
+  if (!match || match[0].length < 2) { _ubAcHide(); return; }
+  const typed = match[0].toLowerCase();
+  const descriptions = new Map(_UB_COMMAND_REFERENCE.map(([name,, desc]) => [name.split(" ")[0].toLowerCase(), desc]));
+  const words = [...new Set([..._UB_KEYWORDS, ..._UB_TYPES, ..._UB_FUNCTIONS])].filter(word => word.startsWith(typed) && word !== typed).sort().slice(0, 12);
+  if (!words.length) { _ubAcHide(); return; }
+  const el = _ubAcEl(); _ubAcActive = -1;
+  el.innerHTML = words.map(word => `<div class="expert-ac-item" data-value="${_ubEsc(word)}"><span class="expert-ac-item-kw">${_ubEsc(word)}</span><span class="expert-ac-item-desc">${_ubEsc(descriptions.get(word) || (_UB_FUNCTIONS.has(word) ? "function" : _UB_TYPES.has(word) ? "type" : "keyword"))}</span></div>`).join("");
+  el.querySelectorAll(".expert-ac-item").forEach(item => item.addEventListener("mousedown", event => { event.preventDefault(); _ubAcActive = [...item.parentNode.children].indexOf(item); _ubAcCommit(); }));
+  const rect = ubEditor.getBoundingClientRect(); const lineHeight = parseFloat(getComputedStyle(ubEditor).lineHeight) || 21;
+  const line = before.split("\n").length - 1; el.style.left = `${Math.min(rect.right - 300, rect.left + 60)}px`; el.style.top = `${Math.min(window.innerHeight - 220, rect.top + 18 + line * lineHeight - ubEditor.scrollTop)}px`; el.hidden = false;
+}
+
+function _ubFormatText(source) {
+  let depth = 0;
+  let inAsm = false;
+  const codePart = raw => {
+    let quote = false;
+    for (let i = 0; i < raw.length; i++) {
+      if (raw[i] === '"') quote = !quote;
+      if (!quote && !inAsm && raw[i] === "#" && !/\bprint$/i.test(raw.slice(0, i))) return raw.slice(0, i);
+      if (!quote && inAsm && raw[i] === ";") return raw.slice(0, i);
+    }
+    return raw;
+  };
+  return String(source || "").split("\n").map(raw => {
+    const content = raw.trim();
+    if (!content) return "";
+    const code = codePart(content).trim().toLowerCase();
+    const closes = /^(?:end\b|next\b|until\b|else\b|case\b|\})/.test(code);
+    if (closes) depth = Math.max(0, depth - 1);
+    const formatted = `${"  ".repeat(depth)}${content.replace(/\s+$/, "")}`;
+    const opens = /^(?:sub\b|fn\b|for\b|while\b|loop\b|times\b|repeat\b|select\b|sprdef\b|chardef\b)/.test(code)
+      || /^if\b.*\bthen\s*$/.test(code)
+      || /^asm\s*\{\s*$/.test(code)
+      || /^(?:else\b|case\b)/.test(code);
+    if (opens) depth++;
+    if (/^asm\s*\{\s*$/.test(code)) inAsm = true;
+    if (/^\}/.test(code)) inAsm = false;
+    return formatted;
+  }).join("\n");
+}
+
+function _ubFormatSource() {
+  if (!ubEditor) return;
+  const before = ubEditor.value;
+  const caretLine = before.slice(0, ubEditor.selectionStart).split("\n").length - 1;
+  const caretColumn = ubEditor.selectionStart - (before.lastIndexOf("\n", ubEditor.selectionStart - 1) + 1);
+  const formatted = _ubFormatText(before);
+  if (formatted === before) return;
+  ubEditor.value = formatted;
+  const lines = formatted.split("\n");
+  const line = Math.min(caretLine, lines.length - 1);
+  const start = lines.slice(0, line).join("\n").length + (line > 0 ? 1 : 0);
+  const caret = start + Math.min(caretColumn, lines[line]?.length || 0);
+  ubEditor.setSelectionRange(caret, caret);
+  ubEditor.dispatchEvent(new Event("input", { bubbles: true }));
+  _ubSetStatus(t("ubFormatSource"));
+}
+
+function _ubHighlightSource(source) {
+  let inAsm = false;
+  return String(source || "").split("\n").map(raw => {
+    const trimmed = raw.trim().toLowerCase();
+    if (/^asm\s*\{/.test(trimmed)) inAsm = true;
+    let code = raw;
+    let comment = "";
+    if (!inAsm) {
+      let quote = false;
+      for (let i = 0; i < raw.length; i++) {
+        if (raw[i] === '"') quote = !quote;
+        if (!quote && raw[i] === "#") {
+          // PRINT# is one UB token; every other # outside a string starts a comment.
+          if (/\bprint$/i.test(raw.slice(0, i))) continue;
+          code = raw.slice(0, i); comment = raw.slice(i); break;
+        }
+      }
+      if (/^\s*rem\b/i.test(code)) { comment = code; code = ""; }
+    } else {
+      const idx = raw.indexOf(";");
+      if (idx >= 0) { code = raw.slice(0, idx); comment = raw.slice(idx); }
+    }
+    let html = "";
+    const re = /("(?:[^"\\]|\\.)*")|(\$[0-9a-f]+|%[01]+|\b\d+(?:\.\d+)?\b)|(print#|[A-Za-z_][A-Za-z0-9_]*\$?)/gi;
+    let last = 0;
+    for (const match of code.matchAll(re)) {
+      html += _ubEsc(code.slice(last, match.index));
+      const token = match[0];
+      const lower = token.toLowerCase();
+      const cls = match[1] ? "ub-string" : match[2] ? "ub-number" : _UB_TYPES.has(lower) ? "ub-type" : _UB_FUNCTIONS.has(lower) ? "ub-fn" : _UB_KEYWORDS.has(lower) || (inAsm && _UB_ASM_MNEMONICS.has(lower)) ? "ub-kw" : "";
+      html += cls ? `<span class="${cls}">${_ubEsc(token)}</span>` : _ubEsc(token);
+      last = match.index + token.length;
+    }
+    html += _ubEsc(code.slice(last));
+    if (comment) html += `<span class="ub-comment">${_ubEsc(comment)}</span>`;
+    if (inAsm && /^\s*\}/.test(raw)) inAsm = false;
+    return html;
+  }).join("\n") + "\n";
+}
+
+function _ubRefreshEditor() {
+  const code = document.getElementById("ub-highlight-code");
+  if (code) code.innerHTML = _ubHighlightEnabled ? _ubHighlightSource(ubEditor.value) : _ubEsc(ubEditor.value) + "\n";
+  const gutter = document.getElementById("ub-line-numbers-content");
+  if (gutter) gutter.textContent = ubEditor.value.split("\n").map((_, i) => i + 1).join("\n");
+  _ubUpdateCursor();
+  _ubSyncScroll();
+  _ubDrawMinimap();
+  _ubRenderProjectSymbols();
+}
+
+function _ubGotoLine(lineIndex) {
+  if (!ubEditor || lineIndex < 0) return;
+  const lines = ubEditor.value.split("\n");
+  const start = lines.slice(0, lineIndex).join("\n").length + (lineIndex > 0 ? 1 : 0);
+  const end = start + (lines[lineIndex]?.length || 0);
+  ubEditor.focus();
+  ubEditor.setSelectionRange(start, end);
+  const lineHeight = parseFloat(getComputedStyle(ubEditor).lineHeight) || 21;
+  const paddingTop = parseFloat(getComputedStyle(ubEditor).paddingTop) || 16;
+  ubEditor.scrollTop = Math.max(0, paddingTop + lineIndex * lineHeight - ubEditor.clientHeight / 3);
+}
+
+function _ubRenderProjectSymbols() {
+  const container = document.getElementById("ub-project-symbols");
+  if (!container || !ubEditor) return;
+  const groups = { labels: [], subs: [], functions: [] };
+  ubEditor.value.split("\n").forEach((line, lineIndex) => {
+    let match = line.match(/^\s*label\s+([A-Za-z_][A-Za-z0-9_]*)\b/i);
+    if (match) { groups.labels.push({ name: match[1], lineIndex }); return; }
+    match = line.match(/^\s*sub\s+([A-Za-z_][A-Za-z0-9_]*)\b/i);
+    if (match) { groups.subs.push({ name: match[1], lineIndex }); return; }
+    match = line.match(/^\s*fn\s+([A-Za-z_][A-Za-z0-9_]*)\b/i);
+    if (match) groups.functions.push({ name: match[1], lineIndex });
+  });
+  container.innerHTML = "";
+  const icons = {
+    labels: `<svg viewBox="0 0 14 14" fill="none" width="12" height="12"><path d="M2 3h7l3 4-3 4H2V3Z" stroke="currentColor" stroke-width="1.1"/><circle cx="4.5" cy="7" r="1" fill="currentColor"/></svg>`,
+    subs: `<svg viewBox="0 0 14 14" fill="none" width="12" height="12"><path d="M3 2.5h8v9H3z" stroke="currentColor" stroke-width="1.1"/><path d="M5 5h4M5 7h4M5 9h2" stroke="currentColor" stroke-width="1"/></svg>`,
+    functions: `<svg viewBox="0 0 14 14" fill="none" width="12" height="12"><path d="M3 11c2-1 2-7 4-8M4 6h5M8.5 8.5l2.5 2.5M11 8.5 8.5 11" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>`
+  };
+  const labels = { labels: t("projLabels"), subs: t("ubSubs"), functions: t("ubFunctions") };
+  Object.entries(groups).forEach(([kind, entries]) => {
+    if (!entries.length) return;
+    const header = document.createElement("div");
+    header.className = "expert-project-symbols-label";
+    header.textContent = labels[kind];
+    container.appendChild(header);
+    entries.forEach(entry => {
+      const row = document.createElement("div");
+      row.className = "expert-project-item expert-project-item--file";
+      row.innerHTML = `<span class="expert-project-item-icon">${icons[kind]}</span>`;
+      const name = document.createElement("span");
+      name.className = "expert-project-item-name";
+      name.textContent = entry.name;
+      name.setAttribute("aria-label", `${entry.name} · ${t("ubLine")} ${entry.lineIndex + 1}`);
+      row.appendChild(name);
+      row.addEventListener("click", () => _ubGotoLine(entry.lineIndex));
+      container.appendChild(row);
+    });
+  });
+  if (!container.children.length) {
+    const empty = document.createElement("div");
+    empty.className = "expert-project-empty";
+    empty.textContent = t("ubNoSymbols");
+    container.appendChild(empty);
+  }
+}
+
+function _ubSyncScroll() {
+  const code = document.getElementById("ub-highlight-code");
+  const gutter = document.getElementById("ub-line-numbers-content");
+  if (code) { code.style.display = "block"; code.style.transform = `translate(${-ubEditor.scrollLeft}px, ${-ubEditor.scrollTop}px)`; }
+  if (gutter) gutter.style.transform = `translateY(${-ubEditor.scrollTop}px)`;
+  _ubDrawMinimap();
+}
+
+function _ubSetToggle(id, on) { const btn = document.getElementById(id); btn?.classList.toggle("expert-hl-toggle--on", on); btn?.setAttribute("aria-pressed", String(on)); }
+function _ubToggleHighlight() { _ubHighlightEnabled = !_ubHighlightEnabled; _ubSetToggle("ub-hl-btn", _ubHighlightEnabled); _ubRefreshEditor(); }
+function _ubToggleLines() { _ubLinesEnabled = !_ubLinesEnabled; ubPanel.classList.toggle("ub-show-lines", _ubLinesEnabled); _ubSetToggle("ub-lines-btn", _ubLinesEnabled); }
+function _ubToggleMinimap() { _ubMinimapEnabled = !_ubMinimapEnabled; ubPanel.classList.toggle("ub-show-minimap", _ubMinimapEnabled); _ubSetToggle("ub-minimap-btn", _ubMinimapEnabled); _ubDrawMinimap(); }
+function _ubToggleProject() { _ubProjectVisible = !_ubProjectVisible; _ubApplyLeftViews(); }
+function _ubToggleCommands() { _ubCommandsVisible = !_ubCommandsVisible; _ubApplyLeftViews(); }
+function _ubToggleVerbose() { _ubVerbose = !_ubVerbose; _ubSetToggle("ub-verbose-btn", _ubVerbose); if (_ubLastResult?.ok) _ubSetBuildOutput(_ubFormatMap(_ubLastResult.map)); }
+function _ubToggleOutput() { _ubOutputVisible = !_ubOutputVisible; ubPanel?.classList.toggle("ub-hide-output", !_ubOutputVisible); _ubSetToggle("ub-output-btn", _ubOutputVisible); saveUiSettings(); }
+function _ubToggleAutocomplete() { _ubAutocompleteEnabled = !_ubAutocompleteEnabled; _ubSetToggle("ub-autocomplete-btn", _ubAutocompleteEnabled); if (!_ubAutocompleteEnabled) _ubAcHide(); else _ubAcUpdate(); saveUiSettings(); }
+function _ubToggleDisasm() {
+  _ubDisasmVisible = !_ubDisasmVisible;
+  ubPanel.classList.toggle("ub-show-disasm", _ubDisasmVisible);
+  _ubSetToggle("ub-disasm-btn", _ubDisasmVisible);
+  const panel = document.getElementById("ub-disasm-panel");
+  const verticalResizer = document.getElementById("ub-panels-resizer");
+  if (panel) panel.hidden = !_ubDisasmVisible;
+  if (verticalResizer) verticalResizer.hidden = !_ubDisasmVisible;
+  ubPanel?.style.setProperty("--ub-disasm-width", `${_ubDisasmWidth}px`);
+  ubPanel?.style.setProperty("--ub-disasm-pane-width", `${_ubDisasmPaneWidth}px`);
+  if (_ubDisasmVisible) _ubRenderDisassembly(_ubLastResult);
+  saveUiSettings();
+}
+function _ubZoom(delta) { _ubFontSize = Math.max(8, Math.min(28, _ubFontSize + delta)); document.querySelectorAll(".ub-editor,.ub-highlight,.ub-line-numbers").forEach(el => el.style.fontSize = `${_ubFontSize}px`); _ubDrawMinimap(); }
+
+function _ubOpenFind() {
+  document.getElementById("ub-find-bar").hidden = false;
+  _ubSetToggle("ub-find-btn", true);
+  const input = document.getElementById("ub-find-input");
+  const selection = ubEditor?.value.slice(ubEditor.selectionStart, ubEditor.selectionEnd) || "";
+  if (selection && selection.length < 80 && !selection.includes("\n")) input.value = selection;
+  input.focus(); input.select(); _ubFind(0);
+}
+function _ubCloseFind() {
+  document.getElementById("ub-find-bar").hidden = true;
+  _ubSetToggle("ub-find-btn", false);
+  _ubFindMatches = []; _ubFindIndex = -1;
+  ubEditor.focus();
+}
+function _ubFind(direction = 0) {
+  const term = document.getElementById("ub-find-input")?.value || "";
+  _ubFindMatches = [];
+  if (term) { let at = 0; const hay = ubEditor.value.toLowerCase(), needle = term.toLowerCase(); while ((at = hay.indexOf(needle, at)) >= 0) { _ubFindMatches.push(at); at += Math.max(1, needle.length); } }
+  if (!_ubFindMatches.length) _ubFindIndex = -1;
+  else if (direction === 0) _ubFindIndex = 0;
+  else _ubFindIndex = (_ubFindIndex + direction + _ubFindMatches.length) % _ubFindMatches.length;
+  const count = document.getElementById("ub-find-count");
+  if (count) {
+    count.textContent = !term ? "" : _ubFindIndex < 0 ? (currentLanguage === "hu" ? "Nincs találat." : currentLanguage === "es" ? "Sin resultados." : currentLanguage === "de" ? "Keine Treffer." : "No results.") : `${_ubFindIndex + 1} / ${_ubFindMatches.length}`;
+    count.style.color = term && _ubFindIndex < 0 ? "var(--error, #f44)" : "";
+  }
+  if (_ubFindIndex >= 0) {
+    const start = _ubFindMatches[_ubFindIndex];
+    ubEditor.setSelectionRange(start, start + term.length);
+    const line = ubEditor.value.slice(0, start).split("\n").length - 1;
+    const lineHeight = parseFloat(getComputedStyle(ubEditor).lineHeight) || 21;
+    const paddingTop = parseFloat(getComputedStyle(ubEditor).paddingTop) || 16;
+    ubEditor.scrollTop = Math.max(0, paddingTop + line * lineHeight - ubEditor.clientHeight / 2);
+    if (direction !== 0) ubEditor.focus();
+  }
+}
+
+function _ubDrawMinimap() {
+  if (!_ubMinimapEnabled) return;
+  const canvas = document.getElementById("ub-minimap");
+  if (!canvas || !canvas.offsetWidth || !canvas.offsetHeight) return;
+  const dpr = Math.min(devicePixelRatio || 1, 2), w = canvas.offsetWidth, h = canvas.offsetHeight;
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  const ctx = canvas.getContext("2d"); ctx.scale(dpr, dpr); ctx.clearRect(0, 0, w, h);
+  const lines = ubEditor.value.split("\n"), scale = Math.min(2, h / Math.max(1, lines.length));
+  lines.forEach((line, i) => { const t = line.trim(); if (!t) return; ctx.fillStyle = /^(#|rem\b)/i.test(t) ? "#6a9955" : /^\b(var|const|sub|fn)\b/i.test(t) ? "#569cd6" : "#dcdcaa"; ctx.globalAlpha = .72; ctx.fillRect(3, i * scale, Math.min(w - 6, Math.max(4, t.length * .9)), Math.max(1, scale - .3)); });
+  const ratio = ubEditor.scrollTop / Math.max(1, ubEditor.scrollHeight), view = ubEditor.clientHeight / Math.max(1, ubEditor.scrollHeight);
+  ctx.globalAlpha = 1; ctx.fillStyle = "rgba(80,140,255,.18)"; ctx.fillRect(0, ratio * h, w, Math.max(8, view * h));
+}
+
+function _ubSetStatus(text, error = false) {
+  if (!ubStatus) return;
+  ubStatus.textContent = text;
+  ubStatus.style.color = error ? "var(--error, #f44)" : "";
+}
+
+function _ubUpdateCursor() {
+  if (!ubEditor) return;
+  const lines = ubEditor.value.slice(0, ubEditor.selectionStart).split("\n");
+  const el = document.getElementById("ub-cursor-pos");
+  if (el) el.textContent = `Ln ${lines.length}, Col ${lines[lines.length - 1].length + 1}`;
+}
+
+function _ubSetFile(path = "") {
+  _ubFilePath = path;
+  const el = document.getElementById("ub-file-name");
+  if (el) el.textContent = path ? path.replace(/\\/g, "/").split("/").pop() : "untitled.ub";
+  const tab = _getActiveTab();
+  if (tab && ultimateBasicMode) {
+    tab.ubFilePath = path;
+    tab.filePath = path || null;
+    tab.name = path ? path.replace(/\\/g, "/").split("/").pop() : tab._untitledName;
+    renderTabBar();
+    _ubRenderProjectFiles();
+  }
+}
+
+function _ubRenderProjectFiles() {
+  const list = document.getElementById("ub-project-files");
+  const projectName = document.getElementById("ub-project-name");
+  if (!list) return;
+  list.innerHTML = "";
+  if (projectName) {
+    projectName.textContent = _ubProjectData?.name || t("projNoProject");
+    projectName.setAttribute("aria-label", _ubProjectData?._projPath || t("ubNoProjectTooltip"));
+  }
+  if (!_ubProjectData) {
+    list.innerHTML = `<div class="expert-project-empty">${_ubEsc(t("projClickToOpen")).replace("\n", "<br>")}</div>`;
+    return;
+  }
+  const root = document.createElement("div");
+  root.className = "expert-project-item expert-project-item--root";
+  root.innerHTML = `<span class="expert-project-item-icon">${_PROJ_SVG.project}</span><span class="expert-project-item-name">${_ubEsc(_ubProjectData.name || "UltimateBasic")}</span>`;
+  list.appendChild(root);
+  if (!_ubProjectData.files.length) {
+    const empty = document.createElement("div");
+    empty.className = "expert-project-empty";
+    empty.textContent = t("ubNoFiles");
+    list.appendChild(empty);
+    return;
+  }
+  _ubProjectData.files.forEach(file => {
+    const absPath = _ubResolveProjectPath(file.path);
+    const tab = tabs.find(candidate => _normFilePath(candidate.ubFilePath || candidate.filePath) === _normFilePath(absPath));
+    const isStartup = _ubProjectData.startupFile === file.path;
+    const item = document.createElement("div");
+    item.className = "expert-project-item expert-project-item--file" + (tab?.id === activeTabId ? " expert-project-item--active" : "") + (isStartup ? " expert-project-item--startup" : "") + (tab?.dirty ? " ub-project-file-dirty" : "");
+    const icon = document.createElement("span");
+    icon.className = "expert-project-item-icon";
+    icon.innerHTML = `<svg viewBox="0 0 16 16" fill="none" width="12" height="12" aria-hidden="true"><path d="M3 2h7l3 3v9H3V2Z" stroke="currentColor" stroke-width="1.1"/><path d="M10 2v3h3" stroke="currentColor" stroke-width="1"/></svg>`;
+    const name = document.createElement("span");
+    name.className = "expert-project-item-name";
+    name.textContent = file.name;
+    name.setAttribute("aria-label", file.path);
+    const startup = document.createElement("button");
+    startup.type = "button";
+    startup.className = "expert-project-item-star" + (isStartup ? " expert-project-item-star--on" : "");
+    startup.setAttribute("aria-label", isStartup ? t("projUnsetStartup") : t("projSetStartup"));
+    startup.innerHTML = `<svg viewBox="0 0 14 14" fill="${isStartup ? "currentColor" : "none"}" width="11" height="11" aria-hidden="true"><path d="M7 1 8.5 5.5H13L9.5 8.5 11 13 7 10 3 13 4.5 8.5 1 5.5h4.5L7 1Z" stroke="currentColor" stroke-width="${isStartup ? ".5" : "1"}" opacity="${isStartup ? "1" : ".5"}"/></svg>`;
+    startup.addEventListener("click", (event) => {
+      event.stopPropagation();
+      _ubProjectData.startupFile = isStartup ? null : file.path;
+      _ubStartupTabId = isStartup ? null : (tab?.id || null);
+      _ubRenderProjectFiles();
+    });
+    const remove = _makeProjDelBtn(() => {
+      _ubProjectData.files = _ubProjectData.files.filter(entry => entry !== file);
+      if (_ubProjectData.startupFile === file.path) { _ubProjectData.startupFile = null; _ubStartupTabId = null; }
+      _ubRenderProjectFiles();
+    });
+    item.append(icon, name, startup, remove);
+    item.addEventListener("click", event => {
+      if (startup.contains(event.target) || remove.contains(event.target)) return;
+      if (tab) _tabActivate(tab.id); else _ubOpenProjectFile(file);
+    });
+    list.appendChild(item);
+  });
+}
+
+function _ubResolveProjectPath(path) {
+  if (!path || /^[A-Za-z]:[\\/]/.test(path) || path.startsWith("/")) return path;
+  const projectPath = (_ubProjectData?._projPath || "").replace(/\\/g, "/");
+  const slash = projectPath.lastIndexOf("/");
+  return slash >= 0 ? `${projectPath.slice(0, slash)}/${path}` : path;
+}
+
+function _ubProjectRelativePath(path) {
+  const normalized = (path || "").replace(/\\/g, "/");
+  const projectPath = (_ubProjectData?._projPath || "").replace(/\\/g, "/");
+  const slash = projectPath.lastIndexOf("/");
+  const dir = slash >= 0 ? projectPath.slice(0, slash) : "";
+  return dir && normalized.startsWith(`${dir}/`) ? normalized.slice(dir.length + 1) : normalized;
+}
+
+function _ubAddProjectFile(path) {
+  if (!_ubProjectData || !path) return;
+  const relPath = _ubProjectRelativePath(path);
+  if (!_ubProjectData.files.some(file => _normFilePath(_ubResolveProjectPath(file.path)) === _normFilePath(path))) {
+    _ubProjectData.files.push({ type: "file", name: path.replace(/\\/g, "/").split("/").pop(), path: relPath });
+  }
+  _ubRenderProjectFiles();
+}
+
+async function _ubOpenProjectFile(file) {
+  const path = _ubResolveProjectPath(file.path);
+  const result = await window.electronAPI?.readTextFile?.(path);
+  if (!result?.ok) { _ubSetStatus(result?.error || "Unable to open project file", true); return; }
+  return _ubCreateFileTab(path, result.content || "");
+}
+
+function _ubCreateFileTab(path, content) {
+  const existing = tabs.find(tab => _normFilePath(tab.ubFilePath || tab.filePath) === _normFilePath(path));
+  if (existing) { _tabActivate(existing.id); return existing; }
+  _tabSaveCurrent();
+  const fileName = path.replace(/\\/g, "/").split("/").pop() || "program.ub";
+  const tab = _tabCreate(fileName);
+  Object.assign(tab, { editorMode: "ub", ubText: content, ubFilePath: path, filePath: path, program: [makeDefaultOrgBlock()] });
+  tabs.push(tab);
+  activeTabId = tab.id;
+  program = JSON.parse(JSON.stringify(tab.program));
+  userMacros = {};
+  selectedBlockId = null;
+  if (!ultimateBasicMode) setUltimateBasicMode(true);
+  ubEditor.value = content;
+  _ubFilePath = path;
+  _ubDirty = false;
+  const fileLabel = document.getElementById("ub-file-name");
+  if (fileLabel) fileLabel.textContent = fileName;
+  updateWindowTitle(fileName);
+  _ubRefreshEditor();
+  renderTabBar();
+  _ubRenderProjectFiles();
+  ubEditor?.focus();
+  return tab;
+}
+
+async function _ubOpenProject() {
+  const result = await window.electronAPI?.openProjFile?.();
+  if (!result || result.canceled) return;
+  if (!result.ok) { _ubSetStatus(result.error || "Project open failed", true); return; }
+  const project = result.project || {};
+  _ubProjectData = { name: project.name || "UltimateBasic", files: (project.files || []).filter(file => (!file.type || file.type === "file") && /\.ub$/i.test(file.path || file.name || "")), startupFile: project.startupFile || null, _projPath: result.filePath };
+  _ubRenderProjectFiles();
+  const startup = _ubProjectData.files.find(file => file.path === _ubProjectData.startupFile);
+  if (startup) { const tab = await _ubOpenProjectFile(startup); _ubStartupTabId = tab?.id || null; }
+  _ubSetStatus(`${t("ubProjectOpened")}: ${_ubProjectData.name}`);
+}
+
+async function _ubNewProject() {
+  _ubProjectData = { name: "New UltimateBasic project", files: [], startupFile: null, _projPath: null };
+  _ubRenderProjectFiles();
+  await _ubSaveProject();
+}
+
+async function _ubSaveProject() {
+  if (!_ubProjectData) { await _ubNewProject(); return; }
+  const wasNew = !_ubProjectData._projPath;
+  const payload = JSON.stringify({ app: "ultimate-basic", name: _ubProjectData.name, files: _ubProjectData.files, startupFile: _ubProjectData.startupFile || null }, null, 2);
+  const result = await window.electronAPI?.saveProjFile?.(_ubProjectData._projPath || "", payload);
+  if (!result || result.canceled) return;
+  if (!result.ok) { _ubSetStatus(result.error || "Project save failed", true); return; }
+  _ubProjectData._projPath = result.filePath;
+  _ubProjectData.files.forEach(file => { file.path = _ubProjectRelativePath(_ubResolveProjectPath(file.path)); });
+  if (_ubProjectData.name === "New UltimateBasic project") _ubProjectData.name = result.filePath.replace(/\\/g, "/").split("/").pop().replace(/\.proj$/i, "");
+  if (wasNew) {
+    const portablePayload = JSON.stringify({ app: "ultimate-basic", name: _ubProjectData.name, files: _ubProjectData.files, startupFile: _ubProjectData.startupFile || null }, null, 2);
+    const rewrite = await window.electronAPI?.saveProjFile?.(_ubProjectData._projPath, portablePayload);
+    if (!rewrite?.ok) { _ubSetStatus(rewrite?.error || "Project save failed", true); return; }
+  }
+  _ubRenderProjectFiles();
+  _ubSetStatus(t("ubProjectSaved"));
+}
+
+function _ubRenderCommandReference() {
+  const list = document.getElementById("ub-command-list");
+  const detail = document.getElementById("ub-command-detail");
+  if (!list || !detail) return;
+  const term = (document.getElementById("ub-command-search")?.value || "").trim().toLowerCase();
+  const matches = _UB_COMMAND_REFERENCE.filter(([name, syntax, description]) =>
+    !term || name.includes(term) || syntax.toLowerCase().includes(term) || description.toLowerCase().includes(term));
+  list.innerHTML = "";
+  matches.forEach(([name]) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "ub-command-item palette-item" + (name === _ubSelectedCommand ? " ub-command-item--active palette-item--active" : "");
+    const command = _UB_COMMAND_REFERENCE.find(([commandName]) => commandName === name);
+    const mnemonic = document.createElement("strong");
+    mnemonic.className = "palette-mnemonic";
+    mnemonic.textContent = name;
+    const summary = document.createElement("span");
+    summary.className = "palette-description";
+    summary.textContent = command?.[1]?.split("\n")[0] || "";
+    button.append(mnemonic, summary);
+    button.addEventListener("click", () => { _ubSelectedCommand = name; _ubRenderCommandReference(); });
+    list.appendChild(button);
+  });
+  if (!matches.length) {
+    list.textContent = "No matching commands";
+    detail.innerHTML = "<code>No command selected</code><p>Try a different search term.</p>";
+    return;
+  }
+  let selected = matches.find(([name]) => name === _ubSelectedCommand);
+  if (!selected) { selected = matches[0]; _ubSelectedCommand = selected[0]; }
+  detail.innerHTML = "";
+  const title = document.createElement("strong");
+  title.className = "ub-command-detail-title";
+  title.textContent = selected[0].toUpperCase();
+  const descriptionLabel = document.createElement("span");
+  descriptionLabel.className = "mnemonic-field-label";
+  descriptionLabel.textContent = t("ubDescriptionLabel");
+  const description = document.createElement("p");
+  description.textContent = selected[2];
+  const syntaxLabel = document.createElement("span");
+  syntaxLabel.className = "mnemonic-field-label";
+  syntaxLabel.textContent = t("ubSyntaxLabel");
+  const syntax = document.createElement("code");
+  syntax.textContent = selected[1];
+  const noteLabel = document.createElement("span");
+  noteLabel.className = "mnemonic-field-label";
+  noteLabel.textContent = t("ubUsageLabel");
+  const note = document.createElement("small");
+  const isBlock = selected[1].includes("\n");
+  note.textContent = isBlock ? t("ubBlockCommandHint") : t("ubSingleCommandHint");
+  detail.append(title, descriptionLabel, description, syntaxLabel, syntax, noteLabel, note);
+}
+
+function _ubNew() {
+  _tabNew();
+  if (ubBuildOutput) ubBuildOutput.textContent = "Ready.";
+  _ubSetStatus(t("ubNewSource"));
+  _ubRefreshEditor();
+  ubEditor.focus();
+}
+
+async function _ubOpen(addToProject = false) {
+  let result;
+  try {
+    result = await window.electronAPI?.chooseUbFile?.();
+  } catch (error) {
+    _ubSetStatus(error?.message || String(error) || "Open failed", true);
+    return;
+  }
+  if (!result || result.canceled) return;
+  if (!result.ok) { _ubSetStatus(result.error || "Open failed", true); return; }
+  const tab = _ubCreateFileTab(result.filePath || "", result.content || "");
+  if (addToProject) {
+    if (!_ubProjectData) _ubProjectData = { name: "New UltimateBasic project", files: [], startupFile: null, _projPath: null };
+    _ubAddProjectFile(result.filePath || "");
+  }
+  _ubSetStatus(t("ubLoaded"));
+  _ubRefreshEditor();
+  renderTabBar();
+  _ubRenderProjectFiles();
+  ubEditor?.focus();
+}
+
+async function _ubSave() {
+  const result = await window.electronAPI?.saveUbFile?.(_ubFilePath, ubEditor.value);
+  if (!result || result.canceled) return false;
+  if (!result.ok) { _ubSetStatus(result.error || "Save failed", true); return false; }
+  _ubSetFile(result.filePath || _ubFilePath);
+  _ubDirty = false;
+  const tab = _getActiveTab();
+  if (tab) { tab.ubText = ubEditor.value; tab.dirty = false; }
+  renderTabBar();
+  _ubSetStatus(t("ubSaved"));
+  return true;
+}
+
+let _ubLastResult = null;
+
+function _ubRenderDisassembly(result) {
+  const output = document.getElementById("ub-disasm-output");
+  if (!output) return;
+  const bytes = result?.map?.codeBytes;
+  const baseAddr = result?.map?.loadAddress;
+  if (!Array.isArray(bytes) || !bytes.length || !Number.isFinite(baseAddr)) {
+    output.textContent = "Build the source to generate disassembly.";
+    return;
+  }
+  const namesByAddress = new Map();
+  String(result?.debug?.sym || "").split("\n").forEach(line => {
+    const match = line.match(/^\s*\.label\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*\$([0-9a-f]{1,4})\s*$/i);
+    if (!match) return;
+    const address = parseInt(match[2], 16);
+    const names = namesByAddress.get(address) || [];
+    if (!names.includes(match[1])) names.push(match[1]);
+    namesByAddress.set(address, names);
+  });
+  [...(result.map.labels || []), ...(result.map.subroutines || [])].forEach(entry => {
+    if (!Number.isFinite(entry.address) || !entry.name) return;
+    const names = namesByAddress.get(entry.address) || [];
+    if (!names.includes(entry.name)) names.push(entry.name);
+    namesByAddress.set(entry.address, names);
+  });
+  const labelByAddress = new Map([...namesByAddress].map(([address, names]) => [address, names[0]]));
+  const lines = [];
+  _disasmBytes(bytes, baseAddr).forEach(instr => {
+    const labels = namesByAddress.get(instr.address);
+    if (labels?.length) lines.push(...labels.map(name => `<span class="asm-tok-label">${_ubEsc(name)}:</span>`));
+    const address = instr.address.toString(16).toUpperCase().padStart(4, "0");
+    const hexBytes = instr.bytes.map(value => value.toString(16).toUpperCase().padStart(2, "0")).join(" ").padEnd(9, " ");
+    const operand = String(instr.operand || "").replace(/\$([0-9A-Fa-f]{4})\b/g, (match, hex) => labelByAddress.get(parseInt(hex, 16)) || match);
+    const operandHtml = operand ? `  <span class="asm-tok-operand">${_ubEsc(operand)}</span>` : "";
+    lines.push(`<span class="dsm-addr">$${address}</span>  <span class="dsm-bytes">${hexBytes}</span>  <span class="asm-tok-mnemonic">${_ubEsc(instr.mnemonic)}</span>${operandHtml}`);
+  });
+  output.innerHTML = lines.join("\n");
+}
+
+function _ubFormatMap(map) {
+  if (!map) return t("ubBuildSuccessful");
+  const hex = (value, width = 4) => `$${Number(value || 0).toString(16).toUpperCase().padStart(width, "0")}`;
+  const lines = [`${t("ubBuildSuccessful")} — ${map.codeSize} code bytes`, `${t("ubLoadAddress")}: ${hex(map.loadAddress)}`];
+  if (map.variables?.length) lines.push("", "Variables:", ...map.variables.map(v => `  ${v.name.padEnd(16)} ${hex(v.address, 2)}  ${v.type}`));
+  if (map.subroutines?.length) lines.push("", "Subroutines:", ...map.subroutines.map(s => `  ${s.name.padEnd(16)} ${hex(s.address)}`));
+  if (map.arrays?.length) lines.push("", "Arrays:", ...map.arrays.map(a => `  ${a.name.padEnd(16)} ${hex(a.address)}  ${a.size} bytes`));
+  if (_ubVerbose) {
+    const internal = map.internal || {};
+    const entries = [["plot", internal.plotZp], ["line", internal.lineZp], ["rect", internal.rectZp], ["data", internal.dataZp]].filter(([, value]) => value !== null && value !== undefined);
+    lines.push("", "Internal allocations:");
+    if (entries.length) lines.push(...entries.map(([name, value]) => `  ${name.padEnd(16)} ZP:${hex(value, 2)}`));
+    else lines.push("  (none)");
+    if (internal.sinTableAddress !== null && internal.sinTableAddress !== undefined) lines.push(`  ${"sin table".padEnd(16)} ${hex(internal.sinTableAddress)}`);
+    const bytes = map.codeBytes || [];
+    lines.push("", `Code hex dump (${bytes.length} bytes):`);
+    for (let i = 0; i < bytes.length; i += 16) lines.push(`  ${hex((map.loadAddress || 0) + i)}  ${bytes.slice(i, i + 16).map(b => Number(b).toString(16).toUpperCase().padStart(2, "0")).join(" ")}`);
+  }
+  return lines.join("\n");
+}
+
+function _ubSetBuildOutput(text, error = false) {
+  if (!ubBuildOutput) return;
+  ubBuildOutput.textContent = text;
+  ubBuildOutput.classList.toggle("ub-build-output--error", error);
+}
+
+function _ubShowCompileErrors(errors) {
+  const list = (errors || []).map(error => {
+    const text = typeof error === "string" ? error : (error?.text || error?.message || String(error));
+    const match = text.match(/(?:line|sor)\s*(\d+)/i);
+    return { text, sourceLine: match ? Math.max(0, Number(match[1]) - 1) : undefined };
+  });
+  _ubOutputVisible = true;
+  ubPanel?.classList.remove("ub-hide-output");
+  _ubSetToggle("ub-output-btn", true);
+  saveUiSettings();
+  hideWorkProgress();
+  showCompileErrorDialog(list);
+}
+
+async function _ubApplyExomizer(result, label = "ultimate-basic") {
+  if (!exomizerEnabled) return true;
+  if (!window.electronAPI?.buildExomizerPrg) {
+    _ubSetBuildOutput("Exomizer is not available.", true);
+    _ubSetStatus("Exomizer is not available.", true);
+    _ubShowCompileErrors(["Exomizer is not available."]);
+    return false;
+  }
+  let packed;
+  try {
+    packed = await window.electronAPI.buildExomizerPrg({
+      bytes: Array.from(result.prg || []),
+      fileName: `${String(label).replace(/[^A-Za-z0-9_-]+/g, "-")}-${Date.now()}.prg`,
+      sidecars: result.debug || null
+    });
+  } catch (error) {
+    packed = { ok: false, error: error?.message || String(error) };
+  }
+  if (!packed?.ok) {
+    const message = packed?.error || "Exomizer compression failed";
+    _ubSetBuildOutput(message, true);
+    _ubSetStatus(message, true);
+    _ubShowCompileErrors([message]);
+    _ubShowCompileErrors([message]);
+    return false;
+  }
+  result.outputPrg = Array.from(packed.bytes || []);
+  result.exomizerFilePath = packed.filePath || "";
+  return true;
+}
+
+async function _ubCompile(showProgress = false, options = {}) {
+  _ubSetStatus("Building…");
+  if (showProgress) await showWorkProgress("ubBuildProgress", { indeterminate: true });
+  let result;
+  try {
+    result = await window.electronAPI?.compileUltimateBasic?.(ubEditor.value, _ubFilePath || null);
+  } catch (error) {
+    if (showProgress) hideWorkProgress();
+    const message = error?.message || String(error) || "Compilation failed";
+    _ubSetBuildOutput(message, true);
+    _ubSetStatus(message, true);
+    return null;
+  }
+  _ubLastResult = result;
+  _ubRenderDisassembly(result);
+  if (!result?.ok) {
+    if (showProgress) hideWorkProgress();
+    const errors = result?.errors || [result?.error || "Compilation failed"];
+    _ubSetBuildOutput(errors.join("\n"), true);
+    _ubSetStatus(`${errors.length} error(s)`, true);
+    _ubShowCompileErrors(errors);
+    const match = String(errors[0] || "").match(/(?:line|sor)\s*(\d+)/i);
+    if (match) {
+      const line = Math.max(1, Number(match[1]));
+      const start = ubEditor.value.split("\n").slice(0, line - 1).join("\n").length + (line > 1 ? 1 : 0);
+      const end = ubEditor.value.indexOf("\n", start);
+      ubEditor.focus();
+      ubEditor.setSelectionRange(start, end < 0 ? ubEditor.value.length : end);
+    }
+    return null;
+  }
+  const buildName = _ubFilePath.split(/[\\/]/).pop()?.replace(/\.ub$/i, "") || "ultimate-basic";
+  if (!options.skipExomizer && !(await _ubApplyExomizer(result, buildName))) {
+    if (showProgress) hideWorkProgress();
+    return null;
+  }
+  const packedInfo = result.outputPrg ? `\nExomizer: ${result.prg.length} → ${result.outputPrg.length} bytes\n${result.exomizerFilePath}` : "";
+  _ubSetBuildOutput(_ubFormatMap(result.map) + packedInfo);
+  _ubSetStatus(`${t("ubBuildSuccessful")} — ${(result.outputPrg || result.prg).length} PRG bytes${result.outputPrg ? " (Exomizer)" : ""}`);
+  if (showProgress) await completeWorkProgress("ubBuildProgressDone", 650);
+  return result;
+}
+
+async function _ubRun(mode) {
+  const startupTab = _ubStartupTabId !== null ? tabs.find(tab => tab.id === _ubStartupTabId) : null;
+  const source = startupTab && startupTab.id !== activeTabId ? startupTab.ubText || "" : ubEditor?.value || "";
+  const sourcePath = startupTab ? startupTab.ubFilePath || startupTab.filePath || null : _ubFilePath || null;
+  if (!source.trim()) { _ubSetStatus(t("ubNothingToRun"), true); return; }
+  const usesUltimate = mode === "ultimate" || mode === "ultimate-d64";
+  const host = usesUltimate ? (document.getElementById("ultimate-host")?.value || ultimateHost).trim() : "";
+  if (usesUltimate && !host) { _ubSetStatus(t("ultimateNotConfigured"), true); return; }
+  if (!usesUltimate && !vicePath) { _ubSetStatus(t("viceIsNotConfiguredSelectItInTheMenuFirs"), true); return; }
+
+  await showWorkProgress("ubRunProgress");
+  let success = false;
+  try {
+    setWorkProgress(18);
+    const build = startupTab && startupTab.id !== activeTabId
+      ? await _ubCompileSource(source, sourcePath, startupTab.name)
+      : await _ubCompile();
+    if (!build) return;
+    setWorkProgress(exomizerEnabled ? 78 : 70);
+
+    if (mode === "d64" || mode === "ultimate-d64") {
+      hideWorkProgress();
+      await openD64ExportDialog(build.outputPrg || build.prg, build.debug || null, mode === "ultimate-d64" ? "ultimate" : true);
+      _ubSetStatus(mode === "ultimate-d64" ? "Ultimate D64 ready" : "D64 ready");
+      return;
+    }
+
+    let result;
+    if (mode === "ultimate") {
+      const password = (document.getElementById("ultimate-password")?.value || ultimatePassword).trim() || null;
+      result = await window.electronAPI?.runOnUltimate(host, password, build.outputPrg || build.prg);
+      _ubSetStatus(result?.ok ? "Running on Ultimate ✓" : (result?.error || "Ultimate run failed"), !result?.ok);
+    } else {
+      result = await window.electronAPI?.launchVice?.({ bytes: build.outputPrg || build.prg, fileName: `ultimate-basic-${Date.now()}.prg`, sidecars: build.debug || null });
+      _ubSetStatus(result?.ok ? "Running in VICE ✓" : (result?.error || "VICE launch failed"), !result?.ok);
+    }
+    if (!result?.ok) return;
+    setWorkProgress(100);
+    success = true;
+  } catch (error) {
+    const message = error?.message || String(error) || "UltimateBasic run failed";
+    _ubSetBuildOutput(message, true);
+    _ubSetStatus(message, true);
+  } finally {
+    if (success) await completeWorkProgress("ubRunProgressDone");
+    else hideWorkProgress();
+  }
+}
+
+async function _ubCompileSource(source, sourcePath, label = "startup file", options = {}) {
+  _ubSetStatus(`Building ${label}…`);
+  const result = await window.electronAPI?.compileUltimateBasic?.(source, sourcePath);
+  _ubLastResult = result;
+  _ubRenderDisassembly(result);
+  if (!result?.ok) {
+    const errors = result?.errors || [result?.error || "Compilation failed"];
+    _ubSetBuildOutput(errors.join("\n"), true);
+    _ubSetStatus(`${label}: ${errors.length} error(s)`, true);
+    _ubShowCompileErrors(errors);
+    return null;
+  }
+  if (!options.skipExomizer && !(await _ubApplyExomizer(result, label))) return null;
+  const packedInfo = result.outputPrg ? `\nExomizer: ${result.prg.length} → ${result.outputPrg.length} bytes\n${result.exomizerFilePath}` : "";
+  _ubSetBuildOutput(`${label}\n\n${_ubFormatMap(result.map)}${packedInfo}`);
+  _ubSetStatus(`${label}: build successful — ${(result.outputPrg || result.prg).length} PRG bytes${result.outputPrg ? " (Exomizer)" : ""}`);
+  return result;
+}
+
+function _ubDebuggerSymbols(build) {
+  const unique = new Map();
+  const map = build?.map || {};
+  [...(map.labels || []), ...(map.subroutines || []), ...(map.variables || []), ...(map.arrays || [])].forEach((entry) => {
+    const name = String(entry?.name || "").trim();
+    const address = Number(entry?.address);
+    if (name && Number.isFinite(address) && !unique.has(name)) unique.set(name, address & 0xFFFF);
+  });
+  return [...unique.entries()]
+    .map(([name, address]) => ({ name, address }))
+    .sort((left, right) => (left.address - right.address) || left.name.localeCompare(right.name));
+}
+
+async function _ubRunDebugger() {
+  const startupTab = _ubStartupTabId !== null ? tabs.find(tab => tab.id === _ubStartupTabId) : null;
+  const source = startupTab && startupTab.id !== activeTabId ? startupTab.ubText || "" : ubEditor?.value || "";
+  const sourcePath = startupTab ? startupTab.ubFilePath || startupTab.filePath || null : _ubFilePath || null;
+  if (!source.trim()) { _ubSetStatus(t("ubNothingToRun"), true); return; }
+  if (!debuggerPath) { showViceToast(t("debuggerNotConfiguredMsg"), true); return; }
+  if (!window.electronAPI?.launchDebugger) { showViceToast(t("debuggerLaunchNotAvailable"), true); return; }
+
+  await showWorkProgress("workProgressDebug");
+  let success = false;
+  try {
+    setWorkProgress(20);
+    const build = startupTab && startupTab.id !== activeTabId
+      ? await _ubCompileSource(source, sourcePath, startupTab.name, { skipExomizer: true })
+      : await _ubCompile(false, { skipExomizer: true });
+    if (!build) return;
+    setWorkProgress(70);
+    const result = await window.electronAPI.launchDebugger({
+      bytes: Array.from(build.prg || []),
+      fileName: `ultimate-basic-${Date.now()}.prg`,
+      symbols: _ubDebuggerSymbols(build),
+      breakpoints: [],
+      sidecars: build.debug || null,
+      autoJmp: false,
+      waitMs: debuggerWait ? debuggerWaitMs : 0,
+      unpause: debuggerUnpause || undefined
+    });
+    if (!result?.ok) { showViceToast(result?.error || t("debuggerLaunchFailed"), true); return; }
+    setWorkProgress(100);
+    _ubSetStatus(t("debuggerLaunched"));
+    showViceToast(t("debuggerLaunched"));
+    success = true;
+  } catch (error) {
+    const message = error?.message || String(error) || t("debuggerLaunchFailed");
+    _ubSetBuildOutput(message, true);
+    _ubSetStatus(message, true);
+  } finally {
+    if (success) await completeWorkProgress("workProgressSuccessDebug");
+    else hideWorkProgress();
+  }
 }
 
 // Select the block whose _srcLine best matches the given source line (used
@@ -5900,6 +7147,33 @@ function showBuildInfoDialog() {
         </table>
       </section>`;
   };
+
+  if (ultimateBasicMode) {
+    const result = _ubLastResult;
+    const map = result?.map;
+    if (!map) {
+      buildInfoContent.innerHTML = makeMessageRow(t("ubBuildInfoBuildFirst"));
+      buildInfoDialog.showModal();
+      return;
+    }
+    const fmtAddr = value => `$${Number(value || 0).toString(16).toUpperCase().padStart(4, "0")}`;
+    const rows = [
+      makeRow(t("buildInfoOrigin"), fmtAddr(map.loadAddress)),
+      makeRow(t("buildInfoEnd"), fmtAddr(Number(map.loadAddress || 0) + Math.max(0, Number(map.codeSize || 0) - 1))),
+      makeRow(t("buildInfoSize"), `${map.codeSize || 0} bytes`),
+      makeRow(t("ubBuildInfoPrgSize"), `${(result.outputPrg || result.prg || []).length} bytes`, result.outputPrg ? "Exomizer" : "")
+    ];
+    let html = makeSection(t("ubBuildInfoSummary"), rows);
+    const errors = result.errors || (result.error ? [result.error] : []);
+    if (!result.ok && errors.length) html += makeSection(t("buildInfoErrors"), errors.map(error => makeMessageRow(_ubEsc(error), true)));
+    if (map.variables?.length) html += makeSection(t("ubBuildInfoVariables"), map.variables.map(item => makeRow(_ubEsc(item.name), fmtAddr(item.address), _ubEsc(item.type || ""))));
+    if (map.arrays?.length) html += makeSection(t("ubBuildInfoArrays"), map.arrays.map(item => makeRow(_ubEsc(item.name), fmtAddr(item.address), `${item.size} bytes`)));
+    if (map.subroutines?.length) html += makeSection(t("ubBuildInfoSubroutines"), map.subroutines.map(item => makeRow(_ubEsc(item.name), fmtAddr(item.address))));
+    if (map.labels?.length) html += makeSection(t("buildInfoLabels"), map.labels.map(item => makeRow(_ubEsc(item.name), fmtAddr(item.address))));
+    buildInfoContent.innerHTML = html;
+    buildInfoDialog.showModal();
+    return;
+  }
 
   let blocks;
   if (expertMode && expertEditor) {
@@ -11924,6 +13198,10 @@ function _buildDebuggerSidecarPayload(prg, { force = false } = {}) {
 }
 
 async function runInDebugger() {
+  if (ultimateBasicMode) {
+    await _ubRunDebugger();
+    return;
+  }
   if (isProgramEmpty()) {
     showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
     return;
@@ -12072,7 +13350,10 @@ function _tabCreate(name) {
     program: [],
     userMacros: {},
     selectedBlockId: null,
-    expertText: ""
+    expertText: "",
+    editorMode: "block",
+    ubText: "",
+    ubFilePath: ""
   };
 }
 
@@ -12459,7 +13740,11 @@ function markTabClean() {
 function _tabSaveCurrent() {
   const tab = tabs.find(t => t.id === activeTabId);
   if (!tab) return;
-  if (expertMode && expertEditor) {
+  tab.editorMode = ultimateBasicMode ? "ub" : expertMode ? "expert" : "block";
+  if (ultimateBasicMode && ubEditor) {
+    tab.ubText = ubEditor.value;
+    tab.ubFilePath = _ubFilePath;
+  } else if (expertMode && expertEditor) {
     _expertSyncSourceTextFromEditor();
     tab.expertText = _expertGetSourceText();
   } else {
@@ -12479,6 +13764,19 @@ function _tabActivate(tabId) {
   program = JSON.parse(JSON.stringify(tab.program));
   userMacros = JSON.parse(JSON.stringify(tab.userMacros));
   selectedBlockId = tab.selectedBlockId;
+
+  if (tab.editorMode === "ub") {
+    if (expertMode) setExpertMode(false);
+    setUltimateBasicMode(true);
+    ubEditor.value = tab.ubText || "";
+    _ubSetFile(tab.ubFilePath || tab.filePath || "");
+    _ubDirty = !!tab.dirty;
+    _ubRefreshEditor();
+  } else {
+    if (ultimateBasicMode) setUltimateBasicMode(false);
+    if (tab.editorMode === "expert" && !expertMode) setExpertMode(true);
+    else if (tab.editorMode !== "expert" && expertMode) setExpertMode(false);
+  }
 
   // Update file display
   if (tab.filePath) {
@@ -12528,7 +13826,15 @@ function _tabNew() {
   if (currentFileDisplay) currentFileDisplay.textContent = "";
   if (expertFileName) expertFileName.textContent = "";
   updateWindowTitle("");
-  if (expertMode && expertEditor) _expertSyncFromProgram();
+  if (ultimateBasicMode) {
+    tab.editorMode = "ub";
+    tab.ubText = "";
+    _ubSetFile("");
+    ubEditor.value = "";
+    _ubDirty = false;
+    _ubRefreshEditor();
+    ubEditor.focus();
+  } else if (expertMode && expertEditor) _expertSyncFromProgram();
 
   renderTabBar();
   renderProgram();
@@ -12536,6 +13842,10 @@ function _tabNew() {
 }
 
 function _tabHasContent(tab) {
+  if (tab.editorMode === "ub") {
+    const text = tab.id === activeTabId && ultimateBasicMode ? ubEditor?.value : tab.ubText;
+    return !!tab.filePath || !!String(text || "").trim();
+  }
   const prog = (tab.id === activeTabId ? program : tab.program) || [];
   // More than just a default ORG block, or has a saved filePath
   return tab.filePath != null || prog.length > 1 || (prog.length === 1 && !prog[0].isOrgMacro);
@@ -12574,6 +13884,9 @@ async function _tabClose(tabId) {
     tab.name = tab._untitledName;
     tab.filePath = null;
     tab.expertText = "";
+    tab.ubText = "";
+    tab.ubFilePath = "";
+    if (_ubStartupTabId === tab.id) _ubStartupTabId = null;
     if (expertMode && expertEditor) {
       _expertSourceText = "";
       _expertProjectionActive = false;
@@ -12589,6 +13902,7 @@ async function _tabClose(tabId) {
     return;
   }
   const idx = tabs.findIndex(t => t.id === tabId);
+  if (_ubStartupTabId === tabId) _ubStartupTabId = null;
   tabs.splice(idx, 1);
   if (activeTabId === tabId) {
     const nextTab = tabs[Math.min(idx, tabs.length - 1)];
@@ -12633,6 +13947,8 @@ function renderTabBar() {
     div.addEventListener("click", () => { if (tab.id !== activeTabId) _tabActivate(tab.id); });
     tabBar.appendChild(div);
   });
+
+  if (ultimateBasicMode) _ubRenderProjectFiles();
 
   const newBtn = document.createElement("button");
   newBtn.id = "tab-new-btn";
@@ -12780,6 +14096,10 @@ function showCompileErrorDialog(errors) {
       setSelectedErrorItem(li);
       if (expertMode && expertEditor && Number.isFinite(sourceLine)) {
         _expertGotoSourceLine(sourceLine, { focus: false });
+        return;
+      }
+      if (ultimateBasicMode && ubEditor && Number.isFinite(sourceLine)) {
+        _ubGotoLine(sourceLine);
         return;
       }
       if (Number.isFinite(asmLine)) {
@@ -12964,11 +14284,12 @@ async function d64LoadSavedExtras(savedExtras, baseDir = "") {
   return restored;
 }
 
-async function openD64ExportDialog(prgBytes, sidecars = null) {
+async function openD64ExportDialog(prgBytes, sidecars = null, runModeOverride = false) {
   const dialog = document.getElementById("d64-export-dialog");
   if (!dialog) return;
   d64ExportState.prgBytes = prgBytes;
   d64ExportState.sidecars = sidecars;
+  d64ExportState.runMode = runModeOverride;
 
   const diskInput = document.getElementById("d64-export-diskname");
   const progInput = document.getElementById("d64-export-progname");
@@ -12996,6 +14317,11 @@ async function openD64ExportDialog(prgBytes, sidecars = null) {
   if (diskInput) diskInput.value = diskName;
   if (progInput) progInput.value = progName;
   if (errorBox) { errorBox.hidden = true; errorBox.textContent = ""; }
+
+  const confirmBtn = document.getElementById("d64-export-confirm");
+  if (confirmBtn) confirmBtn.textContent = t(runModeOverride === "ultimate" ? "runOnUltimate" : runModeOverride ? "runViaD64Confirm" : "d64ExportConfirm");
+  const titleEl = document.getElementById("d64-export-title");
+  if (titleEl) titleEl.textContent = t(runModeOverride ? "runD64Title" : "d64ExportTitle");
 
   renderD64ExtraFiles();
   dialog.showModal();

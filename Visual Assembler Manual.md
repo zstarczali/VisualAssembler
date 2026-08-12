@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.2.9**
+**Version 2.3.0**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -24,6 +24,14 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [5. Settings \& Toolbar](#5-settings--toolbar)
     - [Load .asm file (quick reference)](#load-asm-file-quick-reference)
       - [Import parsing notes and best practices](#import-parsing-notes-and-best-practices)
+  - [UltimateBasic Mode](#ultimatebasic-mode)
+    - [Opening the UB editor](#opening-the-ub-editor)
+    - [Editor tools](#editor-tools)
+    - [Projects, tabs, and startup files](#projects-tabs-and-startup-files)
+    - [Building and diagnostics](#building-and-diagnostics)
+    - [Running, D64, and Exomizer](#running-d64-and-exomizer)
+    - [Debugger symbols and disassembly](#debugger-symbols-and-disassembly)
+    - [Ultimate Basic manual and source](#ultimate-basic-manual-and-source)
   - [6. Expert Mode](#6-expert-mode)
     - [Switching modes](#switching-modes)
     - [Editor layout](#editor-layout)
@@ -337,6 +345,91 @@ Supported patterns:
 Known limitation:
 
 - Constants that resolve to a zero-page address (for example `.const BYTEADDR = $FC` used as `STA BYTEADDR`) currently compile to absolute-mode instructions (3 bytes) instead of zero-page (2 bytes). The compiled code still writes to the correct memory location, just with a small size and cycle overhead compared to the same source built by Kick Assembler.
+
+## UltimateBasic Mode
+
+Version 2.3.0 introduces a complete **Ultimate Basic IDE** inside Visual Assembler. Ultimate Basic is a modern compiled BASIC language for creating C64 programs, games, and demos without writing every operation in low-level 6502 assembly. The compiler runs locally and generates native C64 PRG output.
+
+### Opening the UB editor
+
+Select the **UB** icon in the main toolbar to switch to Ultimate Basic mode. The selected editor mode is remembered across application restarts. A new source begins with:
+
+```basic
+color bg 0
+color border 0
+
+print "HELLO FROM ULTIMATE BASIC"
+```
+
+The UB mode works with `.ub` source files. **New**, **Open**, and **Save** operate on the active UB tab. Opening a `.ub` file activates the matching editor tab automatically.
+
+### Editor tools
+
+The UB toolbar follows the same visual language and custom tooltips as Expert mode. It provides:
+
+- syntax highlighting based on the current Ultimate Basic language reference;
+- line numbers that remain synchronized with long files;
+- a minimap and editor zoom controls;
+- Find (`Ctrl+F` / `Cmd+F`) using the Expert-style search bar;
+- source formatting with structure-aware indentation;
+- autocomplete for commands and built-in functions;
+- a searchable **Commands** panel with syntax, description, and usage guidance;
+- independently toggleable **Project** and **Commands** panels, displayed side by side when both are enabled;
+- independently toggleable and resizable **Build Output** and **Disassembly** panels.
+
+The command list is intentionally height-limited so the command-detail card can fill the remaining panel height. The detail area scrolls independently for longer syntax descriptions.
+
+### Projects, tabs, and startup files
+
+Ultimate Basic projects use `.proj` files and can contain multiple `.ub` sources. The Project panel lists open files, marks unsaved tabs, and shows discovered labels, functions, and subroutines. Project actions let you create, open, save, and close a project or add another source file.
+
+Click the star beside a project file to mark it as the **startup file**. Build, Run, D64, C64 Ultimate, and Debug commands compile that startup source even if a different tab is currently active. Without a startup selection, the active UB tab is used.
+
+### Building and diagnostics
+
+The **Build** button opens the same centered progress experience used by the other Visual Assembler run workflows. Successful builds update Build Output, Build Info, and Disassembly. Enable **Verbose** to include compiler memory-map details, internal zero-page allocations, and generated code data.
+
+When compilation fails:
+
+- Build Output is made visible automatically;
+- compiler errors are rendered in red;
+- the centered compile dialog displays the failure;
+- errors containing a source line select that line in the active UB editor.
+
+Build Info reports load/end addresses, code and PRG sizes, Exomizer status, variables, arrays, functions/subroutines, and labels.
+
+### Running, D64, and Exomizer
+
+The main split **Run** button supports Ultimate Basic in every normal destination:
+
+| Run mode | Ultimate Basic behavior |
+|---|---|
+| **Run as PRG** | Compile and launch the PRG directly in VICE. |
+| **Run via D64** | Compile, open the standard D64 packaging dialog, then launch the disk in VICE. |
+| **Run on Ultimate** | Upload and run the PRG through the configured C64 Ultimate REST connection. |
+| **Run D64 on hardware** | Package a D64 and send it to the configured C64 Ultimate. |
+
+The global **Settings → Exomizer** option also applies to UB builds and normal run targets; no separate UB toolbar toggle is needed. Debugger launches deliberately use the uncompressed PRG so compiler addresses and symbols continue to match the executed program.
+
+### Debugger symbols and disassembly
+
+Builds request Ultimate Basic debug information and produce three compatible sidecars:
+
+- `.sym` for KickAssembler-style symbols;
+- `.dbg` for C64Debugger/RetroDebugger source and segment information;
+- `.vs` for VICE monitor labels.
+
+The colorized UB Disassembly panel resolves known labels and presents addresses, bytes, mnemonics, and operands. The **Debug** button launches RetroDebugger with the raw UB PRG, debug sidecars, and the compiler's labels, functions, subroutines, variables, and arrays. Debug wait and unpause settings are shared with the normal Visual Assembler debugger configuration.
+
+### Ultimate Basic manual and source
+
+The book icon in the UB toolbar opens the matching Ultimate Basic `MANUAL.pdf` offline. Visual Assembler takes both the compiler and PDF from the pinned upstream Git/Cargo dependency, so the IDE does not maintain a second copy of the Ultimate Basic implementation. The About dialog and splash screen display the actual dependency version.
+
+Ultimate Basic is also available as a standalone open-source project:
+
+<https://github.com/zstarczali/UltimateBasic>
+
+The compiler is bundled into Visual Assembler, so no separate `ub` executable is required at runtime.
 
 ## 6. Expert Mode
 

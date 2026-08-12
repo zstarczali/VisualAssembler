@@ -264,6 +264,11 @@ fn get_app_version(app: AppHandle) -> String {
     app.package_info().version.to_string()
 }
 
+#[tauri::command]
+fn get_ultimate_basic_version() -> &'static str {
+    env!("ULTIMATE_BASIC_VERSION")
+}
+
 
 #[tauri::command]
 fn set_title(app: AppHandle, title: String) {
@@ -2310,6 +2315,83 @@ async fn choose_asm_file(app: AppHandle) -> serde_json::Value {
 }
 
 #[tauri::command]
+async fn choose_ub_file(app: AppHandle) -> serde_json::Value {
+    let mut dialog = app.dialog().file()
+        .add_filter("UltimateBasic Source", &["ub"])
+        .add_filter("All files", &["*"]);
+    if let Some(folder) = get_working_folder_path(&read_config(&app)) {
+        dialog = dialog.set_directory(folder);
+    }
+    match dialog.blocking_pick_file() {
+        Some(path) => {
+            let path_str = path.to_string();
+            match fs::read_to_string(&path_str) {
+                Ok(content) => serde_json::json!({ "ok": true, "filePath": path_str, "content": content }),
+                Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+            }
+        }
+        None => serde_json::json!({ "canceled": true }),
+    }
+}
+
+#[tauri::command]
+async fn save_ub_file(app: AppHandle, path: String, content: String) -> serde_json::Value {
+    let save_path = if path.is_empty() {
+        let mut dialog = app.dialog().file()
+            .add_filter("UltimateBasic Source", &["ub"])
+            .set_file_name("program.ub");
+        if let Some(folder) = get_working_folder_path(&read_config(&app)) {
+            dialog = dialog.set_directory(folder);
+        }
+        match dialog.blocking_save_file() {
+            Some(path) => path.to_string(),
+            None => return serde_json::json!({ "canceled": true }),
+        }
+    } else {
+        path
+    };
+    match fs::write(&save_path, content.as_bytes()) {
+        Ok(_) => serde_json::json!({ "ok": true, "filePath": save_path }),
+        Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+    }
+}
+
+#[tauri::command]
+fn compile_ultimate_basic(source: String, source_path: Option<String>) -> serde_json::Value {
+    use ultimate_basic::compiler::{compile_with_path, debug_output, CompileOptions};
+    let path = source_path.as_deref().filter(|p| !p.is_empty()).map(Path::new);
+    let result = compile_with_path(&source, &CompileOptions { basic_stub: true }, path);
+    let map = &result.map;
+    let debug_source_path = path.unwrap_or_else(|| Path::new("program.ub"));
+    serde_json::json!({
+        "ok": result.errors.is_empty(),
+        "errors": result.errors,
+        "prg": result.prg,
+        "debug": {
+            "sym": debug_output::sym(map),
+            "dbg": debug_output::dbg(map, debug_source_path),
+            "vs": debug_output::vice(map)
+        },
+        "map": {
+            "loadAddress": map.load_addr,
+            "codeSize": map.code_size,
+            "variables": map.variables.iter().map(|v| serde_json::json!({"name": v.name, "address": v.zp_addr, "type": v.type_str})).collect::<Vec<_>>(),
+            "subroutines": map.subroutines.iter().map(|s| serde_json::json!({"name": s.name, "address": s.addr})).collect::<Vec<_>>(),
+            "labels": map.labels.iter().map(|label| serde_json::json!({"name": label.name, "address": label.addr})).collect::<Vec<_>>(),
+            "arrays": map.arrays.iter().map(|a| serde_json::json!({"name": a.name, "address": a.base_addr, "size": a.size})).collect::<Vec<_>>()
+            ,"internal": {
+                "plotZp": map.plot_zp,
+                "lineZp": map.line_zp,
+                "rectZp": map.rect_zp,
+                "dataZp": map.data_zp,
+                "sinTableAddress": map.sin_table_addr
+            },
+            "codeBytes": map.code_bytes
+        }
+    })
+}
+
+#[tauri::command]
 async fn choose_proj_member(app: AppHandle) -> serde_json::Value {
     let working_folder = {
         let cfg = read_config(&app);
@@ -2383,6 +2465,18 @@ async fn open_manual(app: AppHandle) -> Result<(), String> {
         .map_err(|e| e.to_string())?;
     app.opener().open_path(manual_path.to_string_lossy().as_ref(), None::<String>)
         .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn open_ultimate_basic_manual(app: AppHandle) -> Result<(), String> {
+    let manual_path = app.path().app_cache_dir().map_err(|e| e.to_string())?.join("UltimateBasic-MANUAL.pdf");
+    if let Some(parent) = manual_path.parent() {
+        fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    }
+    let bytes = include_bytes!(env!("ULTIMATE_BASIC_MANUAL"));
+    let needs_write = fs::metadata(&manual_path).map(|meta| meta.len() != bytes.len() as u64).unwrap_or(true);
+    if needs_write { fs::write(&manual_path, bytes).map_err(|e| e.to_string())?; }
+    app.opener().open_path(manual_path.to_string_lossy().as_ref(), None::<String>).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -2505,6 +2599,7 @@ pub fn run() {
         .setup(|_| Ok(()))
         .invoke_handler(tauri::generate_handler![
             get_app_version,
+            get_ultimate_basic_version,
             set_title,
             open_external,
             quit_app,
@@ -2546,9 +2641,13 @@ pub fn run() {
             get_project_snapshot_path,
             save_asm_file,
             choose_asm_file,
+            choose_ub_file,
+            save_ub_file,
+            compile_ultimate_basic,
             choose_proj_member,
             load_sample,
             open_manual,
+            open_ultimate_basic_manual,
             run_on_ultimate,
             test_ultimate_connection,
         ])

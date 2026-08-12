@@ -1,7 +1,7 @@
 # Linux Installation Guide (Ubuntu / Debian)
-Version 2.2.9
+Version 2.3.0
 
-2.2.9: Expert mode now preserves inline `; comments` on their source lines, Block mode shows them as compact header markers, Ctrl/Cmd+/ comments or uncomments selected lines, and macro-core tests now cover the new comment behavior.
+2.3.0: Adds the complete Ultimate Basic IDE mode with projects, editor tooling, compilation, VICE/C64 Ultimate/D64 execution, RetroDebugger symbols, Exomizer support, and the bundled Ultimate Basic manual.
 
 Tested on Ubuntu 22.04 and 24.04.
 
@@ -12,7 +12,7 @@ Tested on Ubuntu 22.04 and 24.04.
 Download the `.deb` package from the releases page and install:
 
 ```bash
-  sudo dpkg -i "c64-visual-assembler_2.2.9_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.3.0_amd64.deb"
 sudo apt-get install -f   # fix any missing dependencies
 ```
 
@@ -126,4 +126,4 @@ The app propagates `DISPLAY`, `WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR`, `DBUS_SESSIO
 
 ---
 
-**Version:** 2.2.9 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.3.0 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

@@ -11,6 +11,7 @@
 
   window.electronAPI = {
     getAppVersion: () => invoke("get_app_version"),
+    getUltimateBasicVersion: () => invoke("get_ultimate_basic_version"),
     setWindowTitle: (title) => invoke("set_title", { title }),
     openExternal: (url) => invoke("open_external", { url }),
     quitApp: () => invoke("quit_app"),
@@ -50,10 +51,14 @@
     getProjectSnapshotPath: (projectPath, snapshotId) => invoke("get_project_snapshot_path", { projectPath, snapshotId }),
     saveAsmFile: (path, content) => invoke("save_asm_file", { path, content }),
     chooseAsmFile: () => invoke("choose_asm_file"),
+    chooseUbFile: () => invoke("choose_ub_file"),
+    saveUbFile: (path, content) => invoke("save_ub_file", { path, content }),
+    compileUltimateBasic: (source, sourcePath) => invoke("compile_ultimate_basic", { source, sourcePath }),
     chooseProjMember: () => invoke("choose_proj_member"),
     readBinFile: (path) => invoke("read_bin_file", { path }),
     loadSample: (sampleName) => invoke("load_sample", { sampleName }),
     openManual: () => invoke("open_manual"),
+    openUltimateBasicManual: () => invoke("open_ultimate_basic_manual"),
     runOnUltimate: (host, password, prgBytes) => invoke("run_on_ultimate", { host, password, prgBytes }),
     runD64OnUltimate: (payload) => invoke("run_d64_on_ultimate", { payload }),
     testUltimateConnection: (host, password) => invoke("test_ultimate_connection", { host, password }),

@@ -693,8 +693,8 @@ override megoldja. Új dialog számmezőknél is állítsd be explicit:
 
 ## 16. Jelenlegi verzió
 
-`2.2.9` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
+`2.3.0` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, és ez a fájl + copilot-instructions.md.
-Fő 2.2.9 változások: **inline komment-megőrzés Expert módban** (pl. `LDA $12 ; note` egyben marad Expert ↔ Block váltáskor); **blokkszintű inline komment marker** zöld italic header badge-dzsel és tooltip-pel; **Ctrl/Cmd+/ comment toggle** Expert módban (`Shift` = uncomment); valamint bővített `macro-core` regressziós tesztek a kommentes round-tripre.
+Fő 2.3.0 változások: teljes **Ultimate Basic IDE mód** `.ub` szerkesztővel, projektekkel és startup fájllal; build/run/debug, VICE/C64 Ultimate/D64 és Exomizer integráció; szimbólumos disassembly és debug sidecarok; beágyazott UB kézikönyv; lokalizált induló customer message.
 
 Verziónöveléshez lásd a 3. szakasz végén lévő 7-lépéses checklistet.

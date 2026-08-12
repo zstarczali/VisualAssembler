@@ -1,6 +1,6 @@
 [package]
 name = "c64-visual-assembler"
-version = "2.2.9"
+version = "2.3.0"
 edition = "2021"
 
 [lib]
@@ -21,6 +21,7 @@ serde_json = "1"
 reqwest = { version = "0.12", default-features = false, features = ["native-tls"] }
 base64 = "0.22"
 urlencoding = "2"
+ultimate-basic = { git = "https://github.com/zstarczali/UltimateBasic.git", branch = "dev" }
 
 [dev-dependencies]
 emulator_6502 = { version = "1.1.0", features = ["implementation_transparency"] }

@@ -12,7 +12,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2.2.9">
+  <link rel="stylesheet" href="style.css?v=2.3.0">
 </head>
 
 <body>
@@ -26,7 +26,10 @@
         <div class="splash-ready" aria-live="polite"><span id="splash-ready-text"></span><span class="splash-cursor">&#x2588;</span></div>
       </div>
     </div>
-    <p class="splash-version" id="splash-version"></p>
+    <div class="splash-versions">
+      <p class="splash-version" id="splash-version"></p>
+      <p class="splash-version splash-version--ub" id="splash-ub-version"></p>
+    </div>
   </div>
   <div class="app-shell">
     <header class="hero">
@@ -192,6 +195,7 @@
           <button id="expert-mode-tb-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Expert mode" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.25" width="15" height="15" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M4 6l2.5 2.5L4 11" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 11h3" stroke-linecap="round"/></svg>
           </button>
+          <button id="ub-mode-tb-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="UltimateBasic mode" aria-pressed="false" title="UltimateBasic mode"><svg viewBox="0 0 16 16" fill="none" width="15" height="15" aria-hidden="true"><rect x="2" y="1.5" width="12" height="13" rx="1.5" stroke="currentColor" stroke-width="1.15"/><path d="M5 5v4a2 2 0 0 0 4 0V5M10.5 5h1.2a1.3 1.3 0 0 1 0 2.6h-1.2m0 0H12a1.45 1.45 0 0 1 0 2.9h-1.5V5Z" stroke="currentColor" stroke-width="1.05" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           <div class="main-tb-sep" aria-hidden="true"></div>
           <div class="split-run-group">
             <button id="run-emulator" class="main-tb-btn main-tb-run split-run-main" type="button">
@@ -570,6 +574,90 @@ PRINTABLE CHARACTERS
         </div>
       </section>
 
+      <section class="ub-panel ub-show-project ub-show-lines ub-show-minimap" id="ub-panel" hidden>
+        <div class="ub-toolbar">
+          <button id="ub-project-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Project files" aria-pressed="true" title="Project files"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M2 4h4l1.5 2H14v7H2V4Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
+          <button id="ub-help-btn" class="expert-hl-toggle" type="button" aria-label="Command help" aria-pressed="false"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><circle cx="8" cy="8" r="6.3" stroke="currentColor" stroke-width="1.2"/><path d="M6.2 6.1A2 2 0 0 1 8.1 4.7c1.2 0 2.1.7 2.1 1.8 0 1.5-1.7 1.8-2.1 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="8" cy="12" r=".8" fill="currentColor"/></svg></button>
+          <button id="ub-manual-btn" class="expert-hl-toggle" type="button" aria-label="Ultimate Basic manual"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M2.5 3.2c2.2-.8 4-.4 5.5.8v9c-1.5-1.2-3.3-1.6-5.5-.8v-9ZM13.5 3.2c-2.2-.8-4-.4-5.5.8v9c1.5-1.2 3.3-1.6 5.5-.8v-9Z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/><path d="M5 5.5h1.5M5 8h1.5M9.5 5.5H11M9.5 8H11" stroke="var(--hl-number, currentColor)" stroke-width="1" stroke-linecap="round"/></svg></button>
+          <div class="expert-toolbar-sep"></div>
+          <button id="ub-new-btn" class="expert-hl-toggle" type="button" aria-label="New UltimateBasic source" title="New"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>
+          <button id="ub-open-btn" class="expert-hl-toggle" type="button" aria-label="Open .ub file" title="Open .ub"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M2 5h4l1.5 2H14l-2 6H3L2 5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M5 3h6v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+          <button id="ub-save-btn" class="expert-hl-toggle" type="button" aria-label="Save .ub file" title="Save"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M3 2h8l2 2v10H3V2Z" stroke="currentColor" stroke-width="1.2"/><path d="M5 2v4h5V2M5 10h6" stroke="currentColor" stroke-width="1.2"/></svg></button>
+          <button id="ub-format-btn" class="expert-hl-toggle" type="button" aria-label="Format UltimateBasic source"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M3 3h10M5 6.5h8M5 10h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M2 5.5 3.5 7 2 8.5M2 9l1.5 1.5L2 12" stroke="var(--hl-number, currentColor)" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div class="expert-toolbar-sep"></div>
+          <button id="ub-build-btn" class="expert-hl-toggle" type="button" aria-label="Build UltimateBasic source"><svg viewBox="0 0 16 16" fill="none" width="14" height="14" aria-hidden="true"><path d="m3 13 6.2-6.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M7.2 3.1 9 1.5l5.5 5.5-1.7 1.7-2-2-2 2-1.5-1.5 2-2-2.1-2.1Z" fill="currentColor" opacity=".9"/><path d="m2.3 11.7 2 2" stroke="var(--hl-number, currentColor)" stroke-width="2" stroke-linecap="round"/></svg></button>
+          <button id="ub-verbose-btn" class="expert-hl-toggle" type="button" aria-label="Verbose build output" aria-pressed="false" title="Verbose build output"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="1.5" y="2" width="13" height="12" rx="1.3" stroke="currentColor" stroke-width="1.1"/><path d="M4 5h5M4 8h8M4 11h6" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><circle cx="12" cy="5" r="1" fill="var(--hl-number, currentColor)"/></svg></button>
+          <button id="ub-disasm-btn" class="expert-hl-toggle" type="button" aria-label="Disassembler" aria-pressed="false" title="Disassembler"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M2 3h4M8 3h6M2 7h7M11 7h3M2 11h3M7 11h7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="m5 13 2-2-2-2" stroke="var(--hl-number, currentColor)" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button id="ub-output-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Build and debug output" aria-pressed="true"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="2" y="2.5" width="12" height="11" rx="1.5" stroke="currentColor" stroke-width="1.1"/><path d="m4.5 6 2 2-2 2M8 10h3.5" stroke="var(--hl-number, currentColor)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div class="expert-toolbar-sep"></div>
+          <button id="ub-hl-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Syntax highlighting" aria-pressed="true" title="Syntax highlighting"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M2.5 4h4M8 4h5.5M2.5 8h2M6 8h4M11.5 8h2M2.5 12h5M9 12h4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8 4h2M6 8h2M9 12h2" stroke="var(--hl-number, #b5cea8)" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+          <button id="ub-autocomplete-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Autocomplete" aria-pressed="true"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M3 3h10M3 7h7M3 11h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="m10 10 1.5 1.5L14 9" stroke="var(--hl-number, currentColor)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button id="ub-lines-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Line numbers" aria-pressed="true" title="Line numbers"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M6 4h8M6 8h8M6 12h8" stroke="currentColor" stroke-width="1.2"/><path d="M2 3h1v3M2 7h2l-2 3h2M2 12h2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></button>
+          <button id="ub-minimap-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Minimap" aria-pressed="true" title="Minimap"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="2" y="1.5" width="12" height="13" rx="1" stroke="currentColor" stroke-width="1.1"/><path d="M4 4h5M4 6h7M4 8h4M4 10h6M4 12h3" stroke="currentColor" stroke-width=".8" opacity=".75"/></svg></button>
+          <button id="ub-find-btn" class="expert-hl-toggle" type="button" aria-label="Find (Ctrl+F)" title="Find"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="m10.5 10.5 3.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
+          <button id="ub-zoom-out-btn" class="expert-hl-toggle ub-zoom-btn" type="button" aria-label="Zoom out" title="Zoom out"><svg viewBox="0 0 18 14" fill="none" width="15" height="12" aria-hidden="true"><text x="1" y="11" font-family="serif" font-size="10" fill="currentColor">A</text><path d="M10 7h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
+          <button id="ub-zoom-in-btn" class="expert-hl-toggle ub-zoom-btn" type="button" aria-label="Zoom in" title="Zoom in"><svg viewBox="0 0 18 14" fill="none" width="15" height="12" aria-hidden="true"><text x="1" y="11" font-family="serif" font-size="10" fill="currentColor">A</text><path d="M13 4v6M10 7h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
+          <span id="ub-file-name" class="ub-file-name">untitled.ub</span>
+        </div>
+        <div class="ub-editor-layout">
+          <aside id="ub-project-panel" class="ub-project-panel expert-project-panel">
+            <div id="ub-project-view" class="ub-left-view ub-left-view--active">
+              <div class="expert-project-header ub-project-header">
+              <span id="ub-project-name" class="expert-project-name">No project</span>
+              <button id="ub-project-open-btn" class="expert-project-icon-btn" type="button" aria-label="Open project"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M2 5C2 4.45 2.45 4 3 4h3.5L8 6h5c.55 0 1 .45 1 1v5c0 .55-.45 1-1 1H3c-.55 0-1-.45-1-1V5Z" stroke="currentColor" stroke-width="1.2"/></svg></button>
+              <button id="ub-project-new-btn" class="expert-project-icon-btn" type="button" aria-label="New project"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M8 5.5v5M5.5 8h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
+              <button id="ub-project-save-btn" class="expert-project-icon-btn" type="button" aria-label="Save project"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M3 2h8l3 3v8c0 .55-.45 1-1 1H3c-.55 0-1-.45-1-1V3c0-.55.45-1 1-1Z" stroke="currentColor" stroke-width="1.2"/><rect x="5" y="2" width="4" height="3.5" rx=".5" fill="currentColor" opacity=".45"/><rect x="4" y="9" width="8" height="4" rx="1" fill="currentColor" opacity=".35"/></svg></button>
+              <button id="ub-project-add-btn" class="expert-project-icon-btn" type="button" aria-label="Add .ub file"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="3" y="2" width="10" height="12" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 5.5v5M5.5 8h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
+              </div>
+              <div id="ub-project-files" class="ub-project-files expert-project-tree"></div>
+              <div class="expert-project-splitter ub-symbols-splitter"></div>
+              <div id="ub-project-symbols" class="expert-project-symbols ub-project-symbols"></div>
+            </div>
+          </aside>
+          <aside id="ub-commands-panel" class="ub-commands-panel palette-panel" hidden>
+            <div id="ub-commands-view" class="ub-left-view ub-left-view--active ub-command-reference">
+              <div class="panel-heading ub-command-header"><h2 id="ub-commands-title">Command Menu</h2><p id="ub-commands-help">Search UltimateBasic syntax.</p></div>
+              <label class="field ub-command-search-wrap"><span id="ub-search-label">Search</span><div class="palette-search-wrap"><input id="ub-command-search" class="palette-search-input ub-command-search" type="search" placeholder="Command or syntax…" autocomplete="off" spellcheck="false"></div></label>
+              <div id="ub-command-list" class="ub-command-list palette-list"></div>
+              <div id="ub-command-detail" class="mnemonic-card ub-command-detail">
+                <code id="ub-command-select">Select a command</code>
+                <p id="ub-command-hint">Its syntax and description will appear here.</p>
+              </div>
+            </div>
+          </aside>
+          <div class="ub-editor-wrap">
+            <div id="ub-line-numbers" class="ub-line-numbers" aria-hidden="true"><div id="ub-line-numbers-content" class="ub-line-numbers-content"></div></div>
+            <pre id="ub-highlight" class="ub-highlight" aria-hidden="true"><code id="ub-highlight-code"></code></pre>
+            <textarea id="ub-editor" class="ub-editor" spellcheck="false" autocomplete="off" wrap="off" placeholder="color bg 0&#10;color border 0&#10;&#10;print &quot;HELLO FROM ULTIMATE BASIC&quot;"></textarea>
+            <canvas id="ub-minimap" class="ub-minimap" aria-hidden="true"></canvas>
+            <div id="ub-find-bar" class="expert-find-bar ub-find-bar" hidden>
+              <input id="ub-find-input" class="expert-find-input" type="text" placeholder="Find…" autocomplete="off" spellcheck="false">
+              <span id="ub-find-count" class="expert-find-counter"></span>
+              <span class="expert-find-sep"></span>
+              <button id="ub-find-prev" class="expert-find-nav" type="button" aria-label="Previous (Shift+Enter)"><svg viewBox="0 0 16 16" fill="none" width="10" height="10" aria-hidden="true"><path d="M4 10l4-5 4 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              <button id="ub-find-next" class="expert-find-nav" type="button" aria-label="Next (Enter)"><svg viewBox="0 0 16 16" fill="none" width="10" height="10" aria-hidden="true"><path d="M4 6l4 5 4-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              <button id="ub-find-close" class="expert-find-nav expert-find-nav--close" type="button" aria-label="Close (Esc)"><svg viewBox="0 0 16 16" fill="none" width="10" height="10" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+            </div>
+          </div>
+          <div id="ub-disasm-resizer" class="expert-disasm-resizer ub-disasm-resizer"></div>
+          <div class="ub-right-panels">
+            <aside class="ub-build-panel">
+              <strong id="ub-build-output-title">Build output</strong>
+              <pre id="ub-build-output">Ready.</pre>
+            </aside>
+            <div id="ub-panels-resizer" class="ub-panels-resizer" hidden></div>
+            <aside id="ub-disasm-panel" class="ub-build-panel ub-disasm-panel" hidden>
+              <strong id="ub-disassembly-title">Disassembly</strong>
+              <pre id="ub-disasm-output">Build the source to generate disassembly.</pre>
+            </aside>
+          </div>
+        </div>
+        <div class="ub-statusbar">
+          <span id="ub-status">Ready</span>
+          <span id="ub-cursor-pos">Ln 1, Col 1</span>
+        </div>
+      </section>
+
     </main>
 
     <details class="global-memory-panel">
@@ -737,13 +825,27 @@ PRINTABLE CHARACTERS
     </div>
   </dialog>
 
+  <dialog id="customer-message-dialog" class="customer-message-dialog" aria-labelledby="customer-message-title">
+    <div class="customer-message-card">
+      <div class="customer-message-eyebrow" id="customer-message-eyebrow"></div>
+      <h2 id="customer-message-title"></h2>
+      <div id="customer-message-body" class="customer-message-body"></div>
+      <div class="customer-message-actions">
+        <button id="customer-message-link" class="secondary" type="button" hidden></button>
+        <button id="customer-message-dismiss" class="secondary" type="button"></button>
+        <button id="customer-message-close" class="primary" type="button"></button>
+      </div>
+    </div>
+  </dialog>
+
 <dialog id="about-dialog" class="about-dialog">
     <div class="about-card">
       <div class="about-logo">
         <img src="assets/logo.png" alt="C64 Visual Assembler" width="160" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v2.2.9</p>
+      <p class="about-version" id="about-version">v2.3.0</p>
+      <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
         dropping instruction blocks.</p>
       <p class="about-sid-credit" id="about-sid-credit"><span id="about-sid-credit-label">Web SID player: WebSid (WebAudio version of Tiny'R'Sid) by Juergen Wothke. GitHub repository:</span> <a href="https://github.com/wothke/websid" target="_blank" rel="noopener noreferrer">https://github.com/wothke/websid</a><br><span id="about-sid-credit-license">(CC BY-NC-SA 4.0)</span></p>
@@ -758,22 +860,28 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.2.9</p>
+      <p class="whats-new-version">v2.3.0</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: inline comments survive Expert round-trips</strong> &mdash; comments such as <code>LDA $12 ; border color</code> now stay attached to their source lines when you switch between Expert and Block mode, instead of being split away or lost.
+          <strong>New: complete Ultimate Basic IDE mode</strong> &mdash; create, open, edit, format, search, and save <code>.ub</code> sources with syntax highlighting, minimap, line numbers, autocomplete, command reference, and contextual syntax help.
         </li>
         <li>
-          <strong>New: block headers show inline comment markers</strong> &mdash; Block mode surfaces attached inline comments as a compact green italic <code>; comment</code> marker in the block header, with tooltip-on-hover for the full text when it is truncated.
+          <strong>New: Ultimate Basic projects</strong> &mdash; manage multiple files and tabs, open and save project files, inspect labels/functions/subroutines, and select a startup source for build and run operations.
         </li>
         <li>
-          <strong>New: Expert comment shortcut</strong> &mdash; press <code>Ctrl+/</code> (or <code>Cmd+/</code> on macOS) to comment the current line or selection, and add <code>Shift</code> to uncomment the selected lines again.
+          <strong>New: full build and run integration</strong> &mdash; compile Ultimate Basic with progress and diagnostics, then run PRG or D64 output in VICE or on C64 Ultimate hardware. The shared Exomizer setting is supported.
         </li>
         <li>
-          <strong>Fixed: parser/source sync keeps inline comments aligned</strong> &mdash; Expert parsing and source regeneration now keep the instruction/directive and its attached inline comment on the same logical line.
+          <strong>New: debugger and disassembly symbols</strong> &mdash; colorized UB disassembly and RetroDebugger launches use labels, functions, subroutines, variables, arrays, and the generated <code>.sym</code>, <code>.dbg</code>, and <code>.vs</code> files.
         </li>
         <li>
-          <strong>Tests: macro-core coverage extended</strong> &mdash; the JS unit tests now cover inline comment rendering, multi-line comment/uncomment shortcuts, and the new source-line preservation behavior.
+          <strong>New: upstream Ultimate Basic integration</strong> &mdash; Visual Assembler uses the pinned UltimateBasic Git/Cargo dependency, displays its actual version, and provides the matching offline PDF manual from the UB toolbar.
+        </li>
+        <li>
+          <strong>New: localized startup announcement</strong> &mdash; a separate customer message introduces Ultimate Basic in English, Hungarian, Spanish, and German until the user chooses not to show it again.
+        </li>
+        <li>
+          <strong>Improved: Expert comments</strong> &mdash; inline comments remain attached across Expert/Block round-trips, appear on block headers, and can be toggled with <code>Ctrl+/</code> or <code>Cmd+/</code>.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -1941,12 +2049,12 @@ PRINTABLE CHARACTERS
   </div>
 
   <script src="tauri-bridge.js"></script>
-  <script src="i18n.js?v=2.2.9"></script>
-  <script src="tutorial-data.js?v=2.2.9"></script>
+  <script src="i18n.js?v=2.3.0"></script>
+  <script src="tutorial-data.js?v=2.3.0"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.2.9"></script>
+  <script src="app.js?v=2.3.0"></script>
 
 </body>
 
