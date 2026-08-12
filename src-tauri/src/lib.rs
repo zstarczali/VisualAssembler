@@ -264,6 +264,11 @@ fn get_app_version(app: AppHandle) -> String {
     app.package_info().version.to_string()
 }
 
+#[tauri::command]
+fn get_ultimate_basic_version() -> &'static str {
+    env!("ULTIMATE_BASIC_VERSION")
+}
+
 
 #[tauri::command]
 fn set_title(app: AppHandle, title: String) {
@@ -2463,6 +2468,18 @@ async fn open_manual(app: AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command]
+async fn open_ultimate_basic_manual(app: AppHandle) -> Result<(), String> {
+    let manual_path = app.path().app_cache_dir().map_err(|e| e.to_string())?.join("UltimateBasic-MANUAL.pdf");
+    if let Some(parent) = manual_path.parent() {
+        fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    }
+    let bytes = include_bytes!(env!("ULTIMATE_BASIC_MANUAL"));
+    let needs_write = fs::metadata(&manual_path).map(|meta| meta.len() != bytes.len() as u64).unwrap_or(true);
+    if needs_write { fs::write(&manual_path, bytes).map_err(|e| e.to_string())?; }
+    app.opener().open_path(manual_path.to_string_lossy().as_ref(), None::<String>).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 async fn load_sample(app: AppHandle, sample_name: String) -> serde_json::Value {
     let file_path = match resolve_resource_file(&app, &format!("samples/{}.json", sample_name)) {
         Ok(p) => p,
@@ -2582,6 +2599,7 @@ pub fn run() {
         .setup(|_| Ok(()))
         .invoke_handler(tauri::generate_handler![
             get_app_version,
+            get_ultimate_basic_version,
             set_title,
             open_external,
             quit_app,
@@ -2629,6 +2647,7 @@ pub fn run() {
             choose_proj_member,
             load_sample,
             open_manual,
+            open_ultimate_basic_manual,
             run_on_ultimate,
             test_ultimate_connection,
         ])

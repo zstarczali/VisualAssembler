@@ -19,7 +19,7 @@
   src: url("assets/C64_Elite_Mono_v1.0-STYLE.ttf") format("truetype");
   font-display: swap;
 }
-
+©
 :root {
   --bg: #e8ecf1;
   --bg-accent: #dde1e6;
@@ -3422,7 +3422,7 @@ body.ub-mode .workspace { grid-template-columns: 1fr; }
 .ub-right-panels { grid-area: output; }
 .ub-panel:not(.ub-show-project) .ub-project-panel { display: none; }
 .ub-panel:not(.ub-show-commands) .ub-commands-panel { display: none; }
-.ub-commands-panel { min-width: 0; width: auto; min-height: 0; max-height: none; display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid var(--panel-border); background: var(--panel); }
+.ub-commands-panel { min-width: 0; width: auto; min-height: 0; height: 100%; max-height: none; display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid var(--panel-border); background: var(--panel); }
 .ub-project-panel.expert-project-panel { min-width: 0; width: auto; max-height: none; overflow: visible; }
 .ub-left-view { min-height: 0; flex: 1; flex-direction: column; }
 .ub-left-view--active { display: flex; }
@@ -3434,7 +3434,7 @@ body.ub-mode .workspace { grid-template-columns: 1fr; }
 .ub-project-symbols.expert-project-symbols { height: 190px; max-height: 42%; flex: 0 0 190px; }
 .ub-symbols-splitter { cursor: default; }
 .ub-project-file-dirty .expert-project-item-name::after { content: " ●"; color: var(--accent); font-size: .55rem; }
-.ub-command-reference { flex-direction: column; min-height: 0; flex: 1; }
+.ub-command-reference { flex-direction: column; min-height: 0; height: 100%; flex: 1; overflow: hidden; }
 .ub-command-header { padding: 12px 12px 7px; }
 .ub-command-search-wrap { padding: 0 12px 10px; gap: 5px; }
 .ub-command-search-wrap > span { font-size: .68rem; color: var(--muted); }
@@ -3442,7 +3442,7 @@ body.ub-mode .workspace { grid-template-columns: 1fr; }
 .ub-command-list.palette-list { flex: 0 1 220px; min-height: 80px; max-height: 220px; overflow: auto; margin: 0 8px; padding-right: 4px; gap: 8px; }
 .ub-command-item.palette-item { min-height: unset; padding: 9px 10px; }
 .ub-command-item--active.palette-item { background: color-mix(in srgb, var(--accent) 14%, var(--panel-strong)); border-color: color-mix(in srgb, var(--accent) 50%, var(--panel-border)); }
-.ub-command-detail.mnemonic-card { min-height: 120px; height: auto; max-height: 200px; margin: 8px; padding: 14px; flex: 0 0 auto; overflow-y: auto; overflow-x: hidden; box-sizing: border-box; }
+.ub-command-detail.mnemonic-card { min-height: 120px; height: auto; max-height: none; margin: 8px; padding: 14px; flex: 1 1 0; overflow-y: auto; overflow-x: hidden; box-sizing: border-box; }
 .ub-command-detail-title { color: var(--text); font-size: .86rem; letter-spacing: .02em; }
 .ub-command-detail .mnemonic-field-label { margin-top: 10px; }
 .ub-command-detail code { display: block; margin-top: 4px; padding: 7px 8px; border: 1px solid var(--panel-border); border-radius: 2px; background: var(--bg); color: var(--hl-mnem); font-family: "IBM Plex Mono", monospace; font-size: .72rem; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -5403,6 +5403,32 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
 
 
 /* ── About Dialog ────────────────────────────────────────────────── */
+.customer-message-dialog {
+  border: 0;
+  border-radius: 4px;
+  padding: 0;
+  width: min(560px, 92vw);
+  max-height: min(720px, 88vh);
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: 0 24px 64px color-mix(in srgb, black 35%, transparent);
+}
+
+.customer-message-dialog::backdrop {
+  background: color-mix(in srgb, black 58%, transparent);
+  backdrop-filter: blur(4px);
+}
+
+.customer-message-card { padding: 28px; overflow-y: auto; }
+.customer-message-eyebrow { margin-bottom: 8px; color: var(--secondary); font: 600 .72rem/1.3 "IBM Plex Mono", monospace; letter-spacing: .08em; text-transform: uppercase; }
+.customer-message-card h2 { margin: 0 0 16px; font-size: 1.35rem; color: var(--text); }
+.customer-message-body { color: var(--muted); font-size: .9rem; line-height: 1.55; }
+.customer-message-body p { margin: 0 0 12px; }
+.customer-message-body ul { margin: 0 0 16px; padding-left: 1.25rem; }
+.customer-message-body li { margin: 6px 0; }
+.customer-message-body strong { color: var(--text); }
+.customer-message-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 22px; }
+
 .about-dialog {
   border: none;
   border-radius: 4px;
@@ -5451,6 +5477,10 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   font-size: 0.9rem;
   color: var(--secondary);
   font-weight: 600;
+}
+
+#about-ub-version {
+  font-weight: 400;
 }
 
 .about-desc {
@@ -5914,18 +5944,29 @@ body.crt-mode #crt-overlay::after {
   height: auto;
 }
 
-.splash-version {
+.splash-versions {
   position: absolute;
   bottom: 1.5rem;
   left: 50%;
   transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  width: 100%;
+  text-align: center;
+}
+
+.splash-version {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: 400;
   color: var(--muted);
   margin: 0;
   white-space: nowrap;
 }
+
+.splash-version--ub { font-size: 0.7rem; }
 
 .splash-ready {
   font-family: "C64Pro", monospace;

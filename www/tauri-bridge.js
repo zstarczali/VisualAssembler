@@ -11,6 +11,7 @@
 
   window.electronAPI = {
     getAppVersion: () => invoke("get_app_version"),
+    getUltimateBasicVersion: () => invoke("get_ultimate_basic_version"),
     setWindowTitle: (title) => invoke("set_title", { title }),
     openExternal: (url) => invoke("open_external", { url }),
     quitApp: () => invoke("quit_app"),
@@ -57,6 +58,7 @@
     readBinFile: (path) => invoke("read_bin_file", { path }),
     loadSample: (sampleName) => invoke("load_sample", { sampleName }),
     openManual: () => invoke("open_manual"),
+    openUltimateBasicManual: () => invoke("open_ultimate_basic_manual"),
     runOnUltimate: (host, password, prgBytes) => invoke("run_on_ultimate", { host, password, prgBytes }),
     runD64OnUltimate: (payload) => invoke("run_d64_on_ultimate", { payload }),
     testUltimateConnection: (host, password) => invoke("test_ultimate_connection", { host, password }),

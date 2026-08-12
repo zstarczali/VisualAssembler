@@ -73,6 +73,46 @@ const addressingModes = {
   }
 };
 
+// Customer-facing startup message. Change `id` to show a new message once to
+// every user, or set `enabled` to false to disable it completely.
+const CUSTOMER_MESSAGE = {
+  enabled: true,
+  id: "ultimate-basic-introduction-2",
+  url: "https://github.com/zstarczali/UltimateBasic",
+  hu: {
+    eyebrow: "Újdonság",
+    title: "Megérkezett az Ultimate Basic",
+    body: `<p>Az <strong>Ultimate Basic</strong> egy modern, C64-re készült fordított BASIC nyelv. <strong>Mostantól az Ultimate Basic közvetlenül a Visual Assembler IDE-ben is elérhető</strong>, a teljes értékű UB szerkesztőmódban.</p><ul><li><strong>Mire jó?</strong> Gyors C64 program-, játék- és demófejlesztésre, alacsony szintű assembly írása nélkül.</li><li><strong>Mit tartalmaz?</strong> Szintaxiskiemelést, kódkiegészítést, parancssúgót, projektkezelést, formázást, fordítást és hibajelzést.</li><li><strong>Futtatás:</strong> PRG vagy D64 VICE-ban és C64 Ultimate-en, valamint RetroDebugger támogatás szimbólumokkal.</li><li><strong>Debug kimenet:</strong> KickAssembler <code>.sym</code>, C64Debugger <code>.dbg</code> és VICE <code>.vs</code> címkék.</li></ul><p>Az Ultimate Basic önálló, nyílt forrású projektként is elérhető a GitHubon.</p>`,
+    link: "Ultimate Basic a GitHubon",
+    dismiss: "Ne jelenjen meg többé",
+    close: "Bezárás"
+  },
+  en: {
+    eyebrow: "New",
+    title: "Introducing Ultimate Basic",
+    body: `<p><strong>Ultimate Basic</strong> is a modern compiled BASIC language for the C64. <strong>Ultimate Basic is now available directly inside the Visual Assembler IDE</strong> through the full-featured UB editor mode.</p><ul><li><strong>What is it for?</strong> Rapid C64 program, game and demo development without writing everything in low-level assembly.</li><li><strong>What is included?</strong> Syntax highlighting, completion, command help, projects, formatting, compilation and error reporting.</li><li><strong>Run targets:</strong> PRG or D64 in VICE and on C64 Ultimate, plus RetroDebugger support with symbols.</li><li><strong>Debug output:</strong> KickAssembler <code>.sym</code>, C64Debugger <code>.dbg</code> and VICE <code>.vs</code> labels.</li></ul><p>Ultimate Basic is also available as a standalone open-source project on GitHub.</p>`,
+    link: "Ultimate Basic on GitHub",
+    dismiss: "Don't show again",
+    close: "Close"
+  },
+  es: {
+    eyebrow: "Novedad",
+    title: "Ha llegado Ultimate Basic",
+    body: `<p><strong>Ultimate Basic</strong> es un lenguaje BASIC moderno y compilado para C64. <strong>A partir de ahora, Ultimate Basic también está disponible directamente en el IDE Visual Assembler</strong> mediante el completo modo de edición UB.</p><ul><li><strong>¿Para qué sirve?</strong> Para desarrollar rápidamente programas, juegos y demos de C64 sin tener que escribirlo todo en ensamblador de bajo nivel.</li><li><strong>¿Qué incluye?</strong> Resaltado de sintaxis, autocompletado, ayuda de comandos, gestión de proyectos, formateo, compilación e indicación de errores.</li><li><strong>Ejecución:</strong> PRG o D64 en VICE y C64 Ultimate, además de compatibilidad con RetroDebugger y símbolos.</li><li><strong>Información de depuración:</strong> archivos KickAssembler <code>.sym</code>, C64Debugger <code>.dbg</code> y etiquetas VICE <code>.vs</code>.</li></ul><p>Ultimate Basic también está disponible como proyecto independiente y de código abierto en GitHub.</p>`,
+    link: "Ultimate Basic en GitHub",
+    dismiss: "No volver a mostrar",
+    close: "Cerrar"
+  },
+  de: {
+    eyebrow: "Neu",
+    title: "Ultimate Basic ist da",
+    body: `<p><strong>Ultimate Basic</strong> ist eine moderne, kompilierte BASIC-Sprache für den C64. <strong>Ab sofort ist Ultimate Basic auch direkt in der Visual Assembler IDE verfügbar</strong> – mit einem vollständigen UB-Editormodus.</p><ul><li><strong>Wofür ist es gedacht?</strong> Für die schnelle Entwicklung von C64-Programmen, Spielen und Demos, ohne alles in maschinennahem Assembler schreiben zu müssen.</li><li><strong>Was ist enthalten?</strong> Syntaxhervorhebung, Codevervollständigung, Befehlshilfe, Projektverwaltung, Formatierung, Kompilierung und Fehleranzeige.</li><li><strong>Ausführung:</strong> PRG oder D64 in VICE und auf C64 Ultimate sowie RetroDebugger-Unterstützung mit Symbolen.</li><li><strong>Debug-Ausgabe:</strong> KickAssembler-<code>.sym</code>, C64Debugger-<code>.dbg</code> und VICE-<code>.vs</code>-Labels.</li></ul><p>Ultimate Basic ist außerdem als eigenständiges Open-Source-Projekt auf GitHub verfügbar.</p>`,
+    link: "Ultimate Basic auf GitHub",
+    dismiss: "Nicht mehr anzeigen",
+    close: "Schließen"
+  }
+};
+
 const mnemonicLibrary = {
   Adatmozgas: [
     { mnemonic: "LDA", description: "Akkumulator betoltese memoriabol vagy konstansbol.", modes: ["immediate", "zeroPage", "zeroPageX", "absolute", "absoluteX", "absoluteY", "indirectX", "indirectY"] },
@@ -358,6 +398,10 @@ const aboutDialog = document.getElementById("about-dialog");
 const aboutCloseButton = document.getElementById("about-close");
 const whatsNewDialog = document.getElementById("whats-new-dialog");
 const whatsNewCloseButton = document.getElementById("whats-new-close");
+const customerMessageDialog = document.getElementById("customer-message-dialog");
+const customerMessageCloseButton = document.getElementById("customer-message-close");
+const customerMessageDismissButton = document.getElementById("customer-message-dismiss");
+const customerMessageLinkButton = document.getElementById("customer-message-link");
 const knowledgeBaseButton = document.getElementById("knowledge-base-btn");
 const knowledgeBaseDialog = document.getElementById("knowledge-base-dialog");
 const knowledgeBaseCloseButton = document.getElementById("knowledge-base-close");
@@ -1421,6 +1465,9 @@ function initPalette() {
   aboutButton?.addEventListener("click", async () => {
     document.querySelector(".control-menu")?.removeAttribute("open");
     document.getElementById("about-version").textContent = await getAppVersionText();
+    const ubVersion = await window.electronAPI?.getUltimateBasicVersion?.();
+    const ubVersionValue = document.getElementById("about-ub-version-value");
+    if (ubVersionValue) ubVersionValue.textContent = ubVersion ? `v${ubVersion}` : "v?";
     const dlg = document.getElementById("about-dialog");
     dlg?.querySelectorAll("a[href^='mailto:'], a[href^='http://'], a[href^='https://']").forEach(a => {
       if (a.dataset.externalBound) return;
@@ -1475,6 +1522,7 @@ function initPalette() {
   document.getElementById("ub-autocomplete-btn")?.addEventListener("click", _ubToggleAutocomplete);
   document.getElementById("ub-project-btn")?.addEventListener("click", _ubToggleProject);
   document.getElementById("ub-help-btn")?.addEventListener("click", _ubToggleCommands);
+  document.getElementById("ub-manual-btn")?.addEventListener("click", () => window.electronAPI?.openUltimateBasicManual?.());
   document.getElementById("ub-project-open-btn")?.addEventListener("click", _ubOpenProject);
   document.getElementById("ub-project-new-btn")?.addEventListener("click", _ubNewProject);
   document.getElementById("ub-project-save-btn")?.addEventListener("click", _ubSaveProject);
@@ -1882,6 +1930,16 @@ function initPalette() {
     whatsNewDialog?.showModal();
   });
   whatsNewCloseButton?.addEventListener("click", () => whatsNewDialog?.close());
+  customerMessageCloseButton?.addEventListener("click", () => {
+    customerMessageDialog?.close();
+  });
+  customerMessageDismissButton?.addEventListener("click", () => {
+    localStorage.setItem("customerMessageSeen", CUSTOMER_MESSAGE.id);
+    customerMessageDialog?.close();
+  });
+  customerMessageLinkButton?.addEventListener("click", () => {
+    if (CUSTOMER_MESSAGE.url) window.electronAPI?.openExternal(CUSTOMER_MESSAGE.url);
+  });
   knowledgeBaseButton?.addEventListener("click", () => {
     document.querySelector(".control-menu")?.removeAttribute("open");
     knowledgeBaseDialog?.showModal();
@@ -2189,10 +2247,14 @@ function initPalette() {
   // the current version, not the placeholder in index.html.
   getAppVersionText().then(versionText => {
     const splashVersion = document.getElementById('splash-version');
-    if (splashVersion) splashVersion.textContent = versionText;
+    if (splashVersion) splashVersion.textContent = `Visual Assembler ${String(versionText).replace(/^v/i, "")}`;
     const aboutVersion = document.getElementById('about-version');
     if (aboutVersion) aboutVersion.textContent = versionText;
   });
+  window.electronAPI?.getUltimateBasicVersion?.().then(version => {
+    const splashUbVersion = document.getElementById("splash-ub-version");
+    if (splashUbVersion && version) splashUbVersion.textContent = `Ultimate Basic ${version}`;
+  }).catch(() => {});
 
   // READY. typewriter effect
   (() => {
@@ -2220,6 +2282,7 @@ function initPalette() {
       splashScreen.classList.add('fade-out');
       setTimeout(() => {
         splashScreen.remove();
+        showCustomerMessageIfNeeded();
       }, 500);
     }
   }, 2000);
@@ -2426,6 +2489,26 @@ function applySavedLanguage() {
   if (languageSelect) {
     languageSelect.value = currentLanguage;
   }
+}
+
+function showCustomerMessageIfNeeded() {
+  if (!CUSTOMER_MESSAGE.enabled || !customerMessageDialog) return;
+  if (localStorage.getItem("customerMessageSeen") === CUSTOMER_MESSAGE.id) return;
+  const content = CUSTOMER_MESSAGE[currentLanguage] || CUSTOMER_MESSAGE.en;
+  const eyebrow = document.getElementById("customer-message-eyebrow");
+  const title = document.getElementById("customer-message-title");
+  const body = document.getElementById("customer-message-body");
+  if (eyebrow) eyebrow.textContent = content.eyebrow;
+  if (title) title.textContent = content.title;
+  if (body) body.innerHTML = content.body;
+  if (customerMessageLinkButton) {
+    customerMessageLinkButton.textContent = content.link;
+    customerMessageLinkButton.hidden = !CUSTOMER_MESSAGE.url;
+  }
+  if (customerMessageDismissButton) customerMessageDismissButton.textContent = content.dismiss;
+  if (customerMessageCloseButton) customerMessageCloseButton.textContent = content.close;
+  customerMessageDialog.showModal();
+  requestAnimationFrame(() => customerMessageCloseButton?.focus());
 }
 
 function _applyUiSettingsToDOM() {
@@ -2698,6 +2781,7 @@ function applyTranslations() {
     setText("#about-sid-credit-label", t("aboutSidCreditLabel"));
     setText("#about-sid-credit-license", t("aboutSidCreditLicense"));
     setText("#about-repo-label", t("aboutRepoLabel"));
+    setText("#about-ub-version-label", t("aboutUbVersionLabel"));
   if (helpManualButton) helpManualButton.textContent = t("helpManual");
   if (checkUpdateButton) checkUpdateButton.textContent = t("checkForUpdate");
   if (reportBugButton) reportBugButton.textContent = t("reportBug");
@@ -2765,7 +2849,7 @@ function applyTranslations() {
   const ubLabels = {
     "ub-new-btn": "ubNewSource", "ub-open-btn": "ubOpenSource", "ub-save-btn": "ubSaveSource", "ub-format-btn": "ubFormatSource",
     "ub-build-btn": "ubBuild", "ub-output-btn": "ubBuildOutput", "ub-verbose-btn": "ubVerbose", "ub-disasm-btn": "expertDisasm", "ub-autocomplete-btn": "expertAutocomplete",
-    "ub-project-btn": "expertProjectPanel", "ub-help-btn": "ubCommandHelpToggle", "ub-project-open-btn": "projOpenProjectBtn",
+    "ub-project-btn": "expertProjectPanel", "ub-help-btn": "ubCommandHelpToggle", "ub-manual-btn": "ubManual", "ub-project-open-btn": "projOpenProjectBtn",
     "ub-project-new-btn": "projNewProjectBtn", "ub-project-save-btn": "projSaveProjectBtn",
     "ub-project-add-btn": "projAddFileBtn", "ub-hl-btn": "ubSyntaxHighlight",
     "ub-lines-btn": "ubLineNumbers", "ub-minimap-btn": "ubMinimap",
@@ -5614,7 +5698,7 @@ function setUltimateBasicMode(on) {
   if (ultimateBasicMode) {
     const current = _getActiveTab();
     if (current) current.editorMode = "ub";
-    if (!ubEditor.value) ubEditor.value = 'print "HELLO FROM ULTIMATE BASIC"\nbye';
+    if (!ubEditor.value) ubEditor.value = 'color bg 0\ncolor border 0\n\nprint "HELLO FROM ULTIMATE BASIC"';
     ubEditor.focus();
     _ubUpdateCursor();
     ubPanel.classList.toggle("ub-show-lines", _ubLinesEnabled);
@@ -6317,7 +6401,7 @@ async function _ubApplyExomizer(result, label = "ultimate-basic") {
   return true;
 }
 
-async function _ubCompile(showProgress = false) {
+async function _ubCompile(showProgress = false, options = {}) {
   _ubSetStatus("Building…");
   if (showProgress) await showWorkProgress("ubBuildProgress", { indeterminate: true });
   let result;
@@ -6349,7 +6433,7 @@ async function _ubCompile(showProgress = false) {
     return null;
   }
   const buildName = _ubFilePath.split(/[\\/]/).pop()?.replace(/\.ub$/i, "") || "ultimate-basic";
-  if (!(await _ubApplyExomizer(result, buildName))) {
+  if (!options.skipExomizer && !(await _ubApplyExomizer(result, buildName))) {
     if (showProgress) hideWorkProgress();
     return null;
   }
@@ -6365,13 +6449,10 @@ async function _ubRun(mode) {
   const source = startupTab && startupTab.id !== activeTabId ? startupTab.ubText || "" : ubEditor?.value || "";
   const sourcePath = startupTab ? startupTab.ubFilePath || startupTab.filePath || null : _ubFilePath || null;
   if (!source.trim()) { _ubSetStatus(t("ubNothingToRun"), true); return; }
-  if (mode === "d64" || mode === "ultimate-d64") {
-    _ubSetStatus("D64 run is not available in UltimateBasic mode yet.", true);
-    return;
-  }
-  const host = mode === "ultimate" ? (document.getElementById("ultimate-host")?.value || ultimateHost).trim() : "";
-  if (mode === "ultimate" && !host) { _ubSetStatus(t("ultimateNotConfigured"), true); return; }
-  if (mode !== "ultimate" && !vicePath) { _ubSetStatus(t("viceIsNotConfiguredSelectItInTheMenuFirs"), true); return; }
+  const usesUltimate = mode === "ultimate" || mode === "ultimate-d64";
+  const host = usesUltimate ? (document.getElementById("ultimate-host")?.value || ultimateHost).trim() : "";
+  if (usesUltimate && !host) { _ubSetStatus(t("ultimateNotConfigured"), true); return; }
+  if (!usesUltimate && !vicePath) { _ubSetStatus(t("viceIsNotConfiguredSelectItInTheMenuFirs"), true); return; }
 
   await showWorkProgress("ubRunProgress");
   let success = false;
@@ -6382,6 +6463,13 @@ async function _ubRun(mode) {
       : await _ubCompile();
     if (!build) return;
     setWorkProgress(exomizerEnabled ? 78 : 70);
+
+    if (mode === "d64" || mode === "ultimate-d64") {
+      hideWorkProgress();
+      await openD64ExportDialog(build.outputPrg || build.prg, build.debug || null, mode === "ultimate-d64" ? "ultimate" : true);
+      _ubSetStatus(mode === "ultimate-d64" ? "Ultimate D64 ready" : "D64 ready");
+      return;
+    }
 
     let result;
     if (mode === "ultimate") {
@@ -6405,7 +6493,7 @@ async function _ubRun(mode) {
   }
 }
 
-async function _ubCompileSource(source, sourcePath, label = "startup file") {
+async function _ubCompileSource(source, sourcePath, label = "startup file", options = {}) {
   _ubSetStatus(`Building ${label}…`);
   const result = await window.electronAPI?.compileUltimateBasic?.(source, sourcePath);
   _ubLastResult = result;
@@ -6417,11 +6505,66 @@ async function _ubCompileSource(source, sourcePath, label = "startup file") {
     _ubShowCompileErrors(errors);
     return null;
   }
-  if (!(await _ubApplyExomizer(result, label))) return null;
+  if (!options.skipExomizer && !(await _ubApplyExomizer(result, label))) return null;
   const packedInfo = result.outputPrg ? `\nExomizer: ${result.prg.length} → ${result.outputPrg.length} bytes\n${result.exomizerFilePath}` : "";
   _ubSetBuildOutput(`${label}\n\n${_ubFormatMap(result.map)}${packedInfo}`);
   _ubSetStatus(`${label}: build successful — ${(result.outputPrg || result.prg).length} PRG bytes${result.outputPrg ? " (Exomizer)" : ""}`);
   return result;
+}
+
+function _ubDebuggerSymbols(build) {
+  const unique = new Map();
+  const map = build?.map || {};
+  [...(map.labels || []), ...(map.subroutines || []), ...(map.variables || []), ...(map.arrays || [])].forEach((entry) => {
+    const name = String(entry?.name || "").trim();
+    const address = Number(entry?.address);
+    if (name && Number.isFinite(address) && !unique.has(name)) unique.set(name, address & 0xFFFF);
+  });
+  return [...unique.entries()]
+    .map(([name, address]) => ({ name, address }))
+    .sort((left, right) => (left.address - right.address) || left.name.localeCompare(right.name));
+}
+
+async function _ubRunDebugger() {
+  const startupTab = _ubStartupTabId !== null ? tabs.find(tab => tab.id === _ubStartupTabId) : null;
+  const source = startupTab && startupTab.id !== activeTabId ? startupTab.ubText || "" : ubEditor?.value || "";
+  const sourcePath = startupTab ? startupTab.ubFilePath || startupTab.filePath || null : _ubFilePath || null;
+  if (!source.trim()) { _ubSetStatus(t("ubNothingToRun"), true); return; }
+  if (!debuggerPath) { showViceToast(t("debuggerNotConfiguredMsg"), true); return; }
+  if (!window.electronAPI?.launchDebugger) { showViceToast(t("debuggerLaunchNotAvailable"), true); return; }
+
+  await showWorkProgress("workProgressDebug");
+  let success = false;
+  try {
+    setWorkProgress(20);
+    const build = startupTab && startupTab.id !== activeTabId
+      ? await _ubCompileSource(source, sourcePath, startupTab.name, { skipExomizer: true })
+      : await _ubCompile(false, { skipExomizer: true });
+    if (!build) return;
+    setWorkProgress(70);
+    const result = await window.electronAPI.launchDebugger({
+      bytes: Array.from(build.prg || []),
+      fileName: `ultimate-basic-${Date.now()}.prg`,
+      symbols: _ubDebuggerSymbols(build),
+      breakpoints: [],
+      sidecars: build.debug || null,
+      autoJmp: false,
+      waitMs: debuggerWait ? debuggerWaitMs : 0,
+      unpause: debuggerUnpause || undefined
+    });
+    if (!result?.ok) { showViceToast(result?.error || t("debuggerLaunchFailed"), true); return; }
+    setWorkProgress(100);
+    _ubSetStatus(t("debuggerLaunched"));
+    showViceToast(t("debuggerLaunched"));
+    success = true;
+  } catch (error) {
+    const message = error?.message || String(error) || t("debuggerLaunchFailed");
+    _ubSetBuildOutput(message, true);
+    _ubSetStatus(message, true);
+  } finally {
+    if (success) await completeWorkProgress("workProgressSuccessDebug");
+    else hideWorkProgress();
+  }
 }
 
 // Select the block whose _srcLine best matches the given source line (used
@@ -7004,6 +7147,33 @@ function showBuildInfoDialog() {
         </table>
       </section>`;
   };
+
+  if (ultimateBasicMode) {
+    const result = _ubLastResult;
+    const map = result?.map;
+    if (!map) {
+      buildInfoContent.innerHTML = makeMessageRow(t("ubBuildInfoBuildFirst"));
+      buildInfoDialog.showModal();
+      return;
+    }
+    const fmtAddr = value => `$${Number(value || 0).toString(16).toUpperCase().padStart(4, "0")}`;
+    const rows = [
+      makeRow(t("buildInfoOrigin"), fmtAddr(map.loadAddress)),
+      makeRow(t("buildInfoEnd"), fmtAddr(Number(map.loadAddress || 0) + Math.max(0, Number(map.codeSize || 0) - 1))),
+      makeRow(t("buildInfoSize"), `${map.codeSize || 0} bytes`),
+      makeRow(t("ubBuildInfoPrgSize"), `${(result.outputPrg || result.prg || []).length} bytes`, result.outputPrg ? "Exomizer" : "")
+    ];
+    let html = makeSection(t("ubBuildInfoSummary"), rows);
+    const errors = result.errors || (result.error ? [result.error] : []);
+    if (!result.ok && errors.length) html += makeSection(t("buildInfoErrors"), errors.map(error => makeMessageRow(_ubEsc(error), true)));
+    if (map.variables?.length) html += makeSection(t("ubBuildInfoVariables"), map.variables.map(item => makeRow(_ubEsc(item.name), fmtAddr(item.address), _ubEsc(item.type || ""))));
+    if (map.arrays?.length) html += makeSection(t("ubBuildInfoArrays"), map.arrays.map(item => makeRow(_ubEsc(item.name), fmtAddr(item.address), `${item.size} bytes`)));
+    if (map.subroutines?.length) html += makeSection(t("ubBuildInfoSubroutines"), map.subroutines.map(item => makeRow(_ubEsc(item.name), fmtAddr(item.address))));
+    if (map.labels?.length) html += makeSection(t("buildInfoLabels"), map.labels.map(item => makeRow(_ubEsc(item.name), fmtAddr(item.address))));
+    buildInfoContent.innerHTML = html;
+    buildInfoDialog.showModal();
+    return;
+  }
 
   let blocks;
   if (expertMode && expertEditor) {
@@ -13028,6 +13198,10 @@ function _buildDebuggerSidecarPayload(prg, { force = false } = {}) {
 }
 
 async function runInDebugger() {
+  if (ultimateBasicMode) {
+    await _ubRunDebugger();
+    return;
+  }
   if (isProgramEmpty()) {
     showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
     return;
@@ -14110,11 +14284,12 @@ async function d64LoadSavedExtras(savedExtras, baseDir = "") {
   return restored;
 }
 
-async function openD64ExportDialog(prgBytes, sidecars = null) {
+async function openD64ExportDialog(prgBytes, sidecars = null, runModeOverride = false) {
   const dialog = document.getElementById("d64-export-dialog");
   if (!dialog) return;
   d64ExportState.prgBytes = prgBytes;
   d64ExportState.sidecars = sidecars;
+  d64ExportState.runMode = runModeOverride;
 
   const diskInput = document.getElementById("d64-export-diskname");
   const progInput = document.getElementById("d64-export-progname");
@@ -14142,6 +14317,11 @@ async function openD64ExportDialog(prgBytes, sidecars = null) {
   if (diskInput) diskInput.value = diskName;
   if (progInput) progInput.value = progName;
   if (errorBox) { errorBox.hidden = true; errorBox.textContent = ""; }
+
+  const confirmBtn = document.getElementById("d64-export-confirm");
+  if (confirmBtn) confirmBtn.textContent = t(runModeOverride === "ultimate" ? "runOnUltimate" : runModeOverride ? "runViaD64Confirm" : "d64ExportConfirm");
+  const titleEl = document.getElementById("d64-export-title");
+  if (titleEl) titleEl.textContent = t(runModeOverride ? "runD64Title" : "d64ExportTitle");
 
   renderD64ExtraFiles();
   dialog.showModal();

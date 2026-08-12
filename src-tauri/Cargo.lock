@@ -336,7 +336,7 @@ dependencies = [
 
 [[package]]
 name = "c64-visual-assembler"
-version = "2.2.9"
+version = "2.3.0"
 dependencies = [
  "base64 0.22.1",
  "emulator_6502",
@@ -4632,8 +4632,8 @@ dependencies = [
 
 [[package]]
 name = "ultimate-basic"
-version = "1.5.0"
-source = "git+https://github.com/zstarczali/UltimateBasic.git?branch=dev#d662acc3cb480b55ffbae81162812300b6c8971b"
+version = "1.5.1"
+source = "git+https://github.com/zstarczali/UltimateBasic.git?branch=dev#963fdf7bd16570a7e0549cff95ba47c8c3a63e8c"
 dependencies = [
  "winresource",
 ]

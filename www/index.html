@@ -12,7 +12,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2.2.9">
+  <link rel="stylesheet" href="style.css?v=2.3.0">
 </head>
 
 <body>
@@ -26,7 +26,10 @@
         <div class="splash-ready" aria-live="polite"><span id="splash-ready-text"></span><span class="splash-cursor">&#x2588;</span></div>
       </div>
     </div>
-    <p class="splash-version" id="splash-version"></p>
+    <div class="splash-versions">
+      <p class="splash-version" id="splash-version"></p>
+      <p class="splash-version splash-version--ub" id="splash-ub-version"></p>
+    </div>
   </div>
   <div class="app-shell">
     <header class="hero">
@@ -575,6 +578,7 @@ PRINTABLE CHARACTERS
         <div class="ub-toolbar">
           <button id="ub-project-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Project files" aria-pressed="true" title="Project files"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M2 4h4l1.5 2H14v7H2V4Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
           <button id="ub-help-btn" class="expert-hl-toggle" type="button" aria-label="Command help" aria-pressed="false"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><circle cx="8" cy="8" r="6.3" stroke="currentColor" stroke-width="1.2"/><path d="M6.2 6.1A2 2 0 0 1 8.1 4.7c1.2 0 2.1.7 2.1 1.8 0 1.5-1.7 1.8-2.1 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="8" cy="12" r=".8" fill="currentColor"/></svg></button>
+          <button id="ub-manual-btn" class="expert-hl-toggle" type="button" aria-label="Ultimate Basic manual"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M2.5 3.2c2.2-.8 4-.4 5.5.8v9c-1.5-1.2-3.3-1.6-5.5-.8v-9ZM13.5 3.2c-2.2-.8-4-.4-5.5.8v9c1.5-1.2 3.3-1.6 5.5-.8v-9Z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/><path d="M5 5.5h1.5M5 8h1.5M9.5 5.5H11M9.5 8H11" stroke="var(--hl-number, currentColor)" stroke-width="1" stroke-linecap="round"/></svg></button>
           <div class="expert-toolbar-sep"></div>
           <button id="ub-new-btn" class="expert-hl-toggle" type="button" aria-label="New UltimateBasic source" title="New"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>
           <button id="ub-open-btn" class="expert-hl-toggle" type="button" aria-label="Open .ub file" title="Open .ub"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M2 5h4l1.5 2H14l-2 6H3L2 5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M5 3h6v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
@@ -612,7 +616,7 @@ PRINTABLE CHARACTERS
           </aside>
           <aside id="ub-commands-panel" class="ub-commands-panel palette-panel" hidden>
             <div id="ub-commands-view" class="ub-left-view ub-left-view--active ub-command-reference">
-              <div class="panel-heading ub-command-header"><h2 id="ub-commands-title">Commands</h2><p id="ub-commands-help">Search UltimateBasic syntax.</p></div>
+              <div class="panel-heading ub-command-header"><h2 id="ub-commands-title">Command Menu</h2><p id="ub-commands-help">Search UltimateBasic syntax.</p></div>
               <label class="field ub-command-search-wrap"><span id="ub-search-label">Search</span><div class="palette-search-wrap"><input id="ub-command-search" class="palette-search-input ub-command-search" type="search" placeholder="Command or syntax…" autocomplete="off" spellcheck="false"></div></label>
               <div id="ub-command-list" class="ub-command-list palette-list"></div>
               <div id="ub-command-detail" class="mnemonic-card ub-command-detail">
@@ -624,7 +628,7 @@ PRINTABLE CHARACTERS
           <div class="ub-editor-wrap">
             <div id="ub-line-numbers" class="ub-line-numbers" aria-hidden="true"><div id="ub-line-numbers-content" class="ub-line-numbers-content"></div></div>
             <pre id="ub-highlight" class="ub-highlight" aria-hidden="true"><code id="ub-highlight-code"></code></pre>
-            <textarea id="ub-editor" class="ub-editor" spellcheck="false" autocomplete="off" wrap="off" placeholder="print &quot;HELLO FROM ULTIMATE BASIC&quot;&#10;bye"></textarea>
+            <textarea id="ub-editor" class="ub-editor" spellcheck="false" autocomplete="off" wrap="off" placeholder="color bg 0&#10;color border 0&#10;&#10;print &quot;HELLO FROM ULTIMATE BASIC&quot;"></textarea>
             <canvas id="ub-minimap" class="ub-minimap" aria-hidden="true"></canvas>
             <div id="ub-find-bar" class="expert-find-bar ub-find-bar" hidden>
               <input id="ub-find-input" class="expert-find-input" type="text" placeholder="Find…" autocomplete="off" spellcheck="false">
@@ -821,13 +825,27 @@ PRINTABLE CHARACTERS
     </div>
   </dialog>
 
+  <dialog id="customer-message-dialog" class="customer-message-dialog" aria-labelledby="customer-message-title">
+    <div class="customer-message-card">
+      <div class="customer-message-eyebrow" id="customer-message-eyebrow"></div>
+      <h2 id="customer-message-title"></h2>
+      <div id="customer-message-body" class="customer-message-body"></div>
+      <div class="customer-message-actions">
+        <button id="customer-message-link" class="secondary" type="button" hidden></button>
+        <button id="customer-message-dismiss" class="secondary" type="button"></button>
+        <button id="customer-message-close" class="primary" type="button"></button>
+      </div>
+    </div>
+  </dialog>
+
 <dialog id="about-dialog" class="about-dialog">
     <div class="about-card">
       <div class="about-logo">
         <img src="assets/logo.png" alt="C64 Visual Assembler" width="160" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v2.2.9</p>
+      <p class="about-version" id="about-version">v2.3.0</p>
+      <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
         dropping instruction blocks.</p>
       <p class="about-sid-credit" id="about-sid-credit"><span id="about-sid-credit-label">Web SID player: WebSid (WebAudio version of Tiny'R'Sid) by Juergen Wothke. GitHub repository:</span> <a href="https://github.com/wothke/websid" target="_blank" rel="noopener noreferrer">https://github.com/wothke/websid</a><br><span id="about-sid-credit-license">(CC BY-NC-SA 4.0)</span></p>
@@ -842,22 +860,28 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.2.9</p>
+      <p class="whats-new-version">v2.3.0</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: inline comments survive Expert round-trips</strong> &mdash; comments such as <code>LDA $12 ; border color</code> now stay attached to their source lines when you switch between Expert and Block mode, instead of being split away or lost.
+          <strong>New: complete Ultimate Basic IDE mode</strong> &mdash; create, open, edit, format, search, and save <code>.ub</code> sources with syntax highlighting, minimap, line numbers, autocomplete, command reference, and contextual syntax help.
         </li>
         <li>
-          <strong>New: block headers show inline comment markers</strong> &mdash; Block mode surfaces attached inline comments as a compact green italic <code>; comment</code> marker in the block header, with tooltip-on-hover for the full text when it is truncated.
+          <strong>New: Ultimate Basic projects</strong> &mdash; manage multiple files and tabs, open and save project files, inspect labels/functions/subroutines, and select a startup source for build and run operations.
         </li>
         <li>
-          <strong>New: Expert comment shortcut</strong> &mdash; press <code>Ctrl+/</code> (or <code>Cmd+/</code> on macOS) to comment the current line or selection, and add <code>Shift</code> to uncomment the selected lines again.
+          <strong>New: full build and run integration</strong> &mdash; compile Ultimate Basic with progress and diagnostics, then run PRG or D64 output in VICE or on C64 Ultimate hardware. The shared Exomizer setting is supported.
         </li>
         <li>
-          <strong>Fixed: parser/source sync keeps inline comments aligned</strong> &mdash; Expert parsing and source regeneration now keep the instruction/directive and its attached inline comment on the same logical line.
+          <strong>New: debugger and disassembly symbols</strong> &mdash; colorized UB disassembly and RetroDebugger launches use labels, functions, subroutines, variables, arrays, and the generated <code>.sym</code>, <code>.dbg</code>, and <code>.vs</code> files.
         </li>
         <li>
-          <strong>Tests: macro-core coverage extended</strong> &mdash; the JS unit tests now cover inline comment rendering, multi-line comment/uncomment shortcuts, and the new source-line preservation behavior.
+          <strong>New: upstream Ultimate Basic integration</strong> &mdash; Visual Assembler uses the pinned UltimateBasic Git/Cargo dependency, displays its actual version, and provides the matching offline PDF manual from the UB toolbar.
+        </li>
+        <li>
+          <strong>New: localized startup announcement</strong> &mdash; a separate customer message introduces Ultimate Basic in English, Hungarian, Spanish, and German until the user chooses not to show it again.
+        </li>
+        <li>
+          <strong>Improved: Expert comments</strong> &mdash; inline comments remain attached across Expert/Block round-trips, appear on block headers, and can be toggled with <code>Ctrl+/</code> or <code>Cmd+/</code>.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -2025,12 +2049,12 @@ PRINTABLE CHARACTERS
   </div>
 
   <script src="tauri-bridge.js"></script>
-  <script src="i18n.js?v=2.2.9"></script>
-  <script src="tutorial-data.js?v=2.2.9"></script>
+  <script src="i18n.js?v=2.3.0"></script>
+  <script src="tutorial-data.js?v=2.3.0"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.2.9"></script>
+  <script src="app.js?v=2.3.0"></script>
 
 </body>
 

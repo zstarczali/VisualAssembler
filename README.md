@@ -2,15 +2,17 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.2.9**
+**Current version: v2.3.0**
 
-## What's New in v2.2.9
+## What's New in v2.3.0
 
-- **Inline comments survive Expert round-trips** — source such as `LDA $12 ; border color` stays attached to its instruction/directive when switching between Expert and Block mode.
-- **Inline comments are visible in Block mode** — attached inline comments now show up as a compact green italic marker in the block header, with a tooltip for the full text.
-- **Expert comment shortcut** — `Ctrl+/` (`Cmd+/` on macOS) comments the current line or selection; add `Shift` to uncomment.
-- **Parser/source sync fix** — Expert parsing and source regeneration now keep inline comments aligned with their logical source lines.
-- **Regression coverage** — `macro-core` tests now cover inline comment rendering and multi-line comment/uncomment behavior.
+- **Complete Ultimate Basic IDE mode** — edit `.ub` files with syntax highlighting, minimap, line numbers, formatting, Find, autocomplete, command search, contextual syntax help, tabs, and resizable panels.
+- **Ultimate Basic projects** — open/save `.proj` projects, manage multiple source tabs, show project symbols, and mark a startup `.ub` file used by every build or run command.
+- **Build and diagnostics** — compile through the upstream UltimateBasic Rust crate, show progress, highlight errors in red, jump to failing lines, inspect verbose output, build information, and colorized disassembly.
+- **VICE, D64, C64 Ultimate, and RetroDebugger** — run UB programs directly or through D64, use Exomizer from the shared Settings, and pass `.sym`, `.dbg`, and `.vs` symbols to debugger/disassembly workflows.
+- **Single upstream implementation** — Visual Assembler consumes Ultimate Basic as a pinned Git/Cargo dependency, reports its actual version, and embeds the matching upstream `MANUAL.pdf` for offline access from the UB toolbar.
+- **Startup announcement** — a localized four-language customer-message dialog introduces Ultimate Basic and remains available on startup until the user selects “Don’t show again”.
+- **Expert commenting improvements** — inline `; comments` survive Expert/Block round-trips and `Ctrl+/` (`Cmd+/` on macOS) comments the current line or selection (`Shift` uncomments).
 
 ---
 
