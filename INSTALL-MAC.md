@@ -1,11 +1,11 @@
 # macOS Installation Guide
-Version 2.2.8
+Version 2.2.9
 
-2.2.8: Curve Editor (curve/easing .byte table generator with 8-bit and 16-bit sprite-X output), real cycle-exact SID preview via WebSid plus external .sid playback, SID metronome/BPM/master-volume and manual note entry, debug-files toggle, and Expert/slider/dialog polish.
+2.2.9: Expert mode now preserves inline `; comments` on their source lines, Block mode shows them as compact header markers, Ctrl/Cmd+/ comments or uncomments selected lines, and macro-core tests now cover the new comment behavior.
 
 ## Quick Install
 
-1. **Download** the 2.2.8 DMG for your architecture from the releases page
+1. **Download** the 2.2.9 DMG for your architecture from the releases page
 2. **Mount** the DMG and drag the app to `/Applications`
 3. **First launch**: Right-click the app → **"Open"** (macOS will block double-click)
 4. Click **"Open"** in the security dialog
@@ -53,4 +53,4 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.2.8 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.2.9 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
