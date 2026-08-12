@@ -581,6 +581,8 @@ function saveUiSettings() {
     expertDisasmWidth: _expertDisasmWidth,
     ubDisasmWidth: _ubDisasmWidth,
     ubDisasmPaneWidth: _ubDisasmPaneWidth,
+    ubCommandListHeight: _ubCommandListHeight,
+    ubProjectSymbolsHeight: _ubProjectSymbolsHeight,
     ubProjectVisible: _ubProjectVisible,
     ubCommandsVisible: _ubCommandsVisible,
     ubOutputVisible: _ubOutputVisible,
@@ -1572,6 +1574,67 @@ function initPalette() {
     document.addEventListener("mousemove", onMove);
     document.addEventListener("mouseup", onUp);
   });
+  const ubCommandResizer = document.getElementById("ub-command-resizer");
+  ubCommandResizer?.addEventListener("mousedown", event => {
+    event.preventDefault();
+    event.currentTarget.focus();
+    const commandsView = document.getElementById("ub-commands-view");
+    const commandList = document.getElementById("ub-command-list");
+    const startY = event.clientY;
+    const startHeight = commandList?.getBoundingClientRect().height || _ubCommandListHeight;
+    ubCommandResizer.classList.add("dragging");
+    const onMove = moveEvent => {
+      const listTop = commandList?.offsetTop || 0;
+      const maxHeight = Math.max(80, (commandsView?.clientHeight || 420) - listTop - 143);
+      _ubCommandListHeight = Math.max(80, Math.min(maxHeight, startHeight + moveEvent.clientY - startY));
+      _ubApplyCommandListHeight();
+    };
+    const onUp = () => {
+      ubCommandResizer.classList.remove("dragging");
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+      saveUiSettings();
+    };
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  });
+  ubCommandResizer?.addEventListener("keydown", event => {
+    if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+    event.preventDefault();
+    _ubCommandListHeight = Math.max(80, _ubCommandListHeight + (event.key === "ArrowDown" ? 16 : -16));
+    _ubApplyCommandListHeight();
+    saveUiSettings();
+  });
+  const ubSymbolsSplitter = document.getElementById("ub-symbols-splitter");
+  ubSymbolsSplitter?.addEventListener("mousedown", event => {
+    event.preventDefault();
+    event.currentTarget.focus();
+    const projectView = document.getElementById("ub-project-view");
+    const symbols = document.getElementById("ub-project-symbols");
+    const startY = event.clientY;
+    const startHeight = symbols?.getBoundingClientRect().height || _ubProjectSymbolsHeight;
+    ubSymbolsSplitter.classList.add("dragging");
+    const onMove = moveEvent => {
+      const maxHeight = Math.max(48, (projectView?.clientHeight || 420) - 96);
+      _ubProjectSymbolsHeight = Math.max(48, Math.min(maxHeight, startHeight + startY - moveEvent.clientY));
+      _ubApplyProjectSymbolsHeight();
+    };
+    const onUp = () => {
+      ubSymbolsSplitter.classList.remove("dragging");
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+      saveUiSettings();
+    };
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  });
+  ubSymbolsSplitter?.addEventListener("keydown", event => {
+    if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+    event.preventDefault();
+    _ubProjectSymbolsHeight = Math.max(48, _ubProjectSymbolsHeight + (event.key === "ArrowUp" ? 16 : -16));
+    _ubApplyProjectSymbolsHeight();
+    saveUiSettings();
+  });
   document.getElementById("ub-command-search")?.addEventListener("input", _ubRenderCommandReference);
   document.getElementById("ub-hl-btn")?.addEventListener("click", _ubToggleHighlight);
   document.getElementById("ub-lines-btn")?.addEventListener("click", _ubToggleLines);
@@ -1601,7 +1664,8 @@ function initPalette() {
     if (_ubAcVisible()) {
       if (e.key === "ArrowDown") { e.preventDefault(); _ubAcMove(1); return; }
       if (e.key === "ArrowUp") { e.preventDefault(); _ubAcMove(-1); return; }
-      if (e.key === "Enter" || e.key === "Tab") { if (_ubAcCommit()) { e.preventDefault(); return; } }
+      if (e.key === "Enter" && _ubAcActive >= 0) { if (_ubAcCommit()) { e.preventDefault(); return; } }
+      if (e.key === "Tab") { if (_ubAcCommit()) { e.preventDefault(); return; } }
       if (e.key === "Escape") { _ubAcHide(); return; }
     }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "f") { e.preventDefault(); _ubOpenFind(); return; }
@@ -2634,6 +2698,14 @@ function _applyUiSettingsToDOM() {
     _ubDisasmPaneWidth = Math.max(120, Number(savedUiSettings.ubDisasmPaneWidth));
     ubPanel?.style.setProperty("--ub-disasm-pane-width", `${_ubDisasmPaneWidth}px`);
   }
+  if (Number.isFinite(savedUiSettings.ubCommandListHeight)) {
+    _ubCommandListHeight = Math.max(80, Number(savedUiSettings.ubCommandListHeight));
+  }
+  _ubApplyCommandListHeight();
+  if (Number.isFinite(savedUiSettings.ubProjectSymbolsHeight)) {
+    _ubProjectSymbolsHeight = Math.max(48, Number(savedUiSettings.ubProjectSymbolsHeight));
+  }
+  _ubApplyProjectSymbolsHeight();
   if (savedUiSettings.ubProjectVisible !== undefined) _ubProjectVisible = !!savedUiSettings.ubProjectVisible;
   if (savedUiSettings.ubCommandsVisible !== undefined) _ubCommandsVisible = !!savedUiSettings.ubCommandsVisible;
   if (savedUiSettings.ubOutputVisible !== undefined) _ubOutputVisible = !!savedUiSettings.ubOutputVisible;
@@ -5566,12 +5638,22 @@ let _ubAutocompleteEnabled = true;
 let _ubDisasmVisible = false;
 let _ubDisasmWidth = 340;
 let _ubDisasmPaneWidth = 240;
+let _ubCommandListHeight = 220;
+let _ubProjectSymbolsHeight = 190;
 let _ubFontSize = 14;
 let _ubFindMatches = [];
 let _ubFindIndex = -1;
 let _ubSelectedCommand = "print";
 let _ubStartupTabId = null;
 let _ubProjectData = null;
+
+function _ubApplyCommandListHeight() {
+  ubPanel?.style.setProperty("--ub-command-list-height", `${Math.max(80, _ubCommandListHeight)}px`);
+}
+
+function _ubApplyProjectSymbolsHeight() {
+  ubPanel?.style.setProperty("--ub-project-symbols-height", `${Math.max(48, _ubProjectSymbolsHeight)}px`);
+}
 
 const _UB_COMMAND_REFERENCE = [
   ["var", "var name[: type] = expression", "Declares a byte, word, float, string, or array variable."],
@@ -5746,7 +5828,10 @@ function _ubAcVisible() { const el = document.getElementById("ub-ac"); return !!
 function _ubAcHide() { const el = document.getElementById("ub-ac"); if (el) el.hidden = true; _ubAcActive = -1; }
 function _ubAcMove(direction) {
   const items = _ubAcEl().querySelectorAll(".expert-ac-item"); if (!items.length) return;
-  items[_ubAcActive]?.classList.remove("active"); _ubAcActive = (_ubAcActive + direction + items.length) % items.length;
+  items[_ubAcActive]?.classList.remove("active");
+  _ubAcActive = _ubAcActive < 0
+    ? (direction > 0 ? 0 : items.length - 1)
+    : (_ubAcActive + direction + items.length) % items.length;
   items[_ubAcActive].classList.add("active"); items[_ubAcActive].scrollIntoView({ block: "nearest" });
 }
 function _ubAcCommit() {
