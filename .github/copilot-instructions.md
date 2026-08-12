@@ -662,8 +662,8 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`2.2.8` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, `CLAUDE.md`.
-Főbb újdonságok: **Curve Editor** — görbe/easing `.byte` tábla generátor (sine/easing/triangle/saw/square/bounce), élő graph + pattogó labda preview, 8-bites vagy 16-bites lo/hi split sprite-X reader rutinnal; **valódi SID preview WebSid-del** (cycle-exact WASM emu + Web Audio fallback); **külső `.sid` lejátszás** a SID editorban; **metronóm + BPM + master volume + manuális note bevitel** a trackerben; **debug fájlok toggle**; Expert find-bar / slider / dialog egységesítés (Hires mint minta).
+`2.2.9` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, `CLAUDE.md`.
+Főbb újdonságok: **inline komment-megőrzés Expert módban** — `LDA $12 ; note` egyben marad Expert ↔ Block váltáskor; **blokkszintű inline komment marker** zöld italic header badge-dzsel + tooltip-pel; **Ctrl/Cmd+/ comment toggle** Expert módban (`Shift` = uncomment); valamint bővített `macro-core` regressziós tesztek a kommentes round-tripre.
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező

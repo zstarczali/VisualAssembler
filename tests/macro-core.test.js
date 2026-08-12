@@ -71,6 +71,7 @@ function createMacroContext(extraContext = {}) {
       "_expertGetHiddenRegionLines",
       "_expertFindCurrentRegionBounds",
       "_expertVisibleLineToSourceLine",
+      "_expertEditLineComments",
       "_layoutLineSortAddress",
       "_disasmLineSortAddress",
       "_compareLayoutLineRefs",
@@ -79,6 +80,7 @@ function createMacroContext(extraContext = {}) {
       "_splitAsmLineComment",
       "parseExpertText",
       "_blockToExpertLine",
+      "_blockToExpertSourceLine",
       "validateSpriteInitMacro",
       "validateSpritePosMacro",
       "compileAbsoluteStore",
@@ -520,6 +522,36 @@ test("_expertVisibleLineToSourceLine uses the projected line map when regions ar
   assert.equal(ctx._expertVisibleLineToSourceLine(99, { lines: ["a", "b", "c", "d"] }), 5);
 });
 
+test("expert line comment shortcuts preserve indentation and cover selected lines", () => {
+  const ctx = createMacroContext();
+  const source = "label:\n    lda #1\n    sta $d020\nrts";
+  const commented = ctx._expertEditLineComments(source, 7, 28, false);
+
+  assert.equal(commented.text, "label:\n    ; lda #1\n    ; sta $d020\nrts");
+  assert.equal(commented.text.slice(commented.selectionStart, commented.selectionEnd), "    ; lda #1\n    ; sta $d020");
+
+  const uncommented = ctx._expertEditLineComments(
+    commented.text,
+    commented.selectionStart,
+    commented.selectionEnd,
+    true
+  );
+  assert.equal(uncommented.text, source);
+});
+
+test("expert uncomment leaves non-commented lines unchanged and excludes a trailing line", () => {
+  const ctx = createMacroContext();
+  const source = "; one\n  lda #1\n; three";
+  const result = ctx._expertEditLineComments(source, 0, 15, true);
+
+  assert.equal(result.text, "one\n  lda #1\n; three");
+});
+
+test("expert source rendering keeps an attached inline comment on its line", () => {
+  const ctx = createMacroContext();
+  assert.equal(ctx._blockToExpertSourceLine({ isLabel: true, labelName: "start", inlineComment: "hehe" }), "start: ; hehe");
+});
+
 test("PUSH expands registers in stack order", () => {
   const ctx = createMacroContext();
   const bytes = compileBlock(ctx, {
@@ -831,28 +863,25 @@ test("parseExpertText imports core Kick Assembler syntax used by macro-heavy sou
 
   assert.equal(blocks[2].isConstMacro, true);
   assert.equal(blocks[2].constName, "BMPSCREEN");
-  assert.equal(blocks[3].isComment, true);
-  assert.equal(blocks[3].commentText, "screen base");
+  assert.equal(blocks[2].inlineComment, "screen base");
 
-  assert.equal(blocks[4].isMacroDefStart, true);
-  assert.equal(blocks[4].macroName, "DrawCircle");
-  assert.equal(blocks[4].macroParams, "px, py, pr, pc");
+  assert.equal(blocks[3].isMacroDefStart, true);
+  assert.equal(blocks[3].macroName, "DrawCircle");
+  assert.equal(blocks[3].macroParams, "px, py, pr, pc");
 
-  assert.equal(blocks[5].mnemonic, "LDA");
-  assert.equal(blocks[5].addressingMode, "immediate");
-  assert.equal(blocks[5].rawOperand, "pc");
-  assert.equal(blocks[6].isComment, true);
-  assert.equal(blocks[6].commentText, "set color");
+  assert.equal(blocks[4].mnemonic, "LDA");
+  assert.equal(blocks[4].addressingMode, "immediate");
+  assert.equal(blocks[4].rawOperand, "pc");
+  assert.equal(blocks[4].inlineComment, "set color");
 
-  assert.equal(blocks[7].isMacroDefEnd, true);
-  assert.equal(blocks[8].isLabel, true);
-  assert.equal(blocks[8].labelName, "start");
-  assert.equal(blocks[9].isMacroInvoke, true);
-  assert.equal(blocks[9].invokeMacroName, "DrawCircle");
-  assert.equal(blocks[9].invokeArgs, "110, 70, 35, $02");
-  assert.equal(blocks[10].isByteMacro, true);
-  assert.equal(blocks[11].isComment, true);
-  assert.equal(blocks[11].commentText, "payload");
+  assert.equal(blocks[5].isMacroDefEnd, true);
+  assert.equal(blocks[6].isLabel, true);
+  assert.equal(blocks[6].labelName, "start");
+  assert.equal(blocks[7].isMacroInvoke, true);
+  assert.equal(blocks[7].invokeMacroName, "DrawCircle");
+  assert.equal(blocks[7].invokeArgs, "110, 70, 35, $02");
+  assert.equal(blocks[8].isByteMacro, true);
+  assert.equal(blocks[8].inlineComment, "payload");
 });
 
 test("parseExpertText keeps decimal indexed operands as decimal absolute modes", () => {

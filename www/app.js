@@ -1699,6 +1699,12 @@ function initPalette() {
       _expertFindOpen();
       return;
     }
+    const isCommentShortcut = e.key === "/" || e.key === "?" || e.code === "Slash";
+    if ((e.ctrlKey || e.metaKey) && isCommentShortcut) {
+      e.preventDefault();
+      _expertApplyLineComment(e.shiftKey);
+      return;
+    }
     // Escape closes find bar if open
     if (e.key === "Escape" && _expertFindVisible) {
       _expertFindClose();
@@ -3072,6 +3078,46 @@ function _applyEditorTranslations() {
   setText("#sid-export-player", t("sidExportPlayer"));
   setText("#sid-export-asm", t("sidExportAsm"));
   setText("#cg-export-demo", t("cgExportDemo"));
+  // Curve Editor
+  setText("#cg-title", t("cgTitle"));
+  setText("#cg-save-bin", t("cgSaveBin"));
+  setText("#cg-load-bin", t("cgLoadBin"));
+  setAttr("#cg-copy", t("cgCopy"));
+  setAttr("#cg-insert", t("cgInsert"));
+  setAttr("#cg-close", t("close"));
+  setText("#cg-curve-lbl", t("cgCurveLabel"));
+  setText("#cg-start-lbl", t("cgStart"));
+  setText("#cg-end-lbl", t("cgEnd"));
+  setText("#cg-count-lbl", t("cgCount"));
+  setText("#cg-cycles-lbl", t("cgCycles"));
+  setText("#cg-phase-lbl", t("cgPhase"));
+  setText("#cg-combine-lbl", t("cgCombine"));
+  setText("#cg-label-lbl", t("cgLabel"));
+  setText("#cg-base-lbl", t("cgBase"));
+  setText("#cg-perline-lbl", t("cgPerLine"));
+  setText("#cg-bits-lbl", t("cgBits"));
+  setText("#cg-sprite-num-lbl", t("cgSpriteNum"));
+  setText("#cg-combine-title", t("cgCurve2Title"));
+  setText("#cg-curve2-lbl", t("cgCurve2Label"));
+  setText("#cg-combmode-lbl", t("cgCombMode"));
+  setText("#cg-curve2-cycles-lbl", t("cgCurve2Cycles"));
+  setText("#cg-curve2-phase-lbl", t("cgCurve2Phase"));
+  setText("#cg-mix-lbl", t("cgMix"));
+  setText("#cg-anim-title", t("cgAnimTitle"));
+  setAttr("#cg-anim-restart", t("cgRestart"));
+  setText("#cg-tempo-lbl", t("cgTempo"));
+  setText("#cg-output-lbl", t("cgOutput"));
+  setText('#cg-base option[value="hex"]', t("cgBaseHex"));
+  setText('#cg-base option[value="dec"]', t("cgBaseDec"));
+  setText('#cg-bits option[value="8"]', t("cgBits8"));
+  setText('#cg-bits option[value="16"]', t("cgBits16"));
+  setText('#cg-combmode option[value="mix"]', t("cgCombMix"));
+  setText('#cg-combmode option[value="add"]', t("cgCombAdd"));
+  setText('#cg-combmode option[value="mul"]', t("cgCombMul"));
+  setText('#cg-combmode option[value="sub"]', t("cgCombSub"));
+  for (let i = 0; i < 8; i++) {
+    setText('#cg-sprite-num option[value="' + i + '"]', tf("cgSpriteN", { n: i }));
+  }
   setText(".sid-inst-row .sid-lbl", t("sidInstrumentLabel"));
   setAttr("#sid-inst-add", t("sidAddInstrument"));
   setAttr("#sid-preview", t("sidPreview"));
@@ -5122,11 +5168,17 @@ if (block.isSpritePosMacro) return `.sprite_pos ${block.spriteNum || 0}, ${block
   return op.trimEnd();
 }
 
+function _blockToExpertSourceLine(block) {
+  const line = _blockToExpertLine(block);
+  const inlineComment = String(block?.inlineComment || "").trim();
+  return inlineComment ? `${line} ; ${inlineComment}` : line;
+}
+
 // Sync expert editor from current program[] — call after loading a project/sample in expert mode
 function _expertSyncFromProgram() {
   if (!expertEditor) return;
   _expertAcHide();
-  const lines = program.map(_blockToExpertLine).join("\n");
+  const lines = program.map(_blockToExpertSourceLine).join("\n");
   _expertSourceText = lines;
   _expertResetRegionHighlight();
   _expertProjectionActive = false;
@@ -6242,6 +6294,56 @@ function _expertSyncSourceTextFromEditor(editMeta = null) {
   }
   _expertSourceText = sourceLines.join("\n");
   return null;
+}
+
+function _expertEditLineComments(text, selectionStart, selectionEnd, uncomment = false) {
+  const value = String(text || "");
+  const safeStart = Math.max(0, Math.min(selectionStart ?? 0, value.length));
+  const safeEnd = Math.max(safeStart, Math.min(selectionEnd ?? safeStart, value.length));
+  const lineStart = value.lastIndexOf("\n", Math.max(0, safeStart - 1)) + 1;
+  const selectionEndsAtLineStart = safeEnd > safeStart && value[safeEnd - 1] === "\n";
+  const effectiveEnd = selectionEndsAtLineStart ? safeEnd - 1 : safeEnd;
+  const nextNewline = value.indexOf("\n", effectiveEnd);
+  const lineEnd = nextNewline < 0 ? value.length : nextNewline;
+  const selectedText = value.slice(lineStart, lineEnd);
+  const lines = selectedText.split("\n");
+  const editedLines = lines.map((line) => {
+    const indent = line.match(/^\s*/)?.[0] || "";
+    const content = line.slice(indent.length);
+    if (uncomment) {
+      if (!content.startsWith(";")) return line;
+      return indent + content.slice(content[1] === " " ? 2 : 1);
+    }
+    return `${indent}; ${content}`;
+  });
+  const replacement = editedLines.join("\n");
+  return {
+    text: value.slice(0, lineStart) + replacement + value.slice(lineEnd),
+    selectionStart: lineStart,
+    selectionEnd: lineStart + replacement.length
+  };
+}
+
+function _expertApplyLineComment(uncomment = false) {
+  if (!expertEditor) return;
+  const result = _expertEditLineComments(
+    expertEditor.value,
+    expertEditor.selectionStart,
+    expertEditor.selectionEnd,
+    uncomment
+  );
+  expertEditor.value = result.text;
+  expertEditor.setSelectionRange(result.selectionStart, result.selectionEnd);
+  _expertSyncSourceTextFromEditor();
+  const sourceStart = _expertDisplayPosToSourcePos(result.selectionStart);
+  const sourceEnd = _expertDisplayPosToSourcePos(result.selectionEnd);
+  _expertRefreshProjection(sourceStart, sourceEnd);
+  markTabDirty();
+  _expertValidate();
+  _expertScheduleIncludeReload();
+  renderExpertOriginInfo();
+  _expertAcHide();
+  _expertUpdateCaret();
 }
 
 function _expertRefreshProjection(sourceSelStart = null, sourceSelEnd = sourceSelStart) {
@@ -7956,6 +8058,20 @@ function parseExpertText(text) {
     blocks.push(_importMakeComment(line + (commentText ? " ; " + commentText : "")));
   }
 
+  let inlineBlockIdx = 0;
+  for (const rawLine of String(text || "").split("\n")) {
+    if (inlineBlockIdx >= blocks.length) break;
+    const { code, commentText } = _splitAsmLineComment(rawLine);
+    if (code.trim()) {
+      const codeBlock = blocks[inlineBlockIdx++];
+      if (commentText && blocks[inlineBlockIdx]?.isComment) {
+        codeBlock.inlineComment = commentText;
+        blocks.splice(inlineBlockIdx, 1);
+      }
+    } else {
+      inlineBlockIdx++;
+    }
+  }
   return blocks;
 }
 
@@ -19598,9 +19714,20 @@ function renderBlockPreview(index) {
 
   node.querySelector(".collapsed-operand").textContent = getCollapsedOperandText(block);
   node.querySelector(".block-category").textContent = getBlockModeCaption(block);
+  _renderBlockInlineComment(node, block);
   const descText = getBlockDescription(block);
   node.querySelector(".block-description-label").textContent = "";
   node.querySelector(".block-description").textContent = descText;
+}
+
+function _renderBlockInlineComment(node, block) {
+  const marker = node?.querySelector(".block-inline-comment");
+  if (!marker) return;
+  const comment = String(block?.inlineComment || "").trim();
+  marker.hidden = !comment;
+  marker.textContent = comment ? `; ${comment}` : "";
+  if (comment) marker.title = comment;
+  else marker.removeAttribute("title");
 }
 
 function getCategoryTone(category) {
@@ -20035,6 +20162,7 @@ function renderProgram() {
       node.querySelector(".block-mnemonic").textContent = block.mnemonic;
       node.querySelector(".collapsed-operand").textContent = getCollapsedOperandText(block);
       node.querySelector(".block-category").textContent = getBlockModeCaption(block);
+      _renderBlockInlineComment(node, block);
       const blockDescText = getBlockDescription(block);
       node.querySelector(".block-description-label").textContent = "";
       node.querySelector(".block-description").textContent = blockDescText;
@@ -30401,7 +30529,7 @@ function _cgUpdateOutput() {
   const bytesEl = document.getElementById("cg-meta-bytes");
   if (bytesEl) {
     const nb = s.samples ? (s.bits === 16 ? s.samples.length * 2 : s.samples.length) : 0;
-    bytesEl.textContent = nb + " Bytes" + (s.bits === 16 ? " (lo+hi)" : "");
+    bytesEl.textContent = s.bits === 16 ? tf("cgMetaBytesLoHi", { n: nb }) : tf("cgMetaBytes", { n: nb });
   }
   let minV = 320, maxV = 0;
   if (s.samples) for (let i = 0; i < s.samples.length; i++) {
@@ -30409,7 +30537,7 @@ function _cgUpdateOutput() {
     if (s.samples[i] > maxV) maxV = s.samples[i];
   } else { minV = 0; }
   const rangeEl = document.getElementById("cg-meta-range");
-  if (rangeEl) rangeEl.textContent = "Min " + minV + " · Max " + maxV;
+  if (rangeEl) rangeEl.textContent = tf("cgMetaRange", { min: minV, max: maxV });
   const curveEl = document.getElementById("cg-meta-curve");
   if (curveEl) {
     const c1 = _CG_CURVE_LABELS[s.curve] || s.curve;
@@ -30417,7 +30545,7 @@ function _cgUpdateOutput() {
     curveEl.textContent = s.combine ? (c1 + " + " + c2) : c1;
   }
   const hintEl = document.getElementById("cg-output-hint");
-  if (hintEl) hintEl.textContent = (s.base === "hex" ? "Hex" : "Dec") + " · " + s.perLine + " per line";
+  if (hintEl) hintEl.textContent = tf("cgOutputHint", { base: s.base === "hex" ? "Hex" : "Dec", per: s.perLine });
 }
 
 function _cgDrawGraph() {
@@ -30538,7 +30666,7 @@ function _cgDrawAnimation() {
   ctx.strokeStyle = "rgba(0,0,0,0.35)"; ctx.lineWidth = 1.5; ctx.stroke();
   // Sub-title
   const sub = document.getElementById("cg-anim-sub");
-  if (sub) sub.textContent = "Index " + idxInt + " · Value " + value;
+  if (sub) sub.textContent = tf("cgAnimSub", { index: idxInt, value: value });
 }
 
 function _cgAnimTick(now) {
@@ -30581,7 +30709,7 @@ function _cgUpdatePlayButtonIcon() {
   btn.innerHTML = playing
     ? '<svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13" aria-hidden="true"><path d="M4 3.5h2v9H4zM10 3.5h2v9h-2z"/></svg>'
     : '<svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13" aria-hidden="true"><path d="M4 3l9 5-9 5V3z"/></svg>';
-  btn.setAttribute("aria-label", playing ? "Pause" : "Play");
+  btn.setAttribute("aria-label", playing ? t("cgPause") : t("cgPlay"));
   btn.removeAttribute("title");   // custom tooltip drives from aria-label
 }
 
@@ -30618,9 +30746,7 @@ function _cgApplyBitsRange() {
   setVis("cg-sprite-field", s.emitReader);
   const readerLbl = document.getElementById("cg-reader-lbl");
   if (readerLbl) {
-    readerLbl.textContent = s.bits === 16
-      ? "Include sprite-X reader routine (lo/hi + $D010)"
-      : "Include sprite-Y reader routine";
+    readerLbl.textContent = s.bits === 16 ? t("cgReader16") : t("cgReader8");
   }
 }
 
@@ -30704,7 +30830,7 @@ function _cgSamplesToBin() {
  * changing any curve control regenerates a fresh curve. */
 function _cgLoadBinBytes(raw) {
   const s = _CG_STATE;
-  if (!raw || !raw.length) { showViceToast?.("Empty .bin file", true); return; }
+  if (!raw || !raw.length) { showViceToast?.(t("cgEmptyBin"), true); return; }
   let samples;
   if (s.bits === 16) {
     const n = raw.length >> 1;
@@ -30728,7 +30854,7 @@ function _cgLoadBinBytes(raw) {
   s.animLastTime = 0;
   _cgDrawAnimation();
   if (s.animPlaying) _cgAnimStart();
-  showViceToast?.("Curve loaded (" + samples.length + " value" + (samples.length === 1 ? "" : "s") + ")");
+  showViceToast?.(tf("cgLoaded", { n: samples.length }));
 }
 
 /* Insert generated ASM into the program, replacing whatever the Curve Editor
@@ -30740,19 +30866,19 @@ function _cgLoadBinBytes(raw) {
  * the tags survive expert-mode rebuilds via `_expertBuildProgramFromText`. */
 const _CG_INSERT_KEY = "curve-editor";
 
-function _cgInsertTagged(txt, key, verb) {
+function _cgInsertTagged(txt, key, toastKey) {
   if (typeof exportAsmToBlocks !== "function") return;
-  if (!txt) { showViceToast?.("Nothing to insert", true); return; }
+  if (!txt) { showViceToast?.(t("cgNothingToInsert"), true); return; }
   // Remove blocks tagged with this key from a previous insert.
   for (let i = program.length - 1; i >= 0; i--) {
     if (program[i] && program[i]._cgSource === key) program.splice(i, 1);
   }
   const count = exportAsmToBlocks(txt, key);
   if (count > 0) {
-    showViceToast?.(verb + " (" + count + " block" + (count === 1 ? "" : "s") + ")");
+    showViceToast?.(tf(toastKey, { n: count }));
     _cgCloseDialog();
   } else {
-    showViceToast?.("Insert failed", true);
+    showViceToast?.(t("cgInsertFailed"), true);
   }
 }
 
@@ -30834,20 +30960,20 @@ function _cgWireDialog() {
   document.getElementById("cg-copy")?.addEventListener("click", () => {
     const txt = _cgFormatBytes();
     navigator.clipboard.writeText(txt).then(() => {
-      showViceToast?.("Copied to clipboard");
+      showViceToast?.(t("copied"));
     }).catch(() => {
-      showViceToast?.("Copy failed", true);
+      showViceToast?.(t("copyFailed"), true);
     });
   });
   document.getElementById("cg-insert")?.addEventListener("click", () => {
     // Shared key: re-inserting replaces the editor's previous output
     // (table or demo) instead of stacking a copy next to it.
-    _cgInsertTagged(_cgFormatBytes(), _CG_INSERT_KEY, "Inserted");
+    _cgInsertTagged(_cgFormatBytes(), _CG_INSERT_KEY, "cgInserted");
   });
   // Files menu: Save / Load raw table .bin (C64-usable via INCBIN, editor-reloadable)
   document.getElementById("cg-save-bin")?.addEventListener("click", () => {
     const bytes = _cgSamplesToBin();
-    if (!bytes.length) { showViceToast?.("Nothing to save", true); return; }
+    if (!bytes.length) { showViceToast?.(t("cgNothingToSave"), true); return; }
     _saveBinFile(bytes, (s.label || "curve") + ".bin");
   });
   const cgBinFile = document.getElementById("cg-bin-file");
@@ -30864,7 +30990,7 @@ function _cgWireDialog() {
   document.getElementById("cg-export-demo")?.addEventListener("click", () => {
     // Same shared key as Insert: the demo embeds the table, so it must also
     // replace a previously inserted standalone table (and vice versa).
-    _cgInsertTagged(_cgExportDemoAsm(), _CG_INSERT_KEY, "Demo inserted");
+    _cgInsertTagged(_cgExportDemoAsm(), _CG_INSERT_KEY, "cgDemoInserted");
   });
   // Close
   document.getElementById("cg-close")?.addEventListener("click", _cgCloseDialog);

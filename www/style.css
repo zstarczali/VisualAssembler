@@ -2092,6 +2092,18 @@ body.dnd-active {
   min-width: 0;
 }
 
+.block-inline-comment {
+  max-width: min(240px, 36vw);
+  overflow: hidden;
+  color: var(--hl-comment);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: calc(0.72rem * var(--block-scale));
+  font-style: italic;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .collapse-toggle {
   min-width: calc(22px * var(--block-scale));
   width: calc(22px * var(--block-scale));
@@ -7216,7 +7228,7 @@ body.crt-mode #crt-overlay::after {
   padding: 0;
   width: min(1020px, 96vw);
   max-width: 96vw;
-  height: min(850px, 98vh);
+  height: min(900px, 98vh);
   max-height: 98vh;
   overflow: hidden;
 }
@@ -8786,7 +8798,9 @@ body.crt-mode #crt-overlay::after {
 #map-editor-dialog button[aria-label],
 #hires-editor-dialog button[aria-label],
 #sprite-editor-dialog button[aria-label],
-#sid-editor-dialog button[aria-label] {
+#sid-editor-dialog button[aria-label],
+#charset-canvas-dialog button[aria-label],
+#curve-gen-dialog button[aria-label] {
   position: relative;
 }
 
@@ -8797,7 +8811,10 @@ body.crt-mode #crt-overlay::after {
 #hires-editor-dialog .hg-footer,
 #sprite-editor-dialog .se-toolbar,
 #sid-editor-dialog .sid-hdr,
-#sid-editor-dialog .sid-row {
+#sid-editor-dialog .sid-row,
+#charset-canvas-dialog .cc-toolbar,
+#curve-gen-dialog .cg-hdr,
+#curve-gen-dialog .cg-toolbar {
   overflow: visible;
 }
 
@@ -8806,7 +8823,9 @@ body.crt-mode #crt-overlay::after {
 #map-editor-dialog button[aria-label]::after,
 #hires-editor-dialog button[aria-label]::after,
 #sprite-editor-dialog button[aria-label]::after,
-#sid-editor-dialog button[aria-label]::after {
+#sid-editor-dialog button[aria-label]::after,
+#charset-canvas-dialog button[aria-label]::after,
+#curve-gen-dialog button[aria-label]::after {
   content: attr(aria-label);
   position: absolute;
   top: calc(100% + 6px);
@@ -8832,12 +8851,16 @@ body.crt-mode #crt-overlay::after {
 #hires-editor-dialog button:hover[aria-label]::after,
 #sprite-editor-dialog button:hover[aria-label]::after,
 #sid-editor-dialog button:hover[aria-label]::after,
+#charset-canvas-dialog button:hover[aria-label]::after,
+#curve-gen-dialog button:hover[aria-label]::after,
 #c64-chrrom-dialog button:focus-visible[aria-label]::after,
 #char-editor-dialog button:focus-visible[aria-label]::after,
 #map-editor-dialog button:focus-visible[aria-label]::after,
 #hires-editor-dialog button:focus-visible[aria-label]::after,
 #sprite-editor-dialog button:focus-visible[aria-label]::after,
-#sid-editor-dialog button:focus-visible[aria-label]::after {
+#sid-editor-dialog button:focus-visible[aria-label]::after,
+#charset-canvas-dialog button:focus-visible[aria-label]::after,
+#curve-gen-dialog button:focus-visible[aria-label]::after {
   opacity: 1;
 }
 

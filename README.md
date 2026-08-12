@@ -2,17 +2,15 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.2.8**
+**Current version: v2.2.9**
 
-## What's New in v2.2.8
+## What's New in v2.2.9
 
-- **Curve Editor** — generate `.byte` lookup tables from math curves (sine, easings, triangle/sawtooth/square, bounce) with a live graph and a bouncing-ball preview. Outputs an 8-bit table or a 16-bit lo/hi split pair with an optional sprite-X reader routine.
-- **Real SID preview (WebSid)** — the SID Editor preview plays through a cycle-exact SID emulator (WASM), matching PWM, ring/sync, and filter character on the real chip, with a Web Audio fallback.
-- **Play external .sid files** — load and play HVSC-style `.sid` tunes from the SID Editor Files menu, with a floating playback dialog and Stop button.
-- **Metronome, BPM & master volume** — the SID tracker shows the effective BPM and an audible metronome; a master preview volume slider lives in the SID header.
-- **Manual note entry** — double-click a tracker cell to type a note directly (e.g. `C-4 01`).
-- **Debug files toggle** — Hardware Settings can skip `.dbg` / `.sym` / `.vs` sidecar generation next to the PRG.
-- **Expert & slider polish** — the Find bar no longer hides behind the minimap, range sliders lost their puffed hit-area, and editor dialogs share one theme-aware style across light / dark / OLED.
+- **Inline comments survive Expert round-trips** — source such as `LDA $12 ; border color` stays attached to its instruction/directive when switching between Expert and Block mode.
+- **Inline comments are visible in Block mode** — attached inline comments now show up as a compact green italic marker in the block header, with a tooltip for the full text.
+- **Expert comment shortcut** — `Ctrl+/` (`Cmd+/` on macOS) comments the current line or selection; add `Shift` to uncomment.
+- **Parser/source sync fix** — Expert parsing and source regeneration now keep inline comments aligned with their logical source lines.
+- **Regression coverage** — `macro-core` tests now cover inline comment rendering and multi-line comment/uncomment behavior.
 
 ---
 
@@ -52,6 +50,7 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **CONST macro** — declare named constants; appear in label picker and generate zero bytes
 - **MACRO / ENDM / INVOKE** — define reusable named macros with optional parameters; use `{paramName}` placeholders in the body; invoke with arguments using `.invoke setColor(#$07)` parentheses syntax; multiple parameters supported (e.g. `.invoke drawPixel($10, $20)`)
 - **Expert mode blank line preservation** — empty lines typed in the Expert editor survive round-trips through block mode; shown as thin dashed spacers in the block list
+- **Expert mode inline comment preservation** — attached comments such as `LDA $12 ; border color` stay on their logical source lines across Expert ↔ Block round-trips, and appear as compact markers in block headers
 - **REGION / ENDREGION blocks** — group blocks into a named, collapsible section; supports nesting; zero bytes generated
 - **INCBIN macro** — include an external binary file at a given memory address
 - **INCLUDE macro** — embed another `.c64asm` project file inline (read-only)
@@ -70,8 +69,7 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **TURBO_ENABLE macro** — CMD SuperCPU turbo on (`STA $D07A`) / off (`STA $D07B`); 5 bytes
 - **Disassembler view** — real-time pure 6502 disassembly: shows address, hex bytes, and resolved numeric operands for every instruction; macros are expanded to individual instructions (TEXT → LDA/STA pairs, LOOP → LDX, MOUSE → full 142-byte decode); BYTE/WORD/FILL data shown as chunked hex dump; no macros, comments, or annotations in output
 - **Exomizer compression** — optional Exomizer sfx sys crunching via a Settings checkbox; compresses PRGs before launching VICE, saving to file, or running on C64 Ultimate hardware; works with all run modes and Build PRG / Build D64
-- **Visual graphics editors** — bitmap, sprite, character, charset-canvas, and map editors for preparing C64 assets without leaving the app
-- **Charset Canvas** — draw a full 256-character charset as a single picture, save the charset and matching 16×16 Screen RAM + Color RAM data, and reuse it from the Map Editor
+- **Visual graphics editors** — bitmap, sprite, character, charset-canvas, and map editors for preparing C64 assets without leaving the app; see the **Visual Editors** section below
 - **`*` (current PC) operand** — operand fields accept `*` as a shorthand for the current instruction address; branches with `*` generate an infinite self-loop (`BNE *` → offset `$FE`)
 - **LABEL & COMMENT blocks** — named jump targets and zero-byte annotations
 - **Memory strip** — full 64 KB C64 memory map visualised as a colour-coded strip (RAM / ROM / I/O)
@@ -128,7 +126,8 @@ VisualAssembler/
 ├── www/
 │   ├── index.html        # Single-page UI (all panels, templates)
 │   ├── style.css         # Full stylesheet — CSS custom properties for theming
-│   ├── app.js            # All renderer logic (~7 700 lines)
+│   ├── app.js            # All renderer logic (~19 000 lines)
+│   ├── i18n.js           # Translation strings (hu / en / es / de)
 │   └── tauri-bridge.js   # Maps window.electronAPI calls to Tauri invoke commands
 ├── src-tauri/
 │   ├── src/lib.rs        # Tauri backend — file dialogs, VICE launch, IPC commands
@@ -251,11 +250,13 @@ Each block in `program[]` is a plain object:
 
 The **Toolkit tab** provides access to built-in visual editors, all with *Export to blocks* support:
 
-- **SID editor** — 3-voice tracker with waveform, ADSR drag-graph, filter, Web Audio preview, and full C64-runnable IRQ player export (`sid_init` / `sid_irq` / `sid_play_row`)
+- **SID editor** — 3-voice tracker with waveform, ADSR drag-graph, filter, cycle-exact WebSid WASM preview, external `.sid` playback, BPM display, metronome, and full C64-runnable IRQ player export (`sid_init` / `sid_irq` / `sid_play_row`)
+- **Curve Editor** — generate `.byte` lookup tables from math curves (sine, easings, triangle/sawtooth/square/bounce) with a live graph and bouncing-ball preview; outputs an 8-bit table or a 16-bit lo/hi split pair with an optional sprite-X/Y reader routine; `.bin` save/load
 - **Sprite editor** — frame-by-frame sprite design, flip/shift tools, multi-frame animation, `.bin` load/save
 - **Hires / multicolor bitmap editor** — pixel editor with native multicolor `.bin` export (10 000 bytes: bitmap + screen + color RAM)
-- **Charset editor** — custom character set design
-- **Tilemap editor** — multi-layer map with brush tools and image import for tilesets
+- **Font editor** — design custom 8×8 characters for a C64 charset; `.bin` load/save
+- **Charset Canvas** — draw a full 256-character charset as a single 128×128 picture; pencil/eraser/fill/spray/shape tools; multicolor mode; save charset (`.bin`) and a matching 16×16 Screen RAM + Color RAM map
+- **Map editor** — multi-layer tilemap editor with brush, line, rect, fill and flood tools; image import for tilesets; `.bin` load/save for screen RAM, color RAM, and individual layers
 
 ## Interactive Tutorials
 
@@ -271,15 +272,20 @@ The built-in **tutorial system** offers guided step-by-step tours (spotlight + c
 | `buildAsmLines()` | Generates human-readable ASM text |
 | `buildMonitorLines()` | Generates monitor-format hex + ASCII output |
 
-### Electron IPC
+### Tauri IPC
 
-| Channel | Direction | Purpose |
-|---------|-----------|---------|
-| `save-file` | renderer → main | Save JSON project to disk |
-| `load-file` | renderer → main | Load JSON project from disk |
-| `choose-vice` | renderer → main | File picker for VICE executable |
-| `run-vice` | renderer → main | Write `.prg` to temp dir and launch VICE |
-| `shell:open-external` | renderer → main | Open URL in system browser |
+| Command | Purpose |
+|---------|---------|
+| `launch_vice` | Write temp `.prg` and launch VICE |
+| `launch_debugger` | Launch RetroDebugger with PRG + breakpoints + symbol file |
+| `launch_vice_debugger` | Launch VICE monitor with moncommands |
+| `save_prg` | Save assembled PRG to disk via file dialog |
+| `save_project` / `load_project` | Save / load `.c64asm` JSON project |
+| `load_sample` | Load a built-in sample program |
+| `save_d64` / `run_d64` | Build D64 image via c1541 and optionally launch VICE |
+| `run_on_ultimate` | Upload and run PRG via C64 Ultimate REST API |
+| `build_exomizer_prg` | Compress PRG with Exomizer sfx |
+| `choose_incbin_file` / `choose_sid_file` | File picker for INCBIN / SID macros |
 
 ---
 
@@ -307,6 +313,7 @@ The built-in **tutorial system** offers guided step-by-step tours (spotlight + c
 | `if-else` | DEFINE / IF / ELSE / ENDIF conditional assembly demo |
 | `sid-demo` | SID music player — Ikari Warriors theme, IRQ-driven via VIC raster |
 | `sid-direct-demo` | SID loaded directly using the SID macro (no `.bin` conversion needed) |
+| `loadfile-demo` | LOADFILE macro — load a binary file from D64 at runtime via KERNAL |
 
 ### Sprite demo notes
 
