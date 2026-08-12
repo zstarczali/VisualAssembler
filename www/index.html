@@ -610,7 +610,7 @@ PRINTABLE CHARACTERS
               <button id="ub-project-add-btn" class="expert-project-icon-btn" type="button" aria-label="Add .ub file"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="3" y="2" width="10" height="12" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 5.5v5M5.5 8h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
               </div>
               <div id="ub-project-files" class="ub-project-files expert-project-tree"></div>
-              <div class="expert-project-splitter ub-symbols-splitter"></div>
+              <div id="ub-symbols-splitter" class="expert-project-splitter ub-symbols-splitter" role="separator" aria-orientation="horizontal" tabindex="0"></div>
               <div id="ub-project-symbols" class="expert-project-symbols ub-project-symbols"></div>
             </div>
           </aside>
@@ -619,6 +619,7 @@ PRINTABLE CHARACTERS
               <div class="panel-heading ub-command-header"><h2 id="ub-commands-title">Command Menu</h2><p id="ub-commands-help">Search UltimateBasic syntax.</p></div>
               <label class="field ub-command-search-wrap"><span id="ub-search-label">Search</span><div class="palette-search-wrap"><input id="ub-command-search" class="palette-search-input ub-command-search" type="search" placeholder="Command or syntax…" autocomplete="off" spellcheck="false"></div></label>
               <div id="ub-command-list" class="ub-command-list palette-list"></div>
+              <div id="ub-command-resizer" class="ub-command-resizer" role="separator" aria-orientation="horizontal" tabindex="0"></div>
               <div id="ub-command-detail" class="mnemonic-card ub-command-detail">
                 <code id="ub-command-select">Select a command</code>
                 <p id="ub-command-hint">Its syntax and description will appear here.</p>
