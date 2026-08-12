@@ -12,7 +12,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2.2.8">
+  <link rel="stylesheet" href="style.css?v=2.2.9">
 </head>
 
 <body>
@@ -743,11 +743,12 @@ PRINTABLE CHARACTERS
         <img src="assets/logo.png" alt="C64 Visual Assembler" width="160" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v2.2.8</p>
+      <p class="about-version" id="about-version">v2.2.9</p>
       <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
         dropping instruction blocks.</p>
       <p class="about-sid-credit" id="about-sid-credit"><span id="about-sid-credit-label">Web SID player: WebSid (WebAudio version of Tiny'R'Sid) by Juergen Wothke. GitHub repository:</span> <a href="https://github.com/wothke/websid" target="_blank" rel="noopener noreferrer">https://github.com/wothke/websid</a><br><span id="about-sid-credit-license">(CC BY-NC-SA 4.0)</span></p>
       <p class="about-repo" id="about-repo"><span id="about-repo-label">Visual Assembler GitHub repository:</span><br><a href="https://github.com/zstarczali/VisualAssembler" target="_blank" rel="noopener noreferrer">https://github.com/zstarczali/VisualAssembler</a></p>
+      <p class="about-repo"><span>Visual Assembler website:</span><br><a href="https://www.c64va.tech" target="_blank" rel="noopener noreferrer">www.c64va.tech</a></p>
       <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
       <p class="about-contact"><a href="mailto:retroboj@outlook.com">retroboj@outlook.com</a></p>
       <button id="about-close" class="primary" type="button">Close</button>
@@ -757,28 +758,22 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.2.8</p>
+      <p class="whats-new-version">v2.2.9</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: Curve Editor</strong> &mdash; generate <code>.byte</code> lookup tables from math curves (sine, easings, triangle/sawtooth/square, bounce) with a live graph and a bouncing-ball preview. Outputs an 8-bit table or a 16-bit lo/hi split pair with an optional sprite-X reader routine for full-width motion.
+          <strong>New: inline comments survive Expert round-trips</strong> &mdash; comments such as <code>LDA $12 ; border color</code> now stay attached to their source lines when you switch between Expert and Block mode, instead of being split away or lost.
         </li>
         <li>
-          <strong>New: real SID preview (WebSid)</strong> &mdash; the SID Editor preview now plays through a cycle-exact SID emulator, so PWM, ring/sync, and filter character match the real chip. Falls back to the built-in Web Audio engine if unavailable.
+          <strong>New: block headers show inline comment markers</strong> &mdash; Block mode surfaces attached inline comments as a compact green italic <code>; comment</code> marker in the block header, with tooltip-on-hover for the full text when it is truncated.
         </li>
         <li>
-          <strong>New: play external .sid files</strong> &mdash; the SID Editor Files menu can load and play HVSC-style <code>.sid</code> tunes directly, with a floating playback dialog and Stop button.
+          <strong>New: Expert comment shortcut</strong> &mdash; press <code>Ctrl+/</code> (or <code>Cmd+/</code> on macOS) to comment the current line or selection, and add <code>Shift</code> to uncomment the selected lines again.
         </li>
         <li>
-          <strong>New: metronome &amp; BPM</strong> &mdash; the SID tracker shows the effective BPM and offers an audible metronome that stays in phase with playback.
+          <strong>Fixed: parser/source sync keeps inline comments aligned</strong> &mdash; Expert parsing and source regeneration now keep the instruction/directive and its attached inline comment on the same logical line.
         </li>
         <li>
-          <strong>New: master volume &amp; manual note entry</strong> &mdash; a master preview volume slider in the SID header, plus double-click a tracker cell to type a note directly (e.g. <code>C-4 01</code>).
-        </li>
-        <li>
-          <strong>New: debug files toggle</strong> &mdash; Hardware Settings can now skip generating <code>.dbg</code> / <code>.sym</code> / <code>.vs</code> sidecar files next to your PRG (the debugger still gets them when launched).
-        </li>
-        <li>
-          <strong>Fixed: Expert mode &amp; slider polish</strong> &mdash; the Find bar no longer hides behind the minimap, range sliders lost their puffed hit-area and stray top line, and editor dialogs share one consistent theme-aware style across light / dark / OLED.
+          <strong>Tests: macro-core coverage extended</strong> &mdash; the JS unit tests now cover inline comment rendering, multi-line comment/uncomment shortcuts, and the new source-line preservation behavior.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -1946,12 +1941,12 @@ PRINTABLE CHARACTERS
   </div>
 
   <script src="tauri-bridge.js"></script>
-  <script src="i18n.js?v=2.2.8"></script>
-  <script src="tutorial-data.js?v=2.2.8"></script>
+  <script src="i18n.js?v=2.2.9"></script>
+  <script src="tutorial-data.js?v=2.2.9"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.2.8"></script>
+  <script src="app.js?v=2.2.9"></script>
 
 </body>
 

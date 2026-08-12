@@ -383,15 +383,10 @@ Lásd `www/tauri-bridge.js` és `src-tauri/src/lib.rs`. Leggyakoribb commands:
 
 ## 17. Jelenlegi verzió
 
-`2.2.8` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
+`2.2.9` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`,
 `INSTALL-LINUX.md`, `README.txt`, `CLAUDE.md`, ez a fájl + copilot-instructions.md.
 
-Fő 2.2.8 változások: **Curve Editor** (görbe/easing `.byte` tábla generátor — sine/easing/
-triangle/saw/square/bounce, élő graph + pattogó labda preview, 8-bites tábla opcionális
-sprite-Y reader rutinnal vagy 16-bites lo/hi split sprite-X reader rutinnal); **valódi SID preview WebSid-del** (cycle-exact WASM emu +
-Web Audio fallback); **külső `.sid` lejátszás** a SID editorban; **metronóm + BPM + master
-volume + manuális note bevitel** a trackerben; **debug fájlok toggle** a Hardware Settings-ben;
-Expert find-bar / slider / dialog egységesítés (Hires mint minta).
+Fő 2.2.9 változások: **inline komment-megőrzés Expert módban** (pl. `LDA $12 ; note` egyben marad Expert ↔ Block váltáskor); **blokkszintű inline komment marker** zöld italic header badge-dzsel és tooltip-pel; **Ctrl/Cmd+/ comment toggle** Expert módban (`Shift` = uncomment); valamint bővített `macro-core` regressziós tesztek a kommentes round-tripre.
 
 Verziónöveléshez lásd az 5. szakasz végén lévő checklistet.

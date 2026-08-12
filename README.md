@@ -2,17 +2,15 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.2.8**
+**Current version: v2.2.9**
 
-## What's New in v2.2.8
+## What's New in v2.2.9
 
-- **Curve Editor** — generate `.byte` lookup tables from math curves (sine, easings, triangle/sawtooth/square, bounce) with a live graph and a bouncing-ball preview. Outputs an 8-bit table or a 16-bit lo/hi split pair with an optional sprite-X reader routine.
-- **Real SID preview (WebSid)** — the SID Editor preview plays through a cycle-exact SID emulator (WASM), matching PWM, ring/sync, and filter character on the real chip, with a Web Audio fallback.
-- **Play external .sid files** — load and play HVSC-style `.sid` tunes from the SID Editor Files menu, with a floating playback dialog and Stop button.
-- **Metronome, BPM & master volume** — the SID tracker shows the effective BPM and an audible metronome; a master preview volume slider lives in the SID header.
-- **Manual note entry** — double-click a tracker cell to type a note directly (e.g. `C-4 01`).
-- **Debug files toggle** — Hardware Settings can skip `.dbg` / `.sym` / `.vs` sidecar generation next to the PRG.
-- **Expert & slider polish** — the Find bar no longer hides behind the minimap, range sliders lost their puffed hit-area, and editor dialogs share one theme-aware style across light / dark / OLED.
+- **Inline comments survive Expert round-trips** — source such as `LDA $12 ; border color` stays attached to its instruction/directive when switching between Expert and Block mode.
+- **Inline comments are visible in Block mode** — attached inline comments now show up as a compact green italic marker in the block header, with a tooltip for the full text.
+- **Expert comment shortcut** — `Ctrl+/` (`Cmd+/` on macOS) comments the current line or selection; add `Shift` to uncomment.
+- **Parser/source sync fix** — Expert parsing and source regeneration now keep inline comments aligned with their logical source lines.
+- **Regression coverage** — `macro-core` tests now cover inline comment rendering and multi-line comment/uncomment behavior.
 
 ---
 
@@ -52,6 +50,7 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **CONST macro** — declare named constants; appear in label picker and generate zero bytes
 - **MACRO / ENDM / INVOKE** — define reusable named macros with optional parameters; use `{paramName}` placeholders in the body; invoke with arguments using `.invoke setColor(#$07)` parentheses syntax; multiple parameters supported (e.g. `.invoke drawPixel($10, $20)`)
 - **Expert mode blank line preservation** — empty lines typed in the Expert editor survive round-trips through block mode; shown as thin dashed spacers in the block list
+- **Expert mode inline comment preservation** — attached comments such as `LDA $12 ; border color` stay on their logical source lines across Expert ↔ Block round-trips, and appear as compact markers in block headers
 - **REGION / ENDREGION blocks** — group blocks into a named, collapsible section; supports nesting; zero bytes generated
 - **INCBIN macro** — include an external binary file at a given memory address
 - **INCLUDE macro** — embed another `.c64asm` project file inline (read-only)
