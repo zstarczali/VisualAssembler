@@ -349,6 +349,7 @@ dependencies = [
  "tauri-plugin-opener",
  "tauri-plugin-shell",
  "tauri-plugin-window-state",
+ "ultimate-basic",
  "urlencoding",
 ]
 
@@ -4613,6 +4614,10 @@ dependencies = [
  "tempfile",
  "windows-sys 0.61.2",
 ]
+
+[[package]]
+name = "ultimate-basic"
+version = "1.5.0"
 
 [[package]]
 name = "unic-char-property"

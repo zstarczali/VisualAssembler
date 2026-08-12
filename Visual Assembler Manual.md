@@ -338,6 +338,12 @@ Known limitation:
 
 - Constants that resolve to a zero-page address (for example `.const BYTEADDR = $FC` used as `STA BYTEADDR`) currently compile to absolute-mode instructions (3 bytes) instead of zero-page (2 bytes). The compiled code still writes to the correct memory location, just with a small size and cycle overhead compared to the same source built by Kick Assembler.
 
+## UltimateBasic Mode
+
+The **UB** toolbar button opens a dedicated `.ub` source editor backed by the embedded UltimateBasic compiler. Its Expert-style icon toolbar provides a toggleable **Project Files** panel, **New**, **Open .ub**, **Save**, **Build**, **Verbose**, **Disassembler**, syntax highlighting, line numbers, minimap, Find (`Ctrl+F`), and editor zoom. The palette-style left panel lists all open UltimateBasic tabs and marks unsaved files. Use the star beside a file to make it the startup file; Run always compiles that source even when another tab is active. The searchable **Command Reference** displays the syntax and a short description for each language command. The right-side Disassembler replaces the build-output panel while enabled and shows address, machine-code bytes, mnemonic, and operand after a successful build. The build panel shows compiler errors or the generated PRG memory map; when **Verbose** is enabled it also includes internal ZP allocations and a code hex dump. When an error contains a line number, that source line is selected automatically.
+
+The main **Run** button compiles the current UltimateBasic source before launching it. **Run as PRG** uses VICE and **Run on Ultimate** sends the generated PRG directly to the configured C64 Ultimate. The compiler is included in Visual Assembler, so no separate `ub` executable is required at runtime.
+
 ## 6. Expert Mode
 
 Expert Mode is a full-featured direct-text 6502 assembly editor that lives alongside the block editor. Every tab can be in either Block mode or Expert mode — you switch between them freely at any time using the **Block / Expert** toggle in the top bar.
