@@ -539,6 +539,8 @@ function saveUiSettings() {
     ubDisasmPaneWidth: _ubDisasmPaneWidth,
     ubProjectVisible: _ubProjectVisible,
     ubCommandsVisible: _ubCommandsVisible,
+    ubOutputVisible: _ubOutputVisible,
+    ubAutocompleteEnabled: _ubAutocompleteEnabled,
     expertMonitorVisible: _expertMonitorVisible,
     expertProjectVisible: _expertProjectVisible,
     expertProjectSymbolsHeight: _expertProjectSymbolsHeight,
@@ -1469,6 +1471,8 @@ function initPalette() {
   document.getElementById("ub-save-btn")?.addEventListener("click", _ubSave);
   document.getElementById("ub-format-btn")?.addEventListener("click", _ubFormatSource);
   document.getElementById("ub-build-btn")?.addEventListener("click", () => _ubCompile(true));
+  document.getElementById("ub-output-btn")?.addEventListener("click", _ubToggleOutput);
+  document.getElementById("ub-autocomplete-btn")?.addEventListener("click", _ubToggleAutocomplete);
   document.getElementById("ub-project-btn")?.addEventListener("click", _ubToggleProject);
   document.getElementById("ub-help-btn")?.addEventListener("click", _ubToggleCommands);
   document.getElementById("ub-project-open-btn")?.addEventListener("click", _ubOpenProject);
@@ -1536,7 +1540,7 @@ function initPalette() {
   });
   document.getElementById("ub-zoom-in-btn")?.addEventListener("click", () => _ubZoom(1));
   document.getElementById("ub-zoom-out-btn")?.addEventListener("click", () => _ubZoom(-1));
-  ubEditor?.addEventListener("input", () => { _ubDirty = true; markTabDirty(); _ubRefreshEditor(); });
+  ubEditor?.addEventListener("input", () => { _ubDirty = true; markTabDirty(); _ubRefreshEditor(); _ubAcUpdate(); });
   ubEditor?.addEventListener("keyup", _ubUpdateCursor);
   ubEditor?.addEventListener("click", _ubUpdateCursor);
   ubEditor?.addEventListener("scroll", _ubSyncScroll);
@@ -1546,6 +1550,12 @@ function initPalette() {
     ubEditor.scrollTop = ratio * Math.max(0, ubEditor.scrollHeight - ubEditor.clientHeight);
   });
   ubEditor?.addEventListener("keydown", (e) => {
+    if (_ubAcVisible()) {
+      if (e.key === "ArrowDown") { e.preventDefault(); _ubAcMove(1); return; }
+      if (e.key === "ArrowUp") { e.preventDefault(); _ubAcMove(-1); return; }
+      if (e.key === "Enter" || e.key === "Tab") { if (_ubAcCommit()) { e.preventDefault(); return; } }
+      if (e.key === "Escape") { _ubAcHide(); return; }
+    }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "f") { e.preventDefault(); _ubOpenFind(); return; }
     if (e.key !== "Tab") return;
     e.preventDefault();
@@ -2543,6 +2553,8 @@ function _applyUiSettingsToDOM() {
   }
   if (savedUiSettings.ubProjectVisible !== undefined) _ubProjectVisible = !!savedUiSettings.ubProjectVisible;
   if (savedUiSettings.ubCommandsVisible !== undefined) _ubCommandsVisible = !!savedUiSettings.ubCommandsVisible;
+  if (savedUiSettings.ubOutputVisible !== undefined) _ubOutputVisible = !!savedUiSettings.ubOutputVisible;
+  if (savedUiSettings.ubAutocompleteEnabled !== undefined) _ubAutocompleteEnabled = !!savedUiSettings.ubAutocompleteEnabled;
 
   if (savedUiSettings.ultimateBasicMode) {
     setUltimateBasicMode(true);
@@ -2752,7 +2764,7 @@ function applyTranslations() {
 
   const ubLabels = {
     "ub-new-btn": "ubNewSource", "ub-open-btn": "ubOpenSource", "ub-save-btn": "ubSaveSource", "ub-format-btn": "ubFormatSource",
-    "ub-build-btn": "ubBuild", "ub-verbose-btn": "ubVerbose", "ub-disasm-btn": "expertDisasm",
+    "ub-build-btn": "ubBuild", "ub-output-btn": "ubBuildOutput", "ub-verbose-btn": "ubVerbose", "ub-disasm-btn": "expertDisasm", "ub-autocomplete-btn": "expertAutocomplete",
     "ub-project-btn": "expertProjectPanel", "ub-help-btn": "ubCommandHelpToggle", "ub-project-open-btn": "projOpenProjectBtn",
     "ub-project-new-btn": "projNewProjectBtn", "ub-project-save-btn": "projSaveProjectBtn",
     "ub-project-add-btn": "projAddFileBtn", "ub-hl-btn": "ubSyntaxHighlight",
@@ -5465,6 +5477,8 @@ let _ubMinimapEnabled = true;
 let _ubProjectVisible = true;
 let _ubCommandsVisible = false;
 let _ubVerbose = false;
+let _ubOutputVisible = true;
+let _ubAutocompleteEnabled = true;
 let _ubDisasmVisible = false;
 let _ubDisasmWidth = 340;
 let _ubDisasmPaneWidth = 240;
@@ -5478,7 +5492,7 @@ let _ubProjectData = null;
 const _UB_COMMAND_REFERENCE = [
   ["var", "var name[: type] = expression", "Declares a byte, word, float, string, or array variable."],
   ["const", "const NAME = expression", "Declares a compile-time constant."],
-  ["print", "print expression [, expression ...]", "Prints values through the C64 KERNAL output routine."],
+  ["print", "print [expression [, expression ...]]\nprint spc(count)\nprint tab(column)\nprint chr$(code)", "Prints values and formatting helpers through the C64 KERNAL output routine."],
   ["print at", "print at column, row [, expression ...]", "Moves the cursor, then prints optional values."],
   ["input", "input [\"prompt\",] variable", "Reads a value from the keyboard into a variable."],
   ["if", "if condition then\n  statements\n[else\n  statements]\nend", "Conditional execution with an optional else branch."],
@@ -5495,29 +5509,91 @@ const _UB_COMMAND_REFERENCE = [
   ["label", "label name", "Defines a goto target."],
   ["graphics", "graphics on [hires|multi|block] [double]\ngraphics off", "Enables or disables a graphics mode."],
   ["plot", "plot x, y [, color]\nplot erase x, y\nplot xor x, y", "Draws, erases, or XORs a bitmap pixel."],
-  ["line", "line x1, y1, x2, y2 [, color]", "Draws a bitmap line."],
+  ["line", "line x1, y1, x2, y2\nline erase x1, y1, x2, y2\nline xor x1, y1, x2, y2", "Draws, clears, or XORs a bitmap line."],
   ["circle", "circle x, y, radius [, color]", "Draws a bitmap circle."],
-  ["rect", "rect x, y, width, height [, color]", "Draws a rectangle."],
+  ["rect", "rect x1, y1, x2, y2\nrect erase x1, y1, x2, y2\nrect xor x1, y1, x2, y2", "Draws, clears, or XORs a rectangle outline."],
   ["gcls", "gcls [color]", "Clears the active graphics screen."],
   ["flip", "flip", "Swaps visible and draw buffers in double-buffer mode."],
   ["sprite", "sprite id, x, y [, data_address]", "Positions a hardware sprite and optionally sets its data pointer."],
   ["sprdef", "sprdef id\n  byte values...\nend", "Embeds and installs a 63-byte sprite definition."],
-  ["sound", "sound voice, frequency, waveform [, duration]", "Programs a SID voice."],
+  ["sound", "sound channel, frequency, duration", "Plays a SID voice with fixed ADSR and sawtooth waveform."],
   ["load sid", "load sid \"file.sid\" [at address]", "Embeds a PSID/RSID file at compile time."],
   ["music", "music play | stop | pause | resume", "Controls music loaded with load sid."],
-  ["irq", "irq raster_line, handler", "Installs a raster interrupt handler."],
+  ["irq", "irq handler [, raster_line]", "Installs a raster interrupt handler at line 0 or the given raster line."],
   ["irq_exit", "irq_exit", "Exits a raster IRQ through the KERNAL."],
   ["poke", "poke address, value\npoke16 address, value", "Writes an 8-bit or 16-bit value to memory."],
   ["peek", "peek(address)\npeek16(address)", "Reads an 8-bit or 16-bit value from memory."],
   ["sys", "sys address [, accumulator]", "Calls a machine-code routine with JSR."],
-  ["asm", "asm {\n  6502 instructions\n}", "Embeds inline 6502 assembly."],
+  ["asm", "asm byte [, byte ...]\nasm {\n  6502 instructions\n}", "Embeds raw bytes or a full inline 6502 assembly block."],
   ["include", "include \"file.ub\"", "Includes another UltimateBasic source file."],
   ["incbin", "incbin \"file.bin\"", "Embeds binary data at compile time."],
-  ["data", "data value [, value ...]\nread variable\nrestore", "Defines and reads compile-time byte data."],
-  ["reu", "reu stash|fetch|swap c64_address, reu_address, bank, length", "Transfers memory using the REU DMA controller."],
+  ["data", "data value [, value ...]\nread variable", "Defines compile-time byte data and reads it sequentially."],
+  ["reu", "reu stash|fetch|swap c64_address, bank, reu_address, length", "Transfers memory using the REU DMA controller."],
   ["turbo", "turbo on | off\nspeed mhz", "Controls C64 Ultimate/SuperCPU acceleration."],
-  ["wait", "wait raster_line\nwaitkey", "Waits for a raster line or keyboard input."],
+  ["wait", "wait transitions\nwait raster raster_line", "Waits for raster transitions or for a specific raster line."],
   ["bye", "bye", "Returns cleanly to BASIC."],
+  ["exit", "exit", "Alias for BYE; returns cleanly to BASIC."],
+  ["comments", "# comment\nrem comment\nstatement # inline comment", "Adds full-line or inline source comments."],
+  ["compound assignment", "x += n | x -= n | x *= n | x /= n\nx and= n | x or= n | x xor= n | x shl= n | x shr= n", "Updates a variable with an arithmetic or bitwise operation."],
+  ["arrays", "var bytes = array(count)\nvar words = array_word(count)\nbytes[index] = value", "Declares and accesses byte or word arrays in heap RAM."],
+  ["times", "times count\n  statements\nend", "Runs a counted loop the given number of times."],
+  ["select", "select expression\ncase value:\n  statements\n[else:]\n  statements\nend", "Selects one branch from multiple cases."],
+  ["return", "return [expression]", "Returns from a subroutine or function."],
+  ["gosub", "gosub label", "Calls a label with JSR; return resumes execution."],
+  ["cls", "cls\ncls fast", "Clears the text screen; FAST directly fills screen and color RAM."],
+  ["display", "display on | off", "Enables or disables VIC-II display output."],
+  ["color", "color text value\ncolor border value\ncolor bg value", "Sets the text, border, or background color."],
+  ["text", "text column, row, string [, color]", "Writes text at a screen position."],
+  ["screen", "screen column, row, character [, color]", "Writes directly to screen and color RAM."],
+  ["cursor", "cursor column, row", "Moves the text cursor."],
+  ["lowercase", "lowercase", "Switches to the lowercase/uppercase VIC character set."],
+  ["uppercase", "uppercase", "Switches to the uppercase/graphics VIC character set."],
+  ["plot4", "plot4 x, y [, color]\nplot4 erase x, y", "Draws a 4×4 block pixel."],
+  ["mplot", "mplot x, y, color", "Draws a multicolor bitmap pixel."],
+  ["circle4", "circle4 x, y, radius [, color]", "Draws a circle in block-pixel mode."],
+  ["paint", "paint x, y [, color]", "Flood-fills a connected bitmap area."],
+  ["fill", "fill screen value\nfill color value\nfill address, length, value", "Fills screen RAM, color RAM, or an arbitrary memory range."],
+  ["sprite control", "sprite id, on|off|color value|multi on|off|expand x|y|priority front|back", "Controls hardware sprite attributes."],
+  ["sprite_frame", "sprite_frame id, data_address", "Changes a sprite's data pointer."],
+  ["sprite collision", "sprite_hit()\nsprite_bg_hit()", "Reads sprite/sprite or sprite/background collision flags."],
+  ["sprite position", "sprite_x(id)\nsprite_y(id)", "Reads a hardware sprite coordinate."],
+  ["chardef", "chardef character\n  byte values...\nend", "Embeds an 8-byte custom character definition."],
+  ["charset", "charset address", "Sets the RAM character-set base address."],
+  ["sid volume", "sid volume value\nsid stop", "Sets SID volume or stops SID playback."],
+  ["nmi", "nmi handler", "Installs an NMI handler."],
+  ["nmi_exit", "nmi_exit", "Exits an NMI through the KERNAL."],
+  ["cia_timer", "cia_timer period, handler", "Configures CIA1 Timer A interrupt handling."],
+  ["onerr", "onerr goto label", "Installs a KERNAL I/O error handler."],
+  ["open", "open channel, device, secondary [, filename]", "Opens a KERNAL logical file."],
+  ["close", "close channel", "Closes a KERNAL logical file."],
+  ["print#", "print# channel, expression [, expression ...]", "Writes values to an open logical file."],
+  ["load", "load filename [, address]", "Loads a disk file at its native or an overridden address."],
+  ["save", "save filename, start_address, length", "Saves a memory range to device 8 through the KERNAL."],
+  ["memcopy", "memcopy source, destination, length", "Copies a block of memory."],
+  ["drawmem", "drawmem source, destination, width, height, stride", "Copies a packed 2-D rectangle to strided destination memory."],
+  ["delay", "delay frames", "Waits for the given number of video frames."],
+  ["raster", "raster()", "Returns the current raster line."],
+  ["scroll", "scroll x amount [narrow|wide]\nscroll y amount\nscroll row row_number left", "Controls VIC-II fine scrolling, display width, or shifts a screen row."],
+  ["badlines", "badlines on | off", "Controls Ultimate badline timing."],
+  ["speed", "speed value | max | off", "Sets the C64 Ultimate CPU speed."],
+  ["fast", "fast", "Enables the compiler's fast execution mode where supported."],
+  ["getch", "getch()", "Reads a character using the KERNAL."],
+  ["inkey", "inkey()", "Reads the keyboard without waiting."],
+  ["waitkey", "waitkey()", "Waits for a key using direct keyboard scanning."],
+  ["joy", "joy(port)", "Reads a joystick port."],
+  ["mouse", "mouse_x()\nmouse_x_hi()\nmouse_y()\nmouse_btn()", "Reads the connected mouse position and buttons."],
+  ["reu detect", "reu_present()\nreudet()", "Checks whether a REU is available."],
+  ["turbo detect", "turbo()", "Returns whether Ultimate turbo mode is active."],
+  ["types", "int | word | float | string | array | array_word", "UltimateBasic variable and array types."],
+  ["string conversion", "chr$(code)\nstr$(number)\nstr_to_int(string)\nval(string)", "Converts between strings, characters, and numbers."],
+  ["numstr", "numstr value, destination_address", "Writes a zero-padded three-digit string to an absolute address."],
+  ["string functions", "len(string)\nasc(string)\nspc(count)\ntab(column)", "String and PRINT formatting helpers."],
+  ["math", "abs(x) | min(a,b) | max(a,b) | sgn(x) | clamp(x,lo,hi)", "Integer math helper functions."],
+  ["random", "rnd()\nrnd(limit)", "Returns a pseudo-random byte or a value below the limit."],
+  ["trigonometry", "sin(angle)\ncos(angle)", "Returns a fixed-point trigonometric value."],
+  ["number formatting", "hex(value)\nbin(value)\ndec(value, width)", "Formats a number as hexadecimal, binary, or padded decimal text."],
+  ["operators", "and or xor not bnot mod shl shr", "Logical, bitwise, modulo, and shift operators."],
+  ["inc/dec", "inc variable\ndec variable", "Increments or decrements a variable."],
 ];
 
 function setUltimateBasicMode(on) {
@@ -5543,6 +5619,9 @@ function setUltimateBasicMode(on) {
     _ubUpdateCursor();
     ubPanel.classList.toggle("ub-show-lines", _ubLinesEnabled);
     ubPanel.classList.toggle("ub-show-minimap", _ubMinimapEnabled);
+    ubPanel.classList.toggle("ub-hide-output", !_ubOutputVisible);
+    _ubSetToggle("ub-output-btn", _ubOutputVisible);
+    _ubSetToggle("ub-autocomplete-btn", _ubAutocompleteEnabled);
     _ubApplyLeftViews(false);
     _ubRefreshEditor();
     _ubRenderProjectFiles();
@@ -5568,10 +5647,46 @@ function _ubApplyLeftViews(persist = true) {
 
 const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read restore asm include incbin load open close save memcopy drawmem poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll").split(" "));
 const _UB_TYPES = new Set(["int", "word", "float", "string", "array", "array_word"]);
-const _UB_FUNCTIONS = new Set(("str_to_int numstr chr$ str$ inkey waitkey len asc val reudet turbo clamp peek peek16 rnd abs min max sgn spc tab joy mouse_x mouse_x_hi mouse_y mouse_btn sprhit sprbghit sprite_x sprite_y sin cos hex bin getch").split(" "));
+const _UB_FUNCTIONS = new Set(("str_to_int numstr chr$ str$ inkey waitkey len asc val reudet reu_present turbo clamp peek peek16 rnd abs min max sgn spc tab joy mouse_x mouse_x_hi mouse_y mouse_btn sprhit sprbghit sprite_hit sprite_bg_hit sprite_x sprite_y sin cos hex bin getch").split(" "));
 const _UB_ASM_MNEMONICS = new Set(("adc and asl bcc bcs beq bit bmi bne bpl brk bvc bvs clc cld cli clv cmp cpx cpy dec dex dey eor inc inx iny jmp jsr lda ldx ldy lsr nop ora pha php pla plp rol ror rti rts sbc sec sed sei sta stx sty tax tay tsx txa txs tya").split(" "));
 
 function _ubEsc(value) { return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+let _ubAcActive = -1;
+function _ubAcEl() {
+  let el = document.getElementById("ub-ac");
+  if (!el) { el = document.createElement("div"); el.id = "ub-ac"; el.className = "expert-autocomplete"; el.hidden = true; document.body.appendChild(el); }
+  return el;
+}
+function _ubAcVisible() { const el = document.getElementById("ub-ac"); return !!el && !el.hidden; }
+function _ubAcHide() { const el = document.getElementById("ub-ac"); if (el) el.hidden = true; _ubAcActive = -1; }
+function _ubAcMove(direction) {
+  const items = _ubAcEl().querySelectorAll(".expert-ac-item"); if (!items.length) return;
+  items[_ubAcActive]?.classList.remove("active"); _ubAcActive = (_ubAcActive + direction + items.length) % items.length;
+  items[_ubAcActive].classList.add("active"); items[_ubAcActive].scrollIntoView({ block: "nearest" });
+}
+function _ubAcCommit() {
+  const el = _ubAcEl(); const item = el.querySelector(".expert-ac-item.active") || el.querySelector(".expert-ac-item");
+  if (!item || !ubEditor) return false;
+  const pos = ubEditor.selectionStart; const before = ubEditor.value.slice(0, pos); const match = before.match(/[A-Za-z_][A-Za-z0-9_]*\$?$/);
+  if (!match) return false;
+  ubEditor.setRangeText(item.dataset.value, pos - match[0].length, pos, "end");
+  _ubAcHide(); ubEditor.dispatchEvent(new Event("input", { bubbles: true })); return true;
+}
+function _ubAcUpdate() {
+  if (!_ubAutocompleteEnabled || !ubEditor || document.activeElement !== ubEditor) { _ubAcHide(); return; }
+  const pos = ubEditor.selectionStart; const before = ubEditor.value.slice(0, pos); const match = before.match(/[A-Za-z_][A-Za-z0-9_]*\$?$/);
+  if (!match || match[0].length < 2) { _ubAcHide(); return; }
+  const typed = match[0].toLowerCase();
+  const descriptions = new Map(_UB_COMMAND_REFERENCE.map(([name,, desc]) => [name.split(" ")[0].toLowerCase(), desc]));
+  const words = [...new Set([..._UB_KEYWORDS, ..._UB_TYPES, ..._UB_FUNCTIONS])].filter(word => word.startsWith(typed) && word !== typed).sort().slice(0, 12);
+  if (!words.length) { _ubAcHide(); return; }
+  const el = _ubAcEl(); _ubAcActive = -1;
+  el.innerHTML = words.map(word => `<div class="expert-ac-item" data-value="${_ubEsc(word)}"><span class="expert-ac-item-kw">${_ubEsc(word)}</span><span class="expert-ac-item-desc">${_ubEsc(descriptions.get(word) || (_UB_FUNCTIONS.has(word) ? "function" : _UB_TYPES.has(word) ? "type" : "keyword"))}</span></div>`).join("");
+  el.querySelectorAll(".expert-ac-item").forEach(item => item.addEventListener("mousedown", event => { event.preventDefault(); _ubAcActive = [...item.parentNode.children].indexOf(item); _ubAcCommit(); }));
+  const rect = ubEditor.getBoundingClientRect(); const lineHeight = parseFloat(getComputedStyle(ubEditor).lineHeight) || 21;
+  const line = before.split("\n").length - 1; el.style.left = `${Math.min(rect.right - 300, rect.left + 60)}px`; el.style.top = `${Math.min(window.innerHeight - 220, rect.top + 18 + line * lineHeight - ubEditor.scrollTop)}px`; el.hidden = false;
+}
 
 function _ubFormatText(source) {
   let depth = 0;
@@ -5744,6 +5859,8 @@ function _ubToggleMinimap() { _ubMinimapEnabled = !_ubMinimapEnabled; ubPanel.cl
 function _ubToggleProject() { _ubProjectVisible = !_ubProjectVisible; _ubApplyLeftViews(); }
 function _ubToggleCommands() { _ubCommandsVisible = !_ubCommandsVisible; _ubApplyLeftViews(); }
 function _ubToggleVerbose() { _ubVerbose = !_ubVerbose; _ubSetToggle("ub-verbose-btn", _ubVerbose); if (_ubLastResult?.ok) _ubSetBuildOutput(_ubFormatMap(_ubLastResult.map)); }
+function _ubToggleOutput() { _ubOutputVisible = !_ubOutputVisible; ubPanel?.classList.toggle("ub-hide-output", !_ubOutputVisible); _ubSetToggle("ub-output-btn", _ubOutputVisible); saveUiSettings(); }
+function _ubToggleAutocomplete() { _ubAutocompleteEnabled = !_ubAutocompleteEnabled; _ubSetToggle("ub-autocomplete-btn", _ubAutocompleteEnabled); if (!_ubAutocompleteEnabled) _ubAcHide(); else _ubAcUpdate(); saveUiSettings(); }
 function _ubToggleDisasm() {
   _ubDisasmVisible = !_ubDisasmVisible;
   ubPanel.classList.toggle("ub-show-disasm", _ubDisasmVisible);
@@ -6155,11 +6272,26 @@ function _ubSetBuildOutput(text, error = false) {
   ubBuildOutput.classList.toggle("ub-build-output--error", error);
 }
 
+function _ubShowCompileErrors(errors) {
+  const list = (errors || []).map(error => {
+    const text = typeof error === "string" ? error : (error?.text || error?.message || String(error));
+    const match = text.match(/(?:line|sor)\s*(\d+)/i);
+    return { text, sourceLine: match ? Math.max(0, Number(match[1]) - 1) : undefined };
+  });
+  _ubOutputVisible = true;
+  ubPanel?.classList.remove("ub-hide-output");
+  _ubSetToggle("ub-output-btn", true);
+  saveUiSettings();
+  hideWorkProgress();
+  showCompileErrorDialog(list);
+}
+
 async function _ubApplyExomizer(result, label = "ultimate-basic") {
   if (!exomizerEnabled) return true;
   if (!window.electronAPI?.buildExomizerPrg) {
     _ubSetBuildOutput("Exomizer is not available.", true);
     _ubSetStatus("Exomizer is not available.", true);
+    _ubShowCompileErrors(["Exomizer is not available."]);
     return false;
   }
   let packed;
@@ -6176,6 +6308,8 @@ async function _ubApplyExomizer(result, label = "ultimate-basic") {
     const message = packed?.error || "Exomizer compression failed";
     _ubSetBuildOutput(message, true);
     _ubSetStatus(message, true);
+    _ubShowCompileErrors([message]);
+    _ubShowCompileErrors([message]);
     return false;
   }
   result.outputPrg = Array.from(packed.bytes || []);
@@ -6203,6 +6337,7 @@ async function _ubCompile(showProgress = false) {
     const errors = result?.errors || [result?.error || "Compilation failed"];
     _ubSetBuildOutput(errors.join("\n"), true);
     _ubSetStatus(`${errors.length} error(s)`, true);
+    _ubShowCompileErrors(errors);
     const match = String(errors[0] || "").match(/(?:line|sor)\s*(\d+)/i);
     if (match) {
       const line = Math.max(1, Number(match[1]));
@@ -6234,21 +6369,40 @@ async function _ubRun(mode) {
     _ubSetStatus("D64 run is not available in UltimateBasic mode yet.", true);
     return;
   }
-  const build = startupTab && startupTab.id !== activeTabId
-    ? await _ubCompileSource(source, sourcePath, startupTab.name)
-    : await _ubCompile();
-  if (!build) return;
-  if (mode === "ultimate") {
-    const host = (document.getElementById("ultimate-host")?.value || ultimateHost).trim();
-    if (!host) { _ubSetStatus(t("ultimateNotConfigured"), true); return; }
-    const password = (document.getElementById("ultimate-password")?.value || ultimatePassword).trim() || null;
-    const result = await window.electronAPI?.runOnUltimate(host, password, build.outputPrg || build.prg);
-    _ubSetStatus(result?.ok ? "Running on Ultimate ✓" : (result?.error || "Ultimate run failed"), !result?.ok);
-    return;
+  const host = mode === "ultimate" ? (document.getElementById("ultimate-host")?.value || ultimateHost).trim() : "";
+  if (mode === "ultimate" && !host) { _ubSetStatus(t("ultimateNotConfigured"), true); return; }
+  if (mode !== "ultimate" && !vicePath) { _ubSetStatus(t("viceIsNotConfiguredSelectItInTheMenuFirs"), true); return; }
+
+  await showWorkProgress("ubRunProgress");
+  let success = false;
+  try {
+    setWorkProgress(18);
+    const build = startupTab && startupTab.id !== activeTabId
+      ? await _ubCompileSource(source, sourcePath, startupTab.name)
+      : await _ubCompile();
+    if (!build) return;
+    setWorkProgress(exomizerEnabled ? 78 : 70);
+
+    let result;
+    if (mode === "ultimate") {
+      const password = (document.getElementById("ultimate-password")?.value || ultimatePassword).trim() || null;
+      result = await window.electronAPI?.runOnUltimate(host, password, build.outputPrg || build.prg);
+      _ubSetStatus(result?.ok ? "Running on Ultimate ✓" : (result?.error || "Ultimate run failed"), !result?.ok);
+    } else {
+      result = await window.electronAPI?.launchVice?.({ bytes: build.outputPrg || build.prg, fileName: `ultimate-basic-${Date.now()}.prg`, sidecars: build.debug || null });
+      _ubSetStatus(result?.ok ? "Running in VICE ✓" : (result?.error || "VICE launch failed"), !result?.ok);
+    }
+    if (!result?.ok) return;
+    setWorkProgress(100);
+    success = true;
+  } catch (error) {
+    const message = error?.message || String(error) || "UltimateBasic run failed";
+    _ubSetBuildOutput(message, true);
+    _ubSetStatus(message, true);
+  } finally {
+    if (success) await completeWorkProgress("ubRunProgressDone");
+    else hideWorkProgress();
   }
-  if (!vicePath) { _ubSetStatus(t("viceIsNotConfiguredSelectItInTheMenuFirs"), true); return; }
-  const result = await window.electronAPI?.launchVice?.({ bytes: build.outputPrg || build.prg, fileName: `ultimate-basic-${Date.now()}.prg`, sidecars: build.debug || null });
-  _ubSetStatus(result?.ok ? "Running in VICE ✓" : (result?.error || "VICE launch failed"), !result?.ok);
 }
 
 async function _ubCompileSource(source, sourcePath, label = "startup file") {
@@ -6260,6 +6414,7 @@ async function _ubCompileSource(source, sourcePath, label = "startup file") {
     const errors = result?.errors || [result?.error || "Compilation failed"];
     _ubSetBuildOutput(errors.join("\n"), true);
     _ubSetStatus(`${label}: ${errors.length} error(s)`, true);
+    _ubShowCompileErrors(errors);
     return null;
   }
   if (!(await _ubApplyExomizer(result, label))) return null;
@@ -13767,6 +13922,10 @@ function showCompileErrorDialog(errors) {
       setSelectedErrorItem(li);
       if (expertMode && expertEditor && Number.isFinite(sourceLine)) {
         _expertGotoSourceLine(sourceLine, { focus: false });
+        return;
+      }
+      if (ultimateBasicMode && ubEditor && Number.isFinite(sourceLine)) {
+        _ubGotoLine(sourceLine);
         return;
       }
       if (Number.isFinite(asmLine)) {

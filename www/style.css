@@ -3410,6 +3410,11 @@ body.ub-mode .workspace { grid-template-columns: 1fr; }
 .ub-panel.ub-show-project:not(.ub-show-commands) .ub-editor-layout { grid-template-areas: "project editor resize output"; }
 .ub-panel.ub-show-commands:not(.ub-show-project) .ub-editor-layout { grid-template-areas: "commands editor resize output"; }
 .ub-panel.ub-show-project.ub-show-commands .ub-editor-layout { grid-template-columns: 220px 195px minmax(0, 1fr) 5px minmax(180px, var(--ub-disasm-width, 340px)); grid-template-areas: "commands project editor resize output"; }
+.ub-panel.ub-hide-output .ub-editor-layout { grid-template-columns: minmax(0, 1fr); grid-template-areas: "editor"; }
+.ub-panel.ub-hide-output.ub-show-project:not(.ub-show-commands) .ub-editor-layout { grid-template-columns: 220px minmax(0, 1fr); grid-template-areas: "project editor"; }
+.ub-panel.ub-hide-output.ub-show-commands:not(.ub-show-project) .ub-editor-layout { grid-template-columns: 220px minmax(0, 1fr); grid-template-areas: "commands editor"; }
+.ub-panel.ub-hide-output.ub-show-project.ub-show-commands .ub-editor-layout { grid-template-columns: 220px 195px minmax(0, 1fr); grid-template-areas: "commands project editor"; }
+.ub-panel.ub-hide-output .ub-right-panels, .ub-panel.ub-hide-output .ub-disasm-resizer { display: none; }
 .ub-project-panel { grid-area: project; }
 .ub-commands-panel { grid-area: commands; }
 .ub-editor-wrap { grid-area: editor; }

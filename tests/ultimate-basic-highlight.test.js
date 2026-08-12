@@ -49,3 +49,15 @@ test("UltimateBasic formatter indents blocks, branches, and inline assembly", ()
     "end"
   ].join("\n"));
 });
+
+test("UltimateBasic command reference contains current manual features", () => {
+  const required = [
+    "color text value", "irq handler [, raster_line]", "reu stash|fetch|swap c64_address, bank, reu_address, length",
+    "drawmem source, destination, width, height, stride", "sprite_hit()", "reu_present()",
+    "numstr value, destination_address", "dec(value, width)", "scroll row row_number left"
+  ];
+  const refStart = appJs.indexOf("const _UB_COMMAND_REFERENCE");
+  const refEnd = appJs.indexOf("\n];", refStart);
+  const reference = appJs.slice(refStart, refEnd).toLowerCase();
+  required.forEach(item => assert.ok(reference.includes(item.toLowerCase()), `missing command reference: ${item}`));
+});
