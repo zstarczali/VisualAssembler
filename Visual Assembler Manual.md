@@ -386,6 +386,9 @@ Expert Mode is a full-featured direct-text 6502 assembly editor that lives along
 | **Monitor** | `#expert-monitor-btn` | Show/hide the monitor hex-dump panel |
 | **Minimap** | `#expert-minimap-btn` | Show/hide the code minimap strip on the right side of the editor |
 
+Editor shortcuts: `Ctrl+/` (`Cmd+/` on macOS) comments the current line or every selected line; adding `Shift` removes the leading comment marker from those lines.
+Inline comments (for example `LDA $12 ; explanation`) remain on the instruction line when switching between Expert and Block mode. Block mode shows them as a green italic `; comment` marker in the block header; hovering the marker reveals the full text when it is truncated.
+
 ### Expert editor minimap
 
 The Expert editor minimap is a narrow canvas strip (`88 px`) on the far right of the editor area. It renders a scaled-down representation of every source line:

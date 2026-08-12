@@ -1699,6 +1699,12 @@ function initPalette() {
       _expertFindOpen();
       return;
     }
+    const isCommentShortcut = e.key === "/" || e.key === "?" || e.code === "Slash";
+    if ((e.ctrlKey || e.metaKey) && isCommentShortcut) {
+      e.preventDefault();
+      _expertApplyLineComment(e.shiftKey);
+      return;
+    }
     // Escape closes find bar if open
     if (e.key === "Escape" && _expertFindVisible) {
       _expertFindClose();
@@ -5162,11 +5168,17 @@ if (block.isSpritePosMacro) return `.sprite_pos ${block.spriteNum || 0}, ${block
   return op.trimEnd();
 }
 
+function _blockToExpertSourceLine(block) {
+  const line = _blockToExpertLine(block);
+  const inlineComment = String(block?.inlineComment || "").trim();
+  return inlineComment ? `${line} ; ${inlineComment}` : line;
+}
+
 // Sync expert editor from current program[] — call after loading a project/sample in expert mode
 function _expertSyncFromProgram() {
   if (!expertEditor) return;
   _expertAcHide();
-  const lines = program.map(_blockToExpertLine).join("\n");
+  const lines = program.map(_blockToExpertSourceLine).join("\n");
   _expertSourceText = lines;
   _expertResetRegionHighlight();
   _expertProjectionActive = false;
@@ -6282,6 +6294,56 @@ function _expertSyncSourceTextFromEditor(editMeta = null) {
   }
   _expertSourceText = sourceLines.join("\n");
   return null;
+}
+
+function _expertEditLineComments(text, selectionStart, selectionEnd, uncomment = false) {
+  const value = String(text || "");
+  const safeStart = Math.max(0, Math.min(selectionStart ?? 0, value.length));
+  const safeEnd = Math.max(safeStart, Math.min(selectionEnd ?? safeStart, value.length));
+  const lineStart = value.lastIndexOf("\n", Math.max(0, safeStart - 1)) + 1;
+  const selectionEndsAtLineStart = safeEnd > safeStart && value[safeEnd - 1] === "\n";
+  const effectiveEnd = selectionEndsAtLineStart ? safeEnd - 1 : safeEnd;
+  const nextNewline = value.indexOf("\n", effectiveEnd);
+  const lineEnd = nextNewline < 0 ? value.length : nextNewline;
+  const selectedText = value.slice(lineStart, lineEnd);
+  const lines = selectedText.split("\n");
+  const editedLines = lines.map((line) => {
+    const indent = line.match(/^\s*/)?.[0] || "";
+    const content = line.slice(indent.length);
+    if (uncomment) {
+      if (!content.startsWith(";")) return line;
+      return indent + content.slice(content[1] === " " ? 2 : 1);
+    }
+    return `${indent}; ${content}`;
+  });
+  const replacement = editedLines.join("\n");
+  return {
+    text: value.slice(0, lineStart) + replacement + value.slice(lineEnd),
+    selectionStart: lineStart,
+    selectionEnd: lineStart + replacement.length
+  };
+}
+
+function _expertApplyLineComment(uncomment = false) {
+  if (!expertEditor) return;
+  const result = _expertEditLineComments(
+    expertEditor.value,
+    expertEditor.selectionStart,
+    expertEditor.selectionEnd,
+    uncomment
+  );
+  expertEditor.value = result.text;
+  expertEditor.setSelectionRange(result.selectionStart, result.selectionEnd);
+  _expertSyncSourceTextFromEditor();
+  const sourceStart = _expertDisplayPosToSourcePos(result.selectionStart);
+  const sourceEnd = _expertDisplayPosToSourcePos(result.selectionEnd);
+  _expertRefreshProjection(sourceStart, sourceEnd);
+  markTabDirty();
+  _expertValidate();
+  _expertScheduleIncludeReload();
+  renderExpertOriginInfo();
+  _expertAcHide();
+  _expertUpdateCaret();
 }
 
 function _expertRefreshProjection(sourceSelStart = null, sourceSelEnd = sourceSelStart) {
@@ -7996,6 +8058,20 @@ function parseExpertText(text) {
     blocks.push(_importMakeComment(line + (commentText ? " ; " + commentText : "")));
   }
 
+  let inlineBlockIdx = 0;
+  for (const rawLine of String(text || "").split("\n")) {
+    if (inlineBlockIdx >= blocks.length) break;
+    const { code, commentText } = _splitAsmLineComment(rawLine);
+    if (code.trim()) {
+      const codeBlock = blocks[inlineBlockIdx++];
+      if (commentText && blocks[inlineBlockIdx]?.isComment) {
+        codeBlock.inlineComment = commentText;
+        blocks.splice(inlineBlockIdx, 1);
+      }
+    } else {
+      inlineBlockIdx++;
+    }
+  }
   return blocks;
 }
 
@@ -19638,9 +19714,20 @@ function renderBlockPreview(index) {
 
   node.querySelector(".collapsed-operand").textContent = getCollapsedOperandText(block);
   node.querySelector(".block-category").textContent = getBlockModeCaption(block);
+  _renderBlockInlineComment(node, block);
   const descText = getBlockDescription(block);
   node.querySelector(".block-description-label").textContent = "";
   node.querySelector(".block-description").textContent = descText;
+}
+
+function _renderBlockInlineComment(node, block) {
+  const marker = node?.querySelector(".block-inline-comment");
+  if (!marker) return;
+  const comment = String(block?.inlineComment || "").trim();
+  marker.hidden = !comment;
+  marker.textContent = comment ? `; ${comment}` : "";
+  if (comment) marker.title = comment;
+  else marker.removeAttribute("title");
 }
 
 function getCategoryTone(category) {
@@ -20075,6 +20162,7 @@ function renderProgram() {
       node.querySelector(".block-mnemonic").textContent = block.mnemonic;
       node.querySelector(".collapsed-operand").textContent = getCollapsedOperandText(block);
       node.querySelector(".block-category").textContent = getBlockModeCaption(block);
+      _renderBlockInlineComment(node, block);
       const blockDescText = getBlockDescription(block);
       node.querySelector(".block-description-label").textContent = "";
       node.querySelector(".block-description").textContent = blockDescText;

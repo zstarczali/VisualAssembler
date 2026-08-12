@@ -2092,6 +2092,18 @@ body.dnd-active {
   min-width: 0;
 }
 
+.block-inline-comment {
+  max-width: min(240px, 36vw);
+  overflow: hidden;
+  color: var(--hl-comment);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: calc(0.72rem * var(--block-scale));
+  font-style: italic;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .collapse-toggle {
   min-width: calc(22px * var(--block-scale));
   width: calc(22px * var(--block-scale));
