@@ -2311,14 +2311,10 @@ function initPalette() {
   // the current version, not the placeholder in index.html.
   getAppVersionText().then(versionText => {
     const splashVersion = document.getElementById('splash-version');
-    if (splashVersion) splashVersion.textContent = `Visual Assembler ${String(versionText).replace(/^v/i, "")}`;
+    if (splashVersion) splashVersion.textContent = versionText;
     const aboutVersion = document.getElementById('about-version');
     if (aboutVersion) aboutVersion.textContent = versionText;
   });
-  window.electronAPI?.getUltimateBasicVersion?.().then(version => {
-    const splashUbVersion = document.getElementById("splash-ub-version");
-    if (splashUbVersion && version) splashUbVersion.textContent = `Ultimate Basic ${version}`;
-  }).catch(() => {});
 
   // READY. typewriter effect
   (() => {

@@ -5995,8 +5995,6 @@ body.crt-mode #crt-overlay::after {
   white-space: nowrap;
 }
 
-.splash-version--ub { font-size: 0.7rem; }
-
 .splash-ready {
   font-family: "C64Pro", monospace;
   font-size: 1.1rem;
