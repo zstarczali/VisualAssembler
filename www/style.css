@@ -5995,8 +5995,6 @@ body.crt-mode #crt-overlay::after {
   white-space: nowrap;
 }
 
-.splash-version--ub { font-size: 0.7rem; }
-
 .splash-ready {
   font-family: "C64Pro", monospace;
   font-size: 1.1rem;
@@ -8812,6 +8810,12 @@ body.crt-mode #crt-overlay::after {
 .sid-filter { flex: 1; min-width: 220px; }
 .sid-filter-types { display: flex; gap: 14px; margin-bottom: 8px; }
 .sid-tracker-row { border-top: 1px solid var(--panel-border); padding-top: 12px; }
+.sid-harmony-row { gap: 7px; flex-wrap: nowrap; white-space: nowrap; }
+#sid-chord-root { width: 58px; min-width: 0; padding-right: 20px; }
+#sid-chord-type { width: 116px; min-width: 0; padding-right: 20px; }
+#sid-chord-octave { width: 52px; min-width: 0; padding-right: 20px; }
+#sid-arp-direction { width: 82px; min-width: 0; padding-right: 20px; }
+#sid-arp-length { width: 52px; min-width: 0; padding-right: 20px; }
 .sid-tracker-spacer { flex: 1; }
 .sid-tracker-wrap { flex: 1; min-height: 0; overflow: auto; border: 1px solid var(--panel-border); background: #0a0e1a; color-scheme: dark; }
 .sid-tracker { border-collapse: collapse; font-family: "IBM Plex Mono", monospace; font-size: 0.82rem; width: 100%; user-select: none; -webkit-user-select: none; }
@@ -8992,7 +8996,8 @@ body.crt-mode #crt-overlay::after {
 #sprite-editor-dialog button[aria-label]::after,
 #sid-editor-dialog button[aria-label]::after,
 #charset-canvas-dialog button[aria-label]::after,
-#curve-gen-dialog button[aria-label]::after {
+#curve-gen-dialog button[aria-label]::after,
+#tutorial-dialog button[aria-label]::after {
   content: attr(aria-label);
   position: absolute;
   top: calc(100% + 6px);
@@ -9020,6 +9025,7 @@ body.crt-mode #crt-overlay::after {
 #sid-editor-dialog button:hover[aria-label]::after,
 #charset-canvas-dialog button:hover[aria-label]::after,
 #curve-gen-dialog button:hover[aria-label]::after,
+#tutorial-dialog button:hover[aria-label]::after,
 #c64-chrrom-dialog button:focus-visible[aria-label]::after,
 #char-editor-dialog button:focus-visible[aria-label]::after,
 #map-editor-dialog button:focus-visible[aria-label]::after,
@@ -9027,8 +9033,14 @@ body.crt-mode #crt-overlay::after {
 #sprite-editor-dialog button:focus-visible[aria-label]::after,
 #sid-editor-dialog button:focus-visible[aria-label]::after,
 #charset-canvas-dialog button:focus-visible[aria-label]::after,
-#curve-gen-dialog button:focus-visible[aria-label]::after {
+#curve-gen-dialog button:focus-visible[aria-label]::after,
+#tutorial-dialog button:focus-visible[aria-label]::after {
   opacity: 1;
+}
+
+#tutorial-dialog #tutorial-dialog-close::after {
+  right: 0;
+  left: auto;
 }
 
 /* ── External SID playback dialog (modal, WebSid) ─────────────────
