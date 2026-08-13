@@ -8814,6 +8814,8 @@ body.crt-mode #crt-overlay::after {
 #sid-chord-root { width: 58px; min-width: 0; padding-right: 20px; }
 #sid-chord-type { width: 116px; min-width: 0; padding-right: 20px; }
 #sid-chord-octave { width: 52px; min-width: 0; padding-right: 20px; }
+#sid-arp-direction { width: 82px; min-width: 0; padding-right: 20px; }
+#sid-arp-length { width: 52px; min-width: 0; padding-right: 20px; }
 .sid-tracker-spacer { flex: 1; }
 .sid-tracker-wrap { flex: 1; min-height: 0; overflow: auto; border: 1px solid var(--panel-border); background: #0a0e1a; color-scheme: dark; }
 .sid-tracker { border-collapse: collapse; font-family: "IBM Plex Mono", monospace; font-size: 0.82rem; width: 100%; user-select: none; -webkit-user-select: none; }

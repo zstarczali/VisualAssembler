@@ -3459,6 +3459,14 @@ function _applyEditorTranslations() {
   setText("#sid-chord-octave-label", t("sidChordOctave"));
   setAttr("#sid-chord-add", t("sidChordAdd"));
   setAttr("#sid-chord-preview", t("sidChordPreview"));
+  setText("#sid-arp-label", t("sidArpLabel"));
+  setAttr("#sid-arp-direction", t("sidArpDirection"));
+  setAttr("#sid-arp-length", t("sidArpLength"));
+  setAttr("#sid-arp-add", t("sidArpAdd"));
+  const arpDirectionLabels = ["sidArpUp", "sidArpDown", "sidArpUpDown"];
+  document.querySelectorAll("#sid-arp-direction option").forEach(function(option, i) {
+    if (arpDirectionLabels[i]) option.textContent = t(arpDirectionLabels[i]);
+  });
   const chordTypeLabels = ["sidChordMajor", "sidChordMinor", "sidChordDiminished", "sidChordAugmented", "sidChordSus2", "sidChordSus4", "sidChordDominant7", "sidChordMajor7", "sidChordMinor7"];
   document.querySelectorAll("#sid-chord-type option").forEach(function(option, i) {
     if (chordTypeLabels[i]) option.textContent = t(chordTypeLabels[i]);
@@ -30367,6 +30375,22 @@ function _sidInsertChord() {
   document.getElementById("sid-tracker-wrap")?.focus({ preventScroll: true });
 }
 
+function _sidInsertArpeggio() {
+  const notes = _sidGetChordNotes();
+  if (!notes) return;
+  const direction = document.getElementById("sid-arp-direction")?.value || "up";
+  const length = parseInt(document.getElementById("sid-arp-length")?.value, 10) || 8;
+  const order = direction === "down" ? [2, 1, 0] : (direction === "updown" ? [0, 1, 2, 1] : [0, 1, 2]);
+  const pat = _sidCurPat();
+  const available = Math.min(length, _SID_ROWS - _sidSel.row);
+  for (let step = 0; step < available; step++) {
+    pat[_sidSel.voice][_sidSel.row + step] = { note: notes[order[step % order.length]], inst: _sidInst };
+  }
+  _sidSelAnchor = null;
+  _sidBuildTracker();
+  document.getElementById("sid-tracker-wrap")?.focus({ preventScroll: true });
+}
+
 /* ── Instrument panel binding ── */
 function _sidLoadInstUI() {
   const inst = _sidCurInst();
@@ -31478,6 +31502,7 @@ function setupSidEditor() {
   onId("sid-metronome", "click", _sidToggleMetronome);
   onId("sid-chord-preview", "click", _sidPreviewChord);
   onId("sid-chord-add", "click", _sidInsertChord);
+  onId("sid-arp-add", "click", _sidInsertArpeggio);
   onId("sid-master-vol", "input", function(e){
     const pct = Math.max(0, Math.min(100, parseInt(e.target.value, 10) || 0));
     _sidMasterVol = pct / 100;

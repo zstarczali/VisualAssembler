@@ -884,7 +884,7 @@ PRINTABLE CHARACTERS
           <strong>Improved: Expert comments</strong> &mdash; inline comments remain attached across Expert/Block round-trips, appear on block headers, and can be toggled with <code>Ctrl+/</code> or <code>Cmd+/</code>.
         </li>
         <li>
-          <strong>New: SID chord and harmony tools</strong> &mdash; choose a root note, chord type, and octave, preview the harmony with the current SID instrument, then insert its three-note voicing directly into the selected tracker row.
+          <strong>New: SID chord, harmony, and arpeggio tools</strong> &mdash; choose a root note, chord type, and octave, preview the harmony, insert its three-note voicing, or generate a 4-, 8-, or 16-step upward, downward, or up/down arpeggio in the selected tracker voice.
         </li>
         <li>
           <strong>Improved: editor dialog tooltips and focus</strong> &mdash; the C64 Character ROM and Tutorial dialogs now open with useful initial focus, while their close-button tooltips appear in the correct position without being clipped.
@@ -1637,6 +1637,16 @@ PRINTABLE CHARACTERS
           </button>
           <button id="sid-chord-add" class="ce-tool-btn" type="button" aria-label="Add chord">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h6M3 8h6M3 12h6"/><path d="M12 7v6M9 10h6"/></svg>
+          </button>
+          <span class="sid-mini-lbl" id="sid-arp-label">Arp:</span>
+          <select id="sid-arp-direction" class="sid-select" aria-label="Arpeggio direction">
+            <option value="up">Up</option><option value="down">Down</option><option value="updown">Up/down</option>
+          </select>
+          <select id="sid-arp-length" class="sid-select" aria-label="Arpeggio length">
+            <option value="4">4</option><option value="8" selected>8</option><option value="16">16</option>
+          </select>
+          <button id="sid-arp-add" class="ce-tool-btn" type="button" aria-label="Add arpeggio">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12.5h2v-2h-2zM7 8.5h2v-2H7zM11.5 4.5h2v-2h-2z"/><path d="M4.5 10.5L7 8M9 6.5l2.5-2"/></svg>
           </button>
         </div>
         <!-- Tracker grid -->
