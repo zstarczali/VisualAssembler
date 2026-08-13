@@ -30455,6 +30455,7 @@ function _sidCopyVoice() {
   if (!_sidPatterns) return;
   const col = _sidCurPat()[_sidSel.voice];
   _sidClipboard = col.map(function(c){ return { ...c }; });
+  _sidCellClip = null;
   const btn = document.getElementById("sid-voice-copy");
   if (btn) {
     const orig = btn.title;
@@ -30487,16 +30488,21 @@ function _sidCopyCells() {
   /* Keep the clipboard independent from the source pattern. */
   _sidCellClip.startVoice = voiceLo;
   _sidCellClip.startRow = rowLo;
+  _sidClipboard = null;
   const btn = document.getElementById("sid-voice-copy");
   if (btn) { const o = btn.title; btn.title = "Copied!"; setTimeout(function(){ btn.title = o; }, 1000); }
 }
 function _sidPasteCells() {
   if (!_sidCellClip || !_sidPatterns) return;
   const pat = _sidCurPat();
+  const targetStartVoice = _sidSelAnchor === null ? _sidSel.voice : Math.min(_sidSelAnchor.voice, _sidSel.voice);
+  const targetStartRow = _sidSelAnchor === null ? _sidSel.row : Math.min(_sidSelAnchor.row, _sidSel.row);
   for (let v = 0; v < _sidCellClip.voices; v++) {
-    const targetVoice = (_sidSel.voice + v) % 3;
+    const targetVoice = targetStartVoice + v;
+    if (targetVoice >= 3) break;
     for (let r = 0; r < _sidCellClip.rows; r++) {
-      const targetRow = (_sidSel.row + r) % _SID_ROWS;
+      const targetRow = targetStartRow + r;
+      if (targetRow >= _SID_ROWS) break;
       const cell = _sidCellClip.cells[v][r];
       pat[targetVoice][targetRow] = { ...cell };
     }
