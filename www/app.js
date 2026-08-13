@@ -25868,6 +25868,9 @@ function openTutorialDialog() {
   _tutRenderDialog();
   document.querySelector(".control-menu")?.removeAttribute("open");
   dlg.showModal();
+  const initialFocus = dlg.querySelector(".tutorial-start-tour-btn")
+    || dlg.querySelector(".tutorial-lesson-item--active");
+  initialFocus?.focus({ preventScroll: true });
 }
 
 function _tutRenderDialog() {

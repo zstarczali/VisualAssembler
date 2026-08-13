@@ -8990,7 +8990,8 @@ body.crt-mode #crt-overlay::after {
 #sprite-editor-dialog button[aria-label]::after,
 #sid-editor-dialog button[aria-label]::after,
 #charset-canvas-dialog button[aria-label]::after,
-#curve-gen-dialog button[aria-label]::after {
+#curve-gen-dialog button[aria-label]::after,
+#tutorial-dialog button[aria-label]::after {
   content: attr(aria-label);
   position: absolute;
   top: calc(100% + 6px);
@@ -9018,6 +9019,7 @@ body.crt-mode #crt-overlay::after {
 #sid-editor-dialog button:hover[aria-label]::after,
 #charset-canvas-dialog button:hover[aria-label]::after,
 #curve-gen-dialog button:hover[aria-label]::after,
+#tutorial-dialog button:hover[aria-label]::after,
 #c64-chrrom-dialog button:focus-visible[aria-label]::after,
 #char-editor-dialog button:focus-visible[aria-label]::after,
 #map-editor-dialog button:focus-visible[aria-label]::after,
@@ -9025,8 +9027,14 @@ body.crt-mode #crt-overlay::after {
 #sprite-editor-dialog button:focus-visible[aria-label]::after,
 #sid-editor-dialog button:focus-visible[aria-label]::after,
 #charset-canvas-dialog button:focus-visible[aria-label]::after,
-#curve-gen-dialog button:focus-visible[aria-label]::after {
+#curve-gen-dialog button:focus-visible[aria-label]::after,
+#tutorial-dialog button:focus-visible[aria-label]::after {
   opacity: 1;
+}
+
+#tutorial-dialog #tutorial-dialog-close::after {
+  right: 0;
+  left: auto;
 }
 
 /* ── External SID playback dialog (modal, WebSid) ─────────────────
