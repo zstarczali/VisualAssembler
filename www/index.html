@@ -883,6 +883,12 @@ PRINTABLE CHARACTERS
         <li>
           <strong>Improved: Expert comments</strong> &mdash; inline comments remain attached across Expert/Block round-trips, appear on block headers, and can be toggled with <code>Ctrl+/</code> or <code>Cmd+/</code>.
         </li>
+        <li>
+          <strong>New: SID chord and harmony tools</strong> &mdash; choose a root note, chord type, and octave, preview the harmony with the current SID instrument, then insert its three-note voicing directly into the selected tracker row.
+        </li>
+        <li>
+          <strong>Improved: editor dialog tooltips and focus</strong> &mdash; the C64 Character ROM and Tutorial dialogs now open with useful initial focus, while their close-button tooltips appear in the correct position without being clipped.
+        </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
     </div>
@@ -1599,6 +1605,38 @@ PRINTABLE CHARACTERS
           </button>
           <button id="sid-voice-paste" class="ce-tool-btn" type="button" aria-label="Paste voice">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="10" height="11" rx="1"/><path d="M5 4V3a1 1 0 011-1h4a1 1 0 011 1v1"/><path d="M5 8h6M5 11h4"/></svg>
+          </button>
+        </div>
+        <div class="sid-row sid-harmony-row">
+          <span class="sid-lbl" id="sid-harmony-label">HARMONY</span>
+          <span class="sid-mini-lbl" id="sid-chord-root-label">Root:</span>
+          <select id="sid-chord-root" class="sid-select">
+            <option value="0">C</option><option value="1">C#</option><option value="2">D</option><option value="3">D#</option>
+            <option value="4">E</option><option value="5">F</option><option value="6">F#</option><option value="7">G</option>
+            <option value="8">G#</option><option value="9">A</option><option value="10">A#</option><option value="11">B</option>
+          </select>
+          <span class="sid-mini-lbl" id="sid-chord-type-label">Chord:</span>
+          <select id="sid-chord-type" class="sid-select sid-chord-type">
+            <option value="major">Major</option>
+            <option value="minor">Minor</option>
+            <option value="diminished">Diminished</option>
+            <option value="augmented">Augmented</option>
+            <option value="sus2">Sus2</option>
+            <option value="sus4">Sus4</option>
+            <option value="dominant7">Dominant 7</option>
+            <option value="major7">Major 7</option>
+            <option value="minor7">Minor 7</option>
+          </select>
+          <span class="sid-mini-lbl" id="sid-chord-octave-label">Oct:</span>
+          <select id="sid-chord-octave" class="sid-select">
+            <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option>
+            <option value="4" selected>4</option><option value="5">5</option><option value="6">6</option>
+          </select>
+          <button id="sid-chord-preview" class="ce-tool-btn" type="button" aria-label="Preview chord">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6v4h3l4 3V3L6 6H3z"/><path d="M12 6a3 3 0 010 4M13.5 4.5a5 5 0 010 7"/></svg>
+          </button>
+          <button id="sid-chord-add" class="ce-tool-btn" type="button" aria-label="Add chord">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h6M3 8h6M3 12h6"/><path d="M12 7v6M9 10h6"/></svg>
           </button>
         </div>
         <!-- Tracker grid -->

@@ -3453,6 +3453,16 @@ function _applyEditorTranslations() {
   setAttr("#sid-stop", t("sidStop"));
   setAttr("#sid-voice-copy", t("sidVoiceCopy"));
   setAttr("#sid-voice-paste", t("sidVoicePaste"));
+  setText("#sid-harmony-label", t("sidHarmonyLabel"));
+  setText("#sid-chord-root-label", t("sidChordRoot"));
+  setText("#sid-chord-type-label", t("sidChordType"));
+  setText("#sid-chord-octave-label", t("sidChordOctave"));
+  setAttr("#sid-chord-add", t("sidChordAdd"));
+  setAttr("#sid-chord-preview", t("sidChordPreview"));
+  const chordTypeLabels = ["sidChordMajor", "sidChordMinor", "sidChordDiminished", "sidChordAugmented", "sidChordSus2", "sidChordSus4", "sidChordDominant7", "sidChordMajor7", "sidChordMinor7"];
+  document.querySelectorAll("#sid-chord-type option").forEach(function(option, i) {
+    if (chordTypeLabels[i]) option.textContent = t(chordTypeLabels[i]);
+  });
   syncEditorDialogTooltips();
 }
 
@@ -30320,11 +30330,42 @@ function _sidSetPattern(index, rebuildTracker) {
 }
 
 const _SID_NOTE_NAMES = ["C-","C#","D-","D#","E-","F-","F#","G-","G#","A-","A#","B-"];
+const _SID_CHORD_INTERVALS = {
+  major: [0, 4, 7], minor: [0, 3, 7], diminished: [0, 3, 6], augmented: [0, 4, 8],
+  sus2: [0, 2, 7], sus4: [0, 5, 7], dominant7: [0, 4, 10], major7: [0, 4, 11], minor7: [0, 3, 10]
+};
 function _sidNoteName(n) {
   if (n == null) return "...";
   return _SID_NOTE_NAMES[n % 12] + Math.floor(n / 12);
 }
 function _sidNoteFreq(n) { return 440 * Math.pow(2, (n - 57) / 12); } // n: 0 = C-0
+
+function _sidGetChordNotes() {
+  const root = parseInt(document.getElementById("sid-chord-root")?.value, 10) || 0;
+  const octave = parseInt(document.getElementById("sid-chord-octave")?.value, 10) || 0;
+  const type = document.getElementById("sid-chord-type")?.value || "major";
+  const intervals = _SID_CHORD_INTERVALS[type] || _SID_CHORD_INTERVALS.major;
+  const notes = intervals.map(function(interval) { return octave * 12 + root + interval; });
+  return notes.some(function(note) { return note >= 96; }) ? null : notes;
+}
+
+function _sidPreviewChord() {
+  const notes = _sidGetChordNotes();
+  if (!notes) return;
+  _sidEnsureAudio();
+  const when = _sidAudio.currentTime + 0.02;
+  notes.forEach(function(note) { _sidPlayInst(_sidCurInst(), _sidNoteFreq(note), when, 0.7); });
+}
+
+function _sidInsertChord() {
+  const notes = _sidGetChordNotes();
+  if (!notes) return;
+  const pat = _sidCurPat();
+  for (let voice = 0; voice < 3; voice++) pat[voice][_sidSel.row] = { note: notes[voice], inst: _sidInst };
+  _sidSelAnchor = null;
+  _sidBuildTracker();
+  document.getElementById("sid-tracker-wrap")?.focus({ preventScroll: true });
+}
 
 /* ── Instrument panel binding ── */
 function _sidLoadInstUI() {
@@ -31435,6 +31476,8 @@ function setupSidEditor() {
     if (_sidTimer) { _sidPlay(); }
   });
   onId("sid-metronome", "click", _sidToggleMetronome);
+  onId("sid-chord-preview", "click", _sidPreviewChord);
+  onId("sid-chord-add", "click", _sidInsertChord);
   onId("sid-master-vol", "input", function(e){
     const pct = Math.max(0, Math.min(100, parseInt(e.target.value, 10) || 0));
     _sidMasterVol = pct / 100;
