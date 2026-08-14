@@ -8383,7 +8383,7 @@ body.crt-mode #crt-overlay::after {
 .se-anim-spacer { flex: 1; }
 
 /* SID Editor */
-.sid-dialog { background: transparent; border: none; padding: 0; width: min(1000px, 97vw); max-width: 97vw; height: min(900px, 95vh); max-height: 95vh; overflow: hidden; }
+.sid-dialog { background: transparent; border: none; padding: 0; width: min(1000px, 97vw); max-width: 97vw; height: min(900px, 95vh); max-height: 95vh; overflow: visible; }
 .sid-dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
 .sid-card { background: var(--panel); border: 1px solid var(--panel-border); display: flex; flex-direction: column; height: 100%; overflow: hidden; }
 .sid-hdr { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-bottom: 1px solid var(--panel-border); background: var(--panel-strong); flex-shrink: 0; position: relative; z-index: 5; }
@@ -8831,6 +8831,25 @@ body.crt-mode #crt-overlay::after {
 .sid-tracker .sid-cell-edit { user-select: text; -webkit-user-select: text; }
 .sid-tracker td.sid-cell--sel { background: var(--primary) !important; color: #fff; }
 .sid-tracker td.sid-cell--sel-range { background: color-mix(in srgb, var(--primary) 35%, transparent) !important; }
+.sid-vkbd-dialog { position: fixed; margin: 0; left: 120px; top: 120px; z-index: 40; border: none; padding: 0; background: transparent; color: inherit; max-width: none; overflow: visible; }
+.sid-vkbd-dialog[hidden] { display: none; }
+.sid-vkbd-card { min-width: 720px; max-width: 92vw; background: #1f2236; border: 1px solid var(--panel-border); box-shadow: 0 18px 48px rgba(0,0,0,0.45); }
+.sid-vkbd-hdr { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--panel-border); background: #26293d; cursor: move; user-select: none; }
+.sid-vkbd-title { font-family: 'C64Pro', monospace; font-size: 0.9rem; letter-spacing: 0.08em; color: var(--text); }
+.sid-vkbd-meta { display: flex; align-items: center; gap: 8px; padding: 12px 14px 0; }
+.sid-vkbd-insert-toggle { margin-left: 10px; white-space: nowrap; }
+.sid-vkbd-insert-toggle input[type="checkbox"] { flex-shrink: 0; }
+.sid-vkbd-board { position: relative; margin: 14px; padding: 16px 16px 20px; height: 214px; background: #101522; border: 1px solid var(--panel-border); overflow: hidden; }
+.sid-vkbd-key { position: absolute; border: 1px solid #2c3552; cursor: pointer; user-select: none; }
+.sid-vkbd-key--white { width: 48px; height: 168px; background: linear-gradient(180deg, #fbfbfd 0%, #d9deea 100%); color: #172033; }
+.sid-vkbd-key--white:hover { background: linear-gradient(180deg, #ffffff 0%, #c8d1e6 100%); }
+.sid-vkbd-key--black { width: 30px; height: 104px; background: linear-gradient(180deg, #3a415d 0%, #121729 100%); color: #dbe6ff; z-index: 2; border-color: #596483; }
+.sid-vkbd-key--black:hover { background: linear-gradient(180deg, #4b5578 0%, #182037 100%); }
+.sid-vkbd-key--active { box-shadow: 0 0 0 3px var(--ylw) inset, 0 0 18px rgba(255, 221, 102, 0.45); border-color: var(--ylw) !important; }
+.sid-vkbd-key--white.sid-vkbd-key--active { background: linear-gradient(180deg, #fff6bf 0%, #ffd84f 100%); color: #111; }
+.sid-vkbd-key--black.sid-vkbd-key--active { background: linear-gradient(180deg, #ffd84f 0%, #b88300 100%); color: #111; }
+.sid-vkbd-note { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; letter-spacing: 0.04em; white-space: nowrap; }
+.sid-vkbd-key--black .sid-vkbd-note { bottom: 8px; font-size: 0.66rem; }
 .sid-ctx-menu .sid-ctx-item svg { width: 14px; height: 14px; flex: 0 0 14px; }
 .sid-ctx-menu .sid-ctx-label { display: inline-block; }
 .sid-ctx-menu .block-ctx-item:disabled { opacity: 0.45; cursor: default; }

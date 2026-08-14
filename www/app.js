@@ -3450,12 +3450,20 @@ function _applyEditorTranslations() {
   }
   setAttr("#sid-oct-down", t("sidOctaveDown"));
   setAttr("#sid-oct-up", t("sidOctaveUp"));
-  setAttr("#sid-play", t("sidPlay"));
+  setAttr("#sid-virtual-keyboard", t("sidVirtualKeyboard"));
+  _sidUpdatePauseButton();
   setAttr("#sid-stop", t("sidStop"));
   setAttr("#sid-voice-copy", t("sidVoiceCopy"));
   setAttr("#sid-voice-paste", t("sidVoicePaste"));
+  setAttr("#sid-clear", t("sidClearSelection"));
+  setText("#sid-vkbd-title", t("sidVirtualKeyboardTitle"));
+  setText("#sid-vkbd-octave-label", t("sidOctave"));
+  setAttr("#sid-vkbd-oct-down", t("sidOctaveDown"));
+  setAttr("#sid-vkbd-oct-up", t("sidOctaveUp"));
+  setText("#sid-vkbd-insert-label", t("sidVkbdInsert"));
   const sidCtxCopy = document.querySelector("#sid-ctx-menu .sid-ctx-copy");
   const sidCtxPaste = document.querySelector("#sid-ctx-menu .sid-ctx-paste");
+  const sidCtxClear = document.querySelector("#sid-ctx-menu .sid-ctx-clear");
   if (sidCtxCopy) {
     const label = sidCtxCopy.querySelector(".sid-ctx-label");
     if (label) label.textContent = t("sidContextCopy");
@@ -3463,6 +3471,10 @@ function _applyEditorTranslations() {
   if (sidCtxPaste) {
     const label = sidCtxPaste.querySelector(".sid-ctx-label");
     if (label) label.textContent = t("sidContextPaste");
+  }
+  if (sidCtxClear) {
+    const label = sidCtxClear.querySelector(".sid-ctx-label");
+    if (label) label.textContent = t("sidContextClear");
   }
   setText("#sid-harmony-label", t("sidHarmonyLabel"));
   setText("#sid-chord-root-label", t("sidChordRoot"));
@@ -3478,7 +3490,7 @@ function _applyEditorTranslations() {
   document.querySelectorAll("#sid-arp-direction option").forEach(function(option, i) {
     if (arpDirectionLabels[i]) option.textContent = t(arpDirectionLabels[i]);
   });
-  const chordTypeLabels = ["sidChordMajor", "sidChordMinor", "sidChordDiminished", "sidChordAugmented", "sidChordSus2", "sidChordSus4", "sidChordDominant7", "sidChordMajor7", "sidChordMinor7"];
+  const chordTypeLabels = ["sidChordMajor", "sidChordMinor", "sidChordDiminished", "sidChordAugmented", "sidChordSus2", "sidChordSus4", "sidChordDominant7", "sidChordMajor7", "sidChordMinor7", "sidChordSixth", "sidChordMinor6", "sidChordNinth", "sidChordFlat9", "sidChordSharp9", "sidChordDim7", "sidChordSus47"];
   document.querySelectorAll("#sid-chord-type option").forEach(function(option, i) {
     if (chordTypeLabels[i]) option.textContent = t(chordTypeLabels[i]);
   });
@@ -26688,7 +26700,7 @@ let _ceMc1  = 5;    // Green ($D022)
 let _ceMc2  = 13;   // Light Green ($D023)
 let _ceMulticolor = false;
 let _ceInk = 3;
-let _cePainting = false;
+var _cePainting = false;
 let _cePaintVal = 1;
 
 function _ceEnsureCharColors() {
@@ -30317,9 +30329,13 @@ let _sidSelAnchor = null;  // { voice, row } anchor for rectangular range select
 let _sidClipboard = null;  // copied voice column: array of 32 {note, inst}
 let _sidCellClip = null;   // cell-range clipboard: [{note,inst},...] from Ctrl+C
 let _sidAudio = null;
-let _sidTimer = null, _sidRow = 0, _sidPlayPat = 0;
+var _sidTimer = null, _sidRow = 0, _sidPlayPat = 0;
 let _sidInited = false;
 let _sidOctave = 4;
+var _sidPaused = false;
+var _sidPlaybackUsingWebSid = false;
+let _sidVkbdDrag = null;
+let _sidVkbdInsertMode = true;
 
 // SID attack / decay-release time tables (ms) — approximate
 const _SID_ATK = [2,8,16,24,38,56,68,80,100,250,500,800,1000,3000,5000,8000];
@@ -30351,13 +30367,87 @@ function _sidSetPattern(index, rebuildTracker) {
 const _SID_NOTE_NAMES = ["C-","C#","D-","D#","E-","F-","F#","G-","G#","A-","A#","B-"];
 const _SID_CHORD_INTERVALS = {
   major: [0, 4, 7], minor: [0, 3, 7], diminished: [0, 3, 6], augmented: [0, 4, 8],
-  sus2: [0, 2, 7], sus4: [0, 5, 7], dominant7: [0, 4, 10], major7: [0, 4, 11], minor7: [0, 3, 10]
+  sus2: [0, 2, 7], sus4: [0, 5, 7], dominant7: [0, 4, 10], major7: [0, 4, 11], minor7: [0, 3, 10],
+  sixth: [0, 4, 7, 9], minor6: [0, 3, 7, 9], ninth: [0, 4, 7, 10, 14], flat9: [0, 4, 7, 10, 13],
+  sharp9: [0, 4, 7, 10, 15], dim7: [0, 3, 6, 9], sus47: [0, 5, 7, 10]
 };
 function _sidNoteName(n) {
   if (n == null) return "...";
   return _SID_NOTE_NAMES[n % 12] + Math.floor(n / 12);
 }
 function _sidNoteFreq(n) { return 440 * Math.pow(2, (n - 57) / 12); } // n: 0 = C-0
+function _sidInsertNoteAtSelection(note, advanceRow) {
+  if (!_sidPatterns) return;
+  const row = _sidSel.row, voice = _sidSel.voice;
+  _sidSelAnchor = null;
+  _sidCurPat()[voice][row] = { note: note, inst: _sidInst };
+  _sidSetCellText(voice, row);
+  _sidEnsureAudio();
+  _sidPlayInst(_sidCurInst(), _sidNoteFreq(note), _sidAudio.currentTime + 0.01, 0.25);
+  if (advanceRow) _sidSel.row = (_sidSel.row + 1) % _SID_ROWS;
+  _sidRefreshSel();
+}
+function _sidRenderVirtualKeyboard() {
+  const board = document.getElementById("sid-vkbd-board");
+  const octVal = document.getElementById("sid-vkbd-octave-val");
+  const insertToggle = document.getElementById("sid-vkbd-insert");
+  if (!board) return;
+  if (octVal) octVal.textContent = _sidOctave;
+  if (insertToggle) insertToggle.checked = _sidVkbdInsertMode;
+  const whiteOrder = [0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19, 21, 23];
+  const blackOrder = [
+    { semi: 1, left: 34 }, { semi: 3, left: 82 }, { semi: 6, left: 178 }, { semi: 8, left: 226 }, { semi: 10, left: 274 },
+    { semi: 13, left: 370 }, { semi: 15, left: 418 }, { semi: 18, left: 514 }, { semi: 20, left: 562 }, { semi: 22, left: 610 }
+  ];
+  let html = "";
+  whiteOrder.forEach(function(semi, index) {
+    const note = _sidOctave * 12 + semi;
+    if (note >= 96) return;
+    html += '<button type="button" class="sid-vkbd-key sid-vkbd-key--white" data-note="' + note + '" style="left:' + (index * 48) + 'px">'
+      + '<span class="sid-vkbd-note">' + _sidNoteName(note) + '</span></button>';
+  });
+  blackOrder.forEach(function(key) {
+    const note = _sidOctave * 12 + key.semi;
+    if (note >= 96) return;
+    html += '<button type="button" class="sid-vkbd-key sid-vkbd-key--black" data-note="' + note + '" style="left:' + key.left + 'px">'
+      + '<span class="sid-vkbd-note">' + _sidNoteName(note) + '</span></button>';
+  });
+  board.innerHTML = html;
+  board.querySelectorAll(".sid-vkbd-key").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      const note = parseInt(btn.dataset.note, 10);
+      if (!Number.isFinite(note)) return;
+      if (_sidVkbdInsertMode) _sidInsertNoteAtSelection(note, true);
+      else {
+        _sidEnsureAudio();
+        _sidPlayInst(_sidCurInst(), _sidNoteFreq(note), _sidAudio.currentTime + 0.01, 0.25);
+      }
+      btn.classList.add("sid-vkbd-key--active");
+      setTimeout(function(){ btn.classList.remove("sid-vkbd-key--active"); }, 120);
+    });
+  });
+}
+function _sidOpenVirtualKeyboard() {
+  const dlg = document.getElementById("sid-virtual-keyboard-dialog");
+  if (!dlg) return;
+  _sidRenderVirtualKeyboard();
+  dlg.hidden = false;
+}
+function _sidCloseVirtualKeyboard() {
+  const dlg = document.getElementById("sid-virtual-keyboard-dialog");
+  if (!dlg) return;
+  dlg.hidden = true;
+}
+function _sidFlashVirtualKeyboardNotes(notes) {
+  const dlg = document.getElementById("sid-virtual-keyboard-dialog");
+  if (!dlg || dlg.hidden || !Array.isArray(notes)) return;
+  notes.forEach(function(note) {
+    const key = dlg.querySelector('.sid-vkbd-key[data-note="' + note + '"]');
+    if (!key) return;
+    key.classList.add("sid-vkbd-key--active");
+    setTimeout(function(){ key.classList.remove("sid-vkbd-key--active"); }, 280);
+  });
+}
 
 function _sidGetChordNotes() {
   const root = parseInt(document.getElementById("sid-chord-root")?.value, 10) || 0;
@@ -30374,6 +30464,7 @@ function _sidPreviewChord() {
   _sidEnsureAudio();
   const when = _sidAudio.currentTime + 0.02;
   notes.forEach(function(note) { _sidPlayInst(_sidCurInst(), _sidNoteFreq(note), when, 0.7); });
+  _sidFlashVirtualKeyboardNotes(notes);
 }
 
 function _sidInsertChord() {
@@ -30540,6 +30631,18 @@ function _sidPasteSelection() {
   if (_sidCellClip) _sidPasteCells();
   else _sidPasteVoice();
 }
+function _sidClearSelection() {
+  if (!_sidPatterns) return;
+  const pat = _sidCurPat();
+  const sel = _sidNormalizeSelection();
+  for (let voice = sel.voiceLo; voice <= sel.voiceHi; voice++) {
+    for (let row = sel.rowLo; row <= sel.rowHi; row++) {
+      pat[voice][row] = { note: null, inst: 0 };
+    }
+  }
+  _sidBuildTracker();
+  _sidRefreshSel();
+}
 function _sidHideCtxMenu() {
   const menu = document.getElementById("sid-ctx-menu");
   if (menu) menu.hidden = true;
@@ -30560,12 +30663,17 @@ function _sidShowCtxMenu(e, voice, row) {
       + '<button type="button" class="block-ctx-item sid-ctx-item sid-ctx-paste" data-action="paste">'
       +   '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="10" height="11" rx="1"/><path d="M5 4V3a1 1 0 011-1h4a1 1 0 011 1v1"/><path d="M5 8h6M5 11h4"/></svg>'
       +   '<span class="sid-ctx-label"></span>'
+      + '</button>'
+      + '<button type="button" class="block-ctx-item sid-ctx-item sid-ctx-clear" data-action="clear">'
+      +   '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10"/><path d="M6 4.5V3.4c0-.5.4-.9.9-.9h2.2c.5 0 .9.4.9.9v1.1"/><path d="M5 6.5v5.2"/><path d="M8 6.5v5.2"/><path d="M11 6.5v5.2"/><path d="M4.2 4.5l.5 8c0 .6.5 1 1.1 1h4.4c.6 0 1.1-.4 1.1-1l.5-8"/></svg>'
+      +   '<span class="sid-ctx-label"></span>'
       + '</button>';
     menu.addEventListener("click", function(evt) {
       const btn = evt.target.closest("[data-action]");
       if (!btn) return;
       if (btn.dataset.action === "copy") _sidCopySelection();
       else if (btn.dataset.action === "paste") _sidPasteSelection();
+      else if (btn.dataset.action === "clear") _sidClearSelection();
       _sidHideCtxMenu();
       document.getElementById("sid-tracker-wrap")?.focus({ preventScroll: true });
     });
@@ -30578,6 +30686,7 @@ function _sidShowCtxMenu(e, voice, row) {
   }
   const copyBtn = menu.querySelector(".sid-ctx-copy");
   const pasteBtn = menu.querySelector(".sid-ctx-paste");
+  const clearBtn = menu.querySelector(".sid-ctx-clear");
   if (copyBtn) {
     const label = copyBtn.querySelector(".sid-ctx-label");
     if (label) label.textContent = t("sidContextCopy");
@@ -30586,6 +30695,10 @@ function _sidShowCtxMenu(e, voice, row) {
     const label = pasteBtn.querySelector(".sid-ctx-label");
     if (label) label.textContent = t("sidContextPaste");
     pasteBtn.disabled = !_sidCellClip && !_sidClipboard;
+  }
+  if (clearBtn) {
+    const label = clearBtn.querySelector(".sid-ctx-label");
+    if (label) label.textContent = t("sidContextClear");
   }
   menu.hidden = false;
   const pad = 8;
@@ -31015,6 +31128,19 @@ function _webSidPause() {
   _webSidHideExternalDialog();
 }
 
+function _sidPauseBtnMarkup(isPlaying) {
+  return isPlaying
+    ? '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="3.5" width="2.5" height="9" fill="currentColor"/><rect x="9.5" y="3.5" width="2.5" height="9" fill="currentColor"/></svg>'
+    : '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5l8 4.5-8 4.5z" fill="currentColor"/></svg>';
+}
+function _sidUpdatePauseButton() {
+  const btn = document.getElementById("sid-play");
+  if (!btn) return;
+  const isPlaying = !!(_sidTimer || _sidPlaybackUsingWebSid) && !_sidPaused;
+  btn.innerHTML = _sidPauseBtnMarkup(isPlaying);
+  btn.setAttribute("aria-label", _sidPaused ? t("sidResume") : isPlaying ? t("sidPause") : t("sidPlay"));
+}
+
 function _webSidShowExternalDialog(filename) {
   const dlg = document.getElementById("websid-play-dialog");
   if (!dlg) return;
@@ -31086,15 +31212,22 @@ async function _webSidPlayFileBytes(bytes, filename) {
 
 function _sidStop() {
   if (_sidTimer) { clearInterval(_sidTimer); _sidTimer = null; }
+  _sidPaused = false;
+  _sidPlaybackUsingWebSid = false;
   _webSidPause();
   const t = document.getElementById("sid-tracker");
   if (t) t.querySelectorAll("tr.sid-playing").forEach(function(r){ r.classList.remove("sid-playing"); });
+  _sidUpdatePauseButton();
 }
-async function _sidPlay() {
-  _sidStop();
-  _sidPlayPat = 0;
-  _sidSetPattern(0, true);
-  _sidRow = 0;
+async function _sidPlay(resetPosition = true) {
+  if (_sidTimer) { clearInterval(_sidTimer); _sidTimer = null; }
+  if (resetPosition) {
+    _webSidPause();
+    _sidPlayPat = 0;
+    _sidSetPattern(0, true);
+    _sidRow = 0;
+  }
+  _sidPaused = false;
   const playAll = _sidPlayMode === "all";
   const rowSec = Math.max(0.04, _sidSpeed / 50);
   const t = document.getElementById("sid-tracker");
@@ -31104,9 +31237,21 @@ async function _sidPlay() {
   // the user still gets the isolated-pattern preview they asked for.
   let usingWebSid = false;
   if (playAll) {
-    try { usingWebSid = await _webSidPlayCurrent(); }
-    catch (e) { console.warn("WebSid path errored:", e); usingWebSid = false; }
+    if (resetPosition || !_sidPlaybackUsingWebSid) {
+      try { usingWebSid = await _webSidPlayCurrent(); }
+      catch (e) { console.warn("WebSid path errored:", e); usingWebSid = false; }
+    } else {
+      try {
+        ScriptNodePlayer.getInstance()?.resume();
+        _webSidActive = true;
+        usingWebSid = true;
+      } catch (e) {
+        console.warn("WebSid resume errored:", e);
+        usingWebSid = false;
+      }
+    }
   }
+  _sidPlaybackUsingWebSid = usingWebSid;
   if (!usingWebSid) _sidEnsureAudio();
 
   const tick = function() {
@@ -31140,6 +31285,21 @@ async function _sidPlay() {
   _sidSetPattern(_sidPlayPat, true);
   tick();
   _sidTimer = setInterval(tick, rowSec * 1000);
+  _sidUpdatePauseButton();
+}
+function _sidPauseToggle() {
+  if (_sidPaused) {
+    _sidPlay(false);
+    return;
+  }
+  if (_sidTimer || _sidPlaybackUsingWebSid) {
+    if (_sidTimer) { clearInterval(_sidTimer); _sidTimer = null; }
+    if (_sidPlaybackUsingWebSid) _webSidPause();
+    _sidPaused = true;
+    _sidUpdatePauseButton();
+    return;
+  }
+  _sidPlay(true);
 }
 
 /* ── Export ── */
@@ -31529,6 +31689,8 @@ function _sidInit() {
   _sidBuildPatSel();
   _sidBuildTracker();
   _sidSetOctave(_sidOctave);
+  _sidUpdatePauseButton();
+  _sidRenderVirtualKeyboard();
 }
 function _sidBuildPatSel() {
   const sel = document.getElementById("sid-pat-sel"); if (!sel) return;
@@ -31548,7 +31710,7 @@ function setupSidEditor() {
     const cm = document.querySelector(".control-menu"); if (cm) cm.removeAttribute("open");
     _sidInit(); dialog.showModal();
   });
-  onId("sid-close", "click", function() { _sidStop(); dialog.close(); });
+  onId("sid-close", "click", function() { _sidCloseVirtualKeyboard(); _sidStop(); dialog.close(); });
 
   // instrument param bindings
   const bindCheck = function(id, prop) { onId(id, "change", function(e){ _sidCurInst()[prop] = e.target.checked; _sidDrawADSR(); }); };
@@ -31612,8 +31774,42 @@ function setupSidEditor() {
     if (valEl) valEl.textContent = String(pct);
     _sidApplyMasterVolume();
   });
-  onId("sid-play", "click", _sidPlay);
+  onId("sid-play", "click", _sidPauseToggle);
   onId("sid-stop", "click", _sidStop);
+  onId("sid-virtual-keyboard", "click", function(){
+    _sidOpenVirtualKeyboard();
+  });
+  onId("sid-vkbd-close", "click", function(){
+    _sidCloseVirtualKeyboard();
+  });
+  onId("sid-vkbd-oct-down", "click", function(){ _sidSetOctave(_sidOctave-1); });
+  onId("sid-vkbd-oct-up", "click", function(){ _sidSetOctave(_sidOctave+1); });
+  onId("sid-vkbd-insert", "change", function(e){ _sidVkbdInsertMode = !!e.target.checked; });
+  const sidVkbdHdr = document.querySelector("#sid-virtual-keyboard-dialog .sid-vkbd-hdr");
+  const sidVkbdDlg = document.getElementById("sid-virtual-keyboard-dialog");
+  if (sidVkbdHdr && sidVkbdDlg) {
+    sidVkbdHdr.addEventListener("pointerdown", function(e) {
+      if (e.target.closest("button")) return;
+      const rect = sidVkbdDlg.getBoundingClientRect();
+      _sidVkbdDrag = { dx: e.clientX - rect.left, dy: e.clientY - rect.top };
+      try { sidVkbdHdr.setPointerCapture(e.pointerId); } catch(_) {}
+      e.preventDefault();
+    });
+    sidVkbdHdr.addEventListener("pointermove", function(e) {
+      if (!_sidVkbdDrag) return;
+      const maxX = Math.max(8, window.innerWidth - sidVkbdDlg.offsetWidth - 8);
+      const maxY = Math.max(8, window.innerHeight - sidVkbdDlg.offsetHeight - 8);
+      sidVkbdDlg.style.left = Math.max(8, Math.min(e.clientX - _sidVkbdDrag.dx, maxX)) + "px";
+      sidVkbdDlg.style.top = Math.max(8, Math.min(e.clientY - _sidVkbdDrag.dy, maxY)) + "px";
+    });
+    const endVkbdDrag = function(e) {
+      if (!_sidVkbdDrag) return;
+      _sidVkbdDrag = null;
+      if (e && e.pointerId != null) { try { sidVkbdHdr.releasePointerCapture(e.pointerId); } catch(_) {} }
+    };
+    sidVkbdHdr.addEventListener("pointerup", endVkbdDrag);
+    sidVkbdHdr.addEventListener("pointercancel", endVkbdDrag);
+  }
   // Files: save/load .bin + export blocks / export asm
   onId("sid-export-asm", "click", function(){ _sidCopyExport("asm"); });
   onId("sid-export-data", "click", function(){
@@ -31666,12 +31862,8 @@ function setupSidEditor() {
       _sidSel.row = (_sidSel.row+1)%_SID_ROWS; _sidRefreshSel(); e.preventDefault(); return;
     }
     if (_SID_KEYMAP.hasOwnProperty(k)) {
-      _sidSelAnchor = null;
-      const note = _sidOctave*12 + _SID_KEYMAP[k];
-      _sidCurPat()[_sidSel.voice][_sidSel.row] = { note: note, inst: _sidInst };
-      _sidSetCellText(_sidSel.voice, _sidSel.row);
-      _sidEnsureAudio(); _sidPlayInst(_sidCurInst(), _sidNoteFreq(note), _sidAudio.currentTime+0.01, 0.25);
-      _sidSel.row = (_sidSel.row+1)%_SID_ROWS; _sidRefreshSel(); e.preventDefault(); return;
+      _sidInsertNoteAtSelection(_sidOctave*12 + _SID_KEYMAP[k], true);
+      e.preventDefault(); return;
     }
     if (k === "+" || k === "*" || e.key === "PageUp")   { _sidSetOctave(_sidOctave+1); e.preventDefault(); }
     if (k === "-" || k === "/" || e.key === "PageDown") { _sidSetOctave(_sidOctave-1); e.preventDefault(); }
@@ -31683,6 +31875,9 @@ function setupSidEditor() {
   });
   onId("sid-voice-paste", "click", function(){
     _sidPasteSelection();
+  });
+  onId("sid-clear", "click", function(){
+    _sidClearSelection();
   });
   if (wrap) {
     wrap.addEventListener("selectstart", function(e) {
@@ -31701,6 +31896,9 @@ function _sidSetOctave(o) {
   _sidOctave = Math.max(0, Math.min(7, o));
   const el = document.getElementById("sid-oct-val");
   if (el) el.textContent = _sidOctave;
+  const vkEl = document.getElementById("sid-vkbd-octave-val");
+  if (vkEl) vkEl.textContent = _sidOctave;
+  _sidRenderVirtualKeyboard();
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
