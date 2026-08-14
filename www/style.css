@@ -8818,6 +8818,8 @@ body.crt-mode #crt-overlay::after {
 #sid-arp-length { width: 52px; min-width: 0; padding-right: 20px; }
 .sid-tracker-spacer { flex: 1; }
 .sid-tracker-wrap { flex: 1; min-height: 0; overflow: auto; border: 1px solid var(--panel-border); background: #0a0e1a; color-scheme: dark; }
+.sid-tracker-wrap:focus,
+.sid-tracker-wrap:focus-visible { outline: none; box-shadow: none; }
 .sid-tracker { border-collapse: collapse; font-family: "IBM Plex Mono", monospace; font-size: 0.82rem; width: 100%; user-select: none; -webkit-user-select: none; }
 .sid-tracker th { position: sticky; top: 0; background: #111726; color: #ffcc66; font-weight: 700; text-align: left; padding: 5px 10px; letter-spacing: 0.05em; z-index: 1; border-bottom: 1px solid #243; }
 .sid-tracker td { padding: 1px 4px; color: #b8c0d8; white-space: nowrap; height: 18px; line-height: 1; }
@@ -8829,6 +8831,9 @@ body.crt-mode #crt-overlay::after {
 .sid-tracker .sid-cell-edit { user-select: text; -webkit-user-select: text; }
 .sid-tracker td.sid-cell--sel { background: var(--primary) !important; color: #fff; }
 .sid-tracker td.sid-cell--sel-range { background: color-mix(in srgb, var(--primary) 35%, transparent) !important; }
+.sid-ctx-menu .sid-ctx-item svg { width: 14px; height: 14px; flex: 0 0 14px; }
+.sid-ctx-menu .sid-ctx-label { display: inline-block; }
+.sid-ctx-menu .block-ctx-item:disabled { opacity: 0.45; cursor: default; }
 
 /* ============================================================
    Shared custom aria-label tooltip — buttons missing ::after

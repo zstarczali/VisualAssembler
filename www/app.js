@@ -2364,6 +2364,7 @@ function initPalette() {
   // Close context menu on any click outside
   document.addEventListener("click", e => {
     if (!e.target.closest("#block-ctx-menu")) _hideBlockCtxMenu();
+    if (!e.target.closest("#sid-ctx-menu")) _sidHideCtxMenu();
   }, true);
 }
 
@@ -3453,6 +3454,16 @@ function _applyEditorTranslations() {
   setAttr("#sid-stop", t("sidStop"));
   setAttr("#sid-voice-copy", t("sidVoiceCopy"));
   setAttr("#sid-voice-paste", t("sidVoicePaste"));
+  const sidCtxCopy = document.querySelector("#sid-ctx-menu .sid-ctx-copy");
+  const sidCtxPaste = document.querySelector("#sid-ctx-menu .sid-ctx-paste");
+  if (sidCtxCopy) {
+    const label = sidCtxCopy.querySelector(".sid-ctx-label");
+    if (label) label.textContent = t("sidContextCopy");
+  }
+  if (sidCtxPaste) {
+    const label = sidCtxPaste.querySelector(".sid-ctx-label");
+    if (label) label.textContent = t("sidContextPaste");
+  }
   setText("#sid-harmony-label", t("sidHarmonyLabel"));
   setText("#sid-chord-root-label", t("sidChordRoot"));
   setText("#sid-chord-type-label", t("sidChordType"));
@@ -30451,6 +30462,19 @@ function _sidCellText(cell) {
   if (cell.note == null) return "... ..";
   return _sidNoteName(cell.note) + " " + (cell.inst<16?"0":"") + cell.inst.toString(16).toUpperCase();
 }
+function _sidNormalizeSelection() {
+  const anchor = _sidSelAnchor || _sidSel;
+  return {
+    voiceLo: Math.min(anchor.voice, _sidSel.voice),
+    voiceHi: Math.max(anchor.voice, _sidSel.voice),
+    rowLo: Math.min(anchor.row, _sidSel.row),
+    rowHi: Math.max(anchor.row, _sidSel.row)
+  };
+}
+function _sidSelectionContains(voice, row) {
+  const sel = _sidNormalizeSelection();
+  return voice >= sel.voiceLo && voice <= sel.voiceHi && row >= sel.rowLo && row <= sel.rowHi;
+}
 function _sidCopyVoice() {
   if (!_sidPatterns) return;
   const col = _sidCurPat()[_sidSel.voice];
@@ -30474,11 +30498,11 @@ function _sidPasteVoice() {
 function _sidCopyCells() {
   if (!_sidPatterns) return;
   const pat = _sidCurPat();
-  const anchor = _sidSelAnchor || _sidSel;
-  const voiceLo = Math.min(anchor.voice, _sidSel.voice);
-  const voiceHi = Math.max(anchor.voice, _sidSel.voice);
-  const rowLo = Math.min(anchor.row, _sidSel.row);
-  const rowHi = Math.max(anchor.row, _sidSel.row);
+  const sel = _sidNormalizeSelection();
+  const voiceLo = sel.voiceLo;
+  const voiceHi = sel.voiceHi;
+  const rowLo = sel.rowLo;
+  const rowHi = sel.rowHi;
   _sidCellClip = { voices: voiceHi - voiceLo + 1, rows: rowHi - rowLo + 1, cells: [] };
   for (let v = voiceLo; v <= voiceHi; v++) {
     const voice = [];
@@ -30491,6 +30515,9 @@ function _sidCopyCells() {
   _sidClipboard = null;
   const btn = document.getElementById("sid-voice-copy");
   if (btn) { const o = btn.title; btn.title = "Copied!"; setTimeout(function(){ btn.title = o; }, 1000); }
+}
+function _sidCopySelection() {
+  _sidCopyCells();
 }
 function _sidPasteCells() {
   if (!_sidCellClip || !_sidPatterns) return;
@@ -30509,6 +30536,64 @@ function _sidPasteCells() {
   }
   _sidBuildTracker();
 }
+function _sidPasteSelection() {
+  if (_sidCellClip) _sidPasteCells();
+  else _sidPasteVoice();
+}
+function _sidHideCtxMenu() {
+  const menu = document.getElementById("sid-ctx-menu");
+  if (menu) menu.hidden = true;
+}
+function _sidShowCtxMenu(e, voice, row) {
+  let menu = document.getElementById("sid-ctx-menu");
+  if (!menu) {
+    const dialog = document.getElementById("sid-editor-dialog");
+    menu = document.createElement("div");
+    menu.id = "sid-ctx-menu";
+    menu.className = "block-ctx-menu sid-ctx-menu";
+    menu.hidden = true;
+    menu.innerHTML = ''
+      + '<button type="button" class="block-ctx-item sid-ctx-item sid-ctx-copy" data-action="copy">'
+      +   '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="8" height="10" rx="1"/><path d="M3 5H2a1 1 0 00-1 1v7a1 1 0 001 1h8a1 1 0 001-1v-1"/></svg>'
+      +   '<span class="sid-ctx-label"></span>'
+      + '</button>'
+      + '<button type="button" class="block-ctx-item sid-ctx-item sid-ctx-paste" data-action="paste">'
+      +   '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="10" height="11" rx="1"/><path d="M5 4V3a1 1 0 011-1h4a1 1 0 011 1v1"/><path d="M5 8h6M5 11h4"/></svg>'
+      +   '<span class="sid-ctx-label"></span>'
+      + '</button>';
+    menu.addEventListener("click", function(evt) {
+      const btn = evt.target.closest("[data-action]");
+      if (!btn) return;
+      if (btn.dataset.action === "copy") _sidCopySelection();
+      else if (btn.dataset.action === "paste") _sidPasteSelection();
+      _sidHideCtxMenu();
+      document.getElementById("sid-tracker-wrap")?.focus({ preventScroll: true });
+    });
+    (dialog || document.body).appendChild(menu);
+  }
+  if (!_sidSelectionContains(voice, row)) {
+    _sidSel = { voice, row };
+    _sidSelAnchor = null;
+    _sidRefreshSel();
+  }
+  const copyBtn = menu.querySelector(".sid-ctx-copy");
+  const pasteBtn = menu.querySelector(".sid-ctx-paste");
+  if (copyBtn) {
+    const label = copyBtn.querySelector(".sid-ctx-label");
+    if (label) label.textContent = t("sidContextCopy");
+  }
+  if (pasteBtn) {
+    const label = pasteBtn.querySelector(".sid-ctx-label");
+    if (label) label.textContent = t("sidContextPaste");
+    pasteBtn.disabled = !_sidCellClip && !_sidClipboard;
+  }
+  menu.hidden = false;
+  const pad = 8;
+  const maxX = Math.max(pad, window.innerWidth - menu.offsetWidth - pad);
+  const maxY = Math.max(pad, window.innerHeight - menu.offsetHeight - pad);
+  menu.style.left = Math.max(pad, Math.min(e.clientX, maxX)) + "px";
+  menu.style.top = Math.max(pad, Math.min(e.clientY, maxY)) + "px";
+}
 function _sidBuildTracker() {
   const t = document.getElementById("sid-tracker"); if (!t) return;
   const pat = _sidCurPat();
@@ -30517,14 +30602,13 @@ function _sidBuildTracker() {
     const beat = (r % 4 === 0) ? " sid-beat" : "";
     html += '<tr class="sid-trow'+beat+'" data-row="'+r+'">';
     html += '<td class="sid-rownum">' + (r<10?"0":"") + r + '</td>';
-    const rangeLo = _sidSelAnchor !== null ? Math.min(_sidSelAnchor.row, _sidSel.row) : _sidSel.row;
-    const rangeHi = _sidSelAnchor !== null ? Math.max(_sidSelAnchor.row, _sidSel.row) : _sidSel.row;
-    const rangeVoice = _sidSelAnchor !== null && _sidSelAnchor.voice === _sidSel.voice
-      ? _sidSel.voice
-      : null;
+    const rangeRowLo = _sidSelAnchor !== null ? Math.min(_sidSelAnchor.row, _sidSel.row) : _sidSel.row;
+    const rangeRowHi = _sidSelAnchor !== null ? Math.max(_sidSelAnchor.row, _sidSel.row) : _sidSel.row;
+    const rangeVoiceLo = _sidSelAnchor !== null ? Math.min(_sidSelAnchor.voice, _sidSel.voice) : _sidSel.voice;
+    const rangeVoiceHi = _sidSelAnchor !== null ? Math.max(_sidSelAnchor.voice, _sidSel.voice) : _sidSel.voice;
     for (let v = 0; v < 3; v++) {
       const isCursor = _sidSel.voice === v && _sidSel.row === r;
-      const inRange  = rangeVoice === v && r >= rangeLo && r <= rangeHi && !isCursor;
+      const inRange  = v >= rangeVoiceLo && v <= rangeVoiceHi && r >= rangeRowLo && r <= rangeRowHi && !isCursor;
       const selCls = isCursor ? " sid-cell--sel" : (inRange ? " sid-cell--sel-range" : "");
       html += '<td class="sid-cell'+selCls+'" data-v="'+v+'" data-r="'+r+'">' + _sidCellText(pat[v][r]) + '</td>';
     }
@@ -30533,10 +30617,14 @@ function _sidBuildTracker() {
   html += "</tbody>";
   t.innerHTML = html;
   t.querySelectorAll("td.sid-cell").forEach(function(td) {
+    td.addEventListener("mousedown", function(e) {
+      if (e.button !== 0 || e.target.closest("input")) return;
+      e.preventDefault();
+    });
     td.addEventListener("click", function(e) {
       const v = +td.dataset.v, r = +td.dataset.r;
       if (e.shiftKey) {
-        if (_sidSelAnchor === null || _sidSelAnchor.voice !== v) _sidSelAnchor = { voice: v, row: _sidSel.row };
+        if (_sidSelAnchor === null) _sidSelAnchor = { voice: _sidSel.voice, row: _sidSel.row };
         _sidSel.voice = v;
         _sidSel.row = r;
       } else {
@@ -30545,6 +30633,11 @@ function _sidBuildTracker() {
       }
       _sidRefreshSel();
       document.getElementById("sid-tracker-wrap").focus();
+    });
+    td.addEventListener("contextmenu", function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      _sidShowCtxMenu(e, +td.dataset.v, +td.dataset.r);
     });
     td.addEventListener("dblclick", function(e) {
       e.preventDefault();
@@ -30651,12 +30744,15 @@ function _sidRefreshSel() {
   const v = _sidSel.voice, r = _sidSel.row;
   const cursor = t.querySelector('td.sid-cell[data-v="'+v+'"][data-r="'+r+'"]');
   if (cursor) cursor.classList.add("sid-cell--sel");
-  if (_sidSelAnchor !== null && _sidSelAnchor.voice === v) {
+  if (_sidSelAnchor !== null) {
     const rowLo = Math.min(_sidSelAnchor.row, r), rowHi = Math.max(_sidSelAnchor.row, r);
-    for (let row = rowLo; row <= rowHi; row++) {
-      if (row === r) continue;
-      const rc = t.querySelector('td.sid-cell[data-v="'+v+'"][data-r="'+row+'"]');
-      if (rc) rc.classList.add("sid-cell--sel-range");
+    const voiceLo = Math.min(_sidSelAnchor.voice, v), voiceHi = Math.max(_sidSelAnchor.voice, v);
+    for (let voice = voiceLo; voice <= voiceHi; voice++) {
+      for (let row = rowLo; row <= rowHi; row++) {
+        if (voice === v && row === r) continue;
+        const rc = t.querySelector('td.sid-cell[data-v="'+voice+'"][data-r="'+row+'"]');
+        if (rc) rc.classList.add("sid-cell--sel-range");
+      }
     }
   }
 }
@@ -31551,8 +31647,8 @@ function setupSidEditor() {
   if (wrap) wrap.addEventListener("keydown", function(e) {
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLSelectElement || e.target.isContentEditable) return;
     const k = e.key.toLowerCase();
-    if (e.ctrlKey && k === "c") { _sidCopyCells(); e.preventDefault(); return; }
-    if (e.ctrlKey && k === "v") { _sidPasteCells(); e.preventDefault(); return; }
+    if (e.ctrlKey && k === "c") { _sidCopySelection(); e.preventDefault(); return; }
+    if (e.ctrlKey && k === "v") { _sidPasteSelection(); e.preventDefault(); return; }
     if (e.key === "ArrowDown") {
       if (e.shiftKey) { if (_sidSelAnchor === null) _sidSelAnchor = { voice: _sidSel.voice, row: _sidSel.row }; } else { _sidSelAnchor = null; }
       _sidSel.row = (_sidSel.row+1)%_SID_ROWS; _sidRefreshSel(); e.preventDefault(); return;
@@ -31583,13 +31679,19 @@ function setupSidEditor() {
 
   // Voice copy/paste
   onId("sid-voice-copy", "click", function(){
-    if (_sidSelAnchor !== null) _sidCopyCells();
-    else _sidCopyVoice();
+    _sidCopySelection();
   });
   onId("sid-voice-paste", "click", function(){
-    if (_sidCellClip) _sidPasteCells();
-    else _sidPasteVoice();
+    _sidPasteSelection();
   });
+  if (wrap) {
+    wrap.addEventListener("selectstart", function(e) {
+      if (!(e.target instanceof HTMLInputElement)) e.preventDefault();
+    });
+    wrap.addEventListener("contextmenu", function(e) {
+      if (!e.target.closest("td.sid-cell")) _sidHideCtxMenu();
+    });
+  }
 
   // Octave controls
   onId("sid-oct-up", "click", function(){ _sidSetOctave(_sidOctave+1); });
