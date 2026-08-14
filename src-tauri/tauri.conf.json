@@ -31,6 +31,7 @@
     "active": true,
     "targets": "all",
     "icon": [
+      "icons/icon.icns",
       "icons/icon.ico",
       "icons/icon.png",
       "icons/icon@2x.png",
@@ -41,6 +42,22 @@
     "resources": {
       "../samples/*": "samples/",
       "../docs/*": "docs/"
+    },
+    "macOS": {
+      "dmg": {
+        "windowSize": {
+          "width": 660,
+          "height": 400
+        },
+        "appPosition": {
+          "x": 180,
+          "y": 170
+        },
+        "applicationFolderPosition": {
+          "x": 480,
+          "y": 170
+        }
+      }
     }
   }
 }
