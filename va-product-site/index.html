@@ -112,7 +112,7 @@ hr.div{border:none;border-top:1px solid var(--brd)}
 .tab:hover,.tab.on{background:var(--scr-dark);color:var(--txt-hi);border-color:var(--brd-hi)}
 .tab-panel{border:2px solid var(--brd-hi);background:#000;display:none}
 .tab-panel.on{display:block}
-.tab-panel img{width:100%;display:block;max-height:560px;object-fit:cover;object-position:top}
+.tab-panel img{width:100%;height:auto;display:block}
 .tab-cap{background:#111130;border-top:1px solid var(--brd);padding:14px 22px;display:flex;justify-content:space-between;align-items:center}
 .tab-cap-t{font-size:12px;color:var(--txt);letter-spacing:1px}
 .tab-cap-d{font-size:11px;color:var(--txt-dim)}
@@ -288,8 +288,8 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
     </div>
     <div class="fc">
       <div class="fc-ico">$0801 ASM</div>
-      <div class="fc-t">REAL-TIME ASM OUTPUT</div>
-      <div class="fc-d">Every edit instantly regenerates ASM, monitor hex dump, and a full 6502 disassembler view. Configurable start address, BASIC SYS stub optional.</div>
+      <div class="fc-t">REAL-TIME CODE GENERATION</div>
+      <div class="fc-d">Every block edit instantly regenerates the assembly source, machine-code hex dump, and 6502 disassembly. Configurable start address, BASIC SYS stub optional.</div>
     </div>
     <div class="fc">
       <div class="fc-ico">60+ MACROS</div>
@@ -332,6 +332,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   <h2 class="sec-t" style="margin-bottom:40px">BUILT-IN TOOLS FOR<br>EVERY C64 ASSET</h2>
   <div class="tabs">
     <div class="tab on" data-tab="prog" onclick="showTab('prog')">BLOCK EDITOR</div>
+    <div class="tab" data-tab="ub" onclick="showTab('ub')">ULTIMATE BASIC</div>
     <div class="tab" data-tab="code" onclick="showTab('code')">ASM EDITOR</div>
     <div class="tab" data-tab="sid" onclick="showTab('sid')">SID MUSIC</div>
     <div class="tab" data-tab="sprite" onclick="showTab('sprite')">SPRITES</div>
@@ -345,6 +346,10 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   <div class="tab-panel on" id="tab-prog">
     <img src="uploads/Screenshot 2026-08-01 191519.png" alt="Block program editor">
     <div class="tab-cap"><span class="tab-cap-t">BLOCK PROGRAM EDITOR + ASM VIEW</span><span class="tab-cap-d">DRAG BLOCKS FROM LEFT → COMPILE LIVE → RUN IN VICE</span></div>
+  </div>
+  <div class="tab-panel" id="tab-ub">
+    <img src="uploads/ub.png" alt="Ultimate Basic IDE in C64 Visual Assembler">
+    <div class="tab-cap"><span class="tab-cap-t">ULTIMATE BASIC — COMPLETE IDE MODE</span><span class="tab-cap-d">EDIT .UB SOURCES, MANAGE PROJECTS, BUILD AND RUN FROM ONE WORKSPACE</span></div>
   </div>
   <div class="tab-panel" id="tab-code">
     <img src="uploads/code.png" alt="Expert ASM editor">
