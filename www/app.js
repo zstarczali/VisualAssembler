@@ -472,6 +472,7 @@ const disasmCopySourceBtn  = document.getElementById("disasm-copy-source-btn");
 
 let program = [];
 let dragState = null;
+let _editorDialogDrag = null;
 let _dndSrc = null;
 let _dndActive = false;
 let _dndGhost = null;
@@ -2028,6 +2029,7 @@ function initPalette() {
   setupHiresEditor();
   setupSpriteEditor();
   setupSidEditor();
+  setupDraggableEditorDialogs();
   _setupFileMenus();
   setupOperandDropdown();
   setupD64ExportDialog();
@@ -2366,6 +2368,56 @@ function initPalette() {
     if (!e.target.closest("#block-ctx-menu")) _hideBlockCtxMenu();
     if (!e.target.closest("#sid-ctx-menu")) _sidHideCtxMenu();
   }, true);
+}
+
+function setupDraggableEditorDialogs() {
+  const dialogs = [
+    ["c64-chrrom-dialog", ".c64-chrrom-hdr"],
+    ["char-editor-dialog", ".ce-hdr"],
+    ["charset-canvas-dialog", ".cc-hdr"],
+    ["map-editor-dialog", ".me-hdr"],
+    ["hires-editor-dialog", ".hg-hdr"],
+    ["sprite-editor-dialog", ".se-hdr"],
+    ["sid-editor-dialog", ".sid-hdr"],
+    ["curve-gen-dialog", ".cg-hdr"]
+  ];
+  dialogs.forEach(function(entry) {
+    const dialog = document.getElementById(entry[0]);
+    const header = dialog?.querySelector(entry[1]);
+    if (!dialog || !header || header.dataset.dragBound === "1") return;
+    header.dataset.dragBound = "1";
+    header.classList.add("editor-drag-handle");
+    header.addEventListener("pointerdown", function(e) {
+      if (e.target.closest("button, input, select, textarea, label, .ed-file-menu")) return;
+      const rect = dialog.getBoundingClientRect();
+      dialog.style.position = "fixed";
+      dialog.style.margin = "0";
+      dialog.style.transform = "none";
+      dialog.style.left = rect.left + "px";
+      dialog.style.top = rect.top + "px";
+      _editorDialogDrag = {
+        dialog,
+        dx: e.clientX - rect.left,
+        dy: e.clientY - rect.top
+      };
+      try { header.setPointerCapture(e.pointerId); } catch(_) {}
+      e.preventDefault();
+    });
+    header.addEventListener("pointermove", function(e) {
+      if (!_editorDialogDrag || _editorDialogDrag.dialog !== dialog) return;
+      const maxX = Math.max(8, window.innerWidth - dialog.offsetWidth - 8);
+      const maxY = Math.max(8, window.innerHeight - dialog.offsetHeight - 8);
+      dialog.style.left = Math.max(8, Math.min(e.clientX - _editorDialogDrag.dx, maxX)) + "px";
+      dialog.style.top = Math.max(8, Math.min(e.clientY - _editorDialogDrag.dy, maxY)) + "px";
+    });
+    const endDrag = function(e) {
+      if (!_editorDialogDrag || _editorDialogDrag.dialog !== dialog) return;
+      _editorDialogDrag = null;
+      if (e && e.pointerId != null) { try { header.releasePointerCapture(e.pointerId); } catch(_) {} }
+    };
+    header.addEventListener("pointerup", endDrag);
+    header.addEventListener("pointercancel", endDrag);
+  });
 }
 
 function _showBlockCtxMenu(e, index) {
@@ -3485,6 +3537,7 @@ function _applyEditorTranslations() {
   setText("#sid-arp-label", t("sidArpLabel"));
   setAttr("#sid-arp-direction", t("sidArpDirection"));
   setAttr("#sid-arp-length", t("sidArpLength"));
+  setAttr("#sid-arp-preview", t("sidArpPreview"));
   setAttr("#sid-arp-add", t("sidArpAdd"));
   const arpDirectionLabels = ["sidArpUp", "sidArpDown", "sidArpUpDown"];
   document.querySelectorAll("#sid-arp-direction option").forEach(function(option, i) {
@@ -30467,6 +30520,24 @@ function _sidPreviewChord() {
   _sidFlashVirtualKeyboardNotes(notes);
 }
 
+function _sidPreviewArpeggio() {
+  const notes = _sidGetChordNotes();
+  if (!notes) return;
+  const direction = document.getElementById("sid-arp-direction")?.value || "up";
+  const length = parseInt(document.getElementById("sid-arp-length")?.value, 10) || 8;
+  const order = direction === "down" ? [2, 1, 0] : (direction === "updown" ? [0, 1, 2, 1] : [0, 1, 2]);
+  _sidEnsureAudio();
+  const startTime = _sidAudio.currentTime;
+  const baseWhen = startTime + 0.02;
+  const stepDur = 0.12;
+  for (let step = 0; step < length; step++) {
+    const note = notes[order[step % order.length]];
+    const when = baseWhen + (step * stepDur);
+    _sidPlayInst(_sidCurInst(), _sidNoteFreq(note), when, Math.max(0.08, stepDur * 0.9));
+    setTimeout(function() { _sidFlashVirtualKeyboardNotes([note]); }, Math.max(0, Math.round((when - startTime) * 1000)));
+  }
+}
+
 function _sidInsertChord() {
   const notes = _sidGetChordNotes();
   if (!notes) return;
@@ -31765,6 +31836,7 @@ function setupSidEditor() {
   });
   onId("sid-metronome", "click", _sidToggleMetronome);
   onId("sid-chord-preview", "click", _sidPreviewChord);
+  onId("sid-arp-preview", "click", _sidPreviewArpeggio);
   onId("sid-chord-add", "click", _sidInsertChord);
   onId("sid-arp-add", "click", _sidInsertArpeggio);
   onId("sid-master-vol", "input", function(e){

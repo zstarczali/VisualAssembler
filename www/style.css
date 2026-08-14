@@ -6796,14 +6796,16 @@ body.crt-mode #crt-overlay::after {
 
 /* ── C64 Character ROM Viewer ─────────────────────────────────── */
 .c64-chrrom-dialog {
+  position: fixed;
   background: transparent;
   border: none;
   padding: 0;
+  margin: 0;
   width: min(860px, 96vw);
   max-width: 96vw;
   height: min(660px, 92vh);
   max-height: 92vh;
-  overflow: hidden;
+  overflow: visible;
 }
 .c64-chrrom-dialog::backdrop {
   background: rgba(0,0,0,0.6);
@@ -7062,14 +7064,16 @@ body.crt-mode #crt-overlay::after {
 
 /* ─── Character Set Editor ──────────────────────────────────────── */
 .ce-dialog {
+  position: fixed;
   background: transparent;
   border: none;
   padding: 0;
+  margin: 0;
   width: min(960px, 96vw);
   max-width: 96vw;
   height: min(680px, 92vh);
   max-height: 92vh;
-  overflow: hidden;
+  overflow: visible;
 }
 .ce-dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
 .ce-card {
@@ -7388,14 +7392,16 @@ body.crt-mode #crt-overlay::after {
 
 /* ─── Charset Canvas Editor ─────────────────────────────────────── */
 .cc-dialog {
+  position: fixed;
   background: transparent;
   border: none;
   padding: 0;
+  margin: 0;
   width: min(1020px, 96vw);
   max-width: 96vw;
   height: min(900px, 98vh);
   max-height: 98vh;
-  overflow: hidden;
+  overflow: visible;
 }
 .cc-dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
 .cc-card {
@@ -7624,14 +7630,16 @@ body.crt-mode #crt-overlay::after {
 
 /* ═══ Map Editor ═══════════════════════════════════════════ */
 .me-dialog {
+  position: fixed;
   background: transparent;
   border: none;
   padding: 0;
+  margin: 0;
   width: min(1200px, 97vw);
   max-width: 97vw;
   height: min(740px, 94vh);
   max-height: 94vh;
-  overflow: hidden;
+  overflow: visible;
 }
 .me-dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
 .me-card {
@@ -8010,14 +8018,16 @@ body.crt-mode #crt-overlay::after {
 
 /* ═══ Hi-Res Graphics Editor ═══════════════════════════════ */
 .hg-dialog {
+  position: fixed;
   background: transparent;
   border: none;
   padding: 0;
+  margin: 0;
   width: min(1180px, 97vw);
   max-width: 97vw;
   height: min(820px, 95vh);
   max-height: 95vh;
-  overflow: hidden;
+  overflow: visible;
 }
 .hg-dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
 .hg-card {
@@ -8243,9 +8253,11 @@ body.crt-mode #crt-overlay::after {
 
 /* ═══ Sprite Editor ════════════════════════════════════════ */
 .se-dialog {
+  position: fixed;
   background: transparent; border: none; padding: 0;
+  margin: 0;
   width: min(1080px, 97vw); max-width: 97vw;
-  height: min(860px, 95vh); max-height: 95vh; overflow: hidden;
+  height: min(860px, 95vh); max-height: 95vh; overflow: visible;
 }
 .se-dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
 .se-card {
@@ -8385,14 +8397,14 @@ body.crt-mode #crt-overlay::after {
 /* SID Editor */
 .sid-dialog { background: transparent; border: none; padding: 0; width: min(1000px, 97vw); max-width: 97vw; height: min(900px, 95vh); max-height: 95vh; overflow: visible; }
 .sid-dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
-.sid-card { background: var(--panel); border: 1px solid var(--panel-border); display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+.sid-card { background: var(--panel); border: 1px solid var(--panel-border); display: flex; flex-direction: column; height: 100%; overflow: hidden; box-sizing: border-box; }
 .sid-hdr { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-bottom: 1px solid var(--panel-border); background: var(--panel-strong); flex-shrink: 0; position: relative; z-index: 5; }
 .sid-hdr .ed-file-menu { z-index: 40; left: 0; right: auto; }
 .sid-title { font-family: inherit; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text); }
 .sid-hdr .sid-xbtn { margin-left: auto; }
 .sid-xbtn { background: none; border: none; color: var(--secondary); font-size: 1.3rem; cursor: pointer; padding: 0; line-height: 1; min-height: 0; height: 28px; width: 28px; }
 .sid-xbtn:hover { color: var(--text); }
-.sid-body { flex: 1; min-height: 0; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.sid-body { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 14px; display: flex; flex-direction: column; gap: 12px; box-sizing: border-box; }
 .sid-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .sid-lbl { font-family: inherit; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; color: var(--primary); width: 96px; flex-shrink: 0; }
 .sid-section { font-family: inherit; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; color: var(--primary); display: block; margin-bottom: 8px; }
@@ -8472,13 +8484,28 @@ body.crt-mode #crt-overlay::after {
 
 /* ── Curve / Easing Table Generator dialog ────────────────────────── */
 .curve-gen-dialog {
+  position: fixed;
   padding: 0;
   border: none;
   background: transparent;
   color: var(--text);
+  margin: 0;
   max-width: 1080px;
   width: 92vw;
   max-height: 92vh;
+}
+.editor-drag-handle { cursor: move; user-select: none; }
+.c64-chrrom-dialog,
+.ce-dialog,
+.cc-dialog,
+.me-dialog,
+.hg-dialog,
+.se-dialog,
+.sid-dialog,
+.curve-gen-dialog {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 .curve-gen-dialog:not([open]) { display: none; }
 .curve-gen-dialog::backdrop {
@@ -8810,7 +8837,7 @@ body.crt-mode #crt-overlay::after {
 .sid-filter { flex: 1; min-width: 220px; }
 .sid-filter-types { display: flex; gap: 14px; margin-bottom: 8px; }
 .sid-tracker-row { border-top: 1px solid var(--panel-border); padding-top: 12px; }
-.sid-harmony-row { gap: 7px; flex-wrap: nowrap; white-space: nowrap; }
+.sid-harmony-row { gap: 7px; flex-wrap: wrap; white-space: normal; }
 #sid-chord-root { width: 58px; min-width: 0; padding-right: 20px; }
 #sid-chord-type { width: 116px; min-width: 0; padding-right: 20px; }
 #sid-chord-octave { width: 52px; min-width: 0; padding-right: 20px; }
