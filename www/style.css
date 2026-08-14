@@ -307,7 +307,7 @@ a {
 
 .hero-menu-row {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: flex-start;
   gap: 10px;
   width: 100%;
@@ -412,7 +412,6 @@ a {
   align-items: center;
   height: 24px;
   padding: 0 10px;
-  margin-left: 8px;
   border: 1px solid color-mix(in srgb, var(--accent) 38%, var(--panel-border));
   border-radius: 999px;
   background: color-mix(in srgb, var(--accent) 12%, transparent);
@@ -423,6 +422,7 @@ a {
   text-transform: uppercase;
   white-space: nowrap;
   flex-shrink: 0;
+  align-self: center;
 }
 
 /* Override legacy control-menu-trigger inside toolbar */
