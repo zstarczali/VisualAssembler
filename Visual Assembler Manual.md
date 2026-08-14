@@ -1,14 +1,26 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.3.0**
+**Version 2.3.1**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
+
+---
+
+## Version 2.3.1 Highlights
+
+- SID tracker rectangular Shift-selection across rows and all three voices, with toolbar, shortcut, and context-menu Copy, Cut, Paste, and Clear commands.
+- A movable, non-modal SID virtual keyboard with optional tracker insertion and highlighted chord/arpeggio previews.
+- New SID chord types: 6, minor 6, 9, b9, #9, diminished 7, and 7sus4.
+- Dedicated selected-row and arpeggio preview buttons, plus a combined Play/Pause/Resume control.
+- Draggable visual-editor dialogs that open centered by default and remember their last positions.
+- A persistent Block/Expert/Ultimate Basic mode indicator and draggable Ultimate Basic minimap navigation.
 
 ---
 
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+  - [Version 2.3.1 Highlights](#version-231-highlights)
   - [Table of Contents](#table-of-contents)
   - [1. Interface Overview](#1-interface-overview)
   - [2. Block Palette](#2-block-palette)
@@ -153,6 +165,8 @@ The app is split into three main panels:
 | **Left — Palette** | All available instruction and macro blocks. Search or browse by category. |
 | **Center — Program** | Your program. Drag blocks here, reorder them, edit operands. |
 | **Right — Output** | Live ASM view and/or memory monitor output. |
+
+The mode badge at the far right of the header identifies the active **Block**, **Expert**, or **Ultimate Basic** editor. It updates immediately when the editing mode changes.
 
 ---
 
@@ -348,7 +362,7 @@ Known limitation:
 
 ## UltimateBasic Mode
 
-Version 2.3.0 introduces a complete **Ultimate Basic IDE** inside Visual Assembler. Ultimate Basic is a modern compiled BASIC language for creating C64 programs, games, and demos without writing every operation in low-level 6502 assembly. The compiler runs locally and generates native C64 PRG output.
+Visual Assembler includes a complete **Ultimate Basic IDE**. Ultimate Basic is a modern compiled BASIC language for creating C64 programs, games, and demos without writing every operation in low-level 6502 assembly. The compiler runs locally and generates native C64 PRG output.
 
 ### Opening the UB editor
 
@@ -369,7 +383,7 @@ The UB toolbar follows the same visual language and custom tooltips as Expert mo
 
 - syntax highlighting based on the current Ultimate Basic language reference;
 - line numbers that remain synchronized with long files;
-- a minimap and editor zoom controls;
+- a minimap and editor zoom controls; click the minimap to jump or drag its viewport selection for continuous scrolling;
 - Find (`Ctrl+F` / `Cmd+F`) using the Expert-style search bar;
 - source formatting with structure-aware indentation;
 - autocomplete for commands and built-in functions;
@@ -3023,6 +3037,8 @@ Run assembled PRGs directly on real hardware over the local network using the Ul
 
 The toolbar **Toolkit** menu groups the visual data editors that all share a common Files menu (`Files ▾`) for Load BIN / Save BIN / Export to blocks / Save to D64. Each editor produces raw `.bin` data that can be placed in a program with `INCBIN`, or directly added to a D64 disk via the **Save to D64** entry.
 
+Visual-editor dialogs can be dragged by their headers across the full Visual Assembler workspace. A dialog with no saved position opens centered; after it is moved, its last position is stored in UI settings and restored the next time it opens.
+
 ### Hi-Res / Multicolor Editor
 
 Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor modes. Open via Toolkit → Hi-Res Editor.
@@ -3131,12 +3147,19 @@ Multi-instrument 3-voice tracker with a Web Audio preview engine. Open via Toolk
 **Tracker grid:**
 - 3 voices × up to 7 patterns × 32 rows = 7 × 32 = 224 rows max (8-bit row counter constrains it).
 - Per-row: note + instrument index. Empty rows hold the previous note.
-- Click-and-drag to paint a range of notes. Octave selector for the input note (0-7).
-- Harmony helper: choose a root note, chord type, and octave, preview the chord with the current instrument, then insert the voicing directly into the tracker.
-- Arpeggio helper: generate 4-, 8-, or 16-step note runs from the selected chord in up, down, or up/down directions and insert them at the current position.
-- Range copy / paste: select a span with shift-click, then **Copy** / **Paste** in the tracker toolbar. Clipboard modes are separated, so copying a full voice clears the cell-range clipboard and copying a cell range clears the full-voice clipboard.
+- Select one cell normally, or hold **Shift** while clicking or using the arrow keys to extend a rectangular selection across rows and any of the three voices. Right-clicking inside the selected area keeps the range intact.
+- Copy, Cut, Paste, and Clear are available from the icon toolbar and the icon-based context menu. `Ctrl/Cmd+C` and `Ctrl/Cmd+V` operate on the same rectangular selection.
+- Harmony helper: choose a root note, chord type, and octave, preview the chord with the current instrument, then insert the voicing directly into the tracker. Available types include Major, Minor, Diminished, Augmented, Sus2, Sus4, Dominant 7, Major 7, Minor 7, 6, Minor 6, 9, b9, #9, Dim7, and 7sus4.
+- Arpeggio helper: preview or insert 4-, 8-, or 16-step note runs from the selected chord in up, down, or up/down directions.
+- **Preview row** auditions the selected row across all three voices without starting pattern playback.
 - Cell-range paste now starts at the selected range start cell and stops cleanly at voice and row boundaries instead of wrapping into the next column or row.
 - Speed slider sets the IRQ tick divisor (frames between rows).
+
+**Playback and virtual keyboard:**
+- The Play toolbar button changes to Pause during playback and to Resume while paused; Stop ends playback and resets the state.
+- The keyboard toolbar button opens a non-modal piano that remains usable while the SID editor is active. Drag its header to place it anywhere over the main application.
+- Enable **Insert into tracker** to write each played note at the current tracker cursor and advance to the next row. Disable it to audition notes without editing.
+- Chord and arpeggio previews illuminate the corresponding piano keys when the keyboard is open.
 
 **Files menu exports:**
 | Export | What it does |

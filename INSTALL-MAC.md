@@ -1,11 +1,11 @@
 # macOS Installation Guide
-Version 2.3.0
+Version 2.3.1
 
-2.3.0: Adds the complete Ultimate Basic IDE mode with projects, editor tooling, compilation, VICE/C64 Ultimate/D64 execution, RetroDebugger symbols, Exomizer support, and the bundled Ultimate Basic manual.
+2.3.1: Adds advanced SID tracker selection, clipboard and preview tools, a virtual keyboard, expanded chords, draggable saved editor windows, a mode indicator, and draggable Ultimate Basic minimap navigation.
 
 ## Quick Install
 
-1. **Download** the 2.3.0 DMG for your architecture from the releases page
+1. **Download** the 2.3.1 DMG for your architecture from the releases page
 2. **Mount** the DMG and drag the app to `/Applications`
 3. **First launch**: Right-click the app → **"Open"** (macOS will block double-click)
 4. Click **"Open"** in the security dialog
@@ -53,4 +53,4 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.3.0 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.3.1 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

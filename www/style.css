@@ -8617,12 +8617,14 @@ body.crt-mode #crt-overlay::after {
 
 .cg-body {
   display: grid;
-  grid-template-columns: 240px 1fr 240px;
+  grid-template-columns: 240px minmax(0, 1fr) 240px;
   grid-template-rows: auto auto;
   gap: 14px;
   padding: 14px 16px;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   min-height: 340px;
+  box-sizing: border-box;
 }
 
 /* Controls (left) — scroll independently so long combine panels stay in view */
@@ -8734,6 +8736,7 @@ body.crt-mode #crt-overlay::after {
 .cg-graph {
   width: 100%;
   height: 300px;
+  box-sizing: border-box;
   /* Fixed dark canvas in every theme for consistent contrast. */
   background: #0a0e1a;
   color-scheme: dark;
@@ -8780,6 +8783,7 @@ body.crt-mode #crt-overlay::after {
 .cg-anim {
   width: 100%;
   aspect-ratio: 1;
+  box-sizing: border-box;
   /* Fixed dark canvas in every theme for consistent contrast. */
   background: #0a0e1a;
   color-scheme: dark;

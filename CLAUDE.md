@@ -693,8 +693,8 @@ override megoldja. Új dialog számmezőknél is állítsd be explicit:
 
 ## 16. Jelenlegi verzió
 
-`2.3.0` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
+`2.3.1` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, és ez a fájl + copilot-instructions.md.
-Fő 2.3.0 változások: teljes **Ultimate Basic IDE mód** `.ub` szerkesztővel, projektekkel és startup fájllal; build/run/debug, VICE/C64 Ultimate/D64 és Exomizer integráció; szimbólumos disassembly és debug sidecarok; beágyazott UB kézikönyv; lokalizált induló customer message.
+Fő 2.3.1 változások: kibővített SID tracker többhangos kijelöléssel, copy/cut/paste/clear műveletekkel, virtuális billentyűzettel, új akkordokkal és előhallgatásokkal; egyesített Play/Pause; mozgatható, mentett pozíciójú szerkesztőablakok; módjelző; húzható Ultimate Basic minimap.
 
 Verziónöveléshez lásd a 3. szakasz végén lévő 7-lépéses checklistet.
