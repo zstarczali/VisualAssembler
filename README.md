@@ -2,17 +2,17 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.3.0**
+**Current version: v2.3.1**
 
-## What's New in v2.3.0
+## What's New in v2.3.1
 
-- **Complete Ultimate Basic IDE mode** — edit `.ub` files with syntax highlighting, minimap, line numbers, formatting, Find, autocomplete, command search, contextual syntax help, tabs, and resizable panels.
-- **Ultimate Basic projects** — open/save `.proj` projects, manage multiple source tabs, show project symbols, and mark a startup `.ub` file used by every build or run command.
-- **Build and diagnostics** — compile through the upstream UltimateBasic Rust crate, show progress, highlight errors in red, jump to failing lines, inspect verbose output, build information, and colorized disassembly.
-- **VICE, D64, C64 Ultimate, and RetroDebugger** — run UB programs directly or through D64, use Exomizer from the shared Settings, and pass `.sym`, `.dbg`, and `.vs` symbols to debugger/disassembly workflows.
-- **Single upstream implementation** — Visual Assembler consumes Ultimate Basic as a pinned Git/Cargo dependency, reports its actual version, and embeds the matching upstream `MANUAL.pdf` for offline access from the UB toolbar.
-- **Startup announcement** — a localized four-language customer-message dialog introduces Ultimate Basic and remains available on startup until the user selects “Don’t show again”.
-- **Expert commenting improvements** — inline `; comments` survive Expert/Block round-trips and `Ctrl+/` (`Cmd+/` on macOS) comments the current line or selection (`Shift` uncomments).
+- **SID tracker selection and clipboard tools** — Shift-select rectangular regions across all three voices, then copy, cut, paste, or clear them with shortcuts, toolbar buttons, or the icon-based context menu.
+- **SID virtual keyboard** — use a movable, non-modal piano to audition instruments, visualize chord/arpeggio previews, and optionally insert played notes directly into the tracker.
+- **Expanded SID harmony tools** — added 6, minor 6, 9, b9, #9, dim7, and 7sus4 chords, plus chord and arpeggio preview buttons.
+- **Improved SID playback** — one stateful Play/Pause/Resume button and a row-preview tool for auditioning the selected row across all voices.
+- **Draggable editor dialogs** — every editor opens centered by default, can move across the full workspace, and remembers its saved position.
+- **Clear mode feedback and UB navigation** — the header identifies Block, Expert, or Ultimate Basic mode, and the Ultimate Basic minimap viewport supports continuous drag scrolling.
+- **SID layout polish** — corrected overflow and edge-aligned custom tooltips in the SID editor.
 
 ---
 

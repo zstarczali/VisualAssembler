@@ -307,7 +307,7 @@ a {
 
 .hero-menu-row {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: flex-start;
   gap: 10px;
   width: 100%;
@@ -405,6 +405,24 @@ a {
 
 .main-tb-btn--active:hover {
   background: color-mix(in srgb, var(--accent) 26%, transparent);
+}
+
+.editor-mode-indicator {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border: 1px solid color-mix(in srgb, var(--accent) 38%, var(--panel-border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+  align-self: center;
 }
 
 /* Override legacy control-menu-trigger inside toolbar */
@@ -6796,14 +6814,16 @@ body.crt-mode #crt-overlay::after {
 
 /* ── C64 Character ROM Viewer ─────────────────────────────────── */
 .c64-chrrom-dialog {
+  position: fixed;
   background: transparent;
   border: none;
   padding: 0;
+  margin: 0;
   width: min(860px, 96vw);
   max-width: 96vw;
   height: min(660px, 92vh);
   max-height: 92vh;
-  overflow: hidden;
+  overflow: visible;
 }
 .c64-chrrom-dialog::backdrop {
   background: rgba(0,0,0,0.6);
@@ -7062,14 +7082,16 @@ body.crt-mode #crt-overlay::after {
 
 /* ─── Character Set Editor ──────────────────────────────────────── */
 .ce-dialog {
+  position: fixed;
   background: transparent;
   border: none;
   padding: 0;
+  margin: 0;
   width: min(960px, 96vw);
   max-width: 96vw;
   height: min(680px, 92vh);
   max-height: 92vh;
-  overflow: hidden;
+  overflow: visible;
 }
 .ce-dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
 .ce-card {
@@ -7388,14 +7410,16 @@ body.crt-mode #crt-overlay::after {
 
 /* ─── Charset Canvas Editor ─────────────────────────────────────── */
 .cc-dialog {
+  position: fixed;
   background: transparent;
   border: none;
   padding: 0;
+  margin: 0;
   width: min(1020px, 96vw);
   max-width: 96vw;
   height: min(900px, 98vh);
   max-height: 98vh;
-  overflow: hidden;
+  overflow: visible;
 }
 .cc-dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
 .cc-card {
@@ -7624,14 +7648,16 @@ body.crt-mode #crt-overlay::after {
 
 /* ═══ Map Editor ═══════════════════════════════════════════ */
 .me-dialog {
+  position: fixed;
   background: transparent;
   border: none;
   padding: 0;
+  margin: 0;
   width: min(1200px, 97vw);
   max-width: 97vw;
   height: min(740px, 94vh);
   max-height: 94vh;
-  overflow: hidden;
+  overflow: visible;
 }
 .me-dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
 .me-card {
@@ -8010,14 +8036,16 @@ body.crt-mode #crt-overlay::after {
 
 /* ═══ Hi-Res Graphics Editor ═══════════════════════════════ */
 .hg-dialog {
+  position: fixed;
   background: transparent;
   border: none;
   padding: 0;
+  margin: 0;
   width: min(1180px, 97vw);
   max-width: 97vw;
   height: min(820px, 95vh);
   max-height: 95vh;
-  overflow: hidden;
+  overflow: visible;
 }
 .hg-dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
 .hg-card {
@@ -8243,9 +8271,11 @@ body.crt-mode #crt-overlay::after {
 
 /* ═══ Sprite Editor ════════════════════════════════════════ */
 .se-dialog {
+  position: fixed;
   background: transparent; border: none; padding: 0;
+  margin: 0;
   width: min(1080px, 97vw); max-width: 97vw;
-  height: min(860px, 95vh); max-height: 95vh; overflow: hidden;
+  height: min(860px, 95vh); max-height: 95vh; overflow: visible;
 }
 .se-dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
 .se-card {
@@ -8383,16 +8413,16 @@ body.crt-mode #crt-overlay::after {
 .se-anim-spacer { flex: 1; }
 
 /* SID Editor */
-.sid-dialog { background: transparent; border: none; padding: 0; width: min(1000px, 97vw); max-width: 97vw; height: min(900px, 95vh); max-height: 95vh; overflow: hidden; }
+.sid-dialog { background: transparent; border: none; padding: 0; width: min(1000px, 97vw); max-width: 97vw; height: min(900px, 95vh); max-height: 95vh; overflow: visible; }
 .sid-dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
-.sid-card { background: var(--panel); border: 1px solid var(--panel-border); display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+.sid-card { background: var(--panel); border: 1px solid var(--panel-border); display: flex; flex-direction: column; height: 100%; overflow: visible; box-sizing: border-box; }
 .sid-hdr { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-bottom: 1px solid var(--panel-border); background: var(--panel-strong); flex-shrink: 0; position: relative; z-index: 5; }
 .sid-hdr .ed-file-menu { z-index: 40; left: 0; right: auto; }
 .sid-title { font-family: inherit; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text); }
 .sid-hdr .sid-xbtn { margin-left: auto; }
 .sid-xbtn { background: none; border: none; color: var(--secondary); font-size: 1.3rem; cursor: pointer; padding: 0; line-height: 1; min-height: 0; height: 28px; width: 28px; }
 .sid-xbtn:hover { color: var(--text); }
-.sid-body { flex: 1; min-height: 0; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.sid-body { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 14px; display: flex; flex-direction: column; gap: 12px; box-sizing: border-box; }
 .sid-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .sid-lbl { font-family: inherit; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; color: var(--primary); width: 96px; flex-shrink: 0; }
 .sid-section { font-family: inherit; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; color: var(--primary); display: block; margin-bottom: 8px; }
@@ -8472,13 +8502,28 @@ body.crt-mode #crt-overlay::after {
 
 /* ── Curve / Easing Table Generator dialog ────────────────────────── */
 .curve-gen-dialog {
+  position: fixed;
   padding: 0;
   border: none;
   background: transparent;
   color: var(--text);
+  margin: 0;
   max-width: 1080px;
   width: 92vw;
   max-height: 92vh;
+}
+.editor-drag-handle { cursor: move; user-select: none; }
+.c64-chrrom-dialog,
+.ce-dialog,
+.cc-dialog,
+.me-dialog,
+.hg-dialog,
+.se-dialog,
+.sid-dialog,
+.curve-gen-dialog {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 .curve-gen-dialog:not([open]) { display: none; }
 .curve-gen-dialog::backdrop {
@@ -8572,12 +8617,14 @@ body.crt-mode #crt-overlay::after {
 
 .cg-body {
   display: grid;
-  grid-template-columns: 240px 1fr 240px;
+  grid-template-columns: 240px minmax(0, 1fr) 240px;
   grid-template-rows: auto auto;
   gap: 14px;
   padding: 14px 16px;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   min-height: 340px;
+  box-sizing: border-box;
 }
 
 /* Controls (left) — scroll independently so long combine panels stay in view */
@@ -8689,6 +8736,7 @@ body.crt-mode #crt-overlay::after {
 .cg-graph {
   width: 100%;
   height: 300px;
+  box-sizing: border-box;
   /* Fixed dark canvas in every theme for consistent contrast. */
   background: #0a0e1a;
   color-scheme: dark;
@@ -8735,6 +8783,7 @@ body.crt-mode #crt-overlay::after {
 .cg-anim {
   width: 100%;
   aspect-ratio: 1;
+  box-sizing: border-box;
   /* Fixed dark canvas in every theme for consistent contrast. */
   background: #0a0e1a;
   color-scheme: dark;
@@ -8810,7 +8859,7 @@ body.crt-mode #crt-overlay::after {
 .sid-filter { flex: 1; min-width: 220px; }
 .sid-filter-types { display: flex; gap: 14px; margin-bottom: 8px; }
 .sid-tracker-row { border-top: 1px solid var(--panel-border); padding-top: 12px; }
-.sid-harmony-row { gap: 7px; flex-wrap: nowrap; white-space: nowrap; }
+.sid-harmony-row { gap: 7px; flex-wrap: wrap; white-space: normal; }
 #sid-chord-root { width: 58px; min-width: 0; padding-right: 20px; }
 #sid-chord-type { width: 116px; min-width: 0; padding-right: 20px; }
 #sid-chord-octave { width: 52px; min-width: 0; padding-right: 20px; }
@@ -8818,6 +8867,8 @@ body.crt-mode #crt-overlay::after {
 #sid-arp-length { width: 52px; min-width: 0; padding-right: 20px; }
 .sid-tracker-spacer { flex: 1; }
 .sid-tracker-wrap { flex: 1; min-height: 0; overflow: auto; border: 1px solid var(--panel-border); background: #0a0e1a; color-scheme: dark; }
+.sid-tracker-wrap:focus,
+.sid-tracker-wrap:focus-visible { outline: none; box-shadow: none; }
 .sid-tracker { border-collapse: collapse; font-family: "IBM Plex Mono", monospace; font-size: 0.82rem; width: 100%; user-select: none; -webkit-user-select: none; }
 .sid-tracker th { position: sticky; top: 0; background: #111726; color: #ffcc66; font-weight: 700; text-align: left; padding: 5px 10px; letter-spacing: 0.05em; z-index: 1; border-bottom: 1px solid #243; }
 .sid-tracker td { padding: 1px 4px; color: #b8c0d8; white-space: nowrap; height: 18px; line-height: 1; }
@@ -8829,6 +8880,28 @@ body.crt-mode #crt-overlay::after {
 .sid-tracker .sid-cell-edit { user-select: text; -webkit-user-select: text; }
 .sid-tracker td.sid-cell--sel { background: var(--primary) !important; color: #fff; }
 .sid-tracker td.sid-cell--sel-range { background: color-mix(in srgb, var(--primary) 35%, transparent) !important; }
+.sid-vkbd-dialog { position: fixed; margin: 0; left: 120px; top: 120px; z-index: 40; border: none; padding: 0; background: transparent; color: inherit; max-width: none; overflow: visible; }
+.sid-vkbd-dialog[hidden] { display: none; }
+.sid-vkbd-card { min-width: 720px; max-width: 92vw; background: #1f2236; border: 1px solid var(--panel-border); box-shadow: 0 18px 48px rgba(0,0,0,0.45); }
+.sid-vkbd-hdr { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--panel-border); background: #26293d; cursor: move; user-select: none; }
+.sid-vkbd-title { font-family: 'C64Pro', monospace; font-size: 0.9rem; letter-spacing: 0.08em; color: var(--text); }
+.sid-vkbd-meta { display: flex; align-items: center; gap: 8px; padding: 12px 14px 0; }
+.sid-vkbd-insert-toggle { margin-left: 10px; white-space: nowrap; }
+.sid-vkbd-insert-toggle input[type="checkbox"] { flex-shrink: 0; }
+.sid-vkbd-board { position: relative; margin: 14px; padding: 16px 16px 20px; height: 214px; background: #101522; border: 1px solid var(--panel-border); overflow: hidden; }
+.sid-vkbd-key { position: absolute; border: 1px solid #2c3552; cursor: pointer; user-select: none; }
+.sid-vkbd-key--white { width: 48px; height: 168px; background: linear-gradient(180deg, #fbfbfd 0%, #d9deea 100%); color: #172033; }
+.sid-vkbd-key--white:hover { background: linear-gradient(180deg, #ffffff 0%, #c8d1e6 100%); }
+.sid-vkbd-key--black { width: 30px; height: 104px; background: linear-gradient(180deg, #3a415d 0%, #121729 100%); color: #dbe6ff; z-index: 2; border-color: #596483; }
+.sid-vkbd-key--black:hover { background: linear-gradient(180deg, #4b5578 0%, #182037 100%); }
+.sid-vkbd-key--active { box-shadow: 0 0 0 3px var(--ylw) inset, 0 0 18px rgba(255, 221, 102, 0.45); border-color: var(--ylw) !important; }
+.sid-vkbd-key--white.sid-vkbd-key--active { background: linear-gradient(180deg, #fff6bf 0%, #ffd84f 100%); color: #111; }
+.sid-vkbd-key--black.sid-vkbd-key--active { background: linear-gradient(180deg, #ffd84f 0%, #b88300 100%); color: #111; }
+.sid-vkbd-note { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; letter-spacing: 0.04em; white-space: nowrap; }
+.sid-vkbd-key--black .sid-vkbd-note { bottom: 8px; font-size: 0.66rem; }
+.sid-ctx-menu .sid-ctx-item svg { width: 14px; height: 14px; flex: 0 0 14px; }
+.sid-ctx-menu .sid-ctx-label { display: inline-block; }
+.sid-ctx-menu .block-ctx-item:disabled { opacity: 0.45; cursor: default; }
 
 /* ============================================================
    Shared custom aria-label tooltip — buttons missing ::after
@@ -9036,6 +9109,18 @@ body.crt-mode #crt-overlay::after {
 #curve-gen-dialog button:focus-visible[aria-label]::after,
 #tutorial-dialog button:focus-visible[aria-label]::after {
   opacity: 1;
+}
+
+#sid-clear[aria-label]::after,
+#sid-voice-copy[aria-label]::after {
+  top: calc(100% + 6px);
+  bottom: auto;
+  left: auto !important;
+  right: 0 !important;
+  transform: none !important;
+  max-width: none;
+  white-space: nowrap;
+  text-align: left;
 }
 
 #tutorial-dialog #tutorial-dialog-close::after {

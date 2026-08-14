@@ -79,6 +79,7 @@ nav .sp{flex:1}
 .sec-s{font-size:11px;letter-spacing:4px;color:var(--cyn);margin-bottom:10px}
 .sec-t{font-family:'C64Pro',monospace;font-size:clamp(18px,2.5vw,34px);color:var(--txt-hi);letter-spacing:3px;margin-bottom:20px;line-height:1.3}
 .sec-d{font-size:13px;color:var(--txt);line-height:2.1;max-width:580px}
+.sec-callout{display:inline-block;margin:0 0 22px;padding:8px 14px;border:1px solid var(--ylw);background:rgba(255,221,102,.08);color:var(--ylw);font-size:11px;letter-spacing:2px;font-family:'C64Pro',monospace}
 hr.div{border:none;border-top:1px solid var(--brd)}
 
 /* ── ABOUT ── */
@@ -86,6 +87,8 @@ hr.div{border:none;border-top:1px solid var(--brd)}
 .tut-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px}
 .about-right .screen-wrap{max-width:100%}
 .about-right .screen-wrap::before{content:'C64VA  ●  PROGRAM BLOCKS + ASM VIEW'}
+.ub-shot .screen-wrap::before{content:'C64VA  ●  ULTIMATE BASIC IDE'}
+.ub-tag{display:inline-block;margin-bottom:18px;padding:5px 12px;border:1px solid var(--ylw);color:var(--ylw);font-size:10px;letter-spacing:3px}
 .feature-list{margin-top:28px;display:flex;flex-direction:column;gap:12px}
 .fi{display:flex;gap:14px;align-items:flex-start;font-size:13px;line-height:1.9}
 .fi-dot{color:var(--ylw);font-size:16px;flex-shrink:0;margin-top:2px}
@@ -109,7 +112,7 @@ hr.div{border:none;border-top:1px solid var(--brd)}
 .tab:hover,.tab.on{background:var(--scr-dark);color:var(--txt-hi);border-color:var(--brd-hi)}
 .tab-panel{border:2px solid var(--brd-hi);background:#000;display:none}
 .tab-panel.on{display:block}
-.tab-panel img{width:100%;display:block;max-height:560px;object-fit:cover;object-position:top}
+.tab-panel img{width:100%;height:auto;display:block}
 .tab-cap{background:#111130;border-top:1px solid var(--brd);padding:14px 22px;display:flex;justify-content:space-between;align-items:center}
 .tab-cap-t{font-size:12px;color:var(--txt);letter-spacing:1px}
 .tab-cap-d{font-size:11px;color:var(--txt-dim)}
@@ -172,6 +175,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
     C64 VISUAL ASSEMBLER
   </div>
   <div class="sp"></div>
+  <a class="nav-link" href="#ultimate-basic">ULTIMATE BASIC</a>
   <a class="nav-link" href="#features">FEATURES</a>
   <a class="nav-link" href="#editors">EDITORS</a>
   <a class="nav-link" href="#docs">DOCS</a>
@@ -193,8 +197,8 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
       <div class="y">READY.</div>
       <div><span class="g">RUN</span><span class="cur"></span></div>
     </div>
-    <div class="badge">V2.2.8 — LATEST RELEASE</div>
-    <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS OR MACRO-ASM.</span></h1>
+    <div class="badge">V2.3.1 — LATEST RELEASE</div>
+    <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
     <p class="hero-sub">Drag-and-drop 6502 assembly blocks or switch to a full text editor — see real-time ASM output and run directly in VICE.</p>
     <div class="hero-ctas">
       <a class="btn btn-y" href="#download">► DOWNLOAD FREE</a>
@@ -206,12 +210,39 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   </div>
 </section>
 
+<!-- LATEST DEVELOPMENT: ULTIMATE BASIC -->
+<div id="ultimate-basic" style="background:var(--scr-darker);padding:80px 0">
+<div class="sec about-grid" style="padding-top:0;padding-bottom:0">
+  <div>
+    <div class="ub-tag">NEW IN V2.3.1</div>
+    <div class="sec-s">// LATEST DEVELOPMENT</div>
+    <h2 class="sec-t">ULTIMATE BASIC<br><span style="color:var(--ylw)">A COMPLETE IDE MODE</span></h2>
+    <p class="sec-d">Write, organize and run Ultimate Basic programs without leaving C64 Visual Assembler. The dedicated IDE mode brings source editing, project management and the complete build pipeline together in one focused workspace.</p>
+    <div class="feature-list">
+      <div class="fi"><div class="fi-dot">►</div><div><b>Native .UB editor</b> <span>— edit Ultimate Basic source with a dedicated project workflow.</span></div></div>
+      <div class="fi"><div class="fi-dot">►</div><div><b>Projects + startup file</b> <span>— keep multi-file programs organized and choose the entry point.</span></div></div>
+      <div class="fi"><div class="fi-dot">►</div><div><b>Build, run and debug</b> <span>— compile and launch from the same integrated workspace.</span></div></div>
+      <div class="fi"><div class="fi-dot">►</div><div><b>Every C64 target</b> <span>— run in VICE, deploy to C64 Ultimate, build D64 images or create Exomizer-packed programs.</span></div></div>
+      <div class="fi"><div class="fi-dot">►</div><div><b>Built-in UB manual</b> <span>— language reference and guidance are always available inside the app.</span></div></div>
+    </div>
+  </div>
+  <div class="about-right ub-shot">
+    <div class="screen-wrap">
+      <img src="uploads/ub.png" alt="Ultimate Basic IDE in C64 Visual Assembler">
+    </div>
+  </div>
+</div>
+</div>
+
+<hr class="div">
+
 <!-- ABOUT -->
 <div style="background:var(--bg);padding:80px 0">
 <div class="sec about-grid" style="padding-top:0;padding-bottom:0">
   <div>
     <div class="sec-s">// WHAT IS IT</div>
     <h2 class="sec-t">THE POWER OF 6502<br>MADE VISUAL</h2>
+    <div class="sec-callout">COMMODORE 64 ULTIMATE + ULTIMATE ELITE 64 SUPPORT</div>
     <p class="sec-d">C64 Visual Assembler is a modern Tauri-based desktop app that lets you build authentic Commodore 64 programs by arranging drag-and-drop blocks — while seeing the generated assembly and live disassembly on the right.</p>
     <div class="feature-list">
       <div class="fi"><div class="fi-dot">►</div><div><b>Block editor</b> <span>— drag mnemonics, macros and labels into a list. No hand-typing required.</span></div></div>
@@ -257,8 +288,8 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
     </div>
     <div class="fc">
       <div class="fc-ico">$0801 ASM</div>
-      <div class="fc-t">REAL-TIME ASM OUTPUT</div>
-      <div class="fc-d">Every edit instantly regenerates ASM, monitor hex dump, and a full 6502 disassembler view. Configurable start address, BASIC SYS stub optional.</div>
+      <div class="fc-t">REAL-TIME CODE GENERATION</div>
+      <div class="fc-d">Every block edit instantly regenerates the assembly source, machine-code hex dump, and 6502 disassembly. Configurable start address, BASIC SYS stub optional.</div>
     </div>
     <div class="fc">
       <div class="fc-ico">60+ MACROS</div>
@@ -301,6 +332,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   <h2 class="sec-t" style="margin-bottom:40px">BUILT-IN TOOLS FOR<br>EVERY C64 ASSET</h2>
   <div class="tabs">
     <div class="tab on" data-tab="prog" onclick="showTab('prog')">BLOCK EDITOR</div>
+    <div class="tab" data-tab="ub" onclick="showTab('ub')">ULTIMATE BASIC</div>
     <div class="tab" data-tab="code" onclick="showTab('code')">ASM EDITOR</div>
     <div class="tab" data-tab="sid" onclick="showTab('sid')">SID MUSIC</div>
     <div class="tab" data-tab="sprite" onclick="showTab('sprite')">SPRITES</div>
@@ -314,6 +346,10 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   <div class="tab-panel on" id="tab-prog">
     <img src="uploads/Screenshot 2026-08-01 191519.png" alt="Block program editor">
     <div class="tab-cap"><span class="tab-cap-t">BLOCK PROGRAM EDITOR + ASM VIEW</span><span class="tab-cap-d">DRAG BLOCKS FROM LEFT → COMPILE LIVE → RUN IN VICE</span></div>
+  </div>
+  <div class="tab-panel" id="tab-ub">
+    <img src="uploads/ub.png" alt="Ultimate Basic IDE in C64 Visual Assembler">
+    <div class="tab-cap"><span class="tab-cap-t">ULTIMATE BASIC — COMPLETE IDE MODE</span><span class="tab-cap-d">EDIT .UB SOURCES, MANAGE PROJECTS, BUILD AND RUN FROM ONE WORKSPACE</span></div>
   </div>
   <div class="tab-panel" id="tab-code">
     <img src="uploads/code.png" alt="Expert ASM editor">
@@ -416,7 +452,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
     <div class="dl-corner bl">└─</div>
     <div class="dl-corner br">─┘</div>
     <div class="sec-s" style="text-align:center;margin-bottom:16px">// DOWNLOAD</div>
-    <h2 class="sec-t" style="text-align:center">C64 VISUAL ASSEMBLER<br><span style="color:var(--ylw)">V2.2.8 — FREE</span></h2>
+    <h2 class="sec-t" style="text-align:center">C64 VISUAL ASSEMBLER<br><span style="color:var(--ylw)">V2.3.1 — FREE</span></h2>
     <p class="sec-d" style="text-align:center;margin:0 auto 8px;max-width:460px">Desktop app for Windows, macOS and Linux. Requires Node.js and Rust to build from source, or download a prebuilt installer.</p>
     <div class="dl-plats">
       <a class="dl-p btn" href="#" onclick="openItch();return false" style="border-color:var(--brd-hi)"><span style="color:var(--ylw)">■</span> WINDOWS</a>
