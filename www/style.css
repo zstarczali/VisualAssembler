@@ -407,6 +407,24 @@ a {
   background: color-mix(in srgb, var(--accent) 26%, transparent);
 }
 
+.editor-mode-indicator {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  margin-left: 8px;
+  border: 1px solid color-mix(in srgb, var(--accent) 38%, var(--panel-border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 /* Override legacy control-menu-trigger inside toolbar */
 .main-toolbar .control-menu-trigger {
   min-width: unset;
@@ -8397,7 +8415,7 @@ body.crt-mode #crt-overlay::after {
 /* SID Editor */
 .sid-dialog { background: transparent; border: none; padding: 0; width: min(1000px, 97vw); max-width: 97vw; height: min(900px, 95vh); max-height: 95vh; overflow: visible; }
 .sid-dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
-.sid-card { background: var(--panel); border: 1px solid var(--panel-border); display: flex; flex-direction: column; height: 100%; overflow: hidden; box-sizing: border-box; }
+.sid-card { background: var(--panel); border: 1px solid var(--panel-border); display: flex; flex-direction: column; height: 100%; overflow: visible; box-sizing: border-box; }
 .sid-hdr { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-bottom: 1px solid var(--panel-border); background: var(--panel-strong); flex-shrink: 0; position: relative; z-index: 5; }
 .sid-hdr .ed-file-menu { z-index: 40; left: 0; right: auto; }
 .sid-title { font-family: inherit; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text); }
@@ -9087,6 +9105,18 @@ body.crt-mode #crt-overlay::after {
 #curve-gen-dialog button:focus-visible[aria-label]::after,
 #tutorial-dialog button:focus-visible[aria-label]::after {
   opacity: 1;
+}
+
+#sid-clear[aria-label]::after,
+#sid-voice-copy[aria-label]::after {
+  top: calc(100% + 6px);
+  bottom: auto;
+  left: auto !important;
+  right: 0 !important;
+  transform: none !important;
+  max-width: none;
+  white-space: nowrap;
+  text-align: left;
 }
 
 #tutorial-dialog #tutorial-dialog-close::after {

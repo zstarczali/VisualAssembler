@@ -490,6 +490,7 @@ let debuggerWait = false;
 let debuggerWaitMs = 3000;
 let debuggerUnpause = false;
 let savedUiSettings = {};
+let _editorDialogPositions = {};
 let userMacros = {};  // Stores user-defined macros: { macroName: [blocks...] }
 
 // ΓöÇΓöÇ Tab system ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
@@ -605,7 +606,8 @@ function saveUiSettings() {
     expertLineNumbers: _expertLineNumbersEnabled,
     expertMinimap: _expertMinimapEnabled,
     blockMinimap: _blockMinimapEnabled,
-    autoSnapshotEnabled: autoSnapshotToggle ? autoSnapshotToggle.checked : true
+    autoSnapshotEnabled: autoSnapshotToggle ? autoSnapshotToggle.checked : true,
+    editorDialogPositions: _editorDialogPositions
   };
 
   localStorage.setItem("c64-ui-settings", JSON.stringify(settings));
@@ -1656,11 +1658,30 @@ function initPalette() {
   ubEditor?.addEventListener("keyup", _ubUpdateCursor);
   ubEditor?.addEventListener("click", _ubUpdateCursor);
   ubEditor?.addEventListener("scroll", _ubSyncScroll);
-  document.getElementById("ub-minimap")?.addEventListener("click", (e) => {
-    const canvas = e.currentTarget;
-    const ratio = (e.clientY - canvas.getBoundingClientRect().top) / canvas.clientHeight;
-    ubEditor.scrollTop = ratio * Math.max(0, ubEditor.scrollHeight - ubEditor.clientHeight);
-  });
+  const _ubMinimapScrollToY = (clientY) => {
+    const canvas = document.getElementById("ub-minimap");
+    if (!canvas || !ubEditor) return;
+    const ratio = (clientY - canvas.getBoundingClientRect().top) / Math.max(1, canvas.clientHeight);
+    ubEditor.scrollTop = Math.max(0, Math.min(1, ratio)) * Math.max(0, ubEditor.scrollHeight - ubEditor.clientHeight);
+  };
+  {
+    let _ubMmPointerDown = false;
+    const ubMinimap = document.getElementById("ub-minimap");
+    ubMinimap?.addEventListener("pointerdown", (e) => {
+      if (!_ubMinimapEnabled) return;
+      e.preventDefault();
+      _ubMmPointerDown = true;
+      _ubMinimapScrollToY(e.clientY);
+      const onMove = (ev) => { if (_ubMmPointerDown) _ubMinimapScrollToY(ev.clientY); };
+      const onUp = () => {
+        _ubMmPointerDown = false;
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
+      };
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
+    });
+  }
   ubEditor?.addEventListener("keydown", (e) => {
     if (_ubAcVisible()) {
       if (e.key === "ArrowDown") { e.preventDefault(); _ubAcMove(1); return; }
@@ -2295,6 +2316,7 @@ function initPalette() {
   applySavedLanguage();
   applySavedUiSettings();
   applyTranslations();
+  _updateEditorModeIndicator();
   applyZoom();
   updateEmulatorStatus();
   setupProgramDropZone();
@@ -2382,11 +2404,41 @@ function setupDraggableEditorDialogs() {
     ["curve-gen-dialog", ".cg-hdr"]
   ];
   dialogs.forEach(function(entry) {
-    const dialog = document.getElementById(entry[0]);
+    const dialogId = entry[0];
+    const dialog = document.getElementById(dialogId);
     const header = dialog?.querySelector(entry[1]);
     if (!dialog || !header || header.dataset.dragBound === "1") return;
     header.dataset.dragBound = "1";
     header.classList.add("editor-drag-handle");
+    const applyPosition = function() {
+      const saved = _editorDialogPositions?.[dialogId];
+      if (saved && Number.isFinite(saved.left) && Number.isFinite(saved.top)) {
+        dialog.style.position = "fixed";
+        dialog.style.margin = "0";
+        dialog.style.transform = "none";
+        const maxX = Math.max(8, window.innerWidth - dialog.offsetWidth - 8);
+        const maxY = Math.max(8, window.innerHeight - dialog.offsetHeight - 8);
+        dialog.style.left = Math.max(8, Math.min(saved.left, maxX)) + "px";
+        dialog.style.top = Math.max(8, Math.min(saved.top, maxY)) + "px";
+      } else {
+        dialog.style.position = "fixed";
+        dialog.style.margin = "0";
+        dialog.style.left = "50%";
+        dialog.style.top = "50%";
+        dialog.style.transform = "translate(-50%, -50%)";
+      }
+    };
+    const persistPosition = function() {
+      const rect = dialog.getBoundingClientRect();
+      _editorDialogPositions[dialogId] = { left: Math.round(rect.left), top: Math.round(rect.top) };
+      saveUiSettings();
+    };
+    dialog.addEventListener("toggle", function() {
+      if (!dialog.open) return;
+      requestAnimationFrame(function() {
+        requestAnimationFrame(applyPosition);
+      });
+    });
     header.addEventListener("pointerdown", function(e) {
       if (e.target.closest("button, input, select, textarea, label, .ed-file-menu")) return;
       const rect = dialog.getBoundingClientRect();
@@ -2414,10 +2466,18 @@ function setupDraggableEditorDialogs() {
       if (!_editorDialogDrag || _editorDialogDrag.dialog !== dialog) return;
       _editorDialogDrag = null;
       if (e && e.pointerId != null) { try { header.releasePointerCapture(e.pointerId); } catch(_) {} }
+      persistPosition();
     };
     header.addEventListener("pointerup", endDrag);
     header.addEventListener("pointercancel", endDrag);
   });
+}
+
+function _updateEditorModeIndicator() {
+  const el = document.getElementById("editor-mode-indicator");
+  if (!el) return;
+  const key = ultimateBasicMode ? "editorModeUltimateBasic" : (expertMode ? "editorModeExpert" : "editorModeBlock");
+  el.textContent = t(key);
 }
 
 function _showBlockCtxMenu(e, index) {
@@ -2625,6 +2685,10 @@ function showCustomerMessageIfNeeded() {
 }
 
 function _applyUiSettingsToDOM() {
+  _editorDialogPositions = (savedUiSettings.editorDialogPositions && typeof savedUiSettings.editorDialogPositions === "object")
+    ? savedUiSettings.editorDialogPositions
+    : {};
+
   if (sampleSelect && savedUiSettings.sample) {
     sampleSelect.value = savedUiSettings.sample;
   }
@@ -3502,9 +3566,11 @@ function _applyEditorTranslations() {
   }
   setAttr("#sid-oct-down", t("sidOctaveDown"));
   setAttr("#sid-oct-up", t("sidOctaveUp"));
+  setAttr("#sid-row-preview", t("sidPreviewRow"));
   setAttr("#sid-virtual-keyboard", t("sidVirtualKeyboard"));
   _sidUpdatePauseButton();
   setAttr("#sid-stop", t("sidStop"));
+  _updateEditorModeIndicator();
   setAttr("#sid-voice-copy", t("sidVoiceCopy"));
   setAttr("#sid-voice-paste", t("sidVoicePaste"));
   setAttr("#sid-clear", t("sidClearSelection"));
@@ -3514,11 +3580,16 @@ function _applyEditorTranslations() {
   setAttr("#sid-vkbd-oct-up", t("sidOctaveUp"));
   setText("#sid-vkbd-insert-label", t("sidVkbdInsert"));
   const sidCtxCopy = document.querySelector("#sid-ctx-menu .sid-ctx-copy");
+  const sidCtxCut = document.querySelector("#sid-ctx-menu .sid-ctx-cut");
   const sidCtxPaste = document.querySelector("#sid-ctx-menu .sid-ctx-paste");
   const sidCtxClear = document.querySelector("#sid-ctx-menu .sid-ctx-clear");
   if (sidCtxCopy) {
     const label = sidCtxCopy.querySelector(".sid-ctx-label");
     if (label) label.textContent = t("sidContextCopy");
+  }
+  if (sidCtxCut) {
+    const label = sidCtxCut.querySelector(".sid-ctx-label");
+    if (label) label.textContent = t("sidContextCut");
   }
   if (sidCtxPaste) {
     const label = sidCtxPaste.querySelector(".sid-ctx-label");
@@ -5704,6 +5775,7 @@ function setExpertMode(on) {
     expertModeTbBtn.setAttribute("aria-pressed", String(on));
     expertModeTbBtn.classList.toggle("main-tb-btn--active", on);
   }
+  _updateEditorModeIndicator();
   if (on) { _expertSyncFromProgram(); renderExpertOriginInfo(); _expertUpdateCaret(); }
   else {
     renderProgram();
@@ -5867,6 +5939,7 @@ function setUltimateBasicMode(on) {
   if (ubPanel) ubPanel.hidden = !ultimateBasicMode;
   ubModeTbBtn?.classList.toggle("main-tb-btn--active", ultimateBasicMode);
   ubModeTbBtn?.setAttribute("aria-pressed", String(ultimateBasicMode));
+  _updateEditorModeIndicator();
   if (ultimateBasicMode) {
     const current = _getActiveTab();
     if (current) current.editorMode = "ub";
@@ -30714,6 +30787,10 @@ function _sidClearSelection() {
   _sidBuildTracker();
   _sidRefreshSel();
 }
+function _sidCutSelection() {
+  _sidCopySelection();
+  _sidClearSelection();
+}
 function _sidHideCtxMenu() {
   const menu = document.getElementById("sid-ctx-menu");
   if (menu) menu.hidden = true;
@@ -30731,6 +30808,10 @@ function _sidShowCtxMenu(e, voice, row) {
       +   '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="8" height="10" rx="1"/><path d="M3 5H2a1 1 0 00-1 1v7a1 1 0 001 1h8a1 1 0 001-1v-1"/></svg>'
       +   '<span class="sid-ctx-label"></span>'
       + '</button>'
+      + '<button type="button" class="block-ctx-item sid-ctx-item sid-ctx-cut" data-action="cut">'
+      +   '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="4.25" cy="11.75" r="1.75"/><circle cx="11.75" cy="11.75" r="1.75"/><path d="M6 10.5L12.5 3.5"/><path d="M9.4 7l3.1 3.5"/><path d="M6.2 10.1 3.5 7"/></svg>'
+      +   '<span class="sid-ctx-label"></span>'
+      + '</button>'
       + '<button type="button" class="block-ctx-item sid-ctx-item sid-ctx-paste" data-action="paste">'
       +   '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="10" height="11" rx="1"/><path d="M5 4V3a1 1 0 011-1h4a1 1 0 011 1v1"/><path d="M5 8h6M5 11h4"/></svg>'
       +   '<span class="sid-ctx-label"></span>'
@@ -30743,6 +30824,7 @@ function _sidShowCtxMenu(e, voice, row) {
       const btn = evt.target.closest("[data-action]");
       if (!btn) return;
       if (btn.dataset.action === "copy") _sidCopySelection();
+      else if (btn.dataset.action === "cut") _sidCutSelection();
       else if (btn.dataset.action === "paste") _sidPasteSelection();
       else if (btn.dataset.action === "clear") _sidClearSelection();
       _sidHideCtxMenu();
@@ -30756,11 +30838,16 @@ function _sidShowCtxMenu(e, voice, row) {
     _sidRefreshSel();
   }
   const copyBtn = menu.querySelector(".sid-ctx-copy");
+  const cutBtn = menu.querySelector(".sid-ctx-cut");
   const pasteBtn = menu.querySelector(".sid-ctx-paste");
   const clearBtn = menu.querySelector(".sid-ctx-clear");
   if (copyBtn) {
     const label = copyBtn.querySelector(".sid-ctx-label");
     if (label) label.textContent = t("sidContextCopy");
+  }
+  if (cutBtn) {
+    const label = cutBtn.querySelector(".sid-ctx-label");
+    if (label) label.textContent = t("sidContextCut");
   }
   if (pasteBtn) {
     const label = pasteBtn.querySelector(".sid-ctx-label");
@@ -30944,6 +31031,34 @@ function _sidSetCellText(v, r) {
   const t = document.getElementById("sid-tracker"); if (!t) return;
   const td = t.querySelector('td.sid-cell[data-v="'+v+'"][data-r="'+r+'"]');
   if (td) td.textContent = _sidCellText(_sidCurPat()[v][r]);
+}
+
+function _sidPreviewSelectedRow() {
+  const pat = _sidCurPat();
+  const row = Math.max(0, Math.min(_SID_ROWS - 1, _sidSel.row));
+  _sidEnsureAudio();
+  const when = _sidAudio.currentTime + 0.02;
+  const rowSec = Math.max(_sidSpeed, 1) / 50;
+  const notes = [];
+  for (let v = 0; v < 3; v++) {
+    const cell = pat[v]?.[row];
+    if (cell && cell.note != null) {
+      const inst = _sidInsts[cell.inst] || _sidCurInst();
+      _sidPlayInst(inst, _sidNoteFreq(cell.note), when, rowSec);
+      notes.push(cell.note);
+    }
+  }
+  if (notes.length) _sidFlashVirtualKeyboardNotes(notes);
+  const t = document.getElementById("sid-tracker");
+  if (t) {
+    t.querySelectorAll("tr.sid-playing").forEach(function(r){ r.classList.remove("sid-playing"); });
+    const tr = t.querySelector('tr.sid-trow[data-row="'+row+'"]');
+    if (tr) {
+      tr.classList.add("sid-playing");
+      tr.scrollIntoView({ block: "nearest" });
+      setTimeout(function() { tr.classList.remove("sid-playing"); }, Math.max(120, Math.round(rowSec * 1000)));
+    }
+  }
 }
 
 /* Keyboard note mapping (tracker style, one octave + above) */
@@ -31779,6 +31894,13 @@ function setupSidEditor() {
 
   onId("sid-editor-btn", "click", function() {
     const cm = document.querySelector(".control-menu"); if (cm) cm.removeAttribute("open");
+    if (!_editorDialogPositions?.["sid-editor-dialog"]) {
+      dialog.style.position = "fixed";
+      dialog.style.margin = "0";
+      dialog.style.left = "50%";
+      dialog.style.top = "50%";
+      dialog.style.transform = "translate(-50%, -50%)";
+    }
     _sidInit(); dialog.showModal();
   });
   onId("sid-close", "click", function() { _sidCloseVirtualKeyboard(); _sidStop(); dialog.close(); });
@@ -31963,6 +32085,7 @@ function setupSidEditor() {
   // Octave controls
   onId("sid-oct-up", "click", function(){ _sidSetOctave(_sidOctave+1); });
   onId("sid-oct-down", "click", function(){ _sidSetOctave(_sidOctave-1); });
+  onId("sid-row-preview", "click", _sidPreviewSelectedRow);
 }
 function _sidSetOctave(o) {
   _sidOctave = Math.max(0, Math.min(7, o));
