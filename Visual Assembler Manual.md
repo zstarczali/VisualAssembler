@@ -3132,7 +3132,10 @@ Multi-instrument 3-voice tracker with a Web Audio preview engine. Open via Toolk
 - 3 voices × up to 7 patterns × 32 rows = 7 × 32 = 224 rows max (8-bit row counter constrains it).
 - Per-row: note + instrument index. Empty rows hold the previous note.
 - Click-and-drag to paint a range of notes. Octave selector for the input note (0-7).
-- Range copy / paste: select a span with shift-click, then **Copy** / **Paste** in the tracker toolbar.
+- Harmony helper: choose a root note, chord type, and octave, preview the chord with the current instrument, then insert the voicing directly into the tracker.
+- Arpeggio helper: generate 4-, 8-, or 16-step note runs from the selected chord in up, down, or up/down directions and insert them at the current position.
+- Range copy / paste: select a span with shift-click, then **Copy** / **Paste** in the tracker toolbar. Clipboard modes are separated, so copying a full voice clears the cell-range clipboard and copying a cell range clears the full-voice clipboard.
+- Cell-range paste now starts at the selected range start cell and stops cleanly at voice and row boundaries instead of wrapping into the next column or row.
 - Speed slider sets the IRQ tick divisor (frames between rows).
 
 **Files menu exports:**
