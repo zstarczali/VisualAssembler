@@ -14,9 +14,14 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Preformatte
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "Visual Assembler Manual.md"
 OUTPUT = ROOT / "docs" / "Visual Assembler Manual.pdf"
-FONT_DIR = Path("/System/Library/Fonts/Supplemental")
+if Path("C:/Windows/Fonts/arial.ttf").exists():
+    FONT_DIR = Path("C:/Windows/Fonts")
+    FONT_FILES = (("Manual", "arial.ttf"), ("Manual-Bold", "arialbd.ttf"), ("Manual-Italic", "ariali.ttf"), ("Manual-BoldItalic", "arialbi.ttf"))
+else:
+    FONT_DIR = Path("/System/Library/Fonts/Supplemental")
+    FONT_FILES = (("Manual", "Arial.ttf"), ("Manual-Bold", "Arial Bold.ttf"), ("Manual-Italic", "Arial Italic.ttf"), ("Manual-BoldItalic", "Arial Bold Italic.ttf"))
 
-for name, file in (("Manual", "Arial.ttf"), ("Manual-Bold", "Arial Bold.ttf"), ("Manual-Italic", "Arial Italic.ttf"), ("Manual-BoldItalic", "Arial Bold Italic.ttf")):
+for name, file in FONT_FILES:
     pdfmetrics.registerFont(TTFont(name, FONT_DIR / file))
 pdfmetrics.registerFontFamily("Manual", normal="Manual", bold="Manual-Bold", italic="Manual-Italic", boldItalic="Manual-BoldItalic")
 
@@ -77,7 +82,7 @@ def render(nodes, width):
 
 def footer(canvas, document):
     canvas.saveState(); canvas.setFont("Manual", 7); canvas.setFillColor(colors.HexColor("#777777"))
-    canvas.drawString(15 * mm, 9 * mm, "C64 Visual Assembler 2.3.0 - User Manual")
+    canvas.drawString(15 * mm, 9 * mm, "C64 Visual Assembler 2.3.1 - User Manual")
     canvas.drawRightString(A4[0] - 15 * mm, 9 * mm, str(document.page)); canvas.restoreState()
 
 tree = mistune.create_markdown(renderer="ast", plugins=["table"])(SOURCE.read_text(encoding="utf-8"))
