@@ -1527,7 +1527,7 @@ function initPalette() {
   });
   ubModeTbBtn?.addEventListener("click", () => setUltimateBasicMode(!ultimateBasicMode));
   document.getElementById("ub-new-btn")?.addEventListener("click", _ubNew);
-  document.getElementById("ub-open-btn")?.addEventListener("click", () => _ubOpen(true));
+  document.getElementById("ub-open-btn")?.addEventListener("click", () => _ubOpen(false));
   document.getElementById("ub-save-btn")?.addEventListener("click", () => _ubSave(false));
   document.getElementById("ub-save-as-btn")?.addEventListener("click", () => _ubSave(true));
   document.getElementById("ub-format-btn")?.addEventListener("click", _ubFormatSource);
@@ -1670,8 +1670,23 @@ function initPalette() {
   const _ubMinimapScrollToY = (clientY) => {
     const canvas = document.getElementById("ub-minimap");
     if (!canvas || !ubEditor) return;
-    const ratio = (clientY - canvas.getBoundingClientRect().top) / Math.max(1, canvas.clientHeight);
-    ubEditor.scrollTop = Math.max(0, Math.min(1, ratio)) * Math.max(0, ubEditor.scrollHeight - ubEditor.clientHeight);
+    const rect = canvas.getBoundingClientRect();
+    const minimapHeight = rect.height;
+    const linePx = 2;
+    const total = ubEditor.value.split("\n").length || 1;
+    const totalHeight = ubEditor.scrollHeight;
+    const viewHeight = ubEditor.clientHeight;
+    const contentHeight = total * linePx;
+    const lineHeight = totalHeight / total;
+    let minimapOffset = 0;
+    if (contentHeight > minimapHeight) {
+      const topLine = ubEditor.scrollTop / lineHeight;
+      const visibleLines = viewHeight / lineHeight;
+      const viewportMiddle = (topLine + visibleLines / 2) * linePx;
+      minimapOffset = Math.max(0, Math.min(contentHeight - minimapHeight, viewportMiddle - minimapHeight / 2));
+    }
+    const minimapLine = (clientY - rect.top + minimapOffset) / linePx;
+    ubEditor.scrollTop = minimapLine * lineHeight - viewHeight / 2;
   };
   {
     let _ubMmPointerDown = false;
@@ -1690,6 +1705,10 @@ function initPalette() {
       window.addEventListener("pointermove", onMove);
       window.addEventListener("pointerup", onUp);
     });
+    const ubEditorWrap = document.querySelector(".ub-editor-wrap");
+    if (ubEditorWrap && typeof ResizeObserver !== "undefined") {
+      new ResizeObserver(_ubDrawMinimap).observe(ubEditorWrap);
+    }
   }
   ubEditor?.addEventListener("keydown", (e) => {
     if (_ubAcVisible()) {
@@ -6308,13 +6327,70 @@ function _ubDrawMinimap() {
   if (!_ubMinimapEnabled) return;
   const canvas = document.getElementById("ub-minimap");
   if (!canvas || !canvas.offsetWidth || !canvas.offsetHeight) return;
-  const dpr = Math.min(devicePixelRatio || 1, 2), w = canvas.offsetWidth, h = canvas.offsetHeight;
-  canvas.width = w * dpr; canvas.height = h * dpr;
-  const ctx = canvas.getContext("2d"); ctx.scale(dpr, dpr); ctx.clearRect(0, 0, w, h);
-  const lines = ubEditor.value.split("\n"), scale = Math.min(2, h / Math.max(1, lines.length));
-  lines.forEach((line, i) => { const t = line.trim(); if (!t) return; ctx.fillStyle = /^(#|rem\b)/i.test(t) ? "#6a9955" : /^\b(var|const|sub|fn)\b/i.test(t) ? "#569cd6" : "#dcdcaa"; ctx.globalAlpha = .72; ctx.fillRect(3, i * scale, Math.min(w - 6, Math.max(4, t.length * .9)), Math.max(1, scale - .3)); });
-  const ratio = ubEditor.scrollTop / Math.max(1, ubEditor.scrollHeight), view = ubEditor.clientHeight / Math.max(1, ubEditor.scrollHeight);
-  ctx.globalAlpha = 1; ctx.fillStyle = "rgba(80,140,255,.18)"; ctx.fillRect(0, ratio * h, w, Math.max(8, view * h));
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const width = canvas.offsetWidth;
+  const height = canvas.offsetHeight;
+  const canvasWidth = Math.round(width * dpr);
+  const canvasHeight = Math.round(height * dpr);
+  if (canvas.width !== canvasWidth || canvas.height !== canvasHeight) {
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+  }
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const rootStyle = getComputedStyle(document.documentElement);
+  const background = rootStyle.getPropertyValue("--expert-editor-bg").trim() || "#1a1b26";
+  const commentColor = rootStyle.getPropertyValue("--hl-comment").trim() || "#6a9955";
+  const keywordColor = rootStyle.getPropertyValue("--hl-mnem").trim() || "#dcdcaa";
+  const labelColor = rootStyle.getPropertyValue("--hl-label").trim() || "#9cdcfe";
+  const declarationColor = rootStyle.getPropertyValue("--hl-directive").trim() || "#569cd6";
+  const numberColor = rootStyle.getPropertyValue("--hl-number").trim() || "#b5cea8";
+  const primary = rootStyle.getPropertyValue("--primary").trim() || "#2563eb";
+  ctx.fillStyle = background;
+  ctx.fillRect(0, 0, width, height);
+
+  const lines = ubEditor.value.split("\n");
+  const total = lines.length || 1;
+  const linePx = 2;
+  const editorLineHeight = ubEditor.scrollHeight / total;
+  const topLine = ubEditor.scrollTop / editorLineHeight;
+  const visibleLines = ubEditor.clientHeight / editorLineHeight;
+  const contentHeight = total * linePx;
+  let minimapOffset = 0;
+  if (contentHeight > height) {
+    const viewportMiddle = (topLine + visibleLines / 2) * linePx;
+    minimapOffset = Math.max(0, Math.min(contentHeight - height, viewportMiddle - height / 2));
+  }
+
+  const xPadding = 3;
+  const maxWidth = width - xPadding * 2;
+  lines.forEach((raw, index) => {
+    const y = index * linePx - minimapOffset;
+    if (y + linePx < 0 || y > height) return;
+    const trimmed = raw.trimStart();
+    if (!trimmed) return;
+    let color = keywordColor;
+    if (/^(#|rem\b)/i.test(trimmed)) color = commentColor;
+    else if (/^[A-Za-z_][A-Za-z0-9_]*:/i.test(trimmed)) color = labelColor;
+    else if (/^(var|const|sub|fn|label|include|incbin|load|data)\b/i.test(trimmed)) color = declarationColor;
+    else if (/^(\d|\$[0-9a-f]|%[01])/i.test(trimmed)) color = numberColor;
+    const indent = raw.length - trimmed.length;
+    const indentX = Math.min(indent * 1.5, maxWidth * 0.35);
+    const barWidth = Math.min(trimmed.length * 1.3, maxWidth - indentX);
+    ctx.globalAlpha = 0.72;
+    ctx.fillStyle = color;
+    ctx.fillRect(xPadding + indentX, y, Math.max(3, barWidth), Math.max(1, linePx - 0.3));
+  });
+  ctx.globalAlpha = 1;
+
+  const viewportTop = topLine * linePx - minimapOffset;
+  const viewportHeight = Math.max(8, visibleLines * linePx);
+  ctx.fillStyle = _mmAlphaColor(primary, 0.12);
+  ctx.fillRect(0, viewportTop, width, viewportHeight);
+  ctx.strokeStyle = _mmAlphaColor(primary, 0.5);
+  ctx.lineWidth = 1;
+  ctx.strokeRect(0.5, viewportTop + 0.5, width - 1, viewportHeight - 1);
 }
 
 function _ubSetStatus(text, error = false) {

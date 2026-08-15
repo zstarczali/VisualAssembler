@@ -3507,7 +3507,7 @@ body.ub-mode .workspace { grid-template-columns: 1fr; }
 .ub-highlight .ub-fn { color: var(--hl-function, var(--hl-directive)); }
 .ub-line-numbers { position: absolute; inset: 0 auto 0 0; width: 48px; padding: 16px 8px; box-sizing: border-box; z-index: 3; overflow: hidden; border-right: 1px solid var(--panel-border); color: var(--muted); background: var(--ub-editor-bg, var(--expert-editor-bg)); font-family: "IBM Plex Mono", monospace; font-size: 14px; line-height: 1.5; text-align: right; pointer-events: none; white-space: pre; }
 .ub-line-numbers-content { display: block; will-change: transform; }
-.ub-minimap { position: absolute; top: 0; right: 0; width: 88px; height: 100%; z-index: 4; border-left: 1px solid var(--panel-border); background: var(--ub-editor-bg, var(--expert-editor-bg, var(--panel-strong))); cursor: pointer; }
+.ub-minimap { position: absolute; top: 0; right: 0; width: 88px; height: 100%; z-index: 4; box-sizing: border-box; border-left: 1px solid var(--panel-border); background: var(--expert-editor-bg); cursor: pointer; user-select: none; }
 .ub-find-bar { z-index: 20; }
 .ub-panel.ub-show-minimap .ub-find-bar { right: 102px; }
 .ub-panel:not(.ub-show-lines) .ub-line-numbers { display: none; }
