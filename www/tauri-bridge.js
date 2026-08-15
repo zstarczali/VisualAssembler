@@ -23,6 +23,7 @@
     chooseViceExecutable: () => invoke("choose_vice_executable"),
     chooseExomizerExecutable: () => invoke("choose_exomizer_executable"),
     chooseWorkingFolder: () => invoke("choose_working_folder"),
+    chooseUbWorkingFolder: () => invoke("choose_ub_working_folder"),
     buildExomizerPrg: (payload) => invoke("build_exomizer_prg", { payload }),
     buildExomizerRaw: (payload) => invoke("build_exomizer_raw", { payload }),
     launchVice: (payload) => invoke("launch_vice", { payload }),

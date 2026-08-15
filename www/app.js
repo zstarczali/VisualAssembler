@@ -360,6 +360,7 @@ let blockPaletteSync = true;
 let asmOutputBase = "hex";
 let originBase = "hex";
 let workingFolder = "";
+let ubWorkingFolder = "";
 const macroSourceToggle = document.getElementById("macro-source-toggle");
 const macroSourceToggleText = document.getElementById("macro-source-toggle-text");
 const regionCommentsToggle = document.getElementById("region-comments-toggle");
@@ -381,6 +382,7 @@ const checkUpdateButton = document.getElementById("check-update-btn");
 const reportBugButton = document.getElementById("report-bug-btn");
 const basicSysToggle = document.getElementById("basic-sys-toggle");
 const writeDebugSidecarsToggle = document.getElementById("write-debug-sidecars-toggle");
+const ubAsmSidecarToggle = document.getElementById("ub-asm-sidecar-toggle");
 const exomizerBorderFlashToggle = document.getElementById("exomizer-border-flash");
 const expertModeToggle = document.getElementById("expert-mode-toggle");
 const expertPanel = document.getElementById("expert-panel");
@@ -394,6 +396,8 @@ const expertCaret = document.getElementById("expert-caret");
 const expertFileName = document.getElementById("expert-file-name");
 const expertWorkingFolder = document.getElementById("expert-working-folder");
 const expertWorkingFolderText = expertWorkingFolder?.querySelector(".expert-working-folder__text");
+const ubWorkingFolderEl = document.getElementById("ub-working-folder");
+const ubWorkingFolderText = ubWorkingFolderEl?.querySelector(".expert-working-folder__text");
 const aboutDialog = document.getElementById("about-dialog");
 const aboutCloseButton = document.getElementById("about-close");
 const whatsNewDialog = document.getElementById("whats-new-dialog");
@@ -429,6 +433,7 @@ const expertDisasmBtn      = document.getElementById("expert-disasm-btn");
 const expertDisasmPanel    = document.getElementById("expert-disasm-panel");
 const expertDisasmOutput   = document.getElementById("expert-disasm-output");
 const expertDisasmCopySourceBtn = document.getElementById("expert-disasm-copy-source-btn");
+const ubDisasmCopySourceBtn = document.getElementById("ub-disasm-copy-source-btn");
 const expertDisasmResizer  = document.getElementById("expert-disasm-resizer");
 const expertMonitorBtn     = document.getElementById("expert-monitor-btn");
 const expertMonitorPanel   = document.getElementById("expert-monitor-panel");
@@ -438,6 +443,7 @@ const expertRegionFoldAllBtn   = document.getElementById("expert-region-fold-all
 const expertFormatBtn      = document.getElementById("expert-format-btn");
 const expertLoadAsmBtn     = document.getElementById("expert-load-asm-btn");
 const expertSaveAsmBtn     = document.getElementById("expert-save-asm-btn");
+const expertSaveAsmAsBtn   = document.getElementById("expert-save-asm-as-btn");
 const expertBuildInfoBtn   = document.getElementById("expert-build-info-btn");
 const expertModeTbBtn      = document.getElementById("expert-mode-tb-btn");
 const ubModeTbBtn          = document.getElementById("ub-mode-tb-btn");
@@ -571,6 +577,7 @@ function saveUiSettings() {
     memoryPanelOpen: !!globalMemoryPanel?.open,
     basicSys: basicSysToggle ? basicSysToggle.checked : true,
     writeDebugSidecars: writeDebugSidecarsToggle ? writeDebugSidecarsToggle.checked : false,
+    ubAsmSidecar: ubAsmSidecarToggle ? ubAsmSidecarToggle.checked : false,
     exomizerBorderFlash: exomizerBorderFlashToggle ? exomizerBorderFlashToggle.checked : true,
     expertMode: expertMode,
     ultimateBasicMode: ultimateBasicMode,
@@ -1510,6 +1517,7 @@ function initPalette() {
   });
   exomizerBorderFlashToggle?.addEventListener("change", saveUiSettings);
   writeDebugSidecarsToggle?.addEventListener("change", saveUiSettings);
+  ubAsmSidecarToggle?.addEventListener("change", saveUiSettings);
 
   expertModeToggle?.addEventListener("change", () => {
     setExpertMode(expertModeToggle.checked);
@@ -1520,7 +1528,8 @@ function initPalette() {
   ubModeTbBtn?.addEventListener("click", () => setUltimateBasicMode(!ultimateBasicMode));
   document.getElementById("ub-new-btn")?.addEventListener("click", _ubNew);
   document.getElementById("ub-open-btn")?.addEventListener("click", () => _ubOpen(true));
-  document.getElementById("ub-save-btn")?.addEventListener("click", _ubSave);
+  document.getElementById("ub-save-btn")?.addEventListener("click", () => _ubSave(false));
+  document.getElementById("ub-save-as-btn")?.addEventListener("click", () => _ubSave(true));
   document.getElementById("ub-format-btn")?.addEventListener("click", _ubFormatSource);
   document.getElementById("ub-build-btn")?.addEventListener("click", () => _ubCompile(true));
   document.getElementById("ub-output-btn")?.addEventListener("click", _ubToggleOutput);
@@ -1798,7 +1807,8 @@ function initPalette() {
 
   expertFormatBtn?.addEventListener("click", _expertFormatSource);
   expertLoadAsmBtn?.addEventListener("click", _expertLoadAsm);
-  expertSaveAsmBtn?.addEventListener("click", _expertSaveAsm);
+  expertSaveAsmBtn?.addEventListener("click", () => _expertSaveAsm(false));
+  expertSaveAsmAsBtn?.addEventListener("click", () => _expertSaveAsm(true));
   expertBuildInfoBtn?.addEventListener("click", showBuildInfoDialog);
   buildInfoBtn?.addEventListener("click", showBuildInfoDialog);
 
@@ -2205,8 +2215,10 @@ function initPalette() {
     if (ok) document.querySelector(".control-menu")?.removeAttribute("open");
   });
   setWorkingFolderButton?.addEventListener("click", async () => {
-    await chooseWorkingFolder();
-    document.querySelector(".control-menu")?.removeAttribute("open");
+    const completed = _isUltimateBasicEditorActive()
+      ? await chooseUbWorkingFolder()
+      : await chooseWorkingFolder();
+    if (completed !== false) document.querySelector(".control-menu")?.removeAttribute("open");
   });
   projectSnapshotSaveButton?.addEventListener("click", async () => {
     await _saveManualProjectSnapshot();
@@ -2286,6 +2298,9 @@ function initPalette() {
   });
   expertDisasmCopySourceBtn?.addEventListener("click", () => {
     copyDisasmSourceToClipboard(true);
+  });
+  ubDisasmCopySourceBtn?.addEventListener("click", () => {
+    copyDisasmSourceToClipboard(false, document.getElementById("ub-disasm-output"));
   });
   chooseViceButton?.addEventListener("click", chooseViceExecutable);
   runEmulatorButton?.addEventListener("click", () => {
@@ -2724,6 +2739,9 @@ function _applyUiSettingsToDOM() {
   if (writeDebugSidecarsToggle) {
     writeDebugSidecarsToggle.checked = !!savedUiSettings.writeDebugSidecars;
   }
+  if (ubAsmSidecarToggle) {
+    ubAsmSidecarToggle.checked = !!savedUiSettings.ubAsmSidecar;
+  }
 
   if (exomizerBorderFlashToggle) {
     exomizerBorderFlashToggle.checked = savedUiSettings.exomizerBorderFlash !== false;
@@ -2986,6 +3004,8 @@ function applyTranslations() {
   if (basicSysLabelEl) basicSysLabelEl.textContent = t("basicSysLabel");
   const writeDebugSidecarsLabelEl = document.getElementById("write-debug-sidecars-label");
   if (writeDebugSidecarsLabelEl) writeDebugSidecarsLabelEl.textContent = t("writeDebugSidecarsLabel");
+  const ubAsmSidecarLabelEl = document.getElementById("ub-asm-sidecar-label");
+  if (ubAsmSidecarLabelEl) ubAsmSidecarLabelEl.textContent = t("ubAsmSidecarLabel");
   const exomizerFlashLabelEl = document.getElementById("exomizer-border-flash-label");
   if (exomizerFlashLabelEl) exomizerFlashLabelEl.textContent = t("exomizerBorderFlashLabel");
   const blockPaletteSyncLabelEl = document.getElementById("block-desc-sync-label");
@@ -3026,13 +3046,15 @@ function applyTranslations() {
   expertLoadAsmBtn?.setAttribute("aria-label", t("vasmLoadBtn"));
   expertSaveAsmBtn?.setAttribute("title", t("vasmSaveBtn"));
   expertSaveAsmBtn?.setAttribute("aria-label", t("vasmSaveBtn"));
+  expertSaveAsmAsBtn?.setAttribute("title", t("vasmSaveAsBtn"));
+  expertSaveAsmAsBtn?.setAttribute("aria-label", t("vasmSaveAsBtn"));
   expertBuildInfoBtn?.setAttribute("title", t("buildInfoBtn"));
   expertBuildInfoBtn?.setAttribute("aria-label", t("buildInfoBtn"));
   buildInfoBtn?.setAttribute("title", t("buildInfoBtn"));
   buildInfoBtn?.setAttribute("aria-label", t("buildInfoBtn"));
 
   const ubLabels = {
-    "ub-new-btn": "ubNewSource", "ub-open-btn": "ubOpenSource", "ub-save-btn": "ubSaveSource", "ub-format-btn": "ubFormatSource",
+    "ub-new-btn": "ubNewSource", "ub-open-btn": "ubOpenSource", "ub-save-btn": "ubSaveSource", "ub-save-as-btn": "ubSaveSourceAs", "ub-format-btn": "ubFormatSource",
     "ub-build-btn": "ubBuild", "ub-output-btn": "ubBuildOutput", "ub-verbose-btn": "ubVerbose", "ub-disasm-btn": "expertDisasm", "ub-autocomplete-btn": "expertAutocomplete",
     "ub-project-btn": "expertProjectPanel", "ub-help-btn": "ubCommandHelpToggle", "ub-manual-btn": "ubManual", "ub-project-open-btn": "projOpenProjectBtn",
     "ub-project-new-btn": "projNewProjectBtn", "ub-project-save-btn": "projSaveProjectBtn",
@@ -3159,6 +3181,7 @@ function applyTranslations() {
     copyAsmButton?.setAttribute("aria-label", t("copyAsm"));
     disasmCopySourceBtn?.setAttribute("aria-label", t("disasmCopySource"));
     expertDisasmCopySourceBtn?.setAttribute("aria-label", t("disasmCopySource"));
+    ubDisasmCopySourceBtn?.setAttribute("aria-label", t("disasmCopySource"));
     saveProjectButton?.setAttribute("title", t("saveProject"));
     saveProjectButton?.setAttribute("aria-label", t("saveProject"));
     saveProjectAsButton?.setAttribute("title", t("saveProgramAs"));
@@ -3171,8 +3194,7 @@ function applyTranslations() {
     snapshotHistoryButton?.setAttribute("aria-label", t("snapshotHistory"));
     savePrgButton?.setAttribute("title", t("savePrg"));
     savePrgButton?.setAttribute("aria-label", t("savePrg"));
-    setWorkingFolderButton?.setAttribute("title", t("setWorkingFolder"));
-    setWorkingFolderButton?.setAttribute("aria-label", t("setWorkingFolder"));
+    _updateWorkingFolderButtonTooltip();
     saveD64Button?.setAttribute("title", t("saveD64"));
     saveD64Button?.setAttribute("aria-label", t("saveD64"));
     loadProjectButton?.setAttribute("title", t("loadProject"));
@@ -3205,6 +3227,7 @@ function applyTranslations() {
     chooseExomizerButton?.setAttribute("title", t("chooseExomizer"));
     chooseExomizerButton?.setAttribute("aria-label", t("chooseExomizer"));
     updateWorkingFolderPreview(workingFolder);
+    updateUbWorkingFolderPreview(ubWorkingFolder);
     updateVicePathPreview(vicePath);
     updateExomizerPathPreview(exomizerPath);
     updateDebuggerPathPreview(debuggerPath);
@@ -5854,7 +5877,7 @@ const _UB_COMMAND_REFERENCE = [
   ["sys", "sys address [, accumulator]", "Calls a machine-code routine with JSR."],
   ["asm", "asm byte [, byte ...]\nasm {\n  6502 instructions\n}", "Embeds raw bytes or a full inline 6502 assembly block."],
   ["include", "include \"file.ub\"", "Includes another UltimateBasic source file."],
-  ["incbin", "incbin \"file.bin\"", "Embeds binary data at compile time."],
+  ["incbin", "incbin \"file.bin\"\nincbin \"file.bin\", $address", "Embeds binary data inline or at an absolute address."],
   ["data", "data value [, value ...]\nread variable", "Defines compile-time byte data and reads it sequentially."],
   ["reu", "reu stash|fetch|swap c64_address, bank, reu_address, length", "Transfers memory using the REU DMA controller."],
   ["turbo", "turbo on | off\nspeed mhz", "Controls C64 Ultimate/SuperCPU acceleration."],
@@ -5882,7 +5905,7 @@ const _UB_COMMAND_REFERENCE = [
   ["paint", "paint x, y [, color]", "Flood-fills a connected bitmap area."],
   ["fill", "fill screen value\nfill color value\nfill address, length, value", "Fills screen RAM, color RAM, or an arbitrary memory range."],
   ["sprite control", "sprite id, on|off|color value|multi on|off|expand x|y|priority front|back", "Controls hardware sprite attributes."],
-  ["sprite_frame", "sprite_frame id, data_address", "Changes a sprite's data pointer."],
+  ["sprite_frame", "sprite_frame id, data_address [, frame]", "Selects a sprite animation frame. The optional frame indexes consecutive 64-byte images from data_address; without it, the command selects the base image."],
   ["sprite collision", "sprite_hit()\nsprite_bg_hit()", "Reads sprite/sprite or sprite/background collision flags."],
   ["sprite position", "sprite_x(id)\nsprite_y(id)", "Reads a hardware sprite coordinate."],
   ["chardef", "chardef character\n  byte values...\nend", "Embeds an 8-byte custom character definition."],
@@ -5899,6 +5922,10 @@ const _UB_COMMAND_REFERENCE = [
   ["save", "save filename, start_address, length", "Saves a memory range to device 8 through the KERNAL."],
   ["memcopy", "memcopy source, destination, length", "Copies a block of memory."],
   ["drawmem", "drawmem source, destination, width, height, stride", "Copies a packed 2-D rectangle to strided destination memory."],
+  ["map", "map load \"file.ubmap\"\nmap draw x, y\nmap set x, y, tile\nmap color x, y, color", "Loads, draws, and modifies character tile maps."],
+  ["map query", "map_tile(x, y)\nmap_color(x, y)", "Reads a tile code or cell color from the active map."],
+  ["koala", "koala load \"picture.kla\"\nkoala show\nkoala hide", "Loads and displays a Koala Painter image."],
+  ["collision", "box_hit(left1, top1, right1, bottom1, left2, top2, right2, bottom2)", "Tests two inclusive bounding boxes for overlap."],
   ["delay", "delay frames", "Waits for the given number of video frames."],
   ["raster", "raster()", "Returns the current raster line."],
   ["scroll", "scroll x amount [narrow|wide]\nscroll y amount\nscroll row row_number left", "Controls VIC-II fine scrolling, display width, or shifts a screen row."],
@@ -5939,6 +5966,7 @@ function setUltimateBasicMode(on) {
   if (ubPanel) ubPanel.hidden = !ultimateBasicMode;
   ubModeTbBtn?.classList.toggle("main-tb-btn--active", ultimateBasicMode);
   ubModeTbBtn?.setAttribute("aria-pressed", String(ultimateBasicMode));
+  _updateWorkingFolderButtonTooltip();
   _updateEditorModeIndicator();
   if (ultimateBasicMode) {
     const current = _getActiveTab();
@@ -5959,6 +5987,19 @@ function setUltimateBasicMode(on) {
   saveUiSettings();
 }
 
+function _updateWorkingFolderButtonTooltip() {
+  const text = t(_isUltimateBasicEditorActive() ? "setUbWorkingFolderHint" : "setVaWorkingFolderHint");
+  setWorkingFolderButton?.setAttribute("title", text);
+  setWorkingFolderButton?.setAttribute("aria-label", text);
+}
+
+function _isUltimateBasicEditorActive() {
+  return ultimateBasicMode
+    || document.body.classList.contains("ub-mode")
+    || _getActiveTab()?.editorMode === "ub"
+    || (ubPanel && !ubPanel.hidden);
+}
+
 function _ubApplyLeftViews(persist = true) {
   const projectView = document.getElementById("ub-project-view");
   const commandsView = document.getElementById("ub-commands-view");
@@ -5974,9 +6015,9 @@ function _ubApplyLeftViews(persist = true) {
   if (persist) saveUiSettings();
 }
 
-const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read restore asm include incbin load open close save memcopy drawmem poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll").split(" "));
+const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read restore asm include incbin load open close save memcopy drawmem map koala show hide set draw poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll").split(" "));
 const _UB_TYPES = new Set(["int", "word", "float", "string", "array", "array_word"]);
-const _UB_FUNCTIONS = new Set(("str_to_int numstr chr$ str$ inkey waitkey len asc val reudet reu_present turbo clamp peek peek16 rnd abs min max sgn spc tab joy mouse_x mouse_x_hi mouse_y mouse_btn sprhit sprbghit sprite_hit sprite_bg_hit sprite_x sprite_y sin cos hex bin getch").split(" "));
+const _UB_FUNCTIONS = new Set(("str_to_int numstr chr$ str$ inkey waitkey len asc val reudet reu_present turbo clamp peek peek16 rnd abs min max sgn spc tab joy mouse_x mouse_x_hi mouse_y mouse_btn sprhit sprbghit sprite_hit sprite_bg_hit sprite_x sprite_y map_tile map_color box_hit sin cos hex bin getch").split(" "));
 const _UB_ASM_MNEMONICS = new Set(("adc and asl bcc bcs beq bit bmi bne bpl brk bvc bvs clc cld cli clv cmp cpx cpy dec dex dey eor inc inx iny jmp jsr lda ldx ldy lsr nop ora pha php pla plp rol ror rti rts sbc sec sed sei sta stx sty tax tay tsx txa txs tya").split(" "));
 
 function _ubEsc(value) { return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
@@ -6273,8 +6314,6 @@ function _ubUpdateCursor() {
 
 function _ubSetFile(path = "") {
   _ubFilePath = path;
-  const el = document.getElementById("ub-file-name");
-  if (el) el.textContent = path ? path.replace(/\\/g, "/").split("/").pop() : "untitled.ub";
   const tab = _getActiveTab();
   if (tab && ultimateBasicMode) {
     tab.ubFilePath = path;
@@ -6394,8 +6433,6 @@ function _ubCreateFileTab(path, content) {
   ubEditor.value = content;
   _ubFilePath = path;
   _ubDirty = false;
-  const fileLabel = document.getElementById("ub-file-name");
-  if (fileLabel) fileLabel.textContent = fileName;
   updateWindowTitle(fileName);
   _ubRefreshEditor();
   renderTabBar();
@@ -6524,8 +6561,8 @@ async function _ubOpen(addToProject = false) {
   ubEditor?.focus();
 }
 
-async function _ubSave() {
-  const result = await window.electronAPI?.saveUbFile?.(_ubFilePath, ubEditor.value);
+async function _ubSave(forceSaveAs = false) {
+  const result = await window.electronAPI?.saveUbFile?.(forceSaveAs ? "" : _ubFilePath, ubEditor.value);
   if (!result || result.canceled) return false;
   if (!result.ok) { _ubSetStatus(result.error || "Save failed", true); return false; }
   _ubSetFile(result.filePath || _ubFilePath);
@@ -6604,6 +6641,23 @@ function _ubSetBuildOutput(text, error = false) {
   ubBuildOutput.classList.toggle("ub-build-output--error", error);
 }
 
+function _ubApplyD64LoadAddresses(source) {
+  const addresses = new Map();
+  const pattern = /^\s*load\s+"([^"]+)"\s*,\s*(\$[0-9a-f]+|\d+)\s*(?:#.*)?$/gim;
+  let match;
+  while ((match = pattern.exec(String(source || ""))) !== null) {
+    const raw = match[2];
+    const address = raw.startsWith("$") ? parseInt(raw.slice(1), 16) : parseInt(raw, 10);
+    if (Number.isFinite(address) && address >= 0 && address <= 0xFFFF) {
+      addresses.set(match[1].toUpperCase(), address.toString(16).toUpperCase().padStart(4, "0"));
+    }
+  }
+  d64ExportState.extras.forEach(extra => {
+    const address = addresses.get(String(extra.name || "").toUpperCase());
+    if (address) extra.loadAddress = address;
+  });
+}
+
 function _ubShowCompileErrors(errors) {
   const list = (errors || []).map(error => {
     const text = typeof error === "string" ? error : (error?.text || error?.message || String(error));
@@ -6616,6 +6670,25 @@ function _ubShowCompileErrors(errors) {
   saveUiSettings();
   hideWorkProgress();
   showCompileErrorDialog(list);
+}
+
+function _ubCompileSourcePath(sourcePath) {
+  if (sourcePath) return sourcePath;
+  if (!ubWorkingFolder) return null;
+  const separator = ubWorkingFolder.includes("\\") ? "\\" : "/";
+  return `${ubWorkingFolder.replace(/[\\/]+$/, "")}${separator}program.ub`;
+}
+
+function _ubBuildSidecars(build) {
+  const includeDebug = !!writeDebugSidecarsToggle?.checked;
+  const includeAsm = !!ubAsmSidecarToggle?.checked;
+  if (!includeDebug && !includeAsm) return null;
+  return {
+    dbg: includeDebug ? build?.debug?.dbg || null : null,
+    sym: includeDebug ? build?.debug?.sym || null : null,
+    vs: includeDebug ? build?.debug?.vs || null : null,
+    asm: includeAsm ? build?.asm || null : null
+  };
 }
 
 async function _ubApplyExomizer(result, label = "ultimate-basic") {
@@ -6654,7 +6727,7 @@ async function _ubCompile(showProgress = false, options = {}) {
   if (showProgress) await showWorkProgress("ubBuildProgress", { indeterminate: true });
   let result;
   try {
-    result = await window.electronAPI?.compileUltimateBasic?.(ubEditor.value, _ubFilePath || null);
+    result = await window.electronAPI?.compileUltimateBasic?.(ubEditor.value, _ubCompileSourcePath(_ubFilePath));
   } catch (error) {
     if (showProgress) hideWorkProgress();
     const message = error?.message || String(error) || "Compilation failed";
@@ -6713,8 +6786,9 @@ async function _ubRun(mode) {
     setWorkProgress(exomizerEnabled ? 78 : 70);
 
     if (mode === "d64" || mode === "ultimate-d64") {
+      _ubApplyD64LoadAddresses(source);
       hideWorkProgress();
-      await openD64ExportDialog(build.outputPrg || build.prg, build.debug || null, mode === "ultimate-d64" ? "ultimate" : true);
+      await openD64ExportDialog(build.outputPrg || build.prg, _ubBuildSidecars(build), mode === "ultimate-d64" ? "ultimate" : true);
       _ubSetStatus(mode === "ultimate-d64" ? "Ultimate D64 ready" : "D64 ready");
       return;
     }
@@ -6725,7 +6799,7 @@ async function _ubRun(mode) {
       result = await window.electronAPI?.runOnUltimate(host, password, build.outputPrg || build.prg);
       _ubSetStatus(result?.ok ? "Running on Ultimate ✓" : (result?.error || "Ultimate run failed"), !result?.ok);
     } else {
-      result = await window.electronAPI?.launchVice?.({ bytes: build.outputPrg || build.prg, fileName: `ultimate-basic-${Date.now()}.prg`, sidecars: build.debug || null });
+      result = await window.electronAPI?.launchVice?.({ bytes: build.outputPrg || build.prg, fileName: `ultimate-basic-${Date.now()}.prg`, sidecars: _ubBuildSidecars(build) });
       _ubSetStatus(result?.ok ? "Running in VICE ✓" : (result?.error || "VICE launch failed"), !result?.ok);
     }
     if (!result?.ok) return;
@@ -6743,7 +6817,7 @@ async function _ubRun(mode) {
 
 async function _ubCompileSource(source, sourcePath, label = "startup file", options = {}) {
   _ubSetStatus(`Building ${label}…`);
-  const result = await window.electronAPI?.compileUltimateBasic?.(source, sourcePath);
+  const result = await window.electronAPI?.compileUltimateBasic?.(source, _ubCompileSourcePath(sourcePath));
   _ubLastResult = result;
   _ubRenderDisassembly(result);
   if (!result?.ok) {
@@ -7224,13 +7298,13 @@ function _expertFormatSource() {
 
 // ── VASM file I/O ────────────────────────────────────────────────────────────
 
-async function _expertSaveAsm() {
+async function _expertSaveAsm(forceSaveAs = false) {
   if (!expertEditor) return;
   _expertSyncSourceTextFromEditor();
   const content = _expertGetSourceText();
   try {
     const tab = _getActiveTab();
-    const asmPath = tab?.filePath && /\.(asm|s|a65)$/i.test(tab.filePath) ? tab.filePath : "";
+    const asmPath = !forceSaveAs && tab?.filePath && /\.(asm|s|a65)$/i.test(tab.filePath) ? tab.filePath : "";
     const res = await window.electronAPI?.saveAsmFile?.(asmPath, content);
     if (!res || res.canceled) return;
     if (!res.ok) {
@@ -13206,10 +13280,37 @@ async function chooseDebuggerExecutable() {
 async function loadWorkingFolderConfig() {
   if (!window.electronAPI?.getWorkingFolder) {
     updateWorkingFolderPreview("");
+    updateUbWorkingFolderPreview("");
     return;
   }
   const config = await window.electronAPI.getWorkingFolder();
   updateWorkingFolderPreview(config?.workingFolder || "");
+  updateUbWorkingFolderPreview(config?.ubWorkingFolder || "");
+}
+
+function _shortWorkingFolderPath(path) {
+  const normalized = String(path || "").replace(/\\/g, "/").replace(/\/+/g, "/");
+  if (normalized.length <= 60) return normalized;
+  const parts = normalized.split("/").filter(Boolean);
+  for (let keep = Math.min(3, parts.length); keep >= 1; keep--) {
+    const candidate = `.../${parts.slice(-keep).join("/")}`;
+    if (candidate.length <= 60) return candidate;
+  }
+  return `.../${normalized.slice(-56)}`;
+}
+
+function updateUbWorkingFolderPreview(nextPath) {
+  ubWorkingFolder = nextPath || "";
+  if (!ubWorkingFolderEl) return;
+  const displayPath = _shortWorkingFolderPath(ubWorkingFolder);
+  if (ubWorkingFolderText) {
+    ubWorkingFolderText.textContent = ubWorkingFolder
+      ? `${t("workingFolderStatusLabel")}: ${displayPath}`
+      : t("workingFolderStatusPending");
+  }
+  if (ubWorkingFolder) ubWorkingFolderEl.setAttribute("aria-label", ubWorkingFolder);
+  else ubWorkingFolderEl.removeAttribute("aria-label");
+  ubWorkingFolderEl.removeAttribute("title");
 }
 
 function updateWorkingFolderPreview(nextPath) {
@@ -13276,10 +13377,29 @@ function updateWorkingFolderPreview(nextPath) {
 }
 
 async function chooseWorkingFolder() {
-  if (!window.electronAPI?.chooseWorkingFolder) return;
+  if (!window.electronAPI?.chooseWorkingFolder) return false;
   const result = await window.electronAPI.chooseWorkingFolder();
-  if (result?.canceled) return;
+  if (result?.canceled) return true;
   updateWorkingFolderPreview(result?.workingFolder || "");
+  return true;
+}
+
+async function chooseUbWorkingFolder() {
+  if (!window.electronAPI?.chooseUbWorkingFolder) {
+    _ubSetStatus(t("ubWorkingFolderRestartRequired"), true);
+    return false;
+  }
+  try {
+    const result = await window.electronAPI.chooseUbWorkingFolder();
+    if (result?.canceled) return true;
+    updateUbWorkingFolderPreview(result?.workingFolder || "");
+    return true;
+  } catch (error) {
+    console.error("UltimateBasic working folder selection failed", error);
+    const detail = String(error?.message || error || "");
+    _ubSetStatus(`${t("ubWorkingFolderFailed")}${detail ? `: ${detail}` : ""}`, true);
+    return false;
+  }
 }
 
 function _getDebuggerPrimarySourcePath() {
@@ -14255,6 +14375,11 @@ function _updateTabScrollButtons() {
 }());
 
 async function saveProjectToFile({ forceSaveAs = false } = {}) {
+  if (ultimateBasicMode) {
+    await _ubSave();
+    return;
+  }
+
   if (!window.electronAPI?.saveProject) {
     if (emulatorStatus) {
       emulatorStatus.textContent = t("projectSaveFailed");
@@ -14455,7 +14580,7 @@ async function savePrgToFile() {
 
   const result = await window.electronAPI.savePrg({
     bytes: Array.from(prg.bytes),
-    sidecars: _buildDebuggerSidecarPayload(prg)
+    sidecars: ultimateBasicMode ? prg.sidecars : _buildDebuggerSidecarPayload(prg)
   });
   if (result?.canceled) return;
 
@@ -14485,7 +14610,13 @@ async function saveD64ToFile() {
     return;
   }
 
-  openD64ExportDialog(prg.bytes, _buildDebuggerSidecarPayload(prg));
+  if (ultimateBasicMode) {
+    const startupTab = _ubStartupTabId !== null ? tabs.find(tab => tab.id === _ubStartupTabId) : null;
+    const source = startupTab && startupTab.id !== activeTabId ? startupTab.ubText || "" : ubEditor?.value || "";
+    _ubApplyD64LoadAddresses(source);
+  }
+
+  openD64ExportDialog(prg.bytes, ultimateBasicMode ? prg.sidecars : _buildDebuggerSidecarPayload(prg));
 }
 
 // ── D64 Export Dialog ─────────────────────────────────────────────────
@@ -15009,6 +15140,28 @@ async function runViaExomizer() {
 }
 
 async function buildRunPrgForCurrentMode() {
+  if (ultimateBasicMode) {
+    const startupTab = _ubStartupTabId !== null ? tabs.find(tab => tab.id === _ubStartupTabId) : null;
+    const useStartupTab = startupTab && startupTab.id !== activeTabId;
+    const source = useStartupTab ? startupTab.ubText || "" : ubEditor?.value || "";
+    const sourcePath = useStartupTab
+      ? startupTab.ubFilePath || startupTab.filePath || null
+      : _ubFilePath || null;
+    if (!source.trim()) return { ok: false, error: t("ubNothingToRun") };
+
+    const build = useStartupTab
+      ? await _ubCompileSource(source, sourcePath, startupTab.name)
+      : await _ubCompile();
+    if (!build) return { ok: false };
+
+    return {
+      ok: true,
+      bytes: Uint8Array.from(build.outputPrg || build.prg || []),
+      sidecars: _ubBuildSidecars(build),
+      sysAddress: build.map?.loadAddress
+    };
+  }
+
   const prg = buildAutostartPrgForEmulator();
   if (!prg.ok) return prg;
 
@@ -16427,13 +16580,13 @@ function _buildDisasmText() {
   return (host.textContent || "").replace(/\u00A0/g, " ");
 }
 
-function _getDisasmSourceText(forExpert = false) {
-  const el = forExpert ? expertDisasmOutput : document.getElementById("disasm-output");
+function _getDisasmSourceText(forExpert = false, outputElement = null) {
+  const el = outputElement || (forExpert ? expertDisasmOutput : document.getElementById("disasm-output"));
   return (el?.textContent || "").replace(/\u00A0/g, " ");
 }
 
-async function copyDisasmSourceToClipboard(forExpert = false) {
-  const text = _getDisasmSourceText(forExpert);
+async function copyDisasmSourceToClipboard(forExpert = false, outputElement = null) {
+  const text = _getDisasmSourceText(forExpert, outputElement);
   try {
     await navigator.clipboard.writeText(text);
   } catch (error) {

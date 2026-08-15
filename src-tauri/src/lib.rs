@@ -65,6 +65,14 @@ fn get_working_folder_path(cfg: &serde_json::Value) -> Option<PathBuf> {
         .map(PathBuf::from)
 }
 
+fn get_ub_working_folder_path(cfg: &serde_json::Value) -> Option<PathBuf> {
+    cfg["ubWorkingFolder"]
+        .as_str()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .map(PathBuf::from)
+}
+
 fn detect_vice_executable() -> String {
     #[cfg(target_os = "macos")]
     let candidates = [
@@ -325,18 +333,15 @@ fn get_exomizer_config(app: AppHandle) -> serde_json::Value {
 fn get_working_folder(app: AppHandle) -> serde_json::Value {
     let cfg = read_config(&app);
     serde_json::json!({
-        "workingFolder": cfg["workingFolder"].as_str().unwrap_or("")
+        "workingFolder": cfg["workingFolder"].as_str().unwrap_or(""),
+        "ubWorkingFolder": cfg["ubWorkingFolder"].as_str().unwrap_or("")
     })
 }
 
 #[tauri::command]
 async fn choose_working_folder(app: AppHandle) -> serde_json::Value {
-    let current_folder = {
-        let cfg = read_config(&app);
-        get_working_folder_path(&cfg)
-    };
-
-    let mut dialog = app.dialog().file().set_title("Choose working folder");
+    let current_folder = get_working_folder_path(&read_config(&app));
+    let mut dialog = app.dialog().file().set_title("Choose VA working folder");
     if let Some(folder) = current_folder {
         dialog = dialog.set_directory(folder);
     }
@@ -346,6 +351,28 @@ async fn choose_working_folder(app: AppHandle) -> serde_json::Value {
             let path_str = path.to_string();
             let mut cfg = read_config(&app);
             cfg["workingFolder"] = serde_json::json!(path_str);
+            write_config(&app, &cfg);
+            serde_json::json!({ "canceled": false, "workingFolder": path_str })
+        }
+        None => serde_json::json!({ "canceled": true }),
+    }
+}
+
+#[tauri::command]
+async fn choose_ub_working_folder(app: AppHandle) -> serde_json::Value {
+    let current_folder = get_ub_working_folder_path(&read_config(&app));
+    let mut dialog = app
+        .dialog()
+        .file()
+        .set_title("Choose UltimateBasic working folder");
+    if let Some(folder) = current_folder {
+        dialog = dialog.set_directory(folder);
+    }
+    match dialog.blocking_pick_folder() {
+        Some(path) => {
+            let path_str = path.to_string();
+            let mut cfg = read_config(&app);
+            cfg["ubWorkingFolder"] = serde_json::json!(path_str);
             write_config(&app, &cfg);
             serde_json::json!({ "canceled": false, "workingFolder": path_str })
         }
@@ -459,6 +486,7 @@ struct DebuggerSidecars {
     dbg: Option<String>,
     sym: Option<String>,
     vs: Option<String>,
+    asm: Option<String>,
 }
 
 fn write_debugger_sidecars(base_path: &Path, sidecars: &DebuggerSidecars) -> Result<(), String> {
@@ -480,6 +508,7 @@ fn write_debugger_sidecars(base_path: &Path, sidecars: &DebuggerSidecars) -> Res
     write_file("dbg", &sidecars.dbg)?;
     write_file("sym", &sidecars.sym)?;
     write_file("vs", &sidecars.vs)?;
+    write_file("asm", &sidecars.asm)?;
     Ok(())
 }
 
@@ -2319,7 +2348,7 @@ async fn choose_ub_file(app: AppHandle) -> serde_json::Value {
     let mut dialog = app.dialog().file()
         .add_filter("UltimateBasic Source", &["ub"])
         .add_filter("All files", &["*"]);
-    if let Some(folder) = get_working_folder_path(&read_config(&app)) {
+    if let Some(folder) = get_ub_working_folder_path(&read_config(&app)) {
         dialog = dialog.set_directory(folder);
     }
     match dialog.blocking_pick_file() {
@@ -2340,7 +2369,7 @@ async fn save_ub_file(app: AppHandle, path: String, content: String) -> serde_js
         let mut dialog = app.dialog().file()
             .add_filter("UltimateBasic Source", &["ub"])
             .set_file_name("program.ub");
-        if let Some(folder) = get_working_folder_path(&read_config(&app)) {
+        if let Some(folder) = get_ub_working_folder_path(&read_config(&app)) {
             dialog = dialog.set_directory(folder);
         }
         match dialog.blocking_save_file() {
@@ -2367,6 +2396,7 @@ fn compile_ultimate_basic(source: String, source_path: Option<String>) -> serde_
         "ok": result.errors.is_empty(),
         "errors": result.errors,
         "prg": result.prg,
+        "asm": result.asm,
         "debug": {
             "sym": debug_output::sym(map),
             "dbg": debug_output::dbg(map, debug_source_path),
@@ -2611,6 +2641,7 @@ pub fn run() {
             choose_vice_executable,
             choose_exomizer_executable,
             choose_working_folder,
+            choose_ub_working_folder,
             build_exomizer_prg,
             build_exomizer_raw,
             launch_vice,
