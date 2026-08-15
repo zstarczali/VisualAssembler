@@ -12,11 +12,14 @@ vm.createContext(context);
 vm.runInContext(`${appJs.slice(start, end)}; this.highlight = _ubHighlightSource; this.formatUb = _ubFormatText;`, context);
 
 test("UltimateBasic manual keywords and built-in functions are highlighted", () => {
-  const html = context.highlight("times 4\n  delay 2\nend\nprint chr$(65), clamp(x, 0, 10)\n");
+  const html = context.highlight("times 4\n  delay 2\nend\nmap draw 0, 0\nkoala show\nprint chr$(65), clamp(x, 0, 10), map_tile(1, 2)\n");
   assert.match(html, /class="ub-kw">times</);
   assert.match(html, /class="ub-kw">delay</);
   assert.match(html, /class="ub-fn">chr\$</);
   assert.match(html, /class="ub-fn">clamp</);
+  assert.match(html, /class="ub-kw">map</);
+  assert.match(html, /class="ub-kw">koala</);
+  assert.match(html, /class="ub-fn">map_tile</);
 });
 
 test("PRINT# is highlighted as code and does not start a comment", () => {
@@ -54,7 +57,8 @@ test("UltimateBasic command reference contains current manual features", () => {
   const required = [
     "color text value", "irq handler [, raster_line]", "reu stash|fetch|swap c64_address, bank, reu_address, length",
     "drawmem source, destination, width, height, stride", "sprite_hit()", "reu_present()",
-    "numstr value, destination_address", "dec(value, width)", "scroll row row_number left"
+    "numstr value, destination_address", "dec(value, width)", "scroll row row_number left",
+    "file.ubmap", "map_tile(x, y)", "picture.kla", "box_hit(left1"
   ];
   const refStart = appJs.indexOf("const _UB_COMMAND_REFERENCE");
   const refEnd = appJs.indexOf("\n];", refStart);

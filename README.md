@@ -2,17 +2,16 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.3.1**
+**Current version: v2.3.3**
 
-## What's New in v2.3.1
+## What's New in v2.3.3
 
-- **SID tracker selection and clipboard tools** — Shift-select rectangular regions across all three voices, then copy, cut, paste, or clear them with shortcuts, toolbar buttons, or the icon-based context menu.
-- **SID virtual keyboard** — use a movable, non-modal piano to audition instruments, visualize chord/arpeggio previews, and optionally insert played notes directly into the tracker.
-- **Expanded SID harmony tools** — added 6, minor 6, 9, b9, #9, dim7, and 7sus4 chords, plus chord and arpeggio preview buttons.
-- **Improved SID playback** — one stateful Play/Pause/Resume button and a row-preview tool for auditioning the selected row across all voices.
-- **Draggable editor dialogs** — every editor opens centered by default, can move across the full workspace, and remembers its saved position.
-- **Clear mode feedback and UB navigation** — the header identifies Block, Expert, or Ultimate Basic mode, and the Ultimate Basic minimap viewport supports continuous drag scrolling.
-- **SID layout polish** — corrected overflow and edge-aligned custom tooltips in the SID editor.
+- **UltimateBasic 1.5.2 integration** — current compiler support including addressed `incbin`, ASM generation, map/Koala commands, collision helpers, and updated debug metadata.
+- **Reliable UB builds** — corrected main-menu PRG/D64 workflows and D64 `load` address handling for extra files.
+- **Optional UB ASM source** — Program Settings can write a same-name `.asm` sidecar beside PRG and D64 output.
+- **Separate UB working folder** — persistent, mode-aware source directory for UB Open/Save and relative `include`/`incbin` resolution.
+- **Improved UB tools** — Save As, copyable disassembly, current syntax highlighting/autocomplete, and clearer `sprite_frame` animation help.
+- **Expert source saving** — distinct Save ASM and Save ASM As toolbar actions.
 
 ---
 

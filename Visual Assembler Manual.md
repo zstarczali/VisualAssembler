@@ -1,26 +1,26 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.3.1**
+**Version 2.3.3**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
 ---
 
-## Version 2.3.1 Highlights
+## Version 2.3.3 Highlights
 
-- SID tracker rectangular Shift-selection across rows and all three voices, with toolbar, shortcut, and context-menu Copy, Cut, Paste, and Clear commands.
-- A movable, non-modal SID virtual keyboard with optional tracker insertion and highlighted chord/arpeggio previews.
-- New SID chord types: 6, minor 6, 9, b9, #9, diminished 7, and 7sus4.
-- Dedicated selected-row and arpeggio preview buttons, plus a combined Play/Pause/Resume control.
-- Draggable visual-editor dialogs that open centered by default and remember their last positions.
-- A persistent Block/Expert/Ultimate Basic mode indicator and draggable Ultimate Basic minimap navigation.
+- Bundled UltimateBasic 1.5.2 compiler with addressed `incbin`, generated ASM, map/Koala commands, collision helpers, and updated debug metadata.
+- Corrected UB PRG and D64 builds, including source `load` addresses for D64 extra files.
+- Optional same-name UB `.asm` sidecars controlled from Program Settings.
+- Separate persistent UB working folder for file dialogs and relative `include`/`incbin` resolution.
+- UB Save As, copyable disassembly, expanded syntax help, and explicit `sprite_frame` animation guidance.
+- Separate Expert-mode Save ASM and Save ASM As actions.
 
 ---
 
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
-  - [Version 2.3.1 Highlights](#version-231-highlights)
+  - [Version 2.3.3 Highlights](#version-233-highlights)
   - [Table of Contents](#table-of-contents)
   - [1. Interface Overview](#1-interface-overview)
   - [2. Block Palette](#2-block-palette)
@@ -375,7 +375,9 @@ color border 0
 print "HELLO FROM ULTIMATE BASIC"
 ```
 
-The UB mode works with `.ub` source files. **New**, **Open**, and **Save** operate on the active UB tab. Opening a `.ub` file activates the matching editor tab automatically.
+The UB mode works with `.ub` source files. **New**, **Open**, **Save**, and **Save As** operate on the active UB tab. Opening a `.ub` file activates the matching editor tab automatically.
+
+The toolbar shows the current UB working folder. This folder is stored separately from the Block/Expert working folder. While UB mode is active, **File → Set working folder** selects the UB folder; its tooltip identifies the active scope. UB Open/Save dialogs start there, and unsaved sources use it as the base for relative `include` and `incbin` paths.
 
 ### Editor tools
 
@@ -390,6 +392,8 @@ The UB toolbar follows the same visual language and custom tooltips as Expert mo
 - a searchable **Commands** panel with syntax, description, and usage guidance;
 - independently toggleable **Project** and **Commands** panels, displayed side by side when both are enabled;
 - independently toggleable and resizable **Build Output** and **Disassembly** panels.
+
+The Disassembly panel includes a **Copy** button that copies its complete displayed source to the clipboard. Command help follows the bundled compiler: for example, `sprite_frame id, data_address [, frame]` selects an animation image from consecutive 64-byte sprite frames.
 
 The command list is intentionally height-limited so the command-detail card can fill the remaining panel height. The detail area scrolls independently for longer syntax descriptions.
 
@@ -424,6 +428,8 @@ The main split **Run** button supports Ultimate Basic in every normal destinatio
 | **Run D64 on hardware** | Package a D64 and send it to the configured C64 Ultimate. |
 
 The global **Settings → Exomizer** option also applies to UB builds and normal run targets; no separate UB toolbar toggle is needed. Debugger launches deliberately use the uncompressed PRG so compiler addresses and symbols continue to match the executed program.
+
+Enable **Settings → Program Settings → Generate UltimateBasic ASM source (.asm)** to save the compiler-generated assembly beside a PRG or D64 build using the same base filename. This is a build option, so the UB toolbar does not contain separate ASM export buttons. A `load "NAME", $address` statement also supplies the matching D64 extra file's PRG load address.
 
 ### Debugger symbols and disassembly
 

@@ -3444,7 +3444,6 @@ body.ub-mode .workspace { grid-template-columns: 1fr; }
 .ub-toolbar .expert-hl-toggle svg { display: block; flex: none; }
 .ub-toolbar .ub-zoom-btn { min-width: 34px; }
 .ub-statusbar { border-top: 1px solid var(--panel-border); border-bottom: 0; justify-content: space-between; color: var(--muted); font-size: .78rem; }
-.ub-file-name { margin-left: auto; color: var(--muted); font-family: "IBM Plex Mono", monospace; }
 .ub-editor-layout { display: grid; grid-template-columns: minmax(0, 1fr) 5px minmax(180px, var(--ub-disasm-width, 340px)); grid-template-areas: "editor resize output"; flex: 1; min-height: 0; overflow: visible; }
 .ub-panel.ub-show-project:not(.ub-show-commands) .ub-editor-layout,
 .ub-panel.ub-show-commands:not(.ub-show-project) .ub-editor-layout { grid-template-columns: 220px minmax(0, 1fr) 5px minmax(180px, var(--ub-disasm-width, 340px)); }
@@ -3499,6 +3498,7 @@ body.ub-mode .workspace { grid-template-columns: 1fr; }
 .ub-editor::selection { background: var(--ub-selection-bg, color-mix(in srgb, var(--primary) 35%, transparent)); color: transparent; -webkit-text-fill-color: transparent; }
 .ub-editor::-moz-selection { background: var(--ub-selection-bg, color-mix(in srgb, var(--primary) 35%, transparent)); color: transparent; }
 .ub-highlight { overflow: hidden; color: var(--text); pointer-events: none; z-index: 1; }
+.ub-highlight code { font: inherit; }
 .ub-highlight .ub-kw { color: var(--hl-mnem); font-weight: 700; }
 .ub-highlight .ub-string { color: var(--hl-string); }
 .ub-highlight .ub-number { color: var(--hl-number); }
