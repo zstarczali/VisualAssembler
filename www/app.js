@@ -6057,8 +6057,26 @@ function _ubAcUpdate() {
   const el = _ubAcEl(); _ubAcActive = -1;
   el.innerHTML = words.map(word => `<div class="expert-ac-item" data-value="${_ubEsc(word)}"><span class="expert-ac-item-kw">${_ubEsc(word)}</span><span class="expert-ac-item-desc">${_ubEsc(descriptions.get(word) || (_UB_FUNCTIONS.has(word) ? "function" : _UB_TYPES.has(word) ? "type" : "keyword"))}</span></div>`).join("");
   el.querySelectorAll(".expert-ac-item").forEach(item => item.addEventListener("mousedown", event => { event.preventDefault(); _ubAcActive = [...item.parentNode.children].indexOf(item); _ubAcCommit(); }));
-  const rect = ubEditor.getBoundingClientRect(); const lineHeight = parseFloat(getComputedStyle(ubEditor).lineHeight) || 21;
-  const line = before.split("\n").length - 1; el.style.left = `${Math.min(rect.right - 300, rect.left + 60)}px`; el.style.top = `${Math.min(window.innerHeight - 220, rect.top + 18 + line * lineHeight - ubEditor.scrollTop)}px`; el.hidden = false;
+  const rect = ubEditor.getBoundingClientRect();
+  const editorStyle = getComputedStyle(ubEditor);
+  const lineHeight = parseFloat(editorStyle.lineHeight) || 21;
+  const paddingTop = parseFloat(editorStyle.paddingTop) || 0;
+  const line = before.split("\n").length - 1;
+  const lineTop = rect.top + paddingTop + line * lineHeight - ubEditor.scrollTop;
+  const lineBottom = lineTop + lineHeight;
+  const topBoundary = Math.max(8, rect.top + 8);
+  const bottomBoundary = Math.min(window.innerHeight - 8, rect.bottom - 8);
+  const belowSpace = Math.max(32, bottomBoundary - lineBottom - 4);
+  const aboveSpace = Math.max(32, lineTop - topBoundary - 4);
+  el.style.left = `${Math.min(rect.right - 300, rect.left + 60)}px`;
+  el.style.maxHeight = "260px";
+  el.hidden = false;
+  const naturalHeight = el.offsetHeight;
+  const openBelow = belowSpace >= Math.min(naturalHeight, 120) || belowSpace >= aboveSpace;
+  const availableHeight = openBelow ? belowSpace : aboveSpace;
+  el.style.maxHeight = `${Math.min(260, availableHeight)}px`;
+  const popupHeight = el.offsetHeight;
+  el.style.top = `${openBelow ? lineBottom + 4 : lineTop - popupHeight - 4}px`;
 }
 
 function _ubFormatText(source) {
