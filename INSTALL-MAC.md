@@ -1,11 +1,11 @@
 # macOS Installation Guide
-Version 2.3.3
+Version 2.3.4
 
-2.3.3: Updates UltimateBasic to 1.5.2 and adds reliable UB PRG/D64 builds, optional ASM sidecars, a separate persistent UB working folder, Save As, and copyable disassembly.
+2.3.4: Adds CHARDEF and BOX_HIT macros, a startup welcome dialog, a video splash intro, a refreshed light theme, and improved UltimateBasic editor UX.
 
 ## Quick Install
 
-1. **Download** the 2.3.3 DMG for your architecture from the releases page
+1. **Download** the 2.3.4 DMG for your architecture from the releases page
 2. **Mount** the DMG and drag the app to `/Applications`
 3. **First launch**: Right-click the app → **"Open"** (macOS will block double-click)
 4. Click **"Open"** in the security dialog
@@ -53,4 +53,4 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.3.3 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.3.4 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

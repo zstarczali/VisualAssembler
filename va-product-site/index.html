@@ -140,6 +140,25 @@ hr.div{border:none;border-top:1px solid var(--brd)}
 .dl-p:hover{border-color:var(--ylw);color:var(--ylw);background:rgba(184,199,111,.05)}
 .dl-sub{font-size:11px;color:var(--txt-dim);margin-top:28px;letter-spacing:2px}
 
+/* ── ULTIMATE BASIC REPOSITORY ── */
+.ub-repo{background:var(--scr-darker);border-top:1px solid var(--brd);padding:38px 80px}
+.ub-repo-inner{max-width:720px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:34px}
+.ub-repo-image{display:block;width:min(230px,30vw);filter:drop-shadow(0 0 24px rgba(80,80,255,.35));transition:transform .15s,filter .15s}
+.ub-repo-image:hover{transform:translateY(-3px);filter:drop-shadow(0 0 30px rgba(184,199,111,.4))}
+.ub-repo-copy{max-width:330px}
+.ub-repo-copy .sec-s{font-size:9px;margin-bottom:6px}
+.ub-repo-copy .sec-t{font-size:20px;margin-bottom:10px}
+.ub-repo-copy .sec-d{font-size:11px;line-height:1.8;margin-bottom:16px}
+.ub-repo-copy .btn{font-size:10px;padding:8px 14px}
+
+/* ── OCTOPULOUS ── */
+.octopulous{background:var(--bg);border-top:1px solid var(--brd);padding:64px 80px}
+.octopulous-inner{max-width:980px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,556px);gap:56px;align-items:center}
+.octopulous-copy .sec-t{margin-bottom:14px}
+.octopulous-copy .sec-d{max-width:520px}
+.octopulous-embed{width:100%;max-width:556px;justify-self:end}
+.octopulous-embed iframe{display:block;width:100%;height:171px;border:0}
+
 /* ── FOOTER ── */
 footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
 .foot-inner{max-width:1280px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
@@ -147,6 +166,9 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
 .foot-links{display:flex;gap:24px}
 .foot-links a{font-size:11px;color:var(--txt-dim);letter-spacing:1px}
 .foot-links a:hover{color:var(--txt)}
+.discord-link{display:inline-flex;align-items:center;gap:9px !important;border-color:#5865f2 !important;color:#9ca5ff !important;background:rgba(88,101,242,.12) !important}
+.discord-link:hover{border-color:#9ca5ff !important;color:#fff !important;background:#5865f2 !important}
+.discord-link svg{width:20px;height:20px;fill:currentColor;flex:none}
 .foot-copy{font-size:11px;color:var(--txt-dim);letter-spacing:1px}
 
 @media(max-width:900px){
@@ -158,6 +180,12 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   .hero-left{padding:60px 30px 32px}
   .about-grid{grid-template-columns:1fr}
   .tut-grid{grid-template-columns:1fr}
+  .ub-repo{padding:34px 24px}
+  .ub-repo-inner{flex-direction:column;gap:20px;text-align:center}
+  .ub-repo-image{width:min(210px,65vw)}
+  .octopulous{padding:52px 24px}
+  .octopulous-inner{grid-template-columns:1fr;gap:30px}
+  .octopulous-embed{justify-self:start}
   .feat-grid{grid-template-columns:1fr}
   .spec-inner{grid-template-columns:repeat(2,1fr)}
   .sec,.editors-sec,.feat-inner,.spec-bar,.dl-bg,.foot-inner{padding-left:24px;padding-right:24px}
@@ -197,7 +225,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
       <div class="y">READY.</div>
       <div><span class="g">RUN</span><span class="cur"></span></div>
     </div>
-    <div class="badge">V2.3.3 — LATEST RELEASE</div>
+    <div class="badge">V2.3.4 — LATEST RELEASE</div>
     <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
     <p class="hero-sub">Drag-and-drop 6502 assembly blocks or switch to a full text editor — see real-time ASM output and run directly in VICE.</p>
     <div class="hero-ctas">
@@ -214,18 +242,18 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
 <div id="ultimate-basic" style="background:var(--scr-darker);padding:80px 0">
 <div class="sec about-grid" style="padding-top:0;padding-bottom:0">
   <div>
-    <div class="ub-tag">UPDATED IN V2.3.3</div>
+    <div class="ub-tag">UPDATED IN V2.3.4</div>
     <div class="sec-s">// LATEST DEVELOPMENT</div>
     <h2 class="sec-t">ULTIMATE BASIC<br><span style="color:var(--ylw)">A COMPLETE IDE MODE</span></h2>
-    <p class="sec-d">Write, organize and run Ultimate Basic programs without leaving C64 Visual Assembler. The dedicated IDE mode brings source editing, project management and the complete build pipeline together in one focused workspace.</p>
+    <p class="sec-d">Fire up Ultimate Basic right inside C64 Visual Assembler. Write some code, keep your project files together, build a PRG and send it straight to your favourite C64 setup &mdash; all from one place.</p>
     <div class="feature-list">
-      <div class="fi"><div class="fi-dot">►</div><div><b>Native .UB editor</b> <span>— edit Ultimate Basic source with a dedicated project workflow.</span></div></div>
-      <div class="fi"><div class="fi-dot">►</div><div><b>Projects + startup file</b> <span>— keep multi-file programs organized and choose the entry point.</span></div></div>
-      <div class="fi"><div class="fi-dot">►</div><div><b>Build, run and debug</b> <span>— compile and launch from the same integrated workspace.</span></div></div>
-      <div class="fi"><div class="fi-dot">►</div><div><b>ASM sidecars + disassembly copy</b> <span>— preserve generated assembly beside builds and copy diagnostics directly.</span></div></div>
-      <div class="fi"><div class="fi-dot">►</div><div><b>Separate working folder</b> <span>— resolve UB include and incbin assets independently from VA projects.</span></div></div>
-      <div class="fi"><div class="fi-dot">►</div><div><b>Every C64 target</b> <span>— run in VICE, deploy to C64 Ultimate, build D64 images or create Exomizer-packed programs.</span></div></div>
-      <div class="fi"><div class="fi-dot">►</div><div><b>Built-in UB manual</b> <span>— language reference and guidance are always available inside the app.</span></div></div>
+      <div class="fi"><div class="fi-dot">►</div><div><b>Native .UB editor</b> <span>&mdash; open a source, start typing and get on with the fun part.</span></div></div>
+      <div class="fi"><div class="fi-dot">►</div><div><b>Projects + startup file</b> <span>&mdash; keep multi-file productions tidy and pick what boots first.</span></div></div>
+      <div class="fi"><div class="fi-dot">►</div><div><b>Build, run and debug</b> <span>&mdash; compile it, launch it and chase the bugs without hopping between tools.</span></div></div>
+      <div class="fi"><div class="fi-dot">►</div><div><b>ASM sidecars + disassembly copy</b> <span>&mdash; peek under the hood, keep the generated ASM and grab the disassembly when you need it.</span></div></div>
+      <div class="fi"><div class="fi-dot">►</div><div><b>Separate working folder</b> <span>&mdash; point UB at your includes and binary goodies without messing with the VA project folder.</span></div></div>
+      <div class="fi"><div class="fi-dot">►</div><div><b>Every C64 target</b> <span>&mdash; fire it up in VICE, send it to a C64 Ultimate, build a D64 or squeeze it with Exomizer.</span></div></div>
+      <div class="fi"><div class="fi-dot">►</div><div><b>Built-in UB manual</b> <span>&mdash; the language reference is always one click away when your memory needs a poke.</span></div></div>
     </div>
   </div>
   <div class="about-right ub-shot">
@@ -454,7 +482,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
     <div class="dl-corner bl">└─</div>
     <div class="dl-corner br">─┘</div>
     <div class="sec-s" style="text-align:center;margin-bottom:16px">// DOWNLOAD</div>
-    <h2 class="sec-t" style="text-align:center">C64 VISUAL ASSEMBLER<br><span style="color:var(--ylw)">V2.3.3 — FREE</span></h2>
+    <h2 class="sec-t" style="text-align:center">C64 VISUAL ASSEMBLER<br><span style="color:var(--ylw)">V2.3.4 — FREE</span></h2>
     <p class="sec-d" style="text-align:center;margin:0 auto 8px;max-width:460px">Desktop app for Windows, macOS and Linux. Requires Node.js and Rust to build from source, or download a prebuilt installer.</p>
     <div class="dl-plats">
       <a class="dl-p btn" href="#" onclick="openItch();return false" style="border-color:var(--brd-hi)"><span style="color:var(--ylw)">■</span> WINDOWS</a>
@@ -465,11 +493,45 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
     <div style="margin-top:20px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
       <a class="btn btn-o" href="https://zstarczali.itch.io/visual-assembler-commodore-64" target="_blank" rel="noopener" style="font-size:12px;padding:10px 22px">⬡ VIEW ON ITCH.IO</a>
       <a class="btn btn-o" href="https://github.com/zstarczali/VisualAssembler" target="_blank" rel="noopener" style="font-size:12px;padding:10px 22px">► VIEW ON GITHUB</a>
+      <a class="btn discord-link" href="https://discord.gg/hUavXyrnX" target="_blank" rel="noopener" aria-label="Join the Visual Assembler Discord community" style="font-size:12px;padding:10px 22px">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 5.3A17.1 17.1 0 0 0 15.3 4l-.5 1.1a15.7 15.7 0 0 0-5.6 0L8.7 4a17.4 17.4 0 0 0-4.2 1.3C1.8 9.2 1 13 1.3 16.7a17 17 0 0 0 5.2 2.6l1.3-1.8c-.7-.3-1.4-.7-2-1.2l.5-.4a12.2 12.2 0 0 0 11.4 0l.6.4c-.7.5-1.4.9-2.1 1.2l1.3 1.8a17 17 0 0 0 5.2-2.6c.4-4.4-.8-8.1-3.2-11.4ZM8.4 14.5c-1 0-1.9-.9-1.9-2s.8-2 1.9-2 1.9.9 1.9 2-.9 2-1.9 2Zm7.2 0c-1 0-1.9-.9-1.9-2s.8-2 1.9-2 1.9.9 1.9 2-.9 2-1.9 2Z"/></svg>
+        <span>JOIN DISCORD</span>
+      </a>
+      <a class="btn btn-o" href="mailto:retroboj@outlook.com" aria-label="Contact Visual Assembler by email" style="font-size:12px;padding:10px 22px">@ CONTACT</a>
       <a class="btn" href="https://paypal.me/ZsoltTarczali" target="_blank" rel="noopener" style="font-size:12px;padding:10px 22px;border-color:#0070ba;color:#0070ba">♥ SUPPORT DEVELOPMENT</a>
     </div>
   </div>
 </div>
 </div>
+
+<!-- ULTIMATE BASIC REPOSITORY -->
+<section class="ub-repo">
+  <div class="ub-repo-inner">
+    <a href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener" aria-label="Open the UltimateBasic GitHub repository">
+      <img class="ub-repo-image" src="uploads/ultimate-basic-logo.png" alt="UltimateBasic for Commodore 64">
+    </a>
+    <div class="ub-repo-copy">
+      <div class="sec-s">// OPEN SOURCE COMPILER</div>
+      <h2 class="sec-t">ULTIMATE BASIC</h2>
+      <p class="sec-d">Explore the compiler source, language documentation and latest development on GitHub.</p>
+      <a class="btn btn-o" href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener">► ULTIMATE BASIC REPOSITORY</a>
+    </div>
+  </div>
+</section>
+
+<!-- OCTOPULOUS -->
+<section class="octopulous" aria-labelledby="octopulous-title">
+  <div class="octopulous-inner">
+    <div class="octopulous-copy">
+      <div class="sec-s">// A FAMILY GAME PROJECT</div>
+      <h2 class="sec-t" id="octopulous-title">OCTOPULOUS!</h2>
+      <p class="sec-d">This is my son's second game: Octopulous is a goofy, bite-sized sidescrolling adventure about an octopus having to save his world from an unexpected evil's thirst for power.</p>
+    </div>
+    <div class="octopulous-embed">
+      <iframe src="https://itch.io/embed/1593496?linkback=true&amp;border_width=3&amp;bg_color=D9893E&amp;fg_color=70161f&amp;link_color=db0d00&amp;border_color=ba6a1f" width="556" height="171" title="Octopulous by OwlyCode on itch.io"><a href="https://therealowlycode.itch.io/octopulous">Octopulous by OwlyCode</a></iframe>
+    </div>
+  </div>
+</section>
 
 <!-- FOOTER -->
 <footer>

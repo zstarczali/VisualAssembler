@@ -77,11 +77,11 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "ultimate-basic-introduction-2",
+  id: "welcome-introduction-1",
   url: "https://github.com/zstarczali/UltimateBasic",
   hu: {
     eyebrow: "Újdonság",
-    title: "Megérkezett az Ultimate Basic",
+    title: "Üdvözöl a Visual Assembler",
     body: `<p>Az <strong>Ultimate Basic</strong> egy modern, C64-re készült fordított BASIC nyelv. <strong>Mostantól az Ultimate Basic közvetlenül a Visual Assembler IDE-ben is elérhető</strong>, a teljes értékű UB szerkesztőmódban.</p><ul><li><strong>Mire jó?</strong> Gyors C64 program-, játék- és demófejlesztésre, alacsony szintű assembly írása nélkül.</li><li><strong>Mit tartalmaz?</strong> Szintaxiskiemelést, kódkiegészítést, parancssúgót, projektkezelést, formázást, fordítást és hibajelzést.</li><li><strong>Futtatás:</strong> PRG vagy D64 VICE-ban és C64 Ultimate-en, valamint RetroDebugger támogatás szimbólumokkal.</li><li><strong>Debug kimenet:</strong> KickAssembler <code>.sym</code>, C64Debugger <code>.dbg</code> és VICE <code>.vs</code> címkék.</li></ul><p>Az Ultimate Basic önálló, nyílt forrású projektként is elérhető a GitHubon.</p>`,
     link: "Ultimate Basic a GitHubon",
     dismiss: "Ne jelenjen meg többé",
@@ -89,7 +89,7 @@ const CUSTOMER_MESSAGE = {
   },
   en: {
     eyebrow: "New",
-    title: "Introducing Ultimate Basic",
+    title: "Welcome to Visual Assembler",
     body: `<p><strong>Ultimate Basic</strong> is a modern compiled BASIC language for the C64. <strong>Ultimate Basic is now available directly inside the Visual Assembler IDE</strong> through the full-featured UB editor mode.</p><ul><li><strong>What is it for?</strong> Rapid C64 program, game and demo development without writing everything in low-level assembly.</li><li><strong>What is included?</strong> Syntax highlighting, completion, command help, projects, formatting, compilation and error reporting.</li><li><strong>Run targets:</strong> PRG or D64 in VICE and on C64 Ultimate, plus RetroDebugger support with symbols.</li><li><strong>Debug output:</strong> KickAssembler <code>.sym</code>, C64Debugger <code>.dbg</code> and VICE <code>.vs</code> labels.</li></ul><p>Ultimate Basic is also available as a standalone open-source project on GitHub.</p>`,
     link: "Ultimate Basic on GitHub",
     dismiss: "Don't show again",
@@ -97,7 +97,7 @@ const CUSTOMER_MESSAGE = {
   },
   es: {
     eyebrow: "Novedad",
-    title: "Ha llegado Ultimate Basic",
+    title: "Bienvenido a Visual Assembler",
     body: `<p><strong>Ultimate Basic</strong> es un lenguaje BASIC moderno y compilado para C64. <strong>A partir de ahora, Ultimate Basic también está disponible directamente en el IDE Visual Assembler</strong> mediante el completo modo de edición UB.</p><ul><li><strong>¿Para qué sirve?</strong> Para desarrollar rápidamente programas, juegos y demos de C64 sin tener que escribirlo todo en ensamblador de bajo nivel.</li><li><strong>¿Qué incluye?</strong> Resaltado de sintaxis, autocompletado, ayuda de comandos, gestión de proyectos, formateo, compilación e indicación de errores.</li><li><strong>Ejecución:</strong> PRG o D64 en VICE y C64 Ultimate, además de compatibilidad con RetroDebugger y símbolos.</li><li><strong>Información de depuración:</strong> archivos KickAssembler <code>.sym</code>, C64Debugger <code>.dbg</code> y etiquetas VICE <code>.vs</code>.</li></ul><p>Ultimate Basic también está disponible como proyecto independiente y de código abierto en GitHub.</p>`,
     link: "Ultimate Basic en GitHub",
     dismiss: "No volver a mostrar",
@@ -105,7 +105,7 @@ const CUSTOMER_MESSAGE = {
   },
   de: {
     eyebrow: "Neu",
-    title: "Ultimate Basic ist da",
+    title: "Willkommen bei Visual Assembler",
     body: `<p><strong>Ultimate Basic</strong> ist eine moderne, kompilierte BASIC-Sprache für den C64. <strong>Ab sofort ist Ultimate Basic auch direkt in der Visual Assembler IDE verfügbar</strong> – mit einem vollständigen UB-Editormodus.</p><ul><li><strong>Wofür ist es gedacht?</strong> Für die schnelle Entwicklung von C64-Programmen, Spielen und Demos, ohne alles in maschinennahem Assembler schreiben zu müssen.</li><li><strong>Was ist enthalten?</strong> Syntaxhervorhebung, Codevervollständigung, Befehlshilfe, Projektverwaltung, Formatierung, Kompilierung und Fehleranzeige.</li><li><strong>Ausführung:</strong> PRG oder D64 in VICE und auf C64 Ultimate sowie RetroDebugger-Unterstützung mit Symbolen.</li><li><strong>Debug-Ausgabe:</strong> KickAssembler-<code>.sym</code>, C64Debugger-<code>.dbg</code> und VICE-<code>.vs</code>-Labels.</li></ul><p>Ultimate Basic ist außerdem als eigenständiges Open-Source-Projekt auf GitHub verfügbar.</p>`,
     link: "Ultimate Basic auf GitHub",
     dismiss: "Nicht mehr anzeigen",
@@ -199,6 +199,8 @@ const mnemonicLibrary = {
     { mnemonic: "RAWTEXT", description: "Szoveg elhelyezese kepernyo kodkent (screen code) egy megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isRawTextMacro: true },
     { mnemonic: "PETSCII", description: "Szoveg PETSCII kodolassal egy megadott memoriacimtol, kod generalas nelkul. CHROUT ($FFD2) kompatibilis. Null lezaro checkbox.", modes: ["implied"], isPetsciiMacro: true },
     { mnemonic: "CHARSET", description: "VIC karakterkeszlet valtasa (nagybetu/kisbetu). LDA $D018 + ORA/AND + STA generalas, 8 byte.", modes: ["implied"], isCharsetMacro: true },
+    { mnemonic: "CHARDEF", description: "Egyetlen 8x8 karakter definialasa RAM charset-be. Base ($3800) + index (0-255) + 8 byte. Runtime kod: 8x LDA #b/STA base+index*8+n = 40 byte inline.", modes: ["implied"], isCharDefMacro: true },
+    { mnemonic: "BOX_HIT", description: "AABB (tengely-igazitott) tegla utkozes teszt ket 4-byte ZP struktura kozott (L,T,R,B). Eredmeny A regiszterben: 1=talalt, 0=nincs. ~31 byte inline asm.", modes: ["implied"], isBoxHitMacro: true },
     { mnemonic: "INCBIN", description: "Kulso binarfajl beillesztese megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isIncBinMacro: true },
     { mnemonic: "SID", description: "SID zenefajl betoltese kozvetlenul a memoriaba. A fejlecet automatikusan eltavolitja, a Load/Init/Play cimeket kinyeri.", modes: ["implied"], isSidMacro: true },
     { mnemonic: "INCLUDE", description: "Masik projekt JSON fajl blokkjainak beillesztese erre a helyre (csak olvasható).", modes: ["implied"], isIncludeMacro: true },
@@ -736,6 +738,8 @@ const mnemonicDescriptionsEn = {
   RAWTEXT: "Place text as screen codes at a given memory address without generating any runtime code.",
   PETSCII: "Place text as PETSCII bytes at a given memory address without generating runtime code. Compatible with CHROUT ($FFD2). Null terminator checkbox appends $00.",
   CHARSET: "Switch VIC character set: lower = ORA #$02 on $D018 (enables lowercase ROM), upper = AND #$FD (restores uppercase/graphics ROM). 8 bytes inline.",
+  CHARDEF: "Define a single 8×8 character in a RAM character set. Base address + character index (0-255) + 8 bytes. Emits 8× (LDA #byte / STA target+n) = 40 bytes of inline runtime code that copies the definition to base + index*8.",
+  BOX_HIT: "Axis-aligned bounding-box collision test between two 4-byte zero-page structures (L, T, R, B). Result in A: 1 = overlap, 0 = no overlap. ~31 bytes of inline asm.",
   SID: "Load a SID music file directly into memory. The header is stripped automatically and the Load/Init/Play addresses are extracted.",
   INCBIN: "Include an external binary file at a given memory address without generating any runtime code.",
   INCLUDE: "Include another project JSON file's blocks inline at this position (read-only).",
@@ -893,6 +897,8 @@ const mnemonicDescriptionsEs = {
   RAWTEXT: "Coloca texto como códigos de pantalla en una dirección de memoria sin generar código en tiempo de ejecución.",
   PETSCII: "Coloca texto como bytes PETSCII en una dirección de memoria sin generar código. Compatible con CHROUT ($FFD2).",
   CHARSET: "Cambia el juego de caracteres VIC: lower = ORA #$02 en $D018 (ROM minúsculas), upper = AND #$FD (ROM mayúsculas/gráficos). 8 bytes.",
+  CHARDEF: "Define un solo carácter 8×8 en un juego de caracteres RAM. Dirección base + índice (0-255) + 8 bytes. Emite 8× (LDA #byte / STA destino+n) = 40 bytes de código inline que copia la definición a base + índice*8.",
+  BOX_HIT: "Test de colisión AABB entre dos estructuras de 4 bytes en zero-page (L, T, R, B). Resultado en A: 1 = colisión, 0 = sin colisión. ~31 bytes de asm inline.",
   SID: "Carga un archivo de música SID directamente en memoria. La cabecera se elimina y se extraen las direcciones Load/Init/Play.",
   INCBIN: "Incluye un archivo binario externo en una dirección de memoria sin generar código en tiempo de ejecución.",
   INCLUDE: "Incluye los bloques de otro archivo JSON de proyecto en esta posición (solo lectura).",
@@ -1034,6 +1040,8 @@ const mnemonicDescriptionsDe = {
   RAWTEXT: "Text als Bildschirmcodes an eine Speicheradresse ablegen ohne Laufzeitcode zu erzeugen.",
   PETSCII: "Text als PETSCII-Bytes ablegen ohne Laufzeitcode. Kompatibel mit CHROUT ($FFD2). Null-Terminator-Checkbox hängt $00 an.",
   CHARSET: "VIC-Zeichensatz umschalten: lower = ORA #$02 auf $D018 (Kleinbuchstaben-ROM), upper = AND #$FD (Großbuchstaben/Grafik-ROM). 8 Bytes inline.",
+  CHARDEF: "Definiert ein einzelnes 8×8-Zeichen in einem RAM-Zeichensatz. Basisadresse + Zeichenindex (0-255) + 8 Bytes. Erzeugt 8× (LDA #byte / STA ziel+n) = 40 Bytes Inline-Code zum Kopieren in Basis + Index*8.",
+  BOX_HIT: "Achsenausgerichteter Bounding-Box-Kollisionstest zwischen zwei 4-Byte-Zero-Page-Strukturen (L, T, R, B). Ergebnis in A: 1 = Kollision, 0 = keine. ~31 Bytes Inline-Assembler.",
   SID: "SID-Musikdatei direkt in den Speicher laden. Der Header wird automatisch entfernt und Load/Init/Play-Adressen extrahiert.",
   INCBIN: "Externe Binärdatei an einer Speicheradresse einbinden ohne Laufzeitcode zu erzeugen.",
   INCLUDE: "Blöcke einer anderen Projekt-JSON-Datei an dieser Position einbinden (nur lesen).",
@@ -1128,6 +1136,8 @@ const mnemonicExpertHints = {
   RAWTEXT: mnemonicSyntax("rawtext", "$C000", `"HELLO"`, "lower"),
   PETSCII: mnemonicSyntax("petscii", "$C000", `"HELLO"`, "lower", "null"),
   CHARSET: mnemonicSyntax("charset", "lower"),
+  CHARDEF: mnemonicSyntax("chardef", "$3800", "65", "$18,$3C,$66,$7E,$66,$66,$66,$00"),
+  BOX_HIT: mnemonicSyntax("box_hit", "$FB", "$F7"),
   SID: mnemonicSyntax("sid", `"music.sid"`),
   INCBIN: mnemonicSyntax("incbin", `"sprite.bin"`, "$2000"),
   INCLUDE: mnemonicSyntax("include", `"other.json"`),
@@ -1527,7 +1537,7 @@ function initPalette() {
   });
   ubModeTbBtn?.addEventListener("click", () => setUltimateBasicMode(!ultimateBasicMode));
   document.getElementById("ub-new-btn")?.addEventListener("click", _ubNew);
-  document.getElementById("ub-open-btn")?.addEventListener("click", () => _ubOpen(true));
+  document.getElementById("ub-open-btn")?.addEventListener("click", () => _ubOpen(false));
   document.getElementById("ub-save-btn")?.addEventListener("click", () => _ubSave(false));
   document.getElementById("ub-save-as-btn")?.addEventListener("click", () => _ubSave(true));
   document.getElementById("ub-format-btn")?.addEventListener("click", _ubFormatSource);
@@ -1670,8 +1680,23 @@ function initPalette() {
   const _ubMinimapScrollToY = (clientY) => {
     const canvas = document.getElementById("ub-minimap");
     if (!canvas || !ubEditor) return;
-    const ratio = (clientY - canvas.getBoundingClientRect().top) / Math.max(1, canvas.clientHeight);
-    ubEditor.scrollTop = Math.max(0, Math.min(1, ratio)) * Math.max(0, ubEditor.scrollHeight - ubEditor.clientHeight);
+    const rect = canvas.getBoundingClientRect();
+    const minimapHeight = rect.height;
+    const linePx = 2;
+    const total = ubEditor.value.split("\n").length || 1;
+    const totalHeight = ubEditor.scrollHeight;
+    const viewHeight = ubEditor.clientHeight;
+    const contentHeight = total * linePx;
+    const lineHeight = totalHeight / total;
+    let minimapOffset = 0;
+    if (contentHeight > minimapHeight) {
+      const topLine = ubEditor.scrollTop / lineHeight;
+      const visibleLines = viewHeight / lineHeight;
+      const viewportMiddle = (topLine + visibleLines / 2) * linePx;
+      minimapOffset = Math.max(0, Math.min(contentHeight - minimapHeight, viewportMiddle - minimapHeight / 2));
+    }
+    const minimapLine = (clientY - rect.top + minimapOffset) / linePx;
+    ubEditor.scrollTop = minimapLine * lineHeight - viewHeight / 2;
   };
   {
     let _ubMmPointerDown = false;
@@ -1690,6 +1715,10 @@ function initPalette() {
       window.addEventListener("pointermove", onMove);
       window.addEventListener("pointerup", onUp);
     });
+    const ubEditorWrap = document.querySelector(".ub-editor-wrap");
+    if (ubEditorWrap && typeof ResizeObserver !== "undefined") {
+      new ResizeObserver(_ubDrawMinimap).observe(ubEditorWrap);
+    }
   }
   ubEditor?.addEventListener("keydown", (e) => {
     if (_ubAcVisible()) {
@@ -2036,6 +2065,10 @@ function initPalette() {
   customerMessageLinkButton?.addEventListener("click", () => {
     if (CUSTOMER_MESSAGE.url) window.electronAPI?.openExternal(CUSTOMER_MESSAGE.url);
   });
+  document.querySelector(".customer-message-site")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    window.electronAPI?.openExternal("https://www.c64va.tech");
+  });
   knowledgeBaseButton?.addEventListener("click", () => {
     document.querySelector(".control-menu")?.removeAttribute("open");
     knowledgeBaseDialog?.showModal();
@@ -2163,19 +2196,25 @@ function initPalette() {
     document.querySelector(".control-menu")?.removeAttribute("open");
   });
   document.getElementById("menu-open-project")?.addEventListener("click", async () => {
-    await _openProjectFromMenu();
+    if (ultimateBasicMode) await _ubOpenProject();
+    else if (expertMode) await _openProjectFromMenu();
+    else await loadProjectFromFile();
     document.querySelector(".control-menu")?.removeAttribute("open");
   });
   document.getElementById("menu-save-project")?.addEventListener("click", async () => {
-    // Force a file dialog every time the menu item is clicked (Save As behaviour).
-    // Bootstrap an empty project if there isn't one yet, then clear the cached
-    // path so _expertSaveProject always prompts for a location.
-    if (!_expertProjectData) {
-      _expertProjectData = { name: "Új projekt", files: [], _projPath: "" };
+    if (ultimateBasicMode) {
+      await _ubSaveProject();
+    } else if (expertMode) {
+      // The menu command keeps its Save As behaviour for Expert projects.
+      if (!_expertProjectData) {
+        _expertProjectData = { name: "Új projekt", files: [], _projPath: "" };
+      } else {
+        _expertProjectData._projPath = "";
+      }
+      await _expertSaveProject();
     } else {
-      _expertProjectData._projPath = "";
+      await saveProjectToFile();
     }
-    await _expertSaveProject();
     document.querySelector(".control-menu")?.removeAttribute("open");
   });
   document.getElementById("menu-close-project")?.addEventListener("click", async () => {
@@ -2374,17 +2413,58 @@ function initPalette() {
     setTimeout(type, 700);
   })();
 
-  // Hide splash screen after initialization
-  setTimeout(() => {
+  // Show splash panel only once fully composed, then hide after progress bar animation
+  (() => {
     const splashScreen = document.getElementById('splash-screen');
-    if (splashScreen) {
+    const panel = document.querySelector('.splash-panel');
+    const video = document.getElementById('splash-video');
+    const bar = document.querySelector('.splash-panel .splash-loader-bar');
+    if (!splashScreen || !panel) return;
+
+    let hidden = false;
+    const hide = () => {
+      if (hidden) return;
+      hidden = true;
       splashScreen.classList.add('fade-out');
       setTimeout(() => {
         splashScreen.remove();
         showCustomerMessageIfNeeded();
       }, 500);
+    };
+
+    const startReveal = () => {
+      if (panel.classList.contains('ready')) return;
+      panel.classList.add('ready');
+      if (video) {
+        const p = video.play();
+        if (p && typeof p.catch === 'function') p.catch(() => {});
+      }
+      if (bar) {
+        bar.addEventListener('animationend', hide, { once: true });
+      } else {
+        setTimeout(hide, 2400);
+      }
+    };
+
+    const readyPromises = [];
+    if (video && video.readyState < 1) {
+      readyPromises.push(new Promise(res => {
+        video.addEventListener('loadedmetadata', res, { once: true });
+        video.addEventListener('error', res, { once: true });
+      }));
     }
-  }, 2000);
+    if (document.fonts && document.fonts.ready) {
+      readyPromises.push(document.fonts.ready);
+    }
+    // Compose-timeout so we never wait forever
+    Promise.race([
+      Promise.all(readyPromises),
+      new Promise(res => setTimeout(res, 1500))
+    ]).then(() => requestAnimationFrame(startReveal));
+
+    // Absolute fallback so splash can never wedge
+    setTimeout(hide, 8000);
+  })();
 
   document.addEventListener("contextmenu", e => {
     const tag = e.target.tagName;
@@ -2687,7 +2767,6 @@ function showCustomerMessageIfNeeded() {
   const title = document.getElementById("customer-message-title");
   const body = document.getElementById("customer-message-body");
   if (eyebrow) eyebrow.textContent = content.eyebrow;
-  if (title) title.textContent = content.title;
   if (body) body.innerHTML = content.body;
   if (customerMessageLinkButton) {
     customerMessageLinkButton.textContent = content.link;
@@ -2696,6 +2775,12 @@ function showCustomerMessageIfNeeded() {
   if (customerMessageDismissButton) customerMessageDismissButton.textContent = content.dismiss;
   if (customerMessageCloseButton) customerMessageCloseButton.textContent = content.close;
   customerMessageDialog.showModal();
+  if (title) {
+    title.textContent = content.title;
+    getAppVersionText().then(version => {
+      title.textContent = `${content.title} ${version}`;
+    });
+  }
   requestAnimationFrame(() => customerMessageCloseButton?.focus());
 }
 
@@ -4343,6 +4428,42 @@ function createBlockFromMnemonic(item) {
     };
   }
 
+  if (item.isCharDefMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "CHARDEF",
+      operand: "",
+      rawOperand: "$18,$3C,$66,$7E,$66,$66,$66,$00",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isCharDefMacro: true,
+      charDefBase: "$3800",
+      charDefIndex: "65"
+    };
+  }
+
+  if (item.isBoxHitMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "BOX_HIT",
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isBoxHitMacro: true,
+      boxHitBox1ZP: "$FB",
+      boxHitBox2ZP: "$F7"
+    };
+  }
+
   if (item.isIncBinMacro) {
     return {
       id: crypto.randomUUID(),
@@ -5484,6 +5605,8 @@ function _blockToExpertLine(block) {
   if (block.isIncBinMacro)    return `.incbin "${block.incBinFileName || "data.bin"}"${block.incBinAddress && block.incBinAddress !== "$C000" ? ", $" + block.incBinAddress.replace(/^\$/,"") : ""}`;
   if (block.isPetsciiMacro)   return `.petscii ${fmtAddr(block.petsciiAddress)}, "${block.rawOperand || "HELLO"}"${block.petsciiCharset === "lower" ? ", lower" : ""}${block.petsciiNullTerminated ? ", null" : ""}${fmtMacroLabel(block.macroLabel)}`;
   if (block.isCharsetMacro)   return `.charset ${block.charsetMode || "lower"}`;
+  if (block.isCharDefMacro)   return `.chardef ${fmtAddr(block.charDefBase || "$3800")}, ${block.charDefIndex || "0"}, ${fmtRaw(block.rawOperand, block.base)}`;
+  if (block.isBoxHitMacro)    return `.box_hit ${fmtAddr(block.boxHitBox1ZP || "$FB")}, ${fmtAddr(block.boxHitBox2ZP || "$F7")}`;
   if (block.isTableMacro)     return block.tableAddress ? `.table ${block.tableName || "table1"} $${block.tableAddress.replace(/^\$/,"").toUpperCase()}` : `.table ${block.tableName || "table1"}`;  
   if (block.isLoadFileMacro)  return `.loadfile "${block.loadFileName || "DATA"}", ${block.loadFileDevice || "8"}${block.loadFileAddress ? ", $" + block.loadFileAddress.replace(/^\$/,"") : ""}${block.loadFileErrorLabel ? ", " + block.loadFileErrorLabel : ""}`;
   if (block.isExoDecrunchMacro) return `.exodecrunch depacker=$${(block.exoDepackerAddr||"B000").toUpperCase()}`;
@@ -6308,13 +6431,70 @@ function _ubDrawMinimap() {
   if (!_ubMinimapEnabled) return;
   const canvas = document.getElementById("ub-minimap");
   if (!canvas || !canvas.offsetWidth || !canvas.offsetHeight) return;
-  const dpr = Math.min(devicePixelRatio || 1, 2), w = canvas.offsetWidth, h = canvas.offsetHeight;
-  canvas.width = w * dpr; canvas.height = h * dpr;
-  const ctx = canvas.getContext("2d"); ctx.scale(dpr, dpr); ctx.clearRect(0, 0, w, h);
-  const lines = ubEditor.value.split("\n"), scale = Math.min(2, h / Math.max(1, lines.length));
-  lines.forEach((line, i) => { const t = line.trim(); if (!t) return; ctx.fillStyle = /^(#|rem\b)/i.test(t) ? "#6a9955" : /^\b(var|const|sub|fn)\b/i.test(t) ? "#569cd6" : "#dcdcaa"; ctx.globalAlpha = .72; ctx.fillRect(3, i * scale, Math.min(w - 6, Math.max(4, t.length * .9)), Math.max(1, scale - .3)); });
-  const ratio = ubEditor.scrollTop / Math.max(1, ubEditor.scrollHeight), view = ubEditor.clientHeight / Math.max(1, ubEditor.scrollHeight);
-  ctx.globalAlpha = 1; ctx.fillStyle = "rgba(80,140,255,.18)"; ctx.fillRect(0, ratio * h, w, Math.max(8, view * h));
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const width = canvas.offsetWidth;
+  const height = canvas.offsetHeight;
+  const canvasWidth = Math.round(width * dpr);
+  const canvasHeight = Math.round(height * dpr);
+  if (canvas.width !== canvasWidth || canvas.height !== canvasHeight) {
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+  }
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const rootStyle = getComputedStyle(document.documentElement);
+  const background = rootStyle.getPropertyValue("--expert-editor-bg").trim() || "#1a1b26";
+  const commentColor = rootStyle.getPropertyValue("--hl-comment").trim() || "#6a9955";
+  const keywordColor = rootStyle.getPropertyValue("--hl-mnem").trim() || "#dcdcaa";
+  const labelColor = rootStyle.getPropertyValue("--hl-label").trim() || "#9cdcfe";
+  const declarationColor = rootStyle.getPropertyValue("--hl-directive").trim() || "#569cd6";
+  const numberColor = rootStyle.getPropertyValue("--hl-number").trim() || "#b5cea8";
+  const primary = rootStyle.getPropertyValue("--primary").trim() || "#2563eb";
+  ctx.fillStyle = background;
+  ctx.fillRect(0, 0, width, height);
+
+  const lines = ubEditor.value.split("\n");
+  const total = lines.length || 1;
+  const linePx = 2;
+  const editorLineHeight = ubEditor.scrollHeight / total;
+  const topLine = ubEditor.scrollTop / editorLineHeight;
+  const visibleLines = ubEditor.clientHeight / editorLineHeight;
+  const contentHeight = total * linePx;
+  let minimapOffset = 0;
+  if (contentHeight > height) {
+    const viewportMiddle = (topLine + visibleLines / 2) * linePx;
+    minimapOffset = Math.max(0, Math.min(contentHeight - height, viewportMiddle - height / 2));
+  }
+
+  const xPadding = 3;
+  const maxWidth = width - xPadding * 2;
+  lines.forEach((raw, index) => {
+    const y = index * linePx - minimapOffset;
+    if (y + linePx < 0 || y > height) return;
+    const trimmed = raw.trimStart();
+    if (!trimmed) return;
+    let color = keywordColor;
+    if (/^(#|rem\b)/i.test(trimmed)) color = commentColor;
+    else if (/^[A-Za-z_][A-Za-z0-9_]*:/i.test(trimmed)) color = labelColor;
+    else if (/^(var|const|sub|fn|label|include|incbin|load|data)\b/i.test(trimmed)) color = declarationColor;
+    else if (/^(\d|\$[0-9a-f]|%[01])/i.test(trimmed)) color = numberColor;
+    const indent = raw.length - trimmed.length;
+    const indentX = Math.min(indent * 1.5, maxWidth * 0.35);
+    const barWidth = Math.min(trimmed.length * 1.3, maxWidth - indentX);
+    ctx.globalAlpha = 0.72;
+    ctx.fillStyle = color;
+    ctx.fillRect(xPadding + indentX, y, Math.max(3, barWidth), Math.max(1, linePx - 0.3));
+  });
+  ctx.globalAlpha = 1;
+
+  const viewportTop = topLine * linePx - minimapOffset;
+  const viewportHeight = Math.max(8, visibleLines * linePx);
+  ctx.fillStyle = _mmAlphaColor(primary, 0.12);
+  ctx.fillRect(0, viewportTop, width, viewportHeight);
+  ctx.strokeStyle = _mmAlphaColor(primary, 0.5);
+  ctx.lineWidth = 1;
+  ctx.strokeRect(0.5, viewportTop + 0.5, width - 1, viewportHeight - 1);
 }
 
 function _ubSetStatus(text, error = false) {
@@ -6460,7 +6640,7 @@ function _ubCreateFileTab(path, content) {
 }
 
 async function _ubOpenProject() {
-  const result = await window.electronAPI?.openProjFile?.();
+  const result = await window.electronAPI?.openProjFile?.(ubWorkingFolder);
   if (!result || result.canceled) return;
   if (!result.ok) { _ubSetStatus(result.error || "Project open failed", true); return; }
   const project = result.project || {};
@@ -6481,7 +6661,7 @@ async function _ubSaveProject() {
   if (!_ubProjectData) { await _ubNewProject(); return; }
   const wasNew = !_ubProjectData._projPath;
   const payload = JSON.stringify({ app: "ultimate-basic", name: _ubProjectData.name, files: _ubProjectData.files, startupFile: _ubProjectData.startupFile || null }, null, 2);
-  const result = await window.electronAPI?.saveProjFile?.(_ubProjectData._projPath || "", payload);
+  const result = await window.electronAPI?.saveProjFile?.(_ubProjectData._projPath || "", payload, ubWorkingFolder);
   if (!result || result.canceled) return;
   if (!result.ok) { _ubSetStatus(result.error || "Project save failed", true); return; }
   _ubProjectData._projPath = result.filePath;
@@ -6489,7 +6669,7 @@ async function _ubSaveProject() {
   if (_ubProjectData.name === "New UltimateBasic project") _ubProjectData.name = result.filePath.replace(/\\/g, "/").split("/").pop().replace(/\.proj$/i, "");
   if (wasNew) {
     const portablePayload = JSON.stringify({ app: "ultimate-basic", name: _ubProjectData.name, files: _ubProjectData.files, startupFile: _ubProjectData.startupFile || null }, null, 2);
-    const rewrite = await window.electronAPI?.saveProjFile?.(_ubProjectData._projPath, portablePayload);
+    const rewrite = await window.electronAPI?.saveProjFile?.(_ubProjectData._projPath, portablePayload, ubWorkingFolder);
     if (!rewrite?.ok) { _ubSetStatus(rewrite?.error || "Project save failed", true); return; }
   }
   _ubRenderProjectFiles();
@@ -6560,7 +6740,7 @@ function _ubNew() {
 async function _ubOpen(addToProject = false) {
   let result;
   try {
-    result = await window.electronAPI?.chooseUbFile?.();
+    result = await window.electronAPI?.chooseUbFile?.(ubWorkingFolder);
   } catch (error) {
     _ubSetStatus(error?.message || String(error) || "Open failed", true);
     return;
@@ -7578,6 +7758,7 @@ function showBuildInfoDialog() {
         "isLoadFileMacro","isExoDecrunchMacro","isReuStashMacro","isReuFetchMacro","isReuSwapMacro","isReuCheckMacro",
         "isTurboSetMacro","isTurboEnableMacro","isSuperCpuDetectMacro",
         "isMapCopyMacro","isMapCopy16Macro","isSpriteAnimMacro","isScoreBcdMacro",
+        "isCharDefMacro","isBoxHitMacro",
       ];
       macroTypes.forEach(t2 => {
         if (b[t2]) {
@@ -9058,6 +9239,26 @@ function parseExpertText(text) {
     const charsetM = line.match(/^\.charset\s+(lower|upper)\s*$/i);
     if (charsetM) {
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "CHARSET", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isCharsetMacro: true, charsetMode: charsetM[1].toLowerCase() });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .chardef $BASE, INDEX, b1,b2,b3,b4,b5,b6,b7,b8
+    const chardefM = line.match(/^\.chardef\s+\$?([0-9A-Fa-f]{1,4})\s*,\s*(\d{1,3})\s*,\s*(.+)$/i);
+    if (chardefM) {
+      const cdBase = "$" + chardefM[1].toUpperCase().padStart(4, "0");
+      const cdIndex = chardefM[2];
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "CHARDEF", operand: chardefM[3].trim(), rawOperand: chardefM[3].trim(), description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isCharDefMacro: true, charDefBase: cdBase, charDefIndex: cdIndex });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .box_hit $BOX1_ZP, $BOX2_ZP
+    const boxHitM = line.match(/^\.box_hit\s+\$?([0-9A-Fa-f]{1,2})\s*,\s*\$?([0-9A-Fa-f]{1,2})\s*$/i);
+    if (boxHitM) {
+      const b1 = "$" + boxHitM[1].toUpperCase().padStart(2, "0");
+      const b2 = "$" + boxHitM[2].toUpperCase().padStart(2, "0");
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "BOX_HIT", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isBoxHitMacro: true, boxHitBox1ZP: b1, boxHitBox2ZP: b2 });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -10932,6 +11133,54 @@ async function _closeAllTabsWithConfirm() {
 }
 
 async function _closeProject() {
+  if (ultimateBasicMode) {
+    if (!_ubProjectData && tabs.every(tab => !_tabHasContent(tab))) {
+      _ubSetStatus(t("projNoOpen"));
+      return;
+    }
+
+    if (!await _closeAllTabsWithConfirm()) return;
+
+    _ubProjectData = null;
+    _ubStartupTabId = null;
+    _ubFilePath = "";
+    _ubDirty = false;
+    _ubLastResult = null;
+    if (ubEditor) ubEditor.value = "";
+
+    const blank = _getActiveTab();
+    if (blank) {
+      blank.editorMode = "ub";
+      blank.ubText = "";
+      blank.ubFilePath = "";
+      blank.filePath = null;
+      blank.dirty = false;
+    }
+
+    _ubProjectVisible = false;
+    _ubApplyLeftViews(false);
+    _ubRenderProjectFiles();
+    _ubRefreshEditor();
+    _ubSetStatus(t("projClosed"));
+    renderTabBar();
+    renderProgram();
+    renderAsmOutput();
+    return;
+  }
+
+  if (!expertMode) {
+    const activeTab = _getActiveTab();
+    if (!activeTab || !_tabHasContent(activeTab)) {
+      if (emulatorStatus) emulatorStatus.textContent = t("projNoOpen");
+      return;
+    }
+    if (!await _tabClose(activeTab.id)) return;
+    if (emulatorStatus) emulatorStatus.textContent = t("projClosed");
+    renderProgram();
+    renderAsmOutput();
+    return;
+  }
+
   if (!_expertProjectData && tabs.every(t => !_tabHasContent(t))) {
     _expertSetStatus(t("projNoOpen"), "ok");
     return;
@@ -11448,6 +11697,20 @@ function updateProgramBlock(index, field, value) {
 
   if (block.isCharsetMacro && field === "charsetMode") {
     block.charsetMode = value === "upper" ? "upper" : "lower";
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isCharDefMacro && (field === "charDefBase" || field === "charDefIndex")) {
+    block[field] = value;
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isBoxHitMacro && (field === "boxHitBox1ZP" || field === "boxHitBox2ZP")) {
+    block[field] = value;
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -13110,6 +13373,7 @@ function setTheme(theme) {
   requestAnimationFrame(() => {
     _expertScheduleMinimapRedraw();
     _blockScheduleMinimapRedraw();
+    if (typeof _ubDrawMinimap === "function") _ubDrawMinimap();
   });
 }
 
@@ -14260,7 +14524,7 @@ async function _tabClose(tabId) {
   if (tab && _tabHasContent(tab)) {
     const key = tab.filePath ? "tabCloseConfirmUnsaved" : "tabCloseConfirm";
     const msg = tf(key, { name: tab.name });
-    if (!await _showConfirm(msg)) return;
+    if (!await _showConfirm(msg)) return false;
   }
 
   if (tabs.length <= 1) {
@@ -14285,7 +14549,7 @@ async function _tabClose(tabId) {
     if (expertFileName) expertFileName.textContent = "";
     updateWindowTitle("");
     renderTabBar();
-    return;
+    return true;
   }
   const idx = tabs.findIndex(t => t.id === tabId);
   if (_ubStartupTabId === tabId) _ubStartupTabId = null;
@@ -14300,6 +14564,7 @@ async function _tabClose(tabId) {
   } else {
     renderTabBar();
   }
+  return true;
 }
 
 function renderTabBar() {
@@ -18041,6 +18306,82 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes, comment: `CHARSET ${isLower ? "lower" : "upper"}` };
   }
 
+  if (block.isCharDefMacro) {
+    const base = parseAddressValue(block.charDefBase) ?? 0x3800;
+    const index = parseInt(String(block.charDefIndex || "0"), 10);
+    if (isNaN(index) || index < 0 || index > 255) {
+      return { ok: false, error: "CHARDEF index must be 0-255" };
+    }
+    const target = base + index * 8;
+    if (target < 0 || target > 0xFFFF - 7) {
+      return { ok: false, error: `CHARDEF target address out of range: $${target.toString(16)}` };
+    }
+    const raw = String(block.rawOperand || "").split(",").map(s => s.trim()).filter(Boolean);
+    if (raw.length !== 8) {
+      return { ok: false, error: `CHARDEF needs exactly 8 bytes, got ${raw.length}` };
+    }
+    const bytes = [];
+    for (let i = 0; i < 8; i++) {
+      const val = parseMacroNumber(raw[i], labels, block.base || "hex");
+      if (isNaN(val) || val < 0 || val > 255) {
+        return { ok: false, error: `CHARDEF byte ${i + 1} invalid: ${raw[i]}` };
+      }
+      const addr = target + i;
+      // LDA #val ; STA addr (absolute)
+      bytes.push(0xA9, val & 0xFF, 0x8D, addr & 0xFF, (addr >> 8) & 0xFF);
+    }
+    return { ok: true, bytes, comment: `CHARDEF #${index} @ $${target.toString(16).toUpperCase().padStart(4, "0")}` };
+  }
+
+  if (block.isBoxHitMacro) {
+    const zp1 = parseAddressValue(block.boxHitBox1ZP) ?? 0xFB;
+    const zp2 = parseAddressValue(block.boxHitBox2ZP) ?? 0xF7;
+    if (zp1 < 0 || zp1 > 0xFC || zp2 < 0 || zp2 > 0xFC) {
+      return { ok: false, error: "BOX_HIT zero-page addresses must be 0-$FC (need 4 bytes)" };
+    }
+    // Box layout: zp+0=Left, +1=Top, +2=Right, +3=Bottom (all 8-bit unsigned)
+    // Result in A: 1 = overlap, 0 = no overlap. 30 bytes, fully PC-relative.
+    //   0: LDA b1+2 ; R1
+    //   2: CMP b2   ; L2
+    //   4: BCC no   ; R1 < L2 → miss
+    //   6: LDA b2+2 ; R2
+    //   8: CMP b1   ; L1
+    //  10: BCC no
+    //  12: LDA b1+3 ; B1
+    //  14: CMP b2+1 ; T2
+    //  16: BCC no
+    //  18: LDA b2+3 ; B2
+    //  20: CMP b1+1 ; T1
+    //  22: BCC no
+    //  24: LDA #$01
+    //  26: BNE done ; unconditional (A=1 ≠ 0), skip LDA #0
+    //  28: LDA #$00 ; ← 'no' label
+    //  30: (done)
+    const b1 = zp1 & 0xFF;
+    const b2 = zp2 & 0xFF;
+    const noPC = 28;
+    const donePC = 30;
+    const off = (branchPos, target) => (target - (branchPos + 2)) & 0xFF;
+    const bytes = [
+      0xA5, (b1 + 2) & 0xFF,  // 0
+      0xC5, b2,               // 2
+      0x90, off(4, noPC),     // 4
+      0xA5, (b2 + 2) & 0xFF,  // 6
+      0xC5, b1,               // 8
+      0x90, off(10, noPC),    // 10
+      0xA5, (b1 + 3) & 0xFF,  // 12
+      0xC5, (b2 + 1) & 0xFF,  // 14
+      0x90, off(16, noPC),    // 16
+      0xA5, (b2 + 3) & 0xFF,  // 18
+      0xC5, (b1 + 1) & 0xFF,  // 20
+      0x90, off(22, noPC),    // 22
+      0xA9, 0x01,             // 24
+      0xD0, off(26, donePC),  // 26
+      0xA9, 0x00              // 28
+    ];
+    return { ok: true, bytes, comment: `BOX_HIT b1=$${b1.toString(16).toUpperCase().padStart(2, "0")} b2=$${b2.toString(16).toUpperCase().padStart(2, "0")}` };
+  }
+
   if (block.isTurboSetMacro) {
     const spd = parseMacroNumber(block.turboSpeed || "7", labels, "dec");
     if (isNaN(spd) || spd < 0 || spd > 15) {
@@ -20019,6 +20360,14 @@ function getInstructionSize(block) {
     return 8;
   }
 
+  if (block.isCharDefMacro) {
+    return 40; // 8 × (LDA #b + STA abs) = 8 × 5
+  }
+
+  if (block.isBoxHitMacro) {
+    return 30;
+  }
+
   if (block.isIncBinMacro) {
     return 0;
   }
@@ -21579,6 +21928,18 @@ function getCollapsedOperandText(block) {
     return block.charsetMode === "upper" ? t("charsetCollapsedUpper") : t("charsetCollapsedLower");
   }
 
+  if (block.isCharDefMacro) {
+    const base = (block.charDefBase || "$3800").replace(/^\$/, "").toUpperCase();
+    const idx = block.charDefIndex || "0";
+    return `#${idx} → $${base}+${idx}*8`;
+  }
+
+  if (block.isBoxHitMacro) {
+    const b1 = (block.boxHitBox1ZP || "$FB").replace(/^\$/, "").toUpperCase();
+    const b2 = (block.boxHitBox2ZP || "$F7").replace(/^\$/, "").toUpperCase();
+    return `box1=$${b1} ↔ box2=$${b2}`;
+  }
+
   if (block.isJoystickMacro) {
     return `port${block.joyPort || "2"} → sprite#${block.joySpriteNum || "0"}`;
   }
@@ -22142,6 +22503,51 @@ function renderProgram() {
                 <option value="lower"${(block.charsetMode || "lower") === "lower" ? " selected" : ""}>${t("charsetModeLower")}</option>
                 <option value="upper"${block.charsetMode === "upper" ? " selected" : ""}>${t("charsetModeUpper")}</option>
               </select>
+            </label>
+          </div>
+        `
+      );
+    } else if (block.isCharDefMacro) {
+      inlineField.hidden = true;
+      const cdBase = (block.charDefBase || "$3800").replace(/"/g, "&quot;");
+      const cdIndex = (block.charDefIndex || "65").replace(/"/g, "&quot;");
+      const cdBytes = (block.rawOperand || "$00,$00,$00,$00,$00,$00,$00,$00").replace(/"/g, "&quot;");
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid" style="margin-top:6px;grid-template-columns:1fr 1fr;">
+            <label class="mini-field">
+              <span>${t("chardefBaseLabel")}</span>
+              <input type="text" class="chardef-base-input block-operand" value="${cdBase}" placeholder="$3800" style="font-size:0.8rem;">
+            </label>
+            <label class="mini-field">
+              <span>${t("chardefIndexLabel")}</span>
+              <input type="text" class="chardef-index-input block-operand" value="${cdIndex}" placeholder="65" style="font-size:0.8rem;">
+            </label>
+          </div>
+          <div class="macro-grid single-macro-row" style="margin-top:4px;">
+            <label class="mini-field">
+              <span>${t("chardefBytesLabel")}</span>
+              <input type="text" class="chardef-bytes-input block-operand" value="${cdBytes}" placeholder="$18,$3C,$66,$7E,$66,$66,$66,$00" style="font-size:0.8rem;font-family:'IBM Plex Mono',monospace;">
+            </label>
+          </div>
+        `
+      );
+    } else if (block.isBoxHitMacro) {
+      inlineField.hidden = true;
+      const bh1 = (block.boxHitBox1ZP || "$FB").replace(/"/g, "&quot;");
+      const bh2 = (block.boxHitBox2ZP || "$F7").replace(/"/g, "&quot;");
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid" style="margin-top:6px;grid-template-columns:1fr 1fr;">
+            <label class="mini-field">
+              <span>${t("boxhitBox1Label")}</span>
+              <input type="text" class="boxhit-box1-input block-operand" value="${bh1}" placeholder="$FB" style="font-size:0.8rem;">
+            </label>
+            <label class="mini-field">
+              <span>${t("boxhitBox2Label")}</span>
+              <input type="text" class="boxhit-box2-input block-operand" value="${bh2}" placeholder="$F7" style="font-size:0.8rem;">
             </label>
           </div>
         `
@@ -24119,6 +24525,29 @@ function renderProgram() {
     const charsetModeSelect = node.querySelector(".charset-mode-select");
     if (charsetModeSelect) {
       charsetModeSelect.addEventListener("change", (event) => updateProgramBlock(index, "charsetMode", event.target.value));
+    }
+    const chardefBaseInput = node.querySelector(".chardef-base-input");
+    if (chardefBaseInput) {
+      setupProgramConstPicker(chardefBaseInput);
+      chardefBaseInput.addEventListener("input", (event) => updateProgramBlock(index, "charDefBase", event.target.value));
+    }
+    const chardefIndexInput = node.querySelector(".chardef-index-input");
+    if (chardefIndexInput) {
+      chardefIndexInput.addEventListener("input", (event) => updateProgramBlock(index, "charDefIndex", event.target.value));
+    }
+    const chardefBytesInput = node.querySelector(".chardef-bytes-input");
+    if (chardefBytesInput) {
+      chardefBytesInput.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+    }
+    const boxhitBox1Input = node.querySelector(".boxhit-box1-input");
+    if (boxhitBox1Input) {
+      setupProgramConstPicker(boxhitBox1Input);
+      boxhitBox1Input.addEventListener("input", (event) => updateProgramBlock(index, "boxHitBox1ZP", event.target.value));
+    }
+    const boxhitBox2Input = node.querySelector(".boxhit-box2-input");
+    if (boxhitBox2Input) {
+      setupProgramConstPicker(boxhitBox2Input);
+      boxhitBox2Input.addEventListener("input", (event) => updateProgramBlock(index, "boxHitBox2ZP", event.target.value));
     }
     const macroCharOffsetInput = node.querySelector(".macro-char-offset");
     if (macroCharOffsetInput) {

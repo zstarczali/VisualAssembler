@@ -174,7 +174,11 @@
       "Bash(grep -n 'adc.*xfrac\\\\|adc #\\\\$CF\\\\|step = ' www/app.js)",
       "Bash(python -c \"from PIL import Image; print\\('OK'\\)\")",
       "Bash(python3)",
-      "Bash(python3 -c ' *)"
+      "Bash(python3 -c ' *)",
+      "Bash(where ffmpeg *)",
+      "Bash(python3 -c \"import imageio_ffmpeg; print\\(imageio_ffmpeg.get_ffmpeg_exe\\(\\)\\)\")",
+      "Bash(python3 -c \"import imageio; print\\(imageio.__version__\\)\")",
+      "Bash(pip install *)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"

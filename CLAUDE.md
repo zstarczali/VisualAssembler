@@ -693,8 +693,8 @@ override megoldja. Új dialog számmezőknél is állítsd be explicit:
 
 ## 16. Jelenlegi verzió
 
-`2.3.3` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
+`2.3.4` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, és ez a fájl + copilot-instructions.md.
-Fő 2.3.3 változások: UltimateBasic 1.5.2 integráció; javított UB PRG/D64 build és D64 `load` címkezelés; opcionális `.asm` sidecar; külön, mentett UB working folder; UB Save As és másolható disassembly; frissített UB nyelvi súgó; Expert Save ASM As.
+Fő 2.3.4 változások: CHARDEF és BOX_HIT makrók; indítási welcome dialóg verziószámmal; videós splash intro; frissített light téma (színes, kiemelt blokkok); javított UltimateBasic editor UX (autocomplete, minimap, project dialógok).
 
 Verziónöveléshez lásd a 3. szakasz végén lévő 7-lépéses checklistet.

@@ -82,7 +82,7 @@ def render(nodes, width):
 
 def footer(canvas, document):
     canvas.saveState(); canvas.setFont("Manual", 7); canvas.setFillColor(colors.HexColor("#777777"))
-    canvas.drawString(15 * mm, 9 * mm, "C64 Visual Assembler 2.3.3 - User Manual")
+    canvas.drawString(15 * mm, 9 * mm, "C64 Visual Assembler 2.3.4 - User Manual")
     canvas.drawRightString(A4[0] - 15 * mm, 9 * mm, str(document.page)); canvas.restoreState()
 
 tree = mistune.create_markdown(renderer="ast", plugins=["table"])(SOURCE.read_text(encoding="utf-8"))

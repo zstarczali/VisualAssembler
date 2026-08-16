@@ -12,22 +12,23 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2.3.3">
+  <link rel="stylesheet" href="style.css?v=2.3.4">
 </head>
 
 <body>
-  <div id="splash-screen" class="splash-screen">
-    <div class="splash-content">
-      <img src="assets/logo0.PNG" alt="C64 Visual Assembler" class="splash-logo">
-      <div class="splash-status">
-        <div class="splash-loader">
-          <div class="splash-loader-bar"></div>
-        </div>
-        <div class="splash-ready" aria-live="polite"><span id="splash-ready-text"></span><span class="splash-cursor">&#x2588;</span></div>
+  <div id="splash-screen" class="splash-screen splash-screen--video">
+    <div class="splash-panel">
+      <video id="splash-video" class="splash-video" autoplay muted playsinline preload="auto">
+        <source src="assets/splash.mp4" type="video/mp4">
+      </video>
+      <div class="splash-loader">
+        <div class="splash-loader-bar"></div>
       </div>
-    </div>
-    <div class="splash-versions">
+      <div class="splash-ready" aria-live="polite"><span id="splash-ready-text"></span><span class="splash-cursor">&#x2588;</span></div>
       <p class="splash-version" id="splash-version"></p>
+      <div class="splash-powered">
+        <span>Powered by Ultimate Macro Assembler &amp; Ultimate Basic</span>
+      </div>
     </div>
   </div>
   <div class="app-shell">
@@ -844,6 +845,11 @@ PRINTABLE CHARACTERS
       <div class="customer-message-eyebrow" id="customer-message-eyebrow"></div>
       <h2 id="customer-message-title"></h2>
       <div id="customer-message-body" class="customer-message-body"></div>
+      <div class="customer-message-footer">
+        <span class="customer-message-credit">Thanks, RetroBoj.</span>
+        <img class="customer-message-logo" src="assets/retroboj-logo.png" alt="RetroBoj">
+      </div>
+      <a class="customer-message-site" href="https://www.c64va.tech" target="_blank" rel="noopener noreferrer">www.c64va.tech</a>
       <div class="customer-message-actions">
         <button id="customer-message-link" class="secondary" type="button" hidden></button>
         <button id="customer-message-dismiss" class="secondary" type="button"></button>
@@ -858,8 +864,10 @@ PRINTABLE CHARACTERS
         <img src="assets/logo.png" alt="C64 Visual Assembler" width="160" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v2.3.3</p>
+      <p class="about-version" id="about-version">v2.3.4</p>
       <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
+      <img class="about-ub-banner" src="assets/ultimate-basic-banner.png" alt="Ultimate Basic">
+      <p class="about-repo"><span>Ultimate Basic GitHub repository:</span><br><a href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener noreferrer">https://github.com/zstarczali/UltimateBasic</a></p>
       <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
         dropping instruction blocks.</p>
       <p class="about-sid-credit" id="about-sid-credit"><span id="about-sid-credit-label">Web SID player: WebSid (WebAudio version of Tiny'R'Sid) by Juergen Wothke. GitHub repository:</span> <a href="https://github.com/wothke/websid" target="_blank" rel="noopener noreferrer">https://github.com/wothke/websid</a><br><span id="about-sid-credit-license">(CC BY-NC-SA 4.0)</span></p>
@@ -874,37 +882,25 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.3.3</p>
+      <p class="whats-new-version">v2.3.4</p>
       <ul class="whats-new-list">
         <li>
-          <strong>Updated: UltimateBasic 1.5.2</strong> &mdash; the bundled compiler now supports the latest language additions, addressed <code>incbin</code>, generated ASM output, map/Koala commands, collision helpers, and updated debug metadata.
+          <strong>New: CHARDEF macro</strong> &mdash; define a single 8&times;8 character in a RAM character set from a base address, character index, and 8 bytes; the inline copy code is generated automatically.
         </li>
         <li>
-          <strong>New: UB ASM sidecars</strong> &mdash; Program Settings can generate a same-name <code>.asm</code> source beside UB PRG and D64 builds, without adding redundant export buttons to the UB toolbar.
+          <strong>New: BOX_HIT macro</strong> &mdash; axis-aligned bounding-box collision test between two 4-byte zero-page rectangles; the overlap result lands in A (1 = hit).
         </li>
         <li>
-          <strong>Improved: UB file workflow</strong> &mdash; added Save As, corrected main-menu PRG/D64 builds, applied <code>load</code> addresses to D64 extras, and introduced a separate persistent UB working folder for source-relative <code>include</code>/<code>incbin</code> files.
+          <strong>New: welcome dialog</strong> &mdash; a startup welcome card showing the current version; it appears on every launch until dismissed.
         </li>
         <li>
-          <strong>Improved: UB diagnostics</strong> &mdash; the UB disassembly panel has an Expert-style Copy button, and generated symbols, source mappings, and optional debug sidecars are passed through the build and debugger workflows.
+          <strong>New: video splash intro</strong> &mdash; an animated startup splash with credit for the bundled Ultimate tools.
         </li>
         <li>
-          <strong>Expanded: UB editor knowledge</strong> &mdash; highlighting, autocomplete, and command help recognize current map, Koala, collision, addressed <code>incbin</code>, and sprite animation syntax; <code>sprite_frame</code> now clearly documents animation frames.
+          <strong>Improved: light theme</strong> &mdash; a refreshed desktop-style palette with softly colored, elevated assembly blocks and deeper shadows.
         </li>
         <li>
-          <strong>Improved: source saving</strong> &mdash; Expert mode now provides separate Save ASM and Save ASM As actions, while UB provides Save and Save As for <code>.ub</code> sources.
-        </li>
-        <li>
-          <strong>Improved: UltimateBasic editor UX</strong> &mdash; repaired the light theme and editor focus styling, made the command list/detail and project/symbol panes resizable with persistent sizes, and compacted panel inputs and selects.
-        </li>
-        <li>
-          <strong>Fixed: UB autocomplete</strong> &mdash; typing and completion-key handling no longer interfere with source entry, and the suggestion popup now opens below or above the active line without covering the caret or the code being edited.
-        </li>
-        <li>
-          <strong>Expanded: SID tracker tools</strong> &mdash; added selection-aware copy, cut, paste and clear actions, a right-click context menu, Pause/Resume playback, row and arpeggio preview, a virtual keyboard, and additional chord types.
-        </li>
-        <li>
-          <strong>Improved: editor workspace</strong> &mdash; graphics, SID and curve editor dialogs can be dragged and remember their positions; the active editor mode is clearer, and the UltimateBasic minimap supports drag scrolling.
+          <strong>Improved: UltimateBasic UX</strong> &mdash; smoother autocomplete, minimap scrolling and rendering, and refined project dialogs; refreshed product-site copy.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -2152,13 +2148,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.3.3"></script>
-  <script src="i18n.js?v=2.3.3"></script>
-  <script src="tutorial-data.js?v=2.3.3"></script>
+  <script src="tauri-bridge.js?v=2.3.4"></script>
+  <script src="i18n.js?v=2.3.4"></script>
+  <script src="tutorial-data.js?v=2.3.4"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.3.3"></script>
+  <script src="app.js?v=2.3.4"></script>
 
 </body>
 

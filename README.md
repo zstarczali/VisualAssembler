@@ -2,16 +2,15 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.3.3**
+**Current version: v2.3.4**
 
-## What's New in v2.3.3
+## What's New in v2.3.4
 
-- **UltimateBasic 1.5.2 integration** — current compiler support including addressed `incbin`, ASM generation, map/Koala commands, collision helpers, and updated debug metadata.
-- **Reliable UB builds** — corrected main-menu PRG/D64 workflows and D64 `load` address handling for extra files.
-- **Optional UB ASM source** — Program Settings can write a same-name `.asm` sidecar beside PRG and D64 output.
-- **Separate UB working folder** — persistent, mode-aware source directory for UB Open/Save and relative `include`/`incbin` resolution.
-- **Improved UB tools** — Save As, copyable disassembly, current syntax highlighting/autocomplete, and clearer `sprite_frame` animation help.
-- **Expert source saving** — distinct Save ASM and Save ASM As toolbar actions.
+- **CHARDEF and BOX_HIT macros** — define custom RAM characters and run axis-aligned bounding-box collision tests with inline generated code.
+- **Welcome dialog** — a startup welcome card showing the current version, shown until dismissed.
+- **Video splash intro** — animated startup splash with Ultimate tools credit.
+- **Refreshed light theme** — desktop-style palette with softly colored, elevated assembly blocks.
+- **Improved UltimateBasic UX** — smoother autocomplete, minimap scrolling/rendering, and project dialogs.
 
 ---
 
