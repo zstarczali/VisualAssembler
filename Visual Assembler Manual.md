@@ -79,6 +79,8 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [RAWTEXT](#rawtext)
     - [PETSCII](#petscii)
     - [CHARSET](#charset)
+    - [CHARDEF](#chardef)
+    - [BOX_HIT](#box_hit)
     - [INCBIN](#incbin)
     - [SID](#sid)
     - [INCLUDE](#include)
@@ -1163,6 +1165,154 @@ Or in expert mode:
 In Expert mode the `.charset` block now round-trips through the mode dropdown too, so the block preview and exported source stay aligned.
 
 > **Note:** The CHARSET macro only changes the VIC character ROM pointer. It does not call `$E544` (KERNAL charset init). For most cases this is sufficient; call `JSR $E544` first only if you need the KERNAL's own print routines to respect the change.
+
+---
+
+### CHARDEF
+
+Defines a single 8×8 custom character in a RAM-based character set. Emits inline runtime code that copies 8 bytes into `base + index * 8` at execution time — no need for a preceding label or `ORG`.
+
+| Field | Description |
+|---|---|
+| Charset base | Base address of the RAM charset (default `$3800`). Must be aligned so the VIC-II can see it (see below). |
+| Character index | Which character slot to redefine, 0–255. `65` = 'A' in the default screen code layout. |
+| 8 bytes | Comma-separated bitmap rows, top-to-bottom. Each byte's bit 7 = leftmost pixel. |
+
+**Expert syntax:**
+```
+.chardef $3800, 65, $18,$3C,$66,$7E,$66,$66,$66,$00
+```
+
+**Generated ASM (8 × `LDA #b` / `STA target+n`, 40 bytes total):**
+```
+    LDA #$18
+    STA $3A08
+    LDA #$3C
+    STA $3A09
+    LDA #$66
+    STA $3A0A
+    LDA #$7E
+    STA $3A0B
+    LDA #$66
+    STA $3A0C
+    LDA #$66
+    STA $3A0D
+    LDA #$66
+    STA $3A0E
+    LDA #$00
+    STA $3A0F
+```
+
+**Target address:** `$3800 + 65 * 8 = $3A08`. Computed at compile time and hard-coded into the STA operands.
+
+**Size:** 40 bytes per character (8 × 5).
+
+**Typical workflow:**
+```
+    ; Point VIC-II at RAM charset at $3800
+    LDA $D018
+    AND #$F1
+    ORA #$0E       ; bits 3-1 = %111 → charset at bank+$3800
+    STA $D018
+
+    CHARDEF $3800, 65, $18,$3C,$66,$7E,$66,$66,$66,$00   ; redefine 'A'
+    CHARDEF $3800, 66, $7C,$66,$66,$7C,$66,$66,$7C,$00   ; redefine 'B'
+    ; ... more CHARDEF calls for each custom char
+```
+
+**When to use CHARDEF vs alternatives:**
+
+| Approach | Use when |
+|----------|----------|
+| **CHARDEF** | You need a few custom characters (say 1–20). Runtime cost is 40 bytes each. |
+| **RAWBYTES @ $3800** | You have a full custom charset (256 chars). Total 2 KB of data, no runtime copy. |
+| **INCBIN "charset.bin" @ $3800** | External charset file (built by the Character Editor). Cleanest option. |
+| **Charset Canvas + INCBIN** | Full 256-character bitmap painted as one 128×128 image. |
+
+> **Alignment reminder:** VIC-II expects the charset base at a multiple of `$0800`. Valid banks: `$0000`, `$0800`, `$1000`, ... , `$3800` (within the current 16 KB VIC bank). RAM charsets typically live at `$2000`, `$2800`, `$3000` or `$3800`.
+
+---
+
+### BOX_HIT
+
+Axis-aligned bounding-box (AABB) collision test between two rectangles described by 4-byte zero-page structures. Returns the result in the accumulator: **A = 1** on overlap, **A = 0** otherwise. Pure inline assembly, no subroutine call.
+
+| Field | Description |
+|---|---|
+| Box1 ZP address | Zero-page base of the first box's 4-byte struct (default `$FB`). |
+| Box2 ZP address | Zero-page base of the second box's 4-byte struct (default `$F7`). |
+
+**Struct layout** (4 bytes per box, unsigned 8-bit coordinates):
+
+| Offset | Field |
+|--------|-------|
+| `+0`   | Left   |
+| `+1`   | Top    |
+| `+2`   | Right  |
+| `+3`   | Bottom |
+
+**Expert syntax:**
+```
+.box_hit $FB, $F7
+```
+
+**Generated ASM (30 bytes, fully PC-relative — no subroutine, no absolute jumps):**
+```
+    LDA $FD        ; b1 right
+    CMP $F7        ; b2 left
+    BCC no         ; R1 < L2 → miss
+    LDA $F9        ; b2 right
+    CMP $FB        ; b1 left
+    BCC no
+    LDA $FE        ; b1 bottom
+    CMP $F8        ; b2 top
+    BCC no
+    LDA $FA        ; b2 bottom
+    CMP $FC        ; b1 top
+    BCC no
+    LDA #$01       ; hit
+    BNE done       ; unconditional (A ≠ 0)
+no: LDA #$00
+done:
+```
+
+**Size:** 30 bytes.
+
+**Typical workflow:**
+
+```
+    ; Player sprite box at $FB..$FE
+    LDA sprite_x            ; L
+    STA $FB
+    LDA sprite_y            ; T
+    STA $FC
+    CLC
+    ADC #23                 ; +23 → B (24-pixel tall sprite)
+    STA $FE
+    LDA $FB
+    CLC
+    ADC #23                 ; R
+    STA $FD
+
+    ; Enemy box at $F7..$FA (populated similarly)
+    ; ...
+
+    BOX_HIT $FB, $F7        ; test player vs enemy → A = 0 or 1
+
+    CMP #$01
+    BNE no_collision
+    JSR handle_hit
+no_collision:
+```
+
+**Constraints:**
+- Both zero-page addresses must be `≤ $FC` (each box needs 4 consecutive bytes: `zp`, `zp+1`, `zp+2`, `zp+3`).
+- Coordinates are treated as **unsigned 8-bit** (0–255). For signed sprite coordinates outside this range, normalize before storing.
+- The two boxes may overlap in ZP space if desired, but usually you want 8 distinct bytes.
+
+**Why not a subroutine?** Inline generation avoids the JSR/RTS overhead (14+ cycles) and keeps the test hot in cache for tight game loops. If you need to test many pairs, put your own `JSR box_hit_sub` around a single BOX_HIT block manually.
+
+**Comparison with UB's `box_hit()` function:** Ultimate Basic wraps the same 6502 logic as a runtime function returning to a variable. In VA, you place BOX_HIT inline where you need the test; the result is in `A`.
 
 ---
 

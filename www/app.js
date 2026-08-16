@@ -199,6 +199,8 @@ const mnemonicLibrary = {
     { mnemonic: "RAWTEXT", description: "Szoveg elhelyezese kepernyo kodkent (screen code) egy megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isRawTextMacro: true },
     { mnemonic: "PETSCII", description: "Szoveg PETSCII kodolassal egy megadott memoriacimtol, kod generalas nelkul. CHROUT ($FFD2) kompatibilis. Null lezaro checkbox.", modes: ["implied"], isPetsciiMacro: true },
     { mnemonic: "CHARSET", description: "VIC karakterkeszlet valtasa (nagybetu/kisbetu). LDA $D018 + ORA/AND + STA generalas, 8 byte.", modes: ["implied"], isCharsetMacro: true },
+    { mnemonic: "CHARDEF", description: "Egyetlen 8x8 karakter definialasa RAM charset-be. Base ($3800) + index (0-255) + 8 byte. Runtime kod: 8x LDA #b/STA base+index*8+n = 40 byte inline.", modes: ["implied"], isCharDefMacro: true },
+    { mnemonic: "BOX_HIT", description: "AABB (tengely-igazitott) tegla utkozes teszt ket 4-byte ZP struktura kozott (L,T,R,B). Eredmeny A regiszterben: 1=talalt, 0=nincs. ~31 byte inline asm.", modes: ["implied"], isBoxHitMacro: true },
     { mnemonic: "INCBIN", description: "Kulso binarfajl beillesztese megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isIncBinMacro: true },
     { mnemonic: "SID", description: "SID zenefajl betoltese kozvetlenul a memoriaba. A fejlecet automatikusan eltavolitja, a Load/Init/Play cimeket kinyeri.", modes: ["implied"], isSidMacro: true },
     { mnemonic: "INCLUDE", description: "Masik projekt JSON fajl blokkjainak beillesztese erre a helyre (csak olvasható).", modes: ["implied"], isIncludeMacro: true },
@@ -736,6 +738,8 @@ const mnemonicDescriptionsEn = {
   RAWTEXT: "Place text as screen codes at a given memory address without generating any runtime code.",
   PETSCII: "Place text as PETSCII bytes at a given memory address without generating runtime code. Compatible with CHROUT ($FFD2). Null terminator checkbox appends $00.",
   CHARSET: "Switch VIC character set: lower = ORA #$02 on $D018 (enables lowercase ROM), upper = AND #$FD (restores uppercase/graphics ROM). 8 bytes inline.",
+  CHARDEF: "Define a single 8×8 character in a RAM character set. Base address + character index (0-255) + 8 bytes. Emits 8× (LDA #byte / STA target+n) = 40 bytes of inline runtime code that copies the definition to base + index*8.",
+  BOX_HIT: "Axis-aligned bounding-box collision test between two 4-byte zero-page structures (L, T, R, B). Result in A: 1 = overlap, 0 = no overlap. ~31 bytes of inline asm.",
   SID: "Load a SID music file directly into memory. The header is stripped automatically and the Load/Init/Play addresses are extracted.",
   INCBIN: "Include an external binary file at a given memory address without generating any runtime code.",
   INCLUDE: "Include another project JSON file's blocks inline at this position (read-only).",
@@ -893,6 +897,8 @@ const mnemonicDescriptionsEs = {
   RAWTEXT: "Coloca texto como códigos de pantalla en una dirección de memoria sin generar código en tiempo de ejecución.",
   PETSCII: "Coloca texto como bytes PETSCII en una dirección de memoria sin generar código. Compatible con CHROUT ($FFD2).",
   CHARSET: "Cambia el juego de caracteres VIC: lower = ORA #$02 en $D018 (ROM minúsculas), upper = AND #$FD (ROM mayúsculas/gráficos). 8 bytes.",
+  CHARDEF: "Define un solo carácter 8×8 en un juego de caracteres RAM. Dirección base + índice (0-255) + 8 bytes. Emite 8× (LDA #byte / STA destino+n) = 40 bytes de código inline que copia la definición a base + índice*8.",
+  BOX_HIT: "Test de colisión AABB entre dos estructuras de 4 bytes en zero-page (L, T, R, B). Resultado en A: 1 = colisión, 0 = sin colisión. ~31 bytes de asm inline.",
   SID: "Carga un archivo de música SID directamente en memoria. La cabecera se elimina y se extraen las direcciones Load/Init/Play.",
   INCBIN: "Incluye un archivo binario externo en una dirección de memoria sin generar código en tiempo de ejecución.",
   INCLUDE: "Incluye los bloques de otro archivo JSON de proyecto en esta posición (solo lectura).",
@@ -1034,6 +1040,8 @@ const mnemonicDescriptionsDe = {
   RAWTEXT: "Text als Bildschirmcodes an eine Speicheradresse ablegen ohne Laufzeitcode zu erzeugen.",
   PETSCII: "Text als PETSCII-Bytes ablegen ohne Laufzeitcode. Kompatibel mit CHROUT ($FFD2). Null-Terminator-Checkbox hängt $00 an.",
   CHARSET: "VIC-Zeichensatz umschalten: lower = ORA #$02 auf $D018 (Kleinbuchstaben-ROM), upper = AND #$FD (Großbuchstaben/Grafik-ROM). 8 Bytes inline.",
+  CHARDEF: "Definiert ein einzelnes 8×8-Zeichen in einem RAM-Zeichensatz. Basisadresse + Zeichenindex (0-255) + 8 Bytes. Erzeugt 8× (LDA #byte / STA ziel+n) = 40 Bytes Inline-Code zum Kopieren in Basis + Index*8.",
+  BOX_HIT: "Achsenausgerichteter Bounding-Box-Kollisionstest zwischen zwei 4-Byte-Zero-Page-Strukturen (L, T, R, B). Ergebnis in A: 1 = Kollision, 0 = keine. ~31 Bytes Inline-Assembler.",
   SID: "SID-Musikdatei direkt in den Speicher laden. Der Header wird automatisch entfernt und Load/Init/Play-Adressen extrahiert.",
   INCBIN: "Externe Binärdatei an einer Speicheradresse einbinden ohne Laufzeitcode zu erzeugen.",
   INCLUDE: "Blöcke einer anderen Projekt-JSON-Datei an dieser Position einbinden (nur lesen).",
@@ -1128,6 +1136,8 @@ const mnemonicExpertHints = {
   RAWTEXT: mnemonicSyntax("rawtext", "$C000", `"HELLO"`, "lower"),
   PETSCII: mnemonicSyntax("petscii", "$C000", `"HELLO"`, "lower", "null"),
   CHARSET: mnemonicSyntax("charset", "lower"),
+  CHARDEF: mnemonicSyntax("chardef", "$3800", "65", "$18,$3C,$66,$7E,$66,$66,$66,$00"),
+  BOX_HIT: mnemonicSyntax("box_hit", "$FB", "$F7"),
   SID: mnemonicSyntax("sid", `"music.sid"`),
   INCBIN: mnemonicSyntax("incbin", `"sprite.bin"`, "$2000"),
   INCLUDE: mnemonicSyntax("include", `"other.json"`),
@@ -4409,6 +4419,42 @@ function createBlockFromMnemonic(item) {
     };
   }
 
+  if (item.isCharDefMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "CHARDEF",
+      operand: "",
+      rawOperand: "$18,$3C,$66,$7E,$66,$66,$66,$00",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isCharDefMacro: true,
+      charDefBase: "$3800",
+      charDefIndex: "65"
+    };
+  }
+
+  if (item.isBoxHitMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "BOX_HIT",
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isBoxHitMacro: true,
+      boxHitBox1ZP: "$FB",
+      boxHitBox2ZP: "$F7"
+    };
+  }
+
   if (item.isIncBinMacro) {
     return {
       id: crypto.randomUUID(),
@@ -5550,6 +5596,8 @@ function _blockToExpertLine(block) {
   if (block.isIncBinMacro)    return `.incbin "${block.incBinFileName || "data.bin"}"${block.incBinAddress && block.incBinAddress !== "$C000" ? ", $" + block.incBinAddress.replace(/^\$/,"") : ""}`;
   if (block.isPetsciiMacro)   return `.petscii ${fmtAddr(block.petsciiAddress)}, "${block.rawOperand || "HELLO"}"${block.petsciiCharset === "lower" ? ", lower" : ""}${block.petsciiNullTerminated ? ", null" : ""}${fmtMacroLabel(block.macroLabel)}`;
   if (block.isCharsetMacro)   return `.charset ${block.charsetMode || "lower"}`;
+  if (block.isCharDefMacro)   return `.chardef ${fmtAddr(block.charDefBase || "$3800")}, ${block.charDefIndex || "0"}, ${fmtRaw(block.rawOperand, block.base)}`;
+  if (block.isBoxHitMacro)    return `.box_hit ${fmtAddr(block.boxHitBox1ZP || "$FB")}, ${fmtAddr(block.boxHitBox2ZP || "$F7")}`;
   if (block.isTableMacro)     return block.tableAddress ? `.table ${block.tableName || "table1"} $${block.tableAddress.replace(/^\$/,"").toUpperCase()}` : `.table ${block.tableName || "table1"}`;  
   if (block.isLoadFileMacro)  return `.loadfile "${block.loadFileName || "DATA"}", ${block.loadFileDevice || "8"}${block.loadFileAddress ? ", $" + block.loadFileAddress.replace(/^\$/,"") : ""}${block.loadFileErrorLabel ? ", " + block.loadFileErrorLabel : ""}`;
   if (block.isExoDecrunchMacro) return `.exodecrunch depacker=$${(block.exoDepackerAddr||"B000").toUpperCase()}`;
@@ -7701,6 +7749,7 @@ function showBuildInfoDialog() {
         "isLoadFileMacro","isExoDecrunchMacro","isReuStashMacro","isReuFetchMacro","isReuSwapMacro","isReuCheckMacro",
         "isTurboSetMacro","isTurboEnableMacro","isSuperCpuDetectMacro",
         "isMapCopyMacro","isMapCopy16Macro","isSpriteAnimMacro","isScoreBcdMacro",
+        "isCharDefMacro","isBoxHitMacro",
       ];
       macroTypes.forEach(t2 => {
         if (b[t2]) {
@@ -9181,6 +9230,26 @@ function parseExpertText(text) {
     const charsetM = line.match(/^\.charset\s+(lower|upper)\s*$/i);
     if (charsetM) {
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "CHARSET", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isCharsetMacro: true, charsetMode: charsetM[1].toLowerCase() });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .chardef $BASE, INDEX, b1,b2,b3,b4,b5,b6,b7,b8
+    const chardefM = line.match(/^\.chardef\s+\$?([0-9A-Fa-f]{1,4})\s*,\s*(\d{1,3})\s*,\s*(.+)$/i);
+    if (chardefM) {
+      const cdBase = "$" + chardefM[1].toUpperCase().padStart(4, "0");
+      const cdIndex = chardefM[2];
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "CHARDEF", operand: chardefM[3].trim(), rawOperand: chardefM[3].trim(), description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isCharDefMacro: true, charDefBase: cdBase, charDefIndex: cdIndex });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .box_hit $BOX1_ZP, $BOX2_ZP
+    const boxHitM = line.match(/^\.box_hit\s+\$?([0-9A-Fa-f]{1,2})\s*,\s*\$?([0-9A-Fa-f]{1,2})\s*$/i);
+    if (boxHitM) {
+      const b1 = "$" + boxHitM[1].toUpperCase().padStart(2, "0");
+      const b2 = "$" + boxHitM[2].toUpperCase().padStart(2, "0");
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "BOX_HIT", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isBoxHitMacro: true, boxHitBox1ZP: b1, boxHitBox2ZP: b2 });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -11619,6 +11688,20 @@ function updateProgramBlock(index, field, value) {
 
   if (block.isCharsetMacro && field === "charsetMode") {
     block.charsetMode = value === "upper" ? "upper" : "lower";
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isCharDefMacro && (field === "charDefBase" || field === "charDefIndex")) {
+    block[field] = value;
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isBoxHitMacro && (field === "boxHitBox1ZP" || field === "boxHitBox2ZP")) {
+    block[field] = value;
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -18214,6 +18297,82 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes, comment: `CHARSET ${isLower ? "lower" : "upper"}` };
   }
 
+  if (block.isCharDefMacro) {
+    const base = parseAddressValue(block.charDefBase) ?? 0x3800;
+    const index = parseInt(String(block.charDefIndex || "0"), 10);
+    if (isNaN(index) || index < 0 || index > 255) {
+      return { ok: false, error: "CHARDEF index must be 0-255" };
+    }
+    const target = base + index * 8;
+    if (target < 0 || target > 0xFFFF - 7) {
+      return { ok: false, error: `CHARDEF target address out of range: $${target.toString(16)}` };
+    }
+    const raw = String(block.rawOperand || "").split(",").map(s => s.trim()).filter(Boolean);
+    if (raw.length !== 8) {
+      return { ok: false, error: `CHARDEF needs exactly 8 bytes, got ${raw.length}` };
+    }
+    const bytes = [];
+    for (let i = 0; i < 8; i++) {
+      const val = parseMacroNumber(raw[i], labels, block.base || "hex");
+      if (isNaN(val) || val < 0 || val > 255) {
+        return { ok: false, error: `CHARDEF byte ${i + 1} invalid: ${raw[i]}` };
+      }
+      const addr = target + i;
+      // LDA #val ; STA addr (absolute)
+      bytes.push(0xA9, val & 0xFF, 0x8D, addr & 0xFF, (addr >> 8) & 0xFF);
+    }
+    return { ok: true, bytes, comment: `CHARDEF #${index} @ $${target.toString(16).toUpperCase().padStart(4, "0")}` };
+  }
+
+  if (block.isBoxHitMacro) {
+    const zp1 = parseAddressValue(block.boxHitBox1ZP) ?? 0xFB;
+    const zp2 = parseAddressValue(block.boxHitBox2ZP) ?? 0xF7;
+    if (zp1 < 0 || zp1 > 0xFC || zp2 < 0 || zp2 > 0xFC) {
+      return { ok: false, error: "BOX_HIT zero-page addresses must be 0-$FC (need 4 bytes)" };
+    }
+    // Box layout: zp+0=Left, +1=Top, +2=Right, +3=Bottom (all 8-bit unsigned)
+    // Result in A: 1 = overlap, 0 = no overlap. 30 bytes, fully PC-relative.
+    //   0: LDA b1+2 ; R1
+    //   2: CMP b2   ; L2
+    //   4: BCC no   ; R1 < L2 → miss
+    //   6: LDA b2+2 ; R2
+    //   8: CMP b1   ; L1
+    //  10: BCC no
+    //  12: LDA b1+3 ; B1
+    //  14: CMP b2+1 ; T2
+    //  16: BCC no
+    //  18: LDA b2+3 ; B2
+    //  20: CMP b1+1 ; T1
+    //  22: BCC no
+    //  24: LDA #$01
+    //  26: BNE done ; unconditional (A=1 ≠ 0), skip LDA #0
+    //  28: LDA #$00 ; ← 'no' label
+    //  30: (done)
+    const b1 = zp1 & 0xFF;
+    const b2 = zp2 & 0xFF;
+    const noPC = 28;
+    const donePC = 30;
+    const off = (branchPos, target) => (target - (branchPos + 2)) & 0xFF;
+    const bytes = [
+      0xA5, (b1 + 2) & 0xFF,  // 0
+      0xC5, b2,               // 2
+      0x90, off(4, noPC),     // 4
+      0xA5, (b2 + 2) & 0xFF,  // 6
+      0xC5, b1,               // 8
+      0x90, off(10, noPC),    // 10
+      0xA5, (b1 + 3) & 0xFF,  // 12
+      0xC5, (b2 + 1) & 0xFF,  // 14
+      0x90, off(16, noPC),    // 16
+      0xA5, (b2 + 3) & 0xFF,  // 18
+      0xC5, (b1 + 1) & 0xFF,  // 20
+      0x90, off(22, noPC),    // 22
+      0xA9, 0x01,             // 24
+      0xD0, off(26, donePC),  // 26
+      0xA9, 0x00              // 28
+    ];
+    return { ok: true, bytes, comment: `BOX_HIT b1=$${b1.toString(16).toUpperCase().padStart(2, "0")} b2=$${b2.toString(16).toUpperCase().padStart(2, "0")}` };
+  }
+
   if (block.isTurboSetMacro) {
     const spd = parseMacroNumber(block.turboSpeed || "7", labels, "dec");
     if (isNaN(spd) || spd < 0 || spd > 15) {
@@ -20192,6 +20351,14 @@ function getInstructionSize(block) {
     return 8;
   }
 
+  if (block.isCharDefMacro) {
+    return 40; // 8 × (LDA #b + STA abs) = 8 × 5
+  }
+
+  if (block.isBoxHitMacro) {
+    return 30;
+  }
+
   if (block.isIncBinMacro) {
     return 0;
   }
@@ -21752,6 +21919,18 @@ function getCollapsedOperandText(block) {
     return block.charsetMode === "upper" ? t("charsetCollapsedUpper") : t("charsetCollapsedLower");
   }
 
+  if (block.isCharDefMacro) {
+    const base = (block.charDefBase || "$3800").replace(/^\$/, "").toUpperCase();
+    const idx = block.charDefIndex || "0";
+    return `#${idx} → $${base}+${idx}*8`;
+  }
+
+  if (block.isBoxHitMacro) {
+    const b1 = (block.boxHitBox1ZP || "$FB").replace(/^\$/, "").toUpperCase();
+    const b2 = (block.boxHitBox2ZP || "$F7").replace(/^\$/, "").toUpperCase();
+    return `box1=$${b1} ↔ box2=$${b2}`;
+  }
+
   if (block.isJoystickMacro) {
     return `port${block.joyPort || "2"} → sprite#${block.joySpriteNum || "0"}`;
   }
@@ -22315,6 +22494,51 @@ function renderProgram() {
                 <option value="lower"${(block.charsetMode || "lower") === "lower" ? " selected" : ""}>${t("charsetModeLower")}</option>
                 <option value="upper"${block.charsetMode === "upper" ? " selected" : ""}>${t("charsetModeUpper")}</option>
               </select>
+            </label>
+          </div>
+        `
+      );
+    } else if (block.isCharDefMacro) {
+      inlineField.hidden = true;
+      const cdBase = (block.charDefBase || "$3800").replace(/"/g, "&quot;");
+      const cdIndex = (block.charDefIndex || "65").replace(/"/g, "&quot;");
+      const cdBytes = (block.rawOperand || "$00,$00,$00,$00,$00,$00,$00,$00").replace(/"/g, "&quot;");
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid" style="margin-top:6px;grid-template-columns:1fr 1fr;">
+            <label class="mini-field">
+              <span>${t("chardefBaseLabel")}</span>
+              <input type="text" class="chardef-base-input block-operand" value="${cdBase}" placeholder="$3800" style="font-size:0.8rem;">
+            </label>
+            <label class="mini-field">
+              <span>${t("chardefIndexLabel")}</span>
+              <input type="text" class="chardef-index-input block-operand" value="${cdIndex}" placeholder="65" style="font-size:0.8rem;">
+            </label>
+          </div>
+          <div class="macro-grid single-macro-row" style="margin-top:4px;">
+            <label class="mini-field">
+              <span>${t("chardefBytesLabel")}</span>
+              <input type="text" class="chardef-bytes-input block-operand" value="${cdBytes}" placeholder="$18,$3C,$66,$7E,$66,$66,$66,$00" style="font-size:0.8rem;font-family:'IBM Plex Mono',monospace;">
+            </label>
+          </div>
+        `
+      );
+    } else if (block.isBoxHitMacro) {
+      inlineField.hidden = true;
+      const bh1 = (block.boxHitBox1ZP || "$FB").replace(/"/g, "&quot;");
+      const bh2 = (block.boxHitBox2ZP || "$F7").replace(/"/g, "&quot;");
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="macro-grid" style="margin-top:6px;grid-template-columns:1fr 1fr;">
+            <label class="mini-field">
+              <span>${t("boxhitBox1Label")}</span>
+              <input type="text" class="boxhit-box1-input block-operand" value="${bh1}" placeholder="$FB" style="font-size:0.8rem;">
+            </label>
+            <label class="mini-field">
+              <span>${t("boxhitBox2Label")}</span>
+              <input type="text" class="boxhit-box2-input block-operand" value="${bh2}" placeholder="$F7" style="font-size:0.8rem;">
             </label>
           </div>
         `
@@ -24292,6 +24516,29 @@ function renderProgram() {
     const charsetModeSelect = node.querySelector(".charset-mode-select");
     if (charsetModeSelect) {
       charsetModeSelect.addEventListener("change", (event) => updateProgramBlock(index, "charsetMode", event.target.value));
+    }
+    const chardefBaseInput = node.querySelector(".chardef-base-input");
+    if (chardefBaseInput) {
+      setupProgramConstPicker(chardefBaseInput);
+      chardefBaseInput.addEventListener("input", (event) => updateProgramBlock(index, "charDefBase", event.target.value));
+    }
+    const chardefIndexInput = node.querySelector(".chardef-index-input");
+    if (chardefIndexInput) {
+      chardefIndexInput.addEventListener("input", (event) => updateProgramBlock(index, "charDefIndex", event.target.value));
+    }
+    const chardefBytesInput = node.querySelector(".chardef-bytes-input");
+    if (chardefBytesInput) {
+      chardefBytesInput.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+    }
+    const boxhitBox1Input = node.querySelector(".boxhit-box1-input");
+    if (boxhitBox1Input) {
+      setupProgramConstPicker(boxhitBox1Input);
+      boxhitBox1Input.addEventListener("input", (event) => updateProgramBlock(index, "boxHitBox1ZP", event.target.value));
+    }
+    const boxhitBox2Input = node.querySelector(".boxhit-box2-input");
+    if (boxhitBox2Input) {
+      setupProgramConstPicker(boxhitBox2Input);
+      boxhitBox2Input.addEventListener("input", (event) => updateProgramBlock(index, "boxHitBox2ZP", event.target.value));
     }
     const macroCharOffsetInput = node.querySelector(".macro-char-offset");
     if (macroCharOffsetInput) {
