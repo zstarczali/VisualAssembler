@@ -2182,19 +2182,25 @@ function initPalette() {
     document.querySelector(".control-menu")?.removeAttribute("open");
   });
   document.getElementById("menu-open-project")?.addEventListener("click", async () => {
-    await _openProjectFromMenu();
+    if (ultimateBasicMode) await _ubOpenProject();
+    else if (expertMode) await _openProjectFromMenu();
+    else await loadProjectFromFile();
     document.querySelector(".control-menu")?.removeAttribute("open");
   });
   document.getElementById("menu-save-project")?.addEventListener("click", async () => {
-    // Force a file dialog every time the menu item is clicked (Save As behaviour).
-    // Bootstrap an empty project if there isn't one yet, then clear the cached
-    // path so _expertSaveProject always prompts for a location.
-    if (!_expertProjectData) {
-      _expertProjectData = { name: "Új projekt", files: [], _projPath: "" };
+    if (ultimateBasicMode) {
+      await _ubSaveProject();
+    } else if (expertMode) {
+      // The menu command keeps its Save As behaviour for Expert projects.
+      if (!_expertProjectData) {
+        _expertProjectData = { name: "Új projekt", files: [], _projPath: "" };
+      } else {
+        _expertProjectData._projPath = "";
+      }
+      await _expertSaveProject();
     } else {
-      _expertProjectData._projPath = "";
+      await saveProjectToFile();
     }
-    await _expertSaveProject();
     document.querySelector(".control-menu")?.removeAttribute("open");
   });
   document.getElementById("menu-close-project")?.addEventListener("click", async () => {
@@ -6536,7 +6542,7 @@ function _ubCreateFileTab(path, content) {
 }
 
 async function _ubOpenProject() {
-  const result = await window.electronAPI?.openProjFile?.();
+  const result = await window.electronAPI?.openProjFile?.(ubWorkingFolder);
   if (!result || result.canceled) return;
   if (!result.ok) { _ubSetStatus(result.error || "Project open failed", true); return; }
   const project = result.project || {};
@@ -6557,7 +6563,7 @@ async function _ubSaveProject() {
   if (!_ubProjectData) { await _ubNewProject(); return; }
   const wasNew = !_ubProjectData._projPath;
   const payload = JSON.stringify({ app: "ultimate-basic", name: _ubProjectData.name, files: _ubProjectData.files, startupFile: _ubProjectData.startupFile || null }, null, 2);
-  const result = await window.electronAPI?.saveProjFile?.(_ubProjectData._projPath || "", payload);
+  const result = await window.electronAPI?.saveProjFile?.(_ubProjectData._projPath || "", payload, ubWorkingFolder);
   if (!result || result.canceled) return;
   if (!result.ok) { _ubSetStatus(result.error || "Project save failed", true); return; }
   _ubProjectData._projPath = result.filePath;
@@ -6565,7 +6571,7 @@ async function _ubSaveProject() {
   if (_ubProjectData.name === "New UltimateBasic project") _ubProjectData.name = result.filePath.replace(/\\/g, "/").split("/").pop().replace(/\.proj$/i, "");
   if (wasNew) {
     const portablePayload = JSON.stringify({ app: "ultimate-basic", name: _ubProjectData.name, files: _ubProjectData.files, startupFile: _ubProjectData.startupFile || null }, null, 2);
-    const rewrite = await window.electronAPI?.saveProjFile?.(_ubProjectData._projPath, portablePayload);
+    const rewrite = await window.electronAPI?.saveProjFile?.(_ubProjectData._projPath, portablePayload, ubWorkingFolder);
     if (!rewrite?.ok) { _ubSetStatus(rewrite?.error || "Project save failed", true); return; }
   }
   _ubRenderProjectFiles();
@@ -6636,7 +6642,7 @@ function _ubNew() {
 async function _ubOpen(addToProject = false) {
   let result;
   try {
-    result = await window.electronAPI?.chooseUbFile?.();
+    result = await window.electronAPI?.chooseUbFile?.(ubWorkingFolder);
   } catch (error) {
     _ubSetStatus(error?.message || String(error) || "Open failed", true);
     return;
@@ -11008,6 +11014,54 @@ async function _closeAllTabsWithConfirm() {
 }
 
 async function _closeProject() {
+  if (ultimateBasicMode) {
+    if (!_ubProjectData && tabs.every(tab => !_tabHasContent(tab))) {
+      _ubSetStatus(t("projNoOpen"));
+      return;
+    }
+
+    if (!await _closeAllTabsWithConfirm()) return;
+
+    _ubProjectData = null;
+    _ubStartupTabId = null;
+    _ubFilePath = "";
+    _ubDirty = false;
+    _ubLastResult = null;
+    if (ubEditor) ubEditor.value = "";
+
+    const blank = _getActiveTab();
+    if (blank) {
+      blank.editorMode = "ub";
+      blank.ubText = "";
+      blank.ubFilePath = "";
+      blank.filePath = null;
+      blank.dirty = false;
+    }
+
+    _ubProjectVisible = false;
+    _ubApplyLeftViews(false);
+    _ubRenderProjectFiles();
+    _ubRefreshEditor();
+    _ubSetStatus(t("projClosed"));
+    renderTabBar();
+    renderProgram();
+    renderAsmOutput();
+    return;
+  }
+
+  if (!expertMode) {
+    const activeTab = _getActiveTab();
+    if (!activeTab || !_tabHasContent(activeTab)) {
+      if (emulatorStatus) emulatorStatus.textContent = t("projNoOpen");
+      return;
+    }
+    if (!await _tabClose(activeTab.id)) return;
+    if (emulatorStatus) emulatorStatus.textContent = t("projClosed");
+    renderProgram();
+    renderAsmOutput();
+    return;
+  }
+
   if (!_expertProjectData && tabs.every(t => !_tabHasContent(t))) {
     _expertSetStatus(t("projNoOpen"), "ok");
     return;
@@ -14336,7 +14390,7 @@ async function _tabClose(tabId) {
   if (tab && _tabHasContent(tab)) {
     const key = tab.filePath ? "tabCloseConfirmUnsaved" : "tabCloseConfirm";
     const msg = tf(key, { name: tab.name });
-    if (!await _showConfirm(msg)) return;
+    if (!await _showConfirm(msg)) return false;
   }
 
   if (tabs.length <= 1) {
@@ -14361,7 +14415,7 @@ async function _tabClose(tabId) {
     if (expertFileName) expertFileName.textContent = "";
     updateWindowTitle("");
     renderTabBar();
-    return;
+    return true;
   }
   const idx = tabs.findIndex(t => t.id === tabId);
   if (_ubStartupTabId === tabId) _ubStartupTabId = null;
@@ -14376,6 +14430,7 @@ async function _tabClose(tabId) {
   } else {
     renderTabBar();
   }
+  return true;
 }
 
 function renderTabBar() {

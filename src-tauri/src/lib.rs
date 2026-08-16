@@ -2171,11 +2171,14 @@ async fn save_project(app: AppHandle, payload: serde_json::Value) -> serde_json:
 }
 
 #[tauri::command]
-async fn open_proj_file(app: AppHandle) -> serde_json::Value {
-    let working_folder = {
-        let cfg = read_config(&app);
-        get_working_folder_path(&cfg)
-    };
+async fn open_proj_file(app: AppHandle, initial_dir: Option<String>) -> serde_json::Value {
+    let working_folder = initial_dir
+        .as_deref()
+        .map(str::trim)
+        .filter(|path| !path.is_empty())
+        .map(PathBuf::from)
+        .filter(|path| path.is_dir())
+        .or_else(|| get_working_folder_path(&read_config(&app)));
     let mut dialog = app.dialog().file()
         .add_filter("Visual Assembler Project", &["proj"])
         .add_filter("All files", &["*"])
@@ -2201,12 +2204,15 @@ async fn open_proj_file(app: AppHandle) -> serde_json::Value {
 }
 
 #[tauri::command]
-async fn save_proj_file(app: AppHandle, path: String, content: String) -> serde_json::Value {
+async fn save_proj_file(app: AppHandle, path: String, content: String, initial_dir: Option<String>) -> serde_json::Value {
     let save_path = if path.is_empty() {
-        let working_folder = {
-            let cfg = read_config(&app);
-            get_working_folder_path(&cfg)
-        };
+        let working_folder = initial_dir
+            .as_deref()
+            .map(str::trim)
+            .filter(|path| !path.is_empty())
+            .map(PathBuf::from)
+            .filter(|path| path.is_dir())
+            .or_else(|| get_working_folder_path(&read_config(&app)));
         let mut dialog = app.dialog().file()
             .add_filter("Visual Assembler Project", &["proj"])
             .set_file_name("project.proj");
@@ -2344,11 +2350,18 @@ async fn choose_asm_file(app: AppHandle) -> serde_json::Value {
 }
 
 #[tauri::command]
-async fn choose_ub_file(app: AppHandle) -> serde_json::Value {
+async fn choose_ub_file(app: AppHandle, initial_dir: Option<String>) -> serde_json::Value {
     let mut dialog = app.dialog().file()
         .add_filter("UltimateBasic Source", &["ub"])
         .add_filter("All files", &["*"]);
-    if let Some(folder) = get_ub_working_folder_path(&read_config(&app)) {
+    let requested_folder = initial_dir
+        .as_deref()
+        .map(str::trim)
+        .filter(|path| !path.is_empty())
+        .map(PathBuf::from)
+        .filter(|path| path.is_dir())
+        .or_else(|| get_ub_working_folder_path(&read_config(&app)));
+    if let Some(folder) = requested_folder {
         dialog = dialog.set_directory(folder);
     }
     match dialog.blocking_pick_file() {

@@ -151,6 +151,14 @@ hr.div{border:none;border-top:1px solid var(--brd)}
 .ub-repo-copy .sec-d{font-size:11px;line-height:1.8;margin-bottom:16px}
 .ub-repo-copy .btn{font-size:10px;padding:8px 14px}
 
+/* ── OCTOPULOUS ── */
+.octopulous{background:var(--bg);border-top:1px solid var(--brd);padding:64px 80px}
+.octopulous-inner{max-width:980px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,556px);gap:56px;align-items:center}
+.octopulous-copy .sec-t{margin-bottom:14px}
+.octopulous-copy .sec-d{max-width:520px}
+.octopulous-embed{width:100%;max-width:556px;justify-self:end}
+.octopulous-embed iframe{display:block;width:100%;height:171px;border:0}
+
 /* ── FOOTER ── */
 footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
 .foot-inner{max-width:1280px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
@@ -175,6 +183,9 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   .ub-repo{padding:34px 24px}
   .ub-repo-inner{flex-direction:column;gap:20px;text-align:center}
   .ub-repo-image{width:min(210px,65vw)}
+  .octopulous{padding:52px 24px}
+  .octopulous-inner{grid-template-columns:1fr;gap:30px}
+  .octopulous-embed{justify-self:start}
   .feat-grid{grid-template-columns:1fr}
   .spec-inner{grid-template-columns:repeat(2,1fr)}
   .sec,.editors-sec,.feat-inner,.spec-bar,.dl-bg,.foot-inner{padding-left:24px;padding-right:24px}
@@ -504,6 +515,20 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
       <h2 class="sec-t">ULTIMATE BASIC</h2>
       <p class="sec-d">Explore the compiler source, language documentation and latest development on GitHub.</p>
       <a class="btn btn-o" href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener">► ULTIMATE BASIC REPOSITORY</a>
+    </div>
+  </div>
+</section>
+
+<!-- OCTOPULOUS -->
+<section class="octopulous" aria-labelledby="octopulous-title">
+  <div class="octopulous-inner">
+    <div class="octopulous-copy">
+      <div class="sec-s">// A FAMILY GAME PROJECT</div>
+      <h2 class="sec-t" id="octopulous-title">OCTOPULOUS!</h2>
+      <p class="sec-d">This is my son's second game: Octopulous is a goofy, bite-sized sidescrolling adventure about an octopus having to save his world from an unexpected evil's thirst for power.</p>
+    </div>
+    <div class="octopulous-embed">
+      <iframe src="https://itch.io/embed/1593496?linkback=true&amp;border_width=3&amp;bg_color=D9893E&amp;fg_color=70161f&amp;link_color=db0d00&amp;border_color=ba6a1f" width="556" height="171" title="Octopulous by OwlyCode on itch.io"><a href="https://therealowlycode.itch.io/octopulous">Octopulous by OwlyCode</a></iframe>
     </div>
   </div>
 </section>
