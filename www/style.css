@@ -5524,7 +5524,7 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
 .about-logo img {
   width: 160px;
   height: 160px;
-  border-radius: 3px;
+  border-radius: 18px;
 }
 
 .about-title {
@@ -5985,7 +5985,7 @@ body.crt-mode #crt-overlay::after {
   justify-content: center;
 }
 
-/* Video splash — full-viewport empty backdrop, fixed rectangle panel centered */
+/* Splash screen — full-viewport backdrop, centered image panel */
 .splash-screen--video {
   background: var(--bg);
 }
@@ -5993,7 +5993,7 @@ body.crt-mode #crt-overlay::after {
   background: #070241;
   width: 640px;
   max-width: 92vw;
-  height: 420px;
+  height: 480px;
   max-height: 90vh;
   padding: 24px 32px 20px;
   display: flex;
@@ -6010,18 +6010,15 @@ body.crt-mode #crt-overlay::after {
 .splash-panel.ready {
   opacity: 1;
 }
-.splash-video {
+.splash-image {
   flex: 1 1 auto;
-  min-height: 0;
-  max-width: 300px;
-  max-height: 300px;
+  min-height: 320px;
+
   width: auto;
   height: auto;
   object-fit: contain;
   display: block;
-  background: #070241;
-  -webkit-mask-image: radial-gradient(ellipse at center, #000 55%, transparent 92%);
-          mask-image: radial-gradient(ellipse at center, #000 55%, transparent 92%);
+
 }
 .splash-panel .splash-loader {
   width: 100%;

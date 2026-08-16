@@ -2417,7 +2417,6 @@ function initPalette() {
   (() => {
     const splashScreen = document.getElementById('splash-screen');
     const panel = document.querySelector('.splash-panel');
-    const video = document.getElementById('splash-video');
     const bar = document.querySelector('.splash-panel .splash-loader-bar');
     if (!splashScreen || !panel) return;
 
@@ -2435,10 +2434,6 @@ function initPalette() {
     const startReveal = () => {
       if (panel.classList.contains('ready')) return;
       panel.classList.add('ready');
-      if (video) {
-        const p = video.play();
-        if (p && typeof p.catch === 'function') p.catch(() => {});
-      }
       if (bar) {
         bar.addEventListener('animationend', hide, { once: true });
       } else {
@@ -2447,12 +2442,6 @@ function initPalette() {
     };
 
     const readyPromises = [];
-    if (video && video.readyState < 1) {
-      readyPromises.push(new Promise(res => {
-        video.addEventListener('loadedmetadata', res, { once: true });
-        video.addEventListener('error', res, { once: true });
-      }));
-    }
     if (document.fonts && document.fonts.ready) {
       readyPromises.push(document.fonts.ready);
     }
