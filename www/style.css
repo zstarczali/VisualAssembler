@@ -5969,6 +5969,60 @@ body.crt-mode #crt-overlay::after {
   justify-content: center;
 }
 
+/* Video splash — full-viewport empty backdrop, fixed rectangle panel centered */
+.splash-screen--video {
+  background: var(--bg);
+}
+.splash-panel {
+  background: #070241;
+  width: 640px;
+  max-width: 92vw;
+  height: 420px;
+  max-height: 90vh;
+  padding: 24px 32px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 60px rgba(0, 0, 0, 0.7);
+  border-radius: 4px;
+}
+.splash-video {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-width: 300px;
+  max-height: 300px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  background: #070241;
+}
+.splash-panel .splash-loader {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  margin: 0;
+  overflow: hidden;
+}
+.splash-panel .splash-loader-bar {
+  width: 0%;
+  height: 100%;
+  background: #7a8dff;
+  border-radius: 2px;
+  animation: splash-loading 2.4s ease-out forwards;
+}
+.splash-panel .splash-version {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 0;
+  letter-spacing: 0.04em;
+}
+
 .splash-screen.fade-out {
   opacity: 0;
   pointer-events: none;

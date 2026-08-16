@@ -2399,17 +2399,35 @@ function initPalette() {
     setTimeout(type, 700);
   })();
 
-  // Hide splash screen after initialization
-  setTimeout(() => {
+  // Hide splash when progress bar finishes (fallback: 8s max)
+  (() => {
     const splashScreen = document.getElementById('splash-screen');
-    if (splashScreen) {
+    const video = document.getElementById('splash-video');
+    const bar = document.querySelector('.splash-panel .splash-loader-bar');
+    if (!splashScreen) return;
+
+    let hidden = false;
+    const hide = () => {
+      if (hidden) return;
+      hidden = true;
       splashScreen.classList.add('fade-out');
       setTimeout(() => {
         splashScreen.remove();
         showCustomerMessageIfNeeded();
       }, 500);
+    };
+
+    if (video) {
+      const p = video.play();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
     }
-  }, 2000);
+    if (bar) {
+      bar.addEventListener('animationend', hide, { once: true });
+    } else {
+      setTimeout(hide, 2400);
+    }
+    setTimeout(hide, 8000);
+  })();
 
   document.addEventListener("contextmenu", e => {
     const tag = e.target.tagName;
@@ -13240,6 +13258,7 @@ function setTheme(theme) {
   requestAnimationFrame(() => {
     _expertScheduleMinimapRedraw();
     _blockScheduleMinimapRedraw();
+    if (typeof _ubDrawMinimap === "function") _ubDrawMinimap();
   });
 }
 

@@ -16,17 +16,15 @@
 </head>
 
 <body>
-  <div id="splash-screen" class="splash-screen">
-    <div class="splash-content">
-      <img src="assets/logo0.PNG" alt="C64 Visual Assembler" class="splash-logo">
-      <div class="splash-status">
-        <div class="splash-loader">
-          <div class="splash-loader-bar"></div>
-        </div>
-        <div class="splash-ready" aria-live="polite"><span id="splash-ready-text"></span><span class="splash-cursor">&#x2588;</span></div>
+  <div id="splash-screen" class="splash-screen splash-screen--video">
+    <div class="splash-panel">
+      <video id="splash-video" class="splash-video" autoplay muted playsinline preload="auto">
+        <source src="assets/splash.mp4" type="video/mp4">
+      </video>
+      <div class="splash-loader">
+        <div class="splash-loader-bar"></div>
       </div>
-    </div>
-    <div class="splash-versions">
+      <div class="splash-ready" aria-live="polite"><span id="splash-ready-text"></span><span class="splash-cursor">&#x2588;</span></div>
       <p class="splash-version" id="splash-version"></p>
     </div>
   </div>
