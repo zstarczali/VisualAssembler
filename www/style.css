@@ -5988,6 +5988,11 @@ body.crt-mode #crt-overlay::after {
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 12px 60px rgba(0, 0, 0, 0.7);
   border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
+}
+.splash-panel.ready {
+  opacity: 1;
 }
 .splash-video {
   flex: 1 1 auto;
@@ -5999,6 +6004,8 @@ body.crt-mode #crt-overlay::after {
   object-fit: contain;
   display: block;
   background: #070241;
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 55%, transparent 92%);
+          mask-image: radial-gradient(ellipse at center, #000 55%, transparent 92%);
 }
 .splash-panel .splash-loader {
   width: 100%;
@@ -6013,6 +6020,9 @@ body.crt-mode #crt-overlay::after {
   height: 100%;
   background: #7a8dff;
   border-radius: 2px;
+  animation-play-state: paused;
+}
+.splash-panel.ready .splash-loader-bar {
   animation: splash-loading 2.4s ease-out forwards;
 }
 .splash-panel .splash-version {
@@ -6021,6 +6031,24 @@ body.crt-mode #crt-overlay::after {
   color: rgba(255, 255, 255, 0.55);
   margin: 0;
   letter-spacing: 0.04em;
+}
+.splash-powered {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  opacity: 0.75;
+}
+.splash-powered span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0.04em;
+}
+.splash-powered img {
+  height: 18px;
+  width: auto;
+  display: block;
 }
 
 .splash-screen.fade-out {

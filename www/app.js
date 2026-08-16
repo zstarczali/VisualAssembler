@@ -2399,12 +2399,13 @@ function initPalette() {
     setTimeout(type, 700);
   })();
 
-  // Hide splash when progress bar finishes (fallback: 8s max)
+  // Show splash panel only once fully composed, then hide after progress bar animation
   (() => {
     const splashScreen = document.getElementById('splash-screen');
+    const panel = document.querySelector('.splash-panel');
     const video = document.getElementById('splash-video');
     const bar = document.querySelector('.splash-panel .splash-loader-bar');
-    if (!splashScreen) return;
+    if (!splashScreen || !panel) return;
 
     let hidden = false;
     const hide = () => {
@@ -2417,15 +2418,37 @@ function initPalette() {
       }, 500);
     };
 
-    if (video) {
-      const p = video.play();
-      if (p && typeof p.catch === 'function') p.catch(() => {});
+    const startReveal = () => {
+      if (panel.classList.contains('ready')) return;
+      panel.classList.add('ready');
+      if (video) {
+        const p = video.play();
+        if (p && typeof p.catch === 'function') p.catch(() => {});
+      }
+      if (bar) {
+        bar.addEventListener('animationend', hide, { once: true });
+      } else {
+        setTimeout(hide, 2400);
+      }
+    };
+
+    const readyPromises = [];
+    if (video && video.readyState < 1) {
+      readyPromises.push(new Promise(res => {
+        video.addEventListener('loadedmetadata', res, { once: true });
+        video.addEventListener('error', res, { once: true });
+      }));
     }
-    if (bar) {
-      bar.addEventListener('animationend', hide, { once: true });
-    } else {
-      setTimeout(hide, 2400);
+    if (document.fonts && document.fonts.ready) {
+      readyPromises.push(document.fonts.ready);
     }
+    // Compose-timeout so we never wait forever
+    Promise.race([
+      Promise.all(readyPromises),
+      new Promise(res => setTimeout(res, 1500))
+    ]).then(() => requestAnimationFrame(startReveal));
+
+    // Absolute fallback so splash can never wedge
     setTimeout(hide, 8000);
   })();
 
