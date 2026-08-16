@@ -1906,20 +1906,29 @@ button:focus-visible,
   min-width: 0;
   padding: calc(13px * var(--block-scale)) calc(10px * var(--block-scale)) calc(10px * var(--block-scale));
   border-radius: calc(15px * var(--block-scale));
-  background: color-mix(in srgb, var(--panel-strong) 96%, white 4%);
+  background: color-mix(in srgb, var(--block-tone) 18%, var(--panel-strong));
   border: 1px solid var(--block-tone);
   box-shadow:
     inset 6px 0 0 color-mix(in srgb, var(--block-tone) 55%, transparent),
-    0 2px 8px color-mix(in srgb, black 12%, transparent);
+    0 1px 2px color-mix(in srgb, black 18%, transparent),
+    0 4px 10px color-mix(in srgb, black 14%, transparent),
+    0 12px 28px color-mix(in srgb, black 12%, transparent);
   user-select: none;
   -webkit-user-drag: element;
   position: relative;
   overflow: visible;
+  transition: box-shadow 160ms ease, transform 160ms ease;
 }
 
 .asm-block:hover,
 .asm-block:focus-within {
   z-index: 2;
+  transform: translateY(-2px);
+  box-shadow:
+    inset 6px 0 0 color-mix(in srgb, var(--block-tone) 55%, transparent),
+    0 2px 4px color-mix(in srgb, black 18%, transparent),
+    0 10px 20px color-mix(in srgb, black 16%, transparent),
+    0 24px 48px color-mix(in srgb, black 14%, transparent);
 }
 
 .asm-block[data-collapsed="true"] {
@@ -1992,7 +2001,7 @@ button:focus-visible,
 .asm-block[data-block-kind="macro-def-start"],
 .asm-block[data-block-kind="macro-def-end"] {
   --block-tone: #3388ff;
-  background: color-mix(in srgb, var(--panel-strong) 96%, white 4%);
+  background: color-mix(in srgb, var(--block-tone) 18%, var(--panel-strong));
   border: 1px solid #3388ff;
   box-shadow:
     inset 6px 0 0 color-mix(in srgb, #3388ff 55%, transparent),
@@ -2001,7 +2010,7 @@ button:focus-visible,
 
 .asm-block[data-block-kind="label"] {
   --block-tone: #7788dd;
-  background: color-mix(in srgb, var(--panel-strong) 96%, white 4%);
+  background: color-mix(in srgb, var(--block-tone) 18%, var(--panel-strong));
   border: 1px solid #7788dd;
   box-shadow:
     inset 6px 0 0 color-mix(in srgb, #7788dd 55%, transparent),
