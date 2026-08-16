@@ -1,26 +1,25 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.3.3**
+**Version 2.3.4**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
 ---
 
-## Version 2.3.3 Highlights
+## Version 2.3.4 Highlights
 
-- Bundled UltimateBasic 1.5.2 compiler with addressed `incbin`, generated ASM, map/Koala commands, collision helpers, and updated debug metadata.
-- Corrected UB PRG and D64 builds, including source `load` addresses for D64 extra files.
-- Optional same-name UB `.asm` sidecars controlled from Program Settings.
-- Separate persistent UB working folder for file dialogs and relative `include`/`incbin` resolution.
-- UB Save As, copyable disassembly, expanded syntax help, and explicit `sprite_frame` animation guidance.
-- Separate Expert-mode Save ASM and Save ASM As actions.
+- New CHARDEF macro: define a single 8×8 character in a RAM charset (base address + character index + 8 bytes).
+- New BOX_HIT macro: axis-aligned bounding-box collision test between two 4-byte zero-page rectangles.
+- Welcome dialog with the current version, shown on launch until dismissed.
+- Refreshed light theme with colored, elevated assembly blocks.
+- Improved UltimateBasic editor autocomplete, minimap, and project dialogs.
 
 ---
 
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
-  - [Version 2.3.3 Highlights](#version-233-highlights)
+  - [Version 2.3.4 Highlights](#version-234-highlights)
   - [Table of Contents](#table-of-contents)
   - [1. Interface Overview](#1-interface-overview)
   - [2. Block Palette](#2-block-palette)

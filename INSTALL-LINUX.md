@@ -1,7 +1,7 @@
 # Linux Installation Guide (Ubuntu / Debian)
-Version 2.3.3
+Version 2.3.4
 
-2.3.3: Updates UltimateBasic to 1.5.2 and adds reliable UB PRG/D64 builds, optional ASM sidecars, a separate persistent UB working folder, Save As, and copyable disassembly.
+2.3.4: Adds CHARDEF and BOX_HIT macros, a startup welcome dialog, a video splash intro, a refreshed light theme, and improved UltimateBasic editor UX.
 
 Tested on Ubuntu 22.04 and 24.04.
 
@@ -12,7 +12,7 @@ Tested on Ubuntu 22.04 and 24.04.
 Download the `.deb` package from the releases page and install:
 
 ```bash
-  sudo dpkg -i "c64-visual-assembler_2.3.3_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.3.4_amd64.deb"
 sudo apt-get install -f   # fix any missing dependencies
 ```
 
@@ -126,4 +126,4 @@ The app propagates `DISPLAY`, `WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR`, `DBUS_SESSIO
 
 ---
 
-**Version:** 2.3.3 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.3.4 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

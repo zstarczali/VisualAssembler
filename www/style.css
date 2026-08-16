@@ -5467,7 +5467,10 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   max-height: min(720px, 88vh);
   background: var(--panel);
   color: var(--text);
-  box-shadow: 0 24px 64px color-mix(in srgb, black 35%, transparent);
+  box-shadow:
+    0 1px 3px color-mix(in srgb, black 22%, transparent),
+    0 8px 24px color-mix(in srgb, black 24%, transparent),
+    0 32px 80px color-mix(in srgb, black 38%, transparent);
 }
 
 .customer-message-dialog::backdrop {
@@ -5484,6 +5487,10 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
 .customer-message-body li { margin: 6px 0; }
 .customer-message-body strong { color: var(--text); }
 .customer-message-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 22px; }
+.customer-message-footer { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 18px; color: var(--muted); font: 600 .72rem/1.3 "IBM Plex Mono", monospace; letter-spacing: .06em; }
+.customer-message-logo { width: 36px; height: 36px; border-radius: 6px; box-shadow: 0 2px 8px color-mix(in srgb, black 25%, transparent); }
+.customer-message-site { display: block; text-align: center; margin: 4px 0 0; color: var(--primary); font: 500 .8rem/1.4 "IBM Plex Mono", monospace; text-decoration: none; }
+.customer-message-site:hover { text-decoration: underline; }
 
 .about-dialog {
   border: none;

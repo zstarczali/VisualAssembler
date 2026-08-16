@@ -1,9 +1,9 @@
 C64 Visual Assembler - Installation Guide
-Version 2.3.3
+Version 2.3.4
 Support: https://zstarczali.itch.io/visual-assembler-commodore-64
 ==========================================================================
 
-2.3.3: Updates UltimateBasic to 1.5.2 and adds reliable UB PRG/D64 builds, optional ASM sidecars, a separate persistent UB working folder, Save As, and copyable disassembly.
+2.3.4: Adds CHARDEF and BOX_HIT macros, a startup welcome dialog, a video splash intro, a refreshed light theme, and improved UltimateBasic editor UX.
 
 
 ==========================================================================
@@ -15,7 +15,7 @@ Tested on Ubuntu 22.04 and 24.04.
 -----------------------
 Download the .deb package from the releases page and install:
 
-  sudo dpkg -i "c64-visual-assembler_2.3.3_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.3.4_amd64.deb"
   sudo apt-get install -f   # fix any missing dependencies
 
 Launch from the Applications menu or:
@@ -108,7 +108,7 @@ Requirements: macOS 11.0+, Apple Silicon (M1/M2/M3)
 
 1. C64 Visual Assembler
 -----------------------
-1. Download the 2.3.3 DMG for your architecture from the releases page
+1. Download the 2.3.4 DMG for your architecture from the releases page
 2. Mount the DMG and drag the app to /Applications
 3. First launch: Right-click the app -> "Open" (macOS will block double-click)
 4. Click "Open" in the security dialog

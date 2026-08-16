@@ -77,11 +77,11 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "ultimate-basic-introduction-2",
+  id: "welcome-introduction-1",
   url: "https://github.com/zstarczali/UltimateBasic",
   hu: {
     eyebrow: "Újdonság",
-    title: "Megérkezett az Ultimate Basic",
+    title: "Üdvözöl a Visual Assembler",
     body: `<p>Az <strong>Ultimate Basic</strong> egy modern, C64-re készült fordított BASIC nyelv. <strong>Mostantól az Ultimate Basic közvetlenül a Visual Assembler IDE-ben is elérhető</strong>, a teljes értékű UB szerkesztőmódban.</p><ul><li><strong>Mire jó?</strong> Gyors C64 program-, játék- és demófejlesztésre, alacsony szintű assembly írása nélkül.</li><li><strong>Mit tartalmaz?</strong> Szintaxiskiemelést, kódkiegészítést, parancssúgót, projektkezelést, formázást, fordítást és hibajelzést.</li><li><strong>Futtatás:</strong> PRG vagy D64 VICE-ban és C64 Ultimate-en, valamint RetroDebugger támogatás szimbólumokkal.</li><li><strong>Debug kimenet:</strong> KickAssembler <code>.sym</code>, C64Debugger <code>.dbg</code> és VICE <code>.vs</code> címkék.</li></ul><p>Az Ultimate Basic önálló, nyílt forrású projektként is elérhető a GitHubon.</p>`,
     link: "Ultimate Basic a GitHubon",
     dismiss: "Ne jelenjen meg többé",
@@ -89,7 +89,7 @@ const CUSTOMER_MESSAGE = {
   },
   en: {
     eyebrow: "New",
-    title: "Introducing Ultimate Basic",
+    title: "Welcome to Visual Assembler",
     body: `<p><strong>Ultimate Basic</strong> is a modern compiled BASIC language for the C64. <strong>Ultimate Basic is now available directly inside the Visual Assembler IDE</strong> through the full-featured UB editor mode.</p><ul><li><strong>What is it for?</strong> Rapid C64 program, game and demo development without writing everything in low-level assembly.</li><li><strong>What is included?</strong> Syntax highlighting, completion, command help, projects, formatting, compilation and error reporting.</li><li><strong>Run targets:</strong> PRG or D64 in VICE and on C64 Ultimate, plus RetroDebugger support with symbols.</li><li><strong>Debug output:</strong> KickAssembler <code>.sym</code>, C64Debugger <code>.dbg</code> and VICE <code>.vs</code> labels.</li></ul><p>Ultimate Basic is also available as a standalone open-source project on GitHub.</p>`,
     link: "Ultimate Basic on GitHub",
     dismiss: "Don't show again",
@@ -97,7 +97,7 @@ const CUSTOMER_MESSAGE = {
   },
   es: {
     eyebrow: "Novedad",
-    title: "Ha llegado Ultimate Basic",
+    title: "Bienvenido a Visual Assembler",
     body: `<p><strong>Ultimate Basic</strong> es un lenguaje BASIC moderno y compilado para C64. <strong>A partir de ahora, Ultimate Basic también está disponible directamente en el IDE Visual Assembler</strong> mediante el completo modo de edición UB.</p><ul><li><strong>¿Para qué sirve?</strong> Para desarrollar rápidamente programas, juegos y demos de C64 sin tener que escribirlo todo en ensamblador de bajo nivel.</li><li><strong>¿Qué incluye?</strong> Resaltado de sintaxis, autocompletado, ayuda de comandos, gestión de proyectos, formateo, compilación e indicación de errores.</li><li><strong>Ejecución:</strong> PRG o D64 en VICE y C64 Ultimate, además de compatibilidad con RetroDebugger y símbolos.</li><li><strong>Información de depuración:</strong> archivos KickAssembler <code>.sym</code>, C64Debugger <code>.dbg</code> y etiquetas VICE <code>.vs</code>.</li></ul><p>Ultimate Basic también está disponible como proyecto independiente y de código abierto en GitHub.</p>`,
     link: "Ultimate Basic en GitHub",
     dismiss: "No volver a mostrar",
@@ -105,7 +105,7 @@ const CUSTOMER_MESSAGE = {
   },
   de: {
     eyebrow: "Neu",
-    title: "Ultimate Basic ist da",
+    title: "Willkommen bei Visual Assembler",
     body: `<p><strong>Ultimate Basic</strong> ist eine moderne, kompilierte BASIC-Sprache für den C64. <strong>Ab sofort ist Ultimate Basic auch direkt in der Visual Assembler IDE verfügbar</strong> – mit einem vollständigen UB-Editormodus.</p><ul><li><strong>Wofür ist es gedacht?</strong> Für die schnelle Entwicklung von C64-Programmen, Spielen und Demos, ohne alles in maschinennahem Assembler schreiben zu müssen.</li><li><strong>Was ist enthalten?</strong> Syntaxhervorhebung, Codevervollständigung, Befehlshilfe, Projektverwaltung, Formatierung, Kompilierung und Fehleranzeige.</li><li><strong>Ausführung:</strong> PRG oder D64 in VICE und auf C64 Ultimate sowie RetroDebugger-Unterstützung mit Symbolen.</li><li><strong>Debug-Ausgabe:</strong> KickAssembler-<code>.sym</code>, C64Debugger-<code>.dbg</code> und VICE-<code>.vs</code>-Labels.</li></ul><p>Ultimate Basic ist außerdem als eigenständiges Open-Source-Projekt auf GitHub verfügbar.</p>`,
     link: "Ultimate Basic auf GitHub",
     dismiss: "Nicht mehr anzeigen",
@@ -2065,6 +2065,10 @@ function initPalette() {
   customerMessageLinkButton?.addEventListener("click", () => {
     if (CUSTOMER_MESSAGE.url) window.electronAPI?.openExternal(CUSTOMER_MESSAGE.url);
   });
+  document.querySelector(".customer-message-site")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    window.electronAPI?.openExternal("https://www.c64va.tech");
+  });
   knowledgeBaseButton?.addEventListener("click", () => {
     document.querySelector(".control-menu")?.removeAttribute("open");
     knowledgeBaseDialog?.showModal();
@@ -2763,7 +2767,6 @@ function showCustomerMessageIfNeeded() {
   const title = document.getElementById("customer-message-title");
   const body = document.getElementById("customer-message-body");
   if (eyebrow) eyebrow.textContent = content.eyebrow;
-  if (title) title.textContent = content.title;
   if (body) body.innerHTML = content.body;
   if (customerMessageLinkButton) {
     customerMessageLinkButton.textContent = content.link;
@@ -2772,6 +2775,12 @@ function showCustomerMessageIfNeeded() {
   if (customerMessageDismissButton) customerMessageDismissButton.textContent = content.dismiss;
   if (customerMessageCloseButton) customerMessageCloseButton.textContent = content.close;
   customerMessageDialog.showModal();
+  if (title) {
+    title.textContent = content.title;
+    getAppVersionText().then(version => {
+      title.textContent = `${content.title} ${version}`;
+    });
+  }
   requestAnimationFrame(() => customerMessageCloseButton?.focus());
 }
 
