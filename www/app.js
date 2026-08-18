@@ -408,6 +408,7 @@ const customerMessageDialog = document.getElementById("customer-message-dialog")
 const customerMessageCloseButton = document.getElementById("customer-message-close");
 const customerMessageDismissButton = document.getElementById("customer-message-dismiss");
 const customerMessageLinkButton = document.getElementById("customer-message-link");
+const customerMessageManualButton = document.getElementById("customer-message-manual");
 const knowledgeBaseButton = document.getElementById("knowledge-base-btn");
 const knowledgeBaseDialog = document.getElementById("knowledge-base-dialog");
 const knowledgeBaseCloseButton = document.getElementById("knowledge-base-close");
@@ -2065,9 +2066,7 @@ function initPalette() {
     localStorage.setItem("customerMessageSeen", CUSTOMER_MESSAGE.id);
     customerMessageDialog?.close();
   });
-  customerMessageLinkButton?.addEventListener("click", () => {
-    if (CUSTOMER_MESSAGE.url) window.electronAPI?.openExternal(CUSTOMER_MESSAGE.url);
-  });
+  customerMessageManualButton?.addEventListener("click", () => window.electronAPI?.openUltimateBasicManual?.());
   document.querySelector(".customer-message-site")?.addEventListener("click", (e) => {
     e.preventDefault();
     window.electronAPI?.openExternal("https://www.c64va.tech");
@@ -2760,10 +2759,7 @@ function showCustomerMessageIfNeeded() {
   const body = document.getElementById("customer-message-body");
   if (eyebrow) eyebrow.textContent = content.eyebrow;
   if (body) body.innerHTML = content.body;
-  if (customerMessageLinkButton) {
-    customerMessageLinkButton.textContent = content.link;
-    customerMessageLinkButton.hidden = !CUSTOMER_MESSAGE.url;
-  }
+  if (customerMessageManualButton) customerMessageManualButton.textContent = t("ubManual");
   if (customerMessageDismissButton) customerMessageDismissButton.textContent = content.dismiss;
   if (customerMessageCloseButton) customerMessageCloseButton.textContent = content.close;
   customerMessageDialog.showModal();

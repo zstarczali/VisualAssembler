@@ -1,25 +1,15 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.3.4**
+**Version 2.3.5**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
-
----
-
-## Version 2.3.4 Highlights
-
-- New CHARDEF macro: define a single 8×8 character in a RAM charset (base address + character index + 8 bytes).
-- New BOX_HIT macro: axis-aligned bounding-box collision test between two 4-byte zero-page rectangles.
-- Welcome dialog with the current version, shown on launch until dismissed.
-- Refreshed light theme with colored, elevated assembly blocks.
-- Improved UltimateBasic editor autocomplete, minimap, and project dialogs.
 
 ---
 
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
-  - [Version 2.3.4 Highlights](#version-234-highlights)
+  - [Version 2.3.5 Highlights](#version-235-highlights)
   - [Table of Contents](#table-of-contents)
   - [1. Interface Overview](#1-interface-overview)
   - [2. Block Palette](#2-block-palette)
@@ -444,7 +434,7 @@ The colorized UB Disassembly panel resolves known labels and presents addresses,
 
 ### Ultimate Basic manual and source
 
-The book icon in the UB toolbar opens the matching Ultimate Basic `MANUAL.pdf` offline. Visual Assembler takes both the compiler and PDF from the pinned upstream Git/Cargo dependency, so the IDE does not maintain a second copy of the Ultimate Basic implementation. The About dialog and splash screen display the actual dependency version.
+The book icon in the UB toolbar opens the online Ultimate Basic manual (`MANUAL.md`) at <https://github.com/zstarczali/UltimateBasic/blob/main/MANUAL.md>. The manual button in the startup welcome dialog opens the same page. Visual Assembler takes the compiler from the pinned upstream Git/Cargo dependency, so the IDE does not maintain a second copy of the Ultimate Basic implementation. The About dialog and splash screen display the actual dependency version.
 
 Ultimate Basic is also available as a standalone open-source project:
 

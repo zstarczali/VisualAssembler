@@ -724,8 +724,9 @@ override megoldja. Új dialog számmezőknél is állítsd be explicit:
 
 ## 16. Jelenlegi verzió
 
-`2.3.4` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
+`2.3.5` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, és ez a fájl + copilot-instructions.md.
-Fő 2.3.4 változások: CHARDEF és BOX_HIT makrók; indítási welcome dialóg verziószámmal; videós splash intro; frissített light téma (színes, kiemelt blokkok); javított UltimateBasic editor UX (autocomplete, minimap, project dialógok).
+Fő 2.3.5 változások: CHARDEF és BOX_HIT makrók szintaxiskiemelése az Expert szerkesztőben; az Ultimate Basic szerkesztő Expert-egységes viselkedése (Format utáni kurzorfix, egységes Tab és select/focus kurzorkövetés); UB betűméret megőrzése munkamenetek között; a welcome dialogba bekerült egy Ultimate Basic manual gomb, ami ugyanazt a kézikönyvet nyitja, mint a szerkesztő manual gombja (`openUltimateBasicManual`).
+Korábbi 2.3.4 változások: CHARDEF és BOX_HIT makrók; indítási welcome dialóg verziószámmal; videós splash intro; frissített light téma (színes, kiemelt blokkok); javított UltimateBasic editor UX (autocomplete, minimap, project dialógok).
 
 Verziónöveléshez lásd a 3. szakasz végén lévő 7-lépéses checklistet.
