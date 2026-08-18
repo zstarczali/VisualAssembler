@@ -3496,6 +3496,7 @@ function _applyEditorTranslations() {
   setText('#map-editor-dialog button[data-export="layers-bin"]', t("meExportAllLayersBin"));
   setText('#map-editor-dialog button[data-export="layer-screen"]', t("meExportLayerScreen"));
   setText("#me-load-map", t("meLoadMap"));
+  setText("#me-load-colormap", t("meLoadColorMap"));
   setText("#me-grid-label", t("meGrid"));
   setText("#me-multicolor-label", t("meMulticolor"));
   setText("#me-color-mode-hint", t("meColorModeHint"));
@@ -29380,6 +29381,25 @@ function setupMapEditor() {
       if (_meCustomColors) _meSetSelectedColor(_meDefaultColorForTile(_meTile), false);
       _meBuildMulticolorControls();
       _meRenderBanks();
+      _meRenderAll();
+    };
+    reader.readAsArrayBuffer(file);
+    e.target.value = "";
+  });
+
+  // Load color map (.bin) — raw 1000-byte color RAM overlay
+  const colorMapFile = document.getElementById("me-colormap-file");
+  document.getElementById("me-load-colormap")?.addEventListener("click", function() { colorMapFile?.click(); });
+  colorMapFile?.addEventListener("change", function(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function() {
+      const src = new Uint8Array(reader.result);
+      const n = _ME_COLS * _ME_ROWS;
+      if (src.length < n) return;
+      _mePushUndo();
+      for (let i = 0; i < n; i++) _meColorRam[i] = src[i] & 0x0F;
       _meRenderAll();
     };
     reader.readAsArrayBuffer(file);

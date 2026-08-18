@@ -1179,6 +1179,7 @@ PRINTABLE CHARACTERS
           <button class="ed-file-btn" type="button">Files ▾</button>
           <div class="ed-file-menu" hidden>
             <button id="me-load-map" type="button">Load map (.bin)…</button>
+            <button id="me-load-colormap" type="button">Load color map (.bin)…</button>
             <button data-export="bin" type="button">Save Screen RAM (.bin)…</button>
             <button data-export="bin-color" type="button">Save Screen RAM + Color RAM (.bin)…</button>
             <button data-export="screen" type="button">Copy flattened screen codes</button>
@@ -1253,6 +1254,7 @@ PRINTABLE CHARACTERS
             </button>
           </div>
           <input type="file" id="me-map-file" accept=".bin,application/octet-stream" hidden>
+          <input type="file" id="me-colormap-file" accept=".bin,application/octet-stream" hidden>
         <div class="me-tb-right">
           <label class="me-check me-toolbar-check">
             <input type="checkbox" id="me-multicolor">
