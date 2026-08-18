@@ -12,7 +12,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2.3.4">
+  <link rel="stylesheet" href="style.css?v=2.3.5">
 </head>
 
 <body>
@@ -849,7 +849,7 @@ PRINTABLE CHARACTERS
       </div>
       <a class="customer-message-site" href="https://www.c64va.tech" target="_blank" rel="noopener noreferrer">www.c64va.tech</a>
       <div class="customer-message-actions">
-        <button id="customer-message-link" class="secondary" type="button" hidden></button>
+        <button id="customer-message-manual" class="secondary" type="button"></button>
         <button id="customer-message-dismiss" class="secondary" type="button"></button>
         <button id="customer-message-close" class="primary" type="button"></button>
       </div>
@@ -859,10 +859,10 @@ PRINTABLE CHARACTERS
 <dialog id="about-dialog" class="about-dialog">
     <div class="about-card">
       <div class="about-logo">
-        <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="160" height="160">
+        <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v2.3.4</p>
+      <p class="about-version" id="about-version">v2.3.5</p>
       <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       <img class="about-ub-banner" src="assets/ultimate-basic-banner.png" alt="Ultimate Basic">
       <p class="about-repo"><span>Ultimate Basic GitHub repository:</span><br><a href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener noreferrer">https://github.com/zstarczali/UltimateBasic</a></p>
@@ -880,25 +880,22 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.3.4</p>
+      <p class="whats-new-version">v2.3.5</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: CHARDEF macro</strong> &mdash; define a single 8&times;8 character in a RAM character set from a base address, character index, and 8 bytes; the inline copy code is generated automatically.
+          <strong>Fixed: CHARDEF &amp; BOX_HIT highlighting</strong> &mdash; the CHARDEF and BOX_HIT macros are now syntax-highlighted in the Expert editor; previously they were left uncolored.
         </li>
         <li>
-          <strong>New: BOX_HIT macro</strong> &mdash; axis-aligned bounding-box collision test between two 4-byte zero-page rectangles; the overlap result lands in A (1 = hit).
+          <strong>Fixed: Ultimate Basic cursor on Format</strong> &mdash; the caret no longer jumps to the wrong place after Format Source when a line's indentation changes.
         </li>
         <li>
-          <strong>New: welcome dialog</strong> &mdash; a startup welcome card showing the current version; it appears on every launch until dismissed.
+          <strong>Improved: Ultimate Basic editor parity</strong> &mdash; the UB editor now behaves like the Expert editor: Tab refreshes the highlight overlay, and the cursor indicator updates on selection and focus.
         </li>
         <li>
-          <strong>New: video splash intro</strong> &mdash; an animated startup splash with credit for the bundled Ultimate tools.
+          <strong>New: Ultimate Basic font size is remembered</strong> &mdash; the UB editor zoom level now persists across sessions, just like the Expert editor.
         </li>
         <li>
-          <strong>Improved: light theme</strong> &mdash; a refreshed desktop-style palette with softly colored, elevated assembly blocks and deeper shadows.
-        </li>
-        <li>
-          <strong>Improved: UltimateBasic UX</strong> &mdash; smoother autocomplete, minimap scrolling and rendering, and refined project dialogs; refreshed product-site copy.
+          <strong>New: welcome dialog manual button</strong> &mdash; the startup welcome dialog now has an Ultimate Basic manual button that opens the same manual as the editor's manual button.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -2146,13 +2143,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.3.4"></script>
-  <script src="i18n.js?v=2.3.4"></script>
-  <script src="tutorial-data.js?v=2.3.4"></script>
+  <script src="tauri-bridge.js?v=2.3.5"></script>
+  <script src="i18n.js?v=2.3.5"></script>
+  <script src="tutorial-data.js?v=2.3.5"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.3.4"></script>
+  <script src="app.js?v=2.3.5"></script>
 
 </body>
 

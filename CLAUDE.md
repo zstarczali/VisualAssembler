@@ -329,6 +329,37 @@ $FFD2 (CHROUT) PETSCII-t vár. Kisbetűk ($61–$7A) C64 alapértelmezett karakt
 toolbar state-et akarsz visszaállítani, **a setExpertMode(true) hívás ELŐTT** menstd ki
 local változókba.
 
+### Exomizer SFX: `?SYNTAX ERROR` második RUN-nál (intermittáló)
+
+**Tünet:** Exomizer be van kapcsolva → VICE-ban az első `RUN` működik, a program lefut,
+de egy újabb `RUN` `?SYNTAX ERROR`-t ad. Exomizer nélkül nem reprodukálható.
+Nem mindig következik be, de kis programoknál (pl. `lowercase-text-demo`) jobban reprodukálható.
+
+**Gyökérok-hipotézis:**
+Az `exomizer sfx sys` mód a dekompresszió után `JMP $080D`-vel ugrik a user kódba (nem
+`JSR`-rel). A BASIC a `SYS <addr>`-t `JSR`-rel hívja meg, tehát push-olja a visszatérési
+címet a stack-re. Ha az exomizer belső dekompresszora nem pontosan egyensúlyban hagyja a
+stack-et a `JMP` előtt (pl. az `-x1` border-flash extra kódja miatt), akkor a user kód
+végi `RTS` rossz bájtra tér vissza → a BASIC belső állapota megsérül → következő `RUN`
+`?SYNTAX ERROR`.
+
+**Miért aggravált kis programoknál:**
+- SFX overhead ~80–100 byte; ha a program kisebb, az SFX PRG **nagyobb** mint az eredeti
+- Exomizer ilyenkor esetleg eltérő dekompresszor útvonalat vesz (nagyon rövid stream)
+- Dekompresszió után az SFX-es crunched adat maradéka ott marad a kód vége fölött a RAM-ban
+
+**Diagnosztika:**
+Az `exomizerBorderFlash` settinget (lib.rs: `cfg["uiSettings"]["exomizerBorderFlash"]`)
+kapcsold ki (`-n` flag → nincs border flash). Ha ezután eltűnik a hiba, az `-x1` extra
+kódja okozza a stack-imbalance-t.
+
+**Jelenlegi állapot:** nem javított, csak dokumentált.
+
+**Lehetséges megoldási irányok (nem implementálva):**
+1. Fallback: ha az SFX PRG ≥ az eredeti PRG mérete → ne tömörítsen, használja az eredetit
+2. User-side workaround: program végén `JMP $A474` (BASIC MAIN warm start) `RTS` helyett — ez elkerüli a stack-problémát, mert nem tér vissza a BASIC `SYS` hívójához
+3. Saját memória-módú dekompresszor (ld. `exo-decrunch-src.asm`): ZP $04/$05 pointer, tiszta stack
+
 ---
 
 ## 12. Tauri IPC
@@ -693,8 +724,9 @@ override megoldja. Új dialog számmezőknél is állítsd be explicit:
 
 ## 16. Jelenlegi verzió
 
-`2.3.4` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
+`2.3.5` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, és ez a fájl + copilot-instructions.md.
-Fő 2.3.4 változások: CHARDEF és BOX_HIT makrók; indítási welcome dialóg verziószámmal; videós splash intro; frissített light téma (színes, kiemelt blokkok); javított UltimateBasic editor UX (autocomplete, minimap, project dialógok).
+Fő 2.3.5 változások: CHARDEF és BOX_HIT makrók szintaxiskiemelése az Expert szerkesztőben; az Ultimate Basic szerkesztő Expert-egységes viselkedése (Format utáni kurzorfix, egységes Tab és select/focus kurzorkövetés); UB betűméret megőrzése munkamenetek között; a welcome dialogba bekerült egy Ultimate Basic manual gomb, ami ugyanazt a kézikönyvet nyitja, mint a szerkesztő manual gombja (`openUltimateBasicManual`).
+Korábbi 2.3.4 változások: CHARDEF és BOX_HIT makrók; indítási welcome dialóg verziószámmal; videós splash intro; frissített light téma (színes, kiemelt blokkok); javított UltimateBasic editor UX (autocomplete, minimap, project dialógok).
 
 Verziónöveléshez lásd a 3. szakasz végén lévő 7-lépéses checklistet.

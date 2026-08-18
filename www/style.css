@@ -6023,7 +6023,7 @@ body.crt-mode #crt-overlay::after {
   position: relative;
   top: -30px;
   width: 100%;
-  height: 8px;
+  height: 5px;
   background: rgba(255, 255, 255, 0.08);
   border-radius: 2px;
   margin: 0;

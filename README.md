@@ -2,9 +2,17 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.3.4**
+**Current version: v2.3.5**
 
-## What's New in v2.3.4
+## What's New in v2.3.5
+
+- **CHARDEF & BOX_HIT highlighting** — the CHARDEF and BOX_HIT macros are now syntax-highlighted in the Expert editor (previously left uncolored).
+- **Ultimate Basic cursor fix** — the caret no longer jumps to the wrong position after Format Source when a line's indentation changes.
+- **Ultimate Basic editor parity** — the UB editor now behaves like the Expert editor: Tab refreshes the highlight overlay and the cursor indicator updates on selection and focus.
+- **Ultimate Basic font size remembered** — the UB editor zoom level now persists across sessions.
+- **Welcome dialog manual button** — the startup welcome dialog now has an Ultimate Basic manual button that opens the same Ultimate Basic manual as the editor's manual button.
+
+## Earlier: v2.3.4
 
 - **CHARDEF and BOX_HIT macros** — define custom RAM characters and run axis-aligned bounding-box collision tests with inline generated code.
 - **Welcome dialog** — a startup welcome card showing the current version, shown until dismissed.

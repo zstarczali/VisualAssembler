@@ -1,7 +1,7 @@
 # Linux Installation Guide (Ubuntu / Debian)
-Version 2.3.4
+Version 2.3.5
 
-2.3.4: Adds CHARDEF and BOX_HIT macros, a startup welcome dialog, a video splash intro, a refreshed light theme, and improved UltimateBasic editor UX.
+2.3.5: CHARDEF and BOX_HIT are now syntax-highlighted in the Expert editor; the Ultimate Basic editor matches the Expert editor (Format cursor fix, consistent Tab and cursor tracking); UB font size is remembered across sessions; the startup welcome dialog gains an Ultimate Basic manual button that opens the same manual as the editor's manual button.
 
 Tested on Ubuntu 22.04 and 24.04.
 
@@ -12,7 +12,7 @@ Tested on Ubuntu 22.04 and 24.04.
 Download the `.deb` package from the releases page and install:
 
 ```bash
-  sudo dpkg -i "c64-visual-assembler_2.3.4_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.3.5_amd64.deb"
 sudo apt-get install -f   # fix any missing dependencies
 ```
 
@@ -126,4 +126,4 @@ The app propagates `DISPLAY`, `WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR`, `DBUS_SESSIO
 
 ---
 
-**Version:** 2.3.4 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.3.5 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
