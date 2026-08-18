@@ -6001,7 +6001,7 @@ const _UB_COMMAND_REFERENCE = [
   ["exit", "exit", "Alias for BYE; returns cleanly to BASIC."],
   ["comments", "# comment\nrem comment\nstatement # inline comment", "Adds full-line or inline source comments."],
   ["compound assignment", "x += n | x -= n | x *= n | x /= n\nx and= n | x or= n | x xor= n | x shl= n | x shr= n", "Updates a variable with an arithmetic or bitwise operation."],
-  ["arrays", "var bytes = array(count)\nvar words = array_word(count)\nbytes[index] = value", "Declares and accesses byte or word arrays in heap RAM."],
+  ["arrays", "var bytes = array(count)\nvar words = array_word(count)\nbytes[index] = value\nvar grid = array(rows, cols)\ngrid[r, c] = value", "Declares and accesses byte or word arrays in heap RAM. Multi-dimensional arrays use a comma-separated size list (array(rows, cols, ...)) and are stored row-major; index them with a comma-separated subscript (grid[r, c]). Dimensions must be compile-time constants; a single subscript into a multi-dim array is a flat/linear index."],
   ["times", "times count\n  statements\nend", "Runs a counted loop the given number of times."],
   ["select", "select expression\ncase value:\n  statements\n[else:]\n  statements\nend", "Selects one branch from multiple cases."],
   ["return", "return [expression]", "Returns from a subroutine or function."],

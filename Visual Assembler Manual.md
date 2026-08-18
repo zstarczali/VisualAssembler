@@ -434,7 +434,7 @@ The colorized UB Disassembly panel resolves known labels and presents addresses,
 
 ### Ultimate Basic manual and source
 
-The book icon in the UB toolbar opens the online Ultimate Basic manual (`MANUAL.md`) at <https://github.com/zstarczali/UltimateBasic/blob/main/MANUAL.md>. The manual button in the startup welcome dialog opens the same page. Visual Assembler takes the compiler from the pinned upstream Git/Cargo dependency, so the IDE does not maintain a second copy of the Ultimate Basic implementation. The About dialog and splash screen display the actual dependency version.
+The book icon in the UB toolbar opens the matching Ultimate Basic `MANUAL.pdf` offline; the manual button in the startup welcome dialog opens the same manual. Visual Assembler takes both the compiler and PDF from the pinned upstream Git/Cargo dependency, so the IDE does not maintain a second copy of the Ultimate Basic implementation. The About dialog and splash screen display the actual dependency version.
 
 Ultimate Basic is also available as a standalone open-source project:
 
