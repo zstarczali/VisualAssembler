@@ -598,6 +598,7 @@ function saveUiSettings() {
     ubCommandsVisible: _ubCommandsVisible,
     ubOutputVisible: _ubOutputVisible,
     ubAutocompleteEnabled: _ubAutocompleteEnabled,
+    ubFontSize: _ubFontSize,
     expertMonitorVisible: _expertMonitorVisible,
     expertProjectVisible: _expertProjectVisible,
     expertProjectSymbolsHeight: _expertProjectSymbolsHeight,
@@ -1676,6 +1677,8 @@ function initPalette() {
   ubEditor?.addEventListener("input", () => { _ubDirty = true; markTabDirty(); _ubRefreshEditor(); _ubAcUpdate(); });
   ubEditor?.addEventListener("keyup", _ubUpdateCursor);
   ubEditor?.addEventListener("click", _ubUpdateCursor);
+  ubEditor?.addEventListener("select", _ubUpdateCursor);
+  ubEditor?.addEventListener("focus", _ubUpdateCursor);
   ubEditor?.addEventListener("scroll", _ubSyncScroll);
   const _ubMinimapScrollToY = (clientY) => {
     const canvas = document.getElementById("ub-minimap");
@@ -1732,7 +1735,7 @@ function initPalette() {
     if (e.key !== "Tab") return;
     e.preventDefault();
     ubEditor.setRangeText("  ", ubEditor.selectionStart, ubEditor.selectionEnd, "end");
-    _ubDirty = true;
+    ubEditor.dispatchEvent(new Event("input", { bubbles: true }));
   });
 
   expertHlToggleBtn?.addEventListener("click", () => {
@@ -2915,6 +2918,10 @@ function _applyUiSettingsToDOM() {
   if (savedUiSettings.ubCommandsVisible !== undefined) _ubCommandsVisible = !!savedUiSettings.ubCommandsVisible;
   if (savedUiSettings.ubOutputVisible !== undefined) _ubOutputVisible = !!savedUiSettings.ubOutputVisible;
   if (savedUiSettings.ubAutocompleteEnabled !== undefined) _ubAutocompleteEnabled = !!savedUiSettings.ubAutocompleteEnabled;
+  if (typeof savedUiSettings.ubFontSize === "number" && Number.isFinite(savedUiSettings.ubFontSize)) {
+    _ubFontSize = Math.max(8, Math.min(28, savedUiSettings.ubFontSize));
+    _ubApplyFontSize();
+  }
 
   if (savedUiSettings.ultimateBasicMode) {
     setUltimateBasicMode(true);
@@ -6224,15 +6231,23 @@ function _ubFormatText(source) {
 function _ubFormatSource() {
   if (!ubEditor) return;
   const before = ubEditor.value;
-  const caretLine = before.slice(0, ubEditor.selectionStart).split("\n").length - 1;
-  const caretColumn = ubEditor.selectionStart - (before.lastIndexOf("\n", ubEditor.selectionStart - 1) + 1);
+  const sel = ubEditor.selectionStart;
+  const caretLine = before.slice(0, sel).split("\n").length - 1;
+  const lineStart = before.lastIndexOf("\n", sel - 1) + 1;
+  const caretColumn = sel - lineStart;
+  const beforeLines = before.split("\n");
+  const beforeIndent = (beforeLines[caretLine] || "").match(/^\s*/)[0].length;
+  // cursor position relative to content (after indentation)
+  const contentOffset = Math.max(0, caretColumn - beforeIndent);
   const formatted = _ubFormatText(before);
   if (formatted === before) return;
   ubEditor.value = formatted;
   const lines = formatted.split("\n");
   const line = Math.min(caretLine, lines.length - 1);
-  const start = lines.slice(0, line).join("\n").length + (line > 0 ? 1 : 0);
-  const caret = start + Math.min(caretColumn, lines[line]?.length || 0);
+  const lineText = lines[line] || "";
+  const afterIndent = lineText.match(/^\s*/)[0].length;
+  const lineCharStart = lines.slice(0, line).join("\n").length + (line > 0 ? 1 : 0);
+  const caret = lineCharStart + afterIndent + Math.min(contentOffset, Math.max(0, lineText.length - afterIndent));
   ubEditor.setSelectionRange(caret, caret);
   ubEditor.dispatchEvent(new Event("input", { bubbles: true }));
   _ubSetStatus(t("ubFormatSource"));
@@ -6377,7 +6392,8 @@ function _ubToggleDisasm() {
   if (_ubDisasmVisible) _ubRenderDisassembly(_ubLastResult);
   saveUiSettings();
 }
-function _ubZoom(delta) { _ubFontSize = Math.max(8, Math.min(28, _ubFontSize + delta)); document.querySelectorAll(".ub-editor,.ub-highlight,.ub-line-numbers").forEach(el => el.style.fontSize = `${_ubFontSize}px`); _ubDrawMinimap(); }
+function _ubApplyFontSize() { document.querySelectorAll(".ub-editor,.ub-highlight,.ub-line-numbers").forEach(el => el.style.fontSize = `${_ubFontSize}px`); _ubDrawMinimap(); }
+function _ubZoom(delta) { _ubFontSize = Math.max(8, Math.min(28, _ubFontSize + delta)); _ubApplyFontSize(); saveUiSettings(); }
 
 function _ubOpenFind() {
   document.getElementById("ub-find-bar").hidden = false;
@@ -7170,7 +7186,9 @@ const _DIRECTIVE_TO_MNEM = {
   while:"WHILE", endw:"ENDW", repeat:"REPEAT", until:"UNTIL",
   memcpy:"MEMCPY", memset:"MEMSET", print:"PRINT", print_char:"PRINT_CHAR", print_hex:"PRINT_HEX",
   clear_screen:"CLEAR_SCREEN", wait_key:"WAIT_KEY", set_border:"SET_BORDER", set_bg:"SET_BG",
-  irq_setup:"IRQ_SETUP", rand:"RAND"
+  irq_setup:"IRQ_SETUP", rand:"RAND",
+  chardef:"CHARDEF", box_hit:"BOX_HIT",
+  exodecrunch:"EXODECRUNCH"
 };
 
 // Lazy-built: mnemonic → category
@@ -7211,7 +7229,8 @@ const _AC_DIRECTIVE_DESC = {
   ".turbo_enable":"SuperCPU turbo on/off",
   ".reu_check":"detect REU", ".reu_stash":"C64→REU DMA", ".reu_fetch":"REU→C64 DMA", ".reu_swap":"C64↔REU DMA",
   ".region":"visual region", ".endregion":"end region",
-  ".map_copy":"copy map to screen RAM", ".sprite_anim":"sprite animation frames", ".score_bcd":"BCD score update+display"
+  ".map_copy":"copy map to screen RAM", ".sprite_anim":"sprite animation frames", ".score_bcd":"BCD score update+display",
+  ".chardef":"define RAM charset char", ".box_hit":"AABB collision test"
 };
 
 let _acActive = -1;
@@ -7813,7 +7832,7 @@ function _expertHighlightLine(raw) {
   if (!code.trim()) return esc(code) + commentHtml;
 
   // Token regex (order matters)
-  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|loop|next|for|endf|push|pull|endif|endregion|region|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|delay|wait|set_border|set_bg|irq_setup|sprite_init|sprite_pos|wait_raster|joystick|mouse|sprite_col|map_copy16x16|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|include|sid|petscii|charset|table|loadfile|invoke|call|rand|exodecrunch|reu_check|reu_stash|reu_fetch|reu_swap|turbo_set|turbo_enable|supercpu_detect)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)/gi;
+  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|loop|next|for|endf|push|pull|endif|endregion|region|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|delay|wait|set_border|set_bg|irq_setup|sprite_init|sprite_pos|wait_raster|joystick|mouse|sprite_col|map_copy16x16|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|include|sid|petscii|charset|table|loadfile|invoke|call|rand|exodecrunch|reu_check|reu_stash|reu_fetch|reu_swap|turbo_set|turbo_enable|supercpu_detect|chardef|box_hit)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)/gi;
 
   let result = "";
   let lastIdx = 0;
