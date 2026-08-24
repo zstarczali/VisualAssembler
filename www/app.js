@@ -599,6 +599,7 @@ function saveUiSettings() {
     ubCommandsVisible: _ubCommandsVisible,
     ubOutputVisible: _ubOutputVisible,
     ubAutocompleteEnabled: _ubAutocompleteEnabled,
+    ubExplicit: _ubExplicit,
     ubFontSize: _ubFontSize,
     expertMonitorVisible: _expertMonitorVisible,
     expertProjectVisible: _expertProjectVisible,
@@ -1553,6 +1554,7 @@ function initPalette() {
   document.getElementById("ub-project-new-btn")?.addEventListener("click", _ubNewProject);
   document.getElementById("ub-project-save-btn")?.addEventListener("click", _ubSaveProject);
   document.getElementById("ub-project-add-btn")?.addEventListener("click", () => _ubOpen(true));
+  document.getElementById("ub-explicit-btn")?.addEventListener("click", _ubToggleExplicit);
   document.getElementById("ub-verbose-btn")?.addEventListener("click", _ubToggleVerbose);
   document.getElementById("ub-disasm-btn")?.addEventListener("click", _ubToggleDisasm);
   const ubDisasmResizer = document.getElementById("ub-disasm-resizer");
@@ -2914,6 +2916,7 @@ function _applyUiSettingsToDOM() {
   if (savedUiSettings.ubCommandsVisible !== undefined) _ubCommandsVisible = !!savedUiSettings.ubCommandsVisible;
   if (savedUiSettings.ubOutputVisible !== undefined) _ubOutputVisible = !!savedUiSettings.ubOutputVisible;
   if (savedUiSettings.ubAutocompleteEnabled !== undefined) _ubAutocompleteEnabled = !!savedUiSettings.ubAutocompleteEnabled;
+  if (savedUiSettings.ubExplicit !== undefined) _ubExplicit = !!savedUiSettings.ubExplicit;
   if (typeof savedUiSettings.ubFontSize === "number" && Number.isFinite(savedUiSettings.ubFontSize)) {
     _ubFontSize = Math.max(8, Math.min(28, savedUiSettings.ubFontSize));
     _ubApplyFontSize();
@@ -3132,7 +3135,7 @@ function applyTranslations() {
 
   const ubLabels = {
     "ub-new-btn": "ubNewSource", "ub-open-btn": "ubOpenSource", "ub-save-btn": "ubSaveSource", "ub-save-as-btn": "ubSaveSourceAs", "ub-format-btn": "ubFormatSource",
-    "ub-build-btn": "ubBuild", "ub-output-btn": "ubBuildOutput", "ub-verbose-btn": "ubVerbose", "ub-disasm-btn": "expertDisasm", "ub-autocomplete-btn": "expertAutocomplete",
+    "ub-build-btn": "ubBuild", "ub-output-btn": "ubBuildOutput", "ub-explicit-btn": "ubExplicit", "ub-verbose-btn": "ubVerbose", "ub-disasm-btn": "expertDisasm", "ub-autocomplete-btn": "expertAutocomplete",
     "ub-project-btn": "expertProjectPanel", "ub-help-btn": "ubCommandHelpToggle", "ub-manual-btn": "ubManual", "ub-project-open-btn": "projOpenProjectBtn",
     "ub-project-new-btn": "projNewProjectBtn", "ub-project-save-btn": "projSaveProjectBtn",
     "ub-project-add-btn": "projAddFileBtn", "ub-hl-btn": "ubSyntaxHighlight",
@@ -5934,6 +5937,7 @@ let _ubMinimapEnabled = true;
 let _ubProjectVisible = true;
 let _ubCommandsVisible = false;
 let _ubVerbose = false;
+let _ubExplicit = false;
 let _ubOutputVisible = true;
 let _ubAutocompleteEnabled = true;
 let _ubDisasmVisible = false;
@@ -6065,6 +6069,7 @@ const _UB_COMMAND_REFERENCE = [
   ["number formatting", "hex(value)\nbin(value)\ndec(value, width)", "Formats a number as hexadecimal, binary, or padded decimal text."],
   ["operators", "and or xor not bnot mod shl shr", "Logical, bitwise, modulo, and shift operators."],
   ["inc/dec", "inc variable\ndec variable", "Increments or decrements a variable."],
+  ["type", "type TypeName\n  var field1: type\n  var field2: type\nendtype", "Defines a structured record type with named, typed fields. Supported field types: int (1 byte), word (2 bytes), float (2 bytes, Q8.8 fixed-point). Declare instances with var name: TypeName, then access fields as name.field. The compiler lays out fields contiguously in zero-page memory."],
 ];
 
 function setUltimateBasicMode(on) {
@@ -6095,6 +6100,7 @@ function setUltimateBasicMode(on) {
     ubPanel.classList.toggle("ub-hide-output", !_ubOutputVisible);
     _ubSetToggle("ub-output-btn", _ubOutputVisible);
     _ubSetToggle("ub-autocomplete-btn", _ubAutocompleteEnabled);
+    _ubSetToggle("ub-explicit-btn", _ubExplicit);
     _ubApplyLeftViews(false);
     _ubRefreshEditor();
     _ubRenderProjectFiles();
@@ -6131,7 +6137,7 @@ function _ubApplyLeftViews(persist = true) {
   if (persist) saveUiSettings();
 }
 
-const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read restore asm include incbin load open close save memcopy drawmem map koala show hide set draw poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll").split(" "));
+const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read restore asm include incbin load open close save memcopy drawmem map koala show hide set draw poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll type endtype").split(" "));
 const _UB_TYPES = new Set(["int", "word", "float", "string", "array", "array_word"]);
 const _UB_FUNCTIONS = new Set(("str_to_int numstr chr$ str$ inkey waitkey len asc val reudet reu_present turbo clamp peek peek16 rnd abs min max sgn spc tab joy mouse_x mouse_x_hi mouse_y mouse_btn sprhit sprbghit sprite_hit sprite_bg_hit sprite_x sprite_y map_tile map_color box_hit sin cos hex bin getch").split(" "));
 const _UB_ASM_MNEMONICS = new Set(("adc and asl bcc bcs beq bit bmi bne bpl brk bvc bvs clc cld cli clv cmp cpx cpy dec dex dey eor inc inx iny jmp jsr lda ldx ldy lsr nop ora pha php pla plp rol ror rti rts sbc sec sed sei sta stx sty tax tay tsx txa txs tya").split(" "));
@@ -6211,10 +6217,10 @@ function _ubFormatText(source) {
     const content = raw.trim();
     if (!content) return "";
     const code = codePart(content).trim().toLowerCase();
-    const closes = /^(?:end\b|next\b|until\b|else\b|case\b|\})/.test(code);
+    const closes = /^(?:end\b|endtype\b|next\b|until\b|else\b|case\b|\})/.test(code);
     if (closes) depth = Math.max(0, depth - 1);
     const formatted = `${"  ".repeat(depth)}${content.replace(/\s+$/, "")}`;
-    const opens = /^(?:sub\b|fn\b|for\b|while\b|loop\b|times\b|repeat\b|select\b|sprdef\b|chardef\b)/.test(code)
+    const opens = /^(?:sub\b|fn\b|for\b|while\b|loop\b|times\b|repeat\b|select\b|sprdef\b|chardef\b|type\b)/.test(code)
       || /^if\b.*\bthen\s*$/.test(code)
       || /^asm\s*\{\s*$/.test(code)
       || /^(?:else\b|case\b)/.test(code);
@@ -6373,6 +6379,7 @@ function _ubToggleLines() { _ubLinesEnabled = !_ubLinesEnabled; ubPanel.classLis
 function _ubToggleMinimap() { _ubMinimapEnabled = !_ubMinimapEnabled; ubPanel.classList.toggle("ub-show-minimap", _ubMinimapEnabled); _ubSetToggle("ub-minimap-btn", _ubMinimapEnabled); _ubDrawMinimap(); }
 function _ubToggleProject() { _ubProjectVisible = !_ubProjectVisible; _ubApplyLeftViews(); }
 function _ubToggleCommands() { _ubCommandsVisible = !_ubCommandsVisible; _ubApplyLeftViews(); }
+function _ubToggleExplicit() { _ubExplicit = !_ubExplicit; _ubSetToggle("ub-explicit-btn", _ubExplicit); saveUiSettings(); }
 function _ubToggleVerbose() { _ubVerbose = !_ubVerbose; _ubSetToggle("ub-verbose-btn", _ubVerbose); if (_ubLastResult?.ok) _ubSetBuildOutput(_ubFormatMap(_ubLastResult.map)); }
 function _ubToggleOutput() { _ubOutputVisible = !_ubOutputVisible; ubPanel?.classList.toggle("ub-hide-output", !_ubOutputVisible); _ubSetToggle("ub-output-btn", _ubOutputVisible); saveUiSettings(); }
 function _ubToggleAutocomplete() { _ubAutocompleteEnabled = !_ubAutocompleteEnabled; _ubSetToggle("ub-autocomplete-btn", _ubAutocompleteEnabled); if (!_ubAutocompleteEnabled) _ubAcHide(); else _ubAcUpdate(); saveUiSettings(); }
@@ -6927,7 +6934,7 @@ async function _ubCompile(showProgress = false, options = {}) {
   if (showProgress) await showWorkProgress("ubBuildProgress", { indeterminate: true });
   let result;
   try {
-    result = await window.electronAPI?.compileUltimateBasic?.(ubEditor.value, _ubCompileSourcePath(_ubFilePath));
+    result = await window.electronAPI?.compileUltimateBasic?.(ubEditor.value, _ubCompileSourcePath(_ubFilePath), _ubExplicit);
   } catch (error) {
     if (showProgress) hideWorkProgress();
     const message = error?.message || String(error) || "Compilation failed";
@@ -7017,7 +7024,7 @@ async function _ubRun(mode) {
 
 async function _ubCompileSource(source, sourcePath, label = "startup file", options = {}) {
   _ubSetStatus(`Building ${label}…`);
-  const result = await window.electronAPI?.compileUltimateBasic?.(source, _ubCompileSourcePath(sourcePath));
+  const result = await window.electronAPI?.compileUltimateBasic?.(source, _ubCompileSourcePath(sourcePath), _ubExplicit);
   _ubLastResult = result;
   _ubRenderDisassembly(result);
   if (!result?.ok) {

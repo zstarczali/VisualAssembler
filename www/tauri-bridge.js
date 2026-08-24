@@ -54,7 +54,7 @@
     chooseAsmFile: () => invoke("choose_asm_file"),
     chooseUbFile: (initialDir = "") => invoke("choose_ub_file", { initialDir }),
     saveUbFile: (path, content) => invoke("save_ub_file", { path, content }),
-    compileUltimateBasic: (source, sourcePath) => invoke("compile_ultimate_basic", { source, sourcePath }),
+    compileUltimateBasic: (source, sourcePath, explicit) => invoke("compile_ultimate_basic", { source, sourcePath, explicit: !!explicit }),
     chooseProjMember: () => invoke("choose_proj_member"),
     readBinFile: (path) => invoke("read_bin_file", { path }),
     loadSample: (sampleName) => invoke("load_sample", { sampleName }),
