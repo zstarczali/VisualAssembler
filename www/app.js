@@ -7430,6 +7430,7 @@ function _expertFormatSource() {
     for (let i = 0; i < raw.length; i++) {
       if (raw[i] === '"') inStr = !inStr;
       else if (raw[i] === ";" && !inStr) { idx = i; break; }
+      else if (raw[i] === "/" && raw[i + 1] === "/" && !inStr) { idx = i; break; }
     }
     return idx >= 0
       ? { code: raw.slice(0, idx).trimEnd(), comment: "  " + raw.slice(idx).trim() }
@@ -7814,12 +7815,13 @@ function _expertHighlightLine(raw) {
   }
   if (raw === "") return "";
 
-  // Split off comment (ignore ';' inside strings)
+  // Split off comment (ignore ';' and '//' inside strings)
   let inStr = false;
   let commentIdx = -1;
   for (let i = 0; i < raw.length; i++) {
     if (raw[i] === '"') inStr = !inStr;
     else if (raw[i] === ";" && !inStr) { commentIdx = i; break; }
+    else if (raw[i] === "/" && raw[i + 1] === "/" && !inStr) { commentIdx = i; break; }
   }
   const commentHtml = commentIdx >= 0
     ? `<span class="hl-comment">${esc(raw.slice(commentIdx))}</span>`
@@ -8111,10 +8113,11 @@ function _expertEditLineComments(text, selectionStart, selectionEnd, uncomment =
     const indent = line.match(/^\s*/)?.[0] || "";
     const content = line.slice(indent.length);
     if (uncomment) {
+      if (content.startsWith("//")) return indent + content.slice(content[2] === " " ? 3 : 2);
       if (!content.startsWith(";")) return line;
       return indent + content.slice(content[1] === " " ? 2 : 1);
     }
-    return `${indent}; ${content}`;
+    return `${indent}// ${content}`;
   });
   const replacement = editedLines.join("\n");
   return {
