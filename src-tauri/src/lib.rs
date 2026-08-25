@@ -2399,10 +2399,10 @@ async fn save_ub_file(app: AppHandle, path: String, content: String) -> serde_js
 }
 
 #[tauri::command]
-fn compile_ultimate_basic(source: String, source_path: Option<String>) -> serde_json::Value {
+fn compile_ultimate_basic(source: String, source_path: Option<String>, explicit: Option<bool>) -> serde_json::Value {
     use ultimate_basic::compiler::{compile_with_path, debug_output, CompileOptions};
     let path = source_path.as_deref().filter(|p| !p.is_empty()).map(Path::new);
-    let result = compile_with_path(&source, &CompileOptions { basic_stub: true }, path);
+    let result = compile_with_path(&source, &CompileOptions { basic_stub: true, explicit: explicit.unwrap_or(false) }, path);
     let map = &result.map;
     let debug_source_path = path.unwrap_or_else(|| Path::new("program.ub"));
     serde_json::json!({
