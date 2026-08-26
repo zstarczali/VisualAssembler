@@ -2,17 +2,19 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.3.5**
+**Current version: v2.3.6**
 
-## What's New in v2.3.5
+## What's New in v2.3.6
 
-- **CHARDEF & BOX_HIT highlighting** — the CHARDEF and BOX_HIT macros are now syntax-highlighted in the Expert editor (previously left uncolored).
-- **Ultimate Basic cursor fix** — the caret no longer jumps to the wrong position after Format Source when a line's indentation changes.
-- **Ultimate Basic editor parity** — the UB editor now behaves like the Expert editor: Tab refreshes the highlight overlay and the cursor indicator updates on selection and focus.
-- **Ultimate Basic font size remembered** — the UB editor zoom level now persists across sessions.
-- **Welcome dialog manual button** — the startup welcome dialog now has an Ultimate Basic manual button that opens the same Ultimate Basic manual as the editor's manual button.
+- **Build CRT (Magic Desk 64K cartridge)** — export the current program as a `.crt` cartridge image (type 19). A tiny loader in bank 0 copies the payload from cart ROM into RAM and jumps to the entry point, so programs run unchanged on VICE, TheC64, EasyFlash, Kung Fu Flash and the 1541 Ultimate II+ / Ultimate 64 cartridge slot. Works in block mode, Expert mode and Ultimate Basic mode. Max payload: 65 408 bytes across 8 × 8 KB banks. Exomizer is bypassed for CRT builds.
+- **Build CRT menu entry** — a dedicated *Build CRT* button next to *Build PRG* / *Build D64* in the Menu → Build section, with localization for HU / EN / ES / DE.
+- **`//` line comments in the Expert editor** — alongside `;`, you can now start a comment with `//`. The syntax highlighter, formatter and Toggle Comment command all recognise both styles.
+- **Ultimate Basic “Explicit type declarations” toggle** — a toolbar switch that enables `type`…`endtype` record blocks. When on, the keyword highlighter, auto-format indentation and the UB compiler (Tauri IPC `CompileOptions.explicit`) all honour explicit typed declarations. Localized in all four UI languages.
+- **Map Editor color map loader** — the Map Editor Files menu now has a *Load color map (.bin)* option that overlays a raw 1000-byte Color RAM image (masked to the low nibble). Localized in HU / EN / ES / DE.
+- **D64 export dialog input height fix** — the *Disk name*, *Program name* and extra file path inputs no longer inherit the global 46 px minimum height.
+- **Manual: CRT caveat** — a prominent section in the manual explains that the CRT loader calls KERNAL `RESTOR` ($FD15), which restores the standard I/O vectors and re-initialises CIA1 / CIA2 — anything hooked before boot must be reinstalled after entry.
 
-## Earlier: v2.3.4
+## Earlier: v2.3.5
 
 - **CHARDEF and BOX_HIT macros** — define custom RAM characters and run axis-aligned bounding-box collision tests with inline generated code.
 - **Welcome dialog** — a startup welcome card showing the current version, shown until dismissed.

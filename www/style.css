@@ -5270,7 +5270,9 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
 .d64-export-field input {
   font-family: "IBM Plex Mono", monospace;
   font-size: 0.85rem;
-  padding: 8px 10px;
+  height: 32px;
+  min-height: 0;
+  padding: 4px 10px;
   border: 1px solid var(--panel-border);
   border-radius: 2px;
   background: var(--output-bg);
@@ -5407,6 +5409,9 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   color: var(--muted);
   background: transparent !important;
   border-color: transparent !important;
+  height: 22px;
+  min-height: 0 !important;
+  padding-block: 0 !important;
   padding-inline: 2px !important;
   cursor: default;
 }

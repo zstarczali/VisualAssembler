@@ -15062,13 +15062,12 @@ async function saveCrtToFile() {
     if (emulatorStatus) emulatorStatus.textContent = t("saveCrtFailed");
     return;
   }
-  if (ultimateBasicMode) {
-    if (emulatorStatus) emulatorStatus.textContent = t("saveCrtFailed");
-    return;
-  }
 
-  // Use the raw (non-exomizer) autostart PRG so the loader copies plain bytes into RAM.
-  const prg = buildAutostartPrgForEmulator();
+  // UB mode uses its own compile pipeline (no exomizer applied there);
+  // non-UB uses the raw autostart PRG so the loader copies plain bytes into RAM.
+  const prg = ultimateBasicMode
+    ? await buildRunPrgForCurrentMode()
+    : buildAutostartPrgForEmulator();
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
     if (prg.error) { showViceToast(prg.error, true); return; }

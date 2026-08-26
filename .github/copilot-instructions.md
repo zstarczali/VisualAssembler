@@ -662,8 +662,8 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`2.3.4` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, `CLAUDE.md`.
-Főbb újdonságok: CHARDEF és BOX_HIT makrók; indítási welcome dialóg verziószámmal; videós splash intro; frissített light téma (színes, kiemelt blokkok); javított UltimateBasic editor UX (autocomplete, minimap, project dialógok).
+`2.3.6` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, `CLAUDE.md`.
+Főbb újdonságok: **Build CRT** (Magic Desk 64K cartridge, type 19) export block, Expert és Ultimate Basic módban a Menü → Build szekcióból; `buildMagicDeskCrt(payload, loadAddr, entryAddr)` 8×8 KB bankba csomagolja a payloadot, bank-0-ban CBM80 header + 128 byte-os loader RAM-ba másolja a byte-okat és `JMP` az entry-re a cart disable ($DE00 bit 7) után RAM-ban futtatott exit stubbal; külső API-k: `save_crt` Tauri command, `saveCrt` bridge, `#save-crt` menü gomb. Max payload 65 408 byte. Exomizer CRT-nél ki van hagyva. D64 export dialóg input mezők (`d64-export-diskname`, `d64-export-progname`, `d64-extra-source`) magasság fix (`min-height: 0` + explícit `height`). Kézikönyv új 12b. szekció kiemelt caveat-tel a KERNAL `RESTOR` mellékhatásairól (I/O vektorok + CIA1/2 reinit).
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező
