@@ -303,6 +303,7 @@ const restoreSnapshotButton = document.getElementById("restore-snapshot");
 const snapshotHistoryButton = document.getElementById("snapshot-history");
 const savePrgButton = document.getElementById("save-prg");
 const saveD64Button = document.getElementById("save-d64");
+const saveCrtButton = document.getElementById("save-crt");
 const loadProjectButton = document.getElementById("load-project");
 const setWorkingFolderButton = document.getElementById("set-working-folder");
 const zoomOutButton = document.getElementById("zoom-out");
@@ -2227,6 +2228,7 @@ function initPalette() {
   });
   savePrgButton?.addEventListener("click", savePrgToFile);
   saveD64Button?.addEventListener("click", saveD64ToFile);
+  saveCrtButton?.addEventListener("click", saveCrtToFile);
 
   // Global Ctrl+S / Cmd+S — works in both block mode and expert mode
   document.addEventListener("keydown", (e) => {
@@ -3229,6 +3231,7 @@ function applyTranslations() {
     setText("#build-section-label", t("buildSection"));
     setText("#versioning-section-label", t("versioningSection"));
     setText("#save-d64", t("saveD64"));
+    setText("#save-crt", t("saveCrt"));
     setText("#d64-export-title", t("d64ExportTitle"));
     setText("#d64-export-diskname-label", t("d64ExportDiskName"));
     setText("#d64-export-progname-label", t("d64ExportProgName"));
@@ -3277,6 +3280,8 @@ function applyTranslations() {
     _updateWorkingFolderButtonTooltip();
     saveD64Button?.setAttribute("title", t("saveD64"));
     saveD64Button?.setAttribute("aria-label", t("saveD64"));
+    saveCrtButton?.setAttribute("title", t("saveCrt"));
+    saveCrtButton?.setAttribute("aria-label", t("saveCrt"));
     loadProjectButton?.setAttribute("title", t("loadProject"));
     loadProjectButton?.setAttribute("aria-label", t("loadProject"));
     addSelectedButton?.setAttribute("title", t("addSelected"));
@@ -14890,6 +14895,227 @@ async function savePrgToFile() {
   if (emulatorStatus) {
     const fileName = result.filePath.split(/[\\/]/).pop();
     emulatorStatus.textContent = `${t("savePrgSuccess")}: ${fileName}`;
+  }
+}
+
+// ── Magic Desk CRT (type 19) — 8 x 8K banks at $8000 ─────────────────────────
+// Bank 0 layout (fixed 128 bytes header + loader + exit stub):
+//   $8000: cold_start vector = $8009
+//   $8002: warm_start vector = $8009
+//   $8004: "CBM80" signature bytes
+//   $8009: boot / copy loop / exit stub (assembled below; ends at $807F)
+// Payload starts at $8080 in bank 0 and continues into banks 1..7.
+// Max payload = 8*8192 - 128 = 65408 bytes.
+const MAGIC_DESK_BANK_SIZE = 0x2000;
+const MAGIC_DESK_BANK_COUNT = 8;
+const MAGIC_DESK_LOADER_SIZE = 0x80;
+const MAGIC_DESK_MAX_PAYLOAD =
+  MAGIC_DESK_BANK_SIZE * MAGIC_DESK_BANK_COUNT - MAGIC_DESK_LOADER_SIZE;
+
+function buildMagicDeskLoaderBank0(loadAddr, payloadLen, entryAddr, payload) {
+  const bank = new Uint8Array(MAGIC_DESK_BANK_SIZE);
+  const LL = loadAddr & 0xFF, LH = (loadAddr >> 8) & 0xFF;
+  const NL = payloadLen & 0xFF, NH = (payloadLen >> 8) & 0xFF;
+  const EL = entryAddr & 0xFF, EH = (entryAddr >> 8) & 0xFF;
+
+  // Header + boot vectors
+  bank[0x00] = 0x09; bank[0x01] = 0x80;        // cold vector -> $8009
+  bank[0x02] = 0x09; bank[0x03] = 0x80;        // warm vector -> $8009
+  bank[0x04] = 0xC3; bank[0x05] = 0xC2;        // "CB"
+  bank[0x06] = 0xCD; bank[0x07] = 0x38;        // "M8"
+  bank[0x08] = 0x30;                            // "0"
+
+  // Loader @ $8009
+  const code = [
+    0x78,                         // SEI
+    0xA2, 0xFF,                   // LDX #$FF
+    0x9A,                         // TXS
+    0xD8,                         // CLD
+    0x20, 0xA3, 0xFD,             // JSR $FDA3 (IOINIT)
+    0x20, 0x50, 0xFD,             // JSR $FD50 (RAMTAS)
+    0x20, 0x15, 0xFD,             // JSR $FD15 (RESTOR)
+    0x20, 0x5B, 0xFF,             // JSR $FF5B (CINT)
+    0xA9, 0x80,                   // LDA #$80  ; src = $8080
+    0x85, 0xFB,                   // STA $FB
+    0xA9, 0x80,                   // LDA #$80
+    0x85, 0xFC,                   // STA $FC
+    0xA9, LL,   0x85, 0xFD,       // dst = load addr
+    0xA9, LH,   0x85, 0xFE,
+    0xA9, NL,   0x85, 0x02,       // remaining = length
+    0xA9, NH,   0x85, 0x03,
+    0xA9, 0x00, 0x85, 0x04,       // bank counter = 0
+    // copy_loop @ $8036
+    0xA5, 0x02, 0x05, 0x03,       // LDA rem_lo | ORA rem_hi
+    0xF0, 0x2E,                   // BEQ done ($806A)
+    0xA0, 0x00,                   // LDY #$00
+    0xB1, 0xFB,                   // LDA (src),Y
+    0x91, 0xFD,                   // STA (dst),Y
+    0xE6, 0xFB, 0xD0, 0x02,       // INC src_lo / BNE +2
+    0xE6, 0xFC,                   // INC src_hi
+    0xA5, 0xFC, 0xC9, 0xA0,       // LDA src_hi / CMP #$A0
+    0xD0, 0x0B,                   // BNE no_bank_sw ($8059)
+    0xE6, 0x04,                   // INC bank
+    0xA5, 0x04,                   // LDA bank
+    0x8D, 0x00, 0xDE,             // STA $DE00  (Magic Desk bank select)
+    0xA9, 0x80, 0x85, 0xFC,       // reset src_hi = $80
+    // no_bank_sw @ $8059
+    0xE6, 0xFD, 0xD0, 0x02,       // INC dst_lo / BNE +2
+    0xE6, 0xFE,                   // INC dst_hi
+    0xA5, 0x02, 0xD0, 0x02,       // LDA rem_lo / BNE +2
+    0xC6, 0x03,                   // DEC rem_hi
+    0xC6, 0x02,                   // DEC rem_lo
+    0x4C, 0x36, 0x80,             // JMP copy_loop
+    // done @ $806A — copy exit stub to $0100 and run from RAM
+    0xA2, 0x07,                   // LDX #$07
+    0xBD, 0x78, 0x80,             // LDA $8078,X
+    0x9D, 0x00, 0x01,             // STA $0100,X
+    0xCA,                         // DEX
+    0x10, 0xF7,                   // BPL -9
+    0x4C, 0x00, 0x01,             // JMP $0100
+    // exit_stub @ $8078 (copied to $0100..$0107 then executed from RAM,
+    // so the $DE00 write that unmaps the cart doesn't kill the next fetch)
+    0xA9, 0x80,                   // LDA #$80    (bit 7 = cart off)
+    0x8D, 0x00, 0xDE,             // STA $DE00
+    0x4C, EL, EH,                 // JMP entry
+  ];
+  if (code.length !== MAGIC_DESK_LOADER_SIZE - 0x09) {
+    throw new Error(`Magic Desk loader size mismatch: ${code.length + 0x09} != ${MAGIC_DESK_LOADER_SIZE}`);
+  }
+  for (let i = 0; i < code.length; i++) bank[0x09 + i] = code[i];
+
+  // First payload chunk into bank 0 starting at $8080
+  const firstChunkLen = Math.min(payload.length, MAGIC_DESK_BANK_SIZE - MAGIC_DESK_LOADER_SIZE);
+  bank.set(payload.subarray(0, firstChunkLen), MAGIC_DESK_LOADER_SIZE);
+  return { bank, consumed: firstChunkLen };
+}
+
+function buildMagicDeskCrt(payload, loadAddr, entryAddr, cartName = "VA CART") {
+  if (!(payload instanceof Uint8Array)) payload = Uint8Array.from(payload);
+  const payloadLen = payload.length;
+  if (payloadLen === 0) throw new Error("empty payload");
+  if (payloadLen > MAGIC_DESK_MAX_PAYLOAD) {
+    throw new Error(`payload too large (${payloadLen} > ${MAGIC_DESK_MAX_PAYLOAD})`);
+  }
+
+  // 64-byte CRT header
+  const header = new Uint8Array(0x40);
+  const sig = "C64 CARTRIDGE   ";
+  for (let i = 0; i < 16; i++) header[i] = sig.charCodeAt(i);
+  // Header length ($40) BE
+  header[0x10] = 0x00; header[0x11] = 0x00; header[0x12] = 0x00; header[0x13] = 0x40;
+  // Version 1.00
+  header[0x14] = 0x01; header[0x15] = 0x00;
+  // Cartridge type 19 (Magic Desk / Domark / HES Australia)
+  header[0x16] = 0x00; header[0x17] = 0x13;
+  header[0x18] = 0x00;  // EXROM (active low: cart drives /EXROM = 0)
+  header[0x19] = 0x01;  // GAME  (inactive high)
+  // Subtype + 5 reserved bytes are already zero
+  // Cartridge name (32 bytes, space-padded ASCII)
+  const nameBytes = new TextEncoder().encode((cartName || "VA CART").toUpperCase()).slice(0, 32);
+  for (let i = 0; i < 32; i++) header[0x20 + i] = i < nameBytes.length ? nameBytes[i] : 0x20;
+
+  // Build banks: bank 0 = header + loader + first payload chunk, banks 1..7 = rest of payload
+  const { bank: bank0, consumed } = buildMagicDeskLoaderBank0(loadAddr, payloadLen, entryAddr, payload);
+  const banks = [bank0];
+  let offset = consumed;
+  for (let b = 1; b < MAGIC_DESK_BANK_COUNT; b++) {
+    const bank = new Uint8Array(MAGIC_DESK_BANK_SIZE);
+    const remaining = payloadLen - offset;
+    if (remaining > 0) {
+      const chunkLen = Math.min(remaining, MAGIC_DESK_BANK_SIZE);
+      bank.set(payload.subarray(offset, offset + chunkLen), 0);
+      offset += chunkLen;
+    }
+    banks.push(bank);
+  }
+
+  // CHIP packet: 16-byte header + 8192 data
+  const chipPacketLen = 0x10 + MAGIC_DESK_BANK_SIZE;
+  const totalLen = header.length + chipPacketLen * MAGIC_DESK_BANK_COUNT;
+  const out = new Uint8Array(totalLen);
+  out.set(header, 0);
+  let cursor = header.length;
+  for (let b = 0; b < MAGIC_DESK_BANK_COUNT; b++) {
+    // "CHIP"
+    out[cursor + 0] = 0x43; out[cursor + 1] = 0x48;
+    out[cursor + 2] = 0x49; out[cursor + 3] = 0x50;
+    // Packet length ($00002010) BE
+    out[cursor + 4] = 0x00; out[cursor + 5] = 0x00;
+    out[cursor + 6] = (chipPacketLen >> 8) & 0xFF;
+    out[cursor + 7] = chipPacketLen & 0xFF;
+    // Chip type: ROM
+    out[cursor + 8] = 0x00; out[cursor + 9] = 0x00;
+    // Bank number (BE)
+    out[cursor + 10] = 0x00; out[cursor + 11] = b & 0xFF;
+    // Load address $8000 (BE)
+    out[cursor + 12] = 0x80; out[cursor + 13] = 0x00;
+    // ROM image size $2000 (BE)
+    out[cursor + 14] = 0x20; out[cursor + 15] = 0x00;
+    out.set(banks[b], cursor + 16);
+    cursor += chipPacketLen;
+  }
+  return out;
+}
+
+async function saveCrtToFile() {
+  if (!window.electronAPI?.saveCrt) {
+    if (emulatorStatus) emulatorStatus.textContent = t("saveCrtFailed");
+    return;
+  }
+  if (ultimateBasicMode) {
+    if (emulatorStatus) emulatorStatus.textContent = t("saveCrtFailed");
+    return;
+  }
+
+  // Use the raw (non-exomizer) autostart PRG so the loader copies plain bytes into RAM.
+  const prg = buildAutostartPrgForEmulator();
+  if (!prg.ok) {
+    if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
+    if (prg.error) { showViceToast(prg.error, true); return; }
+    if (emulatorStatus) emulatorStatus.textContent = prg.error || t("saveCrtFailed");
+    return;
+  }
+
+  const prgBytes = prg.bytes;
+  if (!prgBytes || prgBytes.length <= 2) {
+    if (emulatorStatus) emulatorStatus.textContent = t("saveCrtEmpty");
+    return;
+  }
+  const loadAddr = prgBytes[0] | (prgBytes[1] << 8);
+  const payload = prgBytes.subarray(2);
+  const entryAddr = (typeof prg.sysAddress === "number" && prg.sysAddress > 0)
+    ? prg.sysAddress
+    : loadAddr;
+
+  if (payload.length > MAGIC_DESK_MAX_PAYLOAD) {
+    const msg = tf("saveCrtTooLarge", { size: payload.length, max: MAGIC_DESK_MAX_PAYLOAD });
+    if (emulatorStatus) emulatorStatus.textContent = msg;
+    showViceToast(msg, true);
+    return;
+  }
+
+  let crtBytes;
+  try {
+    crtBytes = buildMagicDeskCrt(payload, loadAddr, entryAddr, "VA CART");
+  } catch (e) {
+    if (emulatorStatus) emulatorStatus.textContent = e?.message || t("saveCrtFailed");
+    return;
+  }
+
+  const activeTab = tabs.find(tab => tab.id === activeTabId);
+  const suggested = (activeTab?.name || "program").replace(/\.[^.]+$/, "") + ".crt";
+  const result = await window.electronAPI.saveCrt({
+    bytes: Array.from(crtBytes),
+    fileName: suggested
+  });
+  if (result?.canceled) return;
+  if (!result?.ok) {
+    if (emulatorStatus) emulatorStatus.textContent = result?.error || t("saveCrtFailed");
+    return;
+  }
+  if (emulatorStatus) {
+    const fileName = result.filePath.split(/[\\/]/).pop();
+    emulatorStatus.textContent = `${t("saveCrtSuccess")}: ${fileName}`;
   }
 }
 

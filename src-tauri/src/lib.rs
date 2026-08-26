@@ -1484,6 +1484,45 @@ async fn save_prg(app: AppHandle, payload: SavePrgPayload) -> serde_json::Value 
     }
 }
 
+#[derive(serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct SaveCrtPayload {
+    bytes: Vec<u8>,
+    #[serde(default)]
+    file_name: Option<String>,
+}
+
+#[tauri::command]
+async fn save_crt(app: AppHandle, payload: SaveCrtPayload) -> serde_json::Value {
+    let working_folder = {
+        let cfg = read_config(&app);
+        get_working_folder_path(&cfg)
+    };
+    let mut dialog = app.dialog().file()
+        .add_filter("Commodore 64 cartridge", &["crt"])
+        .add_filter("All files", &["*"]);
+    if let Some(folder) = working_folder {
+        dialog = dialog.set_directory(folder);
+    }
+    if let Some(name) = payload.file_name.as_deref() {
+        if !name.is_empty() {
+            dialog = dialog.set_file_name(name);
+        }
+    }
+    let result = dialog.blocking_save_file();
+
+    match result {
+        Some(path) => {
+            let path_str = path.to_string();
+            match fs::write(&path_str, &payload.bytes) {
+                Ok(_) => serde_json::json!({ "ok": true, "filePath": path_str }),
+                Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+            }
+        }
+        None => serde_json::json!({ "canceled": true }),
+    }
+}
+
 #[tauri::command]
 async fn save_bin(app: AppHandle, payload: SaveBinPayload) -> serde_json::Value {
     let working_folder = {
@@ -2671,6 +2710,7 @@ pub fn run() {
             choose_include_file,
             reload_include_file,
             save_prg,
+            save_crt,
             save_bin,
             save_d64,
             run_d64,
