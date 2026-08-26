@@ -178,7 +178,8 @@
       "Bash(where ffmpeg *)",
       "Bash(python3 -c \"import imageio_ffmpeg; print\\(imageio_ffmpeg.get_ffmpeg_exe\\(\\)\\)\")",
       "Bash(python3 -c \"import imageio; print\\(imageio.__version__\\)\")",
-      "Bash(pip install *)"
+      "Bash(pip install *)",
+      "Bash(node --test tests/ultimate-basic-highlight.test.js)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"

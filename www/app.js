@@ -303,6 +303,7 @@ const restoreSnapshotButton = document.getElementById("restore-snapshot");
 const snapshotHistoryButton = document.getElementById("snapshot-history");
 const savePrgButton = document.getElementById("save-prg");
 const saveD64Button = document.getElementById("save-d64");
+const saveCrtButton = document.getElementById("save-crt");
 const loadProjectButton = document.getElementById("load-project");
 const setWorkingFolderButton = document.getElementById("set-working-folder");
 const zoomOutButton = document.getElementById("zoom-out");
@@ -599,6 +600,7 @@ function saveUiSettings() {
     ubCommandsVisible: _ubCommandsVisible,
     ubOutputVisible: _ubOutputVisible,
     ubAutocompleteEnabled: _ubAutocompleteEnabled,
+    ubExplicit: _ubExplicit,
     ubFontSize: _ubFontSize,
     expertMonitorVisible: _expertMonitorVisible,
     expertProjectVisible: _expertProjectVisible,
@@ -1553,6 +1555,7 @@ function initPalette() {
   document.getElementById("ub-project-new-btn")?.addEventListener("click", _ubNewProject);
   document.getElementById("ub-project-save-btn")?.addEventListener("click", _ubSaveProject);
   document.getElementById("ub-project-add-btn")?.addEventListener("click", () => _ubOpen(true));
+  document.getElementById("ub-explicit-btn")?.addEventListener("click", _ubToggleExplicit);
   document.getElementById("ub-verbose-btn")?.addEventListener("click", _ubToggleVerbose);
   document.getElementById("ub-disasm-btn")?.addEventListener("click", _ubToggleDisasm);
   const ubDisasmResizer = document.getElementById("ub-disasm-resizer");
@@ -2225,6 +2228,7 @@ function initPalette() {
   });
   savePrgButton?.addEventListener("click", savePrgToFile);
   saveD64Button?.addEventListener("click", saveD64ToFile);
+  saveCrtButton?.addEventListener("click", saveCrtToFile);
 
   // Global Ctrl+S / Cmd+S — works in both block mode and expert mode
   document.addEventListener("keydown", (e) => {
@@ -2914,6 +2918,7 @@ function _applyUiSettingsToDOM() {
   if (savedUiSettings.ubCommandsVisible !== undefined) _ubCommandsVisible = !!savedUiSettings.ubCommandsVisible;
   if (savedUiSettings.ubOutputVisible !== undefined) _ubOutputVisible = !!savedUiSettings.ubOutputVisible;
   if (savedUiSettings.ubAutocompleteEnabled !== undefined) _ubAutocompleteEnabled = !!savedUiSettings.ubAutocompleteEnabled;
+  if (savedUiSettings.ubExplicit !== undefined) _ubExplicit = !!savedUiSettings.ubExplicit;
   if (typeof savedUiSettings.ubFontSize === "number" && Number.isFinite(savedUiSettings.ubFontSize)) {
     _ubFontSize = Math.max(8, Math.min(28, savedUiSettings.ubFontSize));
     _ubApplyFontSize();
@@ -3132,7 +3137,7 @@ function applyTranslations() {
 
   const ubLabels = {
     "ub-new-btn": "ubNewSource", "ub-open-btn": "ubOpenSource", "ub-save-btn": "ubSaveSource", "ub-save-as-btn": "ubSaveSourceAs", "ub-format-btn": "ubFormatSource",
-    "ub-build-btn": "ubBuild", "ub-output-btn": "ubBuildOutput", "ub-verbose-btn": "ubVerbose", "ub-disasm-btn": "expertDisasm", "ub-autocomplete-btn": "expertAutocomplete",
+    "ub-build-btn": "ubBuild", "ub-output-btn": "ubBuildOutput", "ub-explicit-btn": "ubExplicit", "ub-verbose-btn": "ubVerbose", "ub-disasm-btn": "expertDisasm", "ub-autocomplete-btn": "expertAutocomplete",
     "ub-project-btn": "expertProjectPanel", "ub-help-btn": "ubCommandHelpToggle", "ub-manual-btn": "ubManual", "ub-project-open-btn": "projOpenProjectBtn",
     "ub-project-new-btn": "projNewProjectBtn", "ub-project-save-btn": "projSaveProjectBtn",
     "ub-project-add-btn": "projAddFileBtn", "ub-hl-btn": "ubSyntaxHighlight",
@@ -3226,6 +3231,7 @@ function applyTranslations() {
     setText("#build-section-label", t("buildSection"));
     setText("#versioning-section-label", t("versioningSection"));
     setText("#save-d64", t("saveD64"));
+    setText("#save-crt", t("saveCrt"));
     setText("#d64-export-title", t("d64ExportTitle"));
     setText("#d64-export-diskname-label", t("d64ExportDiskName"));
     setText("#d64-export-progname-label", t("d64ExportProgName"));
@@ -3274,6 +3280,8 @@ function applyTranslations() {
     _updateWorkingFolderButtonTooltip();
     saveD64Button?.setAttribute("title", t("saveD64"));
     saveD64Button?.setAttribute("aria-label", t("saveD64"));
+    saveCrtButton?.setAttribute("title", t("saveCrt"));
+    saveCrtButton?.setAttribute("aria-label", t("saveCrt"));
     loadProjectButton?.setAttribute("title", t("loadProject"));
     loadProjectButton?.setAttribute("aria-label", t("loadProject"));
     addSelectedButton?.setAttribute("title", t("addSelected"));
@@ -3496,6 +3504,7 @@ function _applyEditorTranslations() {
   setText('#map-editor-dialog button[data-export="layers-bin"]', t("meExportAllLayersBin"));
   setText('#map-editor-dialog button[data-export="layer-screen"]', t("meExportLayerScreen"));
   setText("#me-load-map", t("meLoadMap"));
+  setText("#me-load-colormap", t("meLoadColorMap"));
   setText("#me-grid-label", t("meGrid"));
   setText("#me-multicolor-label", t("meMulticolor"));
   setText("#me-color-mode-hint", t("meColorModeHint"));
@@ -5933,6 +5942,7 @@ let _ubMinimapEnabled = true;
 let _ubProjectVisible = true;
 let _ubCommandsVisible = false;
 let _ubVerbose = false;
+let _ubExplicit = false;
 let _ubOutputVisible = true;
 let _ubAutocompleteEnabled = true;
 let _ubDisasmVisible = false;
@@ -6064,6 +6074,7 @@ const _UB_COMMAND_REFERENCE = [
   ["number formatting", "hex(value)\nbin(value)\ndec(value, width)", "Formats a number as hexadecimal, binary, or padded decimal text."],
   ["operators", "and or xor not bnot mod shl shr", "Logical, bitwise, modulo, and shift operators."],
   ["inc/dec", "inc variable\ndec variable", "Increments or decrements a variable."],
+  ["type", "type TypeName\n  var field1: type\n  var field2: type\nendtype", "Defines a structured record type with named, typed fields. Supported field types: int (1 byte), word (2 bytes), float (2 bytes, Q8.8 fixed-point). Declare instances with var name: TypeName, then access fields as name.field. The compiler lays out fields contiguously in zero-page memory."],
 ];
 
 function setUltimateBasicMode(on) {
@@ -6094,6 +6105,7 @@ function setUltimateBasicMode(on) {
     ubPanel.classList.toggle("ub-hide-output", !_ubOutputVisible);
     _ubSetToggle("ub-output-btn", _ubOutputVisible);
     _ubSetToggle("ub-autocomplete-btn", _ubAutocompleteEnabled);
+    _ubSetToggle("ub-explicit-btn", _ubExplicit);
     _ubApplyLeftViews(false);
     _ubRefreshEditor();
     _ubRenderProjectFiles();
@@ -6130,7 +6142,7 @@ function _ubApplyLeftViews(persist = true) {
   if (persist) saveUiSettings();
 }
 
-const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read restore asm include incbin load open close save memcopy drawmem map koala show hide set draw poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll").split(" "));
+const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read restore asm include incbin load open close save memcopy drawmem map koala show hide set draw poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll type endtype").split(" "));
 const _UB_TYPES = new Set(["int", "word", "float", "string", "array", "array_word"]);
 const _UB_FUNCTIONS = new Set(("str_to_int numstr chr$ str$ inkey waitkey len asc val reudet reu_present turbo clamp peek peek16 rnd abs min max sgn spc tab joy mouse_x mouse_x_hi mouse_y mouse_btn sprhit sprbghit sprite_hit sprite_bg_hit sprite_x sprite_y map_tile map_color box_hit sin cos hex bin getch").split(" "));
 const _UB_ASM_MNEMONICS = new Set(("adc and asl bcc bcs beq bit bmi bne bpl brk bvc bvs clc cld cli clv cmp cpx cpy dec dex dey eor inc inx iny jmp jsr lda ldx ldy lsr nop ora pha php pla plp rol ror rti rts sbc sec sed sei sta stx sty tax tay tsx txa txs tya").split(" "));
@@ -6210,10 +6222,10 @@ function _ubFormatText(source) {
     const content = raw.trim();
     if (!content) return "";
     const code = codePart(content).trim().toLowerCase();
-    const closes = /^(?:end\b|next\b|until\b|else\b|case\b|\})/.test(code);
+    const closes = /^(?:end\b|endtype\b|next\b|until\b|else\b|case\b|\})/.test(code);
     if (closes) depth = Math.max(0, depth - 1);
     const formatted = `${"  ".repeat(depth)}${content.replace(/\s+$/, "")}`;
-    const opens = /^(?:sub\b|fn\b|for\b|while\b|loop\b|times\b|repeat\b|select\b|sprdef\b|chardef\b)/.test(code)
+    const opens = /^(?:sub\b|fn\b|for\b|while\b|loop\b|times\b|repeat\b|select\b|sprdef\b|chardef\b|type\b)/.test(code)
       || /^if\b.*\bthen\s*$/.test(code)
       || /^asm\s*\{\s*$/.test(code)
       || /^(?:else\b|case\b)/.test(code);
@@ -6372,6 +6384,7 @@ function _ubToggleLines() { _ubLinesEnabled = !_ubLinesEnabled; ubPanel.classLis
 function _ubToggleMinimap() { _ubMinimapEnabled = !_ubMinimapEnabled; ubPanel.classList.toggle("ub-show-minimap", _ubMinimapEnabled); _ubSetToggle("ub-minimap-btn", _ubMinimapEnabled); _ubDrawMinimap(); }
 function _ubToggleProject() { _ubProjectVisible = !_ubProjectVisible; _ubApplyLeftViews(); }
 function _ubToggleCommands() { _ubCommandsVisible = !_ubCommandsVisible; _ubApplyLeftViews(); }
+function _ubToggleExplicit() { _ubExplicit = !_ubExplicit; _ubSetToggle("ub-explicit-btn", _ubExplicit); saveUiSettings(); }
 function _ubToggleVerbose() { _ubVerbose = !_ubVerbose; _ubSetToggle("ub-verbose-btn", _ubVerbose); if (_ubLastResult?.ok) _ubSetBuildOutput(_ubFormatMap(_ubLastResult.map)); }
 function _ubToggleOutput() { _ubOutputVisible = !_ubOutputVisible; ubPanel?.classList.toggle("ub-hide-output", !_ubOutputVisible); _ubSetToggle("ub-output-btn", _ubOutputVisible); saveUiSettings(); }
 function _ubToggleAutocomplete() { _ubAutocompleteEnabled = !_ubAutocompleteEnabled; _ubSetToggle("ub-autocomplete-btn", _ubAutocompleteEnabled); if (!_ubAutocompleteEnabled) _ubAcHide(); else _ubAcUpdate(); saveUiSettings(); }
@@ -6926,7 +6939,7 @@ async function _ubCompile(showProgress = false, options = {}) {
   if (showProgress) await showWorkProgress("ubBuildProgress", { indeterminate: true });
   let result;
   try {
-    result = await window.electronAPI?.compileUltimateBasic?.(ubEditor.value, _ubCompileSourcePath(_ubFilePath));
+    result = await window.electronAPI?.compileUltimateBasic?.(ubEditor.value, _ubCompileSourcePath(_ubFilePath), _ubExplicit);
   } catch (error) {
     if (showProgress) hideWorkProgress();
     const message = error?.message || String(error) || "Compilation failed";
@@ -7016,7 +7029,7 @@ async function _ubRun(mode) {
 
 async function _ubCompileSource(source, sourcePath, label = "startup file", options = {}) {
   _ubSetStatus(`Building ${label}…`);
-  const result = await window.electronAPI?.compileUltimateBasic?.(source, _ubCompileSourcePath(sourcePath));
+  const result = await window.electronAPI?.compileUltimateBasic?.(source, _ubCompileSourcePath(sourcePath), _ubExplicit);
   _ubLastResult = result;
   _ubRenderDisassembly(result);
   if (!result?.ok) {
@@ -7429,6 +7442,7 @@ function _expertFormatSource() {
     for (let i = 0; i < raw.length; i++) {
       if (raw[i] === '"') inStr = !inStr;
       else if (raw[i] === ";" && !inStr) { idx = i; break; }
+      else if (raw[i] === "/" && raw[i + 1] === "/" && !inStr) { idx = i; break; }
     }
     return idx >= 0
       ? { code: raw.slice(0, idx).trimEnd(), comment: "  " + raw.slice(idx).trim() }
@@ -7813,12 +7827,13 @@ function _expertHighlightLine(raw) {
   }
   if (raw === "") return "";
 
-  // Split off comment (ignore ';' inside strings)
+  // Split off comment (ignore ';' and '//' inside strings)
   let inStr = false;
   let commentIdx = -1;
   for (let i = 0; i < raw.length; i++) {
     if (raw[i] === '"') inStr = !inStr;
     else if (raw[i] === ";" && !inStr) { commentIdx = i; break; }
+    else if (raw[i] === "/" && raw[i + 1] === "/" && !inStr) { commentIdx = i; break; }
   }
   const commentHtml = commentIdx >= 0
     ? `<span class="hl-comment">${esc(raw.slice(commentIdx))}</span>`
@@ -8110,10 +8125,11 @@ function _expertEditLineComments(text, selectionStart, selectionEnd, uncomment =
     const indent = line.match(/^\s*/)?.[0] || "";
     const content = line.slice(indent.length);
     if (uncomment) {
+      if (content.startsWith("//")) return indent + content.slice(content[2] === " " ? 3 : 2);
       if (!content.startsWith(";")) return line;
       return indent + content.slice(content[1] === " " ? 2 : 1);
     }
-    return `${indent}; ${content}`;
+    return `${indent}// ${content}`;
   });
   const replacement = editedLines.join("\n");
   return {
@@ -14879,6 +14895,226 @@ async function savePrgToFile() {
   if (emulatorStatus) {
     const fileName = result.filePath.split(/[\\/]/).pop();
     emulatorStatus.textContent = `${t("savePrgSuccess")}: ${fileName}`;
+  }
+}
+
+// ── Magic Desk CRT (type 19) — 8 x 8K banks at $8000 ─────────────────────────
+// Bank 0 layout (fixed 128 bytes header + loader + exit stub):
+//   $8000: cold_start vector = $8009
+//   $8002: warm_start vector = $8009
+//   $8004: "CBM80" signature bytes
+//   $8009: boot / copy loop / exit stub (assembled below; ends at $807F)
+// Payload starts at $8080 in bank 0 and continues into banks 1..7.
+// Max payload = 8*8192 - 128 = 65408 bytes.
+const MAGIC_DESK_BANK_SIZE = 0x2000;
+const MAGIC_DESK_BANK_COUNT = 8;
+const MAGIC_DESK_LOADER_SIZE = 0x80;
+const MAGIC_DESK_MAX_PAYLOAD =
+  MAGIC_DESK_BANK_SIZE * MAGIC_DESK_BANK_COUNT - MAGIC_DESK_LOADER_SIZE;
+
+function buildMagicDeskLoaderBank0(loadAddr, payloadLen, entryAddr, payload) {
+  const bank = new Uint8Array(MAGIC_DESK_BANK_SIZE);
+  const LL = loadAddr & 0xFF, LH = (loadAddr >> 8) & 0xFF;
+  const NL = payloadLen & 0xFF, NH = (payloadLen >> 8) & 0xFF;
+  const EL = entryAddr & 0xFF, EH = (entryAddr >> 8) & 0xFF;
+
+  // Header + boot vectors
+  bank[0x00] = 0x09; bank[0x01] = 0x80;        // cold vector -> $8009
+  bank[0x02] = 0x09; bank[0x03] = 0x80;        // warm vector -> $8009
+  bank[0x04] = 0xC3; bank[0x05] = 0xC2;        // "CB"
+  bank[0x06] = 0xCD; bank[0x07] = 0x38;        // "M8"
+  bank[0x08] = 0x30;                            // "0"
+
+  // Loader @ $8009
+  const code = [
+    0x78,                         // SEI
+    0xA2, 0xFF,                   // LDX #$FF
+    0x9A,                         // TXS
+    0xD8,                         // CLD
+    0x20, 0xA3, 0xFD,             // JSR $FDA3 (IOINIT)
+    0x20, 0x50, 0xFD,             // JSR $FD50 (RAMTAS)
+    0x20, 0x15, 0xFD,             // JSR $FD15 (RESTOR)
+    0x20, 0x5B, 0xFF,             // JSR $FF5B (CINT)
+    0xA9, 0x80,                   // LDA #$80  ; src = $8080
+    0x85, 0xFB,                   // STA $FB
+    0xA9, 0x80,                   // LDA #$80
+    0x85, 0xFC,                   // STA $FC
+    0xA9, LL,   0x85, 0xFD,       // dst = load addr
+    0xA9, LH,   0x85, 0xFE,
+    0xA9, NL,   0x85, 0x02,       // remaining = length
+    0xA9, NH,   0x85, 0x03,
+    0xA9, 0x00, 0x85, 0x04,       // bank counter = 0
+    // copy_loop @ $8036
+    0xA5, 0x02, 0x05, 0x03,       // LDA rem_lo | ORA rem_hi
+    0xF0, 0x2E,                   // BEQ done ($806A)
+    0xA0, 0x00,                   // LDY #$00
+    0xB1, 0xFB,                   // LDA (src),Y
+    0x91, 0xFD,                   // STA (dst),Y
+    0xE6, 0xFB, 0xD0, 0x02,       // INC src_lo / BNE +2
+    0xE6, 0xFC,                   // INC src_hi
+    0xA5, 0xFC, 0xC9, 0xA0,       // LDA src_hi / CMP #$A0
+    0xD0, 0x0B,                   // BNE no_bank_sw ($8059)
+    0xE6, 0x04,                   // INC bank
+    0xA5, 0x04,                   // LDA bank
+    0x8D, 0x00, 0xDE,             // STA $DE00  (Magic Desk bank select)
+    0xA9, 0x80, 0x85, 0xFC,       // reset src_hi = $80
+    // no_bank_sw @ $8059
+    0xE6, 0xFD, 0xD0, 0x02,       // INC dst_lo / BNE +2
+    0xE6, 0xFE,                   // INC dst_hi
+    0xA5, 0x02, 0xD0, 0x02,       // LDA rem_lo / BNE +2
+    0xC6, 0x03,                   // DEC rem_hi
+    0xC6, 0x02,                   // DEC rem_lo
+    0x4C, 0x36, 0x80,             // JMP copy_loop
+    // done @ $806A — copy exit stub to $0100 and run from RAM
+    0xA2, 0x07,                   // LDX #$07
+    0xBD, 0x78, 0x80,             // LDA $8078,X
+    0x9D, 0x00, 0x01,             // STA $0100,X
+    0xCA,                         // DEX
+    0x10, 0xF7,                   // BPL -9
+    0x4C, 0x00, 0x01,             // JMP $0100
+    // exit_stub @ $8078 (copied to $0100..$0107 then executed from RAM,
+    // so the $DE00 write that unmaps the cart doesn't kill the next fetch)
+    0xA9, 0x80,                   // LDA #$80    (bit 7 = cart off)
+    0x8D, 0x00, 0xDE,             // STA $DE00
+    0x4C, EL, EH,                 // JMP entry
+  ];
+  if (code.length !== MAGIC_DESK_LOADER_SIZE - 0x09) {
+    throw new Error(`Magic Desk loader size mismatch: ${code.length + 0x09} != ${MAGIC_DESK_LOADER_SIZE}`);
+  }
+  for (let i = 0; i < code.length; i++) bank[0x09 + i] = code[i];
+
+  // First payload chunk into bank 0 starting at $8080
+  const firstChunkLen = Math.min(payload.length, MAGIC_DESK_BANK_SIZE - MAGIC_DESK_LOADER_SIZE);
+  bank.set(payload.subarray(0, firstChunkLen), MAGIC_DESK_LOADER_SIZE);
+  return { bank, consumed: firstChunkLen };
+}
+
+function buildMagicDeskCrt(payload, loadAddr, entryAddr, cartName = "VA CART") {
+  if (!(payload instanceof Uint8Array)) payload = Uint8Array.from(payload);
+  const payloadLen = payload.length;
+  if (payloadLen === 0) throw new Error("empty payload");
+  if (payloadLen > MAGIC_DESK_MAX_PAYLOAD) {
+    throw new Error(`payload too large (${payloadLen} > ${MAGIC_DESK_MAX_PAYLOAD})`);
+  }
+
+  // 64-byte CRT header
+  const header = new Uint8Array(0x40);
+  const sig = "C64 CARTRIDGE   ";
+  for (let i = 0; i < 16; i++) header[i] = sig.charCodeAt(i);
+  // Header length ($40) BE
+  header[0x10] = 0x00; header[0x11] = 0x00; header[0x12] = 0x00; header[0x13] = 0x40;
+  // Version 1.00
+  header[0x14] = 0x01; header[0x15] = 0x00;
+  // Cartridge type 19 (Magic Desk / Domark / HES Australia)
+  header[0x16] = 0x00; header[0x17] = 0x13;
+  header[0x18] = 0x00;  // EXROM (active low: cart drives /EXROM = 0)
+  header[0x19] = 0x01;  // GAME  (inactive high)
+  // Subtype + 5 reserved bytes are already zero
+  // Cartridge name (32 bytes, space-padded ASCII)
+  const nameBytes = new TextEncoder().encode((cartName || "VA CART").toUpperCase()).slice(0, 32);
+  for (let i = 0; i < 32; i++) header[0x20 + i] = i < nameBytes.length ? nameBytes[i] : 0x20;
+
+  // Build banks: bank 0 = header + loader + first payload chunk, banks 1..7 = rest of payload
+  const { bank: bank0, consumed } = buildMagicDeskLoaderBank0(loadAddr, payloadLen, entryAddr, payload);
+  const banks = [bank0];
+  let offset = consumed;
+  for (let b = 1; b < MAGIC_DESK_BANK_COUNT; b++) {
+    const bank = new Uint8Array(MAGIC_DESK_BANK_SIZE);
+    const remaining = payloadLen - offset;
+    if (remaining > 0) {
+      const chunkLen = Math.min(remaining, MAGIC_DESK_BANK_SIZE);
+      bank.set(payload.subarray(offset, offset + chunkLen), 0);
+      offset += chunkLen;
+    }
+    banks.push(bank);
+  }
+
+  // CHIP packet: 16-byte header + 8192 data
+  const chipPacketLen = 0x10 + MAGIC_DESK_BANK_SIZE;
+  const totalLen = header.length + chipPacketLen * MAGIC_DESK_BANK_COUNT;
+  const out = new Uint8Array(totalLen);
+  out.set(header, 0);
+  let cursor = header.length;
+  for (let b = 0; b < MAGIC_DESK_BANK_COUNT; b++) {
+    // "CHIP"
+    out[cursor + 0] = 0x43; out[cursor + 1] = 0x48;
+    out[cursor + 2] = 0x49; out[cursor + 3] = 0x50;
+    // Packet length ($00002010) BE
+    out[cursor + 4] = 0x00; out[cursor + 5] = 0x00;
+    out[cursor + 6] = (chipPacketLen >> 8) & 0xFF;
+    out[cursor + 7] = chipPacketLen & 0xFF;
+    // Chip type: ROM
+    out[cursor + 8] = 0x00; out[cursor + 9] = 0x00;
+    // Bank number (BE)
+    out[cursor + 10] = 0x00; out[cursor + 11] = b & 0xFF;
+    // Load address $8000 (BE)
+    out[cursor + 12] = 0x80; out[cursor + 13] = 0x00;
+    // ROM image size $2000 (BE)
+    out[cursor + 14] = 0x20; out[cursor + 15] = 0x00;
+    out.set(banks[b], cursor + 16);
+    cursor += chipPacketLen;
+  }
+  return out;
+}
+
+async function saveCrtToFile() {
+  if (!window.electronAPI?.saveCrt) {
+    if (emulatorStatus) emulatorStatus.textContent = t("saveCrtFailed");
+    return;
+  }
+
+  // UB mode uses its own compile pipeline (no exomizer applied there);
+  // non-UB uses the raw autostart PRG so the loader copies plain bytes into RAM.
+  const prg = ultimateBasicMode
+    ? await buildRunPrgForCurrentMode()
+    : buildAutostartPrgForEmulator();
+  if (!prg.ok) {
+    if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
+    if (prg.error) { showViceToast(prg.error, true); return; }
+    if (emulatorStatus) emulatorStatus.textContent = prg.error || t("saveCrtFailed");
+    return;
+  }
+
+  const prgBytes = prg.bytes;
+  if (!prgBytes || prgBytes.length <= 2) {
+    if (emulatorStatus) emulatorStatus.textContent = t("saveCrtEmpty");
+    return;
+  }
+  const loadAddr = prgBytes[0] | (prgBytes[1] << 8);
+  const payload = prgBytes.subarray(2);
+  const entryAddr = (typeof prg.sysAddress === "number" && prg.sysAddress > 0)
+    ? prg.sysAddress
+    : loadAddr;
+
+  if (payload.length > MAGIC_DESK_MAX_PAYLOAD) {
+    const msg = tf("saveCrtTooLarge", { size: payload.length, max: MAGIC_DESK_MAX_PAYLOAD });
+    if (emulatorStatus) emulatorStatus.textContent = msg;
+    showViceToast(msg, true);
+    return;
+  }
+
+  let crtBytes;
+  try {
+    crtBytes = buildMagicDeskCrt(payload, loadAddr, entryAddr, "VA CART");
+  } catch (e) {
+    if (emulatorStatus) emulatorStatus.textContent = e?.message || t("saveCrtFailed");
+    return;
+  }
+
+  const activeTab = tabs.find(tab => tab.id === activeTabId);
+  const suggested = (activeTab?.name || "program").replace(/\.[^.]+$/, "") + ".crt";
+  const result = await window.electronAPI.saveCrt({
+    bytes: Array.from(crtBytes),
+    fileName: suggested
+  });
+  if (result?.canceled) return;
+  if (!result?.ok) {
+    if (emulatorStatus) emulatorStatus.textContent = result?.error || t("saveCrtFailed");
+    return;
+  }
+  if (emulatorStatus) {
+    const fileName = result.filePath.split(/[\\/]/).pop();
+    emulatorStatus.textContent = `${t("saveCrtSuccess")}: ${fileName}`;
   }
 }
 
@@ -29380,6 +29616,25 @@ function setupMapEditor() {
       if (_meCustomColors) _meSetSelectedColor(_meDefaultColorForTile(_meTile), false);
       _meBuildMulticolorControls();
       _meRenderBanks();
+      _meRenderAll();
+    };
+    reader.readAsArrayBuffer(file);
+    e.target.value = "";
+  });
+
+  // Load color map (.bin) — raw 1000-byte color RAM overlay
+  const colorMapFile = document.getElementById("me-colormap-file");
+  document.getElementById("me-load-colormap")?.addEventListener("click", function() { colorMapFile?.click(); });
+  colorMapFile?.addEventListener("change", function(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function() {
+      const src = new Uint8Array(reader.result);
+      const n = _ME_COLS * _ME_ROWS;
+      if (src.length < n) return;
+      _mePushUndo();
+      for (let i = 0; i < n; i++) _meColorRam[i] = src[i] & 0x0F;
       _meRenderAll();
     };
     reader.readAsArrayBuffer(file);

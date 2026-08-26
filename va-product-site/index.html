@@ -204,6 +204,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   </div>
   <div class="sp"></div>
   <a class="nav-link" href="#ultimate-basic">ULTIMATE BASIC</a>
+  <a class="nav-link" href="#build-crt">BUILD CRT</a>
   <a class="nav-link" href="#features">FEATURES</a>
   <a class="nav-link" href="#editors">EDITORS</a>
   <a class="nav-link" href="#docs">DOCS</a>
@@ -225,7 +226,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
       <div class="y">READY.</div>
       <div><span class="g">RUN</span><span class="cur"></span></div>
     </div>
-    <div class="badge">V2.3.5 — LATEST RELEASE</div>
+    <div class="badge">V2.3.6 — LATEST RELEASE</div>
     <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
     <p class="hero-sub">Drag-and-drop 6502 assembly blocks or switch to a full text editor — see real-time ASM output and run directly in VICE.</p>
     <div class="hero-ctas">
@@ -238,11 +239,37 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   </div>
 </section>
 
+<!-- BUILD CRT: MAGIC DESK CARTRIDGE -->
+<div id="build-crt" style="background:var(--bg);padding:80px 0">
+<div class="sec about-grid" style="padding-top:0;padding-bottom:0">
+  <div>
+    <div class="ub-tag">NEW IN V2.3.6</div>
+    <div class="sec-s">// LATEST FEATURE</div>
+    <h2 class="sec-t">BUILD CRT<br><span style="color:var(--ylw)">MAGIC DESK 64K CARTRIDGE</span></h2>
+    <p class="sec-d">One click and your program becomes a Commodore 64 cartridge image. Menu &rarr; Build &rarr; Build CRT packs the current tab into a Magic Desk (type 19) <code>.crt</code> file with 8 &times; 8&nbsp;KB banks and a small bank-0 loader that copies the payload into RAM and jumps to the entry point. Nothing else to configure.</p>
+    <div class="feature-list">
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>All three modes</b> <span>&mdash; works from block mode, Expert mode and Ultimate Basic mode.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Up to 64K payload</b> <span>&mdash; 8 banks &times; 8&nbsp;KB, max 65 408 bytes after the loader header.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Widely compatible</b> <span>&mdash; runs on VICE, TheC64, EasyFlash, Kung Fu Flash, 1541 Ultimate II+ and Ultimate 64.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Any origin</b> <span>&mdash; the loader honours the PRG load address, so <code>$0801</code>, <code>$C000</code> and multi-ORG builds all work.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Safe cart-off exit</b> <span>&mdash; an 8-byte exit stub is copied to <code>$0100</code> so unmapping the cartridge cannot interrupt the fetch.</span></div></div>
+    </div>
+  </div>
+  <div class="about-right">
+    <div class="screen-wrap">
+      <img src="uploads/box2.png" alt="Build CRT — Magic Desk 64K cartridge export">
+    </div>
+  </div>
+</div>
+</div>
+
+<hr class="div">
+
 <!-- LATEST DEVELOPMENT: ULTIMATE BASIC -->
 <div id="ultimate-basic" style="background:var(--scr-darker);padding:80px 0">
 <div class="sec about-grid" style="padding-top:0;padding-bottom:0">
   <div>
-    <div class="ub-tag">UPDATED IN V2.3.4</div>
+    <div class="ub-tag">UPDATED IN V2.3.6</div>
     <div class="sec-s">// LATEST DEVELOPMENT</div>
     <h2 class="sec-t">ULTIMATE BASIC<br><span style="color:var(--ylw)">A COMPLETE IDE MODE</span></h2>
     <p class="sec-d">Fire up Ultimate Basic right inside C64 Visual Assembler. Write some code, keep your project files together, build a PRG and send it straight to your favourite C64 setup &mdash; all from one place.</p>

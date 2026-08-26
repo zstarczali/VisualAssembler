@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.3.5**
+**Version 2.3.6**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,7 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
-  - [Version 2.3.5 Highlights](#version-235-highlights)
+  - [Version 2.3.6 Highlights](#version-236-highlights)
   - [Table of Contents](#table-of-contents)
   - [1. Interface Overview](#1-interface-overview)
   - [2. Block Palette](#2-block-palette)
@@ -130,6 +130,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Split Run button](#split-run-button)
     - [Export to D64 dialog](#export-to-d64-dialog)
     - [D64 metadata in projects](#d64-metadata-in-projects)
+  - [12b. CRT Export (Magic Desk 64K cartridge)](#12b-crt-export-magic-desk-64k-cartridge)
   - [13. Hardware Settings](#13-hardware-settings)
     - [VICE Emulator](#vice-emulator)
     - [Exomizer](#exomizer)
@@ -292,6 +293,7 @@ The modal closes automatically when the action completes or fails.
 | **Close Project** (`Menu → File`) | Close the currently open project and all its file tabs. Prompts to save unsaved changes. The project panel resets to its empty state. |
 | **Load .asm file** | Opens a `.asm` file in Expert mode and imports textual 6502 ASM into the current tab |
 | **Save PRG** | Export the compiled binary as a `.prg` file |
+| **Build CRT** | Export the program as a 64K Magic Desk (`.crt`, cartridge type 19) file. See [Section 12b](#12b-crt-export-magic-desk-64k-cartridge). |
 | **Run (split button)** | The main **▶ Run** button runs the current mode; click the **▾** arrow to switch between: **Run as PRG** (compile and launch VICE directly), **Run via D64** (package into a .d64 disk image and launch VICE), or **Run on hardware** (send PRG to a C64 Ultimate / 1541 Ultimate device). See [Section 12](#12-d64-export--run) and [Section 13](#13-hardware-settings). |
 | **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 9](#9-debugger-integration)) |
 | **Run with Exomizer** | Checkbox in the Settings menu — when enabled, all Run and Build operations crunch the PRG through `exomizer sfx sys` before launching or saving. Works with Run as PRG, Run via D64, Run on Hardware, Build PRG, and Build D64. Configure the Exomizer executable in **Hardware Settings** first. |
@@ -3104,6 +3106,57 @@ The disk name, program name, and extra file list are saved inside the project JS
 The **loadfile-demo** sample comes pre-configured with `DEMO-COLORS.PRG` as an extra file. Select it, open **Run via D64**, and click **Run** to see the full load flow in action.
 
 > **Requirement:** D64 export and Run via D64 both require VICE (`c1541`) to be configured in [Hardware Settings](#13-hardware-settings).
+
+---
+
+## 12b. CRT Export (Magic Desk 64K cartridge)
+
+**Menu → Build → Build CRT** produces a Commodore 64 cartridge image (`.crt`, **cartridge type 19 — Magic Desk / Domark / HES Australia**) that runs on VICE, TheC64, real hardware via EasyFlash / Kung Fu Flash, and 1541 Ultimate II+ cartridge slots. It is available in both **block mode** and **Expert mode**, and — as of the current build — in **UltimateBasic mode** as well.
+
+### What ships in the cart
+
+- **8 × 8 KB banks** at `$8000`, bank-switched via `$DE00` (Magic Desk convention: low 3 bits = bank, bit 7 = disable cart).
+- **Bank 0** contains a 128-byte header + boot loader:
+  - `$8000/$8002` cold + warm start vectors point at `$8009`.
+  - `$8004–$8008` = the `CBM80` signature required by the KERNAL reset code.
+  - `$8009–$807F` = the loader: SEI / stack init / `JSR $FDA3` (IOINIT) / `JSR $FD50` (RAMTAS) / `JSR $FD15` (RESTOR) / `JSR $FF5B` (CINT), then a byte-copy loop that streams the payload from cart ROM into RAM and switches banks when `$FC` reaches `$A0`. At the end it copies a tiny **exit stub** to `$0100`, disables the cart with `LDA #$80 : STA $DE00`, and `JMP`s to the entry point.
+- **Payload** starts at `$8080` in bank 0 and spills into banks 1–7 as needed. Maximum payload = `8 * 8192 − 128 = 65 408 bytes`.
+
+### Load address and entry point
+
+Build CRT never uses Exomizer (the depacker cannot run from cart ROM). It compiles the current tab with the standard autostart pipeline and takes the load address from the PRG header and the entry point from the SYS target:
+
+- **Block / Expert mode with BASIC SYS stub on:** load = `$0801`, entry = the SYS target (typically `$080D` or the user’s origin).
+- **Block / Expert mode with BASIC SYS stub off:** load = user origin (with the classic `$0801 → $C000` fallback), entry = load address.
+- **UltimateBasic mode:** load and entry both come from the UB compiler map (`build.map.loadAddress`). The UB autostart stub inside the payload is then executed exactly as it would be after `LOAD "...",8,1 : RUN` from disk.
+
+The origin address you see in the ASM output is preserved; the loader simply copies the flat memory image from the PRG into RAM and jumps to the entry point once cart ROM is unmapped.
+
+### Size limit
+
+Because the payload is stored linearly and `assembleProgramToPrg()` returns a flat `minAddr..maxAddr` buffer with zero-filled gaps, a program with widely spaced ORG segments (e.g. `$0801` + `$C000` + `$E000`) counts every byte in between toward the 65 408-byte budget. If you exceed the limit the build aborts with a `saveCrtTooLarge` error — either compress the memory layout or split the data.
+
+> **⚠️ Prominent caveat — read before shipping a CRT**
+>
+> The loader calls the KERNAL **`RESTOR` ($FD15)** as part of the standard reset sequence. This intentionally rewrites the standard I/O vectors at `$0314/$0315`, `$0316/$0317`, `$0318/$0319`, `$0328/$0329` and friends back to their ROM defaults. Consequences:
+>
+> - **Any IRQ / NMI / BRK hooks set before the CRT boots are wiped.** Your program must install them itself after entry — exactly like a fresh `LOAD "",8,1 : RUN` from tape/disk.
+> - **UltimateBasic programs** that rely on non-default KERNAL vectors being live at entry may need an explicit `SYS` or init call in the autostart stub. The standard UB autostart works out of the box; extension libraries that hook vectors *before* `RUN` do not.
+> - **CIA1 / CIA2** are re-initialised by `IOINIT`. Custom timer setups (raster IRQs, music player CIA-A) must be reprogrammed after entry.
+> - The cart is disabled from an 8-byte stub in **RAM at `$0100`** so that the `STA $DE00` cannot be interrupted by a bad ROM fetch. Do not rely on `$0100–$0107` containing the stack top image on entry — the first RAM push overwrites the stub.
+>
+> If a CRT runs in VICE but fails on real hardware, the first thing to check is whether the program assumes a specific KERNAL vector or CIA timer state at entry. Install the state explicitly in your init routine and it will behave the same on both.
+
+### Compatibility
+
+| Platform | Status |
+|----------|--------|
+| VICE (`x64sc`, `x64`) | Works via **File → Attach cartridge image**. |
+| TheC64 / TheC64 Mini | Works via the built-in cartridge loader. |
+| Kung Fu Flash | Works — native Magic Desk mode. |
+| EasyFlash cartridge | Works when programmed as Magic Desk. |
+| 1541 Ultimate II+ / Ultimate 64 | Works via **Cartridge → Load cart image**. |
+| Chameleon / Turbo Chameleon | Works. |
 
 ---
 

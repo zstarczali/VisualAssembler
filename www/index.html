@@ -12,7 +12,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2.3.5">
+  <link rel="stylesheet" href="style.css?v=2.3.6">
 </head>
 
 <body>
@@ -99,6 +99,7 @@
                 <h3 class="control-menu-label control-menu-label--section" id="build-section-label">Build</h3>
                 <button id="save-prg" class="secondary" type="button">Build PRG</button>
                 <button id="save-d64" class="secondary" type="button">Build D64</button>
+                <button id="save-crt" class="secondary" type="button">Build CRT</button>
                 <button id="build-info-btn" class="secondary" type="button">Build Info</button>
                 <h3 class="control-menu-label control-menu-label--section" id="versioning-section-label">Versioning</h3>
                 <button id="save-snapshot" class="secondary" type="button">Save snapshot</button>
@@ -589,6 +590,7 @@ PRINTABLE CHARACTERS
           <button id="ub-format-btn" class="expert-hl-toggle" type="button" aria-label="Format UltimateBasic source"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M3 3h10M5 6.5h8M5 10h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M2 5.5 3.5 7 2 8.5M2 9l1.5 1.5L2 12" stroke="var(--hl-number, currentColor)" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           <div class="expert-toolbar-sep"></div>
           <button id="ub-build-btn" class="expert-hl-toggle" type="button" aria-label="Build UltimateBasic source"><svg viewBox="0 0 16 16" fill="none" width="14" height="14" aria-hidden="true"><path d="m3 13 6.2-6.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M7.2 3.1 9 1.5l5.5 5.5-1.7 1.7-2-2-2 2-1.5-1.5 2-2-2.1-2.1Z" fill="currentColor" opacity=".9"/><path d="m2.3 11.7 2 2" stroke="var(--hl-number, currentColor)" stroke-width="2" stroke-linecap="round"/></svg></button>
+          <button id="ub-explicit-btn" class="expert-hl-toggle" type="button" aria-label="Explicit type declarations" aria-pressed="false"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><text x="2" y="12" font-family="monospace" font-size="11" font-weight="bold" fill="currentColor">T</text><path d="M10 4v8M9 4h2M9 12h2" stroke="var(--hl-number, currentColor)" stroke-width="1.2" stroke-linecap="round"/></svg></button>
           <button id="ub-verbose-btn" class="expert-hl-toggle" type="button" aria-label="Verbose build output" aria-pressed="false" title="Verbose build output"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="1.5" y="2" width="13" height="12" rx="1.3" stroke="currentColor" stroke-width="1.1"/><path d="M4 5h5M4 8h8M4 11h6" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><circle cx="12" cy="5" r="1" fill="var(--hl-number, currentColor)"/></svg></button>
           <button id="ub-disasm-btn" class="expert-hl-toggle" type="button" aria-label="Disassembler" aria-pressed="false" title="Disassembler"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M2 3h4M8 3h6M2 7h7M11 7h3M2 11h3M7 11h7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="m5 13 2-2-2-2" stroke="var(--hl-number, currentColor)" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           <button id="ub-output-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Build and debug output" aria-pressed="true"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="2" y="2.5" width="12" height="11" rx="1.5" stroke="currentColor" stroke-width="1.1"/><path d="m4.5 6 2 2-2 2M8 10h3.5" stroke="var(--hl-number, currentColor)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -862,7 +864,7 @@ PRINTABLE CHARACTERS
         <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v2.3.5</p>
+      <p class="about-version" id="about-version">v2.3.6</p>
       <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       <img class="about-ub-banner" src="assets/ultimate-basic-banner.png" alt="Ultimate Basic">
       <p class="about-repo"><span>Ultimate Basic GitHub repository:</span><br><a href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener noreferrer">https://github.com/zstarczali/UltimateBasic</a></p>
@@ -880,22 +882,28 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.3.5</p>
+      <p class="whats-new-version">v2.3.6</p>
       <ul class="whats-new-list">
         <li>
-          <strong>Fixed: CHARDEF &amp; BOX_HIT highlighting</strong> &mdash; the CHARDEF and BOX_HIT macros are now syntax-highlighted in the Expert editor; previously they were left uncolored.
+          <strong>New: Build CRT (Magic Desk 64K cartridge)</strong> &mdash; export the current program as a <code>.crt</code> cartridge image (type 19). A tiny loader in bank 0 copies the payload from cart ROM into RAM and jumps to the entry point, so programs run unchanged on VICE, TheC64, EasyFlash, Kung Fu Flash and the 1541 Ultimate II+ / Ultimate 64 cartridge slot. Works in block mode, Expert mode and Ultimate Basic mode. Max payload: 65 408 bytes across 8 &times; 8&nbsp;KB banks. Exomizer is bypassed for CRT builds.
         </li>
         <li>
-          <strong>Fixed: Ultimate Basic cursor on Format</strong> &mdash; the caret no longer jumps to the wrong place after Format Source when a line's indentation changes.
+          <strong>New: Build CRT menu entry</strong> &mdash; a dedicated <em>Build CRT</em> button next to <em>Build PRG</em> / <em>Build D64</em> in the Menu &rarr; Build section, with localization for HU / EN / ES / DE.
         </li>
         <li>
-          <strong>Improved: Ultimate Basic editor parity</strong> &mdash; the UB editor now behaves like the Expert editor: Tab refreshes the highlight overlay, and the cursor indicator updates on selection and focus.
+          <strong>New: <code>//</code> line comments in the Expert editor</strong> &mdash; alongside <code>;</code>, you can now start a comment with <code>//</code>. The syntax highlighter, formatter and Toggle Comment command all recognise both styles.
         </li>
         <li>
-          <strong>New: Ultimate Basic font size is remembered</strong> &mdash; the UB editor zoom level now persists across sessions, just like the Expert editor.
+          <strong>New: Ultimate Basic &ldquo;Explicit type declarations&rdquo; toggle</strong> &mdash; a toolbar switch that enables <code>type</code>&hellip;<code>endtype</code> record blocks. When on, the keyword highlighter, auto-format indentation and the UB compiler (Tauri IPC <code>CompileOptions.explicit</code>) all honour explicit typed declarations. Localized in all four UI languages.
         </li>
         <li>
-          <strong>New: welcome dialog manual button</strong> &mdash; the startup welcome dialog now has an Ultimate Basic manual button that opens the same manual as the editor's manual button.
+          <strong>New: Map Editor color map loader</strong> &mdash; the Map Editor Files menu now has a <em>Load color map (.bin)</em> option that overlays a raw 1000-byte Color RAM image (masked to the low nibble). Localized in HU / EN / ES / DE.
+        </li>
+        <li>
+          <strong>Fixed: D64 export dialog input height</strong> &mdash; the <em>Disk name</em>, <em>Program name</em> and extra file path inputs no longer inherit the global 46&nbsp;px minimum height, so the dialog stays compact.
+        </li>
+        <li>
+          <strong>Docs: CRT caveat in the manual</strong> &mdash; a prominent section in the manual explains that the CRT loader calls KERNAL <code>RESTOR</code> ($FD15), which restores the standard I/O vectors and re-initialises CIA1 / CIA2 &mdash; anything hooked before boot must be reinstalled after entry.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -1179,6 +1187,7 @@ PRINTABLE CHARACTERS
           <button class="ed-file-btn" type="button">Files ▾</button>
           <div class="ed-file-menu" hidden>
             <button id="me-load-map" type="button">Load map (.bin)…</button>
+            <button id="me-load-colormap" type="button">Load color map (.bin)…</button>
             <button data-export="bin" type="button">Save Screen RAM (.bin)…</button>
             <button data-export="bin-color" type="button">Save Screen RAM + Color RAM (.bin)…</button>
             <button data-export="screen" type="button">Copy flattened screen codes</button>
@@ -1253,6 +1262,7 @@ PRINTABLE CHARACTERS
             </button>
           </div>
           <input type="file" id="me-map-file" accept=".bin,application/octet-stream" hidden>
+          <input type="file" id="me-colormap-file" accept=".bin,application/octet-stream" hidden>
         <div class="me-tb-right">
           <label class="me-check me-toolbar-check">
             <input type="checkbox" id="me-multicolor">
@@ -2143,13 +2153,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.3.5"></script>
-  <script src="i18n.js?v=2.3.5"></script>
-  <script src="tutorial-data.js?v=2.3.5"></script>
+  <script src="tauri-bridge.js?v=2.3.6"></script>
+  <script src="i18n.js?v=2.3.6"></script>
+  <script src="tutorial-data.js?v=2.3.6"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.3.5"></script>
+  <script src="app.js?v=2.3.6"></script>
 
 </body>
 

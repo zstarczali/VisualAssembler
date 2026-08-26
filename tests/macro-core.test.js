@@ -527,8 +527,8 @@ test("expert line comment shortcuts preserve indentation and cover selected line
   const source = "label:\n    lda #1\n    sta $d020\nrts";
   const commented = ctx._expertEditLineComments(source, 7, 28, false);
 
-  assert.equal(commented.text, "label:\n    ; lda #1\n    ; sta $d020\nrts");
-  assert.equal(commented.text.slice(commented.selectionStart, commented.selectionEnd), "    ; lda #1\n    ; sta $d020");
+  assert.equal(commented.text, "label:\n    // lda #1\n    // sta $d020\nrts");
+  assert.equal(commented.text.slice(commented.selectionStart, commented.selectionEnd), "    // lda #1\n    // sta $d020");
 
   const uncommented = ctx._expertEditLineComments(
     commented.text,
@@ -537,6 +537,17 @@ test("expert line comment shortcuts preserve indentation and cover selected line
     true
   );
   assert.equal(uncommented.text, source);
+});
+
+test("expert text parsing treats // as a comment delimiter", () => {
+  const ctx = loadFunctions(["_splitAsmLineComment"], {
+    crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" }
+  });
+
+  const parsed = ctx._splitAsmLineComment('.text 1, 2, "A" // note');
+  assert.equal(parsed.code.trim(), '.text 1, 2, "A"');
+  assert.equal(parsed.commentPrefix, "//");
+  assert.equal(parsed.commentText, "note");
 });
 
 test("expert uncomment leaves non-commented lines unchanged and excludes a trailing line", () => {

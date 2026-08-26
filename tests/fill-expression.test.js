@@ -468,6 +468,58 @@ test("FILL: sin(PI * i / 4) sine table generation", () => {
   assert.deepEqual(bytes, [0, 90, 127, 90, 0]);
 });
 
+test("FILL: exact 256-byte sine table expression compiles", () => {
+  const ctx = createFillCtx();
+  const bytes = compileBlock(
+    ctx,
+    { mnemonic: "FILL", isFillMacro: true, rawOperand: "256, round( 64 * sin( i * 2 * PI / 256 ) )", base: "dec" },
+    new Map(),
+    0x1000
+  );
+
+  assert.equal(bytes.length, 256);
+  assert.deepEqual(
+    [0, 1, 2, 63, 64, 127, 128, 191, 192, 255].map((i) => bytes[i]),
+    [0, 2, 3, 64, 64, 2, 0, 192, 192, 254]
+  );
+});
+
+test("FILL: unsigned 64+64*sin table stays in byte-friendly range", () => {
+  const ctx = createFillCtx();
+  const bytes = compileBlock(
+    ctx,
+    { mnemonic: "FILL", isFillMacro: true, rawOperand: "256, round( 64 + 64 * sin( i * 2 * PI / 256 ) )", base: "dec" },
+    new Map(),
+    0x1000
+  );
+
+  assert.equal(bytes.length, 256);
+  assert.deepEqual(
+    [0, 64, 128, 192].map((i) => bytes[i]),
+    [64, 128, 64, 0]
+  );
+  assert.equal(Math.min(...bytes), 0);
+  assert.equal(Math.max(...bytes), 128);
+});
+
+test("FILL: centered 128+127*sin table stays unsigned without wrap", () => {
+  const ctx = createFillCtx();
+  const bytes = compileBlock(
+    ctx,
+    { mnemonic: "FILL", isFillMacro: true, rawOperand: "256, round( 128 + 127 * sin( i * 2 * PI / 256 ) )", base: "dec" },
+    new Map(),
+    0x1000
+  );
+
+  assert.equal(bytes.length, 256);
+  assert.deepEqual(
+    [0, 64, 128, 192].map((i) => bytes[i]),
+    [128, 255, 128, 1]
+  );
+  assert.equal(Math.min(...bytes), 1);
+  assert.equal(Math.max(...bytes), 255);
+});
+
 test("FILL: cos(PI * i / 4) cosine table generation", () => {
   const ctx = createFillCtx();
   const bytes = compileBlock(
