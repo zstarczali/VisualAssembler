@@ -87,6 +87,8 @@ hr.div{border:none;border-top:1px solid var(--brd)}
 .tut-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px}
 .about-right .screen-wrap{max-width:100%}
 .about-right .screen-wrap::before{content:'C64VA  ●  PROGRAM BLOCKS + ASM VIEW'}
+.cartridge-shot .screen-wrap::before{content:'C64VA  ●  MAGIC DESK 64K CARTRIDGE'}
+.cartridge-shot .screen-wrap img{background:radial-gradient(circle at 50% 45%,rgba(44,44,168,.3),transparent 68%)}
 .ub-shot .screen-wrap::before{content:'C64VA  ●  ULTIMATE BASIC IDE'}
 .ub-tag{display:inline-block;margin-bottom:18px;padding:5px 12px;border:1px solid var(--ylw);color:var(--ylw);font-size:10px;letter-spacing:3px}
 .feature-list{margin-top:28px;display:flex;flex-direction:column;gap:12px}
@@ -255,9 +257,9 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
       <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Safe cart-off exit</b> <span>&mdash; an 8-byte exit stub is copied to <code>$0100</code> so unmapping the cartridge cannot interrupt the fetch.</span></div></div>
     </div>
   </div>
-  <div class="about-right">
+  <div class="about-right cartridge-shot">
     <div class="screen-wrap">
-      <img src="uploads/box2.png" alt="Build CRT — Magic Desk 64K cartridge export">
+      <img src="uploads/magic-desk-64k-cartridge.png" alt="Magic Desk 64K cartridge for Commodore 64">
     </div>
   </div>
 </div>
