@@ -12,7 +12,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2.3.6">
+  <link rel="stylesheet" href="style.css?v=2.3.7">
 </head>
 
 <body>
@@ -490,6 +490,9 @@ PRINTABLE CHARACTERS
           <button id="expert-line-numbers-btn" class="expert-hl-toggle" aria-label="Line numbers" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M6 4h8M6 8h8M6 12h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><text x="1" y="5.5" font-family="monospace" font-size="4.5" fill="currentColor" opacity="0.7">1</text><text x="1" y="9.5" font-family="monospace" font-size="4.5" fill="currentColor" opacity="0.7">2</text><text x="1" y="13.5" font-family="monospace" font-size="4.5" fill="currentColor" opacity="0.7">3</text></svg>
           </button>
+          <button id="expert-breakpoints-btn" class="expert-hl-toggle" type="button" aria-label="Breakpoints">
+            <svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><circle cx="8" cy="8" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </button>
           <button id="expert-minimap-btn" class="expert-hl-toggle" aria-label="Minimap" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><rect x="1.5" y="1.5" width="5" height="13" rx="0.6" stroke="currentColor" stroke-width="1.1"/><path d="M3 4h2.5M3 5.8h3.5M3 7.6h2M3 9.4h3M3 11.2h2.5M3 13h1.5" stroke="currentColor" stroke-width="0.85" stroke-linecap="round" opacity="0.75"/><rect x="1.5" y="7" width="5" height="4" fill="currentColor" opacity="0.2"/><path d="M9 4h5.5M9 6h4M9 8h5.5M9 10h3.5M9 12h4.5" stroke="currentColor" stroke-width="0.85" stroke-linecap="round" opacity="0.45"/></svg>
           </button>
@@ -599,11 +602,13 @@ PRINTABLE CHARACTERS
           <button id="ub-explicit-btn" class="expert-hl-toggle" type="button" aria-label="Explicit type declarations" aria-pressed="false"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><text x="2" y="12" font-family="monospace" font-size="11" font-weight="bold" fill="currentColor">T</text><path d="M10 4v8M9 4h2M9 12h2" stroke="var(--hl-number, currentColor)" stroke-width="1.2" stroke-linecap="round"/></svg></button>
           <button id="ub-verbose-btn" class="expert-hl-toggle" type="button" aria-label="Verbose build output" aria-pressed="false" title="Verbose build output"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="1.5" y="2" width="13" height="12" rx="1.3" stroke="currentColor" stroke-width="1.1"/><path d="M4 5h5M4 8h8M4 11h6" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><circle cx="12" cy="5" r="1" fill="var(--hl-number, currentColor)"/></svg></button>
           <button id="ub-disasm-btn" class="expert-hl-toggle" type="button" aria-label="Disassembler" aria-pressed="false" title="Disassembler"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M2 3h4M8 3h6M2 7h7M11 7h3M2 11h3M7 11h7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="m5 13 2-2-2-2" stroke="var(--hl-number, currentColor)" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button id="ub-monitor-btn" class="expert-hl-toggle" type="button" aria-label="Monitor output" aria-pressed="false"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="1" y="1" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="3" y="3" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.7"/><rect x="6" y="3" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.7"/><rect x="9" y="3" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.7"/><rect x="3" y="6.5" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.4"/><rect x="6" y="6.5" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.4"/><rect x="9" y="6.5" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.4"/><rect x="6" y="12" width="4" height="1.5" rx="0.5" fill="currentColor" opacity="0.5"/><rect x="4" y="13.5" width="8" height="1" rx="0.5" fill="currentColor" opacity="0.3"/></svg></button>
           <button id="ub-output-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Build and debug output" aria-pressed="true"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="2" y="2.5" width="12" height="11" rx="1.5" stroke="currentColor" stroke-width="1.1"/><path d="m4.5 6 2 2-2 2M8 10h3.5" stroke="var(--hl-number, currentColor)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           <div class="expert-toolbar-sep"></div>
           <button id="ub-hl-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Syntax highlighting" aria-pressed="true" title="Syntax highlighting"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M2.5 4h4M8 4h5.5M2.5 8h2M6 8h4M11.5 8h2M2.5 12h5M9 12h4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8 4h2M6 8h2M9 12h2" stroke="var(--hl-number, #b5cea8)" stroke-width="1.5" stroke-linecap="round"/></svg></button>
           <button id="ub-autocomplete-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Autocomplete" aria-pressed="true"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M3 3h10M3 7h7M3 11h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="m10 10 1.5 1.5L14 9" stroke="var(--hl-number, currentColor)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           <button id="ub-lines-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Line numbers" aria-pressed="true" title="Line numbers"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M6 4h8M6 8h8M6 12h8" stroke="currentColor" stroke-width="1.2"/><path d="M2 3h1v3M2 7h2l-2 3h2M2 12h2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></button>
+          <button id="ub-breakpoints-btn" class="expert-hl-toggle" type="button" aria-label="Breakpoints"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><circle cx="8" cy="8" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
           <button id="ub-minimap-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Minimap" aria-pressed="true" title="Minimap"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="2" y="1.5" width="12" height="13" rx="1" stroke="currentColor" stroke-width="1.1"/><path d="M4 4h5M4 6h7M4 8h4M4 10h6M4 12h3" stroke="currentColor" stroke-width=".8" opacity=".75"/></svg></button>
           <button id="ub-find-btn" class="expert-hl-toggle" type="button" aria-label="Find (Ctrl+F)" title="Find"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="m10.5 10.5 3.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
           <button id="ub-zoom-out-btn" class="expert-hl-toggle ub-zoom-btn" type="button" aria-label="Zoom out" title="Zoom out"><svg viewBox="0 0 18 14" fill="none" width="15" height="12" aria-hidden="true"><text x="1" y="11" font-family="serif" font-size="10" fill="currentColor">A</text><path d="M10 7h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
@@ -645,6 +650,7 @@ PRINTABLE CHARACTERS
             <div id="ub-line-numbers" class="ub-line-numbers" aria-hidden="true"><div id="ub-line-numbers-content" class="ub-line-numbers-content"></div></div>
             <pre id="ub-highlight" class="ub-highlight" aria-hidden="true"><code id="ub-highlight-code"></code></pre>
             <textarea id="ub-editor" class="ub-editor" spellcheck="false" autocomplete="off" wrap="off" placeholder="color bg 0&#10;color border 0&#10;&#10;print &quot;HELLO FROM ULTIMATE BASIC&quot;"></textarea>
+            <div id="ub-caret" class="ub-caret" aria-hidden="true" hidden></div>
             <canvas id="ub-minimap" class="ub-minimap" aria-hidden="true"></canvas>
             <div id="ub-find-bar" class="expert-find-bar ub-find-bar" hidden>
               <input id="ub-find-input" class="expert-find-input" type="text" placeholder="Find…" autocomplete="off" spellcheck="false">
@@ -670,6 +676,12 @@ PRINTABLE CHARACTERS
                 </button>
               </div>
               <pre id="ub-disasm-output">Build the source to generate disassembly.</pre>
+            </aside>
+            <aside id="ub-monitor-panel" class="ub-build-panel ub-disasm-panel ub-monitor-panel" hidden>
+              <div class="expert-disasm-header">
+                <strong id="ub-monitor-title">Monitor output</strong>
+              </div>
+              <pre id="ub-monitor-output">Build the source to generate monitor output.</pre>
             </aside>
           </div>
         </div>
@@ -870,7 +882,7 @@ PRINTABLE CHARACTERS
         <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v2.3.6</p>
+      <p class="about-version" id="about-version">v2.3.7</p>
       <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       <img class="about-ub-banner" src="assets/ultimate-basic-banner.png" alt="Ultimate Basic">
       <p class="about-repo"><span>Ultimate Basic GitHub repository:</span><br><a href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener noreferrer">https://github.com/zstarczali/UltimateBasic</a></p>
@@ -888,28 +900,28 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.3.6</p>
+      <p class="whats-new-version">v2.3.7</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: Build CRT (Magic Desk 64K cartridge)</strong> &mdash; export the current program as a <code>.crt</code> cartridge image (type 19). A tiny loader in bank 0 copies the payload from cart ROM into RAM and jumps to the entry point, so programs run unchanged on VICE, TheC64, EasyFlash, Kung Fu Flash and the 1541 Ultimate II+ / Ultimate 64 cartridge slot. Works in block mode, Expert mode and Ultimate Basic mode. Max payload: 65 408 bytes across 8 &times; 8&nbsp;KB banks. Exomizer is bypassed for CRT builds.
+          <strong>New: Undo / Redo and multi-block editing</strong> &mdash; toolbar history controls restore block-program changes per tab. Select ranges or multiple blocks, then copy, cut, paste, duplicate or delete them as one operation; region groups remain intact.
         </li>
         <li>
-          <strong>New: Build CRT menu entry</strong> &mdash; a dedicated <em>Build CRT</em> button next to <em>Build PRG</em> / <em>Build D64</em> in the Menu &rarr; Build section, with localization for HU / EN / ES / DE.
+          <strong>New: Breakpoints in Block, Expert and Ultimate Basic modes</strong> &mdash; set breakpoints from block cards or editor line-number gutters. Breakpoints are stored per tab and resolved to the exact executable address before RetroDebugger starts.
         </li>
         <li>
-          <strong>New: <code>//</code> line comments in the Expert editor</strong> &mdash; alongside <code>;</code>, you can now start a comment with <code>//</code>. The syntax highlighter, formatter and Toggle Comment command all recognise both styles.
+          <strong>Improved: RetroDebugger integration</strong> &mdash; the external debugger replaces the limited embedded Ultimate Basic debugger, and all three editor modes now launch it with source maps, labels and breakpoint files. Existing instances receive new tasks via <code>-pass</code>; BASIC SYS programs use <code>-autojmp</code>, while plain PRGs use their real load address with <code>-jmp</code>.
         </li>
         <li>
-          <strong>New: Ultimate Basic &ldquo;Explicit type declarations&rdquo; toggle</strong> &mdash; a toolbar switch that enables <code>type</code>&hellip;<code>endtype</code> record blocks. When on, the keyword highlighter, auto-format indentation and the UB compiler (Tauri IPC <code>CompileOptions.explicit</code>) all honour explicit typed declarations. Localized in all four UI languages.
+          <strong>New: BASIC stub visibility</strong> &mdash; a VA-style setting can show the real BASIC SYS stub at <code>$0801</code> in Disassembler and Monitor outputs. Block, Expert and Ultimate Basic modes share the same build-accurate code origin.
         </li>
         <li>
-          <strong>New: Map Editor color map loader</strong> &mdash; the Map Editor Files menu now has a <em>Load color map (.bin)</em> option that overlays a raw 1000-byte Color RAM image (masked to the low nibble). Localized in HU / EN / ES / DE.
+          <strong>New: Ultimate Basic Monitor view</strong> &mdash; inspect compiler-generated machine code and the optional BASIC stub as a memory dump beside the UB editor, with a dedicated toolbar button and a non-wrapping, resizable output panel.
         </li>
         <li>
-          <strong>Fixed: D64 export dialog input height</strong> &mdash; the <em>Disk name</em>, <em>Program name</em> and extra file path inputs no longer inherit the global 46&nbsp;px minimum height, so the dialog stays compact.
+          <strong>Fixed: Debugger, disassembler and label addresses</strong> &mdash; plain PRGs now use the load address stored in their PRG header, project startup files keep their own macro and source context, and <code>.dbg</code>, <code>.sym</code> and VICE label sidecars stay aligned with generated code.
         </li>
         <li>
-          <strong>Docs: CRT caveat in the manual</strong> &mdash; a prominent section in the manual explains that the CRT loader calls KERNAL <code>RESTOR</code> ($FD15), which restores the standard I/O vectors and re-initialises CIA1 / CIA2 &mdash; anything hooked before boot must be reinstalled after entry.
+          <strong>Fixed: Editor caret and line alignment</strong> &mdash; Ultimate Basic formatting preserves the selection, and caret tracking now survives blank lines, held cursor keys and minimap boundaries; UB line numbers scale without clipping. Expert line numbers and source rows use a shared integer-pixel line height to prevent vertical drift.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -2074,6 +2086,10 @@ PRINTABLE CHARACTERS
             <span id="basic-sys-label">BASIC SYS stub generálása</span>
           </label>
           <label class="menu-checkbox-label">
+            <input type="checkbox" id="show-basic-stub-toggle">
+            <span id="show-basic-stub-label">BASIC stub megjelenítése a Disassembler és Monitor nézetben</span>
+          </label>
+          <label class="menu-checkbox-label">
             <input type="checkbox" id="block-desc-sync-toggle" checked>
             <span id="block-desc-sync-label">Leírás szinkron blokk módban</span>
           </label>
@@ -2159,13 +2175,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.3.6"></script>
-  <script src="i18n.js?v=2.3.6"></script>
-  <script src="tutorial-data.js?v=2.3.6"></script>
+  <script src="tauri-bridge.js?v=2.3.7"></script>
+  <script src="i18n.js?v=2.3.7"></script>
+  <script src="tutorial-data.js?v=2.3.7"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.3.6"></script>
+  <script src="app.js?v=2.3.7"></script>
 
 </body>
 

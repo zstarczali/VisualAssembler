@@ -489,17 +489,20 @@ struct DebuggerSidecars {
     asm: Option<String>,
 }
 
-fn write_debugger_sidecars(base_path: &Path, sidecars: &DebuggerSidecars) -> Result<(), String> {
+fn debugger_sidecar_path(base_path: &Path, extension: &str) -> PathBuf {
     let parent = base_path.parent().unwrap_or_else(|| Path::new("."));
     let stem = base_path
         .file_stem()
         .and_then(|value| value.to_str())
         .filter(|value| !value.is_empty())
         .unwrap_or("program");
+    parent.join(format!("{}.{}", stem, extension))
+}
 
+fn write_debugger_sidecars(base_path: &Path, sidecars: &DebuggerSidecars) -> Result<(), String> {
     let write_file = |extension: &str, content: &Option<String>| -> Result<(), String> {
         if let Some(text) = content {
-            let path = parent.join(format!("{}.{}", stem, extension));
+            let path = debugger_sidecar_path(base_path, extension);
             fs::write(&path, text).map_err(|e| e.to_string())?;
         }
         Ok(())
@@ -810,6 +813,23 @@ struct LaunchDebuggerPayload {
     unpause: Option<bool>,
 }
 
+fn format_debugger_breakpoints(breakpoints: &[u32]) -> String {
+    breakpoints
+        .iter()
+        .map(|address| format!("break {:04X}", address & 0xFFFF))
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
+fn debugger_launch_args(prg_arg: &str, extra_args: &[String], auto_jmp: bool) -> Vec<String> {
+    let mut args = vec!["-pass".to_string(), "-prg".to_string(), prg_arg.to_string()];
+    args.extend(extra_args.iter().cloned());
+    if auto_jmp {
+        args.push("-autojmp".to_string());
+    }
+    args
+}
+
 #[tauri::command]
 async fn launch_debugger(app: AppHandle, payload: LaunchDebuggerPayload) -> serde_json::Value {
     let cfg = read_config(&app);
@@ -845,12 +865,20 @@ async fn launch_debugger(app: AppHandle, payload: LaunchDebuggerPayload) -> serd
     // Order matches confirmed working: -breakpoints -jmp -unpause
     let mut extra_args: Vec<String> = Vec::new();
 
+    if let Some(sidecars) = &payload.sidecars {
+        if sidecars.dbg.is_some() {
+            extra_args.push("-debuginfo".to_string());
+            extra_args.push(debugger_sidecar_path(&file_path, "dbg").to_string_lossy().to_string());
+        }
+        if sidecars.vs.is_some() {
+            extra_args.push("-symbols".to_string());
+            extra_args.push(debugger_sidecar_path(&file_path, "vs").to_string_lossy().to_string());
+        }
+    }
+
     if let Some(bps) = &payload.breakpoints {
         if !bps.is_empty() {
-            let content: String = bps.iter()
-                .map(|addr| format!("break ${:04X}", addr))
-                .collect::<Vec<_>>()
-                .join("\n");
+            let content = format_debugger_breakpoints(bps);
             let bp_path = temp_dir.join("debug-breakpoints.txt");
             if fs::write(&bp_path, content).is_ok() {
                 extra_args.push("-breakpoints".to_string());
@@ -859,19 +887,21 @@ async fn launch_debugger(app: AppHandle, payload: LaunchDebuggerPayload) -> serd
         }
     }
 
-    if let Some(symbols) = &payload.symbols {
-        if !symbols.is_empty() {
-            let content: String = symbols.iter()
-                .map(|s| {
-                    let safe = s.name.to_lowercase().replace(|c: char| !c.is_alphanumeric() && c != '_', "_");
-                    format!("al C:{:04x} .{}", s.address, safe)
-                })
-                .collect::<Vec<_>>()
-                .join("\n");
-            let sym_path = temp_dir.join("debug-symbols.txt");
-            if fs::write(&sym_path, content).is_ok() {
-                extra_args.push("-symbols".to_string());
-                extra_args.push(sym_path.to_str().unwrap().to_string());
+    if payload.sidecars.as_ref().and_then(|sidecars| sidecars.vs.as_ref()).is_none() {
+        if let Some(symbols) = &payload.symbols {
+            if !symbols.is_empty() {
+                let content: String = symbols.iter()
+                    .map(|s| {
+                        let safe = s.name.to_lowercase().replace(|c: char| !c.is_alphanumeric() && c != '_', "_");
+                        format!("al C:{:04x} .{}", s.address, safe)
+                    })
+                    .collect::<Vec<_>>()
+                    .join("\n");
+                let sym_path = temp_dir.join("debug-symbols.txt");
+                if fs::write(&sym_path, content).is_ok() {
+                    extra_args.push("-symbols".to_string());
+                    extra_args.push(sym_path.to_str().unwrap().to_string());
+                }
             }
         }
     }
@@ -890,6 +920,7 @@ async fn launch_debugger(app: AppHandle, payload: LaunchDebuggerPayload) -> serd
     if payload.unpause.unwrap_or(false) {
         extra_args.push("-unpause".to_string());
     }
+    let all_args = debugger_launch_args(&prg_arg, &extra_args, use_auto_jmp);
 
     let result = if cfg!(target_os = "macos") {
         // On macOS resolve .app bundle → Contents/MacOS/<stem>
@@ -921,9 +952,7 @@ async fn launch_debugger(app: AppHandle, payload: LaunchDebuggerPayload) -> serd
         }
 
         let mut cmd = Command::new(&binary);
-        cmd.arg("-prg").arg(&prg_arg);
-        for a in &extra_args { cmd.arg(a); }
-        if use_auto_jmp { cmd.arg("-autojmp"); }
+        cmd.args(&all_args);
         cmd.stdin(std::process::Stdio::null())
             .stdout(std::process::Stdio::null())
             .stderr(std::process::Stdio::null())
@@ -931,12 +960,6 @@ async fn launch_debugger(app: AppHandle, payload: LaunchDebuggerPayload) -> serd
     } else {
         #[cfg(target_os = "windows")]
         {
-            let mut all_args = vec![
-                format!("-prg"),
-                prg_arg.clone(),
-            ];
-            all_args.extend(extra_args.iter().cloned());
-            if use_auto_jmp { all_args.push(format!("-autojmp")); }
             let args_ps = all_args.iter()
                 .map(|a| format!("'{}'", a.replace('\'', "''")))
                 .collect::<Vec<_>>()
@@ -967,9 +990,7 @@ async fn launch_debugger(app: AppHandle, payload: LaunchDebuggerPayload) -> serd
         #[cfg(not(target_os = "windows"))]
         {
             let mut cmd = Command::new(&debugger_path);
-            cmd.arg("-prg").arg(&prg_arg);
-            for a in &extra_args { cmd.arg(a); }
-            if use_auto_jmp { cmd.arg("-autojmp"); }
+            cmd.args(&all_args);
             cmd.stdin(std::process::Stdio::null())
                 .stdout(std::process::Stdio::null())
                 .stderr(std::process::Stdio::null())
@@ -2627,6 +2648,23 @@ mod tests {
         assert_eq!(sanitize_disk_name("Disk: Name/One,Two", 16), "disk nameonetwo");
         assert_eq!(sanitize_disk_name("\"/:\\\0", 16), "disk");
         assert_eq!(sanitize_disk_name("ABCDEFGHIJKLMN", 4), "abcd");
+    }
+
+    #[test]
+    fn debugger_breakpoints_use_retro_debugger_hex_syntax() {
+        assert_eq!(
+            format_debugger_breakpoints(&[0x080d, 0xc000, 0x1ffff]),
+            "break 080D\nbreak C000\nbreak FFFF"
+        );
+    }
+
+    #[test]
+    fn debugger_launch_passes_tasks_to_running_instance() {
+        let extra = vec!["-symbols".to_string(), "program.vs".to_string()];
+        assert_eq!(
+            debugger_launch_args("program.prg", &extra, true),
+            vec!["-pass", "-prg", "program.prg", "-symbols", "program.vs", "-autojmp"]
+        );
     }
 
     #[test]

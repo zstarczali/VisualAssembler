@@ -228,7 +228,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
       <div class="y">READY.</div>
       <div><span class="g">RUN</span><span class="cur"></span></div>
     </div>
-    <div class="badge">V2.3.6 — LATEST RELEASE</div>
+    <div class="badge">V2.3.7 — LATEST RELEASE</div>
     <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
     <p class="hero-sub">Drag-and-drop 6502 assembly blocks or switch to a full text editor — see real-time ASM output and run directly in VICE.</p>
     <div class="hero-ctas">
@@ -241,12 +241,34 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   </div>
 </section>
 
+<!-- V2.3.7: DEBUGGING AND EDITING -->
+<div id="release-237" style="background:var(--scr-darker);padding:80px 0">
+<div class="sec about-grid" style="padding-top:0;padding-bottom:0">
+  <div>
+    <div class="ub-tag">NEW IN V2.3.7</div>
+    <div class="sec-s">// DEBUG WITH SOURCE CONTEXT</div>
+    <h2 class="sec-t">BREAKPOINTS, HISTORY<br><span style="color:var(--ylw)">AND BUILD-ACCURATE OUTPUT</span></h2>
+    <p class="sec-d">Version 2.3.7 connects every editor mode to RetroDebugger with exact source addresses, while adding faster block editing and clearer machine-code inspection.</p>
+    <div class="feature-list">
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Breakpoints in all three modes</b> <span>&mdash; the external RetroDebugger replaces the limited embedded UB debugger; Block, Expert and Ultimate Basic source locations resolve to executable addresses with matching labels and source maps.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>SYS-aware debugger launch</b> <span>&mdash; BASIC programs use automatic SYS startup; plain PRGs use their actual load address.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Undo, Redo and multi-select</b> <span>&mdash; edit, copy, move and remove groups of blocks without losing region structure.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Optional BASIC stub display</b> <span>&mdash; inspect the real <code>$0801</code> SYS stub in Disassembler and Monitor views.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Ultimate Basic Monitor</b> <span>&mdash; view compiler output as a live memory dump beside the UB editor.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Editor alignment fixes</b> <span>&mdash; stable carets, blank-line navigation, minimap bounds and line-number alignment.</span></div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<hr class="div">
+
 <!-- BUILD CRT: MAGIC DESK CARTRIDGE -->
 <div id="build-crt" style="background:var(--bg);padding:80px 0">
 <div class="sec about-grid" style="padding-top:0;padding-bottom:0">
   <div>
-    <div class="ub-tag">NEW IN V2.3.6</div>
-    <div class="sec-s">// LATEST FEATURE</div>
+    <div class="ub-tag">INTRODUCED IN V2.3.6</div>
+    <div class="sec-s">// CARTRIDGE EXPORT</div>
     <h2 class="sec-t">BUILD CRT<br><span style="color:var(--ylw)">MAGIC DESK 64K CARTRIDGE</span></h2>
     <p class="sec-d">One click and your program becomes a Commodore 64 cartridge image. Menu &rarr; Build &rarr; Build CRT packs the current tab into a Magic Desk (type 19) <code>.crt</code> file with 8 &times; 8&nbsp;KB banks and a small bank-0 loader that copies the payload into RAM and jumps to the entry point. Nothing else to configure.</p>
     <div class="feature-list">
@@ -271,7 +293,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
 <div id="ultimate-basic" style="background:var(--scr-darker);padding:80px 0">
 <div class="sec about-grid" style="padding-top:0;padding-bottom:0">
   <div>
-    <div class="ub-tag">UPDATED IN V2.3.6</div>
+    <div class="ub-tag">UPDATED IN V2.3.7</div>
     <div class="sec-s">// LATEST DEVELOPMENT</div>
     <h2 class="sec-t">ULTIMATE BASIC<br><span style="color:var(--ylw)">A COMPLETE IDE MODE</span></h2>
     <p class="sec-d">Fire up Ultimate Basic right inside C64 Visual Assembler. Write some code, keep your project files together, build a PRG and send it straight to your favourite C64 setup &mdash; all from one place.</p>
@@ -279,6 +301,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
       <div class="fi"><div class="fi-dot">►</div><div><b>Native .UB editor</b> <span>&mdash; open a source, start typing and get on with the fun part.</span></div></div>
       <div class="fi"><div class="fi-dot">►</div><div><b>Projects + startup file</b> <span>&mdash; keep multi-file productions tidy and pick what boots first.</span></div></div>
       <div class="fi"><div class="fi-dot">►</div><div><b>Build, run and debug</b> <span>&mdash; compile it, launch it and chase the bugs without hopping between tools.</span></div></div>
+      <div class="fi"><div class="fi-dot">►</div><div><b>Source breakpoints + Monitor</b> <span>&mdash; set line breakpoints for RetroDebugger and inspect compiler bytes in the built-in memory view.</span></div></div>
       <div class="fi"><div class="fi-dot">►</div><div><b>ASM sidecars + disassembly copy</b> <span>&mdash; peek under the hood, keep the generated ASM and grab the disassembly when you need it.</span></div></div>
       <div class="fi"><div class="fi-dot">►</div><div><b>Separate working folder</b> <span>&mdash; point UB at your includes and binary goodies without messing with the VA project folder.</span></div></div>
       <div class="fi"><div class="fi-dot">►</div><div><b>Every C64 target</b> <span>&mdash; fire it up in VICE, send it to a C64 Ultimate, build a D64 or squeeze it with Exomizer.</span></div></div>
@@ -511,7 +534,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
     <div class="dl-corner bl">└─</div>
     <div class="dl-corner br">─┘</div>
     <div class="sec-s" style="text-align:center;margin-bottom:16px">// DOWNLOAD</div>
-    <h2 class="sec-t" style="text-align:center">C64 VISUAL ASSEMBLER<br><span style="color:var(--ylw)">V2.3.4 — FREE</span></h2>
+    <h2 class="sec-t" style="text-align:center">C64 VISUAL ASSEMBLER<br><span style="color:var(--ylw)">V2.3.7 — FREE</span></h2>
     <p class="sec-d" style="text-align:center;margin:0 auto 8px;max-width:460px">Desktop app for Windows, macOS and Linux. Requires Node.js and Rust to build from source, or download a prebuilt installer.</p>
     <div class="dl-plats">
       <a class="dl-p btn" href="#" onclick="openItch();return false" style="border-color:var(--brd-hi)"><span style="color:var(--ylw)">■</span> WINDOWS</a>

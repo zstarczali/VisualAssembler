@@ -2,9 +2,19 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.3.6**
+**Current version: v2.3.7**
 
-## What's New in v2.3.6
+## What's New in v2.3.7
+
+- **Undo / Redo and multi-block editing** — toolbar history controls restore block-program changes per tab. Select ranges or multiple blocks, then copy, cut, paste, duplicate or delete them as one operation; region groups remain intact.
+- **Breakpoints in Block, Expert and Ultimate Basic modes** — set breakpoints from block cards or editor line-number gutters. Breakpoints are stored per tab and resolved to exact executable addresses.
+- **External RetroDebugger integration** — the external debugger replaces the limited embedded UB debugger; all three modes launch with source maps, labels and breakpoint files. Running instances receive tasks through `-pass`; BASIC SYS PRGs use `-autojmp`, while plain PRGs use their real load address with `-jmp`.
+- **BASIC stub visibility** — a new VA-style setting shows the real `$0801` BASIC SYS stub in Disassembler and Monitor output in all three modes.
+- **Ultimate Basic Monitor view** — inspect compiler-generated code and the optional BASIC stub as a non-wrapping memory dump beside the UB editor.
+- **Correct debugger/disassembler origins and labels** — PRG-header load addresses, project startup-file context and `.dbg` / `.sym` / VICE labels now stay aligned with generated code.
+- **Editor alignment fixes** — UB formatting preserves selections, caret tracking works across blank lines, held cursor keys and minimap boundaries, UB line numbers no longer clip, and Expert line numbers no longer drift vertically from source rows.
+
+## Earlier: v2.3.6
 
 - **Build CRT (Magic Desk 64K cartridge)** — export the current program as a `.crt` cartridge image (type 19). A tiny loader in bank 0 copies the payload from cart ROM into RAM and jumps to the entry point, so programs run unchanged on VICE, TheC64, EasyFlash, Kung Fu Flash and the 1541 Ultimate II+ / Ultimate 64 cartridge slot. Works in block mode, Expert mode and Ultimate Basic mode. Max payload: 65 408 bytes across 8 × 8 KB banks. Exomizer is bypassed for CRT builds.
 - **Build CRT menu entry** — a dedicated *Build CRT* button next to *Build PRG* / *Build D64* in the Menu → Build section, with localization for HU / EN / ES / DE.

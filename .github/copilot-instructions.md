@@ -662,8 +662,10 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`2.3.6` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, `CLAUDE.md`.
-Főbb újdonságok: **Build CRT** (Magic Desk 64K cartridge, type 19) export block, Expert és Ultimate Basic módban a Menü → Build szekcióból; `buildMagicDeskCrt(payload, loadAddr, entryAddr)` 8×8 KB bankba csomagolja a payloadot, bank-0-ban CBM80 header + 128 byte-os loader RAM-ba másolja a byte-okat és `JMP` az entry-re a cart disable ($DE00 bit 7) után RAM-ban futtatott exit stubbal; külső API-k: `save_crt` Tauri command, `saveCrt` bridge, `#save-crt` menü gomb. Max payload 65 408 byte. Exomizer CRT-nél ki van hagyva. D64 export dialóg input mezők (`d64-export-diskname`, `d64-export-progname`, `d64-extra-source`) magasság fix (`min-height: 0` + explícit `height`). Kézikönyv új 12b. szekció kiemelt caveat-tel a KERNAL `RESTOR` mellékhatásairól (I/O vektorok + CIA1/2 reinit).
+`2.3.7` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, `CLAUDE.md`.
+Főbb újdonságok: Undo/Redo és többblokkos szerkesztés; Block/Expert/Ultimate Basic breakpointok külső RetroDebugger integrációval, source map/label sidecarokkal, `-pass`, SYS-aware `-autojmp` és plain PRG `-jmp` indítással; opcionális BASIC stub megjelenítés mindhárom mód Disassembler/Monitor nézetében; új UB Monitor panel; PRG load-address, startup-file debugger kontextus és disassembly origin javítások; UB caret/üres sor/nyomva tartott kurzor/minimap, valamint UB és Expert sorszám-illesztési javítások.
+
+Korábbi 2.3.6 változások: **Build CRT** (Magic Desk 64K cartridge, type 19) export block; `buildMagicDeskCrt(payload, loadAddr, entryAddr)` 8×8 KB bankba csomagolja a payloadot, bank-0-ban CBM80 header + 128 byte-os loader RAM-ba másolja a byte-okat és `JMP` az entry-re a cart disable után; max payload 65 408 byte. D64 export dialóg input mezők magasság fix, kézikönyv KERNAL `RESTOR` caveat-tel.
 
 Verzió növelésekor:
 1. `package.json` → `"version"` mező

@@ -1834,7 +1834,7 @@ button:focus-visible,
 }
 
 .palette-item.dragging {
-  opacity: 0.55;
+  opacity: 1;
 }
 .palette-item.palette-item--active {
   background: color-mix(in srgb, var(--accent) 14%, var(--panel-strong));
@@ -3501,8 +3501,8 @@ body.ub-mode .workspace { grid-template-columns: 1fr; }
 .ub-command-detail code { display: block; margin-top: 4px; padding: 7px 8px; border: 1px solid var(--panel-border); border-radius: 2px; background: var(--ub-editor-bg, var(--bg)); color: var(--hl-mnem); font-family: "IBM Plex Mono", monospace; font-size: .72rem; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
 .ub-command-detail p, .ub-command-detail small { margin: 4px 0 0; color: var(--muted); font-size: .7rem; line-height: 1.45; }
 .ub-editor-wrap { position: relative; min-width: 0; min-height: 0; height: 100%; overflow: hidden; background: var(--ub-editor-bg, var(--expert-editor-bg, var(--panel-strong))); }
-.ub-editor, .ub-highlight { position: absolute; inset: 0; box-sizing: border-box; margin: 0; padding: 16px 96px 16px 58px; border: 0; font-family: "IBM Plex Mono", monospace; font-size: 14px; line-height: 1.5; tab-size: 2; white-space: pre; }
-.ub-editor { resize: none; width: 100%; height: 100%; border-radius: 0; background: transparent; color: transparent; caret-color: var(--text); -webkit-text-fill-color: transparent; overflow: auto; outline: none; box-shadow: none; z-index: 2; }
+.ub-editor, .ub-highlight { position: absolute; inset: 0; box-sizing: border-box; margin: 0; padding: 16px 96px 16px calc(var(--ub-line-number-width, 48px) + 10px); border: 0; font-family: "IBM Plex Mono", monospace; font-size: 14px; line-height: 1.5; tab-size: 2; white-space: pre; }
+.ub-editor { resize: none; width: 100%; height: 100%; border-radius: 0; background: transparent; color: transparent; caret-color: transparent; -webkit-text-fill-color: transparent; overflow: auto; outline: none; box-shadow: none; z-index: 2; }
 .ub-editor:focus, .ub-editor:focus-visible { outline: none; box-shadow: none; }
 .ub-editor::selection { background: var(--ub-selection-bg, color-mix(in srgb, var(--primary) 35%, transparent)); color: transparent; -webkit-text-fill-color: transparent; }
 .ub-editor::-moz-selection { background: var(--ub-selection-bg, color-mix(in srgb, var(--primary) 35%, transparent)); color: transparent; }
@@ -3514,19 +3514,33 @@ body.ub-mode .workspace { grid-template-columns: 1fr; }
 .ub-highlight .ub-comment { color: var(--hl-comment); font-style: italic; }
 .ub-highlight .ub-type { color: var(--hl-directive); }
 .ub-highlight .ub-fn { color: var(--hl-function, var(--hl-directive)); }
-.ub-line-numbers { position: absolute; inset: 0 auto 0 0; width: 48px; padding: 16px 8px; box-sizing: border-box; z-index: 3; overflow: hidden; border-right: 1px solid var(--panel-border); color: var(--muted); background: var(--ub-editor-bg, var(--expert-editor-bg)); font-family: "IBM Plex Mono", monospace; font-size: 14px; line-height: 1.5; text-align: right; pointer-events: none; white-space: pre; }
+.ub-caret { position: absolute; z-index: 5; width: 2px; background: var(--text); pointer-events: none; animation: ub-caret-blink 1s step-end infinite; }
+.ub-caret[hidden] { display: none; }
+.ub-caret-measure { display: inline-block; width: 0; padding: 0; margin: 0; overflow: hidden; }
+@keyframes ub-caret-blink { 50% { opacity: 0; } }
+.ub-execution-line { display: block; min-height: 1.5em; }
+.ub-execution-line--active { background: color-mix(in srgb, var(--accent) 18%, transparent); box-shadow: inset 2px 0 var(--accent); }
+.ub-line-numbers { position: absolute; inset: 0 auto 0 0; width: var(--ub-line-number-width, 48px); padding: 16px 8px; box-sizing: border-box; z-index: 3; overflow: hidden; border-right: 1px solid var(--panel-border); color: var(--muted); background: var(--ub-editor-bg, var(--expert-editor-bg)); font-family: "IBM Plex Mono", monospace; font-size: 14px; line-height: 1.5; text-align: right; pointer-events: auto; white-space: pre; }
 .ub-line-numbers-content { display: block; will-change: transform; }
+.source-line-number { display: block; width: 100%; height: 1.5em; min-height: 0; padding: 0 0 0 12px; border: 0; box-sizing: border-box; background: transparent; color: inherit; font: inherit; line-height: inherit; text-align: right; cursor: pointer; }
+.source-line-number:hover { color: var(--text); background: color-mix(in srgb, var(--primary) 12%, transparent); }
+.source-line-number.bp-toggle { position: relative; color: color-mix(in srgb, var(--text) 68%, var(--panel-strong)) !important; font-size: inherit !important; font-weight: 400; }
+.source-line-number.bp-toggle.bp-active { color: color-mix(in srgb, var(--text) 68%, var(--panel-strong)) !important; font-weight: 700; }
+.source-line-number.bp-toggle.bp-active::before { content: ""; position: absolute; left: 2px; top: 50%; width: 7px; height: 7px; border-radius: 50%; transform: translateY(-50%); background: #ff4444; box-shadow: 0 0 0 2px rgba(255, 68, 68, 0.22); }
+.source-line-number.ub-execution-gutter-line::after { content: ""; position: absolute; right: 3px; top: 50%; width: 0; height: 0; transform: translateY(-50%); border-top: 4px solid transparent; border-bottom: 4px solid transparent; border-right: 5px solid var(--accent); }
 .ub-minimap { position: absolute; top: 0; right: 0; width: 88px; height: 100%; z-index: 4; box-sizing: border-box; border-left: 1px solid var(--panel-border); background: var(--expert-editor-bg); cursor: pointer; user-select: none; }
 .ub-find-bar { z-index: 20; }
 .ub-panel.ub-show-minimap .ub-find-bar { right: 102px; }
 .ub-panel:not(.ub-show-lines) .ub-line-numbers { display: none; }
 .ub-panel:not(.ub-show-lines) .ub-editor, .ub-panel:not(.ub-show-lines) .ub-highlight { padding-left: 16px; }
+.ub-panel.ub-show-minimap .ub-editor, .ub-panel.ub-show-minimap .ub-highlight { right: 88px; width: auto; padding-right: 16px; }
 .ub-panel:not(.ub-show-minimap) .ub-minimap { display: none; }
 .ub-panel:not(.ub-show-minimap) .ub-editor, .ub-panel:not(.ub-show-minimap) .ub-highlight { padding-right: 16px; }
 .ub-right-panels { min-width: 0; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr); overflow: hidden; }
 .ub-panel.ub-show-disasm .ub-right-panels { grid-template-columns: minmax(120px, 1fr) 5px minmax(120px, var(--ub-disasm-pane-width, 240px)); }
 .ub-build-panel { min-width: 0; min-height: 120px; flex: 1 1 auto; padding: 12px; border-left: 1px solid var(--panel-border); overflow: auto; box-sizing: border-box; background: var(--ub-side-bg, var(--panel)); }
 .ub-build-panel pre { white-space: pre-wrap; color: var(--output-text, var(--muted)); font-family: "IBM Plex Mono", monospace; font-size: .78rem; }
+.ub-monitor-panel pre { white-space: pre; color: var(--monitor-text); }
 .ub-build-panel pre.ub-build-output--error { color: var(--error, #f87171); }
 .ub-disasm-panel[hidden] { display: none; }
 .ub-disasm-panel:not([hidden]) { width: auto; min-width: 0; max-height: none; box-sizing: border-box; }
@@ -3725,7 +3739,7 @@ body.expert-mode .expert-panel {
 
 .tab-item:hover .tab-close,
 .tab-item--active .tab-close {
-  opacity: 0.55;
+  opacity: 1;
 }
 
 .tab-close:hover {
@@ -3739,7 +3753,7 @@ body.expert-mode .expert-panel {
   min-width: 32px;
   border: none;
   background: none;
-  color: var(--secondary);
+  color: color-mix(in srgb, var(--text) 68%, var(--panel-strong));
   cursor: pointer;
   font-size: 20px;
   line-height: 1;
@@ -4557,7 +4571,7 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   bottom: 0;
   width: var(--expert-ln-w, 0px);
   overflow: hidden;
-  pointer-events: none;
+  pointer-events: auto;
   z-index: 2;
   background: var(--expert-editor-bg);
   border-right: 1px solid var(--panel-border);
@@ -4579,12 +4593,36 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   padding-right: 8px;
   font-family: 'JetBrains Mono', 'Fira Mono', 'Cascadia Code', 'Consolas', monospace;
   font-size: inherit;
-  line-height: 1.6;
+  line-height: var(--expert-line-height, 22px);
   color: var(--secondary);
   opacity: 0.55;
   user-select: none;
   white-space: pre;
 }
+.expert-line-numbers-inner .source-line-number {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  height: var(--expert-line-height, 22px);
+  min-height: 0;
+  padding: 0 0 0 12px;
+  box-sizing: border-box;
+  border: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  color: var(--secondary);
+  font: inherit;
+  line-height: inherit;
+  text-align: right;
+  cursor: pointer;
+}
+.expert-line-numbers-inner .source-line-number:hover { color: var(--text); }
+.expert-line-numbers-inner .source-line-number.bp-toggle.bp-active { color: color-mix(in srgb, var(--text) 68%, var(--panel-strong)) !important; }
+.expert-line-numbers-inner .source-line-number.bp-toggle.bp-active::before { content: ""; position: absolute; left: 2px; top: 50%; width: 7px; height: 7px; border-radius: 50%; transform: translateY(-50%); background: #ff4444; box-shadow: 0 0 0 2px rgba(255, 68, 68, 0.22); }
 
 /* When line numbers shown: shift editor + hl overlay right */
 .expert-editor-wrap.expert-show-ln .expert-hl,
@@ -4601,7 +4639,7 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
   padding: 16px 20px;
   font-family: 'JetBrains Mono', 'Fira Mono', 'Cascadia Code', 'Consolas', monospace;
   font-size: 0.84rem;
-  line-height: 1.6;
+  line-height: var(--expert-line-height, 22px);
   tab-size: 4;
   white-space: pre;
   overflow: auto;
@@ -9047,7 +9085,7 @@ body.crt-mode #crt-overlay::after {
 .tab-new-btn[aria-label]::after,
 .panel-heading-actions button[aria-label]::after,
 .drag-handle[aria-label]::after,
-.bp-toggle[aria-label]::after,
+.bp-toggle:not(.source-line-number)[aria-label]::after,
 .region-expand-all-btn[aria-label]::after,
 .region-select-asm-btn[aria-label]::after,
 .region-copy-btn[aria-label]::after,
@@ -9108,7 +9146,7 @@ body.crt-mode #crt-overlay::after {
 .tab-new-btn:hover[aria-label]::after,
 .panel-heading-actions button:hover[aria-label]::after,
 .drag-handle:hover[aria-label]::after,
-.bp-toggle:hover[aria-label]::after,
+.bp-toggle:not(.source-line-number):hover[aria-label]::after,
 .region-expand-all-btn:hover[aria-label]::after,
 .region-select-asm-btn:hover[aria-label]::after,
 .region-copy-btn:hover[aria-label]::after,
@@ -9127,7 +9165,7 @@ body.crt-mode #crt-overlay::after {
 .tab-new-btn:focus-visible[aria-label]::after,
 .panel-heading-actions button:focus-visible[aria-label]::after,
 .drag-handle:focus-visible[aria-label]::after,
-.bp-toggle:focus-visible[aria-label]::after,
+.bp-toggle:not(.source-line-number):focus-visible[aria-label]::after,
 .region-expand-all-btn:focus-visible[aria-label]::after,
 .region-select-asm-btn:focus-visible[aria-label]::after,
 .region-copy-btn:focus-visible[aria-label]::after,

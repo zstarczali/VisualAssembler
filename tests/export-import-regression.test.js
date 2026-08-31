@@ -386,7 +386,7 @@ test("parseAsmText preserves Kick-style @local labels and branch operands", () =
 test("buildAutostartPrgForEmulator skips BASIC SYS wrapping when the program already has a BASIC autostart stub", () => {
   let assembleOrigin = null;
   const ctx = loadFunctions(
-    ["_programHasEmbeddedBasicAutostart", "_buildAutostartPrgCore"],
+    ["_getEmbeddedBasicSysAddress", "_programHasEmbeddedBasicAutostart", "_buildAutostartPrgCore"],
     {
       program: [
         { isOrgMacro: true, orgAddress: "0801" },
@@ -406,5 +406,6 @@ test("buildAutostartPrgForEmulator skips BASIC SYS wrapping when the program alr
   const result = ctx._buildAutostartPrgCore();
   assert.equal(assembleOrigin, 0x0801);
   assert.equal(result.ok, true);
+  assert.equal(result.sysAddress, 0x080D);
   assert.deepEqual(Array.from(result.bytes), [0x01, 0x08, 0xAA]);
 });

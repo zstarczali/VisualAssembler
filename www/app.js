@@ -384,6 +384,7 @@ const helpManualButton = document.getElementById("help-manual-btn");
 const checkUpdateButton = document.getElementById("check-update-btn");
 const reportBugButton = document.getElementById("report-bug-btn");
 const basicSysToggle = document.getElementById("basic-sys-toggle");
+const showBasicStubToggle = document.getElementById("show-basic-stub-toggle");
 const writeDebugSidecarsToggle = document.getElementById("write-debug-sidecars-toggle");
 const ubAsmSidecarToggle = document.getElementById("ub-asm-sidecar-toggle");
 const exomizerBorderFlashToggle = document.getElementById("exomizer-border-flash");
@@ -453,6 +454,7 @@ const expertModeTbBtn      = document.getElementById("expert-mode-tb-btn");
 const ubModeTbBtn          = document.getElementById("ub-mode-tb-btn");
 const ubPanel              = document.getElementById("ub-panel");
 const ubEditor             = document.getElementById("ub-editor");
+const ubCaret              = document.getElementById("ub-caret");
 const ubStatus             = document.getElementById("ub-status");
 const ubBuildOutput        = document.getElementById("ub-build-output");
 const expertFindBtn        = document.getElementById("expert-find-btn");
@@ -528,6 +530,7 @@ let _expertProjectVisible = false;
 let _expertProjectSymbolsHeight = 160;
 let _expertFontSize = 13.44; // px (= 0.84rem at 16px base)
 let _expertLineNumbersEnabled = false;
+let _expertBreakpointLines = [];
 let _expertMinimapEnabled = false;
 let _expertMinimapRaf = 0;
 let _blockMinimapEnabled = false;
@@ -584,6 +587,7 @@ function saveUiSettings() {
     sample: sampleSelect?.value || "basic-colors",
     memoryPanelOpen: !!globalMemoryPanel?.open,
     basicSys: basicSysToggle ? basicSysToggle.checked : true,
+    showBasicStub: showBasicStubToggle ? showBasicStubToggle.checked : false,
     writeDebugSidecars: writeDebugSidecarsToggle ? writeDebugSidecarsToggle.checked : false,
     ubAsmSidecar: ubAsmSidecarToggle ? ubAsmSidecarToggle.checked : false,
     exomizerBorderFlash: exomizerBorderFlashToggle ? exomizerBorderFlashToggle.checked : true,
@@ -1535,6 +1539,19 @@ function initPalette() {
     renderEmulatorRunHint();
     renderOriginPreview();
     renderExpertOriginInfo();
+    renderMonitorOutput();
+    renderDisasmOutput();
+    if (_expertDisasmVisible) _expertRenderDisasm();
+    if (_expertMonitorVisible) _expertRenderMonitor();
+  });
+  showBasicStubToggle?.addEventListener("change", () => {
+    saveUiSettings();
+    renderMonitorOutput();
+    renderDisasmOutput();
+    if (_expertDisasmVisible) _expertRenderDisasm();
+    if (_expertMonitorVisible) _expertRenderMonitor();
+    _ubRenderDisassembly(_ubLastResult);
+    _ubRenderMonitor(_ubLastResult);
   });
   exomizerBorderFlashToggle?.addEventListener("change", saveUiSettings);
   writeDebugSidecarsToggle?.addEventListener("change", saveUiSettings);
@@ -1565,6 +1582,7 @@ function initPalette() {
   document.getElementById("ub-explicit-btn")?.addEventListener("click", _ubToggleExplicit);
   document.getElementById("ub-verbose-btn")?.addEventListener("click", _ubToggleVerbose);
   document.getElementById("ub-disasm-btn")?.addEventListener("click", _ubToggleDisasm);
+  document.getElementById("ub-monitor-btn")?.addEventListener("click", _ubToggleMonitor);
   const ubDisasmResizer = document.getElementById("ub-disasm-resizer");
   ubDisasmResizer?.addEventListener("mousedown", event => {
     event.preventDefault();
@@ -1672,6 +1690,12 @@ function initPalette() {
   document.getElementById("ub-command-search")?.addEventListener("input", _ubRenderCommandReference);
   document.getElementById("ub-hl-btn")?.addEventListener("click", _ubToggleHighlight);
   document.getElementById("ub-lines-btn")?.addEventListener("click", _ubToggleLines);
+  document.getElementById("ub-breakpoints-btn")?.addEventListener("click", () => {
+    _ubLinesEnabled = true;
+    _ubSetToggle("ub-breakpoints-btn", true);
+    _ubApplyLeftViews?.();
+    _ubRefreshEditor();
+  });
   document.getElementById("ub-minimap-btn")?.addEventListener("click", _ubToggleMinimap);
   document.getElementById("ub-find-btn")?.addEventListener("click", _ubOpenFind);
   document.getElementById("ub-find-close")?.addEventListener("click", _ubCloseFind);
@@ -1690,7 +1714,11 @@ function initPalette() {
   ubEditor?.addEventListener("click", _ubUpdateCursor);
   ubEditor?.addEventListener("select", _ubUpdateCursor);
   ubEditor?.addEventListener("focus", _ubUpdateCursor);
+  ubEditor?.addEventListener("blur", _ubUpdateCursor);
   ubEditor?.addEventListener("scroll", _ubSyncScroll);
+  document.addEventListener("selectionchange", () => {
+    if (document.activeElement === ubEditor) _ubUpdateCursor();
+  });
   const _ubMinimapScrollToY = (clientY) => {
     const canvas = document.getElementById("ub-minimap");
     if (!canvas || !ubEditor) return;
@@ -1877,6 +1905,14 @@ function initPalette() {
     _expertLineNumbersEnabled = !_expertLineNumbersEnabled;
     _expertApplyLineNumbers();
     saveUiSettings();
+  });
+  document.getElementById("expert-breakpoints-btn")?.addEventListener("click", () => {
+    _expertLineNumbersEnabled = true;
+    const button = document.getElementById("expert-breakpoints-btn");
+    button?.classList.add("expert-hl-toggle--on");
+    button?.setAttribute("aria-pressed", "true");
+    document.querySelector(".expert-editor-wrap")?.classList.add("expert-show-ln");
+    _expertApplyLineNumbers();
   });
 
   document.getElementById("expert-minimap-btn")?.addEventListener("click", () => {
@@ -2872,6 +2908,9 @@ function _applyUiSettingsToDOM() {
   if (basicSysToggle) {
     basicSysToggle.checked = savedUiSettings.basicSys !== false;
   }
+  if (showBasicStubToggle) {
+    showBasicStubToggle.checked = !!savedUiSettings.showBasicStub;
+  }
 
   if (writeDebugSidecarsToggle) {
     writeDebugSidecarsToggle.checked = !!savedUiSettings.writeDebugSidecars;
@@ -3146,6 +3185,8 @@ function applyTranslations() {
   if (mnemonicDescLabel) mnemonicDescLabel.textContent = t("mnemonicCardLabel");
   const basicSysLabelEl = document.getElementById("basic-sys-label");
   if (basicSysLabelEl) basicSysLabelEl.textContent = t("basicSysLabel");
+  const showBasicStubLabelEl = document.getElementById("show-basic-stub-label");
+  if (showBasicStubLabelEl) showBasicStubLabelEl.textContent = t("showBasicStubLabel");
   const writeDebugSidecarsLabelEl = document.getElementById("write-debug-sidecars-label");
   if (writeDebugSidecarsLabelEl) writeDebugSidecarsLabelEl.textContent = t("writeDebugSidecarsLabel");
   const ubAsmSidecarLabelEl = document.getElementById("ub-asm-sidecar-label");
@@ -3199,7 +3240,7 @@ function applyTranslations() {
 
   const ubLabels = {
     "ub-new-btn": "ubNewSource", "ub-open-btn": "ubOpenSource", "ub-save-btn": "ubSaveSource", "ub-save-as-btn": "ubSaveSourceAs", "ub-format-btn": "ubFormatSource",
-    "ub-build-btn": "ubBuild", "ub-output-btn": "ubBuildOutput", "ub-explicit-btn": "ubExplicit", "ub-verbose-btn": "ubVerbose", "ub-disasm-btn": "expertDisasm", "ub-autocomplete-btn": "expertAutocomplete",
+    "ub-build-btn": "ubBuild", "ub-output-btn": "ubBuildOutput", "ub-explicit-btn": "ubExplicit", "ub-verbose-btn": "ubVerbose", "ub-disasm-btn": "expertDisasm", "ub-monitor-btn": "monitorOutputLabel", "ub-autocomplete-btn": "expertAutocomplete",
     "ub-project-btn": "expertProjectPanel", "ub-help-btn": "ubCommandHelpToggle", "ub-manual-btn": "ubManual", "ub-project-open-btn": "projOpenProjectBtn",
     "ub-project-new-btn": "projNewProjectBtn", "ub-project-save-btn": "projSaveProjectBtn",
     "ub-project-add-btn": "projAddFileBtn", "ub-hl-btn": "ubSyntaxHighlight",
@@ -3214,6 +3255,8 @@ function applyTranslations() {
   setText("#ub-command-hint", t("ubCommandHint"));
   setText("#ub-build-output-title", t("ubBuildOutput"));
   setText("#ub-disassembly-title", t("ubDisassembly"));
+  setText("#ub-monitor-title", t("monitorOutputLabel"));
+  if (!_ubLastResult) setText("#ub-monitor-output", t("ubMonitorBuildHint"));
   const ubCommandSearch = document.getElementById("ub-command-search");
   if (ubCommandSearch) ubCommandSearch.placeholder = t("ubSearchPlaceholder");
 
@@ -5966,6 +6009,7 @@ function setExpertMode(on) {
     // Convert expert text → program blocks before switching off
     const blocks = _expertBuildProgram();
     if (blocks && blocks.length > 0) {
+      _applyExpertBreakpointsToBlocks(blocks);
       program = blocks.map(b => ({ ...b, collapsed: false }));
     }
   }
@@ -5986,7 +6030,13 @@ function setExpertMode(on) {
     expertModeTbBtn.classList.toggle("main-tb-btn--active", on);
   }
   _updateEditorModeIndicator();
-  if (on) { _expertSyncFromProgram(); renderExpertOriginInfo(); _expertUpdateCaret(); }
+  if (on) {
+    const lines = _breakpointLinesFromBlocks(program);
+    _expertBreakpointLines = lines;
+    const tab = _getActiveTab();
+    if (tab) tab.expertBreakpointLines = [...lines];
+    _expertSyncFromProgram(); renderExpertOriginInfo(); _expertUpdateCaret();
+  }
   else {
     renderProgram();
     if (cursorSourceLine >= 0) _selectBlockBySourceLine(cursorSourceLine);
@@ -6010,6 +6060,7 @@ let _ubExplicit = false;
 let _ubOutputVisible = true;
 let _ubAutocompleteEnabled = true;
 let _ubDisasmVisible = false;
+let _ubMonitorVisible = false;
 let _ubDisasmWidth = 340;
 let _ubDisasmPaneWidth = 240;
 let _ubCommandListHeight = 220;
@@ -6304,31 +6355,36 @@ function _ubFormatText(source) {
 function _ubFormatSource() {
   if (!ubEditor) return;
   const before = ubEditor.value;
-  const sel = ubEditor.selectionStart;
-  const caretLine = before.slice(0, sel).split("\n").length - 1;
-  const lineStart = before.lastIndexOf("\n", sel - 1) + 1;
-  const caretColumn = sel - lineStart;
-  const beforeLines = before.split("\n");
-  const beforeIndent = (beforeLines[caretLine] || "").match(/^\s*/)[0].length;
-  // cursor position relative to content (after indentation)
-  const contentOffset = Math.max(0, caretColumn - beforeIndent);
   const formatted = _ubFormatText(before);
   if (formatted === before) return;
+  const mapPosition = (position) => {
+    const safePosition = Math.max(0, Math.min(position ?? 0, before.length));
+    const beforeLines = before.split("\n");
+    const formattedLines = formatted.split("\n");
+    const prefix = before.slice(0, safePosition);
+    const line = prefix.split("\n").length - 1;
+    const lineStart = before.lastIndexOf("\n", safePosition - 1) + 1;
+    const column = safePosition - lineStart;
+    const beforeIndent = (beforeLines[line] || "").match(/^\s*/)[0].length;
+    const formattedLine = formattedLines[Math.min(line, formattedLines.length - 1)] || "";
+    const formattedIndent = formattedLine.match(/^\s*/)[0].length;
+    const mappedColumn = column <= beforeIndent
+      ? Math.min(column, formattedIndent)
+      : formattedIndent + Math.min(column - beforeIndent, Math.max(0, formattedLine.length - formattedIndent));
+    const formattedLineStart = formattedLines.slice(0, line).join("\n").length + (line > 0 ? 1 : 0);
+    return formattedLineStart + mappedColumn;
+  };
+  const selectionStart = mapPosition(ubEditor.selectionStart);
+  const selectionEnd = mapPosition(ubEditor.selectionEnd);
   ubEditor.value = formatted;
-  const lines = formatted.split("\n");
-  const line = Math.min(caretLine, lines.length - 1);
-  const lineText = lines[line] || "";
-  const afterIndent = lineText.match(/^\s*/)[0].length;
-  const lineCharStart = lines.slice(0, line).join("\n").length + (line > 0 ? 1 : 0);
-  const caret = lineCharStart + afterIndent + Math.min(contentOffset, Math.max(0, lineText.length - afterIndent));
-  ubEditor.setSelectionRange(caret, caret);
+  ubEditor.setSelectionRange(selectionStart, selectionEnd);
   ubEditor.dispatchEvent(new Event("input", { bubbles: true }));
   _ubSetStatus(t("ubFormatSource"));
 }
 
 function _ubHighlightSource(source) {
   let inAsm = false;
-  return String(source || "").split("\n").map(raw => {
+  return String(source || "").split("\n").map((raw, lineIndex) => {
     const trimmed = raw.trim().toLowerCase();
     if (/^asm\s*\{/.test(trimmed)) inAsm = true;
     let code = raw;
@@ -6369,8 +6425,23 @@ function _ubHighlightSource(source) {
 function _ubRefreshEditor() {
   const code = document.getElementById("ub-highlight-code");
   if (code) code.innerHTML = _ubHighlightEnabled ? _ubHighlightSource(ubEditor.value) : _ubEsc(ubEditor.value) + "\n";
+  const lineCount = ubEditor.value.split("\n").length;
+  const lineDigits = Math.max(2, String(lineCount).length);
+  const gutterWidth = Math.max(48, Math.ceil(lineDigits * _ubFontSize * 0.62 + 28));
+  ubPanel?.style.setProperty("--ub-line-number-width", `${gutterWidth}px`);
   const gutter = document.getElementById("ub-line-numbers-content");
-  if (gutter) gutter.textContent = ubEditor.value.split("\n").map((_, i) => i + 1).join("\n");
+  if (gutter) {
+    gutter.innerHTML = "";
+    ubEditor.value.split("\n").forEach((_, line) => {
+      const marker = document.createElement("button");
+      marker.type = "button";
+      marker.className = "source-line-number bp-toggle" + (_getTabBreakpointLines("ub").includes(line) ? " bp-active" : "");
+      marker.textContent = String(line + 1);
+      marker.setAttribute("aria-label", `${t("breakpointToggle")} ${line + 1}`);
+      marker.addEventListener("click", () => _setBreakpointLine("ub", line));
+      gutter.appendChild(marker);
+    });
+  }
   _ubUpdateCursor();
   _ubSyncScroll();
   _ubDrawMinimap();
@@ -6440,6 +6511,7 @@ function _ubSyncScroll() {
   const gutter = document.getElementById("ub-line-numbers-content");
   if (code) { code.style.display = "block"; code.style.transform = `translate(${-ubEditor.scrollLeft}px, ${-ubEditor.scrollTop}px)`; }
   if (gutter) gutter.style.transform = `translateY(${-ubEditor.scrollTop}px)`;
+  _ubUpdateCaret();
   _ubDrawMinimap();
 }
 
@@ -6453,20 +6525,36 @@ function _ubToggleExplicit() { _ubExplicit = !_ubExplicit; _ubSetToggle("ub-expl
 function _ubToggleVerbose() { _ubVerbose = !_ubVerbose; _ubSetToggle("ub-verbose-btn", _ubVerbose); if (_ubLastResult?.ok) _ubSetBuildOutput(_ubFormatMap(_ubLastResult.map)); }
 function _ubToggleOutput() { _ubOutputVisible = !_ubOutputVisible; ubPanel?.classList.toggle("ub-hide-output", !_ubOutputVisible); _ubSetToggle("ub-output-btn", _ubOutputVisible); saveUiSettings(); }
 function _ubToggleAutocomplete() { _ubAutocompleteEnabled = !_ubAutocompleteEnabled; _ubSetToggle("ub-autocomplete-btn", _ubAutocompleteEnabled); if (!_ubAutocompleteEnabled) _ubAcHide(); else _ubAcUpdate(); saveUiSettings(); }
-function _ubToggleDisasm() {
-  _ubDisasmVisible = !_ubDisasmVisible;
-  ubPanel.classList.toggle("ub-show-disasm", _ubDisasmVisible);
+function _ubApplyMachineView() {
+  const visible = _ubDisasmVisible || _ubMonitorVisible;
+  ubPanel.classList.toggle("ub-show-disasm", visible);
   _ubSetToggle("ub-disasm-btn", _ubDisasmVisible);
-  const panel = document.getElementById("ub-disasm-panel");
+  _ubSetToggle("ub-monitor-btn", _ubMonitorVisible);
+  const disasmPanel = document.getElementById("ub-disasm-panel");
+  const monitorPanel = document.getElementById("ub-monitor-panel");
   const verticalResizer = document.getElementById("ub-panels-resizer");
-  if (panel) panel.hidden = !_ubDisasmVisible;
-  if (verticalResizer) verticalResizer.hidden = !_ubDisasmVisible;
+  if (disasmPanel) disasmPanel.hidden = !_ubDisasmVisible;
+  if (monitorPanel) monitorPanel.hidden = !_ubMonitorVisible;
+  if (verticalResizer) verticalResizer.hidden = !visible;
   ubPanel?.style.setProperty("--ub-disasm-width", `${_ubDisasmWidth}px`);
   ubPanel?.style.setProperty("--ub-disasm-pane-width", `${_ubDisasmPaneWidth}px`);
   if (_ubDisasmVisible) _ubRenderDisassembly(_ubLastResult);
+  if (_ubMonitorVisible) _ubRenderMonitor(_ubLastResult);
   saveUiSettings();
 }
-function _ubApplyFontSize() { document.querySelectorAll(".ub-editor,.ub-highlight,.ub-line-numbers").forEach(el => el.style.fontSize = `${_ubFontSize}px`); _ubDrawMinimap(); }
+function _ubToggleDisasm() {
+  const visible = !_ubDisasmVisible;
+  _ubDisasmVisible = visible;
+  if (visible) _ubMonitorVisible = false;
+  _ubApplyMachineView();
+}
+function _ubToggleMonitor() {
+  const visible = !_ubMonitorVisible;
+  _ubMonitorVisible = visible;
+  if (visible) _ubDisasmVisible = false;
+  _ubApplyMachineView();
+}
+function _ubApplyFontSize() { document.querySelectorAll(".ub-editor,.ub-highlight,.ub-line-numbers").forEach(el => el.style.fontSize = `${_ubFontSize}px`); _ubRefreshEditor(); }
 function _ubZoom(delta) { _ubFontSize = Math.max(8, Math.min(28, _ubFontSize + delta)); _ubApplyFontSize(); saveUiSettings(); }
 
 function _ubOpenFind() {
@@ -6587,6 +6675,49 @@ function _ubUpdateCursor() {
   const lines = ubEditor.value.slice(0, ubEditor.selectionStart).split("\n");
   const el = document.getElementById("ub-cursor-pos");
   if (el) el.textContent = `Ln ${lines.length}, Col ${lines[lines.length - 1].length + 1}`;
+  _ubUpdateCaret();
+}
+
+function _ubUpdateCaret() {
+  if (!ubCaret || !ubEditor) return;
+  ubCaret.hidden = true;
+  if (document.activeElement !== ubEditor || ubEditor.selectionStart !== ubEditor.selectionEnd) return;
+
+  const code = document.getElementById("ub-highlight-code");
+  const wrap = ubEditor.closest(".ub-editor-wrap");
+  if (!code || !wrap) return;
+
+  let remaining = ubEditor.selectionStart;
+  const walker = document.createTreeWalker(code, NodeFilter.SHOW_TEXT);
+  let node = walker.nextNode();
+  while (node && remaining > node.nodeValue.length) {
+    remaining -= node.nodeValue.length;
+    node = walker.nextNode();
+  }
+  if (!node) return;
+
+  const range = document.createRange();
+  range.setStart(node, Math.min(remaining, node.nodeValue.length));
+  range.collapse(true);
+  const marker = document.createElement("span");
+  marker.className = "ub-caret-measure";
+  marker.textContent = "\u200B";
+  range.insertNode(marker);
+  const markerRect = marker.getBoundingClientRect();
+  marker.remove();
+  const wrapRect = wrap.getBoundingClientRect();
+  if (!markerRect.width && !markerRect.height) return;
+
+  const editorRect = ubEditor.getBoundingClientRect();
+  const caretWidth = ubCaret.offsetWidth || 2;
+  const maxLeft = editorRect.right - wrapRect.left - caretWidth;
+  ubCaret.style.left = `${Math.min(markerRect.left - wrapRect.left, maxLeft)}px`;
+  ubCaret.style.top = `${markerRect.top - wrapRect.top}px`;
+  ubCaret.style.height = `${markerRect.height || parseFloat(getComputedStyle(ubEditor).lineHeight) || 21}px`;
+  ubCaret.hidden = false;
+  ubCaret.style.animation = "none";
+  void ubCaret.offsetWidth;
+  ubCaret.style.animation = "";
 }
 
 function _ubSetFile(path = "") {
@@ -6853,6 +6984,64 @@ async function _ubSave(forceSaveAs = false) {
 }
 
 let _ubLastResult = null;
+let _ubBreakpointLines = [];
+
+function _getTabBreakpointLines(kind) {
+  const tab = _getActiveTab();
+  const key = kind === "ub" ? "ubBreakpointLines" : "expertBreakpointLines";
+  return tab && Array.isArray(tab[key]) ? tab[key] : (kind === "ub" ? _ubBreakpointLines : _expertBreakpointLines);
+}
+
+function _setBreakpointLine(kind, line) {
+  const key = kind === "ub" ? "ubBreakpointLines" : "expertBreakpointLines";
+  const current = new Set(_getTabBreakpointLines(kind));
+  if (current.has(line)) current.delete(line); else current.add(line);
+  const lines = [...current].filter(Number.isInteger).sort((a, b) => a - b);
+  if (kind === "ub") _ubBreakpointLines = lines; else _expertBreakpointLines = lines;
+  const tab = _getActiveTab();
+  if (tab) tab[key] = lines;
+  markTabDirty();
+  if (kind === "ub") _ubRefreshEditor(); else _expertUpdateLineNumbers();
+}
+
+function _breakpointLinesFromBlocks(blocks) {
+  const lines = [];
+  let sourceLine = 0;
+  (blocks || []).forEach(block => {
+    if (block?.isBreakpoint) lines.push(sourceLine);
+    sourceLine += Math.max(1, _blockToExpertLine(block).split("\n").length);
+  });
+  return lines;
+}
+
+function _applyExpertBreakpointsToBlocks(blocks) {
+  const breakpointLines = new Set(_getTabBreakpointLines("expert"));
+  (blocks || []).forEach(block => {
+    block.isBreakpoint = typeof block._srcLine === "number" && breakpointLines.has(block._srcLine);
+  });
+}
+
+function _breakpointAddressForSourceLines(layout, sourceLines) {
+  const executable = (layout?.lines || []).filter(line => line.size > 0 && !line.conditionallySkipped);
+  return sourceLines.map(sourceLine => {
+    const exact = executable.find(line => line.block?._srcLine === sourceLine);
+    const next = executable.find(line => typeof line.block?._srcLine === "number" && line.block._srcLine > sourceLine);
+    return (exact || next)?.address;
+  }).filter(Number.isFinite).map(address => address & 0xFFFF);
+}
+
+function _ubBreakpointAddresses(build, sourceLines) {
+  const entries = [];
+  String(build?.debug?.dbg || "").split("\n").forEach(line => {
+    const match = line.match(/^\s*\$?([0-9a-f]{1,4}),\$?([0-9a-f]{1,4}),\d+,([0-9]+),/i);
+    if (match) entries.push({ address: parseInt(match[1], 16), line: Number(match[3]) - 1 });
+  });
+  return sourceLines.map(sourceLine => {
+    const exact = entries.find(entry => entry.line === sourceLine);
+    const next = entries.find(entry => entry.line > sourceLine);
+    return (exact || next)?.address;
+  }).filter(Number.isFinite).map(address => address & 0xFFFF);
+}
 
 function _ubRenderDisassembly(result) {
   const output = document.getElementById("ub-disasm-output");
@@ -6879,7 +7068,7 @@ function _ubRenderDisassembly(result) {
     namesByAddress.set(entry.address, names);
   });
   const labelByAddress = new Map([...namesByAddress].map(([address, names]) => [address, names[0]]));
-  const lines = [];
+  const lines = _buildBasicStubDisasmLines(_getUbBasicStubSection(result));
   _disasmBytes(bytes, baseAddr).forEach(instr => {
     const labels = namesByAddress.get(instr.address);
     if (labels?.length) lines.push(...labels.map(name => `<span class="asm-tok-label">${_ubEsc(name)}:</span>`));
@@ -6890,6 +7079,29 @@ function _ubRenderDisassembly(result) {
     lines.push(`<span class="dsm-addr">$${address}</span>  <span class="dsm-bytes">${hexBytes}</span>  <span class="asm-tok-mnemonic">${_ubEsc(instr.mnemonic)}</span>${operandHtml}`);
   });
   output.innerHTML = lines.join("\n");
+}
+
+function _getUbBasicStubSection(result) {
+  return showBasicStubToggle?.checked ? _extractBasicStubSection(result?.prg) : null;
+}
+
+function _ubRenderMonitor(result) {
+  const output = document.getElementById("ub-monitor-output");
+  if (!output) return;
+  const bytes = result?.map?.codeBytes;
+  const baseAddress = result?.map?.loadAddress;
+  if (!Array.isArray(bytes) || !bytes.length || !Number.isFinite(baseAddress)) {
+    output.textContent = t("ubMonitorBuildHint");
+    return;
+  }
+
+  const memMap = new Map();
+  const stubSection = _getUbBasicStubSection(result);
+  if (stubSection) {
+    stubSection.bytes.forEach((byte, index) => memMap.set(stubSection.address + index, byte));
+  }
+  bytes.forEach((byte, index) => memMap.set(baseAddress + index, byte));
+  output.textContent = _formatMonitorMemory(memMap, baseAddress);
 }
 
 function _ubFormatMap(map) {
@@ -7015,6 +7227,7 @@ async function _ubCompile(showProgress = false, options = {}) {
   }
   _ubLastResult = result;
   _ubRenderDisassembly(result);
+  _ubRenderMonitor(result);
   if (!result?.ok) {
     if (showProgress) hideWorkProgress();
     const errors = result?.errors || [result?.error || "Compilation failed"];
@@ -7098,6 +7311,7 @@ async function _ubCompileSource(source, sourcePath, label = "startup file", opti
   const result = await window.electronAPI?.compileUltimateBasic?.(source, _ubCompileSourcePath(sourcePath), _ubExplicit);
   _ubLastResult = result;
   _ubRenderDisassembly(result);
+  _ubRenderMonitor(result);
   if (!result?.ok) {
     const errors = result?.errors || [result?.error || "Compilation failed"];
     _ubSetBuildOutput(errors.join("\n"), true);
@@ -7125,13 +7339,28 @@ function _ubDebuggerSymbols(build) {
     .sort((left, right) => (left.address - right.address) || left.name.localeCompare(right.name));
 }
 
+function _debuggerStartOptions(hasBasicSysStub, codeOrigin, enabled = debuggerJmp) {
+  if (!enabled) return { autoJmp: false, jmpAddress: undefined };
+  if (hasBasicSysStub) return { autoJmp: true, jmpAddress: undefined };
+  return { autoJmp: false, jmpAddress: codeOrigin };
+}
+
 async function _ubRunDebugger() {
   const startupTab = _ubStartupTabId !== null ? tabs.find(tab => tab.id === _ubStartupTabId) : null;
   const source = startupTab && startupTab.id !== activeTabId ? startupTab.ubText || "" : ubEditor?.value || "";
   const sourcePath = startupTab ? startupTab.ubFilePath || startupTab.filePath || null : _ubFilePath || null;
-  if (!source.trim()) { _ubSetStatus(t("ubNothingToRun"), true); return; }
-  if (!debuggerPath) { showViceToast(t("debuggerNotConfiguredMsg"), true); return; }
-  if (!window.electronAPI?.launchDebugger) { showViceToast(t("debuggerLaunchNotAvailable"), true); return; }
+  if (!source.trim()) {
+    _ubSetStatus(t("ubNothingToRun"), true);
+    return;
+  }
+  if (!debuggerPath) {
+    _ubSetStatus(t("debuggerNotConfiguredMsg"), true);
+    return;
+  }
+  if (!window.electronAPI?.launchDebugger) {
+    _ubSetStatus(t("debuggerLaunchNotAvailable"), true);
+    return;
+  }
 
   await showWorkProgress("workProgressDebug");
   let success = false;
@@ -7141,21 +7370,26 @@ async function _ubRunDebugger() {
       ? await _ubCompileSource(source, sourcePath, startupTab.name, { skipExomizer: true })
       : await _ubCompile(false, { skipExomizer: true });
     if (!build) return;
-    setWorkProgress(70);
+    setWorkProgress(60);
+    const breakpointLines = startupTab && Array.isArray(startupTab.ubBreakpointLines)
+      ? startupTab.ubBreakpointLines
+      : _getTabBreakpointLines("ub");
     const result = await window.electronAPI.launchDebugger({
       bytes: Array.from(build.prg || []),
       fileName: `ultimate-basic-${Date.now()}.prg`,
       symbols: _ubDebuggerSymbols(build),
-      breakpoints: [],
+      breakpoints: _ubBreakpointAddresses(build, breakpointLines),
       sidecars: build.debug || null,
-      autoJmp: false,
+      ..._debuggerStartOptions(true, build.map?.loadAddress),
       waitMs: debuggerWait ? debuggerWaitMs : 0,
       unpause: debuggerUnpause || undefined
     });
-    if (!result?.ok) { showViceToast(result?.error || t("debuggerLaunchFailed"), true); return; }
+    if (!result?.ok) {
+      _ubSetStatus(result?.error || t("debuggerLaunchFailed"), true);
+      return;
+    }
     setWorkProgress(100);
     _ubSetStatus(t("debuggerLaunched"));
-    showViceToast(t("debuggerLaunched"));
     success = true;
   } catch (error) {
     const message = error?.message || String(error) || t("debuggerLaunchFailed");
@@ -7624,6 +7858,7 @@ async function _expertLoadAsmFromPath(filePath, content, sourceName = "") {
   tab.userMacros = {};
   tabs.push(tab);
   activeTabId = tab.id;
+  _expertBreakpointLines = [];
 
   // Update active state
   program = JSON.parse(JSON.stringify(blocks));
@@ -7671,6 +7906,7 @@ async function _importAsmFromPath(filePath, content, sourceName = "") {
   tab.userMacros = {};
   tabs.push(tab);
   activeTabId = tab.id;
+  _expertBreakpointLines = [];
 
   program = JSON.parse(JSON.stringify(blocks));
   userMacros = {};
@@ -8744,6 +8980,8 @@ function _expertFindUpdateCounter() {
 // ── Zoom ────────────────────────────────────────────────────────────────────
 
 function _applyExpertFontSize() {
+  const wrap = document.querySelector(".expert-editor-wrap");
+  wrap?.style.setProperty("--expert-line-height", `${Math.round(_expertFontSize * 1.6)}px`);
   if (expertEditor) expertEditor.style.fontSize = _expertFontSize + "px";
   const hl = document.getElementById("expert-hl");
   if (hl) hl.style.fontSize = _expertFontSize + "px";
@@ -9152,7 +9390,17 @@ function _expertUpdateLineNumbers() {
       : i;
     lines.push(String(sourceLine + 1));
   }
-  inner.textContent = lines.join("\n");
+  inner.innerHTML = "";
+  lines.forEach((number, displayLine) => {
+    const sourceLine = _expertProjectionActive ? (_expertDisplayToSourceLines[displayLine] ?? displayLine) : displayLine;
+    const marker = document.createElement("button");
+    marker.type = "button";
+    marker.className = "source-line-number bp-toggle" + (_getTabBreakpointLines("expert").includes(sourceLine) ? " bp-active" : "");
+    marker.textContent = number;
+    marker.setAttribute("aria-label", `${t("breakpointToggle")} ${number}`);
+    marker.addEventListener("click", () => _setBreakpointLine("expert", sourceLine));
+    inner.appendChild(marker);
+  });
 
   // Sync vertical scroll
   inner.style.transform = `translateY(${-_expertGetVisibleScrollTop()}px)`;
@@ -10657,13 +10905,63 @@ function _compareDisasmLayoutLineRefs(left, right, labelMap = null) {
   return left.index - right.index;
 }
 
+function _getDisassemblyCodeOrigin() {
+  if (_programHasEmbeddedBasicAutostart(program)) return undefined;
+  const origin = parseOriginValue();
+  const useBasicSys = basicSysToggle ? basicSysToggle.checked : true;
+  if (!useBasicSys) return origin.value === 0x0801 ? 0xC000 : origin.value;
+
+  const rawOrigin = origin.value === 0x0801 ? 0x080D : origin.value;
+  const stubDigits = String(rawOrigin).length;
+  const stubEndAddress = 0x0801 + 2 + 2 + 1 + stubDigits + 1 + 2;
+  return Math.max(rawOrigin, stubEndAddress);
+}
+
+function _extractBasicStubSection(prgBytes) {
+  const bytes = Array.from(prgBytes || []);
+  if (bytes.length < 9) return null;
+  const loadAddress = bytes[0] | (bytes[1] << 8);
+  const nextLineAddress = bytes[2] | (bytes[3] << 8);
+  if (loadAddress !== 0x0801 || bytes[6] !== 0x9E || nextLineAddress <= loadAddress) return null;
+  const stubLength = (nextLineAddress - loadAddress) + 2;
+  if (stubLength <= 0 || 2 + stubLength > bytes.length) return null;
+  return { address: loadAddress, bytes: bytes.slice(2, 2 + stubLength) };
+}
+
+function _getGeneratedBasicStubSection() {
+  if (!showBasicStubToggle?.checked || !basicSysToggle?.checked || !program.length) return null;
+  if (_programHasEmbeddedBasicAutostart(program)) return null;
+  const codeOrigin = _getDisassemblyCodeOrigin();
+  return Number.isFinite(codeOrigin) ? _extractBasicStubSection(buildBasicSysStub(codeOrigin)) : null;
+}
+
+function _buildBasicStubDisasmLines(section) {
+  if (!section?.bytes?.length || !Number.isFinite(section.address)) return [];
+  const lines = [`<span class="asm-tok-label">basic_stub:</span>`];
+  const chunkSize = 8;
+  for (let index = 0; index < section.bytes.length; index += chunkSize) {
+    const chunk = section.bytes.slice(index, index + chunkSize);
+    const address = (section.address + index).toString(16).toUpperCase().padStart(4, "0");
+    const hexDump = chunk.map(byte => byte.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+    const operand = chunk.map(byte => `$${byte.toString(16).toUpperCase().padStart(2, "0")}`).join(", ");
+    lines.push(
+      `<span class="dsm-addr">$${address}</span>  ` +
+      `<span class="dsm-bytes">${hexDump.padEnd(Math.max(hexDump.length, 8))}</span>  ` +
+      `<span class="asm-tok-mnemonic">.BYTE</span>  ` +
+      `<span class="asm-tok-operand">${operand}</span>`
+    );
+  }
+  lines.push("");
+  return lines;
+}
+
 // Build syntax-highlighted disassembler HTML from current program[].
 // Caller must ensure program[] is set to the desired block list before calling.
-function _buildDisasmHTML() {
+function _buildDisasmHTML(originOverride, basicStubSection = null) {
   const esc = _escHtml;
-  const lines = [];
+  const lines = _buildBasicStubDisasmLines(basicStubSection);
   try {
-    const layout = getProgramLayout();
+    const layout = getProgramLayout(originOverride);
 
     // Build label map (name -> address)
     const labelMap = new Map();
@@ -10874,7 +11172,7 @@ function renderDisasmOutput() {
     el.innerHTML = `<span class="asm-tok-comment">; ${t("disassemblyWillAppearHere")}</span>`;
     return;
   }
-  el.innerHTML = _buildDisasmHTML();
+  el.innerHTML = _buildDisasmHTML(_getDisassemblyCodeOrigin(), _getGeneratedBasicStubSection());
 }
 
 function _expertRenderDisasm() {
@@ -10886,7 +11184,7 @@ function _expertRenderDisasm() {
     program = blocks;
     parseUserMacros();
     try {
-      expertDisasmOutput.innerHTML = _buildDisasmHTML();
+      expertDisasmOutput.innerHTML = _buildDisasmHTML(_getDisassemblyCodeOrigin(), _getGeneratedBasicStubSection());
     } finally {
       program = saved;
       userMacros = savedUserMacros;
@@ -10903,7 +11201,8 @@ function _expertRenderMonitor() {
     const saved = program;
     program = blocks;
     try {
-      expertMonitorOutput.textContent = _buildMonitorText(getProgramLayout());
+      const origin = _getDisassemblyCodeOrigin();
+      expertMonitorOutput.textContent = _buildMonitorText(getProgramLayout(origin), _getGeneratedBasicStubSection());
     } finally {
       program = saved;
     }
@@ -11545,6 +11844,7 @@ async function _expertProjectOpenFile(fileEntry) {
   tab.userMacros = {};
   tabs.push(tab);
   activeTabId = tab.id;
+  _expertBreakpointLines = [];
 
   program = JSON.parse(JSON.stringify(loadedProgram));
   userMacros = {};
@@ -13879,6 +14179,11 @@ function _getDebuggerPrimarySourcePath() {
 
 function _getDebuggerCodeOrigin(prg) {
   if (typeof prg?.sysAddress === "number") return prg.sysAddress;
+  if (prg?.bytes?.length >= 2) {
+    const low = Number(prg.bytes[0]);
+    const high = Number(prg.bytes[1]);
+    if (Number.isFinite(low) && Number.isFinite(high)) return ((high << 8) | low) & 0xFFFF;
+  }
   const origin = parseOriginValue();
   return (origin.value === 0x0801) ? 0xC000 : origin.value;
 }
@@ -13939,8 +14244,8 @@ function _collectDebuggerSymbols(layout) {
   return { symbols, breakpoints };
 }
 
-function _buildDebuggerSidecarTexts(layout, originOverride) {
-  const primarySourcePath = _getDebuggerPrimarySourcePath();
+function _buildDebuggerSidecarTexts(layout, originOverride, sourcePathOverride = "") {
+  const primarySourcePath = sourcePathOverride || _getDebuggerPrimarySourcePath();
   const includeBlocksById = new Map(
     program.filter((block) => block && block.isIncludeMacro && block.id).map((block) => [block.id, block])
   );
@@ -13984,6 +14289,14 @@ function _buildDebuggerSidecarTexts(layout, originOverride) {
     dbgBlocks.get(blockName).push(entry);
   });
 
+  const uniqueSymbols = new Map();
+  const { symbols } = _collectDebuggerSymbols(layout);
+  symbols.forEach((symbol) => {
+    if (!symbol || !symbol.name) return;
+    if (!uniqueSymbols.has(symbol.name)) uniqueSymbols.set(symbol.name, symbol.address & 0xFFFF);
+  });
+  const sortedSymbols = [...uniqueSymbols.entries()].sort((left, right) => (left[1] - right[1]) || left[0].localeCompare(right[0]));
+
   const dbgText = [
     `<C64debugger version="1.0">`,
     `   <Sources values="INDEX,FILE">`,
@@ -13997,24 +14310,23 @@ function _buildDebuggerSidecarTexts(layout, originOverride) {
       `      </Block>`
     ])),
     `   </Segment>`,
+    ``,
+    `   <Labels values="SEGMENT,ADDRESS,NAME">`,
+    ...sortedSymbols.map(([name, address]) => `      Default,${_formatDebuggerAddress(address)},${_escapeXmlText(name)}`),
+    `   </Labels>`,
+    `   <Breakpoints values="SEGMENT,ADDRESS,ARGUMENT">`,
+    `   </Breakpoints>`,
+    `   <Watchpoints values="SEGMENT,ADDRESS,SIZE,FORMAT">`,
+    `   </Watchpoints>`,
     `</C64debugger>`
   ].join("\n");
-
-  const uniqueSymbols = new Map();
-  const { symbols } = _collectDebuggerSymbols(layout);
-  symbols.forEach((symbol) => {
-    if (!symbol || !symbol.name) return;
-    if (!uniqueSymbols.has(symbol.name)) uniqueSymbols.set(symbol.name, symbol.address & 0xFFFF);
-  });
-
-  const sortedSymbols = [...uniqueSymbols.entries()].sort((left, right) => (left[1] - right[1]) || left[0].localeCompare(right[0]));
   const symText = sortedSymbols.map(([name, address]) => `.label ${name}=${_formatDebuggerSymbolAddress(address)}`).join("\n");
   const vsText = sortedSymbols.map(([name, address]) => `al C:${_formatDebuggerSymbolAddress(address).slice(1)} .${name}`).join("\n");
 
   return { dbg: dbgText, sym: symText, vs: vsText };
 }
 
-function _buildDebuggerSidecarPayload(prg, { force = false } = {}) {
+function _buildDebuggerSidecarPayload(prg, { force = false, layout = null, sourcePath = "" } = {}) {
   // Skip generation unless the user explicitly opted in via the settings toggle.
   // `force` bypasses the setting (used by launch_debugger where RetroDebugger
   // needs the .dbg/.sym files regardless of user preference).
@@ -14023,8 +14335,8 @@ function _buildDebuggerSidecarPayload(prg, { force = false } = {}) {
   }
   try {
     const originOverride = _getDebuggerCodeOrigin(prg);
-    const layout = getProgramLayout(originOverride);
-    return _buildDebuggerSidecarTexts(layout, originOverride);
+    const debuggerLayout = layout || getProgramLayout(originOverride);
+    return _buildDebuggerSidecarTexts(debuggerLayout, originOverride, sourcePath);
   } catch (e) {
     console.error("Debugger sidecar generation failed:", e);
     return null;
@@ -14065,18 +14377,53 @@ async function runInDebugger() {
     setWorkProgress(50);
 
     const debugCodeOrigin = _getDebuggerCodeOrigin(prg);
-    const layout = getProgramLayout(debugCodeOrigin);
-    const { symbols, breakpoints } = _collectDebuggerSymbols(layout);
+    const savedProgram = program;
+    const savedUserMacros = userMacros;
+    const startupProgram = _expertGetStartupProgram();
+    const debuggerProgram = startupProgram || (expertMode ? _expertBuildProgram() : program);
+    let symbols;
+    let breakpoints;
+    let expertBreakpoints;
+    let debuggerSidecars;
+    try {
+      if (debuggerProgram?.length) program = debuggerProgram;
+      parseUserMacros();
+      const layout = getProgramLayout(debugCodeOrigin);
+      ({ symbols, breakpoints } = _collectDebuggerSymbols(layout));
+      let debuggerSourcePath = "";
+      let expertBreakpointLines = _getTabBreakpointLines("expert");
+      if (startupProgram && _expertProjectData?.startupFile) {
+        const startupFile = _expertProjectData.files.find(file => file.path === _expertProjectData.startupFile);
+        if (startupFile) {
+          debuggerSourcePath = _projResolveAbsPath(startupFile.path);
+          const normalizedPath = _normFilePath(debuggerSourcePath);
+          const startupTab = tabs.find(tab => tab.filePath && _normFilePath(tab.filePath) === normalizedPath);
+          if (startupTab && Array.isArray(startupTab.expertBreakpointLines)) {
+            expertBreakpointLines = startupTab.expertBreakpointLines;
+          }
+        }
+      }
+      expertBreakpoints = expertMode
+        ? _breakpointAddressForSourceLines(layout, expertBreakpointLines)
+        : breakpoints;
+      debuggerSidecars = _buildDebuggerSidecarPayload(prg, {
+        force: true,
+        layout,
+        sourcePath: debuggerSourcePath
+      });
+    } finally {
+      program = savedProgram;
+      userMacros = savedUserMacros;
+    }
 
     setWorkProgress(80);
     const result = await window.electronAPI.launchDebugger({
       bytes: Array.from(prg.bytes),
       fileName: `c64-visual-assembler-${Date.now()}.prg`,
       symbols,
-      breakpoints,
-      sidecars: _buildDebuggerSidecarPayload(prg, { force: true }),
-      autoJmp: false,
-      jmpAddress: debuggerJmp ? debugCodeOrigin : undefined,
+      breakpoints: expertMode ? expertBreakpoints : breakpoints,
+      sidecars: debuggerSidecars,
+      ..._debuggerStartOptions(typeof prg.sysAddress === "number", debugCodeOrigin),
       waitMs: debuggerWait ? debuggerWaitMs : 0,
       unpause: debuggerUnpause || undefined
     });
@@ -14192,7 +14539,9 @@ function _tabCreate(name) {
     ubFilePath: "",
     undoStack: [],
     redoStack: [],
-    historyState: null
+    historyState: null,
+    expertBreakpointLines: [],
+    ubBreakpointLines: []
   };
 }
 
@@ -14700,9 +15049,11 @@ function _tabSaveCurrent() {
   if (ultimateBasicMode && ubEditor) {
     tab.ubText = ubEditor.value;
     tab.ubFilePath = _ubFilePath;
+    tab.ubBreakpointLines = [..._ubBreakpointLines];
   } else if (expertMode && expertEditor) {
     _expertSyncSourceTextFromEditor();
     tab.expertText = _expertGetSourceText();
+    tab.expertBreakpointLines = [..._expertBreakpointLines];
   } else {
     tab.expertText = "";
   }
@@ -14733,8 +15084,10 @@ function _tabActivate(tabId) {
     ubEditor.value = tab.ubText || "";
     _ubSetFile(tab.ubFilePath || tab.filePath || "");
     _ubDirty = !!tab.dirty;
+    _ubBreakpointLines = Array.isArray(tab.ubBreakpointLines) ? [...tab.ubBreakpointLines] : [];
     _ubRefreshEditor();
   } else {
+    _expertBreakpointLines = Array.isArray(tab.expertBreakpointLines) ? [...tab.expertBreakpointLines] : [];
     if (ultimateBasicMode) setUltimateBasicMode(false);
     if (tab.editorMode === "expert" && !expertMode) setExpertMode(true);
     else if (tab.editorMode !== "expert" && expertMode) setExpertMode(false);
@@ -14792,12 +15145,16 @@ function _tabNew() {
   if (ultimateBasicMode) {
     tab.editorMode = "ub";
     tab.ubText = "";
+    _ubBreakpointLines = [];
     _ubSetFile("");
     ubEditor.value = "";
     _ubDirty = false;
     _ubRefreshEditor();
     ubEditor.focus();
-  } else if (expertMode && expertEditor) _expertSyncFromProgram();
+  } else if (expertMode && expertEditor) {
+    _expertBreakpointLines = [];
+    _expertSyncFromProgram();
+  }
 
   renderTabBar();
   renderProgram();
@@ -17391,7 +17748,7 @@ async function _getAsmExportHeader() {
 }
 
 function _buildDisasmText() {
-  const html = _buildDisasmHTML();
+  const html = _buildDisasmHTML(_getDisassemblyCodeOrigin(), _getGeneratedBasicStubSection());
   if (!html) return "";
   const host = document.createElement("div");
   host.innerHTML = html;
@@ -18211,8 +18568,10 @@ function _expertGetStartupProgram() {
 }
 
 function _buildAutostartPrgCore() {
-  if (_programHasEmbeddedBasicAutostart(program)) {
-    return assembleProgramToPrg(parseOriginValue().value);
+  const embeddedSysAddress = _getEmbeddedBasicSysAddress(program);
+  if (embeddedSysAddress !== null) {
+    const result = assembleProgramToPrg(parseOriginValue().value);
+    return result.ok ? { ...result, sysAddress: embeddedSysAddress } : result;
   }
 
   const useBasicSys = basicSysToggle ? basicSysToggle.checked : true;
@@ -18252,23 +18611,40 @@ function _buildAutostartPrgCore() {
 }
 
 function _programHasEmbeddedBasicAutostart(blocks) {
-  if (!Array.isArray(blocks) || blocks.length < 2) return false;
+  return _getEmbeddedBasicSysAddress(blocks) !== null;
+}
+
+function _getEmbeddedBasicSysAddress(blocks) {
+  if (!Array.isArray(blocks) || blocks.length < 2) return null;
 
   const orgIndex = blocks.findIndex((block) => block?.isOrgMacro && String(block.orgAddress || "").toUpperCase() === "0801");
-  if (orgIndex < 0) return false;
+  if (orgIndex < 0) return null;
 
-  const normalizedBytes = [];
+  const bytes = [];
   for (let i = orgIndex + 1; i < blocks.length; i++) {
     const block = blocks[i];
     if (block?.isComment || block?.isBlankLine || block?.isRegionMacro || block?.isEndRegionMacro) continue;
-    if (!block?.isByteMacro) return false;
-    normalizedBytes.push(String(block.rawOperand || "").replace(/\s+/g, "").toUpperCase());
-    if (normalizedBytes.join(",").startsWith("0B,08,0A,00,9E") ||
-        normalizedBytes.join(",").startsWith("0C,08,0A,00,9E,20")) return true;
-    if (normalizedBytes.length > 2) break;
+    if (!block?.isByteMacro) return null;
+    const parsed = String(block.rawOperand || "")
+      .split(",")
+      .map(token => parseInt(token.trim().replace(/^\$/, ""), 16));
+    if (parsed.some(value => !Number.isFinite(value) || value < 0 || value > 0xFF)) return null;
+    bytes.push(...parsed);
+    if (bytes.slice(5).includes(0x00) || bytes.length >= 16) break;
   }
 
-  return false;
+  const hasSysStub = (bytes[0] === 0x0B || bytes[0] === 0x0C) && bytes[1] === 0x08 &&
+    bytes[2] === 0x0A && bytes[3] === 0x00 && bytes[4] === 0x9E;
+  if (!hasSysStub) return null;
+
+  let index = bytes[5] === 0x20 ? 6 : 5;
+  let digits = "";
+  while (bytes[index] >= 0x30 && bytes[index] <= 0x39) {
+    digits += String.fromCharCode(bytes[index]);
+    index += 1;
+  }
+  const sysAddress = Number.parseInt(digits, 10);
+  return digits && bytes[index] === 0x00 && sysAddress <= 0xFFFF ? sysAddress : null;
 }
 
 function buildBasicSysStub(sysAddress) {
@@ -22796,6 +23172,7 @@ function renderProgram() {
             e.stopPropagation();
             block.isBreakpoint = !block.isBreakpoint;
             bpBtn.classList.toggle("bp-active", block.isBreakpoint);
+            markTabDirty();
           });
         }
       }
@@ -25600,7 +25977,7 @@ function renderAsmOutput() {
     asmPlainText = `*= ${layout.origin.text}\n; ${t("theC64AssemblySourceWillAppearHere")}`;
     asmDisplayText = withAsmLineNumbers(asmPlainText);
     asmOutput.innerHTML = highlightAsmHtml(asmDisplayText);
-    renderMonitorOutput(layout);
+    renderMonitorOutput();
     renderDisasmOutput();
     return;
   }
@@ -26180,16 +26557,14 @@ function renderAsmOutput() {
     applyAsmHighlight(selectedBlockId);
   }
 
-  renderMonitorOutput(layout);
+  renderMonitorOutput();
   renderDisasmOutput();
 
   // Keep overlap badge and panel in sync on every ASM render (reuses layout)
   renderMemoryMap(getMemoryUsage(layout));
 }
 
-function _buildMonitorText(layout) {
-  if (!program.length) return `>${formatAddress(layout.origin.value)}`;
-
+function _buildMonitorText(layout, basicStubSection = null) {
   const memMap = new Map();
   const labels = new Map();
   const deferredSections = getDeferredMemorySections(layout);
@@ -26209,7 +26584,15 @@ function _buildMonitorText(layout) {
     section.bytes.forEach((byte, i) => memMap.set(section.address + i, byte));
   });
 
-  if (!memMap.size) return `>${formatAddress(layout.origin.value)}`;
+  if (basicStubSection?.bytes?.length && Number.isFinite(basicStubSection.address)) {
+    basicStubSection.bytes.forEach((byte, index) => memMap.set(basicStubSection.address + index, byte));
+  }
+
+  return _formatMonitorMemory(memMap, layout.origin.value);
+}
+
+function _formatMonitorMemory(memMap, fallbackAddress = 0) {
+  if (!memMap.size) return `>${formatAddress(fallbackAddress)}`;
 
   const allAddresses = [...memMap.keys()].sort((a, b) => a - b);
   const GAP_THRESHOLD = 256;
@@ -26246,8 +26629,8 @@ function _buildMonitorText(layout) {
   return rows.join("\n");
 }
 
-function renderMonitorOutput(layout = getProgramLayout()) {
-  monitorOutput.textContent = _buildMonitorText(layout);
+function renderMonitorOutput(layout = getProgramLayout(_getDisassemblyCodeOrigin())) {
+  monitorOutput.textContent = _buildMonitorText(layout, _getGeneratedBasicStubSection());
 }
 
 function chunkBytes(bytes, size) {

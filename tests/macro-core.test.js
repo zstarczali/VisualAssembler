@@ -800,7 +800,7 @@ test("_buildAutostartPrgCore routes default origin to $C000 when BASIC SYS is of
       return { ok: true, bytes: new Uint8Array([0x10, 0x20]) };
     },
     parseUserMacros: () => {},
-    _programHasEmbeddedBasicAutostart: () => false,
+    _getEmbeddedBasicSysAddress: () => null,
     program: [],
     userMacros: {}
   });

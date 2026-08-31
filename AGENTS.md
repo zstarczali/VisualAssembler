@@ -383,9 +383,11 @@ Lásd `www/tauri-bridge.js` és `src-tauri/src/lib.rs`. Leggyakoribb commands:
 
 ## 17. Jelenlegi verzió
 
-`2.3.6` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
+`2.3.7` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`,
 `INSTALL-LINUX.md`, `README.txt`, `CLAUDE.md`, ez a fájl + copilot-instructions.md.
+
+Fő 2.3.7 változások: Undo/Redo és többblokkos szerkesztés; Block/Expert/Ultimate Basic breakpointok külső RetroDebugger integrációval, source map/label sidecarokkal, `-pass`, SYS-aware `-autojmp` és plain PRG `-jmp` indítással; opcionális BASIC stub megjelenítés a Disassembler/Monitor nézetekben; új UB Monitor panel; debugger/disassembler origin és startup-file kontextus javítások; UB caret/üres sor/nyomva tartott kurzor/minimap, valamint UB és Expert sorszám-illesztési javítások.
 
 Fő 2.3.6 változások: **Build CRT** (Magic Desk 64K cartridge, type 19) export block, Expert és Ultimate Basic módban a Menü → Build szekcióból; bank-0 loader RAM-ba másolja a payloadot és a sysAddress-re ugrik cart-disable után, kölönböző origin-eket támogat; max 65 408 byte 8×8 KB bankon; VICE / TheC64 / EasyFlash / Kung Fu Flash / Ultimate II+ kompatibilis; Exomizer CRT-nél ki van hagyva. D64 export dialóg input mezők magasság fix (globális `input { min-height: 46px }` felülbírva). Kézikönyv új 12b. szekció kiemelt caveat-tel a KERNAL `RESTOR` mellékhatásairól.
 
