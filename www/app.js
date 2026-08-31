@@ -488,6 +488,8 @@ let _dndActive = false;
 let _dndGhost = null;
 let _copiedBlock = null;
 let _clipboardRegion = null;
+let selectedBlockIds = new Set();
+let selectionAnchorIndex = -1;
 const defaultOrigin = 0x0801;
 let blockScale = 0.9;
 let currentLanguage = "en";
@@ -507,6 +509,8 @@ let userMacros = {};  // Stores user-defined macros: { macroName: [blocks...] }
 let tabs = [];
 let activeTabId = null;
 let _tabCounter = 0;
+let _historyObserveTimer = 0;
+let _historyApplying = false;
 let _expertHlEnabled = true;
 let _expertPaletteSyncEnabled = true;
 let _expertRegionSelectionEnabled = true;
@@ -1433,6 +1437,9 @@ function initPalette() {
   if (!categories.includes(categorySelect.value)) {
     categorySelect.value = categories[0] || "";
   }
+
+  document.getElementById("undo-action")?.addEventListener("click", _historyUndo);
+  document.getElementById("redo-action")?.addEventListener("click", _historyRedo);
 
   paletteSearchInput.addEventListener("input", () => {
     renderSearchResults(paletteSearchInput.value);
@@ -2480,6 +2487,21 @@ function initPalette() {
     if (!e.target.closest("#block-ctx-menu")) _hideBlockCtxMenu();
     if (!e.target.closest("#sid-ctx-menu")) _sidHideCtxMenu();
   }, true);
+
+  document.addEventListener("keydown", e => {
+    if (expertMode || ultimateBasicMode || e.target.closest("input, textarea, select")) return;
+    if (!(e.metaKey || e.ctrlKey)) return;
+    if (e.key.toLowerCase() === "c") {
+      e.preventDefault();
+      _copySelectedBlocks(false);
+    } else if (e.key.toLowerCase() === "x") {
+      e.preventDefault();
+      _copySelectedBlocks(true);
+    } else if (e.key.toLowerCase() === "v") {
+      e.preventDefault();
+      _pasteCopiedBlocks();
+    }
+  });
 }
 
 function setupDraggableEditorDialogs() {
@@ -2580,6 +2602,7 @@ function _showBlockCtxMenu(e, index) {
   }
   const block = program[index];
   if (!block) return;
+  if (!selectedBlockIds.has(block.id)) selectBlockInAsm(block.id, e);
   const isRegion = block.isRegionMacro;
   const isCopiedRegion = Array.isArray(_copiedBlock);
   const hu = currentLanguage === "hu";
@@ -2668,6 +2691,22 @@ function _handleBlockCtxAction(action, index) {
     return JSON.parse(JSON.stringify(src));
   }
 
+  function _selectedClipboardBlocks() {
+    const selected = program
+      .map((candidate, candidateIndex) => ({ candidate, candidateIndex }))
+      .filter(({ candidate }) => selectedBlockIds.has(candidate.id));
+    if (selected.length === 1 && selected[0].candidate.isRegionMacro) {
+      return _regionGroupCopy(selected[0].candidateIndex).map(b => ({ ...b }));
+    }
+    return selected.map(({ candidate }) => JSON.parse(JSON.stringify(candidate)));
+  }
+
+  function _selectedActionBlocks() {
+    return program
+      .map((candidate, candidateIndex) => ({ candidate, candidateIndex }))
+      .filter(({ candidate }) => selectedBlockIds.has(candidate.id));
+  }
+
   // Produce fresh blocks with new IDs; renames the top REGION to avoid name collision
   function _freshCopy(source) {
     const arr = Array.isArray(source) ? source : [source];
@@ -2687,21 +2726,21 @@ function _handleBlockCtxAction(action, index) {
   }
 
   if (action === "copy") {
-    _copiedBlock = block.isRegionMacro ? _regionGroupCopy(index) : JSON.parse(JSON.stringify(block));
+    const blocks = _selectedClipboardBlocks();
+    _copiedBlock = blocks.length > 1 || block.isRegionMacro ? blocks : blocks[0];
 
   } else if (action === "cut") {
+    const blocks = _selectedClipboardBlocks();
+    _copiedBlock = blocks.length > 1 || block.isRegionMacro ? blocks : blocks[0];
+    const removeIds = new Set(blocks.map(b => b.id));
     if (block.isRegionMacro) {
-      const endIdx = _regionEndIdx(index);
-      _copiedBlock = _regionGroupCopy(index);
-      const count = endIdx === -1 ? 1 : endIdx - index + 1;
-      markTabDirty();
-      program.splice(index, count);
-      parseUserMacros();
-      renderProgram();
-    } else {
-      _copiedBlock = JSON.parse(JSON.stringify(block));
-      deleteBlock(index);
+      _regionGroupCopy(index).forEach(b => removeIds.add(b.id));
     }
+    markTabDirty();
+    program = program.filter(b => !removeIds.has(b.id));
+    parseUserMacros();
+    clearBlockSelection();
+    renderProgram();
 
   } else if ((action === "paste-before" || action === "paste-after") && _copiedBlock) {
     let insertAt;
@@ -2721,27 +2760,48 @@ function _handleBlockCtxAction(action, index) {
       const toInsert = _freshCopy(_copiedBlock);
       markTabDirty();
       toInsert.forEach((b, i) => program.splice(insertAt + i, 0, b));
+      _setBlockSelection(toInsert.map(b => b.id), insertAt);
       parseUserMacros();
       renderProgram();
     } else {
-      insertBlock(insertAt, _freshCopy(_copiedBlock)[0]);
+      const toInsert = _freshCopy(_copiedBlock)[0];
+      insertBlock(insertAt, toInsert);
+      _setBlockSelection([toInsert.id], insertAt);
     }
 
   } else if (action === "duplicate") {
-    if (block.isRegionMacro) {
-      const endIdx = _regionEndIdx(index);
-      const insertAt = endIdx === -1 ? index + 1 : endIdx + 1;
-      const toInsert = _freshCopy(_regionGroupCopy(index));
-      markTabDirty();
-      toInsert.forEach((b, i) => program.splice(insertAt + i, 0, b));
-      parseUserMacros();
-      renderProgram();
-    } else {
-      insertBlock(index + 1, _freshCopy(block)[0]);
-    }
+    const selected = _selectedActionBlocks();
+    const source = selected.length === 1 && selected[0].candidate.isRegionMacro
+      ? _regionGroupCopy(selected[0].candidateIndex)
+      : selected.map(({ candidate }) => JSON.parse(JSON.stringify(candidate)));
+    const lastSelectedIndex = selected.length
+      ? selected[selected.length - 1].candidateIndex
+      : index;
+    const selectedEnd = selected.length === 1 && selected[0].candidate.isRegionMacro
+      ? _regionEndIdx(lastSelectedIndex)
+      : lastSelectedIndex;
+    const insertAt = (selectedEnd < 0 ? index : selectedEnd) + 1;
+    const toInsert = _freshCopy(source);
+    markTabDirty();
+    toInsert.forEach((candidate, offset) => program.splice(insertAt + offset, 0, candidate));
+    _setBlockSelection(toInsert.map(candidate => candidate.id), insertAt);
+    parseUserMacros();
+    renderProgram();
 
   } else if (action === "delete") {
-    deleteBlock(index);
+    const selected = _selectedActionBlocks();
+    const removeIds = new Set();
+    if (selected.length === 1 && selected[0].candidate.isRegionMacro) {
+      _regionGroupCopy(selected[0].candidateIndex).forEach(candidate => removeIds.add(candidate.id));
+    } else {
+      selected.forEach(({ candidate }) => removeIds.add(candidate.id));
+    }
+    if (!removeIds.size) removeIds.add(block.id);
+    program = program.filter(candidate => !removeIds.has(candidate.id));
+    markTabDirty();
+    parseUserMacros();
+    clearBlockSelection();
+    renderProgram();
   }
 }
 
@@ -3067,6 +3127,8 @@ function applyTranslations() {
     setText("#about-sid-credit-license", t("aboutSidCreditLicense"));
     setText("#about-repo-label", t("aboutRepoLabel"));
     setText("#about-ub-version-label", t("aboutUbVersionLabel"));
+  document.getElementById("undo-action")?.setAttribute("aria-label", t("undoAction"));
+  document.getElementById("redo-action")?.setAttribute("aria-label", t("redoAction"));
   if (helpManualButton) helpManualButton.textContent = t("helpManual");
   if (checkUpdateButton) checkUpdateButton.textContent = t("checkForUpdate");
   if (reportBugButton) reportBugButton.textContent = t("reportBug");
@@ -5542,7 +5604,7 @@ function addSelectedBlock() {
     const newBlock = createBlockFromMnemonic(selected);
     insertBlock(insertIndex, newBlock);
     // Always track the newly inserted block in the palette, regardless of blockPaletteSync toggle
-    selectedBlockId = newBlock.id;
+    _setBlockSelection([newBlock.id], insertIndex);
     _syncPaletteToBlock(newBlock.id, true);
     requestAnimationFrame(() => {
       document.querySelectorAll(".asm-block--selected").forEach(el => el.classList.remove("asm-block--selected"));
@@ -5863,6 +5925,7 @@ function doClearProgram() {
   program = [makeDefaultOrgBlock()];
   userMacros = {};
   selectedBlockId = null;
+  _historyResetCurrent();
   markTabClean();
   renderProgram();
 
@@ -5929,6 +5992,7 @@ function setExpertMode(on) {
     if (cursorSourceLine >= 0) _selectBlockBySourceLine(cursorSourceLine);
   }
   renderMnemonicDescription();
+  _historySyncCurrent();
   saveUiSettings();
 }
 
@@ -6111,6 +6175,7 @@ function setUltimateBasicMode(on) {
     _ubRenderProjectFiles();
     _ubRenderCommandReference();
   }
+  _historySyncCurrent();
   saveUiSettings();
 }
 
@@ -6649,6 +6714,7 @@ function _ubCreateFileTab(path, content) {
   _ubRefreshEditor();
   renderTabBar();
   _ubRenderProjectFiles();
+  _historyResetCurrent();
   ubEditor?.focus();
   return tab;
 }
@@ -7581,6 +7647,7 @@ async function _expertLoadAsmFromPath(filePath, content, sourceName = "") {
   renderProgram();
   renderAsmOutput();
   markTabClean();
+  _historyResetCurrent();
 
   return name;
 }
@@ -7621,6 +7688,7 @@ async function _importAsmFromPath(filePath, content, sourceName = "") {
   renderProgram();
   renderAsmOutput();
   markTabClean();
+  _historyResetCurrent();
 
   return name;
 }
@@ -11497,6 +11565,7 @@ async function _expertProjectOpenFile(fileEntry) {
   renderAsmOutput();
   if (expertMode) _expertSyncFromProgram();
   markTabClean();
+  _historyResetCurrent();
   _expertRenderProjectTree();
   _expertSetStatus(t("projOpenFile") + ": " + displayName, "ok");
 }
@@ -12377,6 +12446,101 @@ function deleteBlock(index) {
   program.splice(index, 1);
   parseUserMacros();  // Re-parse when blocks are deleted
   renderProgram();
+}
+
+function clearBlockSelection() {
+  selectedBlockIds.clear();
+  selectedBlockId = null;
+  selectionAnchorIndex = -1;
+}
+
+function _renderBlockSelection() {
+  programList?.querySelectorAll(".asm-block--selected").forEach(el => el.classList.remove("asm-block--selected"));
+  selectedBlockIds.forEach(id => {
+    programList?.querySelector(`[data-block-id="${id}"]`)?.classList.add("asm-block--selected");
+  });
+}
+
+function _setBlockSelection(ids, anchorIndex = -1) {
+  selectedBlockIds = new Set(ids);
+  selectionAnchorIndex = anchorIndex;
+  selectedBlockId = [...selectedBlockIds][0] || null;
+  _renderBlockSelection();
+}
+
+function _selectBlockFromPointer(blockId, event) {
+  const index = program.findIndex(block => block.id === blockId);
+  if (index < 0) return;
+  const additive = event?.metaKey || event?.ctrlKey;
+  if (event?.shiftKey && selectionAnchorIndex >= 0) {
+    const start = Math.min(selectionAnchorIndex, index);
+    const end = Math.max(selectionAnchorIndex, index);
+    _setBlockSelection(program.slice(start, end + 1).map(block => block.id), selectionAnchorIndex);
+  } else if (additive) {
+    const next = new Set(selectedBlockIds);
+    if (next.has(blockId)) next.delete(blockId); else next.add(blockId);
+    _setBlockSelection(next, index);
+  } else {
+    _setBlockSelection([blockId], index);
+  }
+  selectBlockInAsm(blockId, null, true);
+}
+
+function _copySelectedBlocks(cut = false) {
+  if (expertMode || ultimateBasicMode || selectedBlockIds.size === 0) return;
+  const indices = program
+    .map((block, index) => ({ block, index }))
+    .filter(({ block }) => selectedBlockIds.has(block.id));
+  if (!indices.length) return;
+  const source = indices.length === 1 && indices[0].block.isRegionMacro
+    ? _handleRegionClipboard(indices[0].index)
+    : indices.map(({ block }) => JSON.parse(JSON.stringify(block)));
+  _copiedBlock = source.length > 1 || indices[0].block.isRegionMacro ? source : source[0];
+  if (!cut) return;
+  const removeIds = new Set(source.map(block => block.id));
+  program = program.filter(block => !removeIds.has(block.id));
+  markTabDirty();
+  parseUserMacros();
+  clearBlockSelection();
+  renderProgram();
+}
+
+function _pasteCopiedBlocks() {
+  if (expertMode || ultimateBasicMode || !_copiedBlock) return;
+  const selectedIndex = program.reduce((lastIndex, block, index) =>
+    selectedBlockIds.has(block.id) ? index : lastIndex, -1);
+  const insertAt = selectedIndex < 0 ? program.length : selectedIndex + 1;
+  const toInsert = (Array.isArray(_copiedBlock) ? _copiedBlock : [_copiedBlock]).map(block => ({
+    ...JSON.parse(JSON.stringify(block)),
+    id: crypto.randomUUID()
+  }));
+  if (toInsert[0]?.isRegionMacro) {
+    const originalName = toInsert[0].regionName || "region";
+    let copiedName = `copy of ${originalName}`;
+    let suffix = 2;
+    while (program.some(block => block.isRegionMacro && block.regionName === copiedName)) {
+      copiedName = `copy of ${originalName} ${suffix++}`;
+    }
+    toInsert[0].regionName = copiedName;
+    toInsert[0].regionCollapsed = false;
+    toInsert[0].collapsed = false;
+  }
+  markTabDirty();
+  toInsert.forEach((block, offset) => program.splice(insertAt + offset, 0, block));
+  parseUserMacros();
+  _setBlockSelection(toInsert.map(block => block.id), insertAt);
+  renderProgram();
+}
+
+function _handleRegionClipboard(startIndex) {
+  let depth = 0;
+  for (let i = startIndex; i < program.length; i++) {
+    if (program[i].isRegionMacro) depth++;
+    else if (program[i].isEndRegionMacro && --depth === 0) {
+      return JSON.parse(JSON.stringify(program.slice(startIndex, i + 1)));
+    }
+  }
+  return [JSON.parse(JSON.stringify(program[startIndex]))];
 }
 
 function setupProgramDropZone() {
@@ -14020,11 +14184,132 @@ function _tabCreate(name) {
     program: [],
     userMacros: {},
     selectedBlockId: null,
+    selectedBlockIds: [],
+    selectionAnchorIndex: -1,
     expertText: "",
     editorMode: "block",
     ubText: "",
-    ubFilePath: ""
+    ubFilePath: "",
+    undoStack: [],
+    redoStack: [],
+    historyState: null
   };
+}
+
+function _historyCaptureState() {
+  if (ultimateBasicMode) return { mode: "ub", text: ubEditor?.value || "" };
+  if (expertMode) return { mode: "expert", text: _expertGetSourceText() };
+  return {
+    mode: "block",
+    program: JSON.parse(JSON.stringify(program)),
+    userMacros: JSON.parse(JSON.stringify(userMacros))
+  };
+}
+
+function _historyStateEqual(left, right) {
+  return JSON.stringify(left) === JSON.stringify(right);
+}
+
+function _historySyncCurrent() {
+  const tab = _getActiveTab();
+  if (!tab) return;
+  if (!Array.isArray(tab.undoStack)) tab.undoStack = [];
+  if (!Array.isArray(tab.redoStack)) tab.redoStack = [];
+  tab.historyState = _historyCaptureState();
+  _historyUpdateButtons();
+}
+
+function _historyResetCurrent() {
+  clearTimeout(_historyObserveTimer);
+  _historyObserveTimer = 0;
+  const tab = _getActiveTab();
+  if (!tab) return;
+  tab.undoStack = [];
+  tab.redoStack = [];
+  tab.historyState = _historyCaptureState();
+  _historyUpdateButtons();
+}
+
+function _historyScheduleObserve() {
+  if (_historyApplying) return;
+  clearTimeout(_historyObserveTimer);
+  _historyObserveTimer = setTimeout(() => {
+    _historyObserveTimer = 0;
+    const tab = _getActiveTab();
+    if (!tab || _historyApplying) return;
+    const nextState = _historyCaptureState();
+    if (!tab.historyState) {
+      tab.historyState = nextState;
+      _historyUpdateButtons();
+      return;
+    }
+    if (_historyStateEqual(tab.historyState, nextState)) return;
+    tab.undoStack.push(tab.historyState);
+    tab.redoStack = [];
+    tab.historyState = nextState;
+    _historyUpdateButtons();
+  }, 0);
+}
+
+function _historyUpdateButtons() {
+  const tab = _getActiveTab();
+  const undo = document.getElementById("undo-action");
+  const redo = document.getElementById("redo-action");
+  if (undo) undo.disabled = !tab?.undoStack?.length;
+  if (redo) redo.disabled = !tab?.redoStack?.length;
+}
+
+function _historyApplyState(state) {
+  if (!state) return;
+  _historyApplying = true;
+  try {
+    if (state.mode === "block") {
+      program = JSON.parse(JSON.stringify(state.program || []));
+      userMacros = JSON.parse(JSON.stringify(state.userMacros || {}));
+      clearBlockSelection();
+      parseUserMacros();
+      renderProgram();
+      renderAsmOutput();
+    } else if (state.mode === "expert") {
+      _expertSourceText = state.text || "";
+      _expertProjectionActive = false;
+      expertEditor.value = _expertSourceText;
+      _expertRefreshProjection(0, 0);
+      _expertValidate();
+      _expertUpdateCaret();
+    } else if (state.mode === "ub") {
+      ubEditor.value = state.text || "";
+      _ubDirty = true;
+      _ubRefreshEditor();
+      _ubUpdateCursor();
+    }
+  } finally {
+    _historyApplying = false;
+  }
+}
+
+function _historyUndo() {
+  const tab = _getActiveTab();
+  if (!tab?.undoStack?.length) return;
+  const current = tab.historyState || _historyCaptureState();
+  const previous = tab.undoStack.pop();
+  tab.redoStack.push(current);
+  _historyApplyState(previous);
+  tab.historyState = previous;
+  markTabDirty();
+  _historyUpdateButtons();
+}
+
+function _historyRedo() {
+  const tab = _getActiveTab();
+  if (!tab?.redoStack?.length) return;
+  const current = tab.historyState || _historyCaptureState();
+  const next = tab.redoStack.pop();
+  tab.undoStack.push(current);
+  _historyApplyState(next);
+  tab.historyState = next;
+  markTabDirty();
+  _historyUpdateButtons();
 }
 
 function _getActiveTab() {
@@ -14393,6 +14678,7 @@ async function _migrateProjectSnapshotHistory(tab, oldSnapshotPath) {
 function markTabDirty() {
   const tab = tabs?.find(t => t.id === activeTabId);
   if (!tab) return;
+  _historyScheduleObserve();
   _scheduleProjectSnapshot(tab.id);
   if (tab.dirty) return;
   tab.dirty = true;
@@ -14423,6 +14709,8 @@ function _tabSaveCurrent() {
   tab.program = JSON.parse(JSON.stringify(program));
   tab.userMacros = JSON.parse(JSON.stringify(userMacros));
   tab.selectedBlockId = selectedBlockId;
+  tab.selectedBlockIds = [...selectedBlockIds];
+  tab.selectionAnchorIndex = selectionAnchorIndex;
 }
 
 function _tabActivate(tabId) {
@@ -14434,6 +14722,10 @@ function _tabActivate(tabId) {
   program = JSON.parse(JSON.stringify(tab.program));
   userMacros = JSON.parse(JSON.stringify(tab.userMacros));
   selectedBlockId = tab.selectedBlockId;
+  selectedBlockIds = new Set(Array.isArray(tab.selectedBlockIds)
+    ? tab.selectedBlockIds
+    : (selectedBlockId ? [selectedBlockId] : []));
+  selectionAnchorIndex = Number.isInteger(tab.selectionAnchorIndex) ? tab.selectionAnchorIndex : -1;
 
   if (tab.editorMode === "ub") {
     if (expertMode) setExpertMode(false);
@@ -14479,6 +14771,7 @@ function _tabActivate(tabId) {
   renderTabBar();
   renderProgram();
   renderAsmOutput();
+  _historySyncCurrent();
   if (_expertProjectVisible && _expertProjectData) _expertRenderProjectTree();
 }
 
@@ -14491,7 +14784,7 @@ function _tabNew() {
 
   program = [makeDefaultOrgBlock()];
   userMacros = {};
-  selectedBlockId = null;
+  clearBlockSelection();
 
   if (currentFileDisplay) currentFileDisplay.textContent = "";
   if (expertFileName) expertFileName.textContent = "";
@@ -14509,6 +14802,7 @@ function _tabNew() {
   renderTabBar();
   renderProgram();
   renderAsmOutput();
+  _historySyncCurrent();
 }
 
 function _tabHasContent(tab) {
@@ -17035,6 +17329,7 @@ async function _applyProjectPayload(projectData, { sourceFilePath = "", keepFile
   }
   saveUiSettings();
   markTabClean();
+  _historyResetCurrent();
   _clearProjectSnapshotTimer(tab.id);
 
   if (loadedFilePath) {
@@ -25103,9 +25398,9 @@ function renderProgram() {
 
     node.addEventListener("click", (e) => {
       if (e.target.closest("button") || e.target.closest("input") || e.target.closest("select")) return;
-      selectBlockInAsm(block.id);
+      _selectBlockFromPointer(block.id, e);
       const descEl = node.querySelector(".block-description");
-      if (descEl && descEl.textContent.trim()) {
+      if (!e.shiftKey && !e.metaKey && !e.ctrlKey && descEl && descEl.textContent.trim()) {
         const range = document.createRange();
         range.selectNodeContents(descEl);
         const sel = window.getSelection();
@@ -25134,10 +25429,7 @@ function renderProgram() {
   renderMemoryMap();
 
   // Restore block selection highlight after re-render
-  if (selectedBlockId) {
-    const node = programList.querySelector(`[data-block-id="${selectedBlockId}"]`);
-    if (node) node.classList.add("asm-block--selected");
-  }
+  _renderBlockSelection();
 
   _expertRenderSymbols();
   // Double-rAF: wait for layout to settle after DOM changes before drawing minimap
@@ -25286,11 +25578,14 @@ function applyAsmHighlight(blockId) {
   asmOutput.scrollTop = Math.max(0, (firstLine - 3) * lineHeight);
 }
 
-function selectBlockInAsm(blockId) {
-  selectedBlockId = blockId;
+function selectBlockInAsm(blockId, event = null, preserveSelection = false) {
+  if (!preserveSelection) {
+    const index = program.findIndex(block => block.id === blockId);
+    _setBlockSelection([blockId], index);
+  }
 
   // Highlight the block card
-  document.querySelectorAll(".asm-block--selected").forEach(el => el.classList.remove("asm-block--selected"));
+  _renderBlockSelection();
   const blockNode = programList.querySelector(`[data-block-id="${blockId}"]`);
   if (blockNode) blockNode.classList.add("asm-block--selected");
 
@@ -26055,6 +26350,7 @@ async function loadSampleFromFile(sampleName) {
   const displayName = `${sampleName}.c64va`;
   _setCurrentFile(displayName, displayName, null);
   markTabClean();
+  _historyResetCurrent();
 
   return true;
 }
@@ -27402,6 +27698,7 @@ renderEmulatorRunHint();
 renderMemoryStrip();
 renderTabBar();
 renderProgram();
+_historySyncCurrent();
 
 
 
