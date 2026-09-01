@@ -37,6 +37,12 @@ test("REM comments and inline 6502 assembly are highlighted", () => {
   assert.match(html, /class="ub-comment">; immediate</);
 });
 
+test("UltimateBasic highlighting preserves empty-line caret offsets", () => {
+  const source = "color bg 0\ncolor border 0\n\nprint value";
+  const text = context.highlight(source).replace(/<[^>]+>/g, "");
+  assert.equal(text, `${source}\n`);
+});
+
 test("UltimateBasic formatter indents blocks, branches, and inline assembly", () => {
   const source = "sub demo()\nif x then # branch\nprint chr$(65)\nelse\nasm {\nlda #$01\nsta $d020 ; border\n}\nend\nend";
   assert.equal(context.formatUb(source), [

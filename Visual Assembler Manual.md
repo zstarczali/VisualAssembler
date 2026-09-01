@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.3.6**
+**Version 2.3.7**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,7 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
-  - [Version 2.3.6 Highlights](#version-236-highlights)
+    - [Version 2.3.7 Highlights](#version-237-highlights)
   - [Table of Contents](#table-of-contents)
   - [1. Interface Overview](#1-interface-overview)
   - [2. Block Palette](#2-block-palette)
@@ -145,6 +145,18 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Map Editor (Multilayer Tilemaps)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve Editor](#curve-editor)
+
+---
+
+## Version 2.3.7 Highlights
+
+- **Undo / Redo and multi-block editing:** per-tab block history plus grouped copy, cut, paste, duplicate and delete operations.
+- **Breakpoints in every editor mode:** the external RetroDebugger replaces the limited embedded UB debugger; Block, Expert and Ultimate Basic source breakpoints launch with matching source maps and labels.
+- **Reliable debugger startup:** BASIC SYS PRGs use automatic SYS detection; plain PRGs use their actual PRG load address.
+- **Optional BASIC stub display:** Settings can show the `$0801` SYS stub in Disassembler and Monitor views in all three modes.
+- **Ultimate Basic Monitor:** a dedicated toolbar view displays compiled UB bytes and the optional BASIC stub as a memory dump.
+- **Accurate output addresses:** debugger sidecars, startup-file layouts, labels, disassembly and monitor output now share the build's effective origin.
+- **Editor polish:** UB formatting preserves selections, caret movement is correct across blank lines, held cursor keys and the minimap edge, and UB/Expert line-number alignment is stable.
 
 ---
 
