@@ -150,6 +150,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Version 2.3.7 Highlights
 
+- **Dutch language support (Nederlands):** complete Dutch localization across the UI, menus, dialogs, editors, interactive tutorials, macro operand guides, and KERNAL routine helpers.
 - **Undo / Redo and multi-block editing:** per-tab block history plus grouped copy, cut, paste, duplicate and delete operations.
 - **Breakpoints in every editor mode:** the external RetroDebugger replaces the limited embedded UB debugger; Block, Expert and Ultimate Basic source breakpoints launch with matching source maps and labels.
 - **Reliable debugger startup:** BASIC SYS PRGs use automatic SYS detection; plain PRGs use their actual PRG load address.
@@ -290,7 +291,7 @@ The modal closes automatically when the action completes or fails.
 | Control | Description |
 |---|---|
 | **Number base (HEX / DEC / BIN)** | Sets the display/input format for operands throughout the UI. BIN mode displays values as binary with `%` prefix (e.g. `%11111000`). The ASM view always shows each block in its own format. |
-| **Language** | Switch between English and Hungarian |
+| **Language** | Switch the user interface between English, Hungarian, Spanish, German, and Dutch (Nederlands) |
 | **Theme** | Light / Dark / OLED — select from the theme picker in the Settings menu. OLED uses a pure-black background for AMOLED displays. |
 | **CRT retro mode** | Toggles a full-screen CRT filter: scanlines, phosphor vignette, flicker, and barrel distortion. State is saved between sessions. |
 | **BASIC SYS stub** | Prepends a BASIC line that calls SYS to your program's origin |
