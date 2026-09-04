@@ -101,7 +101,7 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **Expert mode .asm file save/load** — load and save raw `.asm` source files in Expert mode
 - **Expert mode error highlighting** — lines that fail to compile are highlighted in red in real time
 - **Dark / light theme**, zoom, HEX / DEC operand mode
-- **Hungarian, English, Spanish, and German UI**
+- **Hungarian, English, Spanish, German, and Dutch UI**
 - **Save / Save As / load projects** as `.c64asm` JSON files
 
 ---
@@ -280,7 +280,7 @@ The **Toolkit tab** provides access to built-in visual editors, all with *Export
 
 ## Interactive Tutorials
 
-The built-in **tutorial system** offers guided step-by-step tours (spotlight + card, advancing on user interactions) and passive lessons with sample links. Fully localised in Hungarian, English, and Spanish.
+The built-in **tutorial system** offers guided step-by-step tours (spotlight + card, advancing on user interactions) and passive lessons with sample links. Fully localised in Hungarian, English, Spanish, German, and Dutch.
 
 ### Output generation
 

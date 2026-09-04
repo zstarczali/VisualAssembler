@@ -110,6 +110,14 @@ const CUSTOMER_MESSAGE = {
     link: "Ultimate Basic auf GitHub",
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
+  },
+  nl: {
+    eyebrow: "Nieuw",
+    title: "Welkom bij Visual Assembler",
+    body: `<p><strong>Ultimate Basic</strong> is een moderne, gecompileerde BASIC-taal voor de C64. <strong>Vanaf nu is Ultimate Basic direct beschikbaar in de Visual Assembler IDE</strong> via de volwaardige UB-bewerkingsmodus.</p><ul><li><strong>Waarvoor dient het?</strong> Voor snelle ontwikkeling van C64-programma's, games en demo's zonder alles in low-level assembly te hoeven schrijven.</li><li><strong>Wat is inbegrepen?</strong> Syntaxisaccentuering, automatisch aanvullen, opdrachthulp, projectbeheer, opmaak, compilatie en foutweergave.</li><li><strong>Uitvoeren:</strong> PRG of D64 in VICE en op C64 Ultimate, plus RetroDebugger-ondersteuning met symbolen.</li><li><strong>Debug-uitvoer:</strong> KickAssembler <code>.sym</code>, C64Debugger <code>.dbg</code> en VICE <code>.vs</code> labels.</li></ul><p>Ultimate Basic is tevens beschikbaar als zelfstandig open-source project op GitHub.</p>`,
+    link: "Ultimate Basic op GitHub",
+    dismiss: "Niet meer weergeven",
+    close: "Sluiten"
   }
 };
 
@@ -651,27 +659,33 @@ function getMemorySegmentNote(segment) {
 const addressingModeText = {
   implied: {
     hu: { label: "Implied", help: "Az utasitas onmagaban teljes.", placeholder: "Nem kell operandus" },
-    en: { label: "Implied", help: "The instruction is complete on its own.", placeholder: "No operand needed" }
+    en: { label: "Implied", help: "The instruction is complete on its own.", placeholder: "No operand needed" },
+    nl: { label: "Implied", help: "De instructie is op zichzelf compleet.", placeholder: "Geen operand vereist" }
   },
   immediate: {
     hu: { label: "Immediate", help: "Az ertek kozvetlen konstans, az assembler ele # jelet kap.", placeholder: "Peldaul 1 vagy 255" },
-    en: { label: "Immediate", help: "The value is an inline constant prefixed with # by the assembler.", placeholder: "For example 1 or 255" }
+    en: { label: "Immediate", help: "The value is an inline constant prefixed with # by the assembler.", placeholder: "For example 1 or 255" },
+    nl: { label: "Immediate", help: "De waarde is een directe constante, voorafgegaan door #.", placeholder: "Bijvoorbeeld 1 of 255" }
   },
   zeroPage: {
     hu: { label: "Zero page", help: "Az operandus a zero page tartomanyban van.", placeholder: "0-255" },
-    en: { label: "Zero page", help: "The operand is in the zero page range.", placeholder: "0-255" }
+    en: { label: "Zero page", help: "The operand is in the zero page range.", placeholder: "0-255" },
+    nl: { label: "Zero page", help: "De operand bevindt zich in de zero-page ($00-$FF).", placeholder: "0-255" }
   },
   absolute: {
     hu: { label: "Absolute", help: "Teljes 16 bites memoriacim.", placeholder: "0-65535" },
-    en: { label: "Absolute", help: "Full 16-bit memory address.", placeholder: "0-65535" }
+    en: { label: "Absolute", help: "Full 16-bit memory address.", placeholder: "0-65535" },
+    nl: { label: "Absolute", help: "Volledig 16-bits geheugenadres ($0000-$FFFF).", placeholder: "0-65535" }
   },
   relative: {
     hu: { label: "Relative/Label", help: "Branch utasitasnal adhatsz meg labelt vagy celt.", placeholder: "ciklus vagy 2048" },
-    en: { label: "Relative/Label", help: "For branch instructions you can provide a label or target.", placeholder: "loop or 2048" }
+    en: { label: "Relative/Label", help: "For branch instructions you can provide a label or target.", placeholder: "loop or 2048" },
+    nl: { label: "Relative/Label", help: "Voor branch-instructies kan een label of doel worden opgegeven.", placeholder: "lus of 2048" }
   },
   absoluteX: {
     hu: { label: "Absolute,X", help: "16 bites memoriacim + X regiszter offset. Pl: LDA $0400,X", placeholder: "0-65535" },
-    en: { label: "Absolute,X", help: "16-bit memory address + X register offset. E.g.: LDA $0400,X", placeholder: "0-65535" }
+    en: { label: "Absolute,X", help: "16-bit memory address + X register offset. E.g.: LDA $0400,X", placeholder: "0-65535" },
+    nl: { label: "Absolute,X", help: "16-bits geheugenadres + X-register verschuiving. Bijv: LDA $0400,X", placeholder: "0-65535" }
   }
 };
 
@@ -829,7 +843,15 @@ const mnemonicDescriptionsEn = {
   REU_SWAP: "C64 RAM ↔ REU swap: sets C64 address, REU address/bank and length in $DF02–$DF08, then writes command $92 to $DF01 (execute + swap, immediate DMA). 40 bytes inline.",
   TURBO_SET: "Set U64 turbo speed: writes speed index (0–15) and badline control (bit 7) to $D031. LDA #value + STA $D031, 5 bytes. Speed 0=1 MHz … 7=10 MHz … 15=48 MHz (U64) / 64 MHz (U64E2).",
   SUPERCPU_DETECT: "Detect CMD SuperCPU presence: LDA $D0B8 / CMP #$FF. Z=0 → SuperCPU present (use BNE), Z=1 → not found (use BEQ). 5 bytes.",
-  TURBO_ENABLE: "CMD SuperCPU turbo on/off: ON → LDA #$00 / STA $D07A, OFF → LDA #$00 / STA $D07B. 5 bytes."
+  TURBO_ENABLE: "CMD SuperCPU turbo on/off: ON → LDA #$00 / STA $D07A, OFF → LDA #$00 / STA $D07B. 5 bytes.",
+  PRINT: "Imprime una cadena de texto en pantalla mediante KERNAL CHROUT.",
+  PRINT_HEX: "Imprime un byte o registro en formato hexadecimal.",
+  CLEAR_SCREEN: "Borra la pantalla llamando a la rutina KERNAL CLRSCR ($E544).",
+  WAIT_KEY: "Espera a que se presione una tecla mediante KERNAL GETIN ($FFE4).",
+  SET_BORDER: "Establece el color del borde escribiendo en el registro VIC-II $D020.",
+  SET_BG: "Establece el color de fondo escribiendo en el registro VIC-II $D021.",
+  IRQ_SETUP: "Configura la interrupción por línea de barrido raster y el vector de IRQ.",
+  RAND: "Genera un número pseudoaleatorio de 8 bits mediante un LFSR.",
 };
 
 const mnemonicDescriptionsHu = (() => {
@@ -843,6 +865,8 @@ const mnemonicDescriptionsHu = (() => {
 })();
 
 const mnemonicDescriptionsEs = {
+  LDA: "Carga el acumulador desde memoria o constante.",
+  LDX: "Carga el registro X.",
   LDY: "Carga el registro Y.",
   STA: "Almacena el acumulador en una dirección de memoria.",
   STX: "Almacena el registro X.",
@@ -980,7 +1004,15 @@ const mnemonicDescriptionsEs = {
   REU_SWAP: "Intercambio C64 RAM ↔ REU: establece C64/REU addr, banco y longitud, luego escribe $92 en $DF01. 40 bytes.",
   TURBO_SET: "Establece la velocidad turbo U64: escribe índice de velocidad (0–15) y control de badline (bit 7) en $D031. 5 bytes.",
   SUPERCPU_DETECT: "Detecta la presencia del CMD SuperCPU: LDA $D0B8 / CMP #$FF. Z=0 → SuperCPU presente. 5 bytes.",
-  TURBO_ENABLE: "CMD SuperCPU turbo on/off: ON → LDA #$00 / STA $D07A, OFF → LDA #$00 / STA $D07B. 5 bytes."
+  TURBO_ENABLE: "CMD SuperCPU turbo on/off: ON → LDA #$00 / STA $D07A, OFF → LDA #$00 / STA $D07B. 5 bytes.",
+  PRINT: "Imprime una cadena de texto en pantalla mediante KERNAL CHROUT.",
+  PRINT_HEX: "Imprime un byte o registro en formato hexadecimal.",
+  CLEAR_SCREEN: "Borra la pantalla llamando a la rutina KERNAL CLRSCR ($E544).",
+  WAIT_KEY: "Espera a que se presione una tecla mediante KERNAL GETIN ($FFE4).",
+  SET_BORDER: "Establece el color del borde escribiendo en el registro VIC-II $D020.",
+  SET_BG: "Establece el color de fondo escribiendo en el registro VIC-II $D021.",
+  IRQ_SETUP: "Configura la interrupción por línea de barrido raster y el vector de IRQ.",
+  RAND: "Genera un número pseudoaleatorio de 8 bits mediante un LFSR."
 };
 
 const mnemonicDescriptionsDe = {
@@ -1123,12 +1155,184 @@ const mnemonicDescriptionsDe = {
   REU_SWAP: "C64-RAM ↔ REU-Tausch: C64/REU-Adresse, Bank und Länge setzen, dann $92 in $DF01 schreiben. 40 Bytes.",
   TURBO_SET: "U64-Turbogeschwindigkeit setzen: Geschwindigkeitsindex (0–15) und Badline-Steuerung (Bit 7) in $D031 schreiben. 5 Bytes.",
   SUPERCPU_DETECT: "CMD SuperCPU erkennen: LDA $D0B8 / CMP #$FF. Z=0 → SuperCPU vorhanden. 5 Bytes.",
-  TURBO_ENABLE: "CMD SuperCPU Turbo ein/aus: EIN → LDA #$00 / STA $D07A, AUS → LDA #$00 / STA $D07B. 5 Bytes."
+  TURBO_ENABLE: "CMD SuperCPU Turbo ein/aus: EIN → LDA #$00 / STA $D07A, AUS → LDA #$00 / STA $D07B. 5 Bytes.",
+  PRINT: "Gibt eine Textzeichenkette über KERNAL CHROUT auf dem Bildschirm aus.",
+  PRINT_HEX: "Gibt ein Byte oder Register im Hexadezimalformat aus.",
+  CLEAR_SCREEN: "Löscht den Bildschirm durch Aufruf der KERNAL-Routine CLRSCR ($E544).",
+  WAIT_KEY: "Wartet auf einen Tastendruck über KERNAL GETIN ($FFE4).",
+  SET_BORDER: "Setzt die Rahmenfarbe durch Schreiben in das VIC-II-Register $D020.",
+  SET_BG: "Setzt die Hintergrundfarbe durch Schreiben in das VIC-II-Register $D021.",
+  IRQ_SETUP: "Richtet einen Rasterzeilen-Interrupt und den IRQ-Vektor ein.",
+  RAND: "Erzeugt eine 8-Bit-Pseudozufallszahl mittels LFSR.",
 };
+
+const mnemonicDescriptionsNl = {
+  LDA: "Akkumulator laden vanuit geheugen of constante.",
+  LDX: "X-register laden vanuit geheugen of constante.",
+  LDY: "Y-register laden vanuit geheugen of constante.",
+  STA: "Akkumulator opslaan in geheugen.",
+  STX: "X-register opslaan in geheugen.",
+  STY: "Y-register opslaan in geheugen.",
+  ADC: "Optellen bij Akkumulator met Carry.",
+  SBC: "Aftrekken van Akkumulator met Carry (Borrow).",
+  INC: "Geheugenlocatie met 1 verhogen.",
+  DEC: "Geheugenlocatie met 1 verlagen.",
+  CMP: "Akkumulator vergelijken met geheugen of constante.",
+  CPX: "X-register vergelijken met geheugen of constante.",
+  CPY: "Y-register vergelijken met geheugen of constante.",
+  AND: "Bitsgewijze EN-bewerking met Akkumulator.",
+  ORA: "Bitsgewijze OF-bewerking met Akkumulator.",
+  EOR: "Bitsgewijze exclusieve OF-bewerking (XOR) met Akkumulator.",
+  BIT: "Bits testen in geheugen zonder Akkumulator te wijzigen.",
+  JMP: "Onvoorwaardelijke sprong naar een adres.",
+  JSR: "Subroutine aanroepen (retouradres op stack).",
+  RTS: "Terugkeren uit subroutine.",
+  BNE: "Vertakken als resultaat niet nul is (Z=0).",
+  BEQ: "Vertakken als resultaat nul is (Z=1).",
+  BCC: "Vertakken als Carry gewist is (C=0, kleiner dan).",
+  BCS: "Vertakken als Carry gezet is (C=1, groter of gelijk).",
+  BMI: "Vertakken als resultaat negatief is (N=1).",
+  BPL: "Vertakken als resultaat positief is (N=0).",
+  BVC: "Vertakken als Overflow gewist is (V=0).",
+  BVS: "Vertakken als Overflow gezet is (V=1).",
+  RTI: "Terugkeren uit interrupt-afhandeling.",
+  TAX: "Akkumulator kopiëren naar X-register.",
+  TAY: "Akkumulator kopiëren naar Y-register.",
+  INX: "X-register met 1 verhogen.",
+  DEX: "X-register met 1 verlagen.",
+  INY: "Y-register met 1 verhogen.",
+  DEY: "Y-register met 1 verlagen.",
+  TXA: "X-register kopiëren naar Akkumulator.",
+  TYA: "Y-register kopiëren naar Akkumulator.",
+  ASL: "Bits naar links verschuiven (bit 7 naar Carry, bit 0 wordt 0).",
+  LSR: "Bits naar rechts verschuiven (bit 0 naar Carry, bit 7 wordt 0).",
+  ROL: "Bits naar links roteren via de Carry flag.",
+  ROR: "Bits naar rechts roteren via de Carry flag.",
+  PHA: "Akkumulator op de stack plaatsen.",
+  PLA: "Akkumulator van de stack halen.",
+  PHP: "Processorstatus (SR) op de stack plaatsen.",
+  PLP: "Processorstatus (SR) van de stack halen.",
+  TSX: "Stack-pointer kopiëren naar X-register.",
+  TXS: "X-register kopiëren naar Stack-pointer.",
+  CLC: "Carry flag wissen (C=0).",
+  SEC: "Carry flag zetten (C=1).",
+  CLI: "Interrupts inschakelen (I=0).",
+  SEI: "Interrupts uitschakelen (I=1).",
+  CLD: "Decimale modus uitschakelen (D=0).",
+  SED: "Decimale modus inschakelen (D=1).",
+  CLV: "Overflow flag wissen (V=0).",
+  NOP: "Geen bewerking uitvoeren (2 klokcycli wachten).",
+  BRK: "Software-interrupt forceren.",
+  BYTE: "Ruwe bytes invoegen (.byte).",
+  WORD: "16-bits woorden invoegen in little-endian volgorde (.word).",
+  FILL: "Geheugen vullen met herhaalde bytes of wiskundige expressie.",
+  ALIGN: "Adres uitlijnen op een specifieke byte-grens.",
+  ORG: "Programma beginadres instellen (* = $XXXX).",
+  LABEL: "Symbolisch label definiëren.",
+  COMMENT: "Commentaarregel invoegen (geen bytes gegenereerd).",
+  REGION: "Visuele vouwbare programmaregio starten.",
+  ENDREGION: "Einde van actieve visuele regio markeren.",
+  BLANK: "Lege regel invoegen voor betere leesbaarheid.",
+  IF: "Voorwaardelijke compilatie (als symbool gedefinieerd is).",
+  ELSE: "Alternatieve tak voor voorwaardelijke compilatie.",
+  ENDIF: "Einde van voorwaardelijk compilatieblok.",
+  DEFINE: "Voorwaardelijk compilatielabel definiëren.",
+  CONST: "Constante waarde koppelen aan een naam (.const).",
+  VAR: "Zero-page variabele toewijzen.",
+  TABLE: "Zoektabel genereren met een formule op index 'i'.",
+  LOADFILE: "Bestand laden van diskette via KERNAL routines.",
+  INCBIN: "Extern binair bestand rechtstreeks invoegen.",
+  INCLUDE: "Blokken van een ander project invoegen.",
+  SID: "SID muziekbestand invoegen en player initialiseren.",
+  SPRITE_INIT: "Sprite initialiseren (pointer, kleuren, meerkleur).",
+  SPRITE_POS: "Sprite-coördinaten instellen inclusief 9e X-bit ($D010).",
+  WAIT_RASTER: "Wachten op een specifieke rasterlijn van de beeldbuis.",
+  SPRITE_COL: "Sprite-naar-sprite of sprite-naar-achtergrond botsing testen.",
+  MAP_COPY: "Tegelkaart kopiëren naar het schermgeheugen.",
+  MAP_COPY16X16: "16x16 tegelkaart kopiëren naar het schermgeheugen.",
+  JOYSTICK: "Joystickpoort 1 of 2 uitlezen en sprite verplaatsen.",
+  MOUSE: "1351 muis uitlezen via SID POTX/POTY registers.",
+  REU_CHECK: "RAM Expansion Unit (REU) detecteren via $DF04.",
+  REU_STASH: "C64-RAM naar REU kopiëren via DMA.",
+  REU_FETCH: "REU naar C64-RAM kopiëren via DMA.",
+  REU_SWAP: "C64-RAM en REU gegevens omwisselen via DMA.",
+  TURBO_SET: "Ultimate 64 turbosnelheid instellen via $D031.",
+  SUPERCPU_DETECT: "CMD SuperCPU aanwezigheid detecteren ($D0B8).",
+  TURBO_ENABLE: "CMD SuperCPU turbosnelheid in- of uitschakelen.",
+  PRINT: "Teksttekenreeks afdrukken via KERNAL CHROUT.",
+  PRINT_CHAR: "Enkel karakter afdrukken via KERNAL CHROUT.",
+  PRINT_HEX: "Hexadecimale waarde afdrukken van byte of register.",
+  CHARSET: "Scherm tekenset omschakelen (hoofdletters/kleine letters).",
+  SET_BORDER: "Randkleur instellen via $D020.",
+  SET_BG: "Achtergrondkleur instellen via $D021.",
+  DELAY: "Wachten gedurende een opgegeven aantal frames.",
+  WAIT: "Wachten gedurende een opgegeven aantal frames.",
+  PUSH: "Registers op de processor-stack plaatsen.",
+  PULL: "Registers van de processor-stack herstellen.",
+  FOR: "Oplopende tellerlus starten met register X of Y.",
+  ENDF: "Einde van FOR-lus.",
+  LOOP: "Aftellende tellerlus starten met register X of Y.",
+  NEXT: "Einde van LOOP-lus.",
+  WHILE: "Lus starten die doorloopt zolang de voorwaarde waar is.",
+  ENDW: "Einde van WHILE-lus.",
+  REPEAT: "Herhaallus starten (minstens één doorgang).",
+  UNTIL: "Einde van REPEAT-lus: herhalen totdat voorwaarde waar is.",
+  RAND: "8-bits pseudo-willekeurig getal genereren via LFSR.",
+  EXODECRUNCH: "Gecomprimeerde gegevens uitpakken met Exomizer depacker.",
+  CHARDEF: "Karakterpatroon van 8 bytes definiëren in geheugen.",
+  BOX_HIT: "Rechthoekige botsingstest uitvoeren tussen twee objecten.",
+  RAWBYTES: "Ruwe bytes rechtstreeks op een absoluut adres plaatsen.",
+  RAWTEXT: "Ruwe schermtekst rechtstreeks op een absoluut adres plaatsen.",
+  TEXT: "Schermtekst coderen en LDA/STA instructies genereren.",
+  STRING: "PETSCII tekst invoegen met optioneel afsluitend nul-byte.",
+  DATA: "Gegevensreeks van bytes definiëren.",
+  MACRO: "Gebruikersmacro definitie starten.",
+  ENDM: "Einde van gebruikersmacro definitie.",
+  INVOKE: "Gedefinieerde gebruikersmacro aanroepen.",
+  CLEAR_SCREEN: "Scherm wissen via KERNAL CLRSCR routine.",
+  WAIT_KEY: "Wachten op toetsaanslag via KERNAL GETIN.",
+  IRQ_SETUP: "Raster-interrupt vector en timer configureren.",
+  LAX: "Akkumulator en X-register gelijktijdig laden (onofficiële opcode).",
+  SAX: "Bitsgewijze EN van A en X opslaan in geheugen (onofficiële opcode).",
+  DCP: "Geheugenwaarde met 1 verlagen en vergelijken met A (onofficiële opcode).",
+  ISC: "Geheugenwaarde met 1 verhogen en aftrekken van A (onofficiële opcode).",
+  SLO: "ASL op geheugen uitvoeren en ORA met Akkumulator (onofficiële opcode).",
+  RLA: "ROL op geheugen uitvoeren en AND met Akkumulator (onofficiële opcode).",
+  SRE: "LSR op geheugen uitvoeren en EOR met Akkumulator (onofficiële opcode).",
+  RRA: "ROR op geheugen uitvoeren en ADC met Akkumulator (onofficiële opcode).",
+  ALR: "AND met A uitvoeren en LSR op Akkumulator (onofficiële opcode).",
+  ANC: "AND met A uitvoeren en bit 7 naar Carry kopiëren (onofficiële opcode).",
+  ARR: "AND met A uitvoeren en ROR op Akkumulator (onofficiële opcode).",
+  AXS: "Bitsgewijze EN van A en X vergelijken met constante (onofficiële opcode).",
+  LAS: "Geheugenwaarde laden in A, X en Stack-pointer (onofficiële opcode).",
+  AHX: "A EN X EN hoge adresbyte opslaan in geheugen (onofficiële opcode).",
+  SHX: "X EN hoge adresbyte opslaan in geheugen (onofficiële opcode).",
+  SHY: "Y EN hoge adresbyte opslaan in geheugen (onofficiële opcode).",
+  TAS: "A EN X kopiëren naar Stack-pointer en opslaan (onofficiële opcode).",
+  KIL: "Processor bevriezen (Crash/Halt onofficiële opcode).",
+  XAA: "X-register kopiëren naar A en EN-bewerking met constante (onofficiële opcode).",
+  PETSCII: "Place text as PETSCII bytes at a given memory address without generating runtime code. Compatible with CHROUT ($FFD2). Null terminator checkbox appends $00.",
+  END: "RTS alias: subroutine end macro that generates RTS.",
+  SPRITE_ANIM: "Sprite animation: increments a ZP frame counter (0..count-1) and updates $07F8+N from a 1-byte-per-frame pointer list. 19 bytes.",
+  SCORE_BCD: "BCD score increment and display: SED/CLC/ADC pattern adds points, then converts BCD nibbles to screen codes and writes to screen RAM. 2/4/6 digits, inline.",
+  IF_A: "Runtime conditional on A: CMP {value} + conditional branch to skip the body. Operators: = or ==, != < >= (unsigned). Closed by ELSE and ENDIF.",
+  IF_X: "Runtime conditional on X: CPX {value} + conditional branch. Immediate / absolute / zero page addressing only.",
+  IF_Y: "Runtime conditional on Y: CPY {value} + conditional branch. Immediate / absolute / zero page addressing only.",
+  WHILE_A: "While-loop on A: while (A op value) is true, repeat the body. Closed by ENDW. Operators: = or ==, != < >=.",
+  WHILE_X: "While-loop on X.",
+  WHILE_Y: "While-loop on Y.",
+  UNTIL_A: "Close a REPEAT loop based on A: exit when (A op value) is true. Operators: = or ==, != < >=.",
+  UNTIL_X: "Close a REPEAT loop based on X.",
+  UNTIL_Y: "Close a REPEAT loop based on Y.",
+  MEMCPY: "Copy memory: LDX / LDA src,X / STA dst,X / INX loop. Size 1..N bytes; N>256 emits full 256-byte page loops. Clobbers A and X.",
+  MEMSET: "Fill memory with a constant byte: LDA #val + LDX / STA / INX loop. Size 1..N bytes; N>256 emits page loops. Clobbers A and X.",
+};
+
 
 function getItemDescription(item) {
   if (currentLanguage === "es") return mnemonicDescriptionsEs[item.mnemonic] || mnemonicDescriptionsEn[item.mnemonic] || item.description;
   if (currentLanguage === "de") return mnemonicDescriptionsDe[item.mnemonic] || mnemonicDescriptionsEn[item.mnemonic] || item.description;
+  if (currentLanguage === "nl") return mnemonicDescriptionsNl[item.mnemonic] || mnemonicDescriptionsEn[item.mnemonic] || item.description;
   if (currentLanguage !== "hu") return mnemonicDescriptionsEn[item.mnemonic] || item.description;
   return item.description;
 }
@@ -1395,25 +1599,25 @@ const opcodeMap = {
 };
 
 const kernalRoutines = [
-  { addr: "$FFD2", name: "CHROUT",  hu: "Karakter kiirasa kepernyore/eszkozre (A=kar)",        en: "Print character to screen/device (A=char)" },
-  { addr: "$FFCF", name: "CHRIN",   hu: "Karakter beolvasasa (blokkolO, A=kar)",                en: "Read character, blocking (A=char)" },
-  { addr: "$FFE4", name: "GETIN",   hu: "Billentyu beolvasasa (nem blokkolO, A=kar/0)",         en: "Get key from keyboard, non-blocking (A=key/0)" },
-  { addr: "$FFE1", name: "STOP",    hu: "STOP gomb ellenorzese (Z=1 ha lenyomva)",              en: "Check STOP key (Z=1 if pressed)" },
-  { addr: "$FFCC", name: "CLRCHN",  hu: "I/O csatornak alaphelyzetbe allitasa",                 en: "Reset I/O channels to defaults" },
-  { addr: "$FFC3", name: "SETLFS",  hu: "Logikai fajl beallitasa (A=LA, X=eszkoz, Y=SA)",      en: "Set logical file (A=LA, X=device, Y=SA)" },
-  { addr: "$FFBD", name: "SETNAM",  hu: "Fajlnev beallitasa (A=hossz, XY=cim)",                en: "Set filename (A=length, XY=address)" },
-  { addr: "$FFD5", name: "LOAD",    hu: "Program betoltese eszkozrol (A=0/1)",                  en: "Load file from device (A=0/1)" },
-  { addr: "$FFD8", name: "SAVE",    hu: "Memoria mentese eszkozre",                             en: "Save memory to device" },
-  { addr: "$FF9F", name: "SCNKEY",  hu: "Billentyuzet pasztazasa (frissiti a puffert)",         en: "Scan keyboard (updates key buffer)" },
-  { addr: "$FF99", name: "MEMTOP",  hu: "Memoria csucs olvasasa/irasa (XY=cim, C=0 iras)",     en: "Read/write memory top (XY=addr, C=0 write)" },
-  { addr: "$FF9C", name: "MEMBOT",  hu: "Memoria aljanak olvasasa/irasa (XY=cim, C=0 iras)",   en: "Read/write memory bottom (XY=addr, C=0 write)" },
-  { addr: "$FFDE", name: "RDTIM",   hu: "Rendszerora beolvasasa (AXY=ido)",                     en: "Read system clock (AXY=time)" },
-  { addr: "$FFDB", name: "SETTIM",  hu: "Rendszerora beallitasa (AXY=ido)",                     en: "Set system clock (AXY=time)" },
-  { addr: "$FF81", name: "CINT",    hu: "Kepernyoszerkeszto inicializalasa",                    en: "Initialize screen editor" },
-  { addr: "$FF84", name: "IOINIT",  hu: "I/O eszkozok inicializalasa",                          en: "Initialize I/O devices" },
-  { addr: "$FF8A", name: "RESTOR",  hu: "Alapertelmezett I/O vektorok visszaallitasa",          en: "Restore default I/O vectors" },
-  { addr: "$E544", name: "CLRSCR",  hu: "Kepernyotorlese (nem hivatalos KERNAL vektor)",        en: "Clear screen (unofficial KERNAL vector)" },
-  { addr: "$E50C", name: "PLOT",    hu: "Kurzor pozicio olvasasa/beallitasa (XY=sor/oszlop)",   en: "Get/set cursor position (XY=row/col)" },
+  { addr: "$FFD2", name: "CHROUT",  hu: "Karakter kiirasa kepernyore/eszkozre (A=kar)",        en: "Print character to screen/device (A=char)",         es: "Imprime carácter en pantalla o dispositivo (A=carácter)",  de: "Zeichen auf Bildschirm/Gerät ausgeben (A=Zeichen)",    nl: "Karakter afdrukken naar scherm/apparaat (A=karakter)" },
+  { addr: "$FFCF", name: "CHRIN",   hu: "Karakter beolvasasa (blokkolO, A=kar)",                en: "Read character, blocking (A=char)",                 es: "Lee carácter, bloqueante (A=carácter)",                    de: "Zeichen einlesen, blockierend (A=Zeichen)",            nl: "Karakter inlezen, blokkerend (A=karakter)" },
+  { addr: "$FFE4", name: "GETIN",   hu: "Billentyu beolvasasa (nem blokkolO, A=kar/0)",         en: "Get key from keyboard, non-blocking (A=key/0)",     es: "Lee tecla del teclado, no bloqueante (A=tecla/0)",         de: "Taste von Tastatur einlesen, nicht blockierend (A=Taste/0)", nl: "Toets van toetsenbord inlezen, niet-blokkerend (A=toets/0)" },
+  { addr: "$FFE1", name: "STOP",    hu: "STOP gomb ellenorzese (Z=1 ha lenyomva)",              en: "Check STOP key (Z=1 if pressed)",                   es: "Comprueba tecla STOP (Z=1 si está presionada)",            de: "STOP-Taste prüfen (Z=1 wenn gedrückt)",                nl: "STOP-toets controleren (Z=1 indien ingedrukt)" },
+  { addr: "$FFCC", name: "CLRCHN",  hu: "I/O csatornak alaphelyzetbe allitasa",                 en: "Reset I/O channels to defaults",                    es: "Restaura canales de E/S a valores por defecto",            de: "E/A-Kanäle auf Standard zurücksetzen",                 nl: "I/O-kanalen herstellen naar standaardwaarden" },
+  { addr: "$FFC3", name: "SETLFS",  hu: "Logikai fajl beallitasa (A=LA, X=eszkoz, Y=SA)",      en: "Set logical file (A=LA, X=device, Y=SA)",           es: "Configura archivo lógico (A=LA, X=dispositivo, Y=SA)",     de: "Logische Datei einrichten (A=LA, X=Gerät, Y=SA)",      nl: "Logisch bestand instellen (A=LA, X=apparaat, Y=SA)" },
+  { addr: "$FFBD", name: "SETNAM",  hu: "Fajlnev beallitasa (A=hossz, XY=cim)",                en: "Set filename (A=length, XY=address)",               es: "Configura nombre de archivo (A=longitud, XY=dirección)",   de: "Dateinamen einrichten (A=Länge, XY=Adresse)",          nl: "Bestandsnaam instellen (A=lengte, XY=adres)" },
+  { addr: "$FFD5", name: "LOAD",    hu: "Program betoltese eszkozrol (A=0/1)",                  en: "Load file from device (A=0/1)",                     es: "Carga archivo desde dispositivo (A=0/1)",                  de: "Datei von Gerät laden (A=0/1)",                        nl: "Bestand laden van apparaat (A=0/1)" },
+  { addr: "$FFD8", name: "SAVE",    hu: "Memoria mentese eszkozre",                             en: "Save memory to device",                             es: "Guarda memoria en dispositivo",                            de: "Speicher auf Gerät speichern",                         nl: "Geheugen opslaan naar apparaat" },
+  { addr: "$FF9F", name: "SCNKEY",  hu: "Billentyuzet pasztazasa (frissiti a puffert)",         en: "Scan keyboard (updates key buffer)",                es: "Escanea el teclado (actualiza búfer de teclas)",           de: "Tastatur abfragen (Tastenpuffer aktualisieren)",       nl: "Toetsenbord scannen (werkt toetsenbuffer bij)" },
+  { addr: "$FF99", name: "MEMTOP",  hu: "Memoria csucs olvasasa/irasa (XY=cim, C=0 iras)",     en: "Read/write memory top (XY=addr, C=0 write)",        es: "Lee/escribe límite superior (XY=dir, C=0 escribir)",       de: "Oberes Speicherende lesen/schreiben (XY=Adresse)",     nl: "Bovengrens geheugen lezen/schrijven (XY=adres, C=0)" },
+  { addr: "$FF9C", name: "MEMBOT",  hu: "Memoria aljanak olvasasa/irasa (XY=cim, C=0 iras)",   en: "Read/write memory bottom (XY=addr, C=0 write)",     es: "Lee/escribe límite inferior (XY=dir, C=0 escribir)",       de: "Unteres Speicherende lesen/schreiben (XY=Adresse)",    nl: "Ondergrens geheugen lezen/schrijven (XY=adres, C=0)" },
+  { addr: "$FFDE", name: "RDTIM",   hu: "Rendszerora beolvasasa (AXY=ido)",                     en: "Read system clock (AXY=time)",                      es: "Lee el reloj del sistema (AXY=tiempo)",                    de: "Systemuhr einlesen (AXY=Zeit)",                        nl: "Systeemklok uitlezen (AXY=tijd)" },
+  { addr: "$FFDB", name: "SETTIM",  hu: "Rendszerora beallitasa (AXY=ido)",                     en: "Set system clock (AXY=time)",                       es: "Establece el reloj del sistema (AXY=tiempo)",              de: "Systemuhr stellen (AXY=Zeit)",                         nl: "Systeemklok instellen (AXY=tijd)" },
+  { addr: "$FF81", name: "CINT",    hu: "Kepernyoszerkeszto inicializalasa",                    en: "Initialize screen editor",                          es: "Inicializa el editor de pantalla",                         de: "Bildschirmeditor initialisieren",                      nl: "Schermeditor initialiseren" },
+  { addr: "$FF84", name: "IOINIT",  hu: "I/O eszkozok inicializalasa",                          en: "Initialize I/O devices",                            es: "Inicializa dispositivos de E/S",                           de: "E/A-Geräte initialisieren",                            nl: "I/O-apparaten initialiseren" },
+  { addr: "$FF8A", name: "RESTOR",  hu: "Alapertelmezett I/O vektorok visszaallitasa",          en: "Restore default I/O vectors",                       es: "Restaura vectores de E/S por defecto",                     de: "Standard-E/A-Vektoren wiederherstellen",               nl: "Standaard I/O-vectoren herstellen" },
+  { addr: "$E544", name: "CLRSCR",  hu: "Kepernyotorlese (nem hivatalos KERNAL vektor)",        en: "Clear screen (unofficial KERNAL vector)",           es: "Borra la pantalla (vector KERNAL no oficial)",             de: "Bildschirm löschen (inoffizieller KERNAL-Vektor)",     nl: "Scherm wissen (onofficiële KERNAL-vector)" },
+  { addr: "$E50C", name: "PLOT",    hu: "Kurzor pozicio olvasasa/beallitasa (XY=sor/oszlop)",   en: "Get/set cursor position (XY=row/col)",              es: "Lee/establece posición del cursor (XY=fila/col)",          de: "Cursorposition lesen/setzen (XY=Zeile/Spalte)",        nl: "Cursorpositie lezen/instellen (XY=rij/kolom)" }
 ];
 
 const memorySegments = [
@@ -2281,11 +2485,11 @@ function initPalette() {
       saveProjectToFile().then(() => {
         markTabClean();
         if (expertMode) {
-          _expertSetStatus(currentLanguage === "hu" ? "Mentve ✓" : "Saved ✓", "ok");
+          _expertSetStatus(t("savedCheck"), "ok");
           setTimeout(() => _expertValidate(), 1800);
         } else if (emulatorStatus) {
           const prev = emulatorStatus.textContent;
-          emulatorStatus.textContent = currentLanguage === "hu" ? "Mentve ✓" : "Saved ✓";
+          emulatorStatus.textContent = t("savedCheck");
           setTimeout(() => { if (emulatorStatus.textContent.includes("✓")) emulatorStatus.textContent = prev; }, 1800);
         }
       });
@@ -2843,7 +3047,7 @@ function _handleBlockCtxAction(action, index) {
 
 function applySavedLanguage() {
   const savedLanguage = localStorage.getItem("c64-block-language") || "en";
-  currentLanguage = ["en", "es", "hu", "de"].includes(savedLanguage) ? savedLanguage : "hu";
+  currentLanguage = ["en", "es", "hu", "de", "nl"].includes(savedLanguage) ? savedLanguage : "hu";
   document.documentElement.lang = currentLanguage;
   if (languageSelect) {
     languageSelect.value = currentLanguage;
@@ -3121,7 +3325,7 @@ function applySavedUiSettings() {
 }
 
 function handleLanguageChange() {
-  currentLanguage = ["en", "es", "hu", "de"].includes(languageSelect.value) ? languageSelect.value : "hu";
+  currentLanguage = ["en", "es", "hu", "de", "nl"].includes(languageSelect.value) ? languageSelect.value : "hu";
   localStorage.setItem("c64-block-language", currentLanguage);
   document.documentElement.lang = currentLanguage;
   applyTranslations();
@@ -4071,7 +4275,7 @@ function renderMnemonicDescription() {
   if (item.isTextMacro) {
     const textPreview = formatTextMacroPreview(operandInput.value.trim());
     mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
-      lines: [currentLanguage === "hu" ? "Makro-cimzes: kepernyo pozicio X/Y alapon." : "Macro addressing: screen position by X/Y."],
+      lines: [t("macroAddrScreenXY")],
       example: textPreview.preview
     });
     return;
@@ -4079,7 +4283,7 @@ function renderMnemonicDescription() {
   if (item.isByteMacro) {
     const bytePreview = formatByteMacroPreview(operandInput.value.trim());
     mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
-      lines: [currentLanguage === "hu" ? "Makro-cimzes: a byte-ok a jelenlegi assembly cimre kerulnek." : "Macro addressing: bytes are inserted at the current assembly address."],
+      lines: [t("macroAddrCurrentAddr")],
       example: bytePreview.preview,
       exampleError: bytePreview.error
     });
@@ -4088,7 +4292,7 @@ function renderMnemonicDescription() {
   if (item.isStringMacro) {
     const textPreview = formatTextMacroPreview(operandInput.value.trim());
     mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
-      lines: [currentLanguage === "hu" ? "Makro-cimzes: szoveget kepernyo kodkent kodol, majd LDA #kod / STA $cim parokat general futasidokor." : "Macro addressing: encodes text as screen codes, then generates LDA #code / STA $addr pairs at runtime."],
+      lines: [t("macroAddrTextRuntime")],
       example: textPreview.preview
     });
     return;
@@ -4096,7 +4300,7 @@ function renderMnemonicDescription() {
   if (item.isRawBytesMacro) {
     const bytePreview = formatByteMacroPreview(operandInput.value.trim());
     mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
-      lines: [currentLanguage === "hu" ? "Makro-cimzes: nyers byte-okat helyez el kozvetlenul egy abszolut memoriacimre, LDA/STA kod generalas nelkul." : "Macro addressing: places raw bytes directly at an absolute memory address, no LDA/STA code generated."],
+      lines: [t("macroAddrRawBytes")],
       example: bytePreview.preview,
       exampleError: bytePreview.error
     });
@@ -4104,36 +4308,36 @@ function renderMnemonicDescription() {
   }
   if (item.isIncBinMacro) {
     mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
-      lines: [currentLanguage === "hu" ? "Makro-cimzes: kulso binarfajl adatait helyezi el egy abszolut memoriacimre, runtime kod generalas nelkul." : "Macro addressing: includes an external binary file at a given memory address, no runtime code generated.", currentLanguage === "hu" ? "A fajlt a Tallozas gombbal valaszthatod ki a beillesztes utan." : "Select a binary file with the Browse button after inserting."]
+      lines: [t("macroAddrIncbin"), t("macroAddrBrowseAfter")]
     });
     return;
   }
   if (item.isIncludeMacro) {
     mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
-      lines: [currentLanguage === "hu" ? "Egy masik projekt JSON fajl blokkjait illeszti be erre a helyre. A blokkok szurkitve, csak olvashatoan jelennek meg." : "Embeds another project JSON file's blocks inline at this position. The blocks appear grayed out and read-only.", currentLanguage === "hu" ? "A projektet a Tallozas gombbal valaszthatod ki a beillesztes utan." : "Select a project file with the Browse button after inserting."]
+      lines: [t("macroAddrInclude"), t("macroAddrBrowseProjectAfter")]
     });
     return;
   }
   if (item.isRawTextMacro) {
     const textPreview = formatTextMacroPreview(operandInput.value.trim());
     mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
-      lines: [currentLanguage === "hu" ? "Makro-cimzes: szoveget kepernyo kodkent helyez el kozvetlenul egy abszolut memoriacimre, LDA/STA kod generalas nelkul." : "Macro addressing: places text as screen codes directly at an absolute memory address, no LDA/STA code generated."],
+      lines: [t("macroAddrRawText")],
       example: textPreview.preview
     });
     return;
   }
   if (item.isComment) {
     mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
-      lines: [currentLanguage === "hu" ? "Kommentsor, ami az ASM-ben es a monitorban is latszik, de nem general byte-ot." : "Comment line visible in ASM and monitor, but it generates no bytes."],
-      example: `; ${operandInput.value.trim() || (currentLanguage === "hu" ? "uj komment" : "new comment")}`
+      lines: [t("macroAddrComment")],
+      example: `; ${operandInput.value.trim() || t("newCommentPlaceholder")}`
     });
     return;
   }
   const preview = buildOperandPreview(modeKey, operandInput.value.trim(), getSelectedBase());
   mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
     lines: [
-      `${currentLanguage === "hu" ? "Cimzes" : "Addressing"}: ${modeText(modeKey, "label")}. ${modeText(modeKey, "help")}`,
-      `${currentLanguage === "hu" ? "Engedett modok" : "Allowed modes"}: ${item.modes.map((key) => modeText(key, "label")).join(", ")}`
+      `${t("addressingLabel")}: ${modeText(modeKey, "label")}. ${modeText(modeKey, "help")}`,
+      `${t("allowedModesLabel")}: ${item.modes.map((key) => modeText(key, "label")).join(", ")}`
     ],
     example: preview.text,
     exampleError: preview.error
@@ -4162,25 +4366,25 @@ function renderPaletteItems() {
 
     node.querySelector(".palette-mnemonic").textContent = item.mnemonic;
     node.querySelector(".palette-description").textContent = item.isTextMacro
-      ? `${currentLanguage === "hu" ? "Kepernyo X/Y" : "Screen X/Y"} | ${preview.preview}`
+      ? `${t("paletteScreenXY")} | ${preview.preview}`
       : item.isByteMacro
-        ? `${currentLanguage === "hu" ? "Byte tomb" : "Byte array"} | ${preview.preview}`
+        ? `${t("paletteByteArray")} | ${preview.preview}`
         : item.isStringMacro
-          ? `${currentLanguage === "hu" ? "Abszolut cim" : "Absolute address"} | ${preview.preview}`
+          ? `${t("paletteAbsAddr")} | ${preview.preview}`
           : item.isDataMacro
-            ? `${currentLanguage === "hu" ? "Abszolut cim" : "Absolute address"} | ${preview.preview}`
+            ? `${t("paletteAbsAddr")} | ${preview.preview}`
             : item.isRawBytesMacro
-              ? `${currentLanguage === "hu" ? "Nyers byte-ok adott cimre" : "Raw bytes at address"} | ${preview.preview}`
+              ? `${t("paletteRawBytes")} | ${preview.preview}`
               : item.isRawTextMacro
-                ? `${currentLanguage === "hu" ? "Nyers szoveg adott cimre" : "Raw text at address"} | ${preview.preview}`
+                ? `${t("paletteRawText")} | ${preview.preview}`
                 : item.isIncBinMacro
-                  ? `${currentLanguage === "hu" ? "Binarfajl adott cimre" : "Binary file at address"}`
+                  ? `${t("paletteBinAtAddr")}`
                   : item.isIncludeMacro
-                  ? `${currentLanguage === "hu" ? "Projekt blokkjainak beillesztese" : "Include project blocks inline"}`
+                  ? `${t("paletteIncludeProj")}`
                   : item.isSidMacro
-                  ? `${currentLanguage === "hu" ? "SID zenefajl, fejlec automatikusan eltavolitva" : "SID music file, header stripped automatically"}`
+                  ? `${t("paletteSidHeader")}`
                   : item.isComment
-                ? `${currentLanguage === "hu" ? "Komment" : "Comment"} | ; ${operandInput.value.trim() || (currentLanguage === "hu" ? "uj komment" : "new comment")}`
+                ? `${t("paletteComment")} | ; ${operandInput.value.trim() || t("newCommentPlaceholder")}`
                 : `${modeText(defaultMode, "label")} | ${preview.text}`;
 
     node.addEventListener("click", () => {
@@ -6580,7 +6784,7 @@ function _ubFind(direction = 0) {
   else _ubFindIndex = (_ubFindIndex + direction + _ubFindMatches.length) % _ubFindMatches.length;
   const count = document.getElementById("ub-find-count");
   if (count) {
-    count.textContent = !term ? "" : _ubFindIndex < 0 ? (currentLanguage === "hu" ? "Nincs találat." : currentLanguage === "es" ? "Sin resultados." : currentLanguage === "de" ? "Keine Treffer." : "No results.") : `${_ubFindIndex + 1} / ${_ubFindMatches.length}`;
+    count.textContent = !term ? "" : _ubFindIndex < 0 ? (currentLanguage === "hu" ? "Nincs találat." : currentLanguage === "es" ? "Sin resultados." : currentLanguage === "de" ? "Keine Treffer." : currentLanguage === "nl" ? "Geen resultaten." : "No results.") : `${_ubFindIndex + 1} / ${_ubFindMatches.length}`;
     count.style.color = term && _ubFindIndex < 0 ? "var(--error, #f44)" : "";
   }
   if (_ubFindIndex >= 0) {
@@ -8969,7 +9173,7 @@ function _expertFindUpdateCounter() {
   if (!el) return;
   if (!_expertFindTerm) { el.textContent = ""; el.style.color = ""; return; }
   if (!_expertFindMatches.length) {
-    el.textContent = currentLanguage === "hu" ? "Nincs találat." : currentLanguage === "es" ? "Sin resultados." : "No results.";
+    el.textContent = currentLanguage === "hu" ? "Nincs találat." : currentLanguage === "es" ? "Sin resultados." : currentLanguage === "de" ? "Keine Treffer." : currentLanguage === "nl" ? "Geen resultaten." : "No results.";
     el.style.color = "var(--error, #f44)";
   } else {
     el.textContent = `${_expertFindIdx + 1} / ${_expertFindMatches.length}`;
@@ -11774,7 +11978,7 @@ async function _expertProjectOpenFile(fileEntry) {
   if (isAsmSource) {
     const res = await window.electronAPI?.readTextFile?.(absPath);
     if (!res || !res.ok) {
-      _expertSetStatus("Nem nyitható meg: " + (res?.error || "ismeretlen hiba"), "error");
+      _expertSetStatus(tf("cannotOpen", { error: res?.error || "ismeretlen hiba" }), "error");
       return;
     }
 
@@ -11792,7 +11996,7 @@ async function _expertProjectOpenFile(fileEntry) {
   // Load as C64VA project JSON → program blocks
   const res = await window.electronAPI?.readTextFile?.(absPath);
   if (!res || !res.ok) {
-    _expertSetStatus("Nem nyitható meg: " + (res?.error || "ismeretlen hiba"), "error");
+    _expertSetStatus(tf("cannotOpen", { error: res?.error || "ismeretlen hiba" }), "error");
     return;
   }
 
@@ -11800,12 +12004,12 @@ async function _expertProjectOpenFile(fileEntry) {
   try {
     projectData = JSON.parse(res.content);
   } catch (e) {
-    _expertSetStatus("Érvénytelen JSON: " + e.message, "error");
+    _expertSetStatus(tf("invalidJson", { error: e.message }), "error");
     return;
   }
 
   if (projectData.app !== "c64-visual-assembler" || !Array.isArray(projectData.program)) {
-    _expertSetStatus("Nem C64VA projektfájl: " + fileEntry.name, "error");
+    _expertSetStatus(tf("notProjectFile", { name: fileEntry.name }), "error");
     return;
   }
 
@@ -14757,7 +14961,7 @@ async function _writeProjectSnapshotEntries(tab = _getActiveTab(), entries = [])
 
 function _formatProjectSnapshotDate(value) {
   try {
-    const locale = currentLanguage === "hu" ? "hu-HU" : "en-US";
+    const locale = currentLanguage === "hu" ? "hu-HU" : currentLanguage === "nl" ? "nl-NL" : currentLanguage === "de" ? "de-DE" : currentLanguage === "es" ? "es-ES" : "en-US";
     return new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
   } catch {
     return value || "";
@@ -14851,7 +15055,7 @@ async function _renderProjectSnapshotHistory() {
   if (!projectSnapshotList || !projectSnapshotEmpty || !projectSnapshotTabName) return;
   const tab = _getActiveTab();
   const entries = await _readProjectSnapshotEntries(tab);
-  const tabLabel = tab?.name || (currentLanguage === "hu" ? "Aktív program" : "Current program");
+  const tabLabel = tab?.name || t("snapshotCurrentProgram");
   projectSnapshotTabName.textContent = tabLabel;
   if (projectSnapshotNoteInput) {
     projectSnapshotNoteInput.placeholder = t("snapshotNotePlaceholder");
@@ -14929,7 +15133,7 @@ async function _saveManualProjectSnapshot() {
   const latest = entries[0]?.payload;
   if (latest && JSON.stringify(latest) === JSON.stringify(payload)) {
     if (emulatorStatus) {
-      emulatorStatus.textContent = currentLanguage === "hu" ? "A snapshot már létezik." : "Snapshot already exists.";
+      emulatorStatus.textContent = t("snapshotAlreadyExists");
     }
     return false;
   }
@@ -14955,9 +15159,7 @@ async function _restoreProjectSnapshotByIndex(index) {
   const entries = await _readProjectSnapshotEntries(tab);
   const entry = entries[index];
   if (!entry?.payload) return false;
-  const msg = currentLanguage === "hu"
-    ? "Visszaállítod ezt a snapshotot? A jelenlegi, nem mentett változások elveszhetnek."
-    : "Restore this snapshot? Current unsaved changes may be lost.";
+  const msg = t("snapshotConfirmRestore");
   if (!await _showConfirm(msg)) return false;
   const ok = await _applyProjectPayload(entry.payload, { keepFilePath: true, sourceLabel: entry.note || entry.createdAt || "" });
   if (ok) {
@@ -14982,9 +15184,7 @@ async function _deleteProjectSnapshotByIndex(index) {
   if (!tab) return false;
   const entries = await _readProjectSnapshotEntries(tab);
   if (!entries[index]) return false;
-  const msg = currentLanguage === "hu"
-    ? "Törlöd ezt a snapshotot?"
-    : "Delete this snapshot?";
+  const msg = t("snapshotConfirmDelete");
   if (!await _showConfirm(msg)) return false;
   entries.splice(index, 1);
   await _writeProjectSnapshotEntries(tab, entries);
@@ -22536,9 +22736,11 @@ function getBlockDescription(block) {
     ? mnemonicDescriptionsEs[block.mnemonic] || mnemonicDescriptionsEn[block.mnemonic] || block.description
     : currentLanguage === "de"
       ? mnemonicDescriptionsDe[block.mnemonic] || mnemonicDescriptionsEn[block.mnemonic] || block.description
-      : currentLanguage !== "hu"
-        ? mnemonicDescriptionsEn[block.mnemonic] || block.description
-        : block.description);
+      : currentLanguage === "nl"
+        ? mnemonicDescriptionsNl[block.mnemonic] || mnemonicDescriptionsEn[block.mnemonic] || block.description
+        : currentLanguage !== "hu"
+          ? mnemonicDescriptionsEn[block.mnemonic] || block.description
+          : block.description);
 }
 
 function getBlockModeCaption(block) {
@@ -27573,10 +27775,10 @@ function _tutRenderDialog() {
     const catLessons = TUTORIAL_DATA.lessons.filter(l => l.category === cat.id);
     if (catLessons.length === 0) return "";
     return `<div class="tutorial-category">
-      <div class="tutorial-category-label">${lang === "hu" ? cat.labelHu : (lang === "es" && cat.labelEs ? cat.labelEs : (lang === "de" && cat.labelDe ? cat.labelDe : cat.labelEn))}</div>
+      <div class="tutorial-category-label">${lang === "hu" ? cat.labelHu : (lang === "es" && cat.labelEs ? cat.labelEs : (lang === "de" && cat.labelDe ? cat.labelDe : (lang === "nl" && cat.labelNl ? cat.labelNl : cat.labelEn)))}</div>
       ${catLessons.map(lesson => {
         const done = _tutorialProgress[lesson.id]?.completed;
-        const title = lang === "hu" ? lesson.titleHu : (lang === "es" && lesson.titleEs ? lesson.titleEs : (lang === "de" && lesson.titleDe ? lesson.titleDe : lesson.titleEn));
+        const title = lang === "hu" ? lesson.titleHu : (lang === "es" && lesson.titleEs ? lesson.titleEs : (lang === "de" && lesson.titleDe ? lesson.titleDe : (lang === "nl" && lesson.titleNl ? lesson.titleNl : lesson.titleEn)));
         const stars = lesson.difficulty > 0
           ? `${lesson.difficulty}/3`
           : "TOUR";
@@ -27607,15 +27809,15 @@ function _tutShowLesson(lessonId) {
   if (!lesson || !contentEl) return;
   const canStartTour = lesson.type === "tour" || lesson.interactive === true;
 
-  const title = lang === "hu" ? lesson.titleHu : (lang === "es" && lesson.titleEs ? lesson.titleEs : (lang === "de" && lesson.titleDe ? lesson.titleDe : lesson.titleEn));
-  const desc = lang === "hu" ? lesson.descHu : (lang === "es" && lesson.descEs ? lesson.descEs : (lang === "de" && lesson.descDe ? lesson.descDe : lesson.descEn));
+  const title = lang === "hu" ? lesson.titleHu : (lang === "es" && lesson.titleEs ? lesson.titleEs : (lang === "de" && lesson.titleDe ? lesson.titleDe : (lang === "nl" && lesson.titleNl ? lesson.titleNl : lesson.titleEn)));
+  const desc = lang === "hu" ? lesson.descHu : (lang === "es" && lesson.descEs ? lesson.descEs : (lang === "de" && lesson.descDe ? lesson.descDe : (lang === "nl" && lesson.descNl ? lesson.descNl : lesson.descEn)));
   const diffStars = lesson.difficulty > 0
     ? `(${lesson.difficulty}/3)`
     : null;
   const diffLabel = lesson.difficulty === 0 ? "Tour"
-    : lesson.difficulty === 1 ? (lang === "hu" ? "Kezdo" : (lang === "es" ? "Principiante" : (lang === "de" ? "Anfänger" : "Beginner")))
-    : lesson.difficulty === 2 ? (lang === "hu" ? "Kozepes" : (lang === "es" ? "Intermedio" : (lang === "de" ? "Mittel" : "Intermediate")))
-    : (lang === "hu" ? "Halado" : (lang === "es" ? "Avanzado" : (lang === "de" ? "Fortgeschritten" : "Advanced")));
+    : lesson.difficulty === 1 ? (lang === "hu" ? "Kezdo" : (lang === "es" ? "Principiante" : (lang === "de" ? "Anfänger" : (lang === "nl" ? "Beginner" : "Beginner"))))
+    : lesson.difficulty === 2 ? (lang === "hu" ? "Kozepes" : (lang === "es" ? "Intermedio" : (lang === "de" ? "Mittel" : (lang === "nl" ? "Gemiddeld" : "Intermediate"))))
+    : (lang === "hu" ? "Halado" : (lang === "es" ? "Avanzado" : (lang === "de" ? "Fortgeschritten" : (lang === "nl" ? "Gevorderd" : "Advanced"))));
 
   const stepsHtml = lesson.steps.map((step, i) => {
     return `<div class="tutorial-step">
@@ -27652,10 +27854,10 @@ function _tutShowLesson(lessonId) {
   lesson.steps.forEach((step, i) => {
     const stepEl = contentEl.querySelectorAll(".tutorial-step")[i];
     if (!stepEl) return;
-    stepEl.querySelector(".tutorial-step-title").textContent = lang === "hu" ? step.titleHu : (lang === "es" && step.titleEs ? step.titleEs : (lang === "de" && step.titleDe ? step.titleDe : step.titleEn));
-    stepEl.querySelector(".tutorial-step-desc").textContent = lang === "hu" ? step.descHu : (lang === "es" && step.descEs ? step.descEs : (lang === "de" && step.descDe ? step.descDe : step.descEn));
+    stepEl.querySelector(".tutorial-step-title").textContent = lang === "hu" ? step.titleHu : (lang === "es" && step.titleEs ? step.titleEs : (lang === "de" && step.titleDe ? step.titleDe : (lang === "nl" && step.titleNl ? step.titleNl : step.titleEn)));
+    stepEl.querySelector(".tutorial-step-desc").textContent = lang === "hu" ? step.descHu : (lang === "es" && step.descEs ? step.descEs : (lang === "de" && step.descDe ? step.descDe : (lang === "nl" && step.descNl ? step.descNl : step.descEn)));
     const actionBtn = stepEl.querySelector(".tutorial-step-action-btn");
-    if (actionBtn) actionBtn.textContent = lang === "hu" ? step.actionLabelHu : (lang === "es" && step.actionLabelEs ? step.actionLabelEs : (lang === "de" && step.actionLabelDe ? step.actionLabelDe : step.actionLabelEn));
+    if (actionBtn) actionBtn.textContent = lang === "hu" ? step.actionLabelHu : (lang === "es" && step.actionLabelEs ? step.actionLabelEs : (lang === "de" && step.actionLabelDe ? step.actionLabelDe : (lang === "nl" && step.actionLabelNl ? step.actionLabelNl : step.actionLabelEn)));
   });
 
   contentEl.querySelectorAll(".tutorial-load-sample-btn").forEach(btn => {
@@ -27759,8 +27961,8 @@ function _tourShowStep(index) {
   const skipBtn = document.getElementById("tour-skip");
 
   if (stepLabel) stepLabel.textContent = `${index + 1} / ${_tourSteps.length}`;
-  if (cardTitle) cardTitle.textContent = lang === "hu" ? step.titleHu : (lang === "es" && step.titleEs ? step.titleEs : (lang === "de" && step.titleDe ? step.titleDe : step.titleEn));
-  if (cardDesc) cardDesc.textContent = lang === "hu" ? step.descHu : (lang === "es" && step.descEs ? step.descEs : (lang === "de" && step.descDe ? step.descDe : step.descEn));
+  if (cardTitle) cardTitle.textContent = lang === "hu" ? step.titleHu : (lang === "es" && step.titleEs ? step.titleEs : (lang === "de" && step.titleDe ? step.titleDe : (lang === "nl" && step.titleNl ? step.titleNl : step.titleEn)));
+  if (cardDesc) cardDesc.textContent = lang === "hu" ? step.descHu : (lang === "es" && step.descEs ? step.descEs : (lang === "de" && step.descDe ? step.descDe : (lang === "nl" && step.descNl ? step.descNl : step.descEn)));
   if (prevBtn) prevBtn.disabled = index === 0;
   if (nextBtn) nextBtn.textContent = index === _tourSteps.length - 1
     ? t("tourFinish") : t("tourNext");

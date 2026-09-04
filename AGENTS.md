@@ -17,7 +17,7 @@ kimenetet, és egy kattintással futtatható VICE-ben, C64 Ultimate-en vagy D64-
 
 - Frontend: **Vanilla JS + HTML + CSS**, build step nélkül (nincs UI framework a rendererben)
 - Backend: **Rust (Tauri 2)** — fájl I/O, VICE/RetroDebugger indítás, SID parse, config
-- A UI négy nyelvű: magyar, angol, spanyol, német (`www/i18n.js`)
+- A UI öt nyelvű: magyar, angol, spanyol, német, holland (`www/i18n.js`)
 - A kódkommentek és a copilot-instructions fő nyelve **magyar**
 - A felhasználó tömör, gyakorlatias magyar válaszokat vár; assembly-szakértő, az alap
   6502 fogalmakat nem kell magyarázni
