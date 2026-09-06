@@ -6871,11 +6871,11 @@ const _UB_COMMAND_REFERENCE = [
   ["goto", "goto label", "Jumps to a label."],
   ["label", "label name", "Defines a goto target."],
   ["graphics", "graphics on [hires|multi|block] [double]\ngraphics off", "Enables or disables a graphics mode."],
-  ["plot", "plot x, y [, color]\nplot erase x, y\nplot xor x, y", "Draws, erases, or XORs a bitmap pixel."],
+  ["plot", "plot x, y\nplot erase x, y\nplot xor x, y", "Draws, erases, or XORs a hires bitmap pixel. Set the drawing color with COLOR PEN."],
   ["line", "line x1, y1, x2, y2\nline erase x1, y1, x2, y2\nline xor x1, y1, x2, y2", "Draws, clears, or XORs a bitmap line."],
-  ["circle", "circle x, y, radius [, color]", "Draws a bitmap circle."],
-  ["rect", "rect x1, y1, x2, y2\nrect erase x1, y1, x2, y2\nrect xor x1, y1, x2, y2", "Draws, clears, or XORs a rectangle outline."],
-  ["gcls", "gcls [color]", "Clears the active graphics screen."],
+  ["circle", "circle x, y, radius", "Draws a hires bitmap circle. Set the drawing color with COLOR PEN."],
+  ["rect", "rect x1, y1, x2, y2\nrect erase x1, y1, x2, y2\nrect xor x1, y1, x2, y2", "Draws, clears, or XORs a hires rectangle outline. Set the drawing color with COLOR PEN."],
+  ["gcls", "gcls", "Clears the active graphics screen."],
   ["flip", "flip", "Swaps visible and draw buffers in double-buffer mode."],
   ["sprite", "sprite id, x, y [, data_address]", "Positions a hardware sprite and optionally sets its data pointer."],
   ["sprdef", "sprdef id\n  byte values...\nend", "Embeds and installs a 63-byte sprite definition."],
@@ -6905,16 +6905,20 @@ const _UB_COMMAND_REFERENCE = [
   ["gosub", "gosub label", "Calls a label with JSR; return resumes execution."],
   ["cls", "cls\ncls fast", "Clears the text screen; FAST directly fills screen and color RAM."],
   ["display", "display on | off", "Enables or disables VIC-II display output."],
-  ["color", "color text value\ncolor border value\ncolor bg value", "Sets the text, border, or background color."],
+  ["color", "color text value\ncolor border value\ncolor bg value\ncolor pen value", "Sets the text, border, or background color. COLOR PEN sets the persistent hires drawing color (foreground) used by plot, line, rect, circle, and paint."],
+  ["color pen", "color pen value", "Sets the persistent hires bitmap drawing color (0-15). Applied to the cell foreground of every pixel drawn by plot, line, rect, circle, and paint until changed. Background nibble is preserved."],
   ["text", "text column, row, string [, color]", "Writes text at a screen position."],
   ["screen", "screen column, row, character [, color]", "Writes directly to screen and color RAM."],
   ["cursor", "cursor column, row", "Moves the text cursor."],
   ["lowercase", "lowercase", "Switches to the lowercase/uppercase VIC character set."],
   ["uppercase", "uppercase", "Switches to the uppercase/graphics VIC character set."],
-  ["plot4", "plot4 x, y [, color]\nplot4 erase x, y", "Draws a 4×4 block pixel."],
-  ["mplot", "mplot x, y, color", "Draws a multicolor bitmap pixel."],
-  ["circle4", "circle4 x, y, radius [, color]", "Draws a circle in block-pixel mode."],
-  ["paint", "paint x, y [, color]", "Flood-fills a connected bitmap area."],
+  ["plot4", "plot4 x, y\nplot4 erase x, y", "Draws a 4×4 block pixel."],
+  ["mplot", "mplot x, y, color", "Draws a multicolor bitmap pixel (color 0-3 selects the 2-bit source)."],
+  ["mline", "mline x1, y1, x2, y2, color", "Draws a multicolor bitmap line (160×200). Color 0-3 selects the 2-bit color source."],
+  ["mrect", "mrect x1, y1, x2, y2, color", "Draws a multicolor bitmap rectangle outline. Color 0-3 selects the 2-bit color source."],
+  ["mcircle", "mcircle x, y, radius, color", "Draws a multicolor bitmap circle. Color 0-3 selects the 2-bit color source."],
+  ["circle4", "circle4 x, y, radius", "Draws a circle in block-pixel mode."],
+  ["paint", "paint x, y", "Flood-fills a connected hires bitmap area. Set the drawing color with COLOR PEN."],
   ["fill", "fill screen value\nfill color value\nfill address, length, value", "Fills screen RAM, color RAM, or an arbitrary memory range."],
   ["sprite control", "sprite id, on|off|color value|multi on|off|expand x|y|priority front|back", "Controls hardware sprite attributes."],
   ["sprite_frame", "sprite_frame id, data_address [, frame]", "Selects a sprite animation frame. The optional frame indexes consecutive 64-byte images from data_address; without it, the command selects the base image."],
@@ -7030,7 +7034,7 @@ function _ubApplyLeftViews(persist = true) {
   if (persist) saveUiSettings();
 }
 
-const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read restore asm include incbin load open close save memcopy drawmem map koala show hide set draw poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll type endtype").split(" "));
+const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read restore asm include incbin load open close save memcopy drawmem map koala show hide set draw poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll type endtype pen mline mrect mcircle").split(" "));
 const _UB_TYPES = new Set(["int", "word", "float", "string", "array", "array_word"]);
 const _UB_FUNCTIONS = new Set(("str_to_int numstr chr$ str$ inkey waitkey len asc val reudet reu_present turbo clamp peek peek16 rnd abs min max sgn spc tab joy mouse_x mouse_x_hi mouse_y mouse_btn sprhit sprbghit sprite_hit sprite_bg_hit sprite_x sprite_y map_tile map_color box_hit sin cos hex bin getch").split(" "));
 const _UB_ASM_MNEMONICS = new Set(("adc and asl bcc bcs beq bit bmi bne bpl brk bvc bvs clc cld cli clv cmp cpx cpy dec dex dey eor inc inx iny jmp jsr lda ldx ldy lsr nop ora pha php pla plp rol ror rti rts sbc sec sed sei sta stx sty tax tay tsx txa txs tya").split(" "));
