@@ -46,6 +46,8 @@
     runD64: (payload) => invoke("run_d64", { payload }),
     saveProject: (payload) => invoke("save_project", { payload }),
     loadProject: () => invoke("load_project"),
+    saveWorkspaceFile: (payload) => invoke("save_workspace_file", { payload }),
+    openWorkspaceFile: () => invoke("open_workspace_file"),
     openProjFile: (initialDir = "") => invoke("open_proj_file", { initialDir }),
     saveProjFile: (path, content, initialDir = "") => invoke("save_proj_file", { path, content, initialDir }),
     readTextFile: (path) => invoke("read_text_file", { path }),

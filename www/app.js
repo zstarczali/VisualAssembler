@@ -367,6 +367,7 @@ let asmDisplayText = "";
 let showMacroSource = false;
 let showRegionComments = true;
 let showMemoryOverlays = true;
+let showGlobalMemoryPanel = true;
 let blockPaletteSync = true;
 let asmOutputBase = "hex";
 let originBase = "hex";
@@ -376,6 +377,7 @@ const macroSourceToggle = document.getElementById("macro-source-toggle");
 const macroSourceToggleText = document.getElementById("macro-source-toggle-text");
 const regionCommentsToggle = document.getElementById("region-comments-toggle");
 const memoryOverlaysToggle = document.getElementById("memory-overlays-toggle");
+const globalMemoryPanelToggle = document.getElementById("global-memory-panel-toggle");
 const blockPaletteSyncToggle = document.getElementById("block-desc-sync-toggle");
 const asmBaseInputs = document.querySelectorAll('input[name="asm-output-base"]');
 const originBaseInputs = document.querySelectorAll('input[name="origin-base"]');
@@ -519,6 +521,9 @@ let userMacros = {};  // Stores user-defined macros: { macroName: [blocks...] }
 let tabs = [];
 let activeTabId = null;
 let _tabCounter = 0;
+let _currentWorkspacePath = "";   // path of the .vaws workspace file currently loaded/saved, if any
+let _currentWorkspaceName = "";
+let _workspaceAutoSaveTimer = 0;
 let _historyObserveTimer = 0;
 let _historyApplying = false;
 let _expertHlEnabled = true;
@@ -550,6 +555,7 @@ let _expertFindIdx = -1;
 let _expertProjectData = null; // { name, files, _projPath }
 let _expertPendingEditMeta = null;
 const _PROJECT_SNAPSHOT_MAX_ENTRIES = 10;
+const _HISTORY_MAX_STACK = 200; // cap per-tab undo/redo stacks so long editing sessions with many open tabs don't grow memory unbounded
 const _PROJECT_SNAPSHOT_AUTO_DELAY_MS = 2500;
 const DELAY_HELPER_LABEL = "__delay_wait_frames";
 const _PROJECT_SNAPSHOT_HISTORY_CACHE = new Map();
@@ -577,6 +583,10 @@ function readUiSettings() {
 
 function _applyMemoryOverlaysVisibility() {
   document.body.dataset.memoryOverlays = showMemoryOverlays ? "1" : "0";
+}
+
+function _applyGlobalMemoryPanelVisibility() {
+  if (globalMemoryPanel) globalMemoryPanel.hidden = !showGlobalMemoryPanel;
 }
 
 function _applyExpertProjectSymbolsHeight() {
@@ -624,6 +634,7 @@ function saveUiSettings() {
     showMacroSource,
     showRegionComments,
     showMemoryOverlays,
+    showGlobalMemoryPanel,
     blockPaletteSync,
     asmOutputBase,
     exomizerEnabled,
@@ -636,7 +647,8 @@ function saveUiSettings() {
     expertMinimap: _expertMinimapEnabled,
     blockMinimap: _blockMinimapEnabled,
     autoSnapshotEnabled: autoSnapshotToggle ? autoSnapshotToggle.checked : true,
-    editorDialogPositions: _editorDialogPositions
+    editorDialogPositions: _editorDialogPositions,
+    lastWorkspacePath: _currentWorkspacePath
   };
 
   localStorage.setItem("c64-ui-settings", JSON.stringify(settings));
@@ -1340,7 +1352,7 @@ function getItemDescription(item) {
 const mnemonicSyntax = (name, ...parts) => `.${name.toLowerCase()} ${parts.join(", ")}`;
 
 const mnemonicExpertHints = {
-  TEXT: mnemonicSyntax("text", `"HELLO"`, "lower"),
+  TEXT: mnemonicSyntax("text", "1", "1", `"HELLO"`, "lower"),
   BYTE: `.BYTE $A9, $11, $00`,
   WORD: mnemonicSyntax("word", "$1000", "$C000"),
   FILL: mnemonicSyntax("fill", "64", "$00"),
@@ -1604,7 +1616,7 @@ const kernalRoutines = [
   { addr: "$FFE4", name: "GETIN",   hu: "Billentyu beolvasasa (nem blokkolO, A=kar/0)",         en: "Get key from keyboard, non-blocking (A=key/0)",     es: "Lee tecla del teclado, no bloqueante (A=tecla/0)",         de: "Taste von Tastatur einlesen, nicht blockierend (A=Taste/0)", nl: "Toets van toetsenbord inlezen, niet-blokkerend (A=toets/0)" },
   { addr: "$FFE1", name: "STOP",    hu: "STOP gomb ellenorzese (Z=1 ha lenyomva)",              en: "Check STOP key (Z=1 if pressed)",                   es: "Comprueba tecla STOP (Z=1 si está presionada)",            de: "STOP-Taste prüfen (Z=1 wenn gedrückt)",                nl: "STOP-toets controleren (Z=1 indien ingedrukt)" },
   { addr: "$FFCC", name: "CLRCHN",  hu: "I/O csatornak alaphelyzetbe allitasa",                 en: "Reset I/O channels to defaults",                    es: "Restaura canales de E/S a valores por defecto",            de: "E/A-Kanäle auf Standard zurücksetzen",                 nl: "I/O-kanalen herstellen naar standaardwaarden" },
-  { addr: "$FFC3", name: "SETLFS",  hu: "Logikai fajl beallitasa (A=LA, X=eszkoz, Y=SA)",      en: "Set logical file (A=LA, X=device, Y=SA)",           es: "Configura archivo lógico (A=LA, X=dispositivo, Y=SA)",     de: "Logische Datei einrichten (A=LA, X=Gerät, Y=SA)",      nl: "Logisch bestand instellen (A=LA, X=apparaat, Y=SA)" },
+  { addr: "$FFBA", name: "SETLFS",  hu: "Logikai fajl beallitasa (A=LA, X=eszkoz, Y=SA)",      en: "Set logical file (A=LA, X=device, Y=SA)",           es: "Configura archivo lógico (A=LA, X=dispositivo, Y=SA)",     de: "Logische Datei einrichten (A=LA, X=Gerät, Y=SA)",      nl: "Logisch bestand instellen (A=LA, X=apparaat, Y=SA)" },
   { addr: "$FFBD", name: "SETNAM",  hu: "Fajlnev beallitasa (A=hossz, XY=cim)",                en: "Set filename (A=length, XY=address)",               es: "Configura nombre de archivo (A=longitud, XY=dirección)",   de: "Dateinamen einrichten (A=Länge, XY=Adresse)",          nl: "Bestandsnaam instellen (A=lengte, XY=adres)" },
   { addr: "$FFD5", name: "LOAD",    hu: "Program betoltese eszkozrol (A=0/1)",                  en: "Load file from device (A=0/1)",                     es: "Carga archivo desde dispositivo (A=0/1)",                  de: "Datei von Gerät laden (A=0/1)",                        nl: "Bestand laden van apparaat (A=0/1)" },
   { addr: "$FFD8", name: "SAVE",    hu: "Memoria mentese eszkozre",                             en: "Save memory to device",                             es: "Guarda memoria en dispositivo",                            de: "Speicher auf Gerät speichern",                         nl: "Geheugen opslaan naar apparaat" },
@@ -1617,7 +1629,7 @@ const kernalRoutines = [
   { addr: "$FF84", name: "IOINIT",  hu: "I/O eszkozok inicializalasa",                          en: "Initialize I/O devices",                            es: "Inicializa dispositivos de E/S",                           de: "E/A-Geräte initialisieren",                            nl: "I/O-apparaten initialiseren" },
   { addr: "$FF8A", name: "RESTOR",  hu: "Alapertelmezett I/O vektorok visszaallitasa",          en: "Restore default I/O vectors",                       es: "Restaura vectores de E/S por defecto",                     de: "Standard-E/A-Vektoren wiederherstellen",               nl: "Standaard I/O-vectoren herstellen" },
   { addr: "$E544", name: "CLRSCR",  hu: "Kepernyotorlese (nem hivatalos KERNAL vektor)",        en: "Clear screen (unofficial KERNAL vector)",           es: "Borra la pantalla (vector KERNAL no oficial)",             de: "Bildschirm löschen (inoffizieller KERNAL-Vektor)",     nl: "Scherm wissen (onofficiële KERNAL-vector)" },
-  { addr: "$E50C", name: "PLOT",    hu: "Kurzor pozicio olvasasa/beallitasa (XY=sor/oszlop)",   en: "Get/set cursor position (XY=row/col)",              es: "Lee/establece posición del cursor (XY=fila/col)",          de: "Cursorposition lesen/setzen (XY=Zeile/Spalte)",        nl: "Cursorpositie lezen/instellen (XY=rij/kolom)" }
+  { addr: "$FFF0", name: "PLOT",    hu: "Kurzor pozicio olvasasa/beallitasa (C=1 olvas, C=0 ir; X=sor, Y=oszlop)", en: "Get/set cursor position (C=1 read, C=0 write; X=row, Y=col)", es: "Lee/establece posición del cursor (C=1 lee, C=0 escribe; X=fila, Y=col)", de: "Cursorposition lesen/setzen (C=1 lesen, C=0 schreiben; X=Zeile, Y=Spalte)", nl: "Cursorpositie lezen/instellen (C=1 lezen, C=0 schrijven; X=rij, Y=kolom)" }
 ];
 
 const memorySegments = [
@@ -2473,6 +2485,18 @@ function initPalette() {
     await _closeProject();
     document.querySelector(".control-menu")?.removeAttribute("open");
   });
+  document.getElementById("menu-save-workspace")?.addEventListener("click", async () => {
+    await _workspaceSave();
+    document.querySelector(".control-menu")?.removeAttribute("open");
+  });
+  document.getElementById("menu-save-workspace-as")?.addEventListener("click", async () => {
+    await _workspaceSaveAs();
+    document.querySelector(".control-menu")?.removeAttribute("open");
+  });
+  document.getElementById("menu-open-workspace")?.addEventListener("click", async () => {
+    await _workspaceOpenViaDialog();
+    document.querySelector(".control-menu")?.removeAttribute("open");
+  });
   savePrgButton?.addEventListener("click", savePrgToFile);
   saveD64Button?.addEventListener("click", saveD64ToFile);
   saveCrtButton?.addEventListener("click", saveCrtToFile);
@@ -2562,6 +2586,11 @@ function initPalette() {
   memoryOverlaysToggle?.addEventListener("change", () => {
     showMemoryOverlays = memoryOverlaysToggle.checked;
     _applyMemoryOverlaysVisibility();
+    saveUiSettings();
+  });
+  globalMemoryPanelToggle?.addEventListener("change", () => {
+    showGlobalMemoryPanel = globalMemoryPanelToggle.checked;
+    _applyGlobalMemoryPanelVisibility();
     saveUiSettings();
   });
   blockPaletteSyncToggle?.addEventListener("change", () => {
@@ -3143,6 +3172,12 @@ function _applyUiSettingsToDOM() {
     _applyMemoryOverlaysVisibility();
   }
 
+  if (savedUiSettings.showGlobalMemoryPanel !== undefined) {
+    showGlobalMemoryPanel = !!savedUiSettings.showGlobalMemoryPanel;
+    if (globalMemoryPanelToggle) globalMemoryPanelToggle.checked = showGlobalMemoryPanel;
+    _applyGlobalMemoryPanelVisibility();
+  }
+
   if (savedUiSettings.blockPaletteSync !== undefined) {
     blockPaletteSync = !!savedUiSettings.blockPaletteSync;
     if (blockPaletteSyncToggle) blockPaletteSyncToggle.checked = blockPaletteSync;
@@ -3319,6 +3354,10 @@ function applySavedUiSettings() {
         _applyUiSettingsToDOM();
         _applyMemoryOverlaysVisibility();
         renderMemoryStrip();
+        // Silently reopen the last-used workspace (its real, on-disk files) so the
+        // app continues where it was closed — but only into the still-untouched
+        // startup state, never over anything the user may have already started.
+        if (globalSettings.lastWorkspacePath) _workspaceAutoRestore(globalSettings.lastWorkspacePath);
       }
     }).catch(() => {});
   }
@@ -3535,6 +3574,10 @@ function applyTranslations() {
     setText("#restore-snapshot", t("restorePreviousVersion"));
     setText("#snapshot-history", t("snapshotHistory"));
     setText("#menu-close-project", t("menuCloseProject"));
+    setText("#workspace-section-label", t("workspaceSectionLabel"));
+    setText("#menu-save-workspace", t("menuSaveWorkspace"));
+    setText("#menu-save-workspace-as", t("menuSaveWorkspaceAs"));
+    setText("#menu-open-workspace", t("menuOpenWorkspace"));
     setText("#save-prg", t("savePrg"));
     setText("#set-working-folder", t("setWorkingFolder"));
     setText("#build-section-label", t("buildSection"));
@@ -3556,6 +3599,7 @@ function applyTranslations() {
     setText("#asm-numbers-label", t("asmNumbersLabel"));
     setText("#region-comments-label", t("regionCommentsLabel"));
     setText("#memory-overlays-label", t("memoryOverlaysLabel"));
+    setText("#global-memory-panel-toggle-label", t("globalMemoryPanelToggleLabel"));
     setText("#origin-preview-label", t("originPreviewLabel"));
     setText("#asm-output-label", t("asmOutputLabel"));
     setText("#monitor-output-label", t("monitorOutputLabel"));
@@ -15372,10 +15416,17 @@ function _historyScheduleObserve() {
     }
     if (_historyStateEqual(tab.historyState, nextState)) return;
     tab.undoStack.push(tab.historyState);
+    // Cap the undo stack so a long editing session (especially across many
+    // open tabs) can't grow this array — and the full-state snapshots inside
+    // it — without bound. Older entries are simply dropped, same as most
+    // editors' bounded undo history.
+    if (tab.undoStack.length > _HISTORY_MAX_STACK) {
+      tab.undoStack.splice(0, tab.undoStack.length - _HISTORY_MAX_STACK);
+    }
     tab.redoStack = [];
     tab.historyState = nextState;
     _historyUpdateButtons();
-  }, 0);
+  }, 400);
 }
 
 function _historyUpdateButtons() {
@@ -16012,6 +16063,252 @@ async function _tabClose(tabId) {
   return true;
 }
 
+// ── Workspace (save/restore the set of open tabs) ───────────────────────────
+// A "workspace" is a small named .vaws JSON file that remembers every open
+// tab and which one was active. A tab backed by a real file on disk is
+// remembered by path (and reopened fresh from disk on restore); a "sandbox"
+// tab with no file (Untitled, or a loaded sample) gets its live content —
+// program/macros/expertText/ubText — embedded directly in the workspace file
+// instead, so it round-trips too. Once a workspace has been saved or opened,
+// this session keeps it in sync automatically as tabs change, so relaunching
+// and re-opening that same workspace continues where you left off.
+
+function _workspaceBuildPayload(name = "") {
+  _tabSaveCurrent(); // flush the active tab's live editorMode/content onto itself first
+  const entries = [];
+  let activeIndex = -1;
+  tabs.forEach(tab => {
+    const idx = entries.length;
+    // Every tab's live in-memory content is embedded directly in the workspace
+    // file, regardless of whether it's file-backed. This is what makes restore
+    // reflect exactly what was on screen (including unsaved edits in a
+    // file-backed expert/UB tab), instead of silently re-reading the file from
+    // disk and losing anything not yet written there. filePath (when present)
+    // is kept alongside so the tab still knows where "Save" should write to.
+    entries.push({
+      filePath: tab.filePath || null,
+      editorMode: tab.editorMode || "block",
+      name: tab.name || tab._untitledName || (tab.filePath ? tab.filePath.replace(/\\/g, "/").split("/").pop() : "Untitled"),
+      dirty: !!tab.dirty,
+      embedded: {
+        program: JSON.parse(JSON.stringify(tab.program || [])),
+        userMacros: JSON.parse(JSON.stringify(tab.userMacros || {})),
+        expertText: tab.expertText || "",
+        ubText: tab.ubText || "",
+        expertBreakpointLines: Array.isArray(tab.expertBreakpointLines) ? [...tab.expertBreakpointLines] : [],
+        ubBreakpointLines: Array.isArray(tab.ubBreakpointLines) ? [...tab.ubBreakpointLines] : []
+      }
+    });
+    if (tab.id === activeTabId) activeIndex = idx;
+  });
+  return {
+    app: "c64-visual-assembler-workspace",
+    version: 2,
+    name: name || _currentWorkspaceName || "",
+    activeIndex,
+    tabs: entries
+  };
+}
+
+async function _workspaceSaveAs() {
+  if (!window.electronAPI?.saveWorkspaceFile) return false;
+  const payload = _workspaceBuildPayload();
+  const baseName = (_currentWorkspaceName || "workspace").replace(/\.(vaws|json)$/i, "");
+  payload._defaultName = `${baseName}.vaws`;
+  const result = await window.electronAPI.saveWorkspaceFile(payload);
+  if (result?.canceled) return false;
+  if (!result?.ok) {
+    if (emulatorStatus) emulatorStatus.textContent = result?.error ? `${t("workspaceSaveFailed")}: ${result.error}` : t("workspaceSaveFailed");
+    return false;
+  }
+  _currentWorkspacePath = result.filePath;
+  _currentWorkspaceName = (result.filePath.replace(/\\/g, "/").split("/").pop() || "").replace(/\.(vaws|json)$/i, "");
+  saveUiSettings();
+  if (emulatorStatus) emulatorStatus.textContent = `${t("workspaceSaved")}: ${_currentWorkspacePath}`;
+  return true;
+}
+
+async function _workspaceSave() {
+  if (!_currentWorkspacePath) return _workspaceSaveAs();
+  if (!window.electronAPI?.saveWorkspaceFile) return false;
+  const payload = _workspaceBuildPayload();
+  payload._filePath = _currentWorkspacePath;
+  const result = await window.electronAPI.saveWorkspaceFile(payload);
+  if (!result?.ok) {
+    if (emulatorStatus) emulatorStatus.textContent = result?.error ? `${t("workspaceSaveFailed")}: ${result.error}` : t("workspaceSaveFailed");
+    return false;
+  }
+  if (emulatorStatus) emulatorStatus.textContent = `${t("workspaceSaved")}: ${_currentWorkspacePath}`;
+  return true;
+}
+
+function _workspaceScheduleAutoSave() {
+  if (!_currentWorkspacePath) return;
+  clearTimeout(_workspaceAutoSaveTimer);
+  _workspaceAutoSaveTimer = setTimeout(() => { _workspaceSave(); }, 500);
+}
+
+// Shared by the manual "Open Workspace..." menu action and the silent
+// auto-continue-last-session path. File-backed entries reopen fresh from disk
+// (via the same loaders File > Open already uses for that file kind);
+// sandbox entries are rebuilt directly from their embedded content. Drops
+// whatever tabs were open before restoring began.
+async function _workspaceRestoreFromPayload(workspace, workspacePath, { silent = false } = {}) {
+  if (!workspace || workspace.app !== "c64-visual-assembler-workspace" || !Array.isArray(workspace.tabs)) {
+    if (!silent && emulatorStatus) emulatorStatus.textContent = t("workspaceInvalid");
+    return false;
+  }
+
+  // Flush whatever was genuinely on screen before restoring began, exactly
+  // ONCE, up front. Do NOT call _tabSaveCurrent() again inside the loop below:
+  // each iteration already moves activeTabId to the tab it just created, so a
+  // later _tabSaveCurrent() call would stamp the live (unrelated, stale)
+  // program/expertText/ubText globals right back onto that freshly-restored
+  // tab, wiping out the very content this function just set on it. That was
+  // the cause of tabs appearing in the tab bar with the right names/files but
+  // empty content after a restore.
+  _tabSaveCurrent();
+
+  const previousActiveTabId = activeTabId;
+  const createdTabIds = [];
+  const missingNames = [];
+  let newActiveTabId = null;
+
+  for (let i = 0; i < workspace.tabs.length; i++) {
+    const entry = workspace.tabs[i];
+    if (!entry) continue;
+    let openedTab = null;
+    const hasEmbedded = entry.embedded && typeof entry.embedded === "object";
+
+    if (hasEmbedded) {
+      // Restore straight from the embedded snapshot — this is exactly what was
+      // on screen when the workspace was saved, whether or not it had been
+      // written to disk yet. Never re-read entry.filePath here: doing so would
+      // silently discard any edit that hadn't been saved to disk.
+      const blankTab = _tabCreate(entry.name || "");
+      blankTab.editorMode = entry.editorMode || "block";
+      blankTab.filePath = entry.filePath || null;
+      blankTab.program = Array.isArray(entry.embedded.program) ? JSON.parse(JSON.stringify(entry.embedded.program)) : [];
+      blankTab.userMacros = (entry.embedded.userMacros && typeof entry.embedded.userMacros === "object") ? JSON.parse(JSON.stringify(entry.embedded.userMacros)) : {};
+      blankTab.expertText = typeof entry.embedded.expertText === "string" ? entry.embedded.expertText : "";
+      blankTab.ubText = typeof entry.embedded.ubText === "string" ? entry.embedded.ubText : "";
+      blankTab.expertBreakpointLines = Array.isArray(entry.embedded.expertBreakpointLines) ? [...entry.embedded.expertBreakpointLines] : [];
+      blankTab.ubBreakpointLines = Array.isArray(entry.embedded.ubBreakpointLines) ? [...entry.embedded.ubBreakpointLines] : [];
+      blankTab.dirty = !!entry.dirty;
+      if (blankTab.editorMode === "ub") blankTab.ubFilePath = entry.filePath || "";
+      tabs.push(blankTab);
+      activeTabId = blankTab.id;
+      openedTab = blankTab;
+    } else if (!entry.filePath) {
+      // Old-format (v1) sandbox entry with no embedded content at all —
+      // nothing to restore from; skip it rather than creating an empty tab.
+      continue;
+    } else {
+      // Old-format (v1) file-backed entry saved before embedding existed:
+      // fall back to the original behavior of reopening fresh from disk.
+      const fileResult = await window.electronAPI?.readTextFile?.(entry.filePath);
+      if (!fileResult?.ok) {
+        missingNames.push(entry.name || entry.filePath);
+        continue;
+      }
+      const content = fileResult.content || "";
+
+      if (entry.editorMode === "ub") {
+        openedTab = _ubCreateFileTab(entry.filePath, content);
+      } else if (entry.editorMode === "expert") {
+        await _expertLoadAsmFromPath(entry.filePath, content, entry.name || "");
+        openedTab = tabs.find(tt => tt.id === activeTabId);
+        if (openedTab) openedTab.editorMode = "expert"; // _expertLoadAsmFromPath leaves the _tabCreate() default otherwise
+      } else {
+        let parsed = null;
+        try { parsed = JSON.parse(content); } catch { parsed = null; }
+        if (!parsed || parsed.app !== "c64-visual-assembler" || !Array.isArray(parsed.program)) {
+          missingNames.push(entry.name || entry.filePath);
+          continue;
+        }
+        // (Legacy v1-format fallback only — see note above the loop about why
+        // _tabSaveCurrent() must not run again here.)
+        const blankTab = _tabCreate(entry.name || "");
+        tabs.push(blankTab);
+        activeTabId = blankTab.id;
+        const ok = await _applyProjectPayload(parsed, { sourceFilePath: entry.filePath });
+        if (!ok) {
+          tabs.pop();
+          activeTabId = previousActiveTabId;
+          missingNames.push(entry.name || entry.filePath);
+          continue;
+        }
+        openedTab = blankTab;
+      }
+    }
+
+    if (openedTab) {
+      createdTabIds.push(openedTab.id);
+      if (i === workspace.activeIndex) newActiveTabId = openedTab.id;
+    }
+  }
+
+  if (createdTabIds.length === 0) {
+    if (!silent && emulatorStatus) emulatorStatus.textContent = t("workspaceInvalid");
+    return false;
+  }
+
+  // Drop whatever was open before restoring (the blank startup tab, or the
+  // previous session's tabs on a manual "Open Workspace").
+  tabs = tabs.filter(tt => createdTabIds.includes(tt.id));
+
+  // activeTabId still points at whichever tab the loop above created last —
+  // _tabActivate() below starts with its own _tabSaveCurrent() call, which
+  // would otherwise stamp the (unrelated, stale) live program/expertText/
+  // ubText globals right back onto that last-created tab, wiping out the
+  // content this function just restored onto it (the same class of bug as
+  // the mid-loop clobbering fixed above, just at the very last tab). Clearing
+  // activeTabId first makes that internal flush a no-op.
+  activeTabId = null;
+  _tabActivate(newActiveTabId || createdTabIds[0]);
+
+  _currentWorkspacePath = workspacePath;
+  _currentWorkspaceName = (workspacePath.replace(/\\/g, "/").split("/").pop() || "").replace(/\.(vaws|json)$/i, "");
+  saveUiSettings();
+
+  if (!silent && emulatorStatus) {
+    emulatorStatus.textContent = missingNames.length
+      ? tf("workspaceMissingFiles", { count: String(missingNames.length), names: missingNames.join(", ") })
+      : `${t("workspaceLoaded")}: ${workspacePath}`;
+  }
+  return true;
+}
+
+async function _workspaceAutoRestore(path) {
+  if (!path || !window.electronAPI?.readTextFile) return;
+  // Only ever auto-restore into the pristine, untouched app-launch state —
+  // never clobber real work the user may have already started before this
+  // async settings fetch resolved.
+  const pristine = tabs.length === 1 && !tabs[0].dirty && !tabs[0].filePath;
+  if (!pristine) return;
+  const result = await window.electronAPI.readTextFile(path);
+  if (!result?.ok) return; // moved/deleted since last time — silently keep the blank tab
+  let workspace = null;
+  try { workspace = JSON.parse(result.content); } catch { return; }
+  await _workspaceRestoreFromPayload(workspace, path, { silent: true });
+}
+
+async function _workspaceOpenViaDialog() {
+  if (!window.electronAPI?.openWorkspaceFile) return;
+  const hasUnsaved = tabs.some(_tabHasContent);
+  if (hasUnsaved) {
+    const ok = await _showConfirm(t("workspaceOpenConfirm"));
+    if (!ok) return;
+  }
+  const result = await window.electronAPI.openWorkspaceFile();
+  if (result?.canceled) return;
+  if (!result?.ok) {
+    if (emulatorStatus) emulatorStatus.textContent = result?.error ? `${t("workspaceLoadFailed")}: ${result.error}` : t("workspaceLoadFailed");
+    return;
+  }
+  await _workspaceRestoreFromPayload(result.workspace, result.filePath, { silent: false });
+}
+
 function renderTabBar() {
   const tabBar = document.getElementById("tab-bar");
   if (!tabBar) return;
@@ -16059,6 +16356,7 @@ function renderTabBar() {
   if (activeEl) activeEl.scrollIntoView({ block: "nearest", inline: "nearest" });
 
   _updateTabScrollButtons();
+  _workspaceScheduleAutoSave();
 }
 
 function _updateTabScrollButtons() {
