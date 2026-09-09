@@ -424,63 +424,56 @@ a {
   flex-shrink: 0;
   align-self: center;
   position: relative;
+  overflow: hidden;
 }
 
 .editor-mode-indicator-label { position: relative; z-index: 1; }
 
-/* Időnként a kereten körbefutó fény — figyelemfelkeltés az aktív szerkesztő módra.
-   Valódi SVG rect stroke-ját rajzolja végig (JS: _syncModeIndicatorTrail), így
-   pontosan a badge pill-alakú keretének görbületét követi, ténylegesen beszínezi
-   azt a szakaszt, amin áthaladt, míg végül a teljes keret kivilágít, majd letörlődik. */
-.mode-indicator-trail {
+/* 15 másodpercenként átlósan végigfutó Commodore-színes csillanás — mintha egy
+   holografikus matrica tükröződne végig a jelvényen. A színek pontosan az .eyebrow
+   csík Commodore-palettájának árnyalatai (piros/narancs/sárga/zöld/kék). Tisztán
+   CSS-ben, %-os méretekkel — nincs szükség JS-es szinkronizálásra a badge változó
+   szélességéhez (nyelvváltás, mód-szöveg hossza). */
+.mode-indicator-shimmer {
   position: absolute;
-  inset: 0;
-  overflow: visible;
+  inset: -60% 0;
+  width: 45%;
+  background:
+    linear-gradient(
+      100deg,
+      transparent 40%,
+      rgba(255, 255, 255, 0.85) 50%,
+      transparent 60%
+    ),
+    linear-gradient(
+      100deg,
+      transparent 20%,
+      color-mix(in srgb, #cc2200 75%, transparent) 32%,
+      color-mix(in srgb, #e05a00 75%, transparent) 41%,
+      color-mix(in srgb, #d4a800 76%, transparent) 50%,
+      color-mix(in srgb, #3a7d1e 75%, transparent) 59%,
+      color-mix(in srgb, #2a7ac4 75%, transparent) 68%,
+      transparent 80%
+    );
+  background-blend-mode: screen, normal;
+  filter: blur(0.5px);
+  mix-blend-mode: hard-light;
   pointer-events: none;
-}
-
-.mode-indicator-trail-rect {
-  fill: none;
-  stroke: color-mix(in srgb, var(--accent) 35%, white 65%);
-  stroke-width: 3.2px;
-  stroke-linecap: round;
-  filter:
-    drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 90%, white))
-    drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 65%, transparent));
+  transform: translateX(-260%) skewX(-18deg);
   opacity: 0;
+  animation: mode-indicator-shimmer 15s ease-in-out infinite;
 }
 
-/* Kis fényes szikra pontosan a fej pozícióján — offset-path: border-box-szal a badge
-   saját (pill-alakú) keretét követi. Az animációt JS indítja (_syncModeIndicatorTrail,
-   Element.animate pseudoElement: "::after"), így garantáltan szinkronban fut az SVG
-   trail-lel; itt csak az alapállapot (rejtett, opacity 0) van megadva. */
-.editor-mode-indicator::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 4px;
-  height: 4px;
-  margin: -2px 0 0 -2px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow:
-    0 0 2.5px 1px color-mix(in srgb, var(--accent) 90%, white),
-    0 0 6px 1.5px color-mix(in srgb, var(--accent) 60%, transparent);
-  opacity: 0;
-  pointer-events: none;
-  offset-path: border-box;
-  offset-distance: 0%;
-  offset-rotate: 0deg;
-}
-
-@supports not (offset-path: border-box) {
-  .editor-mode-indicator::after { display: none; }
+@keyframes mode-indicator-shimmer {
+  0%, 40% { transform: translateX(-260%) skewX(-18deg); opacity: 0; }
+  43% { opacity: 0.75; }
+  57% { transform: translateX(260%) skewX(-18deg); opacity: 0.75; }
+  61% { opacity: 0; }
+  100% { transform: translateX(260%) skewX(-18deg); opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mode-indicator-trail-rect { display: none; }
-  .editor-mode-indicator::after { animation: none; opacity: 0; }
+  .mode-indicator-shimmer { animation: none; opacity: 0; }
 }
 
 /* Override legacy control-menu-trigger inside toolbar */
@@ -4338,7 +4331,7 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
 
 /* ── Expert Project Panel ────────────────────────────────── */
 .expert-project-panel {
-  width: 195px;
+  width: 220px;
   flex-shrink: 0;
   border-right: 1px solid var(--panel-border);
   display: flex;
