@@ -1906,12 +1906,6 @@ function initPalette() {
   document.getElementById("ub-command-search")?.addEventListener("input", _ubRenderCommandReference);
   document.getElementById("ub-hl-btn")?.addEventListener("click", _ubToggleHighlight);
   document.getElementById("ub-lines-btn")?.addEventListener("click", _ubToggleLines);
-  document.getElementById("ub-breakpoints-btn")?.addEventListener("click", () => {
-    _ubLinesEnabled = true;
-    _ubSetToggle("ub-breakpoints-btn", true);
-    _ubApplyLeftViews?.();
-    _ubRefreshEditor();
-  });
   document.getElementById("ub-minimap-btn")?.addEventListener("click", _ubToggleMinimap);
   document.getElementById("ub-find-btn")?.addEventListener("click", _ubOpenFind);
   document.getElementById("ub-find-close")?.addEventListener("click", _ubCloseFind);
@@ -2122,15 +2116,6 @@ function initPalette() {
     _expertApplyLineNumbers();
     saveUiSettings();
   });
-  document.getElementById("expert-breakpoints-btn")?.addEventListener("click", () => {
-    _expertLineNumbersEnabled = true;
-    const button = document.getElementById("expert-breakpoints-btn");
-    button?.classList.add("expert-hl-toggle--on");
-    button?.setAttribute("aria-pressed", "true");
-    document.querySelector(".expert-editor-wrap")?.classList.add("expert-show-ln");
-    _expertApplyLineNumbers();
-  });
-
   document.getElementById("expert-minimap-btn")?.addEventListener("click", () => {
     _expertMinimapEnabled = !_expertMinimapEnabled;
     _expertApplyMinimap();

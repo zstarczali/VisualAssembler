@@ -423,6 +423,61 @@ a {
   white-space: nowrap;
   flex-shrink: 0;
   align-self: center;
+  position: relative;
+}
+
+/* Időnként végigfutó fénypont a kereten — figyelemfelkeltés az aktív szerkesztő módra.
+   A pont ténylegesen a border alakját (pill) követi az offset-path: border-box-szal,
+   nem egy elforgatott/elmosott gradiens-folt. */
+.editor-mode-indicator::before,
+.editor-mode-indicator::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  offset-path: border-box;
+  offset-distance: 0%;
+  offset-rotate: 0deg;
+  animation: mode-indicator-chase 9s ease-in-out infinite;
+}
+
+.editor-mode-indicator::before {
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  background: #fff;
+  box-shadow:
+    0 0 4px 1px color-mix(in srgb, var(--accent) 80%, white),
+    0 0 9px 2px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.editor-mode-indicator::after {
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  background: color-mix(in srgb, var(--accent) 50%, transparent);
+  filter: blur(1.5px);
+  animation-delay: -0.18s;
+}
+
+@keyframes mode-indicator-chase {
+  0%, 42% { opacity: 0; offset-distance: 0%; }
+  46% { opacity: 1; }
+  88% { opacity: 1; offset-distance: 100%; }
+  100% { opacity: 0; offset-distance: 100%; }
+}
+
+@supports not (offset-path: border-box) {
+  .editor-mode-indicator::before,
+  .editor-mode-indicator::after { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editor-mode-indicator::before,
+  .editor-mode-indicator::after { animation: none; opacity: 0; }
 }
 
 /* Override legacy control-menu-trigger inside toolbar */
@@ -3586,7 +3641,8 @@ body.expert-mode .expert-panel {
   padding: 0 14px;
   border-bottom: 1px solid var(--panel-border);
   background: color-mix(in srgb, var(--panel-strong) 80%, transparent);
-  height: 32px;
+  min-height: 48px;
+  box-sizing: border-box;
   flex-shrink: 0;
   /* Ensure the custom CSS tooltip that hangs below each button is not clipped
      by an ancestor `overflow: hidden` (e.g. .expert-panel). */
