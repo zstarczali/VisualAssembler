@@ -2230,6 +2230,72 @@ async fn save_project(app: AppHandle, payload: serde_json::Value) -> serde_json:
     }
 }
 
+// Workspace = a small named file remembering which real, on-disk files were
+// open across every tab (and in which editor mode, and which one was active),
+// so the app can reopen that same set later. Mirrors save_project/open_proj_file.
+#[tauri::command]
+async fn save_workspace_file(app: AppHandle, payload: serde_json::Value) -> serde_json::Value {
+    let existing_path = payload.get("_filePath").and_then(|v| v.as_str()).unwrap_or("").to_string();
+    let default_name  = payload.get("_defaultName").and_then(|v| v.as_str()).unwrap_or("workspace.vaws").to_string();
+
+    let save_path: String = if !existing_path.is_empty() {
+        existing_path
+    } else {
+        let working_folder = {
+            let cfg = read_config(&app);
+            get_working_folder_path(&cfg)
+        };
+        let mut dialog = app.dialog().file()
+            .add_filter("C64 Visual Assembler Workspace", &["vaws", "json"])
+            .set_file_name(&default_name);
+        if let Some(folder) = working_folder {
+            dialog = dialog.set_directory(folder);
+        }
+        let result = dialog.blocking_save_file();
+        match result {
+            Some(path) => path.to_string(),
+            None => return serde_json::json!({ "canceled": true }),
+        }
+    };
+
+    let mut clean = payload.clone();
+    if let Some(obj) = clean.as_object_mut() {
+        obj.remove("_filePath");
+        obj.remove("_defaultName");
+    }
+    let content = serde_json::to_string_pretty(&clean).unwrap();
+    match fs::write(&save_path, content.as_bytes()) {
+        Ok(_)  => serde_json::json!({ "ok": true, "filePath": save_path }),
+        Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+    }
+}
+
+#[tauri::command]
+async fn open_workspace_file(app: AppHandle) -> serde_json::Value {
+    let working_folder = get_working_folder_path(&read_config(&app));
+    let mut dialog = app.dialog().file()
+        .add_filter("C64 Visual Assembler Workspace", &["vaws", "json"])
+        .add_filter("All files", &["*"]);
+    if let Some(folder) = working_folder {
+        dialog = dialog.set_directory(folder);
+    }
+    let result = dialog.blocking_pick_file();
+
+    match result {
+        Some(path) => {
+            let path_str = path.to_string();
+            match fs::read_to_string(&path_str) {
+                Ok(raw) => match serde_json::from_str::<serde_json::Value>(&raw) {
+                    Ok(ws) => serde_json::json!({ "ok": true, "filePath": path_str, "workspace": ws }),
+                    Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+                },
+                Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+            }
+        }
+        None => serde_json::json!({ "canceled": true }),
+    }
+}
+
 #[tauri::command]
 async fn open_proj_file(app: AppHandle, initial_dir: Option<String>) -> serde_json::Value {
     let working_folder = initial_dir
@@ -2756,6 +2822,8 @@ pub fn run() {
             read_bin_file,
             save_project,
             load_project,
+            save_workspace_file,
+            open_workspace_file,
             open_proj_file,
             save_proj_file,
             read_text_file,

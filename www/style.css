@@ -161,6 +161,56 @@ html[data-theme="oled"] {
   --cg-canvas-bg: #20263a;
 }
 
+/* "Commodore 77" — Cyberpunk 2077 x Commodore 64 breadbin edition (neon yellow
+   on black). Only the two brand colors and their shades/tints are used — no
+   blue/red/green accents like the other themes. */
+html[data-theme="commodore77"] {
+  color-scheme: dark;
+  /* expert syntax highlight — yellow/amber shades only */
+  --hl-comment:   #6b6650;
+  --hl-directive: #e8d97a;
+  --hl-mnem:      #fcee0a;
+  --hl-number:    #b8860b;
+  --hl-string:    #d4a017;
+  --hl-label:     #c9a227;
+  --expert-editor-bg: #0a0a08;
+  --ub-editor-bg: #0a0a08;
+  --ub-chrome-bg: rgba(24, 22, 12, 0.98);
+  --ub-side-bg: rgba(16, 15, 8, 0.97);
+  --ub-selection-bg: rgba(252, 238, 10, 0.26);
+  --cg-canvas-bg: #20263a;
+  --bg: #0a0a08;
+  --bg-accent: #050504;
+  --panel: rgba(20, 19, 12, 0.97);
+  --panel-strong: rgba(28, 26, 15, 0.98);
+  --panel-border: rgba(252, 238, 10, 0.16);
+  --text: #f2efe0;
+  --muted: #9a9578;
+  --primary: #fcee0a;
+  --primary-deep: #d4c400;
+  --secondary: #b8b090;
+  --secondary-soft: rgba(252, 238, 10, 0.10);
+  --surface-soft: rgba(252, 238, 10, 0.05);
+  --control-bg: rgba(12, 12, 8, 0.97);
+  --active-bg: #fcee0a;
+  --active-fg: #0a0a08;
+  --shadow: 0 2px 14px rgba(0, 0, 0, 0.55), 0 0 16px rgba(252, 238, 10, 0.08);
+  --input-bg: rgba(8, 8, 6, 0.98);
+  --output-bg: #080805;
+  --output-text: #d8d2a8;
+  --monitor-text: #fcee0a;
+  --error: #b8860b;
+  --accent: var(--primary);
+  --asm-mnemonic: #fcee0a;
+  --asm-directive: #e8d97a;
+  --asm-macro: #d4a017;
+  --asm-comment: #6b6650;
+  --asm-label: #c9a227;
+  --asm-number: #b8860b;
+  --asm-region: #cfc9a0;
+  --asm-operand: #f5df4d;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -184,6 +234,9 @@ html[data-theme="light"] {
 }
 html[data-theme="oled"] {
   background-color: #0d0d12;
+}
+html[data-theme="commodore77"] {
+  background-color: #0a0a08;
 }
 html:has(#splash-screen) {
   overflow: hidden;
@@ -423,6 +476,83 @@ a {
   white-space: nowrap;
   flex-shrink: 0;
   align-self: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -3px 4px rgba(0, 0, 0, 0.12);
+}
+
+/* Statikus üveg-sheen: a felső fél halvány fehér fénye — mintha domború üveg/matrica
+   tetejéről verődne vissza a fény. A mozgó csillanás (.mode-indicator-shimmer) ez alatt
+   fut végig, ettől lesz a kettő együtt "domború üveggomb" hatású. */
+.editor-mode-indicator::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.32) 0%,
+    rgba(255, 255, 255, 0.08) 45%,
+    transparent 55%
+  );
+  pointer-events: none;
+}
+
+.editor-mode-indicator-label { position: relative; z-index: 1; }
+
+/* 15 másodpercenként átlósan végigfutó Commodore-színes csillanás — mintha egy
+   holografikus matrica tükröződne végig a jelvényen. A színek pontosan az .eyebrow
+   csík Commodore-palettájának árnyalatai (piros/narancs/sárga/zöld/kék). Tisztán
+   CSS-ben, %-os méretekkel — nincs szükség JS-es szinkronizálásra a badge változó
+   szélességéhez (nyelvváltás, mód-szöveg hossza). */
+.mode-indicator-shimmer {
+  position: absolute;
+  inset: -60% 0;
+  width: 45%;
+  background:
+    linear-gradient(
+      100deg,
+      transparent 46%,
+      rgba(255, 255, 255, 0.95) 50%,
+      transparent 54%
+    ),
+    linear-gradient(
+      100deg,
+      transparent 35%,
+      rgba(255, 255, 255, 0.55) 50%,
+      transparent 65%
+    ),
+    linear-gradient(
+      100deg,
+      transparent 20%,
+      color-mix(in srgb, #cc2200 75%, transparent) 32%,
+      color-mix(in srgb, #e05a00 75%, transparent) 41%,
+      color-mix(in srgb, #d4a800 76%, transparent) 50%,
+      color-mix(in srgb, #3a7d1e 75%, transparent) 59%,
+      color-mix(in srgb, #2a7ac4 75%, transparent) 68%,
+      transparent 80%
+    );
+  background-blend-mode: screen, screen, normal;
+  filter: blur(0.6px);
+  mix-blend-mode: hard-light;
+  pointer-events: none;
+  transform: translateX(-260%) skewX(-18deg);
+  opacity: 0;
+  animation: mode-indicator-shimmer 15s ease-in-out infinite;
+}
+
+@keyframes mode-indicator-shimmer {
+  0%, 40% { transform: translateX(-260%) skewX(-18deg); opacity: 0; }
+  43% { opacity: 0.75; }
+  57% { transform: translateX(260%) skewX(-18deg); opacity: 0.75; }
+  61% { opacity: 0; }
+  100% { transform: translateX(260%) skewX(-18deg); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mode-indicator-shimmer { animation: none; opacity: 0; }
 }
 
 /* Override legacy control-menu-trigger inside toolbar */
@@ -815,6 +945,39 @@ h1 {
   min-width: 0;
 }
 
+/* Custom aria-label tooltip for File-menu items — several labels (Save program /
+   Save project / Save Workspace, Open project / Open Workspace...) are easy to
+   confuse, so each carries a short clarifying hint. No native `title` (unreliable
+   in the Tauri WebView) — same convention as the shared tooltip block below. */
+.menu-item-tooltip {
+  position: relative;
+}
+.menu-item-tooltip[aria-label]::after {
+  content: attr(aria-label);
+  position: absolute;
+  left: 0;
+  top: calc(100% + 4px);
+  width: max-content;
+  max-width: 240px;
+  padding: 5px 8px;
+  border-radius: 3px;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--panel-border);
+  font-size: 0.7rem;
+  line-height: 1.35;
+  white-space: normal;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s ease 0.35s;
+  z-index: 10002;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+.menu-item-tooltip:hover[aria-label]::after,
+.menu-item-tooltip:focus-visible[aria-label]::after {
+  opacity: 1;
+}
+
 /* Custom tooltip on the ASM import button — same aria-label pattern as
    .expert-project-icon-btn so the "Kick Assembler only" hint reads reliably
    without depending on the native title tooltip. */
@@ -956,6 +1119,11 @@ h1 {
   border-color: #475569;
 }
 
+.theme-option-dot[data-theme-opt="commodore77"] {
+  background: #0a0a08;
+  border-color: #fcee0a;
+}
+
 button,
 .link-button {
   border: 1px solid transparent;
@@ -1016,6 +1184,15 @@ html[data-theme="oled"] .theme-toggle-glyph::after {
   background: var(--panel);
 }
 
+html[data-theme="commodore77"] .theme-toggle-glyph::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 1px;
+  transform: rotate(45deg);
+  background: currentColor;
+}
+
 button:hover,
 .link-button:hover {
   /* no lift — clean */
@@ -1031,6 +1208,11 @@ button:hover,
 html[data-theme="dark"] .primary,
 html[data-theme="oled"] .primary {
   color: #10245f;
+  font-weight: 700;
+}
+
+html[data-theme="commodore77"] .primary {
+  color: #14120a;
   font-weight: 700;
 }
 
@@ -1467,14 +1649,16 @@ html[data-theme="oled"] .primary {
 }
 
 html[data-theme="dark"] #add-selected,
-html[data-theme="oled"] #add-selected {
+html[data-theme="oled"] #add-selected,
+html[data-theme="commodore77"] #add-selected {
   background: var(--primary);
   color: var(--active-fg);
   border-color: var(--primary-deep);
 }
 
 html[data-theme="dark"] #add-selected:hover,
-html[data-theme="oled"] #add-selected:hover {
+html[data-theme="oled"] #add-selected:hover,
+html[data-theme="commodore77"] #add-selected:hover {
   background: var(--primary-deep);
 }
 
@@ -2507,7 +2691,8 @@ body.dnd-active {
 }
 
 html[data-theme="dark"] .asm-block:has(.bp-toggle.bp-active),
-html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
+html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active),
+html[data-theme="commodore77"] .asm-block:has(.bp-toggle.bp-active) {
   background: rgba(255, 68, 68, 0.18) !important;
   border-color: rgba(255, 68, 68, 0.5) !important;
 }
@@ -2820,6 +3005,15 @@ html[data-theme="oled"] .monitor-output {
   box-shadow:
     inset 0 0 40px rgba(0,0,0,0.6),
     0 0 0 1px #0d1a0d;
+}
+
+html[data-theme="commodore77"] .monitor-output {
+  background: #050503 !important;
+  border-color: #2a2410 !important;
+  text-shadow: 0 0 8px rgba(252, 238, 10, 0.45);
+  box-shadow:
+    inset 0 0 40px rgba(0,0,0,0.6),
+    0 0 0 1px #1a1608;
 }
 
 .program-output {
@@ -3300,6 +3494,11 @@ html[data-theme="oled"] .emulator-actions .link-button.primary {
   color: #10245f;
 }
 
+html[data-theme="commodore77"] .emulator-actions .primary,
+html[data-theme="commodore77"] .emulator-actions .link-button.primary {
+  color: #14120a;
+}
+
 .emulator-actions .secondary {
   color: var(--text);
   font-weight: 600;
@@ -3586,7 +3785,8 @@ body.expert-mode .expert-panel {
   padding: 0 14px;
   border-bottom: 1px solid var(--panel-border);
   background: color-mix(in srgb, var(--panel-strong) 80%, transparent);
-  height: 32px;
+  min-height: 48px;
+  box-sizing: border-box;
   flex-shrink: 0;
   /* Ensure the custom CSS tooltip that hangs below each button is not clipped
      by an ancestor `overflow: hidden` (e.g. .expert-panel). */
@@ -3985,7 +4185,8 @@ body.expert-mode .expert-panel {
   box-shadow: inset 2px 0 0 #ff4444;
 }
 html[data-theme="dark"] .expert-err-line,
-html[data-theme="oled"] .expert-err-line {
+html[data-theme="oled"] .expert-err-line,
+html[data-theme="commodore77"] .expert-err-line {
   background: color-mix(in srgb, #ff4444 18%, transparent);
 }
 
@@ -4105,12 +4306,14 @@ html[data-theme="oled"] .expert-err-line {
 }
 
 html[data-theme="dark"] .expert-hl mark.hl-find-match,
-html[data-theme="oled"] .expert-hl mark.hl-find-match {
+html[data-theme="oled"] .expert-hl mark.hl-find-match,
+html[data-theme="commodore77"] .expert-hl mark.hl-find-match {
   background: color-mix(in srgb, #d4880c 40%, transparent);
 }
 
 html[data-theme="dark"] .expert-hl mark.hl-find-current,
-html[data-theme="oled"] .expert-hl mark.hl-find-current {
+html[data-theme="oled"] .expert-hl mark.hl-find-current,
+html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
   background: color-mix(in srgb, #d4880c 80%, transparent);
   outline-color: #d4880c;
 }
@@ -4279,7 +4482,7 @@ html[data-theme="oled"] .expert-hl mark.hl-find-current {
 
 /* ── Expert Project Panel ────────────────────────────────── */
 .expert-project-panel {
-  width: 195px;
+  width: 220px;
   flex-shrink: 0;
   border-right: 1px solid var(--panel-border);
   display: flex;
@@ -5975,7 +6178,8 @@ body.crt-mode #crt-overlay::before {
 }
 
 body.crt-mode[data-theme="dark"] #crt-overlay::before,
-body.crt-mode[data-theme="oled"] #crt-overlay::before {
+body.crt-mode[data-theme="oled"] #crt-overlay::before,
+body.crt-mode[data-theme="commodore77"] #crt-overlay::before {
   background: repeating-linear-gradient(
     to bottom,
     transparent 0px,
@@ -7629,7 +7833,7 @@ body.crt-mode #crt-overlay::after {
 }
 .cc-tool svg { display: block; width: 15px; height: 15px; }
 .cc-tool:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); color: var(--text); }
-.cc-tool--active { background: var(--primary); color: #fff; }
+.cc-tool--active { background: color-mix(in srgb, var(--primary) 22%, transparent); color: var(--primary); }
 .tool-dropdown {
   position: relative;
   display: inline-flex;
@@ -7862,8 +8066,8 @@ body.crt-mode #crt-overlay::after {
 }
 .me-tool svg { display: block; width: 15px; height: 15px; }
 .me-tool:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); color: var(--text); }
-.me-tool--active { background: var(--primary); color: #fff; }
-.me-tool--active:hover { background: var(--primary); color: #fff; }
+.me-tool--active { background: color-mix(in srgb, var(--primary) 22%, transparent); color: var(--primary); }
+.me-tool--active:hover { background: color-mix(in srgb, var(--primary) 22%, transparent); color: var(--primary); }
 .me-export-wrap { position: relative; }
 .me-tool--menu {
   border: 1px solid var(--panel-border);
@@ -8259,8 +8463,8 @@ body.crt-mode #crt-overlay::after {
   transition: background 0.12s, color 0.12s;
 }
 .hg-tool:hover, .hg-btn:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); color: var(--text); }
-.hg-tool--active { background: var(--primary); color: #fff; }
-.hg-tool--active:hover { background: var(--primary); color: #fff; }
+.hg-tool--active { background: color-mix(in srgb, var(--primary) 22%, transparent); color: var(--primary); }
+.hg-tool--active:hover { background: color-mix(in srgb, var(--primary) 22%, transparent); color: var(--primary); }
 .hg-btn {
   border: 1px solid var(--panel-border);
   background: var(--control-bg);

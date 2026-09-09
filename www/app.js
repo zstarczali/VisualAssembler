@@ -367,6 +367,7 @@ let asmDisplayText = "";
 let showMacroSource = false;
 let showRegionComments = true;
 let showMemoryOverlays = true;
+let showGlobalMemoryPanel = true;
 let blockPaletteSync = true;
 let asmOutputBase = "hex";
 let originBase = "hex";
@@ -376,6 +377,7 @@ const macroSourceToggle = document.getElementById("macro-source-toggle");
 const macroSourceToggleText = document.getElementById("macro-source-toggle-text");
 const regionCommentsToggle = document.getElementById("region-comments-toggle");
 const memoryOverlaysToggle = document.getElementById("memory-overlays-toggle");
+const globalMemoryPanelToggle = document.getElementById("global-memory-panel-toggle");
 const blockPaletteSyncToggle = document.getElementById("block-desc-sync-toggle");
 const asmBaseInputs = document.querySelectorAll('input[name="asm-output-base"]');
 const originBaseInputs = document.querySelectorAll('input[name="origin-base"]');
@@ -519,6 +521,9 @@ let userMacros = {};  // Stores user-defined macros: { macroName: [blocks...] }
 let tabs = [];
 let activeTabId = null;
 let _tabCounter = 0;
+let _currentWorkspacePath = "";   // path of the .vaws workspace file currently loaded/saved, if any
+let _currentWorkspaceName = "";
+let _workspaceAutoSaveTimer = 0;
 let _historyObserveTimer = 0;
 let _historyApplying = false;
 let _expertHlEnabled = true;
@@ -550,6 +555,7 @@ let _expertFindIdx = -1;
 let _expertProjectData = null; // { name, files, _projPath }
 let _expertPendingEditMeta = null;
 const _PROJECT_SNAPSHOT_MAX_ENTRIES = 10;
+const _HISTORY_MAX_STACK = 200; // cap per-tab undo/redo stacks so long editing sessions with many open tabs don't grow memory unbounded
 const _PROJECT_SNAPSHOT_AUTO_DELAY_MS = 2500;
 const DELAY_HELPER_LABEL = "__delay_wait_frames";
 const _PROJECT_SNAPSHOT_HISTORY_CACHE = new Map();
@@ -577,6 +583,10 @@ function readUiSettings() {
 
 function _applyMemoryOverlaysVisibility() {
   document.body.dataset.memoryOverlays = showMemoryOverlays ? "1" : "0";
+}
+
+function _applyGlobalMemoryPanelVisibility() {
+  if (globalMemoryPanel) globalMemoryPanel.hidden = !showGlobalMemoryPanel;
 }
 
 function _applyExpertProjectSymbolsHeight() {
@@ -624,6 +634,7 @@ function saveUiSettings() {
     showMacroSource,
     showRegionComments,
     showMemoryOverlays,
+    showGlobalMemoryPanel,
     blockPaletteSync,
     asmOutputBase,
     exomizerEnabled,
@@ -636,7 +647,8 @@ function saveUiSettings() {
     expertMinimap: _expertMinimapEnabled,
     blockMinimap: _blockMinimapEnabled,
     autoSnapshotEnabled: autoSnapshotToggle ? autoSnapshotToggle.checked : true,
-    editorDialogPositions: _editorDialogPositions
+    editorDialogPositions: _editorDialogPositions,
+    lastWorkspacePath: _currentWorkspacePath
   };
 
   localStorage.setItem("c64-ui-settings", JSON.stringify(settings));
@@ -1340,7 +1352,7 @@ function getItemDescription(item) {
 const mnemonicSyntax = (name, ...parts) => `.${name.toLowerCase()} ${parts.join(", ")}`;
 
 const mnemonicExpertHints = {
-  TEXT: mnemonicSyntax("text", `"HELLO"`, "lower"),
+  TEXT: mnemonicSyntax("text", "1", "1", `"HELLO"`, "lower"),
   BYTE: `.BYTE $A9, $11, $00`,
   WORD: mnemonicSyntax("word", "$1000", "$C000"),
   FILL: mnemonicSyntax("fill", "64", "$00"),
@@ -1604,7 +1616,7 @@ const kernalRoutines = [
   { addr: "$FFE4", name: "GETIN",   hu: "Billentyu beolvasasa (nem blokkolO, A=kar/0)",         en: "Get key from keyboard, non-blocking (A=key/0)",     es: "Lee tecla del teclado, no bloqueante (A=tecla/0)",         de: "Taste von Tastatur einlesen, nicht blockierend (A=Taste/0)", nl: "Toets van toetsenbord inlezen, niet-blokkerend (A=toets/0)" },
   { addr: "$FFE1", name: "STOP",    hu: "STOP gomb ellenorzese (Z=1 ha lenyomva)",              en: "Check STOP key (Z=1 if pressed)",                   es: "Comprueba tecla STOP (Z=1 si está presionada)",            de: "STOP-Taste prüfen (Z=1 wenn gedrückt)",                nl: "STOP-toets controleren (Z=1 indien ingedrukt)" },
   { addr: "$FFCC", name: "CLRCHN",  hu: "I/O csatornak alaphelyzetbe allitasa",                 en: "Reset I/O channels to defaults",                    es: "Restaura canales de E/S a valores por defecto",            de: "E/A-Kanäle auf Standard zurücksetzen",                 nl: "I/O-kanalen herstellen naar standaardwaarden" },
-  { addr: "$FFC3", name: "SETLFS",  hu: "Logikai fajl beallitasa (A=LA, X=eszkoz, Y=SA)",      en: "Set logical file (A=LA, X=device, Y=SA)",           es: "Configura archivo lógico (A=LA, X=dispositivo, Y=SA)",     de: "Logische Datei einrichten (A=LA, X=Gerät, Y=SA)",      nl: "Logisch bestand instellen (A=LA, X=apparaat, Y=SA)" },
+  { addr: "$FFBA", name: "SETLFS",  hu: "Logikai fajl beallitasa (A=LA, X=eszkoz, Y=SA)",      en: "Set logical file (A=LA, X=device, Y=SA)",           es: "Configura archivo lógico (A=LA, X=dispositivo, Y=SA)",     de: "Logische Datei einrichten (A=LA, X=Gerät, Y=SA)",      nl: "Logisch bestand instellen (A=LA, X=apparaat, Y=SA)" },
   { addr: "$FFBD", name: "SETNAM",  hu: "Fajlnev beallitasa (A=hossz, XY=cim)",                en: "Set filename (A=length, XY=address)",               es: "Configura nombre de archivo (A=longitud, XY=dirección)",   de: "Dateinamen einrichten (A=Länge, XY=Adresse)",          nl: "Bestandsnaam instellen (A=lengte, XY=adres)" },
   { addr: "$FFD5", name: "LOAD",    hu: "Program betoltese eszkozrol (A=0/1)",                  en: "Load file from device (A=0/1)",                     es: "Carga archivo desde dispositivo (A=0/1)",                  de: "Datei von Gerät laden (A=0/1)",                        nl: "Bestand laden van apparaat (A=0/1)" },
   { addr: "$FFD8", name: "SAVE",    hu: "Memoria mentese eszkozre",                             en: "Save memory to device",                             es: "Guarda memoria en dispositivo",                            de: "Speicher auf Gerät speichern",                         nl: "Geheugen opslaan naar apparaat" },
@@ -1617,7 +1629,7 @@ const kernalRoutines = [
   { addr: "$FF84", name: "IOINIT",  hu: "I/O eszkozok inicializalasa",                          en: "Initialize I/O devices",                            es: "Inicializa dispositivos de E/S",                           de: "E/A-Geräte initialisieren",                            nl: "I/O-apparaten initialiseren" },
   { addr: "$FF8A", name: "RESTOR",  hu: "Alapertelmezett I/O vektorok visszaallitasa",          en: "Restore default I/O vectors",                       es: "Restaura vectores de E/S por defecto",                     de: "Standard-E/A-Vektoren wiederherstellen",               nl: "Standaard I/O-vectoren herstellen" },
   { addr: "$E544", name: "CLRSCR",  hu: "Kepernyotorlese (nem hivatalos KERNAL vektor)",        en: "Clear screen (unofficial KERNAL vector)",           es: "Borra la pantalla (vector KERNAL no oficial)",             de: "Bildschirm löschen (inoffizieller KERNAL-Vektor)",     nl: "Scherm wissen (onofficiële KERNAL-vector)" },
-  { addr: "$E50C", name: "PLOT",    hu: "Kurzor pozicio olvasasa/beallitasa (XY=sor/oszlop)",   en: "Get/set cursor position (XY=row/col)",              es: "Lee/establece posición del cursor (XY=fila/col)",          de: "Cursorposition lesen/setzen (XY=Zeile/Spalte)",        nl: "Cursorpositie lezen/instellen (XY=rij/kolom)" }
+  { addr: "$FFF0", name: "PLOT",    hu: "Kurzor pozicio olvasasa/beallitasa (C=1 olvas, C=0 ir; X=sor, Y=oszlop)", en: "Get/set cursor position (C=1 read, C=0 write; X=row, Y=col)", es: "Lee/establece posición del cursor (C=1 lee, C=0 escribe; X=fila, Y=col)", de: "Cursorposition lesen/setzen (C=1 lesen, C=0 schreiben; X=Zeile, Y=Spalte)", nl: "Cursorpositie lezen/instellen (C=1 lezen, C=0 schrijven; X=rij, Y=kolom)" }
 ];
 
 const memorySegments = [
@@ -1894,12 +1906,6 @@ function initPalette() {
   document.getElementById("ub-command-search")?.addEventListener("input", _ubRenderCommandReference);
   document.getElementById("ub-hl-btn")?.addEventListener("click", _ubToggleHighlight);
   document.getElementById("ub-lines-btn")?.addEventListener("click", _ubToggleLines);
-  document.getElementById("ub-breakpoints-btn")?.addEventListener("click", () => {
-    _ubLinesEnabled = true;
-    _ubSetToggle("ub-breakpoints-btn", true);
-    _ubApplyLeftViews?.();
-    _ubRefreshEditor();
-  });
   document.getElementById("ub-minimap-btn")?.addEventListener("click", _ubToggleMinimap);
   document.getElementById("ub-find-btn")?.addEventListener("click", _ubOpenFind);
   document.getElementById("ub-find-close")?.addEventListener("click", _ubCloseFind);
@@ -2110,15 +2116,6 @@ function initPalette() {
     _expertApplyLineNumbers();
     saveUiSettings();
   });
-  document.getElementById("expert-breakpoints-btn")?.addEventListener("click", () => {
-    _expertLineNumbersEnabled = true;
-    const button = document.getElementById("expert-breakpoints-btn");
-    button?.classList.add("expert-hl-toggle--on");
-    button?.setAttribute("aria-pressed", "true");
-    document.querySelector(".expert-editor-wrap")?.classList.add("expert-show-ln");
-    _expertApplyLineNumbers();
-  });
-
   document.getElementById("expert-minimap-btn")?.addEventListener("click", () => {
     _expertMinimapEnabled = !_expertMinimapEnabled;
     _expertApplyMinimap();
@@ -2473,6 +2470,18 @@ function initPalette() {
     await _closeProject();
     document.querySelector(".control-menu")?.removeAttribute("open");
   });
+  document.getElementById("menu-save-workspace")?.addEventListener("click", async () => {
+    await _workspaceSave();
+    document.querySelector(".control-menu")?.removeAttribute("open");
+  });
+  document.getElementById("menu-save-workspace-as")?.addEventListener("click", async () => {
+    await _workspaceSaveAs();
+    document.querySelector(".control-menu")?.removeAttribute("open");
+  });
+  document.getElementById("menu-open-workspace")?.addEventListener("click", async () => {
+    await _workspaceOpenViaDialog();
+    document.querySelector(".control-menu")?.removeAttribute("open");
+  });
   savePrgButton?.addEventListener("click", savePrgToFile);
   saveD64Button?.addEventListener("click", saveD64ToFile);
   saveCrtButton?.addEventListener("click", saveCrtToFile);
@@ -2562,6 +2571,11 @@ function initPalette() {
   memoryOverlaysToggle?.addEventListener("change", () => {
     showMemoryOverlays = memoryOverlaysToggle.checked;
     _applyMemoryOverlaysVisibility();
+    saveUiSettings();
+  });
+  globalMemoryPanelToggle?.addEventListener("change", () => {
+    showGlobalMemoryPanel = globalMemoryPanelToggle.checked;
+    _applyGlobalMemoryPanelVisibility();
     saveUiSettings();
   });
   blockPaletteSyncToggle?.addEventListener("change", () => {
@@ -2829,7 +2843,8 @@ function _updateEditorModeIndicator() {
   const el = document.getElementById("editor-mode-indicator");
   if (!el) return;
   const key = ultimateBasicMode ? "editorModeUltimateBasic" : (expertMode ? "editorModeExpert" : "editorModeBlock");
-  el.textContent = t(key);
+  const label = document.getElementById("editor-mode-indicator-label");
+  if (label) label.textContent = t(key); else el.textContent = t(key);
 }
 
 function _showBlockCtxMenu(e, index) {
@@ -3143,6 +3158,12 @@ function _applyUiSettingsToDOM() {
     _applyMemoryOverlaysVisibility();
   }
 
+  if (savedUiSettings.showGlobalMemoryPanel !== undefined) {
+    showGlobalMemoryPanel = !!savedUiSettings.showGlobalMemoryPanel;
+    if (globalMemoryPanelToggle) globalMemoryPanelToggle.checked = showGlobalMemoryPanel;
+    _applyGlobalMemoryPanelVisibility();
+  }
+
   if (savedUiSettings.blockPaletteSync !== undefined) {
     blockPaletteSync = !!savedUiSettings.blockPaletteSync;
     if (blockPaletteSyncToggle) blockPaletteSyncToggle.checked = blockPaletteSync;
@@ -3319,6 +3340,10 @@ function applySavedUiSettings() {
         _applyUiSettingsToDOM();
         _applyMemoryOverlaysVisibility();
         renderMemoryStrip();
+        // Silently reopen the last-used workspace (its real, on-disk files) so the
+        // app continues where it was closed — but only into the still-untouched
+        // startup state, never over anything the user may have already started.
+        if (globalSettings.lastWorkspacePath) _workspaceAutoRestore(globalSettings.lastWorkspacePath);
       }
     }).catch(() => {});
   }
@@ -3528,13 +3553,25 @@ function applyTranslations() {
     setText("#import-asm", t("importAsm"));
     setText("#copy-asm", t("copyAsm"));
     setText("#save-project", t("saveProject"));
+    document.getElementById("save-project")?.setAttribute("aria-label", t("saveProjectTip"));
     setText("#save-project-as", t("saveProgramAs"));
+    document.getElementById("save-project-as")?.setAttribute("aria-label", t("saveProgramAsTip"));
     setText("#menu-open-project", t("menuOpenProject"));
+    document.getElementById("menu-open-project")?.setAttribute("aria-label", t("menuOpenProjectTip"));
     setText("#menu-save-project", t("menuSaveProject"));
+    document.getElementById("menu-save-project")?.setAttribute("aria-label", t("menuSaveProjectTip"));
     setText("#save-snapshot", t("saveSnapshot"));
     setText("#restore-snapshot", t("restorePreviousVersion"));
     setText("#snapshot-history", t("snapshotHistory"));
     setText("#menu-close-project", t("menuCloseProject"));
+    document.getElementById("menu-close-project")?.setAttribute("aria-label", t("menuCloseProjectTip"));
+    setText("#workspace-section-label", t("workspaceSectionLabel"));
+    setText("#menu-save-workspace", t("menuSaveWorkspace"));
+    document.getElementById("menu-save-workspace")?.setAttribute("aria-label", t("menuSaveWorkspaceTip"));
+    setText("#menu-save-workspace-as", t("menuSaveWorkspaceAs"));
+    document.getElementById("menu-save-workspace-as")?.setAttribute("aria-label", t("menuSaveWorkspaceAsTip"));
+    setText("#menu-open-workspace", t("menuOpenWorkspace"));
+    document.getElementById("menu-open-workspace")?.setAttribute("aria-label", t("menuOpenWorkspaceTip"));
     setText("#save-prg", t("savePrg"));
     setText("#set-working-folder", t("setWorkingFolder"));
     setText("#build-section-label", t("buildSection"));
@@ -3556,6 +3593,7 @@ function applyTranslations() {
     setText("#asm-numbers-label", t("asmNumbersLabel"));
     setText("#region-comments-label", t("regionCommentsLabel"));
     setText("#memory-overlays-label", t("memoryOverlaysLabel"));
+    setText("#global-memory-panel-toggle-label", t("globalMemoryPanelToggleLabel"));
     setText("#origin-preview-label", t("originPreviewLabel"));
     setText("#asm-output-label", t("asmOutputLabel"));
     setText("#monitor-output-label", t("monitorOutputLabel"));
@@ -3563,8 +3601,7 @@ function applyTranslations() {
     setText("#expert-disasm-output-label", t("outputDisasm"));
     setText("#load-project", t("loadProject"));
     setText("#exit-app", t("exitApp"));
-    exitAppButton?.setAttribute("title", t("exitApp"));
-    exitAppButton?.setAttribute("aria-label", t("exitApp"));
+    exitAppButton?.setAttribute("aria-label", t("exitAppTip"));
     chooseViceButton?.setAttribute("title", t("openEmulator"));
     chooseViceButton?.setAttribute("aria-label", t("openEmulator"));
     importAsmButton?.setAttribute("aria-label", t("importAsmHint"));
@@ -3574,10 +3611,8 @@ function applyTranslations() {
     disasmCopySourceBtn?.setAttribute("aria-label", t("disasmCopySource"));
     expertDisasmCopySourceBtn?.setAttribute("aria-label", t("disasmCopySource"));
     ubDisasmCopySourceBtn?.setAttribute("aria-label", t("disasmCopySource"));
-    saveProjectButton?.setAttribute("title", t("saveProject"));
-    saveProjectButton?.setAttribute("aria-label", t("saveProject"));
-    saveProjectAsButton?.setAttribute("title", t("saveProgramAs"));
-    saveProjectAsButton?.setAttribute("aria-label", t("saveProgramAs"));
+    saveProjectButton?.setAttribute("aria-label", t("saveProjectTip"));
+    saveProjectAsButton?.setAttribute("aria-label", t("saveProgramAsTip"));
     saveSnapshotButton?.setAttribute("title", t("saveSnapshot"));
     saveSnapshotButton?.setAttribute("aria-label", t("saveSnapshot"));
     restoreSnapshotButton?.setAttribute("title", t("restorePreviousVersion"));
@@ -3591,8 +3626,7 @@ function applyTranslations() {
     saveD64Button?.setAttribute("aria-label", t("saveD64"));
     saveCrtButton?.setAttribute("title", t("saveCrt"));
     saveCrtButton?.setAttribute("aria-label", t("saveCrt"));
-    loadProjectButton?.setAttribute("title", t("loadProject"));
-    loadProjectButton?.setAttribute("aria-label", t("loadProject"));
+    loadProjectButton?.setAttribute("aria-label", t("loadProjectTip"));
     addSelectedButton?.setAttribute("title", t("addSelected"));
     addSelectedButton?.setAttribute("aria-label", t("addSelected"));
     loadSampleButton?.setAttribute("title", t("loadSample"));
@@ -6284,6 +6318,574 @@ function _ubApplyProjectSymbolsHeight() {
   ubPanel?.style.setProperty("--ub-project-symbols-height", `${Math.max(48, _ubProjectSymbolsHeight)}px`);
 }
 
+const ubCommandDescriptionsEn = {
+  "var": "Declares a byte, word, float, string, or array variable.",
+  "const": "Declares a compile-time constant.",
+  "print": "Prints values and formatting helpers through the C64 KERNAL output routine.",
+  "print at": "Moves the cursor, then prints optional values.",
+  "input": "Reads a value from the keyboard into a variable.",
+  "if": "Conditional execution with an optional else branch.",
+  "for": "Runs a counted loop.",
+  "while": "Repeats while the condition is true.",
+  "repeat": "Repeats until the condition becomes true.",
+  "loop": "Creates an infinite or counted loop.",
+  "break": "Leaves the current loop.",
+  "continue": "Continues with the next loop iteration.",
+  "sub": "Defines a non-recursive subroutine.",
+  "fn": "Defines a function with an optional return type.",
+  "call": "Calls a named subroutine.",
+  "goto": "Jumps to a label.",
+  "label": "Defines a goto target.",
+  "graphics": "Enables or disables a graphics mode.",
+  "plot": "Draws, erases, or XORs a bitmap pixel.",
+  "line": "Draws, clears, or XORs a bitmap line.",
+  "circle": "Draws a bitmap circle.",
+  "rect": "Draws, clears, or XORs a rectangle outline.",
+  "gcls": "Clears the active graphics screen.",
+  "flip": "Swaps visible and draw buffers in double-buffer mode.",
+  "sprite": "Positions a hardware sprite and optionally sets its data pointer.",
+  "sprdef": "Embeds and installs a 63-byte sprite definition.",
+  "sound": "Plays a SID voice with fixed ADSR and sawtooth waveform.",
+  "load sid": "Embeds a PSID/RSID file at compile time.",
+  "music": "Controls music loaded with load sid.",
+  "irq": "Installs a raster interrupt handler at line 0 or the given raster line.",
+  "irq_exit": "Exits a raster IRQ through the KERNAL.",
+  "poke": "Writes an 8-bit or 16-bit value to memory.",
+  "peek": "Reads an 8-bit or 16-bit value from memory.",
+  "sys": "Calls a machine-code routine with JSR.",
+  "asm": "Embeds raw bytes or a full inline 6502 assembly block.",
+  "include": "Includes another UltimateBasic source file.",
+  "incbin": "Embeds binary data inline or at an absolute address.",
+  "data": "Defines compile-time byte data and reads it sequentially.",
+  "reu": "Transfers memory using the REU DMA controller.",
+  "turbo": "Controls C64 Ultimate/SuperCPU acceleration.",
+  "wait": "Waits for raster transitions or for a specific raster line.",
+  "bye": "Returns cleanly to BASIC.",
+  "exit": "Alias for BYE; returns cleanly to BASIC.",
+  "comments": "Adds full-line or inline source comments.",
+  "compound assignment": "Updates a variable with an arithmetic or bitwise operation.",
+  "arrays": "Declares and accesses byte or word arrays in heap RAM. Multi-dimensional arrays use a comma-separated size list (array(rows, cols, ...)) and are stored row-major; index them with a comma-separated subscript (grid[r, c]). Dimensions must be compile-time constants; a single subscript into a multi-dim array is a flat/linear index.",
+  "times": "Runs a counted loop the given number of times.",
+  "select": "Selects one branch from multiple cases.",
+  "return": "Returns from a subroutine or function.",
+  "gosub": "Calls a label with JSR; return resumes execution.",
+  "cls": "Clears the text screen; FAST directly fills screen and color RAM.",
+  "display": "Enables or disables VIC-II display output.",
+  "color": "Sets the text, border, or background color.",
+  "text": "Writes text at a screen position.",
+  "screen": "Writes directly to screen and color RAM.",
+  "cursor": "Moves the text cursor.",
+  "lowercase": "Switches to the lowercase/uppercase VIC character set.",
+  "uppercase": "Switches to the uppercase/graphics VIC character set.",
+  "plot4": "Draws a 4×4 block pixel.",
+  "mplot": "Draws a multicolor bitmap pixel.",
+  "circle4": "Draws a circle in block-pixel mode.",
+  "paint": "Flood-fills a connected bitmap area.",
+  "fill": "Fills screen RAM, color RAM, or an arbitrary memory range.",
+  "sprite control": "Controls hardware sprite attributes.",
+  "sprite_frame": "Selects a sprite animation frame. The optional frame indexes consecutive 64-byte images from data_address; without it, the command selects the base image.",
+  "sprite collision": "Reads sprite/sprite or sprite/background collision flags.",
+  "sprite position": "Reads a hardware sprite coordinate.",
+  "chardef": "Embeds an 8-byte custom character definition.",
+  "charset": "Sets the RAM character-set base address.",
+  "sid volume": "Sets SID volume or stops SID playback.",
+  "nmi": "Installs an NMI handler.",
+  "nmi_exit": "Exits an NMI through the KERNAL.",
+  "cia_timer": "Configures CIA1 Timer A interrupt handling.",
+  "onerr": "Installs a KERNAL I/O error handler.",
+  "open": "Opens a KERNAL logical file.",
+  "close": "Closes a KERNAL logical file.",
+  "print#": "Writes values to an open logical file.",
+  "load": "Loads a disk file at its native or an overridden address.",
+  "save": "Saves a memory range to device 8 through the KERNAL.",
+  "memcopy": "Copies a block of memory.",
+  "drawmem": "Copies a packed 2-D rectangle to strided destination memory.",
+  "map": "Loads, draws, and modifies character tile maps.",
+  "map query": "Reads a tile code or cell color from the active map.",
+  "koala": "Loads and displays a Koala Painter image.",
+  "collision": "Tests two inclusive bounding boxes for overlap.",
+  "delay": "Waits for the given number of video frames.",
+  "raster": "Returns the current raster line.",
+  "scroll": "Controls VIC-II fine scrolling, display width, or shifts a screen row.",
+  "badlines": "Controls Ultimate badline timing.",
+  "speed": "Sets the C64 Ultimate CPU speed.",
+  "fast": "Enables the compiler's fast execution mode where supported.",
+  "getch": "Reads a character using the KERNAL.",
+  "inkey": "Reads the keyboard without waiting.",
+  "waitkey": "Waits for a key using direct keyboard scanning.",
+  "joy": "Reads a joystick port.",
+  "mouse": "Reads the connected mouse position and buttons.",
+  "reu detect": "Checks whether a REU is available.",
+  "turbo detect": "Returns whether Ultimate turbo mode is active.",
+  "types": "UltimateBasic variable and array types.",
+  "string conversion": "Converts between strings, characters, and numbers.",
+  "numstr": "Writes a zero-padded three-digit string to an absolute address.",
+  "string functions": "String and PRINT formatting helpers.",
+  "math": "Integer math helper functions.",
+  "random": "Returns a pseudo-random byte or a value below the limit.",
+  "trigonometry": "Returns a fixed-point trigonometric value.",
+  "number formatting": "Formats a number as hexadecimal, binary, or padded decimal text.",
+  "operators": "Logical, bitwise, modulo, and shift operators.",
+  "inc/dec": "Increments or decrements a variable.",
+  "type": "Defines a structured record type with named, typed fields. Supported field types: int (1 byte), word (2 bytes), float (2 bytes, Q8.8 fixed-point). Declare instances with var name: TypeName, then access fields as name.field. The compiler lays out fields contiguously in zero-page memory."
+};
+
+const ubCommandDescriptionsHu = {
+  "var": "Byte, word, lebegőpontos (float), karakterlánc (string) vagy tömb változót deklarál.",
+  "const": "Fordítási idejű konstans deklarálása.",
+  "print": "Értékeket és formázó segédfüggvényeket ír ki a C64 KERNAL kimeneti rutinján keresztül.",
+  "print at": "A kurzort adott pozícióra mozgatja, majd opcionális értékeket ír ki.",
+  "input": "Értéket olvas be a billentyűzetről egy változóba.",
+  "if": "Feltételes végrehajtás opcionális else ággal.",
+  "for": "Számlálós ciklust hajt végre.",
+  "while": "Addig ismétli a törzset, amíg a feltétel igaz.",
+  "repeat": "Addig ismétli a törzset, amíg a feltétel igazzá nem válik (hátultesztelő ciklus).",
+  "loop": "Végtelen vagy megadott lépésszámú ciklust hoz létre.",
+  "break": "Kilép az aktuális ciklusból.",
+  "continue": "A ciklus következő iterációjára ugrik.",
+  "sub": "Nem-rekurzív eljárást (szubrutint) definiál.",
+  "fn": "Függvényt definiál opcionális visszatérési típussal.",
+  "call": "Meghív egy nevesített eljárást.",
+  "goto": "Egy címkére ugrik.",
+  "label": "Ugrási célpontot (címkét) definiál a goto utasításhoz.",
+  "graphics": "Grafikus mód be- vagy kikapcsolása (hires, multi, block).",
+  "plot": "Kirajzol, töröl vagy XOR-oz egy bitkép képpontot.",
+  "line": "Kirajzol, töröl vagy XOR-oz egy bitkép vonalat.",
+  "circle": "Kirajzol egy bitkép kört.",
+  "rect": "Kirajzol, töröl vagy XOR-oz egy téglalap kontúrt.",
+  "gcls": "Törli az aktív grafikus képernyőt.",
+  "flip": "Megcseréli a látható és a rajzolási puffert dupla puffereléses módban.",
+  "sprite": "Beállítja egy hardveres sprite pozícióját és opcionálisan az adatmutatóját.",
+  "sprdef": "Beágyaz és telepít egy 63 bájtos sprite definíciót.",
+  "sound": "Megszólaltat egy SID hangcsatornát fix ADSR-rel és fűrészfog hullámformával.",
+  "load sid": "Beágyaz egy PSID/RSID zenefájlt fordítási időben.",
+  "music": "Vezérli a load sid paranccsal betöltött zenelejátszást (play, stop, pause, resume).",
+  "irq": "Raszter megszakításkezelőt telepít a 0. vagy a megadott rasztersorhoz.",
+  "irq_exit": "Kilép a raszter IRQ megszakításból a KERNAL-on keresztül ($EA31).",
+  "poke": "8 bites vagy 16 bites értéket ír a memóriába.",
+  "peek": "8 bites vagy 16 bites értéket olvas ki a memóriából.",
+  "sys": "Gépi kódú rutint hív meg JSR utasítással.",
+  "asm": "Nyers bájtokat vagy beágyazott inline 6502 assembly blokkot szúr be.",
+  "include": "Egy másik UltimateBasic forrásfájlt fűz be a programba.",
+  "incbin": "Bináris adatfájlt ágyaz be inline vagy abszolút memóriacímre.",
+  "data": "Fordítási idejű bájtadatokat definiál (data) és egymás után beolvassa őket (read).",
+  "reu": "Memóriát mozgat a C64 REU DMA vezérlőjével (stash, fetch, swap).",
+  "turbo": "Vezérli a C64 Ultimate és SuperCPU gyorsítást (on, off, speed).",
+  "wait": "Raszter átmenetekre vagy egy megadott rasztersorra vár.",
+  "bye": "Tiszta visszatérés a BASIC parancsértelmezőbe.",
+  "exit": "A BYE parancs szinonimája; visszatérés a BASIC-be.",
+  "comments": "Egész soros (#, rem) vagy sorvégi megjegyzéseket ad a forráskódhoz.",
+  "compound assignment": "Változót frissít aritmetikai vagy bitenkénti művelettel (pl. +=, -=, and=, shl=).",
+  "arrays": "Bájt vagy szó tömböket deklarál és kezel a dinamikus memóriában (heap). A többdimenziós tömbök vesszővel elválasztott méretlistát használnak (array(sorok, oszlopok, ...)) és sorfolytonosan tárolódnak; indexelésük vesszős indexeléssel történik (grid[r, c]). A dimenziók fordítási idejű konstansok; az egyetlen index többdimenziós tömbnél lineáris indexelést jelent.",
+  "times": "Adott számszor hajtja végre a ciklustörzset.",
+  "select": "Több eset (case) közül választ ki egy végrehajtandó ágat.",
+  "return": "Visszatér egy eljárásból (sub) vagy függvényből (fn).",
+  "gosub": "Címkét hív meg JSR-rel; a return folytatja a végrehajtást.",
+  "cls": "Törli a szöveges képernyőt; a FAST közvetlenül tölti fel a képernyő- és színmemóriát.",
+  "display": "Be- vagy kikapcsolja a VIC-II képmegjelenítést.",
+  "color": "Beállítja a szöveg-, keret- vagy háttérszínt.",
+  "text": "Szöveget ír ki a megadott képernyőpozícióra.",
+  "screen": "Karaktert és színt ír közvetlenül a képernyő- és szín-RAM-ba.",
+  "cursor": "Elmozdítja a szöveges kurzort.",
+  "lowercase": "Átvált a VIC kisbetűs/nagybetűs karakterkészletére.",
+  "uppercase": "Átvált a VIC nagybetűs/grafikus karakterkészletére.",
+  "plot4": "4×4-es blokk képpontot rajzol vagy töröl.",
+  "mplot": "Többszínű (multicolor) bitkép képpontot rajzol.",
+  "circle4": "Kört rajzol 4×4-es blokk-képpont módban.",
+  "paint": "Kitölt egy összefüggő bitkép területet (flood fill).",
+  "fill": "Feltölti a képernyő-RAM-ot, szín-RAM-ot vagy tetszőleges memóriatartományt.",
+  "sprite control": "Vezérli a hardveres sprite tulajdonságait (on/off, color, multi, expand, priority).",
+  "sprite_frame": "Kiválasztja egy sprite animációs képkockáját. Az opcionális frame paraméter egymást követő 64 bájtos képeket indexel a data_address címtől; elhagyva az alapkép kerül kiválasztásra.",
+  "sprite collision": "Lekérdezi a sprite-sprite vagy sprite-háttér ütközési jelzőbiteit (sprite_hit, sprite_bg_hit).",
+  "sprite position": "Lekérdezi egy hardveres sprite X vagy Y koordinátáját (sprite_x, sprite_y).",
+  "chardef": "Beágyaz egy 8 bájtos egyedi karakterdefiníciót.",
+  "charset": "Beállítja a RAM-ban lévő karakterkészlet báziscímét.",
+  "sid volume": "Beállítja a SID fő hangerőt ($D418) vagy leállítja a lejátszást.",
+  "nmi": "NMI megszakításkezelő rutint telepít.",
+  "nmi_exit": "Kilép az NMI megszakításból a KERNAL-on keresztül.",
+  "cia_timer": "Konfigurálja a CIA1 Timer A időzítő megszakítását és kezelőjét.",
+  "onerr": "KERNAL I/O hibakezelő ugrási címet állít be.",
+  "open": "Megnyit egy KERNAL logikai fájlt (channel, device, secondary, filename).",
+  "close": "Lezár egy megnyitott KERNAL logikai fájlt.",
+  "print#": "Értékeket ír ki egy megnyitott logikai fájlba.",
+  "load": "Lemezfájlt tölt be az eredeti vagy felülbírált memóriacímre.",
+  "save": "Memóriatartományt ment a 8-as meghajtóra a KERNAL segítségével.",
+  "memcopy": "Átmásol egy memóriablokkot a forráscímről a célcímre.",
+  "drawmem": "Tömör 2D téglalap alakú memóriaterületet másol át sorléptetéses (strided) célmemóriába.",
+  "map": "Karakteres csempetérképeket tölt be, rajzol ki és módosít (.ubmap).",
+  "map query": "Lekérdezi egy cella csempekódját vagy színét az aktív térképből (map_tile, map_color).",
+  "koala": "Koala Painter (.kla) többszínű képet tölt be és jelenít meg.",
+  "collision": "Két befoglaló téglalap átfedését (ütközését) vizsgálja (box_hit).",
+  "delay": "Megadott számú képkockányi (frame) ideig várakozik.",
+  "raster": "Visszaadja az aktuális rasztersor számát (0-311 PAL esetén).",
+  "scroll": "Finomgörgetést (fine scroll), képernyőszélességet vezérel vagy eltol egy képernyősort.",
+  "badlines": "Vezérli az Ultimate badline időzítést.",
+  "speed": "Beállítja a C64 Ultimate processzor sebességét (MHz, max, off).",
+  "fast": "Bekapcsolja a fordító gyors végrehajtási módját ahol támogatott.",
+  "getch": "Karaktert olvas be a KERNAL GETIN ($FFE4) rutinjával.",
+  "inkey": "Várakozás nélkül olvassa a billentyűzetet.",
+  "waitkey": "Gombnyomásra vár közvetlen billentyűzet-mátrix pásztázással.",
+  "joy": "Lekérdezi az 1-es vagy 2-es botkormány (joystick) port állapotát.",
+  "mouse": "Lekérdezi az 1351-es egér pozícióját és gombjait (mouse_x, mouse_y, mouse_btn).",
+  "reu detect": "Ellenőrzi, hogy csatlakoztatva van-e REU memóriabővítő (reu_present, reudet).",
+  "turbo detect": "Visszaadja, hogy az Ultimate turbó mód aktív-e.",
+  "types": "UltimateBasic változó- és tömbtípusok (int, word, float, string, array, array_word).",
+  "string conversion": "Átalakítás szövegek, karakterek és számok között (chr$, str$, str_to_int, val).",
+  "numstr": "Vezető nullás háromjegyű szám-karakterláncot ír ki egy abszolút memóriacímre.",
+  "string functions": "Karakterlánc- és kiírás-formázó függvények (len, asc, spc, tab).",
+  "math": "Egész szám matematikai segédfüggvények (abs, min, max, sgn, clamp).",
+  "random": "Álvéletlen bájtot vagy a megadott felső határ alatti értéket ad vissza (rnd).",
+  "trigonometry": "Fixpontos trigonometriai értéket ad vissza (sin, cos).",
+  "number formatting": "Számot formáz hexadecimális, bináris vagy kitöltött decimális szöveggé (hex, bin, dec).",
+  "operators": "Logikai, bitenkénti, maradékképző és léptető operátorok (and, or, xor, not, bnot, mod, shl, shr).",
+  "inc/dec": "Növeli vagy csökkenti egy változó értékét eggyel (inc, dec).",
+  "type": "Strukturált rekordtípust definiál nevesített, típusos mezőkkel. Támogatott mezőtípusok: int (1 bájt), word (2 bájt), float (2 bájt, Q8.8 fixpontos). Példányosítás: var nev: TipusNev, a mezők elérése: nev.mezo formában. A fordító a mezőket folytonosan a zero page memóriában helyezi el."
+};
+
+const ubCommandDescriptionsEs = {
+  "var": "Declara una variable de tipo byte, word, float, string o matriz.",
+  "const": "Declara una constante de tiempo de compilación.",
+  "print": "Imprime valores y formateadores mediante la rutina de salida del KERNAL de C64.",
+  "print at": "Mueve el cursor y luego imprime valores opcionales.",
+  "input": "Lee un valor del teclado en una variable.",
+  "if": "Ejecución condicional con una rama else opcional.",
+  "for": "Ejecuta un bucle con contador.",
+  "while": "Repite mientras la condición sea verdadera.",
+  "repeat": "Repite hasta que la condición sea verdadera.",
+  "loop": "Crea un bucle infinito o con contador.",
+  "break": "Sale del bucle actual.",
+  "continue": "Continúa con la siguiente iteración del bucle.",
+  "sub": "Define una subrutina no recursiva.",
+  "fn": "Define una función con un tipo de retorno opcional.",
+  "call": "Llama a una subrutina con nombre.",
+  "goto": "Salta a una etiqueta.",
+  "label": "Define un destino de salto para goto.",
+  "graphics": "Activa o desactiva un modo gráfico.",
+  "plot": "Dibuja, borra o aplica XOR a un píxel de mapa de bits.",
+  "line": "Dibuja, borra o aplica XOR a una línea de mapa de bits.",
+  "circle": "Dibuja un círculo en mapa de bits.",
+  "rect": "Dibuja, borra o aplica XOR al contorno de un rectángulo.",
+  "gcls": "Borra la pantalla gráfica activa.",
+  "flip": "Intercambia los búferes visible y de dibujo en modo de doble búfer.",
+  "sprite": "Posiciona un sprite de hardware y opcionalmente define su puntero de datos.",
+  "sprdef": "Incrusta e instala una definición de sprite de 63 bytes.",
+  "sound": "Reproduce una voz del SID con ADSR fijo y forma de onda de diente de sierra.",
+  "load sid": "Incrusta un archivo PSID/RSID en tiempo de compilación.",
+  "music": "Controla la música cargada con load sid.",
+  "irq": "Instala un controlador de interrupciones de trama en la línea 0 o la línea indicada.",
+  "irq_exit": "Sale de una interrupción IRQ de trama mediante el KERNAL.",
+  "poke": "Escribe un valor de 8 o 16 bits en la memoria.",
+  "peek": "Lee un valor de 8 o 16 bits de la memoria.",
+  "sys": "Llama a una rutina en código máquina mediante JSR.",
+  "asm": "Incrusta bytes directos o un bloque completo de ensamblador 6502 integrado.",
+  "include": "Incluye otro archivo fuente de UltimateBasic.",
+  "incbin": "Incrusta datos binarios de forma integrada o en una dirección absoluta.",
+  "data": "Define datos de bytes en tiempo de compilación y los lee secuencialmente.",
+  "reu": "Transfiere memoria mediante el controlador DMA de la REU.",
+  "turbo": "Controla la aceleración de C64 Ultimate/SuperCPU.",
+  "wait": "Espera transiciones de trama o una línea de trama específica.",
+  "bye": "Regresa limpiamente al BASIC.",
+  "exit": "Alias de BYE; regresa limpiamente al BASIC.",
+  "comments": "Añade comentarios de línea completa o en línea al código fuente.",
+  "compound assignment": "Actualiza una variable con una operación aritmética o bit a bit.",
+  "arrays": "Declara y accede a matrices de bytes o palabras en la memoria dinámica (heap). Las matrices multidimensionales usan una lista de tamaños separada por comas (array(filas, cols, ...)) y se almacenan por filas; indexe con subíndices separados por comas (grid[r, c]). Las dimensiones deben ser constantes en compilación; un único subíndice en una matriz multidimensional es un índice plano/lineal.",
+  "times": "Ejecuta un bucle el número de veces indicado.",
+  "select": "Selecciona una rama entre múltiples casos.",
+  "return": "Regresa de una subrutina o función.",
+  "gosub": "Llama a una etiqueta con JSR; return reanuda la ejecución.",
+  "cls": "Borra la pantalla de texto; FAST rellena directamente la RAM de pantalla y color.",
+  "display": "Activa o desactiva la salida de pantalla del VIC-II.",
+  "color": "Establece el color del texto, borde o fondo.",
+  "text": "Escribe texto en una posición de la pantalla.",
+  "screen": "Escribe directamente en la RAM de pantalla y de color.",
+  "cursor": "Mueve el cursor de texto.",
+  "lowercase": "Cambia al juego de caracteres en minúsculas/mayúsculas del VIC.",
+  "uppercase": "Cambia al juego de caracteres en mayúsculas/gráficos del VIC.",
+  "plot4": "Dibuja o borra un píxel de bloque de 4×4.",
+  "mplot": "Dibuja un píxel de mapa de bits multicolor.",
+  "circle4": "Dibuja un círculo en modo de píxeles de bloque.",
+  "paint": "Rellena un área continua de mapa de bits.",
+  "fill": "Rellena la RAM de pantalla, de color o un rango arbitrario de memoria.",
+  "sprite control": "Controla los atributos de los sprites de hardware.",
+  "sprite_frame": "Selecciona un fotograma de animación de sprite. El parámetro opcional frame indexa imágenes consecutivas de 64 bytes desde data_address; sin él, selecciona la imagen base.",
+  "sprite collision": "Lee los indicadores de colisión sprite/sprite o sprite/fondo.",
+  "sprite position": "Lee las coordenadas de un sprite de hardware.",
+  "chardef": "Incrusta una definición de carácter personalizado de 8 bytes.",
+  "charset": "Establece la dirección base del juego de caracteres en RAM.",
+  "sid volume": "Establece el volumen del SID o detiene la reproducción.",
+  "nmi": "Instala un controlador de NMI.",
+  "nmi_exit": "Sale de una interrupción NMI mediante el KERNAL.",
+  "cia_timer": "Configura el manejo de interrupciones del temporizador A de CIA1.",
+  "onerr": "Instala un controlador de errores de E/S del KERNAL.",
+  "open": "Abre un archivo lógico del KERNAL.",
+  "close": "Cierra un archivo lógico del KERNAL.",
+  "print#": "Escribe valores en un archivo lógico abierto.",
+  "load": "Carga un archivo de disco en su dirección nativa o personalizada.",
+  "save": "Guarda un rango de memoria en el dispositivo 8 mediante el KERNAL.",
+  "memcopy": "Copia un bloque de memoria.",
+  "drawmem": "Copia un rectángulo 2D empaquetado a una memoria de destino con paso (stride).",
+  "map": "Carga, dibuja y modifica mapas de casillas de caracteres.",
+  "map query": "Lee un código de casilla o color de celda del mapa activo.",
+  "koala": "Carga y muestra una imagen de Koala Painter.",
+  "collision": "Comprueba si dos cajas delimitadoras se superponen.",
+  "delay": "Espera la cantidad indicada de fotogramas de vídeo.",
+  "raster": "Devuelve la línea de trama actual.",
+  "scroll": "Controla el desplazamiento fino del VIC-II, el ancho de pantalla o desplaza una fila.",
+  "badlines": "Controla la temporización de badlines en Ultimate.",
+  "speed": "Establece la velocidad de CPU de C64 Ultimate.",
+  "fast": "Activa el modo de ejecución rápida del compilador donde sea compatible.",
+  "getch": "Lee un carácter mediante el KERNAL.",
+  "inkey": "Lee el teclado sin esperar.",
+  "waitkey": "Espera una tecla mediante escaneo directo del teclado.",
+  "joy": "Lee el estado de un puerto de joystick.",
+  "mouse": "Lee la posición y los botones del ratón conectado.",
+  "reu detect": "Comprueba si una REU está disponible.",
+  "turbo detect": "Devuelve si el modo turbo de Ultimate está activo.",
+  "types": "Tipos de variables y matrices de UltimateBasic.",
+  "string conversion": "Convierte entre cadenas, caracteres y números.",
+  "numstr": "Escribe una cadena de tres dígitos con ceros iniciales en una dirección absoluta.",
+  "string functions": "Funciones auxiliares para cadenas y formateo de PRINT.",
+  "math": "Funciones matemáticas auxiliares para enteros.",
+  "random": "Devuelve un byte pseudoaleatorio o un valor inferior al límite.",
+  "trigonometry": "Devuelve un valor trigonométrico de punto fijo.",
+  "number formatting": "Formatea un número como texto hexadecimal, binario o decimal con relleno.",
+  "operators": "Operadores lógicos, bit a bit, de módulo y de desplazamiento.",
+  "inc/dec": "Incrementa o decrementa una variable.",
+  "type": "Define un tipo de registro estructurado con campos tipados y con nombre. Tipos de campo admitidos: int (1 byte), word (2 bytes), float (2 bytes, punto fijo Q8.8). Declare instancias con var nombre: TipoNombre y acceda a los campos con nombre.campo. El compilador ubica los campos contiguamente en la página cero."
+};
+
+const ubCommandDescriptionsDe = {
+  "var": "Deklariert eine Byte-, Word-, Float-, String- oder Array-Variable.",
+  "const": "Deklariert eine Konstante zur Kompilierzeit.",
+  "print": "Gibt Werte und Formatierungshelfer über die C64-KERNAL-Ausgaberoutine aus.",
+  "print at": "Bewegt den Cursor und gibt optionale Werte aus.",
+  "input": "Liest einen Wert von der Tastatur in eine Variable ein.",
+  "if": "Bedingte Ausführung mit optionalem else-Zweig.",
+  "for": "Führt eine Zählschleife aus.",
+  "while": "Wiederholt, solange die Bedingung wahr ist.",
+  "repeat": "Wiederholt, bis die Bedingung wahr wird.",
+  "loop": "Erstellt eine Endlos- oder Zählschleife.",
+  "break": "Verlässt die aktuelle Schleife.",
+  "continue": "Fährt mit der nächsten Schleifeniteration fort.",
+  "sub": "Definiert ein nicht-rekursives Unterprogramm.",
+  "fn": "Definiert eine Funktion mit optionalem Rückgabetyp.",
+  "call": "Ruft ein benanntes Unterprogramm auf.",
+  "goto": "Springt zu einer Sprungmarke (Label).",
+  "label": "Definiert ein Sprungziel für goto.",
+  "graphics": "Aktiviert oder deaktiviert einen Grafikmodus.",
+  "plot": "Zeichnet, löscht oder XOR-verknüpft ein Bitmap-Pixel.",
+  "line": "Zeichnet, löscht oder XOR-verknüpft eine Bitmap-Linie.",
+  "circle": "Zeichnet einen Bitmap-Kreis.",
+  "rect": "Zeichnet, löscht oder XOR-verknüpft einen Rechteckumriss.",
+  "gcls": "Löscht den aktiven Grafikbildschirm.",
+  "flip": "Tauscht sichtbaren und Zeichenpuffer im Doppelbuffermodus.",
+  "sprite": "Positioniert ein Hardware-Sprite und setzt optional seinen Datenzeiger.",
+  "sprdef": "Bettet eine 63-Byte-Sprite-Definition ein und installiert sie.",
+  "sound": "Spielt eine SID-Stimme mit festem ADSR und Sägezahn-Wellenform ab.",
+  "load sid": "Bettet eine PSID/RSID-Datei zur Kompilierzeit ein.",
+  "music": "Steuert die mit load sid geladene Musik.",
+  "irq": "Installiert einen Raster-Interrupt-Handler in Zeile 0 oder der angegebenen Rasterzeile.",
+  "irq_exit": "Beendet einen Raster-IRQ über das KERNAL.",
+  "poke": "Schreibt einen 8-Bit- oder 16-Bit-Wert in den Speicher.",
+  "peek": "Liest einen 8-Bit- oder 16-Bit-Wert aus dem Speicher.",
+  "sys": "Ruft eine Maschinencode-Routine mit JSR auf.",
+  "asm": "Bettet direkte Bytes oder einen vollständigen 6502-Inline-Assemblerblock ein.",
+  "include": "Bindet eine andere UltimateBasic-Quelldatei ein.",
+  "incbin": "Bettet Binärdaten inline oder an einer absoluten Adresse ein.",
+  "data": "Definiert Byte-Daten zur Kompilierzeit und liest sie sequentiell ein.",
+  "reu": "Überträgt Speicher über den REU-DMA-Controller.",
+  "turbo": "Steuert die C64 Ultimate/SuperCPU-Beschleunigung.",
+  "wait": "Wartet auf Rasterübergänge oder eine bestimmte Rasterzeile.",
+  "bye": "Kehrt sauber zu BASIC zurück.",
+  "exit": "Alias für BYE; kehrt sauber zu BASIC zurück.",
+  "comments": "Fügt ganzzeilige oder zeileninterne Quellcode-Kommentare hinzu.",
+  "compound assignment": "Aktualisiert eine Variable mit einer arithmetischen oder bitweisen Operation.",
+  "arrays": "Deklariert und verwendet Byte- oder Word-Arrays im Heap-RAM. Mehrdimensionale Arrays verwenden eine durch Kommas getrennte Größenliste (array(Zeilen, Spalten, ...)) und werden zeilenweise gespeichert; indizieren Sie sie mit kommagetrennten Indizes (grid[r, c]). Dimensionen müssen Kompilierzeit-Konstanten sein; ein einzelner Index in ein mehrdimensionales Array ist ein flacher/linearer Index.",
+  "times": "Führt eine Schleife so oft aus wie angegeben.",
+  "select": "Wählt einen Zweig aus mehreren Fällen (Cases) aus.",
+  "return": "Kehrt aus einem Unterprogramm oder einer Funktion zurück.",
+  "gosub": "Ruft eine Sprungmarke mit JSR auf; return setzt die Ausführung fort.",
+  "cls": "Löscht den Textbildschirm; FAST füllt Bildschirm- und Farb-RAM direkt.",
+  "display": "Aktiviert oder deaktiviert die VIC-II-Bildschirmausgabe.",
+  "color": "Setzt die Text-, Rahmen- oder Hintergrundfarbe.",
+  "text": "Schreibt Text an eine Bildschirmposition.",
+  "screen": "Schreibt direkt in das Bildschirm- und Farb-RAM.",
+  "cursor": "Bewegt den Textcursor.",
+  "lowercase": "Wechselt zum Klein-/Großbuchstaben-Zeichensatz des VIC.",
+  "uppercase": "Wechselt zum Großbuchstaben-/Grafik-Zeichensatz des VIC.",
+  "plot4": "Zeichnet oder löscht ein 4×4-Block-Pixel.",
+  "mplot": "Zeichnet ein Multicolor-Bitmap-Pixel.",
+  "circle4": "Zeichnet einen Kreis im Block-Pixel-Modus.",
+  "paint": "Füllt einen zusammenhängenden Bitmap-Bereich.",
+  "fill": "Füllt Bildschirm-RAM, Farb-RAM oder einen beliebigen Speicherbereich.",
+  "sprite control": "Steuert Hardware-Sprite-Attribute.",
+  "sprite_frame": "Wählt ein Sprite-Animationsbild aus. Der optionale Parameter frame indiziert aufeinanderfolgende 64-Byte-Bilder ab data_address; ohne ihn wird das Basisbild gewählt.",
+  "sprite collision": "Liest Sprite/Sprite- oder Sprite/Hintergrund-Kollisionsflags.",
+  "sprite position": "Liest die Koordinaten eines Hardware-Sprites.",
+  "chardef": "Bettet eine 8-Byte-eigene-Zeichendefinition ein.",
+  "charset": "Setzt die Basisadresse des Zeichensatzes im RAM.",
+  "sid volume": "Setzt die SID-Lautstärke oder stoppt die Wiedergabe.",
+  "nmi": "Installiert einen NMI-Handler.",
+  "nmi_exit": "Beendet einen NMI über das KERNAL.",
+  "cia_timer": "Konfiguriert die CIA1 Timer A Interrupt-Behandlung.",
+  "onerr": "Installiert einen KERNAL-E/A-Fehlerhandler.",
+  "open": "Öffnet eine logische KERNAL-Datei.",
+  "close": "Schließt eine logische KERNAL-Datei.",
+  "print#": "Schreibt Werte in eine geöffnete logische Datei.",
+  "load": "Lädt eine Datei von Diskette an ihre native oder eine angegebene Adresse.",
+  "save": "Speichert einen Speicherbereich über das KERNAL auf Gerät 8.",
+  "memcopy": "Kopiert einen Speicherblock.",
+  "drawmem": "Kopiert ein gepacktes 2D-Rechteck in Zielspeicher mit Zeilensprung (Stride).",
+  "map": "Lädt, zeichnet und ändert Zeichen-Tilemaps.",
+  "map query": "Liest einen Tile-Code oder eine Zellenfarbe aus der aktiven Map.",
+  "koala": "Lädt und zeigt ein Koala Painter-Bild an.",
+  "collision": "Prüft zwei Begrenzungsrahmen auf Überlappung.",
+  "delay": "Wartet die angegebene Anzahl an Video-Frames ab.",
+  "raster": "Gibt die aktuelle Rasterzeile zurück.",
+  "scroll": "Steuert VIC-II-Feinscrolling, Bildschirmbreite oder verschiebt eine Bildschirmzeile.",
+  "badlines": "Steuert das Ultimate Badline-Timing.",
+  "speed": "Setzt die C64 Ultimate CPU-Geschwindigkeit.",
+  "fast": "Aktiviert den schnellen Ausführungsmodus des Compilers, falls unterstützt.",
+  "getch": "Liest ein Zeichen über das KERNAL ein.",
+  "inkey": "Liest die Tastatur ohne zu warten.",
+  "waitkey": "Wartet auf einen Tastendruck durch direktes Tastatur-Scanning.",
+  "joy": "Liest einen Joystick-Port aus.",
+  "mouse": "Liest Position und Tasten der angeschlossenen Maus.",
+  "reu detect": "Prüft, ob eine REU verfügbar ist.",
+  "turbo detect": "Gibt zurück, ob der Ultimate-Turbomodus aktiv ist.",
+  "types": "UltimateBasic-Variablen- und Array-Typen.",
+  "string conversion": "Konvertiert zwischen Zeichenketten, Zeichen und Zahlen.",
+  "numstr": "Schreibt eine dreistellige Zahl mit führenden Nullen an eine absolute Adresse.",
+  "string functions": "Hilfsfunktionen für Strings und PRINT-Formatierung.",
+  "math": "Ganzzahl-Mathematik-Hilfsfunktionen.",
+  "random": "Gibt ein Pseudozufallsbyte oder einen Wert unterhalb des Limits zurück.",
+  "trigonometry": "Gibt einen trigonometrischen Festkommawert zurück.",
+  "number formatting": "Formatiert eine Zahl als hexadezimalen, binären oder linksbündigen Dezimaltext.",
+  "operators": "Logische, bitweise, Modulo- und Shift-Operatoren.",
+  "inc/dec": "Erhöht oder verringert eine Variable.",
+  "type": "Definiert einen strukturierten Datensatztyp mit benannten, getypten Feldern. Unterstützte Feldtypen: int (1 Byte), word (2 Bytes), float (2 Bytes, Q8.8-Festkomma). Instanzen deklarieren mit var name: TypName, Feldzugriff über name.feld. Der Compiler platziert die Felder zusammenhängend im Zero-Page-Speicher."
+};
+
+const ubCommandDescriptionsNl = {
+  "var": "Declareert een byte-, word-, float-, string- of array-variabele.",
+  "const": "Declareert een constante tijdens compileertijd.",
+  "print": "Drukt waarden en opmaakhulpmiddelen af via de C64 KERNAL-uitvoerroutine.",
+  "print at": "Verplaatst de cursor en drukt optionele waarden af.",
+  "input": "Leest een waarde van het toetsenbord in een variabele.",
+  "if": "Voorwaardelijke uitvoering met een optionele else-tak.",
+  "for": "Voert een tellende lus uit.",
+  "while": "Herhaalt zolang de voorwaarde waar is.",
+  "repeat": "Herhaalt totdat de voorwaarde waar wordt.",
+  "loop": "Maakt een oneindige of tellende lus.",
+  "break": "Verlaat de huidige lus.",
+  "continue": "Gaat door naar de volgende lusiteratie.",
+  "sub": "Definieert een niet-recursieve subroutine.",
+  "fn": "Definieert een functie met een optioneel retourtype.",
+  "call": "Roept een benoemde subroutine aan.",
+  "goto": "Springt naar een label.",
+  "label": "Definieert een sprongdoel voor goto.",
+  "graphics": "Schakelt een grafische modus in of uit.",
+  "plot": "Tekent, wist of XOR't een bitmap-pixel.",
+  "line": "Tekent, wist of XOR't een bitmaplijn.",
+  "circle": "Tekent een bitmapcirkel.",
+  "rect": "Tekent, wist of XOR't een rechthoekomtrek.",
+  "gcls": "Wist het actieve grafische scherm.",
+  "flip": "Wisselt de zichtbare en tekenbuffers in dubbelbuffermodus.",
+  "sprite": "Positioneert een hardwaresprite en stelt optioneel de datawijzer in.",
+  "sprdef": "Sluit een 63-byte spritedefinitie in en installeert deze.",
+  "sound": "Speelt een SID-stem af met vaste ADSR en zaagtandgolfvorm.",
+  "load sid": "Sluit een PSID/RSID-bestand in tijdens het compileren.",
+  "music": "Bestuurt muziek geladen met load sid.",
+  "irq": "Installeert een rasteronderbrekingshandler op lijn 0 of de opgegeven rasterlijn.",
+  "irq_exit": "Verlaat een raster-IRQ via de KERNAL.",
+  "poke": "Schrijft een 8-bits of 16-bits waarde naar het geheugen.",
+  "peek": "Leest een 8-bits of 16-bits waarde uit het geheugen.",
+  "sys": "Roept een machinecoderoutine aan met JSR.",
+  "asm": "Sluit ruwe bytes of een volledig inline 6502 assemblyblok in.",
+  "include": "Sluit een ander UltimateBasic-bronbestand in.",
+  "incbin": "Sluit binaire gegevens inline of op een absoluut adres in.",
+  "data": "Definieert bytedata tijdens het compileren en leest deze opeenvolgend uit.",
+  "reu": "Draagt geheugen over met de REU DMA-controller.",
+  "turbo": "Bestuurt C64 Ultimate/SuperCPU versnelling.",
+  "wait": "Wacht op rasterovergangen of op een specifieke rasterlijn.",
+  "bye": "Keert netjes terug naar BASIC.",
+  "exit": "Synoniem voor BYE; keert netjes terug naar BASIC.",
+  "comments": "Voegt volledige regel- of inline-broncommentaren toe.",
+  "compound assignment": "Werkt een variabele bij met een rekenkundige of bitsgewijze bewerking.",
+  "arrays": "Declareert en benadert byte- of word-arrays in heap-RAM. Meerdimensionale arrays gebruiken een door komma's gescheiden lijst van formaten (array(rijen, kolommen, ...)) en worden rij-georiënteerd opgeslagen; indexeer ze met een door komma's gescheiden index (grid[r, c]). Dimensies moeten constanten tijdens compilatie zijn; een enkele index in een meerdimensionale array is een platte/lineaire index.",
+  "times": "Voert een lus het opgegeven aantal keren uit.",
+  "select": "Selecteert één tak uit meerdere gevallen (cases).",
+  "return": "Keert terug uit een subroutine of functie.",
+  "gosub": "Roept een label aan met JSR; return hervat de uitvoering.",
+  "cls": "Wist het tekstscherm; FAST vult scherm- en kleur-RAM direct.",
+  "display": "Schakelt VIC-II schermweergave in of uit.",
+  "color": "Stelt de tekst-, rand- of achtergrondkleur in.",
+  "text": "Schrijft tekst op een schermpositie.",
+  "screen": "Schrijft direct naar scherm- en kleur-RAM.",
+  "cursor": "Verplaatst de tekstcursor.",
+  "lowercase": "Schakelt over naar de kleine-/hoofdletters VIC-tekenset.",
+  "uppercase": "Schakelt over naar de hoofdletters/grafische VIC-tekenset.",
+  "plot4": "Tekent of wist een 4×4 blokpixel.",
+  "mplot": "Tekent een meerkleurige bitmap-pixel.",
+  "circle4": "Tekent een cirkel in blokpixelmodus.",
+  "paint": "Vult een aaneengesloten bitmapgebied.",
+  "fill": "Vult scherm-RAM, kleur-RAM of een willekeurig geheugengebied.",
+  "sprite control": "Bestuurt hardwaresprite-eigenschappen.",
+  "sprite_frame": "Selecteert een sprite-animatieframe. Het optionele frame indexeert opeenvolgende 64-byte afbeeldingen vanaf data_address; zonder frame wordt de basisafbeelding geselecteerd.",
+  "sprite collision": "Leest sprite/sprite- of sprite/achtergrond-botsingsvlaggen.",
+  "sprite position": "Leest een coördinaat van een hardwaresprite.",
+  "chardef": "Sluit een 8-byte aangepaste karakterdefinitie in.",
+  "charset": "Stelt het basisadres van de tekenset in RAM in.",
+  "sid volume": "Stelt het SID-volume in of stopt het afspelen.",
+  "nmi": "Installeert een NMI-handler.",
+  "nmi_exit": "Verlaat een NMI via de KERNAL.",
+  "cia_timer": "Configureert CIA1 Timer A onderbrekingsafhandeling.",
+  "onerr": "Installeert een KERNAL I/O-fouthandler.",
+  "open": "Opent een logisch KERNAL-bestand.",
+  "close": "Sluit een logisch KERNAL-bestand.",
+  "print#": "Schrijft waarden naar een geopend logisch bestand.",
+  "load": "Laadt een schijfbestand op het eigen of een aangepast adres.",
+  "save": "Slaat een geheugengebied op naar apparaat 8 via de KERNAL.",
+  "memcopy": "Kopieert een geheugenblok.",
+  "drawmem": "Kopiert een compacte 2D-rechthoek naar bestemmingsgeheugen met rijstap (stride).",
+  "map": "Laadt, tekent en bewerkt teken-tilemaps.",
+  "map query": "Leest een tile-code of celkleur uit de actieve map.",
+  "koala": "Laadt en toont een Koala Painter-afbeelding.",
+  "collision": "Controleert twee selectiekaders op overlap.",
+  "delay": "Wacht het opgegeven aantal videoframes.",
+  "raster": "Geeft de huidige rasterlijn terug.",
+  "scroll": "Bestuurt VIC-II fijn scrollen, schermbreedte of verschuift een schermrij.",
+  "badlines": "Bestuurt Ultimate badline-timing.",
+  "speed": "Stelt de C64 Ultimate CPU-snelheid in.",
+  "fast": "Schakelt de snelle uitvoeringsmodus van de compiler in waar ondersteund.",
+  "getch": "Leest een teken in via de KERNAL.",
+  "inkey": "Leest het toetsenbord zonder te wachten.",
+  "waitkey": "Wacht op een toets via direct toetsenbordscannen.",
+  "joy": "Leest een joystickpoort uit.",
+  "mouse": "Leest de positie en knoppen van de aangesloten muis.",
+  "reu detect": "Controleert of er een REU beschikbaar is.",
+  "turbo detect": "Geeft terug of de Ultimate turbomodus actief is.",
+  "types": "UltimateBasic variabele- en array-typen.",
+  "string conversion": "Converteert tussen strings, tekens en getallen.",
+  "numstr": "Schrijft een driecijferige tekenreeks met voorloopnullen naar een absoluut adres.",
+  "string functions": "Hulpfuncties voor strings en PRINT-opmaak.",
+  "math": "Wiskundige hulpfuncties voor gehele getallen.",
+  "random": "Geeft een pseudo-willekeurige byte of een waarde onder de limiet terug.",
+  "trigonometry": "Geeft een trigonometrische vaste-kommawaarde terug.",
+  "number formatting": "Formatteert een getal als hexadecimale, binaire of uitgevulde decimale tekst.",
+  "operators": "Logische, bitsgewijze, modulo- en shift-operatoren.",
+  "inc/dec": "Verhoogt of verlaagt een variabele.",
+  "type": "Definieert een gestructureerd recordtype met benoemde, getypte velden. Ondersteunde veldtypen: int (1 byte), word (2 bytes), float (2 bytes, Q8.8 vaste-komma). Declareer instanties met var naam: TypeNaam, benader velden met naam.veld. De compiler plaatst velden aaneengesloten in het zero-page-geheugen."
+};
+
+function _ubGetCommandDescription(name, lang = currentLanguage) {
+  if (lang === "es") return ubCommandDescriptionsEs[name] || ubCommandDescriptionsEn[name] || "";
+  if (lang === "de") return ubCommandDescriptionsDe[name] || ubCommandDescriptionsEn[name] || "";
+  if (lang === "nl") return ubCommandDescriptionsNl[name] || ubCommandDescriptionsEn[name] || "";
+  if (lang === "hu") return ubCommandDescriptionsHu[name] || ubCommandDescriptionsEn[name] || "";
+  return ubCommandDescriptionsEn[name] || "";
+}
+
 const _UB_COMMAND_REFERENCE = [
   ["var", "var name[: type] = expression", "Declares a byte, word, float, string, or array variable."],
   ["const", "const NAME = expression", "Declares a compile-time constant."],
@@ -6303,11 +6905,11 @@ const _UB_COMMAND_REFERENCE = [
   ["goto", "goto label", "Jumps to a label."],
   ["label", "label name", "Defines a goto target."],
   ["graphics", "graphics on [hires|multi|block] [double]\ngraphics off", "Enables or disables a graphics mode."],
-  ["plot", "plot x, y [, color]\nplot erase x, y\nplot xor x, y", "Draws, erases, or XORs a bitmap pixel."],
+  ["plot", "plot x, y\nplot erase x, y\nplot xor x, y", "Draws, erases, or XORs a hires bitmap pixel. Set the drawing color with COLOR PEN."],
   ["line", "line x1, y1, x2, y2\nline erase x1, y1, x2, y2\nline xor x1, y1, x2, y2", "Draws, clears, or XORs a bitmap line."],
-  ["circle", "circle x, y, radius [, color]", "Draws a bitmap circle."],
-  ["rect", "rect x1, y1, x2, y2\nrect erase x1, y1, x2, y2\nrect xor x1, y1, x2, y2", "Draws, clears, or XORs a rectangle outline."],
-  ["gcls", "gcls [color]", "Clears the active graphics screen."],
+  ["circle", "circle x, y, radius", "Draws a hires bitmap circle. Set the drawing color with COLOR PEN."],
+  ["rect", "rect x1, y1, x2, y2\nrect erase x1, y1, x2, y2\nrect xor x1, y1, x2, y2", "Draws, clears, or XORs a hires rectangle outline. Set the drawing color with COLOR PEN."],
+  ["gcls", "gcls", "Clears the active graphics screen."],
   ["flip", "flip", "Swaps visible and draw buffers in double-buffer mode."],
   ["sprite", "sprite id, x, y [, data_address]", "Positions a hardware sprite and optionally sets its data pointer."],
   ["sprdef", "sprdef id\n  byte values...\nend", "Embeds and installs a 63-byte sprite definition."],
@@ -6337,16 +6939,20 @@ const _UB_COMMAND_REFERENCE = [
   ["gosub", "gosub label", "Calls a label with JSR; return resumes execution."],
   ["cls", "cls\ncls fast", "Clears the text screen; FAST directly fills screen and color RAM."],
   ["display", "display on | off", "Enables or disables VIC-II display output."],
-  ["color", "color text value\ncolor border value\ncolor bg value", "Sets the text, border, or background color."],
+  ["color", "color text value\ncolor border value\ncolor bg value\ncolor pen value", "Sets the text, border, or background color. COLOR PEN sets the persistent hires drawing color (foreground) used by plot, line, rect, circle, and paint."],
+  ["color pen", "color pen value", "Sets the persistent hires bitmap drawing color (0-15). Applied to the cell foreground of every pixel drawn by plot, line, rect, circle, and paint until changed. Background nibble is preserved."],
   ["text", "text column, row, string [, color]", "Writes text at a screen position."],
   ["screen", "screen column, row, character [, color]", "Writes directly to screen and color RAM."],
   ["cursor", "cursor column, row", "Moves the text cursor."],
   ["lowercase", "lowercase", "Switches to the lowercase/uppercase VIC character set."],
   ["uppercase", "uppercase", "Switches to the uppercase/graphics VIC character set."],
-  ["plot4", "plot4 x, y [, color]\nplot4 erase x, y", "Draws a 4×4 block pixel."],
-  ["mplot", "mplot x, y, color", "Draws a multicolor bitmap pixel."],
-  ["circle4", "circle4 x, y, radius [, color]", "Draws a circle in block-pixel mode."],
-  ["paint", "paint x, y [, color]", "Flood-fills a connected bitmap area."],
+  ["plot4", "plot4 x, y\nplot4 erase x, y", "Draws a 4×4 block pixel."],
+  ["mplot", "mplot x, y, color", "Draws a multicolor bitmap pixel (color 0-3 selects the 2-bit source)."],
+  ["mline", "mline x1, y1, x2, y2, color", "Draws a multicolor bitmap line (160×200). Color 0-3 selects the 2-bit color source."],
+  ["mrect", "mrect x1, y1, x2, y2, color", "Draws a multicolor bitmap rectangle outline. Color 0-3 selects the 2-bit color source."],
+  ["mcircle", "mcircle x, y, radius, color", "Draws a multicolor bitmap circle. Color 0-3 selects the 2-bit color source."],
+  ["circle4", "circle4 x, y, radius", "Draws a circle in block-pixel mode."],
+  ["paint", "paint x, y", "Flood-fills a connected hires bitmap area. Set the drawing color with COLOR PEN."],
   ["fill", "fill screen value\nfill color value\nfill address, length, value", "Fills screen RAM, color RAM, or an arbitrary memory range."],
   ["sprite control", "sprite id, on|off|color value|multi on|off|expand x|y|priority front|back", "Controls hardware sprite attributes."],
   ["sprite_frame", "sprite_frame id, data_address [, frame]", "Selects a sprite animation frame. The optional frame indexes consecutive 64-byte images from data_address; without it, the command selects the base image."],
@@ -6436,7 +7042,6 @@ function setUltimateBasicMode(on) {
 
 function _updateWorkingFolderButtonTooltip() {
   const text = t(_isUltimateBasicEditorActive() ? "setUbWorkingFolderHint" : "setVaWorkingFolderHint");
-  setWorkingFolderButton?.setAttribute("title", text);
   setWorkingFolderButton?.setAttribute("aria-label", text);
 }
 
@@ -6462,7 +7067,7 @@ function _ubApplyLeftViews(persist = true) {
   if (persist) saveUiSettings();
 }
 
-const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read restore asm include incbin load open close save memcopy drawmem map koala show hide set draw poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll type endtype").split(" "));
+const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read restore asm include incbin load open close save memcopy drawmem map koala show hide set draw poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll type endtype pen mline mrect mcircle").split(" "));
 const _UB_TYPES = new Set(["int", "word", "float", "string", "array", "array_word"]);
 const _UB_FUNCTIONS = new Set(("str_to_int numstr chr$ str$ inkey waitkey len asc val reudet reu_present turbo clamp peek peek16 rnd abs min max sgn spc tab joy mouse_x mouse_x_hi mouse_y mouse_btn sprhit sprbghit sprite_hit sprite_bg_hit sprite_x sprite_y map_tile map_color box_hit sin cos hex bin getch").split(" "));
 const _UB_ASM_MNEMONICS = new Set(("adc and asl bcc bcs beq bit bmi bne bpl brk bvc bvs clc cld cli clv cmp cpx cpy dec dex dey eor inc inx iny jmp jsr lda ldx ldy lsr nop ora pha php pla plp rol ror rti rts sbc sec sed sei sta stx sty tax tay tsx txa txs tya").split(" "));
@@ -6498,7 +7103,7 @@ function _ubAcUpdate() {
   const pos = ubEditor.selectionStart; const before = ubEditor.value.slice(0, pos); const match = before.match(/[A-Za-z_][A-Za-z0-9_]*\$?$/);
   if (!match || match[0].length < 2) { _ubAcHide(); return; }
   const typed = match[0].toLowerCase();
-  const descriptions = new Map(_UB_COMMAND_REFERENCE.map(([name,, desc]) => [name.split(" ")[0].toLowerCase(), desc]));
+  const descriptions = new Map(_UB_COMMAND_REFERENCE.map(([name,, desc]) => [name.split(" ")[0].toLowerCase(), _ubGetCommandDescription(name) || desc]));
   const words = [...new Set([..._UB_KEYWORDS, ..._UB_TYPES, ..._UB_FUNCTIONS])].filter(word => word.startsWith(typed) && word !== typed).sort().slice(0, 12);
   if (!words.length) { _ubAcHide(); return; }
   const el = _ubAcEl(); _ubAcActive = -1;
@@ -7096,8 +7701,10 @@ function _ubRenderCommandReference() {
   const detail = document.getElementById("ub-command-detail");
   if (!list || !detail) return;
   const term = (document.getElementById("ub-command-search")?.value || "").trim().toLowerCase();
-  const matches = _UB_COMMAND_REFERENCE.filter(([name, syntax, description]) =>
-    !term || name.includes(term) || syntax.toLowerCase().includes(term) || description.toLowerCase().includes(term));
+  const matches = _UB_COMMAND_REFERENCE.filter(([name, syntax, description]) => {
+    const desc = _ubGetCommandDescription(name) || description;
+    return !term || name.includes(term) || syntax.toLowerCase().includes(term) || desc.toLowerCase().includes(term);
+  });
   list.innerHTML = "";
   matches.forEach(([name]) => {
     const button = document.createElement("button");
@@ -7115,8 +7722,8 @@ function _ubRenderCommandReference() {
     list.appendChild(button);
   });
   if (!matches.length) {
-    list.textContent = "No matching commands";
-    detail.innerHTML = "<code>No command selected</code><p>Try a different search term.</p>";
+    list.textContent = t("ubNoMatchingCommands");
+    detail.innerHTML = `<code>${t("ubNoCommandSelected")}</code><p>${t("ubTryDifferentSearch")}</p>`;
     return;
   }
   let selected = matches.find(([name]) => name === _ubSelectedCommand);
@@ -7129,7 +7736,7 @@ function _ubRenderCommandReference() {
   descriptionLabel.className = "mnemonic-field-label";
   descriptionLabel.textContent = t("ubDescriptionLabel");
   const description = document.createElement("p");
-  description.textContent = selected[2];
+  description.textContent = _ubGetCommandDescription(selected[0]) || selected[2];
   const syntaxLabel = document.createElement("span");
   syntaxLabel.className = "mnemonic-field-label";
   syntaxLabel.textContent = t("ubSyntaxLabel");
@@ -14049,7 +14656,7 @@ function applySavedTheme() {
 }
 
 function toggleTheme() {
-  const next = { light: "dark", dark: "oled", oled: "light" };
+  const next = { light: "dark", dark: "oled", oled: "commodore77", commodore77: "light" };
   setTheme(next[document.documentElement.dataset.theme] || "dark");
 }
 
@@ -14798,10 +15405,17 @@ function _historyScheduleObserve() {
     }
     if (_historyStateEqual(tab.historyState, nextState)) return;
     tab.undoStack.push(tab.historyState);
+    // Cap the undo stack so a long editing session (especially across many
+    // open tabs) can't grow this array — and the full-state snapshots inside
+    // it — without bound. Older entries are simply dropped, same as most
+    // editors' bounded undo history.
+    if (tab.undoStack.length > _HISTORY_MAX_STACK) {
+      tab.undoStack.splice(0, tab.undoStack.length - _HISTORY_MAX_STACK);
+    }
     tab.redoStack = [];
     tab.historyState = nextState;
     _historyUpdateButtons();
-  }, 0);
+  }, 400);
 }
 
 function _historyUpdateButtons() {
@@ -15438,6 +16052,252 @@ async function _tabClose(tabId) {
   return true;
 }
 
+// ── Workspace (save/restore the set of open tabs) ───────────────────────────
+// A "workspace" is a small named .vaws JSON file that remembers every open
+// tab and which one was active. A tab backed by a real file on disk is
+// remembered by path (and reopened fresh from disk on restore); a "sandbox"
+// tab with no file (Untitled, or a loaded sample) gets its live content —
+// program/macros/expertText/ubText — embedded directly in the workspace file
+// instead, so it round-trips too. Once a workspace has been saved or opened,
+// this session keeps it in sync automatically as tabs change, so relaunching
+// and re-opening that same workspace continues where you left off.
+
+function _workspaceBuildPayload(name = "") {
+  _tabSaveCurrent(); // flush the active tab's live editorMode/content onto itself first
+  const entries = [];
+  let activeIndex = -1;
+  tabs.forEach(tab => {
+    const idx = entries.length;
+    // Every tab's live in-memory content is embedded directly in the workspace
+    // file, regardless of whether it's file-backed. This is what makes restore
+    // reflect exactly what was on screen (including unsaved edits in a
+    // file-backed expert/UB tab), instead of silently re-reading the file from
+    // disk and losing anything not yet written there. filePath (when present)
+    // is kept alongside so the tab still knows where "Save" should write to.
+    entries.push({
+      filePath: tab.filePath || null,
+      editorMode: tab.editorMode || "block",
+      name: tab.name || tab._untitledName || (tab.filePath ? tab.filePath.replace(/\\/g, "/").split("/").pop() : "Untitled"),
+      dirty: !!tab.dirty,
+      embedded: {
+        program: JSON.parse(JSON.stringify(tab.program || [])),
+        userMacros: JSON.parse(JSON.stringify(tab.userMacros || {})),
+        expertText: tab.expertText || "",
+        ubText: tab.ubText || "",
+        expertBreakpointLines: Array.isArray(tab.expertBreakpointLines) ? [...tab.expertBreakpointLines] : [],
+        ubBreakpointLines: Array.isArray(tab.ubBreakpointLines) ? [...tab.ubBreakpointLines] : []
+      }
+    });
+    if (tab.id === activeTabId) activeIndex = idx;
+  });
+  return {
+    app: "c64-visual-assembler-workspace",
+    version: 2,
+    name: name || _currentWorkspaceName || "",
+    activeIndex,
+    tabs: entries
+  };
+}
+
+async function _workspaceSaveAs() {
+  if (!window.electronAPI?.saveWorkspaceFile) return false;
+  const payload = _workspaceBuildPayload();
+  const baseName = (_currentWorkspaceName || "workspace").replace(/\.(vaws|json)$/i, "");
+  payload._defaultName = `${baseName}.vaws`;
+  const result = await window.electronAPI.saveWorkspaceFile(payload);
+  if (result?.canceled) return false;
+  if (!result?.ok) {
+    if (emulatorStatus) emulatorStatus.textContent = result?.error ? `${t("workspaceSaveFailed")}: ${result.error}` : t("workspaceSaveFailed");
+    return false;
+  }
+  _currentWorkspacePath = result.filePath;
+  _currentWorkspaceName = (result.filePath.replace(/\\/g, "/").split("/").pop() || "").replace(/\.(vaws|json)$/i, "");
+  saveUiSettings();
+  if (emulatorStatus) emulatorStatus.textContent = `${t("workspaceSaved")}: ${_currentWorkspacePath}`;
+  return true;
+}
+
+async function _workspaceSave() {
+  if (!_currentWorkspacePath) return _workspaceSaveAs();
+  if (!window.electronAPI?.saveWorkspaceFile) return false;
+  const payload = _workspaceBuildPayload();
+  payload._filePath = _currentWorkspacePath;
+  const result = await window.electronAPI.saveWorkspaceFile(payload);
+  if (!result?.ok) {
+    if (emulatorStatus) emulatorStatus.textContent = result?.error ? `${t("workspaceSaveFailed")}: ${result.error}` : t("workspaceSaveFailed");
+    return false;
+  }
+  if (emulatorStatus) emulatorStatus.textContent = `${t("workspaceSaved")}: ${_currentWorkspacePath}`;
+  return true;
+}
+
+function _workspaceScheduleAutoSave() {
+  if (!_currentWorkspacePath) return;
+  clearTimeout(_workspaceAutoSaveTimer);
+  _workspaceAutoSaveTimer = setTimeout(() => { _workspaceSave(); }, 500);
+}
+
+// Shared by the manual "Open Workspace..." menu action and the silent
+// auto-continue-last-session path. File-backed entries reopen fresh from disk
+// (via the same loaders File > Open already uses for that file kind);
+// sandbox entries are rebuilt directly from their embedded content. Drops
+// whatever tabs were open before restoring began.
+async function _workspaceRestoreFromPayload(workspace, workspacePath, { silent = false } = {}) {
+  if (!workspace || workspace.app !== "c64-visual-assembler-workspace" || !Array.isArray(workspace.tabs)) {
+    if (!silent && emulatorStatus) emulatorStatus.textContent = t("workspaceInvalid");
+    return false;
+  }
+
+  // Flush whatever was genuinely on screen before restoring began, exactly
+  // ONCE, up front. Do NOT call _tabSaveCurrent() again inside the loop below:
+  // each iteration already moves activeTabId to the tab it just created, so a
+  // later _tabSaveCurrent() call would stamp the live (unrelated, stale)
+  // program/expertText/ubText globals right back onto that freshly-restored
+  // tab, wiping out the very content this function just set on it. That was
+  // the cause of tabs appearing in the tab bar with the right names/files but
+  // empty content after a restore.
+  _tabSaveCurrent();
+
+  const previousActiveTabId = activeTabId;
+  const createdTabIds = [];
+  const missingNames = [];
+  let newActiveTabId = null;
+
+  for (let i = 0; i < workspace.tabs.length; i++) {
+    const entry = workspace.tabs[i];
+    if (!entry) continue;
+    let openedTab = null;
+    const hasEmbedded = entry.embedded && typeof entry.embedded === "object";
+
+    if (hasEmbedded) {
+      // Restore straight from the embedded snapshot — this is exactly what was
+      // on screen when the workspace was saved, whether or not it had been
+      // written to disk yet. Never re-read entry.filePath here: doing so would
+      // silently discard any edit that hadn't been saved to disk.
+      const blankTab = _tabCreate(entry.name || "");
+      blankTab.editorMode = entry.editorMode || "block";
+      blankTab.filePath = entry.filePath || null;
+      blankTab.program = Array.isArray(entry.embedded.program) ? JSON.parse(JSON.stringify(entry.embedded.program)) : [];
+      blankTab.userMacros = (entry.embedded.userMacros && typeof entry.embedded.userMacros === "object") ? JSON.parse(JSON.stringify(entry.embedded.userMacros)) : {};
+      blankTab.expertText = typeof entry.embedded.expertText === "string" ? entry.embedded.expertText : "";
+      blankTab.ubText = typeof entry.embedded.ubText === "string" ? entry.embedded.ubText : "";
+      blankTab.expertBreakpointLines = Array.isArray(entry.embedded.expertBreakpointLines) ? [...entry.embedded.expertBreakpointLines] : [];
+      blankTab.ubBreakpointLines = Array.isArray(entry.embedded.ubBreakpointLines) ? [...entry.embedded.ubBreakpointLines] : [];
+      blankTab.dirty = !!entry.dirty;
+      if (blankTab.editorMode === "ub") blankTab.ubFilePath = entry.filePath || "";
+      tabs.push(blankTab);
+      activeTabId = blankTab.id;
+      openedTab = blankTab;
+    } else if (!entry.filePath) {
+      // Old-format (v1) sandbox entry with no embedded content at all —
+      // nothing to restore from; skip it rather than creating an empty tab.
+      continue;
+    } else {
+      // Old-format (v1) file-backed entry saved before embedding existed:
+      // fall back to the original behavior of reopening fresh from disk.
+      const fileResult = await window.electronAPI?.readTextFile?.(entry.filePath);
+      if (!fileResult?.ok) {
+        missingNames.push(entry.name || entry.filePath);
+        continue;
+      }
+      const content = fileResult.content || "";
+
+      if (entry.editorMode === "ub") {
+        openedTab = _ubCreateFileTab(entry.filePath, content);
+      } else if (entry.editorMode === "expert") {
+        await _expertLoadAsmFromPath(entry.filePath, content, entry.name || "");
+        openedTab = tabs.find(tt => tt.id === activeTabId);
+        if (openedTab) openedTab.editorMode = "expert"; // _expertLoadAsmFromPath leaves the _tabCreate() default otherwise
+      } else {
+        let parsed = null;
+        try { parsed = JSON.parse(content); } catch { parsed = null; }
+        if (!parsed || parsed.app !== "c64-visual-assembler" || !Array.isArray(parsed.program)) {
+          missingNames.push(entry.name || entry.filePath);
+          continue;
+        }
+        // (Legacy v1-format fallback only — see note above the loop about why
+        // _tabSaveCurrent() must not run again here.)
+        const blankTab = _tabCreate(entry.name || "");
+        tabs.push(blankTab);
+        activeTabId = blankTab.id;
+        const ok = await _applyProjectPayload(parsed, { sourceFilePath: entry.filePath });
+        if (!ok) {
+          tabs.pop();
+          activeTabId = previousActiveTabId;
+          missingNames.push(entry.name || entry.filePath);
+          continue;
+        }
+        openedTab = blankTab;
+      }
+    }
+
+    if (openedTab) {
+      createdTabIds.push(openedTab.id);
+      if (i === workspace.activeIndex) newActiveTabId = openedTab.id;
+    }
+  }
+
+  if (createdTabIds.length === 0) {
+    if (!silent && emulatorStatus) emulatorStatus.textContent = t("workspaceInvalid");
+    return false;
+  }
+
+  // Drop whatever was open before restoring (the blank startup tab, or the
+  // previous session's tabs on a manual "Open Workspace").
+  tabs = tabs.filter(tt => createdTabIds.includes(tt.id));
+
+  // activeTabId still points at whichever tab the loop above created last —
+  // _tabActivate() below starts with its own _tabSaveCurrent() call, which
+  // would otherwise stamp the (unrelated, stale) live program/expertText/
+  // ubText globals right back onto that last-created tab, wiping out the
+  // content this function just restored onto it (the same class of bug as
+  // the mid-loop clobbering fixed above, just at the very last tab). Clearing
+  // activeTabId first makes that internal flush a no-op.
+  activeTabId = null;
+  _tabActivate(newActiveTabId || createdTabIds[0]);
+
+  _currentWorkspacePath = workspacePath;
+  _currentWorkspaceName = (workspacePath.replace(/\\/g, "/").split("/").pop() || "").replace(/\.(vaws|json)$/i, "");
+  saveUiSettings();
+
+  if (!silent && emulatorStatus) {
+    emulatorStatus.textContent = missingNames.length
+      ? tf("workspaceMissingFiles", { count: String(missingNames.length), names: missingNames.join(", ") })
+      : `${t("workspaceLoaded")}: ${workspacePath}`;
+  }
+  return true;
+}
+
+async function _workspaceAutoRestore(path) {
+  if (!path || !window.electronAPI?.readTextFile) return;
+  // Only ever auto-restore into the pristine, untouched app-launch state —
+  // never clobber real work the user may have already started before this
+  // async settings fetch resolved.
+  const pristine = tabs.length === 1 && !tabs[0].dirty && !tabs[0].filePath;
+  if (!pristine) return;
+  const result = await window.electronAPI.readTextFile(path);
+  if (!result?.ok) return; // moved/deleted since last time — silently keep the blank tab
+  let workspace = null;
+  try { workspace = JSON.parse(result.content); } catch { return; }
+  await _workspaceRestoreFromPayload(workspace, path, { silent: true });
+}
+
+async function _workspaceOpenViaDialog() {
+  if (!window.electronAPI?.openWorkspaceFile) return;
+  const hasUnsaved = tabs.some(_tabHasContent);
+  if (hasUnsaved) {
+    const ok = await _showConfirm(t("workspaceOpenConfirm"));
+    if (!ok) return;
+  }
+  const result = await window.electronAPI.openWorkspaceFile();
+  if (result?.canceled) return;
+  if (!result?.ok) {
+    if (emulatorStatus) emulatorStatus.textContent = result?.error ? `${t("workspaceLoadFailed")}: ${result.error}` : t("workspaceLoadFailed");
+    return;
+  }
+  await _workspaceRestoreFromPayload(result.workspace, result.filePath, { silent: false });
+}
+
 function renderTabBar() {
   const tabBar = document.getElementById("tab-bar");
   if (!tabBar) return;
@@ -15485,6 +16345,7 @@ function renderTabBar() {
   if (activeEl) activeEl.scrollIntoView({ block: "nearest", inline: "nearest" });
 
   _updateTabScrollButtons();
+  _workspaceScheduleAutoSave();
 }
 
 function _updateTabScrollButtons() {
@@ -26866,7 +27727,15 @@ async function loadSampleFromFile(sampleName) {
     ? collapseLoadedProgram(parseExpertText(sampleData.expertText))
     : collapseLoadedProgram(sampleData.program);
 
-  const activeTab = _getActiveTab();
+  // Loading a sample from the File menu always opens it in a fresh tab instead
+  // of overwriting whatever is already open in the current one.
+  _tabSaveCurrent();
+  const newTab = _tabCreate();
+  newTab.editorMode = ultimateBasicMode ? "ub" : expertMode ? "expert" : "block";
+  tabs.push(newTab);
+  activeTabId = newTab.id;
+
+  const activeTab = newTab;
   if (activeTab) {
     activeTab.filePath = null;
     activeTab.selectedBlockId = null;

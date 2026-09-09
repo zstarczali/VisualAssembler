@@ -71,3 +71,38 @@ test("i18n: language select options include Nederlands in index.html", () => {
   const html = fs.readFileSync(path.join(__dirname, "..", "www", "index.html"), "utf8");
   assert.ok(html.includes('<option value="nl">Nederlands</option>'));
 });
+
+test("i18n: ubCommandDescriptions parity in app.js", () => {
+  const appJs = fs.readFileSync(path.join(__dirname, "..", "www", "app.js"), "utf8");
+
+  function extractObj(name) {
+    const marker = "const " + name + " = ";
+    const start = appJs.indexOf(marker);
+    assert.notStrictEqual(start, -1, `Missing object ${name}`);
+    const brace = appJs.indexOf("{", start);
+    let depth = 0, end = -1;
+    for (let i = brace; i < appJs.length; i++) {
+      if (appJs[i] === "{") depth++;
+      else if (appJs[i] === "}") {
+        depth--;
+        if (depth === 0) { end = i + 1; break; }
+      }
+    }
+    return eval("(" + appJs.slice(brace, end) + ")");
+  }
+
+  const en = extractObj("ubCommandDescriptionsEn");
+  const hu = extractObj("ubCommandDescriptionsHu");
+  const es = extractObj("ubCommandDescriptionsEs");
+  const de = extractObj("ubCommandDescriptionsDe");
+  const nl = extractObj("ubCommandDescriptionsNl");
+
+  const enKeys = Object.keys(en);
+  assert.ok(enKeys.length >= 100, `Expected at least 100 UB command descriptions, got ${enKeys.length}`);
+  for (const [lang, obj] of [["hu", hu], ["es", es], ["de", de], ["nl", nl]]) {
+    const missing = enKeys.filter(k => !obj[k]);
+    assert.strictEqual(missing.length, 0, `ubCommandDescriptions${lang.toUpperCase()} missing: ${missing.join(", ")}`);
+    assert.strictEqual(Object.keys(obj).length, enKeys.length, `ubCommandDescriptions${lang.toUpperCase()} count mismatch`);
+  }
+});
+

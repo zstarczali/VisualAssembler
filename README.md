@@ -2,9 +2,19 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.3.7**
+**Current version: v2.3.8**
 
-## What's New in v2.3.7
+## What's New in v2.3.8
+
+- **Workspace save / open** — save the exact set of open file-backed tabs, the active tab and each tab's editor mode (Block/Expert/Ultimate Basic) to a `.vaws` workspace file. Workspaces auto-save on change, and the app auto-restores your last workspace on launch.
+- **Global memory panel toggle** — show or hide the full C64 memory panel from a dedicated UI switch.
+- **Localized Ultimate Basic command reference** — command descriptions in the autocomplete popup and the Commands panel now follow the current UI language (Hungarian, English, Spanish, German, Dutch), with English fallback.
+- **Refreshed Ultimate Basic graphics docs** — `COLOR PEN` and the plot/line/rect/circle and multicolor drawing command help text now match current compiler behavior.
+- **Fixed KERNAL reference** — corrected the `SETLFS` and `PLOT` entries (addresses and calling conventions) in the disassembler's KERNAL address table.
+- **Fixed memory usage with many tabs open** — per-tab undo/redo history is now capped (with a small debounce), preventing the unbounded memory growth that a long session with many open documents used to cause.
+- **Editor toolbar cleanup** — removed the redundant breakpoint toggle buttons from the Expert and Ultimate Basic toolbars (breakpoints are still set from the line-number gutter), and aligned the Expert toolbar height with the Ultimate Basic toolbar.
+
+## Earlier: v2.3.7
 
 - **Undo / Redo and multi-block editing** — toolbar history controls restore block-program changes per tab. Select ranges or multiple blocks, then copy, cut, paste, duplicate or delete them as one operation; region groups remain intact.
 - **Breakpoints in Block, Expert and Ultimate Basic modes** — set breakpoints from block cards or editor line-number gutters. Breakpoints are stored per tab and resolved to exact executable addresses.

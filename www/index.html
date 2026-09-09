@@ -12,7 +12,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2.3.7">
+  <link rel="stylesheet" href="style.css?v=2.3.8">
 </head>
 
 <body>
@@ -43,14 +43,18 @@
             <div class="control-menu-panel">
               <section class="control-menu-group">
                 <h3 class="control-menu-label" id="menu-file-label">File</h3>
-                <button id="save-project" class="secondary" type="button">Save program</button>
-                <button id="save-project-as" class="secondary" type="button">Save Program As</button>
-                <button id="load-project" class="secondary" type="button">Load program</button>
-                <button id="set-working-folder" class="secondary" type="button">Set working folder</button>
-                <button id="menu-open-project" class="secondary" type="button">Open project</button>
-                <button id="menu-save-project" class="secondary" type="button">Save project</button>
-                <button id="menu-close-project" class="secondary" type="button">Close project</button>
-                <button id="exit-app" class="secondary" type="button">Kilepes</button>
+                <button id="save-project" class="secondary menu-item-tooltip" type="button">Save program</button>
+                <button id="save-project-as" class="secondary menu-item-tooltip" type="button">Save Program As</button>
+                <button id="load-project" class="secondary menu-item-tooltip" type="button">Load program</button>
+                <button id="set-working-folder" class="secondary menu-item-tooltip" type="button">Set working folder</button>
+                <button id="menu-open-project" class="secondary menu-item-tooltip" type="button">Open project</button>
+                <button id="menu-save-project" class="secondary menu-item-tooltip" type="button">Save project</button>
+                <button id="menu-close-project" class="secondary menu-item-tooltip" type="button">Close project</button>
+                <h3 class="control-menu-label control-menu-label--section" id="workspace-section-label">Workspace</h3>
+                <button id="menu-save-workspace" class="secondary menu-item-tooltip" type="button">Save Workspace</button>
+                <button id="menu-save-workspace-as" class="secondary menu-item-tooltip" type="button">Save Workspace As...</button>
+                <button id="menu-open-workspace" class="secondary menu-item-tooltip" type="button">Open Workspace...</button>
+                <button id="exit-app" class="secondary menu-item-tooltip" type="button">Kilepes</button>
               </section>
               <section id="sample-programs-group" class="control-menu-group">
                 <h3 class="control-menu-label" id="menu-examples-label">Peldak</h3>
@@ -137,6 +141,10 @@
                     <button class="secondary theme-option" data-theme-opt="oled" type="button">
                       <span class="theme-option-dot" data-theme-opt="oled" aria-hidden="true"></span>
                       <span>OLED</span>
+                    </button>
+                    <button class="secondary theme-option" data-theme-opt="commodore77" type="button">
+                      <span class="theme-option-dot" data-theme-opt="commodore77" aria-hidden="true"></span>
+                      <span>Commodore 77</span>
                     </button>
                   </div>
                 </details>
@@ -241,7 +249,10 @@
             <span class="run-label">Debug</span>
           </button>
         </div>
-        <span id="editor-mode-indicator" class="editor-mode-indicator">BLOCK MODE</span>
+        <span id="editor-mode-indicator" class="editor-mode-indicator">
+          <span class="mode-indicator-shimmer" aria-hidden="true"></span>
+          <span id="editor-mode-indicator-label" class="editor-mode-indicator-label">BLOCK MODE</span>
+        </span>
       </div>
         <p class="hero-copy">
           Huzz be egy mnemonik blokkot balrol, rendezd oket sorba, es nezd meg a jobb oldalon az assembly nezetet.
@@ -491,9 +502,6 @@ PRINTABLE CHARACTERS
           <button id="expert-line-numbers-btn" class="expert-hl-toggle" aria-label="Line numbers" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M6 4h8M6 8h8M6 12h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><text x="1" y="5.5" font-family="monospace" font-size="4.5" fill="currentColor" opacity="0.7">1</text><text x="1" y="9.5" font-family="monospace" font-size="4.5" fill="currentColor" opacity="0.7">2</text><text x="1" y="13.5" font-family="monospace" font-size="4.5" fill="currentColor" opacity="0.7">3</text></svg>
           </button>
-          <button id="expert-breakpoints-btn" class="expert-hl-toggle" type="button" aria-label="Breakpoints">
-            <svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><circle cx="8" cy="8" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-          </button>
           <button id="expert-minimap-btn" class="expert-hl-toggle" aria-label="Minimap" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><rect x="1.5" y="1.5" width="5" height="13" rx="0.6" stroke="currentColor" stroke-width="1.1"/><path d="M3 4h2.5M3 5.8h3.5M3 7.6h2M3 9.4h3M3 11.2h2.5M3 13h1.5" stroke="currentColor" stroke-width="0.85" stroke-linecap="round" opacity="0.75"/><rect x="1.5" y="7" width="5" height="4" fill="currentColor" opacity="0.2"/><path d="M9 4h5.5M9 6h4M9 8h5.5M9 10h3.5M9 12h4.5" stroke="currentColor" stroke-width="0.85" stroke-linecap="round" opacity="0.45"/></svg>
           </button>
@@ -609,7 +617,6 @@ PRINTABLE CHARACTERS
           <button id="ub-hl-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Syntax highlighting" aria-pressed="true" title="Syntax highlighting"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M2.5 4h4M8 4h5.5M2.5 8h2M6 8h4M11.5 8h2M2.5 12h5M9 12h4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8 4h2M6 8h2M9 12h2" stroke="var(--hl-number, #b5cea8)" stroke-width="1.5" stroke-linecap="round"/></svg></button>
           <button id="ub-autocomplete-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Autocomplete" aria-pressed="true"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M3 3h10M3 7h7M3 11h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="m10 10 1.5 1.5L14 9" stroke="var(--hl-number, currentColor)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           <button id="ub-lines-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Line numbers" aria-pressed="true" title="Line numbers"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M6 4h8M6 8h8M6 12h8" stroke="currentColor" stroke-width="1.2"/><path d="M2 3h1v3M2 7h2l-2 3h2M2 12h2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></button>
-          <button id="ub-breakpoints-btn" class="expert-hl-toggle" type="button" aria-label="Breakpoints"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><circle cx="8" cy="8" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
           <button id="ub-minimap-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Minimap" aria-pressed="true" title="Minimap"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="2" y="1.5" width="12" height="13" rx="1" stroke="currentColor" stroke-width="1.1"/><path d="M4 4h5M4 6h7M4 8h4M4 10h6M4 12h3" stroke="currentColor" stroke-width=".8" opacity=".75"/></svg></button>
           <button id="ub-find-btn" class="expert-hl-toggle" type="button" aria-label="Find (Ctrl+F)" title="Find"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="m10.5 10.5 3.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
           <button id="ub-zoom-out-btn" class="expert-hl-toggle ub-zoom-btn" type="button" aria-label="Zoom out" title="Zoom out"><svg viewBox="0 0 18 14" fill="none" width="15" height="12" aria-hidden="true"><text x="1" y="11" font-family="serif" font-size="10" fill="currentColor">A</text><path d="M10 7h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
@@ -883,7 +890,7 @@ PRINTABLE CHARACTERS
         <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v2.3.7</p>
+      <p class="about-version" id="about-version">v2.3.8</p>
       <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       <img class="about-ub-banner" src="assets/ultimate-basic-banner.png" alt="Ultimate Basic">
       <p class="about-repo"><span>Ultimate Basic GitHub repository:</span><br><a href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener noreferrer">https://github.com/zstarczali/UltimateBasic</a></p>
@@ -901,31 +908,28 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.3.7</p>
+      <p class="whats-new-version">v2.3.8</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: Dutch language support (Nederlands)</strong> &mdash; complete Dutch localization across all user interface views, menus, dialogs, editors, interactive tutorials, macro hints, and KERNAL routine descriptions.
+          <strong>New: Workspace save / open</strong> &mdash; save the exact set of open file-backed tabs, the active tab and each tab's editor mode (Block/Expert/Ultimate Basic) to a <code>.vaws</code> workspace file. Workspaces auto-save on change, and the app auto-restores your last workspace on launch.
         </li>
         <li>
-          <strong>New: Undo / Redo and multi-block editing</strong> &mdash; toolbar history controls restore block-program changes per tab. Select ranges or multiple blocks, then copy, cut, paste, duplicate or delete them as one operation; region groups remain intact.
+          <strong>New: Global memory panel toggle</strong> &mdash; show or hide the full C64 memory panel from a dedicated UI switch.
         </li>
         <li>
-          <strong>New: Breakpoints in Block, Expert and Ultimate Basic modes</strong> &mdash; set breakpoints from block cards or editor line-number gutters. Breakpoints are stored per tab and resolved to the exact executable address before RetroDebugger starts.
+          <strong>New: Localized Ultimate Basic command reference</strong> &mdash; command descriptions in the autocomplete popup and the command reference panel are now available in Hungarian, English, Spanish, German and Dutch, with English fallback for anything not yet translated.
         </li>
         <li>
-          <strong>Improved: RetroDebugger integration</strong> &mdash; the external debugger replaces the limited embedded Ultimate Basic debugger, and all three editor modes now launch it with source maps, labels and breakpoint files. Existing instances receive new tasks via <code>-pass</code>; BASIC SYS programs use <code>-autojmp</code>, while plain PRGs use their real load address with <code>-jmp</code>.
+          <strong>Improved: Ultimate Basic graphics documentation</strong> &mdash; refreshed help text for <code>COLOR PEN</code> and the plot/line/rect/circle and multicolor drawing commands to match current compiler behavior.
         </li>
         <li>
-          <strong>New: BASIC stub visibility</strong> &mdash; a VA-style setting can show the real BASIC SYS stub at <code>$0801</code> in Disassembler and Monitor outputs. Block, Expert and Ultimate Basic modes share the same build-accurate code origin.
+          <strong>Fixed: KERNAL routine reference</strong> &mdash; corrected the <code>SETLFS</code> ($FFBA) and <code>PLOT</code> ($FFF0, carry-flag read/write semantics) entries in the disassembler's KERNAL address table.
         </li>
         <li>
-          <strong>New: Ultimate Basic Monitor view</strong> &mdash; inspect compiler-generated machine code and the optional BASIC stub as a memory dump beside the UB editor, with a dedicated toolbar button and a non-wrapping, resizable output panel.
+          <strong>Fixed: Memory usage with many tabs open</strong> &mdash; per-tab undo/redo history is now capped (with a small debounce), preventing the unbounded memory growth that a long session with many open documents used to cause.
         </li>
         <li>
-          <strong>Fixed: Debugger, disassembler and label addresses</strong> &mdash; plain PRGs now use the load address stored in their PRG header, project startup files keep their own macro and source context, and <code>.dbg</code>, <code>.sym</code> and VICE label sidecars stay aligned with generated code.
-        </li>
-        <li>
-          <strong>Fixed: Editor caret and line alignment</strong> &mdash; Ultimate Basic formatting preserves the selection, and caret tracking now survives blank lines, held cursor keys and minimap boundaries; UB line numbers scale without clipping. Expert line numbers and source rows use a shared integer-pixel line height to prevent vertical drift.
+          <strong>Improved: Editor toolbar cleanup</strong> &mdash; removed the redundant breakpoint toggle buttons from the Expert and Ultimate Basic toolbars (breakpoints are still set from the line-number gutter), and aligned the Expert toolbar height with the Ultimate Basic toolbar.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -2134,6 +2138,10 @@ PRINTABLE CHARACTERS
             <input type="checkbox" id="memory-overlays-toggle" checked>
             <span id="memory-overlays-label">Show memory overlays</span>
           </label>
+          <label class="menu-checkbox-label">
+            <input type="checkbox" id="global-memory-panel-toggle" checked>
+            <span id="global-memory-panel-toggle-label">Show memory panel</span>
+          </label>
         </section>
 
         <section class="hw-settings-section">
@@ -2179,13 +2187,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.3.7"></script>
-  <script src="i18n.js?v=2.3.7"></script>
-  <script src="tutorial-data.js?v=2.3.7"></script>
+  <script src="tauri-bridge.js?v=2.3.8"></script>
+  <script src="i18n.js?v=2.3.8"></script>
+  <script src="tutorial-data.js?v=2.3.8"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.3.7"></script>
+  <script src="app.js?v=2.3.8"></script>
 
 </body>
 
