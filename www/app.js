@@ -2843,7 +2843,83 @@ function _updateEditorModeIndicator() {
   const el = document.getElementById("editor-mode-indicator");
   if (!el) return;
   const key = ultimateBasicMode ? "editorModeUltimateBasic" : (expertMode ? "editorModeExpert" : "editorModeBlock");
-  el.textContent = t(key);
+  const label = document.getElementById("editor-mode-indicator-label");
+  if (label) label.textContent = t(key); else el.textContent = t(key);
+  requestAnimationFrame(() => _syncModeIndicatorTrail(el));
+}
+
+let _modeIndicatorSparkAnim = null;
+
+// A jelvény kerete mentén (a pill görbületét ténylegesen követve) 15 másodpercenként
+// végigfutó fény — az SVG rect stroke-dasharray/dashoffset-jét animálja: a fej körbe-
+// halad, maga után beszínezve/megvilágítva a bejárt szakaszt, mígnem a teljes keret
+// kivilágít, majd a farkánál kezdve visszahúzódik (letörlődik). A ::after pseudo-elem
+// (CSS, offset-path: border-box) egy kis fényes szikrát rajzol pontosan a fej pozíciójára.
+function _syncModeIndicatorTrail(el) {
+  const svg = el?.querySelector(".mode-indicator-trail");
+  const rect = el?.querySelector(".mode-indicator-trail-rect");
+  if (!svg || !rect) return;
+  const w = el.offsetWidth, h = el.offsetHeight;
+  if (!w || !h) return;
+  svg.setAttribute("width", w);
+  svg.setAttribute("height", h);
+  svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+  // Az inset/rx a legvastagabb (kezdő) stroke-width-hez igazodik, hogy vastagon se
+  // vágódjon le a csík; az animáció ennél sosem vastagabb, csak vékonyodik belőle.
+  const strokeMax = 3.2;
+  const strokeMin = 1.2;
+  const inset = strokeMax / 2;
+  const r = Math.max(0, (h - strokeMax) / 2);
+  rect.setAttribute("x", inset);
+  rect.setAttribute("y", inset);
+  rect.setAttribute("width", Math.max(0, w - strokeMax));
+  rect.setAttribute("height", Math.max(0, h - strokeMax));
+  rect.setAttribute("rx", r);
+  rect.setAttribute("ry", r);
+  if (!rect.getTotalLength) return;
+  const perimeter = rect.getTotalLength();
+  // Egyetlen dasharray-érték (dash = gap = perimeter): offset = perimeter -> 0% látszik,
+  // offset = 0 -> 100% (a teljes keret kivilágít), offset = -perimeter -> ismét 0%,
+  // de a farok felől "törlődve" (a fej a végén marad fixen, amíg a farok utoléri).
+  rect.style.strokeDasharray = `${perimeter}`;
+  rect.getAnimations?.().forEach(a => a.cancel());
+  // el.getAnimations({pseudoElement}) nem minden WebView-ban adja vissza a pseudo-elemen
+  // futó animációt (WebKitGTK/régebbi motorok) — ezért közvetlen referenciával töröljük.
+  _modeIndicatorSparkAnim?.cancel();
+  _modeIndicatorSparkAnim = null;
+  if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) { rect.style.opacity = 0; return; }
+  const timing = { duration: 15000, iterations: Infinity, easing: "ease-in-out" };
+  // A csík vastagsága fordítottan arányos a hosszával: rövid csík -> vastag "cső",
+  // ahogy hosszabbra nyúlik (körbeér) -> lassan elvékonyodik, majd törléskor (ahogy
+  // ismét megrövidül) újra vastagodik.
+  rect.animate(
+    [
+      { strokeDashoffset: perimeter, strokeWidth: strokeMax, opacity: 0, offset: 0 },
+      { strokeDashoffset: perimeter, strokeWidth: strokeMax, opacity: 0, offset: 0.30 },
+      { opacity: 1, offset: 0.33 },
+      { strokeDashoffset: 0, strokeWidth: strokeMin, opacity: 1, offset: 0.55 },
+      { strokeDashoffset: 0, strokeWidth: strokeMin, opacity: 1, offset: 0.68 },
+      { strokeDashoffset: -perimeter, strokeWidth: strokeMax, opacity: 1, offset: 0.94 },
+      { strokeDashoffset: -perimeter, strokeWidth: strokeMax, opacity: 0, offset: 1 }
+    ],
+    timing
+  );
+  // A ::after pseudo-elem (kis fényes szikra, offset-path: border-box) ugyanazzal az
+  // időzítéssel indul mint a rect trail, hogy a fej pozícióján maradjon szinkronban.
+  try {
+    _modeIndicatorSparkAnim = el.animate?.(
+      [
+        { opacity: 0, offsetDistance: "0%", offset: 0 },
+        { opacity: 0, offsetDistance: "0%", offset: 0.30 },
+        { opacity: 1, offset: 0.33 },
+        { offsetDistance: "100%", opacity: 1, offset: 0.55 },
+        { offsetDistance: "100%", opacity: 1, offset: 0.68 },
+        { offsetDistance: "100%", opacity: 1, offset: 0.94 },
+        { offsetDistance: "100%", opacity: 0, offset: 1 }
+      ],
+      { ...timing, pseudoElement: "::after" }
+    );
+  } catch (_e) { /* pseudoElement animate nem támogatott — a szikra egyszerűen nem jelenik meg */ }
 }
 
 function _showBlockCtxMenu(e, index) {

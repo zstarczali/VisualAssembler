@@ -426,57 +426,60 @@ a {
   position: relative;
 }
 
-/* Időnként végigfutó fénypont a kereten — figyelemfelkeltés az aktív szerkesztő módra.
-   A pont ténylegesen a border alakját (pill) követi az offset-path: border-box-szal,
-   nem egy elforgatott/elmosott gradiens-folt. */
-.editor-mode-indicator::before,
+.editor-mode-indicator-label { position: relative; z-index: 1; }
+
+/* Időnként a kereten körbefutó fény — figyelemfelkeltés az aktív szerkesztő módra.
+   Valódi SVG rect stroke-ját rajzolja végig (JS: _syncModeIndicatorTrail), így
+   pontosan a badge pill-alakú keretének görbületét követi, ténylegesen beszínezi
+   azt a szakaszt, amin áthaladt, míg végül a teljes keret kivilágít, majd letörlődik. */
+.mode-indicator-trail {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.mode-indicator-trail-rect {
+  fill: none;
+  stroke: color-mix(in srgb, var(--accent) 35%, white 65%);
+  stroke-width: 3.2px;
+  stroke-linecap: round;
+  filter:
+    drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 90%, white))
+    drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 65%, transparent));
+  opacity: 0;
+}
+
+/* Kis fényes szikra pontosan a fej pozícióján — offset-path: border-box-szal a badge
+   saját (pill-alakú) keretét követi. Az animációt JS indítja (_syncModeIndicatorTrail,
+   Element.animate pseudoElement: "::after"), így garantáltan szinkronban fut az SVG
+   trail-lel; itt csak az alapállapot (rejtett, opacity 0) van megadva. */
 .editor-mode-indicator::after {
   content: "";
   position: absolute;
   top: 0;
   left: 0;
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
   border-radius: 50%;
-  pointer-events: none;
+  background: #fff;
+  box-shadow:
+    0 0 2.5px 1px color-mix(in srgb, var(--accent) 90%, white),
+    0 0 6px 1.5px color-mix(in srgb, var(--accent) 60%, transparent);
   opacity: 0;
+  pointer-events: none;
   offset-path: border-box;
   offset-distance: 0%;
   offset-rotate: 0deg;
-  animation: mode-indicator-chase 9s ease-in-out infinite;
-}
-
-.editor-mode-indicator::before {
-  width: 5px;
-  height: 5px;
-  margin: -2.5px 0 0 -2.5px;
-  background: #fff;
-  box-shadow:
-    0 0 4px 1px color-mix(in srgb, var(--accent) 80%, white),
-    0 0 9px 2px color-mix(in srgb, var(--accent) 45%, transparent);
-}
-
-.editor-mode-indicator::after {
-  width: 5px;
-  height: 5px;
-  margin: -2.5px 0 0 -2.5px;
-  background: color-mix(in srgb, var(--accent) 50%, transparent);
-  filter: blur(1.5px);
-  animation-delay: -0.18s;
-}
-
-@keyframes mode-indicator-chase {
-  0%, 42% { opacity: 0; offset-distance: 0%; }
-  46% { opacity: 1; }
-  88% { opacity: 1; offset-distance: 100%; }
-  100% { opacity: 0; offset-distance: 100%; }
 }
 
 @supports not (offset-path: border-box) {
-  .editor-mode-indicator::before,
   .editor-mode-indicator::after { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .editor-mode-indicator::before,
+  .mode-indicator-trail-rect { display: none; }
   .editor-mode-indicator::after { animation: none; opacity: 0; }
 }
 
