@@ -3553,17 +3553,25 @@ function applyTranslations() {
     setText("#import-asm", t("importAsm"));
     setText("#copy-asm", t("copyAsm"));
     setText("#save-project", t("saveProject"));
+    document.getElementById("save-project")?.setAttribute("aria-label", t("saveProjectTip"));
     setText("#save-project-as", t("saveProgramAs"));
+    document.getElementById("save-project-as")?.setAttribute("aria-label", t("saveProgramAsTip"));
     setText("#menu-open-project", t("menuOpenProject"));
+    document.getElementById("menu-open-project")?.setAttribute("aria-label", t("menuOpenProjectTip"));
     setText("#menu-save-project", t("menuSaveProject"));
+    document.getElementById("menu-save-project")?.setAttribute("aria-label", t("menuSaveProjectTip"));
     setText("#save-snapshot", t("saveSnapshot"));
     setText("#restore-snapshot", t("restorePreviousVersion"));
     setText("#snapshot-history", t("snapshotHistory"));
     setText("#menu-close-project", t("menuCloseProject"));
+    document.getElementById("menu-close-project")?.setAttribute("aria-label", t("menuCloseProjectTip"));
     setText("#workspace-section-label", t("workspaceSectionLabel"));
     setText("#menu-save-workspace", t("menuSaveWorkspace"));
+    document.getElementById("menu-save-workspace")?.setAttribute("aria-label", t("menuSaveWorkspaceTip"));
     setText("#menu-save-workspace-as", t("menuSaveWorkspaceAs"));
+    document.getElementById("menu-save-workspace-as")?.setAttribute("aria-label", t("menuSaveWorkspaceAsTip"));
     setText("#menu-open-workspace", t("menuOpenWorkspace"));
+    document.getElementById("menu-open-workspace")?.setAttribute("aria-label", t("menuOpenWorkspaceTip"));
     setText("#save-prg", t("savePrg"));
     setText("#set-working-folder", t("setWorkingFolder"));
     setText("#build-section-label", t("buildSection"));
@@ -3593,8 +3601,7 @@ function applyTranslations() {
     setText("#expert-disasm-output-label", t("outputDisasm"));
     setText("#load-project", t("loadProject"));
     setText("#exit-app", t("exitApp"));
-    exitAppButton?.setAttribute("title", t("exitApp"));
-    exitAppButton?.setAttribute("aria-label", t("exitApp"));
+    exitAppButton?.setAttribute("aria-label", t("exitAppTip"));
     chooseViceButton?.setAttribute("title", t("openEmulator"));
     chooseViceButton?.setAttribute("aria-label", t("openEmulator"));
     importAsmButton?.setAttribute("aria-label", t("importAsmHint"));
@@ -3604,10 +3611,8 @@ function applyTranslations() {
     disasmCopySourceBtn?.setAttribute("aria-label", t("disasmCopySource"));
     expertDisasmCopySourceBtn?.setAttribute("aria-label", t("disasmCopySource"));
     ubDisasmCopySourceBtn?.setAttribute("aria-label", t("disasmCopySource"));
-    saveProjectButton?.setAttribute("title", t("saveProject"));
-    saveProjectButton?.setAttribute("aria-label", t("saveProject"));
-    saveProjectAsButton?.setAttribute("title", t("saveProgramAs"));
-    saveProjectAsButton?.setAttribute("aria-label", t("saveProgramAs"));
+    saveProjectButton?.setAttribute("aria-label", t("saveProjectTip"));
+    saveProjectAsButton?.setAttribute("aria-label", t("saveProgramAsTip"));
     saveSnapshotButton?.setAttribute("title", t("saveSnapshot"));
     saveSnapshotButton?.setAttribute("aria-label", t("saveSnapshot"));
     restoreSnapshotButton?.setAttribute("title", t("restorePreviousVersion"));
@@ -3621,8 +3626,7 @@ function applyTranslations() {
     saveD64Button?.setAttribute("aria-label", t("saveD64"));
     saveCrtButton?.setAttribute("title", t("saveCrt"));
     saveCrtButton?.setAttribute("aria-label", t("saveCrt"));
-    loadProjectButton?.setAttribute("title", t("loadProject"));
-    loadProjectButton?.setAttribute("aria-label", t("loadProject"));
+    loadProjectButton?.setAttribute("aria-label", t("loadProjectTip"));
     addSelectedButton?.setAttribute("title", t("addSelected"));
     addSelectedButton?.setAttribute("aria-label", t("addSelected"));
     loadSampleButton?.setAttribute("title", t("loadSample"));
@@ -7038,7 +7042,6 @@ function setUltimateBasicMode(on) {
 
 function _updateWorkingFolderButtonTooltip() {
   const text = t(_isUltimateBasicEditorActive() ? "setUbWorkingFolderHint" : "setVaWorkingFolderHint");
-  setWorkingFolderButton?.setAttribute("title", text);
   setWorkingFolderButton?.setAttribute("aria-label", text);
 }
 

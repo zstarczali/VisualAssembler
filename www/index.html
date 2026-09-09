@@ -12,7 +12,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2.3.7">
+  <link rel="stylesheet" href="style.css?v=2.3.8">
 </head>
 
 <body>
@@ -43,18 +43,18 @@
             <div class="control-menu-panel">
               <section class="control-menu-group">
                 <h3 class="control-menu-label" id="menu-file-label">File</h3>
-                <button id="save-project" class="secondary" type="button">Save program</button>
-                <button id="save-project-as" class="secondary" type="button">Save Program As</button>
-                <button id="load-project" class="secondary" type="button">Load program</button>
-                <button id="set-working-folder" class="secondary" type="button">Set working folder</button>
-                <button id="menu-open-project" class="secondary" type="button">Open project</button>
-                <button id="menu-save-project" class="secondary" type="button">Save project</button>
-                <button id="menu-close-project" class="secondary" type="button">Close project</button>
+                <button id="save-project" class="secondary menu-item-tooltip" type="button">Save program</button>
+                <button id="save-project-as" class="secondary menu-item-tooltip" type="button">Save Program As</button>
+                <button id="load-project" class="secondary menu-item-tooltip" type="button">Load program</button>
+                <button id="set-working-folder" class="secondary menu-item-tooltip" type="button">Set working folder</button>
+                <button id="menu-open-project" class="secondary menu-item-tooltip" type="button">Open project</button>
+                <button id="menu-save-project" class="secondary menu-item-tooltip" type="button">Save project</button>
+                <button id="menu-close-project" class="secondary menu-item-tooltip" type="button">Close project</button>
                 <h3 class="control-menu-label control-menu-label--section" id="workspace-section-label">Workspace</h3>
-                <button id="menu-save-workspace" class="secondary" type="button">Save Workspace</button>
-                <button id="menu-save-workspace-as" class="secondary" type="button">Save Workspace As...</button>
-                <button id="menu-open-workspace" class="secondary" type="button">Open Workspace...</button>
-                <button id="exit-app" class="secondary" type="button">Kilepes</button>
+                <button id="menu-save-workspace" class="secondary menu-item-tooltip" type="button">Save Workspace</button>
+                <button id="menu-save-workspace-as" class="secondary menu-item-tooltip" type="button">Save Workspace As...</button>
+                <button id="menu-open-workspace" class="secondary menu-item-tooltip" type="button">Open Workspace...</button>
+                <button id="exit-app" class="secondary menu-item-tooltip" type="button">Kilepes</button>
               </section>
               <section id="sample-programs-group" class="control-menu-group">
                 <h3 class="control-menu-label" id="menu-examples-label">Peldak</h3>
@@ -886,7 +886,7 @@ PRINTABLE CHARACTERS
         <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v2.3.7</p>
+      <p class="about-version" id="about-version">v2.3.8</p>
       <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       <img class="about-ub-banner" src="assets/ultimate-basic-banner.png" alt="Ultimate Basic">
       <p class="about-repo"><span>Ultimate Basic GitHub repository:</span><br><a href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener noreferrer">https://github.com/zstarczali/UltimateBasic</a></p>
@@ -904,31 +904,28 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.3.7</p>
+      <p class="whats-new-version">v2.3.8</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: Dutch language support (Nederlands)</strong> &mdash; complete Dutch localization across all user interface views, menus, dialogs, editors, interactive tutorials, macro hints, and KERNAL routine descriptions.
+          <strong>New: Workspace save / open</strong> &mdash; save the exact set of open file-backed tabs, the active tab and each tab's editor mode (Block/Expert/Ultimate Basic) to a <code>.vaws</code> workspace file. Workspaces auto-save on change, and the app auto-restores your last workspace on launch.
         </li>
         <li>
-          <strong>New: Undo / Redo and multi-block editing</strong> &mdash; toolbar history controls restore block-program changes per tab. Select ranges or multiple blocks, then copy, cut, paste, duplicate or delete them as one operation; region groups remain intact.
+          <strong>New: Global memory panel toggle</strong> &mdash; show or hide the full C64 memory panel from a dedicated UI switch.
         </li>
         <li>
-          <strong>New: Breakpoints in Block, Expert and Ultimate Basic modes</strong> &mdash; set breakpoints from block cards or editor line-number gutters. Breakpoints are stored per tab and resolved to the exact executable address before RetroDebugger starts.
+          <strong>New: Localized Ultimate Basic command reference</strong> &mdash; command descriptions in the autocomplete popup and the command reference panel are now available in Hungarian, English, Spanish, German and Dutch, with English fallback for anything not yet translated.
         </li>
         <li>
-          <strong>Improved: RetroDebugger integration</strong> &mdash; the external debugger replaces the limited embedded Ultimate Basic debugger, and all three editor modes now launch it with source maps, labels and breakpoint files. Existing instances receive new tasks via <code>-pass</code>; BASIC SYS programs use <code>-autojmp</code>, while plain PRGs use their real load address with <code>-jmp</code>.
+          <strong>Improved: Ultimate Basic graphics documentation</strong> &mdash; refreshed help text for <code>COLOR PEN</code> and the plot/line/rect/circle and multicolor drawing commands to match current compiler behavior.
         </li>
         <li>
-          <strong>New: BASIC stub visibility</strong> &mdash; a VA-style setting can show the real BASIC SYS stub at <code>$0801</code> in Disassembler and Monitor outputs. Block, Expert and Ultimate Basic modes share the same build-accurate code origin.
+          <strong>Fixed: KERNAL routine reference</strong> &mdash; corrected the <code>SETLFS</code> ($FFBA) and <code>PLOT</code> ($FFF0, carry-flag read/write semantics) entries in the disassembler's KERNAL address table.
         </li>
         <li>
-          <strong>New: Ultimate Basic Monitor view</strong> &mdash; inspect compiler-generated machine code and the optional BASIC stub as a memory dump beside the UB editor, with a dedicated toolbar button and a non-wrapping, resizable output panel.
+          <strong>Fixed: Memory usage with many tabs open</strong> &mdash; per-tab undo/redo history is now capped (with a small debounce), preventing the unbounded memory growth that a long session with many open documents used to cause.
         </li>
         <li>
-          <strong>Fixed: Debugger, disassembler and label addresses</strong> &mdash; plain PRGs now use the load address stored in their PRG header, project startup files keep their own macro and source context, and <code>.dbg</code>, <code>.sym</code> and VICE label sidecars stay aligned with generated code.
-        </li>
-        <li>
-          <strong>Fixed: Editor caret and line alignment</strong> &mdash; Ultimate Basic formatting preserves the selection, and caret tracking now survives blank lines, held cursor keys and minimap boundaries; UB line numbers scale without clipping. Expert line numbers and source rows use a shared integer-pixel line height to prevent vertical drift.
+          <strong>Improved: Editor toolbar cleanup</strong> &mdash; removed the redundant breakpoint toggle buttons from the Expert and Ultimate Basic toolbars (breakpoints are still set from the line-number gutter), and aligned the Expert toolbar height with the Ultimate Basic toolbar.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -2186,13 +2183,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.3.7"></script>
-  <script src="i18n.js?v=2.3.7"></script>
-  <script src="tutorial-data.js?v=2.3.7"></script>
+  <script src="tauri-bridge.js?v=2.3.8"></script>
+  <script src="i18n.js?v=2.3.8"></script>
+  <script src="tutorial-data.js?v=2.3.8"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.3.7"></script>
+  <script src="app.js?v=2.3.8"></script>
 
 </body>
 

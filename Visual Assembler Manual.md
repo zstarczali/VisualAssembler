@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.3.7**
+**Version 2.3.8**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,7 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
-    - [Version 2.3.7 Highlights](#version-237-highlights)
+    - [Version 2.3.8 Highlights](#version-238-highlights)
   - [Table of Contents](#table-of-contents)
   - [1. Interface Overview](#1-interface-overview)
   - [2. Block Palette](#2-block-palette)
@@ -148,16 +148,15 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ---
 
-## Version 2.3.7 Highlights
+## Version 2.3.8 Highlights
 
-- **Dutch language support (Nederlands):** complete Dutch localization across the UI, menus, dialogs, editors, interactive tutorials, macro operand guides, and KERNAL routine helpers.
-- **Undo / Redo and multi-block editing:** per-tab block history plus grouped copy, cut, paste, duplicate and delete operations.
-- **Breakpoints in every editor mode:** the external RetroDebugger replaces the limited embedded UB debugger; Block, Expert and Ultimate Basic source breakpoints launch with matching source maps and labels.
-- **Reliable debugger startup:** BASIC SYS PRGs use automatic SYS detection; plain PRGs use their actual PRG load address.
-- **Optional BASIC stub display:** Settings can show the `$0801` SYS stub in Disassembler and Monitor views in all three modes.
-- **Ultimate Basic Monitor:** a dedicated toolbar view displays compiled UB bytes and the optional BASIC stub as a memory dump.
-- **Accurate output addresses:** debugger sidecars, startup-file layouts, labels, disassembly and monitor output now share the build's effective origin.
-- **Editor polish:** UB formatting preserves selections, caret movement is correct across blank lines, held cursor keys and the minimap edge, and UB/Expert line-number alignment is stable.
+- **Workspace save / open:** save the exact set of open file-backed tabs — including the active tab and each tab's editor mode — to a `.vaws` workspace file. Workspaces auto-save on change, and the app auto-restores your last workspace on launch.
+- **Global memory panel toggle:** show or hide the full C64 memory panel from a dedicated UI switch.
+- **Localized Ultimate Basic command reference:** command descriptions in the autocomplete popup and the Commands panel now follow the current UI language (Hungarian, English, Spanish, German, Dutch), with English fallback.
+- **Refreshed Ultimate Basic graphics docs:** `COLOR PEN` and the plot/line/rect/circle and multicolor drawing command help text now match current compiler behavior.
+- **Fixed KERNAL reference:** corrected the `SETLFS` and `PLOT` entries (addresses and calling conventions) in the disassembler's KERNAL address table.
+- **Fixed memory usage with many tabs open:** per-tab undo/redo history is now capped (with a small debounce), preventing the unbounded memory growth that a long session with many open documents used to cause.
+- **Editor toolbar cleanup:** removed the redundant breakpoint toggle buttons from the Expert and Ultimate Basic toolbars (breakpoints are still set from the line-number gutter), and aligned the Expert toolbar height with the Ultimate Basic toolbar.
 
 ---
 
@@ -294,12 +293,16 @@ The modal closes automatically when the action completes or fails.
 | **Language** | Switch the user interface between English, Hungarian, Spanish, German, and Dutch (Nederlands) |
 | **Theme** | Light / Dark / OLED — select from the theme picker in the Settings menu. OLED uses a pure-black background for AMOLED displays. |
 | **CRT retro mode** | Toggles a full-screen CRT filter: scanlines, phosphor vignette, flicker, and barrel distortion. State is saved between sessions. |
+| **Show memory panel** | Global toggle that shows or hides the full C64 memory panel |
 | **BASIC SYS stub** | Prepends a BASIC line that calls SYS to your program's origin |
 | **Sample** | Load a built-in example program |
 | **Zoom in / out** | Scale the block UI (affects all block elements) |
 | **Save Project** | Save the current program as a `.json` project file |
 | **Save Program As** | Save the current program as a `.json` project file using a new file dialog every time |
 | **Load Project** | Load a previously saved project |
+| **Save Workspace** | Save the exact set of currently open, file-backed tabs — including the active tab and each tab's editor mode (Block/Expert/Ultimate Basic) — to a `.vaws` workspace file |
+| **Save Workspace As** | Save the current workspace using a new file dialog every time |
+| **Open Workspace** | Close all open tabs and reopen the set of files stored in a `.vaws` workspace file |
 | **Set working folder** | Choose the default folder used by file pickers and save dialogs. The path is stored in the app config, and menu previews keep the end of the path visible. |
 | **Open Project** (`Menu → File`) | Open a multi-file `.proj` project and open all source files as tabs |
 | **Save Project** (`Menu → File`) | Save the current `.proj` project (project panel must be open) |
@@ -328,6 +331,16 @@ Project snapshots are stored as on-disk sidecar JSON files, not in localStorage.
 - If a project has not been saved yet, snapshots are stored in the app config directory until the project gets a file path.
 | **Knowledge Base** | Reference links (6502 opcodes, C64 KERNAL, memory map, colors) |
 | **Check for Update** | Open the itch.io page to check for a newer release |
+
+### Workspaces
+
+A **workspace** (`.vaws` file) remembers which real, on-disk files were open across every tab — including each tab's editor mode and which tab was active — so you can reopen that exact set later. It is separate from a `.proj` project: a workspace can span any mix of Block/Expert `.json` project files, standalone `.asm` files, and Ultimate Basic `.ub`/`.proj` sources across multiple tabs.
+
+- Workspaces **auto-save** a few hundred milliseconds after you make a change once one has been saved or opened.
+- The app **auto-restores your last workspace** on launch, so your open tabs pick up where you left off.
+- Only tabs backed by a real file on disk are saved into the workspace; a tab holding an unsaved sample or an in-memory-only program has nothing to persist and is skipped (with a notice if none of the open tabs qualify).
+- Opening a workspace closes all currently open tabs first — you are asked to confirm before it proceeds.
+- If a workspace references a file that has since been moved or deleted, that entry is skipped and reported by name after loading.
 
 ### Load .asm file (quick reference)
 
@@ -395,7 +408,7 @@ The UB toolbar follows the same visual language and custom tooltips as Expert mo
 - Find (`Ctrl+F` / `Cmd+F`) using the Expert-style search bar;
 - source formatting with structure-aware indentation;
 - autocomplete for commands and built-in functions;
-- a searchable **Commands** panel with syntax, description, and usage guidance;
+- a searchable **Commands** panel with syntax, description, and usage guidance — descriptions follow the current UI language (Hungarian, English, Spanish, German, Dutch), falling back to English for anything not yet translated;
 - independently toggleable **Project** and **Commands** panels, displayed side by side when both are enabled;
 - independently toggleable and resizable **Build Output** and **Disassembly** panels.
 

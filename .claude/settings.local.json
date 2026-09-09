@@ -197,7 +197,9 @@
       "Bash(cargo test *)",
       "Bash(python3 -)",
       "Bash(grep -rn 'color plot\\\\|`color plot' F:/Development/UltimateBasic/src/compiler/codegen.rs)",
-      "Bash(find F:/Development/UltimateBasic -maxdepth 2 -iname *manual* -o -maxdepth 2 -iname *.md)"
+      "Bash(find F:/Development/UltimateBasic -maxdepth 2 -iname *manual* -o -maxdepth 2 -iname *.md)",
+      "Bash(git log *)",
+      "Bash(node --test tests/i18n-completeness.test.js)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"
