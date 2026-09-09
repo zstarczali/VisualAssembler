@@ -14656,7 +14656,7 @@ function applySavedTheme() {
 }
 
 function toggleTheme() {
-  const next = { light: "dark", dark: "oled", oled: "light" };
+  const next = { light: "dark", dark: "oled", oled: "commodore77", commodore77: "light" };
   setTheme(next[document.documentElement.dataset.theme] || "dark");
 }
 
@@ -27727,7 +27727,15 @@ async function loadSampleFromFile(sampleName) {
     ? collapseLoadedProgram(parseExpertText(sampleData.expertText))
     : collapseLoadedProgram(sampleData.program);
 
-  const activeTab = _getActiveTab();
+  // Loading a sample from the File menu always opens it in a fresh tab instead
+  // of overwriting whatever is already open in the current one.
+  _tabSaveCurrent();
+  const newTab = _tabCreate();
+  newTab.editorMode = ultimateBasicMode ? "ub" : expertMode ? "expert" : "block";
+  tabs.push(newTab);
+  activeTabId = newTab.id;
+
+  const activeTab = newTab;
   if (activeTab) {
     activeTab.filePath = null;
     activeTab.selectedBlockId = null;

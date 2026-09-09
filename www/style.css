@@ -161,6 +161,56 @@ html[data-theme="oled"] {
   --cg-canvas-bg: #20263a;
 }
 
+/* "Commodore 77" — Cyberpunk 2077 x Commodore 64 breadbin edition (neon yellow
+   on black). Only the two brand colors and their shades/tints are used — no
+   blue/red/green accents like the other themes. */
+html[data-theme="commodore77"] {
+  color-scheme: dark;
+  /* expert syntax highlight — yellow/amber shades only */
+  --hl-comment:   #6b6650;
+  --hl-directive: #e8d97a;
+  --hl-mnem:      #fcee0a;
+  --hl-number:    #b8860b;
+  --hl-string:    #d4a017;
+  --hl-label:     #c9a227;
+  --expert-editor-bg: #0a0a08;
+  --ub-editor-bg: #0a0a08;
+  --ub-chrome-bg: rgba(24, 22, 12, 0.98);
+  --ub-side-bg: rgba(16, 15, 8, 0.97);
+  --ub-selection-bg: rgba(252, 238, 10, 0.26);
+  --cg-canvas-bg: #20263a;
+  --bg: #0a0a08;
+  --bg-accent: #050504;
+  --panel: rgba(20, 19, 12, 0.97);
+  --panel-strong: rgba(28, 26, 15, 0.98);
+  --panel-border: rgba(252, 238, 10, 0.16);
+  --text: #f2efe0;
+  --muted: #9a9578;
+  --primary: #fcee0a;
+  --primary-deep: #d4c400;
+  --secondary: #b8b090;
+  --secondary-soft: rgba(252, 238, 10, 0.10);
+  --surface-soft: rgba(252, 238, 10, 0.05);
+  --control-bg: rgba(12, 12, 8, 0.97);
+  --active-bg: #fcee0a;
+  --active-fg: #0a0a08;
+  --shadow: 0 2px 14px rgba(0, 0, 0, 0.55), 0 0 16px rgba(252, 238, 10, 0.08);
+  --input-bg: rgba(8, 8, 6, 0.98);
+  --output-bg: #080805;
+  --output-text: #d8d2a8;
+  --monitor-text: #fcee0a;
+  --error: #b8860b;
+  --accent: var(--primary);
+  --asm-mnemonic: #fcee0a;
+  --asm-directive: #e8d97a;
+  --asm-macro: #d4a017;
+  --asm-comment: #6b6650;
+  --asm-label: #c9a227;
+  --asm-number: #b8860b;
+  --asm-region: #cfc9a0;
+  --asm-operand: #f5df4d;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -184,6 +234,9 @@ html[data-theme="light"] {
 }
 html[data-theme="oled"] {
   background-color: #0d0d12;
+}
+html[data-theme="commodore77"] {
+  background-color: #0a0a08;
 }
 html:has(#splash-screen) {
   overflow: hidden;
@@ -1066,6 +1119,11 @@ h1 {
   border-color: #475569;
 }
 
+.theme-option-dot[data-theme-opt="commodore77"] {
+  background: #0a0a08;
+  border-color: #fcee0a;
+}
+
 button,
 .link-button {
   border: 1px solid transparent;
@@ -1126,6 +1184,15 @@ html[data-theme="oled"] .theme-toggle-glyph::after {
   background: var(--panel);
 }
 
+html[data-theme="commodore77"] .theme-toggle-glyph::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 1px;
+  transform: rotate(45deg);
+  background: currentColor;
+}
+
 button:hover,
 .link-button:hover {
   /* no lift — clean */
@@ -1141,6 +1208,11 @@ button:hover,
 html[data-theme="dark"] .primary,
 html[data-theme="oled"] .primary {
   color: #10245f;
+  font-weight: 700;
+}
+
+html[data-theme="commodore77"] .primary {
+  color: #14120a;
   font-weight: 700;
 }
 
@@ -1577,14 +1649,16 @@ html[data-theme="oled"] .primary {
 }
 
 html[data-theme="dark"] #add-selected,
-html[data-theme="oled"] #add-selected {
+html[data-theme="oled"] #add-selected,
+html[data-theme="commodore77"] #add-selected {
   background: var(--primary);
   color: var(--active-fg);
   border-color: var(--primary-deep);
 }
 
 html[data-theme="dark"] #add-selected:hover,
-html[data-theme="oled"] #add-selected:hover {
+html[data-theme="oled"] #add-selected:hover,
+html[data-theme="commodore77"] #add-selected:hover {
   background: var(--primary-deep);
 }
 
@@ -2617,7 +2691,8 @@ body.dnd-active {
 }
 
 html[data-theme="dark"] .asm-block:has(.bp-toggle.bp-active),
-html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active) {
+html[data-theme="oled"] .asm-block:has(.bp-toggle.bp-active),
+html[data-theme="commodore77"] .asm-block:has(.bp-toggle.bp-active) {
   background: rgba(255, 68, 68, 0.18) !important;
   border-color: rgba(255, 68, 68, 0.5) !important;
 }
@@ -2930,6 +3005,15 @@ html[data-theme="oled"] .monitor-output {
   box-shadow:
     inset 0 0 40px rgba(0,0,0,0.6),
     0 0 0 1px #0d1a0d;
+}
+
+html[data-theme="commodore77"] .monitor-output {
+  background: #050503 !important;
+  border-color: #2a2410 !important;
+  text-shadow: 0 0 8px rgba(252, 238, 10, 0.45);
+  box-shadow:
+    inset 0 0 40px rgba(0,0,0,0.6),
+    0 0 0 1px #1a1608;
 }
 
 .program-output {
@@ -3408,6 +3492,11 @@ html[data-theme="dark"] .emulator-actions .link-button.primary,
 html[data-theme="oled"] .emulator-actions .primary,
 html[data-theme="oled"] .emulator-actions .link-button.primary {
   color: #10245f;
+}
+
+html[data-theme="commodore77"] .emulator-actions .primary,
+html[data-theme="commodore77"] .emulator-actions .link-button.primary {
+  color: #14120a;
 }
 
 .emulator-actions .secondary {
@@ -4096,7 +4185,8 @@ body.expert-mode .expert-panel {
   box-shadow: inset 2px 0 0 #ff4444;
 }
 html[data-theme="dark"] .expert-err-line,
-html[data-theme="oled"] .expert-err-line {
+html[data-theme="oled"] .expert-err-line,
+html[data-theme="commodore77"] .expert-err-line {
   background: color-mix(in srgb, #ff4444 18%, transparent);
 }
 
@@ -4216,12 +4306,14 @@ html[data-theme="oled"] .expert-err-line {
 }
 
 html[data-theme="dark"] .expert-hl mark.hl-find-match,
-html[data-theme="oled"] .expert-hl mark.hl-find-match {
+html[data-theme="oled"] .expert-hl mark.hl-find-match,
+html[data-theme="commodore77"] .expert-hl mark.hl-find-match {
   background: color-mix(in srgb, #d4880c 40%, transparent);
 }
 
 html[data-theme="dark"] .expert-hl mark.hl-find-current,
-html[data-theme="oled"] .expert-hl mark.hl-find-current {
+html[data-theme="oled"] .expert-hl mark.hl-find-current,
+html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
   background: color-mix(in srgb, #d4880c 80%, transparent);
   outline-color: #d4880c;
 }
@@ -6086,7 +6178,8 @@ body.crt-mode #crt-overlay::before {
 }
 
 body.crt-mode[data-theme="dark"] #crt-overlay::before,
-body.crt-mode[data-theme="oled"] #crt-overlay::before {
+body.crt-mode[data-theme="oled"] #crt-overlay::before,
+body.crt-mode[data-theme="commodore77"] #crt-overlay::before {
   background: repeating-linear-gradient(
     to bottom,
     transparent 0px,
@@ -7740,7 +7833,7 @@ body.crt-mode #crt-overlay::after {
 }
 .cc-tool svg { display: block; width: 15px; height: 15px; }
 .cc-tool:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); color: var(--text); }
-.cc-tool--active { background: var(--primary); color: #fff; }
+.cc-tool--active { background: color-mix(in srgb, var(--primary) 22%, transparent); color: var(--primary); }
 .tool-dropdown {
   position: relative;
   display: inline-flex;
@@ -7973,8 +8066,8 @@ body.crt-mode #crt-overlay::after {
 }
 .me-tool svg { display: block; width: 15px; height: 15px; }
 .me-tool:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); color: var(--text); }
-.me-tool--active { background: var(--primary); color: #fff; }
-.me-tool--active:hover { background: var(--primary); color: #fff; }
+.me-tool--active { background: color-mix(in srgb, var(--primary) 22%, transparent); color: var(--primary); }
+.me-tool--active:hover { background: color-mix(in srgb, var(--primary) 22%, transparent); color: var(--primary); }
 .me-export-wrap { position: relative; }
 .me-tool--menu {
   border: 1px solid var(--panel-border);
@@ -8370,8 +8463,8 @@ body.crt-mode #crt-overlay::after {
   transition: background 0.12s, color 0.12s;
 }
 .hg-tool:hover, .hg-btn:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); color: var(--text); }
-.hg-tool--active { background: var(--primary); color: #fff; }
-.hg-tool--active:hover { background: var(--primary); color: #fff; }
+.hg-tool--active { background: color-mix(in srgb, var(--primary) 22%, transparent); color: var(--primary); }
+.hg-tool--active:hover { background: color-mix(in srgb, var(--primary) 22%, transparent); color: var(--primary); }
 .hg-btn {
   border: 1px solid var(--panel-border);
   background: var(--control-bg);
