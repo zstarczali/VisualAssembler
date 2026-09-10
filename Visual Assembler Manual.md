@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.3.8**
+**Version 2.3.9**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.3.9 Highlights](#version-239-highlights)
     - [Version 2.3.8 Highlights](#version-238-highlights)
   - [Table of Contents](#table-of-contents)
   - [1. Interface Overview](#1-interface-overview)
@@ -44,11 +45,15 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Tab bar](#tab-bar)
   - [7. Addressing Modes](#7-addressing-modes)
     - [Label expressions as operands](#label-expressions-as-operands)
+    - [The `*` program counter in expressions](#the--program-counter-in-expressions)
+    - [Local (dotted) labels](#local-dotted-labels)
+    - [Self-modifying-code operand labels](#self-modifying-code-operand-labels)
   - [8. Standard 6502 Instructions](#8-standard-6502-instructions)
     - [Data Movement](#data-movement)
     - [Arithmetic](#arithmetic)
     - [Logic](#logic)
     - [Jumps \& Branches](#jumps--branches)
+    - [LBNE / LBEQ / … (Long branches)](#lbne--lbeq---long-branches)
     - [Register Operations](#register-operations)
     - [Shift \& Rotate](#shift--rotate)
     - [Stack](#stack)
@@ -91,6 +96,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
       - [INVOKE](#invoke)
     - [REGION / ENDREGION](#region--endregion)
     - [DEFINE / IF / ELSE / ENDIF](#define--if--else--endif)
+    - [.ASSERT](#assert)
       - [DEFINE](#define)
       - [IF](#if)
       - [ELSE](#else)
@@ -145,6 +151,19 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Map Editor (Multilayer Tilemaps)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve Editor](#curve-editor)
+
+---
+
+## Version 2.3.9 Highlights
+
+Five assembler quality-of-life features, all usable in Expert mode text and (where it makes sense) as blocks. Each has its own reference section further down:
+
+- **`*` in any expression** — the program-counter symbol now works inside operand expressions, not only on its own: `BNE *-5`, `JMP *+20`, `LDA #<*`, `LDA #>(*+63)`. A `*` that follows a value (`STRIDE*2`) is still multiplication. See [Addressing Modes → The `*` program counter in expressions](#the--program-counter-in-expressions).
+- **Local (dotted) labels** — a label such as `.loop` belongs to the scope of the nearest preceding *global* (non-dotted) label, so `DrawSprite` and `ClearScreen` can each define their own `.loop` without a clash. See [Local (dotted) labels](#local-dotted-labels).
+- **Long-branch pseudo-ops** — `LBNE`, `LBEQ`, `LBCC`, `LBCS`, `LBMI`, `LBPL`, `LBVC`, `LBVS` assemble to an inverted branch over a `JMP` (always 5 bytes) so the target can be any distance away. New **Long branches** palette category. See [LBNE / LBEQ / … (Long branches)](#lbne--lbeq---long-branches).
+- **`.assert` directive** — `.assert end - start <= 256` or `.assert * < $A000, "message"` is evaluated at assembly time and fails the build (showing the actual value) when the expression is false. See [.ASSERT](#assert).
+- **Self-modifying-code operand labels** — `LDA value:#$00` defines the label `value` pointing at the instruction's operand byte, so `STA value` patches it directly. See [Self-modifying-code operand labels](#self-modifying-code-operand-labels).
+- **Friendlier out-of-range branch errors** — a branch that lands outside −128…+127 now reports exactly how far it overshoots and suggests the matching `LBxx` long branch.
 
 ---
 
@@ -291,7 +310,7 @@ The modal closes automatically when the action completes or fails.
 |---|---|
 | **Number base (HEX / DEC / BIN)** | Sets the display/input format for operands throughout the UI. BIN mode displays values as binary with `%` prefix (e.g. `%11111000`). The ASM view always shows each block in its own format. |
 | **Language** | Switch the user interface between English, Hungarian, Spanish, German, and Dutch (Nederlands) |
-| **Theme** | Light / Dark / OLED / Commodore 77 — select from the theme picker in the Settings menu. OLED uses a pure-black background for AMOLED displays. Commodore 77 is a neon-yellow-on-black theme. |
+| **Theme** | Light / Dark / OLED / Commodore 77 — select from the theme picker in the Settings menu. OLED uses a pure-black background for AMOLED displays. Commodore 77 is a neon-yellow-on-black theme; when it is the active theme the startup splash panel uses the theme's panel colour (matching the message card), shows a smaller dedicated Commodore 77 logo, and a yellow progress bar. The chosen theme is applied before the first paint on the next launch. |
 | **CRT retro mode** | Toggles a full-screen CRT filter: scanlines, phosphor vignette, flicker, and barrel distortion. State is saved between sessions. |
 | **Show memory panel** | Global toggle that shows or hides the full C64 memory panel |
 | **BASIC SYS stub** | Prepends a BASIC line that calls SYS to your program's origin |
@@ -544,10 +563,10 @@ The editor uses a transparent `<div>` overlay (`expert-hl`) that mirrors the tex
 
 | Colour | Token |
 |--------|-------|
-| Yellow-green | Mnemonics (`LDA`, `STA`, `JMP`, …) |
-| Blue | Directives (`.byte`, `.word`, `.fill`, `*=`, …) |
+| Yellow-green | Mnemonics (`LDA`, `STA`, `JMP`, …) and long-branch pseudo-ops (`LBNE`, `LBEQ`, …) |
+| Blue | Directives (`.byte`, `.word`, `.fill`, `.assert`, `*=`, …) |
 | Orange | Numbers (`$FF`, `%1010`, `255`) |
-| Cyan | Labels (lines ending in `:`) |
+| Cyan | Labels — lines ending in `:`, including local labels (`.loop:`) and self-modifying-code operand labels (`value:` in `LDA value:#$00`) |
 | Teal | String literals |
 | Dark green | Comments (`; …`) |
 
@@ -633,6 +652,84 @@ clear:
     BNE clear
 ```
 
+### The `*` program counter in expressions
+
+*(New in 2.3.9.)* `*` is no longer limited to being the whole operand — it can appear
+**anywhere inside an operand expression**, and stands for the address of the instruction
+it is written on. It is resolved at assembly time against that instruction's real address,
+so no label is needed for short relative jumps or PC-relative data reads.
+
+| Syntax | Example | Meaning |
+|--------|---------|---------|
+| `*` | `BNE *` | Branch to self (infinite loop, offset `$FE`) |
+| `*-n` / `*+n` | `BNE *-5`, `BEQ *+4` | Branch relative to the current PC by *n* bytes |
+| `JMP *+n` | `JMP *+20` | Absolute jump computed from the current PC |
+| `#<*` / `#>*` | `LDA #<*`, `LDA #>*` | Low / high byte of the current PC |
+| `#>(*+n)` | `LDA #>(*+63)` | Low / high byte of a PC-relative address |
+
+**PC vs. multiplication.** `*` is treated as the program counter only when it sits in
+*value position* — at the start of the expression, or right after an operator, `(`, `,`,
+`<`, `>` or whitespace. A `*` that follows a number, `)` or an identifier is ordinary
+multiplication, so `LDA table*2` and `CONST_A*4` are unchanged.
+
+**Where it works.** Any operand that already accepts an expression: branch targets,
+`JMP` / `JSR`, `LDA`/`STA`/… absolute and indexed, immediate low/high-byte operators, and
+the `.assert` expression. `*` never changes an instruction's size, so it is safe in every
+addressing mode.
+
+### Local (dotted) labels
+
+*(New in 2.3.9.)* A label whose name starts with a dot — `.loop`, `.skip`, `.done` — is a
+**local label**. It belongs to the scope of the nearest preceding **global** (non-dotted)
+label, and internally becomes `<global>.<name>`. Two local labels with the same short name
+under different global labels do **not** collide.
+
+```
+DrawSprite:
+    LDX #0
+.loop:                 ; == DrawSprite.loop
+    LDA SpriteData,X
+    STA $2000,X
+    INX
+    CPX #63
+    BNE .loop          ; resolves within DrawSprite
+    RTS
+
+ClearScreen:
+    LDX #0
+.loop:                 ; == ClearScreen.loop — no clash
+    STA $0400,X
+    INX
+    BNE .loop
+    RTS
+```
+
+- Inside a scope, reference a local label as `.name`.
+- From another scope, reference it explicitly as `Global.name` (e.g. `JMP ClearScreen.loop`).
+- A `.name` written before any global label stays a plain top-level `.name`.
+- Local labels round-trip through Block ⇄ Expert mode unchanged; the `<global>.` prefix is
+  a layout-time detail and is never stored in the block program.
+
+### Self-modifying-code operand labels
+
+*(New in 2.3.9.)* Prefix an instruction's operand with `label:` to place a label on the
+**operand byte** rather than the opcode. The instruction assembles from whatever follows
+the colon.
+
+```
+setup:
+    LDA value:#$00     ; 'value' -> address of the #$00 operand byte
+    ...
+patch:
+    LDA #new
+    STA value          ; writes the operand byte directly — classic SMC
+```
+
+`value` points at `<instruction address> + 1` (the first operand byte), for every
+addressing mode. This replaces the older `STA instruction+1` / `instruction: LDA #$00`
+pattern. It round-trips through Block ⇄ Expert mode (the operand field keeps the
+`label:` prefix).
+
 ---
 
 ## 8. Standard 6502 Instructions
@@ -685,6 +782,34 @@ clear:
 | `BPL` | Branch if Plus (N=0) |
 | `BVC` | Branch if Overflow Clear (V=0) |
 | `BVS` | Branch if Overflow Set (V=1) |
+
+#### LBNE / LBEQ / … (Long branches)
+
+*(New in 2.3.9.)* The **Long branches** palette category holds eight pseudo-ops that behave
+like conditional branches but reach **any address**, not just −128…+127. Each one assembles
+to an inverted branch that skips a 3-byte `JMP` — always **5 bytes**:
+
+```
+LBEQ done      ; assembles to:   BNE *+3   ($D0 $03)
+               ;                 JMP done  ($4C lo hi)
+```
+
+| Long op | Condition | Emitted as |
+|---|---|---|
+| `LBNE` | not equal (Z=0)      | `BEQ *+3 / JMP target` |
+| `LBEQ` | equal (Z=1)          | `BNE *+3 / JMP target` |
+| `LBCC` | carry clear (C=0)    | `BCS *+3 / JMP target` |
+| `LBCS` | carry set (C=1)      | `BCC *+3 / JMP target` |
+| `LBMI` | minus (N=1)          | `BPL *+3 / JMP target` |
+| `LBPL` | plus (N=0)           | `BMI *+3 / JMP target` |
+| `LBVC` | overflow clear (V=0) | `BVS *+3 / JMP target` |
+| `LBVS` | overflow set (V=1)   | `BVC *+3 / JMP target` |
+
+- Operand: a label, a `*`-expression, or a literal address — same as a normal branch target.
+- Cost: 5 bytes and 1 extra cycle on the taken path vs. a short branch. There is no
+  automatic promotion of a short branch — you choose `LBxx` explicitly.
+- When a plain branch (`BNE`, `BEQ`, …) is out of range, the compiler error now names the
+  exact overshoot and suggests the matching `LBxx`.
 
 ### Register Operations
 
@@ -1909,6 +2034,44 @@ No fields. Closes the conditional block.
 Nested `IF` blocks are supported. If an outer block is skipped, inner blocks are skipped too.
 
 > **Note:** This is compile-time condition handling. For runtime compare/branch sugar, see **Runtime IF / ELSE / ENDIF** below.
+
+### .ASSERT
+
+*(New in 2.3.9.)* A **compile-time sanity check**. `.assert` evaluates an expression while
+assembling; if it is false (`0`), the build stops with a clear error that includes the
+actual value. If it is true (non-zero), it emits nothing.
+
+| Field | Description |
+|---|---|
+| Expression | Any assembler expression: labels, `CONST`s, `*` (program counter), arithmetic, and comparisons (`<`, `<=`, `>`, `>=`, `==`, `!=`) |
+| Message | Optional text appended to the failure error |
+
+**Expert syntax:**
+```
+.assert spriteData < $C000
+.assert * < $A000
+.assert end - start <= 256, "sprite table overflowed one page"
+```
+
+**Behaviour:**
+
+- **Size:** 0 bytes.
+- A false assertion aborts assembly:
+  `` `.assert end - start <= 256` is false (value: 0). sprite table overflowed one page``
+- An assertion that cannot be evaluated (undefined label, etc.) also fails, with
+  *"cannot be evaluated at assembly time"*.
+- Comparisons yield `1` / `0`; place `.assert` anywhere in the program flow — it is checked
+  at the address it sits on, so `.assert * < $D000` tests the current output position.
+
+**Example — guard a sprite block against a page crossing:**
+```
+* = $3000
+sprite_data:
+    .byte $00, $00, $00        ; … 63 bytes …
+sprite_data_end:
+    .assert sprite_data_end - sprite_data == 63, "sprite must be exactly 63 bytes"
+    .assert (sprite_data % 64) == 0, "sprite must be 64-byte aligned"
+```
 
 ---
 

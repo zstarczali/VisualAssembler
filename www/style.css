@@ -6257,6 +6257,25 @@ body.crt-mode #crt-overlay::after {
 .splash-panel.ready {
   opacity: 1;
 }
+/* Commodore 77 theme: splash panel matches the customer-message card
+   (var(--panel) / var(--text)) instead of the default C64-blue panel.
+   Anchor the content near the top so the smaller logo sits at roughly the
+   same height as the full-size logo on the other themes. */
+html[data-theme="commodore77"] .splash-panel {
+  background: var(--panel);
+  color: var(--text);
+  border-color: var(--panel-border);
+  justify-content: flex-start;
+  padding-top: 54px;
+}
+html[data-theme="commodore77"] .splash-panel .splash-loader-bar {
+  background: #fcee0a;
+}
+html[data-theme="commodore77"] .splash-image {
+  width: min(360px, calc(92vw - 96px));
+  max-height: 300px;
+  margin-top: 4px;
+}
 .splash-image {
   flex: 0 0 auto;
   width: min(450px, calc(92vw - 64px));

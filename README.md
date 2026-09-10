@@ -2,9 +2,18 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.3.8**
+**Current version: v2.3.9**
 
-## What's New in v2.3.8
+## What's New in v2.3.9
+
+- **`*` in any expression** — the program-counter symbol now works inside operand expressions, not just alone: `BNE *-5`, `JMP *+20`, `LDA #<*`, `LDA #>(*+63)`. A `*` that follows a value (`STRIDE*2`) is still multiplication.
+- **Local (dotted) labels** — a label like `.loop` is scoped to the nearest preceding global label, so `DrawSprite` and `ClearScreen` can each define their own `.loop` without a clash. Reference it as `.loop` in scope or `ClearScreen.loop` from elsewhere.
+- **Long-branch pseudo-ops** — `LBNE` / `LBEQ` / `LBCC` / `LBCS` / `LBMI` / `LBPL` / `LBVC` / `LBVS` assemble to an inverted branch over a `JMP` (5 bytes) so the target can be any distance away.
+- **`.assert` directive** — `.assert end - start <= 256` or `.assert * < $A000, "message"` is evaluated at assembly time and fails the build with the offending value when false.
+- **Self-modifying-code labels** — `LDA value:#$00` makes `value` point at the operand byte, so `STA value` patches it directly; no more `instruction+1` labels.
+- **Friendlier branch-range errors** — an out-of-range branch now reports the exact overshoot and suggests the matching `LBxx` long branch.
+
+## Earlier: v2.3.8
 
 - **Workspace save / open** — save the exact set of open file-backed tabs, the active tab and each tab's editor mode (Block/Expert/Ultimate Basic) to a `.vaws` workspace file. Workspaces auto-save on change, and the app auto-restores your last workspace on launch.
 - **Global memory panel toggle** — show or hide the full C64 memory panel from a dedicated UI switch.

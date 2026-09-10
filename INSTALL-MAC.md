@@ -1,5 +1,7 @@
 # macOS Installation Guide
-Version 2.3.8
+Version 2.3.9
+
+2.3.9: `*` program counter usable in any operand expression (BNE *-5, JMP *+20, LDA #<*, LDA #>(*+63)); multiplication is unaffected. Local (dotted) labels scoped to the nearest preceding global label, so repeated .loop / .skip names no longer collide. Long-branch pseudo-ops LBNE/LBEQ/LBCC/LBCS/LBMI/LBPL/LBVC/LBVS assemble to an inverted branch over a JMP (5 bytes, unlimited range). New .assert <expr> [, "message"] directive checked at assembly time. Self-modifying-code operand labels: LDA value:#$00 makes 'value' point at the operand byte. Out-of-range branch errors now show the exact overshoot and suggest the matching LBxx.
 
 2.3.8: Workspace save/open (.vaws) persists the exact set of open file-backed tabs, the active tab and each tab's editor mode, with auto-save and last-workspace auto-restore on launch. New global memory panel toggle. Ultimate Basic command reference (autocomplete + Commands panel) is now localized in HU/EN/ES/DE/NL with English fallback. Refreshed Ultimate Basic graphics command help text (COLOR PEN, plot/line/rect/circle, multicolor). Corrected SETLFS and PLOT entries in the KERNAL reference table. Fixed high memory usage with many tabs open: per-tab undo/redo history is now capped with a debounce. Removed redundant Expert/UB breakpoint toolbar buttons (still set via the line-number gutter) and aligned the Expert toolbar height with the Ultimate Basic toolbar.
 
@@ -11,7 +13,7 @@ Version 2.3.8
 
 ## Quick Install
 
-1. **Download** the 2.3.8 DMG for your architecture from the releases page
+1. **Download** the 2.3.9 DMG for your architecture from the releases page
 2. **Mount** the DMG and drag the app to `/Applications`
 3. **First launch**: Right-click the app → **"Open"** (macOS will block double-click)
 4. Click **"Open"** in the security dialog
@@ -59,4 +61,4 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.3.8 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.3.9 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

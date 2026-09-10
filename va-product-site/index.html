@@ -49,7 +49,7 @@ nav .sp{flex:1}
 .hero::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.14) 2px,rgba(0,0,0,.14) 4px);pointer-events:none}
 .hero-left{padding:80px 60px 80px 80px;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:1}
 .hero-right{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;padding:40px 40px 40px 0}
-.hero-box-img{width:100%;max-width:980px;display:block;filter:drop-shadow(0 0 40px rgba(80,80,255,.4))}
+.hero-box-img{width:100%;max-width:680px;display:block;filter:drop-shadow(0 0 40px rgba(80,80,255,.4))}
 
 .badge{display:inline-block;border:1px solid var(--brd-hi);color:var(--cyn);font-size:11px;letter-spacing:3px;padding:5px 14px;margin-bottom:28px}
 .hero-title{font-family:'C64Pro',monospace;font-size:clamp(22px,3.2vw,46px);color:var(--txt-hi);letter-spacing:3px;line-height:1.25;margin-bottom:20px}
@@ -91,11 +91,27 @@ hr.div{border:none;border-top:1px solid var(--brd)}
 .cartridge-shot .screen-wrap img{background:radial-gradient(circle at 50% 45%,rgba(44,44,168,.3),transparent 68%)}
 .ub-shot .screen-wrap::before{content:'C64VA  ●  ULTIMATE BASIC IDE'}
 .ub-tag{display:inline-block;margin-bottom:18px;padding:5px 12px;border:1px solid var(--ylw);color:var(--ylw);font-size:10px;letter-spacing:3px}
+.c77-logo-wrap{margin-top:44px;padding:64px;display:flex;justify-content:center;background:var(--bg)}
+/* logo2.png ships with a solid black backdrop; "screen" blends that black into
+   the (dark) section background so only the artwork shows. */
+.c77-logo-wrap img{max-width:720px;width:100%;display:block;mix-blend-mode:screen}
 .feature-list{margin-top:28px;display:flex;flex-direction:column;gap:12px}
 .fi{display:flex;gap:14px;align-items:flex-start;font-size:13px;line-height:1.9}
 .fi-dot{color:var(--ylw);font-size:16px;flex-shrink:0;margin-top:2px}
 .fi span{color:var(--txt)}
 .fi b{color:var(--txt-hi)}
+
+/* ── COLLAPSED RELEASE HISTORY ── */
+.release-history{border-top:1px solid var(--brd);border-bottom:1px solid var(--brd);background:var(--bg)}
+.release-history>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;
+  max-width:1080px;margin:0 auto;padding:24px 40px;color:var(--txt-dim);
+  font:12px/1 'C64Pro',monospace;letter-spacing:3px;text-transform:uppercase}
+.release-history>summary::-webkit-details-marker{display:none}
+.release-history>summary:hover{color:var(--ylw)}
+.release-history>summary .rh-tri{color:var(--ylw);transition:transform .12s ease}
+.release-history[open]>summary .rh-tri{transform:rotate(90deg)}
+.release-history[open]>summary{border-bottom:1px solid var(--brd)}
+@media(max-width:640px){.release-history>summary{padding:18px 16px;letter-spacing:1px;font-size:10px}}
 
 /* ── FEATURES ── */
 .feat-bg{background:var(--scr-darker);padding:80px 0}
@@ -182,6 +198,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   .hero-left{padding:60px 30px 32px}
   .about-grid{grid-template-columns:1fr}
   .tut-grid{grid-template-columns:1fr}
+  .c77-logo-wrap{padding:32px}
   .ub-repo{padding:34px 24px}
   .ub-repo-inner{flex-direction:column;gap:20px;text-align:center}
   .ub-repo-image{width:min(210px,65vw)}
@@ -228,7 +245,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
       <div class="y">READY.</div>
       <div><span class="g">RUN</span><span class="cur"></span></div>
     </div>
-    <div class="badge">V2.3.8 — LATEST RELEASE</div>
+    <div class="badge">V2.3.9 — LATEST RELEASE</div>
     <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
     <p class="hero-sub">Drag-and-drop 6502 assembly blocks or switch to a full text editor — see real-time ASM output and run directly in VICE.</p>
     <div class="hero-ctas">
@@ -237,9 +254,50 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
     </div>
   </div>
   <div class="hero-right">
-    <img class="hero-box-img" src="uploads/box2.png" alt="C64 Visual Assembler — product box">
+    <img class="hero-box-img" src="uploads/visual_assembler_transparent.png" alt="C64 Visual Assembler — product box">
   </div>
 </section>
+
+<!-- V2.3.9: ASSEMBLER EXPRESSION & LABEL FEATURES -->
+<div id="release-239" style="background:var(--scr-darker);padding:80px 0">
+<div class="sec about-grid" style="padding-top:0;padding-bottom:0">
+  <div>
+    <div class="ub-tag">NEW IN V2.3.9</div>
+    <div class="sec-s">// A REAL ASSEMBLER FEEL</div>
+    <h2 class="sec-t">EXPRESSIONS, LOCAL LABELS<br><span style="color:var(--ylw)">AND LONG BRANCHES</span></h2>
+    <p class="sec-d">Version 2.3.9 brings the quality-of-life syntax that power users expect from 64tass, ACME and Kick Assembler &mdash; usable in Expert-mode text and, where it makes sense, as blocks.</p>
+    <div class="feature-list">
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b><code>*</code> in any expression</b> <span>&mdash; the program counter now works inside operand expressions, not just alone: <code>BNE *-5</code>, <code>JMP *+20</code>, <code>LDA #&lt;*</code>, <code>LDA #&gt;(*+63)</code>. A <code>*</code> after a value (<code>STRIDE*2</code>) is still multiplication.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Local (dotted) labels</b> <span>&mdash; <code>.loop</code> is scoped to the nearest preceding global label, so <code>DrawSprite</code> and <code>ClearScreen</code> can each have their own <code>.loop</code> without a clash.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Long-branch pseudo-ops</b> <span>&mdash; <code>LBNE</code>, <code>LBEQ</code>, <code>LBCC</code>, <code>LBCS</code>, <code>LBMI</code>, <code>LBPL</code>, <code>LBVC</code>, <code>LBVS</code> assemble to an inverted branch over a <code>JMP</code> (5 bytes) so the target can be any distance away.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b><code>.assert</code> directive</b> <span>&mdash; <code>.assert end - start &lt;= 256, "message"</code> is checked at assembly time and fails the build (with the actual value) when it is false.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Self-modifying-code labels</b> <span>&mdash; <code>LDA value:#$00</code> puts the label <code>value</code> on the operand byte, so <code>STA value</code> patches it &mdash; no <code>instruction+1</code> label needed.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Friendlier branch errors</b> <span>&mdash; an out-of-range branch reports exactly how far it overshoots and suggests the matching <code>LBxx</code> long branch.</span></div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<hr class="div">
+
+<!-- COMMODORE 77 THEME -->
+<div id="commodore-77" style="background:var(--bg);padding:80px 0">
+<div class="sec" style="padding-top:0;padding-bottom:0">
+  <div class="ub-tag">NEW IN V2.3.9</div>
+  <div class="sec-s">// PICK YOUR COLORS</div>
+  <h2 class="sec-t">COMMODORE 77 THEME<br><span style="color:var(--ylw)">NEON YELLOW ON BLACK</span></h2>
+  <p class="sec-d" style="max-width:680px">A new app theme styled after the Commodore x Cyberpunk 2077 &ldquo;Commodore 77&rdquo; breadbin edition &mdash; neon yellow on black, built only from the two brand colors and their shades. It covers every corner of the app: block editor, Expert ASM mode, Ultimate Basic, and every tool dialog. Switch anytime from the theme picker (Light / Dark / OLED / Commodore 77).</p>
+  <div class="c77-logo-wrap">
+    <img src="uploads/logo2.png" alt="C64 Visual Assembler feat. Commodore 77 — classic vibes, modern tools">
+  </div>
+</div>
+</div>
+
+<hr class="div">
+
+<!-- OLDER RELEASE NOTES — collapsed by default -->
+<details id="release-history" class="release-history">
+  <summary><span class="rh-tri">&#9656;</span> Previous releases &mdash; V2.3.8 and earlier</summary>
 
 <!-- V2.3.8: WORKSPACES AND LOCALIZATION -->
 <div id="release-238" style="background:var(--bg);padding:80px 0">
@@ -282,6 +340,8 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   </div>
 </div>
 </div>
+
+</details>
 
 <hr class="div">
 
@@ -556,7 +616,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
     <div class="dl-corner bl">└─</div>
     <div class="dl-corner br">─┘</div>
     <div class="sec-s" style="text-align:center;margin-bottom:16px">// DOWNLOAD</div>
-    <h2 class="sec-t" style="text-align:center">C64 VISUAL ASSEMBLER<br><span style="color:var(--ylw)">V2.3.8 — FREE</span></h2>
+    <h2 class="sec-t" style="text-align:center">C64 VISUAL ASSEMBLER<br><span style="color:var(--ylw)">V2.3.9 — FREE</span></h2>
     <p class="sec-d" style="text-align:center;margin:0 auto 8px;max-width:460px">Desktop app for Windows, macOS and Linux. Requires Node.js and Rust to build from source, or download a prebuilt installer.</p>
     <div class="dl-plats">
       <a class="dl-p btn" href="#" onclick="openItch();return false" style="border-color:var(--brd-hi)"><span style="color:var(--ylw)">■</span> WINDOWS</a>
@@ -636,6 +696,17 @@ function showTab(id){
     p.classList.toggle('on',p.id==='tab-'+id);
   });
 }
+
+// Open the collapsed release-history block when a link targets a section inside it.
+(function(){
+  function revealHash(){
+    var h=location.hash.slice(1); if(!h) return;
+    var el=document.getElementById(h); if(!el) return;
+    var d=el.closest('details'); if(d&&!d.open){ d.open=true; el.scrollIntoView(); }
+  }
+  window.addEventListener('hashchange',revealHash);
+  revealHash();
+})();
 </script>
 </body>
 </html>

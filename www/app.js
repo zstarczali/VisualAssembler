@@ -159,6 +159,16 @@ const mnemonicLibrary = {
     { mnemonic: "BVS", description: "Ugras, ha overflow be van allitva.", modes: ["relative"] },
     { mnemonic: "RTI", description: "Visszateres megszakitaskezelesbol.", modes: ["implied"] }
   ],
+  HosszuUgrasok: [
+    { mnemonic: "LBNE", description: "Hosszu ugras, ha az elozo eredmeny nem nulla (BEQ +3 / JMP). Barmilyen tavolsagra ugrik.", modes: ["relative"], isLongBranchMacro: true, longBranchCond: "NE" },
+    { mnemonic: "LBEQ", description: "Hosszu ugras, ha az elozo eredmeny nulla (BNE +3 / JMP).", modes: ["relative"], isLongBranchMacro: true, longBranchCond: "EQ" },
+    { mnemonic: "LBCC", description: "Hosszu ugras, ha a carry torolve van (BCS +3 / JMP).", modes: ["relative"], isLongBranchMacro: true, longBranchCond: "CC" },
+    { mnemonic: "LBCS", description: "Hosszu ugras, ha a carry be van allitva (BCC +3 / JMP).", modes: ["relative"], isLongBranchMacro: true, longBranchCond: "CS" },
+    { mnemonic: "LBMI", description: "Hosszu ugras, ha negativ az eredmeny (BPL +3 / JMP).", modes: ["relative"], isLongBranchMacro: true, longBranchCond: "MI" },
+    { mnemonic: "LBPL", description: "Hosszu ugras, ha pozitiv az eredmeny (BMI +3 / JMP).", modes: ["relative"], isLongBranchMacro: true, longBranchCond: "PL" },
+    { mnemonic: "LBVC", description: "Hosszu ugras, ha overflow nincs beallitva (BVS +3 / JMP).", modes: ["relative"], isLongBranchMacro: true, longBranchCond: "VC" },
+    { mnemonic: "LBVS", description: "Hosszu ugras, ha overflow be van allitva (BVC +3 / JMP).", modes: ["relative"], isLongBranchMacro: true, longBranchCond: "VS" }
+  ],
   Regiszterek: [
     { mnemonic: "TAX", description: "Akkumulator masolasa X-be.", modes: ["implied"] },
     { mnemonic: "TAY", description: "Akkumulator masolasa Y-ba.", modes: ["implied"] },
@@ -736,6 +746,14 @@ const mnemonicDescriptionsEn = {
   BPL: "Branch if result is positive.",
   BVC: "Branch if overflow is clear.",
   BVS: "Branch if overflow is set.",
+  LBNE: "Long branch if not equal — emits BEQ +3 / JMP, any distance.",
+  LBEQ: "Long branch if equal — emits BNE +3 / JMP, any distance.",
+  LBCC: "Long branch if carry clear — emits BCS +3 / JMP.",
+  LBCS: "Long branch if carry set — emits BCC +3 / JMP.",
+  LBMI: "Long branch if minus — emits BPL +3 / JMP.",
+  LBPL: "Long branch if plus — emits BMI +3 / JMP.",
+  LBVC: "Long branch if overflow clear — emits BVS +3 / JMP.",
+  LBVS: "Long branch if overflow set — emits BVC +3 / JMP.",
   RTI: "Return from interrupt.",
   TAX: "Copy accumulator into X.",
   TAY: "Copy accumulator into Y.",
@@ -905,6 +923,14 @@ const mnemonicDescriptionsEs = {
   BPL: "Salto si el resultado es positivo.",
   BVC: "Salto si el desbordamiento está limpio.",
   BVS: "Salto si el desbordamiento está activo.",
+  LBNE: "Salto largo si no es igual — genera BEQ +3 / JMP, cualquier distancia.",
+  LBEQ: "Salto largo si es igual — genera BNE +3 / JMP.",
+  LBCC: "Salto largo si el acarreo está limpio — genera BCS +3 / JMP.",
+  LBCS: "Salto largo si el acarreo está activo — genera BCC +3 / JMP.",
+  LBMI: "Salto largo si es negativo — genera BPL +3 / JMP.",
+  LBPL: "Salto largo si es positivo — genera BMI +3 / JMP.",
+  LBVC: "Salto largo si el desbordamiento está limpio — genera BVS +3 / JMP.",
+  LBVS: "Salto largo si el desbordamiento está activo — genera BVC +3 / JMP.",
   RTI: "Retorno de interrupción.",
   TAX: "Copia el acumulador en X.",
   TAY: "Copia el acumulador en Y.",
@@ -1056,6 +1082,14 @@ const mnemonicDescriptionsDe = {
   BPL: "Verzweigung wenn Ergebnis positiv.",
   BVC: "Verzweigung wenn Überlauf gelöscht.",
   BVS: "Verzweigung wenn Überlauf gesetzt.",
+  LBNE: "Langer Sprung wenn ungleich — erzeugt BEQ +3 / JMP, beliebige Distanz.",
+  LBEQ: "Langer Sprung wenn gleich — erzeugt BNE +3 / JMP.",
+  LBCC: "Langer Sprung wenn Übertrag gelöscht — erzeugt BCS +3 / JMP.",
+  LBCS: "Langer Sprung wenn Übertrag gesetzt — erzeugt BCC +3 / JMP.",
+  LBMI: "Langer Sprung wenn negativ — erzeugt BPL +3 / JMP.",
+  LBPL: "Langer Sprung wenn positiv — erzeugt BMI +3 / JMP.",
+  LBVC: "Langer Sprung wenn Überlauf gelöscht — erzeugt BVS +3 / JMP.",
+  LBVS: "Langer Sprung wenn Überlauf gesetzt — erzeugt BVC +3 / JMP.",
   RTI: "Aus Interrupt zurückkehren.",
   TAX: "Akkumulator in X kopieren.",
   TAY: "Akkumulator in Y kopieren.",
@@ -1207,6 +1241,14 @@ const mnemonicDescriptionsNl = {
   BPL: "Vertakken als resultaat positief is (N=0).",
   BVC: "Vertakken als Overflow gewist is (V=0).",
   BVS: "Vertakken als Overflow gezet is (V=1).",
+  LBNE: "Lange sprong als niet gelijk — genereert BEQ +3 / JMP, elke afstand.",
+  LBEQ: "Lange sprong als gelijk — genereert BNE +3 / JMP.",
+  LBCC: "Lange sprong als Carry gewist — genereert BCS +3 / JMP.",
+  LBCS: "Lange sprong als Carry gezet — genereert BCC +3 / JMP.",
+  LBMI: "Lange sprong als negatief — genereert BPL +3 / JMP.",
+  LBPL: "Lange sprong als positief — genereert BMI +3 / JMP.",
+  LBVC: "Lange sprong als Overflow gewist — genereert BVS +3 / JMP.",
+  LBVS: "Lange sprong als Overflow gezet — genereert BVC +3 / JMP.",
   RTI: "Terugkeren uit interrupt-afhandeling.",
   TAX: "Akkumulator kopiëren naar X-register.",
   TAY: "Akkumulator kopiëren naar Y-register.",
@@ -6114,10 +6156,21 @@ if (block.isSpritePosMacro) return `.sprite_pos ${block.spriteNum || 0}, ${block
     const t = block.mnemonic.toLowerCase(); // reu_stash/reu_fetch/reu_swap
     return `.${t} $${(block.reuC64Addr||"C000").toUpperCase()}, $${(block.reuExpAddr||"0000").toUpperCase()}, ${block.reuBank||0}, $${(block.reuLength||"0100").toUpperCase()}`;
   }
+  if (block.isLongBranchMacro) {
+    return `    ${block.mnemonic || "LBNE"} ${block.rawOperand || "target"}`;
+  }
+  if (block.isAssertMacro) {
+    const expr = (block.assertExpr || block.rawOperand || "1").trim();
+    return block.assertMessage
+      ? `.assert ${expr}, "${block.assertMessage}"`
+      : `.assert ${expr}`;
+  }
+
   // Plain instruction
   const mnem = block.mnemonic || "NOP";
   const opText = getAsmDisplayOperand(block);
-  const op = opText ? `    ${mnem} ${opText}` : `    ${mnem}`;
+  const smc = block.smcLabel ? `${block.smcLabel}:` : "";
+  const op = opText ? `    ${mnem} ${smc}${opText}` : `    ${mnem}`;
   return op.trimEnd();
 }
 
@@ -8286,7 +8339,9 @@ const _EXPERT_MNEM_SET = new Set([
   "CLC","CLD","CLI","CLV","CMP","CPX","CPY","DEC","DEX","DEY","EOR","INC","INX",
   "INY","JMP","JSR","LDA","LDX","LDY","LSR","NOP","ORA","PHA","PHP","PLA","PLP",
   "ROL","ROR","RTI","RTS","SBC","SEC","SED","SEI","STA","STX","STY","TAX","TAY",
-  "TSX","TXA","TXS","TYA"
+  "TSX","TXA","TXS","TYA",
+  // Long-branch pseudo-ops (assemble to inverted branch + JMP)
+  "LBNE","LBEQ","LBCC","LBCS","LBMI","LBPL","LBVC","LBVS"
 ]);
 
 // Directive name (without dot) → uppercase mnemonic in mnemonicLibrary
@@ -8301,7 +8356,7 @@ const _DIRECTIVE_TO_MNEM = {
   map_copy:"MAP_COPY", map_copy16x16:"MAP_COPY16X16", sprite_anim:"SPRITE_ANIM", score_bcd:"SCORE_BCD",
   supercpu_detect:"SUPERCPU_DETECT", turbo_enable:"TURBO_ENABLE",
   reu_check:"REU_CHECK", reu_stash:"REU_STASH", reu_fetch:"REU_FETCH", reu_swap:"REU_SWAP",
-  define:"DEFINE", if:"IF", else:"ELSE", endif:"ENDIF", const:"CONST", "var":"VAR", org:"ORG", end:"END", charset:"CHARSET",
+  define:"DEFINE", if:"IF", else:"ELSE", endif:"ENDIF", const:"CONST", "var":"VAR", org:"ORG", end:"END", charset:"CHARSET", assert:"ASSERT",
   region:"REGION", endregion:"ENDREGION",
   while:"WHILE", endw:"ENDW", repeat:"REPEAT", until:"UNTIL",
   memcpy:"MEMCPY", memset:"MEMSET", print:"PRINT", print_char:"PRINT_CHAR", print_hex:"PRINT_HEX",
@@ -8334,7 +8389,7 @@ const _AC_DIRECTIVE_DESC = {
   ".for":"counted loop start", ".endf":"counted loop end", ".exodecrunch":"Exomizer depack",
   ".push":"push registers", ".pull":"pop registers",
   ".macro":"define macro", ".endm":"end macro", ".invoke":"call macro", ".call":"call macro",
-  ".define":"define symbol", ".if":"conditional", ".else":"else branch", ".endif":"end if",
+  ".define":"define symbol", ".if":"conditional", ".else":"else branch", ".endif":"end if", ".assert":"compile-time assert",
   ".const":"constant", ".var":"zero-page variable", ".table":"lookup table", ".petscii":"PETSCII string",
   ".charset":"switch charset", ".while":"runtime while", ".endw":"while end", ".repeat":"runtime repeat", ".until":"repeat end",
   ".memcpy":"copy memory", ".memset":"fill memory", ".print":"print PETSCII",
@@ -8958,7 +9013,7 @@ function _expertHighlightLine(raw) {
   if (!code.trim()) return esc(code) + commentHtml;
 
   // Token regex (order matters)
-  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|loop|next|for|endf|push|pull|endif|endregion|region|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|delay|wait|set_border|set_bg|irq_setup|sprite_init|sprite_pos|wait_raster|joystick|mouse|sprite_col|map_copy16x16|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|include|sid|petscii|charset|table|loadfile|invoke|call|rand|exodecrunch|reu_check|reu_stash|reu_fetch|reu_swap|turbo_set|turbo_enable|supercpu_detect|chardef|box_hit)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)/gi;
+  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|assert|loop|next|for|endf|push|pull|endif|endregion|region|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|delay|wait|set_border|set_bg|irq_setup|sprite_init|sprite_pos|wait_raster|joystick|mouse|sprite_col|map_copy16x16|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|include|sid|petscii|charset|table|loadfile|invoke|call|rand|exodecrunch|reu_check|reu_stash|reu_fetch|reu_swap|turbo_set|turbo_enable|supercpu_detect|chardef|box_hit)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)/gi;
 
   let result = "";
   let lastIdx = 0;
@@ -8969,6 +9024,9 @@ function _expertHighlightLine(raw) {
     const [full, strLit, orgEq, directive, hexNum, decNum, label, ident] = m;
     if (strLit) {
       result += `<span class="hl-string">${esc(full)}</span>`;
+    } else if (directive && code[TOKEN_RE.lastIndex] === ":") {
+      // `.name:` is a local-label definition, not a directive.
+      result += `<span class="hl-label">${esc(full)}</span>`;
     } else if (orgEq || directive) {
       result += `<span class="hl-directive">${esc(full)}</span>`;
     } else if (hexNum || decNum) {
@@ -13875,6 +13933,18 @@ function buildOperandPreview(modeKey, rawValue, base) {
         : value;
       return { operand, text: operand, error: "" };
     }
+    // Allow PC-relative / arithmetic expressions with the `*` program counter
+    // (e.g. *+20, *-5, <(*+63)) — resolved at compile time against the block address.
+    if (/\*/.test(value) && /^[*A-Za-z0-9_.$%<>()+\-/&|^\s]+$/.test(value)) {
+      const operand = (modeKey === "absoluteX" || modeKey === "zeroPageX") ? `${value},X`
+        : (modeKey === "absoluteY" || modeKey === "zeroPageY") ? `${value},Y`
+        : value;
+      return { operand, text: operand, error: "" };
+    }
+    // Allow local (dotted) label references (e.g. .loop) — scoped at layout time.
+    if (/^\.[A-Za-z_][A-Za-z0-9_]*$/.test(value)) {
+      return { operand: value, text: value, error: "" };
+    }
     return { operand: value, text: value, error: getNumberFormatError(base) };
   }
 
@@ -17917,6 +17987,18 @@ function _importMakeDefine(symbol) {
   };
 }
 
+function _importMakeAssert(expr, message = "") {
+  const e = String(expr || "").trim();
+  return {
+    id: crypto.randomUUID(),
+    category: "Makrok", mnemonic: "ASSERT",
+    operand: e, rawOperand: e, description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: "", collapsed: true, isAssertMacro: true,
+    assertExpr: e, assertMessage: String(message || "")
+  };
+}
+
 function _importMakeIf(condition) {
   return {
     id: crypto.randomUUID(),
@@ -18001,6 +18083,28 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
   const category = _importMnemonicCategory(mnemonic);
   const description = _importMnemonicDescription(mnemonic);
 
+  // Long-branch pseudo-ops: LBNE / LBEQ / LBCC / LBCS / LBMI / LBPL / LBVC / LBVS
+  const lbM = /^LB(NE|EQ|CC|CS|MI|PL|VC|VS)$/.exec(mnemonic);
+  if (lbM) {
+    const target = String(operandRaw || "").trim();
+    return {
+      id: crypto.randomUUID(),
+      category: "HosszuUgrasok", mnemonic,
+      operand: target, rawOperand: target, description,
+      addressingMode: "relative", base: "hex",
+      validationError: "", collapsed: true,
+      isLongBranchMacro: true, longBranchCond: lbM[1]
+    };
+  }
+
+  // Self-modifying-code label on the operand: `LDA value:#$00` → label `value`
+  // points at the operand byte, the instruction assembles from what follows `:`.
+  let smcLabel = "";
+  {
+    const smcM = String(operandRaw || "").match(/^([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(?!:)(.+)$/);
+    if (smcM) { smcLabel = smcM[1]; operandRaw = smcM[2].trim(); }
+  }
+
   const normalizeOperand = (op) => {
     let s = String(op || "");
     s = s.replace(/\(\s+/g, "(");
@@ -18077,34 +18181,26 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
     } else if (/^\((?:@?[A-Za-z_][A-Za-z0-9_]*|\.[A-Za-z][A-Za-z0-9_]*),X\)$/i.test(op)) {
       // (label,X) indirectX with label
       const m = op.match(/^\(((?:@?[A-Za-z_][A-Za-z0-9_]*|\.[A-Za-z][A-Za-z0-9_]*)),X\)$/i);
-      rawOperand = m[1].trim();
-      if (rawOperand.startsWith(".")) rawOperand = rawOperand.slice(1);
-      base = "hex"; addressingMode = "indirectX";
+      rawOperand = m[1].trim();      base = "hex"; addressingMode = "indirectX";
       displayOperand = "(" + rawOperand + ",X)";
     } else if (/^\((?:@?[A-Za-z_][A-Za-z0-9_]*|\.[A-Za-z][A-Za-z0-9_]*)\),Y$/i.test(op)) {
       // (label),Y indirectY with label
       const m = op.match(/^\(((?:@?[A-Za-z_][A-Za-z0-9_]*|\.[A-Za-z][A-Za-z0-9_]*))\),Y$/i);
-      rawOperand = m[1].trim();
-      if (rawOperand.startsWith(".")) rawOperand = rawOperand.slice(1);
-      base = "hex"; addressingMode = "indirectY";
+      rawOperand = m[1].trim();      base = "hex"; addressingMode = "indirectY";
       displayOperand = "(" + rawOperand + "),Y";
     } else if (/^(?:@?[A-Za-z_][A-Za-z0-9_]*|\.[A-Za-z][A-Za-z0-9_]*)(?:\s*[+-]\s*(?:\$[0-9A-Fa-f]+|\d+))?,X$/i.test(op)) {
       // label,X or label+offset,X → absoluteX
-      rawOperand = op.slice(0, op.lastIndexOf(",")).trim();
-      if (rawOperand.startsWith(".")) rawOperand = rawOperand.slice(1);
-      base = "hex"; addressingMode = "absoluteX";
+      rawOperand = op.slice(0, op.lastIndexOf(",")).trim();      base = "hex"; addressingMode = "absoluteX";
       displayOperand = rawOperand + ",X";
     } else if (/^(?:@?[A-Za-z_][A-Za-z0-9_]*|\.[A-Za-z][A-Za-z0-9_]*)(?:\s*[+-]\s*(?:\$[0-9A-Fa-f]+|\d+))?,Y$/i.test(op)) {
       // label,Y or label+offset,Y → absoluteY
-      rawOperand = op.slice(0, op.lastIndexOf(",")).trim();
-      if (rawOperand.startsWith(".")) rawOperand = rawOperand.slice(1);
-      base = "hex"; addressingMode = "absoluteY";
+      rawOperand = op.slice(0, op.lastIndexOf(",")).trim();      base = "hex"; addressingMode = "absoluteY";
       displayOperand = rawOperand + ",Y";
     } else if (/^\.[A-Za-z][A-Za-z0-9_]*$/.test(op)) {
-      // Local label reference: strip dot
-      rawOperand = op.slice(1); base = "hex";
+      // Local (dotted) label reference — keep the dot; scoped at layout time.
+      rawOperand = op; base = "hex";
       addressingMode = branchMnems.has(mnemonic) ? "relative" : "absolute";
-      displayOperand = rawOperand;
+      displayOperand = op;
     } else if (/^@?[A-Za-z_][A-Za-z0-9_]*$/.test(op)) {
       rawOperand = op; base = "hex";
       addressingMode = isBranchMnemonic ? "relative" : "absolute";
@@ -18128,7 +18224,8 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
     id: crypto.randomUUID(),
     category, mnemonic, description,
     operand: displayOperand, rawOperand, addressingMode, base,
-    validationError: "", collapsed: true
+    validationError: "", collapsed: true,
+    ...(smcLabel ? { smcLabel } : {})
   };
 }
 
@@ -18199,7 +18296,7 @@ function parseAsmText(text) {
     // Label: .word value,...  →  LABEL + WORD
     const lblWordM = line.match(/^((?:@?[A-Za-z_][A-Za-z0-9_]*|\.[A-Za-z][A-Za-z0-9_]*)):\s*\.word\s+(.+)$/i);
     if (lblWordM) {
-      blocks.push(_importMakeLabel(lblWordM[1].replace(/^\./, "")));
+      blocks.push(_importMakeLabel(lblWordM[1]));
       blocks.push(_importMakeWord(lblWordM[2].trim()));
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
@@ -18208,7 +18305,7 @@ function parseAsmText(text) {
     // Label: .fill count,value  →  LABEL + FILL
     const lblFillM = line.match(/^((?:@?[A-Za-z_][A-Za-z0-9_]*|\.[A-Za-z][A-Za-z0-9_]*)):\s*\.fill\s+(.+)$/i);
     if (lblFillM) {
-      blocks.push(_importMakeLabel(lblFillM[1].replace(/^\./, "")));
+      blocks.push(_importMakeLabel(lblFillM[1]));
       blocks.push(_importMakeFill(lblFillM[2].trim()));
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
@@ -18234,6 +18331,18 @@ function parseAsmText(text) {
     const alignM = line.match(/^(?:\.align|!align)\s+(.+)$/i);
     if (alignM) {
       blocks.push(_importMakeAlign(alignM[1].trim()));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
+    // .assert <expr> [, "message"]  — compile-time check
+    const assertM = line.match(/^\.assert\s+(.+)$/i);
+    if (assertM) {
+      let aExpr = assertM[1].trim();
+      let aMsg = "";
+      const mm = aExpr.match(/^(.*?)\s*,\s*"([^"]*)"\s*$/);
+      if (mm) { aExpr = mm[1].trim(); aMsg = mm[2]; }
+      blocks.push(_importMakeAssert(aExpr, aMsg));
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -18285,7 +18394,7 @@ function parseAsmText(text) {
     // Label: .byte value  →  LABEL + BYTE
     const lblByteM = line.match(/^((?:@?[A-Za-z_][A-Za-z0-9_]*|\.[A-Za-z][A-Za-z0-9_]*)):\s*\.byte\s+(.+)$/i);
     if (lblByteM) {
-      blocks.push(_importMakeLabel(lblByteM[1].replace(/^\./, "")));
+      blocks.push(_importMakeLabel(lblByteM[1]));
       blocks.push(_importMakeByte(lblByteM[2].trim()));
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
@@ -18294,7 +18403,7 @@ function parseAsmText(text) {
     // Label + instruction: "label: LDA #$00" / "@local: BEQ @next"
     const lblInstrM = line.match(/^((?:@?[A-Za-z_][A-Za-z0-9_]*|\.[A-Za-z][A-Za-z0-9_]*)):\s*([A-Za-z]{2,4})\s*(.*)\s*$/);
     if (lblInstrM) {
-      blocks.push(_importMakeLabel(lblInstrM[1].replace(/^\./, "")));
+      blocks.push(_importMakeLabel(lblInstrM[1]));
       blocks.push(_importMakeInstruction(lblInstrM[2].toUpperCase(), lblInstrM[3].trim(), BRANCH_MNEMS));
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
@@ -18311,7 +18420,7 @@ function parseAsmText(text) {
     // Label only: "Name:" or ".name"
     const lblOnlyM = line.match(/^((?:@?[A-Za-z_][A-Za-z0-9_]*|\.[A-Za-z][A-Za-z0-9_]*)):\s*$/);
     if (lblOnlyM) {
-      blocks.push(_importMakeLabel(lblOnlyM[1].replace(/^\./, "")));
+      blocks.push(_importMakeLabel(lblOnlyM[1]));
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -18362,7 +18471,7 @@ function parseAsmText(text) {
     // Local label without colon: ".name"
     const localLblM = line.match(/^(\.[A-Za-z][A-Za-z0-9_]*)\s*$/);
     if (localLblM) {
-      blocks.push(_importMakeLabel(localLblM[1].slice(1)));
+      blocks.push(_importMakeLabel(localLblM[1]));
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -18534,6 +18643,8 @@ function addLayoutLabels(labelMap, line) {
     }
   };
   if (block.isLabel && block.labelName) labelMap.set(block.labelName, line.address);
+  // Self-modifying-code label: points at the first operand byte of the instruction.
+  if (block.smcLabel) labelMap.set(block.smcLabel, (line.address + 1) & 0xFFFF);
   if (block.isLoopMacro && block.loopLabel) labelMap.set(block.loopLabel, line.address + 2);
   if (block.isForMacro && block.loopLabel) labelMap.set(block.loopLabel, line.address + 2);
   if (block.isTableMacro && block.tableName) {
@@ -21342,6 +21453,51 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes, comment: `RAND ${block.randSeed || "$FB"} → A` };
   }
 
+  if (block.isLongBranchMacro) {
+    // Bxx' *+3 (skip the JMP) ; JMP target  → always 5 bytes, unlimited range.
+    const invOpcode = {
+      NE: 0xF0, EQ: 0xD0, CC: 0xB0, CS: 0x90,
+      MI: 0x10, PL: 0x30, VC: 0x70, VS: 0x50
+    }[block.longBranchCond];
+    if (invOpcode === undefined) {
+      return { ok: false, error: tf("compileUnsupportedMode", { mnemonic: block.mnemonic || "LB?", mode: "relative" }) };
+    }
+    const raw = String(block.rawOperand || "").trim();
+    let target = null;
+    if (labels.has(raw)) {
+      target = labels.get(raw);
+    } else if (_hasStarPcRef(raw)) {
+      target = _evalAsmExpr(_substituteStarPc(raw, line.address), labels);
+    } else {
+      const n = parseNumberByBase(raw.replace(/^\$/, ""), block.base || "hex");
+      target = n !== null ? n : _evalAsmExpr(raw, labels);
+    }
+    if (target === null || target === undefined || Number.isNaN(target)) {
+      return { ok: false, error: tf("branchOperandInvalid", { mnemonic: block.mnemonic || "LB?" }) };
+    }
+    target &= 0xFFFF;
+    return {
+      ok: true,
+      bytes: [invOpcode, 0x03, 0x4C, target & 0xFF, (target >> 8) & 0xFF],
+      comment: `${block.mnemonic} ${raw}`
+    };
+  }
+
+  if (block.isAssertMacro) {
+    const expr = String(block.assertExpr || block.rawOperand || "").trim();
+    const value = _evalAsmExpr(_substituteStarPc(expr, line.address), labels);
+    if (value === null || value === undefined || Number.isNaN(value)) {
+      return { ok: false, error: tf("assertUnresolved", { expr }) };
+    }
+    if (!value) {
+      return {
+        ok: false,
+        error: tf("assertFailed", { expr, value, message: block.assertMessage ? ` ${block.assertMessage}` : "" })
+      };
+    }
+    return { ok: true, bytes: [], comment: `.assert ${expr}` };
+  }
+
   if (block.isMacroDefStart || block.isMacroDefEnd) {
     // Macro definition blocks don't generate bytes
     return {
@@ -21410,7 +21566,9 @@ function compileLineBytes(line, labels) {
           }
           return { ...block, rawOperand: anonAddr.toString(16).toUpperCase().padStart(4, "0"), base: "hex" };
         })()
-      : block;
+      : _hasStarPcRef(block.rawOperand)
+        ? { ...block, rawOperand: _substituteStarPc(block.rawOperand, line.address) }
+        : block;
 
   if (resolveBlock === null) {
     return { ok: false, error: tf("anonymousLabelNotFound", { label: block.rawOperand.trim() }) };
@@ -21546,37 +21704,139 @@ function resolveNumericOperand(block, labels) {
   return { ok: true, value: parsed };
 }
 
+// Substitute the `*` program-counter token with a concrete address, but only
+// where `*` sits in value position (start of expression, or right after an
+// operator / paren / comma / lo-hi sigil). A `*` that follows a digit, `)` or
+// identifier char is multiplication and is left untouched.
+//   *          → (49152)
+//   *-5        → (49152)-5
+//   #<*        → #<(49152)
+//   #>(*+63)   → #>((49152)+63)
+//   table*2    → table*2   (unchanged — multiplication)
+function _substituteStarPc(expr, pcAddr) {
+  if (pcAddr === null || pcAddr === undefined) return expr;
+  const addr = pcAddr & 0xFFFF;
+  return String(expr ?? "").replace(/(^|[(,+\-/%&|^~<>=\s])\*(?!\*)/g, "$1(" + addr + ")");
+}
+
+// True when `expr` uses `*` as a PC reference somewhere other than as the whole
+// operand (that exact case has dedicated fast paths).
+function _hasStarPcRef(expr) {
+  const s = String(expr ?? "");
+  if (s.trim() === "*") return false;
+  return /(?:^|[(,+\-/%&|^~<>=\s])\*(?!\*)/.test(s);
+}
+
+// Shared arithmetic-expression evaluator (label + const aware). Mirrors the
+// inline evalAsmExpression copies used elsewhere; kept module-level so the
+// long-branch / .assert / relative-branch paths can reuse it.
+function _evalAsmExpr(expr, labels = null) {
+  let text = String(expr ?? "").trim();
+  if (!text) return null;
+  text = text.replace(/^#/, "");
+  text = text.replace(/\$([A-Za-z_][A-Za-z0-9_.]*)/g, (match, name) => (/^[0-9A-Fa-f]+$/.test(name) ? match : name));
+  text = text.replace(/\$<\s*\(/g, "lo(");
+  text = text.replace(/\$>\s*\(/g, "hi(");
+  text = text.replace(/<\s*\(/g, "lo(");
+  text = text.replace(/>\s*\(/g, "hi(");
+  text = text.replace(/<\s*([A-Za-z_][A-Za-z0-9_.]*)/g, "lo($1)");
+  text = text.replace(/>\s*([A-Za-z_][A-Za-z0-9_.]*)/g, "hi($1)");
+  text = text.replace(/\$([0-9A-Fa-f]+)/g, "0x$1");
+  text = text.replace(/%([01]+)/g, "0b$1");
+  text = text.replace(/\b(round|sin|cos|max|min|abs)\b/gi, (match) => `__FUNC_${match.toUpperCase()}__`);
+  text = text.replace(/\bPI\b/gi, "__CONST_PI__");
+  text = text.replace(/(?<![\w.])[A-Za-z_][A-Za-z0-9_.]*/g, (name) => {
+    if (name.startsWith("__FUNC_") || name === "__CONST_PI__") return name;
+    if (name === "lo" || name === "hi" || name === "Math") return name;
+    if (/^0x[0-9A-Fa-f]+$/.test(name)) return name;
+    if (labels && typeof labels.get === "function") {
+      const value = labels.get(name) ?? labels.get(name.toLowerCase()) ?? labels.get(name.toUpperCase());
+      if (value !== undefined && value !== null) return String(value);
+    }
+    const constValue = lookupProgramConstValue(name);
+    if (constValue !== null) return String(constValue);
+    return `__UNKNOWN_${name}__`;
+  });
+  if (/__UNKNOWN_[A-Za-z0-9_.]+__/.test(text)) return null;
+  text = text.replace(/__FUNC_ROUND__/g, "Math.round");
+  text = text.replace(/__FUNC_SIN__/g, "Math.sin");
+  text = text.replace(/__FUNC_COS__/g, "Math.cos");
+  text = text.replace(/__FUNC_MAX__/g, "Math.max");
+  text = text.replace(/__FUNC_MIN__/g, "Math.min");
+  text = text.replace(/__FUNC_ABS__/g, "Math.abs");
+  text = text.replace(/__CONST_PI__/g, "Math.PI");
+  try {
+    const result = Function("lo", "hi", `"use strict"; return (${text});`)(
+      (value) => value & 0xFF,
+      (value) => (value >> 8) & 0xFF
+    );
+    // Comparisons (`<`, `>=`, `==`, …) evaluate to a boolean — normalise to 1/0
+    // so callers such as `.assert` can treat the outcome numerically.
+    if (typeof result === "boolean") return result ? 1 : 0;
+    return Number.isFinite(result) ? Number(result) : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+// Range-check a resolved branch target against the ±127 window and produce a
+// friendly, actionable error (with the exact overshoot and an LBxx suggestion)
+// when it does not fit.
+function _branchOffsetFromTarget(target, address, block, label) {
+  const offset = target - (address + 2);
+  if (offset < -128 || offset > 127) {
+    const over = offset < -128 ? -128 - offset : offset - 127;
+    const dir = offset < -128 ? "-" : "+";
+    const sugg = /^B[A-Z]{2}$/.test(block.mnemonic || "") ? "L" + block.mnemonic : "a long branch";
+    return {
+      ok: false,
+      error: tf("branchOutOfRangeSuggest", {
+        mnemonic: block.mnemonic,
+        label: label || formatAddress(target),
+        over: `${dir}${over}`,
+        sugg
+      })
+    };
+  }
+  return { ok: true, value: offset & 0xFF };
+}
+
 function resolveRelativeOperand(block, address, labels) {
-  const raw = block.rawOperand.trim();
+  let raw = block.rawOperand.trim();
 
   // * = current PC: branch to self → offset = -2
   if (raw === "*") {
     return { ok: true, value: 0xFE }; // -2 as unsigned byte
   }
 
-  if (labels.has(raw)) {
-    const target = labels.get(raw);
-    const offset = target - (address + 2);
-    if (offset < -128 || offset > 127) {
-      return { ok: false, error: tf("branchLabelTooFar", { label: raw, mnemonic: block.mnemonic }) };
+  // *-expression target (e.g. BNE *-5, BEQ *+10)
+  if (_hasStarPcRef(raw)) {
+    const target = _evalAsmExpr(_substituteStarPc(raw, address), labels);
+    if (target === null) {
+      return { ok: false, error: tf("branchOperandInvalid", { mnemonic: block.mnemonic }) };
     }
-    return { ok: true, value: offset & 0xFF };
+    return _branchOffsetFromTarget(target & 0xFFFF, address, block, raw);
+  }
+
+  if (labels.has(raw)) {
+    return _branchOffsetFromTarget(labels.get(raw), address, block, raw);
   }
 
   const parsed = parseNumberByBase(raw.replace(/^\$/, ""), block.base);
   if (parsed === null) {
-    return { ok: false, error: tf("branchOperandInvalid", { mnemonic: block.mnemonic }) };
+    // label+offset / const expression target (e.g. BNE loop+3)
+    const evaluated = _evalAsmExpr(raw, labels);
+    if (evaluated === null) {
+      return { ok: false, error: tf("branchOperandInvalid", { mnemonic: block.mnemonic }) };
+    }
+    return _branchOffsetFromTarget(evaluated & 0xFFFF, address, block, raw);
   }
 
   if (parsed >= -128 && parsed <= 127) {
     return { ok: true, value: parsed & 0xFF };
   }
 
-  const offset = parsed - (address + 2);
-  if (offset < -128 || offset > 127) {
-    return { ok: false, error: tf("branchTargetOutOfRange", { mnemonic: block.mnemonic }) };
-  }
-  return { ok: true, value: offset & 0xFF };
+  return _branchOffsetFromTarget(parsed, address, block, raw);
 }
 
 // ── Anonymous label helpers ──────────────────────────────────────────────────────
@@ -22300,6 +22560,14 @@ function getInstructionSize(block) {
     return 0;
   }
 
+  if (block.isLongBranchMacro) {
+    return 5;  // Bxx' +3 (skip) + JMP abs
+  }
+
+  if (block.isAssertMacro) {
+    return 0;  // compile-time check, emits nothing
+  }
+
   if (block.isTextMacro) {
     return encodeTextMacro(block.rawOperand).length * 5;
   }
@@ -22859,6 +23127,38 @@ function getProgramLayout(originOverride) {
       }
     } else {
       expandedProgram.push(block);
+    }
+  }
+
+  // ── Local (dotted) label scoping ────────────────────────────────────────────
+  // A `.name` label belongs to the scope of the nearest preceding non-dotted
+  // label; internally it becomes `<global>.name` so two `.loop` labels under
+  // different parents don't collide. References to `.name` within that scope are
+  // rewritten the same way. Only the affected blocks are cloned, so `program[]`
+  // stays untouched.
+  {
+    let lastGlobal = "";
+    const localRe = /(^|[^A-Za-z0-9_.])(\.[A-Za-z_][A-Za-z0-9_]*)/g;
+    for (let i = 0; i < expandedProgram.length; i++) {
+      const b = expandedProgram[i];
+      if (!b || typeof b !== "object") continue;
+      if (b.isLabel && b.labelName && !b.isAnonymousLabel) {
+        if (!b.labelName.startsWith(".")) { lastGlobal = b.labelName; continue; }
+        if (lastGlobal) {
+          expandedProgram[i] = { ...b, labelName: lastGlobal + b.labelName, _localOf: lastGlobal };
+        }
+        continue;
+      }
+      if (!lastGlobal) continue;
+      const rewrite = (s) =>
+        (typeof s === "string" && s.indexOf(".") !== -1)
+          ? s.replace(localRe, (m, pre, dot) => pre + lastGlobal + dot)
+          : s;
+      const newOperand = rewrite(b.rawOperand);
+      const newAssert = rewrite(b.assertExpr);
+      if (newOperand !== b.rawOperand || newAssert !== b.assertExpr) {
+        expandedProgram[i] = { ...b, rawOperand: newOperand, assertExpr: newAssert };
+      }
     }
   }
 

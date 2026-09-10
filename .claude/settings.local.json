@@ -200,7 +200,13 @@
       "Bash(find F:/Development/UltimateBasic -maxdepth 2 -iname *manual* -o -maxdepth 2 -iname *.md)",
       "Bash(git log *)",
       "Bash(node --test tests/i18n-completeness.test.js)",
-      "Bash(python scripts/build-manual-pdf.py)"
+      "Bash(python scripts/build-manual-pdf.py)",
+      "Bash(node --test tests/star-expression.test.js)",
+      "Bash(node --test --test-name-pattern=\"assert passes a truthy\" tests/macro-core.test.js)",
+      "Bash(python -)",
+      "Bash(grep -n '| \\\\*\\\\*Org\\\\*\\\\* \\\\| `ORG`\\\\|## 11. Gyakori hibák\\\\|### CPX absolute mód' CLAUDE.md)",
+      "Bash(powershell -Command 'Get-NetTCPConnection -LocalPort 1430 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique | ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }')",
+      "Bash(powershell -Command 'Get-NetTCPConnection -LocalPort 8899 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique | ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }')"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"

@@ -6,19 +6,29 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>C64 Visual Assembler</title>
-  <script>(function(){var t=localStorage.getItem('c64-block-theme')||'light';document.documentElement.dataset.theme=t;document.documentElement.style.background={'dark':'#1a1b26','oled':'#0d0d12','light':'#e8ecf1'}[t]||'#e8ecf1';})();</script>
+  <script>(function(){var t=localStorage.getItem('c64-block-theme')||'light';document.documentElement.dataset.theme=t;document.documentElement.style.background={'dark':'#1a1b26','oled':'#0d0d12','commodore77':'#0a0a08','light':'#e8ecf1'}[t]||'#e8ecf1';})();</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2.3.8">
+  <link rel="stylesheet" href="style.css?v=2.3.9">
 </head>
 
 <body>
   <div id="splash-screen" class="splash-screen splash-screen--video">
     <div class="splash-panel">
       <img id="splash-image" class="splash-image" src="assets/logo0.PNG" alt="Visual Assembler splash image">
+      <script>
+        // Commodore 77 theme uses a dedicated splash image (theme is already set
+        // on <html> by the early head script, so this runs before first paint).
+        (function () {
+          if (document.documentElement.dataset.theme === "commodore77") {
+            var img = document.getElementById("splash-image");
+            if (img) img.src = "assets/logo1.png";
+          }
+        })();
+      </script>
       <div class="splash-loader">
         <div class="splash-loader-bar"></div>
       </div>
@@ -890,7 +900,7 @@ PRINTABLE CHARACTERS
         <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v2.3.8</p>
+      <p class="about-version" id="about-version">v2.3.9</p>
       <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       <img class="about-ub-banner" src="assets/ultimate-basic-banner.png" alt="Ultimate Basic">
       <p class="about-repo"><span>Ultimate Basic GitHub repository:</span><br><a href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener noreferrer">https://github.com/zstarczali/UltimateBasic</a></p>
@@ -908,8 +918,26 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.3.8</p>
+      <p class="whats-new-version">v2.3.9</p>
       <ul class="whats-new-list">
+        <li>
+          <strong>New: <code>*</code> works in any expression</strong> &mdash; the program-counter symbol can now be used inside operand expressions, not just on its own: <code>BNE *-5</code>, <code>JMP *+20</code>, <code>LDA #&lt;*</code>, <code>LDA #&gt;(*+63)</code>. A <code>*</code> that follows a value (e.g. <code>STRIDE*2</code>) is still multiplication.
+        </li>
+        <li>
+          <strong>New: Local (dotted) labels</strong> &mdash; a label such as <code>.loop</code> belongs to the scope of the nearest preceding global label, so <code>DrawSprite</code> and <code>ClearScreen</code> can each have their own <code>.loop</code> without colliding. Reference them as <code>.loop</code> inside the scope or <code>ClearScreen.loop</code> from outside.
+        </li>
+        <li>
+          <strong>New: Long-branch pseudo-ops</strong> &mdash; <code>LBNE</code>, <code>LBEQ</code>, <code>LBCC</code>, <code>LBCS</code>, <code>LBMI</code>, <code>LBPL</code>, <code>LBVC</code>, <code>LBVS</code> assemble to an inverted branch over a <code>JMP</code> (5 bytes) so the target can be any distance away.
+        </li>
+        <li>
+          <strong>New: <code>.assert</code> directive</strong> &mdash; <code>.assert end - start &lt;= 256</code> or <code>.assert * &lt; $A000, "message"</code> is checked at assembly time and fails the build with a clear message (and the actual value) when the expression is false.
+        </li>
+        <li>
+          <strong>New: Self-modifying-code labels</strong> &mdash; write <code>LDA value:#$00</code> and the label <code>value</code> points at the instruction's operand byte, so <code>STA value</code> later patches it &mdash; no separate <code>instruction+1</code> label needed.
+        </li>
+        <li>
+          <strong>Improved: Friendly out-of-range branch errors</strong> &mdash; a branch that lands outside &minus;128&hellip;+127 now reports exactly how far it overshoots and suggests the matching <code>LBxx</code> long branch.
+        </li>
         <li>
           <strong>New: Workspace save / open</strong> &mdash; save the exact set of open file-backed tabs, the active tab and each tab's editor mode (Block/Expert/Ultimate Basic) to a <code>.vaws</code> workspace file. Workspaces auto-save on change, and the app auto-restores your last workspace on launch.
         </li>
@@ -2187,13 +2215,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.3.8"></script>
-  <script src="i18n.js?v=2.3.8"></script>
-  <script src="tutorial-data.js?v=2.3.8"></script>
+  <script src="tauri-bridge.js?v=2.3.9"></script>
+  <script src="i18n.js?v=2.3.9"></script>
+  <script src="tutorial-data.js?v=2.3.9"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.3.8"></script>
+  <script src="app.js?v=2.3.9"></script>
 
 </body>
 

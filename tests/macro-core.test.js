@@ -87,6 +87,10 @@ function createMacroContext(extraContext = {}) {
       "compilePrintHexA",
       "getDeferredMacroAddressField",
       "getProgramLayout",
+      "_substituteStarPc",
+      "_hasStarPcRef",
+      "_evalAsmExpr",
+      "_branchOffsetFromTarget",
       "compileLineBytes",
       "resolveNumericOperand",
       "resolveRelativeOperand",
@@ -99,6 +103,8 @@ function createMacroContext(extraContext = {}) {
       getLiveValidationError: () => "",
       opcodeMap: {
         LDA: { absolute: 0xAD, absoluteX: 0xBD, absoluteY: 0xB9, immediate: 0xA9, zeroPage: 0xA5 },
+        STA: { absolute: 0x8D, absoluteX: 0x9D, zeroPage: 0x85 },
+        JMP: { absolute: 0x4C, indirect: 0x6C },
         CMP: { immediate: 0xC9, absolute: 0xCD },
         CPX: { immediate: 0xE0, absolute: 0xEC },
         CPY: { immediate: 0xC0, absolute: 0xCC },
@@ -1788,4 +1794,183 @@ test("validateAssetMacroHasFile catches empty INCLUDE / INCBIN / SID blocks", ()
   // Non-asset blocks return "".
   assert.equal(ctx.validateAssetMacroHasFile({ isOrgMacro: true }), "");
   assert.equal(ctx.validateAssetMacroHasFile(null), "");
+});
+
+// ── Assembler expression & label extensions (v2.3.9) ─────────────────────────
+
+test("LBxx long-branch emits inverted Bxx +3 / JMP target and is 5 bytes", () => {
+  const ctx = createMacroContext();
+  const labels = new Map([["far", 0xD000]]);
+  const bytes = compileBlock(
+    ctx,
+    { mnemonic: "LBNE", isLongBranchMacro: true, longBranchCond: "NE", rawOperand: "far", base: "hex" },
+    labels,
+    0xC000
+  );
+  assert.deepEqual(bytes, [0xF0, 0x03, 0x4C, 0x00, 0xD0]);
+  assert.equal(
+    ctx.getInstructionSize({ isLongBranchMacro: true, longBranchCond: "NE" }),
+    5
+  );
+
+  // Inverted opcodes for the other conditions
+  const inv = { EQ: 0xD0, CC: 0xB0, CS: 0x90, MI: 0x10, PL: 0x30, VC: 0x70, VS: 0x50 };
+  for (const [cond, opc] of Object.entries(inv)) {
+    const b = compileBlock(
+      ctx,
+      { mnemonic: "LB" + cond, isLongBranchMacro: true, longBranchCond: cond, rawOperand: "far", base: "hex" },
+      labels,
+      0xC000
+    );
+    assert.equal(b[0], opc, `LB${cond} inverted opcode`);
+    assert.deepEqual(b.slice(1), [0x03, 0x4C, 0x00, 0xD0]);
+  }
+});
+
+test("LBxx target accepts a *-expression", () => {
+  const ctx = createMacroContext();
+  const bytes = compileBlock(
+    ctx,
+    { mnemonic: "LBEQ", isLongBranchMacro: true, longBranchCond: "EQ", rawOperand: "*+300", base: "hex" },
+    new Map(),
+    0xC000
+  );
+  // 0xC000 + 300 = 0xC12C
+  assert.deepEqual(bytes, [0xD0, 0x03, 0x4C, 0x2C, 0xC1]);
+});
+
+test("LBxx round-trips through _blockToExpertLine", () => {
+  const ctx = createMacroContext();
+  assert.equal(
+    ctx._blockToExpertLine({ mnemonic: "LBNE", isLongBranchMacro: true, longBranchCond: "NE", rawOperand: "done" }).trim(),
+    "LBNE done"
+  );
+});
+
+test(".assert passes a truthy expression and fails a falsy one", () => {
+  const ctx = createMacroContext();
+  const ok = ctx.compileLineBytes({ address: 0xC000, block: { isAssertMacro: true, assertExpr: "1 + 1" } }, new Map());
+  assert.equal(ok.ok, true);
+  assert.deepEqual(Array.from(ok.bytes), []);
+  assert.equal(ctx.getInstructionSize({ isAssertMacro: true }), 0);
+
+  const bad = ctx.compileLineBytes({ address: 0xC000, block: { isAssertMacro: true, assertExpr: "2 > 5" } }, new Map());
+  assert.equal(bad.ok, false);
+
+  // `*` is available inside the assertion expression
+  const pcOk = ctx.compileLineBytes({ address: 0x9FFF, block: { isAssertMacro: true, assertExpr: "* < $A000" } }, new Map());
+  assert.equal(pcOk.ok, true);
+  const pcBad = ctx.compileLineBytes({ address: 0xA000, block: { isAssertMacro: true, assertExpr: "* < $A000" } }, new Map());
+  assert.equal(pcBad.ok, false);
+});
+
+test(".assert round-trips through _blockToExpertLine with an optional message", () => {
+  const ctx = createMacroContext();
+  assert.equal(
+    ctx._blockToExpertLine({ isAssertMacro: true, assertExpr: "end - start <= 256" }),
+    ".assert end - start <= 256"
+  );
+  assert.equal(
+    ctx._blockToExpertLine({ isAssertMacro: true, assertExpr: "size <= 40", assertMessage: "too wide" }),
+    '.assert size <= 40, "too wide"'
+  );
+});
+
+test("SMC label on an operand maps to the operand byte and round-trips", () => {
+  const ctx = createMacroContext({
+    program: [
+      { id: "i1", mnemonic: "LDA", addressingMode: "immediate", rawOperand: "#$00", operand: "#$00", base: "hex", smcLabel: "value" }
+    ]
+  });
+  const layout = ctx.getProgramLayout(0x1000);
+  const labels = new Map();
+  layout.lines.forEach((line) => ctx.addLayoutLabels(labels, line));
+  assert.equal(labels.get("value"), 0x1001); // code at $1000, operand byte at $1001
+
+  assert.equal(
+    ctx._blockToExpertLine({ mnemonic: "LDA", addressingMode: "immediate", rawOperand: "", operand: "#$00", smcLabel: "value" }).trim(),
+    "LDA value:#$00"
+  );
+});
+
+test("local (dotted) labels are scoped to the nearest preceding global label", () => {
+  const mkLabel = (name) => ({ id: "L" + name, isLabel: true, mnemonic: "LABEL", labelName: name, addressingMode: "implied", base: "hex", operand: name, rawOperand: name });
+  const mkImplied = (mn) => ({ id: "x" + Math.random(), mnemonic: mn, addressingMode: "implied", base: "hex", rawOperand: "", operand: "" });
+  const mkBranch = (target) => ({ id: "b" + Math.random(), mnemonic: "BNE", addressingMode: "relative", base: "hex", rawOperand: target, operand: target });
+
+  const ctx = createMacroContext({
+    program: [
+      mkLabel("First"),
+      mkLabel(".loop"),
+      mkImplied("NOP"),
+      mkBranch(".loop"),
+      mkLabel("Second"),
+      mkLabel(".loop"),
+      mkImplied("NOP"),
+      mkBranch(".loop")
+    ]
+  });
+
+  const layout = ctx.getProgramLayout(0x1000);
+  const labels = new Map();
+  layout.lines.forEach((line) => ctx.addLayoutLabels(labels, line));
+
+  assert.equal(labels.has("First.loop"), true);
+  assert.equal(labels.has("Second.loop"), true);
+  assert.equal(labels.has(".loop"), false, "raw .loop must not leak as a global label");
+  assert.notEqual(labels.get("First.loop"), labels.get("Second.loop"));
+
+  // Each BNE .loop compiles to a self-scope backward branch (2 bytes, negative offset).
+  const branchLines = layout.lines.filter((l) => l.block.mnemonic === "BNE");
+  assert.equal(branchLines.length, 2);
+  for (const bl of branchLines) {
+    const r = ctx.compileLineBytes(bl, labels);
+    assert.equal(r.ok, true, r.error);
+    assert.equal(r.bytes[0], 0xD0);
+    assert.ok(r.bytes[1] >= 0x80, "backward branch offset should be negative");
+  }
+});
+
+test("local labels support explicit cross-scope references (Global.name)", () => {
+  const mkLabel = (name) => ({ id: "L" + name + Math.random(), isLabel: true, mnemonic: "LABEL", labelName: name, addressingMode: "implied", base: "hex", operand: name, rawOperand: name });
+  const mkJmp = (t) => ({ id: "j" + Math.random(), mnemonic: "JMP", addressingMode: "absolute", base: "hex", rawOperand: t, operand: t });
+  const nop = () => ({ id: "n" + Math.random(), mnemonic: "NOP", addressingMode: "implied", base: "hex", rawOperand: "", operand: "" });
+
+  const ctx = createMacroContext({
+    program: [
+      mkLabel("First"), nop(),
+      mkLabel("Second"),
+      mkLabel(".skip"), nop(),
+      mkJmp("First.skip")   // forward-declared cross-scope ref would be null; here First has no .skip
+    ]
+  });
+  const layout = ctx.getProgramLayout(0x1000);
+  const labels = new Map();
+  layout.lines.forEach((l) => ctx.addLayoutLabels(labels, l));
+
+  assert.equal(labels.has("Second.skip"), true);
+  // JMP Second.skip resolves through the qualified name
+  const jmpLine = layout.lines.find((l) => l.block.mnemonic === "JMP");
+  jmpLine.block.rawOperand = "Second.skip";
+  const r = ctx.compileLineBytes(jmpLine, labels);
+  assert.equal(r.ok, true, r.error);
+  assert.deepEqual(Array.from(r.bytes), [0x4C, labels.get("Second.skip") & 0xFF, (labels.get("Second.skip") >> 8) & 0xFF]);
+});
+
+test(".assert evaluates label arithmetic and reports the value on failure", () => {
+  const ctx = createMacroContext();
+  const labels = new Map([["start", 0x1000], ["end", 0x1120]]); // 0x120 = 288 bytes
+  const pass = ctx.compileLineBytes({ address: 0x1120, block: { isAssertMacro: true, assertExpr: "end - start <= 512" } }, labels);
+  assert.equal(pass.ok, true);
+  const fail = ctx.compileLineBytes({ address: 0x1120, block: { isAssertMacro: true, assertExpr: "end - start <= 256", assertMessage: "too big" } }, labels);
+  assert.equal(fail.ok, false);
+});
+
+test("LBxx rejects an unresolved target with a branch-operand error", () => {
+  const ctx = createMacroContext();
+  const r = ctx.compileLineBytes(
+    { address: 0xC000, block: { mnemonic: "LBNE", isLongBranchMacro: true, longBranchCond: "NE", rawOperand: "nowhere", base: "hex" } },
+    new Map()
+  );
+  assert.equal(r.ok, false);
 });
