@@ -256,6 +256,7 @@ const mnemonicLibrary = {
     { mnemonic: "IF", description: "Felteteles forditas kezdete. Kifejezest var (pl. DEBUG). ENDIF-fel zarjuk.", modes: ["implied"], isIfMacro: true },
     { mnemonic: "ELSE", description: "Alternativ ag IF blokkon belul.", modes: ["implied"], isElseMacro: true },
     { mnemonic: "ENDIF", description: "Felteteles forditas vege.", modes: ["implied"], isEndIfMacro: true },
+    { mnemonic: "ASSERT", description: "Forditasi ideju ellenorzes: `.assert <kifejezes>[, \"uzenet\"]`. Ha a kifejezes hamis, a forditas beszedes hibaval leall. 0 byte.", modes: ["implied"], isAssertMacro: true },
     { mnemonic: "CONST", description: "Nevesitett konstans definialasa. Barmely fontos mnemoniknal felhasznalhato (LDA, STA, JSR, stb.).", modes: ["implied"], isConstMacro: true },
     { mnemonic: "VAR", description: "Zero page valtozo automatikus cimfoglalasal ($02-tol). Meret 1 (alap) vagy tobb byte. 0 byte-ot foglal a kodban, csak label.", modes: ["implied"], isVarMacro: true },
     { mnemonic: "IF_A", description: "Futasideju feltetel: CMP {value} + felteteles branch a body kihagyasahoz. Operatorok: = vagy ==, != < >= (unsigned). ELSE es ENDIF blokkok zarjak.", modes: ["implied"], isRuntimeIfMacro: true, runtimeIfReg: "A" },
@@ -840,6 +841,7 @@ const mnemonicDescriptionsEn = {
   SPRITE_ANIM: "Sprite animation: increments a ZP frame counter (0..count-1) and updates $07F8+N from a 1-byte-per-frame pointer list. 19 bytes.",
   SCORE_BCD: "BCD score increment and display: SED/CLC/ADC pattern adds points, then converts BCD nibbles to screen codes and writes to screen RAM. 2/4/6 digits, inline.",
   DEFINE: "Define a symbol for conditional assembly. When present, IF blocks evaluate the condition.",
+  ASSERT: "Compile-time check: .assert <expr>[, \"message\"]. Fails the build with a clear message when the expression is false. 0 bytes.",
   CONST: "Named constant definition. Can be used as an operand in any mnemonic (LDA, STA, JSR, etc.).",
   VAR: "Zero-page variable with automatic address allocation (starting at $02). Size 1 (default) or more bytes. Emits 0 bytes of code — just a named label.",
   IF_A: "Runtime conditional on A: CMP {value} + conditional branch to skip the body. Operators: = or ==, != < >= (unsigned). Closed by ELSE and ENDIF.",
@@ -1017,6 +1019,7 @@ const mnemonicDescriptionsEs = {
   SPRITE_ANIM: "Animación de sprite: incrementa un contador ZP de frame (0..N-1) y actualiza $07F8+N desde una lista de punteros (1 byte/frame). 19 bytes.",
   SCORE_BCD: "Incremento y visualización de puntuación BCD: patrón SED/CLC/ADC para sumar puntos, convierte nibbles BCD a códigos de pantalla. 2/4/6 dígitos, inline.",
   DEFINE: "Define un símbolo para ensamblado condicional. Cuando está presente, los bloques IF evalúan la condición.",
+  ASSERT: "Comprobación en tiempo de ensamblado: .assert <expr>[, \"mensaje\"]. Aborta la compilación con un mensaje claro si la expresión es falsa. 0 bytes.",
   CONST: "Definición de constante con nombre. Se puede usar como operando en cualquier mnemónico.",
   VAR: "Variable en zero page con asignación automática de dirección (desde $02). Tamaño 1 (por defecto) o más bytes. No emite código, solo una etiqueta.",
   IF_A: "Condicional en tiempo de ejecución con A: CMP {valor} + salto condicional para saltarse el cuerpo. Operadores: = o ==, != < >= (sin signo). Cerrado por ELSE y ENDIF.",
@@ -1176,6 +1179,7 @@ const mnemonicDescriptionsDe = {
   SPRITE_ANIM: "Sprite-Animation: ZP-Frame-Zähler (0..N-1) inkrementieren und $07F8+N aus Zeigerliste (1 Byte/Frame) aktualisieren. 19 Bytes.",
   SCORE_BCD: "BCD-Punktestand inkrementieren und anzeigen: SED/CLC/ADC-Muster für Punkte, BCD-Nibbles in Bildschirmcodes umwandeln. 2/4/6 Stellen, inline.",
   DEFINE: "Symbol für bedingte Assemblierung definieren. Bei Vorhandensein werten IF-Blöcke die Bedingung aus.",
+  ASSERT: "Prüfung zur Assemblierzeit: .assert <Ausdruck>[, \"Meldung\"]. Bricht den Build mit klarer Meldung ab, wenn der Ausdruck falsch ist. 0 Bytes.",
   CONST: "Benannte Konstantendefinition. Als Operand in jedem Mnemonic verwendbar.",
   VAR: "Zero-Page-Variable mit automatischer Adressvergabe (ab $02). Größe 1 (Standard) oder mehr Bytes. Emittiert keinen Code, nur ein Label.",
   IF_A: "Laufzeit-Bedingung auf A: CMP {Wert} + bedingter Sprung, überspringt den Body. Operatoren: = oder ==, != < >= (unsigned). Wird durch ELSE und ENDIF geschlossen.",
@@ -1291,6 +1295,7 @@ const mnemonicDescriptionsNl = {
   ELSE: "Alternatieve tak voor voorwaardelijke compilatie.",
   ENDIF: "Einde van voorwaardelijk compilatieblok.",
   DEFINE: "Voorwaardelijk compilatielabel definiëren.",
+  ASSERT: "Controle tijdens assembleren: .assert <expr>[, \"bericht\"]. Stopt de build met een duidelijke melding als de expressie onwaar is. 0 bytes.",
   CONST: "Constante waarde koppelen aan een naam (.const).",
   VAR: "Zero-page variabele toewijzen.",
   TABLE: "Zoektabel genereren met een formule op index 'i'.",
@@ -1429,6 +1434,9 @@ const mnemonicExpertHints = {
   IF: mnemonicSyntax("if", "DEBUG"),
   ELSE: ".else",
   ENDIF: ".endif",
+  ASSERT: `.assert end - start <= 256, "too big"`,
+  LBNE: "LBNE target", LBEQ: "LBEQ target", LBCC: "LBCC target", LBCS: "LBCS target",
+  LBMI: "LBMI target", LBPL: "LBPL target", LBVC: "LBVC target", LBVS: "LBVS target",
   CONST: ".const color = $0",
   VAR: ".var counter",
   IF_A: mnemonicSyntax("if", "A == #$10"),
@@ -2767,6 +2775,16 @@ function initPalette() {
   document.addEventListener("contextmenu", e => {
     const tag = e.target.tagName;
     if (tag !== "INPUT" && tag !== "TEXTAREA") e.preventDefault();
+
+    // Tab bar right-click menu (works in every editor mode)
+    const tabEl = e.target.closest(".tab-item");
+    if (tabEl || e.target.closest("#tab-bar")) {
+      _hideBlockCtxMenu();
+      _showTabCtxMenu(e, tabEl ? tabEl.dataset.tabId : null);
+      return;
+    }
+    _hideTabCtxMenu();
+
     // Block context menu in block mode
     if (!expertMode) {
       const blockEl = e.target.closest(".asm-block");
@@ -2782,6 +2800,7 @@ function initPalette() {
   document.addEventListener("click", e => {
     if (!e.target.closest("#block-ctx-menu")) _hideBlockCtxMenu();
     if (!e.target.closest("#sid-ctx-menu")) _sidHideCtxMenu();
+    if (!e.target.closest("#tab-ctx-menu")) _hideTabCtxMenu();
   }, true);
 
   document.addEventListener("keydown", e => {
@@ -2962,6 +2981,92 @@ function _showBlockCtxMenu(e, index) {
 function _hideBlockCtxMenu() {
   const menu = document.getElementById("block-ctx-menu");
   if (menu) menu.setAttribute("hidden", "");
+}
+
+// ── Tab bar right-click menu ────────────────────────────────────────────────
+function _hideTabCtxMenu() {
+  const menu = document.getElementById("tab-ctx-menu");
+  if (menu) menu.setAttribute("hidden", "");
+}
+
+function _showTabCtxMenu(e, tabId) {
+  let menu = document.getElementById("tab-ctx-menu");
+  if (!menu) {
+    menu = document.createElement("div");
+    menu.id = "tab-ctx-menu";
+    menu.className = "block-ctx-menu";
+    document.body.appendChild(menu);
+  }
+  const hu = currentLanguage === "hu";
+  const L = hu
+    ? { neu: "Új fül", close: "Fül bezárása", others: "Többi fül bezárása", right: "Jobbra lévő fülek bezárása", all: "Összes fül bezárása" }
+    : { neu: "New tab", close: "Close tab", others: "Close other tabs", right: "Close tabs to the right", all: "Close all tabs" };
+  const iPlus = `<svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+  const iX = `<svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`;
+  // tabId comes from a dataset attribute (always a string); tab.id may be a number.
+  const idx = tabId != null ? tabs.findIndex(t => String(t.id) === String(tabId)) : -1;
+  const multi = tabs.length > 1;
+  const hasRight = idx >= 0 && idx < tabs.length - 1;
+  const dis = (ok) => ok ? "" : " block-ctx-item--disabled";
+  menu.innerHTML = `
+    <button class="block-ctx-item" data-action="new">${iPlus} ${_escHtml(L.neu)}</button>
+    ${tabId ? `
+    <div class="block-ctx-sep"></div>
+    <button class="block-ctx-item" data-action="close">${iX} ${_escHtml(L.close)}</button>
+    <button class="block-ctx-item${dis(multi)}" data-action="others">${iX} ${_escHtml(L.others)}</button>
+    <button class="block-ctx-item${dis(hasRight)}" data-action="right">${iX} ${_escHtml(L.right)}</button>` : ""}
+    <div class="block-ctx-sep"></div>
+    <button class="block-ctx-item block-ctx-item--danger" data-action="all">${iX} ${_escHtml(L.all)}</button>
+  `;
+  menu.dataset.tabId = tabId || "";
+  menu.querySelectorAll(".block-ctx-item").forEach(btn => {
+    btn.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      if (btn.classList.contains("block-ctx-item--disabled")) return;
+      _handleTabCtxAction(btn.dataset.action, menu.dataset.tabId || null);
+      _hideTabCtxMenu();
+    });
+  });
+
+  menu.style.visibility = "hidden";
+  menu.style.left = "0px";
+  menu.style.top = "0px";
+  menu.removeAttribute("hidden");
+  const menuW = menu.offsetWidth || 200;
+  const menuH = menu.offsetHeight || 200;
+  let x = e.clientX, y = e.clientY;
+  if (x + menuW > window.innerWidth - 8) x = window.innerWidth - menuW - 8;
+  if (y + menuH > window.innerHeight - 8) y = window.innerHeight - menuH - 8;
+  if (x < 8) x = 8;
+  if (y < 8) y = 8;
+  menu.style.left = x + "px";
+  menu.style.top = y + "px";
+  menu.style.visibility = "";
+}
+
+async function _handleTabCtxAction(action, tabId) {
+  if (action === "new") { _tabNew(); return; }
+
+  // Resolve the dataset string back to the real tab id (which may be a number).
+  const realId = tabId == null ? null : (tabs.find(t => String(t.id) === String(tabId))?.id ?? null);
+
+  if (action === "close") { if (realId != null) await _tabClose(realId); return; }
+
+  let ids = [];
+  if (action === "others" && realId != null) {
+    ids = tabs.filter(t => t.id !== realId).map(t => t.id);
+  } else if (action === "right" && realId != null) {
+    const idx = tabs.findIndex(t => t.id === realId);
+    ids = idx >= 0 ? tabs.slice(idx + 1).map(t => t.id) : [];
+  } else if (action === "all") {
+    ids = tabs.map(t => t.id);
+  }
+  for (const id of ids) {
+    if (!(await _tabClose(id))) break; // user cancelled an unsaved-tab prompt
+  }
+  if (action === "others" && realId != null && tabs.some(t => t.id === realId) && activeTabId !== realId) {
+    _tabActivate(realId);
+  }
 }
 
 function _handleBlockCtxAction(action, index) {
@@ -5847,6 +5952,43 @@ function createBlockFromMnemonic(item) {
       validationError: "",
       collapsed: false,
       isEndRegionMacro: true
+    };
+  }
+
+  if (item.isAssertMacro) {
+    const expr = operandInput.value.trim() || "end - start <= 256";
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "ASSERT",
+      operand: expr,
+      rawOperand: expr,
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isAssertMacro: true,
+      assertExpr: expr,
+      assertMessage: ""
+    };
+  }
+
+  if (item.isLongBranchMacro) {
+    const target = operandInput.value.trim() || "target";
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: item.mnemonic,
+      operand: target,
+      rawOperand: target,
+      description: item.description,
+      addressingMode: "relative",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isLongBranchMacro: true,
+      longBranchCond: item.longBranchCond
     };
   }
 
@@ -13070,6 +13212,13 @@ function updateProgramBlock(index, field, value) {
       block.operand = block.rawOperand.trim();
       block.ifCondition = block.rawOperand.trim();
       block.validationError = validateIfMacro(block.rawOperand);
+    } else if (block.isAssertMacro) {
+      block.operand = block.rawOperand.trim();
+      block.assertExpr = block.rawOperand.trim();
+      block.validationError = "";
+    } else if (block.isLongBranchMacro) {
+      block.operand = block.rawOperand.trim();
+      block.validationError = "";
     } else {
       if (field === "base" && block.rawOperand) {
         // parseNumberByBase now handles $ and % prefixes universally, no need to strip $
@@ -23805,6 +23954,14 @@ function getBlockDescription(block) {
     return block.validationError || `DEFINE: ${block.defineSymbol || "?"}`;
   }
 
+  if (block.isAssertMacro) {
+    return block.validationError || `.assert ${block.assertExpr || block.rawOperand || "?"}`;
+  }
+
+  if (block.isLongBranchMacro) {
+    return block.validationError || `${block.mnemonic} ${block.rawOperand || "?"}`;
+  }
+
   if (block.isConstMacro) {
     const constVal = parseNumberByBase((block.rawOperand || "").replace(/^\$/, ""), block.base);
     const formatted = constVal !== null ? formatOperand("absolute", constVal, block.base) : "?";
@@ -25941,6 +26098,12 @@ function renderProgram() {
       operandField.value = block.defineSymbol || "";
       operandField.placeholder = "DEBUG";
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+    } else if (block.isAssertMacro) {
+      inlineField.querySelector("span").textContent = t("condition");
+      inlineField.hidden = false;
+      operandField.value = block.assertExpr || block.rawOperand || "";
+      operandField.placeholder = 'end - start <= 256, "message"';
+      operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
     } else if (block.isConstMacro) {
       inlineField.hidden = true;
       blockControls.insertAdjacentHTML(
@@ -26641,7 +26804,7 @@ function renderProgram() {
     blockControls.insertAdjacentHTML(
       "beforeend",
       `
-          ${(mode.needsOperand && !block.isLabel && !block.isAnonymousLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isForMacro && !block.isEndfMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke && !block.isRegionMacro && !block.isEndRegionMacro && !block.isLoadFileMacro && !block.isDelayMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
+          ${(mode.needsOperand && !block.isLabel && !block.isAnonymousLabel && !block.isComment && !block.isTextMacro && !block.isByteMacro && !block.isStringMacro && !block.isDataMacro && !block.isRawBytesMacro && !block.isRawTextMacro && !block.isPetsciiMacro && !block.isIncBinMacro && !block.isIncludeMacro && !block.isLoopMacro && !block.isNextMacro && !block.isForMacro && !block.isEndfMacro && !block.isWordMacro && !block.isFillMacro && !block.isAlignMacro && !block.isTableMacro && !block.isIfMacro && !block.isElseMacro && !block.isEndIfMacro && !block.isMacroInvoke && !block.isRegionMacro && !block.isEndRegionMacro && !block.isLoadFileMacro && !block.isDelayMacro && !block.isLongBranchMacro && !block.isAssertMacro) || block.isByteMacro || block.isDataMacro || block.isRawBytesMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro ? `
           <label class="mini-field">
             <span>${t("fieldFormat")}</span>
           <div class="mini-toggle" role="radiogroup" aria-label="${t("fieldFormat")}">

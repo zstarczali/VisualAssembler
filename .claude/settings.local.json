@@ -206,7 +206,15 @@
       "Bash(python -)",
       "Bash(grep -n '| \\\\*\\\\*Org\\\\*\\\\* \\\\| `ORG`\\\\|## 11. Gyakori hibák\\\\|### CPX absolute mód' CLAUDE.md)",
       "Bash(powershell -Command 'Get-NetTCPConnection -LocalPort 1430 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique | ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }')",
-      "Bash(powershell -Command 'Get-NetTCPConnection -LocalPort 8899 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique | ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }')"
+      "Bash(powershell -Command 'Get-NetTCPConnection -LocalPort 8899 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique | ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }')",
+      "Bash(grep -n 'function createBlockFromMnemonic\\\\|^function \\\\|  return {$' www/app.js)",
+      "Bash(awk 'NR>=5000 && NR<=5340' www/app.js)",
+      "Bash(awk 'NR>=5720 && NR<=5860' www/app.js)",
+      "Bash(grep -n 'return block.validationError || `DEFINE: ${block.defineSymbol' www/app.js)",
+      "Bash(awk 'NR>=25700 && NR<=26260' www/app.js)",
+      "Bash(awk 'NR>=26260 && NR<=26520' www/app.js)",
+      "Bash(awk 'NR>=26480 && NR<=26760' www/app.js)",
+      "Bash(node --test tests/palette-registration.test.js)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"
