@@ -742,6 +742,14 @@ override megoldja. Új dialog számmezőknél is állítsd be explicit:
 
 `2.3.9` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, és ez a fájl + copilot-instructions.md.
+
+> **Kézikönyv-szinkron:** a `Visual Assembler Manual.md` (angol, forrás) mellett van egy
+> `Visual Assembler Manual.hu.md` (magyar fordítás). Ha az egyiket szerkezetileg módosítod
+> (új/átnevezett/áthelyezett szakasz, kódblokk), tükrözd a másikba is. A `tests/manual-sync.test.js`
+> ellenőrzi a fejléc-szerkezet (H2/H3/H4 darabszám), a számozott szakaszok sorrendje, a
+> code-fence-ek párossága és a verziószám egyezését — ha elcsúsznak, ez a teszt megbukik.
+> Az app a bundelt `docs/Visual Assembler Manual.pdf`-et nyitja (az angol .md-ből generált),
+> a .md-k a szerkesztési forrás.
 Fő 2.3.9 változások: **`*` (program counter) minden operandus-kifejezésben** — `BNE *-5`, `JMP *+20`, `LDA #<*`, `LDA #>(*+63)`; érték után álló `*` továbbra is szorzás (`_substituteStarPc` / `_hasStarPcRef` / `_evalAsmExpr` az `app.js`-ben). **Lokális (pontos) labelek** — `.loop` a legközelebbi fölötte lévő globális label scope-jába tartozik (`getProgramLayout` klón-pass → kanonikus `Global.loop`), a `parseAsmText` már nem vágja le a pontot. **Long branch pseudo-opok** — `LBNE`/`LBEQ`/`LBCC`/`LBCS`/`LBMI`/`LBPL`/`LBVC`/`LBVS` (`HosszuUgrasok` kategória, `isLongBranchMacro`) → invertált `Bxx *+3` / `JMP` = fix 5 byte. **`.assert <expr>[, "üzenet"]`** — fordítási idejű ellenőrzés (`isAssertMacro`), hamis → beszédes assembly hiba az értékkel. **SMC operandus-label** — `LDA value:#$00` → `value` az operandus byte-jára mutat (`smcLabel`, `addLayoutLabels` → `addr+1`). **Barátságos branch-hiba** — tartományon kívüli branch a pontos túllépést és a megfelelő `LBxx`-et javasolja (`_branchOffsetFromTarget`, `branchOutOfRangeSuggest`).
 Korábbi 2.3.8 változások: Munkaterület mentés/megnyitás (`.vaws`) — a nyitott, fájlhoz kötött fülek pontos halmaza, aktív fül és fül-módok mentése/visszatöltése, auto-save-lel és induláskori auto-restore-ral; globális memória panel toggle; UB parancsreferencia lokalizálva (HU/EN/ES/DE/NL, angol fallback); frissített UB grafikus parancs dokumentáció; javított KERNAL SETLFS/PLOT referencia; magas memóriahasználat javítva sok nyitott fülnél (per-tab undo/redo history korlátozva debounce-szal); felesleges Expert/UB breakpoint toolbar gombok eltávolítva; Expert toolbar magasság a UB-hez igazítva.
 Korábbi 2.3.7 változások: Undo/Redo és többblokkos szerkesztés; Block/Expert/UB breakpointok külső RetroDebugger integrációval, source map/label sidecarokkal, SYS-aware indítással; opcionális BASIC stub a Disassembler/Monitor nézetekben; új UB Monitor panel; debugger/disassembler origin javítások; UB caret/üres sor/nyomva tartott kurzor/minimap és Expert sorszám-illesztési javítások.
