@@ -214,7 +214,11 @@
       "Bash(awk 'NR>=25700 && NR<=26260' www/app.js)",
       "Bash(awk 'NR>=26260 && NR<=26520' www/app.js)",
       "Bash(awk 'NR>=26480 && NR<=26760' www/app.js)",
-      "Bash(node --test tests/palette-registration.test.js)"
+      "Bash(node --test tests/palette-registration.test.js)",
+      "Bash(grep -n 'nevé\\(ei\\)t. |$\\\\|hardveren\\). |$\\\\|kijelzés. |$' \"F:/Development/VisualAssembler/Visual Assembler Manual.hu.md\")",
+      "Bash(grep -c '^```' 'F:/Development/VisualAssembler/Visual Assembler Manual.md')",
+      "Bash(grep -c '^```' 'F:/Development/VisualAssembler/Visual Assembler Manual.hu.md')",
+      "Bash(node --test tests/manual-sync.test.js)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"
