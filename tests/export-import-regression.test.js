@@ -409,3 +409,74 @@ test("buildAutostartPrgForEmulator skips BASIC SYS wrapping when the program alr
   assert.equal(result.sysAddress, 0x080D);
   assert.deepEqual(Array.from(result.bytes), [0x01, 0x08, 0xAA]);
 });
+
+// ── v2.3.9 assembler extensions: parser round-trips ─────────────────────────
+
+function extCtx() {
+  return loadFunctions(
+    ["_splitAsmLineComment", "parseAsmText", "_importMakeAssert", "_importMakeInstruction"],
+    {
+      crypto: { randomUUID: () => "test-id" },
+      t: (key) => key,
+      _importMnemonicCategory: (mn) => (/^LB/.test(mn) ? "HosszuUgrasok" : "Ugrasok"),
+      _importMnemonicDescription: () => "",
+      _importMakeComment: (commentText) => ({ id: "c", mnemonic: "COMMENT", isComment: true, commentText }),
+      _importMakeWord: () => ({ id: "w", mnemonic: "WORD" }),
+      _importMakeFill: () => ({ id: "f", mnemonic: "FILL" }),
+      _importMakeAlign: () => ({ id: "a", mnemonic: "ALIGN" }),
+      _importMakeIncBin: () => ({ id: "i", mnemonic: "INCBIN" }),
+      _importMakeConst: () => ({ id: "k", mnemonic: "CONST" }),
+      _importMakeLabel: (labelName) => ({ id: "l", mnemonic: "LABEL", isLabel: true, labelName }),
+      _importMakeByte: () => ({ id: "b", mnemonic: "BYTE" }),
+      _importMakeRegion: () => ({ id: "r", mnemonic: "REGION" }),
+      _importMakeEndRegion: () => ({ id: "re", mnemonic: "ENDREGION" }),
+      _importMakeDefine: () => ({ id: "d", mnemonic: "DEFINE" }),
+      _importMakeIf: () => ({ id: "if", mnemonic: "IF" }),
+      _importMakeElse: () => ({ id: "el", mnemonic: "ELSE" }),
+      _importMakeEndIf: () => ({ id: "ei", mnemonic: "ENDIF" })
+    }
+  );
+}
+
+test("parseAsmText keeps the leading dot on local label definitions", () => {
+  const ctx = extCtx();
+  const bareDot = ctx.parseAsmText(".loop");
+  assert.equal(bareDot[0].isLabel, true);
+  assert.equal(bareDot[0].labelName, ".loop");
+
+  const withColon = ctx.parseAsmText(".done:");
+  assert.equal(withColon[0].isLabel, true);
+  assert.equal(withColon[0].labelName, ".done");
+
+  const labelAndInstr = ctx.parseAsmText(".loop: LDA data,X");
+  assert.equal(labelAndInstr[0].labelName, ".loop");
+  assert.equal(labelAndInstr[1].mnemonic, "LDA");
+});
+
+test("parseAsmText recognises .assert with an optional message", () => {
+  const ctx = extCtx();
+  const a = ctx.parseAsmText('.assert end - start <= 256');
+  assert.equal(a[0].isAssertMacro, true);
+  assert.equal(a[0].assertExpr, "end - start <= 256");
+  assert.equal(a[0].assertMessage, "");
+
+  const b = ctx.parseAsmText('.assert size <= 40, "row too wide"');
+  assert.equal(b[0].isAssertMacro, true);
+  assert.equal(b[0].assertExpr, "size <= 40");
+  assert.equal(b[0].assertMessage, "row too wide");
+});
+
+test("parseAsmText builds long-branch and SMC-label blocks from instruction lines", () => {
+  const ctx = extCtx();
+  const lb = ctx.parseAsmText("LBNE far_target");
+  assert.equal(lb[0].isLongBranchMacro, true);
+  assert.equal(lb[0].longBranchCond, "NE");
+  assert.equal(lb[0].rawOperand, "far_target");
+
+  const smc = ctx.parseAsmText("LDA value:#$00");
+  assert.equal(smc[0].mnemonic, "LDA");
+  assert.equal(smc[0].smcLabel, "value");
+  assert.equal(smc[0].rawOperand, "00");
+  assert.equal(smc[0].base, "hex");
+  assert.equal(smc[0].addressingMode, "immediate");
+});
