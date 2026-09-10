@@ -2775,6 +2775,16 @@ function initPalette() {
   document.addEventListener("contextmenu", e => {
     const tag = e.target.tagName;
     if (tag !== "INPUT" && tag !== "TEXTAREA") e.preventDefault();
+
+    // Tab bar right-click menu (works in every editor mode)
+    const tabEl = e.target.closest(".tab-item");
+    if (tabEl || e.target.closest("#tab-bar")) {
+      _hideBlockCtxMenu();
+      _showTabCtxMenu(e, tabEl ? tabEl.dataset.tabId : null);
+      return;
+    }
+    _hideTabCtxMenu();
+
     // Block context menu in block mode
     if (!expertMode) {
       const blockEl = e.target.closest(".asm-block");
@@ -2790,6 +2800,7 @@ function initPalette() {
   document.addEventListener("click", e => {
     if (!e.target.closest("#block-ctx-menu")) _hideBlockCtxMenu();
     if (!e.target.closest("#sid-ctx-menu")) _sidHideCtxMenu();
+    if (!e.target.closest("#tab-ctx-menu")) _hideTabCtxMenu();
   }, true);
 
   document.addEventListener("keydown", e => {
@@ -2970,6 +2981,92 @@ function _showBlockCtxMenu(e, index) {
 function _hideBlockCtxMenu() {
   const menu = document.getElementById("block-ctx-menu");
   if (menu) menu.setAttribute("hidden", "");
+}
+
+// ── Tab bar right-click menu ────────────────────────────────────────────────
+function _hideTabCtxMenu() {
+  const menu = document.getElementById("tab-ctx-menu");
+  if (menu) menu.setAttribute("hidden", "");
+}
+
+function _showTabCtxMenu(e, tabId) {
+  let menu = document.getElementById("tab-ctx-menu");
+  if (!menu) {
+    menu = document.createElement("div");
+    menu.id = "tab-ctx-menu";
+    menu.className = "block-ctx-menu";
+    document.body.appendChild(menu);
+  }
+  const hu = currentLanguage === "hu";
+  const L = hu
+    ? { neu: "Új fül", close: "Fül bezárása", others: "Többi fül bezárása", right: "Jobbra lévő fülek bezárása", all: "Összes fül bezárása" }
+    : { neu: "New tab", close: "Close tab", others: "Close other tabs", right: "Close tabs to the right", all: "Close all tabs" };
+  const iPlus = `<svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+  const iX = `<svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`;
+  // tabId comes from a dataset attribute (always a string); tab.id may be a number.
+  const idx = tabId != null ? tabs.findIndex(t => String(t.id) === String(tabId)) : -1;
+  const multi = tabs.length > 1;
+  const hasRight = idx >= 0 && idx < tabs.length - 1;
+  const dis = (ok) => ok ? "" : " block-ctx-item--disabled";
+  menu.innerHTML = `
+    <button class="block-ctx-item" data-action="new">${iPlus} ${_escHtml(L.neu)}</button>
+    ${tabId ? `
+    <div class="block-ctx-sep"></div>
+    <button class="block-ctx-item" data-action="close">${iX} ${_escHtml(L.close)}</button>
+    <button class="block-ctx-item${dis(multi)}" data-action="others">${iX} ${_escHtml(L.others)}</button>
+    <button class="block-ctx-item${dis(hasRight)}" data-action="right">${iX} ${_escHtml(L.right)}</button>` : ""}
+    <div class="block-ctx-sep"></div>
+    <button class="block-ctx-item block-ctx-item--danger" data-action="all">${iX} ${_escHtml(L.all)}</button>
+  `;
+  menu.dataset.tabId = tabId || "";
+  menu.querySelectorAll(".block-ctx-item").forEach(btn => {
+    btn.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      if (btn.classList.contains("block-ctx-item--disabled")) return;
+      _handleTabCtxAction(btn.dataset.action, menu.dataset.tabId || null);
+      _hideTabCtxMenu();
+    });
+  });
+
+  menu.style.visibility = "hidden";
+  menu.style.left = "0px";
+  menu.style.top = "0px";
+  menu.removeAttribute("hidden");
+  const menuW = menu.offsetWidth || 200;
+  const menuH = menu.offsetHeight || 200;
+  let x = e.clientX, y = e.clientY;
+  if (x + menuW > window.innerWidth - 8) x = window.innerWidth - menuW - 8;
+  if (y + menuH > window.innerHeight - 8) y = window.innerHeight - menuH - 8;
+  if (x < 8) x = 8;
+  if (y < 8) y = 8;
+  menu.style.left = x + "px";
+  menu.style.top = y + "px";
+  menu.style.visibility = "";
+}
+
+async function _handleTabCtxAction(action, tabId) {
+  if (action === "new") { _tabNew(); return; }
+
+  // Resolve the dataset string back to the real tab id (which may be a number).
+  const realId = tabId == null ? null : (tabs.find(t => String(t.id) === String(tabId))?.id ?? null);
+
+  if (action === "close") { if (realId != null) await _tabClose(realId); return; }
+
+  let ids = [];
+  if (action === "others" && realId != null) {
+    ids = tabs.filter(t => t.id !== realId).map(t => t.id);
+  } else if (action === "right" && realId != null) {
+    const idx = tabs.findIndex(t => t.id === realId);
+    ids = idx >= 0 ? tabs.slice(idx + 1).map(t => t.id) : [];
+  } else if (action === "all") {
+    ids = tabs.map(t => t.id);
+  }
+  for (const id of ids) {
+    if (!(await _tabClose(id))) break; // user cancelled an unsaved-tab prompt
+  }
+  if (action === "others" && realId != null && tabs.some(t => t.id === realId) && activeTabId !== realId) {
+    _tabActivate(realId);
+  }
 }
 
 function _handleBlockCtxAction(action, index) {

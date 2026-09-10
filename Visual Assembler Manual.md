@@ -201,13 +201,14 @@ The palette on the left lists all available blocks grouped by category:
 - **Arithmetic** — ADC, SBC, INC, DEC, CMP, …
 - **Logic** — AND, ORA, EOR, BIT
 - **Jumps & Branches** — JMP, JSR, RTS, BNE, BEQ, …
+- **Long branches** — LBNE, LBEQ, LBCC, LBCS, LBMI, LBPL, LBVC, LBVS (branch to any distance; see §8)
 - **Register operations** — TAX, TAY, INX, DEX, …
 - **Shift & Rotate** — ASL, LSR, ROL, ROR
 - **Stack** — PHA, PHP, PLA, PLP
 - **System** — CLC, SEC, NOP, BRK, …
 - **Illegal instructions** — LAX, SAX, DCP, …
 - **Structure** — LABEL, COMMENT, REGION, ENDREGION
-- **Macros** — LOOP, NEXT, FOR, ENDF, PUSH, PULL, END, TEXT, BYTE, WORD, FILL, ALIGN, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, CHARSET, INCBIN, SID, INCLUDE, TABLE, ORG, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, VAR, WHILE, ENDW, REPEAT, UNTIL, MEMCPY, MEMSET, PRINT, PRINT_CHAR, PRINT_HEX, CLEAR_SCREEN, WAIT_KEY, DELAY, SET_BORDER, SET_BG, IRQ_SETUP, RAND, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, MOUSE, SPRITE_COL, LOADFILE, REU_CHECK, REU_STASH, REU_FETCH, REU_SWAP, TURBO_SET, SUPERCPU_DETECT, TURBO_ENABLE, MAP_COPY, MAP_COPY16X16, SPRITE_ANIM, SCORE_BCD
+- **Macros** — LOOP, NEXT, FOR, ENDF, PUSH, PULL, END, TEXT, BYTE, WORD, FILL, ALIGN, ASSERT, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, CHARSET, INCBIN, SID, INCLUDE, TABLE, ORG, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, VAR, WHILE, ENDW, REPEAT, UNTIL, MEMCPY, MEMSET, PRINT, PRINT_CHAR, PRINT_HEX, CLEAR_SCREEN, WAIT_KEY, DELAY, SET_BORDER, SET_BG, IRQ_SETUP, RAND, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, MOUSE, SPRITE_COL, LOADFILE, REU_CHECK, REU_STASH, REU_FETCH, REU_SWAP, TURBO_SET, SUPERCPU_DETECT, TURBO_ENABLE, MAP_COPY, MAP_COPY16X16, SPRITE_ANIM, SCORE_BCD
 
 Use the **search box** at the top of the palette to filter by name. Click the **Add selected block** button or drag a block into the program area.
 
@@ -603,6 +604,7 @@ The tab bar appears above the editor when there is more than one tab open.
 | **Scroll arrows** | Left/right scroll buttons appear when there are more tabs than fit the bar |
 | **Close (×)** | Closes the tab; prompts to save if the tab is dirty |
 | **File extension** | The full filename including extension (`.c64va`, `.json`) is shown |
+| **Right-click menu** | Right-click a tab (or empty tab-bar space) for: **New tab**, **Close tab**, **Close other tabs**, **Close tabs to the right**, **Close all tabs**. Batch-close operations prompt per dirty tab and stop if you cancel. **Close all** always keeps one empty tab. |
 
 > **Tip:** Palette sync (`#expert-palette-sync-btn`) keeps the palette selection in sync with the mnemonic at the cursor. Disable it when you prefer not to have the palette jump around as you edit.
 
