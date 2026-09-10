@@ -91,6 +91,8 @@ hr.div{border:none;border-top:1px solid var(--brd)}
 .cartridge-shot .screen-wrap img{background:radial-gradient(circle at 50% 45%,rgba(44,44,168,.3),transparent 68%)}
 .ub-shot .screen-wrap::before{content:'C64VA  ●  ULTIMATE BASIC IDE'}
 .ub-tag{display:inline-block;margin-bottom:18px;padding:5px 12px;border:1px solid var(--ylw);color:var(--ylw);font-size:10px;letter-spacing:3px}
+.c77-logo-wrap{margin-top:44px;padding:64px;display:flex;justify-content:center}
+.c77-logo-wrap img{max-width:720px;width:100%;display:block}
 .feature-list{margin-top:28px;display:flex;flex-direction:column;gap:12px}
 .fi{display:flex;gap:14px;align-items:flex-start;font-size:13px;line-height:1.9}
 .fi-dot{color:var(--ylw);font-size:16px;flex-shrink:0;margin-top:2px}
@@ -182,6 +184,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   .hero-left{padding:60px 30px 32px}
   .about-grid{grid-template-columns:1fr}
   .tut-grid{grid-template-columns:1fr}
+  .c77-logo-wrap{padding:32px}
   .ub-repo{padding:34px 24px}
   .ub-repo-inner{flex-direction:column;gap:20px;text-align:center}
   .ub-repo-image{width:min(210px,65vw)}
@@ -256,7 +259,23 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
       <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Fixed memory usage with many tabs open</b> <span>&mdash; per-tab undo/redo history is now capped, so long sessions with many open documents no longer grow memory unbounded.</span></div></div>
       <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Corrected KERNAL reference</b> <span>&mdash; fixed the <code>SETLFS</code> and <code>PLOT</code> entries in the disassembler's KERNAL address table.</span></div></div>
       <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Leaner editor toolbar</b> <span>&mdash; removed redundant breakpoint buttons from Expert/UB (still set via the line-number gutter) and aligned the Expert toolbar height with Ultimate Basic.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>New theme: Commodore 77</b> <span>&mdash; neon yellow on black, inspired by the Commodore x Cyberpunk 2077 breadbin edition. See it below.</span></div></div>
     </div>
+  </div>
+</div>
+</div>
+
+<hr class="div">
+
+<!-- COMMODORE 77 THEME -->
+<div id="commodore-77" style="background:var(--bg);padding:80px 0">
+<div class="sec" style="padding-top:0;padding-bottom:0">
+  <div class="ub-tag">NEW IN V2.3.8</div>
+  <div class="sec-s">// PICK YOUR COLORS</div>
+  <h2 class="sec-t">COMMODORE 77 THEME<br><span style="color:var(--ylw)">NEON YELLOW ON BLACK</span></h2>
+  <p class="sec-d" style="max-width:680px">A new app theme styled after the Commodore x Cyberpunk 2077 &ldquo;Commodore 77&rdquo; breadbin edition &mdash; neon yellow on black, built only from the two brand colors and their shades. It covers every corner of the app: block editor, Expert ASM mode, Ultimate Basic, and every tool dialog. Switch anytime from the theme picker (Light / Dark / OLED / Commodore 77).</p>
+  <div class="c77-logo-wrap">
+    <img src="uploads/logo2.png" alt="C64 Visual Assembler feat. Commodore 77 — classic vibes, modern tools">
   </div>
 </div>
 </div>
