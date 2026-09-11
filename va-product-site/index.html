@@ -158,6 +158,25 @@ hr.div{border:none;border-top:1px solid var(--brd)}
 .dl-p:hover{border-color:var(--ylw);color:var(--ylw);background:rgba(184,199,111,.05)}
 .dl-sub{font-size:11px;color:var(--txt-dim);margin-top:28px;letter-spacing:2px}
 
+/* ── MERCH ── */
+.merch{background:var(--scr-darker);border-top:1px solid var(--brd);border-bottom:1px solid var(--brd);padding:84px 80px}
+.merch-inner{max-width:1280px;margin:0 auto}
+.merch-head{display:flex;justify-content:space-between;align-items:end;gap:40px;margin-bottom:42px}
+.merch-head .sec-t{margin-bottom:0}
+.merch-head .sec-d{max-width:470px;font-size:14px}
+.merch-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.merch-card{display:flex;flex-direction:column;background:rgba(0,0,10,.55);border:2px solid var(--brd);transition:transform .15s,border-color .15s,box-shadow .15s}
+.merch-card:hover{transform:translateY(-4px);border-color:var(--brd-hi);box-shadow:0 16px 40px rgba(0,0,0,.28)}
+.merch-image{aspect-ratio:1;overflow:hidden;background:#080816;border-bottom:1px solid var(--brd)}
+.merch-image img{display:block;width:100%;height:100%;object-fit:cover}
+.merch-copy{display:flex;flex:1;flex-direction:column;padding:24px}
+.merch-type{font-size:12px;color:var(--cyn);letter-spacing:3px;margin-bottom:7px}
+.merch-name{font-family:'C64Pro',monospace;font-size:17px;color:var(--txt-hi);letter-spacing:2px;line-height:1.4;margin-bottom:12px}
+.merch-desc{font-size:14px;line-height:1.8;color:var(--txt);text-transform:none;margin-bottom:22px}
+.merch-order{width:100%;margin-top:auto;text-align:center;background:transparent;border-color:var(--ylw);color:var(--ylw);font-size:12px;padding:12px 14px}
+.merch-order:hover{background:var(--ylw);border-color:var(--ylw);color:#000}
+.merch-note{margin-top:24px;text-align:center;color:var(--txt-dim);font-size:12px;letter-spacing:1px}
+
 /* ── ULTIMATE BASIC REPOSITORY ── */
 .ub-repo{background:var(--scr-darker);border-top:1px solid var(--brd);padding:38px 80px}
 .ub-repo-inner{max-width:720px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:34px}
@@ -187,6 +206,10 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
 .discord-link{display:inline-flex;align-items:center;gap:9px !important;border-color:#5865f2 !important;color:#9ca5ff !important;background:rgba(88,101,242,.12) !important}
 .discord-link:hover{border-color:#9ca5ff !important;color:#fff !important;background:#5865f2 !important}
 .discord-link svg{width:20px;height:20px;fill:currentColor;flex:none}
+.facebook-link{display:inline-flex;align-items:center;gap:9px !important;border-color:#1877f2 !important;color:#7eb5ff !important;background:rgba(24,119,242,.12) !important}
+.facebook-link:hover{border-color:#7eb5ff !important;color:#fff !important;background:#1877f2 !important}
+.facebook-icon{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:currentColor;color:#0a3d80;font-family:Arial,sans-serif;font-size:16px;font-weight:900;line-height:1;text-transform:none;flex:none}
+.facebook-link:hover .facebook-icon{color:#1877f2}
 .foot-copy{font-size:11px;color:var(--txt-dim);letter-spacing:1px}
 
 @media(max-width:900px){
@@ -202,6 +225,10 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   .ub-repo{padding:34px 24px}
   .ub-repo-inner{flex-direction:column;gap:20px;text-align:center}
   .ub-repo-image{width:min(210px,65vw)}
+  .merch{padding:64px 24px}
+  .merch-head{display:block;margin-bottom:32px}
+  .merch-head .sec-t{margin-bottom:18px}
+  .merch-grid{grid-template-columns:1fr}
   .octopulous{padding:52px 24px}
   .octopulous-inner{grid-template-columns:1fr;gap:30px}
   .octopulous-embed{justify-self:start}
@@ -227,6 +254,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   <a class="nav-link" href="#features">FEATURES</a>
   <a class="nav-link" href="#editors">EDITORS</a>
   <a class="nav-link" href="#docs">DOCS</a>
+  <a class="nav-link" href="#merch">MERCH</a>
   <a class="nav-link nav-dl" href="#download">DOWNLOAD</a>
 </nav>
 
@@ -631,12 +659,68 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 5.3A17.1 17.1 0 0 0 15.3 4l-.5 1.1a15.7 15.7 0 0 0-5.6 0L8.7 4a17.4 17.4 0 0 0-4.2 1.3C1.8 9.2 1 13 1.3 16.7a17 17 0 0 0 5.2 2.6l1.3-1.8c-.7-.3-1.4-.7-2-1.2l.5-.4a12.2 12.2 0 0 0 11.4 0l.6.4c-.7.5-1.4.9-2.1 1.2l1.3 1.8a17 17 0 0 0 5.2-2.6c.4-4.4-.8-8.1-3.2-11.4ZM8.4 14.5c-1 0-1.9-.9-1.9-2s.8-2 1.9-2 1.9.9 1.9 2-.9 2-1.9 2Zm7.2 0c-1 0-1.9-.9-1.9-2s.8-2 1.9-2 1.9.9 1.9 2-.9 2-1.9 2Z"/></svg>
         <span>JOIN DISCORD</span>
       </a>
+      <a class="btn facebook-link" href="https://www.facebook.com/groups/4435397303367080/" target="_blank" rel="noopener" aria-label="Join the Visual Assembler Facebook group" style="font-size:12px;padding:10px 22px">
+        <span class="facebook-icon" aria-hidden="true">f</span>
+        <span>JOIN FACEBOOK GROUP</span>
+      </a>
       <a class="btn btn-o" href="mailto:retroboj@outlook.com" aria-label="Contact Visual Assembler by email" style="font-size:12px;padding:10px 22px">@ CONTACT</a>
       <a class="btn" href="https://paypal.me/ZsoltTarczali" target="_blank" rel="noopener" style="font-size:12px;padding:10px 22px;border-color:#0070ba;color:#0070ba">♥ SUPPORT DEVELOPMENT</a>
     </div>
   </div>
 </div>
 </div>
+
+<!-- MERCH -->
+<section class="merch" id="merch" aria-labelledby="merch-title">
+  <div class="merch-inner">
+    <div class="merch-head">
+      <div>
+        <div class="sec-s">// C64VA MERCH</div>
+        <h2 class="sec-t" id="merch-title">TAKE VISUAL ASSEMBLER<br>BEYOND THE SCREEN</h2>
+      </div>
+      <p class="sec-d">Mouse pad, black T-shirt and mug with the Visual Assembler design. Order directly by email and we will reply with availability, sizing and delivery details.</p>
+    </div>
+    <div class="merch-grid">
+      <article class="merch-card">
+        <div class="merch-image"><img src="uploads/merch-mousepad.png" alt="Visual Assembler branded black desk mouse pad" loading="lazy"></div>
+        <div class="merch-copy">
+          <div class="merch-type">DESK GEAR</div>
+          <h3 class="merch-name">VISUAL ASSEMBLER MOUSE PAD</h3>
+          <p class="merch-desc">A wide black desk pad featuring the full Visual Assembler and Commodore 77 artwork.</p>
+          <a class="btn merch-order" href="mailto:retroboj@outlook.com?subject=Merch%20order%20-%20Visual%20Assembler%20mouse%20pad&amp;body=Hello%2C%0A%0AI%20would%20like%20to%20order%20a%20Visual%20Assembler%20mouse%20pad.%0A%0AName%3A%0ACountry%3A%0AQuantity%3A%0A">@ ORDER BY EMAIL</a>
+        </div>
+      </article>
+      <article class="merch-card">
+        <div class="merch-image"><img src="uploads/merch-tshirt.png" alt="Black Visual Assembler T-shirt" loading="lazy"></div>
+        <div class="merch-copy">
+          <div class="merch-type">APPAREL</div>
+          <h3 class="merch-name">BLACK VISUAL ASSEMBLER T-SHIRT</h3>
+          <p class="merch-desc">Classic black crew-neck shirt with the glowing yellow Visual Assembler emblem on the front.</p>
+          <a class="btn merch-order" href="mailto:retroboj@outlook.com?subject=Merch%20order%20-%20Black%20Visual%20Assembler%20T-shirt&amp;body=Hello%2C%0A%0AI%20would%20like%20to%20order%20a%20black%20Visual%20Assembler%20T-shirt.%0A%0AName%3A%0ACountry%3A%0ASize%3A%0AQuantity%3A%0A">@ ORDER BY EMAIL</a>
+        </div>
+      </article>
+      <article class="merch-card">
+        <div class="merch-image"><img src="uploads/merch-tshirt-wide-logo.png" alt="Black Visual Assembler T-shirt with wide Commodore logo" loading="lazy"></div>
+        <div class="merch-copy">
+          <div class="merch-type">APPAREL</div>
+          <h3 class="merch-name">BLACK C64VA WIDE-LOGO T-SHIRT</h3>
+          <p class="merch-desc">A black crew-neck shirt with the wide Visual Assembler and Commodore 77 lockup across the chest.</p>
+          <a class="btn merch-order" href="mailto:retroboj@outlook.com?subject=Merch%20order%20-%20Black%20C64VA%20wide-logo%20T-shirt&amp;body=Hello%2C%0A%0AI%20would%20like%20to%20order%20a%20black%20C64VA%20wide-logo%20T-shirt.%0A%0AName%3A%0ACountry%3A%0ASize%3A%0AQuantity%3A%0A">@ ORDER BY EMAIL</a>
+        </div>
+      </article>
+      <article class="merch-card">
+        <div class="merch-image"><img src="uploads/merch-mug.png" alt="Black Visual Assembler ceramic mug" loading="lazy"></div>
+        <div class="merch-copy">
+          <div class="merch-type">COFFEEWARE</div>
+          <h3 class="merch-name">VISUAL ASSEMBLER MUG</h3>
+          <p class="merch-desc">A matte black ceramic mug with the pixel-style Visual Assembler design in signature yellow.</p>
+          <a class="btn merch-order" href="mailto:retroboj@outlook.com?subject=Merch%20order%20-%20Visual%20Assembler%20mug&amp;body=Hello%2C%0A%0AI%20would%20like%20to%20order%20a%20Visual%20Assembler%20mug.%0A%0AName%3A%0ACountry%3A%0AQuantity%3A%0A">@ ORDER BY EMAIL</a>
+        </div>
+      </article>
+    </div>
+    <p class="merch-note">ORDERS ARE CONFIRMED PERSONALLY BY EMAIL. SHIPPING AND PAYMENT DETAILS FOLLOW IN THE REPLY.</p>
+  </div>
+</section>
 
 <!-- ULTIMATE BASIC REPOSITORY -->
 <section class="ub-repo">
@@ -673,6 +757,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   <div class="foot-brand">C64 VISUAL ASSEMBLER — © 2026</div>
   <div class="foot-links">
     <a href="https://github.com/zstarczali/VisualAssembler" target="_blank">GITHUB</a>
+    <a href="https://www.facebook.com/groups/4435397303367080/" target="_blank" rel="noopener">FACEBOOK</a>
     <a href="#docs">DOCS</a>
     <a href="https://github.com/zstarczali/VisualAssembler/blob/main/LICENSE" target="_blank">LICENSE</a>
     <a href="#editors">SAMPLES</a>
