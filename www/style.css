@@ -465,9 +465,11 @@ a {
   align-items: center;
   height: 24px;
   padding: 0 10px;
-  border: 1px solid color-mix(in srgb, var(--accent) 38%, var(--panel-border));
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, rgba(255, 255, 255, 0.35));
   border-radius: 999px;
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  background: color-mix(in srgb, var(--accent) 14%, rgba(255, 255, 255, 0.10));
+  backdrop-filter: blur(9px) saturate(160%);
+  -webkit-backdrop-filter: blur(9px) saturate(160%);
   color: var(--accent);
   font-size: 0.68rem;
   font-weight: 700;
@@ -479,8 +481,9 @@ a {
   position: relative;
   overflow: hidden;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    inset 0 -3px 4px rgba(0, 0, 0, 0.12);
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -1px 3px rgba(0, 0, 0, 0.18),
+    0 4px 14px rgba(0, 0, 0, 0.18);
 }
 
 /* Statikus üveg-sheen: a felső fél halvány fehér fénye — mintha domború üveg/matrica
@@ -502,11 +505,12 @@ a {
 
 .editor-mode-indicator-label { position: relative; z-index: 1; }
 
-/* 15 másodpercenként átlósan végigfutó Commodore-színes csillanás — mintha egy
-   holografikus matrica tükröződne végig a jelvényen. A színek pontosan az .eyebrow
-   csík Commodore-palettájának árnyalatai (piros/narancs/sárga/zöld/kék). Tisztán
-   CSS-ben, %-os méretekkel — nincs szükség JS-es szinkronizálásra a badge változó
-   szélességéhez (nyelvváltás, mód-szöveg hossza). */
+/* 15 másodpercenként átlósan végigfutó fényes csillanás — mintha egy domború
+   üveg/matrica tetején futna végig a fény. Egyszínű (fehér) sáv, ez adja az
+   "üveg-hatást" — nincs benne a korábbi Commodore-színes (piros/narancs/sárga/
+   zöld/kék) csík. Tisztán CSS-ben, %-os méretekkel — nincs szükség JS-es
+   szinkronizálásra a badge változó szélességéhez (nyelvváltás, mód-szöveg
+   hossza). */
 .mode-indicator-shimmer {
   position: absolute;
   inset: -60% 0;
@@ -514,29 +518,19 @@ a {
   background:
     linear-gradient(
       100deg,
-      transparent 46%,
-      rgba(255, 255, 255, 0.95) 50%,
-      transparent 54%
-    ),
-    linear-gradient(
-      100deg,
-      transparent 35%,
-      rgba(255, 255, 255, 0.55) 50%,
-      transparent 65%
+      transparent 38%,
+      rgba(255, 255, 255, 0.7) 50%,
+      transparent 62%
     ),
     linear-gradient(
       100deg,
       transparent 20%,
-      color-mix(in srgb, #cc2200 75%, transparent) 32%,
-      color-mix(in srgb, #e05a00 75%, transparent) 41%,
-      color-mix(in srgb, #d4a800 76%, transparent) 50%,
-      color-mix(in srgb, #3a7d1e 75%, transparent) 59%,
-      color-mix(in srgb, #2a7ac4 75%, transparent) 68%,
+      rgba(255, 255, 255, 0.4) 50%,
       transparent 80%
     );
-  background-blend-mode: screen, screen, normal;
-  filter: blur(0.6px);
-  mix-blend-mode: hard-light;
+  background-blend-mode: screen, screen;
+  filter: blur(2px);
+  mix-blend-mode: soft-light;
   pointer-events: none;
   transform: translateX(-260%) skewX(-18deg);
   opacity: 0;
@@ -544,10 +538,14 @@ a {
 }
 
 @keyframes mode-indicator-shimmer {
-  0%, 40% { transform: translateX(-260%) skewX(-18deg); opacity: 0; }
-  43% { opacity: 0.75; }
-  57% { transform: translateX(260%) skewX(-18deg); opacity: 0.75; }
-  61% { opacity: 0; }
+  /* A csillanás 15 másodpercenként fut végig egyszer, de maga az átfutás
+     (a mozgás fázisa) most szélesebb %-os ablakban történik (35% -> 60%,
+     azaz kb. 3.75mp a korábbi ~2.5mp helyett), ezért lassabbnak/követhetőbbnek
+     hat, miközben az ismétlődés gyakorisága (15mp-enként egyszer) nem változott. */
+  0%, 35% { transform: translateX(-260%) skewX(-18deg); opacity: 0; }
+  40% { opacity: 0.75; }
+  60% { transform: translateX(260%) skewX(-18deg); opacity: 0.75; }
+  65% { opacity: 0; }
   100% { transform: translateX(260%) skewX(-18deg); opacity: 0; }
 }
 
