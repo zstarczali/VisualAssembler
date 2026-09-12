@@ -2,9 +2,20 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.3.9**
+**Current version: v2.4.0**
 
-## What's New in v2.3.9
+## What's New in v2.4.0
+
+- **D64 Editor** — a full disk-image browser on the toolbar (after the Curve Editor). Open an existing `.d64`, create a new blank one, or launch the current disk in VICE from a Files ▾ menu matching the other visual editors.
+- **Add / extract / rename / delete on the D64 Editor** — add a local file to the disk directory, extract a selected entry to `.prg`, rename an entry inline, or delete it — every action is applied straight to the `.d64` via `c1541`, no separate save step.
+- **Load address, decompress address & Exomizer in the D64 Editor** — adding a headerless raw file lets you set an optional load address, an Exomizer decompress target, and compress it on the way in, using the same `mem`/`sfx` crunch modes as the Export to D64 dialog. A `.prg` that already carries its own header skips these fields.
+- **Disk entry type selector** — choose PRG / SEQ / USR / REL for a newly added file instead of always writing PRG.
+- **Authentic directory listing** — the D64 Editor's file list renders in the bundled C64 Pro font, uppercase, for the classic `LOAD"$",8` look.
+- **Fixed D64 Editor rename losing focus** — clicking into the rename text field no longer immediately discards the edit.
+- **Light theme mode badge** — the BLOCK MODE / EXPERT MODE toolbar badge is darker and more legible in light theme, and its shimmer animation is visible again.
+- **Toolbar organization** — added separators around the Tutorials button and after the new D64 Editor icon.
+
+## Earlier: v2.3.9
 
 - **`*` in any expression** — the program-counter symbol now works inside operand expressions, not just alone: `BNE *-5`, `JMP *+20`, `LDA #<*`, `LDA #>(*+63)`. A `*` that follows a value (`STRIDE*2`) is still multiplication.
 - **Local (dotted) labels** — a label like `.loop` is scoped to the nearest preceding global label, so `DrawSprite` and `ClearScreen` can each define their own `.loop` without a clash. Reference it as `.loop` in scope or `ClearScreen.loop` from elsewhere.

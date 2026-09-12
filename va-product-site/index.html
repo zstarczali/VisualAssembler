@@ -101,6 +101,13 @@ hr.div{border:none;border-top:1px solid var(--brd)}
 .fi span{color:var(--txt)}
 .fi b{color:var(--txt-hi)}
 
+/* ── DOCUMENTATION READER ── */
+.docs-library{margin-top:38px}
+.docs-head{display:flex;justify-content:space-between;align-items:end;gap:28px;margin-bottom:20px}
+.docs-head p{max-width:620px;color:var(--txt);font-size:13px;line-height:1.9;text-transform:none}
+.doc-card{appearance:none;text-align:left;background:rgba(0,0,10,.45);border:1px solid var(--brd);color:var(--txt);padding:20px;font:inherit;text-transform:uppercase;cursor:pointer;transition:border-color .12s,background .12s,transform .12s}
+.doc-card:hover,.doc-card:focus-visible{border-color:var(--ylw);background:rgba(40,40,130,.45);transform:translateY(-2px);outline:none}
+.docs-open{display:inline-flex;align-items:center;justify-content:center;min-width:230px;color:var(--ylw);font-family:'C64Pro',monospace;font-size:12px;letter-spacing:2px}
 /* ── COLLAPSED RELEASE HISTORY ── */
 .release-history{border-top:1px solid var(--brd);border-bottom:1px solid var(--brd);background:var(--bg)}
 .release-history>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;
@@ -158,6 +165,25 @@ hr.div{border:none;border-top:1px solid var(--brd)}
 .dl-p:hover{border-color:var(--ylw);color:var(--ylw);background:rgba(184,199,111,.05)}
 .dl-sub{font-size:11px;color:var(--txt-dim);margin-top:28px;letter-spacing:2px}
 
+/* ── MERCH ── */
+.merch{background:var(--scr-darker);border-top:1px solid var(--brd);border-bottom:1px solid var(--brd);padding:84px 80px}
+.merch-inner{max-width:1280px;margin:0 auto}
+.merch-head{display:flex;justify-content:space-between;align-items:end;gap:40px;margin-bottom:42px}
+.merch-head .sec-t{margin-bottom:0}
+.merch-head .sec-d{max-width:470px;font-size:14px}
+.merch-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.merch-card{display:flex;flex-direction:column;background:rgba(0,0,10,.55);border:2px solid var(--brd);transition:transform .15s,border-color .15s,box-shadow .15s}
+.merch-card:hover{transform:translateY(-4px);border-color:var(--brd-hi);box-shadow:0 16px 40px rgba(0,0,0,.28)}
+.merch-image{aspect-ratio:1;overflow:hidden;background:#080816;border-bottom:1px solid var(--brd)}
+.merch-image img{display:block;width:100%;height:100%;object-fit:cover}
+.merch-copy{display:flex;flex:1;flex-direction:column;padding:24px}
+.merch-type{font-size:12px;color:var(--cyn);letter-spacing:3px;margin-bottom:7px}
+.merch-name{font-family:'C64Pro',monospace;font-size:17px;color:var(--txt-hi);letter-spacing:2px;line-height:1.4;margin-bottom:12px}
+.merch-desc{font-size:14px;line-height:1.8;color:var(--txt);text-transform:none;margin-bottom:22px}
+.merch-order{width:100%;margin-top:auto;text-align:center;background:transparent;border-color:var(--ylw);color:var(--ylw);font-size:12px;padding:12px 14px}
+.merch-order:hover{background:var(--ylw);border-color:var(--ylw);color:#000}
+.merch-note{margin-top:24px;text-align:center;color:var(--txt-dim);font-size:12px;letter-spacing:1px}
+
 /* ── ULTIMATE BASIC REPOSITORY ── */
 .ub-repo{background:var(--scr-darker);border-top:1px solid var(--brd);padding:38px 80px}
 .ub-repo-inner{max-width:720px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:34px}
@@ -184,9 +210,14 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
 .foot-links{display:flex;gap:24px}
 .foot-links a{font-size:11px;color:var(--txt-dim);letter-spacing:1px}
 .foot-links a:hover{color:var(--txt)}
-.discord-link{display:inline-flex;align-items:center;gap:9px !important;border-color:#5865f2 !important;color:#9ca5ff !important;background:rgba(88,101,242,.12) !important}
-.discord-link:hover{border-color:#9ca5ff !important;color:#fff !important;background:#5865f2 !important}
-.discord-link svg{width:20px;height:20px;fill:currentColor;flex:none}
+.facebook-link{display:inline-flex;align-items:center;gap:9px !important;border-color:#1877f2 !important;color:#7eb5ff !important;background:rgba(24,119,242,.12) !important}
+.facebook-link:hover{border-color:#7eb5ff !important;color:#fff !important;background:#1877f2 !important}
+.facebook-icon{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:currentColor;color:#0a3d80;font-family:Arial,sans-serif;font-size:16px;font-weight:900;line-height:1;text-transform:none;flex:none}
+.facebook-link:hover .facebook-icon{color:#1877f2}
+.linkedin-link{display:inline-flex;align-items:center;gap:9px!important;border-color:#0a66c2!important;color:#70b7f4!important;background:rgba(10,102,194,.12)!important}
+.linkedin-link:hover{border-color:#70b7f4!important;color:#fff!important;background:#0a66c2!important}
+.linkedin-icon{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:3px;background:currentColor;color:#06477f;font-family:Arial,sans-serif;font-size:13px;font-weight:900;line-height:1;text-transform:none;flex:none}
+.linkedin-link:hover .linkedin-icon{color:#0a66c2}
 .foot-copy{font-size:11px;color:var(--txt-dim);letter-spacing:1px}
 
 @media(max-width:900px){
@@ -202,6 +233,10 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   .ub-repo{padding:34px 24px}
   .ub-repo-inner{flex-direction:column;gap:20px;text-align:center}
   .ub-repo-image{width:min(210px,65vw)}
+  .merch{padding:64px 24px}
+  .merch-head{display:block;margin-bottom:32px}
+  .merch-head .sec-t{margin-bottom:18px}
+  .merch-grid{grid-template-columns:1fr}
   .octopulous{padding:52px 24px}
   .octopulous-inner{grid-template-columns:1fr;gap:30px}
   .octopulous-embed{justify-self:start}
@@ -210,6 +245,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   .sec,.editors-sec,.feat-inner,.spec-bar,.dl-bg,.foot-inner{padding-left:24px;padding-right:24px}
   footer{padding-left:24px;padding-right:24px}
 }
+@media(max-width:520px){.docs-head{display:block}.doc-card{padding:16px}}
 </style>
 </head>
 <body>
@@ -227,6 +263,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   <a class="nav-link" href="#features">FEATURES</a>
   <a class="nav-link" href="#editors">EDITORS</a>
   <a class="nav-link" href="#docs">DOCS</a>
+  <a class="nav-link" href="#merch">MERCH</a>
   <a class="nav-link nav-dl" href="#download">DOWNLOAD</a>
 </nav>
 
@@ -245,7 +282,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
       <div class="y">READY.</div>
       <div><span class="g">RUN</span><span class="cur"></span></div>
     </div>
-    <div class="badge">V2.3.9 — LATEST RELEASE</div>
+    <div class="badge">V2.4.0 — LATEST RELEASE</div>
     <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
     <p class="hero-sub">Drag-and-drop 6502 assembly blocks or switch to a full text editor — see real-time ASM output and run directly in VICE.</p>
     <div class="hero-ctas">
@@ -258,21 +295,20 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   </div>
 </section>
 
-<!-- V2.3.9: ASSEMBLER EXPRESSION & LABEL FEATURES -->
-<div id="release-239" style="background:var(--scr-darker);padding:80px 0">
+<!-- V2.4.0: D64 EDITOR & MULTI-LANGUAGE DOCS -->
+<div id="release-240" style="background:var(--scr-darker);padding:80px 0">
 <div class="sec about-grid" style="padding-top:0;padding-bottom:0">
   <div>
-    <div class="ub-tag">NEW IN V2.3.9</div>
-    <div class="sec-s">// A REAL ASSEMBLER FEEL</div>
-    <h2 class="sec-t">EXPRESSIONS, LOCAL LABELS<br><span style="color:var(--ylw)">AND LONG BRANCHES</span></h2>
-    <p class="sec-d">Version 2.3.9 brings the quality-of-life syntax that power users expect from 64tass, ACME and Kick Assembler &mdash; usable in Expert-mode text and, where it makes sense, as blocks.</p>
+    <div class="ub-tag">NEW IN V2.4.0</div>
+    <div class="sec-s">// MANAGE YOUR DISKS, IN YOUR LANGUAGE</div>
+    <h2 class="sec-t">D64 EDITOR<br><span style="color:var(--ylw)">AND MULTI-LANGUAGE DOCS</span></h2>
+    <p class="sec-d">Version 2.4.0 adds a full disk-image manager right in the toolbar, and puts the entire manual online in eight languages.</p>
     <div class="feature-list">
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b><code>*</code> in any expression</b> <span>&mdash; the program counter now works inside operand expressions, not just alone: <code>BNE *-5</code>, <code>JMP *+20</code>, <code>LDA #&lt;*</code>, <code>LDA #&gt;(*+63)</code>. A <code>*</code> after a value (<code>STRIDE*2</code>) is still multiplication.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Local (dotted) labels</b> <span>&mdash; <code>.loop</code> is scoped to the nearest preceding global label, so <code>DrawSprite</code> and <code>ClearScreen</code> can each have their own <code>.loop</code> without a clash.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Long-branch pseudo-ops</b> <span>&mdash; <code>LBNE</code>, <code>LBEQ</code>, <code>LBCC</code>, <code>LBCS</code>, <code>LBMI</code>, <code>LBPL</code>, <code>LBVC</code>, <code>LBVS</code> assemble to an inverted branch over a <code>JMP</code> (5 bytes) so the target can be any distance away.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b><code>.assert</code> directive</b> <span>&mdash; <code>.assert end - start &lt;= 256, "message"</code> is checked at assembly time and fails the build (with the actual value) when it is false.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Self-modifying-code labels</b> <span>&mdash; <code>LDA value:#$00</code> puts the label <code>value</code> on the operand byte, so <code>STA value</code> patches it &mdash; no <code>instruction+1</code> label needed.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Friendlier branch errors</b> <span>&mdash; an out-of-range branch reports exactly how far it overshoots and suggests the matching <code>LBxx</code> long branch.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>D64 Editor</b> <span>&mdash; open an existing <code>.d64</code>, create a new blank disk, or launch one straight into VICE from a Files menu that matches the app's other visual editors.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Add / extract / rename / delete</b> <span>&mdash; every action is applied straight to the disk image via <code>c1541</code>, no separate save step.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Load address, decompress address &amp; Exomizer</b> <span>&mdash; adding a raw file lets you set an optional load address, an Exomizer decompress target, and compress it on the way in &mdash; plus a PRG / SEQ / USR / REL type selector.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Authentic directory listing</b> <span>&mdash; the file list renders in the bundled C64 Pro font, uppercase, for the classic <code>LOAD"$",8</code> look.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Multi-language documentation</b> <span>&mdash; the full manual is now searchable online at <a href="docs.html" style="color:var(--cyn)">c64va.tech/docs.html</a>, in English, Hungarian, German, French, Dutch, Finnish, Italian and Swedish.</span></div></div>
     </div>
   </div>
 </div>
@@ -297,7 +333,27 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
 
 <!-- OLDER RELEASE NOTES — collapsed by default -->
 <details id="release-history" class="release-history">
-  <summary><span class="rh-tri">&#9656;</span> Previous releases &mdash; V2.3.8 and earlier</summary>
+  <summary><span class="rh-tri">&#9656;</span> Previous releases &mdash; V2.3.9 and earlier</summary>
+
+<!-- V2.3.9: ASSEMBLER EXPRESSION & LABEL FEATURES -->
+<div id="release-239" style="background:var(--bg);padding:80px 0">
+<div class="sec about-grid" style="padding-top:0;padding-bottom:0">
+  <div>
+    <div class="ub-tag">NEW IN V2.3.9</div>
+    <div class="sec-s">// A REAL ASSEMBLER FEEL</div>
+    <h2 class="sec-t">EXPRESSIONS, LOCAL LABELS<br><span style="color:var(--ylw)">AND LONG BRANCHES</span></h2>
+    <p class="sec-d">Version 2.3.9 brings the quality-of-life syntax that power users expect from 64tass, ACME and Kick Assembler &mdash; usable in Expert-mode text and, where it makes sense, as blocks.</p>
+    <div class="feature-list">
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b><code>*</code> in any expression</b> <span>&mdash; the program counter now works inside operand expressions, not just alone: <code>BNE *-5</code>, <code>JMP *+20</code>, <code>LDA #&lt;*</code>, <code>LDA #&gt;(*+63)</code>. A <code>*</code> after a value (<code>STRIDE*2</code>) is still multiplication.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Local (dotted) labels</b> <span>&mdash; <code>.loop</code> is scoped to the nearest preceding global label, so <code>DrawSprite</code> and <code>ClearScreen</code> can each have their own <code>.loop</code> without a clash.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Long-branch pseudo-ops</b> <span>&mdash; <code>LBNE</code>, <code>LBEQ</code>, <code>LBCC</code>, <code>LBCS</code>, <code>LBMI</code>, <code>LBPL</code>, <code>LBVC</code>, <code>LBVS</code> assemble to an inverted branch over a <code>JMP</code> (5 bytes) so the target can be any distance away.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b><code>.assert</code> directive</b> <span>&mdash; <code>.assert end - start &lt;= 256, "message"</code> is checked at assembly time and fails the build (with the actual value) when it is false.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Self-modifying-code labels</b> <span>&mdash; <code>LDA value:#$00</code> puts the label <code>value</code> on the operand byte, so <code>STA value</code> patches it &mdash; no <code>instruction+1</code> label needed.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Friendlier branch errors</b> <span>&mdash; an out-of-range branch reports exactly how far it overshoots and suggests the matching <code>LBxx</code> long branch.</span></div></div>
+    </div>
+  </div>
+</div>
+</div>
 
 <!-- V2.3.8: WORKSPACES AND LOCALIZATION -->
 <div id="release-238" style="background:var(--bg);padding:80px 0">
@@ -406,7 +462,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   <div>
     <div class="sec-s">// WHAT IS IT</div>
     <h2 class="sec-t">THE POWER OF 6502<br>MADE VISUAL</h2>
-    <div class="sec-callout">COMMODORE 64 ULTIMATE + ULTIMATE ELITE 64 SUPPORT</div>
+    <div class="sec-callout">COMMODORE 64 ULTIMATE + ULTIMATE ELITE 64 + GIDEON'S ULTIMATE II+ SUPPORT</div>
     <p class="sec-d">C64 Visual Assembler is a modern Tauri-based desktop app that lets you build authentic Commodore 64 programs by arranging drag-and-drop blocks — while seeing the generated assembly and live disassembly on the right.</p>
     <div class="feature-list">
       <div class="fi"><div class="fi-dot">►</div><div><b>Block editor</b> <span>— drag mnemonics, macros and labels into a list. No hand-typing required.</span></div></div>
@@ -568,9 +624,10 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   <div>
     <div class="sec-s">// HARDWARE INTEGRATION</div>
     <h2 class="sec-t">C64 ULTIMATE &<br>VICE SUPPORT</h2>
-    <p class="sec-d">Configure every hardware target from one settings panel. VICE, RetroDebugger, C64 Ultimate REST API, Exomizer compression and debug sidecar generation — all in one place.</p>
+    <p class="sec-d">Configure every hardware target from one settings panel. VICE, RetroDebugger, C64 Ultimate REST API, Gideon's Ultimate II+, Exomizer compression and debug sidecar generation — all in one place. Your projects can run on modern C64 Ultimate systems as well as original Commodore 64 hardware from the 1980s and 1990s.</p>
     <div class="feature-list">
       <div class="fi"><div class="fi-dot">►</div><div><b>C64 Ultimate</b> <span>— upload and run PRG directly on real hardware via the C64 Ultimate REST API.</span></div></div>
+      <div class="fi"><div class="fi-dot">►</div><div><b>Gideon's Ultimate II+</b> <span>— use Visual Assembler projects on original 1980s and 1990s C64 hardware with PRG, D64 and compatible cartridge builds.</span></div></div>
       <div class="fi"><div class="fi-dot">►</div><div><b>VICE + RetroDebugger</b> <span>— one-click launch with breakpoints, symbol files and monitor commands.</span></div></div>
       <div class="fi"><div class="fi-dot">►</div><div><b>D64 disk images</b> <span>— build and run .d64 files via c1541, add extra files to the disk.</span></div></div>
       <div class="fi"><div class="fi-dot">►</div><div><b>Exomizer</b> <span>— optional SFX crunch before launch to squeeze every byte.</span></div></div>
@@ -603,6 +660,16 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
     </div>
   </div>
 </div>
+<div class="sec docs-library" style="padding-top:0">
+  <div class="docs-head">
+    <div>
+      <div class="sec-s">// DOCUMENTATION</div>
+      <h2 class="sec-t" style="margin-bottom:0">USER MANUALS</h2>
+    </div>
+    <p>The complete searchable manual is available in English, Hungarian, German, French, Dutch, Finnish, Italian and Swedish. You can switch languages inside the documentation viewer.</p>
+  </div>
+  <button class="doc-card docs-open" type="button">► OPEN DOCUMENTS</button>
+</div>
 </div>
 
 <hr class="div">
@@ -627,9 +694,13 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
     <div style="margin-top:20px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
       <a class="btn btn-o" href="https://zstarczali.itch.io/visual-assembler-commodore-64" target="_blank" rel="noopener" style="font-size:12px;padding:10px 22px">⬡ VIEW ON ITCH.IO</a>
       <a class="btn btn-o" href="https://github.com/zstarczali/VisualAssembler" target="_blank" rel="noopener" style="font-size:12px;padding:10px 22px">► VIEW ON GITHUB</a>
-      <a class="btn discord-link" href="https://discord.gg/hUavXyrnX" target="_blank" rel="noopener" aria-label="Join the Visual Assembler Discord community" style="font-size:12px;padding:10px 22px">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 5.3A17.1 17.1 0 0 0 15.3 4l-.5 1.1a15.7 15.7 0 0 0-5.6 0L8.7 4a17.4 17.4 0 0 0-4.2 1.3C1.8 9.2 1 13 1.3 16.7a17 17 0 0 0 5.2 2.6l1.3-1.8c-.7-.3-1.4-.7-2-1.2l.5-.4a12.2 12.2 0 0 0 11.4 0l.6.4c-.7.5-1.4.9-2.1 1.2l1.3 1.8a17 17 0 0 0 5.2-2.6c.4-4.4-.8-8.1-3.2-11.4ZM8.4 14.5c-1 0-1.9-.9-1.9-2s.8-2 1.9-2 1.9.9 1.9 2-.9 2-1.9 2Zm7.2 0c-1 0-1.9-.9-1.9-2s.8-2 1.9-2 1.9.9 1.9 2-.9 2-1.9 2Z"/></svg>
-        <span>JOIN DISCORD</span>
+      <a class="btn facebook-link" href="https://www.facebook.com/groups/4435397303367080/" target="_blank" rel="noopener" aria-label="Join the Visual Assembler Facebook group" style="font-size:12px;padding:10px 22px">
+        <span class="facebook-icon" aria-hidden="true">f</span>
+        <span>JOIN FACEBOOK GROUP</span>
+      </a>
+      <a class="btn linkedin-link" href="https://www.linkedin.com/in/zsolttarczali" target="_blank" rel="noopener" aria-label="View Zsolt Tarczali on LinkedIn" style="font-size:12px;padding:10px 22px">
+        <span class="linkedin-icon" aria-hidden="true">in</span>
+        <span>LINKEDIN</span>
       </a>
       <a class="btn btn-o" href="mailto:retroboj@outlook.com" aria-label="Contact Visual Assembler by email" style="font-size:12px;padding:10px 22px">@ CONTACT</a>
       <a class="btn" href="https://paypal.me/ZsoltTarczali" target="_blank" rel="noopener" style="font-size:12px;padding:10px 22px;border-color:#0070ba;color:#0070ba">♥ SUPPORT DEVELOPMENT</a>
@@ -637,6 +708,58 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   </div>
 </div>
 </div>
+
+<!-- MERCH -->
+<section class="merch" id="merch" aria-labelledby="merch-title">
+  <div class="merch-inner">
+    <div class="merch-head">
+      <div>
+        <div class="sec-s">// C64VA MERCH</div>
+        <h2 class="sec-t" id="merch-title">TAKE VISUAL ASSEMBLER<br>BEYOND THE SCREEN</h2>
+      </div>
+      <p class="sec-d">Mouse pad, black T-shirt and mug with the Visual Assembler design. Order directly by email and we will reply with availability, sizing and delivery details.</p>
+    </div>
+    <div class="merch-grid">
+      <article class="merch-card">
+        <div class="merch-image"><img src="uploads/merch-mousepad.png" alt="Visual Assembler branded black desk mouse pad" loading="lazy"></div>
+        <div class="merch-copy">
+          <div class="merch-type">DESK GEAR</div>
+          <h3 class="merch-name">VISUAL ASSEMBLER MOUSE PAD</h3>
+          <p class="merch-desc">A wide black desk pad featuring the full Visual Assembler and Commodore 77 artwork.</p>
+          <a class="btn merch-order" href="mailto:retroboj@outlook.com?subject=Merch%20order%20-%20Visual%20Assembler%20mouse%20pad&amp;body=Hello%2C%0A%0AI%20would%20like%20to%20order%20a%20Visual%20Assembler%20mouse%20pad.%0A%0AName%3A%0ACountry%3A%0AQuantity%3A%0A">@ ORDER BY EMAIL</a>
+        </div>
+      </article>
+      <article class="merch-card">
+        <div class="merch-image"><img src="uploads/merch-tshirt.png" alt="Black Visual Assembler T-shirt" loading="lazy"></div>
+        <div class="merch-copy">
+          <div class="merch-type">APPAREL</div>
+          <h3 class="merch-name">BLACK VISUAL ASSEMBLER T-SHIRT</h3>
+          <p class="merch-desc">Classic black crew-neck shirt with the glowing yellow Visual Assembler emblem on the front.</p>
+          <a class="btn merch-order" href="mailto:retroboj@outlook.com?subject=Merch%20order%20-%20Black%20Visual%20Assembler%20T-shirt&amp;body=Hello%2C%0A%0AI%20would%20like%20to%20order%20a%20black%20Visual%20Assembler%20T-shirt.%0A%0AName%3A%0ACountry%3A%0ASize%3A%0AQuantity%3A%0A">@ ORDER BY EMAIL</a>
+        </div>
+      </article>
+      <article class="merch-card">
+        <div class="merch-image"><img src="uploads/merch-tshirt-wide-logo.png" alt="Black Visual Assembler T-shirt with wide Commodore logo" loading="lazy"></div>
+        <div class="merch-copy">
+          <div class="merch-type">APPAREL</div>
+          <h3 class="merch-name">BLACK C64VA WIDE-LOGO T-SHIRT</h3>
+          <p class="merch-desc">A black crew-neck shirt with the wide Visual Assembler and Commodore 77 lockup across the chest.</p>
+          <a class="btn merch-order" href="mailto:retroboj@outlook.com?subject=Merch%20order%20-%20Black%20C64VA%20wide-logo%20T-shirt&amp;body=Hello%2C%0A%0AI%20would%20like%20to%20order%20a%20black%20C64VA%20wide-logo%20T-shirt.%0A%0AName%3A%0ACountry%3A%0ASize%3A%0AQuantity%3A%0A">@ ORDER BY EMAIL</a>
+        </div>
+      </article>
+      <article class="merch-card">
+        <div class="merch-image"><img src="uploads/merch-mug.png" alt="Black Visual Assembler ceramic mug" loading="lazy"></div>
+        <div class="merch-copy">
+          <div class="merch-type">COFFEEWARE</div>
+          <h3 class="merch-name">VISUAL ASSEMBLER MUG</h3>
+          <p class="merch-desc">A matte black ceramic mug with the pixel-style Visual Assembler design in signature yellow.</p>
+          <a class="btn merch-order" href="mailto:retroboj@outlook.com?subject=Merch%20order%20-%20Visual%20Assembler%20mug&amp;body=Hello%2C%0A%0AI%20would%20like%20to%20order%20a%20Visual%20Assembler%20mug.%0A%0AName%3A%0ACountry%3A%0AQuantity%3A%0A">@ ORDER BY EMAIL</a>
+        </div>
+      </article>
+    </div>
+    <p class="merch-note">ORDERS ARE CONFIRMED PERSONALLY BY EMAIL. SHIPPING AND PAYMENT DETAILS FOLLOW IN THE REPLY.</p>
+  </div>
+</section>
 
 <!-- ULTIMATE BASIC REPOSITORY -->
 <section class="ub-repo">
@@ -673,6 +796,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   <div class="foot-brand">C64 VISUAL ASSEMBLER — © 2026</div>
   <div class="foot-links">
     <a href="https://github.com/zstarczali/VisualAssembler" target="_blank">GITHUB</a>
+    <a href="https://www.facebook.com/groups/4435397303367080/" target="_blank" rel="noopener">FACEBOOK</a>
     <a href="#docs">DOCS</a>
     <a href="https://github.com/zstarczali/VisualAssembler/blob/main/LICENSE" target="_blank">LICENSE</a>
     <a href="#editors">SAMPLES</a>
@@ -696,6 +820,24 @@ function showTab(id){
     p.classList.toggle('on',p.id==='tab-'+id);
   });
 }
+
+
+document.querySelector('.docs-open').addEventListener('click',()=>{
+  const languages=['en','hu','de','fr','nl','fi','it','sv'];
+  const saved=document.cookie.split('; ').find(row=>row.startsWith('va_docs_lang='))?.split('=')[1];
+  const language=languages.includes(saved)?saved:'en';
+  const url=new URL('docs.html',location.href);
+  url.searchParams.set('doc',language);
+  const cookies=Object.fromEntries(document.cookie.split('; ').filter(Boolean).map(row=>{const separator=row.indexOf('=');return [row.slice(0,separator),row.slice(separator+1)]}));
+  const savedWidth=parseInt(cookies.va_docs_width,10);
+  const savedHeight=parseInt(cookies.va_docs_height,10);
+  const width=Math.min(Math.max(Number.isFinite(savedWidth)?savedWidth:1220,640),screen.availWidth-40);
+  const height=Math.min(Math.max(Number.isFinite(savedHeight)?savedHeight:900,480),screen.availHeight-60);
+  const left=Math.max(0,Math.round((screen.availWidth-width)/2));
+  const top=Math.max(0,Math.round((screen.availHeight-height)/2));
+  const popup=window.open(url.href,'va_documentation','popup=yes,width='+width+',height='+height+',left='+left+',top='+top+',resizable=yes,scrollbars=no');
+  if(!popup) location.href=url.href;
+});
 
 // Open the collapsed release-history block when a link targets a section inside it.
 (function(){

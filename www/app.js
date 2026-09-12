@@ -77,45 +77,40 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "welcome-introduction-1",
-  url: "https://github.com/zstarczali/UltimateBasic",
+  id: "d64-editor-multilang-docs-1",
+  url: "https://www.c64va.tech/docs.html",
   hu: {
     eyebrow: "Újdonság",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p>Az <strong>Ultimate Basic</strong> egy modern, C64-re készült fordított BASIC nyelv. <strong>Mostantól az Ultimate Basic közvetlenül a Visual Assembler IDE-ben is elérhető</strong>, a teljes értékű UB szerkesztőmódban.</p><ul><li><strong>Mire jó?</strong> Gyors C64 program-, játék- és demófejlesztésre, alacsony szintű assembly írása nélkül.</li><li><strong>Mit tartalmaz?</strong> Szintaxiskiemelést, kódkiegészítést, parancssúgót, projektkezelést, formázást, fordítást és hibajelzést.</li><li><strong>Futtatás:</strong> PRG vagy D64 VICE-ban és C64 Ultimate-en, valamint RetroDebugger támogatás szimbólumokkal.</li><li><strong>Debug kimenet:</strong> KickAssembler <code>.sym</code>, C64Debugger <code>.dbg</code> és VICE <code>.vs</code> címkék.</li></ul><p>Az Ultimate Basic önálló, nyílt forrású projektként is elérhető a GitHubon.</p>`,
-    link: "Ultimate Basic a GitHubon",
+    body: `<p>Két új dolog érdemel egy pillantást:</p><ul><li><strong>D64 Editor</strong> — teljes értékű lemezkép-böngésző az eszköztáron (a Curve Editor ikon mögött). Meglévő <code>.d64</code> megnyitása, új üres lemez létrehozása, vagy közvetlen indítás VICE-ben, majd programok hozzáadása, kimentése, átnevezése vagy törlése közvetlenül a lemezen.</li><li><strong>Többnyelvű dokumentáció</strong> — a teljes kézikönyv mostantól kereshetően böngészhető online, angol, magyar, német, francia, holland, finn, olasz és svéd nyelven: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
     eyebrow: "New",
     title: "Welcome to Visual Assembler",
-    body: `<p><strong>Ultimate Basic</strong> is a modern compiled BASIC language for the C64. <strong>Ultimate Basic is now available directly inside the Visual Assembler IDE</strong> through the full-featured UB editor mode.</p><ul><li><strong>What is it for?</strong> Rapid C64 program, game and demo development without writing everything in low-level assembly.</li><li><strong>What is included?</strong> Syntax highlighting, completion, command help, projects, formatting, compilation and error reporting.</li><li><strong>Run targets:</strong> PRG or D64 in VICE and on C64 Ultimate, plus RetroDebugger support with symbols.</li><li><strong>Debug output:</strong> KickAssembler <code>.sym</code>, C64Debugger <code>.dbg</code> and VICE <code>.vs</code> labels.</li></ul><p>Ultimate Basic is also available as a standalone open-source project on GitHub.</p>`,
-    link: "Ultimate Basic on GitHub",
+    body: `<p>Two new things worth a look:</p><ul><li><strong>D64 Editor</strong> — a full disk-image browser on the toolbar (after the Curve Editor icon). Open an existing <code>.d64</code>, create a new blank one, or launch it straight into VICE, then add, extract, rename or delete programs directly on the disk.</li><li><strong>Multi-language documentation</strong> — the full manual is now searchable online in English, Hungarian, German, French, Dutch, Finnish, Italian and Swedish: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
     eyebrow: "Novedad",
     title: "Bienvenido a Visual Assembler",
-    body: `<p><strong>Ultimate Basic</strong> es un lenguaje BASIC moderno y compilado para C64. <strong>A partir de ahora, Ultimate Basic también está disponible directamente en el IDE Visual Assembler</strong> mediante el completo modo de edición UB.</p><ul><li><strong>¿Para qué sirve?</strong> Para desarrollar rápidamente programas, juegos y demos de C64 sin tener que escribirlo todo en ensamblador de bajo nivel.</li><li><strong>¿Qué incluye?</strong> Resaltado de sintaxis, autocompletado, ayuda de comandos, gestión de proyectos, formateo, compilación e indicación de errores.</li><li><strong>Ejecución:</strong> PRG o D64 en VICE y C64 Ultimate, además de compatibilidad con RetroDebugger y símbolos.</li><li><strong>Información de depuración:</strong> archivos KickAssembler <code>.sym</code>, C64Debugger <code>.dbg</code> y etiquetas VICE <code>.vs</code>.</li></ul><p>Ultimate Basic también está disponible como proyecto independiente y de código abierto en GitHub.</p>`,
-    link: "Ultimate Basic en GitHub",
+    body: `<p>Dos novedades que merecen un vistazo:</p><ul><li><strong>Editor de D64</strong> — un explorador de imágenes de disco completo en la barra de herramientas (junto al icono del editor de curvas). Abre un <code>.d64</code> existente, crea uno nuevo en blanco o ejecútalo directamente en VICE, y luego añade, extrae, renombra o elimina programas directamente en el disco.</li><li><strong>Documentación multilingüe</strong> — el manual completo ahora se puede consultar y buscar en línea en inglés, húngaro, alemán, francés, neerlandés, finlandés, italiano y sueco: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
     eyebrow: "Neu",
     title: "Willkommen bei Visual Assembler",
-    body: `<p><strong>Ultimate Basic</strong> ist eine moderne, kompilierte BASIC-Sprache für den C64. <strong>Ab sofort ist Ultimate Basic auch direkt in der Visual Assembler IDE verfügbar</strong> – mit einem vollständigen UB-Editormodus.</p><ul><li><strong>Wofür ist es gedacht?</strong> Für die schnelle Entwicklung von C64-Programmen, Spielen und Demos, ohne alles in maschinennahem Assembler schreiben zu müssen.</li><li><strong>Was ist enthalten?</strong> Syntaxhervorhebung, Codevervollständigung, Befehlshilfe, Projektverwaltung, Formatierung, Kompilierung und Fehleranzeige.</li><li><strong>Ausführung:</strong> PRG oder D64 in VICE und auf C64 Ultimate sowie RetroDebugger-Unterstützung mit Symbolen.</li><li><strong>Debug-Ausgabe:</strong> KickAssembler-<code>.sym</code>, C64Debugger-<code>.dbg</code> und VICE-<code>.vs</code>-Labels.</li></ul><p>Ultimate Basic ist außerdem als eigenständiges Open-Source-Projekt auf GitHub verfügbar.</p>`,
-    link: "Ultimate Basic auf GitHub",
+    body: `<p>Zwei Neuerungen sind einen Blick wert:</p><ul><li><strong>D64-Editor</strong> — ein vollwertiger Disk-Image-Browser in der Werkzeugleiste (nach dem Curve-Editor-Symbol). Öffne ein bestehendes <code>.d64</code>, erstelle ein neues leeres Image oder starte es direkt in VICE, und füge dann Programme direkt auf der Diskette hinzu, extrahiere, benenne um oder lösche sie.</li><li><strong>Mehrsprachige Dokumentation</strong> — das vollständige Handbuch ist jetzt online durchsuchbar, in Englisch, Ungarisch, Deutsch, Französisch, Niederländisch, Finnisch, Italienisch und Schwedisch: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
     eyebrow: "Nieuw",
     title: "Welkom bij Visual Assembler",
-    body: `<p><strong>Ultimate Basic</strong> is een moderne, gecompileerde BASIC-taal voor de C64. <strong>Vanaf nu is Ultimate Basic direct beschikbaar in de Visual Assembler IDE</strong> via de volwaardige UB-bewerkingsmodus.</p><ul><li><strong>Waarvoor dient het?</strong> Voor snelle ontwikkeling van C64-programma's, games en demo's zonder alles in low-level assembly te hoeven schrijven.</li><li><strong>Wat is inbegrepen?</strong> Syntaxisaccentuering, automatisch aanvullen, opdrachthulp, projectbeheer, opmaak, compilatie en foutweergave.</li><li><strong>Uitvoeren:</strong> PRG of D64 in VICE en op C64 Ultimate, plus RetroDebugger-ondersteuning met symbolen.</li><li><strong>Debug-uitvoer:</strong> KickAssembler <code>.sym</code>, C64Debugger <code>.dbg</code> en VICE <code>.vs</code> labels.</li></ul><p>Ultimate Basic is tevens beschikbaar als zelfstandig open-source project op GitHub.</p>`,
-    link: "Ultimate Basic op GitHub",
+    body: `<p>Twee nieuwe dingen die de moeite waard zijn:</p><ul><li><strong>D64 Editor</strong> — een volwaardige diskimage-browser op de werkbalk (na het Curve Editor-pictogram). Open een bestaande <code>.d64</code>, maak een nieuwe lege schijf aan, of start hem direct in VICE, en voeg vervolgens programma's rechtstreeks op de schijf toe, exporteer, hernoem of verwijder ze.</li><li><strong>Meertalige documentatie</strong> — de volledige handleiding is nu online doorzoekbaar in het Engels, Hongaars, Duits, Frans, Nederlands, Fins, Italiaans en Zweeds: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   }
@@ -430,8 +425,6 @@ const whatsNewCloseButton = document.getElementById("whats-new-close");
 const customerMessageDialog = document.getElementById("customer-message-dialog");
 const customerMessageCloseButton = document.getElementById("customer-message-close");
 const customerMessageDismissButton = document.getElementById("customer-message-dismiss");
-const customerMessageLinkButton = document.getElementById("customer-message-link");
-const customerMessageManualButton = document.getElementById("customer-message-manual");
 const knowledgeBaseButton = document.getElementById("knowledge-base-btn");
 const knowledgeBaseDialog = document.getElementById("knowledge-base-dialog");
 const knowledgeBaseCloseButton = document.getElementById("knowledge-base-close");
@@ -2363,10 +2356,18 @@ function initPalette() {
     localStorage.setItem("customerMessageSeen", CUSTOMER_MESSAGE.id);
     customerMessageDialog?.close();
   });
-  customerMessageManualButton?.addEventListener("click", () => window.electronAPI?.openUltimateBasicManual?.());
   document.querySelector(".customer-message-site")?.addEventListener("click", (e) => {
     e.preventDefault();
     window.electronAPI?.openExternal("https://www.c64va.tech");
+  });
+  // The message body is rich HTML (set via innerHTML in showCustomerMessageIfNeeded)
+  // and may contain plain <a href target="_blank"> links — those don't navigate
+  // correctly inside the Tauri webview, so route clicks through openExternal.
+  document.getElementById("customer-message-body")?.addEventListener("click", (e) => {
+    const link = e.target.closest("a[href]");
+    if (!link) return;
+    e.preventDefault();
+    window.electronAPI?.openExternal(link.href);
   });
   knowledgeBaseButton?.addEventListener("click", () => {
     document.querySelector(".control-menu")?.removeAttribute("open");
@@ -2392,6 +2393,7 @@ function initPalette() {
   setupHiresEditor();
   setupSpriteEditor();
   setupSidEditor();
+  setupD64Editor();
   setupDraggableEditorDialogs();
   _setupFileMenus();
   setupOperandDropdown();
@@ -2828,7 +2830,8 @@ function setupDraggableEditorDialogs() {
     ["hires-editor-dialog", ".hg-hdr"],
     ["sprite-editor-dialog", ".se-hdr"],
     ["sid-editor-dialog", ".sid-hdr"],
-    ["curve-gen-dialog", ".cg-hdr"]
+    ["curve-gen-dialog", ".cg-hdr"],
+    ["d64-editor-dialog", ".de-hdr"]
   ];
   dialogs.forEach(function(entry) {
     const dialogId = entry[0];
@@ -3225,7 +3228,6 @@ function showCustomerMessageIfNeeded() {
   const body = document.getElementById("customer-message-body");
   if (eyebrow) eyebrow.textContent = content.eyebrow;
   if (body) body.innerHTML = content.body;
-  if (customerMessageManualButton) customerMessageManualButton.textContent = t("ubManual");
   if (customerMessageDismissButton) customerMessageDismissButton.textContent = content.dismiss;
   if (customerMessageCloseButton) customerMessageCloseButton.textContent = content.close;
   customerMessageDialog.showModal();
@@ -3733,6 +3735,28 @@ function applyTranslations() {
     document.getElementById("d64-export-add-file")?.setAttribute("title", t("d64ExportAddFile"));
     setText("#d64-export-confirm", t("d64ExportConfirm"));
     setText("#d64-export-cancel", t("d64ExportCancel"));
+    document.getElementById("d64-editor-btn")?.setAttribute("aria-label", t("d64EditorTitle"));
+    setText("#de-new", t("d64EditorNew"));
+    setText("#de-open", t("d64EditorOpen"));
+    setText("#de-save-as", t("d64EditorSaveAs"));
+    setText("#de-run-vice", t("d64EditorRunVice"));
+    document.getElementById("de-add")?.setAttribute("aria-label", t("d64EditorAdd"));
+    document.getElementById("de-extract")?.setAttribute("aria-label", t("d64EditorExtract"));
+    document.getElementById("de-rename")?.setAttribute("aria-label", t("d64EditorRename"));
+    document.getElementById("de-delete")?.setAttribute("aria-label", t("d64EditorDelete"));
+    document.getElementById("de-refresh")?.setAttribute("aria-label", t("d64EditorRefresh"));
+    setText("#de-add-name-label", t("d64EditorAddNameLabel"));
+    setText("#de-add-load-label", t("d64EditorAddLoadLabel"));
+    setText("#de-add-type-label", t("d64EditorColType"));
+    setText("#de-add-decomp-label", t("d64EditorAddDecompLabel"));
+    document.getElementById("de-add-crunch-label")?.setAttribute("title", t("d64ExtraCrunchTooltip"));
+    setText("#de-add-confirm", t("d64EditorAdd"));
+    setText("#de-add-cancel", t("d64ExportCancel"));
+    setText("#de-col-blocks", t("d64EditorColBlocks"));
+    setText("#de-col-name", t("d64EditorColName"));
+    setText("#de-col-type", t("d64EditorColType"));
+    setText("#de-empty", t("d64EditorEmpty"));
+    if (!_d64EdState.path) setText("#de-disk-label", t("d64EditorNoDisk"));
     setText("#program-settings-label", t("programSettings"));
     setText("#asm-output-settings-label", t("asmOutputSettings"));
     setText("#snapshot-settings-label", t("snapshotSettings"));
@@ -17071,6 +17095,333 @@ async function saveD64ToFile() {
   }
 
   openD64ExportDialog(prg.bytes, ultimateBasicMode ? prg.sidecars : _buildDebuggerSidecarPayload(prg));
+}
+
+// ── D64 Editor ────────────────────────────────────────────────────────
+// Lets the user open an existing D64 image (or create a blank one), list its
+// directory, add/extract/rename/delete PRG entries, and launch it in VICE.
+// Every action shells out to c1541 straight against the on-disk image (see
+// d64_list/d64_add_file/... in lib.rs) — there is no in-memory buffering,
+// so each toolbar action mutates the file immediately, like a real disk tool.
+const _d64EdState = {
+  path: null,
+  diskName: "",
+  freeBlocks: null,
+  entries: [],
+  selected: null,
+  pendingAddBytes: null
+};
+
+function _d64EdSetError(msg) {
+  const el = document.getElementById("de-error");
+  if (!el) return;
+  if (msg) { el.textContent = msg; el.hidden = false; }
+  else { el.textContent = ""; el.hidden = true; }
+}
+
+function _d64EdSetToolbarEnabled() {
+  const hasDisk = !!_d64EdState.path;
+  const hasSel = hasDisk && !!_d64EdState.selected;
+  const set = function(id, enabled) { const el = document.getElementById(id); if (el) el.disabled = !enabled; };
+  set("de-add", hasDisk);
+  set("de-extract", hasSel);
+  set("de-rename", hasSel);
+  set("de-delete", hasSel);
+  set("de-run-vice", hasDisk);
+  set("de-refresh", hasDisk);
+  set("de-save-as", hasDisk);
+}
+
+function _d64EdUpdateHeader() {
+  const label = document.getElementById("de-disk-label");
+  if (label) {
+    label.textContent = _d64EdState.path
+      ? (_d64EdState.diskName ? _d64EdState.diskName.toUpperCase() + " — " : "") + _d64EdState.path.split(/[\\/]/).pop()
+      : t("d64EditorNoDisk");
+  }
+  const free = document.getElementById("de-free-label");
+  if (free) free.textContent = (_d64EdState.path && _d64EdState.freeBlocks != null) ? tf("d64EditorFreeBlocks", { n: _d64EdState.freeBlocks }) : "";
+  _d64EdSetToolbarEnabled();
+}
+
+function _d64EdRenderEntries() {
+  const tbody = document.getElementById("de-entries");
+  const empty = document.getElementById("de-empty");
+  const table = document.querySelector("#d64-editor-dialog .de-table");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+  const hasDisk = !!_d64EdState.path;
+  const hasEntries = hasDisk && _d64EdState.entries.length > 0;
+  if (table) table.style.display = hasEntries ? "" : "none";
+  if (empty) {
+    empty.style.display = hasEntries ? "none" : "";
+    empty.textContent = hasDisk ? t("d64EditorEmptyDisk") : t("d64EditorEmpty");
+  }
+
+  _d64EdState.entries.forEach(function(entry) {
+    const tr = document.createElement("tr");
+    tr.dataset.name = entry.name;
+    if (entry.locked) tr.classList.add("de-row--locked");
+    if (_d64EdState.selected === entry.name) tr.classList.add("de-row--selected");
+    const tdBlocks = document.createElement("td");
+    tdBlocks.textContent = String(entry.blocks);
+    const tdName = document.createElement("td");
+    tdName.textContent = entry.name;
+    tdName.className = "de-name-cell";
+    const tdType = document.createElement("td");
+    tdType.textContent = entry.type;
+    tr.appendChild(tdBlocks); tr.appendChild(tdName); tr.appendChild(tdType);
+    tr.addEventListener("click", function(e) {
+      // Ignore clicks inside an active rename <input> — re-rendering the row
+      // here would tear out the input (and its focus/selection) mid-edit.
+      if (e.target.closest(".de-rename-input")) return;
+      _d64EdState.selected = entry.name;
+      _d64EdRenderEntries();
+    });
+    tbody.appendChild(tr);
+  });
+  _d64EdUpdateHeader();
+}
+
+async function _d64EdReload() {
+  if (!_d64EdState.path) return;
+  _d64EdSetError("");
+  const res = await window.electronAPI.d64List(_d64EdState.path);
+  if (!res || !res.ok) {
+    _d64EdSetError((res && res.error) || t("d64EditorLoadFailed"));
+    _d64EdState.entries = [];
+    _d64EdRenderEntries();
+    return;
+  }
+  _d64EdState.diskName = res.diskName || "";
+  _d64EdState.freeBlocks = typeof res.blocksFree === "number" ? res.blocksFree : null;
+  _d64EdState.entries = Array.isArray(res.entries) ? res.entries : [];
+  if (_d64EdState.selected && !_d64EdState.entries.some(function(e) { return e.name === _d64EdState.selected; })) {
+    _d64EdState.selected = null;
+  }
+  _d64EdRenderEntries();
+}
+
+function _d64EdHideAddPanel() {
+  _d64EdState.pendingAddBytes = null;
+  const panel = document.getElementById("de-add-panel");
+  if (panel) panel.hidden = true;
+}
+
+async function _d64EdShowAddPanel() {
+  if (!_d64EdState.path) return;
+  const api = window.electronAPI;
+  const picked = await api.chooseIncBinFile();
+  if (!picked || picked.canceled) return;
+  if (picked.error) { _d64EdSetError(picked.error); return; }
+  _d64EdState.pendingAddBytes = picked.bytes;
+  // A .prg already carries its own load-address header, so the load/decompress
+  // address + Exomizer fields (meant for headerless raw .bin data) only make
+  // sense for non-.prg files — hide them entirely for a .prg pick.
+  _d64EdState.pendingIsPrg = /\.prg$/i.test(picked.fileName || "");
+  const nameInput = document.getElementById("de-add-name");
+  const typeSelect = document.getElementById("de-add-type");
+  const loadInput = document.getElementById("de-add-load");
+  const decompInput = document.getElementById("de-add-decomp");
+  const crunchCb = document.getElementById("de-add-crunch");
+  const extraFields = document.getElementById("de-add-extra-fields");
+  const stem = (picked.fileName || "program").replace(/\.[^.]+$/, "").replace(/[^A-Za-z0-9_]/g, "").slice(0, 16).toUpperCase();
+  if (nameInput) nameInput.value = stem || "PROGRAM";
+  if (typeSelect) typeSelect.value = _d64EdState.pendingIsPrg ? "prg" : "seq";
+  if (loadInput) loadInput.value = "";
+  if (decompInput) decompInput.value = "";
+  if (crunchCb) crunchCb.checked = false;
+  if (extraFields) extraFields.hidden = _d64EdState.pendingIsPrg;
+  const panel = document.getElementById("de-add-panel");
+  if (panel) panel.hidden = false;
+  nameInput?.focus();
+}
+
+// Optional load/decompress address + Exomizer checkbox mirror the "extra
+// files" fields in the Build D64 dialog (confirmD64Export) — same two crunch
+// modes: sfx (loadAddress === $0801, self-extracting) vs mem (arbitrary
+// target address via buildExomizerRaw). All three fields are optional: a
+// plain .prg already carries its own load address header and should be left
+// as-is (loadAddress null → written raw, unchanged).
+async function _d64EdConfirmAdd() {
+  if (!_d64EdState.path || !_d64EdState.pendingAddBytes) return;
+  const nameInput = document.getElementById("de-add-name");
+  const typeSelect = document.getElementById("de-add-type");
+  const loadInput = document.getElementById("de-add-load");
+  const decompInput = document.getElementById("de-add-decomp");
+  const crunchCb = document.getElementById("de-add-crunch");
+  const name = (nameInput?.value || "").trim();
+  const fileType = typeSelect?.value || "prg";
+  if (!name) { _d64EdSetError(t("d64EditorInvalidName")); return; }
+
+  const isPrg = !!_d64EdState.pendingIsPrg;
+  let loadAddress = null;
+  let decompRaw = "";
+  let wantsCrunch = false;
+  if (!isPrg) {
+    const loadRaw = (loadInput?.value || "").trim().replace(/^\$/, "");
+    if (loadRaw) {
+      if (!/^[0-9a-fA-F]{1,4}$/.test(loadRaw)) { _d64EdSetError(t("d64EditorInvalidAddress")); return; }
+      loadAddress = parseInt(loadRaw, 16);
+    }
+    decompRaw = (decompInput?.value || "").trim().replace(/^\$/, "");
+    if (decompRaw && !/^[0-9a-fA-F]{1,4}$/.test(decompRaw)) { _d64EdSetError(t("d64EditorInvalidAddress")); return; }
+    wantsCrunch = !!crunchCb?.checked;
+    if (wantsCrunch && loadAddress === null) { _d64EdSetError(tf("d64ErrorCrunchNeedsAddr", { name })); return; }
+  }
+
+  _d64EdSetError("");
+  let bytes = _d64EdState.pendingAddBytes;
+
+  if (wantsCrunch) {
+    await showWorkProgress("workProgressExomizerCompress", { indeterminate: true });
+    await new Promise(function(resolve) { requestAnimationFrame(function() { requestAnimationFrame(resolve); }); });
+    let crunchResult;
+    try {
+      if (loadAddress === 0x0801) {
+        const prgForExo = [loadAddress & 0xFF, (loadAddress >> 8) & 0xFF, ...bytes];
+        crunchResult = await window.electronAPI.buildExomizerPrg({ bytes: prgForExo, fileName: name + ".prg" });
+        if (crunchResult?.ok) { bytes = Array.from(crunchResult.bytes); loadAddress = null; }
+      } else {
+        const loadHex = loadAddress.toString(16).toUpperCase().padStart(4, "0");
+        const decompHex = decompRaw ? decompRaw.toUpperCase().padStart(4, "0") : null;
+        crunchResult = await window.electronAPI.buildExomizerRaw({
+          bytes: bytes,
+          fileName: name + ".bin",
+          targetAddress: loadHex,
+          decompressAddress: decompHex
+        });
+        if (crunchResult?.ok) { bytes = Array.from(crunchResult.bytes); loadAddress = null; }
+      }
+    } catch (_) { crunchResult = null; }
+    hideWorkProgress();
+    if (!crunchResult?.ok) {
+      _d64EdSetError(`${name}: ${crunchResult?.error || t("exomizerLaunchFailed")}`);
+      return;
+    }
+  }
+
+  const res = await window.electronAPI.d64AddFile(_d64EdState.path, bytes, name, loadAddress, fileType);
+  if (!res || !res.ok) { _d64EdSetError((res && res.error) || t("d64EditorAddFailed")); return; }
+  _d64EdHideAddPanel();
+  await _d64EdReload();
+}
+
+async function _d64EdExtractSelected() {
+  if (!_d64EdState.path || !_d64EdState.selected) return;
+  _d64EdSetError("");
+  const res = await window.electronAPI.d64ExtractFile(_d64EdState.path, _d64EdState.selected);
+  if (!res || !res.ok) { _d64EdSetError((res && res.error) || t("d64EditorExtractFailed")); return; }
+  await _saveBinFile(res.bytes, _d64EdState.selected.toLowerCase() + ".prg");
+}
+
+async function _d64EdDeleteSelected() {
+  if (!_d64EdState.path || !_d64EdState.selected) return;
+  _d64EdSetError("");
+  const res = await window.electronAPI.d64DeleteFile(_d64EdState.path, _d64EdState.selected);
+  if (!res || !res.ok) { _d64EdSetError((res && res.error) || t("d64EditorDeleteFailed")); return; }
+  _d64EdState.selected = null;
+  await _d64EdReload();
+}
+
+function _d64EdRenameSelected() {
+  if (!_d64EdState.path || !_d64EdState.selected) return;
+  const tr = document.querySelector('#de-entries tr[data-name="' + CSS.escape(_d64EdState.selected) + '"]');
+  const nameCell = tr?.querySelector(".de-name-cell");
+  if (!tr || !nameCell) return;
+  const oldName = _d64EdState.selected;
+  const input = document.createElement("input");
+  input.type = "text";
+  input.maxLength = 16;
+  input.className = "de-rename-input";
+  input.value = oldName;
+  nameCell.textContent = "";
+  nameCell.appendChild(input);
+  input.focus();
+  input.select();
+
+  let done = false;
+  const commit = async function() {
+    if (done) return;
+    done = true;
+    const newName = input.value.trim();
+    if (!newName || newName === oldName) { _d64EdRenderEntries(); return; }
+    _d64EdSetError("");
+    const res = await window.electronAPI.d64RenameFile(_d64EdState.path, oldName, newName);
+    if (!res || !res.ok) { _d64EdSetError((res && res.error) || t("d64EditorRenameFailed")); _d64EdRenderEntries(); return; }
+    _d64EdState.selected = res.name || newName;
+    await _d64EdReload();
+  };
+  const cancel = function() { if (done) return; done = true; _d64EdRenderEntries(); };
+  input.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") { e.preventDefault(); commit(); }
+    else if (e.key === "Escape") { e.preventDefault(); cancel(); }
+  });
+  input.addEventListener("blur", commit);
+}
+
+async function _d64EdOpen() {
+  const api = window.electronAPI;
+  const picked = await api.chooseD64Open();
+  if (!picked || picked.canceled) return;
+  _d64EdState.path = picked.filePath;
+  _d64EdState.selected = null;
+  _d64EdHideAddPanel();
+  await _d64EdReload();
+}
+
+async function _d64EdNew() {
+  const api = window.electronAPI;
+  const picked = await api.chooseD64New();
+  if (!picked || picked.canceled) return;
+  const stem = (picked.filePath.split(/[\\/]/).pop() || "disk").replace(/\.d64$/i, "");
+  const res = await api.d64Format(picked.filePath, stem);
+  if (!res || !res.ok) { _d64EdSetError((res && res.error) || t("d64EditorFormatFailed")); return; }
+  _d64EdState.path = picked.filePath;
+  _d64EdState.selected = null;
+  await _d64EdReload();
+}
+
+async function _d64EdSaveAs() {
+  if (!_d64EdState.path) return;
+  const api = window.electronAPI;
+  const picked = await api.chooseD64New();
+  if (!picked || picked.canceled) return;
+  const res = await api.d64CopyAs(_d64EdState.path, picked.filePath);
+  if (!res || !res.ok) { _d64EdSetError((res && res.error) || t("d64EditorSaveAsFailed")); return; }
+  _d64EdState.path = picked.filePath;
+  await _d64EdReload();
+}
+
+async function _d64EdRunVice() {
+  if (!_d64EdState.path) return;
+  _d64EdSetError("");
+  const res = await window.electronAPI.d64Run(_d64EdState.path);
+  if (!res || !res.ok) _d64EdSetError((res && res.error) || t("d64EditorRunFailed"));
+}
+
+function setupD64Editor() {
+  const dialog = document.getElementById("d64-editor-dialog");
+  document.getElementById("d64-editor-btn")?.addEventListener("click", function() {
+    dialog?.showModal();
+    if (_d64EdState.path) _d64EdReload(); else _d64EdRenderEntries();
+  });
+  document.getElementById("de-close")?.addEventListener("click", function() { dialog?.close(); });
+  dialog?.addEventListener("click", function(e) { if (e.target === dialog) dialog.close(); });
+
+  document.getElementById("de-new")?.addEventListener("click", _d64EdNew);
+  document.getElementById("de-open")?.addEventListener("click", _d64EdOpen);
+  document.getElementById("de-save-as")?.addEventListener("click", _d64EdSaveAs);
+  document.getElementById("de-run-vice")?.addEventListener("click", _d64EdRunVice);
+  document.getElementById("de-add")?.addEventListener("click", _d64EdShowAddPanel);
+  document.getElementById("de-extract")?.addEventListener("click", _d64EdExtractSelected);
+  document.getElementById("de-rename")?.addEventListener("click", _d64EdRenameSelected);
+  document.getElementById("de-delete")?.addEventListener("click", _d64EdDeleteSelected);
+  document.getElementById("de-refresh")?.addEventListener("click", function() { if (_d64EdState.path) _d64EdReload(); });
+  document.getElementById("de-add-confirm")?.addEventListener("click", _d64EdConfirmAdd);
+  document.getElementById("de-add-cancel")?.addEventListener("click", _d64EdHideAddPanel);
+
+  _d64EdRenderEntries();
 }
 
 // ── D64 Export Dialog ─────────────────────────────────────────────────

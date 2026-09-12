@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.4.0**
+**Version 2.3.9**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,7 +9,6 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
-    - [Version 2.4.0 Highlights](#version-240-highlights)
     - [Version 2.3.9 Highlights](#version-239-highlights)
     - [Version 2.3.8 Highlights](#version-238-highlights)
   - [Table of Contents](#table-of-contents)
@@ -152,18 +151,6 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Map Editor (Multilayer Tilemaps)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve Editor](#curve-editor)
-
----
-
-## Version 2.4.0 Highlights
-
-- **D64 Editor** — a full disk-image browser on the toolbar (after the Curve Editor). Open an existing `.d64`, create a new blank one, or launch the current disk straight into VICE, all from a Files ▾ menu matching the other visual editors. See [D64 Editor (browse & edit an existing disk image)](#d64-editor-browse--edit-an-existing-disk-image).
-- **Add / extract / rename / delete on the D64 Editor** — add a local file to the disk directory, extract a selected entry back to a `.prg`, rename an entry inline in the table, or delete it — every action is applied straight to the `.d64` file via `c1541`, with no separate save step.
-- **Load address, decompress address & Exomizer in the D64 Editor** — adding a headerless raw file lets you set an optional load address, an Exomizer decompress target, and compress it on the way in, using the same `mem`/`sfx` crunch modes as the Export to D64 dialog's extra files. A `.prg` that already carries its own header skips these fields entirely.
-- **Disk entry type selector** — choose PRG / SEQ / USR / REL for a newly added file instead of always writing it as PRG.
-- **Authentic directory listing** — the D64 Editor's file list renders in the bundled C64 Pro font, uppercase, for the classic `LOAD"$",8` look.
-- **Fixed:** renaming an entry in the D64 Editor no longer discards the edit when you click into the text field.
-- **Improved:** the light theme's mode-indicator toolbar badge (BLOCK MODE / EXPERT MODE / …) is darker and more legible, and its shimmer animation is visible again.
 
 ---
 
@@ -3310,39 +3297,6 @@ The disk name, program name, and extra file list are saved inside the project JS
 The **loadfile-demo** sample comes pre-configured with `DEMO-COLORS.PRG` as an extra file. Select it, open **Run via D64**, and click **Run** to see the full load flow in action.
 
 > **Requirement:** D64 export and Run via D64 both require VICE (`c1541`) to be configured in [Hardware Settings](#13-hardware-settings).
-
-### D64 Editor (browse & edit an existing disk image)
-
-The toolbar icon after the Curve Editor opens the **D64 Editor** — a standalone tool for working with an existing `.d64` image directly, independent of the currently open program. Unlike the Export to D64 dialog above (which always builds a *new* disk from the compiled PRG), the D64 Editor edits a disk image in place via `c1541`, so it doubles as a lightweight disk manager.
-
-**Files ▾ menu:**
-
-| Item | Action |
-|---|---|
-| **New D64…** | Pick a destination path and create a freshly formatted, empty disk image there. |
-| **Open D64…** | Pick an existing `.d64` file and load its directory. |
-| **Save As…** | Copy the currently open disk image to a new path and continue editing the copy. |
-| **Run in VICE** | Launch the currently open disk image directly in VICE (`-drive8type 1541`). |
-
-**Toolbar:**
-
-| Icon | Action |
-|---|---|
-| **Add program** | Pick a local file and write it into the disk directory. |
-| **Extract selected** | Save the selected entry's bytes to a local `.prg` file. |
-| **Rename selected** | Edit the entry name inline in the table — Enter confirms, Escape cancels. |
-| **Delete selected** | Remove the selected entry from the disk. |
-| **Refresh** | Re-read the directory, e.g. after editing the disk from another tool. |
-
-**Adding a program:** picking a file that already ends in `.prg` only asks for a **Name** and a disk **Type** (PRG/SEQ/USR/REL) — a `.prg` already carries its own load-address header, so it is written unchanged. Picking any other file (e.g. a raw `.bin`) additionally shows:
-
-- **Load address** (hex, optional) — prepend a 2-byte PRG header at this address; leave empty to write the bytes raw.
-- **Decompress address** (hex, optional) — only used together with Exomizer; the target address the depacker should unpack the data to.
-- **Exomizer** checkbox — compress the file before writing, using the same `mem`/`sfx` crunch modes as the extra files in the Export to D64 dialog above.
-
-The directory listing renders filenames in the same font and uppercase style as a real C64 `LOAD"$",8` listing.
-
-> **Requirement:** like Export to D64, the D64 Editor requires VICE (`c1541`) configured in [Hardware Settings](#13-hardware-settings). Every action (add/delete/rename/extract) is applied straight to the `.d64` file on disk — there is no separate "save" step.
 
 ---
 

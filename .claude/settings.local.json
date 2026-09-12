@@ -218,7 +218,20 @@
       "Bash(grep -n 'nevé\\(ei\\)t. |$\\\\|hardveren\\). |$\\\\|kijelzés. |$' \"F:/Development/VisualAssembler/Visual Assembler Manual.hu.md\")",
       "Bash(grep -c '^```' 'F:/Development/VisualAssembler/Visual Assembler Manual.md')",
       "Bash(grep -c '^```' 'F:/Development/VisualAssembler/Visual Assembler Manual.hu.md')",
-      "Bash(node --test tests/manual-sync.test.js)"
+      "Bash(node --test tests/manual-sync.test.js)",
+      "Bash(node --check www/style.css)",
+      "Bash(node --check www/i18n.js)",
+      "Bash(node --check www/app.js)",
+      "Bash(node --check www/index.html)",
+      "Bash(git checkout *)",
+      "Bash(grep -n \"^#\\\\{1,3\\\\} \" \"Visual Assembler Manual.md\")",
+      "Bash(\"/d/Development/VICE/bin/c1541.exe\" --help)",
+      "Bash(timeout 15 find /d /c -iname \"*interkarat*\")",
+      "Bash(timeout 15 find /f -iname \"*interkarat*\")",
+      "Read(//f/tmp/**)",
+      "Bash(\"/d/Development/VICE/bin/c1541.exe\" -format \"test,01\" d64 test.d64)",
+      "Bash(\"/d/Development/VICE/bin/c1541.exe\" -attach test.d64 -write dummy.prg TESTNAME)",
+      "Bash(rm -f /tmp/test.d64 /tmp/test2.d64 /tmp/dummy.prg)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"
