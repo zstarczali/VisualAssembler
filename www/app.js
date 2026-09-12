@@ -77,45 +77,40 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "welcome-introduction-1",
-  url: "https://github.com/zstarczali/UltimateBasic",
+  id: "d64-editor-multilang-docs-1",
+  url: "https://www.c64va.tech/docs.html",
   hu: {
     eyebrow: "Újdonság",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p>Az <strong>Ultimate Basic</strong> egy modern, C64-re készült fordított BASIC nyelv. <strong>Mostantól az Ultimate Basic közvetlenül a Visual Assembler IDE-ben is elérhető</strong>, a teljes értékű UB szerkesztőmódban.</p><ul><li><strong>Mire jó?</strong> Gyors C64 program-, játék- és demófejlesztésre, alacsony szintű assembly írása nélkül.</li><li><strong>Mit tartalmaz?</strong> Szintaxiskiemelést, kódkiegészítést, parancssúgót, projektkezelést, formázást, fordítást és hibajelzést.</li><li><strong>Futtatás:</strong> PRG vagy D64 VICE-ban és C64 Ultimate-en, valamint RetroDebugger támogatás szimbólumokkal.</li><li><strong>Debug kimenet:</strong> KickAssembler <code>.sym</code>, C64Debugger <code>.dbg</code> és VICE <code>.vs</code> címkék.</li></ul><p>Az Ultimate Basic önálló, nyílt forrású projektként is elérhető a GitHubon.</p>`,
-    link: "Ultimate Basic a GitHubon",
+    body: `<p>Két új dolog érdemel egy pillantást:</p><ul><li><strong>D64 Editor</strong> — teljes értékű lemezkép-böngésző az eszköztáron (a Curve Editor ikon mögött). Meglévő <code>.d64</code> megnyitása, új üres lemez létrehozása, vagy közvetlen indítás VICE-ben, majd programok hozzáadása, kimentése, átnevezése vagy törlése közvetlenül a lemezen.</li><li><strong>Többnyelvű dokumentáció</strong> — a teljes kézikönyv mostantól kereshetően böngészhető online, angol, magyar, német, francia, holland, finn, olasz és svéd nyelven: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
     eyebrow: "New",
     title: "Welcome to Visual Assembler",
-    body: `<p><strong>Ultimate Basic</strong> is a modern compiled BASIC language for the C64. <strong>Ultimate Basic is now available directly inside the Visual Assembler IDE</strong> through the full-featured UB editor mode.</p><ul><li><strong>What is it for?</strong> Rapid C64 program, game and demo development without writing everything in low-level assembly.</li><li><strong>What is included?</strong> Syntax highlighting, completion, command help, projects, formatting, compilation and error reporting.</li><li><strong>Run targets:</strong> PRG or D64 in VICE and on C64 Ultimate, plus RetroDebugger support with symbols.</li><li><strong>Debug output:</strong> KickAssembler <code>.sym</code>, C64Debugger <code>.dbg</code> and VICE <code>.vs</code> labels.</li></ul><p>Ultimate Basic is also available as a standalone open-source project on GitHub.</p>`,
-    link: "Ultimate Basic on GitHub",
+    body: `<p>Two new things worth a look:</p><ul><li><strong>D64 Editor</strong> — a full disk-image browser on the toolbar (after the Curve Editor icon). Open an existing <code>.d64</code>, create a new blank one, or launch it straight into VICE, then add, extract, rename or delete programs directly on the disk.</li><li><strong>Multi-language documentation</strong> — the full manual is now searchable online in English, Hungarian, German, French, Dutch, Finnish, Italian and Swedish: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
     eyebrow: "Novedad",
     title: "Bienvenido a Visual Assembler",
-    body: `<p><strong>Ultimate Basic</strong> es un lenguaje BASIC moderno y compilado para C64. <strong>A partir de ahora, Ultimate Basic también está disponible directamente en el IDE Visual Assembler</strong> mediante el completo modo de edición UB.</p><ul><li><strong>¿Para qué sirve?</strong> Para desarrollar rápidamente programas, juegos y demos de C64 sin tener que escribirlo todo en ensamblador de bajo nivel.</li><li><strong>¿Qué incluye?</strong> Resaltado de sintaxis, autocompletado, ayuda de comandos, gestión de proyectos, formateo, compilación e indicación de errores.</li><li><strong>Ejecución:</strong> PRG o D64 en VICE y C64 Ultimate, además de compatibilidad con RetroDebugger y símbolos.</li><li><strong>Información de depuración:</strong> archivos KickAssembler <code>.sym</code>, C64Debugger <code>.dbg</code> y etiquetas VICE <code>.vs</code>.</li></ul><p>Ultimate Basic también está disponible como proyecto independiente y de código abierto en GitHub.</p>`,
-    link: "Ultimate Basic en GitHub",
+    body: `<p>Dos novedades que merecen un vistazo:</p><ul><li><strong>Editor de D64</strong> — un explorador de imágenes de disco completo en la barra de herramientas (junto al icono del editor de curvas). Abre un <code>.d64</code> existente, crea uno nuevo en blanco o ejecútalo directamente en VICE, y luego añade, extrae, renombra o elimina programas directamente en el disco.</li><li><strong>Documentación multilingüe</strong> — el manual completo ahora se puede consultar y buscar en línea en inglés, húngaro, alemán, francés, neerlandés, finlandés, italiano y sueco: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
     eyebrow: "Neu",
     title: "Willkommen bei Visual Assembler",
-    body: `<p><strong>Ultimate Basic</strong> ist eine moderne, kompilierte BASIC-Sprache für den C64. <strong>Ab sofort ist Ultimate Basic auch direkt in der Visual Assembler IDE verfügbar</strong> – mit einem vollständigen UB-Editormodus.</p><ul><li><strong>Wofür ist es gedacht?</strong> Für die schnelle Entwicklung von C64-Programmen, Spielen und Demos, ohne alles in maschinennahem Assembler schreiben zu müssen.</li><li><strong>Was ist enthalten?</strong> Syntaxhervorhebung, Codevervollständigung, Befehlshilfe, Projektverwaltung, Formatierung, Kompilierung und Fehleranzeige.</li><li><strong>Ausführung:</strong> PRG oder D64 in VICE und auf C64 Ultimate sowie RetroDebugger-Unterstützung mit Symbolen.</li><li><strong>Debug-Ausgabe:</strong> KickAssembler-<code>.sym</code>, C64Debugger-<code>.dbg</code> und VICE-<code>.vs</code>-Labels.</li></ul><p>Ultimate Basic ist außerdem als eigenständiges Open-Source-Projekt auf GitHub verfügbar.</p>`,
-    link: "Ultimate Basic auf GitHub",
+    body: `<p>Zwei Neuerungen sind einen Blick wert:</p><ul><li><strong>D64-Editor</strong> — ein vollwertiger Disk-Image-Browser in der Werkzeugleiste (nach dem Curve-Editor-Symbol). Öffne ein bestehendes <code>.d64</code>, erstelle ein neues leeres Image oder starte es direkt in VICE, und füge dann Programme direkt auf der Diskette hinzu, extrahiere, benenne um oder lösche sie.</li><li><strong>Mehrsprachige Dokumentation</strong> — das vollständige Handbuch ist jetzt online durchsuchbar, in Englisch, Ungarisch, Deutsch, Französisch, Niederländisch, Finnisch, Italienisch und Schwedisch: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
     eyebrow: "Nieuw",
     title: "Welkom bij Visual Assembler",
-    body: `<p><strong>Ultimate Basic</strong> is een moderne, gecompileerde BASIC-taal voor de C64. <strong>Vanaf nu is Ultimate Basic direct beschikbaar in de Visual Assembler IDE</strong> via de volwaardige UB-bewerkingsmodus.</p><ul><li><strong>Waarvoor dient het?</strong> Voor snelle ontwikkeling van C64-programma's, games en demo's zonder alles in low-level assembly te hoeven schrijven.</li><li><strong>Wat is inbegrepen?</strong> Syntaxisaccentuering, automatisch aanvullen, opdrachthulp, projectbeheer, opmaak, compilatie en foutweergave.</li><li><strong>Uitvoeren:</strong> PRG of D64 in VICE en op C64 Ultimate, plus RetroDebugger-ondersteuning met symbolen.</li><li><strong>Debug-uitvoer:</strong> KickAssembler <code>.sym</code>, C64Debugger <code>.dbg</code> en VICE <code>.vs</code> labels.</li></ul><p>Ultimate Basic is tevens beschikbaar als zelfstandig open-source project op GitHub.</p>`,
-    link: "Ultimate Basic op GitHub",
+    body: `<p>Twee nieuwe dingen die de moeite waard zijn:</p><ul><li><strong>D64 Editor</strong> — een volwaardige diskimage-browser op de werkbalk (na het Curve Editor-pictogram). Open een bestaande <code>.d64</code>, maak een nieuwe lege schijf aan, of start hem direct in VICE, en voeg vervolgens programma's rechtstreeks op de schijf toe, exporteer, hernoem of verwijder ze.</li><li><strong>Meertalige documentatie</strong> — de volledige handleiding is nu online doorzoekbaar in het Engels, Hongaars, Duits, Frans, Nederlands, Fins, Italiaans en Zweeds: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   }
@@ -430,8 +425,6 @@ const whatsNewCloseButton = document.getElementById("whats-new-close");
 const customerMessageDialog = document.getElementById("customer-message-dialog");
 const customerMessageCloseButton = document.getElementById("customer-message-close");
 const customerMessageDismissButton = document.getElementById("customer-message-dismiss");
-const customerMessageLinkButton = document.getElementById("customer-message-link");
-const customerMessageManualButton = document.getElementById("customer-message-manual");
 const knowledgeBaseButton = document.getElementById("knowledge-base-btn");
 const knowledgeBaseDialog = document.getElementById("knowledge-base-dialog");
 const knowledgeBaseCloseButton = document.getElementById("knowledge-base-close");
@@ -2363,10 +2356,18 @@ function initPalette() {
     localStorage.setItem("customerMessageSeen", CUSTOMER_MESSAGE.id);
     customerMessageDialog?.close();
   });
-  customerMessageManualButton?.addEventListener("click", () => window.electronAPI?.openUltimateBasicManual?.());
   document.querySelector(".customer-message-site")?.addEventListener("click", (e) => {
     e.preventDefault();
     window.electronAPI?.openExternal("https://www.c64va.tech");
+  });
+  // The message body is rich HTML (set via innerHTML in showCustomerMessageIfNeeded)
+  // and may contain plain <a href target="_blank"> links — those don't navigate
+  // correctly inside the Tauri webview, so route clicks through openExternal.
+  document.getElementById("customer-message-body")?.addEventListener("click", (e) => {
+    const link = e.target.closest("a[href]");
+    if (!link) return;
+    e.preventDefault();
+    window.electronAPI?.openExternal(link.href);
   });
   knowledgeBaseButton?.addEventListener("click", () => {
     document.querySelector(".control-menu")?.removeAttribute("open");
@@ -3227,7 +3228,6 @@ function showCustomerMessageIfNeeded() {
   const body = document.getElementById("customer-message-body");
   if (eyebrow) eyebrow.textContent = content.eyebrow;
   if (body) body.innerHTML = content.body;
-  if (customerMessageManualButton) customerMessageManualButton.textContent = t("ubManual");
   if (customerMessageDismissButton) customerMessageDismissButton.textContent = content.dismiss;
   if (customerMessageCloseButton) customerMessageCloseButton.textContent = content.close;
   customerMessageDialog.showModal();

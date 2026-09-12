@@ -282,7 +282,7 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
       <div class="y">READY.</div>
       <div><span class="g">RUN</span><span class="cur"></span></div>
     </div>
-    <div class="badge">V2.3.9 — LATEST RELEASE</div>
+    <div class="badge">V2.4.0 — LATEST RELEASE</div>
     <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
     <p class="hero-sub">Drag-and-drop 6502 assembly blocks or switch to a full text editor — see real-time ASM output and run directly in VICE.</p>
     <div class="hero-ctas">
@@ -295,21 +295,20 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
   </div>
 </section>
 
-<!-- V2.3.9: ASSEMBLER EXPRESSION & LABEL FEATURES -->
-<div id="release-239" style="background:var(--scr-darker);padding:80px 0">
+<!-- V2.4.0: D64 EDITOR & MULTI-LANGUAGE DOCS -->
+<div id="release-240" style="background:var(--scr-darker);padding:80px 0">
 <div class="sec about-grid" style="padding-top:0;padding-bottom:0">
   <div>
-    <div class="ub-tag">NEW IN V2.3.9</div>
-    <div class="sec-s">// A REAL ASSEMBLER FEEL</div>
-    <h2 class="sec-t">EXPRESSIONS, LOCAL LABELS<br><span style="color:var(--ylw)">AND LONG BRANCHES</span></h2>
-    <p class="sec-d">Version 2.3.9 brings the quality-of-life syntax that power users expect from 64tass, ACME and Kick Assembler &mdash; usable in Expert-mode text and, where it makes sense, as blocks.</p>
+    <div class="ub-tag">NEW IN V2.4.0</div>
+    <div class="sec-s">// MANAGE YOUR DISKS, IN YOUR LANGUAGE</div>
+    <h2 class="sec-t">D64 EDITOR<br><span style="color:var(--ylw)">AND MULTI-LANGUAGE DOCS</span></h2>
+    <p class="sec-d">Version 2.4.0 adds a full disk-image manager right in the toolbar, and puts the entire manual online in eight languages.</p>
     <div class="feature-list">
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b><code>*</code> in any expression</b> <span>&mdash; the program counter now works inside operand expressions, not just alone: <code>BNE *-5</code>, <code>JMP *+20</code>, <code>LDA #&lt;*</code>, <code>LDA #&gt;(*+63)</code>. A <code>*</code> after a value (<code>STRIDE*2</code>) is still multiplication.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Local (dotted) labels</b> <span>&mdash; <code>.loop</code> is scoped to the nearest preceding global label, so <code>DrawSprite</code> and <code>ClearScreen</code> can each have their own <code>.loop</code> without a clash.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Long-branch pseudo-ops</b> <span>&mdash; <code>LBNE</code>, <code>LBEQ</code>, <code>LBCC</code>, <code>LBCS</code>, <code>LBMI</code>, <code>LBPL</code>, <code>LBVC</code>, <code>LBVS</code> assemble to an inverted branch over a <code>JMP</code> (5 bytes) so the target can be any distance away.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b><code>.assert</code> directive</b> <span>&mdash; <code>.assert end - start &lt;= 256, "message"</code> is checked at assembly time and fails the build (with the actual value) when it is false.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Self-modifying-code labels</b> <span>&mdash; <code>LDA value:#$00</code> puts the label <code>value</code> on the operand byte, so <code>STA value</code> patches it &mdash; no <code>instruction+1</code> label needed.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Friendlier branch errors</b> <span>&mdash; an out-of-range branch reports exactly how far it overshoots and suggests the matching <code>LBxx</code> long branch.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>D64 Editor</b> <span>&mdash; open an existing <code>.d64</code>, create a new blank disk, or launch one straight into VICE from a Files menu that matches the app's other visual editors.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Add / extract / rename / delete</b> <span>&mdash; every action is applied straight to the disk image via <code>c1541</code>, no separate save step.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Load address, decompress address &amp; Exomizer</b> <span>&mdash; adding a raw file lets you set an optional load address, an Exomizer decompress target, and compress it on the way in &mdash; plus a PRG / SEQ / USR / REL type selector.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Authentic directory listing</b> <span>&mdash; the file list renders in the bundled C64 Pro font, uppercase, for the classic <code>LOAD"$",8</code> look.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Multi-language documentation</b> <span>&mdash; the full manual is now searchable online at <a href="docs.html" style="color:var(--cyn)">c64va.tech/docs.html</a>, in English, Hungarian, German, French, Dutch, Finnish, Italian and Swedish.</span></div></div>
     </div>
   </div>
 </div>
@@ -334,7 +333,27 @@ footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
 
 <!-- OLDER RELEASE NOTES — collapsed by default -->
 <details id="release-history" class="release-history">
-  <summary><span class="rh-tri">&#9656;</span> Previous releases &mdash; V2.3.8 and earlier</summary>
+  <summary><span class="rh-tri">&#9656;</span> Previous releases &mdash; V2.3.9 and earlier</summary>
+
+<!-- V2.3.9: ASSEMBLER EXPRESSION & LABEL FEATURES -->
+<div id="release-239" style="background:var(--bg);padding:80px 0">
+<div class="sec about-grid" style="padding-top:0;padding-bottom:0">
+  <div>
+    <div class="ub-tag">NEW IN V2.3.9</div>
+    <div class="sec-s">// A REAL ASSEMBLER FEEL</div>
+    <h2 class="sec-t">EXPRESSIONS, LOCAL LABELS<br><span style="color:var(--ylw)">AND LONG BRANCHES</span></h2>
+    <p class="sec-d">Version 2.3.9 brings the quality-of-life syntax that power users expect from 64tass, ACME and Kick Assembler &mdash; usable in Expert-mode text and, where it makes sense, as blocks.</p>
+    <div class="feature-list">
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b><code>*</code> in any expression</b> <span>&mdash; the program counter now works inside operand expressions, not just alone: <code>BNE *-5</code>, <code>JMP *+20</code>, <code>LDA #&lt;*</code>, <code>LDA #&gt;(*+63)</code>. A <code>*</code> after a value (<code>STRIDE*2</code>) is still multiplication.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Local (dotted) labels</b> <span>&mdash; <code>.loop</code> is scoped to the nearest preceding global label, so <code>DrawSprite</code> and <code>ClearScreen</code> can each have their own <code>.loop</code> without a clash.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Long-branch pseudo-ops</b> <span>&mdash; <code>LBNE</code>, <code>LBEQ</code>, <code>LBCC</code>, <code>LBCS</code>, <code>LBMI</code>, <code>LBPL</code>, <code>LBVC</code>, <code>LBVS</code> assemble to an inverted branch over a <code>JMP</code> (5 bytes) so the target can be any distance away.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b><code>.assert</code> directive</b> <span>&mdash; <code>.assert end - start &lt;= 256, "message"</code> is checked at assembly time and fails the build (with the actual value) when it is false.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Self-modifying-code labels</b> <span>&mdash; <code>LDA value:#$00</code> puts the label <code>value</code> on the operand byte, so <code>STA value</code> patches it &mdash; no <code>instruction+1</code> label needed.</span></div></div>
+      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Friendlier branch errors</b> <span>&mdash; an out-of-range branch reports exactly how far it overshoots and suggests the matching <code>LBxx</code> long branch.</span></div></div>
+    </div>
+  </div>
+</div>
+</div>
 
 <!-- V2.3.8: WORKSPACES AND LOCALIZATION -->
 <div id="release-238" style="background:var(--bg);padding:80px 0">
