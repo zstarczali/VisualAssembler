@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.3.9**
+**Versio 2.4.0**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin reaaliajassa.
 
@@ -9,6 +9,7 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 ## Sisällysluettelo
 
 - [C64 Visual Assembler — Käyttöopas](#c64-visual-assembler--user-manual)
+    - [Version 2.4.0 kohokohdat](#version-240-highlights)
     - [Version 2.3.9 kohokohdat](#version-239-highlights)
     - [Version 2.3.8 kohokohdat](#version-238-highlights)
   - [Sisällysluettelo](#table-of-contents)
@@ -151,6 +152,18 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
     - [Karttaeditori (monikerroksiset laattakartat)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Käyränmuokkausohjelma](#curve-editor)
+
+---
+
+## Version 2.4.0 kohokohdat
+
+- **D64-editori** — täysimittainen levykuvaselain työkalupalkissa (käyräeditorin jälkeen). Avaa olemassa oleva `.d64`, luo uusi tyhjä levy tai käynnistä nykyinen levy suoraan VICE-ohjelmaan. Kaikki tämä Tiedostot ▾ -valikosta, joka vastaa muita visuaalisia editoreita. Katso [D64-editori (olemassa olevan levykuvan selaaminen ja muokkaaminen)](#d64-editor-browse--edit-an-existing-disk-image).
+- **Lisää / pura / nimeä uudelleen / poista D64-editorissa** — lisää paikallinen tiedosto levyhakemistoon, pura valittu merkintä takaisin `.prg`-tiedostoon, nimeä merkintä uudelleen taulukon sisällä tai poista se — jokainen toiminto kohdistetaan suoraan `.d64`-tiedostoon `c1541`-komennon kautta ilman erillistä tallennusvaihetta.
+- **Latausosoite, purkuosoite ja Exomizer D64-editorissa** — otsikottoman raakatiedoston lisääminen antaa sinulle mahdollisuuden asettaa valinnaisen latausosoitteen, Exomizer-purkukohteen ja pakata sen matkan varrella käyttämällä samoja `mem`/`sfx` -tiivistystiloja kuin Vie D64:ään -valintaikkunan lisätiedostot. Tiedostossa `.prg`, jolla on jo oma otsikko, nämä kentät ohitetaan kokonaan.
+- **Levymerkintätyypin valitsin** — valitse PRG / SEQ / USR / REL juuri lisätylle tiedostolle sen sijaan, että se kirjoitettaisiin aina PRG-muodossa.
+- **Aito hakemistoluettelo** — D64 Editorin tiedostoluettelo renderöidään mukana tulevalla C64 Pro -fontilla, isoilla kirjaimilla, klassisen `LOAD"$",8` -ulkoasun saavuttamiseksi.
+- **Korjattu:** Merkinnän uudelleennimeäminen D64-editorissa ei enää hylkää muokkausta, kun napsautat tekstikenttää.
+- **Parannettu:** vaalean teeman tilanilmaisintyökalurivin merkki (LOHKOTILA / ASIANTUNTIJATILA / …) on tummempi ja helpommin luettava, ja sen hohtava animaatio on jälleen näkyvissä.
 
 ---
 
@@ -1051,7 +1064,7 @@ Kuten **Työkkäämällä merkkijonon** mihin tahansa muistiosoitteeseen suoritu
 | Osoite                      | Kohdemuistin osoite — `$C000` heksadesimaali tai **otsikkonimi**                          |
 | Tarra (valinnainen)         | Määrittää kohdeosoitteeseen osoittavan tunnisteen                                         |
 | Siirtää                     | Heksadiarvo (00–FF) lisätään jokaiseen näyttökooditavuun (esim. `$80` = käänteinen video) |
-| Pienten kirjainten merkistö | Checkbox — same semantics as TEXT (see TEXT section)                                      |
+| Pienten kirjainten merkistö | Valintaruutu — sama semantiikka kuin TEKSTI (katso TEKSTI-osio)                           |
 
 **Asiantuntijan syntaksi:**
 ```
@@ -1138,7 +1151,7 @@ Kuten RAWBYTES, mutta tekstille — koodaa merkkijonon näyttökoodeiksi ja sijo
 | Osoite                      | Kohdemuistin osoite — `$C000` heksadesimaali tai **otsikkonimi**                          |
 | Tarra (valinnainen)         | Määrittää kohdeosoitteeseen osoittavan tunnisteen                                         |
 | Siirtää                     | Heksadiarvo (00–FF) lisätään jokaiseen näyttökooditavuun (esim. `$80` = käänteinen video) |
-| Pienten kirjainten merkistö | Checkbox — same semantics as TEXT (see TEXT section)                                      |
+| Pienten kirjainten merkistö | Valintaruutu — sama semantiikka kuin TEKSTI (katso TEKSTI-osio)                           |
 
 **Asiantuntijan syntaksi:**
 ```
@@ -3267,6 +3280,39 @@ Levyn nimi, ohjelman nimi ja lisätiedostoluettelo tallennetaan projektin JSON-t
 **loadfile-demo**-esimerkkitiedosto on esikonfiguroitu ja sisältää lisätiedoston `DEMO-COLORS.PRG`. Valitse se, avaa **Run via D64** ja napsauta **Run** nähdäksesi koko latausprosessin toiminnassa.
 
 > **Vaatimus:** Sekä D64-vienti että suoritus D64:n kautta edellyttävät VICE:n (`c1541`) määrittämistä kohdassa [Laitteistoasetukset](#13-hardware-settings).
+
+### D64 Editor (selaa ja muokkaa olemassa olevaa levykuvaa)
+
+Käyräeditorin jälkeinen työkalupalkin kuvake avaa **D64-editorin** – itsenäisen työkalun olemassa olevan `.d64`-kuvan käsittelyyn suoraan, riippumatta avoimesta ohjelmasta. Toisin kuin yllä oleva Vie D64:ään -valintaikkuna (joka aina luo *uuden*-levyn käännetystä PRG:stä), D64-editori muokkaa levykuvaa paikallaan `c1541`-tiedoston kautta, joten se toimii myös kevyenä levynhallintaohjelmana.
+
+**Tiedostot ▾ -valikko:**
+
+| Tuote                    | Toiminta                                                                       |
+| ------------------------ | ------------------------------------------------------------------------------ |
+| **Uusi D64…**            | Valitse kohdepolku ja luo sinne juuri alustettu, tyhjä levykuva.               |
+| **Avaa D64…**            | Valitse olemassa oleva `.d64`-tiedosto ja lataa sen hakemisto.                 |
+| **Tallenna nimellä…**    | Kopioi avoinna oleva levykuva uuteen polkuun ja jatka kopion muokkaamista.     |
+| **Suorita VICE-tilassa** | Käynnistä avoinna oleva levykuva suoraan VICE-ohjelmassa (`-drive8type 1541`). |
+
+**Työkalurivi:**
+
+| Kuvake                      | Toiminta                                                                                        |
+| --------------------------- | ----------------------------------------------------------------------------------------------- |
+| **Lisää ohjelma**           | Valitse paikallinen tiedosto ja kirjoita se levyhakemistoon.                                    |
+| **Pura valittu**            | Tallenna valitun merkinnän tavut paikalliseen `.prg`-tiedostoon.                                |
+| **Nimeä valittu uudelleen** | Muokkaa merkinnän nimeä taulukon rivillä — Enter vahvistaa, Esc peruu.                          |
+| **Poista valitut**          | Poista valittu merkintä levyltä.                                                                |
+| **Päivitä**                 | Lue hakemisto uudelleen, esimerkiksi sen jälkeen, kun olet muokannut levyä toisella työkalulla. |
+
+**Ohjelman lisääminen:** Tiedoston valitseminen, joka päättyy jo `.prg`, pyytää vain **Nimen** ja levyn **Tyypin** (PRG/SEQ/USR/REL) – `.prg` sisältää jo oman latausosoiteotsikkonsa, joten se kirjoitetaan muuttumattomana. Minkä tahansa muun tiedoston (esim. raaka `.bin`) valitseminen näyttää lisäksi:
+
+- **Lataa osoite** (heksadesimaali, valinnainen) — lisää tähän osoitteeseen 2-tavuisen PRG-otsikon; jätä tyhjäksi kirjoittaaksesi tavut raakana.
+- **Pura osoite** (heksadesimaali, valinnainen) — käytetään vain yhdessä Exomizerin kanssa; kohdeosoite, johon purkajan tulisi purkaa tiedot.
+- **Exomizer** -valintaruutu — pakkaa tiedoston ennen kirjoittamista käyttäen samoja `mem`/`sfx` -tiivistystiloja kuin yllä olevan Vie D64:ään -valintaikkunan lisätiedostoille.
+
+Hakemistoluettelo näyttää tiedostonimet samalla fontilla ja isoilla kirjaimilla kuin oikea C64 `LOAD"$",8` -luettelo.
+
+> **Vaatimus:** Kuten D64-tiedostoon vienti, D64-editori vaatii VICE (`c1541`) -komennon, joka on määritetty kohdassa [Laitteistoasetukset](#13-hardware-settings). Jokainen toiminto (lisääminen/poistaminen/uudelleennimeäminen/purkaminen) sovelletaan suoraan levyllä olevaan `.d64`-tiedostoon – erillistä tallennusvaihetta ei ole.
 
 ---
 

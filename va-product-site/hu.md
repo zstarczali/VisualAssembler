@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**2.3.9-es verzió**
+**2.4.0 verzió**
 
 Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat létre húzással és elengedéssel (fogd és vidd) utasításblokkokkal, és valós időben tekintheti meg a létrehozott assembly és gépi kódot.
 
@@ -9,6 +9,7 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
 ## Tartalomjegyzék
 
 - [C64 Visual Assembler — Felhasználói kézikönyv](#c64-visual-assembler--user-manual)
+    - [2.4.0 verzió – kiemelt funkciók](#version-240-highlights)
     - [2.3.9-es verzió – kiemelt funkciók](#version-239-highlights)
     - [2.3.8-as verzió kiemelt funkciói](#version-238-highlights)
   - [Tartalomjegyzék](#table-of-contents)
@@ -151,6 +152,18 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
     - [Térképszerkesztő (Többrétegű csempetérképek)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Görbeszerkesztő](#curve-editor)
+
+---
+
+## A 2.4.0 verzió legfontosabb elemei
+
+- **D64 szerkesztő** — egy teljes értékű lemezkép-böngésző az eszköztáron (a Görbeszerkesztő után). Nyisson meg egy meglévő `.d64` fájlt, hozzon létre egy új üres lemezt, vagy indítsa el az aktuális lemezt közvetlenül a VICE-ba, mindezt a Fájlok ▾ menüből, a többi vizuális szerkesztőhöz hasonlóan. Lásd: [D64 szerkesztő (meglévő lemezkép böngészése és szerkesztése)](#d64-editor-browse--edit-an-existing-disk-image).
+- **Hozzáadás / kibontás / átnevezés / törlés a D64 szerkesztőben** — helyi fájl hozzáadása a lemezkönyvtárhoz, kijelölt bejegyzés visszacsomagolása egy `.prg` fájlba, bejegyzés átnevezése a táblázatban, vagy törlése — minden művelet közvetlenül a `.d64` fájlra kerül alkalmazásra a `c1541` fájlon keresztül, külön mentési lépés nélkül.
+- **Betöltési cím, kicsomagolási cím és Exomizer a D64 szerkesztőben** — fejléc nélküli nyers fájl hozzáadásával beállítható egy opcionális betöltési cím, egy Exomizer kicsomagolási cél, és tömöríthető a fájl betöltés közben, ugyanazokkal a `mem`/`sfx` tömörítési módokkal, mint az Exportálás D64-be párbeszédpanel extra fájljai. Egy már saját fejlécet tartalmazó `.prg` fájl teljesen kihagyja ezeket a mezőket.
+- **Lemezbejegyzés típusválasztó** — PRG / SEQ / USR / REL kiválasztása egy újonnan hozzáadott fájlhoz ahelyett, hogy mindig PRG-ként írná ki.
+- **Autentikus könyvtárlista** — a D64 szerkesztő fájllistája a mellékelt C64 Pro betűtípussal, nagybetűkkel jelenik meg a klasszikus `LOAD"$",8` megjelenés érdekében.
+- **Javítva:** A D64 szerkesztőben egy bejegyzés átnevezése már nem veti el a szerkesztést, amikor a szövegmezőbe kattintasz.
+- **Fejlesztve:** a világos téma módjelző eszköztár jelvénye (BLOKK MÓD / SZAKÉRTŐI MÓD / …) sötétebb és olvashatóbb lett, és a csillogó animációja ismét látható.
 
 ---
 
@@ -3267,6 +3280,39 @@ A lemez neve, a program neve és az extra fájlok listája a projekt JSON-fájlj
 Az **loadfile-demo** minta előre konfigurálva tartalmazza a `DEMO-COLORS.PRG` fájlt extra fájlként. Jelöld ki, nyisd meg a **Run via D64** fájlt, és kattints az **Run** gombra a teljes betöltési folyamat működés közbeni megtekintéséhez.
 
 > **Követelmény:** A D64 exportáláshoz és a Futtatás D64-en keresztül funkcióhoz egyaránt konfigurálni kell a VICE-t (`c1541`) a [Hardverbeállítások](#13-hardware-settings) alatt.
+
+### D64 szerkesztő (meglévő lemezkép böngészése és szerkesztése)
+
+A Görbeszerkesztő utáni eszköztár ikon megnyitja a **D64 szerkesztőt** – egy önálló eszközt, amellyel közvetlenül, az aktuálisan megnyitott programtól függetlenül dolgozhatunk egy meglévő `.d64` képpel. A fenti Exportálás D64-be párbeszédablakkal ellentétben (amely mindig egy *új* lemezt épít a lefordított PRG-ből), a D64 szerkesztő a lemezképet a `c1541` segítségével szerkeszti helyben, így könnyűsúlyú lemezkezelőként is funkcionál.
+
+**Fájlok ▾ menü:**
+
+| Tétel                   | Akció                                                                                               |
+| ----------------------- | --------------------------------------------------------------------------------------------------- |
+| **Új D64…**             | Válasszon ki egy cél elérési utat, és hozzon létre ott egy frissen formázott, üres lemezképet.      |
+| **D64 megnyitása…**     | Válassz ki egy meglévő `.d64` fájlt és töltsd be a könyvtárát.                                      |
+| **Mentés másként…**     | Másolja a jelenleg megnyitott lemezképet egy új elérési útra, és folytassa a másolat szerkesztését. |
+| **Futtassa a VICE-ban** | Indítsa el a jelenleg megnyitott lemezképet közvetlenül a VICE-ban (`-drive8type 1541`).            |
+
+**Eszköztár:**
+
+| Ikon                     | Akció                                                                                                                |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| **Program hozzáadása**   | Válassz ki egy helyi fájlt, és írd be a lemez könyvtárába.                                                           |
+| **Kijelöltek kinyerése** | A kiválasztott bejegyzés bájtjainak mentése egy helyi `.prg` fájlba.                                                 |
+| **Kijelölt átnevezése**  | A bejegyzés nevének szerkesztése a táblázatban soron belül — Az Enter megerősíti, az Escape megszakítja a műveletet. |
+| **Kijelölt törlése**     | Távolítsa el a kiválasztott bejegyzést a lemezről.                                                                   |
+| **Frissítés**            | Olvasd be újra a könyvtárat, pl. miután szerkesztetted a lemezt egy másik eszközzel.                                 |
+
+**Program hozzáadása:** Egy olyan fájl kiválasztása, amely már `.prg` végződésű, csak a **Név** és a lemez **Típusa** (PRG/SEQ/USR/REL) megadását kéri – egy `.prg` már rendelkezik saját betöltési cím fejléccel, így változatlanul kerül kiírásra. Bármely más fájl kiválasztása (pl. egy nyers `.bin`) a következőket is mutatja:
+
+- **Cím betöltése** (hex, opcionális) — egy 2 bájtos PRG fejlécet illeszt be erre a címre; hagyja üresen, ha a bájtokat nyersen szeretné írni.
+- **Kicsomagolási cím** (hex, opcionális) — csak az Exomizerrel együtt használatos; a célcím, ahová a kicsomagolónak ki kell csomagolnia az adatokat.
+- **Exomizer** jelölőnégyzet – a fájl tömörítése írás előtt ugyanazokkal a `mem`/`sfx` tömörítési módokkal, mint a fenti Exportálás D64-be párbeszédpanelen található extra fájlok esetében.
+
+A könyvtárlista a fájlneveket ugyanolyan betűtípussal és nagybetűs stílusban jeleníti meg, mint egy valódi C64 `LOAD"$",8` lista.
+
+> **Követelmény:** a D64-be exportáláshoz hasonlóan a D64 szerkesztőhöz is VICE (`c1541`) szükséges, amely a [Hardverbeállítások](#13-hardware-settings) részben van konfigurálva. Minden művelet (hozzáadás/törlés/átnevezés/kivonás) közvetlenül a lemezen lévő `.d64` fájlra vonatkozik – nincs külön „mentés” lépés.
 
 ---
 

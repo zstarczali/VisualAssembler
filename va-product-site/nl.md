@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Gebruikershandleiding
 
-**Versie 2.3.9**
+**Versie 2.4.0**
 
 Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma's door instructieblokken te slepen en neer te zetten, en bekijk de gegenereerde assembly- en machinecode in realtime.
 
@@ -9,6 +9,7 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
 ## Inhoudsopgave
 
 - [C64 Visual Assembler — Gebruikershandleiding](#c64-visual-assembler--user-manual)
+    - [Hoogtepunten van versie 2.4.0](#version-240-highlights)
     - [Hoogtepunten van versie 2.3.9](#version-239-highlights)
     - [Hoogtepunten van versie 2.3.8](#version-238-highlights)
   - [Inhoudsopgave](#table-of-contents)
@@ -151,6 +152,18 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
     - [Kaarteditor (Meerlaagse tegelkaarten)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve-editor](#curve-editor)
+
+---
+
+## Hoogtepunten van versie 2.4.0
+
+- **D64 Editor** — een volledige schijfimagebrowser op de werkbalk (na de Curve Editor). Open een bestaande `.d64`, maak een nieuwe lege aan of start de huidige schijf rechtstreeks in VICE, allemaal vanuit een menu Bestand ▾ dat overeenkomt met de andere visuele editors. Zie [D64 Editor (een bestaande schijfimage bekijken en bewerken)](#d64-editor-browse--edit-an-existing-disk-image).
+- **Toevoegen / extraheren / hernoemen / verwijderen in de D64 Editor** — voeg een lokaal bestand toe aan de schijfdirectory, extraheer een geselecteerde vermelding terug naar een `.prg`, hernoem een vermelding direct in de tabel of verwijder deze — elke actie wordt rechtstreeks toegepast op het `.d64`-bestand via `c1541`, zonder aparte opslagstap.
+- **Laadadres, decompressieadres en Exomizer in de D64 Editor** — door een onbewerkt bestand zonder header toe te voegen, kunt u een optioneel laadadres en een Exomizer-decompressiedoel instellen en het bestand tijdens het laden comprimeren met dezelfde `mem`/`sfx` crunch-modi als de extra bestanden in het dialoogvenster Exporteren naar D64. Een `.prg` dat al een eigen header heeft, slaat deze velden volledig over.
+- **Selector voor schijfinvoertype** — kies PRG / SEQ / USR / REL voor een nieuw toegevoegd bestand in plaats van het altijd als PRG te schrijven.
+- **Authentieke directorylijst** — de bestandslijst van de D64 Editor wordt weergegeven in het meegeleverde C64 Pro-lettertype, in hoofdletters, voor de klassieke `LOAD"$",8` look.
+- **Opgelost:** Het hernoemen van een item in de D64 Editor zorgt er niet langer voor dat de bewerking ongedaan wordt gemaakt wanneer je in het tekstveld klikt.
+- **Verbeterd:** De modusindicatorbadge in de werkbalk van het lichte thema (BLOKMODUS / EXPERTMODUS / …) is donkerder en beter leesbaar, en de glinsterende animatie is weer zichtbaar.
 
 ---
 
@@ -1051,7 +1064,7 @@ Net zoals **POKE een string** in een willekeurig geheugenadres tijdens runtime. 
 | Adres                   | Doelgeheugenadres — `$C000` hex of een **labelnaam**                                                    |
 | Label (optioneel)       | Kent een label toe dat verwijst naar het doeladres.                                                     |
 | Verschuiving            | Hexadecimale waarde (00–FF) toegevoegd aan elke byte van de schermcode (bijv. `$80` = omgekeerde video) |
-| Kleine letters tekenset | Checkbox — same semantics as TEXT (see TEXT section)                                                    |
+| Kleine letters tekenset | Selectievakje — dezelfde betekenis als TEKST (zie het gedeelte TEKST)                                   |
 
 **Expert syntax:**
 ```
@@ -1138,7 +1151,7 @@ Net als RAWBYTES, maar dan voor tekst: de tekenreeks wordt gecodeerd als schermc
 | Adres                   | Doelgeheugenadres — `$C000` hex of een **labelnaam**                                                    |
 | Label (optioneel)       | Kent een label toe dat verwijst naar het doeladres.                                                     |
 | Verschuiving            | Hexadecimale waarde (00–FF) toegevoegd aan elke byte van de schermcode (bijv. `$80` = omgekeerde video) |
-| Kleine letters tekenset | Checkbox — same semantics as TEXT (see TEXT section)                                                    |
+| Kleine letters tekenset | Selectievakje — dezelfde betekenis als TEKST (zie het gedeelte TEKST)                                   |
 
 **Expert syntax:**
 ```
@@ -3267,6 +3280,39 @@ De schijfnaam, programmanaam en lijst met extra bestanden worden opgeslagen in h
 Het **loadfile-demo** voorbeeld is vooraf geconfigureerd met `DEMO-COLORS.PRG` als extra bestand. Selecteer dit bestand, open **Uitvoeren via D64** en klik op **Uitvoeren** om de volledige laadstroom in actie te zien.
 
 > **Vereiste:** Voor zowel D64-export als uitvoering via D64 is het vereist dat VICE (`c1541`) is geconfigureerd in [Hardware-instellingen](#13-hardware-settings).
+
+### D64 Editor (een bestaande schijfimage bekijken en bewerken)
+
+Het pictogram in de werkbalk na de Curve Editor opent de **D64 Editor** — een zelfstandig hulpmiddel om rechtstreeks met een bestaande `.d64` image te werken, onafhankelijk van het momenteel geopende programma. In tegenstelling tot het bovenstaande dialoogvenster Exporteren naar D64 (dat altijd een *nieuwe* schijf bouwt vanuit de gecompileerde PRG), bewerkt de D64 Editor een schijfimage ter plaatse via `c1541`, waardoor het tevens dienstdoet als een lichtgewicht schijfbeheerder.
+
+**Bestanden ▾ menu:**
+
+| Item                  | Actie                                                                                                         |
+| --------------------- | ------------------------------------------------------------------------------------------------------------- |
+| **Nieuwe D64…**       | Kies een bestemmingslocatie en maak daar een nieuw geformatteerde, lege schijfkopie aan.                      |
+| **Open D64…**         | Selecteer een bestaand `.d64`-bestand en laad de map ervan.                                                   |
+| **Opslaan als…**      | Kopieer de momenteel geopende schijfkopie naar een nieuwe locatie en ga verder met het bewerken van de kopie. |
+| **Uitvoeren in VICE** | Start de momenteel geopende schijfimage rechtstreeks in VICE (`-drive8type 1541`).                            |
+
+**Werkbalk:**
+
+| Icon                          | Actie                                                                                     |
+| ----------------------------- | ----------------------------------------------------------------------------------------- |
+| **Programma toevoegen**       | Selecteer een lokaal bestand en schrijf het naar de schijfmap.                            |
+| **Selecteer geselecteerde **  | Sla de bytes van de geselecteerde invoer op in een lokaal `.prg`-bestand.                 |
+| **Geselecteerde hernoemen**   | Bewerk de naam van het item direct in de tabel — Enter bevestigt, Escape annuleert.       |
+| **Geselecteerde verwijderen** | Verwijder het geselecteerde item van de schijf.                                           |
+| **Vernieuwen**                | Lees de map opnieuw, bijvoorbeeld nadat u de schijf met een ander programma hebt bewerkt. |
+
+**Een programma toevoegen:** Het selecteren van een bestand dat al eindigt op `.prg` vraagt alleen om een **Naam** en een schijf **Type** (PRG/SEQ/USR/REL) — een `.prg` heeft al zijn eigen laadadresheader, dus die wordt ongewijzigd geschreven. Het selecteren van een ander bestand (bijv. een onbewerkt `.bin`) toont bovendien:
+
+- **Laadadres** (hex, optioneel) — voeg een 2-byte PRG-header toe aan dit adres; laat dit leeg om de bytes onbewerkt te schrijven.
+- **Decompressieadres** (hex, optioneel) — alleen te gebruiken in combinatie met Exomizer; het doeladres waarnaar de depacker de gegevens moet uitpakken.
+- **Exomizer** selectievakje — comprimeer het bestand vóór het schrijven, met dezelfde `mem`/`sfx` crunch-modi als de extra bestanden in het bovenstaande dialoogvenster Exporteren naar D64.
+
+De directorylijst geeft bestandsnamen weer in hetzelfde lettertype en met dezelfde hoofdletters als een echte C64 `LOAD"$",8`-lijst.
+
+> **Vereiste:** Net als bij Exporteren naar D64, vereist de D64 Editor VICE (`c1541`) geconfigureerd in [Hardware-instellingen](#13-hardware-settings). Elke actie (toevoegen/verwijderen/hernoemen/uitpakken) wordt rechtstreeks toegepast op het `.d64`-bestand op de schijf — er is geen aparte "opslaan"-stap.
 
 ---
 

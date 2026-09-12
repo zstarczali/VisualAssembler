@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.3.9**
+**Version 2.4.0**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att dra och släppa instruktionsblock och se den genererade assemblern och maskinkoden i realtid.
 
@@ -9,6 +9,7 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
 ## Innehållsförteckning
 
 - [C64 Visual Assembler — Användarmanual](#c64-visual-assembler--user-manual)
+    - [Höjdpunkter i version 2.4.0](#version-240-highlights)
     - [Höjdpunkter i version 2.3.9](#version-239-highlights)
     - [Höjdpunkter i version 2.3.8](#version-238-highlights)
   - [Innehållsförteckning](#table-of-contents)
@@ -151,6 +152,18 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
     - [Kartredigerare (Flerskiktade kakelkartor)](#map-editor-multilayer-tilemaps)
     - [SID-redigerare (3-röstsspårare)](#sid-editor-3-voice-tracker)
     - [Kurvredigerare](#curve-editor)
+
+---
+
+## Höjdpunkter i version 2.4.0
+
+- **D64 Editor** — en komplett diskavbildningsläsare i verktygsfältet (efter kurvredigeraren). Öppna en befintlig `.d64`, skapa en ny tom disk eller starta den aktuella disken direkt i VICE, allt från en Filer ▾-meny som matchar de andra visuella redigerarna. Se [D64 Editor (bläddra bland och redigera en befintlig diskavbildning)](#d64-editor-browse--edit-an-existing-disk-image).
+- **Lägg till / extrahera / byt namn på / ta bort i D64-editorn** — lägg till en lokal fil i diskkatalogen, extrahera en vald post tillbaka till en `.prg`, byt namn på en post inline i tabellen eller ta bort den — varje åtgärd tillämpas direkt på `.d64`-filen via `c1541`, utan separat sparningssteg.
+- **Ladda adress, dekomprimera adress och Exomizer i D64-redigeraren** — genom att lägga till en headerlös råfil kan du ange en valfri laddningsadress, ett Exomizer-dekomprimeringsmål och komprimera den på vägen in, med samma `mem`/`sfx` komprimeringslägen som i dialogrutan Exportera till D64:s extrafiler. En `.prg` som redan har sin egen header hoppar över dessa fält helt.
+- **Väljare för diskposttyp** — välj PRG / SEQ / USR / REL för en nyligen tillagd fil istället för att alltid skriva den som PRG.
+- **Autentisk kataloglista** — D64-redigerarens fillista visas i det medföljande C64 Pro-typsnittet, med versaler, för det klassiska `LOAD"$",8`-utseendet.
+- **Åtgärdat: ** Att byta namn på en post i D64-redigeraren ignorerar inte längre redigeringen när du klickar i textfältet.
+- **Förbättrat:** Det ljusa temats lägesindikator i verktygsfältet (BLOCKLÄGE / EXPERTLÄGE / …) är mörkare och mer läsbart, och dess skimrande animation syns igen.
 
 ---
 
@@ -3267,6 +3280,39 @@ Disknamnet, programnamnet och listan över extra filer sparas i projektets JSON 
 Exemplet **loadfile-demo** levereras förkonfigurerat med `DEMO-COLORS.PRG` som en extra fil. Markera den, öppna **Kör via D64** och klicka på **Kör** för att se hela laddningsflödet i aktion.
 
 > **Krav:** Både D64-export och körning via D64 kräver att VICE (`c1541`) konfigureras i [Maskinvaruinställningar](#13-hardware-settings).
+
+### D64 Editor (bläddra bland och redigera en befintlig diskavbildning)
+
+Verktygsfältsikonen efter kurvredigeraren öppnar **D64-redigeraren** — ett fristående verktyg för att arbeta direkt med en befintlig `.d64`-bild, oberoende av det program som för närvarande är öppna. Till skillnad från dialogrutan Exportera till D64 ovan (som alltid skapar en *ny*-disk från den kompilerade PRG:n), redigerar D64-redigeraren en diskavbildning på plats via `c1541`, så den fungerar även som en lättviktig diskhanterare.
+
+**Filer ▾ meny:**
+
+| Punkt          | Handling                                                                                          |
+| -------------- | ------------------------------------------------------------------------------------------------- |
+| **Nya D64…**   | Välj en målsökväg och skapa en nyformaterad, tom diskavbildning där.                              |
+| **Öppna D64…** | Välj en befintlig `.d64`-fil och ladda dess katalog.                                              |
+| **Spara som…** | Kopiera den för närvarande öppna diskavbildningen till en ny sökväg och fortsätt redigera kopian. |
+| **Kör i VICE** | Starta den öppna diskavbildningen direkt i VICE (`-drive8type 1541`).                             |
+
+**Verktygsfält:**
+
+| Ikon                     | Handling                                                                          |
+| ------------------------ | --------------------------------------------------------------------------------- |
+| **Lägg till program**    | Välj en lokal fil och skriv den till diskkatalogen.                               |
+| **Utdrag valt**          | Spara den valda postens byte till en lokal `.prg`-fil.                            |
+| **Byt namn på markerad** | Redigera postnamnet infogat i tabellen — Enter bekräftar, Escape avbryter.        |
+| **Ta bort markerade **   | Ta bort den valda posten från disken.                                             |
+| **Uppdatera**            | Läs om katalogen, t.ex. efter att du har redigerat disken från ett annat verktyg. |
+
+**Lägga till ett program:** Om du väljer en fil som redan slutar på `.prg` frågar du bara efter ett **Namn** och en diskett **Typ** (PRG/SEQ/USR/REL) — en `.prg` har redan sin egen load-address-rubrik, så den skrivs oförändrad. Om du väljer en annan fil (t.ex. en rå `.bin`) visas dessutom:
+
+- **Ladda adress** (hex, valfritt) — lägg till en 2-byte PRG-rubrik vid den här adressen; lämna tomt för att skriva bytena råa.
+- **Dekomprimeringsadress** (hex, valfritt) — används endast tillsammans med Exomizer; måladressen som depackaren ska packa upp data till.
+- Kryssrutan **Exomizer** — komprimera filen innan skrivning, med samma `mem`/`sfx` crunch-lägen som för extrafilerna i dialogrutan Exportera till D64 ovan.
+
+Katalogens lista visar filnamn med samma teckensnitt och versaler som en riktig C64 `LOAD"$",8`-lista.
+
+> **Krav:** Precis som Exportera till D64 kräver D64-redigeraren VICE (`c1541`) konfigurerad i [Maskinvaruinställningar](#13-hardware-settings). Varje åtgärd (lägg till/ta bort/byt namn/extrahera) tillämpas direkt på `.d64`-filen på disken — det finns inget separat "spara"-steg.
 
 ---
 

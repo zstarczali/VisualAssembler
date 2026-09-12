@@ -1,6 +1,6 @@
 # Manuel d'utilisation de l'assembleur visuel C64
 
-**Version 2.3.9**
+**Version 2.4.0**
 
 Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez des programmes en faisant glisser et en déposant des blocs d'instructions, et visualisez en temps réel le code assembleur et le code machine générés.
 
@@ -9,6 +9,7 @@ Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez de
 ## Table des matières
 
 - [C64 Visual Assembler — Manuel de l'utilisateur](#c64-visual-assembler--user-manual)
+    - [Points saillants de la version 2.4.0](#version-240-highlights)
     - [Points saillants de la version 2.3.9](#version-239-highlights)
     - [Points saillants de la version 2.3.8](#version-238-highlights)
   - [Table des matières](#table-of-contents)
@@ -151,6 +152,18 @@ Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez de
     - [Éditeur de cartes (Cartes de tuiles multicouches)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Éditeur de courbes](#curve-editor)
+
+---
+
+## Points forts de la version 2.4.0
+
+- **Éditeur D64** — un explorateur d'images disque complet situé dans la barre d'outils (après l'Éditeur de courbes). Ouvrez un fichier `.d64` existant, créez-en un nouveau vierge ou lancez le disque actuel directement dans VICE, le tout depuis un menu Fichier ▾ identique à celui des autres éditeurs visuels. Voir [Éditeur D64 (explorer et modifier une image disque existante)](#d64-editor-browse--edit-an-existing-disk-image).
+- **Ajouter / extraire / renommer / supprimer sur l'éditeur D64** — ajouter un fichier local au répertoire du disque, extraire une entrée sélectionnée vers un `.prg`, renommer une entrée directement dans le tableau ou la supprimer — chaque action est appliquée directement au fichier `.d64` via `c1541`, sans étape d'enregistrement séparée.
+- **Adresse de chargement, adresse de décompression et Exomizer dans l'éditeur D64** — L'ajout d'un fichier brut sans en-tête permet de définir une adresse de chargement optionnelle, une cible de décompression Exomizer et de le compresser à l'importation, en utilisant les mêmes modes de compression `mem`/`sfx` que les fichiers supplémentaires de la boîte de dialogue Exporter vers D64. Un fichier `.prg` possédant déjà son propre en-tête ignore complètement ces champs.
+- **Sélecteur de type d'entrée de disque** — choisissez PRG / SEQ / USR / REL pour un fichier nouvellement ajouté au lieu de toujours l'écrire en tant que PRG.
+- **Liste de répertoire authentique** — la liste de fichiers de l'éditeur D64 s'affiche dans la police C64 Pro fournie, en majuscules, pour le look classique `LOAD"$",8`.
+- **Corrigé : ** renommer une entrée dans l'éditeur D64 ne supprime plus la modification lorsque vous cliquez dans le champ de texte.
+- **Amélioré : ** le badge de la barre d'outils de l'indicateur de mode du thème clair (MODE BLOC / MODE EXPERT / …) est plus foncé et plus lisible, et son animation scintillante est à nouveau visible.
 
 ---
 
@@ -3267,6 +3280,39 @@ Le nom du disque, le nom du programme et la liste des fichiers supplémentaires 
 L'exemple **loadfile-demo** est préconfiguré avec le fichier supplémentaire `DEMO-COLORS.PRG`. Sélectionnez-le, ouvrez **Exécuter via D64** et cliquez sur **Exécuter** pour observer le flux de chargement complet.
 
 > **Exigence :** L'exportation D64 et l'exécution via D64 nécessitent toutes deux que VICE (`c1541`) soit configuré dans [Paramètres matériels](#13-hardware-settings).
+
+### Éditeur D64 (parcourir et modifier une image disque existante)
+
+L'icône de la barre d'outils située après l'Éditeur de courbes ouvre l'Éditeur D64, un outil autonome permettant de travailler directement avec une image D64 existante, indépendamment du programme actuellement ouvert. Contrairement à la boîte de dialogue Exporter vers D64 ci-dessus (qui crée systématiquement un nouveau disque à partir du fichier PRG compilé), l'Éditeur D64 modifie une image disque directement via c1541, faisant ainsi office de gestionnaire de disques léger.
+
+**Fichiers ▾ menu : **
+
+| Article                | Action                                                                                                         |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **Nouveau D64…**       | Choisissez un emplacement de destination et créez-y une image disque vierge et fraîchement formatée.           |
+| **Ouvrir D64…**        | Sélectionnez un fichier `.d64` existant et chargez son répertoire.                                             |
+| **Enregistrer sous…**  | Copiez l'image disque actuellement ouverte vers un nouveau chemin d'accès et poursuivez l'édition de la copie. |
+| **Exécuter dans VICE** | Lancez directement l'image disque actuellement ouverte dans VICE (`-drive8type 1541`).                         |
+
+**Barre d'outils :**
+
+| Icône                      | Action                                                                                      |
+| -------------------------- | ------------------------------------------------------------------------------------------- |
+| **Ajouter un programme**   | Sélectionnez un fichier local et écrivez-le dans le répertoire du disque.                   |
+| **Extraire la sélection**  | Enregistrez les octets de l'entrée sélectionnée dans un fichier local `.prg`.               |
+| **Renommer la sélection**  | Modifiez le nom de l'entrée directement dans le tableau — Entrée confirme, Échap annule.    |
+| **Supprimer la sélection** | Supprimez l'entrée sélectionnée du disque.                                                  |
+| **Actualiser**             | Relisez le répertoire, par exemple après avoir modifié le disque à l'aide d'un autre outil. |
+
+**Ajout d'un programme :** la sélection d'un fichier se terminant déjà par `.prg` ne demande qu'un **Nom** et un **Type** de disque (PRG/SEQ/USR/REL) — un fichier `.prg` contient déjà son propre en-tête d'adresse de chargement, il est donc écrit sans modification. La sélection de tout autre fichier (par exemple, un fichier brut `.bin`) affiche en outre :
+
+- **Adresse de chargement** (hex, optionnel) — ajouter un en-tête PRG de 2 octets à cette adresse ; laisser vide pour écrire les octets bruts.
+- **Adresse de décompression** (hex, optionnel) — utilisé uniquement avec Exomizer ; l'adresse cible vers laquelle le décompresseur doit décompresser les données.
+- **Exomizer** case à cocher — compressez le fichier avant l'écriture, en utilisant les mêmes modes de compression `mem`/`sfx` que les fichiers supplémentaires dans la boîte de dialogue Exporter vers D64 ci-dessus.
+
+La liste des répertoires affiche les noms de fichiers dans la même police et le même style de majuscules qu'une véritable liste C64 `LOAD"$",8`.
+
+> **Prérequis : ** À l’instar de l’exportation vers D64, l’éditeur D64 nécessite VICE (`c1541`) configuré dans [Paramètres matériels](#13-hardware-settings). Chaque action (ajout/suppression/renommage/extraction) est appliquée directement au fichier `.d64` sur le disque ; il n’y a pas d’étape d’enregistrement séparée.
 
 ---
 

@@ -1,6 +1,6 @@
 # C64 Visual Assembler – Benutzerhandbuch
 
-**Version 2.3.9**
+**Version 2.4.0**
 
 Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Sie Programme durch Ziehen und Ablegen von Befehlsblöcken und sehen Sie den generierten Assembler- und Maschinencode in Echtzeit.
 
@@ -9,6 +9,7 @@ Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Si
 ## Inhaltsverzeichnis
 
 - [C64 Visual Assembler — Benutzerhandbuch](#c64-visual-assembler--user-manual)
+    - [Version 2.4.0 Highlights](#version-240-highlights)
     - [Version 2.3.9 Highlights](#version-239-highlights)
     - [Version 2.3.8 Highlights](#version-238-highlights)
   - [Inhaltsverzeichnis](#table-of-contents)
@@ -151,6 +152,18 @@ Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Si
     - [Karteneditor (Mehrschichtige Kachelkarten)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Kurveneditor](#curve-editor)
+
+---
+
+## Highlights der Version 2.4.0
+
+- **D64-Editor** – ein vollständiger Disk-Image-Browser in der Symbolleiste (nach dem Kurveneditor). Öffnen Sie ein vorhandenes `.d64`, erstellen Sie ein neues, leeres oder starten Sie die aktuelle Disk direkt in VICE. Dies ist jeweils über das Menü „Dateien ▾“ möglich, analog zu den anderen visuellen Editoren. Siehe [D64-Editor (vorhandenes Disk-Image durchsuchen und bearbeiten)](#d64-editor-browse--edit-an-existing-disk-image).
+- **Hinzufügen / Extrahieren / Umbenennen / Löschen im D64 Editor** — eine lokale Datei zum Festplattenverzeichnis hinzufügen, einen ausgewählten Eintrag zurück in eine `.prg` extrahieren, einen Eintrag direkt in der Tabelle umbenennen oder löschen — jede Aktion wird direkt auf die `.d64`-Datei über `c1541` angewendet, ohne dass ein separater Speicherschritt erforderlich ist.
+- **Ladeadresse, Dekomprimierungsadresse & Exomizer im D64-Editor** – Durch Hinzufügen einer Rohdatei ohne Header können Sie eine optionale Ladeadresse und ein Exomizer-Dekomprimierungsziel festlegen sowie die Datei beim Import komprimieren. Dabei werden dieselben `mem`/`sfx`-Komprimierungsmodi wie bei den Zusatzdateien des Dialogfelds „Exportieren nach D64“ verwendet. Eine `.prg`-Datei, die bereits einen eigenen Header enthält, überspringt diese Felder vollständig.
+- **Auswahl des Datenträgereintragstyps** — Wählen Sie PRG / SEQ / USR / REL für eine neu hinzugefügte Datei, anstatt sie immer als PRG zu schreiben.
+- **Authentische Verzeichnisauflistung** — Die Dateiliste des D64 Editors wird in der mitgelieferten C64 Pro-Schriftart in Großbuchstaben gerendert, für den klassischen `LOAD"$",8` Look.
+- **Behoben:** Das Umbenennen eines Eintrags im D64 Editor verwirft die Änderung nicht mehr, wenn man in das Textfeld klickt.
+- **Verbessert:** Das Symbol in der Symbolleiste des hellen Designs (BLOCKMODUS / EXPERTENMODUS / …) ist dunkler und besser lesbar, und seine Schimmeranimation ist wieder sichtbar.
 
 ---
 
@@ -1122,7 +1135,7 @@ Wie **DATA, das direkt in den Speicher geladen wird** – ganz ohne Laufzeitcode
 .rawbytes $0C50, $00, $00 :nev      ; with macroLabel — other code can use LDA nev,X
 ```
 
-**Größe im Code: ** 0 Bytes. Die Daten werden an der angegebenen Adresse in der Ausgabe platziert.
+**Größe im Code:** 0 Bytes. Die Daten werden an der angegebenen Adresse in der Ausgabe platziert.
 
 > **DATA vs. RAWBYTES:** DATA generiert LDA/STA-Code, der Bytes zur Laufzeit kopiert (langsamer, aber geeignet, wenn die Daten dynamisch sein müssen). RAWBYTES platziert die Bytes direkt – ohne Code, sofort, ohne Kosten.
 
@@ -1160,7 +1173,7 @@ Wie **DATA, das direkt in den Speicher geladen wird** – ganz ohne Laufzeitcode
     .byte $48, $45, $4C, $4C, $4F   ; h e l l o (lowercase screen codes $41–$5A range)
 ```
 
-**Größe im Code: ** 0 Bytes. Die Daten werden an der angegebenen Adresse in der Ausgabe platziert.
+**Größe im Code:** 0 Bytes. Die Daten werden an der angegebenen Adresse in der Ausgabe platziert.
 
 > **STRING vs RAWTEXT:** STRING generiert LDA/STA-Code, der den Text zur Laufzeit kopiert. RAWTEXT bettet die Bytes beim Laden in die PRG ein – kein Code, keine Wartezeit.
 
@@ -3267,6 +3280,39 @@ Der Datenträgername, der Programmname und die Liste der zusätzlichen Dateien w
 Das Beispiel **loadfile-demo** enthält bereits die Datei `DEMO-COLORS.PRG` als zusätzliche Datei. Wählen Sie diese aus, öffnen Sie **Run via D64** und klicken Sie auf **Run**, um den gesamten Ladevorgang zu sehen.
 
 > **Anforderung:** Sowohl D64-Export als auch Ausführen über D64 erfordern, dass VICE (`c1541`) in [Hardware-Einstellungen](#13-hardware-settings) konfiguriert ist.
+
+### D64 Editor (vorhandenes Disk-Image durchsuchen und bearbeiten)
+
+Das Symbol in der Symbolleiste nach dem Kurveneditor öffnet den D64-Editor – ein eigenständiges Werkzeug zur direkten Bearbeitung eines vorhandenen D64-Images, unabhängig vom aktuell geöffneten Programm. Im Gegensatz zum Dialogfeld „Exportieren nach D64“ (das immer eine neue Festplatte aus der kompilierten PRG-Datei erstellt) bearbeitet der D64-Editor ein Festplatten-Image direkt über c1541 und dient somit gleichzeitig als schlanker Festplattenmanager.
+
+**Dateien ▾ Menü:**
+
+| Artikel              | Aktion                                                                                                 |
+| -------------------- | ------------------------------------------------------------------------------------------------------ |
+| **Neues D64…**       | Wählen Sie einen Zielpfad und erstellen Sie dort ein frisch formatiertes, leeres Festplattenabbild.    |
+| **Open D64…**        | Wählen Sie eine vorhandene `.d64`-Datei aus und laden Sie deren Verzeichnis.                           |
+| **Speichern unter…** | Kopieren Sie das aktuell geöffnete Disk-Image in einen neuen Pfad und bearbeiten Sie die Kopie weiter. |
+| **Run in VICE**      | Starten Sie das aktuell geöffnete Disk-Image direkt in VICE (`-drive8type 1541`).                      |
+
+**Symbolleiste:**
+
+| Symbol                      | Aktion                                                                                                          |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **Programm hinzufügen**     | Wählen Sie eine lokale Datei aus und schreiben Sie sie in das Verzeichnis auf der Festplatte.                   |
+| **Ausgewählte extrahieren** | Speichern Sie die Bytes des ausgewählten Eintrags in einer lokalen `.prg`-Datei.                                |
+| **Ausgewählte umbenennen**  | Bearbeiten Sie den Eintragsnamen direkt in der Tabelle – Enter bestätigt, Escape bricht ab.                     |
+| **Ausgewählte löschen**     | Den ausgewählten Eintrag von der Festplatte entfernen.                                                          |
+| **Aktualisieren**           | Lesen Sie das Verzeichnis erneut ein, z. B. nachdem Sie die Festplatte mit einem anderen Tool bearbeitet haben. |
+
+**Hinzufügen eines Programms:** Die Auswahl einer Datei, die bereits auf `.prg` endet, fragt lediglich nach einem **Name** und einem Datenträgertyp**Typ** (PRG/SEQ/USR/REL) – eine `.prg` enthält bereits ihren eigenen Ladeadressheader und wird daher unverändert geschrieben. Die Auswahl einer anderen Datei (z. B. einer unformatierten `.bin`) zeigt zusätzlich Folgendes an:
+
+- **Ladeadresse** (hex, optional) — Füge an dieser Adresse einen 2-Byte-PRG-Header voran; lasse das Feld leer, um die Bytes roh zu schreiben.
+- **Dekomprimierungsadresse** (hex, optional) — wird nur zusammen mit Exomizer verwendet; die Zieladresse, an die der Depacker die Daten entpacken soll.
+- Kontrollkästchen **Exomizer** — Die Datei wird vor dem Schreiben komprimiert, wobei die gleichen `mem`/`sfx`-Komprimierungsmodi wie bei den zusätzlichen Dateien im obigen Dialogfeld „Exportieren nach D64“ verwendet werden.
+
+Die Verzeichnisauflistung gibt Dateinamen in der gleichen Schriftart und Großbuchstabensprache wieder wie eine echte C64 `LOAD"$",8`-Auflistung.
+
+> **Voraussetzung:** Wie beim Export nach D64 benötigt der D64-Editor VICE (`c1541`), das in den [Hardwareeinstellungen](#13-hardware-settings) konfiguriert ist. Jede Aktion (Hinzufügen/Löschen/Umbenennen/Extrahieren) wird direkt auf die `.d64`-Datei auf der Festplatte angewendet – es gibt keinen separaten Speichervorgang.
 
 ---
 
