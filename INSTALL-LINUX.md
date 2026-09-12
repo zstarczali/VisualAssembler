@@ -1,5 +1,7 @@
 # Linux Installation Guide (Ubuntu / Debian)
-Version 2.3.9
+Version 2.4.0
+
+2.4.0: New D64 Editor toolbar tool — open an existing .d64, create a blank one, or launch it in VICE from a Files menu, then add/extract/rename/delete directory entries directly on the disk image via c1541 (no separate save step). Adding a headerless file supports an optional load address, an Exomizer decompress target and mem/sfx compression (same modes as Export to D64), plus a PRG/SEQ/USR/REL type selector. The directory listing renders in the bundled C64 Pro font, uppercase, like a real LOAD"$",8. Fixed the D64 Editor rename field losing the edit on click. Light theme's mode-indicator badge is darker/more legible with a visible shimmer again. Toolbar separators added around Tutorials and the new D64 Editor icon.
 
 2.3.9: `*` program counter usable in any operand expression (BNE *-5, JMP *+20, LDA #<*, LDA #>(*+63)); multiplication is unaffected. Local (dotted) labels scoped to the nearest preceding global label, so repeated .loop / .skip names no longer collide. Long-branch pseudo-ops LBNE/LBEQ/LBCC/LBCS/LBMI/LBPL/LBVC/LBVS assemble to an inverted branch over a JMP (5 bytes, unlimited range). New .assert <expr> [, "message"] directive checked at assembly time. Self-modifying-code operand labels: LDA value:#$00 makes 'value' point at the operand byte. Out-of-range branch errors now show the exact overshoot and suggest the matching LBxx.
 
@@ -20,7 +22,7 @@ Tested on Ubuntu 22.04 and 24.04.
 Download the `.deb` package from the releases page and install:
 
 ```bash
-  sudo dpkg -i "c64-visual-assembler_2.3.9_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.4.0_amd64.deb"
 sudo apt-get install -f   # fix any missing dependencies
 ```
 
@@ -134,4 +136,4 @@ The app propagates `DISPLAY`, `WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR`, `DBUS_SESSIO
 
 ---
 
-**Version:** 2.3.9 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.4.0 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

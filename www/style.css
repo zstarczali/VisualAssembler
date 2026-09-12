@@ -553,6 +553,30 @@ a {
   .mode-indicator-shimmer { animation: none; opacity: 0; }
 }
 
+/* Light theme: the pale, low-saturation pill (14% accent over near-white)
+   leaves too little contrast against the light panel for the badge to read
+   clearly, and the white shimmer (soft-light blend) barely registers against
+   an already-light background. Darken/saturate the pill so it stands out the
+   same way it does on the dark themes, which also makes the shimmer visible
+   again without touching its animation/blend logic. */
+html[data-theme="light"] .editor-mode-indicator {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  background: color-mix(in srgb, var(--accent) 82%, transparent);
+  color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -1px 3px rgba(0, 0, 0, 0.25),
+    0 4px 14px rgba(15, 23, 42, 0.20);
+}
+html[data-theme="light"] .editor-mode-indicator::before {
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.35) 0%,
+    rgba(255, 255, 255, 0.08) 45%,
+    transparent 55%
+  );
+}
+
 /* Override legacy control-menu-trigger inside toolbar */
 .main-toolbar .control-menu-trigger {
   min-width: unset;
@@ -8778,6 +8802,116 @@ html[data-theme="commodore77"] .splash-image {
 .se-anim-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .se-anim-spacer { flex: 1; }
 
+/* D64 Editor */
+.de-dialog {
+  position: fixed;
+  background: transparent; border: none; padding: 0;
+  margin: 0;
+  width: min(640px, 95vw); max-width: 95vw;
+  height: min(620px, 90vh); max-height: 90vh; overflow: visible;
+}
+.de-dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
+.de-card {
+  background: var(--panel); border: 1px solid var(--panel-border);
+  display: flex; flex-direction: column; height: 100%; overflow: hidden;
+}
+.de-hdr {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 12px; border-bottom: 1px solid var(--panel-border);
+  background: var(--panel-strong); flex-shrink: 0; position: relative; z-index: 5;
+}
+.de-title {
+  font-family: inherit; font-size: 0.74rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--text);
+}
+.de-disk-label {
+  margin-left: auto; font-family: "IBM Plex Mono", monospace;
+  font-size: 0.7rem; color: var(--secondary); white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.de-xbtn {
+  background: none; border: none; color: var(--secondary); font-size: 1.3rem;
+  cursor: pointer; padding: 0; line-height: 1; min-height: 0; height: 28px; width: 28px;
+}
+.de-xbtn:hover { color: var(--text); }
+
+.de-toolbar {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 7px 12px; border-bottom: 1px solid var(--panel-border); flex-shrink: 0;
+}
+.de-tool-group { display: flex; gap: 2px; align-items: center; background: var(--control-bg); border: 1px solid var(--panel-border); border-radius: 2px; padding: 2px; }
+.de-tool {
+  font-family: inherit; width: 28px; height: 26px; min-height: 0; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: none; border-radius: 2px; background: transparent; color: var(--secondary);
+  cursor: pointer; transition: background 0.12s, color 0.12s;
+}
+.de-tool svg { display: block; width: 15px; height: 15px; }
+.de-tool:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); color: var(--text); }
+.de-tool:disabled { opacity: 0.4; cursor: default; }
+.de-tool:disabled:hover { background: transparent; color: var(--secondary); }
+.de-free-label { margin-left: auto; font-family: inherit; font-size: 0.72rem; color: var(--secondary); white-space: nowrap; }
+
+.de-body { flex: 1; min-height: 0; overflow: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.de-add-panel {
+  display: flex; flex-direction: column; gap: 10px;
+  background: var(--surface-soft); border: 1px solid var(--panel-border); border-radius: 4px; padding: 12px 14px;
+}
+.de-add-panel[hidden] { display: none; }
+.de-add-fields { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+.de-add-extra { display: contents; }
+.de-add-extra[hidden] { display: none; }
+.de-add-field { display: flex; flex-direction: column; gap: 4px; font-family: inherit; font-size: 0.7rem; color: var(--secondary); }
+.de-add-field input, .de-add-field select {
+  font-family: "IBM Plex Mono", monospace; font-size: 0.8rem; padding: 4px 8px;
+  height: 30px; min-height: 0; border: 1px solid var(--panel-border); border-radius: 3px;
+  background: var(--control-bg); color: var(--text); box-shadow: none;
+  width: 96px;
+}
+.de-add-field input:focus, .de-add-field select:focus {
+  outline: none; border-color: var(--primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 30%, transparent);
+}
+.de-add-field select { cursor: pointer; }
+.de-add-checkbox {
+  display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none;
+  font-family: inherit; font-size: 0.72rem; color: var(--secondary); white-space: nowrap;
+  height: 30px; padding: 0 8px; border-radius: 3px; background: var(--control-bg);
+  border: 1px solid var(--panel-border); align-self: flex-end;
+}
+.de-add-checkbox:has(input:checked) { color: var(--primary); font-weight: 600; border-color: var(--primary); }
+.de-add-checkbox input[type="checkbox"] {
+  margin: 0; cursor: pointer; accent-color: var(--primary);
+  width: 14px; height: 14px; min-height: 0; flex-shrink: 0;
+}
+.de-add-actions {
+  display: flex; justify-content: flex-end; gap: 8px;
+  padding-top: 10px; border-top: 1px solid var(--panel-border);
+}
+.de-error {
+  font-family: inherit; font-size: 0.78rem; color: var(--danger, #e05a5a);
+  background: color-mix(in srgb, var(--danger, #e05a5a) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--danger, #e05a5a) 40%, transparent);
+  border-radius: 2px; padding: 8px 10px;
+}
+.de-table { width: 100%; border-collapse: collapse; font-family: "C64Pro", monospace; font-size: 0.85rem; letter-spacing: 0.02em; }
+.de-table th {
+  text-align: left; font-family: inherit; font-size: 0.66rem; font-weight: 600;
+  letter-spacing: 0.05em; text-transform: uppercase; color: var(--secondary);
+  padding: 6px 8px; border-bottom: 1px solid var(--panel-border);
+}
+.de-table td { padding: 6px 8px; border-bottom: 1px solid var(--panel-border); color: var(--text); text-transform: uppercase; }
+.de-table tbody tr { cursor: pointer; }
+.de-table tbody tr:hover { background: var(--surface-soft); }
+.de-table tbody tr.de-row--selected { background: color-mix(in srgb, var(--primary) 18%, transparent); }
+.de-table tbody tr.de-row--locked td { opacity: 0.7; }
+.de-rename-input {
+  font-family: "C64Pro", monospace; font-size: 0.85rem; padding: 3px 6px; text-transform: uppercase;
+  height: 24px; min-height: 0; border: 1px solid var(--primary); border-radius: 2px;
+  background: var(--control-bg); color: var(--text); box-shadow: none; width: 100%; box-sizing: border-box;
+}
+.de-empty { font-family: inherit; font-size: 0.8rem; color: var(--secondary); text-align: center; margin: 24px 0; }
+
 /* SID Editor */
 .sid-dialog { background: transparent; border: none; padding: 0; width: min(1000px, 97vw); max-width: 97vw; height: min(900px, 95vh); max-height: 95vh; overflow: visible; }
 .sid-dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
@@ -8886,7 +9020,8 @@ html[data-theme="commodore77"] .splash-image {
 .hg-dialog,
 .se-dialog,
 .sid-dialog,
-.curve-gen-dialog {
+.curve-gen-dialog,
+.de-dialog {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
@@ -9410,7 +9545,8 @@ html[data-theme="commodore77"] .splash-image {
 #sprite-editor-dialog button[aria-label],
 #sid-editor-dialog button[aria-label],
 #charset-canvas-dialog button[aria-label],
-#curve-gen-dialog button[aria-label] {
+#curve-gen-dialog button[aria-label],
+#d64-editor-dialog button[aria-label] {
   position: relative;
 }
 
@@ -9436,6 +9572,7 @@ html[data-theme="commodore77"] .splash-image {
 #sid-editor-dialog button[aria-label]::after,
 #charset-canvas-dialog button[aria-label]::after,
 #curve-gen-dialog button[aria-label]::after,
+#d64-editor-dialog button[aria-label]::after,
 #tutorial-dialog button[aria-label]::after {
   content: attr(aria-label);
   position: absolute;
@@ -9464,6 +9601,7 @@ html[data-theme="commodore77"] .splash-image {
 #sid-editor-dialog button:hover[aria-label]::after,
 #charset-canvas-dialog button:hover[aria-label]::after,
 #curve-gen-dialog button:hover[aria-label]::after,
+#d64-editor-dialog button:hover[aria-label]::after,
 #tutorial-dialog button:hover[aria-label]::after,
 #c64-chrrom-dialog button:focus-visible[aria-label]::after,
 #char-editor-dialog button:focus-visible[aria-label]::after,
@@ -9473,6 +9611,7 @@ html[data-theme="commodore77"] .splash-image {
 #sid-editor-dialog button:focus-visible[aria-label]::after,
 #charset-canvas-dialog button:focus-visible[aria-label]::after,
 #curve-gen-dialog button:focus-visible[aria-label]::after,
+#d64-editor-dialog button:focus-visible[aria-label]::after,
 #tutorial-dialog button:focus-visible[aria-label]::after {
   opacity: 1;
 }

@@ -419,6 +419,29 @@ A `d64` szekció a projektfájlban:
 ```
 A `sourcePath` relatív a projektfájlhoz képest. Sample esetén a `samples/` mappához képest relatív.
 
+### D64 Editor (`#d64-editor-dialog`)
+
+Önálló dialógus (nem a fenti export dialóg) meglévő `.d64` lemezképek közvetlen szerkesztésére. Sprite Editor stílusú DOM (`.de-hdr` Files▾ + title + close, `.de-toolbar` icon gombok, `.de-body` táblázat) — lásd CLAUDE.md 15. szakasz konvenció.
+
+**Rust oldal (`lib.rs`, `run_c1541_cmd` + `-attach <path>` minden hívásnál, tehát a meglévő lemezképet módosítja helyben, nincs "-format"):**
+
+| Command | Mit csinál |
+|---------|-----------|
+| `choose_d64_open` / `choose_d64_new` | Natív fájlválasztó (open / save-as) `.d64` szűrővel |
+| `d64_format(path, diskName)` | Új, üres formázott lemezkép létrehozása `-format` |
+| `d64_list(path)` | `-list` kimenetének parszolása (`parse_c1541_listing`) → `{diskName, entries, blocksFree}` |
+| `d64_add_file(path, bytes, name, loadAddress?, fileType?)` | `-write`; `fileType` (`prg`\|`seq`\|`usr`\|`rel`) a `c1541 -write ... name,<typecode>` szintaxissal kerül a directory-be |
+| `d64_delete_file(path, name)` / `d64_rename_file(path, old, new)` | `-delete` / `-rename` |
+| `d64_extract_file(path, name)` | `-read` egy temp fájlba, majd visszaolvasva bájtokként adja vissza |
+| `d64_copy_as(source, dest)` | `fs::copy` — "Save As" |
+| `d64_run(path)` | VICE indítása közvetlenül a megadott `.d64`-re (nem épít új temp image-et, ellentétben `run_d64`-gyel) |
+
+`parse_c1541_listing` heurisztikusan dolgozza fel a `c1541 -list` szöveges kimenetét — a `c1541` maga konvertálja a nem-nyomtatható/grafikus PETSCII karaktereket olvasható ASCII helyettesítőkre (pl. `.`/`-`), ez az információvesztés a mi kódunk előtt történik, nem javítható a parseren belül (csak egy saját BAM/directory bináris parserrel, ami nincs implementálva).
+
+**JS oldal (`app.js`):** `_d64EdState` (path/diskName/freeBlocks/entries/selected/pendingAddBytes/pendingIsPrg) + `setupD64Editor()`. `_d64EdConfirmAdd()` a Build D64 extra-fájl Exomizer logikáját (`confirmD64Export`) hasznosítja újra: `loadAddress === 0x0801` → `buildExomizerPrg` (sfx sys mód), egyébként `buildExomizerRaw` (mem mód, `targetAddress`/`decompressAddress`-szel). `.prg` kiterjesztésű forrásfájlnál (`pendingIsPrg`) a load/decompress/Exomizer mezők (`#de-add-extra-fields`, `display:contents` trükkel elrejtve) és a hozzájuk tartozó validáció ki van kapcsolva, mivel a `.prg` már tartalmazza a saját fejlécét.
+
+> **Csapda — rename input elvész kattintásra:** a directory-tábla sorainak `click` handlere korábban feltétel nélkül újrarajzolta a sort (`_d64EdRenderEntries()`), ami az aktív rename `<input>`-et is eltávolította, ha a felhasználó bele akart kattintani. Fix: a handler kihagyja az eseményt, ha `e.target.closest(".de-rename-input")`.
+
 ---
 
 ## Memóriatérkép referencia
@@ -662,8 +685,10 @@ if (modeKey === "indirectY") return `(${formatter(value, 2)}),Y`;
 
 ## Jelenlegi verzió
 
-`2.3.9` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, `CLAUDE.md`.
-Főbb újdonságok: `*` (program counter) minden operandus-kifejezésben (`BNE *-5`, `JMP *+20`, `LDA #<*`; érték után álló `*` marad szorzás — `_substituteStarPc`/`_hasStarPcRef`/`_evalAsmExpr`); lokális (pontos) labelek scope-olva a legközelebbi globális labelre (`getProgramLayout` klón-pass, `parseAsmText` már nem strippeli a pontot); long branch pseudo-opok `LBNE…LBVS` (`isLongBranchMacro`, `HosszuUgrasok`) → invertált `Bxx *+3` / `JMP` = 5 byte; `.assert <expr>[, "üzenet"]` (`isAssertMacro`) fordítási idejű ellenőrzés; SMC operandus-label `LDA value:#$00` (`smcLabel` → `addr+1`); barátságos out-of-range branch hiba `LBxx` javaslattal.
+`2.4.0` — lásd `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html` (What's New + cache busterek), `README.md`, `Visual Assembler Manual.md`, `Visual Assembler Manual.hu.md`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `README.txt`, `AGENTS.md`, `CLAUDE.md`.
+Főbb újdonságok: **D64 Editor** — új toolbar-ikon (Curve Editor mögött) egy önálló lemezkép-szerkesztő dialógushoz (`#d64-editor-dialog`, Sprite Editor stílus, Files ▾ menü New/Open/Save As/Run in VICE); meglévő `.d64` directory listázása/program hozzáadás/kimentés/átnevezés/törlés közvetlenül a lemezképen `c1541`-en keresztül (`d64_list`/`d64_add_file`/`d64_extract_file`/`d64_rename_file`/`d64_delete_file` Tauri commandok); hozzáadásnál opcionális betöltési cím, kicsomagolási cím, Exomizer tömörítés (a Build D64 extra fájlok logikáját újrahasznosítva) és PRG/SEQ/USR/REL típusválasztó; directory lista C64Pro fonttal, nagybetűsen; javított rename-input click bug; sötétebb/láthatóbb `.editor-mode-indicator` világos témában.
+
+Korábbi 2.3.9 újdonságok: `*` (program counter) minden operandus-kifejezésben (`BNE *-5`, `JMP *+20`, `LDA #<*`; érték után álló `*` marad szorzás — `_substituteStarPc`/`_hasStarPcRef`/`_evalAsmExpr`); lokális (pontos) labelek scope-olva a legközelebbi globális labelre (`getProgramLayout` klón-pass, `parseAsmText` már nem strippeli a pontot); long branch pseudo-opok `LBNE…LBVS` (`isLongBranchMacro`, `HosszuUgrasok`) → invertált `Bxx *+3` / `JMP` = 5 byte; `.assert <expr>[, "üzenet"]` (`isAssertMacro`) fordítási idejű ellenőrzés; SMC operandus-label `LDA value:#$00` (`smcLabel` → `addr+1`); barátságos out-of-range branch hiba `LBxx` javaslattal.
 
 Korábbi 2.3.8 újdonságok: Munkaterület mentés/megnyitás (`.vaws`) — a nyitott, fájlhoz kötött fülek pontos halmaza, aktív fül és fül-módok mentése/visszatöltése, auto-save-lel és induláskori auto-restore-ral; globális memória panel toggle; UB parancsreferencia lokalizálva (HU/EN/ES/DE/NL, angol fallback); frissített UB grafikus parancs dokumentáció; javított KERNAL SETLFS/PLOT referencia; magas memóriahasználat javítva sok nyitott fülnél (per-tab undo/redo history korlátozva debounce-szal); felesleges Expert/UB breakpoint toolbar gombok eltávolítva; Expert toolbar magasság a UB-hez igazítva.
 
