@@ -1,854 +1,2344 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>C64 Visual Assembler — Commodore 64 Development Tool</title>
-<style>
-@font-face{font-family:'C64Pro';src:url('assets/C64_Pro-STYLE.woff2') format('woff2')}
-@font-face{font-family:'C64Mono';src:url('assets/C64_Pro_Mono-STYLE.woff2') format('woff2')}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#08081a;
-  --scr:#2c2ca8;
-  --scr-dark:#1c1c80;
-  --scr-darker:#12126a;
-  --txt:#8888e8;
-  --txt-hi:#b8b8ff;
-  --txt-dim:#444488;
-  --ylw:#b8c76f;
-  --grn:#9ad284;
-  --cyn:#70a4b2;
-  --red:#ff7777;
-  --brd:#363690;
-  --brd-hi:#6868c8;
-}
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--txt);font-family:'C64Mono','Courier New',monospace;font-size:16px;line-height:1.7;text-transform:uppercase;overflow-x:hidden}
-a{color:var(--txt);text-decoration:none}
-a:hover{color:var(--txt-hi)}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C64 Visual Assembler — Commodore 64 Development Tool</title>
+  <style>
+    @font-face {
+      font-family: 'C64Pro';
+      src: url('assets/C64_Pro-STYLE.woff2') format('woff2')
+    }
 
-/* ── SCANLINES ── */
-body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.06) 3px,rgba(0,0,0,.06) 4px);pointer-events:none;z-index:9999}
+    @font-face {
+      font-family: 'C64Mono';
+      src: url('assets/C64_Pro_Mono-STYLE.woff2') format('woff2')
+    }
 
-/* ── RAINBOW BAR ── */
-.rb{height:7px;background:linear-gradient(90deg,#cc2200 0 16.6%,#cc7700 16.6% 33.2%,#bbbb00 33.2% 49.8%,#00a020 49.8% 66.4%,#1133cc 66.4% 83%,#7700cc 83% 100%);position:sticky;top:0;z-index:1000}
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
 
-/* ── NAV ── */
-nav{background:#0d0d22;border-bottom:2px solid var(--brd);position:sticky;top:7px;z-index:999;display:flex;align-items:center;gap:8px;padding:0 40px;height:54px}
-.nav-brand{display:flex;align-items:center;gap:12px;color:var(--txt-hi);font-size:13px;letter-spacing:2px;font-family:'C64Pro',monospace;white-space:nowrap}
-.nav-brand img{width:28px;height:28px;border-radius:3px;image-rendering:pixelated}
-nav .sp{flex:1}
-.nav-link{color:var(--txt-dim);font-size:12px;letter-spacing:1px;padding:8px 14px;border:1px solid transparent;white-space:nowrap;transition:all .1s}
-.nav-link:hover{color:var(--txt-hi);border-color:var(--brd);background:rgba(100,100,200,.15)}
-.nav-dl{border-color:var(--ylw) !important;color:var(--ylw) !important}
-.nav-dl:hover{background:var(--ylw) !important;color:#000 !important}
+    :root {
+      --bg: #08081a;
+      --scr: #2c2ca8;
+      --scr-dark: #1c1c80;
+      --scr-darker: #12126a;
+      --txt: #8888e8;
+      --txt-hi: #b8b8ff;
+      --txt-dim: #444488;
+      --ylw: #b8c76f;
+      --grn: #9ad284;
+      --cyn: #70a4b2;
+      --red: #ff7777;
+      --brd: #363690;
+      --brd-hi: #6868c8;
+    }
 
-/* ── HERO ── */
-.hero{background:var(--scr);min-height:calc(100vh - 61px);display:grid;grid-template-columns:1fr 1.35fr;gap:0;position:relative;overflow:hidden}
-.hero::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.14) 2px,rgba(0,0,0,.14) 4px);pointer-events:none}
-.hero-left{padding:80px 60px 80px 80px;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:1}
-.hero-right{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;padding:40px 40px 40px 0}
-.hero-box-img{width:100%;max-width:680px;display:block;filter:drop-shadow(0 0 40px rgba(80,80,255,.4))}
+    html {
+      scroll-behavior: smooth
+    }
 
-.badge{display:inline-block;border:1px solid var(--brd-hi);color:var(--cyn);font-size:11px;letter-spacing:3px;padding:5px 14px;margin-bottom:28px}
-.hero-title{font-family:'C64Pro',monospace;font-size:clamp(22px,3.2vw,46px);color:var(--txt-hi);letter-spacing:3px;line-height:1.25;margin-bottom:20px}
-.hero-title span{color:var(--ylw)}
-.hero-sub{font-size:13px;color:var(--txt);line-height:2;margin-bottom:36px;max-width:440px}
-.hero-ctas{display:flex;gap:14px;flex-wrap:wrap}
-.btn{font-family:'C64Mono',monospace;font-size:13px;letter-spacing:2px;text-transform:uppercase;padding:13px 26px;border:2px solid;display:inline-block;cursor:pointer;transition:all .1s}
-.btn-y{background:var(--ylw);border-color:var(--ylw);color:#000}
-.btn-y:hover{background:#fff;border-color:#fff;color:#000}
-.btn-o{background:transparent;border-color:var(--brd-hi);color:var(--txt)}
-.btn-o:hover{border-color:var(--txt-hi);color:var(--txt-hi)}
+    body {
+      background: var(--bg);
+      color: var(--txt);
+      font-family: 'C64Mono', 'Courier New', monospace;
+      font-size: 16px;
+      line-height: 1.7;
+      text-transform: uppercase;
+      overflow-x: hidden
+    }
 
-.boot-box{background:rgba(0,0,0,.35);border:1px solid var(--brd);padding:20px 24px;font-size:13px;margin-bottom:40px;line-height:2.1}
-.boot-box .d{color:var(--txt-dim)}
-.boot-box .h{color:var(--txt-hi)}
-.boot-box .y{color:var(--ylw)}
-.boot-box .g{color:var(--grn)}
-.cur{display:inline-block;width:10px;height:17px;background:var(--txt-hi);vertical-align:text-bottom;animation:blink 1s step-end infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+    a {
+      color: var(--txt);
+      text-decoration: none
+    }
 
-.screen-wrap{width:100%;max-width:680px;border:3px solid var(--brd-hi);background:#000;box-shadow:0 0 60px rgba(80,80,255,.35),0 0 120px rgba(40,40,180,.2);position:relative}
-.screen-wrap::before{content:'C64VA  ●  MACRO-SHOWCASE.C64VA';display:block;background:#111130;color:var(--txt-dim);font-size:10px;padding:7px 14px;letter-spacing:2px;border-bottom:1px solid var(--brd)}
-.screen-wrap img{width:100%;display:block}
+    a:hover {
+      color: var(--txt-hi)
+    }
 
-/* ── SECTIONS ── */
-.sec{padding:80px 80px;max-width:1280px;margin:0 auto}
-.sec-s{font-size:11px;letter-spacing:4px;color:var(--cyn);margin-bottom:10px}
-.sec-t{font-family:'C64Pro',monospace;font-size:clamp(18px,2.5vw,34px);color:var(--txt-hi);letter-spacing:3px;margin-bottom:20px;line-height:1.3}
-.sec-d{font-size:13px;color:var(--txt);line-height:2.1;max-width:580px}
-.sec-callout{display:inline-block;margin:0 0 22px;padding:8px 14px;border:1px solid var(--ylw);background:rgba(255,221,102,.08);color:var(--ylw);font-size:11px;letter-spacing:2px;font-family:'C64Pro',monospace}
-hr.div{border:none;border-top:1px solid var(--brd)}
+    /* ── SCANLINES ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0, 0, 0, .06) 3px, rgba(0, 0, 0, .06) 4px);
+      pointer-events: none;
+      z-index: 9999
+    }
 
-/* ── ABOUT ── */
-.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
-.tut-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px}
-.about-right .screen-wrap{max-width:100%}
-.about-right .screen-wrap::before{content:'C64VA  ●  PROGRAM BLOCKS + ASM VIEW'}
-.cartridge-shot .screen-wrap::before{content:'C64VA  ●  MAGIC DESK 64K CARTRIDGE'}
-.cartridge-shot .screen-wrap img{background:radial-gradient(circle at 50% 45%,rgba(44,44,168,.3),transparent 68%)}
-.ub-shot .screen-wrap::before{content:'C64VA  ●  ULTIMATE BASIC IDE'}
-.ub-tag{display:inline-block;margin-bottom:18px;padding:5px 12px;border:1px solid var(--ylw);color:var(--ylw);font-size:10px;letter-spacing:3px}
-.c77-logo-wrap{margin-top:44px;padding:64px;display:flex;justify-content:center;background:var(--bg)}
-/* logo2.png ships with a solid black backdrop; "screen" blends that black into
+    /* ── RAINBOW BAR ── */
+    .rb {
+      height: 7px;
+      background: linear-gradient(90deg, #cc2200 0 16.6%, #cc7700 16.6% 33.2%, #bbbb00 33.2% 49.8%, #00a020 49.8% 66.4%, #1133cc 66.4% 83%, #7700cc 83% 100%);
+      position: sticky;
+      top: 0;
+      z-index: 1000
+    }
+
+    /* ── NAV ── */
+    nav {
+      background: #0d0d22;
+      border-bottom: 2px solid var(--brd);
+      position: sticky;
+      top: 7px;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 40px;
+      height: 54px
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--txt-hi);
+      font-size: 13px;
+      letter-spacing: 2px;
+      font-family: 'C64Pro', monospace;
+      white-space: nowrap
+    }
+
+    .nav-brand img {
+      width: 28px;
+      height: 28px;
+      border-radius: 3px;
+      image-rendering: pixelated
+    }
+
+    nav .sp {
+      flex: 1
+    }
+
+    .nav-link {
+      color: var(--txt-dim);
+      font-size: 12px;
+      letter-spacing: 1px;
+      padding: 8px 14px;
+      border: 1px solid transparent;
+      white-space: nowrap;
+      transition: all .1s
+    }
+
+    .nav-link:hover {
+      color: var(--txt-hi);
+      border-color: var(--brd);
+      background: rgba(100, 100, 200, .15)
+    }
+
+    .nav-dl {
+      border-color: var(--ylw) !important;
+      color: var(--ylw) !important
+    }
+
+    .nav-dl:hover {
+      background: var(--ylw) !important;
+      color: #000 !important
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: var(--scr);
+      min-height: calc(100vh - 61px);
+      display: grid;
+      grid-template-columns: 1fr 1.35fr;
+      gap: 0;
+      position: relative;
+      overflow: hidden
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, .14) 2px, rgba(0, 0, 0, .14) 4px);
+      pointer-events: none
+    }
+
+    .hero-left {
+      padding: 80px 60px 80px 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      z-index: 1
+    }
+
+    .hero-right {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 40px 40px 0
+    }
+
+    .hero-box-img {
+      width: 100%;
+      max-width: 680px;
+      display: block;
+      filter: drop-shadow(0 0 40px rgba(80, 80, 255, .4))
+    }
+
+    .badge {
+      display: inline-block;
+      border: 1px solid var(--brd-hi);
+      color: var(--cyn);
+      font-size: 11px;
+      letter-spacing: 3px;
+      padding: 5px 14px;
+      margin-bottom: 28px
+    }
+
+    .hero-title {
+      font-family: 'C64Pro', monospace;
+      font-size: clamp(22px, 3.2vw, 46px);
+      color: var(--txt-hi);
+      letter-spacing: 3px;
+      line-height: 1.25;
+      margin-bottom: 20px
+    }
+
+    .hero-title span {
+      color: var(--ylw)
+    }
+
+    .hero-sub {
+      font-size: 13px;
+      color: var(--txt);
+      line-height: 2;
+      margin-bottom: 36px;
+      max-width: 440px
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap
+    }
+
+    .btn {
+      font-family: 'C64Mono', monospace;
+      font-size: 13px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 13px 26px;
+      border: 2px solid;
+      display: inline-block;
+      cursor: pointer;
+      transition: all .1s
+    }
+
+    .btn-y {
+      background: var(--ylw);
+      border-color: var(--ylw);
+      color: #000
+    }
+
+    .btn-y:hover {
+      background: #fff;
+      border-color: #fff;
+      color: #000
+    }
+
+    .btn-o {
+      background: transparent;
+      border-color: var(--brd-hi);
+      color: var(--txt)
+    }
+
+    .btn-o:hover {
+      border-color: var(--txt-hi);
+      color: var(--txt-hi)
+    }
+
+    .boot-box {
+      background: rgba(0, 0, 0, .35);
+      border: 1px solid var(--brd);
+      padding: 20px 24px;
+      font-size: 13px;
+      margin-bottom: 40px;
+      line-height: 2.1
+    }
+
+    .boot-box .d {
+      color: var(--txt-dim)
+    }
+
+    .boot-box .h {
+      color: var(--txt-hi)
+    }
+
+    .boot-box .y {
+      color: var(--ylw)
+    }
+
+    .boot-box .g {
+      color: var(--grn)
+    }
+
+    .cur {
+      display: inline-block;
+      width: 10px;
+      height: 17px;
+      background: var(--txt-hi);
+      vertical-align: text-bottom;
+      animation: blink 1s step-end infinite
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: 0
+      }
+    }
+
+    .screen-wrap {
+      width: 100%;
+      max-width: 680px;
+      border: 3px solid var(--brd-hi);
+      background: #000;
+      box-shadow: 0 0 60px rgba(80, 80, 255, .35), 0 0 120px rgba(40, 40, 180, .2);
+      position: relative
+    }
+
+    .screen-wrap::before {
+      content: 'C64VA  ●  MACRO-SHOWCASE.C64VA';
+      display: block;
+      background: #111130;
+      color: var(--txt-dim);
+      font-size: 10px;
+      padding: 7px 14px;
+      letter-spacing: 2px;
+      border-bottom: 1px solid var(--brd)
+    }
+
+    .screen-wrap img {
+      width: 100%;
+      display: block
+    }
+
+    /* ── SECTIONS ── */
+    .sec {
+      padding: 80px 80px;
+      max-width: 1280px;
+      margin: 0 auto
+    }
+
+    .sec-s {
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: var(--cyn);
+      margin-bottom: 10px
+    }
+
+    .sec-t {
+      font-family: 'C64Pro', monospace;
+      font-size: clamp(18px, 2.5vw, 34px);
+      color: var(--txt-hi);
+      letter-spacing: 3px;
+      margin-bottom: 20px;
+      line-height: 1.3
+    }
+
+    .sec-d {
+      font-size: 13px;
+      color: var(--txt);
+      line-height: 2.1;
+      max-width: 580px
+    }
+
+    .sec-callout {
+      display: inline-block;
+      margin: 0 0 22px;
+      padding: 8px 14px;
+      border: 1px solid var(--ylw);
+      background: rgba(255, 221, 102, .08);
+      color: var(--ylw);
+      font-size: 11px;
+      letter-spacing: 2px;
+      font-family: 'C64Pro', monospace
+    }
+
+    hr.div {
+      border: none;
+      border-top: 1px solid var(--brd)
+    }
+
+    /* ── ABOUT ── */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 72px;
+      align-items: center
+    }
+
+    .tut-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 72px
+    }
+
+    .about-right .screen-wrap {
+      max-width: 100%
+    }
+
+    .about-right .screen-wrap::before {
+      content: 'C64VA  ●  PROGRAM BLOCKS + ASM VIEW'
+    }
+
+    .cartridge-shot .screen-wrap::before {
+      content: 'C64VA  ●  MAGIC DESK 64K CARTRIDGE'
+    }
+
+    .cartridge-shot .screen-wrap img {
+      background: radial-gradient(circle at 50% 45%, rgba(44, 44, 168, .3), transparent 68%)
+    }
+
+    .ub-shot .screen-wrap::before {
+      content: 'C64VA  ●  ULTIMATE BASIC IDE'
+    }
+
+    .ub-tag {
+      display: inline-block;
+      margin-bottom: 18px;
+      padding: 5px 12px;
+      border: 1px solid var(--ylw);
+      color: var(--ylw);
+      font-size: 10px;
+      letter-spacing: 3px
+    }
+
+    .c77-logo-wrap {
+      margin-top: 44px;
+      padding: 64px;
+      display: flex;
+      justify-content: center;
+      background: var(--bg)
+    }
+
+    /* logo2.png ships with a solid black backdrop; "screen" blends that black into
    the (dark) section background so only the artwork shows. */
-.c77-logo-wrap img{max-width:720px;width:100%;display:block;mix-blend-mode:screen}
-.feature-list{margin-top:28px;display:flex;flex-direction:column;gap:12px}
-.fi{display:flex;gap:14px;align-items:flex-start;font-size:13px;line-height:1.9}
-.fi-dot{color:var(--ylw);font-size:16px;flex-shrink:0;margin-top:2px}
-.fi span{color:var(--txt)}
-.fi b{color:var(--txt-hi)}
+    .c77-logo-wrap img {
+      max-width: 720px;
+      width: 100%;
+      display: block;
+      mix-blend-mode: screen
+    }
 
-/* ── DOCUMENTATION READER ── */
-.docs-library{margin-top:38px}
-.docs-head{display:flex;justify-content:space-between;align-items:end;gap:28px;margin-bottom:20px}
-.docs-head p{max-width:620px;color:var(--txt);font-size:13px;line-height:1.9;text-transform:none}
-.doc-card{appearance:none;text-align:left;background:rgba(0,0,10,.45);border:1px solid var(--brd);color:var(--txt);padding:20px;font:inherit;text-transform:uppercase;cursor:pointer;transition:border-color .12s,background .12s,transform .12s}
-.doc-card:hover,.doc-card:focus-visible{border-color:var(--ylw);background:rgba(40,40,130,.45);transform:translateY(-2px);outline:none}
-.docs-open{display:inline-flex;align-items:center;justify-content:center;min-width:230px;color:var(--ylw);font-family:'C64Pro',monospace;font-size:12px;letter-spacing:2px}
-/* ── COLLAPSED RELEASE HISTORY ── */
-.release-history{border-top:1px solid var(--brd);border-bottom:1px solid var(--brd);background:var(--bg)}
-.release-history>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;
-  max-width:1080px;margin:0 auto;padding:24px 40px;color:var(--txt-dim);
-  font:12px/1 'C64Pro',monospace;letter-spacing:3px;text-transform:uppercase}
-.release-history>summary::-webkit-details-marker{display:none}
-.release-history>summary:hover{color:var(--ylw)}
-.release-history>summary .rh-tri{color:var(--ylw);transition:transform .12s ease}
-.release-history[open]>summary .rh-tri{transform:rotate(90deg)}
-.release-history[open]>summary{border-bottom:1px solid var(--brd)}
-@media(max-width:640px){.release-history>summary{padding:18px 16px;letter-spacing:1px;font-size:10px}}
+    .feature-list {
+      margin-top: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px
+    }
 
-/* ── FEATURES ── */
-.feat-bg{background:var(--scr-darker);padding:80px 0}
-.feat-inner{max-width:1280px;margin:0 auto;padding:0 80px}
-.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:52px;border:2px solid var(--brd)}
-.fc{background:rgba(0,0,10,.5);border:1px solid var(--brd);padding:32px 28px;transition:background .15s,border-color .15s;margin:-1px}
-.fc:hover{background:rgba(20,20,80,.6);border-color:var(--brd-hi)}
-.fc-ico{font-size:26px;color:var(--ylw);margin-bottom:16px;font-family:'C64Mono',monospace}
-.fc-t{font-family:'C64Pro',monospace;font-size:13px;color:var(--txt-hi);letter-spacing:2px;margin-bottom:10px}
-.fc-d{font-size:12px;color:var(--txt);line-height:1.9}
+    .fi {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      font-size: 13px;
+      line-height: 1.9
+    }
 
-/* ── EDITORS ── */
-.editors-sec{padding:80px 80px;max-width:1280px;margin:0 auto}
-.tabs{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:0}
-.tab{background:rgba(0,0,0,.5);border:1px solid var(--brd);border-bottom:none;color:var(--txt-dim);font-family:'C64Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:10px 18px;cursor:pointer;transition:all .1s}
-.tab:hover,.tab.on{background:var(--scr-dark);color:var(--txt-hi);border-color:var(--brd-hi)}
-.tab-panel{border:2px solid var(--brd-hi);background:#000;display:none}
-.tab-panel.on{display:block}
-.tab-panel img{width:100%;height:auto;display:block}
-.tab-cap{background:#111130;border-top:1px solid var(--brd);padding:14px 22px;display:flex;justify-content:space-between;align-items:center}
-.tab-cap-t{font-size:12px;color:var(--txt);letter-spacing:1px}
-.tab-cap-d{font-size:11px;color:var(--txt-dim)}
+    .fi-dot {
+      color: var(--ylw);
+      font-size: 16px;
+      flex-shrink: 0;
+      margin-top: 2px
+    }
 
-/* ── FEATURES BAR ── */
-.spec-bar{background:var(--scr-dark);border-top:1px solid var(--brd);border-bottom:1px solid var(--brd);padding:24px 80px}
-.spec-inner{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:40px}
-.spec{text-align:center}
-.spec-n{font-family:'C64Pro',monospace;font-size:clamp(22px,3vw,38px);color:var(--ylw);letter-spacing:2px}
-.spec-l{font-size:11px;color:var(--txt-dim);letter-spacing:2px;margin-top:4px}
+    .fi span {
+      color: var(--txt)
+    }
 
-/* ── DOWNLOAD ── */
-.dl-bg{background:#000;padding:100px 80px}
-.dl-inner{max-width:800px;margin:0 auto;text-align:center}
-.dl-box{border:2px solid var(--brd-hi);padding:56px;background:var(--scr-darker);position:relative}
-.dl-corner{position:absolute;font-size:14px;color:var(--brd-hi);font-family:'C64Mono',monospace}
-.dl-corner.tl{top:10px;left:14px}
-.dl-corner.tr{top:10px;right:14px}
-.dl-corner.bl{bottom:10px;left:14px}
-.dl-corner.br{bottom:10px;right:14px}
-.dl-box .sec-t{margin-bottom:12px}
-.dl-box .sec-d{margin:0 auto 36px;text-align:center;max-width:500px}
-.dl-plats{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:20px}
-.dl-p{border:1px solid var(--brd);color:var(--txt);font-size:12px;letter-spacing:2px;padding:14px 28px;display:flex;align-items:center;gap:10px;transition:all .1s;cursor:pointer}
-.dl-p:hover{border-color:var(--ylw);color:var(--ylw);background:rgba(184,199,111,.05)}
-.dl-sub{font-size:11px;color:var(--txt-dim);margin-top:28px;letter-spacing:2px}
+    .fi b {
+      color: var(--txt-hi)
+    }
 
-/* ── MERCH ── */
-.merch{background:var(--scr-darker);border-top:1px solid var(--brd);border-bottom:1px solid var(--brd);padding:84px 80px}
-.merch-inner{max-width:1280px;margin:0 auto}
-.merch-head{display:flex;justify-content:space-between;align-items:end;gap:40px;margin-bottom:42px}
-.merch-head .sec-t{margin-bottom:0}
-.merch-head .sec-d{max-width:470px;font-size:14px}
-.merch-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
-.merch-card{display:flex;flex-direction:column;background:rgba(0,0,10,.55);border:2px solid var(--brd);transition:transform .15s,border-color .15s,box-shadow .15s}
-.merch-card:hover{transform:translateY(-4px);border-color:var(--brd-hi);box-shadow:0 16px 40px rgba(0,0,0,.28)}
-.merch-image{aspect-ratio:1;overflow:hidden;background:#080816;border-bottom:1px solid var(--brd)}
-.merch-image img{display:block;width:100%;height:100%;object-fit:cover}
-.merch-copy{display:flex;flex:1;flex-direction:column;padding:24px}
-.merch-type{font-size:12px;color:var(--cyn);letter-spacing:3px;margin-bottom:7px}
-.merch-name{font-family:'C64Pro',monospace;font-size:17px;color:var(--txt-hi);letter-spacing:2px;line-height:1.4;margin-bottom:12px}
-.merch-desc{font-size:14px;line-height:1.8;color:var(--txt);text-transform:none;margin-bottom:22px}
-.merch-order{width:100%;margin-top:auto;text-align:center;background:transparent;border-color:var(--ylw);color:var(--ylw);font-size:12px;padding:12px 14px}
-.merch-order:hover{background:var(--ylw);border-color:var(--ylw);color:#000}
-.merch-note{margin-top:24px;text-align:center;color:var(--txt-dim);font-size:12px;letter-spacing:1px}
+    /* ── DOCUMENTATION READER ── */
+    .docs-library {
+      margin-top: 38px
+    }
 
-/* ── ULTIMATE BASIC REPOSITORY ── */
-.ub-repo{background:var(--scr-darker);border-top:1px solid var(--brd);padding:38px 80px}
-.ub-repo-inner{max-width:720px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:34px}
-.ub-repo-image{display:block;width:min(230px,30vw);filter:drop-shadow(0 0 24px rgba(80,80,255,.35));transition:transform .15s,filter .15s}
-.ub-repo-image:hover{transform:translateY(-3px);filter:drop-shadow(0 0 30px rgba(184,199,111,.4))}
-.ub-repo-copy{max-width:330px}
-.ub-repo-copy .sec-s{font-size:9px;margin-bottom:6px}
-.ub-repo-copy .sec-t{font-size:20px;margin-bottom:10px}
-.ub-repo-copy .sec-d{font-size:11px;line-height:1.8;margin-bottom:16px}
-.ub-repo-copy .btn{font-size:10px;padding:8px 14px}
+    .docs-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 28px;
+      margin-bottom: 20px
+    }
 
-/* ── OCTOPULOUS ── */
-.octopulous{background:var(--bg);border-top:1px solid var(--brd);padding:64px 80px}
-.octopulous-inner{max-width:980px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,556px);gap:56px;align-items:center}
-.octopulous-copy .sec-t{margin-bottom:14px}
-.octopulous-copy .sec-d{max-width:520px}
-.octopulous-embed{width:100%;max-width:556px;justify-self:end}
-.octopulous-embed iframe{display:block;width:100%;height:171px;border:0}
+    .docs-head p {
+      max-width: 620px;
+      color: var(--txt);
+      font-size: 13px;
+      line-height: 1.9;
+      text-transform: none
+    }
 
-/* ── FOOTER ── */
-footer{background:#050510;border-top:1px solid var(--brd);padding:32px 80px}
-.foot-inner{max-width:1280px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
-.foot-brand{font-family:'C64Pro',monospace;font-size:12px;color:var(--txt-dim);letter-spacing:2px}
-.foot-links{display:flex;gap:24px}
-.foot-links a{font-size:11px;color:var(--txt-dim);letter-spacing:1px}
-.foot-links a:hover{color:var(--txt)}
-.facebook-link{display:inline-flex;align-items:center;gap:9px !important;border-color:#1877f2 !important;color:#7eb5ff !important;background:rgba(24,119,242,.12) !important}
-.facebook-link:hover{border-color:#7eb5ff !important;color:#fff !important;background:#1877f2 !important}
-.facebook-icon{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:currentColor;color:#0a3d80;font-family:Arial,sans-serif;font-size:16px;font-weight:900;line-height:1;text-transform:none;flex:none}
-.facebook-link:hover .facebook-icon{color:#1877f2}
-.linkedin-link{display:inline-flex;align-items:center;gap:9px!important;border-color:#0a66c2!important;color:#70b7f4!important;background:rgba(10,102,194,.12)!important}
-.linkedin-link:hover{border-color:#70b7f4!important;color:#fff!important;background:#0a66c2!important}
-.linkedin-icon{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:3px;background:currentColor;color:#06477f;font-family:Arial,sans-serif;font-size:13px;font-weight:900;line-height:1;text-transform:none;flex:none}
-.linkedin-link:hover .linkedin-icon{color:#0a66c2}
-.foot-copy{font-size:11px;color:var(--txt-dim);letter-spacing:1px}
+    .doc-card {
+      appearance: none;
+      text-align: left;
+      background: rgba(0, 0, 10, .45);
+      border: 1px solid var(--brd);
+      color: var(--txt);
+      padding: 20px;
+      font: inherit;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color .12s, background .12s, transform .12s
+    }
 
-@media(max-width:900px){
-  nav{padding:8px 12px;height:auto;flex-wrap:wrap;gap:0}
-  .nav-brand{width:100%;padding:4px 0 8px;font-size:11px}
-  .nav-link{font-size:10px;padding:6px 10px;letter-spacing:0}
-  .hero{grid-template-columns:1fr}
-  .hero-right{display:flex;padding:0 24px 48px;justify-content:center}
-  .hero-left{padding:60px 30px 32px}
-  .about-grid{grid-template-columns:1fr}
-  .tut-grid{grid-template-columns:1fr}
-  .c77-logo-wrap{padding:32px}
-  .ub-repo{padding:34px 24px}
-  .ub-repo-inner{flex-direction:column;gap:20px;text-align:center}
-  .ub-repo-image{width:min(210px,65vw)}
-  .merch{padding:64px 24px}
-  .merch-head{display:block;margin-bottom:32px}
-  .merch-head .sec-t{margin-bottom:18px}
-  .merch-grid{grid-template-columns:1fr}
-  .octopulous{padding:52px 24px}
-  .octopulous-inner{grid-template-columns:1fr;gap:30px}
-  .octopulous-embed{justify-self:start}
-  .feat-grid{grid-template-columns:1fr}
-  .spec-inner{grid-template-columns:repeat(2,1fr)}
-  .sec,.editors-sec,.feat-inner,.spec-bar,.dl-bg,.foot-inner{padding-left:24px;padding-right:24px}
-  footer{padding-left:24px;padding-right:24px}
-}
-@media(max-width:520px){.docs-head{display:block}.doc-card{padding:16px}}
-</style>
+    .doc-card:hover,
+    .doc-card:focus-visible {
+      border-color: var(--ylw);
+      background: rgba(40, 40, 130, .45);
+      transform: translateY(-2px);
+      outline: none
+    }
+
+    .docs-open {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 230px;
+      color: var(--ylw);
+      font-family: 'C64Pro', monospace;
+      font-size: 12px;
+      letter-spacing: 2px
+    }
+
+    /* ── COLLAPSED RELEASE HISTORY ── */
+    .release-history {
+      border-top: 1px solid var(--brd);
+      border-bottom: 1px solid var(--brd);
+      background: var(--bg)
+    }
+
+    .release-history>summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 24px 40px;
+      color: var(--txt-dim);
+      font: 12px/1 'C64Pro', monospace;
+      letter-spacing: 3px;
+      text-transform: uppercase
+    }
+
+    .release-history>summary::-webkit-details-marker {
+      display: none
+    }
+
+    .release-history>summary:hover {
+      color: var(--ylw)
+    }
+
+    .release-history>summary .rh-tri {
+      color: var(--ylw);
+      transition: transform .12s ease
+    }
+
+    .release-history[open]>summary .rh-tri {
+      transform: rotate(90deg)
+    }
+
+    .release-history[open]>summary {
+      border-bottom: 1px solid var(--brd)
+    }
+
+    @media(max-width:640px) {
+      .release-history>summary {
+        padding: 18px 16px;
+        letter-spacing: 1px;
+        font-size: 10px
+      }
+    }
+
+    /* ── FEATURES ── */
+    .feat-bg {
+      background: var(--scr-darker);
+      padding: 80px 0
+    }
+
+    .feat-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 80px
+    }
+
+    .feat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin-top: 52px;
+      border: 2px solid var(--brd)
+    }
+
+    .fc {
+      background: rgba(0, 0, 10, .5);
+      border: 1px solid var(--brd);
+      padding: 32px 28px;
+      transition: background .15s, border-color .15s;
+      margin: -1px
+    }
+
+    .fc:hover {
+      background: rgba(20, 20, 80, .6);
+      border-color: var(--brd-hi)
+    }
+
+    .fc-ico {
+      font-size: 26px;
+      color: var(--ylw);
+      margin-bottom: 16px;
+      font-family: 'C64Mono', monospace
+    }
+
+    .fc-t {
+      font-family: 'C64Pro', monospace;
+      font-size: 13px;
+      color: var(--txt-hi);
+      letter-spacing: 2px;
+      margin-bottom: 10px
+    }
+
+    .fc-d {
+      font-size: 12px;
+      color: var(--txt);
+      line-height: 1.9
+    }
+
+    /* ── EDITORS ── */
+    .editors-sec {
+      padding: 80px 80px;
+      max-width: 1280px;
+      margin: 0 auto
+    }
+
+    .tabs {
+      display: flex;
+      gap: 3px;
+      flex-wrap: wrap;
+      margin-bottom: 0
+    }
+
+    .tab {
+      background: rgba(0, 0, 0, .5);
+      border: 1px solid var(--brd);
+      border-bottom: none;
+      color: var(--txt-dim);
+      font-family: 'C64Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 10px 18px;
+      cursor: pointer;
+      transition: all .1s
+    }
+
+    .tab:hover,
+    .tab.on {
+      background: var(--scr-dark);
+      color: var(--txt-hi);
+      border-color: var(--brd-hi)
+    }
+
+    .tab-panel {
+      border: 2px solid var(--brd-hi);
+      background: #000;
+      display: none
+    }
+
+    .tab-panel.on {
+      display: block
+    }
+
+    .tab-panel img {
+      width: 100%;
+      height: auto;
+      display: block
+    }
+
+    .tab-cap {
+      background: #111130;
+      border-top: 1px solid var(--brd);
+      padding: 14px 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center
+    }
+
+    .tab-cap-t {
+      font-size: 12px;
+      color: var(--txt);
+      letter-spacing: 1px
+    }
+
+    .tab-cap-d {
+      font-size: 11px;
+      color: var(--txt-dim)
+    }
+
+    /* ── FEATURES BAR ── */
+    .spec-bar {
+      background: var(--scr-dark);
+      border-top: 1px solid var(--brd);
+      border-bottom: 1px solid var(--brd);
+      padding: 24px 80px
+    }
+
+    .spec-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px
+    }
+
+    .spec {
+      text-align: center
+    }
+
+    .spec-n {
+      font-family: 'C64Pro', monospace;
+      font-size: clamp(22px, 3vw, 38px);
+      color: var(--ylw);
+      letter-spacing: 2px
+    }
+
+    .spec-l {
+      font-size: 11px;
+      color: var(--txt-dim);
+      letter-spacing: 2px;
+      margin-top: 4px
+    }
+
+    /* ── DOWNLOAD ── */
+    .dl-bg {
+      background: #000;
+      padding: 100px 80px
+    }
+
+    .dl-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center
+    }
+
+    .dl-box {
+      border: 2px solid var(--brd-hi);
+      padding: 56px;
+      background: var(--scr-darker);
+      position: relative
+    }
+
+    .dl-corner {
+      position: absolute;
+      font-size: 14px;
+      color: var(--brd-hi);
+      font-family: 'C64Mono', monospace
+    }
+
+    .dl-corner.tl {
+      top: 10px;
+      left: 14px
+    }
+
+    .dl-corner.tr {
+      top: 10px;
+      right: 14px
+    }
+
+    .dl-corner.bl {
+      bottom: 10px;
+      left: 14px
+    }
+
+    .dl-corner.br {
+      bottom: 10px;
+      right: 14px
+    }
+
+    .dl-box .sec-t {
+      margin-bottom: 12px
+    }
+
+    .dl-box .sec-d {
+      margin: 0 auto 36px;
+      text-align: center;
+      max-width: 500px
+    }
+
+    .dl-plats {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 20px
+    }
+
+    .dl-p {
+      border: 1px solid var(--brd);
+      color: var(--txt);
+      font-size: 12px;
+      letter-spacing: 2px;
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all .1s;
+      cursor: pointer
+    }
+
+    .dl-p:hover {
+      border-color: var(--ylw);
+      color: var(--ylw);
+      background: rgba(184, 199, 111, .05)
+    }
+
+    .dl-sub {
+      font-size: 11px;
+      color: var(--txt-dim);
+      margin-top: 28px;
+      letter-spacing: 2px
+    }
+
+    /* ── MERCH ── */
+    .merch {
+      background: var(--scr-darker);
+      border-top: 1px solid var(--brd);
+      border-bottom: 1px solid var(--brd);
+      padding: 84px 80px
+    }
+
+    .merch-inner {
+      max-width: 1280px;
+      margin: 0 auto
+    }
+
+    .merch-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 40px;
+      margin-bottom: 42px
+    }
+
+    .merch-head .sec-t {
+      margin-bottom: 0
+    }
+
+    .merch-head .sec-d {
+      max-width: 470px;
+      font-size: 14px
+    }
+
+    .merch-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px
+    }
+
+    .merch-card {
+      display: flex;
+      flex-direction: column;
+      background: rgba(0, 0, 10, .55);
+      border: 2px solid var(--brd);
+      transition: transform .15s, border-color .15s, box-shadow .15s
+    }
+
+    .merch-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--brd-hi);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, .28)
+    }
+
+    .merch-image {
+      aspect-ratio: 1;
+      overflow: hidden;
+      background: #080816;
+      border-bottom: 1px solid var(--brd)
+    }
+
+    .merch-image img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover
+    }
+
+    .merch-copy {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      padding: 24px
+    }
+
+    .merch-type {
+      font-size: 12px;
+      color: var(--cyn);
+      letter-spacing: 3px;
+      margin-bottom: 7px
+    }
+
+    .merch-name {
+      font-family: 'C64Pro', monospace;
+      font-size: 17px;
+      color: var(--txt-hi);
+      letter-spacing: 2px;
+      line-height: 1.4;
+      margin-bottom: 12px
+    }
+
+    .merch-desc {
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--txt);
+      text-transform: none;
+      margin-bottom: 22px
+    }
+
+    .merch-order {
+      width: 100%;
+      margin-top: auto;
+      text-align: center;
+      background: transparent;
+      border-color: var(--ylw);
+      color: var(--ylw);
+      font-size: 12px;
+      padding: 12px 14px
+    }
+
+    .merch-order:hover {
+      background: var(--ylw);
+      border-color: var(--ylw);
+      color: #000
+    }
+
+    .merch-note {
+      margin-top: 24px;
+      text-align: center;
+      color: var(--txt-dim);
+      font-size: 12px;
+      letter-spacing: 1px
+    }
+
+    .wallpapers {
+      margin-top: 64px;
+      padding-top: 48px;
+      border-top: 1px solid var(--brd)
+    }
+
+    .wallpapers-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 32px;
+      margin-bottom: 26px
+    }
+
+    .wallpapers-head .sec-t {
+      margin-bottom: 0
+    }
+
+    .wallpapers-head .sec-d {
+      max-width: 520px;
+      font-size: 14px
+    }
+
+    .wallpaper-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px
+    }
+
+    .wallpaper-card {
+      overflow: hidden;
+      background: rgba(0, 0, 10, .55);
+      border: 2px solid var(--brd);
+      transition: transform .15s, border-color .15s, box-shadow .15s
+    }
+
+    .wallpaper-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--brd-hi);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, .28)
+    }
+
+    .wallpaper-preview {
+      aspect-ratio: 16/9;
+      overflow: hidden;
+      background: #000;
+      border-bottom: 1px solid var(--brd)
+    }
+
+    .wallpaper-preview img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover
+    }
+
+    .wallpaper-copy {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 20px
+    }
+
+    .wallpaper-meta {
+      min-width: 0
+    }
+
+    .wallpaper-name {
+      font-family: 'C64Pro', monospace;
+      font-size: 13px;
+      color: var(--txt-hi);
+      letter-spacing: 1px;
+      line-height: 1.4
+    }
+
+    .wallpaper-size {
+      margin-top: 6px;
+      color: var(--txt-dim);
+      font-size: 11px;
+      letter-spacing: 1px
+    }
+
+    .wallpaper-download {
+      flex: none;
+      text-align: center;
+      background: transparent;
+      border-color: var(--ylw);
+      color: var(--ylw);
+      font-size: 11px;
+      padding: 10px 14px
+    }
+
+    .wallpaper-download:hover {
+      background: var(--ylw);
+      border-color: var(--ylw);
+      color: #000
+    }
+
+    /* ── ULTIMATE BASIC REPOSITORY ── */
+    .ub-repo {
+      background: var(--scr-darker);
+      border-top: 1px solid var(--brd);
+      padding: 38px 80px
+    }
+
+    .ub-repo-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 34px
+    }
+
+    .ub-repo-image {
+      display: block;
+      width: min(230px, 30vw);
+      filter: drop-shadow(0 0 24px rgba(80, 80, 255, .35));
+      transition: transform .15s, filter .15s
+    }
+
+    .ub-repo-image:hover {
+      transform: translateY(-3px);
+      filter: drop-shadow(0 0 30px rgba(184, 199, 111, .4))
+    }
+
+    .ub-repo-copy {
+      max-width: 330px
+    }
+
+    .ub-repo-copy .sec-s {
+      font-size: 9px;
+      margin-bottom: 6px
+    }
+
+    .ub-repo-copy .sec-t {
+      font-size: 20px;
+      margin-bottom: 10px
+    }
+
+    .ub-repo-copy .sec-d {
+      font-size: 11px;
+      line-height: 1.8;
+      margin-bottom: 16px
+    }
+
+    .ub-repo-copy .btn {
+      font-size: 10px;
+      padding: 8px 14px
+    }
+
+    /* ── OCTOPULOUS ── */
+    .octopulous {
+      background: var(--bg);
+      border-top: 1px solid var(--brd);
+      padding: 64px 80px
+    }
+
+    .octopulous-inner {
+      max-width: 980px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 556px);
+      gap: 56px;
+      align-items: center
+    }
+
+    .octopulous-copy .sec-t {
+      margin-bottom: 14px
+    }
+
+    .octopulous-copy .sec-d {
+      max-width: 520px
+    }
+
+    .octopulous-embed {
+      width: 100%;
+      max-width: 556px;
+      justify-self: end
+    }
+
+    .octopulous-embed iframe {
+      display: block;
+      width: 100%;
+      height: 171px;
+      border: 0
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #050510;
+      border-top: 1px solid var(--brd);
+      padding: 32px 80px
+    }
+
+    .foot-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap
+    }
+
+    .foot-brand {
+      font-family: 'C64Pro', monospace;
+      font-size: 12px;
+      color: var(--txt-dim);
+      letter-spacing: 2px
+    }
+
+    .foot-links {
+      display: flex;
+      gap: 24px
+    }
+
+    .foot-links a {
+      font-size: 11px;
+      color: var(--txt-dim);
+      letter-spacing: 1px
+    }
+
+    .foot-links a:hover {
+      color: var(--txt)
+    }
+
+    .facebook-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px !important;
+      border-color: #1877f2 !important;
+      color: #7eb5ff !important;
+      background: rgba(24, 119, 242, .12) !important
+    }
+
+    .facebook-link:hover {
+      border-color: #7eb5ff !important;
+      color: #fff !important;
+      background: #1877f2 !important
+    }
+
+    .facebook-icon {
+      display: inline-grid;
+      place-items: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: currentColor;
+      color: #0a3d80;
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      font-weight: 900;
+      line-height: 1;
+      text-transform: none;
+      flex: none
+    }
+
+    .facebook-link:hover .facebook-icon {
+      color: #1877f2
+    }
+
+    .linkedin-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px !important;
+      border-color: #0a66c2 !important;
+      color: #70b7f4 !important;
+      background: rgba(10, 102, 194, .12) !important
+    }
+
+    .linkedin-link:hover {
+      border-color: #70b7f4 !important;
+      color: #fff !important;
+      background: #0a66c2 !important
+    }
+
+    .linkedin-icon {
+      display: inline-grid;
+      place-items: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 3px;
+      background: currentColor;
+      color: #06477f;
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1;
+      text-transform: none;
+      flex: none
+    }
+
+    .linkedin-link:hover .linkedin-icon {
+      color: #0a66c2
+    }
+
+    .foot-copy {
+      font-size: 11px;
+      color: var(--txt-dim);
+      letter-spacing: 1px
+    }
+
+    @media(max-width:900px) {
+      nav {
+        padding: 8px 12px;
+        height: auto;
+        flex-wrap: wrap;
+        gap: 0
+      }
+
+      .nav-brand {
+        width: 100%;
+        padding: 4px 0 8px;
+        font-size: 11px
+      }
+
+      .nav-link {
+        font-size: 10px;
+        padding: 6px 10px;
+        letter-spacing: 0
+      }
+
+      .hero {
+        grid-template-columns: 1fr
+      }
+
+      .hero-right {
+        display: flex;
+        padding: 0 24px 48px;
+        justify-content: center
+      }
+
+      .hero-left {
+        padding: 60px 30px 32px
+      }
+
+      .about-grid {
+        grid-template-columns: 1fr
+      }
+
+      .tut-grid {
+        grid-template-columns: 1fr
+      }
+
+      .c77-logo-wrap {
+        padding: 32px
+      }
+
+      .ub-repo {
+        padding: 34px 24px
+      }
+
+      .ub-repo-inner {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center
+      }
+
+      .ub-repo-image {
+        width: min(210px, 65vw)
+      }
+
+      .merch {
+        padding: 64px 24px
+      }
+
+      .merch-head {
+        display: block;
+        margin-bottom: 32px
+      }
+
+      .merch-head .sec-t {
+        margin-bottom: 18px
+      }
+
+      .merch-grid {
+        grid-template-columns: 1fr
+      }
+
+      .wallpapers-head {
+        display: block
+      }
+
+      .wallpapers-head .sec-t {
+        margin-bottom: 14px
+      }
+
+      .wallpaper-grid {
+        grid-template-columns: 1fr
+      }
+
+      .octopulous {
+        padding: 52px 24px
+      }
+
+      .octopulous-inner {
+        grid-template-columns: 1fr;
+        gap: 30px
+      }
+
+      .octopulous-embed {
+        justify-self: start
+      }
+
+      .feat-grid {
+        grid-template-columns: 1fr
+      }
+
+      .spec-inner {
+        grid-template-columns: repeat(2, 1fr)
+      }
+
+      .sec,
+      .editors-sec,
+      .feat-inner,
+      .spec-bar,
+      .dl-bg,
+      .foot-inner {
+        padding-left: 24px;
+        padding-right: 24px
+      }
+
+      footer {
+        padding-left: 24px;
+        padding-right: 24px
+      }
+    }
+
+    @media(max-width:520px) {
+      .docs-head {
+        display: block
+      }
+
+      .doc-card {
+        padding: 16px
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="rb"></div>
+  <div class="rb"></div>
 
-<nav>
-  <div class="nav-brand">
-    <img src="assets/logo2.png" alt="C64VA">
-    C64 VISUAL ASSEMBLER
-  </div>
-  <div class="sp"></div>
-  <a class="nav-link" href="#ultimate-basic">ULTIMATE BASIC</a>
-  <a class="nav-link" href="#build-crt">BUILD CRT</a>
-  <a class="nav-link" href="#features">FEATURES</a>
-  <a class="nav-link" href="#editors">EDITORS</a>
-  <a class="nav-link" href="#docs">DOCS</a>
-  <a class="nav-link" href="#merch">MERCH</a>
-  <a class="nav-link nav-dl" href="#download">DOWNLOAD</a>
-</nav>
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-left">
-    <div class="boot-box">
-      <div class="h">    **** COMMODORE 64 VISUAL ASSEMBLER ****</div>
-      <div class="d"> </div>
-      <div class="d"> 64K RAM SYSTEM  38911 BASIC BYTES FREE</div>
-      <div class="d"> </div>
-      <div class="y">READY.</div>
-      <div><span class="g">LOAD "C64VA",8,1</span></div>
-      <div class="d">SEARCHING FOR C64VA</div>
-      <div class="d">LOADING</div>
-      <div class="y">READY.</div>
-      <div><span class="g">RUN</span><span class="cur"></span></div>
+  <nav>
+    <div class="nav-brand">
+      <img src="assets/logo2.png" alt="C64VA">
+      C64 VISUAL ASSEMBLER
     </div>
-    <div class="badge">V2.4.0 — LATEST RELEASE</div>
-    <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
-    <p class="hero-sub">Drag-and-drop 6502 assembly blocks or switch to a full text editor — see real-time ASM output and run directly in VICE.</p>
-    <div class="hero-ctas">
-      <a class="btn btn-y" href="#download">► DOWNLOAD FREE</a>
-      <a class="btn btn-o" href="#editors">VIEW EDITORS</a>
-    </div>
-  </div>
-  <div class="hero-right">
-    <img class="hero-box-img" src="uploads/visual_assembler_transparent.png" alt="C64 Visual Assembler — product box">
-  </div>
-</section>
+    <div class="sp"></div>
+    <a class="nav-link" href="#ultimate-basic">ULTIMATE BASIC</a>
+    <a class="nav-link" href="#build-crt">BUILD CRT</a>
+    <a class="nav-link" href="#features">FEATURES</a>
+    <a class="nav-link" href="#editors">EDITORS</a>
+    <a class="nav-link" href="#docs">DOCS</a>
+    <a class="nav-link" href="#merch">MERCH</a>
+    <a class="nav-link nav-dl" href="#download">DOWNLOAD</a>
+  </nav>
 
-<!-- V2.4.0: D64 EDITOR & MULTI-LANGUAGE DOCS -->
-<div id="release-240" style="background:var(--scr-darker);padding:80px 0">
-<div class="sec about-grid" style="padding-top:0;padding-bottom:0">
-  <div>
-    <div class="ub-tag">NEW IN V2.4.0</div>
-    <div class="sec-s">// MANAGE YOUR DISKS, IN YOUR LANGUAGE</div>
-    <h2 class="sec-t">D64 EDITOR<br><span style="color:var(--ylw)">AND MULTI-LANGUAGE DOCS</span></h2>
-    <p class="sec-d">Version 2.4.0 adds a full disk-image manager right in the toolbar, and puts the entire manual online in eight languages.</p>
-    <div class="feature-list">
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>D64 Editor</b> <span>&mdash; open an existing <code>.d64</code>, create a new blank disk, or launch one straight into VICE from a Files menu that matches the app's other visual editors.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Add / extract / rename / delete</b> <span>&mdash; every action is applied straight to the disk image via <code>c1541</code>, no separate save step.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Load address, decompress address &amp; Exomizer</b> <span>&mdash; adding a raw file lets you set an optional load address, an Exomizer decompress target, and compress it on the way in &mdash; plus a PRG / SEQ / USR / REL type selector.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Authentic directory listing</b> <span>&mdash; the file list renders in the bundled C64 Pro font, uppercase, for the classic <code>LOAD"$",8</code> look.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Multi-language documentation</b> <span>&mdash; the full manual is now searchable online at <a href="docs.html" style="color:var(--cyn)">c64va.tech/docs.html</a>, in English, Hungarian, German, French, Dutch, Finnish, Italian and Swedish.</span></div></div>
-    </div>
-  </div>
-</div>
-</div>
-
-<hr class="div">
-
-<!-- COMMODORE 77 THEME -->
-<div id="commodore-77" style="background:var(--bg);padding:80px 0">
-<div class="sec" style="padding-top:0;padding-bottom:0">
-  <div class="ub-tag">NEW IN V2.3.9</div>
-  <div class="sec-s">// PICK YOUR COLORS</div>
-  <h2 class="sec-t">COMMODORE 77 THEME<br><span style="color:var(--ylw)">NEON YELLOW ON BLACK</span></h2>
-  <p class="sec-d" style="max-width:680px">A new app theme styled after the Commodore x Cyberpunk 2077 &ldquo;Commodore 77&rdquo; breadbin edition &mdash; neon yellow on black, built only from the two brand colors and their shades. It covers every corner of the app: block editor, Expert ASM mode, Ultimate Basic, and every tool dialog. Switch anytime from the theme picker (Light / Dark / OLED / Commodore 77).</p>
-  <div class="c77-logo-wrap">
-    <img src="uploads/logo2.png" alt="C64 Visual Assembler feat. Commodore 77 — classic vibes, modern tools">
-  </div>
-</div>
-</div>
-
-<hr class="div">
-
-<!-- OLDER RELEASE NOTES — collapsed by default -->
-<details id="release-history" class="release-history">
-  <summary><span class="rh-tri">&#9656;</span> Previous releases &mdash; V2.3.9 and earlier</summary>
-
-<!-- V2.3.9: ASSEMBLER EXPRESSION & LABEL FEATURES -->
-<div id="release-239" style="background:var(--bg);padding:80px 0">
-<div class="sec about-grid" style="padding-top:0;padding-bottom:0">
-  <div>
-    <div class="ub-tag">NEW IN V2.3.9</div>
-    <div class="sec-s">// A REAL ASSEMBLER FEEL</div>
-    <h2 class="sec-t">EXPRESSIONS, LOCAL LABELS<br><span style="color:var(--ylw)">AND LONG BRANCHES</span></h2>
-    <p class="sec-d">Version 2.3.9 brings the quality-of-life syntax that power users expect from 64tass, ACME and Kick Assembler &mdash; usable in Expert-mode text and, where it makes sense, as blocks.</p>
-    <div class="feature-list">
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b><code>*</code> in any expression</b> <span>&mdash; the program counter now works inside operand expressions, not just alone: <code>BNE *-5</code>, <code>JMP *+20</code>, <code>LDA #&lt;*</code>, <code>LDA #&gt;(*+63)</code>. A <code>*</code> after a value (<code>STRIDE*2</code>) is still multiplication.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Local (dotted) labels</b> <span>&mdash; <code>.loop</code> is scoped to the nearest preceding global label, so <code>DrawSprite</code> and <code>ClearScreen</code> can each have their own <code>.loop</code> without a clash.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Long-branch pseudo-ops</b> <span>&mdash; <code>LBNE</code>, <code>LBEQ</code>, <code>LBCC</code>, <code>LBCS</code>, <code>LBMI</code>, <code>LBPL</code>, <code>LBVC</code>, <code>LBVS</code> assemble to an inverted branch over a <code>JMP</code> (5 bytes) so the target can be any distance away.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b><code>.assert</code> directive</b> <span>&mdash; <code>.assert end - start &lt;= 256, "message"</code> is checked at assembly time and fails the build (with the actual value) when it is false.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Self-modifying-code labels</b> <span>&mdash; <code>LDA value:#$00</code> puts the label <code>value</code> on the operand byte, so <code>STA value</code> patches it &mdash; no <code>instruction+1</code> label needed.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Friendlier branch errors</b> <span>&mdash; an out-of-range branch reports exactly how far it overshoots and suggests the matching <code>LBxx</code> long branch.</span></div></div>
-    </div>
-  </div>
-</div>
-</div>
-
-<!-- V2.3.8: WORKSPACES AND LOCALIZATION -->
-<div id="release-238" style="background:var(--bg);padding:80px 0">
-<div class="sec about-grid" style="padding-top:0;padding-bottom:0">
-  <div>
-    <div class="ub-tag">NEW IN V2.3.8</div>
-    <div class="sec-s">// PICK UP WHERE YOU LEFT OFF</div>
-    <h2 class="sec-t">WORKSPACES, LOCALIZED UB DOCS<br><span style="color:var(--ylw)">AND A LEANER EDITOR</span></h2>
-    <p class="sec-d">Version 2.3.8 remembers your open files, translates the Ultimate Basic command reference, and fixes a memory-growth issue in long sessions with many tabs open.</p>
-    <div class="feature-list">
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Workspace save / open</b> <span>&mdash; save the exact set of open file-backed tabs, the active tab and each tab's editor mode to a <code>.vaws</code> file; workspaces auto-save on change and your last one auto-restores on launch.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Global memory panel toggle</b> <span>&mdash; show or hide the full C64 memory panel from a dedicated switch.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Localized Ultimate Basic command reference</b> <span>&mdash; autocomplete and Commands-panel descriptions now follow the UI language (Hungarian, English, Spanish, German, Dutch), with English fallback.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Fixed memory usage with many tabs open</b> <span>&mdash; per-tab undo/redo history is now capped, so long sessions with many open documents no longer grow memory unbounded.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Corrected KERNAL reference</b> <span>&mdash; fixed the <code>SETLFS</code> and <code>PLOT</code> entries in the disassembler's KERNAL address table.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Leaner editor toolbar</b> <span>&mdash; removed redundant breakpoint buttons from Expert/UB (still set via the line-number gutter) and aligned the Expert toolbar height with Ultimate Basic.</span></div></div>
-    </div>
-  </div>
-</div>
-</div>
-
-<hr class="div">
-
-<!-- V2.3.7: DEBUGGING AND EDITING -->
-<div id="release-237" style="background:var(--scr-darker);padding:80px 0">
-<div class="sec about-grid" style="padding-top:0;padding-bottom:0">
-  <div>
-    <div class="ub-tag">INTRODUCED IN V2.3.7</div>
-    <div class="sec-s">// DEBUG WITH SOURCE CONTEXT</div>
-    <h2 class="sec-t">BREAKPOINTS, HISTORY<br><span style="color:var(--ylw)">AND BUILD-ACCURATE OUTPUT</span></h2>
-    <p class="sec-d">Version 2.3.7 connects every editor mode to RetroDebugger with exact source addresses, while adding faster block editing and clearer machine-code inspection.</p>
-    <div class="feature-list">
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Breakpoints in all three modes</b> <span>&mdash; the external RetroDebugger replaces the limited embedded UB debugger; Block, Expert and Ultimate Basic source locations resolve to executable addresses with matching labels and source maps.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>SYS-aware debugger launch</b> <span>&mdash; BASIC programs use automatic SYS startup; plain PRGs use their actual load address.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Undo, Redo and multi-select</b> <span>&mdash; edit, copy, move and remove groups of blocks without losing region structure.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Optional BASIC stub display</b> <span>&mdash; inspect the real <code>$0801</code> SYS stub in Disassembler and Monitor views.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Ultimate Basic Monitor</b> <span>&mdash; view compiler output as a live memory dump beside the UB editor.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Editor alignment fixes</b> <span>&mdash; stable carets, blank-line navigation, minimap bounds and line-number alignment.</span></div></div>
-    </div>
-  </div>
-</div>
-</div>
-
-</details>
-
-<hr class="div">
-
-<!-- BUILD CRT: MAGIC DESK CARTRIDGE -->
-<div id="build-crt" style="background:var(--bg);padding:80px 0">
-<div class="sec about-grid" style="padding-top:0;padding-bottom:0">
-  <div>
-    <div class="ub-tag">INTRODUCED IN V2.3.6</div>
-    <div class="sec-s">// CARTRIDGE EXPORT</div>
-    <h2 class="sec-t">BUILD CRT<br><span style="color:var(--ylw)">MAGIC DESK 64K CARTRIDGE</span></h2>
-    <p class="sec-d">One click and your program becomes a Commodore 64 cartridge image. Menu &rarr; Build &rarr; Build CRT packs the current tab into a Magic Desk (type 19) <code>.crt</code> file with 8 &times; 8&nbsp;KB banks and a small bank-0 loader that copies the payload into RAM and jumps to the entry point. Nothing else to configure.</p>
-    <div class="feature-list">
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>All three modes</b> <span>&mdash; works from block mode, Expert mode and Ultimate Basic mode.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Up to 64K payload</b> <span>&mdash; 8 banks &times; 8&nbsp;KB, max 65 408 bytes after the loader header.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Widely compatible</b> <span>&mdash; runs on VICE, TheC64, EasyFlash, Kung Fu Flash, 1541 Ultimate II+ and Ultimate 64.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Any origin</b> <span>&mdash; the loader honours the PRG load address, so <code>$0801</code>, <code>$C000</code> and multi-ORG builds all work.</span></div></div>
-      <div class="fi"><div class="fi-dot">&#9658;</div><div><b>Safe cart-off exit</b> <span>&mdash; an 8-byte exit stub is copied to <code>$0100</code> so unmapping the cartridge cannot interrupt the fetch.</span></div></div>
-    </div>
-  </div>
-  <div class="about-right cartridge-shot">
-    <div class="screen-wrap">
-      <img src="uploads/magic-desk-64k-cartridge.png" alt="Magic Desk 64K cartridge for Commodore 64">
-    </div>
-  </div>
-</div>
-</div>
-
-<hr class="div">
-
-<!-- ULTIMATE BASIC MODE OVERVIEW -->
-<div id="ultimate-basic" style="background:var(--scr-darker);padding:80px 0">
-<div class="sec about-grid" style="padding-top:0;padding-bottom:0">
-  <div>
-    <div class="ub-tag">CORE FEATURE</div>
-    <div class="sec-s">// ULTIMATE BASIC MODE</div>
-    <h2 class="sec-t">ULTIMATE BASIC<br><span style="color:var(--ylw)">A COMPLETE IDE MODE</span></h2>
-    <p class="sec-d">Fire up Ultimate Basic right inside C64 Visual Assembler. Write some code, keep your project files together, build a PRG and send it straight to your favourite C64 setup &mdash; all from one place.</p>
-    <div class="feature-list">
-      <div class="fi"><div class="fi-dot">►</div><div><b>Native .UB editor</b> <span>&mdash; open a source, start typing and get on with the fun part.</span></div></div>
-      <div class="fi"><div class="fi-dot">►</div><div><b>Projects + startup file</b> <span>&mdash; keep multi-file productions tidy and pick what boots first.</span></div></div>
-      <div class="fi"><div class="fi-dot">►</div><div><b>Build, run and debug</b> <span>&mdash; compile it, launch it and chase the bugs without hopping between tools.</span></div></div>
-      <div class="fi"><div class="fi-dot">►</div><div><b>Source breakpoints + Monitor</b> <span>&mdash; set line breakpoints for RetroDebugger and inspect compiler bytes in the built-in memory view.</span></div></div>
-      <div class="fi"><div class="fi-dot">►</div><div><b>ASM sidecars + disassembly copy</b> <span>&mdash; peek under the hood, keep the generated ASM and grab the disassembly when you need it.</span></div></div>
-      <div class="fi"><div class="fi-dot">►</div><div><b>Separate working folder</b> <span>&mdash; point UB at your includes and binary goodies without messing with the VA project folder.</span></div></div>
-      <div class="fi"><div class="fi-dot">►</div><div><b>Every C64 target</b> <span>&mdash; fire it up in VICE, send it to a C64 Ultimate, build a D64 or squeeze it with Exomizer.</span></div></div>
-      <div class="fi"><div class="fi-dot">►</div><div><b>Built-in UB manual</b> <span>&mdash; the language reference is always one click away when your memory needs a poke.</span></div></div>
-    </div>
-  </div>
-  <div class="about-right ub-shot">
-    <div class="screen-wrap">
-      <img src="uploads/ub.png" alt="Ultimate Basic IDE in C64 Visual Assembler">
-    </div>
-  </div>
-</div>
-</div>
-
-<hr class="div">
-
-<!-- ABOUT -->
-<div style="background:var(--bg);padding:80px 0">
-<div class="sec about-grid" style="padding-top:0;padding-bottom:0">
-  <div>
-    <div class="sec-s">// WHAT IS IT</div>
-    <h2 class="sec-t">THE POWER OF 6502<br>MADE VISUAL</h2>
-    <div class="sec-callout">COMMODORE 64 ULTIMATE + ULTIMATE ELITE 64 + GIDEON'S ULTIMATE II+ SUPPORT</div>
-    <p class="sec-d">C64 Visual Assembler is a modern Tauri-based desktop app that lets you build authentic Commodore 64 programs by arranging drag-and-drop blocks — while seeing the generated assembly and live disassembly on the right.</p>
-    <div class="feature-list">
-      <div class="fi"><div class="fi-dot">►</div><div><b>Block editor</b> <span>— drag mnemonics, macros and labels into a list. No hand-typing required.</span></div></div>
-      <div class="fi"><div class="fi-dot">►</div><div><b>Real-time ASM + Monitor output</b> <span>— every block change compiles instantly.</span></div></div>
-      <div class="fi"><div class="fi-dot">►</div><div><b>Expert text mode</b> <span>— switch to a raw .asm editor with syntax highlighting and live error feedback.</span></div></div>
-      <div class="fi"><div class="fi-dot">►</div><div><b>VICE + RetroDebugger</b> <span>— one click to run or step through your program in the emulator.</span></div></div>
-      <div class="fi"><div class="fi-dot">►</div><div><b>Exomizer compression</b> <span>— crunch your PRG before launch to fit more in 64K.</span></div></div>
-    </div>
-  </div>
-  <div class="about-right">
-    <div class="screen-wrap">
-      <img src="uploads/editor.png" alt="Program blocks editor with disassembler">
-    </div>
-  </div>
-</div>
-</div>
-
-<hr class="div">
-
-<!-- DEMO -->
-<div style="background:var(--scr-darker);padding:80px 0;text-align:center">
-  <div class="sec" style="padding-top:0;padding-bottom:0">
-    <div class="sec-s">// SEE IT IN ACTION</div>
-    <h2 class="sec-t" style="margin-bottom:40px">C64 CUBE DEMO — BUILT WITH VISUAL ASSEMBLER</h2>
-    <div class="screen-wrap" style="max-width:900px;margin:0 auto">
-      <img src="uploads/demo.gif" alt="C64 demo built with Visual Assembler" style="width:100%;display:block">
-    </div>
-  </div>
-</div>
-
-<hr class="div">
-
-<!-- FEATURES -->
-<div class="feat-bg" id="features">
-<div class="feat-inner">
-  <div class="sec-s">// FEATURES</div>
-  <h2 class="sec-t">EVERYTHING YOU NEED<br>FOR C64 DEVELOPMENT</h2>
-  <div class="feat-grid">
-    <div class="fc">
-      <div class="fc-ico">▓▒░ BLOCKS</div>
-      <div class="fc-t">DRAG & DROP EDITOR</div>
-      <div class="fc-d">Pick mnemonics from the palette, set operands, and arrange blocks in order. Collapse regions, reorder, and annotate with labels and comments.</div>
-    </div>
-    <div class="fc">
-      <div class="fc-ico">$0801 ASM</div>
-      <div class="fc-t">REAL-TIME CODE GENERATION</div>
-      <div class="fc-d">Every block edit instantly regenerates the assembly source, machine-code hex dump, and 6502 disassembly. Configurable start address, BASIC SYS stub optional.</div>
-    </div>
-    <div class="fc">
-      <div class="fc-ico">60+ MACROS</div>
-      <div class="fc-t">POWERFUL MACRO LIBRARY</div>
-      <div class="fc-d">TEXT, SPRITE_INIT, WAIT_RASTER, LOOP, IF/ELSE, DEFINE, PUSH/PULL, SID, INCBIN, MAP_COPY, JOYSTICK, MOUSE — and user-defined MACRO/ENDM/INVOKE.</div>
-    </div>
-    <div class="fc">
-      <div class="fc-ico">♫ SID</div>
-      <div class="fc-t">SID MUSIC EDITOR</div>
-      <div class="fc-d">3-voice tracker with ADSR envelope, filter, waveform selection and cycle-exact WebSid WASM preview. Export as a full IRQ-driven C64 music player.</div>
-    </div>
-    <div class="fc">
-      <div class="fc-ico">► VICE</div>
-      <div class="fc-t">VICE INTEGRATION</div>
-      <div class="fc-d">Launch directly in the VICE C64 emulator. Supports RetroDebugger, C64 Ultimate hardware upload via REST API, and D64 disk image building.</div>
-    </div>
-    <div class="fc">
-      <div class="fc-ico">∿ CURVE</div>
-      <div class="fc-t">CURVE & TABLE GENERATOR</div>
-      <div class="fc-d">Generate sine, easing, triangle, bounce and sawtooth lookup tables with a live graph and bouncing-ball preview. Export as 8-bit or 16-bit lo/hi split.</div>
-    </div>
-  </div>
-</div>
-</div>
-
-<!-- STATS BAR -->
-<div class="spec-bar">
-<div class="spec-inner">
-  <div class="spec"><div class="spec-n">60+</div><div class="spec-l">MACROS & MNEMONICS</div></div>
-  <div class="spec"><div class="spec-n">6</div><div class="spec-l">VISUAL EDITORS</div></div>
-  <div class="spec"><div class="spec-n">30+</div><div class="spec-l">SAMPLE PROJECTS</div></div>
-  <div class="spec"><div class="spec-n">4</div><div class="spec-l">UI LANGUAGES</div></div>
-</div>
-</div>
-
-<!-- EDITORS -->
-<div style="background:var(--bg)">
-<div class="editors-sec" id="editors">
-  <div class="sec-s">// VISUAL EDITORS</div>
-  <h2 class="sec-t" style="margin-bottom:40px">BUILT-IN TOOLS FOR<br>EVERY C64 ASSET</h2>
-  <div class="tabs">
-    <div class="tab on" data-tab="prog" onclick="showTab('prog')">BLOCK EDITOR</div>
-    <div class="tab" data-tab="ub" onclick="showTab('ub')">ULTIMATE BASIC</div>
-    <div class="tab" data-tab="code" onclick="showTab('code')">ASM EDITOR</div>
-    <div class="tab" data-tab="sid" onclick="showTab('sid')">SID MUSIC</div>
-    <div class="tab" data-tab="sprite" onclick="showTab('sprite')">SPRITES</div>
-    <div class="tab" data-tab="map" onclick="showTab('map')">TILEMAP</div>
-    <div class="tab" data-tab="hires" onclick="showTab('hires')">GRAPHICS</div>
-    <div class="tab" data-tab="curve" onclick="showTab('curve')">CURVES</div>
-    <div class="tab" data-tab="char" onclick="showTab('char')">CHARACTERS</div>
-    <div class="tab" data-tab="charrom" onclick="showTab('charrom')">CHAR ROM</div>
-    <div class="tab" data-tab="canvas" onclick="showTab('canvas')">CHARSET CANVAS</div>
-  </div>
-  <div class="tab-panel on" id="tab-prog">
-    <img src="uploads/Screenshot 2026-08-01 191519.png" alt="Block program editor">
-    <div class="tab-cap"><span class="tab-cap-t">BLOCK PROGRAM EDITOR + ASM VIEW</span><span class="tab-cap-d">DRAG BLOCKS FROM LEFT → COMPILE LIVE → RUN IN VICE</span></div>
-  </div>
-  <div class="tab-panel" id="tab-ub">
-    <img src="uploads/ub.png" alt="Ultimate Basic IDE in C64 Visual Assembler">
-    <div class="tab-cap"><span class="tab-cap-t">ULTIMATE BASIC — COMPLETE IDE MODE</span><span class="tab-cap-d">EDIT .UB SOURCES, MANAGE PROJECTS, BUILD AND RUN FROM ONE WORKSPACE</span></div>
-  </div>
-  <div class="tab-panel" id="tab-code">
-    <img src="uploads/code.png" alt="Expert ASM editor">
-    <div class="tab-cap"><span class="tab-cap-t">EXPERT MODE — FULL ASM TEXT EDITOR</span><span class="tab-cap-d">SYNTAX HIGHLIGHTING, LIVE ERROR FEEDBACK, FIND BAR, MINIMAP, REGIONS</span></div>
-  </div>
-  <div class="tab-panel" id="tab-sid">
-    <img src="uploads/sided.png" alt="SID music editor">
-    <div class="tab-cap"><span class="tab-cap-t">SID EDITOR — 3-VOICE TRACKER</span><span class="tab-cap-d">WAVEFORM, ADSR ENVELOPE, FILTER, WEBSID WASM PREVIEW, IRQ EXPORT</span></div>
-  </div>
-  <div class="tab-panel" id="tab-sprite">
-    <img src="uploads/spriteed.png" alt="Sprite editor">
-    <div class="tab-cap"><span class="tab-cap-t">SPRITE EDITOR — FRAME-BY-FRAME ANIMATION</span><span class="tab-cap-d">MONO & MULTICOLOR, FLIP/SHIFT, ONION SKIN, .BIN EXPORT</span></div>
-  </div>
-  <div class="tab-panel" id="tab-map">
-    <img src="uploads/maped.png" alt="Tilemap editor">
-    <div class="tab-cap"><span class="tab-cap-t">TILEMAP EDITOR — MULTI-LAYER MAP</span><span class="tab-cap-d">CHARSET BANKS, COLOR RAM, MULTICOLOR, MAP_COPY MACRO EXPORT</span></div>
-  </div>
-  <div class="tab-panel" id="tab-hires">
-    <img src="uploads/bitmaped.png" alt="Hi-res graphics editor">
-    <div class="tab-cap"><span class="tab-cap-t">HI-RES GRAPHICS EDITOR — 320×200</span><span class="tab-cap-d">PIXEL DRAWING, MULTICOLOR MODE, NATIVE .BIN EXPORT (10KB)</span></div>
-  </div>
-  <div class="tab-panel" id="tab-curve">
-    <img src="uploads/curveed.png" alt="Curve editor">
-    <div class="tab-cap"><span class="tab-cap-t">CURVE EDITOR — MATH TABLE GENERATOR</span><span class="tab-cap-d">SINE, EASING, TRIANGLE, BOUNCE — 8-BIT OR 16-BIT LO/HI OUTPUT</span></div>
-  </div>
-  <div class="tab-panel" id="tab-char">
-    <img src="uploads/chared.png" alt="Character editor">
-    <div class="tab-cap"><span class="tab-cap-t">CHARACTER EDITOR — 8×8 PIXEL CHARSET</span><span class="tab-cap-d">MONO & MULTICOLOR, SHIFT/FLIP TOOLS, .BIN EXPORT</span></div>
-  </div>
-  <div class="tab-panel" id="tab-charrom">
-    <img src="uploads/charrom.png" alt="Character ROM browser">
-    <div class="tab-cap"><span class="tab-cap-t">CHARACTER ROM BROWSER — BUILT-IN C64 CHARSET</span><span class="tab-cap-d">BROWSE UPPERCASE/GRAPHICS AND LOWERCASE/UPPERCASE ROM CHARSETS</span></div>
-  </div>
-  <div class="tab-panel" id="tab-canvas">
-    <img src="uploads/canvased.png" alt="Charset Canvas">
-    <div class="tab-cap"><span class="tab-cap-t">CHARSET CANVAS — DRAW 256 CHARS AS ONE PICTURE</span><span class="tab-cap-d">PENCIL, SPRAY, SHAPE TOOLS — SAVE CHARSET + 16×16 SCREEN/COLOR MAP</span></div>
-  </div>
-</div>
-</div>
-
-<hr class="div">
-
-<!-- HARDWARE SETTINGS -->
-<div style="background:var(--bg);padding:80px 0">
-<div class="sec about-grid" style="padding-top:0;padding-bottom:0">
-  <div class="about-right">
-    <div class="screen-wrap" style="max-width:100%">
-      <div style="background:#111130;color:var(--txt-dim);font-size:10px;padding:7px 14px;letter-spacing:2px;border-bottom:1px solid var(--brd)">C64VA  ●  HARDWARE SETTINGS</div>
-      <img src="uploads/config.png" alt="Hardware Settings — C64 Ultimate support">
-    </div>
-  </div>
-  <div>
-    <div class="sec-s">// HARDWARE INTEGRATION</div>
-    <h2 class="sec-t">C64 ULTIMATE &<br>VICE SUPPORT</h2>
-    <p class="sec-d">Configure every hardware target from one settings panel. VICE, RetroDebugger, C64 Ultimate REST API, Gideon's Ultimate II+, Exomizer compression and debug sidecar generation — all in one place. Your projects can run on modern C64 Ultimate systems as well as original Commodore 64 hardware from the 1980s and 1990s.</p>
-    <div class="feature-list">
-      <div class="fi"><div class="fi-dot">►</div><div><b>C64 Ultimate</b> <span>— upload and run PRG directly on real hardware via the C64 Ultimate REST API.</span></div></div>
-      <div class="fi"><div class="fi-dot">►</div><div><b>Gideon's Ultimate II+</b> <span>— use Visual Assembler projects on original 1980s and 1990s C64 hardware with PRG, D64 and compatible cartridge builds.</span></div></div>
-      <div class="fi"><div class="fi-dot">►</div><div><b>VICE + RetroDebugger</b> <span>— one-click launch with breakpoints, symbol files and monitor commands.</span></div></div>
-      <div class="fi"><div class="fi-dot">►</div><div><b>D64 disk images</b> <span>— build and run .d64 files via c1541, add extra files to the disk.</span></div></div>
-      <div class="fi"><div class="fi-dot">►</div><div><b>Exomizer</b> <span>— optional SFX crunch before launch to squeeze every byte.</span></div></div>
-    </div>
-  </div>
-</div>
-</div>
-
-<hr class="div">
-
-<!-- TUTORIALS -->
-<div style="background:var(--scr-darker);padding:80px 0" id="docs">
-<div class="sec tut-grid" style="align-items:center">
-  <div>
-    <div class="sec-s">// LEARN</div>
-    <h2 class="sec-t">INTERACTIVE<br>TUTORIALS</h2>
-    <p class="sec-d">The built-in guided tour walks you through every UI area step by step. Structured lessons cover beginner programs, sprite animation, IRQ rasters, SID music and more — with live sample links.</p>
-    <div style="margin-top:32px;display:flex;flex-direction:column;gap:10px">
-      <div class="fi"><div class="fi-dot">01</div><div class="fi"><b>TOUR</b> <span>— explore the application UI areas</span></div></div>
-      <div class="fi"><div class="fi-dot">02</div><div class="fi"><b>BEGINNERS</b> <span>— your first C64 program in minutes</span></div></div>
-      <div class="fi"><div class="fi-dot">03</div><div class="fi"><b>FUNDAMENTALS</b> <span>— macros, sprites, raster, SID</span></div></div>
-      <div class="fi"><div class="fi-dot">04</div><div class="fi"><b>30+ SAMPLES</b> <span>— open and run demo projects instantly</span></div></div>
-    </div>
-  </div>
-  <div>
-    <div class="screen-wrap">
-      <div style="position:relative">
-        <img src="uploads/tutor.png" alt="Interactive tutorials" style="width:100%;display:block">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-left">
+      <div class="boot-box">
+        <div class="h"> **** COMMODORE 64 VISUAL ASSEMBLER ****</div>
+        <div class="d"> </div>
+        <div class="d"> 64K RAM SYSTEM 38911 BASIC BYTES FREE</div>
+        <div class="d"> </div>
+        <div class="y">READY.</div>
+        <div><span class="g">LOAD "C64VA",8,1</span></div>
+        <div class="d">SEARCHING FOR C64VA</div>
+        <div class="d">LOADING</div>
+        <div class="y">READY.</div>
+        <div><span class="g">RUN</span><span class="cur"></span></div>
+      </div>
+      <div class="badge">V2.4.0 — LATEST RELEASE</div>
+      <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
+      <p class="hero-sub">Drag-and-drop 6502 assembly blocks or switch to a full text editor — see real-time ASM output
+        and run directly in VICE.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-y" href="#download">► DOWNLOAD FREE</a>
+        <a class="btn btn-o" href="#editors">VIEW EDITORS</a>
       </div>
     </div>
-  </div>
-</div>
-<div class="sec docs-library" style="padding-top:0">
-  <div class="docs-head">
-    <div>
-      <div class="sec-s">// DOCUMENTATION</div>
-      <h2 class="sec-t" style="margin-bottom:0">USER MANUALS</h2>
+    <div class="hero-right">
+      <img class="hero-box-img" src="uploads/visual_assembler_transparent.png" alt="C64 Visual Assembler — product box">
     </div>
-    <p>The complete searchable manual is available in English, Hungarian, German, French, Dutch, Finnish, Italian and Swedish. You can switch languages inside the documentation viewer.</p>
-  </div>
-  <button class="doc-card docs-open" type="button">► OPEN DOCUMENTS</button>
-</div>
-</div>
+  </section>
 
-<hr class="div">
-
-<!-- DOWNLOAD -->
-<div class="dl-bg" id="download">
-<div class="dl-inner">
-  <div class="dl-box">
-    <div class="dl-corner tl">┌─</div>
-    <div class="dl-corner tr">─┐</div>
-    <div class="dl-corner bl">└─</div>
-    <div class="dl-corner br">─┘</div>
-    <div class="sec-s" style="text-align:center;margin-bottom:16px">// DOWNLOAD</div>
-    <h2 class="sec-t" style="text-align:center">C64 VISUAL ASSEMBLER<br><span style="color:var(--ylw)">V2.3.9 — FREE</span></h2>
-    <p class="sec-d" style="text-align:center;margin:0 auto 8px;max-width:460px">Desktop app for Windows, macOS and Linux. Requires Node.js and Rust to build from source, or download a prebuilt installer.</p>
-    <div class="dl-plats">
-      <a class="dl-p btn" href="#" onclick="openItch();return false" style="border-color:var(--brd-hi)"><span style="color:var(--ylw)">■</span> WINDOWS</a>
-      <a class="dl-p btn" href="#" onclick="openItch();return false" style="border-color:var(--brd-hi)"><span style="color:var(--ylw)">■</span> MACOS</a>
-      <a class="dl-p btn" href="#" onclick="openItch();return false" style="border-color:var(--brd-hi)"><span style="color:var(--ylw)">■</span> LINUX</a>
-    </div>
-    <div class="dl-sub">OPEN SOURCE — MIT LICENSE — BUILT WITH TAURI + RUST</div>
-    <div style="margin-top:20px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
-      <a class="btn btn-o" href="https://zstarczali.itch.io/visual-assembler-commodore-64" target="_blank" rel="noopener" style="font-size:12px;padding:10px 22px">⬡ VIEW ON ITCH.IO</a>
-      <a class="btn btn-o" href="https://github.com/zstarczali/VisualAssembler" target="_blank" rel="noopener" style="font-size:12px;padding:10px 22px">► VIEW ON GITHUB</a>
-      <a class="btn facebook-link" href="https://www.facebook.com/groups/4435397303367080/" target="_blank" rel="noopener" aria-label="Join the Visual Assembler Facebook group" style="font-size:12px;padding:10px 22px">
-        <span class="facebook-icon" aria-hidden="true">f</span>
-        <span>JOIN FACEBOOK GROUP</span>
-      </a>
-      <a class="btn linkedin-link" href="https://www.linkedin.com/in/zsolttarczali" target="_blank" rel="noopener" aria-label="View Zsolt Tarczali on LinkedIn" style="font-size:12px;padding:10px 22px">
-        <span class="linkedin-icon" aria-hidden="true">in</span>
-        <span>LINKEDIN</span>
-      </a>
-      <a class="btn btn-o" href="mailto:retroboj@outlook.com" aria-label="Contact Visual Assembler by email" style="font-size:12px;padding:10px 22px">@ CONTACT</a>
-      <a class="btn" href="https://paypal.me/ZsoltTarczali" target="_blank" rel="noopener" style="font-size:12px;padding:10px 22px;border-color:#0070ba;color:#0070ba">♥ SUPPORT DEVELOPMENT</a>
-    </div>
-  </div>
-</div>
-</div>
-
-<!-- MERCH -->
-<section class="merch" id="merch" aria-labelledby="merch-title">
-  <div class="merch-inner">
-    <div class="merch-head">
+  <!-- V2.4.0: D64 EDITOR & MULTI-LANGUAGE DOCS -->
+  <div id="release-240" style="background:var(--scr-darker);padding:80px 0">
+    <div class="sec about-grid" style="padding-top:0;padding-bottom:0">
       <div>
-        <div class="sec-s">// C64VA MERCH</div>
-        <h2 class="sec-t" id="merch-title">TAKE VISUAL ASSEMBLER<br>BEYOND THE SCREEN</h2>
+        <div class="ub-tag">NEW IN V2.4.0</div>
+        <div class="sec-s">// MANAGE YOUR DISKS, IN YOUR LANGUAGE</div>
+        <h2 class="sec-t">D64 EDITOR<br><span style="color:var(--ylw)">AND MULTI-LANGUAGE DOCS</span></h2>
+        <p class="sec-d">Version 2.4.0 adds a full disk-image manager right in the toolbar, and puts the entire manual
+          online in eight languages.</p>
+        <div class="feature-list">
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>D64 Editor</b> <span>&mdash; open an existing <code>.d64</code>, create a new blank disk, or launch
+                one straight into VICE from a Files menu that matches the app's other visual editors.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Add / extract / rename / delete</b> <span>&mdash; every action is applied straight to the disk image
+                via <code>c1541</code>, no separate save step.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Load address, decompress address &amp; Exomizer</b> <span>&mdash; adding a raw file lets you set an
+                optional load address, an Exomizer decompress target, and compress it on the way in &mdash; plus a PRG /
+                SEQ / USR / REL type selector.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Authentic directory listing</b> <span>&mdash; the file list renders in the bundled C64 Pro font,
+                uppercase, for the classic <code>LOAD"$",8</code> look.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Multi-language documentation</b> <span>&mdash; the full manual is now searchable online at <a
+                  href="docs.html" style="color:var(--cyn)">c64va.tech/docs.html</a>, in English, Hungarian, German,
+                French, Dutch, Finnish, Italian and Swedish.</span></div>
+          </div>
+        </div>
       </div>
-      <p class="sec-d">Mouse pad, black T-shirt and mug with the Visual Assembler design. Order directly by email and we will reply with availability, sizing and delivery details.</p>
-    </div>
-    <div class="merch-grid">
-      <article class="merch-card">
-        <div class="merch-image"><img src="uploads/merch-mousepad.png" alt="Visual Assembler branded black desk mouse pad" loading="lazy"></div>
-        <div class="merch-copy">
-          <div class="merch-type">DESK GEAR</div>
-          <h3 class="merch-name">VISUAL ASSEMBLER MOUSE PAD</h3>
-          <p class="merch-desc">A wide black desk pad featuring the full Visual Assembler and Commodore 77 artwork.</p>
-          <a class="btn merch-order" href="mailto:retroboj@outlook.com?subject=Merch%20order%20-%20Visual%20Assembler%20mouse%20pad&amp;body=Hello%2C%0A%0AI%20would%20like%20to%20order%20a%20Visual%20Assembler%20mouse%20pad.%0A%0AName%3A%0ACountry%3A%0AQuantity%3A%0A">@ ORDER BY EMAIL</a>
-        </div>
-      </article>
-      <article class="merch-card">
-        <div class="merch-image"><img src="uploads/merch-tshirt.png" alt="Black Visual Assembler T-shirt" loading="lazy"></div>
-        <div class="merch-copy">
-          <div class="merch-type">APPAREL</div>
-          <h3 class="merch-name">BLACK VISUAL ASSEMBLER T-SHIRT</h3>
-          <p class="merch-desc">Classic black crew-neck shirt with the glowing yellow Visual Assembler emblem on the front.</p>
-          <a class="btn merch-order" href="mailto:retroboj@outlook.com?subject=Merch%20order%20-%20Black%20Visual%20Assembler%20T-shirt&amp;body=Hello%2C%0A%0AI%20would%20like%20to%20order%20a%20black%20Visual%20Assembler%20T-shirt.%0A%0AName%3A%0ACountry%3A%0ASize%3A%0AQuantity%3A%0A">@ ORDER BY EMAIL</a>
-        </div>
-      </article>
-      <article class="merch-card">
-        <div class="merch-image"><img src="uploads/merch-tshirt-wide-logo.png" alt="Black Visual Assembler T-shirt with wide Commodore logo" loading="lazy"></div>
-        <div class="merch-copy">
-          <div class="merch-type">APPAREL</div>
-          <h3 class="merch-name">BLACK C64VA WIDE-LOGO T-SHIRT</h3>
-          <p class="merch-desc">A black crew-neck shirt with the wide Visual Assembler and Commodore 77 lockup across the chest.</p>
-          <a class="btn merch-order" href="mailto:retroboj@outlook.com?subject=Merch%20order%20-%20Black%20C64VA%20wide-logo%20T-shirt&amp;body=Hello%2C%0A%0AI%20would%20like%20to%20order%20a%20black%20C64VA%20wide-logo%20T-shirt.%0A%0AName%3A%0ACountry%3A%0ASize%3A%0AQuantity%3A%0A">@ ORDER BY EMAIL</a>
-        </div>
-      </article>
-      <article class="merch-card">
-        <div class="merch-image"><img src="uploads/merch-mug.png" alt="Black Visual Assembler ceramic mug" loading="lazy"></div>
-        <div class="merch-copy">
-          <div class="merch-type">COFFEEWARE</div>
-          <h3 class="merch-name">VISUAL ASSEMBLER MUG</h3>
-          <p class="merch-desc">A matte black ceramic mug with the pixel-style Visual Assembler design in signature yellow.</p>
-          <a class="btn merch-order" href="mailto:retroboj@outlook.com?subject=Merch%20order%20-%20Visual%20Assembler%20mug&amp;body=Hello%2C%0A%0AI%20would%20like%20to%20order%20a%20Visual%20Assembler%20mug.%0A%0AName%3A%0ACountry%3A%0AQuantity%3A%0A">@ ORDER BY EMAIL</a>
-        </div>
-      </article>
-    </div>
-    <p class="merch-note">ORDERS ARE CONFIRMED PERSONALLY BY EMAIL. SHIPPING AND PAYMENT DETAILS FOLLOW IN THE REPLY.</p>
-  </div>
-</section>
-
-<!-- ULTIMATE BASIC REPOSITORY -->
-<section class="ub-repo">
-  <div class="ub-repo-inner">
-    <a href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener" aria-label="Open the UltimateBasic GitHub repository">
-      <img class="ub-repo-image" src="uploads/ultimate-basic-logo.png" alt="UltimateBasic for Commodore 64">
-    </a>
-    <div class="ub-repo-copy">
-      <div class="sec-s">// OPEN SOURCE COMPILER</div>
-      <h2 class="sec-t">ULTIMATE BASIC</h2>
-      <p class="sec-d">Explore the compiler source, language documentation and latest development on GitHub.</p>
-      <a class="btn btn-o" href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener">► ULTIMATE BASIC REPOSITORY</a>
     </div>
   </div>
-</section>
 
-<!-- OCTOPULOUS -->
-<section class="octopulous" aria-labelledby="octopulous-title">
-  <div class="octopulous-inner">
-    <div class="octopulous-copy">
-      <div class="sec-s">// A FAMILY GAME PROJECT</div>
-      <h2 class="sec-t" id="octopulous-title">OCTOPULOUS!</h2>
-      <p class="sec-d">This is my son's second game: Octopulous is a goofy, bite-sized sidescrolling adventure about an octopus having to save his world from an unexpected evil's thirst for power.</p>
-    </div>
-    <div class="octopulous-embed">
-      <iframe src="https://itch.io/embed/1593496?linkback=true&amp;border_width=3&amp;bg_color=D9893E&amp;fg_color=70161f&amp;link_color=db0d00&amp;border_color=ba6a1f" width="556" height="171" title="Octopulous by OwlyCode on itch.io"><a href="https://therealowlycode.itch.io/octopulous">Octopulous by OwlyCode</a></iframe>
+  <hr class="div">
+
+  <!-- COMMODORE 77 THEME -->
+  <div id="commodore-77" style="background:var(--bg);padding:80px 0">
+    <div class="sec" style="padding-top:0;padding-bottom:0">
+      <div class="ub-tag">NEW IN V2.3.9</div>
+      <div class="sec-s">// PICK YOUR COLORS</div>
+      <h2 class="sec-t">COMMODORE 77 THEME<br><span style="color:var(--ylw)">NEON YELLOW ON BLACK</span></h2>
+      <p class="sec-d" style="max-width:680px">A new app theme styled after the Commodore x Cyberpunk 2077
+        &ldquo;Commodore 77&rdquo; breadbin edition &mdash; neon yellow on black, built only from the two brand colors
+        and their shades. It covers every corner of the app: block editor, Expert ASM mode, Ultimate Basic, and every
+        tool dialog. Switch anytime from the theme picker (Light / Dark / OLED / Commodore 77).</p>
+      <div class="c77-logo-wrap">
+        <img src="uploads/logo2.png" alt="C64 Visual Assembler feat. Commodore 77 — classic vibes, modern tools">
+      </div>
     </div>
   </div>
-</section>
 
-<!-- FOOTER -->
-<footer>
-<div class="foot-inner">
-  <div class="foot-brand">C64 VISUAL ASSEMBLER — © 2026</div>
-  <div class="foot-links">
-    <a href="https://github.com/zstarczali/VisualAssembler" target="_blank">GITHUB</a>
-    <a href="https://www.facebook.com/groups/4435397303367080/" target="_blank" rel="noopener">FACEBOOK</a>
-    <a href="#docs">DOCS</a>
-    <a href="https://github.com/zstarczali/VisualAssembler/blob/main/LICENSE" target="_blank">LICENSE</a>
-    <a href="#editors">SAMPLES</a>
+  <hr class="div">
+
+  <!-- OLDER RELEASE NOTES — collapsed by default -->
+  <details id="release-history" class="release-history">
+    <summary><span class="rh-tri">&#9656;</span> Previous releases &mdash; V2.3.9 and earlier</summary>
+
+    <!-- V2.3.9: ASSEMBLER EXPRESSION & LABEL FEATURES -->
+    <div id="release-239" style="background:var(--bg);padding:80px 0">
+      <div class="sec about-grid" style="padding-top:0;padding-bottom:0">
+        <div>
+          <div class="ub-tag">NEW IN V2.3.9</div>
+          <div class="sec-s">// A REAL ASSEMBLER FEEL</div>
+          <h2 class="sec-t">EXPRESSIONS, LOCAL LABELS<br><span style="color:var(--ylw)">AND LONG BRANCHES</span></h2>
+          <p class="sec-d">Version 2.3.9 brings the quality-of-life syntax that power users expect from 64tass, ACME and
+            Kick Assembler &mdash; usable in Expert-mode text and, where it makes sense, as blocks.</p>
+          <div class="feature-list">
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b><code>*</code> in any expression</b> <span>&mdash; the program counter now works inside operand
+                  expressions, not just alone: <code>BNE *-5</code>, <code>JMP *+20</code>, <code>LDA #&lt;*</code>,
+                  <code>LDA #&gt;(*+63)</code>. A <code>*</code> after a value (<code>STRIDE*2</code>) is still
+                  multiplication.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>Local (dotted) labels</b> <span>&mdash; <code>.loop</code> is scoped to the nearest preceding
+                  global label, so <code>DrawSprite</code> and <code>ClearScreen</code> can each have their own
+                  <code>.loop</code> without a clash.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>Long-branch pseudo-ops</b> <span>&mdash; <code>LBNE</code>, <code>LBEQ</code>, <code>LBCC</code>,
+                  <code>LBCS</code>, <code>LBMI</code>, <code>LBPL</code>, <code>LBVC</code>, <code>LBVS</code> assemble
+                  to an inverted branch over a <code>JMP</code> (5 bytes) so the target can be any distance away.</span>
+              </div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b><code>.assert</code> directive</b> <span>&mdash;
+                  <code>.assert end - start &lt;= 256, "message"</code> is checked at assembly time and fails the build
+                  (with the actual value) when it is false.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>Self-modifying-code labels</b> <span>&mdash; <code>LDA value:#$00</code> puts the label
+                  <code>value</code> on the operand byte, so <code>STA value</code> patches it &mdash; no
+                  <code>instruction+1</code> label needed.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>Friendlier branch errors</b> <span>&mdash; an out-of-range branch reports exactly how far it
+                  overshoots and suggests the matching <code>LBxx</code> long branch.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- V2.3.8: WORKSPACES AND LOCALIZATION -->
+    <div id="release-238" style="background:var(--bg);padding:80px 0">
+      <div class="sec about-grid" style="padding-top:0;padding-bottom:0">
+        <div>
+          <div class="ub-tag">NEW IN V2.3.8</div>
+          <div class="sec-s">// PICK UP WHERE YOU LEFT OFF</div>
+          <h2 class="sec-t">WORKSPACES, LOCALIZED UB DOCS<br><span style="color:var(--ylw)">AND A LEANER EDITOR</span>
+          </h2>
+          <p class="sec-d">Version 2.3.8 remembers your open files, translates the Ultimate Basic command reference, and
+            fixes a memory-growth issue in long sessions with many tabs open.</p>
+          <div class="feature-list">
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>Workspace save / open</b> <span>&mdash; save the exact set of open file-backed tabs, the active
+                  tab and each tab's editor mode to a <code>.vaws</code> file; workspaces auto-save on change and your
+                  last one auto-restores on launch.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>Global memory panel toggle</b> <span>&mdash; show or hide the full C64 memory panel from a
+                  dedicated switch.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>Localized Ultimate Basic command reference</b> <span>&mdash; autocomplete and Commands-panel
+                  descriptions now follow the UI language (Hungarian, English, Spanish, German, Dutch), with English
+                  fallback.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>Fixed memory usage with many tabs open</b> <span>&mdash; per-tab undo/redo history is now capped,
+                  so long sessions with many open documents no longer grow memory unbounded.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>Corrected KERNAL reference</b> <span>&mdash; fixed the <code>SETLFS</code> and <code>PLOT</code>
+                  entries in the disassembler's KERNAL address table.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>Leaner editor toolbar</b> <span>&mdash; removed redundant breakpoint buttons from Expert/UB (still
+                  set via the line-number gutter) and aligned the Expert toolbar height with Ultimate Basic.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="div">
+
+    <!-- V2.3.7: DEBUGGING AND EDITING -->
+    <div id="release-237" style="background:var(--scr-darker);padding:80px 0">
+      <div class="sec about-grid" style="padding-top:0;padding-bottom:0">
+        <div>
+          <div class="ub-tag">INTRODUCED IN V2.3.7</div>
+          <div class="sec-s">// DEBUG WITH SOURCE CONTEXT</div>
+          <h2 class="sec-t">BREAKPOINTS, HISTORY<br><span style="color:var(--ylw)">AND BUILD-ACCURATE OUTPUT</span></h2>
+          <p class="sec-d">Version 2.3.7 connects every editor mode to RetroDebugger with exact source addresses, while
+            adding faster block editing and clearer machine-code inspection.</p>
+          <div class="feature-list">
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>Breakpoints in all three modes</b> <span>&mdash; the external RetroDebugger replaces the limited
+                  embedded UB debugger; Block, Expert and Ultimate Basic source locations resolve to executable
+                  addresses with matching labels and source maps.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>SYS-aware debugger launch</b> <span>&mdash; BASIC programs use automatic SYS startup; plain PRGs
+                  use their actual load address.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>Undo, Redo and multi-select</b> <span>&mdash; edit, copy, move and remove groups of blocks without
+                  losing region structure.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>Optional BASIC stub display</b> <span>&mdash; inspect the real <code>$0801</code> SYS stub in
+                  Disassembler and Monitor views.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>Ultimate Basic Monitor</b> <span>&mdash; view compiler output as a live memory dump beside the UB
+                  editor.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>Editor alignment fixes</b> <span>&mdash; stable carets, blank-line navigation, minimap bounds and
+                  line-number alignment.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </details>
+
+  <hr class="div">
+
+  <!-- BUILD CRT: MAGIC DESK CARTRIDGE -->
+  <div id="build-crt" style="background:var(--bg);padding:80px 0">
+    <div class="sec about-grid" style="padding-top:0;padding-bottom:0">
+      <div>
+        <div class="ub-tag">INTRODUCED IN V2.3.6</div>
+        <div class="sec-s">// CARTRIDGE EXPORT</div>
+        <h2 class="sec-t">BUILD CRT<br><span style="color:var(--ylw)">MAGIC DESK 64K CARTRIDGE</span></h2>
+        <p class="sec-d">One click and your program becomes a Commodore 64 cartridge image. Menu &rarr; Build &rarr;
+          Build CRT packs the current tab into a Magic Desk (type 19) <code>.crt</code> file with 8 &times; 8&nbsp;KB
+          banks and a small bank-0 loader that copies the payload into RAM and jumps to the entry point. Nothing else to
+          configure.</p>
+        <div class="feature-list">
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>All three modes</b> <span>&mdash; works from block mode, Expert mode and Ultimate Basic mode.</span>
+            </div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Up to 64K payload</b> <span>&mdash; 8 banks &times; 8&nbsp;KB, max 65 408 bytes after the loader
+                header.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Widely compatible</b> <span>&mdash; runs on VICE, TheC64, EasyFlash, Kung Fu Flash, 1541 Ultimate
+                II+ and Ultimate 64.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Any origin</b> <span>&mdash; the loader honours the PRG load address, so <code>$0801</code>,
+                <code>$C000</code> and multi-ORG builds all work.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Safe cart-off exit</b> <span>&mdash; an 8-byte exit stub is copied to <code>$0100</code> so
+                unmapping the cartridge cannot interrupt the fetch.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="about-right cartridge-shot">
+        <div class="screen-wrap">
+          <img src="uploads/magic-desk-64k-cartridge.png" alt="Magic Desk 64K cartridge for Commodore 64">
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="foot-copy">MIT LICENSE — FREE & OPEN SOURCE</div>
-</div>
-</footer>
 
-<script>
-function openItch(){
-  const w=900,h=700,l=Math.round((screen.width-w)/2),t=Math.round((screen.height-h)/2);
-  window.open('https://zstarczali.itch.io/visual-assembler-commodore-64/purchase','itch_dl',
-    'width='+w+',height='+h+',left='+l+',top='+t+',toolbar=0,menubar=0,location=0,status=0,scrollbars=1');
-}
+  <hr class="div">
 
-function showTab(id){
-  document.querySelectorAll('.tab').forEach(t=>{
-    t.classList.toggle('on',t.dataset.tab===id);
-  });
-  document.querySelectorAll('.tab-panel').forEach(p=>{
-    p.classList.toggle('on',p.id==='tab-'+id);
-  });
-}
+  <!-- ULTIMATE BASIC MODE OVERVIEW -->
+  <div id="ultimate-basic" style="background:var(--scr-darker);padding:80px 0">
+    <div class="sec about-grid" style="padding-top:0;padding-bottom:0">
+      <div>
+        <div class="ub-tag">CORE FEATURE</div>
+        <div class="sec-s">// ULTIMATE BASIC MODE</div>
+        <h2 class="sec-t">ULTIMATE BASIC<br><span style="color:var(--ylw)">A COMPLETE IDE MODE</span></h2>
+        <p class="sec-d">Fire up Ultimate Basic right inside C64 Visual Assembler. Write some code, keep your project
+          files together, build a PRG and send it straight to your favourite C64 setup &mdash; all from one place.</p>
+        <div class="feature-list">
+          <div class="fi">
+            <div class="fi-dot">►</div>
+            <div><b>Native .UB editor</b> <span>&mdash; open a source, start typing and get on with the fun part.</span>
+            </div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">►</div>
+            <div><b>Projects + startup file</b> <span>&mdash; keep multi-file productions tidy and pick what boots
+                first.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">►</div>
+            <div><b>Build, run and debug</b> <span>&mdash; compile it, launch it and chase the bugs without hopping
+                between tools.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">►</div>
+            <div><b>Source breakpoints + Monitor</b> <span>&mdash; set line breakpoints for RetroDebugger and inspect
+                compiler bytes in the built-in memory view.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">►</div>
+            <div><b>ASM sidecars + disassembly copy</b> <span>&mdash; peek under the hood, keep the generated ASM and
+                grab the disassembly when you need it.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">►</div>
+            <div><b>Separate working folder</b> <span>&mdash; point UB at your includes and binary goodies without
+                messing with the VA project folder.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">►</div>
+            <div><b>Every C64 target</b> <span>&mdash; fire it up in VICE, send it to a C64 Ultimate, build a D64 or
+                squeeze it with Exomizer.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">►</div>
+            <div><b>Built-in UB manual</b> <span>&mdash; the language reference is always one click away when your
+                memory needs a poke.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="about-right ub-shot">
+        <div class="screen-wrap">
+          <img src="uploads/ub.png" alt="Ultimate Basic IDE in C64 Visual Assembler">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- ABOUT -->
+  <div style="background:var(--bg);padding:80px 0">
+    <div class="sec about-grid" style="padding-top:0;padding-bottom:0">
+      <div>
+        <div class="sec-s">// WHAT IS IT</div>
+        <h2 class="sec-t">THE POWER OF 6502<br>MADE VISUAL</h2>
+        <div class="sec-callout">COMMODORE 64 ULTIMATE + ULTIMATE ELITE 64 + GIDEON'S ULTIMATE II+ SUPPORT</div>
+        <p class="sec-d">C64 Visual Assembler is a modern Tauri-based desktop app that lets you build authentic
+          Commodore 64 programs by arranging drag-and-drop blocks — while seeing the generated assembly and live
+          disassembly on the right.</p>
+        <div class="feature-list">
+          <div class="fi">
+            <div class="fi-dot">►</div>
+            <div><b>Block editor</b> <span>— drag mnemonics, macros and labels into a list. No hand-typing
+                required.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">►</div>
+            <div><b>Real-time ASM + Monitor output</b> <span>— every block change compiles instantly.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">►</div>
+            <div><b>Expert text mode</b> <span>— switch to a raw .asm editor with syntax highlighting and live error
+                feedback.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">►</div>
+            <div><b>VICE + RetroDebugger</b> <span>— one click to run or step through your program in the
+                emulator.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">►</div>
+            <div><b>Exomizer compression</b> <span>— crunch your PRG before launch to fit more in 64K.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="about-right">
+        <div class="screen-wrap">
+          <img src="uploads/editor.png" alt="Program blocks editor with disassembler">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- DEMO -->
+  <div style="background:var(--scr-darker);padding:80px 0;text-align:center">
+    <div class="sec" style="padding-top:0;padding-bottom:0">
+      <div class="sec-s">// SEE IT IN ACTION</div>
+      <h2 class="sec-t" style="margin-bottom:40px">C64 CUBE DEMO — BUILT WITH VISUAL ASSEMBLER</h2>
+      <div class="screen-wrap" style="max-width:900px;margin:0 auto">
+        <img src="uploads/demo.gif" alt="C64 demo built with Visual Assembler" style="width:100%;display:block">
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- FEATURES -->
+  <div class="feat-bg" id="features">
+    <div class="feat-inner">
+      <div class="sec-s">// FEATURES</div>
+      <h2 class="sec-t">EVERYTHING YOU NEED<br>FOR C64 DEVELOPMENT</h2>
+      <div class="feat-grid">
+        <div class="fc">
+          <div class="fc-ico">▓▒░ BLOCKS</div>
+          <div class="fc-t">DRAG & DROP EDITOR</div>
+          <div class="fc-d">Pick mnemonics from the palette, set operands, and arrange blocks in order. Collapse
+            regions, reorder, and annotate with labels and comments.</div>
+        </div>
+        <div class="fc">
+          <div class="fc-ico">$0801 ASM</div>
+          <div class="fc-t">REAL-TIME CODE GENERATION</div>
+          <div class="fc-d">Every block edit instantly regenerates the assembly source, machine-code hex dump, and 6502
+            disassembly. Configurable start address, BASIC SYS stub optional.</div>
+        </div>
+        <div class="fc">
+          <div class="fc-ico">60+ MACROS</div>
+          <div class="fc-t">POWERFUL MACRO LIBRARY</div>
+          <div class="fc-d">TEXT, SPRITE_INIT, WAIT_RASTER, LOOP, IF/ELSE, DEFINE, PUSH/PULL, SID, INCBIN, MAP_COPY,
+            JOYSTICK, MOUSE — and user-defined MACRO/ENDM/INVOKE.</div>
+        </div>
+        <div class="fc">
+          <div class="fc-ico">♫ SID</div>
+          <div class="fc-t">SID MUSIC EDITOR</div>
+          <div class="fc-d">3-voice tracker with ADSR envelope, filter, waveform selection and cycle-exact WebSid WASM
+            preview. Export as a full IRQ-driven C64 music player.</div>
+        </div>
+        <div class="fc">
+          <div class="fc-ico">► VICE</div>
+          <div class="fc-t">VICE INTEGRATION</div>
+          <div class="fc-d">Launch directly in the VICE C64 emulator. Supports RetroDebugger, C64 Ultimate hardware
+            upload via REST API, and D64 disk image building.</div>
+        </div>
+        <div class="fc">
+          <div class="fc-ico">∿ CURVE</div>
+          <div class="fc-t">CURVE & TABLE GENERATOR</div>
+          <div class="fc-d">Generate sine, easing, triangle, bounce and sawtooth lookup tables with a live graph and
+            bouncing-ball preview. Export as 8-bit or 16-bit lo/hi split.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS BAR -->
+  <div class="spec-bar">
+    <div class="spec-inner">
+      <div class="spec">
+        <div class="spec-n">60+</div>
+        <div class="spec-l">MACROS & MNEMONICS</div>
+      </div>
+      <div class="spec">
+        <div class="spec-n">6</div>
+        <div class="spec-l">VISUAL EDITORS</div>
+      </div>
+      <div class="spec">
+        <div class="spec-n">30+</div>
+        <div class="spec-l">SAMPLE PROJECTS</div>
+      </div>
+      <div class="spec">
+        <div class="spec-n">4</div>
+        <div class="spec-l">UI LANGUAGES</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDITORS -->
+  <div style="background:var(--bg)">
+    <div class="editors-sec" id="editors">
+      <div class="sec-s">// VISUAL EDITORS</div>
+      <h2 class="sec-t" style="margin-bottom:40px">BUILT-IN TOOLS FOR<br>EVERY C64 ASSET</h2>
+      <div class="tabs">
+        <div class="tab on" data-tab="prog" onclick="showTab('prog')">BLOCK EDITOR</div>
+        <div class="tab" data-tab="ub" onclick="showTab('ub')">ULTIMATE BASIC</div>
+        <div class="tab" data-tab="code" onclick="showTab('code')">ASM EDITOR</div>
+        <div class="tab" data-tab="sid" onclick="showTab('sid')">SID MUSIC</div>
+        <div class="tab" data-tab="sprite" onclick="showTab('sprite')">SPRITES</div>
+        <div class="tab" data-tab="map" onclick="showTab('map')">TILEMAP</div>
+        <div class="tab" data-tab="hires" onclick="showTab('hires')">GRAPHICS</div>
+        <div class="tab" data-tab="curve" onclick="showTab('curve')">CURVES</div>
+        <div class="tab" data-tab="char" onclick="showTab('char')">CHARACTERS</div>
+        <div class="tab" data-tab="charrom" onclick="showTab('charrom')">CHAR ROM</div>
+        <div class="tab" data-tab="canvas" onclick="showTab('canvas')">CHARSET CANVAS</div>
+      </div>
+      <div class="tab-panel on" id="tab-prog">
+        <img src="uploads/Screenshot 2026-08-01 191519.png" alt="Block program editor">
+        <div class="tab-cap"><span class="tab-cap-t">BLOCK PROGRAM EDITOR + ASM VIEW</span><span class="tab-cap-d">DRAG
+            BLOCKS FROM LEFT → COMPILE LIVE → RUN IN VICE</span></div>
+      </div>
+      <div class="tab-panel" id="tab-ub">
+        <img src="uploads/ub.png" alt="Ultimate Basic IDE in C64 Visual Assembler">
+        <div class="tab-cap"><span class="tab-cap-t">ULTIMATE BASIC — COMPLETE IDE MODE</span><span
+            class="tab-cap-d">EDIT .UB SOURCES, MANAGE PROJECTS, BUILD AND RUN FROM ONE WORKSPACE</span></div>
+      </div>
+      <div class="tab-panel" id="tab-code">
+        <img src="uploads/code.png" alt="Expert ASM editor">
+        <div class="tab-cap"><span class="tab-cap-t">EXPERT MODE — FULL ASM TEXT EDITOR</span><span
+            class="tab-cap-d">SYNTAX HIGHLIGHTING, LIVE ERROR FEEDBACK, FIND BAR, MINIMAP, REGIONS</span></div>
+      </div>
+      <div class="tab-panel" id="tab-sid">
+        <img src="uploads/sided.png" alt="SID music editor">
+        <div class="tab-cap"><span class="tab-cap-t">SID EDITOR — 3-VOICE TRACKER</span><span
+            class="tab-cap-d">WAVEFORM, ADSR ENVELOPE, FILTER, WEBSID WASM PREVIEW, IRQ EXPORT</span></div>
+      </div>
+      <div class="tab-panel" id="tab-sprite">
+        <img src="uploads/spriteed.png" alt="Sprite editor">
+        <div class="tab-cap"><span class="tab-cap-t">SPRITE EDITOR — FRAME-BY-FRAME ANIMATION</span><span
+            class="tab-cap-d">MONO & MULTICOLOR, FLIP/SHIFT, ONION SKIN, .BIN EXPORT</span></div>
+      </div>
+      <div class="tab-panel" id="tab-map">
+        <img src="uploads/maped.png" alt="Tilemap editor">
+        <div class="tab-cap"><span class="tab-cap-t">TILEMAP EDITOR — MULTI-LAYER MAP</span><span
+            class="tab-cap-d">CHARSET BANKS, COLOR RAM, MULTICOLOR, MAP_COPY MACRO EXPORT</span></div>
+      </div>
+      <div class="tab-panel" id="tab-hires">
+        <img src="uploads/bitmaped.png" alt="Hi-res graphics editor">
+        <div class="tab-cap"><span class="tab-cap-t">HI-RES GRAPHICS EDITOR — 320×200</span><span
+            class="tab-cap-d">PIXEL DRAWING, MULTICOLOR MODE, NATIVE .BIN EXPORT (10KB)</span></div>
+      </div>
+      <div class="tab-panel" id="tab-curve">
+        <img src="uploads/curveed.png" alt="Curve editor">
+        <div class="tab-cap"><span class="tab-cap-t">CURVE EDITOR — MATH TABLE GENERATOR</span><span
+            class="tab-cap-d">SINE, EASING, TRIANGLE, BOUNCE — 8-BIT OR 16-BIT LO/HI OUTPUT</span></div>
+      </div>
+      <div class="tab-panel" id="tab-char">
+        <img src="uploads/chared.png" alt="Character editor">
+        <div class="tab-cap"><span class="tab-cap-t">CHARACTER EDITOR — 8×8 PIXEL CHARSET</span><span
+            class="tab-cap-d">MONO & MULTICOLOR, SHIFT/FLIP TOOLS, .BIN EXPORT</span></div>
+      </div>
+      <div class="tab-panel" id="tab-charrom">
+        <img src="uploads/charrom.png" alt="Character ROM browser">
+        <div class="tab-cap"><span class="tab-cap-t">CHARACTER ROM BROWSER — BUILT-IN C64 CHARSET</span><span
+            class="tab-cap-d">BROWSE UPPERCASE/GRAPHICS AND LOWERCASE/UPPERCASE ROM CHARSETS</span></div>
+      </div>
+      <div class="tab-panel" id="tab-canvas">
+        <img src="uploads/canvased.png" alt="Charset Canvas">
+        <div class="tab-cap"><span class="tab-cap-t">CHARSET CANVAS — DRAW 256 CHARS AS ONE PICTURE</span><span
+            class="tab-cap-d">PENCIL, SPRAY, SHAPE TOOLS — SAVE CHARSET + 16×16 SCREEN/COLOR MAP</span></div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- HARDWARE SETTINGS -->
+  <div style="background:var(--bg);padding:80px 0">
+    <div class="sec about-grid" style="padding-top:0;padding-bottom:0">
+      <div class="about-right">
+        <div class="screen-wrap" style="max-width:100%">
+          <div
+            style="background:#111130;color:var(--txt-dim);font-size:10px;padding:7px 14px;letter-spacing:2px;border-bottom:1px solid var(--brd)">
+            C64VA ● HARDWARE SETTINGS</div>
+          <img src="uploads/config.png" alt="Hardware Settings — C64 Ultimate support">
+        </div>
+      </div>
+      <div>
+        <div class="sec-s">// HARDWARE INTEGRATION</div>
+        <h2 class="sec-t">C64 ULTIMATE &<br>VICE SUPPORT</h2>
+        <p class="sec-d">Configure every hardware target from one settings panel. VICE, RetroDebugger, C64 Ultimate REST
+          API, Gideon's Ultimate II+, Exomizer compression and debug sidecar generation — all in one place. Your
+          projects can run on modern C64 Ultimate systems as well as original Commodore 64 hardware from the 1980s and
+          1990s.</p>
+        <div class="feature-list">
+          <div class="fi">
+            <div class="fi-dot">►</div>
+            <div><b>C64 Ultimate</b> <span>— upload and run PRG directly on real hardware via the C64 Ultimate REST
+                API.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">►</div>
+            <div><b>Gideon's Ultimate II+</b> <span>— use Visual Assembler projects on original 1980s and 1990s C64
+                hardware with PRG, D64 and compatible cartridge builds.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">►</div>
+            <div><b>VICE + RetroDebugger</b> <span>— one-click launch with breakpoints, symbol files and monitor
+                commands.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">►</div>
+            <div><b>D64 disk images</b> <span>— build and run .d64 files via c1541, add extra files to the disk.</span>
+            </div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">►</div>
+            <div><b>Exomizer</b> <span>— optional SFX crunch before launch to squeeze every byte.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- TUTORIALS -->
+  <div style="background:var(--scr-darker);padding:80px 0" id="docs">
+    <div class="sec tut-grid" style="align-items:center">
+      <div>
+        <div class="sec-s">// LEARN</div>
+        <h2 class="sec-t">INTERACTIVE<br>TUTORIALS</h2>
+        <p class="sec-d">The built-in guided tour walks you through every UI area step by step. Structured lessons cover
+          beginner programs, sprite animation, IRQ rasters, SID music and more — with live sample links.</p>
+        <div style="margin-top:32px;display:flex;flex-direction:column;gap:10px">
+          <div class="fi">
+            <div class="fi-dot">01</div>
+            <div class="fi"><b>TOUR</b> <span>— explore the application UI areas</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">02</div>
+            <div class="fi"><b>BEGINNERS</b> <span>— your first C64 program in minutes</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">03</div>
+            <div class="fi"><b>FUNDAMENTALS</b> <span>— macros, sprites, raster, SID</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">04</div>
+            <div class="fi"><b>30+ SAMPLES</b> <span>— open and run demo projects instantly</span></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="screen-wrap">
+          <div style="position:relative">
+            <img src="uploads/tutor.png" alt="Interactive tutorials" style="width:100%;display:block">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sec docs-library" style="padding-top:0">
+      <div class="docs-head">
+        <div>
+          <div class="sec-s">// DOCUMENTATION</div>
+          <h2 class="sec-t" style="margin-bottom:0">USER MANUALS</h2>
+        </div>
+        <p>The complete searchable manual is available in English, Hungarian, German, French, Dutch, Finnish, Italian
+          and Swedish. You can switch languages inside the documentation viewer.</p>
+      </div>
+      <button class="doc-card docs-open" type="button">► OPEN DOCUMENTS</button>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- DOWNLOAD -->
+  <div class="dl-bg" id="download">
+    <div class="dl-inner">
+      <div class="dl-box">
+        <div class="dl-corner tl">┌─</div>
+        <div class="dl-corner tr">─┐</div>
+        <div class="dl-corner bl">└─</div>
+        <div class="dl-corner br">─┘</div>
+        <div class="sec-s" style="text-align:center;margin-bottom:16px">// DOWNLOAD</div>
+        <h2 class="sec-t" style="text-align:center">C64 VISUAL ASSEMBLER<br><span style="color:var(--ylw)">V2.3.9 —
+            FREE</span></h2>
+        <p class="sec-d" style="text-align:center;margin:0 auto 8px;max-width:460px">Desktop app for Windows, macOS and
+          Linux. Requires Node.js and Rust to build from source, or download a prebuilt installer.</p>
+        <div class="dl-plats">
+          <a class="dl-p btn" href="#" onclick="openItch();return false" style="border-color:var(--brd-hi)"><span
+              style="color:var(--ylw)">■</span> WINDOWS</a>
+          <a class="dl-p btn" href="#" onclick="openItch();return false" style="border-color:var(--brd-hi)"><span
+              style="color:var(--ylw)">■</span> MACOS</a>
+          <a class="dl-p btn" href="#" onclick="openItch();return false" style="border-color:var(--brd-hi)"><span
+              style="color:var(--ylw)">■</span> LINUX</a>
+        </div>
+        <div class="dl-sub">OPEN SOURCE — MIT LICENSE — BUILT WITH TAURI + RUST</div>
+        <div style="margin-top:20px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+          <a class="btn btn-o" href="https://zstarczali.itch.io/visual-assembler-commodore-64" target="_blank"
+            rel="noopener" style="font-size:12px;padding:10px 22px">⬡ VIEW ON ITCH.IO</a>
+          <a class="btn btn-o" href="https://github.com/zstarczali/VisualAssembler" target="_blank" rel="noopener"
+            style="font-size:12px;padding:10px 22px">► VIEW ON GITHUB</a>
+          <a class="btn facebook-link" href="https://www.facebook.com/groups/4435397303367080/" target="_blank"
+            rel="noopener" aria-label="Join the Visual Assembler Facebook group"
+            style="font-size:12px;padding:10px 22px">
+            <span class="facebook-icon" aria-hidden="true">f</span>
+            <span>JOIN FACEBOOK GROUP</span>
+          </a>
+          <a class="btn linkedin-link" href="https://www.linkedin.com/in/zsolttarczali" target="_blank" rel="noopener"
+            aria-label="View Zsolt Tarczali on LinkedIn" style="font-size:12px;padding:10px 22px">
+            <span class="linkedin-icon" aria-hidden="true">in</span>
+            <span>LINKEDIN</span>
+          </a>
+          <a class="btn btn-o" href="mailto:retroboj@outlook.com" aria-label="Contact Visual Assembler by email"
+            style="font-size:12px;padding:10px 22px">@ CONTACT</a>
+          <a class="btn" href="https://paypal.me/ZsoltTarczali" target="_blank" rel="noopener"
+            style="font-size:12px;padding:10px 22px;border-color:#0070ba;color:#0070ba">♥ SUPPORT DEVELOPMENT</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MERCH -->
+  <section class="merch" id="merch" aria-labelledby="merch-title">
+    <div class="merch-inner">
+      <div class="merch-head">
+        <div>
+          <div class="sec-s">// C64VA MERCH</div>
+          <h2 class="sec-t" id="merch-title">TAKE VISUAL ASSEMBLER<br>BEYOND THE SCREEN</h2>
+        </div>
+        <p class="sec-d">Mouse pad, black T-shirt and mug with the Visual Assembler design. Order directly by email and
+          we will reply with availability, sizing and delivery details.</p>
+      </div>
+      <div class="merch-grid">
+        <article class="merch-card">
+          <div class="merch-image"><img src="uploads/merch-mousepad.png"
+              alt="Visual Assembler branded black desk mouse pad" loading="lazy"></div>
+          <div class="merch-copy">
+            <div class="merch-type">DESK GEAR</div>
+            <h3 class="merch-name">VISUAL ASSEMBLER MOUSE PAD</h3>
+            <p class="merch-desc">A wide black desk pad featuring the full Visual Assembler and Commodore 77 artwork.
+            </p>
+            <a class="btn merch-order"
+              href="mailto:retroboj@outlook.com?subject=Merch%20order%20-%20Visual%20Assembler%20mouse%20pad&amp;body=Hello%2C%0A%0AI%20would%20like%20to%20order%20a%20Visual%20Assembler%20mouse%20pad.%0A%0AName%3A%0ACountry%3A%0AQuantity%3A%0A">@
+              ORDER BY EMAIL</a>
+          </div>
+        </article>
+        <article class="merch-card">
+          <div class="merch-image"><img src="uploads/merch-tshirt.png" alt="Black Visual Assembler T-shirt"
+              loading="lazy"></div>
+          <div class="merch-copy">
+            <div class="merch-type">APPAREL</div>
+            <h3 class="merch-name">BLACK VISUAL ASSEMBLER T-SHIRT</h3>
+            <p class="merch-desc">Classic black crew-neck shirt with the glowing yellow Visual Assembler emblem on the
+              front.</p>
+            <a class="btn merch-order"
+              href="mailto:retroboj@outlook.com?subject=Merch%20order%20-%20Black%20Visual%20Assembler%20T-shirt&amp;body=Hello%2C%0A%0AI%20would%20like%20to%20order%20a%20black%20Visual%20Assembler%20T-shirt.%0A%0AName%3A%0ACountry%3A%0ASize%3A%0AQuantity%3A%0A">@
+              ORDER BY EMAIL</a>
+          </div>
+        </article>
+        <article class="merch-card">
+          <div class="merch-image"><img src="uploads/merch-tshirt-wide-logo.png"
+              alt="Black Visual Assembler T-shirt with wide Commodore logo" loading="lazy"></div>
+          <div class="merch-copy">
+            <div class="merch-type">APPAREL</div>
+            <h3 class="merch-name">BLACK C64VA WIDE-LOGO T-SHIRT</h3>
+            <p class="merch-desc">A black crew-neck shirt with the wide Visual Assembler and Commodore 77 lockup across
+              the chest.</p>
+            <a class="btn merch-order"
+              href="mailto:retroboj@outlook.com?subject=Merch%20order%20-%20Black%20C64VA%20wide-logo%20T-shirt&amp;body=Hello%2C%0A%0AI%20would%20like%20to%20order%20a%20black%20C64VA%20wide-logo%20T-shirt.%0A%0AName%3A%0ACountry%3A%0ASize%3A%0AQuantity%3A%0A">@
+              ORDER BY EMAIL</a>
+          </div>
+        </article>
+        <article class="merch-card">
+          <div class="merch-image"><img src="uploads/merch-mug.png" alt="Black Visual Assembler ceramic mug"
+              loading="lazy"></div>
+          <div class="merch-copy">
+            <div class="merch-type">COFFEEWARE</div>
+            <h3 class="merch-name">VISUAL ASSEMBLER MUG</h3>
+            <p class="merch-desc">A matte black ceramic mug with the pixel-style Visual Assembler design in signature
+              yellow.</p>
+            <a class="btn merch-order"
+              href="mailto:retroboj@outlook.com?subject=Merch%20order%20-%20Visual%20Assembler%20mug&amp;body=Hello%2C%0A%0AI%20would%20like%20to%20order%20a%20Visual%20Assembler%20mug.%0A%0AName%3A%0ACountry%3A%0AQuantity%3A%0A">@
+              ORDER BY EMAIL</a>
+          </div>
+        </article>
+      </div>
+      <p class="merch-note">ORDERS ARE CONFIRMED PERSONALLY BY EMAIL. SHIPPING AND PAYMENT DETAILS FOLLOW IN THE REPLY.
+      </p>
+      <div class="wallpapers">
+        <div class="wallpapers-head">
+          <div>
+            <div class="sec-s">// FREE DOWNLOADS</div>
+            <h3 class="sec-t">VISUAL ASSEMBLER WALLPAPERS</h3>
+          </div>
+          <p class="sec-d">Bring Visual Assembler to your desktop with these free 2560 × 1440 wallpapers.</p>
+        </div>
+        <div class="wallpaper-grid">
+          <article class="wallpaper-card">
+            <div class="wallpaper-preview"><img src="uploads/wallpaper_cinematic_2k.png"
+                alt="Cinematic Visual Assembler Commodore 64 wallpaper" loading="lazy"></div>
+            <div class="wallpaper-copy">
+              <div class="wallpaper-meta">
+                <h4 class="wallpaper-name">CINEMATIC C64</h4>
+                <div class="wallpaper-size">PNG · 2560 × 1440 · 2K</div>
+              </div>
+              <a class="btn wallpaper-download" href="uploads/wallpaper_cinematic_2k.png"
+                download="visual-assembler-cinematic-2k.png">↓ DOWNLOAD</a>
+            </div>
+          </article>
+          <article class="wallpaper-card">
+            <div class="wallpaper-preview"><img src="uploads/c64_wallpaper_2560x1440.png"
+                alt="Visual Assembler and Commodore 77 desktop wallpaper" loading="lazy"></div>
+            <div class="wallpaper-copy">
+              <div class="wallpaper-meta">
+                <h4 class="wallpaper-name">CLASSIC VIBES</h4>
+                <div class="wallpaper-size">PNG · 2560 × 1440</div>
+              </div>
+              <a class="btn wallpaper-download" href="uploads/c64_wallpaper_2560x1440.png"
+                download="visual-assembler-c64-wallpaper-2560x1440.png">↓ DOWNLOAD</a>
+            </div>
+          </article>
+          <article class="wallpaper-card">
+            <div class="wallpaper-preview"><img src="uploads/c64_wallpaper_clean_final_2k.png"
+                alt="Cinematic Visual Assembler and Commodore 77 wallpaper" loading="lazy"></div>
+            <div class="wallpaper-copy">
+              <div class="wallpaper-meta">
+                <h4 class="wallpaper-name">CINEMATIC COLLAB</h4>
+                <div class="wallpaper-size">PNG · 2560 × 1440 · 2K</div>
+              </div>
+              <a class="btn wallpaper-download" href="uploads/c64_wallpaper_clean_final_2k.png"
+                download="visual-assembler-c64-clean-final-2k.png">↓ DOWNLOAD</a>
+            </div>
+          </article>
+          <article class="wallpaper-card">
+            <div class="wallpaper-preview"><img src="uploads/c64_pixel_logo_glow_dark_2k.png"
+                alt="Visual Assembler glowing pixel logo dark wallpaper" loading="lazy"></div>
+            <div class="wallpaper-copy">
+              <div class="wallpaper-meta">
+                <h4 class="wallpaper-name">PIXEL LOGO GLOW</h4>
+                <div class="wallpaper-size">PNG · 2560 × 1440 · 2K</div>
+              </div>
+              <a class="btn wallpaper-download" href="uploads/c64_pixel_logo_glow_dark_2k.png"
+                download="visual-assembler-pixel-logo-glow-dark-2k.png">↓ DOWNLOAD</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ULTIMATE BASIC REPOSITORY -->
+  <section class="ub-repo">
+    <div class="ub-repo-inner">
+      <a href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener"
+        aria-label="Open the UltimateBasic GitHub repository">
+        <img class="ub-repo-image" src="uploads/ultimate-basic-logo.png" alt="UltimateBasic for Commodore 64">
+      </a>
+      <div class="ub-repo-copy">
+        <div class="sec-s">// OPEN SOURCE COMPILER</div>
+        <h2 class="sec-t">ULTIMATE BASIC</h2>
+        <p class="sec-d">Explore the compiler source, language documentation and latest development on GitHub.</p>
+        <a class="btn btn-o" href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener">►
+          ULTIMATE BASIC REPOSITORY</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- OCTOPULOUS -->
+  <section class="octopulous" aria-labelledby="octopulous-title">
+    <div class="octopulous-inner">
+      <div class="octopulous-copy">
+        <div class="sec-s">// A FAMILY GAME PROJECT</div>
+        <h2 class="sec-t" id="octopulous-title">OCTOPULOUS</h2>
+        <p class="sec-d">This is my son's second game: Octopulous is a goofy, bite-sized sidescrolling adventure about
+          an octopus having to save his world from an unexpected evil's thirst for power.</p>
+        <a class="btn btn-o" href="https://www.owlycode.tech" target="_blank" rel="noopener">► VISIT OWLICODE.TECH</a>
+      </div>
+      <div class="octopulous-embed">
+        <iframe
+          src="https://itch.io/embed/1593496?linkback=true&amp;border_width=3&amp;bg_color=D9893E&amp;fg_color=70161f&amp;link_color=db0d00&amp;border_color=ba6a1f"
+          width="556" height="171" title="Octopulous by OwlyCode on itch.io"><a
+            href="https://therealowlycode.itch.io/octopulous">Octopulous by OwlyCode</a></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="foot-inner">
+      <div class="foot-brand">C64 VISUAL ASSEMBLER — © 2026</div>
+      <div class="foot-links">
+        <a href="https://github.com/zstarczali/VisualAssembler" target="_blank">GITHUB</a>
+        <a href="https://www.facebook.com/groups/4435397303367080/" target="_blank" rel="noopener">FACEBOOK</a>
+        <a href="#docs">DOCS</a>
+        <a href="https://github.com/zstarczali/VisualAssembler/blob/main/LICENSE" target="_blank">LICENSE</a>
+        <a href="#editors">SAMPLES</a>
+      </div>
+      <div class="foot-copy">MIT LICENSE — FREE & OPEN SOURCE</div>
+    </div>
+  </footer>
+
+  <script>
+    function openItch() {
+      const w = 900, h = 700, l = Math.round((screen.width - w) / 2), t = Math.round((screen.height - h) / 2);
+      window.open('https://zstarczali.itch.io/visual-assembler-commodore-64/purchase', 'itch_dl',
+        'width=' + w + ',height=' + h + ',left=' + l + ',top=' + t + ',toolbar=0,menubar=0,location=0,status=0,scrollbars=1');
+    }
+
+    function showTab(id) {
+      document.querySelectorAll('.tab').forEach(t => {
+        t.classList.toggle('on', t.dataset.tab === id);
+      });
+      document.querySelectorAll('.tab-panel').forEach(p => {
+        p.classList.toggle('on', p.id === 'tab-' + id);
+      });
+    }
 
 
-document.querySelector('.docs-open').addEventListener('click',()=>{
-  const languages=['en','hu','de','fr','nl','fi','it','sv'];
-  const saved=document.cookie.split('; ').find(row=>row.startsWith('va_docs_lang='))?.split('=')[1];
-  const language=languages.includes(saved)?saved:'en';
-  const url=new URL('docs.html',location.href);
-  url.searchParams.set('doc',language);
-  const cookies=Object.fromEntries(document.cookie.split('; ').filter(Boolean).map(row=>{const separator=row.indexOf('=');return [row.slice(0,separator),row.slice(separator+1)]}));
-  const savedWidth=parseInt(cookies.va_docs_width,10);
-  const savedHeight=parseInt(cookies.va_docs_height,10);
-  const width=Math.min(Math.max(Number.isFinite(savedWidth)?savedWidth:1220,640),screen.availWidth-40);
-  const height=Math.min(Math.max(Number.isFinite(savedHeight)?savedHeight:900,480),screen.availHeight-60);
-  const left=Math.max(0,Math.round((screen.availWidth-width)/2));
-  const top=Math.max(0,Math.round((screen.availHeight-height)/2));
-  const popup=window.open(url.href,'va_documentation','popup=yes,width='+width+',height='+height+',left='+left+',top='+top+',resizable=yes,scrollbars=no');
-  if(!popup) location.href=url.href;
-});
+    document.querySelector('.docs-open').addEventListener('click', () => {
+      const languages = ['en', 'hu', 'de', 'fr', 'nl', 'fi', 'it', 'sv'];
+      const saved = document.cookie.split('; ').find(row => row.startsWith('va_docs_lang='))?.split('=')[1];
+      const language = languages.includes(saved) ? saved : 'en';
+      const url = new URL('docs.html', location.href);
+      url.searchParams.set('doc', language);
+      const cookies = Object.fromEntries(document.cookie.split('; ').filter(Boolean).map(row => { const separator = row.indexOf('='); return [row.slice(0, separator), row.slice(separator + 1)] }));
+      const savedWidth = parseInt(cookies.va_docs_width, 10);
+      const savedHeight = parseInt(cookies.va_docs_height, 10);
+      const width = Math.min(Math.max(Number.isFinite(savedWidth) ? savedWidth : 1220, 640), screen.availWidth - 40);
+      const height = Math.min(Math.max(Number.isFinite(savedHeight) ? savedHeight : 900, 480), screen.availHeight - 60);
+      const left = Math.max(0, Math.round((screen.availWidth - width) / 2));
+      const top = Math.max(0, Math.round((screen.availHeight - height) / 2));
+      const popup = window.open(url.href, 'va_documentation', 'popup=yes,width=' + width + ',height=' + height + ',left=' + left + ',top=' + top + ',resizable=yes,scrollbars=no');
+      if (!popup) location.href = url.href;
+    });
 
-// Open the collapsed release-history block when a link targets a section inside it.
-(function(){
-  function revealHash(){
-    var h=location.hash.slice(1); if(!h) return;
-    var el=document.getElementById(h); if(!el) return;
-    var d=el.closest('details'); if(d&&!d.open){ d.open=true; el.scrollIntoView(); }
-  }
-  window.addEventListener('hashchange',revealHash);
-  revealHash();
-})();
-</script>
+    // Open the collapsed release-history block when a link targets a section inside it.
+    (function () {
+      function revealHash() {
+        var h = location.hash.slice(1); if (!h) return;
+        var el = document.getElementById(h); if (!el) return;
+        var d = el.closest('details'); if (d && !d.open) { d.open = true; el.scrollIntoView(); }
+      }
+      window.addEventListener('hashchange', revealHash);
+      revealHash();
+    })();
+  </script>
 </body>
+
 </html>
