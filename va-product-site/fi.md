@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.4.0**
+**Versio 2.4.1**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin reaaliajassa.
 
@@ -9,9 +9,9 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 ## Sisällysluettelo
 
 - [C64 Visual Assembler — Käyttöopas](#c64-visual-assembler--user-manual)
+    - [Version 2.4.1 kohokohdat](#version-241-highlights)
     - [Version 2.4.0 kohokohdat](#version-240-highlights)
     - [Version 2.3.9 kohokohdat](#version-239-highlights)
-    - [Version 2.3.8 kohokohdat](#version-238-highlights)
   - [Sisällysluettelo](#table-of-contents)
   - [1. Käyttöliittymän yleiskatsaus](#1-interface-overview)
   - [2. Lohkopaletti](#2-block-palette)
@@ -155,6 +155,14 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 
 ---
 
+## Version 2.4.1 kohokohdat
+
+- **Puolan ja italian käyttöliittymäkielet** — täydellinen käyttöliittymän käännös (valikot, valintaikkunat, muistisääntökuvaukset, Ultimate Basic -komentoluettelo) olemassa olevien unkarin, englannin, espanjan, saksan ja hollannin rinnalle.
+- **Online-ohjeen työkalupalkin painike** — uusi kuvakepainike, joka avautuu Debugin jälkeen ja avaa monikielisen dokumentaatiosivuston ([c64va.tech/docs.html](https://www.c64va.tech/docs.html)) suoraan sovelluksesta.
+- **Keskitetyt muistisääntökuvaukset:** kielikohtaisia muistisääntökuvauksia siirrettiin jaettuun käännöstiedostoon muiden käyttöliittymämerkkijonojen rinnalle. Korjaa myös pitkäaikaisen virheen, jossa kielten `PRINT`, `PRINT_HEX`, `CLEAR_SCREEN`, `WAIT_KEY`, `SET_BORDER`, `SET_BG`, `IRQ_SETUP` ja `RAND` englanninkieliset kuvaukset korvattiin hiljaisesti jäljelle jääneellä espanjankielisellä tekstillä.
+
+---
+
 ## Version 2.4.0 kohokohdat
 
 - **D64-editori** — täysimittainen levykuvaselain työkalupalkissa (käyräeditorin jälkeen). Avaa olemassa oleva `.d64`, luo uusi tyhjä levy tai käynnistä nykyinen levy suoraan VICE-ohjelmaan. Kaikki tämä Tiedostot ▾ -valikosta, joka vastaa muita visuaalisia editoreita. Katso [D64-editori (olemassa olevan levykuvan selaaminen ja muokkaaminen)](#d64-editor-browse--edit-an-existing-disk-image).
@@ -177,18 +185,6 @@ Viisi assembler-ominaisuutta, joita kaikkia voi käyttää asiantuntijatilan tek
 - **`.assert` direktiivi** — `.assert loppu - alku &lt;= 256` tai `.assert * &lt; $A000, "viesti"` arvioidaan kokoonpanovaiheessa ja kääntäminen epäonnistuu (näyttäen todellisen arvon), kun lauseke on epätosi. Katso [.ASSERT](#assert).
 - **Itsemuokkaavan koodin operandin nimikkeet** — `LDA-arvo:#$00` määrittää nimikkeen `arvo`, joka osoittaa käskyn operanditavuun, joten `STA-arvo` korjaa sen suoraan. Katso [Itsemuokkaavan koodin operandin nimikkeet](#self-modifying-code-operand-labels).
 - **Ystävällisemmät kantaman ulkopuoliset haaravirheet** — haara, joka laskeutuu −128…+127:n ulkopuolelle, raportoi nyt tarkalleen, kuinka paljon se ylittää alueen ja ehdottaa vastaavaa `LBxx` pitkää haaraa.
-
----
-
-## Version 2.3.8 kohokohdat
-
-- **Työtilan tallennus / avaaminen:** tallentaa tarkan joukon avoimia tiedostovarmuuskopioituja välilehtiä – mukaan lukien aktiivisen välilehden ja kunkin välilehden editoritilan – `.vaws`-työtilatiedostoon. Työtilat tallentuvat automaattisesti muutoksen yhteydessä, ja sovellus palauttaa automaattisesti viimeisimmän työtilan käynnistyksen yhteydessä.
-- **Yleisen muistipaneelin vaihto:** näytä tai piilota koko C64-muistipaneeli erilliseltä käyttöliittymäkytkimeltä.
-- **Lokalisoitu Ultimate Basicin komentoviite:** Automaattisen täydennyksen ponnahdusikkunan ja komentopaneelin komentokuvaukset noudattavat nyt nykyistä käyttöliittymän kieltä (unkari, englanti, espanja, saksa, hollanti) ja vaihtoehtona on englanti.
-- **Päivitetty Ultimate Basic -grafiikkadokumentaatio:** `VÄRIKYNÄ` ja plot/line/suorrakulma/ympyrä- ja moniväripiirtokomentojen ohjetekstit vastaavat nyt kääntäjän nykyistä toimintaa.
-- **Korjattu KERNAL-viittaus:** korjasi `SETLFS`- ja `PLOT`-merkinnät (osoitteet ja kutsutavat käytännöt) purkajan KERNAL-osoitetaulukossa.
-- **Korjattu muistin käyttö useiden avoinna olevien välilehtien aikana:** Välilehtikohtainen kumoamis-/uudelleentoimintohistoria on nyt rajattu (pienellä palautumiskertoimella), mikä estää rajattoman muistin kasvun, jonka pitkä istunto useiden avoinna olevien dokumenttien kanssa aiemmin aiheutti.
-- **Editorin työkalupalkin siivous:** poisti tarpeettomat keskeytyskohtien vaihtopainikkeet Expert- ja Ultimate Basic -työkaluriveistä (keskeytyskohdat asetetaan edelleen rivinumerovälin perusteella) ja tasasi Expert-työkalupalkin korkeuden Ultimate Basic -työkalupalkin korkeuteen.
 
 ---
 
@@ -1023,7 +1019,7 @@ Kuten **PRINT AT** — kirjoittaa tekstiä suoraan C64-näytölle tiettyyn sarak
 | Tarra (valinnainen)         | Määrittää laskettuun näyttöosoitteeseen osoittavan otsikon |
 | Pienten kirjainten merkistö | Valintaruutu – katso alla                                  |
 
-**Merkistötilat:**
+** Merkistötilat:**
 
 C64:ssä on kaksi merkistöä, jotka voidaan valita ajonaikana:
 
@@ -1192,7 +1188,7 @@ Kuten **RAWBYTES, mutta KERNAL-tulosteelle** — koodaa merkkijonon PETSCII-tavu
 | Tarra (valinnainen)      | Määrittää kohdeosoitteeseen osoittavan tunnisteen                |
 | Pienet PETSCII-kirjaimet | Valintaruutu – katso alla                                        |
 
-**Merkistötilat:**
+** Merkistötilat:**
 
 | Tila                                    | Isojen kirjainten syöttö (`A`–`Z`)                                                                                        | Pienten kirjainten syöttö (`a`–`z`) |
 | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |

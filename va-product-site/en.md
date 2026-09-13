@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.4.0**
+**Version 2.4.1**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,9 +9,9 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.4.1 Highlights](#version-241-highlights)
     - [Version 2.4.0 Highlights](#version-240-highlights)
     - [Version 2.3.9 Highlights](#version-239-highlights)
-    - [Version 2.3.8 Highlights](#version-238-highlights)
   - [Table of Contents](#table-of-contents)
   - [1. Interface Overview](#1-interface-overview)
   - [2. Block Palette](#2-block-palette)
@@ -155,6 +155,14 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ---
 
+## Version 2.4.1 Highlights
+
+- **Polish and Italian UI languages** — full interface translation (menus, dialogs, mnemonic descriptions, Ultimate Basic command reference) alongside the existing Hungarian, English, Spanish, German and Dutch.
+- **Online Help toolbar button** — a new icon button after Debug opens the multi-language documentation site ([c64va.tech/docs.html](https://www.c64va.tech/docs.html)) directly from the app.
+- **Centralized mnemonic descriptions:** per-language mnemonic descriptions moved into the shared translation file alongside the rest of the UI strings. Also fixes a longstanding bug where the English descriptions for `PRINT`, `PRINT_HEX`, `CLEAR_SCREEN`, `WAIT_KEY`, `SET_BORDER`, `SET_BG`, `IRQ_SETUP` and `RAND` were silently overwritten by leftover Spanish text.
+
+---
+
 ## Version 2.4.0 Highlights
 
 - **D64 Editor** — a full disk-image browser on the toolbar (after the Curve Editor). Open an existing `.d64`, create a new blank one, or launch the current disk straight into VICE, all from a Files ▾ menu matching the other visual editors. See [D64 Editor (browse & edit an existing disk image)](#d64-editor-browse--edit-an-existing-disk-image).
@@ -177,18 +185,6 @@ Five assembler quality-of-life features, all usable in Expert mode text and (whe
 - **`.assert` directive** — `.assert end - start <= 256` or `.assert * < $A000, "message"` is evaluated at assembly time and fails the build (showing the actual value) when the expression is false. See [.ASSERT](#assert).
 - **Self-modifying-code operand labels** — `LDA value:#$00` defines the label `value` pointing at the instruction's operand byte, so `STA value` patches it directly. See [Self-modifying-code operand labels](#self-modifying-code-operand-labels).
 - **Friendlier out-of-range branch errors** — a branch that lands outside −128…+127 now reports exactly how far it overshoots and suggests the matching `LBxx` long branch.
-
----
-
-## Version 2.3.8 Highlights
-
-- **Workspace save / open:** save the exact set of open file-backed tabs — including the active tab and each tab's editor mode — to a `.vaws` workspace file. Workspaces auto-save on change, and the app auto-restores your last workspace on launch.
-- **Global memory panel toggle:** show or hide the full C64 memory panel from a dedicated UI switch.
-- **Localized Ultimate Basic command reference:** command descriptions in the autocomplete popup and the Commands panel now follow the current UI language (Hungarian, English, Spanish, German, Dutch), with English fallback.
-- **Refreshed Ultimate Basic graphics docs:** `COLOR PEN` and the plot/line/rect/circle and multicolor drawing command help text now match current compiler behavior.
-- **Fixed KERNAL reference:** corrected the `SETLFS` and `PLOT` entries (addresses and calling conventions) in the disassembler's KERNAL address table.
-- **Fixed memory usage with many tabs open:** per-tab undo/redo history is now capped (with a small debounce), preventing the unbounded memory growth that a long session with many open documents used to cause.
-- **Editor toolbar cleanup:** removed the redundant breakpoint toggle buttons from the Expert and Ultimate Basic toolbars (breakpoints are still set from the line-number gutter), and aligned the Expert toolbar height with the Ultimate Basic toolbar.
 
 ---
 

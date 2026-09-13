@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**2.4.0 verzió**
+**2.4.1-es verzió**
 
 Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat létre húzással és elengedéssel (fogd és vidd) utasításblokkokkal, és valós időben tekintheti meg a létrehozott assembly és gépi kódot.
 
@@ -9,9 +9,9 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
 ## Tartalomjegyzék
 
 - [C64 Visual Assembler — Felhasználói kézikönyv](#c64-visual-assembler--user-manual)
+    - [2.4.1-es verzió – kiemelt funkciók](#version-241-highlights)
     - [2.4.0 verzió – kiemelt funkciók](#version-240-highlights)
     - [2.3.9-es verzió – kiemelt funkciók](#version-239-highlights)
-    - [2.3.8-as verzió kiemelt funkciói](#version-238-highlights)
   - [Tartalomjegyzék](#table-of-contents)
   - [1. Felület áttekintése](#1-interface-overview)
   - [2. Blokk paletta](#2-block-palette)
@@ -155,6 +155,14 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
 
 ---
 
+## A 2.4.1-es verzió legfontosabb elemei
+
+- **Lengyel és olasz felhasználói felület nyelvei** — teljes felület fordítása (menük, párbeszédablakok, emlékeztető leírások, Ultimate Basic parancsreferencia) a meglévő magyar, angol, spanyol, német és holland mellett.
+- **Online súgó eszköztár gomb** — egy új ikon gomb a Debug után, amely közvetlenül az alkalmazásból nyitja meg a többnyelvű dokumentációs webhelyet ([c64va.tech/docs.html](https://www.c64va.tech/docs.html)).
+- **Központosított mnemonikus leírások:** A nyelvenkénti mnemonikus leírások átkerültek a megosztott fordítási fájlba a felhasználói felület többi karakterláncával együtt. Kijavít egy régóta fennálló hibát is, amely miatt a `PRINT`, `PRINT_HEX`, `CLEAR_SCREEN`, `WAIT_KEY`, `SET_BORDER`, `SET_BG`, `IRQ_SETUP` és `RAND` angol leírásait csendben felülírta a megmaradt spanyol szöveg.
+
+---
+
 ## A 2.4.0 verzió legfontosabb elemei
 
 - **D64 szerkesztő** — egy teljes értékű lemezkép-böngésző az eszköztáron (a Görbeszerkesztő után). Nyisson meg egy meglévő `.d64` fájlt, hozzon létre egy új üres lemezt, vagy indítsa el az aktuális lemezt közvetlenül a VICE-ba, mindezt a Fájlok ▾ menüből, a többi vizuális szerkesztőhöz hasonlóan. Lásd: [D64 szerkesztő (meglévő lemezkép böngészése és szerkesztése)](#d64-editor-browse--edit-an-existing-disk-image).
@@ -177,18 +185,6 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
 - **`.assert` direktive** — `.assert end - start &lt;= 256` vagy `.assert * &lt; $A000, A "message"` üzenet kiértékelése az összeszerelési időben történik, és a build meghiúsul (a tényleges értéket mutatja), ha a kifejezés hamis. Lásd: [.ASSERT](#assert).
 - **Önmódosító kód operandus címkéi** — `LDA érték:#$00` határozza meg az `érték` címkét, amely az utasítás operandus bájtjára mutat, így az `STA érték` közvetlenül azt foltozza. Lásd: [Önmódosító kód operandus címkéi](#self-modifying-code-operand-labels).
 - **Barátságosabb „tartományon kívüli” ághibák** — a −128…+127 tartományon kívülre eső ág mostantól pontosan jelzi, hogy mennyire túllépi a határt, és javaslatot tesz a megfelelő `LBxx` hosszú ágra.
-
----
-
-## A 2.3.8-as verzió legfontosabb elemei
-
-- **Munkaterület mentése / megnyitása:** A megnyitott, fájllal védett lapok pontos készletét – beleértve az aktív lapot és az egyes lapok szerkesztőmódját is – egy `.vaws` munkaterület-fájlba menti. A munkaterületek automatikusan mentésre kerülnek módosításkor, és az alkalmazás indításkor automatikusan visszaállítja az utolsó munkaterületet.
-- **Globális memória panel kapcsoló:** A teljes C64 memória panel megjelenítése vagy elrejtése egy dedikált felhasználói felület kapcsolóval.
-- **Lokalizált Ultimate Basic parancsreferencia:** Az automatikus kiegészítés felugró ablakában és a Parancsok panelen található parancsleírások mostantól a felhasználói felület jelenlegi nyelvét (magyar, angol, spanyol, német, holland) követik, angol nyelvű tartalékkal.
-- **Frissített Ultimate Basic grafikai dokumentációk:** `SZÍNES TOLL` és a plot/line/tégl/kör és többszínű rajzolási parancsok súgószövege mostantól megfelel a jelenlegi fordító viselkedésének.
-- **Kijavított KERNAL hivatkozás:** kijavította a `SETLFS` és `PLOT` bejegyzéseket (címek és hívási konvenciók) a szétszerelő KERNAL címtáblázatában.
-- **Kijavított memóriahasználat sok megnyitott lap esetén:** A laponkénti visszavonási/ismétlési előzmények mostantól korlátozottak (kis visszapattanással), megakadályozva a korlátlan memórianövekedést, amelyet korábban a sok megnyitott dokumentummal járó hosszú munkamenet okozott.
-- **Szerkesztő eszköztár tisztítása:** eltávolítottuk a redundáns töréspont-váltó gombokat a Szakértő és az Ultimate Basic eszköztárakról (a töréspontok továbbra is a sorszámozási kötőtűből állíthatók be), és a Szakértő eszköztár magasságát az Ultimate Basic eszköztár magasságához igazítottuk.
 
 ---
 

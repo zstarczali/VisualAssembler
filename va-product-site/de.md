@@ -1,6 +1,6 @@
 # C64 Visual Assembler – Benutzerhandbuch
 
-**Version 2.4.0**
+**Version 2.4.1**
 
 Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Sie Programme durch Ziehen und Ablegen von Befehlsblöcken und sehen Sie den generierten Assembler- und Maschinencode in Echtzeit.
 
@@ -9,9 +9,9 @@ Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Si
 ## Inhaltsverzeichnis
 
 - [C64 Visual Assembler — Benutzerhandbuch](#c64-visual-assembler--user-manual)
+    - [Version 2.4.1 Highlights](#version-241-highlights)
     - [Version 2.4.0 Highlights](#version-240-highlights)
     - [Version 2.3.9 Highlights](#version-239-highlights)
-    - [Version 2.3.8 Highlights](#version-238-highlights)
   - [Inhaltsverzeichnis](#table-of-contents)
   - [1. Schnittstellenübersicht](#1-interface-overview)
   - [2. Blockpalette](#2-block-palette)
@@ -155,6 +155,14 @@ Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Si
 
 ---
 
+## Highlights der Version 2.4.1
+
+- **Polnische und italienische UI-Sprachen** — vollständige Übersetzung der Benutzeroberfläche (Menüs, Dialoge, mnemonische Beschreibungen, Ultimate Basic-Befehlsreferenz) neben den bereits vorhandenen ungarischen, englischen, spanischen, deutschen und niederländischen.
+- **Online-Hilfe-Symbolleistenschaltfläche** — eine neue Symbolschaltfläche, die nach dem Debuggen die mehrsprachige Dokumentationsseite ([c64va.tech/docs.html](https://www.c64va.tech/docs.html)) direkt aus der App öffnet.
+- **Zentralisierte Tastenkombinationen:** Die sprachspezifischen Tastenkombinationen wurden zusammen mit den übrigen UI-Texten in die gemeinsame Übersetzungsdatei verschoben. Außerdem wird ein langjähriger Fehler behoben, bei dem die englischen Beschreibungen für `PRINT`, `PRINT_HEX`, `CLEAR_SCREEN`, `WAIT_KEY`, `SET_BORDER`, `SET_BG`, `IRQ_SETUP` und `RAND` stillschweigend durch übrig gebliebenen spanischen Text überschrieben wurden.
+
+---
+
 ## Highlights der Version 2.4.0
 
 - **D64-Editor** – ein vollständiger Disk-Image-Browser in der Symbolleiste (nach dem Kurveneditor). Öffnen Sie ein vorhandenes `.d64`, erstellen Sie ein neues, leeres oder starten Sie die aktuelle Disk direkt in VICE. Dies ist jeweils über das Menü „Dateien ▾“ möglich, analog zu den anderen visuellen Editoren. Siehe [D64-Editor (vorhandenes Disk-Image durchsuchen und bearbeiten)](#d64-editor-browse--edit-an-existing-disk-image).
@@ -177,18 +185,6 @@ Fünf Assembler-Funktionen zur Verbesserung der Benutzerfreundlichkeit, die alle
 - Die Direktive **`.assert`** — `.assert end - start &lt;= 256` oder `.assert * &lt; $A000, "message"` wird zur Assemblierungszeit ausgewertet und führt zu einem Build-Fehler (mit Anzeige des tatsächlichen Werts), wenn der Ausdruck falsch ist. Siehe [.ASSERT](#assert).
 - **Selbstmodifizierende Code-Operandenbezeichnungen** — `LDA Wert:#$00` definiert die Bezeichnung `Wert`, die auf das Operandenbyte der Anweisung zeigt, sodass `STA Wert` diese direkt überschreibt. Siehe [Selbstmodifizierende Code-Operandenbezeichnungen](#self-modifying-code-operand-labels).
 - **Freundlichere Fehler bei Verzweigungen außerhalb des Bereichs** — eine Verzweigung, die außerhalb von −128…+127 landet, meldet nun genau, wie weit sie den Bereich überschreitet, und schlägt die passende lange Verzweigung `LBxx` vor.
-
----
-
-## Highlights der Version 2.3.8
-
-- **Arbeitsbereich speichern/öffnen:** speichert die exakte Menge der geöffneten, dateibasierten Tabs – einschließlich des aktiven Tabs und des Bearbeitungsmodus jedes Tabs – in einer `.vaws` Arbeitsbereichsdatei. Arbeitsbereiche werden bei Änderungen automatisch gespeichert, und die App stellt beim Start automatisch Ihren letzten Arbeitsbereich wieder her.
-- **Globaler Speicherpanel-Umschalter:** Das vollständige C64-Speicherpanel kann über einen dedizierten UI-Schalter ein- oder ausgeblendet werden.
-- **Lokalisierte Ultimate Basic-Befehlsreferenz:** Die Befehlsbeschreibungen im Autocomplete-Popup und im Befehlsfeld folgen nun der aktuellen UI-Sprache (Ungarisch, Englisch, Spanisch, Deutsch, Niederländisch), wobei Englisch als Fallback dient.
-- **Aktualisierte Grafikdokumentation für Ultimate Basic:** `FARBSTIFT` und der Hilfetext für die Befehle zum Zeichnen von Plots, Linien, Rechtecken, Kreisen und Mehrfarbenzeichnungen entsprechen nun dem aktuellen Verhalten des Compilers.
-- **Fixed KERNAL reference:** corrected the `SETLFS` and `PLOT` entries (addresses and calling conventions) in the disassembler's KERNAL address table.
-- **Behobene Speichernutzung bei vielen geöffneten Tabs:** Der Verlauf von Rückgängigmachen/Wiederherstellen pro Tab ist jetzt begrenzt (mit einer kleinen Entprellung), wodurch das unbegrenzte Speicherwachstum verhindert wird, das eine lange Sitzung mit vielen geöffneten Dokumenten früher verursachte.
-- **Bereinigung der Editor-Symbolleiste:** Die überflüssigen Haltepunkt-Umschaltknöpfe wurden aus den Symbolleisten Expert und Ultimate Basic entfernt (Haltepunkte werden weiterhin über die Zeilennummernleiste gesetzt), und die Höhe der Expert-Symbolleiste wurde an die Höhe der Ultimate Basic-Symbolleiste angepasst.
 
 ---
 

@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.4.0**
+**Version 2.4.1**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att dra och släppa instruktionsblock och se den genererade assemblern och maskinkoden i realtid.
 
@@ -9,9 +9,9 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
 ## Innehållsförteckning
 
 - [C64 Visual Assembler — Användarmanual](#c64-visual-assembler--user-manual)
+    - [Höjdpunkter i version 2.4.1](#version-241-highlights)
     - [Höjdpunkter i version 2.4.0](#version-240-highlights)
     - [Höjdpunkter i version 2.3.9](#version-239-highlights)
-    - [Höjdpunkter i version 2.3.8](#version-238-highlights)
   - [Innehållsförteckning](#table-of-contents)
   - [1. Översikt över gränssnittet](#1-interface-overview)
   - [2. Blockpalett](#2-block-palette)
@@ -155,6 +155,14 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
 
 ---
 
+## Höjdpunkter i version 2.4.1
+
+- **Polska och italienska gränssnittsspråk** — fullständig gränssnittsöversättning (menyer, dialogrutor, mnemoniska beskrivningar, Ultimate Basic-kommandoreferens) tillsammans med befintliga ungerska, engelska, spanska, tyska och nederländska.
+- **Knapp i verktygsfältet Onlinehjälp** — en ny ikonknapp efter Debug öppnar den flerspråkiga dokumentationssidan ([c64va.tech/docs.html](https://www.c64va.tech/docs.html)) direkt från appen.
+- **Centraliserade mnemoniska beskrivningar:** mnemoniska beskrivningar per språk flyttades till den delade översättningsfilen tillsammans med resten av UI-strängarna. Åtgärdar även ett långvarigt fel där de engelska beskrivningarna för `PRINT`, `PRINT_HEX`, `CLEAR_SCREEN`, `WAIT_KEY`, `SET_BORDER`, `SET_BG`, `IRQ_SETUP` och `RAND` tyst skrevs över av överbliven spansk text.
+
+---
+
 ## Höjdpunkter i version 2.4.0
 
 - **D64 Editor** — en komplett diskavbildningsläsare i verktygsfältet (efter kurvredigeraren). Öppna en befintlig `.d64`, skapa en ny tom disk eller starta den aktuella disken direkt i VICE, allt från en Filer ▾-meny som matchar de andra visuella redigerarna. Se [D64 Editor (bläddra bland och redigera en befintlig diskavbildning)](#d64-editor-browse--edit-an-existing-disk-image).
@@ -177,18 +185,6 @@ Fem assemblerfunktioner som förbättrar livskvaliteten, alla användbara i expe
 - **`.assert` direktiv** — `.assert slut - start &lt;= 256` eller `.assert * &lt; $A000, "meddelande"` utvärderas vid monteringstillfället och misslyckas med byggandet (visar det faktiska värdet) när uttrycket är falskt. Se [.ASSERT](#assert).
 - **Operandetiketter för självmodifierande kod** — `LDA-värde:#$00` definierar etiketten `värde` som pekar på instruktionens operandbyte, så `STA-värde` korrigerar den direkt. Se [Operandetiketter för självmodifierande kod](#self-modifying-code-operand-labels).
 - **Användligare fel vid grenar utanför intervallet** — en gren som landar utanför −128…+127 rapporterar nu exakt hur långt den överskrider intervallet och föreslår den matchande `LBxx` långa grenen.
-
----
-
-## Höjdpunkter i version 2.3.8
-
-- **Arbetsyta spara / öppna:** sparar den exakta uppsättningen öppna filbaserade flikar – inklusive den aktiva fliken och varje fliks redigeringsläge – till en `.vaws` arbetsytefil. Arbetsytor sparas automatiskt vid ändringar och appen återställer automatiskt din senaste arbetsyta vid start.
-- **Global minnespanelväxling:** visa eller dölj hela C64-minnespanelen från en dedikerad UI-växling.
-- **Lokaliserad Ultimate Basic-kommandoreferens:** Kommandobeskrivningar i popup-fönstret för autokomplettering och kommandopanelen följer nu det aktuella gränssnittsspråket (ungerska, engelska, spanska, tyska, nederländska), med engelsk reserv.
-- **Uppdaterade grafikdokument för Ultimate Basic:** `COLOR PEN` och hjälptexten för kommandona plot/line/rect/circle och multicolor drawing matchar nu det aktuella kompilatorbeteendet.
-- **Åtgärdade KERNAL-referens:** korrigerade posterna `SETLFS` och `PLOT` (adresser och anropskonventioner) i disassemblerarens KERNAL-adresstabell.
-- **Åtgärdade minnesanvändning med många öppna flikar:** Ångra-/omgörningshistoriken per flik är nu begränsad (med en liten debounce), vilket förhindrar den obegränsade minnesökning som en lång session med många öppna dokument brukade orsaka.
-- **Rensning av redigeringsverktygsfältet:** tog bort de redundanta brytpunktsknapparna från verktygsfälten Expert och Ultimate Basic (brytpunkter anges fortfarande från radnummerrännan) och justerade Expertverktygsfältets höjd med Ultimate Basic-verktygsfältet.
 
 ---
 
@@ -978,7 +974,7 @@ Liksom `FOR I=1 TO N: POKE addr+I, val: NEXT` — fyller ett minnesblock med sam
 | `40*25, 0`                    | inline-multiplikation                     |
 | `runda(sin(PI/4)*255), 80 kr` | trigonometri                              |
 
-**Inbyggda funktioner:** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, konstant `PI`
+**Inbyggda funktioner: ** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, konstant `PI`
 
 Operatorer: `+ - * /` Literaler: `$FF` (hex), `%10110000` (binär) Låg/hög byte: `lo(expr)`, `hi(expr)`
 
@@ -1023,7 +1019,7 @@ Liksom **PRINT AT** — skriver text direkt till C64-skärmen vid en given kolum
 | Etikett (valfritt)        | Tilldelar en etikett som pekar på den beräknade skärmadressen |
 | Gemener teckenuppsättning | Kryssruta — se nedan                                          |
 
-**Teckenuppsättningslägen:**
+**Teckenuppsättningslägen: **
 
 C64 har två teckenuppsättningar som kan väljas vid körning:
 
@@ -1192,7 +1188,7 @@ Liksom **RAWBYTES men för KERNAL-utdata** — kodar strängen som PETSCII-byte 
 | Etikett (valfritt)  | Tilldelar en etikett som pekar mot måladressen              |
 | PETSCII med gemener | Kryssruta — se nedan                                        |
 
-**Teckenuppsättningslägen:**
+**Teckenuppsättningslägen: **
 
 | Läge                                | Stora bokstäver (`A`–`Z`)                                                                                                | Gemener (`a`–`z`)            |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ---------------------------- |
@@ -2108,7 +2104,7 @@ Värdefältet accepterar allmän aritmetik, inklusive referenser till tidigare d
 .const SIN_TABLE   = round(sin(PI/8) * 127)   ; pre-computed sine value
 ```
 
-**Inbyggda funktioner:** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, konstant `PI`
+**Inbyggda funktioner: ** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, konstant `PI`
 
 Operatorer: `+ - * /` Literaler: `$FF` (hex), `%10110000` (binär) Låg/hög byte: `lo(expr)`, `hi(expr)`
 

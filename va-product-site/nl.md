@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Gebruikershandleiding
 
-**Versie 2.4.0**
+**Versie 2.4.1**
 
 Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma's door instructieblokken te slepen en neer te zetten, en bekijk de gegenereerde assembly- en machinecode in realtime.
 
@@ -9,9 +9,9 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
 ## Inhoudsopgave
 
 - [C64 Visual Assembler — Gebruikershandleiding](#c64-visual-assembler--user-manual)
+    - [Hoogtepunten van versie 2.4.1](#version-241-highlights)
     - [Hoogtepunten van versie 2.4.0](#version-240-highlights)
     - [Hoogtepunten van versie 2.3.9](#version-239-highlights)
-    - [Hoogtepunten van versie 2.3.8](#version-238-highlights)
   - [Inhoudsopgave](#table-of-contents)
   - [1. Interfaceoverzicht](#1-interface-overview)
   - [2. Blokpalet](#2-block-palette)
@@ -155,6 +155,14 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
 
 ---
 
+## Hoogtepunten van versie 2.4.1
+
+- **Poolse en Italiaanse UI-talen** — volledige interfacevertaling (menu's, dialoogvensters, beschrijvingen van sneltoetsen, Ultimate Basic-opdrachtreferentie) naast de bestaande Hongaarse, Engelse, Spaanse, Duitse en Nederlandse talen.
+- **Online Help-werkbalkknop** — een nieuwe pictogramknop na Debug opent de meertalige documentatiesite ([c64va.tech/docs.html](https://www.c64va.tech/docs.html)) rechtstreeks vanuit de app.
+- **Gecentraliseerde mnemonische beschrijvingen:** per-taal mnemonische beschrijvingen zijn verplaatst naar het gedeelde vertaalbestand, samen met de rest van de UI-strings. Dit lost ook een hardnekkige bug op waarbij de Engelse beschrijvingen voor `PRINT`, `PRINT_HEX`, `CLEAR_SCREEN`, `WAIT_KEY`, `SET_BORDER`, `SET_BG`, `IRQ_SETUP` en `RAND` stilletjes werden overschreven door overgebleven Spaanse tekst.
+
+---
+
 ## Hoogtepunten van versie 2.4.0
 
 - **D64 Editor** — een volledige schijfimagebrowser op de werkbalk (na de Curve Editor). Open een bestaande `.d64`, maak een nieuwe lege aan of start de huidige schijf rechtstreeks in VICE, allemaal vanuit een menu Bestand ▾ dat overeenkomt met de andere visuele editors. Zie [D64 Editor (een bestaande schijfimage bekijken en bewerken)](#d64-editor-browse--edit-an-existing-disk-image).
@@ -177,18 +185,6 @@ Vijf handige functies voor assembler, die allemaal bruikbaar zijn in de Expert-m
 - **`.assert` directive** — `.assert end - start &lt;= 256` or `.assert * &lt; $A000, "message"` wordt geëvalueerd tijdens het assembleren en de build mislukt (waarbij de werkelijke waarde wordt weergegeven) wanneer de expressie onwaar is. Zie [.ASSERT](#assert).
 - **Operandlabels voor zelfmodificerende code** — `LDA-waarde:#$00` definieert het label `waarde` dat naar de operandbyte van de instructie wijst, zodat `STA-waarde` deze direct patcht. Zie [Operandlabels voor zelfmodificerende code](#self-modifying-code-operand-labels).
 - **Vriendelijkere foutmeldingen bij vertakkingen buiten het bereik** — een vertakking die buiten −128…+127 terechtkomt, meldt nu precies hoeveel deze wordt overschreden en suggereert de overeenkomende `LBxx` lange vertakking.
-
----
-
-## Hoogtepunten van versie 2.3.8
-
-- **Werkruimte opslaan/openen:** sla de exacte set geopende, door bestanden ondersteunde tabbladen op — inclusief het actieve tabblad en de editormodus van elk tabblad — in een `.vaws` werkruimtebestand. Werkruimtes worden automatisch opgeslagen bij wijzigingen en de app herstelt automatisch uw laatst gebruikte werkruimte bij het opstarten.
-- **Waak het geheugenpaneel weergeven of verbergen:** Toon of verberg het volledige C64-geheugenpaneel via een speciale UI-schakelaar.
-- **Gelokaliseerde Ultimate Basic-opdrachtreferentie:** De opdrachtbeschrijvingen in het pop-upvenster voor automatisch aanvullen en het paneel Opdrachten volgen nu de huidige UI-taal (Hongaars, Engels, Spaans, Duits, Nederlands), met Engels als terugvaloptie.
-- **Vernieuwde Ultimate Basic-grafische documentatie:** `KLEURENPEN` en de helptekst voor de opdrachten plot/lijn/rechthoek/cirkel en meerkleurig tekenen komen nu overeen met het huidige compilergedrag.
-- **KERNAL-referentie gecorrigeerd:** De `SETLFS` en `PLOT` vermeldingen (adressen en aanroepconventies) in de KERNAL-adrestabel van de disassembler zijn gecorrigeerd.
-- **Geheugengebruik met veel geopende tabbladen opgelost:** De undo/redo-geschiedenis per tabblad is nu beperkt (met een kleine debounce), waardoor de onbeperkte geheugengroei die een lange sessie met veel geopende documenten voorheen veroorzaakte, wordt voorkomen.
-- **Opruiming van de editorwerkbalk:** De overbodige knoppen voor het in- en uitschakelen van breekpunten zijn verwijderd uit de Expert- en Ultimate Basic-werkbalken (breekpunten worden nog steeds ingesteld vanuit de regelnummermarge) en de hoogte van de Expert-werkbalk is gelijkgetrokken met die van de Ultimate Basic-werkbalk.
 
 ---
 
@@ -1135,7 +1131,7 @@ Net als **DATA die direct in het geheugen wordt geladen** — helemaal geen runt
 .rawbytes $0C50, $00, $00 :nev      ; with macroLabel — other code can use LDA nev,X
 ```
 
-**Grootte in code:** 0 bytes. De gegevens worden op het opgegeven adres in de uitvoer geplaatst.
+**Grootte in code: ** 0 bytes. De gegevens worden op het opgegeven adres in de uitvoer geplaatst.
 
 > **DATA vs RAWBYTES:** DATA genereert LDA/STA-code die bytes tijdens de uitvoering kopieert (langzamer, maar werkt als de data dynamisch moet zijn). RAWBYTES plaatst de bytes direct — geen code, direct, geen kosten.
 
@@ -1173,7 +1169,7 @@ Net als RAWBYTES, maar dan voor tekst: de tekenreeks wordt gecodeerd als schermc
     .byte $48, $45, $4C, $4C, $4F   ; h e l l o (lowercase screen codes $41–$5A range)
 ```
 
-**Grootte in code:** 0 bytes. De gegevens worden op het opgegeven adres in de uitvoer geplaatst.
+**Grootte in code: ** 0 bytes. De gegevens worden op het opgegeven adres in de uitvoer geplaatst.
 
 > **STRING vs RAWTEXT:**STRING genereert LDA/STA-code die de tekst tijdens runtime kopieert. RAWTEXT bakt de bytes in de PRG tijdens het laden — geen code, geen wachttijd.
 
@@ -1462,7 +1458,7 @@ Net als **BLOAD in BASIC** — pakt een extern binair bestand (`.bin`, `.prg`, `
 .incbin "music.bin", $C000
 ```
 
-**Gegenereerde ASM-opmerking:**
+**Gegenereerde ASM-opmerking: **
 ```
     ; INCBIN "music.bin" @ $C000 (2048 bytes)
     .byte $01, $02, ...
@@ -1494,7 +1490,7 @@ Het blok toont:
 .sid "Ikari_Warriors.sid", $1000
 ```
 
-**Gegenereerde ASM-opmerking:**
+**Gegenereerde ASM-opmerking: **
 ```
     ; SID "Ikari_Warriors.sid" @ $1000  Init:$1000  Play:$1006  (4096 bytes)
 ```

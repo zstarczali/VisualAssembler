@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Podręcznik użytkownika
 
-**Wersja 2.4.0**
+**Wersja 2.4.1**
 
 Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągając i upuszczając bloki instrukcji, i oglądaj generowany kod assemblera i maszynowy w czasie rzeczywistym.
 
@@ -9,9 +9,9 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
 ## Spis treści
 
 - [C64 Visual Assembler — Podręcznik użytkownika](#c64-visual-assembler--user-manual)
+    - [Najważniejsze cechy wersji 2.4.1](#version-241-highlights)
     - [Najważniejsze cechy wersji 2.4.0](#version-240-highlights)
     - [Najważniejsze cechy wersji 2.3.9](#version-239-highlights)
-    - [Najważniejsze cechy wersji 2.3.8](#version-238-highlights)
   - [Spis treści](#table-of-contents)
   - [1. Przegląd interfejsu](#1-interface-overview)
   - [2. Paleta bloków](#2-block-palette)
@@ -155,6 +155,14 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
 
 ---
 
+## Najważniejsze cechy wersji 2.4.1
+
+- **Języki interfejsu użytkownika: polski i włoski** — pełne tłumaczenie interfejsu (menu, okna dialogowe, opisy mnemotechniczne, odnośniki do poleceń Ultimate Basic) obok istniejących wersji: węgierskiej, angielskiej, hiszpańskiej, niemieckiej i holenderskiej.
+- **Przycisk paska narzędzi Pomocy online** — nowy przycisk ikony po uruchomieniu Debug, który otwiera wielojęzyczną witrynę dokumentacji ([c64va.tech/docs.html](https://www.c64va.tech/docs.html)) bezpośrednio z aplikacji.
+- **Centralne opisy mnemoników: ** Opisy mnemoników dla poszczególnych języków zostały przeniesione do współdzielonego pliku tłumaczenia wraz z pozostałymi ciągami interfejsu użytkownika. Naprawiono również długotrwały błąd, w wyniku którego angielskie opisy poleceń `PRINT`, `PRINT_HEX`, `CLEAR_SCREEN`, `WAIT_KEY`, `SET_BORDER`, `SET_BG`, `IRQ_SETUP` i `RAND` były po cichu nadpisywane resztkami tekstu hiszpańskiego.
+
+---
+
 ## Najważniejsze cechy wersji 2.4.0
 
 - **Edytor D64** — pełna przeglądarka obrazów dysków na pasku narzędzi (po Edytorze Krzywych). Otwórz istniejący plik `.d64`, utwórz nowy, pusty lub uruchom bieżący dysk bezpośrednio w programie VICE – wszystko z menu Pliki ▾, podobnie jak w innych edytorach wizualnych. Zobacz [Edytor D64 (przeglądanie i edycja istniejącego obrazu dysku)](#d64-editor-browse--edit-an-existing-disk-image).
@@ -177,18 +185,6 @@ Pięć funkcji poprawiających jakość pracy asemblera, z których wszystkie mo
 - Dyrektywa **`.assert`** — `.assert end - start &lt;= 256` lub `.assert * &lt; $A000, „message” ` jest oceniane w czasie montażu i kończy kompilację niepowodzeniem (pokazując rzeczywistą wartość), gdy wyrażenie jest fałszywe. Zobacz [.ASSERT](#assert).
 - **Etykiety operandów kodu samomodyfikującego** — `Wartość LDA:#$00` definiuje etykietę `wartość` wskazującą na bajt operandu instrukcji, więc `Wartość STA` łata ją bezpośrednio. Zobacz [Etykiety operandów kodu samomodyfikującego](#self-modifying-code-operand-labels).
 - **Przyjaźniejsze błędy gałęzi poza zakresem** — gałąź, która ląduje poza zakresem −128…+127, teraz dokładnie raportuje, o ile wykracza poza zakres i sugeruje pasującą `LBxx` długą gałąź.
-
----
-
-## Najważniejsze cechy wersji 2.3.8
-
-- **Zapisywanie/otwieranie obszaru roboczego:** zapisuje dokładny zestaw otwartych kart z kopią zapasową pliku — w tym aktywną kartę i tryb edytora każdej karty — w pliku obszaru roboczego `.vaws`. Obszary robocze zapisują się automatycznie po zmianie, a aplikacja automatycznie przywraca ostatni obszar roboczy po uruchomieniu.
-- **Przełączanie globalnego panelu pamięci:** wyświetlanie lub ukrywanie całego panelu pamięci C64 za pomocą dedykowanego przełącznika interfejsu użytkownika.
-- **Zlokalizowane odniesienie do poleceń Ultimate Basic:** opisy poleceń w okienku autouzupełniania i panelu Polecenia są teraz zgodne z bieżącym językiem interfejsu użytkownika (węgierskim, angielskim, hiszpańskim, niemieckim, holenderskim) z opcją zastępczą w języku angielskim.
-- **Odświeżona dokumentacja graficzna Ultimate Basic:** `PIÓRO KOLOROWE` oraz tekst pomocy dla poleceń wykresu/linii/prostokąta/koła i rysowania wielokolorowego są teraz zgodne z bieżącym zachowaniem kompilatora.
-- **Naprawiono odniesienie do KERNAL:** poprawiono wpisy `SETLFS` i `PLOT` (adresy i konwencje wywołań) w tabeli adresów KERNAL w deasemblerze.
-- **Naprawiono zużycie pamięci przy wielu otwartych kartach:** Historia cofania/ponawiania dla każdej karty jest teraz ograniczona (z niewielkim opóźnieniem), co zapobiega nieograniczonemu wzrostowi pamięci, który dawniej powodowała długa sesja z wieloma otwartymi dokumentami.
-- **Porządkowanie paska narzędzi edytora:** usunięto zbędne przyciski przełączania punktów przerwania z pasków narzędzi Expert i Ultimate Basic (punkty przerwania są nadal ustawiane z poziomu paska numerów wierszy) i wyrównano wysokość paska narzędzi Expert z wysokością paska narzędzi Ultimate Basic.
 
 ---
 
@@ -978,7 +974,7 @@ Podobnie jak `FOR I=1 TO N : POKE addr+I, val : NEXT` — wypełnia blok pamięc
 | `40*25, 0`                    | mnożenie liniowe                                 |
 | `okrągły(sin(PI/4)*255), 80$` | trygonometria                                    |
 
-**Funkcje wbudowane:** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, constant `PI`
+**Funkcje wbudowane: ** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, constant `PI`
 
 Operatorzy: `+ - * /` Literały: `$FF` (szesnastkowy), `%10110000` (binarny) Bajt młodszy/starszy: `lo(wyrażenie)`, `hi(wyrażenie)`
 
@@ -1135,7 +1131,7 @@ Podobnie jak **DATA, które ładuje się bezpośrednio do pamięci** — bez ża
 .rawbytes $0C50, $00, $00 :nev      ; with macroLabel — other code can use LDA nev,X
 ```
 
-**Rozmiar w kodzie:** 0 bajtów. Dane są umieszczane pod podanym adresem na wyjściu.
+**Rozmiar w kodzie: ** 0 bajtów. Dane są umieszczane pod podanym adresem na wyjściu.
 
 > **DATA kontra RAWBYTES:** DATA generuje kod LDA/STA, który kopiuje bajty w czasie wykonywania (wolniej, ale działa, jeśli dane muszą być dynamiczne). RAWBYTES po prostu umieszcza bajty bezpośrednio — bez kodu, natychmiast, bez kosztów.
 
@@ -1173,7 +1169,7 @@ Podobnie jak RAWBYTES, ale dla tekstu — koduje ciąg jako kody ekranowe i umie
     .byte $48, $45, $4C, $4C, $4F   ; h e l l o (lowercase screen codes $41–$5A range)
 ```
 
-**Rozmiar w kodzie:** 0 bajtów. Dane są umieszczane pod podanym adresem na wyjściu.
+**Rozmiar w kodzie: ** 0 bajtów. Dane są umieszczane pod podanym adresem na wyjściu.
 
 > **STRING kontra RAWTEXT:** STRING generuje kod LDA/STA, który kopiuje tekst w czasie wykonywania. RAWTEXT wczytuje bajty do PRG w momencie ładowania — bez kodu i czekania.
 
@@ -2108,7 +2104,7 @@ Pole wartości akceptuje ogólne działania arytmetyczne, w tym odwołania do wc
 .const SIN_TABLE   = round(sin(PI/8) * 127)   ; pre-computed sine value
 ```
 
-**Funkcje wbudowane:** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, constant `PI`
+**Funkcje wbudowane: ** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, constant `PI`
 
 Operatorzy: `+ - * /` Literały: `$FF` (szesnastkowy), `%10110000` (binarny) Bajt młodszy/starszy: `lo(wyrażenie)`, `hi(wyrażenie)`
 
@@ -2815,7 +2811,7 @@ done:
 .reu_check
 ```
 
-**Wynik we flagach:**
+**Wynik we flagach: **
 - **Z = 0** (wynik ≠ 0) → obecność REU → użycie `BNE`
 - **Z = 1** (wynik = 0) → brak REU → użyj `BEQ`
 
@@ -2841,7 +2837,7 @@ Transfer bloku DMA między pamięcią RAM komputera C64 a pamięcią rozszerzeń
 | `REU_FETCH` | REU → Pamięć RAM C64 | `91 dolarów`      |
 | `REU_SWAP`  | Pamięć RAM C64 ↔ REU | `92 dolary`       |
 
-**Pola:**
+**Pola: **
 
 | Pole      | Opis                                               | Przykład |
 | --------- | -------------------------------------------------- | -------- |
@@ -2879,7 +2875,7 @@ LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immedi
 
 Ustawia prędkość procesora **Ultimate-64 (U64)** za pomocą rejestru `$D031`. Nie ma to wpływu na prawdziwy C64 ani inne emulatory.
 
-**Pola:**
+**Pola: **
 
 | Pole      | Opis                         | Zakres                                      |
 | --------- | ---------------------------- | ------------------------------------------- |
@@ -2914,7 +2910,7 @@ AD B8 D0   LDA $D0B8
 C9 FF      CMP #$FF
 ```
 
-**Wynik we flagach:**
+**Wynik we flagach: **
 - **Z = 0** → obecny SuperCPU → użyj `BNE`
 - **Z = 1** → Nie znaleziono SuperCPU → użyj `BEQ`
 
@@ -3388,7 +3384,7 @@ VICE jest wymagany do **Uruchom jako PRG**, **Uruchom przez D64** i **Eksportu d
 | **Błysk obramowania podczas dekompresji** | Po włączeniu skompresowane pliki PRG SFX korzystają ze wbudowanego w exomizer szybkiego efektu flashowania obramowania `-x1`; po wyłączeniu, w celu cichej dekompresji przekazywany jest efekt `-n` |
 | **Status**                                | Pokazuje, czy ścieżka wykonywalna jest prawidłowa i dostępna                                                                                                                                        |
 
-**Przepływ pracy:**
+**Przepływ pracy: **
 1. Zainstaluj plik binarny Exomizera:
    - **Windows:** pobierz wstępnie skompilowany plik `win32/exomizer.exe` ze strony https://bitbucket.org/magli143/exomizer/wiki/Home lub https://csdb.dk/release/?id=244342.
    - **macOS:** `brew install exomizer` (instaluje oficjalną kompilację 3.1.2 Magnusa Linda).
@@ -3428,7 +3424,7 @@ Uruchamiaj złożone programy PRG bezpośrednio na prawdziwym sprzęcie za pośr
 | **Hasło**           | Opcjonalnie — jeśli urządzenie wymaga uwierzytelnienia                        |
 | **Test połączenia** | Wysyła żądanie testowe do `/v3/runners/info`; wyświetla komunikat OK lub błąd |
 
-**Przepływ pracy:**
+**Przepływ pracy: **
 1. Podłącz urządzenie 1541 Ultimate / Ultimate 64 do sieci lokalnej.
 2. Wprowadź adres IP (i hasło, jeśli zostało ustawione) w Ustawieniach sprzętu.
 3. Wybierz **Uruchom na sprzęcie** z menu podzielonego uruchamiania.

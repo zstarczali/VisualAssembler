@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Manuale utente
 
-**Versione 2.4.0**
+**Versione 2.4.1**
 
 Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502. Crea programmi trascinando e rilasciando blocchi di istruzioni e visualizza in tempo reale il codice assembly e il codice macchina generati.
 
@@ -9,9 +9,9 @@ Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502. 
 ## Sommario
 
 - [C64 Visual Assembler — Manuale utente](#c64-visual-assembler--user-manual)
+    - [Punti salienti della versione 2.4.1](#version-241-highlights)
     - [Punti salienti della versione 2.4.0](#version-240-highlights)
     - [Punti salienti della versione 2.3.9](#version-239-highlights)
-    - [Punti salienti della versione 2.3.8](#version-238-highlights)
   - [Indice](#table-of-contents)
   - [1. Panoramica dell'interfaccia](#1-interface-overview)
   - [2. Tavolozza a blocchi](#2-block-palette)
@@ -155,6 +155,14 @@ Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502. 
 
 ---
 
+## Punti salienti della versione 2.4.1
+
+- **Lingue dell'interfaccia utente in polacco e italiano** — traduzione completa dell'interfaccia (menu, finestre di dialogo, descrizioni mnemoniche, riferimento ai comandi di Ultimate Basic) oltre alle lingue ungherese, inglese, spagnolo, tedesco e olandese già esistenti.
+- **Pulsante della barra degli strumenti Guida in linea** — un nuovo pulsante icona dopo Debug apre il sito della documentazione multilingue ([c64va.tech/docs.html](https://www.c64va.tech/docs.html)) direttamente dall'app.
+- **Descrizioni mnemoniche centralizzate:** Le descrizioni mnemoniche per lingua sono state spostate nel file di traduzione condiviso insieme al resto delle stringhe dell'interfaccia utente. Risolve anche un bug di vecchia data per cui le descrizioni in inglese per `PRINT`, `PRINT_HEX`, `CLEAR_SCREEN`, `WAIT_KEY`, `SET_BORDER`, `SET_BG`, `IRQ_SETUP` e `RAND` venivano sovrascritte silenziosamente da testo spagnolo residuo.
+
+---
+
 ## Punti salienti della versione 2.4.0
 
 - **Editor D64** — un browser completo di immagini disco sulla barra degli strumenti (dopo l'Editor Curve). Apri un `.d64` esistente, creane uno nuovo vuoto o avvia il disco corrente direttamente in VICE, tutto da un menu File ▾ che corrisponde agli altri editor visivi. Vedi [Editor D64 (sfoglia e modifica un'immagine disco esistente)](#d64-editor-browse--edit-an-existing-disk-image).
@@ -177,18 +185,6 @@ Cinque funzionalità che migliorano l'esperienza utente nell'assembler, tutte ut
 - **`.assert` direttiva** — `.assert fine - inizio &lt;= 256` o `.assert * &lt; $A000, "messaggio"` viene valutato in fase di assemblaggio e la compilazione fallisce (mostrando il valore effettivo) quando l'espressione è falsa. Vedi [.ASSERT](#assert).
 - **Etichette degli operandi del codice automodificante** — `Il valore LDA:#$00` definisce l'etichetta `valore` che punta al byte dell'operando dell'istruzione, quindi `il valore STA` lo modifica direttamente. Vedi [Etichette degli operandi del codice automodificante](#self-modifying-code-operand-labels).
 - **Errori di diramazione fuori intervallo più intuitivi** — una diramazione che si trova al di fuori di −128…+127 ora segnala esattamente di quanto supera l'intervallo e suggerisce la diramazione lunga corrispondente `LBxx`.
-
----
-
-## Punti salienti della versione 2.3.8
-
-- **Salvataggio/apertura dello spazio di lavoro:** salva l'insieme esatto di schede aperte basate su file, inclusa la scheda attiva e la modalità di modifica di ciascuna scheda, in un file di spazio di lavoro `.vaws`. Gli spazi di lavoro vengono salvati automaticamente in caso di modifiche e l'app ripristina automaticamente l'ultimo spazio di lavoro all'avvio.
-- **Interruttore pannello memoria globale:** mostra o nascondi il pannello memoria C64 completo tramite un interruttore UI dedicato.
-- **Riferimento ai comandi Ultimate Basic localizzato:** Le descrizioni dei comandi nel popup di completamento automatico e nel pannello Comandi ora seguono la lingua corrente dell'interfaccia utente (ungherese, inglese, spagnolo, tedesco, olandese), con fallback in inglese.
-- **Documentazione grafica Ultimate Basic aggiornata:** `PENNA COLORATA` e il testo della guida del comando di disegno plot/line/rect/circle e multicolore ora corrispondono al comportamento corrente del compilatore.
-- **Riferimento KERNAL corretto:** sono state corrette le voci `SETLFS` e `PLOT` (indirizzi e convenzioni di chiamata) nella tabella degli indirizzi KERNAL del disassemblatore.
-- **Risolto il problema dell'utilizzo della memoria con molte schede aperte:** la cronologia di annullamento/ripristino per scheda è ora limitata (con un piccolo debounce), impedendo la crescita illimitata della memoria che una lunga sessione con molti documenti aperti causava in precedenza.
-- **Pulizia della barra degli strumenti dell'editor:** sono stati rimossi i pulsanti ridondanti di attivazione/disattivazione dei breakpoint dalle barre degli strumenti Expert e Ultimate Basic (i breakpoint vengono ancora impostati dal margine dei numeri di riga) ed è stata allineata l'altezza della barra degli strumenti Expert con quella della barra degli strumenti Ultimate Basic.
 
 ---
 
@@ -2841,7 +2837,7 @@ Trasferimento di blocchi DMA tra la RAM del C64 e la memoria di espansione REU: 
 | `REU_FETCH` | REU → RAM C64 | `$91`           |
 | `REU_SWAP`  | RAM C64 ↔ REU | `$92`           |
 
-**Campi:**
+** Campi:**
 
 | Campo         | Descrizione                                          | Esempio |
 | ------------- | ---------------------------------------------------- | ------- |
@@ -2879,7 +2875,7 @@ LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immedi
 
 Imposta la velocità della CPU **Ultimate-64 (U64)** tramite il registro `$D031`. Nessun effetto su un vero C64 o altri emulatori.
 
-**Campi:**
+** Campi:**
 
 | Campo            | Descrizione                  | Allineare                                            |
 | ---------------- | ---------------------------- | ---------------------------------------------------- |
