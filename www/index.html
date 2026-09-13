@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.4.0">
+  <link rel="stylesheet" href="style.css?v=2.4.1">
 </head>
 
 <body>
@@ -1009,7 +1009,7 @@ PRINTABLE CHARACTERS
         <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v2.4.0</p>
+      <p class="about-version" id="about-version">v2.4.1</p>
       <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       <img class="about-ub-banner" src="assets/ultimate-basic-banner.png" alt="Ultimate Basic">
       <p class="about-repo"><span>Ultimate Basic GitHub repository:</span><br><a href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener noreferrer">https://github.com/zstarczali/UltimateBasic</a></p>
@@ -1027,31 +1027,16 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.4.0</p>
+      <p class="whats-new-version">v2.4.1</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: D64 Editor</strong> &mdash; a full disk-image browser reachable from the toolbar (after the Curve Editor). Open an existing <code>.d64</code>, create a new blank one, or launch the current disk straight into VICE, all from a <strong>Files &#9662;</strong> menu matching the other visual editors.
+          <strong>New: Polish and Italian UI languages</strong> &mdash; full interface translation (menus, dialogs, mnemonic descriptions, Ultimate Basic command reference) alongside the existing Hungarian, English, Spanish, German and Dutch.
         </li>
         <li>
-          <strong>New: Add / extract / rename / delete on the D64 Editor</strong> &mdash; add a local file to the disk directory, extract a selected entry back to a <code>.prg</code>, rename an entry inline in the table, or delete it &mdash; every action is applied straight to the <code>.d64</code> file via <code>c1541</code>, no separate save step.
+          <strong>New: Online Help toolbar button</strong> &mdash; a new icon button after Debug opens the multi-language documentation site (c64va.tech/docs.html) directly from the app.
         </li>
         <li>
-          <strong>New: Load address, decompress address &amp; Exomizer in the D64 Editor</strong> &mdash; adding a headerless raw file lets you set an optional load address, an Exomizer decompress target, and compress it on the way in (same <code>mem</code>/<code>sfx</code> crunch modes as the Export to D64 dialog). A <code>.prg</code> that already carries its own header skips these fields entirely.
-        </li>
-        <li>
-          <strong>New: Disk entry type selector</strong> &mdash; choose PRG / SEQ / USR / REL for a newly added file instead of always writing it as PRG.
-        </li>
-        <li>
-          <strong>Improved: Authentic directory listing</strong> &mdash; the D64 Editor's file list renders in the bundled C64 Pro font, uppercase, for the classic <code>LOAD"$",8</code> look.
-        </li>
-        <li>
-          <strong>Fixed: D64 Editor rename losing focus</strong> &mdash; clicking into the rename text field no longer immediately discards the edit.
-        </li>
-        <li>
-          <strong>Improved: Light theme mode badge</strong> &mdash; the BLOCK MODE / EXPERT MODE toolbar badge is darker and more legible in light theme, and its shimmer animation is visible again.
-        </li>
-        <li>
-          <strong>Improved: Toolbar organization</strong> &mdash; added separators around the Tutorials button and after the new D64 Editor icon for clearer grouping.
+          <strong>Improved: Centralized mnemonic descriptions</strong> &mdash; per-language mnemonic descriptions moved into the shared translation file alongside the rest of the UI strings. Also fixes a longstanding bug where the English descriptions for <code>PRINT</code>, <code>PRINT_HEX</code>, <code>CLEAR_SCREEN</code>, <code>WAIT_KEY</code>, <code>SET_BORDER</code>, <code>SET_BG</code>, <code>IRQ_SETUP</code> and <code>RAND</code> were silently overwritten by leftover Spanish text.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -2309,13 +2294,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.4.0"></script>
-  <script src="i18n.js?v=2.4.0"></script>
-  <script src="tutorial-data.js?v=2.4.0"></script>
+  <script src="tauri-bridge.js?v=2.4.1"></script>
+  <script src="i18n.js?v=2.4.1"></script>
+  <script src="tutorial-data.js?v=2.4.1"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.4.0"></script>
+  <script src="app.js?v=2.4.1"></script>
 
 </body>
 

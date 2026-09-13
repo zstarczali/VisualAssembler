@@ -77,42 +77,56 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "d64-editor-multilang-docs-1",
+  id: "pl-it-ui-languages-1",
   url: "https://www.c64va.tech/docs.html",
   hu: {
     eyebrow: "Újdonság",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p>Két új dolog érdemel egy pillantást:</p><ul><li><strong>D64 Editor</strong> — teljes értékű lemezkép-böngésző az eszköztáron (a Curve Editor ikon mögött). Meglévő <code>.d64</code> megnyitása, új üres lemez létrehozása, vagy közvetlen indítás VICE-ben, majd programok hozzáadása, kimentése, átnevezése vagy törlése közvetlenül a lemezen.</li><li><strong>Többnyelvű dokumentáció</strong> — a teljes kézikönyv mostantól kereshetően böngészhető online, angol, magyar, német, francia, holland, finn, olasz és svéd nyelven: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li></ul>`,
+    body: `<p>Két új dolog érdemel egy pillantást:</p><ul><li><strong>Két új dokumentációs nyelv</strong> — az online kézikönyv mostantól lengyelül és olaszul is olvasható: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li><li><strong>Két új felületi nyelv</strong> — az alkalmazás felülete (menük, dialógusok, mnemonik leírások, Ultimate Basic referencia) mostantól lengyelül és olaszul is elérhető.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
     eyebrow: "New",
     title: "Welcome to Visual Assembler",
-    body: `<p>Two new things worth a look:</p><ul><li><strong>D64 Editor</strong> — a full disk-image browser on the toolbar (after the Curve Editor icon). Open an existing <code>.d64</code>, create a new blank one, or launch it straight into VICE, then add, extract, rename or delete programs directly on the disk.</li><li><strong>Multi-language documentation</strong> — the full manual is now searchable online in English, Hungarian, German, French, Dutch, Finnish, Italian and Swedish: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li></ul>`,
+    body: `<p>Two new things worth a look:</p><ul><li><strong>Two new documentation languages</strong> — the online manual now also reads in Polish and Italian: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li><li><strong>Two new UI languages</strong> — the app interface (menus, dialogs, mnemonic descriptions, Ultimate Basic reference) is now available in Polish and Italian too.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
     eyebrow: "Novedad",
     title: "Bienvenido a Visual Assembler",
-    body: `<p>Dos novedades que merecen un vistazo:</p><ul><li><strong>Editor de D64</strong> — un explorador de imágenes de disco completo en la barra de herramientas (junto al icono del editor de curvas). Abre un <code>.d64</code> existente, crea uno nuevo en blanco o ejecútalo directamente en VICE, y luego añade, extrae, renombra o elimina programas directamente en el disco.</li><li><strong>Documentación multilingüe</strong> — el manual completo ahora se puede consultar y buscar en línea en inglés, húngaro, alemán, francés, neerlandés, finlandés, italiano y sueco: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li></ul>`,
+    body: `<p>Dos novedades que merecen un vistazo:</p><ul><li><strong>Dos nuevos idiomas de documentación</strong> — el manual en línea ahora también se puede leer en polaco e italiano: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li><li><strong>Dos nuevos idiomas de interfaz</strong> — la interfaz de la aplicación (menús, diálogos, descripciones de mnemónicos, referencia de Ultimate Basic) ahora también está disponible en polaco e italiano.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
     eyebrow: "Neu",
     title: "Willkommen bei Visual Assembler",
-    body: `<p>Zwei Neuerungen sind einen Blick wert:</p><ul><li><strong>D64-Editor</strong> — ein vollwertiger Disk-Image-Browser in der Werkzeugleiste (nach dem Curve-Editor-Symbol). Öffne ein bestehendes <code>.d64</code>, erstelle ein neues leeres Image oder starte es direkt in VICE, und füge dann Programme direkt auf der Diskette hinzu, extrahiere, benenne um oder lösche sie.</li><li><strong>Mehrsprachige Dokumentation</strong> — das vollständige Handbuch ist jetzt online durchsuchbar, in Englisch, Ungarisch, Deutsch, Französisch, Niederländisch, Finnisch, Italienisch und Schwedisch: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li></ul>`,
+    body: `<p>Zwei Neuerungen sind einen Blick wert:</p><ul><li><strong>Zwei neue Dokumentationssprachen</strong> — das Online-Handbuch ist jetzt auch auf Polnisch und Italienisch lesbar: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li><li><strong>Zwei neue Oberflächensprachen</strong> — die App-Oberfläche (Menüs, Dialoge, Mnemonic-Beschreibungen, Ultimate-Basic-Referenz) ist jetzt auch auf Polnisch und Italienisch verfügbar.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
     eyebrow: "Nieuw",
     title: "Welkom bij Visual Assembler",
-    body: `<p>Twee nieuwe dingen die de moeite waard zijn:</p><ul><li><strong>D64 Editor</strong> — een volwaardige diskimage-browser op de werkbalk (na het Curve Editor-pictogram). Open een bestaande <code>.d64</code>, maak een nieuwe lege schijf aan, of start hem direct in VICE, en voeg vervolgens programma's rechtstreeks op de schijf toe, exporteer, hernoem of verwijder ze.</li><li><strong>Meertalige documentatie</strong> — de volledige handleiding is nu online doorzoekbaar in het Engels, Hongaars, Duits, Frans, Nederlands, Fins, Italiaans en Zweeds: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li></ul>`,
+    body: `<p>Twee nieuwe dingen die de moeite waard zijn:</p><ul><li><strong>Twee nieuwe documentatietalen</strong> — de online handleiding is nu ook te lezen in het Pools en Italiaans: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li><li><strong>Twee nieuwe interfacetalen</strong> — de app-interface (menu's, dialoogvensters, mnemonic-beschrijvingen, Ultimate Basic-referentie) is nu ook beschikbaar in het Pools en Italiaans.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
+  },
+  pl: {
+    eyebrow: "Nowość",
+    title: "Witamy w Visual Assembler",
+    body: `<p>Dwie nowości warte uwagi:</p><ul><li><strong>Dwa nowe języki dokumentacji</strong> — instrukcja online jest teraz dostępna również po polsku i włosku: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li><li><strong>Dwa nowe języki interfejsu</strong> — interfejs aplikacji (menu, dialogi, opisy mnemoników, dokumentacja Ultimate Basic) jest teraz dostępny również po polsku i włosku.</li></ul>`,
+    dismiss: "Nie pokazuj ponownie",
+    close: "Zamknij"
+  },
+  it: {
+    eyebrow: "Novità",
+    title: "Benvenuto in Visual Assembler",
+    body: `<p>Due novità da non perdere:</p><ul><li><strong>Due nuove lingue per la documentazione</strong> — il manuale online è ora leggibile anche in polacco e italiano: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li><li><strong>Due nuove lingue per l'interfaccia</strong> — l'interfaccia dell'app (menu, finestre di dialogo, descrizioni dei mnemonici, riferimento Ultimate Basic) è ora disponibile anche in polacco e italiano.</li></ul>`,
+    dismiss: "Non mostrare più",
+    close: "Chiudi"
   }
 };
 

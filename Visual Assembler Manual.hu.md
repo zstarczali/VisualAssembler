@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.4.0**
+**Verzió: 2.4.1**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -29,6 +29,14 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ---
 
+## A 2.4.1 verzió újdonságai
+
+- **Lengyel és olasz felületi nyelv** — teljes felület-fordítás (menük, dialógusok, mnemonik leírások, Ultimate Basic parancsreferencia) a meglévő magyar, angol, spanyol, német és holland mellett.
+- **Online Help eszköztár-gomb** — új ikon-gomb a Debug után, a többnyelvű dokumentációs oldalt ([c64va.tech/docs.html](https://www.c64va.tech/docs.html)) nyitja meg közvetlenül az appból.
+- **Mnemonik leírások központosítása:** a nyelvenkénti mnemonik leírások a közös fordítási fájlba kerültek a többi felületi szöveg mellé. Emellett javítva lett egy régóta fennálló hiba, ahol a `PRINT`, `PRINT_HEX`, `CLEAR_SCREEN`, `WAIT_KEY`, `SET_BORDER`, `SET_BG`, `IRQ_SETUP` és `RAND` angol leírásait egy véletlenül ottmaradt spanyol szöveg felülírta.
+
+---
+
 ## A 2.4.0 verzió újdonságai
 
 - **D64 Editor** — teljes értékű lemezkép-böngésző az eszköztáron (a Curve Editor mögött). Meglévő `.d64` megnyitása, új üres lemez létrehozása, vagy a nyitott lemez közvetlen indítása VICE-ben — mindezt egy, a többi vizuális szerkesztőhöz hasonló Files ▾ menüből. Lásd: [D64 Editor (meglévő lemezkép böngészése és szerkesztése)](#d64-editor-meglévő-lemezkép-böngészése-és-szerkesztése).
@@ -51,18 +59,6 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - **`.assert` direktíva** — a `.assert end - start <= 256` vagy `.assert * < $A000, "üzenet"` fordítási időben kiértékelődik, és ha a kifejezés hamis, a build a tényleges értékkel együtt hibára fut. Lásd: [.ASSERT](#assert).
 - **Önmódosító kód (SMC) operandus-címkék** — a `LDA value:#$00` a `value` címkét az utasítás operandus-byte-jára helyezi, így a `STA value` közvetlenül azt módosítja. Lásd: [Önmódosító kód operandus-címkék](#önmódosító-kód-operandus-címkék).
 - **Barátságosabb tartományon kívüli branch-hibák** — a −128…+127 tartományon kívülre eső elágazás mostantól pontosan jelzi, mennyivel lóg túl, és javasolja a megfelelő `LBxx` hosszú ugrást.
-
----
-
-## A 2.3.8 verzió újdonságai
-
-- **Munkaterület mentés / megnyitás:** a nyitott, fájlhoz kötött fülek pontos halmaza — beleértve az aktív fület és minden fül szerkesztőmódját — elmenthető `.vaws` munkaterület-fájlba. A munkaterületek változáskor automatikusan mentődnek, és az app induláskor visszaállítja az utolsót.
-- **Globális memória panel kapcsoló:** a teljes C64 memória panel egy külön kapcsolóval megjeleníthető vagy elrejthető.
-- **Lokalizált Ultimate Basic parancsreferencia:** az autocomplete felugró ablak és a Commands panel parancsleírásai mostantól követik az aktuális felületi nyelvet (magyar, angol, spanyol, német, holland), angol fallbackkel.
-- **Frissített Ultimate Basic grafikus dokumentáció:** a `COLOR PEN`, valamint a plot/line/rect/circle és multicolor rajzparancsok súgószövege mostantól a fordító aktuális viselkedését tükrözi.
-- **Javított KERNAL referencia:** a disassembler KERNAL cím-táblájában javítva lett a `SETLFS` és `PLOT` bejegyzés (címek és hívási konvenciók).
-- **Javított memóriahasználat sok nyitott fülnél:** a per-fül undo/redo előzmény mostantól korlátozott (kis debounce-szal), így megszűnt a memória korlátlan növekedése hosszú, sok nyitott dokumentumos munkamenetben.
-- **Szerkesztő eszköztár letisztítása:** eltávolítva a felesleges breakpoint-kapcsoló gombok az Expert és Ultimate Basic eszköztárból (a breakpoint továbbra is a sorszám-margóból állítható), és az Expert eszköztár magassága igazítva lett az Ultimate Basic eszköztárhoz.
 
 ---
 
