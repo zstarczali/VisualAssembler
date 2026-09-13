@@ -2439,6 +2439,59 @@ async fn run_d64_on_ultimate(app: AppHandle, payload: RunD64UltimatePayload) -> 
     }
 }
 
+// ── Anonymous usage ping ──────────────────────────────────────────────────
+// Fire-and-forget: one HTTP GET per install per 12h to c64va.tech, so we can
+// show a "how many people use this" country/version dashboard. No personal
+// data is sent — only a random per-install UUID (generated once, stored in
+// config.json), app version, OS and CPU arch. Server derives country from the
+// request IP; the IP itself is not stored by our side.
+async fn send_usage_ping(app: &AppHandle) {
+    let mut cfg = read_config(app);
+
+    let install_id = match cfg.get("installId").and_then(|v| v.as_str()) {
+        Some(id) if !id.is_empty() => id.to_string(),
+        _ => {
+            let id = uuid::Uuid::new_v4().to_string();
+            cfg["installId"] = serde_json::json!(id);
+            id
+        }
+    };
+
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+    let last_ping = cfg.get("lastUsagePing").and_then(|v| v.as_u64()).unwrap_or(0);
+    if last_ping != 0 && now.saturating_sub(last_ping) < 12 * 3600 {
+        return;
+    }
+
+    let version = app.package_info().version.to_string();
+    let os = std::env::consts::OS;
+    let arch = std::env::consts::ARCH;
+
+    let url = format!(
+        "https://www.c64va.tech/usage-ping.php?id={}&v={}&os={}&arch={}",
+        urlencoding::encode(&install_id),
+        urlencoding::encode(&version),
+        urlencoding::encode(os),
+        urlencoding::encode(arch),
+    );
+
+    let client = match reqwest::Client::builder()
+        .timeout(Duration::from_secs(6))
+        .build()
+    {
+        Ok(c) => c,
+        Err(_) => return,
+    };
+
+    if client.get(&url).send().await.is_ok() {
+        cfg["lastUsagePing"] = serde_json::json!(now);
+        write_config(app, &cfg);
+    }
+}
+
 #[tauri::command]
 async fn run_on_ultimate(host: String, password: Option<String>, prg_bytes: Vec<u8>) -> serde_json::Value {
     let host = host.trim().trim_end_matches('/').to_string();
@@ -3100,7 +3153,13 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
-        .setup(|_| Ok(()))
+        .setup(|app| {
+            let handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                send_usage_ping(&handle).await;
+            });
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             get_app_version,
             get_ultimate_basic_version,

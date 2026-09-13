@@ -351,6 +351,7 @@ dependencies = [
  "tauri-plugin-window-state",
  "ultimate-basic",
  "urlencoding",
+ "uuid",
 ]
 
 [[package]]

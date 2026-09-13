@@ -21,6 +21,7 @@ serde_json = "1"
 reqwest = { version = "0.12", default-features = false, features = ["native-tls"] }
 base64 = "0.22"
 urlencoding = "2"
+uuid = { version = "1", features = ["v4"] }
 ultimate-basic = { git = "https://github.com/zstarczali/UltimateBasic.git", branch = "dev" }
 
 [dev-dependencies]
