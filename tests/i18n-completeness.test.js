@@ -8,14 +8,16 @@ test("i18n: all languages have complete key parity without missing translations"
   const i18nCode = fs.readFileSync(path.join(__dirname, "..", "www", "i18n.js"), "utf8");
   const tr = vm.runInNewContext(i18nCode + "; translations;");
 
-  const languages = ["hu", "en", "es", "de", "nl"];
+  const languages = ["hu", "en", "es", "de", "nl", "pl", "it"];
   assert.deepStrictEqual(Object.keys(tr).sort(), languages.sort());
 
-  const enKeys = new Set(Object.keys(tr.en));
+  // mnemonicDescriptions is intentionally hu-only-absent (see the dedicated
+  // "mnemonicDescriptions parity" test below) — exclude it from this generic check.
+  const enKeys = new Set(Object.keys(tr.en).filter(k => k !== "mnemonicDescriptions"));
   assert.ok(enKeys.size >= 1100, `Expected at least 1100 keys, got ${enKeys.size}`);
 
   for (const lang of languages) {
-    const langKeys = new Set(Object.keys(tr[lang]));
+    const langKeys = new Set(Object.keys(tr[lang]).filter(k => k !== "mnemonicDescriptions"));
     const missing = [...enKeys].filter(k => !langKeys.has(k));
     assert.strictEqual(missing.length, 0, `Language ${lang} is missing keys: ${missing.join(", ")}`);
     assert.strictEqual(langKeys.size, enKeys.size, `Key count mismatch for ${lang}: ${langKeys.size} vs ${enKeys.size}`);
@@ -36,40 +38,31 @@ test("i18n: all languages have complete key parity without missing translations"
   }
 });
 
-test("i18n: mnemonicDescriptions parity in app.js", () => {
-  const appJs = fs.readFileSync(path.join(__dirname, "..", "www", "app.js"), "utf8");
+test("i18n: mnemonicDescriptions parity in i18n.js", () => {
+  // Hungarian is intentionally excluded: its descriptions live directly on
+  // mnemonicLibrary entries in app.js, not in translations.hu.mnemonicDescriptions.
+  const i18nCode = fs.readFileSync(path.join(__dirname, "..", "www", "i18n.js"), "utf8");
+  const tr = vm.runInNewContext(i18nCode + "; translations;");
 
-  function extractObj(name) {
-    const marker = "const " + name + " = ";
-    const start = appJs.indexOf(marker);
-    assert.notStrictEqual(start, -1, `Missing object ${name}`);
-    const brace = appJs.indexOf("{", start);
-    let depth = 0, end = -1;
-    for (let i = brace; i < appJs.length; i++) {
-      if (appJs[i] === "{") depth++;
-      else if (appJs[i] === "}") {
-        depth--;
-        if (depth === 0) { end = i + 1; break; }
-      }
-    }
-    return eval("(" + appJs.slice(brace, end) + ")");
+  const languages = ["en", "es", "de", "nl", "pl", "it"];
+  for (const lang of languages) {
+    assert.ok(tr[lang].mnemonicDescriptions, `Missing mnemonicDescriptions in ${lang}`);
   }
 
-  const en = extractObj("mnemonicDescriptionsEn");
-  const es = extractObj("mnemonicDescriptionsEs");
-  const de = extractObj("mnemonicDescriptionsDe");
-  const nl = extractObj("mnemonicDescriptionsNl");
-
-  const enKeys = Object.keys(en);
-  for (const [lang, obj] of [["es", es], ["de", de], ["nl", nl]]) {
+  const enKeys = Object.keys(tr.en.mnemonicDescriptions);
+  assert.ok(enKeys.length >= 150, `Expected at least 150 mnemonic descriptions, got ${enKeys.length}`);
+  for (const lang of languages.filter(l => l !== "en")) {
+    const obj = tr[lang].mnemonicDescriptions;
     const missing = enKeys.filter(k => !obj[k]);
-    assert.strictEqual(missing.length, 0, `mnemonicDescriptions${lang.toUpperCase()} missing: ${missing.join(", ")}`);
+    assert.strictEqual(missing.length, 0, `mnemonicDescriptions.${lang} missing: ${missing.join(", ")}`);
   }
 });
 
-test("i18n: language select options include Nederlands in index.html", () => {
+test("i18n: language select options include all supported languages in index.html", () => {
   const html = fs.readFileSync(path.join(__dirname, "..", "www", "index.html"), "utf8");
   assert.ok(html.includes('<option value="nl">Nederlands</option>'));
+  assert.ok(html.includes('<option value="pl">Polski</option>'));
+  assert.ok(html.includes('<option value="it">Italiano</option>'));
 });
 
 test("i18n: ubCommandDescriptions parity in app.js", () => {
@@ -96,10 +89,12 @@ test("i18n: ubCommandDescriptions parity in app.js", () => {
   const es = extractObj("ubCommandDescriptionsEs");
   const de = extractObj("ubCommandDescriptionsDe");
   const nl = extractObj("ubCommandDescriptionsNl");
+  const pl = extractObj("ubCommandDescriptionsPl");
+  const it = extractObj("ubCommandDescriptionsIt");
 
   const enKeys = Object.keys(en);
   assert.ok(enKeys.length >= 100, `Expected at least 100 UB command descriptions, got ${enKeys.length}`);
-  for (const [lang, obj] of [["hu", hu], ["es", es], ["de", de], ["nl", nl]]) {
+  for (const [lang, obj] of [["hu", hu], ["es", es], ["de", de], ["nl", nl], ["pl", pl], ["it", it]]) {
     const missing = enKeys.filter(k => !obj[k]);
     assert.strictEqual(missing.length, 0, `ubCommandDescriptions${lang.toUpperCase()} missing: ${missing.join(", ")}`);
     assert.strictEqual(Object.keys(obj).length, enKeys.length, `ubCommandDescriptions${lang.toUpperCase()} count mismatch`);
