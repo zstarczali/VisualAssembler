@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.3.9**
+**Versio 2.4.1**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin reaaliajassa.
 
@@ -9,8 +9,9 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 ## Sisällysluettelo
 
 - [C64 Visual Assembler — Käyttöopas](#c64-visual-assembler--user-manual)
+    - [Version 2.4.1 kohokohdat](#version-241-highlights)
+    - [Version 2.4.0 kohokohdat](#version-240-highlights)
     - [Version 2.3.9 kohokohdat](#version-239-highlights)
-    - [Version 2.3.8 kohokohdat](#version-238-highlights)
   - [Sisällysluettelo](#table-of-contents)
   - [1. Käyttöliittymän yleiskatsaus](#1-interface-overview)
   - [2. Lohkopaletti](#2-block-palette)
@@ -154,6 +155,26 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 
 ---
 
+## Version 2.4.1 kohokohdat
+
+- **Puolan ja italian käyttöliittymäkielet** — täydellinen käyttöliittymän käännös (valikot, valintaikkunat, muistisääntökuvaukset, Ultimate Basic -komentoluettelo) olemassa olevien unkarin, englannin, espanjan, saksan ja hollannin rinnalle.
+- **Online-ohjeen työkalupalkin painike** — uusi kuvakepainike, joka avautuu Debugin jälkeen ja avaa monikielisen dokumentaatiosivuston ([c64va.tech/docs.html](https://www.c64va.tech/docs.html)) suoraan sovelluksesta.
+- **Keskitetyt muistisääntökuvaukset:** kielikohtaisia muistisääntökuvauksia siirrettiin jaettuun käännöstiedostoon muiden käyttöliittymämerkkijonojen rinnalle. Korjaa myös pitkäaikaisen virheen, jossa kielten `PRINT`, `PRINT_HEX`, `CLEAR_SCREEN`, `WAIT_KEY`, `SET_BORDER`, `SET_BG`, `IRQ_SETUP` ja `RAND` englanninkieliset kuvaukset korvattiin hiljaisesti jäljelle jääneellä espanjankielisellä tekstillä.
+
+---
+
+## Version 2.4.0 kohokohdat
+
+- **D64-editori** — täysimittainen levykuvaselain työkalupalkissa (käyräeditorin jälkeen). Avaa olemassa oleva `.d64`, luo uusi tyhjä levy tai käynnistä nykyinen levy suoraan VICE-ohjelmaan. Kaikki tämä Tiedostot ▾ -valikosta, joka vastaa muita visuaalisia editoreita. Katso [D64-editori (olemassa olevan levykuvan selaaminen ja muokkaaminen)](#d64-editor-browse--edit-an-existing-disk-image).
+- **Lisää / pura / nimeä uudelleen / poista D64-editorissa** — lisää paikallinen tiedosto levyhakemistoon, pura valittu merkintä takaisin `.prg`-tiedostoon, nimeä merkintä uudelleen taulukon sisällä tai poista se — jokainen toiminto kohdistetaan suoraan `.d64`-tiedostoon `c1541`-komennon kautta ilman erillistä tallennusvaihetta.
+- **Latausosoite, purkuosoite ja Exomizer D64-editorissa** — otsikottoman raakatiedoston lisääminen antaa sinulle mahdollisuuden asettaa valinnaisen latausosoitteen, Exomizer-purkukohteen ja pakata sen matkan varrella käyttämällä samoja `mem`/`sfx` -tiivistystiloja kuin Vie D64:ään -valintaikkunan lisätiedostot. Tiedostossa `.prg`, jolla on jo oma otsikko, nämä kentät ohitetaan kokonaan.
+- **Levymerkintätyypin valitsin** — valitse PRG / SEQ / USR / REL juuri lisätylle tiedostolle sen sijaan, että se kirjoitettaisiin aina PRG-muodossa.
+- **Aito hakemistoluettelo** — D64 Editorin tiedostoluettelo renderöidään mukana tulevalla C64 Pro -fontilla, isoilla kirjaimilla, klassisen `LOAD"$",8` -ulkoasun saavuttamiseksi.
+- **Korjattu:** Merkinnän uudelleennimeäminen D64-editorissa ei enää hylkää muokkausta, kun napsautat tekstikenttää.
+- **Parannettu:** vaalean teeman tilanilmaisintyökalurivin merkki (LOHKOTILA / ASIANTUNTIJATILA / …) on tummempi ja helpommin luettava, ja sen hohtava animaatio on jälleen näkyvissä.
+
+---
+
 ## Version 2.3.9 kohokohdat
 
 Viisi assembler-ominaisuutta, joita kaikkia voi käyttää asiantuntijatilan tekstinä ja (jos se on järkevää) lohkoina. Jokaisella on oma viiteosionsa alempana:
@@ -164,18 +185,6 @@ Viisi assembler-ominaisuutta, joita kaikkia voi käyttää asiantuntijatilan tek
 - **`.assert` direktiivi** — `.assert loppu - alku &lt;= 256` tai `.assert * &lt; $A000, "viesti"` arvioidaan kokoonpanovaiheessa ja kääntäminen epäonnistuu (näyttäen todellisen arvon), kun lauseke on epätosi. Katso [.ASSERT](#assert).
 - **Itsemuokkaavan koodin operandin nimikkeet** — `LDA-arvo:#$00` määrittää nimikkeen `arvo`, joka osoittaa käskyn operanditavuun, joten `STA-arvo` korjaa sen suoraan. Katso [Itsemuokkaavan koodin operandin nimikkeet](#self-modifying-code-operand-labels).
 - **Ystävällisemmät kantaman ulkopuoliset haaravirheet** — haara, joka laskeutuu −128…+127:n ulkopuolelle, raportoi nyt tarkalleen, kuinka paljon se ylittää alueen ja ehdottaa vastaavaa `LBxx` pitkää haaraa.
-
----
-
-## Version 2.3.8 kohokohdat
-
-- **Työtilan tallennus / avaaminen:** tallentaa tarkan joukon avoimia tiedostovarmuuskopioituja välilehtiä – mukaan lukien aktiivisen välilehden ja kunkin välilehden editoritilan – `.vaws`-työtilatiedostoon. Työtilat tallentuvat automaattisesti muutoksen yhteydessä, ja sovellus palauttaa automaattisesti viimeisimmän työtilan käynnistyksen yhteydessä.
-- **Yleisen muistipaneelin vaihto:** näytä tai piilota koko C64-muistipaneeli erilliseltä käyttöliittymäkytkimeltä.
-- **Lokalisoitu Ultimate Basicin komentoviite:** Automaattisen täydennyksen ponnahdusikkunan ja komentopaneelin komentokuvaukset noudattavat nyt nykyistä käyttöliittymän kieltä (unkari, englanti, espanja, saksa, hollanti) ja vaihtoehtona on englanti.
-- **Päivitetty Ultimate Basic -grafiikkadokumentaatio:** `VÄRIKYNÄ` ja plot/line/suorrakulma/ympyrä- ja moniväripiirtokomentojen ohjetekstit vastaavat nyt kääntäjän nykyistä toimintaa.
-- **Korjattu KERNAL-viittaus:** korjasi `SETLFS`- ja `PLOT`-merkinnät (osoitteet ja kutsutavat käytännöt) purkajan KERNAL-osoitetaulukossa.
-- **Korjattu muistin käyttö useiden avoinna olevien välilehtien aikana:** Välilehtikohtainen kumoamis-/uudelleentoimintohistoria on nyt rajattu (pienellä palautumiskertoimella), mikä estää rajattoman muistin kasvun, jonka pitkä istunto useiden avoinna olevien dokumenttien kanssa aiemmin aiheutti.
-- **Editorin työkalupalkin siivous:** poisti tarpeettomat keskeytyskohtien vaihtopainikkeet Expert- ja Ultimate Basic -työkaluriveistä (keskeytyskohdat asetetaan edelleen rivinumerovälin perusteella) ja tasasi Expert-työkalupalkin korkeuden Ultimate Basic -työkalupalkin korkeuteen.
 
 ---
 
@@ -217,7 +226,7 @@ Käytä paletin yläosassa olevaa **hakukenttää** suodattaaksesi nimen mukaan.
 ## 3. Ohjelma-alue
 
 - **Vedä ja pudota** lohkoja paletista tai **järjestä uudelleen** olemassa olevia lohkoja vetämällä niiden kahvasta (≡).
-- Jokainen lohko näyttää sen **mnemonisen **, **operandikentän ** ja **osoitustilan valitsimen ** (jos sovellettavissa).
+- Jokainen lohko näyttää sen **mnemonisen**, **operandikentän** ja **osoitustilan valitsimen** (jos sovellettavissa).
 - Napsauta **▸ / ▾** -painiketta lohkon kutistamiseksi tai laajentamiseksi.
 - Poista lohko painamalla **× (poista)** -painiketta.
 - **Keskeytä kaikki** -painike taittaa kaikki lohkot kerralla.
@@ -254,7 +263,7 @@ Oikea paneeli näyttää tuotetun tuotoksen reaaliajassa.
 | **ASM**            | 6502 kokoonpanolähde osoitteineen ja nimikkeineen                                                                                                                                                                                                                                                                             |
 | **Näyttö**         | Heksa-/tavuvedos (C64-monitorityyli)                                                                                                                                                                                                                                                                                          |
 | **Disasm**         | Pure 6502 -järjestelmän purkaminen: osoite · heksatavut · muistisäännöt ratkaistuilla numeerisilla operandeilla. Makrot on laajennettu yksittäisiksi käskyiksi (TEXT → LDA/STA-parit, LOOP → LDX jne.). BYTE/WORD/FILL-data näytetään lohkoina heksavedoksena. Tulosteessa ei ole makrojen nimiä, kommentteja tai merkintöjä. |
-| Molemmat           | ASM ylhäällä, näyttö alhaalla                                                                                                                                                                                                                                                                                                 |
+| **Molemmat**       | ASM ylhäällä, näyttö alhaalla                                                                                                                                                                                                                                                                                                 |
 | **Purkaja**        | Sama kuin Disasm — oma välilehti purkamisnäkymälle                                                                                                                                                                                                                                                                            |
 | **Työkalupaketti** | C64-viitepaneeli: 16-värinen palettimalli + PETSCII-ohjauskoodi ja tulostettava merkkiluettelo. Vain luku - lisätietoja alla olevasta "Työkalupaketti-välilehti"-osiosta.                                                                                                                                                     |
 | **Asetukset**      | Ohjelma-asetusten paneeli — numeromuoto, makrolähteen vaihto, virheenkorjausparametrit                                                                                                                                                                                                                                        |
@@ -284,7 +293,7 @@ Toolkit on nopein tapa etsiä väri-indeksi tai PETSCII-ohjaustavu poistumatta e
 
 ### ASM-rivin napsauttaminen
 
-Napsauta mitä tahansa riviä ASM-näkymässä korostaaksesi ** vastaavan lohkon ** ohjelma-alueella.
+Napsauta mitä tahansa riviä ASM-näkymässä korostaaksesi **vastaavan lohkon** ohjelma-alueella.
 
 ### ASM-rivinumerot
 
@@ -549,7 +558,7 @@ Asiantuntijaeditorin minikartta on kapea, pieni kaistale (`88 px`) editorialueen
 | Direktiivin väri | `.byte`, `.macro`, `.region` ja kaikki muut direktiivit |
 | Muistiväri       | Kaikki muu (ohjeet)                                     |
 
-Läpinäkyvä **näkymän ilmaisin ** (korostusvärillä varustettu suorakulmio) näyttää, mikä osa lähteestä on tällä hetkellä näkyvissä. Napsauta mitä tahansa kohtaa minikartalla siirtyäksesi kyseiseen kohtaan; vedä vierittääksesi jatkuvasti. Minikartta vierii itsenäisesti pitäen näkyvyyden ilmaisimen keskitettynä. Tila säilyy käyttöliittymäasetuksissa (`expertMinimap`-näppäin).
+Läpinäkyvä **näkymän ilmaisin** (korostusvärillä varustettu suorakulmio) näyttää, mikä osa lähteestä on tällä hetkellä näkyvissä. Napsauta mitä tahansa kohtaa minikartalla siirtyäksesi kyseiseen kohtaan; vedä vierittääksesi jatkuvasti. Minikartta vierii itsenäisesti pitäen näkyvyyden ilmaisimen keskitettynä. Tila säilyy käyttöliittymäasetuksissa (`expertMinimap`-näppäin).
 
 ### Virhe korostuksessa
 
@@ -663,7 +672,7 @@ clear:
 | `#&lt;*` / `#&gt;*` | `LDA #&lt;*`, `LDA #&gt;*` | Nykyisen tietokoneen pienin/korkein tavu             |
 | `#&gt;(*+n)`        | `LDA #&gt;(*+63)`          | PC:hen liittyvän osoitteen alempi/ylempi tavu        |
 
-**PC vs. kertolasku.** `*` käsitellään ohjelmalaskurina vain, kun se on *arvopaikalla* — lausekkeen alussa tai heti operaattorin `(`, `,`, `&lt;`, `&gt;` tai välilyönnin jälkeen. Numeron `)` tai tunnisteen perässä oleva `*` on tavallinen kertolasku, joten `LDA-taulukko*2` ja `CONST_A*4` pysyvät muuttumattomina.
+**PC vs. multiplication.** `*` is treated as the program counter only when it sits in *value position* — at the start of the expression, or right after an operator, `(`, `,`, `&lt;`, `&gt;` or whitespace. A `*` that follows a number, `)` or an identifier is ordinary multiplication, so `LDA table*2` and `CONST_A*4` are unchanged.
 
 **Missä se toimii.** Mikä tahansa operandi, joka jo hyväksyy lausekkeen: haarautumiskohteet, `JMP` / `JSR`, `LDA`/`STA`/… absoluuttiset ja indeksoidut, välittömät matalan/korkean tavun operaattorit ja `.assert`-lauseke. `*` ei koskaan muuta käskyn kokoa, joten se on turvallinen kaikissa osoitustiloissa.
 
@@ -867,7 +876,7 @@ loop:
 loop:  ; $0820
 ```
 
-Nykyinen osoite näkyy kommenttina. Nimikkeiden koko on **0 tavua **.
+Nykyinen osoite näkyy kommenttina. Nimikkeiden koko on **0 tavua**.
 
 ---
 
@@ -919,7 +928,7 @@ Tämä tallentaa `frame_0`-kehyksen osoitteen alimman tavun, sitten ylemmän tav
 
 ### WORD
 
-Kuten BASICin **DATA, mutta 16-bittisille luvuille **. Jokainen arvo tallennetaan kahtena tavuna (ensin pienin tavu, sitten suurin – 6502 little-endian -järjestys).
+Kuten BASICin **DATA, mutta 16-bittisille luvuille**. Jokainen arvo tallennetaan kahtena tavuna (ensin pienin tavu, sitten suurin – 6502 little-endian -järjestys).
 
 | Ala      | Kuvaus                                                     |
 | -------- | ---------------------------------------------------------- |
@@ -1051,7 +1060,7 @@ Kuten **Työkkäämällä merkkijonon** mihin tahansa muistiosoitteeseen suoritu
 | Osoite                      | Kohdemuistin osoite — `$C000` heksadesimaali tai **otsikkonimi**                          |
 | Tarra (valinnainen)         | Määrittää kohdeosoitteeseen osoittavan tunnisteen                                         |
 | Siirtää                     | Heksadiarvo (00–FF) lisätään jokaiseen näyttökooditavuun (esim. `$80` = käänteinen video) |
-| Pienten kirjainten merkistö | Checkbox — same semantics as TEXT (see TEXT section)                                      |
+| Pienten kirjainten merkistö | Valintaruutu — sama semantiikka kuin TEKSTI (katso TEKSTI-osio)                           |
 
 **Asiantuntijan syntaksi:**
 ```
@@ -1138,7 +1147,7 @@ Kuten RAWBYTES, mutta tekstille — koodaa merkkijonon näyttökoodeiksi ja sijo
 | Osoite                      | Kohdemuistin osoite — `$C000` heksadesimaali tai **otsikkonimi**                          |
 | Tarra (valinnainen)         | Määrittää kohdeosoitteeseen osoittavan tunnisteen                                         |
 | Siirtää                     | Heksadiarvo (00–FF) lisätään jokaiseen näyttökooditavuun (esim. `$80` = käänteinen video) |
-| Pienten kirjainten merkistö | Checkbox — same semantics as TEXT (see TEXT section)                                      |
+| Pienten kirjainten merkistö | Valintaruutu — sama semantiikka kuin TEKSTI (katso TEKSTI-osio)                           |
 
 **Asiantuntijan syntaksi:**
 ```
@@ -1168,7 +1177,7 @@ Kuten RAWBYTES, mutta tekstille — koodaa merkkijonon näyttökoodeiksi ja sijo
 
 ### PETSCII
 
-Kuten **RAWBYTES, mutta KERNAL-tulosteelle ** — koodaa merkkijonon PETSCII-tavuina (yhteensopiva CHROUT:n kanssa kohdassa `$FFD2`) ja sijoittaa ne kiinteään osoitteeseen ilman ajonaikaista koodia. Käytä tätä, kun haluat tulostaa merkkejä `JSR $FFD2`:n kautta silmukassa, ja huomaa, että uusi `PRINT`-makro käyttää samaa kooderia ja pienten kirjainten valintaruututoimintoa.
+Kuten **RAWBYTES, mutta KERNAL-tulosteelle** — koodaa merkkijonon PETSCII-tavuina (yhteensopiva CHROUT:n kanssa kohdassa `$FFD2`) ja sijoittaa ne kiinteään osoitteeseen ilman ajonaikaista koodia. Käytä tätä, kun haluat tulostaa merkkejä `JSR $FFD2`:n kautta silmukassa, ja huomaa, että uusi `PRINT`-makro käyttää samaa kooderia ja pienten kirjainten valintaruututoimintoa.
 
 > **PETSCII vs. näyttökoodit:** PETSCII ja näyttökoodit ovat kaksi eri koodausta. Näyttökoodi `$01` = kirjain A; PETSCII `$41` = kirjain A (CHROUTin kautta). Käytä PETSCII:tä vain tulostettaessa KERNALin kautta; käytä TEXT/STRING/RAWTEXT-koodausta suoraan näyttömuistiin kirjoittamiseen.
 
@@ -1217,7 +1226,7 @@ done:
     RTS
 ```
 
-** Koodaussäännöt:**
+**Koodaussäännöt:**
 
 | Syöttö                                   | Isojen kirjainten tila                      | Pienten kirjainten tila |
 | ---------------------------------------- | ------------------------------------------- | ----------------------- |
@@ -1346,7 +1355,7 @@ Määrittää yhden 8×8 mukautetun merkin RAM-pohjaisessa merkistössä. Lähet
 | **CHARDEF**                      | Tarvitset muutaman mukautetun merkin (esimerkiksi 1–20). Suoritusaikakustannukset ovat 40 tavua merkiltä. |
 | **RAWBYTES @ $3800**             | Sinulla on täysi mukautettu merkistö (256 merkkiä). Yhteensä 2 kt dataa, ei ajonaikaista kopiota.         |
 | **INCBIN "charset.bin" @ $3800** | Ulkoinen merkistötiedosto (character editor -ohjelman luoma). Siistein vaihtoehto.                        |
-| ** Merkistöpohja + INCBIN**      | Täysi 256 merkin bittikarttakuva maalattu yhdeksi 128 × 128 -kuvaksi.                                     |
+| **Merkistöpohja + INCBIN**       | Täysi 256 merkin bittikarttakuva maalattu yhdeksi 128 × 128 -kuvaksi.                                     |
 
 > **Tasonkorjausmuistutus:** VIC-II odottaa merkistöpohjan olevan `$0800` kerrannainen. Kelvolliset pankit: `$0000`, `$0800`, `$1000`, ... , `$3800` (nykyisen 16 kt:n VIC-pankin sisällä). RAM-merkistöjen tyypillisesti ovat `$2000`, `$2800`, `$3000` tai `$3800`.
 
@@ -1514,7 +1523,7 @@ Kahta tiedostotyyppiä tuetaan:
 .include "sprites.asm"
 ```
 
-- Tiedostopääte ** vaaditaan asiantuntijatilassa ** — pelkkää nimeä, kuten `.include "macros"`, käsitellään nimellä `.include "macros.json"`.
+- Tiedostopääte **vaaditaan asiantuntijatilassa** — pelkkää nimeä, kuten `.include "macros"`, käsitellään nimellä `.include "macros.json"`.
 - Polun tarkkuus: yrittää ensin projektitiedoston vieressä olevaa polkua (suhteellinen) ja palaa sitten sovelluksen mukana toimitettuun `samples/`-hakemistoon.
 
 **Generoitu ASM (ei osoitteen ohitusta):**
@@ -1725,15 +1734,15 @@ done:
 
 ### PUSH / PULL
 
-Kuten **muuttujien tallentaminen ennen GOSUBia ja niiden palauttaminen **:n jälkeen — mutta käyttää 6502-laitteistopinoa. Jos aliohjelma käyttää A:ta, X:ää tai Y:tä, se kiedotaan PUSH- ja PULL-käskyihin, jotta kutsuvan koodin rekisterit säilyvät.
+Like **saving variables before a GOSUB and restoring them after** — but uses the 6502 hardware stack. If a subroutine uses A, X, or Y, wrap it with PUSH and PULL so the calling code's registers are preserved.
 
 #### PUSH
 
 Lisää yhden tai useamman rekisterin pinoon. Järjestys on aina A → X → Y (sisin ensin).
 
-| Ala        | Kuvaus                                                           |
-| ---------- | ---------------------------------------------------------------- |
-| Rekisterit | Mikä tahansa yhdistelmä: `A`, `X`, `Y`, `AX`, `AY`, `XY`, `XY[X] |
+| Ala        | Kuvaus                                                          |
+| ---------- | --------------------------------------------------------------- |
+| Rekisterit | Mikä tahansa yhdistelmä: `A`, `X`, `Y`, `AX`, `AY`, `XY`, `AXY` |
 
 **Asiantuntijan syntaksi:**
 ```
@@ -1751,7 +1760,7 @@ Lisää yhden tai useamman rekisterin pinoon. Järjestys on aina A → X → Y (
 
 #### PULL
 
-Palauttaa rekisterit pinosta käänteisessä **järjestyksessä ** (Y → X → A).
+Restores registers from the stack in **reverse order** (Y → X → A).
 
 | Ala        | Kuvaus                                                |
 | ---------- | ----------------------------------------------------- |
@@ -1775,7 +1784,7 @@ Palauttaa rekisterit pinosta käänteisessä **järjestyksessä ** (Y → X → 
 
 ### END / RTS alias
 
-Kuten **RTS, mutta ystävällisemmällä makronimellä ** — `.end` lähettää yhden `RTS` tavun ja toimii lyhyenä aliohjelman päättäjänä asiantuntijatilassa.
+Kuten **RTS, mutta ystävällisemmällä makronimellä** — `.end` lähettää yhden `RTS` tavun ja toimii lyhyenä aliohjelman päättäjänä asiantuntijatilassa.
 
 **Asiantuntijan syntaksi:**
 ```
@@ -1795,7 +1804,7 @@ Käytä tätä, kun haluat aliohjelman loppumerkin, joka lukee hieman enemmän m
 
 ### MACRO / ENDM / INVOKE
 
-Kuten **niminen GOSUB parametreilla ** — määrittele uudelleenkäytettävä koodipätkä kerran (MACRO…ENDM) ja kutsu sitä sitten missä tahansa INVOKE-komennolla. Anna eri argumenttiarvot joka kerta kopioinnin ja liittämisen sijaan.
+Like **a named GOSUB with parameters** — define a reusable chunk of code once (MACRO…ENDM), then call it anywhere with INVOKE. Pass different argument values each time instead of copy-pasting blocks.
 
 #### MACRO (definition start)
 
@@ -1804,7 +1813,7 @@ Kuten **niminen GOSUB parametreilla ** — määrittele uudelleenkäytettävä k
 | Nimi       | Makron tunniste (esim. `setColor`)                                                 |
 | Parametrit | Valinnaiset pilkulla erotetut parametrien nimet (esim. `color` tai `color, count`) |
 
-Merkitsee makromääritelmän alun. MACRO- ja ENDM-lohkojen väliset lohkot ovat makron runko – ne eivät luo koodia,** jossa määritelmä sijaitsee. Käytä `{paramName}` paikkamerkkinä argumenteille.
+Merkitsee makromääritelmän alun. MACRO- ja ENDM-lohkojen väliset lohkot ovat makron runko – ne **eivät luo koodia** siihen kohtaan, missä määritelmä sijaitsee. Käytä `{paramName`-elementtiä argumenttien paikkamerkkinä.
 
 **Generoitu ASM:**
 ```
@@ -1886,7 +1895,7 @@ Puhtaasti visuaalinen ryhmittely — **nolla tavua**, nolla vaikutusta koottuun 
 ```
 
 **Controls on the REGION block header (always visible):**
-- **▸ / ▾ ** — kutistaa tai laajentaa koko alueen. Kun kutistetaan, kaikki lohkot REGIONin ja ENDREGIONin välillä piilotetaan.
+- **▸ / ▾** — kutistaa tai laajentaa koko alueen. Kun kutistetaan, kaikki lohkot REGIONin ja ENDREGIONin välillä piilotetaan.
 - **↕ Laajenna kaikki** — poistaa alueen sisällä olevien yksittäisten lohkojen tiivistyksen ja laajentaa itse aluetta tarvittaessa.
 - **⦵ Valitse ASM:ssä** — korostaa koko alueen koodialueen ASM-näkymässä (välillä `; ===[ nimi ]===` väliin `; ===[/ nimi]===`) ja vierittää siihen. Vaihtaa ASM-välilehdelle automaattisesti, jos se ei ole tällä hetkellä näkyvissä.
 - **⧉ Kopioi alue** — kopioi REGION-lohkon, kaikki alilohkot ja vastaavan ENDREGION-lohkon leikepöydälle. Vilkkuva ✓-merkki vahvistaa kopioinnin.
@@ -1952,7 +1961,7 @@ Kuten **-kytkin, assembler lukee** — `DEFINE DEBUG` kytkee symbolin päälle, 
 ; .IF DEBUG
 ```
 
-Lohkot `IF` ja `ENDIF` (tai `ELSE`) välillä sisällytetään tai ohitetaan sen perusteella, onko ehtosymbolilla vastaava `DEFINE` ohjelmassa. Ohitetut lohkot näkyvät kommentteina `; [IF skipped] …` ja generoivat ** nolla tavua**.
+Lohkot `IF` ja `ENDIF` (tai `ELSE`) välillä sisällytetään tai ohitetaan sen perusteella, onko ehtosymbolilla vastaava `DEFINE` ohjelmassa. Ohitetut lohkot näkyvät kommentteina `; [IF skipped] …` ja generoivat **nolla tavua**.
 
 #### ELSE
 
@@ -2237,7 +2246,7 @@ Jopa 256 tavun koot käyttävät lyhyttä 8-bittistä silmukkaa. Suuremmat koot 
 
 #### PRINT
 
-Kuten **PETSCII-tuloste ilman vakiomuotoista **-lohkoa — tulostaa merkkijonon `CHROUT`-lohkon kautta samalla isojen/pienten kirjainten käsittelyllä kuin PETSCII-lohko. Pienten kirjainten valintaruutu jaetaan PETSCII-kooderin kanssa, joten tekstipolku pysyy yhtenäisenä.
+Kuten **PETSCII-tuloste ilman vakiomuotoista**-lohkoa — tulostaa merkkijonon `CHROUT`-lohkon kautta samalla isojen/pienten kirjainten käsittelyllä kuin PETSCII-lohko. Pienten kirjainten valintaruutu jaetaan PETSCII-kooderin kanssa, joten tekstipolku pysyy yhtenäisenä.
 
 **Asiantuntijan syntaksi:**
 ```
@@ -2336,7 +2345,7 @@ Käytä tätä, kun haluat yleisen "SEI / asennuskäsittelijä / IRQ:n käyttö�
 
 ### RAND
 
-Kuten pieni sisäänrakennettu PRNG** — palauttaa 8-bittisen pseudo-satunnaisen arvon kompaktista nollasivuisesta siemenestä.
+Kuten **pieni sisäänrakennettu PRNG** — palauttaa 8-bittisen pseudo-satunnaisen arvon kompaktista nollasivuisesta siemenestä.
 
 | Ala    | Kuvaus                                                             |
 | ------ | ------------------------------------------------------------------ |
@@ -2490,7 +2499,7 @@ skip_left:
 skip_right:
 ```
 
-** Ohjaussauvan bittikartta (aktiivinen-LOW — bitti = 0 tarkoittaa painettuna):**
+**Ohjaussauvan bittikartta (aktiivinen-LOW — bitti = 0 tarkoittaa painettuna):**
 
 | Bitti | Suunta | CIA-rekisteri                       |
 | ----- | ------ | ----------------------------------- |
@@ -2656,7 +2665,7 @@ Kuten BASICin **`PEEK($D01E)`** — tarkistaa VIC-II-laitteiston törmäysrekist
 
 **Koko:** 5 tavua.
 
-> **Tärkeää:** Lukeminen `$D01E`/`$D01F` ** tyhjentää rekisterin**. Lue se kerran kehystä kohden ja toimi tuloksen perusteella välittömästi komennolla `BEQ`/`BNE`.
+> **Tärkeää:** Lukeminen `$D01E`/`$D01F` **tyhjentää rekisterin**. Lue se kerran kehystä kohden ja toimi tuloksen perusteella välittömästi komennolla `BEQ`/`BNE`.
 
 **Tyypillinen käyttö:**
 ```
@@ -2820,7 +2829,7 @@ no_reu:
 
 ### REU_STASH / REU_FETCH / REU_SWAP
 
-DMA-lohkonsiirto C64 RAM -muistin ja REU-laajennusmuistin välillä – kuin erittäin nopea POKE-silmukka, mutta suoritin ei tee mitään (REU-siru kopioi tiedot suorittimen ollessa pysähdyksissä). 1000 tavun siirto on käytännössä välitön.
+DMA-lohkonsiirto C64 RAM -muistin ja REU-laajennusmuistin välillä – kuin erittäin nopea POKE-silmukka, mutta suoritin ei tee mitään (REU-siru kopioi tiedot suorittimen ollessa pysähdyksissä). `1000 dollarin` tavun siirto on käytännössä välitön.
 
 | Makro       | Suunta        | `$DF01`-komento |
 | ----------- | ------------- | --------------- |
@@ -3256,7 +3265,7 @@ Avaa pudotusvalikosta **Tallenna PRG ▾** → **Vie tiedostoon D64**. Valintaik
    - **Addr** (latausosoite, valinnainen) — jos annettu, alkuun lisätään 2-tavuinen PRG-otsikko. Jätä tyhjäksi kirjoittaaksesi raakatavuja ilman otsikkoa.
    - **Dst** (purkukohde, vain EXO:n kanssa) — mihin pakkauksen purkajan tulisi sijoittaa tiedot C64:lle. Kun EXO on käytössä, lisätiedot pakataan komennolla `exomizer mem -l <Osoite> file,<Dst>` ennen niiden kirjoittamista D64:lle. +2 turva-offset-kompensaatiota käytetään automaattisesti.
    - **EXO** — valintaruutu, joka ottaa käyttöön taaksepäin tapahtuvan `mem`-tilan murskaamisen tälle merkinnälle. Levyllä olevan tiedon koko on tyypillisesti 5–20 % alkuperäisestä.
-3. Luo **Vie** -tiedosto VICE:n `c1541`-työkalulla napsauttamalla **Vie**.
+3. Luo **Vie**-painiketta luodaksesi `.d64`-tiedoston VICE:n `c1541`-työkalulla.
 
 **Yhdistäminen EXODECRUNCH:**:n kanssa: Kun lähetät tiedoston, jonka EXO=on on asetettu, sitä lukevan ohjelman tulisi LADATA se **Addr**-osoitteeseen (sec=1, tiedoston oma PRG-otsikko) ja kutsua sitten **EXODECRUNCH**-makroa purkaakseen sen taaksepäin **Dst**-tiedostoon. Katso täydellinen malli `exo-multicolor-demo`-esimerkistä.
 
@@ -3267,6 +3276,39 @@ Levyn nimi, ohjelman nimi ja lisätiedostoluettelo tallennetaan projektin JSON-t
 **loadfile-demo**-esimerkkitiedosto on esikonfiguroitu ja sisältää lisätiedoston `DEMO-COLORS.PRG`. Valitse se, avaa **Run via D64** ja napsauta **Run** nähdäksesi koko latausprosessin toiminnassa.
 
 > **Vaatimus:** Sekä D64-vienti että suoritus D64:n kautta edellyttävät VICE:n (`c1541`) määrittämistä kohdassa [Laitteistoasetukset](#13-hardware-settings).
+
+### D64 Editor (selaa ja muokkaa olemassa olevaa levykuvaa)
+
+Käyräeditorin jälkeinen työkalupalkin kuvake avaa **D64-editorin** – itsenäisen työkalun olemassa olevan `.d64`-kuvan käsittelyyn suoraan, riippumatta avoimesta ohjelmasta. Toisin kuin yllä oleva Vie D64:ään -valintaikkuna (joka aina luo *uuden*-levyn käännetystä PRG:stä), D64-editori muokkaa levykuvaa paikallaan `c1541`-tiedoston kautta, joten se toimii myös kevyenä levynhallintaohjelmana.
+
+**Tiedostot ▾ -valikko:**
+
+| Tuote                    | Toiminta                                                                       |
+| ------------------------ | ------------------------------------------------------------------------------ |
+| **Uusi D64…**            | Valitse kohdepolku ja luo sinne juuri alustettu, tyhjä levykuva.               |
+| **Avaa D64…**            | Valitse olemassa oleva `.d64`-tiedosto ja lataa sen hakemisto.                 |
+| **Tallenna nimellä…**    | Kopioi avoinna oleva levykuva uuteen polkuun ja jatka kopion muokkaamista.     |
+| **Suorita VICE-tilassa** | Käynnistä avoinna oleva levykuva suoraan VICE-ohjelmassa (`-drive8type 1541`). |
+
+**Työkalurivi:**
+
+| Kuvake                      | Toiminta                                                                                        |
+| --------------------------- | ----------------------------------------------------------------------------------------------- |
+| **Lisää ohjelma**           | Valitse paikallinen tiedosto ja kirjoita se levyhakemistoon.                                    |
+| **Pura valittu**            | Tallenna valitun merkinnän tavut paikalliseen `.prg`-tiedostoon.                                |
+| **Nimeä valittu uudelleen** | Muokkaa merkinnän nimeä taulukon rivillä — Enter vahvistaa, Esc peruu.                          |
+| **Poista valitut**          | Poista valittu merkintä levyltä.                                                                |
+| **Päivitä**                 | Lue hakemisto uudelleen, esimerkiksi sen jälkeen, kun olet muokannut levyä toisella työkalulla. |
+
+**Ohjelman lisääminen:** Tiedoston valitseminen, joka päättyy jo `.prg`, pyytää vain **Nimen** ja levyn **Tyypin** (PRG/SEQ/USR/REL) – `.prg` sisältää jo oman latausosoiteotsikkonsa, joten se kirjoitetaan muuttumattomana. Minkä tahansa muun tiedoston (esim. raaka `.bin`) valitseminen näyttää lisäksi:
+
+- **Lataa osoite** (heksadesimaali, valinnainen) — lisää tähän osoitteeseen 2-tavuisen PRG-otsikon; jätä tyhjäksi kirjoittaaksesi tavut raakana.
+- **Pura osoite** (heksadesimaali, valinnainen) — käytetään vain yhdessä Exomizerin kanssa; kohdeosoite, johon purkajan tulisi purkaa tiedot.
+- **Exomizer** -valintaruutu — pakkaa tiedoston ennen kirjoittamista käyttäen samoja `mem`/`sfx` -tiivistystiloja kuin yllä olevan Vie D64:ään -valintaikkunan lisätiedostoille.
+
+Hakemistoluettelo näyttää tiedostonimet samalla fontilla ja isoilla kirjaimilla kuin oikea C64 `LOAD"$",8` -luettelo.
+
+> **Vaatimus:** Kuten D64-tiedostoon vienti, D64-editori vaatii VICE (`c1541`) -komennon, joka on määritetty kohdassa [Laitteistoasetukset](#13-hardware-settings). Jokainen toiminto (lisääminen/poistaminen/uudelleennimeäminen/purkaminen) sovelletaan suoraan levyllä olevaan `.d64`-tiedostoon – erillistä tallennusvaihetta ei ole.
 
 ---
 
@@ -3316,7 +3358,7 @@ Koska hyötykuorma tallennetaan lineaarisesti ja `assembleProgramToPrg()` palaut
 | TheC64 / TheC64 Mini            | Toimii sisäänrakennetun kasettilataajan kautta.        |
 | Kung Fu Flash                   | Toimii — natiivi Magic Desk -tila.                     |
 | EasyFlash-kasetti               | Toimii, kun se on ohjelmoitu Magic Desk -työpöydäksi.  |
-| 1541 Ultimate II+ / Ultimate 64 | Toimii **Kasetti → Lataa kasettikuva ** kautta.        |
+| 1541 Ultimate II+ / Ultimate 64 | Toimii **Kasetti → Lataa kasettikuva** kautta.         |
 | Kameleontti / Turbo-kameleontti | Toimii.                                                |
 
 ---
@@ -3352,7 +3394,7 @@ VICE vaaditaan seuraaville: **Suorita PRG:nä**, **Suorita D64:n kautta** ja **V
 
 Exomizer toimii samalla tavalla Windowsissa ja macOS:ssä — komentorivi (CLI) kutsutaan Tauri-taustajärjestelmästä; mikään integraatiossa ei ole alustakohtaista.
 
-** Sisäisesti käytetään kahta pakkaustilaa:**
+**Sisäisesti käytetään kahta pakkaustilaa:**
 
 | Tila               | Käyttämä                                                       | Soittokäytäntö                                                                                                                                                                                                     |
 | ------------------ | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -3545,16 +3587,16 @@ Luo käyttövalmiita `.byte`-hakutaulukoita matemaattisista käyristä — sini,
 **Käyrät:** Sini, kosini, lineaarinen, helpotus sisään/ulos/sisään/ulos (neliö- ja kuutiokäyrä), helpotus sisään/ulos (ympyräkäyrä), kolmio, sahakäyrä, neliö ja helpotus sisään/ulos/sisään/ulos pomppiva.
 
 **Ohjaimet:**
-| Ohjaus                   | Tarkoitus                                                                                                                                                                                            |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Alku-/loppuarvo**      | Lähtöalue. 0..255 8-bittisessä tilassa, 0..320 16-bittisessä tilassa.                                                                                                                                |
-| **Arvojen lukumäärä**    | Taulukon pituus, 4–512 merkintää.                                                                                                                                                                    |
-| **Syklit**               | Pöydän värähtelyjen määrä (vain sini/kosini/kolmio/saha/neliö). Hyväksyy murtoluvut (esim. `3,625`).                                                                                                 |
-| **Vaihe**                | Vaihe-ero asteina (vain sini/kosini).                                                                                                                                                                |
-| **Yhdistä toinen käyrä** | Sekoita toinen käyrä käyttämällä **Mix / Add / Multiply / Min / Max / Subtract ** -toimintoa, sen omia syklejä/vaihetta ja sekoitusmäärää. Molemmat lähdekäyrät on piirretty katkoviivalla kaavioon. |
-| **Tarra**                | Taulukon otsikko (ehdotetaan automaattisesti käyrän nimen perusteella).                                                                                                                              |
-| **Numeron muoto**        | `$XX` heksa- tai desimaaliluku.                                                                                                                                                                      |
-| **Arvot riviä kohden**   | 8 / 16 / 32 tavua per `.byte` rivi.                                                                                                                                                                  |
+| Ohjaus                   | Tarkoitus                                                                                                                                                                                           |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Alku-/loppuarvo**      | Lähtöalue. 0..255 8-bittisessä tilassa, 0..320 16-bittisessä tilassa.                                                                                                                               |
+| **Arvojen lukumäärä**    | Taulukon pituus, 4–512 merkintää.                                                                                                                                                                   |
+| **Syklit**               | Pöydän värähtelyjen määrä (vain sini/kosini/kolmio/saha/neliö). Hyväksyy murtoluvut (esim. `3,625`).                                                                                                |
+| **Vaihe**                | Vaihe-ero asteina (vain sini/kosini).                                                                                                                                                               |
+| **Yhdistä toinen käyrä** | Sekoita toinen käyrä käyttämällä **Mix / Add / Multiply / Min / Max / Subtract** -toimintoa, sen omia syklejä/vaihetta ja sekoitusmäärää. Molemmat lähdekäyrät on piirretty katkoviivalla kaavioon. |
+| **Tarra**                | Taulukon otsikko (ehdotetaan automaattisesti käyrän nimen perusteella).                                                                                                                             |
+| **Numeron muoto**        | `$XX` heksa- tai desimaaliluku.                                                                                                                                                                     |
+| **Arvot riviä kohden**   | 8 / 16 / 32 tavua per `.byte` rivi.                                                                                                                                                                 |
 
 **Lähtötilat:**
 | Tila            | Emits                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
@@ -3568,7 +3610,7 @@ Jokainen kopiointi-/lisäystuloste alkaa otsikkokommentilla, joka dokumentoi kä
 - **Graafinen** — käyrä, jonka arvo on 0 **ylhäällä** ja maksimiarvo **alhaalla**, C64 sprite-Y / rasteri -konventiota noudattaen (eli näet sen, mitä taulukko käyttää laitteistolla). Graafisen alla oleva metaviiva näyttää tavumäärän, luotujen arvojen todellisen minimi- ja maksimiarvon sekä käyrän/käyrien nimen/nimien.
 - **Pomppuva pallo** — animoi merkin taulukon läpi **Tempo** -tilassa (5–240 arvoa/sek). Tempolla 50 tämä vastaa yhtä arvoa kehystä kohden PAL-tilassa (50 Hz), eli yhtä `.wait_raster` askelta indeksiä kohden. Toista/tauko- ja uudelleenkäynnistyspainikkeet, viimeisten ~24 sijainnin häivytysjälki ja reaaliaikainen `Indeksi · Value` -lukema.
 
-**Kopioi / Lisää:** työkalupalkin kaksi kuvaketta — **Kopioi** lisää taulukon leikepöydälle; **Lisää editoriin** liittää taulukon (ja lukijan, jos käytössä) lohkoina nykyiseen ohjelmaan. Uudelleen lisääminen ** korvaa** edellisen käyräeditorin lisäyksen kaksoiskappaleiden pinoamisen sijaan (toimii lohko- ja asiantuntijatilassa).
+**Kopioi / Lisää:** työkalupalkin kaksi kuvaketta — **Kopioi** lisää taulukon leikepöydälle; **Lisää editoriin** liittää taulukon (ja lukijan, jos käytössä) lohkoina nykyiseen ohjelmaan. Uudelleen lisääminen **korvaa** edellisen käyräeditorin lisäyksen kaksoiskappaleiden pinoamisen sijaan (toimii lohko- ja asiantuntijatilassa).
 
 **Tiedostot-valikko:**
 | Toiminta                   | Mitä se tekee                                                                                                                                                                                                                                                                                                                    |
@@ -3577,7 +3619,7 @@ Jokainen kopiointi-/lisäystuloste alkaa otsikkokommentilla, joka dokumentoi kä
 | **Kuormituskäyrä (.bin)…** | Lataa raakataulukon tavut takaisin editoriin, tulkittuna nykyisen bittisyvyyden mukaan (16-bittinen: ensimmäinen puolisko lo, toinen puolisko hi). Ladattu taulukko näytetään sellaisenaan, kunnes jokin käyrän säätö luo uuden käyrän.                                                                                          |
 | **Vie demo lohkoiksi**     | Liittää täydellisen, ajettavan sprite-demon: sprite-alustus, rasterisynkronoitu pääsilmukka, upotettu taulukko ja pallosprite-data. X pyyhkäisee 0..320 8.8-kiintopisteessä `$D010` MSB:llä, kun taulukko ajaa sprite-Y:tä – täsmälleen editorin esikatselun mukaisesti. Uudelleenvienti korvaa aiemman käyräeditorin lisäyksen. |
 
-** Vastaa C64:n esikatselua:** esikatselu lukee taulukon **lineaarisesti, toistaen 0 → N-1 → 0, yksi arvo kehystä kohden**. Tarkan toiston aikaansaamiseksi taulukkoa on ajettava samalla tavalla (indeksiä lisätään kerran kehystä kohden, ja jaetaan taulukon pituus). Ping-pong- tai osittaisen alueen toisto liikkuu eri tavalla, vaikka tavuarvot ovat identtiset. Katso toimivan 16-bittisen sprite-X-esimerkin tiedostosta `samples/curve-new-demo.asm`.
+**Vastaa C64:n esikatselua:** esikatselu lukee taulukon **lineaarisesti, toistaen 0 → N-1 → 0, yksi arvo kehystä kohden**. Tarkan toiston aikaansaamiseksi taulukkoa on ajettava samalla tavalla (indeksiä lisätään kerran kehystä kohden, ja jaetaan taulukon pituus). Ping-pong- tai osittaisen alueen toisto liikkuu eri tavalla, vaikka tavuarvot ovat identtiset. Katso toimivan 16-bittisen sprite-X-esimerkin tiedostosta `samples/curve-new-demo.asm`.
 
 ---
 

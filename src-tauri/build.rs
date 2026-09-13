@@ -18,6 +18,9 @@ fn find_manual(root: &Path, revision: &str) -> Option<PathBuf> {
 
 fn main() {
     println!("cargo:rerun-if-changed=Cargo.lock");
+    println!("cargo:rerun-if-changed=tauri.conf.json");
+    println!("cargo:rerun-if-changed=icons/icon.ico");
+    println!("cargo:rerun-if-changed=icons/icon.png");
     let lock = std::fs::read_to_string("Cargo.lock").unwrap_or_default();
     let mut in_ub = false;
     let mut ub_version = "unknown".to_string();

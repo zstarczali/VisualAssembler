@@ -2,9 +2,15 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.4.0**
+**Current version: v2.4.1**
 
-## What's New in v2.4.0
+## What's New in v2.4.1
+
+- **Polish and Italian UI languages** — full UI translation (menus, dialogs, mnemonic descriptions, Ultimate Basic command reference) alongside the existing Hungarian, English, Spanish, German and Dutch.
+- **Online Help toolbar button** — a new icon button after Debug opens the multi-language documentation site (c64va.tech/docs.html) directly from the app.
+- **Centralized mnemonic descriptions** — per-language mnemonic descriptions moved from `app.js` into `i18n.js` alongside the rest of the UI strings, simplifying the language-selection logic. Also fixes a longstanding bug where the English descriptions for `PRINT`, `PRINT_HEX`, `CLEAR_SCREEN`, `WAIT_KEY`, `SET_BORDER`, `SET_BG`, `IRQ_SETUP` and `RAND` were silently overwritten by leftover Spanish text.
+
+## Earlier: v2.4.0
 
 - **D64 Editor** — a full disk-image browser on the toolbar (after the Curve Editor). Open an existing `.d64`, create a new blank one, or launch the current disk in VICE from a Files ▾ menu matching the other visual editors.
 - **Add / extract / rename / delete on the D64 Editor** — add a local file to the disk directory, extract a selected entry to `.prg`, rename an entry inline, or delete it — every action is applied straight to the `.d64` via `c1541`, no separate save step.

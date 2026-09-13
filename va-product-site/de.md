@@ -1,6 +1,6 @@
 # C64 Visual Assembler – Benutzerhandbuch
 
-**Version 2.3.9**
+**Version 2.4.1**
 
 Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Sie Programme durch Ziehen und Ablegen von Befehlsblöcken und sehen Sie den generierten Assembler- und Maschinencode in Echtzeit.
 
@@ -9,8 +9,9 @@ Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Si
 ## Inhaltsverzeichnis
 
 - [C64 Visual Assembler — Benutzerhandbuch](#c64-visual-assembler--user-manual)
+    - [Version 2.4.1 Highlights](#version-241-highlights)
+    - [Version 2.4.0 Highlights](#version-240-highlights)
     - [Version 2.3.9 Highlights](#version-239-highlights)
-    - [Version 2.3.8 Highlights](#version-238-highlights)
   - [Inhaltsverzeichnis](#table-of-contents)
   - [1. Schnittstellenübersicht](#1-interface-overview)
   - [2. Blockpalette](#2-block-palette)
@@ -154,6 +155,26 @@ Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Si
 
 ---
 
+## Highlights der Version 2.4.1
+
+- **Polnische und italienische UI-Sprachen** — vollständige Übersetzung der Benutzeroberfläche (Menüs, Dialoge, mnemonische Beschreibungen, Ultimate Basic-Befehlsreferenz) neben den bereits vorhandenen ungarischen, englischen, spanischen, deutschen und niederländischen.
+- **Online-Hilfe-Symbolleistenschaltfläche** — eine neue Symbolschaltfläche, die nach dem Debuggen die mehrsprachige Dokumentationsseite ([c64va.tech/docs.html](https://www.c64va.tech/docs.html)) direkt aus der App öffnet.
+- **Zentralisierte Tastenkombinationen:** Die sprachspezifischen Tastenkombinationen wurden zusammen mit den übrigen UI-Texten in die gemeinsame Übersetzungsdatei verschoben. Außerdem wird ein langjähriger Fehler behoben, bei dem die englischen Beschreibungen für `PRINT`, `PRINT_HEX`, `CLEAR_SCREEN`, `WAIT_KEY`, `SET_BORDER`, `SET_BG`, `IRQ_SETUP` und `RAND` stillschweigend durch übrig gebliebenen spanischen Text überschrieben wurden.
+
+---
+
+## Highlights der Version 2.4.0
+
+- **D64-Editor** – ein vollständiger Disk-Image-Browser in der Symbolleiste (nach dem Kurveneditor). Öffnen Sie ein vorhandenes `.d64`, erstellen Sie ein neues, leeres oder starten Sie die aktuelle Disk direkt in VICE. Dies ist jeweils über das Menü „Dateien ▾“ möglich, analog zu den anderen visuellen Editoren. Siehe [D64-Editor (vorhandenes Disk-Image durchsuchen und bearbeiten)](#d64-editor-browse--edit-an-existing-disk-image).
+- **Hinzufügen / Extrahieren / Umbenennen / Löschen im D64 Editor** — eine lokale Datei zum Festplattenverzeichnis hinzufügen, einen ausgewählten Eintrag zurück in eine `.prg` extrahieren, einen Eintrag direkt in der Tabelle umbenennen oder löschen — jede Aktion wird direkt auf die `.d64`-Datei über `c1541` angewendet, ohne dass ein separater Speicherschritt erforderlich ist.
+- **Ladeadresse, Dekomprimierungsadresse & Exomizer im D64-Editor** – Durch Hinzufügen einer Rohdatei ohne Header können Sie eine optionale Ladeadresse und ein Exomizer-Dekomprimierungsziel festlegen sowie die Datei beim Import komprimieren. Dabei werden dieselben `mem`/`sfx`-Komprimierungsmodi wie bei den Zusatzdateien des Dialogfelds „Exportieren nach D64“ verwendet. Eine `.prg`-Datei, die bereits einen eigenen Header enthält, überspringt diese Felder vollständig.
+- **Auswahl des Datenträgereintragstyps** — Wählen Sie PRG / SEQ / USR / REL für eine neu hinzugefügte Datei, anstatt sie immer als PRG zu schreiben.
+- **Authentische Verzeichnisauflistung** — Die Dateiliste des D64 Editors wird in der mitgelieferten C64 Pro-Schriftart in Großbuchstaben gerendert, für den klassischen `LOAD"$",8` Look.
+- **Behoben:** Das Umbenennen eines Eintrags im D64 Editor verwirft die Änderung nicht mehr, wenn man in das Textfeld klickt.
+- **Verbessert:** Das Symbol in der Symbolleiste des hellen Designs (BLOCKMODUS / EXPERTENMODUS / …) ist dunkler und besser lesbar, und seine Schimmeranimation ist wieder sichtbar.
+
+---
+
 ## Highlights der Version 2.3.9
 
 Fünf Assembler-Funktionen zur Verbesserung der Benutzerfreundlichkeit, die alle im Expertenmodus als Text und (wo sinnvoll) als Blöcke verwendet werden können. Jede Funktion hat weiter unten einen eigenen Referenzabschnitt:
@@ -164,18 +185,6 @@ Fünf Assembler-Funktionen zur Verbesserung der Benutzerfreundlichkeit, die alle
 - Die Direktive **`.assert`** — `.assert end - start &lt;= 256` oder `.assert * &lt; $A000, "message"` wird zur Assemblierungszeit ausgewertet und führt zu einem Build-Fehler (mit Anzeige des tatsächlichen Werts), wenn der Ausdruck falsch ist. Siehe [.ASSERT](#assert).
 - **Selbstmodifizierende Code-Operandenbezeichnungen** — `LDA Wert:#$00` definiert die Bezeichnung `Wert`, die auf das Operandenbyte der Anweisung zeigt, sodass `STA Wert` diese direkt überschreibt. Siehe [Selbstmodifizierende Code-Operandenbezeichnungen](#self-modifying-code-operand-labels).
 - **Freundlichere Fehler bei Verzweigungen außerhalb des Bereichs** — eine Verzweigung, die außerhalb von −128…+127 landet, meldet nun genau, wie weit sie den Bereich überschreitet, und schlägt die passende lange Verzweigung `LBxx` vor.
-
----
-
-## Highlights der Version 2.3.8
-
-- Arbeitsbereich speichern/öffnen: Speichert die exakte Menge der geöffneten, dateibasierten Tabs – einschließlich des aktiven Tabs und des Bearbeitungsmodus jedes Tabs – in einer Arbeitsbereichsdatei im Format `.vaws`. Arbeitsbereiche werden bei Änderungen automatisch gespeichert, und die App stellt beim Start automatisch Ihren zuletzt verwendeten Arbeitsbereich wieder her.
-- **Globaler Speicherpanel-Umschalter:** Das vollständige C64-Speicherpanel kann über einen dedizierten UI-Schalter ein- oder ausgeblendet werden.
-- **Lokalisierte Ultimate Basic-Befehlsreferenz:** Die Befehlsbeschreibungen im Autocomplete-Popup und im Befehlsfeld folgen nun der aktuellen UI-Sprache (Ungarisch, Englisch, Spanisch, Deutsch, Niederländisch), wobei Englisch als Fallback dient.
-- **Aktualisierte Grafikdokumentation für Ultimate Basic:** `FARBSTIFT` und der Hilfetext für die Befehle zum Zeichnen von Plots, Linien, Rechtecken, Kreisen und Mehrfarbenzeichnungen entsprechen nun dem aktuellen Verhalten des Compilers.
-- **Fixed KERNAL reference:** corrected the `SETLFS` and `PLOT` entries (addresses and calling conventions) in the disassembler's KERNAL address table.
-- **Behobene Speichernutzung bei vielen geöffneten Tabs:** Der Verlauf von Rückgängigmachen/Wiederherstellen pro Tab ist jetzt begrenzt (mit einer kleinen Entprellung), wodurch das unbegrenzte Speicherwachstum verhindert wird, das eine lange Sitzung mit vielen geöffneten Dokumenten früher verursachte.
-- **Bereinigung der Editor-Symbolleiste:** Die überflüssigen Haltepunkt-Umschaltknöpfe wurden aus den Symbolleisten Expert und Ultimate Basic entfernt (Haltepunkte werden weiterhin über die Zeilennummernleiste gesetzt), und die Höhe der Expert-Symbolleiste wurde an die Höhe der Ultimate Basic-Symbolleiste angepasst.
 
 ---
 
@@ -210,13 +219,13 @@ Die Palette auf der linken Seite listet alle verfügbaren Blöcke nach Kategorie
 - **Structure** — LABEL, COMMENT, REGION, ENDREGION
 - **Makros** — LOOP, NEXT, FOR, ENDF, PUSH, PULL, END, TEXT, BYTE, WORD, FILL, ALIGN, ASSERT, STRING, DATA, RAWBYTES, RAWTEXT, PETSCII, CHARSET, INCBIN, SID, INCLUDE, TABLE, ORG, MACRO, ENDM, INVOKE, IF, ELSE, ENDIF, VAR, WHILE, ENDW, REPEAT, UNTIL, MEMCPY, MEMSET, PRINT, PRINT_CHAR, PRINT_HEX, CLEAR_SCREEN, WAIT_KEY, DELAY, SET_BORDER, SET_BG, IRQ_SETUP, RAND, SPRITE_INIT, SPRITE_POS, WAIT_RASTER, JOYSTICK, MOUSE, SPRITE_COL, LOADFILE, REU_CHECK, REU_STASH, REU_FETCH, REU_SWAP, TURBO_SET, SUPERCPU_DETECT, TURBO_ENABLE, MAP_COPY, MAP_COPY16X16, SPRITE_ANIM, SCORE_BCD
 
-Verwenden Sie das Suchfeld ** oben in der Palette, um nach Namen zu filtern. Klicken Sie auf die Schaltfläche **Ausgewählten Block hinzufügen** oder ziehen Sie einen Block in den Programmbereich.
+Verwenden Sie das **Suchfeld** oben in der Palette, um nach Namen zu filtern. Klicken Sie auf die Schaltfläche **Ausgewählten Block hinzufügen** oder ziehen Sie einen Block in den Programmbereich.
 
 ---
 
 ## 3. Programmbereich
 
-- **Ziehen Sie **Blöcke aus der Palette per Drag & Drop, oder **ordnen Sie ** vorhandene Blöcke neu an, indem Sie an ihrem Griff (≡) ziehen.
+- **Ziehen Sie**Blöcke aus der Palette per Drag & Drop, oder **ordnen Sie** vorhandene Blöcke neu an, indem Sie an ihrem Griff (≡) ziehen.
 - Jeder Block zeigt seine **Mnemonik**, sein **Operandenfeld** und seinen **Adressierungsmodus-Selektor** (sofern zutreffend).
 - Klicken Sie auf den Schalter **▸ / ▾**, um einen Block ein- oder auszublenden.
 - Verwenden Sie die Schaltfläche **× (Löschen)** auf einem Block, um ihn zu entfernen.
@@ -354,8 +363,8 @@ Projekt-Snapshots werden als separate JSON-Dateien auf der Festplatte gespeicher
 
 Ein **Workspace** (`.vaws`-Datei) merkt sich, welche realen Dateien auf der Festplatte in den einzelnen Tabs geöffnet waren – einschließlich des Bearbeitungsmodus und des aktiven Tabs –, sodass Sie genau diese Einstellungen später wieder öffnen können. Er ist von einem `.proj`-Projekt getrennt: Ein Workspace kann beliebige Kombinationen von Block/Expert `.json`-Projektdateien, eigenständigen `.asm`-Dateien und Ultimate Basic `.ub`/`.proj`-Quelldateien über mehrere Tabs umfassen.
 
-- Arbeitsbereiche ** werden nach einigen hundert Millisekunden automatisch gespeichert**, sobald eine Änderung vorgenommen wurde oder ein Arbeitsbereich einmal gespeichert oder geöffnet wurde.
-- Die App stellt beim Start automatisch Ihren letzten Arbeitsbereich wieder her, sodass Ihre geöffneten Tabs genau dort weitermachen, wo Sie aufgehört haben.
+- Arbeitsbereiche **werden nach einigen hundert Millisekunden automatisch gespeichert**, sobald eine Änderung vorgenommen wurde oder ein Arbeitsbereich einmal gespeichert oder geöffnet wurde.
+- Die App **stellt beim Start automatisch Ihren letzten Arbeitsbereich** wieder her, sodass Ihre geöffneten Tabs genau dort weitermachen, wo Sie aufgehört haben.
 - Nur Tabs, die durch eine reale Datei auf der Festplatte belegt sind, werden im Arbeitsbereich gespeichert; ein Tab, der ein nicht gespeichertes Beispiel oder ein nur im Arbeitsspeicher befindliches Programm enthält, hat nichts zu speichern und wird übersprungen (mit einem Hinweis, falls keiner der geöffneten Tabs die Voraussetzungen erfüllt).
 - Beim Öffnen eines Arbeitsbereichs werden zunächst alle aktuell geöffneten Tabs geschlossen – Sie werden vor dem Fortfahren um Bestätigung gebeten.
 - Wenn ein Arbeitsbereich auf eine Datei verweist, die inzwischen verschoben oder gelöscht wurde, wird dieser Eintrag übersprungen und nach dem Laden namentlich gemeldet.
@@ -399,7 +408,7 @@ Bekannte Einschränkung:
 
 ## Ultimativer Basismodus
 
-Visual Assembler enthält eine vollständige Ultimate Basic IDE. Ultimate Basic ist eine moderne, kompilierte BASIC-Sprache zur Erstellung von C64-Programmen, Spielen und Demos, ohne dass jede Operation in hardwarenaher 6502-Assemblersprache geschrieben werden muss. Der Compiler läuft lokal und erzeugt native C64-PRG-Ausgabe.
+Visual Assembler enthält eine vollständige Ultimate Basic IDE**Ultimate Basic IDE**. Ultimate Basic ist eine moderne, kompilierte BASIC-Sprache zur Erstellung von C64-Programmen, Spielen und Demos, ohne dass jede Operation in hardwarenaher 6502-Assemblersprache geschrieben werden muss. Der Compiler läuft lokal und erzeugt native C64-PRG-Ausgabe.
 
 ### Öffnen des UB-Editors
 
@@ -529,7 +538,7 @@ Der Expertenmodus ist ein vollwertiger 6502-Bauteil-Editor mit direkter Texteing
 | **Regionsauswahl**                | `#expert-region-selection-btn`                 | Aktivieren Sie die automatische Bereichsmarkierung im Expertenmodus. Der Faltstatus bleibt gespeichert, aber wenn diese Funktion deaktiviert ist, bleibt der vollständige Quelltext sichtbar und der aktuelle Bereich wird nicht automatisch ausgewählt.                                                                |
 | **Alle Regionen ein-/ausblenden** | `#expert-region-fold-all-btn`                  | Alle `.region`-Blöcke lassen sich mit einem Klick ein- oder ausklappen. Ist bereits eine Region geöffnet, werden alle durch den Button ausgeblendet; sind alle Regionen bereits ausgeblendet, werden sie durch den nächsten Klick wieder ausgeblendet. Der Button leuchtet auf, sobald alle Regionen ausgeblendet sind. |
 | **Zeilennummern**                 | `#expert-line-numbers-btn`                     | Aktivieren/Deaktivieren Sie die Zeilennummernleiste links im Editor. Die Leiste bleibt mit der Scrollposition synchronisiert und wird während der Eingabe live aktualisiert.                                                                                                                                            |
-| **Finde**                         | `#expert-find-btn`                             | Öffnen Sie die schwebende Suchleiste (Strg+F). Geben Sie einen Suchbegriff ein; die Treffer werden in der Überlagerung hervorgehoben. Mit der Eingabetaste bzw. Umschalt+Eingabe können Sie zwischen den Treffern navigieren. Mit der Escape-Taste schließen Sie die Leiste.                                            |
+| **Finde**                         | `#expert-find-btn`                             | Öffnen Sie die schwebende Suchleiste (`Ctrl+F`). Geben Sie Ihren Suchbegriff ein; Treffer werden in der Überlagerung hervorgehoben. Mit `Enter` / `Shift+Enter` navigieren Sie zwischen den Treffern. `Escape` schließt die Leiste.                                                                                     |
 | **Verkleinern / Vergrößern**      | `#expert-zoom-out-btn` / `#expert-zoom-in-btn` | Verringern/Vergrößern Sie die Schriftgröße im Editor (8–28 px). Die Einstellung wird gespeichert.                                                                                                                                                                                                                       |
 | **Palette**                       | `#expert-palette-btn`                          | Linke Mnemopalette ein-/ausblenden                                                                                                                                                                                                                                                                                      |
 | **Disasm**                        | `#expert-disasm-btn`                           | Demontagefenster ein-/ausblenden (reines 6502, Makros erweitert)                                                                                                                                                                                                                                                        |
@@ -549,15 +558,15 @@ Die Minimap des Experteneditors ist ein schmaler Canvas-Streifen (`88 px`) ganz 
 | Richtlinienfarbe      | `.byte`, `.macro`, `.region` und alle anderen Direktiven |
 | Mnemotechnische Farbe | Alles andere (Anleitung)                                 |
 
-Ein halbtransparenter Anzeigebereichsindikator (farblich hervorgehobenes Rechteck) zeigt an, welcher Teil der Quelle aktuell sichtbar ist. Klicken Sie auf eine beliebige Stelle der Minikarte, um zu dieser Position zu springen; ziehen Sie, um kontinuierlich zu scrollen. Die Minikarte scrollt unabhängig, um den Anzeigebereichsindikator zentriert zu halten. Der Zustand wird in den UI-Einstellungen gespeichert (Schlüssel „expertMinimap“).
+Ein halbtransparenter Anzeigebereichsindikator (**,**, farblich hervorgehobenes Rechteck) zeigt den aktuell sichtbaren Bereich der Quelle an. Klicken Sie auf eine beliebige Stelle der Minikarte, um zu dieser Position zu springen; ziehen Sie, um kontinuierlich zu scrollen. Die Minikarte scrollt unabhängig, um den Anzeigebereichsindikator zentriert zu halten. Der Status wird in den UI-Einstellungen gespeichert (Taste `expertMinimap`).
 
 ### Fehlerhervorhebung
 
-Fehlerhafte Zeilen werden in Echtzeit, 350 ms nach jedem Tastendruck, rot hervorgehoben (getönter Hintergrund + linker Akzentrand). Die erste Fehlermeldung wird ebenfalls in der Statusleiste angezeigt. Sobald die Zeile korrigiert ist, verschwindet die Hervorhebung automatisch.
+Fehlerhafte Zeilen werden in Echtzeit, 350 ms nach jedem Tastendruck, rot (**,**) hervorgehoben (getönter Hintergrund + linker Akzentrand). Die erste Fehlermeldung wird ebenfalls in der Statusleiste angezeigt. Sobald die Zeile korrigiert ist, verschwindet die Hervorhebung automatisch.
 
 ### Syntaxhervorhebung
 
-Der Editor verwendet eine transparente Überlagerung (expert-hl), die den Inhalt des Textbereichs mit farbigen Elementen spiegelt. Die Hervorhebung kann mit der Schaltfläche HL deaktiviert werden, um die Leistung bei sehr großen Programmen zu verbessern.
+Der Editor verwendet eine transparente `<div>`-Überlagerung (`expert-hl`), die den Inhalt des Textbereichs mit farbigen `<span>`-Elementen widerspiegelt. Die Hervorhebung kann mit der Schaltfläche **HL** deaktiviert werden, um die Leistung bei sehr großen Programmen zu verbessern.
 
 | Farbe      | Token                                                                                                                                                       |
 | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -603,7 +612,7 @@ Die Tableiste erscheint oberhalb des Editors, wenn mehr als ein Tab geöffnet is
 | **Dateierweiterung**  | Der vollständige Dateiname einschließlich Erweiterung (`.c64va`, `.json`) wird angezeigt                                                                                                                                                                                                                                                                                                                             |
 | **Rechtsklickmenü**   | Klicken Sie mit der rechten Maustaste auf einen Tab (oder einen leeren Bereich in der Tableiste), um Folgendes auszuwählen: **Neuer Tab**, **Tab schließen**, **Weitere Tabs schließen**, **Tabs rechts schließen**, **Alle Tabs schließen**. Beim Schließen mehrerer Tabs gleichzeitig werden Sie für jeden geänderten Tab gefragt und der Vorgang wird abgebrochen. **Alle schließen** lässt immer einen Tab leer. |
 
-> Tipp: Die Palettensynchronisierung (#expert-palette-sync-btn) sorgt dafür, dass die Palettenauswahl mit der Tastenkombination am Cursor synchronisiert bleibt. Deaktivieren Sie diese Funktion, wenn Sie nicht möchten, dass die Palette während der Bearbeitung springt.
+> **Tip:** Die Palettensynchronisierung (`#expert-palette-sync-btn`) sorgt dafür, dass die Palettenauswahl mit der Tastenkombination am Cursor synchronisiert bleibt. Deaktivieren Sie diese Funktion, wenn Sie verhindern möchten, dass die Palette während der Bearbeitung springt.
 
 ---
 
@@ -663,13 +672,13 @@ clear:
 | `#&lt;*` / `#&gt;*` | `LDA #&lt;*`, `LDA #&gt;*` | Niedriges/hohes Byte des aktuellen PCs                        |
 | `#&gt;(*+n)`        | `LDA #&gt;(*+63)`          | Niedriges/hohes Byte einer PC-relativen Adresse               |
 
-**PC vs. Multiplikation.** `*` wird nur dann als Programmzähler behandelt, wenn es sich an der *Wertposition* befindet – am Anfang des Ausdrucks oder direkt nach einem Operator, `(`, `,`, `&lt;`, `&gt;` oder einem Leerzeichen. Ein `*`, das auf eine Zahl, `)` oder einen Bezeichner folgt, ist eine gewöhnliche Multiplikation, daher bleiben `LDA table*2` und `CONST_A*4` unverändert.
+**PC vs. multiplication.** `*` is treated as the program counter only when it sits in *value position* — at the start of the expression, or right after an operator, `(`, `,`, `&lt;`, `&gt;` or whitespace. A `*` that follows a number, `)` or an identifier is ordinary multiplication, so `LDA table*2` and `CONST_A*4` are unchanged.
 
 **Wo es funktioniert.** Jeder Operand, der bereits einen Ausdruck akzeptiert: Sprungziele, `JMP` / `JSR`, `LDA`/`STA`/… absolute und indizierte, unmittelbare Low-/High-Byte-Operatoren und der Ausdruck `.assert`. `*` ändert niemals die Größe einer Anweisung, daher ist es in jedem Adressierungsmodus sicher.
 
 ### Lokale (gepunktete) Bezeichnungen
 
-*(Neu in 2.3.9.)* Eine Marke, deren Name mit einem Punkt beginnt – `.loop`, `.skip`, `.done` – ist eine **lokale Marke**. Sie gehört zum Gültigkeitsbereich der nächstgelegenen vorhergehenden **globalen** (nicht gepunkteten) Marke und wird intern zu `<global>.<name>`. Zwei lokale Marken mit demselben Kurznamen unter verschiedenen globalen Marken kollidieren nicht.
+*(Neu in Version 2.3.9.)* Eine Marke, deren Name mit einem Punkt beginnt – `.loop`, `.skip`, `.done` – ist eine **lokale Marke**. Sie gehört zum Gültigkeitsbereich der nächstgelegenen vorhergehenden **globalen** (nicht gepunkteten) Marke und wird intern zu `<global>.<name>`. Zwei lokale Marken mit demselben Kurznamen unter verschiedenen globalen Marken **kollidieren nicht**.
 
 ```
 DrawSprite:
@@ -766,7 +775,7 @@ Der Wert `value` zeigt in jedem Adressierungsmodus auf `<Befehlsadresse> + 1` (d
 
 #### LBNE / LBEQ / … (Lange Zweige)
 
-*(Neu in 2.3.9.)* Die Palettenkategorie **Lange Verzweigungen** enthält acht Pseudo-Operationen, die sich wie bedingte Verzweigungen verhalten, aber **beliebige Adressen** erreichen können, nicht nur −128…+127. Jede dieser Operationen wird zu einer invertierten Verzweigung assembliert, die einen 3-Byte-JMP` überspringt – immer `5 Bytes**:
+*(Neu in 2.3.9.)* Die Palettenkategorie **Lange Verzweigungen** enthält acht Pseudo-Operationen, die sich wie bedingte Verzweigungen verhalten, aber **beliebige Adressen** erreichen, nicht nur −128…+127. Jede dieser Operationen wird zu einer invertierten Verzweigung assembliert, die einen 3-Byte-`JMP` überspringt – immer **5 Bytes**:
 
 ```
 LBEQ done      ; assembles to:   BNE *+3   ($D0 $03)
@@ -851,7 +860,7 @@ Makroblöcke ermöglichen es Ihnen, häufige Aufgaben in einem Schritt zu erledi
 
 ### LABEL
 
-Ähnlich einer Zeilennummer in BASIC – jedoch mit einem Namen anstelle einer Nummer. Sprungziele für JMP, JSR, BNE usw.
+Wie eine Zeilennummer (**) in BASIC (**) – nur mit einem Namen statt einer Nummer. Sprungziele für `JMP`, `JSR`, `BNE` usw.
 
 | Feld      | Beschreibung                                             |
 | --------- | -------------------------------------------------------- |
@@ -905,7 +914,7 @@ Wie **DATA in BASIC** — speichert eine Liste von Rohbytewerten direkt im Progr
     .byte $01, $02, $FF
 ```
 
-**Lo/Hi-Byte-Label-Referenzen: ** BYTE akzeptiert KickAssembler-/ca65-artige Token `<label` (niederwertiges Byte) und `>label` (hochwertiges Byte) neben numerischen Werten. Der Assembler löst die Labeladresse zur Kompilierzeit auf und fügt das entsprechende Byte ein. Beispiel:
+**Lo/Hi-Byte-Label-Referenzen:** BYTE akzeptiert KickAssembler-/ca65-artige Token `<label` (niederwertiges Byte) und `>label` (hochwertiges Byte) neben numerischen Werten. Der Assembler löst die Labeladresse zur Kompilierzeit auf und fügt das entsprechende Byte ein. Beispiel:
 
 ```
     .byte <frame_0, >frame_0, <frame_1, >frame_1
@@ -1043,7 +1052,7 @@ Die Zeichen werden als **Bildschirmcodes** (nicht PETSCII) kodiert. **Größe:**
 
 ### STRING
 
-Wie **POKE, das zur Laufzeit eine Zeichenkette ** in eine beliebige Speicheradresse schreibt. Erzeugt LDA/STA-Paare, die den Bildschirmcode jedes Zeichens in aufeinanderfolgende Adressen kopieren.
+Wie **POKE, das zur Laufzeit eine Zeichenkette** in eine beliebige Speicheradresse schreibt. Erzeugt LDA/STA-Paare, die den Bildschirmcode jedes Zeichens in aufeinanderfolgende Adressen kopieren.
 
 | Feld                        | Beschreibung                                                                                            |
 | --------------------------- | ------------------------------------------------------------------------------------------------------- |
@@ -1122,7 +1131,7 @@ Wie **DATA, das direkt in den Speicher geladen wird** – ganz ohne Laufzeitcode
 .rawbytes $0C50, $00, $00 :nev      ; with macroLabel — other code can use LDA nev,X
 ```
 
-**Größe im Code: ** 0 Bytes. Die Daten werden an der angegebenen Adresse in der Ausgabe platziert.
+**Größe im Code:** 0 Bytes. Die Daten werden an der angegebenen Adresse in der Ausgabe platziert.
 
 > **DATA vs. RAWBYTES:** DATA generiert LDA/STA-Code, der Bytes zur Laufzeit kopiert (langsamer, aber geeignet, wenn die Daten dynamisch sein müssen). RAWBYTES platziert die Bytes direkt – ohne Code, sofort, ohne Kosten.
 
@@ -1130,7 +1139,7 @@ Wie **DATA, das direkt in den Speicher geladen wird** – ganz ohne Laufzeitcode
 
 ### RAWTEXT
 
-Ähnlich wie RAWBYTES, jedoch für Text – die Zeichenkette wird als Bildschirmcode kodiert und die Bytes werden an einer festen Adresse ohne Laufzeitcode ** abgelegt. Der Text ist im Speicher verfügbar, sobald die PRG geladen ist.
+Ähnlich wie RAWBYTES, jedoch für Text – die Zeichenkette wird als Bildschirmcode kodiert und die Bytes an einer festen Adresse mit **(ohne Laufzeitcode**) abgelegt. Der Text ist im Speicher verfügbar, sobald das PRG geladen ist.
 
 | Feld                        | Beschreibung                                                                                            |
 | --------------------------- | ------------------------------------------------------------------------------------------------------- |
@@ -1160,7 +1169,7 @@ Wie **DATA, das direkt in den Speicher geladen wird** – ganz ohne Laufzeitcode
     .byte $48, $45, $4C, $4C, $4F   ; h e l l o (lowercase screen codes $41–$5A range)
 ```
 
-**Größe im Code: ** 0 Bytes. Die Daten werden an der angegebenen Adresse in der Ausgabe platziert.
+**Größe im Code:** 0 Bytes. Die Daten werden an der angegebenen Adresse in der Ausgabe platziert.
 
 > **STRING vs RAWTEXT:** STRING generiert LDA/STA-Code, der den Text zur Laufzeit kopiert. RAWTEXT bettet die Bytes beim Laden in die PRG ein – kein Code, keine Wartezeit.
 
@@ -1488,7 +1497,7 @@ Der Block zeigt Folgendes an:
 
 **Größe im Code:** 0 Bytes inline. Die SID-Binärdatei wird als verzögerter Chunk an der angegebenen Adresse im PRG abgelegt.
 
-> Wichtig: Die meisten SID-Dateien enthalten fest codierte interne absolute Adressen. Diese können nur verschoben werden, wenn die gesamte Binärdatei um denselben Offset verschoben wird. Enthält eine SID interne Sprünge zu `$10xx`, muss sie an der Adresse `$1000` verbleiben – eine Verschiebung an eine andere Adresse würde diese internen Referenzen ungültig machen.
+> **Wichtig:** Die meisten SID-Dateien enthalten fest codierte interne absolute Adressen. Diese können nur verschoben werden, wenn die gesamte Binärdatei um denselben Offset verschoben wird. Wenn eine SID interne Sprünge zu `$10xx` enthält, muss sie bei `$1000` bleiben – eine Verschiebung an eine andere Adresse würde diese internen Referenzen ungültig machen.
 
 > **Typische Verwendung:** Platzieren Sie einen ORG-Block vor dem SID-Block, um dessen Adresse festzulegen. Rufen Sie Init einmal beim Start auf und anschließend Play für jedes Frame über einen Raster-IRQ-Handler.
 
@@ -1514,7 +1523,7 @@ Es werden zwei Dateitypen unterstützt:
 .include "sprites.asm"
 ```
 
-- Die Dateierweiterung ** ist im Expertenmodus erforderlich** – ein einfacher Name wie `.include "macros"` wird als `.include "macros.json"` interpretiert.
+- Die Dateierweiterung **ist im Expertenmodus erforderlich** – ein einfacher Name wie `.include "macros"` wird als `.include "macros.json"` interpretiert.
 - Pfadauflösung: Zuerst wird versucht, im selben Verzeichnis wie die Projektdatei (relativ) zu arbeiten, dann wird auf das mit der App mitgelieferte Verzeichnis `samples/` zurückgegriffen.
 
 **Generierter ASM (keine Adressüberschreibung):**
@@ -1530,7 +1539,7 @@ Es werden zwei Dateitypen unterstützt:
     ... (expanded blocks follow)
 ```
 
-> Tipp: Verwenden Sie INCLUDE, um wiederverwendbare Unterprogrammbibliotheken zu erstellen, die Sie projektübergreifend nutzen können. `.inc`/`.asm`/`.s`-Dateien eignen sich am besten, wenn Sie die Bibliothek in einem einfachen Texteditor bearbeiten oder mit anderen 6502-Assemblern teilen möchten; `.json`-Dateien, wenn die Bibliothek direkt in Visual Assembler erstellt wurde. Legen Sie eine Ladeadresse fest, wenn die Bibliothek keine eigene ORG-Variable besitzt oder wenn Sie deren Standardplatzierung überschreiben möchten.
+> **Tip:** Verwenden Sie INCLUDE, um wiederverwendbare Unterprogrammbibliotheken zu erstellen, die Sie projektübergreifend nutzen können. `.inc`/`.asm`/`.s`-Dateien eignen sich am besten, wenn Sie die Bibliothek in einem einfachen Texteditor bearbeiten oder mit anderen 6502-Assemblern teilen möchten; `.json`, wenn die Bibliothek direkt im Visual Assembler erstellt wurde. Legen Sie eine Ladeadresse fest, wenn die Bibliothek keine eigene ORG-Variable besitzt oder wenn Sie deren Standardplatzierung überschreiben möchten.
 
 ---
 
@@ -1725,7 +1734,7 @@ done:
 
 ### PUSH / PULL
 
-Ähnlich wie ** das Speichern von Variablen vor einem GOSUB und deren Wiederherstellung danach ** – jedoch unter Verwendung des 6502-Hardware-Stacks. Wenn eine Subroutine A, X oder Y verwendet, muss sie mit PUSH und PULL umschlossen werden, damit die Register des aufrufenden Codes erhalten bleiben.
+Like **saving variables before a GOSUB and restoring them after** — but uses the 6502 hardware stack. If a subroutine uses A, X, or Y, wrap it with PUSH and PULL so the calling code's registers are preserved.
 
 #### PUSH
 
@@ -1751,7 +1760,7 @@ Legt ein oder mehrere Register auf den Stack. Die Reihenfolge ist immer A → X 
 
 #### PULL
 
-Stellt Register vom Stack in umgekehrter Reihenfolge wieder her **** (Y → X → A).
+Restores registers from the stack in **reverse order** (Y → X → A).
 
 | Feld     | Beschreibung                                                                    |
 | -------- | ------------------------------------------------------------------------------- |
@@ -1769,7 +1778,7 @@ Stellt Register vom Stack in umgekehrter Reihenfolge wieder her **** (Y → X �
     PLA
 ```
 
-> **Regel:** PUSH und PULL müssen immer den ** gleichen Registersatz** verwenden. `PUSH AX` → `PULL AX` (intern wird die Wiederherstellung in umgekehrter Reihenfolge durchgeführt: zuerst X, dann A).
+> **Regel:** PUSH und PULL müssen immer den **gleichen Registersatz** verwenden. `PUSH AX` → `PULL AX` (intern wird die Wiederherstellung in umgekehrter Reihenfolge durchgeführt: zuerst X, dann A).
 
 ---
 
@@ -1795,7 +1804,7 @@ Verwenden Sie diese Option, wenn Sie eine Unterprogramm-Endmarkierung benötigen
 
 ### MACRO / ENDM / INVOKE
 
-Wie **a named GOSUB with parameters** – definieren Sie einen wiederverwendbaren Codeabschnitt einmal (MACRO…ENDM) und rufen Sie ihn dann überall mit INVOKE auf. Übergeben Sie jedes Mal unterschiedliche Argumentwerte, anstatt Codeblöcke zu kopieren und einzufügen.
+Like **a named GOSUB with parameters** — define a reusable chunk of code once (MACRO…ENDM), then call it anywhere with INVOKE. Pass different argument values each time instead of copy-pasting blocks.
 
 #### MACRO (definition start)
 
@@ -1915,7 +1924,7 @@ Rein visuelle Gruppierung – **Null Bytes**, keine Auswirkung auf den kompilier
 
 ### DEFINE / IF / ELSE / ENDIF
 
-Wie ein vom Assembler gelesener Schalter ** – **DEFINE DEBUG` aktiviert ein Symbol, woraufhin ein beliebiger `IF DEBUG`-Block eingefügt und dessen `ELSE`-Zweig übersprungen wird. Entfernt man den DEFINE-Block, verschwindet der IF-Block aus der Ausgabe. Für Release-Builds ist kein Code-Löschen erforderlich.
+Wie ein Schalter, den der Assembler liest (**–**), aktiviert `DEFINE DEBUG` ein Symbol, woraufhin ein beliebiger `IF DEBUG`-Block eingefügt und dessen Zweig `ELSE` übersprungen wird. Entfernt man den DEFINE-Block, verschwindet der IF-Block aus der Ausgabe. Für Release-Builds ist kein Code-Löschen erforderlich.
 
 #### DEFINE
 
@@ -2515,7 +2524,7 @@ skip_right:
 <a id="mouse"></a>
 ### MOUSE
 
-Liest die proportionale Maus eines Commodore 1351 und bewegt einen Sprite. Vollständig inline ** – kein JSR oder Label erforderlich. Das Makro wählt den CIA-Port aus, wartet, bis sich die SID-Paddle-Eingaben stabilisiert haben, dekodiert dann die Delta-Bewegung mit dem Standard-1351-Treibermuster und wendet sie auf die Sprite-Register an.
+Liest die Proportionalmaus eines Commodore 1351 und bewegt einen Sprite. Vollständig **inline** – kein JSR oder Label erforderlich. Das Makro wählt den CIA-Port aus, wartet, bis sich die SID-Paddle-Eingaben stabilisiert haben, dekodiert dann die Delta-Bewegung mithilfe des Standard-1351-Treibermusters und wendet sie auf die Sprite-Register an.
 
 | Feld      | Beschreibung                                                                             |
 | --------- | ---------------------------------------------------------------------------------------- |
@@ -2656,7 +2665,7 @@ Wie **`PEEK($D01E)`** in BASIC – prüft die Hardware-Kollisionsregister des VI
 
 **Größe:** 5 Bytes.
 
-> **Wichtig:** Das Lesen von `$D01E`/`$D01F` ** löscht das Register**. Lesen Sie es einmal pro Frame und reagieren Sie sofort mit `BEQ`/`BNE`.
+> **Wichtig:** Das Lesen von `$D01E`/`$D01F` **löscht das Register**. Lesen Sie es einmal pro Frame und reagieren Sie sofort mit `BEQ`/`BNE`.
 
 **Typische Verwendung:**
 ```
@@ -2684,7 +2693,7 @@ Wie **`LOAD "Datei",8`** in BASIC – lädt eine Datei zur Laufzeit von einer D6
 
 | Feld                             | Beschreibung                                                                                                                                                                                                                                   |
 | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Dateiname                        | File name on the disk (max 16 chars, auto-uppercase; characters `,`, `"`, `/`, `\`, `:`, `*`, `?`, `<`, `>`, `                                                                                                                                 |
+| Dateiname                        | Dateiname auf der Festplatte (max. 16 Zeichen, automatische Großschreibung; die Zeichen `,`, `"`, `/`, `\`, `:`, `*`, `?`, `&lt;`, `&gt;`, `|` werden herausgefiltert)                                                                         |
 | Gerät                            | Gerätenummer 8–30 (Standard `8`)                                                                                                                                                                                                               |
 | Überschreiben-Adresse (optional) | Hexadezimale Ladeadresse (z. B. `C000`). Ist diese Adresse angegeben, wird die Datei unter dieser Adresse geladen (`sec=0`, PRG-Header wird ignoriert). Wird das Feld leer gelassen, wird der 2-Byte-PRG-Header der Datei verwendet (`sec=1`). |
 | Fehlerbezeichnung (optional)     | Falls gesetzt, wird nach JSR LOAD eine `BCS`-Anweisung generiert. Falls KERNAL mit gesetztem Übertrag (Fehler) zurückkehrt, springt die Ausführung zu dieser Marke.                                                                            |
@@ -2716,7 +2725,7 @@ skip_filename:
 
 **Größe:** `3 + Dateinamenlänge + 9 (SETNAM) + 9 (SETLFS) + (4 bei Überschreibung) + 5 (LOAD) + (2 bei Fehlerbezeichnung)` Bytes. Mindestens 27 Bytes.
 
-> Wichtig: Der Dateiname wird direkt nach einem JMP skip_filename im Maschinencode gespeichert. Der Dateiname auf der Festplatte muss in Großbuchstaben (PETSCII) vorliegen – entsprechend den ASCII-Großbuchstaben (A–Z). Das Makro erzwingt dies automatisch.
+> **Wichtig:** Der Dateiname wird direkt nach `JMP skip_filename` im Maschinencode gespeichert. Der Dateiname auf der Festplatte muss in Großbuchstaben (PETSCII) vorliegen – dies entspricht den ASCII-Großbuchstaben (`A` – `Z`). Das Makro erzwingt dies automatisch.
 
 > **Verwenden Sie für Produktionsprogramme immer eine Fehlerbezeichnung** – wenn die Datei nicht gefunden wird, setzt KERNAL das Übertragsflag und die Ausführung springt zum nächsten Programm.
 
@@ -2864,7 +2873,7 @@ LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immedi
 
 ### TURBO_SET
 
-Legt die CPU-Geschwindigkeit des Ultimate-64 (U64) über das Register $D031 fest. Hat keine Auswirkung auf einen echten C64 oder andere Emulatoren.
+Legt die CPU-Geschwindigkeit **Ultimate-64 (U64)** über das Register `$D031` fest. Hat keine Auswirkung auf einen echten C64 oder andere Emulatoren.
 
 **Felder:**
 
@@ -2924,7 +2933,7 @@ no_scpu:
 
 ### TURBO_ENABLE
 
-Aktiviert oder deaktiviert den SuperCPU-Turbomodus **. Rufen Sie zuerst `SUPERCPU_DETECT` auf und überspringen Sie diesen Schritt, falls keine SuperCPU vorhanden ist.
+Schaltet den **CMD SuperCPU-Turbomodus** ein oder aus. Rufen Sie zuerst `SUPERCPU_DETECT` auf und überspringen Sie diesen Schritt, falls keine SuperCPU vorhanden ist.
 
 | Modus        | Registrieren | Wirkung                                             |
 | ------------ | ------------ | --------------------------------------------------- |
@@ -3202,7 +3211,7 @@ Klicken Sie auf das Haltepunktsymbol (●) in einem beliebigen Anweisungsblock, 
 | `-unpause` EIN | `-unpause`   | Den Debugger beim Laden sofort wieder aktivieren.                                   |
 | `-wait` ON     | `-wait <ms>` | Warten Sie `<ms>` Millisekunden, bevor Sie die Pause aufheben – 500 ms oder 1000 ms |
 
-> Tipp: Aktivieren Sie für die meisten Programme die Befehle `-jmp` und `-unpause` für den sofortigen Autostart. Verwenden Sie `-wait 500` oder `-wait 1000`, wenn Ihr Programm IRQs oder SID-Musik einrichtet, die vor dem ersten Raster Zeit zum Initialisieren benötigen.
+> **Tip:** Aktivieren Sie für die meisten Programme `-jmp` und `-unpause` für den sofortigen Autostart. Verwenden Sie `-wait 500` oder `-wait 1000`, wenn Ihr Programm IRQs oder SID-Musik einrichtet, die vor dem ersten Raster Zeit zum Initialisieren benötigen.
 
 ---
 
@@ -3268,6 +3277,39 @@ Das Beispiel **loadfile-demo** enthält bereits die Datei `DEMO-COLORS.PRG` als 
 
 > **Anforderung:** Sowohl D64-Export als auch Ausführen über D64 erfordern, dass VICE (`c1541`) in [Hardware-Einstellungen](#13-hardware-settings) konfiguriert ist.
 
+### D64 Editor (vorhandenes Disk-Image durchsuchen und bearbeiten)
+
+Das Symbol in der Symbolleiste nach dem Kurveneditor öffnet den **D64-Editor** – ein eigenständiges Werkzeug zur direkten Bearbeitung eines vorhandenen `.d64`-Images, unabhängig vom aktuell geöffneten Programm. Im Gegensatz zum Dialogfeld „Exportieren nach D64“ (das immer eine *neue* Diskette aus der kompilierten PRG-Datei erstellt) bearbeitet der D64-Editor ein Diskettenabbild direkt über `c1541` und dient somit gleichzeitig als schlanker Diskettenmanager.
+
+**Dateien ▾ Menü:**
+
+| Artikel              | Aktion                                                                                                 |
+| -------------------- | ------------------------------------------------------------------------------------------------------ |
+| **Neues D64…**       | Wählen Sie einen Zielpfad und erstellen Sie dort ein frisch formatiertes, leeres Festplattenabbild.    |
+| **Open D64…**        | Wählen Sie eine vorhandene `.d64`-Datei aus und laden Sie deren Verzeichnis.                           |
+| **Speichern unter…** | Kopieren Sie das aktuell geöffnete Disk-Image in einen neuen Pfad und bearbeiten Sie die Kopie weiter. |
+| **Run in VICE**      | Starten Sie das aktuell geöffnete Disk-Image direkt in VICE (`-drive8type 1541`).                      |
+
+**Symbolleiste:**
+
+| Symbol                      | Aktion                                                                                                          |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **Programm hinzufügen**     | Wählen Sie eine lokale Datei aus und schreiben Sie sie in das Verzeichnis auf der Festplatte.                   |
+| **Ausgewählte extrahieren** | Speichern Sie die Bytes des ausgewählten Eintrags in einer lokalen `.prg`-Datei.                                |
+| **Ausgewählte umbenennen**  | Bearbeiten Sie den Eintragsnamen direkt in der Tabelle – Enter bestätigt, Escape bricht ab.                     |
+| **Ausgewählte löschen**     | Den ausgewählten Eintrag von der Festplatte entfernen.                                                          |
+| **Aktualisieren**           | Lesen Sie das Verzeichnis erneut ein, z. B. nachdem Sie die Festplatte mit einem anderen Tool bearbeitet haben. |
+
+**Hinzufügen eines Programms:** Die Auswahl einer Datei, die bereits auf `.prg` endet, fragt lediglich nach einem **Name** und einem Datenträgertyp**Typ** (PRG/SEQ/USR/REL) – eine `.prg` enthält bereits ihren eigenen Ladeadressheader und wird daher unverändert geschrieben. Die Auswahl einer anderen Datei (z. B. einer unformatierten `.bin`) zeigt zusätzlich Folgendes an:
+
+- **Ladeadresse** (hex, optional) — Füge an dieser Adresse einen 2-Byte-PRG-Header voran; lasse das Feld leer, um die Bytes roh zu schreiben.
+- **Dekomprimierungsadresse** (hex, optional) — wird nur zusammen mit Exomizer verwendet; die Zieladresse, an die der Depacker die Daten entpacken soll.
+- Kontrollkästchen **Exomizer** — Die Datei wird vor dem Schreiben komprimiert, wobei die gleichen `mem`/`sfx`-Komprimierungsmodi wie bei den zusätzlichen Dateien im obigen Dialogfeld „Exportieren nach D64“ verwendet werden.
+
+Die Verzeichnisauflistung gibt Dateinamen in der gleichen Schriftart und Großbuchstabensprache wieder wie eine echte C64 `LOAD"$",8`-Auflistung.
+
+> **Voraussetzung:** Wie beim Export nach D64 benötigt der D64-Editor VICE (`c1541`), das in den [Hardwareeinstellungen](#13-hardware-settings) konfiguriert ist. Jede Aktion (Hinzufügen/Löschen/Umbenennen/Extrahieren) wird direkt auf die `.d64`-Datei auf der Festplatte angewendet – es gibt keinen separaten Speichervorgang.
+
 ---
 
 ## 12b. CRT-Export (Magic Desk 64K-Kassette)
@@ -3281,7 +3323,7 @@ Das Beispiel **loadfile-demo** enthält bereits die Datei `DEMO-COLORS.PRG` als 
   - `$8000/$8002` Kalt- und Warmstartvektoren zeigen auf `$8009`.
   - `$8004–$8008` = die `CBM80`-Signatur, die vom KERNAL-Reset-Code benötigt wird.
   - `$8009–$807F` = der Loader: SEI / Stack-Initialisierung / `JSR $FDA3` (IOINIT) / `JSR $FD50` (RAMTAS) / `JSR $FD15` (RESTOR) / `JSR $FF5B` (CINT), dann eine Byte-Kopierschleife, die die Nutzdaten vom Cartridge-ROM in den RAM streamt und die Bänke wechselt, wenn `$FC` `$A0` erreicht. Am Ende kopiert es einen winzigen **Exit-Stub** nach `$0100`, deaktiviert den Cart mit `LDA #$80 : STA $DE00` und springt mit `JMP`s zum Einstiegspunkt.
-- Die Nutzdaten ** beginnen bei `$8080` in Bank 0 und werden bei Bedarf in die Bänke 1–7 verteilt. Die maximale Nutzlast beträgt `8 * 8192 − 128 = 65 408 Bytes`.
+- **Payload** beginnt bei `$8080` in Bank 0 und verteilt sich bei Bedarf auf die Bänke 1–7. Maximale Nutzlast = `8 * 8192 − 128 = 65 408 bytes`.
 
 ### Ladeadresse und Einstiegspunkt
 
@@ -3528,7 +3570,7 @@ Multiinstrumentaler 3-stimmiger Tracker mit Web-Audio-Vorschau. Öffnen über To
 | `Exportblöcke + Minispieler`             | Fügt den vollständigen Player (sid_init / sid_irq / sid_play_row / sid_set_voice) sowie PAL-Frequenztabellen hinzu. Nach dem Export fügen Sie in Ihrem Hauptcode an der Stelle, an der die Musikwiedergabe starten soll, eine `JSR sid_init`-Anweisung ein. |
 | `Assembler exportieren (Zwischenablage)` | Kopiert den vollständigen Assembler-Quelltext in die Zwischenablage.                                                                                                                                                                                        |
 
-**ZP-Nutzung des Spielers: ** `$FB` (Tickzähler), `$FC` (Zeilenindex), `$FD` (set_voice temp). Diese können in Konflikt geraten, wenn sie von Ihrem Hauptcode verwendet werden – verschieben Sie sie gegebenenfalls im Expertenmodus.
+**ZP-Nutzung des Spielers:** `$FB` (Tickzähler), `$FC` (Zeilenindex), `$FD` (set_voice temp). Diese können in Konflikt geraten, wenn sie von Ihrem Hauptcode verwendet werden – verschieben Sie sie gegebenenfalls im Expertenmodus.
 
 **Bekannte Grenzwerte:**
 - Einzelne lineare Musterliste (noch keine Sequenztabelle pro Stimme).
@@ -3556,7 +3598,7 @@ Erzeugt sofort einsatzbereite `.byte`-Lookup-Tabellen aus mathematischen Kurven 
 | **Zahlenformat**            | `$XX` hexadezimal oder dezimal.                                                                                                                                                                                   |
 | **Werte pro Zeile**         | 8 / 16 / 32 Bytes pro `.byte` Zeile.                                                                                                                                                                              |
 
-**Ausgabemodi: **
+**Ausgabemodi:**
 | Modus      | Sendet                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **8-Bit**  | Eine einzelne `.byte`-Tabelle (Werte 0..255). Gelesen mit `LDX #index / LDA-Tabelle,X`. Optional wird eine **Sprite-Y-Leseroutine** (`<label>_set_y`) — `LDA <label>,X` / `STA $D001+2N` — für eine auswählbare Sprite-Nummer von 0-7 ausgegeben.                                                                                                                                                                                                               |
@@ -3565,15 +3607,15 @@ Erzeugt sofort einsatzbereite `.byte`-Lookup-Tabellen aus mathematischen Kurven 
 Jede Kopier-/Einfügeausgabe beginnt mit einem Kopfzeilenkommentar, der die Kurve, den tatsächlichen Min-/Max-Bereich, die Anzahl der Einträge und die genaue Verwendung dokumentiert (wodurch jeder Tabellenfeed erfasst wird).
 
 **Vorschau:**
-- **Graph** – die Kurve, deren Wert oben ** und unten ** 0 beträgt und deren Maximum bei **unten ** liegt. Dies entspricht der Sprite-Y-/Raster-Konvention des C64 (die angezeigten Werte entsprechen also den Hardware-Ausgaben der Tabelle). Eine Metazeile unter dem Graphen zeigt die Byte-Anzahl, die tatsächlichen Minimal- und Maximalwerte sowie den/die Kurvennamen an.
+- **Graph** – die Kurve, deren Wert oben **und unten** 0 beträgt und deren Maximum bei **unten** liegt. Dies entspricht der Sprite-Y-/Raster-Konvention des C64 (die angezeigten Werte entsprechen also den Hardware-Ausgaben der Tabelle). Eine Metazeile unter dem Graphen zeigt die Byte-Anzahl, die tatsächlichen Minimal- und Maximalwerte sowie den/die Kurvennamen an.
 - **Hüpfender Ball** – animiert eine Markierung über den Tisch mit dem **Tempo** (5–240 Werte/Sek.). Bei Tempo 50 entspricht dies einem Wert pro Frame auf PAL (50 Hz), d. h. einem `.wait_raster`-Schritt pro Index. Wiedergabe-/Pause- und Neustart-Tasten, ein Ausblendeffekt der letzten ca. 24 Positionen und eine Live-Anzeige von `Index · Wert`.
 
-**Kopieren / Einfügen:** Die beiden Symbole der Symbolleiste – **Kopieren** legt die Tabelle in die Zwischenablage; **In Editor einfügen** fügt die Tabelle (und den Reader, falls aktiviert) als Blöcke an das aktuelle Programm an. Erneutes Einfügen** ersetzt** den vorherigen Eintrag im Kurveneditor, anstatt Duplikate zu stapeln (funktioniert im Block- und Expertenmodus).
+**Kopieren / Einfügen:** Die beiden Symbole der Symbolleiste – **Kopieren** legt die Tabelle in die Zwischenablage; **In Editor einfügen** fügt die Tabelle (und den Reader, falls aktiviert) als Blöcke an das aktuelle Programm an. Erneutes Einfügen**ersetzt** den vorherigen Eintrag im Kurveneditor, anstatt Duplikate zu stapeln (funktioniert im Block- und Expertenmodus).
 
 **Menü „Dateien“:**
 | Aktion                         | Was es tut                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ** Kurve speichern (.bin)…**   | Speichert die Rohdaten der Tabelle exakt so, wie der C64 sie über `INCBIN` lesen würde. 16 Bit: N LO-Bytes, gefolgt von N HI-Bytes.                                                                                                                                                                                                                                                                                                            |
+| **Kurve speichern (.bin)…**    | Speichert die Rohdaten der Tabelle exakt so, wie der C64 sie über `INCBIN` lesen würde. 16 Bit: N LO-Bytes, gefolgt von N HI-Bytes.                                                                                                                                                                                                                                                                                                            |
 | **Lastkurve (.bin)…**          | Lädt die Rohdaten der Tabelle zurück in den Editor, interpretiert gemäß der aktuellen Bittiefe (16 Bit: erste Hälfte niedrig, zweite Hälfte hoch). Die geladene Tabelle wird unverändert angezeigt, bis eine Kurvensteuerung eine neue Kurve generiert.                                                                                                                                                                                        |
 | **Demo in Blöcke exportieren** | Fügt eine vollständige, lauffähige Sprite-Demo hinzu: Sprite-Initialisierung, rastersynchronisierte Hauptschleife, die eingebettete Tabelle und die Daten des Kugel-Sprites. Die X-Achse durchläuft den Bereich von 0 bis 320 in 8,8-Punkt-Festkommadarstellung mit dem MSB `$D010`, während die Tabelle die Sprite-Y-Achse steuert – exakt entsprechend der Editor-Vorschau. Der erneute Export ersetzt den vorherigen Kurveneditor-Einschub. |
 
