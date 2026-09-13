@@ -1118,17 +1118,11 @@
       max-width: 520px
     }
 
-    .octopulous-embed {
-      width: 100%;
-      max-width: 556px;
-      justify-self: end
-    }
-
-    .octopulous-embed iframe {
-      display: block;
-      width: 100%;
-      height: 171px;
-      border: 0
+    .octopulous-play {
+      justify-self: end;
+      min-width: 280px;
+      padding: 18px 24px;
+      text-align: center
     }
 
     /* ── FOOTER ── */
@@ -1246,6 +1240,23 @@
       letter-spacing: 1px
     }
 
+    .visitor-counter {
+      display: inline-flex;
+      align-items: center;
+      min-height: 20px;
+      padding: 2px 8px;
+      border: 1px solid var(--brd);
+      color: var(--ylw);
+      font-family: 'C64Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1px
+    }
+
+    .visitor-counter strong {
+      margin-left: 6px;
+      color: var(--txt-hi)
+    }
+
     @media(max-width:900px) {
       nav {
         padding: 8px 12px;
@@ -1344,7 +1355,7 @@
         gap: 30px
       }
 
-      .octopulous-embed {
+      .octopulous-play {
         justify-self: start
       }
 
@@ -1467,7 +1478,7 @@
             <div class="fi-dot">&#9658;</div>
             <div><b>Multi-language documentation</b> <span>&mdash; the full manual is now searchable online at <a
                   href="docs.html" style="color:var(--cyn)">c64va.tech/docs.html</a>, in English, Hungarian, German,
-                French, Dutch, Finnish, Italian and Swedish.</span></div>
+                French, Dutch, Finnish, Italian, Swedish and Polish.</span></div>
           </div>
         </div>
       </div>
@@ -2058,8 +2069,8 @@
           <div class="sec-s">// DOCUMENTATION</div>
           <h2 class="sec-t" style="margin-bottom:0">USER MANUALS</h2>
         </div>
-        <p>The complete searchable manual is available in English, Hungarian, German, French, Dutch, Finnish, Italian
-          and Swedish. You can switch languages inside the documentation viewer.</p>
+        <p>The complete searchable manual is available in English, Hungarian, German, French, Dutch, Finnish, Italian,
+          Swedish and Polish. You can switch languages inside the documentation viewer.</p>
       </div>
       <button class="doc-card docs-open" type="button">► OPEN DOCUMENTS</button>
     </div>
@@ -2268,14 +2279,9 @@
         <h2 class="sec-t" id="octopulous-title">OCTOPULOUS</h2>
         <p class="sec-d">This is my son's second game: Octopulous is a goofy, bite-sized sidescrolling adventure about
           an octopus having to save his world from an unexpected evil's thirst for power.</p>
-        <a class="btn btn-o" href="https://www.owlycode.tech" target="_blank" rel="noopener">► VISIT OWLICODE.TECH</a>
+        <a class="btn btn-o" href="https://www.owlycode.tech" target="_blank" rel="noopener">► VISIT OWLYCODE.TECH</a>
       </div>
-      <div class="octopulous-embed">
-        <iframe
-          src="https://itch.io/embed/1593496?linkback=true&amp;border_width=3&amp;bg_color=D9893E&amp;fg_color=70161f&amp;link_color=db0d00&amp;border_color=ba6a1f"
-          width="556" height="171" title="Octopulous by OwlyCode on itch.io"><a
-            href="https://therealowlycode.itch.io/octopulous">Octopulous by OwlyCode</a></iframe>
-      </div>
+      <a class="btn btn-o octopulous-play" href="https://therealowlycode.itch.io/octopulous" target="_blank" rel="noopener">► PLAY OCTOPULOUS ON ITCH.IO</a>
     </div>
   </section>
 
@@ -2290,6 +2296,7 @@
         <a href="https://github.com/zstarczali/VisualAssembler/blob/main/LICENSE" target="_blank">LICENSE</a>
         <a href="#editors">SAMPLES</a>
       </div>
+      <div class="visitor-counter" aria-live="polite">VISITORS <strong id="visitor-count">—</strong></div>
       <div class="foot-copy">MIT LICENSE — FREE & OPEN SOURCE</div>
     </div>
   </footer>
@@ -2310,9 +2317,16 @@
       });
     }
 
+    fetch('visitor-counter.php', { cache: 'no-store', credentials: 'same-origin' })
+      .then(response => response.ok ? response.json() : Promise.reject(response))
+      .then(data => {
+        if (Number.isInteger(data.count)) document.getElementById('visitor-count').textContent = data.count.toLocaleString();
+      })
+      .catch(() => { document.getElementById('visitor-count').textContent = 'OFFLINE'; });
+
 
     document.querySelector('.docs-open').addEventListener('click', () => {
-      const languages = ['en', 'hu', 'de', 'fr', 'nl', 'fi', 'it', 'sv'];
+      const languages = ['en', 'hu', 'de', 'fr', 'nl', 'fi', 'it', 'sv', 'pl'];
       const saved = document.cookie.split('; ').find(row => row.startsWith('va_docs_lang='))?.split('=')[1];
       const language = languages.includes(saved) ? saved : 'en';
       const url = new URL('docs.html', location.href);
