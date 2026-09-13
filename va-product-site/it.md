@@ -278,7 +278,7 @@ La scheda **Toolkit** nella vista ASM è un pannello di riferimento rapido di so
 
 | Sezione                         | Contenuto                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| ** Tavolozza colori C64**       | Griglia di 16 campioni che mostra tutti i colori del C64 con il relativo indice (0–15 / `$00`–`$0F`) e nome. Clicca su un campione per copiare il suo indice esadecimale negli appunti. Passa il mouse sopra per visualizzare il nome del colore (Azzurro, Marrone, ecc.).                                                                                                                                                                       |
+| **Tavolozza colori C64**        | Griglia di 16 campioni che mostra tutti i colori del C64 con il relativo indice (0–15 / `$00`–`$0F`) e nome. Clicca su un campione per copiare il suo indice esadecimale negli appunti. Passa il mouse sopra per visualizzare il nome del colore (Azzurro, Marrone, ecc.).                                                                                                                                                                       |
 | **Codici di controllo PETSCII** | Codici di controllo comuni per `CHROUT` ($FFD2): codici di cambio colore (`$05` bianco, `$1C` rosso, `$1E` verde, `$1F` blu, …), movimento del cursore (`$11`/`$1D`/`$91`/`$9D`), inversione on/off (`$12`/`$92`), `$93` cancella schermo, `$8E`/`$0E` interruttori del set di caratteri. Anche un foglio riassuntivo stampabile (32-64 punteggiatura, 65-90 A-Z, 91-95 parentesi, 96-127 grafica, 160-191 grafica traslata, 192-223 speculare). |
 
 Il Toolkit è il modo più rapido per cercare un indice di colore o un byte di controllo PETSCII senza uscire dall'editor.
@@ -301,7 +301,7 @@ Fai clic su una qualsiasi riga nella vista ASM per **evidenziare il blocco corri
 
 ### Numeri di riga ASM
 
-Il pannello ASM visualizza i numeri di riga (001 | 002 | 002, ...) per facilitare la risoluzione dei problemi quando un errore di compilazione punta a una riga specifica.
+Il pannello ASM visualizza i **numeri di riga** (`001 |`, `002 |`, …) per facilitare la risoluzione dei problemi quando un errore di compilazione indica una riga specifica.
 
 - La numerazione visiva delle linee è solo a scopo diagnostico.
 - **Copia ASM** copia ancora il testo sorgente pulito **senza** prefissi dei numeri di riga.
@@ -365,7 +365,7 @@ Le istantanee del progetto vengono memorizzate come file JSON sidecar su disco, 
 
 ### Spazi di lavoro
 
-Un'area di lavoro (file vaws) memorizza quali file reali su disco erano aperti in ogni scheda, inclusa la modalità di modifica di ciascuna scheda e quale scheda era attiva, in modo da poter riaprire esattamente quello stesso set in seguito. È separata da un progetto proj: un'area di lavoro può estendersi su qualsiasi combinazione di file di progetto Block/Expert json, file asm autonomi e sorgenti Ultimate Basic ub/proj su più schede.
+Un'area di lavoro **** (file `.vaws`) memorizza quali file reali su disco erano aperti in ogni scheda, inclusa la modalità di modifica di ciascuna scheda e quale scheda era attiva, in modo da poter riaprire esattamente quello stesso set in un secondo momento. È separata da un progetto `.proj`: un'area di lavoro può comprendere qualsiasi combinazione di file di progetto Block/Expert `.json`, file `.asm` autonomi e sorgenti Ultimate Basic `.ub` / `.proj` su più schede.
 
 - Gli spazi di lavoro **salvano automaticamente** poche centinaia di millisecondi dopo aver apportato una modifica, una volta che uno è stato salvato o aperto.
 - L'app **ripristina automaticamente l'ultimo spazio di lavoro** all'avvio, in modo che le schede aperte riprendano da dove le avevi interrotte.
@@ -503,7 +503,7 @@ Il compilatore è incluso in Visual Assembler, quindi non è necessario alcun es
 
 ## 6. Modalità esperto
 
-La modalità Esperto è un editor di assembly 6502 completo, con funzionalità di scrittura diretta del testo, che affianca l'editor a blocchi. Ogni scheda può essere in modalità Blocco o in modalità Esperto: è possibile passare liberamente dall'una all'altra in qualsiasi momento utilizzando l'interruttore Blocco / Esperto nella barra superiore.
+La modalità Esperto è un editor di assembly 6502 completo, con funzionalità di scrittura diretta del testo, che affianca l'editor a blocchi. Ogni scheda può essere in modalità Blocco o in modalità Esperto: è possibile passare liberamente da una all'altra in qualsiasi momento utilizzando l'interruttore **Blocco / Esperto** nella barra superiore.
 
 ### Modalità di commutazione
 
@@ -599,7 +599,7 @@ La modalità esperto supporta un **pannello di progetto** (`#expert-project-pane
 
 - Un file `.proj` è un manifesto JSON che elenca i file sorgente e i relativi metadati.
 - Apri un progetto con **Menu → File → Apri progetto** oppure trascina un file `.proj` sulla finestra.
-- Ogni file del progetto si apre come una scheda ** ** separata nella barra delle schede nella parte superiore dell'editor.
+- Ogni file del progetto si apre come una scheda **** separata nella barra delle schede nella parte superiore dell'editor.
 - **Chiudi progetto** (`Menu → File → Chiudi progetto` / `#menu-close-project`) chiude il progetto corrente e tutte le relative schede file contemporaneamente. Richiede di salvare eventuali modifiche non salvate prima della chiusura. Il pannello del progetto viene ripristinato allo stato vuoto e `_expertProjectData` viene cancellato.
 - Ogni file può essere contrassegnato come **file di avvio** (★ icona a stella). Quando viene impostato un file di avvio, il pulsante **Esegui** (PRG, D64, Ultimate) compila ed esegue sempre il codice di quel file, indipendentemente dalla scheda attualmente attiva. Questo funziona sia in modalità a blocchi che in modalità esperto.
 - La sezione **simboli** nella parte inferiore del pannello del progetto può essere ridimensionata verticalmente tramite il divisore tra la struttura dei file e l'elenco dei simboli, in modo che gli elenchi di simboli lunghi possano occupare più spazio quando necessario.
@@ -676,13 +676,13 @@ clear:
 | `#&lt;*` / `#&gt;*` | `LDA #&lt;*`, `LDA #&gt;*` | Byte basso/alto del PC corrente                  |
 | `#&gt;(*+n)`        | `LDA #&gt;(*+63)`          | Byte basso/alto di un indirizzo relativo al PC   |
 
-**PC vs. moltiplicazione.** `*` viene trattato come contatore di programma solo quando si trova in *posizione valore* — all'inizio dell'espressione, o subito dopo un operatore, `(`, `,`, `&lt;`, `&gt;` o uno spazio bianco. Un `*` che segue un numero, `)` o un identificatore è una moltiplicazione ordinaria, quindi `tabella LDA*2` e `CONST_A*4` rimangono invariati.
+**PC vs. multiplication.** `*` is treated as the program counter only when it sits in *value position* — at the start of the expression, or right after an operator, `(`, `,`, `&lt;`, `&gt;` or whitespace. A `*` that follows a number, `)` or an identifier is ordinary multiplication, so `LDA table*2` and `CONST_A*4` are unchanged.
 
 **Dove funziona.** Qualsiasi operando che accetti già un'espressione: destinazioni di salto, `JMP` / `JSR`, `LDA`/`STA`/… assoluti e indicizzati, operatori immediati di byte bassi/alti e l'espressione `.assert`. `*` non modifica mai la dimensione di un'istruzione, quindi è sicuro in ogni modalità di indirizzamento.
 
 ### Etichette locali (tratteggiate)
 
-*(Novità nella versione 2.3.9.)* Un'etichetta il cui nome inizia con un punto — `.loop`, `.skip`, `.done` — è un'etichetta **locale**. Appartiene all'ambito dell'etichetta **globale** (non puntata) più vicina precedente e internamente diventa `<globale>.<nome>`. Due etichette locali con lo stesso nome breve sotto etichette globali diverse non **entrano in conflitto.
+*(Novità nella versione 2.3.9.)* Un'etichetta il cui nome inizia con un punto — `.loop`, `.skip`, `.done` — è un'etichetta **locale**. Appartiene all'ambito dell'etichetta **globale** (non puntata) più vicina che la precede e internamente diventa `<global>.<name>`. Due etichette locali con lo stesso nome breve sotto etichette globali diverse **non** entrano in conflitto.
 
 ```
 DrawSprite:
@@ -864,7 +864,7 @@ I blocchi macro consentono di eseguire operazioni comuni in un unico passaggio: 
 
 ### LABEL
 
-Come un numero di riga ** in BASIC** — ma con un nome invece di un numero. Destinazioni di salto per `JMP`, `JSR`, `BNE`, ecc.
+Come un numero di riga **in BASIC** — ma con un nome invece di un numero. Destinazioni di salto per `JMP`, `JSR`, `BNE`, ecc.
 
 | Campo               | Descrizione                                            |
 | ------------------- | ------------------------------------------------------ |
@@ -918,7 +918,7 @@ Come **DATA in BASIC** — memorizza un elenco di valori di byte grezzi in linea
     .byte $01, $02, $FF
 ```
 
-** Riferimenti all'etichetta del byte basso/alto: ** BYTE accetta token `<etichetta` (byte basso) e `>etichetta` (byte alto) in stile KickAssembler / ca65 insieme a valori numerici. L'assembler risolve l'indirizzo dell'etichetta in fase di compilazione e inserisce il byte appropriato. Esempio:
+**Riferimenti all'etichetta del byte basso/alto:** BYTE accetta token `<etichetta` (byte basso) e `>etichetta` (byte alto) in stile KickAssembler / ca65 insieme a valori numerici. L'assembler risolve l'indirizzo dell'etichetta in fase di compilazione e inserisce il byte appropriato. Esempio:
 
 ```
     .byte <frame_0, >frame_0, <frame_1, >frame_1
@@ -932,7 +932,7 @@ Questo memorizza il byte basso dell'indirizzo di `frame_0`, poi il byte alto, e 
 
 ### WORD
 
-Come **DATA in BASIC ma per numeri a 16 bit **. Ogni valore è memorizzato come due byte (prima il byte meno significativo, poi il byte più significativo - ordine little-endian 6502).
+Come **DATA in BASIC ma per numeri a 16 bit**. Ogni valore è memorizzato come due byte (prima il byte meno significativo, poi il byte più significativo - ordine little-endian 6502).
 
 | Campo    | Descrizione                                                     |
 | -------- | --------------------------------------------------------------- |
@@ -970,7 +970,7 @@ Come `FOR I=1 TO N : POKE addr+I, val : NEXT` — riempie un blocco di memoria c
     .fill 256, $00
 ```
 
-Sintassi dell'espressione: **Sia **count` che `value` accettano espressioni aritmetiche. È possibile fare riferimento a nomi CONST, utilizzare letterali esadecimali/binari e chiamare funzioni matematiche integrate:
+Sintassi dell'espressione **:** Sia `count` che `value` accettano espressioni aritmetiche. È possibile fare riferimento a nomi CONST, utilizzare letterali esadecimali/binari e chiamare funzioni matematiche integrate:
 
 | Espressione                       | Senso                                                   |
 | --------------------------------- | ------------------------------------------------------- |
@@ -1056,7 +1056,7 @@ I caratteri sono codificati come **codici schermo** (non PETSCII). **Dimensione:
 
 ### STRING
 
-Come **inserire una stringa ** in qualsiasi indirizzo di memoria durante l'esecuzione. Genera coppie LDA/STA che copiano il codice schermo di ciascun carattere in indirizzi consecutivi.
+Come **inserire una stringa** in qualsiasi indirizzo di memoria durante l'esecuzione. Genera coppie LDA/STA che copiano il codice schermo di ciascun carattere in indirizzi consecutivi.
 
 | Campo                   | Descrizione                                                                                                |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------- |
@@ -1216,7 +1216,7 @@ Come **RAWBYTES ma per l'output KERNAL** — codifica la stringa come byte PETSC
 
 **Dimensione in codice:** 0 byte. I dati vengono posizionati all'indirizzo di destinazione come sezione dati differita (come RAWBYTES).
 
-** Terminatore nullo:** Seleziona la casella di controllo *"Aggiungi `$00` (terminatore nullo)"* per aggiungere automaticamente un byte `$00` dopo il testo. Ideale per cicli terminati da null:
+**Terminatore nullo:** Seleziona la casella di controllo *"Aggiungi `$00` (terminatore nullo)"* per aggiungere automaticamente un byte `$00` dopo il testo. Ideale per cicli terminati da null:
 
 ```
     LDX #$00
@@ -1374,7 +1374,7 @@ Test di collisione Axis-aligned bounding box (AABB) tra due rettangoli descritti
 | Casella postale 1, indirizzo ZP | Base della pagina zero della struttura a 4 byte della prima casella (predefinita `$FB`).   |
 | Casella postale 2, indirizzo ZP | Base della pagina zero della struttura a 4 byte della seconda casella (predefinita `$F7`). |
 
-** Layout della struttura** (4 byte per riquadro, coordinate a 8 bit senza segno):
+**Layout della struttura** (4 byte per riquadro, coordinate a 8 bit senza segno):
 
 | Offset | Campo             |
 | ------ | ----------------- |
@@ -1439,7 +1439,7 @@ no_collision:
 
 **Vincoli:**
 - Entrambi gli indirizzi di pagina zero devono essere `≤ $FC` (ogni box necessita di 4 byte consecutivi: `zp`, `zp+1`, `zp+2`, `zp+3`).
-- Le coordinate vengono trattate come **8 bit senza segno ** (0–255). Per le coordinate sprite con segno al di fuori di questo intervallo, normalizzare prima di memorizzare.
+- Le coordinate vengono trattate come **8 bit senza segno** (0–255). Per le coordinate sprite con segno al di fuori di questo intervallo, normalizzare prima di memorizzare.
 - I due riquadri possono sovrapporsi nello spazio ZP, se lo si desidera, ma in genere si preferiscono 8 byte distinti.
 
 **Perché non una subroutine?** La generazione inline evita l'overhead JSR/RTS (14+ cicli) e mantiene il test attivo nella cache per cicli di gioco stretti. Se devi testare molte coppie, inserisci manualmente la tua `sub box_hit_jSR` attorno a un singolo blocco BOX_HIT.
@@ -1527,7 +1527,7 @@ Sono supportati due tipi di file:
 .include "sprites.asm"
 ```
 
-- L'estensione del file ** è richiesta in modalità esperto**: un nome semplice come `.include "macros"` viene trattato come `.include "macros.json"`.
+- L'estensione del file **è richiesta in modalità esperto**: un nome semplice come `.include "macros"` viene trattato come `.include "macros.json"`.
 - Risoluzione del percorso: prima tenta di cercare vicino al file di progetto (relativo), poi ripiega sulla directory `samples/` inclusa nell'app.
 
 **ASM generato (nessuna sovrascrittura dell'indirizzo):**
@@ -1738,7 +1738,7 @@ done:
 
 ### PUSH / PULL
 
-Come **salvare le variabili prima di un GOSUB e ripristinarle dopo** — ma usa lo stack hardware del 6502. Se una subroutine usa A, X o Y, racchiuderla in PUSH e PULL in modo che i registri del codice chiamante vengano preservati.
+Like **saving variables before a GOSUB and restoring them after** — but uses the 6502 hardware stack. If a subroutine uses A, X, or Y, wrap it with PUSH and PULL so the calling code's registers are preserved.
 
 #### PUSH
 
@@ -1764,7 +1764,7 @@ Inserisce uno o più registri nello stack. L'ordine è sempre A → X → Y (dal
 
 #### PULL
 
-Ripristina i registri dallo stack in ordine inverso** (Y → X → A).
+Restores registers from the stack in **reverse order** (Y → X → A).
 
 | Campo    | Descrizione                                                 |
 | -------- | ----------------------------------------------------------- |
@@ -1782,7 +1782,7 @@ Ripristina i registri dallo stack in ordine inverso** (Y → X → A).
     PLA
 ```
 
-> **Regola:** PUSH e PULL devono sempre utilizzare lo stesso set di registri**. `PUSH AX` → `PULL AX` (ripristina internamente in ordine inverso: prima X, poi A).
+> **Regola:** PUSH e PULL devono sempre utilizzare lo **stesso set di registri**. `PUSH AX` → `PULL AX` (ripristina internamente in ordine inverso: prima X, poi A).
 
 ---
 
@@ -1808,7 +1808,7 @@ Utilizzate questa opzione quando desiderate un marcatore di fine subroutine che 
 
 ### MACRO / ENDM / INVOKE
 
-Come **un GOSUB denominato con parametri** — definisci un blocco di codice riutilizzabile una volta (MACRO…ENDM), quindi richiamalo ovunque con INVOKE. Passa valori di argomento diversi ogni volta invece di copiare e incollare blocchi.
+Like **a named GOSUB with parameters** — define a reusable chunk of code once (MACRO…ENDM), then call it anywhere with INVOKE. Pass different argument values each time instead of copy-pasting blocks.
 
 #### MACRO (inizio definizione)
 
@@ -1817,7 +1817,7 @@ Come **un GOSUB denominato con parametri** — definisci un blocco di codice riu
 | Nome      | Identificatore per la macro (ad esempio `setColor`)                                         |
 | Parametri | Nomi di parametri opzionali separati da virgole (ad esempio `colore` o `colore, conteggio`) |
 
-Segna l'inizio di una definizione di macro. I blocchi tra MACRO e ENDM costituiscono il corpo della macro: non generano alcun codice dove si trova la definizione. Utilizzare {paramName} come segnaposto per gli argomenti.
+Segna l'inizio della definizione di una macro. I blocchi tra MACRO e ENDM costituiscono il corpo della macro: **non generano codice** nella posizione in cui si trova la definizione. Utilizzare `{paramName}` come segnaposto per gli argomenti.
 
 **Assembly generato:**
 ```
@@ -1928,7 +1928,7 @@ Raggruppamento puramente visivo: **zero byte**, nessun effetto sul codice assemb
 
 ### DEFINE / IF / ELSE / ENDIF
 
-Come un interruttore, l'assembler legge ** — `DEFINE DEBUG` attiva un simbolo, quindi qualsiasi blocco `IF DEBUG` viene incluso e il suo ramo `ELSE` viene saltato. Rimuovi il blocco DEFINE e il blocco IF scompare dall'output. Non è necessario eliminare il codice per le build di rilascio.
+Come un **interruttore che l'assembler legge** — `DEFINE DEBUG` attiva un simbolo, quindi qualsiasi blocco `IF DEBUG` viene incluso e il suo ramo `ELSE` viene saltato. Rimuovendo il blocco DEFINE, il blocco IF scompare dall'output. Non è necessario eliminare il codice per le build di rilascio.
 
 #### DEFINE
 
@@ -2118,7 +2118,7 @@ Operatori: `+ - * /` Letterali: `$FF` (esadecimale), `%10110000` (binario) Byte 
 
 ### VAR
 
-Come **CONST, ma allocato automaticamente ** — `VAR` riserva spazio di memoria a pagina zero per un'etichetta senza che tu debba digitare l'indirizzo. Usalo per contatori, puntatori e stati di breve durata che appartengono a ZP.
+Come **CONST, ma allocato automaticamente** — `VAR` riserva spazio di memoria a pagina zero per un'etichetta senza che tu debba digitare l'indirizzo. Usalo per contatori, puntatori e stati di breve durata che appartengono a ZP.
 
 | Campo                | Descrizione                                                |
 | -------------------- | ---------------------------------------------------------- |
@@ -2156,7 +2156,7 @@ L'allocatore percorre un cursore di pagina zero configurabile (`$02` a `$FE`) e 
 
 ### Runtime IF / ELSE / ENDIF
 
-Come un vero modello di diramazione, questa versione funziona in fase di esecuzione, non in fase di compilazione. Confronta A, X o Y con un valore immediato ed emette la corretta sequenza di diramazione CMP / CPX / CPY + per te.
+Come **, un vero modello di salto**, questa versione funziona a runtime, non a compilazione. Confronta `A`, `X` o `Y` con un valore immediato ed emette la corretta sequenza di salto `CMP` / `CPX` / `CPY`.
 
 | Campo     | Descrizione                                  |
 | --------- | -------------------------------------------- |
@@ -2513,7 +2513,7 @@ skip_right:
 | 3     | Giusto    |                                   |
 | 4     | Fuoco     | (non gestito da questa macro)     |
 
-**Dimensione:** 27 byte. L'offset `BCS` è sempre `+3` (salta la successiva istruzione abs`DEC`/`INC da 3 byte).
+**Dimensione:** 27 byte. L'offset `BCS` è sempre `+3` (salta la successiva istruzione `DEC`/`INC abs` di 3 byte).
 
 > **Uso tipico:** Inserire all'interno di un'etichetta `gameloop` con `WAIT_RASTER` per primo:
 > ```
@@ -2537,7 +2537,7 @@ Legge un mouse proporzionale Commodore 1351 e muove uno sprite. Interamente **in
 | ZP byte X | Indirizzo di pagina zero (esadecimale) per contenere il precedente campione POTX (ad esempio `FD`) |
 | ZP byte Y | Indirizzo di pagina zero (esadecimale) per contenere il precedente campione POTY (ad esempio `FE`) |
 
-** Forma ASM generata (porta 1, sprite 0, ZP `$FD`/`$FE`):**
+**Forma ASM generata (porta 1, sprite 0, ZP `$FD`/`$FE`):**
 
 ```
     ; CIA port select + settle
@@ -2739,7 +2739,7 @@ skip_filename:
 
 ### EXODECRUNCH
 
-Decompressione Exomizer in-program ** **. Utilizzare questa macro subito dopo un `LOADFILE ` che ha caricato un flusso compresso in modalità `mem ` di Exomizer: EXODECRUNCH lo decomprime all'indietro nell'indirizzo incorporato nel flusso.
+Decompressione Exomizer in-program ****. Utilizzare questa macro subito dopo un `LOADFILE ` che ha caricato un flusso compresso in modalità `mem ` di Exomizer: EXODECRUNCH lo decomprime all'indietro nell'indirizzo incorporato nel flusso.
 
 | Campo                        | Descrizione                                                                                                                          |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
@@ -2833,7 +2833,7 @@ no_reu:
 
 ### REU_STASH / REU_FETCH / REU_SWAP
 
-Trasferimento di blocchi DMA tra la RAM del C64 e la memoria di espansione REU: è come un ciclo POKE molto veloce, ma la CPU non esegue alcuna operazione (il chip REU copia i dati mentre la CPU è ferma). Un trasferimento di 1000 byte è praticamente istantaneo.
+Trasferimento di blocchi DMA tra la RAM del C64 e la memoria di espansione REU: simile a un ciclo POKE molto veloce, ma la CPU non esegue alcuna operazione (il chip REU copia i dati mentre la CPU è ferma). Un trasferimento di un byte `$1000` è praticamente istantaneo.
 
 | Macro       | Direzione     | `$DF01` comando |
 | ----------- | ------------- | --------------- |
@@ -2841,7 +2841,7 @@ Trasferimento di blocchi DMA tra la RAM del C64 e la memoria di espansione REU: 
 | `REU_FETCH` | REU → RAM C64 | `$91`           |
 | `REU_SWAP`  | RAM C64 ↔ REU | `$92`           |
 
-** Campi:**
+**Campi:**
 
 | Campo         | Descrizione                                          | Esempio |
 | ------------- | ---------------------------------------------------- | ------- |
@@ -2879,7 +2879,7 @@ LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immedi
 
 Imposta la velocità della CPU **Ultimate-64 (U64)** tramite il registro `$D031`. Nessun effetto su un vero C64 o altri emulatori.
 
-** Campi:**
+**Campi:**
 
 | Campo            | Descrizione                  | Allineare                                            |
 | ---------------- | ---------------------------- | ---------------------------------------------------- |
@@ -2918,7 +2918,7 @@ C9 FF      CMP #$FF
 - **Z = 0** → SuperCPU presente → usa `BNE`
 - **Z = 1** → SuperCPU non trovato → usa `BEQ`
 
-** Nessun campo configurabile.**
+**Nessun campo configurabile.**
 
 **Sintassi esperta:**
 ```
@@ -3196,7 +3196,7 @@ L'app supporta **RetroDebugger** come debugger esterno per C64. Riceve breakpoin
 
 1. Assembla il programma in un file `.prg` in una directory temporanea.
 2. Scrivi un file di punti di interruzione **** (`breakpoints.txt`) — un `break $ADDR` per blocco contrassegnato.
-3. Scrivi un file di simboli ** (**symbols.txt`) nel formato di etichetta di Vice/RetroDebugger (`al C:addr .name`). Tutti i blocchi LABEL e CONST sono inclusi.
+3. Scrivi un file di simboli **** (`symbols.txt`) nel formato di etichetta Vice/RetroDebugger (`al C:addr .name`). Tutti i blocchi LABEL e CONST sono inclusi.
 4. Scrivi anche i file sidecar in stile C64Debugger accanto al PRG compilato: `.dbg`, `.sym` e `.vs`.
 5. Avvia RetroDebugger con:
    ```
@@ -3263,7 +3263,7 @@ La modalità selezionata viene salvata tra una sessione e l'altra.
 
 Apri tramite il menu a tendina **Salva PRG ▾** → **Esporta in D64**. La finestra di dialogo consente di:
 
-1. Imposta il nome del disco ** (max 16 caratteri) e il nome del programma ** — questi sono i nomi che appaiono nella directory del disco C64.
+1. Imposta il **nome del disco** (massimo 16 caratteri) e il **nome del programma**: questi sono i nomi che appariranno nella directory del disco del C64.
 2. **Aggiungi file extra** — fai clic su **+** per selezionare un file binario qualsiasi (`.prg`, `.bin`, `.sid`, ecc.). Per ogni extra:
    - **Nome** — come appare nella directory D64 (max 16 caratteri, maiuscolo automatico).
    - **Addr** (indirizzo di caricamento, facoltativo) — se fornito, viene anteposto un header PRG di 2 byte. Lasciare vuoto per scrivere byte grezzi senza header.
@@ -3283,7 +3283,7 @@ L'esempio **loadfile-demo** viene fornito preconfigurato con `DEMO-COLORS.PRG` c
 
 ### Editor D64 (per visualizzare e modificare un'immagine disco esistente)
 
-L'icona nella barra degli strumenti dopo l'Editor di curve apre l'Editor D64, uno strumento autonomo per lavorare direttamente con un'immagine D64 esistente, indipendentemente dal programma attualmente aperto. A differenza della finestra di dialogo Esporta in D64 mostrata sopra (che crea sempre un nuovo disco dal file PRG compilato), l'Editor D64 modifica un'immagine disco direttamente tramite c1541, fungendo quindi anche da gestore di dischi leggero.
+L'icona nella barra degli strumenti dopo l'Editor di curve apre l'Editor D64 ****, uno strumento autonomo per lavorare direttamente con un'immagine `.d64` esistente, indipendentemente dal programma attualmente aperto. A differenza della finestra di dialogo Esporta in D64 mostrata sopra (che crea sempre un *nuovo* disco dal file PRG compilato), l'Editor D64 modifica un'immagine disco direttamente tramite `c1541`, fungendo quindi anche da gestore di dischi leggero.
 
 **Menu File ▾:**
 
@@ -3326,7 +3326,7 @@ L'elenco delle directory visualizza i nomi dei file con lo stesso carattere e st
 - **Il banco 0** contiene un'intestazione di 128 byte + boot loader:
   - `$8000/$8002` I vettori di avvio freddo + caldo puntano a `$8009`.
   - `$8004–$8008` = la firma `CBM80` richiesta dal codice di reset KERNAL.
-  - `$8009–$807F` = il caricatore: SEI / inizializzazione dello stack / `JSR $FDA3` (IOINIT) / `JSR $FD50` (RAMTAS) / `JSR $FD15` (RESTOR) / `JSR $FF5B` (CINT), quindi un ciclo di copia di byte che trasmette il payload dalla ROM della cartuccia alla RAM e cambia banco quando `$FC` raggiunge `$A0`. Alla fine copia un piccolo stub di uscita in $0100, disabilita il carrello con LDA #80 : STA $DE00 e salta al punto di ingresso.
+  - `$8009–$807F` = il caricatore: SEI / inizializzazione dello stack / `JSR $FDA3` (IOINIT) / `JSR $FD50` (RAMTAS) / `JSR $FD15` (RESTOR) / `JSR $FF5B` (CINT), quindi un ciclo di copia di byte che trasmette il payload dalla ROM della cartuccia alla RAM e cambia banco quando `$FC` raggiunge `$A0`. Alla fine copia un piccolo **stub di uscita** in `$0100`, disabilita la cartuccia con `LDA #$80 : STA $DE00` e `JMP` al punto di ingresso.
 - **Il payload** inizia a `$8080` nel banco 0 e si espande nei banchi 1–7 secondo necessità. Il payload massimo = `8 * 8192 − 128 = 65 408 byte`.
 
 ### Indirizzo di caricamento e punto di ingresso
@@ -3440,7 +3440,7 @@ Esegui i PRG assemblati direttamente su hardware reale tramite la rete locale ut
 
 ## 14. Editor visivi (Toolkit)
 
-Il menu Toolkit** della barra degli strumenti raggruppa gli editor di dati visivi che condividono tutti un menu File (`File ▾`) comune per Carica BIN / Salva BIN / Esporta in blocchi / Salva su D64. Ogni editor produce dati `.bin` grezzi che possono essere inseriti in un programma con `INCBIN` o aggiunti direttamente a un disco D64 tramite la voce **Salva su D64**.
+Il menu **Toolkit** della barra degli strumenti raggruppa gli editor di dati visivi che condividono tutti un menu File (`File ▾`) comune per Carica BIN / Salva BIN / Esporta in blocchi / Salva su D64. Ogni editor produce dati grezzi `.bin` che possono essere inseriti in un programma con `INCBIN` o aggiunti direttamente a un disco D64 tramite la voce **Salva su D64**.
 
 Le finestre di dialogo dell'editor visuale possono essere trascinate tramite le intestazioni nell'intera area di lavoro di Visual Assembler. Una finestra di dialogo senza posizione salvata si apre centrata; dopo essere stata spostata, la sua ultima posizione viene memorizzata nelle impostazioni dell'interfaccia utente e ripristinata alla successiva apertura.
 
@@ -3549,7 +3549,7 @@ Tracker multi-strumento a 3 voci con motore di anteprima Web Audio. Apribile tra
 - Cursore per la larghezza dell'impulso (0-4095) con flag di squillo/sincronizzazione opzionali.
 - Casella di controllo per il routing del filtro per ciascuna voce; filtro globale con frequenza di taglio, risonanza, volume e modalità (passa-basso/passa-alto).
 
-** Griglia di tracciamento:**
+**Griglia di tracciamento:**
 - 3 voci × fino a 7 pattern × 32 righe = 7 × 32 = 224 righe massime (il contatore di righe a 8 bit ne limita il numero).
 - Per riga: nota + indice dello strumento. Le righe vuote contengono la nota precedente.
 - Seleziona una cella normalmente oppure tieni premuto **Maiusc** mentre fai clic o usi i tasti freccia per estendere una selezione rettangolare su più righe e su una qualsiasi delle tre voci. Facendo clic con il pulsante destro del mouse all'interno dell'area selezionata, l'intervallo rimane invariato.
@@ -3603,10 +3603,10 @@ Genera tabelle di ricerca `.byte` pronte all'uso da curve matematiche: seno, int
 | **Valori per riga**          | 8 / 16 / 32 byte per riga `.byte`.                                                                                                                                                                               |
 
 **Modalità di uscita:**
-| Modalità   | Emette                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **8 bit**  | Una singola tabella `.byte` (valori 0..255). Lettura con `LDX #index / tabella LDA,X`. Facoltativamente emette una routine di lettura **sprite-Y** (`<label>_set_y`) — `LDA <label>,X` / `STA $D001+2N` — per un numero di sprite selezionabile da 0 a 7.                                                                                                                                                                                                |
-| **16 bit** | Due tabelle di byte parallele — `<label>_lo` (8 bit bassi) e `<label>_hi` (9° bit, 0/1) — indicizzate dallo stesso **X (2 byte per voce). Necessario per lo sprite X a schermo intero (0..320 > un byte). Facoltativamente emette una routine di lettura sprite-X ** (`<label>_set_x`) che scrive il byte basso in `$D000+2N` e imposta/cancella il bit più significativo (MSB) dello sprite in `$D010`, per un numero di sprite selezionabile da 0 a 7. |
+| Modalità   | Emette                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **8 bit**  | Una singola tabella `.byte` (valori 0..255). Lettura con `LDX #index / tabella LDA,X`. Facoltativamente emette una routine di lettura **sprite-Y** (`<label>_set_y`) — `LDA <label>,X` / `STA $D001+2N` — per un numero di sprite selezionabile da 0 a 7.                                                                                                                                                                                                                       |
+| **16 bit** | Due tabelle di byte parallele — `<label>_lo` (8 bit meno significativi) e `<label>_hi` (9° bit, 0/1) — indicizzate dallo **stesso** X (2 byte per voce). Necessario per lo sprite X a schermo intero (0..320 > un byte). Facoltativamente emette una routine di lettura **sprite-X** (`<label>_set_x`) che scrive il byte meno significativo in `$D000+2N` e imposta/cancella il bit più significativo dello sprite in `$D010`, per un numero di sprite selezionabile da 0 a 7. |
 
 Ogni output di copia/inserimento inizia con un commento di intestazione che documenta la curva, l'intervallo minimo/massimo effettivo, il conteggio delle voci e l'utilizzo esatto (quale registro alimenta ciascuna tabella).
 

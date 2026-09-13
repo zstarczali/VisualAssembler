@@ -172,7 +172,11 @@ searchPrev.addEventListener('click',()=>showHit(searchIndex-1));searchNext.addEv
 backButton.addEventListener('click',()=>{if(!navigationHistory.length)return;content.scrollTo({top:navigationHistory.pop(),behavior:'smooth'});backButton.disabled=navigationHistory.length===0});
 document.querySelector('.close').addEventListener('click',()=>window.close());
 document.addEventListener('keydown',event=>{if(event.key==='Escape')window.close()});
-const requested=new URLSearchParams(location.search).get('doc');openDocument(languages.includes(requested)?requested:currentLanguage);
+window.addEventListener('beforeunload',()=>{document.cookie='va_docs_lang='+currentLanguage+'; Max-Age=31536000; Path=/; SameSite=Lax'});
+fetch('visitor-counter.php',{cache:'no-store',credentials:'same-origin'}).catch(()=>{});
+const requested=new URLSearchParams(location.search).get('doc');
+const initialLanguage=languages.includes(requested)?requested:(languages.includes(savedLanguage)?savedLanguage:'en');
+openDocument(initialLanguage);
 </script>
 </body>
 </html>

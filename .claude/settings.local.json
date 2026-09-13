@@ -231,7 +231,10 @@
       "Read(//f/tmp/**)",
       "Bash(\"/d/Development/VICE/bin/c1541.exe\" -format \"test,01\" d64 test.d64)",
       "Bash(\"/d/Development/VICE/bin/c1541.exe\" -attach test.d64 -write dummy.prg TESTNAME)",
-      "Bash(rm -f /tmp/test.d64 /tmp/test2.d64 /tmp/dummy.prg)"
+      "Bash(rm -f /tmp/test.d64 /tmp/test2.d64 /tmp/dummy.prg)",
+      "Bash(sed -i 's/currentLanguage === \"nl\" ? \"Geen resultaten.\" : \"No results.\"/currentLanguage === \"nl\" ? \"Geen resultaten.\" : currentLanguage === \"pl\" ? \"Brak wyników.\" : currentLanguage === \"it\" ? \"Nessun risultato.\" : \"No results.\"/g' www/app.js)",
+      "Bash(sed -i 's/currentLanguage === \"nl\" ? \"nl-NL\" : currentLanguage === \"de\" ? \"de-DE\" : currentLanguage === \"es\" ? \"es-ES\" : \"en-US\"/currentLanguage === \"nl\" ? \"nl-NL\" : currentLanguage === \"de\" ? \"de-DE\" : currentLanguage === \"es\" ? \"es-ES\" : currentLanguage === \"pl\" ? \"pl-PL\" : currentLanguage === \"it\" ? \"it-IT\" : \"en-US\"/g' www/app.js)",
+      "Bash(pkill -f \"http.server 8899\")"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"

@@ -297,14 +297,14 @@ Az **Beállítások** fül tartalmazza a kódgenerálást és a kimenet megjelen
 
 ### ASM sorra kattintás
 
-Kattintson az ASM nézet bármelyik sorára a megfelelő blokk ** kiemeléséhez a programterületen. **
+Kattintson az ASM nézet bármelyik sorára a megfelelő blokk **kiemeléséhez a programterületen.**
 
 ### ASM sorszámok
 
 Az ASM panel az **sorszámokat jeleníti meg** (`001 |`, `002 |`, …), hogy megkönnyítse a hibakeresést, ha egy fordítási hiba egy adott sorra mutat.
 
 - A vizuális sorszámok csak diagnosztikai célokat szolgálnak.
-- Az **Copy ASM** továbbra is a tiszta forrásszöveget másolja **sorszám előtagok nélkül **.
+- Az **Copy ASM** továbbra is a tiszta forrásszöveget másolja **sorszám előtagok nélkül**.
 
 ### Fordítási folyamatábra
 
@@ -340,7 +340,7 @@ A modális ablak automatikusan bezárul, ha a művelet befejeződik vagy sikerte
 | **Projekt megnyitása** (`Menü → Fájl`)  | Nyisson meg egy többfájlos `.proj` projektet, és nyissa meg az összes forrásfájlt fülként.                                                                                                                                                                                                                                                                                                                                                                                             |
 | **Projekt mentése** (`Menü → Fájl`)     | Mentsd el az aktuális `.proj` projektet (a projekt panelnek nyitva kell lennie)                                                                                                                                                                                                                                                                                                                                                                                                        |
 | **Projekt bezárása** (`Menü → Fájl`)    | Bezárja a jelenleg megnyitott projektet és az összes fájlfülét. Rákérdez a nem mentett változtatások mentésére. A projektpanel visszaáll üres állapotába.                                                                                                                                                                                                                                                                                                                              |
-| ** .asm fájl betöltése**                | Megnyit egy `.asm` fájlt Szakértő módban, és importálja a szöveges 6502 ASM-et az aktuális lapra.                                                                                                                                                                                                                                                                                                                                                                                      |
+| **.asm fájl betöltése**                 | Megnyit egy `.asm` fájlt Szakértő módban, és importálja a szöveges 6502 ASM-et az aktuális lapra.                                                                                                                                                                                                                                                                                                                                                                                      |
 | **PRG mentése**                         | Exportálja a lefordított bináris fájlt `.prg` fájlként                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | **CRT építése**                         | Exportáld a programot 64K-s Magic Desk (`.crt`, kazettatípus 19) fájlként. Lásd: [12b. szakasz](#12b-crt-export-magic-desk-64k-cartridge).                                                                                                                                                                                                                                                                                                                                             |
 | **Futtatás (felosztó gomb)**            | A fő **▶ Futtatás** gomb futtatja az aktuális módot; kattintson az **▾** nyílra a következők közötti váltáshoz: **Futtatás PRG-ként** (VICE közvetlen fordítása és indítása), **Futtatás D64-en keresztül** (.d64 lemezképbe csomagolva és VICE indítása), vagy **Futtatás hardveren** (PRG küldése C64 Ultimate / 1541 Ultimate eszközre). Lásd a [12. szakasz](#12-d64-export--run) és a [13. szakasz](#13-hardware-settings) pontokat.                                              |
@@ -393,7 +393,7 @@ Az Expert módú `.asm` betöltő elfogadja a gyakori 6502-es forrásmintákat, 
 
 ### ASM import (Kick Assembler)
 
-A Program menü **ASM import** gombja a nyers Kick Assembler forráskódot egy új blokk módú lapra tölti be. Ez elkülönül a fenti `.asm fájl betöltése` Expert módú ` gombtól — az egyéni tooltipje jelzi, hogy **csak a Kick Assembler kód támogatott** (más assembler kódok részlegesen értelmezhetnek, de nem garantált az oda-vissza átvitel).
+A Program menü **ASM import** gombja a nyers Kick Assembler forráskódot egy új blokk módú lapra tölti be. Ez elkülönül a fenti Szakértő módú `.asm fájl betöltése` gombtól — egyéni eszköztippje jelzi, hogy **csak a Kick Assembler kód támogatott** (más assembler kódok részlegesen értelmezhetnek, de nem garantált az oda-vissza átvitel).
 
 Támogatott minták:
 
@@ -534,8 +534,8 @@ A Szakértői mód egy teljes funkcionalitású, közvetlen szöveges 6502-es as
 | Gomb                                      | azonosító                                                   | Funkció                                                                                                                                                                                                                                                                                      |
 | ----------------------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Formátum**                              | `#szakértői formátum gomb`                                  | Forrás automatikus formázása (0. oszlop címkéi, 4-es behúzás, 1-es mnemonikus/operandus)                                                                                                                                                                                                     |
-| ** .asm betöltése**                       | `#szakértői-asm-betöltés-gomb`                              | Nyisson meg egy `.asm` fájlt — a tartalom egy **új fülre** töltődik be, amelynek címkéje a fájlnév lesz. Minden betöltött fájl független fül lesz, saját programblokkokkal és szerkesztőállapottal.                                                                                          |
-| ** .asm mentése**                         | `#szakértői-mentés-asm-gomb`                                | Szerkesztő tartalmának mentése `.asm` fájlba (fájl párbeszédablak az első mentéskor)                                                                                                                                                                                                         |
+| **.asm betöltése**                        | `#szakértői-asm-betöltés-gomb`                              | Nyisson meg egy `.asm` fájlt — a tartalom egy **új fülre** töltődik be, amelynek címkéje a fájlnév lesz. Minden betöltött fájl független fül lesz, saját programblokkokkal és szerkesztőállapottal.                                                                                          |
+| **.asm mentése**                          | `#szakértői-mentés-asm-gomb`                                | Szerkesztő tartalmának mentése `.asm` fájlba (fájl párbeszédablak az első mentéskor)                                                                                                                                                                                                         |
 | **Build információk**                     | `#szakértői-építési-info-gomb`                              | Nyissa meg az Építési információk párbeszédpanelt (eredet, méret, címkék, hibák)                                                                                                                                                                                                             |
 | **HL**                                    | `#szakértői-hl-gomb`                                        | Szintaxiskiemelések be-/kikapcsolása (nagyon nagy fájlok esetén letiltás)                                                                                                                                                                                                                    |
 | **Automatikus kiegészítés**               | `#szakértői-automatikus-kiegészítés-gomb`                   | Szakértői automatikus kiegészítési javaslatok be- és kikapcsolása. Ha le van tiltva, nem jelenik meg utasítás, emlékeztető vagy címke felugró ablak a szakértői szerkesztőben.                                                                                                               |
@@ -676,7 +676,7 @@ clear:
 | `#&lt;*` / `#&gt;*` | `LDA #&lt;*`, `LDA #&gt;*` | Az aktuális PC alacsony/magas bájtja                |
 | `#&gt;(*+n)`        | `LDA #&gt;(*+63)`          | PC-hez viszonyított cím alsó/felső bájtja           |
 
-**PC vs. szorzás.** Az `*` csak akkor kezeli a programszámlálót, ha az *értékpozícióban* található — a kifejezés elején, vagy közvetlenül egy operátor, `(`, `,`, `&lt;`, `&gt;` vagy szóköz után. Egy `*`, amely egy számot, `)` vagy egy azonosítót követ, közönséges szorzásnak minősül, tehát az `LDA table*2` és a `CONST_A*4` változatlanok maradnak.
+**PC vs. multiplication.** `*` is treated as the program counter only when it sits in *value position* — at the start of the expression, or right after an operator, `(`, `,`, `&lt;`, `&gt;` or whitespace. A `*` that follows a number, `)` or an identifier is ordinary multiplication, so `LDA table*2` and `CONST_A*4` are unchanged.
 
 **Hol működik.** Bármely operandus, amely már elfogad egy kifejezést: elágazási célpontok, `JMP` / `JSR`, `LDA`/`STA`/… abszolút és indexelt, azonnali alacsony/magas bájtos operátorok, és az `.assert` kifejezés. Az `*` soha nem változtatja meg egy utasítás méretét, így minden címzési módban biztonságos.
 
@@ -711,7 +711,7 @@ ClearScreen:
 
 ### Önmódosító kód operandus címkéi
 
-*(Újdonság a 2.3.9-es verzióban.)* Az utasítás operandusának elé `címke:` kerül, hogy a címkét az **operandus bájtjára helyezzük el ** az opkód helyett. Az utasítás a kettőspont utáni értékből áll össze.
+*(Újdonság a 2.3.9-es verzióban.)* Az utasítás operandusának elé `címke:` kerül, hogy a címkét az **operandus bájtjára helyezzük el** az opkód helyett. Az utasítás a kettőspont utáni értékből áll össze.
 
 ```
 setup:
@@ -864,7 +864,7 @@ A makróblokkok lehetővé teszik a gyakori feladatok egyetlen lépésben tört�
 
 ### LABEL
 
-Mint egy ** sorszám a BASIC**-ben — de névvel a szám helyett. Ugrási célpontok a `JMP`, `JSR`, `BNE` stb. fájlokhoz.
+Mint egy **sorszám a BASIC**-ben — de névvel a szám helyett. Ugrási célpontok a `JMP`, `JSR`, `BNE` stb. fájlokhoz.
 
 | Mező       | Leírás                                                    |
 | ---------- | --------------------------------------------------------- |
@@ -880,13 +880,13 @@ loop:
 loop:  ; $0820
 ```
 
-Az aktuális cím megjegyzésként jelenik meg. A címkék mérete **0 bájt **.
+Az aktuális cím megjegyzésként jelenik meg. A címkék mérete **0 bájt**.
 
 ---
 
 ### COMMENT
 
-Mint a BASIC**-ben szereplő **REM — egy megjegyzés magadnak, amit az assembler teljesen figyelmen kívül hagy.
+Mint a **REM a BASIC-ben** — egy megjegyzés magadnak, amit az assembler teljesen figyelmen kívül hagy.
 
 **Szakértői szintaxis:**
 ```
@@ -932,7 +932,7 @@ Ez a(z) `frame_0` címének alsó bájtját tárolja, majd a felső bájtot, vé
 
 ### WORD
 
-Mint a BASIC **DATA függvénye, de 16 bites számokhoz **. Minden érték két bájtként tárolódik (először az alacsony bájt, majd a magasabb – 6502 kis-endián sorrend).
+Mint a BASIC **DATA függvénye, de 16 bites számokhoz**. Minden érték két bájtként tárolódik (először az alacsony bájt, majd a magasabb – 6502 kis-endián sorrend).
 
 | Mező      | Leírás                                                       |
 | --------- | ------------------------------------------------------------ |
@@ -1056,7 +1056,7 @@ A karakterek **képernyőkódként** vannak kódolva (nem PETSCII). **Méret:** 
 
 ### STRING
 
-Mint például egy ** karakterlánc beszúrása ** bármely memóriacímre futásidőben. LDA/STA párokat generál, amelyek minden karakter képernyőkódját egymást követő címekre másolják.
+Mint például egy **karakterlánc beszúrása** bármely memóriacímre futásidőben. LDA/STA párokat generál, amelyek minden karakter képernyőkódját egymást követő címekre másolják.
 
 | Mező                     | Leírás                                                                               |
 | ------------------------ | ------------------------------------------------------------------------------------ |
@@ -1143,7 +1143,7 @@ Mint az **DATA, ami közvetlenül a memóriába töltődik** – egyáltalán ni
 
 ### RAWTEXT
 
-Mint a RAWBYTES, de szöveg esetén — képernyőkódként kódolja a karakterláncot, és a bájtokat egy fix címre helyezi **futásidejű kód nélkül **. A szöveg a PRG betöltése után azonnal készen áll a memóriában.
+Mint a RAWBYTES, de szöveg esetén — képernyőkódként kódolja a karakterláncot, és a bájtokat egy fix címre helyezi **futásidejű kód nélkül**. A szöveg a PRG betöltése után azonnal készen áll a memóriában.
 
 | Mező                     | Leírás                                                                               |
 | ------------------------ | ------------------------------------------------------------------------------------ |
@@ -1181,7 +1181,7 @@ Mint a RAWBYTES, de szöveg esetén — képernyőkódként kódolja a karakterl
 
 ### PETSCII
 
-Mint az **RAWBYTES, de a KERNAL kimenete ** — PETSCII bájtként kódolja a karakterláncot (kompatibilis a CHROUT-tal a `$FFD2` címen), és fix címre helyezi őket futásidejű kód nélkül. Ezt akkor használd, ha karaktereket szeretnél kinyomtatni a `JSR $FFD2` címen keresztül egy ciklusban, és vedd figyelembe, hogy az új `PRINT` makró ugyanazt a kódolót és kisbetűs jelölőnégyzet viselkedést használja.
+Mint az **RAWBYTES, de a KERNAL kimenete** — PETSCII bájtként kódolja a karakterláncot (kompatibilis a CHROUT-tal a `$FFD2` címen), és fix címre helyezi őket futásidejű kód nélkül. Ezt akkor használd, ha karaktereket szeretnél kinyomtatni a `JSR $FFD2` címen keresztül egy ciklusban, és vedd figyelembe, hogy az új `PRINT` makró ugyanazt a kódolót és kisbetűs jelölőnégyzet viselkedést használja.
 
 > **PETSCII vs. képernyőkódok:** A PETSCII és a képernyőkódok két különböző kódolás. A képernyőkód: `$01` = A betű; a PETSCII `$41` = A betű (CHROUT-on keresztül). A PETSCII-t csak KERNAL-on keresztüli nyomtatáskor használd; a képernyő RAM-jába való közvetlen íráshoz használd a TEXT/STRING/RAWTEXT kódolást.
 
@@ -1450,7 +1450,7 @@ no_collision:
 
 ### INCBIN
 
-Mint a BASIC**-ben található **BLOAD — kiválaszt egy külső bináris fájlt (`.bin`, `.prg`, `.sid`, `.raw`) és közvetlenül beágyazza az összeállított PRG-be a megadott címen.
+Mint a BASIC**-ben található**BLOAD — kiválaszt egy külső bináris fájlt (`.bin`, `.prg`, `.sid`, `.raw`) és közvetlenül beágyazza az összeállított PRG-be a megadott címen.
 
 | Mező | Leírás                                                                 |
 | ---- | ---------------------------------------------------------------------- |
@@ -1527,7 +1527,7 @@ Két fájltípus támogatott:
 .include "sprites.asm"
 ```
 
-- A(z) ** fájlkiterjesztés szükséges szakértői módban** — egy egyszerű nevet, mint például az `.include "macros"`, a rendszer `.include "macros.json"`-ként kezel.
+- A(z) **fájlkiterjesztés szükséges szakértői módban** — egy egyszerű nevet, mint például az `.include "macros"`, a rendszer `.include "macros.json"`-ként kezel.
 - Útvonalfeloldás: először a projektfájl melletti (relatív) keresést indítja, majd visszatér az alkalmazáshoz mellékelt `samples/` könyvtárba.
 
 **Generált ASM (címfelülírás nélkül):**
@@ -1738,15 +1738,15 @@ done:
 
 ### PUSH / PULL
 
-Mint az **változók mentése egy GOSUB előtt és visszaállítása után ** — de a 6502 hardververmet használja. Ha egy alprogram A, X vagy Y értékeket használ, akkor PUSH és PULL utasításokkal kell becsomagolni, hogy a hívó kód regiszterei megmaradjanak.
+Like **saving variables before a GOSUB and restoring them after** — but uses the 6502 hardware stack. If a subroutine uses A, X, or Y, wrap it with PUSH and PULL so the calling code's registers are preserved.
 
 #### PUSH
 
 Egy vagy több regisztert helyez a verembe. A sorrend mindig A → X → Y (a legbelső először).
 
-| Mező        | Leírás                                                         |
-| ----------- | -------------------------------------------------------------- |
-| Regiszterek | Bármilyen kombináció: `A`, `X`, `Y`, `AX`, `AY`, `XY`, `XY[X2] |
+| Mező        | Leírás                                                     |
+| ----------- | ---------------------------------------------------------- |
+| Regiszterek | Bármely kombináció: `A`, `X`, `Y`, `AX`, `AY`, `XY`, `AXY` |
 
 **Szakértői szintaxis:**
 ```
@@ -1764,7 +1764,7 @@ Egy vagy több regisztert helyez a verembe. A sorrend mindig A → X → Y (a le
 
 #### PULL
 
-Visszaállítja a regisztereket a veremből ** fordított sorrendben ** (Y → X → A).
+Restores registers from the stack in **reverse order** (Y → X → A).
 
 | Mező        | Leírás                                                            |
 | ----------- | ----------------------------------------------------------------- |
@@ -1788,7 +1788,7 @@ Visszaállítja a regisztereket a veremből ** fordított sorrendben ** (Y → X
 
 ### END / RTS alias
 
-Az **RTS-hez hasonlóan, egy barátságosabb makrónévvel ** — az `.end` egyetlen `RTS` bájtot bocsát ki, és szakértői módban rövid alprogramterminátorként viselkedik.
+Az **RTS-hez hasonlóan, egy barátságosabb makrónévvel** — az `.end` egyetlen `RTS` bájtot bocsát ki, és szakértői módban rövid alprogramterminátorként viselkedik.
 
 **Szakértői szintaxis:**
 ```
@@ -1808,7 +1808,7 @@ Ezt akkor használd, ha egy olyan alprogram vége jelölőt szeretnél, ami ink�
 
 ### MACRO / ENDM / INVOKE
 
-Mint egy ** nevű GOSUB paraméterekkel ** — definiáljon egyszer egy újrafelhasználható kódrészletet (MACRO…ENDM), majd hívja meg bárhol az INVOKE paranccsal. Minden alkalommal más argumentumértékeket adjon át a blokkok másolása-beillesztése helyett.
+Like **a named GOSUB with parameters** — define a reusable chunk of code once (MACRO…ENDM), then call it anywhere with INVOKE. Pass different argument values each time instead of copy-pasting blocks.
 
 #### MACRO (definition start)
 
@@ -1928,7 +1928,7 @@ Tisztán vizuális csoportosítás — **nulla bájt**, nulla hatás az összeá
 
 ### DEFINE / IF / ELSE / ENDIF
 
-Mint egy ** kapcsoló, az assembler a következőt olvassa: ** — `DEFINE DEBUG` bekapcsol egy szimbólumot, majd bármely `IF DEBUG` blokk bekerül a kimenetbe, és a `ELSE` ága kimarad. A DEFINE blokk eltávolításával az IF blokk eltűnik a kimenetből. A kiadott buildekhez nem kell kódot törölni.
+Mint egy **kapcsoló, az assembler a következőt olvassa:** — `DEFINE DEBUG` bekapcsol egy szimbólumot, majd bármely `IF DEBUG` blokk bekerül a kimenetbe, és a `ELSE` ága kimarad. A DEFINE blokk eltávolításával az IF blokk eltűnik a kimenetből. A kiadott buildekhez nem kell kódot törölni.
 
 #### DEFINE
 
@@ -2062,7 +2062,7 @@ sprite_data_end:
 
 ### CONST
 
-Mint egy ** nevű változó, ami sosem változik** — `SCREEN = $0400`. Használd a nevet a nyers címek begépelése helyett, így a kód könnyebben olvasható és később módosítható.
+Mint egy **nevű változó, ami sosem változik** — `SCREEN = $0400`. Használd a nevet a nyers címek begépelése helyett, így a kód könnyebben olvasható és később módosítható.
 
 | Mező     | Leírás                                                                                                                     |
 | -------- | -------------------------------------------------------------------------------------------------------------------------- |
@@ -2250,7 +2250,7 @@ A legfeljebb 256 bájtos méretek egy rövid, 8 bites ciklust használnak. Nagyo
 
 #### PRINT
 
-Mint a **PETSCII kimenet a sablonos ** nélkül — egy karakterláncot nyomtat ki a `CHROUT` blokkon keresztül, ugyanazzal a nagybetűs/kisbetűs kezeléssel, mint a PETSCII blokk. A kisbetűs jelölőnégyzet meg van osztva a PETSCII kódolóval, így a szöveg elérési útja konzisztens marad.
+Mint a **PETSCII kimenet a sablonos** nélkül — egy karakterláncot nyomtat ki a `CHROUT` blokkon keresztül, ugyanazzal a nagybetűs/kisbetűs kezeléssel, mint a PETSCII blokk. A kisbetűs jelölőnégyzet meg van osztva a PETSCII kódolóval, így a szöveg elérési útja konzisztens marad.
 
 **Szakértői szintaxis:**
 ```
@@ -2349,7 +2349,7 @@ Ezt akkor használd, ha a megszokott "SEI / telepítéskezelő / IRQ engedélyez
 
 ### RAND
 
-Mint egy apró, beépített PRNG, az ** — egy 8 bites pszeudovéletlenszerű értéket ad vissza egy kompakt nulla oldalas kezdőértékből.
+Mint egy **apró, beépített PRNG** — egy 8 bites pszeudovéletlenszerű értéket ad vissza egy kompakt nulla oldalas kezdőértékből.
 
 | Mező | Leírás                                                                 |
 | ---- | ---------------------------------------------------------------------- |
@@ -2669,7 +2669,7 @@ Mint a BASIC-ben lévő **`PEEK($D01E)`** — ellenőrzi a VIC-II hardveres ütk
 
 **Méret:** 5 bájt.
 
-> **Fontos:** A(z) `$D01E`/`$D01F` ** beolvasása törli a(z)** regisztert. Olvasd be képkockánként egyszer, és azonnal reagálj az eredményre a(z) `BEQ`/`BNE` paranccsal.
+> **Fontos:** A(z) `$D01E`/`$D01F` **beolvasása törli a(z)** regisztert. Olvasd be képkockánként egyszer, és azonnal reagálj az eredményre a(z) `BEQ`/`BNE` paranccsal.
 
 **Tipikus használat:**
 ```
@@ -2768,11 +2768,11 @@ Programon belüli **Exomizer kicsomagolás**. Ezt a makrót közvetlenül egy `L
 
 1. A KERNAL `LOAD` ($FFD5) frissíti a ZP `$AE/$AF` fájlokat, hogy eggyel a legutóbb betöltött bájt után mutasson. Az EXODECRUNCH ezt átmásolja a ZP `$04/$05` fájlokba, ami az Exomizer hivatalos visszafelé forrás-vég konvenciója.
 2. A kicsomagoló jellemzően az `$B000` címen található (a BASIC ROM leképezett régióján belül). A makró átváltja az `$01 = $36` értéket, így a CPU a JSR során ott látja a RAM-ot, majd utána visszaállítja az `$01 = $37` értéket.
-3. A kicsomagolási célcím **kódolású ** magába a tömörített adatfolyamba kerül, amikor az `exomizer mem -l <load> file,<target>` paranccsal tömöríted — a kicsomagoló a folyam első bájtjaiból olvassa be.
+3. A kicsomagolási célcím **kódolású** magába a tömörített adatfolyamba kerül, amikor az `exomizer mem -l <load> file,<target>` paranccsal tömöríted — a kicsomagoló a folyam első bájtjaiból olvassa be.
 
 **Depacker bináris:** Az előre elkészített visszafelé irányuló kicsomagoló a `samples/exo-decrunch.bin` (477 bájt, ORG $B000). Ez a hivatalos `exodecrunch.asm` fájl Kick Assembler csomagolása, amelyben minden olvasásnál `INC $D020` hozzáadódik a látható szegélyvillanás effektus érdekében a kicsomagolás során. Helyezd el a programodban egy `INCBIN` blokkal a kicsomagoló címén.
 
-**Biztonsági eltolás kompenzáció:** Az Exomizer alapértelmezett memória módja 2 bájtos biztonsági eltolást alkalmaz — az adat 2 bájttal korábban érkezik, mint a kért cél. A Futtatás D64-en keresztül párbeszédablak ** automatikusan hozzáad 2-t a Dst mezőhöz ** az exomizer meghívása előtt, így a látható viselkedés megegyezik a beírt címmel.
+**Biztonsági eltolás kompenzáció:** Az Exomizer alapértelmezett memória módja 2 bájtos biztonsági eltolást alkalmaz — az adat 2 bájttal korábban érkezik, mint a kért cél. A Futtatás D64-en keresztül párbeszédablak **automatikusan hozzáad 2-t a Dst mezőhöz** az exomizer meghívása előtt, így a látható viselkedés megegyezik a beírt címmel.
 
 > **Lásd még:** az `exo-multicolor-demo` példa — teljes, végponttól végpontig tartó példa: LOADFILE egy tömörített többszínű bitképet $C000-re, az EXODECRUNCH kicsomagolja $2000-re, majd másolja a képernyőt → $0400 és a színt → $D800, és kapcsolja a VIC-II-t többszínű bitkép módba.
 
@@ -3362,7 +3362,7 @@ Mivel a hasznos adat lineárisan tárolódik, és az `assembleProgramToPrg()` eg
 | TheC64 / TheC64 Mini            | A beépített patronbetöltőn keresztül működik.          |
 | Kung Fu Flash                   | Működik — natív Magic Desk mód.                        |
 | EasyFlash patron                | Magic Desk-ként programozva működik.                   |
-| 1541 Ultimate II+ / Ultimate 64 | **Patron → Kosár betöltése kép ** menüpontban működik. |
+| 1541 Ultimate II+ / Ultimate 64 | **Patron → Kosár betöltése kép** menüpontban működik.  |
 | Kaméleon / Turbó kaméleon       | Művek.                                                 |
 
 ---
@@ -3392,13 +3392,13 @@ VICE szükséges a **Futtatás PRG-ként**, **Futtatás D64-en keresztül** és 
 1. Telepítsd az Exomizer bináris fájlt:
    - **Windows:** töltse le az előre elkészített `win32/exomizer.exe` fájlt a https://bitbucket.org/magli143/exomizer/wiki/Home vagy a https://csdb.dk/release/?id=244342 oldalról.
    - **macOS:** `brew install exomizer` (Magnus Lind hivatalos 3.1.2-es buildjét telepíti).
-2. Konfigurálja az elérési utat az **Hardverbeállítások → Exomizer részben **.
+2. Konfigurálja az elérési utat az **Hardverbeállítások → Exomizer részben**.
 3. Engedélyezd a **Futtatás Exomizerrel** jelölőnégyzetet a **Beállítások menüben**.
 4. Az összes **Run** művelet (PRG, D64, hardver) és az **Build** műveletek (Build PRG, Build D64) mostantól az összeállított programot az `exomizer sfx sys` paraméteren keresztül futtatják indítás vagy mentés előtt.
 
 Az Exomizer ugyanúgy működik Windows és macOS rendszereken – a parancssori felületet a Tauri háttérrendszer hívja meg; az integrációban semmi sem platformspecifikus.
 
-** Két belső tömörítési módot használnak:**
+**Két belső tömörítési módot használnak:**
 
 | Mód                | Használta                                                    | Hívási konvenció                                                                                                                                                                                    |
 | ------------------ | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -3482,7 +3482,7 @@ A C64 karakter ROM (a beépített PETSCII betűtípus) csak olvasható megjelen�
 
 | Jellemző            | Leírás                                                                                                                                                                                                                                             |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Két karakterkészlet | 1. fül: ** 1. készlet — Felső/Grafika** (alapértelmezett mód bekapcsolás után). 2. fül: ** 2. készlet — Alsó/Felső** (`$0E` váltás után).                                                                                                          |
+| Két karakterkészlet | 1. fül: **1. készlet — Felső/Grafika** (alapértelmezett mód bekapcsolás után). 2. fül: **2. készlet — Alsó/Felső** (`$0E` váltás után).                                                                                                            |
 | Karakterjelrács     | 16×16-os rács, mind a 256 karakterből. Kattintson egy karakterjelre a részletes panel megtekintéséhez: nagyított 8×8 pixeles nézet, képernyőkód (decimális + hex), PETSCII kódok (alapértelmezett és eltolt is), valamint a nyers 8 bájtos bitkép. |
 | Részletes panel     | Megjeleníti a kiválasztott karakterjel képernyőkódját, a PETSCII kódokat és a nyolc nyers bájtot – készen áll a beillesztésre egy `RAWBYTES` vagy BYTE blokkba.                                                                                    |
 | Csak olvasható      | Itt nincs szerkesztés — a Karakterszerkesztővel (lent) módosíthatja a szimbólumokat.                                                                                                                                                               |
@@ -3614,7 +3614,7 @@ Minden másolási/beszúrási kimenet egy fejlécommenttel kezdődik, amely doku
 - **Grafikon** — a görbe, amelynek értéke 0 a **felül** és a maximum az **alul**, a C64 sprite-Y / raszter konvenciónak megfelelően (tehát amit látsz, az a hardveren futó táblázat). A grafikon alatti meta vonal mutatja a bájtszámot, a generált értékek tényleges minimum/max értékét és a görbe(k) nevét.
 - **Pattogó labda** — egy markert animál a táblázatban a **Tempo** tempóban (5–240 érték/másodperc). 50-es tempónál ez PAL-on (50 Hz) egy értéket jelent képkockánként, azaz indexenként egy `.wait_raster` lépést. Lejátszás/Szünet és Újraindítás gombok, az utolsó ~24 pozíció elhalványuló sávja, valamint élő `Index · Érték` kijelzés.
 
-**Másolás / Beszúrás:** az eszköztár két ikonja — **Másolás** a vágólapra helyezi a táblázatot; **Beszúrás a szerkesztőbe** blokkként hozzáfűzi a táblázatot (és az olvasót, ha engedélyezve van) az aktuális programhoz. Az újbóli beszúrás ** lecseréli** az előző Görbeszerkesztő beszúrást a duplikátumok egymásra halmozása helyett (Blokk és Szakértő módban működik).
+**Másolás / Beszúrás:** az eszköztár két ikonja — **Másolás** a vágólapra helyezi a táblázatot; **Beszúrás a szerkesztőbe** blokkként hozzáfűzi a táblázatot (és az olvasót, ha engedélyezve van) az aktuális programhoz. Az újbóli beszúrás **lecseréli** az előző Görbeszerkesztő beszúrást a duplikátumok egymásra halmozása helyett (Blokk és Szakértő módban működik).
 
 **Fájlok menü:**
 | Akció                          | Mit csinál                                                                                                                                                                                                                                                                                                                                                                |

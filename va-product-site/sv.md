@@ -162,7 +162,7 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
 - **Ladda adress, dekomprimera adress och Exomizer i D64-redigeraren** — genom att lägga till en headerlös råfil kan du ange en valfri laddningsadress, ett Exomizer-dekomprimeringsmål och komprimera den på vägen in, med samma `mem`/`sfx` komprimeringslägen som i dialogrutan Exportera till D64:s extrafiler. En `.prg` som redan har sin egen header hoppar över dessa fält helt.
 - **Väljare för diskposttyp** — välj PRG / SEQ / USR / REL för en nyligen tillagd fil istället för att alltid skriva den som PRG.
 - **Autentisk kataloglista** — D64-redigerarens fillista visas i det medföljande C64 Pro-typsnittet, med versaler, för det klassiska `LOAD"$",8`-utseendet.
-- **Åtgärdat: ** Att byta namn på en post i D64-redigeraren ignorerar inte längre redigeringen när du klickar i textfältet.
+- **Åtgärdat:** Att byta namn på en post i D64-redigeraren ignorerar inte längre redigeringen när du klickar i textfältet.
 - **Förbättrat:** Det ljusa temats lägesindikator i verktygsfältet (BLOCKLÄGE / EXPERTLÄGE / …) är mörkare och mer läsbart, och dess skimrande animation syns igen.
 
 ---
@@ -184,7 +184,7 @@ Fem assemblerfunktioner som förbättrar livskvaliteten, alla användbara i expe
 
 - **Arbetsyta spara / öppna:** sparar den exakta uppsättningen öppna filbaserade flikar – inklusive den aktiva fliken och varje fliks redigeringsläge – till en `.vaws` arbetsytefil. Arbetsytor sparas automatiskt vid ändringar och appen återställer automatiskt din senaste arbetsyta vid start.
 - **Global minnespanelväxling:** visa eller dölj hela C64-minnespanelen från en dedikerad UI-växling.
-- **Lokaliserad Ultimate Basic-kommandoreferens: ** Kommandobeskrivningar i popup-fönstret för autokomplettering och kommandopanelen följer nu det aktuella gränssnittsspråket (ungerska, engelska, spanska, tyska, nederländska), med engelsk reserv.
+- **Lokaliserad Ultimate Basic-kommandoreferens:** Kommandobeskrivningar i popup-fönstret för autokomplettering och kommandopanelen följer nu det aktuella gränssnittsspråket (ungerska, engelska, spanska, tyska, nederländska), med engelsk reserv.
 - **Uppdaterade grafikdokument för Ultimate Basic:** `COLOR PEN` och hjälptexten för kommandona plot/line/rect/circle och multicolor drawing matchar nu det aktuella kompilatorbeteendet.
 - **Åtgärdade KERNAL-referens:** korrigerade posterna `SETLFS` och `PLOT` (adresser och anropskonventioner) i disassemblerarens KERNAL-adresstabell.
 - **Åtgärdade minnesanvändning med många öppna flikar:** Ångra-/omgörningshistoriken per flik är nu begränsad (med en liten debounce), vilket förhindrar den obegränsade minnesökning som en lång session med många öppna dokument brukade orsaka.
@@ -297,7 +297,7 @@ Fliken **Alternativ** innehåller inställningarna som påverkar kodgenerering o
 
 ### Klicka på en ASM-linje
 
-Klicka på valfri rad i ASM-vyn för att **markera motsvarande block ** i programområdet.
+Klicka på valfri rad i ASM-vyn för att **markera motsvarande block** i programområdet.
 
 ### ASM-linjenummer
 
@@ -320,55 +320,55 @@ Modalfönstret stängs automatiskt när åtgärden är slutförd eller misslycka
 
 ## 5. Inställningar och verktygsfält
 
-| Kontrollera                                  | Beskrivning                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Talbas (HEX / DEC / BIN)**                 | Ställer in visnings-/inmatningsformatet för operander i hela användargränssnittet. BIN-läget visar värden binärt med prefixet `%` (t.ex. `%11111000`). ASM-vyn visar alltid varje block i sitt eget format.                                                                                                                                                                                                                                    |
-| Språk                                        | Växla användargränssnittet mellan engelska, ungerska, spanska, tyska och nederländska (nederländska)                                                                                                                                                                                                                                                                                                                                           |
-| **Tema**                                     | Ljus / Mörk / OLED / Commodore 77 — välj från temaväljaren i inställningsmenyn. OLED använder en helt svart bakgrund för AMOLED-skärmar. Commodore 77 är ett neongult på svart tema; när det är det aktiva temat använder startpanelen temats panelfärg (som matchar meddelandekortet), visar en mindre dedikerad Commodore 77-logotyp och en gul förloppsindikator. Det valda temat tillämpas före den första färgsättningen vid nästa start. |
-| **CRT retroläge**                            | Växlar ett helskärms-CRT-filter: skanningslinjer, fosforvinjett, flimmer och tunnformad distorsion. Tillståndet sparas mellan sessioner.                                                                                                                                                                                                                                                                                                       |
-| **Visa minnespanelen**                       | Global växlingsknapp som visar eller döljer hela C64-minnespanelen                                                                                                                                                                                                                                                                                                                                                                             |
-| **GRUNDLÄGGANDE SYS-stub**                   | Lägger till en BASIC-rad som anropar SYS före programmets ursprung.                                                                                                                                                                                                                                                                                                                                                                            |
-| **Exempel**                                  | Ladda ett inbyggt exempelprogram                                                                                                                                                                                                                                                                                                                                                                                                               |
-| **Zooma in/ut**                              | Skala blockgränssnittet (påverkar alla blockelement)                                                                                                                                                                                                                                                                                                                                                                                           |
-| **Spara projekt**                            | Spara det aktuella programmet som en `.json`-projektfil                                                                                                                                                                                                                                                                                                                                                                                        |
-| **Spara program som**                        | Spara det aktuella programmet som en `.json`-projektfil med hjälp av en ny fildialogruta varje gång                                                                                                                                                                                                                                                                                                                                            |
-| **Ladda projekt**                            | Ladda ett tidigare sparat projekt                                                                                                                                                                                                                                                                                                                                                                                                              |
-| **Spara arbetsyta**                          | Spara den exakta uppsättningen av för närvarande öppna, filbaserade flikar – inklusive den aktiva fliken och varje fliks redigeringsläge (Block/Expert/Ultimate Basic) – till en `.vaws` arbetsytefil                                                                                                                                                                                                                                          |
-| **Spara arbetsyta som**                      | Spara den aktuella arbetsytan med en ny fildialogruta varje gång                                                                                                                                                                                                                                                                                                                                                                               |
-| **Öppen arbetsyta**                          | Stäng alla öppna flikar och öppna uppsättningen filer som lagrats i en `.vaws` arbetsytefil igen                                                                                                                                                                                                                                                                                                                                               |
-| **Ange arbetsmapp**                          | Välj standardmappen som används av filväljare och dialogrutor för att spara. Sökvägen lagras i appkonfigurationen och menyförhandsgranskningar håller slutet på sökvägen synligt.                                                                                                                                                                                                                                                              |
-| **Öppna projekt** (`Meny → Arkiv`)           | Öppna ett projekt med flera filer `.proj` och öppna alla källfiler som flikar                                                                                                                                                                                                                                                                                                                                                                  |
-| **Spara projekt** (`Meny → Arkiv`)           | Spara det aktuella `.proj`-projektet (projektpanelen måste vara öppen)                                                                                                                                                                                                                                                                                                                                                                         |
-| **Stäng projekt** (`Meny → Arkiv`)           | Stäng det för närvarande öppna projektet och alla dess filflikar. Uppmanas att spara osparade ändringar. Projektpanelen återställs till sitt tomma tillstånd.                                                                                                                                                                                                                                                                                  |
-| **Ladda .asm-fil**                           | Öppnar en `.asm`-fil i expertläge och importerar textfilen 6502 ASM till den aktuella fliken.                                                                                                                                                                                                                                                                                                                                                  |
-| **Spara PRG**                                | Exportera den kompilerade binärfilen som en `.prg`-fil                                                                                                                                                                                                                                                                                                                                                                                         |
-| **Bygg CRT**                                 | Exportera programmet som en 64K Magic Desk-fil (`.crt`, patrontyp 19). Se [Avsnitt 12b](#12b-crt-export-magic-desk-64k-cartridge).                                                                                                                                                                                                                                                                                                             |
-| **Kör (delknapp)**                           | Huvudknappen **▶ Kör** kör det aktuella läget; klicka på pilen **▾** för att växla mellan: **Kör som PRG** (kompilera och starta VICE direkt), **Kör via D64** (paketera till en .d64-diskavbildning och starta VICE), eller **Kör på hårdvara** (skicka PRG till en C64 Ultimate / 1541 Ultimate-enhet). Se [Avsnitt 12](#12-d64-export--run) och [Avsnitt 13](#13-hardware-settings).                                                        |
-| **Felsök (RetroDebugger)**                   | Kompilera och starta i RetroDebugger med brytpunkter, symboler och autostartflaggor (se [Avsnitt 9](#9-debugger-integration))                                                                                                                                                                                                                                                                                                                  |
-| **Kör med Exomizer**                         | Kryssruta i inställningsmenyn — när den är aktiverad, kör alla Kör- och Bygg-åtgärder PRG via `exomizer sfx sys` innan de startas eller sparas. Fungerar med Kör som PRG, Kör via D64, Kör på hårdvara, Bygg PRG och Bygg D64. Konfigurera Exomizer-körbar fil i **Maskinvaruinställningar** först.                                                                                                                                            |
-| **Automatisk sparning av ögonblicksbilder ** | Kryssrutan i **Maskinvaruinställningar → Ögonblicksbild **. När den är aktiverad skapar appen automatiskt en ögonblicksbild cirka 2,5 sekunder efter att du slutat redigera en flik. Stäng av den om du bara vill att ögonblicksbilder ska sparas manuellt.                                                                                                                                                                                    |
-| **Maskinvaruinställningar**                  | Öppna dialogrutan för hårdvarukonfiguration — konfigurera VICE, Exomizer, RetroDebugger och C64 Ultimate (värd, lösenord, anslutningstest). Se [Avsnitt 13](#13-hardware-settings).                                                                                                                                                                                                                                                            |
-| **Nytt program…**                            | Öppnar en bekräftelsedialogruta och rensar sedan alla block från programområdet                                                                                                                                                                                                                                                                                                                                                                |
-| **Komprimera alla**                          | Komprimera alla block                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| **Om**                                       | Versionsinformation                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| **Nyheter**                                  | Ändringslogg                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Kontrollera                                 | Beskrivning                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Talbas (HEX / DEC / BIN)**                | Ställer in visnings-/inmatningsformatet för operander i hela användargränssnittet. BIN-läget visar värden binärt med prefixet `%` (t.ex. `%11111000`). ASM-vyn visar alltid varje block i sitt eget format.                                                                                                                                                                                                                                    |
+| **Språk**                                   | Växla användargränssnittet mellan engelska, ungerska, spanska, tyska och nederländska (nederländska)                                                                                                                                                                                                                                                                                                                                           |
+| **Tema**                                    | Ljus / Mörk / OLED / Commodore 77 — välj från temaväljaren i inställningsmenyn. OLED använder en helt svart bakgrund för AMOLED-skärmar. Commodore 77 är ett neongult på svart tema; när det är det aktiva temat använder startpanelen temats panelfärg (som matchar meddelandekortet), visar en mindre dedikerad Commodore 77-logotyp och en gul förloppsindikator. Det valda temat tillämpas före den första färgsättningen vid nästa start. |
+| **CRT retroläge**                           | Växlar ett helskärms-CRT-filter: skanningslinjer, fosforvinjett, flimmer och tunnformad distorsion. Tillståndet sparas mellan sessioner.                                                                                                                                                                                                                                                                                                       |
+| **Visa minnespanelen**                      | Global växlingsknapp som visar eller döljer hela C64-minnespanelen                                                                                                                                                                                                                                                                                                                                                                             |
+| **GRUNDLÄGGANDE SYS-stub**                  | Lägger till en BASIC-rad som anropar SYS före programmets ursprung.                                                                                                                                                                                                                                                                                                                                                                            |
+| **Exempel**                                 | Ladda ett inbyggt exempelprogram                                                                                                                                                                                                                                                                                                                                                                                                               |
+| **Zooma in/ut**                             | Skala blockgränssnittet (påverkar alla blockelement)                                                                                                                                                                                                                                                                                                                                                                                           |
+| **Spara projekt**                           | Spara det aktuella programmet som en `.json`-projektfil                                                                                                                                                                                                                                                                                                                                                                                        |
+| **Spara program som**                       | Spara det aktuella programmet som en `.json`-projektfil med hjälp av en ny fildialogruta varje gång                                                                                                                                                                                                                                                                                                                                            |
+| **Ladda projekt**                           | Ladda ett tidigare sparat projekt                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **Spara arbetsyta**                         | Spara den exakta uppsättningen av för närvarande öppna, filbaserade flikar – inklusive den aktiva fliken och varje fliks redigeringsläge (Block/Expert/Ultimate Basic) – till en `.vaws` arbetsytefil                                                                                                                                                                                                                                          |
+| **Spara arbetsyta som**                     | Spara den aktuella arbetsytan med en ny fildialogruta varje gång                                                                                                                                                                                                                                                                                                                                                                               |
+| **Öppen arbetsyta**                         | Stäng alla öppna flikar och öppna uppsättningen filer som lagrats i en `.vaws` arbetsytefil igen                                                                                                                                                                                                                                                                                                                                               |
+| **Ange arbetsmapp**                         | Välj standardmappen som används av filväljare och dialogrutor för att spara. Sökvägen lagras i appkonfigurationen och menyförhandsgranskningar håller slutet på sökvägen synligt.                                                                                                                                                                                                                                                              |
+| **Öppna projekt** (`Meny → Arkiv`)          | Öppna ett projekt med flera filer `.proj` och öppna alla källfiler som flikar                                                                                                                                                                                                                                                                                                                                                                  |
+| **Spara projekt** (`Meny → Arkiv`)          | Spara det aktuella `.proj`-projektet (projektpanelen måste vara öppen)                                                                                                                                                                                                                                                                                                                                                                         |
+| **Stäng projekt** (`Meny → Arkiv`)          | Stäng det för närvarande öppna projektet och alla dess filflikar. Uppmanas att spara osparade ändringar. Projektpanelen återställs till sitt tomma tillstånd.                                                                                                                                                                                                                                                                                  |
+| **Ladda .asm-fil**                          | Öppnar en `.asm`-fil i expertläge och importerar textfilen 6502 ASM till den aktuella fliken.                                                                                                                                                                                                                                                                                                                                                  |
+| **Spara PRG**                               | Exportera den kompilerade binärfilen som en `.prg`-fil                                                                                                                                                                                                                                                                                                                                                                                         |
+| **Bygg CRT**                                | Exportera programmet som en 64K Magic Desk-fil (`.crt`, patrontyp 19). Se [Avsnitt 12b](#12b-crt-export-magic-desk-64k-cartridge).                                                                                                                                                                                                                                                                                                             |
+| **Kör (delknapp)**                          | Huvudknappen **▶ Kör** kör det aktuella läget; klicka på pilen **▾** för att växla mellan: **Kör som PRG** (kompilera och starta VICE direkt), **Kör via D64** (paketera till en .d64-diskavbildning och starta VICE), eller **Kör på hårdvara** (skicka PRG till en C64 Ultimate / 1541 Ultimate-enhet). Se [Avsnitt 12](#12-d64-export--run) och [Avsnitt 13](#13-hardware-settings).                                                        |
+| **Felsök (RetroDebugger)**                  | Kompilera och starta i RetroDebugger med brytpunkter, symboler och autostartflaggor (se [Avsnitt 9](#9-debugger-integration))                                                                                                                                                                                                                                                                                                                  |
+| **Kör med Exomizer**                        | Kryssruta i inställningsmenyn — när den är aktiverad, kör alla Kör- och Bygg-åtgärder PRG via `exomizer sfx sys` innan de startas eller sparas. Fungerar med Kör som PRG, Kör via D64, Kör på hårdvara, Bygg PRG och Bygg D64. Konfigurera Exomizer-körbar fil i **Maskinvaruinställningar** först.                                                                                                                                            |
+| **Automatisk sparning av ögonblicksbilder** | Kryssrutan i **Maskinvaruinställningar → Ögonblicksbild**. När den är aktiverad skapar appen automatiskt en ögonblicksbild cirka 2,5 sekunder efter att du slutat redigera en flik. Stäng av den om du bara vill att ögonblicksbilder ska sparas manuellt.                                                                                                                                                                                     |
+| **Maskinvaruinställningar**                 | Öppna dialogrutan för hårdvarukonfiguration — konfigurera VICE, Exomizer, RetroDebugger och C64 Ultimate (värd, lösenord, anslutningstest). Se [Avsnitt 13](#13-hardware-settings).                                                                                                                                                                                                                                                            |
+| **Nytt program…**                           | Öppnar en bekräftelsedialogruta och rensar sedan alla block från programområdet                                                                                                                                                                                                                                                                                                                                                                |
+| **Komprimera alla**                         | Komprimera alla block                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| **Om**                                      | Versionsinformation                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| **Nyheter**                                 | Ändringslogg                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 
 ### Projektbilder
 
 Projektbilder lagras som sidofiler av JSON på disk, inte i localStorage. De är knutna till den aktuella projektfilen när en sådan finns, så historiken finns kvar efter omstart och följer projektet.
 
 - **Meny → Bygg → Spara ögonblicksbild** öppnar dialogrutan för ögonblicksbild och sparar det aktuella blocktillståndet plus Expert ASM-text.
-- **Meny → Bygg → Återställ tidigare version. ** återställer den senaste ögonblicksbilden direkt.
+- **Meny → Bygg → Återställ tidigare version.** återställer den senaste ögonblicksbilden direkt.
 - **Meny → Skapa → Ögonblicksbildshistorik** öppnar dialogrutan där du kan lägga till anteckningar, återställa äldre poster eller ta bort dem.
-- **Maskinvaruinställningar → Ögonblicksbild → Automatisk sparning av ögonblicksbilder ** styr om appen skapar ögonblicksbilder automatiskt efter redigeringar. Standardfördröjningen är cirka 2,5 sekunder och inställningen gäller per flik.
+- **Maskinvaruinställningar → Ögonblicksbild → Automatisk sparning av ögonblicksbilder** styr om appen skapar ögonblicksbilder automatiskt efter redigeringar. Standardfördröjningen är cirka 2,5 sekunder och inställningen gäller per flik.
 - Om ett projekt inte har sparats än lagras ögonblicksbilder i appens konfigurationskatalog tills projektet får en sökväg. | **Kunskapsbas** | Referenslänkar (6502 opkoder, C64 KERNAL, minneskarta, färger) | | **Sök efter uppdateringar** | Öppna itch.io-sidan för att söka efter en nyare version |
 
 ### Arbetsytor
 
 En **arbetsyta** (`.vaws`-fil) kommer ihåg vilka riktiga filer på disken som var öppna på varje flik – inklusive varje fliks redigeringsläge och vilken flik som var aktiv – så att du kan öppna exakt den uppsättningen igen senare. Den är separat från ett `.proj`-projekt: en arbetsyta kan omfatta valfri blandning av Block/Expert `.json`-projektfiler, fristående `.asm`-filer och Ultimate Basic `.ub`/`.proj`-källor över flera flikar.
 
-- Arbetsytor ** sparas automatiskt ** några hundra millisekunder efter att du har gjort en ändring när en har sparats eller öppnats.
-- Appen ** återställer automatiskt din senaste arbetsyta ** vid start, så dina öppna flikar fortsätter där du slutade.
+- Arbetsytor **sparas automatiskt** några hundra millisekunder efter att du har gjort en ändring när en har sparats eller öppnats.
+- Appen **återställer automatiskt din senaste arbetsyta** vid start, så dina öppna flikar fortsätter där du slutade.
 - Endast flikar som backas upp av en riktig fil på disk sparas i arbetsytan; en flik som innehåller ett osparat exempel eller ett program som endast finns i minnet har inget att spara och hoppas över (med ett meddelande om ingen av de öppna flikarna kvalificerar sig).
 - Om du öppnar en arbetsyta stängs först alla öppna flikar – du ombeds att bekräfta innan det fortsätter.
 - Om en arbetsyta refererar till en fil som sedan dess har flyttats eller tagits bort, hoppas den posten över och rapporteras med namn efter inläsning.
@@ -441,7 +441,7 @@ UB-verktygsfältet följer samma visuella språk och anpassade verktygstips som 
 - autokomplettering för kommandon och inbyggda funktioner;
 - en sökbar **Kommandon**-panel med syntax, beskrivning och användningsvägledning — beskrivningarna följer det aktuella gränssnittsspråket (ungerska, engelska, spanska, tyska, nederländska) och använder engelska för allt som ännu inte översatts;
 - oberoende växlingsbara paneler för **Projekt** och **Kommandon**, som visas sida vid sida när båda är aktiverade;
-- oberoende växlingsbara och storleksändrbara paneler **Bygg, utgång ** och **Demontering **.
+- oberoende växlingsbara och storleksändrbara paneler **Bygg, utgång** och **Demontering**.
 
 Panelen Demontering innehåller en **Kopiera**-knapp som kopierar hela den visade källan till urklipp. Kommandohjälpen följer den medföljande kompilatorn: till exempel väljer `sprite_frame id, data_address [, frame]` en animeringsbild från på varandra följande 64-byte sprite-frames.
 
@@ -527,7 +527,7 @@ Expertläge är en fullfjädrad direkttext-assembleringseditor i 6502 som finns 
 | ------------------ | -------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | **Palett**         | `#expert-palett-btn` | Vänster blockpalet — dra block till redigeraren eller klicka för att infoga vid markören                                    |
 | **ASM-redigerare** | alltid synlig        | Fullständigt monospace-textområde med live syntaxmarkeringöverlägg                                                          |
-| **Diasm-panel **   | `#expert-disasm-btn` | Ren 6502-demontering: varje instruktion visar adress, hexadecimala byte och numeriska operander; makron är helt expanderade |
+| **Diasm-panel**    | `#expert-disasm-btn` | Ren 6502-demontering: varje instruktion visar adress, hexadecimala byte och numeriska operander; makron är helt expanderade |
 
 ### Verktygsfältsknappar
 
@@ -541,7 +541,7 @@ Expertläge är en fullfjädrad direkttext-assembleringseditor i 6502 som finns 
 | **Autokomplettera**                    | `#expert-autocomplete-btn`                        | Aktivera/avaktivera expertförslag för autoslutförande. När det är inaktiverat visas inga direktiv, mnemonik eller etikettfönster i expertredigeraren.                                                                              |
 | **Regionsval**                         | `#expert-region-val-btn`                          | Aktivera automatisk markering av regioner i expertläge. Vikningsläget förblir lagrat, men när det är avstängt håller redigeraren hela källan synlig och väljer inte automatiskt den aktuella regionen.                             |
 | **Komprimera/expandera alla regioner** | `#expert-region-vik-alla-btn`                     | Vik eller vik ut varje `.region`-block med ett enda klick. Om någon region är öppen komprimeras alla; om alla regioner redan är komprimerade expanderas alla med nästa klick. Knappen lyser upp när alla regioner är komprimerade. |
-| ** Radnummer **                        | `#expert-linjenummer-btn`                         | Aktivera radnummermarginalen på vänster sida av redigeraren. Mellanmarginalen är synkroniserad med rullningspositionen och uppdateras live medan du skriver.                                                                       |
+| **Radnummer**                          | `#expert-linjenummer-btn`                         | Aktivera radnummermarginalen på vänster sida av redigeraren. Mellanmarginalen är synkroniserad med rullningspositionen och uppdateras live medan du skriver.                                                                       |
 | **Hitta**                              | `#expert-hitta-btn`                               | Öppna den flytande sökfältet (`Ctrl+F`). Skriv för att söka; träffar markeras i överlägget. `Enter` / `Shift+Enter` navigerar mellan träffar. `Escape` stänger fältet.                                                             |
 | **Zooma ut/in**                        | `#expert-zoom-ut-knapp` / `#expert-zoom-in-knapp` | Minska/öka redigerarens teckenstorlek (8–28 px). Inställningen sparas.                                                                                                                                                             |
 | **Palett**                             | `#expert-palett-btn`                              | Visa/dölj den vänstra mnemoniska paletten                                                                                                                                                                                          |
@@ -676,7 +676,7 @@ clear:
 | `#&lt;*` / `#&gt;*` | `LDA-nummer &lt;* `, `LDA-nummer &gt;* ` | Låg/hög byte för den aktuella datorn                   |
 | `#&gt;(*+n)`        | `LDA-nummer&gt;(*+63)`                   | Låg/hög byte för en PC-relativ adress                  |
 
-**PC vs. multiplikation.** `*` behandlas som programräknaren endast när den sitter i *värdepositionen* — i början av uttrycket, eller direkt efter en operator, `(`, `,`, `&lt;`, `&gt;` eller blanksteg. En `*` som följer ett tal, `)` eller en identifierare är vanlig multiplikation, så `LDA-tabellen*2` och `CONST_A*4` är oförändrade.
+**PC vs. multiplication.** `*` is treated as the program counter only when it sits in *value position* — at the start of the expression, or right after an operator, `(`, `,`, `&lt;`, `&gt;` or whitespace. A `*` that follows a number, `)` or an identifier is ordinary multiplication, so `LDA table*2` and `CONST_A*4` are unchanged.
 
 **Där det fungerar.** Alla operander som redan accepterar ett uttryck: branch targets, `JMP` / `JSR`, `LDA`/`STA`/… absoluta och indexerade, omedelbara operatorer för låg/hög byte och uttrycket `.assert`. `*` ändrar aldrig en instruktions storlek, så den är säker i alla adresseringslägen.
 
@@ -932,7 +932,7 @@ Detta lagrar den låga byten för `frame_0`s adress, sedan den höga byten, och 
 
 ### WORD
 
-Liksom **DATA i BASIC men för 16-bitars tal **. Varje värde lagras som två byte (låg byte först, sedan hög byte — 6502 little-endian-ordning).
+Liksom **DATA i BASIC men för 16-bitars tal**. Varje värde lagras som två byte (låg byte först, sedan hög byte — 6502 little-endian-ordning).
 
 | Fält    | Beskrivning                                            |
 | ------- | ------------------------------------------------------ |
@@ -978,7 +978,7 @@ Liksom `FOR I=1 TO N: POKE addr+I, val: NEXT` — fyller ett minnesblock med sam
 | `40*25, 0`                    | inline-multiplikation                     |
 | `runda(sin(PI/4)*255), 80 kr` | trigonometri                              |
 
-**Inbyggda funktioner: ** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, konstant `PI`
+**Inbyggda funktioner:** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, konstant `PI`
 
 Operatorer: `+ - * /` Literaler: `$FF` (hex), `%10110000` (binär) Låg/hög byte: `lo(expr)`, `hi(expr)`
 
@@ -1023,7 +1023,7 @@ Liksom **PRINT AT** — skriver text direkt till C64-skärmen vid en given kolum
 | Etikett (valfritt)        | Tilldelar en etikett som pekar på den beräknade skärmadressen |
 | Gemener teckenuppsättning | Kryssruta — se nedan                                          |
 
-**Teckenuppsättningslägen: **
+**Teckenuppsättningslägen:**
 
 C64 har två teckenuppsättningar som kan väljas vid körning:
 
@@ -1192,7 +1192,7 @@ Liksom **RAWBYTES men för KERNAL-utdata** — kodar strängen som PETSCII-byte 
 | Etikett (valfritt)  | Tilldelar en etikett som pekar mot måladressen              |
 | PETSCII med gemener | Kryssruta — se nedan                                        |
 
-**Teckenuppsättningslägen: **
+**Teckenuppsättningslägen:**
 
 | Läge                                | Stora bokstäver (`A`–`Z`)                                                                                                | Gemener (`a`–`z`)            |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ---------------------------- |
@@ -1527,7 +1527,7 @@ Två filtyper stöds:
 .include "sprites.asm"
 ```
 
-- Filändelsen ** krävs i expertläge ** — ett rent namn som `.include "macros"` behandlas som `.include "macros.json"`.
+- Filändelsen **krävs i expertläge** — ett rent namn som `.include "macros"` behandlas som `.include "macros.json"`.
 - Sökvägsupplösning: försöker först bredvid projektfilen (relativ), återgår sedan till appens medföljande katalog `samples/`.
 
 **Genererad ASM (ingen adressöverstyrning):**
@@ -1738,7 +1738,7 @@ done:
 
 ### PUSH / PULL
 
-Som att ** spara variabler före en GOSUB och återställa dem efter ** — men använder 6502-hårdvarustacken. Om en subrutin använder A, X eller Y, omslut den med PUSH och PULL så att den anropande kodens register bevaras.
+Like **saving variables before a GOSUB and restoring them after** — but uses the 6502 hardware stack. If a subroutine uses A, X, or Y, wrap it with PUSH and PULL so the calling code's registers are preserved.
 
 #### PUSH
 
@@ -1764,7 +1764,7 @@ Skjuter ett eller flera register till stacken. Ordningen är alltid A → X → 
 
 #### PULL
 
-Återställer register från stacken i **omvänd ordning** (Y → X → A).
+Restores registers from the stack in **reverse order** (Y → X → A).
 
 | Fält     | Beskrivning                                          |
 | -------- | ---------------------------------------------------- |
@@ -1788,7 +1788,7 @@ Skjuter ett eller flera register till stacken. Ordningen är alltid A → X → 
 
 ### END / RTS-alias
 
-Liksom **RTS med ett vänligare makronamn ** — `.end` avger en enda `RTS` byte och beter sig som en kort subrutinterminator i expertläge.
+Liksom **RTS med ett vänligare makronamn** — `.end` avger en enda `RTS` byte och beter sig som en kort subrutinterminator i expertläge.
 
 **Expertsyntax:**
 ```
@@ -1808,7 +1808,7 @@ Använd detta när du vill ha en markör för slutet av en subrutin som liknar e
 
 ### MACRO / ENDM / INVOKE
 
-Liksom **en namngiven GOSUB med parametrarna ** — definiera en återanvändbar kodbit en gång (MACRO…ENDM), och anropa den sedan var som helst med INVOKE. Skicka olika argumentvärden varje gång istället för att kopiera och klistra in block.
+Like **a named GOSUB with parameters** — define a reusable chunk of code once (MACRO…ENDM), then call it anywhere with INVOKE. Pass different argument values each time instead of copy-pasting blocks.
 
 #### MAKRO (definitionsstart)
 
@@ -1817,7 +1817,7 @@ Liksom **en namngiven GOSUB med parametrarna ** — definiera en återanvändbar
 | Namn       | Identifierare för makrot (t.ex. `setColor`)                              |
 | Parametrar | Valfria kommaseparerade parameternamn (t.ex. `färg` eller `färg, antal`) |
 
-Markerar början på en makrodefinition. Block mellan MACRO och ENDM är makrots brödtext — de **genererar ingen kod ** där definitionen finns. Använd `{paramName}` som platshållare för argument.
+Markerar början på en makrodefinition. Block mellan MACRO och ENDM är makrots brödtext — de **genererar ingen kod** där definitionen finns. Använd `{paramName}` som platshållare för argument.
 
 **Genererad ASM:**
 ```
@@ -1899,7 +1899,7 @@ Rent visuell gruppering — **noll byte**, noll effekt på den sammansatta koden
 ```
 
 **Kontroller på REGION-blockrubriken (alltid synliga):**
-- **▸ / ▾ växla ** — komprimerar eller expanderar hela regionen. När den är komprimerad döljs alla block mellan REGION och ENDREGION.
+- **▸ / ▾ växla** — komprimerar eller expanderar hela regionen. När den är komprimerad döljs alla block mellan REGION och ENDREGION.
 - **↕ Expandera alla** — återställer varje individuellt hopfällt block inom regionen och expanderar själva regionen om det behövs.
 - **⦵ Välj i ASM** — markerar hela regionens kodintervall i ASM-vyn (från `; ===[namn]===` till `; ===[/namn]===`) och bläddrar till det. Växlar automatiskt till ASM-fliken om den inte är synlig för närvarande.
 - **⧉ Kopiera region** — kopierar REGION-blocket, alla underblock och matchande ENDREGION till ett urklipp. En ✓-blixt bekräftar kopieringen.
@@ -1922,13 +1922,13 @@ Rent visuell gruppering — **noll byte**, noll effekt på den sammansatta koden
 3. Lägg till ett `ENDREGION`-block för att stänga avsnittet.
 4. Klicka på ▸ på REGIONEN för att komprimera hela avsnittet till en rad medan du arbetar med andra delar av programmet.
 
-> **Obs: ** Regioner kan **kapslas** inuti varandra. Varje ENDREGION stänger närmaste öppna REGION. Ingen effekt på den sammanställda utdata.
+> **Obs:** Regioner kan **kapslas** inuti varandra. Varje ENDREGION stänger närmaste öppna REGION. Ingen effekt på den sammanställda utdata.
 
 ---
 
 ### DEFINE / IF / ELSE / ENDIF
 
-Precis som med en **-brytare läser assemblern ** — `DEFINE DEBUG` aktiverar en symbol, varpå valfritt `IF DEBUG`-block inkluderas och dess `ELSE`-gren hoppas över. Ta bort DEFINE-blocket så försvinner IF-blocket från utdata. Du behöver inte ta bort kod för versioner.
+Precis som med en **-brytare läser assemblern** — `DEFINE DEBUG` aktiverar en symbol, varpå valfritt `IF DEBUG`-block inkluderas och dess `ELSE`-gren hoppas över. Ta bort DEFINE-blocket så försvinner IF-blocket från utdata. Du behöver inte ta bort kod för versioner.
 
 #### DEFINE
 
@@ -2108,7 +2108,7 @@ Värdefältet accepterar allmän aritmetik, inklusive referenser till tidigare d
 .const SIN_TABLE   = round(sin(PI/8) * 127)   ; pre-computed sine value
 ```
 
-**Inbyggda funktioner: ** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, konstant `PI`
+**Inbyggda funktioner:** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, konstant `PI`
 
 Operatorer: `+ - * /` Literaler: `$FF` (hex), `%10110000` (binär) Låg/hög byte: `lo(expr)`, `hi(expr)`
 
@@ -2132,7 +2132,7 @@ Liksom **CONST, men automatiskt allokerad** — `VAR` reserverar nollsidig lagri
 .var lives
 ```
 
-**Praktiskt exempel: **
+**Praktiskt exempel:**
 ```
 .region Vars
 .var counter
@@ -2148,7 +2148,7 @@ STA counter
 ; .var counter
 ```
 
-**Storlek: ** 1 byte som standard, eller `N` byte när storlek anges.
+**Storlek:** 1 byte som standard, eller `N` byte när storlek anges.
 
 Allokatorn går med en konfigurerbar nollsidig markör (`$02` till `$FE`) och tilldelar nästa lediga plats. Om den begärda regionen överlappar en redan använd etikett, avger kompilatorn en varning.
 
@@ -2227,7 +2227,7 @@ Använd `REPEAT / UNTIL` när du vill att kroppen ska utföras minst en gång f�
 
 ### MEMCPY / MEMSET
 
-Precis som **små minnesrutiner du ständigt söker efter ** — `MEMCPY` kopierar ett sammanhängande block, `MEMSET` fyller ett område med en byte.
+Precis som **små minnesrutiner du ständigt söker efter** — `MEMCPY` kopierar ett sammanhängande block, `MEMSET` fyller ett område med en byte.
 
 | Makro    | Fält                         |
 | -------- | ---------------------------- |
@@ -2250,7 +2250,7 @@ Storlekar upp till 256 byte använder en kort 8-bitarsloop. Större storlekar v�
 
 #### PRINT
 
-Liksom **PETSCII-utdata utan standardtexten ** — skriver ut en sträng genom `CHROUT` med samma hantering av versaler/gemener som PETSCII-blocket. Kryssrutan för gemener delas med PETSCII-kodaren, så textsökvägen förblir konsekvent.
+Liksom **PETSCII-utdata utan standardtexten** — skriver ut en sträng genom `CHROUT` med samma hantering av versaler/gemener som PETSCII-blocket. Kryssrutan för gemener delas med PETSCII-kodaren, så textsökvägen förblir konsekvent.
 
 **Expertsyntax:**
 ```
@@ -2349,7 +2349,7 @@ Använd detta när du vill ha den vanliga standardbeskrivningen "SEI / install h
 
 ### RAND
 
-Liksom ** returnerar en liten inbyggd PRNG** ett 8-bitars pseudoslumpmässigt värde från ett kompakt nollsidigt seed-värde.
+Liksom **returnerar en liten inbyggd PRNG** ett 8-bitars pseudoslumpmässigt värde från ett kompakt nollsidigt seed-värde.
 
 | Fält   | Beskrivning                                              |
 | ------ | -------------------------------------------------------- |
@@ -2772,7 +2772,7 @@ Inbyggd **Exomizer-dekomprimering**. Använd detta makro direkt efter en `LOADFI
 
 **Depacker binärfil:** Den förbyggda bakåtriktade depackern är `samples/exo-decrunch.bin` (477 byte, ORG $B000). Det är en Kick Assembler-wrap av den officiella `exodecrunch.asm` med `INC $D020` tillagd till varje läsning för en synlig kantblixteffekt under dekomprimering. Placera den i ditt program med ett `INCBIN`-block vid depackeradressen.
 
-**Säkerhetsoffsetkompensation:** Exomizers standardminnesläge tillämpar en 2-byte säkerhetsoffset — data landar 2 byte tidigare än det begärda målet. Dialogrutan Kör via D64 ** lägger automatiskt till 2 i Dst-fältet ** innan exomizer anropas, så att det synliga beteendet matchar den adress du skrev.
+**Säkerhetsoffsetkompensation:** Exomizers standardminnesläge tillämpar en 2-byte säkerhetsoffset — data landar 2 byte tidigare än det begärda målet. Dialogrutan Kör via D64 **lägger automatiskt till 2 i Dst-fältet** innan exomizer anropas, så att det synliga beteendet matchar den adress du skrev.
 
 > **Se även:** `exo-multicolor-demo`-exemplet — ett fullständigt exempel från början till slut: LOADFILE en komprimerad flerfärgad bitmapp till $C000, EXODECRUNCH packar upp den till $2000, kopierar sedan skärm → $0400 och färg → $D800, och växlar VIC-II till flerfärgad bitmappsläge.
 
@@ -2997,7 +2997,7 @@ Kopierar en tilemapp från en källadress till skärmens RAM (och eventuellt fä
 
 **Storlek:** `2 (LDX) + hela sidor×9 + (rest &gt; 0 ? 11 : 0)` byte per sektion. Kombinerat läge fördubblar det (skärmsektion + identisk färgsektion).
 
-**Parning med kartredigeraren: **
+**Parning med kartredigeraren:**
 
 Kartredigerarens **Filer → Spara karta + färg-RAM (.bin)** exporterar en enda binärfil där de första `storlek` bytena är skärmkoder och nästa `storlek` byte är färg-RAM-värden. Använd MAP_COPY med **Kombinerad .bin** markerad och peka **Källadress** där filen laddas (t.ex. via INCBIN vid `$C000`):
 
@@ -3178,7 +3178,7 @@ digit_loop:
 
 > **Tips:** Initiera poängbyten till `$00` vid start. Poängadressen ska vara i noll-sid- eller absolut-RAM — inte ROM. Skärmadressen ska peka på siffercellen längst till vänster; siffror skrivs från vänster till höger (mest signifikanta byte först).
 
-> **BCD-intervall: ** `siffror=4` byte → 8 decimalsiffror → maxpoäng 99 999 999. Varje byte kodar två BCD-siffror: `$00`–`$99`.
+> **BCD-intervall:** `siffror=4` byte → 8 decimalsiffror → maxpoäng 99 999 999. Varje byte kodar två BCD-siffror: `$00`–`$99`.
 
 ---
 
@@ -3249,7 +3249,7 @@ Verktygsfältets **Kör**-knapp har ersatts av en **delknapp**:
 | **▶ Kör** (huvud) | Utför det aktuellt valda körläget |
 | **▾** (pil)       | Öppnar lägesväljaren              |
 
-**Tillgängliga körlägen: **
+**Tillgängliga körlägen:**
 
 | Läge                | Beskrivning                                                                                                                                                                                                                 |
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -3301,7 +3301,7 @@ Verktygsfältsikonen efter kurvredigeraren öppnar **D64-redigeraren** — ett f
 | **Lägg till program**    | Välj en lokal fil och skriv den till diskkatalogen.                               |
 | **Utdrag valt**          | Spara den valda postens byte till en lokal `.prg`-fil.                            |
 | **Byt namn på markerad** | Redigera postnamnet infogat i tabellen — Enter bekräftar, Escape avbryter.        |
-| **Ta bort markerade **   | Ta bort den valda posten från disken.                                             |
+| **Ta bort markerade**    | Ta bort den valda posten från disken.                                             |
 | **Uppdatera**            | Läs om katalogen, t.ex. efter att du har redigerat disken från ett annat verktyg. |
 
 **Lägga till ett program:** Om du väljer en fil som redan slutar på `.prg` frågar du bara efter ett **Namn** och en diskett **Typ** (PRG/SEQ/USR/REL) — en `.prg` har redan sin egen load-address-rubrik, så den skrivs oförändrad. Om du väljer en annan fil (t.ex. en rå `.bin`) visas dessutom:
@@ -3335,7 +3335,7 @@ Bygg CRT använder aldrig Exomizer (avpackaren kan inte köras från vagnens ROM
 
 - **Block-/expertläge med BASIC SYS-stub på:** load = `$0801`, entry = SYS-målet (vanligtvis `$080D` eller användarens ursprung).
 - **Block-/Expertläge med BASIC SYS-stub av:** ladda = användarursprung (med den klassiska `$0801 → $C000` reservfunktionen), post = ladda adress.
-- **UltimateBasic-läge: ** Både inläsning och inmatning kommer från UB-kompilatorkartan (`build.map.loadAddress`). UB-autostartstubben inuti nyttolasten körs sedan exakt som den skulle göra efter `LOAD "...",8,1 : RUN` från disk.
+- **UltimateBasic-läge:** Både inläsning och inmatning kommer från UB-kompilatorkartan (`build.map.loadAddress`). UB-autostartstubben inuti nyttolasten körs sedan exakt som den skulle göra efter `LOAD "...",8,1 : RUN` från disk.
 
 Ursprungsadressen som du ser i ASM-utdata bevaras; laddaren kopierar helt enkelt den platta minnesbilden från PRG till RAM och hoppar till startpunkten när vagnens ROM har avmappats.
 
@@ -3356,14 +3356,14 @@ Eftersom nyttolasten lagras linjärt och `assembleProgramToPrg()` returnerar en 
 
 ### Kompatibilitet
 
-| Plattform                       | Status                                           |
-| ------------------------------- | ------------------------------------------------ |
-| VICE (`x64sc`, `x64`)           | Fungerar via ** Arkiv → Bifoga patronbild **.    |
-| C64 / C64 Mini                  | Fungerar via den inbyggda patronladdaren.        |
-| Kung Fu Flash                   | Fungerar — inbyggt Magic Desk-läge.              |
-| EasyFlash-patron                | Fungerar när den programmeras som Magic Desk.    |
-| 1541 Ultimate II+ / Ultimate 64 | Fungerar via **Kassett → Ladda varukorg bild **. |
-| Kameleont / Turbo-kameleont     | Fabrik.                                          |
+| Plattform                       | Status                                          |
+| ------------------------------- | ----------------------------------------------- |
+| VICE (`x64sc`, `x64`)           | Fungerar via **Arkiv → Bifoga patronbild**.     |
+| C64 / C64 Mini                  | Fungerar via den inbyggda patronladdaren.       |
+| Kung Fu Flash                   | Fungerar — inbyggt Magic Desk-läge.             |
+| EasyFlash-patron                | Fungerar när den programmeras som Magic Desk.   |
+| 1541 Ultimate II+ / Ultimate 64 | Fungerar via **Kassett → Ladda varukorg bild**. |
+| Kameleont / Turbo-kameleont     | Fabrik.                                         |
 
 ---
 
@@ -3382,17 +3382,17 @@ VICE krävs för **Kör som PRG**, **Kör via D64** och **Exportera till D64**.
 
 ### Exomizer
 
-| Miljö                                            | Beskrivning                                                                                                                                                          |
-| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Välj Exomizer**                                | Bläddra till den körbara filen `exomizer`                                                                                                                            |
-| **Blinkning vid kantlinje under dekompression ** | När den är aktiverad använder SFX-komprimerade PRG:er exomizerns inbyggda `-x1` snabba kantblixteffekt; när den är inaktiverad skickas `-n` för tyst dekomprimering. |
-| **Status**                                       | Visar om den körbara sökvägen är giltig och tillgänglig                                                                                                              |
+| Miljö                                           | Beskrivning                                                                                                                                                          |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Välj Exomizer**                               | Bläddra till den körbara filen `exomizer`                                                                                                                            |
+| **Blinkning vid kantlinje under dekompression** | När den är aktiverad använder SFX-komprimerade PRG:er exomizerns inbyggda `-x1` snabba kantblixteffekt; när den är inaktiverad skickas `-n` för tyst dekomprimering. |
+| **Status**                                      | Visar om den körbara sökvägen är giltig och tillgänglig                                                                                                              |
 
 **Arbetsflöde:**
 1. Installera Exomizer-binärfilen:
    - **Windows:** ladda ner den förbyggda `win32/exomizer.exe` från https://bitbucket.org/magli143/exomizer/wiki/Home eller https://csdb.dk/release/?id=244342.
    - **macOS:** `brew install exomizer` (installerar Magnus Linds officiella 3.1.2-version).
-2. Konfigurera sökvägen i **Hårdvaruinställningar → Exomizer-sektionen **.
+2. Konfigurera sökvägen i **Hårdvaruinställningar → Exomizer-sektionen**.
 3. Aktivera kryssrutan **Kör med Exomizer** i **Inställningsmenyn**.
 4. Alla **Kör**-åtgärder (PRG, D64, hårdvara) och **Bygg**-åtgärder (Bygg PRG, Bygg D64) kommer nu att pressa det sammansatta programmet genom `exomizer sfx sys` innan det startas eller sparas.
 
@@ -3425,7 +3425,7 @@ Kör sammansatta PRG:er direkt på riktig hårdvara över det lokala nätverket 
 | Miljö              | Beskrivning                                                          |
 | ------------------ | -------------------------------------------------------------------- |
 | **Värd (IP)**      | Enhetens IP-adress (t.ex. `192.168.1.100`)                           |
-| Lösenord           | Valfritt — om enheten kräver autentisering                           |
+| **Lösenord**       | Valfritt — om enheten kräver autentisering                           |
 | **Testanslutning** | Skickar en testförfrågan till `/v3/runners/info`; visar OK eller fel |
 
 **Arbetsflöde:**
@@ -3543,7 +3543,7 @@ Skiktad tilemap-redigerare för statiska landskap, sprite-spawnkartor, kollision
 
 Tracker för flera instrument, 3 röster och en förhandsgranskningsmotor för webbljud. Öppna via Toolkit → SID Editor.
 
-**Kontroller per instrument: **
+**Kontroller per instrument:**
 - Kryssrutor för vågformer (TRI / SAW / PUL / NOI) — flera vågformer kan OR:as tillsammans.
 - ADSR (attack / decay / sustain / release) visas som en draggraf ovanför de fyra reglagen.
 - Pulsbreddsreglage (0-4095) med valfria ring-/synkroniseringsflaggor.
@@ -3552,7 +3552,7 @@ Tracker för flera instrument, 3 röster och en förhandsgranskningsmotor för w
 **Spårningsrutnät:**
 - 3 röster × upp till 7 mönster × 32 rader = 7 × 32 = max 224 rader (8-bitars radräknare begränsar det).
 - Per rad: not + instrumentindex. Tomma rader innehåller föregående not.
-- Markera en cell normalt, eller håll ner Shift** medan du klickar eller använder piltangenterna för att utöka en rektangulär markering över rader och någon av de tre rösterna. Om du högerklickar inuti det markerade området behålls området intakt.
+- Markera en cell normalt, eller håll ned **Shift** medan du klickar eller använder piltangenterna för att utöka en rektangulär markering över rader och någon av de tre rösterna. Om du högerklickar inuti det markerade området behålls området intakt.
 - Kopiera, Klipp ut, Klistra in och Rensa är tillgängliga från ikonverktygsfältet och den ikonbaserade snabbmenyn. `Ctrl/Cmd+C` och `Ctrl/Cmd+V` fungerar på samma rektangulära markering.
 - Harmonihjälp: välj en grundton, ackordtyp och oktav, förhandsgranska ackordet med det aktuella instrumentet och infoga sedan instämmandet direkt i spåraren. Tillgängliga typer inkluderar dur, moll, förminskad, förstärkt, sus2, sus4, dominant 7, dur 7, moll 7, 6, moll 6, 9, b9, #9, dim7 och 7sus4.
 - Arpeggio-hjälp: förhandsgranska eller infoga 4-, 8- eller 16-stegsnoter som löper från det valda ackordet i uppåt-, nedåt- eller uppåt/nedåt-riktning.
@@ -3560,7 +3560,7 @@ Tracker för flera instrument, 3 röster och en förhandsgranskningsmotor för w
 - Inklistring av cellintervall börjar nu vid den valda intervallets startcell och stoppar tydligt vid röst- och radgränser istället för att radbrytas till nästa kolumn eller rad.
 - Hastighetsreglaget anger IRQ-tick-divisorn (bildrutor mellan rader).
 
-**Uppspelning och virtuellt tangentbord: **
+**Uppspelning och virtuellt tangentbord:**
 - Knappen Spela upp i verktygsfältet ändras till Paus under uppspelning och till Återuppta under paus; Stopp avslutar uppspelningen och återställer läget.
 - Knappen på tangentbordsverktygsfältet öppnar ett icke-modalt piano som fortfarande kan användas medan SID-redigeraren är aktiv. Dra dess rubrik för att placera det var som helst över huvudprogrammet.
 - Aktivera **Insert into tracker** för att skriva varje spelad not vid den aktuella tracker-markören och gå vidare till nästa rad. Inaktivera den för att lyssna på noter utan att redigera.
@@ -3590,19 +3590,19 @@ Genererar färdiga `.byte`-uppslagstabeller från matematiska kurvor — sinus, 
 
 **Kurvor:** Sinus, cosinus, linjär, justering in/ut/in ut (kvadrat och kubiskt), justering in/ut (cirkulärt), triangel, sågtand, kvadrat och justering in/ut/in ut studs.
 
-**Kontroller: **
-| Kontrollera                | Ändamål                                                                                                                                                                                                 |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Start-/slutvärde**       | Utgångsområde. 0..255 i 8-bitarsläge, 0..320 i 16-bitarsläge.                                                                                                                                           |
-| **Antal värden**           | Tabelllängd, 4–512 poster.                                                                                                                                                                              |
-| **Cykler**                 | Hur många svängningar över tabellen (sinus/cosinus/triangel/sågtand/kvadratisk). Accepterar bråk (t.ex. `3,625`).                                                                                       |
-| **Fas**                    | Fasförskjutning i grader (endast sinus/cosinus).                                                                                                                                                        |
-| **Kombinera andra kurvan** | Blanda en andra kurva med **Blanda / Lägga till / Multiplicera / Min / Max / Subtrahera **, dess egna cykler/fas och en blandningsmängd. Båda källkurvorna är ritade som streckade stödlinjer i grafen. |
-| **Etikett**                | Tabelletikett (föreslagen automatiskt från kurvnamnet).                                                                                                                                                 |
-| **Nummerformat**           | `$XX` hex eller decimal.                                                                                                                                                                                |
-| **Värden per rad**         | 8 / 16 / 32 byte per `.byte`-rad.                                                                                                                                                                       |
+**Kontroller:**
+| Kontrollera                | Ändamål                                                                                                                                                                                                |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Start-/slutvärde**       | Utgångsområde. 0..255 i 8-bitarsläge, 0..320 i 16-bitarsläge.                                                                                                                                          |
+| **Antal värden**           | Tabelllängd, 4–512 poster.                                                                                                                                                                             |
+| **Cykler**                 | Hur många svängningar över tabellen (sinus/cosinus/triangel/sågtand/kvadratisk). Accepterar bråk (t.ex. `3,625`).                                                                                      |
+| **Fas**                    | Fasförskjutning i grader (endast sinus/cosinus).                                                                                                                                                       |
+| **Kombinera andra kurvan** | Blanda en andra kurva med **Blanda / Lägga till / Multiplicera / Min / Max / Subtrahera**, dess egna cykler/fas och en blandningsmängd. Båda källkurvorna är ritade som streckade stödlinjer i grafen. |
+| **Etikett**                | Tabelletikett (föreslagen automatiskt från kurvnamnet).                                                                                                                                                |
+| **Nummerformat**           | `$XX` hex eller decimal.                                                                                                                                                                               |
+| **Värden per rad**         | 8 / 16 / 32 byte per `.byte`-rad.                                                                                                                                                                      |
 
-**Utmatningslägen: **
+**Utmatningslägen:**
 | Läge          | Sänder ut                                                                                                                                                                                                                                                                                                                                                                                     |
 | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **8-bitars**  | En enda `.byte`-tabell (värden 0..255). Läses med `LDX #index / LDA-tabell,X`. Genererar valfritt en **sprite-Y-läsarrutin** (`<etikett>_set_y`) — `LDA <etikett>,X` / `STA $D001+2N` — för ett valbart spritenummer 0-7.                                                                                                                                                                     |
@@ -3616,12 +3616,12 @@ Varje kopierings-/infogningsutdata börjar med en rubrikkommentar som dokumenter
 
 **Kopiera / Infoga:** verktygsfältets två ikoner — **Kopiera** placerar tabellen på urklipp; **Infoga i redigerare** lägger till tabellen (och läsaren, om aktiverad) som block i det aktuella programmet. Om du infogar **ersätts** den tidigare kurvredigerarinfogningen istället för att stapla dubbletter (fungerar i block- och expertläge).
 
-**Filmeny: **
-| Handling                       | Vad den gör                                                                                                                                                                                                                                                                                                                         |
-| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Spara kurva (.bin)…**        | Sparar de råa tabellbytena exakt som C64 skulle läsa dem via `INCBIN`. 16-bitars: N låga byte följt av N höga byte.                                                                                                                                                                                                                 |
-| **Lastkurva (.bin)…**          | Läser in råa tabellbyte tillbaka till editorn, tolkade enligt det aktuella bitdjupet (16-bitars: första halvan låg, andra halvan hög). Den inlästa tabellen visas som den är tills någon kurvkontroll genererar en ny kurva.                                                                                                        |
-| **Exportera demo till block ** | Lägger till en komplett, körbar sprite-demo: sprite-init, rastersynkroniserad huvudloop, den inbäddade tabellen och boll-sprite-data. X sveper 0..320 i 8.8 fixpunkt med `$D010` MSB medan tabellen driver sprite Y — vilket exakt matchar editorns förhandsgranskning. Återexport ersätter den tidigare Curve Editor-insättningen. |
+**Filmeny:**
+| Handling                      | Vad den gör                                                                                                                                                                                                                                                                                                                         |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Spara kurva (.bin)…**       | Sparar de råa tabellbytena exakt som C64 skulle läsa dem via `INCBIN`. 16-bitars: N låga byte följt av N höga byte.                                                                                                                                                                                                                 |
+| **Lastkurva (.bin)…**         | Läser in råa tabellbyte tillbaka till editorn, tolkade enligt det aktuella bitdjupet (16-bitars: första halvan låg, andra halvan hög). Den inlästa tabellen visas som den är tills någon kurvkontroll genererar en ny kurva.                                                                                                        |
+| **Exportera demo till block** | Lägger till en komplett, körbar sprite-demo: sprite-init, rastersynkroniserad huvudloop, den inbäddade tabellen och boll-sprite-data. X sveper 0..320 i 8.8 fixpunkt med `$D010` MSB medan tabellen driver sprite Y — vilket exakt matchar editorns förhandsgranskning. Återexport ersätter den tidigare Curve Editor-insättningen. |
 
 **Matcha förhandsgranskningen på C64:** förhandsgranskningen läser tabellen **linjärt, loopande 0 → N-1 → 0, ett värde per bildruta**. För att reproducera det exakt, kör tabellen på samma sätt (öka indexet en gång per bildruta, radbryt vid tabellens längd). En pingis- eller partiell uppspelning kommer att röra sig olika även om bytevärdena är identiska. Se `samples/curve-new-demo.asm` för ett fungerande 16-bitars sprite-X-exempel.
 

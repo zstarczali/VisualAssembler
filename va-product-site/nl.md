@@ -183,12 +183,12 @@ Vijf handige functies voor assembler, die allemaal bruikbaar zijn in de Expert-m
 ## Hoogtepunten van versie 2.3.8
 
 - **Werkruimte opslaan/openen:** sla de exacte set geopende, door bestanden ondersteunde tabbladen op — inclusief het actieve tabblad en de editormodus van elk tabblad — in een `.vaws` werkruimtebestand. Werkruimtes worden automatisch opgeslagen bij wijzigingen en de app herstelt automatisch uw laatst gebruikte werkruimte bij het opstarten.
-- **Waak het geheugenpaneel weergeven of verbergen: ** Toon of verberg het volledige C64-geheugenpaneel via een speciale UI-schakelaar.
-- **Gelokaliseerde Ultimate Basic-opdrachtreferentie: ** De opdrachtbeschrijvingen in het pop-upvenster voor automatisch aanvullen en het paneel Opdrachten volgen nu de huidige UI-taal (Hongaars, Engels, Spaans, Duits, Nederlands), met Engels als terugvaloptie.
-- **Vernieuwde Ultimate Basic-grafische documentatie: ** `KLEURENPEN` en de helptekst voor de opdrachten plot/lijn/rechthoek/cirkel en meerkleurig tekenen komen nu overeen met het huidige compilergedrag.
-- **KERNAL-referentie gecorrigeerd: ** De `SETLFS` en `PLOT` vermeldingen (adressen en aanroepconventies) in de KERNAL-adrestabel van de disassembler zijn gecorrigeerd.
-- **Geheugengebruik met veel geopende tabbladen opgelost: ** De undo/redo-geschiedenis per tabblad is nu beperkt (met een kleine debounce), waardoor de onbeperkte geheugengroei die een lange sessie met veel geopende documenten voorheen veroorzaakte, wordt voorkomen.
-- **Opruiming van de editorwerkbalk: ** De overbodige knoppen voor het in- en uitschakelen van breekpunten zijn verwijderd uit de Expert- en Ultimate Basic-werkbalken (breekpunten worden nog steeds ingesteld vanuit de regelnummermarge) en de hoogte van de Expert-werkbalk is gelijkgetrokken met die van de Ultimate Basic-werkbalk.
+- **Waak het geheugenpaneel weergeven of verbergen:** Toon of verberg het volledige C64-geheugenpaneel via een speciale UI-schakelaar.
+- **Gelokaliseerde Ultimate Basic-opdrachtreferentie:** De opdrachtbeschrijvingen in het pop-upvenster voor automatisch aanvullen en het paneel Opdrachten volgen nu de huidige UI-taal (Hongaars, Engels, Spaans, Duits, Nederlands), met Engels als terugvaloptie.
+- **Vernieuwde Ultimate Basic-grafische documentatie:** `KLEURENPEN` en de helptekst voor de opdrachten plot/lijn/rechthoek/cirkel en meerkleurig tekenen komen nu overeen met het huidige compilergedrag.
+- **KERNAL-referentie gecorrigeerd:** De `SETLFS` en `PLOT` vermeldingen (adressen en aanroepconventies) in de KERNAL-adrestabel van de disassembler zijn gecorrigeerd.
+- **Geheugengebruik met veel geopende tabbladen opgelost:** De undo/redo-geschiedenis per tabblad is nu beperkt (met een kleine debounce), waardoor de onbeperkte geheugengroei die een lange sessie met veel geopende documenten voorheen veroorzaakte, wordt voorkomen.
+- **Opruiming van de editorwerkbalk:** De overbodige knoppen voor het in- en uitschakelen van breekpunten zijn verwijderd uit de Expert- en Ultimate Basic-werkbalken (breekpunten worden nog steeds ingesteld vanuit de regelnummermarge) en de hoogte van de Expert-werkbalk is gelijkgetrokken met die van de Ultimate Basic-werkbalk.
 
 ---
 
@@ -211,9 +211,9 @@ De modusbadge helemaal rechts in de header geeft de actieve editor aan: **Block*
 Het palet aan de linkerkant toont alle beschikbare blokken, gegroepeerd per categorie:
 
 - **Gegevensverplaatsing** — LDA, LDX, STA, STX, …
-- ** Rekenkundig ** — ADC, SBC, INC, DEC, CMP, …
+- **Rekenkundig** — ADC, SBC, INC, DEC, CMP, …
 - **Logica** — EN, ORA, EOR, BIT
-- ** Sprongen en vertakkingen ** — JMP, JSR, RTS, BNE, BEQ, …
+- **Sprongen en vertakkingen** — JMP, JSR, RTS, BNE, BEQ, …
 - **Lange aftakkingen** — LBNE, LBEQ, LBCC, LBCS, LBMI, LBPL, LBVC, LBVS (aftakking naar elke afstand; zie §8)
 - **Registerbewerkingen** — TAX, TAY, INX, DEX, …
 - **Verschuiven en roteren** — ASL, LSR, ROL, ROR
@@ -229,7 +229,7 @@ Gebruik het zoekvak **** bovenaan het palet om te filteren op naam. Klik op de k
 
 ## 3. Programmagebied
 
-- **Sleep ** blokken vanuit het palet, of **herschik ** bestaande blokken door hun handvat (≡) te slepen.
+- **Sleep** blokken vanuit het palet, of **herschik** bestaande blokken door hun handvat (≡) te slepen.
 - Elk blok toont zijn **mnemonic**, **operandveld** en **adresmodusselector** (indien van toepassing).
 - Klik op de **▸ / ▾** schakelaar om een blok in te klappen of uit te vouwen.
 - Gebruik de **× (verwijderen)** knop op een blok om het te verwijderen.
@@ -367,8 +367,8 @@ Projectsnapshots worden opgeslagen als JSON-bestanden op de schijf, niet in loca
 
 Een **werkruimte** (`.vaws`-bestand) onthoudt welke echte bestanden op de schijf geopend waren in elk tabblad — inclusief de editormodus van elk tabblad en welk tabblad actief was — zodat u diezelfde set later opnieuw kunt openen. Het is iets anders dan een `.proj`-project: een werkruimte kan elke combinatie van Block/Expert `.json`-projectbestanden, losstaande `.asm`-bestanden en Ultimate Basic `.ub`/`.proj`-bronnen over meerdere tabbladen omvatten.
 
-- Werkruimtes ** slaan automatisch ** een paar honderd milliseconden op nadat je een wijziging hebt aangebracht, zodra er een is opgeslagen of geopend.
-- De app ** herstelt automatisch je laatst geopende werkruimte ** bij het opstarten, zodat je geopende tabbladen verdergaan waar je gebleven was.
+- Werkruimtes **slaan automatisch** een paar honderd milliseconden op nadat je een wijziging hebt aangebracht, zodra er een is opgeslagen of geopend.
+- De app **herstelt automatisch je laatst geopende werkruimte** bij het opstarten, zodat je geopende tabbladen verdergaan waar je gebleven was.
 - Alleen tabbladen die gekoppeld zijn aan een daadwerkelijk bestand op de schijf worden opgeslagen in de werkruimte; een tabblad met een niet-opgeslagen voorbeeld of een programma dat alleen in het geheugen draait, heeft niets om op te slaan en wordt overgeslagen (met een melding als geen van de geopende tabbladen hiervoor in aanmerking komt).
 - Bij het openen van een werkruimte worden eerst alle geopende tabbladen gesloten. U wordt gevraagd om te bevestigen voordat het proces verdergaat.
 - Als een werkruimte verwijst naar een bestand dat inmiddels is verplaatst of verwijderd, wordt die vermelding overgeslagen en na het laden alleen de naam ervan weergegeven.
@@ -666,7 +666,7 @@ clear:
 
 ### De `*` programmateller in expressies
 
-*(Nieuw in 2.3.9.)* `*` is niet langer beperkt tot de volledige operand — het kan ** overal binnen een operandexpressie voorkomen** en staat voor het adres van de instructie waarop het is geschreven. Het wordt tijdens de assembleertijd opgelost ten opzichte van het werkelijke adres van die instructie, dus er is geen label nodig voor korte relatieve sprongen of PC-relatieve gegevenslezingen.
+*(Nieuw in 2.3.9.)* `*` is niet langer beperkt tot de volledige operand — het kan **overal binnen een operandexpressie voorkomen** en staat voor het adres van de instructie waarop het is geschreven. Het wordt tijdens de assembleertijd opgelost ten opzichte van het werkelijke adres van die instructie, dus er is geen label nodig voor korte relatieve sprongen of PC-relatieve gegevenslezingen.
 
 | Syntaxis            | Voorbeeld                  | Betekenis                                           |
 | ------------------- | -------------------------- | --------------------------------------------------- |
@@ -676,7 +676,7 @@ clear:
 | `#&lt;*` / `#&gt;*` | `LDA #&lt;*`, `LDA #&gt;*` | Laagste/hoogste byte van de huidige pc              |
 | `#&gt;(*+n)`        | `LDA #&gt;(*+63)`          | Lage/hoge byte van een PC-relatief adres            |
 
-**PC versus vermenigvuldiging.** `*` wordt alleen als programmateller behandeld wanneer deze zich in *waardepositie* bevindt — aan het begin van de expressie, of direct na een operator, `(`, `,`, `&lt;`, `&gt;` of witruimte. Een `*` die volgt op een getal, `)` of een identifier is gewone vermenigvuldiging, dus `LDA-tabel*2` en `CONST_A*4` blijven ongewijzigd.
+**PC vs. multiplication.** `*` is treated as the program counter only when it sits in *value position* — at the start of the expression, or right after an operator, `(`, `,`, `&lt;`, `&gt;` or whitespace. A `*` that follows a number, `)` or an identifier is ordinary multiplication, so `LDA table*2` and `CONST_A*4` are unchanged.
 
 **Waar het werkt.** Elke operand die al een expressie accepteert: vertakkingsdoelen, `JMP` / `JSR`, `LDA`/`STA`/… absolute en geïndexeerde, directe lage/hoge byte-operatoren, en de `.assert`-expressie. `*` verandert nooit de grootte van een instructie, dus het is veilig in elke adresseermodus.
 
@@ -918,7 +918,7 @@ Net als **DATA in BASIC** — slaat een lijst met onbewerkte byte-waarden direct
     .byte $01, $02, $FF
 ```
 
-** Referenties naar lage/hoge byte-labels: ** BYTE accepteert tokens in KickAssembler/ca65-stijl `<label` (lage byte) en `>label` (hoge byte) naast numerieke waarden. De assembler lost het labeladres op tijdens het compileren en voegt de juiste byte in. Voorbeeld:
+**Referenties naar lage/hoge byte-labels:** BYTE accepteert tokens in KickAssembler/ca65-stijl `<label` (lage byte) en `>label` (hoge byte) naast numerieke waarden. De assembler lost het labeladres op tijdens het compileren en voegt de juiste byte in. Voorbeeld:
 
 ```
     .byte <frame_0, >frame_0, <frame_1, >frame_1
@@ -932,7 +932,7 @@ Hierin wordt de lage byte van het adres van `frame_0` opgeslagen, vervolgens de 
 
 ### WORD
 
-Net als **DATA in BASIC, maar dan voor 16-bits getallen **. Elke waarde wordt opgeslagen als twee bytes (eerst de lage byte, dan de hoge byte — 6502 little-endian volgorde).
+Net als **DATA in BASIC, maar dan voor 16-bits getallen**. Elke waarde wordt opgeslagen als twee bytes (eerst de lage byte, dan de hoge byte — 6502 little-endian volgorde).
 
 | Veld     | Beschrijving                                                   |
 | -------- | -------------------------------------------------------------- |
@@ -1135,7 +1135,7 @@ Net als **DATA die direct in het geheugen wordt geladen** — helemaal geen runt
 .rawbytes $0C50, $00, $00 :nev      ; with macroLabel — other code can use LDA nev,X
 ```
 
-**Grootte in code: ** 0 bytes. De gegevens worden op het opgegeven adres in de uitvoer geplaatst.
+**Grootte in code:** 0 bytes. De gegevens worden op het opgegeven adres in de uitvoer geplaatst.
 
 > **DATA vs RAWBYTES:** DATA genereert LDA/STA-code die bytes tijdens de uitvoering kopieert (langzamer, maar werkt als de data dynamisch moet zijn). RAWBYTES plaatst de bytes direct — geen code, direct, geen kosten.
 
@@ -1173,7 +1173,7 @@ Net als RAWBYTES, maar dan voor tekst: de tekenreeks wordt gecodeerd als schermc
     .byte $48, $45, $4C, $4C, $4F   ; h e l l o (lowercase screen codes $41–$5A range)
 ```
 
-**Grootte in code: ** 0 bytes. De gegevens worden op het opgegeven adres in de uitvoer geplaatst.
+**Grootte in code:** 0 bytes. De gegevens worden op het opgegeven adres in de uitvoer geplaatst.
 
 > **STRING vs RAWTEXT:**STRING genereert LDA/STA-code die de tekst tijdens runtime kopieert. RAWTEXT bakt de bytes in de PRG tijdens het laden — geen code, geen wachttijd.
 
@@ -1214,7 +1214,7 @@ Net als **RAWBYTES maar dan voor KERNAL-uitvoer** — codeert de tekenreeks als 
     .byte $48, $45, $4C, $4C, $4F   ; H E L L O (PETSCII $41–$5A range)
 ```
 
-**Grootte in code: ** 0 bytes. De gegevens worden op het doeladres geplaatst als een uitgestelde gegevenssectie (zoals RAWBYTES).
+**Grootte in code:** 0 bytes. De gegevens worden op het doeladres geplaatst als een uitgestelde gegevenssectie (zoals RAWBYTES).
 
 **Null-terminator:** Vink het selectievakje *"Voeg `$00` (null-terminator) toe"* aan om automatisch een `$00` byte na de tekst toe te voegen. Ideaal voor null-terminated lussen:
 
@@ -1361,7 +1361,7 @@ Definieert een enkel 8×8 aangepast teken in een op RAM gebaseerde tekenset. Gen
 | **INCBIN "charset.bin" @ $3800** | Extern tekensetbestand (gemaakt door de tekeneditor). De meest overzichtelijke optie.                           |
 | **Tekenset Canvas + INCBIN**     | Een volledige bitmap van 256 tekens, weergegeven als één afbeelding van 128×128 pixels.                         |
 
-> **Uitlijningsherinnering: ** VIC-II verwacht de basis van de tekenset op een veelvoud van `$0800`. Geldige banken: `$0000`, `$0800`, `$1000`, ... , `$3800` (binnen de huidige 16 KB VIC-bank). RAM-tekensets bevinden zich doorgaans op `$2000`, `$2800`, `$3000` of `$3800`.
+> **Uitlijningsherinnering:** VIC-II verwacht de basis van de tekenset op een veelvoud van `$0800`. Geldige banken: `$0000`, `$0800`, `$1000`, ... , `$3800` (binnen de huidige 16 KB VIC-bank). RAM-tekensets bevinden zich doorgaans op `$2000`, `$2800`, `$3000` of `$3800`.
 
 ---
 
@@ -1462,13 +1462,13 @@ Net als **BLOAD in BASIC** — pakt een extern binair bestand (`.bin`, `.prg`, `
 .incbin "music.bin", $C000
 ```
 
-**Gegenereerde ASM-opmerking: **
+**Gegenereerde ASM-opmerking:**
 ```
     ; INCBIN "music.bin" @ $C000 (2048 bytes)
     .byte $01, $02, ...
 ```
 
-**Grootte in code: ** 0 bytes (uitgestelde datasectie). De binaire code is ingebed op het opgegeven adres.
+**Grootte in code:** 0 bytes (uitgestelde datasectie). De binaire code is ingebed op het opgegeven adres.
 
 ---
 
@@ -1494,12 +1494,12 @@ Het blok toont:
 .sid "Ikari_Warriors.sid", $1000
 ```
 
-**Gegenereerde ASM-opmerking: **
+**Gegenereerde ASM-opmerking:**
 ```
     ; SID "Ikari_Warriors.sid" @ $1000  Init:$1000  Play:$1006  (4096 bytes)
 ```
 
-**Grootte in code: ** 0 bytes inline. Het SID-binair bestand wordt op het opgegeven adres geplaatst als een uitgesteld blok in de PRG.
+**Grootte in code:** 0 bytes inline. Het SID-binair bestand wordt op het opgegeven adres geplaatst als een uitgesteld blok in de PRG.
 
 > **Belangrijk:** De meeste SID-bestanden bevatten hardgecodeerde interne absolute adressen. Deze kunnen alleen worden verplaatst als het hele binaire bestand met dezelfde offset wordt verschoven. Als een SID interne sprongen naar `$10xx` bevat, moet deze op `$1000` blijven staan — het verplaatsen naar een ander adres zal deze interne verwijzingen verbreken.
 
@@ -1527,7 +1527,7 @@ Er worden twee bestandstypen ondersteund:
 .include "sprites.asm"
 ```
 
-- De bestandsextensie ** is vereist in de expertmodus ** — een kale naam zoals `.include "macros" ` wordt behandeld als `.include "macros.json" `.
+- De bestandsextensie **is vereist in de expertmodus** — een kale naam zoals `.include "macros" ` wordt behandeld als `.include "macros.json" `.
 - Padresolutie: eerst wordt geprobeerd om het pad naast het projectbestand te vinden (relatief), daarna wordt teruggevallen op de meegeleverde map `samples/` van de app.
 
 **Gegenereerde ASM (geen adresoverride):**
@@ -1738,7 +1738,7 @@ done:
 
 ### PUSH / PULL
 
-Net als ** waarbij variabelen worden opgeslagen vóór een GOSUB en hersteld na ** — maar dan met gebruik van de 6502 hardwarestack. Als een subroutine A, X of Y gebruikt, moet deze worden omwikkeld met PUSH en PULL, zodat de registers van de aanroepende code behouden blijven.
+Like **saving variables before a GOSUB and restoring them after** — but uses the 6502 hardware stack. If a subroutine uses A, X, or Y, wrap it with PUSH and PULL so the calling code's registers are preserved.
 
 #### PUSH
 
@@ -1764,7 +1764,7 @@ Plaatst een of meer registers op de stack. De volgorde is altijd A → X → Y (
 
 #### PULL
 
-Herstelt registers van de stack in **omgekeerde volgorde** (Y → X → A).
+Restores registers from the stack in **reverse order** (Y → X → A).
 
 | Veld      | Beschrijving                                                              |
 | --------- | ------------------------------------------------------------------------- |
@@ -1788,7 +1788,7 @@ Herstelt registers van de stack in **omgekeerde volgorde** (Y → X → A).
 
 ### END / RTS alias
 
-Net als **RTS met een vriendelijkere macronaam ** — `.end` genereert een enkele `RTS` byte en gedraagt zich als een korte subroutine-terminator in de expertmodus.
+Net als **RTS met een vriendelijkere macronaam** — `.end` genereert een enkele `RTS` byte en gedraagt zich als een korte subroutine-terminator in de expertmodus.
 
 **Expert syntax:**
 ```
@@ -1808,7 +1808,7 @@ Gebruik dit wanneer u een markering voor het einde van een subroutine wilt die m
 
 ### MACRO / ENDM / INVOKE
 
-Net als ** een benoemde GOSUB met parameters** — definieer een herbruikbaar stuk code één keer (MACRO…ENDM), en roep het vervolgens overal aan met INVOKE. Geef elke keer andere argumentwaarden door in plaats van blokken te kopiëren en te plakken.
+Like **a named GOSUB with parameters** — define a reusable chunk of code once (MACRO…ENDM), then call it anywhere with INVOKE. Pass different argument values each time instead of copy-pasting blocks.
 
 #### MACRO (definition start)
 
@@ -1928,7 +1928,7 @@ Puur visuele groepering — **nul bytes**, geen effect op de geassembleerde code
 
 ### DEFINE / IF / ELSE / ENDIF
 
-Net als een schakelaar leest de assembler ** — `DEFINE DEBUG` een symbool, waarna elk `IF DEBUG`-blok wordt opgenomen en de `ELSE`-tak wordt overgeslagen. Verwijder het DEFINE-blok en het IF-blok verdwijnt uit de uitvoer. Het is niet nodig om code te verwijderen voor release-builds.
+Net als **leest de assembler een schakelaar, terwijl** — `DEFINE DEBUG` een symbool inschakelt. Als dat het geval is, wordt elk `IF DEBUG`-blok opgenomen en wordt de `ELSE`-tak overgeslagen. Verwijder het DEFINE-blok en het IF-blok verdwijnt uit de uitvoer. Het is niet nodig om code te verwijderen voor release-builds.
 
 #### DEFINE
 
@@ -2096,7 +2096,7 @@ STA op              ; overwrites the #$00 byte → LDA reads the new value next 
 
 De CONST zendt 0 bytes uit; het label wordt tijdens het compileren opgelost naar `huidig_adres + 1`.
 
-** Rekenkundige uitdrukkingen: **
+**Rekenkundige uitdrukkingen:**
 
 Het waardeveld accepteert algemene rekenkundige bewerkingen, waaronder verwijzingen naar eerder gedefinieerde CONST-namen, hexadecimale/binaire letterlijke waarden en ingebouwde wiskundige functies:
 
@@ -2349,7 +2349,7 @@ Gebruik dit wanneer u de standaard "SEI / install handler / enable IRQ / CLI"-op
 
 ### RAND
 
-Net als ** een kleine ingebouwde PRNG** — retourneert een 8-bits pseudo-willekeurige waarde uit een compacte seed van nul pagina's.
+Net als **een kleine ingebouwde PRNG** — retourneert een 8-bits pseudo-willekeurige waarde uit een compacte seed van nul pagina's.
 
 | Veld | Beschrijving                                                     |
 | ---- | ---------------------------------------------------------------- |
@@ -2669,7 +2669,7 @@ Net als **`PEEK($D01E)`** in BASIC — controleert de VIC-II hardware-botsingsre
 
 **Grootte:** 5 bytes.
 
-> **Belangrijk:** Het lezen van `$D01E`/`$D01F` ** wist het register**. Lees het eenmaal per frame en verwerk het resultaat onmiddellijk met `BEQ`/`BNE`.
+> **Belangrijk:** Het lezen van `$D01E`/`$D01F` **wist het register**. Lees het eenmaal per frame en verwerk het resultaat onmiddellijk met `BEQ`/`BNE`.
 
 **Typisch gebruik:**
 ```
@@ -2768,11 +2768,11 @@ In-programma **Exomizer-decompressie**. Gebruik deze macro direct na een `LOADFI
 
 1. KERNAL `LOAD` ($FFD5) werkt ZP `$AE/$AF` bij zodat deze één byte voorbij de laatst geladen byte wijst. EXODECRUNCH kopieert dit naar ZP `$04/$05`, wat de officiële Exomizer-conventie voor het achterwaarts laden van de broncode is.
 2. De depacker wordt doorgaans geplaatst op `$B000` (binnen het BASIC ROM-toegewezen gebied). De macro schakelt `$01 = $36` om, zodat de CPU daar RAM ziet tijdens de JSR, en herstelt vervolgens `$01 = $37`.
-3. Het decompressiedoeladres is **gecodeerd in de gecomprimeerde stream zelf ** wanneer je comprimeert met `exomizer mem -l <load> file,<target> ` — de depacker leest het uit de eerste bytes van de stream.
+3. Het decompressiedoeladres is **gecodeerd in de gecomprimeerde stream zelf** wanneer je comprimeert met `exomizer mem -l <load> file,<target> ` — de depacker leest het uit de eerste bytes van de stream.
 
 **Depacker-binair bestand:** De vooraf gecompileerde achterwaartse depacker is `samples/exo-decrunch.bin` (477 bytes, ORG $B000). Het is een Kick Assembler-wrapper van de officiële `exodecrunch.asm` met `INC $D020` toegevoegd aan elke leesbewerking voor een zichtbaar randflits-effect tijdens de decompressie. Plaats het in uw programma met een `INCBIN`-blok op het adres van de depacker.
 
-**Veiligheidscompensatie:** De standaard geheugenmodus van Exomizer past een veiligheidscompensatie van 2 bytes toe — gegevens komen 2 bytes eerder aan dan het gevraagde doel. Het dialoogvenster 'Uitvoeren via D64' ** telt automatisch 2 op bij het veld 'Bestemming' ** voordat Exomizer wordt aangeroepen, zodat het zichtbare gedrag overeenkomt met het adres dat u hebt ingevoerd.
+**Veiligheidscompensatie:** De standaard geheugenmodus van Exomizer past een veiligheidscompensatie van 2 bytes toe — gegevens komen 2 bytes eerder aan dan het gevraagde doel. Het dialoogvenster 'Uitvoeren via D64' **telt automatisch 2 op bij het veld 'Bestemming'** voordat Exomizer wordt aangeroepen, zodat het zichtbare gedrag overeenkomt met het adres dat u hebt ingevoerd.
 
 > **Zie ook:** het `exo-multicolor-demo` voorbeeld — volledig end-to-end voorbeeld: LOADFILE een gecomprimeerde meerkleurige bitmap naar $C000, EXODECRUNCH pakt deze uit naar $2000, kopieer vervolgens scherm → $0400 en kleur → $D800, en schakel VIC-II over naar meerkleurige bitmapmodus.
 
@@ -2833,7 +2833,7 @@ no_reu:
 
 ### REU_STASH / REU_FETCH / REU_SWAP
 
-DMA-blokoverdracht tussen C64 RAM en REU-uitbreidingsgeheugen — vergelijkbaar met een zeer snelle POKE-lus, maar de CPU verricht geen werk (de REU-chip kopieert de gegevens terwijl de CPU is uitgeschakeld). Een overdracht van 1000 bytes is vrijwel direct.
+DMA-blokoverdracht tussen C64 RAM en REU-uitbreidingsgeheugen — vergelijkbaar met een zeer snelle POKE-lus, maar de CPU verricht geen werk (de REU-chip kopieert de gegevens terwijl de CPU is uitgeschakeld). Een overdracht van `$1000`-bytes is vrijwel direct.
 
 | Macro       | Richting      | `$DF01` commando |
 | ----------- | ------------- | ---------------- |
@@ -2877,7 +2877,7 @@ LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immedi
 
 ### TURBO_SET
 
-Stelt de CPU-snelheid van de **Ultimate-64 (U64) ** in via register `$D031`. Heeft geen effect op een echte C64 of andere emulators.
+Stelt de CPU-snelheid van de **Ultimate-64 (U64)** in via register `$D031`. Heeft geen effect op een echte C64 of andere emulators.
 
 **Velden:**
 
@@ -3023,7 +3023,7 @@ De Map Editor's **Files → Save map + color RAM (.bin)** exporteert één binai
 
 Kopieert een tekengebied van 16x16 tekens uit een compact schermcodeblok van 256 bytes plus een bijbehorend kleur-RAM-blok van 256 bytes. Het is bedoeld voor export naar Charset Canvas en kleine tegel-/afbeeldingsfragmenten, waarbij het schrijven van zestien afzonderlijke MAP_COPY-rijen te veel geheugen zou opleveren.
 
-**Standaardindeling: **
+**Standaardindeling:**
 
 | Gegevens              | Standaardadres           |
 | --------------------- | ------------------------ |
@@ -3299,7 +3299,7 @@ Het pictogram in de werkbalk na de Curve Editor opent de **D64 Editor** — een 
 | Icon                          | Actie                                                                                     |
 | ----------------------------- | ----------------------------------------------------------------------------------------- |
 | **Programma toevoegen**       | Selecteer een lokaal bestand en schrijf het naar de schijfmap.                            |
-| **Selecteer geselecteerde **  | Sla de bytes van de geselecteerde invoer op in een lokaal `.prg`-bestand.                 |
+| **Selecteer geselecteerde**   | Sla de bytes van de geselecteerde invoer op in een lokaal `.prg`-bestand.                 |
 | **Geselecteerde hernoemen**   | Bewerk de naam van het item direct in de tabel — Enter bevestigt, Escape annuleert.       |
 | **Geselecteerde verwijderen** | Verwijder het geselecteerde item van de schijf.                                           |
 | **Vernieuwen**                | Lees de map opnieuw, bijvoorbeeld nadat u de schijf met een ander programma hebt bewerkt. |
@@ -3333,9 +3333,9 @@ De directorylijst geeft bestandsnamen weer in hetzelfde lettertype en met dezelf
 
 Build CRT maakt nooit gebruik van Exomizer (de depacker kan niet vanuit de cartridge-ROM draaien). Het compileert het huidige tabblad met de standaard autostart-pipeline en haalt het laadadres uit de PRG-header en het entrypoint uit de SYS-target:
 
-- **Blokkeer-/Expertmodus met BASIC SYS-stub ingeschakeld: ** laden = `$0801`, invoer = het SYS-doel (doorgaans `$080D` of de oorsprong van de gebruiker).
-- **Blok / Expertmodus met BASIC SYS-stub uitgeschakeld: ** laden = gebruikersoorsprong (met de klassieke `$0801 → $C000` terugvaloptie), invoer = laadadres.
-- **UltimateBasic-modus: ** laden en invoeren komen beide uit de UB-compilerkaart (`build.map.loadAddress`). De UB-autostartstub in de payload wordt vervolgens precies zo uitgevoerd als na `LOAD "...",8,1 : RUN` vanaf schijf.
+- **Blokkeer-/Expertmodus met BASIC SYS-stub ingeschakeld:** laden = `$0801`, invoer = het SYS-doel (doorgaans `$080D` of de oorsprong van de gebruiker).
+- **Blok / Expertmodus met BASIC SYS-stub uitgeschakeld:** laden = gebruikersoorsprong (met de klassieke `$0801 → $C000` terugvaloptie), invoer = laadadres.
+- **UltimateBasic-modus:** laden en invoeren komen beide uit de UB-compilerkaart (`build.map.loadAddress`). De UB-autostartstub in de payload wordt vervolgens precies zo uitgevoerd als na `LOAD "...",8,1 : RUN` vanaf schijf.
 
 Het oorspronkelijke adres dat u in de ASM-uitvoer ziet, blijft behouden; de loader kopieert eenvoudigweg de platte geheugenafbeelding van de PRG naar het RAM-geheugen en springt naar het ingangspunt zodra het ROM-geheugen van de cartridge is ontkoppeld.
 
@@ -3358,7 +3358,7 @@ Omdat de payload lineair wordt opgeslagen en `assembleProgramToPrg()` een platte
 
 | Platform                        | Status                                                       |
 | ------------------------------- | ------------------------------------------------------------ |
-| VICE (`x64sc`, `x64`)           | Werkt via ** Bestand → Cartridge-image bijvoegen **.         |
+| VICE (`x64sc`, `x64`)           | Werkt via **Bestand → Cartridge-image bijvoegen**.           |
 | De C64 / De C64 Mini            | Werkt via de ingebouwde patroonlader.                        |
 | Kung Fu Flash                   | Werkt — standaard Magic Desk-modus.                          |
 | EasyFlash-cartridge             | Werkt wanneer geprogrammeerd als Magic Desk.                 |
@@ -3543,7 +3543,7 @@ Gelaagde tegelkaarteditor voor statische omgevingen, sprite-spawnmaps, botsingsg
 
 Multi-instrumentele 3-stemmige tracker met een Web Audio-previewengine. Openen via Toolkit → SID Editor.
 
-** Bedieningselementen per instrument: **
+**Bedieningselementen per instrument:**
 - Selectievakjes voor golfvormen (TRI / SAW / PUL / NOI) — meerdere golfvormen kunnen met elkaar worden gecombineerd via een OR-bewerking.
 - ADSR (attack / decay / sustain / release) wordt weergegeven als een sleepgrafiek boven de vier schuifregelaars.
 - Pulsbreedte-schuifregelaar (0-4095) met optionele ring-/synchronisatievlaggen.
@@ -3560,7 +3560,7 @@ Multi-instrumentele 3-stemmige tracker met een Web Audio-previewengine. Openen v
 - Het plakken binnen een celbereik begint nu bij de geselecteerde begincel van het bereik en stopt netjes bij de grenzen van stemmen en rijen, in plaats van door te lopen naar de volgende kolom of rij.
 - Met de snelheidsregelaar wordt de IRQ-tickdeler ingesteld (het aantal frames tussen rijen).
 
-**Afspelen en virtueel toetsenbord: **
+**Afspelen en virtueel toetsenbord:**
 - De knop 'Afspelen' in de werkbalk verandert in 'Pauze' tijdens het afspelen en in 'Hervatten' wanneer het afspelen gepauzeerd is; 'Stop' beëindigt het afspelen en zet de status terug naar de beginstand.
 - De knop in de toetsenbordwerkbalk opent een niet-modaal pianovenster dat bruikbaar blijft terwijl de SID-editor actief is. Versleep de koptekst om het venster overal boven de hoofdapplicatie te plaatsen.
 - Schakel **Invoegen in tracker** in om elke gespeelde noot op de huidige trackercursor te schrijven en naar de volgende regel te gaan. Schakel deze functie uit om noten te beluisteren zonder ze te bewerken.
@@ -3574,9 +3574,9 @@ Multi-instrumentele 3-stemmige tracker met een Web Audio-previewengine. Openen v
 | `Blokken exporteren + miniplayer`      | Voegt de volledige speler (sid_init / sid_irq / sid_play_row / sid_set_voice) plus PAL-frequentietabellen toe. Plaats na het exporteren een `JSR sid_init` in uw hoofdcode op de plek waar de muziek moet beginnen. |
 | `Exporteer asm (klembord)`             | Kopieert de volledige broncode van de assembly naar het klembord.                                                                                                                                                   |
 
-**Gebruik van speler ZP: ** `$FB` (tick-teller), `$FC` (rij-index), `$FD` (set_voice temp). Deze conflicteren als uw hoofdcode ze gebruikt — verplaats ze indien nodig via de Expert-modus.
+**Gebruik van speler ZP:** `$FB` (tick-teller), `$FC` (rij-index), `$FD` (set_voice temp). Deze conflicteren als uw hoofdcode ze gebruikt — verplaats ze indien nodig via de Expert-modus.
 
-**Bekende limieten: **
+**Bekende limieten:**
 - Enkele lineaire patroonlijst (nog geen sequentietabel per stem).
 - Een 8-bits rijteller is beperkt tot 7 patronen × 32 rijen.
 - C64 `$D418` Het globale volume wordt gedeeld over alle stemmen — de volumeregelaar per instrument is informatief; het sustainniveau (`S` van ADSR) is het effectieve volume per stem.
@@ -3602,7 +3602,7 @@ Genereert kant-en-klare `.byte` opzoektabellen op basis van wiskundige krommen �
 | **Nummerformaat**          | `$XX` hexadecimaal of decimaal.                                                                                                                                                               |
 | **Waarden per regel**      | 8 / 16 / 32 bytes per `.byte` regel.                                                                                                                                                          |
 
-**Uitvoermodi: **
+**Uitvoermodi:**
 | Modus      | stoot uit                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **8-bit**  | Een enkele `.byte` tabel (waarden 0..255). Gelezen met `LDX #index / LDA tabel,X`. Optioneel genereert een **sprite-Y leesroutine** (`<label>_set_y`) — `LDA <label>,X` / `STA $D001+2N` — voor een selecteerbaar spritenummer 0-7.                                                                                                                                                                                             |
