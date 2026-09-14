@@ -16,10 +16,10 @@ button,input{font:inherit}
 .search input{width:190px;min-height:34px;border:1px solid #44448d;border-radius:5px;background:#09091d;color:#ededff;padding:7px 10px;outline:none}
 .search input:focus{border-color:var(--yellow);box-shadow:0 0 0 2px rgba(184,199,111,.12)}
 .count{min-width:42px;color:#9494bd;font-size:12px;text-align:center;white-space:nowrap}
-.langs{display:flex;gap:5px}
-.lang,.back,.search-nav,.close{min-height:34px;border:1px solid #44448d;border-radius:5px;background:#0c0c24;color:#aaaadd;font-weight:600;font-size:12px;padding:7px 10px;cursor:pointer}
+.manuals,.langs{display:flex;gap:5px}
+.manual,.lang,.back,.search-nav,.close{min-height:34px;border:1px solid #44448d;border-radius:5px;background:#0c0c24;color:#aaaadd;font-weight:600;font-size:12px;padding:7px 10px;cursor:pointer}
 .back,.close{font-size:18px;line-height:1}
-.lang:hover,.lang.active,.back:hover:not(:disabled),.search-nav:hover:not(:disabled),.close:hover{border-color:var(--yellow);color:#eef58f;background:#202044}
+.manual:hover,.manual.active,.lang:hover,.lang.active,.back:hover:not(:disabled),.search-nav:hover:not(:disabled),.close:hover{border-color:var(--yellow);color:#eef58f;background:#202044}
 .back:disabled,.search-nav:disabled{opacity:.3;cursor:default}
 .layout{display:grid;grid-template-columns:280px minmax(0,1fr);min-height:0;background:var(--panel)}
 .toc{overflow:auto;padding:22px 15px;border-right:1px solid #292960;background:#0a0a19}
@@ -50,7 +50,7 @@ button,input{font:inherit}
 .toc::-webkit-scrollbar,.content::-webkit-scrollbar,.content pre::-webkit-scrollbar,.content table::-webkit-scrollbar{width:10px;height:10px}
 .toc::-webkit-scrollbar-track,.content::-webkit-scrollbar-track,.content pre::-webkit-scrollbar-track,.content table::-webkit-scrollbar-track{background:#090918}
 .toc::-webkit-scrollbar-thumb,.content::-webkit-scrollbar-thumb,.content pre::-webkit-scrollbar-thumb,.content table::-webkit-scrollbar-thumb{background:#45458c;border:2px solid #090918;border-radius:8px}
-@media(max-width:900px){.toolbar{flex-wrap:wrap;padding:10px 12px}.title{flex:1}.search{order:2;width:100%}.search input{width:auto;flex:1;min-width:0}.langs{order:3;width:100%;display:grid;grid-template-columns:repeat(9,1fr);gap:4px}.lang{min-width:0;padding:7px 3px}.layout{grid-template-columns:1fr}.toc{display:none}.content{padding:24px 16px;font-size:15px;-webkit-overflow-scrolling:touch}.content pre{padding:14px 12px}}
+@media(max-width:900px){.toolbar{flex-wrap:wrap;padding:10px 12px}.title{flex:1}.search{order:2;width:100%}.search input{width:auto;flex:1;min-width:0}.manuals{order:3;width:100%;display:grid;grid-template-columns:repeat(2,1fr);gap:4px}.manual{min-width:0;padding:7px 3px}.langs{order:4;width:100%;display:grid;grid-template-columns:repeat(9,1fr);gap:4px}.lang{min-width:0;padding:7px 3px}.layout{grid-template-columns:1fr}.toc{display:none}.content{padding:24px 16px;font-size:15px;-webkit-overflow-scrolling:touch}.content pre{padding:14px 12px}}
 </style>
 </head>
 <body>
@@ -63,6 +63,10 @@ button,input{font:inherit}
       <span class="count" aria-live="polite">0 / 0</span>
       <button class="search-nav prev" type="button" aria-label="Previous result" disabled>↑</button>
       <button class="search-nav next" type="button" aria-label="Next result" disabled>↓</button>
+    </div>
+    <div class="manuals" aria-label="Documentation manual">
+      <button class="manual" type="button" data-manual="va">VISUAL ASSEMBLER</button>
+      <button class="manual" type="button" data-manual="ub">ULTIMATE BASIC</button>
     </div>
     <div class="langs" aria-label="Documentation language">
       <button class="lang" data-doc="en">EN</button><button class="lang" data-doc="hu">HU</button><button class="lang" data-doc="de">DE</button><button class="lang" data-doc="fr">FR</button><button class="lang" data-doc="nl">NL</button><button class="lang" data-doc="fi">FI</button><button class="lang" data-doc="it">IT</button><button class="lang" data-doc="sv">SV</button><button class="lang" data-doc="pl">PL</button>
@@ -85,8 +89,11 @@ const searchPrev=document.querySelector('.prev');
 const searchNext=document.querySelector('.next');
 const backButton=document.querySelector('.back');
 const languages=['en','hu','de','fr','nl','fi','it','sv','pl'];
+const manuals={va:{title:'Visual Assembler Documentation',path:'va-manual/'},ub:{title:'Ultimate Basic Documentation',path:'ub-manual/'}};
 const savedLanguage=document.cookie.split('; ').find(row=>row.startsWith('va_docs_lang='))?.split('=')[1];
+const savedManual=document.cookie.split('; ').find(row=>row.startsWith('va_docs_manual='))?.split('=')[1];
 let currentLanguage=languages.includes(savedLanguage)?savedLanguage:'en';
+let currentManual=Object.hasOwn(manuals,savedManual)?savedManual:'va';
 let searchHits=[];
 let searchIndex=-1;
 let navigationHistory=[];
@@ -147,12 +154,14 @@ function updateSearch(){
 }
 async function openDocument(language){
   if(!languages.includes(language))language=currentLanguage;
-  currentLanguage=language;document.cookie='va_docs_lang='+language+'; Max-Age=31536000; Path=/; SameSite=Lax';
-  const url=new URL(location.href);url.searchParams.set('doc',language);history.replaceState(null,'',url);
+  currentLanguage=language;document.cookie='va_docs_lang='+language+'; Max-Age=31536000; Path=/; SameSite=Lax';document.cookie='va_docs_manual='+currentManual+'; Max-Age=31536000; Path=/; SameSite=Lax';
+  const url=new URL(location.href);url.searchParams.set('doc',language);url.searchParams.set('manual',currentManual);history.replaceState(null,'',url);
   document.documentElement.lang=language;document.querySelectorAll('.lang').forEach(button=>button.classList.toggle('active',button.dataset.doc===language));
+  document.title=manuals[currentManual].title;document.querySelector('.title').textContent=manuals[currentManual].title;
+  document.querySelectorAll('.manual').forEach(button=>button.classList.toggle('active',button.dataset.manual===currentManual));
   navigationHistory=[];backButton.disabled=true;searchInput.value='';content.innerHTML='<p>Loading documentation...</p>';toc.innerHTML='';updateSearch();
   try{
-    const response=await fetch(language+'.md');if(!response.ok)throw new Error('HTTP '+response.status);
+    const response=await fetch(manuals[currentManual].path+language+'.md');if(!response.ok)throw new Error('HTTP '+response.status);
     const markdown=(await response.text()).replace(/^(\*\*[^*\r\n]*\S)[ \t]+\*\*[ \t]*$/gm,'$1**');
     if(!window.marked||!window.DOMPurify)throw new Error('Markdown renderer unavailable');
     content.innerHTML=DOMPurify.sanitize(marked.parse(markdown,{gfm:true,breaks:false}));
@@ -167,6 +176,11 @@ async function openDocument(language){
 function handleAnchor(event){const link=event.target.closest('a[href^="#"]');if(!link)return;const id=decodeURIComponent(link.getAttribute('href').slice(1));const heading=[...content.querySelectorAll('h1,h2,h3,h4,h5,h6')].find(item=>item.id===id);if(!heading)return;event.preventDefault();scrollToHeading(heading)}
 content.addEventListener('click',handleAnchor);toc.addEventListener('click',handleAnchor);
 document.querySelectorAll('.lang').forEach(button=>button.addEventListener('click',()=>openDocument(button.dataset.doc)));
+document.querySelectorAll('.manual').forEach(button=>button.addEventListener('click',()=>{
+  currentManual=button.dataset.manual;
+  document.cookie='va_docs_manual='+currentManual+'; Max-Age=31536000; Path=/; SameSite=Lax';
+  openDocument(currentLanguage);
+}));
 searchInput.addEventListener('input',updateSearch);searchInput.addEventListener('keydown',event=>{if(event.key==='Enter'&&searchHits.length){event.preventDefault();showHit(searchIndex+(event.shiftKey?-1:1))}});
 searchPrev.addEventListener('click',()=>showHit(searchIndex-1));searchNext.addEventListener('click',()=>showHit(searchIndex+1));
 backButton.addEventListener('click',()=>{if(!navigationHistory.length)return;content.scrollTo({top:navigationHistory.pop(),behavior:'smooth'});backButton.disabled=navigationHistory.length===0});
@@ -174,7 +188,10 @@ document.querySelector('.close').addEventListener('click',()=>window.close());
 document.addEventListener('keydown',event=>{if(event.key==='Escape')window.close()});
 window.addEventListener('beforeunload',()=>{document.cookie='va_docs_lang='+currentLanguage+'; Max-Age=31536000; Path=/; SameSite=Lax'});
 fetch('visitor-counter.php',{cache:'no-store',credentials:'same-origin'}).catch(()=>{});
-const requested=new URLSearchParams(location.search).get('doc');
+const requestedUrl=new URL(location.href);
+const requested=requestedUrl.searchParams.get('doc');
+const requestedManual=requestedUrl.searchParams.get('manual');
+currentManual=Object.hasOwn(manuals,requestedManual)?requestedManual:currentManual;
 const initialLanguage=languages.includes(requested)?requested:(languages.includes(savedLanguage)?savedLanguage:'en');
 openDocument(initialLanguage);
 </script>

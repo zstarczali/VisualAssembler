@@ -2097,10 +2097,9 @@
           <div class="sec-s">// DOCUMENTATION</div>
           <h2 class="sec-t" style="margin-bottom:0">USER MANUALS</h2>
         </div>
-        <p>The complete searchable manual is available in English, Hungarian, German, French, Dutch, Finnish, Italian,
-          Swedish and Polish. You can switch languages inside the documentation viewer.</p>
+        <p>Open the searchable manuals for both Visual Assembler and Ultimate Basic. They are available in English, Hungarian, German, French, Dutch, Finnish, Italian, Swedish and Polish; choose the product and language inside the documentation viewer.</p>
       </div>
-      <button class="doc-card docs-open" type="button">► OPEN DOCUMENTS</button>
+      <button class="doc-card docs-open" type="button">► OPEN MANUALS</button>
     </div>
   </div>
 
@@ -2356,9 +2355,12 @@
     document.querySelector('.docs-open').addEventListener('click', () => {
       const languages = ['en', 'hu', 'de', 'fr', 'nl', 'fi', 'it', 'sv', 'pl'];
       const saved = document.cookie.split('; ').find(row => row.startsWith('va_docs_lang='))?.split('=')[1];
+      const savedManual = document.cookie.split('; ').find(row => row.startsWith('va_docs_manual='))?.split('=')[1];
       const language = languages.includes(saved) ? saved : 'en';
+      const manual = ['va', 'ub'].includes(savedManual) ? savedManual : 'va';
       const url = new URL('docs.html', location.href);
       url.searchParams.set('doc', language);
+      url.searchParams.set('manual', manual);
       const cookies = Object.fromEntries(document.cookie.split('; ').filter(Boolean).map(row => { const separator = row.indexOf('='); return [row.slice(0, separator), row.slice(separator + 1)] }));
       const savedWidth = parseInt(cookies.va_docs_width, 10);
       const savedHeight = parseInt(cookies.va_docs_height, 10);
