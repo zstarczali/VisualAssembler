@@ -2,9 +2,15 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.4.1**
+**Current version: v2.4.2**
 
-## What's New in v2.4.1
+## What's New in v2.4.2
+
+- **Drag & drop onto the D64 Editor** — drop a compiled `.prg`/`.bin` file (from the SID/sprite/char editors' exports, or anywhere else) straight onto the disk image; the Add panel opens pre-filled. Dropping several files at once queues them one after another.
+- **Generate include file** — a new toolbar button writes a `.inc` file listing `.const NAME = $ADDR` for every entry on the disk, so the main program can reference where each one landed without retyping addresses by hand.
+- **Block editor** — a toolbar toggle switches the D64 Editor to raw track/sector access below the directory: a clickable block map (colored by the BAM's free/used bitmap, with the BAM and directory chain marked separately), a hex view/editor for the selected 256-byte block, and Prev/Next sector navigation. Reads and writes the disk image directly, independent of `c1541`.
+
+## Earlier: v2.4.1
 
 - **Polish and Italian UI languages** — full UI translation (menus, dialogs, mnemonic descriptions, Ultimate Basic command reference) alongside the existing Hungarian, English, Spanish, German and Dutch.
 - **Online Help toolbar button** — a new icon button after Debug opens the multi-language documentation site (c64va.tech/docs.html) directly from the app.

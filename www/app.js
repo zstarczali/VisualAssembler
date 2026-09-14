@@ -691,34 +691,59 @@ const addressingModeText = {
   implied: {
     hu: { label: "Implied", help: "Az utasitas onmagaban teljes.", placeholder: "Nem kell operandus" },
     en: { label: "Implied", help: "The instruction is complete on its own.", placeholder: "No operand needed" },
-    nl: { label: "Implied", help: "De instructie is op zichzelf compleet.", placeholder: "Geen operand vereist" }
+    es: { label: "Implied", help: "La instrucción es completa por sí misma.", placeholder: "No se necesita operando" },
+    de: { label: "Implied", help: "Der Befehl ist für sich allein vollständig.", placeholder: "Kein Operand erforderlich" },
+    nl: { label: "Implied", help: "De instructie is op zichzelf compleet.", placeholder: "Geen operand vereist" },
+    pl: { label: "Implied", help: "Instrukcja jest kompletna sama w sobie.", placeholder: "Operand nie jest wymagany" },
+    it: { label: "Implied", help: "L'istruzione è completa di per sé.", placeholder: "Nessun operando necessario" }
   },
   immediate: {
     hu: { label: "Immediate", help: "Az ertek kozvetlen konstans, az assembler ele # jelet kap.", placeholder: "Peldaul 1 vagy 255" },
     en: { label: "Immediate", help: "The value is an inline constant prefixed with # by the assembler.", placeholder: "For example 1 or 255" },
-    nl: { label: "Immediate", help: "De waarde is een directe constante, voorafgegaan door #.", placeholder: "Bijvoorbeeld 1 of 255" }
+    es: { label: "Immediate", help: "El valor es una constante inmediata, precedida por # por el ensamblador.", placeholder: "Por ejemplo 1 o 255" },
+    de: { label: "Immediate", help: "Der Wert ist eine unmittelbare Konstante, der der Assembler ein # voranstellt.", placeholder: "Zum Beispiel 1 oder 255" },
+    nl: { label: "Immediate", help: "De waarde is een directe constante, voorafgegaan door #.", placeholder: "Bijvoorbeeld 1 of 255" },
+    pl: { label: "Immediate", help: "Wartość jest stałą bezpośrednią, poprzedzoną znakiem # przez asembler.", placeholder: "Na przykład 1 lub 255" },
+    it: { label: "Immediate", help: "Il valore è una costante immediata, preceduta da # dall'assembler.", placeholder: "Per esempio 1 o 255" }
   },
   zeroPage: {
     hu: { label: "Zero page", help: "Az operandus a zero page tartomanyban van.", placeholder: "0-255" },
     en: { label: "Zero page", help: "The operand is in the zero page range.", placeholder: "0-255" },
-    nl: { label: "Zero page", help: "De operand bevindt zich in de zero-page ($00-$FF).", placeholder: "0-255" }
+    es: { label: "Zero page", help: "El operando está en el rango de la página cero.", placeholder: "0-255" },
+    de: { label: "Zero page", help: "Der Operand liegt im Zero-Page-Bereich.", placeholder: "0-255" },
+    nl: { label: "Zero page", help: "De operand bevindt zich in de zero-page ($00-$FF).", placeholder: "0-255" },
+    pl: { label: "Zero page", help: "Operand znajduje się w zakresie strony zerowej.", placeholder: "0-255" },
+    it: { label: "Zero page", help: "L'operando si trova nell'intervallo della zero page.", placeholder: "0-255" }
   },
   absolute: {
     hu: { label: "Absolute", help: "Teljes 16 bites memoriacim.", placeholder: "0-65535" },
     en: { label: "Absolute", help: "Full 16-bit memory address.", placeholder: "0-65535" },
-    nl: { label: "Absolute", help: "Volledig 16-bits geheugenadres ($0000-$FFFF).", placeholder: "0-65535" }
+    es: { label: "Absolute", help: "Dirección de memoria completa de 16 bits.", placeholder: "0-65535" },
+    de: { label: "Absolute", help: "Vollständige 16-Bit-Speicheradresse.", placeholder: "0-65535" },
+    nl: { label: "Absolute", help: "Volledig 16-bits geheugenadres ($0000-$FFFF).", placeholder: "0-65535" },
+    pl: { label: "Absolute", help: "Pełny 16-bitowy adres pamięci.", placeholder: "0-65535" },
+    it: { label: "Absolute", help: "Indirizzo di memoria completo a 16 bit.", placeholder: "0-65535" }
   },
   relative: {
     hu: { label: "Relative/Label", help: "Branch utasitasnal adhatsz meg labelt vagy celt.", placeholder: "ciklus vagy 2048" },
     en: { label: "Relative/Label", help: "For branch instructions you can provide a label or target.", placeholder: "loop or 2048" },
-    nl: { label: "Relative/Label", help: "Voor branch-instructies kan een label of doel worden opgegeven.", placeholder: "lus of 2048" }
+    es: { label: "Relative/Label", help: "En las instrucciones de salto puedes indicar una etiqueta o un destino.", placeholder: "bucle o 2048" },
+    de: { label: "Relative/Label", help: "Bei Branch-Befehlen kannst du ein Label oder ein Ziel angeben.", placeholder: "Schleife oder 2048" },
+    nl: { label: "Relative/Label", help: "Voor branch-instructies kan een label of doel worden opgegeven.", placeholder: "lus of 2048" },
+    pl: { label: "Relative/Label", help: "Dla instrukcji skoku możesz podać etykietę lub cel.", placeholder: "pętla lub 2048" },
+    it: { label: "Relative/Label", help: "Per le istruzioni di salto puoi indicare un'etichetta o una destinazione.", placeholder: "loop o 2048" }
   },
   absoluteX: {
     hu: { label: "Absolute,X", help: "16 bites memoriacim + X regiszter offset. Pl: LDA $0400,X", placeholder: "0-65535" },
     en: { label: "Absolute,X", help: "16-bit memory address + X register offset. E.g.: LDA $0400,X", placeholder: "0-65535" },
-    nl: { label: "Absolute,X", help: "16-bits geheugenadres + X-register verschuiving. Bijv: LDA $0400,X", placeholder: "0-65535" }
+    es: { label: "Absolute,X", help: "Dirección de memoria de 16 bits + desplazamiento del registro X. Ej.: LDA $0400,X", placeholder: "0-65535" },
+    de: { label: "Absolute,X", help: "16-Bit-Speicheradresse + X-Register-Offset. Z. B.: LDA $0400,X", placeholder: "0-65535" },
+    nl: { label: "Absolute,X", help: "16-bits geheugenadres + X-register verschuiving. Bijv: LDA $0400,X", placeholder: "0-65535" },
+    pl: { label: "Absolute,X", help: "16-bitowy adres pamięci + przesunięcie rejestru X. Np.: LDA $0400,X", placeholder: "0-65535" },
+    it: { label: "Absolute,X", help: "Indirizzo di memoria a 16 bit + offset del registro X. Es.: LDA $0400,X", placeholder: "0-65535" }
   }
 };
+
 
 function modeText(modeKey, field) {
   const mode = addressingModeText[modeKey];
@@ -3100,6 +3125,19 @@ function applyTranslations() {
     document.getElementById("de-rename")?.setAttribute("aria-label", t("d64EditorRename"));
     document.getElementById("de-delete")?.setAttribute("aria-label", t("d64EditorDelete"));
     document.getElementById("de-refresh")?.setAttribute("aria-label", t("d64EditorRefresh"));
+    document.getElementById("de-gen-include")?.setAttribute("aria-label", t("d64EditorGenerateInclude"));
+    setText("#de-drop-hint", t("d64EditorDropHint"));
+    document.getElementById("de-blocks-toggle")?.setAttribute("aria-label", t("d64EditorBlocksToggle"));
+    setText(".dbe-title", t("d64BlockEditorTitle"));
+    setText("#de-block-warning", t("d64BlockWarning"));
+    setText("#de-block-legend-free", t("d64BlockLegendFree"));
+    setText("#de-block-legend-used", t("d64BlockLegendUsed"));
+    setText("#de-block-legend-system", t("d64BlockLegendSystem"));
+    document.getElementById("de-block-prev")?.setAttribute("aria-label", t("d64BlockPrev"));
+    document.getElementById("de-block-next")?.setAttribute("aria-label", t("d64BlockNext"));
+    document.getElementById("de-block-reload")?.setAttribute("aria-label", t("d64BlockReload"));
+    document.getElementById("de-block-write")?.setAttribute("aria-label", t("d64BlockWrite"));
+    if (_d64EdState.blockBytes) _d64EdSelectBlock(_d64EdState.blockTrack, _d64EdState.blockSector);
     setText("#de-add-name-label", t("d64EditorAddNameLabel"));
     setText("#de-add-load-label", t("d64EditorAddLoadLabel"));
     setText("#de-add-type-label", t("d64EditorColType"));
@@ -16693,14 +16731,31 @@ const _d64EdState = {
   freeBlocks: null,
   entries: [],
   selected: null,
-  pendingAddBytes: null
+  pendingAddBytes: null,
+  // name -> hex load address (no "$"), for entries whose target address is
+  // known from this session (typed by hand, or from a dropped .prg header).
+  // Feeds "Generate include file" — see _d64EdGenerateInclude().
+  addresses: {},
+  // Files queued from a multi-file drag-and-drop; the add panel is shown
+  // one file at a time and advances to the next on a successful add.
+  dropQueue: [],
+  // Raw track/sector block editor (see the "Blocks" toolbar toggle below).
+  blockMode: false,
+  blockBytes: null,     // whole disk image, cached while block mode is on
+  blockTrack: 1,
+  blockSector: 0,
+  blockFreeSet: null    // Set of "track:sector" strings free per the BAM
 };
 
 function _d64EdSetError(msg) {
-  const el = document.getElementById("de-error");
-  if (!el) return;
-  if (msg) { el.textContent = msg; el.hidden = false; }
-  else { el.textContent = ""; el.hidden = true; }
+  // Mirrors the message into both the directory-view error slot and the
+  // block editor dialog's own slot, since the block editor is a separate
+  // <dialog> that can be stacked on top of (and hide) the D64 Editor one.
+  [document.getElementById("de-error"), document.getElementById("de-block-error")].forEach(function(el) {
+    if (!el) return;
+    if (msg) { el.textContent = msg; el.hidden = false; }
+    else { el.textContent = ""; el.hidden = true; }
+  });
 }
 
 function _d64EdSetToolbarEnabled() {
@@ -16714,6 +16769,8 @@ function _d64EdSetToolbarEnabled() {
   set("de-run-vice", hasDisk);
   set("de-refresh", hasDisk);
   set("de-save-as", hasDisk);
+  set("de-gen-include", hasDisk && _d64EdState.entries.length > 0);
+  set("de-blocks-toggle", hasDisk);
 }
 
 function _d64EdUpdateHeader() {
@@ -16784,32 +16841,36 @@ async function _d64EdReload() {
     _d64EdState.selected = null;
   }
   _d64EdRenderEntries();
+  // Keep the raw block cache honest if a directory-level op (add/delete/
+  // rename) just ran while the block editor was open — it wrote through
+  // c1541, which this session's cached image copy doesn't know about.
+  if (_d64EdState.blockMode) await _d64EdLoadBlockImage();
 }
 
 function _d64EdHideAddPanel() {
   _d64EdState.pendingAddBytes = null;
+  _d64EdState.dropQueue = [];
   const panel = document.getElementById("de-add-panel");
   if (panel) panel.hidden = true;
 }
 
-async function _d64EdShowAddPanel() {
-  if (!_d64EdState.path) return;
-  const api = window.electronAPI;
-  const picked = await api.chooseIncBinFile();
-  if (!picked || picked.canceled) return;
-  if (picked.error) { _d64EdSetError(picked.error); return; }
-  _d64EdState.pendingAddBytes = picked.bytes;
+// Shared by the native file picker and drag-and-drop: populates the add
+// panel fields from a fileName + byte array and shows it. `bytes` is a plain
+// array (or typed array) of byte values, matching what chooseIncBinFile and
+// a dropped File's arrayBuffer() both end up as after normalization.
+function _d64EdPreparePanelForFile(bytes, fileName) {
+  _d64EdState.pendingAddBytes = bytes;
   // A .prg already carries its own load-address header, so the load/decompress
   // address + Exomizer fields (meant for headerless raw .bin data) only make
   // sense for non-.prg files — hide them entirely for a .prg pick.
-  _d64EdState.pendingIsPrg = /\.prg$/i.test(picked.fileName || "");
+  _d64EdState.pendingIsPrg = /\.prg$/i.test(fileName || "");
   const nameInput = document.getElementById("de-add-name");
   const typeSelect = document.getElementById("de-add-type");
   const loadInput = document.getElementById("de-add-load");
   const decompInput = document.getElementById("de-add-decomp");
   const crunchCb = document.getElementById("de-add-crunch");
   const extraFields = document.getElementById("de-add-extra-fields");
-  const stem = (picked.fileName || "program").replace(/\.[^.]+$/, "").replace(/[^A-Za-z0-9_]/g, "").slice(0, 16).toUpperCase();
+  const stem = (fileName || "program").replace(/\.[^.]+$/, "").replace(/[^A-Za-z0-9_]/g, "").slice(0, 16).toUpperCase();
   if (nameInput) nameInput.value = stem || "PROGRAM";
   if (typeSelect) typeSelect.value = _d64EdState.pendingIsPrg ? "prg" : "seq";
   if (loadInput) loadInput.value = "";
@@ -16819,6 +16880,46 @@ async function _d64EdShowAddPanel() {
   const panel = document.getElementById("de-add-panel");
   if (panel) panel.hidden = false;
   nameInput?.focus();
+}
+
+async function _d64EdShowAddPanel() {
+  if (!_d64EdState.path) return;
+  const api = window.electronAPI;
+  const picked = await api.chooseIncBinFile();
+  if (!picked || picked.canceled) return;
+  if (picked.error) { _d64EdSetError(picked.error); return; }
+  _d64EdSetError("");
+  _d64EdPreparePanelForFile(picked.bytes, picked.fileName);
+}
+
+// Drag-and-drop entry point: a file (or several) dropped straight onto the
+// D64 editor body. Multiple files are queued and shown one at a time —
+// _d64EdConfirmAdd() advances the queue after each successful add.
+async function _d64EdHandleDroppedFiles(fileList) {
+  if (!_d64EdState.path) { _d64EdSetError(t("d64EditorNoDiskForDrop")); return; }
+  const files = Array.from(fileList || []).filter(f => f && f.size >= 0);
+  if (!files.length) return;
+  _d64EdState.dropQueue = files.slice(1);
+  await _d64EdLoadDroppedFile(files[0]);
+}
+
+async function _d64EdLoadDroppedFile(file) {
+  if (!file) return;
+  _d64EdSetError("");
+  try {
+    const buf = await file.arrayBuffer();
+    _d64EdPreparePanelForFile(Array.from(new Uint8Array(buf)), file.name);
+  } catch (_) {
+    _d64EdSetError(t("d64EditorAddFailed"));
+  }
+}
+
+// After a successful add (or a cancel), continue with the next file queued
+// by a multi-file drop; no-op if nothing is queued.
+async function _d64EdAdvanceDropQueue() {
+  if (!_d64EdState.dropQueue.length) return;
+  const next = _d64EdState.dropQueue.shift();
+  await _d64EdLoadDroppedFile(next);
 }
 
 // Optional load/decompress address + Exomizer checkbox mirror the "extra
@@ -16854,6 +16955,11 @@ async function _d64EdConfirmAdd() {
     if (wantsCrunch && loadAddress === null) { _d64EdSetError(tf("d64ErrorCrunchNeedsAddr", { name })); return; }
   }
 
+  // Snapshot before the crunch branch below nulls loadAddress out (sfx mode
+  // hands d64AddFile a self-extracting loader with no PRG header address of
+  // its own) — this is the address "Generate include file" reports.
+  const declaredAddress = isPrg ? null : loadAddress;
+
   _d64EdSetError("");
   let bytes = _d64EdState.pendingAddBytes;
 
@@ -16887,8 +16993,31 @@ async function _d64EdConfirmAdd() {
 
   const res = await window.electronAPI.d64AddFile(_d64EdState.path, bytes, name, loadAddress, fileType);
   if (!res || !res.ok) { _d64EdSetError((res && res.error) || t("d64EditorAddFailed")); return; }
-  _d64EdHideAddPanel();
+  // The Rust side sanitizes/lowercases the name before it ever reaches
+  // c1541 (see sanitize_disk_name in lib.rs — c1541 expects lowercase ASCII
+  // to produce an uppercase-looking PETSCII directory entry), and that's
+  // the exact string d64_list will hand back as entry.name afterwards. Key
+  // the address map on res.name (what was actually written), not `name`
+  // (what was typed) — otherwise a typed-uppercase name never matches the
+  // lowercase name the directory listing reports, and "Generate include
+  // file" silently finds nothing for every entry added this way.
+  const savedName = res.name || name;
+  // declaredAddress is the target address as the user typed it, captured
+  // before a crunch pass may have nulled `loadAddress` (sfx mode writes the
+  // decompressed data at that same address, just via a self-extracting
+  // loader instead of a plain PRG header) — that's what "Generate include
+  // file" needs, not the possibly-null value actually passed to d64AddFile.
+  if (declaredAddress !== null) {
+    _d64EdState.addresses[savedName] = declaredAddress.toString(16).toUpperCase().padStart(4, "0");
+  } else {
+    delete _d64EdState.addresses[savedName];
+  }
+  const queue = _d64EdState.dropQueue;
+  _d64EdState.pendingAddBytes = null;
+  const panel = document.getElementById("de-add-panel");
+  if (panel) panel.hidden = true;
   await _d64EdReload();
+  await _d64EdAdvanceDropQueue();
 }
 
 async function _d64EdExtractSelected() {
@@ -16904,6 +17033,7 @@ async function _d64EdDeleteSelected() {
   _d64EdSetError("");
   const res = await window.electronAPI.d64DeleteFile(_d64EdState.path, _d64EdState.selected);
   if (!res || !res.ok) { _d64EdSetError((res && res.error) || t("d64EditorDeleteFailed")); return; }
+  delete _d64EdState.addresses[_d64EdState.selected];
   _d64EdState.selected = null;
   await _d64EdReload();
 }
@@ -16933,6 +17063,10 @@ function _d64EdRenameSelected() {
     _d64EdSetError("");
     const res = await window.electronAPI.d64RenameFile(_d64EdState.path, oldName, newName);
     if (!res || !res.ok) { _d64EdSetError((res && res.error) || t("d64EditorRenameFailed")); _d64EdRenderEntries(); return; }
+    if (Object.prototype.hasOwnProperty.call(_d64EdState.addresses, oldName)) {
+      _d64EdState.addresses[res.name || newName] = _d64EdState.addresses[oldName];
+      delete _d64EdState.addresses[oldName];
+    }
     _d64EdState.selected = res.name || newName;
     await _d64EdReload();
   };
@@ -16950,6 +17084,11 @@ async function _d64EdOpen() {
   if (!picked || picked.canceled) return;
   _d64EdState.path = picked.filePath;
   _d64EdState.selected = null;
+  _d64EdState.addresses = {};
+  _d64EdState.blockMode = false;
+  _d64EdState.blockBytes = null;
+  document.getElementById("d64-block-editor-dialog")?.close();
+  document.getElementById("de-blocks-toggle")?.setAttribute("aria-pressed", "false");
   _d64EdHideAddPanel();
   await _d64EdReload();
 }
@@ -16963,6 +17102,11 @@ async function _d64EdNew() {
   if (!res || !res.ok) { _d64EdSetError((res && res.error) || t("d64EditorFormatFailed")); return; }
   _d64EdState.path = picked.filePath;
   _d64EdState.selected = null;
+  _d64EdState.addresses = {};
+  _d64EdState.blockMode = false;
+  _d64EdState.blockBytes = null;
+  document.getElementById("d64-block-editor-dialog")?.close();
+  document.getElementById("de-blocks-toggle")?.setAttribute("aria-pressed", "false");
   await _d64EdReload();
 }
 
@@ -16984,6 +17128,253 @@ async function _d64EdRunVice() {
   if (!res || !res.ok) _d64EdSetError((res && res.error) || t("d64EditorRunFailed"));
 }
 
+// A valid 6502-assembler identifier for a disk entry name: letters/digits/_
+// only, can't start with a digit. Disk names are already A-Z0-9 (PETSCII
+// directory charset), so this mostly just guards punctuation like "-".
+function _d64EdSanitizeConstName(name) {
+  let out = String(name || "FILE").toUpperCase().replace(/[^A-Z0-9_]/g, "_");
+  if (!/^[A-Z_]/.test(out)) out = "_" + out;
+  return out || "FILE";
+}
+
+// Andreas Podgurski's ask (Facebook, C64 Visual Assembler group): after
+// dropping compiled binaries onto a disk image, generate an include file
+// that records where each one ends up, so the main program can reference
+// those addresses without re-typing them by hand.
+//
+// Walks every directory entry and resolves an address for it:
+//   - if this session added it with an explicit load address (typed by hand,
+//     or before an Exomizer crunch pass nulled it out — see declaredAddress
+//     in _d64EdConfirmAdd), use that;
+//   - otherwise, for a plain PRG, the load address is just its first two
+//     bytes (the standard PRG header) — extract it and read those.
+// SEQ/USR/REL entries with no recorded address are skipped: there is no
+// header to fall back on for those.
+async function _d64EdGenerateInclude() {
+  if (!_d64EdState.path || !_d64EdState.entries.length) return;
+  _d64EdSetError("");
+  const lines = [];
+  for (const entry of _d64EdState.entries) {
+    let hex = _d64EdState.addresses[entry.name];
+    // entry.type comes back lowercase from the directory listing ("prg",
+    // not "PRG") — the table only looks uppercase because of the CSS
+    // text-transform on .de-table td, the underlying string stays lowercase.
+    if (!hex && String(entry.type || "").toLowerCase() === "prg") {
+      const res = await window.electronAPI.d64ExtractFile(_d64EdState.path, entry.name);
+      if (res && res.ok && Array.isArray(res.bytes) && res.bytes.length >= 2) {
+        const addr = res.bytes[0] | (res.bytes[1] << 8);
+        hex = addr.toString(16).toUpperCase().padStart(4, "0");
+      }
+    }
+    if (!hex) continue;
+    lines.push(`.const ${_d64EdSanitizeConstName(entry.name)} = $${hex}`);
+  }
+  if (!lines.length) { _d64EdSetError(t("d64EditorGenerateIncludeEmpty")); return; }
+  const diskFile = (_d64EdState.path.split(/[\\/]/).pop() || "disk.d64");
+  const header = `; ${_d64EdState.diskName ? _d64EdState.diskName.toUpperCase() + " -- " : ""}${diskFile}\n; generated by C64 Visual Assembler D64 Editor\n`;
+  const text = header + lines.join("\n") + "\n";
+  const bytes = Array.from(new TextEncoder().encode(text));
+  const stem = diskFile.replace(/\.d64$/i, "");
+  await _saveBinFile(bytes, stem + ".inc");
+}
+
+// ── D64 raw block/sector editor ─────────────────────────────────────────
+// Everything above this (add/extract/rename/delete) works one directory
+// entry at a time through c1541. Andreas Podgurski's follow-up ask (Facebook,
+// C64 Visual Assembler group) was specifically for the layer *below* that:
+// "a block-level editor for track/sectors, with the directory only as a
+// layer above it." This section is that layer — no c1541 involved at all,
+// just the raw image bytes (read_bin_file / write_bin_file) and the D64
+// track/sector geometry, which is fixed and well documented.
+//
+// Standard 1541 geometry, tracks 1-35 (683 blocks); a common 40-track
+// extension some tools write is also recognized for reading, though the
+// BAM format only ever describes tracks 1-35, so tracks 36-40 always show
+// as "used" here (there's nothing to parse for them).
+const D64_TRACK_SECTORS = (() => {
+  const counts = [];
+  for (let t = 1; t <= 17; t++) counts[t] = 21;
+  for (let t = 18; t <= 24; t++) counts[t] = 19;
+  for (let t = 25; t <= 30; t++) counts[t] = 18;
+  for (let t = 31; t <= 40; t++) counts[t] = 17;
+  return counts;
+})();
+
+function _d64BlockTrackCount(byteLength) {
+  return byteLength >= 196608 ? 40 : 35; // 174848 = 35 tracks, 196608 = 40 tracks
+}
+
+function _d64BlockOffset(track, sector) {
+  let offset = 0;
+  for (let t = 1; t < track; t++) offset += (D64_TRACK_SECTORS[t] || 0) * 256;
+  return offset + sector * 256;
+}
+
+// BAM (Block Availability Map) lives at track 18, sector 0. Per-track entry
+// is 4 bytes starting at offset 4: 1 free-count byte + a 3-byte (24-bit)
+// bitmap, bit N of that bitmap set = sector N is free.
+function _d64ParseBam(bytes) {
+  const bamOffset = _d64BlockOffset(18, 0);
+  const free = new Set();
+  for (let t = 1; t <= 35; t++) {
+    const entryOffset = bamOffset + 4 + (t - 1) * 4;
+    const bitmap = [bytes[entryOffset + 1] || 0, bytes[entryOffset + 2] || 0, bytes[entryOffset + 3] || 0];
+    const total = D64_TRACK_SECTORS[t] || 0;
+    for (let s = 0; s < total; s++) {
+      const byteIdx = (s / 8) | 0, bit = s % 8;
+      if ((bitmap[byteIdx] >> bit) & 1) free.add(t + ":" + s);
+    }
+  }
+  return free;
+}
+
+// Directory sectors are chained via a 2-byte link (next track, next sector)
+// at the start of each sector, starting at track 18 sector 1; a next-track
+// of 0 ends the chain. Track 18 sector 0 (the BAM itself) is added
+// separately by the caller — this only walks the entries.
+function _d64WalkDirectoryChain(bytes) {
+  const chain = new Set();
+  let t = 18, s = 1, guard = 0;
+  while (t !== 0 && guard < 200) {
+    chain.add(t + ":" + s);
+    const off = _d64BlockOffset(t, s);
+    const nt = bytes[off], ns = bytes[off + 1];
+    if (nt === 0) break;
+    t = nt; s = ns;
+    guard++;
+  }
+  return chain;
+}
+
+function _d64FormatHexBlock(bytes) {
+  const lines = [];
+  for (let row = 0; row < 16; row++) {
+    const rowBytes = bytes.slice(row * 16, row * 16 + 16);
+    lines.push(Array.from(rowBytes).map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" "));
+  }
+  return lines.join("\n");
+}
+
+// Deliberately tolerant of reformatting (extra whitespace, merged/split
+// lines) — pulls every 1-2 hex-digit token out in order and requires
+// exactly 256 of them. Returns null (caller shows an error) on mismatch.
+function _d64ParseHexBlock(text) {
+  const tokens = String(text || "").match(/[0-9A-Fa-f]{1,2}/g) || [];
+  if (tokens.length !== 256) return null;
+  return tokens.map(tok => parseInt(tok, 16) & 0xFF);
+}
+
+function _d64EdSystemBlockSet() {
+  const chain = _d64WalkDirectoryChain(_d64EdState.blockBytes);
+  chain.add("18:0");
+  return chain;
+}
+
+async function _d64EdLoadBlockImage() {
+  if (!_d64EdState.path) return;
+  _d64EdSetError("");
+  const res = await window.electronAPI.readBinFile(_d64EdState.path);
+  if (!res || !res.ok) { _d64EdSetError((res && res.error) || t("d64BlockReadFailed")); return; }
+  _d64EdState.blockBytes = Array.from(res.bytes);
+  _d64EdState.blockFreeSet = _d64ParseBam(_d64EdState.blockBytes);
+  const trackCount = _d64BlockTrackCount(_d64EdState.blockBytes.length);
+  if (_d64EdState.blockTrack > trackCount) { _d64EdState.blockTrack = 1; _d64EdState.blockSector = 0; }
+  _d64EdRenderBlockGrid();
+  _d64EdSelectBlock(_d64EdState.blockTrack, _d64EdState.blockSector);
+}
+
+function _d64EdRenderBlockGrid() {
+  const grid = document.getElementById("de-block-grid");
+  if (!grid || !_d64EdState.blockBytes) return;
+  grid.innerHTML = "";
+  const trackCount = _d64BlockTrackCount(_d64EdState.blockBytes.length);
+  const systemSet = _d64EdSystemBlockSet();
+  for (let t = 1; t <= trackCount; t++) {
+    const total = D64_TRACK_SECTORS[t] || 0;
+    for (let s = 0; s < total; s++) {
+      const key = t + ":" + s;
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "de-block-cell " + (
+        systemSet.has(key) ? "de-block-cell--system" :
+        (_d64EdState.blockFreeSet && _d64EdState.blockFreeSet.has(key)) ? "de-block-cell--free" : "de-block-cell--used"
+      );
+      if (t === _d64EdState.blockTrack && s === _d64EdState.blockSector) btn.classList.add("de-block-cell--selected");
+      btn.setAttribute("aria-label", `T${t}:S${s}`);
+      btn.addEventListener("click", function() { _d64EdSelectBlock(t, s); });
+      grid.appendChild(btn);
+    }
+  }
+}
+
+function _d64EdSelectBlock(track, sector) {
+  if (!_d64EdState.blockBytes) return;
+  _d64EdState.blockTrack = track;
+  _d64EdState.blockSector = sector;
+  const offset = _d64BlockOffset(track, sector);
+  const bytes = _d64EdState.blockBytes.slice(offset, offset + 256);
+  const hex = document.getElementById("de-block-hex");
+  if (hex) hex.value = _d64FormatHexBlock(bytes);
+  const label = document.getElementById("de-block-label");
+  if (label) label.textContent = tf("d64BlockLabel", { track, sector });
+  const offsetLabel = document.getElementById("de-block-offset");
+  if (offsetLabel) offsetLabel.textContent = "$" + offset.toString(16).toUpperCase().padStart(6, "0");
+  document.querySelectorAll("#de-block-grid .de-block-cell--selected").forEach(el => el.classList.remove("de-block-cell--selected"));
+  const trackCount = _d64BlockTrackCount(_d64EdState.blockBytes.length);
+  let idx = 0;
+  for (let ti = 1; ti < track; ti++) idx += (D64_TRACK_SECTORS[ti] || 0);
+  idx += sector;
+  const cell = document.getElementById("de-block-grid")?.children[idx];
+  if (cell && track <= trackCount) cell.classList.add("de-block-cell--selected");
+}
+
+function _d64EdStepBlock(delta) {
+  if (!_d64EdState.blockBytes) return;
+  const trackCount = _d64BlockTrackCount(_d64EdState.blockBytes.length);
+  let t = _d64EdState.blockTrack, s = _d64EdState.blockSector + delta;
+  const total = D64_TRACK_SECTORS[t] || 0;
+  if (s >= total) { t = t < trackCount ? t + 1 : 1; s = 0; }
+  else if (s < 0) { t = t > 1 ? t - 1 : trackCount; s = (D64_TRACK_SECTORS[t] || 1) - 1; }
+  _d64EdSelectBlock(t, s);
+}
+
+async function _d64EdWriteBlock() {
+  if (!_d64EdState.path || !_d64EdState.blockBytes) return;
+  const hex = document.getElementById("de-block-hex");
+  const parsed = _d64ParseHexBlock(hex?.value);
+  if (!parsed) { _d64EdSetError(t("d64BlockInvalidHex")); return; }
+  _d64EdSetError("");
+  const offset = _d64BlockOffset(_d64EdState.blockTrack, _d64EdState.blockSector);
+  for (let i = 0; i < 256; i++) _d64EdState.blockBytes[offset + i] = parsed[i];
+  const res = await window.electronAPI.writeBinFile(_d64EdState.path, _d64EdState.blockBytes);
+  if (!res || !res.ok) { _d64EdSetError((res && res.error) || t("d64BlockWriteFailed")); return; }
+  // The write may have touched the BAM or the directory chain (that's the
+  // whole point of block-level access) — re-derive both, and refresh the
+  // directory table underneath so it doesn't show stale data next toggle.
+  _d64EdState.blockFreeSet = _d64ParseBam(_d64EdState.blockBytes);
+  _d64EdRenderBlockGrid();
+  await _d64EdReload();
+}
+
+async function _d64EdOpenBlockEditor() {
+  if (!_d64EdState.path) return;
+  _d64EdState.blockMode = true;
+  const btn = document.getElementById("de-blocks-toggle");
+  if (btn) btn.setAttribute("aria-pressed", "true");
+  const dlg = document.getElementById("d64-block-editor-dialog");
+  const diskLabel = document.getElementById("dbe-disk-label");
+  if (diskLabel) diskLabel.textContent = document.getElementById("de-disk-label")?.textContent || "";
+  dlg?.showModal();
+  await _d64EdLoadBlockImage();
+}
+
+function _d64EdCloseBlockEditor() {
+  _d64EdState.blockMode = false;
+  const btn = document.getElementById("de-blocks-toggle");
+  if (btn) btn.setAttribute("aria-pressed", "false");
+  document.getElementById("d64-block-editor-dialog")?.close();
+}
+
 function setupD64Editor() {
   const dialog = document.getElementById("d64-editor-dialog");
   document.getElementById("d64-editor-btn")?.addEventListener("click", function() {
@@ -17002,8 +17393,43 @@ function setupD64Editor() {
   document.getElementById("de-rename")?.addEventListener("click", _d64EdRenameSelected);
   document.getElementById("de-delete")?.addEventListener("click", _d64EdDeleteSelected);
   document.getElementById("de-refresh")?.addEventListener("click", function() { if (_d64EdState.path) _d64EdReload(); });
+  document.getElementById("de-gen-include")?.addEventListener("click", _d64EdGenerateInclude);
+  document.getElementById("de-blocks-toggle")?.addEventListener("click", _d64EdOpenBlockEditor);
+  const blockDialog = document.getElementById("d64-block-editor-dialog");
+  document.getElementById("dbe-close")?.addEventListener("click", _d64EdCloseBlockEditor);
+  blockDialog?.addEventListener("click", function(e) { if (e.target === blockDialog) _d64EdCloseBlockEditor(); });
+  blockDialog?.addEventListener("cancel", function(e) { e.preventDefault(); _d64EdCloseBlockEditor(); });
+  document.getElementById("de-block-prev")?.addEventListener("click", function() { _d64EdStepBlock(-1); });
+  document.getElementById("de-block-next")?.addEventListener("click", function() { _d64EdStepBlock(1); });
+  document.getElementById("de-block-reload")?.addEventListener("click", _d64EdLoadBlockImage);
+  document.getElementById("de-block-write")?.addEventListener("click", _d64EdWriteBlock);
   document.getElementById("de-add-confirm")?.addEventListener("click", _d64EdConfirmAdd);
   document.getElementById("de-add-cancel")?.addEventListener("click", _d64EdHideAddPanel);
+
+  // Drag-and-drop: drop compiled binaries (.prg/.bin, from the SID/sprite/
+  // char editors' exports or anywhere else) straight onto the disk. Needs
+  // dragover prevented on both the container and the table/empty-state
+  // children, or the browser's default (open-as-navigation) wins the drop.
+  const dropZone = document.getElementById("de-body");
+  if (dropZone) {
+    let dragDepth = 0;
+    dropZone.addEventListener("dragenter", function(e) {
+      e.preventDefault();
+      dragDepth++;
+      dropZone.classList.add("de-dragover");
+    });
+    dropZone.addEventListener("dragover", function(e) { e.preventDefault(); });
+    dropZone.addEventListener("dragleave", function() {
+      dragDepth = Math.max(0, dragDepth - 1);
+      if (dragDepth === 0) dropZone.classList.remove("de-dragover");
+    });
+    dropZone.addEventListener("drop", async function(e) {
+      e.preventDefault();
+      dragDepth = 0;
+      dropZone.classList.remove("de-dragover");
+      await _d64EdHandleDroppedFiles(e.dataTransfer?.files);
+    });
+  }
 
   _d64EdRenderEntries();
 }

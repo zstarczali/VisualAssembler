@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.4.1**
+**Verzió: 2.4.2**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -26,6 +26,14 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - [12b. CRT export (Magic Desk 64K cartridge)](#12b-crt-export-magic-desk-64k-cartridge)
 - [13. Hardver beállítások](#13-hardver-beállítások)
 - [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit)
+
+---
+
+## A 2.4.2 verzió újdonságai
+
+- **Húzd-és-ejtsd a D64 Editorba** — egy lefordított `.prg`/`.bin` fájl (pl. a SID/sprite/char szerkesztők exportja, vagy bármi más) közvetlenül a lemezképre húzható; a Hozzáadás panel előre kitöltve nyílik meg. Több fájl egyszerre húzva sorban egymás után kerül feldolgozásra.
+- **Include fájl generálása** — új eszköztár-gomb, ami egy `.inc` fájlba írja minden lemezen lévő bejegyzéshez a `.const NÉV = $CÍM` sort, hogy a fő program hivatkozhasson a betöltési címekre anélkül, hogy azokat kézzel kellene újra beírni.
+- **Blokk szerkesztő (új)** — egy eszköztár-kapcsoló a D64 Editort nyers track/sector szintű hozzáférésre kapcsolja a directory szint alatt: kattintható blokktérkép (a BAM szabad/foglalt bitmapje szerint színezve, a BAM-ot és a directory láncot külön jelölve), hex nézet/szerkesztő a kiválasztott 256 byte-os blokkhoz, valamint előző/következő szektor navigáció. Közvetlenül a lemezképet olvassa/írja (`read_bin_file`/`write_bin_file`), a `c1541`-től függetlenül.
 
 ---
 
