@@ -1,6 +1,6 @@
 # Manuel d'utilisation de l'assembleur visuel C64
 
-**Version 2.4.1**
+**Version 2.4.3**
 
 Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez des programmes en faisant glisser et en déposant des blocs d'instructions, et visualisez en temps réel le code assembleur et le code machine générés.
 
@@ -9,6 +9,8 @@ Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez de
 ## Table des matières
 
 - [C64 Visual Assembler — Manuel de l'utilisateur](#c64-visual-assembler--user-manual)
+    - [Points saillants de la version 2.4.3](#version-243-highlights)
+    - [Points saillants de la version 2.4.2](#version-242-highlights)
     - [Points saillants de la version 2.4.1](#version-241-highlights)
     - [Points saillants de la version 2.4.0](#version-240-highlights)
     - [Points saillants de la version 2.3.9](#version-239-highlights)
@@ -112,15 +114,15 @@ Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez de
     - [IRQ_SETUP](#irq_setup)
     - [RAND](#rand)
     - [SPRITE\_INIT](#sprite_init)
-    - [SPRITE_POS](#sprite_pos)
+    - [SPRITE\_POS](#sprite_pos)
     - [WAIT\_RASTER](#wait_raster)
     - [JOYSTICK](#joystick)
     - [MOUSE](#mouse)
-    - [SPRITE_COL](#sprite_col)
+    - [SPRITE\_COL](#sprite_col)
     - [LOADFILE](#loadfile)
     - [EXODECRUNCH](#exodecrunch)
     - [REU\_CHECK](#reu_check)
-    - [REU_STASH / REU_FETCH / REU_SWAP](#reu_stash--reu_fetch--reu_swap)
+    - [REU\_STASH / REU\_FETCH / REU\_SWAP](#reu_stash--reu_fetch--reu_swap)
     - [TURBO\_SET](#turbo_set)
     - [SUPERCPU\_DETECT](#supercpu_detect)
     - [TURBO\_ENABLE](#turbo_enable)
@@ -152,6 +154,24 @@ Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez de
     - [Éditeur de cartes (Cartes de tuiles multicouches)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Éditeur de courbes](#curve-editor)
+
+---
+
+## Points forts de la version 2.4.3
+
+- **Éditeur SID : Liste de morceaux/ordre** — Les motifs sont désormais organisés selon une liste de morceaux/ordre superposée à la banque de motifs brute. Un motif peut ainsi se répéter et le morceau peut être plus long que le nombre de motifs stockés. Ajoutez, supprimez et réorganisez les pas directement depuis l’éditeur SID ; la lecture et le lecteur exporté parcourent cette liste au lieu de l’ordre brut des motifs.
+- Éditeur SID : Colonne Effets — chaque cellule de suivi peut désormais contenir un effet en plus de sa note : vibrato (V), glissando (U), piano (P) / piano (D), modification de la vitesse (C) et changement de vitesse (F). Saisissez-le directement dans une cellule, par exemple : C-4 01 V24 (note + instrument + vibrato) ou F06 (modification de vitesse uniquement). Les effets s’exécutent une fois par ligne, conformément au lecteur exporté, et sont désormais lus correctement aussi bien dans l’aperçu audio Web intégré que dans l’export 6502 compilé — un véritable moteur d’effets fonctionnel, et non une simple structure d’exportation.
+- **Format de sauvegarde SID rétrocompatible** — Les sauvegardes SID comportent désormais un marqueur de version, de sorte que les anciennes sauvegardes `.bin` effectuées avant l'existence de la colonne d'effet continuent de se charger exactement comme avant, les effets étant simplement absents.
+- Éditeur D64 : flux de travail d'enregistrement explicite — chaque modification (ajout, extraction, renommage, suppression et désormais modifications d'octets dans l'éditeur de blocs) est effectuée sur une copie de travail privée ; votre fichier D64 d'origine reste inchangé jusqu'à ce que vous cliquiez sur Enregistrer, ce qui crée également une sauvegarde automatique au préalable. La fermeture de l'éditeur ou l'ouverture d'un autre disque contenant des modifications non enregistrées requiert désormais une confirmation au lieu d'être ignorées silencieusement.
+- **Éditeur D64 : Grille hexadécimale de l’éditeur de blocs** — la vue brute des octets pour le bloc de 256 octets sélectionné est désormais une véritable grille hexadécimale par octet au lieu d’une simple zone de texte, et sa boîte de dialogue n’assombrit plus le reste de l’application derrière elle lorsqu’elle est ouverte.
+
+---
+
+## Points saillants de la version 2.4.2
+
+- **Glissez-déposez sur l'éditeur D64** — déposez un fichier compilé `.prg`/`.bin` (provenant des exportations des éditeurs SID/sprite/char, ou de toute autre source) directement sur l'image disque ; le panneau Ajouter s'ouvre prérempli. Déposer plusieurs fichiers à la fois les met en file d'attente les uns après les autres.
+- **Générer un fichier d'inclusion** — un nouveau bouton de barre d'outils écrit un fichier `.inc` listant `.const NAME = $ADDR` pour chaque entrée sur le disque, afin que le programme principal puisse référencer où chacune a atterri sans retaper les adresses à la main.
+- **Éditeur de blocs (nouveau)** — Un bouton de la barre d'outils permet d'accéder directement aux pistes/secteurs sous le répertoire dans l'éditeur D64 : une carte des blocs cliquable (colorée selon la bitmap libre/utilisée du BAM, avec le BAM et la chaîne de répertoires marqués séparément), un éditeur hexadécimal pour le bloc de 256 octets sélectionné et une navigation secteur précédent/suivant. Lecture et écriture directes de l'image disque (`read_bin_file`/`write_bin_file`), indépendamment de `c1541`.
 
 ---
 
@@ -3292,13 +3312,14 @@ L'icône de la barre d'outils située après l'Éditeur de courbes ouvre l'Édit
 
 **Barre d'outils :**
 
-| Icône                      | Action                                                                                      |
-| -------------------------- | ------------------------------------------------------------------------------------------- |
-| **Ajouter un programme**   | Sélectionnez un fichier local et écrivez-le dans le répertoire du disque.                   |
-| **Extraire la sélection**  | Enregistrez les octets de l'entrée sélectionnée dans un fichier local `.prg`.               |
-| **Renommer la sélection**  | Modifiez le nom de l'entrée directement dans le tableau — Entrée confirme, Échap annule.    |
-| **Supprimer la sélection** | Supprimez l'entrée sélectionnée du disque.                                                  |
-| **Actualiser**             | Relisez le répertoire, par exemple après avoir modifié le disque à l'aide d'un autre outil. |
+| Icône                      | Action                                                                                                                                                                                               |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Ajouter un programme**   | Sélectionnez un fichier local et écrivez-le dans le répertoire du disque.                                                                                                                            |
+| **Extraire la sélection**  | Enregistrez les octets de l'entrée sélectionnée dans un fichier local `.prg`.                                                                                                                        |
+| **Renommer la sélection**  | Modifiez le nom de l'entrée directement dans le tableau — Entrée confirme, Échap annule.                                                                                                             |
+| **Supprimer la sélection** | Supprimez l'entrée sélectionnée du disque.                                                                                                                                                           |
+| **Actualiser**             | Relisez le répertoire, par exemple après avoir modifié le disque à l'aide d'un autre outil.                                                                                                          |
+| **Sauvegarder**            | Réécrit les modifications de la copie de travail dans le fichier `.d64` d'origine, après avoir effectué une sauvegarde automatique. Activé uniquement en présence de modifications non enregistrées. |
 
 **Ajout d'un programme :** la sélection d'un fichier se terminant déjà par `.prg` ne demande qu'un **Nom** et un **Type** de disque (PRG/SEQ/USR/REL) — un fichier `.prg` contient déjà son propre en-tête d'adresse de chargement, il est donc écrit sans modification. La sélection de tout autre fichier (par exemple, un fichier brut `.bin`) affiche en outre :
 
@@ -3308,7 +3329,11 @@ L'icône de la barre d'outils située après l'Éditeur de courbes ouvre l'Édit
 
 La liste des répertoires affiche les noms de fichiers dans la même police et le même style de majuscules qu'une véritable liste C64 `LOAD"$",8`.
 
-> **Prérequis :** À l’instar de l’exportation vers D64, l’éditeur D64 nécessite VICE (`c1541`) configuré dans [Paramètres matériels](#13-hardware-settings). Chaque action (ajout/suppression/renommage/extraction) est appliquée directement au fichier `.d64` sur le disque ; il n’y a pas d’étape d’enregistrement séparée.
+Flux de travail **Enregistrement : ** chaque modification (ajout, extraction, renommage, suppression et modifications d'octets dans l'éditeur de blocs) est appliquée à une copie de travail privée de l'image disque, et non à votre fichier principal. Le bouton **Enregistrer** de la barre d'outils (activé en présence de modifications non enregistrées) réécrit la copie de travail par-dessus le fichier `.d64` principal, après avoir effectué une sauvegarde automatique. L'en-tête affiche un marqueur **•** tant que les modifications ne sont pas enregistrées. La fermeture de l'éditeur ou l'ouverture d'un autre disque contenant des modifications non enregistrées demande une confirmation au lieu de les supprimer. **Enregistrer sous…** (menu Fichiers ▾) enregistre la copie de travail dans un nouveau répertoire et permet de poursuivre la modification à cet emplacement.
+
+**Éditeur de blocs : ** L’icône de grille de la barre d’outils permet d’afficher une vue brute des pistes/secteurs sous le répertoire : une carte des blocs cliquable, colorée selon l’espace libre/utilisé du fichier BAM (le fichier BAM et la chaîne de répertoires étant marqués séparément), une grille hexadécimale par octet pour le bloc de 256 octets sélectionné et une navigation entre les secteurs (Précédent/Suivant). Les modifications de blocs suivent le même processus de copie de travail/enregistrement que les actions sur les répertoires décrites ci-dessus.
+
+> **Exigence : ** comme l’exportation vers D64, l’éditeur D64 nécessite VICE (`c1541`) configuré dans [Paramètres matériels](#13-hardware-settings).
 
 ---
 
@@ -3547,7 +3572,7 @@ Tracker multi-instrumental à 3 voix avec moteur de prévisualisation Web Audio.
 
 **Grille de suivi :**
 - 3 voix × jusqu'à 7 motifs × 32 lignes = 7 × 32 = 224 lignes max (le compteur de lignes 8 bits le limite).
-- Par ligne : note + index de l’instrument. Les lignes vides contiennent la note précédente.
+- Par ligne : note + index de l’instrument, plus un effet optionnel (voir **Colonne Effet** ci-dessous). Les lignes vides contiennent la note précédente.
 - Sélectionnez une cellule normalement, ou maintenez les touches **Maj** enfoncées tout en cliquant ou en utilisant les flèches directionnelles pour étendre une sélection rectangulaire sur plusieurs lignes et l'une des trois voix. Un clic droit à l'intérieur de la zone sélectionnée permet de conserver la plage intacte.
 - Les fonctions Copier, Couper, Coller et Effacer sont accessibles depuis la barre d'outils et le menu contextuel. Les codes `Ctrl/Cmd+C` et `Ctrl/Cmd+V` s'appliquent à la même sélection rectangulaire.
 - Assistant d'harmonie : choisissez une note fondamentale, un type d'accord et une octave, prévisualisez l'accord avec l'instrument actuel, puis insérez l'harmonisation directement dans le tracker. Les types disponibles incluent : Majeur, Mineur, Diminué, Augmenté, Sus2, Sus4, Dominant 7, Majeur 7, Mineur 7, 6, Mineur 6, 9, b9, #9, Dim7 et 7sus4.
@@ -3555,6 +3580,23 @@ Tracker multi-instrumental à 3 voix avec moteur de prévisualisation Web Audio.
 - **Aperçu de la ligne** permet d'écouter la ligne sélectionnée sur les trois voix sans démarrer la lecture du motif.
 - Le collage par plage de cellules commence désormais à la cellule de début de la plage sélectionnée et s'arrête proprement aux limites de la ligne et de la colonne au lieu de passer à la ligne ou à la colonne suivante.
 - Le curseur de vitesse définit le diviseur de tick IRQ (images entre les lignes).
+
+**Liste des chansons / ordre : **
+- Les motifs sont organisés via une liste de chansons/ordres superposée à la banque de motifs bruts — le même motif peut se répéter et la chanson peut être plus longue que le nombre de motifs stockés.
+- Ajoutez, supprimez et réorganisez les étapes depuis le panneau de la liste des chansons ; l’étape en cours est mise en surbrillance pendant la lecture.
+- La lecture dans l'application et chaque exportation parcourent cette liste, et non l'ordre brut du motif ; les exportations effectuées avant l'existence de la liste d'ordre se chargent toujours correctement comme une simple chanson 0..N-1.
+
+**Colonne Effet :** Chaque cellule peut contenir un effet avec sa note et son instrument, saisi sous forme de code court juste après la note (par exemple `C-4 01 V24`) ou seul pour une ligne d’effet sans note (par exemple `F06`) :
+
+| Code | Effet                             | Valeur                                                            |
+| ---- | --------------------------------- | ----------------------------------------------------------------- |
+| `V`  | Vibrato                           | faible morsure = profondeur, forte morsure = longueur de maintien |
+| `U`  | Glisser vers le haut (portamento) | montant ajouté à la fréquence de chaque ligne                     |
+| `D`  | Glisser vers le bas (portamento)  | montant soustrait de la fréquence de chaque ligne                 |
+| `C`  | Note coupée                       | coupe la voix sans la réactiver ; valeur inutilisée               |
+| `F`  | Changement de vitesse             | nouvelle valeur d'images par ligne, prend effet immédiatement     |
+
+Les effets sont mis à jour une fois par ligne (correspondant au timing du lecteur exporté), fonctionnent de manière identique dans l'aperçu Web Audio et l'exportation 6502 compilée, et sont enregistrés/chargés sans perte au format versionné `.bin`.
 
 **Lecture et clavier virtuel :**
 - Le bouton Lecture de la barre d'outils se transforme en Pause pendant la lecture et en Reprendre lorsqu'il est en pause ; le bouton Arrêter met fin à la lecture et réinitialise l'état.
@@ -3570,13 +3612,12 @@ Tracker multi-instrumental à 3 voix avec moteur de prévisualisation Web Audio.
 | `Exporter les blocs + mini-joueur`        | Ajoute le lecteur complet (sid_init / sid_irq / sid_play_row / sid_set_voice) ainsi que les tables de fréquences PAL. Après l'exportation, insérez un `JSR sid_init` dans votre code principal, à l'endroit où la musique doit démarrer. |
 | `Exporter asm (presse-papiers)`           | Copie l'intégralité du code source de l'assembly dans le presse-papiers.                                                                                                                                                                 |
 
-**Utilisation du lecteur ZP :** `$FB` (compteur de ticks), `$FC` (index de ligne), `$FD` (définir la voix temporaire). Ces commandes peuvent entrer en conflit si votre code principal les utilise ; déplacez-les via le mode Expert si nécessaire.
+Utilisation du lecteur ZP : ** `$02`–`$2F` (tables de pointeurs, décalage de motif et état des effets par voix), plus `$FB`–`$FE` (compteur de ticks, index de ligne, position dans la liste d'ordre, temp. set_voice). Ces éléments peuvent entrer en conflit s'ils sont utilisés par votre code principal ; déplacez-les via le mode Expert si nécessaire.
 
 **Limites connues :**
-- Liste de motifs linéaires uniques (pas encore de tableau de séquences par voix).
-- Le compteur de lignes 8 bits se limite à 7 motifs × 32 lignes.
+- Le compteur de lignes 8 bits limite chaque motif à 7 motifs × 32 lignes dans la banque brute (la liste des chansons/ordres peut toujours être arbitrairement longue en répétant les motifs).
 - Le volume global C64 `$D418` est partagé entre les voix — le curseur de volume par instrument est informatif ; le niveau de sustain (`S` d'ADSR) est le volume effectif par voix.
-- L'aperçu audio Web est approximatif : la modulation PWM, la synchronisation en anneau et les caractéristiques du filtre SID diffèrent de celles de la puce réelle.
+- L'aperçu audio Web est approximatif : la mise à jour du vibrato/glissement se fait une fois par ligne (correspondant au lecteur exporté), mais la modulation PWM, la synchronisation en anneau et le caractère du filtre SID diffèrent toujours de la puce réelle.
 
 ---
 

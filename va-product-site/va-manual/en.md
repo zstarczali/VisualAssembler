@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.4.1**
+**Version 2.4.3**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,8 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.4.3 Highlights](#version-243-highlights)
+    - [Version 2.4.2 Highlights](#version-242-highlights)
     - [Version 2.4.1 Highlights](#version-241-highlights)
     - [Version 2.4.0 Highlights](#version-240-highlights)
     - [Version 2.3.9 Highlights](#version-239-highlights)
@@ -152,6 +154,24 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Map Editor (Multilayer Tilemaps)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve Editor](#curve-editor)
+
+---
+
+## Version 2.4.3 Highlights
+
+- **SID Editor: Song/order list** — patterns are now arranged through a proper song/order list layered on top of the raw pattern bank, so a pattern can repeat and the song can be longer than the number of stored patterns. Add, remove, and reorder steps directly from the SID Editor; playback and the exported player both walk this list instead of the raw pattern order.
+- **SID Editor: Effect column** — every tracker cell can now carry an effect alongside its note: **V**ibrato, slide **U**p / **D**own, note-**C**ut, and speed-change (**F**). Type it straight into a cell, e.g. `C-4 01 V24` (note + instrument + vibrato) or `F06` (speed change only). Effects run once per row, matching the exported player, and now play back correctly both in the in-app Web Audio preview and in the compiled 6502 export — a real, playable effect engine, not just export scaffolding.
+- **Backward-compatible SID save format** — SID saves now carry a version marker, so older `.bin` saves made before the effect column existed keep loading exactly as before, with effects simply absent.
+- **D64 Editor: explicit Save workflow** — every edit (add/extract/rename/delete, and now Block Editor byte edits) happens on a private working copy; nothing touches your real `.d64` file until you click **Save**, which also writes an automatic backup first. Closing the editor or opening another disk with unsaved changes now asks for confirmation instead of discarding them silently.
+- **D64 Editor: Block Editor hex grid** — the raw byte view for the selected 256-byte block is now a proper per-byte hex grid instead of a plain text box, and its dialog no longer dims the rest of the app behind it while open.
+
+---
+
+## Version 2.4.2 Highlights
+
+- **Drag & drop onto the D64 Editor** — drop a compiled `.prg`/`.bin` file (from the SID/sprite/char editors' exports, or anywhere else) straight onto the disk image; the Add panel opens pre-filled. Dropping several files at once queues them one after another.
+- **Generate include file** — a new toolbar button writes a `.inc` file listing `.const NAME = $ADDR` for every entry on the disk, so the main program can reference where each one landed without retyping addresses by hand.
+- **Block editor (new)** — a toolbar toggle switches the D64 Editor to raw track/sector access below the directory: a clickable block map (colored by the BAM's free/used bitmap, with the BAM and directory chain marked separately), a hex view/editor for the selected 256-byte block, and Prev/Next sector navigation. Reads and writes the disk image directly (`read_bin_file`/`write_bin_file`), independent of `c1541`.
 
 ---
 
@@ -3329,6 +3349,7 @@ The toolbar icon after the Curve Editor opens the **D64 Editor** — a standalon
 | **Rename selected** | Edit the entry name inline in the table — Enter confirms, Escape cancels. |
 | **Delete selected** | Remove the selected entry from the disk. |
 | **Refresh** | Re-read the directory, e.g. after editing the disk from another tool. |
+| **Save** | Write the working copy's edits back to the real `.d64` file, making an automatic backup first. Enabled only while there are unsaved changes. |
 
 **Adding a program:** picking a file that already ends in `.prg` only asks for a **Name** and a disk **Type** (PRG/SEQ/USR/REL) — a `.prg` already carries its own load-address header, so it is written unchanged. Picking any other file (e.g. a raw `.bin`) additionally shows:
 
@@ -3338,7 +3359,11 @@ The toolbar icon after the Curve Editor opens the **D64 Editor** — a standalon
 
 The directory listing renders filenames in the same font and uppercase style as a real C64 `LOAD"$",8` listing.
 
-> **Requirement:** like Export to D64, the D64 Editor requires VICE (`c1541`) configured in [Hardware Settings](#13-hardware-settings). Every action (add/delete/rename/extract) is applied straight to the `.d64` file on disk — there is no separate "save" step.
+**Save workflow:** every edit — add, extract, rename, delete, and Block Editor byte edits — is applied to a private working copy of the disk image, not your real file. The **Save** toolbar button (enabled once there are unsaved changes) writes the working copy back over the real `.d64`, making an automatic backup first; the header shows a **•** marker while changes are unsaved, and closing the editor or opening another disk with unsaved changes asks for confirmation instead of discarding them. **Save As…** (Files ▾ menu) writes the working copy to a new path and continues editing there.
+
+**Block editor:** the toolbar's grid icon switches to a raw track/sector view below the directory — a clickable block map colored by the BAM's free/used bitmap (with the BAM and directory chain marked separately), a per-byte hex grid for the selected 256-byte block, and Prev/Next sector navigation. Block edits go through the same working-copy/Save workflow as the directory actions above.
+
+> **Requirement:** like Export to D64, the D64 Editor requires VICE (`c1541`) configured in [Hardware Settings](#13-hardware-settings).
 
 ---
 
@@ -3577,7 +3602,7 @@ Multi-instrument 3-voice tracker with a Web Audio preview engine. Open via Toolk
 
 **Tracker grid:**
 - 3 voices × up to 7 patterns × 32 rows = 7 × 32 = 224 rows max (8-bit row counter constrains it).
-- Per-row: note + instrument index. Empty rows hold the previous note.
+- Per-row: note + instrument index, plus an optional effect (see **Effect column** below). Empty rows hold the previous note.
 - Select one cell normally, or hold **Shift** while clicking or using the arrow keys to extend a rectangular selection across rows and any of the three voices. Right-clicking inside the selected area keeps the range intact.
 - Copy, Cut, Paste, and Clear are available from the icon toolbar and the icon-based context menu. `Ctrl/Cmd+C` and `Ctrl/Cmd+V` operate on the same rectangular selection.
 - Harmony helper: choose a root note, chord type, and octave, preview the chord with the current instrument, then insert the voicing directly into the tracker. Available types include Major, Minor, Diminished, Augmented, Sus2, Sus4, Dominant 7, Major 7, Minor 7, 6, Minor 6, 9, b9, #9, Dim7, and 7sus4.
@@ -3585,6 +3610,24 @@ Multi-instrument 3-voice tracker with a Web Audio preview engine. Open via Toolk
 - **Preview row** auditions the selected row across all three voices without starting pattern playback.
 - Cell-range paste now starts at the selected range start cell and stops cleanly at voice and row boundaries instead of wrapping into the next column or row.
 - Speed slider sets the IRQ tick divisor (frames between rows).
+
+**Song / order list:**
+- Patterns are arranged through a song/order list layered on top of the raw pattern bank — the same pattern can repeat, and the song can be longer than the number of stored patterns.
+- Add, remove, and reorder steps from the song list panel; the current step highlights during playback.
+- Both the in-app playback and every export walk this list, not the raw pattern order — exports made before the order list existed still load correctly as a plain 0..N-1 song.
+
+**Effect column:**
+Each cell can carry one effect alongside its note and instrument, entered as a short code right after the note (e.g. `C-4 01 V24`) or on its own for a note-less effect row (e.g. `F06`):
+
+| Code | Effect | Value |
+|---|---|---|
+| `V` | Vibrato | low nibble = depth, high nibble = hold length |
+| `U` | Slide up (portamento) | amount added to the frequency each row |
+| `D` | Slide down (portamento) | amount subtracted from the frequency each row |
+| `C` | Note cut | silences the voice without retriggering; value unused |
+| `F` | Speed change | new frames-per-row value, takes effect immediately |
+
+Effects update once per row (matching the exported player's timing), run identically in the Web Audio preview and the compiled 6502 export, and are saved/loaded losslessly in the versioned `.bin` format.
 
 **Playback and virtual keyboard:**
 - The Play toolbar button changes to Pause during playback and to Resume while paused; Stop ends playback and resets the state.
@@ -3600,13 +3643,12 @@ Multi-instrument 3-voice tracker with a Web Audio preview engine. Open via Toolk
 | `Export blocks + miniplayer` | Adds the full player (sid_init / sid_irq / sid_play_row / sid_set_voice) plus PAL frequency tables. After export, place a `JSR sid_init` in your main code where the music should start. |
 | `Export asm (clipboard)` | Copies the full assembly source to the clipboard. |
 
-**Player ZP usage:** `$FB` (tick counter), `$FC` (row index), `$FD` (set_voice temp). These conflict if your main code uses them — relocate via Expert mode if needed.
+**Player ZP usage:** `$02`–`$2F` (pointer tables, pattern offset, and per-voice effect state), plus `$FB`–`$FE` (tick counter, row index, order-list position, set_voice temp). These conflict if your main code uses them — relocate via Expert mode if needed.
 
 **Known limits:**
-- Single linear pattern list (no per-voice sequence table yet).
-- 8-bit row counter limits to 7 patterns × 32 rows.
+- 8-bit row counter limits each pattern to 7 patterns × 32 rows in the raw bank (the song/order list can still be arbitrarily long by repeating patterns).
 - C64 `$D418` global volume is shared across voices — the per-instrument volume slider is informational; sustain level (`S` of ADSR) is the effective per-voice volume.
-- Web Audio preview is approximate: PWM modulation, ring/sync, and the SID filter character differ from the real chip.
+- Web Audio preview is approximate: vibrato/slide update once per row (matching the exported player), but PWM modulation, ring/sync, and the SID filter character still differ from the real chip.
 
 ---
 

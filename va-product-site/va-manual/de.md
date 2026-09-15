@@ -1,6 +1,6 @@
 # C64 Visual Assembler – Benutzerhandbuch
 
-**Version 2.4.1**
+**Version 2.4.3**
 
 Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Sie Programme durch Ziehen und Ablegen von Befehlsblöcken und sehen Sie den generierten Assembler- und Maschinencode in Echtzeit.
 
@@ -9,6 +9,8 @@ Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Si
 ## Inhaltsverzeichnis
 
 - [C64 Visual Assembler — Benutzerhandbuch](#c64-visual-assembler--user-manual)
+    - [Version 2.4.3 Highlights](#version-243-highlights)
+    - [Version 2.4.2 Highlights](#version-242-highlights)
     - [Version 2.4.1 Highlights](#version-241-highlights)
     - [Version 2.4.0 Highlights](#version-240-highlights)
     - [Version 2.3.9 Highlights](#version-239-highlights)
@@ -152,6 +154,24 @@ Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Si
     - [Karteneditor (Mehrschichtige Kachelkarten)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Kurveneditor](#curve-editor)
+
+---
+
+## Highlights der Version 2.4.3
+
+- **SID-Editor: Song-/Reihenfolgeliste** – Patterns werden nun in einer Song-/Reihenfolgeliste angeordnet, die über der ursprünglichen Patternbank liegt. Dadurch können sich Patterns wiederholen und Songs länger sein als die Anzahl der gespeicherten Patterns. Schritte lassen sich direkt im SID-Editor hinzufügen, entfernen und neu anordnen. Wiedergabe und exportierter Player verwenden diese Liste anstelle der ursprünglichen Patternreihenfolge.
+- **SID-Editor: Effektspalte** – Jede Trackerzelle kann nun neben der Note auch einen Effekt enthalten: **V**Ibrato, Slide **U**p / **D**own, Note-**C**ut und Tempoänderung (**F**). Geben Sie den Effekt direkt in eine Zelle ein, z. B. `C-4 01 V24` (Note + Instrument + Vibrato) oder `F06` (nur Tempoänderung). Effekte werden einmal pro Zeile ausgeführt, entsprechend dem exportierten Player, und werden nun sowohl in der In-App-Web-Audio-Vorschau als auch im kompilierten 6502-Export korrekt wiedergegeben – eine echte, spielbare Effekt-Engine, nicht nur ein Exportgerüst.
+- **Rückwärtskompatibles SID-Speicherformat** — SID-Speicherstände enthalten jetzt eine Versionsmarkierung, sodass ältere `.bin`-Speicherstände, die vor dem Vorhandensein der Effektspalte erstellt wurden, weiterhin genau wie zuvor geladen werden, nur dass die Effekte fehlen.
+- **D64-Editor: Expliziter Speicher-Workflow** – Jede Bearbeitung (Hinzufügen/Extrahieren/Umbenennen/Löschen und jetzt auch Byte-Bearbeitungen im Block-Editor) erfolgt in einer privaten Arbeitskopie. Ihre eigentliche `.d64`-Datei bleibt unberührt, bis Sie auf **Speichern** klicken. Dabei wird zuvor automatisch eine Sicherungskopie erstellt. Beim Schließen des Editors oder beim Öffnen eines anderen Datenträgers mit ungespeicherten Änderungen werden Sie nun um Bestätigung gebeten, anstatt die Änderungen stillschweigend zu verwerfen.
+- **D64 Editor: Block Editor Hex-Grid** — Die Rohbyte-Ansicht für den ausgewählten 256-Byte-Block ist jetzt ein richtiges Byte-pro-Byte-Hex-Grid anstelle eines einfachen Textfelds, und der Dialog blendet den Rest der Anwendung im Hintergrund nicht mehr aus, solange er geöffnet ist.
+
+---
+
+## Highlights der Version 2.4.2
+
+- **Drag & Drop in den D64 Editor** – Ziehen Sie eine kompilierte `.prg`/`.bin`-Datei (aus den Exporten der SID-/Sprite-/Charaktereditoren oder von einem anderen Speicherort) direkt auf das Disk-Image; das Hinzufügen-Fenster öffnet sich automatisch. Wenn Sie mehrere Dateien gleichzeitig ablegen, werden diese nacheinander in die Warteschlange gestellt.
+- **Include-Datei generieren** — eine neue Schaltfläche in der Symbolleiste schreibt eine `.inc`-Datei, die `.const NAME = $ADDR` für jeden Eintrag auf der Festplatte auflistet, sodass das Hauptprogramm darauf zugreifen kann, wo jeder Eintrag gelandet ist, ohne die Adressen manuell neu eingeben zu müssen.
+- **Blockeditor (neu)** – Ein Umschalter in der Symbolleiste schaltet den D64-Editor auf direkten Zugriff auf Spuren/Sektoren unterhalb des Verzeichnisses um: eine anklickbare Blockkarte (farblich dargestellt anhand der freien/belegten Bitmap der BAM-Datei, wobei die BAM-Datei und die Verzeichniskette separat markiert sind), eine Hex-Ansicht/einen Hex-Editor für den ausgewählten 256-Byte-Block sowie die Navigation zum vorherigen/nächsten Sektor. Liest und schreibt das Disk-Image direkt (`read_bin_file`/`write_bin_file`), unabhängig von `c1541`.
 
 ---
 
@@ -3292,13 +3312,14 @@ Das Symbol in der Symbolleiste nach dem Kurveneditor öffnet den **D64-Editor** 
 
 **Symbolleiste:**
 
-| Symbol                      | Aktion                                                                                                          |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| **Programm hinzufügen**     | Wählen Sie eine lokale Datei aus und schreiben Sie sie in das Verzeichnis auf der Festplatte.                   |
-| **Ausgewählte extrahieren** | Speichern Sie die Bytes des ausgewählten Eintrags in einer lokalen `.prg`-Datei.                                |
-| **Ausgewählte umbenennen**  | Bearbeiten Sie den Eintragsnamen direkt in der Tabelle – Enter bestätigt, Escape bricht ab.                     |
-| **Ausgewählte löschen**     | Den ausgewählten Eintrag von der Festplatte entfernen.                                                          |
-| **Aktualisieren**           | Lesen Sie das Verzeichnis erneut ein, z. B. nachdem Sie die Festplatte mit einem anderen Tool bearbeitet haben. |
+| Symbol                      | Aktion                                                                                                                                                                                                                     |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Programm hinzufügen**     | Wählen Sie eine lokale Datei aus und schreiben Sie sie in das Verzeichnis auf der Festplatte.                                                                                                                              |
+| **Ausgewählte extrahieren** | Speichern Sie die Bytes des ausgewählten Eintrags in einer lokalen `.prg`-Datei.                                                                                                                                           |
+| **Ausgewählte umbenennen**  | Bearbeiten Sie den Eintragsnamen direkt in der Tabelle – Enter bestätigt, Escape bricht ab.                                                                                                                                |
+| **Ausgewählte löschen**     | Den ausgewählten Eintrag von der Festplatte entfernen.                                                                                                                                                                     |
+| **Aktualisieren**           | Lesen Sie das Verzeichnis erneut ein, z. B. nachdem Sie die Festplatte mit einem anderen Tool bearbeitet haben.                                                                                                            |
+| **Speichern**               | Schreibt die Änderungen der Arbeitskopie zurück in die eigentliche `.d64`-Datei und erstellt vorher eine automatische Sicherungskopie. Diese Funktion ist nur aktiviert, solange ungespeicherte Änderungen vorhanden sind. |
 
 **Hinzufügen eines Programms:** Die Auswahl einer Datei, die bereits auf `.prg` endet, fragt lediglich nach einem **Name** und einem Datenträgertyp**Typ** (PRG/SEQ/USR/REL) – eine `.prg` enthält bereits ihren eigenen Ladeadressheader und wird daher unverändert geschrieben. Die Auswahl einer anderen Datei (z. B. einer unformatierten `.bin`) zeigt zusätzlich Folgendes an:
 
@@ -3308,7 +3329,11 @@ Das Symbol in der Symbolleiste nach dem Kurveneditor öffnet den **D64-Editor** 
 
 Die Verzeichnisauflistung gibt Dateinamen in der gleichen Schriftart und Großbuchstabensprache wieder wie eine echte C64 `LOAD"$",8`-Auflistung.
 
-> **Voraussetzung:** Wie beim Export nach D64 benötigt der D64-Editor VICE (`c1541`), das in den [Hardwareeinstellungen](#13-hardware-settings) konfiguriert ist. Jede Aktion (Hinzufügen/Löschen/Umbenennen/Extrahieren) wird direkt auf die `.d64`-Datei auf der Festplatte angewendet – es gibt keinen separaten Speichervorgang.
+Arbeitsablauf speichern: Jede Änderung – Hinzufügen, Extrahieren, Umbenennen, Löschen und Byte-Bearbeitungen im Blockeditor – wird auf eine private Arbeitskopie des Datenträgerabbilds angewendet, nicht auf Ihre eigentliche Datei. Die Schaltfläche „Speichern“ in der Symbolleiste (aktiviert, sobald ungespeicherte Änderungen vorhanden sind) überschreibt die eigentliche Datei mit der Arbeitskopie und erstellt zuvor eine automatische Sicherung. Solange Änderungen ungespeichert sind, wird im Header eine Markierung angezeigt. Beim Schließen des Editors oder beim Öffnen eines anderen Datenträgers mit ungespeicherten Änderungen werden Sie um Bestätigung gebeten, anstatt die Änderungen zu verwerfen. Mit „Speichern unter…“ (Menü „Datei ▾“) wird die Arbeitskopie unter einem neuen Pfad gespeichert und die Bearbeitung dort fortgesetzt.
+
+**Block-Editor:** Das Rastersymbol in der Symbolleiste wechselt zu einer Rohdatenansicht der Spuren/Sektoren unterhalb des Verzeichnisses – einer anklickbaren Blockkarte, die nach der freien/belegten Bitmap der BAM-Datei eingefärbt ist (BAM-Datei und Verzeichniskette werden separat markiert), einem Byte-spezifischen Hex-Raster für den ausgewählten 256-Byte-Block sowie der Navigation zum vorherigen/nächsten Sektor. Blockbearbeitungen durchlaufen denselben Workflow (Arbeitskopie/Speichern) wie die oben beschriebenen Verzeichnisaktionen.
+
+> **Anforderung:** Wie beim Export nach D64 benötigt der D64 Editor VICE (`c1541`), das in den [Hardware-Einstellungen](#13-hardware-settings) konfiguriert ist.
 
 ---
 
@@ -3547,7 +3572,7 @@ Multiinstrumentaler 3-stimmiger Tracker mit Web-Audio-Vorschau. Öffnen über To
 
 **Tracker-Gitter:**
 - 3 Stimmen × bis zu 7 Muster × 32 Zeilen = 7 × 32 = maximal 224 Zeilen (begrenzt durch einen 8-Bit-Zeilenzähler).
-- Pro Zeile: Note + Instrumentenindex. Leere Zeilen enthalten die vorherige Note.
+- Pro Zeile: Note + Instrumentenindex, plus optionaler Effekt (siehe **Spalte „Effekt“** unten). Leere Zeilen enthalten die vorherige Note.
 - Wählen Sie eine Zelle wie gewohnt aus oder halten Sie **Shift** gedrückt und klicken Sie mit den Pfeiltasten, um eine rechteckige Auswahl über mehrere Zeilen und eine der drei Stimmen zu erweitern. Ein Rechtsklick innerhalb des ausgewählten Bereichs erhält die Auswahl aufrecht.
 - Kopieren, Ausschneiden, Einfügen und Löschen sind über die Symbolleiste und das Kontextmenü verfügbar. `Strg/Cmd+C` und `Strg/Cmd+V` wirken auf dieselbe rechteckige Auswahl.
 - Harmoniehilfe: Wählen Sie Grundton, Akkordtyp und Oktave, hören Sie sich den Akkord mit dem aktuellen Instrument an und fügen Sie die Voicings direkt in den Tracker ein. Verfügbare Typen: Dur, Moll, Vermindert, Übermäßig, Sus2, Sus4, Dominantseptakkord, Durseptakkord, Mollseptakkord, Sextakkord, Mollsextakkord, None, kleine None, übermäßige None, Verminderter Septakkord und Septakkord-sus4.
@@ -3555,6 +3580,23 @@ Multiinstrumentaler 3-stimmiger Tracker mit Web-Audio-Vorschau. Öffnen über To
 - **Vorschauzeile** spielt die ausgewählte Zeile in allen drei Stimmen ab, ohne die Musterwiedergabe zu starten.
 - Beim Einfügen von Zellbereichen beginnt die Einfügung nun an der Startzelle des ausgewählten Bereichs und endet sauber an den Zeilen- und Bereichsgrenzen, anstatt in die nächste Spalte oder Zeile umzubrechen.
 - Mit dem Geschwindigkeitsregler wird der IRQ-Tick-Teiler (Frames zwischen den Zeilen) festgelegt.
+
+**Song / Reihenfolge:**
+- Die Muster werden über eine Song-/Reihenfolgeliste angeordnet, die über der Rohmusterbank liegt – dasselbe Muster kann sich wiederholen, und der Song kann länger sein als die Anzahl der gespeicherten Muster.
+- Schritte können im Songlistenfenster hinzugefügt, entfernt und neu angeordnet werden; der aktuelle Schritt wird während der Wiedergabe hervorgehoben.
+- Sowohl die Wiedergabe in der App als auch jeder Export folgen dieser Liste, nicht der Reihenfolge des Rohmusters – Exporte, die vor dem Bestehen der Reihenfolgeliste erstellt wurden, werden immer noch korrekt als einfacher 0..N-1-Song geladen.
+
+**Effektspalte:** Jede Zelle kann einen Effekt zusammen mit ihrer Note und ihrem Instrument enthalten, der als Kurzcode direkt nach der Note eingegeben wird (z. B. `C-4 01 V24`) oder allein für eine notenlose Effektzeile (z. B. `F06`):
+
+| Code | Wirkung                             | Wert                                                                                   |
+| ---- | ----------------------------------- | -------------------------------------------------------------------------------------- |
+| `V`  | Vibrato                             | Niedriges Anbeißen = Tiefe, hohes Anbeißen = Haltelänge                                |
+| `U`  | Slide up (Portamento)               | Betrag, der in jeder Zeile zur Häufigkeit hinzugefügt wird                             |
+| `D`  | Gleiten Sie nach unten (Portamento) | Betrag, der von der Häufigkeit jeder Zeile abgezogen wird                              |
+| `C`  | Note abgeschnitten                  | Die Stimme wird stummgeschaltet, ohne erneut ausgelöst zu werden; Wert nicht verwendet |
+| `F`  | Geschwindigkeitsänderung            | Der neue Wert für Bilder pro Zeile wird sofort wirksam.                                |
+
+Die Effekte werden einmal pro Zeile aktualisiert (entsprechend dem Timing des exportierten Players), laufen in der Web-Audio-Vorschau und dem kompilierten 6502-Export identisch ab und werden verlustfrei im versionierten `.bin`-Format gespeichert/geladen.
 
 **Wiedergabe und virtuelle Tastatur:**
 - Die Schaltfläche „Wiedergabe“ in der Symbolleiste ändert sich während der Wiedergabe zu „Pause“ und während der Pause zu „Fortsetzen“; „Stopp“ beendet die Wiedergabe und setzt den Status zurück.
@@ -3570,13 +3612,12 @@ Multiinstrumentaler 3-stimmiger Tracker mit Web-Audio-Vorschau. Öffnen über To
 | `Exportblöcke + Minispieler`             | Fügt den vollständigen Player (sid_init / sid_irq / sid_play_row / sid_set_voice) sowie PAL-Frequenztabellen hinzu. Nach dem Export fügen Sie in Ihrem Hauptcode an der Stelle, an der die Musikwiedergabe starten soll, eine `JSR sid_init`-Anweisung ein. |
 | `Assembler exportieren (Zwischenablage)` | Kopiert den vollständigen Assembler-Quelltext in die Zwischenablage.                                                                                                                                                                                        |
 
-**ZP-Nutzung des Spielers:** `$FB` (Tickzähler), `$FC` (Zeilenindex), `$FD` (set_voice temp). Diese können in Konflikt geraten, wenn sie von Ihrem Hauptcode verwendet werden – verschieben Sie sie gegebenenfalls im Expertenmodus.
+**Player ZP-Nutzung:** `$02`–`$2F` (Zeigertabellen, Pattern-Offset und Effektstatus pro Stimme) sowie `$FB`–`$FE` (Tickzähler, Zeilenindex, Position in der Orderliste, set_voice temp). Diese können in Konflikt geraten, wenn Ihr Hauptcode sie verwendet – verschieben Sie sie gegebenenfalls im Expertenmodus.
 
 **Bekannte Grenzwerte:**
-- Einzelne lineare Musterliste (noch keine Sequenztabelle pro Stimme).
-- Der 8-Bit-Zeilenzähler ist auf 7 Muster × 32 Zeilen begrenzt.
+- Ein 8-Bit-Zeilenzähler begrenzt jedes Muster auf 7 Muster × 32 Zeilen im Rohdatenspeicher (die Song-/Reihenfolgeliste kann durch Wiederholung von Mustern beliebig lang sein).
 - C64 `$D418` Die globale Lautstärke wird über alle Stimmen hinweg geteilt – der Lautstärkeregler pro Instrument dient nur der Information; der Sustain-Pegel (`S` von ADSR) ist die effektive Lautstärke pro Stimme.
-- Die Web-Audio-Vorschau ist nur annähernd korrekt: PWM-Modulation, Klingeln/Synchronisation und der Charakter des SID-Filters weichen vom realen Chip ab.
+- Die Web-Audio-Vorschau ist nur annähernd korrekt: Vibrato/Slide-Aktualisierung einmal pro Zeile (entsprechend dem exportierten Player), aber PWM-Modulation, Ring/Synchronisation und der Charakter des SID-Filters unterscheiden sich immer noch vom realen Chip.
 
 ---
 

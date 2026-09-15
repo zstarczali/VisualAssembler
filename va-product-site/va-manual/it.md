@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Manuale utente
 
-**Versione 2.4.1**
+**Versione 2.4.3**
 
 Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502. Crea programmi trascinando e rilasciando blocchi di istruzioni e visualizza in tempo reale il codice assembly e il codice macchina generati.
 
@@ -9,6 +9,8 @@ Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502. 
 ## Sommario
 
 - [C64 Visual Assembler — Manuale utente](#c64-visual-assembler--user-manual)
+    - [Punti salienti della versione 2.4.3](#version-243-highlights)
+    - [Punti salienti della versione 2.4.2](#version-242-highlights)
     - [Punti salienti della versione 2.4.1](#version-241-highlights)
     - [Punti salienti della versione 2.4.0](#version-240-highlights)
     - [Punti salienti della versione 2.3.9](#version-239-highlights)
@@ -152,6 +154,24 @@ Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502. 
     - [Editor di mappe (mappe a tessere multilivello)](#map-editor-multilayer-tilemaps)
     - [Editor SID (Tracker a 3 voci)](#sid-editor-3-voice-tracker)
     - [Editor di curve](#curve-editor)
+
+---
+
+## Punti salienti della versione 2.4.3
+
+- **Editor SID: Elenco brani/ordine** — i pattern sono ora organizzati tramite un elenco brani/ordine appropriato sovrapposto al banco di pattern grezzi, in modo che un pattern possa ripetersi e il brano possa essere più lungo del numero di pattern memorizzati. Aggiungi, rimuovi e riordina i passaggi direttamente dall'Editor SID; la riproduzione e il lettore esportato seguono entrambi questo elenco invece dell'ordine dei pattern grezzi.
+- **Editor SID: colonna Effetti** — ogni cella tracker può ora contenere un effetto insieme alla sua nota: **V**ibrato, slide **U**p / **D**own, nota-**C**ut e cambio di velocità (**F**). Digitalo direttamente in una cella, ad esempio `C-4 01 V24` (nota + strumento + vibrato) o `F06` (solo cambio di velocità). Gli effetti vengono eseguiti una volta per riga, in modo da corrispondere al lettore esportato, e ora vengono riprodotti correttamente sia nell'anteprima Web Audio in-app che nell'esportazione 6502 compilata: un vero motore di effetti riproducibile, non solo una struttura di esportazione.
+- **Formato di salvataggio SID retrocompatibile** — I salvataggi SID ora contengono un indicatore di versione, quindi i salvataggi `.bin` precedenti all'esistenza della colonna degli effetti continuano a caricarsi esattamente come prima, con gli effetti semplicemente assenti.
+- **Editor D64: flusso di lavoro di salvataggio esplicito** — ogni modifica (aggiunta/estrazione/rinomina/eliminazione e ora anche modifiche a byte dell'Editor a blocchi) avviene su una copia di lavoro privata; nulla tocca il tuo file `.d64` reale finché non fai clic su **Salva**, operazione che prima crea anche un backup automatico. La chiusura dell'editor o l'apertura di un altro disco con modifiche non salvate ora richiede conferma invece di eliminarle silenziosamente.
+- **Editor D64: Griglia esadecimale dell'editor a blocchi** — la visualizzazione dei byte grezzi per il blocco selezionato da 256 byte è ora una griglia esadecimale per byte anziché una semplice casella di testo e la relativa finestra di dialogo non oscura più il resto dell'app sottostante mentre è aperta.
+
+---
+
+## Punti salienti della versione 2.4.2
+
+- **Trascina e rilascia sull'editor D64** — rilascia un file `.prg`/`.bin` compilato (dalle esportazioni degli editor SID/sprite/char o da qualsiasi altra posizione) direttamente sull'immagine del disco; il pannello Aggiungi si apre precompilato. Il rilascio di più file contemporaneamente li mette in coda uno dopo l'altro.
+- **Genera file di inclusione** — un nuovo pulsante della barra degli strumenti scrive un file `.inc` che elenca `.const NOME = $ADDR` per ogni voce sul disco, in modo che il programma principale possa fare riferimento alla posizione di ciascuna senza dover riscrivere manualmente gli indirizzi.
+- **Editor a blocchi (nuovo)** — un interruttore nella barra degli strumenti commuta l'Editor D64 all'accesso raw a tracce/settori sotto la directory: una mappa a blocchi cliccabile (colorata dalla bitmap libera/utilizzata del BAM, con il BAM e la catena di directory contrassegnati separatamente), una vista/editor esadecimale per il blocco selezionato da 256 byte e la navigazione settore Precedente/Successivo. Legge e scrive direttamente l'immagine del disco (`read_bin_file`/`write_bin_file`), indipendentemente da `c1541`.
 
 ---
 
@@ -3292,13 +3312,14 @@ L'icona nella barra degli strumenti dopo l'Editor di curve apre l'Editor D64 ***
 
 **Barra degli strumenti:**
 
-| Icona                                | Azione                                                                                                 |
-| ------------------------------------ | ------------------------------------------------------------------------------------------------------ |
-| **Aggiungi programma**               | Seleziona un file locale e scrivilo nella directory del disco.                                         |
-| **Estratto selezionato**             | Salva i byte della voce selezionata in un file locale `.prg`.                                          |
-| **Rinomina selezionato**             | Modifica il nome della voce direttamente nella tabella: premi Invio per confermare, Esc per annullare. |
-| **Elimina gli elementi selezionati** | Rimuovere la voce selezionata dal disco.                                                               |
-| **Aggiorna**                         | Rileggere la directory, ad esempio dopo aver modificato il disco con un altro programma.               |
+| Icona                                | Azione                                                                                                                                                      |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Aggiungi programma**               | Seleziona un file locale e scrivilo nella directory del disco.                                                                                              |
+| **Estratto selezionato**             | Salva i byte della voce selezionata in un file locale `.prg`.                                                                                               |
+| **Rinomina selezionato**             | Modifica il nome della voce direttamente nella tabella: premi Invio per confermare, Esc per annullare.                                                      |
+| **Elimina gli elementi selezionati** | Rimuovere la voce selezionata dal disco.                                                                                                                    |
+| **Aggiorna**                         | Rileggere la directory, ad esempio dopo aver modificato il disco con un altro programma.                                                                    |
+| **Salva**                            | Riscrivi le modifiche della copia di lavoro nel file `.d64` reale, creando prima un backup automatico. Abilitato solo in presenza di modifiche non salvate. |
 
 **Aggiunta di un programma:** selezionando un file che termina già con `.prg` richiede solo un **Nome** e un **Tipo di disco** (PRG/SEQ/USR/REL) — un `.prg` contiene già la propria intestazione di indirizzo di caricamento, quindi viene scritto invariato. Selezionando qualsiasi altro file (ad esempio un `.bin` non elaborato) viene inoltre visualizzato:
 
@@ -3308,7 +3329,11 @@ L'icona nella barra degli strumenti dopo l'Editor di curve apre l'Editor D64 ***
 
 L'elenco delle directory visualizza i nomi dei file con lo stesso carattere e stile maiuscolo di un vero elenco C64 `LOAD"$",8`.
 
-> **Requisito:** come per l'esportazione in D64, l'editor D64 richiede VICE (`c1541`) configurato in [Impostazioni hardware](#13-hardware-settings). Ogni azione (aggiunta/eliminazione/rinomina/estrazione) viene applicata direttamente al file `.d64` sul disco: non è previsto un passaggio di "salvataggio" separato.
+**Flusso di lavoro di salvataggio:** ogni modifica — aggiunta, estrazione, ridenominazione, eliminazione e modifiche dei byte dell'Editor a blocchi — viene applicata a una copia di lavoro privata dell'immagine disco, non al file reale. Il pulsante **Salva** nella barra degli strumenti (abilitato quando sono presenti modifiche non salvate) sovrascrive la copia di lavoro sul file `.d64` reale, eseguendo prima un backup automatico; l'intestazione mostra un indicatore **•** finché le modifiche non sono salvate e la chiusura dell'editor o l'apertura di un altro disco con modifiche non salvate richiede conferma anziché scartarle. **Salva con nome…** (menu File ▾) scrive la copia di lavoro in un nuovo percorso e continua la modifica lì.
+
+**Editor di blocchi:** l'icona della griglia della barra degli strumenti passa a una visualizzazione di traccia/settore grezzo sotto la directory: una mappa di blocchi cliccabile colorata dalla bitmap libera/utilizzata del BAM (con il BAM e la catena di directory contrassegnati separatamente), una griglia esadecimale per byte per il blocco selezionato da 256 byte e la navigazione settore Precedente/Successivo. Le modifiche ai blocchi seguono lo stesso flusso di lavoro copia di lavoro/Salvataggio delle azioni della directory sopra.
+
+> **Requisito:** come per l'esportazione in D64, l'editor D64 richiede VICE (`c1541`) configurato in [Impostazioni hardware](#13-hardware-settings).
 
 ---
 
@@ -3547,7 +3572,7 @@ Tracker multi-strumento a 3 voci con motore di anteprima Web Audio. Apribile tra
 
 **Griglia di tracciamento:**
 - 3 voci × fino a 7 pattern × 32 righe = 7 × 32 = 224 righe massime (il contatore di righe a 8 bit ne limita il numero).
-- Per riga: nota + indice dello strumento. Le righe vuote contengono la nota precedente.
+- Per riga: nota + indice dello strumento, più un effetto opzionale (vedi **Colonna Effetti** qui sotto). Le righe vuote contengono la nota precedente.
 - Seleziona una cella normalmente oppure tieni premuto **Maiusc** mentre fai clic o usi i tasti freccia per estendere una selezione rettangolare su più righe e su una qualsiasi delle tre voci. Facendo clic con il pulsante destro del mouse all'interno dell'area selezionata, l'intervallo rimane invariato.
 - Le funzioni Copia, Taglia, Incolla e Cancella sono disponibili dalla barra degli strumenti delle icone e dal menu contestuale basato sulle icone. `Ctrl/Cmd+C` e `Ctrl/Cmd+V` operano sulla stessa selezione rettangolare.
 - Strumento per l'armonia: scegli una nota fondamentale, un tipo di accordo e un'ottava, ascolta in anteprima l'accordo con lo strumento corrente, quindi inserisci la disposizione delle voci direttamente nel tracker. I tipi disponibili includono Maggiore, Minore, Diminuito, Aumentato, Sus2, Sus4, Dominante 7, Maggiore 7, Minore 7, 6, Minore 6, 9, b9, #9, Dim7 e 7sus4.
@@ -3555,6 +3580,23 @@ Tracker multi-strumento a 3 voci con motore di anteprima Web Audio. Apribile tra
 - **Anteprima riga** ascolta la riga selezionata su tutte e tre le voci senza avviare la riproduzione del pattern.
 - L'incolla di intervalli di celle ora inizia dalla cella iniziale dell'intervallo selezionato e termina in modo pulito ai limiti di riga e di voce, invece di andare a capo nella colonna o riga successiva.
 - Il cursore della velocità imposta il divisore del tick IRQ (fotogrammi tra le righe).
+
+**Elenco brani/ordini:**
+- I pattern sono organizzati tramite un elenco di brani/ordini sovrapposto alla banca di pattern grezzi: lo stesso pattern può ripetersi e il brano può essere più lungo del numero di pattern memorizzati.
+- Aggiungi, rimuovi e riordina i passaggi dal pannello dell'elenco dei brani; il passaggio corrente viene evidenziato durante la riproduzione.
+- Sia la riproduzione in-app che ogni esportazione seguono questo elenco, non l'ordine del pattern originale: le esportazioni effettuate prima che esistesse l'elenco d'ordine vengono comunque caricate correttamente come un semplice brano 0..N-1.
+
+**Colonna effetti:** Ogni cella può contenere un effetto insieme alla nota e allo strumento, inserito come codice breve subito dopo la nota (ad esempio `C-4 01 V24`) o da solo per una riga di effetti senza note (ad esempio `F06`):
+
+| Codice | Effetto                    | Valore                                                                    |
+| ------ | -------------------------- | ------------------------------------------------------------------------- |
+| `V`    | Vibrato                    | basso nibble = profondità, alto nibble = lunghezza di tenuta              |
+| `U`    | Slide up (portamento)      | importo aggiunto alla frequenza di ciascuna riga                          |
+| `D`    | Scivolare giù (portamento) | importo sottratto dalla frequenza di ciascuna riga                        |
+| `C`    | Nota tagliata              | silenzia la voce senza riattivarla; valore non utilizzato                 |
+| `F`    | Cambio di velocità         | Nuovo valore per il numero di fotogrammi per riga, con effetto immediato. |
+
+Gli effetti si aggiornano una volta per riga (in base alla temporizzazione del lettore esportato), vengono eseguiti in modo identico nell'anteprima Web Audio e nell'esportazione 6502 compilata e vengono salvati/caricati senza perdita di dati nel formato versionato `.bin`.
 
 **Riproduzione e tastiera virtuale:**
 - Il pulsante Riproduci nella barra degli strumenti cambia in Pausa durante la riproduzione e in Riprendi quando è in pausa; Interrompi termina la riproduzione e ripristina lo stato.
@@ -3570,13 +3612,12 @@ Tracker multi-strumento a 3 voci con motore di anteprima Web Audio. Apribile tra
 | `Esporta blocchi + minigiocatore`  | Aggiunge il lettore completo (sid_init / sid_irq / sid_play_row / sid_set_voice) più le tabelle di frequenza PAL. Dopo l'esportazione, inserisci un `JSR sid_init` nel tuo codice principale nel punto in cui dovrebbe iniziare la musica. |
 | `Esporta asm (appunti)`            | Copia l'intero codice sorgente dell'assembly negli appunti.                                                                                                                                                                                |
 
-**Utilizzo ZP del giocatore:** `$FB` (contatore tick), `$FC` (indice di riga), `$FD` (temp set_voice). Questi sono in conflitto se il codice principale li utilizza: riposizionarli tramite la modalità esperto se necessario.
+**Utilizzo ZP del giocatore:** `$02`–`$2F` (tabelle dei puntatori, offset del pattern e stato dell'effetto per voce), più `$FB`–`$FE` (contatore tick, indice di riga, posizione dell'elenco degli ordini, set_voice temp). Questi sono in conflitto se il codice principale li utilizza: riposizionarli tramite la modalità Esperto se necessario.
 
 **Limiti noti:**
-- Elenco di pattern lineari singoli (non è ancora disponibile una tabella di sequenze per voce).
-- Il contatore di righe a 8 bit ha un limite di 7 pattern × 32 righe.
+- Il contatore di righe a 8 bit limita ogni pattern a 7 pattern × 32 righe nel banco raw (l'elenco dei brani/ordini può comunque essere arbitrariamente lungo ripetendo i pattern).
 - Il volume globale del C64 `$D418` è condiviso tra le voci: il cursore del volume per strumento è informativo; il livello di sustain (`S` di ADSR) è il volume effettivo per voce.
-- L'anteprima audio sul web è approssimativa: la modulazione PWM, la sincronizzazione/ring e le caratteristiche del filtro SID differiscono dal chip reale.
+- L'anteprima audio web è approssimativa: vibrato/slide si aggiorna una volta per riga (corrispondente al lettore esportato), ma la modulazione PWM, la sincronizzazione/ring e le caratteristiche del filtro SID differiscono ancora dal chip reale.
 
 ---
 
