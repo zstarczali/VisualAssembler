@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.4.1**
+**Versio 2.4.3**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin reaaliajassa.
 
@@ -9,6 +9,8 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 ## Sisällysluettelo
 
 - [C64 Visual Assembler — Käyttöopas](#c64-visual-assembler--user-manual)
+    - [Version 2.4.3 kohokohdat](#version-243-highlights)
+    - [Version 2.4.2 kohokohdat](#version-242-highlights)
     - [Version 2.4.1 kohokohdat](#version-241-highlights)
     - [Version 2.4.0 kohokohdat](#version-240-highlights)
     - [Version 2.3.9 kohokohdat](#version-239-highlights)
@@ -111,7 +113,7 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
     - [PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG](#print--print_char--print_hex--clear_screen--wait_key--delay--set_border--set_bg)
     - [IRQ_SETUP](#irq_setup)
     - [RAND](#rand)
-    - [SPRITE\_ALUSTUS](#sprite_init)
+    - [SPRITE\_INIT](#sprite_init)
     - [SPRITE\_POS](#sprite_pos)
     - [WAIT\_RASTER](#wait_raster)
     - [JOYSTICK](#joystick)
@@ -152,6 +154,24 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
     - [Karttaeditori (monikerroksiset laattakartat)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Käyränmuokkausohjelma](#curve-editor)
+
+---
+
+## Version 2.4.3 kohokohdat
+
+- **SID-editori: Kappale-/järjestyslista** — kuviot on nyt järjestetty varsinaisen kappale-/järjestyslistan avulla raakakuviopankin päälle, joten kuvio voi toistua ja kappale voi olla pidempi kuin tallennettujen kuvioiden lukumäärä. Lisää, poista ja järjestele vaiheita uudelleen suoraan SID-editorista; sekä toisto että viety soitin käyvät läpi tämän listan raakakuviojärjestyksen sijaan.
+- **SID-editori: Efektisarake** — jokainen seurantasolu voi nyt sisältää efektin nuotin rinnalla: **V**ibrato, slide **U**p / **D**own, note-**C**ut ja nopeudenmuutos (**F**). Kirjoita se suoraan soluun, esim. `C-4 01 V24` (nuotti + instrumentti + vibrato) tai `F06` (vain nopeudenmuutos). Efektit toimivat kerran riviä kohden, vastaavat vietyä soitinta, ja toistuvat nyt oikein sekä sovelluksen sisäisessä Web Audio -esikatselussa että käännetyssä 6502-viennissä — todellinen, pelattava efektimoottori, ei vain vientitelineitä.
+- **Taaksepäin yhteensopiva SID-tallennusmuoto** — SID-tallennuksissa on nyt versiomerkintä, joten vanhemmissa `.bin`-tallennuksissa, jotka on tehty ennen tehostesarakkeen olemassaoloa, latautuvat täsmälleen kuten ennenkin, tehosteet puuttuvat kokonaan.
+- **D64-editori: eksplisiittinen tallennustyönkulku** — jokainen muokkaus (lisääminen/poistaminen/uudelleennimeäminen/poistaminen ja nyt myös lohkoeditorin tavumuokkaukset) tehdään yksityiseen työkopioon; mikään ei koske varsinaiseen `.d64`-tiedostoosi, ennen kuin napsautat **Tallenna** -painiketta, joka myös kirjoittaa ensin automaattisen varmuuskopion. Editorin sulkeminen tai toisen levyn avaaminen, jolla on tallentamattomia muutoksia, pyytää nyt vahvistusta sen sijaan, että ne hylättäisiin hiljaisesti.
+- **D64 Editori: Lohkoeditorin heksaruudukko** — valitun 256-tavuisen lohkon raakatavunäkymä on nyt oikeana tavukohtaisena heksaruudukkona pelkän tekstiruudun sijaan, eikä sen valintaikkuna enää himmenna muuta sovellusta sen takana ollessaan avoinna.
+
+---
+
+## Version 2.4.2 kohokohdat
+
+- **Raahaa ja pudota D64-editoriin** — pudota käännetty `.prg`/`.bin` -tiedosto (SID/sprite/char-editorien vienneistä tai mistä tahansa muualta) suoraan levykuvalle; Lisää-paneeli avautuu esitäytettynä. Useiden tiedostojen pudottaminen kerralla asettaa ne jonoon peräkkäin.
+- **Luo sisällytystiedosto** — uusi työkalupalkin painike kirjoittaa `.inc`-tiedoston, jossa luetellaan `.const NIMI = $OSOITE` jokaista levyllä olevaa merkintää kohden, jotta pääohjelma voi viitata kunkin merkinnän sijaintiin kirjoittamatta osoitteita uudelleen käsin.
+- **Lohkoeditori (uusi)** — työkalupalkin vaihtokytkin vaihtaa D64-editorin raa'alle raita-/sektorikäytölle hakemiston alapuolella: napsautettava lohkokartta (väritetty BAM:n vapaan/käytetyn bittikartan mukaan, jossa BAM ja hakemistoketju on merkitty erikseen), heksadesimaalinen näkymä/editori valitulle 256-tavuiselle lohkolle ja edellinen/seuraava sektorinavigointi. Lukee ja kirjoittaa levykuvan suoraan (`read_bin_file`/`write_bin_file`), riippumatta `c1541`:stä.
 
 ---
 
@@ -3292,13 +3312,14 @@ Käyräeditorin jälkeinen työkalupalkin kuvake avaa **D64-editorin** – itsen
 
 **Työkalurivi:**
 
-| Kuvake                      | Toiminta                                                                                        |
-| --------------------------- | ----------------------------------------------------------------------------------------------- |
-| **Lisää ohjelma**           | Valitse paikallinen tiedosto ja kirjoita se levyhakemistoon.                                    |
-| **Pura valittu**            | Tallenna valitun merkinnän tavut paikalliseen `.prg`-tiedostoon.                                |
-| **Nimeä valittu uudelleen** | Muokkaa merkinnän nimeä taulukon rivillä — Enter vahvistaa, Esc peruu.                          |
-| **Poista valitut**          | Poista valittu merkintä levyltä.                                                                |
-| **Päivitä**                 | Lue hakemisto uudelleen, esimerkiksi sen jälkeen, kun olet muokannut levyä toisella työkalulla. |
+| Kuvake                      | Toiminta                                                                                                                                                        |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Lisää ohjelma**           | Valitse paikallinen tiedosto ja kirjoita se levyhakemistoon.                                                                                                    |
+| **Pura valittu**            | Tallenna valitun merkinnän tavut paikalliseen `.prg`-tiedostoon.                                                                                                |
+| **Nimeä valittu uudelleen** | Muokkaa merkinnän nimeä taulukon rivillä — Enter vahvistaa, Esc peruu.                                                                                          |
+| **Poista valitut**          | Poista valittu merkintä levyltä.                                                                                                                                |
+| **Päivitä**                 | Lue hakemisto uudelleen, esimerkiksi sen jälkeen, kun olet muokannut levyä toisella työkalulla.                                                                 |
+| **Tallenna**                | Kirjoita työkopion muutokset takaisin varsinaiseen `.d64`-tiedostoon ja tee ensin automaattinen varmuuskopio. Käytössä vain, jos on tallentamattomia muutoksia. |
 
 **Ohjelman lisääminen:** Tiedoston valitseminen, joka päättyy jo `.prg`, pyytää vain **Nimen** ja levyn **Tyypin** (PRG/SEQ/USR/REL) – `.prg` sisältää jo oman latausosoiteotsikkonsa, joten se kirjoitetaan muuttumattomana. Minkä tahansa muun tiedoston (esim. raaka `.bin`) valitseminen näyttää lisäksi:
 
@@ -3308,7 +3329,11 @@ Käyräeditorin jälkeinen työkalupalkin kuvake avaa **D64-editorin** – itsen
 
 Hakemistoluettelo näyttää tiedostonimet samalla fontilla ja isoilla kirjaimilla kuin oikea C64 `LOAD"$",8` -luettelo.
 
-> **Vaatimus:** Kuten D64-tiedostoon vienti, D64-editori vaatii VICE (`c1541`) -komennon, joka on määritetty kohdassa [Laitteistoasetukset](#13-hardware-settings). Jokainen toiminto (lisääminen/poistaminen/uudelleennimeäminen/purkaminen) sovelletaan suoraan levyllä olevaan `.d64`-tiedostoon – erillistä tallennusvaihetta ei ole.
+**Tallennustyönkulku:** jokainen muokkaus – lisäys, purkaminen, nimeäminen uudelleen, poistaminen ja lohkoeditorin tavumuokkaukset – kohdistuu levykuvan yksityiseen työkopioon, ei varsinaiseen tiedostoosi. Työkalurivin **Tallenna**-painike (käytössä, kun tallentamattomia muutoksia on) kirjoittaa työkopion takaisin varsinaisen `.d64`-tiedoston päälle ja tekee ensin automaattisen varmuuskopion. Ylätunnisteessa näkyy **•**-merkki, kun muutoksia ei ole tallennettu, ja editorin sulkeminen tai toisen levyn avaaminen tallentamattomilla muutoksilla pyytää vahvistusta muutosten hylkäämisen sijaan. **Tallenna nimellä…** (Tiedostot ▾ -valikko) kirjoittaa työkopion uuteen polkuun ja jatkaa muokkaamista siellä.
+
+**Lohkoeditori:** työkalupalkin ruudukkokuvake vaihtaa hakemiston alapuolella olevaan raakaraita-/sektorinäkymään — napsautettava lohkokartta, joka on väritetty BAM:n vapaalla/käytetyllä bittikartalla (BAM ja hakemistoketju merkitty erikseen), tavukohtainen heksadekooderiruudukko valitulle 256-tavuiselle lohkolle ja Edellinen/Seuraava sektorinavigointi. Lohkojen muokkaaminen tapahtuu saman työkopiointi-/tallennustyönkulun kautta kuin yllä olevat hakemistotoiminnot.
+
+> **Vaatimus:** Kuten D64-tiedostoon vienti, D64-editori vaatii VICE-komennon (`c1541`), joka on määritetty kohdassa [Laitteistoasetukset](#13-hardware-settings).
 
 ---
 
@@ -3547,7 +3572,7 @@ Moniinstrumenttinen kolmiääninen seurantaohjelma Web Audion esikatselumoottori
 
 **Seurantaruudukko:**
 - 3 ääntä × jopa 7 kuviota × 32 riviä = 7 × 32 = enintään 224 riviä (8-bittinen rivilaskuri rajoittaa sitä).
-- Rivikohtainen: nuotti + instrumenttiindeksi. Tyhjät rivit sisältävät edellisen nuotin.
+- Riviä kohden: nuotti + instrumenttinumero sekä valinnainen efekti (katso **Efektisarake** alla). Tyhjät rivit sisältävät edellisen nuotin.
 - Valitse yksi solu normaalisti tai pidä **Shift**-näppäintä pohjassa samalla, kun napsautat tai käytät nuolinäppäimiä suorakulmaisen valinnan laajentamiseksi rivien ja minkä tahansa kolmen äänen yli. Hiiren kakkospainikkeella napsauttaminen valitun alueen sisällä pitää alueen ennallaan.
 - Kopioi, Leikkaa, Liitä ja Tyhjennä ovat käytettävissä kuvaketyökalurivillä ja kuvakepohjaisessa kontekstivalikosta. `Ctrl/Cmd+C` ja `Ctrl/Cmd+V` käyttävät samaa suorakaiteen muotoista valintaa.
 - Harmonia-apu: valitse perussävel, sointutyyppi ja oktaavi, esikuuntele sointu nykyisellä instrumentilla ja lisää sitten sointu suoraan seurantaan. Saatavilla olevia tyyppejä ovat duuri, molli, dimensoitu, augmentoitu, Sus2, Sus4, dominantti 7, duuri 7, molli 7, 6, molli 6, 9, b9, #9, dim7 ja 7sus4.
@@ -3555,6 +3580,23 @@ Moniinstrumenttinen kolmiääninen seurantaohjelma Web Audion esikatselumoottori
 - **Esikatselurivi** kuuntelee valitun rivin kaikissa kolmessa äänessä aloittamatta kuvioiden toistoa.
 - Solualueen liittäminen alkaa nyt valitusta alueen aloitussolusta ja pysähtyy siististi ääni- ja rivirajoihin sen sijaan, että rivitys jatkuisi seuraavaan sarakkeeseen tai riviin.
 - Nopeus-liukusäädin asettaa IRQ-jakajan (rivien väliset kehykset).
+
+**Kappale-/tilauslista:**
+- Patternit on järjestetty kappale-/järjestysluettelon avulla, joka on kerrostettu raakapattern-pankin päälle – sama pattern voi toistua, ja kappale voi olla pidempi kuin tallennettujen patternien määrä.
+- Lisää, poista ja järjestele kappaleluettelopaneelin vaiheita uudelleen; nykyinen vaihe korostuu toiston aikana.
+- Sekä sovelluksen sisäinen toisto että jokainen vienti noudattavat tätä listaa, eivätkä raakakuviojärjestystä – ennen järjestyslistan luomista tehdyt viennit latautuvat edelleen oikein tavallisena 0..N-1-kappaleena.
+
+**Efektisarake:** Jokainen solu voi sisältää yhden efektin nuotin ja instrumentin rinnalla. Se syötetään lyhyenä koodina heti nuotin jälkeen (esim. `C-4 01 V24`) tai omana koodinaan nuottittomalle efektiriville (esim. `F06`):
+
+| Koodi | Vaikutus                  | Arvo                                                       |
+| ----- | ------------------------- | ---------------------------------------------------------- |
+| `V`   | Vibrato                   | pieni napostelu = syvyys, suuri napostelu = pitopituus     |
+| `U`   | Liu'uta ylös (portamento) | taajuuteen lisättävä määrä joka rivillä                    |
+| `D`   | Liu'uta alas (portamento) | kunkin rivin taajuudesta vähennettävä määrä                |
+| `C`   | Nuotin leikkaus           | vaimentaa äänen ilman uudelleenlaukaisua; arvoa ei käytetä |
+| `F`   | Nopeuden muutos           | uusi frames-per-row-arvo tulee voimaan välittömästi        |
+
+Tehosteet päivittyvät kerran riviä kohden (vastaamaan viedyn soittimen ajoitusta), toimivat identtisesti Web Audio -esikatselussa ja käännetyssä 6502-viennissä ja tallennetaan/ladataan häviöttömästi versioidussa `.bin`-muodossa.
 
 **Toisto ja virtuaalinäppäimistö:**
 - Toista-työkalurivin painike muuttuu Tauko-painikkeeksi toiston aikana ja Jatka-painikkeeksi tauon aikana; Pysäytä-painike lopettaa toiston ja palauttaa tilan.
@@ -3570,13 +3612,12 @@ Moniinstrumenttinen kolmiääninen seurantaohjelma Web Audion esikatselumoottori
 | `Vie lohkot + minipelaaja` | Lisää koko soittimen (sid_init / sid_irq / sid_play_row / sid_set_voice) sekä PAL-taajuustaulukot. Viennin jälkeen sijoita `JSR sid_init` pääkoodiisi kohtaan, josta musiikin pitäisi alkaa. |
 | `Vie asm (leikepöytä)`     | Kopioi koko kokoonpanon lähdekoodin leikepöydälle.                                                                                                                                           |
 
-**Player ZP:n käyttö:** `$FB` (tikkilaskuri), `$FC` (rivi-indeksi), `$FD` (äänen lämpötilan asettaminen). Nämä ovat ristiriidassa, jos pääkoodisi käyttää niitä – siirrä tarvittaessa Expert-tilassa.
+**Player ZP:n käyttö:** `$02`–`$2F` (osoitintaulukot, kuvion offset ja äänikohtainen tehostetila), sekä `$FB`–`$FE` (tick-laskuri, rivi-indeksi, järjestyslistan sijainti, set_voice temp). Nämä ovat ristiriidassa, jos pääkoodisi käyttää niitä – siirrä tarvittaessa Expert-tilan kautta.
 
 **Tunnetut rajat:**
-- Yksittäinen lineaarinen kuvioluettelo (ei vielä äänikohtaista sekvenssitaulukkoa).
-- 8-bittinen rivilaskuri rajoittaa 7 kuvioon × 32 riviin.
+- 8-bittinen rivilaskuri rajoittaa jokaisen kuvion 7 kuvioon × 32 riviin raakapankissa (kappale-/järjestysluettelo voi silti olla mielivaltaisen pitkä toistamalla kuvioita).
 - C64 `$D418` globaali äänenvoimakkuus jaetaan eri äänien kesken — instrumenttikohtainen äänenvoimakkuuden liukusäädin on informatiivinen; sustain-taso (ADSR:n `S`) on efektiivinen äänenvoimakkuus äänittäin.
-- Web Audion esikatselu on likimääräinen: PWM-modulaatio, soittoääni/synkronointi ja SID-suodattimen luonne eroavat todellisesta sirusta.
+- Web Audion esikatselu on likimääräinen: vibrato/dia päivittyy kerran riviä kohden (vastaa vietyä soitinta), mutta PWM-modulaatio, soitto/synkronointi ja SID-suodattimen luonne eroavat silti todellisesta sirusta.
 
 ---
 

@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.4.1**
+**Version 2.4.3**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att dra och släppa instruktionsblock och se den genererade assemblern och maskinkoden i realtid.
 
@@ -9,6 +9,8 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
 ## Innehållsförteckning
 
 - [C64 Visual Assembler — Användarmanual](#c64-visual-assembler--user-manual)
+    - [Höjdpunkter i version 2.4.3](#version-243-highlights)
+    - [Höjdpunkter i version 2.4.2](#version-242-highlights)
     - [Höjdpunkter i version 2.4.1](#version-241-highlights)
     - [Höjdpunkter i version 2.4.0](#version-240-highlights)
     - [Höjdpunkter i version 2.3.9](#version-239-highlights)
@@ -152,6 +154,24 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
     - [Kartredigerare (Flerskiktade kakelkartor)](#map-editor-multilayer-tilemaps)
     - [SID-redigerare (3-röstsspårare)](#sid-editor-3-voice-tracker)
     - [Kurvredigerare](#curve-editor)
+
+---
+
+## Höjdpunkter i version 2.4.3
+
+- **SID-redigeraren: Låt-/ordningslista** — mönster är nu ordnade genom en ordentlig låt-/ordningslista som placeras ovanpå den råa mönsterbanken, så att ett mönster kan upprepas och låten kan vara längre än antalet lagrade mönster. Lägg till, ta bort och ändra ordning på steg direkt från SID-redigeraren; uppspelning och den exporterade spelaren följer båda denna lista istället för den råa mönsterordningen.
+- **SID-redigerare: Effektkolumn** — varje spårningscell kan nu bära en effekt bredvid sin not: **V**ibrato, slide **U**p / **D**own, not-**C**ut och hastighetsändring (**F**). Skriv det direkt i en cell, t.ex. `C-4 01 V24` (not + instrument + vibrato) eller `F06` (endast hastighetsändring). Effekter körs en gång per rad, matchar den exporterade spelaren, och spelas nu upp korrekt både i förhandsgranskningen av webbljud i appen och i den kompilerade 6502-exporten — en riktig, spelbar effektmotor, inte bara exportscaffolding.
+- **Bakåtkompatibelt SID-sparformat** — SID-sparningar har nu en versionsmarkör, så äldre `.bin`-sparningar som gjordes innan effektkolumnen fanns fortsätter att laddas exakt som tidigare, med effekter helt enkelt frånvarande.
+- **D64 Editor: explicit spararbetsflöde** — varje redigering (lägg till/extrahera/byt namn/ta bort, och nu byte-redigeringar för Block Editor) sker på en privat arbetskopia; ingenting rör din riktiga `.d64`-fil förrän du klickar på **Spara**, vilket också skriver en automatisk säkerhetskopia först. Om du stänger editorn eller öppnar en annan disk med osparade ändringar frågas nu efter bekräftelse istället för att ignorera dem tyst.
+- **D64 Editor: Block Editor hex-rutnät** — den råa bytevyn för det valda 256-byte-blocket är nu ett korrekt hex-rutnät per byte istället för en vanlig textruta, och dess dialogruta tonar inte längre ner resten av appen bakom den när den är öppen.
+
+---
+
+## Höjdpunkter i version 2.4.2
+
+- **Dra och släpp till D64-redigeraren** — släpp en kompilerad `.prg`/`.bin`-fil (från SID/sprite/char-redigerarens exportfiler, eller någon annanstans) direkt till diskavbildningen; panelen Lägg till öppnas förifylld. Om du släpper flera filer samtidigt köas de en efter en.
+- **Generera include-fil** — en ny knapp i verktygsfältet skriver en `.inc`-fil som listar `.const NAME = $ADDR` för varje post på disken, så att huvudprogrammet kan referera till var varje post hamnade utan att skriva om adresser manuellt.
+- **Blockredigerare (ny)** — en verktygsfältsknapp växlar D64-redigeraren till rå spår-/sektoråtkomst under katalogen: en klickbar blockkarta (färgad av BAM:s lediga/använda bitmapp, med BAM och katalogkedjan markerade separat), en hexagonalvy/redigerare för det valda 256-byte-blocket och Föregående/Nästa sektornavigering. Läser och skriver diskavbildningen direkt (`läs_bin_fil`/`skriv_bin_fil`), oberoende av `c1541`.
 
 ---
 
@@ -3292,13 +3312,14 @@ Verktygsfältsikonen efter kurvredigeraren öppnar **D64-redigeraren** — ett f
 
 **Verktygsfält:**
 
-| Ikon                     | Handling                                                                          |
-| ------------------------ | --------------------------------------------------------------------------------- |
-| **Lägg till program**    | Välj en lokal fil och skriv den till diskkatalogen.                               |
-| **Utdrag valt**          | Spara den valda postens byte till en lokal `.prg`-fil.                            |
-| **Byt namn på markerad** | Redigera postnamnet infogat i tabellen — Enter bekräftar, Escape avbryter.        |
-| **Ta bort markerade**    | Ta bort den valda posten från disken.                                             |
-| **Uppdatera**            | Läs om katalogen, t.ex. efter att du har redigerat disken från ett annat verktyg. |
+| Ikon                     | Handling                                                                                                                                                                |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Lägg till program**    | Välj en lokal fil och skriv den till diskkatalogen.                                                                                                                     |
+| **Utdrag valt**          | Spara den valda postens byte till en lokal `.prg`-fil.                                                                                                                  |
+| **Byt namn på markerad** | Redigera postnamnet infogat i tabellen — Enter bekräftar, Escape avbryter.                                                                                              |
+| **Ta bort markerade**    | Ta bort den valda posten från disken.                                                                                                                                   |
+| **Uppdatera**            | Läs om katalogen, t.ex. efter att du har redigerat disken från ett annat verktyg.                                                                                       |
+| Spara                    | Skriv tillbaka arbetskopians redigeringar till den riktiga `.d64`-filen, och gör först en automatisk säkerhetskopia. Aktiveras endast när det finns osparade ändringar. |
 
 **Lägga till ett program:** Om du väljer en fil som redan slutar på `.prg` frågar du bara efter ett **Namn** och en diskett **Typ** (PRG/SEQ/USR/REL) — en `.prg` har redan sin egen load-address-rubrik, så den skrivs oförändrad. Om du väljer en annan fil (t.ex. en rå `.bin`) visas dessutom:
 
@@ -3308,7 +3329,11 @@ Verktygsfältsikonen efter kurvredigeraren öppnar **D64-redigeraren** — ett f
 
 Katalogens lista visar filnamn med samma teckensnitt och versaler som en riktig C64 `LOAD"$",8`-lista.
 
-> **Krav:** Precis som Exportera till D64 kräver D64-redigeraren VICE (`c1541`) konfigurerad i [Maskinvaruinställningar](#13-hardware-settings). Varje åtgärd (lägg till/ta bort/byt namn/extrahera) tillämpas direkt på `.d64`-filen på disken — det finns inget separat "spara"-steg.
+**Spara arbetsflöde:** varje redigering – lägg till, extrahera, byt namn på, ta bort och Block Editor byte-redigeringar – tillämpas på en privat arbetskopia av diskavbildningen, inte din riktiga fil. Verktygsfältsknappen **Spara** (aktiverad när det finns osparade ändringar) skriver tillbaka arbetskopian över den riktiga `.d64`, vilket gör en automatisk säkerhetskopia först; rubriken visar en **•**-markör medan ändringarna inte är sparade, och om du stänger redigeraren eller öppnar en annan disk med osparade ändringar frågas efter bekräftelse istället för att ignorera dem. **Spara som…** (Arkiver ▾ meny) skriver arbetskopian till en ny sökväg och fortsätter redigeringen där.
+
+**Blockredigerare:** Verktygsfältets rutnätsikon växlar till en rå spår-/sektorvy under katalogen — en klickbar blockkarta färgad av BAM:s lediga/använda bitmapp (med BAM och katalogkedjan markerade separat), ett hexagonalt rutnät per byte för det valda 256-byte-blocket och Föregående/Nästa sektornavigering. Blockredigeringar går igenom samma arbetsflöde för att kopiera/spara som katalogåtgärderna ovan.
+
+> **Krav:** Precis som Exportera till D64 kräver D64-redigeraren att VICE (`c1541`) är konfigurerat i [Maskinvaruinställningar](#13-hardware-settings).
 
 ---
 
@@ -3547,7 +3572,7 @@ Tracker för flera instrument, 3 röster och en förhandsgranskningsmotor för w
 
 **Spårningsrutnät:**
 - 3 röster × upp till 7 mönster × 32 rader = 7 × 32 = max 224 rader (8-bitars radräknare begränsar det).
-- Per rad: not + instrumentindex. Tomma rader innehåller föregående not.
+- Per rad: not + instrumentindex, plus en valfri effekt (se **Effektkolumnen ** nedan). Tomma rader innehåller föregående not.
 - Markera en cell normalt, eller håll ned **Shift** medan du klickar eller använder piltangenterna för att utöka en rektangulär markering över rader och någon av de tre rösterna. Om du högerklickar inuti det markerade området behålls området intakt.
 - Kopiera, Klipp ut, Klistra in och Rensa är tillgängliga från ikonverktygsfältet och den ikonbaserade snabbmenyn. `Ctrl/Cmd+C` och `Ctrl/Cmd+V` fungerar på samma rektangulära markering.
 - Harmonihjälp: välj en grundton, ackordtyp och oktav, förhandsgranska ackordet med det aktuella instrumentet och infoga sedan instämmandet direkt i spåraren. Tillgängliga typer inkluderar dur, moll, förminskad, förstärkt, sus2, sus4, dominant 7, dur 7, moll 7, 6, moll 6, 9, b9, #9, dim7 och 7sus4.
@@ -3555,6 +3580,23 @@ Tracker för flera instrument, 3 röster och en förhandsgranskningsmotor för w
 - **Förhandsgranskningsrad** provspelar den valda raden över alla tre ljud utan att starta mönsteruppspelning.
 - Inklistring av cellintervall börjar nu vid den valda intervallets startcell och stoppar tydligt vid röst- och radgränser istället för att radbrytas till nästa kolumn eller rad.
 - Hastighetsreglaget anger IRQ-tick-divisorn (bildrutor mellan rader).
+
+**Låt / beställningslista:**
+- Mönster är ordnade genom en låt-/ordningslista som placeras ovanpå den råa mönsterbanken — samma mönster kan upprepas, och låten kan vara längre än antalet lagrade mönster.
+- Lägg till, ta bort och ändra ordning på steg från låtlistpanelen; det aktuella steget markeras under uppspelning.
+- Både uppspelningen i appen och varje export går igenom den här listan, inte den råa mönsterordningen – exporter gjorda innan ordningslistan fanns laddas fortfarande korrekt som en vanlig 0..N-1-låt.
+
+**Effektkolumn:** Varje cell kan innehålla en effekt utöver sin not och sitt instrument, angiven som en kort kod direkt efter noten (t.ex. `C-4 01 V24`) eller separat för en notlös effektrad (t.ex. `F06`):
+
+| Koda | Effekt                 | Värde                                                       |
+| ---- | ---------------------- | ----------------------------------------------------------- |
+| `V`  | Vibrato                | låg nibble = djup, hög nibble = hålllängd                   |
+| `U`  | Glida upp (portamento) | mängd som läggs till frekvensen varje rad                   |
+| `D`  | Glida ner (portamento) | belopp subtraherat från frekvensen varje rad                |
+| `C`  | Notklipp               | tystar rösten utan att återaktivera den; värde outnyttjas   |
+| `F`  | Hastighetsändring      | nytt värde för bildrutor per rad, träder i kraft omedelbart |
+
+Effekter uppdateras en gång per rad (matchar den exporterade spelarens timing), körs identiskt i Web Audio-förhandsvisningen och den kompilerade 6502-exporten, och sparas/läses förlustfritt i det versionerade `.bin`-formatet.
 
 **Uppspelning och virtuellt tangentbord:**
 - Knappen Spela upp i verktygsfältet ändras till Paus under uppspelning och till Återuppta under paus; Stopp avslutar uppspelningen och återställer läget.
@@ -3570,13 +3612,12 @@ Tracker för flera instrument, 3 röster och en förhandsgranskningsmotor för w
 | `Exportera block + minispelare` | Lägger till hela spelaren (sid_init / sid_irq / sid_play_row / sid_set_voice) plus PAL-frekvenstabeller. Efter exporten, placera en `JSR sid_init` i din huvudkod där musiken ska börja. |
 | `Exportera asm (urklipp)`       | Kopierar hela assembly-källkoden till urklipp.                                                                                                                                           |
 
-**Användning av spelarens ZP:** `$FB` (tickräknare), `$FC` (radindex), `$FD` (set_voice temp). Dessa står i konflikt om din huvudkod använder dem — flytta via expertläge om det behövs.
+**Användning av spelarens ZP:** `$02`–`$2F` (pektabeller, mönsterförskjutning och effektstatus per röst), plus `$FB`–`$FE` (tickräknare, radindex, ordningslistaposition, set_voice-temp). Dessa står i konflikt om din huvudkod använder dem — flytta via expertläge om det behövs.
 
 **Kända gränser:**
-- Enkel linjär mönsterlista (ingen sekvenstabell per röst ännu).
-- 8-bitars radräknare begränsas till 7 mönster × 32 rader.
+- 8-bitars radräknare begränsar varje mönster till 7 mönster × 32 rader i råbanken (låt-/ordningslistan kan fortfarande bli godtyckligt lång genom att mönstren upprepas).
 - C64 `$D418` global volym delas mellan röster — volymreglaget per instrument är informativt; sustainnivån (`S` för ADSR) är den effektiva volymen per röst.
-- Förhandsvisningen av webbljudet är ungefärlig: PWM-modulering, ring/synk och SID-filterkaraktären skiljer sig från det verkliga chipet.
+- Förhandsvisningen av webbljudet är ungefärlig: vibrato/slide-uppdatering en gång per rad (matchar den exporterade spelaren), men PWM-modulering, ring/synkronisering och SID-filterkaraktären skiljer sig fortfarande från det verkliga chipet.
 
 ---
 

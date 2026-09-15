@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**2.4.1-es verzió**
+**2.4.3-as verzió**
 
 Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat létre húzással és elengedéssel (fogd és vidd) utasításblokkokkal, és valós időben tekintheti meg a létrehozott assembly és gépi kódot.
 
@@ -9,6 +9,8 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
 ## Tartalomjegyzék
 
 - [C64 Visual Assembler — Felhasználói kézikönyv](#c64-visual-assembler--user-manual)
+    - [2.4.3-as verzió kiemelt funkciói](#version-243-highlights)
+    - [2.4.2-es verzió – kiemelt funkciók](#version-242-highlights)
     - [2.4.1-es verzió – kiemelt funkciók](#version-241-highlights)
     - [2.4.0 verzió – kiemelt funkciók](#version-240-highlights)
     - [2.3.9-es verzió – kiemelt funkciók](#version-239-highlights)
@@ -152,6 +154,24 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
     - [Térképszerkesztő (Többrétegű csempetérképek)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Görbeszerkesztő](#curve-editor)
+
+---
+
+## A 2.4.3-as verzió legfontosabb elemei
+
+- **SID szerkesztő: Dal/sorrend lista** — a pattern-ek mostantól egy megfelelő dal/sorrend listán keresztül vannak elrendezve, amely a nyers pattern bank tetején található, így egy pattern ismétlődhet, és a dal hosszabb lehet, mint a tárolt pattern-ek száma. Lépések hozzáadása, eltávolítása és átrendezése közvetlenül a SID szerkesztőből lehetséges; a lejátszás és az exportált lejátszó is ezt a listát követi a nyers pattern sorrend helyett.
+- **SID szerkesztő: Effekt oszlop** — minden követő cella mostantól hordozhat effektet a hangjegye mellett: **V**ibrato, slide **U**p / **D**own, note-**C**ut, és sebességváltozás (**F**). Írd be közvetlenül egy cellába, pl. `C-4 01 V24` (hangjegy + hangszer + vibrato) vagy `F06` (csak sebességváltozás). Az effektek soronként egyszer futnak, illeszkedve az exportált lejátszóhoz, és mostantól helyesen játszódnak le mind az alkalmazáson belüli Web Audio előnézetben, mind a lefordított 6502 exportban — egy valódi, játszható effektmotor, nem csak export állványzat.
+- **Visszafelé kompatibilis SID mentési formátum** — Az SID mentések mostantól verziójelölővel rendelkeznek, így a régebbi `.bin` mentések, amelyek az effekt oszlop létezése előtt készültek, továbbra is pontosan úgy töltődnek be, mint korábban, az effektek egyszerűen hiányoznak.
+- **D64 Szerkesztő: explicit Mentés munkafolyamat** — minden szerkesztés (hozzáadás/kivonás/átnevezés/törlés, és most már a Blokkszerkesztő bájtszerkesztései is) egy privát munkapéldányon történik; semmi sem érinti a valódi `.d64` fájlt, amíg a **Mentés** gombra nem kattintasz, ami először automatikus biztonsági mentést is készít. A szerkesztő bezárása vagy egy másik lemez megnyitása a nem mentett módosításokat mostantól megerősítést kér a csendes elvetésük helyett.
+- **D64 Szerkesztő: Blokkszerkesztő hexadecimális rács** — a kiválasztott 256 bájtos blokk nyers bájtnézete mostantól egy megfelelő bájtonkénti hexadecimális rács egy sima szövegdoboz helyett, és a párbeszédpanel már nem halványítja el az alkalmazás többi részét mögötte, amikor meg van nyitva.
+
+---
+
+## A 2.4.2-es verzió legfontosabb elemei
+
+- **Húzd át az egérmutatót a D64 szerkesztőbe** — húzd át a lefordított `.prg`/`.bin` fájlt (a SID/sprite/char szerkesztők exportjaiból, vagy bárhonnan máshonnan) közvetlenül a lemezképre; a Hozzáadás panel előre kitöltve nyílik meg. Több fájl egyidejű áthúzása egymás után sorba állítja őket.
+- **Include fájl létrehozása** — egy új eszköztárgomb létrehoz egy `.inc` fájlt, amely a lemezen lévő minden bejegyzéshez listázza a `.const NAME = $ADDR` értéket, így a főprogram hivatkozhat arra, hogy az egyes bejegyzések hová kerültek anélkül, hogy kézzel kellene beírni a címeket.
+- **Blokkszerkesztő (új)** — egy eszköztári kapcsoló átváltja a D64 szerkesztőt nyers sáv/szektor hozzáférésre a könyvtár alatt: kattintható blokktérkép (a BAM szabad/használt bitképével színezve, a BAM és a könyvtárlánc külön jelölve), hexadecimális nézet/szerkesztő a kiválasztott 256 bájtos blokkhoz, és Előző/Következő szektornavigáció. Közvetlenül olvassa és írja a lemezképet (`read_bin_file`/`write_bin_file`), függetlenül a `c1541`-től.
 
 ---
 
@@ -3292,13 +3312,14 @@ A Görbeszerkesztő utáni eszköztár ikon megnyitja a **D64 szerkesztőt** –
 
 **Eszköztár:**
 
-| Ikon                     | Akció                                                                                                                |
-| ------------------------ | -------------------------------------------------------------------------------------------------------------------- |
-| **Program hozzáadása**   | Válassz ki egy helyi fájlt, és írd be a lemez könyvtárába.                                                           |
-| **Kijelöltek kinyerése** | A kiválasztott bejegyzés bájtjainak mentése egy helyi `.prg` fájlba.                                                 |
-| **Kijelölt átnevezése**  | A bejegyzés nevének szerkesztése a táblázatban soron belül — Az Enter megerősíti, az Escape megszakítja a műveletet. |
-| **Kijelölt törlése**     | Távolítsa el a kiválasztott bejegyzést a lemezről.                                                                   |
-| **Frissítés**            | Olvasd be újra a könyvtárat, pl. miután szerkesztetted a lemezt egy másik eszközzel.                                 |
+| Ikon                     | Akció                                                                                                                                                                        |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Program hozzáadása**   | Válassz ki egy helyi fájlt, és írd be a lemez könyvtárába.                                                                                                                   |
+| **Kijelöltek kinyerése** | A kiválasztott bejegyzés bájtjainak mentése egy helyi `.prg` fájlba.                                                                                                         |
+| **Kijelölt átnevezése**  | A bejegyzés nevének szerkesztése a táblázatban soron belül — Az Enter megerősíti, az Escape megszakítja a műveletet.                                                         |
+| **Kijelölt törlése**     | Távolítsa el a kiválasztott bejegyzést a lemezről.                                                                                                                           |
+| **Frissítés**            | Olvasd be újra a könyvtárat, pl. miután szerkesztetted a lemezt egy másik eszközzel.                                                                                         |
+| **Mentés**               | A munkapéldány módosításait visszaírja az eredeti `.d64` fájlba, először automatikus biztonsági mentést készítve. Csak akkor engedélyezett, ha vannak mentetlen módosítások. |
 
 **Program hozzáadása:** Egy olyan fájl kiválasztása, amely már `.prg` végződésű, csak a **Név** és a lemez **Típusa** (PRG/SEQ/USR/REL) megadását kéri – egy `.prg` már rendelkezik saját betöltési cím fejléccel, így változatlanul kerül kiírásra. Bármely más fájl kiválasztása (pl. egy nyers `.bin`) a következőket is mutatja:
 
@@ -3308,7 +3329,11 @@ A Görbeszerkesztő utáni eszköztár ikon megnyitja a **D64 szerkesztőt** –
 
 A könyvtárlista a fájlneveket ugyanolyan betűtípussal és nagybetűs stílusban jeleníti meg, mint egy valódi C64 `LOAD"$",8` lista.
 
-> **Követelmény:** a D64-be exportáláshoz hasonlóan a D64 szerkesztőhöz is VICE (`c1541`) szükséges, amely a [Hardverbeállítások](#13-hardware-settings) részben van konfigurálva. Minden művelet (hozzáadás/törlés/átnevezés/kivonás) közvetlenül a lemezen lévő `.d64` fájlra vonatkozik – nincs külön „mentés” lépés.
+**Mentési munkafolyamat:** minden szerkesztés – hozzáadás, kibontás, átnevezés, törlés és a Blokkszerkesztő bájtszerkesztései – a lemezkép egy privát munkapéldányára vonatkozik, nem a valódi fájlra. A **Mentés** eszköztár gomb (amely akkor aktív, ha vannak mentetlen változtatások) a munkapéldányt visszaírja a valódi `.d64` fölé, először automatikus biztonsági mentést készítve; a fejléc egy **•** jelölőt mutat, amíg a változtatások nem mentettek, és a szerkesztő bezárása vagy egy másik, mentetlen változtatásokat tartalmazó lemez megnyitása megerősítést kér a változtatások elvetése helyett. **Mentés másként…** (Fájlok ▾ menü) a munkapéldányt egy új elérési útra írja, és ott folytatja a szerkesztést.
+
+**Blokkszerkesztő:** az eszköztár rács ikonja egy nyers sáv/szektor nézetre vált a könyvtár alatt — egy kattintható blokktérkép, amelyet a BAM szabad/felhasznált bitképe színez (a BAM és a könyvtárlánc külön jelölve), egy bájtonkénti hexadecimális rács a kiválasztott 256 bájtos blokkhoz, és Előző/Következő szektornavigáció. A blokkok szerkesztése ugyanazon a munkamásolás/mentés munkafolyamaton megy keresztül, mint a fenti könyvtárműveletek.
+
+> **Követelmény:** a D64-be exportáláshoz hasonlóan a D64 szerkesztőhöz is szükség van a [Hardverbeállítások](#13-hardware-settings) alatt konfigurált VICE (`c1541`) verzióra.
 
 ---
 
@@ -3547,7 +3572,7 @@ Többhangú, 3 hangú követő Web Audio előnézeti motorral. Megnyitás a Tool
 
 **Követőrács:**
 - 3 hang × maximum 7 minta × 32 sor = 7 × 32 = max. 224 sor (a 8 bites sorszámláló korlátozza).
-- Soronként: hangjegy + hangszerindex. Az üres sorok az előző hangjegyet tartalmazzák.
+- Soronként: hangjegy + hangszerindex, plusz egy opcionális effekt (lásd az **Effekt oszlopot** alább). Az üres sorok az előző hangjegyet tartalmazzák.
 - Jelöljön ki egy cellát a szokásos módon, vagy tartsa lenyomva a **Shift** billentyűt kattintás közben, illetve a nyílbillentyűkkel bővítse ki a téglalap alakú kijelölés sorokon és a három hang bármelyikén át. A kijelölt területen belül a jobb gombbal kattintva a tartomány érintetlen marad.
 - A Másolás, Kivágás, Beillesztés és Törlés parancsok elérhetők az ikon eszköztáron és az ikon alapú helyi menüben. A `Ctrl/Cmd+C` és a `Ctrl/Cmd+V` billentyűkombinációk ugyanazon a téglalap alakú kijelölésen működnek.
 - Harmónia segéd: válassz alaphangot, akkordtípust és oktávot, hallgasd meg az akkordot az aktuális hangszerrel, majd illeszd be a hangmintát közvetlenül a követőbe. Az elérhető típusok: dúr, moll, csökkentett, kiterjesztett, sus2, sus4, domináns 7, dúr 7, moll 7, 6, moll 6, 9, b9, #9, dim7 és 7sus4.
@@ -3555,6 +3580,23 @@ Többhangú, 3 hangú követő Web Audio előnézeti motorral. Megnyitás a Tool
 - A **Sor meghallgatása** meghallgatja a kiválasztott sort mindhárom hangon a pattern lejátszásának elindítása nélkül.
 - A cellatartomány-beillesztés mostantól a kiválasztott tartomány kezdőcellájánál kezdődik, és tisztán megáll a hang- és sorhatároknál, ahelyett, hogy a következő oszlopba vagy sorba folyatódna.
 - A Sebesség csúszka beállítja az IRQ osztót (a sorok közötti képkockák számát).
+
+**Dal / rendelési lista:**
+- A mintákat egy dal/sorrend lista szerint rendezik el, amely a nyers pattern bankra rétegezve található – ugyanaz a pattern ismétlődhet, és a dal hosszabb lehet, mint a tárolt pattern-ek száma.
+- Lépések hozzáadása, eltávolítása és átrendezése a dallista panelen; az aktuális lépés kiemelve jelenik meg lejátszás közben.
+- Mind az alkalmazáson belüli visszajátszás, mind minden exportálás ezt a listát követi, nem a nyers minta sorrendjét – a sorrendlista előtti exportálások továbbra is helyesen töltődnek be sima 0..N-1 dalként.
+
+**Effekt oszlop:** Minden cella egy effektet tartalmazhat a hangjegye és a hangszere mellett, amelyet rövid kódként kell megadni közvetlenül a hangjegy után (pl. `C-4 01 V24`), vagy önállóan egy hangjegy nélküli effekt sor esetén (pl. `F06`):
+
+| Kód | Hatás                           | Érték                                                         |
+| --- | ------------------------------- | ------------------------------------------------------------- |
+| `V` | Vibrato                         | kis harapás = mélység, nagy harapás = tartáshossz             |
+| `U` | Felfelé csúsztatás (portamento) | a soronkénti gyakorisághoz hozzáadott összeg                  |
+| `D` | Csúsztassa le (portamento)      | az egyes sorok gyakoriságából kivont összeg                   |
+| `C` | Hangjegykivágás                 | elnémítja a hangot újraindítás nélkül; fel nem használt érték |
+| `F` | Sebességváltozás                | új képkockák száma soronként, azonnal érvénybe lép            |
+
+Az effektek soronként egyszer frissülnek (az exportált lejátszó időzítéséhez igazodva), azonosan futnak a Web Audio előnézetben és a lefordított 6502-es exportban, és veszteségmentesen kerülnek mentésre/betöltésre a verziózott `.bin` formátumban.
 
 **Lejátszás és virtuális billentyűzet:**
 - A Lejátszás eszköztár gombja lejátszás közben Szünetre, szüneteltetés közben pedig Folytatásra vált; a Leállítás gomb leállítja a lejátszást és visszaállítja az eredeti állapotot.
@@ -3570,13 +3612,12 @@ Többhangú, 3 hangú követő Web Audio előnézeti motorral. Megnyitás a Tool
 | `Blokkok exportálása + minilejátszó` | Hozzáadja a teljes lejátszót (sid_init / sid_irq / sid_play_row / sid_set_voice) plusz PAL frekvenciatáblázatokat. Exportálás után illessz be egy `JSR sid_init` fájlt a fő kódodba, ahol a zenének kezdődnie kell. |
 | ` ASM exportálása (vágólap)`         | A teljes assembly forráskódot a vágólapra másolja.                                                                                                                                                                  |
 
-**Player ZP használat:** `$FB` (tick számláló), `$FC` (sorindex), `$FD` (hanghőmérséklet beállítása). Ezek ütköznek, ha a fő kódod használja őket — szükség esetén helyezd át Szakértő módban.
+**Player ZP használat:** `$02`–`$2F` (pointer táblázatok, minta eltolás és hangonkénti effektus állapot), valamint `$FB`–`$FE` (tick számláló, sorindex, order-list pozíció, set_voice temp). Ezek ütköznek, ha a fő kódod használja őket — szükség esetén áthelyezheted Expert módban.
 
 **Ismert korlátok:**
-- Egyetlen lineáris minta lista (egyelőre nincs hangonkénti szekvencia táblázat).
-- A 8 bites sorszámláló 7 mintára × 32 sorra korlátozódik.
+- A 8 bites sorszámláló minden mintát 7 mintára × 32 sorra korlátoz a nyers bankban (a dal/sorrend lista továbbra is tetszőlegesen hosszú lehet a minták ismétlésével).
 - A C64 `$D418` globális hangerő több hangszerhang között megoszlik – a hangszerenkénti hangerőcsúszka tájékoztató jellegű; a kitartási szint (az ADSR `S` értéke) a hangszerhangonkénti effektív hangerő.
-- A Web Audio előzetese hozzávetőleges: a PWM moduláció, a gyűrű/szinkron és a SID szűrő karaktere eltér a valódi chiptől.
+- A Web Audio előzetese hozzávetőleges: a vibrato/dia soronként egyszer frissül (megfelel az exportált lejátszónak), de a PWM moduláció, a csengetés/szinkronizálás és az SID szűrő karaktere továbbra is eltér a valódi chiptől.
 
 ---
 

@@ -1472,6 +1472,41 @@ fn read_bin_file(path: String) -> serde_json::Value {
     }
 }
 
+// Raw byte-range write at an explicit path, no save dialog — the D64 block
+// editor's write-back path (see d64BlockRead/Write in app.js): the whole
+// disk image is read via read_bin_file, a single 256-byte sector is patched
+// in JS, and the full image is written back here. No D64-specific logic on
+// the Rust side at all; track/sector offset math and the BAM parse both
+// live in JS, same as the block editor's read path.
+#[tauri::command]
+fn write_bin_file(path: String, bytes: Vec<u8>) -> serde_json::Value {
+    if path.is_empty() {
+        return serde_json::json!({ "ok": false, "error": "Empty path" });
+    }
+    match fs::write(&path, &bytes) {
+        Ok(_) => serde_json::json!({ "ok": true }),
+        Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+    }
+}
+
+// Deletes a plain file at an explicit path, no confirmation/trash — used
+// by the D64 Editor to clean up its scratch "<name>.d64.editing.tmp"
+// working copy right before switching to a different disk (see
+// _d64EdCleanupTemp in app.js, called from Open/New). Missing-file is
+// treated as success (nothing left to clean up), matching typical
+// "best effort cleanup" semantics.
+#[tauri::command]
+fn delete_bin_file(path: String) -> serde_json::Value {
+    if path.is_empty() {
+        return serde_json::json!({ "ok": false, "error": "Empty path" });
+    }
+    match fs::remove_file(&path) {
+        Ok(_) => serde_json::json!({ "ok": true }),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => serde_json::json!({ "ok": true }),
+        Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+    }
+}
+
 #[tauri::command]
 async fn save_prg(app: AppHandle, payload: SavePrgPayload) -> serde_json::Value {
     let working_folder = {
@@ -3148,6 +3183,8 @@ pub fn run() {
             d64_copy_as,
             d64_run,
             read_bin_file,
+            write_bin_file,
+            delete_bin_file,
             save_project,
             load_project,
             save_workspace_file,

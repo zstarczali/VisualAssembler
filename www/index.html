@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.4.1">
+  <link rel="stylesheet" href="style.css?v=2.4.3">
 </head>
 
 <body>
@@ -932,9 +932,27 @@ PRINTABLE CHARACTERS
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.6-3.7"/><path d="M13 2.5v3h-3"/></svg>
           </button>
         </div>
+        <div class="de-tool-group">
+          <!-- Commits the working copy (every add/delete/rename/block-write
+               lands here first — see _d64EdState.path) back over the real
+               file on disk; disabled while there's nothing unsaved. -->
+          <button class="de-tool de-tool--primary" id="de-save" type="button" aria-label="Save" disabled>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 2.5h9l2 2v9h-11z"/><path d="M4.5 2.5v4h6v-4M4.5 13.5v-4h7v4"/></svg>
+          </button>
+        </div>
+        <div class="de-tool-group">
+          <button class="de-tool" id="de-gen-include" type="button" aria-label="Generate include file">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 1.8h5.2L12.5 5v9.2a1 1 0 0 1-1 1h-7.5a1 1 0 0 1-1-1V2.8a1 1 0 0 1 1-1z"/><path d="M9.2 1.8V5h3.3"/><path d="M5.5 8.2h5M5.5 10.4h5M5.5 12.6h3"/></svg>
+          </button>
+        </div>
+        <div class="de-tool-group">
+          <button class="de-tool" id="de-blocks-toggle" type="button" aria-label="Block editor" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.8" y="1.8" width="4.6" height="4.6" rx="0.6"/><rect x="9.6" y="1.8" width="4.6" height="4.6" rx="0.6"/><rect x="1.8" y="9.6" width="4.6" height="4.6" rx="0.6"/><rect x="9.6" y="9.6" width="4.6" height="4.6" rx="0.6"/></svg>
+          </button>
+        </div>
         <span id="de-free-label" class="de-free-label"></span>
       </div>
-      <div class="de-body">
+      <div class="de-body" id="de-body">
         <div id="de-add-panel" class="de-add-panel" hidden>
           <div class="de-add-fields">
             <label class="de-add-field">
@@ -982,6 +1000,65 @@ PRINTABLE CHARACTERS
           <tbody id="de-entries"></tbody>
         </table>
         <p id="de-empty" class="de-empty">No disk open. Use Files ▾ → Open D64… or New D64… to get started.</p>
+        <p id="de-drop-hint" class="de-drop-hint">Drag &amp; drop a .prg or .bin file here to add it to the disk.</p>
+
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Raw track/sector block editor — its own dialog (opened from the D64
+       Editor's "Block editor" toolbar button), following the same
+       header/toolbar/body convention as the D64 Editor dialog above.
+       Below the directory abstraction: a clickable track/sector grid
+       (colored by the BAM's free/used bitmap) plus a hex view of
+       whichever 256-byte block is selected. -->
+  <dialog id="d64-block-editor-dialog" class="dbe-dialog">
+    <div class="dbe-card">
+      <div class="dbe-hdr">
+        <span class="dbe-title">BLOCK EDITOR</span>
+        <span id="dbe-disk-label" class="dbe-disk-label"></span>
+        <button id="dbe-close" class="de-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="dbe-toolbar">
+        <div class="dbe-tool-group">
+          <button class="dbe-tool" id="de-block-prev" type="button" aria-label="Previous block">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3.2 5.6 8l4.4 4.8"/></svg>
+          </button>
+          <button class="dbe-tool" id="de-block-next" type="button" aria-label="Next block">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.2 10.4 8 6 12.8"/></svg>
+          </button>
+        </div>
+        <div class="dbe-tool-group">
+          <button class="dbe-tool" id="de-block-reload" type="button" aria-label="Reload">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.6-3.7"/><path d="M13 2.5v3h-3"/></svg>
+          </button>
+        </div>
+        <div class="dbe-tool-group">
+          <button class="dbe-tool dbe-tool--primary" id="de-block-write" type="button" aria-label="Write block">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5 6.3 12 13 4"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="dbe-body">
+        <div id="de-block-error" class="de-error" hidden></div>
+        <p id="de-block-warning" class="de-block-warning">Raw block access. Writing to the wrong block (especially track 18) can corrupt the disk — know what you're doing.</p>
+        <div class="de-block-layout">
+          <div class="de-block-grid-wrap">
+            <div id="de-block-grid" class="de-block-grid"></div>
+            <div class="de-block-legend">
+              <span class="de-block-legend-item"><i class="de-block-swatch de-block-swatch--free"></i><span id="de-block-legend-free">Free</span></span>
+              <span class="de-block-legend-item"><i class="de-block-swatch de-block-swatch--used"></i><span id="de-block-legend-used">Used</span></span>
+              <span class="de-block-legend-item"><i class="de-block-swatch de-block-swatch--system"></i><span id="de-block-legend-system">BAM / Directory</span></span>
+            </div>
+          </div>
+          <div class="de-block-hex-wrap">
+            <div class="de-block-hex-hdr">
+              <span id="de-block-label" class="de-block-label">Track 1, Sector 0</span>
+              <span id="de-block-offset" class="de-block-offset"></span>
+            </div>
+            <div id="de-block-hex-grid" class="de-block-hex-grid"></div>
+          </div>
+        </div>
       </div>
     </div>
   </dialog>
@@ -1009,7 +1086,7 @@ PRINTABLE CHARACTERS
         <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v2.4.1</p>
+      <p class="about-version" id="about-version">v2.4.3</p>
       <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       <img class="about-ub-banner" src="assets/ultimate-basic-banner.png" alt="Ultimate Basic">
       <p class="about-repo"><span>Ultimate Basic GitHub repository:</span><br><a href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener noreferrer">https://github.com/zstarczali/UltimateBasic</a></p>
@@ -1027,16 +1104,19 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.4.1</p>
+      <p class="whats-new-version">v2.4.3</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: Polish and Italian UI languages</strong> &mdash; full interface translation (menus, dialogs, mnemonic descriptions, Ultimate Basic command reference) alongside the existing Hungarian, English, Spanish, German and Dutch.
+          <strong>New: SID Editor effect column</strong> &mdash; every tracker cell can carry an effect alongside its note: vibrato (V), slide up/down (U/D), note-cut (C), and speed-change (F). Type it straight into a cell, e.g. <code>C-4 01 V24</code> or <code>F06</code>. Effects now play back correctly both in the in-app Web Audio preview and in the compiled 6502 export.
         </li>
         <li>
-          <strong>New: Online Help toolbar button</strong> &mdash; a new icon button after Debug opens the multi-language documentation site (c64va.tech/docs.html) directly from the app.
+          <strong>New: SID Editor song/order list</strong> &mdash; patterns are arranged through a proper song/order list layered on top of the pattern bank, so a pattern can repeat and the song can be longer than the number of stored patterns. Older saves (made before the order list existed) keep loading correctly.
         </li>
         <li>
-          <strong>Improved: Centralized mnemonic descriptions</strong> &mdash; per-language mnemonic descriptions moved into the shared translation file alongside the rest of the UI strings. Also fixes a longstanding bug where the English descriptions for <code>PRINT</code>, <code>PRINT_HEX</code>, <code>CLEAR_SCREEN</code>, <code>WAIT_KEY</code>, <code>SET_BORDER</code>, <code>SET_BG</code>, <code>IRQ_SETUP</code> and <code>RAND</code> were silently overwritten by leftover Spanish text.
+          <strong>New: D64 Editor explicit Save workflow</strong> &mdash; every edit (add/extract/rename/delete, and Block Editor byte edits) now happens on a private working copy; nothing touches the real .d64 file until you click Save, which also writes an automatic backup first. Closing the editor or opening another disk with unsaved changes now asks for confirmation.
+        </li>
+        <li>
+          <strong>Improved: Block Editor hex grid</strong> &mdash; the raw byte view for the selected 256-byte block is now a proper per-byte hex grid instead of a plain text box, and its dialog no longer dims the rest of the app behind it while open.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -1727,6 +1807,21 @@ PRINTABLE CHARACTERS
             <div class="sid-slider-row"><span class="sid-sl-lbl">Vol:</span><input type="range" id="sid-vol" min="0" max="15" value="15" class="sid-range"></div>
           </div>
         </div>
+        <!-- Song / order list: the arrangement of patterns that actually
+             plays back (and gets exported) in "Play: All" mode. Patterns
+             stay a reusable bank; this is the sequence that plays them. -->
+        <div class="sid-row sid-song-row">
+          <span class="sid-lbl" id="sid-song-label">SONG</span>
+          <div id="sid-song-list" class="sid-song-list"></div>
+          <button id="sid-song-add" class="sid-mini-btn" type="button" aria-label="Insert pattern into song">+</button>
+          <button id="sid-song-del" class="sid-mini-btn" type="button" aria-label="Remove song step">−</button>
+          <button id="sid-song-up" class="ce-tool-btn" type="button" aria-label="Move song step left">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3L5 8l5 5"/></svg>
+          </button>
+          <button id="sid-song-down" class="ce-tool-btn" type="button" aria-label="Move song step right">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>
+          </button>
+        </div>
         <!-- Tracker controls -->
         <div class="sid-row sid-tracker-row">
           <span class="sid-lbl">TRACKER</span>
@@ -2294,13 +2389,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.4.1"></script>
-  <script src="i18n.js?v=2.4.1"></script>
-  <script src="tutorial-data.js?v=2.4.1"></script>
+  <script src="tauri-bridge.js?v=2.4.3"></script>
+  <script src="i18n.js?v=2.4.3"></script>
+  <script src="tutorial-data.js?v=2.4.3"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.4.1"></script>
+  <script src="app.js?v=2.4.3"></script>
 
 </body>
 

@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Podręcznik użytkownika
 
-**Wersja 2.4.1**
+**Wersja 2.4.3**
 
 Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągając i upuszczając bloki instrukcji, i oglądaj generowany kod assemblera i maszynowy w czasie rzeczywistym.
 
@@ -9,6 +9,8 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
 ## Spis treści
 
 - [C64 Visual Assembler — Podręcznik użytkownika](#c64-visual-assembler--user-manual)
+    - [Najważniejsze cechy wersji 2.4.3](#version-243-highlights)
+    - [Najważniejsze cechy wersji 2.4.2](#version-242-highlights)
     - [Najważniejsze cechy wersji 2.4.1](#version-241-highlights)
     - [Najważniejsze cechy wersji 2.4.0](#version-240-highlights)
     - [Najważniejsze cechy wersji 2.3.9](#version-239-highlights)
@@ -152,6 +154,24 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
     - [Edytor map (mapy kafelkowe wielowarstwowe)](#map-editor-multilayer-tilemaps)
     - [Edytor SID (śledzenie 3-głosowe)](#sid-editor-3-voice-tracker)
     - [Edytor krzywych](#curve-editor)
+
+---
+
+## Najważniejsze cechy wersji 2.4.3
+
+- **Edytor SID: Lista utworów/kolejności** — wzory są teraz układane za pomocą odpowiedniej listy utworów/kolejności, umieszczonej na banku surowych wzorów, dzięki czemu wzór może się powtarzać, a utwór może być dłuższy niż liczba zapisanych wzorów. Dodawaj, usuwaj i zmieniaj kolejność kroków bezpośrednio z Edytora SID; odtwarzanie i wyeksportowany odtwarzacz korzystają z tej listy, a nie z surowej kolejności wzorów.
+- **Edytor SID: Kolumna efektów** — każda komórka śledząca może teraz zawierać efekt obok swojej nuty: **V**ibrato, slajd **U**p / **D**own, nuta-**C**ut i zmiana tempa (**F**). Wpisz go bezpośrednio do komórki, np. `C-4 01 V24` (nuta + instrument + vibrato) lub `F06` (tylko zmiana tempa). Efekty są uruchamiane raz na wiersz, zgodnie z eksportowanym odtwarzaczem, i teraz są odtwarzane prawidłowo zarówno w podglądzie Web Audio w aplikacji, jak i w skompilowanym eksporcie 6502 — to prawdziwy, grywalny silnik efektów, a nie tylko rusztowanie eksportu.
+- **Format zapisu SID zgodny z poprzednimi wersjami** — zapisy SID zawierają teraz znacznik wersji, więc starsze zapisy `.bin` wykonane przed powstaniem kolumny efektów są wczytywane dokładnie tak samo jak wcześniej, a efekty są po prostu nieobecne.
+- **Edytor D64: jawny obieg zapisu ** — każda edycja (dodawanie/wyodrębnianie/zmiana nazwy/usuwanie, a teraz także edycja bajtów w Edytorze Bloków) odbywa się na prywatnej kopii roboczej; nic nie ma wpływu na Twój prawdziwy plik `.d64`, dopóki nie klikniesz przycisku **Zapisz**, który również najpierw zapisuje automatyczną kopię zapasową. Zamknięcie edytora lub otwarcie innego dysku z niezapisanymi zmianami teraz wyświetla prośbę o potwierdzenie, zamiast bezgłośnie je odrzucać.
+- **Edytor D64: Siatka heksadecymalna edytora bloków** — surowy widok bajtów dla wybranego bloku 256 bajtów jest teraz poprawną siatką heksadecymalną dla każdego bajtu, a nie zwykłym polem tekstowym, a jego okno dialogowe nie przyciemnia już reszty aplikacji znajdującej się za nim po otwarciu.
+
+---
+
+## Najważniejsze cechy wersji 2.4.2
+
+- **Przeciągnij i upuść do edytora D64** — upuść skompilowany plik `.prg`/`.bin` (z eksportów edytorów SID/sprite/char lub z dowolnego innego miejsca) bezpośrednio na obraz dysku; panel Dodaj otworzy się z wstępnie wypełnionym plikiem. Upuszczenie kilku plików naraz spowoduje umieszczenie ich w kolejce jeden po drugim.
+- **Generuj plik dołączony** — nowy przycisk na pasku narzędzi zapisuje plik `.inc` zawierający listę `.const NAME = $ADDR` dla każdego wpisu na dysku, dzięki czemu program główny może odwołać się do miejsca, w którym każdy z nich się znalazł, bez konieczności ręcznego przepisywania adresów.
+- **Edytor bloków (nowy)** — przełącznik na pasku narzędzi przełącza Edytor D64 na dostęp do surowych ścieżek/sektorów poniżej katalogu: klikalna mapa bloków (pokolorowana bitmapą wolnych/używanych plików BAM, z łańcuchem BAM i katalogów oznaczonym oddzielnie), widok/edytor szesnastkowy dla wybranego bloku 256-bajtowego oraz nawigacja po sektorach Poprzedni/Następny. Odczytuje i zapisuje obraz dysku bezpośrednio (`read_bin_file`/`write_bin_file`), niezależnie od `c1541`.
 
 ---
 
@@ -3292,13 +3312,14 @@ Ikona na pasku narzędzi po Edytorze Krzywych otwiera **Edytor D64** — samodzi
 
 **Pasek narzędzi:**
 
-| Ikona                     | Działanie                                                                  |
-| ------------------------- | -------------------------------------------------------------------------- |
-| **Dodaj program**         | Wybierz plik lokalny i zapisz go w katalogu na dysku.                      |
-| **Wyodrębnij wybrane**    | Zapisz wybrane bajty wpisu w lokalnym pliku `.prg`.                        |
-| **Zmień nazwę wybranego** | Edytuj nazwę wpisu w tabeli — Enter potwierdza, Escape anuluje.            |
-| **Usuń wybrane**          | Usuń wybrany wpis z dysku.                                                 |
-| **Odśwież**               | Ponownie odczytaj katalog, np. po edycji dysku za pomocą innego narzędzia. |
+| Ikona                     | Działanie                                                                                                                                                      |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Dodaj program**         | Wybierz plik lokalny i zapisz go w katalogu na dysku.                                                                                                          |
+| **Wyodrębnij wybrane**    | Zapisz wybrane bajty wpisu w lokalnym pliku `.prg`.                                                                                                            |
+| **Zmień nazwę wybranego** | Edytuj nazwę wpisu w tabeli — Enter potwierdza, Escape anuluje.                                                                                                |
+| **Usuń wybrane**          | Usuń wybrany wpis z dysku.                                                                                                                                     |
+| **Odśwież**               | Ponownie odczytaj katalog, np. po edycji dysku za pomocą innego narzędzia.                                                                                     |
+| **Zapisz**                | Zapisz zmiany z kopii roboczej z powrotem do pliku `.d64`, najpierw tworząc automatyczną kopię zapasową. Opcja dostępna tylko w przypadku niezapisanych zmian. |
 
 **Dodawanie programu:** wybranie pliku, który kończy się już na `.prg` wymaga jedynie podania **Nazwy** i **Typu** dysku (PRG/SEQ/USR/REL) — plik `.prg` zawiera już własny nagłówek adresu ładowania, więc jest on zapisywany bez zmian. Wybranie dowolnego innego pliku (np. surowego pliku `.bin`) dodatkowo wyświetla:
 
@@ -3308,7 +3329,11 @@ Ikona na pasku narzędzi po Edytorze Krzywych otwiera **Edytor D64** — samodzi
 
 W spisie katalogów nazwy plików są wyświetlane w tej samej czcionce i wielkimi literami, co w prawdziwym spisie C64 `LOAD"$",8`.
 
-> **Wymaganie:**, podobnie jak w przypadku eksportu do D64, edytor D64 wymaga VICE (`c1541`) skonfigurowanego w [Ustawieniach sprzętowych](#13-hardware-settings). Każda czynność (dodawanie/usuwanie/zmiana nazwy/wyodrębnianie) jest wykonywana bezpośrednio na pliku `.d64` na dysku — nie ma osobnego kroku „zapisu”.
+**Zapisywanie przepływu pracy:** każda edycja — dodawanie, wyodrębnianie, zmiana nazwy, usuwanie i edycja bajtów w Edytorze Bloków — jest stosowana do prywatnej kopii roboczej obrazu dysku, a nie do rzeczywistego pliku. Przycisk **Zapisz** na pasku narzędzi (aktywny po pojawieniu się niezapisanych zmian) zapisuje kopię roboczą z powrotem na rzeczywistym pliku `.d64`, tworząc najpierw automatyczną kopię zapasową; w nagłówku wyświetla się znacznik **•**, gdy zmiany są niezapisane, a zamknięcie edytora lub otwarcie innego dysku z niezapisanymi zmianami powoduje wyświetlenie monitu o potwierdzenie zamiast ich odrzucenia. **Zapisz jako…** (menu Pliki ▾) zapisuje kopię roboczą w nowej ścieżce i kontynuuje tam edycję.
+
+**Edytor bloków: ** ikona siatki na pasku narzędzi przełącza się na surowy widok ścieżki/sektora pod katalogiem — klikalną mapę bloków pokolorowaną na podstawie bitmapy wolnych/używanych danych BAM (z łańcuchem BAM i katalogów oznaczonym oddzielnie), siatką heksadecymalną dla każdego bajtu dla wybranego bloku 256-bajtowego oraz nawigacją w sektorach Poprzedni/Następny. Edycja bloków przechodzi przez ten sam proces tworzenia kopii roboczej/zapisu, co opisane powyżej czynności katalogowe.
+
+> **Wymagania: ** Podobnie jak w przypadku eksportu do formatu D64, edytor D64 wymaga skonfigurowania opcji VICE (`c1541`) w [Ustawieniach sprzętu](#13-hardware-settings).
 
 ---
 
@@ -3547,7 +3572,7 @@ Wieloinstrumentalny, 3-głosowy tracker z silnikiem podglądu Web Audio. Otwórz
 
 **Siatka śledzenia:**
 - 3 głosy × do 7 wzorów × 32 wiersze = 7 × 32 = maksymalnie 224 wiersze (ograniczenie stanowi 8-bitowy licznik wierszy).
-- W wierszu: nuta + indeks instrumentu. Puste wiersze zawierają poprzednią nutę.
+- Na wiersz: nuta + indeks instrumentu, plus opcjonalny efekt (patrz **Kolumna efektów** poniżej). Puste wiersze zawierają poprzednią nutę.
 - Zaznacz jedną komórkę normalnie lub przytrzymaj klawisze **Shift** podczas klikania lub używania klawiszy strzałek, aby rozszerzyć prostokątne zaznaczenie na wiersze i dowolny z trzech głosów. Kliknięcie prawym przyciskiem myszy w zaznaczonym obszarze zachowuje zakres.
 - Kopiuj, Wytnij, Wklej i Wyczyść są dostępne na pasku narzędzi ikon i w menu kontekstowym opartym na ikonach. `Ctrl/Cmd+C` i `Ctrl/Cmd+V` działają na tym samym prostokątnym zaznaczeniu.
 - Pomocnik harmonii: wybierz nutę podstawową, rodzaj akordu i oktawę, odsłuchaj akord z bieżącym instrumentem, a następnie wstaw brzmienie bezpośrednio do trackera. Dostępne typy to: dur, mol, zmniejszony, zwiększony, Sus2, Sus4, dominanta 7, dur 7, mol 7, 6, mol 6, 9, b9, #9, Dim7 i 7sus4.
@@ -3555,6 +3580,23 @@ Wieloinstrumentalny, 3-głosowy tracker z silnikiem podglądu Web Audio. Otwórz
 - **Podgląd wiersza** umożliwia odsłuchanie wybranego wiersza we wszystkich trzech głosach bez rozpoczynania odtwarzania wzorca.
 - Wklejanie zakresu komórek rozpoczyna się teraz od wybranej komórki początkowej zakresu i kończy się na granicach wiersza lub głosu, zamiast przechodzić do następnej kolumny lub wiersza.
 - Suwak prędkości ustawia dzielnik cykli IRQ (liczba klatek pomiędzy wierszami).
+
+**Lista utworów / kolejności:**
+- Wzory są ustalane na podstawie listy piosenek/kolejności umieszczonej na wierzchu banku surowych wzorów — ten sam wzór może się powtarzać, a piosenka może być dłuższa od liczby zapisanych wzorów.
+- Dodawaj, usuwaj i zmieniaj kolejność kroków na panelu listy utworów. Podczas odtwarzania podświetlany jest bieżący krok.
+- Zarówno odtwarzanie w aplikacji, jak i każdy eksport przechodzą przez tę listę, a nie surowa kolejność wzorców — eksporty wykonane przed powstaniem listy kolejności nadal ładują się prawidłowo jako zwykły utwór 0..N-1.
+
+**Kolumna efektów:** Każda komórka może zawierać jeden efekt obok nuty i instrumentu, wprowadzony jako krótki kod zaraz po nucie (np. `C-4 01 V24`) lub osobno w przypadku wiersza efektów bez nut (np. `F06`):
+
+| Kod | Efekt                       | Wartość                                                               |
+| --- | --------------------------- | --------------------------------------------------------------------- |
+| `V` | Wibrato                     | niskie skubnięcie = głębokość, wysokie skubnięcie = długość trzymania |
+| `U` | Przesuń w górę (portamento) | kwota dodana do częstotliwości każdego wiersza                        |
+| `D` | Zsuwanie w dół (portamento) | kwota odjęta od częstotliwości każdego wiersza                        |
+| `C` | Notatka ucięta              | ucisza głos bez ponownego wyzwalania; wartość nieużywana              |
+| `F` | Zmiana prędkości            | nowa wartość liczby klatek na wiersz, obowiązuje natychmiast          |
+
+Efekty aktualizują się raz na wiersz (zgodnie z synchronizacją eksportowanego odtwarzacza), działają identycznie w podglądzie Web Audio i skompilowanym eksporcie 6502 oraz są zapisywane/ładowane bezstratnie w wersjonowanym formacie `.bin`.
 
 **Odtwarzanie i klawiatura wirtualna:**
 - Przycisk Odtwórz na pasku narzędzi zmienia się na Wstrzymaj podczas odtwarzania i na Wznów po wstrzymaniu. Przycisk Zatrzymaj kończy odtwarzanie i resetuje stan.
@@ -3570,13 +3612,12 @@ Wieloinstrumentalny, 3-głosowy tracker z silnikiem podglądu Web Audio. Otwórz
 | `Eksport bloków + miniodtwarzacz` | Dodaje pełny odtwarzacz (sid_init / sid_irq / sid_play_row / sid_set_voice) oraz tabele częstotliwości PAL. Po wyeksportowaniu umieść `JSR sid_init` w kodzie głównym w miejscu, w którym ma się zaczynać muzyka. |
 | `Eksportuj asm (schowek)`         | Kopiuje cały kod źródłowy zestawu do schowka.                                                                                                                                                                     |
 
-**Użycie ZP gracza:** `$FB` (licznik cykli), `$FC` (indeks wiersza), `$FD` (temp. set_voice). Te elementy powodują konflikt, jeśli korzysta z nich Twój główny kod — w razie potrzeby przenieś je w trybie eksperckim.
+**Użycie ZP gracza: ** `$02`–`$2F` (tabele wskaźników, przesunięcie wzorca i stan efektu na głos), plus `$FB`–`$FE` (licznik taktów, indeks wiersza, pozycja na liście zamówień, temp. set_voice). Wywołują one konflikt, jeśli korzysta z nich kod główny — w razie potrzeby przenieś je w trybie eksperckim.
 
 **Znane limity:**
-- Pojedyncza lista wzorców liniowych (jeszcze nie ma tabeli sekwencji dla każdego głosu).
-- 8-bitowy licznik wierszy ogranicza się do 7 wzorów × 32 wierszy.
+- 8-bitowy licznik wierszy ogranicza każdy wzór do 7 wzorów × 32 wierszy w banku danych (lista utworów/kolejności może być nadal dowolnie długa poprzez powtarzanie wzorów).
 - Globalna głośność C64 `$D418` jest współdzielona przez wszystkie głosy — suwak głośności dla każdego instrumentu ma charakter informacyjny; poziom podtrzymania (`S` ADSR) to efektywna głośność dla każdego głosu.
-- Podgląd Web Audio jest przybliżony: modulacja PWM, dzwonek/synchronizacja i charakter filtru SID różnią się od rzeczywistego układu.
+- Podgląd Web Audio jest przybliżony: wibrato/slajd aktualizowany raz na wiersz (zgodnie z eksportowanym odtwarzaczem), ale modulacja PWM, dzwonek/synchronizacja i charakter filtru SID nadal różnią się od rzeczywistego układu.
 
 ---
 

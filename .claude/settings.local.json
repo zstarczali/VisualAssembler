@@ -235,7 +235,8 @@
       "Bash(sed -i 's/currentLanguage === \"nl\" ? \"Geen resultaten.\" : \"No results.\"/currentLanguage === \"nl\" ? \"Geen resultaten.\" : currentLanguage === \"pl\" ? \"Brak wyników.\" : currentLanguage === \"it\" ? \"Nessun risultato.\" : \"No results.\"/g' www/app.js)",
       "Bash(sed -i 's/currentLanguage === \"nl\" ? \"nl-NL\" : currentLanguage === \"de\" ? \"de-DE\" : currentLanguage === \"es\" ? \"es-ES\" : \"en-US\"/currentLanguage === \"nl\" ? \"nl-NL\" : currentLanguage === \"de\" ? \"de-DE\" : currentLanguage === \"es\" ? \"es-ES\" : currentLanguage === \"pl\" ? \"pl-PL\" : currentLanguage === \"it\" ? \"it-IT\" : \"en-US\"/g' www/app.js)",
       "Bash(pkill -f \"http.server 8899\")",
-      "Bash(sed -i '893,1726d;715,882d' www/app.js)"
+      "Bash(sed -i '893,1726d;715,882d' www/app.js)",
+      "Bash(python -c ' *)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"

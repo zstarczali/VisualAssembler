@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Gebruikershandleiding
 
-**Versie 2.4.1**
+**Versie 2.4.3**
 
 Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma's door instructieblokken te slepen en neer te zetten, en bekijk de gegenereerde assembly- en machinecode in realtime.
 
@@ -9,6 +9,8 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
 ## Inhoudsopgave
 
 - [C64 Visual Assembler — Gebruikershandleiding](#c64-visual-assembler--user-manual)
+    - [Hoogtepunten van versie 2.4.3](#version-243-highlights)
+    - [Hoogtepunten van versie 2.4.2](#version-242-highlights)
     - [Hoogtepunten van versie 2.4.1](#version-241-highlights)
     - [Hoogtepunten van versie 2.4.0](#version-240-highlights)
     - [Hoogtepunten van versie 2.3.9](#version-239-highlights)
@@ -111,7 +113,7 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
     - [PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG](#print--print_char--print_hex--clear_screen--wait_key--delay--set_border--set_bg)
     - [IRQ_SETUP](#irq_setup)
     - [RAND](#rand)
-    - [SPRITE_INIT](#sprite_init)
+    - [SPRITE\_INIT](#sprite_init)
     - [SPRITE\_POS](#sprite_pos)
     - [WAIT\_RASTER](#wait_raster)
     - [JOYSTICK](#joystick)
@@ -152,6 +154,24 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
     - [Kaarteditor (Meerlaagse tegelkaarten)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve-editor](#curve-editor)
+
+---
+
+## Hoogtepunten van versie 2.4.3
+
+- **SID-editor: Lijst met nummers/volgorde** — patronen worden nu gerangschikt via een correcte lijst met nummers/volgorde bovenop de ruwe patroonbank, zodat een patroon kan worden herhaald en het nummer langer kan zijn dan het aantal opgeslagen patronen. Stappen kunnen direct vanuit de SID-editor worden toegevoegd, verwijderd en opnieuw worden gerangschikt; zowel de weergave als de geëxporteerde speler doorlopen deze lijst in plaats van de ruwe patroonvolgorde.
+- **SID Editor: Effectkolom** — elke trackercel kan nu een effect naast de noot bevatten: **V**vibrato, slide **U**p / **D**own, noot-**C**ut en snelheidsverandering (**F**). Typ het direct in een cel, bijvoorbeeld `C-4 01 V24` (noot + instrument + vibrato) of `F06` (alleen snelheidsverandering). Effecten worden één keer per rij uitgevoerd, overeenkomend met de geëxporteerde speler, en worden nu correct afgespeeld, zowel in de Web Audio-preview in de app als in de gecompileerde 6502-export — een echte, speelbare effectengine, geen export-structuur.
+- **Achterwaarts compatibel SID-opslagformaat** — SID-opslagen bevatten nu een versieaanduiding, zodat oudere `.bin`-opslagen die zijn gemaakt voordat de effectkolom bestond, precies hetzelfde blijven laden als voorheen, alleen zonder de effecten.
+- **D64 Editor: expliciete opslagworkflow** — elke bewerking (toevoegen/extraheren/hernoemen/verwijderen, en nu ook bytebewerkingen in de blokeditor) vindt plaats op een privéwerkkopie; niets raakt uw echte `.d64`-bestand aan totdat u op **Opslaan** klikt, waarbij eerst ook een automatische back-up wordt gemaakt. Het sluiten van de editor of het openen van een andere schijf met niet-opgeslagen wijzigingen vraagt nu om bevestiging in plaats van ze stilzwijgend te negeren.
+- **D64 Editor: Blokeditor hex-raster** — de ruwe byteweergave voor het geselecteerde blok van 256 bytes is nu een echt hex-raster per byte in plaats van een gewoon tekstvak, en het dialoogvenster dimt niet langer de rest van de app erachter wanneer het geopend is.
+
+---
+
+## Hoogtepunten van versie 2.4.2
+
+- **Sleep en laat vallen op de D64 Editor** — sleep een gecompileerd `.prg`/`.bin`-bestand (van de exports van de SID/sprite/char-editors, of van elders) rechtstreeks naar de schijfkopie; het paneel 'Toevoegen' wordt geopend en is al ingevuld. Als u meerdere bestanden tegelijk sleept, worden ze één voor één in de wachtrij geplaatst.
+- **Include-bestand genereren** — een nieuwe knop in de werkbalk schrijft een `.inc`-bestand met een lijst van `.const NAME = $ADDR` voor elke vermelding op de schijf, zodat het hoofdprogramma kan verwijzen naar de locatie van elke vermelding zonder de adressen handmatig opnieuw in te typen.
+- **Blokeditor (nieuw)** — een schakelaar in de werkbalk schakelt de D64 Editor over naar directe toegang tot sporen/sectoren onder de directory: een aanklikbare blokkaart (gekleurd op basis van de vrije/gebruikte bitmap van de BAM, waarbij de BAM en de directoryketen afzonderlijk zijn gemarkeerd), een hex-weergave/editor voor het geselecteerde blok van 256 bytes en navigatie naar vorige/volgende sector. Leest en schrijft de schijfimage direct (`read_bin_file`/`write_bin_file`), onafhankelijk van `c1541`.
 
 ---
 
@@ -2733,7 +2753,7 @@ skip_filename:
 
 ---
 
-### EXODECRUNCHT
+### EXODECRUNCH
 
 In-programma **Exomizer-decompressie**. Gebruik deze macro direct na een `LOADFILE` die een Exomizer `mem`-modus gecomprimeerde stream heeft geladen — EXODECRUNCH pakt deze achterwaarts uit naar het adres dat in de stream is ingebed.
 
@@ -3292,13 +3312,14 @@ Het pictogram in de werkbalk na de Curve Editor opent de **D64 Editor** — een 
 
 **Werkbalk:**
 
-| Icon                          | Actie                                                                                     |
-| ----------------------------- | ----------------------------------------------------------------------------------------- |
-| **Programma toevoegen**       | Selecteer een lokaal bestand en schrijf het naar de schijfmap.                            |
-| **Selecteer geselecteerde**   | Sla de bytes van de geselecteerde invoer op in een lokaal `.prg`-bestand.                 |
-| **Geselecteerde hernoemen**   | Bewerk de naam van het item direct in de tabel — Enter bevestigt, Escape annuleert.       |
-| **Geselecteerde verwijderen** | Verwijder het geselecteerde item van de schijf.                                           |
-| **Vernieuwen**                | Lees de map opnieuw, bijvoorbeeld nadat u de schijf met een ander programma hebt bewerkt. |
+| Icon                          | Actie                                                                                                                                                                                             |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Programma toevoegen**       | Selecteer een lokaal bestand en schrijf het naar de schijfmap.                                                                                                                                    |
+| **Selecteer geselecteerde**   | Sla de bytes van de geselecteerde invoer op in een lokaal `.prg`-bestand.                                                                                                                         |
+| **Geselecteerde hernoemen**   | Bewerk de naam van het item direct in de tabel — Enter bevestigt, Escape annuleert.                                                                                                               |
+| **Geselecteerde verwijderen** | Verwijder het geselecteerde item van de schijf.                                                                                                                                                   |
+| **Vernieuwen**                | Lees de map opnieuw, bijvoorbeeld nadat u de schijf met een ander programma hebt bewerkt.                                                                                                         |
+| **Opslaan**                   | Schrijf de wijzigingen in de werkkopie terug naar het echte `.d64`-bestand, waarbij eerst een automatische back-up wordt gemaakt. Alleen ingeschakeld zolang er niet-opgeslagen wijzigingen zijn. |
 
 **Een programma toevoegen:** Het selecteren van een bestand dat al eindigt op `.prg` vraagt alleen om een **Naam** en een schijf **Type** (PRG/SEQ/USR/REL) — een `.prg` heeft al zijn eigen laadadresheader, dus die wordt ongewijzigd geschreven. Het selecteren van een ander bestand (bijv. een onbewerkt `.bin`) toont bovendien:
 
@@ -3308,7 +3329,11 @@ Het pictogram in de werkbalk na de Curve Editor opent de **D64 Editor** — een 
 
 De directorylijst geeft bestandsnamen weer in hetzelfde lettertype en met dezelfde hoofdletters als een echte C64 `LOAD"$",8`-lijst.
 
-> **Vereiste:** Net als bij Exporteren naar D64, vereist de D64 Editor VICE (`c1541`) geconfigureerd in [Hardware-instellingen](#13-hardware-settings). Elke actie (toevoegen/verwijderen/hernoemen/uitpakken) wordt rechtstreeks toegepast op het `.d64`-bestand op de schijf — er is geen aparte "opslaan"-stap.
+**Opslaan workflow:** elke bewerking — toevoegen, extraheren, hernoemen, verwijderen en bytebewerkingen in de blokeditor — wordt toegepast op een privéwerkkopie van de schijfkopie, niet op uw echte bestand. De **Opslaan** knop in de werkbalk (ingeschakeld zodra er niet-opgeslagen wijzigingen zijn) schrijft de werkkopie terug over de echte `.d64`, waarbij eerst een automatische back-up wordt gemaakt; de header toont een **•** markering zolang er wijzigingen niet zijn opgeslagen, en bij het sluiten van de editor of het openen van een andere schijf met niet-opgeslagen wijzigingen wordt om bevestiging gevraagd in plaats van ze te negeren. **Opslaan als…** (menu Bestand ▾) schrijft de werkkopie naar een nieuw pad en gaat daar verder met bewerken.
+
+**Blokeditor:** Het rasterpictogram in de werkbalk schakelt over naar een ruwe track-/sectorweergave onder de directory — een aanklikbare blokkaart gekleurd op basis van de vrije/gebruikte bitmap van de BAM (waarbij de BAM en de directoryketen afzonderlijk zijn gemarkeerd), een hexadecimaal raster per byte voor het geselecteerde blok van 256 bytes, en navigatie naar vorige/volgende sector. Blokbewerkingen doorlopen dezelfde workflow voor werkkopie/opslaan als de bovenstaande directory-acties.
+
+> **Vereiste:** Net als bij Exporteren naar D64, vereist de D64 Editor dat VICE (`c1541`) is geconfigureerd in [Hardware-instellingen](#13-hardware-settings).
 
 ---
 
@@ -3547,7 +3572,7 @@ Multi-instrumentele 3-stemmige tracker met een Web Audio-previewengine. Openen v
 
 **Tracker raster:**
 - 3 stemmen × tot 7 patronen × 32 rijen = 7 × 32 = maximaal 224 rijen (beperking door een 8-bits rijteller).
-- Per rij: noot + instrumentindex. Lege rijen bevatten de vorige noot.
+- Per rij: noot + instrumentindex, plus een optioneel effect (zie **Effectkolom** hieronder). Lege rijen bevatten de vorige noot.
 - Selecteer een cel op de normale manier, of houd **Shift** ingedrukt terwijl u klikt of de pijltjestoetsen gebruikt om een rechthoekige selectie uit te breiden over rijen en elk van de drie stemmen. Door met de rechtermuisknop binnen het geselecteerde gebied te klikken, blijft het bereik intact.
 - Kopiëren, knippen, plakken en wissen zijn beschikbaar via de iconenwerkbalk en het contextmenu met pictogrammen. `Ctrl/Cmd+C` en `Ctrl/Cmd+V` werken op dezelfde rechthoekige selectie.
 - Harmoniehulpmiddel: kies een grondtoon, akkoordtype en octaaf, beluister het akkoord met het huidige instrument en voeg de stemvoering vervolgens direct in de tracker in. Beschikbare typen zijn onder andere majeur, mineur, verminderd, verhoogd, sus2, sus4, dominant septiem, majeur septiem, mineur septiem, sext, mineur sext, none, b9, #9, verminderd septiem en 7sus4.
@@ -3555,6 +3580,23 @@ Multi-instrumentele 3-stemmige tracker met een Web Audio-previewengine. Openen v
 - **Voorbeeldrij** laat de geselecteerde rij horen op alle drie de stemmen zonder het patroon af te spelen.
 - Het plakken binnen een celbereik begint nu bij de geselecteerde begincel van het bereik en stopt netjes bij de grenzen van stemmen en rijen, in plaats van door te lopen naar de volgende kolom of rij.
 - Met de snelheidsregelaar wordt de IRQ-tickdeler ingesteld (het aantal frames tussen rijen).
+
+** Nummer / volgordelijst: **
+- De patronen worden geordend via een lijst met nummers/volgordes die bovenop de ruwe patroonbank is geplaatst. Hetzelfde patroon kan zich herhalen en het nummer kan langer zijn dan het aantal opgeslagen patronen.
+- Voeg stappen toe aan, verwijder ze uit en wijzig de volgorde van de stappen in het paneel met de liedjeslijst; de huidige stap wordt tijdens het afspelen gemarkeerd.
+- Zowel bij het afspelen binnen de app als bij elke export wordt deze lijst gebruikt, niet de oorspronkelijke patroonvolgorde. Exports die zijn gemaakt voordat de volgordelijst bestond, laden nog steeds correct als een gewoon 0..N-1 nummer.
+
+**Effectkolom:** Elke cel kan één effect bevatten naast de noot en het instrument, ingevoerd als een korte code direct na de noot (bijv. `C-4 01 V24`) of op een aparte regel voor een effect zonder noot (bijv. `F06`):
+
+| Code | Effect                            | Waarde                                                            |
+| ---- | --------------------------------- | ----------------------------------------------------------------- |
+| `V`  | Vibrato                           | lage knabbel = diepte, hoge knabbel = vasthoudlengte              |
+| `U`  | Omhoog schuiven (portamento)      | bedrag dat aan de frequentie van elke rij wordt toegevoegd        |
+| `D`  | Glijden naar beneden (portamento) | bedrag dat van de frequentie van elke rij wordt afgetrokken       |
+| `C`  | Let op: knip                      | dempt de stem zonder deze opnieuw te activeren; waarde ongebruikt |
+| `F`  | Snelheidsverandering              | nieuwe waarde voor frames per rij, treedt onmiddellijk in werking |
+
+Effecten worden één keer per regel bijgewerkt (overeenkomend met de timing van de geëxporteerde speler), werken identiek in de Web Audio-preview en de gecompileerde 6502-export, en worden zonder kwaliteitsverlies opgeslagen/geladen in het versiebeheerde `.bin`-formaat.
 
 **Afspelen en virtueel toetsenbord:**
 - De knop 'Afspelen' in de werkbalk verandert in 'Pauze' tijdens het afspelen en in 'Hervatten' wanneer het afspelen gepauzeerd is; 'Stop' beëindigt het afspelen en zet de status terug naar de beginstand.
@@ -3570,13 +3612,12 @@ Multi-instrumentele 3-stemmige tracker met een Web Audio-previewengine. Openen v
 | `Blokken exporteren + miniplayer`      | Voegt de volledige speler (sid_init / sid_irq / sid_play_row / sid_set_voice) plus PAL-frequentietabellen toe. Plaats na het exporteren een `JSR sid_init` in uw hoofdcode op de plek waar de muziek moet beginnen. |
 | `Exporteer asm (klembord)`             | Kopieert de volledige broncode van de assembly naar het klembord.                                                                                                                                                   |
 
-**Gebruik van speler ZP:** `$FB` (tick-teller), `$FC` (rij-index), `$FD` (set_voice temp). Deze conflicteren als uw hoofdcode ze gebruikt — verplaats ze indien nodig via de Expert-modus.
+**Gebruik van speler-ZP: ** `$02`–`$2F` (pointertabellen, patroonoffset en per-stem effectstatus), plus `$FB`–`$FE` (tickteller, rij-index, positie in de orderlijst, set_voice temp). Deze conflicteren als uw hoofdcode ze gebruikt — verplaats ze indien nodig via de Expert-modus.
 
 **Bekende limieten:**
-- Enkele lineaire patroonlijst (nog geen sequentietabel per stem).
-- Een 8-bits rijteller is beperkt tot 7 patronen × 32 rijen.
+- Een 8-bits rijteller beperkt elk patroon tot 7 patronen × 32 rijen in de ruwe databank (de lijst met nummers/volgordes kan nog steeds willekeurig lang zijn door herhalende patronen).
 - C64 `$D418` Het globale volume wordt gedeeld over alle stemmen — de volumeregelaar per instrument is informatief; het sustainniveau (`S` van ADSR) is het effectieve volume per stem.
-- De audiopreview op de website is bij benadering: de PWM-modulatie, ring/sync en de eigenschappen van het SID-filter wijken af van de daadwerkelijke chip.
+- De preview van Web Audio is bij benadering: vibrato/slide wordt één keer per regel bijgewerkt (overeenkomend met de geëxporteerde speler), maar PWM-modulatie, ring/sync en het SID-filterkarakter verschillen nog steeds van de daadwerkelijke chip.
 
 ---
 

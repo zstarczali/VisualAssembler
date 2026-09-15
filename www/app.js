@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "pl-it-ui-languages-1",
+  id: "sid-fx-song-d64-save-243",
   url: "https://www.c64va.tech/docs.html",
   hu: {
-    eyebrow: "Újdonság",
+    eyebrow: "Újdonság a 2.4.3-ban",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p>Két új dolog érdemel egy pillantást:</p><ul><li><strong>Két új dokumentációs nyelv</strong> — az online kézikönyv mostantól lengyelül és olaszul is olvasható: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li><li><strong>Két új felületi nyelv</strong> — az alkalmazás felülete (menük, dialógusok, mnemonik leírások, Ultimate Basic referencia) mostantól lengyelül és olaszul is elérhető.</li></ul>`,
+    body: `<p>Három dolog érdemel egy pillantást ebben a kiadásban:</p><ul><li><strong>SID szerkesztő effekt-oszlop</strong> — a vibrato, csúszás fel/le, note-cut és tempóváltás mostantól szól mind a tracker előnézetben, mind az exportált C64 lejátszóban.</li><li><strong>SID szerkesztő song/sorrend lista</strong> — patternek elrendezése és ismétlése teljes dallá, nem csak egyetlen hurokká.</li><li><strong>D64 Editor Save munkafolyamat</strong> — a szerkesztések mostantól egy munkapéldányon landolnak explicit Save-vel (automatikus biztonsági mentéssel), és mentetlen módosítás esetén megerősítést kér.</li><li><strong>D64 Editor Block Editor</strong> — a Block Editor mostantól új byte-onkénti hex griddel jeleníti meg a kiválasztott 256 byte-os blokkot, és a dialógusa már nem halványítja el az app többi részét.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New",
+    eyebrow: "New in 2.4.3",
     title: "Welcome to Visual Assembler",
-    body: `<p>Two new things worth a look:</p><ul><li><strong>Two new documentation languages</strong> — the online manual now also reads in Polish and Italian: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li><li><strong>Two new UI languages</strong> — the app interface (menus, dialogs, mnemonic descriptions, Ultimate Basic reference) is now available in Polish and Italian too.</li></ul>`,
+    body: `<p>Three things worth a look in this release:</p><ul><li><strong>SID Editor effect column</strong> — vibrato, slide up/down, note-cut and speed-change now play back in both the tracker preview and the exported C64 player.</li><li><strong>SID Editor song/order list</strong> — arrange and repeat patterns into a full song, not just a single loop.</li><li><strong>D64 Editor Save workflow</strong> — edits now land on a working copy with an explicit Save (auto-backup included) and unsaved-change prompts.</li><li><strong>D64 Editor Block Editor</strong> — a new per-byte hex grid shows the selected 256-byte block, and its dialog no longer dims the rest of the app.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad",
+    eyebrow: "Novedad en la 2.4.3",
     title: "Bienvenido a Visual Assembler",
-    body: `<p>Dos novedades que merecen un vistazo:</p><ul><li><strong>Dos nuevos idiomas de documentación</strong> — el manual en línea ahora también se puede leer en polaco e italiano: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li><li><strong>Dos nuevos idiomas de interfaz</strong> — la interfaz de la aplicación (menús, diálogos, descripciones de mnemónicos, referencia de Ultimate Basic) ahora también está disponible en polaco e italiano.</li></ul>`,
+    body: `<p>Tres novedades que merecen un vistazo en esta versión:</p><ul><li><strong>Columna de efectos del editor SID</strong> — el vibrato, el deslizamiento arriba/abajo, el corte de nota y el cambio de velocidad ahora suenan tanto en la vista previa del tracker como en el reproductor C64 exportado.</li><li><strong>Lista de canciones/orden del editor SID</strong> — organiza y repite patrones para formar una canción completa, no solo un bucle.</li><li><strong>Flujo de guardado del Editor D64</strong> — las ediciones ahora se aplican a una copia de trabajo con un Guardar explícito (con copia de seguridad automática) y avisos de cambios sin guardar.</li><li><strong>Editor de bloques del Editor D64</strong> — una nueva cuadrícula hexadecimal por byte muestra el bloque de 256 bytes seleccionado, y su ventana ya no atenúa el resto de la aplicación.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu",
+    eyebrow: "Neu in 2.4.3",
     title: "Willkommen bei Visual Assembler",
-    body: `<p>Zwei Neuerungen sind einen Blick wert:</p><ul><li><strong>Zwei neue Dokumentationssprachen</strong> — das Online-Handbuch ist jetzt auch auf Polnisch und Italienisch lesbar: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li><li><strong>Zwei neue Oberflächensprachen</strong> — die App-Oberfläche (Menüs, Dialoge, Mnemonic-Beschreibungen, Ultimate-Basic-Referenz) ist jetzt auch auf Polnisch und Italienisch verfügbar.</li></ul>`,
+    body: `<p>Drei Neuerungen sind in diesem Release einen Blick wert:</p><ul><li><strong>SID-Editor-Effektspalte</strong> — Vibrato, Slide auf/ab, Note-Cut und Tempowechsel erklingen jetzt sowohl in der Tracker-Vorschau als auch im exportierten C64-Player.</li><li><strong>SID-Editor Song-/Reihenfolgeliste</strong> — Patterns zu einem vollständigen Song anordnen und wiederholen, nicht nur zu einer einzelnen Schleife.</li><li><strong>D64-Editor Speicher-Workflow</strong> — Änderungen landen jetzt auf einer Arbeitskopie mit explizitem Speichern (inklusive automatischem Backup) und Abfragen bei ungespeicherten Änderungen.</li><li><strong>D64-Editor Block-Editor</strong> — ein neues byteweises Hex-Raster zeigt den ausgewählten 256-Byte-Block, und sein Dialog verdunkelt den Rest der App nicht mehr.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw",
+    eyebrow: "Nieuw in 2.4.3",
     title: "Welkom bij Visual Assembler",
-    body: `<p>Twee nieuwe dingen die de moeite waard zijn:</p><ul><li><strong>Twee nieuwe documentatietalen</strong> — de online handleiding is nu ook te lezen in het Pools en Italiaans: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li><li><strong>Twee nieuwe interfacetalen</strong> — de app-interface (menu's, dialoogvensters, mnemonic-beschrijvingen, Ultimate Basic-referentie) is nu ook beschikbaar in het Pools en Italiaans.</li></ul>`,
+    body: `<p>Drie dingen die de moeite waard zijn in deze release:</p><ul><li><strong>SID-editor effectkolom</strong> — vibrato, slide omhoog/omlaag, note-cut en tempowissel klinken nu zowel in de trackervoorbeeld als in de geëxporteerde C64-speler.</li><li><strong>SID-editor song/volgorde-lijst</strong> — patronen rangschikken en herhalen tot een volledig nummer, niet slechts één lus.</li><li><strong>D64-editor opslag-workflow</strong> — bewerkingen landen nu op een werkkopie met een expliciete Opslaan-knop (inclusief automatische back-up) en meldingen bij niet-opgeslagen wijzigingen.</li><li><strong>D64-editor Block Editor</strong> — een nieuw byte-voor-byte hexraster toont het geselecteerde blok van 256 bytes, en het dialoogvenster dimt de rest van de app niet meer.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość",
+    eyebrow: "Nowość w 2.4.3",
     title: "Witamy w Visual Assembler",
-    body: `<p>Dwie nowości warte uwagi:</p><ul><li><strong>Dwa nowe języki dokumentacji</strong> — instrukcja online jest teraz dostępna również po polsku i włosku: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li><li><strong>Dwa nowe języki interfejsu</strong> — interfejs aplikacji (menu, dialogi, opisy mnemoników, dokumentacja Ultimate Basic) jest teraz dostępny również po polsku i włosku.</li></ul>`,
+    body: `<p>Trzy nowości warte uwagi w tym wydaniu:</p><ul><li><strong>Kolumna efektów edytora SID</strong> — vibrato, slide w górę/w dół, note-cut i zmiana tempa brzmią teraz zarówno w podglądzie trackera, jak i w wyeksportowanym odtwarzaczu C64.</li><li><strong>Lista utworu/kolejności edytora SID</strong> — układaj i powtarzaj patterny w pełny utwór, a nie tylko jedną pętlę.</li><li><strong>Przepływ zapisu Edytora D64</strong> — edycje trafiają teraz do kopii roboczej z jawnym Zapisem (wraz z automatyczną kopią zapasową) i pytaniem o niezapisane zmiany.</li><li><strong>Edytor bloków w Edytorze D64</strong> — nowa siatka hex bajt-po-bajcie pokazuje wybrany blok 256 bajtów, a jego okno nie przyciemnia już reszty aplikacji.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità",
+    eyebrow: "Novità nella 2.4.3",
     title: "Benvenuto in Visual Assembler",
-    body: `<p>Due novità da non perdere:</p><ul><li><strong>Due nuove lingue per la documentazione</strong> — il manuale online è ora leggibile anche in polacco e italiano: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li><li><strong>Due nuove lingue per l'interfaccia</strong> — l'interfaccia dell'app (menu, finestre di dialogo, descrizioni dei mnemonici, riferimento Ultimate Basic) è ora disponibile anche in polacco e italiano.</li></ul>`,
+    body: `<p>Tre novità da non perdere in questa versione:</p><ul><li><strong>Colonna effetti dell'editor SID</strong> — vibrato, slide su/giù, note-cut e cambio di tempo ora suonano sia nell'anteprima del tracker che nel player C64 esportato.</li><li><strong>Lista song/ordine dell'editor SID</strong> — organizza e ripeti i pattern in una canzone completa, non solo in un singolo loop.</li><li><strong>Flusso di salvataggio dell'Editor D64</strong> — le modifiche ora vengono applicate a una copia di lavoro con un Salva esplicito (con backup automatico) e avvisi per modifiche non salvate.</li><li><strong>Block Editor dell'Editor D64</strong> — una nuova griglia esadecimale byte per byte mostra il blocco di 256 byte selezionato, e la sua finestra non oscura più il resto dell'app.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -691,34 +691,59 @@ const addressingModeText = {
   implied: {
     hu: { label: "Implied", help: "Az utasitas onmagaban teljes.", placeholder: "Nem kell operandus" },
     en: { label: "Implied", help: "The instruction is complete on its own.", placeholder: "No operand needed" },
-    nl: { label: "Implied", help: "De instructie is op zichzelf compleet.", placeholder: "Geen operand vereist" }
+    es: { label: "Implied", help: "La instrucción es completa por sí misma.", placeholder: "No se necesita operando" },
+    de: { label: "Implied", help: "Der Befehl ist für sich allein vollständig.", placeholder: "Kein Operand erforderlich" },
+    nl: { label: "Implied", help: "De instructie is op zichzelf compleet.", placeholder: "Geen operand vereist" },
+    pl: { label: "Implied", help: "Instrukcja jest kompletna sama w sobie.", placeholder: "Operand nie jest wymagany" },
+    it: { label: "Implied", help: "L'istruzione è completa di per sé.", placeholder: "Nessun operando necessario" }
   },
   immediate: {
     hu: { label: "Immediate", help: "Az ertek kozvetlen konstans, az assembler ele # jelet kap.", placeholder: "Peldaul 1 vagy 255" },
     en: { label: "Immediate", help: "The value is an inline constant prefixed with # by the assembler.", placeholder: "For example 1 or 255" },
-    nl: { label: "Immediate", help: "De waarde is een directe constante, voorafgegaan door #.", placeholder: "Bijvoorbeeld 1 of 255" }
+    es: { label: "Immediate", help: "El valor es una constante inmediata, precedida por # por el ensamblador.", placeholder: "Por ejemplo 1 o 255" },
+    de: { label: "Immediate", help: "Der Wert ist eine unmittelbare Konstante, der der Assembler ein # voranstellt.", placeholder: "Zum Beispiel 1 oder 255" },
+    nl: { label: "Immediate", help: "De waarde is een directe constante, voorafgegaan door #.", placeholder: "Bijvoorbeeld 1 of 255" },
+    pl: { label: "Immediate", help: "Wartość jest stałą bezpośrednią, poprzedzoną znakiem # przez asembler.", placeholder: "Na przykład 1 lub 255" },
+    it: { label: "Immediate", help: "Il valore è una costante immediata, preceduta da # dall'assembler.", placeholder: "Per esempio 1 o 255" }
   },
   zeroPage: {
     hu: { label: "Zero page", help: "Az operandus a zero page tartomanyban van.", placeholder: "0-255" },
     en: { label: "Zero page", help: "The operand is in the zero page range.", placeholder: "0-255" },
-    nl: { label: "Zero page", help: "De operand bevindt zich in de zero-page ($00-$FF).", placeholder: "0-255" }
+    es: { label: "Zero page", help: "El operando está en el rango de la página cero.", placeholder: "0-255" },
+    de: { label: "Zero page", help: "Der Operand liegt im Zero-Page-Bereich.", placeholder: "0-255" },
+    nl: { label: "Zero page", help: "De operand bevindt zich in de zero-page ($00-$FF).", placeholder: "0-255" },
+    pl: { label: "Zero page", help: "Operand znajduje się w zakresie strony zerowej.", placeholder: "0-255" },
+    it: { label: "Zero page", help: "L'operando si trova nell'intervallo della zero page.", placeholder: "0-255" }
   },
   absolute: {
     hu: { label: "Absolute", help: "Teljes 16 bites memoriacim.", placeholder: "0-65535" },
     en: { label: "Absolute", help: "Full 16-bit memory address.", placeholder: "0-65535" },
-    nl: { label: "Absolute", help: "Volledig 16-bits geheugenadres ($0000-$FFFF).", placeholder: "0-65535" }
+    es: { label: "Absolute", help: "Dirección de memoria completa de 16 bits.", placeholder: "0-65535" },
+    de: { label: "Absolute", help: "Vollständige 16-Bit-Speicheradresse.", placeholder: "0-65535" },
+    nl: { label: "Absolute", help: "Volledig 16-bits geheugenadres ($0000-$FFFF).", placeholder: "0-65535" },
+    pl: { label: "Absolute", help: "Pełny 16-bitowy adres pamięci.", placeholder: "0-65535" },
+    it: { label: "Absolute", help: "Indirizzo di memoria completo a 16 bit.", placeholder: "0-65535" }
   },
   relative: {
     hu: { label: "Relative/Label", help: "Branch utasitasnal adhatsz meg labelt vagy celt.", placeholder: "ciklus vagy 2048" },
     en: { label: "Relative/Label", help: "For branch instructions you can provide a label or target.", placeholder: "loop or 2048" },
-    nl: { label: "Relative/Label", help: "Voor branch-instructies kan een label of doel worden opgegeven.", placeholder: "lus of 2048" }
+    es: { label: "Relative/Label", help: "En las instrucciones de salto puedes indicar una etiqueta o un destino.", placeholder: "bucle o 2048" },
+    de: { label: "Relative/Label", help: "Bei Branch-Befehlen kannst du ein Label oder ein Ziel angeben.", placeholder: "Schleife oder 2048" },
+    nl: { label: "Relative/Label", help: "Voor branch-instructies kan een label of doel worden opgegeven.", placeholder: "lus of 2048" },
+    pl: { label: "Relative/Label", help: "Dla instrukcji skoku możesz podać etykietę lub cel.", placeholder: "pętla lub 2048" },
+    it: { label: "Relative/Label", help: "Per le istruzioni di salto puoi indicare un'etichetta o una destinazione.", placeholder: "loop o 2048" }
   },
   absoluteX: {
     hu: { label: "Absolute,X", help: "16 bites memoriacim + X regiszter offset. Pl: LDA $0400,X", placeholder: "0-65535" },
     en: { label: "Absolute,X", help: "16-bit memory address + X register offset. E.g.: LDA $0400,X", placeholder: "0-65535" },
-    nl: { label: "Absolute,X", help: "16-bits geheugenadres + X-register verschuiving. Bijv: LDA $0400,X", placeholder: "0-65535" }
+    es: { label: "Absolute,X", help: "Dirección de memoria de 16 bits + desplazamiento del registro X. Ej.: LDA $0400,X", placeholder: "0-65535" },
+    de: { label: "Absolute,X", help: "16-Bit-Speicheradresse + X-Register-Offset. Z. B.: LDA $0400,X", placeholder: "0-65535" },
+    nl: { label: "Absolute,X", help: "16-bits geheugenadres + X-register verschuiving. Bijv: LDA $0400,X", placeholder: "0-65535" },
+    pl: { label: "Absolute,X", help: "16-bitowy adres pamięci + przesunięcie rejestru X. Np.: LDA $0400,X", placeholder: "0-65535" },
+    it: { label: "Absolute,X", help: "Indirizzo di memoria a 16 bit + offset del registro X. Es.: LDA $0400,X", placeholder: "0-65535" }
   }
 };
+
 
 function modeText(modeKey, field) {
   const mode = addressingModeText[modeKey];
@@ -2186,7 +2211,8 @@ function setupDraggableEditorDialogs() {
     ["sprite-editor-dialog", ".se-hdr"],
     ["sid-editor-dialog", ".sid-hdr"],
     ["curve-gen-dialog", ".cg-hdr"],
-    ["d64-editor-dialog", ".de-hdr"]
+    ["d64-editor-dialog", ".de-hdr"],
+    ["d64-block-editor-dialog", ".dbe-hdr"]
   ];
   dialogs.forEach(function(entry) {
     const dialogId = entry[0];
@@ -2201,10 +2227,21 @@ function setupDraggableEditorDialogs() {
         dialog.style.position = "fixed";
         dialog.style.margin = "0";
         dialog.style.transform = "none";
-        const maxX = Math.max(8, window.innerWidth - dialog.offsetWidth - 8);
-        const maxY = Math.max(8, window.innerHeight - dialog.offsetHeight - 8);
-        dialog.style.left = Math.max(8, Math.min(saved.left, maxX)) + "px";
-        dialog.style.top = Math.max(8, Math.min(saved.top, maxY)) + "px";
+        // offsetWidth/Height read 0 before the dialog is actually open and
+        // laid out — e.g. when a dialog's own open function calls this via
+        // dialog._applyPosition() right before showModal() to avoid a
+        // flash at the top-left default. Skip clamping in that case and
+        // use the saved coordinates verbatim; the "toggle" listener below
+        // re-runs this once real dimensions exist and clamps then.
+        if (dialog.offsetWidth > 0 && dialog.offsetHeight > 0) {
+          const maxX = Math.max(8, window.innerWidth - dialog.offsetWidth - 8);
+          const maxY = Math.max(8, window.innerHeight - dialog.offsetHeight - 8);
+          dialog.style.left = Math.max(8, Math.min(saved.left, maxX)) + "px";
+          dialog.style.top = Math.max(8, Math.min(saved.top, maxY)) + "px";
+        } else {
+          dialog.style.left = saved.left + "px";
+          dialog.style.top = saved.top + "px";
+        }
       } else {
         dialog.style.position = "fixed";
         dialog.style.margin = "0";
@@ -2213,6 +2250,10 @@ function setupDraggableEditorDialogs() {
         dialog.style.transform = "translate(-50%, -50%)";
       }
     };
+    // Exposed so a dialog's own custom open function (e.g. the Block
+    // Editor, opened from inside the D64 Editor rather than a plain
+    // toolbar button) can position it synchronously before showModal().
+    dialog._applyPosition = applyPosition;
     const persistPosition = function() {
       const rect = dialog.getBoundingClientRect();
       _editorDialogPositions[dialogId] = { left: Math.round(rect.left), top: Math.round(rect.top) };
@@ -3093,6 +3134,7 @@ function applyTranslations() {
     document.getElementById("d64-editor-btn")?.setAttribute("aria-label", t("d64EditorTitle"));
     setText("#de-new", t("d64EditorNew"));
     setText("#de-open", t("d64EditorOpen"));
+    document.getElementById("de-save")?.setAttribute("aria-label", t("d64EditorSave"));
     setText("#de-save-as", t("d64EditorSaveAs"));
     setText("#de-run-vice", t("d64EditorRunVice"));
     document.getElementById("de-add")?.setAttribute("aria-label", t("d64EditorAdd"));
@@ -3100,6 +3142,19 @@ function applyTranslations() {
     document.getElementById("de-rename")?.setAttribute("aria-label", t("d64EditorRename"));
     document.getElementById("de-delete")?.setAttribute("aria-label", t("d64EditorDelete"));
     document.getElementById("de-refresh")?.setAttribute("aria-label", t("d64EditorRefresh"));
+    document.getElementById("de-gen-include")?.setAttribute("aria-label", t("d64EditorGenerateInclude"));
+    setText("#de-drop-hint", t("d64EditorDropHint"));
+    document.getElementById("de-blocks-toggle")?.setAttribute("aria-label", t("d64EditorBlocksToggle"));
+    setText(".dbe-title", t("d64BlockEditorTitle"));
+    setText("#de-block-warning", t("d64BlockWarning"));
+    setText("#de-block-legend-free", t("d64BlockLegendFree"));
+    setText("#de-block-legend-used", t("d64BlockLegendUsed"));
+    setText("#de-block-legend-system", t("d64BlockLegendSystem"));
+    document.getElementById("de-block-prev")?.setAttribute("aria-label", t("d64BlockPrev"));
+    document.getElementById("de-block-next")?.setAttribute("aria-label", t("d64BlockNext"));
+    document.getElementById("de-block-reload")?.setAttribute("aria-label", t("d64BlockReload"));
+    document.getElementById("de-block-write")?.setAttribute("aria-label", t("d64BlockWrite"));
+    if (_d64EdState.blockBytes) _d64EdSelectBlock(_d64EdState.blockTrack, _d64EdState.blockSector);
     setText("#de-add-name-label", t("d64EditorAddNameLabel"));
     setText("#de-add-load-label", t("d64EditorAddLoadLabel"));
     setText("#de-add-type-label", t("d64EditorColType"));
@@ -3580,6 +3635,20 @@ function _applyEditorTranslations() {
     const label = sidCtxClear.querySelector(".sid-ctx-label");
     if (label) label.textContent = t("sidContextClear");
   }
+  setText("#sid-song-label", t("sidSongLabel"));
+  setAttr("#sid-song-add", t("sidSongInsert"));
+  setAttr("#sid-song-del", t("sidSongRemove"));
+  setAttr("#sid-song-up", t("sidSongMoveLeft"));
+  setAttr("#sid-song-down", t("sidSongMoveRight"));
+  // applyTranslations() also runs once during the very first page load
+  // (initPalette -> applyTranslations, before the SID editor section's own
+  // `let _sidSong = [0]` further down the script has executed), so a bare
+  // call here can hit _sidSong while it's still in its temporal dead zone.
+  // _sidBuildSongList's own `!_sidSong` guard can't help with that — reading
+  // an uninitialized `let` throws before the check even runs — so just skip
+  // this one refresh on that first pass; every later call (language switch,
+  // SID editor open) runs after _sidSong is safely initialized.
+  try { _sidBuildSongList(); } catch (e) {}
   setText("#sid-harmony-label", t("sidHarmonyLabel"));
   setText("#sid-chord-root-label", t("sidChordRoot"));
   setText("#sid-chord-type-label", t("sidChordType"));
@@ -16688,19 +16757,45 @@ async function saveD64ToFile() {
 // d64_list/d64_add_file/... in lib.rs) — there is no in-memory buffering,
 // so each toolbar action mutates the file immediately, like a real disk tool.
 const _d64EdState = {
+  // path: the WORKING file every c1541/block operation actually reads and
+  // writes — a scratch "<orig>.editing.tmp" copy, not the user's real
+  // file. origPath is the real file; nothing there changes until Save
+  // (_d64EdSave) copies the working copy over it. This keeps every
+  // existing add/delete/rename/block-write call unchanged (they all just
+  // use _d64EdState.path as before) while giving the user an explicit,
+  // reversible Save step instead of every click landing on disk directly.
   path: null,
+  origPath: null,
+  dirty: false,
   diskName: "",
   freeBlocks: null,
   entries: [],
   selected: null,
-  pendingAddBytes: null
+  pendingAddBytes: null,
+  // name -> hex load address (no "$"), for entries whose target address is
+  // known from this session (typed by hand, or from a dropped .prg header).
+  // Feeds "Generate include file" — see _d64EdGenerateInclude().
+  addresses: {},
+  // Files queued from a multi-file drag-and-drop; the add panel is shown
+  // one file at a time and advances to the next on a successful add.
+  dropQueue: [],
+  // Raw track/sector block editor (see the "Blocks" toolbar toggle below).
+  blockMode: false,
+  blockBytes: null,     // whole disk image, cached while block mode is on
+  blockTrack: 1,
+  blockSector: 0,
+  blockFreeSet: null    // Set of "track:sector" strings free per the BAM
 };
 
 function _d64EdSetError(msg) {
-  const el = document.getElementById("de-error");
-  if (!el) return;
-  if (msg) { el.textContent = msg; el.hidden = false; }
-  else { el.textContent = ""; el.hidden = true; }
+  // Mirrors the message into both the directory-view error slot and the
+  // block editor dialog's own slot, since the block editor is a separate
+  // <dialog> that can be stacked on top of (and hide) the D64 Editor one.
+  [document.getElementById("de-error"), document.getElementById("de-block-error")].forEach(function(el) {
+    if (!el) return;
+    if (msg) { el.textContent = msg; el.hidden = false; }
+    else { el.textContent = ""; el.hidden = true; }
+  });
 }
 
 function _d64EdSetToolbarEnabled() {
@@ -16713,14 +16808,21 @@ function _d64EdSetToolbarEnabled() {
   set("de-delete", hasSel);
   set("de-run-vice", hasDisk);
   set("de-refresh", hasDisk);
+  set("de-save", hasDisk && _d64EdState.dirty);
   set("de-save-as", hasDisk);
+  set("de-gen-include", hasDisk && _d64EdState.entries.length > 0);
+  set("de-blocks-toggle", hasDisk);
 }
 
 function _d64EdUpdateHeader() {
   const label = document.getElementById("de-disk-label");
   if (label) {
+    // Show the real file's name (not the "<name>.d64.editing.tmp" working
+    // copy every operation actually runs against — see _d64EdState.path)
+    // plus a "•" marker while there are edits not yet written back to it.
+    const displayPath = _d64EdState.origPath || _d64EdState.path;
     label.textContent = _d64EdState.path
-      ? (_d64EdState.diskName ? _d64EdState.diskName.toUpperCase() + " — " : "") + _d64EdState.path.split(/[\\/]/).pop()
+      ? (_d64EdState.diskName ? _d64EdState.diskName.toUpperCase() + " — " : "") + displayPath.split(/[\\/]/).pop() + (_d64EdState.dirty ? " •" : "")
       : t("d64EditorNoDisk");
   }
   const free = document.getElementById("de-free-label");
@@ -16784,32 +16886,36 @@ async function _d64EdReload() {
     _d64EdState.selected = null;
   }
   _d64EdRenderEntries();
+  // Keep the raw block cache honest if a directory-level op (add/delete/
+  // rename) just ran while the block editor was open — it wrote through
+  // c1541, which this session's cached image copy doesn't know about.
+  if (_d64EdState.blockMode) await _d64EdLoadBlockImage();
 }
 
 function _d64EdHideAddPanel() {
   _d64EdState.pendingAddBytes = null;
+  _d64EdState.dropQueue = [];
   const panel = document.getElementById("de-add-panel");
   if (panel) panel.hidden = true;
 }
 
-async function _d64EdShowAddPanel() {
-  if (!_d64EdState.path) return;
-  const api = window.electronAPI;
-  const picked = await api.chooseIncBinFile();
-  if (!picked || picked.canceled) return;
-  if (picked.error) { _d64EdSetError(picked.error); return; }
-  _d64EdState.pendingAddBytes = picked.bytes;
+// Shared by the native file picker and drag-and-drop: populates the add
+// panel fields from a fileName + byte array and shows it. `bytes` is a plain
+// array (or typed array) of byte values, matching what chooseIncBinFile and
+// a dropped File's arrayBuffer() both end up as after normalization.
+function _d64EdPreparePanelForFile(bytes, fileName) {
+  _d64EdState.pendingAddBytes = bytes;
   // A .prg already carries its own load-address header, so the load/decompress
   // address + Exomizer fields (meant for headerless raw .bin data) only make
   // sense for non-.prg files — hide them entirely for a .prg pick.
-  _d64EdState.pendingIsPrg = /\.prg$/i.test(picked.fileName || "");
+  _d64EdState.pendingIsPrg = /\.prg$/i.test(fileName || "");
   const nameInput = document.getElementById("de-add-name");
   const typeSelect = document.getElementById("de-add-type");
   const loadInput = document.getElementById("de-add-load");
   const decompInput = document.getElementById("de-add-decomp");
   const crunchCb = document.getElementById("de-add-crunch");
   const extraFields = document.getElementById("de-add-extra-fields");
-  const stem = (picked.fileName || "program").replace(/\.[^.]+$/, "").replace(/[^A-Za-z0-9_]/g, "").slice(0, 16).toUpperCase();
+  const stem = (fileName || "program").replace(/\.[^.]+$/, "").replace(/[^A-Za-z0-9_]/g, "").slice(0, 16).toUpperCase();
   if (nameInput) nameInput.value = stem || "PROGRAM";
   if (typeSelect) typeSelect.value = _d64EdState.pendingIsPrg ? "prg" : "seq";
   if (loadInput) loadInput.value = "";
@@ -16819,6 +16925,46 @@ async function _d64EdShowAddPanel() {
   const panel = document.getElementById("de-add-panel");
   if (panel) panel.hidden = false;
   nameInput?.focus();
+}
+
+async function _d64EdShowAddPanel() {
+  if (!_d64EdState.path) return;
+  const api = window.electronAPI;
+  const picked = await api.chooseIncBinFile();
+  if (!picked || picked.canceled) return;
+  if (picked.error) { _d64EdSetError(picked.error); return; }
+  _d64EdSetError("");
+  _d64EdPreparePanelForFile(picked.bytes, picked.fileName);
+}
+
+// Drag-and-drop entry point: a file (or several) dropped straight onto the
+// D64 editor body. Multiple files are queued and shown one at a time —
+// _d64EdConfirmAdd() advances the queue after each successful add.
+async function _d64EdHandleDroppedFiles(fileList) {
+  if (!_d64EdState.path) { _d64EdSetError(t("d64EditorNoDiskForDrop")); return; }
+  const files = Array.from(fileList || []).filter(f => f && f.size >= 0);
+  if (!files.length) return;
+  _d64EdState.dropQueue = files.slice(1);
+  await _d64EdLoadDroppedFile(files[0]);
+}
+
+async function _d64EdLoadDroppedFile(file) {
+  if (!file) return;
+  _d64EdSetError("");
+  try {
+    const buf = await file.arrayBuffer();
+    _d64EdPreparePanelForFile(Array.from(new Uint8Array(buf)), file.name);
+  } catch (_) {
+    _d64EdSetError(t("d64EditorAddFailed"));
+  }
+}
+
+// After a successful add (or a cancel), continue with the next file queued
+// by a multi-file drop; no-op if nothing is queued.
+async function _d64EdAdvanceDropQueue() {
+  if (!_d64EdState.dropQueue.length) return;
+  const next = _d64EdState.dropQueue.shift();
+  await _d64EdLoadDroppedFile(next);
 }
 
 // Optional load/decompress address + Exomizer checkbox mirror the "extra
@@ -16854,6 +17000,11 @@ async function _d64EdConfirmAdd() {
     if (wantsCrunch && loadAddress === null) { _d64EdSetError(tf("d64ErrorCrunchNeedsAddr", { name })); return; }
   }
 
+  // Snapshot before the crunch branch below nulls loadAddress out (sfx mode
+  // hands d64AddFile a self-extracting loader with no PRG header address of
+  // its own) — this is the address "Generate include file" reports.
+  const declaredAddress = isPrg ? null : loadAddress;
+
   _d64EdSetError("");
   let bytes = _d64EdState.pendingAddBytes;
 
@@ -16887,8 +17038,32 @@ async function _d64EdConfirmAdd() {
 
   const res = await window.electronAPI.d64AddFile(_d64EdState.path, bytes, name, loadAddress, fileType);
   if (!res || !res.ok) { _d64EdSetError((res && res.error) || t("d64EditorAddFailed")); return; }
-  _d64EdHideAddPanel();
+  // The Rust side sanitizes/lowercases the name before it ever reaches
+  // c1541 (see sanitize_disk_name in lib.rs — c1541 expects lowercase ASCII
+  // to produce an uppercase-looking PETSCII directory entry), and that's
+  // the exact string d64_list will hand back as entry.name afterwards. Key
+  // the address map on res.name (what was actually written), not `name`
+  // (what was typed) — otherwise a typed-uppercase name never matches the
+  // lowercase name the directory listing reports, and "Generate include
+  // file" silently finds nothing for every entry added this way.
+  const savedName = res.name || name;
+  // declaredAddress is the target address as the user typed it, captured
+  // before a crunch pass may have nulled `loadAddress` (sfx mode writes the
+  // decompressed data at that same address, just via a self-extracting
+  // loader instead of a plain PRG header) — that's what "Generate include
+  // file" needs, not the possibly-null value actually passed to d64AddFile.
+  if (declaredAddress !== null) {
+    _d64EdState.addresses[savedName] = declaredAddress.toString(16).toUpperCase().padStart(4, "0");
+  } else {
+    delete _d64EdState.addresses[savedName];
+  }
+  const queue = _d64EdState.dropQueue;
+  _d64EdState.pendingAddBytes = null;
+  const panel = document.getElementById("de-add-panel");
+  if (panel) panel.hidden = true;
+  _d64EdState.dirty = true;
   await _d64EdReload();
+  await _d64EdAdvanceDropQueue();
 }
 
 async function _d64EdExtractSelected() {
@@ -16904,7 +17079,9 @@ async function _d64EdDeleteSelected() {
   _d64EdSetError("");
   const res = await window.electronAPI.d64DeleteFile(_d64EdState.path, _d64EdState.selected);
   if (!res || !res.ok) { _d64EdSetError((res && res.error) || t("d64EditorDeleteFailed")); return; }
+  delete _d64EdState.addresses[_d64EdState.selected];
   _d64EdState.selected = null;
+  _d64EdState.dirty = true;
   await _d64EdReload();
 }
 
@@ -16933,6 +17110,11 @@ function _d64EdRenameSelected() {
     _d64EdSetError("");
     const res = await window.electronAPI.d64RenameFile(_d64EdState.path, oldName, newName);
     if (!res || !res.ok) { _d64EdSetError((res && res.error) || t("d64EditorRenameFailed")); _d64EdRenderEntries(); return; }
+    _d64EdState.dirty = true;
+    if (Object.prototype.hasOwnProperty.call(_d64EdState.addresses, oldName)) {
+      _d64EdState.addresses[res.name || newName] = _d64EdState.addresses[oldName];
+      delete _d64EdState.addresses[oldName];
+    }
     _d64EdState.selected = res.name || newName;
     await _d64EdReload();
   };
@@ -16944,25 +17126,89 @@ function _d64EdRenameSelected() {
   input.addEventListener("blur", commit);
 }
 
+// Working-copy path for a real disk path: every c1541/block operation
+// during this editing session runs against this file, never the user's
+// original, until an explicit Save (_d64EdSave) copies it back over.
+function _d64EdTempPathFor(origPath) {
+  return origPath + ".editing.tmp";
+}
+
+// Deletes the current working copy, if any — called right before Open/New
+// replaces it with a different disk, so a "<name>.d64.editing.tmp" file
+// doesn't linger next to the user's disks. (Closing the D64 Editor dialog
+// itself does NOT clean up — reopening it resumes the same disk, same
+// unsaved edits, same working copy, exactly like before this file existed.)
+// Best-effort: cleanup failing must never block whatever triggered it.
+async function _d64EdCleanupTemp() {
+  if (!_d64EdState.path) return;
+  try { await window.electronAPI.deleteBinFile(_d64EdState.path); } catch (_) { /* ignore */ }
+}
+
+// Safety net for Save: snapshot the real file to "<path>.bak" right before
+// it gets overwritten with the working copy's contents, so a mistake (or
+// the wrong block in the Block Editor) can always be undone by restoring
+// that file. Best-effort: a failed backup must never block Save.
+async function _d64EdBackupDisk(path) {
+  if (!path) return;
+  try {
+    const api = window.electronAPI;
+    const res = await api.readBinFile(path);
+    if (!res || !res.ok || !res.bytes) return;
+    await api.writeBinFile(path + ".bak", res.bytes);
+  } catch (_) {
+    // ignore — backup is a convenience, not a precondition for saving
+  }
+}
+
 async function _d64EdOpen() {
+  if (_d64EdState.dirty && !await _showConfirm(t("d64EditorUnsavedConfirm"))) return;
   const api = window.electronAPI;
   const picked = await api.chooseD64Open();
   if (!picked || picked.canceled) return;
-  _d64EdState.path = picked.filePath;
+  await _d64EdCleanupTemp();
+  const tempPath = _d64EdTempPathFor(picked.filePath);
+  const readRes = await api.readBinFile(picked.filePath);
+  if (!readRes || !readRes.ok || !readRes.bytes) { _d64EdSetError((readRes && readRes.error) || t("d64EditorLoadFailed")); return; }
+  const writeRes = await api.writeBinFile(tempPath, readRes.bytes);
+  if (!writeRes || !writeRes.ok) { _d64EdSetError((writeRes && writeRes.error) || t("d64EditorLoadFailed")); return; }
+  _d64EdState.path = tempPath;
+  _d64EdState.origPath = picked.filePath;
+  _d64EdState.dirty = false;
   _d64EdState.selected = null;
+  _d64EdState.addresses = {};
+  _d64EdState.blockMode = false;
+  _d64EdState.blockBytes = null;
+  document.getElementById("d64-block-editor-dialog")?.close();
+  document.getElementById("de-blocks-toggle")?.setAttribute("aria-pressed", "false");
   _d64EdHideAddPanel();
   await _d64EdReload();
 }
 
 async function _d64EdNew() {
+  if (_d64EdState.dirty && !await _showConfirm(t("d64EditorUnsavedConfirm"))) return;
   const api = window.electronAPI;
   const picked = await api.chooseD64New();
   if (!picked || picked.canceled) return;
   const stem = (picked.filePath.split(/[\\/]/).pop() || "disk").replace(/\.d64$/i, "");
   const res = await api.d64Format(picked.filePath, stem);
   if (!res || !res.ok) { _d64EdSetError((res && res.error) || t("d64EditorFormatFailed")); return; }
-  _d64EdState.path = picked.filePath;
+  await _d64EdCleanupTemp();
+  // The freshly-formatted disk already exists at picked.filePath (d64Format
+  // wrote it directly) — mirror it into a working copy so every subsequent
+  // edit goes through the same Save step as an opened disk, instead of
+  // writing straight to the just-created file.
+  const tempPath = _d64EdTempPathFor(picked.filePath);
+  const readRes = await api.readBinFile(picked.filePath);
+  if (readRes && readRes.ok && readRes.bytes) await api.writeBinFile(tempPath, readRes.bytes);
+  _d64EdState.path = (readRes && readRes.ok) ? tempPath : picked.filePath;
+  _d64EdState.origPath = picked.filePath;
+  _d64EdState.dirty = false;
   _d64EdState.selected = null;
+  _d64EdState.addresses = {};
+  _d64EdState.blockMode = false;
+  _d64EdState.blockBytes = null;
+  document.getElementById("d64-block-editor-dialog")?.close();
+  document.getElementById("de-blocks-toggle")?.setAttribute("aria-pressed", "false");
   await _d64EdReload();
 }
 
@@ -16971,10 +17217,30 @@ async function _d64EdSaveAs() {
   const api = window.electronAPI;
   const picked = await api.chooseD64New();
   if (!picked || picked.canceled) return;
+  // Copies the WORKING copy (with any unsaved edits) to the new path —
+  // like Save, this is an explicit commit, so the new file is written
+  // immediately rather than deferred to a later Save.
   const res = await api.d64CopyAs(_d64EdState.path, picked.filePath);
   if (!res || !res.ok) { _d64EdSetError((res && res.error) || t("d64EditorSaveAsFailed")); return; }
-  _d64EdState.path = picked.filePath;
+  _d64EdState.origPath = picked.filePath;
+  _d64EdState.dirty = false;
   await _d64EdReload();
+}
+
+// Commits the working copy's contents back over the real file the user
+// opened/created — the explicit Save step; nothing before this touches
+// that file. Backs it up first (see _d64EdBackupDisk).
+async function _d64EdSave() {
+  if (!_d64EdState.path || !_d64EdState.origPath) return;
+  _d64EdSetError("");
+  const api = window.electronAPI;
+  const res = await api.readBinFile(_d64EdState.path);
+  if (!res || !res.ok || !res.bytes) { _d64EdSetError((res && res.error) || t("d64EditorSaveFailed")); return; }
+  await _d64EdBackupDisk(_d64EdState.origPath);
+  const writeRes = await api.writeBinFile(_d64EdState.origPath, res.bytes);
+  if (!writeRes || !writeRes.ok) { _d64EdSetError((writeRes && writeRes.error) || t("d64EditorSaveFailed")); return; }
+  _d64EdState.dirty = false;
+  _d64EdUpdateHeader();
 }
 
 async function _d64EdRunVice() {
@@ -16984,17 +17250,380 @@ async function _d64EdRunVice() {
   if (!res || !res.ok) _d64EdSetError((res && res.error) || t("d64EditorRunFailed"));
 }
 
+// A valid 6502-assembler identifier for a disk entry name: letters/digits/_
+// only, can't start with a digit. Disk names are already A-Z0-9 (PETSCII
+// directory charset), so this mostly just guards punctuation like "-".
+function _d64EdSanitizeConstName(name) {
+  let out = String(name || "FILE").toUpperCase().replace(/[^A-Z0-9_]/g, "_");
+  if (!/^[A-Z_]/.test(out)) out = "_" + out;
+  return out || "FILE";
+}
+
+// Andreas Podgurski's ask (Facebook, C64 Visual Assembler group): after
+// dropping compiled binaries onto a disk image, generate an include file
+// that records where each one ends up, so the main program can reference
+// those addresses without re-typing them by hand.
+//
+// Walks every directory entry and resolves an address for it:
+//   - if this session added it with an explicit load address (typed by hand,
+//     or before an Exomizer crunch pass nulled it out — see declaredAddress
+//     in _d64EdConfirmAdd), use that;
+//   - otherwise, for a plain PRG, the load address is just its first two
+//     bytes (the standard PRG header) — extract it and read those.
+// SEQ/USR/REL entries with no recorded address are skipped: there is no
+// header to fall back on for those.
+async function _d64EdGenerateInclude() {
+  if (!_d64EdState.path || !_d64EdState.entries.length) return;
+  _d64EdSetError("");
+  const lines = [];
+  for (const entry of _d64EdState.entries) {
+    let hex = _d64EdState.addresses[entry.name];
+    // entry.type comes back lowercase from the directory listing ("prg",
+    // not "PRG") — the table only looks uppercase because of the CSS
+    // text-transform on .de-table td, the underlying string stays lowercase.
+    if (!hex && String(entry.type || "").toLowerCase() === "prg") {
+      const res = await window.electronAPI.d64ExtractFile(_d64EdState.path, entry.name);
+      if (res && res.ok && Array.isArray(res.bytes) && res.bytes.length >= 2) {
+        const addr = res.bytes[0] | (res.bytes[1] << 8);
+        hex = addr.toString(16).toUpperCase().padStart(4, "0");
+      }
+    }
+    if (!hex) continue;
+    lines.push(`.const ${_d64EdSanitizeConstName(entry.name)} = $${hex}`);
+  }
+  if (!lines.length) { _d64EdSetError(t("d64EditorGenerateIncludeEmpty")); return; }
+  const diskFile = (_d64EdState.path.split(/[\\/]/).pop() || "disk.d64");
+  const header = `; ${_d64EdState.diskName ? _d64EdState.diskName.toUpperCase() + " -- " : ""}${diskFile}\n; generated by C64 Visual Assembler D64 Editor\n`;
+  const text = header + lines.join("\n") + "\n";
+  const bytes = Array.from(new TextEncoder().encode(text));
+  const stem = diskFile.replace(/\.d64$/i, "");
+  await _saveBinFile(bytes, stem + ".inc");
+}
+
+// ── D64 raw block/sector editor ─────────────────────────────────────────
+// Everything above this (add/extract/rename/delete) works one directory
+// entry at a time through c1541. Andreas Podgurski's follow-up ask (Facebook,
+// C64 Visual Assembler group) was specifically for the layer *below* that:
+// "a block-level editor for track/sectors, with the directory only as a
+// layer above it." This section is that layer — no c1541 involved at all,
+// just the raw image bytes (read_bin_file / write_bin_file) and the D64
+// track/sector geometry, which is fixed and well documented.
+//
+// Standard 1541 geometry, tracks 1-35 (683 blocks); a common 40-track
+// extension some tools write is also recognized for reading, though the
+// BAM format only ever describes tracks 1-35, so tracks 36-40 always show
+// as "used" here (there's nothing to parse for them).
+const D64_TRACK_SECTORS = (() => {
+  const counts = [];
+  for (let t = 1; t <= 17; t++) counts[t] = 21;
+  for (let t = 18; t <= 24; t++) counts[t] = 19;
+  for (let t = 25; t <= 30; t++) counts[t] = 18;
+  for (let t = 31; t <= 40; t++) counts[t] = 17;
+  return counts;
+})();
+
+function _d64BlockTrackCount(byteLength) {
+  return byteLength >= 196608 ? 40 : 35; // 174848 = 35 tracks, 196608 = 40 tracks
+}
+
+function _d64BlockOffset(track, sector) {
+  let offset = 0;
+  for (let t = 1; t < track; t++) offset += (D64_TRACK_SECTORS[t] || 0) * 256;
+  return offset + sector * 256;
+}
+
+// BAM (Block Availability Map) lives at track 18, sector 0. Per-track entry
+// is 4 bytes starting at offset 4: 1 free-count byte + a 3-byte (24-bit)
+// bitmap, bit N of that bitmap set = sector N is free.
+function _d64ParseBam(bytes) {
+  const bamOffset = _d64BlockOffset(18, 0);
+  const free = new Set();
+  for (let t = 1; t <= 35; t++) {
+    const entryOffset = bamOffset + 4 + (t - 1) * 4;
+    const bitmap = [bytes[entryOffset + 1] || 0, bytes[entryOffset + 2] || 0, bytes[entryOffset + 3] || 0];
+    const total = D64_TRACK_SECTORS[t] || 0;
+    for (let s = 0; s < total; s++) {
+      const byteIdx = (s / 8) | 0, bit = s % 8;
+      if ((bitmap[byteIdx] >> bit) & 1) free.add(t + ":" + s);
+    }
+  }
+  return free;
+}
+
+// Directory sectors are chained via a 2-byte link (next track, next sector)
+// at the start of each sector, starting at track 18 sector 1; a next-track
+// of 0 ends the chain. Track 18 sector 0 (the BAM itself) is added
+// separately by the caller — this only walks the entries.
+function _d64WalkDirectoryChain(bytes) {
+  const chain = new Set();
+  let t = 18, s = 1, guard = 0;
+  while (t !== 0 && guard < 200) {
+    chain.add(t + ":" + s);
+    const off = _d64BlockOffset(t, s);
+    const nt = bytes[off], ns = bytes[off + 1];
+    if (nt === 0) break;
+    t = nt; s = ns;
+    guard++;
+  }
+  return chain;
+}
+
+function _d64FormatHexBlock(bytes) {
+  const lines = [];
+  for (let row = 0; row < 16; row++) {
+    const rowBytes = bytes.slice(row * 16, row * 16 + 16);
+    lines.push(Array.from(rowBytes).map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" "));
+  }
+  return lines.join("\n");
+}
+
+// Deliberately tolerant of reformatting (extra whitespace, merged/split
+// lines) — pulls every 1-2 hex-digit token out in order and requires
+// exactly 256 of them. Returns null (caller shows an error) on mismatch.
+function _d64ParseHexBlock(text) {
+  const tokens = String(text || "").match(/[0-9A-Fa-f]{1,2}/g) || [];
+  if (tokens.length !== 256) return null;
+  return tokens.map(tok => parseInt(tok, 16) & 0xFF);
+}
+
+// Builds the 256-cell hex-editor grid once (16 rows x 16 two-digit inputs
+// plus a live ASCII column), caching the cell/span elements on the
+// container so render/read don't re-query the DOM on every keystroke.
+function _d64EdBuildHexGridOnce() {
+  const container = document.getElementById("de-block-hex-grid");
+  if (!container || container._hexCells) return;
+  container._hexCells = [];
+  container._asciiSpans = [];
+  for (let row = 0; row < 16; row++) {
+    const rowEl = document.createElement("div");
+    rowEl.className = "de-hex-row";
+    const addr = document.createElement("span");
+    addr.className = "de-hex-rowaddr";
+    addr.textContent = (row * 16).toString(16).toUpperCase().padStart(2, "0");
+    rowEl.appendChild(addr);
+    const bytesEl = document.createElement("div");
+    bytesEl.className = "de-hex-bytes";
+    for (let col = 0; col < 16; col++) {
+      const idx = row * 16 + col;
+      const cell = document.createElement("input");
+      cell.type = "text";
+      cell.className = "de-hex-cell";
+      cell.maxLength = 2;
+      cell.autocomplete = "off";
+      cell.spellcheck = false;
+      cell.dataset.idx = String(idx);
+      bytesEl.appendChild(cell);
+      container._hexCells.push(cell);
+    }
+    rowEl.appendChild(bytesEl);
+    const asciiEl = document.createElement("div");
+    asciiEl.className = "de-hex-ascii";
+    for (let col = 0; col < 16; col++) {
+      const span = document.createElement("span");
+      span.className = "de-hex-asciichar";
+      asciiEl.appendChild(span);
+      container._asciiSpans.push(span);
+    }
+    rowEl.appendChild(asciiEl);
+    container.appendChild(rowEl);
+  }
+  container.addEventListener("input", _d64EdHexCellInput);
+  container.addEventListener("keydown", _d64EdHexCellKeydown);
+}
+
+function _d64EdHexCellAscii(byte) {
+  return (byte >= 0x20 && byte <= 0x7e) ? String.fromCharCode(byte) : ".";
+}
+
+function _d64EdHexCellInput(e) {
+  const cell = e.target;
+  if (!cell.classList || !cell.classList.contains("de-hex-cell")) return;
+  let v = cell.value.toUpperCase().replace(/[^0-9A-F]/g, "").slice(0, 2);
+  cell.value = v;
+  const container = document.getElementById("de-block-hex-grid");
+  const idx = Number(cell.dataset.idx);
+  const asciiSpan = container?._asciiSpans?.[idx];
+  if (asciiSpan) asciiSpan.textContent = v.length === 2 ? _d64EdHexCellAscii(parseInt(v, 16)) : "";
+  if (v.length === 2) {
+    const next = container?._hexCells?.[idx + 1];
+    if (next) { next.focus(); next.select(); }
+  }
+}
+
+function _d64EdHexCellKeydown(e) {
+  const cell = e.target;
+  if (!cell.classList || !cell.classList.contains("de-hex-cell")) return;
+  const container = document.getElementById("de-block-hex-grid");
+  const cells = container?._hexCells;
+  if (!cells) return;
+  const idx = Number(cell.dataset.idx);
+  const go = function(i) { const el = cells[i]; if (el) { el.focus(); el.select(); } };
+  if (e.key === "ArrowRight") { e.preventDefault(); go(idx + 1); }
+  else if (e.key === "ArrowLeft") { e.preventDefault(); go(idx - 1); }
+  else if (e.key === "ArrowDown") { e.preventDefault(); go(idx + 16); }
+  else if (e.key === "ArrowUp") { e.preventDefault(); go(idx - 16); }
+  else if (e.key === "Backspace" && !cell.value) { e.preventDefault(); go(idx - 1); }
+}
+
+function _d64EdRenderHexGrid(bytes) {
+  _d64EdBuildHexGridOnce();
+  const container = document.getElementById("de-block-hex-grid");
+  if (!container || !container._hexCells) return;
+  for (let i = 0; i < 256; i++) {
+    const byte = bytes[i] || 0;
+    const hex = byte.toString(16).toUpperCase().padStart(2, "0");
+    if (container._hexCells[i]) container._hexCells[i].value = hex;
+    if (container._asciiSpans[i]) container._asciiSpans[i].textContent = _d64EdHexCellAscii(byte);
+  }
+}
+
+// Returns the 256 bytes currently in the grid, or null if any cell is
+// empty or holds something other than 1-2 hex digits (caller shows an
+// error rather than silently writing a partial/garbled block).
+function _d64EdReadHexGrid() {
+  const container = document.getElementById("de-block-hex-grid");
+  if (!container || !container._hexCells) return null;
+  const out = [];
+  for (let i = 0; i < 256; i++) {
+    const v = (container._hexCells[i]?.value || "").trim();
+    if (!/^[0-9A-Fa-f]{1,2}$/.test(v)) return null;
+    out.push(parseInt(v, 16) & 0xFF);
+  }
+  return out;
+}
+
+function _d64EdSystemBlockSet() {
+  const chain = _d64WalkDirectoryChain(_d64EdState.blockBytes);
+  chain.add("18:0");
+  return chain;
+}
+
+async function _d64EdLoadBlockImage() {
+  if (!_d64EdState.path) return;
+  _d64EdSetError("");
+  const res = await window.electronAPI.readBinFile(_d64EdState.path);
+  if (!res || !res.ok) { _d64EdSetError((res && res.error) || t("d64BlockReadFailed")); return; }
+  _d64EdState.blockBytes = Array.from(res.bytes);
+  _d64EdState.blockFreeSet = _d64ParseBam(_d64EdState.blockBytes);
+  const trackCount = _d64BlockTrackCount(_d64EdState.blockBytes.length);
+  if (_d64EdState.blockTrack > trackCount) { _d64EdState.blockTrack = 1; _d64EdState.blockSector = 0; }
+  _d64EdRenderBlockGrid();
+  _d64EdSelectBlock(_d64EdState.blockTrack, _d64EdState.blockSector);
+}
+
+function _d64EdRenderBlockGrid() {
+  const grid = document.getElementById("de-block-grid");
+  if (!grid || !_d64EdState.blockBytes) return;
+  grid.innerHTML = "";
+  const trackCount = _d64BlockTrackCount(_d64EdState.blockBytes.length);
+  const systemSet = _d64EdSystemBlockSet();
+  for (let t = 1; t <= trackCount; t++) {
+    const total = D64_TRACK_SECTORS[t] || 0;
+    for (let s = 0; s < total; s++) {
+      const key = t + ":" + s;
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "de-block-cell " + (
+        systemSet.has(key) ? "de-block-cell--system" :
+        (_d64EdState.blockFreeSet && _d64EdState.blockFreeSet.has(key)) ? "de-block-cell--free" : "de-block-cell--used"
+      );
+      if (t === _d64EdState.blockTrack && s === _d64EdState.blockSector) btn.classList.add("de-block-cell--selected");
+      btn.setAttribute("aria-label", `T${t}:S${s}`);
+      btn.addEventListener("click", function() { _d64EdSelectBlock(t, s); });
+      grid.appendChild(btn);
+    }
+  }
+}
+
+function _d64EdSelectBlock(track, sector) {
+  if (!_d64EdState.blockBytes) return;
+  _d64EdState.blockTrack = track;
+  _d64EdState.blockSector = sector;
+  const offset = _d64BlockOffset(track, sector);
+  const bytes = _d64EdState.blockBytes.slice(offset, offset + 256);
+  _d64EdRenderHexGrid(bytes);
+  const label = document.getElementById("de-block-label");
+  if (label) label.textContent = tf("d64BlockLabel", { track, sector });
+  const offsetLabel = document.getElementById("de-block-offset");
+  if (offsetLabel) offsetLabel.textContent = "$" + offset.toString(16).toUpperCase().padStart(6, "0");
+  document.querySelectorAll("#de-block-grid .de-block-cell--selected").forEach(el => el.classList.remove("de-block-cell--selected"));
+  const trackCount = _d64BlockTrackCount(_d64EdState.blockBytes.length);
+  let idx = 0;
+  for (let ti = 1; ti < track; ti++) idx += (D64_TRACK_SECTORS[ti] || 0);
+  idx += sector;
+  const cell = document.getElementById("de-block-grid")?.children[idx];
+  if (cell && track <= trackCount) cell.classList.add("de-block-cell--selected");
+}
+
+function _d64EdStepBlock(delta) {
+  if (!_d64EdState.blockBytes) return;
+  const trackCount = _d64BlockTrackCount(_d64EdState.blockBytes.length);
+  let t = _d64EdState.blockTrack, s = _d64EdState.blockSector + delta;
+  const total = D64_TRACK_SECTORS[t] || 0;
+  if (s >= total) { t = t < trackCount ? t + 1 : 1; s = 0; }
+  else if (s < 0) { t = t > 1 ? t - 1 : trackCount; s = (D64_TRACK_SECTORS[t] || 1) - 1; }
+  _d64EdSelectBlock(t, s);
+}
+
+async function _d64EdWriteBlock() {
+  if (!_d64EdState.path || !_d64EdState.blockBytes) return;
+  const parsed = _d64EdReadHexGrid();
+  if (!parsed) { _d64EdSetError(t("d64BlockInvalidHex")); return; }
+  _d64EdSetError("");
+  const offset = _d64BlockOffset(_d64EdState.blockTrack, _d64EdState.blockSector);
+  for (let i = 0; i < 256; i++) _d64EdState.blockBytes[offset + i] = parsed[i];
+  const res = await window.electronAPI.writeBinFile(_d64EdState.path, _d64EdState.blockBytes);
+  if (!res || !res.ok) { _d64EdSetError((res && res.error) || t("d64BlockWriteFailed")); return; }
+  _d64EdState.dirty = true;
+  // The write may have touched the BAM or the directory chain (that's the
+  // whole point of block-level access) — re-derive both, and refresh the
+  // directory table underneath so it doesn't show stale data next toggle.
+  _d64EdState.blockFreeSet = _d64ParseBam(_d64EdState.blockBytes);
+  _d64EdRenderBlockGrid();
+  await _d64EdReload();
+}
+
+async function _d64EdOpenBlockEditor() {
+  if (!_d64EdState.path) return;
+  _d64EdState.blockMode = true;
+  const btn = document.getElementById("de-blocks-toggle");
+  if (btn) btn.setAttribute("aria-pressed", "true");
+  const dlg = document.getElementById("d64-block-editor-dialog");
+  const diskLabel = document.getElementById("dbe-disk-label");
+  if (diskLabel) diskLabel.textContent = document.getElementById("de-disk-label")?.textContent || "";
+  // Position it (remembered spot, or centered) *before* showModal() so the
+  // very first frame is already correct instead of flashing at the
+  // browser's top-left default and then jumping — see dialog._applyPosition.
+  dlg?._applyPosition?.();
+  dlg?.showModal();
+  await _d64EdLoadBlockImage();
+}
+
+function _d64EdCloseBlockEditor() {
+  _d64EdState.blockMode = false;
+  const btn = document.getElementById("de-blocks-toggle");
+  if (btn) btn.setAttribute("aria-pressed", "false");
+  document.getElementById("d64-block-editor-dialog")?.close();
+}
+
 function setupD64Editor() {
   const dialog = document.getElementById("d64-editor-dialog");
   document.getElementById("d64-editor-btn")?.addEventListener("click", function() {
+    dialog?._applyPosition?.();
     dialog?.showModal();
     if (_d64EdState.path) _d64EdReload(); else _d64EdRenderEntries();
   });
-  document.getElementById("de-close")?.addEventListener("click", function() { dialog?.close(); });
-  dialog?.addEventListener("click", function(e) { if (e.target === dialog) dialog.close(); });
+  const requestClose = async function() {
+    if (_d64EdState.dirty && !await _showConfirm(t("d64EditorUnsavedConfirm"))) return;
+    dialog?.close();
+  };
+  document.getElementById("de-close")?.addEventListener("click", requestClose);
+  dialog?.addEventListener("click", function(e) { if (e.target === dialog) requestClose(); });
+  dialog?.addEventListener("cancel", function(e) { e.preventDefault(); requestClose(); });
 
   document.getElementById("de-new")?.addEventListener("click", _d64EdNew);
   document.getElementById("de-open")?.addEventListener("click", _d64EdOpen);
+  document.getElementById("de-save")?.addEventListener("click", _d64EdSave);
   document.getElementById("de-save-as")?.addEventListener("click", _d64EdSaveAs);
   document.getElementById("de-run-vice")?.addEventListener("click", _d64EdRunVice);
   document.getElementById("de-add")?.addEventListener("click", _d64EdShowAddPanel);
@@ -17002,8 +17631,43 @@ function setupD64Editor() {
   document.getElementById("de-rename")?.addEventListener("click", _d64EdRenameSelected);
   document.getElementById("de-delete")?.addEventListener("click", _d64EdDeleteSelected);
   document.getElementById("de-refresh")?.addEventListener("click", function() { if (_d64EdState.path) _d64EdReload(); });
+  document.getElementById("de-gen-include")?.addEventListener("click", _d64EdGenerateInclude);
+  document.getElementById("de-blocks-toggle")?.addEventListener("click", _d64EdOpenBlockEditor);
+  const blockDialog = document.getElementById("d64-block-editor-dialog");
+  document.getElementById("dbe-close")?.addEventListener("click", _d64EdCloseBlockEditor);
+  blockDialog?.addEventListener("click", function(e) { if (e.target === blockDialog) _d64EdCloseBlockEditor(); });
+  blockDialog?.addEventListener("cancel", function(e) { e.preventDefault(); _d64EdCloseBlockEditor(); });
+  document.getElementById("de-block-prev")?.addEventListener("click", function() { _d64EdStepBlock(-1); });
+  document.getElementById("de-block-next")?.addEventListener("click", function() { _d64EdStepBlock(1); });
+  document.getElementById("de-block-reload")?.addEventListener("click", _d64EdLoadBlockImage);
+  document.getElementById("de-block-write")?.addEventListener("click", _d64EdWriteBlock);
   document.getElementById("de-add-confirm")?.addEventListener("click", _d64EdConfirmAdd);
   document.getElementById("de-add-cancel")?.addEventListener("click", _d64EdHideAddPanel);
+
+  // Drag-and-drop: drop compiled binaries (.prg/.bin, from the SID/sprite/
+  // char editors' exports or anywhere else) straight onto the disk. Needs
+  // dragover prevented on both the container and the table/empty-state
+  // children, or the browser's default (open-as-navigation) wins the drop.
+  const dropZone = document.getElementById("de-body");
+  if (dropZone) {
+    let dragDepth = 0;
+    dropZone.addEventListener("dragenter", function(e) {
+      e.preventDefault();
+      dragDepth++;
+      dropZone.classList.add("de-dragover");
+    });
+    dropZone.addEventListener("dragover", function(e) { e.preventDefault(); });
+    dropZone.addEventListener("dragleave", function() {
+      dragDepth = Math.max(0, dragDepth - 1);
+      if (dragDepth === 0) dropZone.classList.remove("de-dragover");
+    });
+    dropZone.addEventListener("drop", async function(e) {
+      e.preventDefault();
+      dragDepth = 0;
+      dropZone.classList.remove("de-dragover");
+      await _d64EdHandleDroppedFiles(e.dataTransfer?.files);
+    });
+  }
 
   _d64EdRenderEntries();
 }
@@ -29769,6 +30433,7 @@ function setupC64CharRom() {
   document.getElementById("c64-chrrom-btn")?.addEventListener("click", function() {
     document.querySelector(".control-menu")?.removeAttribute("open");
     _buildC64CharRomGrid();
+    dialog._applyPosition?.();
     dialog.showModal();
   });
   document.getElementById("c64-chrrom-close")?.addEventListener("click", function() { dialog.close(); });
@@ -30111,6 +30776,7 @@ function setupCharEditor() {
     _ceRenderEditor();
     _ceRenderMap();
     _ceUpdateAsm();
+    dialog._applyPosition?.();
     dialog.showModal();
   });
 
@@ -30617,6 +31283,7 @@ function setupCharsetCanvasEditor() {
   document.getElementById("charset-canvas-btn")?.addEventListener("click", function() {
     document.querySelector(".control-menu")?.removeAttribute("open");
     _ccInit();
+    dialog._applyPosition?.();
     dialog.showModal();
   });
   document.getElementById("cc-close")?.addEventListener("click", function() { dialog.close(); });
@@ -31574,6 +32241,7 @@ function setupMapEditor() {
     _meRenderBanks();
     _meRenderAll();
     _meUpdateStatus(null);
+    dialog._applyPosition?.();
     dialog.showModal();
     // Re-render once the C64 font is ready (first open may extract tiles too early).
     _meEnsureRomFont(function() { _meRenderBanks(); _meRenderAll(); });
@@ -32556,6 +33224,7 @@ function setupHiresEditor() {
     _toolDropdownSetOpen("hg-spray-tool", "hg-spray-menu", false);
     _hgRenderAll();
     _hgStatus(null);
+    dialog._applyPosition?.();
     dialog.showModal();
   });
   document.getElementById("hg-close")?.addEventListener("click", function() { dialog.close(); });
@@ -33173,7 +33842,7 @@ function setupSpriteEditor() {
   const sbtn = document.getElementById("sprite-editor-btn");
   if (sbtn) sbtn.addEventListener("click", function() {
     const cm = document.querySelector(".control-menu"); if (cm) cm.removeAttribute("open");
-    _spInit(); _spRender(); dialog.showModal();
+    _spInit(); _spRender(); dialog._applyPosition?.(); dialog.showModal();
   });
   const cbtn = document.getElementById("se-close");
   if (cbtn) cbtn.addEventListener("click", function() { _spStop(); dialog.close(); });
@@ -33460,6 +34129,22 @@ let _sidClipboard = null;  // copied voice column: array of 32 {note, inst}
 let _sidCellClip = null;   // cell-range clipboard: [{note,inst},...] from Ctrl+C
 let _sidAudio = null;
 var _sidTimer = null, _sidRow = 0, _sidPlayPat = 0;
+// Per-voice Web Audio preview state, used only by the approximation path
+// (single-pattern loop mode, or WebSid unavailable) to apply the effect
+// column live: which oscillator/gain is currently sounding on each voice,
+// plus the running vibrato/slide state, mirroring the exported ASM's
+// per-voice zero-page fields (baseLo/baseHi, curLo/curHi, vibSign, vibCount).
+var _sidVoiceState = [null, null, null];
+// Song/order list: the arrangement layer on top of the raw pattern bank
+// (_sidPatterns). Playback and export walk THIS list, not _sidPatterns
+// directly, so a pattern can repeat and the song can be longer than the
+// pattern bank. _sidSong holds pattern indices; _sidSongPos is the
+// order-slot currently selected for editing (+/-/move act on it);
+// _sidSongPlayPos is the order-slot currently sounding during "Play All"
+// (only meaningful while playing — drives the chip highlight).
+let _sidSong = [0];
+let _sidSongPos = 0;
+let _sidSongPlayPos = 0;
 let _sidInited = false;
 let _sidOctave = 4;
 var _sidPaused = false;
@@ -33477,7 +34162,7 @@ function _sidNewInst(name) {
 }
 function _sidNewPattern() {
   const p = [];
-  for (let v = 0; v < 3; v++) { const col = []; for (let r = 0; r < _SID_ROWS; r++) col.push({ note:null, inst:0 }); p.push(col); }
+  for (let v = 0; v < 3; v++) { const col = []; for (let r = 0; r < _SID_ROWS; r++) col.push({ note:null, inst:0, fx:null, fxval:0 }); p.push(col); }
   return p;
 }
 function _sidCurInst() { return _sidInsts[_sidInst]; }
@@ -33492,6 +34177,62 @@ function _sidSetPattern(index, rebuildTracker) {
   const sel = document.getElementById("sid-pat-sel");
   if (sel) sel.value = _sidPat;
   if (rebuildTracker) _sidBuildTracker();
+}
+
+// ---- Song / order list -----------------------------------------------
+// _sidSong is the arrangement: an array of pattern indices, played back in
+// order (and looping). A pattern can appear more than once, so a song can
+// reuse a verse/chorus pattern instead of needing a full copy per repeat.
+function _sidBuildSongList() {
+  const wrap = document.getElementById("sid-song-list");
+  if (!wrap || !_sidSong) return;
+  wrap.innerHTML = "";
+  const playing = !!(_sidTimer || _sidPlaybackUsingWebSid) && !_sidPaused;
+  _sidSong.forEach(function(patIdx, pos) {
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "sid-song-chip" +
+      (pos === _sidSongPos ? " sid-song-chip--selected" : "") +
+      (playing && pos === _sidSongPlayPos ? " sid-song-chip--playing" : "");
+    chip.textContent = (patIdx < 10 ? "0" : "") + patIdx;
+    chip.setAttribute("aria-label", tf("sidSongSlot", { pos: pos, pat: patIdx }));
+    chip.addEventListener("click", function() {
+      _sidSongPos = pos;
+      _sidSetPattern(patIdx, true);
+      _sidBuildSongList();
+    });
+    wrap.appendChild(chip);
+  });
+}
+
+// Inserts the pattern currently open in the editor (_sidPat) right after
+// the selected order slot — "add to song" rather than "create a pattern"
+// (that's still the separate Pat +  button), so building an arrangement
+// never disturbs the pattern bank.
+function _sidSongInsert() {
+  if (!_sidSong) _sidSong = [];
+  const at = Math.min(_sidSong.length, _sidSongPos + 1);
+  _sidSong.splice(at, 0, _sidPat);
+  _sidSongPos = at;
+  _sidBuildSongList();
+}
+
+function _sidSongRemove() {
+  if (!_sidSong || _sidSong.length <= 1) return; // always keep at least one slot
+  _sidSong.splice(_sidSongPos, 1);
+  _sidSongPos = Math.max(0, Math.min(_sidSongPos, _sidSong.length - 1));
+  _sidBuildSongList();
+}
+
+function _sidSongMove(delta) {
+  if (!_sidSong) return;
+  const to = _sidSongPos + delta;
+  if (to < 0 || to >= _sidSong.length) return;
+  const tmp = _sidSong[_sidSongPos];
+  _sidSong[_sidSongPos] = _sidSong[to];
+  _sidSong[to] = tmp;
+  _sidSongPos = to;
+  _sidBuildSongList();
 }
 
 const _SID_NOTE_NAMES = ["C-","C#","D-","D#","E-","F-","F#","G-","G#","A-","A#","B-"];
@@ -33510,7 +34251,7 @@ function _sidInsertNoteAtSelection(note, advanceRow) {
   if (!_sidPatterns) return;
   const row = _sidSel.row, voice = _sidSel.voice;
   _sidSelAnchor = null;
-  _sidCurPat()[voice][row] = { note: note, inst: _sidInst };
+  _sidCurPat()[voice][row] = { note: note, inst: _sidInst, fx: null, fxval: 0 };
   _sidSetCellText(voice, row);
   _sidEnsureAudio();
   _sidPlayInst(_sidCurInst(), _sidNoteFreq(note), _sidAudio.currentTime + 0.01, 0.25);
@@ -33697,9 +34438,17 @@ function _sidDrawADSR() {
 }
 
 /* ── Tracker grid ── */
+// Effect column codes: V=vibrato, U=slide/portamento up, D=slide down,
+// C=note cut (release without a new note), F=speed change (frames/row).
+const _SID_FX_CODES = { V: 1, U: 2, D: 3, C: 4, F: 5 };
+const _SID_FX_NAMES = [null, "V", "U", "D", "C", "F"];
+function _sidFxText(cell) {
+  if (!cell.fx) return "...";
+  return cell.fx + (cell.fxval < 16 ? "0" : "") + (cell.fxval & 0xFF).toString(16).toUpperCase();
+}
 function _sidCellText(cell) {
-  if (cell.note == null) return "... ..";
-  return _sidNoteName(cell.note) + " " + (cell.inst<16?"0":"") + cell.inst.toString(16).toUpperCase();
+  const notePart = cell.note == null ? "... .." : _sidNoteName(cell.note) + " " + (cell.inst<16?"0":"") + cell.inst.toString(16).toUpperCase();
+  return notePart + " " + _sidFxText(cell);
 }
 function _sidNormalizeSelection() {
   const anchor = _sidSelAnchor || _sidSel;
@@ -33785,7 +34534,7 @@ function _sidClearSelection() {
   const sel = _sidNormalizeSelection();
   for (let voice = sel.voiceLo; voice <= sel.voiceHi; voice++) {
     for (let row = sel.rowLo; row <= sel.rowHi; row++) {
-      pat[voice][row] = { note: null, inst: 0 };
+      pat[voice][row] = { note: null, inst: 0, fx: null, fxval: 0 };
     }
   }
   _sidBuildTracker();
@@ -33921,25 +34670,53 @@ function _sidBuildTracker() {
   });
 }
 
-/* Parse a manual cell entry like "C-4 01", "C#4", "c4 a", "..." → { note, inst }.
- * note is 0-based (C-0 = 0). Instrument is hex 0..FF. Empty/"..." clears the cell. */
+/* Parse a manual cell entry like "C-4 01", "C#4", "c4 a 01", "F06", "C", "..."
+ * into { note, inst, fx, fxval } (note is 0-based, C-0 = 0; fx is one of the
+ * _SID_FX_CODES letters). Tokens after the first are recognized by shape
+ * rather than position, so the instrument and/or effect may be omitted:
+ *   "C-4 01"     → note + instrument, no effect
+ *   "C-4 01 V24" → note + instrument + vibrato (speed 2, depth 4)
+ *   "C-4 V24"    → note + vibrato, instrument left as it already was
+ *   "F06"        → speed-change effect only, no note
+ *   "C"          → note-cut effect only (bare letter, no hex value needed)
+ * Empty input or "..." clears the whole cell (note, instrument and effect). */
 function _sidParseCellEntry(text) {
   const s = (text || "").trim();
-  if (!s || s === "..." || s === "... ..") return { clear: true };
-  // Note portion (C, C#, D, D#, … or C-, C#) followed by octave digit.
-  const m = s.match(/^([a-gA-G])([#b\-]?)(\d)\s*([0-9a-fA-F]{1,2})?$/);
-  if (!m) return { error: true };
+  if (!s || s === "..." || s === "... .." || s === "... .. ...") return { clear: true };
+  const tokens = s.split(/\s+/);
   const noteLetters = { c:0, d:2, e:4, f:5, g:7, a:9, b:11 };
-  const letter = m[1].toLowerCase();
-  let semi = noteLetters[letter];
-  if (semi == null) return { error: true };
-  if (m[2] === "#") semi += 1;
-  else if (m[2] === "b") semi -= 1;
-  const oct = parseInt(m[3], 10);
-  const note = oct * 12 + ((semi + 12) % 12);
-  if (note < 0 || note >= 96) return { error: true };
-  const inst = m[4] != null ? Math.max(0, Math.min(255, parseInt(m[4], 16))) : null;
-  return { note, inst };
+  let note = undefined, inst = undefined, fx = null, fxval = 0;
+  let i = 0;
+  const noteMatch = tokens[0].match(/^([a-gA-G])([#b\-]?)(\d)$/);
+  if (noteMatch) {
+    const letter = noteMatch[1].toLowerCase();
+    let semi = noteLetters[letter];
+    if (noteMatch[2] === "#") semi += 1;
+    else if (noteMatch[2] === "b") semi -= 1;
+    const oct = parseInt(noteMatch[3], 10);
+    note = oct * 12 + ((semi + 12) % 12);
+    if (note < 0 || note >= 96) return { error: true };
+    i = 1;
+  } else if (tokens[0] === "...") {
+    note = null;
+    i = 1;
+  }
+  for (; i < tokens.length; i++) {
+    const tok = tokens[i];
+    if (tok === ".." || tok === "...") continue; // explicit "leave unset" placeholder
+    const fxMatch = tok.match(/^([VUDCF])([0-9a-fA-F]{0,2})$/);
+    const instMatch = tok.match(/^[0-9a-fA-F]{1,2}$/);
+    if (instMatch && !fxMatch) {
+      inst = Math.max(0, Math.min(255, parseInt(tok, 16)));
+    } else if (fxMatch) {
+      fx = fxMatch[1];
+      fxval = fxMatch[2] ? Math.max(0, Math.min(255, parseInt(fxMatch[2], 16))) : 0;
+    } else {
+      return { error: true };
+    }
+  }
+  if (note === undefined && inst === undefined && fx === null) return { error: true };
+  return { note: note === undefined ? null : note, inst, fx, fxval };
 }
 
 /* Turn a cell into a temporary text input for manual editing. */
@@ -33949,18 +34726,20 @@ function _sidBeginManualEdit(v, r, td) {
   _sidSel = { voice: v, row: r };
   const pat = _sidCurPat();
   const cell = pat[v][r];
-  const initial = cell.note == null
+  const notePart = cell.note == null
     ? ""
     : _sidNoteName(cell.note) + " " + (cell.inst < 16 ? "0" : "") + cell.inst.toString(16).toUpperCase();
+  const fxPart = cell.fx ? " " + _sidFxText(cell) : "";
+  const initial = notePart + fxPart;
   const input = document.createElement("input");
   input.type = "text";
   input.className = "sid-cell-edit";
   input.value = initial;
   input.spellcheck = false;
   input.autocomplete = "off";
-  input.setAttribute("maxlength", "8");
-  input.placeholder = "C-4 01";
-  input.title = "Format: note + optional instrument (e.g. C-4 01, C#5, D3 0A). Empty = clear.";
+  input.setAttribute("maxlength", "12");
+  input.placeholder = "C-4 01 V24";
+  input.title = "Format: note [instrument] [effect] (e.g. C-4 01, C#5, D3 0A V24). Effects: V=vibrato U/D=slide up/down C=note cut F=speed. \"F06\" or \"C\" alone applies an effect with no new note. Empty = clear.";
   const original = td.innerHTML;
   td.innerHTML = "";
   td.appendChild(input);
@@ -33979,9 +34758,14 @@ function _sidBeginManualEdit(v, r, td) {
       return false;
     }
     if (parsed.clear) {
-      pat[v][r] = { note: null, inst: cell.inst };
+      pat[v][r] = { note: null, inst: cell.inst, fx: null, fxval: 0 };
     } else {
-      pat[v][r] = { note: parsed.note, inst: parsed.inst != null ? parsed.inst : cell.inst };
+      pat[v][r] = {
+        note: parsed.note,
+        inst: parsed.inst != null ? parsed.inst : cell.inst,
+        fx: parsed.fx,
+        fxval: parsed.fxval || 0
+      };
     }
     _sidBuildTracker();
     _sidRefreshSel();
@@ -34136,9 +34920,67 @@ function _sidPlayInst(inst, freq, when, holdSec) {
   out.connect(_sidMasterGain || ac.destination);
   src.start(when);
   src.stop(relStart + Math.max(0.01, rel) + 0.05);
+  return { src, gain };
 }
 
-/* ── Metronome + BPM helpers ────────────────────────────────────────────
+/* ── Web Audio preview: effect-column live steering ─────────────────────
+ * Only used on the approximation playback path (WebSid unavailable, or the
+ * single-pattern loop mode which never goes through WebSid). Mirrors the
+ * exported ASM player's per-row effect dispatch: vibrato/slide update once
+ * per row around a stable "base" frequency captured at note-on, note-cut
+ * silences the voice without retriggering, and speed-change reschedules the
+ * tick interval. `tick` is passed in so the F effect can restart the timer
+ * at the new rate without this helper needing to know about _sidPlay's
+ * closure directly. */
+function _sidApplyRowEffect(v, cell, tick) {
+  const vs = _sidVoiceState[v];
+  if (!cell || !cell.fx) return;
+  if (cell.fx === "F") {
+    if (cell.fxval > 0) {
+      _sidSpeed = cell.fxval;
+      _sidUpdateBpmDisplay();
+      if (_sidTimer) {
+        clearInterval(_sidTimer);
+        _sidTimer = setInterval(tick, Math.max(0.04, _sidSpeed / 50) * 1000);
+      }
+    }
+    return;
+  }
+  if (!vs || !vs.src || !vs.gain) return; // nothing currently sounding on this voice
+  const ac = _sidAudio;
+  if (!ac) return;
+  const now = ac.currentTime;
+  if (cell.fx === "C") {
+    try {
+      vs.gain.gain.cancelScheduledValues(now);
+      vs.gain.gain.setValueAtTime(Math.max(0.0001, vs.gain.gain.value), now);
+      vs.gain.gain.linearRampToValueAtTime(0.0001, now + 0.01);
+    } catch (_) {}
+    return;
+  }
+  if (cell.fx === "U" || cell.fx === "D") {
+    const step = (cell.fxval || 0) * 2;
+    vs.curFreq = Math.max(20, vs.curFreq + (cell.fx === "U" ? step : -step));
+    if (vs.src.frequency) {
+      try { vs.src.frequency.setValueAtTime(vs.curFreq, now); } catch (_) {}
+    }
+    return;
+  }
+  if (cell.fx === "V") {
+    const depth = ((cell.fxval || 0) & 0x0F) * 4;
+    const holdLen = ((cell.fxval || 0) >> 4) & 0x0F;
+    vs.vibCount = (vs.vibCount || 0) + 1;
+    if (vs.vibCount > holdLen) { vs.vibCount = 0; vs.vibSign = vs.vibSign ? 0 : 1; }
+    const wob = vs.vibSign ? depth : -depth;
+    const f = Math.max(20, vs.baseFreq + wob);
+    if (vs.src.frequency) {
+      try { vs.src.frequency.setValueAtTime(f, now); } catch (_) {}
+    }
+    return;
+  }
+}
+
+/* ── Metronome + BPM helpers ─────────────────────────────────────────────
  * BPM derives from the frames-per-row Speed input: PAL 50 Hz, 4 rows/beat.
  * The metronome runs off the same setInterval tick that drives the tracker
  * row highlight, so it stays in phase with both Web Audio and WebSid preview. */
@@ -34404,18 +35246,23 @@ function _sidStop() {
   if (_sidTimer) { clearInterval(_sidTimer); _sidTimer = null; }
   _sidPaused = false;
   _sidPlaybackUsingWebSid = false;
+  _sidVoiceState = [null, null, null];
   _webSidPause();
   const t = document.getElementById("sid-tracker");
   if (t) t.querySelectorAll("tr.sid-playing").forEach(function(r){ r.classList.remove("sid-playing"); });
   _sidUpdatePauseButton();
+  _sidBuildSongList();
 }
 async function _sidPlay(resetPosition = true) {
   if (_sidTimer) { clearInterval(_sidTimer); _sidTimer = null; }
   if (resetPosition) {
     _webSidPause();
-    _sidPlayPat = 0;
-    _sidSetPattern(0, true);
+    _sidVoiceState = [null, null, null];
+    _sidSongPlayPos = 0;
+    _sidPlayPat = (_sidSong && _sidSong.length) ? _sidSong[0] : 0;
+    _sidSetPattern(_sidPlayPat, true);
     _sidRow = 0;
+    _sidBuildSongList();
   }
   _sidPaused = false;
   const playAll = _sidPlayMode === "all";
@@ -34450,7 +35297,12 @@ async function _sidPlay(resetPosition = true) {
       const ac = _sidAudio, when = ac.currentTime + 0.02;
       for (let v = 0; v < 3; v++) {
         const cell = pat[v][_sidRow];
-        if (cell.note != null) _sidPlayInst(_sidInsts[cell.inst] || _sidCurInst(), _sidNoteFreq(cell.note), when, rowSec);
+        if (cell.note != null) {
+          const freq = _sidNoteFreq(cell.note);
+          const nodes = _sidPlayInst(_sidInsts[cell.inst] || _sidCurInst(), freq, when, rowSec);
+          _sidVoiceState[v] = { src: nodes.src, gain: nodes.gain, baseFreq: freq, curFreq: freq, vibSign: 0, vibCount: 0 };
+        }
+        if (cell.fx) _sidApplyRowEffect(v, cell, tick);
       }
     }
     if (_sidMetronomeEnabled && (_sidRow % _SID_ROWS_PER_BEAT) === 0) {
@@ -34466,9 +35318,11 @@ async function _sidPlay(resetPosition = true) {
     _sidRow++;
     if (_sidRow >= _SID_ROWS) {
       _sidRow = 0;
-      if (playAll) {
-        _sidPlayPat = (_sidPlayPat + 1) % _sidPatterns.length;
+      if (playAll && _sidSong && _sidSong.length) {
+        _sidSongPlayPos = (_sidSongPlayPos + 1) % _sidSong.length;
+        _sidPlayPat = _sidSong[_sidSongPlayPos];
         if (_sidPat !== _sidPlayPat) _sidSetPattern(_sidPlayPat, true);
+        _sidBuildSongList();
       }
     }
   };
@@ -34501,16 +35355,39 @@ function _sidInstBytes(ins) {
           ins.pw&0xFF, (ins.pw>>8)&0x0F, ins.cut&0x07, (ins.cut>>3)&0xFF,
           (ins.res<<4), ((ins.lp?0x10:0)|(ins.bp?0x20:0)|(ins.hp?0x40:0))|ins.vol];
 }
-/* Binary save/load: [numInst][numPat] + 9 bytes/inst + 2 bytes/cell (note+1, inst) */
+/* Binary save/load: [numInst][numPat] + 9 bytes/inst + 4 bytes/cell
+ * (note+1, inst, fxCode, fxval). A leading 0xFE marker byte distinguishes
+ * this versioned layout from pre-effect-column saves, which had no marker
+ * and only 2 bytes/cell (note+1, inst) — since a legacy save's first byte
+ * is always its instrument count, and nobody builds a 254-instrument bank
+ * in this editor, 0xFE is safe to use as an unambiguous "new format" flag.
+ * _sidDeserialize below reads the marker and picks the matching cell size. */
 function _sidSerialize() {
-  const out = [_sidInsts.length, _sidPatterns.length];
+  const out = [0xFE, _sidInsts.length, _sidPatterns.length];
   _sidInsts.forEach(function(ins){ _sidInstBytes(ins).forEach(function(b){ out.push(b & 0xFF); }); });
-  _sidPatterns.forEach(function(pat){ for (let v=0;v<3;v++) for (let r=0;r<_SID_ROWS;r++){ const c=pat[v][r]; out.push(c.note==null?0:(c.note+1)&0xFF); out.push(c.inst&0xFF); } });
+  _sidPatterns.forEach(function(pat){
+    for (let v=0;v<3;v++) for (let r=0;r<_SID_ROWS;r++) {
+      const c = pat[v][r];
+      out.push(c.note==null?0:(c.note+1)&0xFF);
+      out.push(c.inst&0xFF);
+      out.push(c.fx ? (_SID_FX_CODES[c.fx]||0) : 0);
+      out.push(c.fxval&0xFF);
+    }
+  });
+  // Song/order list, appended after the pattern data — older saves simply
+  // end here, which _sidDeserialize below treats as "no song data" and
+  // synthesizes one that reproduces the old (patterns played 0..N in
+  // storage order) behavior, so existing projects still sound the same.
+  const song = (_sidSong && _sidSong.length) ? _sidSong : [0];
+  out.push(Math.min(255, song.length) & 0xFF);
+  song.slice(0, 255).forEach(function(idx){ out.push(idx & 0xFF); });
   return Uint8Array.from(out);
 }
 function _sidDeserialize(src) {
   _sidStop();
   let p = 0;
+  const versioned = src[0] === 0xFE; // see the format comment above _sidSerialize
+  if (versioned) p = 1;
   const ni = src[p++] || 0, np = src[p++] || 0;
   _sidInsts = [];
   for (let i=0;i<ni;i++) {
@@ -34525,13 +35402,31 @@ function _sidDeserialize(src) {
   _sidPatterns = [];
   for (let pi=0; pi<np; pi++) {
     const pat = _sidNewPattern();
-    for (let v=0;v<3;v++) for (let r=0;r<_SID_ROWS;r++){ const note=src[p++], inst=src[p++]; pat[v][r] = { note: note ? note-1 : null, inst: inst||0 }; }
+    for (let v=0;v<3;v++) for (let r=0;r<_SID_ROWS;r++){
+      const note=src[p++], inst=src[p++];
+      let fx = null, fxval = 0;
+      if (versioned) { fx = _SID_FX_NAMES[src[p++] || 0] || null; fxval = src[p++] || 0; }
+      pat[v][r] = { note: note ? note-1 : null, inst: inst||0, fx: fx, fxval: fxval };
+    }
     _sidPatterns.push(pat);
   }
   if (!_sidPatterns.length) _sidPatterns = [_sidNewPattern()];
+  if (p < src.length) {
+    const songLen = src[p++] || 0;
+    _sidSong = [];
+    for (let i = 0; i < songLen; i++) _sidSong.push(src[p++] || 0);
+    if (!_sidSong.length) _sidSong = [0];
+  } else {
+    // Pre-song-list save: reproduce the old "play every pattern, in
+    // storage order" behavior as an explicit order list.
+    _sidSong = _sidPatterns.map(function(_, i){ return i; });
+  }
+  _sidSong = _sidSong.map(function(idx){ return Math.max(0, Math.min(_sidPatterns.length - 1, idx|0)); });
+  _sidSongPos = 0;
+  _sidSongPlayPos = 0;
   _sidInst = 0; _sidPat = 0; _sidPlayPat = 0;
   _sidSyncPlayModeSel();
-  _sidBuildInstSel(); _sidLoadInstUI(); _sidBuildPatSel(); _sidBuildTracker();
+  _sidBuildInstSel(); _sidLoadInstUI(); _sidBuildPatSel(); _sidBuildSongList(); _sidBuildTracker();
 }
 function _sidExport(kind) {
   if (kind === "asm") return _sidExportAsmPlayable();
@@ -34555,6 +35450,9 @@ function _sidExport(kind) {
       lines.push((2000+pi*100+v*30) + " DATA " + dd(notes));
     }
   });
+  const song = (_sidSong && _sidSong.length) ? _sidSong : [0];
+  lines.push("REM SONG ORDER (pattern index per position)");
+  lines.push("9000 DATA " + dd(song));
   return lines.join("\n");
 }
 
@@ -34634,19 +35532,44 @@ function _sidExportAsmPlayable() {
   };
 
   const speed = Math.max(1, Math.min(255, _sidSpeed|0));
-  const maxPatterns = Math.floor(255 / _SID_ROWS);  // single-byte row counter limit
-  const exportedPatterns = Math.min(_sidPatterns.length, maxPatterns);
-  const totalRows = exportedPatterns * _SID_ROWS;
+  // Each pattern is addressed via a 16-bit pointer (base + patternIndex*32,
+  // computed once per pattern by sid_load_pattern) rather than a single
+  // 8-bit index across the whole song — so, unlike the old exporter, the
+  // pattern count isn't bounded by fitting into one byte. 256 is still a
+  // defensive cap (pattern index and the order-list length are each one
+  // byte), way beyond what anyone will hand-build in the tracker.
+  const exportedPatterns = Math.min(_sidPatterns.length, 256);
+  const song = ((_sidSong && _sidSong.length) ? _sidSong : [0])
+    .map(function(idx){ return Math.max(0, Math.min(exportedPatterns - 1, idx|0)); });
+  const exportedSong = song.slice(0, 255);
 
   lines.push("; =========================================================");
   lines.push("; SID player + tune (generated by Visual Assembler SID editor)");
   lines.push("; PAL 50 Hz IRQ-driven, 3 voices, " + _SID_ROWS + "-row patterns");
   lines.push("; Call JSR sid_init once to start playback; JSR sid_stop to silence.");
-  lines.push("; Speed: " + speed + " frames/row, " + exportedPatterns + " pattern(s) = " + totalRows + " rows.");
+  lines.push("; Speed: " + speed + " frames/row. " + exportedPatterns + " pattern(s) in the bank, " +
+             exportedSong.length + " step(s) in the song/order list (patterns may repeat).");
   if (exportedPatterns < _sidPatterns.length) {
     lines.push("; NOTE: only the first " + exportedPatterns + " patterns are exported (" +
-               _sidPatterns.length + " present); player uses an 8-bit row counter.");
+               _sidPatterns.length + " present).");
   }
+  if (exportedSong.length < song.length) {
+    lines.push("; NOTE: only the first " + exportedSong.length + " song steps are exported (" +
+               song.length + " present); order-list player uses an 8-bit position counter.");
+  }
+  lines.push(";");
+  lines.push("; Zero page usage (avoid these if combining with other code):");
+  lines.push(";   $FB SID_TICK  $FC SID_ROW  $FD SID_ORDERPOS  $FE SID_TMP");
+  lines.push(";   $02-$19  twelve pattern-relative pointers (v0/v1/v2 x notes/insts/fx/fxval)");
+  lines.push(";   $1A SID_TMP2   $1B/$1C SID_OFFSET (pattern-index*32, 16-bit)");
+  lines.push(";   $1D-$2E  per-voice effect state (base/current freq, vibrato phase)");
+  lines.push(";   $2F SID_SPEED_CUR (current frames/row; changed at runtime by the F effect)");
+  lines.push(";");
+  lines.push("; Effect column (one per row per voice): V=vibrato, U/D=slide up/down,");
+  lines.push("; C=note cut, F=speed change. Effects are row-granular — they update once");
+  lines.push("; per row, not on every IRQ frame, so a fast row rate (low Speed) gives the");
+  lines.push("; smoothest slides/vibrato. An empty effect column stops whatever continuous");
+  lines.push("; effect (vibrato/slide) was previously running on that voice.");
   lines.push("; =========================================================");
   lines.push("");
   lines.push("* = $080D");
@@ -34671,8 +35594,16 @@ function _sidExportAsmPlayable() {
   lines.push("    BPL sid_clr");
   lines.push("    LDA #" + hx(speed));
   lines.push("    STA $FB");           // SID_TICK
+  lines.push("    STA $2F");           // SID_SPEED_CUR = initial speed (the F effect can change it later)
   lines.push("    LDA #$00");
   lines.push("    STA $FC");           // SID_ROW
+  lines.push("    STA $FD");           // SID_ORDERPOS = 0
+  lines.push("    LDX #$00");
+  lines.push("    STX $1D"); lines.push("    STX $1E"); lines.push("    STX $1F"); lines.push("    STX $20"); lines.push("    STX $21"); lines.push("    STX $22"); // v0 effect state
+  lines.push("    STX $23"); lines.push("    STX $24"); lines.push("    STX $25"); lines.push("    STX $26"); lines.push("    STX $27"); lines.push("    STX $28"); // v1 effect state
+  lines.push("    STX $29"); lines.push("    STX $2A"); lines.push("    STX $2B"); lines.push("    STX $2C"); lines.push("    STX $2D"); lines.push("    STX $2E"); // v2 effect state
+  lines.push("    LDX sid_order");     // X = pattern index for order slot 0
+  lines.push("    JSR sid_load_pattern");
   lines.push("    LDA #<sid_irq");
   lines.push("    STA $0314");
   lines.push("    LDA #>sid_irq");
@@ -34718,43 +35649,147 @@ function _sidExportAsmPlayable() {
   lines.push("    STA $D019");         // ack raster
   lines.push("    DEC $FB");           // SID_TICK
   lines.push("    BNE sid_irq_done");
-  lines.push("    LDA #" + hx(speed));
+  lines.push("    LDA $2F");           // SID_SPEED_CUR (may have been changed by an F effect)
   lines.push("    STA $FB");
   lines.push("    JSR sid_play_row");
   lines.push("sid_irq_done:");
   lines.push("    JMP $EA31");
   lines.push("");
 
-  // ---- sid_play_row ------------------------------------------------------
+  // ---- sid_play_row -------------------------------------------------------
+  // Notes/insts are read via (ptr),Y — SID_PTR{V}{N,I} point at "row 0 of
+  // the CURRENT pattern" for that voice/column, set up by sid_load_pattern
+  // whenever the order position advances to a new pattern. Y = SID_ROW
+  // (0..31) indexes within that pattern, same as the old flat design, just
+  // relative to a pointer instead of a fixed table base.
+  // Per-voice constants for the note dispatch and the effect-column block
+  // below it: zero-page pointer pairs for notes/insts/fx/fxval, the $D400
+  // voice base offset, and the per-voice effect-state bytes (base/current
+  // frequency + vibrato phase) that sid_set_voice and the fx routines share.
+  const voiceInfo = [
+    { n: "v0", notesPtr: "$02", instsPtr: "$04", fxPtr: "$0E", fxvalPtr: "$10", base: "$00", gate: "$D404",
+      freqLo: "$D400", freqHi: "$D401",
+      baseLo: "$1D", baseHi: "$1E", curLo: "$1F", curHi: "$20", vibSign: "$21", vibCount: "$22" },
+    { n: "v1", notesPtr: "$06", instsPtr: "$08", fxPtr: "$12", fxvalPtr: "$14", base: "$07", gate: "$D40B",
+      freqLo: "$D407", freqHi: "$D408",
+      baseLo: "$23", baseHi: "$24", curLo: "$25", curHi: "$26", vibSign: "$27", vibCount: "$28" },
+    { n: "v2", notesPtr: "$0A", instsPtr: "$0C", fxPtr: "$16", fxvalPtr: "$18", base: "$0E", gate: "$D412",
+      freqLo: "$D40E", freqHi: "$D40F",
+      baseLo: "$29", baseHi: "$2A", curLo: "$2B", curHi: "$2C", vibSign: "$2D", vibCount: "$2E" }
+  ];
+
   lines.push("sid_play_row:");
-  lines.push("    LDY $FC");           // Y = current row
-  lines.push("    LDA sid_v0_notes,Y");
-  lines.push("    BEQ sid_skip_v0");
-  lines.push("    LDX sid_v0_insts,Y");
-  lines.push("    LDY #$00");          // voice base offset
-  lines.push("    JSR sid_set_voice");
-  lines.push("    LDY $FC");
-  lines.push("sid_skip_v0:");
-  lines.push("    LDA sid_v1_notes,Y");
-  lines.push("    BEQ sid_skip_v1");
-  lines.push("    LDX sid_v1_insts,Y");
-  lines.push("    LDY #$07");
-  lines.push("    JSR sid_set_voice");
-  lines.push("    LDY $FC");
-  lines.push("sid_skip_v1:");
-  lines.push("    LDA sid_v2_notes,Y");
-  lines.push("    BEQ sid_skip_v2");
-  lines.push("    LDX sid_v2_insts,Y");
-  lines.push("    LDY #$0E");
-  lines.push("    JSR sid_set_voice");
-  lines.push("sid_skip_v2:");
+  voiceInfo.forEach(function(vi) {
+    lines.push("    LDY $FC");           // Y = row within current pattern (0..31)
+    lines.push("    LDA (" + vi.notesPtr + "),Y");       // note
+    lines.push("    STA $1A");           // SID_TMP2 = note (0 = no note)
+    lines.push("    BEQ sid_skip_" + vi.n);
+    lines.push("    LDA (" + vi.instsPtr + "),Y");       // inst
+    lines.push("    TAX");
+    lines.push("    LDA $1A");
+    lines.push("    LDY #" + vi.base);   // voice base offset
+    lines.push("    JSR sid_set_voice");
+    lines.push("sid_skip_" + vi.n + ":");
+    // Effect column: read once per row regardless of whether a new note
+    // just triggered (a note + effect can share the same row, e.g. a note
+    // followed by vibrato; a slide/vibrato can also continue on a row with
+    // no new note).
+    lines.push("    LDY $FC");
+    lines.push("    LDA (" + vi.fxPtr + "),Y");
+    lines.push("    STA $1A");           // SID_TMP2 = fx code (0=none,1=V,2=U,3=D,4=C,5=F)
+    lines.push("    BEQ sid_fxdone_" + vi.n);
+    lines.push("    LDY $FC");
+    lines.push("    LDA (" + vi.fxvalPtr + "),Y");
+    lines.push("    TAX");               // X = fx value, kept across the dispatch below
+    lines.push("    LDA $1A");
+    lines.push("    CMP #$04");          // C = note cut
+    lines.push("    BNE sid_fxnc_" + vi.n);
+    lines.push("    LDA " + vi.gate);
+    lines.push("    AND #$FE");
+    lines.push("    STA " + vi.gate);
+    lines.push("    JMP sid_fxdone_" + vi.n);
+    lines.push("sid_fxnc_" + vi.n + ":");
+    lines.push("    CMP #$05");          // F = speed change
+    lines.push("    BNE sid_fxnf_" + vi.n);
+    lines.push("    STX $2F");           // SID_SPEED_CUR = fx value
+    lines.push("    JMP sid_fxdone_" + vi.n);
+    lines.push("sid_fxnf_" + vi.n + ":");
+    lines.push("    CMP #$01");          // V = vibrato
+    lines.push("    BNE sid_fxnv_" + vi.n);
+    lines.push("    JSR sid_vib_" + vi.n);
+    lines.push("    JMP sid_fxdone_" + vi.n);
+    lines.push("sid_fxnv_" + vi.n + ":");
+    lines.push("    CMP #$02");          // U = slide up
+    lines.push("    BNE sid_fxnu_" + vi.n);
+    lines.push("    JSR sid_slideup_" + vi.n);
+    lines.push("    JMP sid_fxdone_" + vi.n);
+    lines.push("sid_fxnu_" + vi.n + ":"); // only D (3) remains
+    lines.push("    JSR sid_slidedown_" + vi.n);
+    lines.push("sid_fxdone_" + vi.n + ":");
+  });
   lines.push("    INC $FC");
   lines.push("    LDA $FC");
-  lines.push("    CMP #" + hx(totalRows & 0xFF));
+  lines.push("    CMP #" + hx(_SID_ROWS));
   lines.push("    BCC sid_row_done");
-  lines.push("    LDA #$00");
-  lines.push("    STA $FC");
+  lines.push("    JSR sid_next_order_step");
   lines.push("sid_row_done:");
+  lines.push("    RTS");
+  lines.push("");
+
+  // ---- sid_next_order_step: pattern finished, advance the order list ----
+  lines.push("sid_next_order_step:");
+  lines.push("    LDA #$00");
+  lines.push("    STA $FC");           // SID_ROW = 0 (new pattern starts at its own row 0)
+  lines.push("    INC $FD");           // SID_ORDERPOS++
+  lines.push("    LDX $FD");
+  lines.push("    CPX #" + hx(exportedSong.length));
+  lines.push("    BCC sid_order_ok");
+  lines.push("    LDX #$00");
+  lines.push("    STX $FD");           // wrap the song back to its first step
+  lines.push("sid_order_ok:");
+  lines.push("    LDX $FD");
+  lines.push("    LDA sid_order,X");   // A = pattern index for the new order slot
+  lines.push("    TAX");
+  lines.push("    JMP sid_load_pattern");
+  lines.push("");
+
+  // ---- sid_load_pattern (X = pattern index) — points the twelve per-voice --
+  // notes/insts/fx/fxval pointers at that pattern's row 0. offset = X*32,
+  // computed as a 16-bit value ($1B/$1C, SID_OFFSET) since X*32 can exceed
+  // 255 (i.e. more than 7 patterns) the moment there's more than a handful
+  // of patterns. $1B/$1C (not $0F/$10) so it never overlaps the fx/fxval
+  // pointer pairs this routine is about to write into $0E-$19.
+  lines.push("sid_load_pattern:");
+  lines.push("    TXA");
+  lines.push("    STA $1B");           // SID_OFFSET lo = pattern index
+  lines.push("    LDA #$00");
+  lines.push("    STA $1C");           // SID_OFFSET hi = 0
+  lines.push("    ASL $1B");
+  lines.push("    ROL $1C");
+  lines.push("    ASL $1B");
+  lines.push("    ROL $1C");
+  lines.push("    ASL $1B");
+  lines.push("    ROL $1C");
+  lines.push("    ASL $1B");
+  lines.push("    ROL $1C");
+  lines.push("    ASL $1B");
+  lines.push("    ROL $1C");           // $1B/$1C = pattern_index * 32
+  const ptrTable = [
+    ["$02", "sid_v0_notes"], ["$04", "sid_v0_insts"], ["$0E", "sid_v0_fx"], ["$10", "sid_v0_fxval"],
+    ["$06", "sid_v1_notes"], ["$08", "sid_v1_insts"], ["$12", "sid_v1_fx"], ["$14", "sid_v1_fxval"],
+    ["$0A", "sid_v2_notes"], ["$0C", "sid_v2_insts"], ["$16", "sid_v2_fx"], ["$18", "sid_v2_fxval"]
+  ];
+  ptrTable.forEach(function(entry) {
+    const zp = entry[0], table = entry[1];
+    const zpHi = "$" + (parseInt(zp.slice(1), 16) + 1).toString(16).toUpperCase().padStart(2, "0");
+    lines.push("    CLC");
+    lines.push("    LDA #<" + table);
+    lines.push("    ADC $1B");
+    lines.push("    STA " + zp);
+    lines.push("    LDA #>" + table);
+    lines.push("    ADC $1C");
+    lines.push("    STA " + zpHi);
+  });
   lines.push("    RTS");
   lines.push("");
 
@@ -34771,10 +35806,10 @@ function _sidExportAsmPlayable() {
   lines.push("    ASL");
   lines.push("    ASL");
   lines.push("    ASL");               // A = inst*8
-  lines.push("    STA $FD");           // SID_TMP
+  lines.push("    STA $FE");           // SID_TMP
   lines.push("    TXA");
   lines.push("    CLC");
-  lines.push("    ADC $FD");           // A = inst*9
+  lines.push("    ADC $FE");           // A = inst*9
   lines.push("    TAX");               // X = offset into sid_instruments
   lines.push("    LDA sid_instruments+3,X");
   lines.push("    STA $D402,Y");       // PW lo
@@ -34785,7 +35820,7 @@ function _sidExportAsmPlayable() {
   lines.push("    LDA sid_instruments+2,X");
   lines.push("    STA $D406,Y");       // SR
   lines.push("    LDA sid_instruments,X");
-  lines.push("    STA $FD");           // stash ctrl (gate-on byte) for later
+  lines.push("    STA $FE");           // stash ctrl (gate-on byte) for later
   lines.push("    LDA sid_instruments+5,X");
   lines.push("    STA $D415");         // filter cutoff lo
   lines.push("    LDA sid_instruments+6,X");
@@ -34800,11 +35835,43 @@ function _sidExportAsmPlayable() {
   lines.push("    TAX");
   lines.push("    LDA sid_freq_lo,X");
   lines.push("    STA $D400,Y");
+  lines.push("    PHA");               // save freq lo for the per-voice stash below
   lines.push("    LDA sid_freq_hi,X");
   lines.push("    STA $D401,Y");
-  lines.push("    LDA $FD");
+  lines.push("    TAX");               // X = freq hi (inst offset no longer needed past this point)
+  lines.push("    PLA");               // A = freq lo
+  // A fresh note becomes each voice's stable "base" frequency (what vibrato
+  // wiggles around) and also resets "current" (what slide walks from) and
+  // the vibrato phase — dispatched on Y, the voice-base offset (0/7/14)
+  // already sitting in the register from this call's entry.
+  lines.push("    CPY #$00");
+  lines.push("    BNE sid_setv_not0");
+  lines.push("    STA $1D"); lines.push("    STX $1E");
+  lines.push("    STA $1F"); lines.push("    STX $20");
+  lines.push("    LDA #$00"); lines.push("    STA $21"); lines.push("    STA $22");
+  lines.push("    JMP sid_setv_stashed");
+  lines.push("sid_setv_not0:");
+  lines.push("    CPY #$07");
+  lines.push("    BNE sid_setv_not1");
+  lines.push("    STA $23"); lines.push("    STX $24");
+  lines.push("    STA $25"); lines.push("    STX $26");
+  lines.push("    LDA #$00"); lines.push("    STA $27"); lines.push("    STA $28");
+  lines.push("    JMP sid_setv_stashed");
+  lines.push("sid_setv_not1:");
+  lines.push("    STA $29"); lines.push("    STX $2A");
+  lines.push("    STA $2B"); lines.push("    STX $2C");
+  lines.push("    LDA #$00"); lines.push("    STA $2D"); lines.push("    STA $2E");
+  lines.push("sid_setv_stashed:");
+  lines.push("    LDA $FE");
   lines.push("    STA $D404,Y");       // gate on with full ctrl byte
   lines.push("    RTS");
+  lines.push("");
+
+  // ---- Song / order list (one byte per step: which pattern plays there) -
+  lines.push("; Song/order list: which pattern (index into sid_instruments'");
+  lines.push("; sibling pattern tables below) plays at each step; a pattern");
+  lines.push("; may appear more than once.");
+  chunk("sid_order", exportedSong);
   lines.push("");
 
   // ---- Instrument table (9 bytes per instrument, contiguous) ------------
@@ -34822,22 +35889,121 @@ function _sidExportAsmPlayable() {
   });
   lines.push("");
 
-  // ---- Notes + instrument-per-cell per voice, all patterns concatenated -
+  // ---- Notes + instrument + effect columns per voice, all patterns ------
+  // concatenated (one contiguous table per voice/column with every
+  // pattern's 32 rows back to back); sid_load_pattern computes a pointer
+  // into each rather than indexing the whole thing with one register.
   for (let v = 0; v < 3; v++) {
     const notes = [];
     const insts = [];
+    const fxs = [];
+    const fxvals = [];
     for (let pi = 0; pi < exportedPatterns; pi++) {
       const pat = _sidPatterns[pi];
       for (let r = 0; r < _SID_ROWS; r++) {
         const c = pat[v][r];
         notes.push(c.note == null ? 0 : (c.note + 1));
         insts.push((c.inst|0) & 0xFF);
+        fxs.push(c.fx ? (_SID_FX_CODES[c.fx]||0) : 0);
+        fxvals.push((c.fxval|0) & 0xFF);
       }
     }
     chunk("sid_v" + v + "_notes", notes);
     chunk("sid_v" + v + "_insts", insts);
+    chunk("sid_v" + v + "_fx", fxs);
+    chunk("sid_v" + v + "_fxval", fxvals);
   }
   lines.push("");
+
+  // ---- Effect routines (vibrato, slide up/down) — one small subroutine --
+  // per voice, called once per row from sid_play_row. Row-granular: they
+  // recompute the voice's live frequency once per row (not every IRQ
+  // frame), so lower Speed values (more rows/sec) give smoother motion.
+  voiceInfo.forEach(function(vi) {
+    // Vibrato: A 2-row-period wobble around the note's original ("base")
+    // frequency — fxval's low nibble is depth (×4 units), high nibble is
+    // "hold" length in rows before the wobble flips direction.
+    lines.push("sid_vib_" + vi.n + ":");
+    lines.push("    STX $FE");             // SID_TMP = fxval
+    lines.push("    LDA $FE");
+    lines.push("    LSR"); lines.push("    LSR"); lines.push("    LSR"); lines.push("    LSR");
+    lines.push("    BNE sid_vib_" + vi.n + "_sp");
+    lines.push("    LDA #$01");
+    lines.push("sid_vib_" + vi.n + "_sp:");
+    lines.push("    CMP " + vi.vibCount);
+    lines.push("    BNE sid_vib_" + vi.n + "_hold");
+    lines.push("    LDA #$00");
+    lines.push("    STA " + vi.vibCount);
+    lines.push("    LDA " + vi.vibSign);
+    lines.push("    EOR #$FF");
+    lines.push("    STA " + vi.vibSign);
+    lines.push("    JMP sid_vib_" + vi.n + "_apply");
+    lines.push("sid_vib_" + vi.n + "_hold:");
+    lines.push("    INC " + vi.vibCount);
+    lines.push("sid_vib_" + vi.n + "_apply:");
+    lines.push("    LDA $FE");
+    lines.push("    AND #$0F");
+    lines.push("    ASL"); lines.push("    ASL");   // depth*4
+    lines.push("    STA $FE");
+    lines.push("    LDA " + vi.vibSign);
+    lines.push("    BEQ sid_vib_" + vi.n + "_neg");
+    lines.push("    CLC");
+    lines.push("    LDA " + vi.baseLo);
+    lines.push("    ADC $FE");
+    lines.push("    STA " + vi.curLo);
+    lines.push("    LDA " + vi.baseHi);
+    lines.push("    ADC #$00");
+    lines.push("    STA " + vi.curHi);
+    lines.push("    JMP sid_vib_" + vi.n + "_write");
+    lines.push("sid_vib_" + vi.n + "_neg:");
+    lines.push("    SEC");
+    lines.push("    LDA " + vi.baseLo);
+    lines.push("    SBC $FE");
+    lines.push("    STA " + vi.curLo);
+    lines.push("    LDA " + vi.baseHi);
+    lines.push("    SBC #$00");
+    lines.push("    STA " + vi.curHi);
+    lines.push("sid_vib_" + vi.n + "_write:");
+    lines.push("    LDA " + vi.curLo);
+    lines.push("    STA " + vi.freqLo);
+    lines.push("    LDA " + vi.curHi);
+    lines.push("    STA " + vi.freqHi);
+    lines.push("    RTS");
+    lines.push("");
+
+    // Slide up/down: add or subtract fxval (16-bit, hi byte 0) from the
+    // voice's running "current" frequency every row while the effect stays
+    // active, so pitch keeps moving for as long as the column keeps saying so.
+    lines.push("sid_slideup_" + vi.n + ":");
+    lines.push("    CLC");
+    lines.push("    TXA");
+    lines.push("    ADC " + vi.curLo);
+    lines.push("    STA " + vi.curLo);
+    lines.push("    LDA " + vi.curHi);
+    lines.push("    ADC #$00");
+    lines.push("    STA " + vi.curHi);
+    lines.push("    LDA " + vi.curLo);
+    lines.push("    STA " + vi.freqLo);
+    lines.push("    LDA " + vi.curHi);
+    lines.push("    STA " + vi.freqHi);
+    lines.push("    RTS");
+    lines.push("");
+    lines.push("sid_slidedown_" + vi.n + ":");
+    lines.push("    SEC");
+    lines.push("    LDA " + vi.curLo);
+    lines.push("    STX $FE");
+    lines.push("    SBC $FE");
+    lines.push("    STA " + vi.curLo);
+    lines.push("    LDA " + vi.curHi);
+    lines.push("    SBC #$00");
+    lines.push("    STA " + vi.curHi);
+    lines.push("    LDA " + vi.curLo);
+    lines.push("    STA " + vi.freqLo);
+    lines.push("    LDA " + vi.curHi);
+    lines.push("    STA " + vi.freqHi);
+    lines.push("    RTS");
+    lines.push("");
+  });
 
   // ---- PAL frequency tables (96 notes: C-0..B-7) -------------------------
   const freqLo = [], freqHi = [];
@@ -34867,6 +36033,9 @@ function _sidInit() {
   _sidInsts = [_sidNewInst()];
   _sidPatterns = [_sidNewPattern()];
   _sidPlayPat = 0;
+  _sidSong = [0];
+  _sidSongPos = 0;
+  _sidSongPlayPos = 0;
   _sidSyncPlayModeSel();
   _sidUpdateBpmDisplay();
   const volPct = Math.round(_sidMasterVol * 100);
@@ -34877,6 +36046,7 @@ function _sidInit() {
   _sidBuildInstSel();
   _sidLoadInstUI();
   _sidBuildPatSel();
+  _sidBuildSongList();
   _sidBuildTracker();
   _sidSetOctave(_sidOctave);
   _sidUpdatePauseButton();
@@ -34898,13 +36068,7 @@ function setupSidEditor() {
 
   onId("sid-editor-btn", "click", function() {
     const cm = document.querySelector(".control-menu"); if (cm) cm.removeAttribute("open");
-    if (!_editorDialogPositions?.["sid-editor-dialog"]) {
-      dialog.style.position = "fixed";
-      dialog.style.margin = "0";
-      dialog.style.left = "50%";
-      dialog.style.top = "50%";
-      dialog.style.transform = "translate(-50%, -50%)";
-    }
+    dialog._applyPosition?.();
     _sidInit(); dialog.showModal();
   });
   onId("sid-close", "click", function() { _sidCloseVirtualKeyboard(); _sidStop(); dialog.close(); });
@@ -34954,6 +36118,10 @@ function setupSidEditor() {
   // tracker
   onId("sid-pat-sel", "change", function(e){ _sidSetPattern(parseInt(e.target.value,10), true); });
   onId("sid-pat-add", "click", function(){ _sidPatterns.push(_sidNewPattern()); _sidBuildPatSel(); _sidSetPattern(_sidPatterns.length-1, true); });
+  onId("sid-song-add", "click", _sidSongInsert);
+  onId("sid-song-del", "click", _sidSongRemove);
+  onId("sid-song-up", "click", function(){ _sidSongMove(-1); });
+  onId("sid-song-down", "click", function(){ _sidSongMove(1); });
   onId("sid-play-mode", "change", function(e){ _sidPlayMode = e.target.value === "current" ? "current" : "all"; if(_sidTimer){ _sidPlay(); } });
   onId("sid-speed", "input", function(e){
     _sidSpeed = Math.max(1, parseInt(e.target.value,10)||6);
@@ -35775,6 +36943,7 @@ function _cgOpenDialog() {
   if (!dlg) return;
   if (!dlg.dataset.wired) _cgWireDialog();
   dlg.dataset.wired = "1";
+  dlg._applyPosition?.();
   try { dlg.showModal(); } catch(_) { dlg.show(); }
   _cgApplyControlVisibility();
   _cgApplyBitsRange();
