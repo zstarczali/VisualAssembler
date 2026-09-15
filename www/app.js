@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "pl-it-ui-languages-1",
+  id: "sid-fx-song-d64-save-243",
   url: "https://www.c64va.tech/docs.html",
   hu: {
-    eyebrow: "Újdonság",
+    eyebrow: "Újdonság a 2.4.3-ban",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p>Két új dolog érdemel egy pillantást:</p><ul><li><strong>Két új dokumentációs nyelv</strong> — az online kézikönyv mostantól lengyelül és olaszul is olvasható: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li><li><strong>Két új felületi nyelv</strong> — az alkalmazás felülete (menük, dialógusok, mnemonik leírások, Ultimate Basic referencia) mostantól lengyelül és olaszul is elérhető.</li></ul>`,
+    body: `<p>Három dolog érdemel egy pillantást ebben a kiadásban:</p><ul><li><strong>SID szerkesztő effekt-oszlop</strong> — a vibrato, csúszás fel/le, note-cut és tempóváltás mostantól szól mind a tracker előnézetben, mind az exportált C64 lejátszóban.</li><li><strong>SID szerkesztő song/sorrend lista</strong> — patternek elrendezése és ismétlése teljes dallá, nem csak egyetlen hurokká.</li><li><strong>D64 Editor Save munkafolyamat</strong> — a szerkesztések mostantól egy munkapéldányon landolnak explicit Save-vel (automatikus biztonsági mentéssel), és mentetlen módosítás esetén megerősítést kér.</li><li><strong>D64 Editor Block Editor</strong> — a Block Editor mostantól új byte-onkénti hex griddel jeleníti meg a kiválasztott 256 byte-os blokkot, és a dialógusa már nem halványítja el az app többi részét.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New",
+    eyebrow: "New in 2.4.3",
     title: "Welcome to Visual Assembler",
-    body: `<p>Two new things worth a look:</p><ul><li><strong>Two new documentation languages</strong> — the online manual now also reads in Polish and Italian: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li><li><strong>Two new UI languages</strong> — the app interface (menus, dialogs, mnemonic descriptions, Ultimate Basic reference) is now available in Polish and Italian too.</li></ul>`,
+    body: `<p>Three things worth a look in this release:</p><ul><li><strong>SID Editor effect column</strong> — vibrato, slide up/down, note-cut and speed-change now play back in both the tracker preview and the exported C64 player.</li><li><strong>SID Editor song/order list</strong> — arrange and repeat patterns into a full song, not just a single loop.</li><li><strong>D64 Editor Save workflow</strong> — edits now land on a working copy with an explicit Save (auto-backup included) and unsaved-change prompts.</li><li><strong>D64 Editor Block Editor</strong> — a new per-byte hex grid shows the selected 256-byte block, and its dialog no longer dims the rest of the app.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad",
+    eyebrow: "Novedad en la 2.4.3",
     title: "Bienvenido a Visual Assembler",
-    body: `<p>Dos novedades que merecen un vistazo:</p><ul><li><strong>Dos nuevos idiomas de documentación</strong> — el manual en línea ahora también se puede leer en polaco e italiano: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li><li><strong>Dos nuevos idiomas de interfaz</strong> — la interfaz de la aplicación (menús, diálogos, descripciones de mnemónicos, referencia de Ultimate Basic) ahora también está disponible en polaco e italiano.</li></ul>`,
+    body: `<p>Tres novedades que merecen un vistazo en esta versión:</p><ul><li><strong>Columna de efectos del editor SID</strong> — el vibrato, el deslizamiento arriba/abajo, el corte de nota y el cambio de velocidad ahora suenan tanto en la vista previa del tracker como en el reproductor C64 exportado.</li><li><strong>Lista de canciones/orden del editor SID</strong> — organiza y repite patrones para formar una canción completa, no solo un bucle.</li><li><strong>Flujo de guardado del Editor D64</strong> — las ediciones ahora se aplican a una copia de trabajo con un Guardar explícito (con copia de seguridad automática) y avisos de cambios sin guardar.</li><li><strong>Editor de bloques del Editor D64</strong> — una nueva cuadrícula hexadecimal por byte muestra el bloque de 256 bytes seleccionado, y su ventana ya no atenúa el resto de la aplicación.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu",
+    eyebrow: "Neu in 2.4.3",
     title: "Willkommen bei Visual Assembler",
-    body: `<p>Zwei Neuerungen sind einen Blick wert:</p><ul><li><strong>Zwei neue Dokumentationssprachen</strong> — das Online-Handbuch ist jetzt auch auf Polnisch und Italienisch lesbar: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li><li><strong>Zwei neue Oberflächensprachen</strong> — die App-Oberfläche (Menüs, Dialoge, Mnemonic-Beschreibungen, Ultimate-Basic-Referenz) ist jetzt auch auf Polnisch und Italienisch verfügbar.</li></ul>`,
+    body: `<p>Drei Neuerungen sind in diesem Release einen Blick wert:</p><ul><li><strong>SID-Editor-Effektspalte</strong> — Vibrato, Slide auf/ab, Note-Cut und Tempowechsel erklingen jetzt sowohl in der Tracker-Vorschau als auch im exportierten C64-Player.</li><li><strong>SID-Editor Song-/Reihenfolgeliste</strong> — Patterns zu einem vollständigen Song anordnen und wiederholen, nicht nur zu einer einzelnen Schleife.</li><li><strong>D64-Editor Speicher-Workflow</strong> — Änderungen landen jetzt auf einer Arbeitskopie mit explizitem Speichern (inklusive automatischem Backup) und Abfragen bei ungespeicherten Änderungen.</li><li><strong>D64-Editor Block-Editor</strong> — ein neues byteweises Hex-Raster zeigt den ausgewählten 256-Byte-Block, und sein Dialog verdunkelt den Rest der App nicht mehr.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw",
+    eyebrow: "Nieuw in 2.4.3",
     title: "Welkom bij Visual Assembler",
-    body: `<p>Twee nieuwe dingen die de moeite waard zijn:</p><ul><li><strong>Twee nieuwe documentatietalen</strong> — de online handleiding is nu ook te lezen in het Pools en Italiaans: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li><li><strong>Twee nieuwe interfacetalen</strong> — de app-interface (menu's, dialoogvensters, mnemonic-beschrijvingen, Ultimate Basic-referentie) is nu ook beschikbaar in het Pools en Italiaans.</li></ul>`,
+    body: `<p>Drie dingen die de moeite waard zijn in deze release:</p><ul><li><strong>SID-editor effectkolom</strong> — vibrato, slide omhoog/omlaag, note-cut en tempowissel klinken nu zowel in de trackervoorbeeld als in de geëxporteerde C64-speler.</li><li><strong>SID-editor song/volgorde-lijst</strong> — patronen rangschikken en herhalen tot een volledig nummer, niet slechts één lus.</li><li><strong>D64-editor opslag-workflow</strong> — bewerkingen landen nu op een werkkopie met een expliciete Opslaan-knop (inclusief automatische back-up) en meldingen bij niet-opgeslagen wijzigingen.</li><li><strong>D64-editor Block Editor</strong> — een nieuw byte-voor-byte hexraster toont het geselecteerde blok van 256 bytes, en het dialoogvenster dimt de rest van de app niet meer.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość",
+    eyebrow: "Nowość w 2.4.3",
     title: "Witamy w Visual Assembler",
-    body: `<p>Dwie nowości warte uwagi:</p><ul><li><strong>Dwa nowe języki dokumentacji</strong> — instrukcja online jest teraz dostępna również po polsku i włosku: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li><li><strong>Dwa nowe języki interfejsu</strong> — interfejs aplikacji (menu, dialogi, opisy mnemoników, dokumentacja Ultimate Basic) jest teraz dostępny również po polsku i włosku.</li></ul>`,
+    body: `<p>Trzy nowości warte uwagi w tym wydaniu:</p><ul><li><strong>Kolumna efektów edytora SID</strong> — vibrato, slide w górę/w dół, note-cut i zmiana tempa brzmią teraz zarówno w podglądzie trackera, jak i w wyeksportowanym odtwarzaczu C64.</li><li><strong>Lista utworu/kolejności edytora SID</strong> — układaj i powtarzaj patterny w pełny utwór, a nie tylko jedną pętlę.</li><li><strong>Przepływ zapisu Edytora D64</strong> — edycje trafiają teraz do kopii roboczej z jawnym Zapisem (wraz z automatyczną kopią zapasową) i pytaniem o niezapisane zmiany.</li><li><strong>Edytor bloków w Edytorze D64</strong> — nowa siatka hex bajt-po-bajcie pokazuje wybrany blok 256 bajtów, a jego okno nie przyciemnia już reszty aplikacji.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità",
+    eyebrow: "Novità nella 2.4.3",
     title: "Benvenuto in Visual Assembler",
-    body: `<p>Due novità da non perdere:</p><ul><li><strong>Due nuove lingue per la documentazione</strong> — il manuale online è ora leggibile anche in polacco e italiano: <a href="https://www.c64va.tech/docs.html" target="_blank" rel="noopener noreferrer">www.c64va.tech/docs.html</a>.</li><li><strong>Due nuove lingue per l'interfaccia</strong> — l'interfaccia dell'app (menu, finestre di dialogo, descrizioni dei mnemonici, riferimento Ultimate Basic) è ora disponibile anche in polacco e italiano.</li></ul>`,
+    body: `<p>Tre novità da non perdere in questa versione:</p><ul><li><strong>Colonna effetti dell'editor SID</strong> — vibrato, slide su/giù, note-cut e cambio di tempo ora suonano sia nell'anteprima del tracker che nel player C64 esportato.</li><li><strong>Lista song/ordine dell'editor SID</strong> — organizza e ripeti i pattern in una canzone completa, non solo in un singolo loop.</li><li><strong>Flusso di salvataggio dell'Editor D64</strong> — le modifiche ora vengono applicate a una copia di lavoro con un Salva esplicito (con backup automatico) e avvisi per modifiche non salvate.</li><li><strong>Block Editor dell'Editor D64</strong> — una nuova griglia esadecimale byte per byte mostra il blocco di 256 byte selezionato, e la sua finestra non oscura più il resto dell'app.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }

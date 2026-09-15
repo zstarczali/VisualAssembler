@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.4.2**
+**Verzió: 2.4.3**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -26,6 +26,16 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - [12b. CRT export (Magic Desk 64K cartridge)](#12b-crt-export-magic-desk-64k-cartridge)
 - [13. Hardver beállítások](#13-hardver-beállítások)
 - [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit)
+
+---
+
+## A 2.4.3 verzió újdonságai
+
+- **SID Editor: Song/sorrend lista** — a patternek elrendezése mostantól egy valódi song/sorrend listán keresztül történik a nyers pattern-bank fölött, így egy pattern ismétlődhet, és a dal hosszabb is lehet, mint a tárolt patternek száma. Lépések hozzáadása, eltávolítása és átrendezése közvetlenül a SID szerkesztőből; a lejátszás és az exportált lejátszó is ezt a listát járja be, nem a nyers pattern-sorrendet.
+- **SID Editor: Effekt-oszlop** — minden tracker-cella mostantól a note mellett effektet is hordozhat: **V**ibrato, csúszás **U**p / **D**own, note-**C**ut és tempóváltás (**F**). Közvetlenül a cellába gépelhető, pl. `C-4 01 V24` (note + hangszer + vibrato) vagy `F06` (csak tempóváltás). Az effektek soronként egyszer futnak le, megegyezően az exportált lejátszóval, és mostantól helyesen szólnak mind az app-on belüli Web Audio előnézetben, mind a lefordított 6502 exportban — ez egy valódi, lejátszható effekt-motor, nem csak export-váz.
+- **Visszafelé kompatibilis SID mentési formátum** — a SID mentések mostantól verzió-jelzőt hordoznak, így a régebbi, effekt-oszlop előtti `.bin` mentések pontosan úgy töltődnek be, mint eddig, effektek nélkül.
+- **D64 Editor: explicit Save munkafolyamat** — minden szerkesztés (hozzáadás/kimentés/átnevezés/törlés, és mostantól a Block Editor byte-szintű szerkesztései is) egy privát munkapéldányon történik; semmi nem érinti a valódi `.d64` fájlodat, amíg meg nem nyomod a **Save**-et, ami előtte automatikus biztonsági másolatot is készít. A nem mentett módosításokkal való bezárás vagy lemezváltás mostantól megerősítést kér, ahelyett hogy csendben eldobná őket.
+- **D64 Editor: Block Editor hex grid** — a kiválasztott 256 byte-os blokk nyers byte-nézete mostantól egy valódi byte-onkénti hex grid egy sima szövegdoboz helyett, és a dialógusa már nem halványítja el az app többi részét, amíg nyitva van.
 
 ---
 
@@ -3210,6 +3220,7 @@ A Curve Editor utáni eszköztár-ikon nyitja meg a **D64 Editort** — egy ön�
 | **Rename selected** | A bejegyzés nevének helyben szerkesztése a táblázatban — Enter megerősít, Escape megszakít. |
 | **Delete selected** | A kijelölt bejegyzés törlése a lemezről. |
 | **Refresh** | A directory újraolvasása, pl. ha közben másik eszközzel módosítottad a lemezt. |
+| **Save** | A munkapéldány módosításainak visszaírása a valódi `.d64` fájlba, előtte automatikus biztonsági mentéssel. Csak akkor aktív, ha van mentetlen módosítás. |
 
 **Program hozzáadása:** ha már `.prg`-re végződő fájlt választasz, csak egy **Name** és egy lemez **Type** (PRG/SEQ/USR/REL) mezőt kér — a `.prg` már tartalmazza a saját betöltési cím fejlécét, így változtatás nélkül kerül fel. Bármely más fájl (pl. nyers `.bin`) kiválasztásakor emellett megjelenik:
 
@@ -3219,7 +3230,11 @@ A Curve Editor utáni eszköztár-ikon nyitja meg a **D64 Editort** — egy ön�
 
 A directory lista ugyanazzal a fonttal és nagybetűs stílussal jelenik meg, mint egy valódi C64 `LOAD"$",8` lista.
 
-> **Követelmény:** az Export to D64-hez hasonlóan a D64 Editor is megköveteli a VICE (`c1541`) beállítását a [Hardver beállításokban](#13-hardver-beállítások). Minden művelet (hozzáadás/törlés/átnevezés/kimentés) azonnal a lemezen lévő `.d64` fájlra hat — nincs külön "mentés" lépés.
+**Mentési munkafolyamat:** minden szerkesztés — hozzáadás, kimentés, átnevezés, törlés, és a Block Editor byte-szintű szerkesztései — egy privát munkapéldányon történik, nem a valódi fájlodon. A **Save** eszköztár-gomb (csak mentetlen módosítás esetén aktív) visszaírja a munkapéldányt a valódi `.d64`-re, előtte automatikus biztonsági másolatot készítve; a fejléc **•** jelzést mutat, amíg van mentetlen módosítás, és a szerkesztő bezárása vagy másik lemez megnyitása mentetlen módosításokkal megerősítést kér ahelyett, hogy csendben eldobná őket. A **Save As…** (Files ▾ menü) a munkapéldányt egy új útvonalra írja, és ott folytatja a szerkesztést.
+
+**Block Editor:** az eszköztár rács-ikonja egy nyers track/sector nézetre vált a directory alatt — kattintható blokktérkép a BAM szabad/foglalt bitmapje szerint színezve (a BAM-ot és a directory láncot külön jelölve), byte-onkénti hex grid a kiválasztott 256 byte-os blokkhoz, valamint előző/következő szektor navigáció. A block-szintű szerkesztések ugyanazon a munkapéldány/Save munkafolyamaton mennek át, mint a fenti directory-műveletek.
+
+> **Követelmény:** az Export to D64-hez hasonlóan a D64 Editor is megköveteli a VICE (`c1541`) beállítását a [Hardver beállításokban](#13-hardver-beállítások).
 
 ---
 
@@ -3458,7 +3473,7 @@ Több-hangszeres 3-voice tracker Web Audio előnézet-motorral. Toolkit → SID 
 
 **Tracker rács:**
 - 3 voice × akár 7 pattern × 32 sor = 7 × 32 = max 224 sor (a 8 bites sor-számláló korlátozza).
-- Soronként: note + hangszer-index. Az üres sorok az előző note-ot tartják.
+- Soronként: note + hangszer-index, plusz egy opcionális effekt (lásd lentebb az **Effekt-oszlop**-ot). Az üres sorok az előző note-ot tartják.
 - Válassz egy cellát normálisan, vagy tartsd a **Shift**-et kattintás vagy nyílbillentyű közben egy téglalap-kijelölés kiterjesztéséhez sorokon és a három voice bármelyikén át. A kijelölt területen belüli jobbklikk megőrzi a tartományt.
 - A Copy, Cut, Paste és Clear elérhető az ikon-eszköztárból és az ikon-alapú context menüből. A `Ctrl/Cmd+C` és `Ctrl/Cmd+V` ugyanazon a téglalap-kijelölésen működik.
 - Harmónia segéd: válassz alaphangot, akkord-típust és oktávot, hallgasd meg az akkordot az aktuális hangszerrel, majd szúrd be a hangzatot közvetlenül a trackerbe. Az elérhető típusok: Major, Minor, Diminished, Augmented, Sus2, Sus4, Dominant 7, Major 7, Minor 7, 6, Minor 6, 9, b9, #9, Dim7, 7sus4.
@@ -3466,6 +3481,24 @@ Több-hangszeres 3-voice tracker Web Audio előnézet-motorral. Toolkit → SID 
 - A **Preview row** meghallgatja a kiválasztott sort mind a három voice-on a pattern-lejátszás indítása nélkül.
 - A cella-tartomány beillesztés mostantól a kijelölt tartomány kezdőcellájánál kezdődik, és tisztán megáll a voice- és sor-határoknál, ahelyett hogy a következő oszlopba vagy sorba fordulna.
 - A Speed csúszka beállítja az IRQ tick osztót (frame-ek a sorok közt).
+
+**Song / sorrend lista:**
+- A patternek elrendezése egy song/sorrend listán keresztül történik a nyers pattern-bank fölött — ugyanaz a pattern ismétlődhet, és a dal hosszabb is lehet, mint a tárolt patternek száma.
+- Lépések hozzáadása, eltávolítása és átrendezése a song-lista panelről; az aktuális lépés lejátszás közben kiemelve jelenik meg.
+- Mind az app-on belüli lejátszás, mind minden export ezt a listát járja be, nem a nyers pattern-sorrendet — a sorrend-lista bevezetése előtt készült exportok továbbra is helyesen töltődnek be, egyszerű 0..N-1 dalként.
+
+**Effekt-oszlop:**
+Minden cella a note és hangszer mellett hordozhat egy effektet is, rövid kóddal megadva közvetlenül a note után (pl. `C-4 01 V24`), vagy önmagában, note nélküli effekt-sorként (pl. `F06`):
+
+| Kód | Effekt | Érték |
+|---|---|---|
+| `V` | Vibrato | alsó nibble = mélység, felső nibble = tartási hossz |
+| `U` | Csúszás fel (portamento) | soronként a frekvenciához adott mennyiség |
+| `D` | Csúszás le (portamento) | soronként a frekvenciából levont mennyiség |
+| `C` | Note-cut | elnémítja a voice-ot újraütés nélkül; az érték nem használt |
+| `F` | Tempóváltás | új frame/sor érték, azonnal érvénybe lép |
+
+Az effektek soronként egyszer frissülnek (megegyezően az exportált lejátszó időzítésével), azonosan futnak a Web Audio előnézetben és a lefordított 6502 exportban, és veszteségmentesen mentődnek/töltődnek be a verziózott `.bin` formátumban.
 
 **Lejátszás és virtuális billentyűzet:**
 - A Play eszköztár-gomb lejátszás közben Pause-ra, szüneteltetve Resume-ra vált; a Stop leállítja a lejátszást és visszaállítja az állapotot.
@@ -3481,13 +3514,12 @@ Több-hangszeres 3-voice tracker Web Audio előnézet-motorral. Toolkit → SID 
 | `Export blocks + miniplayer` | Hozzáadja a teljes lejátszót (sid_init / sid_irq / sid_play_row / sid_set_voice) plusz a PAL frekvencia-táblákat. Export után tegyél egy `JSR sid_init`-et a fő kódodba, ahol a zenének indulnia kell. |
 | `Export asm (clipboard)` | A teljes assembly forrást vágólapra másolja. |
 
-**Lejátszó ZP használat:** `$FB` (tick számláló), `$FC` (sor-index), `$FD` (set_voice temp). Ezek ütköznek, ha a fő kódod használja őket — szükség esetén relokálj Expert módon.
+**Lejátszó ZP használat:** `$02`–`$2F` (mutató-táblák, pattern offset és voice-onkénti effekt-állapot), valamint `$FB`–`$FE` (tick számláló, sor-index, sorrend-pozíció, set_voice temp). Ezek ütköznek, ha a fő kódod használja őket — szükség esetén relokálj Expert módon.
 
 **Ismert korlátok:**
-- Egyetlen lineáris pattern lista (még nincs per-voice sequence tábla).
-- A 8 bites sor-számláló 7 pattern × 32 sorra korlátoz.
+- A 8 bites sor-számláló a nyers bankban 7 pattern × 32 sorra korlátoz (a song/sorrend lista patternek ismétlésével még mindig tetszőlegesen hosszú lehet).
 - A C64 `$D418` globális hangerő megosztott a voice-ok közt — a hangszerenkénti hangerő-csúszka informatív; a sustain szint (az ADSR `S`-e) a tényleges per-voice hangerő.
-- A Web Audio előnézet közelítő: a PWM moduláció, a ring/sync és a SID filter karaktere eltér a valódi chiptől.
+- A Web Audio előnézet közelítő: a vibrato/csúszás soronként frissül (ugyanúgy, mint az exportált lejátszó), de a PWM moduláció, a ring/sync és a SID filter karaktere továbbra is eltér a valódi chiptől.
 
 ---
 

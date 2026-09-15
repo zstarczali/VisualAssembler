@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.4.2">
+  <link rel="stylesheet" href="style.css?v=2.4.3">
 </head>
 
 <body>
@@ -1086,7 +1086,7 @@ PRINTABLE CHARACTERS
         <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
       </div>
       <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v2.4.2</p>
+      <p class="about-version" id="about-version">v2.4.3</p>
       <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       <img class="about-ub-banner" src="assets/ultimate-basic-banner.png" alt="Ultimate Basic">
       <p class="about-repo"><span>Ultimate Basic GitHub repository:</span><br><a href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener noreferrer">https://github.com/zstarczali/UltimateBasic</a></p>
@@ -1104,16 +1104,19 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.4.2</p>
+      <p class="whats-new-version">v2.4.3</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: Drag &amp; drop onto the D64 Editor</strong> &mdash; drop a compiled .prg/.bin file (from the SID/sprite/char editors' exports, or anywhere else) straight onto the disk image; the Add panel opens pre-filled. Dropping several files at once queues them one after another.
+          <strong>New: SID Editor effect column</strong> &mdash; every tracker cell can carry an effect alongside its note: vibrato (V), slide up/down (U/D), note-cut (C), and speed-change (F). Type it straight into a cell, e.g. <code>C-4 01 V24</code> or <code>F06</code>. Effects now play back correctly both in the in-app Web Audio preview and in the compiled 6502 export.
         </li>
         <li>
-          <strong>New: Generate include file</strong> &mdash; a toolbar button writes a .inc file listing <code>.const NAME = $ADDR</code> for every entry on the disk, so the main program can reference where each one landed without retyping addresses by hand.
+          <strong>New: SID Editor song/order list</strong> &mdash; patterns are arranged through a proper song/order list layered on top of the pattern bank, so a pattern can repeat and the song can be longer than the number of stored patterns. Older saves (made before the order list existed) keep loading correctly.
         </li>
         <li>
-          <strong>New: Block editor</strong> &mdash; a toolbar toggle switches the D64 Editor to raw track/sector access below the directory: a clickable block map (colored by the BAM's free/used bitmap, with the BAM and directory chain marked separately), a hex view/editor for the selected 256-byte block, and Prev/Next sector navigation &mdash; reads and writes the disk image directly, independent of c1541.
+          <strong>New: D64 Editor explicit Save workflow</strong> &mdash; every edit (add/extract/rename/delete, and Block Editor byte edits) now happens on a private working copy; nothing touches the real .d64 file until you click Save, which also writes an automatic backup first. Closing the editor or opening another disk with unsaved changes now asks for confirmation.
+        </li>
+        <li>
+          <strong>Improved: Block Editor hex grid</strong> &mdash; the raw byte view for the selected 256-byte block is now a proper per-byte hex grid instead of a plain text box, and its dialog no longer dims the rest of the app behind it while open.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -2386,13 +2389,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.4.2"></script>
-  <script src="i18n.js?v=2.4.2"></script>
-  <script src="tutorial-data.js?v=2.4.2"></script>
+  <script src="tauri-bridge.js?v=2.4.3"></script>
+  <script src="i18n.js?v=2.4.3"></script>
+  <script src="tutorial-data.js?v=2.4.3"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.4.2"></script>
+  <script src="app.js?v=2.4.3"></script>
 
 </body>
 
