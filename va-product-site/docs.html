@@ -111,6 +111,20 @@ window.addEventListener('resize',()=>{
 window.addEventListener('beforeunload',saveWindowSize);
 
 function textKey(text){return text.toLocaleLowerCase().replace(/\s+/g,' ').trim()}
+function markdownKey(text){return textKey(text.replace(/\\([\\&])/g,'$1').replace(/[\\`*_]/g,''))}
+function sourceTocAnchors(markdown){
+  const lines=markdown.split(/\r?\n/),headings=[],links=[];
+  lines.forEach(line=>{const heading=line.match(/^(#{1,6})\s+(.+)$/);if(heading)headings.push(markdownKey(heading[2].replace(/\s+#+\s*$/,'')))});
+  const tocStart=lines.findIndex(line=>/^##\s+/.test(line));
+  const tocEnd=lines.findIndex((line,index)=>index>tocStart&&/^##\s+/.test(line));
+  for(const line of lines.slice(tocStart+1,tocEnd<0?undefined:tocEnd))for(const match of line.matchAll(/\[([^\]]+)\]\(#([^)]+)\)/g))links.push({label:markdownKey(match[1]),anchor:match[2]});
+  const used=new Set();
+  return links.map(link=>{
+    const index=headings.findIndex((heading,i)=>!used.has(i)&&heading===link.label);
+    if(index>=0)used.add(index);
+    return {...link,index};
+  }).filter(link=>link.index>=0);
+}
 function slug(text,index){return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'section-'+index}
 function scrollToHeading(heading,remember=true){
   if(!heading)return;
@@ -163,11 +177,19 @@ async function openDocument(language){
   try{
     const response=await fetch(manuals[currentManual].path+language+'.md');if(!response.ok)throw new Error('HTTP '+response.status);
     const markdown=(await response.text()).replace(/^(\*\*[^*\r\n]*\S)[ \t]+\*\*[ \t]*$/gm,'$1**');
+    const sourceMarkdown=language==='en'?markdown:await (await fetch(manuals[currentManual].path+'en.md')).text();
     if(!window.marked||!window.DOMPurify)throw new Error('Markdown renderer unavailable');
     content.innerHTML=DOMPurify.sanitize(marked.parse(markdown,{gfm:true,breaks:false}));
     const allHeadings=[...content.querySelectorAll('h1,h2,h3,h4,h5,h6')],byText=new Map();
     allHeadings.forEach(heading=>{const key=textKey(heading.textContent);if(!byText.has(key))byText.set(key,[]);byText.get(key).push(heading)});
-    content.querySelectorAll('a[href^="#"]').forEach(link=>{const heading=byText.get(textKey(link.textContent))?.find(item=>!item.dataset.linkedId);if(heading)heading.dataset.linkedId=decodeURIComponent(link.getAttribute('href').slice(1))});
+    const anchorLinks=[...content.querySelectorAll('a[href^="#"]')];
+    anchorLinks.forEach(link=>{const heading=byText.get(textKey(link.textContent))?.find(item=>!item.dataset.linkedId);if(heading)heading.dataset.linkedId=decodeURIComponent(link.getAttribute('href').slice(1))});
+    const tocHeading=allHeadings.find(heading=>heading.tagName==='H2');
+    const tocLinks=tocHeading?.nextElementSibling?.matches('ul,ol')?[...tocHeading.nextElementSibling.querySelectorAll('a[href^="#"]')]:[];
+    sourceTocAnchors(sourceMarkdown).forEach(({index},linkIndex)=>{
+      const anchor=tocLinks[linkIndex]?.getAttribute('href')?.slice(1),heading=allHeadings[index];
+      if(anchor&&heading)heading.dataset.linkedId=decodeURIComponent(anchor);
+    });
     const used=new Set();allHeadings.forEach((heading,index)=>{const base=heading.dataset.linkedId||slug(heading.textContent,index);let id=base,suffix=2;while(used.has(id))id=base+'-'+suffix++;used.add(id);heading.id=id});
     allHeadings.filter(heading=>heading.matches('h2,h3')).forEach(heading=>{const link=document.createElement('a');link.href='#'+heading.id;link.textContent=heading.textContent;if(heading.tagName==='H3')link.className='h3';toc.appendChild(link)});
     content.scrollTop=0;
