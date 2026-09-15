@@ -8850,6 +8850,9 @@ html[data-theme="commodore77"] .splash-image {
 .de-tool:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); color: var(--text); }
 .de-tool:disabled { opacity: 0.4; cursor: default; }
 .de-tool:disabled:hover { background: transparent; color: var(--secondary); }
+.de-tool--primary { color: var(--primary); }
+.de-tool--primary:hover { background: color-mix(in srgb, var(--primary) 22%, transparent); color: var(--primary); }
+.de-tool--primary:disabled { color: var(--secondary); }
 .de-free-label { margin-left: auto; font-family: inherit; font-size: 0.72rem; color: var(--secondary); white-space: nowrap; }
 
 .de-body { flex: 1; min-height: 0; overflow: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; border: 2px dashed transparent; border-radius: 4px; transition: border-color 0.12s, background 0.12s; }
@@ -8942,14 +8945,39 @@ html[data-theme="commodore77"] .splash-image {
 .de-block-swatch--free { background: color-mix(in srgb, #4caf7d 55%, transparent); }
 .de-block-swatch--used { background: color-mix(in srgb, var(--secondary) 55%, transparent); }
 .de-block-swatch--system { background: color-mix(in srgb, var(--danger, #e05a5a) 65%, transparent); }
-.de-block-hex-wrap { display: flex; flex-direction: column; gap: 8px; flex: 1 1 360px; min-width: 300px; }
+.de-block-hex-wrap { display: flex; flex-direction: column; gap: 8px; flex: 1 1 620px; min-width: 600px; }
 .de-block-hex-hdr { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .de-block-label { font-family: inherit; font-size: 0.78rem; font-weight: 600; color: var(--text); }
 .de-block-offset { font-family: "IBM Plex Mono", monospace; font-size: 0.7rem; color: var(--secondary); }
-.de-block-hex {
-  font-family: "IBM Plex Mono", monospace; font-size: 0.78rem; line-height: 1.5; white-space: pre;
-  resize: vertical; min-height: 240px; padding: 8px; border: 1px solid var(--panel-border); border-radius: 3px;
-  background: var(--control-bg); color: var(--text); box-shadow: none;
+/* Real per-byte hex editor grid: 16 rows x 16 two-digit cells, a row
+   offset label on the left, a live ASCII dump on the right — a normal
+   hex-editor layout instead of one big free-text field, so a stray
+   non-hex keystroke can't desync the byte alignment. */
+.de-block-hex-grid {
+  display: flex; flex-direction: column; gap: 3px;
+  background: var(--control-bg); border: 1px solid var(--panel-border); border-radius: 3px;
+  padding: 8px; overflow-x: auto;
+}
+.de-hex-row { display: flex; align-items: center; gap: 8px; }
+.de-hex-rowaddr {
+  flex: 0 0 auto; width: 20px; text-align: right;
+  font-family: "IBM Plex Mono", monospace; font-size: 0.68rem; color: var(--secondary);
+}
+.de-hex-bytes { display: flex; gap: 3px; flex: 0 0 auto; }
+.de-hex-cell {
+  width: 22px; height: 22px; min-height: 0; padding: 0; text-align: center;
+  font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; text-transform: uppercase;
+  border: 1px solid var(--panel-border); border-radius: 2px;
+  background: var(--surface-soft); color: var(--text); box-shadow: none;
+}
+.de-hex-cell:focus { border-color: var(--primary); outline: none; background: var(--control-bg); }
+.de-hex-ascii {
+  display: flex; gap: 0; margin-left: 4px; padding-left: 8px;
+  border-left: 1px solid var(--panel-border); flex: 0 0 auto;
+}
+.de-hex-asciichar {
+  display: inline-block; width: 9px;
+  font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; color: var(--secondary); text-align: center;
 }
 
 /* Block Editor dialog (opened from the D64 Editor's toolbar) — same
@@ -8958,10 +8986,10 @@ html[data-theme="commodore77"] .splash-image {
   position: fixed;
   background: transparent; border: none; padding: 0;
   margin: 0;
-  width: min(720px, 95vw); max-width: 95vw;
-  height: min(600px, 90vh); max-height: 90vh; overflow: visible;
+  width: min(1080px, 97vw); max-width: 97vw;
+  height: min(700px, 92vh); max-height: 92vh; overflow: visible;
 }
-.dbe-dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
+.dbe-dialog::backdrop { background: transparent; }
 .dbe-card {
   background: var(--panel); border: 1px solid var(--panel-border);
   display: flex; flex-direction: column; height: 100%; overflow: hidden;
@@ -9447,6 +9475,18 @@ html[data-theme="commodore77"] .splash-image {
 .sid-adsr-canvas { border: 1px solid var(--panel-border); border-radius: 2px; background: #0a0e1a; flex-shrink: 0; }
 .sid-filter { flex: 1; min-width: 220px; }
 .sid-filter-types { display: flex; gap: 14px; margin-bottom: 8px; }
+.sid-song-row { border-top: 1px solid var(--panel-border); padding-top: 12px; }
+.sid-song-list { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; flex: 1; min-height: 28px; }
+.sid-song-chip {
+  font-family: "IBM Plex Mono", monospace; font-size: 0.74rem; font-weight: 600;
+  height: 24px; min-height: 0; min-width: 24px; padding: 0 6px; line-height: 1;
+  border: 1px solid var(--panel-border); border-radius: 3px;
+  background: var(--control-bg); color: var(--secondary); cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.sid-song-chip:hover { background: color-mix(in srgb, var(--secondary) 18%, transparent); color: var(--text); }
+.sid-song-chip--selected { border-color: var(--primary); color: var(--text); background: color-mix(in srgb, var(--primary) 16%, transparent); }
+.sid-song-chip--playing { border-color: var(--primary); background: var(--primary); color: #fff; }
 .sid-tracker-row { border-top: 1px solid var(--panel-border); padding-top: 12px; }
 .sid-harmony-row { gap: 7px; flex-wrap: wrap; white-space: normal; }
 #sid-chord-root { width: 58px; min-width: 0; padding-right: 20px; }

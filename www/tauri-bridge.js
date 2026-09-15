@@ -71,6 +71,7 @@
     chooseProjMember: () => invoke("choose_proj_member"),
     readBinFile: (path) => invoke("read_bin_file", { path }),
     writeBinFile: (path, bytes) => invoke("write_bin_file", { path, bytes }),
+    deleteBinFile: (path) => invoke("delete_bin_file", { path }),
     loadSample: (sampleName) => invoke("load_sample", { sampleName }),
     openManual: () => invoke("open_manual"),
     openUltimateBasicManual: () => invoke("open_ultimate_basic_manual"),
