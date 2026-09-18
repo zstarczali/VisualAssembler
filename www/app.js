@@ -17618,7 +17618,6 @@ function setupD64Editor() {
     dialog?.close();
   };
   document.getElementById("de-close")?.addEventListener("click", requestClose);
-  dialog?.addEventListener("click", function(e) { if (e.target === dialog) requestClose(); });
   dialog?.addEventListener("cancel", function(e) { e.preventDefault(); requestClose(); });
 
   document.getElementById("de-new")?.addEventListener("click", _d64EdNew);
@@ -17635,7 +17634,6 @@ function setupD64Editor() {
   document.getElementById("de-blocks-toggle")?.addEventListener("click", _d64EdOpenBlockEditor);
   const blockDialog = document.getElementById("d64-block-editor-dialog");
   document.getElementById("dbe-close")?.addEventListener("click", _d64EdCloseBlockEditor);
-  blockDialog?.addEventListener("click", function(e) { if (e.target === blockDialog) _d64EdCloseBlockEditor(); });
   blockDialog?.addEventListener("cancel", function(e) { e.preventDefault(); _d64EdCloseBlockEditor(); });
   document.getElementById("de-block-prev")?.addEventListener("click", function() { _d64EdStepBlock(-1); });
   document.getElementById("de-block-next")?.addEventListener("click", function() { _d64EdStepBlock(1); });
