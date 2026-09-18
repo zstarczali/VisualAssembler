@@ -1082,21 +1082,30 @@ PRINTABLE CHARACTERS
 
 <dialog id="about-dialog" class="about-dialog">
     <div class="about-card">
-      <div class="about-logo">
-        <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
+      <div class="about-header">
+        <div class="about-logo">
+          <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
+        </div>
+        <h2 class="about-title">C64 Visual Assembler</h2>
+        <p class="about-version" id="about-version">v2.4.3</p>
+        <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       </div>
-      <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v2.4.3</p>
-      <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
-      <img class="about-ub-banner" src="assets/ultimate-basic-banner.png" alt="Ultimate Basic">
-      <p class="about-repo"><span>Ultimate Basic GitHub repository:</span><br><a href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener noreferrer">https://github.com/zstarczali/UltimateBasic</a></p>
-      <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
-        dropping instruction blocks.</p>
-      <p class="about-sid-credit" id="about-sid-credit"><span id="about-sid-credit-label">Web SID player: WebSid (WebAudio version of Tiny'R'Sid) by Juergen Wothke. GitHub repository:</span> <a href="https://github.com/wothke/websid" target="_blank" rel="noopener noreferrer">https://github.com/wothke/websid</a><br><span id="about-sid-credit-license">(CC BY-NC-SA 4.0)</span></p>
-      <p class="about-repo" id="about-repo"><span id="about-repo-label">Visual Assembler GitHub repository:</span><br><a href="https://github.com/zstarczali/VisualAssembler" target="_blank" rel="noopener noreferrer">https://github.com/zstarczali/VisualAssembler</a></p>
-      <p class="about-repo"><span>Visual Assembler website:</span><br><a href="https://www.c64va.tech" target="_blank" rel="noopener noreferrer">www.c64va.tech</a></p>
-      <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
-      <p class="about-contact"><a href="mailto:retroboj@outlook.com">retroboj@outlook.com</a></p>
+      <div class="about-columns">
+        <div class="about-col about-col-left">
+          <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
+            dropping instruction blocks.</p>
+          <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
+          <p class="about-contact"><a href="mailto:retroboj@outlook.com">retroboj@outlook.com</a></p>
+          <p class="about-repo"><span>License:</span><br><a href="https://github.com/zstarczali/VisualAssembler/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">GNU General Public License v3.0</a></p>
+          <p class="about-repo"><span>Visual Assembler website:</span><br><a href="https://www.c64va.tech" target="_blank" rel="noopener noreferrer">www.c64va.tech</a></p>
+        </div>
+        <div class="about-col about-col-right">
+          <img class="about-ub-banner" src="assets/ultimate-basic-banner.png" alt="Ultimate Basic">
+          <p class="about-repo"><span>Ultimate Basic GitHub repository:</span><br><a href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener noreferrer">https://github.com/zstarczali/UltimateBasic</a></p>
+          <p class="about-sid-credit" id="about-sid-credit"><span id="about-sid-credit-label">Web SID player: WebSid (WebAudio version of Tiny'R'Sid) by Juergen Wothke. GitHub repository:</span> <a href="https://github.com/wothke/websid" target="_blank" rel="noopener noreferrer">https://github.com/wothke/websid</a><br><span id="about-sid-credit-license">(CC BY-NC-SA 4.0)</span></p>
+          <p class="about-repo" id="about-repo"><span id="about-repo-label">Visual Assembler GitHub repository:</span><br><a href="https://github.com/zstarczali/VisualAssembler" target="_blank" rel="noopener noreferrer">https://github.com/zstarczali/VisualAssembler</a></p>
+        </div>
+      </div>
       <button id="about-close" class="primary" type="button">Close</button>
     </div>
   </dialog>

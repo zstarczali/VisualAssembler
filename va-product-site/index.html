@@ -1094,6 +1094,82 @@
       padding: 8px 14px
     }
 
+    /* ── WEB64 IDE ── */
+    .web64 {
+      background: linear-gradient(110deg, #090b22, #10133d);
+      border-top: 1px solid #4249b6;
+      border-bottom: 1px solid var(--brd);
+      padding: 50px 80px
+    }
+
+    .web64-inner {
+      max-width: 1060px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 180px minmax(0, 1fr) auto;
+      gap: 34px;
+      align-items: center
+    }
+
+    .web64-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #fff;
+      text-decoration: none
+    }
+
+    .web64-mark {
+      width: 62px;
+      height: 62px;
+      flex: none;
+      filter: drop-shadow(0 0 14px rgba(110, 123, 255, .65))
+    }
+
+    .web64-wordmark {
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: 1px;
+      color: #e7e9ff
+    }
+
+    .web64-wordmark small {
+      display: block;
+      margin-top: 5px;
+      color: var(--ylw);
+      font-size: 10px;
+      letter-spacing: 5px
+    }
+
+    .web64-copy .sec-s {
+      margin-bottom: 8px
+    }
+
+    .web64-copy .sec-t {
+      margin-bottom: 10px
+    }
+
+    .web64-copy .sec-d {
+      max-width: 570px;
+      margin-bottom: 0
+    }
+
+    .web64-zero-footprint {
+      display: inline-block;
+      margin-bottom: 12px;
+      padding: 7px 10px 6px;
+      background: var(--ylw);
+      color: #080811;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      box-shadow: 4px 4px 0 #5258c7
+    }
+
+    .web64 .btn {
+      white-space: nowrap
+    }
+
     /* ── OCTOPULOUS ── */
     .octopulous {
       background: var(--bg);
@@ -1317,6 +1393,24 @@
         width: min(210px, 65vw)
       }
 
+      .web64 {
+        padding: 42px 24px
+      }
+
+      .web64-inner {
+        grid-template-columns: 1fr;
+        gap: 22px;
+        text-align: center
+      }
+
+      .web64-logo {
+        justify-content: center
+      }
+
+      .web64 .btn {
+        justify-self: center
+      }
+
       .merch {
         padding: 64px 24px
       }
@@ -1410,6 +1504,7 @@
     <a class="nav-link" href="#features">FEATURES</a>
     <a class="nav-link" href="#editors">EDITORS</a>
     <a class="nav-link" href="#docs">DOCS</a>
+    <a class="nav-link" href="#web64">WEB64 IDE</a>
     <a class="nav-link" href="#merch">MERCH</a>
     <a class="nav-link nav-dl" href="#download">DOWNLOAD</a>
   </nav>
@@ -2327,6 +2422,25 @@
         <a class="btn btn-o" href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener">►
           ULTIMATE BASIC REPOSITORY</a>
       </div>
+    </div>
+  </section>
+
+  <!-- WEB64 IDE -->
+  <section class="web64" id="web64" aria-labelledby="web64-title">
+    <div class="web64-inner">
+      <a class="web64-logo" href="https://web64.nofs.ai/ide/" target="_blank" rel="noopener"
+        aria-label="Open Web64 IDE">
+        <img class="web64-mark" src="uploads/web64-logo.png" alt="Web64 IDE logo" width="128" height="128">
+        <span class="web64-wordmark">WEB64<small>IDE</small></span>
+      </a>
+      <div class="web64-copy">
+        <div class="sec-s">// FEATURED PARTNER PROJECT</div>
+        <h2 class="sec-t" id="web64-title">WEB64 IDE</h2>
+        <div class="web64-zero-footprint">ZERO FOOTPRINT · C + 6502 ASSEMBLY IN YOUR BROWSER</div>
+        <p class="sec-d">Develop Commodore 64 software directly in your browser with both C and 6502 assembly. Web64 IDE
+          includes project tools, editors, a debugger and an integrated C64 emulator.</p>
+      </div>
+      <a class="btn btn-y" href="https://web64.nofs.ai/ide/" target="_blank" rel="noopener">► OPEN WEB64 IDE</a>
     </div>
   </section>
 
