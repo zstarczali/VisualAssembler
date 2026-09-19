@@ -1,6 +1,8 @@
 use std::fs;
+use std::io::{ErrorKind, Write};
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::thread;
 use std::time::Duration;
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
@@ -2508,6 +2510,126 @@ async fn run_on_ultimate(host: String, password: Option<String>, prg_bytes: Vec<
     }
 }
 
+fn kff2_validate_prg(prg_bytes: &[u8]) -> Result<(), String> {
+    if !(3..=65535).contains(&prg_bytes.len()) {
+        return Err("A KFF2-höz a PRG-nek kétbájtos betöltési címet és legalább egy adatbájtot kell tartalmaznia.".to_string());
+    }
+    let load_address = u16::from_le_bytes([prg_bytes[0], prg_bytes[1]]) as usize;
+    if load_address + prg_bytes.len() - 2 > 0x10000 {
+        return Err("A PRG túlfut a C64 64 KiB-os címtartományán.".to_string());
+    }
+    Ok(())
+}
+
+fn detect_kff2_port_name() -> Result<Option<String>, String> {
+    let ports = serialport::available_ports()
+        .map_err(|error| format!("A soros portok nem kérdezhetők le: {error}"))?;
+    Ok(ports.into_iter().find_map(|port| match port.port_type {
+        serialport::SerialPortType::UsbPort(info)
+            if info.vid == 0x0483 && info.pid == 0x5740 =>
+        {
+            Some(port.port_name)
+        }
+        _ => None,
+    }))
+}
+
+fn kff2_read_exact(port: &mut dyn serialport::SerialPort, size: usize, message: &str) -> Result<Vec<u8>, String> {
+    let deadline = std::time::Instant::now() + Duration::from_secs(15);
+    let mut data = vec![0u8; size];
+    let mut offset = 0;
+    while offset < size {
+        match port.read(&mut data[offset..]) {
+            Ok(0) => {}
+            Ok(read) => offset += read,
+            Err(error) if error.kind() == ErrorKind::TimedOut && std::time::Instant::now() < deadline => {}
+            Err(error) if error.kind() == ErrorKind::TimedOut => return Err(message.to_string()),
+            Err(error) => return Err(format!("KFF2 soros olvasási hiba: {error}")),
+        }
+    }
+    Ok(data)
+}
+
+fn run_on_kff2_port(port_name: &str, prg_bytes: &[u8]) -> Result<(), String> {
+    kff2_validate_prg(prg_bytes)?;
+    if port_name.trim().is_empty() {
+        return Err("A Kung Fu Flash 2 soros portja nincs beállítva.".to_string());
+    }
+
+    let mut reset_port = serialport::new(port_name, 115_200)
+        .timeout(Duration::from_millis(100))
+        .open()
+        .map_err(|error| format!("Nem nyitható meg a KFF2 port ({port_name}): {error}"))?;
+    reset_port
+        .set_baud_rate(1_200)
+        .map_err(|error| format!("Nem küldhető MENU kérés a KFF2-re: {error}"))?;
+    drop(reset_port);
+
+    thread::sleep(Duration::from_millis(500));
+    let reconnect_deadline = std::time::Instant::now() + Duration::from_secs(15);
+    let mut port = loop {
+        match serialport::new(port_name, 115_200)
+            .timeout(Duration::from_millis(100))
+            .open()
+        {
+            Ok(port) => break port,
+            Err(_) if std::time::Instant::now() < reconnect_deadline => thread::sleep(Duration::from_millis(100)),
+            Err(error) => return Err(format!("A KFF2 nem tért vissza a MENU után ({port_name}): {error}")),
+        }
+    };
+
+    let transfer_deadline = std::time::Instant::now() + Duration::from_secs(15);
+    loop {
+        port.write_all(b"EFSTART:PRG\0")
+            .map_err(|error| format!("KFF2 handshake írási hiba: {error}"))?;
+        port.flush().map_err(|error| format!("KFF2 handshake flush hiba: {error}"))?;
+        let response = kff2_read_exact(&mut *port, 5, "A KFF2 loader nem válaszolt a PRG-kérésre.")?;
+        if response == b"LOAD\0" {
+            break;
+        }
+        if response != b"WAIT\0" {
+            return Err(format!("A KFF2 loader váratlan választ adott: {:?}", response));
+        }
+        if std::time::Instant::now() >= transfer_deadline {
+            return Err("A KFF2 MENU loader nem lett fogadókész időben.".to_string());
+        }
+    }
+
+    let requested = kff2_read_exact(&mut *port, 2, "A KFF2 loader nem kérte a PRG adatokat.")?;
+    let requested = u16::from_le_bytes([requested[0], requested[1]]) as usize;
+    if prg_bytes.len() > requested {
+        return Err(format!("A PRG {} bájt, a KFF2 loader legfeljebb {} bájtot kér.", prg_bytes.len(), requested));
+    }
+    port.write_all(&(prg_bytes.len() as u16).to_le_bytes())
+        .and_then(|_| port.write_all(prg_bytes))
+        .and_then(|_| port.flush())
+        .map_err(|error| format!("KFF2 PRG-küldési hiba: {error}"))?;
+    let close = kff2_read_exact(&mut *port, 2, "A KFF2 nem zárta le a PRG-átvitelt.")?;
+    if close != [0, 0] {
+        return Err(format!("A KFF2 hibás átviteli lezárást adott: {:?}", close));
+    }
+    Ok(())
+}
+
+#[tauri::command]
+async fn detect_kff2_port() -> serde_json::Value {
+    match tauri::async_runtime::spawn_blocking(detect_kff2_port_name).await {
+        Ok(Ok(Some(port))) => serde_json::json!({ "ok": true, "port": port }),
+        Ok(Ok(None)) => serde_json::json!({ "ok": true, "port": null }),
+        Ok(Err(error)) => serde_json::json!({ "ok": false, "error": error }),
+        Err(error) => serde_json::json!({ "ok": false, "error": error.to_string() }),
+    }
+}
+
+#[tauri::command]
+async fn run_on_kff2(port: String, prg_bytes: Vec<u8>) -> serde_json::Value {
+    match tauri::async_runtime::spawn_blocking(move || run_on_kff2_port(&port, &prg_bytes)).await {
+        Ok(Ok(())) => serde_json::json!({ "ok": true }),
+        Ok(Err(error)) => serde_json::json!({ "ok": false, "error": error }),
+        Err(error) => serde_json::json!({ "ok": false, "error": error.to_string() }),
+    }
+}
+
 #[tauri::command]
 async fn test_ultimate_connection(host: String, password: Option<String>) -> serde_json::Value {
     let host = host.trim().trim_end_matches('/').to_string();
@@ -3204,6 +3326,8 @@ pub fn run() {
             open_manual,
             open_ultimate_basic_manual,
             run_on_ultimate,
+            detect_kff2_port,
+            run_on_kff2,
             test_ultimate_connection,
         ])
         .on_window_event(|window, event| {

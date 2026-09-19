@@ -6663,6 +6663,15 @@ html[data-theme="commodore77"] .splash-image {
   white-space: nowrap;
 }
 
+.hw-settings-subsection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid color-mix(in srgb, var(--panel-border) 82%, transparent);
+}
+
 .hw-settings-section button,
 .hw-settings-section input {
   max-width: 100%;

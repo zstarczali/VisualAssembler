@@ -260,6 +260,10 @@
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" aria-hidden="true"><rect x="3" y="5" width="10" height="7" rx="1"/><path d="M5 5V3M8 5V3M11 5V3M5 12v1M8 12v1M11 12v1M1 7h2M1 9h2M13 7h2M13 9h2"/><circle cx="8" cy="8" r="2" fill="currentColor" stroke="none"/></svg>
                 <span id="run-ultimate-d64-label">D64 on hardware</span>
               </button>
+              <button id="run-kff2-mode" class="run-mode-item" role="menuitem" data-mode="kff2">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" aria-hidden="true"><rect x="3" y="5" width="10" height="7" rx="1"/><path d="M5 5V3M8 5V3M11 5V3M5 12v1M8 12v1M11 12v1M1 7h2M1 9h2M13 7h2M13 9h2"/><path d="M6 8h4M8 6v4" stroke-linecap="round"/></svg>
+                <span id="run-kff2-label">Kung Fu Flash 2</span>
+              </button>
             </div>
           </div>
           <button id="run-debugger" class="main-tb-btn main-tb-debug" type="button" aria-label="Debug">
@@ -2333,6 +2337,14 @@ PRINTABLE CHARACTERS
             <input type="checkbox" id="auto-snapshot-toggle" checked>
             <span id="auto-snapshot-toggle-label">Automatikus snapshot</span>
           </label>
+          <div class="hw-settings-subsection">
+            <h3 class="hw-settings-section-label" id="kff2-section-label">Kung Fu Flash 2</h3>
+            <label class="field compact-field hw-field">
+              <span id="kff2-port-label">Soros port</span>
+              <input id="kff2-port" type="text" placeholder="/dev/cu.usbmodem… / COM4 / /dev/ttyACM0" autocomplete="off" spellcheck="false">
+            </label>
+            <p id="kff2-status" class="menu-note"></p>
+          </div>
         </section>
 
         <section class="hw-settings-section">
@@ -2368,6 +2380,7 @@ PRINTABLE CHARACTERS
           <button id="ultimate-connect-test" class="secondary" type="button">Kapcsolat tesztelése</button>
           <p id="ultimate-status" class="menu-note"></p>
         </section>
+
       </div>
 
       <div class="hw-settings-actions">

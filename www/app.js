@@ -2043,11 +2043,13 @@ function initPalette() {
     else if (runMode === "d64") runViaD64();
     else if (runMode === "ultimate") runOnUltimate();
     else if (runMode === "ultimate-d64") runUltimateD64();
+    else if (runMode === "kff2") runOnKff2();
     else runInEmulator();
   });
   setupRunModeDropdown();
   setupHardwareSettingsDialog();
   setupUltimateSettings();
+  setupKff2Settings();
   chooseExomizerButton?.addEventListener("click", chooseExomizerExecutable);
   runExomizerToggle?.addEventListener("change", () => {
     exomizerEnabled = !!runExomizerToggle.checked;
@@ -3084,11 +3086,15 @@ function applyTranslations() {
     setText("#run-d64-label", t("runViaD64"));
     setText("#run-ultimate-label", t("runOnUltimate"));
     setText("#run-ultimate-d64-label", t("runD64OnHardware"));
+    setText("#run-kff2-label", t("runOnKff2"));
     setText("#ultimate-section-label", t("ultimateSectionLabel"));
     setText("#ultimate-host-label", t("ultimateHostLabel"));
     setText("#ultimate-password-label", t("ultimatePasswordLabel"));
     document.getElementById("ultimate-password")?.setAttribute("placeholder", t("ultimatePasswordPlaceholder"));
     setText("#ultimate-connect-test", t("ultimateConnectTest"));
+    setText("#kff2-section-label", t("kff2SectionLabel"));
+    setText("#kff2-port-label", t("kff2PortLabel"));
+    document.getElementById("kff2-port")?.setAttribute("placeholder", t("kff2PortPlaceholder"));
     setText("#run-debugger .run-label", t("runInDebugger"));
     const runModeArrow = document.getElementById("run-mode-arrow");
     if (runModeArrow) {
@@ -7945,9 +7951,12 @@ async function _ubRun(mode) {
   const sourcePath = startupTab ? startupTab.ubFilePath || startupTab.filePath || null : _ubFilePath || null;
   if (!source.trim()) { _ubSetStatus(t("ubNothingToRun"), true); return; }
   const usesUltimate = mode === "ultimate" || mode === "ultimate-d64";
+  const usesKff2 = mode === "kff2";
   const host = usesUltimate ? (document.getElementById("ultimate-host")?.value || ultimateHost).trim() : "";
+  const kff2PortValue = usesKff2 ? (document.getElementById("kff2-port")?.value || kff2Port).trim() : "";
   if (usesUltimate && !host) { _ubSetStatus(t("ultimateNotConfigured"), true); return; }
-  if (!usesUltimate && !vicePath) { _ubSetStatus(t("viceIsNotConfiguredSelectItInTheMenuFirs"), true); return; }
+  if (usesKff2 && !kff2PortValue) { _ubSetStatus(t("kff2NotConfigured"), true); return; }
+  if (!usesUltimate && !usesKff2 && !vicePath) { _ubSetStatus(t("viceIsNotConfiguredSelectItInTheMenuFirs"), true); return; }
 
   await showWorkProgress("ubRunProgress");
   let success = false;
@@ -7972,6 +7981,9 @@ async function _ubRun(mode) {
       const password = (document.getElementById("ultimate-password")?.value || ultimatePassword).trim() || null;
       result = await window.electronAPI?.runOnUltimate(host, password, build.outputPrg || build.prg);
       _ubSetStatus(result?.ok ? "Running on Ultimate ✓" : (result?.error || "Ultimate run failed"), !result?.ok);
+    } else if (mode === "kff2") {
+      result = await window.electronAPI?.runOnKff2(kff2PortValue, build.outputPrg || build.prg);
+      _ubSetStatus(result?.ok ? "Running on Kung Fu Flash ✓" : (result?.error || t("kff2RunFailed")), !result?.ok);
     } else {
       result = await window.electronAPI?.launchVice?.({ bytes: build.outputPrg || build.prg, fileName: `ultimate-basic-${Date.now()}.prg`, sidecars: _ubBuildSidecars(build) });
       _ubSetStatus(result?.ok ? "Running in VICE ✓" : (result?.error || "VICE launch failed"), !result?.ok);
@@ -18006,6 +18018,7 @@ function getRunModeLabel(mode) {
   if (mode === "d64") return t("runViaD64");
   if (mode === "ultimate") return t("runOnUltimate");
   if (mode === "ultimate-d64") return t("runD64OnHardware");
+  if (mode === "kff2") return t("runOnKff2");
   return t("runInEmulator");
 }
 
@@ -18051,9 +18064,10 @@ function setupRunModeDropdown() {
   document.getElementById("run-d64-mode")?.addEventListener("click", () => { setRunMode("d64"); closeMenu(); });
   document.getElementById("run-ultimate-mode")?.addEventListener("click", () => { setRunMode("ultimate"); closeMenu(); });
   document.getElementById("run-ultimate-d64-mode")?.addEventListener("click", () => { setRunMode("ultimate-d64"); closeMenu(); });
+  document.getElementById("run-kff2-mode")?.addEventListener("click", () => { setRunMode("kff2"); closeMenu(); });
 
   const saved = localStorage.getItem("runMode");
-  if (["prg", "d64", "ultimate", "ultimate-d64"].includes(saved)) setRunMode(saved);
+  if (["prg", "d64", "ultimate", "ultimate-d64", "kff2"].includes(saved)) setRunMode(saved);
 }
 
 function setRunMode(mode) {
@@ -18063,10 +18077,12 @@ function setRunMode(mode) {
   const d64Btn = document.getElementById("run-d64-mode");
   const ulBtn = document.getElementById("run-ultimate-mode");
   const ulD64Btn = document.getElementById("run-ultimate-d64-mode");
+  const kff2Btn = document.getElementById("run-kff2-mode");
   if (prgBtn) prgBtn.classList.toggle("active", mode === "prg");
   if (d64Btn) d64Btn.classList.toggle("active", mode === "d64");
   if (ulBtn) ulBtn.classList.toggle("active", mode === "ultimate");
   if (ulD64Btn) ulD64Btn.classList.toggle("active", mode === "ultimate-d64");
+  if (kff2Btn) kff2Btn.classList.toggle("active", mode === "kff2");
   const label = document.querySelector("#run-emulator .run-label");
   const runLabel = getRunModeLabel(mode);
   if (label) label.textContent = runLabel;
@@ -18293,6 +18309,7 @@ function setupHardwareSettingsDialog() {
 
 let ultimateHost = localStorage.getItem("ultimateHost") || "";
 let ultimatePassword = localStorage.getItem("ultimatePassword") || "";
+let kff2Port = localStorage.getItem("kff2Port") || "";
 
 function setupUltimateSettings() {
   const hostInput = document.getElementById("ultimate-host");
@@ -18314,6 +18331,33 @@ function setupUltimateSettings() {
     });
   }
   testBtn?.addEventListener("click", testUltimateConnection);
+}
+
+function setupKff2Settings() {
+  const portInput = document.getElementById("kff2-port");
+  const status = document.getElementById("kff2-status");
+  if (!portInput) return;
+  portInput.value = kff2Port;
+  portInput.addEventListener("change", () => {
+    kff2Port = portInput.value.trim();
+    localStorage.setItem("kff2Port", kff2Port);
+  });
+  window.electronAPI?.detectKff2Port?.().then((result) => {
+    if (!result?.ok) {
+      if (status) status.textContent = result?.error || t("kff2DetectFailed");
+      return;
+    }
+    if (!result.port) {
+      if (status) status.textContent = t("kff2NotDetected");
+      return;
+    }
+    kff2Port = result.port;
+    portInput.value = result.port;
+    localStorage.setItem("kff2Port", kff2Port);
+    if (status) status.textContent = `KFF2: ${result.port}`;
+  }).catch((error) => {
+    if (status) status.textContent = String(error);
+  });
 }
 
 async function testUltimateConnection() {
@@ -18361,6 +18405,32 @@ async function runOnUltimate() {
   } else {
     hideWorkProgress();
     showViceToast(result?.error || t("ultimateRunFailed"), true);
+  }
+}
+
+async function runOnKff2() {
+  if (isProgramEmpty()) {
+    showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
+    return;
+  }
+  const port = (document.getElementById("kff2-port")?.value || kff2Port).trim();
+  if (!port) {
+    showViceToast(t("kff2NotConfigured"), true);
+    return;
+  }
+  const prg = await buildRunPrgForCurrentMode();
+  if (!prg.ok) {
+    if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
+    if (emulatorStatus) emulatorStatus.textContent = prg.error;
+    return;
+  }
+  await showWorkProgress("workProgressRunKff2");
+  const result = await window.electronAPI?.runOnKff2(port, Array.from(prg.bytes));
+  if (result?.ok) {
+    await completeWorkProgress("workProgressSuccessKff2");
+  } else {
+    hideWorkProgress();
+    showViceToast(result?.error || t("kff2RunFailed"), true);
   }
 }
 
@@ -19581,7 +19651,7 @@ async function _applyProjectPayload(projectData, { sourceFilePath = "", keepFile
     applyZoom();
   }
 
-  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64"];
+  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64", "kff2"];
   if (projectData.ui?.runMode && validRunModes.includes(projectData.ui.runMode)) {
     setRunMode(projectData.ui.runMode);
   }
@@ -28839,7 +28909,7 @@ async function loadSampleFromFile(sampleName) {
     d64ExportState.progName = "";
   }
 
-  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64"];
+  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64", "kff2"];
   if (sampleData.ui?.runMode && validRunModes.includes(sampleData.ui.runMode)) {
     setRunMode(sampleData.ui.runMode);
   }
