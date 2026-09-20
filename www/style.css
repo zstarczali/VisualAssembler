@@ -2314,11 +2314,16 @@ button:focus-visible,
 }
 
 .asm-tok-lineno {
-  color: var(--output-text);
-  text-shadow: 0 0 0.5px rgba(255, 255, 255, 0.25);
-  font-weight: 600;
-  opacity: 1;
+  color: color-mix(in srgb, var(--output-text) 42%, transparent);
+  font-weight: 400;
   user-select: none;
+}
+
+.asm-tok-lineno-sep {
+  color: transparent;
+  background: linear-gradient(
+    color-mix(in srgb, var(--output-text) 30%, transparent),
+    color-mix(in srgb, var(--output-text) 30%, transparent)) center / 1px 100% no-repeat;
 }
 
 .drag-handle {

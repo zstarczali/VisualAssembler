@@ -28094,10 +28094,10 @@ function syntaxHighlightAsmLine(line) {
 
   let prefix = "";
   let content = line;
-  const lineNoMatch = line.match(/^(\d+\s\|\s)(.*)$/);
+  const lineNoMatch = line.match(/^(\d+)(\s\|\s)(.*)$/);
   if (lineNoMatch) {
-    prefix = '<span class="asm-tok-lineno">' + esc(lineNoMatch[1]) + '</span>';
-    content = lineNoMatch[2];
+    prefix = '<span class="asm-tok-lineno">' + esc(lineNoMatch[1]) + '<span class="asm-tok-lineno-sep">' + esc(lineNoMatch[2]) + '</span></span>';
+    content = lineNoMatch[3];
   }
 
   // Origin: * = $xxxx  or  *= $xxxx
@@ -28200,17 +28200,25 @@ function scrollAsmOutputToLine(targetLine) {
   asmOutput.scrollTop = Math.max(0, (targetLine - 3) * lineHeight);
 }
 
-function applyAsmHighlight(blockId) {
-  const rangeInfo = asmBlockRanges[blockId];
+function applyAsmHighlight(blockIds, scrollToId = null) {
+  const ids = typeof blockIds === "string" ? [blockIds] : [...blockIds];
   const text = asmDisplayText || asmPlainText;
-  if (!rangeInfo || !text) return;
+  if (!text) return;
 
-  const { firstLine, lastLine } = rangeInfo;
+  const highlighted = new Set();
+  ids.forEach((id) => {
+    const range = asmBlockRanges[id];
+    if (!range) return;
+    for (let i = range.firstLine; i <= range.lastLine; i++) highlighted.add(i);
+  });
+  const scrollRange = asmBlockRanges[scrollToId ?? ids[0]];
+
+  const prevScrollTop = asmOutput.scrollTop;
   const lines = text.split("\n");
 
   asmOutput.innerHTML = "";
   lines.forEach((line, i) => {
-    const isHighlighted = i >= firstLine && i <= lastLine;
+    const isHighlighted = highlighted.has(i);
     if (isHighlighted) {
       const span = document.createElement("span");
       span.className = "asm-line-highlight";
@@ -28227,7 +28235,7 @@ function applyAsmHighlight(blockId) {
   });
 
   const lineHeight = parseFloat(getComputedStyle(asmOutput).lineHeight) || 18;
-  asmOutput.scrollTop = Math.max(0, (firstLine - 3) * lineHeight);
+  asmOutput.scrollTop = scrollRange ? Math.max(0, (scrollRange.firstLine - 3) * lineHeight) : prevScrollTop;
 }
 
 function selectBlockInAsm(blockId, event = null, preserveSelection = false) {
@@ -28239,9 +28247,9 @@ function selectBlockInAsm(blockId, event = null, preserveSelection = false) {
   // Highlight the block card
   _renderBlockSelection();
   const blockNode = programList.querySelector(`[data-block-id="${blockId}"]`);
-  if (blockNode) blockNode.classList.add("asm-block--selected");
+  if (blockNode && selectedBlockIds.has(blockId)) blockNode.classList.add("asm-block--selected");
 
-  applyAsmHighlight(blockId);
+  applyAsmHighlight(preserveSelection ? selectedBlockIds : [blockId], blockId);
   _syncPaletteToBlock(blockId);
 }
 
@@ -28828,8 +28836,8 @@ function renderAsmOutput() {
   asmDisplayText = withAsmLineNumbers(asmText);
   asmOutput.innerHTML = highlightAsmHtml(asmDisplayText);
 
-  if (selectedBlockId && asmBlockRanges[selectedBlockId]) {
-    applyAsmHighlight(selectedBlockId);
+  if ([...selectedBlockIds].some(id => asmBlockRanges[id])) {
+    applyAsmHighlight(selectedBlockIds);
   }
 
   renderMonitorOutput();
