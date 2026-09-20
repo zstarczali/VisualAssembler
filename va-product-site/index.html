@@ -184,7 +184,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 56px 40px 40px 0
+      padding: 56px 40px 40px 0;
+      transform: translateX(-170px)
     }
 
     .hero-box-img {
@@ -209,7 +210,7 @@
       position: absolute;
       z-index: 1;
       top: 48px;
-      left: 30px;
+      left: 250px;
       width: min(690px, calc(100vw - 60px))
     }
 
@@ -1352,7 +1353,7 @@
       color: var(--txt-hi)
     }
 
-    @media (max-width:1500px) and (min-width:901px) {
+    @media (max-width:1700px) and (min-width:901px) {
       .hero {
         grid-template-columns: 1fr
       }
@@ -1378,7 +1379,8 @@
       }
 
       .hero-right {
-        padding: 12px 40px 72px
+        padding: 12px 40px 72px;
+        transform: none
       }
 
       .hero-box-img {
@@ -1418,11 +1420,14 @@
       .hero-right {
         display: flex;
         padding: 12px 24px 52px;
-        justify-content: center
+        justify-content: center;
+        transform: none
       }
 
       .hero-monitor-floating {
         position: relative;
+        top: auto;
+        left: auto;
         justify-self: center;
         width: min(90vw, 420px);
         margin: 26px auto 6px
@@ -2173,7 +2178,7 @@
             BLOCKS FROM LEFT → COMPILE LIVE → RUN IN VICE</span></div>
       </div>
       <div class="tab-panel" id="tab-d64">
-        <img src="uploads/d64andblocked.png" alt="D64 Editor and Block Editor in C64 Visual Assembler" loading="lazy">
+        <img src="uploads/d64andblocked.png" alt="D64 Editor and Block Editor in C64 Visual Assembler" width="1924" height="1392">
         <div class="tab-cap"><span class="tab-cap-t">D64 EDITOR + BLOCK EDITOR</span><span class="tab-cap-d">EDIT DISK
             IMAGES AND INSPECT OR MODIFY RAW 256-BYTE TRACK/SECTOR BLOCKS</span></div>
       </div>
