@@ -388,8 +388,42 @@
 
     .tut-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 72px
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: clamp(32px, 5vw, 72px);
+      align-items: center
+    }
+
+    .tutorial-lessons {
+      margin-top: 30px;
+      display: grid;
+      gap: 13px
+    }
+
+    .tutorial-lesson {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 14px;
+      align-items: baseline;
+      font-size: 13px;
+      line-height: 1.55
+    }
+
+    .tutorial-number {
+      color: var(--ylw);
+      font-weight: 800
+    }
+
+    .tutorial-lesson b {
+      color: var(--txt-hi)
+    }
+
+    .tutorial-shot {
+      min-width: 0
+    }
+
+    .tutorial-shot .screen-wrap {
+      max-width: 100%;
+      margin-left: auto
     }
 
     .about-right .screen-wrap {
@@ -2015,9 +2049,9 @@
       <div class="sec-s">// VISUAL EDITORS</div>
       <h2 class="sec-t" style="margin-bottom:40px">BUILT-IN TOOLS FOR<br>EVERY C64 ASSET</h2>
       <div class="tabs">
-        <div class="tab on" data-tab="prog" onclick="showTab('prog')">BLOCK EDITOR</div>
+        <div class="tab on" data-tab="code" onclick="showTab('code')">ASM EDITOR</div>
+        <div class="tab" data-tab="prog" onclick="showTab('prog')">BLOCK EDITOR</div>
         <div class="tab" data-tab="ub" onclick="showTab('ub')">ULTIMATE BASIC</div>
-        <div class="tab" data-tab="code" onclick="showTab('code')">ASM EDITOR</div>
         <div class="tab" data-tab="d64" onclick="showTab('d64')">D64 + BLOCK EDITOR</div>
         <div class="tab" data-tab="sid" onclick="showTab('sid')">SID MUSIC</div>
         <div class="tab" data-tab="sprite" onclick="showTab('sprite')">SPRITES</div>
@@ -2028,7 +2062,7 @@
         <div class="tab" data-tab="charrom" onclick="showTab('charrom')">CHAR ROM</div>
         <div class="tab" data-tab="canvas" onclick="showTab('canvas')">CHARSET CANVAS</div>
       </div>
-      <div class="tab-panel on" id="tab-prog">
+      <div class="tab-panel" id="tab-prog">
         <img src="uploads/blocked.png" alt="Block program editor">
         <div class="tab-cap"><span class="tab-cap-t">BLOCK PROGRAM EDITOR + ASM VIEW</span><span class="tab-cap-d">DRAG
             BLOCKS FROM LEFT → COMPILE LIVE → RUN IN VICE</span></div>
@@ -2043,7 +2077,7 @@
         <div class="tab-cap"><span class="tab-cap-t">ULTIMATE BASIC — COMPLETE IDE MODE</span><span
             class="tab-cap-d">EDIT .UB SOURCES, MANAGE PROJECTS, BUILD AND RUN FROM ONE WORKSPACE</span></div>
       </div>
-      <div class="tab-panel" id="tab-code">
+      <div class="tab-panel on" id="tab-code">
         <img src="uploads/code.png" alt="Expert ASM editor">
         <div class="tab-cap"><span class="tab-cap-t">EXPERT MODE — FULL ASM TEXT EDITOR</span><span
             class="tab-cap-d">SYNTAX HIGHLIGHTING, LIVE ERROR FEEDBACK, FIND BAR, MINIMAP, REGIONS</span></div>
@@ -2145,32 +2179,20 @@
 
   <!-- TUTORIALS -->
   <div style="background:var(--scr-darker);padding:80px 0" id="docs">
-    <div class="sec tut-grid" style="align-items:center">
+    <div class="sec tut-grid">
       <div>
         <div class="sec-s">// LEARN</div>
         <h2 class="sec-t">INTERACTIVE<br>TUTORIALS</h2>
         <p class="sec-d">The built-in guided tour walks you through every UI area step by step. Structured lessons cover
           beginner programs, sprite animation, IRQ rasters, SID music and more — with live sample links.</p>
-        <div style="margin-top:32px;display:flex;flex-direction:column;gap:10px">
-          <div class="fi">
-            <div class="fi-dot">01</div>
-            <div class="fi"><b>TOUR</b> <span>— explore the application UI areas</span></div>
-          </div>
-          <div class="fi">
-            <div class="fi-dot">02</div>
-            <div class="fi"><b>BEGINNERS</b> <span>— your first C64 program in minutes</span></div>
-          </div>
-          <div class="fi">
-            <div class="fi-dot">03</div>
-            <div class="fi"><b>FUNDAMENTALS</b> <span>— macros, sprites, raster, SID</span></div>
-          </div>
-          <div class="fi">
-            <div class="fi-dot">04</div>
-            <div class="fi"><b>30+ SAMPLES</b> <span>— open and run demo projects instantly</span></div>
-          </div>
+        <div class="tutorial-lessons">
+          <div class="tutorial-lesson"><span class="tutorial-number">01</span><span><b>TOUR</b> — explore the application UI areas</span></div>
+          <div class="tutorial-lesson"><span class="tutorial-number">02</span><span><b>BEGINNERS</b> — your first C64 program in minutes</span></div>
+          <div class="tutorial-lesson"><span class="tutorial-number">03</span><span><b>FUNDAMENTALS</b> — macros, sprites, raster and SID</span></div>
+          <div class="tutorial-lesson"><span class="tutorial-number">04</span><span><b>30+ SAMPLES</b> — open and run demo projects instantly</span></div>
         </div>
       </div>
-      <div>
+      <div class="tutorial-shot">
         <div class="screen-wrap">
           <div style="position:relative">
             <img src="uploads/tutor.png" alt="Interactive tutorials" style="width:100%;display:block">

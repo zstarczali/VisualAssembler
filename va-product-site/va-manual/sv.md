@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.4.3**
+**Version 2.4.5**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att dra och släppa instruktionsblock och se den genererade assemblern och maskinkoden i realtid.
 
@@ -8,61 +8,62 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
 
 ## Innehållsförteckning
 
-- [C64 Visual Assembler — Användarmanual](#c64-visuell-assembler-användarmanual)
-    - [Höjdpunkter i version 2.4.3](#höjdpunkter-i-version-243)
-    - [Höjdpunkter i version 2.4.2](#höjdpunkter-i-version-242)
-    - [Höjdpunkter i version 2.4.1](#höjdpunkter-i-version-241)
-    - [Höjdpunkter i version 2.4.0](#höjdpunkter-i-version-240)
-    - [Höjdpunkter i version 2.3.9](#höjdpunkter-i-version-239)
-  - [Innehållsförteckning](#innehållsförteckning)
-  - [1. Översikt över gränssnittet](#1-översikt-över-gränssnittet)
-  - [2. Blockpalett](#2-blockpalett)
-  - [3. Programområde](#3-programområde)
-    - [Operandinmatning](#operandinmatning)
-  - [4. ASM-vy](#4-asm-vy)
-    - [Utmatningslägen](#verktygslåda-fliken)
-    - [Fliken Verktyg](#fliken-alternativ)
-    - [Fliken Alternativ](#fliken-alternativ)
-    - [Klicka på en ASM-rad](#asm-linjenummer)
-    - [ASM-radnummer](#kompilera-framstegsmodal)
-    - [Kompileringsförloppsmodal](#5-inställningar-och-verktygsfält)
-  - [5. Inställningar \&amp; Verktygsfält](#projektbilder)
-    - [Ladda .asm-fil (snabbreferens)](#ladda-asm-fil-snabbreferens)
-      - [Importera parsningsanteckningar och bästa praxis](#importera-parsningsanteckningar-och-bästa-praxis)
-  - [UltimateBasic-läge](#ultimatebasic-läge)
-    - [Öppnar UB-redigeraren](#öppnar-ub-redigeraren)
-    - [Redigeringsverktyg](#redigeringsverktyg)
-    - [Projekt, flikar och startfiler](#projekt-flikar-och-startfiler)
-    - [Byggnad och diagnostik](#byggnad-och-diagnostik)
-    - [Löpning, D64 och Exomizer](#löpning-d64-och-exomizer)
-    - [Felsökningssymboler och demontering](#ultimate-basic-manual-och-källa)
-    - [Ultimate Basic-manual och källa](#ultimate-basic-manual-och-källa)
-  - [6. Expertläge](#6-expertläge)
-    - [Växla lägen](#redigerarlayout)
-    - [Redigerarens layout](#verktygsfältsknappar)
-    - [Verktygsfältsknappar](#verktygsfältsknappar)
-    - [Fel vid markering](#fel-vid-markering)
-    - [Syntaxmarkering](#syntaxmarkering)
-    - [Källformatering](#projektpanel-och-flikar)
-    - [Projektpanel \&amp; flikar](#flikfält)
-    - [Flikfält](#flikfält)
-  - [7. Adresseringslägen](#7-adresseringslägen)
-    - [Märk uttryck som operander](#märk-uttryck-som-operander)
-    - [Programräknaren `*` i uttryck](#programräknaren-i-uttryck)
-    - [Lokala (prickade) etiketter](#lokala-prickade-etiketter)
-    - [Operandetiketter för självmodifierande kod](#operandetiketter-för-självmodifierande-kod)
-  - [8. Standard 6502-instruktioner](#dataförflyttning)
-    - [Dataförflyttning](#dataförflyttning)
-    - [Aritmetik](#logik)
-    - [Logik](#logik)
-    - [Hopp \&amp; grenar](#lbne-lbeq-långa-grenar)
-    - [LBNE / LBEQ / … (Långa grenar)](#lbne-lbeq-långa-grenar)
-    - [Registrera operationer](#registrera-operationer)
-    - [Skift \&amp; Rotera](#system-flaggor)
+- [C64 Visual Assembler — Användarmanual](#c64-visual-assembler--user-manual)
+    - [Höjdpunkter i version 2.4.5](#version-245-highlights)
+    - [Höjdpunkter i version 2.4.3](#version-243-highlights)
+    - [Höjdpunkter i version 2.4.2](#version-242-highlights)
+    - [Höjdpunkter i version 2.4.1](#version-241-highlights)
+    - [Höjdpunkter i version 2.4.0](#version-240-highlights)
+    - [Höjdpunkter i version 2.3.9](#version-239-highlights)
+  - [Innehållsförteckning](#table-of-contents)
+  - [1. Översikt över gränssnittet](#1-interface-overview)
+  - [2. Blockpalett](#2-block-palette)
+  - [3. Programområde](#3-program-area)
+    - [Operandinmatning](#operand-input)
+  - [4. ASM-vy](#4-asm-view)
+    - [Utmatningslägen](#output-modes)
+    - [Fliken Verktyg](#toolkit-tab)
+    - [Fliken Alternativ](#options-tab)
+    - [Klicka på en ASM-rad](#clicking-an-asm-line)
+    - [ASM-radnummer](#asm-line-numbers)
+    - [Kompileringsförloppsmodal](#compile-progress-modal)
+  - [5. Inställningar \&amp; Verktygsfält](#5-settings--toolbar)
+    - [Ladda .asm-fil (snabbreferens)](#load-asm-file-quick-reference)
+      - [Importera parsningsanteckningar och bästa praxis](#import-parsing-notes-and-best-practices)
+  - [UltimateBasic-läge](#ultimatebasic-mode)
+    - [Öppnar UB-redigeraren](#opening-the-ub-editor)
+    - [Redigeringsverktyg](#editor-tools)
+    - [Projekt, flikar och startfiler](#projects-tabs-and-startup-files)
+    - [Byggnad och diagnostik](#building-and-diagnostics)
+    - [Löpning, D64 och Exomizer](#running-d64-and-exomizer)
+    - [Felsökningssymboler och demontering](#debugger-symbols-and-disassembly)
+    - [Ultimate Basic-manual och källa](#ultimate-basic-manual-and-source)
+  - [6. Expertläge](#6-expert-mode)
+    - [Växla lägen](#switching-modes)
+    - [Redigerarens layout](#editor-layout)
+    - [Verktygsfältsknappar](#toolbar-buttons)
+    - [Fel vid markering](#error-highlighting)
+    - [Syntaxmarkering](#syntax-highlight)
+    - [Källformatering](#source-formatter)
+    - [Projektpanel \&amp; flikar](#project-panel--tabs)
+    - [Flikfält](#tab-bar)
+  - [7. Adresseringslägen](#7-addressing-modes)
+    - [Märk uttryck som operander](#label-expressions-as-operands)
+    - [Programräknaren `*` i uttryck](#the--program-counter-in-expressions)
+    - [Lokala (prickade) etiketter](#local-dotted-labels)
+    - [Operandetiketter för självmodifierande kod](#self-modifying-code-operand-labels)
+  - [8. Standard 6502-instruktioner](#8-standard-6502-instructions)
+    - [Dataförflyttning](#data-movement)
+    - [Aritmetik](#arithmetic)
+    - [Logik](#logic)
+    - [Hopp \&amp; grenar](#jumps--branches)
+    - [LBNE / LBEQ / … (Långa grenar)](#lbne--lbeq---long-branches)
+    - [Registrera operationer](#register-operations)
+    - [Skift \&amp; Rotera](#shift--rotate)
     - [Stack](#stack)
-    - [System / Flaggor](#system-flaggor)
-    - [Olagliga/Odokumenterade instruktioner](#olagligaodokumenterade-instruktioner)
-  - [9. Makroblock — Referens](#9-makroblock-referens)
+    - [System / Flaggor](#system--flags)
+    - [Olagliga/Odokumenterade instruktioner](#illegal--undocumented-instructions)
+  - [9. Makroblock — Referens](#9-macro-blocks--reference)
     - [LABEL](#label)
     - [COMMENT](#comment)
     - [BYTE](#byte)
@@ -77,28 +78,28 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
     - [PETSCII](#petscii)
     - [CHARSET](#charset)
     - [CHARDEF](#chardef)
-    - [BOX_HIT](#boxhit)
+    - [BOX_HIT](#box_hit)
     - [INCBIN](#incbin)
     - [SID](#sid)
     - [INCLUDE](#include)
     - [TABLE](#table)
     - [ORG](#org)
-    - [LOOP / NEXT](#loop-next)
+    - [LOOP / NEXT](#loop--next)
       - [LOOP](#loop)
       - [NEXT](#next)
-    - [FOR / ENDF](#for-endf)
+    - [FOR / ENDF](#for--endf)
       - [FOR](#for)
       - [ENDF](#endf)
-    - [PUSH / PULL](#push-pull)
+    - [PUSH / PULL](#push--pull)
       - [PUSH](#push)
       - [PULL](#pull)
-    - [SLUT / RTS-alias](#macro-endm-invoke)
-    - [MACRO / ENDM / INVOKE](#macro-endm-invoke)
-      - [MAKRO (definitionsstart)](#makro-definitionsstart)
-      - [ENDM (definitionsslut)](#endm-definitionsslut)
+    - [SLUT / RTS-alias](#end--rts-alias)
+    - [MACRO / ENDM / INVOKE](#macro--endm--invoke)
+      - [MAKRO (definitionsstart)](#macro-definition-start)
+      - [ENDM (definitionsslut)](#endm-definition-end)
       - [INVOKE](#invoke)
-    - [REGION / ENDREGION](#region-endregion)
-    - [DEFINE / IF / ELSE / ENDIF](#define-if-else-endif)
+    - [REGION / ENDREGION](#region--endregion)
+    - [DEFINE / IF / ELSE / ENDIF](#define--if--else--endif)
     - [.ASSERT](#assert)
       - [DEFINE](#define)
       - [IF](#if)
@@ -106,54 +107,67 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
     - [ENDIF](#endif)
     - [CONST](#const)
     - [VAR](#var)
-    - [Körtid IF / ELSE / ENDIF](#körtid-if-else-endif)
-    - [WHILE / ENDW](#while-endw)
-    - [REPEAT / UNTIL](#repeat-until)
-    - [MEMCPY / MEMSET](#memcpy-memset)
-    - [PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG](#print-printchar-printhex-clearscreen-waitkey-delay-setborder-setbg)
-    - [IRQ_SETUP](#irqsetup)
+    - [Körtid IF / ELSE / ENDIF](#runtime-if--else--endif)
+    - [WHILE / ENDW](#while--endw)
+    - [REPEAT / UNTIL](#repeat--until)
+    - [MEMCPY / MEMSET](#memcpy--memset)
+    - [PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG](#print--print_char--print_hex--clear_screen--wait_key--delay--set_border--set_bg)
+    - [IRQ_SETUP](#irq_setup)
     - [RAND](#rand)
-    - [SPRITE\_INIT](#spriteinit)
-    - [SPRITE\_POS](#spritepos)
-    - [WAIT\_RASTER](#waitraster)
+    - [SPRITE\_INIT](#sprite_init)
+    - [SPRITE\_POS](#sprite_pos)
+    - [WAIT\_RASTER](#wait_raster)
     - [JOYSTICK](#joystick)
     - [MOUSE](#mouse)
-    - [SPRITE\_COL](#spritecol)
+    - [SPRITE\_COL](#sprite_col)
     - [LOADFILE](#loadfile)
     - [EXODECRUNCH](#exodecrunch)
-    - [REU\_CHECK](#reucheck)
-    - [REU\_STASH / REU\_FETCH / REU\_SWAP](#reustash-reufetch-reuswap)
-    - [TURBO\_SET](#turboset)
-    - [SUPERCPU\_DETECT](#supercpudetect)
-    - [TURBO\_ENABLE](#turboenable)
-    - [MAP\_COPY](#mapcopy)
-    - [MAP\_COPY16X16](#mapcopy16x16)
-    - [SPRITE\_ANIM](#spriteanim)
-    - [SCORE\_BCD](#scorebcd)
-  - [10. Integrering av felsökare](#brytpunktsblock)
+    - [REU\_CHECK](#reu_check)
+    - [REU\_STASH / REU\_FETCH / REU\_SWAP](#reu_stash--reu_fetch--reu_swap)
+    - [TURBO\_SET](#turbo_set)
+    - [SUPERCPU\_DETECT](#supercpu_detect)
+    - [TURBO\_ENABLE](#turbo_enable)
+    - [MAP\_COPY](#map_copy)
+    - [MAP\_COPY16X16](#map_copy16x16)
+    - [SPRITE\_ANIM](#sprite_anim)
+    - [SCORE\_BCD](#score_bcd)
+  - [10. Integrering av felsökare](#10-debugger-integration)
     - [RetroDebugger](#retrodebugger)
-    - [Brytpunktsblock](#brytpunktsblock)
-    - [Felsökningsflaggor (fliken Alternativ)](#11-länkar-till-kunskapsbasen)
-  - [11. Länkar till kunskapsbasen](#11-länkar-till-kunskapsbasen)
-  - [12. D64 Exportera \&amp; Kör](#delad-körning-knapp)
-    - [Knapp för delad körning](#dialogrutan-exportera-till-d64)
-    - [Dialogruta för export till D64](#d64-metadata-i-projekt)
-    - [D64-metadata i projekt](#d64-metadata-i-projekt)
-  - [12b. CRT-export (Magic Desk 64K-kassett)](#12b-crt-export-magic-desk-64k-kassett)
-  - [13. Maskinvaruinställningar](#13-maskinvaruinställningar)
+    - [Brytpunktsblock](#breakpoint-blocks)
+    - [Felsökningsflaggor (fliken Alternativ)](#debugger-flags-options-tab)
+  - [11. Länkar till kunskapsbasen](#11-knowledge-base-links)
+  - [12. D64 Exportera \&amp; Kör](#12-d64-export--run)
+    - [Knapp för delad körning](#split-run-button)
+    - [Dialogruta för export till D64](#export-to-d64-dialog)
+    - [D64-metadata i projekt](#d64-metadata-in-projects)
+  - [12b. CRT-export (Magic Desk 64K-kassett)](#12b-crt-export-magic-desk-64k-cartridge)
+  - [13. Maskinvaruinställningar](#13-hardware-settings)
     - [VICE-emulator](#vice-emulator)
     - [Exomizer](#exomizer)
-    - [Retro-felsökare](#retro-felsökare)
-    - [C64 Ultimate / 1541 Ultimate](#c64-ultimate-1541-ultimate)
-  - [14. Visuella redigerare (verktygslåda)](#14-visuella-redigerare-verktygslåda)
-    - [Högupplöst/Flerfärgsredigerare](#högupplöstflerfärgsredigerare)
-    - [Sprite-redigerare](#teckenredigerare-teckenuppsättning)
-    - [C64 Tecken-ROM-läsare ("Teckenkarta")](#c64-tecken-rom-läsare-teckenkarta)
-    - [Teckenredigerare (teckenuppsättning)](#teckenredigerare-teckenuppsättning)
-    - [Teckenuppsättning Canvas-redigerare](#sid-redigerare-3-röstsspårare)
-    - [Kartredigerare (Flerskiktade kakelkartor)](#kartredigerare-flerskiktade-kakelkartor)
-    - [SID-redigerare (3-röstsspårare)](#sid-redigerare-3-röstsspårare)
-    - [Kurvredigerare](#kurvredigerare)
+    - [Retro-felsökare](#retro-debugger)
+    - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
+    - [Kung Fu Flash 2](#kung-fu-flash-2)
+  - [14. Visuella redigerare (verktygslåda)](#14-visual-editors-toolkit)
+    - [Högupplöst/Flerfärgsredigerare](#hi-res--multicolor-editor)
+    - [Sprite-redigerare](#sprite-editor)
+    - [C64 Tecken-ROM-läsare ("Teckenkarta")](#c64-character-rom-browser-char-map)
+    - [Teckenredigerare (teckenuppsättning)](#character-editor-charset)
+    - [Teckenuppsättning Canvas-redigerare](#charset-canvas-editor)
+    - [Kartredigerare (Flerskiktade kakelkartor)](#map-editor-multilayer-tilemaps)
+    - [SID-redigerare (3-röstsspårare)](#sid-editor-3-voice-tracker)
+    - [Kurvredigerare](#curve-editor)
+
+---
+
+## Höjdpunkter i version 2.4.5
+
+- **Kung Fu Flash 2-stöd — kör dina program på en riktig Commodore 64/128.** En ny **Kung Fu Flash 2**-post i den delade **Kör**-menyn kompilerar programmet och laddar upp det via USB direkt till en riktig, påslagen C64 (eller C128) utrustad med en Kung Fu Flash 2-kassett — ingen diskavbildning, ingen SD-kortkopiering, ingen emulator. Den fungerar i Block-, Expert- och Ultimate Basic-läge. Kassettens USB-serieport detekteras automatiskt (och kan skrivas in för hand); se [Kung Fu Flash 2](#kung-fu-flash-2) för installation och det exakta arbetsflödet.
+- **Anpassningsbara program-/ASM-paneler** — en tunn vertikal delare mellan programpanelen och ASM/utdatapanelen låter dig dra gränsen åt vänster eller höger (minst 260 px per panel). Piltangenterna knuffar den, dubbelklick återställer den till en 50/50-delning, och positionen sparas mellan sessioner. Delaren är dold i Expert- och Ultimate Basic-läge samt i den smala staplade layouten.
+- **Renare makrorader i ASM-vyn** — makroblock listas nu utan den inledande kommentarmarkören (`.print "HELLO"`, `.if A == 1`, `.sprite_init …` istället för `; .print …`), och ASM-syntaxmarkören färglägger dem som makron. Vanliga KOMMENTARblock och regionmarkörer börjar fortfarande med `;`.
+- **Anpassad makromarkering i expertredigeraren** — makronamnet efter `.macro`, `.invoke` och `.call` (och Kick-stil `:name(...)`-anrop) har sin egen färg, och det har även `{param}`-substitutionerna inuti makrotexten och parameternamnen i `.macro`-rubriken, i varje tema.
+- **Uppdaterad Om-dialogruta** — en bredare layout med två kolumner med grupperade projekt-, licens- och kreditlänkar, och Ultimate Basic-bannern har nu en transparent bakgrund så att den smälter in i alla teman.
+- **Web64 på produktsidan** — ett nytt Web64 IDE-avsnitt på [c64va.tech](https://www.c64va.tech).
+- **Exempeluppdatering** — exemplet `makro-med-parameter` använder nu formen `.makro setColor(färg)` inom parentes.
 
 ---
 
@@ -185,7 +199,7 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
 
 ## Höjdpunkter i version 2.4.0
 
-- **D64 Editor** — en komplett diskavbildningsläsare i verktygsfältet (efter kurvredigeraren). Öppna en befintlig `.d64`, skapa en ny tom disk eller starta den aktuella disken direkt i VICE, allt från en Filer ▾-meny som matchar de andra visuella redigerarna. Se [D64 Editor (bläddra bland och redigera en befintlig diskavbildning)](#12b-crt-export-magic-desk-64k-kassett).
+- **D64 Editor** — en komplett diskavbildningsläsare i verktygsfältet (efter kurvredigeraren). Öppna en befintlig `.d64`, skapa en ny tom disk eller starta den aktuella disken direkt i VICE, allt från en Filer ▾-meny som matchar de andra visuella redigerarna. Se [D64 Editor (bläddra bland och redigera en befintlig diskavbildning)](#d64-editor-browse--edit-an-existing-disk-image).
 - **Lägg till / extrahera / byt namn på / ta bort i D64-editorn** — lägg till en lokal fil i diskkatalogen, extrahera en vald post tillbaka till en `.prg`, byt namn på en post inline i tabellen eller ta bort den — varje åtgärd tillämpas direkt på `.d64`-filen via `c1541`, utan separat sparningssteg.
 - **Ladda adress, dekomprimera adress och Exomizer i D64-redigeraren** — genom att lägga till en headerlös råfil kan du ange en valfri laddningsadress, ett Exomizer-dekomprimeringsmål och komprimera den på vägen in, med samma `mem`/`sfx` komprimeringslägen som i dialogrutan Exportera till D64:s extrafiler. En `.prg` som redan har sin egen header hoppar över dessa fält helt.
 - **Väljare för diskposttyp** — välj PRG / SEQ / USR / REL för en nyligen tillagd fil istället för att alltid skriva den som PRG.
@@ -199,11 +213,11 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
 
 Fem assemblerfunktioner som förbättrar livskvaliteten, alla användbara i expertläge och (där det är lämpligt) som block. Var och en har sin egen referenssektion längre ner:
 
-- **`*` i vilket uttryck som helst** — programräknarsymbolen fungerar nu inuti operanduttryck, inte bara på egen hand: `BNE *-5`, `JMP *+20`, `LDA #&lt;*`, `LDA #&gt;(*+63)`. Ett `*` som följer ett värde (`STRIDE*2`) är fortfarande multiplikation. Se [Adresseringslägen → Programräknaren `*` i uttryck](#lokala-prickade-etiketter).
-- **Lokala (prickade) etiketter** — en etikett som `.loop` tillhör omfånget för den närmaste föregående *globala* (icke-prickade) etiketten, så `DrawSprite` och `ClearScreen` kan var och en definiera sina egna `.loop` utan kollision. Se [Lokala (prickade) etiketter](#operandetiketter-för-självmodifierande-kod).
-- **Långgreniga pseudo-operationer** — `LBNE`, `LBEQ`, `LBCC`, `LBCS`, `LBMI`, `LBPL`, `LBVC`, `LBVS` monteras till en inverterad gren över en `JMP` (alltid 5 byte) så att målet kan vara valfritt avstånd bort. Ny palettkategori för **Långa grenar**. Se [LBNE / LBEQ / … (Långa grenar)](#registrera-operationer).
-- **`.assert` direktiv** — `.assert slut - start &lt;= 256` eller `.assert * &lt; $A000, "meddelande"` utvärderas vid monteringstillfället och misslyckas med byggandet (visar det faktiska värdet) när uttrycket är falskt. Se [.ASSERT](#körtid-if-else-endif).
-- **Operandetiketter för självmodifierande kod** — `LDA-värde:#$00` definierar etiketten `värde` som pekar på instruktionens operandbyte, så `STA-värde` korrigerar den direkt. Se [Operandetiketter för självmodifierande kod](#8-standard-6502-instruktioner).
+- **`*` i vilket uttryck som helst** — programräknarsymbolen fungerar nu inuti operanduttryck, inte bara på egen hand: `BNE *-5`, `JMP *+20`, `LDA #&lt;*`, `LDA #&gt;(*+63)`. Ett `*` som följer ett värde (`STRIDE*2`) är fortfarande multiplikation. Se [Adresseringslägen → Programräknaren `*` i uttryck](#the--program-counter-in-expressions).
+- **Lokala (prickade) etiketter** — en etikett som `.loop` tillhör omfånget för den närmaste föregående *globala* (icke-prickade) etiketten, så `DrawSprite` och `ClearScreen` kan var och en definiera sina egna `.loop` utan kollision. Se [Lokala (prickade) etiketter](#local-dotted-labels).
+- **Långgreniga pseudo-operationer** — `LBNE`, `LBEQ`, `LBCC`, `LBCS`, `LBMI`, `LBPL`, `LBVC`, `LBVS` monteras till en inverterad gren över en `JMP` (alltid 5 byte) så att målet kan vara valfritt avstånd bort. Ny palettkategori för **Långa grenar**. Se [LBNE / LBEQ / … (Långa grenar)](#lbne--lbeq---long-branches).
+- **`.assert` direktiv** — `.assert slut - start &lt;= 256` eller `.assert * &lt; $A000, "meddelande"` utvärderas vid monteringstillfället och misslyckas med byggandet (visar det faktiska värdet) när uttrycket är falskt. Se [.ASSERT](#assert).
+- **Operandetiketter för självmodifierande kod** — `LDA-värde:#$00` definierar etiketten `värde` som pekar på instruktionens operandbyte, så `STA-värde` korrigerar den direkt. Se [Operandetiketter för självmodifierande kod](#self-modifying-code-operand-labels).
 - **Användligare fel vid grenar utanför intervallet** — en gren som landar utanför −128…+127 rapporterar nu exakt hur långt den överskrider intervallet och föreslår den matchande `LBxx` långa grenen.
 
 ---
@@ -219,6 +233,8 @@ Appen är uppdelad i tre huvudpaneler:
 | **Höger — Utgång**   | Live ASM-vy och/eller minnesövervakningsutgång.                                   |
 
 Lägesmärket längst till höger i rubriken identifierar den aktiva redigeraren **Block**, **Expert** eller **Ultimate Basic**. Den uppdateras omedelbart när redigeringsläget ändras.
+
+I blockläge sitter en tunn **vertikal delare** mellan program- och utdatapanelerna. Dra den för att ge endera panelen mer utrymme (var och en behåller minst 260 px), använd ← / → för att flytta den i steg om 16 px, eller dubbelklicka på den för att återställa delningen till 50/50. Positionen sparas med användargränssnittsinställningarna. Delaren är dold i expert- och ultimat grundläggande läge och när fönstret är tillräckligt smalt för att panelerna ska kunna staplas.
 
 ---
 
@@ -288,6 +304,8 @@ Den högra panelen visar den genererade utdata i realtid.
 | **Verktygslåda**           | C64 referenspanel: 16-färgspalettruta + PETSCII-kontrollkod och fusklapp för utskrivbara tecken. Skrivskyddad — se underavsnittet "Verktygslåda" nedan för mer information.                                                                                                                                 |
 | **Alternativ**             | Programinställningspanel — talformat, makrokälla, felsökningsparametrar                                                                                                                                                                                                                                     |
 
+Makroblock visas i ASM och båda vyerna som vanliga makrorader utan kommentarmarkör (`.print "HELLO"`, `.wait_raster $FF`, `.invoke setColor(blue)`) och är färgade som makron; endast riktiga KOMMENTARblock, regionmarkörer och varningar behåller sina radinledande `;`.
+
 ### Verktygslåda-fliken
 
 Fliken **Verktygslåda** i ASM-vyn är en skrivskyddad snabbreferenspanel – den ändrar aldrig ditt program. Två avsnitt:
@@ -336,38 +354,38 @@ Modalfönstret stängs automatiskt när åtgärden är slutförd eller misslycka
 
 ## 5. Inställningar och verktygsfält
 
-| Kontrollera                                 | Beskrivning                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Talbas (HEX / DEC / BIN)**                | Ställer in visnings-/inmatningsformatet för operander i hela användargränssnittet. BIN-läget visar värden binärt med prefixet `%` (t.ex. `%11111000`). ASM-vyn visar alltid varje block i sitt eget format.                                                                                                                                                                                                                                    |
-| **Språk**                                   | Växla användargränssnittet mellan engelska, ungerska, spanska, tyska och nederländska (nederländska)                                                                                                                                                                                                                                                                                                                                           |
-| **Tema**                                    | Ljus / Mörk / OLED / Commodore 77 — välj från temaväljaren i inställningsmenyn. OLED använder en helt svart bakgrund för AMOLED-skärmar. Commodore 77 är ett neongult på svart tema; när det är det aktiva temat använder startpanelen temats panelfärg (som matchar meddelandekortet), visar en mindre dedikerad Commodore 77-logotyp och en gul förloppsindikator. Det valda temat tillämpas före den första färgsättningen vid nästa start. |
-| **CRT retroläge**                           | Växlar ett helskärms-CRT-filter: skanningslinjer, fosforvinjett, flimmer och tunnformad distorsion. Tillståndet sparas mellan sessioner.                                                                                                                                                                                                                                                                                                       |
-| **Visa minnespanelen**                      | Global växlingsknapp som visar eller döljer hela C64-minnespanelen                                                                                                                                                                                                                                                                                                                                                                             |
-| **GRUNDLÄGGANDE SYS-stub**                  | Lägger till en BASIC-rad som anropar SYS före programmets ursprung.                                                                                                                                                                                                                                                                                                                                                                            |
-| **Exempel**                                 | Ladda ett inbyggt exempelprogram                                                                                                                                                                                                                                                                                                                                                                                                               |
-| **Zooma in/ut**                             | Skala blockgränssnittet (påverkar alla blockelement)                                                                                                                                                                                                                                                                                                                                                                                           |
-| **Spara projekt**                           | Spara det aktuella programmet som en `.json`-projektfil                                                                                                                                                                                                                                                                                                                                                                                        |
-| **Spara program som**                       | Spara det aktuella programmet som en `.json`-projektfil med hjälp av en ny fildialogruta varje gång                                                                                                                                                                                                                                                                                                                                            |
-| **Ladda projekt**                           | Ladda ett tidigare sparat projekt                                                                                                                                                                                                                                                                                                                                                                                                              |
-| **Spara arbetsyta**                         | Spara den exakta uppsättningen av för närvarande öppna, filbaserade flikar – inklusive den aktiva fliken och varje fliks redigeringsläge (Block/Expert/Ultimate Basic) – till en `.vaws` arbetsytefil                                                                                                                                                                                                                                          |
-| **Spara arbetsyta som**                     | Spara den aktuella arbetsytan med en ny fildialogruta varje gång                                                                                                                                                                                                                                                                                                                                                                               |
-| **Öppen arbetsyta**                         | Stäng alla öppna flikar och öppna uppsättningen filer som lagrats i en `.vaws` arbetsytefil igen                                                                                                                                                                                                                                                                                                                                               |
-| **Ange arbetsmapp**                         | Välj standardmappen som används av filväljare och dialogrutor för att spara. Sökvägen lagras i appkonfigurationen och menyförhandsgranskningar håller slutet på sökvägen synligt.                                                                                                                                                                                                                                                              |
-| **Öppna projekt** (`Meny → Arkiv`)          | Öppna ett projekt med flera filer `.proj` och öppna alla källfiler som flikar                                                                                                                                                                                                                                                                                                                                                                  |
-| **Spara projekt** (`Meny → Arkiv`)          | Spara det aktuella `.proj`-projektet (projektpanelen måste vara öppen)                                                                                                                                                                                                                                                                                                                                                                         |
-| **Stäng projekt** (`Meny → Arkiv`)          | Stäng det för närvarande öppna projektet och alla dess filflikar. Uppmanas att spara osparade ändringar. Projektpanelen återställs till sitt tomma tillstånd.                                                                                                                                                                                                                                                                                  |
-| **Ladda .asm-fil**                          | Öppnar en `.asm`-fil i expertläge och importerar textfilen 6502 ASM till den aktuella fliken.                                                                                                                                                                                                                                                                                                                                                  |
-| **Spara PRG**                               | Exportera den kompilerade binärfilen som en `.prg`-fil                                                                                                                                                                                                                                                                                                                                                                                         |
-| **Bygg CRT**                                | Exportera programmet som en 64K Magic Desk-fil (`.crt`, patrontyp 19). Se [Avsnitt 12b](#vad-som-skickas-i-varukorgen).                                                                                                                                                                                                                                                                                                             |
-| **Kör (delknapp)**                          | Huvudknappen **▶ Kör** kör det aktuella läget; klicka på pilen **▾** för att växla mellan: **Kör som PRG** (kompilera och starta VICE direkt), **Kör via D64** (paketera till en .d64-diskavbildning och starta VICE), eller **Kör på hårdvara** (skicka PRG till en C64 Ultimate / 1541 Ultimate-enhet). Se [Avsnitt 12](#delad-körning-knapp) och [Avsnitt 13](#retro-felsökare).                                                        |
-| **Felsök (RetroDebugger)**                  | Kompilera och starta i RetroDebugger med brytpunkter, symboler och autostartflaggor (se [Avsnitt 9](#9-debugger-integration))                                                                                                                                                                                                                                                                                                                  |
-| **Kör med Exomizer**                        | Kryssruta i inställningsmenyn — när den är aktiverad, kör alla Kör- och Bygg-åtgärder PRG via `exomizer sfx sys` innan de startas eller sparas. Fungerar med Kör som PRG, Kör via D64, Kör på hårdvara, Bygg PRG och Bygg D64. Konfigurera Exomizer-körbar fil i **Maskinvaruinställningar** först.                                                                                                                                            |
-| **Automatisk sparning av ögonblicksbilder** | Kryssrutan i **Maskinvaruinställningar → Ögonblicksbild**. När den är aktiverad skapar appen automatiskt en ögonblicksbild cirka 2,5 sekunder efter att du slutat redigera en flik. Stäng av den om du bara vill att ögonblicksbilder ska sparas manuellt.                                                                                                                                                                                     |
-| **Maskinvaruinställningar**                 | Öppna dialogrutan för hårdvarukonfiguration — konfigurera VICE, Exomizer, RetroDebugger och C64 Ultimate (värd, lösenord, anslutningstest). Se [Avsnitt 13](#retro-felsökare).                                                                                                                                                                                                                                                            |
-| **Nytt program…**                           | Öppnar en bekräftelsedialogruta och rensar sedan alla block från programområdet                                                                                                                                                                                                                                                                                                                                                                |
-| **Komprimera alla**                         | Komprimera alla block                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| **Om**                                      | Versionsinformation                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| **Nyheter**                                 | Ändringslogg                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Kontrollera                                 | Beskrivning                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Talbas (HEX / DEC / BIN)**                | Ställer in visnings-/inmatningsformatet för operander i hela användargränssnittet. BIN-läget visar värden binärt med prefixet `%` (t.ex. `%11111000`). ASM-vyn visar alltid varje block i sitt eget format.                                                                                                                                                                                                                                                                               |
+| **Språk**                                   | Växla användargränssnittet mellan engelska, ungerska, spanska, tyska och nederländska (nederländska)                                                                                                                                                                                                                                                                                                                                                                                      |
+| **Tema**                                    | Ljus / Mörk / OLED / Commodore 77 — välj från temaväljaren i inställningsmenyn. OLED använder en helt svart bakgrund för AMOLED-skärmar. Commodore 77 är ett neongult på svart tema; när det är det aktiva temat använder startpanelen temats panelfärg (som matchar meddelandekortet), visar en mindre dedikerad Commodore 77-logotyp och en gul förloppsindikator. Det valda temat tillämpas före den första färgsättningen vid nästa start.                                            |
+| **CRT retroläge**                           | Växlar ett helskärms-CRT-filter: skanningslinjer, fosforvinjett, flimmer och tunnformad distorsion. Tillståndet sparas mellan sessioner.                                                                                                                                                                                                                                                                                                                                                  |
+| **Visa minnespanelen**                      | Global växlingsknapp som visar eller döljer hela C64-minnespanelen                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| **GRUNDLÄGGANDE SYS-stub**                  | Lägger till en BASIC-rad som anropar SYS före programmets ursprung.                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| **Exempel**                                 | Ladda ett inbyggt exempelprogram                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| **Zooma in/ut**                             | Skala blockgränssnittet (påverkar alla blockelement)                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| **Spara projekt**                           | Spara det aktuella programmet som en `.json`-projektfil                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| **Spara program som**                       | Spara det aktuella programmet som en `.json`-projektfil med hjälp av en ny fildialogruta varje gång                                                                                                                                                                                                                                                                                                                                                                                       |
+| **Ladda projekt**                           | Ladda ett tidigare sparat projekt                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| **Spara arbetsyta**                         | Spara den exakta uppsättningen av för närvarande öppna, filbaserade flikar – inklusive den aktiva fliken och varje fliks redigeringsläge (Block/Expert/Ultimate Basic) – till en `.vaws` arbetsytefil                                                                                                                                                                                                                                                                                     |
+| **Spara arbetsyta som**                     | Spara den aktuella arbetsytan med en ny fildialogruta varje gång                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| **Öppen arbetsyta**                         | Stäng alla öppna flikar och öppna uppsättningen filer som lagrats i en `.vaws` arbetsytefil igen                                                                                                                                                                                                                                                                                                                                                                                          |
+| **Ange arbetsmapp**                         | Välj standardmappen som används av filväljare och dialogrutor för att spara. Sökvägen lagras i appkonfigurationen och menyförhandsgranskningar håller slutet på sökvägen synligt.                                                                                                                                                                                                                                                                                                         |
+| **Öppna projekt** (`Meny → Arkiv`)          | Öppna ett projekt med flera filer `.proj` och öppna alla källfiler som flikar                                                                                                                                                                                                                                                                                                                                                                                                             |
+| **Spara projekt** (`Meny → Arkiv`)          | Spara det aktuella `.proj`-projektet (projektpanelen måste vara öppen)                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| **Stäng projekt** (`Meny → Arkiv`)          | Stäng det för närvarande öppna projektet och alla dess filflikar. Uppmanas att spara osparade ändringar. Projektpanelen återställs till sitt tomma tillstånd.                                                                                                                                                                                                                                                                                                                             |
+| **Ladda .asm-fil**                          | Öppnar en `.asm`-fil i expertläge och importerar textfilen 6502 ASM till den aktuella fliken.                                                                                                                                                                                                                                                                                                                                                                                             |
+| **Spara PRG**                               | Exportera den kompilerade binärfilen som en `.prg`-fil                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| **Bygg CRT**                                | Exportera programmet som en 64K Magic Desk-fil (`.crt`, patrontyp 19). Se [Avsnitt 12b](#12b-crt-export-magic-desk-64k-cartridge).                                                                                                                                                                                                                                                                                                                                                        |
+| **Kör (delknapp)**                          | Huvudknappen **▶ Kör** kör det aktuella läget; klicka på pilen **▾** för att växla mellan: **Kör som PRG** (kompilera och starta VICE direkt), **Kör via D64** (paketera till en .d64-diskavbildning och starta VICE), **Kör på hårdvara** (skicka PRG till en C64 Ultimate / 1541 Ultimate-enhet) eller **Kung Fu Flash 2** (ladda upp PRG via USB till en riktig C64/C128 med en Kung Fu Flash 2-pickup). Se [Avsnitt 12](#12-d64-export--run) och [Avsnitt 13](#13-hardware-settings). |
+| **Felsök (RetroDebugger)**                  | Kompilera och starta i RetroDebugger med brytpunkter, symboler och autostartflaggor (se [Avsnitt 9](#9-debugger-integration))                                                                                                                                                                                                                                                                                                                                                             |
+| **Kör med Exomizer**                        | Kryssruta i inställningsmenyn — när den är aktiverad, kör alla Kör- och Bygg-åtgärder PRG via `exomizer sfx sys` innan de startas eller sparas. Fungerar med Kör som PRG, Kör via D64, Kör på hårdvara, Bygg PRG och Bygg D64. Konfigurera Exomizer-körbar fil i **Maskinvaruinställningar** först.                                                                                                                                                                                       |
+| **Automatisk sparning av ögonblicksbilder** | Kryssrutan i **Maskinvaruinställningar → Ögonblicksbild**. När den är aktiverad skapar appen automatiskt en ögonblicksbild cirka 2,5 sekunder efter att du slutat redigera en flik. Stäng av den om du bara vill att ögonblicksbilder ska sparas manuellt.                                                                                                                                                                                                                                |
+| **Maskinvaruinställningar**                 | Öppna dialogrutan för hårdvarukonfiguration — konfigurera VICE, Exomizer, RetroDebugger, C64 Ultimate (värd, lösenord, anslutningstest) och Kung Fu Flash 2 serieport. Se [Avsnitt 13](#13-hardware-settings).                                                                                                                                                                                                                                                                            |
+| **Nytt program…**                           | Öppnar en bekräftelsedialogruta och rensar sedan alla block från programområdet                                                                                                                                                                                                                                                                                                                                                                                                           |
+| **Komprimera alla**                         | Komprimera alla block                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| **Om**                                      | Versionsinformation                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| **Nyheter**                                 | Ändringslogg                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
 ### Projektbilder
 
@@ -486,12 +504,13 @@ Bygginfo rapporterar inläsnings-/slutadresser, kod- och PRG-storlekar, Exomizer
 
 Huvuddelningsknappen **Run** stöder Ultimate Basic i alla vanliga destinationer:
 
-| Körläge                 | Ultimat grundläggande beteende                                                          |
-| ----------------------- | --------------------------------------------------------------------------------------- |
-| **Kör som PRG**         | Kompilera och starta PRG direkt i VICE.                                                 |
-| **Kör via D64**         | Kompilera, öppna standarddialogrutan för D64-paketering och starta sedan disken i VICE. |
-| **Kör på Ultimate**     | Ladda upp och kör PRG:en via den konfigurerade C64 Ultimate REST-anslutningen.          |
-| **Kör D64 på hårdvara** | Paketera en D64 och skicka den till den konfigurerade C64 Ultimate.                     |
+| Körläge                 | Ultimat grundläggande beteende                                                                                                                      |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Kör som PRG**         | Kompilera och starta PRG direkt i VICE.                                                                                                             |
+| **Kör via D64**         | Kompilera, öppna standarddialogrutan för D64-paketering och starta sedan disken i VICE.                                                             |
+| **Kör på Ultimate**     | Ladda upp och kör PRG:en via den konfigurerade C64 Ultimate REST-anslutningen.                                                                      |
+| **Kör D64 på hårdvara** | Paketera en D64 och skicka den till den konfigurerade C64 Ultimate.                                                                                 |
+| **Kung Fu Flash 2**     | Kompilera UB-startkällan och ladda upp PRG:n via USB till en riktig C64/C128 med en Kung Fu Flash 2-pickup. Se [Kung Fu Flash 2](#kung-fu-flash-2). |
 
 Det globala alternativet **Inställningar → Exomizer** gäller även för UB-byggen och normala körmål; ingen separat UB-verktygsfältsväxling behövs. Felsökarstarter använder avsiktligt den okomprimerade PRG så att kompilatoradresser och symboler fortsätter att matcha det körda programmet.
 
@@ -595,6 +614,8 @@ Redigeraren använder ett transparent `<div>`-överlägg (`expert-hl`) som spegl
 | Orange   | Tal (`$FF`, `%1010`, `255`)                                                                                                                              |
 | Cyan     | Etiketter — rader som slutar på `:`, inklusive lokala etiketter (`.loop:`) och operandetiketter för självmodifierande kod (`value:` in `LDA value:#$00`) |
 | Kricka   | Strängliteraler                                                                                                                                          |
+| Violett  | Anpassade makronamn — namnet efter `.macro`, `.invoke` och `.call`, och Kick-anrop av `:name(...)`                                                       |
+| Vatten   | Makroparametrar — parameternamnen i `.macro`-rubriken och `{param}`-substitutionerna i makrotexten                                                       |
 | Mörkgrön | Kommentarer (`; …`)                                                                                                                                      |
 
 Direktiven `REGION` / `ENDREGION` markeras precis som de andra assemblerdirektiven. Komprimerade regioner behåller endast regionrubriken synlig i redigeraren tills du öppnar dem igen. Den nya verktygsfältsknappen **Regionsval** styr endast den automatiska markeringen av aktuell region i expertläge; om den stängs av förblir källan synlig utan att ändra vikningsläget.
@@ -1248,13 +1269,13 @@ done:
 
 **Kodningsregler:**
 
-| Input                                       | Versalläge                         | Gemenerläge            |
-| ------------------------------------------- | ---------------------------------- | ---------------------- |
-| `A`–`Z`                                     | `$41`–`$5A`                        | `61 dollar`–`7 dollar` |
-| `a`–`z`                                     | `$41`–`$5A` (tvångsskriven versal) | `$41`–`$5A`            |
-| Mellanslag, siffror, interpunktion (32–126) | as-is                              | as-is                  |
-| Ny rad                                      | `$0D` (RETUR)                      | `$0D`                  |
-| Andra                                       | `20 dollar ` (mellanslag)          | `20 dollar`            |
+| Input                                       | Versalläge                         | Gemenerläge             |
+| ------------------------------------------- | ---------------------------------- | ----------------------- |
+| `A`–`Z`                                     | `41 dollar`–`5 dollarA`            | `61 dollar`–`7 dollar`  |
+| `a`–`z`                                     | `$41`–`$5A` (tvångsskriven versal) | `41 dollar`–`5 dollarA` |
+| Mellanslag, siffror, interpunktion (32–126) | som det är                         | som det är              |
+| Ny rad                                      | `$0D` (RETUR)                      | `$0D`                   |
+| Andra                                       | `20 dollar ` (mellanslag)          | `20 dollar`             |
 
 > **Tips:** Använd PETSCII för data som ska matas ut via CHROUT (`$FFD2`). För att skriva direkt till skärmens RAM, använd STRING eller RAWTEXT istället.
 
@@ -3271,7 +3292,8 @@ Verktygsfältets **Kör**-knapp har ersatts av en **delknapp**:
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Kör som PRG**     | Assemblera till en temporär `.prg` och starta VICE direkt. Klassiskt beteende.                                                                                                                                              |
 | **Kör via D64**     | Assemblera, bygg en `.d64` diskavbildning (med c1541), lägg till eventuella konfigurerade extrafiler och starta sedan VICE från disken. Använd detta när ditt program laddar filer vid körning (t.ex. med makrot LOADFILE). |
-| **Kör på hårdvara** | Assemblera till PRG och skicka den till en **1541 Ultimate / Ultimate 64**-enhet över det lokala nätverket. Se [Avsnitt 13](#retro-felsökare).                                                                         |
+| **Kör på hårdvara** | Assemblera till PRG och skicka den till en **1541 Ultimate / Ultimate 64**-enhet över det lokala nätverket. Se [Avsnitt 13](#13-hardware-settings).                                                                         |
+| **Kung Fu Flash 2** | Montera till PRG och ladda upp den via USB-seriellt till en riktig C64/C128 med en **Kung Fu Flash 2**-pickup. Se [Kung Fu Flash 2](#kung-fu-flash-2).                                                                      |
 
 Det valda läget sparas mellan sessionerna.
 
@@ -3295,7 +3317,7 @@ Disknamnet, programnamnet och listan över extra filer sparas i projektets JSON 
 
 Exemplet **loadfile-demo** levereras förkonfigurerat med `DEMO-COLORS.PRG` som en extra fil. Markera den, öppna **Kör via D64** och klicka på **Kör** för att se hela laddningsflödet i aktion.
 
-> **Krav:** Både D64-export och körning via D64 kräver att VICE (`c1541`) konfigureras i [Maskinvaruinställningar](#retro-felsökare).
+> **Krav:** Både D64-export och körning via D64 kräver att VICE (`c1541`) konfigureras i [Maskinvaruinställningar](#13-hardware-settings).
 
 ### D64 Editor (bläddra bland och redigera en befintlig diskavbildning)
 
@@ -3333,7 +3355,7 @@ Katalogens lista visar filnamn med samma teckensnitt och versaler som en riktig 
 
 **Blockredigerare:** Verktygsfältets rutnätsikon växlar till en rå spår-/sektorvy under katalogen — en klickbar blockkarta färgad av BAM:s lediga/använda bitmapp (med BAM och katalogkedjan markerade separat), ett hexagonalt rutnät per byte för det valda 256-byte-blocket och Föregående/Nästa sektornavigering. Blockredigeringar går igenom samma arbetsflöde för att kopiera/spara som katalogåtgärderna ovan.
 
-> **Krav:** Precis som Exportera till D64 kräver D64-redigeraren att VICE (`c1541`) är konfigurerat i [Maskinvaruinställningar](#retro-felsökare).
+> **Krav:** Precis som Exportera till D64 kräver D64-redigeraren att VICE (`c1541`) är konfigurerat i [Maskinvaruinställningar](#13-hardware-settings).
 
 ---
 
@@ -3456,6 +3478,33 @@ Kör sammansatta PRG:er direkt på riktig hårdvara över det lokala nätverket 
 4. Klicka på **▶ Kör** — PRG kompileras och skickas till enheten via HTTP POST till `/v3/runners/prg`. Enheten laddar och kör den omedelbart på C64.
 
 > **Tips:** Ingen USB-kabel eller drivrutin behövs – REST API är inbyggt i Ultimate-firmwaren. Din dator och enheten måste vara på samma lokala nätverk.
+
+### Kung Fu Flash 2
+
+Kör assemblerade program på en **riktig Commodore 64 eller C128** — ingen hårddisk, diskavbildning, SD-kortkopiering eller emulator inblandad. Visual Assembler kommunicerar med kassettens USB-serieport, startar om den i sin MENU-laddare och laddar upp PRG:en, som sedan startar på maskinen.
+
+**Vad du behöver:**
+- en Commodore 64 / C128 med en **Kung Fu Flash 2**-pickup monterad, påslagen;
+- **Kung Fu Flash firmware v2.07 eller senare ** på kassetten — tidigare firmwareversioner stöder inte uppladdningsprotokollet som används av Visual Assembler. Firmwareversioner: <https://codeberg.org/KimJorgensen/KungFuFlash2/releases/>;
+- en **USB-kabel** som ansluter kassetten till datorn som kör Visual Assembler (den visas som en virtuell serieport).
+
+| Miljö            | Beskrivning                                                                                                                                                                                                                                                                                                                  |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Seriell port** | Kassettens USB-serieport, t.ex. `COM4` (Windows), `/dev/cu.usbmodem…` (macOS) eller `/dev/ttyACM0` (Linux). Hittas automatiskt via dess USB-ID (`0483:5740`) när appen startas; statusraden under fältet visar `KFF2: <port>` eller ber dig att skriva in porten manuellt om ingen hittades. Värdet sparas mellan sessioner. |
+
+**Arbetsflöde:**
+1. Sätt i Kung Fu Flash 2 i C64:ans pickupport, slå på datorn och anslut USB-kabeln till din PC/Mac.
+2. Öppna **Maskinvaruinställningar** och kontrollera avsnittet **Kung Fu Flash 2** — porten borde redan vara ifylld.
+3. Välj **Kung Fu Flash 2** från delad körning-menyn (valet sparas och lagras även i projektfiler).
+4. Klicka på **▶ Kör**. Programmet kompileras, kassetten startas om i sin MENU-laddare (en kort 1200-baud "tryckning" på serieporten), en liten handskakning följer och PRG:en laddas upp. När överföringen är klar körs programmet på den riktiga maskinen.
+
+Fungerar från både **Block**, **Expert** och **Ultimate Basic**-läge; Ultimate Basic-programmen kompileras från projektets startfil.
+
+> **Gränser och kontroller:** PRG:n måste innehålla den tvåbyte långa laddningsadressen plus minst en databyte, måste passa in i C64:ans adressutrymme på 64 KiB och får inte överstiga den storlek som kassettens laddare accepterar. Fel — porten är inte konfigurerad, porten kan inte öppnas, kassetten återgår inte från MENY eller en avvisad uppladdning — rapporteras i en toast med den exakta orsaken.
+
+> **Tips:** om du föredrar en patronavbildning istället för en liveuppladdning, **Build CRT** (Magic Desk 64K) körs även på Kung Fu Flash — se [Avsnitt 12b](#12b-crt-export-magic-desk-64k-cartridge).
+
+---
 
 ---
 
