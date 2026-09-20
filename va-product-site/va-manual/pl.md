@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Podręcznik użytkownika
 
-**Wersja 2.4.5**
+**Wersja 2.4.3**
 
 Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągając i upuszczając bloki instrukcji, i oglądaj generowany kod assemblera i maszynowy w czasie rzeczywistym.
 
@@ -8,62 +8,61 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
 
 ## Spis treści
 
-- [C64 Visual Assembler — Podręcznik użytkownika](#c64-visual-assembler--user-manual)
-    - [Najważniejsze cechy wersji 2.4.5](#version-245-highlights)
-    - [Najważniejsze cechy wersji 2.4.3](#version-243-highlights)
-    - [Najważniejsze cechy wersji 2.4.2](#version-242-highlights)
-    - [Najważniejsze cechy wersji 2.4.1](#version-241-highlights)
-    - [Najważniejsze cechy wersji 2.4.0](#version-240-highlights)
-    - [Najważniejsze cechy wersji 2.3.9](#version-239-highlights)
-  - [Spis treści](#table-of-contents)
-  - [1. Przegląd interfejsu](#1-interface-overview)
-  - [2. Paleta bloków](#2-block-palette)
-  - [3. Obszar programu](#3-program-area)
-    - [Wejście operandu](#operand-input)
-  - [4. Widok ASM](#4-asm-view)
-    - [Tryby wyjściowe](#output-modes)
-    - [Karta Zestaw narzędzi](#toolkit-tab)
-    - [Karta Opcje](#options-tab)
-    - [Kliknięcie wiersza ASM](#clicking-an-asm-line)
-    - [Numery wierszy ASM](#asm-line-numbers)
-    - [Modalne okno postępu kompilacji](#compile-progress-modal)
-  - [5. Ustawienia i pasek narzędzi](#5-settings--toolbar)
-    - [Załaduj plik .asm (szybkie odniesienie)](#load-asm-file-quick-reference)
-      - [Importuj notatki dotyczące analizy i najlepsze praktyki](#import-parsing-notes-and-best-practices)
-  - [Tryb Ultimate Basic](#ultimatebasic-mode)
-    - [Otwieranie edytora UB](#opening-the-ub-editor)
-    - [Narzędzia edytora](#editor-tools)
-    - [Projekty, zakładki i pliki startowe](#projects-tabs-and-startup-files)
-    - [Budowa i diagnostyka](#building-and-diagnostics)
-    - [Uruchomienie, D64 i Exomizer](#running-d64-and-exomizer)
-    - [Symbole debugera i deasemblacja](#debugger-symbols-and-disassembly)
-    - [Podręcznik i źródło Ultimate Basic](#ultimate-basic-manual-and-source)
-  - [6. Tryb ekspercki](#6-expert-mode)
-    - [Przełączanie trybów](#switching-modes)
-    - [Układ edytora](#editor-layout)
-    - [Przyciski paska narzędzi](#toolbar-buttons)
-    - [Podświetlanie błędu](#error-highlighting)
-    - [Podświetlenie składni](#syntax-highlight)
-    - [Formater źródła](#source-formatter)
-    - [Panel projektu \&amp; zakładki](#project-panel--tabs)
-    - [Pasek kart](#tab-bar)
-  - [7. Tryby adresowania](#7-addressing-modes)
-    - [Oznacz wyrażenia jako operandy](#label-expressions-as-operands)
-    - [Licznik programu `*` w wyrażeniach](#the--program-counter-in-expressions)
-    - [Lokalne etykiety (kropkowane)](#local-dotted-labels)
-    - [Etykiety operandów kodu samomodyfikującego](#self-modifying-code-operand-labels)
-  - [8. Standardowe instrukcje 6502](#8-standard-6502-instructions)
-    - [Przenoszenie danych](#data-movement)
-    - [Arytmetyka](#arithmetic)
-    - [Logika](#logic)
-    - [Skoki i gałęzie](#jumps--branches)
-    - [LBNE / LBEQ / … (Długie gałęzie)](#lbne--lbeq---long-branches)
-    - [Operacje rejestru](#register-operations)
-    - [Przesunięcie i obrót](#shift--rotate)
-    - [Stos](#stack)
-    - [System / Flagi](#system--flags)
-    - [Nielegalne/nieudokumentowane instrukcje](#illegal--undocumented-instructions)
-  - [9. Bloki makro — odniesienie](#9-macro-blocks--reference)
+- [C64 Visual Assembler — Podręcznik użytkownika](#c64-visual-assembler-podręcznik-użytkownika)
+    - [Najważniejsze cechy wersji 2.4.3](#najważniejsze-cechy-wersji-243)
+    - [Najważniejsze cechy wersji 2.4.2](#najważniejsze-cechy-wersji-242)
+    - [Najważniejsze cechy wersji 2.4.1](#najważniejsze-cechy-wersji-241)
+    - [Najważniejsze cechy wersji 2.4.0](#najważniejsze-cechy-wersji-240)
+    - [Najważniejsze cechy wersji 2.3.9](#najważniejsze-cechy-wersji-239)
+  - [Spis treści](#spis-treści)
+  - [1. Przegląd interfejsu](#1-przegląd-interfejsu)
+  - [2. Paleta bloków](#3-obszar-programu)
+  - [3. Obszar programu](#3-obszar-programu)
+    - [Wejście operandu](#wejście-operandu)
+  - [4. Widok ASM](#4-widok-asm)
+    - [Tryby wyjściowe](#tryby-wyjściowe)
+    - [Karta Zestaw narzędzi](#karta-zestaw-narzędzi)
+    - [Karta Opcje](#karta-opcje)
+    - [Kliknięcie wiersza ASM](#numery-linii-asm)
+    - [Numery wierszy ASM](#modalny-postęp-kompilacji)
+    - [Modalne okno postępu kompilacji](#5-ustawienia-i-pasek-narzędzi)
+  - [5. Ustawienia i pasek narzędzi](#5-ustawienia-i-pasek-narzędzi)
+    - [Załaduj plik .asm (szybkie odniesienie)](#importuj-notatki-dotyczące-analizy-i-najlepsze-praktyki)
+      - [Importuj notatki dotyczące analizy i najlepsze praktyki](#importuj-notatki-dotyczące-analizy-i-najlepsze-praktyki)
+  - [Tryb Ultimate Basic](#tryb-ultimate-basic)
+    - [Otwieranie edytora UB](#otwieranie-edytora-ub)
+    - [Narzędzia edytora](#narzędzia-edytora)
+    - [Projekty, zakładki i pliki startowe](#projekty-zakładki-i-pliki-startowe)
+    - [Budowa i diagnostyka](#uruchomienie-d64-i-exomizer)
+    - [Uruchomienie, D64 i Exomizer](#uruchomienie-d64-i-exomizer)
+    - [Symbole debugera i deasemblacja](#symbole-debugera-i-deasemblacja)
+    - [Podręcznik i źródło Ultimate Basic](#podręcznik-i-źródło-ultimate-basic)
+  - [6. Tryb ekspercki](#przełączanie-trybów)
+    - [Przełączanie trybów](#przełączanie-trybów)
+    - [Układ edytora](#układ-edytora)
+    - [Przyciski paska narzędzi](#przyciski-paska-narzędzi)
+    - [Podświetlanie błędu](#podświetlanie-składni)
+    - [Podświetlenie składni](#formater-źródła)
+    - [Formater źródła](#formater-źródła)
+    - [Panel projektu \&amp; zakładki](#pasek-kart)
+    - [Pasek kart](#pasek-kart)
+  - [7. Tryby adresowania](#7-tryby-adresowania)
+    - [Oznacz wyrażenia jako operandy](#licznik-programu-w-wyrażeniach)
+    - [Licznik programu `*` w wyrażeniach](#licznik-programu-w-wyrażeniach)
+    - [Lokalne etykiety (kropkowane)](#etykiety-operandów-kodu-samomodyfikującego)
+    - [Etykiety operandów kodu samomodyfikującego](#etykiety-operandów-kodu-samomodyfikującego)
+  - [8. Standardowe instrukcje 6502](#8-standardowe-instrukcje-6502)
+    - [Przenoszenie danych](#przenoszenie-danych)
+    - [Arytmetyka](#arytmetyka)
+    - [Logika](#logika)
+    - [Skoki i gałęzie](#skoki-i-gałęzie)
+    - [LBNE / LBEQ / … (Długie gałęzie)](#lbne-lbeq-długie-gałęzie)
+    - [Operacje rejestru](#shift-rotate)
+    - [Przesunięcie i obrót](#stos)
+    - [Stos](#stos)
+    - [System / Flagi](#system-flagi)
+    - [Nielegalne/nieudokumentowane instrukcje](#nielegalnenieudokumentowane-instrukcje)
+  - [9. Bloki makro — odniesienie](#9-bloki-makro-odniesienie)
     - [LABEL](#label)
     - [COMMENT](#comment)
     - [BYTE](#byte)
@@ -78,28 +77,28 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
     - [PETSCII](#petscii)
     - [CHARSET](#charset)
     - [CHARDEF](#chardef)
-    - [BOX_HIT](#box_hit)
+    - [BOX_HIT](#boxhit)
     - [INCBIN](#incbin)
     - [SID](#sid)
     - [INCLUDE](#include)
     - [TABLE](#table)
     - [ORG](#org)
-    - [LOOP / NEXT](#loop--next)
+    - [LOOP / NEXT](#loop-next)
       - [LOOP](#loop)
       - [NEXT](#next)
-    - [FOR / ENDF](#for--endf)
+    - [FOR / ENDF](#for-endf)
       - [FOR](#for)
       - [ENDF](#endf)
-    - [PUSH / PULL](#push--pull)
+    - [PUSH / PULL](#push-pull)
       - [PUSH](#push)
       - [PULL](#pull)
-    - [END / alias RTS](#end--rts-alias)
-    - [MACRO / ENDM / INVOKE](#macro--endm--invoke)
-      - [MAKRO (początek definicji)](#macro-definition-start)
-      - [ENDM (koniec definicji)](#endm-definition-end)
+    - [END / alias RTS](#end-alias-rts)
+    - [MACRO / ENDM / INVOKE](#macro-endm-invoke)
+      - [MAKRO (początek definicji)](#makro-początek-definicji)
+      - [ENDM (koniec definicji)](#endm-koniec-definicji)
       - [INVOKE](#invoke)
-    - [REGION / ENDREGION](#region--endregion)
-    - [DEFINE / IF / ELSE / ENDIF](#define--if--else--endif)
+    - [REGION / ENDREGION](#region-endregion)
+    - [DEFINE / IF / ELSE / ENDIF](#define-if-else-endif)
     - [.ASSERT](#assert)
       - [DEFINE](#define)
       - [IF](#if)
@@ -107,64 +106,54 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
     - [ENDIF](#endif)
     - [CONST](#const)
     - [VAR](#var)
-    - [Czas wykonania JEŻELI / W PRZECIWNYM RAZIE / ENDIF](#runtime-if--else--endif)
-    - [WHILE / ENDW](#while--endw)
-    - [REPEAT / UNTIL](#repeat--until)
-    - [MEMCPY / MEMSET](#memcpy--memset)
-    - [PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG](#print--print_char--print_hex--clear_screen--wait_key--delay--set_border--set_bg)
-    - [IRQ_SETUP](#irq_setup)
+    - [Czas wykonania JEŻELI / W PRZECIWNYM RAZIE / ENDIF](#while-endw)
+    - [WHILE / ENDW](#while-endw)
+    - [REPEAT / UNTIL](#repeat-until)
+    - [MEMCPY / MEMSET](#memcpy-memset)
+    - [PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG](#print-printchar-printhex-clearscreen-waitkey-delay-setborder-setbg)
+    - [IRQ_SETUP](#irqsetup)
     - [RAND](#rand)
-    - [SPRITE\_INIT](#sprite_init)
-    - [SPRITE\_POS](#sprite_pos)
-    - [WAIT\_RASTER](#wait_raster)
+    - [SPRITE\_INIT](#spriteinit)
+    - [SPRITE\_POS](#spritepos)
+    - [WAIT\_RASTER](#waitraster)
     - [JOYSTICK](#joystick)
     - [MOUSE](#mouse)
-    - [SPRITE\_COL](#sprite_col)
+    - [SPRITE\_COL](#spritecol)
     - [LOADFILE](#loadfile)
     - [EXODECRUNCH](#exodecrunch)
-    - [REU\_CHECK](#reu_check)
-    - [REU\_STASH / REU\_FETCH / REU\_SWAP](#reu_stash--reu_fetch--reu_swap)
-    - [TURBO\_SET](#turbo_set)
-    - [SUPERCPU\_DETECT](#supercpu_detect)
-    - [TURBO\_ENABLE](#turbo_enable)
-    - [MAP\_COPY](#map_copy)
-    - [MAP\_COPY16X16](#map_copy16x16)
-    - [SPRITE\_ANIM](#sprite_anim)
-    - [SCORE\_BCD](#score_bcd)
-  - [10. Integracja debugera](#10-debugger-integration)
+    - [REU\_CHECK](#reucheck)
+    - [REU\_STASH / REU\_FETCH / REU\_SWAP](#reustash-reufetch-reuswap)
+    - [TURBO\_SET](#turboset)
+    - [SUPERCPU\_DETECT](#supercpudetect)
+    - [TURBO\_ENABLE](#turboenable)
+    - [MAP\_COPY](#mapcopy)
+    - [MAP\_COPY16X16](#mapcopy16x16)
+    - [SPRITE\_ANIM](#spriteanim)
+    - [SCORE\_BCD](#scorebcd)
+  - [10. Integracja debugera](#10-integracja-debugera)
     - [RetroDebugger](#retrodebugger)
-    - [Bloki punktów przerwania](#breakpoint-blocks)
-    - [Flagi debugera (zakładka Opcje)](#debugger-flags-options-tab)
-  - [11. Linki do bazy wiedzy](#11-knowledge-base-links)
-  - [12. Eksport D64 i uruchomienie](#12-d64-export--run)
-    - [Przycisk Podziel bieg](#split-run-button)
-    - [Eksportuj do okna dialogowego D64](#export-to-d64-dialog)
-    - [Metadane D64 w projektach](#d64-metadata-in-projects)
-  - [12b. Eksport CRT (wkład Magic Desk 64K)](#12b-crt-export-magic-desk-64k-cartridge)
-  - [13. Ustawienia sprzętowe](#13-hardware-settings)
-    - [Emulator VICE](#vice-emulator)
+    - [Bloki punktów przerwania](#bloki-punktów-przerwania)
+    - [Flagi debugera (zakładka Opcje)](#flagi-debugera-zakładka-opcje)
+  - [11. Linki do bazy wiedzy](#11-linki-do-bazy-wiedzy)
+  - [12. Eksport D64 i uruchomienie](#przycisk-split-run)
+    - [Przycisk Podziel bieg](#eksportuj-do-okna-dialogowego-d64)
+    - [Eksportuj do okna dialogowego D64](#eksportuj-do-okna-dialogowego-d64)
+    - [Metadane D64 w projektach](#metadane-d64-w-projektach)
+  - [12b. Eksport CRT (wkład Magic Desk 64K)](#12b-eksport-crt-wkład-magic-desk-64k)
+  - [13. Ustawienia sprzętowe](#13-ustawienia-sprzętowe)
+    - [Emulator VICE](#emulator-vice)
     - [Exomizer](#exomizer)
     - [Retro Debugger](#retro-debugger)
-    - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
-  - [14. Edytory wizualne (zestaw narzędzi)](#14-visual-editors-toolkit)
-    - [Edytor wysokiej rozdzielczości / wielokolorowy](#hi-res--multicolor-editor)
-    - [Edytor sprite'ów](#sprite-editor)
-    - [Przeglądarka ROM-u znaków C64 („Mapa znaków”)](#c64-character-rom-browser-char-map)
-    - [Edytor znaków (zestaw znaków)](#character-editor-charset)
-    - [Edytor kanwy znaków](#charset-canvas-editor)
-    - [Edytor map (mapy kafelkowe wielowarstwowe)](#map-editor-multilayer-tilemaps)
-    - [Edytor SID (śledzenie 3-głosowe)](#sid-editor-3-voice-tracker)
-    - [Edytor krzywych](#curve-editor)
-
----
-
-## Najważniejsze cechy wersji 2.4.5
-
-- **Obsługa Kung Fu Flash 2 — uruchamiaj programy na prawdziwym Commodore 64/128.** Nowa pozycja **Kung Fu Flash 2** w rozwijanym menu **Run** kompiluje program i przesyła go przez USB bezpośrednio do prawdziwego, włączonego C64 (lub C128) z kartridżem Kung Fu Flash 2 — bez obrazu dysku, karty SD i emulatora. Działa w trybie blokowym, Expert i Ultimate Basic. Port szeregowy USB kartridża (`0483:5740`) jest wykrywany automatycznie (Hardware Settings → Kung Fu Flash 2) i można go też wpisać ręcznie, np. `COM4`, `/dev/ttyACM0` lub `/dev/cu.usbmodem…`. Przebieg: włóż kartridż, włącz C64, podłącz USB, wybierz **Kung Fu Flash 2** w menu Run i kliknij **▶ Run** — kartridż uruchamia się ponownie w MENU, PRG jest przesyłany, a program startuje na prawdziwej maszynie.
-- **Panele Program/ASM ze zmiennym rozmiarem** — cienki pionowy separator między panelem Program a ASM można przeciągać (min. 260 px na panel). Strzałki go przesuwają, dwuklik przywraca podział 50/50, a pozycja jest zapamiętywana.
-- **Czytelniejsze linie makr w widoku ASM** — bloki makr są pokazywane bez wiodącego znaku komentarza (`.print "HELLO"` zamiast `; .print …`) i kolorowane jako makra.
-- **Podświetlanie własnych makr w edytorze Expert** — nazwa makra po `.macro`, `.invoke` i `.call` (oraz wywołania `:nazwa(...)` w stylu Kick), podstawienia `{param}` i parametry w nagłówku `.macro` mają własne kolory.
-- **Odświeżone okno About** z układem dwukolumnowym i przezroczystym banerem Ultimate Basic, nowa sekcja **Web64** na stronie produktu oraz zaktualizowany przykład `macro-with-parameter` (`.macro setColor(color)`).
+    - [C64 Ultimate / 1541 Ultimate](#c64-ultimate-1541-ultimate)
+  - [14. Edytory wizualne (zestaw narzędzi)](#14-edytory-wizualne-zestaw-narzędzi)
+    - [Edytor wysokiej rozdzielczości / wielokolorowy](#edytor-wysokiej-rozdzielczości-wielokolorowy)
+    - [Edytor sprite'ów](#edytor-spriteów)
+    - [Przeglądarka ROM-u znaków C64 („Mapa znaków”)](#przeglądarka-rom-u-znaków-c64-mapa-znaków)
+    - [Edytor znaków (zestaw znaków)](#edytor-znaków-zestaw-znaków)
+    - [Edytor kanwy znaków](#edytor-sid-śledzenie-3-głosowe)
+    - [Edytor map (mapy kafelkowe wielowarstwowe)](#edytor-map-mapy-kafelkowe-wielowarstwowe)
+    - [Edytor SID (śledzenie 3-głosowe)](#edytor-sid-śledzenie-3-głosowe)
+    - [Edytor krzywych](#edytor-krzywych)
 
 ---
 
@@ -196,7 +185,7 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
 
 ## Najważniejsze cechy wersji 2.4.0
 
-- **Edytor D64** — pełna przeglądarka obrazów dysków na pasku narzędzi (po Edytorze Krzywych). Otwórz istniejący plik `.d64`, utwórz nowy, pusty lub uruchom bieżący dysk bezpośrednio w programie VICE – wszystko z menu Pliki ▾, podobnie jak w innych edytorach wizualnych. Zobacz [Edytor D64 (przeglądanie i edycja istniejącego obrazu dysku)](#d64-editor-browse--edit-an-existing-disk-image).
+- **Edytor D64** — pełna przeglądarka obrazów dysków na pasku narzędzi (po Edytorze Krzywych). Otwórz istniejący plik `.d64`, utwórz nowy, pusty lub uruchom bieżący dysk bezpośrednio w programie VICE – wszystko z menu Pliki ▾, podobnie jak w innych edytorach wizualnych. Zobacz [Edytor D64 (przeglądanie i edycja istniejącego obrazu dysku)](#12b-eksport-crt-wkład-magic-desk-64k).
 - **Dodaj/wyodrębnij/zmień nazwę/usuń w edytorze D64** — dodaj plik lokalny do katalogu na dysku, wyodrębnij wybrany wpis z powrotem do `.prg`, zmień nazwę wpisu w tabeli lub usuń go — każda akcja jest stosowana bezpośrednio do pliku `.d64` za pośrednictwem `c1541`, bez oddzielnego kroku zapisu.
 - **Adres ładowania, adres dekompresji i Exomizer w edytorze D64** — dodanie pliku RAW bez nagłówka pozwala ustawić opcjonalny adres ładowania, cel dekompresji Exomizera i skompresować go w trakcie przesyłania, używając tych samych trybów kompresji `mem`/`sfx`, co pliki dodatkowe w oknie dialogowym Eksport do D64. Plik `.prg`, który zawiera już własny nagłówek, całkowicie pomija te pola.
 - **Selektor typu wpisu dysku** — wybierz PRG / SEQ / USR / REL dla nowo dodanego pliku zamiast zawsze zapisywać go jako PRG.
@@ -210,11 +199,11 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
 
 Pięć funkcji poprawiających jakość pracy asemblera, z których wszystkie można wykorzystać w trybie tekstowym w trybie eksperckim oraz (jeśli ma to sens) jako bloki. Każda z nich ma swoją własną sekcję referencyjną poniżej:
 
-- **`*` w dowolnym wyrażeniu** — symbol licznika programów działa teraz wewnątrz wyrażeń operandów, a nie tylko samodzielnie: `BNE *-5`, `JMP *+20`, `LDA #&lt;*`, `LDA #&gt;(*+63)`. `*` następujący po wartości (`STRIDE*2`) to nadal mnożenie. Zobacz [Tryby adresowania → Licznik programów `*` w wyrażeniach](#the--program-counter-in-expressions).
-- **Lokalne etykiety (kropkowane)** — etykieta taka jak `.loop` należy do zakresu najbliższej poprzedzającej ją etykiety globalnej *(niekropkowanej), więc `DrawSprite` i `ClearScreen` mogą definiować własne etykiety `.loop` bez kolizji. Zobacz [Lokalne etykiety (kropkowane)](#local-dotted-labels).
-- **Pseudooperacje z długimi gałęziami** — `LBNE`, `LBEQ`, `LBCC`, `LBCS`, `LBMI`, `LBPL`, `LBVC`, `LBVS` asemblacja do odwróconej gałęzi przez `JMP` (zawsze 5 bajtów), dzięki czemu cel może znajdować się w dowolnej odległości. Nowa kategoria palety **Długie gałęzie**. Zobacz [LBNE / LBEQ / … (Długie gałęzie)](#lbne--lbeq---long-branches).
-- Dyrektywa **`.assert`** — `.assert end - start &lt;= 256` lub `.assert * &lt; $A000, „message” ` jest oceniane w czasie montażu i kończy kompilację niepowodzeniem (pokazując rzeczywistą wartość), gdy wyrażenie jest fałszywe. Zobacz [.ASSERT](#assert).
-- **Etykiety operandów kodu samomodyfikującego** — `Wartość LDA:#$00` definiuje etykietę `wartość` wskazującą na bajt operandu instrukcji, więc `Wartość STA` łata ją bezpośrednio. Zobacz [Etykiety operandów kodu samomodyfikującego](#self-modifying-code-operand-labels).
+- **`*` w dowolnym wyrażeniu** — symbol licznika programów działa teraz wewnątrz wyrażeń operandów, a nie tylko samodzielnie: `BNE *-5`, `JMP *+20`, `LDA #&lt;*`, `LDA #&gt;(*+63)`. `*` następujący po wartości (`STRIDE*2`) to nadal mnożenie. Zobacz [Tryby adresowania → Licznik programów `*` w wyrażeniach](#etykiety-lokalne-kropkowane).
+- **Lokalne etykiety (kropkowane)** — etykieta taka jak `.loop` należy do zakresu najbliższej poprzedzającej ją etykiety globalnej *(niekropkowanej), więc `DrawSprite` i `ClearScreen` mogą definiować własne etykiety `.loop` bez kolizji. Zobacz [Lokalne etykiety (kropkowane)](#etykiety-operandów-kodu-samomodyfikującego).
+- **Pseudooperacje z długimi gałęziami** — `LBNE`, `LBEQ`, `LBCC`, `LBCS`, `LBMI`, `LBPL`, `LBVC`, `LBVS` asemblacja do odwróconej gałęzi przez `JMP` (zawsze 5 bajtów), dzięki czemu cel może znajdować się w dowolnej odległości. Nowa kategoria palety **Długie gałęzie**. Zobacz [LBNE / LBEQ / … (Długie gałęzie)](#operacje-rejestrowe).
+- Dyrektywa **`.assert`** — `.assert end - start &lt;= 256` lub `.assert * &lt; $A000, „message” ` jest oceniane w czasie montażu i kończy kompilację niepowodzeniem (pokazując rzeczywistą wartość), gdy wyrażenie jest fałszywe. Zobacz [.ASSERT](#czas-wykonania-if-else-endif).
+- **Etykiety operandów kodu samomodyfikującego** — `Wartość LDA:#$00` definiuje etykietę `wartość` wskazującą na bajt operandu instrukcji, więc `Wartość STA` łata ją bezpośrednio. Zobacz [Etykiety operandów kodu samomodyfikującego](#8-standardowe-instrukcje-6502).
 - **Przyjaźniejsze błędy gałęzi poza zakresem** — gałąź, która ląduje poza zakresem −128…+127, teraz dokładnie raportuje, o ile wykracza poza zakres i sugeruje pasującą `LBxx` długą gałąź.
 
 ---
@@ -369,12 +358,12 @@ Okno modalne zamyka się automatycznie po zakończeniu akcji lub jej niepowodzen
 | **Zamknij projekt** (`Menu → Plik`)     | Zamknij aktualnie otwarty projekt i wszystkie jego zakładki plików. Wyświetla monit o zapisanie niezapisanych zmian. Panel projektu resetuje się do stanu pustego.                                                                                                                                                                                                                                                                                                     |
 | **Załaduj plik .asm**                   | Otwiera plik `.asm` w trybie eksperckim i importuje tekstowy plik ASM 6502 do bieżącej karty                                                                                                                                                                                                                                                                                                                                                                           |
 | **Zapisz program**                      | Eksportuj skompilowany plik binarny jako plik `.prg`                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| **Budowa CRT**                          | Wyeksportuj program jako plik Magic Desk o rozmiarze 64 KB (`.crt`, typ kartridża 19). Zobacz [Sekcję 12b](#12b-crt-export-magic-desk-64k-cartridge).                                                                                                                                                                                                                                                                                                                  |
-| **Uruchom (przycisk podziału)**         | Główny przycisk **▶ Uruchom** uruchamia bieżący tryb; kliknij strzałkę **▾**, aby przełączać się między: **Uruchom jako PRG** (kompilacja i uruchomienie programu VICE bezpośrednio), **Uruchom przez D64** (pakowanie do obrazu dysku .d64 i uruchomienie programu VICE) lub **Uruchom na sprzęcie** (wysyłanie PRG do urządzenia C64 Ultimate / 1541 Ultimate). Zobacz [Sekcję 12](#12-d64-export--run) i [Sekcję 13](#13-hardware-settings).                        |
+| **Budowa CRT**                          | Wyeksportuj program jako plik Magic Desk o rozmiarze 64 KB (`.crt`, typ kartridża 19). Zobacz [Sekcję 12b](#co-znajduje-się-w-koszyku).                                                                                                                                                                                                                                                                                                                  |
+| **Uruchom (przycisk podziału)**         | Główny przycisk **▶ Uruchom** uruchamia bieżący tryb; kliknij strzałkę **▾**, aby przełączać się między: **Uruchom jako PRG** (kompilacja i uruchomienie programu VICE bezpośrednio), **Uruchom przez D64** (pakowanie do obrazu dysku .d64 i uruchomienie programu VICE) lub **Uruchom na sprzęcie** (wysyłanie PRG do urządzenia C64 Ultimate / 1541 Ultimate). Zobacz [Sekcję 12](#przycisk-split-run) i [Sekcję 13](#emulator-vice).                        |
 | **Debugowanie (RetroDebugger)**         | Kompiluj i uruchamiaj w RetroDebuggerze z punktami przerwania, symbolami i flagami autostartu (patrz [Sekcja 9](#9-debugger-integration))                                                                                                                                                                                                                                                                                                                              |
 | **Uruchom z Exomizerem**                | Pole wyboru w menu Ustawienia — po zaznaczeniu wszystkie operacje Uruchom i Kompilacja przeszukują PRG przez `exomizer sfx sys` przed uruchomieniem lub zapisaniem. Działa z opcjami Uruchom jako PRG, Uruchom przez D64, Uruchom na sprzęcie, Kompilacja PRG i Kompilacja D64. Najpierw skonfiguruj plik wykonywalny Exomizera w **Ustawieniach sprzętu**.                                                                                                            |
 | **Automatyczne zapisywanie migawek**    | Zaznacz pole wyboru w **Ustawienia sprzętowe → Migawka**. Po włączeniu aplikacja automatycznie utworzy migawkę około 2,5 sekundy po zakończeniu edycji karty. Wyłącz tę opcję, jeśli chcesz tylko ręcznie zapisywać migawki.                                                                                                                                                                                                                                           |
-| **Ustawienia sprzętowe**                | Otwórz okno dialogowe konfiguracji sprzętu — skonfiguruj VICE, Exomizer, RetroDebugger i C64 Ultimate (host, hasło, test połączenia). Zobacz [Sekcję 13](#13-hardware-settings).                                                                                                                                                                                                                                                                                       |
+| **Ustawienia sprzętowe**                | Otwórz okno dialogowe konfiguracji sprzętu — skonfiguruj VICE, Exomizer, RetroDebugger i C64 Ultimate (host, hasło, test połączenia). Zobacz [Sekcję 13](#emulator-vice).                                                                                                                                                                                                                                                                                       |
 | **Nowy program…**                       | Otwiera okno dialogowe potwierdzenia, a następnie czyści wszystkie bloki z obszaru programu                                                                                                                                                                                                                                                                                                                                                                            |
 | **Zwiń wszystko**                       | Zwiń wszystkie bloki                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | **O**                                   | Informacje o wersji                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
@@ -1261,9 +1250,9 @@ done:
 
 | Wejście                                      | Tryb wielkich liter                    | Tryb małych liter |
 | -------------------------------------------- | -------------------------------------- | ----------------- |
-| `A`–`Z`                                      | `41$`–`5$`                             | `61$`–`7$`        |
-| `a`–`z`                                      | `$41`–`$5A` (wymuszone wielkie litery) | `41$`–`5$`        |
-| Spacja, cyfry, znaki interpunkcyjne (32–126) | tak jak jest                           | tak jak jest      |
+| `A`–`Z`                                      | `$41`–`$5A`                            | `61$`–`7$`        |
+| `a`–`z`                                      | `$41`–`$5A` (wymuszone wielkie litery) | `$41`–`$5A`       |
+| Spacja, cyfry, znaki interpunkcyjne (32–126) | as-is                                  | as-is             |
 | Nowa linia                                   | `$0D` (ZWROT)                          | `$0D`             |
 | Inny                                         | `20$` (spacja)                         | `20 dolarów`      |
 
@@ -3282,7 +3271,7 @@ Przycisk **Uruchom** na pasku narzędzi został zastąpiony **przyciskiem podzia
 | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Uruchom jako PRG**    | Zmontuj do tymczasowego pliku `.prg` i uruchom VICE bezpośrednio. Klasyczne zachowanie.                                                                                                                                                               |
 | **Uruchom przez D64**   | Zmontuj, zbuduj obraz dysku `.d64` (używając c1541), dodaj wszelkie skonfigurowane pliki dodatkowe, a następnie uruchom VICE z dysku. Używaj tej opcji za każdym razem, gdy program ładuje pliki w czasie wykonywania (np. za pomocą makra LOADFILE). |
-| **Uruchom na sprzęcie** | Zmontuj do formatu PRG i wyślij do urządzenia **1541 Ultimate / Ultimate 64** przez sieć lokalną. Zobacz [Sekcję 13](#13-hardware-settings).                                                                                                          |
+| **Uruchom na sprzęcie** | Zmontuj do formatu PRG i wyślij do urządzenia **1541 Ultimate / Ultimate 64** przez sieć lokalną. Zobacz [Sekcję 13](#emulator-vice).                                                                                                          |
 
 Wybrany tryb jest zapisywany pomiędzy sesjami.
 
@@ -3306,7 +3295,7 @@ Nazwa dysku, nazwa programu i lista dodatkowych plików są zapisywane w pliku J
 
 Przykład **loadfile-demo** jest wstępnie skonfigurowany z plikiem `DEMO-COLORS.PRG` jako dodatkowym plikiem. Wybierz go, otwórz **Uruchom przez D64** i kliknij **Uruchom**, aby zobaczyć pełny przepływ ładowania w akcji.
 
-> **Wymagania:** Eksport D64 i uruchamianie przez D64 wymagają skonfigurowania VICE (`c1541`) w [Ustawieniach sprzętu](#13-hardware-settings).
+> **Wymagania:** Eksport D64 i uruchamianie przez D64 wymagają skonfigurowania VICE (`c1541`) w [Ustawieniach sprzętu](#emulator-vice).
 
 ### Edytor D64 (przeglądanie i edycja istniejącego obrazu dysku)
 
@@ -3344,7 +3333,7 @@ W spisie katalogów nazwy plików są wyświetlane w tej samej czcionce i wielki
 
 **Edytor bloków: ** ikona siatki na pasku narzędzi przełącza się na surowy widok ścieżki/sektora pod katalogiem — klikalną mapę bloków pokolorowaną na podstawie bitmapy wolnych/używanych danych BAM (z łańcuchem BAM i katalogów oznaczonym oddzielnie), siatką heksadecymalną dla każdego bajtu dla wybranego bloku 256-bajtowego oraz nawigacją w sektorach Poprzedni/Następny. Edycja bloków przechodzi przez ten sam proces tworzenia kopii roboczej/zapisu, co opisane powyżej czynności katalogowe.
 
-> **Wymagania: ** Podobnie jak w przypadku eksportu do formatu D64, edytor D64 wymaga skonfigurowania opcji VICE (`c1541`) w [Ustawieniach sprzętu](#13-hardware-settings).
+> **Wymagania: ** Podobnie jak w przypadku eksportu do formatu D64, edytor D64 wymaga skonfigurowania opcji VICE (`c1541`) w [Ustawieniach sprzętu](#emulator-vice).
 
 ---
 

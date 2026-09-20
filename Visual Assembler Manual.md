@@ -3515,7 +3515,8 @@ Run assembled programs on a **real Commodore 64 or C128** — no disk drive, dis
 
 **What you need:**
 - a Commodore 64 / C128 with a **Kung Fu Flash 2** cartridge fitted, powered on;
-- the cartridge connected to the computer running Visual Assembler with a USB cable (it shows up as a virtual serial port).
+- **Kung Fu Flash firmware v2.07 or newer** on the cartridge — earlier firmware versions do not support the upload protocol used by Visual Assembler. Firmware releases: <https://codeberg.org/KimJorgensen/KungFuFlash2/releases/>;
+- a **USB cable** connecting the cartridge to the computer running Visual Assembler (it shows up as a virtual serial port).
 
 | Setting | Description |
 |---|---|

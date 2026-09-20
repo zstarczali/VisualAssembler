@@ -244,7 +244,9 @@
       "Bash(sed -i 's#PC-hez/Machez#PC-hez vagy Machez#' C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/3d4179d5-1d95-46c4-b35b-f6d4c313a168/scratchpad/hu_manual.py)",
       "Bash(python C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/3d4179d5-1d95-46c4-b35b-f6d4c313a168/scratchpad/hu_manual.py)",
       "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/3d4179d5-1d95-46c4-b35b-f6d4c313a168/scratchpad/readmes.py\")",
-      "Bash(python -c \"import mistune, reportlab; print\\('deps ok'\\)\")"
+      "Bash(python -c \"import mistune, reportlab; print\\('deps ok'\\)\")",
+      "Bash(git check-ignore *)",
+      "Bash(cd /f/Development/VisualAssembler/va-product-site/va-manual && ls; wc -l *.md; grep -n \"Ultimate\" hu.md | sed -n 1,40p | cut -c1-160; grep -rn \"va-manual\" ../../tests ../../package.json 2>/dev/null | head)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"

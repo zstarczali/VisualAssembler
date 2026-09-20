@@ -3384,7 +3384,8 @@ Az assembleált programokat **valódi Commodore 64-en vagy C128-on** futtathatod
 
 **Mire van szükség:**
 - egy Commodore 64 / C128 **Kung Fu Flash 2** cartridge-dzsel, bekapcsolva;
-- a cartridge USB kábellel csatlakoztatva a Visual Assemblert futtató számítógéphez (virtuális soros portként jelenik meg).
+- a cartridge-on **Kung Fu Flash firmware v2.07 vagy újabb** — a régebbi firmware-verziók nem támogatják a Visual Assembler által használt feltöltési protokollt. Firmware kiadások: <https://codeberg.org/KimJorgensen/KungFuFlash2/releases/>;
+- egy **USB kábel**, amely a cartridge-ot a Visual Assemblert futtató számítógéphez köti (virtuális soros portként jelenik meg).
 
 | Beállítás | Leírás |
 |---|---|
