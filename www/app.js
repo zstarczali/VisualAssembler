@@ -391,6 +391,8 @@ let showMemoryOverlays = true;
 let showGlobalMemoryPanel = true;
 let blockPaletteSync = true;
 let asmOutputBase = "hex";
+let _wsProgramShare = 0.5;
+const _WS_PANEL_MIN = 260;
 let originBase = "hex";
 let workingFolder = "";
 let ubWorkingFolder = "";
@@ -656,6 +658,7 @@ function saveUiSettings() {
     showGlobalMemoryPanel,
     blockPaletteSync,
     asmOutputBase,
+    wsProgramShare: _wsProgramShare,
     exomizerEnabled,
     debuggerJmp,
     debuggerWait,
@@ -673,6 +676,67 @@ function saveUiSettings() {
   localStorage.setItem("c64-ui-settings", JSON.stringify(settings));
   savedUiSettings = settings;
   window.electronAPI?.saveUiSettingsGlobal?.(settings);
+}
+
+function _applyWorkspaceColumns() {
+  const ws = document.querySelector(".workspace");
+  if (!ws) return;
+  const share = Math.min(0.9, Math.max(0.1, _wsProgramShare));
+  ws.style.setProperty("--ws-program-fr", `${Math.round(share * 1000)}fr`);
+  ws.style.setProperty("--ws-output-fr", `${Math.round((1 - share) * 1000)}fr`);
+}
+
+function _initWorkspaceResizers() {
+  const ws = document.querySelector(".workspace");
+  const outRes = document.getElementById("ws-resizer-output");
+  const program = ws?.querySelector(".program-panel");
+  const output = ws?.querySelector(".output-panel");
+  if (!ws || !outRes || !program || !output) return;
+
+  const adjustSplit = dx => {
+    const pw = program.getBoundingClientRect().width;
+    const ow = output.getBoundingClientRect().width;
+    const sum = pw + ow;
+    if (sum <= 2 * _WS_PANEL_MIN) return;
+    const newP = Math.max(_WS_PANEL_MIN, Math.min(sum - _WS_PANEL_MIN, pw + dx));
+    _wsProgramShare = newP / sum;
+    _applyWorkspaceColumns();
+  };
+
+  const bind = (handle, adjust) => {
+    handle.addEventListener("mousedown", event => {
+      event.preventDefault();
+      handle.focus();
+      let lastX = event.clientX;
+      handle.classList.add("dragging");
+      document.body.classList.add("ws-resizing");
+      const onMove = moveEvent => {
+        adjust(moveEvent.clientX - lastX);
+        lastX = moveEvent.clientX;
+      };
+      const onUp = () => {
+        handle.classList.remove("dragging");
+        document.body.classList.remove("ws-resizing");
+        document.removeEventListener("mousemove", onMove);
+        document.removeEventListener("mouseup", onUp);
+        saveUiSettings();
+      };
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup", onUp);
+    });
+    handle.addEventListener("keydown", event => {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+      event.preventDefault();
+      adjust(event.key === "ArrowRight" ? 16 : -16);
+      saveUiSettings();
+    });
+    handle.addEventListener("dblclick", () => {
+      _wsProgramShare = 0.5;
+      _applyWorkspaceColumns();
+      saveUiSettings();
+    });
+  };
+  bind(outRes, adjustSplit);
 }
 
 function getCategoryLabel(category) {
@@ -1240,6 +1304,7 @@ function initPalette() {
     document.addEventListener("mousemove", onMove);
     document.addEventListener("mouseup", onUp);
   });
+  _initWorkspaceResizers();
   const ubPanelsResizer = document.getElementById("ub-panels-resizer");
   ubPanelsResizer?.addEventListener("mousedown", event => {
     event.preventDefault();
@@ -2727,6 +2792,9 @@ function _applyUiSettingsToDOM() {
     asmOutputBase = savedUiSettings.asmOutputBase;
   }
   asmBaseInputs.forEach(input => { input.checked = input.value === asmOutputBase; });
+
+  if (Number.isFinite(savedUiSettings.wsProgramShare)) _wsProgramShare = savedUiSettings.wsProgramShare;
+  _applyWorkspaceColumns();
 
   if (savedUiSettings.debuggerJmp !== undefined) debuggerJmp = !!savedUiSettings.debuggerJmp;
   if (dbgJmp) dbgJmp.checked = debuggerJmp;
@@ -8844,21 +8912,33 @@ function _expertHighlightLine(raw) {
   if (!code.trim()) return esc(code) + commentHtml;
 
   // Token regex (order matters)
-  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|assert|loop|next|for|endf|push|pull|endif|endregion|region|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|delay|wait|set_border|set_bg|irq_setup|sprite_init|sprite_pos|wait_raster|joystick|mouse|sprite_col|map_copy16x16|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|include|sid|petscii|charset|table|loadfile|invoke|call|rand|exodecrunch|reu_check|reu_stash|reu_fetch|reu_swap|turbo_set|turbo_enable|supercpu_detect|chardef|box_hit)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)/gi;
+  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|assert|loop|next|for|endf|push|pull|endif|endregion|region|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|delay|wait|set_border|set_bg|irq_setup|sprite_init|sprite_pos|wait_raster|joystick|mouse|sprite_col|map_copy16x16|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|include|sid|petscii|charset|table|loadfile|invoke|call|rand|exodecrunch|reu_check|reu_stash|reu_fetch|reu_swap|turbo_set|turbo_enable|supercpu_detect|chardef|box_hit)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)|(\{[A-Za-z_][A-Za-z0-9_]*\})|(:[A-Za-z_][A-Za-z0-9_]*)/gi;
 
   let result = "";
   let lastIdx = 0;
   let m;
+  let expectMacroName = false;
+  const isMacroHeader = /^\s*\.macro\b/i.test(code);
   while ((m = TOKEN_RE.exec(code)) !== null) {
     result += esc(code.slice(lastIdx, m.index));
     lastIdx = m.index + m[0].length;
-    const [full, strLit, orgEq, directive, hexNum, decNum, label, ident] = m;
-    if (strLit) {
+    const [full, strLit, orgEq, directive, hexNum, decNum, label, ident, macroParam, kickInvoke] = m;
+    if (expectMacroName && ident) {
+      expectMacroName = false;
+      result += `<span class="hl-macro">${esc(full)}</span>`;
+    } else if (ident && isMacroHeader && code.lastIndexOf("(", m.index) >= 0 && code.indexOf(")", code.lastIndexOf("(", m.index)) >= m.index) {
+      result += `<span class="hl-macro-param">${esc(full)}</span>`;
+    } else if (macroParam) {
+      result += `<span class="hl-macro-param">${esc(full)}</span>`;
+    } else if (kickInvoke) {
+      result += `<span class="hl-macro">${esc(full)}</span>`;
+    } else if (strLit) {
       result += `<span class="hl-string">${esc(full)}</span>`;
     } else if (directive && code[TOKEN_RE.lastIndex] === ":") {
       // `.name:` is a local-label definition, not a directive.
       result += `<span class="hl-label">${esc(full)}</span>`;
     } else if (orgEq || directive) {
+      if (directive) expectMacroName = /^\.(?:macro|invoke|call)$/i.test(full);
       result += `<span class="hl-directive">${esc(full)}</span>`;
     } else if (hexNum || decNum) {
       result += `<span class="hl-number">${esc(full)}</span>`;
@@ -28048,6 +28128,12 @@ function syntaxHighlightAsmLine(line) {
     return prefix + '<span class="asm-tok-comment">' + esc(content) + '</span>';
   }
 
+  // Macro line without comment marker: ".print ..." / ".if ..." (keyword only; ".byte" etc. handled as directives below)
+  if (/^\.[A-Za-z]/.test(content)) {
+    const m = content.match(/^(\.\S+)(.*)/);
+    if (m) return prefix + '<span class="asm-tok-macro">' + esc(m[1]) + '</span>' + hilightNums(m[2]);
+  }
+
   // Indented macro comment: "    ; .text / .string / .data ..."
   if (/^    ; \./.test(content)) {
     const m = content.match(/^(    ; )(\.\S+)(.*)/);
@@ -28709,7 +28795,7 @@ function renderAsmOutput() {
     const liveError = getLiveValidationError(line.block);
     const comment = liveError ? ` ; ${t("warningLabel")}: ${liveError}` : "";
     return `    ${line.block.mnemonic}${suffix}${comment}`;
-  });
+  }).map((text, i) => (typeof text === "string" && !layout.lines[i].block.isComment && /^; \.[A-Za-z]/.test(text)) ? text.slice(2) : text);
 
   deferredDataSections.sort((left, right) => left.address - right.address);
 
