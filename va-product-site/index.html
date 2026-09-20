@@ -41,7 +41,10 @@
     }
 
     html {
-      scroll-behavior: smooth
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+      overflow-x: clip;
+      max-width: 100%
     }
 
     body {
@@ -51,7 +54,9 @@
       font-size: 16px;
       line-height: 1.7;
       text-transform: uppercase;
-      overflow-x: hidden
+      overflow-x: hidden;
+      overflow-x: clip;
+      max-width: 100%
     }
 
     a {
@@ -198,6 +203,7 @@
 
     .hero-box-img {
       width: 100%;
+      height: auto;
       max-width: 680px;
       display: block;
       filter: drop-shadow(0 0 40px rgba(80, 80, 255, .4))
@@ -1674,7 +1680,7 @@
       </div>
     </div>
     <div class="hero-right">
-      <img class="hero-box-img" src="uploads/visual_assembler_transparent.png" alt="Visual Assembler logo">
+      <img class="hero-box-img" src="uploads/visual_assembler_transparent.webp" alt="Visual Assembler logo" width="900" height="900">
     </div>
   </section>
 
@@ -1831,7 +1837,7 @@
         and their shades. It covers every corner of the app: block editor, Expert ASM mode, Ultimate Basic, and every
         tool dialog. Switch anytime from the theme picker (Light / Dark / OLED / Commodore 77).</p>
       <div class="c77-logo-wrap">
-        <img src="uploads/logo2.png" alt="C64 Visual Assembler feat. Commodore 77 — classic vibes, modern tools">
+        <img src="uploads/logo2.webp" alt="C64 Visual Assembler feat. Commodore 77 — classic vibes, modern tools">
       </div>
     </div>
   </div>

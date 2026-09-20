@@ -248,7 +248,8 @@
       "Bash(git check-ignore *)",
       "Bash(cd /f/Development/VisualAssembler/va-product-site/va-manual && ls; wc -l *.md; grep -n \"Ultimate\" hu.md | sed -n 1,40p | cut -c1-160; grep -rn \"va-manual\" ../../tests ../../package.json 2>/dev/null | head)",
       "Bash(file uploads/merch-*.png)",
-      "Bash(python -c \"import PIL; print\\(PIL.__version__\\)\")"
+      "Bash(python -c \"import PIL; print\\(PIL.__version__\\)\")",
+      "Bash(sed -i 's#src=\"uploads/logo2\\\\.png\"#src=\"uploads/logo2.webp\"#' index.html)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"
