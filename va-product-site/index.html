@@ -195,6 +195,23 @@
       filter: drop-shadow(0 0 40px rgba(80, 80, 255, .4))
     }
 
+    .hardware-c64,
+    .download-drive {
+      display: block;
+      height: auto;
+      filter: drop-shadow(0 16px 22px rgba(0, 0, 0, .38))
+    }
+
+    .hardware-c64 {
+      width: min(82%, 520px);
+      margin: 30px auto 0
+    }
+
+    .download-drive {
+      width: min(58%, 380px);
+      margin: 30px auto 0
+    }
+
     .hero-monitor {
       position: relative;
       width: min(100%, 760px)
@@ -1386,6 +1403,7 @@
       .hero-box-img {
         max-width: 500px
       }
+
     }
 
     @media(max-width:900px) {
@@ -1734,6 +1752,9 @@
                 French, Dutch, Finnish, Italian, Swedish and Polish.</span></div>
           </div>
         </div>
+      </div>
+      <div class="about-right">
+        <img class="download-drive" src="uploads/1541.png" alt="Commodore 1541 floppy disk drive" width="1774" height="887" loading="lazy" style="width:100%;max-width:560px;margin:0 auto">
       </div>
     </div>
   </div>
@@ -2240,13 +2261,14 @@
   <!-- HARDWARE SETTINGS -->
   <div style="background:var(--bg);padding:80px 0">
     <div class="sec about-grid" style="padding-top:0;padding-bottom:0">
-      <div class="about-right">
-        <div class="screen-wrap" style="max-width:100%">
+        <div class="about-right">
+          <div class="screen-wrap" style="max-width:100%">
           <div
             style="background:#111130;color:var(--txt-dim);font-size:10px;padding:7px 14px;letter-spacing:2px;border-bottom:1px solid var(--brd)">
             C64VA ● HARDWARE SETTINGS</div>
           <img src="uploads/config.png" alt="Hardware Settings — C64 Ultimate support">
         </div>
+        <img class="hardware-c64" src="uploads/c64.png" alt="Commodore 64 computer" loading="lazy">
       </div>
       <div>
         <div class="sec-s">// HARDWARE INTEGRATION</div>
@@ -2320,6 +2342,7 @@
       </div>
       <button class="doc-card docs-open" type="button">► OPEN MANUALS</button>
     </div>
+    <img class="download-drive" src="uploads/1581.png" alt="Commodore floppy disk drive" width="1774" height="887" loading="lazy" style="margin:40px auto 0">
   </div>
 
   <hr class="div">
