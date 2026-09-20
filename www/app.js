@@ -3162,6 +3162,7 @@ function applyTranslations() {
     setText("#ultimate-connect-test", t("ultimateConnectTest"));
     setText("#kff2-section-label", t("kff2SectionLabel"));
     setText("#kff2-port-label", t("kff2PortLabel"));
+    setText("#kff2-detect-btn", t("kff2DetectBtn"));
     document.getElementById("kff2-port")?.setAttribute("placeholder", t("kff2PortPlaceholder"));
     setText("#run-debugger .run-label", t("runInDebugger"));
     const runModeArrow = document.getElementById("run-mode-arrow");
@@ -5945,6 +5946,7 @@ function isProgramEmpty() {
 // ── Expert Mode ────────────────────────────────────────────────────────────
 
 let expertMode = false;
+let lastAssemblerEditorMode = localStorage.getItem("lastAssemblerEditorMode") || "block";
 let _expertParseTimer = null;
 let _expertErrorLineNos = new Set();  // source line indices (0-based) with compile errors
 let _expertAsmFilePath = "";          // current .asm file path (empty = unsaved)
@@ -5976,6 +5978,10 @@ function setExpertMode(on) {
     if (expertCaret) expertCaret.hidden = true;
   }
   expertMode = on;
+  if (!ultimateBasicMode) {
+    lastAssemblerEditorMode = on ? "expert" : "block";
+    localStorage.setItem("lastAssemblerEditorMode", lastAssemblerEditorMode);
+  }
   document.body.classList.toggle("expert-mode", on);
   expertAutocompleteBtn?.classList.toggle("expert-hl-toggle--on", _expertAcEnabled);
   expertAutocompleteBtn?.setAttribute("aria-pressed", String(_expertAcEnabled));
@@ -6949,15 +6955,19 @@ const _UB_COMMAND_REFERENCE = [
 ];
 
 function setUltimateBasicMode(on) {
+  const previousAssemblerEditorMode = expertMode ? "expert" : "block";
   if (!on && ultimateBasicMode) {
     const current = _getActiveTab();
     if (current?.editorMode === "ub" && ubEditor) {
       current.ubText = ubEditor.value;
       current.ubFilePath = _ubFilePath;
-      current.editorMode = "block";
     }
   }
   if (on && expertMode) setExpertMode(false);
+  if (on) {
+    lastAssemblerEditorMode = previousAssemblerEditorMode;
+    localStorage.setItem("lastAssemblerEditorMode", lastAssemblerEditorMode);
+  }
   ultimateBasicMode = !!on;
   document.body.classList.toggle("ub-mode", ultimateBasicMode);
   if (ubPanel) ubPanel.hidden = !ultimateBasicMode;
@@ -18415,14 +18425,24 @@ function setupUltimateSettings() {
 
 function setupKff2Settings() {
   const portInput = document.getElementById("kff2-port");
-  const status = document.getElementById("kff2-status");
+  const detectBtn = document.getElementById("kff2-detect-btn");
   if (!portInput) return;
   portInput.value = kff2Port;
   portInput.addEventListener("change", () => {
     kff2Port = portInput.value.trim();
     localStorage.setItem("kff2Port", kff2Port);
   });
-  window.electronAPI?.detectKff2Port?.().then((result) => {
+  detectBtn?.addEventListener("click", () => detectKff2Port());
+  detectKff2Port();
+}
+
+function detectKff2Port() {
+  const portInput = document.getElementById("kff2-port");
+  const status = document.getElementById("kff2-status");
+  const detectBtn = document.getElementById("kff2-detect-btn");
+  if (detectBtn) detectBtn.disabled = true;
+  if (status) status.textContent = t("kff2Detecting");
+  return window.electronAPI?.detectKff2Port?.().then((result) => {
     if (!result?.ok) {
       if (status) status.textContent = result?.error || t("kff2DetectFailed");
       return;
@@ -18432,11 +18452,13 @@ function setupKff2Settings() {
       return;
     }
     kff2Port = result.port;
-    portInput.value = result.port;
+    if (portInput) portInput.value = result.port;
     localStorage.setItem("kff2Port", kff2Port);
     if (status) status.textContent = `KFF2: ${result.port}`;
   }).catch((error) => {
     if (status) status.textContent = String(error);
+  }).finally(() => {
+    if (detectBtn) detectBtn.disabled = false;
   });
 }
 
@@ -19621,6 +19643,12 @@ async function _applyProjectPayload(projectData, { sourceFilePath = "", keepFile
     return false;
   }
 
+  // A C64 Visual Assembler JSON project always contains block-mode data. When
+  // it is opened from UltimateBasic, leave that editor before touching the
+  // active tab so later tab switches cannot save the UB buffer over it.
+  if (ultimateBasicMode) setUltimateBasicMode(false);
+  if (expertMode) setExpertMode(false);
+
   let loadedProgram = projectData.program.map((block) => ({
     ...block,
     id: block.id || crypto.randomUUID()
@@ -19678,6 +19706,9 @@ async function _applyProjectPayload(projectData, { sourceFilePath = "", keepFile
   const loadedFilePath = sourceFilePath || (keepFilePath ? tab.filePath || "" : "");
   const sourceName = loadedFilePath ? loadedFilePath.split(/[\\/]/).pop() : (tab.name || tab._untitledName || "Untitled");
 
+  tab.editorMode = "block";
+  tab.ubText = "";
+  tab.ubFilePath = "";
   tab.program = JSON.parse(JSON.stringify(loadedProgram));
   tab.userMacros = {};
   tab.selectedBlockId = null;
@@ -28943,6 +28974,18 @@ async function loadSampleFromFile(sampleName) {
 
   const sampleData = result.sample;
   const useExpertTextProgram = sampleData?.useExpertTextProgram === true && typeof sampleData.expertText === "string";
+  const sampleEditorMode = ultimateBasicMode ? lastAssemblerEditorMode : (expertMode ? "expert" : "block");
+
+  // Samples are either Block or Expert programs. Switch away from UltimateBasic
+  // before creating the new tab, otherwise its later tab-save would preserve
+  // the UB editor state and replace the sample tab's mode and title.
+  if (ultimateBasicMode) setUltimateBasicMode(false);
+  if (sampleEditorMode === "expert") {
+    if (!expertMode) setExpertMode(true);
+  } else if (expertMode) {
+    setExpertMode(false);
+  }
+
   program = useExpertTextProgram
     ? collapseLoadedProgram(parseExpertText(sampleData.expertText))
     : collapseLoadedProgram(sampleData.program);
@@ -28951,7 +28994,7 @@ async function loadSampleFromFile(sampleName) {
   // of overwriting whatever is already open in the current one.
   _tabSaveCurrent();
   const newTab = _tabCreate();
-  newTab.editorMode = ultimateBasicMode ? "ub" : expertMode ? "expert" : "block";
+  newTab.editorMode = sampleEditorMode;
   tabs.push(newTab);
   activeTabId = newTab.id;
 
