@@ -118,6 +118,14 @@
       flex: 1
     }
 
+    .nav-links {
+      display: contents
+    }
+
+    .nav-toggle {
+      display: none
+    }
+
     .nav-link {
       color: var(--txt-dim);
       font-size: 12px;
@@ -203,7 +211,7 @@
     }
 
     .hardware-c64 {
-      width: min(82%, 520px);
+      width: min(100%, 520px);
       margin: 30px auto 0
     }
 
@@ -1409,26 +1417,72 @@
     @media(max-width:900px) {
       nav {
         height: 48px;
-        padding: 0 10px;
-        flex-wrap: nowrap;
-        gap: 2px;
-        overflow-x: auto;
-        scrollbar-width: none
+        padding: 0 14px;
+        justify-content: space-between
       }
 
       .nav-brand {
-        display: none
+        font-size: 11px;
+        letter-spacing: 1px
       }
 
       nav .sp {
         display: none
       }
 
+      .nav-toggle {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 5px;
+        width: 40px;
+        height: 36px;
+        padding: 0 9px;
+        min-height: 0;
+        background: transparent;
+        border: 1px solid var(--brd);
+        cursor: pointer
+      }
+
+      .nav-toggle span {
+        display: block;
+        height: 2px;
+        background: var(--txt-hi);
+        transition: transform .15s, opacity .15s
+      }
+
+      nav.open .nav-toggle span:nth-child(1) {
+        transform: translateY(7px) rotate(45deg)
+      }
+
+      nav.open .nav-toggle span:nth-child(2) {
+        opacity: 0
+      }
+
+      nav.open .nav-toggle span:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg)
+      }
+
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        background: #0d0d22;
+        border-bottom: 2px solid var(--brd);
+        padding: 8px 14px 14px
+      }
+
+      nav.open .nav-links {
+        display: flex
+      }
+
       .nav-link {
-        flex: 0 0 auto;
-        font-size: 10px;
-        padding: 6px 9px;
-        letter-spacing: 0
+        font-size: 13px;
+        padding: 12px 10px;
+        letter-spacing: 1px
       }
 
       .hero {
@@ -1579,14 +1633,19 @@
       C64 VISUAL ASSEMBLER
     </div>
     <div class="sp"></div>
-    <a class="nav-link" href="#home">HOME</a>
-    <a class="nav-link" href="#ultimate-basic">ULTIMATE BASIC</a>
-    <a class="nav-link" href="#build-crt">BUILD CRT</a>
-    <a class="nav-link" href="#features">FEATURES</a>
-    <a class="nav-link" href="#editors">EDITORS</a>
-    <a class="nav-link" href="#docs">DOCS</a>
-    <a class="nav-link" href="#merch">MERCH</a>
-    <a class="nav-link nav-dl" href="#download">DOWNLOAD</a>
+    <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav-links">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links" id="nav-links">
+      <a class="nav-link" href="#home">HOME</a>
+      <a class="nav-link" href="#ultimate-basic">ULTIMATE BASIC</a>
+      <a class="nav-link" href="#build-crt">BUILD CRT</a>
+      <a class="nav-link" href="#features">FEATURES</a>
+      <a class="nav-link" href="#editors">EDITORS</a>
+      <a class="nav-link" href="#docs">DOCS</a>
+      <a class="nav-link" href="#merch">MERCH</a>
+      <a class="nav-link nav-dl" href="#download">DOWNLOAD</a>
+    </div>
   </nav>
 
   <!-- HERO -->
@@ -2360,6 +2419,7 @@
             FREE</span></h2>
         <p class="sec-d" style="text-align:center;margin:0 auto 8px;max-width:460px">Desktop app for Windows, macOS and
           Linux. Requires Node.js and Rust to build from source, or download a prebuilt installer.</p>
+        <p style="text-align:center;margin:16px auto 20px"><a class="btn" href="https://github.com/zstarczali/VisualAssembler/releases/tag/2.4.5" target="_blank" rel="noopener" style="font-size:12px;padding:10px 22px;border-color:var(--ylw);color:var(--ylw)">★ LATEST RELEASE 2.4.5 ON GITHUB</a></p>
         <div class="dl-plats">
           <a class="dl-p btn" href="#" onclick="openItch();return false" style="border-color:var(--brd-hi)"><span
               style="color:var(--ylw)">■</span> WINDOWS</a>
@@ -2407,7 +2467,7 @@
       </div>
       <div class="merch-grid">
         <article class="merch-card">
-          <div class="merch-image"><img src="uploads/merch-mousepad.png"
+          <div class="merch-image"><img src="uploads/merch-mousepad-thumb.jpg"
               alt="Visual Assembler branded black desk mouse pad" loading="lazy"></div>
           <div class="merch-copy">
             <div class="merch-type">DESK GEAR</div>
@@ -2420,7 +2480,7 @@
           </div>
         </article>
         <article class="merch-card">
-          <div class="merch-image"><img src="uploads/merch-tshirt.png" alt="Black Visual Assembler T-shirt"
+          <div class="merch-image"><img src="uploads/merch-tshirt-thumb.jpg" alt="Black Visual Assembler T-shirt"
               loading="lazy"></div>
           <div class="merch-copy">
             <div class="merch-type">APPAREL</div>
@@ -2433,7 +2493,7 @@
           </div>
         </article>
         <article class="merch-card">
-          <div class="merch-image"><img src="uploads/merch-tshirt-wide-logo.png"
+          <div class="merch-image"><img src="uploads/merch-tshirt-wide-logo-thumb.jpg"
               alt="Black Visual Assembler T-shirt with wide Commodore logo" loading="lazy"></div>
           <div class="merch-copy">
             <div class="merch-type">APPAREL</div>
@@ -2446,7 +2506,7 @@
           </div>
         </article>
         <article class="merch-card">
-          <div class="merch-image"><img src="uploads/merch-mug.png" alt="Black Visual Assembler ceramic mug"
+          <div class="merch-image"><img src="uploads/merch-mug-thumb.jpg" alt="Black Visual Assembler ceramic mug"
               loading="lazy"></div>
           <div class="merch-copy">
             <div class="merch-type">COFFEEWARE</div>
@@ -2576,6 +2636,18 @@
       window.open('https://zstarczali.itch.io/visual-assembler-commodore-64/purchase', 'itch_dl',
         'width=' + w + ',height=' + h + ',left=' + l + ',top=' + t + ',toolbar=0,menubar=0,location=0,status=0,scrollbars=1');
     }
+
+    (() => {
+      const nav = document.querySelector('nav');
+      const btn = nav.querySelector('.nav-toggle');
+      const setOpen = open => {
+        nav.classList.toggle('open', open);
+        btn.setAttribute('aria-expanded', String(open));
+      };
+      btn.addEventListener('click', () => setOpen(!nav.classList.contains('open')));
+      nav.querySelectorAll('.nav-link').forEach(a => a.addEventListener('click', () => setOpen(false)));
+      document.addEventListener('click', e => { if (!nav.contains(e.target)) setOpen(false); });
+    })();
 
     function showTab(id) {
       document.querySelectorAll('.tab').forEach(t => {
