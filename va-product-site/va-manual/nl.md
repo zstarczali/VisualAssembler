@@ -8,61 +8,61 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
 
 ## Inhoudsopgave
 
-- [C64 Visual Assembler — Gebruikershandleiding](#c64-visual-assembler--user-manual)
-    - [Hoogtepunten van versie 2.4.3](#version-243-highlights)
-    - [Hoogtepunten van versie 2.4.2](#version-242-highlights)
-    - [Hoogtepunten van versie 2.4.1](#version-241-highlights)
-    - [Hoogtepunten van versie 2.4.0](#version-240-highlights)
-    - [Hoogtepunten van versie 2.3.9](#version-239-highlights)
-  - [Inhoudsopgave](#table-of-contents)
-  - [1. Interfaceoverzicht](#1-interface-overview)
-  - [2. Blokpalet](#2-block-palette)
-  - [3. Programmagebied](#3-program-area)
-    - [Operandinvoer](#operand-input)
-  - [4. ASM-weergave](#4-asm-view)
-    - [Uitvoermodi](#output-modes)
-    - [Toolkit-tabblad](#toolkit-tab)
-    - [Tabblad Opties](#options-tab)
-    - [Klikken op een ASM-regel](#clicking-an-asm-line)
-    - [ASM-regelnummers](#asm-line-numbers)
-    - [Voortgangsweergave compilatie](#compile-progress-modal)
-  - [5. Instellingen & Werkbalk](#5-settings--toolbar)
-    - [Laad .asm-bestand (snelle referentie)](#load-asm-file-quick-reference)
-      - [Import parsing notes and best practices](#import-parsing-notes-and-best-practices)
-  - [Ultieme Basismodus](#ultimatebasic-mode)
-    - [UB-editor openen](#opening-the-ub-editor)
-    - [Editortools](#editor-tools)
-    - [Projecten, tabbladen en opstartbestanden](#projects-tabs-and-startup-files)
-    - [Bouw en diagnostiek](#building-and-diagnostics)
-    - [Running, D64, and Exomizer](#running-d64-and-exomizer)
-    - [Debuggersymbolen en demontage](#debugger-symbols-and-disassembly)
-    - [Ultieme basishandleiding en broncode](#ultimate-basic-manual-and-source)
-  - [6. Expertmodus](#6-expert-mode)
-    - [Modi wisselen](#switching-modes)
-    - [Editorindeling](#editor-layout)
-    - [Werkbalkknoppen](#toolbar-buttons)
-    - [Fout bij het markeren](#error-highlighting)
-    - [Syntaxmarkering](#syntax-highlight)
-    - [Bronformatter](#source-formatter)
-    - [Projectpaneel & tabbladen](#project-panel--tabs)
-    - [Tabbalk](#tab-bar)
-  - [7. Adresseringsmodi](#7-addressing-modes)
-    - [Label expressies als operanden](#label-expressions-as-operands)
-    - [De `*` programmateller in expressies](#the--program-counter-in-expressions)
-    - [Lokale (gestippelde) labels](#local-dotted-labels)
-    - [Operandlabels voor zelfmodificerende code](#self-modifying-code-operand-labels)
-  - [8. Standaard 6502-instructies](#8-standard-6502-instructions)
-    - [Gegevensverplaatsing](#data-movement)
-    - [Rekenen](#arithmetic)
-    - [Logica](#logic)
-    - [Sprongen & Vertakkingen](#jumps--branches)
-    - [LBNE / LBEQ / … (Lange takken)](#lbne--lbeq---long-branches)
-    - [Registerbewerkingen](#register-operations)
-    - [Shift \&amp; Rotate](#shift--rotate)
-    - [Stack](#stack)
-    - [Systeem / Vlaggen](#system--flags)
-    - [Onwettige / niet-gedocumenteerde instructies](#illegal--undocumented-instructions)
-  - [9. Macroblokken — Referentie](#9-macro-blocks--reference)
+- [C64 Visual Assembler — Gebruikershandleiding](#c64-visual-assembler-gebruikershandleiding)
+    - [Hoogtepunten van versie 2.4.3](#hoogtepunten-van-versie-243)
+    - [Hoogtepunten van versie 2.4.2](#hoogtepunten-van-versie-242)
+    - [Hoogtepunten van versie 2.4.1](#hoogtepunten-van-versie-241)
+    - [Hoogtepunten van versie 2.4.0](#hoogtepunten-van-versie-240)
+    - [Hoogtepunten van versie 2.3.9](#hoogtepunten-van-versie-239)
+  - [Inhoudsopgave](#inhoudsopgave)
+  - [1. Interfaceoverzicht](#1-interfaceoverzicht)
+  - [2. Blokpalet](#2-blokpalet)
+  - [3. Programmagebied](#3-programmagebied)
+    - [Operandinvoer](#operandinvoer)
+  - [4. ASM-weergave](#4-asm-weergave)
+    - [Uitvoermodi](#uitvoermodi)
+    - [Toolkit-tabblad](#toolkit-tabblad)
+    - [Tabblad Opties](#tabblad-opties)
+    - [Klikken op een ASM-regel](#asm-lijnnummers)
+    - [ASM-regelnummers](#voortgangsweergave-compileren)
+    - [Voortgangsweergave compilatie](#5-instellingen-en-werkbalk)
+  - [5. Instellingen & Werkbalk](#projectmomentopnamen)
+    - [Laad .asm-bestand (snelle referentie)](#importeer-parseernotities-en-best-practices)
+      - [Import parsing notes and best practices](#asm-import-kick-assembler)
+  - [Ultieme Basismodus](#ultieme-basismodus)
+    - [UB-editor openen](#editortools)
+    - [Editortools](#editortools)
+    - [Projecten, tabbladen en opstartbestanden](#projecten-tabbladen-en-opstartbestanden)
+    - [Bouw en diagnostiek](#hardlopen-d64-en-exomizer)
+    - [Running, D64, and Exomizer](#debuggersymbolen-en-demontage)
+    - [Debuggersymbolen en demontage](#debuggersymbolen-en-demontage)
+    - [Ultieme basishandleiding en broncode](#6-expertmodus)
+  - [6. Expertmodus](#6-expertmodus)
+    - [Modi wisselen](#modi-wisselen)
+    - [Editorindeling](#werkbalkknoppen)
+    - [Werkbalkknoppen](#werkbalkknoppen)
+    - [Fout bij het markeren](#syntaxmarkering)
+    - [Syntaxmarkering](#syntaxmarkering)
+    - [Bronformatter](#bronformatter)
+    - [Projectpaneel & tabbladen](#tabbalk)
+    - [Tabbalk](#tabbalk)
+  - [7. Adresseringsmodi](#7-adresseringsmodi)
+    - [Label expressies als operanden](#label-expressies-als-operanden)
+    - [De `*` programmateller in expressies](#de-programmateller-in-expressies)
+    - [Lokale (gestippelde) labels](#lokale-gestippelde-labels)
+    - [Operandlabels voor zelfmodificerende code](#operandlabels-voor-zelfmodificerende-code)
+  - [8. Standaard 6502-instructies](#8-standaard-6502-instructies)
+    - [Gegevensverplaatsing](#gegevensverplaatsing)
+    - [Rekenen](#logica)
+    - [Logica](#logica)
+    - [Sprongen & Vertakkingen](#lbne-lbeq-lange-takken)
+    - [LBNE / LBEQ / … (Lange takken)](#lbne-lbeq-lange-takken)
+    - [Registerbewerkingen](#shift-rotate)
+    - [Shift \&amp; Rotate](#shift-rotate)
+    - [Stack](#systeem-vlaggen)
+    - [Systeem / Vlaggen](#systeem-vlaggen)
+    - [Onwettige / niet-gedocumenteerde instructies](#9-macroblokken-referentie)
+  - [9. Macroblokken — Referentie](#9-macroblokken-referentie)
     - [LABEL](#label)
     - [COMMENT](#comment)
     - [BYTE](#byte)
@@ -77,28 +77,28 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
     - [PETSCII](#petscii)
     - [CHARSET](#charset)
     - [CHARDEF](#chardef)
-    - [BOX_HIT](#box_hit)
+    - [BOX_HIT](#boxhit)
     - [INCBIN](#incbin)
     - [SID](#sid)
     - [INCLUDE](#include)
     - [TABLE](#table)
     - [ORG](#org)
-    - [LOOP / NEXT](#loop--next)
+    - [LOOP / NEXT](#loop-next)
       - [LOOP](#loop)
       - [NEXT](#next)
-    - [FOR / ENDF](#for--endf)
+    - [FOR / ENDF](#for-endf)
       - [FOR](#for)
       - [ENDF](#endf)
-    - [PUSH / PULL](#push--pull)
+    - [PUSH / PULL](#push-pull)
       - [PUSH](#push)
       - [PULL](#pull)
-    - [END / RTS alias](#end--rts-alias)
-    - [MACRO / ENDM / INVOKE](#macro--endm--invoke)
+    - [END / RTS alias](#end-rts-alias)
+    - [MACRO / ENDM / INVOKE](#macro-endm-invoke)
       - [MACRO (definition start)](#macro-definition-start)
       - [ENDM (definition end)](#endm-definition-end)
       - [INVOKE](#invoke)
-    - [REGION / ENDREGION](#region--endregion)
-    - [DEFINE / IF / ELSE / ENDIF](#define--if--else--endif)
+    - [REGION / ENDREGION](#region-endregion)
+    - [DEFINE / IF / ELSE / ENDIF](#define-if-else-endif)
     - [.ASSERT](#assert)
       - [DEFINE](#define)
       - [IF](#if)
@@ -106,52 +106,52 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
     - [ENDIF](#endif)
     - [CONST](#const)
     - [VAR](#var)
-    - [Runtime IF / ELSE / ENDIF](#runtime-if--else--endif)
-    - [WHILE / ENDW](#while--endw)
-    - [REPEAT / UNTIL](#repeat--until)
-    - [MEMCPY / MEMSET](#memcpy--memset)
-    - [PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG](#print--print_char--print_hex--clear_screen--wait_key--delay--set_border--set_bg)
-    - [IRQ_SETUP](#irq_setup)
+    - [Runtime IF / ELSE / ENDIF](#runtime-if-else-endif)
+    - [WHILE / ENDW](#while-endw)
+    - [REPEAT / UNTIL](#repeat-until)
+    - [MEMCPY / MEMSET](#memcpy-memset)
+    - [PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG](#print-printchar-printhex-clearscreen-waitkey-delay-setborder-setbg)
+    - [IRQ_SETUP](#irqsetup)
     - [RAND](#rand)
-    - [SPRITE\_INIT](#sprite_init)
-    - [SPRITE\_POS](#sprite_pos)
-    - [WAIT\_RASTER](#wait_raster)
+    - [SPRITE\_INIT](#spriteinit)
+    - [SPRITE\_POS](#spritepos)
+    - [WAIT\_RASTER](#waitraster)
     - [JOYSTICK](#joystick)
     - [MOUSE](#mouse)
-    - [SPRITE\_COL](#sprite_col)
+    - [SPRITE\_COL](#spritecol)
     - [LOADFILE](#loadfile)
     - [EXODECRUNCH](#exodecrunch)
-    - [REU\_CHECK](#reu_check)
-    - [REU\_STASH / REU\_FETCH / REU\_SWAP](#reu_stash--reu_fetch--reu_swap)
-    - [TURBO\_SET](#turbo_set)
-    - [SUPERCPU\_DETECT](#supercpu_detect)
-    - [TURBO\_ENABLE](#turbo_enable)
-    - [MAP\_COPY](#map_copy)
-    - [MAP\_COPY16X16](#map_copy16x16)
-    - [SPRITE\_ANIM](#sprite_anim)
-    - [SCORE\_BCD](#score_bcd)
-  - [10. Debuggerintegratie](#10-debugger-integration)
+    - [REU\_CHECK](#reucheck)
+    - [REU\_STASH / REU\_FETCH / REU\_SWAP](#reustash-reufetch-reuswap)
+    - [TURBO\_SET](#turboset)
+    - [SUPERCPU\_DETECT](#supercpudetect)
+    - [TURBO\_ENABLE](#turboenable)
+    - [MAP\_COPY](#mapcopy)
+    - [MAP\_COPY16X16](#mapcopy16x16)
+    - [SPRITE\_ANIM](#spriteanim)
+    - [SCORE\_BCD](#scorebcd)
+  - [10. Debuggerintegratie](#breekpuntblokken)
     - [RetroDebugger](#retrodebugger)
-    - [Breakpoint Blocks](#breakpoint-blocks)
-    - [Flags voor de debugger (tabblad Opties)](#debugger-flags-options-tab)
-  - [11. Links naar de kennisbank](#11-knowledge-base-links)
-  - [12. D64 Exporteren & Uitvoeren](#12-d64-export--run)
-    - [Knop Split Run](#split-run-button)
-    - [Exporteren naar D64-dialoogvenster](#export-to-d64-dialog)
-    - [D64-metadata in projecten](#d64-metadata-in-projects)
+    - [Breakpoint Blocks](#foutopsporingsvlaggen-tabblad-opties)
+    - [Flags voor de debugger (tabblad Opties)](#11-links-naar-de-kennisbank)
+  - [11. Links naar de kennisbank](#11-links-naar-de-kennisbank)
+  - [12. D64 Exporteren & Uitvoeren](#split-run-knop)
+    - [Knop Split Run](#exporteren-naar-d64-dialoogvenster)
+    - [Exporteren naar D64-dialoogvenster](#exporteren-naar-d64-dialoogvenster)
+    - [D64-metadata in projecten](#d64-metadata-in-projecten)
   - [12b. CRT-export (Magic Desk 64K-cartridge)](#12b-crt-export-magic-desk-64k-cartridge)
-  - [13. Hardware-instellingen](#13-hardware-settings)
-    - [VICE Emulator](#vice-emulator)
+  - [13. Hardware-instellingen](#13-hardware-instellingen)
+    - [VICE Emulator](#c64-ultimate-1541-ultimate)
     - [Exomizer](#exomizer)
     - [Retro Debugger](#retro-debugger)
-    - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
-  - [14. Visuele editors (toolkit)](#14-visual-editors-toolkit)
-    - [Editor voor hoge resolutie / meerkleurig](#hi-res--multicolor-editor)
+    - [C64 Ultimate / 1541 Ultimate](#c64-ultimate-1541-ultimate)
+  - [14. Visuele editors (toolkit)](#14-visuele-editors-toolkit)
+    - [Editor voor hoge resolutie / meerkleurig](#editor-voor-hoge-resolutie-meerkleurig)
     - [Sprite-editor](#sprite-editor)
     - [C64 Character ROM Browser ("Char map")](#c64-character-rom-browser-char-map)
-    - [Tekeneditor (Tekenset)](#character-editor-charset)
-    - [Tekenset Canvas Editor](#charset-canvas-editor)
-    - [Kaarteditor (Meerlaagse tegelkaarten)](#map-editor-multilayer-tilemaps)
+    - [Tekeneditor (Tekenset)](#kaarteditor-tegelkaarten-met-meerdere-lagen)
+    - [Tekenset Canvas Editor](#tekenset-canvas-editor)
+    - [Kaarteditor (Meerlaagse tegelkaarten)](#curve-editor)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve-editor](#curve-editor)
 
@@ -185,7 +185,7 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
 
 ## Hoogtepunten van versie 2.4.0
 
-- **D64 Editor** — een volledige schijfimagebrowser op de werkbalk (na de Curve Editor). Open een bestaande `.d64`, maak een nieuwe lege aan of start de huidige schijf rechtstreeks in VICE, allemaal vanuit een menu Bestand ▾ dat overeenkomt met de andere visuele editors. Zie [D64 Editor (een bestaande schijfimage bekijken en bewerken)](#d64-editor-browse--edit-an-existing-disk-image).
+- **D64 Editor** — een volledige schijfimagebrowser op de werkbalk (na de Curve Editor). Open een bestaande `.d64`, maak een nieuwe lege aan of start de huidige schijf rechtstreeks in VICE, allemaal vanuit een menu Bestand ▾ dat overeenkomt met de andere visuele editors. Zie [D64 Editor (een bestaande schijfimage bekijken en bewerken)](#12b-crt-export-magic-desk-64k-cartridge).
 - **Toevoegen / extraheren / hernoemen / verwijderen in de D64 Editor** — voeg een lokaal bestand toe aan de schijfdirectory, extraheer een geselecteerde vermelding terug naar een `.prg`, hernoem een vermelding direct in de tabel of verwijder deze — elke actie wordt rechtstreeks toegepast op het `.d64`-bestand via `c1541`, zonder aparte opslagstap.
 - **Laadadres, decompressieadres en Exomizer in de D64 Editor** — door een onbewerkt bestand zonder header toe te voegen, kunt u een optioneel laadadres en een Exomizer-decompressiedoel instellen en het bestand tijdens het laden comprimeren met dezelfde `mem`/`sfx` crunch-modi als de extra bestanden in het dialoogvenster Exporteren naar D64. Een `.prg` dat al een eigen header heeft, slaat deze velden volledig over.
 - **Selector voor schijfinvoertype** — kies PRG / SEQ / USR / REL voor een nieuw toegevoegd bestand in plaats van het altijd als PRG te schrijven.
@@ -199,11 +199,11 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
 
 Vijf handige functies voor assembler, die allemaal bruikbaar zijn in de Expert-modus (tekst) en (waar zinvol) als blokken. Elke functie heeft een eigen referentiesectie verderop:
 
-- **`*` in elke expressie** — het programmatellersymbool werkt nu binnen operandexpressies, niet alleen op zichzelf: `BNE *-5`, `JMP *+20`, `LDA #&lt;*`, `LDA #&gt;(*+63)`. Een `*` die volgt op een waarde (`STRIDE*2`) is nog steeds vermenigvuldiging. Zie [Addressing Modes → De `*` programmateller in expressies](#the--program-counter-in-expressions).
-- **Lokale (gestippelde) labels** — een label zoals `.loop` behoort tot het bereik van het dichtstbijzijnde voorafgaande *globale* (niet-gestippelde) label, zodat `DrawSprite` en `ClearScreen` elk hun eigen `.loop` kunnen definiëren zonder conflict. Zie [Lokale (gestippelde) labels](#local-dotted-labels).
-- **Pseudo-operaties met lange vertakkingen** — `LBNE`, `LBEQ`, `LBCC`, `LBCS`, `LBMI`, `LBPL`, `LBVC`, `LBVS` assembleren naar een omgekeerde vertakking over een `JMP` (altijd 5 bytes), zodat het doel zich op elke willekeurige afstand kan bevinden. Nieuwe paletcategorie **Lange vertakkingen**. Zie [LBNE / LBEQ / … (Lange vertakkingen)](#lbne--lbeq---long-branches).
-- **`.assert` directive** — `.assert end - start &lt;= 256` or `.assert * &lt; $A000, "message"` wordt geëvalueerd tijdens het assembleren en de build mislukt (waarbij de werkelijke waarde wordt weergegeven) wanneer de expressie onwaar is. Zie [.ASSERT](#assert).
-- **Operandlabels voor zelfmodificerende code** — `LDA-waarde:#$00` definieert het label `waarde` dat naar de operandbyte van de instructie wijst, zodat `STA-waarde` deze direct patcht. Zie [Operandlabels voor zelfmodificerende code](#self-modifying-code-operand-labels).
+- **`*` in elke expressie** — het programmatellersymbool werkt nu binnen operandexpressies, niet alleen op zichzelf: `BNE *-5`, `JMP *+20`, `LDA #&lt;*`, `LDA #&gt;(*+63)`. Een `*` die volgt op een waarde (`STRIDE*2`) is nog steeds vermenigvuldiging. Zie [Addressing Modes → De `*` programmateller in expressies](#lokale-gestippelde-labels).
+- **Lokale (gestippelde) labels** — een label zoals `.loop` behoort tot het bereik van het dichtstbijzijnde voorafgaande *globale* (niet-gestippelde) label, zodat `DrawSprite` en `ClearScreen` elk hun eigen `.loop` kunnen definiëren zonder conflict. Zie [Lokale (gestippelde) labels](#operandlabels-voor-zelfmodificerende-code).
+- **Pseudo-operaties met lange vertakkingen** — `LBNE`, `LBEQ`, `LBCC`, `LBCS`, `LBMI`, `LBPL`, `LBVC`, `LBVS` assembleren naar een omgekeerde vertakking over een `JMP` (altijd 5 bytes), zodat het doel zich op elke willekeurige afstand kan bevinden. Nieuwe paletcategorie **Lange vertakkingen**. Zie [LBNE / LBEQ / … (Lange vertakkingen)](#registratie-van-bewerkingen).
+- **`.assert` directive** — `.assert end - start &lt;= 256` or `.assert * &lt; $A000, "message"` wordt geëvalueerd tijdens het assembleren en de build mislukt (waarbij de werkelijke waarde wordt weergegeven) wanneer de expressie onwaar is. Zie [.ASSERT](#runtime-if-else-endif).
+- **Operandlabels voor zelfmodificerende code** — `LDA-waarde:#$00` definieert het label `waarde` dat naar de operandbyte van de instructie wijst, zodat `STA-waarde` deze direct patcht. Zie [Operandlabels voor zelfmodificerende code](#8-standaard-6502-instructies).
 - **Vriendelijkere foutmeldingen bij vertakkingen buiten het bereik** — een vertakking die buiten −128…+127 terechtkomt, meldt nu precies hoeveel deze wordt overschreden en suggereert de overeenkomende `LBxx` lange vertakking.
 
 ---
@@ -358,12 +358,12 @@ Het modale venster sluit automatisch wanneer de actie is voltooid of mislukt.
 | **Project sluiten** (`Menu → Bestand`) | Sluit het momenteel geopende project en alle bijbehorende bestandstabbladen. Er verschijnt een prompt om niet-opgeslagen wijzigingen op te slaan. Het projectpaneel wordt teruggezet naar de lege staat.                                                                                                                                                                                                                                                                                                    |
 | **Laad .asm-bestand**                  | Opent een `.asm`-bestand in de expertmodus en importeert tekstuele 6502 ASM in het huidige tabblad.                                                                                                                                                                                                                                                                                                                                                                                                         |
 | **PRG opslaan**                        | Exporteer het gecompileerde binaire bestand als een `.prg`-bestand                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| **CRT bouwen**                         | Exporteer het programma als een 64K Magic Desk-bestand (`.crt`, cartridgetype 19). Zie [Paragraaf 12b](#12b-crt-export-magic-desk-64k-cartridge).                                                                                                                                                                                                                                                                                                                                                           |
-| **Uitvoeren (splitknop)**              | De hoofdknop **▶ Run** start de huidige modus; klik op de pijl **▾** om te schakelen tussen: **Uitvoeren als PRG** (VICE rechtstreeks compileren en starten), **Uitvoeren via D64** (verpakken in een .d64-schijfimage en VICE starten), of **Uitvoeren op hardware** (PRG naar een C64 Ultimate / 1541 Ultimate-apparaat sturen). Zie [Sectie 12](#12-d64-export--run) en [Sectie 13](#13-hardware-settings).                                                                                              |
+| **CRT bouwen**                         | Exporteer het programma als een 64K Magic Desk-bestand (`.crt`, cartridgetype 19). Zie [Paragraaf 12b](#welke-schepen-zitten-er-in-de-winkelwagen).                                                                                                                                                                                                                                                                                                                                                           |
+| **Uitvoeren (splitknop)**              | De hoofdknop **▶ Run** start de huidige modus; klik op de pijl **▾** om te schakelen tussen: **Uitvoeren als PRG** (VICE rechtstreeks compileren en starten), **Uitvoeren via D64** (verpakken in een .d64-schijfimage en VICE starten), of **Uitvoeren op hardware** (PRG naar een C64 Ultimate / 1541 Ultimate-apparaat sturen). Zie [Sectie 12](#split-run-knop) en [Sectie 13](#c64-ultimate-1541-ultimate).                                                                                              |
 | **Debug (RetroDebugger)**              | Compileer en start in RetroDebugger met breakpoints, symbolen en autostart-vlaggen (zie [Sectie 9](#9-debugger-integration))                                                                                                                                                                                                                                                                                                                                                                                |
 | **Uitvoeren met Exomizer**             | Selectievakje in het menu Instellingen — wanneer ingeschakeld, verwerken alle Run- en Build-bewerkingen de PRG via `exomizer sfx sys` voordat ze worden gestart of opgeslagen. Werkt met Run as PRG, Run via D64, Run on Hardware, Build PRG en Build D64. Configureer eerst het Exomizer-uitvoerbare bestand in **Hardware Settings**.                                                                                                                                                                     |
 | **Automatisch momentopnamen opslaan**  | Schakel het selectievakje in **Hardware-instellingen → Snapshot** in. Wanneer dit is ingeschakeld, maakt de app automatisch een snapshot ongeveer 2,5 seconden nadat u stopt met het bewerken van een tabblad. Schakel het uit als u alleen handmatig snapshots wilt opslaan.                                                                                                                                                                                                                               |
-| **Hardware-instellingen**              | Open het dialoogvenster voor hardwareconfiguratie — configureer VICE, Exomizer, RetroDebugger en C64 Ultimate (host, wachtwoord, verbindingstest). Zie [Sectie 13](#13-hardware-settings).                                                                                                                                                                                                                                                                                                                  |
+| **Hardware-instellingen**              | Open het dialoogvenster voor hardwareconfiguratie — configureer VICE, Exomizer, RetroDebugger en C64 Ultimate (host, wachtwoord, verbindingstest). Zie [Sectie 13](#c64-ultimate-1541-ultimate).                                                                                                                                                                                                                                                                                                                  |
 | **Nieuw programma…**                   | Opent een bevestigingsdialoogvenster en verwijdert vervolgens alle blokkeringen uit het programmagebied.                                                                                                                                                                                                                                                                                                                                                                                                    |
 | **Alles inklappen**                    | Vouw alle blokken samen                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | **Over**                               | Versie-informatie                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
@@ -1252,7 +1252,7 @@ done:
 | ------------------------------------ | ------------------------------------ | ------------------ |
 | `A`–`Z`                              | `$41`–`$5A`                          | `$61`–`$7A`        |
 | `a`–`z`                              | `$41`–`$5A` (gedwongen hoofdletters) | `$41`–`$5A`        |
-| Spatie, cijfers, leestekens (32–126) | zoals het is                         | zoals het is       |
+| Spatie, cijfers, leestekens (32–126) | as-is                                | as-is              |
 | Nieuwe regel                         | `$0D` (RETURN)                       | `$0D`              |
 | Ander                                | `$20` (spatie)                       | `$20`              |
 
@@ -3271,7 +3271,7 @@ De knop **Uitvoeren** in de werkbalk is vervangen door een **splitknop**:
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Uitvoeren als PRG**     | Compileer naar een tijdelijk `.prg` en start VICE direct. Klassiek gedrag.                                                                                                                                                                                               |
 | **Uitvoeren via D64**     | Compileer, bouw een `.d64` schijfimage (met behulp van c1541), voeg eventuele geconfigureerde extra bestanden toe en start VICE vervolgens vanaf de schijf. Gebruik dit wanneer uw programma bestanden laadt tijdens de uitvoering (bijvoorbeeld met de LOADFILE-macro). |
-| **Uitvoeren op hardware** | Stel het programma samen tot een PRG en verstuur het via het lokale netwerk naar een **1541 Ultimate / Ultimate 64**-apparaat. Zie [Sectie 13](#13-hardware-settings).                                                                                                   |
+| **Uitvoeren op hardware** | Stel het programma samen tot een PRG en verstuur het via het lokale netwerk naar een **1541 Ultimate / Ultimate 64**-apparaat. Zie [Sectie 13](#c64-ultimate-1541-ultimate).                                                                                                   |
 
 De geselecteerde modus wordt tussen sessies opgeslagen.
 
@@ -3295,7 +3295,7 @@ De schijfnaam, programmanaam en lijst met extra bestanden worden opgeslagen in h
 
 Het **loadfile-demo** voorbeeld is vooraf geconfigureerd met `DEMO-COLORS.PRG` als extra bestand. Selecteer dit bestand, open **Uitvoeren via D64** en klik op **Uitvoeren** om de volledige laadstroom in actie te zien.
 
-> **Vereiste:** Voor zowel D64-export als uitvoering via D64 is het vereist dat VICE (`c1541`) is geconfigureerd in [Hardware-instellingen](#13-hardware-settings).
+> **Vereiste:** Voor zowel D64-export als uitvoering via D64 is het vereist dat VICE (`c1541`) is geconfigureerd in [Hardware-instellingen](#c64-ultimate-1541-ultimate).
 
 ### D64 Editor (een bestaande schijfimage bekijken en bewerken)
 
@@ -3333,7 +3333,7 @@ De directorylijst geeft bestandsnamen weer in hetzelfde lettertype en met dezelf
 
 **Blokeditor:** Het rasterpictogram in de werkbalk schakelt over naar een ruwe track-/sectorweergave onder de directory — een aanklikbare blokkaart gekleurd op basis van de vrije/gebruikte bitmap van de BAM (waarbij de BAM en de directoryketen afzonderlijk zijn gemarkeerd), een hexadecimaal raster per byte voor het geselecteerde blok van 256 bytes, en navigatie naar vorige/volgende sector. Blokbewerkingen doorlopen dezelfde workflow voor werkkopie/opslaan als de bovenstaande directory-acties.
 
-> **Vereiste:** Net als bij Exporteren naar D64, vereist de D64 Editor dat VICE (`c1541`) is geconfigureerd in [Hardware-instellingen](#13-hardware-settings).
+> **Vereiste:** Net als bij Exporteren naar D64, vereist de D64 Editor dat VICE (`c1541`) is geconfigureerd in [Hardware-instellingen](#c64-ultimate-1541-ultimate).
 
 ---
 

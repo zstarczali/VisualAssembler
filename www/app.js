@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "sid-fx-song-d64-save-243",
+  id: "kff2-splitter-macros-245",
   url: "https://www.c64va.tech/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.4.3-ban",
+    eyebrow: "Újdonság a 2.4.5-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p>Három dolog érdemel egy pillantást ebben a kiadásban:</p><ul><li><strong>SID szerkesztő effekt-oszlop</strong> — a vibrato, csúszás fel/le, note-cut és tempóváltás mostantól szól mind a tracker előnézetben, mind az exportált C64 lejátszóban.</li><li><strong>SID szerkesztő song/sorrend lista</strong> — patternek elrendezése és ismétlése teljes dallá, nem csak egyetlen hurokká.</li><li><strong>D64 Editor Save munkafolyamat</strong> — a szerkesztések mostantól egy munkapéldányon landolnak explicit Save-vel (automatikus biztonsági mentéssel), és mentetlen módosítás esetén megerősítést kér.</li><li><strong>D64 Editor Block Editor</strong> — a Block Editor mostantól új byte-onkénti hex griddel jeleníti meg a kiválasztott 256 byte-os blokkot, és a dialógusa már nem halványítja el az app többi részét.</li></ul>`,
+    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>Kung Fu Flash 2 támogatás</strong> — a programod USB-n keresztül közvetlenül valódi Commodore 64-en futtatható: válaszd a <em>Kung Fu Flash 2</em> pontot a Run menüben. Blokk, Expert és Ultimate Basic módban is működik.</li><li><strong>Átméretezhető panelek</strong> — a Program és az ASM panel közti függőleges elválasztót húzva állíthatod a szélességet (a méret megmarad).</li><li><strong>Tisztább ASM nézet</strong> — a makrósorok megjegyzésjel nélkül, makróként színezve jelennek meg.</li><li><strong>Egyedi makrók kiemelése</strong> az Expert szerkesztőben — a makró neve és a paraméterei külön színt kapnak.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.4.3",
+    eyebrow: "New in 2.4.5",
     title: "Welcome to Visual Assembler",
-    body: `<p>Three things worth a look in this release:</p><ul><li><strong>SID Editor effect column</strong> — vibrato, slide up/down, note-cut and speed-change now play back in both the tracker preview and the exported C64 player.</li><li><strong>SID Editor song/order list</strong> — arrange and repeat patterns into a full song, not just a single loop.</li><li><strong>D64 Editor Save workflow</strong> — edits now land on a working copy with an explicit Save (auto-backup included) and unsaved-change prompts.</li><li><strong>D64 Editor Block Editor</strong> — a new per-byte hex grid shows the selected 256-byte block, and its dialog no longer dims the rest of the app.</li></ul>`,
+    body: `<p>What's new in this release:</p><ul><li><strong>Kung Fu Flash 2 support</strong> — run your program on a real Commodore 64 over USB: pick <em>Kung Fu Flash 2</em> in the Run menu. Works from Block, Expert and Ultimate Basic mode.</li><li><strong>Resizable panels</strong> — drag the vertical splitter between the Program and ASM panels to set the width (it is remembered).</li><li><strong>Cleaner ASM view</strong> — macro lines are shown without the comment marker and coloured as macros.</li><li><strong>Custom macro highlighting</strong> in the Expert editor — macro names and parameters get their own colours.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.4.3",
+    eyebrow: "Novedad en la 2.4.5",
     title: "Bienvenido a Visual Assembler",
-    body: `<p>Tres novedades que merecen un vistazo en esta versión:</p><ul><li><strong>Columna de efectos del editor SID</strong> — el vibrato, el deslizamiento arriba/abajo, el corte de nota y el cambio de velocidad ahora suenan tanto en la vista previa del tracker como en el reproductor C64 exportado.</li><li><strong>Lista de canciones/orden del editor SID</strong> — organiza y repite patrones para formar una canción completa, no solo un bucle.</li><li><strong>Flujo de guardado del Editor D64</strong> — las ediciones ahora se aplican a una copia de trabajo con un Guardar explícito (con copia de seguridad automática) y avisos de cambios sin guardar.</li><li><strong>Editor de bloques del Editor D64</strong> — una nueva cuadrícula hexadecimal por byte muestra el bloque de 256 bytes seleccionado, y su ventana ya no atenúa el resto de la aplicación.</li></ul>`,
+    body: `<p>Novedades de esta versión:</p><ul><li><strong>Compatibilidad con Kung Fu Flash 2</strong> — ejecuta tu programa en un Commodore 64 real por USB: elige <em>Kung Fu Flash 2</em> en el menú Run. Funciona desde el modo Bloques, Expert y Ultimate Basic.</li><li><strong>Paneles redimensionables</strong> — arrastra el divisor vertical entre los paneles Programa y ASM para ajustar el ancho (se recuerda).</li><li><strong>Vista ASM más limpia</strong> — las líneas de macro se muestran sin marca de comentario y coloreadas como macros.</li><li><strong>Resaltado de macros propias</strong> en el editor Expert — los nombres y parámetros de las macros tienen colores propios.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.4.3",
+    eyebrow: "Neu in 2.4.5",
     title: "Willkommen bei Visual Assembler",
-    body: `<p>Drei Neuerungen sind in diesem Release einen Blick wert:</p><ul><li><strong>SID-Editor-Effektspalte</strong> — Vibrato, Slide auf/ab, Note-Cut und Tempowechsel erklingen jetzt sowohl in der Tracker-Vorschau als auch im exportierten C64-Player.</li><li><strong>SID-Editor Song-/Reihenfolgeliste</strong> — Patterns zu einem vollständigen Song anordnen und wiederholen, nicht nur zu einer einzelnen Schleife.</li><li><strong>D64-Editor Speicher-Workflow</strong> — Änderungen landen jetzt auf einer Arbeitskopie mit explizitem Speichern (inklusive automatischem Backup) und Abfragen bei ungespeicherten Änderungen.</li><li><strong>D64-Editor Block-Editor</strong> — ein neues byteweises Hex-Raster zeigt den ausgewählten 256-Byte-Block, und sein Dialog verdunkelt den Rest der App nicht mehr.</li></ul>`,
+    body: `<p>Neuerungen in diesem Release:</p><ul><li><strong>Kung-Fu-Flash-2-Unterstützung</strong> — starte dein Programm per USB auf einem echten Commodore 64: wähle <em>Kung Fu Flash 2</em> im Run-Menü. Funktioniert im Block-, Expert- und Ultimate-Basic-Modus.</li><li><strong>Größenveränderbare Panels</strong> — ziehe den senkrechten Teiler zwischen Programm- und ASM-Panel, um die Breite einzustellen (wird gespeichert).</li><li><strong>Übersichtlichere ASM-Ansicht</strong> — Makrozeilen erscheinen ohne Kommentarzeichen und als Makros eingefärbt.</li><li><strong>Hervorhebung eigener Makros</strong> im Expert-Editor — Makronamen und Parameter haben eigene Farben.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.4.3",
+    eyebrow: "Nieuw in 2.4.5",
     title: "Welkom bij Visual Assembler",
-    body: `<p>Drie dingen die de moeite waard zijn in deze release:</p><ul><li><strong>SID-editor effectkolom</strong> — vibrato, slide omhoog/omlaag, note-cut en tempowissel klinken nu zowel in de trackervoorbeeld als in de geëxporteerde C64-speler.</li><li><strong>SID-editor song/volgorde-lijst</strong> — patronen rangschikken en herhalen tot een volledig nummer, niet slechts één lus.</li><li><strong>D64-editor opslag-workflow</strong> — bewerkingen landen nu op een werkkopie met een expliciete Opslaan-knop (inclusief automatische back-up) en meldingen bij niet-opgeslagen wijzigingen.</li><li><strong>D64-editor Block Editor</strong> — een nieuw byte-voor-byte hexraster toont het geselecteerde blok van 256 bytes, en het dialoogvenster dimt de rest van de app niet meer.</li></ul>`,
+    body: `<p>Nieuw in deze release:</p><ul><li><strong>Ondersteuning voor Kung Fu Flash 2</strong> — draai je programma via USB op een echte Commodore 64: kies <em>Kung Fu Flash 2</em> in het Run-menu. Werkt vanuit Block-, Expert- en Ultimate Basic-modus.</li><li><strong>Verstelbare panelen</strong> — sleep de verticale scheiding tussen het Programma- en ASM-paneel om de breedte in te stellen (wordt onthouden).</li><li><strong>Overzichtelijkere ASM-weergave</strong> — macroregels worden zonder commentaarteken getoond en als macro ingekleurd.</li><li><strong>Markering van eigen macro's</strong> in de Expert-editor — macronamen en parameters krijgen eigen kleuren.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.4.3",
+    eyebrow: "Nowość w 2.4.5",
     title: "Witamy w Visual Assembler",
-    body: `<p>Trzy nowości warte uwagi w tym wydaniu:</p><ul><li><strong>Kolumna efektów edytora SID</strong> — vibrato, slide w górę/w dół, note-cut i zmiana tempa brzmią teraz zarówno w podglądzie trackera, jak i w wyeksportowanym odtwarzaczu C64.</li><li><strong>Lista utworu/kolejności edytora SID</strong> — układaj i powtarzaj patterny w pełny utwór, a nie tylko jedną pętlę.</li><li><strong>Przepływ zapisu Edytora D64</strong> — edycje trafiają teraz do kopii roboczej z jawnym Zapisem (wraz z automatyczną kopią zapasową) i pytaniem o niezapisane zmiany.</li><li><strong>Edytor bloków w Edytorze D64</strong> — nowa siatka hex bajt-po-bajcie pokazuje wybrany blok 256 bajtów, a jego okno nie przyciemnia już reszty aplikacji.</li></ul>`,
+    body: `<p>Co nowego w tym wydaniu:</p><ul><li><strong>Obsługa Kung Fu Flash 2</strong> — uruchom program na prawdziwym Commodore 64 przez USB: wybierz <em>Kung Fu Flash 2</em> w menu Run. Działa w trybie blokowym, Expert i Ultimate Basic.</li><li><strong>Panele ze zmiennym rozmiarem</strong> — przeciągnij pionowy separator między panelem Programu a ASM, aby ustawić szerokość (jest zapamiętywana).</li><li><strong>Czytelniejszy widok ASM</strong> — linie makr są pokazywane bez znaku komentarza i pokolorowane jako makra.</li><li><strong>Podświetlanie własnych makr</strong> w edytorze Expert — nazwy i parametry makr mają własne kolory.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.4.3",
+    eyebrow: "Novità nella 2.4.5",
     title: "Benvenuto in Visual Assembler",
-    body: `<p>Tre novità da non perdere in questa versione:</p><ul><li><strong>Colonna effetti dell'editor SID</strong> — vibrato, slide su/giù, note-cut e cambio di tempo ora suonano sia nell'anteprima del tracker che nel player C64 esportato.</li><li><strong>Lista song/ordine dell'editor SID</strong> — organizza e ripeti i pattern in una canzone completa, non solo in un singolo loop.</li><li><strong>Flusso di salvataggio dell'Editor D64</strong> — le modifiche ora vengono applicate a una copia di lavoro con un Salva esplicito (con backup automatico) e avvisi per modifiche non salvate.</li><li><strong>Block Editor dell'Editor D64</strong> — una nuova griglia esadecimale byte per byte mostra il blocco di 256 byte selezionato, e la sua finestra non oscura più il resto dell'app.</li></ul>`,
+    body: `<p>Novità di questa versione:</p><ul><li><strong>Supporto Kung Fu Flash 2</strong> — esegui il programma su un vero Commodore 64 via USB: scegli <em>Kung Fu Flash 2</em> nel menu Run. Funziona dalla modalità a blocchi, Expert e Ultimate Basic.</li><li><strong>Pannelli ridimensionabili</strong> — trascina il divisore verticale tra i pannelli Programma e ASM per impostare la larghezza (viene ricordata).</li><li><strong>Vista ASM più pulita</strong> — le righe di macro sono mostrate senza il segno di commento e colorate come macro.</li><li><strong>Evidenziazione delle macro personalizzate</strong> nell'editor Expert — nomi e parametri delle macro hanno colori propri.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -391,6 +391,8 @@ let showMemoryOverlays = true;
 let showGlobalMemoryPanel = true;
 let blockPaletteSync = true;
 let asmOutputBase = "hex";
+let _wsProgramShare = 0.5;
+const _WS_PANEL_MIN = 260;
 let originBase = "hex";
 let workingFolder = "";
 let ubWorkingFolder = "";
@@ -656,6 +658,7 @@ function saveUiSettings() {
     showGlobalMemoryPanel,
     blockPaletteSync,
     asmOutputBase,
+    wsProgramShare: _wsProgramShare,
     exomizerEnabled,
     debuggerJmp,
     debuggerWait,
@@ -673,6 +676,67 @@ function saveUiSettings() {
   localStorage.setItem("c64-ui-settings", JSON.stringify(settings));
   savedUiSettings = settings;
   window.electronAPI?.saveUiSettingsGlobal?.(settings);
+}
+
+function _applyWorkspaceColumns() {
+  const ws = document.querySelector(".workspace");
+  if (!ws) return;
+  const share = Math.min(0.9, Math.max(0.1, _wsProgramShare));
+  ws.style.setProperty("--ws-program-fr", `${Math.round(share * 1000)}fr`);
+  ws.style.setProperty("--ws-output-fr", `${Math.round((1 - share) * 1000)}fr`);
+}
+
+function _initWorkspaceResizers() {
+  const ws = document.querySelector(".workspace");
+  const outRes = document.getElementById("ws-resizer-output");
+  const program = ws?.querySelector(".program-panel");
+  const output = ws?.querySelector(".output-panel");
+  if (!ws || !outRes || !program || !output) return;
+
+  const adjustSplit = dx => {
+    const pw = program.getBoundingClientRect().width;
+    const ow = output.getBoundingClientRect().width;
+    const sum = pw + ow;
+    if (sum <= 2 * _WS_PANEL_MIN) return;
+    const newP = Math.max(_WS_PANEL_MIN, Math.min(sum - _WS_PANEL_MIN, pw + dx));
+    _wsProgramShare = newP / sum;
+    _applyWorkspaceColumns();
+  };
+
+  const bind = (handle, adjust) => {
+    handle.addEventListener("mousedown", event => {
+      event.preventDefault();
+      handle.focus();
+      let lastX = event.clientX;
+      handle.classList.add("dragging");
+      document.body.classList.add("ws-resizing");
+      const onMove = moveEvent => {
+        adjust(moveEvent.clientX - lastX);
+        lastX = moveEvent.clientX;
+      };
+      const onUp = () => {
+        handle.classList.remove("dragging");
+        document.body.classList.remove("ws-resizing");
+        document.removeEventListener("mousemove", onMove);
+        document.removeEventListener("mouseup", onUp);
+        saveUiSettings();
+      };
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup", onUp);
+    });
+    handle.addEventListener("keydown", event => {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+      event.preventDefault();
+      adjust(event.key === "ArrowRight" ? 16 : -16);
+      saveUiSettings();
+    });
+    handle.addEventListener("dblclick", () => {
+      _wsProgramShare = 0.5;
+      _applyWorkspaceColumns();
+      saveUiSettings();
+    });
+  };
+  bind(outRes, adjustSplit);
 }
 
 function getCategoryLabel(category) {
@@ -1240,6 +1304,7 @@ function initPalette() {
     document.addEventListener("mousemove", onMove);
     document.addEventListener("mouseup", onUp);
   });
+  _initWorkspaceResizers();
   const ubPanelsResizer = document.getElementById("ub-panels-resizer");
   ubPanelsResizer?.addEventListener("mousedown", event => {
     event.preventDefault();
@@ -2043,11 +2108,13 @@ function initPalette() {
     else if (runMode === "d64") runViaD64();
     else if (runMode === "ultimate") runOnUltimate();
     else if (runMode === "ultimate-d64") runUltimateD64();
+    else if (runMode === "kff2") runOnKff2();
     else runInEmulator();
   });
   setupRunModeDropdown();
   setupHardwareSettingsDialog();
   setupUltimateSettings();
+  setupKff2Settings();
   chooseExomizerButton?.addEventListener("click", chooseExomizerExecutable);
   runExomizerToggle?.addEventListener("change", () => {
     exomizerEnabled = !!runExomizerToggle.checked;
@@ -2726,6 +2793,9 @@ function _applyUiSettingsToDOM() {
   }
   asmBaseInputs.forEach(input => { input.checked = input.value === asmOutputBase; });
 
+  if (Number.isFinite(savedUiSettings.wsProgramShare)) _wsProgramShare = savedUiSettings.wsProgramShare;
+  _applyWorkspaceColumns();
+
   if (savedUiSettings.debuggerJmp !== undefined) debuggerJmp = !!savedUiSettings.debuggerJmp;
   if (dbgJmp) dbgJmp.checked = debuggerJmp;
 
@@ -3084,11 +3154,15 @@ function applyTranslations() {
     setText("#run-d64-label", t("runViaD64"));
     setText("#run-ultimate-label", t("runOnUltimate"));
     setText("#run-ultimate-d64-label", t("runD64OnHardware"));
+    setText("#run-kff2-label", t("runOnKff2"));
     setText("#ultimate-section-label", t("ultimateSectionLabel"));
     setText("#ultimate-host-label", t("ultimateHostLabel"));
     setText("#ultimate-password-label", t("ultimatePasswordLabel"));
     document.getElementById("ultimate-password")?.setAttribute("placeholder", t("ultimatePasswordPlaceholder"));
     setText("#ultimate-connect-test", t("ultimateConnectTest"));
+    setText("#kff2-section-label", t("kff2SectionLabel"));
+    setText("#kff2-port-label", t("kff2PortLabel"));
+    document.getElementById("kff2-port")?.setAttribute("placeholder", t("kff2PortPlaceholder"));
     setText("#run-debugger .run-label", t("runInDebugger"));
     const runModeArrow = document.getElementById("run-mode-arrow");
     if (runModeArrow) {
@@ -7945,9 +8019,12 @@ async function _ubRun(mode) {
   const sourcePath = startupTab ? startupTab.ubFilePath || startupTab.filePath || null : _ubFilePath || null;
   if (!source.trim()) { _ubSetStatus(t("ubNothingToRun"), true); return; }
   const usesUltimate = mode === "ultimate" || mode === "ultimate-d64";
+  const usesKff2 = mode === "kff2";
   const host = usesUltimate ? (document.getElementById("ultimate-host")?.value || ultimateHost).trim() : "";
+  const kff2PortValue = usesKff2 ? (document.getElementById("kff2-port")?.value || kff2Port).trim() : "";
   if (usesUltimate && !host) { _ubSetStatus(t("ultimateNotConfigured"), true); return; }
-  if (!usesUltimate && !vicePath) { _ubSetStatus(t("viceIsNotConfiguredSelectItInTheMenuFirs"), true); return; }
+  if (usesKff2 && !kff2PortValue) { _ubSetStatus(t("kff2NotConfigured"), true); return; }
+  if (!usesUltimate && !usesKff2 && !vicePath) { _ubSetStatus(t("viceIsNotConfiguredSelectItInTheMenuFirs"), true); return; }
 
   await showWorkProgress("ubRunProgress");
   let success = false;
@@ -7972,6 +8049,9 @@ async function _ubRun(mode) {
       const password = (document.getElementById("ultimate-password")?.value || ultimatePassword).trim() || null;
       result = await window.electronAPI?.runOnUltimate(host, password, build.outputPrg || build.prg);
       _ubSetStatus(result?.ok ? "Running on Ultimate ✓" : (result?.error || "Ultimate run failed"), !result?.ok);
+    } else if (mode === "kff2") {
+      result = await window.electronAPI?.runOnKff2(kff2PortValue, build.outputPrg || build.prg);
+      _ubSetStatus(result?.ok ? "Running on Kung Fu Flash ✓" : (result?.error || t("kff2RunFailed")), !result?.ok);
     } else {
       result = await window.electronAPI?.launchVice?.({ bytes: build.outputPrg || build.prg, fileName: `ultimate-basic-${Date.now()}.prg`, sidecars: _ubBuildSidecars(build) });
       _ubSetStatus(result?.ok ? "Running in VICE ✓" : (result?.error || "VICE launch failed"), !result?.ok);
@@ -8832,21 +8912,33 @@ function _expertHighlightLine(raw) {
   if (!code.trim()) return esc(code) + commentHtml;
 
   // Token regex (order matters)
-  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|assert|loop|next|for|endf|push|pull|endif|endregion|region|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|delay|wait|set_border|set_bg|irq_setup|sprite_init|sprite_pos|wait_raster|joystick|mouse|sprite_col|map_copy16x16|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|include|sid|petscii|charset|table|loadfile|invoke|call|rand|exodecrunch|reu_check|reu_stash|reu_fetch|reu_swap|turbo_set|turbo_enable|supercpu_detect|chardef|box_hit)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)/gi;
+  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|assert|loop|next|for|endf|push|pull|endif|endregion|region|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|delay|wait|set_border|set_bg|irq_setup|sprite_init|sprite_pos|wait_raster|joystick|mouse|sprite_col|map_copy16x16|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|include|sid|petscii|charset|table|loadfile|invoke|call|rand|exodecrunch|reu_check|reu_stash|reu_fetch|reu_swap|turbo_set|turbo_enable|supercpu_detect|chardef|box_hit)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)|(\{[A-Za-z_][A-Za-z0-9_]*\})|(:[A-Za-z_][A-Za-z0-9_]*)/gi;
 
   let result = "";
   let lastIdx = 0;
   let m;
+  let expectMacroName = false;
+  const isMacroHeader = /^\s*\.macro\b/i.test(code);
   while ((m = TOKEN_RE.exec(code)) !== null) {
     result += esc(code.slice(lastIdx, m.index));
     lastIdx = m.index + m[0].length;
-    const [full, strLit, orgEq, directive, hexNum, decNum, label, ident] = m;
-    if (strLit) {
+    const [full, strLit, orgEq, directive, hexNum, decNum, label, ident, macroParam, kickInvoke] = m;
+    if (expectMacroName && ident) {
+      expectMacroName = false;
+      result += `<span class="hl-macro">${esc(full)}</span>`;
+    } else if (ident && isMacroHeader && code.lastIndexOf("(", m.index) >= 0 && code.indexOf(")", code.lastIndexOf("(", m.index)) >= m.index) {
+      result += `<span class="hl-macro-param">${esc(full)}</span>`;
+    } else if (macroParam) {
+      result += `<span class="hl-macro-param">${esc(full)}</span>`;
+    } else if (kickInvoke) {
+      result += `<span class="hl-macro">${esc(full)}</span>`;
+    } else if (strLit) {
       result += `<span class="hl-string">${esc(full)}</span>`;
     } else if (directive && code[TOKEN_RE.lastIndex] === ":") {
       // `.name:` is a local-label definition, not a directive.
       result += `<span class="hl-label">${esc(full)}</span>`;
     } else if (orgEq || directive) {
+      if (directive) expectMacroName = /^\.(?:macro|invoke|call)$/i.test(full);
       result += `<span class="hl-directive">${esc(full)}</span>`;
     } else if (hexNum || decNum) {
       result += `<span class="hl-number">${esc(full)}</span>`;
@@ -17618,7 +17710,6 @@ function setupD64Editor() {
     dialog?.close();
   };
   document.getElementById("de-close")?.addEventListener("click", requestClose);
-  dialog?.addEventListener("click", function(e) { if (e.target === dialog) requestClose(); });
   dialog?.addEventListener("cancel", function(e) { e.preventDefault(); requestClose(); });
 
   document.getElementById("de-new")?.addEventListener("click", _d64EdNew);
@@ -17635,7 +17726,6 @@ function setupD64Editor() {
   document.getElementById("de-blocks-toggle")?.addEventListener("click", _d64EdOpenBlockEditor);
   const blockDialog = document.getElementById("d64-block-editor-dialog");
   document.getElementById("dbe-close")?.addEventListener("click", _d64EdCloseBlockEditor);
-  blockDialog?.addEventListener("click", function(e) { if (e.target === blockDialog) _d64EdCloseBlockEditor(); });
   blockDialog?.addEventListener("cancel", function(e) { e.preventDefault(); _d64EdCloseBlockEditor(); });
   document.getElementById("de-block-prev")?.addEventListener("click", function() { _d64EdStepBlock(-1); });
   document.getElementById("de-block-next")?.addEventListener("click", function() { _d64EdStepBlock(1); });
@@ -18008,6 +18098,7 @@ function getRunModeLabel(mode) {
   if (mode === "d64") return t("runViaD64");
   if (mode === "ultimate") return t("runOnUltimate");
   if (mode === "ultimate-d64") return t("runD64OnHardware");
+  if (mode === "kff2") return t("runOnKff2");
   return t("runInEmulator");
 }
 
@@ -18053,9 +18144,10 @@ function setupRunModeDropdown() {
   document.getElementById("run-d64-mode")?.addEventListener("click", () => { setRunMode("d64"); closeMenu(); });
   document.getElementById("run-ultimate-mode")?.addEventListener("click", () => { setRunMode("ultimate"); closeMenu(); });
   document.getElementById("run-ultimate-d64-mode")?.addEventListener("click", () => { setRunMode("ultimate-d64"); closeMenu(); });
+  document.getElementById("run-kff2-mode")?.addEventListener("click", () => { setRunMode("kff2"); closeMenu(); });
 
   const saved = localStorage.getItem("runMode");
-  if (["prg", "d64", "ultimate", "ultimate-d64"].includes(saved)) setRunMode(saved);
+  if (["prg", "d64", "ultimate", "ultimate-d64", "kff2"].includes(saved)) setRunMode(saved);
 }
 
 function setRunMode(mode) {
@@ -18065,10 +18157,12 @@ function setRunMode(mode) {
   const d64Btn = document.getElementById("run-d64-mode");
   const ulBtn = document.getElementById("run-ultimate-mode");
   const ulD64Btn = document.getElementById("run-ultimate-d64-mode");
+  const kff2Btn = document.getElementById("run-kff2-mode");
   if (prgBtn) prgBtn.classList.toggle("active", mode === "prg");
   if (d64Btn) d64Btn.classList.toggle("active", mode === "d64");
   if (ulBtn) ulBtn.classList.toggle("active", mode === "ultimate");
   if (ulD64Btn) ulD64Btn.classList.toggle("active", mode === "ultimate-d64");
+  if (kff2Btn) kff2Btn.classList.toggle("active", mode === "kff2");
   const label = document.querySelector("#run-emulator .run-label");
   const runLabel = getRunModeLabel(mode);
   if (label) label.textContent = runLabel;
@@ -18295,6 +18389,7 @@ function setupHardwareSettingsDialog() {
 
 let ultimateHost = localStorage.getItem("ultimateHost") || "";
 let ultimatePassword = localStorage.getItem("ultimatePassword") || "";
+let kff2Port = localStorage.getItem("kff2Port") || "";
 
 function setupUltimateSettings() {
   const hostInput = document.getElementById("ultimate-host");
@@ -18316,6 +18411,33 @@ function setupUltimateSettings() {
     });
   }
   testBtn?.addEventListener("click", testUltimateConnection);
+}
+
+function setupKff2Settings() {
+  const portInput = document.getElementById("kff2-port");
+  const status = document.getElementById("kff2-status");
+  if (!portInput) return;
+  portInput.value = kff2Port;
+  portInput.addEventListener("change", () => {
+    kff2Port = portInput.value.trim();
+    localStorage.setItem("kff2Port", kff2Port);
+  });
+  window.electronAPI?.detectKff2Port?.().then((result) => {
+    if (!result?.ok) {
+      if (status) status.textContent = result?.error || t("kff2DetectFailed");
+      return;
+    }
+    if (!result.port) {
+      if (status) status.textContent = t("kff2NotDetected");
+      return;
+    }
+    kff2Port = result.port;
+    portInput.value = result.port;
+    localStorage.setItem("kff2Port", kff2Port);
+    if (status) status.textContent = `KFF2: ${result.port}`;
+  }).catch((error) => {
+    if (status) status.textContent = String(error);
+  });
 }
 
 async function testUltimateConnection() {
@@ -18363,6 +18485,32 @@ async function runOnUltimate() {
   } else {
     hideWorkProgress();
     showViceToast(result?.error || t("ultimateRunFailed"), true);
+  }
+}
+
+async function runOnKff2() {
+  if (isProgramEmpty()) {
+    showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
+    return;
+  }
+  const port = (document.getElementById("kff2-port")?.value || kff2Port).trim();
+  if (!port) {
+    showViceToast(t("kff2NotConfigured"), true);
+    return;
+  }
+  const prg = await buildRunPrgForCurrentMode();
+  if (!prg.ok) {
+    if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
+    if (emulatorStatus) emulatorStatus.textContent = prg.error;
+    return;
+  }
+  await showWorkProgress("workProgressRunKff2");
+  const result = await window.electronAPI?.runOnKff2(port, Array.from(prg.bytes));
+  if (result?.ok) {
+    await completeWorkProgress("workProgressSuccessKff2");
+  } else {
+    hideWorkProgress();
+    showViceToast(result?.error || t("kff2RunFailed"), true);
   }
 }
 
@@ -19583,7 +19731,7 @@ async function _applyProjectPayload(projectData, { sourceFilePath = "", keepFile
     applyZoom();
   }
 
-  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64"];
+  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64", "kff2"];
   if (projectData.ui?.runMode && validRunModes.includes(projectData.ui.runMode)) {
     setRunMode(projectData.ui.runMode);
   }
@@ -27980,6 +28128,12 @@ function syntaxHighlightAsmLine(line) {
     return prefix + '<span class="asm-tok-comment">' + esc(content) + '</span>';
   }
 
+  // Macro line without comment marker: ".print ..." / ".if ..." (keyword only; ".byte" etc. handled as directives below)
+  if (/^\.[A-Za-z]/.test(content)) {
+    const m = content.match(/^(\.\S+)(.*)/);
+    if (m) return prefix + '<span class="asm-tok-macro">' + esc(m[1]) + '</span>' + hilightNums(m[2]);
+  }
+
   // Indented macro comment: "    ; .text / .string / .data ..."
   if (/^    ; \./.test(content)) {
     const m = content.match(/^(    ; )(\.\S+)(.*)/);
@@ -28641,7 +28795,7 @@ function renderAsmOutput() {
     const liveError = getLiveValidationError(line.block);
     const comment = liveError ? ` ; ${t("warningLabel")}: ${liveError}` : "";
     return `    ${line.block.mnemonic}${suffix}${comment}`;
-  });
+  }).map((text, i) => (typeof text === "string" && !layout.lines[i].block.isComment && /^; \.[A-Za-z]/.test(text)) ? text.slice(2) : text);
 
   deferredDataSections.sort((left, right) => left.address - right.address);
 
@@ -28841,7 +28995,7 @@ async function loadSampleFromFile(sampleName) {
     d64ExportState.progName = "";
   }
 
-  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64"];
+  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64", "kff2"];
   if (sampleData.ui?.runMode && validRunModes.includes(sampleData.ui.runMode)) {
     setRunMode(sampleData.ui.runMode);
   }

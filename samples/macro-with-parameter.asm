@@ -2,7 +2,7 @@
 
 .const black=0
 
-.macro setColor color
+.macro setColor(color)
     LDA #{color}
     STA $D020
     STA $D021

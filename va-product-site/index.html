@@ -422,6 +422,20 @@
       letter-spacing: 3px
     }
 
+    .kff2-cart-shot {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--brd-hi);
+      background: #050817;
+      box-shadow: 0 18px 48px rgba(0, 0, 0, .45), 0 0 32px rgba(50, 78, 255, .16)
+    }
+
+    .kff2-cart-shot img {
+      display: block;
+      width: 100%;
+      height: auto
+    }
+
     .c77-logo-wrap {
       margin-top: 44px;
       padding: 64px;
@@ -1429,7 +1443,7 @@
         <div class="y">READY.</div>
         <div><span class="g">RUN</span><span class="cur"></span></div>
       </div>
-      <div class="badge">V2.4.3 — LATEST RELEASE</div>
+      <div class="badge">V2.4.5 — LATEST RELEASE</div>
       <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
       <p class="hero-sub">Drag-and-drop 6502 assembly blocks or switch to a full text editor — see real-time ASM output
         and run directly in VICE.</p>
@@ -1442,6 +1456,41 @@
       <img class="hero-box-img" src="uploads/visual_assembler_transparent.png" alt="C64 Visual Assembler — product box">
     </div>
   </section>
+
+  <!-- V2.4.5: KUNG FU FLASH 2, RESIZABLE PANELS & MACRO HIGHLIGHTING -->
+  <div id="release-245" style="background:var(--scr-darker);padding:80px 0">
+    <div class="sec about-grid" style="padding-top:0;padding-bottom:0">
+      <div>
+        <div class="ub-tag">NEW IN V2.4.5</div>
+        <div class="sec-s">// YOUR CODE, ON REAL HARDWARE</div>
+        <h2 class="sec-t">KUNG FU FLASH 2 SUPPORT<br><span style="color:var(--ylw)">RUN ON A REAL COMMODORE 64</span></h2>
+        <p class="sec-d">Version 2.4.5 sends the program you build straight to a real C64 or C128 over USB &mdash; no disk image, no SD card, no emulator &mdash; and polishes the editor along the way.</p>
+        <div class="feature-list">
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Kung Fu Flash 2 run mode</b> <span>&mdash; pick <em>Kung Fu Flash 2</em> in the Run menu and the compiled PRG is uploaded over the cartridge's USB serial port into a powered-on Commodore 64/128. The port is detected automatically (or typed in by hand) and the mode works from Block, Expert and Ultimate Basic.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Resizable Program / ASM panels</b> <span>&mdash; drag the vertical splitter between the Program panel and the ASM output; the position is remembered.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Cleaner ASM view</b> <span>&mdash; macro lines appear without the leading comment marker and are coloured as macros.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Custom macro highlighting</b> <span>&mdash; macro names, <code>{param}</code> substitutions and macro parameters get their own colours in the Expert editor.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="kff2-cart-shot">
+        <img src="uploads/kff2-cart.png" alt="Kung Fu Flash 2 cartridge connected to C64 Visual Assembler support" loading="lazy">
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
 
   <!-- V2.4.3: SID SONG/EFFECTS & D64 SAVE WORKFLOW -->
   <div id="release-243" style="background:var(--scr-darker);padding:80px 0">
@@ -1969,6 +2018,7 @@
         <div class="tab on" data-tab="prog" onclick="showTab('prog')">BLOCK EDITOR</div>
         <div class="tab" data-tab="ub" onclick="showTab('ub')">ULTIMATE BASIC</div>
         <div class="tab" data-tab="code" onclick="showTab('code')">ASM EDITOR</div>
+        <div class="tab" data-tab="d64" onclick="showTab('d64')">D64 + BLOCK EDITOR</div>
         <div class="tab" data-tab="sid" onclick="showTab('sid')">SID MUSIC</div>
         <div class="tab" data-tab="sprite" onclick="showTab('sprite')">SPRITES</div>
         <div class="tab" data-tab="map" onclick="showTab('map')">TILEMAP</div>
@@ -1982,6 +2032,11 @@
         <img src="uploads/blocked.png" alt="Block program editor">
         <div class="tab-cap"><span class="tab-cap-t">BLOCK PROGRAM EDITOR + ASM VIEW</span><span class="tab-cap-d">DRAG
             BLOCKS FROM LEFT → COMPILE LIVE → RUN IN VICE</span></div>
+      </div>
+      <div class="tab-panel" id="tab-d64">
+        <img src="uploads/d64andblocked.png" alt="D64 Editor and Block Editor in C64 Visual Assembler" loading="lazy">
+        <div class="tab-cap"><span class="tab-cap-t">D64 EDITOR + BLOCK EDITOR</span><span class="tab-cap-d">EDIT DISK
+            IMAGES AND INSPECT OR MODIFY RAW 256-BYTE TRACK/SECTOR BLOCKS</span></div>
       </div>
       <div class="tab-panel" id="tab-ub">
         <img src="uploads/ub.png" alt="Ultimate Basic IDE in C64 Visual Assembler">
@@ -2146,7 +2201,7 @@
         <div class="dl-corner bl">└─</div>
         <div class="dl-corner br">─┘</div>
         <div class="sec-s" style="text-align:center;margin-bottom:16px">// DOWNLOAD</div>
-        <h2 class="sec-t" style="text-align:center">C64 VISUAL ASSEMBLER<br><span style="color:var(--ylw)">V2.4.3 —
+        <h2 class="sec-t" style="text-align:center">C64 VISUAL ASSEMBLER<br><span style="color:var(--ylw)">V2.4.5 —
             FREE</span></h2>
         <p class="sec-d" style="text-align:center;margin:0 auto 8px;max-width:460px">Desktop app for Windows, macOS and
           Linux. Requires Node.js and Rust to build from source, or download a prebuilt installer.</p>

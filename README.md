@@ -2,9 +2,18 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.4.3**
+**Current version: v2.4.5**
 
-## What's New in v2.4.3
+## What's New in v2.4.5
+
+- **Kung Fu Flash 2 support — run your programs on a real Commodore 64/128.** A new **Kung Fu Flash 2** entry in the split Run menu compiles the program and uploads it over USB straight into a powered-on C64/C128 fitted with a Kung Fu Flash 2 cartridge — no disk image, no SD-card copying, no emulator. The cartridge's USB serial port is auto-detected (Hardware Settings → Kung Fu Flash 2, or type it in by hand: `COM4`, `/dev/ttyACM0`, `/dev/cu.usbmodem…`), and the mode works from Block, Expert and Ultimate Basic mode.
+- **Resizable Program / ASM panels** — drag the thin vertical splitter between the Program panel and the ASM output; arrow keys nudge it, double-click resets it to 50/50, and the position is remembered.
+- **Cleaner ASM view** — macro blocks are listed without the leading `;` comment marker and coloured as macros.
+- **Custom macro highlighting in Expert mode** — macro names after `.macro` / `.invoke` / `.call` (and Kick-style `:name()` calls), the `{param}` substitutions and the `.macro` header parameters each get their own colour in every theme.
+- **Refreshed About dialog** — wider two-column layout with grouped links, and the Ultimate Basic banner now has a transparent background.
+- **Web64 section** on the product site and an updated `macro-with-parameter` sample using the `.macro setColor(color)` form.
+
+## Earlier: v2.4.3
 
 - **SID Editor effect column** — every tracker cell can carry an effect alongside its note: vibrato (`V`), slide up/down (`U`/`D`), note-cut (`C`), and speed-change (`F`), played back correctly both in the Web Audio preview and the compiled 6502 export.
 - **SID Editor song/order list** — arrange and repeat patterns into a full song instead of a single loop; older saves keep loading correctly.

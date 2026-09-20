@@ -8,61 +8,61 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
 
 ## Innehållsförteckning
 
-- [C64 Visual Assembler — Användarmanual](#c64-visual-assembler--user-manual)
-    - [Höjdpunkter i version 2.4.3](#version-243-highlights)
-    - [Höjdpunkter i version 2.4.2](#version-242-highlights)
-    - [Höjdpunkter i version 2.4.1](#version-241-highlights)
-    - [Höjdpunkter i version 2.4.0](#version-240-highlights)
-    - [Höjdpunkter i version 2.3.9](#version-239-highlights)
-  - [Innehållsförteckning](#table-of-contents)
-  - [1. Översikt över gränssnittet](#1-interface-overview)
-  - [2. Blockpalett](#2-block-palette)
-  - [3. Programområde](#3-program-area)
-    - [Operandinmatning](#operand-input)
-  - [4. ASM-vy](#4-asm-view)
-    - [Utmatningslägen](#output-modes)
-    - [Fliken Verktyg](#toolkit-tab)
-    - [Fliken Alternativ](#options-tab)
-    - [Klicka på en ASM-rad](#clicking-an-asm-line)
-    - [ASM-radnummer](#asm-line-numbers)
-    - [Kompileringsförloppsmodal](#compile-progress-modal)
-  - [5. Inställningar \&amp; Verktygsfält](#5-settings--toolbar)
-    - [Ladda .asm-fil (snabbreferens)](#load-asm-file-quick-reference)
-      - [Importera parsningsanteckningar och bästa praxis](#import-parsing-notes-and-best-practices)
-  - [UltimateBasic-läge](#ultimatebasic-mode)
-    - [Öppnar UB-redigeraren](#opening-the-ub-editor)
-    - [Redigeringsverktyg](#editor-tools)
-    - [Projekt, flikar och startfiler](#projects-tabs-and-startup-files)
-    - [Byggnad och diagnostik](#building-and-diagnostics)
-    - [Löpning, D64 och Exomizer](#running-d64-and-exomizer)
-    - [Felsökningssymboler och demontering](#debugger-symbols-and-disassembly)
-    - [Ultimate Basic-manual och källa](#ultimate-basic-manual-and-source)
-  - [6. Expertläge](#6-expert-mode)
-    - [Växla lägen](#switching-modes)
-    - [Redigerarens layout](#editor-layout)
-    - [Verktygsfältsknappar](#toolbar-buttons)
-    - [Fel vid markering](#error-highlighting)
-    - [Syntaxmarkering](#syntax-highlight)
-    - [Källformatering](#source-formatter)
-    - [Projektpanel \&amp; flikar](#project-panel--tabs)
-    - [Flikfält](#tab-bar)
-  - [7. Adresseringslägen](#7-addressing-modes)
-    - [Märk uttryck som operander](#label-expressions-as-operands)
-    - [Programräknaren `*` i uttryck](#the--program-counter-in-expressions)
-    - [Lokala (prickade) etiketter](#local-dotted-labels)
-    - [Operandetiketter för självmodifierande kod](#self-modifying-code-operand-labels)
-  - [8. Standard 6502-instruktioner](#8-standard-6502-instructions)
-    - [Dataförflyttning](#data-movement)
-    - [Aritmetik](#arithmetic)
-    - [Logik](#logic)
-    - [Hopp \&amp; grenar](#jumps--branches)
-    - [LBNE / LBEQ / … (Långa grenar)](#lbne--lbeq---long-branches)
-    - [Registrera operationer](#register-operations)
-    - [Skift \&amp; Rotera](#shift--rotate)
+- [C64 Visual Assembler — Användarmanual](#c64-visuell-assembler-användarmanual)
+    - [Höjdpunkter i version 2.4.3](#höjdpunkter-i-version-243)
+    - [Höjdpunkter i version 2.4.2](#höjdpunkter-i-version-242)
+    - [Höjdpunkter i version 2.4.1](#höjdpunkter-i-version-241)
+    - [Höjdpunkter i version 2.4.0](#höjdpunkter-i-version-240)
+    - [Höjdpunkter i version 2.3.9](#höjdpunkter-i-version-239)
+  - [Innehållsförteckning](#innehållsförteckning)
+  - [1. Översikt över gränssnittet](#1-översikt-över-gränssnittet)
+  - [2. Blockpalett](#2-blockpalett)
+  - [3. Programområde](#3-programområde)
+    - [Operandinmatning](#operandinmatning)
+  - [4. ASM-vy](#4-asm-vy)
+    - [Utmatningslägen](#verktygslåda-fliken)
+    - [Fliken Verktyg](#fliken-alternativ)
+    - [Fliken Alternativ](#fliken-alternativ)
+    - [Klicka på en ASM-rad](#asm-linjenummer)
+    - [ASM-radnummer](#kompilera-framstegsmodal)
+    - [Kompileringsförloppsmodal](#5-inställningar-och-verktygsfält)
+  - [5. Inställningar \&amp; Verktygsfält](#projektbilder)
+    - [Ladda .asm-fil (snabbreferens)](#ladda-asm-fil-snabbreferens)
+      - [Importera parsningsanteckningar och bästa praxis](#importera-parsningsanteckningar-och-bästa-praxis)
+  - [UltimateBasic-läge](#ultimatebasic-läge)
+    - [Öppnar UB-redigeraren](#öppnar-ub-redigeraren)
+    - [Redigeringsverktyg](#redigeringsverktyg)
+    - [Projekt, flikar och startfiler](#projekt-flikar-och-startfiler)
+    - [Byggnad och diagnostik](#byggnad-och-diagnostik)
+    - [Löpning, D64 och Exomizer](#löpning-d64-och-exomizer)
+    - [Felsökningssymboler och demontering](#ultimate-basic-manual-och-källa)
+    - [Ultimate Basic-manual och källa](#ultimate-basic-manual-och-källa)
+  - [6. Expertläge](#6-expertläge)
+    - [Växla lägen](#redigerarlayout)
+    - [Redigerarens layout](#verktygsfältsknappar)
+    - [Verktygsfältsknappar](#verktygsfältsknappar)
+    - [Fel vid markering](#fel-vid-markering)
+    - [Syntaxmarkering](#syntaxmarkering)
+    - [Källformatering](#projektpanel-och-flikar)
+    - [Projektpanel \&amp; flikar](#flikfält)
+    - [Flikfält](#flikfält)
+  - [7. Adresseringslägen](#7-adresseringslägen)
+    - [Märk uttryck som operander](#märk-uttryck-som-operander)
+    - [Programräknaren `*` i uttryck](#programräknaren-i-uttryck)
+    - [Lokala (prickade) etiketter](#lokala-prickade-etiketter)
+    - [Operandetiketter för självmodifierande kod](#operandetiketter-för-självmodifierande-kod)
+  - [8. Standard 6502-instruktioner](#dataförflyttning)
+    - [Dataförflyttning](#dataförflyttning)
+    - [Aritmetik](#logik)
+    - [Logik](#logik)
+    - [Hopp \&amp; grenar](#lbne-lbeq-långa-grenar)
+    - [LBNE / LBEQ / … (Långa grenar)](#lbne-lbeq-långa-grenar)
+    - [Registrera operationer](#registrera-operationer)
+    - [Skift \&amp; Rotera](#system-flaggor)
     - [Stack](#stack)
-    - [System / Flaggor](#system--flags)
-    - [Olagliga/Odokumenterade instruktioner](#illegal--undocumented-instructions)
-  - [9. Makroblock — Referens](#9-macro-blocks--reference)
+    - [System / Flaggor](#system-flaggor)
+    - [Olagliga/Odokumenterade instruktioner](#olagligaodokumenterade-instruktioner)
+  - [9. Makroblock — Referens](#9-makroblock-referens)
     - [LABEL](#label)
     - [COMMENT](#comment)
     - [BYTE](#byte)
@@ -77,28 +77,28 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
     - [PETSCII](#petscii)
     - [CHARSET](#charset)
     - [CHARDEF](#chardef)
-    - [BOX_HIT](#box_hit)
+    - [BOX_HIT](#boxhit)
     - [INCBIN](#incbin)
     - [SID](#sid)
     - [INCLUDE](#include)
     - [TABLE](#table)
     - [ORG](#org)
-    - [LOOP / NEXT](#loop--next)
+    - [LOOP / NEXT](#loop-next)
       - [LOOP](#loop)
       - [NEXT](#next)
-    - [FOR / ENDF](#for--endf)
+    - [FOR / ENDF](#for-endf)
       - [FOR](#for)
       - [ENDF](#endf)
-    - [PUSH / PULL](#push--pull)
+    - [PUSH / PULL](#push-pull)
       - [PUSH](#push)
       - [PULL](#pull)
-    - [SLUT / RTS-alias](#end--rts-alias)
-    - [MACRO / ENDM / INVOKE](#macro--endm--invoke)
-      - [MAKRO (definitionsstart)](#macro-definition-start)
-      - [ENDM (definitionsslut)](#endm-definition-end)
+    - [SLUT / RTS-alias](#macro-endm-invoke)
+    - [MACRO / ENDM / INVOKE](#macro-endm-invoke)
+      - [MAKRO (definitionsstart)](#makro-definitionsstart)
+      - [ENDM (definitionsslut)](#endm-definitionsslut)
       - [INVOKE](#invoke)
-    - [REGION / ENDREGION](#region--endregion)
-    - [DEFINE / IF / ELSE / ENDIF](#define--if--else--endif)
+    - [REGION / ENDREGION](#region-endregion)
+    - [DEFINE / IF / ELSE / ENDIF](#define-if-else-endif)
     - [.ASSERT](#assert)
       - [DEFINE](#define)
       - [IF](#if)
@@ -106,54 +106,54 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
     - [ENDIF](#endif)
     - [CONST](#const)
     - [VAR](#var)
-    - [Körtid IF / ELSE / ENDIF](#runtime-if--else--endif)
-    - [WHILE / ENDW](#while--endw)
-    - [REPEAT / UNTIL](#repeat--until)
-    - [MEMCPY / MEMSET](#memcpy--memset)
-    - [PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG](#print--print_char--print_hex--clear_screen--wait_key--delay--set_border--set_bg)
-    - [IRQ_SETUP](#irq_setup)
+    - [Körtid IF / ELSE / ENDIF](#körtid-if-else-endif)
+    - [WHILE / ENDW](#while-endw)
+    - [REPEAT / UNTIL](#repeat-until)
+    - [MEMCPY / MEMSET](#memcpy-memset)
+    - [PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG](#print-printchar-printhex-clearscreen-waitkey-delay-setborder-setbg)
+    - [IRQ_SETUP](#irqsetup)
     - [RAND](#rand)
-    - [SPRITE\_INIT](#sprite_init)
-    - [SPRITE\_POS](#sprite_pos)
-    - [WAIT\_RASTER](#wait_raster)
+    - [SPRITE\_INIT](#spriteinit)
+    - [SPRITE\_POS](#spritepos)
+    - [WAIT\_RASTER](#waitraster)
     - [JOYSTICK](#joystick)
     - [MOUSE](#mouse)
-    - [SPRITE\_COL](#sprite_col)
+    - [SPRITE\_COL](#spritecol)
     - [LOADFILE](#loadfile)
     - [EXODECRUNCH](#exodecrunch)
-    - [REU\_CHECK](#reu_check)
-    - [REU\_STASH / REU\_FETCH / REU\_SWAP](#reu_stash--reu_fetch--reu_swap)
-    - [TURBO\_SET](#turbo_set)
-    - [SUPERCPU\_DETECT](#supercpu_detect)
-    - [TURBO\_ENABLE](#turbo_enable)
-    - [MAP\_COPY](#map_copy)
-    - [MAP\_COPY16X16](#map_copy16x16)
-    - [SPRITE\_ANIM](#sprite_anim)
-    - [SCORE\_BCD](#score_bcd)
-  - [10. Integrering av felsökare](#10-debugger-integration)
+    - [REU\_CHECK](#reucheck)
+    - [REU\_STASH / REU\_FETCH / REU\_SWAP](#reustash-reufetch-reuswap)
+    - [TURBO\_SET](#turboset)
+    - [SUPERCPU\_DETECT](#supercpudetect)
+    - [TURBO\_ENABLE](#turboenable)
+    - [MAP\_COPY](#mapcopy)
+    - [MAP\_COPY16X16](#mapcopy16x16)
+    - [SPRITE\_ANIM](#spriteanim)
+    - [SCORE\_BCD](#scorebcd)
+  - [10. Integrering av felsökare](#brytpunktsblock)
     - [RetroDebugger](#retrodebugger)
-    - [Brytpunktsblock](#breakpoint-blocks)
-    - [Felsökningsflaggor (fliken Alternativ)](#debugger-flags-options-tab)
-  - [11. Länkar till kunskapsbasen](#11-knowledge-base-links)
-  - [12. D64 Exportera \&amp; Kör](#12-d64-export--run)
-    - [Knapp för delad körning](#split-run-button)
-    - [Dialogruta för export till D64](#export-to-d64-dialog)
-    - [D64-metadata i projekt](#d64-metadata-in-projects)
-  - [12b. CRT-export (Magic Desk 64K-kassett)](#12b-crt-export-magic-desk-64k-cartridge)
-  - [13. Maskinvaruinställningar](#13-hardware-settings)
+    - [Brytpunktsblock](#brytpunktsblock)
+    - [Felsökningsflaggor (fliken Alternativ)](#11-länkar-till-kunskapsbasen)
+  - [11. Länkar till kunskapsbasen](#11-länkar-till-kunskapsbasen)
+  - [12. D64 Exportera \&amp; Kör](#delad-körning-knapp)
+    - [Knapp för delad körning](#dialogrutan-exportera-till-d64)
+    - [Dialogruta för export till D64](#d64-metadata-i-projekt)
+    - [D64-metadata i projekt](#d64-metadata-i-projekt)
+  - [12b. CRT-export (Magic Desk 64K-kassett)](#12b-crt-export-magic-desk-64k-kassett)
+  - [13. Maskinvaruinställningar](#13-maskinvaruinställningar)
     - [VICE-emulator](#vice-emulator)
     - [Exomizer](#exomizer)
-    - [Retro-felsökare](#retro-debugger)
-    - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
-  - [14. Visuella redigerare (verktygslåda)](#14-visual-editors-toolkit)
-    - [Högupplöst/Flerfärgsredigerare](#hi-res--multicolor-editor)
-    - [Sprite-redigerare](#sprite-editor)
-    - [C64 Tecken-ROM-läsare ("Teckenkarta")](#c64-character-rom-browser-char-map)
-    - [Teckenredigerare (teckenuppsättning)](#character-editor-charset)
-    - [Teckenuppsättning Canvas-redigerare](#charset-canvas-editor)
-    - [Kartredigerare (Flerskiktade kakelkartor)](#map-editor-multilayer-tilemaps)
-    - [SID-redigerare (3-röstsspårare)](#sid-editor-3-voice-tracker)
-    - [Kurvredigerare](#curve-editor)
+    - [Retro-felsökare](#retro-felsökare)
+    - [C64 Ultimate / 1541 Ultimate](#c64-ultimate-1541-ultimate)
+  - [14. Visuella redigerare (verktygslåda)](#14-visuella-redigerare-verktygslåda)
+    - [Högupplöst/Flerfärgsredigerare](#högupplöstflerfärgsredigerare)
+    - [Sprite-redigerare](#teckenredigerare-teckenuppsättning)
+    - [C64 Tecken-ROM-läsare ("Teckenkarta")](#c64-tecken-rom-läsare-teckenkarta)
+    - [Teckenredigerare (teckenuppsättning)](#teckenredigerare-teckenuppsättning)
+    - [Teckenuppsättning Canvas-redigerare](#sid-redigerare-3-röstsspårare)
+    - [Kartredigerare (Flerskiktade kakelkartor)](#kartredigerare-flerskiktade-kakelkartor)
+    - [SID-redigerare (3-röstsspårare)](#sid-redigerare-3-röstsspårare)
+    - [Kurvredigerare](#kurvredigerare)
 
 ---
 
@@ -185,7 +185,7 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
 
 ## Höjdpunkter i version 2.4.0
 
-- **D64 Editor** — en komplett diskavbildningsläsare i verktygsfältet (efter kurvredigeraren). Öppna en befintlig `.d64`, skapa en ny tom disk eller starta den aktuella disken direkt i VICE, allt från en Filer ▾-meny som matchar de andra visuella redigerarna. Se [D64 Editor (bläddra bland och redigera en befintlig diskavbildning)](#d64-editor-browse--edit-an-existing-disk-image).
+- **D64 Editor** — en komplett diskavbildningsläsare i verktygsfältet (efter kurvredigeraren). Öppna en befintlig `.d64`, skapa en ny tom disk eller starta den aktuella disken direkt i VICE, allt från en Filer ▾-meny som matchar de andra visuella redigerarna. Se [D64 Editor (bläddra bland och redigera en befintlig diskavbildning)](#12b-crt-export-magic-desk-64k-kassett).
 - **Lägg till / extrahera / byt namn på / ta bort i D64-editorn** — lägg till en lokal fil i diskkatalogen, extrahera en vald post tillbaka till en `.prg`, byt namn på en post inline i tabellen eller ta bort den — varje åtgärd tillämpas direkt på `.d64`-filen via `c1541`, utan separat sparningssteg.
 - **Ladda adress, dekomprimera adress och Exomizer i D64-redigeraren** — genom att lägga till en headerlös råfil kan du ange en valfri laddningsadress, ett Exomizer-dekomprimeringsmål och komprimera den på vägen in, med samma `mem`/`sfx` komprimeringslägen som i dialogrutan Exportera till D64:s extrafiler. En `.prg` som redan har sin egen header hoppar över dessa fält helt.
 - **Väljare för diskposttyp** — välj PRG / SEQ / USR / REL för en nyligen tillagd fil istället för att alltid skriva den som PRG.
@@ -199,11 +199,11 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
 
 Fem assemblerfunktioner som förbättrar livskvaliteten, alla användbara i expertläge och (där det är lämpligt) som block. Var och en har sin egen referenssektion längre ner:
 
-- **`*` i vilket uttryck som helst** — programräknarsymbolen fungerar nu inuti operanduttryck, inte bara på egen hand: `BNE *-5`, `JMP *+20`, `LDA #&lt;*`, `LDA #&gt;(*+63)`. Ett `*` som följer ett värde (`STRIDE*2`) är fortfarande multiplikation. Se [Adresseringslägen → Programräknaren `*` i uttryck](#the--program-counter-in-expressions).
-- **Lokala (prickade) etiketter** — en etikett som `.loop` tillhör omfånget för den närmaste föregående *globala* (icke-prickade) etiketten, så `DrawSprite` och `ClearScreen` kan var och en definiera sina egna `.loop` utan kollision. Se [Lokala (prickade) etiketter](#local-dotted-labels).
-- **Långgreniga pseudo-operationer** — `LBNE`, `LBEQ`, `LBCC`, `LBCS`, `LBMI`, `LBPL`, `LBVC`, `LBVS` monteras till en inverterad gren över en `JMP` (alltid 5 byte) så att målet kan vara valfritt avstånd bort. Ny palettkategori för **Långa grenar**. Se [LBNE / LBEQ / … (Långa grenar)](#lbne--lbeq---long-branches).
-- **`.assert` direktiv** — `.assert slut - start &lt;= 256` eller `.assert * &lt; $A000, "meddelande"` utvärderas vid monteringstillfället och misslyckas med byggandet (visar det faktiska värdet) när uttrycket är falskt. Se [.ASSERT](#assert).
-- **Operandetiketter för självmodifierande kod** — `LDA-värde:#$00` definierar etiketten `värde` som pekar på instruktionens operandbyte, så `STA-värde` korrigerar den direkt. Se [Operandetiketter för självmodifierande kod](#self-modifying-code-operand-labels).
+- **`*` i vilket uttryck som helst** — programräknarsymbolen fungerar nu inuti operanduttryck, inte bara på egen hand: `BNE *-5`, `JMP *+20`, `LDA #&lt;*`, `LDA #&gt;(*+63)`. Ett `*` som följer ett värde (`STRIDE*2`) är fortfarande multiplikation. Se [Adresseringslägen → Programräknaren `*` i uttryck](#lokala-prickade-etiketter).
+- **Lokala (prickade) etiketter** — en etikett som `.loop` tillhör omfånget för den närmaste föregående *globala* (icke-prickade) etiketten, så `DrawSprite` och `ClearScreen` kan var och en definiera sina egna `.loop` utan kollision. Se [Lokala (prickade) etiketter](#operandetiketter-för-självmodifierande-kod).
+- **Långgreniga pseudo-operationer** — `LBNE`, `LBEQ`, `LBCC`, `LBCS`, `LBMI`, `LBPL`, `LBVC`, `LBVS` monteras till en inverterad gren över en `JMP` (alltid 5 byte) så att målet kan vara valfritt avstånd bort. Ny palettkategori för **Långa grenar**. Se [LBNE / LBEQ / … (Långa grenar)](#registrera-operationer).
+- **`.assert` direktiv** — `.assert slut - start &lt;= 256` eller `.assert * &lt; $A000, "meddelande"` utvärderas vid monteringstillfället och misslyckas med byggandet (visar det faktiska värdet) när uttrycket är falskt. Se [.ASSERT](#körtid-if-else-endif).
+- **Operandetiketter för självmodifierande kod** — `LDA-värde:#$00` definierar etiketten `värde` som pekar på instruktionens operandbyte, så `STA-värde` korrigerar den direkt. Se [Operandetiketter för självmodifierande kod](#8-standard-6502-instruktioner).
 - **Användligare fel vid grenar utanför intervallet** — en gren som landar utanför −128…+127 rapporterar nu exakt hur långt den överskrider intervallet och föreslår den matchande `LBxx` långa grenen.
 
 ---
@@ -358,12 +358,12 @@ Modalfönstret stängs automatiskt när åtgärden är slutförd eller misslycka
 | **Stäng projekt** (`Meny → Arkiv`)          | Stäng det för närvarande öppna projektet och alla dess filflikar. Uppmanas att spara osparade ändringar. Projektpanelen återställs till sitt tomma tillstånd.                                                                                                                                                                                                                                                                                  |
 | **Ladda .asm-fil**                          | Öppnar en `.asm`-fil i expertläge och importerar textfilen 6502 ASM till den aktuella fliken.                                                                                                                                                                                                                                                                                                                                                  |
 | **Spara PRG**                               | Exportera den kompilerade binärfilen som en `.prg`-fil                                                                                                                                                                                                                                                                                                                                                                                         |
-| **Bygg CRT**                                | Exportera programmet som en 64K Magic Desk-fil (`.crt`, patrontyp 19). Se [Avsnitt 12b](#12b-crt-export-magic-desk-64k-cartridge).                                                                                                                                                                                                                                                                                                             |
-| **Kör (delknapp)**                          | Huvudknappen **▶ Kör** kör det aktuella läget; klicka på pilen **▾** för att växla mellan: **Kör som PRG** (kompilera och starta VICE direkt), **Kör via D64** (paketera till en .d64-diskavbildning och starta VICE), eller **Kör på hårdvara** (skicka PRG till en C64 Ultimate / 1541 Ultimate-enhet). Se [Avsnitt 12](#12-d64-export--run) och [Avsnitt 13](#13-hardware-settings).                                                        |
+| **Bygg CRT**                                | Exportera programmet som en 64K Magic Desk-fil (`.crt`, patrontyp 19). Se [Avsnitt 12b](#vad-som-skickas-i-varukorgen).                                                                                                                                                                                                                                                                                                             |
+| **Kör (delknapp)**                          | Huvudknappen **▶ Kör** kör det aktuella läget; klicka på pilen **▾** för att växla mellan: **Kör som PRG** (kompilera och starta VICE direkt), **Kör via D64** (paketera till en .d64-diskavbildning och starta VICE), eller **Kör på hårdvara** (skicka PRG till en C64 Ultimate / 1541 Ultimate-enhet). Se [Avsnitt 12](#delad-körning-knapp) och [Avsnitt 13](#retro-felsökare).                                                        |
 | **Felsök (RetroDebugger)**                  | Kompilera och starta i RetroDebugger med brytpunkter, symboler och autostartflaggor (se [Avsnitt 9](#9-debugger-integration))                                                                                                                                                                                                                                                                                                                  |
 | **Kör med Exomizer**                        | Kryssruta i inställningsmenyn — när den är aktiverad, kör alla Kör- och Bygg-åtgärder PRG via `exomizer sfx sys` innan de startas eller sparas. Fungerar med Kör som PRG, Kör via D64, Kör på hårdvara, Bygg PRG och Bygg D64. Konfigurera Exomizer-körbar fil i **Maskinvaruinställningar** först.                                                                                                                                            |
 | **Automatisk sparning av ögonblicksbilder** | Kryssrutan i **Maskinvaruinställningar → Ögonblicksbild**. När den är aktiverad skapar appen automatiskt en ögonblicksbild cirka 2,5 sekunder efter att du slutat redigera en flik. Stäng av den om du bara vill att ögonblicksbilder ska sparas manuellt.                                                                                                                                                                                     |
-| **Maskinvaruinställningar**                 | Öppna dialogrutan för hårdvarukonfiguration — konfigurera VICE, Exomizer, RetroDebugger och C64 Ultimate (värd, lösenord, anslutningstest). Se [Avsnitt 13](#13-hardware-settings).                                                                                                                                                                                                                                                            |
+| **Maskinvaruinställningar**                 | Öppna dialogrutan för hårdvarukonfiguration — konfigurera VICE, Exomizer, RetroDebugger och C64 Ultimate (värd, lösenord, anslutningstest). Se [Avsnitt 13](#retro-felsökare).                                                                                                                                                                                                                                                            |
 | **Nytt program…**                           | Öppnar en bekräftelsedialogruta och rensar sedan alla block från programområdet                                                                                                                                                                                                                                                                                                                                                                |
 | **Komprimera alla**                         | Komprimera alla block                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | **Om**                                      | Versionsinformation                                                                                                                                                                                                                                                                                                                                                                                                                            |
@@ -1248,13 +1248,13 @@ done:
 
 **Kodningsregler:**
 
-| Input                                       | Versalläge                         | Gemenerläge             |
-| ------------------------------------------- | ---------------------------------- | ----------------------- |
-| `A`–`Z`                                     | `41 dollar`–`5 dollarA`            | `61 dollar`–`7 dollar`  |
-| `a`–`z`                                     | `$41`–`$5A` (tvångsskriven versal) | `41 dollar`–`5 dollarA` |
-| Mellanslag, siffror, interpunktion (32–126) | som det är                         | som det är              |
-| Ny rad                                      | `$0D` (RETUR)                      | `$0D`                   |
-| Andra                                       | `20 dollar ` (mellanslag)          | `20 dollar`             |
+| Input                                       | Versalläge                         | Gemenerläge            |
+| ------------------------------------------- | ---------------------------------- | ---------------------- |
+| `A`–`Z`                                     | `$41`–`$5A`                        | `61 dollar`–`7 dollar` |
+| `a`–`z`                                     | `$41`–`$5A` (tvångsskriven versal) | `$41`–`$5A`            |
+| Mellanslag, siffror, interpunktion (32–126) | as-is                              | as-is                  |
+| Ny rad                                      | `$0D` (RETUR)                      | `$0D`                  |
+| Andra                                       | `20 dollar ` (mellanslag)          | `20 dollar`            |
 
 > **Tips:** Använd PETSCII för data som ska matas ut via CHROUT (`$FFD2`). För att skriva direkt till skärmens RAM, använd STRING eller RAWTEXT istället.
 
@@ -3271,7 +3271,7 @@ Verktygsfältets **Kör**-knapp har ersatts av en **delknapp**:
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Kör som PRG**     | Assemblera till en temporär `.prg` och starta VICE direkt. Klassiskt beteende.                                                                                                                                              |
 | **Kör via D64**     | Assemblera, bygg en `.d64` diskavbildning (med c1541), lägg till eventuella konfigurerade extrafiler och starta sedan VICE från disken. Använd detta när ditt program laddar filer vid körning (t.ex. med makrot LOADFILE). |
-| **Kör på hårdvara** | Assemblera till PRG och skicka den till en **1541 Ultimate / Ultimate 64**-enhet över det lokala nätverket. Se [Avsnitt 13](#13-hardware-settings).                                                                         |
+| **Kör på hårdvara** | Assemblera till PRG och skicka den till en **1541 Ultimate / Ultimate 64**-enhet över det lokala nätverket. Se [Avsnitt 13](#retro-felsökare).                                                                         |
 
 Det valda läget sparas mellan sessionerna.
 
@@ -3295,7 +3295,7 @@ Disknamnet, programnamnet och listan över extra filer sparas i projektets JSON 
 
 Exemplet **loadfile-demo** levereras förkonfigurerat med `DEMO-COLORS.PRG` som en extra fil. Markera den, öppna **Kör via D64** och klicka på **Kör** för att se hela laddningsflödet i aktion.
 
-> **Krav:** Både D64-export och körning via D64 kräver att VICE (`c1541`) konfigureras i [Maskinvaruinställningar](#13-hardware-settings).
+> **Krav:** Både D64-export och körning via D64 kräver att VICE (`c1541`) konfigureras i [Maskinvaruinställningar](#retro-felsökare).
 
 ### D64 Editor (bläddra bland och redigera en befintlig diskavbildning)
 
@@ -3333,7 +3333,7 @@ Katalogens lista visar filnamn med samma teckensnitt och versaler som en riktig 
 
 **Blockredigerare:** Verktygsfältets rutnätsikon växlar till en rå spår-/sektorvy under katalogen — en klickbar blockkarta färgad av BAM:s lediga/använda bitmapp (med BAM och katalogkedjan markerade separat), ett hexagonalt rutnät per byte för det valda 256-byte-blocket och Föregående/Nästa sektornavigering. Blockredigeringar går igenom samma arbetsflöde för att kopiera/spara som katalogåtgärderna ovan.
 
-> **Krav:** Precis som Exportera till D64 kräver D64-redigeraren att VICE (`c1541`) är konfigurerat i [Maskinvaruinställningar](#13-hardware-settings).
+> **Krav:** Precis som Exportera till D64 kräver D64-redigeraren att VICE (`c1541`) är konfigurerat i [Maskinvaruinställningar](#retro-felsökare).
 
 ---
 

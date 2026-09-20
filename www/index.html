@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.4.3">
+  <link rel="stylesheet" href="style.css?v=2.4.5">
 </head>
 
 <body>
@@ -260,6 +260,10 @@
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" aria-hidden="true"><rect x="3" y="5" width="10" height="7" rx="1"/><path d="M5 5V3M8 5V3M11 5V3M5 12v1M8 12v1M11 12v1M1 7h2M1 9h2M13 7h2M13 9h2"/><circle cx="8" cy="8" r="2" fill="currentColor" stroke="none"/></svg>
                 <span id="run-ultimate-d64-label">D64 on hardware</span>
               </button>
+              <button id="run-kff2-mode" class="run-mode-item" role="menuitem" data-mode="kff2">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" aria-hidden="true"><rect x="3" y="5" width="10" height="7" rx="1"/><path d="M5 5V3M8 5V3M11 5V3M5 12v1M8 12v1M11 12v1M1 7h2M1 9h2M13 7h2M13 9h2"/><path d="M6 8h4M8 6v4" stroke-linecap="round"/></svg>
+                <span id="run-kff2-label">Kung Fu Flash 2</span>
+              </button>
             </div>
           </div>
           <button id="run-debugger" class="main-tb-btn main-tb-debug" type="button" aria-label="Debug">
@@ -383,6 +387,8 @@
         </div>
         <canvas id="block-minimap" class="block-minimap" aria-hidden="true"></canvas>
       </section>
+
+      <div class="ws-resizer" id="ws-resizer-output" role="separator" aria-orientation="vertical" aria-label="Resize program and output panels" tabindex="0"></div>
 
       <section class="output-panel">
         <div class="panel-scroll">
@@ -1082,21 +1088,30 @@ PRINTABLE CHARACTERS
 
 <dialog id="about-dialog" class="about-dialog">
     <div class="about-card">
-      <div class="about-logo">
-        <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
+      <div class="about-header">
+        <div class="about-logo">
+          <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
+        </div>
+        <h2 class="about-title">C64 Visual Assembler</h2>
+        <p class="about-version" id="about-version">v2.4.5</p>
+        <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       </div>
-      <h2 class="about-title">C64 Visual Assembler</h2>
-      <p class="about-version" id="about-version">v2.4.3</p>
-      <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
-      <img class="about-ub-banner" src="assets/ultimate-basic-banner.png" alt="Ultimate Basic">
-      <p class="about-repo"><span>Ultimate Basic GitHub repository:</span><br><a href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener noreferrer">https://github.com/zstarczali/UltimateBasic</a></p>
-      <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
-        dropping instruction blocks.</p>
-      <p class="about-sid-credit" id="about-sid-credit"><span id="about-sid-credit-label">Web SID player: WebSid (WebAudio version of Tiny'R'Sid) by Juergen Wothke. GitHub repository:</span> <a href="https://github.com/wothke/websid" target="_blank" rel="noopener noreferrer">https://github.com/wothke/websid</a><br><span id="about-sid-credit-license">(CC BY-NC-SA 4.0)</span></p>
-      <p class="about-repo" id="about-repo"><span id="about-repo-label">Visual Assembler GitHub repository:</span><br><a href="https://github.com/zstarczali/VisualAssembler" target="_blank" rel="noopener noreferrer">https://github.com/zstarczali/VisualAssembler</a></p>
-      <p class="about-repo"><span>Visual Assembler website:</span><br><a href="https://www.c64va.tech" target="_blank" rel="noopener noreferrer">www.c64va.tech</a></p>
-      <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
-      <p class="about-contact"><a href="mailto:retroboj@outlook.com">retroboj@outlook.com</a></p>
+      <div class="about-columns">
+        <div class="about-col about-col-left">
+          <p class="about-desc">A visual block-based 6502 assembler for the Commodore 64.<br>Build programs by dragging and
+            dropping instruction blocks.</p>
+          <p class="about-author">&#169; 2026 Zsolt Tarczali</p>
+          <p class="about-contact"><a href="mailto:retroboj@outlook.com">retroboj@outlook.com</a></p>
+          <p class="about-repo"><span>License:</span><br><a href="https://github.com/zstarczali/VisualAssembler/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">GNU General Public License v3.0</a></p>
+          <p class="about-repo"><span>Visual Assembler website:</span><br><a href="https://www.c64va.tech" target="_blank" rel="noopener noreferrer">www.c64va.tech</a></p>
+        </div>
+        <div class="about-col about-col-right">
+          <img class="about-ub-banner" src="assets/ultimate-basic-banner.png" alt="Ultimate Basic">
+          <p class="about-repo"><span>Ultimate Basic GitHub repository:</span><br><a href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener noreferrer">https://github.com/zstarczali/UltimateBasic</a></p>
+          <p class="about-sid-credit" id="about-sid-credit"><span id="about-sid-credit-label">Web SID player: WebSid (WebAudio version of Tiny'R'Sid) by Juergen Wothke. GitHub repository:</span> <a href="https://github.com/wothke/websid" target="_blank" rel="noopener noreferrer">https://github.com/wothke/websid</a><br><span id="about-sid-credit-license">(CC BY-NC-SA 4.0)</span></p>
+          <p class="about-repo" id="about-repo"><span id="about-repo-label">Visual Assembler GitHub repository:</span><br><a href="https://github.com/zstarczali/VisualAssembler" target="_blank" rel="noopener noreferrer">https://github.com/zstarczali/VisualAssembler</a></p>
+        </div>
+      </div>
       <button id="about-close" class="primary" type="button">Close</button>
     </div>
   </dialog>
@@ -1104,19 +1119,25 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.4.3</p>
+      <p class="whats-new-version">v2.4.5</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: SID Editor effect column</strong> &mdash; every tracker cell can carry an effect alongside its note: vibrato (V), slide up/down (U/D), note-cut (C), and speed-change (F). Type it straight into a cell, e.g. <code>C-4 01 V24</code> or <code>F06</code>. Effects now play back correctly both in the in-app Web Audio preview and in the compiled 6502 export.
+          <strong>New: Kung Fu Flash 2 support</strong> &mdash; run your programs on a <em>real Commodore 64/128</em>. Pick <strong>Kung Fu Flash 2</strong> in the split <strong>Run</strong> menu and the compiled PRG is uploaded over USB straight into a powered-on C64 with a Kung Fu Flash 2 cartridge &mdash; no disk image, no SD card, no emulator. The cartridge's serial port is detected automatically (Hardware Settings &rarr; Kung Fu Flash 2) or can be typed in by hand, and the run mode works from Block, Expert and Ultimate Basic mode.
         </li>
         <li>
-          <strong>New: SID Editor song/order list</strong> &mdash; patterns are arranged through a proper song/order list layered on top of the pattern bank, so a pattern can repeat and the song can be longer than the number of stored patterns. Older saves (made before the order list existed) keep loading correctly.
+          <strong>New: resizable Program / ASM panels</strong> &mdash; drag the thin vertical splitter between the Program panel and the ASM output to give either side more room. Arrow keys nudge it, double-click resets it to 50/50, and the position is remembered.
         </li>
         <li>
-          <strong>New: D64 Editor explicit Save workflow</strong> &mdash; every edit (add/extract/rename/delete, and Block Editor byte edits) now happens on a private working copy; nothing touches the real .d64 file until you click Save, which also writes an automatic backup first. Closing the editor or opening another disk with unsaved changes now asks for confirmation.
+          <strong>Improved: cleaner ASM view</strong> &mdash; macro blocks are listed without the leading comment marker (<code>.print "HELLO"</code> instead of <code>; .print "HELLO"</code>) and coloured as macros.
         </li>
         <li>
-          <strong>Improved: Block Editor hex grid</strong> &mdash; the raw byte view for the selected 256-byte block is now a proper per-byte hex grid instead of a plain text box, and its dialog no longer dims the rest of the app behind it while open.
+          <strong>Improved: custom macro highlighting in Expert mode</strong> &mdash; the macro name after <code>.macro</code> / <code>.invoke</code> / <code>.call</code> (and Kick-style <code>:name()</code> calls) has its own colour, as do the <code>{param}</code> substitutions and the parameter names in the <code>.macro</code> header, in every theme.
+        </li>
+        <li>
+          <strong>Improved: About dialog</strong> &mdash; a wider two-column layout with grouped project, license and credit links, and the Ultimate Basic banner now has a transparent background.
+        </li>
+        <li>
+          <strong>New: Web64 section</strong> on the product site (c64va.tech), and an updated <code>macro-with-parameter</code> sample using the <code>.macro setColor(color)</code> form.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -2324,6 +2345,14 @@ PRINTABLE CHARACTERS
             <input type="checkbox" id="auto-snapshot-toggle" checked>
             <span id="auto-snapshot-toggle-label">Automatikus snapshot</span>
           </label>
+          <div class="hw-settings-subsection">
+            <h3 class="hw-settings-section-label" id="kff2-section-label">Kung Fu Flash 2</h3>
+            <label class="field compact-field hw-field">
+              <span id="kff2-port-label">Soros port</span>
+              <input id="kff2-port" type="text" placeholder="/dev/cu.usbmodem… / COM4 / /dev/ttyACM0" autocomplete="off" spellcheck="false">
+            </label>
+            <p id="kff2-status" class="menu-note"></p>
+          </div>
         </section>
 
         <section class="hw-settings-section">
@@ -2359,6 +2388,7 @@ PRINTABLE CHARACTERS
           <button id="ultimate-connect-test" class="secondary" type="button">Kapcsolat tesztelése</button>
           <p id="ultimate-status" class="menu-note"></p>
         </section>
+
       </div>
 
       <div class="hw-settings-actions">
@@ -2389,13 +2419,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.4.3"></script>
-  <script src="i18n.js?v=2.4.3"></script>
-  <script src="tutorial-data.js?v=2.4.3"></script>
+  <script src="tauri-bridge.js?v=2.4.5"></script>
+  <script src="i18n.js?v=2.4.5"></script>
+  <script src="tutorial-data.js?v=2.4.5"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.4.3"></script>
+  <script src="app.js?v=2.4.5"></script>
 
 </body>
 
