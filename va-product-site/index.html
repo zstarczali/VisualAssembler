@@ -172,13 +172,19 @@
       z-index: 1
     }
 
+    .hero-left::before {
+      content: '';
+      display: block;
+      flex: 0 0 530px
+    }
+
     .hero-right {
       position: relative;
       z-index: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 40px 40px 40px 0
+      padding: 56px 40px 40px 0
     }
 
     .hero-box-img {
@@ -186,6 +192,25 @@
       max-width: 680px;
       display: block;
       filter: drop-shadow(0 0 40px rgba(80, 80, 255, .4))
+    }
+
+    .hero-monitor {
+      position: relative;
+      width: min(100%, 760px)
+    }
+
+    .hero-monitor-img {
+      width: 100%;
+      display: block;
+      filter: drop-shadow(0 0 38px rgba(80, 80, 255, .35))
+    }
+
+    .hero-monitor-floating {
+      position: absolute;
+      z-index: 1;
+      top: 48px;
+      left: 30px;
+      width: min(690px, calc(100vw - 60px))
     }
 
     .badge {
@@ -283,6 +308,28 @@
 
     .boot-box .g {
       color: var(--grn)
+    }
+
+    .hero-monitor .boot-box {
+      position: absolute;
+      z-index: 1;
+      left: 24.2%;
+      top: 22.2%;
+      width: 51%;
+      height: 42.4%;
+      overflow: hidden;
+      margin: 0;
+      padding: clamp(5px, 1.6vw, 18px);
+      border: 0;
+      background: transparent;
+      font-size: clamp(5px, .75vw, 9px);
+      line-height: 1.72;
+      text-shadow: 0 0 5px currentColor
+    }
+
+    .hero-monitor .cur {
+      width: .72em;
+      height: 1.25em
     }
 
     .cur {
@@ -1305,23 +1352,62 @@
       color: var(--txt-hi)
     }
 
+    @media (max-width:1500px) and (min-width:901px) {
+      .hero {
+        grid-template-columns: 1fr
+      }
+
+      .hero-monitor-floating {
+        position: relative;
+        top: auto;
+        left: auto;
+        justify-self: center;
+        width: min(560px, calc(100vw - 80px));
+        margin: 42px auto 8px
+      }
+
+      .hero-left {
+        width: min(100%, 760px);
+        margin: 0 auto;
+        padding: 36px 48px 28px;
+        justify-content: flex-start
+      }
+
+      .hero-left::before {
+        display: none
+      }
+
+      .hero-right {
+        padding: 12px 40px 72px
+      }
+
+      .hero-box-img {
+        max-width: 500px
+      }
+    }
+
     @media(max-width:900px) {
       nav {
-        padding: 8px 12px;
-        height: auto;
-        flex-wrap: wrap;
-        gap: 0
+        height: 48px;
+        padding: 0 10px;
+        flex-wrap: nowrap;
+        gap: 2px;
+        overflow-x: auto;
+        scrollbar-width: none
       }
 
       .nav-brand {
-        width: 100%;
-        padding: 4px 0 8px;
-        font-size: 11px
+        display: none
+      }
+
+      nav .sp {
+        display: none
       }
 
       .nav-link {
+        flex: 0 0 auto;
         font-size: 10px;
-        padding: 6px 10px;
+        padding: 6px 9px;
         letter-spacing: 0
       }
 
@@ -1331,12 +1417,29 @@
 
       .hero-right {
         display: flex;
-        padding: 0 24px 48px;
+        padding: 12px 24px 52px;
         justify-content: center
       }
 
+      .hero-monitor-floating {
+        position: relative;
+        justify-self: center;
+        width: min(90vw, 420px);
+        margin: 26px auto 6px
+      }
+
       .hero-left {
-        padding: 60px 30px 32px
+        width: 100%;
+        padding: 28px 24px 24px;
+        justify-content: flex-start
+      }
+
+      .hero-box-img {
+        max-width: min(78vw, 340px)
+      }
+
+      .hero-left::before {
+        display: none
       }
 
       .about-grid {
@@ -1453,6 +1556,7 @@
       C64 VISUAL ASSEMBLER
     </div>
     <div class="sp"></div>
+    <a class="nav-link" href="#home">HOME</a>
     <a class="nav-link" href="#ultimate-basic">ULTIMATE BASIC</a>
     <a class="nav-link" href="#build-crt">BUILD CRT</a>
     <a class="nav-link" href="#features">FEATURES</a>
@@ -1463,13 +1567,12 @@
   </nav>
 
   <!-- HERO -->
-  <section class="hero">
-    <div class="hero-left">
-      <div class="boot-box">
-        <div class="h"> **** COMMODORE 64 VISUAL ASSEMBLER ****</div>
-        <div class="d"> </div>
-        <div class="d"> 64K RAM SYSTEM 38911 BASIC BYTES FREE</div>
-        <div class="d"> </div>
+  <section class="hero" id="home">
+    <div class="hero-monitor hero-monitor-floating">
+      <img class="hero-monitor-img" src="uploads/monitor1701.png" alt="Commodore 1701 monitor showing C64 Visual Assembler">
+      <div class="boot-box" aria-label="C64 Visual Assembler boot screen">
+        <div class="h">**** COMMODORE 64 VISUAL ASSEMBLER ****</div>
+        <div class="d">64K RAM SYSTEM 38911 BASIC BYTES FREE</div>
         <div class="y">READY.</div>
         <div><span class="g">LOAD "C64VA",8,1</span></div>
         <div class="d">SEARCHING FOR C64VA</div>
@@ -1477,6 +1580,8 @@
         <div class="y">READY.</div>
         <div><span class="g">RUN</span><span class="cur"></span></div>
       </div>
+    </div>
+    <div class="hero-left">
       <div class="badge">V2.4.5 — LATEST RELEASE</div>
       <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
       <p class="hero-sub">Drag-and-drop 6502 assembly blocks or switch to a full text editor — see real-time ASM output
@@ -1487,7 +1592,7 @@
       </div>
     </div>
     <div class="hero-right">
-      <img class="hero-box-img" src="uploads/visual_assembler_transparent.png" alt="C64 Visual Assembler — product box">
+      <img class="hero-box-img" src="uploads/visual_assembler_transparent.png" alt="Visual Assembler logo">
     </div>
   </section>
 
