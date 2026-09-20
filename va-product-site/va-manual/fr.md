@@ -1,6 +1,6 @@
 # Manuel d'utilisation de l'assembleur visuel C64
 
-**Version 2.4.3**
+**Version 2.4.5**
 
 Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez des programmes en faisant glisser et en déposant des blocs d'instructions, et visualisez en temps réel le code assembleur et le code machine générés.
 
@@ -9,6 +9,7 @@ Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez de
 ## Table des matières
 
 - [C64 Visual Assembler — Manuel de l'utilisateur](#c64-visual-assembler--user-manual)
+    - [Points saillants de la version 2.4.5](#version-245-highlights)
     - [Points saillants de la version 2.4.3](#version-243-highlights)
     - [Points saillants de la version 2.4.2](#version-242-highlights)
     - [Points saillants de la version 2.4.1](#version-241-highlights)
@@ -154,6 +155,16 @@ Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez de
     - [Éditeur de cartes (Cartes de tuiles multicouches)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Éditeur de courbes](#curve-editor)
+
+---
+
+## Points forts de la version 2.4.5
+
+- **Prise en charge de Kung Fu Flash 2 — exécutez vos programmes sur un vrai Commodore 64/128.** La nouvelle entrée **Kung Fu Flash 2** du menu **Run** compile le programme et le téléverse par USB directement dans un C64 (ou C128) réel et allumé équipé d'une cartouche Kung Fu Flash 2 — sans image disque, sans carte SD, sans émulateur. Fonctionne en mode Blocs, Expert et Ultimate Basic. Le port série USB de la cartouche (`0483:5740`) est détecté automatiquement (Hardware Settings → Kung Fu Flash 2) et peut aussi être saisi à la main, p. ex. `COM4`, `/dev/ttyACM0` ou `/dev/cu.usbmodem…`. Marche à suivre : branchez la cartouche, allumez le C64, connectez l'USB, choisissez **Kung Fu Flash 2** dans le menu Run puis cliquez sur **▶ Run** — la cartouche redémarre dans son MENU, le PRG est téléversé et le programme s'exécute sur la vraie machine.
+- **Panneaux Programme/ASM redimensionnables** — un fin séparateur vertical entre le panneau Programme et le panneau ASM se déplace à la souris (260 px minimum par panneau). Les flèches le déplacent, un double-clic rétablit 50/50, et la position est mémorisée.
+- **Lignes de macro plus claires dans la vue ASM** — les blocs de macro s'affichent sans marqueur de commentaire initial (`.print "HELLO"` au lieu de `; .print …`) et sont colorés comme des macros.
+- **Coloration des macros personnalisées dans l'éditeur Expert** — le nom de macro après `.macro`, `.invoke` et `.call` (ainsi que les appels `:nom(...)` à la Kick), les substitutions `{param}` et les paramètres de l'en-tête `.macro` ont chacun leur couleur.
+- **Boîte À propos renouvelée** avec une disposition à deux colonnes et une bannière Ultimate Basic transparente, une nouvelle section **Web64** sur le site produit et l'exemple `macro-with-parameter` mis à jour (`.macro setColor(color)`).
 
 ---
 

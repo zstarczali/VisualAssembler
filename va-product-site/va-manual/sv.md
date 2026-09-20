@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.4.3**
+**Version 2.4.5**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att dra och släppa instruktionsblock och se den genererade assemblern och maskinkoden i realtid.
 
@@ -9,6 +9,7 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
 ## Innehållsförteckning
 
 - [C64 Visual Assembler — Användarmanual](#c64-visual-assembler--user-manual)
+    - [Höjdpunkter i version 2.4.5](#version-245-highlights)
     - [Höjdpunkter i version 2.4.3](#version-243-highlights)
     - [Höjdpunkter i version 2.4.2](#version-242-highlights)
     - [Höjdpunkter i version 2.4.1](#version-241-highlights)
@@ -154,6 +155,16 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
     - [Kartredigerare (Flerskiktade kakelkartor)](#map-editor-multilayer-tilemaps)
     - [SID-redigerare (3-röstsspårare)](#sid-editor-3-voice-tracker)
     - [Kurvredigerare](#curve-editor)
+
+---
+
+## Höjdpunkter i version 2.4.5
+
+- **Stöd för Kung Fu Flash 2 — kör dina program på en riktig Commodore 64/128.** Det nya valet **Kung Fu Flash 2** i den delade **Run**-menyn kompilerar programmet och laddar upp det via USB direkt till en riktig, påslagen C64 (eller C128) med en Kung Fu Flash 2-cartridge — utan diskavbild, SD-kort eller emulator. Fungerar i Block-, Expert- och Ultimate Basic-läge. Cartridgens USB-serieport (`0483:5740`) identifieras automatiskt (Hardware Settings → Kung Fu Flash 2) och kan också skrivas in för hand, t.ex. `COM4`, `/dev/ttyACM0` eller `/dev/cu.usbmodem…`. Arbetsgång: sätt i cartridgen, slå på C64:n, anslut USB, välj **Kung Fu Flash 2** i Run-menyn och klicka på **▶ Run** — cartridgen startas om till MENU, PRG:n laddas upp och programmet körs på den riktiga maskinen.
+- **Justerbara Program-/ASM-paneler** — en tunn lodrät delare mellan Program- och ASM-panelen kan dras (minst 260 px per panel). Piltangenterna flyttar den, dubbelklick återställer 50/50 och positionen sparas.
+- **Renare makrorader i ASM-vyn** — makroblock visas utan inledande kommentarstecken (`.print "HELLO"` i stället för `; .print …`) och färgas som makron.
+- **Färgmarkering av egna makron i Expert-editorn** — makronamnet efter `.macro`, `.invoke` och `.call` (samt Kick-liknande `:namn(...)`-anrop), `{param}`-ersättningarna och parametrarna i `.macro`-huvudet har egna färger.
+- **Ny About-dialog** med tvåkolumnslayout och transparent Ultimate Basic-banner, ny **Web64**-sektion på produktsidan och uppdaterat exempel `macro-with-parameter` (`.macro setColor(color)`).
 
 ---
 

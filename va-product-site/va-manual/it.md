@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Manuale utente
 
-**Versione 2.4.3**
+**Versione 2.4.5**
 
 Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502. Crea programmi trascinando e rilasciando blocchi di istruzioni e visualizza in tempo reale il codice assembly e il codice macchina generati.
 
@@ -9,6 +9,7 @@ Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502. 
 ## Sommario
 
 - [C64 Visual Assembler — Manuale utente](#c64-visual-assembler--user-manual)
+    - [Punti salienti della versione 2.4.5](#version-245-highlights)
     - [Punti salienti della versione 2.4.3](#version-243-highlights)
     - [Punti salienti della versione 2.4.2](#version-242-highlights)
     - [Punti salienti della versione 2.4.1](#version-241-highlights)
@@ -154,6 +155,16 @@ Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502. 
     - [Editor di mappe (mappe a tessere multilivello)](#map-editor-multilayer-tilemaps)
     - [Editor SID (Tracker a 3 voci)](#sid-editor-3-voice-tracker)
     - [Editor di curve](#curve-editor)
+
+---
+
+## Punti salienti della versione 2.4.5
+
+- **Supporto Kung Fu Flash 2 — esegui i tuoi programmi su un vero Commodore 64/128.** La nuova voce **Kung Fu Flash 2** del menu **Run** compila il programma e lo carica via USB direttamente in un C64 (o C128) reale e acceso dotato di cartuccia Kung Fu Flash 2 — senza immagine disco, scheda SD o emulatore. Funziona in modalità Blocchi, Expert e Ultimate Basic. La porta seriale USB della cartuccia (`0483:5740`) viene rilevata automaticamente (Hardware Settings → Kung Fu Flash 2) e può essere inserita anche a mano, ad es. `COM4`, `/dev/ttyACM0` o `/dev/cu.usbmodem…`. Procedura: inserisci la cartuccia, accendi il C64, collega l'USB, scegli **Kung Fu Flash 2** nel menu Run e premi **▶ Run** — la cartuccia si riavvia nel MENU, il PRG viene caricato e il programma parte sulla macchina reale.
+- **Pannelli Programma/ASM ridimensionabili** — un sottile divisore verticale tra il pannello Programma e quello ASM si trascina (minimo 260 px per pannello). Le frecce lo spostano, il doppio clic ripristina 50/50 e la posizione viene ricordata.
+- **Righe di macro più pulite nella vista ASM** — i blocchi macro appaiono senza il segno di commento iniziale (`.print "HELLO"` invece di `; .print …`) e sono colorati come macro.
+- **Evidenziazione delle macro personalizzate nell'editor Expert** — il nome della macro dopo `.macro`, `.invoke` e `.call` (e le chiamate `:nome(...)` in stile Kick), le sostituzioni `{param}` e i parametri dell'intestazione `.macro` hanno colori propri.
+- **Finestra About rinnovata** con layout a due colonne e banner Ultimate Basic trasparente, nuova sezione **Web64** sul sito del prodotto ed esempio `macro-with-parameter` aggiornato (`.macro setColor(color)`).
 
 ---
 

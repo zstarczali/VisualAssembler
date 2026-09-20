@@ -1,7 +1,9 @@
 C64 Visual Assembler - Installation Guide
-Version 2.4.3
+Version 2.4.5
 Support: https://zstarczali.itch.io/visual-assembler-commodore-64
 ==========================================================================
+
+2.4.5: Kung Fu Flash 2 support — a new "Kung Fu Flash 2" entry in the split Run menu compiles the program and uploads it over USB straight into a real, powered-on Commodore 64/128 fitted with a Kung Fu Flash 2 cartridge (no disk image, SD card or emulator needed). The cartridge's serial port is auto-detected in Hardware Settings (or can be typed in by hand) and the mode works from Block, Expert and Ultimate Basic mode. Resizable Program / ASM panels via a draggable vertical splitter (remembered between sessions). Cleaner ASM view: macro lines are shown without the leading comment marker and coloured as macros. Expert editor now highlights custom macro names, parameters and {param} substitutions. Refreshed About dialog with a transparent Ultimate Basic banner. New Web64 section on the product site.
 
 2.4.3: SID Editor effect column — every tracker cell can carry an effect alongside its note: vibrato (V), slide up/down (U/D), note-cut (C), and speed-change (F), played back correctly both in the Web Audio preview and the compiled 6502 export. New SID Editor song/order list arranges and repeats patterns into a full song instead of a single loop; older saves keep loading correctly. D64 Editor edits (add/extract/rename/delete, and Block Editor byte edits) now happen on a private working copy with an explicit Save step (automatic backup included) and unsaved-change prompts. Block Editor's raw byte view is now a per-byte hex grid, and its dialog no longer dims the rest of the app.
 
@@ -29,7 +31,7 @@ Tested on Ubuntu 22.04 and 24.04.
 -----------------------
 Download the .deb package from the releases page and install:
 
-  sudo dpkg -i "c64-visual-assembler_2.4.3_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.4.5_amd64.deb"
   sudo apt-get install -f   # fix any missing dependencies
 
 Launch from the Applications menu or:
@@ -122,7 +124,7 @@ Requirements: macOS 11.0+, Apple Silicon (M1/M2/M3)
 
 1. C64 Visual Assembler
 -----------------------
-1. Download the 2.4.3 DMG for your architecture from the releases page
+1. Download the 2.4.5 DMG for your architecture from the releases page
 2. Mount the DMG and drag the app to /Applications
 3. First launch: Right-click the app -> "Open" (macOS will block double-click)
 4. Click "Open" in the security dialog

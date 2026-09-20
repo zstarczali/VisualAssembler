@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.4.3">
+  <link rel="stylesheet" href="style.css?v=2.4.5">
 </head>
 
 <body>
@@ -1093,7 +1093,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.4.3</p>
+        <p class="about-version" id="about-version">v2.4.5</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       </div>
       <div class="about-columns">
@@ -1119,19 +1119,25 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.4.3</p>
+      <p class="whats-new-version">v2.4.5</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: SID Editor effect column</strong> &mdash; every tracker cell can carry an effect alongside its note: vibrato (V), slide up/down (U/D), note-cut (C), and speed-change (F). Type it straight into a cell, e.g. <code>C-4 01 V24</code> or <code>F06</code>. Effects now play back correctly both in the in-app Web Audio preview and in the compiled 6502 export.
+          <strong>New: Kung Fu Flash 2 support</strong> &mdash; run your programs on a <em>real Commodore 64/128</em>. Pick <strong>Kung Fu Flash 2</strong> in the split <strong>Run</strong> menu and the compiled PRG is uploaded over USB straight into a powered-on C64 with a Kung Fu Flash 2 cartridge &mdash; no disk image, no SD card, no emulator. The cartridge's serial port is detected automatically (Hardware Settings &rarr; Kung Fu Flash 2) or can be typed in by hand, and the run mode works from Block, Expert and Ultimate Basic mode.
         </li>
         <li>
-          <strong>New: SID Editor song/order list</strong> &mdash; patterns are arranged through a proper song/order list layered on top of the pattern bank, so a pattern can repeat and the song can be longer than the number of stored patterns. Older saves (made before the order list existed) keep loading correctly.
+          <strong>New: resizable Program / ASM panels</strong> &mdash; drag the thin vertical splitter between the Program panel and the ASM output to give either side more room. Arrow keys nudge it, double-click resets it to 50/50, and the position is remembered.
         </li>
         <li>
-          <strong>New: D64 Editor explicit Save workflow</strong> &mdash; every edit (add/extract/rename/delete, and Block Editor byte edits) now happens on a private working copy; nothing touches the real .d64 file until you click Save, which also writes an automatic backup first. Closing the editor or opening another disk with unsaved changes now asks for confirmation.
+          <strong>Improved: cleaner ASM view</strong> &mdash; macro blocks are listed without the leading comment marker (<code>.print "HELLO"</code> instead of <code>; .print "HELLO"</code>) and coloured as macros.
         </li>
         <li>
-          <strong>Improved: Block Editor hex grid</strong> &mdash; the raw byte view for the selected 256-byte block is now a proper per-byte hex grid instead of a plain text box, and its dialog no longer dims the rest of the app behind it while open.
+          <strong>Improved: custom macro highlighting in Expert mode</strong> &mdash; the macro name after <code>.macro</code> / <code>.invoke</code> / <code>.call</code> (and Kick-style <code>:name()</code> calls) has its own colour, as do the <code>{param}</code> substitutions and the parameter names in the <code>.macro</code> header, in every theme.
+        </li>
+        <li>
+          <strong>Improved: About dialog</strong> &mdash; a wider two-column layout with grouped project, license and credit links, and the Ultimate Basic banner now has a transparent background.
+        </li>
+        <li>
+          <strong>New: Web64 section</strong> on the product site (c64va.tech), and an updated <code>macro-with-parameter</code> sample using the <code>.macro setColor(color)</code> form.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -2413,13 +2419,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.4.3"></script>
-  <script src="i18n.js?v=2.4.3"></script>
-  <script src="tutorial-data.js?v=2.4.3"></script>
+  <script src="tauri-bridge.js?v=2.4.5"></script>
+  <script src="i18n.js?v=2.4.5"></script>
+  <script src="tutorial-data.js?v=2.4.5"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.4.3"></script>
+  <script src="app.js?v=2.4.5"></script>
 
 </body>
 

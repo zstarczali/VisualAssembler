@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Podręcznik użytkownika
 
-**Wersja 2.4.3**
+**Wersja 2.4.5**
 
 Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągając i upuszczając bloki instrukcji, i oglądaj generowany kod assemblera i maszynowy w czasie rzeczywistym.
 
@@ -9,6 +9,7 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
 ## Spis treści
 
 - [C64 Visual Assembler — Podręcznik użytkownika](#c64-visual-assembler--user-manual)
+    - [Najważniejsze cechy wersji 2.4.5](#version-245-highlights)
     - [Najważniejsze cechy wersji 2.4.3](#version-243-highlights)
     - [Najważniejsze cechy wersji 2.4.2](#version-242-highlights)
     - [Najważniejsze cechy wersji 2.4.1](#version-241-highlights)
@@ -154,6 +155,16 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
     - [Edytor map (mapy kafelkowe wielowarstwowe)](#map-editor-multilayer-tilemaps)
     - [Edytor SID (śledzenie 3-głosowe)](#sid-editor-3-voice-tracker)
     - [Edytor krzywych](#curve-editor)
+
+---
+
+## Najważniejsze cechy wersji 2.4.5
+
+- **Obsługa Kung Fu Flash 2 — uruchamiaj programy na prawdziwym Commodore 64/128.** Nowa pozycja **Kung Fu Flash 2** w rozwijanym menu **Run** kompiluje program i przesyła go przez USB bezpośrednio do prawdziwego, włączonego C64 (lub C128) z kartridżem Kung Fu Flash 2 — bez obrazu dysku, karty SD i emulatora. Działa w trybie blokowym, Expert i Ultimate Basic. Port szeregowy USB kartridża (`0483:5740`) jest wykrywany automatycznie (Hardware Settings → Kung Fu Flash 2) i można go też wpisać ręcznie, np. `COM4`, `/dev/ttyACM0` lub `/dev/cu.usbmodem…`. Przebieg: włóż kartridż, włącz C64, podłącz USB, wybierz **Kung Fu Flash 2** w menu Run i kliknij **▶ Run** — kartridż uruchamia się ponownie w MENU, PRG jest przesyłany, a program startuje na prawdziwej maszynie.
+- **Panele Program/ASM ze zmiennym rozmiarem** — cienki pionowy separator między panelem Program a ASM można przeciągać (min. 260 px na panel). Strzałki go przesuwają, dwuklik przywraca podział 50/50, a pozycja jest zapamiętywana.
+- **Czytelniejsze linie makr w widoku ASM** — bloki makr są pokazywane bez wiodącego znaku komentarza (`.print "HELLO"` zamiast `; .print …`) i kolorowane jako makra.
+- **Podświetlanie własnych makr w edytorze Expert** — nazwa makra po `.macro`, `.invoke` i `.call` (oraz wywołania `:nazwa(...)` w stylu Kick), podstawienia `{param}` i parametry w nagłówku `.macro` mają własne kolory.
+- **Odświeżone okno About** z układem dwukolumnowym i przezroczystym banerem Ultimate Basic, nowa sekcja **Web64** na stronie produktu oraz zaktualizowany przykład `macro-with-parameter` (`.macro setColor(color)`).
 
 ---
 

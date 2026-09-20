@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.4.3**
+**Verzió: 2.4.5**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -26,6 +26,18 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - [12b. CRT export (Magic Desk 64K cartridge)](#12b-crt-export-magic-desk-64k-cartridge)
 - [13. Hardver beállítások](#13-hardver-beállítások)
 - [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit)
+
+---
+
+## A 2.4.5 verzió újdonságai
+
+- **Kung Fu Flash 2 támogatás — futtasd a programjaidat valódi Commodore 64/128-on.** Az osztott **Run** menü új **Kung Fu Flash 2** pontja lefordítja a programot, és USB-n keresztül közvetlenül feltölti egy valódi, bekapcsolt C64-re (vagy C128-ra), amelyben Kung Fu Flash 2 cartridge van — lemezkép, SD-kártyára másolás és emulátor nélkül. Blokk, Expert és Ultimate Basic módban egyaránt működik. A cartridge USB soros portját az app automatikusan felismeri (kézzel is megadható); a beállítást és a pontos munkafolyamatot lásd: [Kung Fu Flash 2](#kung-fu-flash-2).
+- **Átméretezhető Program / ASM panelek** — a Program panel és az ASM/Kimenet panel között egy vékony függőleges elválasztó húzásával állíthatod a határt (panelenként legalább 260 px). A nyilakkal léptethető, dupla kattintásra visszaáll 50/50-re, a pozíciót az app megjegyzi. Expert és Ultimate Basic módban, valamint a keskeny, egymás alá rendezett elrendezésben az elválasztó rejtve van.
+- **Tisztább makrósorok az ASM nézetben** — a makró blokkok mostantól a vezető megjegyzésjel nélkül jelennek meg (`.print "HELLO"`, `.if A == 1`, `.sprite_init …` a `; .print …` helyett), az ASM szintaxiskiemelő pedig makróként színezi őket. A sima COMMENT blokkok és a régiójelölők továbbra is `;`-vel kezdődnek.
+- **Egyedi makrók kiemelése az Expert szerkesztőben** — a `.macro`, `.invoke` és `.call` utáni makrónév (és a Kick-stílusú `:név(...)` hívás) külön színt kap, ahogy a makró törzsében a `{param}` behelyettesítések és a `.macro` fejléc paraméternevei is — minden témában.
+- **Megújult About dialógus** — szélesebb, kétoszlopos elrendezés csoportosított projekt-, licenc- és köszönet-hivatkozásokkal; az Ultimate Basic banner háttere átlátszó, így minden témába beleolvad.
+- **Web64 a termékoldalon** — új Web64 IDE szekció a [c64va.tech](https://www.c64va.tech) oldalon.
+- **Minta frissítés** — a `macro-with-parameter` minta a zárójeles `.macro setColor(color)` alakot használja.
 
 ---
 
@@ -91,6 +103,8 @@ Az app három fő panelre oszlik:
 | **Jobb — Kimenet** | Élő ASM nézet és/vagy memória monitor kimenet. |
 
 A fejléc jobb szélén lévő mód-jelvény mutatja az aktív **Blokk**, **Expert** vagy **Ultimate Basic** szerkesztőt. Azonnal frissül, amikor a szerkesztőmód változik.
+
+Blokk módban a Program és a Kimenet panel között egy vékony **függőleges elválasztó** található. Húzással bármelyik panelnek több helyet adhatsz (mindkettő legalább 260 px marad), a ←/→ billentyűkkel 16 px-es lépésekben léptethető, dupla kattintásra pedig visszaáll az 50/50 arány. A pozíció a UI beállításokkal együtt mentődik. Expert és Ultimate Basic módban, illetve amikor az ablak annyira keskeny, hogy a panelek egymás alá kerülnek, az elválasztó rejtve van.
 
 ---
 
@@ -159,6 +173,8 @@ A jobb oldali panel valós időben mutatja a generált kimenetet.
 | **Disassembler** | Ugyanaz, mint a Disasm — külön fül a disassembly nézethez |
 | **Toolkit** | C64 referencia panel: 16 színes paletta-minta + PETSCII vezérlőkód és nyomtatható-karakter puska. Csak olvasható — részletekért lásd lentebb a „Toolkit fül" alszakaszt. |
 | **Options** | Program beállítások panel — számformátum, makró-forrás kapcsoló, debugger paraméterek |
+
+A makró blokkok az ASM és a Both nézetben megjegyzésjel nélküli, sima makrósorként jelennek meg (`.print "HELLO"`, `.wait_raster $FF`, `.invoke setColor(blue)`), és makróként vannak színezve; csak a valódi COMMENT blokkok, a régiójelölők és a figyelmeztetések kezdődnek `;`-vel.
 
 ### Toolkit fül
 
@@ -231,11 +247,11 @@ A modal automatikusan bezárul, amikor a művelet befejeződik vagy meghiúsul.
 | **Load .asm file** | `.asm` fájl megnyitása Expert módban, és szöveges 6502 ASM importja az aktuális fülbe |
 | **Save PRG** | A lefordított bináris exportja `.prg` fájlként |
 | **Build CRT** | A program exportja 64K Magic Desk (`.crt`, cartridge type 19) fájlként. Lásd a [12b. szakaszt](#12b-crt-export-magic-desk-64k-cartridge). |
-| **Run (osztott gomb)** | A fő **▶ Run** gomb az aktuális módot futtatja; a **▾** nyíllal válthatsz: **Run as PRG** (fordítás és VICE közvetlen indítása), **Run via D64** (.d64 lemezképbe csomagolás és VICE indítása), vagy **Run on hardware** (PRG küldése egy C64 Ultimate / 1541 Ultimate eszközre). Lásd a [12.](#12-d64-export-és-futtatás) és [13. szakaszt](#13-hardver-beállítások). |
+| **Run (osztott gomb)** | A fő **▶ Run** gomb az aktuális módot futtatja; a **▾** nyíllal válthatsz: **Run as PRG** (fordítás és VICE közvetlen indítása), **Run via D64** (.d64 lemezképbe csomagolás és VICE indítása), **Run on hardware** (PRG küldése egy C64 Ultimate / 1541 Ultimate eszközre), vagy **Kung Fu Flash 2** (a PRG feltöltése USB-n egy Kung Fu Flash 2 cartridge-dzsel felszerelt valódi C64/C128-ra). Lásd a [12.](#12-d64-export-és-futtatás) és [13. szakaszt](#13-hardver-beállítások). |
 | **Debug (RetroDebugger)** | Fordítás és indítás RetroDebuggerben breakpointokkal, szimbólumokkal és autostart flag-ekkel (lásd a [10. szakaszt](#10-debugger-integráció)) |
 | **Run with Exomizer** | Jelölőnégyzet a Settings menüben — bekapcsolva minden Run és Build művelet `exomizer sfx sys`-szel tömöríti a PRG-t indítás vagy mentés előtt. Működik a Run as PRG, Run via D64, Run on Hardware, Build PRG és Build D64 műveletekkel. Először állítsd be az Exomizer futtathatót a **Hardware Settings**-ben. |
 | **Automatikus snapshot mentés** | Jelölőnégyzet a **Hardware Settings → Snapshot** alatt. Bekapcsolva az app automatikusan készít snapshotot kb. 2,5 másodperccel azután, hogy abbahagytad egy fül szerkesztését. Kapcsold ki, ha csak kézi snapshot mentést szeretnél. |
-| **Hardware Settings** | Megnyitja a hardver konfigurációs dialógust — VICE, Exomizer, RetroDebugger és C64 Ultimate beállítása (host, jelszó, kapcsolat-teszt). Lásd a [13. szakaszt](#13-hardver-beállítások). |
+| **Hardware Settings** | Megnyitja a hardver konfigurációs dialógust — VICE, Exomizer, RetroDebugger, C64 Ultimate (host, jelszó, kapcsolat-teszt) és a Kung Fu Flash 2 soros port beállítása. Lásd a [13. szakaszt](#13-hardver-beállítások). |
 | **New program…** | Megerősítő dialógust nyit, majd törli az összes blokkot a programterületről |
 | **Collapse All** | Minden blokk becsukása |
 | **About** | Verzióinformáció |
@@ -366,6 +382,7 @@ A fő osztott **Run** gomb minden szokásos célponton támogatja az Ultimate Ba
 | **Run via D64** | Fordítás, a szabványos D64 csomagoló dialógus megnyitása, majd a lemez indítása VICE-ban. |
 | **Run on Ultimate** | A PRG feltöltése és futtatása a beállított C64 Ultimate REST kapcsolaton keresztül. |
 | **Run D64 on hardware** | D64 csomagolása és küldése a beállított C64 Ultimate-re. |
+| **Kung Fu Flash 2** | Az UB startup forrás lefordítása és a PRG feltöltése USB-n egy Kung Fu Flash 2 cartridge-dzsel felszerelt valódi C64/C128-ra. Lásd: [Kung Fu Flash 2](#kung-fu-flash-2). |
 
 A globális **Settings → Exomizer** opció a UB buildekre és a szokásos futtatási célpontokra is vonatkozik; nincs külön UB eszköztár kapcsoló. A debugger indítások szándékosan a tömörítetlen PRG-t használják, hogy a fordítói címek és szimbólumok továbbra is egyezzenek a végrehajtott programmal.
 
@@ -470,6 +487,8 @@ A szerkesztő egy átlátszó `<div>` overlay-t (`expert-hl`) használ, amely sz
 | Narancs | Számok (`$FF`, `%1010`, `255`) |
 | Cián | Címkék — `:`-re végződő sorok, beleértve a lokális címkéket (`.loop:`) és az önmódosító kód operandus-címkéit (`value:` a `LDA value:#$00`-ban) |
 | Türkiz | String literálok |
+| Ibolya | Egyedi makrónevek — a `.macro`, `.invoke` és `.call` utáni név, valamint a Kick-stílusú `:név(...)` hívások |
+| Aqua | Makró-paraméterek — a `.macro` fejléc paraméternevei és a makró törzsében lévő `{param}` behelyettesítések |
 | Sötétzöld | Megjegyzések (`; …`) |
 
 A `REGION` / `ENDREGION` direktívák a többi assembler-direktívához hasonlóan emelődnek ki. A becsukott régiókból csak a régió-fejléc marad látható a szerkesztőben, amíg újra ki nem nyitod. Az új **Region selection** eszköztár-kapcsoló csak az automatikus aktuális-régió kiemelést vezérli Expert módban; kikapcsolva a forrás láthatóan marad a fold-állapot változtatása nélkül.
@@ -3173,6 +3192,7 @@ Az eszköztár **Run** gombja **osztott gombra** cserélődött:
 | **Run as PRG** | Assembleálás egy ideiglenes `.prg`-be, és VICE közvetlen indítása. Klasszikus viselkedés. |
 | **Run via D64** | Assembleálás, egy `.d64` lemezkép építése (c1541-gyel), a beállított extra fájlok hozzáadása, majd VICE indítása a lemezről. Ezt használd, amikor a programod futásidőben tölt fájlokat (pl. a LOADFILE makróval). |
 | **Run on hardware** | Assembleálás PRG-be, és küldés egy **1541 Ultimate / Ultimate 64** eszközre a helyi hálózaton. Lásd a [13. szakaszt](#13-hardver-beállítások). |
+| **Kung Fu Flash 2** | Assembleálás PRG-be, és feltöltés USB soros kapcsolaton egy **Kung Fu Flash 2** cartridge-dzsel felszerelt valódi C64/C128-ra. Lásd: [Kung Fu Flash 2](#kung-fu-flash-2). |
 
 A kiválasztott mód munkamenetek közt mentődik.
 
@@ -3357,6 +3377,32 @@ Lefordított PRG-ket futtass közvetlenül valódi hardveren a helyi hálózaton
 4. Kattints a **▶ Run**-ra — a PRG lefordul, és HTTP POST-tal a `/v3/runners/prg`-re kerül. Az eszköz azonnal betölti és futtatja a C64-en.
 
 > **Tipp:** nem kell USB kábel vagy driver — a REST API be van építve az Ultimate firmware-be. A számítógépednek és az eszköznek ugyanazon a helyi hálózaton kell lennie.
+
+### Kung Fu Flash 2
+
+Az assembleált programokat **valódi Commodore 64-en vagy C128-on** futtathatod — lemezmeghajtó, lemezkép, SD-kártyára másolás és emulátor nélkül. A Visual Assembler a cartridge USB soros portján keresztül kommunikál vele: újraindítja a MENU loaderbe, és feltölti a PRG-t, ami ezután elindul a gépen.
+
+**Mire van szükség:**
+- egy Commodore 64 / C128 **Kung Fu Flash 2** cartridge-dzsel, bekapcsolva;
+- a cartridge USB kábellel csatlakoztatva a Visual Assemblert futtató számítógéphez (virtuális soros portként jelenik meg).
+
+| Beállítás | Leírás |
+|---|---|
+| **Soros port** | A cartridge USB soros portja, pl. `COM4` (Windows), `/dev/cu.usbmodem…` (macOS) vagy `/dev/ttyACM0` (Linux). Az USB azonosítója (`0483:5740`) alapján az app indításakor automatikusan megtalálja; a mező alatti státuszsor `KFF2: <port>` szöveget mutat, vagy kézi megadásra kér, ha nem találta. Az érték munkamenetek között megmarad. |
+
+**Munkafolyamat:**
+1. Dugd a Kung Fu Flash 2-t a C64 cartridge-portjába, kapcsold be a gépet, és csatlakoztasd az USB kábelt a PC-hez vagy Machez.
+2. Nyisd meg a **Hardware Settings**-et, és ellenőrizd a **Kung Fu Flash 2** szekciót — a portnak már ki kell lennie töltve.
+3. Válaszd a **Kung Fu Flash 2**-t az osztott run menüből (a választás megmarad, és a projektfájlokba is bekerül).
+4. Kattints a **▶ Run**-ra. A program lefordul, a cartridge újraindul a MENU loaderbe (a soros port rövid, 1200 baudos „érintése"), rövid handshake következik, majd a PRG feltöltődik. Az átvitel végén a program a valódi gépen fut.
+
+**Blokk**, **Expert** és **Ultimate Basic** módból egyaránt működik; az Ultimate Basic programok a projekt startup fájljából fordulnak.
+
+> **Korlátok és ellenőrzések:** a PRG-nek tartalmaznia kell a kétbájtos betöltési címet és legalább egy adatbájtot, bele kell férnie a C64 64 KiB-os címtartományába, és nem lehet nagyobb, mint amit a cartridge loadere fogad. A hibákat — nincs beállítva port, a port nem nyitható meg, a cartridge nem tért vissza a MENU-ból, vagy a feltöltést elutasították — egy toast jelzi a pontos okkal.
+
+> **Tipp:** ha a live feltöltés helyett cartridge-képet szeretnél, a **Build CRT** (Magic Desk 64K) is fut a Kung Fu Flash-en — lásd a [12b. szakaszt](#12b-crt-export-magic-desk-64k-cartridge).
+
+---
 
 ---
 

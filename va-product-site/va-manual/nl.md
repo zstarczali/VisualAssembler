@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Gebruikershandleiding
 
-**Versie 2.4.3**
+**Versie 2.4.5**
 
 Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma's door instructieblokken te slepen en neer te zetten, en bekijk de gegenereerde assembly- en machinecode in realtime.
 
@@ -9,6 +9,7 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
 ## Inhoudsopgave
 
 - [C64 Visual Assembler — Gebruikershandleiding](#c64-visual-assembler--user-manual)
+    - [Hoogtepunten van versie 2.4.5](#version-245-highlights)
     - [Hoogtepunten van versie 2.4.3](#version-243-highlights)
     - [Hoogtepunten van versie 2.4.2](#version-242-highlights)
     - [Hoogtepunten van versie 2.4.1](#version-241-highlights)
@@ -154,6 +155,16 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
     - [Kaarteditor (Meerlaagse tegelkaarten)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve-editor](#curve-editor)
+
+---
+
+## Hoogtepunten van versie 2.4.5
+
+- **Ondersteuning voor Kung Fu Flash 2 — draai je programma's op een echte Commodore 64/128.** Het nieuwe item **Kung Fu Flash 2** in het gesplitste **Run**-menu compileert het programma en uploadt het via USB rechtstreeks naar een echte, ingeschakelde C64 (of C128) met een Kung Fu Flash 2-cartridge — zonder diskimage, SD-kaart of emulator. Werkt in Block-, Expert- en Ultimate Basic-modus. De USB-seriële poort van de cartridge (`0483:5740`) wordt automatisch gedetecteerd (Hardware Settings → Kung Fu Flash 2) en kan ook handmatig worden ingevoerd, bijv. `COM4`, `/dev/ttyACM0` of `/dev/cu.usbmodem…`. Werkwijze: plaats de cartridge, zet de C64 aan, sluit USB aan, kies **Kung Fu Flash 2** in het Run-menu en klik op **▶ Run** — de cartridge herstart naar het MENU, de PRG wordt geüpload en het programma draait op de echte machine.
+- **Verstelbare Programma-/ASM-panelen** — een dunne verticale scheiding tussen het Programma- en het ASM-paneel is versleepbaar (minimaal 260 px per paneel). Pijltjestoetsen verplaatsen hem, dubbelklikken herstelt 50/50 en de positie wordt onthouden.
+- **Overzichtelijkere macroregels in de ASM-weergave** — macroblokken worden zonder voorafgaand commentaarteken getoond (`.print "HELLO"` in plaats van `; .print …`) en als macro ingekleurd.
+- **Markering van eigen macro's in de Expert-editor** — de macronaam na `.macro`, `.invoke` en `.call` (en Kick-achtige `:naam(...)`-aanroepen), de `{param}`-vervangingen en de parameters in de `.macro`-kop hebben eigen kleuren.
+- **Vernieuwd About-venster** met tweekolomsindeling en transparante Ultimate Basic-banner, een nieuwe **Web64**-sectie op de productsite en een bijgewerkt voorbeeld `macro-with-parameter` (`.macro setColor(color)`).
 
 ---
 

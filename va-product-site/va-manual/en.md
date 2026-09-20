@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.4.3**
+**Version 2.4.5**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.4.5 Highlights](#version-245-highlights)
     - [Version 2.4.3 Highlights](#version-243-highlights)
     - [Version 2.4.2 Highlights](#version-242-highlights)
     - [Version 2.4.1 Highlights](#version-241-highlights)
@@ -145,6 +146,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Exomizer](#exomizer)
     - [Retro Debugger](#retro-debugger)
     - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
+    - [Kung Fu Flash 2](#kung-fu-flash-2)
   - [14. Visual Editors (Toolkit)](#14-visual-editors-toolkit)
     - [Hi-Res / Multicolor Editor](#hi-res--multicolor-editor)
     - [Sprite Editor](#sprite-editor)
@@ -154,6 +156,18 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Map Editor (Multilayer Tilemaps)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve Editor](#curve-editor)
+
+---
+
+## Version 2.4.5 Highlights
+
+- **Kung Fu Flash 2 support — run your programs on a real Commodore 64/128.** A new **Kung Fu Flash 2** entry in the split **Run** menu compiles the program and uploads it over USB straight into a real, powered-on C64 (or C128) fitted with a Kung Fu Flash 2 cartridge — no disk image, no SD-card copying, no emulator. It works in Block, Expert and Ultimate Basic mode. The cartridge's USB serial port is detected automatically (and can be typed in by hand); see [Kung Fu Flash 2](#kung-fu-flash-2) for the setup and the exact workflow.
+- **Resizable Program / ASM panels** — a thin vertical splitter between the Program panel and the ASM/Output panel lets you drag the boundary left or right (minimum 260 px per panel). Arrow keys nudge it, double-click resets it to a 50/50 split, and the position is remembered between sessions. The splitter is hidden in Expert and Ultimate Basic mode and in the narrow stacked layout.
+- **Cleaner macro lines in the ASM view** — macro blocks are now listed without the leading comment marker (`.print "HELLO"`, `.if A == 1`, `.sprite_init …` instead of `; .print …`), and the ASM syntax highlighter colours them as macros. Ordinary COMMENT blocks and region markers still start with `;`.
+- **Custom macro highlighting in the Expert editor** — the macro name after `.macro`, `.invoke` and `.call` (and Kick-style `:name(...)` calls) has its own colour, and so do the `{param}` substitutions inside the macro body and the parameter names in the `.macro` header, in every theme.
+- **Refreshed About dialog** — a wider two-column layout with grouped project, license and credit links, and the Ultimate Basic banner now has a transparent background so it blends into every theme.
+- **Web64 on the product site** — a new Web64 IDE section on [c64va.tech](https://www.c64va.tech).
+- **Sample update** — the `macro-with-parameter` sample now uses the parenthesised `.macro setColor(color)` form.
 
 ---
 
@@ -219,6 +233,8 @@ The app is split into three main panels:
 | **Right — Output** | Live ASM view and/or memory monitor output. |
 
 The mode badge at the far right of the header identifies the active **Block**, **Expert**, or **Ultimate Basic** editor. It updates immediately when the editing mode changes.
+
+In Block mode, a thin **vertical splitter** sits between the Program and Output panels. Drag it to give either panel more room (each keeps at least 260 px), use ← / → to nudge it in 16 px steps, or double-click it to reset the split to 50/50. The position is saved with the UI settings. The splitter is hidden in Expert and Ultimate Basic mode and when the window is narrow enough for the panels to stack.
 
 ---
 
@@ -287,6 +303,8 @@ The right panel shows the generated output in real time.
 | **Disassembler** | Same as Disasm — dedicated tab for the disassembly view |
 | **Toolkit** | C64 reference panel: 16-colour palette swatch + PETSCII control-code and printable-character cheat sheet. Read-only — see the "Toolkit tab" subsection below for details. |
 | **Options** | Program settings panel — number format, macro source toggle, debugger params |
+
+Macro blocks appear in the ASM and Both views as plain macro lines without a comment marker (`.print "HELLO"`, `.wait_raster $FF`, `.invoke setColor(blue)`) and are coloured as macros; only real COMMENT blocks, region markers and warnings keep their leading `;`.
 
 ### Toolkit tab
 
@@ -359,11 +377,11 @@ The modal closes automatically when the action completes or fails.
 | **Load .asm file** | Opens a `.asm` file in Expert mode and imports textual 6502 ASM into the current tab |
 | **Save PRG** | Export the compiled binary as a `.prg` file |
 | **Build CRT** | Export the program as a 64K Magic Desk (`.crt`, cartridge type 19) file. See [Section 12b](#12b-crt-export-magic-desk-64k-cartridge). |
-| **Run (split button)** | The main **▶ Run** button runs the current mode; click the **▾** arrow to switch between: **Run as PRG** (compile and launch VICE directly), **Run via D64** (package into a .d64 disk image and launch VICE), or **Run on hardware** (send PRG to a C64 Ultimate / 1541 Ultimate device). See [Section 12](#12-d64-export--run) and [Section 13](#13-hardware-settings). |
+| **Run (split button)** | The main **▶ Run** button runs the current mode; click the **▾** arrow to switch between: **Run as PRG** (compile and launch VICE directly), **Run via D64** (package into a .d64 disk image and launch VICE), **Run on hardware** (send PRG to a C64 Ultimate / 1541 Ultimate device), or **Kung Fu Flash 2** (upload the PRG over USB to a real C64/C128 with a Kung Fu Flash 2 cartridge). See [Section 12](#12-d64-export--run) and [Section 13](#13-hardware-settings). |
 | **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 9](#9-debugger-integration)) |
 | **Run with Exomizer** | Checkbox in the Settings menu — when enabled, all Run and Build operations crunch the PRG through `exomizer sfx sys` before launching or saving. Works with Run as PRG, Run via D64, Run on Hardware, Build PRG, and Build D64. Configure the Exomizer executable in **Hardware Settings** first. |
 | **Automatic snapshot saving** | Checkbox in **Hardware Settings → Snapshot**. When enabled, the app creates a snapshot automatically about 2.5 seconds after you stop editing a tab. Turn it off if you only want manual snapshot saves. |
-| **Hardware Settings** | Open the hardware configuration dialog — configure VICE, Exomizer, RetroDebugger, and C64 Ultimate (host, password, connection test). See [Section 13](#13-hardware-settings). |
+| **Hardware Settings** | Open the hardware configuration dialog — configure VICE, Exomizer, RetroDebugger, C64 Ultimate (host, password, connection test) and the Kung Fu Flash 2 serial port. See [Section 13](#13-hardware-settings). |
 | **New program…** | Opens a confirmation dialog, then clears all blocks from the program area |
 | **Collapse All** | Collapse all blocks |
 | **About** | Version info |
@@ -494,6 +512,7 @@ The main split **Run** button supports Ultimate Basic in every normal destinatio
 | **Run via D64** | Compile, open the standard D64 packaging dialog, then launch the disk in VICE. |
 | **Run on Ultimate** | Upload and run the PRG through the configured C64 Ultimate REST connection. |
 | **Run D64 on hardware** | Package a D64 and send it to the configured C64 Ultimate. |
+| **Kung Fu Flash 2** | Compile the UB startup source and upload the PRG over USB to a real C64/C128 with a Kung Fu Flash 2 cartridge. See [Kung Fu Flash 2](#kung-fu-flash-2). |
 
 The global **Settings → Exomizer** option also applies to UB builds and normal run targets; no separate UB toolbar toggle is needed. Debugger launches deliberately use the uncompressed PRG so compiler addresses and symbols continue to match the executed program.
 
@@ -598,6 +617,8 @@ The editor uses a transparent `<div>` overlay (`expert-hl`) that mirrors the tex
 | Orange | Numbers (`$FF`, `%1010`, `255`) |
 | Cyan | Labels — lines ending in `:`, including local labels (`.loop:`) and self-modifying-code operand labels (`value:` in `LDA value:#$00`) |
 | Teal | String literals |
+| Violet | Custom macro names — the name after `.macro`, `.invoke` and `.call`, and Kick-style `:name(...)` calls |
+| Aqua | Macro parameters — the parameter names in the `.macro` header and the `{param}` substitutions in the macro body |
 | Dark green | Comments (`; …`) |
 
 `REGION` / `ENDREGION` directives are highlighted like the other assembler directives. Collapsed regions keep only the region header visible in the editor until you reopen them. The new **Region selection** toolbar toggle only controls the automatic current-region highlight in Expert mode; turning it off keeps the source visible without changing the fold state.
@@ -3302,6 +3323,7 @@ The toolbar **Run** button has been replaced by a **split button**:
 | **Run as PRG** | Assemble to a temporary `.prg` and launch VICE directly. Classic behaviour. |
 | **Run via D64** | Assemble, build a `.d64` disk image (using c1541), add any configured extra files, then launch VICE from the disk. Use this whenever your program loads files at runtime (e.g. with the LOADFILE macro). |
 | **Run on hardware** | Assemble to PRG and send it to a **1541 Ultimate / Ultimate 64** device over the local network. See [Section 13](#13-hardware-settings). |
+| **Kung Fu Flash 2** | Assemble to PRG and upload it over USB serial to a real C64/C128 with a **Kung Fu Flash 2** cartridge. See [Kung Fu Flash 2](#kung-fu-flash-2). |
 
 The selected mode is saved between sessions.
 
@@ -3486,6 +3508,32 @@ Run assembled PRGs directly on real hardware over the local network using the Ul
 4. Click **▶ Run** — the PRG is compiled and sent to the device via HTTP POST to `/v3/runners/prg`. The device loads and runs it on the C64 immediately.
 
 > **Tip:** No USB cable or driver needed — the REST API is built into the Ultimate firmware. Your computer and the device must be on the same local network.
+
+### Kung Fu Flash 2
+
+Run assembled programs on a **real Commodore 64 or C128** — no disk drive, disk image, SD-card copying or emulator involved. Visual Assembler talks to the cartridge's USB serial port, restarts it into its MENU loader and uploads the PRG, which then starts on the machine.
+
+**What you need:**
+- a Commodore 64 / C128 with a **Kung Fu Flash 2** cartridge fitted, powered on;
+- the cartridge connected to the computer running Visual Assembler with a USB cable (it shows up as a virtual serial port).
+
+| Setting | Description |
+|---|---|
+| **Serial port** | The cartridge's USB serial port, e.g. `COM4` (Windows), `/dev/cu.usbmodem…` (macOS) or `/dev/ttyACM0` (Linux). Found automatically by its USB ID (`0483:5740`) when the app starts; the status line under the field shows `KFF2: <port>` or asks you to type the port manually if none was found. The value is saved between sessions. |
+
+**Workflow:**
+1. Fit the Kung Fu Flash 2 into the C64's cartridge port, power the computer on and plug the USB cable into your PC/Mac.
+2. Open **Hardware Settings** and check the **Kung Fu Flash 2** section — the port should already be filled in.
+3. Select **Kung Fu Flash 2** from the split run menu (the choice is remembered, and is also stored in project files).
+4. Click **▶ Run**. The program is compiled, the cartridge is restarted into its MENU loader (a short 1200-baud "touch" of the serial port), a small handshake follows and the PRG is uploaded. When the transfer completes, the program is running on the real machine.
+
+Works from **Block**, **Expert** and **Ultimate Basic** mode alike; Ultimate Basic programs compile from the project's startup file.
+
+> **Limits and checks:** the PRG must contain the two-byte load address plus at least one data byte, must fit into the C64's 64 KiB address space, and must not exceed the size the cartridge's loader accepts. Failures — port not configured, port cannot be opened, the cartridge not returning from MENU, or a rejected upload — are reported in a toast with the exact reason.
+
+> **Tip:** if you prefer a cartridge image instead of a live upload, **Build CRT** (Magic Desk 64K) also runs on the Kung Fu Flash — see [Section 12b](#12b-crt-export-magic-desk-64k-cartridge).
+
+---
 
 ---
 

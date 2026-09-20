@@ -422,6 +422,20 @@
       letter-spacing: 3px
     }
 
+    .kff2-cart-shot {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--brd-hi);
+      background: #050817;
+      box-shadow: 0 18px 48px rgba(0, 0, 0, .45), 0 0 32px rgba(50, 78, 255, .16)
+    }
+
+    .kff2-cart-shot img {
+      display: block;
+      width: 100%;
+      height: auto
+    }
+
     .c77-logo-wrap {
       margin-top: 44px;
       padding: 64px;
@@ -1094,82 +1108,6 @@
       padding: 8px 14px
     }
 
-    /* ── WEB64 IDE ── */
-    .web64 {
-      background: linear-gradient(110deg, #090b22, #10133d);
-      border-top: 1px solid #4249b6;
-      border-bottom: 1px solid var(--brd);
-      padding: 50px 80px
-    }
-
-    .web64-inner {
-      max-width: 1060px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 180px minmax(0, 1fr) auto;
-      gap: 34px;
-      align-items: center
-    }
-
-    .web64-logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: #fff;
-      text-decoration: none
-    }
-
-    .web64-mark {
-      width: 62px;
-      height: 62px;
-      flex: none;
-      filter: drop-shadow(0 0 14px rgba(110, 123, 255, .65))
-    }
-
-    .web64-wordmark {
-      font-size: 20px;
-      line-height: 1;
-      letter-spacing: 1px;
-      color: #e7e9ff
-    }
-
-    .web64-wordmark small {
-      display: block;
-      margin-top: 5px;
-      color: var(--ylw);
-      font-size: 10px;
-      letter-spacing: 5px
-    }
-
-    .web64-copy .sec-s {
-      margin-bottom: 8px
-    }
-
-    .web64-copy .sec-t {
-      margin-bottom: 10px
-    }
-
-    .web64-copy .sec-d {
-      max-width: 570px;
-      margin-bottom: 0
-    }
-
-    .web64-zero-footprint {
-      display: inline-block;
-      margin-bottom: 12px;
-      padding: 7px 10px 6px;
-      background: var(--ylw);
-      color: #080811;
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 1.5px;
-      box-shadow: 4px 4px 0 #5258c7
-    }
-
-    .web64 .btn {
-      white-space: nowrap
-    }
-
     /* ── OCTOPULOUS ── */
     .octopulous {
       background: var(--bg);
@@ -1393,24 +1331,6 @@
         width: min(210px, 65vw)
       }
 
-      .web64 {
-        padding: 42px 24px
-      }
-
-      .web64-inner {
-        grid-template-columns: 1fr;
-        gap: 22px;
-        text-align: center
-      }
-
-      .web64-logo {
-        justify-content: center
-      }
-
-      .web64 .btn {
-        justify-self: center
-      }
-
       .merch {
         padding: 64px 24px
       }
@@ -1504,7 +1424,6 @@
     <a class="nav-link" href="#features">FEATURES</a>
     <a class="nav-link" href="#editors">EDITORS</a>
     <a class="nav-link" href="#docs">DOCS</a>
-    <a class="nav-link" href="#web64">WEB64 IDE</a>
     <a class="nav-link" href="#merch">MERCH</a>
     <a class="nav-link nav-dl" href="#download">DOWNLOAD</a>
   </nav>
@@ -1524,7 +1443,7 @@
         <div class="y">READY.</div>
         <div><span class="g">RUN</span><span class="cur"></span></div>
       </div>
-      <div class="badge">V2.4.3 — LATEST RELEASE</div>
+      <div class="badge">V2.4.5 — LATEST RELEASE</div>
       <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
       <p class="hero-sub">Drag-and-drop 6502 assembly blocks or switch to a full text editor — see real-time ASM output
         and run directly in VICE.</p>
@@ -1537,6 +1456,41 @@
       <img class="hero-box-img" src="uploads/visual_assembler_transparent.png" alt="C64 Visual Assembler — product box">
     </div>
   </section>
+
+  <!-- V2.4.5: KUNG FU FLASH 2, RESIZABLE PANELS & MACRO HIGHLIGHTING -->
+  <div id="release-245" style="background:var(--scr-darker);padding:80px 0">
+    <div class="sec about-grid" style="padding-top:0;padding-bottom:0">
+      <div>
+        <div class="ub-tag">NEW IN V2.4.5</div>
+        <div class="sec-s">// YOUR CODE, ON REAL HARDWARE</div>
+        <h2 class="sec-t">KUNG FU FLASH 2 SUPPORT<br><span style="color:var(--ylw)">RUN ON A REAL COMMODORE 64</span></h2>
+        <p class="sec-d">Version 2.4.5 sends the program you build straight to a real C64 or C128 over USB &mdash; no disk image, no SD card, no emulator &mdash; and polishes the editor along the way.</p>
+        <div class="feature-list">
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Kung Fu Flash 2 run mode</b> <span>&mdash; pick <em>Kung Fu Flash 2</em> in the Run menu and the compiled PRG is uploaded over the cartridge's USB serial port into a powered-on Commodore 64/128. The port is detected automatically (or typed in by hand) and the mode works from Block, Expert and Ultimate Basic.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Resizable Program / ASM panels</b> <span>&mdash; drag the vertical splitter between the Program panel and the ASM output; the position is remembered.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Cleaner ASM view</b> <span>&mdash; macro lines appear without the leading comment marker and are coloured as macros.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Custom macro highlighting</b> <span>&mdash; macro names, <code>{param}</code> substitutions and macro parameters get their own colours in the Expert editor.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="kff2-cart-shot">
+        <img src="uploads/kff2-cart.png" alt="Kung Fu Flash 2 cartridge connected to C64 Visual Assembler support" loading="lazy">
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
 
   <!-- V2.4.3: SID SONG/EFFECTS & D64 SAVE WORKFLOW -->
   <div id="release-243" style="background:var(--scr-darker);padding:80px 0">
@@ -2241,7 +2195,7 @@
         <div class="dl-corner bl">└─</div>
         <div class="dl-corner br">─┘</div>
         <div class="sec-s" style="text-align:center;margin-bottom:16px">// DOWNLOAD</div>
-        <h2 class="sec-t" style="text-align:center">C64 VISUAL ASSEMBLER<br><span style="color:var(--ylw)">V2.4.3 —
+        <h2 class="sec-t" style="text-align:center">C64 VISUAL ASSEMBLER<br><span style="color:var(--ylw)">V2.4.5 —
             FREE</span></h2>
         <p class="sec-d" style="text-align:center;margin:0 auto 8px;max-width:460px">Desktop app for Windows, macOS and
           Linux. Requires Node.js and Rust to build from source, or download a prebuilt installer.</p>
@@ -2422,25 +2376,6 @@
         <a class="btn btn-o" href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener">►
           ULTIMATE BASIC REPOSITORY</a>
       </div>
-    </div>
-  </section>
-
-  <!-- WEB64 IDE -->
-  <section class="web64" id="web64" aria-labelledby="web64-title">
-    <div class="web64-inner">
-      <a class="web64-logo" href="https://web64.nofs.ai/ide/" target="_blank" rel="noopener"
-        aria-label="Open Web64 IDE">
-        <img class="web64-mark" src="uploads/web64-logo.png" alt="Web64 IDE logo" width="128" height="128">
-        <span class="web64-wordmark">WEB64<small>IDE</small></span>
-      </a>
-      <div class="web64-copy">
-        <div class="sec-s">// FEATURED PARTNER PROJECT</div>
-        <h2 class="sec-t" id="web64-title">WEB64 IDE</h2>
-        <div class="web64-zero-footprint">ZERO FOOTPRINT · C + 6502 ASSEMBLY IN YOUR BROWSER</div>
-        <p class="sec-d">Develop Commodore 64 software directly in your browser with both C and 6502 assembly. Web64 IDE
-          includes project tools, editors, a debugger and an integrated C64 emulator.</p>
-      </div>
-      <a class="btn btn-y" href="https://web64.nofs.ai/ide/" target="_blank" rel="noopener">► OPEN WEB64 IDE</a>
     </div>
   </section>
 

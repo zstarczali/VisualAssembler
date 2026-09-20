@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "sid-fx-song-d64-save-243",
+  id: "kff2-splitter-macros-245",
   url: "https://www.c64va.tech/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.4.3-ban",
+    eyebrow: "Újdonság a 2.4.5-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p>Három dolog érdemel egy pillantást ebben a kiadásban:</p><ul><li><strong>SID szerkesztő effekt-oszlop</strong> — a vibrato, csúszás fel/le, note-cut és tempóváltás mostantól szól mind a tracker előnézetben, mind az exportált C64 lejátszóban.</li><li><strong>SID szerkesztő song/sorrend lista</strong> — patternek elrendezése és ismétlése teljes dallá, nem csak egyetlen hurokká.</li><li><strong>D64 Editor Save munkafolyamat</strong> — a szerkesztések mostantól egy munkapéldányon landolnak explicit Save-vel (automatikus biztonsági mentéssel), és mentetlen módosítás esetén megerősítést kér.</li><li><strong>D64 Editor Block Editor</strong> — a Block Editor mostantól új byte-onkénti hex griddel jeleníti meg a kiválasztott 256 byte-os blokkot, és a dialógusa már nem halványítja el az app többi részét.</li></ul>`,
+    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>Kung Fu Flash 2 támogatás</strong> — a programod USB-n keresztül közvetlenül valódi Commodore 64-en futtatható: válaszd a <em>Kung Fu Flash 2</em> pontot a Run menüben. Blokk, Expert és Ultimate Basic módban is működik.</li><li><strong>Átméretezhető panelek</strong> — a Program és az ASM panel közti függőleges elválasztót húzva állíthatod a szélességet (a méret megmarad).</li><li><strong>Tisztább ASM nézet</strong> — a makrósorok megjegyzésjel nélkül, makróként színezve jelennek meg.</li><li><strong>Egyedi makrók kiemelése</strong> az Expert szerkesztőben — a makró neve és a paraméterei külön színt kapnak.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.4.3",
+    eyebrow: "New in 2.4.5",
     title: "Welcome to Visual Assembler",
-    body: `<p>Three things worth a look in this release:</p><ul><li><strong>SID Editor effect column</strong> — vibrato, slide up/down, note-cut and speed-change now play back in both the tracker preview and the exported C64 player.</li><li><strong>SID Editor song/order list</strong> — arrange and repeat patterns into a full song, not just a single loop.</li><li><strong>D64 Editor Save workflow</strong> — edits now land on a working copy with an explicit Save (auto-backup included) and unsaved-change prompts.</li><li><strong>D64 Editor Block Editor</strong> — a new per-byte hex grid shows the selected 256-byte block, and its dialog no longer dims the rest of the app.</li></ul>`,
+    body: `<p>What's new in this release:</p><ul><li><strong>Kung Fu Flash 2 support</strong> — run your program on a real Commodore 64 over USB: pick <em>Kung Fu Flash 2</em> in the Run menu. Works from Block, Expert and Ultimate Basic mode.</li><li><strong>Resizable panels</strong> — drag the vertical splitter between the Program and ASM panels to set the width (it is remembered).</li><li><strong>Cleaner ASM view</strong> — macro lines are shown without the comment marker and coloured as macros.</li><li><strong>Custom macro highlighting</strong> in the Expert editor — macro names and parameters get their own colours.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.4.3",
+    eyebrow: "Novedad en la 2.4.5",
     title: "Bienvenido a Visual Assembler",
-    body: `<p>Tres novedades que merecen un vistazo en esta versión:</p><ul><li><strong>Columna de efectos del editor SID</strong> — el vibrato, el deslizamiento arriba/abajo, el corte de nota y el cambio de velocidad ahora suenan tanto en la vista previa del tracker como en el reproductor C64 exportado.</li><li><strong>Lista de canciones/orden del editor SID</strong> — organiza y repite patrones para formar una canción completa, no solo un bucle.</li><li><strong>Flujo de guardado del Editor D64</strong> — las ediciones ahora se aplican a una copia de trabajo con un Guardar explícito (con copia de seguridad automática) y avisos de cambios sin guardar.</li><li><strong>Editor de bloques del Editor D64</strong> — una nueva cuadrícula hexadecimal por byte muestra el bloque de 256 bytes seleccionado, y su ventana ya no atenúa el resto de la aplicación.</li></ul>`,
+    body: `<p>Novedades de esta versión:</p><ul><li><strong>Compatibilidad con Kung Fu Flash 2</strong> — ejecuta tu programa en un Commodore 64 real por USB: elige <em>Kung Fu Flash 2</em> en el menú Run. Funciona desde el modo Bloques, Expert y Ultimate Basic.</li><li><strong>Paneles redimensionables</strong> — arrastra el divisor vertical entre los paneles Programa y ASM para ajustar el ancho (se recuerda).</li><li><strong>Vista ASM más limpia</strong> — las líneas de macro se muestran sin marca de comentario y coloreadas como macros.</li><li><strong>Resaltado de macros propias</strong> en el editor Expert — los nombres y parámetros de las macros tienen colores propios.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.4.3",
+    eyebrow: "Neu in 2.4.5",
     title: "Willkommen bei Visual Assembler",
-    body: `<p>Drei Neuerungen sind in diesem Release einen Blick wert:</p><ul><li><strong>SID-Editor-Effektspalte</strong> — Vibrato, Slide auf/ab, Note-Cut und Tempowechsel erklingen jetzt sowohl in der Tracker-Vorschau als auch im exportierten C64-Player.</li><li><strong>SID-Editor Song-/Reihenfolgeliste</strong> — Patterns zu einem vollständigen Song anordnen und wiederholen, nicht nur zu einer einzelnen Schleife.</li><li><strong>D64-Editor Speicher-Workflow</strong> — Änderungen landen jetzt auf einer Arbeitskopie mit explizitem Speichern (inklusive automatischem Backup) und Abfragen bei ungespeicherten Änderungen.</li><li><strong>D64-Editor Block-Editor</strong> — ein neues byteweises Hex-Raster zeigt den ausgewählten 256-Byte-Block, und sein Dialog verdunkelt den Rest der App nicht mehr.</li></ul>`,
+    body: `<p>Neuerungen in diesem Release:</p><ul><li><strong>Kung-Fu-Flash-2-Unterstützung</strong> — starte dein Programm per USB auf einem echten Commodore 64: wähle <em>Kung Fu Flash 2</em> im Run-Menü. Funktioniert im Block-, Expert- und Ultimate-Basic-Modus.</li><li><strong>Größenveränderbare Panels</strong> — ziehe den senkrechten Teiler zwischen Programm- und ASM-Panel, um die Breite einzustellen (wird gespeichert).</li><li><strong>Übersichtlichere ASM-Ansicht</strong> — Makrozeilen erscheinen ohne Kommentarzeichen und als Makros eingefärbt.</li><li><strong>Hervorhebung eigener Makros</strong> im Expert-Editor — Makronamen und Parameter haben eigene Farben.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.4.3",
+    eyebrow: "Nieuw in 2.4.5",
     title: "Welkom bij Visual Assembler",
-    body: `<p>Drie dingen die de moeite waard zijn in deze release:</p><ul><li><strong>SID-editor effectkolom</strong> — vibrato, slide omhoog/omlaag, note-cut en tempowissel klinken nu zowel in de trackervoorbeeld als in de geëxporteerde C64-speler.</li><li><strong>SID-editor song/volgorde-lijst</strong> — patronen rangschikken en herhalen tot een volledig nummer, niet slechts één lus.</li><li><strong>D64-editor opslag-workflow</strong> — bewerkingen landen nu op een werkkopie met een expliciete Opslaan-knop (inclusief automatische back-up) en meldingen bij niet-opgeslagen wijzigingen.</li><li><strong>D64-editor Block Editor</strong> — een nieuw byte-voor-byte hexraster toont het geselecteerde blok van 256 bytes, en het dialoogvenster dimt de rest van de app niet meer.</li></ul>`,
+    body: `<p>Nieuw in deze release:</p><ul><li><strong>Ondersteuning voor Kung Fu Flash 2</strong> — draai je programma via USB op een echte Commodore 64: kies <em>Kung Fu Flash 2</em> in het Run-menu. Werkt vanuit Block-, Expert- en Ultimate Basic-modus.</li><li><strong>Verstelbare panelen</strong> — sleep de verticale scheiding tussen het Programma- en ASM-paneel om de breedte in te stellen (wordt onthouden).</li><li><strong>Overzichtelijkere ASM-weergave</strong> — macroregels worden zonder commentaarteken getoond en als macro ingekleurd.</li><li><strong>Markering van eigen macro's</strong> in de Expert-editor — macronamen en parameters krijgen eigen kleuren.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.4.3",
+    eyebrow: "Nowość w 2.4.5",
     title: "Witamy w Visual Assembler",
-    body: `<p>Trzy nowości warte uwagi w tym wydaniu:</p><ul><li><strong>Kolumna efektów edytora SID</strong> — vibrato, slide w górę/w dół, note-cut i zmiana tempa brzmią teraz zarówno w podglądzie trackera, jak i w wyeksportowanym odtwarzaczu C64.</li><li><strong>Lista utworu/kolejności edytora SID</strong> — układaj i powtarzaj patterny w pełny utwór, a nie tylko jedną pętlę.</li><li><strong>Przepływ zapisu Edytora D64</strong> — edycje trafiają teraz do kopii roboczej z jawnym Zapisem (wraz z automatyczną kopią zapasową) i pytaniem o niezapisane zmiany.</li><li><strong>Edytor bloków w Edytorze D64</strong> — nowa siatka hex bajt-po-bajcie pokazuje wybrany blok 256 bajtów, a jego okno nie przyciemnia już reszty aplikacji.</li></ul>`,
+    body: `<p>Co nowego w tym wydaniu:</p><ul><li><strong>Obsługa Kung Fu Flash 2</strong> — uruchom program na prawdziwym Commodore 64 przez USB: wybierz <em>Kung Fu Flash 2</em> w menu Run. Działa w trybie blokowym, Expert i Ultimate Basic.</li><li><strong>Panele ze zmiennym rozmiarem</strong> — przeciągnij pionowy separator między panelem Programu a ASM, aby ustawić szerokość (jest zapamiętywana).</li><li><strong>Czytelniejszy widok ASM</strong> — linie makr są pokazywane bez znaku komentarza i pokolorowane jako makra.</li><li><strong>Podświetlanie własnych makr</strong> w edytorze Expert — nazwy i parametry makr mają własne kolory.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.4.3",
+    eyebrow: "Novità nella 2.4.5",
     title: "Benvenuto in Visual Assembler",
-    body: `<p>Tre novità da non perdere in questa versione:</p><ul><li><strong>Colonna effetti dell'editor SID</strong> — vibrato, slide su/giù, note-cut e cambio di tempo ora suonano sia nell'anteprima del tracker che nel player C64 esportato.</li><li><strong>Lista song/ordine dell'editor SID</strong> — organizza e ripeti i pattern in una canzone completa, non solo in un singolo loop.</li><li><strong>Flusso di salvataggio dell'Editor D64</strong> — le modifiche ora vengono applicate a una copia di lavoro con un Salva esplicito (con backup automatico) e avvisi per modifiche non salvate.</li><li><strong>Block Editor dell'Editor D64</strong> — una nuova griglia esadecimale byte per byte mostra il blocco di 256 byte selezionato, e la sua finestra non oscura più il resto dell'app.</li></ul>`,
+    body: `<p>Novità di questa versione:</p><ul><li><strong>Supporto Kung Fu Flash 2</strong> — esegui il programma su un vero Commodore 64 via USB: scegli <em>Kung Fu Flash 2</em> nel menu Run. Funziona dalla modalità a blocchi, Expert e Ultimate Basic.</li><li><strong>Pannelli ridimensionabili</strong> — trascina il divisore verticale tra i pannelli Programma e ASM per impostare la larghezza (viene ricordata).</li><li><strong>Vista ASM più pulita</strong> — le righe di macro sono mostrate senza il segno di commento e colorate come macro.</li><li><strong>Evidenziazione delle macro personalizzate</strong> nell'editor Expert — nomi e parametri delle macro hanno colori propri.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }

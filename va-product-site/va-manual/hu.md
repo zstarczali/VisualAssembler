@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**2.4.3-as verzió**
+**2.4.5-ös verzió**
 
 Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat létre húzással és elengedéssel (fogd és vidd) utasításblokkokkal, és valós időben tekintheti meg a létrehozott assembly és gépi kódot.
 
@@ -9,6 +9,7 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
 ## Tartalomjegyzék
 
 - [C64 Visual Assembler — Felhasználói kézikönyv](#c64-visual-assembler--user-manual)
+    - [2.4.5-ös verzió kiemelt funkciói](#version-245-highlights)
     - [2.4.3-as verzió kiemelt funkciói](#version-243-highlights)
     - [2.4.2-es verzió – kiemelt funkciók](#version-242-highlights)
     - [2.4.1-es verzió – kiemelt funkciók](#version-241-highlights)
@@ -154,6 +155,16 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
     - [Térképszerkesztő (Többrétegű csempetérképek)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Görbeszerkesztő](#curve-editor)
+
+---
+
+## A 2.4.5-ös verzió legfontosabb elemei
+
+- **Kung Fu Flash 2 támogatás — futtasd a programjaidat valódi Commodore 64/128-on.** Az osztott **Run** menü új **Kung Fu Flash 2** pontja lefordítja a programot, és USB-n közvetlenül feltölti egy valódi, bekapcsolt C64-re (vagy C128-ra), amelyben Kung Fu Flash 2 cartridge van — lemezkép, SD-kártya és emulátor nélkül. Blokk, Expert és Ultimate Basic módban egyaránt működik. A cartridge USB soros portját (`0483:5740`) az app automatikusan felismeri (Hardware Settings → Kung Fu Flash 2), de kézzel is megadható, pl. `COM4`, `/dev/ttyACM0` vagy `/dev/cu.usbmodem…`. Munkafolyamat: dugd be a cartridge-et, kapcsold be a C64-et, csatlakoztasd az USB-t, válaszd a Run menüben a **Kung Fu Flash 2**-t, majd kattints a **▶ Run**-ra — a cartridge újraindul a MENU-be, feltöltődik a PRG, és a program a valódi gépen fut.
+- **Átméretezhető Program/ASM panelek** — a Program és az ASM panel közti vékony függőleges elválasztó húzható (panelenként legalább 260 px). A nyilak léptetik, dupla kattintás visszaállítja az 50/50 arányt, a pozíció megmarad.
+- **Tisztább makrósorok az ASM nézetben** — a makró blokkok vezető megjegyzésjel nélkül jelennek meg (`.print "HELLO"` a `; .print …` helyett), és makróként vannak színezve.
+- **Egyedi makrók kiemelése az Expert szerkesztőben** — a `.macro`, `.invoke` és `.call` utáni makrónév (és a Kick-stílusú `:név(...)` hívás), a `{param}` behelyettesítések és a `.macro` fejléc paraméterei külön színt kapnak.
+- **Megújult About dialógus** kétoszlopos elrendezéssel és átlátszó hátterű Ultimate Basic bannerrel, új **Web64** szekció a termékoldalon, valamint frissített `macro-with-parameter` minta (`.macro setColor(color)`).
 
 ---
 

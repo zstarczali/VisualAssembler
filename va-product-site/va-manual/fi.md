@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.4.3**
+**Versio 2.4.5**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin reaaliajassa.
 
@@ -9,6 +9,7 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 ## Sisällysluettelo
 
 - [C64 Visual Assembler — Käyttöopas](#c64-visual-assembler--user-manual)
+    - [Version 2.4.5 kohokohdat](#version-245-highlights)
     - [Version 2.4.3 kohokohdat](#version-243-highlights)
     - [Version 2.4.2 kohokohdat](#version-242-highlights)
     - [Version 2.4.1 kohokohdat](#version-241-highlights)
@@ -154,6 +155,16 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
     - [Karttaeditori (monikerroksiset laattakartat)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Käyränmuokkausohjelma](#curve-editor)
+
+---
+
+## Version 2.4.5 kohokohdat
+
+- **Kung Fu Flash 2 -tuki — aja ohjelmasi oikealla Commodore 64/128:lla.** Jaetun **Run**-valikon uusi **Kung Fu Flash 2** -kohta kääntää ohjelman ja lähettää sen USB:n kautta suoraan päällekytkettyyn C64:ään (tai C128:aan), jossa on Kung Fu Flash 2 -moduuli — ilman levykuvaa, SD-korttia tai emulaattoria. Toimii Block-, Expert- ja Ultimate Basic -tilassa. Moduulin USB-sarjaportti (`0483:5740`) tunnistetaan automaattisesti (Hardware Settings → Kung Fu Flash 2) ja sen voi syöttää myös käsin, esim. `COM4`, `/dev/ttyACM0` tai `/dev/cu.usbmodem…`. Työnkulku: aseta moduuli paikalleen, kytke C64 päälle, liitä USB, valitse Run-valikosta **Kung Fu Flash 2** ja napsauta **▶ Run** — moduuli käynnistetään uudelleen MENU-tilaan, PRG ladataan ja ohjelma käynnistyy oikealla koneella.
+- **Muokattavan kokoiset Program/ASM-paneelit** — Program- ja ASM-paneelin välistä ohutta pystyjakajaa voi vetää (vähintään 260 px per paneeli). Nuolinäppäimet siirtävät sitä, kaksoisnapsautus palauttaa 50/50-jaon ja sijainti muistetaan.
+- **Selkeämmät makrorivit ASM-näkymässä** — makrolohkot näytetään ilman johtavaa kommenttimerkkiä (`.print "HELLO"` eikä `; .print …`) ja ne väritetään makroina.
+- **Omien makrojen korostus Expert-editorissa** — `.macro`-, `.invoke`- ja `.call`-sanan jälkeinen makron nimi (sekä Kick-tyyliset `:nimi(...)`-kutsut), `{param}`-korvaukset ja `.macro`-otsikon parametrit saavat omat värinsä.
+- **Uudistettu About-ikkuna** kaksipalstaisella asettelulla ja läpinäkyvällä Ultimate Basic -bannerilla, uusi **Web64**-osio tuotesivulla sekä päivitetty `macro-with-parameter`-esimerkki (`.macro setColor(color)`).
 
 ---
 

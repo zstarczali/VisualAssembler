@@ -1,6 +1,6 @@
 # C64 Visual Assembler – Benutzerhandbuch
 
-**Version 2.4.3**
+**Version 2.4.5**
 
 Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Sie Programme durch Ziehen und Ablegen von Befehlsblöcken und sehen Sie den generierten Assembler- und Maschinencode in Echtzeit.
 
@@ -9,6 +9,7 @@ Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Si
 ## Inhaltsverzeichnis
 
 - [C64 Visual Assembler — Benutzerhandbuch](#c64-visual-assembler--user-manual)
+    - [Highlights der Version 2.4.5](#version-245-highlights)
     - [Version 2.4.3 Highlights](#version-243-highlights)
     - [Version 2.4.2 Highlights](#version-242-highlights)
     - [Version 2.4.1 Highlights](#version-241-highlights)
@@ -154,6 +155,16 @@ Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Si
     - [Karteneditor (Mehrschichtige Kachelkarten)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Kurveneditor](#curve-editor)
+
+---
+
+## Highlights der Version 2.4.5
+
+- **Kung-Fu-Flash-2-Unterstützung — starte deine Programme auf einem echten Commodore 64/128.** Der neue Eintrag **Kung Fu Flash 2** im geteilten **Run**-Menü kompiliert das Programm und lädt es per USB direkt in einen echten, eingeschalteten C64 (oder C128) mit Kung-Fu-Flash-2-Modul — ohne Disk-Image, SD-Karte oder Emulator. Funktioniert im Block-, Expert- und Ultimate-Basic-Modus. Der serielle USB-Port des Moduls (`0483:5740`) wird automatisch erkannt (Hardware Settings → Kung Fu Flash 2) und kann auch von Hand eingetragen werden, z. B. `COM4`, `/dev/ttyACM0` oder `/dev/cu.usbmodem…`. Ablauf: Modul einstecken, C64 einschalten, USB verbinden, **Kung Fu Flash 2** im Run-Menü wählen und **▶ Run** klicken — das Modul wird ins MENU neu gestartet, der PRG-Upload folgt, und das Programm läuft auf der echten Maschine.
+- **Größenveränderbare Programm-/ASM-Panels** — ein dünner senkrechter Teiler zwischen Programm- und ASM-Panel lässt sich ziehen (mindestens 260 px pro Panel). Pfeiltasten verschieben ihn, Doppelklick stellt 50/50 wieder her, die Position wird gespeichert.
+- **Übersichtlichere Makrozeilen in der ASM-Ansicht** — Makroblöcke erscheinen ohne führendes Kommentarzeichen (`.print "HELLO"` statt `; .print …`) und werden als Makros eingefärbt.
+- **Eigene Makros im Expert-Editor hervorgehoben** — der Makroname nach `.macro`, `.invoke` und `.call` (sowie Kick-artige `:name(...)`-Aufrufe), die `{param}`-Ersetzungen und die Parameternamen im `.macro`-Kopf haben eigene Farben.
+- **Überarbeiteter About-Dialog** mit zweispaltigem Layout und transparentem Ultimate-Basic-Banner, ein neuer **Web64**-Bereich auf der Produktseite und ein aktualisiertes Beispiel `macro-with-parameter` (`.macro setColor(color)`).
 
 ---
 
