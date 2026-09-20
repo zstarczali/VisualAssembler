@@ -246,7 +246,10 @@
       "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/3d4179d5-1d95-46c4-b35b-f6d4c313a168/scratchpad/readmes.py\")",
       "Bash(python -c \"import mistune, reportlab; print\\('deps ok'\\)\")",
       "Bash(git check-ignore *)",
-      "Bash(cd /f/Development/VisualAssembler/va-product-site/va-manual && ls; wc -l *.md; grep -n \"Ultimate\" hu.md | sed -n 1,40p | cut -c1-160; grep -rn \"va-manual\" ../../tests ../../package.json 2>/dev/null | head)"
+      "Bash(cd /f/Development/VisualAssembler/va-product-site/va-manual && ls; wc -l *.md; grep -n \"Ultimate\" hu.md | sed -n 1,40p | cut -c1-160; grep -rn \"va-manual\" ../../tests ../../package.json 2>/dev/null | head)",
+      "Bash(file uploads/merch-*.png)",
+      "Bash(python -c \"import PIL; print\\(PIL.__version__\\)\")",
+      "Bash(sed -i 's#src=\"uploads/logo2\\\\.png\"#src=\"uploads/logo2.webp\"#' index.html)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"
