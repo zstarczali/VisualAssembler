@@ -3603,6 +3603,7 @@ function _applyEditorTranslations() {
   setText("#sid-export-data", t("sidExportData"));
   setText("#sid-export-player", t("sidExportPlayer"));
   setText("#sid-export-asm", t("sidExportAsm"));
+  setText("#sid-export-ub", t("sidExportUb"));
   setText("#cg-export-demo", t("cgExportDemo"));
   // Curve Editor
   setText("#cg-title", t("cgTitle"));
@@ -6072,6 +6073,8 @@ const ubCommandDescriptionsEn = {
   "sprite": "Positions a hardware sprite and optionally sets its data pointer.",
   "sprdef": "Embeds and installs a 63-byte sprite definition.",
   "sound": "Plays a SID voice with fixed ADSR and sawtooth waveform.",
+  "sfx": "Non-blocking SID sound effect: programs one voice and returns at once. Optional wave: 16 triangle, 32 saw (default), 64 pulse, 128 noise. Channel, frames and wave must be constants.",
+  "org": "Placed between sub/fn definitions: the next subs continue at the given address, the gap is zero-filled and can hold incbin data.",
   "load sid": "Embeds a PSID/RSID file at compile time.",
   "music": "Controls music loaded with load sid.",
   "irq": "Installs a raster interrupt handler at line 0 or the given raster line.",
@@ -6081,7 +6084,7 @@ const ubCommandDescriptionsEn = {
   "sys": "Calls a machine-code routine with JSR.",
   "asm": "Embeds raw bytes or a full inline 6502 assembly block.",
   "include": "Includes another UltimateBasic source file.",
-  "incbin": "Embeds binary data inline or at an absolute address.",
+  "incbin": "Embeds binary data inline or at an absolute address; optional skip and length slice the file (e.g. skip a .prg load address).",
   "data": "Defines compile-time byte data and reads it sequentially.",
   "reu": "Transfers memory using the REU DMA controller.",
   "turbo": "Controls C64 Ultimate/SuperCPU acceleration.",
@@ -6113,7 +6116,7 @@ const ubCommandDescriptionsEn = {
   "sprite collision": "Reads sprite/sprite or sprite/background collision flags.",
   "sprite position": "Reads a hardware sprite coordinate.",
   "chardef": "Embeds an 8-byte custom character definition.",
-  "charset": "Sets the RAM character-set base address.",
+  "charset": "Sets the RAM character-set base address (chardef destination). charset on / charset off switch the VIC-II to or from that set.",
   "sid volume": "Sets SID volume or stops SID playback.",
   "nmi": "Installs an NMI handler.",
   "nmi_exit": "Exits an NMI through the KERNAL.",
@@ -6184,6 +6187,8 @@ const ubCommandDescriptionsHu = {
   "sprite": "Beállítja egy hardveres sprite pozícióját és opcionálisan az adatmutatóját.",
   "sprdef": "Beágyaz és telepít egy 63 bájtos sprite definíciót.",
   "sound": "Megszólaltat egy SID hangcsatornát fix ADSR-rel és fűrészfog hullámformával.",
+  "sfx": "Nem blokkoló SID hangeffekt: beállít egy hangcsatornát és azonnal visszatér. Opcionális hullámforma: 16 háromszög, 32 fűrész (alap), 64 pulzus, 128 zaj. A csatorna, a frame-szám és a hullámforma konstans kell legyen.",
+  "org": "Sub/fn definíciók között áll: a következő subok a megadott címen folytatódnak, a rés nullákkal kitöltött és incbin adatot fogadhat.",
   "load sid": "Beágyaz egy PSID/RSID zenefájlt fordítási időben.",
   "music": "Vezérli a load sid paranccsal betöltött zenelejátszást (play, stop, pause, resume).",
   "irq": "Raszter megszakításkezelőt telepít a 0. vagy a megadott rasztersorhoz.",
@@ -6193,7 +6198,7 @@ const ubCommandDescriptionsHu = {
   "sys": "Gépi kódú rutint hív meg JSR utasítással.",
   "asm": "Nyers bájtokat vagy beágyazott inline 6502 assembly blokkot szúr be.",
   "include": "Egy másik UltimateBasic forrásfájlt fűz be a programba.",
-  "incbin": "Bináris adatfájlt ágyaz be inline vagy abszolút memóriacímre.",
+  "incbin": "Bináris adatfájlt ágyaz be inline vagy abszolút memóriacímre; az opcionális skip és length szeleteli a fájlt (pl. .prg betöltési cím kihagyása).",
   "data": "Fordítási idejű bájtadatokat definiál (data) és egymás után beolvassa őket (read).",
   "reu": "Memóriát mozgat a C64 REU DMA vezérlőjével (stash, fetch, swap).",
   "turbo": "Vezérli a C64 Ultimate és SuperCPU gyorsítást (on, off, speed).",
@@ -6225,7 +6230,7 @@ const ubCommandDescriptionsHu = {
   "sprite collision": "Lekérdezi a sprite-sprite vagy sprite-háttér ütközési jelzőbiteit (sprite_hit, sprite_bg_hit).",
   "sprite position": "Lekérdezi egy hardveres sprite X vagy Y koordinátáját (sprite_x, sprite_y).",
   "chardef": "Beágyaz egy 8 bájtos egyedi karakterdefiníciót.",
-  "charset": "Beállítja a RAM-ban lévő karakterkészlet báziscímét.",
+  "charset": "Beállítja a RAM-ban lévő karakterkészlet báziscímét (chardef célja). A charset on / charset off átkapcsolja a VIC-II-t erre a készletre, illetve vissza.",
   "sid volume": "Beállítja a SID fő hangerőt ($D418) vagy leállítja a lejátszást.",
   "nmi": "NMI megszakításkezelő rutint telepít.",
   "nmi_exit": "Kilép az NMI megszakításból a KERNAL-on keresztül.",
@@ -6296,6 +6301,8 @@ const ubCommandDescriptionsEs = {
   "sprite": "Posiciona un sprite de hardware y opcionalmente define su puntero de datos.",
   "sprdef": "Incrusta e instala una definición de sprite de 63 bytes.",
   "sound": "Reproduce una voz del SID con ADSR fijo y forma de onda de diente de sierra.",
+  "sfx": "Efecto de sonido SID sin bloqueo: programa una voz y vuelve de inmediato. Onda opcional: 16 triángulo, 32 sierra (por defecto), 64 pulso, 128 ruido. Canal, frames y onda deben ser constantes.",
+  "org": "Se coloca entre definiciones sub/fn: las siguientes subs continúan en la dirección dada; el hueco se rellena con ceros y puede contener datos incbin.",
   "load sid": "Incrusta un archivo PSID/RSID en tiempo de compilación.",
   "music": "Controla la música cargada con load sid.",
   "irq": "Instala un controlador de interrupciones de trama en la línea 0 o la línea indicada.",
@@ -6408,6 +6415,8 @@ const ubCommandDescriptionsDe = {
   "sprite": "Positioniert ein Hardware-Sprite und setzt optional seinen Datenzeiger.",
   "sprdef": "Bettet eine 63-Byte-Sprite-Definition ein und installiert sie.",
   "sound": "Spielt eine SID-Stimme mit festem ADSR und Sägezahn-Wellenform ab.",
+  "sfx": "Nicht blockierender SID-Soundeffekt: programmiert eine Stimme und kehrt sofort zurück. Optionale Wellenform: 16 Dreieck, 32 Sägezahn (Standard), 64 Puls, 128 Rauschen. Kanal, Frames und Wellenform müssen Konstanten sein.",
+  "org": "Steht zwischen sub/fn-Definitionen: die folgenden Subs setzen sich an der Adresse fort; die Lücke wird mit Nullen gefüllt und kann incbin-Daten aufnehmen.",
   "load sid": "Bettet eine PSID/RSID-Datei zur Kompilierzeit ein.",
   "music": "Steuert die mit load sid geladene Musik.",
   "irq": "Installiert einen Raster-Interrupt-Handler in Zeile 0 oder der angegebenen Rasterzeile.",
@@ -6520,6 +6529,8 @@ const ubCommandDescriptionsNl = {
   "sprite": "Positioneert een hardwaresprite en stelt optioneel de datawijzer in.",
   "sprdef": "Sluit een 63-byte spritedefinitie in en installeert deze.",
   "sound": "Speelt een SID-stem af met vaste ADSR en zaagtandgolfvorm.",
+  "sfx": "Niet-blokkerend SID-geluidseffect: programmeert één stem en keert direct terug. Optionele golfvorm: 16 driehoek, 32 zaagtand (standaard), 64 puls, 128 ruis. Kanaal, frames en golfvorm moeten constanten zijn.",
+  "org": "Staat tussen sub/fn-definities: de volgende subs gaan verder op het opgegeven adres; het gat wordt met nullen gevuld en kan incbin-data bevatten.",
   "load sid": "Sluit een PSID/RSID-bestand in tijdens het compileren.",
   "music": "Bestuurt muziek geladen met load sid.",
   "irq": "Installeert een rasteronderbrekingshandler op lijn 0 of de opgegeven rasterlijn.",
@@ -6632,6 +6643,8 @@ const ubCommandDescriptionsPl = {
   "sprite": "Pozycjonuje sprite sprzętowy i opcjonalnie ustawia jego wskaźnik danych.",
   "sprdef": "Osadza i instaluje 63-bajtową definicję sprite'a.",
   "sound": "Odtwarza głos SID ze stałym ADSR i falą piłokształtną.",
+  "sfx": "Nieblokujący efekt dźwiękowy SID: programuje jeden głos i natychmiast wraca. Opcjonalna fala: 16 trójkąt, 32 piła (domyślnie), 64 impuls, 128 szum. Kanał, liczba ramek i fala muszą być stałymi.",
+  "org": "Występuje między definicjami sub/fn: kolejne suby kontynuują pod podanym adresem; luka jest wypełniona zerami i może zawierać dane incbin.",
   "load sid": "Osadza plik PSID/RSID w czasie kompilacji.",
   "music": "Steruje muzyką wczytaną przez load sid.",
   "irq": "Instaluje procedurę przerwania rastrowego na linii 0 lub podanej linii rastra.",
@@ -6744,6 +6757,8 @@ const ubCommandDescriptionsIt = {
   "sprite": "Posiziona uno sprite hardware e imposta opzionalmente il suo puntatore dati.",
   "sprdef": "Incorpora e installa una definizione di sprite da 63 byte.",
   "sound": "Riproduce una voce SID con ADSR fisso e forma d'onda a dente di sega.",
+  "sfx": "Effetto sonoro SID non bloccante: programma una voce e ritorna subito. Onda opzionale: 16 triangolare, 32 dente di sega (predefinita), 64 impulso, 128 rumore. Canale, frame e onda devono essere costanti.",
+  "org": "Si trova tra le definizioni sub/fn: le sub successive continuano all'indirizzo indicato; il vuoto è riempito di zeri e può contenere dati incbin.",
   "load sid": "Incorpora un file PSID/RSID in fase di compilazione.",
   "music": "Controlla la musica caricata con load sid.",
   "irq": "Installa un gestore di interrupt raster sulla linea 0 o sulla linea raster indicata.",
@@ -6866,6 +6881,8 @@ const _UB_COMMAND_REFERENCE = [
   ["sprite", "sprite id, x, y [, data_address]", "Positions a hardware sprite and optionally sets its data pointer."],
   ["sprdef", "sprdef id\n  byte values...\nend", "Embeds and installs a 63-byte sprite definition."],
   ["sound", "sound channel, frequency, duration", "Plays a SID voice with fixed ADSR and sawtooth waveform."],
+  ["sfx", "sfx channel, frequency, frames [, wave]", "Starts a SID sound effect and returns immediately; the note decays by itself."],
+  ["org", "org address", "Continues subroutine/function code at the given address, leaving a gap for data."],
   ["load sid", "load sid \"file.sid\" [at address]", "Embeds a PSID/RSID file at compile time."],
   ["music", "music play | stop | pause | resume", "Controls music loaded with load sid."],
   ["irq", "irq handler [, raster_line]", "Installs a raster interrupt handler at line 0 or the given raster line."],
@@ -6875,7 +6892,7 @@ const _UB_COMMAND_REFERENCE = [
   ["sys", "sys address [, accumulator]", "Calls a machine-code routine with JSR."],
   ["asm", "asm byte [, byte ...]\nasm {\n  6502 instructions\n}", "Embeds raw bytes or a full inline 6502 assembly block."],
   ["include", "include \"file.ub\"", "Includes another UltimateBasic source file."],
-  ["incbin", "incbin \"file.bin\"\nincbin \"file.bin\", $address", "Embeds binary data inline or at an absolute address."],
+  ["incbin", "incbin \"file.bin\"\nincbin \"file.bin\", $address [, skip [, length]]", "Embeds binary data inline or at an absolute address."],
   ["data", "data value [, value ...]\nread variable", "Defines compile-time byte data and reads it sequentially."],
   ["reu", "reu stash|fetch|swap c64_address, bank, reu_address, length", "Transfers memory using the REU DMA controller."],
   ["turbo", "turbo on | off\nspeed mhz", "Controls C64 Ultimate/SuperCPU acceleration."],
@@ -6911,7 +6928,7 @@ const _UB_COMMAND_REFERENCE = [
   ["sprite collision", "sprite_hit()\nsprite_bg_hit()", "Reads sprite/sprite or sprite/background collision flags."],
   ["sprite position", "sprite_x(id)\nsprite_y(id)", "Reads a hardware sprite coordinate."],
   ["chardef", "chardef character\n  byte values...\nend", "Embeds an 8-byte custom character definition."],
-  ["charset", "charset address", "Sets the RAM character-set base address."],
+  ["charset", "charset address\ncharset on | off", "Sets the RAM character-set base address; on/off switches the VIC-II to or from it."],
   ["sid volume", "sid volume value\nsid stop", "Sets SID volume or stops SID playback."],
   ["nmi", "nmi handler", "Installs an NMI handler."],
   ["nmi_exit", "nmi_exit", "Exits an NMI through the KERNAL."],
@@ -7023,7 +7040,7 @@ function _ubApplyLeftViews(persist = true) {
   if (persist) saveUiSettings();
 }
 
-const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read restore asm include incbin load open close save memcopy drawmem map koala show hide set draw poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll type endtype pen mline mrect mcircle").split(" "));
+const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound sfx org music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read restore asm include incbin load open close save memcopy drawmem map koala show hide set draw poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll type endtype pen mline mrect mcircle").split(" "));
 const _UB_TYPES = new Set(["int", "word", "float", "string", "array", "array_word"]);
 const _UB_FUNCTIONS = new Set(("str_to_int numstr chr$ str$ inkey waitkey len asc val reudet reu_present turbo clamp peek peek16 rnd abs min max sgn spc tab joy mouse_x mouse_x_hi mouse_y mouse_btn sprhit sprbghit sprite_hit sprite_bg_hit sprite_x sprite_y map_tile map_color box_hit sin cos hex bin getch").split(" "));
 const _UB_ASM_MNEMONICS = new Set(("adc and asl bcc bcs beq bit bmi bne bpl brk bvc bvs clc cld cli clv cmp cpx cpy dec dex dey eor inc inx iny jmp jsr lda ldx ldy lsr nop ora pha php pla plp rol ror rti rts sbc sec sed sei sta stx sty tax tay tsx txa txs tya").split(" "));
@@ -36227,6 +36244,79 @@ function _sidExportAsmPlayable() {
   return lines.join("\n");
 }
 
+// UltimateBasic variant of the playable module: one self-contained `asm { }`
+// block. UB's inline assembler has no `.byte`, `* =` or `label+N`, its labels
+// are local to the block, and UB variables start at zero page $02 — so the
+// player's $02-$2F state is shifted to $50-$7D and the data is emitted as raw
+// byte lines. The block starts the music where it is placed and jumps over
+// the player body.
+const _SID_UB_ZP_SHIFT = 0x4E;
+
+function _sidExportUbBlock() {
+  const src = _sidExportAsmPlayable().split("\n");
+  const start = src.indexOf("sid_init:");
+  if (start < 0) return "";
+  const hx = function(n){ return "$" + n.toString(16).toUpperCase().padStart(2, "0"); };
+  const shiftZp = function(code) {
+    return code.replace(/(^|[^#\w$])\$([0-2][0-9A-Fa-f])(?![0-9A-Fa-f])/g, function(m, pre, h) {
+      const v = parseInt(h, 16);
+      return v >= 0x02 && v <= 0x2F ? pre + hx(v + _SID_UB_ZP_SHIFT) : m;
+    });
+  };
+  const out = [];
+  let inInstruments = false;
+  for (let i = start; i < src.length; i++) {
+    const line = src[i];
+    const ci = line.indexOf(";");
+    const code = ci < 0 ? line : line.slice(0, ci);
+    const comment = ci < 0 ? "" : line.slice(ci);
+    const bm = code.match(/^\s*\.byte\s+(.+?)\s*$/);
+    if (bm) {
+      const vals = bm[1].split(",").map(function(s){ return s.trim(); });
+      if (inInstruments) {
+        // `sid_instruments+N,X` needs a label at each byte of instrument 0.
+        inInstruments = false;
+        out.push("    " + vals[0] + (comment ? "   " + comment : ""));
+        for (let k = 1; k < vals.length; k++) { out.push("sid_instruments_p" + k + ":"); out.push("    " + vals[k]); }
+      } else {
+        out.push("    " + vals.join(", ") + (comment ? "   " + comment : ""));
+      }
+      continue;
+    }
+    if (/^sid_instruments:\s*$/.test(code)) inInstruments = true;
+    out.push(shiftZp(code).replace(/\bsid_instruments\+(\d+)/g, "sid_instruments_p$1") + comment);
+  }
+  const speed = Math.max(1, Math.min(255, _sidSpeed|0));
+  const zpTo = hx(0x2F + _SID_UB_ZP_SHIFT);
+  const head = [
+    "# SID player + tune (generated by Visual Assembler SID editor)",
+    "# Place where the music should start. PAL 50 Hz raster IRQ, 3 voices, speed " + speed + ".",
+    "# Uses zero page $50-" + zpTo + " and $FB-$FE. Stop: poke $D01A,0 / sid stop / poke $DC0D,$81 / poke $0314,$31 / poke $0315,$EA",
+    "asm {",
+    "    JSR sid_init",
+    "    JMP sid_end"
+  ];
+  return head.concat(out, ["sid_end:", "}"]).join("\n");
+}
+
+function _sidExportToUb() {
+  const txt = _sidExportUbBlock();
+  if (!txt) return false;
+  if (_isUltimateBasicEditorActive() && typeof ubEditor !== "undefined" && ubEditor) {
+    const pos = ubEditor.selectionStart || 0;
+    const before = ubEditor.value.slice(0, pos);
+    const lineStart = before.lastIndexOf("\n") + 1;
+    ubEditor.focus();
+    ubEditor.setRangeText(txt + "\n", lineStart, lineStart, "end");
+    ubEditor.dispatchEvent(new Event("input", { bubbles: true }));
+    showViceToast?.(t("sidExportUbDone"));
+    return true;
+  }
+  navigator.clipboard.writeText(txt).catch(function(){});
+  showViceToast?.(t("sidExportUbCopied"));
+  return false;
+}
+
 function _sidCopyExport(kind) {
   navigator.clipboard.writeText(_sidExport(kind)).catch(function(){});
 }
@@ -36383,6 +36473,9 @@ function setupSidEditor() {
   }
   // Files: save/load .bin + export blocks / export asm
   onId("sid-export-asm", "click", function(){ _sidCopyExport("asm"); });
+  onId("sid-export-ub", "click", function(){
+    if (_sidExportToUb()) { _sidStop(); dialog.close(); }
+  });
   onId("sid-export-data", "click", function(){
     if (exportAsmToBlocks(_sidExportDataOnly()) > 0) { _sidStop(); dialog.close(); }
   });

@@ -249,7 +249,8 @@
       "Bash(cd /f/Development/VisualAssembler/va-product-site/va-manual && ls; wc -l *.md; grep -n \"Ultimate\" hu.md | sed -n 1,40p | cut -c1-160; grep -rn \"va-manual\" ../../tests ../../package.json 2>/dev/null | head)",
       "Bash(file uploads/merch-*.png)",
       "Bash(python -c \"import PIL; print\\(PIL.__version__\\)\")",
-      "Bash(sed -i 's#src=\"uploads/logo2\\\\.png\"#src=\"uploads/logo2.webp\"#' index.html)"
+      "Bash(sed -i 's#src=\"uploads/logo2\\\\.png\"#src=\"uploads/logo2.webp\"#' index.html)",
+      "Bash(head -40 tests/sid-effects.test.js; ls src-tauri/target 2>/dev/null | head; ls ~/.cargo/git/checkouts/ultimatebasic-2223cf473531f139/*/target 2>/dev/null | head -3; which cargo ub)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"
