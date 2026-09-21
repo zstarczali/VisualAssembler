@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.4.5**
+**Verzió: 2.4.6**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -26,6 +26,16 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - [12b. CRT export (Magic Desk 64K cartridge)](#12b-crt-export-magic-desk-64k-cartridge)
 - [13. Hardver beállítások](#13-hardver-beállítások)
 - [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit)
+
+---
+
+## A 2.4.6 verzió újdonságai
+
+- **SID Editor → UltimateBasic export** — a **Files → Export to UltimateBasic** a zenét és a lejátszóját egyetlen, önálló `asm { }` blokká alakítja, és az Ultimate Basic szerkesztő kurzorához szúrja be (UB módon kívül a vágólapra másolja). Oda tedd, ahol a zenének indulnia kell: a blokk meghívja a `sid_init`-et, majd átugorja a lejátszó törzsét. Az UB inline assemblere nem ismeri a `.byte`-ot, a `* =`-t és a `label+N`-t, a labelek pedig blokk-lokálisak, ezért az exportáló nyers bájtsorokat és extra offset-labeleket ír, a lejátszó `$02`–`$2F` zero-page állapotát pedig `$50`–`$7D`-re tolja, hogy ne ütközzön az UB saját változóival (a `$FB`–`$FE` változatlan).
+- **Ultimate Basic nyelvi frissítés** — a szintaxiskiemelés és a parancsreferencia mostantól ismeri a **`sfx`**-et (nem blokkoló SID effekt: `sfx csatorna, freq, frames [, wave]`), az **`org`**-ot (a sub/fn kód folytatása egy címen, nullákkal kitöltött réssel, ami `incbin` adatot is fogadhat), a **`charset on` / `charset off`**-ot (a VIC-II átkapcsolása a RAM karakterkészletre és vissza), valamint az **`incbin` szeletelést** (`incbin "font.prg", $3C00, 2` kihagyja az első bájtokat, az opcionális negyedik argumentum a hosszt korlátozza).
+- **Többes kijelölés kiemelése az ASM nézetben** — több blokk kijelölésekor az összes hozzájuk tartozó ASM sor egyszerre kiemelt, a görgetési pozíció stabil marad kijelölés közben, a sorszámok pedig lágyabbak, finom függőleges elválasztó vonallal.
+- **Az assembler mód megmarad az Ultimate Basic váltásoknál** — ha Ultimate Basic módban nyitsz meg projektet vagy beépített mintát, az app előbb kilép az UB-ből, és az utolsó Block/Expert módba tér vissza, így az UB puffer többé nem írhatja felül az új fül módját vagy címét. Az új fülek a helyes módban jönnek létre.
+- **Kung Fu Flash 2 beállítások** — a Hardware Settings új **Detect USB** gombja újra megkeresi a cartridge soros portját, a KFF2 előfeltételek pedig már megnevezik a szükséges Kung Fu Flash firmware-t (v2.07+).
 
 ---
 
@@ -201,7 +211,7 @@ Az **Options** fül tartalmazza a kódgenerálást és a kimenet megjelenítés�
 
 ### ASM sorra kattintás
 
-Kattints bármelyik sorra az ASM nézetben, hogy **kiemeld a hozzá tartozó blokkot** a programterületen.
+Kattints bármelyik sorra az ASM nézetben, hogy **kiemeld a hozzá tartozó blokkot** a programterületen. Ha több blokk van kijelölve, mindegyik ASM sora együtt kiemelt.
 
 ### ASM sorszámok
 
@@ -3560,8 +3570,9 @@ Az effektek soronként egyszer frissülnek (megegyezően az exportált lejátsz�
 | `Export blocks (data only)` | Hangszer-táblát + pattern blokkokat fűz a programhoz a `* = $C000`-en. |
 | `Export blocks + miniplayer` | Hozzáadja a teljes lejátszót (sid_init / sid_irq / sid_play_row / sid_set_voice) plusz a PAL frekvencia-táblákat. Export után tegyél egy `JSR sid_init`-et a fő kódodba, ahol a zenének indulnia kell. |
 | `Export asm (clipboard)` | A teljes assembly forrást vágólapra másolja. |
+| `Export to UltimateBasic` | Egyetlen, önálló `asm { }` blokkot (lejátszó + zene) épít, és az Ultimate Basic szerkesztő kurzorához szúrja be; UB módon kívül a vágólapra másolja. Oda tedd, ahol a zenének indulnia kell — maga hívja a `sid_init`-et, és átugorja a lejátszó törzsét. |
 
-**Lejátszó ZP használat:** `$02`–`$2F` (mutató-táblák, pattern offset és voice-onkénti effekt-állapot), valamint `$FB`–`$FE` (tick számláló, sor-index, sorrend-pozíció, set_voice temp). Ezek ütköznek, ha a fő kódod használja őket — szükség esetén relokálj Expert módon.
+**Lejátszó ZP használat:** `$02`–`$2F` (mutató-táblák, pattern offset és voice-onkénti effekt-állapot), valamint `$FB`–`$FE` (tick számláló, sor-index, sorrend-pozíció, set_voice temp). Ezek ütköznek, ha a fő kódod használja őket — szükség esetén relokálj Expert módon. Az UB export a `$02`–`$2F` részt `$50`–`$7D`-re tolja (az UB változói `$02`-től kezdődnek); a zene leállítása UB kódból: `poke $D01A, 0`, `sid stop`, `poke $DC0D, $81`, `poke $0314, $31`, `poke $0315, $EA` (a blokk fejléc-kommentje is felsorolja).
 
 **Ismert korlátok:**
 - A 8 bites sor-számláló a nyers bankban 7 pattern × 32 sorra korlátoz (a song/sorrend lista patternek ismétlésével még mindig tetszőlegesen hosszú lehet).

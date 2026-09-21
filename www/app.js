@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "kff2-splitter-macros-245",
+  id: "sid-ub-export-246",
   url: "https://www.c64va.tech/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.4.5-ben",
+    eyebrow: "Újdonság a 2.4.6-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>Kung Fu Flash 2 támogatás</strong> — a programod USB-n keresztül közvetlenül valódi Commodore 64-en futtatható: válaszd a <em>Kung Fu Flash 2</em> pontot a Run menüben. Blokk, Expert és Ultimate Basic módban is működik.</li><li><strong>Átméretezhető panelek</strong> — a Program és az ASM panel közti függőleges elválasztót húzva állíthatod a szélességet (a méret megmarad).</li><li><strong>Tisztább ASM nézet</strong> — a makrósorok megjegyzésjel nélkül, makróként színezve jelennek meg.</li><li><strong>Egyedi makrók kiemelése</strong> az Expert szerkesztőben — a makró neve és a paraméterei külön színt kapnak.</li></ul>`,
+    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>SID Editor → UltimateBasic export</strong> — a <em>Files → Export to UltimateBasic</em> egyetlen, önálló <code>asm { }</code> blokkot szúr be az UB szerkesztő kurzorához.</li><li><strong>Ultimate Basic nyelvi frissítés</strong> — kiemelés és parancsreferencia: <code>sfx</code>, <code>org</code>, <code>charset on/off</code>, <code>incbin</code> szeletelés.</li><li><strong>ASM nézet többes kijelölés</strong> — több blokk összes ASM sora egyszerre kiemelve, lágyabb sorszámokkal.</li><li><strong>Stabilabb módváltás</strong> — UB-ből projekt vagy minta megnyitása után visszatér az utolsó Block/Expert módba.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.4.5",
+    eyebrow: "New in 2.4.6",
     title: "Welcome to Visual Assembler",
-    body: `<p>What's new in this release:</p><ul><li><strong>Kung Fu Flash 2 support</strong> — run your program on a real Commodore 64 over USB: pick <em>Kung Fu Flash 2</em> in the Run menu. Works from Block, Expert and Ultimate Basic mode.</li><li><strong>Resizable panels</strong> — drag the vertical splitter between the Program and ASM panels to set the width (it is remembered).</li><li><strong>Cleaner ASM view</strong> — macro lines are shown without the comment marker and coloured as macros.</li><li><strong>Custom macro highlighting</strong> in the Expert editor — macro names and parameters get their own colours.</li></ul>`,
+    body: `<p>What's new in this release:</p><ul><li><strong>SID Editor → UltimateBasic export</strong> — <em>Files → Export to UltimateBasic</em> inserts one self-contained <code>asm { }</code> block at the cursor of the UB editor.</li><li><strong>Ultimate Basic language update</strong> — highlighting and command reference now cover <code>sfx</code>, <code>org</code>, <code>charset on/off</code> and <code>incbin</code> slicing.</li><li><strong>ASM view multi-highlight</strong> — all ASM lines of several selected blocks are highlighted at once, with softer line numbers.</li><li><strong>Reliable mode switching</strong> — opening a project or sample from UB returns to your last Block/Expert mode.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.4.5",
+    eyebrow: "Novedad en la 2.4.6",
     title: "Bienvenido a Visual Assembler",
-    body: `<p>Novedades de esta versión:</p><ul><li><strong>Compatibilidad con Kung Fu Flash 2</strong> — ejecuta tu programa en un Commodore 64 real por USB: elige <em>Kung Fu Flash 2</em> en el menú Run. Funciona desde el modo Bloques, Expert y Ultimate Basic.</li><li><strong>Paneles redimensionables</strong> — arrastra el divisor vertical entre los paneles Programa y ASM para ajustar el ancho (se recuerda).</li><li><strong>Vista ASM más limpia</strong> — las líneas de macro se muestran sin marca de comentario y coloreadas como macros.</li><li><strong>Resaltado de macros propias</strong> en el editor Expert — los nombres y parámetros de las macros tienen colores propios.</li></ul>`,
+    body: `<p>Novedades de esta versión:</p><ul><li><strong>Exportación del SID Editor a UltimateBasic</strong> — <em>Files → Export to UltimateBasic</em> inserta un bloque <code>asm { }</code> autónomo en el cursor del editor UB.</li><li><strong>Actualización del lenguaje Ultimate Basic</strong> — el resaltado y la referencia de comandos cubren <code>sfx</code>, <code>org</code>, <code>charset on/off</code> y el recorte de <code>incbin</code>.</li><li><strong>Resaltado múltiple en la vista ASM</strong> — todas las líneas ASM de varios bloques seleccionados se resaltan a la vez.</li><li><strong>Cambio de modo más fiable</strong> — al abrir un proyecto o ejemplo desde UB se vuelve al último modo Bloques/Expert.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.4.5",
+    eyebrow: "Neu in 2.4.6",
     title: "Willkommen bei Visual Assembler",
-    body: `<p>Neuerungen in diesem Release:</p><ul><li><strong>Kung-Fu-Flash-2-Unterstützung</strong> — starte dein Programm per USB auf einem echten Commodore 64: wähle <em>Kung Fu Flash 2</em> im Run-Menü. Funktioniert im Block-, Expert- und Ultimate-Basic-Modus.</li><li><strong>Größenveränderbare Panels</strong> — ziehe den senkrechten Teiler zwischen Programm- und ASM-Panel, um die Breite einzustellen (wird gespeichert).</li><li><strong>Übersichtlichere ASM-Ansicht</strong> — Makrozeilen erscheinen ohne Kommentarzeichen und als Makros eingefärbt.</li><li><strong>Hervorhebung eigener Makros</strong> im Expert-Editor — Makronamen und Parameter haben eigene Farben.</li></ul>`,
+    body: `<p>Neu in dieser Version:</p><ul><li><strong>SID-Editor → UltimateBasic-Export</strong> — <em>Files → Export to UltimateBasic</em> fügt einen eigenständigen <code>asm { }</code>-Block an der Cursorposition des UB-Editors ein.</li><li><strong>Ultimate-Basic-Sprachupdate</strong> — Hervorhebung und Befehlsreferenz umfassen <code>sfx</code>, <code>org</code>, <code>charset on/off</code> und <code>incbin</code>-Ausschnitte.</li><li><strong>Mehrfachmarkierung in der ASM-Ansicht</strong> — alle ASM-Zeilen mehrerer ausgewählter Blöcke werden gleichzeitig hervorgehoben.</li><li><strong>Zuverlässiger Moduswechsel</strong> — beim Öffnen eines Projekts oder Beispiels aus UB wird zum letzten Block-/Expert-Modus zurückgekehrt.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.4.5",
+    eyebrow: "Nieuw in 2.4.6",
     title: "Welkom bij Visual Assembler",
-    body: `<p>Nieuw in deze release:</p><ul><li><strong>Ondersteuning voor Kung Fu Flash 2</strong> — draai je programma via USB op een echte Commodore 64: kies <em>Kung Fu Flash 2</em> in het Run-menu. Werkt vanuit Block-, Expert- en Ultimate Basic-modus.</li><li><strong>Verstelbare panelen</strong> — sleep de verticale scheiding tussen het Programma- en ASM-paneel om de breedte in te stellen (wordt onthouden).</li><li><strong>Overzichtelijkere ASM-weergave</strong> — macroregels worden zonder commentaarteken getoond en als macro ingekleurd.</li><li><strong>Markering van eigen macro's</strong> in de Expert-editor — macronamen en parameters krijgen eigen kleuren.</li></ul>`,
+    body: `<p>Nieuw in deze versie:</p><ul><li><strong>SID-editor → UltimateBasic-export</strong> — <em>Files → Export to UltimateBasic</em> voegt één zelfstandig <code>asm { }</code>-blok in op de cursor van de UB-editor.</li><li><strong>Ultimate Basic-taalupdate</strong> — markering en commandoreferentie omvatten <code>sfx</code>, <code>org</code>, <code>charset on/off</code> en <code>incbin</code>-uitsneden.</li><li><strong>Meervoudige markering in de ASM-weergave</strong> — alle ASM-regels van meerdere geselecteerde blokken worden tegelijk gemarkeerd.</li><li><strong>Betrouwbaardere moduswissel</strong> — bij het openen van een project of voorbeeld vanuit UB keer je terug naar de laatste Block/Expert-modus.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.4.5",
+    eyebrow: "Nowość w 2.4.6",
     title: "Witamy w Visual Assembler",
-    body: `<p>Co nowego w tym wydaniu:</p><ul><li><strong>Obsługa Kung Fu Flash 2</strong> — uruchom program na prawdziwym Commodore 64 przez USB: wybierz <em>Kung Fu Flash 2</em> w menu Run. Działa w trybie blokowym, Expert i Ultimate Basic.</li><li><strong>Panele ze zmiennym rozmiarem</strong> — przeciągnij pionowy separator między panelem Programu a ASM, aby ustawić szerokość (jest zapamiętywana).</li><li><strong>Czytelniejszy widok ASM</strong> — linie makr są pokazywane bez znaku komentarza i pokolorowane jako makra.</li><li><strong>Podświetlanie własnych makr</strong> w edytorze Expert — nazwy i parametry makr mają własne kolory.</li></ul>`,
+    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Eksport SID Editor → UltimateBasic</strong> — <em>Files → Export to UltimateBasic</em> wstawia samodzielny blok <code>asm { }</code> w miejscu kursora edytora UB.</li><li><strong>Aktualizacja języka Ultimate Basic</strong> — podświetlanie i referencja poleceń obejmują <code>sfx</code>, <code>org</code>, <code>charset on/off</code> oraz wycinanie w <code>incbin</code>.</li><li><strong>Wielokrotne podświetlanie w widoku ASM</strong> — wszystkie linie ASM kilku zaznaczonych bloków są podświetlane jednocześnie.</li><li><strong>Pewniejsze przełączanie trybów</strong> — otwarcie projektu lub przykładu z UB wraca do ostatniego trybu Block/Expert.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.4.5",
+    eyebrow: "Novità nella 2.4.6",
     title: "Benvenuto in Visual Assembler",
-    body: `<p>Novità di questa versione:</p><ul><li><strong>Supporto Kung Fu Flash 2</strong> — esegui il programma su un vero Commodore 64 via USB: scegli <em>Kung Fu Flash 2</em> nel menu Run. Funziona dalla modalità a blocchi, Expert e Ultimate Basic.</li><li><strong>Pannelli ridimensionabili</strong> — trascina il divisore verticale tra i pannelli Programma e ASM per impostare la larghezza (viene ricordata).</li><li><strong>Vista ASM più pulita</strong> — le righe di macro sono mostrate senza il segno di commento e colorate come macro.</li><li><strong>Evidenziazione delle macro personalizzate</strong> nell'editor Expert — nomi e parametri delle macro hanno colori propri.</li></ul>`,
+    body: `<p>Novità di questa versione:</p><ul><li><strong>Esportazione SID Editor → UltimateBasic</strong> — <em>Files → Export to UltimateBasic</em> inserisce un blocco <code>asm { }</code> autonomo nel cursore dell'editor UB.</li><li><strong>Aggiornamento del linguaggio Ultimate Basic</strong> — evidenziazione e riferimento comandi coprono <code>sfx</code>, <code>org</code>, <code>charset on/off</code> e il ritaglio di <code>incbin</code>.</li><li><strong>Evidenziazione multipla nella vista ASM</strong> — tutte le righe ASM di più blocchi selezionati sono evidenziate insieme.</li><li><strong>Cambio modalità più affidabile</strong> — aprendo un progetto o un esempio da UB si torna all'ultima modalità Blocchi/Expert.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }

@@ -2,9 +2,17 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.4.5**
+**Current version: v2.4.6**
 
-## What's New in v2.4.5
+## What's New in v2.4.6
+
+- **SID Editor → UltimateBasic export** — **Files → Export to UltimateBasic** turns the tune and its player into one self-contained `asm { }` block and inserts it at the cursor of the Ultimate Basic editor (outside UB mode it is copied to the clipboard instead). Place it where the music should start: the block calls `sid_init` and jumps over the player body. UB's inline assembler has no `.byte`, `* =` or `label+N` and its labels are block-local, so the exporter emits raw byte lines and extra offset labels, and moves the player's `$02`–`$2F` zero-page state to `$50`–`$7D` to stay clear of UB's own variables (`$FB`–`$FE` are unchanged).
+- **Ultimate Basic language update** — syntax highlighting and the command reference now cover **`sfx`** (non-blocking SID effect: `sfx channel, freq, frames [, wave]`), **`org`** (continue sub/fn code at an address, leaving a zero-filled gap that can hold `incbin` data), **`charset on` / `charset off`** (switch the VIC-II to the RAM character set and back) and **`incbin` slicing** (`incbin "font.prg", $3C00, 2` skips the first bytes, an optional fourth argument limits the length).
+- **Multi-block highlight in the ASM view** — selecting several blocks highlights all of their ASM lines at once, the scroll position stays stable while you select, and the line numbers are softer with a subtle vertical separator rule.
+- **Assembler mode preserved across Ultimate Basic switches** — opening a project or a built-in sample while Ultimate Basic is active now leaves UB first and returns to your last Block/Expert mode, so the UB buffer can no longer overwrite the new tab's mode or title. New tabs are created in the correct mode.
+- **Kung Fu Flash 2 settings** — a **Detect USB** button in Hardware Settings re-scans for the cartridge's serial port, and the KFF2 prerequisites now state the required Kung Fu Flash firmware (v2.07+).
+
+## Earlier: v2.4.5
 
 - **Kung Fu Flash 2 support — run your programs on a real Commodore 64/128.** A new **Kung Fu Flash 2** entry in the split Run menu compiles the program and uploads it over USB straight into a powered-on C64/C128 fitted with a Kung Fu Flash 2 cartridge — no disk image, no SD-card copying, no emulator. The cartridge's USB serial port is auto-detected (Hardware Settings → Kung Fu Flash 2, or type it in by hand: `COM4`, `/dev/ttyACM0`, `/dev/cu.usbmodem…`), and the mode works from Block, Expert and Ultimate Basic mode.
 - **Resizable Program / ASM panels** — drag the thin vertical splitter between the Program panel and the ASM output; arrow keys nudge it, double-click resets it to 50/50, and the position is remembered.
