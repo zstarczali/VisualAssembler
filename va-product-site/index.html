@@ -549,6 +549,12 @@
       height: auto
     }
 
+    .tetris {
+      background: var(--scr-darker);
+      border-top: 1px solid var(--brd);
+      padding: 64px 0
+    }
+
     .c77-logo-wrap {
       margin-top: 44px;
       padding: 64px;
@@ -1670,7 +1676,7 @@
       </div>
     </div>
     <div class="hero-left">
-      <div class="badge">V2.4.5 — LATEST RELEASE</div>
+      <div class="badge">V2.4.6 — LATEST RELEASE</div>
       <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
       <p class="hero-sub">Drag-and-drop 6502 assembly blocks or switch to a full text editor — see real-time ASM output
         and run directly in VICE.</p>
@@ -1683,6 +1689,42 @@
       <img class="hero-box-img" src="uploads/visual_assembler_transparent.webp" alt="Visual Assembler logo" width="900" height="900">
     </div>
   </section>
+
+  <!-- V2.4.6: SID -> ULTIMATE BASIC, UB LANGUAGE UPDATE & ASM MULTI-HIGHLIGHT -->
+  <div id="release-246" style="background:var(--scr-darker);padding:80px 0">
+    <div class="sec about-grid" style="padding-top:0;padding-bottom:0">
+      <div>
+        <div class="ub-tag">NEW IN V2.4.6</div>
+        <div class="sec-s">// MUSIC MEETS ULTIMATE BASIC</div>
+        <h2 class="sec-t">SID EDITOR &rarr; ULTIMATE BASIC<br><span style="color:var(--ylw)">DROP A TUNE INTO YOUR UB PROGRAM</span></h2>
+        <p class="sec-d">Version 2.4.6 lets the SID Editor hand its tune straight to the Ultimate Basic editor, brings the newest UB commands into the highlighter, and polishes the ASM view.</p>
+        <div class="feature-list">
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>SID Editor &rarr; UltimateBasic export</b> <span>&mdash; <em>Files &rarr; Export to UltimateBasic</em> turns the tune and its player into one self-contained <code>asm { }</code> block and inserts it at the cursor of the UB editor. Place it where the music should start.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Ultimate Basic language update</b> <span>&mdash; syntax highlighting and the command reference now cover <code>sfx</code> (non-blocking SID effects), <code>org</code>, <code>charset on/off</code> and <code>incbin</code> slicing.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>ASM view multi-highlight</b> <span>&mdash; select several blocks and all of their ASM lines light up at once, with softer line numbers.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Reliable mode switching</b> <span>&mdash; opening a project or sample while in Ultimate Basic returns you to your last Block/Expert mode.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Kung Fu Flash 2 settings</b> <span>&mdash; a Detect USB button finds the cartridge's serial port; firmware v2.07+ is required.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
 
   <!-- V2.4.5: KUNG FU FLASH 2, RESIZABLE PANELS & MACRO HIGHLIGHTING -->
   <div id="release-245" style="background:var(--scr-darker);padding:80px 0">
@@ -2421,11 +2463,11 @@
         <div class="dl-corner bl">└─</div>
         <div class="dl-corner br">─┘</div>
         <div class="sec-s" style="text-align:center;margin-bottom:16px">// DOWNLOAD</div>
-        <h2 class="sec-t" style="text-align:center">C64 VISUAL ASSEMBLER<br><span style="color:var(--ylw)">V2.4.5 —
+        <h2 class="sec-t" style="text-align:center">C64 VISUAL ASSEMBLER<br><span style="color:var(--ylw)">V2.4.6 —
             FREE</span></h2>
         <p class="sec-d" style="text-align:center;margin:0 auto 8px;max-width:460px">Desktop app for Windows, macOS and
           Linux. Requires Node.js and Rust to build from source, or download a prebuilt installer.</p>
-        <p style="text-align:center;margin:16px auto 20px"><a class="btn" href="https://github.com/zstarczali/VisualAssembler/releases/tag/2.4.5" target="_blank" rel="noopener" style="font-size:12px;padding:10px 22px;border-color:var(--ylw);color:var(--ylw)">★ LATEST RELEASE 2.4.5 ON GITHUB</a></p>
+        <p style="text-align:center;margin:16px auto 20px"><a class="btn" href="https://github.com/zstarczali/VisualAssembler/releases/tag/2.4.6" target="_blank" rel="noopener" style="font-size:12px;padding:10px 22px;border-color:var(--ylw);color:var(--ylw)">★ LATEST RELEASE 2.4.5 ON GITHUB</a></p>
         <div class="dl-plats">
           <a class="dl-p btn" href="#" onclick="openItch();return false" style="border-color:var(--brd-hi)"><span
               style="color:var(--ylw)">■</span> WINDOWS</a>
@@ -2603,6 +2645,21 @@
         <a class="btn btn-o" href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener">►
           ULTIMATE BASIC REPOSITORY</a>
       </div>
+    </div>
+  </section>
+
+  <!-- TRICKY TETRIS -->
+  <section class="tetris" id="tricky-tetris" aria-labelledby="tetris-title">
+    <div class="sec about-grid" style="padding-top:0;padding-bottom:0">
+      <div>
+        <div class="sec-s">// WRITTEN IN VISUAL ASSEMBLER &mdash; IN ULTIMATE BASIC</div>
+        <h2 class="sec-t" id="tetris-title">TRICKY TETRIS<br><span style="color:var(--ylw)">A C64 GAME</span></h2>
+        <p class="sec-d">Tricky Tetris is a Commodore 64 take on the falling-blocks classic, written entirely in <b>Ultimate Basic</b>, inside <b>C64 Visual Assembler</b> &mdash; the same editor you can download here. Grab it on itch.io and play it on real hardware or in an emulator.</p>
+        <a class="btn btn-y" href="https://zstarczali.itch.io/tricy-tetris" target="_blank" rel="noopener">► PLAY ON ITCH.IO</a>
+      </div>
+      <a class="kff2-cart-shot" href="https://zstarczali.itch.io/tricy-tetris" target="_blank" rel="noopener" aria-label="Open Tricky Tetris on itch.io">
+        <img src="uploads/tricky.webp" alt="Tricky Tetris running on a Commodore 64" width="1536" height="1024" loading="lazy">
+      </a>
     </div>
   </section>
 
