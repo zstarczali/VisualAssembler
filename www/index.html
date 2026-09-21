@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.4.5">
+  <link rel="stylesheet" href="style.css?v=2.4.6">
 </head>
 
 <body>
@@ -1093,7 +1093,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.4.5</p>
+        <p class="about-version" id="about-version">v2.4.6</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       </div>
       <div class="about-columns">
@@ -1119,22 +1119,22 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.4.5</p>
+      <p class="whats-new-version">v2.4.6</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: Kung Fu Flash 2 support</strong> &mdash; run your programs on a <em>real Commodore 64/128</em>. Pick <strong>Kung Fu Flash 2</strong> in the split <strong>Run</strong> menu and the compiled PRG is uploaded over USB straight into a powered-on C64 with a Kung Fu Flash 2 cartridge &mdash; no disk image, no SD card, no emulator. The cartridge's serial port is detected automatically (Hardware Settings &rarr; Kung Fu Flash 2) or can be typed in by hand, and the run mode works from Block, Expert and Ultimate Basic mode.
+          <strong>New: SID Editor &rarr; UltimateBasic export</strong> &mdash; <strong>Files &rarr; Export to UltimateBasic</strong> writes the tune as a <code>tune ... end</code> block (instruments, order list and pattern rows as text) plus <code>music play</code> and inserts it at the cursor of the Ultimate Basic editor (outside UB mode it is copied to the clipboard). The UltimateBasic compiler builds a zero-page-free player from it, so <code>music play</code> / <code>music stop</code> control the tune and nothing collides with UB variables. Needs an UltimateBasic compiler with <code>tune</code> support.
         </li>
         <li>
-          <strong>New: resizable Program / ASM panels</strong> &mdash; drag the thin vertical splitter between the Program panel and the ASM output to give either side more room. Arrow keys nudge it, double-click resets it to 50/50, and the position is remembered.
+          <strong>New: Ultimate Basic language update</strong> &mdash; syntax highlighting and the command reference now cover <code>sfx</code> (non-blocking SID effects), <code>tune</code>, <code>org</code> (place subs at an address, leaving a gap for data), <code>charset on</code> / <code>charset off</code> and <code>incbin</code> slicing (<code>incbin "f.prg", $3C00, 2</code>).
         </li>
         <li>
-          <strong>Improved: cleaner ASM view</strong> &mdash; macro blocks are listed without the leading comment marker (<code>.print "HELLO"</code> instead of <code>; .print "HELLO"</code>) and coloured as macros.
+          <strong>Improved: ASM view multi-highlight</strong> &mdash; selecting several blocks now highlights all of their ASM lines at once, the scroll position stays stable, and the line numbers are softer with a subtle separator rule.
         </li>
         <li>
-          <strong>Improved: custom macro highlighting in Expert mode</strong> &mdash; the macro name after <code>.macro</code> / <code>.invoke</code> / <code>.call</code> (and Kick-style <code>:name()</code> calls) has its own colour, as do the <code>{param}</code> substitutions and the parameter names in the <code>.macro</code> header, in every theme.
+          <strong>Fixed: assembler mode across Ultimate Basic switches</strong> &mdash; opening a project or sample while Ultimate Basic is active now leaves UB first and returns to your last Block/Expert mode, so the UB buffer can no longer overwrite the new tab.
         </li>
         <li>
-          <strong>Improved: <code>macro-with-parameter</code> sample using the <code>.macro setColor(color)</code> form.
+          <strong>Improved: Kung Fu Flash 2 settings</strong> &mdash; a <strong>Detect USB</strong> button in Hardware Settings re-scans for the cartridge's serial port; the manual now lists the required Kung Fu Flash firmware (v2.07+).
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -1767,6 +1767,7 @@ PRINTABLE CHARACTERS
             <button id="sid-export-data" type="button">Export blocks (data only)</button>
             <button id="sid-export-player" type="button">Export blocks + miniplayer</button>
             <button id="sid-export-asm" type="button">Export asm</button>
+            <button id="sid-export-ub" type="button">Export to UltimateBasic</button>
           </div>
           <input type="file" id="sid-bin-file" accept=".bin,application/octet-stream" hidden>
           <input type="file" id="sid-sid-file" accept=".sid,application/octet-stream" hidden>
@@ -2417,13 +2418,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.4.5"></script>
-  <script src="i18n.js?v=2.4.5"></script>
-  <script src="tutorial-data.js?v=2.4.5"></script>
+  <script src="tauri-bridge.js?v=2.4.6"></script>
+  <script src="i18n.js?v=2.4.6"></script>
+  <script src="tutorial-data.js?v=2.4.6"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.4.5"></script>
+  <script src="app.js?v=2.4.6"></script>
 
 </body>
 

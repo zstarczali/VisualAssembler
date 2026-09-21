@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.4.5**
+**Verzió: 2.4.6**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -26,6 +26,16 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - [12b. CRT export (Magic Desk 64K cartridge)](#12b-crt-export-magic-desk-64k-cartridge)
 - [13. Hardver beállítások](#13-hardver-beállítások)
 - [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit)
+
+---
+
+## A 2.4.6 verzió újdonságai
+
+- **SID Editor → UltimateBasic export** — a **Files → Export to UltimateBasic** a dalt `tune ... end` blokként írja ki (hangszerek, sorrend lista és pattern sorok szövegként), utána `music play`-jel, és az Ultimate Basic szerkesztő kurzorához szúrja be (UB módon kívül a vágólapra másolja). Az UltimateBasic fordító ebből fordítási időben zero-page-mentes lejátszót épít, így a `music play` / `music stop` vezérli a dalt, és semmi sem ütközik az UB változóival. Vibrato, csúszás, note-cut és tempóváltás támogatott; legfeljebb 8 pattern, tetszőleges hosszú sorrend lista. `tune`-támogatású UltimateBasic fordítót igényel.
+- **Ultimate Basic nyelvi frissítés** — a szintaxiskiemelés és a parancsreferencia mostantól ismeri a **`sfx`**-et (nem blokkoló SID effekt: `sfx csatorna, freq, frames [, wave]`), az **`org`**-ot (a sub/fn kód folytatása egy címen, nullákkal kitöltött réssel, ami `incbin` adatot is fogadhat), a **`charset on` / `charset off`**-ot (a VIC-II átkapcsolása a RAM karakterkészletre és vissza), valamint az **`incbin` szeletelést** (`incbin "font.prg", $3C00, 2` kihagyja az első bájtokat, az opcionális negyedik argumentum a hosszt korlátozza).
+- **Többes kijelölés kiemelése az ASM nézetben** — több blokk kijelölésekor az összes hozzájuk tartozó ASM sor egyszerre kiemelt, a görgetési pozíció stabil marad kijelölés közben, a sorszámok pedig lágyabbak, finom függőleges elválasztó vonallal.
+- **Az assembler mód megmarad az Ultimate Basic váltásoknál** — ha Ultimate Basic módban nyitsz meg projektet vagy beépített mintát, az app előbb kilép az UB-ből, és az utolsó Block/Expert módba tér vissza, így az UB puffer többé nem írhatja felül az új fül módját vagy címét. Az új fülek a helyes módban jönnek létre.
+- **Kung Fu Flash 2 beállítások** — a Hardware Settings új **Detect USB** gombja újra megkeresi a cartridge soros portját, a KFF2 előfeltételek pedig már megnevezik a szükséges Kung Fu Flash firmware-t (v2.07+).
 
 ---
 
@@ -201,7 +211,7 @@ Az **Options** fül tartalmazza a kódgenerálást és a kimenet megjelenítés�
 
 ### ASM sorra kattintás
 
-Kattints bármelyik sorra az ASM nézetben, hogy **kiemeld a hozzá tartozó blokkot** a programterületen.
+Kattints bármelyik sorra az ASM nézetben, hogy **kiemeld a hozzá tartozó blokkot** a programterületen. Ha több blokk van kijelölve, mindegyik ASM sora együtt kiemelt.
 
 ### ASM sorszámok
 
@@ -3560,6 +3570,7 @@ Az effektek soronként egyszer frissülnek (megegyezően az exportált lejátsz�
 | `Export blocks (data only)` | Hangszer-táblát + pattern blokkokat fűz a programhoz a `* = $C000`-en. |
 | `Export blocks + miniplayer` | Hozzáadja a teljes lejátszót (sid_init / sid_irq / sid_play_row / sid_set_voice) plusz a PAL frekvencia-táblákat. Export után tegyél egy `JSR sid_init`-et a fő kódodba, ahol a zenének indulnia kell. |
 | `Export asm (clipboard)` | A teljes assembly forrást vágólapra másolja. |
+| `Export to UltimateBasic` | Egy `tune ... end` blokkot (hangszerek, sorrend lista, pattern sorok szövegként) és `music play`-t ír ki, és az Ultimate Basic szerkesztő kurzorához szúrja be; UB módon kívül a vágólapra másolja. A lejátszót az UltimateBasic fordító építi, így a `music play` / `music stop` vezérli. |
 
 **Lejátszó ZP használat:** `$02`–`$2F` (mutató-táblák, pattern offset és voice-onkénti effekt-állapot), valamint `$FB`–`$FE` (tick számláló, sor-index, sorrend-pozíció, set_voice temp). Ezek ütköznek, ha a fő kódod használja őket — szükség esetén relokálj Expert módon.
 
