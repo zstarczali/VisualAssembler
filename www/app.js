@@ -82,49 +82,49 @@ const CUSTOMER_MESSAGE = {
   hu: {
     eyebrow: "Újdonság a 2.4.6-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>SID Editor → UltimateBasic export</strong> — a <em>Files → Export to UltimateBasic</em> egyetlen, önálló <code>asm { }</code> blokkot szúr be az UB szerkesztő kurzorához.</li><li><strong>Ultimate Basic nyelvi frissítés</strong> — kiemelés és parancsreferencia: <code>sfx</code>, <code>org</code>, <code>charset on/off</code>, <code>incbin</code> szeletelés.</li><li><strong>ASM nézet többes kijelölés</strong> — több blokk összes ASM sora egyszerre kiemelve, lágyabb sorszámokkal.</li><li><strong>Stabilabb módváltás</strong> — UB-ből projekt vagy minta megnyitása után visszatér az utolsó Block/Expert módba.</li></ul>`,
+    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>SID Editor → UltimateBasic export</strong> — a <em>Files → Export to UltimateBasic</em> <code>tune ... end</code> blokkot és <code>music play</code>-t szúr be az UB szerkesztő kurzorához.</li><li><strong>Ultimate Basic nyelvi frissítés</strong> — kiemelés és parancsreferencia: <code>sfx</code>, <code>org</code>, <code>charset on/off</code>, <code>incbin</code> szeletelés.</li><li><strong>ASM nézet többes kijelölés</strong> — több blokk összes ASM sora egyszerre kiemelve, lágyabb sorszámokkal.</li><li><strong>Stabilabb módváltás</strong> — UB-ből projekt vagy minta megnyitása után visszatér az utolsó Block/Expert módba.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
     eyebrow: "New in 2.4.6",
     title: "Welcome to Visual Assembler",
-    body: `<p>What's new in this release:</p><ul><li><strong>SID Editor → UltimateBasic export</strong> — <em>Files → Export to UltimateBasic</em> inserts one self-contained <code>asm { }</code> block at the cursor of the UB editor.</li><li><strong>Ultimate Basic language update</strong> — highlighting and command reference now cover <code>sfx</code>, <code>org</code>, <code>charset on/off</code> and <code>incbin</code> slicing.</li><li><strong>ASM view multi-highlight</strong> — all ASM lines of several selected blocks are highlighted at once, with softer line numbers.</li><li><strong>Reliable mode switching</strong> — opening a project or sample from UB returns to your last Block/Expert mode.</li></ul>`,
+    body: `<p>What's new in this release:</p><ul><li><strong>SID Editor → UltimateBasic export</strong> — <em>Files → Export to UltimateBasic</em> inserts a <code>tune ... end</code> block and <code>music play</code> at the cursor of the UB editor.</li><li><strong>Ultimate Basic language update</strong> — highlighting and command reference now cover <code>sfx</code>, <code>org</code>, <code>charset on/off</code> and <code>incbin</code> slicing.</li><li><strong>ASM view multi-highlight</strong> — all ASM lines of several selected blocks are highlighted at once, with softer line numbers.</li><li><strong>Reliable mode switching</strong> — opening a project or sample from UB returns to your last Block/Expert mode.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
     eyebrow: "Novedad en la 2.4.6",
     title: "Bienvenido a Visual Assembler",
-    body: `<p>Novedades de esta versión:</p><ul><li><strong>Exportación del SID Editor a UltimateBasic</strong> — <em>Files → Export to UltimateBasic</em> inserta un bloque <code>asm { }</code> autónomo en el cursor del editor UB.</li><li><strong>Actualización del lenguaje Ultimate Basic</strong> — el resaltado y la referencia de comandos cubren <code>sfx</code>, <code>org</code>, <code>charset on/off</code> y el recorte de <code>incbin</code>.</li><li><strong>Resaltado múltiple en la vista ASM</strong> — todas las líneas ASM de varios bloques seleccionados se resaltan a la vez.</li><li><strong>Cambio de modo más fiable</strong> — al abrir un proyecto o ejemplo desde UB se vuelve al último modo Bloques/Expert.</li></ul>`,
+    body: `<p>Novedades de esta versión:</p><ul><li><strong>Exportación del SID Editor a UltimateBasic</strong> — <em>Files → Export to UltimateBasic</em> inserta un bloque <code>tune ... end</code> y <code>music play</code> en el cursor del editor UB.</li><li><strong>Actualización del lenguaje Ultimate Basic</strong> — el resaltado y la referencia de comandos cubren <code>sfx</code>, <code>org</code>, <code>charset on/off</code> y el recorte de <code>incbin</code>.</li><li><strong>Resaltado múltiple en la vista ASM</strong> — todas las líneas ASM de varios bloques seleccionados se resaltan a la vez.</li><li><strong>Cambio de modo más fiable</strong> — al abrir un proyecto o ejemplo desde UB se vuelve al último modo Bloques/Expert.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
     eyebrow: "Neu in 2.4.6",
     title: "Willkommen bei Visual Assembler",
-    body: `<p>Neu in dieser Version:</p><ul><li><strong>SID-Editor → UltimateBasic-Export</strong> — <em>Files → Export to UltimateBasic</em> fügt einen eigenständigen <code>asm { }</code>-Block an der Cursorposition des UB-Editors ein.</li><li><strong>Ultimate-Basic-Sprachupdate</strong> — Hervorhebung und Befehlsreferenz umfassen <code>sfx</code>, <code>org</code>, <code>charset on/off</code> und <code>incbin</code>-Ausschnitte.</li><li><strong>Mehrfachmarkierung in der ASM-Ansicht</strong> — alle ASM-Zeilen mehrerer ausgewählter Blöcke werden gleichzeitig hervorgehoben.</li><li><strong>Zuverlässiger Moduswechsel</strong> — beim Öffnen eines Projekts oder Beispiels aus UB wird zum letzten Block-/Expert-Modus zurückgekehrt.</li></ul>`,
+    body: `<p>Neu in dieser Version:</p><ul><li><strong>SID-Editor → UltimateBasic-Export</strong> — <em>Files → Export to UltimateBasic</em> fügt einen <code>tune ... end</code>-Block und <code>music play</code> an der Cursorposition des UB-Editors ein.</li><li><strong>Ultimate-Basic-Sprachupdate</strong> — Hervorhebung und Befehlsreferenz umfassen <code>sfx</code>, <code>org</code>, <code>charset on/off</code> und <code>incbin</code>-Ausschnitte.</li><li><strong>Mehrfachmarkierung in der ASM-Ansicht</strong> — alle ASM-Zeilen mehrerer ausgewählter Blöcke werden gleichzeitig hervorgehoben.</li><li><strong>Zuverlässiger Moduswechsel</strong> — beim Öffnen eines Projekts oder Beispiels aus UB wird zum letzten Block-/Expert-Modus zurückgekehrt.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
     eyebrow: "Nieuw in 2.4.6",
     title: "Welkom bij Visual Assembler",
-    body: `<p>Nieuw in deze versie:</p><ul><li><strong>SID-editor → UltimateBasic-export</strong> — <em>Files → Export to UltimateBasic</em> voegt één zelfstandig <code>asm { }</code>-blok in op de cursor van de UB-editor.</li><li><strong>Ultimate Basic-taalupdate</strong> — markering en commandoreferentie omvatten <code>sfx</code>, <code>org</code>, <code>charset on/off</code> en <code>incbin</code>-uitsneden.</li><li><strong>Meervoudige markering in de ASM-weergave</strong> — alle ASM-regels van meerdere geselecteerde blokken worden tegelijk gemarkeerd.</li><li><strong>Betrouwbaardere moduswissel</strong> — bij het openen van een project of voorbeeld vanuit UB keer je terug naar de laatste Block/Expert-modus.</li></ul>`,
+    body: `<p>Nieuw in deze versie:</p><ul><li><strong>SID-editor → UltimateBasic-export</strong> — <em>Files → Export to UltimateBasic</em> voegt een <code>tune ... end</code>-blok en <code>music play</code> in op de cursor van de UB-editor.</li><li><strong>Ultimate Basic-taalupdate</strong> — markering en commandoreferentie omvatten <code>sfx</code>, <code>org</code>, <code>charset on/off</code> en <code>incbin</code>-uitsneden.</li><li><strong>Meervoudige markering in de ASM-weergave</strong> — alle ASM-regels van meerdere geselecteerde blokken worden tegelijk gemarkeerd.</li><li><strong>Betrouwbaardere moduswissel</strong> — bij het openen van een project of voorbeeld vanuit UB keer je terug naar de laatste Block/Expert-modus.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
     eyebrow: "Nowość w 2.4.6",
     title: "Witamy w Visual Assembler",
-    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Eksport SID Editor → UltimateBasic</strong> — <em>Files → Export to UltimateBasic</em> wstawia samodzielny blok <code>asm { }</code> w miejscu kursora edytora UB.</li><li><strong>Aktualizacja języka Ultimate Basic</strong> — podświetlanie i referencja poleceń obejmują <code>sfx</code>, <code>org</code>, <code>charset on/off</code> oraz wycinanie w <code>incbin</code>.</li><li><strong>Wielokrotne podświetlanie w widoku ASM</strong> — wszystkie linie ASM kilku zaznaczonych bloków są podświetlane jednocześnie.</li><li><strong>Pewniejsze przełączanie trybów</strong> — otwarcie projektu lub przykładu z UB wraca do ostatniego trybu Block/Expert.</li></ul>`,
+    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Eksport SID Editor → UltimateBasic</strong> — <em>Files → Export to UltimateBasic</em> wstawia blok <code>tune ... end</code> i <code>music play</code> w miejscu kursora edytora UB.</li><li><strong>Aktualizacja języka Ultimate Basic</strong> — podświetlanie i referencja poleceń obejmują <code>sfx</code>, <code>org</code>, <code>charset on/off</code> oraz wycinanie w <code>incbin</code>.</li><li><strong>Wielokrotne podświetlanie w widoku ASM</strong> — wszystkie linie ASM kilku zaznaczonych bloków są podświetlane jednocześnie.</li><li><strong>Pewniejsze przełączanie trybów</strong> — otwarcie projektu lub przykładu z UB wraca do ostatniego trybu Block/Expert.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
     eyebrow: "Novità nella 2.4.6",
     title: "Benvenuto in Visual Assembler",
-    body: `<p>Novità di questa versione:</p><ul><li><strong>Esportazione SID Editor → UltimateBasic</strong> — <em>Files → Export to UltimateBasic</em> inserisce un blocco <code>asm { }</code> autonomo nel cursore dell'editor UB.</li><li><strong>Aggiornamento del linguaggio Ultimate Basic</strong> — evidenziazione e riferimento comandi coprono <code>sfx</code>, <code>org</code>, <code>charset on/off</code> e il ritaglio di <code>incbin</code>.</li><li><strong>Evidenziazione multipla nella vista ASM</strong> — tutte le righe ASM di più blocchi selezionati sono evidenziate insieme.</li><li><strong>Cambio modalità più affidabile</strong> — aprendo un progetto o un esempio da UB si torna all'ultima modalità Blocchi/Expert.</li></ul>`,
+    body: `<p>Novità di questa versione:</p><ul><li><strong>Esportazione SID Editor → UltimateBasic</strong> — <em>Files → Export to UltimateBasic</em> inserisce un blocco <code>tune ... end</code> e <code>music play</code> nel cursore dell'editor UB.</li><li><strong>Aggiornamento del linguaggio Ultimate Basic</strong> — evidenziazione e riferimento comandi coprono <code>sfx</code>, <code>org</code>, <code>charset on/off</code> e il ritaglio di <code>incbin</code>.</li><li><strong>Evidenziazione multipla nella vista ASM</strong> — tutte le righe ASM di più blocchi selezionati sono evidenziate insieme.</li><li><strong>Cambio modalità più affidabile</strong> — aprendo un progetto o un esempio da UB si torna all'ultima modalità Blocchi/Expert.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -6075,6 +6075,7 @@ const ubCommandDescriptionsEn = {
   "sound": "Plays a SID voice with fixed ADSR and sawtooth waveform.",
   "sfx": "Non-blocking SID sound effect: programs one voice and returns at once. Optional wave: 16 triangle, 32 saw (default), 64 pulse, 128 noise. Channel, frames and wave must be constants.",
   "org": "Placed between sub/fn definitions: the next subs continue at the given address, the gap is zero-filled and can hold incbin data.",
+  "tune": "Inline SID tracker tune: instruments, order list and per-voice pattern rows (cells like C-4 01 V24). The compiler builds a zero-page-free player at compile time and defines sid_init / sid_play, so music play, stop, pause and resume work. tune at $addr moves it (default $8000).",
   "load sid": "Embeds a PSID/RSID file at compile time.",
   "music": "Controls music loaded with load sid.",
   "irq": "Installs a raster interrupt handler at line 0 or the given raster line.",
@@ -6189,6 +6190,7 @@ const ubCommandDescriptionsHu = {
   "sound": "Megszólaltat egy SID hangcsatornát fix ADSR-rel és fűrészfog hullámformával.",
   "sfx": "Nem blokkoló SID hangeffekt: beállít egy hangcsatornát és azonnal visszatér. Opcionális hullámforma: 16 háromszög, 32 fűrész (alap), 64 pulzus, 128 zaj. A csatorna, a frame-szám és a hullámforma konstans kell legyen.",
   "org": "Sub/fn definíciók között áll: a következő subok a megadott címen folytatódnak, a rés nullákkal kitöltött és incbin adatot fogadhat.",
+  "tune": "Beágyazott SID tracker dal: hangszerek, sorrend lista és hangonkénti pattern sorok (cellák pl. C-4 01 V24). A fordító zero-page-mentes lejátszót épít, és definiálja a sid_init / sid_play-t, így a music play, stop, pause és resume működik. A tune at $addr áthelyezi (alap: $8000).",
   "load sid": "Beágyaz egy PSID/RSID zenefájlt fordítási időben.",
   "music": "Vezérli a load sid paranccsal betöltött zenelejátszást (play, stop, pause, resume).",
   "irq": "Raszter megszakításkezelőt telepít a 0. vagy a megadott rasztersorhoz.",
@@ -6303,6 +6305,7 @@ const ubCommandDescriptionsEs = {
   "sound": "Reproduce una voz del SID con ADSR fijo y forma de onda de diente de sierra.",
   "sfx": "Efecto de sonido SID sin bloqueo: programa una voz y vuelve de inmediato. Onda opcional: 16 triángulo, 32 sierra (por defecto), 64 pulso, 128 ruido. Canal, frames y onda deben ser constantes.",
   "org": "Se coloca entre definiciones sub/fn: las siguientes subs continúan en la dirección dada; el hueco se rellena con ceros y puede contener datos incbin.",
+  "tune": "Melodía tracker SID integrada: instrumentos, lista de orden y filas de patrón por voz (celdas como C-4 01 V24). El compilador genera un reproductor sin página cero y define sid_init / sid_play, así que music play, stop, pause y resume funcionan. tune at $addr lo mueve (por defecto $8000).",
   "load sid": "Incrusta un archivo PSID/RSID en tiempo de compilación.",
   "music": "Controla la música cargada con load sid.",
   "irq": "Instala un controlador de interrupciones de trama en la línea 0 o la línea indicada.",
@@ -6417,6 +6420,7 @@ const ubCommandDescriptionsDe = {
   "sound": "Spielt eine SID-Stimme mit festem ADSR und Sägezahn-Wellenform ab.",
   "sfx": "Nicht blockierender SID-Soundeffekt: programmiert eine Stimme und kehrt sofort zurück. Optionale Wellenform: 16 Dreieck, 32 Sägezahn (Standard), 64 Puls, 128 Rauschen. Kanal, Frames und Wellenform müssen Konstanten sein.",
   "org": "Steht zwischen sub/fn-Definitionen: die folgenden Subs setzen sich an der Adresse fort; die Lücke wird mit Nullen gefüllt und kann incbin-Daten aufnehmen.",
+  "tune": "Eingebettete SID-Tracker-Melodie: Instrumente, Reihenfolgeliste und Pattern-Zeilen je Stimme (Zellen wie C-4 01 V24). Der Compiler baut einen Player ohne Zeropage und definiert sid_init / sid_play, sodass music play, stop, pause und resume funktionieren. tune at $addr verschiebt ihn (Standard $8000).",
   "load sid": "Bettet eine PSID/RSID-Datei zur Kompilierzeit ein.",
   "music": "Steuert die mit load sid geladene Musik.",
   "irq": "Installiert einen Raster-Interrupt-Handler in Zeile 0 oder der angegebenen Rasterzeile.",
@@ -6531,6 +6535,7 @@ const ubCommandDescriptionsNl = {
   "sound": "Speelt een SID-stem af met vaste ADSR en zaagtandgolfvorm.",
   "sfx": "Niet-blokkerend SID-geluidseffect: programmeert één stem en keert direct terug. Optionele golfvorm: 16 driehoek, 32 zaagtand (standaard), 64 puls, 128 ruis. Kanaal, frames en golfvorm moeten constanten zijn.",
   "org": "Staat tussen sub/fn-definities: de volgende subs gaan verder op het opgegeven adres; het gat wordt met nullen gevuld en kan incbin-data bevatten.",
+  "tune": "Ingebouwde SID-trackertune: instrumenten, volgordelijst en patroonrijen per stem (cellen zoals C-4 01 V24). De compiler bouwt een speler zonder zero page en definieert sid_init / sid_play, zodat music play, stop, pause en resume werken. tune at $addr verplaatst hem (standaard $8000).",
   "load sid": "Sluit een PSID/RSID-bestand in tijdens het compileren.",
   "music": "Bestuurt muziek geladen met load sid.",
   "irq": "Installeert een rasteronderbrekingshandler op lijn 0 of de opgegeven rasterlijn.",
@@ -6645,6 +6650,7 @@ const ubCommandDescriptionsPl = {
   "sound": "Odtwarza głos SID ze stałym ADSR i falą piłokształtną.",
   "sfx": "Nieblokujący efekt dźwiękowy SID: programuje jeden głos i natychmiast wraca. Opcjonalna fala: 16 trójkąt, 32 piła (domyślnie), 64 impuls, 128 szum. Kanał, liczba ramek i fala muszą być stałymi.",
   "org": "Występuje między definicjami sub/fn: kolejne suby kontynuują pod podanym adresem; luka jest wypełniona zerami i może zawierać dane incbin.",
+  "tune": "Wbudowany utwór trackerowy SID: instrumenty, lista kolejności i wiersze patternów dla każdego głosu (komórki jak C-4 01 V24). Kompilator buduje odtwarzacz bez strony zerowej i definiuje sid_init / sid_play, więc music play, stop, pause i resume działają. tune at $addr przenosi go (domyślnie $8000).",
   "load sid": "Osadza plik PSID/RSID w czasie kompilacji.",
   "music": "Steruje muzyką wczytaną przez load sid.",
   "irq": "Instaluje procedurę przerwania rastrowego na linii 0 lub podanej linii rastra.",
@@ -6759,6 +6765,7 @@ const ubCommandDescriptionsIt = {
   "sound": "Riproduce una voce SID con ADSR fisso e forma d'onda a dente di sega.",
   "sfx": "Effetto sonoro SID non bloccante: programma una voce e ritorna subito. Onda opzionale: 16 triangolare, 32 dente di sega (predefinita), 64 impulso, 128 rumore. Canale, frame e onda devono essere costanti.",
   "org": "Si trova tra le definizioni sub/fn: le sub successive continuano all'indirizzo indicato; il vuoto è riempito di zeri e può contenere dati incbin.",
+  "tune": "Brano tracker SID integrato: strumenti, lista d'ordine e righe di pattern per voce (celle come C-4 01 V24). Il compilatore genera un player senza pagina zero e definisce sid_init / sid_play, quindi music play, stop, pause e resume funzionano. tune at $addr lo sposta (predefinito $8000).",
   "load sid": "Incorpora un file PSID/RSID in fase di compilazione.",
   "music": "Controlla la musica caricata con load sid.",
   "irq": "Installa un gestore di interrupt raster sulla linea 0 o sulla linea raster indicata.",
@@ -6882,6 +6889,7 @@ const _UB_COMMAND_REFERENCE = [
   ["sprdef", "sprdef id\n  byte values...\nend", "Embeds and installs a 63-byte sprite definition."],
   ["sound", "sound channel, frequency, duration", "Plays a SID voice with fixed ADSR and sawtooth waveform."],
   ["sfx", "sfx channel, frequency, frames [, wave]", "Starts a SID sound effect and returns immediately; the note decays by itself."],
+  ["tune", "tune [at addr]\n  speed n\n  inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol\n  order p, p, ...\n  pat p, voice, \"C-4 01 V24\", ...\nend", "Inline SID tracker tune; the compiler builds a zero-page-free player, and music play/stop control it."],
   ["org", "org address", "Continues subroutine/function code at the given address, leaving a gap for data."],
   ["load sid", "load sid \"file.sid\" [at address]", "Embeds a PSID/RSID file at compile time."],
   ["music", "music play | stop | pause | resume", "Controls music loaded with load sid."],
@@ -7040,7 +7048,7 @@ function _ubApplyLeftViews(persist = true) {
   if (persist) saveUiSettings();
 }
 
-const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound sfx org music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read restore asm include incbin load open close save memcopy drawmem map koala show hide set draw poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll type endtype pen mline mrect mcircle").split(" "));
+const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound sfx org tune music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read restore asm include incbin load open close save memcopy drawmem map koala show hide set draw poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll type endtype pen mline mrect mcircle").split(" "));
 const _UB_TYPES = new Set(["int", "word", "float", "string", "array", "array_word"]);
 const _UB_FUNCTIONS = new Set(("str_to_int numstr chr$ str$ inkey waitkey len asc val reudet reu_present turbo clamp peek peek16 rnd abs min max sgn spc tab joy mouse_x mouse_x_hi mouse_y mouse_btn sprhit sprbghit sprite_hit sprite_bg_hit sprite_x sprite_y map_tile map_color box_hit sin cos hex bin getch").split(" "));
 const _UB_ASM_MNEMONICS = new Set(("adc and asl bcc bcs beq bit bmi bne bpl brk bvc bvs clc cld cli clv cmp cpx cpy dec dex dey eor inc inx iny jmp jsr lda ldx ldy lsr nop ora pha php pla plp rol ror rti rts sbc sec sed sei sta stx sty tax tay tsx txa txs tya").split(" "));
@@ -7123,7 +7131,7 @@ function _ubFormatText(source) {
     const closes = /^(?:end\b|endtype\b|next\b|until\b|else\b|case\b|\})/.test(code);
     if (closes) depth = Math.max(0, depth - 1);
     const formatted = `${"  ".repeat(depth)}${content.replace(/\s+$/, "")}`;
-    const opens = /^(?:sub\b|fn\b|for\b|while\b|loop\b|times\b|repeat\b|select\b|sprdef\b|chardef\b|type\b)/.test(code)
+    const opens = /^(?:sub\b|fn\b|for\b|while\b|loop\b|times\b|repeat\b|select\b|sprdef\b|chardef\b|type\b|tune\b)/.test(code)
       || /^if\b.*\bthen\s*$/.test(code)
       || /^asm\s*\{\s*$/.test(code)
       || /^(?:else\b|case\b)/.test(code);
@@ -7166,9 +7174,12 @@ function _ubFormatSource() {
 
 function _ubHighlightSource(source) {
   let inAsm = false;
+  let inTune = false;
   return String(source || "").split("\n").map((raw, lineIndex) => {
     const trimmed = raw.trim().toLowerCase();
     if (/^asm\s*\{/.test(trimmed)) inAsm = true;
+    if (!inAsm && /^tune\b/.test(trimmed)) inTune = true;
+    const tuneWord = inTune && /^\s*(inst|order|pat|speed)\b/i.test(raw) ? raw.match(/^\s*(\w+)/)[1].toLowerCase() : "";
     let code = raw;
     let comment = "";
     if (!inAsm) {
@@ -7193,13 +7204,14 @@ function _ubHighlightSource(source) {
       html += _ubEsc(code.slice(last, match.index));
       const token = match[0];
       const lower = token.toLowerCase();
-      const cls = match[1] ? "ub-string" : match[2] ? "ub-number" : _UB_TYPES.has(lower) ? "ub-type" : _UB_FUNCTIONS.has(lower) ? "ub-fn" : _UB_KEYWORDS.has(lower) || (inAsm && _UB_ASM_MNEMONICS.has(lower)) ? "ub-kw" : "";
+      const cls = match[1] ? "ub-string" : match[2] ? "ub-number" : _UB_TYPES.has(lower) ? "ub-type" : _UB_FUNCTIONS.has(lower) ? "ub-fn" : _UB_KEYWORDS.has(lower) || (inAsm && _UB_ASM_MNEMONICS.has(lower)) || (tuneWord && lower === tuneWord && match.index === code.search(/\S/)) ? "ub-kw" : "";
       html += cls ? `<span class="${cls}">${_ubEsc(token)}</span>` : _ubEsc(token);
       last = match.index + token.length;
     }
     html += _ubEsc(code.slice(last));
     if (comment) html += `<span class="ub-comment">${_ubEsc(comment)}</span>`;
     if (inAsm && /^\s*\}/.test(raw)) inAsm = false;
+    if (inTune && /^\s*end\b/i.test(raw)) inTune = false;
     return html;
   }).join("\n") + "\n";
 }
@@ -36244,59 +36256,48 @@ function _sidExportAsmPlayable() {
   return lines.join("\n");
 }
 
-// UltimateBasic variant of the playable module: one self-contained `asm { }`
-// block. UB's inline assembler has no `.byte`, `* =` or `label+N`, its labels
-// are local to the block, and UB variables start at zero page $02 — so the
-// player's $02-$2F state is shifted to $50-$7D and the data is emitted as raw
-// byte lines. The block starts the music where it is placed and jumps over
-// the player body.
-const _SID_UB_ZP_SHIFT = 0x4E;
-
+// UltimateBasic export: a `tune ... end` block (instruments, order list and
+// pattern rows as text) plus `music play`. The UB compiler turns it into a
+// zero-page-free player, so nothing here is machine code.
 function _sidExportUbBlock() {
-  const src = _sidExportAsmPlayable().split("\n");
-  const start = src.indexOf("sid_init:");
-  if (start < 0) return "";
-  const hx = function(n){ return "$" + n.toString(16).toUpperCase().padStart(2, "0"); };
-  const shiftZp = function(code) {
-    return code.replace(/(^|[^#\w$])\$([0-2][0-9A-Fa-f])(?![0-9A-Fa-f])/g, function(m, pre, h) {
-      const v = parseInt(h, 16);
-      return v >= 0x02 && v <= 0x2F ? pre + hx(v + _SID_UB_ZP_SHIFT) : m;
-    });
-  };
-  const out = [];
-  let inInstruments = false;
-  for (let i = start; i < src.length; i++) {
-    const line = src[i];
-    const ci = line.indexOf(";");
-    const code = ci < 0 ? line : line.slice(0, ci);
-    const comment = ci < 0 ? "" : line.slice(ci);
-    const bm = code.match(/^\s*\.byte\s+(.+?)\s*$/);
-    if (bm) {
-      const vals = bm[1].split(",").map(function(s){ return s.trim(); });
-      if (inInstruments) {
-        // `sid_instruments+N,X` needs a label at each byte of instrument 0.
-        inInstruments = false;
-        out.push("    " + vals[0] + (comment ? "   " + comment : ""));
-        for (let k = 1; k < vals.length; k++) { out.push("sid_instruments_p" + k + ":"); out.push("    " + vals[k]); }
-      } else {
-        out.push("    " + vals.join(", ") + (comment ? "   " + comment : ""));
-      }
-      continue;
-    }
-    if (/^sid_instruments:\s*$/.test(code)) inInstruments = true;
-    out.push(shiftZp(code).replace(/\bsid_instruments\+(\d+)/g, "sid_instruments_p$1") + comment);
-  }
+  const hx = function(n, w){ return "$" + (n >>> 0).toString(16).toUpperCase().padStart(w, "0"); };
   const speed = Math.max(1, Math.min(255, _sidSpeed|0));
-  const zpTo = hx(0x2F + _SID_UB_ZP_SHIFT);
-  const head = [
-    "# SID player + tune (generated by Visual Assembler SID editor)",
-    "# Place where the music should start. PAL 50 Hz raster IRQ, 3 voices, speed " + speed + ".",
-    "# Uses zero page $50-" + zpTo + " and $FB-$FE. Stop: poke $D01A,0 / sid stop / poke $DC0D,$81 / poke $0314,$31 / poke $0315,$EA",
-    "asm {",
-    "    JSR sid_init",
-    "    JMP sid_end"
-  ];
-  return head.concat(out, ["sid_end:", "}"]).join("\n");
+  const exportedPatterns = Math.min(_sidPatterns.length, 8);
+  const song = ((_sidSong && _sidSong.length) ? _sidSong : [0])
+    .map(function(idx){ return Math.max(0, Math.min(exportedPatterns - 1, idx|0)); })
+    .slice(0, 255);
+  const lines = [];
+  lines.push("# SID tune (generated by Visual Assembler SID editor)");
+  lines.push("# Place where the music should start; music play / music stop control it.");
+  if (exportedPatterns < _sidPatterns.length) {
+    lines.push("# NOTE: only the first " + exportedPatterns + " patterns are exported (" + _sidPatterns.length + " present).");
+  }
+  lines.push("tune");
+  lines.push("  speed " + speed);
+  _sidInsts.forEach(function(ins, i) {
+    const filterActive = ins.lp || ins.bp || ins.hp;
+    const resFilt = (ins.res<<4) | (filterActive ? 0x07 : 0x00);
+    const modeVol = ((ins.lp?0x10:0)|(ins.bp?0x20:0)|(ins.hp?0x40:0)) | ins.vol;
+    lines.push("  inst " + [i, hx(_sidWaveByte(ins), 2), hx((ins.a<<4)|ins.d, 2), hx((ins.s<<4)|ins.r, 2),
+      hx(ins.pw & 0xFFF, 4), hx(ins.cut & 0x7FF, 4), hx(resFilt, 2), hx(modeVol, 2)].join(", ") +
+      "   # " + String(ins.name || "").replace(/[\r\n]+/g, " "));
+  });
+  for (let i = 0; i < song.length; i += 16) lines.push("  order " + song.slice(i, i + 16).join(", "));
+  for (let pi = 0; pi < exportedPatterns; pi++) {
+    for (let v = 0; v < 3; v++) {
+      const cells = [];
+      for (let r = 0; r < _SID_ROWS; r++) {
+        const c = _sidCellText(_sidPatterns[pi][v][r]);
+        cells.push(c === "... .. ..." ? "..." : c);
+      }
+      while (cells.length && cells[cells.length - 1] === "...") cells.pop();
+      if (!cells.length) continue;
+      lines.push("  pat " + pi + ", " + v + ", " + cells.map(function(c){ return '"' + c + '"'; }).join(", "));
+    }
+  }
+  lines.push("end");
+  lines.push("music play");
+  return lines.join("\n");
 }
 
 function _sidExportToUb() {

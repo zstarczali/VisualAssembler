@@ -17,46 +17,49 @@ function extractFunctionSource(name) {
   throw new Error(`Could not parse ${name}`);
 }
 
-function buildBlock() {
+function buildBlock(patternCount = 1, song = [0]) {
   const ctx = {};
   vm.createContext(ctx);
   vm.runInContext(`
     const _SID_ROWS = 32; let _sidSpeed = 6;
-    const _SID_FX_CODES = { V: 1, U: 2, D: 3, C: 4, F: 5 };
-    function _sidWaveByte() { return 0x41; }
-    let _sidInsts = [{ name: "Lead", a: 0, d: 9, s: 8, r: 4, pw: 2048, cut: 100, res: 2, lp: true, bp: false, hp: false, vol: 15 }];
-    let _sidPatterns = [[0, 1, 2].map(() => Array.from({ length: 32 }, (_, r) => ({ note: r % 4 ? null : r, inst: 0, fx: null, fxval: 0 })))];
-    let _sidSong = [0];
-    ${extractFunctionSource("_sidExportAsmPlayable")}
-    ${appJs.match(/const _SID_UB_ZP_SHIFT = [^;]+;/)[0]}
+    const _SID_NOTE_NAMES = ["C-","C#","D-","D#","E-","F-","F#","G-","G#","A-","A#","B-"];
+    ${extractFunctionSource("_sidNoteName")}
+    ${extractFunctionSource("_sidFxText")}
+    ${extractFunctionSource("_sidCellText")}
+    function _sidWaveByte(i) { return (i.tri?0x10:0) | (i.saw?0x20:0) | (i.pul?0x40:0) | (i.noi?0x80:0) | 0x01; }
+    let _sidInsts = [{ name: "Lead", a: 0, d: 9, s: 8, r: 4, pw: 2048, cut: 100, res: 2, lp: true, bp: false, hp: false, vol: 15, saw: true }];
+    const mk = () => [0, 1, 2].map((v) => Array.from({ length: 32 }, (_, r) =>
+      v === 0 && r === 0 ? { note: 48, inst: 0, fx: "V", fxval: 0x24 } : { note: null, inst: 0, fx: null, fxval: 0 }));
+    let _sidPatterns = Array.from({ length: ${patternCount} }, mk);
+    let _sidSong = ${JSON.stringify(song)};
     ${extractFunctionSource("_sidExportUbBlock")}
     this.out = _sidExportUbBlock();
   `, ctx);
   return ctx.out;
 }
 
-test("UB export: single asm block that starts the player and jumps over the body", () => {
+test("UB export: a tune block plus music play, no machine code", () => {
   const out = buildBlock();
   const lines = out.split("\n");
-  assert.equal(lines[3], "asm {");
-  assert.equal(lines[4].trim(), "JSR sid_init");
-  assert.equal(lines[5].trim(), "JMP sid_end");
-  assert.equal(lines[lines.length - 2], "sid_end:");
-  assert.equal(lines[lines.length - 1], "}");
-  assert.equal(out.split("}").length - 1, 1, "stray } would end the UB asm block early");
+  assert.ok(lines.includes("tune"));
+  assert.ok(lines.includes("end"));
+  assert.equal(lines[lines.length - 1], "music play");
+  assert.ok(!/\basm\b|\.byte|\bJSR\b|\bLDA\b/.test(out));
 });
 
-test("UB export: nothing the UB inline assembler cannot parse", () => {
-  const out = buildBlock();
-  assert.ok(!/\.byte|\* *=|\.word/.test(out));
-  assert.ok(!/[A-Za-z_]\+\d/.test(out.replace(/;.*$/gm, "")), "label+N is unsupported in UB asm");
-  assert.ok(/^sid_instruments_p8:$/m.test(out));
+test("UB export: instrument, order and pattern lines follow the tune syntax", () => {
+  const out = buildBlock(2, [0, 1, 0]);
+  assert.match(out, /^  speed 6$/m);
+  assert.match(out, /^  inst 0, \$21, \$09, \$84, \$0800, \$0064, \$27, \$1F {3}# Lead$/m);
+  assert.match(out, /^  order 0, 1, 0$/m);
+  assert.match(out, /^  pat 0, 0, "C-4 00 V24"$/m);
+  assert.match(out, /^  pat 1, 0, "C-4 00 V24"$/m);
+  assert.ok(!/^  pat \d, [12],/m.test(out), "empty voices are skipped");
 });
 
-test("UB export: player zero page moved out of UB's $02+ variable area, data untouched", () => {
-  const out = buildBlock();
-  const code = out.split("\n").filter((l) => !l.trim().startsWith("#")).join("\n");
-  assert.ok(!/[ (]\$(0[2-9A-F]|1[0-9A-F]|2[0-9A-F])[,)\s]/i.test(code.replace(/^\s+\$[0-9A-F, $]+$/gim, "").replace(/#\$[0-9A-F]+/gi, "")));
-  assert.match(out, /LDA \(\$50\),Y/);
-  assert.match(out, /STA \$FB/);
+test("UB export: more than 8 patterns are truncated with a note", () => {
+  const out = buildBlock(10, [9, 0]);
+  assert.match(out, /only the first 8 patterns/);
+  assert.match(out, /^  order 7, 0$/m);
+  assert.ok(!/^  pat 8,/m.test(out));
 });

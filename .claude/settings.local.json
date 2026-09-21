@@ -253,7 +253,26 @@
       "Bash(head -40 tests/sid-effects.test.js; ls src-tauri/target 2>/dev/null | head; ls ~/.cargo/git/checkouts/ultimatebasic-2223cf473531f139/*/target 2>/dev/null | head -3; which cargo ub)",
       "Bash(grep -i -E \"\\\\.\\(md|txt\\)$\")",
       "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/0b449e5b-349a-4dae-b70e-04beb918dc06/scratchpad/bump.py\")",
-      "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/0b449e5b-349a-4dae-b70e-04beb918dc06/scratchpad/docs.py\")"
+      "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/0b449e5b-349a-4dae-b70e-04beb918dc06/scratchpad/docs.py\")",
+      "Bash(ls /d/Development/VICE | grep -i \"x64\\\\|console\" | head; ls /d/Development/GTK3VICE-3.9-win64 | head -20)",
+      "Bash(cd /f/Development/UltimateBasic && grep -n \"LoadSid\\\\|sid_init\\\\|sid_play\\\\|MusicPlay\\\\|Stmt::Music\\\\|Sfx\" src/compiler/ast.rs src/compiler/parser.rs src/compiler/codegen.rs | head -60; wc -l src/compiler/*.rs)",
+      "Bash(python sim.py tune.prg 8000 24)",
+      "Bash(awk '/function _sidWaveByte/{p=1} p{print} p&&/^}/{exit}' www/app.js)",
+      "Bash(sed -i 's/E-4 00 V24/C-4 00 V24/g' tests/sid-ub-export.test.js)",
+      "Bash(git grep *)",
+      "Bash(awk '/function _sidNewInst/{p=1} p{print} p&&/^}/{exit}' www/app.js)",
+      "Bash(ls /d/Development/64tass 2>/dev/null | head -5; which 64tass; cd /f/Development/VisualAssembler && sed -n 35290,35335p www/app.js | cut -c1-170)",
+      "Bash(node cmp_gen.js old.asm new.ub 7)",
+      "Bash(/d/Development/64tass/64tass.exe -a old.asm -o old.prg -L old.lst -l old.lbl)",
+      "Bash(/f/Development/UltimateBasic/target/release/ub.exe build *)",
+      "Bash(python cmp_sim.py old.prg c000 c095 new.prg 200)",
+      "Bash(grep -n 'STA $DC0D — ACK' src/compiler/codegen.rs)",
+      "Bash(timeout 100 /d/Development/VICE/bin/x64sc.exe -console -sound -soundoutput 0 -soundrecdev wav -soundrecout rec.wav -limitcycles 60000000 -warp +confirmonexit new2.prg)",
+      "Bash(rm -f rec.wav)",
+      "Bash(timeout 150 /d/Development/VICE/bin/x64sc.exe -console -sound -soundrecdev wav -soundrecarg rec.wav -limitcycles 80000000 -warp +confirmonexit new2.prg)",
+      "Bash(cd \"C:/Users/rlung/AppData/Roaming/vice\" && ls -la vice.ini*; grep -n -i \"soundrec\\\\|^Sound=\\\\|SoundOutput\\\\|WarpMode\\\\|Warp\\\\|AutostartPrgMode\\\\|ConfirmOnExit\\\\|Console\" vice.ini | head -20)",
+      "Bash(timeout 100 /d/Development/VICE/bin/x64sc.exe -config C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/0b449e5b-349a-4dae-b70e-04beb918dc06/scratchpad/vice_test.ini -console -sound -sounddev dummy -soundrecdev wav -soundrecarg rec.wav -limitcycles 15000000 new2.prg)",
+      "Bash(timeout 100 python vmon.py new2.prg)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"

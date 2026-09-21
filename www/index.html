@@ -1122,10 +1122,10 @@ PRINTABLE CHARACTERS
       <p class="whats-new-version">v2.4.6</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: SID Editor &rarr; UltimateBasic export</strong> &mdash; <strong>Files &rarr; Export to UltimateBasic</strong> turns the tune and its player into one self-contained <code>asm { }</code> block and inserts it at the cursor of the Ultimate Basic editor (outside UB mode it is copied to the clipboard). Place it where the music should start. The player's zero-page state is moved to <code>$50-$7D</code> so it does not collide with UB variables.
+          <strong>New: SID Editor &rarr; UltimateBasic export</strong> &mdash; <strong>Files &rarr; Export to UltimateBasic</strong> writes the tune as a <code>tune ... end</code> block (instruments, order list and pattern rows as text) plus <code>music play</code> and inserts it at the cursor of the Ultimate Basic editor (outside UB mode it is copied to the clipboard). The UltimateBasic compiler builds a zero-page-free player from it, so <code>music play</code> / <code>music stop</code> control the tune and nothing collides with UB variables. Needs an UltimateBasic compiler with <code>tune</code> support.
         </li>
         <li>
-          <strong>New: Ultimate Basic language update</strong> &mdash; syntax highlighting and the command reference now cover <code>sfx</code> (non-blocking SID effects), <code>org</code> (place subs at an address, leaving a gap for data), <code>charset on</code> / <code>charset off</code> and <code>incbin</code> slicing (<code>incbin "f.prg", $3C00, 2</code>).
+          <strong>New: Ultimate Basic language update</strong> &mdash; syntax highlighting and the command reference now cover <code>sfx</code> (non-blocking SID effects), <code>tune</code>, <code>org</code> (place subs at an address, leaving a gap for data), <code>charset on</code> / <code>charset off</code> and <code>incbin</code> slicing (<code>incbin "f.prg", $3C00, 2</code>).
         </li>
         <li>
           <strong>Improved: ASM view multi-highlight</strong> &mdash; selecting several blocks now highlights all of their ASM lines at once, the scroll position stays stable, and the line numbers are softer with a subtle separator rule.
