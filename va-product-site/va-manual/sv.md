@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.4.5**
+**Version 2.4.6**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att dra och släppa instruktionsblock och se den genererade assemblern och maskinkoden i realtid.
 
@@ -9,6 +9,7 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
 ## Innehållsförteckning
 
 - [C64 Visual Assembler — Användarmanual](#c64-visual-assembler--user-manual)
+    - [Höjdpunkter i version 2.4.6](#version-246-highlights)
     - [Höjdpunkter i version 2.4.5](#version-245-highlights)
     - [Höjdpunkter i version 2.4.3](#version-243-highlights)
     - [Höjdpunkter i version 2.4.2](#version-242-highlights)
@@ -156,6 +157,16 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
     - [Kartredigerare (Flerskiktade kakelkartor)](#map-editor-multilayer-tilemaps)
     - [SID-redigerare (3-röstsspårare)](#sid-editor-3-voice-tracker)
     - [Kurvredigerare](#curve-editor)
+
+---
+
+## Höjdpunkter i version 2.4.6
+
+- **SID-redigerare → UltimateBasic export** — **Filer → Exportera till UltimateBasic** skriver melodin som ett `melodi ... slut`-block (instrument, ordningslista och mönsterrader som text) följt av `musikuppspelning` och infogar det vid markören i Ultimate Basic-redigeraren (utanför UB-läge kopieras det till urklipp). UltimateBasic-kompilatorn bygger en sidfri spelare från den vid kompileringstillfället, så `musikuppspelning` / `musikstopp` styr melodin och ingenting kolliderar med UB-variabler. Vibrato-, slide-, notklippnings- och hastighetseffekter stöds; upp till 8 mönster, valfri ordningslistalängd. Kräver en UltimateBasic-kompilator med stöd för `melodi`.
+- **Ultimate Basic-språkuppdatering** — syntaxmarkering och kommandoreferensen täcker nu **`sfx`** (icke-blockerande SID-effekt: `sfx-kanal, frekvens, frames [, wave]`), **`org`** (fortsätt sub-/fn-kod vid en adress, vilket lämnar ett nollfyllt mellanrum som kan innehålla `incbin`-data), **`charset on` / `charset off`** (växla VIC-II till RAM-teckenuppsättningen och tillbaka) och **`incbin` slicing** (`incbin "font.prg", $3C00, 2` hoppar över de första bytena, ett valfritt fjärde argument begränsar längden).
+- **Markering av flera block i ASM-vyn** — om du väljer flera block markeras alla deras ASM-rader samtidigt, rullningspositionen förblir stabil medan du markerar och radnumren är mjukare med en subtil vertikal avgränsningsregel.
+- **Assemblerläget bevaras över Ultimate Basic-switchar** — om du öppnar ett projekt eller ett inbyggt exempel medan Ultimate Basic är aktivt lämnas nu UB först och återgår till ditt senaste Block/Expert-läge, så UB-bufferten kan inte längre skriva över den nya flikens läge eller titel. Nya flikar skapas i rätt läge.
+- **Kung Fu Flash 2-inställningar** — en **Identifiera USB**-knapp i maskinvaruinställningarna söker om efter kassettens serieport, och KFF2-kraven anger nu den nödvändiga Kung Fu Flash-firmwaren (v2.07+).
 
 ---
 
@@ -331,7 +342,7 @@ Fliken **Alternativ** innehåller inställningarna som påverkar kodgenerering o
 
 ### Klicka på en ASM-linje
 
-Klicka på valfri rad i ASM-vyn för att **markera motsvarande block** i programområdet.
+Klicka på valfri rad i ASM-vyn för att **markera motsvarande block ** i programområdet. När flera block är valda markeras ASM-linjerna för alla tillsammans.
 
 ### ASM-linjenummer
 
@@ -487,6 +498,15 @@ Ultimate Basic-projekt använder `.proj`-filer och kan innehålla flera `.ub`-k�
 
 Klicka på stjärnan bredvid en projektfil för att markera den som **startfilen**. Kommandona Build, Run, D64, C64 Ultimate och Debug kompilerar den startkällan även om en annan flik för närvarande är aktiv. Utan ett startval används den aktiva UB-fliken.
 
+Verktygsfältet i projektpanelen har två knappar för att lägga till, och fildialogrutorna är som standard inställda på arbetsmappen **UB** (Meny → Arkiv → Ange arbetsmapp, UB-specifik):
+
+- **Lägg till fil** — välj en eller flera filer samtidigt (valfri typ — `.ub`, `.bin`, `.prg`, bilder, teckensnitt, etc.). `.ub`-källor öppnas också som redigeringsflikar; allt annat läggs endast till som referens, för att `incbin`/`loadfile`-resurser ska kunna följa med projektet.
+- **Lägg till mapp** — referera till en hel mapp (t.ex. en `incbin` resurskatalog som `fonts/`) så att den förblir kopplad till projektet.
+
+Mappar i trädet har en pil för att fälla/expandera, och **högerklicka på en mapp** för att lägga till en eller flera filer kapslade under den (visas indragna). Varje post har en raderingsknapp (✕); poster som inte är `.ub` är endast referensposter och öppnas inte genom att klicka på dem.
+
+Knappen **Spara projekt** inaktiverar sig själv och visar statusen "Sparad" när projektet inte har några väntande ändringar, och återaktiveras automatiskt i det ögonblick du lägger till, tar bort eller omorganiserar en fil eller mapp.
+
 ### Byggnad och diagnostik
 
 Knappen **Bygg** öppnar samma centrerade förloppsupplevelse som används av de andra arbetsflödena i Visual Assembler. Lyckade byggen uppdaterar byggutdata, bygginformation och disassemblering. Aktivera **Verbose** för att inkludera detaljer om kompilatorns minnesmappning, interna nollsidesallokeringar och genererade koddata.
@@ -639,6 +659,9 @@ Expertläget stöder en **projektpanel** (`#expert-project-panel`) för projekt 
 - Varje fil i projektet öppnas som en separat **flik** i flikfältet högst upp i redigeraren.
 - **Stäng projekt** (`Meny → Arkiv → Stäng projekt` / `#menu-close-project`) stänger det aktuella projektet och alla dess filmlikar samtidigt. Uppmanar dig att spara eventuella osparade ändringar innan stängning. Projektpanelen återställs till sitt tomma tillstånd och `_expertProjectData` rensas.
 - Varje fil kan markeras som **startfilen** (★ stjärnikon). När en startfil är inställd, samlar och kör knappen **Kör** (PRG, D64, Ultimate) alltid filens kod – oavsett vilken flik som är aktiv för närvarande. Detta fungerar i både blockläge och expertläge.
+- Verktygsfältets knapp **Lägg till** väljer en eller flera filer samtidigt (valfri typ, inte bara `.json`/`.asm`) och refererar till dem i projektet utan att öppna dem — använd den för binära resurser som `incbin` data. Dess dialogruta är som standard VA-arbetsmappen. Den intilliggande knappen **Lägg till mapp** refererar till en hel mapp (t.ex. en resurskatalog) på samma sätt. Referensposter visar en raderingsknapp (✕) men öppnas inte genom att klicka på dem.
+- Mappar i trädet har en pil för att fälla/expandera, och **högerklicka på en mapp ** för att lägga till en eller flera filer kapslade under den (visas indragna).
+- Knappen **Spara projekt** inaktiverar sig själv och visar statusen "Sparad" när projektet inte har några väntande ändringar, och återaktiveras automatiskt i det ögonblick du lägger till, tar bort eller omorganiserar en fil eller mapp.
 - Avsnittet **symboler** längst ner i projektpanelen kan ändras i storlek vertikalt med avdelaren mellan filträdet och symbollistan, så långa symbollistor kan ta upp mer plats vid behov.
 
 ### Flikfält
@@ -3654,12 +3677,13 @@ Effekter uppdateras en gång per rad (matchar den exporterade spelarens timing),
 - Förhandsvisningar av ackord och arpeggio lyser upp motsvarande pianotangenter när klaviaturen är öppet.
 
 **Export av filer-menyn:**
-| Exportera                       | Vad den gör                                                                                                                                                                              |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Spara .bin…`                   | Skriver redigerarens ursprungliga serialiserade format (instrument + mönster + sekvens).                                                                                                 |
-| `Exportera block (endast data)` | Lägger till instrumenttabell + mönsterblock till programmet vid `* = $C000`.                                                                                                             |
-| `Exportera block + minispelare` | Lägger till hela spelaren (sid_init / sid_irq / sid_play_row / sid_set_voice) plus PAL-frekvenstabeller. Efter exporten, placera en `JSR sid_init` i din huvudkod där musiken ska börja. |
-| `Exportera asm (urklipp)`       | Kopierar hela assembly-källkoden till urklipp.                                                                                                                                           |
+| Exportera                       | Vad den gör                                                                                                                                                                                                                                                                                                   |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Spara .bin…`                   | Skriver redigerarens ursprungliga serialiserade format (instrument + mönster + sekvens).                                                                                                                                                                                                                      |
+| `Exportera block (endast data)` | Lägger till instrumenttabell + mönsterblock till programmet vid `* = $C000`.                                                                                                                                                                                                                                  |
+| `Exportera block + minispelare` | Lägger till hela spelaren (sid_init / sid_irq / sid_play_row / sid_set_voice) plus PAL-frekvenstabeller. Efter exporten, placera en `JSR sid_init` i din huvudkod där musiken ska börja.                                                                                                                      |
+| `Exportera asm (urklipp)`       | Kopierar hela assembly-källkoden till urklipp.                                                                                                                                                                                                                                                                |
+| `Exportera till UltimateBasic`  | Skriver ett `melodi ... slut`-block (instrument, ordningslista, mönsterrader som text) plus `musikuppspelning` och infogar det vid markören i Ultimate Basic-editorn; utanför UB-läge kopieras texten till urklipp. UltimateBasic-kompilatorn bygger spelaren, så `musikuppspelning` / `musikstopp` styr den. |
 
 **Användning av spelarens ZP:** `$02`–`$2F` (pektabeller, mönsterförskjutning och effektstatus per röst), plus `$FB`–`$FE` (tickräknare, radindex, ordningslistaposition, set_voice-temp). Dessa står i konflikt om din huvudkod använder dem — flytta via expertläge om det behövs.
 

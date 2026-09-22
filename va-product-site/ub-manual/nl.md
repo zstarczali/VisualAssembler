@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.6 — Taalhandleiding
+# Ultimate Basic v1.5.7 — Taalhandleiding
 
 Complete taal- en CLI-referentie voor Ultimate Basic, een BASIC-achtige taal die
 direct compileert naar 6502-machinecode voor de Commodore 64. Uitvoer: `.prg`
@@ -62,6 +62,9 @@ kies daarom een andere naam.
 `select`, `case`, `for`, `next`, `loop`, `times`, `to`, `step`, `while`,
 `repeat`, `until`, `break`, `continue`, `inc`, `dec`, `bye`, `exit`, `rem`
 
+**Muziek** `tune` (bloktrefwoord; de regels binnenin - `speed`, `inst`, `order`,
+`pat` - zijn niet gereserveerd)
+
 **Typen en typegerelateerd** `int`, `word`, `float`, `string`, `array`,
 `array_word`
 
@@ -86,9 +89,10 @@ gebruikt voor de `dec(n, width)` afdrukindeling)
 `paint`, `erase`, `pen`, `multi`, `block`
 
 **Sprites** `sprite`, `sprdef`, `sprite_frame`, `sprite_x`, `sprite_y`,
-`sprhit`, `sprbghit`, `box_hit`, `chardef`, `charset`, `expand`, `priority`
+`sprhit`, `sprbghit`, `box_hit`, `chardef`, `charset`, `org`, `expand`,
+`priority`
 
-**Geluid & muziek** `sid`, `sound`, `volume`, `music`, `play`, `pause`,
+**Geluid & muziek** `sid`, `sound`, `sfx`, `volume`, `music`, `play`, `pause`,
 `resume`, `stop`
 
 **Invoerapparaten** `getch`, `inkey`, `waitkey`, `joy`, `mouse_x`, `mouse_x_hi`,
@@ -389,18 +393,20 @@ ondersteund.
 ### Arrays
 
 ```basic
-var scores = array(8)    # 8 bytes at $C000
+var scores = array(8) # 8 bytes op $C000
 
-scores[0] = 100          # constant index → STA $C000
-scores[i] = 99           # variable index → STA (ptr),Y
-var v = scores[i]        # LDA (ptr),Y
-print scores[2]          # usable inline in print
+# (alle arrays worden eenmaal bij de start van het programma met nullen gevuld — nieuw in 1.5.7)
 
-var moments = array_word(8)  # 16 bytes (8×2) at $C000+
+scores[0] = 100 # constante index → STA $C000
+scores[i] = 99 # variabele index → STA (ptr),Y
+var v = scores[i] # LDA (ptr),Y
+print scores[2] # inline bruikbaar in print
 
-moments[0] = $1234         # constant index → STA $C000 (lo), STA $C001 (hi)
-moments[i] = $5678         # variable index → ASL A for stride; (ptr),Y × 2
-var t: word = moments[1]   # LDA $C002, LDA $C003
+var moments = array_word(8) # 16 bytes (8×2) op $C000+
+
+moments[0] = $1234 # constante index → STA $C000 (lo), STA $C001 (hi)
+moments[i] = $5678 # variabele index → ASL A voor stride; (ptr),Y × 2
+var t: word = moments[1] # LDA $C002, LDA $C003
 ```
 
 **Multidimensionale arrays** (nieuw in 1.5.3)
@@ -503,6 +509,17 @@ Zie `examples/type_demo.ub`.
 var ptr: word = $0400    # two ZP bytes: lo=$00 hi=$04
 poke ptr, 6              # STA (ptr),Y
 var v = peek(ptr)        # LDA (ptr),Y
+```
+
+**16-bits producten (opgelost in 1.5.7).** Een product toegewezen aan een `word`
+behoudt alle 16 bits, ook wanneer geen van beide factoren een `word` is:
+
+```basic
+var score: word = 0
+var level = 3
+score += 300 * level # 900 (vóór 1.5.7 werd dit afgekapt tot 8 bits: 44)
+score = score + 100 * level
+var big: word = 100 * level + 900
 ```
 
 ### Bitmapafbeeldingen
@@ -810,13 +827,40 @@ sid volume 0             # silence (master volume = 0)
 sid stop                 # zero all 25 SID registers ($D400–$D418) — complete silence
 ```
 
-`sound <channel>, <freq>, <duration>` — duur in PAL-frames (1/50 s per frame).
-Vaste ADSR: attack/decay `$09`, sustain/release `$F0`, zaagtandgolfvorm.
-Hoofdvolume `$D418` altijd ingesteld op `$0F`.
+`sound <channel>, <freq>, <duration>` — duur in PAL-frames (1/50 s elk). `sound`
+**blokken**: het programma wacht tot de noot is afgelopen (gebruik `sfx`
+hieronder in een gameloop). Vaste ADSR: attack/decay `$09`, sustain/release
+`$F0`, zaagtandgolfvorm. Hoofdvolume `$D418` altijd ingesteld op `$0F`.
+
+*Opgelost in 1.5.7:* de wachtlus bekeek rasterlijn 0, die `$D012` (alleen de
+lage 8 bits) twee keer per frame weergeeft (lijnen 0 en 256), waardoor elke noot
+**half** zo lang duurde als gevraagd — en twee vertakkingen werden over hun
+opcode heen gepatcht, waardoor het programma crashte voor elke duur anders dan
+0. `sound` wacht nu op rasterlijn 200 precies zoals `delay`.
 
 `sid volume N` schrijft N naar `$D418`. Bits 0-3 = volume (0-15), bits 4-7 =
 filtermodus. `sid stop` genereert een 10-byte nulopvullingslus — sneller dan 25
 afzonderlijke prikbewegingen.
+
+### Niet-blokkerende geluidseffecten (`sfx`) — nieuw in 1.5.7
+
+```basic
+sound 0, $2000, 25 # BLOKKEN: het programma wacht hier 25 frames
+sfx 0, $2000, 25 # keert direct terug; de noot vervaagt vanzelf
+sfx 1, $0500, 8, 128 # optionele golfvorm: 16 driehoek, 32 zaagtand (standaard), 64 puls, 128 ruis
+sfx 0, freq_word, 4, 16 # freq kan een constante, een woordvariabele of een 8-bits expressie zijn
+```
+
+`sfx <channel>, <freq>, <frames> [, <wave>]` programmeert één SID-stem en keert
+onmiddellijk terug, dus het is veilig binnen een gameloop. Er is geen gate-off
+timer: de envelope is ingesteld op attack 0 / sustain 0 / release 0 en de
+**decay** wordt tijdens het compileren gekozen uit `frames` (1 frame = 20 ms,
+dichtstbijzijnde SID-vervaltijd: 6, 24, 48, 72, 114, 168, 204, 240, 300, 750,
+1500, 2400 ms ...), dus de noot sterft ongeveer in die tijd uit. Het triggert de
+stem opnieuw bij elke oproep (gate uit, dan aan) en stelt het mastervolume in
+`$0F`. `channel` (0-2), `frames` (1-255) en `wave` moeten
+compileertijdconstanten zijn.
+
 
 ### Muziek afspelen
 
@@ -1028,7 +1072,26 @@ weergegeven bitmap `$2000-$3F3F` overschrijft; anders geeft de compiler een
 foutmelding. De Koala-import kan momenteel niet in hetzelfde programma worden
 gecombineerd met `load sid`.
 
-### Aangepaste tekenset
+### Code-indeling: `org` — nieuw in 1.5.7
+
+```basic
+sub a() ... end # subroutines/functies worden één voor één vanaf het einde van de hoofdtekst geplaatst
+org $4000 # de volgende subroutines/functies gaan verder op $4000; $xxxx-$3FFF blijft gevuld met nullen
+sub b() ... end
+incbin "font.bin", $3800 # gegevens kunnen in de ruimte staan ($3800-$3FFF is een volledige VIC-tekenset-slot)
+```
+
+`org addr` gaat **tussen sub/fn-definities** (het wordt genegeerd in de
+hoofdcode en werkt alleen in de tweede doorgang). Subroutines lopen nooit in
+elkaar over, dus de overgeslagen bytes worden gewoon met nullen opgevuld en
+gereserveerd: een `incbin "f", addr` die volledig binnen de opening ligt, wordt
+erin geschreven, en `charset on` telt de opening niet als code. De nulbytes
+maken deel uit van de `.prg`. `org` onder het huidige einde van de code is een
+compileerfout. Alles wat na de laatste subroutine wordt gegenereerd (helpers,
+`data`-tabellen) volgt de laatste subroutine, d.w.z. komt boven de opening
+terecht.
+
+### Aangepaste tekenset (`charset on` / `charset off` nieuw in 1.5.7)
 
 ```basic
 charset $3800            # set base address for chardef (default $3800)
@@ -1044,17 +1107,38 @@ end
 
 `charset base` stelt het bestemmingsadres in dat wordt gebruikt door alle
 volgende `chardef`-instructies. `chardef id ... end` voegt 8 bytes inline in het
-codesegment in (voorafgegaan door een `JMP` om ze over te slaan) en kopieert ze
+codesegment in (voorafgegaan door een `JMP` om ze over te slaan), en kopieert ze
 vervolgens tijdens runtime naar `charset_base + id*8`. Waarden moeten
-compileertijdconstanten zijn; gebruik `%` voor binaire literals (`%00011000`).
+compileertijdconstanten zijn die geschreven zijn als `$xx` of decimaal. **`%`
+binaire literals worden niet ondersteund** door de lexer (de handleiding zei dit
+vóór 1.5.7 — dat was onjuist).
 
-Om een aangepaste tekenset in VIC-II te activeren, stelt u het adres van de
-tekengenerator in via `$D018`:
+`charset addr` stelt alleen de bestemming `chardef` in; er wordt geen code
+verzonden. Om de VIC-II de set te laten gebruiken, moet u deze inschakelen (en
+weer uitschakelen wanneer u klaar bent):
 ```basic
 charset $3800
-chardef 1  $FF,$81,$81,$81,$81,$81,$81,$FF  end  # box border
-poke $D018, $1A     # screen at $0400, charset at $3800 (bank 0)
+chardef 1 $FF,$81,$81,$81,$81,$81,$81,$FF end # box border
+charset on # VIC-II leest tekens van $3800 (schermmatrix onaangeraakt)
+...
+charset off # terug naar de ROM-set ($1800 als `lowercase` actief is, anders $1000)
 ```
+
+`charset on` read-modify-writes `$D018` bits 1-3 from the last `charset addr`
+(default `$3800`); the screen-matrix bits are preserved. The address must be a
+multiple of `$800` within VIC bank 0 (`$0000-$3FFF`), otherwise it is a
+compile-time error. Both statements use the `charset addr` that was compiled
+lastly, so keep the directive in the main program body (subroutine bodies are
+compiled after it). De equivalente raw write is `poke $D018, $1A` voor `$2800`
+of `poke $D018, $1E` voor `$3800`.
+
+**Overlapcontrole.** `charset on` claimt de hele 2 KB set en elke `chardef` zijn
+8 bytes. Als de gegenereerde code dat gebied bereikt, stopt de build met `the
+program code ($080D-$xxxx) overlaps the charset area $2800-$2FFF; move the
+charset ...`. Grote programma's hebben daarom de set boven de code nodig
+(`charset $3800`) — of gebruik `org` (hierboven) om de code boven de set te
+laten doorlopen. Gegevens die in een `org` gat worden geplaatst (`incbin ...,
+addr`) worden niet als code geteld.
 
 ### Geheugen
 
@@ -1088,6 +1172,57 @@ Zonder adres: secundair adres 0 (de eigen 2-byte header van het bestand wordt
 gebruikt als laadadres). Met adres: secundair adres 1 (bestand geladen op de
 opgegeven locatie). `save` roept `SETNAM`+`SETLFS`+`SAVE` aan
 (`$FFBD`/`$FFBA`/`$FFD8`). Vereist zowel `addr` als `len`.
+
+### Tracker-tunes (`tune`)
+
+```basic
+afstemmen # optioneel: afstemmen op $C800 (standaard $8000)
+snelheid 6 # frames per rij (50 Hz PAL)
+inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
+
+inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+volgorde 0, 1, 0 # patroonvolgorde (patronen kunnen zich herhalen)
+pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
+
+pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+einde
+muziek afspelen # of: sys sid_init / irq handler roept sys aan sid_play
+```
+
+`tune ... end` beschrijft een 3-stemmige tracker-tune in platte tekst (dezelfde
+celnotatie die de Visual Assembler SID-editor laat zien) en bouwt de speler
+**tijdens het compileren**. Het definieert `sid_init` / `sid_play` precies zoals
+`load sid`, dus `music play`, `music stop`, `music pause` en `music resume` (en
+een handmatige `irq` handler die `sys sid_play` aanroept) werken ongewijzigd.
+
+| Lijn                                                  | Betekenis                                                                                                                                                                                                                                       |
+| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `speed N`                                             | Frames per trackerrij (1-255).                                                                                                                                                                                                                  |
+| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Eén instrument: controleregister (golfvormbits; de gate-bit wordt door de speler toegevoegd), attack/decay, sustain/release, 12-bits pulsbreedte, 11-bits filtercutoff, resonantie-/filterroutingbyte (`$D417`) en modus-/volumebyte (`$D418`). |
+| `order p, p, ...`                                     | Patroonvolgorde. Lijnen stapelen zich op, tot 255 stappen.                                                                                                                                                                                      |
+| `pat p, v, "cell", ...`                               | Maximaal 32 rijen voor stem `v` (0-2) van patroon `p` (0-7). Ontbrekende rijen zijn leeg.                                                                                                                                                       |
+
+Een **cel** is `NOTE INST FX`: `C-4`, `D#3`, `Eb2` of `...` voor geen noot, een
+twee-cijferig hexadecimaal instrument (`..` om het zo te laten), en een
+optioneel effect - `Vxy` vibrato (x = rijen vasthouden, y = diepte), `Uxx` /
+`Dxx` omhoog/omlaag schuiven, `C` noot afsnijden, `Fxx` snelheid instellen. Een
+cel die alleen een effect bevat, kan worden geschreven als `"... .. F06"` of
+gewoon `"F06"`.
+
+Opmerkingen over de speler:
+
+- Alle spelersstatus bevindt zich **inside the blob** (absolute adressering) -
+  het gebruikt geen nulpagina, dus het kan niet botsen met
+  UltimateBasic-variabelen of tijdelijke gegevens, en het blijft werken wanneer
+  het programma terugkeert naar BASIC.
+- De blob wordt op een vast adres geplaatst (standaard `$8000`, of `tune at
+  $addr`) en de `.prg` wordt aangevuld tot dat adres, zoals `load sid`. Houd het
+  uit de buurt van je code, arrays (`$C000+`) en eventueel
+  bitmap-/charsetgeheugen. Een tune heeft ongeveer 1,3 KB plus 12 bytes per
+  rij-kolom aan gegevens nodig.
+- Maximaal 8 patronen (32 rijen elk); de volgordelijst kan ze vrij herhalen.
+- `music play` gebruikt de CIA1-timer op 50 Hz; combineer dit niet met een
+  andere `load sid`/`tune` (de laatste wint).
 
 ### SID Muziek
 
@@ -1196,6 +1331,12 @@ print f                  # prints as "N.DD" (e.g. 3.5 → "3.50", 1.25 → "1.25
 **Let op:** Rekenkundige overloop treedt op bij 255.255 (geen verzadiging).
 Vermenigvuldiging en deling van twee drijvende-komma-variabelen worden nog niet
 ondersteund — gebruik `int()` + integer-rekenkunde voor die gevallen.
+
+**Het afdrukken van float-expressies (opgelost in 1.5.7).** `print` van een
+rekenkundige expressie die een `float` bevat (bijvoorbeeld `print a / 10` met
+`a: float = 1`) print nu het Q8.8-resultaat als `N.DD`. Vóór 1.5.7 printte het
+de ruwe 16-bits waarde als een integer (`25` in plaats van `0.09`). De breuk
+wordt afgekapt, niet afgerond: 1/10 = 25/256 wordt afgedrukt als `0.09`.
 
 ### Wiskundige functies
 
@@ -1389,13 +1530,21 @@ label err_handler
 springt. Voorwaartse verwijzingen (label gedefinieerd na `onerr goto`) worden
 ondersteund.
 
-### Bestandsinbedding tijdens compilatie
+### Compile-time file embedding (`incbin` skip / length new in 1.5.7)
 
 ```basic
-incbin "sprites.bin"            # embed raw binary bytes at current code position
-incbin "charset.bin", $2000     # embed at an absolute address, padding as needed
-include "defs.ub"        # inline another .ub source file (lexed+parsed in place)
+incbin "sprites.bin" # Voeg ruwe binaire bytes in op de huidige codepositie
+incbin "charset.bin", $2000 # Voeg in op een absoluut adres, vul indien nodig aan
+incbin "font.prg", $3C00, 2 # ...sla de eerste 2 bytes over (bijv. een .prg-laadadres)
+incbin "big.bin", $4000, 16, 256 # ...sla 16 bytes over, neem vervolgens maximaal 256 bytes
+include "defs.ub" # Voeg een ander .ub-bronbestand inline in (lexed+parsed in place)
 ```
+
+`incbin "file", addr, skip [, length]` verwijdert de eerste `skip` bytes van het
+bestand (doorgaans het 2-byte laadadres van een `.prg`) en neemt optioneel
+maximaal `length` bytes; `skip` en `length` zijn constanten, en een `skip`
+voorbij het einde van het bestand is een fout. De adresvorm vereist dat het doel
+zich boven de gegenereerde code bevindt — of binnen een `org` gat.
 
 ### Data / Read
 
@@ -1755,23 +1904,25 @@ hex-dump.
 
 ## Bekende beperkingen
 
-| Functie                               | Beperking                                                                                                                                                                  |
-| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Rekenen met gehele getallen           | 8-bits niet-ondertekend (0–255); `word` variabelen bevatten 16-bits waarden                                                                                                |
-| Subroutines                           | Geen recursie — ZP-parameterposities worden statisch toegewezen                                                                                                            |
-| Stringvariabelen                      | Read-only after init; assignment replaces the pointer, not the data                                                                                                        |
-| String concat runtime                 | `s1 + s2` print sequentieel — geen geheugenallocatie of lengtecontrole                                                                                                     |
-| `rnd()` / `rnd(n)`                    | Eenvoudige LCG, niet cryptografisch; periode = 256                                                                                                                         |
-| `abs()` / `sgn()` / `min()` / `max()` | Alleen 8-bits waarden; `abs`/`sgn` behandelen waarden als getekend (bit 7 = negatief → `abs` tweecomplement, `sgn` retourneert `$FF`); `min`/`max` zijn ongetekend (0–255) |
-| `plot`                                | Pixels buiten het bereik worden stilzwijgend afgesneden (Y ≥ 200 of X ≥ 320 → geen actie)                                                                                  |
-| `mplot`                               | Geen grenscontrole — x moet tussen 0 en 159 liggen, y moet tussen 0 en 199 liggen.                                                                                         |
-| `mline` / `mrect`                     | Meerkleurig; x: 0–159, y: 0–199. Pixels buiten het scherm worden automatisch overschreven (geen uitsnijding) — coördinaten blijven binnen het bereik.                      |
-| `mcircle`                             | Meerkleurig; punten buiten beeld (x ≥ 160 of y ≥ 200 worden overgeslagen) worden uitgeknipt.                                                                               |
-| `color pen`                           | Alleen voor huurcellen; stelt de voorgrond-nibble van aangeraakte cellen in (achtergrond blijft behouden). Heeft geen effect in blokmodus (`plot4`/`circle4`)              |
-| `rect`                                | Geen grenscontrole — x: 0–319, y: 0–199; x1≤x2 en y1≤y2 worden niet afgedwongen (gedegenereerde/omgekeerde rechthoeken produceren ongedefinieerde uitvoer)                 |
-| `plot4`                               | Geen grenscontrole — x moet tussen 0 en 79 liggen, y moet tussen 0 en 49 liggen (blokmodus)                                                                                |
-| `circle4`                             | Snijdt pixels buiten het scherm af; de bruikbare straal is ongeveer 0–49 in de 80×50 blokmodus.                                                                            |
-| `chr$`                                | Geen PETSCII↔ASCII-mapping — n wordt ongewijzigd doorgegeven aan CHROUT                                                                                                    |
-| `music play`                          | Vereist `load sid`; er wordt slechts één CIA1-wrapper gegenereerd (de laatste `music play` wint)                                                                           |
-| `graphics on double`                  | Alleen voor huurlingen; gebruikt `$4000–$7FFF` voor de backbuffer, dus programmacode moet onder `$4400` blijven; niet combineerbaar met sprites of meerkleurig             |
-| Foutrapportage                        | Alleen tijdens het compileren; `onerr goto` behandelt kernel-I/O-fouten tijdens de uitvoering.                                                                             |
+| Functie                               | Beperking                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Rekenen met gehele getallen           | 8-bits niet-ondertekend (0–255); `word` variabelen bevatten 16-bits waarden                                                                                                                                                                                                                                                                                                                                                                                  |
+| Nul pagina budget                     | De permanente nulpagina is `$02–$4F` (78 bytes): elke variabele en sub/fn-parameter neemt 2 bytes in beslag, elke lopende `for`-lus nog eens 2 bytes (die worden teruggegeven wanneer de lus eindigt, als de body geen variabelen heeft gedeclareerd). Het bereiken van een nulpagina is een compileerfout (`out of zero page`, nieuw in 1.5.7); voorheen werd het tijdelijke geheugen stilzwijgend overschreven. Hergebruik variabelen in grote programma's |
+| Binaire literals                      | Alleen `$hex` en decimale waarden; `%` binaire letterlijke waarden worden niet ondersteund.                                                                                                                                                                                                                                                                                                                                                                  |
+| Subroutines                           | Geen recursie — ZP-parameterposities worden statisch toegewezen                                                                                                                                                                                                                                                                                                                                                                                              |
+| Stringvariabelen                      | Read-only after init; assignment replaces the pointer, not the data                                                                                                                                                                                                                                                                                                                                                                                          |
+| String concat runtime                 | `s1 + s2` print sequentieel — geen geheugenallocatie of lengtecontrole                                                                                                                                                                                                                                                                                                                                                                                       |
+| `rnd()` / `rnd(n)`                    | Eenvoudige LCG, niet cryptografisch; periode = 256                                                                                                                                                                                                                                                                                                                                                                                                           |
+| `abs()` / `sgn()` / `min()` / `max()` | Alleen 8-bits waarden; `abs`/`sgn` behandelen waarden als getekend (bit 7 = negatief → `abs` tweecomplement, `sgn` retourneert `$FF`); `min`/`max` zijn ongetekend (0–255)                                                                                                                                                                                                                                                                                   |
+| `plot`                                | Pixels buiten het bereik worden stilzwijgend afgesneden (Y ≥ 200 of X ≥ 320 → geen actie)                                                                                                                                                                                                                                                                                                                                                                    |
+| `mplot`                               | Geen grenscontrole — x moet tussen 0 en 159 liggen, y moet tussen 0 en 199 liggen.                                                                                                                                                                                                                                                                                                                                                                           |
+| `mline` / `mrect`                     | Meerkleurig; x: 0–159, y: 0–199. Pixels buiten het scherm worden automatisch overschreven (geen uitsnijding) — coördinaten blijven binnen het bereik.                                                                                                                                                                                                                                                                                                        |
+| `mcircle`                             | Meerkleurig; punten buiten beeld (x ≥ 160 of y ≥ 200 worden overgeslagen) worden uitgeknipt.                                                                                                                                                                                                                                                                                                                                                                 |
+| `color pen`                           | Alleen voor huurcellen; stelt de voorgrond-nibble van aangeraakte cellen in (achtergrond blijft behouden). Heeft geen effect in blokmodus (`plot4`/`circle4`)                                                                                                                                                                                                                                                                                                |
+| `rect`                                | Geen grenscontrole — x: 0–319, y: 0–199; x1≤x2 en y1≤y2 worden niet afgedwongen (gedegenereerde/omgekeerde rechthoeken produceren ongedefinieerde uitvoer)                                                                                                                                                                                                                                                                                                   |
+| `plot4`                               | Geen grenscontrole — x moet tussen 0 en 79 liggen, y moet tussen 0 en 49 liggen (blokmodus)                                                                                                                                                                                                                                                                                                                                                                  |
+| `circle4`                             | Snijdt pixels buiten het scherm af; de bruikbare straal is ongeveer 0–49 in de 80×50 blokmodus.                                                                                                                                                                                                                                                                                                                                                              |
+| `chr$`                                | Geen PETSCII↔ASCII-mapping — n wordt ongewijzigd doorgegeven aan CHROUT                                                                                                                                                                                                                                                                                                                                                                                      |
+| `music play`                          | Vereist `load sid`; er wordt slechts één CIA1-wrapper gegenereerd (de laatste `music play` wint)                                                                                                                                                                                                                                                                                                                                                             |
+| `graphics on double`                  | Alleen voor huurlingen; gebruikt `$4000–$7FFF` voor de backbuffer, dus programmacode moet onder `$4400` blijven; niet combineerbaar met sprites of meerkleurig                                                                                                                                                                                                                                                                                               |
+| Foutrapportage                        | Alleen tijdens het compileren; `onerr goto` behandelt kernel-I/O-fouten tijdens de uitvoering.                                                                                                                                                                                                                                                                                                                                                               |

@@ -3053,29 +3053,61 @@ fn compile_ultimate_basic(source: String, source_path: Option<String>, explicit:
 }
 
 #[tauri::command]
-async fn choose_proj_member(app: AppHandle) -> serde_json::Value {
+async fn choose_proj_member(app: AppHandle, ub: Option<bool>) -> serde_json::Value {
     let working_folder = {
         let cfg = read_config(&app);
-        get_working_folder_path(&cfg)
+        if ub.unwrap_or(false) { get_ub_working_folder_path(&cfg) } else { get_working_folder_path(&cfg) }
     };
     let mut dialog = app.dialog().file()
         .add_filter("C64 Visual Assembler Project", &["json", "c64va"])
         .add_filter("Assembly Source", &["asm", "s", "a65", "inc"])
+        .add_filter("UltimateBasic Source", &["ub"])
+        .add_filter("Binary files", &["bin", "prg", "sid", "raw"])
+        .add_filter("All files", &["*"])
         ;
     if let Some(folder) = working_folder {
         dialog = dialog.set_directory(folder);
     }
-    let result = dialog.blocking_pick_file();
+    let result = dialog.blocking_pick_files();
+
+    match result {
+        Some(paths) if !paths.is_empty() => {
+            let files: Vec<serde_json::Value> = paths.iter().map(|path| {
+                let path_str = path.to_string();
+                let file_name = std::path::Path::new(&path_str)
+                    .file_name()
+                    .and_then(|n| n.to_str())
+                    .unwrap_or("")
+                    .to_string();
+                serde_json::json!({ "filePath": path_str, "fileName": file_name })
+            }).collect();
+            serde_json::json!({ "canceled": false, "files": files })
+        }
+        _ => serde_json::json!({ "canceled": true, "files": [] }),
+    }
+}
+
+#[tauri::command]
+async fn choose_proj_folder(app: AppHandle, ub: Option<bool>) -> serde_json::Value {
+    let working_folder = {
+        let cfg = read_config(&app);
+        if ub.unwrap_or(false) { get_ub_working_folder_path(&cfg) } else { get_working_folder_path(&cfg) }
+    };
+    let mut dialog = app.dialog().file();
+    if let Some(folder) = working_folder {
+        dialog = dialog.set_directory(folder);
+    }
+    let result = dialog.blocking_pick_folder();
 
     match result {
         Some(path) => {
             let path_str = path.to_string();
-            let file_name = std::path::Path::new(&path_str)
+            let folder_name = std::path::Path::new(&path_str)
                 .file_name()
                 .and_then(|n| n.to_str())
-                .unwrap_or("")
+                .unwrap_or(&path_str)
                 .to_string();
-            serde_json::json!({ "canceled": false, "filePath": path_str, "fileName": file_name })
+            serde_json::json!({ "canceled": false, "folderPath": path_str, "folderName": folder_name })
         }
         None => serde_json::json!({ "canceled": true }),
     }
@@ -3339,6 +3371,7 @@ pub fn run() {
             save_ub_file,
             compile_ultimate_basic,
             choose_proj_member,
+            choose_proj_folder,
             load_sample,
             open_manual,
             open_ultimate_basic_manual,

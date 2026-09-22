@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.6 — Language Manual
+# Ultimate Basic v1.5.7 — Language Manual
 
 Complete language and CLI reference for Ultimate Basic, a BASIC-like language that
 compiles directly to 6502 machine code for the Commodore 64. Output: `.prg` files
@@ -58,6 +58,9 @@ confusing error (a `var` line silently fails to declare, or an expression like
 `for`, `next`, `loop`, `times`, `to`, `step`, `while`, `repeat`, `until`,
 `break`, `continue`, `inc`, `dec`, `bye`, `exit`, `rem`
 
+**Music**
+`tune` (block keyword; the lines inside - `speed`, `inst`, `order`, `pat` - are not reserved)
+
 **Types & type-related**
 `int`, `word`, `float`, `string`, `array`, `array_word`
 
@@ -89,10 +92,10 @@ is used for the `dec(n, width)` print format)
 
 **Sprites**
 `sprite`, `sprdef`, `sprite_frame`, `sprite_x`, `sprite_y`, `sprhit`, `sprbghit`,
-`box_hit`, `chardef`, `charset`, `expand`, `priority`
+`box_hit`, `chardef`, `charset`, `org`, `expand`, `priority`
 
 **Sound & music**
-`sid`, `sound`, `volume`, `music`, `play`, `pause`, `resume`, `stop`
+`sid`, `sound`, `sfx`, `volume`, `music`, `play`, `pause`, `resume`, `stop`
 
 **Input devices**
 `getch`, `inkey`, `waitkey`, `joy`, `mouse_x`, `mouse_x_hi`, `mouse_y`, `mouse_btn`
@@ -378,6 +381,7 @@ Forward references are fully supported.
 
 ```basic
 var scores = array(8)    # 8 bytes at $C000
+                         # (all arrays are zero-filled once at program start — new in 1.5.7)
 
 scores[0] = 100          # constant index → STA $C000
 scores[i] = 99           # variable index → STA (ptr),Y
@@ -485,6 +489,17 @@ See `examples/type_demo.ub`.
 var ptr: word = $0400    # two ZP bytes: lo=$00 hi=$04
 poke ptr, 6              # STA (ptr),Y
 var v = peek(ptr)        # LDA (ptr),Y
+```
+
+**16-bit products (fixed in 1.5.7).** A product assigned to a `word` keeps all 16 bits, also
+when neither factor is a `word`:
+
+```basic
+var score: word = 0
+var level = 3
+score += 300 * level     # 900 (before 1.5.7 this was truncated to 8 bits: 44)
+score = score + 100 * level
+var big: word = 100 * level + 900
 ```
 
 ### Bitmap graphics
@@ -762,12 +777,36 @@ sid volume 0             # silence (master volume = 0)
 sid stop                 # zero all 25 SID registers ($D400–$D418) — complete silence
 ```
 
-`sound <channel>, <freq>, <duration>` — duration in PAL frames (1/50 s each).
+`sound <channel>, <freq>, <duration>` — duration in PAL frames (1/50 s each). `sound` **blocks**:
+the program waits until the note has finished (use `sfx` below inside a game loop).
 Fixed ADSR: attack/decay `$09`, sustain/release `$F0`, sawtooth waveform.
 Master volume `$D418` always set to `$0F`.
 
+*Fixed in 1.5.7:* the wait loop watched raster line 0, which `$D012` (low 8 bits only) shows twice
+per frame (lines 0 and 256), so every note lasted **half** as long as requested — and two
+branches were patched over their opcode, which crashed the program for any duration other than 0.
+`sound` now waits on raster line 200 exactly like `delay`.
+
 `sid volume N` writes N to `$D418`. Bits 0-3 = volume (0-15), bits 4-7 = filter mode.
 `sid stop` emits a 10-byte zero-fill loop — faster than 25 individual pokes.
+
+### Non-blocking sound effects (`sfx`) — new in 1.5.7
+
+```basic
+sound 0, $2000, 25            # BLOCKS: the program waits 25 frames here
+sfx 0, $2000, 25              # returns at once; the note fades out by itself
+sfx 1, $0500, 8, 128          # optional wave: 16 triangle, 32 saw (default), 64 pulse, 128 noise
+sfx 0, freq_word, 4, 16       # freq may be a constant, a word var or an 8-bit expression
+```
+
+`sfx <channel>, <freq>, <frames> [, <wave>]` programs one SID voice and returns immediately,
+so it is safe inside a game loop. There is no gate-off timer: the envelope is set to
+attack 0 / sustain 0 / release 0 and the **decay** is chosen at compile time from `frames`
+(1 frame = 20 ms, nearest SID decay time: 6, 24, 48, 72, 114, 168, 204, 240, 300, 750,
+1500, 2400 ms ...), so the note dies away over roughly that time. It re-triggers the voice
+each call (gate off, then on) and sets master volume `$0F`.
+`channel` (0-2), `frames` (1-255) and `wave` must be compile-time constants.
+
 
 ### Music playback
 
@@ -964,7 +1003,23 @@ Generated code and helpers must finish below `$2000`, because the displayed bitm
 overwrites `$2000-$3F3F`; the compiler reports an error otherwise. Koala import
 cannot currently be combined with `load sid` in the same program.
 
-### Custom charset
+### Code layout: `org` — new in 1.5.7
+
+```basic
+sub a() ... end          # subs/fns are placed one after another from the end of the main body
+org $4000                # the next subs/fns continue at $4000; $xxxx-$3FFF stays zero-filled
+sub b() ... end
+incbin "font.bin", $3800 # data can live in the gap ($3800-$3FFF is a whole VIC charset slot)
+```
+
+`org addr` goes **between sub/fn definitions** (it is ignored in the main body and only acts in
+the second pass). Subroutines never fall through into each other, so the skipped bytes are
+just zero-filled and reserved: an `incbin "f", addr` that lies wholly inside the gap is written
+into it, and `charset on` does not count the gap as code. The zero bytes are part of the `.prg`.
+`org` below the current code end is a compile-time error. Everything generated after the last
+sub (helpers, `data` tables) follows the last sub, i.e. lands above the gap.
+
+### Custom charset (`charset on` / `charset off` new in 1.5.7)
 
 ```basic
 charset $3800            # set base address for chardef (default $3800)
@@ -981,14 +1036,31 @@ end
 `charset base` sets the destination address used by all subsequent `chardef` statements.
 `chardef id ... end` embeds 8 bytes inline in the code segment (preceded by a `JMP` to
 skip over them), then copies them to `charset_base + id*8` at runtime.
-Values must be compile-time constants; use `%` for binary literals (`%00011000`).
+Values must be compile-time constants written as `$xx` or decimal. **`%` binary literals are not
+supported** by the lexer (the manual said so before 1.5.7 — that was wrong).
 
-To activate a custom charset in VIC-II, set the character generator address via `$D018`:
+`charset addr` only sets the `chardef` destination; it emits no code. To make the VIC-II
+use the set, switch it on (and off again when you are done):
 ```basic
 charset $3800
 chardef 1  $FF,$81,$81,$81,$81,$81,$81,$FF  end  # box border
-poke $D018, $1A     # screen at $0400, charset at $3800 (bank 0)
+charset on          # VIC-II reads characters from $3800 (screen matrix untouched)
+...
+charset off         # back to the ROM set ($1800 if `lowercase` is active, else $1000)
 ```
+
+`charset on` read-modify-writes `$D018` bits 1-3 from the last `charset addr` (default `$3800`);
+the screen-matrix bits are preserved. The address must be a multiple of `$800` inside VIC
+bank 0 (`$0000-$3FFF`), otherwise it is a compile-time error. Both statements use the
+`charset addr` that was compiled last, so keep the directive in the main program body
+(subroutine bodies are compiled after it). The equivalent raw write is `poke $D018, $1A`
+for `$2800` or `poke $D018, $1E` for `$3800`.
+
+**Overlap check.** `charset on` claims the whole 2 KB set and every `chardef` its 8 bytes. If the
+generated code reaches into that area the build stops with
+`the program code ($080D-$xxxx) overlaps the charset area $2800-$2FFF; move the charset ...`.
+Large programs therefore need the set above the code (`charset $3800`) — or use `org` (above) to
+let the code continue above the set. Data placed in an `org` gap (`incbin ..., addr`) is not counted as code.
 
 ### Memory
 
@@ -1020,6 +1092,50 @@ save "PROG", start, len  # addr and len from word/int variables
 Without address: secondary address 0 (file's own 2-byte header used as load address).
 With address: secondary address 1 (file loaded to specified location).
 `save` calls `SETNAM`+`SETLFS`+`SAVE` (`$FFBD`/`$FFBA`/`$FFD8`). Requires both `addr` and `len`.
+
+### Tracker tunes (`tune`)
+
+```basic
+tune                       # optional: tune at $C800  (default $8000)
+  speed 6                  # frames per row (50 Hz PAL)
+  inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
+  inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+  order 0, 1, 0            # pattern order (patterns may repeat)
+  pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
+  pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+end
+music play                 # or: sys sid_init / irq handler calling sys sid_play
+```
+
+`tune ... end` describes a 3-voice tracker tune in plain text (the same cell notation the
+Visual Assembler SID editor shows) and builds the player **at compile time**. It defines
+`sid_init` / `sid_play` exactly like `load sid`, so `music play`, `music stop`,
+`music pause` and `music resume` (and a manual `irq` handler calling `sys sid_play`) work
+unchanged.
+
+| Line | Meaning |
+|---|---|
+| `speed N` | Frames per tracker row (1-255). |
+| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | One instrument: control register (waveform bits; the gate bit is added by the player), attack/decay, sustain/release, 12-bit pulse width, 11-bit filter cutoff, resonance/filter-routing byte (`$D417`) and mode/volume byte (`$D418`). |
+| `order p, p, ...` | Pattern order. Lines accumulate, up to 255 steps. |
+| `pat p, v, "cell", ...` | Up to 32 rows for voice `v` (0-2) of pattern `p` (0-7). Missing rows are empty. |
+
+A **cell** is `NOTE INST FX`: `C-4`, `D#3`, `Eb2` or `...` for no note, a two-digit hex
+instrument (`..` to leave it), and an optional effect - `Vxy` vibrato (x = hold rows,
+y = depth), `Uxx` / `Dxx` slide up / down, `C` note cut, `Fxx` set speed. An effect-only cell
+can be written as `"... .. F06"` or just `"F06"`.
+
+Notes on the player:
+
+- All player state lives **inside the blob** (absolute addressing) - it uses no zero page, so it
+  cannot collide with UltimateBasic variables or temporaries, and it keeps working when the
+  program returns to BASIC.
+- The blob is placed at a fixed address (default `$8000`, or `tune at $addr`) and the `.prg` is
+  padded up to it, like `load sid`. Keep it clear of your code, arrays (`$C000+`) and any
+  bitmap/charset memory. A tune needs about 1.3 KB plus 12 bytes per row-column of data.
+- At most 8 patterns (32 rows each); the order list can repeat them freely.
+- `music play` uses the CIA1 timer at 50 Hz; do not combine it with another `load sid`/`tune`
+  (the last one wins).
 
 ### SID Music
 
@@ -1117,6 +1233,11 @@ print f                  # prints as "N.DD" (e.g. 3.5 → "3.50", 1.25 → "1.25
 **Caveat:** Arithmetic overflow wraps at 255.255 (no saturation). Multiplication and
 division of two float variables are not yet supported — use `int()` + integer arithmetic
 for those cases.
+
+**Printing float expressions (fixed in 1.5.7).** `print` of an arithmetic expression that
+involves a `float` (for example `print a / 10` with `a: float = 1`) now prints the Q8.8 result as
+`N.DD`. Before 1.5.7 it printed the raw 16-bit value as an integer (`25` instead of `0.09`).
+The fraction is truncated, not rounded: 1/10 = 25/256 prints as `0.09`.
 
 ### Math functions
 
@@ -1291,13 +1412,20 @@ label err_handler
 When a KERNAL I/O error occurs (e.g. a failed `load` or `open`) the KERNAL executes `JMP ($0300)`,
 which branches to the label. Forward references (label defined after `onerr goto`) are supported.
 
-### Compile-time file embedding
+### Compile-time file embedding (`incbin` skip / length new in 1.5.7)
 
 ```basic
 incbin "sprites.bin"            # embed raw binary bytes at current code position
 incbin "charset.bin", $2000     # embed at an absolute address, padding as needed
+incbin "font.prg", $3C00, 2       # ...skipping the first 2 bytes (e.g. a .prg load address)
+incbin "big.bin", $4000, 16, 256  # ...skip 16 bytes, then take at most 256 bytes
 include "defs.ub"        # inline another .ub source file (lexed+parsed in place)
 ```
+
+`incbin "file", addr, skip [, length]` drops the first `skip` bytes of the file (typically the 2 byte
+load address of a `.prg`) and optionally takes at most `length` bytes; `skip` and `length` are
+constants, and a `skip` beyond the end of the file is an error. The address form requires the target
+to be above the generated code — or inside an `org` gap.
 
 ### Data / Read
 
@@ -1629,6 +1757,8 @@ With `-v` the output additionally shows the internal ZP allocations and a full h
 | Feature | Limitation |
 |---|---|
 | Integer arithmetic | 8-bit unsigned (0–255); `word` vars hold 16-bit values |
+| Zero page budget | Permanent zero page is `$02–$4F` (78 bytes): every variable and sub/fn parameter takes 2 bytes, every running `for` loop 2 more (given back when the loop ends, if its body declared no variables). Running out is a compile-time error (`out of zero page`, new in 1.5.7); before, it silently overwrote the scratch area. Reuse variables in big programs |
+| Binary literals | Only `$hex` and decimal; `%` binary literals are not supported |
 | Subroutines | No recursion — ZP parameter slots are statically allocated |
 | String vars | Read-only after init; assignment replaces the pointer, not the data |
 | String concat runtime | `s1 + s2` prints sequentially — no heap allocation or length tracking |

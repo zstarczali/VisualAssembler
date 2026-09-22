@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Podręcznik użytkownika
 
-**Wersja 2.4.5**
+**Wersja 2.4.6**
 
 Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągając i upuszczając bloki instrukcji, i oglądaj generowany kod assemblera i maszynowy w czasie rzeczywistym.
 
@@ -9,6 +9,7 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
 ## Spis treści
 
 - [C64 Visual Assembler — Podręcznik użytkownika](#c64-visual-assembler--user-manual)
+    - [Najważniejsze cechy wersji 2.4.6](#version-246-highlights)
     - [Najważniejsze cechy wersji 2.4.5](#version-245-highlights)
     - [Najważniejsze cechy wersji 2.4.3](#version-243-highlights)
     - [Najważniejsze cechy wersji 2.4.2](#version-242-highlights)
@@ -156,6 +157,16 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
     - [Edytor map (mapy kafelkowe wielowarstwowe)](#map-editor-multilayer-tilemaps)
     - [Edytor SID (śledzenie 3-głosowe)](#sid-editor-3-voice-tracker)
     - [Edytor krzywych](#curve-editor)
+
+---
+
+## Najważniejsze cechy wersji 2.4.6
+
+- **Edytor SID → Eksport UltimateBasic** — **Pliki → Eksport do UltimateBasic** zapisuje melodię jako blok `melodii... koniec` (instrumenty, lista kolejności i wiersze wzorów jako tekst), po którym następuje `odtwarzanie muzyki` i wstawia go w miejscu kursora edytora Ultimate Basic (poza trybem UB jest kopiowany do schowka). Kompilator UltimateBasic buduje z niego odtwarzacz bez zerowej strony w momencie kompilacji, więc `odtwarzanie muzyki` / `zatrzymywanie muzyki` kontroluje melodię i nic nie koliduje ze zmiennymi UB. Obsługiwane są efekty wibrato, slajdu, cięcia nut i szybkości; do 8 wzorów, dowolna długość listy kolejności. Wymaga kompilatora UltimateBasic z obsługą `tune`.
+- **Aktualizacja języka Ultimate Basic** — podświetlanie składni i odniesienie do poleceń obejmują teraz **`sfx`** (efekt SID bez blokowania: `kanał sfx, częstotliwość, klatki [, fala]`), **`org`** (kontynuacja kodu sub/fn pod adresem, pozostawiając wypełnioną zerami lukę, która może pomieścić dane `incbin`), **`włączenie zestawu znaków` / `wyłączenie zestawu znaków`** (przełączenie VIC-II na zestaw znaków RAM i z powrotem) oraz **`incbin` slicing** (`incbin "font.prg", $3C00, 2` pomija pierwsze bajty, opcjonalny czwarty argument ogranicza długość).
+- **Podświetlanie wielu bloków w widoku ASM** — zaznaczenie kilku bloków powoduje jednoczesne podświetlenie wszystkich ich linii ASM, pozycja przewijania pozostaje stabilna podczas zaznaczania, a numery linii są łagodniejsze dzięki subtelnej regule separatora pionowego.
+- **Tryb asemblera zachowany we wszystkich przełącznikach Ultimate Basic** — otwarcie projektu lub wbudowanej próbki, gdy Ultimate Basic jest aktywny, powoduje teraz najpierw opuszczenie UB i powrót do ostatniego trybu blokowego/eksperckiego, dzięki czemu bufor UB nie może już nadpisać trybu ani tytułu nowej karty. Nowe karty są tworzone w prawidłowym trybie.
+- **Ustawienia Kung Fu Flash 2** — przycisk **Wykryj USB** w Ustawieniach sprzętowych ponownie skanuje port szeregowy kartridża, a wymagania wstępne KFF2 teraz wskazują wymagane oprogramowanie układowe Kung Fu Flash (v2.07+).
 
 ---
 
@@ -331,7 +342,7 @@ Karta **Opcje** zawiera ustawienia wpływające na generowanie kodu i wyświetla
 
 ### Kliknięcie linii ASM
 
-Kliknij dowolny wiersz w widoku ASM, aby **podświetlić odpowiedni blok** w obszarze programu.
+Kliknij dowolny wiersz w widoku ASM, aby **podświetlić odpowiadający mu blok ** w obszarze programu. Po zaznaczeniu kilku bloków, wiersze ASM wszystkich z nich zostaną podświetlone razem.
 
 ### Numery linii ASM
 
@@ -487,6 +498,15 @@ Projekty Ultimate Basic korzystają z plików `.proj` i mogą zawierać wiele pl
 
 Kliknij gwiazdkę obok pliku projektu, aby oznaczyć go jako **plik startowy**. Polecenia Build, Run, D64, C64 Ultimate i Debug kompilują ten plik startowy, nawet jeśli aktywna jest inna karta. Bez wyboru pliku startowego używana jest aktywna karta UB.
 
+Pasek narzędzi panelu projektu zawiera dwa przyciski dodawania, a okna dialogowe plików domyślnie wskazują folder roboczy **UB** (Menu → Plik → Ustaw folder roboczy, specyficzne dla UB):
+
+- **Dodaj plik** — wybierz jeden lub więcej plików naraz (dowolny typ — `.ub`, `.bin`, `.prg`, obrazy, czcionki itd.). Pliki źródłowe `.ub` są również otwierane jako karty edytora; wszystko inne jest dodawane wyłącznie jako odniesienie, aby zasoby `incbin`/`loadfile` mogły być przenoszone wraz z projektem.
+- **Dodaj folder** — odwołuje się do całego folderu (np. katalogu zasobów `incbin`, takiego jak `fonts/`), dzięki czemu pozostaje on powiązany z projektem.
+
+Foldery w drzewie mają strzałkę zwijania/rozwijania, a kliknięcie prawym przyciskiem myszy folderu **** pozwala dodać jeden lub więcej plików zagnieżdżonych pod nim (pokazanych jako wcięte). Każdy wpis ma przycisk usuwania (✕); wpisy inne niż `.ub` mają charakter wyłącznie referencyjny i nie otwierają się po kliknięciu.
+
+Przycisk **Zapisz projekt** wyłącza się automatycznie i pokazuje stan „Zapisano”, gdy w projekcie nie ma żadnych oczekujących zmian, a automatycznie włącza się ponownie w chwili dodania, usunięcia lub reorganizacji pliku lub folderu.
+
 ### Budynek i diagnostyka
 
 Przycisk **Build** otwiera ten sam wyśrodkowany widok postępu, co w innych przepływach pracy w Visual Assembler. Pomyślne kompilacje aktualizują dane wyjściowe kompilacji, informacje o kompilacji i deasemblację. Włącz **Verbose**, aby uwzględnić szczegóły mapy pamięci kompilatora, wewnętrzne alokacje stron zerowych i wygenerowane dane kodu.
@@ -639,6 +659,9 @@ Tryb eksperta obsługuje **panel projektu** (`#expert-project-panel`) dla projek
 - Każdy plik w projekcie otwiera się jako osobna karta **** na pasku kart u góry edytora.
 - **Zamknij projekt** (`Menu → Plik → Zamknij projekt` / `#menu-close-project`) zamyka bieżący projekt i wszystkie jego karty plików jednocześnie. Wyświetla monit o zapisanie niezapisanych zmian przed zamknięciem. Panel projektu resetuje się do stanu pustego, a `_expertProjectData` zostaje wyczyszczony.
 - Każdy plik można oznaczyć jako **plik startowy** (ikona gwiazdki ★). Po ustawieniu pliku startowego przycisk **Uruchom** (PRG, D64, Ultimate) zawsze asembluje i uruchamia kod tego pliku — niezależnie od tego, która karta jest aktualnie aktywna. Działa to zarówno w trybie blokowym, jak i eksperckim.
+- Przycisk **Dodaj** na pasku narzędzi wybiera jeden lub więcej plików naraz (dowolnego typu, nie tylko `.json`/`.asm`) i odwołuje się do nich w projekcie bez ich otwierania — należy go używać w przypadku zasobów binarnych, takich jak dane `incbin`. Domyślnie w oknie dialogowym znajduje się folder roboczy VA. Sąsiedni przycisk **Dodaj folder** odwołuje się do całego folderu (np. katalogu zasobów) w ten sam sposób. Wpisy zawierające tylko odniesienia są oznaczone przyciskiem usuwania (✕), ale nie są otwierane kliknięciem.
+- Foldery w drzewie mają strzałkę zwijania/rozwijania, a kliknięcie prawym przyciskiem myszy folderu **** umożliwia dodanie jednego lub więcej plików zagnieżdżonych pod nim (pokazanych jako wcięte).
+- Przycisk **Zapisz projekt** wyłącza się automatycznie i pokazuje stan „Zapisano”, gdy w projekcie nie ma żadnych oczekujących zmian, a automatycznie włącza się ponownie w chwili dodania, usunięcia lub reorganizacji pliku lub folderu.
 - Sekcję **symboli** znajdującą się na dole panelu projektu można zmieniać w pionie za pomocą separatora między drzewem plików a listą symboli, dzięki czemu długie listy symboli mogą zajmować więcej miejsca, gdy jest to potrzebne.
 
 ### Pasek kart
@@ -3654,12 +3677,13 @@ Efekty aktualizują się raz na wiersz (zgodnie z synchronizacją eksportowanego
 - Podgląd akordów i arpeggio podświetla odpowiadające im klawisze fortepianu, gdy klawiatura jest otwarta.
 
 **Eksportowanie menu Pliki:**
-| Eksport                           | Co to robi                                                                                                                                                                                                        |
-| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Zapisz .bin…`                    | Zapisuje natywny format serializowany edytora (instrumenty + wzorce + sekwencja).                                                                                                                                 |
-| `Eksportuj bloki (tylko dane)`    | Dodaje do programu tabelę instrumentów + bloki wzorców w punkcie `* = $C000`.                                                                                                                                     |
-| `Eksport bloków + miniodtwarzacz` | Dodaje pełny odtwarzacz (sid_init / sid_irq / sid_play_row / sid_set_voice) oraz tabele częstotliwości PAL. Po wyeksportowaniu umieść `JSR sid_init` w kodzie głównym w miejscu, w którym ma się zaczynać muzyka. |
-| `Eksportuj asm (schowek)`         | Kopiuje cały kod źródłowy zestawu do schowka.                                                                                                                                                                     |
+| Eksport                           | Co to robi                                                                                                                                                                                                                                                                                                                         |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Zapisz .bin…`                    | Zapisuje natywny format serializowany edytora (instrumenty + wzorce + sekwencja).                                                                                                                                                                                                                                                  |
+| `Eksportuj bloki (tylko dane)`    | Dodaje do programu tabelę instrumentów + bloki wzorców w punkcie `* = $C000`.                                                                                                                                                                                                                                                      |
+| `Eksport bloków + miniodtwarzacz` | Dodaje pełny odtwarzacz (sid_init / sid_irq / sid_play_row / sid_set_voice) oraz tabele częstotliwości PAL. Po wyeksportowaniu umieść `JSR sid_init` w kodzie głównym w miejscu, w którym ma się zaczynać muzyka.                                                                                                                  |
+| `Eksportuj asm (schowek)`         | Kopiuje cały kod źródłowy zestawu do schowka.                                                                                                                                                                                                                                                                                      |
+| `Eksportuj do UltimateBasic`      | Zapisuje blok `muzyka... koniec` (instrumenty, lista kolejności, wiersze wzorców jako tekst) oraz `odtwarzanie muzyki` i wstawia go w miejscu kursora edytora Ultimate Basic; poza trybem UB kopiuje tekst do schowka. Kompilator UltimateBasic buduje odtwarzacz, więc steruje nim `odtwarzanie muzyki` / `zatrzymywanie muzyki`. |
 
 **Użycie ZP gracza: ** `$02`–`$2F` (tabele wskaźników, przesunięcie wzorca i stan efektu na głos), plus `$FB`–`$FE` (licznik taktów, indeks wiersza, pozycja na liście zamówień, temp. set_voice). Wywołują one konflikt, jeśli korzysta z nich kod główny — w razie potrzeby przenieś je w trybie eksperckim.
 

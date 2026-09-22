@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.6 — Podręcznik językowy
+# Ultimate Basic v1.5.7 — Podręcznik językowy
 
 Kompletny podręcznik języka i interfejsu wiersza poleceń dla Ultimate Basic,
 języka podobnego do BASIC-a, który kompiluje się bezpośrednio do kodu
@@ -61,6 +61,9 @@ i = 1 to times` jest składane do `Number(0)`) — wybierz więc inną nazwę.
 `end`, `select`, `case`, `for`, `next`, `loop`, `times`, `to`, `step`, `while`,
 `repeat`, `until`, `break`, `continue`, `inc`, `dec`, `bye`, `exit`, `rem`
 
+**Muzyka** `tune` (blok słów kluczowych; linie wewnątrz - `speed`, `inst`,
+`order`, `pat` - nie są zarezerwowane)
+
 **Typy i pokrewne typy** `int`, `word`, `float`, `string`, `array`, `array_word`
 
 **Drukowanie i wejście/wyjście** `print`, `spc`, `tab`, `at`, `input`, `chr$`,
@@ -83,10 +86,10 @@ dekrementacji; ten sam token jest używany dla formatu wydruku `dec(n, width)`)
 `mplot`, `mline`, `mrect`, `mcircle`, `line`, `circle`, `circle4`, `rect`,
 `paint`, `erase`, `pen`, `multi`, `block`
 
-**Duchy** `sprite`, `sprdef`, `sprite_frame`, `sprite_x`, `sprite_y`, `sprhit`,
-`sprbghit`, `box_hit`, `chardef`, `charset`, `expand`, `priority`
+**Sprite** `sprite`, `sprdef`, `sprite_frame`, `sprite_x`, `sprite_y`, `sprhit`,
+`sprbghit`, `box_hit`, `chardef`, `charset`, `org`, `expand`, `priority`
 
-**Dźwięk i muzyka** `sid`, `sound`, `volume`, `music`, `play`, `pause`,
+**Dźwięk i muzyka** `sid`, `sound`, `sfx`, `volume`, `music`, `play`, `pause`,
 `resume`, `stop`
 
 **Urządzenia wejściowe** `getch`, `inkey`, `waitkey`, `joy`, `mouse_x`,
@@ -387,18 +390,19 @@ obsługiwane.
 ### Tablice
 
 ```basic
-var scores = array(8)    # 8 bytes at $C000
+var scores = array(8) # 8 bajtów w $C000
+# (wszystkie tablice są wypełniane zerami jednorazowo na początku programu — nowość w wersji 1.5.7)
 
-scores[0] = 100          # constant index → STA $C000
-scores[i] = 99           # variable index → STA (ptr),Y
-var v = scores[i]        # LDA (ptr),Y
-print scores[2]          # usable inline in print
+scores[0] = 100 # stały indeks → STA $C000
+scores[i] = 99 # indeks zmiennej → STA (ptr),Y
+var v = scores[i] # LDA (ptr),Y
+print scores[2] # możliwe do użycia w linii podczas drukowania
 
-var moments = array_word(8)  # 16 bytes (8×2) at $C000+
+var moments = array_word(8) # 16 bajtów (8×2) w $C000+
 
-moments[0] = $1234         # constant index → STA $C000 (lo), STA $C001 (hi)
-moments[i] = $5678         # variable index → ASL A for stride; (ptr),Y × 2
-var t: word = moments[1]   # LDA $C002, LDA $C003
+moments[0] = $1234 # stały indeks → STA $C000 (lo), STA $C001 (hi)
+moments[i] = $5678 # indeks zmiennej → ASL A dla kroku; (ptr),Y × 2
+var t: słowo = momenty[1] # LDA $C002, LDA $C003
 ```
 
 **Tablice wielowymiarowe** (nowość w wersji 1.5.3)
@@ -503,6 +507,18 @@ Zobacz `examples/type_demo.ub`.
 var ptr: word = $0400    # two ZP bytes: lo=$00 hi=$04
 poke ptr, 6              # STA (ptr),Y
 var v = peek(ptr)        # LDA (ptr),Y
+```
+
+**Implikaty 16-bitowe (naprawiono w wersji 1.5.7).** Iloczyn przypisany do
+`word` zachowuje wszystkie 16 bitów, także gdy żaden z czynników nie jest
+`word`:
+
+```basic
+var score: word = 0
+var level = 3
+score += 300 * poziom nr 900 (przed wersją 1.5.7 było to skrócone do 8 bitów: 44)
+score = score + 100 * poziom
+var big: word = 100 * level + 900
 ```
 
 ### Grafika bitmapowa
@@ -810,13 +826,41 @@ sid volume 0             # silence (master volume = 0)
 sid stop                 # zero all 25 SID registers ($D400–$D418) — complete silence
 ```
 
-`sound <channel>, <freq>, <duration>` — czas trwania w ramkach PAL (po 1/50 s).
-Naprawiono ADSR: atak/zanik `$09`, podtrzymanie/zwolnienie `$F0`, przebieg
-piłokształtny. Głośność główna `$D418` zawsze ustawiona na `$0F`.
+`sound <channel>, <freq>, <duration>` — czas trwania w klatkach PAL (po 1/50 s).
+`sound` **bloki**: program czeka, aż nuta się zakończy (użyj `sfx` poniżej w
+pętli gry). Naprawiono ADSR: atak/zanik `$09`, podtrzymanie/zwolnienie `$F0`,
+przebieg piłokształtny. Głośność główna `$D418` zawsze ustawiona na `$0F`.
+
+*Naprawiono w wersji 1.5.7:* pętla oczekiwania obserwowała linię rastra 0, która
+`$D012` (tylko 8 najniższych bitów) wyświetla się dwa razy na klatkę (linie 0 i
+256), więc każda nuta trwała **połowę** czasu, jaki był wymagany — a dwie
+gałęzie zostały załatane w oparciu o ich kod operacji, co powodowało awarię
+programu na czas inny niż 0. `sound` teraz czeka na linię rastra 200 dokładnie
+tak samo jak `delay`.
 
 `sid volume N` zapisuje N do `$D418`. Bity 0-3 = głośność (0-15), bity 4-7 =
 tryb filtrowania. `sid stop` emituje 10-bajtową pętlę wypełniania zerami —
 szybszą niż 25 pojedynczych poke'ów.
+
+### Efekty dźwiękowe bez blokowania (`sfx`) — nowość w wersji 1.5.7
+
+```basic
+dźwięk 0, $2000, 25 # BLOKI: program czeka tutaj 25 klatek
+sfx 0, $2000, 25 # powraca natychmiast; nuta wycisza się samoczynnie
+sfx 1, $0500, 8, 128 # opcjonalna fala: 16 trójkąt, 32 piła (domyślnie), 64 puls, 128 szum
+sfx 0, freq_word, 4, 16 # freq może być stałą, słowem var lub wyrażeniem 8-bitowym
+```
+
+`sfx <channel>, <freq>, <frames> [, <wave>]` programuje jeden głos SID i
+natychmiast powraca, więc jest bezpieczny w pętli gry. Nie ma timera wyłączania
+bramki: obwiednia jest ustawiona na atak 0 / podtrzymanie 0 / zwolnienie 0, a
+**zanik** jest wybierany w momencie kompilacji z `frames` (1 klatka = 20 ms,
+najbliższy czas zaniku SID: 6, 24, 48, 72, 114, 168, 204, 240, 300, 750, 1500,
+2400 ms ...), więc nuta zanika mniej więcej w tym czasie. Ponownie wyzwala głos
+przy każdym wywołaniu (wyłączenie bramki, a następnie jej włączenie) i ustawia
+głośność główną `$0F`. `channel` (0-2), `frames` (1-255) i `wave` muszą być
+stałymi czasu kompilacji.
+
 
 ### Odtwarzanie muzyki
 
@@ -1027,7 +1071,25 @@ ponieważ wyświetlana mapa bitowa nadpisuje `$2000-$3F3F`; w przeciwnym razie
 kompilator zgłasza błąd. Importu Koala nie można obecnie łączyć z `load sid` w
 tym samym programie.
 
-### Niestandardowy zestaw znaków
+### Układ kodu: `org` — nowość w wersji 1.5.7
+
+```basic
+sub a() ... koniec # subskrypcje/funkcje są umieszczane jedna po drugiej od końca głównego bloku
+org $4000 # kolejne subskrypcje/funkcje są kontynuowane od $4000; $xxxx-$3FFF pozostaje wypełnione zerami
+sub b() ... koniec
+incbin "font.bin", $3800 # dane mogą znajdować się w luce ($3800-$3FFF to cały slot zestawu znaków VIC)
+```
+
+`org addr` przechodzi **między definicje sub/fn** (jest ignorowany w treści
+głównej i działa tylko w drugim przebiegu). Podprogramy nigdy nie przechodzą
+jedna w drugą, więc pominięte bajty są po prostu wypełnione zerami i
+zarezerwowane: `incbin "f", addr`, który leży całkowicie wewnątrz luki, jest w
+nią zapisywany, a `charset on` nie traktuje luki jako kodu. Bajty zerowe są
+częścią `.prg`. `org` poniżej bieżącego końca kodu jest błędem kompilacji.
+Wszystko wygenerowane po ostatnim podprogramie (programy pomocnicze, tabele
+`data`) następuje po ostatnim podprogramie, tj. ląduje nad luką.
+
+### Niestandardowy zestaw znaków (`charset on` / `charset off` nowe w wersji 1.5.7)
 
 ```basic
 charset $3800            # set base address for chardef (default $3800)
@@ -1043,17 +1105,36 @@ end
 
 `charset base` ustawia adres docelowy używany przez wszystkie kolejne instrukcje
 `chardef`. `chardef id ... end` osadza 8 bajtów w segmencie kodu (poprzedzonych
-`JMP`, aby je pominąć), a następnie kopiuje je do `charset_base + id*8` w czasie
-wykonywania. Wartości muszą być stałymi w czasie kompilacji; użyj `%` dla
-literałów binarnych (`%00011000`).
+przez `JMP`, aby je pominąć), a następnie kopiuje je do `charset_base + id*8` w
+czasie wykonywania. Wartości muszą być stałymi czasu kompilacji zapisanymi jako
+`$xx` lub w systemie dziesiętnym. Literały binarne **`%` nie są obsługiwane**
+przez lekser (w podręczniku do wersji 1.5.7 było to błędne).
 
-Aby aktywować niestandardowy zestaw znaków w VIC-II, należy ustawić adres
-generatora znaków za pomocą `$D018`:
+`charset addr` ustawia tylko cel `chardef`; nie emituje żadnego kodu. Aby VIC-II
+używał tego zestawu, włącz go (i wyłącz ponownie po zakończeniu):
 ```basic
 charset $3800
-chardef 1  $FF,$81,$81,$81,$81,$81,$81,$FF  end  # box border
-poke $D018, $1A     # screen at $0400, charset at $3800 (bank 0)
+chardef 1 $FF,$81,$81,$81,$81,$81,$81,$FF end # obramowanie pola
+charset on # VIC-II odczytuje znaki z $3800 (matryca ekranu nienaruszona)
+...
+charset off # powrót do zestawu ROM ($1800 jeśli `lowercase` są aktywne, w przeciwnym razie $1000)
 ```
+
+`charset on` odczytuje-modyfikuje-zapisuje `$D018` bity 1-3 od ostatniego
+`charset addr` (domyślnie `$3800`); bity macierzy ekranu są zachowywane. Adres
+musi być wielokrotnością `$800` w banku VIC 0 (`$0000-$3FFF`), w przeciwnym
+razie występuje błąd kompilacji. Oba polecenia używają `charset addr`, który
+został skompilowany jako ostatni, więc dyrektywa powinna pozostać w treści
+programu głównego (treści podprogramów są kompilowane po niej). Równoważny
+surowy zapis to `poke $D018, $1A` dla `$2800` lub `poke $D018, $1E` dla `$3800`.
+
+**Sprawdzanie nakładania się. ** `charset on` zajmuje cały zestaw 2 KB, a każdy
+`chardef` swoje 8 bajtów. Jeśli wygenerowany kod dotrze do tego obszaru,
+kompilacja zostaje zatrzymana. `the program code ($080D-$xxxx) overlaps the
+charset area $2800-$2FFF; move the charset ...`. Dlatego duże programy
+potrzebują zestawu znaków nad kodem (`charset $3800`) — lub użyj `org`
+(powyżej), aby kod mógł być kontynuowany nad zestawem. Dane umieszczone w luce
+`org` (`incbin ..., addr`) nie są liczone jako kod.
 
 ### Pamięć
 
@@ -1087,6 +1168,55 @@ adresu: adres pomocniczy 0 (własny 2-bajtowy nagłówek pliku używany jako adr
 ładowania). Z adresem: adres pomocniczy 1 (plik ładowany do określonej
 lokalizacji). `save` wywołuje `SETNAM`+`SETLFS`+`SAVE`
 (`$FFBD`/`$FFBA`/`$FFD8`). Wymaga zarówno `addr`, jak i `len`.
+
+### Melodie trackera (`tune`)
+
+```basic
+tune # opcjonalnie: dostrój na $C800 (domyślnie $8000)
+prędkość 6 # klatek na wiersz (50 Hz PAL)
+inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
+inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+order 0, 1, 0 # kolejność wzorców (wzorce mogą się powtarzać)
+pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
+pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+end
+music play # lub: sys sid_init / obsługa przerwań wywołująca sys sid_play
+```
+
+`tune ... end` opisuje 3-głosową melodię śledzącą w zwykłym tekście (ta sama
+notacja komórek, jaką pokazuje edytor SID języka Visual Assembler) i buduje
+odtwarzacz **w czasie kompilacji**. Definiuje `sid_init` / `sid_play` dokładnie
+tak samo, jak `load sid`, więc `music play`, `music stop`, `music pause` i
+`music resume` (oraz ręczny `irq` handler wywołujący `sys sid_play`) działają
+bez zmian.
+
+| Linia                                                 | Oznaczający                                                                                                                                                                                                                                                            |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `speed N`                                             | Liczba klatek na rząd modułu śledzącego (1–255).                                                                                                                                                                                                                       |
+| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Jeden instrument: rejestr sterujący (bity przebiegu; bit bramki jest dodawany przez gracza), atak/zanik, podtrzymanie/zwolnienie, 12-bitowa szerokość impulsu, 11-bitowe odcięcie filtra, bajt rezonansu/trasowania filtra (`$D417`) i bajt trybu/głośności (`$D418`). |
+| `order p, p, ...`                                     | Kolejność wzorów. Linie kumulują się, do 255 kroków.                                                                                                                                                                                                                   |
+| `pat p, v, "cell", ...`                               | Do 32 wierszy dla głosu `v` (0-2) wzoru `p` (0-7). Brakujące wiersze są puste.                                                                                                                                                                                         |
+
+Komórka **** to `NOTE INST FX`: `C-4`, `D#3`, `Eb2` lub `...` dla braku nuty,
+dwucyfrowy instrument szesnastkowy (`..` dla jego pozostawienia) i opcjonalny
+efekt - `Vxy` vibrato (x = przytrzymaj wiersze, y = głębokość), `Uxx` / `Dxx`
+przesuwanie w górę / w dół, `C` cięcie nuty, `Fxx` ustawienie prędkości. Komórkę
+zawierającą tylko efekt można zapisać jako `"... .. F06"` lub po prostu `"F06"`.
+
+Uwagi dotyczące odtwarzacza:
+
+- Wszystkie stany gracza znajdują się **wewnątrz blobu ** (adresowanie
+  bezwzględne) — nie używa on strony zerowej, więc nie może kolidować ze
+  zmiennymi ani elementami tymczasowymi UltimateBasic i działa dalej, gdy
+  program powraca do języka BASIC.
+- Blob jest umieszczany pod stałym adresem (domyślnie `$8000` lub `tune at
+  $addr`), a `.prg` jest do niego dopasowywany, np. `load sid`. Nie umieszczaj w
+  nim kodu, tablic (`$C000+`) ani pamięci bitmap/zestawów znaków. Dodanie
+  zajmuje około 1,3 KB plus 12 bajtów na wiersz/kolumnę danych.
+- Maksymalnie 8 wzorów (po 32 rzędy każdy); lista zamówień może się dowolnie
+  powtarzać.
+- `music play` używa timera CIA1 o częstotliwości 50 Hz; nie należy go łączyć z
+  innym `load sid`/`tune` (ostatni wygrywa).
 
 ### Muzyka SID
 
@@ -1196,6 +1326,12 @@ print f                  # prints as "N.DD" (e.g. 3.5 → "3.50", 1.25 → "1.25
 Mnożenie i dzielenie dwóch zmiennych zmiennoprzecinkowych nie jest jeszcze
 obsługiwane — w takich przypadkach należy użyć `int()` + arytmetyki
 całkowitoliczbowej.
+
+**Drukowanie wyrażeń zmiennoprzecinkowych (naprawiono w wersji 1.5.7).** `print`
+wyrażenia arytmetycznego zawierającego `float` (na przykład `print a / 10` z `a:
+float = 1`) teraz drukuje wynik Q8.8 jako `N.DD`. Przed wersją 1.5.7 drukowanie
+surowej 16-bitowej wartości jako liczby całkowitej (`25` zamiast `0.09`). Ułamek
+jest obcięty, a nie zaokrąglony: 1/10 = 25/256 drukuje się jako `0.09`.
 
 ### Funkcje matematyczne
 
@@ -1389,13 +1525,21 @@ nieudanego `load` lub `open`), KERNAL wykonuje `JMP ($0300)`, co powoduje
 przejście do etykiety. Obsługiwane są odwołania do przodu (etykieta zdefiniowana
 po `onerr goto`).
 
-### Osadzanie plików w czasie kompilacji
+### Osadzanie plików w czasie kompilacji (`incbin` pominięcie / długość nowe w wersji 1.5.7)
 
 ```basic
-incbin "sprites.bin"            # embed raw binary bytes at current code position
-incbin "charset.bin", $2000     # embed at an absolute address, padding as needed
-include "defs.ub"        # inline another .ub source file (lexed+parsed in place)
+incbin "sprites.bin" # osadź surowe bajty binarne w bieżącej pozycji kodu
+incbin "charset.bin", $2000 # osadź pod adresem bezwzględnym, uzupełniając w razie potrzeby
+incbin "font.prg", $3C00, 2 # ...pomiń pierwsze 2 bajty (np. adres ładowania .prg)
+incbin "big.bin", $4000, 16, 256 # ...pomiń 16 bajtów, a następnie pobierz maksymalnie 256 bajtów
+include "defs.ub" # wstaw inny plik źródłowy .ub (zoptymalizowany pod kątem leksyki i analizy składniowej w miejscu)
 ```
+
+`incbin "file", addr, skip [, length]` pomija pierwsze `skip` bajtów pliku
+(zwykle 2-bajtowy adres ładowania `.prg`) i opcjonalnie przyjmuje maksymalnie
+`length` bajtów; `skip` i `length` to stałe, a `skip` poza końcem pliku to błąd.
+Forma adresu wymaga, aby cel znajdował się nad wygenerowanym kodem — lub w
+przerwie `org`.
 
 ### Data / Read
 
@@ -1751,23 +1895,25 @@ pełny zrzut szesnastkowy.
 
 ## Znane ograniczenia
 
-| Funkcja                               | Ograniczenie                                                                                                                                                                                    |
-| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Arytmetyka liczb całkowitych          | 8-bitowe bez znaku (0–255); `word` zmienne przechowują wartości 16-bitowe                                                                                                                       |
-| Podprogramy                           | Brak rekurencji — sloty parametrów ZP są przydzielane statycznie                                                                                                                                |
-| Zmienne łańcuchowe                    | Read-only after init; assignment replaces the pointer, not the data                                                                                                                             |
-| Czas wykonania łączenia ciągów        | `s1 + s2` drukuje sekwencyjnie — bez przydzielania pamięci na stercie ani śledzenia długości                                                                                                    |
-| `rnd()` / `rnd(n)`                    | Prosty LCG, niekryptograficzny; okres = 256                                                                                                                                                     |
-| `abs()` / `sgn()` / `min()` / `max()` | Tylko wartości 8-bitowe; `abs`/`sgn` traktuj wartości jako wartości ze znakiem (bit 7 = ujemny → `abs` uzupełnienia do dwóch, `sgn` zwraca `$FF`); `min`/`max` są wartościami bez znaku (0–255) |
-| `plot`                                | Piksele poza zakresem są bezgłośnie przycinane (Y ≥ 200 lub X ≥ 320 → brak operacji)                                                                                                            |
-| `mplot`                               | Brak sprawdzania granic — x musi mieścić się w przedziale 0–159, y musi mieścić się w przedziale 0–199                                                                                          |
-| `mline` / `mrect`                     | Wielokolorowy; x: 0–159, y: 0–199. Zawijanie pikseli poza ekranem (bez przycinania) — utrzymuj współrzędne w zakresie                                                                           |
-| `mcircle`                             | Wielokolorowy; przycina punkty poza ekranem (x ≥ 160 lub y ≥ 200 są pomijane)                                                                                                                   |
-| `color pen`                           | Tylko do wynajęcia; ustawia fragment pierwszego planu dotkniętych komórek (tło zachowane). Nie ma efektu w trybie blokowym (`plot4`/`circle4`)                                                  |
-| `rect`                                | Brak sprawdzania granic — x: 0–319, y: 0–199; x1≤x2 i y1≤y2 nie są wymuszane (prostokąty zdegenerowane/odwrócone generują niezdefiniowane dane wyjściowe)                                       |
-| `plot4`                               | Brak sprawdzania granic — x musi być w zakresie 0–79, y musi być w zakresie 0–49 (tryb blokowy)                                                                                                 |
-| `circle4`                             | Przycina piksele bloków poza ekranem; użyteczny promień wynosi około 0–49 w trybie bloku 80×50                                                                                                  |
-| `chr$`                                | Brak mapowania PETSCII↔ASCII — n jest przekazywane bez zmian do CHROUT                                                                                                                          |
-| `music play`                          | Wymaga `load sid`; emitowany jest tylko jeden wrapper CIA1 (ostatni `music play` wygrywa)                                                                                                       |
-| `graphics on double`                  | Tylko wynajem; używa `$4000–$7FFF` jako bufora tylnego, więc kod programu musi znajdować się poniżej `$4400`; nie można łączyć ze sprite'ami ani obiektami wielokolorowymi                      |
-| Raportowanie błędów                   | Tylko w czasie kompilacji; `onerr goto` obsługuje błędy wejścia/wyjścia KERNAL w czasie wykonywania                                                                                             |
+| Funkcja                               | Ograniczenie                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Arytmetyka liczb całkowitych          | 8-bitowe bez znaku (0–255); `word` zmienne przechowują wartości 16-bitowe                                                                                                                                                                                                                                                                                                                                                                |
+| Budżet zerowy                         | Stała strona zerowa to `$02–$4F` (78 bajtów): każda zmienna i parametr sub/fn zajmuje 2 bajty, a każda uruchomiona pętla `for` zajmuje kolejne 2 bajty (zwracane po zakończeniu pętli, jeśli w jej ciele nie zadeklarowano żadnych zmiennych). Wyczerpanie strony jest błędem kompilacji (`out of zero page`, nowość w wersji 1.5.7); wcześniej po cichu nadpisywało obszar roboczy. Ponowne wykorzystanie zmiennych w dużych programach |
+| Literały binarne                      | Nie są obsługiwane tylko literały binarne `$hex` i decimal; `%`.                                                                                                                                                                                                                                                                                                                                                                         |
+| Podprogramy                           | Brak rekurencji — sloty parametrów ZP są przydzielane statycznie                                                                                                                                                                                                                                                                                                                                                                         |
+| Zmienne łańcuchowe                    | Read-only after init; assignment replaces the pointer, not the data                                                                                                                                                                                                                                                                                                                                                                      |
+| Czas wykonania łączenia ciągów        | `s1 + s2` drukuje sekwencyjnie — bez przydzielania pamięci na stercie ani śledzenia długości                                                                                                                                                                                                                                                                                                                                             |
+| `rnd()` / `rnd(n)`                    | Prosty LCG, niekryptograficzny; okres = 256                                                                                                                                                                                                                                                                                                                                                                                              |
+| `abs()` / `sgn()` / `min()` / `max()` | Tylko wartości 8-bitowe; `abs`/`sgn` traktuj wartości jako wartości ze znakiem (bit 7 = ujemny → `abs` uzupełnienia do dwóch, `sgn` zwraca `$FF`); `min`/`max` są wartościami bez znaku (0–255)                                                                                                                                                                                                                                          |
+| `plot`                                | Piksele poza zakresem są bezgłośnie przycinane (Y ≥ 200 lub X ≥ 320 → brak operacji)                                                                                                                                                                                                                                                                                                                                                     |
+| `mplot`                               | Brak sprawdzania granic — x musi mieścić się w przedziale 0–159, y musi mieścić się w przedziale 0–199                                                                                                                                                                                                                                                                                                                                   |
+| `mline` / `mrect`                     | Wielokolorowy; x: 0–159, y: 0–199. Zawijanie pikseli poza ekranem (bez przycinania) — utrzymuj współrzędne w zakresie                                                                                                                                                                                                                                                                                                                    |
+| `mcircle`                             | Wielokolorowy; przycina punkty poza ekranem (x ≥ 160 lub y ≥ 200 są pomijane)                                                                                                                                                                                                                                                                                                                                                            |
+| `color pen`                           | Tylko do wynajęcia; ustawia fragment pierwszego planu dotkniętych komórek (tło zachowane). Nie ma efektu w trybie blokowym (`plot4`/`circle4`)                                                                                                                                                                                                                                                                                           |
+| `rect`                                | Brak sprawdzania granic — x: 0–319, y: 0–199; x1≤x2 i y1≤y2 nie są wymuszane (prostokąty zdegenerowane/odwrócone generują niezdefiniowane dane wyjściowe)                                                                                                                                                                                                                                                                                |
+| `plot4`                               | Brak sprawdzania granic — x musi być w zakresie 0–79, y musi być w zakresie 0–49 (tryb blokowy)                                                                                                                                                                                                                                                                                                                                          |
+| `circle4`                             | Przycina piksele bloków poza ekranem; użyteczny promień wynosi około 0–49 w trybie bloku 80×50                                                                                                                                                                                                                                                                                                                                           |
+| `chr$`                                | Brak mapowania PETSCII↔ASCII — n jest przekazywane bez zmian do CHROUT                                                                                                                                                                                                                                                                                                                                                                   |
+| `music play`                          | Wymaga `load sid`; emitowany jest tylko jeden wrapper CIA1 (ostatni `music play` wygrywa)                                                                                                                                                                                                                                                                                                                                                |
+| `graphics on double`                  | Tylko wynajem; używa `$4000–$7FFF` jako bufora tylnego, więc kod programu musi znajdować się poniżej `$4400`; nie można łączyć ze sprite'ami ani obiektami wielokolorowymi                                                                                                                                                                                                                                                               |
+| Raportowanie błędów                   | Tylko w czasie kompilacji; `onerr goto` obsługuje błędy wejścia/wyjścia KERNAL w czasie wykonywania                                                                                                                                                                                                                                                                                                                                      |

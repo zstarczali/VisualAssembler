@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.6 — Språkmanual
+# Ultimate Basic v1.5.7 — Språkmanual
 
 Komplett språk- och CLI-referens för Ultimate Basic, ett BASIC-liknande språk
 som kompilerar direkt till 6502-maskinkod för Commodore 64. Utdata: `.prg` filer
@@ -60,6 +60,9 @@ viks till `Number(0)`) — så välj ett annat namn.
 `end`, `select`, `case`, `for`, `next`, `loop`, `times`, `to`, `step`, `while`,
 `repeat`, `until`, `break`, `continue`, `inc`, `dec`, `bye`, `exit`, `rem`
 
+**Musik** `tune` (blocknyckelord; raderna inuti - `speed`, `inst`, `order`,
+`pat` - är inte reserverade)
+
 **Typer och typrelaterade** `int`, `word`, `float`, `string`, `array`,
 `array_word`
 
@@ -83,11 +86,12 @@ utskriftsformatet `dec(n, width)`)
 `mplot`, `mline`, `mrect`, `mcircle`, `line`, `circle`, `circle4`, `rect`,
 `paint`, `erase`, `pen`, `multi`, `block`
 
-**Sprites** `sprite`, `sprdef`, `sprite_frame`, `sprite_x`, `sprite_y`,
-`sprhit`, `sprbghit`, `box_hit`, `chardef`, `charset`, `expand`, `priority`
+**Spriter** `sprite`, `sprdef`, `sprite_frame`, `sprite_x`, `sprite_y`,
+`sprhit`, `sprbghit`, `box_hit`, `chardef`, `charset`, `org`, `expand`,
+`priority`
 
-**Ljud och musik** `sid`, `sound`, `volume`, `music`, `play`, `pause`, `resume`,
-`stop`
+**Ljud och musik** `sid`, `sound`, `sfx`, `volume`, `music`, `play`, `pause`,
+`resume`, `stop`
 
 **Inmatningsenheter** `getch`, `inkey`, `waitkey`, `joy`, `mouse_x`,
 `mouse_x_hi`, `mouse_y`, `mouse_btn`
@@ -384,18 +388,19 @@ start. Framåtriktade referenser stöds fullt ut.
 ### Matriser
 
 ```basic
-var scores = array(8)    # 8 bytes at $C000
+var scores = array(8) # 8 byte vid $C000
+# (alla arrayer fylls med noll vid programstart — nytt i 1.5.7)
 
-scores[0] = 100          # constant index → STA $C000
-scores[i] = 99           # variable index → STA (ptr),Y
-var v = scores[i]        # LDA (ptr),Y
-print scores[2]          # usable inline in print
+scores[0] = 100 # konstant index → STA $C000
+scores[i] = 99 # variabel index → STA (ptr),Y
+var v = scores[i] # LDA (ptr),Y
+print scores[2] # användbar inline i print
 
-var moments = array_word(8)  # 16 bytes (8×2) at $C000+
+var moments = array_word(8) # 16 byte (8×2) vid $C000+
 
-moments[0] = $1234         # constant index → STA $C000 (lo), STA $C001 (hi)
-moments[i] = $5678         # variable index → ASL A for stride; (ptr),Y × 2
-var t: word = moments[1]   # LDA $C002, LDA $C003
+moments[0] = $1234 # konstant index → STA $C000 (lo), STA $C001 (hi)
+moments[i] = $5678 # variabel index → ASL A för stride; (ptr),Y × 2
+var t: word = moments[1] # LDA $C002, LDA $C003
 ```
 
 **Flerdimensionella arrayer** (nytt i 1.5.3)
@@ -495,6 +500,17 @@ Se `examples/type_demo.ub`.
 var ptr: word = $0400    # two ZP bytes: lo=$00 hi=$04
 poke ptr, 6              # STA (ptr),Y
 var v = peek(ptr)        # LDA (ptr),Y
+```
+
+**16-bitarsprodukter (åtgärdat i 1.5.7).** En produkt som tilldelats ett `word`
+behåller alla 16 bitar, även när ingen av faktorerna är ett `word`:
+
+```basic
+var poäng: ord = 0
+var nivå = 3
+poäng += 300 * nivå # 900 (före 1.5.7 var detta avkortat till 8 bitar: 44)
+poäng = poäng + 100 * nivå
+var stor: ord = 100 * nivå + 900
 ```
 
 ### Bitmappsgrafik
@@ -798,12 +814,38 @@ sid stop                 # zero all 25 SID registers ($D400–$D418) — complet
 ```
 
 `sound <channel>, <freq>, <duration>` — längd i PAL-bildrutor (1/50 s vardera).
-Fast ADSR: attack/decay `$09`, sustain/release `$F0`, sågtandsvågform.
-Mastervolym `$D418` alltid inställd på `$0F`.
+`sound` **blocks**: programmet väntar tills tonen är klar (använd `sfx` nedan
+inuti en spelloop). Åtgärdat ADSR: attack/decay `$09`, sustain/release `$F0`,
+sågtandsvågform. Mastervolym `$D418` alltid inställd på `$0F`.
+
+*Åtgärdat i 1.5.7:* väntslingan tittade på rasterrad 0, vilken `$D012` (endast
+låg 8 bitar) visas två gånger per bildruta (rad 0 och 256), så varje ton varade
+**halv** så länge som begärdes — och två grenar patchades över sin opkod, vilket
+kraschade programmet under någon annan varaktighet än 0. `sound` väntar nu på
+rasterrad 200 precis som `delay`.
 
 `sid volume N` skriver N till `$D418`. Bitarna 0-3 = volym (0-15), bitarna 4-7 =
 filterläge. `sid stop` avger en 10-byte nollfyllningsslinga — snabbare än 25
 individuella pokes.
+
+### Icke-blockerande ljudeffekter (`sfx`) — nytt i 1.5.7
+
+```basic
+ljud 0, $2000, 25 # BLOCK: programmet väntar 25 bildrutor här
+sfx 0, $2000, 25 # returnerar direkt; tonen tonar ut av sig själv
+sfx 1, $0500, 8, 128 # valfri våg: 16 triangel, 32 såg (standard), 64 puls, 128 brus
+sfx 0, freq_word, 4, 16 # freq kan vara en konstant, en ordvariabel eller ett 8-bitarsuttryck
+```
+
+`sfx <channel>, <freq>, <frames> [, <wave>]` programmerar en SID-röst och
+returnerar omedelbart, så den är säker inuti en spelloop. Det finns ingen
+gate-off-timer: enveloppen är inställd på att attackera 0 / sustain 0 / release
+0 och **decay** väljs vid kompileringstid från `frames` (1 ram = 20 ms, närmaste
+SID-decaytid: 6, 24, 48, 72, 114, 168, 204, 240, 300, 750, 1500, 2400 ms ...),
+så tonen dör bort under ungefär den tiden. Den återaktiverar rösten varje anrop
+(gate av, sedan på) och ställer in huvudvolymen `$0F`. `channel` (0-2), `frames`
+(1-255) och `wave` måste vara kompileringstidskonstanter.
+
 
 ### Musikuppspelning
 
@@ -1011,7 +1053,25 @@ Genererad kod och hjälpfiler måste sluta nedanför `$2000`, eftersom den visad
 bitmappen skriver över `$2000-$3F3F`; kompilatorn rapporterar ett fel annars.
 Koala-import kan för närvarande inte kombineras med `load sid` i samma program.
 
-### Anpassad teckenuppsättning
+### Kodlayout: `org` — nytt i 1.5.7
+
+```basic
+sub a() ... end # subs/fns placeras efter varandra från slutet av huvuddelen
+org $4000 # nästa subs/fns fortsätter vid $4000; $xxxx-$3FFF förblir nollfylld
+sub b() ... end
+incbin "font.bin", $3800 # data kan finnas i mellanrummet ($3800-$3FFF är en hel VIC-teckenuppsättningsplats)
+```
+
+`org addr` går **mellan sub/fn-definitioner** (den ignoreras i huvuddelen och
+agerar endast i andra omgången). Subrutiner faller aldrig igenom varandra, så de
+hoppade bytena är bara nollfyllda och reserverade: en `incbin "f", addr` som
+ligger helt innanför mellanrummet skrivs in i den, och `charset on` räknar inte
+mellanrummet som kod. Nollbytena är en del av `.prg`. `org` under den aktuella
+kodens slut är ett kompileringsfel. Allt som genereras efter den sista suben
+(hjälpare, `data`-tabeller) följer den sista suben, d.v.s. landar ovanför
+mellanrummet.
+
+### Anpassad teckenuppsättning (`charset on` / `charset off` nytt i 1.5.7)
 
 ```basic
 charset $3800            # set base address for chardef (default $3800)
@@ -1028,16 +1088,36 @@ end
 `charset base` anger destinationsadressen som används av alla efterföljande
 `chardef`-satser. `chardef id ... end` bäddar in 8 byte inline i kodsegmentet
 (föregånget av en `JMP` för att hoppa över dem), och kopierar dem sedan till
-`charset_base + id*8` vid körning. Värden måste vara kompileringstidskonstanter;
-använd `%` för binära litteraler (`%00011000`).
+`charset_base + id*8` vid körning. Värden måste vara kompileringstidskonstanter
+skrivna som `$xx` eller decimal. **`%` binära litteraler stöds inte** av
+programmeraren (manualen sa det före 1.5.7 — det var fel).
 
-För att aktivera en anpassad teckenuppsättning i VIC-II, ange teckengeneratorns
-adress via `$D018`:
+`charset addr` ställer bara in `chardef`-destinationen; den skickar ingen kod.
+För att få VIC-II att använda setet, slå på det (och stäng av det igen när du är
+klar):
 ```basic
-charset $3800
-chardef 1  $FF,$81,$81,$81,$81,$81,$81,$FF  end  # box border
-poke $D018, $1A     # screen at $0400, charset at $3800 (bank 0)
+teckenuppsättning $3800
+chardef 1 $FF,$81,$81,$81,$81,$81,$81,$81,$FF slut # boxkant
+teckenuppsättning på # VIC-II läser tecken från $3800 (skärmmatris orörd)
+...
+teckenuppsättning av # tillbaka till ROM-uppsättningen ($1800 om `lowercase` är aktiv, annars $1000)
 ```
+
+`charset on` läs-ändra-skriver `$D018` bitarna 1-3 från den sista `charset addr`
+(standard `$3800`); skärmmatrisbitarna bevaras. Adressen måste vara en multipel
+av `$800` inuti VIC-bank 0 (`$0000-$3FFF`), annars är det ett kompileringsfel.
+Båda satserna använder den `charset addr` som kompilerades senast, så behåll
+direktivet i huvudprogrammets innehåll (subrutinens innehåll kompileras efter
+det). Motsvarande råskrivning är `poke $D018, $1A` för `$2800` eller `poke
+$D018, $1E` för `$3800`.
+
+**Överlappningskontroll.** `charset on` gör anspråk på hela 2 KB-uppsättningen
+och varje `chardef` dess 8 byte. Om den genererade koden når in i det området
+stoppas bygget med `the program code ($080D-$xxxx) overlaps the charset area
+$2800-$2FFF; move the charset ...`. Stora program behöver därför uppsättningen
+ovanför koden (`charset $3800`) — eller använd `org` (ovan) för att låta koden
+fortsätta ovanför uppsättningen. Data som placeras i ett `org`-gap (`incbin ...,
+addr`) räknas inte som kod.
 
 ### Minne
 
@@ -1071,6 +1151,47 @@ adress: sekundär adress 0 (filens egen 2-byte-rubrik används som
 laddningsadress). Med adress: sekundär adress 1 (filen laddad till angiven
 plats). `save` anropar `SETNAM`+`SETLFS`+`SAVE` (`$FFBD`/`$FFBA`/`$FFD8`).
 Kräver både `addr` och `len`.
+
+### Tracker-låtar (`tune`)
+
+```basic
+stämma # valfritt: stämma vid $C800 (standard $8000) hastighet 6 # bildrutor per rad (50 Hz PAL) inst 0, $41, $09, $F0, $0800, $0064, $27, $1F inst 1, $10, $08, $A8, $0400, $0000, $00, $0F ordning 0, 1, 0 # mönsterordning (mönster kan upprepas) pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00" pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+slut
+musikuppspelning # eller: sys sid_init / irq-hanterare som anropar sys sid_play
+```
+
+`tune ... end` beskriver en 3-stämmig spårningsmelodi i klartext (samma
+cellnotation som Visual Assembler SID-editorn visar) och bygger spelaren **vid
+kompileringstid**. Den definierar `sid_init` / `sid_play` exakt som `load sid`,
+så `music play`, `music stop`, `music pause` och `music resume` (och en manuell
+`irq`-hanterare som anropar `sys sid_play`) fungerar oförändrat.
+
+| Linje                                                 | Menande                                                                                                                                                                                                                                      |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `speed N`                                             | Bildrutor per spårningsrad (1–255).                                                                                                                                                                                                          |
+| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Ett instrument: kontrollregister (vågformsbitar; gate-biten läggs till av spelaren), attack/decay, sustain/release, 12-bitars pulsbredd, 11-bitars filteravstängning, resonans-/filterrouting-byte (`$D417`) och mode-/volym-byte (`$D418`). |
+| `order p, p, ...`                                     | Mönsterordning. Linjerna ackumuleras, upp till 255 steg.                                                                                                                                                                                     |
+| `pat p, v, "cell", ...`                               | Upp till 32 rader för röst `v` (0-2) av mönster `p` (0-7). Saknade rader är tomma.                                                                                                                                                           |
+
+En **cell** är `NOTE INST FX`: `C-4`, `D#3`, `Eb2` eller `...` för ingen not,
+ett tvåsiffrigt hexagonalt instrument (`..` för att lämna det), och en valfri
+effekt - `Vxy` vibrato (x = håll rader, y = djup), `Uxx` / `Dxx` glid upp / ner,
+`C` notklipp, `Fxx` inställd hastighet. En cell med endast effekter kan skrivas
+som `"... .. F06"` eller bara `"F06"`.
+
+Anteckningar om spelaren:
+
+- Alla spelartillstånd finns ** inuti blobben ** (absolut adressering) - den
+  använder ingen nollasida, så den kan inte kollidera med
+  UltimateBasic-variabler eller temporära variabler, och den fortsätter att
+  fungera när programmet återgår till BASIC.
+- Blobben placeras på en fast adress (standard `$8000`, eller `tune at $addr`)
+  och `.prg` utfylls upp till den, som `load sid`. Håll den fri från din kod,
+  arrayer (`$C000+`) och eventuellt bitmapps-/teckenuppsättningsminne. En tune
+  behöver cirka 1,3 KB plus 12 byte per rad-kolumn med data.
+- Högst 8 mönster (32 rader vardera); beställningslistan kan upprepa dem fritt.
+- `music play` använder CIA1-timern vid 50 Hz; kombinera den inte med en annan
+  `load sid`/`tune` (den sista vinner).
 
 ### SID Music
 
@@ -1178,6 +1299,12 @@ print f                  # prints as "N.DD" (e.g. 3.5 → "3.50", 1.25 → "1.25
 **Varning:** Aritmetiskt överflöde avslutas vid 255,255 (ingen mättnad).
 Multiplikation och division av två flyttalvariabler stöds ännu inte — använd
 `int()` + heltalsaritmetik för dessa fall.
+
+**Skriver ut flyttalsuttryck (åtgärdat i 1.5.7).** `print` av ett aritmetiskt
+uttryck som involverar ett `float` (till exempel `print a / 10` med `a: float =
+1`) skriver nu ut Q8.8-resultatet som `N.DD`. Före 1.5.7 skrevs det råa
+16-bitarsvärdet ut som ett heltal (`25` istället för `0.09`). Bråktalet är
+avkortat, inte avrundat: 1/10 = 25/256 skrivs ut som `0.09`.
 
 ### Matematiska funktioner
 
@@ -1368,13 +1495,21 @@ label err_handler
 eller `open`) kör KERNAL `JMP ($0300)`, vilket förgrenar sig till etiketten.
 Framåtriktade referenser (etikett definierad efter `onerr goto`) stöds.
 
-### Inbäddning av filer vid kompilering
+### Inbäddning av filer vid kompilering (`incbin` hoppa över / längd nytt i 1.5.7)
 
 ```basic
-incbin "sprites.bin"            # embed raw binary bytes at current code position
-incbin "charset.bin", $2000     # embed at an absolute address, padding as needed
-include "defs.ub"        # inline another .ub source file (lexed+parsed in place)
+incbin "sprites.bin" # bädda in råa binära byte vid aktuell kodposition
+incbin "charset.bin", $2000 # bädda in vid en absolut adress, utfyllnad efter behov
+incbin "font.prg", $3C00, 2 # ...hoppar över de första 2 byten (t.ex. en .prg-laddningsadress)
+incbin "big.bin", $4000, 16, 256 # ...hoppar över 16 byte, ta sedan högst 256 byte
+include "defs.ub" # infogar en annan .ub-källfil (lexed+parsad på plats)
 ```
+
+`incbin "file", addr, skip [, length]` tar bort de första `skip` bytena i filen
+(vanligtvis den 2 byte långa laddningsadressen för en `.prg`) och tar valfritt
+högst `length` byte; `skip` och `length` är konstanter, och ett `skip` bortom
+slutet av filen är ett fel. Adressformen kräver att målet är ovanför den
+genererade koden — eller inuti ett `org`-gap.
 
 ### Data / Read
 
@@ -1723,23 +1858,25 @@ hex-dump.
 
 ## Kända begränsningar
 
-| Särdrag                               | Begränsning                                                                                                                                                          |
-| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Heltalsaritmetik                      | 8-bitars osignerad (0–255); `word`-variabler innehåller 16-bitarsvärden                                                                                              |
-| Subrutiner                            | Ingen rekursion — ZP-parameterplatser allokeras statiskt                                                                                                             |
-| Strängvariabler                       | Read-only after init; assignment replaces the pointer, not the data                                                                                                  |
-| String concat-körning                 | `s1 + s2` skrivs ut sekventiellt — ingen heapallokering eller längdspårning                                                                                          |
-| `rnd()` / `rnd(n)`                    | Enkel LCG, inte kryptografisk; punkt = 256                                                                                                                           |
-| `abs()` / `sgn()` / `min()` / `max()` | Endast 8-bitarsvärden; `abs`/`sgn` behandlar värden som signerade (bit 7 = negativ → `abs` tvåkomplement, `sgn` returnerar `$FF`); `min`/`max` är osignerade (0–255) |
-| `plot`                                | Pixlar utanför räckvidden klipps tyst bort (Y ≥ 200 eller X ≥ 320 → no-op)                                                                                           |
-| `mplot`                               | Ingen gränskontroll — x måste vara 0–159, y måste vara 0–199                                                                                                         |
-| `mline` / `mrect`                     | Flerfärgad; x: 0–159, y: 0–199. Pixlar utanför skärmen radbryts (ingen klippning) — håll koordinaterna inom intervallet                                              |
-| `mcircle`                             | Flerfärgad; klipp av punkter utanför skärmen (x ≥ 160 eller y ≥ 200 hoppas över)                                                                                     |
-| `color pen`                           | Anställer endast; ställer in förgrundsbiten för berörda celler (bakgrunden bevaras). Har ingen effekt i blockläge (`plot4`/`circle4`)                                |
-| `rect`                                | Ingen gränskontroll — x: 0–319, y: 0–199; x1≤x2 och y1≤y2 tillämpas inte (degenererade/inverterade rektangulära element producerar odefinierad utdata)               |
-| `plot4`                               | Ingen gränskontroll — x måste vara 0–79, y måste vara 0–49 (blockläge)                                                                                               |
-| `circle4`                             | Klipp ut blockpixlar utanför skärmen; användbar radie är ungefär 0–49 i 80×50 blockläge                                                                              |
-| `chr$`                                | Ingen PETSCII↔ASCII-mappning — n skickas som det är till CHROUT                                                                                                      |
-| `music play`                          | Kräver `load sid`; endast en CIA1-omslagsfil genereras (den sista `music play` vinner)                                                                               |
-| `graphics on double`                  | Anställer endast; använder `$4000–$7FFF` för backbufferten, så programkoden måste hålla sig under `$4400`; kan inte kombineras med sprites eller multicolor          |
-| Felrapportering                       | Endast vid kompilering; `onerr goto` hanterar KERNAL I/O-fel vid körning                                                                                             |
+| Särdrag                               | Begränsning                                                                                                                                                                                                                                                                                                                                                                     |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Heltalsaritmetik                      | 8-bitars osignerad (0–255); `word`-variabler innehåller 16-bitarsvärden                                                                                                                                                                                                                                                                                                         |
+| Noll sidbudget                        | Permanent nollsida är `$02–$4F` (78 byte): varje variabel och sub/fn-parameter tar 2 byte, varje körande `for`-loop tar 2 till (givs tillbaka när loopen slutar, om dess brödtext inte deklarerade några variabler). Att köras ut är ett kompileringsfel (`out of zero page`, nytt i 1.5.7); tidigare skrev den tyst över scratch-området. Återanvänd variabler i stora program |
+| Binära literaler                      | Endast binära literaler `$hex` och decimala `%` stöds inte                                                                                                                                                                                                                                                                                                                      |
+| Subrutiner                            | Ingen rekursion — ZP-parameterplatser allokeras statiskt                                                                                                                                                                                                                                                                                                                        |
+| Strängvariabler                       | Read-only after init; assignment replaces the pointer, not the data                                                                                                                                                                                                                                                                                                             |
+| String concat-körning                 | `s1 + s2` skrivs ut sekventiellt — ingen heapallokering eller längdspårning                                                                                                                                                                                                                                                                                                     |
+| `rnd()` / `rnd(n)`                    | Enkel LCG, inte kryptografisk; punkt = 256                                                                                                                                                                                                                                                                                                                                      |
+| `abs()` / `sgn()` / `min()` / `max()` | Endast 8-bitarsvärden; `abs`/`sgn` behandlar värden som signerade (bit 7 = negativ → `abs` tvåkomplement, `sgn` returnerar `$FF`); `min`/`max` är osignerade (0–255)                                                                                                                                                                                                            |
+| `plot`                                | Pixlar utanför räckvidden klipps tyst bort (Y ≥ 200 eller X ≥ 320 → no-op)                                                                                                                                                                                                                                                                                                      |
+| `mplot`                               | Ingen gränskontroll — x måste vara 0–159, y måste vara 0–199                                                                                                                                                                                                                                                                                                                    |
+| `mline` / `mrect`                     | Flerfärgad; x: 0–159, y: 0–199. Pixlar utanför skärmen radbryts (ingen klippning) — håll koordinaterna inom intervallet                                                                                                                                                                                                                                                         |
+| `mcircle`                             | Flerfärgad; klipp av punkter utanför skärmen (x ≥ 160 eller y ≥ 200 hoppas över)                                                                                                                                                                                                                                                                                                |
+| `color pen`                           | Anställer endast; ställer in förgrundsbiten för berörda celler (bakgrunden bevaras). Har ingen effekt i blockläge (`plot4`/`circle4`)                                                                                                                                                                                                                                           |
+| `rect`                                | Ingen gränskontroll — x: 0–319, y: 0–199; x1≤x2 och y1≤y2 tillämpas inte (degenererade/inverterade rektangulära element producerar odefinierad utdata)                                                                                                                                                                                                                          |
+| `plot4`                               | Ingen gränskontroll — x måste vara 0–79, y måste vara 0–49 (blockläge)                                                                                                                                                                                                                                                                                                          |
+| `circle4`                             | Klipp ut blockpixlar utanför skärmen; användbar radie är ungefär 0–49 i 80×50 blockläge                                                                                                                                                                                                                                                                                         |
+| `chr$`                                | Ingen PETSCII↔ASCII-mappning — n skickas som det är till CHROUT                                                                                                                                                                                                                                                                                                                 |
+| `music play`                          | Kräver `load sid`; endast en CIA1-omslagsfil genereras (den sista `music play` vinner)                                                                                                                                                                                                                                                                                          |
+| `graphics on double`                  | Anställer endast; använder `$4000–$7FFF` för backbufferten, så programkoden måste hålla sig under `$4400`; kan inte kombineras med sprites eller multicolor                                                                                                                                                                                                                     |
+| Felrapportering                       | Endast vid kompilering; `onerr goto` hanterar KERNAL I/O-fel vid körning                                                                                                                                                                                                                                                                                                        |

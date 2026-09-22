@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.6 — Nyelvi kézikönyv
+# Ultimate Basic v1.5.7 — Nyelvi kézikönyv
 
 Teljes nyelvi és parancssori felület (CLI) referencia az Ultimate Basichez, egy
 BASIC-szerű nyelvhez, amely közvetlenül 6502-es gépi kóddá fordul Commodore
@@ -61,6 +61,9 @@ vagy egy olyan kifejezés, mint a `for i = 1 to times`, `Number(0)`-ra hajtódik
 `end`, `select`, `case`, `for`, `next`, `loop`, `times`, `to`, `step`, `while`,
 `repeat`, `until`, `break`, `continue`, `inc`, `dec`, `bye`, `exit`, `rem`
 
+**Music** `tune` (blokk kulcsszó; a benne lévő sorok - `speed`, `inst`, `order`,
+`pat` - nincsenek lefoglalva)
+
 **Típusok és típussal kapcsolatos** `int`, `word`, `float`, `string`, `array`,
 `array_word`
 
@@ -84,11 +87,12 @@ tokent használjuk a `dec(n, width)` nyomtatási formátumhoz)
 `mplot`, `mline`, `mrect`, `mcircle`, `line`, `circle`, `circle4`, `rect`,
 `paint`, `erase`, `pen`, `multi`, `block`
 
-**Spritek** `sprite`, `sprdef`, `sprite_frame`, `sprite_x`, `sprite_y`,
-`sprhit`, `sprbghit`, `box_hit`, `chardef`, `charset`, `expand`, `priority`
+**Sprite-ok** `sprhit`, `sprdef`, `sprite_frame`, `sprite_x`, `sprite_y`,
+`sprite`, `sprbghit`, `box_hit`, `chardef`, `charset`, `org`, `expand`,
+`priority`
 
-**Hang és zene** `sid`, `sound`, `volume`, `music`, `play`, `pause`, `resume`,
-`stop`
+**Hang és zene** `sid`, `sound`, `sfx`, `volume`, `music`, `play`, `pause`,
+`resume`, `stop`
 
 **Beviteli eszközök** `getch`, `inkey`, `waitkey`, `joy`, `mouse_x`,
 `mouse_x_hi`, `mouse_y`, `mouse_btn`
@@ -391,18 +395,19 @@ teljes mértékben támogatottak.
 ### Tömbök
 
 ```basic
-var scores = array(8)    # 8 bytes at $C000
+var scores = array(8) # 8 bájt $C000-nál
+# (minden tömböt nullával töltünk ki egyszer a program indításakor — újdonság az 1.5.7-es verzióban)
 
-scores[0] = 100          # constant index → STA $C000
-scores[i] = 99           # variable index → STA (ptr),Y
-var v = scores[i]        # LDA (ptr),Y
-print scores[2]          # usable inline in print
+scores[0] = 100 # konstans index → STA $C000
+scores[i] = 99 # változó index → STA (ptr),Y
+var v = scores[i] # LDA (ptr),Y
+print scores[2] # használható inline a nyomtatásban
 
-var moments = array_word(8)  # 16 bytes (8×2) at $C000+
+var moments = array_word(8) # 16 bájt (8×2) $C000+-nál
 
-moments[0] = $1234         # constant index → STA $C000 (lo), STA $C001 (hi)
-moments[i] = $5678         # variable index → ASL A for stride; (ptr),Y × 2
-var t: word = moments[1]   # LDA $C002, LDA $C003
+moments[0] = $1234 # konstans index → STA $C000 (lo), STA $C001 (hi)
+moments[i] = $5678 # változó index → ASL A stride; (ptr),Y × 2
+var t: word = moments[1] # LDA $C002, LDA $C003
 ```
 
 **Többdimenziós tömbök** (újdonság az 1.5.3-as verzióban)
@@ -504,6 +509,17 @@ Lásd: `examples/type_demo.ub`.
 var ptr: word = $0400    # two ZP bytes: lo=$00 hi=$04
 poke ptr, 6              # STA (ptr),Y
 var v = peek(ptr)        # LDA (ptr),Y
+```
+
+**16 bites szorzatok (javítva az 1.5.7-es verzióban).** Egy `word` rendelt
+szorzat mind a 16 bitet megtartja, akkor is, ha egyik tényező sem `word`:
+
+```basic
+változó pontszám: szó = 0
+változó szint = 3
+pontszám += 300 * szint # 900 (1.5.7 előtt ez 8 bitre volt csonkítva: 44)
+pontszám = pontszám + 100 * szint
+változó nagy: szó = 100 * szint + 900
 ```
 
 ### Bittérképes grafika
@@ -817,12 +833,41 @@ sid stop                 # zero all 25 SID registers ($D400–$D418) — complet
 ```
 
 `sound <channel>, <freq>, <duration>` — időtartam PAL képkockákban (egyenként
-1/50 s). Javított ADSR: attack/decay `$09`, sustain/release `$F0`, fűrészfog
-hullámforma. A fő hangerő `$D418` mindig `$0F`-ra van állítva.
+1/50 s). `sound` **blocks**: a program megvárja, amíg a hang véget ér (használd
+az alábbi `sfx` funkciót egy játékcikluson belül). Javított ADSR: attack/decay
+`$09`, sustain/release `$F0`, fűrészfog hullámforma. A Master hangerő `$D418`
+mindig `$0F`-re van állítva.
+
+*Javítva az 1.5.7-es verzióban:* a várakozási ciklus a 0. raszteres sort
+figyelte, amely `$D012` (csak az alsó 8 bites) kétszer jelent meg képkockánként
+(0. és 256. sor), így minden hang **fele** ideig tartott a kért ideig — és két
+ágat foltoztak az opcode-jukon, ami a program 0-tól eltérő időtartamra történő
+összeomlását okozta. A `sound` mostantól a 200-as raszteres soron várakozik
+pontosan úgy, mint a `delay`.
 
 Az `sid volume N` N-t ír az `$D418`-ba. A 0-3. bitek = hangerő (0-15), a 4-7.
 bitek = szűrő mód. Az `sid stop` egy 10 bájtos nulla-kitöltő ciklust bocsát ki –
 gyorsabban, mint 25 egyedi piszkálás.
+
+### Nem blokkoló hangeffektek (`sfx`) — újdonság az 1.5.7-es verzióban
+
+```basic
+sound 0, $2000, 25 # BLOCKS: a program itt 25 képkockát vár
+sfx 0, $2000, 25 # azonnal visszatér; a hang magától elhalkul
+sfx 1, $0500, 8, 128 # opcionális wave: 16 triangle, 32 saw (alapértelmezett), 64 pulse, 128 noise
+sfx 0, freq_word, 4, 16 # a freq lehet konstans, szóváltozó vagy 8 bites kifejezés
+```
+
+Az `sfx <channel>, <freq>, <frames> [, <wave>]` egy SID hangot programoz, és
+azonnal visszatér, így biztonságosan használható egy játék cikluson belül. Nincs
+kapu-kikapcsolási időzítő: a burkológörbe támadásra 0 / fenntartásra 0 /
+kioldásra 0 van beállítva, és a **lecsengést** fordítási időben választják ki a
+`frames` közül (1 képkocka = 20 ms, a legközelebbi SID lecsengési idő: 6, 24,
+48, 72, 114, 168, 204, 240, 300, 750, 1500, 2400 ms ...), így a hang nagyjából
+ennyi idő alatt elhalkul. Minden híváskor újraindítja a hangot (kapu ki, majd
+be), és beállítja a fő hangerőt `$0F`. Az `channel` (0-2), az `frames` (1-255)
+és az `wave` értékeknek fordítási idejű állandóknak kell lenniük.
+
 
 ### Zenelejátszás
 
@@ -1036,7 +1081,26 @@ megjelenített bitkép felülírja a `$2000-$3F3F` értéket; ellenkező esetben
 fordító hibát jelez. A Koala importálás jelenleg nem kombinálható a `load sid`
 értékkel ugyanabban a programban.
 
-### Egyéni karakterkészlet
+### Kód elrendezése: `org` — újdonság az 1.5.7-es verzióban
+
+```basic
+sub a() ... end # a rész/fn-ek egymás után kerülnek elhelyezésre a törzs végétől számítva
+org $4000 # a következő rész/fn-ek $4000-nél folytatódnak; $xxxx-$3FFF nullával kitöltve marad
+sub b() ... end
+incbin "font.bin", $3800 # az adatok elhelyezkedhetnek a résben ($3800-$3FFF egy teljes VIC karakterkészlet slot)
+```
+
+Az `org addr` függvény az **alprogram/fn definíciók között helyezkedik el** (a
+törzsben figyelmen kívül hagyjuk, és csak a második menetben lép életbe). Az
+alprogramok soha nem esnek egymásba, így a kihagyott bájtok csak nullákkal
+vannak kitöltve és lefoglalva: egy teljes egészében a résen belül fekvő `incbin
+"f", addr` karakterkészlet beleíródik, és az `charset on`-en nem számolja a rést
+kódként. A nulla bájtok a `.prg` részét képezik. Az aktuális kód vége alatti
+`org` függvény fordítási idejű hiba. Minden, ami az utolsó alprogram után
+generálódik (segítők, `data` táblák), az utolsó alprogramot követi, azaz a rés
+fölé kerül.
+
+### Egyéni karakterkészlet (`charset on` / `charset off` újdonság az 1.5.7-es verzióban)
 
 ```basic
 charset $3800            # set base address for chardef (default $3800)
@@ -1050,19 +1114,40 @@ chardef 66               # fewer than 8 bytes are zero-padded
 end
 ```
 
-A `charset base` beállítás az összes további `chardef` utasítás által használt
-célcímet állítja be. A `chardef id ... end` beágyaz 8 bájtot a kódszegmensbe
-(ezt egy `JMP` előzi meg a kihagyásukhoz), majd futásidőben átmásolja őket a
-`charset_base + id*8` címre. Az értékeknek fordítási idejű állandóknak kell
-lenniük; bináris literálokhoz (`%00011000`) `%` használható.
+Az `charset base` beállítja az összes további `chardef` utasítás által használt
+célcímet. Az `chardef id ... end` beágyaz 8 bájtot a kódszegmensbe (ezt egy
+`JMP` előzi meg az átugrásukhoz), majd futásidőben átmásolja őket a
+`charset_base + id*8` helyre. Az értékeknek fordítási idejű állandóknak kell
+lenniük, `$xx` vagy decimális formában. A **`%` bináris literálokat a lexer nem
+támogatja** (a kézikönyv ezt írta az 1.5.7 előtt - ez tévedett).
 
-Egyéni karakterkészlet aktiválásához a VIC-II-ben, állítsd be a
-karaktergenerátor címét a `$D018` címen keresztül:
+Az `charset addr` csak az `chardef` célállomást állítja be; nem bocsát ki kódot.
+Ahhoz, hogy a VIC-II ezt a készletet használja, kapcsolja be (és kapcsolja ki,
+ha végzett):
 ```basic
-charset $3800
-chardef 1  $FF,$81,$81,$81,$81,$81,$81,$FF  end  # box border
-poke $D018, $1A     # screen at $0400, charset at $3800 (bank 0)
+karakterkészlet $3800
+chardef 1 $FF,$81,$81,$81,$81,$81,$81,$FF vége # mező kerete
+karakterkészlet bekapcsolva # A VIC-II karaktereket olvas $3800-ból (a képernyőmátrix érintetlen)
+...
+karakterkészlet kikapcsolva # Vissza a ROM készlethez ($1800, ha a `lowercase` aktív, egyébként $1000)
 ```
+
+`charset on` olvasási-módosítási-írási műveletén keresztül `$D018` bitek 1-3-át
+végzi az utolsó `charset addr` címétől (alapértelmezett: `$3800`); a
+képernyőmátrix bitjei megmaradnak. A címnek a VIC 0. bankján belüli `$800`
+többszörösének kell lennie (`$0000-$3FFF`), különben fordítási idejű hiba
+keletkezik. Mindkét utasítás az utoljára fordított `charset addr` címet
+használja, ezért a direktívát a fő programtörzsben kell tartani (az
+alprogramtörzsek ezután fordulnak le). Az ezzel egyenértékű nyers írási művelet:
+`poke $D018, $1A` a `$2800` értékhez, vagy `poke $D018, $1E` a `$3800` értékhez.
+
+Az **Átfedés ellenőrzése.** Az `charset on`-en a teljes 2 KB-os készletet
+igényli, és minden `chardef` a saját 8 bájtját foglalja. Ha a generált kód eléri
+ezt a területet, a build leáll, amikor `the program code ($080D-$xxxx) overlaps
+the charset area $2800-$2FFF; move the charset ...`. A nagy programoknak ezért
+szükségük van a kód feletti készletre (`charset $3800`) — vagy használd az
+`org`-et (fent), hogy a kód a készlet felett folytassa. Az `org` résbe helyezett
+adatokat (`incbin ..., addr`) nem számítjuk kódnak.
 
 ### Memória
 
@@ -1096,6 +1181,56 @@ Az `load` meghívja a KERNAL-t: `SETNAM`+`SETLFS`+`LOAD`
 fejléce betöltési címként használatos). Címmel: másodlagos cím: 1 (a fájl a
 megadott helyre töltődik be). Az `save` meghívja a `SETNAM`+`SETLFS`+`SAVE`
 (`$FFBD`/`$FFBA`/`$FFD8`). Mind a `addr`, mind a `len` címet megköveteli.
+
+### Tracker dallamok (`tune`)
+
+```basic
+hangolás # opcionális: hangolás $C800 sebességgel (alapértelmezett $8000)
+sebesség 6 # képkocka soronként (50 Hz PAL)
+inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
+inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+order 0, 1, 0 # minta sorrend (a minták ismétlődhetnek)
+pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
+pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+end
+music play # vagy: sys sid_init / irq kezelő hívja a sys sid_play-t
+```
+
+Az `tune ... end` egy 3 hangú követő dallamot ír le egyszerű szövegben
+(ugyanazzal a cellajelöléssel, mint amit a Visual Assembler SID szerkesztő
+mutat), és fordítási időben felépíti a lejátszót ****. A `sid_init` / `sid_play`
+paramétert pontosan úgy definiálja, mint a `load sid` paramétert, így a `music
+play`, `music stop`, `music pause` és `music resume` (és egy manuális `irq`
+kezelő, amely a `sys sid_play` függvényt hívja meg) változatlanul működik.
+
+| Vonal                                                 | Jelentés                                                                                                                                                                                                                                             |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `speed N`                                             | Keretek követő soronként (1-255).                                                                                                                                                                                                                    |
+| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Egy hangszer: vezérlőregiszter (hullámforma bitek; a gate bitet a játékos adja hozzá), attack/decay, sustain/release, 12 bites impulzusszélesség, 11 bites szűrő levágás, rezonancia/szűrő-útválasztás bájt (`$D417`) és mód/hangerő bájt (`$D418`). |
+| `order p, p, ...`                                     | Minta sorrend. A vonalak felhalmozódnak, akár 255 lépésben.                                                                                                                                                                                          |
+| `pat p, v, "cell", ...`                               | Legfeljebb 32 sor a `v` (0-2) hanghoz, amely a `p` (0-7) mintában található. A hiányzó sorok üresek.                                                                                                                                                 |
+
+Egy **cell** a `NOTE INST FX`: `C-4`, `D#3`, `Eb2` vagy `...` ha nincs hang, egy
+kétjegyű hex hangszer (`..` ha ki akarja hagyni), és egy opcionális effekt -
+`Vxy` vibrato (x = sorok tartása, y = mélység), `Uxx` / `Dxx` csúsztatás fel /
+le, `C` hangvágás, `Fxx` beállított sebesség. Egy csak hatást tartalmazó cella
+felírható `"... .. F06"` vagy egyszerűen `"F06"` alakban.
+
+Megjegyzések a lejátszóról:
+
+- Minden játékosállapot a **blobon belül található ** (abszolút címzés) - nem
+  használ nulla oldalt, így nem ütközik az UltimateBasic változókkal vagy
+  ideiglenes értékekkel, és akkor is működik tovább, amikor a program visszatér
+  BASIC-be.
+- A blob egy fix címen található (alapértelmezett: `$8000`, vagy `tune at $addr`
+  címen), és az `.prg` fájlt ehhez igazítják, például: `load sid`. Tartsd távol
+  a kódodtól, tömböktől (`$C000+`) és bármilyen bitképes/karakterkészletes
+  memóriától. Egy blobnak körülbelül 1,3 KB-ra van szüksége, plusz
+  soronként-oszloponként 12 bájtra.
+- Legfeljebb 8 minta (egyenként 32 sor); a rendezési lista szabadon ismételheti
+  őket.
+- Az `music play` a CIA1 időzítőt használja 50 Hz-en; ne kombináld másik `load
+  sid`/`tune` (az utolsó nyer).
 
 ### SID Zene
 
@@ -1204,6 +1339,13 @@ print f                  # prints as "N.DD" (e.g. 3.5 → "3.50", 1.25 → "1.25
 **Figyelmeztetés:** A számtani túlcsordulás 255,255-nél tördelődik (nincs
 telítés). Két lebegőpontos változó szorzása és osztása még nem támogatott –
 ezekben az esetekben a `int()` + egész aritmetikai műveletet kell használni.
+
+**Lebegőpontos kifejezések nyomtatása (javítva az 1.5.7-es verzióban).** Egy
+`float`-et tartalmazó aritmetikai kifejezés `print` parancsa (például `print a /
+10` ahol `a: float = 1`) mostantól `N.DD` formátumban nyomtatja ki a Q8.8
+eredményt. Az 1.5.7 előtt a nyers 16 bites értéket egész számként nyomtatta ki
+(`25` a `0.09` helyett). A tört csonkolva van, nem kerekítve: az 1/10 = 25/256
+`0.09` formátumban nyomtatja ki.
 
 ### Matematikai függvények
 
@@ -1395,13 +1537,21 @@ A `onerr goto label` a címkét (lo, hi) a KERNAL `$0300` és `$0301` helyekre
 KERNAL végrehajtja a `JMP ($0300)` parancsot, amely a címkére ágazik. Az előre
 mutató hivatkozások (a `onerr goto` után definiált címke) támogatottak.
 
-### Fordítási idejű fájlbeágyazás
+### Fordítási idejű fájlbeágyazás (`incbin` skip / length, új az 1.5.7-es verzióban)
 
 ```basic
-incbin "sprites.bin"            # embed raw binary bytes at current code position
-incbin "charset.bin", $2000     # embed at an absolute address, padding as needed
-include "defs.ub"        # inline another .ub source file (lexed+parsed in place)
+incbin "sprites.bin" # nyers bináris bájtok beágyazása az aktuális kódpozícióba
+incbin "charset.bin", $2000 # beágyazás abszolút címre, szükség szerint kitöltve
+incbin "font.prg", $3C00, 2 # ...az első 2 bájt kihagyása (pl. egy .prg betöltési cím)
+incbin "big.bin", $4000, 16, 256 # ...16 bájt kihagyása, majd legfeljebb 256 bájt felhasználása
+include "defs.ub" # egy másik .ub forrásfájl beágyazása (lexikálisan + helyben értelmezve)
 ```
+
+Az `incbin "file", addr, skip [, length]` függvény eldobja a fájl első `skip`
+bájtját (jellemzően egy `.prg` 2 bájtos betöltési címe), és opcionálisan
+legfeljebb `length` bájtot foglal el; az `skip` és `length` konstansok, és a
+fájl vége utáni `skip` hiba. A címforma megköveteli, hogy a cél a generált kód
+felett legyen – vagy egy `org` résen belül.
 
 ### Data / Read
 
@@ -1761,23 +1911,25 @@ teljes hexadecimális kiírást.
 
 ## Ismert korlátozások
 
-| Jellemző                              | Korlátozás                                                                                                                                                                             |
-| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Egész számtani                        | 8 bites előjel nélküli (0–255); a `word` változók 16 bites értékeket tárolnak                                                                                                          |
-| Alprogramok                           | Nincs rekurzió — A ZP paraméterhelyek statikusan vannak lefoglalva                                                                                                                     |
-| Karakterlánc-változók                 | Read-only after init; assignment replaces the pointer, not the data                                                                                                                    |
-| Karakterlánc-összefűzés futásideje    | `s1 + s2` szekvenciálisan nyomtat — nincs halomfoglalás vagy hosszkövetés                                                                                                              |
-| `rnd()` / `rnd(n)`                    | Egyszerű LCG, nem kriptográfiai; periódus = 256                                                                                                                                        |
-| `abs()` / `sgn()` / `min()` / `max()` | csak 8 bites értékek; `abs`/`sgn` az értékeket előjelesként kezeli (7. bit = negatív → `abs` kettes komplementer, `sgn` `$FF` értéket ad vissza); `min`/`max` előjel nélküliek (0–255) |
-| `plot`                                | A tartományon kívüli pixeleket hangtalanul levágja a rendszer (Y ≥ 200 vagy X ≥ 320 → nincs művelet)                                                                                   |
-| `mplot`                               | Nincs határérték-ellenőrzés — x-nek 0–159, y-nak 0–199 között kell lennie                                                                                                              |
-| `mline` / `mrect`                     | Többszínű; x: 0–159, y: 0–199. Képernyőn kívüli pixelek tördelése (nincs vágás) – a koordináták a tartományon belül maradnak                                                           |
-| `mcircle`                             | Többszínű; képernyőn kívüli pontokat vág (x ≥ 160 vagy y ≥ 200 kihagyva)                                                                                                               |
-| `color pen`                           | Csak felvételek; beállítja az érintett cellák előtérbeli részét (a háttér megmarad). Blokk módban nincs hatása (`plot4`/`circle4`)                                                     |
-| `rect`                                | Nincs határérték-ellenőrzés — x: 0–319, y: 0–199; x1≤x2 és y1≤y2 nincsenek kikényszerítve (a degenerált/invertált egyenesek nem definiált kimenetet eredményeznek)                     |
-| `plot4`                               | Nincs határérték-ellenőrzés — x értékének 0–79, y értékének 0–49 között kell lennie (blokk mód)                                                                                        |
-| `circle4`                             | Kivágja a képernyőn kívüli blokkképpontokat; a hasznos sugár nagyjából 0–49 80×50-es blokk módban.                                                                                     |
-| `chr$`                                | Nincs PETSCII↔ASCII leképezés — az n értékét változatlanul adja át a CHROUT-nak                                                                                                        |
-| `music play`                          | `load sid` szükséges; csak egy CIA1 wrapper kerül kibocsátásra (az utolsó `music play` nyer)                                                                                           |
-| `graphics on double`                  | Csak bérelt példányok; `$4000–$7FFF` karaktereket használ a hátsó pufferhez, így a programkódnak `$4400` alatt kell maradnia; nem kombinálható sprite-okkal vagy többszínűvel          |
-| Hibajelentés                          | Csak fordítási időben; a `onerr goto` futási időben kezeli a KERNAL I/O hibákat                                                                                                        |
+| Jellemző                              | Korlátozás                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Egész számtani                        | 8 bites előjel nélküli (0–255); a `word` változók 16 bites értékeket tárolnak                                                                                                                                                                                                                                                                                                                                     |
+| Nulla oldalas költségvetés            | Az állandó nulla oldal az `$02–$4F` (78 bájt): minden változó és sub/fn paraméter 2 bájtot foglal el, minden futó `for` ciklus további 2 bájtot (amit a ciklus végén ad vissza, ha a törzsében nem deklaráltak változókat). A kifutás fordítási idejű hibát okoz (`out of zero page`, újdonság az 1.5.7-es verzióban); korábban csendben felülírta a munkaterületet. Változók újrafelhasználása nagy programokban |
+| Bináris literálok                     | Csak az `$hex` és a decimális; az `%` bináris literálok nem támogatottak.                                                                                                                                                                                                                                                                                                                                         |
+| Alprogramok                           | Nincs rekurzió — A ZP paraméterhelyek statikusan vannak lefoglalva                                                                                                                                                                                                                                                                                                                                                |
+| Karakterlánc-változók                 | Read-only after init; assignment replaces the pointer, not the data                                                                                                                                                                                                                                                                                                                                               |
+| Karakterlánc-összefűzés futásideje    | `s1 + s2` szekvenciálisan nyomtat — nincs halomfoglalás vagy hosszkövetés                                                                                                                                                                                                                                                                                                                                         |
+| `rnd()` / `rnd(n)`                    | Egyszerű LCG, nem kriptográfiai; periódus = 256                                                                                                                                                                                                                                                                                                                                                                   |
+| `abs()` / `sgn()` / `min()` / `max()` | csak 8 bites értékek; `abs`/`sgn` az értékeket előjelesként kezeli (7. bit = negatív → `abs` kettes komplementer, `sgn` `$FF` értéket ad vissza); `min`/`max` előjel nélküliek (0–255)                                                                                                                                                                                                                            |
+| `plot`                                | A tartományon kívüli pixeleket hangtalanul levágja a rendszer (Y ≥ 200 vagy X ≥ 320 → nincs művelet)                                                                                                                                                                                                                                                                                                              |
+| `mplot`                               | Nincs határérték-ellenőrzés — x-nek 0–159, y-nak 0–199 között kell lennie                                                                                                                                                                                                                                                                                                                                         |
+| `mline` / `mrect`                     | Többszínű; x: 0–159, y: 0–199. Képernyőn kívüli pixelek tördelése (nincs vágás) – a koordináták a tartományon belül maradnak                                                                                                                                                                                                                                                                                      |
+| `mcircle`                             | Többszínű; képernyőn kívüli pontokat vág (x ≥ 160 vagy y ≥ 200 kihagyva)                                                                                                                                                                                                                                                                                                                                          |
+| `color pen`                           | Csak felvételek; beállítja az érintett cellák előtérbeli részét (a háttér megmarad). Blokk módban nincs hatása (`plot4`/`circle4`)                                                                                                                                                                                                                                                                                |
+| `rect`                                | Nincs határérték-ellenőrzés — x: 0–319, y: 0–199; x1≤x2 és y1≤y2 nincsenek kikényszerítve (a degenerált/invertált egyenesek nem definiált kimenetet eredményeznek)                                                                                                                                                                                                                                                |
+| `plot4`                               | Nincs határérték-ellenőrzés — x értékének 0–79, y értékének 0–49 között kell lennie (blokk mód)                                                                                                                                                                                                                                                                                                                   |
+| `circle4`                             | Kivágja a képernyőn kívüli blokkképpontokat; a hasznos sugár nagyjából 0–49 80×50-es blokk módban.                                                                                                                                                                                                                                                                                                                |
+| `chr$`                                | Nincs PETSCII↔ASCII leképezés — az n értékét változatlanul adja át a CHROUT-nak                                                                                                                                                                                                                                                                                                                                   |
+| `music play`                          | `load sid` szükséges; csak egy CIA1 wrapper kerül kibocsátásra (az utolsó `music play` nyer)                                                                                                                                                                                                                                                                                                                      |
+| `graphics on double`                  | Csak bérelt példányok; `$4000–$7FFF` karaktereket használ a hátsó pufferhez, így a programkódnak `$4400` alatt kell maradnia; nem kombinálható sprite-okkal vagy többszínűvel                                                                                                                                                                                                                                     |
+| Hibajelentés                          | Csak fordítási időben; a `onerr goto` futási időben kezeli a KERNAL I/O hibákat                                                                                                                                                                                                                                                                                                                                   |

@@ -4629,6 +4629,19 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
   color: var(--text);
 }
 
+.expert-project-icon-btn:disabled {
+  cursor: default;
+}
+
+.expert-project-icon-btn--saved {
+  color: color-mix(in srgb, var(--success, #4caf50) 75%, var(--secondary));
+  opacity: 0.7;
+}
+.expert-project-icon-btn--saved:hover {
+  background: none;
+  color: color-mix(in srgb, var(--success, #4caf50) 75%, var(--secondary));
+}
+
 /* Custom tooltip driven by aria-label — same behaviour as the main expert
    toolbar buttons, so the project-header icons no longer rely on the flaky
    native `title` tooltip either. */
@@ -4714,6 +4727,19 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
   justify-content: center;
   opacity: 0.75;
 }
+
+.expert-project-item-toggle {
+  flex-shrink: 0;
+  width: 14px;
+  height: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.65;
+}
+.expert-project-item-toggle svg { display: block; transition: transform 0.1s ease; }
+.expert-project-item-toggle--empty { visibility: hidden; }
+.expert-project-item--folder:hover .expert-project-item-toggle:not(.expert-project-item-toggle--empty) { opacity: 1; }
 
 .expert-project-item-icon svg { display: block; }
 .expert-project-item--root .expert-project-item-icon { opacity: 0.85; }

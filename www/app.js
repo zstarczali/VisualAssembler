@@ -574,6 +574,7 @@ let _expertFindTerm = "";
 let _expertFindMatches = []; // [{start, end}] flat textarea positions
 let _expertFindIdx = -1;
 let _expertProjectData = null; // { name, files, _projPath }
+let _expertProjectDirty = false;
 let _expertPendingEditMeta = null;
 const _PROJECT_SNAPSHOT_MAX_ENTRIES = 10;
 const _HISTORY_MAX_STACK = 200; // cap per-tab undo/redo stacks so long editing sessions with many open tabs don't grow memory unbounded
@@ -1278,7 +1279,8 @@ function initPalette() {
   document.getElementById("ub-project-open-btn")?.addEventListener("click", _ubOpenProject);
   document.getElementById("ub-project-new-btn")?.addEventListener("click", _ubNewProject);
   document.getElementById("ub-project-save-btn")?.addEventListener("click", _ubSaveProject);
-  document.getElementById("ub-project-add-btn")?.addEventListener("click", () => _ubOpen(true));
+  document.getElementById("ub-project-add-btn")?.addEventListener("click", () => _ubAddFile());
+  document.getElementById("ub-project-add-folder-btn")?.addEventListener("click", _ubAddProjectFolder);
   document.getElementById("ub-explicit-btn")?.addEventListener("click", _ubToggleExplicit);
   document.getElementById("ub-verbose-btn")?.addEventListener("click", _ubToggleVerbose);
   document.getElementById("ub-disasm-btn")?.addEventListener("click", _ubToggleDisasm);
@@ -1662,6 +1664,7 @@ function initPalette() {
   document.getElementById("expert-project-new-btn")?.addEventListener("click",  _expertNewProject);
   document.getElementById("expert-project-save-btn")?.addEventListener("click", _expertSaveProject);
   document.getElementById("expert-project-add-btn")?.addEventListener("click",  _expertAddProjMember);
+  document.getElementById("expert-project-add-folder-btn")?.addEventListener("click", _expertAddProjFolder);
 
   expertEditor?.addEventListener("beforeinput", (e) => {
     const displaySelStart = expertEditor.selectionStart ?? 0;
@@ -2250,6 +2253,7 @@ function initPalette() {
     if (!e.target.closest("#block-ctx-menu")) _hideBlockCtxMenu();
     if (!e.target.closest("#sid-ctx-menu")) _sidHideCtxMenu();
     if (!e.target.closest("#tab-ctx-menu")) _hideTabCtxMenu();
+    if (!e.target.closest("#proj-folder-ctx-menu")) _projHideFolderMenu();
   }, true);
 
   document.addEventListener("keydown", e => {
@@ -6036,6 +6040,7 @@ let _ubFindIndex = -1;
 let _ubSelectedCommand = "print";
 let _ubStartupTabId = null;
 let _ubProjectData = null;
+let _ubProjectDirty = false;
 
 function _ubApplyCommandListHeight() {
   ubPanel?.style.setProperty("--ub-command-list-height", `${Math.max(80, _ubCommandListHeight)}px`);
@@ -7530,6 +7535,7 @@ function _ubRenderProjectFiles() {
   const list = document.getElementById("ub-project-files");
   const projectName = document.getElementById("ub-project-name");
   if (!list) return;
+  _projUpdateSaveBtn("ub-project-save-btn", !!_ubProjectData, _ubProjectDirty);
   list.innerHTML = "";
   if (projectName) {
     projectName.textContent = _ubProjectData?.name || t("projNoProject");
@@ -7550,15 +7556,61 @@ function _ubRenderProjectFiles() {
     list.appendChild(empty);
     return;
   }
-  _ubProjectData.files.forEach(file => {
+  const renderNode = (file, container, depth) => {
+    const isFolder = file.type === "folder";
+    const remove = _makeProjDelBtn(() => {
+      const idx = container.indexOf(file);
+      if (idx >= 0) container.splice(idx, 1);
+      if (_ubProjectData.startupFile === file.path) { _ubProjectData.startupFile = null; _ubStartupTabId = null; }
+      _ubProjectDirty = true;
+      _ubRenderProjectFiles();
+    });
+
+    if (isFolder) {
+      const hasChildren = (file.children || []).length > 0;
+      const collapsed = !!file._collapsed;
+      const item = document.createElement("div");
+      item.className = "expert-project-item expert-project-item--file expert-project-item--folder";
+      item.style.paddingLeft = `${8 + depth * 18}px`;
+      const toggle = document.createElement("span");
+      toggle.className = "expert-project-item-toggle" + (hasChildren ? "" : " expert-project-item-toggle--empty");
+      toggle.innerHTML = hasChildren
+        ? `<svg viewBox="0 0 10 10" width="9" height="9" style="transform:rotate(${collapsed ? "-90deg" : "0deg"})" aria-hidden="true"><path d="M2 3l3 3 3-3" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+        : "";
+      const icon = document.createElement("span");
+      icon.className = "expert-project-item-icon";
+      icon.innerHTML = _PROJ_SVG.project;
+      const name = document.createElement("span");
+      name.className = "expert-project-item-name";
+      name.textContent = file.name;
+      name.setAttribute("aria-label", file.path);
+      item.append(toggle, icon, name, remove);
+      item.addEventListener("click", e => {
+        if (remove.contains(e.target)) return;
+        if (!hasChildren) return;
+        file._collapsed = !file._collapsed;
+        _ubRenderProjectFiles();
+      });
+      item.addEventListener("contextmenu", e => {
+        _projShowFolderMenu(e, () => _ubAddFile(file.children || (file.children = [])));
+      });
+      list.appendChild(item);
+      if (!collapsed) (file.children || []).forEach(child => renderNode(child, file.children, depth + 1));
+      return;
+    }
+
     const absPath = _ubResolveProjectPath(file.path);
     const tab = tabs.find(candidate => _normFilePath(candidate.ubFilePath || candidate.filePath) === _normFilePath(absPath));
     const isStartup = _ubProjectData.startupFile === file.path;
+    const isUb = /\.ub$/i.test(file.name || file.path || "");
     const item = document.createElement("div");
     item.className = "expert-project-item expert-project-item--file" + (tab?.id === activeTabId ? " expert-project-item--active" : "") + (isStartup ? " expert-project-item--startup" : "") + (tab?.dirty ? " ub-project-file-dirty" : "");
+    item.style.paddingLeft = `${8 + depth * 18 + (depth > 0 ? 14 : 0)}px`;
     const icon = document.createElement("span");
     icon.className = "expert-project-item-icon";
-    icon.innerHTML = `<svg viewBox="0 0 16 16" fill="none" width="12" height="12" aria-hidden="true"><path d="M3 2h7l3 3v9H3V2Z" stroke="currentColor" stroke-width="1.1"/><path d="M10 2v3h3" stroke="currentColor" stroke-width="1"/></svg>`;
+    icon.innerHTML = isUb
+      ? `<svg viewBox="0 0 16 16" fill="none" width="12" height="12" aria-hidden="true"><path d="M3 2h7l3 3v9H3V2Z" stroke="currentColor" stroke-width="1.1"/><path d="M10 2v3h3" stroke="currentColor" stroke-width="1"/></svg>`
+      : _projFileIcon(file.name);
     const name = document.createElement("span");
     name.className = "expert-project-item-name";
     name.textContent = file.name;
@@ -7572,20 +7624,19 @@ function _ubRenderProjectFiles() {
       event.stopPropagation();
       _ubProjectData.startupFile = isStartup ? null : file.path;
       _ubStartupTabId = isStartup ? null : (tab?.id || null);
-      _ubRenderProjectFiles();
-    });
-    const remove = _makeProjDelBtn(() => {
-      _ubProjectData.files = _ubProjectData.files.filter(entry => entry !== file);
-      if (_ubProjectData.startupFile === file.path) { _ubProjectData.startupFile = null; _ubStartupTabId = null; }
+      _ubProjectDirty = true;
       _ubRenderProjectFiles();
     });
     item.append(icon, name, startup, remove);
     item.addEventListener("click", event => {
       if (startup.contains(event.target) || remove.contains(event.target)) return;
-      if (tab) _tabActivate(tab.id); else _ubOpenProjectFile(file);
+      if (tab) _tabActivate(tab.id);
+      else if (isUb) _ubOpenProjectFile(file);
     });
     list.appendChild(item);
-  });
+  };
+
+  _ubProjectData.files.forEach(file => renderNode(file, _ubProjectData.files, 0));
 }
 
 function _ubResolveProjectPath(path) {
@@ -7608,6 +7659,46 @@ function _ubAddProjectFile(path) {
   const relPath = _ubProjectRelativePath(path);
   if (!_ubProjectData.files.some(file => _normFilePath(_ubResolveProjectPath(file.path)) === _normFilePath(path))) {
     _ubProjectData.files.push({ type: "file", name: path.replace(/\\/g, "/").split("/").pop(), path: relPath });
+    _ubProjectDirty = true;
+  }
+  _ubRenderProjectFiles();
+}
+
+// Unified "Add file" — any file type, multi-select. A .ub file is also opened as
+// an editor tab; anything else (fonts, sprites, other binary assets) is added as
+// a reference only.
+async function _ubAddFile(intoContainer = null) {
+  const res = await window.electronAPI?.chooseProjMember?.(true);
+  if (!res || res.canceled || !res.files?.length) return;
+  if (!_ubProjectData) _ubProjectData = { name: "New UltimateBasic project", files: [], startupFile: null, _projPath: null };
+  const container = intoContainer || _ubProjectData.files;
+  let openedCount = 0;
+  for (const f of res.files) {
+    const isUb = /\.ub$/i.test(f.fileName || f.filePath || "");
+    if (isUb && !intoContainer) {
+      const read = await window.electronAPI?.readTextFile?.(f.filePath);
+      if (!read?.ok) { _ubSetStatus(read?.error || "Open failed", true); continue; }
+      _ubCreateFileTab(f.filePath, read.content || "");
+      openedCount++;
+    }
+    const relPath = _ubProjectRelativePath(f.filePath);
+    if (!container.some(file => file.type !== "folder" && _normFilePath(_ubResolveProjectPath(file.path)) === _normFilePath(f.filePath))) {
+      container.push({ type: "file", name: f.fileName, path: relPath });
+      _ubProjectDirty = true;
+    }
+  }
+  _ubSetStatus(openedCount > 0 ? t("ubLoaded") : t("ubProjectSaved"));
+  _ubRenderProjectFiles();
+}
+
+async function _ubAddProjectFolder() {
+  const res = await window.electronAPI?.chooseProjFolder?.(true);
+  if (!res || res.canceled) return;
+  if (!_ubProjectData) _ubProjectData = { name: "New UltimateBasic project", files: [], startupFile: null, _projPath: null };
+  const relPath = _ubProjectRelativePath(res.folderPath);
+  if (!_ubProjectData.files.some(file => file.type === "folder" && _normFilePath(_ubResolveProjectPath(file.path)) === _normFilePath(res.folderPath))) {
+    _ubProjectData.files.push({ type: "folder", name: res.folderName, path: relPath, children: [] });
+    _ubProjectDirty = true;
   }
   _ubRenderProjectFiles();
 }
@@ -7649,7 +7740,8 @@ async function _ubOpenProject() {
   if (!result || result.canceled) return;
   if (!result.ok) { _ubSetStatus(result.error || "Project open failed", true); return; }
   const project = result.project || {};
-  _ubProjectData = { name: project.name || "UltimateBasic", files: (project.files || []).filter(file => (!file.type || file.type === "file") && /\.ub$/i.test(file.path || file.name || "")), startupFile: project.startupFile || null, _projPath: result.filePath };
+  _ubProjectData = { name: project.name || "UltimateBasic", files: (project.files || []).filter(file => !file.type || file.type === "file" || file.type === "folder"), startupFile: project.startupFile || null, _projPath: result.filePath };
+  _ubProjectDirty = false;
   _ubRenderProjectFiles();
   const startup = _ubProjectData.files.find(file => file.path === _ubProjectData.startupFile);
   if (startup) { const tab = await _ubOpenProjectFile(startup); _ubStartupTabId = tab?.id || null; }
@@ -7677,6 +7769,7 @@ async function _ubSaveProject() {
     const rewrite = await window.electronAPI?.saveProjFile?.(_ubProjectData._projPath, portablePayload, ubWorkingFolder);
     if (!rewrite?.ok) { _ubSetStatus(rewrite?.error || "Project save failed", true); return; }
   }
+  _ubProjectDirty = false;
   _ubRenderProjectFiles();
   _ubSetStatus(t("ubProjectSaved"));
 }
@@ -12204,6 +12297,7 @@ function _expertRenderProjectTree() {
   const nameEl = document.getElementById("expert-project-name");
   const treeEl = document.getElementById("expert-project-tree");
   if (!nameEl || !treeEl) return;
+  _projUpdateSaveBtn("expert-project-save-btn", !!_expertProjectData, _expertProjectDirty);
 
   if (!_expertProjectData) {
     nameEl.textContent = t("projNoProject");
@@ -12231,8 +12325,7 @@ function _expertRenderProjectTree() {
   rootItem.appendChild(rootName);
   treeEl.appendChild(rootItem);
 
-  // Flat file list (ignore any folder nodes from old saves)
-  const files = (_expertProjectData.files || []).filter(n => !n.type || n.type === "file");
+  const files = (_expertProjectData.files || []).filter(n => !n.type || n.type === "file" || n.type === "folder");
 
   if (files.length === 0) {
     const empty = document.createElement("div");
@@ -12246,24 +12339,65 @@ function _expertRenderProjectTree() {
   const activeTab = tabs.find(t => t.id === activeTabId);
   const activeFilePath = _normFilePath(activeTab?.filePath || "");
 
-  files.forEach(file => {
+  const renderNode = (file, container, depth) => {
     if (!file._id) file._id = crypto.randomUUID();
-    const isActive = activeFilePath && _normFilePath(_projResolveAbsPath(file.path)) === activeFilePath;
-    const isStartup = _expertProjectData.startupFile === file.path;
+    const isFolder = file.type === "folder";
+    const isActive = !isFolder && activeFilePath && _normFilePath(_projResolveAbsPath(file.path)) === activeFilePath;
+    const isStartup = !isFolder && _expertProjectData.startupFile === file.path;
+
+    const hasChildren = isFolder && (file.children || []).length > 0;
+    const collapsed = isFolder && !!file._collapsed;
 
     const item = document.createElement("div");
-    item.className = `expert-project-item expert-project-item--file${isActive ? " expert-project-item--active" : ""}${isStartup ? " expert-project-item--startup" : ""}`;
+    item.className = `expert-project-item expert-project-item--file${isActive ? " expert-project-item--active" : ""}${isStartup ? " expert-project-item--startup" : ""}${isFolder ? " expert-project-item--folder" : ""}`;
+    item.style.paddingLeft = `${8 + depth * 18 + (!isFolder && depth > 0 ? 14 : 0)}px`;
+
+    if (isFolder) {
+      const toggle = document.createElement("span");
+      toggle.className = "expert-project-item-toggle" + (hasChildren ? "" : " expert-project-item-toggle--empty");
+      toggle.innerHTML = hasChildren
+        ? `<svg viewBox="0 0 10 10" width="9" height="9" style="transform:rotate(${collapsed ? "-90deg" : "0deg"})" aria-hidden="true"><path d="M2 3l3 3 3-3" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+        : "";
+      item.appendChild(toggle);
+    }
 
     const iconEl = document.createElement("span");
     iconEl.className = "expert-project-item-icon";
-    iconEl.innerHTML = _projFileIcon(file.name);
+    iconEl.innerHTML = isFolder ? _PROJ_SVG.project : _projFileIcon(file.name);
 
     const nameSpan = document.createElement("span");
     nameSpan.className = "expert-project-item-name";
     nameSpan.textContent = file.name;
     nameSpan.setAttribute("aria-label", file.path);
 
-    // Startup star button
+    const delBtn = _makeProjDelBtn(() => {
+      const idx = container.indexOf(file);
+      if (idx >= 0) container.splice(idx, 1);
+      // Clear startup if the deleted file was the startup
+      if (_expertProjectData.startupFile === file.path) _expertProjectData.startupFile = null;
+      _expertProjectDirty = true;
+      _expertRenderProjectTree();
+    });
+
+    item.appendChild(iconEl);
+    item.appendChild(nameSpan);
+
+    if (isFolder) {
+      item.appendChild(delBtn);
+      item.addEventListener("click", e => {
+        if (delBtn.contains(e.target) || !hasChildren) return;
+        file._collapsed = !file._collapsed;
+        _expertRenderProjectTree();
+      });
+      item.addEventListener("contextmenu", e => {
+        _projShowFolderMenu(e, () => _expertAddFileIntoFolder(file));
+      });
+      treeEl.appendChild(item);
+      if (!collapsed) (file.children || []).forEach(child => renderNode(child, file.children, depth + 1));
+      return;
+    }
+
+    // Startup star button (files only)
     const starBtn = document.createElement("button");
     starBtn.className = "expert-project-item-star" + (isStartup ? " expert-project-item-star--on" : "");
     starBtn.setAttribute("aria-label", isStartup ? t("projUnsetStartup") : t("projSetStartup"));
@@ -12273,19 +12407,10 @@ function _expertRenderProjectTree() {
     starBtn.addEventListener("click", e => {
       e.stopPropagation();
       _expertProjectData.startupFile = _expertProjectData.startupFile === file.path ? null : file.path;
+      _expertProjectDirty = true;
       _expertRenderProjectTree();
     });
 
-    const delBtn = _makeProjDelBtn(() => {
-      const idx = _expertProjectData.files.indexOf(file);
-      if (idx >= 0) _expertProjectData.files.splice(idx, 1);
-      // Clear startup if the deleted file was the startup
-      if (_expertProjectData.startupFile === file.path) _expertProjectData.startupFile = null;
-      _expertRenderProjectTree();
-    });
-
-    item.appendChild(iconEl);
-    item.appendChild(nameSpan);
     item.appendChild(starBtn);
     item.appendChild(delBtn);
     item.addEventListener("click", e => {
@@ -12293,7 +12418,28 @@ function _expertRenderProjectTree() {
       _expertProjectOpenFile(file);
     });
     treeEl.appendChild(item);
-  });
+  };
+
+  files.forEach(file => renderNode(file, _expertProjectData.files, 0));
+}
+
+async function _expertAddFileIntoFolder(folderEntry) {
+  const res = await window.electronAPI?.chooseProjMember?.();
+  if (!res || res.canceled || !res.files?.length) return;
+  if (!folderEntry.children) folderEntry.children = [];
+  for (const f of res.files) {
+    let relPath = f.filePath;
+    if (_expertProjectData._projPath) {
+      const projDir = _expertProjectData._projPath.replace(/\\/g, "/").replace(/\/[^/]+$/, "");
+      const absFile = f.filePath.replace(/\\/g, "/");
+      if (absFile.startsWith(projDir + "/")) relPath = absFile.slice(projDir.length + 1);
+    }
+    if (!folderEntry.children.some(entry => entry.path === relPath)) {
+      folderEntry.children.push({ type: "file", name: f.fileName, path: relPath });
+      _expertProjectDirty = true;
+    }
+  }
+  _expertRenderProjectTree();
 }
 
 function _makeProjDelBtn(onDelete) {
@@ -12303,6 +12449,71 @@ function _makeProjDelBtn(onDelete) {
   btn.textContent = "✕";
   btn.addEventListener("click", e => { e.stopPropagation(); onDelete(); });
   return btn;
+}
+
+// Small right-click menu for a project-panel folder row: "Add file" to nest a
+// file reference under that folder. Reuses the tab-bar context menu's CSS.
+function _projShowFolderMenu(e, onAddFile) {
+  e.preventDefault();
+  e.stopPropagation();
+  let menu = document.getElementById("proj-folder-ctx-menu");
+  if (!menu) {
+    menu = document.createElement("div");
+    menu.id = "proj-folder-ctx-menu";
+    menu.className = "block-ctx-menu";
+    document.body.appendChild(menu);
+  }
+  const label = currentLanguage === "hu" ? "Fájl hozzáadása" : "Add file";
+  const iPlus = `<svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+  menu.innerHTML = `<button class="block-ctx-item" data-action="add">${iPlus} ${_escHtml(label)}</button>`;
+  menu.querySelector('[data-action="add"]').addEventListener("click", (ev) => {
+    ev.stopPropagation();
+    menu.setAttribute("hidden", "");
+    onAddFile();
+  }, { once: true });
+  menu.style.visibility = "hidden";
+  menu.style.left = "0px";
+  menu.style.top = "0px";
+  menu.removeAttribute("hidden");
+  const menuW = menu.offsetWidth || 160;
+  const menuH = menu.offsetHeight || 40;
+  let x = e.clientX, y = e.clientY;
+  if (x + menuW > window.innerWidth - 8) x = window.innerWidth - menuW - 8;
+  if (y + menuH > window.innerHeight - 8) y = window.innerHeight - menuH - 8;
+  if (x < 8) x = 8;
+  if (y < 8) y = 8;
+  menu.style.left = x + "px";
+  menu.style.top = y + "px";
+  menu.style.visibility = "";
+}
+
+function _projHideFolderMenu() {
+  document.getElementById("proj-folder-ctx-menu")?.setAttribute("hidden", "");
+}
+
+// Reflects unsaved-changes state on a project's Save button: disabled + a
+// "saved" look once nothing is pending, re-enabled the moment something changes.
+function _projUpdateSaveBtn(btnId, hasProject, dirty) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  const saved = hasProject && !dirty;
+  btn.disabled = saved;
+  btn.classList.toggle("expert-project-icon-btn--saved", saved);
+  const label = saved
+    ? (currentLanguage === "hu" ? "Elmentve" : "Saved")
+    : (currentLanguage === "hu" ? "Projekt mentése" : "Save project");
+  btn.setAttribute("aria-label", label);
+  btn.title = label;
+}
+
+function _ubTouchProject() {
+  _ubProjectDirty = true;
+  _projUpdateSaveBtn("ub-project-save-btn", !!_ubProjectData, _ubProjectDirty);
+}
+
+function _expertTouchProject() {
+  _expertProjectDirty = true;
+  _projUpdateSaveBtn("expert-project-save-btn", !!_expertProjectData, _expertProjectDirty);
 }
 
 async function _closeAllTabsWithConfirm() {
@@ -12348,6 +12559,7 @@ async function _closeProject() {
     if (!await _closeAllTabsWithConfirm()) return;
 
     _ubProjectData = null;
+    _ubProjectDirty = false;
     _ubStartupTabId = null;
     _ubFilePath = "";
     _ubDirty = false;
@@ -12397,6 +12609,7 @@ async function _closeProject() {
 
   // Clear project data
   _expertProjectData = null;
+  _expertProjectDirty = false;
 
   // Hide project panel
   _expertProjectVisible = false;
@@ -12426,7 +12639,7 @@ async function _openProjectFromMenu() {
   const proj = res.project || {};
   function migrateNodes(nodes) {
     return (nodes || []).map(n => {
-      if (n.type === "folder") return { type: "folder", name: n.name, children: migrateNodes(n.children) };
+      if (n.type === "folder") return { type: "folder", name: n.name || n.path?.split("/").pop() || "", path: n.path, children: migrateNodes(n.children) };
       return { type: "file", name: n.name || n.path?.split("/").pop() || "", path: n.path };
     });
   }
@@ -12436,6 +12649,7 @@ async function _openProjectFromMenu() {
     _projPath:   res.filePath,
     startupFile: proj.startupFile || null
   };
+  _expertProjectDirty = false;
 
   if (expertMode) {
     // In expert mode: just update the panel as usual
@@ -12504,7 +12718,7 @@ async function _expertOpenProject() {
   // Backward compat: old format had plain {name, path} objects without type field
   function migrateNodes(nodes) {
     return (nodes || []).map(n => {
-      if (n.type === "folder") return { type: "folder", name: n.name, children: migrateNodes(n.children), _open: true };
+      if (n.type === "folder") return { type: "folder", name: n.name || n.path?.split("/").pop() || "", path: n.path, children: migrateNodes(n.children) };
       return { type: "file", name: n.name || n.path?.split("/").pop() || "", path: n.path };
     });
   }
@@ -12514,6 +12728,7 @@ async function _expertOpenProject() {
     _projPath:   res.filePath,
     startupFile: proj.startupFile || null
   };
+  _expertProjectDirty = false;
   _expertRenderProjectTree();
   // Auto-open startup file if set
   if (_expertProjectData.startupFile) {
@@ -12533,9 +12748,12 @@ async function _expertNewProject() {
 async function _expertSaveProject() {
   if (!_expertProjectData) return;
   // Strip runtime-only fields before serialising
-  const cleaned = (_expertProjectData.files || [])
-    .filter(n => !n.type || n.type === "file")
-    .map(n => ({ type: "file", name: n.name, path: n.path }));
+  const cleanNodes = (nodes) => (nodes || [])
+    .filter(n => !n.type || n.type === "file" || n.type === "folder")
+    .map(n => n.type === "folder"
+      ? { type: "folder", name: n.name, path: n.path, children: cleanNodes(n.children) }
+      : { type: "file", name: n.name, path: n.path });
+  const cleaned = cleanNodes(_expertProjectData.files);
   const payload = JSON.stringify({ name: _expertProjectData.name, files: cleaned, startupFile: _expertProjectData.startupFile || null }, null, 2);
   const path = _expertProjectData._projPath || "";
   const res = await window.electronAPI?.saveProjFile?.(path, payload);
@@ -12546,28 +12764,53 @@ async function _expertSaveProject() {
   if (!_expertProjectData.name || _expertProjectData.name === "Új projekt") {
     _expertProjectData.name = res.filePath.replace(/\\/g, "/").split("/").pop().replace(/\.proj$/i, "");
   }
+  _expertProjectDirty = false;
   _expertRenderProjectTree();
   _expertSetStatus(t("projSaved"), "ok");
 }
 
 async function _expertAddProjMember() {
   const res = await window.electronAPI?.chooseProjMember?.();
+  if (!res || res.canceled || !res.files?.length) return;
+  if (!_expertProjectData) {
+    _expertProjectData = { name: "Névtelen projekt", files: [], _projPath: null };
+  }
+  for (const f of res.files) {
+    // Compute relative path if project has a saved path
+    let relPath = f.filePath;
+    if (_expertProjectData._projPath) {
+      const projDir = _expertProjectData._projPath.replace(/\\/g, "/").replace(/\/[^/]+$/, "");
+      const absFile = f.filePath.replace(/\\/g, "/");
+      if (absFile.startsWith(projDir + "/")) {
+        relPath = absFile.slice(projDir.length + 1);
+      }
+    }
+    // Avoid duplicates
+    if (!_expertProjectData.files.some(entry => entry.path === relPath)) {
+      _expertProjectData.files.push({ type: "file", name: f.fileName, path: relPath });
+      _expertProjectDirty = true;
+    }
+  }
+  _expertRenderProjectTree();
+}
+
+async function _expertAddProjFolder() {
+  const res = await window.electronAPI?.chooseProjFolder?.();
   if (!res || res.canceled) return;
   if (!_expertProjectData) {
     _expertProjectData = { name: "Névtelen projekt", files: [], _projPath: null };
   }
-  // Compute relative path if project has a saved path
-  let relPath = res.filePath;
+  let relPath = res.folderPath;
   if (_expertProjectData._projPath) {
     const projDir = _expertProjectData._projPath.replace(/\\/g, "/").replace(/\/[^/]+$/, "");
-    const absFile = res.filePath.replace(/\\/g, "/");
-    if (absFile.startsWith(projDir + "/")) {
-      relPath = absFile.slice(projDir.length + 1);
+    const absFolder = res.folderPath.replace(/\\/g, "/");
+    if (absFolder.startsWith(projDir + "/")) {
+      relPath = absFolder.slice(projDir.length + 1);
     }
   }
-  // Avoid duplicates
-  if (!_expertProjectData.files.some(f => f.path === relPath)) {
-    _expertProjectData.files.push({ type: "file", name: res.fileName, path: relPath });
+  if (!_expertProjectData.files.some(f => f.type === "folder" && f.path === relPath)) {
+    _expertProjectData.files.push({ type: "folder", name: res.folderName, path: relPath, children: [] });
+    _expertProjectDirty = true;
   }
   _expertRenderProjectTree();
 }

@@ -272,7 +272,10 @@
       "Bash(timeout 150 /d/Development/VICE/bin/x64sc.exe -console -sound -soundrecdev wav -soundrecarg rec.wav -limitcycles 80000000 -warp +confirmonexit new2.prg)",
       "Bash(cd \"C:/Users/rlung/AppData/Roaming/vice\" && ls -la vice.ini*; grep -n -i \"soundrec\\\\|^Sound=\\\\|SoundOutput\\\\|WarpMode\\\\|Warp\\\\|AutostartPrgMode\\\\|ConfirmOnExit\\\\|Console\" vice.ini | head -20)",
       "Bash(timeout 100 /d/Development/VICE/bin/x64sc.exe -config C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/0b449e5b-349a-4dae-b70e-04beb918dc06/scratchpad/vice_test.ini -console -sound -sounddev dummy -soundrecdev wav -soundrecarg rec.wav -limitcycles 15000000 new2.prg)",
-      "Bash(timeout 100 python vmon.py new2.prg)"
+      "Bash(timeout 100 python vmon.py new2.prg)",
+      "Bash(node --check tauri-bridge.js)",
+      "Bash(node -e \"require\\('fs'\\).readFileSync\\('style.css','utf8'\\)\")",
+      "Bash(cd \"F:\\\\Development\\\\VisualAssembler\\\\src-tauri\" && grep -rn \"pick_files\\\\|blocking_pick_files\" ~/.cargo/registry/src/*/tauri-plugin-dialog*/src/*.rs 2>/dev/null | head -20)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"
