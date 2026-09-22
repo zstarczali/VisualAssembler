@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.4.5**
+**Versio 2.4.6**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin reaaliajassa.
 
@@ -9,6 +9,7 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 ## Sisällysluettelo
 
 - [C64 Visual Assembler — Käyttöopas](#c64-visual-assembler--user-manual)
+    - [Version 2.4.6 kohokohdat](#version-246-highlights)
     - [Version 2.4.5 kohokohdat](#version-245-highlights)
     - [Version 2.4.3 kohokohdat](#version-243-highlights)
     - [Version 2.4.2 kohokohdat](#version-242-highlights)
@@ -156,6 +157,16 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
     - [Karttaeditori (monikerroksiset laattakartat)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Käyränmuokkausohjelma](#curve-editor)
+
+---
+
+## Version 2.4.6 kohokohdat
+
+- **SID-editori → UltimateBasic export** — **Files → Export to UltimateBasic** kirjoittaa sävelmän `tune ... end` -lohkona (instrumentit, järjestyslista ja pattern-rivit tekstinä), jota seuraa `music play`, ja lisää sen Ultimate Basic -editorin kursoriin (UB-tilan ulkopuolella se kopioidaan leikepöydälle). UltimateBasic-kääntäjä rakentaa siitä nollasivuttoman soittimen käännösaikana, joten `music play` / `music stop` ohjaavat sävelmää eikä mikään törmää UB-muuttujiin. Vibrato-, slide-, nuotinleikkaus- ja nopeustehosteita tuetaan; jopa 8 patternia, mikä tahansa järjestyslistan pituus. Vaatii UltimateBasic-kääntäjän, jossa on `tune` -tuki.
+- **Ultimate Basic -kielipäivitys** — syntaksin korostus ja komentojen viite kattavat nyt **`sfx`** (ei-estävä SID-vaikutus: `sfx channel, freq, freqs [, wave]`), **`org`** (jatkaa sub/fn-koodia osoitteessa jättäen nollalla täytetyn aukon, johon mahtuu `incbin` data), **`charset on` / `charset off`** (vaihtaa VIC-II:n RAM-merkistölle ja takaisin) ja **`incbin` slicing** (`incbin "font.prg", $3C00, 2` ohittaa ensimmäiset tavut, valinnainen neljäs argumentti rajoittaa pituutta).
+- **Usean lohkon korostus ASM-näkymässä** — useiden lohkojen valitseminen korostaa kaikki niiden ASM-rivit kerralla, vierityskohta pysyy vakaana valinnan aikana ja rivinumerot ovat pehmeämpiä hienovaraisen pystysuoran erotinviivan ansiosta.
+- **Assembler-tila säilytetty Ultimate Basicin kytkimissä** — projektin tai sisäänrakennetun esimerkin avaaminen Ultimate Basicin ollessa aktiivinen jättää nyt UB:n etusijalle ja palauttaa viimeisimpään Block/Expert-tilaan, joten UB-puskuri ei voi enää korvata uuden välilehden tilaa tai otsikkoa. Uudet välilehdet luodaan oikeassa tilassa.
+- **Kung Fu Flash 2 -asetukset** — Laitteistoasetuksissa oleva **Detect USB** -painike etsii uudelleen äänikasetin sarjaportin, ja KFF2-edellytykset ilmoittavat nyt vaaditun Kung Fu Flash -laiteohjelmiston (v2.07+).
 
 ---
 
@@ -331,7 +342,7 @@ Toolkit on nopein tapa etsiä väri-indeksi tai PETSCII-ohjaustavu poistumatta e
 
 ### ASM-rivin napsauttaminen
 
-Napsauta mitä tahansa riviä ASM-näkymässä korostaaksesi **vastaavan lohkon** ohjelma-alueella.
+Napsauta mitä tahansa riviä ASM-näkymässä korostaaksesi ** vastaavan lohkon ** ohjelma-alueella. Kun useita lohkoja on valittu, kaikkien niiden ASM-rivit korostetaan yhdessä.
 
 ### ASM-rivinumerot
 
@@ -487,6 +498,15 @@ Ultimate Basic -projektit käyttävät `.proj`-tiedostoja ja voivat sisältää 
 
 Merkitse projektitiedosto **käynnistystiedostoksi** napsauttamalla sen vieressä olevaa tähteä. Build-, Run-, D64-, C64 Ultimate- ja Debug-komennot kääntävät kyseisen käynnistyslähteen, vaikka aktiivinen välilehti olisi parhaillaan toinen. Ilman käynnistysvalintaa käytetään aktiivista UB-välilehteä.
 
+Projektipaneelin työkalupalkissa on kaksi lisäyspainiketta, ja tiedostovalintaikkunoissa on oletusarvoisesti **UB-työkansio** (Valikko → Tiedosto → Aseta työkansio, UB-kohtainen):
+
+- **Lisää tiedosto** — valitse yksi tai useampi tiedosto kerralla (mikä tahansa tyyppi — `.ub`, `.bin`, `.prg`, kuvat, fontit jne.). Myös `.ub` -lähteet avataan editorivälilehtinä; kaikki muu lisätään vain viitteeksi, jotta `incbin`/`loadfile` -resurssit siirtyvät projektin mukana.
+- **Lisää kansio** — viittaa koko kansioon (esim. `incbin`-resurssihakemistoon, kuten `fonts/`), jotta se pysyy liitettynä projektiin.
+
+Puun kansioilla on kutistus-/laajennusnuoli, ja **napsauta kansiota hiiren kakkospainikkeella** lisätäksesi yhden tai useamman sen alle sisäkkäisen tiedoston (näkyy sisennettynä). Jokaisella merkinnällä on poistopainike (✕); muut kuin `.ub`-merkinnät ovat vain viitteellisiä, eikä niitä avata napsauttamalla.
+
+**Tallenna projekti** -painike poistuu käytöstä ja näyttää tilan "Tallennettu", kun projektissa ei ole odottavia muutoksia, ja se palautuu automaattisesti käyttöön heti, kun lisäät, poistat tai järjestelet tiedoston tai kansion.
+
 ### Rakennus ja diagnostiikka
 
 **Build**-painike avaa saman keskitetyn edistymisnäkymän, jota käytetään muissa Visual Assembler -työnkuluissa. Onnistuneet koonnit päivittävät koontitulosteen, koontitiedot ja purkamisen. Ota **Verbose** käyttöön sisällyttääksesi kääntäjän muistikarttatiedot, sisäiset nollasivuvaraukset ja luodun koodin tiedot.
@@ -639,6 +659,9 @@ Asiantuntijatila tukee **projektipaneelia** (`#expert-project-panel`) monitiedos
 - Jokainen projektin tiedosto avautuu erillisenä **-välilehtenä** editorin yläreunassa olevassa välilehtipalkissa.
 - **Sulje projekti** (`Valikko → Tiedosto → Sulje projekti` / `#menu-close-project`) sulkee nykyisen projektin ja kaikki sen tiedostovälilehdet kerralla. Kehottaa tallentamaan tallentamattomat muutokset ennen sulkemista. Projektipaneeli palautuu tyhjään tilaansa ja `_expertProjectData` tyhjennetään.
 - Jokainen tiedosto voidaan merkitä **käynnistystiedostoksi** (★ tähtikuvake). Kun käynnistystiedosto on asetettu, **Suorita** -painike (PRG, D64, Ultimate) kokoaa ja suorittaa aina kyseisen tiedoston koodin – riippumatta siitä, mikä välilehti on kulloinkin aktiivinen. Tämä toimii sekä lohkotilassa että asiantuntijatilassa.
+- Työkalupalkin **Lisää**-painike valitsee kerralla yhden tai useamman tiedoston (minkä tahansa tyyppisen, ei vain `.json`/`.asm`) ja viittaa niihin projektissa avaamatta niitä – käytä sitä binääriresursseille, kuten `incbin`-datalle. Sen valintaikkuna on oletusarvoisesti VA-työkansio. Viereinen **Lisää kansio**-painike viittaa koko kansioon (esim. resurssihakemistoon) samalla tavalla. Vain viittauksiin tarkoitetuissa merkinnöissä näkyy poistopainike (✕), mutta niitä ei avata napsauttamalla niitä.
+- Puun kansioilla on kutistus-/laajennusnuoli, ja **napsauta kansiota hiiren kakkospainikkeella ** lisätäksesi yhden tai useamman tiedoston sen alle (näkyy sisennettynä).
+- **Tallenna projekti** -painike poistuu käytöstä ja näyttää tilan "Tallennettu", kun projektissa ei ole odottavia muutoksia, ja se palautuu automaattisesti käyttöön heti, kun lisäät, poistat tai järjestelet tiedoston tai kansion.
 - Projektipaneelin alareunassa olevan **symbols**-osion kokoa voidaan muuttaa pystysuunnassa tiedostopuun ja symboliluettelon välisellä jakajalla, joten pitkät symboliluettelot voivat viedä enemmän tilaa tarvittaessa.
 
 ### Välilehtipalkki
@@ -3654,12 +3677,13 @@ Tehosteet päivittyvät kerran riviä kohden (vastaamaan viedyn soittimen ajoitu
 - Sointujen ja arpeggioiden esikatselut valaisevat vastaavat pianonäppäimet, kun koskettimet ovat auki.
 
 **Tiedostovalikon viennit:**
-| Viedä                      | Mitä se tekee                                                                                                                                                                                |
-| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Tallenna .bin…`           | Kirjoittaa editorin natiivin sarjoitetun muodon (instrumentit + patternit + sekvenssi).                                                                                                      |
-| `Vie lohkot (vain tiedot)` | Liittää instrumenttitaulukon + kuviolohkot ohjelmaan kohtaan `* = $C000`.                                                                                                                    |
-| `Vie lohkot + minipelaaja` | Lisää koko soittimen (sid_init / sid_irq / sid_play_row / sid_set_voice) sekä PAL-taajuustaulukot. Viennin jälkeen sijoita `JSR sid_init` pääkoodiisi kohtaan, josta musiikin pitäisi alkaa. |
-| `Vie asm (leikepöytä)`     | Kopioi koko kokoonpanon lähdekoodin leikepöydälle.                                                                                                                                           |
+| Viedä                      | Mitä se tekee                                                                                                                                                                                                                                                                                                  |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Tallenna .bin…`           | Kirjoittaa editorin natiivin sarjoitetun muodon (instrumentit + patternit + sekvenssi).                                                                                                                                                                                                                        |
+| `Vie lohkot (vain tiedot)` | Liittää instrumenttitaulukon + kuviolohkot ohjelmaan kohtaan `* = $C000`.                                                                                                                                                                                                                                      |
+| `Vie lohkot + minipelaaja` | Lisää koko soittimen (sid_init / sid_irq / sid_play_row / sid_set_voice) sekä PAL-taajuustaulukot. Viennin jälkeen sijoita `JSR sid_init` pääkoodiisi kohtaan, josta musiikin pitäisi alkaa.                                                                                                                   |
+| `Vie asm (leikepöytä)`     | Kopioi koko kokoonpanon lähdekoodin leikepöydälle.                                                                                                                                                                                                                                                             |
+| `Vie UltimateBasiciin`     | Kirjoittaa `tune ... end` -lohkon (instrumentit, järjestysluettelo, pattern-rivit tekstinä) sekä `music play` ja lisää sen Ultimate Basic -editorin kursoriin; UB-tilan ulkopuolella se kopioi tekstin leikepöydälle. UltimateBasic-kääntäjä rakentaa soittimen, joten `music play` / `music stop` ohjaa sitä. |
 
 **Player ZP:n käyttö:** `$02`–`$2F` (osoitintaulukot, kuvion offset ja äänikohtainen tehostetila), sekä `$FB`–`$FE` (tick-laskuri, rivi-indeksi, järjestyslistan sijainti, set_voice temp). Nämä ovat ristiriidassa, jos pääkoodisi käyttää niitä – siirrä tarvittaessa Expert-tilan kautta.
 

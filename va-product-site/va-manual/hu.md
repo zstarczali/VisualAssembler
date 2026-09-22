@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**2.4.5-ös verzió**
+**2.4.6-os verzió**
 
 Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat létre húzással és elengedéssel (fogd és vidd) utasításblokkokkal, és valós időben tekintheti meg a létrehozott assembly és gépi kódot.
 
@@ -9,6 +9,7 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
 ## Tartalomjegyzék
 
 - [C64 Visual Assembler — Felhasználói kézikönyv](#c64-visual-assembler--user-manual)
+    - [2.4.6-os verzió kiemelt funkciói](#version-246-highlights)
     - [2.4.5-ös verzió – kiemelt funkciók](#version-245-highlights)
     - [2.4.3-as verzió kiemelt funkciói](#version-243-highlights)
     - [2.4.2-es verzió – kiemelt funkciók](#version-242-highlights)
@@ -156,6 +157,16 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
     - [Térképszerkesztő (Többrétegű csempetérképek)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Görbeszerkesztő](#curve-editor)
+
+---
+
+## A 2.4.6-os verzió legfontosabb elemei
+
+- **SID szerkesztő → UltimateBasic export** — **Fájlok → Exportálás UltimateBasic-be** kiírja a dallamot egy `tune ... end` blokkként (hangszerek, sorrendlista és pattern sorok szövegként), majd `music play` következik, és beszúrja az Ultimate Basic szerkesztő kurzorához (UB módon kívül a vágólapra másolja). Az UltimateBasic fordító egy nulla oldal nélküli lejátszót épít belőle fordítási időben, így a `music play` / `music stop` vezérli a dallamot, és semmi sem ütközik az UB változókkal. Vibrato, slide, note-cut és speed effektek támogatottak; akár 8 pattern, bármilyen sorrendlista hosszúság. UltimateBasic fordítót igényel `tune` támogatással.
+- **Alapfokú nyelvi frissítés** — a szintaxiskiemelések és a parancsreferenciák mostantól lefedik a következőket: **`sfx`** (nem blokkoló SID hatás: `sfx channel, frames, frames [, wave]`), **`org`** (a sub/fn kód folytatása egy címen, nullával kitöltött rés hagyása, amelybe az `incbin` adat fér), **`charset on` / `charset off`** (a VIC-II átkapcsolása RAM karakterkészletre és vissza) és **`incbin` A slicing** (`incbin "font.prg", $3C00, 2` kihagyja az első bájtokat, egy opcionális negyedik argumentum korlátozza a hosszt).
+- **Többblokkos kiemelés az ASM nézetben** — több blokk kijelölése egyszerre kiemeli az összes ASM-sorukat, a görgetési pozíció stabil marad a kijelölés során, és a sorszámok lágyabbak egy finom függőleges elválasztó szabálynak köszönhetően.
+- **Az Assembler mód megmaradt az Ultimate Basic kapcsolóin keresztül** — egy projekt vagy egy beépített minta megnyitásakor, miközben az Ultimate Basic aktív, mostantól az UB-t hagyja el először, és visszatér az utolsó Blokk/Szakértő módba, így az UB puffer már nem tudja felülírni az új lap módját vagy címét. Az új lapok a megfelelő módban jönnek létre.
+- **Kung Fu Flash 2 beállítások** — a Hardverbeállításokban található **USB érzékelése** gomb újrakeresi a kazetta soros portját, és a KFF2 előfeltételei mostantól a szükséges Kung Fu Flash firmware-t (v2.07+) jelzik.
 
 ---
 
@@ -331,7 +342,7 @@ Az **Beállítások** fül tartalmazza a kódgenerálást és a kimenet megjelen
 
 ### ASM sorra kattintás
 
-Kattintson az ASM nézet bármelyik sorára a megfelelő blokk **kiemeléséhez a programterületen.**
+Kattintson az ASM nézet bármelyik sorára a megfelelő blokk ** kiemeléséhez a programterületen. Ha több blokk van kijelölve, az összes ASM sora együtt jelenik meg kiemelve.
 
 ### ASM sorszámok
 
@@ -487,6 +498,15 @@ Az Ultimate Basic projektek `.proj` fájlokat használnak, és több `.ub` forr�
 
 Kattintson a projektfájl melletti csillagra, hogy **indítófájlként** jelölje meg. A Build, Run, D64, C64 Ultimate és Debug parancsok akkor is lefordítják az adott indítófájlt, ha egy másik lap aktív. Indítási beállítások nélkül az aktív UB lap lesz használatban.
 
+A projektpanel eszköztárán két hozzáadás gomb található, a fájl párbeszédablakok pedig alapértelmezés szerint az **UB munkamappát** jelenítik meg (Menü → Fájl → Munkamappa beállítása, UB-specifikus):
+
+- **Fájl hozzáadása** — egy vagy több fájl kiválasztása egyszerre (bármilyen típus — `.ub`, `.bin`, `.prg`, képek, betűtípusok stb.). Az `.ub` források szintén szerkesztőfülként nyílnak meg; minden más csak referenciaként kerül hozzáadásra, hogy az `incbin`/`loadfile` eszközök a projekttel együtt utazhassanak.
+- **Mappa hozzáadása** — egy teljes mappára hivatkozik (pl. egy `incbin` eszközkönyvtárra, mint például a `fonts/`), hogy az továbbra is a projekthez legyen társítva.
+
+A fában lévő mappák egy összecsukó/kibontó nyíllal rendelkeznek, és a **jobb gombbal kattintson egy mappára** egy vagy több beágyazott fájl hozzáadásához (behúzva látható). Minden bejegyzéshez tartozik egy törlés (✕) gomb; a nem `.ub` bejegyzések csak referenciaként szolgálnak, és kattintással nem nyílnak meg.
+
+Az **Projekt mentése** gomb automatikusan kikapcsol és „Mentett” állapotot mutat, ha a projektnek nincsenek függőben lévő módosításai, majd automatikusan újra engedélyeződik, amint hozzáad, eltávolít vagy átszervez egy fájlt vagy mappát.
+
 ### Épület és diagnosztika
 
 Az **Build** gomb ugyanazt a középre igazított folyamatélményt nyitja meg, amelyet a többi Visual Assembler futtatási munkafolyamat is használ. A sikeres buildek frissítik a Build Output, a Build Info és a Disassembly adatokat. Engedélyezze az **Verbose** gombot a fordító memória-térképének részleteinek, a belső nulla oldalas allokációknak és a generált kódadatoknak a megjelenítéséhez.
@@ -639,6 +659,9 @@ A Szakértő mód támogatja a **projektpanelt** (`#expert-project-panel`) több
 - A projektben található minden fájl külön **fülként** nyílik meg a szerkesztő tetején található fülsávon.
 - **Projekt bezárása** (`Menü → Fájl → Projekt bezárása` / `#menu-close-project`) egyszerre bezárja az aktuális projektet és az összes fájlfülét. Bezárás előtt rákérdez a nem mentett módosítások mentésére. A projektpanel visszaáll üres állapotába, és az `_expertProjectData` törlődik.
 - Minden fájl megjelölhető **indítófájlként** (★ csillag ikon). Amikor beállít egy indítófájlt, a **Futtatás** gomb (PRG, D64, Ultimate) mindig összeállítja és futtatja az adott fájl kódját – függetlenül attól, hogy melyik lap aktív. Ez blokk módban és Szakértő módban is működik.
+- Az eszköztár **Hozzáadás** gombja egyszerre egy vagy több fájlt választ ki (bármilyen típust, nem csak az `.json`/`.asm`), és a projektben hivatkozik rájuk anélkül, hogy megnyitná őket – bináris eszközökhöz, például az `incbin` adatokhoz használható. A párbeszédpanel alapértelmezés szerint a VA munkamappát használja. A szomszédos **Mappa hozzáadása** gomb ugyanígy hivatkozik egy egész mappára (pl. egy eszközkönyvtárra). A csak hivatkozásként szolgáló bejegyzéseknél egy törlés (✕) gomb látható, de rájuk kattintva nem nyílnak meg.
+- A fában lévő mappák egy összecsukó/kibontó nyíllal rendelkeznek, és a **jobb gombbal kattintson egy mappára** egy vagy több beágyazott fájl hozzáadásához (behúzva látható).
+- Az **Projekt mentése** gomb automatikusan kikapcsol és „Mentett” állapotot mutat, ha a projektnek nincsenek függőben lévő módosításai, majd automatikusan újra engedélyeződik, amint hozzáad, eltávolít vagy átszervez egy fájlt vagy mappát.
 - A projektpanel alján található **szimbólumok** szakasz függőlegesen átméretezhető a fájlfa és a szimbólumlista közötti elválasztóval, így a hosszú szimbólumlisták szükség esetén több helyet foglalhatnak el.
 
 ### Tab sáv
@@ -3654,12 +3677,13 @@ Az effektek soronként egyszer frissülnek (az exportált lejátszó időzítés
 - Az akkord- és arpeggio-előnézetek megvilágítják a megfelelő zongorabillentyűket, amikor a billentyűzet nyitva van.
 
 **Fájlok menü exportálása:**
-| Export                               | Mit csinál                                                                                                                                                                                                          |
-| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ` .bin mentése…`                     | A szerkesztő natív szerializált formátumát írja (hangszerek + minták + szekvencia).                                                                                                                                 |
-| `Blokkok exportálása (csak adatok)`  | A `* = $C000` helyen hozzáfűzi a műszertáblázatot + minta blokkokat a programhoz.                                                                                                                                   |
-| `Blokkok exportálása + minilejátszó` | Hozzáadja a teljes lejátszót (sid_init / sid_irq / sid_play_row / sid_set_voice) plusz PAL frekvenciatáblázatokat. Exportálás után illessz be egy `JSR sid_init` fájlt a fő kódodba, ahol a zenének kezdődnie kell. |
-| ` ASM exportálása (vágólap)`         | A teljes assembly forráskódot a vágólapra másolja.                                                                                                                                                                  |
+| Export                               | Mit csinál                                                                                                                                                                                                                                                                                                                   |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ` .bin mentése…`                     | A szerkesztő natív szerializált formátumát írja (hangszerek + minták + szekvencia).                                                                                                                                                                                                                                          |
+| `Blokkok exportálása (csak adatok)`  | A `* = $C000` helyen hozzáfűzi a műszertáblázatot + minta blokkokat a programhoz.                                                                                                                                                                                                                                            |
+| `Blokkok exportálása + minilejátszó` | Hozzáadja a teljes lejátszót (sid_init / sid_irq / sid_play_row / sid_set_voice) plusz PAL frekvenciatáblázatokat. Exportálás után illessz be egy `JSR sid_init` fájlt a fő kódodba, ahol a zenének kezdődnie kell.                                                                                                          |
+| ` ASM exportálása (vágólap)`         | A teljes assembly forráskódot a vágólapra másolja.                                                                                                                                                                                                                                                                           |
+| `Exportálás UltimateBasic-be`        | Kiír egy `tune ... end` blokkot (hangszerek, sorrendlista, pattern sorok szövegként) plusz a `music play` szöveget, és beszúrja azt az Ultimate Basic szerkesztő kurzorához; UB módon kívül a vágólapra másolja a szöveget. Az UltimateBasic fordítója építi fel a lejátszót, így a `music play` / `music stop` vezérli azt. |
 
 **Player ZP használat:** `$02`–`$2F` (pointer táblázatok, minta eltolás és hangonkénti effektus állapot), valamint `$FB`–`$FE` (tick számláló, sorindex, order-list pozíció, set_voice temp). Ezek ütköznek, ha a fő kódod használja őket — szükség esetén áthelyezheted Expert módban.
 

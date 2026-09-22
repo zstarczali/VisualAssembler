@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.6 — Kieliopas
+# Ultimate Basic v1.5.7 — Kieliopas
 
 Täydellinen kieli- ja komentoriviviite Ultimate Basicille, BASICin kaltaiselle
 kielelle, joka kääntyy suoraan 6502-konekoodiksi Commodore 64:lle. Tuloste:
@@ -61,6 +61,9 @@ times`, taittuu muotoon `Number(0)`) – joten valitse eri nimi.
 `select`, `case`, `for`, `next`, `loop`, `times`, `to`, `step`, `while`,
 `repeat`, `until`, `break`, `continue`, `inc`, `dec`, `bye`, `exit`, `rem`
 
+**Music** `tune` (lohkon avainsana; rivit sisällä - `speed`, `inst`, `order`,
+`pat` - eivät ole varattuja)
+
 **Tyypit ja tyyppiin liittyvät** `int`, `word`, `float`, `string`, `array`,
 `array_word`
 
@@ -84,10 +87,10 @@ width)` tulostusmuodolle)
 `mplot`, `mline`, `mrect`, `mcircle`, `line`, `circle`, `circle4`, `rect`,
 `paint`, `erase`, `pen`, `multi`, `block`
 
-**Spritet** `sprite`, `sprdef`, `sprite_frame`, `sprite_x`, `sprite_y`,
-`sprhit`, `sprbghit`, `box_hit`, `chardef`, `charset`, `expand`, `priority`
+**Sprite** `sprhit`, `sprdef`, `sprite_frame`, `sprite_x`, `sprite_y`, `sprite`,
+`sprbghit`, `box_hit`, `chardef`, `charset`, `org`, `expand`, `priority`
 
-**Ääni ja musiikki** `sid`, `sound`, `volume`, `music`, `play`, `pause`,
+**Ääni ja musiikki** `sid`, `sound`, `sfx`, `volume`, `music`, `play`, `pause`,
 `resume`, `stop`
 
 **Syöttölaitteet** `getch`, `inkey`, `waitkey`, `joy`, `mouse_x`, `mouse_x_hi`,
@@ -389,18 +392,19 @@ viittauksia tuetaan täysin.
 ### Taulukot
 
 ```basic
-var scores = array(8)    # 8 bytes at $C000
+muuttuja scores = array(8) # 8 tavua kohdassa $C000
+# (kaikki taulukot täytetään nollilla kerran ohjelman alussa — uutta versiossa 1.5.7)
 
-scores[0] = 100          # constant index → STA $C000
-scores[i] = 99           # variable index → STA (ptr),Y
-var v = scores[i]        # LDA (ptr),Y
-print scores[2]          # usable inline in print
+scores[0] = 100 # vakioindeksi → STA $C000
+scores[i] = 99 # muuttujaindeksi → STA (ptr),Y
+muuttuja v = scores[i] # LDA (ptr),Y
+tulosta scores[2] # käytettävissä tulostettaessa
 
-var moments = array_word(8)  # 16 bytes (8×2) at $C000+
+muuttuja moments = array_word(8) # 16 tavua (8×2) kohdassa $C000+
 
-moments[0] = $1234         # constant index → STA $C000 (lo), STA $C001 (hi)
-moments[i] = $5678         # variable index → ASL A for stride; (ptr),Y × 2
-var t: word = moments[1]   # LDA $C002, LDA $C003
+moments[0] = $1234 # vakioindeksi → STA $C000 (lo), STA $C001 (hi)
+moments[i] = $5678 # muuttujaindeksi → ASL A for stride; (ptr),Y × 2
+muuttuja t: sana = moments[1] # LDA $C002, LDA $C003
 ```
 
 **Moniulotteiset taulukot** (uusi versiossa 1.5.3)
@@ -502,6 +506,17 @@ Katso `examples/type_demo.ub`.
 var ptr: word = $0400    # two ZP bytes: lo=$00 hi=$04
 poke ptr, 6              # STA (ptr),Y
 var v = peek(ptr)        # LDA (ptr),Y
+```
+
+**16-bittiset tulot (korjattu versiossa 1.5.7).** Sanalle `` osoitettu tulo
+säilyttää kaikki 16 bittiä, myös silloin, kun kumpikaan tekijä ei ole `sana`:
+
+```basic
+muuttujan pistemäärä: sana = 0
+muuttujan taso = 3
+pistemäärä += 300 * taso # 900 (ennen versiota 1.5.7 tämä katkaistiin 8 bittiin: 44)
+pistemäärä = pistemäärä + 100 * taso
+muuttujan iso: sana = 100 * taso + 900
 ```
 
 ### Bittikarttagrafiikka
@@ -811,12 +826,39 @@ sid stop                 # zero all 25 SID registers ($D400–$D418) — complet
 ```
 
 `sound <channel>, <freq>, <duration>` — kesto PAL-kehyksissä (1/50 s kukin).
-Kiinteä ADSR: attack/decay `$09`, sustain/release `$F0`, sahaaaltomuoto.
-Äänenvoimakkuuden pääasetus `$D418` aina arvoon `$0F`.
+`sound` **blocks**: ohjelma odottaa, kunnes nuotti on loppunut (käytä `sfx` alla
+pelisilmukan sisällä). Korjattu ADSR: attack/decay `$09`, sustain/decay `$F0`,
+sahaaaltomuoto. Äänenvoimakkuuden pääasetus `$D418` aina `$0F`.
+
+*Korjattu versiossa 1.5.7:* odotussilmukka tarkkaili rasteririviä 0, joka
+`$D012` (vain matalat 8 bittiä) näkyi kahdesti kehystä kohden (rivit 0 ja 256),
+joten jokainen nuotti kesti **puolet** pyydetyn ajan — ja kaksi haaraa
+korjattiin niiden operaatiokoodin päälle, mikä kaatoi ohjelman muuksi ajaksi
+kuin nollaksi. `sound` odottaa nyt rasteririvillä 200 täsmälleen kuten `delay`.
 
 `sid volume N` kirjoittaa N:n `$D418`:iin. Bitit 0–3 = äänenvoimakkuus (0–15),
 bitit 4–7 = suodatustila. `sid stop` lähettää 10 tavun pituisen
 nollatäyttösilmukan – nopeammin kuin 25 yksittäistä työntöä.
+
+### Ei-estävät äänitehosteet (`sfx`) — uutta versiossa 1.5.7
+
+```basic
+ääni 0, $2000, 25 # LOHKOJA: ohjelma odottaa tässä 25 kehystä
+sfx 0, $2000, 25 # palaa heti; nuotti vaimenee itsestään
+sfx 1, $0500, 8, 128 # valinnainen aalto: 16 kolmio, 32 saha (oletus), 64 pulssi, 128 kohina
+sfx 0, freq_word, 4, 16 # freq voi olla vakio, sanamuuttuja tai 8-bittinen lauseke
+```
+
+`sfx <channel>, <freq>, <frames> [, <wave>]` ohjelmoi yhden SID-äänen ja
+palauttaa sen välittömästi, joten se on turvallinen pelisilmukan sisällä.
+Ajastintoimintoa ei ole: verhokäyrä asetetaan hyökkäysarvoon 0 / ylläpitoarvoon
+0 / vapautusarvoon 0 ja **decay** valitaan käännösaikana joukosta `frames` (1
+kehys = 20 ms, lähin SID:n vaimenemisaika: 6, 24, 48, 72, 114, 168, 204, 240,
+300, 750, 1500, 2400 ms ...), joten nuotti vaimenee suunnilleen tänä aikana. Se
+käynnistää äänen uudelleen jokaisen kutsun yhteydessä (portti pois, sitten
+päälle) ja asettaa päääänenvoimakkuuden `$0F`. `channel` (0-2), `frames` (1-255)
+ja `wave` on oltava käännösaikavakioita.
+
 
 ### Musiikin toisto
 
@@ -1029,7 +1071,25 @@ bittikartta korvaa `$2000-$3F3F`-arvon; muuten kääntäjä ilmoittaa virheestä
 Koala-tuontia ei voi tällä hetkellä yhdistää `load sid`-arvon kanssa samassa
 ohjelmassa.
 
-### Mukautettu merkistö
+### Koodin asettelu: `org` — uutta versiossa 1.5.7
+
+```basic
+sub a() ... end # ali-/funktiot sijoitetaan peräkkäin pääosan lopusta
+org $4000 # seuraavat ali-/funktiot jatkuvat kohdasta $4000; $xxxx-$3FFF pysyy nollilla täytettynä
+sub b() ... end
+incbin "font.bin", $3800 # tiedot voivat sijaita aukossa ($3800-$3FFF on kokonainen VIC-merkistöpaikka)
+```
+
+`org addr` siirtyy **ali-/fn-määritelmien väliin** (sitä ei huomioida pääosiossa
+ja se toimii vain toisella kierroksella). Aliohjelmat eivät koskaan osu
+toisiinsa, joten ohitetut tavut täytetään vain nollilla ja varataan: kokonaan
+aukon sisällä oleva `incbin "f", addr` kirjoitetaan siihen, eikä `charset on`
+lasketa koodiksi. Nollatavut ovat osa `.prg`-tiedostoa. Nykyisen koodin lopun
+alapuolella oleva `org` on käännösaikainen virhe. Kaikki viimeisen aliohjelman
+jälkeen luotu (avustajat, `data`-taulukot) seuraa viimeistä aliohjelmaa eli
+sijoittuu aukon yläpuolelle.
+
+### Mukautettu merkistö (`charset on` / `charset off`, uusi versiossa 1.5.7)
 
 ```basic
 charset $3800            # set base address for chardef (default $3800)
@@ -1043,19 +1103,40 @@ chardef 66               # fewer than 8 bytes are zero-padded
 end
 ```
 
-`charset base` asettaa kohdeosoitteen, jota käytetään kaikissa myöhemmissä
-`chardef` -lausekkeissa. `chardef id ... end` upottaa 8 tavua koodisegmenttiin
-(jota edeltää `JMP` ohittaakseen ne) ja kopioi ne sitten osoitteeseen
-`charset_base + id*8` ajon aikana. Arvojen on oltava käännösaikaisia vakioita;
-käytä `%` binääriliteraaleille (`%00011000`).
+`charset base` asettaa kohdeosoitteen, jota käytetään kaikissa seuraavissa
+`chardef`-lausekkeissa. `chardef id ... end` upottaa 8 tavua koodisegmenttiin
+(jota edeltää `JMP` niiden ohittamiseksi) ja kopioi ne sitten suorituksen aikana
+segmenttiin `charset_base + id*8`. Arvojen on oltava käännösaikaisia vakioita,
+jotka on kirjoitettu muodossa `$xx` tai desimaalilukuina. Lekseri ei tue
+binääriliteraaleja **`%` (käyttöohjeessa sanottiin niin ennen versiota 1.5.7 –
+se oli väärin).
 
-Voit aktivoida mukautetun merkistöä VIC-II:ssa asettamalla merkkigeneraattorin
-osoitteen `$D018`-määrityksellä:
+`charset addr` asettaa vain `chardef`-kohteen; se ei lähetä koodia. Saadaksesi
+VIC-II:n käyttämään joukkoa, kytke se päälle (ja pois päältä uudelleen, kun olet
+valmis):
 ```basic
 charset $3800
-chardef 1  $FF,$81,$81,$81,$81,$81,$81,$FF  end  # box border
-poke $D018, $1A     # screen at $0400, charset at $3800 (bank 0)
+chardef 1 $FF,$81,$81,$81,$81,$81,$81,$FF end # laatikon reuna
+charset on # VIC-II lukee merkkejä laatikosta $3800 (näyttömatriisi koskematon)
+...
+charset off # takaisin ROM-joukkoon ($1800, jos `lowercase` ovat aktiivisia, muuten $1000)
 ```
+
+`charset on` read-modify-writes `$D018` bitit 1-3 viimeisestä `charset addr`
+(oletusarvo `$3800`); näyttömatriisin bitit säilyvät. Osoitteen on oltava
+`$800`:n monikerta VIC-pankin 0 sisällä (`$0000-$3FFF`), muuten kyseessä on
+käännösvirhe. Molemmat lauseet käyttävät viimeksi käännettyä `charset addr`:ää,
+joten säilytä direktiivi pääohjelman rungossa (aliohjelmarungot käännetään sen
+jälkeen). Vastaava raaka kirjoitus on `poke $D018, $1A` arvolle `$2800` tai
+`poke $D018, $1E` arvolle `$3800`.
+
+**Päällekkäisyyden tarkistus.** `charset on` varaa koko 2 kt:n joukon ja
+jokainen `chardef` sen 8 tavua. Jos luotu koodi ulottuu tälle alueelle, koonti
+pysähtyy kohtaan `the program code ($080D-$xxxx) overlaps the charset area
+$2800-$2FFF; move the charset ...`. Suuret ohjelmat tarvitsevat siksi koodin
+yläpuolella olevan joukon (`charset $3800`) — tai käytä `org` (yllä), jotta
+koodi voi jatkua joukon yläpuolella. `org`-väliin sijoitettua dataa (`incbin
+..., addr`) ei lasketa koodiksi.
 
 ### Muisti
 
@@ -1089,6 +1170,56 @@ Ilman osoitetta: toissijainen osoite 0 (tiedoston oma 2-tavuinen otsikko
 käytetään latausosoitteena). Osoitteen kanssa: toissijainen osoite 1 (tiedosto
 ladataan määritettyyn sijaintiin). `save` kutsuu `SETNAM`+`SETLFS`+`SAVE`
 (`$FFBD`/`$FFBA`/`$FFD8`). Vaatii sekä `addr` että `len`.
+
+### Seurantamelodiat (`tune`)
+
+```basic
+viritys # valinnainen: viritys taajuudella $C800 (oletus $8000)
+nopeus 6 # kehyksiä rivillä (50 Hz PAL)
+inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
+inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+order 0, 1, 0 # kuviojärjestys (kuviot voivat toistua)
+pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
+pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+end
+musiikin toisto # tai: sys sid_init / irq-käsittelijä kutsuu sys sid_play:tä
+```
+
+`tune ... end` kuvaa kolmiäänisen seurantasävelmän selkokielellä (sama
+solunotaatio kuin Visual Assembler SID-editorissa) ja rakentaa soittimen **
+käännösaikana **. Se määrittelee `sid_init` / `sid_play` täsmälleen samalla
+tavalla kuin `load sid`, joten `music play`, `music stop`, `music pause` ja
+`music resume` (ja manuaalinen `irq`-käsittelijä, joka kutsuu `sys sid_play`)
+toimivat muuttumattomina.
+
+| Linja                                                 | Merkitys                                                                                                                                                                                                                                                               |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `speed N`                                             | Kehyksiä seurantariviä kohden (1–255).                                                                                                                                                                                                                                 |
+| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Yksi instrumentti: ohjausrekisteri (aaltomuodon bitit; soittaja lisää porttibitin), attack/decay, sustain/release, 12-bittinen pulssinleveys, 11-bittinen suodattimen katkaisu, resonanssi-/suodattimen reititystavu (`$D417`) ja tila-/äänenvoimakkuustavu (`$D418`). |
+| `order p, p, ...`                                     | Kuviojärjestys. Viivat kasautuvat, jopa 255 askelta.                                                                                                                                                                                                                   |
+| `pat p, v, "cell", ...`                               | Jopa 32 riviä äänelle `v` (0-2) kuviossa `p` (0-7). Puuttuvat rivit ovat tyhjiä.                                                                                                                                                                                       |
+
+**solu** on `NOTE INST FX`: `C-4`, `D#3`, `Eb2` tai `...` ei nuottia,
+kaksinumeroinen heksadecimal-instrumentti (`..` sen jättämiseksi) ja valinnainen
+efekti - `Vxy` vibrato (x = rivien pito, y = syvyys), `Uxx` / `Dxx` liuku
+ylös/alas, `C` nuotin leikkaus, `Fxx` asetettu nopeus. Pelkkä vaikutus -solu
+voidaan kirjoittaa muodossa `"... .. F06"` tai vain `"F06"`.
+
+Huomioita soittimesta:
+
+- Kaikki pelaajan tilatiedot sijaitsevat **-blobin sisällä ** (absoluuttinen
+  osoitus) - se ei käytä nollasivua, joten se ei voi törmätä
+  UltimateBasic-muuttujiin tai väliaikaisiin muuttujiin, ja se jatkaa
+  toimintaansa, kun ohjelma palaa BASIC-tilaan.
+- Blob-objekti sijoitetaan kiinteään osoitteeseen (oletusarvo `$8000` tai `tune
+  at $addr`) ja `.prg`-tiedosto täytetään siihen, kuten `load sid`. Pidä se
+  erillään koodistasi, taulukoistasi (`$C000+`) ja kaikesta
+  bittikartta-/merkistömuistista. Yksi lohko tarvitsee noin 1,3 kt + 12 tavua
+  riviä ja saraketta kohden.
+- Enintään 8 kuviota (32 riviä kukin); järjestysluettelo voi toistaa niitä
+  vapaasti.
+- `music play` käyttää CIA1-ajastinta 50 Hz:n taajuudella; älä yhdistä sitä
+  toiseen `load sid`/`tune` (viimeinen voittaa).
 
 ### SID-musiikki
 
@@ -1195,6 +1326,12 @@ print f                  # prints as "N.DD" (e.g. 3.5 → "3.50", 1.25 → "1.25
 **Varoitus:** Aritmeettinen ylivuoto päättyy kohtaan 255.255 (ei saturaatiota).
 Kahden liukulukumuuttujan kerto- ja jakolaskuja ei vielä tueta – käytä näissä
 tapauksissa `int()` + kokonaislukuaritmetiikkaa.
+
+** Liukulukulausekkeiden tulostaminen (korjattu versiossa 1.5.7).** `print`
+aritmeettisesta lausekkeesta, jossa on `float` (esimerkiksi `print a / 10`,
+jossa `a: float = 1`) tulostaa nyt Q8.8-tuloksen muodossa `N.DD`. Ennen versiota
+1.5.7 se tulosti raakana 16-bittisenä arvona kokonaislukuna (`25` eikä `0.09`).
+Murtoluku katkaistaan, ei pyöristetä: 1/10 = 25/256 tulostuu muodossa `0.09`.
 
 ### Matemaattiset funktiot
 
@@ -1387,13 +1524,21 @@ tai `open`), KERNAL suorittaa `JMP ($0300)`, joka haarautuu otsikkoon. Eteenpäi
 suuntautuvia viittauksia (otsikko määritelty `onerr goto`-osoitteen jälkeen)
 tuetaan.
 
-### Käännösaikainen tiedostojen upottaminen
+### Käännösaikainen tiedostojen upottaminen (`incbin` skip / length, uusi versiossa 1.5.7)
 
 ```basic
-incbin "sprites.bin"            # embed raw binary bytes at current code position
-incbin "charset.bin", $2000     # embed at an absolute address, padding as needed
-include "defs.ub"        # inline another .ub source file (lexed+parsed in place)
+incbin "sprites.bin" # upottaa raakabinääritavut nykyiseen koodipaikkaan
+incbin "charset.bin", $2000 # upottaa absoluuttiseen osoitteeseen, täydentäen tarvittaessa
+incbin "font.prg", $3C00, 2 # ...ohita kaksi ensimmäistä tavua (esim. .prg-latausosoite)
+incbin "big.bin", $4000, 16, 256 # ...ohita 16 tavua, ota sitten enintään 256 tavua
+include "defs.ub" # upottaa toisen .ub-lähdekooditiedoston (leksattu ja jäsennetty paikalleen)
 ```
+
+`incbin "file", addr, skip [, length]` poistaa tiedostosta ensimmäiset `skip`
+tavua (tyypillisesti `.prg`-tiedoston 2-tavuinen latausosoite) ja voi
+halutessaan ottaa enintään `length` tavua; `skip` ja `length` ovat vakioita, ja
+`skip` tiedoston lopun jälkeen on virhe. Osoitemuoto vaatii, että kohde on
+luodun koodin yläpuolella — tai `org`-aukon sisällä.
 
 ### Data / Read
 
@@ -1748,23 +1893,25 @@ heksaedrisen vedoksen.
 
 ## Tunnetut rajoitukset
 
-| Ominaisuus                                  | Rajoitus                                                                                                                                                                                   |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Kokonaislukuaritmetiikka                    | 8-bittinen etumerkitön (0–255); `word` -muuttujilla on 16-bittiset arvot                                                                                                                   |
-| Aliohjelmat                                 | Ei rekursiota — ZP-parametripaikat allokoidaan staattisesti                                                                                                                                |
-| Merkkijonomuuttujat                         | Read-only after init; assignment replaces the pointer, not the data                                                                                                                        |
-| Merkkijonojen yhdistämisen suoritusaikainen | `s1 + s2` tulostaa peräkkäin — ei keon allokointia tai pituuden seurantaa                                                                                                                  |
-| `rnd()` / `rnd(n)`                          | Yksinkertainen LCG, ei kryptografinen; jakso = 256                                                                                                                                         |
-| `abs()` / `sgn()` / `min()` / `max()`       | vain 8-bittisiä arvoja; `abs`/`sgn` käsittelee arvoja etumerkillisinä (bitti 7 = negatiivinen → `abs` kahden komplementit, `sgn` palauttaa `$FF`); `min`/`max` ovat etumerkittömiä (0–255) |
-| `plot`                                      | Alueen ulkopuolella olevat pikselit rajataan äänettömästi (Y ≥ 200 tai X ≥ 320 → ei toimintoa)                                                                                             |
-| `mplot`                                     | Ei rajojen tarkistusta — x:n on oltava 0–159, y:n on oltava 0–199                                                                                                                          |
-| `mline` / `mrect`                           | Monivärinen; x: 0–159, y: 0–199. Näytön ulkopuolisten pikselien rivitys (ei katkaisua) — pitää koordinaatit alueella                                                                       |
-| `mcircle`                                   | Monivärinen; leikkaa näytön ulkopuoliset pisteet (x ≥ 160 tai y ≥ 200 ohitetaan)                                                                                                           |
-| `color pen`                                 | Vain palkkaukset; asettaa kosketettujen solujen etualan näytteen (tausta säilyy). Ei vaikutusta lohkotilassa (`plot4`/`circle4`)                                                           |
-| `rect`                                      | Ei rajojen tarkistusta — x: 0–319, y: 0–199; x1≤x2 ja y1≤y2 eivät ole pakollisia (degeneroituneet/käänteiset suorakulmat tuottavat määrittelemättömän tulosteen)                           |
-| `plot4`                                     | Ei rajojen tarkistusta — x:n on oltava 0–79, y:n on oltava 0–49 (lohkotila)                                                                                                                |
-| `circle4`                                   | Leikkaa näytön ulkopuolisia lohkopikseleitä; hyödyllinen säde on noin 0–49 80×50-lohkotilassa                                                                                              |
-| `chr$`                                      | Ei PETSCII↔ASCII-määritystä — n välitetään sellaisenaan CHROUT-funktiolle                                                                                                                  |
-| `music play`                                | Vaatii `load sid`; vain yksi CIA1-kääre lähetetään (viimeinen `music play` voittaa)                                                                                                        |
-| `graphics on double`                        | Vain palkattu; käyttää `$4000–$7FFF`-merkkiä takapuskurissa, joten ohjelmakoodin on pysyttävä `$4400`-merkkiä pienempänä; ei yhdistettävissä spritien tai moniväristen kanssa              |
-| Virheraportointi                            | Vain käännösaikana; `onerr goto` käsittelee KERNAL I/O -virheet ajonaikana                                                                                                                 |
+| Ominaisuus                                  | Rajoitus                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Kokonaislukuaritmetiikka                    | 8-bittinen etumerkitön (0–255); `word` -muuttujilla on 16-bittiset arvot                                                                                                                                                                                                                                                                                                                                                   |
+| Nolla sivubudjetti                          | Pysyvä nollasivu on `$02–$4F` (78 tavua): jokainen muuttuja ja sub/fn-parametri vie 2 tavua, jokainen suoritettava `for`-silmukka vie 2 tavua lisää (palautetaan silmukan päättyessä, jos sen rungossa ei ole ilmoitettu muuttujia). Loppuunjääminen on käännösaikainen virhe (`out of zero page`, uusi versiossa 1.5.7); aiemmin se ylikirjoitti hiljaisesti tyhjän alueen. Käytä muuttujia uudelleen suurissa ohjelmissa |
+| Binääriliteraalit                           | Vain `$hex` ja desimaalimuoto; binääriliteraaleja `%` ei tueta.                                                                                                                                                                                                                                                                                                                                                            |
+| Aliohjelmat                                 | Ei rekursiota — ZP-parametripaikat allokoidaan staattisesti                                                                                                                                                                                                                                                                                                                                                                |
+| Merkkijonomuuttujat                         | Read-only after init; assignment replaces the pointer, not the data                                                                                                                                                                                                                                                                                                                                                        |
+| Merkkijonojen yhdistämisen suoritusaikainen | `s1 + s2` tulostaa peräkkäin — ei keon allokointia tai pituuden seurantaa                                                                                                                                                                                                                                                                                                                                                  |
+| `rnd()` / `rnd(n)`                          | Yksinkertainen LCG, ei kryptografinen; jakso = 256                                                                                                                                                                                                                                                                                                                                                                         |
+| `abs()` / `sgn()` / `min()` / `max()`       | vain 8-bittisiä arvoja; `abs`/`sgn` käsittelee arvoja etumerkillisinä (bitti 7 = negatiivinen → `abs` kahden komplementit, `sgn` palauttaa `$FF`); `min`/`max` ovat etumerkittömiä (0–255)                                                                                                                                                                                                                                 |
+| `plot`                                      | Alueen ulkopuolella olevat pikselit rajataan äänettömästi (Y ≥ 200 tai X ≥ 320 → ei toimintoa)                                                                                                                                                                                                                                                                                                                             |
+| `mplot`                                     | Ei rajojen tarkistusta — x:n on oltava 0–159, y:n on oltava 0–199                                                                                                                                                                                                                                                                                                                                                          |
+| `mline` / `mrect`                           | Monivärinen; x: 0–159, y: 0–199. Näytön ulkopuolisten pikselien rivitys (ei katkaisua) — pitää koordinaatit alueella                                                                                                                                                                                                                                                                                                       |
+| `mcircle`                                   | Monivärinen; leikkaa näytön ulkopuoliset pisteet (x ≥ 160 tai y ≥ 200 ohitetaan)                                                                                                                                                                                                                                                                                                                                           |
+| `color pen`                                 | Vain palkkaukset; asettaa kosketettujen solujen etualan näytteen (tausta säilyy). Ei vaikutusta lohkotilassa (`plot4`/`circle4`)                                                                                                                                                                                                                                                                                           |
+| `rect`                                      | Ei rajojen tarkistusta — x: 0–319, y: 0–199; x1≤x2 ja y1≤y2 eivät ole pakollisia (degeneroituneet/käänteiset suorakulmat tuottavat määrittelemättömän tulosteen)                                                                                                                                                                                                                                                           |
+| `plot4`                                     | Ei rajojen tarkistusta — x:n on oltava 0–79, y:n on oltava 0–49 (lohkotila)                                                                                                                                                                                                                                                                                                                                                |
+| `circle4`                                   | Leikkaa näytön ulkopuolisia lohkopikseleitä; hyödyllinen säde on noin 0–49 80×50-lohkotilassa                                                                                                                                                                                                                                                                                                                              |
+| `chr$`                                      | Ei PETSCII↔ASCII-määritystä — n välitetään sellaisenaan CHROUT-funktiolle                                                                                                                                                                                                                                                                                                                                                  |
+| `music play`                                | Vaatii `load sid`; vain yksi CIA1-kääre lähetetään (viimeinen `music play` voittaa)                                                                                                                                                                                                                                                                                                                                        |
+| `graphics on double`                        | Vain palkattu; käyttää `$4000–$7FFF`-merkkiä takapuskurissa, joten ohjelmakoodin on pysyttävä `$4400`-merkkiä pienempänä; ei yhdistettävissä spritien tai moniväristen kanssa                                                                                                                                                                                                                                              |
+| Virheraportointi                            | Vain käännösaikana; `onerr goto` käsittelee KERNAL I/O -virheet ajonaikana                                                                                                                                                                                                                                                                                                                                                 |

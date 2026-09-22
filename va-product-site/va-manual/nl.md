@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Gebruikershandleiding
 
-**Versie 2.4.5**
+**Versie 2.4.6**
 
 Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma's door instructieblokken te slepen en neer te zetten, en bekijk de gegenereerde assembly- en machinecode in realtime.
 
@@ -9,6 +9,7 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
 ## Inhoudsopgave
 
 - [C64 Visual Assembler — Gebruikershandleiding](#c64-visual-assembler--user-manual)
+    - [Hoogtepunten van versie 2.4.6](#version-246-highlights)
     - [Hoogtepunten van versie 2.4.5](#version-245-highlights)
     - [Hoogtepunten van versie 2.4.3](#version-243-highlights)
     - [Hoogtepunten van versie 2.4.2](#version-242-highlights)
@@ -156,6 +157,16 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
     - [Kaarteditor (Meerlaagse tegelkaarten)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve-editor](#curve-editor)
+
+---
+
+## Hoogtepunten van versie 2.4.6
+
+- **SID Editor → UltimateBasic exporteren** — **Bestanden → Exporteren naar UltimateBasic** schrijft de melodie als een `melodie ... einde` blok (instrumenten, volgordelijst en patroonrijen als tekst) gevolgd door `muziek afspelen`, en voegt deze in op de cursorpositie van de Ultimate Basic editor (buiten de UB-modus wordt deze naar het klembord gekopieerd). De UltimateBasic-compiler bouwt er tijdens het compileren een zero-page-vrije speler van, zodat `muziek afspelen` / `muziek stoppen` de melodie besturen en er geen conflicten ontstaan met UB-variabelen. Vibrato-, slide-, noot-cut- en snelheidseffecten worden ondersteund; tot 8 patronen, elke gewenste lengte van de volgordelijst. Vereist een UltimateBasic-compiler met `tune`-ondersteuning.
+- **Update Ultimate Basic-taal** — syntaxmarkering en de commandoreferentie omvatten nu **`sfx`** (niet-blokkerend SID-effect: `sfx-kanaal, frequentie, frames [, golf]`), **`org`** (vervolg sub/fn-code op een adres, waarbij een met nullen gevulde ruimte overblijft die `incbin`-gegevens kan bevatten), **`charset on` / `charset off`** (schakel de VIC-II over naar de RAM-tekenset en terug) en **`incbin` slicing** (`incbin "font.prg", $3C00, 2` slaat de eerste bytes over, een optioneel vierde argument beperkt de lengte).
+- **Markering van meerdere blokken in de ASM-weergave** — door meerdere blokken te selecteren worden al hun ASM-regels tegelijk gemarkeerd, de scrollpositie blijft stabiel tijdens het selecteren en de regelnummers zijn zachter met een subtiele verticale scheidingslijn.
+- **Assemblermodus blijft behouden bij het wisselen tussen Ultimate Basic-modi** — het openen van een project of een ingebouwd voorbeeld terwijl Ultimate Basic actief is, verlaat nu eerst UB en keert terug naar uw laatst gebruikte blok-/expertmodus, zodat de UB-buffer de modus of titel van het nieuwe tabblad niet langer kan overschrijven. Nieuwe tabbladen worden in de juiste modus aangemaakt.
+- **Kung Fu Flash 2-instellingen** — een **USB detecteren**-knop in Hardware-instellingen scant opnieuw naar de seriële poort van de cartridge, en de KFF2-vereisten vermelden nu de vereiste Kung Fu Flash-firmware (v2.07+).
 
 ---
 
@@ -331,7 +342,7 @@ Het tabblad **Opties** bevat de instellingen die van invloed zijn op de codegene
 
 ### Een ASM-lijn aanklikken
 
-Klik op een willekeurige regel in de ASM-weergave om het bijbehorende blok in het programmagebied te markeren. **
+Klik op een willekeurige regel in de ASM-weergave om het bijbehorende blok in het programmagebied te markeren. Wanneer meerdere blokken zijn geselecteerd, worden de ASM-regels van al deze blokken tegelijk gemarkeerd.
 
 ### ASM-lijnnummers
 
@@ -487,6 +498,15 @@ Ultimate Basic-projecten gebruiken `.proj`-bestanden en kunnen meerdere `.ub`-br
 
 Klik op het sterretje naast een projectbestand om het te markeren als het **opstartbestand**. De commando's Build, Run, D64, C64 Ultimate en Debug compileren die opstartbroncode, zelfs als er een ander tabblad actief is. Zonder een opstartselectie wordt het actieve UB-tabblad gebruikt.
 
+De werkbalk van het projectpaneel heeft twee knoppen om bestanden toe te voegen, en de bestandsdialoogvensters gebruiken standaard de **UB-werkmap** (Menu → Bestand → Werkmap instellen, UB-specifiek):
+
+- **Bestand toevoegen** — selecteer een of meer bestanden tegelijk (elk type — `.ub`, `.bin`, `.prg`, afbeeldingen, lettertypen, enz.). `.ub`-bronnen worden ook geopend als editortabbladen; al het andere wordt alleen toegevoegd als referentie, zodat `incbin`/`loadfile`-assets met het project meereizen.
+- **Map toevoegen** — verwijs naar een hele map (bijv. een `incbin`-assetmap zoals `fonts/`) zodat deze aan het project gekoppeld blijft.
+
+Mappen in de boomstructuur hebben een inklap-/uitklappijl, en **klik met de rechtermuisknop op een map** om een of meer bestanden die eronder genest zijn toe te voegen (ingesprongen weergegeven). Elk item heeft een verwijderknop (✕); items die geen `.ub` zijn, dienen alleen als referentie en worden niet geopend door erop te klikken.
+
+De knop **Project opslaan** wordt uitgeschakeld en toont de status "Opgeslagen" zodra er geen wijzigingen meer in het project zijn, en wordt automatisch weer ingeschakeld zodra u een bestand of map toevoegt, verwijdert of reorganiseert.
+
 ### Bouw en diagnose
 
 De knop **Build** opent dezelfde gecentreerde voortgangsweergave als de andere Visual Assembler-workflows. Succesvolle builds werken Build Output, Build Info en Disassembly bij. Schakel **Verbose** in om details over de geheugenmapping van de compiler, interne toewijzingen op nulpagina's en gegenereerde codegegevens weer te geven.
@@ -639,6 +659,9 @@ De expertmodus ondersteunt een **projectpaneel** (`#expert-project-panel`) voor 
 - Elk bestand in het project wordt geopend als een apart **tabblad** in de tabbladbalk bovenaan de editor.
 - **Project sluiten** (`Menu → Bestand → Project sluiten` / `#menu-close-project`) sluit het huidige project en alle bijbehorende bestandstabbladen in één keer. Er wordt gevraagd om eventuele niet-opgeslagen wijzigingen op te slaan voordat het project wordt gesloten. Het projectpaneel wordt teruggezet naar de lege staat en `_expertProjectData` wordt gewist.
 - Elk bestand kan worden gemarkeerd als het **opstartbestand** (★ sterpictogram). Wanneer een opstartbestand is ingesteld, compileert en voert de **Uitvoeren** knop (PRG, D64, Ultimate) altijd de code van dat bestand uit, ongeacht welk tabblad momenteel actief is. Dit werkt zowel in de blokmodus als in de expertmodus.
+- Met de knop **Toevoegen** in de werkbalk kunt u één of meerdere bestanden tegelijk selecteren (elk type, niet alleen `.json`/`.asm`) en deze in het project toevoegen zonder ze te openen. Gebruik deze knop voor binaire bestanden zoals `incbin`-gegevens. Het dialoogvenster wordt standaard weergegeven als de VA-werkmap. De naastgelegen knop **Map toevoegen** verwijst op dezelfde manier naar een hele map (bijvoorbeeld een map met bestanden). Items die alleen een verwijzing bevatten, tonen een knop voor verwijderen (✕), maar worden niet geopend wanneer u erop klikt.
+- Mappen in de boomstructuur hebben een inklap-/uitklappijl, en **klik met de rechtermuisknop op een map** om een of meer bestanden die eronder genest zijn toe te voegen (ingesprongen weergegeven).
+- De knop **Project opslaan** wordt uitgeschakeld en toont de status "Opgeslagen" zodra er geen wijzigingen meer in het project zijn, en wordt automatisch weer ingeschakeld zodra u een bestand of map toevoegt, verwijdert of reorganiseert.
 - Het gedeelte **symbolen** onderaan het projectpaneel kan verticaal worden aangepast met behulp van de scheidingslijn tussen de bestandsstructuur en de symbolenlijst, zodat lange symbolenlijsten meer ruimte kunnen innemen wanneer dat nodig is.
 
 ### Tabbalk
@@ -3654,12 +3677,13 @@ Effecten worden één keer per regel bijgewerkt (overeenkomend met de timing van
 - Bij het openen van het klavier lichten de bijbehorende pianotoetsen op als de akkoord- en arpeggiovoorbeelden worden weergegeven.
 
 **Exporteren via het menu Bestanden:**
-| Exporteren                             | Wat het doet                                                                                                                                                                                                        |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Sla .bin op…`                         | Schrijft het eigen geserialiseerde formaat van de editor (instrumenten + patronen + sequentie).                                                                                                                     |
-| `Blokken exporteren (alleen gegevens)` | Voegt de instrumenttabel + patroonblokken toe aan het programma op `* = $C000`.                                                                                                                                     |
-| `Blokken exporteren + miniplayer`      | Voegt de volledige speler (sid_init / sid_irq / sid_play_row / sid_set_voice) plus PAL-frequentietabellen toe. Plaats na het exporteren een `JSR sid_init` in uw hoofdcode op de plek waar de muziek moet beginnen. |
-| `Exporteer asm (klembord)`             | Kopieert de volledige broncode van de assembly naar het klembord.                                                                                                                                                   |
+| Exporteren                             | Wat het doet                                                                                                                                                                                                                                                                                                                     |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Sla .bin op…`                         | Schrijft het eigen geserialiseerde formaat van de editor (instrumenten + patronen + sequentie).                                                                                                                                                                                                                                  |
+| `Blokken exporteren (alleen gegevens)` | Voegt de instrumenttabel + patroonblokken toe aan het programma op `* = $C000`.                                                                                                                                                                                                                                                  |
+| `Blokken exporteren + miniplayer`      | Voegt de volledige speler (sid_init / sid_irq / sid_play_row / sid_set_voice) plus PAL-frequentietabellen toe. Plaats na het exporteren een `JSR sid_init` in uw hoofdcode op de plek waar de muziek moet beginnen.                                                                                                              |
+| `Exporteer asm (klembord)`             | Kopieert de volledige broncode van de assembly naar het klembord.                                                                                                                                                                                                                                                                |
+| `Exporteren naar UltimateBasic`        | Schrijft een `tune ... end` blok (instrumenten, volgordelijst, patroonrijen als tekst) plus `music play` en voegt dit in op de cursorpositie van de Ultimate Basic-editor; buiten de UB-modus kopieert het de tekst naar het klembord. De UltimateBasic-compiler bouwt de speler, dus `music play` / `music stop` besturen deze. |
 
 **Gebruik van speler-ZP: ** `$02`–`$2F` (pointertabellen, patroonoffset en per-stem effectstatus), plus `$FB`–`$FE` (tickteller, rij-index, positie in de orderlijst, set_voice temp). Deze conflicteren als uw hoofdcode ze gebruikt — verplaats ze indien nodig via de Expert-modus.
 

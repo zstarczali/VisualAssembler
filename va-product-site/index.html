@@ -1426,7 +1426,7 @@
 
     }
 
-    @media(max-width:900px) {
+    @media(max-width:1500px) {
       nav {
         height: 48px;
         padding: 0 14px;
@@ -1494,6 +1494,19 @@
       .nav-link {
         font-size: 13px;
         padding: 12px 10px;
+        letter-spacing: 1px
+      }
+    }
+
+    @media(max-width:900px) {
+      nav {
+        height: 48px;
+        padding: 0 14px;
+        justify-content: space-between
+      }
+
+      .nav-brand {
+        font-size: 11px;
         letter-spacing: 1px
       }
 
@@ -2710,6 +2723,8 @@
       btn.addEventListener('click', () => setOpen(!nav.classList.contains('open')));
       nav.querySelectorAll('.nav-link').forEach(a => a.addEventListener('click', () => setOpen(false)));
       document.addEventListener('click', e => { if (!nav.contains(e.target)) setOpen(false); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
+      window.addEventListener('resize', () => { if (window.innerWidth > 1500) setOpen(false); });
     })();
 
     function showTab(id) {

@@ -369,6 +369,15 @@ Az Ultimate Basic projektek `.proj` fájlokat használnak, és több `.ub` forr�
 
 Kattints egy projektfájl melletti csillagra, hogy **startup fájlnak** jelöld. A Build, Run, D64, C64 Ultimate és Debug parancsok azt a startup forrást fordítják, még akkor is, ha éppen egy másik fül aktív. Startup-választás nélkül az aktív UB fül használódik.
 
+A projekt panel eszköztárán két hozzáadó gomb van, a fájldialógusok pedig alapból az **UB working foldert** nyitják meg (Menu → File → Set working folder, UB-specifikus):
+
+- **Add file** — egyszerre több fájlt is kiválaszthatsz (bármilyen típus — `.ub`, `.bin`, `.prg`, kép, font stb.). A `.ub` forrásokat új fülként is megnyitja; minden más csak hivatkozásként kerül be, hogy az `incbin`/`loadfile` asseteid a projekttel utazzanak.
+- **Add folder** — egy teljes mappát (pl. egy `incbin` asset mappát, mint a `fonts/`) hivatkozásként ad hozzá a projekthez.
+
+A fában a mappáknak van nyitó/csukó nyilacskájuk, és **jobbklikkel egy mappára** egy vagy több fájlt tudsz beszúrni alá (behúzva jelenik meg). Minden bejegyzésnek van törlés (✕) gombja; a nem `.ub` bejegyzések csak hivatkozások, kattintásra nem nyílnak meg.
+
+A **Save project** gomb automatikusan letiltja magát és "Elmentve" állapotot mutat, amikor nincs mentetlen változás, és újra aktívvá válik, amint fájlt vagy mappát adsz hozzá, törölsz, vagy átrendezel.
+
 ### Buildelés és diagnosztika
 
 A **Build** gomb ugyanazt a középre igazított folyamatjelző élményt nyitja meg, mint a többi Visual Assembler futtatási munkafolyamat. A sikeres buildek frissítik a Build Output, Build Info és Disassembly paneleket. Engedélyezd a **Verbose**-t, hogy a fordító memóriatérkép-részletei, belső zero-page allokációi és a generált kód adatai is bekerüljenek.
@@ -522,6 +531,9 @@ Az Expert mód támogat egy **projekt panelt** (`#expert-project-panel`) több-f
 - A projekt minden fájlja külön **fülként** nyílik meg a szerkesztő tetején lévő fül-sávban.
 - A **Close Project** (`Menu → File → Close project` / `#menu-close-project`) egyszerre bezárja az aktuális projektet és minden fájlfülét. A bezárás előtt rákérdez a nem mentett változtatások mentésére. A projekt panel visszaáll üres állapotba, és a `_expertProjectData` törlődik.
 - Minden fájl megjelölhető **startup fájlként** (★ csillag ikon). Ha van startup fájl beállítva, a **Run** gomb (PRG, D64, Ultimate) mindig annak a fájlnak a kódját assembleálja és futtatja — függetlenül attól, melyik fül aktív éppen. Ez Blokk és Expert módban is működik.
+- Az eszköztár **Add** gombja egyszerre több fájlt is kiválaszt (bármilyen típus, nem csak `.json`/`.asm`), és hivatkozásként adja hozzá a projekthez anélkül, hogy megnyitná — ezzel vihetők bináris assetek (pl. `incbin` adat). A dialógus alapból a VA working foldert nyitja meg. A mellette lévő **Add folder** gomb egy teljes mappát (pl. egy asset mappát) ad hozzá ugyanígy, hivatkozásként.
+- A fában a mappáknak van nyitó/csukó nyilacskájuk, és **jobbklikkel egy mappára** egy vagy több fájlt tudsz beszúrni alá (behúzva jelenik meg).
+- A **Save project** gomb automatikusan letiltja magát és "Elmentve" állapotot mutat, amikor nincs mentetlen változás, és újra aktívvá válik, amint fájlt vagy mappát adsz hozzá, törölsz, vagy átrendezel.
 - A projekt panel alján lévő **szimbólumok** szakasz függőlegesen átméretezhető a fájlfa és a szimbólumlista közti elválasztóval, így a hosszú szimbólumlisták több helyet kaphatnak, amikor szükséges.
 
 ### Fül-sáv

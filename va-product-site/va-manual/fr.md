@@ -1,6 +1,6 @@
 # Manuel d'utilisation de l'assembleur visuel C64
 
-**Version 2.4.5**
+**Version 2.4.6**
 
 Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez des programmes en faisant glisser et en déposant des blocs d'instructions, et visualisez en temps réel le code assembleur et le code machine générés.
 
@@ -9,6 +9,7 @@ Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez de
 ## Table des matières
 
 - [C64 Visual Assembler — Manuel de l'utilisateur](#c64-visual-assembler--user-manual)
+    - [Points saillants de la version 2.4.6](#version-246-highlights)
     - [Points saillants de la version 2.4.5](#version-245-highlights)
     - [Points saillants de la version 2.4.3](#version-243-highlights)
     - [Points saillants de la version 2.4.2](#version-242-highlights)
@@ -156,6 +157,16 @@ Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez de
     - [Éditeur de cartes (Cartes de tuiles multicouches)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Éditeur de courbes](#curve-editor)
+
+---
+
+## Points forts de la version 2.4.6
+
+- **Éditeur SID → Exportation UltimateBasic** — **Fichiers → Exporter vers UltimateBasic** écrit le morceau sous forme de bloc `morceau… fin` (instruments, liste d'ordre et lignes de motifs sous forme de texte), suivi de `lecture de la musique`, et l'insère au niveau du curseur de l'éditeur Ultimate Basic (hors mode UB, il est copié dans le presse-papiers). Le compilateur UltimateBasic génère un lecteur sans page vide à partir de ce bloc lors de la compilation, de sorte que `lecture de la musique` / `arrêt de la musique` contrôlent le morceau et qu'aucun conflit n'interfère avec les variables UB. Les effets de vibrato, de glissando, de coupure de notes et de vitesse sont pris en charge ; jusqu'à 8 motifs, avec une liste d'ordre de longueur quelconque. Nécessite un compilateur UltimateBasic avec prise en charge de `tune`.
+- **Mise à jour du langage Ultimate Basic** — La coloration syntaxique et la référence des commandes couvrent désormais **`sfx`** (effet SID non bloquant : `sfx canal, fréquence, trames [, onde]`), **`org`** (continuer le code sub/fn à une adresse, en laissant un espace rempli de zéros pouvant contenir des données `incbin`), **`charset on` / `charset off`** (basculer le VIC-II vers le jeu de caractères RAM et inversement) et **`incbin` slicing** (`incbin "font.prg", $3C00, 2` ignore les premiers octets, un quatrième argument optionnel limite la longueur).
+- **Surlignage de plusieurs blocs dans la vue ASM** — la sélection de plusieurs blocs met en surbrillance toutes leurs lignes ASM à la fois, la position de défilement reste stable pendant la sélection et les numéros de ligne sont plus doux avec une subtile ligne de séparation verticale.
+- ** Le mode assembleur est conservé lors des changements de mode dans Ultimate Basic. ** L'ouverture d'un projet ou d'un exemple intégré lorsque Ultimate Basic est actif quitte d'abord UB et revient à votre dernier mode Bloc/Expert. Ainsi, le tampon UB ne peut plus écraser le mode ou le titre du nouvel onglet. Les nouveaux onglets sont créés dans le mode approprié.
+- **Paramètres Kung Fu Flash 2** — un bouton **Détecter USB** dans les paramètres matériels effectue une nouvelle recherche du port série de la cartouche, et les prérequis de KFF2 indiquent désormais le firmware Kung Fu Flash requis (v2.07+).
 
 ---
 
@@ -331,7 +342,7 @@ L'onglet **Options** contient les paramètres qui affectent la génération de c
 
 ### Cliquer sur une ligne ASM
 
-Cliquez sur n'importe quelle ligne dans la vue ASM pour **mettre en surbrillance le bloc correspondant** dans la zone de programme.
+Cliquez sur une ligne quelconque dans la vue ASM pour mettre en surbrillance le bloc correspondant dans la zone de programme. Lorsque plusieurs blocs sont sélectionnés, leurs lignes ASM sont mises en surbrillance simultanément.
 
 ### Numéros de ligne ASM
 
@@ -487,6 +498,15 @@ Les projets Ultimate Basic utilisent des fichiers `.proj` et peuvent contenir pl
 
 Cliquez sur l'étoile à côté d'un fichier projet pour le désigner comme fichier de démarrage ****. Les commandes Build, Run, D64, C64 Ultimate et Debug compilent ce code source de démarrage même si un autre onglet est actif. En l'absence de sélection de démarrage, l'onglet UB actif est utilisé.
 
+La barre d'outils du panneau de projet comporte deux boutons d'ajout, et les boîtes de dialogue de fichiers sont par défaut configurées sur le dossier de travail **UB** (Menu → Fichier → Définir le dossier de travail, spécifique à UB) :
+
+- **Ajouter un fichier** — sélectionnez un ou plusieurs fichiers à la fois (tout type : `.ub`, `.bin`, `.prg`, images, polices, etc.). `.ub` Les sources sont également ouvertes sous forme d’onglets d’éditeur ; tout autre fichier est ajouté uniquement à titre de référence, pour que les ressources `incbin`/`loadfile` soient incluses dans le projet.
+- **Ajouter un dossier** — référencer un dossier entier (par exemple un répertoire de ressources `incbin` comme `fonts/`) afin qu'il reste associé au projet.
+
+Les dossiers de l'arborescence comportent une flèche de réduction/développement. Un clic droit sur un dossier permet d'ajouter un ou plusieurs fichiers imbriqués (affichés en retrait). Chaque entrée possède un bouton de suppression (✕). Les entrées autres que `ub` sont uniquement consultables et ne s'ouvrent pas en cliquant dessus.
+
+Le bouton **Enregistrer le projet** se désactive et affiche un état « Enregistré » une fois que le projet ne comporte plus de modifications en attente, et se réactive automatiquement dès que vous ajoutez, supprimez ou réorganisez un fichier ou un dossier.
+
 ### Bâtiment et diagnostic
 
 Le bouton **Build** ouvre la même interface de progression centrée que celle utilisée par les autres flux de travail d'exécution de Visual Assembler. Les compilations réussies mettent à jour les sections Sortie de compilation, Informations de compilation et Désassemblage. Activez l'option **Verbose** pour inclure les détails de la carte mémoire du compilateur, les allocations internes de pages zéro et les données du code généré.
@@ -639,6 +659,9 @@ Le mode expert prend en charge un panneau de projet **** (`#expert-project-panel
 - Chaque fichier du projet s'ouvre dans un onglet séparé (**onglet**) dans la barre d'onglets en haut de l'éditeur.
 - **Fermer le projet** (`Menu → Fichier → Fermer le projet` / `#menu-close-project`) ferme le projet en cours et tous ses onglets de fichiers simultanément. Un message vous invite à enregistrer les modifications non enregistrées avant la fermeture. Le panneau du projet est réinitialisé et `_expertProjectData` est effacé.
 - Chaque fichier peut être désigné comme fichier de démarrage (icône étoile ★). Lorsqu'un fichier de démarrage est défini, le bouton Exécuter (PRG, D64, Ultimate) compile et exécute systématiquement le code de ce fichier, quel que soit l'onglet actif. Ceci est compatible avec les modes Bloc et Expert.
+- Le bouton **Ajouter** de la barre d'outils permet de sélectionner un ou plusieurs fichiers simultanément (de tout type, et pas seulement `.json`/`.asm`) et de les référencer dans le projet sans les ouvrir. Utilisez-le pour les ressources binaires telles que les données `incbin`. La boîte de dialogue s'ouvre par défaut sur le dossier de travail VA. Le bouton **Ajouter un dossier** adjacent permet de référencer un dossier entier (par exemple, un répertoire de ressources) de la même manière. Les entrées de type référence uniquement affichent un bouton Supprimer (✕) mais ne s'ouvrent pas lorsqu'on clique dessus.
+- Les dossiers dans l'arborescence ont une flèche de réduction/développement, et **cliquez avec le bouton droit sur un dossier** pour ajouter un ou plusieurs fichiers imbriqués en dessous (affichés en retrait).
+- Le bouton **Enregistrer le projet** se désactive et affiche un état « Enregistré » une fois que le projet ne comporte plus de modifications en attente, et se réactive automatiquement dès que vous ajoutez, supprimez ou réorganisez un fichier ou un dossier.
 - La section **symboles** en bas du panneau du projet peut être redimensionnée verticalement avec le séparateur entre l'arborescence des fichiers et la liste des symboles, de sorte que les longues listes de symboles peuvent prendre plus d'espace si nécessaire.
 
 ### Barre d'onglets
@@ -3654,12 +3677,13 @@ Les effets sont mis à jour une fois par ligne (correspondant au timing du lecte
 - Les aperçus d'accords et d'arpèges illuminent les touches correspondantes du piano lorsque le clavier est ouvert.
 
 **Exportations du menu Fichiers :**
-| Exporter                                  | Ce que cela fait                                                                                                                                                                                                                         |
-| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Enregistrer .bin…`                       | Écrit au format sérialisé natif de l'éditeur (instruments + motifs + séquence).                                                                                                                                                          |
-| `Exporter les blocs (données uniquement)` | Ajoute la table d'instruments + les blocs de motifs au programme à `* = $C000`.                                                                                                                                                          |
-| `Exporter les blocs + mini-joueur`        | Ajoute le lecteur complet (sid_init / sid_irq / sid_play_row / sid_set_voice) ainsi que les tables de fréquences PAL. Après l'exportation, insérez un `JSR sid_init` dans votre code principal, à l'endroit où la musique doit démarrer. |
-| `Exporter asm (presse-papiers)`           | Copie l'intégralité du code source de l'assembly dans le presse-papiers.                                                                                                                                                                 |
+| Exporter                                  | Ce que cela fait                                                                                                                                                                                                                                                                                                                                                   |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Enregistrer .bin…`                       | Écrit au format sérialisé natif de l'éditeur (instruments + motifs + séquence).                                                                                                                                                                                                                                                                                    |
+| `Exporter les blocs (données uniquement)` | Ajoute la table d'instruments + les blocs de motifs au programme à `* = $C000`.                                                                                                                                                                                                                                                                                    |
+| `Exporter les blocs + mini-joueur`        | Ajoute le lecteur complet (sid_init / sid_irq / sid_play_row / sid_set_voice) ainsi que les tables de fréquences PAL. Après l'exportation, insérez un `JSR sid_init` dans votre code principal, à l'endroit où la musique doit démarrer.                                                                                                                           |
+| `Exporter asm (presse-papiers)`           | Copie l'intégralité du code source de l'assembly dans le presse-papiers.                                                                                                                                                                                                                                                                                           |
+| `Exporter vers UltimateBasic`             | Écrit un bloc `tune ... end` (instruments, liste d'ordre, lignes de motifs sous forme de texte) plus `music play` et l'insère au niveau du curseur de l'éditeur Ultimate Basic ; hors du mode UB, il copie le texte dans le presse-papiers. Le compilateur UltimateBasic génère le lecteur ; les commandes `music play` / `music stop` permettent de le contrôler. |
 
 Utilisation du lecteur ZP : ** `$02`–`$2F` (tables de pointeurs, décalage de motif et état des effets par voix), plus `$FB`–`$FE` (compteur de ticks, index de ligne, position dans la liste d'ordre, temp. set_voice). Ces éléments peuvent entrer en conflit s'ils sont utilisés par votre code principal ; déplacez-les via le mode Expert si nécessaire.
 

@@ -500,6 +500,15 @@ Ultimate Basic projects use `.proj` files and can contain multiple `.ub` sources
 
 Click the star beside a project file to mark it as the **startup file**. Build, Run, D64, C64 Ultimate, and Debug commands compile that startup source even if a different tab is currently active. Without a startup selection, the active UB tab is used.
 
+The project panel toolbar has two add buttons, and file dialogs default to the **UB working folder** (Menu → File → Set working folder, UB-specific):
+
+- **Add file** — pick one or more files at once (any type — `.ub`, `.bin`, `.prg`, images, fonts, etc.). `.ub` sources are also opened as editor tabs; anything else is added as a reference only, for `incbin`/`loadfile` assets to travel with the project.
+- **Add folder** — reference a whole folder (e.g. an `incbin` asset directory like `fonts/`) so it stays associated with the project.
+
+Folders in the tree have a collapse/expand arrow, and **right-click a folder** to add one or more files nested under it (shown indented). Every entry has a delete (✕) button; non-`.ub` entries are reference-only and are not opened by clicking them.
+
+The **Save project** button disables itself and shows a "Saved" state once the project has no pending changes, and re-enables automatically the moment you add, remove, or reorganize a file or folder.
+
 ### Building and diagnostics
 
 The **Build** button opens the same centered progress experience used by the other Visual Assembler run workflows. Successful builds update Build Output, Build Info, and Disassembly. Enable **Verbose** to include compiler memory-map details, internal zero-page allocations, and generated code data.
@@ -653,6 +662,9 @@ Expert mode supports a **project panel** (`#expert-project-panel`) for multi-fil
 - Each file in the project opens as a separate **tab** in the tab bar at the top of the editor.
 - **Close Project** (`Menu → File → Close project` / `#menu-close-project`) closes the current project and all its file tabs at once. Prompts to save any unsaved changes before closing. The project panel resets to its empty state and `_expertProjectData` is cleared.
 - Each file can be marked as the **startup file** (★ star icon). When a startup file is set, the **Run** button (PRG, D64, Ultimate) always assembles and runs that file's code — regardless of which tab is currently active. This works in both block mode and Expert mode.
+- The toolbar's **Add** button picks one or more files at once (any type, not just `.json`/`.asm`) and references them in the project without opening them — use it for binary assets like `incbin` data. Its dialog defaults to the VA working folder. The adjacent **Add folder** button references a whole folder (e.g. an asset directory) the same way. Reference-only entries show a delete (✕) button but are not opened by clicking them.
+- Folders in the tree have a collapse/expand arrow, and **right-click a folder** to add one or more files nested under it (shown indented).
+- The **Save project** button disables itself and shows a "Saved" state once the project has no pending changes, and re-enables automatically the moment you add, remove, or reorganize a file or folder.
 - The **symbols** section at the bottom of the project panel can be resized vertically with the divider between the file tree and the symbols list, so long symbol lists can take more space when needed.
 
 ### Tab bar

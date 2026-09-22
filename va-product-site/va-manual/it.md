@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Manuale utente
 
-**Versione 2.4.5**
+**Versione 2.4.6**
 
 Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502. Crea programmi trascinando e rilasciando blocchi di istruzioni e visualizza in tempo reale il codice assembly e il codice macchina generati.
 
@@ -9,6 +9,7 @@ Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502. 
 ## Sommario
 
 - [C64 Visual Assembler — Manuale utente](#c64-visual-assembler--user-manual)
+    - [Punti salienti della versione 2.4.6](#version-246-highlights)
     - [Punti salienti della versione 2.4.5](#version-245-highlights)
     - [Punti salienti della versione 2.4.3](#version-243-highlights)
     - [Punti salienti della versione 2.4.2](#version-242-highlights)
@@ -156,6 +157,16 @@ Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502. 
     - [Editor di mappe (mappe a tessere multilivello)](#map-editor-multilayer-tilemaps)
     - [Editor SID (Tracker a 3 voci)](#sid-editor-3-voice-tracker)
     - [Editor di curve](#curve-editor)
+
+---
+
+## Punti salienti della versione 2.4.6
+
+- **Editor SID → Esporta in UltimateBasic** — **File → Esporta in UltimateBasic** scrive la melodia come un blocco `tune ... end` (strumenti, elenco ordini e righe pattern come testo) seguito da `music play` e lo inserisce nel cursore dell'editor di Ultimate Basic (al di fuori della modalità UB viene copiato negli appunti). Il compilatore di UltimateBasic crea un lettore senza pagine zero in fase di compilazione, quindi `music play` / `music stop` controllano la melodia e nulla entra in conflitto con le variabili UB. Sono supportati gli effetti vibrato, slide, note-cut e velocità; fino a 8 pattern, qualsiasi lunghezza dell'elenco ordini. Richiede un compilatore UltimateBasic con supporto `tune`.
+- **Aggiornamento del linguaggio Ultimate Basic** — l'evidenziazione della sintassi e il riferimento ai comandi ora coprono **`sfx`** (effetto SID non bloccante: `canale sfx, freq, frame [, wave]`), **`org`** (continua il codice sub/fn a un indirizzo, lasciando uno spazio riempito di zeri che può contenere i dati `incbin`), **`charset on` / `charset off`** (commuta il VIC-II al set di caratteri RAM e viceversa) e **`incbin` slicing** (`incbin "font.prg", $3C00, 2` salta i primi byte, un quarto argomento opzionale limita la lunghezza).
+- **Evidenziazione di più blocchi nella vista ASM** — selezionando più blocchi vengono evidenziate contemporaneamente tutte le relative linee ASM, la posizione di scorrimento rimane stabile durante la selezione e i numeri di riga sono più sfumati grazie a una sottile linea di separazione verticale.
+- **Modalità Assembler mantenuta tra i passaggi a Ultimate Basic** — l'apertura di un progetto o di un esempio integrato mentre Ultimate Basic è attivo ora lascia prima UB e ritorna all'ultima modalità Blocco/Esperto, quindi il buffer UB non può più sovrascrivere la modalità o il titolo della nuova scheda. Le nuove schede vengono create nella modalità corretta.
+- **Impostazioni di Kung Fu Flash 2** — un pulsante **Rileva USB** nelle Impostazioni hardware esegue nuovamente la scansione della porta seriale della cartuccia e i prerequisiti di KFF2 ora indicano il firmware Kung Fu Flash richiesto (v2.07+).
 
 ---
 
@@ -331,7 +342,7 @@ La scheda **Opzioni** contiene le impostazioni che influenzano la generazione de
 
 ### Fare clic su una riga ASM
 
-Fai clic su una qualsiasi riga nella vista ASM per **evidenziare il blocco corrispondente** nell'area del programma.
+Fai clic su una qualsiasi riga nella vista ASM per **evidenziare il blocco corrispondente** nell'area del programma. Quando sono selezionati più blocchi, le righe ASM di tutti questi blocchi vengono evidenziate insieme.
 
 ### Numeri di riga ASM
 
@@ -487,6 +498,15 @@ I progetti Ultimate Basic utilizzano file `.proj` e possono contenere più sorge
 
 Fai clic sulla stella accanto a un file di progetto per contrassegnarlo come file di avvio ****. I comandi Build, Run, D64, C64 Ultimate e Debug compilano quel codice sorgente di avvio anche se è attualmente attiva una scheda diversa. Senza una selezione di avvio, viene utilizzata la scheda UB attiva.
 
+La barra degli strumenti del pannello del progetto ha due pulsanti Aggiungi e le finestre di dialogo dei file sono impostate di default sulla cartella di lavoro **UB** (Menu → File → Imposta cartella di lavoro, specifica di UB):
+
+- **Aggiungi file** — seleziona uno o più file contemporaneamente (qualsiasi tipo — `.ub`, `.bin`, `.prg`, immagini, font, ecc.). Anche i sorgenti `.ub` vengono aperti come schede dell'editor; tutto il resto viene aggiunto solo come riferimento, affinché le risorse `incbin`/`loadfile` vengano trasferite con il progetto.
+- **Aggiungi cartella** — fai riferimento a un'intera cartella (ad esempio una directory di risorse `incbin` come `fonts/`) in modo che rimanga associata al progetto.
+
+Le cartelle nell'albero hanno una freccia per comprimere/espandere e **fare clic con il pulsante destro del mouse su una cartella** per aggiungere uno o più file annidati al suo interno (mostrati rientrati). Ogni voce ha un pulsante di eliminazione (✕); le voci non`.ub` sono solo di riferimento e non si aprono facendo clic su di esse.
+
+Il pulsante **Salva progetto** si disattiva e mostra lo stato "Salvato" quando il progetto non presenta modifiche in sospeso, e si riattiva automaticamente nel momento in cui si aggiunge, si rimuove o si riorganizza un file o una cartella.
+
 ### Costruzione e diagnostica
 
 Il pulsante **Build** apre la stessa esperienza di avanzamento centrata utilizzata dagli altri flussi di lavoro di esecuzione di Visual Assembler. Le build riuscite aggiornano l'output di build, le informazioni di build e il disassemblaggio. Abilita **Verbose** per includere i dettagli della mappa di memoria del compilatore, le allocazioni interne di pagine zero e i dati del codice generato.
@@ -639,6 +659,9 @@ La modalità esperto supporta un **pannello di progetto** (`#expert-project-pane
 - Ogni file del progetto si apre come una scheda **** separata nella barra delle schede nella parte superiore dell'editor.
 - **Chiudi progetto** (`Menu → File → Chiudi progetto` / `#menu-close-project`) chiude il progetto corrente e tutte le relative schede file contemporaneamente. Richiede di salvare eventuali modifiche non salvate prima della chiusura. Il pannello del progetto viene ripristinato allo stato vuoto e `_expertProjectData` viene cancellato.
 - Ogni file può essere contrassegnato come **file di avvio** (★ icona a stella). Quando viene impostato un file di avvio, il pulsante **Esegui** (PRG, D64, Ultimate) compila ed esegue sempre il codice di quel file, indipendentemente dalla scheda attualmente attiva. Questo funziona sia in modalità a blocchi che in modalità esperto.
+- Il pulsante **Aggiungi** della barra degli strumenti seleziona uno o più file contemporaneamente (di qualsiasi tipo, non solo `.json`/`.asm`) e li referenzia nel progetto senza aprirli: utilizzalo per risorse binarie come i dati `incbin`. La finestra di dialogo predefinita è la cartella di lavoro di VA. Il pulsante **Aggiungi cartella** adiacente referenzia un'intera cartella (ad esempio una directory di risorse) allo stesso modo. Le voci di solo riferimento mostrano un pulsante Elimina (✕) ma non vengono aperte facendo clic su di esse.
+- Le cartelle nell'albero hanno una freccia per comprimere/espandere e **fare clic con il pulsante destro del mouse su una cartella** per aggiungere uno o più file annidati al suo interno (mostrati rientrati).
+- Il pulsante **Salva progetto** si disattiva e mostra lo stato "Salvato" quando il progetto non presenta modifiche in sospeso, e si riattiva automaticamente nel momento in cui si aggiunge, si rimuove o si riorganizza un file o una cartella.
 - La sezione **simboli** nella parte inferiore del pannello del progetto può essere ridimensionata verticalmente tramite il divisore tra la struttura dei file e l'elenco dei simboli, in modo che gli elenchi di simboli lunghi possano occupare più spazio quando necessario.
 
 ### Barra delle schede
@@ -3654,12 +3677,13 @@ Gli effetti si aggiornano una volta per riga (in base alla temporizzazione del l
 - Le anteprime di accordi e arpeggi illuminano i tasti corrispondenti del pianoforte quando la tastiera è aperta.
 
 **Esportazioni del menu File:**
-| Esportare                          | Cosa fa                                                                                                                                                                                                                                    |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `Salva .bin…`                      | Scrive nel formato serializzato nativo dell'editor (strumenti + pattern + sequenza).                                                                                                                                                       |
-| `Esportazione blocchi (solo dati)` | Aggiunge la tabella degli strumenti + i blocchi di pattern al programma in `* = $C000`.                                                                                                                                                    |
-| `Esporta blocchi + minigiocatore`  | Aggiunge il lettore completo (sid_init / sid_irq / sid_play_row / sid_set_voice) più le tabelle di frequenza PAL. Dopo l'esportazione, inserisci un `JSR sid_init` nel tuo codice principale nel punto in cui dovrebbe iniziare la musica. |
-| `Esporta asm (appunti)`            | Copia l'intero codice sorgente dell'assembly negli appunti.                                                                                                                                                                                |
+| Esportare                          | Cosa fa                                                                                                                                                                                                                                                                                                                   |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Salva .bin…`                      | Scrive nel formato serializzato nativo dell'editor (strumenti + pattern + sequenza).                                                                                                                                                                                                                                      |
+| `Esportazione blocchi (solo dati)` | Aggiunge la tabella degli strumenti + i blocchi di pattern al programma in `* = $C000`.                                                                                                                                                                                                                                   |
+| `Esporta blocchi + minigiocatore`  | Aggiunge il lettore completo (sid_init / sid_irq / sid_play_row / sid_set_voice) più le tabelle di frequenza PAL. Dopo l'esportazione, inserisci un `JSR sid_init` nel tuo codice principale nel punto in cui dovrebbe iniziare la musica.                                                                                |
+| `Esporta asm (appunti)`            | Copia l'intero codice sorgente dell'assembly negli appunti.                                                                                                                                                                                                                                                               |
+| `Esporta in UltimateBasic`         | Scrive un blocco `tune ... end` (strumenti, elenco ordine, righe pattern come testo) più `music play` e lo inserisce nel cursore dell'editor Ultimate Basic; al di fuori della modalità UB copia il testo negli appunti. Il compilatore UltimateBasic crea il lettore, quindi `music play` / `music stop` lo controllano. |
 
 **Utilizzo ZP del giocatore:** `$02`–`$2F` (tabelle dei puntatori, offset del pattern e stato dell'effetto per voce), più `$FB`–`$FE` (contatore tick, indice di riga, posizione dell'elenco degli ordini, set_voice temp). Questi sono in conflitto se il codice principale li utilizza: riposizionarli tramite la modalità Esperto se necessario.
 

@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.4.5**
+**Version 2.4.6**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.4.6 Highlights](#version-246-highlights)
     - [Version 2.4.5 Highlights](#version-245-highlights)
     - [Version 2.4.3 Highlights](#version-243-highlights)
     - [Version 2.4.2 Highlights](#version-242-highlights)
@@ -156,6 +157,16 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Map Editor (Multilayer Tilemaps)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve Editor](#curve-editor)
+
+---
+
+## Version 2.4.6 Highlights
+
+- **SID Editor → UltimateBasic export** — **Files → Export to UltimateBasic** writes the tune as a `tune ... end` block (instruments, order list and pattern rows as text) followed by `music play`, and inserts it at the cursor of the Ultimate Basic editor (outside UB mode it is copied to the clipboard). The UltimateBasic compiler builds a zero-page-free player from it at compile time, so `music play` / `music stop` control the tune and nothing collides with UB variables. Vibrato, slide, note-cut and speed effects are supported; up to 8 patterns, any order-list length. Requires an UltimateBasic compiler with `tune` support.
+- **Ultimate Basic language update** — syntax highlighting and the command reference now cover **`sfx`** (non-blocking SID effect: `sfx channel, freq, frames [, wave]`), **`org`** (continue sub/fn code at an address, leaving a zero-filled gap that can hold `incbin` data), **`charset on` / `charset off`** (switch the VIC-II to the RAM character set and back) and **`incbin` slicing** (`incbin "font.prg", $3C00, 2` skips the first bytes, an optional fourth argument limits the length).
+- **Multi-block highlight in the ASM view** — selecting several blocks highlights all of their ASM lines at once, the scroll position stays stable while you select, and the line numbers are softer with a subtle vertical separator rule.
+- **Assembler mode preserved across Ultimate Basic switches** — opening a project or a built-in sample while Ultimate Basic is active now leaves UB first and returns to your last Block/Expert mode, so the UB buffer can no longer overwrite the new tab's mode or title. New tabs are created in the correct mode.
+- **Kung Fu Flash 2 settings** — a **Detect USB** button in Hardware Settings re-scans for the cartridge's serial port, and the KFF2 prerequisites now state the required Kung Fu Flash firmware (v2.07+).
 
 ---
 
@@ -331,7 +342,7 @@ The **Options** tab contains the settings that affect code generation and output
 
 ### Clicking an ASM line
 
-Click any line in the ASM view to **highlight the corresponding block** in the program area.
+Click any line in the ASM view to **highlight the corresponding block** in the program area. When several blocks are selected, the ASM lines of all of them are highlighted together.
 
 ### ASM line numbers
 
@@ -489,6 +500,15 @@ Ultimate Basic projects use `.proj` files and can contain multiple `.ub` sources
 
 Click the star beside a project file to mark it as the **startup file**. Build, Run, D64, C64 Ultimate, and Debug commands compile that startup source even if a different tab is currently active. Without a startup selection, the active UB tab is used.
 
+The project panel toolbar has two add buttons, and file dialogs default to the **UB working folder** (Menu → File → Set working folder, UB-specific):
+
+- **Add file** — pick one or more files at once (any type — `.ub`, `.bin`, `.prg`, images, fonts, etc.). `.ub` sources are also opened as editor tabs; anything else is added as a reference only, for `incbin`/`loadfile` assets to travel with the project.
+- **Add folder** — reference a whole folder (e.g. an `incbin` asset directory like `fonts/`) so it stays associated with the project.
+
+Folders in the tree have a collapse/expand arrow, and **right-click a folder** to add one or more files nested under it (shown indented). Every entry has a delete (✕) button; non-`.ub` entries are reference-only and are not opened by clicking them.
+
+The **Save project** button disables itself and shows a "Saved" state once the project has no pending changes, and re-enables automatically the moment you add, remove, or reorganize a file or folder.
+
 ### Building and diagnostics
 
 The **Build** button opens the same centered progress experience used by the other Visual Assembler run workflows. Successful builds update Build Output, Build Info, and Disassembly. Enable **Verbose** to include compiler memory-map details, internal zero-page allocations, and generated code data.
@@ -642,6 +662,9 @@ Expert mode supports a **project panel** (`#expert-project-panel`) for multi-fil
 - Each file in the project opens as a separate **tab** in the tab bar at the top of the editor.
 - **Close Project** (`Menu → File → Close project` / `#menu-close-project`) closes the current project and all its file tabs at once. Prompts to save any unsaved changes before closing. The project panel resets to its empty state and `_expertProjectData` is cleared.
 - Each file can be marked as the **startup file** (★ star icon). When a startup file is set, the **Run** button (PRG, D64, Ultimate) always assembles and runs that file's code — regardless of which tab is currently active. This works in both block mode and Expert mode.
+- The toolbar's **Add** button picks one or more files at once (any type, not just `.json`/`.asm`) and references them in the project without opening them — use it for binary assets like `incbin` data. Its dialog defaults to the VA working folder. The adjacent **Add folder** button references a whole folder (e.g. an asset directory) the same way. Reference-only entries show a delete (✕) button but are not opened by clicking them.
+- Folders in the tree have a collapse/expand arrow, and **right-click a folder** to add one or more files nested under it (shown indented).
+- The **Save project** button disables itself and shows a "Saved" state once the project has no pending changes, and re-enables automatically the moment you add, remove, or reorganize a file or folder.
 - The **symbols** section at the bottom of the project panel can be resized vertically with the divider between the file tree and the symbols list, so long symbol lists can take more space when needed.
 
 ### Tab bar
@@ -3691,6 +3714,7 @@ Effects update once per row (matching the exported player's timing), run identic
 | `Export blocks (data only)` | Appends instrument table + pattern blocks to the program at `* = $C000`. |
 | `Export blocks + miniplayer` | Adds the full player (sid_init / sid_irq / sid_play_row / sid_set_voice) plus PAL frequency tables. After export, place a `JSR sid_init` in your main code where the music should start. |
 | `Export asm (clipboard)` | Copies the full assembly source to the clipboard. |
+| `Export to UltimateBasic` | Writes a `tune ... end` block (instruments, order list, pattern rows as text) plus `music play` and inserts it at the cursor of the Ultimate Basic editor; outside UB mode it copies the text to the clipboard. The UltimateBasic compiler builds the player, so `music play` / `music stop` control it. |
 
 **Player ZP usage:** `$02`–`$2F` (pointer tables, pattern offset, and per-voice effect state), plus `$FB`–`$FE` (tick counter, row index, order-list position, set_voice temp). These conflict if your main code uses them — relocate via Expert mode if needed.
 

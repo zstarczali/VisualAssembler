@@ -1,6 +1,6 @@
 # C64 Visual Assembler – Benutzerhandbuch
 
-**Version 2.4.5**
+**Version 2.4.6**
 
 Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Sie Programme durch Ziehen und Ablegen von Befehlsblöcken und sehen Sie den generierten Assembler- und Maschinencode in Echtzeit.
 
@@ -9,6 +9,7 @@ Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Si
 ## Inhaltsverzeichnis
 
 - [C64 Visual Assembler — Benutzerhandbuch](#c64-visual-assembler--user-manual)
+    - [Version 2.4.6 Highlights](#version-246-highlights)
     - [Version 2.4.5 Highlights](#version-245-highlights)
     - [Version 2.4.3 Highlights](#version-243-highlights)
     - [Version 2.4.2 Highlights](#version-242-highlights)
@@ -156,6 +157,16 @@ Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Si
     - [Karteneditor (Mehrschichtige Kachelkarten)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Kurveneditor](#curve-editor)
+
+---
+
+## Highlights der Version 2.4.6
+
+- **SID-Editor → UltimateBasic-Export** — **Dateien → Export nach UltimateBasic** schreibt die Melodie als `Melodie ... Ende`-Block (Instrumente, Orderliste und Patternzeilen als Text), gefolgt von `Musik abspielen`, und fügt sie an der Cursorposition des UltimateBasic-Editors ein (außerhalb des UB-Modus wird sie in die Zwischenablage kopiert). Der UltimateBasic-Compiler erstellt daraus zur Kompilierzeit einen Nullseiten-freien Player, sodass `Musik abspielen` / `Musik stoppen` die Melodie steuern und keine Konflikte mit UB-Variablen auftreten. Vibrato-, Slide-, Noten-Cut- und Geschwindigkeitseffekte werden unterstützt; bis zu 8 Patterns, beliebige Orderlistenlänge. Erfordert einen UltimateBasic-Compiler mit `tune`-Unterstützung.
+- **Ultimatives Basic-Sprachupdate** – Syntaxhervorhebung und Befehlsreferenz umfassen nun **`sfx`** (nicht blockierender SID-Effekt: `sfx Kanal, Frequenz, Frames [, Welle]`), **`org`** (Sub-/Funktionscode an einer Adresse fortsetzen und eine mit Nullen gefüllte Lücke hinterlassen, die `incbin` Daten aufnehmen kann), **`charset on` / `charset off`** (VIC-II auf den RAM-Zeichensatz umschalten und zurück) und **`incbin` slicing** (`incbin "font.prg", $3C00, 2` überspringt die ersten Bytes, ein optionales viertes Argument begrenzt die Länge).
+- **Mehrere Blöcke in der ASM-Ansicht hervorheben** – Durch die Auswahl mehrerer Blöcke werden alle zugehörigen ASM-Zeilen gleichzeitig hervorgehoben, die Scrollposition bleibt während der Auswahl stabil, und die Zeilennummern werden durch eine dezente vertikale Trennlinie weicher dargestellt.
+- **Assembler-Modus bleibt beim Wechsel zwischen Ultimate Basic erhalten** – Beim Öffnen eines Projekts oder eines integrierten Beispiels, während Ultimate Basic aktiv ist, wird nun zuerst Ultimate Basic gestartet und zum zuletzt verwendeten Block-/Expertenmodus zurückgekehrt. Dadurch kann der Ultimate-Basic-Puffer den Modus oder Titel des neuen Tabs nicht mehr überschreiben. Neue Tabs werden im korrekten Modus erstellt.
+- **Kung Fu Flash 2 Einstellungen** — eine **USB-Erkennen** Schaltfläche in den Hardware-Einstellungen scannt erneut nach dem seriellen Anschluss der Cartridge, und die KFF2-Voraussetzungen geben nun die erforderliche Kung Fu Flash Firmware (v2.07+) an.
 
 ---
 
@@ -331,7 +342,7 @@ Die Registerkarte **Optionen** enthält die Einstellungen, die die Codegenerieru
 
 ### Klicken auf eine ASM-Zeile
 
-Klicken Sie auf eine beliebige Zeile in der ASM-Ansicht, um **den entsprechenden Block** im Programmbereich hervorzuheben.
+Klicken Sie in der ASM-Ansicht auf eine beliebige Zeile, um den entsprechenden Block im Programmbereich hervorzuheben. Wenn mehrere Blöcke ausgewählt sind, werden die ASM-Zeilen aller Blöcke gleichzeitig hervorgehoben.
 
 ### ASM-Zeilennummern
 
@@ -487,6 +498,15 @@ Ultimate Basic-Projekte verwenden `.proj`-Dateien und können mehrere `.ub`-Quel
 
 Klicken Sie auf den Stern neben einer Projektdatei, um diese als **Startdatei** zu markieren. Die Befehle „Erstellen“, „Ausführen“, „D64“, „C64 Ultimate“ und „Debuggen“ kompilieren diese Startdatei, selbst wenn ein anderer Tab aktiv ist. Ohne Auswahl einer Startdatei wird der aktive UB-Tab verwendet.
 
+Die Projektfenster-Symbolleiste verfügt über zwei Schaltflächen zum Hinzufügen, und Dateidialoge verwenden standardmäßig den **UB-Arbeitsordner** (Menü → Datei → Arbeitsordner festlegen, UB-spezifisch):
+
+- **Datei hinzufügen** – Wählen Sie eine oder mehrere Dateien gleichzeitig aus (beliebiger Typ – `.ub`, `.bin`, `.prg`, Bilder, Schriftarten usw.). `.ub`-Quelldateien werden ebenfalls als Editor-Tabs geöffnet; alles andere wird nur als Referenz hinzugefügt, damit `incbin`/`loadfile`-Assets mit dem Projekt übertragen werden.
+- **Ordner hinzufügen** — einen ganzen Ordner referenzieren (z.B. ein `incbin` Asset-Verzeichnis wie `fonts/`), damit er dem Projekt zugeordnet bleibt.
+
+Ordner in der Baumstruktur verfügen über einen Ein-/Ausklapppfeil. Durch Rechtsklicken auf einen Ordner können Sie eine oder mehrere darin enthaltene Dateien hinzufügen (eingerückt dargestellt). Jeder Eintrag hat eine Löschtaste (✕). Einträge, die nicht mit `.ub` gekennzeichnet sind, dienen nur als Referenz und werden durch Anklicken nicht geöffnet.
+
+Die Schaltfläche **Projekt speichern** deaktiviert sich automatisch und zeigt den Status „Gespeichert“ an, sobald das Projekt keine ausstehenden Änderungen mehr enthält. Sie wird automatisch wieder aktiviert, sobald Sie eine Datei oder einen Ordner hinzufügen, entfernen oder neu organisieren.
+
 ### Gebäude und Diagnostik
 
 Die Schaltfläche **Build** öffnet die gleiche zentrierte Fortschrittsanzeige wie die anderen Workflows für die Ausführung des Visual Assemblers. Erfolgreiche Builds aktualisieren die Build-Ausgabe, die Build-Informationen und die Disassemblierung. Aktivieren Sie **Verbose**, um Details zur Compiler-Speicherbelegung, interne Nullseitenzuweisungen und generierte Codedaten anzuzeigen.
@@ -639,6 +659,9 @@ Der Expertenmodus unterstützt ein **Projektpanel** (`#expert-project-panel`) f�
 - Jede Datei im Projekt öffnet sich als separater **Tab** in der Tableiste am oberen Rand des Editors.
 - **Projekt schließen** (`Menü → Datei → Projekt schließen` / `#menu-close-project`) schließt das aktuelle Projekt und alle zugehörigen Dateiregisterkarten gleichzeitig. Vor dem Schließen werden Sie aufgefordert, nicht gespeicherte Änderungen zu speichern. Das Projektfenster wird auf seinen leeren Zustand zurückgesetzt und `_expertProjectData` wird gelöscht.
 - Jede Datei kann als **Startdatei** (★ Sternsymbol) markiert werden. Wenn eine Startdatei festgelegt ist, kompiliert und führt die Schaltfläche **Ausführen** (PRG, D64, Ultimate) immer den Code dieser Datei aus – unabhängig vom aktuell aktiven Tab. Dies funktioniert sowohl im Blockmodus als auch im Expertenmodus.
+- Die Schaltfläche „Hinzufügen“ in der Symbolleiste (X14X) wählt eine oder mehrere Dateien gleichzeitig aus (beliebiger Typ, nicht nur JSON- oder Asm-Dateien) und referenziert sie im Projekt, ohne sie zu öffnen. Verwenden Sie diese Funktion für Binärdateien wie INCBIN-Daten (X185X). Der Dialog öffnet standardmäßig das VA-Arbeitsverzeichnis. Die danebenliegende Schaltfläche „Ordner hinzufügen“ (X259X) referenziert auf dieselbe Weise einen ganzen Ordner (z. B. ein Asset-Verzeichnis). Einträge, die nur referenziert werden, zeigen eine Löschschaltfläche (✕) an, werden aber durch Anklicken nicht geöffnet.
+- Die Ordner in der Baumstruktur verfügen über einen Ein-/Ausklapppfeil. Durch einen Rechtsklick auf einen Ordner können Sie eine oder mehrere darin verschachtelte Dateien hinzufügen (eingerückt dargestellt).
+- Die Schaltfläche **Projekt speichern** deaktiviert sich automatisch und zeigt den Status „Gespeichert“ an, sobald das Projekt keine ausstehenden Änderungen mehr enthält. Sie wird automatisch wieder aktiviert, sobald Sie eine Datei oder einen Ordner hinzufügen, entfernen oder neu organisieren.
 - Der Abschnitt **symbols** am unteren Rand des Projektfensters kann mithilfe der Trennlinie zwischen Dateibaum und Symbolliste vertikal in der Größe angepasst werden, sodass lange Symbollisten bei Bedarf mehr Platz einnehmen können.
 
 ### Tableiste
@@ -3654,12 +3677,13 @@ Die Effekte werden einmal pro Zeile aktualisiert (entsprechend dem Timing des ex
 - Akkord- und Arpeggio-Vorschauen leuchten die entsprechenden Klaviertasten auf, wenn die Tastatur geöffnet ist.
 
 **Dateien-Menü-Exporte:**
-| Export                                   | Was es tut                                                                                                                                                                                                                                                  |
-| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Speichern .bin…`                        | Schreibt das vom Editor bereitgestellte serialisierte Format (Instrumente + Muster + Sequenz).                                                                                                                                                              |
-| `Exportblöcke (nur Daten)`               | Fügt Instrumententabelle + Musterblöcke an das Programm an der Stelle `* = $C000` an.                                                                                                                                                                       |
-| `Exportblöcke + Minispieler`             | Fügt den vollständigen Player (sid_init / sid_irq / sid_play_row / sid_set_voice) sowie PAL-Frequenztabellen hinzu. Nach dem Export fügen Sie in Ihrem Hauptcode an der Stelle, an der die Musikwiedergabe starten soll, eine `JSR sid_init`-Anweisung ein. |
-| `Assembler exportieren (Zwischenablage)` | Kopiert den vollständigen Assembler-Quelltext in die Zwischenablage.                                                                                                                                                                                        |
+| Export                                   | Was es tut                                                                                                                                                                                                                                                                                                                                           |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Speichern .bin…`                        | Schreibt das vom Editor bereitgestellte serialisierte Format (Instrumente + Muster + Sequenz).                                                                                                                                                                                                                                                       |
+| `Exportblöcke (nur Daten)`               | Fügt Instrumententabelle + Musterblöcke an das Programm an der Stelle `* = $C000` an.                                                                                                                                                                                                                                                                |
+| `Exportblöcke + Minispieler`             | Fügt den vollständigen Player (sid_init / sid_irq / sid_play_row / sid_set_voice) sowie PAL-Frequenztabellen hinzu. Nach dem Export fügen Sie in Ihrem Hauptcode an der Stelle, an der die Musikwiedergabe starten soll, eine `JSR sid_init`-Anweisung ein.                                                                                          |
+| `Assembler exportieren (Zwischenablage)` | Kopiert den vollständigen Assembler-Quelltext in die Zwischenablage.                                                                                                                                                                                                                                                                                 |
+| `Export nach UltimateBasic`              | Schreibt einen `tune ... end`-Block (Instrumente, Reihenfolgeliste, Patternzeilen als Text) plus `music play` und fügt ihn an der Cursorposition des Ultimate Basic-Editors ein; außerhalb des UB-Modus wird der Text in die Zwischenablage kopiert. Der Ultimate Basic-Compiler erstellt den Player, daher steuern `music play` / `music stop` ihn. |
 
 **Player ZP-Nutzung:** `$02`–`$2F` (Zeigertabellen, Pattern-Offset und Effektstatus pro Stimme) sowie `$FB`–`$FE` (Tickzähler, Zeilenindex, Position in der Orderliste, set_voice temp). Diese können in Konflikt geraten, wenn Ihr Hauptcode sie verwendet – verschieben Sie sie gegebenenfalls im Expertenmodus.
 
