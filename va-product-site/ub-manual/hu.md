@@ -852,10 +852,10 @@ gyorsabban, mint 25 egyedi piszkálás.
 ### Nem blokkoló hangeffektek (`sfx`) — újdonság az 1.5.7-es verzióban
 
 ```basic
-sound 0, $2000, 25 # BLOCKS: a program itt 25 képkockát vár
-sfx 0, $2000, 25 # azonnal visszatér; a hang magától elhalkul
-sfx 1, $0500, 8, 128 # opcionális wave: 16 triangle, 32 saw (alapértelmezett), 64 pulse, 128 noise
-sfx 0, freq_word, 4, 16 # a freq lehet konstans, szóváltozó vagy 8 bites kifejezés
+sound 0, $2000, 25            # BLOCKS: the program waits 25 frames here
+sfx 0, $2000, 25              # returns at once; the note fades out by itself
+sfx 1, $0500, 8, 128          # optional wave: 16 triangle, 32 saw (default), 64 pulse, 128 noise
+sfx 0, freq_word, 4, 16       # freq may be a constant, a word var or an 8-bit expression
 ```
 
 Az `sfx <channel>, <freq>, <frames> [, <wave>]` egy SID hangot programoz, és
@@ -916,15 +916,15 @@ sid volume 15           # master volume on
 ### Tracker dallamok (`tune`)
 
 ```basic
-hangolás # opcionális: hangolás $C800 sebességgel (alapértelmezett $8000)
-sebesség 6 # képkocka soronként (50 Hz PAL)
-inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
-inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
-order 0, 1, 0 # minta sorrend (a minták ismétlődhetnek)
-pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
-pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+tune                       # optional: tune at $C800  (default $8000)
+  speed 6                  # frames per row (50 Hz PAL)
+  inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
+  inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+  order 0, 1, 0            # pattern order (patterns may repeat)
+  pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
+  pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
 end
-music play # vagy: sys sid_init / irq kezelő hívja a sys sid_play-t
+music play                 # or: sys sid_init / irq handler calling sys sid_play
 ```
 
 Az `tune ... end` egy 3 hangú követő dallamot ír le egyszerű szövegben
@@ -1178,10 +1178,10 @@ fordító hibát jelez. A Koala importálás jelenleg nem kombinálható a `load
 ### Kód elrendezése: `org` — újdonság az 1.5.7-es verzióban
 
 ```basic
-sub a() ... end # a rész/fn-ek egymás után kerülnek elhelyezésre a törzs végétől számítva
-org $4000 # a következő rész/fn-ek $4000-nél folytatódnak; $xxxx-$3FFF nullával kitöltve marad
+sub a() ... end          # subs/fns are placed one after another from the end of the main body
+org $4000                # the next subs/fns continue at $4000; $xxxx-$3FFF stays zero-filled
 sub b() ... end
-incbin "font.bin", $3800 # az adatok elhelyezkedhetnek a résben ($3800-$3FFF egy teljes VIC karakterkészlet slot)
+incbin "font.bin", $3800 # data can live in the gap ($3800-$3FFF is a whole VIC charset slot)
 ```
 
 Az `org addr` függvény az **alprogram/fn definíciók között helyezkedik el** (a
@@ -1219,11 +1219,11 @@ Az `charset addr` csak az `chardef` célállomást állítja be; nem bocsát ki 
 Ahhoz, hogy a VIC-II ezt a készletet használja, kapcsolja be (és kapcsolja ki,
 ha végzett):
 ```basic
-karakterkészlet $3800
-chardef 1 $FF,$81,$81,$81,$81,$81,$81,$FF vége # mező kerete
-karakterkészlet bekapcsolva # A VIC-II karaktereket olvas $3800-ból (a képernyőmátrix érintetlen)
+charset $3800
+chardef 1  $FF,$81,$81,$81,$81,$81,$81,$FF  end  # box border
+charset on          # VIC-II reads characters from $3800 (screen matrix untouched)
 ...
-karakterkészlet kikapcsolva # Vissza a ROM készlethez ($1800, ha a `lowercase` aktív, egyébként $1000)
+charset off         # back to the ROM set ($1800 if `lowercase` is active, else $1000)
 ```
 
 `charset on` olvasási-módosítási-írási műveletén keresztül `$D018` bitek 1-3-át
@@ -1540,11 +1540,11 @@ mutató hivatkozások (a `onerr goto` után definiált címke) támogatottak.
 ### Fordítási idejű fájlbeágyazás (`incbin` skip / length, új az 1.5.7-es verzióban)
 
 ```basic
-incbin "sprites.bin" # nyers bináris bájtok beágyazása az aktuális kódpozícióba
-incbin "charset.bin", $2000 # beágyazás abszolút címre, szükség szerint kitöltve
-incbin "font.prg", $3C00, 2 # ...az első 2 bájt kihagyása (pl. egy .prg betöltési cím)
-incbin "big.bin", $4000, 16, 256 # ...16 bájt kihagyása, majd legfeljebb 256 bájt felhasználása
-include "defs.ub" # egy másik .ub forrásfájl beágyazása (lexikálisan + helyben értelmezve)
+incbin "sprites.bin"            # embed raw binary bytes at current code position
+incbin "charset.bin", $2000     # embed at an absolute address, padding as needed
+incbin "font.prg", $3C00, 2       # ...skipping the first 2 bytes (e.g. a .prg load address)
+incbin "big.bin", $4000, 16, 256  # ...skip 16 bytes, then take at most 256 bytes
+include "defs.ub"        # inline another .ub source file (lexed+parsed in place)
 ```
 
 Az `incbin "file", addr, skip [, length]` függvény eldobja a fájl első `skip`

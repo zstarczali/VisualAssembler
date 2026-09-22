@@ -831,10 +831,10 @@ individuella pokes.
 ### Icke-blockerande ljudeffekter (`sfx`) — nytt i 1.5.7
 
 ```basic
-ljud 0, $2000, 25 # BLOCK: programmet väntar 25 bildrutor här
-sfx 0, $2000, 25 # returnerar direkt; tonen tonar ut av sig själv
-sfx 1, $0500, 8, 128 # valfri våg: 16 triangel, 32 såg (standard), 64 puls, 128 brus
-sfx 0, freq_word, 4, 16 # freq kan vara en konstant, en ordvariabel eller ett 8-bitarsuttryck
+sound 0, $2000, 25            # BLOCKS: the program waits 25 frames here
+sfx 0, $2000, 25              # returns at once; the note fades out by itself
+sfx 1, $0500, 8, 128          # optional wave: 16 triangle, 32 saw (default), 64 pulse, 128 noise
+sfx 0, freq_word, 4, 16       # freq may be a constant, a word var or an 8-bit expression
 ```
 
 `sfx <channel>, <freq>, <frames> [, <wave>]` programmerar en SID-röst och
@@ -894,9 +894,15 @@ sid volume 15           # master volume on
 ### Tracker-låtar (`tune`)
 
 ```basic
-stämma # valfritt: stämma vid $C800 (standard $8000) hastighet 6 # bildrutor per rad (50 Hz PAL) inst 0, $41, $09, $F0, $0800, $0064, $27, $1F inst 1, $10, $08, $A8, $0400, $0000, $00, $0F ordning 0, 1, 0 # mönsterordning (mönster kan upprepas) pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00" pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
-slut
-musikuppspelning # eller: sys sid_init / irq-hanterare som anropar sys sid_play
+tune                       # optional: tune at $C800  (default $8000)
+  speed 6                  # frames per row (50 Hz PAL)
+  inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
+  inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+  order 0, 1, 0            # pattern order (patterns may repeat)
+  pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
+  pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+end
+music play                 # or: sys sid_init / irq handler calling sys sid_play
 ```
 
 `tune ... end` beskriver en 3-stämmig spårningsmelodi i klartext (samma
@@ -1141,10 +1147,10 @@ Koala-import kan för närvarande inte kombineras med `load sid` i samma program
 ### Kodlayout: `org` — nytt i 1.5.7
 
 ```basic
-sub a() ... end # subs/fns placeras efter varandra från slutet av huvuddelen
-org $4000 # nästa subs/fns fortsätter vid $4000; $xxxx-$3FFF förblir nollfylld
+sub a() ... end          # subs/fns are placed one after another from the end of the main body
+org $4000                # the next subs/fns continue at $4000; $xxxx-$3FFF stays zero-filled
 sub b() ... end
-incbin "font.bin", $3800 # data kan finnas i mellanrummet ($3800-$3FFF är en hel VIC-teckenuppsättningsplats)
+incbin "font.bin", $3800 # data can live in the gap ($3800-$3FFF is a whole VIC charset slot)
 ```
 
 `org addr` går **mellan sub/fn-definitioner** (den ignoreras i huvuddelen och
@@ -1181,11 +1187,11 @@ programmeraren (manualen sa det före 1.5.7 — det var fel).
 För att få VIC-II att använda setet, slå på det (och stäng av det igen när du är
 klar):
 ```basic
-teckenuppsättning $3800
-chardef 1 $FF,$81,$81,$81,$81,$81,$81,$81,$FF slut # boxkant
-teckenuppsättning på # VIC-II läser tecken från $3800 (skärmmatris orörd)
+charset $3800
+chardef 1  $FF,$81,$81,$81,$81,$81,$81,$FF  end  # box border
+charset on          # VIC-II reads characters from $3800 (screen matrix untouched)
 ...
-teckenuppsättning av # tillbaka till ROM-uppsättningen ($1800 om `lowercase` är aktiv, annars $1000)
+charset off         # back to the ROM set ($1800 if `lowercase` is active, else $1000)
 ```
 
 `charset on` läs-ändra-skriver `$D018` bitarna 1-3 från den sista `charset addr`
@@ -1498,11 +1504,11 @@ Framåtriktade referenser (etikett definierad efter `onerr goto`) stöds.
 ### Inbäddning av filer vid kompilering (`incbin` hoppa över / längd nytt i 1.5.7)
 
 ```basic
-incbin "sprites.bin" # bädda in råa binära byte vid aktuell kodposition
-incbin "charset.bin", $2000 # bädda in vid en absolut adress, utfyllnad efter behov
-incbin "font.prg", $3C00, 2 # ...hoppar över de första 2 byten (t.ex. en .prg-laddningsadress)
-incbin "big.bin", $4000, 16, 256 # ...hoppar över 16 byte, ta sedan högst 256 byte
-include "defs.ub" # infogar en annan .ub-källfil (lexed+parsad på plats)
+incbin "sprites.bin"            # embed raw binary bytes at current code position
+incbin "charset.bin", $2000     # embed at an absolute address, padding as needed
+incbin "font.prg", $3C00, 2       # ...skipping the first 2 bytes (e.g. a .prg load address)
+incbin "big.bin", $4000, 16, 256  # ...skip 16 bytes, then take at most 256 bytes
+include "defs.ub"        # inline another .ub source file (lexed+parsed in place)
 ```
 
 `incbin "file", addr, skip [, length]` tar bort de första `skip` bytena i filen

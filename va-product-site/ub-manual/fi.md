@@ -843,10 +843,10 @@ nollatäyttösilmukan – nopeammin kuin 25 yksittäistä työntöä.
 ### Ei-estävät äänitehosteet (`sfx`) — uutta versiossa 1.5.7
 
 ```basic
-ääni 0, $2000, 25 # LOHKOJA: ohjelma odottaa tässä 25 kehystä
-sfx 0, $2000, 25 # palaa heti; nuotti vaimenee itsestään
-sfx 1, $0500, 8, 128 # valinnainen aalto: 16 kolmio, 32 saha (oletus), 64 pulssi, 128 kohina
-sfx 0, freq_word, 4, 16 # freq voi olla vakio, sanamuuttuja tai 8-bittinen lauseke
+sound 0, $2000, 25            # BLOCKS: the program waits 25 frames here
+sfx 0, $2000, 25              # returns at once; the note fades out by itself
+sfx 1, $0500, 8, 128          # optional wave: 16 triangle, 32 saw (default), 64 pulse, 128 noise
+sfx 0, freq_word, 4, 16       # freq may be a constant, a word var or an 8-bit expression
 ```
 
 `sfx <channel>, <freq>, <frames> [, <wave>]` ohjelmoi yhden SID-äänen ja
@@ -907,15 +907,15 @@ sid volume 15           # master volume on
 ### Seurantamelodiat (`tune`)
 
 ```basic
-viritys # valinnainen: viritys taajuudella $C800 (oletus $8000)
-nopeus 6 # kehyksiä rivillä (50 Hz PAL)
-inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
-inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
-order 0, 1, 0 # kuviojärjestys (kuviot voivat toistua)
-pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
-pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+tune                       # optional: tune at $C800  (default $8000)
+  speed 6                  # frames per row (50 Hz PAL)
+  inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
+  inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+  order 0, 1, 0            # pattern order (patterns may repeat)
+  pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
+  pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
 end
-musiikin toisto # tai: sys sid_init / irq-käsittelijä kutsuu sys sid_play:tä
+music play                 # or: sys sid_init / irq handler calling sys sid_play
 ```
 
 `tune ... end` kuvaa kolmiäänisen seurantasävelmän selkokielellä (sama
@@ -1168,10 +1168,10 @@ ohjelmassa.
 ### Koodin asettelu: `org` — uutta versiossa 1.5.7
 
 ```basic
-sub a() ... end # ali-/funktiot sijoitetaan peräkkäin pääosan lopusta
-org $4000 # seuraavat ali-/funktiot jatkuvat kohdasta $4000; $xxxx-$3FFF pysyy nollilla täytettynä
+sub a() ... end          # subs/fns are placed one after another from the end of the main body
+org $4000                # the next subs/fns continue at $4000; $xxxx-$3FFF stays zero-filled
 sub b() ... end
-incbin "font.bin", $3800 # tiedot voivat sijaita aukossa ($3800-$3FFF on kokonainen VIC-merkistöpaikka)
+incbin "font.bin", $3800 # data can live in the gap ($3800-$3FFF is a whole VIC charset slot)
 ```
 
 `org addr` siirtyy **ali-/fn-määritelmien väliin** (sitä ei huomioida pääosiossa
@@ -1210,10 +1210,10 @@ VIC-II:n käyttämään joukkoa, kytke se päälle (ja pois päältä uudelleen,
 valmis):
 ```basic
 charset $3800
-chardef 1 $FF,$81,$81,$81,$81,$81,$81,$FF end # laatikon reuna
-charset on # VIC-II lukee merkkejä laatikosta $3800 (näyttömatriisi koskematon)
+chardef 1  $FF,$81,$81,$81,$81,$81,$81,$FF  end  # box border
+charset on          # VIC-II reads characters from $3800 (screen matrix untouched)
 ...
-charset off # takaisin ROM-joukkoon ($1800, jos `lowercase` ovat aktiivisia, muuten $1000)
+charset off         # back to the ROM set ($1800 if `lowercase` is active, else $1000)
 ```
 
 `charset on` read-modify-writes `$D018` bitit 1-3 viimeisestä `charset addr`
@@ -1527,11 +1527,11 @@ tuetaan.
 ### Käännösaikainen tiedostojen upottaminen (`incbin` skip / length, uusi versiossa 1.5.7)
 
 ```basic
-incbin "sprites.bin" # upottaa raakabinääritavut nykyiseen koodipaikkaan
-incbin "charset.bin", $2000 # upottaa absoluuttiseen osoitteeseen, täydentäen tarvittaessa
-incbin "font.prg", $3C00, 2 # ...ohita kaksi ensimmäistä tavua (esim. .prg-latausosoite)
-incbin "big.bin", $4000, 16, 256 # ...ohita 16 tavua, ota sitten enintään 256 tavua
-include "defs.ub" # upottaa toisen .ub-lähdekooditiedoston (leksattu ja jäsennetty paikalleen)
+incbin "sprites.bin"            # embed raw binary bytes at current code position
+incbin "charset.bin", $2000     # embed at an absolute address, padding as needed
+incbin "font.prg", $3C00, 2       # ...skipping the first 2 bytes (e.g. a .prg load address)
+incbin "big.bin", $4000, 16, 256  # ...skip 16 bytes, then take at most 256 bytes
+include "defs.ub"        # inline another .ub source file (lexed+parsed in place)
 ```
 
 `incbin "file", addr, skip [, length]` poistaa tiedostosta ensimmäiset `skip`

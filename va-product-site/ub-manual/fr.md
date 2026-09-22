@@ -867,10 +867,10 @@ plus rapide que 25 insertions individuelles.
 ### Effets sonores non bloquants (`sfx`) — nouveauté de la version 1.5.7
 
 ```basic
-son 0, $2000, 25 # BLOCS : le programme attend 25 images ici
-sfx 0, $2000, 25 # Retour immédiat ; la note s’estompe d’elle-même
-sfx 1, $0500, 8, 128 # Onde optionnelle : 16 triangle, 32 dents de scie (par défaut), 64 impulsion, 128 bruit
-sfx 0, freq_word, 4, 16 # freq peut être une constante, une variable de type mot ou une expression 8 bits
+sound 0, $2000, 25            # BLOCKS: the program waits 25 frames here
+sfx 0, $2000, 25              # returns at once; the note fades out by itself
+sfx 1, $0500, 8, 128          # optional wave: 16 triangle, 32 saw (default), 64 pulse, 128 noise
+sfx 0, freq_word, 4, 16       # freq may be a constant, a word var or an 8-bit expression
 ```
 
 La fonction `sfx <channel>, <freq>, <frames> [, <wave>]` programme une voix SID
@@ -933,20 +933,15 @@ sid volume 15           # master volume on
 ### Track mèmes (`tune`)
 
 ```basic
-Accordage # optionnel : accord à $C800 (par défaut $8000)
-
-Vitesse 6 # images par ligne (50 Hz PAL)
-
-inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
-
-inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
-
-Ordre 0, 1, 0 # ordre des motifs (les motifs peuvent se répéter)
-
-pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
-
-pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
-Fin de la lecture de musique # ou : sys sid_init / gestionnaire d'interruption appelant sys sid_play
+tune                       # optional: tune at $C800  (default $8000)
+  speed 6                  # frames per row (50 Hz PAL)
+  inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
+  inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+  order 0, 1, 0            # pattern order (patterns may repeat)
+  pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
+  pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+end
+music play                 # or: sys sid_init / irq handler calling sys sid_play
 ```
 
 `tune ... end` décrit une mélodie de suivi à 3 voix en texte brut (la même
@@ -1206,10 +1201,10 @@ une erreur. L'importation Koala ne peut actuellement pas être combinée avec
 ### Agencement du code : `org` — nouveauté de la version 1.5.7
 
 ```basic
-sub a() ... end # Les sous-routines/fonctions sont placées les unes après les autres à partir de la fin du corps principal
-org $4000 # Les sous-routines/fonctions suivantes continuent à $4000 ; $xxxx-$3FFF reste rempli de zéros
+sub a() ... end          # subs/fns are placed one after another from the end of the main body
+org $4000                # the next subs/fns continue at $4000; $xxxx-$3FFF stays zero-filled
 sub b() ... end
-incbin "font.bin", $3800 # Les données peuvent être stockées dans l'espace ($3800-$3FFF correspond à un emplacement complet du jeu de caractères VIC)
+incbin "font.bin", $3800 # data can live in the gap ($3800-$3FFF is a whole VIC charset slot)
 ```
 
 L'adresse `org addr` se trouve **entre les définitions de
@@ -1250,9 +1245,10 @@ code. Pour que le VIC-II utilise cette configuration, activez-la (puis
 désactivez-la une fois terminé).
 ```basic
 charset $3800
-chardef 1 $FF,$81,$81,$81,$81,$81,$81,$FF end # bordure de la boîte
-charset on # VIC-II lit les caractères à partir de $3800 (matrice d'écran non modifiée)
-... charset off # retour au jeu de caractères ROM ($1800 si `lowercase` est actif, sinon $1000)
+chardef 1  $FF,$81,$81,$81,$81,$81,$81,$FF  end  # box border
+charset on          # VIC-II reads characters from $3800 (screen matrix untouched)
+...
+charset off         # back to the ROM set ($1800 if `lowercase` is active, else $1000)
 ```
 
 `charset on` read-modify-writes `$D018` bits 1-3 from the last `charset addr`
@@ -1576,11 +1572,11 @@ définie après `onerr goto`) sont prises en charge.
 ### Intégration de fichiers au moment de la compilation (`incbin` skip / longueur nouveau dans la version 1.5.7)
 
 ```basic
-incbin "sprites.bin" # Incorporer des octets binaires bruts à la position de code actuelle
-incbin "charset.bin", $2000 # Incorporer à une adresse absolue, avec remplissage si nécessaire
-incbin "font.prg", $3C00, 2 # ...en ignorant les 2 premiers octets (par exemple, l'adresse de chargement d'un fichier .prg)
-incbin "big.bin", $4000, 16, 256 # ...en ignorant 16 octets, puis en prenant au maximum 256 octets
-include "defs.ub" # Intégrer un autre fichier source .ub (lexicalisé et analysé sur place)
+incbin "sprites.bin"            # embed raw binary bytes at current code position
+incbin "charset.bin", $2000     # embed at an absolute address, padding as needed
+incbin "font.prg", $3C00, 2       # ...skipping the first 2 bytes (e.g. a .prg load address)
+incbin "big.bin", $4000, 16, 256  # ...skip 16 bytes, then take at most 256 bytes
+include "defs.ub"        # inline another .ub source file (lexed+parsed in place)
 ```
 
 `incbin "file", addr, skip [, length]` ignore les `skip` premiers octets du

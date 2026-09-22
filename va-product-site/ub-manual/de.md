@@ -858,10 +858,10 @@ einzelne Eingaben.
 ### Nicht blockierende Soundeffekte (`sfx`) – neu in Version 1.5.7
 
 ```basic
-sound 0, $2000, 25 # BLOCKS: Das Programm wartet hier 25 Frames.
-sfx 0, $2000, 25 # Gibt sofort den Wert zurück; der Ton klingt automatisch aus.
-sfx 1, $0500, 8, 128 # Optionale Wellenform: 16 Dreieck, 32 Sägezahn (Standard), 64 Puls, 128 Rauschen.
-sfx 0, freq_word, 4, 16 # freq kann eine Konstante, eine Wortvariable oder ein 8-Bit-Ausdruck sein.
+sound 0, $2000, 25            # BLOCKS: the program waits 25 frames here
+sfx 0, $2000, 25              # returns at once; the note fades out by itself
+sfx 1, $0500, 8, 128          # optional wave: 16 triangle, 32 saw (default), 64 pulse, 128 noise
+sfx 0, freq_word, 4, 16       # freq may be a constant, a word var or an 8-bit expression
 ```
 
 `sfx <channel>, <freq>, <frames> [, <wave>]` programmiert eine SID-Stimme und
@@ -923,15 +923,15 @@ sid volume 15           # master volume on
 ### Tracker-Melodien (`tune`)
 
 ```basic
-Abstimmung # optional: Abstimmung auf $C800 (Standard $8000)
-Geschwindigkeit 6 # Frames pro Zeile (50 Hz PAL)
-Inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
-Inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
-Reihenfolge 0, 1, 0 # Musterreihenfolge (Muster können sich wiederholen)
-Muster 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
-Muster 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
-Ende
-Musikwiedergabe # oder: sys sid_init / irq-Handler ruft sys auf sid_play
+tune                       # optional: tune at $C800  (default $8000)
+  speed 6                  # frames per row (50 Hz PAL)
+  inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
+  inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+  order 0, 1, 0            # pattern order (patterns may repeat)
+  pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
+  pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+end
+music play                 # or: sys sid_init / irq handler calling sys sid_play
 ```
 
 `tune ... end` beschreibt eine 3-stimmige Tracker-Melodie im Klartext (die
@@ -1190,10 +1190,10 @@ selben Programm kombiniert werden.
 ### Code-Layout: `org` — neu in 1.5.7
 
 ```basic
-sub a() ... end # Unterprogramme/Funktionen werden nacheinander vom Ende des Hauptteils aus eingefügt.
-org $4000 # Die nächsten Unterprogramme/Funktionen werden bei $4000 fortgesetzt; $xxxx-$3FFF bleibt mit Nullen aufgefüllt.
+sub a() ... end          # subs/fns are placed one after another from the end of the main body
+org $4000                # the next subs/fns continue at $4000; $xxxx-$3FFF stays zero-filled
 sub b() ... end
-incbin "font.bin", $3800 # Daten können in der Lücke gespeichert werden ($3800-$3FFF ist ein vollständiger VIC-Zeichensatz-Slot).
+incbin "font.bin", $3800 # data can live in the gap ($3800-$3FFF is a whole VIC charset slot)
 ```
 
 Die Adresse `org addr` wird **zwischen Subroutinen-/Funktionsdefinitionen**
@@ -1232,11 +1232,11 @@ fälschlicherweise an).
 der VIC-II den Satz verwendet, schalten Sie ihn ein (und nach Gebrauch wieder
 aus):
 ```basic
-Zeichensatz $3800
-chardef 1 $FF,$81,$81,$81,$81,$81,$81,$FF end # Rahmen
-Zeichensatz ein # VIC-II liest Zeichen von $3800 (Bildschirmmatrix unverändert)
+charset $3800
+chardef 1  $FF,$81,$81,$81,$81,$81,$81,$FF  end  # box border
+charset on          # VIC-II reads characters from $3800 (screen matrix untouched)
 ...
-Zeichensatz aus # zurück zum ROM-Satz ($1800, falls `lowercase` aktiv ist, sonst $1000)
+charset off         # back to the ROM set ($1800 if `lowercase` is active, else $1000)
 ```
 
 `charset on` read-modify-writes `$D018` bits 1-3 from the last `charset addr`
@@ -1557,11 +1557,11 @@ entsprechenden Label verzweigt wird. Vorwärtsreferenzen (Labeldefinition nach
 ### Einbettung von Dateien zur Kompilierzeit (`incbin` skip / length neu in 1.5.7)
 
 ```basic
-incbin "sprites.bin" # Binärdaten an der aktuellen Codeposition einbetten
-incbin "charset.bin", $2000 # An einer absoluten Adresse einbetten, ggf. auffüllen
-incbin "font.prg", $3C00, 2 # ...die ersten 2 Bytes überspringen (z. B. Ladeadresse einer .prg-Datei)
-incbin "big.bin", $4000, 16, 256 # ...16 Bytes überspringen, dann maximal 256 Bytes einbinden
-include "defs.ub" # Eine weitere .ub-Quelldatei einbinden (Lex- und Parsing-Vorgang)
+incbin "sprites.bin"            # embed raw binary bytes at current code position
+incbin "charset.bin", $2000     # embed at an absolute address, padding as needed
+incbin "font.prg", $3C00, 2       # ...skipping the first 2 bytes (e.g. a .prg load address)
+incbin "big.bin", $4000, 16, 256  # ...skip 16 bytes, then take at most 256 bytes
+include "defs.ub"        # inline another .ub source file (lexed+parsed in place)
 ```
 
 `incbin "file", addr, skip [, length]` verwirft die ersten `skip` Bytes der

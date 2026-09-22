@@ -845,10 +845,10 @@ afzonderlijke prikbewegingen.
 ### Niet-blokkerende geluidseffecten (`sfx`) — nieuw in 1.5.7
 
 ```basic
-sound 0, $2000, 25 # BLOKKEN: het programma wacht hier 25 frames
-sfx 0, $2000, 25 # keert direct terug; de noot vervaagt vanzelf
-sfx 1, $0500, 8, 128 # optionele golfvorm: 16 driehoek, 32 zaagtand (standaard), 64 puls, 128 ruis
-sfx 0, freq_word, 4, 16 # freq kan een constante, een woordvariabele of een 8-bits expressie zijn
+sound 0, $2000, 25            # BLOCKS: the program waits 25 frames here
+sfx 0, $2000, 25              # returns at once; the note fades out by itself
+sfx 1, $0500, 8, 128          # optional wave: 16 triangle, 32 saw (default), 64 pulse, 128 noise
+sfx 0, freq_word, 4, 16       # freq may be a constant, a word var or an 8-bit expression
 ```
 
 `sfx <channel>, <freq>, <frames> [, <wave>]` programmeert één SID-stem en keert
@@ -909,17 +909,15 @@ sid volume 15           # master volume on
 ### Tracker-tunes (`tune`)
 
 ```basic
-afstemmen # optioneel: afstemmen op $C800 (standaard $8000)
-snelheid 6 # frames per rij (50 Hz PAL)
-inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
-
-inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
-volgorde 0, 1, 0 # patroonvolgorde (patronen kunnen zich herhalen)
-pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
-
-pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
-einde
-muziek afspelen # of: sys sid_init / irq handler roept sys aan sid_play
+tune                       # optional: tune at $C800  (default $8000)
+  speed 6                  # frames per row (50 Hz PAL)
+  inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
+  inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+  order 0, 1, 0            # pattern order (patterns may repeat)
+  pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
+  pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+end
+music play                 # or: sys sid_init / irq handler calling sys sid_play
 ```
 
 `tune ... end` beschrijft een 3-stemmige tracker-tune in platte tekst (dezelfde
@@ -1170,10 +1168,10 @@ gecombineerd met `load sid`.
 ### Code-indeling: `org` — nieuw in 1.5.7
 
 ```basic
-sub a() ... end # subroutines/functies worden één voor één vanaf het einde van de hoofdtekst geplaatst
-org $4000 # de volgende subroutines/functies gaan verder op $4000; $xxxx-$3FFF blijft gevuld met nullen
+sub a() ... end          # subs/fns are placed one after another from the end of the main body
+org $4000                # the next subs/fns continue at $4000; $xxxx-$3FFF stays zero-filled
 sub b() ... end
-incbin "font.bin", $3800 # gegevens kunnen in de ruimte staan ($3800-$3FFF is een volledige VIC-tekenset-slot)
+incbin "font.bin", $3800 # data can live in the gap ($3800-$3FFF is a whole VIC charset slot)
 ```
 
 `org addr` gaat **tussen sub/fn-definities** (het wordt genegeerd in de
@@ -1213,10 +1211,10 @@ verzonden. Om de VIC-II de set te laten gebruiken, moet u deze inschakelen (en
 weer uitschakelen wanneer u klaar bent):
 ```basic
 charset $3800
-chardef 1 $FF,$81,$81,$81,$81,$81,$81,$FF end # box border
-charset on # VIC-II leest tekens van $3800 (schermmatrix onaangeraakt)
+chardef 1  $FF,$81,$81,$81,$81,$81,$81,$FF  end  # box border
+charset on          # VIC-II reads characters from $3800 (screen matrix untouched)
 ...
-charset off # terug naar de ROM-set ($1800 als `lowercase` actief is, anders $1000)
+charset off         # back to the ROM set ($1800 if `lowercase` is active, else $1000)
 ```
 
 `charset on` read-modify-writes `$D018` bits 1-3 from the last `charset addr`
@@ -1533,11 +1531,11 @@ ondersteund.
 ### Compile-time file embedding (`incbin` skip / length new in 1.5.7)
 
 ```basic
-incbin "sprites.bin" # Voeg ruwe binaire bytes in op de huidige codepositie
-incbin "charset.bin", $2000 # Voeg in op een absoluut adres, vul indien nodig aan
-incbin "font.prg", $3C00, 2 # ...sla de eerste 2 bytes over (bijv. een .prg-laadadres)
-incbin "big.bin", $4000, 16, 256 # ...sla 16 bytes over, neem vervolgens maximaal 256 bytes
-include "defs.ub" # Voeg een ander .ub-bronbestand inline in (lexed+parsed in place)
+incbin "sprites.bin"            # embed raw binary bytes at current code position
+incbin "charset.bin", $2000     # embed at an absolute address, padding as needed
+incbin "font.prg", $3C00, 2       # ...skipping the first 2 bytes (e.g. a .prg load address)
+incbin "big.bin", $4000, 16, 256  # ...skip 16 bytes, then take at most 256 bytes
+include "defs.ub"        # inline another .ub source file (lexed+parsed in place)
 ```
 
 `incbin "file", addr, skip [, length]` verwijdert de eerste `skip` bytes van het

@@ -845,10 +845,10 @@ szybszą niż 25 pojedynczych poke'ów.
 ### Efekty dźwiękowe bez blokowania (`sfx`) — nowość w wersji 1.5.7
 
 ```basic
-dźwięk 0, $2000, 25 # BLOKI: program czeka tutaj 25 klatek
-sfx 0, $2000, 25 # powraca natychmiast; nuta wycisza się samoczynnie
-sfx 1, $0500, 8, 128 # opcjonalna fala: 16 trójkąt, 32 piła (domyślnie), 64 puls, 128 szum
-sfx 0, freq_word, 4, 16 # freq może być stałą, słowem var lub wyrażeniem 8-bitowym
+sound 0, $2000, 25            # BLOCKS: the program waits 25 frames here
+sfx 0, $2000, 25              # returns at once; the note fades out by itself
+sfx 1, $0500, 8, 128          # optional wave: 16 triangle, 32 saw (default), 64 pulse, 128 noise
+sfx 0, freq_word, 4, 16       # freq may be a constant, a word var or an 8-bit expression
 ```
 
 `sfx <channel>, <freq>, <frames> [, <wave>]` programuje jeden głos SID i
@@ -909,15 +909,15 @@ sid volume 15           # master volume on
 ### Melodie trackera (`tune`)
 
 ```basic
-tune # opcjonalnie: dostrój na $C800 (domyślnie $8000)
-prędkość 6 # klatek na wiersz (50 Hz PAL)
-inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
-inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
-order 0, 1, 0 # kolejność wzorców (wzorce mogą się powtarzać)
-pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
-pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+tune                       # optional: tune at $C800  (default $8000)
+  speed 6                  # frames per row (50 Hz PAL)
+  inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
+  inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+  order 0, 1, 0            # pattern order (patterns may repeat)
+  pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
+  pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
 end
-music play # lub: sys sid_init / obsługa przerwań wywołująca sys sid_play
+music play                 # or: sys sid_init / irq handler calling sys sid_play
 ```
 
 `tune ... end` opisuje 3-głosową melodię śledzącą w zwykłym tekście (ta sama
@@ -1167,10 +1167,10 @@ tym samym programie.
 ### Układ kodu: `org` — nowość w wersji 1.5.7
 
 ```basic
-sub a() ... koniec # subskrypcje/funkcje są umieszczane jedna po drugiej od końca głównego bloku
-org $4000 # kolejne subskrypcje/funkcje są kontynuowane od $4000; $xxxx-$3FFF pozostaje wypełnione zerami
-sub b() ... koniec
-incbin "font.bin", $3800 # dane mogą znajdować się w luce ($3800-$3FFF to cały slot zestawu znaków VIC)
+sub a() ... end          # subs/fns are placed one after another from the end of the main body
+org $4000                # the next subs/fns continue at $4000; $xxxx-$3FFF stays zero-filled
+sub b() ... end
+incbin "font.bin", $3800 # data can live in the gap ($3800-$3FFF is a whole VIC charset slot)
 ```
 
 `org addr` przechodzi **między definicje sub/fn** (jest ignorowany w treści
@@ -1207,10 +1207,10 @@ przez lekser (w podręczniku do wersji 1.5.7 było to błędne).
 używał tego zestawu, włącz go (i wyłącz ponownie po zakończeniu):
 ```basic
 charset $3800
-chardef 1 $FF,$81,$81,$81,$81,$81,$81,$FF end # obramowanie pola
-charset on # VIC-II odczytuje znaki z $3800 (matryca ekranu nienaruszona)
+chardef 1  $FF,$81,$81,$81,$81,$81,$81,$FF  end  # box border
+charset on          # VIC-II reads characters from $3800 (screen matrix untouched)
 ...
-charset off # powrót do zestawu ROM ($1800 jeśli `lowercase` są aktywne, w przeciwnym razie $1000)
+charset off         # back to the ROM set ($1800 if `lowercase` is active, else $1000)
 ```
 
 `charset on` odczytuje-modyfikuje-zapisuje `$D018` bity 1-3 od ostatniego
@@ -1528,11 +1528,11 @@ po `onerr goto`).
 ### Osadzanie plików w czasie kompilacji (`incbin` pominięcie / długość nowe w wersji 1.5.7)
 
 ```basic
-incbin "sprites.bin" # osadź surowe bajty binarne w bieżącej pozycji kodu
-incbin "charset.bin", $2000 # osadź pod adresem bezwzględnym, uzupełniając w razie potrzeby
-incbin "font.prg", $3C00, 2 # ...pomiń pierwsze 2 bajty (np. adres ładowania .prg)
-incbin "big.bin", $4000, 16, 256 # ...pomiń 16 bajtów, a następnie pobierz maksymalnie 256 bajtów
-include "defs.ub" # wstaw inny plik źródłowy .ub (zoptymalizowany pod kątem leksyki i analizy składniowej w miejscu)
+incbin "sprites.bin"            # embed raw binary bytes at current code position
+incbin "charset.bin", $2000     # embed at an absolute address, padding as needed
+incbin "font.prg", $3C00, 2       # ...skipping the first 2 bytes (e.g. a .prg load address)
+incbin "big.bin", $4000, 16, 256  # ...skip 16 bytes, then take at most 256 bytes
+include "defs.ub"        # inline another .ub source file (lexed+parsed in place)
 ```
 
 `incbin "file", addr, skip [, length]` pomija pierwsze `skip` bajtów pliku
