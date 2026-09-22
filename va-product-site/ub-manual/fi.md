@@ -860,6 +860,100 @@ päälle) ja asettaa päääänenvoimakkuuden `$0F`. `channel` (0-2), `frames` (
 ja `wave` on oltava käännösaikavakioita.
 
 
+### SID-musiikki
+
+```basic
+load sid "tune.sid"            # embed SID music at its native load address
+load sid "tune.sid", $2000     # override: embed at $2000 regardless of SID header
+```
+
+`load sid` lukee PSID- tai RSID-tiedoston **käännöksen aikana**, poistaa otsikon
+ja lisää raakatuota musiikkiin tulosteen `.prg` jälkeen. `load sid` jälkeen
+käytettävissä on kaksi käännösaikaista vakiota:
+
+| Vakio      | Kuvaus                                                                         |
+| ---------- | ------------------------------------------------------------------------------ |
+| `sid_init` | Init-rutiinin osoite — kutsu kerran, jossa A = kappaleen numero (0-pohjainen)  |
+| `sid_play` | Toista rutiinin osoite — kutsu jokaista kehystä (50 Hz PAL) IRQ-käsittelijältä |
+
+Molemmat vakiot toimivat kaikkialla, missä vakio-osoite hyväksytään: `sys`,
+`irq`, `poke`, lausekkeet.
+
+**Tyypillinen käyttö:**
+
+```basic
+load sid "music.sid"
+
+sub music_irq()
+  poke $D019, $FF       # ACK VIC raster IRQ
+  sys sid_play          # advance one frame of music
+  irq_exit              # JMP $EA81: restore A/X/Y + RTI (proper IRQ exit)
+end
+
+sys sid_init, 0         # initialise SID chip: A=0 → first sub-tune
+irq music_irq, $C0      # raster IRQ at line $C0 → 50 Hz on PAL
+
+sid volume 15           # master volume on
+```
+
+**Huomautuksia:**
+- SID-tiedot sijoitetaan kaiken luodun koodin **jälkeen**, ja ne täytetään
+  nollilla latausosoitteeseen asti. Kääntäjä varoittaa, jos SID:n latausosoite
+  menee päällekkäin luodun koodin kanssa.
+- PSID-versioita 1 ja 2 tuetaan. Jos SID-otsikon latausosoite on 0, kahta
+  ensimmäistä datatavua käytetään osoitteena (PRG-tyylinen, little-endian).
+- Vain yksi `load sid` ohjelmaa kohden on merkityksellinen (viimeinen voittaa).
+
+### Seurantamelodiat (`tune`)
+
+```basic
+viritys # valinnainen: viritys taajuudella $C800 (oletus $8000)
+nopeus 6 # kehyksiä rivillä (50 Hz PAL)
+inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
+inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+order 0, 1, 0 # kuviojärjestys (kuviot voivat toistua)
+pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
+pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+end
+musiikin toisto # tai: sys sid_init / irq-käsittelijä kutsuu sys sid_play:tä
+```
+
+`tune ... end` kuvaa kolmiäänisen seurantasävelmän selkokielellä (sama
+solunotaatio kuin Visual Assembler SID-editorissa) ja rakentaa soittimen **
+käännösaikana **. Se määrittelee `sid_init` / `sid_play` täsmälleen samalla
+tavalla kuin `load sid`, joten `music play`, `music stop`, `music pause` ja
+`music resume` (ja manuaalinen `irq`-käsittelijä, joka kutsuu `sys sid_play`)
+toimivat muuttumattomina.
+
+| Linja                                                 | Merkitys                                                                                                                                                                                                                                                               |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `speed N`                                             | Kehyksiä seurantariviä kohden (1–255).                                                                                                                                                                                                                                 |
+| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Yksi instrumentti: ohjausrekisteri (aaltomuodon bitit; soittaja lisää porttibitin), attack/decay, sustain/release, 12-bittinen pulssinleveys, 11-bittinen suodattimen katkaisu, resonanssi-/suodattimen reititystavu (`$D417`) ja tila-/äänenvoimakkuustavu (`$D418`). |
+| `order p, p, ...`                                     | Kuviojärjestys. Viivat kasautuvat, jopa 255 askelta.                                                                                                                                                                                                                   |
+| `pat p, v, "cell", ...`                               | Jopa 32 riviä äänelle `v` (0-2) kuviossa `p` (0-7). Puuttuvat rivit ovat tyhjiä.                                                                                                                                                                                       |
+
+**solu** on `NOTE INST FX`: `C-4`, `D#3`, `Eb2` tai `...` ei nuottia,
+kaksinumeroinen heksadecimal-instrumentti (`..` sen jättämiseksi) ja valinnainen
+efekti - `Vxy` vibrato (x = rivien pito, y = syvyys), `Uxx` / `Dxx` liuku
+ylös/alas, `C` nuotin leikkaus, `Fxx` asetettu nopeus. Pelkkä vaikutus -solu
+voidaan kirjoittaa muodossa `"... .. F06"` tai vain `"F06"`.
+
+Huomioita soittimesta:
+
+- Kaikki pelaajan tilatiedot sijaitsevat **-blobin sisällä ** (absoluuttinen
+  osoitus) - se ei käytä nollasivua, joten se ei voi törmätä
+  UltimateBasic-muuttujiin tai väliaikaisiin muuttujiin, ja se jatkaa
+  toimintaansa, kun ohjelma palaa BASIC-tilaan.
+- Blob-objekti sijoitetaan kiinteään osoitteeseen (oletusarvo `$8000` tai `tune
+  at $addr`) ja `.prg`-tiedosto täytetään siihen, kuten `load sid`. Pidä se
+  erillään koodistasi, taulukoistasi (`$C000+`) ja kaikesta
+  bittikartta-/merkistömuistista. Yksi lohko tarvitsee noin 1,3 kt + 12 tavua
+  riviä ja saraketta kohden.
+- Enintään 8 kuviota (32 riviä kukin); järjestysluettelo voi toistaa niitä
+  vapaasti.
+- `music play` käyttää CIA1-ajastinta 50 Hz:n taajuudella; älä yhdistä sitä
+  toiseen `load sid`/`tune` (viimeinen voittaa).
+
 ### Musiikin toisto
 
 `music play/stop/pause/resume` on korkean tason vaihtoehto manuaaliselle `sys
@@ -1170,100 +1264,6 @@ Ilman osoitetta: toissijainen osoite 0 (tiedoston oma 2-tavuinen otsikko
 käytetään latausosoitteena). Osoitteen kanssa: toissijainen osoite 1 (tiedosto
 ladataan määritettyyn sijaintiin). `save` kutsuu `SETNAM`+`SETLFS`+`SAVE`
 (`$FFBD`/`$FFBA`/`$FFD8`). Vaatii sekä `addr` että `len`.
-
-### Seurantamelodiat (`tune`)
-
-```basic
-viritys # valinnainen: viritys taajuudella $C800 (oletus $8000)
-nopeus 6 # kehyksiä rivillä (50 Hz PAL)
-inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
-inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
-order 0, 1, 0 # kuviojärjestys (kuviot voivat toistua)
-pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
-pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
-end
-musiikin toisto # tai: sys sid_init / irq-käsittelijä kutsuu sys sid_play:tä
-```
-
-`tune ... end` kuvaa kolmiäänisen seurantasävelmän selkokielellä (sama
-solunotaatio kuin Visual Assembler SID-editorissa) ja rakentaa soittimen **
-käännösaikana **. Se määrittelee `sid_init` / `sid_play` täsmälleen samalla
-tavalla kuin `load sid`, joten `music play`, `music stop`, `music pause` ja
-`music resume` (ja manuaalinen `irq`-käsittelijä, joka kutsuu `sys sid_play`)
-toimivat muuttumattomina.
-
-| Linja                                                 | Merkitys                                                                                                                                                                                                                                                               |
-| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `speed N`                                             | Kehyksiä seurantariviä kohden (1–255).                                                                                                                                                                                                                                 |
-| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Yksi instrumentti: ohjausrekisteri (aaltomuodon bitit; soittaja lisää porttibitin), attack/decay, sustain/release, 12-bittinen pulssinleveys, 11-bittinen suodattimen katkaisu, resonanssi-/suodattimen reititystavu (`$D417`) ja tila-/äänenvoimakkuustavu (`$D418`). |
-| `order p, p, ...`                                     | Kuviojärjestys. Viivat kasautuvat, jopa 255 askelta.                                                                                                                                                                                                                   |
-| `pat p, v, "cell", ...`                               | Jopa 32 riviä äänelle `v` (0-2) kuviossa `p` (0-7). Puuttuvat rivit ovat tyhjiä.                                                                                                                                                                                       |
-
-**solu** on `NOTE INST FX`: `C-4`, `D#3`, `Eb2` tai `...` ei nuottia,
-kaksinumeroinen heksadecimal-instrumentti (`..` sen jättämiseksi) ja valinnainen
-efekti - `Vxy` vibrato (x = rivien pito, y = syvyys), `Uxx` / `Dxx` liuku
-ylös/alas, `C` nuotin leikkaus, `Fxx` asetettu nopeus. Pelkkä vaikutus -solu
-voidaan kirjoittaa muodossa `"... .. F06"` tai vain `"F06"`.
-
-Huomioita soittimesta:
-
-- Kaikki pelaajan tilatiedot sijaitsevat **-blobin sisällä ** (absoluuttinen
-  osoitus) - se ei käytä nollasivua, joten se ei voi törmätä
-  UltimateBasic-muuttujiin tai väliaikaisiin muuttujiin, ja se jatkaa
-  toimintaansa, kun ohjelma palaa BASIC-tilaan.
-- Blob-objekti sijoitetaan kiinteään osoitteeseen (oletusarvo `$8000` tai `tune
-  at $addr`) ja `.prg`-tiedosto täytetään siihen, kuten `load sid`. Pidä se
-  erillään koodistasi, taulukoistasi (`$C000+`) ja kaikesta
-  bittikartta-/merkistömuistista. Yksi lohko tarvitsee noin 1,3 kt + 12 tavua
-  riviä ja saraketta kohden.
-- Enintään 8 kuviota (32 riviä kukin); järjestysluettelo voi toistaa niitä
-  vapaasti.
-- `music play` käyttää CIA1-ajastinta 50 Hz:n taajuudella; älä yhdistä sitä
-  toiseen `load sid`/`tune` (viimeinen voittaa).
-
-### SID-musiikki
-
-```basic
-load sid "tune.sid"            # embed SID music at its native load address
-load sid "tune.sid", $2000     # override: embed at $2000 regardless of SID header
-```
-
-`load sid` lukee PSID- tai RSID-tiedoston **käännöksen aikana**, poistaa otsikon
-ja lisää raakatuota musiikkiin tulosteen `.prg` jälkeen. `load sid` jälkeen
-käytettävissä on kaksi käännösaikaista vakiota:
-
-| Vakio      | Kuvaus                                                                         |
-| ---------- | ------------------------------------------------------------------------------ |
-| `sid_init` | Init-rutiinin osoite — kutsu kerran, jossa A = kappaleen numero (0-pohjainen)  |
-| `sid_play` | Toista rutiinin osoite — kutsu jokaista kehystä (50 Hz PAL) IRQ-käsittelijältä |
-
-Molemmat vakiot toimivat kaikkialla, missä vakio-osoite hyväksytään: `sys`,
-`irq`, `poke`, lausekkeet.
-
-**Tyypillinen käyttö:**
-
-```basic
-load sid "music.sid"
-
-sub music_irq()
-  poke $D019, $FF       # ACK VIC raster IRQ
-  sys sid_play          # advance one frame of music
-  irq_exit              # JMP $EA81: restore A/X/Y + RTI (proper IRQ exit)
-end
-
-sys sid_init, 0         # initialise SID chip: A=0 → first sub-tune
-irq music_irq, $C0      # raster IRQ at line $C0 → 50 Hz on PAL
-
-sid volume 15           # master volume on
-```
-
-**Huomautuksia:**
-- SID-tiedot sijoitetaan kaiken luodun koodin **jälkeen**, ja ne täytetään
-  nollilla latausosoitteeseen asti. Kääntäjä varoittaa, jos SID:n latausosoite
-  menee päällekkäin luodun koodin kanssa.
-- PSID-versioita 1 ja 2 tuetaan. Jos SID-otsikon latausosoite on 0, kahta
-  ensimmäistä datatavua käytetään osoitteena (PRG-tyylinen, little-endian).
-- Vain yksi `load sid` ohjelmaa kohden on merkityksellinen (viimeinen voittaa).
 
 ### Sarjakanavan tiedosto I/O
 

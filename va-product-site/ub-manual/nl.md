@@ -862,6 +862,101 @@ stem opnieuw bij elke oproep (gate uit, dan aan) en stelt het mastervolume in
 compileertijdconstanten zijn.
 
 
+### SID Muziek
+
+```basic
+load sid "tune.sid"            # embed SID music at its native load address
+load sid "tune.sid", $2000     # override: embed at $2000 regardless of SID header
+```
+
+`load sid` leest een PSID- of RSID-bestand tijdens **het compileren**,
+verwijdert de header en voegt de onbewerkte muziekbytes toe aan de uitvoer
+`.prg`. Na `load sid` worden twee compileertijdconstanten beschikbaar:
+
+| Constante  | Beschrijving                                                                           |
+| ---------- | -------------------------------------------------------------------------------------- |
+| `sid_init` | Adres van de initialisatieroutine — eenmaal aanroepen met A = songnummer (0-gebaseerd) |
+| `sid_play` | Speel routineadres af — roep elke frame (50 Hz PAL) aan vanuit een IRQ-handler         |
+
+Beide constanten werken overal waar een constant adres wordt geaccepteerd:
+`sys`, `irq`, `poke`, expressies.
+
+**Typisch gebruik:**
+
+```basic
+load sid "music.sid"
+
+sub music_irq()
+  poke $D019, $FF       # ACK VIC raster IRQ
+  sys sid_play          # advance one frame of music
+  irq_exit              # JMP $EA81: restore A/X/Y + RTI (proper IRQ exit)
+end
+
+sys sid_init, 0         # initialise SID chip: A=0 → first sub-tune
+irq music_irq, $C0      # raster IRQ at line $C0 → 50 Hz on PAL
+
+sid volume 15           # master volume on
+```
+
+**Opmerkingen:**
+- De SID-gegevens worden **na** alle gegenereerde code geplaatst en aangevuld
+  met nullen tot aan het laadadres. De compiler waarschuwt als het laadadres van
+  de SID de gegenereerde code zou overlappen.
+- PSID v1 en v2 worden ondersteund. Als het laadadres van de SID-header 0 is,
+  worden de eerste twee databytes als adres gebruikt (PRG-stijl, little-endian).
+- Slechts één `load sid` per programma is relevant (de laatste wint).
+
+### Tracker-tunes (`tune`)
+
+```basic
+afstemmen # optioneel: afstemmen op $C800 (standaard $8000)
+snelheid 6 # frames per rij (50 Hz PAL)
+inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
+
+inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+volgorde 0, 1, 0 # patroonvolgorde (patronen kunnen zich herhalen)
+pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
+
+pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+einde
+muziek afspelen # of: sys sid_init / irq handler roept sys aan sid_play
+```
+
+`tune ... end` beschrijft een 3-stemmige tracker-tune in platte tekst (dezelfde
+celnotatie die de Visual Assembler SID-editor laat zien) en bouwt de speler
+**tijdens het compileren**. Het definieert `sid_init` / `sid_play` precies zoals
+`load sid`, dus `music play`, `music stop`, `music pause` en `music resume` (en
+een handmatige `irq` handler die `sys sid_play` aanroept) werken ongewijzigd.
+
+| Lijn                                                  | Betekenis                                                                                                                                                                                                                                       |
+| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `speed N`                                             | Frames per trackerrij (1-255).                                                                                                                                                                                                                  |
+| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Eén instrument: controleregister (golfvormbits; de gate-bit wordt door de speler toegevoegd), attack/decay, sustain/release, 12-bits pulsbreedte, 11-bits filtercutoff, resonantie-/filterroutingbyte (`$D417`) en modus-/volumebyte (`$D418`). |
+| `order p, p, ...`                                     | Patroonvolgorde. Lijnen stapelen zich op, tot 255 stappen.                                                                                                                                                                                      |
+| `pat p, v, "cell", ...`                               | Maximaal 32 rijen voor stem `v` (0-2) van patroon `p` (0-7). Ontbrekende rijen zijn leeg.                                                                                                                                                       |
+
+Een **cel** is `NOTE INST FX`: `C-4`, `D#3`, `Eb2` of `...` voor geen noot, een
+twee-cijferig hexadecimaal instrument (`..` om het zo te laten), en een
+optioneel effect - `Vxy` vibrato (x = rijen vasthouden, y = diepte), `Uxx` /
+`Dxx` omhoog/omlaag schuiven, `C` noot afsnijden, `Fxx` snelheid instellen. Een
+cel die alleen een effect bevat, kan worden geschreven als `"... .. F06"` of
+gewoon `"F06"`.
+
+Opmerkingen over de speler:
+
+- Alle spelersstatus bevindt zich **inside the blob** (absolute adressering) -
+  het gebruikt geen nulpagina, dus het kan niet botsen met
+  UltimateBasic-variabelen of tijdelijke gegevens, en het blijft werken wanneer
+  het programma terugkeert naar BASIC.
+- De blob wordt op een vast adres geplaatst (standaard `$8000`, of `tune at
+  $addr`) en de `.prg` wordt aangevuld tot dat adres, zoals `load sid`. Houd het
+  uit de buurt van je code, arrays (`$C000+`) en eventueel
+  bitmap-/charsetgeheugen. Een tune heeft ongeveer 1,3 KB plus 12 bytes per
+  rij-kolom aan gegevens nodig.
+- Maximaal 8 patronen (32 rijen elk); de volgordelijst kan ze vrij herhalen.
+- `music play` gebruikt de CIA1-timer op 50 Hz; combineer dit niet met een
+  andere `load sid`/`tune` (de laatste wint).
+
 ### Muziek afspelen
 
 `music play/stop/pause/resume` is een alternatief op hoog niveau voor de
@@ -1172,101 +1267,6 @@ Zonder adres: secundair adres 0 (de eigen 2-byte header van het bestand wordt
 gebruikt als laadadres). Met adres: secundair adres 1 (bestand geladen op de
 opgegeven locatie). `save` roept `SETNAM`+`SETLFS`+`SAVE` aan
 (`$FFBD`/`$FFBA`/`$FFD8`). Vereist zowel `addr` als `len`.
-
-### Tracker-tunes (`tune`)
-
-```basic
-afstemmen # optioneel: afstemmen op $C800 (standaard $8000)
-snelheid 6 # frames per rij (50 Hz PAL)
-inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
-
-inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
-volgorde 0, 1, 0 # patroonvolgorde (patronen kunnen zich herhalen)
-pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
-
-pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
-einde
-muziek afspelen # of: sys sid_init / irq handler roept sys aan sid_play
-```
-
-`tune ... end` beschrijft een 3-stemmige tracker-tune in platte tekst (dezelfde
-celnotatie die de Visual Assembler SID-editor laat zien) en bouwt de speler
-**tijdens het compileren**. Het definieert `sid_init` / `sid_play` precies zoals
-`load sid`, dus `music play`, `music stop`, `music pause` en `music resume` (en
-een handmatige `irq` handler die `sys sid_play` aanroept) werken ongewijzigd.
-
-| Lijn                                                  | Betekenis                                                                                                                                                                                                                                       |
-| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `speed N`                                             | Frames per trackerrij (1-255).                                                                                                                                                                                                                  |
-| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Eén instrument: controleregister (golfvormbits; de gate-bit wordt door de speler toegevoegd), attack/decay, sustain/release, 12-bits pulsbreedte, 11-bits filtercutoff, resonantie-/filterroutingbyte (`$D417`) en modus-/volumebyte (`$D418`). |
-| `order p, p, ...`                                     | Patroonvolgorde. Lijnen stapelen zich op, tot 255 stappen.                                                                                                                                                                                      |
-| `pat p, v, "cell", ...`                               | Maximaal 32 rijen voor stem `v` (0-2) van patroon `p` (0-7). Ontbrekende rijen zijn leeg.                                                                                                                                                       |
-
-Een **cel** is `NOTE INST FX`: `C-4`, `D#3`, `Eb2` of `...` voor geen noot, een
-twee-cijferig hexadecimaal instrument (`..` om het zo te laten), en een
-optioneel effect - `Vxy` vibrato (x = rijen vasthouden, y = diepte), `Uxx` /
-`Dxx` omhoog/omlaag schuiven, `C` noot afsnijden, `Fxx` snelheid instellen. Een
-cel die alleen een effect bevat, kan worden geschreven als `"... .. F06"` of
-gewoon `"F06"`.
-
-Opmerkingen over de speler:
-
-- Alle spelersstatus bevindt zich **inside the blob** (absolute adressering) -
-  het gebruikt geen nulpagina, dus het kan niet botsen met
-  UltimateBasic-variabelen of tijdelijke gegevens, en het blijft werken wanneer
-  het programma terugkeert naar BASIC.
-- De blob wordt op een vast adres geplaatst (standaard `$8000`, of `tune at
-  $addr`) en de `.prg` wordt aangevuld tot dat adres, zoals `load sid`. Houd het
-  uit de buurt van je code, arrays (`$C000+`) en eventueel
-  bitmap-/charsetgeheugen. Een tune heeft ongeveer 1,3 KB plus 12 bytes per
-  rij-kolom aan gegevens nodig.
-- Maximaal 8 patronen (32 rijen elk); de volgordelijst kan ze vrij herhalen.
-- `music play` gebruikt de CIA1-timer op 50 Hz; combineer dit niet met een
-  andere `load sid`/`tune` (de laatste wint).
-
-### SID Muziek
-
-```basic
-load sid "tune.sid"            # embed SID music at its native load address
-load sid "tune.sid", $2000     # override: embed at $2000 regardless of SID header
-```
-
-`load sid` leest een PSID- of RSID-bestand tijdens **het compileren**,
-verwijdert de header en voegt de onbewerkte muziekbytes toe aan de uitvoer
-`.prg`. Na `load sid` worden twee compileertijdconstanten beschikbaar:
-
-| Constante  | Beschrijving                                                                           |
-| ---------- | -------------------------------------------------------------------------------------- |
-| `sid_init` | Adres van de initialisatieroutine — eenmaal aanroepen met A = songnummer (0-gebaseerd) |
-| `sid_play` | Speel routineadres af — roep elke frame (50 Hz PAL) aan vanuit een IRQ-handler         |
-
-Beide constanten werken overal waar een constant adres wordt geaccepteerd:
-`sys`, `irq`, `poke`, expressies.
-
-**Typisch gebruik:**
-
-```basic
-load sid "music.sid"
-
-sub music_irq()
-  poke $D019, $FF       # ACK VIC raster IRQ
-  sys sid_play          # advance one frame of music
-  irq_exit              # JMP $EA81: restore A/X/Y + RTI (proper IRQ exit)
-end
-
-sys sid_init, 0         # initialise SID chip: A=0 → first sub-tune
-irq music_irq, $C0      # raster IRQ at line $C0 → 50 Hz on PAL
-
-sid volume 15           # master volume on
-```
-
-**Opmerkingen:**
-- De SID-gegevens worden **na** alle gegenereerde code geplaatst en aangevuld
-  met nullen tot aan het laadadres. De compiler waarschuwt als het laadadres van
-  de SID de gegenereerde code zou overlappen.
-- PSID v1 en v2 worden ondersteund. Als het laadadres van de SID-header 0 is,
-  worden de eerste twee databytes als adres gebruikt (PRG-stijl, little-endian).
-- Slechts één `load sid` per programma is relevant (de laatste wint).
 
 ### Seriële kanaal bestands-I/O
 

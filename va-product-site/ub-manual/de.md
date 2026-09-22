@@ -875,6 +875,102 @@ Master-Lautstärke `$0F`. `channel` (0-2), `frames` (1-255) und `wave` müssen
 Kompilierzeitkonstanten sein.
 
 
+### SID Music
+
+```basic
+load sid "tune.sid"            # embed SID music at its native load address
+load sid "tune.sid", $2000     # override: embed at $2000 regardless of SID header
+```
+
+`load sid` liest eine PSID- oder RSID-Datei zur **Kompilierzeit**, entfernt den
+Header und hängt die rohen Musikbytes an die Ausgabe `.prg` an. Nach `load sid`
+stehen zwei Kompilierzeitkonstanten zur Verfügung:
+
+| Konstante  | Beschreibung                                                                          |
+| ---------- | ------------------------------------------------------------------------------------- |
+| `sid_init` | Initialisierungsroutineadresse — einmal aufrufen mit A = Liednummer (beginnend bei 0) |
+| `sid_play` | Routineadresse abspielen – Aufruf in jedem Frame (50 Hz PAL) von einem IRQ-Handler    |
+
+Beide Konstanten funktionieren überall dort, wo eine konstante Adresse
+akzeptiert wird: `sys`, `irq`, `poke`, Ausdrücke.
+
+**Typische Verwendung:**
+
+```basic
+load sid "music.sid"
+
+sub music_irq()
+  poke $D019, $FF       # ACK VIC raster IRQ
+  sys sid_play          # advance one frame of music
+  irq_exit              # JMP $EA81: restore A/X/Y + RTI (proper IRQ exit)
+end
+
+sys sid_init, 0         # initialise SID chip: A=0 → first sub-tune
+irq music_irq, $C0      # raster IRQ at line $C0 → 50 Hz on PAL
+
+sid volume 15           # master volume on
+```
+
+**Anmerkungen:**
+- Die SID-Daten werden **nach** dem gesamten generierten Code eingefügt und bis
+  zur Ladeadresse mit Nullen aufgefüllt. Der Compiler gibt eine Warnung aus,
+  falls die SID-Ladeadresse mit generiertem Code in Konflikt gerät.
+- PSID v1 und v2 werden unterstützt. Wenn die Ladeadresse des SID-Headers 0 ist,
+  werden die ersten beiden Datenbytes als Adresse verwendet (PRG-Stil,
+  Little-Endian).
+- Nur ein `load sid` pro Programm ist aussagekräftig (das letzte gewinnt).
+
+### Tracker-Melodien (`tune`)
+
+```basic
+Abstimmung # optional: Abstimmung auf $C800 (Standard $8000)
+Geschwindigkeit 6 # Frames pro Zeile (50 Hz PAL)
+Inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
+Inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+Reihenfolge 0, 1, 0 # Musterreihenfolge (Muster können sich wiederholen)
+Muster 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
+Muster 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+Ende
+Musikwiedergabe # oder: sys sid_init / irq-Handler ruft sys auf sid_play
+```
+
+`tune ... end` beschreibt eine 3-stimmige Tracker-Melodie im Klartext (die
+gleiche Zellennotation, die der Visual Assembler SID-Editor anzeigt) und
+erstellt den Player **zur Kompilierzeit**. Es definiert `sid_init` / `sid_play`
+genau wie `load sid`, sodass `music play`, `music stop`, `music pause` und
+`music resume` (und ein manueller `irq`-Handler, der `sys sid_play` aufruft)
+unverändert funktionieren.
+
+| Linie                                                 | Bedeutung                                                                                                                                                                                                                                         |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `speed N`                                             | Frames pro Tracker-Zeile (1-255).                                                                                                                                                                                                                 |
+| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Ein Instrument: Steuerregister (Wellenformbits; das Gate-Bit wird vom Spieler hinzugefügt), Attack/Decay, Sustain/Release, 12-Bit-Pulsbreite, 11-Bit-Filter-Cutoff, Resonanz-/Filter-Routing-Byte (`$D417`) und Modus-/Lautstärke-Byte (`$D418`). |
+| `order p, p, ...`                                     | Musterreihenfolge. Die Linien akkumulieren sich, bis zu 255 Schritte.                                                                                                                                                                             |
+| `pat p, v, "cell", ...`                               | Bis zu 32 Zeilen für Stimme `v` (0-2) des Musters `p` (0-7). Fehlende Zeilen sind leer.                                                                                                                                                           |
+
+Eine **Zelle** ist `NOTE INST FX`: `C-4`, `D#3`, `Eb2` oder `...` für keine
+Note, ein zweistelliges Hex-Instrument (`..`, um es beizubehalten) und ein
+optionaler Effekt - `Vxy` Vibrato (x = Haltereihen, y = Tiefe), `Uxx` / `Dxx`
+Slide nach oben / unten, `C` Notenabbruch, `Fxx` Geschwindigkeit einstellen.
+Eine Zelle, die nur einen Effekt enthält, kann wie folgt geschrieben werden:
+`"... .. F06"` oder einfach `"F06"`.
+
+Hinweise zum Player:
+
+- Der gesamte Spielerstatus befindet sich ** innerhalb des Blobs** (absolute
+  Adressierung) - er verwendet keine Nullseite, sodass er nicht mit
+  UltimateBasic-Variablen oder temporären Objekten kollidieren kann und auch
+  dann noch funktioniert, wenn das Programm zu BASIC zurückkehrt.
+- Der Blob wird an einer festen Adresse abgelegt (standardmäßig `$8000` oder
+  `tune at $addr`), und `.prg` wird entsprechend aufgefüllt, z. B. `load sid`.
+  Halten Sie ihn von Ihrem Code, Arrays (`$C000+`) und jeglichem
+  Bitmap-/Zeichensatzspeicher fern. Ein Tune benötigt etwa 1,3 KB plus 12 Byte
+  pro Datenzeile und -spalte.
+- Höchstens 8 Muster (jeweils 32 Zeilen); die Reihenfolgeliste kann diese
+  beliebig wiederholen.
+- `music play` verwendet den CIA1-Timer mit 50 Hz; kombinieren Sie ihn nicht mit
+  einem anderen `load sid`/`tune` (der letzte gewinnt).
+
 ### Musikwiedergabe
 
 `music play/stop/pause/resume` ist eine alternative, höherwertige Lösung zur
@@ -1192,102 +1288,6 @@ Adresse: Sekundäre Adresse 0 (eigener 2-Byte-Header der Datei wird als
 Ladeadresse verwendet). Mit Adresse: Sekundäre Adresse 1 (Datei wird an den
 angegebenen Speicherort geladen). `save` ruft `SETNAM`+`SETLFS`+`SAVE`
 (`$FFBD`/`$FFBA`/`$FFD8`) auf. Erfordert sowohl `addr` als auch `len`.
-
-### Tracker-Melodien (`tune`)
-
-```basic
-Abstimmung # optional: Abstimmung auf $C800 (Standard $8000)
-Geschwindigkeit 6 # Frames pro Zeile (50 Hz PAL)
-Inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
-Inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
-Reihenfolge 0, 1, 0 # Musterreihenfolge (Muster können sich wiederholen)
-Muster 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
-Muster 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
-Ende
-Musikwiedergabe # oder: sys sid_init / irq-Handler ruft sys auf sid_play
-```
-
-`tune ... end` beschreibt eine 3-stimmige Tracker-Melodie im Klartext (die
-gleiche Zellennotation, die der Visual Assembler SID-Editor anzeigt) und
-erstellt den Player **zur Kompilierzeit**. Es definiert `sid_init` / `sid_play`
-genau wie `load sid`, sodass `music play`, `music stop`, `music pause` und
-`music resume` (und ein manueller `irq`-Handler, der `sys sid_play` aufruft)
-unverändert funktionieren.
-
-| Linie                                                 | Bedeutung                                                                                                                                                                                                                                         |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `speed N`                                             | Frames pro Tracker-Zeile (1-255).                                                                                                                                                                                                                 |
-| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Ein Instrument: Steuerregister (Wellenformbits; das Gate-Bit wird vom Spieler hinzugefügt), Attack/Decay, Sustain/Release, 12-Bit-Pulsbreite, 11-Bit-Filter-Cutoff, Resonanz-/Filter-Routing-Byte (`$D417`) und Modus-/Lautstärke-Byte (`$D418`). |
-| `order p, p, ...`                                     | Musterreihenfolge. Die Linien akkumulieren sich, bis zu 255 Schritte.                                                                                                                                                                             |
-| `pat p, v, "cell", ...`                               | Bis zu 32 Zeilen für Stimme `v` (0-2) des Musters `p` (0-7). Fehlende Zeilen sind leer.                                                                                                                                                           |
-
-Eine **Zelle** ist `NOTE INST FX`: `C-4`, `D#3`, `Eb2` oder `...` für keine
-Note, ein zweistelliges Hex-Instrument (`..`, um es beizubehalten) und ein
-optionaler Effekt - `Vxy` Vibrato (x = Haltereihen, y = Tiefe), `Uxx` / `Dxx`
-Slide nach oben / unten, `C` Notenabbruch, `Fxx` Geschwindigkeit einstellen.
-Eine Zelle, die nur einen Effekt enthält, kann wie folgt geschrieben werden:
-`"... .. F06"` oder einfach `"F06"`.
-
-Hinweise zum Player:
-
-- Der gesamte Spielerstatus befindet sich ** innerhalb des Blobs** (absolute
-  Adressierung) - er verwendet keine Nullseite, sodass er nicht mit
-  UltimateBasic-Variablen oder temporären Objekten kollidieren kann und auch
-  dann noch funktioniert, wenn das Programm zu BASIC zurückkehrt.
-- Der Blob wird an einer festen Adresse abgelegt (standardmäßig `$8000` oder
-  `tune at $addr`), und `.prg` wird entsprechend aufgefüllt, z. B. `load sid`.
-  Halten Sie ihn von Ihrem Code, Arrays (`$C000+`) und jeglichem
-  Bitmap-/Zeichensatzspeicher fern. Ein Tune benötigt etwa 1,3 KB plus 12 Byte
-  pro Datenzeile und -spalte.
-- Höchstens 8 Muster (jeweils 32 Zeilen); die Reihenfolgeliste kann diese
-  beliebig wiederholen.
-- `music play` verwendet den CIA1-Timer mit 50 Hz; kombinieren Sie ihn nicht mit
-  einem anderen `load sid`/`tune` (der letzte gewinnt).
-
-### SID Music
-
-```basic
-load sid "tune.sid"            # embed SID music at its native load address
-load sid "tune.sid", $2000     # override: embed at $2000 regardless of SID header
-```
-
-`load sid` liest eine PSID- oder RSID-Datei zur **Kompilierzeit**, entfernt den
-Header und hängt die rohen Musikbytes an die Ausgabe `.prg` an. Nach `load sid`
-stehen zwei Kompilierzeitkonstanten zur Verfügung:
-
-| Konstante  | Beschreibung                                                                          |
-| ---------- | ------------------------------------------------------------------------------------- |
-| `sid_init` | Initialisierungsroutineadresse — einmal aufrufen mit A = Liednummer (beginnend bei 0) |
-| `sid_play` | Routineadresse abspielen – Aufruf in jedem Frame (50 Hz PAL) von einem IRQ-Handler    |
-
-Beide Konstanten funktionieren überall dort, wo eine konstante Adresse
-akzeptiert wird: `sys`, `irq`, `poke`, Ausdrücke.
-
-**Typische Verwendung:**
-
-```basic
-load sid "music.sid"
-
-sub music_irq()
-  poke $D019, $FF       # ACK VIC raster IRQ
-  sys sid_play          # advance one frame of music
-  irq_exit              # JMP $EA81: restore A/X/Y + RTI (proper IRQ exit)
-end
-
-sys sid_init, 0         # initialise SID chip: A=0 → first sub-tune
-irq music_irq, $C0      # raster IRQ at line $C0 → 50 Hz on PAL
-
-sid volume 15           # master volume on
-```
-
-**Anmerkungen:**
-- Die SID-Daten werden **nach** dem gesamten generierten Code eingefügt und bis
-  zur Ladeadresse mit Nullen aufgefüllt. Der Compiler gibt eine Warnung aus,
-  falls die SID-Ladeadresse mit generiertem Code in Konflikt gerät.
-- PSID v1 und v2 werden unterstützt. Wenn die Ladeadresse des SID-Headers 0 ist,
-  werden die ersten beiden Datenbytes als Adresse verwendet (PRG-Stil,
-  Little-Endian).
-- Nur ein `load sid` pro Programm ist aussagekräftig (das letzte gewinnt).
 
 ### Serielle Kanaldatei-E/A
 
