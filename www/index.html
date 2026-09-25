@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.4.6">
+  <link rel="stylesheet" href="style.css?v=2.4.7">
 </head>
 
 <body>
@@ -393,6 +393,9 @@
       <section class="output-panel">
         <div class="panel-scroll">
           <div class="panel-heading">
+            <div id="working-folder-panel" class="panel-heading-meta panel-heading-meta--path">
+              <span class="panel-heading-meta__text"></span>
+            </div>
             <div class="panel-heading-top">
               <h2>ASM nezet</h2>
             </div>
@@ -411,9 +414,6 @@
             <div class="origin-preview-section">
               <div class="origin-preview-header">
                 <span class="panel-label" id="origin-preview-label">Compile info</span>
-                <div id="working-folder-panel" class="panel-heading-meta panel-heading-meta--path">
-                  <span class="panel-heading-meta__text"></span>
-                </div>
               </div>
               <div id="origin-preview" class="origin-preview"></div>
             </div>
@@ -734,6 +734,7 @@ PRINTABLE CHARACTERS
         </div>
         <div class="ub-statusbar">
           <span id="ub-status">Ready</span>
+          <button id="ub-update-status" class="ub-update-status" type="button" hidden></button>
           <span id="ub-cursor-pos">Ln 1, Col 1</span>
         </div>
       </section>
@@ -860,6 +861,22 @@ PRINTABLE CHARACTERS
       <div class="app-confirm-buttons">
         <button id="app-confirm-yes" class="primary" type="button">Igen</button>
         <button id="app-confirm-no" class="secondary" type="button">Mégsem</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="update-dialog" class="app-confirm-dialog update-dialog">
+    <div class="app-confirm-card">
+      <h2 class="compile-error-title" id="update-title">Check for Update</h2>
+      <p id="update-msg" class="app-confirm-msg"></p>
+      <div id="update-progress-wrap" class="update-progress-wrap" hidden>
+        <div class="update-progress-track"><div id="update-progress-bar" class="update-progress-bar"></div></div>
+        <span id="update-progress-text" class="update-progress-text"></span>
+      </div>
+      <div class="app-confirm-buttons">
+        <button id="update-skip" class="secondary" type="button" hidden>Skip</button>
+        <button id="update-close" class="secondary" type="button">Close</button>
+        <button id="update-install" class="primary" type="button" hidden>Update</button>
       </div>
     </div>
   </dialog>
@@ -1097,7 +1114,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.4.6</p>
+        <p class="about-version" id="about-version">v2.4.7</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
       </div>
       <div class="about-columns">
@@ -1123,22 +1140,25 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.4.6</p>
+      <p class="whats-new-version">v2.4.7</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: SID Editor &rarr; UltimateBasic export</strong> &mdash; <strong>Files &rarr; Export to UltimateBasic</strong> writes the tune as a <code>tune ... end</code> block (instruments, order list and pattern rows as text) plus <code>music play</code> and inserts it at the cursor of the Ultimate Basic editor (outside UB mode it is copied to the clipboard). The UltimateBasic compiler builds a zero-page-free player from it, so <code>music play</code> / <code>music stop</code> control the tune and nothing collides with UB variables. Needs an UltimateBasic compiler with <code>tune</code> support.
+          <strong>New: in-app updates:</strong> <strong>Menu &rarr; Check for Update</strong> checks c64va.tech for a newer release and, on confirmation, downloads the installer for your platform with a progress bar and installs it (Windows: passive installer that restarts the app; macOS: the app bundle is replaced from the DMG; Linux: the AppImage is swapped or the <code>.deb</code>/<code>.rpm</code> is installed via <code>pkexec</code>). The check also runs quietly at every start; <strong>Skip this version</strong> silences a release you don't want.
         </li>
         <li>
-          <strong>New: Ultimate Basic language update</strong> &mdash; syntax highlighting and the command reference now cover <code>sfx</code> (non-blocking SID effects), <code>tune</code>, <code>org</code> (place subs at an address, leaving a gap for data), <code>charset on</code> / <code>charset off</code> and <code>incbin</code> slicing (<code>incbin "f.prg", $3C00, 2</code>).
+          <strong>New: update status in the Ultimate Basic status bar:</strong> shows <em>Up to date (vX)</em>, or a highlighted <em>Update available: vY</em> that opens the update dialog when clicked.
         </li>
         <li>
-          <strong>Improved: ASM view multi-highlight</strong> &mdash; selecting several blocks now highlights all of their ASM lines at once, the scroll position stays stable, and the line numbers are softer with a subtle separator rule.
+          <strong>New: Curve Editor &rarr; UltimateBasic export:</strong> <strong>Files &rarr; Export to UltimateBasic</strong> writes the table as an initialised UB array (<code>var name = array(N)</code>, or <code>array_word(N)</code> for 16-bit, plus <code>data name: &hellip;</code> lines). <strong>Files &rarr; Export UltimateBasic demo</strong> produces a ready-to-run sprite demo: a ball follows the curve (8-bit tables drive sprite Y, 16-bit 0..320 tables drive sprite X).
         </li>
         <li>
-          <strong>Fixed: assembler mode across Ultimate Basic switches</strong> &mdash; opening a project or sample while Ultimate Basic is active now leaves UB first and returns to your last Block/Expert mode, so the UB buffer can no longer overwrite the new tab.
+          <strong>New: Ultimate Basic 1.5.8:</strong> the bundled compiler adds <code>data &lt;array&gt;: v, &hellip;</code>, which fills a declared array at program start (further lines continue where the previous one stopped, word arrays take 16-bit values) without touching the <code>read</code> stream.
         </li>
         <li>
-          <strong>Improved: Kung Fu Flash 2 settings</strong> &mdash; a <strong>Detect USB</strong> button in Hardware Settings re-scans for the cartridge's serial port; the manual now lists the required Kung Fu Flash firmware (v2.07+).
+          <strong>Improved: layout fits the window:</strong> the editor panels take exactly the remaining window height, so there is no page-level vertical scrollbar any more; the ASM output panel keeps a 440&nbsp;px minimum width; the working-folder path sits in a subtle badge above the ASM view title and uses the same badge in the Expert and Ultimate Basic toolbars. Dialog button labels no longer wrap.
+        </li>
+        <li>
+          <strong>Improved: Ultimate Basic command reference:</strong> <code>tune</code> and <code>music</code> show full, commented examples (cell format, effects, player notes, <code>music play N</code>); <code>inst</code>, <code>order</code>, <code>pat</code> and the tune <code>speed</code> have their own entries; <code>data</code> shows the new array form; the <code>load sid</code> syntax is corrected.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -1990,6 +2010,8 @@ PRINTABLE CHARACTERS
             <button id="cg-load-bin" type="button">Load curve (.bin)…</button>
             <div class="ed-file-sep"></div>
             <button id="cg-export-demo" type="button">Export demo to blocks</button>
+            <button id="cg-export-ub" type="button">Export to UltimateBasic</button>
+            <button id="cg-export-ub-demo" type="button">Export UltimateBasic demo</button>
           </div>
           <input type="file" id="cg-bin-file" accept=".bin,application/octet-stream" hidden>
         </div>
@@ -2422,13 +2444,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.4.6"></script>
-  <script src="i18n.js?v=2.4.6"></script>
-  <script src="tutorial-data.js?v=2.4.6"></script>
+  <script src="tauri-bridge.js?v=2.4.7"></script>
+  <script src="i18n.js?v=2.4.7"></script>
+  <script src="tutorial-data.js?v=2.4.7"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.4.6"></script>
+  <script src="app.js?v=2.4.7"></script>
 
 </body>
 

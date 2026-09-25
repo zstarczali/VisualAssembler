@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.4.6**
+**Verzió: 2.4.7**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -26,6 +26,17 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - [12b. CRT export (Magic Desk 64K cartridge)](#12b-crt-export-magic-desk-64k-cartridge)
 - [13. Hardver beállítások](#13-hardver-beállítások)
 - [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit)
+
+---
+
+## A 2.4.7 verzió újdonságai
+
+- **Frissítés az alkalmazásból** — a **Menu → Check for Update** megkeresi az újabb kiadást a c64va.tech-en, és jóváhagyás után letölti a platformodnak megfelelő telepítőt (folyamatjelzővel), majd telepíti. Lásd: [Frissítés az alkalmazásból](#frissítés-az-alkalmazásból). Az ellenőrzés minden induláskor csendben is lefut.
+- **Frissítés-jelző az Ultimate Basic statusbarban** — **Naprakész (vX)**, vagy kiemelt, kattintható **Frissítés elérhető: vY**, ami megnyitja a frissítés dialógust.
+- **Curve Editor → UltimateBasic export** — a **Files → Export to UltimateBasic** a táblát inicializált UB tömbként írja ki; a **Files → Export UltimateBasic demo** kész, futtatható UB sprite demót készít. Lásd: [Curve Editor](#curve-editor).
+- **Beépített Ultimate Basic 1.5.8** — az új **`data <tömb>: v, …`** alak induláskor feltölt egy deklarált `array` / `array_word` tömböt (a további sorok ott folytatják, ahol az előző abbahagyta, word tömbnél 16 bites értékek), a `read` adatfolyamot nem érinti.
+- **Ablakhoz igazodó elrendezés** — a szerkesztő panelek pontosan a maradék ablakmagasságot töltik ki, így nincs többé oldalszintű függőleges görgetősáv; az ASM kimeneti panel legalább 440 px széles marad; a munkamappa útvonala halvány jelvényben az ASM nézet címe fölött áll, és ugyanilyen jelvényt kapott az Expert és az Ultimate Basic eszköztár is. A dialógusgombok felirata nem törik több sorba.
+- **Ultimate Basic parancsreferencia** — a `tune` és a `music` teljes, kommentezett példát mutat (cellaformátum, effektek, lejátszó-megjegyzések, `music play N`); az `inst`, `order`, `pat` és a tune `speed` saját bejegyzést kapott; a `data` az új tömbös alakot is mutatja; a `load sid` szintaxisa javítva (`load sid "tune.sid", $2000`).
 
 ---
 
@@ -267,7 +278,7 @@ A modal automatikusan bezárul, amikor a művelet befejeződik vagy meghiúsul.
 | **About** | Verzióinformáció |
 | **What's New** | Changelog |
 | **Knowledge Base** | Referencia linkek (6502 opcode-ok, C64 KERNAL, memóriatérkép, színek) |
-| **Check for Update** | Az itch.io oldal megnyitása egy újabb kiadás ellenőrzéséhez |
+| **Check for Update** | Újabb kiadás keresése a c64va.tech-en, letöltése és telepítése — lásd [Frissítés az alkalmazásból](#frissítés-az-alkalmazásból) |
 
 ### Projekt snapshotok
 
@@ -278,6 +289,23 @@ A projekt snapshotok lemezen tárolt sidecar JSON fájlokként vannak elmentve, 
 - A **Menu → Build → Snapshot history** megnyitja a dialógust, ahol jegyzeteket adhatsz, régebbi bejegyzéseket állíthatsz vissza vagy törölhetsz.
 - A **Hardware Settings → Snapshot → Automatikus snapshot mentés** szabályozza, hogy az app automatikusan készít-e snapshotokat szerkesztések után. Az alapértelmezett késleltetés kb. 2,5 másodperc, és a beállítás fülönként érvényes.
 - Ha egy projektet még nem mentettél el, a snapshotok az app konfig könyvtárában tárolódnak, amíg a projekt fájlútvonalat nem kap.
+
+### Frissítés az alkalmazásból
+
+A **Menu → Check for Update** megkeresi a legújabb kiadást a c64va.tech-en (a platformodhoz tartozó letöltési linkeket olvassa ki), és összeveti a futó verzióval:
+
+- **Naprakész** — a dialógus ezt jelzi.
+- **Frissítés elérhető** — az **Update now** letölti a telepítőt (a letöltést folyamatjelző mutatja), a **Later** bezárja a dialógust, a **Skip this version** pedig kikapcsolja az adott kiadás automatikus felajánlását.
+
+A letöltés után az app telepíti a frissítést és újraindul:
+
+| Platform | Mi történik |
+|---|---|
+| **Windows** | A telepítő passzív módban fut (csak folyamatjelző), és a végén elindítja az új verziót. Gépszintű telepítésnél rendszergazdai jogot kér (UAC). |
+| **macOS** | A DMG felcsatolódik, az app bundle helyben lecserélődik, majd elindul az új verzió. Ha az app mappája nem írható, csak megnyílik a DMG, és kézzel húzhatod át az appot. |
+| **Linux** | Az AppImage lecserélődik az újra. A `.deb` / `.rpm` telepítés `pkexec`-kel frissül (jelszót kér); `pkexec` nélkül a csomag a rendszer szoftvertelepítőjében nyílik meg. |
+
+Ha vannak mentetlen fülek, az app bezárás előtt rákérdez. Ugyanez az ellenőrzés minden induláskor néhány másodperc után csendben is lefut: csak akkor jelenik meg bármi, ha van újabb verzió. Az eredmény az Ultimate Basic statusbarban is látszik — **Naprakész (vX)**, vagy kiemelt **Frissítés elérhető: vY**, ami megnyitja a frissítés dialógust.
 
 ### Munkaterületek
 
@@ -3632,6 +3660,8 @@ Minden Copy / Insert kimenet egy fejléc-megjegyzéssel kezdődik, amely dokumen
 | **Save curve (.bin)…** | A nyers tábla-byte-okat pontosan úgy menti, ahogy a C64 `INCBIN`-nel olvasná. 16-bit: N lo byte, majd N hi byte. |
 | **Load curve (.bin)…** | Nyers tábla-byte-okat tölt vissza a szerkesztőbe, az aktuális bitmélység szerint értelmezve (16-bit: első fele lo, második fele hi). A betöltött tábla változatlanul jelenik meg, amíg bármely görbe-vezérlő friss görbét nem generál. |
 | **Export demo to blocks** | Egy teljes, futtatható sprite demót fűz hozzá: sprite init, raszter-szinkronizált fő hurok, a beágyazott tábla és a labda sprite adata. Az X 0..320-at söpör 8.8 fixpontban a `$D010` MSB-vel, míg a tábla vezérli a sprite Y-t — pontosan a szerkesztő előnézetéhez illeszkedve. Az újra-export lecseréli a korábbi Curve Editor beszúrást. |
+| **Export to UltimateBasic** | A táblát inicializált Ultimate Basic tömbként írja ki — `var név = array(N)` (16 bitnél `array_word(N)`), utána `data név: …` sorok —, és az UB szerkesztő kurzorához szúrja be (UB módon kívül vágólapra másolja). A címke érvényes, kisbetűs UB névvé alakul; a táblát `név[i]`-vel indexeld. Ultimate Basic 1.5.8+ kell hozzá (beépítve). |
+| **Export UltimateBasic demo** | Kész, futtatható UB programot készít: labda sprite (`sprdef 0`), a tábla, és egy raszterhez szinkronizált hurok, ami frame-enként egy táblaelemet játszik le. 8 bites táblánál a tábla a sprite **Y**-t vezérli, az X 0..320-at söpör; 16 bites (0..320) táblánál a tábla a sprite **X**-et vezérli, az Y 0..200-at söpör. 256-nál hosszabb táblánál az első 256 elem játszódik le. |
 
 **Az előnézet reprodukálása a C64-en:** az előnézet **lineárisan, 0 → N-1 → 0 hurokban, frame-enként egy értéket** olvas a táblából. Ennek pontos reprodukálásához vezéreld a táblát ugyanígy (növeld az indexet frame-enként egyszer, fordulj körbe a tábla hosszánál). Egy ping-pong vagy részleges tartományú lejátszás máshogy mozog, még ha a byte-értékek azonosak is. Egy működő 16 bites sprite-X példáért lásd a `samples/curve-new-demo.asm`-et.
 

@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.7 — Manuel de langue
+# Ultimate Basic v1.5.8 — Manuel de langue
 
 Référence complète du langage et de l'interface de ligne de commande pour
 Ultimate Basic, un langage de type BASIC qui se compile directement en code
@@ -867,10 +867,10 @@ plus rapide que 25 insertions individuelles.
 ### Effets sonores non bloquants (`sfx`) — nouveauté de la version 1.5.7
 
 ```basic
-son 0, $2000, 25 # BLOCS : le programme attend 25 images ici
-sfx 0, $2000, 25 # Retour immédiat ; la note s’estompe d’elle-même
-sfx 1, $0500, 8, 128 # Onde optionnelle : 16 triangle, 32 dents de scie (par défaut), 64 impulsion, 128 bruit
-sfx 0, freq_word, 4, 16 # freq peut être une constante, une variable de type mot ou une expression 8 bits
+sound 0, $2000, 25            # BLOCKS: the program waits 25 frames here
+sfx 0, $2000, 25              # returns at once; the note fades out by itself
+sfx 1, $0500, 8, 128          # optional wave: 16 triangle, 32 saw (default), 64 pulse, 128 noise
+sfx 0, freq_word, 4, 16       # freq may be a constant, a word var or an 8-bit expression
 ```
 
 La fonction `sfx <channel>, <freq>, <frames> [, <wave>]` programme une voix SID
@@ -885,11 +885,108 @@ signal, puis réactivation) et le volume principal est réglé `$0F`. `channel`
 (0-2), `frames` (1-255) et `wave` doivent être des constantes de compilation.
 
 
+### Musique SID
+
+```basic
+load sid "tune.sid"            # embed SID music at its native load address
+load sid "tune.sid", $2000     # override: embed at $2000 regardless of SID header
+```
+
+`load sid` lit un fichier PSID ou RSID à la **compilation**, supprime l'en-tête
+et ajoute les octets musicaux bruts à la sortie `.prg`. Après `load sid`, deux
+constantes de compilation deviennent disponibles :
+
+| Constante  | Description                                                                                                 |
+| ---------- | ----------------------------------------------------------------------------------------------------------- |
+| `sid_init` | Adresse de la routine d'initialisation — appel unique avec A = numéro de chanson (à partir de 0)            |
+| `sid_play` | Adresse de la routine de lecture — appel de chaque trame (PAL 50 Hz) depuis un gestionnaire d’interruption. |
+
+Les deux constantes fonctionnent partout où une adresse constante est acceptée :
+`sys`, `irq`, `poke`, expressions.
+
+**Utilisation typique :**
+
+```basic
+load sid "music.sid"
+
+sub music_irq()
+  poke $D019, $FF       # ACK VIC raster IRQ
+  sys sid_play          # advance one frame of music
+  irq_exit              # JMP $EA81: restore A/X/Y + RTI (proper IRQ exit)
+end
+
+sys sid_init, 0         # initialise SID chip: A=0 → first sub-tune
+irq music_irq, $C0      # raster IRQ at line $C0 → 50 Hz on PAL
+
+sid volume 15           # master volume on
+```
+
+**Remarques :**
+- Les données SID sont placées **après** tout le code généré, complétées par des
+  zéros jusqu'à l'adresse de chargement. Le compilateur signale tout risque de
+  chevauchement entre l'adresse de chargement SID et du code généré.
+- Les versions 1 et 2 de PSID sont prises en charge. Si l'adresse de chargement
+  de l'en-tête SID est 0, les deux premiers octets de données sont utilisés
+  comme adresse (format PRG, petit-boutiste).
+- Un seul `load sid` par programme est significatif (le dernier l'emporte).
+
+### Track mèmes (`tune`)
+
+```basic
+tune                       # optional: tune at $C800  (default $8000)
+  speed 6                  # frames per row (50 Hz PAL)
+  inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
+  inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+  order 0, 1, 0            # pattern order (patterns may repeat)
+  pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
+  pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+end
+music play                 # or: sys sid_init / irq handler calling sys sid_play
+```
+
+`tune ... end` décrit une mélodie de suivi à 3 voix en texte brut (la même
+notation de cellule que celle affichée par l'éditeur SID de l'assembleur visuel)
+et construit le lecteur **à la compilation**. Il définit `sid_init` / `sid_play`
+exactement comme `load sid`, de sorte que `music play`, `music stop`, `music
+pause` et `music resume` (et un gestionnaire d'interruption `irq` appelant `sys
+sid_play`) fonctionnent sans modification.
+
+| Doubler                                               | Signification                                                                                                                                                                                                                                                                                 |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `speed N`                                             | Images par rangée de suivi (1-255).                                                                                                                                                                                                                                                           |
+| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Un instrument : registre de contrôle (bits de forme d'onde ; le bit de porte est ajouté par le joueur), attaque/décroissance, maintien/relâchement, largeur d'impulsion 12 bits, coupure de filtre 11 bits, octet de résonance/routage de filtre (`$D417`) et octet de mode/volume (`$D418`). |
+| `order p, p, ...`                                     | Ordre du motif. Les lignes s'accumulent, jusqu'à 255 étapes.                                                                                                                                                                                                                                  |
+| `pat p, v, "cell", ...`                               | Jusqu'à 32 lignes pour la voix `v` (0-2) du motif `p` (0-7). Les lignes manquantes sont vides.                                                                                                                                                                                                |
+
+Une cellule **** est `NOTE INST FX` : `C-4`, `D#3`, `Eb2` ou `...` pour aucune
+note, un instrument hexadécimal à deux chiffres (`..` pour le quitter), et un
+effet optionnel - `Vxy` vibrato (x = maintenir les rangées, y = profondeur),
+`Uxx` / `Dxx` glisser vers le haut / vers le bas, `C` couper la note, `Fxx`
+régler la vitesse. Une cellule d'effet uniquement peut être écrite comme `"...
+.. F06"` ou simplement `"F06"`.
+
+Remarques sur le joueur :
+
+- Tout l'état du joueur vit ** à l'intérieur du blob ** (adressage absolu) - il
+  n'utilise pas de page zéro, il ne peut donc pas entrer en collision avec les
+  variables ou les temporaires UltimateBasic, et il continue de fonctionner
+  lorsque le programme revient à BASIC.
+- Le blob est placé à une adresse fixe (par défaut `$8000`, ou `tune at $addr`)
+  et le fichier `.prg` est complété jusqu'à cette adresse, comme avec `load
+  sid`. Veillez à ce qu'il ne chevauche pas votre code, les tableaux (`$C000+`)
+  ni la mémoire bitmap/charset. Une configuration nécessite environ 1,3 Ko plus
+  12 octets par ligne-colonne de données.
+- Au maximum 8 motifs (32 lignes chacun) ; la liste d'ordre peut les répéter
+  librement.
+- `music play` utilise la minuterie CIA1 à 50 Hz ; ne le combinez pas avec un
+  autre `load sid`/`tune` (le dernier l'emporte).
+
 ### Lecture de musique
 
 `music play/stop/pause/resume` est une alternative de haut niveau à la
 configuration manuelle `sys sid_init` / `cia_timer`. Nécessite une instruction
-`load sid` préalable (définit `sid_init` / `sid_play`).
+`load sid` ou un bloc `tune ... end` (les deux définissent `sid_init` /
+`sid_play`).
 
 ```basic
 load sid "tune.sid"         # embed SID file (defines sid_init / sid_play)
@@ -1105,10 +1202,10 @@ une erreur. L'importation Koala ne peut actuellement pas être combinée avec
 ### Agencement du code : `org` — nouveauté de la version 1.5.7
 
 ```basic
-sub a() ... end # Les sous-routines/fonctions sont placées les unes après les autres à partir de la fin du corps principal
-org $4000 # Les sous-routines/fonctions suivantes continuent à $4000 ; $xxxx-$3FFF reste rempli de zéros
+sub a() ... end          # subs/fns are placed one after another from the end of the main body
+org $4000                # the next subs/fns continue at $4000; $xxxx-$3FFF stays zero-filled
 sub b() ... end
-incbin "font.bin", $3800 # Les données peuvent être stockées dans l'espace ($3800-$3FFF correspond à un emplacement complet du jeu de caractères VIC)
+incbin "font.bin", $3800 # data can live in the gap ($3800-$3FFF is a whole VIC charset slot)
 ```
 
 L'adresse `org addr` se trouve **entre les définitions de
@@ -1149,9 +1246,10 @@ code. Pour que le VIC-II utilise cette configuration, activez-la (puis
 désactivez-la une fois terminé).
 ```basic
 charset $3800
-chardef 1 $FF,$81,$81,$81,$81,$81,$81,$FF end # bordure de la boîte
-charset on # VIC-II lit les caractères à partir de $3800 (matrice d'écran non modifiée)
-... charset off # retour au jeu de caractères ROM ($1800 si `lowercase` est actif, sinon $1000)
+chardef 1  $FF,$81,$81,$81,$81,$81,$81,$FF  end  # box border
+charset on          # VIC-II reads characters from $3800 (screen matrix untouched)
+...
+charset off         # back to the ROM set ($1800 if `lowercase` is active, else $1000)
 ```
 
 `charset on` read-modify-writes `$D018` bits 1-3 from the last `charset addr`
@@ -1203,107 +1301,6 @@ adresse : adresse secondaire 0 (l’en-tête de 2 octets du fichier est utilisé
 comme adresse de chargement). Avec adresse : adresse secondaire 1 (fichier
 chargé à l’emplacement spécifié). `save` appelle `SETNAM`+`SETLFS`+`SAVE`
 (`$FFBD`/`$FFBA`/`$FFD8`). Nécessite `addr` et `len`.
-
-### Track mèmes (`tune`)
-
-```basic
-Accordage # optionnel : accord à $C800 (par défaut $8000)
-
-Vitesse 6 # images par ligne (50 Hz PAL)
-
-inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
-
-inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
-
-Ordre 0, 1, 0 # ordre des motifs (les motifs peuvent se répéter)
-
-pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
-
-pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
-Fin de la lecture de musique # ou : sys sid_init / gestionnaire d'interruption appelant sys sid_play
-```
-
-`tune ... end` décrit une mélodie de suivi à 3 voix en texte brut (la même
-notation de cellule que celle affichée par l'éditeur SID de l'assembleur visuel)
-et construit le lecteur **à la compilation**. Il définit `sid_init` / `sid_play`
-exactement comme `load sid`, de sorte que `music play`, `music stop`, `music
-pause` et `music resume` (et un gestionnaire d'interruption `irq` appelant `sys
-sid_play`) fonctionnent sans modification.
-
-| Doubler                                               | Signification                                                                                                                                                                                                                                                                                 |
-| ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `speed N`                                             | Images par rangée de suivi (1-255).                                                                                                                                                                                                                                                           |
-| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Un instrument : registre de contrôle (bits de forme d'onde ; le bit de porte est ajouté par le joueur), attaque/décroissance, maintien/relâchement, largeur d'impulsion 12 bits, coupure de filtre 11 bits, octet de résonance/routage de filtre (`$D417`) et octet de mode/volume (`$D418`). |
-| `order p, p, ...`                                     | Ordre du motif. Les lignes s'accumulent, jusqu'à 255 étapes.                                                                                                                                                                                                                                  |
-| `pat p, v, "cell", ...`                               | Jusqu'à 32 lignes pour la voix `v` (0-2) du motif `p` (0-7). Les lignes manquantes sont vides.                                                                                                                                                                                                |
-
-Une cellule **** est `NOTE INST FX` : `C-4`, `D#3`, `Eb2` ou `...` pour aucune
-note, un instrument hexadécimal à deux chiffres (`..` pour le quitter), et un
-effet optionnel - `Vxy` vibrato (x = maintenir les rangées, y = profondeur),
-`Uxx` / `Dxx` glisser vers le haut / vers le bas, `C` couper la note, `Fxx`
-régler la vitesse. Une cellule d'effet uniquement peut être écrite comme `"...
-.. F06"` ou simplement `"F06"`.
-
-Remarques sur le joueur :
-
-- Tout l'état du joueur vit ** à l'intérieur du blob ** (adressage absolu) - il
-  n'utilise pas de page zéro, il ne peut donc pas entrer en collision avec les
-  variables ou les temporaires UltimateBasic, et il continue de fonctionner
-  lorsque le programme revient à BASIC.
-- Le blob est placé à une adresse fixe (par défaut `$8000`, ou `tune at $addr`)
-  et le fichier `.prg` est complété jusqu'à cette adresse, comme avec `load
-  sid`. Veillez à ce qu'il ne chevauche pas votre code, les tableaux (`$C000+`)
-  ni la mémoire bitmap/charset. Une configuration nécessite environ 1,3 Ko plus
-  12 octets par ligne-colonne de données.
-- Au maximum 8 motifs (32 lignes chacun) ; la liste d'ordre peut les répéter
-  librement.
-- `music play` utilise la minuterie CIA1 à 50 Hz ; ne le combinez pas avec un
-  autre `load sid`/`tune` (le dernier l'emporte).
-
-### Musique SID
-
-```basic
-load sid "tune.sid"            # embed SID music at its native load address
-load sid "tune.sid", $2000     # override: embed at $2000 regardless of SID header
-```
-
-`load sid` lit un fichier PSID ou RSID à la **compilation**, supprime l'en-tête
-et ajoute les octets musicaux bruts à la sortie `.prg`. Après `load sid`, deux
-constantes de compilation deviennent disponibles :
-
-| Constante  | Description                                                                                                 |
-| ---------- | ----------------------------------------------------------------------------------------------------------- |
-| `sid_init` | Adresse de la routine d'initialisation — appel unique avec A = numéro de chanson (à partir de 0)            |
-| `sid_play` | Adresse de la routine de lecture — appel de chaque trame (PAL 50 Hz) depuis un gestionnaire d’interruption. |
-
-Les deux constantes fonctionnent partout où une adresse constante est acceptée :
-`sys`, `irq`, `poke`, expressions.
-
-**Utilisation typique :**
-
-```basic
-load sid "music.sid"
-
-sub music_irq()
-  poke $D019, $FF       # ACK VIC raster IRQ
-  sys sid_play          # advance one frame of music
-  irq_exit              # JMP $EA81: restore A/X/Y + RTI (proper IRQ exit)
-end
-
-sys sid_init, 0         # initialise SID chip: A=0 → first sub-tune
-irq music_irq, $C0      # raster IRQ at line $C0 → 50 Hz on PAL
-
-sid volume 15           # master volume on
-```
-
-**Remarques :**
-- Les données SID sont placées **après** tout le code généré, complétées par des
-  zéros jusqu'à l'adresse de chargement. Le compilateur signale tout risque de
-  chevauchement entre l'adresse de chargement SID et du code généré.
-- Les versions 1 et 2 de PSID sont prises en charge. Si l'adresse de chargement
-  de l'en-tête SID est 0, les deux premiers octets de données sont utilisés
-  comme adresse (format PRG, petit-boutiste).
-- Un seul `load sid` par programme est significatif (le dernier l'emporte).
 
 ### Entrées/sorties de fichiers sur canal série
 
@@ -1576,11 +1573,11 @@ définie après `onerr goto`) sont prises en charge.
 ### Intégration de fichiers au moment de la compilation (`incbin` skip / longueur nouveau dans la version 1.5.7)
 
 ```basic
-incbin "sprites.bin" # Incorporer des octets binaires bruts à la position de code actuelle
-incbin "charset.bin", $2000 # Incorporer à une adresse absolue, avec remplissage si nécessaire
-incbin "font.prg", $3C00, 2 # ...en ignorant les 2 premiers octets (par exemple, l'adresse de chargement d'un fichier .prg)
-incbin "big.bin", $4000, 16, 256 # ...en ignorant 16 octets, puis en prenant au maximum 256 octets
-include "defs.ub" # Intégrer un autre fichier source .ub (lexicalisé et analysé sur place)
+incbin "sprites.bin"            # embed raw binary bytes at current code position
+incbin "charset.bin", $2000     # embed at an absolute address, padding as needed
+incbin "font.prg", $3C00, 2       # ...skipping the first 2 bytes (e.g. a .prg load address)
+incbin "big.bin", $4000, 16, 256  # ...skip 16 bytes, then take at most 256 bytes
+include "defs.ub"        # inline another .ub source file (lexed+parsed in place)
 ```
 
 `incbin "file", addr, skip [, length]` ignore les `skip` premiers octets du
@@ -1600,6 +1597,27 @@ read varname             # load next byte into varname (auto-declares if needed)
 Toutes les valeurs `data` sont collectées à la compilation. Un pointeur ZP de 2
 octets est automatiquement alloué et initialisé au démarrage du programme.
 Chaque `read` incrémente le pointeur.
+
+**Tableaux initialisés — `données <tableau> : …` (nouveauté de la version
+1.5.8)**
+
+```basic
+var sinus = array(8)
+data sinus: 128, 218, 255, 218
+data sinus: 128, 37, 0, 37      # further lines continue where the previous one stopped
+print sinus[i]                  # random access, like any array
+
+var xpos = array_word(2)
+data xpos: 24, 300              # word arrays take 16-bit values (stored lo, hi)
+```
+
+Une ligne `data` dont le premier élément est `name:` remplit un tableau `array`
+/ `array_word` déclaré, au lieu du flux `read`. Les valeurs sont stockées après
+le code et copiées dans le tableau une seule fois, au démarrage du programme
+(juste après l'initialisation des tableaux à zéro). Le tableau est donc
+entièrement accessible en écriture et indexé comme n'importe quel autre tableau.
+Un nombre de valeurs supérieur à la capacité du tableau, ou un nom non déclaré,
+provoque une erreur de compilation. Ces lignes n'affectent pas `read`.
 
 ### Assemblage en ligne
 
@@ -1971,6 +1989,6 @@ hexadécimal complet.
 | `plot4`                                  | Aucune vérification des limites — x doit être compris entre 0 et 79, y doit être compris entre 0 et 49 (mode bloc)                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | `circle4`                                | Découpe les pixels hors écran ; le rayon utile est d'environ 0 à 49 en mode bloc 80×50.                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | `chr$`                                   | Aucune correspondance PETSCII↔ASCII — n est transmis tel quel à CHROUT                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| `music play`                             | Nécessite `load sid` ; un seul wrapper CIA1 est émis (le dernier `music play` l'emporte)                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| `music play`                             | Nécessite `load sid` ou un bloc `tune` ; un seul wrapper CIA1 est émis (le dernier `music play` l'emporte)                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | `graphics on double`                     | Résolution uniquement ; utilise `$4000–$7FFF` pour le tampon arrière, le code du programme doit donc rester en dessous de `$4400` ; non compatible avec les sprites ou les couleurs multiples                                                                                                                                                                                                                                                                                                                                        |
 | Signalement des erreurs                  | Uniquement à la compilation ; `onerr goto` gère les erreurs d'E/S du noyau à l'exécution                                                                                                                                                                                                                                                                                                                                                                                                                                             |

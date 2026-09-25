@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.7 — Taalhandleiding
+# Ultimate Basic v1.5.8 — Taalhandleiding
 
 Complete taal- en CLI-referentie voor Ultimate Basic, een BASIC-achtige taal die
 direct compileert naar 6502-machinecode voor de Commodore 64. Uitvoer: `.prg`
@@ -845,10 +845,10 @@ afzonderlijke prikbewegingen.
 ### Niet-blokkerende geluidseffecten (`sfx`) — nieuw in 1.5.7
 
 ```basic
-sound 0, $2000, 25 # BLOKKEN: het programma wacht hier 25 frames
-sfx 0, $2000, 25 # keert direct terug; de noot vervaagt vanzelf
-sfx 1, $0500, 8, 128 # optionele golfvorm: 16 driehoek, 32 zaagtand (standaard), 64 puls, 128 ruis
-sfx 0, freq_word, 4, 16 # freq kan een constante, een woordvariabele of een 8-bits expressie zijn
+sound 0, $2000, 25            # BLOCKS: the program waits 25 frames here
+sfx 0, $2000, 25              # returns at once; the note fades out by itself
+sfx 1, $0500, 8, 128          # optional wave: 16 triangle, 32 saw (default), 64 pulse, 128 noise
+sfx 0, freq_word, 4, 16       # freq may be a constant, a word var or an 8-bit expression
 ```
 
 `sfx <channel>, <freq>, <frames> [, <wave>]` programmeert één SID-stem en keert
@@ -862,11 +862,105 @@ stem opnieuw bij elke oproep (gate uit, dan aan) en stelt het mastervolume in
 compileertijdconstanten zijn.
 
 
+### SID Muziek
+
+```basic
+load sid "tune.sid"            # embed SID music at its native load address
+load sid "tune.sid", $2000     # override: embed at $2000 regardless of SID header
+```
+
+`load sid` leest een PSID- of RSID-bestand tijdens **het compileren**,
+verwijdert de header en voegt de onbewerkte muziekbytes toe aan de uitvoer
+`.prg`. Na `load sid` worden twee compileertijdconstanten beschikbaar:
+
+| Constante  | Beschrijving                                                                           |
+| ---------- | -------------------------------------------------------------------------------------- |
+| `sid_init` | Adres van de initialisatieroutine — eenmaal aanroepen met A = songnummer (0-gebaseerd) |
+| `sid_play` | Speel routineadres af — roep elke frame (50 Hz PAL) aan vanuit een IRQ-handler         |
+
+Beide constanten werken overal waar een constant adres wordt geaccepteerd:
+`sys`, `irq`, `poke`, expressies.
+
+**Typisch gebruik:**
+
+```basic
+load sid "music.sid"
+
+sub music_irq()
+  poke $D019, $FF       # ACK VIC raster IRQ
+  sys sid_play          # advance one frame of music
+  irq_exit              # JMP $EA81: restore A/X/Y + RTI (proper IRQ exit)
+end
+
+sys sid_init, 0         # initialise SID chip: A=0 → first sub-tune
+irq music_irq, $C0      # raster IRQ at line $C0 → 50 Hz on PAL
+
+sid volume 15           # master volume on
+```
+
+**Opmerkingen:**
+- De SID-gegevens worden **na** alle gegenereerde code geplaatst en aangevuld
+  met nullen tot aan het laadadres. De compiler waarschuwt als het laadadres van
+  de SID de gegenereerde code zou overlappen.
+- PSID v1 en v2 worden ondersteund. Als het laadadres van de SID-header 0 is,
+  worden de eerste twee databytes als adres gebruikt (PRG-stijl, little-endian).
+- Slechts één `load sid` per programma is relevant (de laatste wint).
+
+### Tracker-tunes (`tune`)
+
+```basic
+tune                       # optional: tune at $C800  (default $8000)
+  speed 6                  # frames per row (50 Hz PAL)
+  inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
+  inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+  order 0, 1, 0            # pattern order (patterns may repeat)
+  pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
+  pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+end
+music play                 # or: sys sid_init / irq handler calling sys sid_play
+```
+
+`tune ... end` beschrijft een 3-stemmige tracker-tune in platte tekst (dezelfde
+celnotatie die de Visual Assembler SID-editor laat zien) en bouwt de speler
+**tijdens het compileren**. Het definieert `sid_init` / `sid_play` precies zoals
+`load sid`, dus `music play`, `music stop`, `music pause` en `music resume` (en
+een handmatige `irq` handler die `sys sid_play` aanroept) werken ongewijzigd.
+
+| Lijn                                                  | Betekenis                                                                                                                                                                                                                                       |
+| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `speed N`                                             | Frames per trackerrij (1-255).                                                                                                                                                                                                                  |
+| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Eén instrument: controleregister (golfvormbits; de gate-bit wordt door de speler toegevoegd), attack/decay, sustain/release, 12-bits pulsbreedte, 11-bits filtercutoff, resonantie-/filterroutingbyte (`$D417`) en modus-/volumebyte (`$D418`). |
+| `order p, p, ...`                                     | Patroonvolgorde. Lijnen stapelen zich op, tot 255 stappen.                                                                                                                                                                                      |
+| `pat p, v, "cell", ...`                               | Maximaal 32 rijen voor stem `v` (0-2) van patroon `p` (0-7). Ontbrekende rijen zijn leeg.                                                                                                                                                       |
+
+Een **cel** is `NOTE INST FX`: `C-4`, `D#3`, `Eb2` of `...` voor geen noot, een
+twee-cijferig hexadecimaal instrument (`..` om het zo te laten), en een
+optioneel effect - `Vxy` vibrato (x = rijen vasthouden, y = diepte), `Uxx` /
+`Dxx` omhoog/omlaag schuiven, `C` noot afsnijden, `Fxx` snelheid instellen. Een
+cel die alleen een effect bevat, kan worden geschreven als `"... .. F06"` of
+gewoon `"F06"`.
+
+Opmerkingen over de speler:
+
+- Alle spelersstatus bevindt zich **inside the blob** (absolute adressering) -
+  het gebruikt geen nulpagina, dus het kan niet botsen met
+  UltimateBasic-variabelen of tijdelijke gegevens, en het blijft werken wanneer
+  het programma terugkeert naar BASIC.
+- De blob wordt op een vast adres geplaatst (standaard `$8000`, of `tune at
+  $addr`) en de `.prg` wordt aangevuld tot dat adres, zoals `load sid`. Houd het
+  uit de buurt van je code, arrays (`$C000+`) en eventueel
+  bitmap-/charsetgeheugen. Een tune heeft ongeveer 1,3 KB plus 12 bytes per
+  rij-kolom aan gegevens nodig.
+- Maximaal 8 patronen (32 rijen elk); de volgordelijst kan ze vrij herhalen.
+- `music play` gebruikt de CIA1-timer op 50 Hz; combineer dit niet met een
+  andere `load sid`/`tune` (de laatste wint).
+
 ### Muziek afspelen
 
-`music play/stop/pause/resume` is een alternatief op hoog niveau voor de
-handmatige configuratie van `sys sid_init` / `cia_timer`. Vereist een
-voorafgaande `load sid`-instructie (definieert `sid_init` / `sid_play`).
+`muziek afspelen/stoppen/pauzeren/hervatten` is een alternatief op hoog niveau
+voor de handmatige `sys sid_init` / `cia_timer`-configuratie. Vereist een
+voorafgaande `load sid`-instructie of een `tune ... end`-blok (beide definiëren
+`sid_init` / `sid_play`).
 
 ```basic
 load sid "tune.sid"         # embed SID file (defines sid_init / sid_play)
@@ -1075,10 +1169,10 @@ gecombineerd met `load sid`.
 ### Code-indeling: `org` — nieuw in 1.5.7
 
 ```basic
-sub a() ... end # subroutines/functies worden één voor één vanaf het einde van de hoofdtekst geplaatst
-org $4000 # de volgende subroutines/functies gaan verder op $4000; $xxxx-$3FFF blijft gevuld met nullen
+sub a() ... end          # subs/fns are placed one after another from the end of the main body
+org $4000                # the next subs/fns continue at $4000; $xxxx-$3FFF stays zero-filled
 sub b() ... end
-incbin "font.bin", $3800 # gegevens kunnen in de ruimte staan ($3800-$3FFF is een volledige VIC-tekenset-slot)
+incbin "font.bin", $3800 # data can live in the gap ($3800-$3FFF is a whole VIC charset slot)
 ```
 
 `org addr` gaat **tussen sub/fn-definities** (het wordt genegeerd in de
@@ -1118,10 +1212,10 @@ verzonden. Om de VIC-II de set te laten gebruiken, moet u deze inschakelen (en
 weer uitschakelen wanneer u klaar bent):
 ```basic
 charset $3800
-chardef 1 $FF,$81,$81,$81,$81,$81,$81,$FF end # box border
-charset on # VIC-II leest tekens van $3800 (schermmatrix onaangeraakt)
+chardef 1  $FF,$81,$81,$81,$81,$81,$81,$FF  end  # box border
+charset on          # VIC-II reads characters from $3800 (screen matrix untouched)
 ...
-charset off # terug naar de ROM-set ($1800 als `lowercase` actief is, anders $1000)
+charset off         # back to the ROM set ($1800 if `lowercase` is active, else $1000)
 ```
 
 `charset on` read-modify-writes `$D018` bits 1-3 from the last `charset addr`
@@ -1172,101 +1266,6 @@ Zonder adres: secundair adres 0 (de eigen 2-byte header van het bestand wordt
 gebruikt als laadadres). Met adres: secundair adres 1 (bestand geladen op de
 opgegeven locatie). `save` roept `SETNAM`+`SETLFS`+`SAVE` aan
 (`$FFBD`/`$FFBA`/`$FFD8`). Vereist zowel `addr` als `len`.
-
-### Tracker-tunes (`tune`)
-
-```basic
-afstemmen # optioneel: afstemmen op $C800 (standaard $8000)
-snelheid 6 # frames per rij (50 Hz PAL)
-inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
-
-inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
-volgorde 0, 1, 0 # patroonvolgorde (patronen kunnen zich herhalen)
-pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
-
-pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
-einde
-muziek afspelen # of: sys sid_init / irq handler roept sys aan sid_play
-```
-
-`tune ... end` beschrijft een 3-stemmige tracker-tune in platte tekst (dezelfde
-celnotatie die de Visual Assembler SID-editor laat zien) en bouwt de speler
-**tijdens het compileren**. Het definieert `sid_init` / `sid_play` precies zoals
-`load sid`, dus `music play`, `music stop`, `music pause` en `music resume` (en
-een handmatige `irq` handler die `sys sid_play` aanroept) werken ongewijzigd.
-
-| Lijn                                                  | Betekenis                                                                                                                                                                                                                                       |
-| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `speed N`                                             | Frames per trackerrij (1-255).                                                                                                                                                                                                                  |
-| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Eén instrument: controleregister (golfvormbits; de gate-bit wordt door de speler toegevoegd), attack/decay, sustain/release, 12-bits pulsbreedte, 11-bits filtercutoff, resonantie-/filterroutingbyte (`$D417`) en modus-/volumebyte (`$D418`). |
-| `order p, p, ...`                                     | Patroonvolgorde. Lijnen stapelen zich op, tot 255 stappen.                                                                                                                                                                                      |
-| `pat p, v, "cell", ...`                               | Maximaal 32 rijen voor stem `v` (0-2) van patroon `p` (0-7). Ontbrekende rijen zijn leeg.                                                                                                                                                       |
-
-Een **cel** is `NOTE INST FX`: `C-4`, `D#3`, `Eb2` of `...` voor geen noot, een
-twee-cijferig hexadecimaal instrument (`..` om het zo te laten), en een
-optioneel effect - `Vxy` vibrato (x = rijen vasthouden, y = diepte), `Uxx` /
-`Dxx` omhoog/omlaag schuiven, `C` noot afsnijden, `Fxx` snelheid instellen. Een
-cel die alleen een effect bevat, kan worden geschreven als `"... .. F06"` of
-gewoon `"F06"`.
-
-Opmerkingen over de speler:
-
-- Alle spelersstatus bevindt zich **inside the blob** (absolute adressering) -
-  het gebruikt geen nulpagina, dus het kan niet botsen met
-  UltimateBasic-variabelen of tijdelijke gegevens, en het blijft werken wanneer
-  het programma terugkeert naar BASIC.
-- De blob wordt op een vast adres geplaatst (standaard `$8000`, of `tune at
-  $addr`) en de `.prg` wordt aangevuld tot dat adres, zoals `load sid`. Houd het
-  uit de buurt van je code, arrays (`$C000+`) en eventueel
-  bitmap-/charsetgeheugen. Een tune heeft ongeveer 1,3 KB plus 12 bytes per
-  rij-kolom aan gegevens nodig.
-- Maximaal 8 patronen (32 rijen elk); de volgordelijst kan ze vrij herhalen.
-- `music play` gebruikt de CIA1-timer op 50 Hz; combineer dit niet met een
-  andere `load sid`/`tune` (de laatste wint).
-
-### SID Muziek
-
-```basic
-load sid "tune.sid"            # embed SID music at its native load address
-load sid "tune.sid", $2000     # override: embed at $2000 regardless of SID header
-```
-
-`load sid` leest een PSID- of RSID-bestand tijdens **het compileren**,
-verwijdert de header en voegt de onbewerkte muziekbytes toe aan de uitvoer
-`.prg`. Na `load sid` worden twee compileertijdconstanten beschikbaar:
-
-| Constante  | Beschrijving                                                                           |
-| ---------- | -------------------------------------------------------------------------------------- |
-| `sid_init` | Adres van de initialisatieroutine — eenmaal aanroepen met A = songnummer (0-gebaseerd) |
-| `sid_play` | Speel routineadres af — roep elke frame (50 Hz PAL) aan vanuit een IRQ-handler         |
-
-Beide constanten werken overal waar een constant adres wordt geaccepteerd:
-`sys`, `irq`, `poke`, expressies.
-
-**Typisch gebruik:**
-
-```basic
-load sid "music.sid"
-
-sub music_irq()
-  poke $D019, $FF       # ACK VIC raster IRQ
-  sys sid_play          # advance one frame of music
-  irq_exit              # JMP $EA81: restore A/X/Y + RTI (proper IRQ exit)
-end
-
-sys sid_init, 0         # initialise SID chip: A=0 → first sub-tune
-irq music_irq, $C0      # raster IRQ at line $C0 → 50 Hz on PAL
-
-sid volume 15           # master volume on
-```
-
-**Opmerkingen:**
-- De SID-gegevens worden **na** alle gegenereerde code geplaatst en aangevuld
-  met nullen tot aan het laadadres. De compiler waarschuwt als het laadadres van
-  de SID de gegenereerde code zou overlappen.
-- PSID v1 en v2 worden ondersteund. Als het laadadres van de SID-header 0 is,
-  worden de eerste twee databytes als adres gebruikt (PRG-stijl, little-endian).
-- Slechts één `load sid` per programma is relevant (de laatste wint).
 
 ### Seriële kanaal bestands-I/O
 
@@ -1533,11 +1532,11 @@ ondersteund.
 ### Compile-time file embedding (`incbin` skip / length new in 1.5.7)
 
 ```basic
-incbin "sprites.bin" # Voeg ruwe binaire bytes in op de huidige codepositie
-incbin "charset.bin", $2000 # Voeg in op een absoluut adres, vul indien nodig aan
-incbin "font.prg", $3C00, 2 # ...sla de eerste 2 bytes over (bijv. een .prg-laadadres)
-incbin "big.bin", $4000, 16, 256 # ...sla 16 bytes over, neem vervolgens maximaal 256 bytes
-include "defs.ub" # Voeg een ander .ub-bronbestand inline in (lexed+parsed in place)
+incbin "sprites.bin"            # embed raw binary bytes at current code position
+incbin "charset.bin", $2000     # embed at an absolute address, padding as needed
+incbin "font.prg", $3C00, 2       # ...skipping the first 2 bytes (e.g. a .prg load address)
+incbin "big.bin", $4000, 16, 256  # ...skip 16 bytes, then take at most 256 bytes
+include "defs.ub"        # inline another .ub source file (lexed+parsed in place)
 ```
 
 `incbin "file", addr, skip [, length]` verwijdert de eerste `skip` bytes van het
@@ -1556,6 +1555,26 @@ read varname             # load next byte into varname (auto-declares if needed)
 Alle `data`-waarden worden tijdens het compileren verzameld. Een 2-byte
 ZP-pointer wordt automatisch toegewezen en geïnitialiseerd bij de start van het
 programma. Elke `read` verhoogt de pointer.
+
+**Initialiseerde arrays — `data <array>: …` (nieuw in 1.5.8)**
+
+```basic
+var sinus = array(8)
+data sinus: 128, 218, 255, 218
+data sinus: 128, 37, 0, 37      # further lines continue where the previous one stopped
+print sinus[i]                  # random access, like any array
+
+var xpos = array_word(2)
+data xpos: 24, 300              # word arrays take 16-bit values (stored lo, hi)
+```
+
+Een `data`-regel waarvan het eerste item `name:` is, vult een gedeclareerde
+`array` / `array_word` in plaats van de `read`-stream. De waarden worden na de
+code opgeslagen en eenmaal bij de start van het programma naar de array
+gekopieerd (direct nadat de arrays op nul zijn gezet), waardoor de tabel
+volledig beschrijfbaar en geïndexeerd is zoals elke andere array. Meer waarden
+dan de array kan bevatten, of een niet-gedeclareerde naam, is een compileerfout.
+Deze regels hebben geen invloed op `read`.
 
 ### Inline-assemblage
 
@@ -1923,6 +1942,6 @@ hex-dump.
 | `plot4`                               | Geen grenscontrole — x moet tussen 0 en 79 liggen, y moet tussen 0 en 49 liggen (blokmodus)                                                                                                                                                                                                                                                                                                                                                                  |
 | `circle4`                             | Snijdt pixels buiten het scherm af; de bruikbare straal is ongeveer 0–49 in de 80×50 blokmodus.                                                                                                                                                                                                                                                                                                                                                              |
 | `chr$`                                | Geen PETSCII↔ASCII-mapping — n wordt ongewijzigd doorgegeven aan CHROUT                                                                                                                                                                                                                                                                                                                                                                                      |
-| `music play`                          | Vereist `load sid`; er wordt slechts één CIA1-wrapper gegenereerd (de laatste `music play` wint)                                                                                                                                                                                                                                                                                                                                                             |
+| `music play`                          | Vereist `load sid` of een `tune` blok; er wordt slechts één CIA1 wrapper uitgezonden (de laatste `music play` wint)                                                                                                                                                                                                                                                                                                                                          |
 | `graphics on double`                  | Alleen voor huurlingen; gebruikt `$4000–$7FFF` voor de backbuffer, dus programmacode moet onder `$4400` blijven; niet combineerbaar met sprites of meerkleurig                                                                                                                                                                                                                                                                                               |
 | Foutrapportage                        | Alleen tijdens het compileren; `onerr goto` behandelt kernel-I/O-fouten tijdens de uitvoering.                                                                                                                                                                                                                                                                                                                                                               |

@@ -1,6 +1,6 @@
 # C64 Visual Assembler – Benutzerhandbuch
 
-**Version 2.4.6**
+**Version 2.4.7**
 
 Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Sie Programme durch Ziehen und Ablegen von Befehlsblöcken und sehen Sie den generierten Assembler- und Maschinencode in Echtzeit.
 
@@ -9,6 +9,7 @@ Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Si
 ## Inhaltsverzeichnis
 
 - [C64 Visual Assembler — Benutzerhandbuch](#c64-visual-assembler--user-manual)
+    - [Version 2.4.7 Highlights](#version-247-highlights)
     - [Version 2.4.6 Highlights](#version-246-highlights)
     - [Version 2.4.5 Highlights](#version-245-highlights)
     - [Version 2.4.3 Highlights](#version-243-highlights)
@@ -157,6 +158,17 @@ Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Si
     - [Karteneditor (Mehrschichtige Kachelkarten)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Kurveneditor](#curve-editor)
+
+---
+
+## Highlights der Version 2.4.7
+
+- **In-App-Updates** — **Menü → Nach Updates suchen** prüft auf c64va.tech, ob eine neuere Version verfügbar ist, und lädt nach Bestätigung das Installationsprogramm für Ihre Plattform mit Fortschrittsanzeige herunter und installiert es. Siehe [In-App-Updates](#in-app-updates). Die Prüfung wird außerdem bei jedem Start im Hintergrund ausgeführt.
+- **Update-Status in der Ultimate Basic-Statusleiste** — zeigt **Aktuell (vX)** an oder ein hervorgehobenes **Update verfügbar: vY**, das beim Anklicken den Update-Dialog öffnet.
+- **Kurveneditor → UltimateBasic-Export** – **Dateien → Nach UltimateBasic exportieren** schreibt die Tabelle als initialisiertes UB-Array; **Dateien → UltimateBasic-Demo exportieren** erzeugt eine sofort lauffähige UB-Sprite-Demo. Siehe [Kurveneditor](#curve-editor).
+- **Ultimate Basic 1.5.8 mitgeliefert** — die neue **`data <array>: v, …`** Form füllt ein deklariertes `array` / `array_word` beim Programmstart (weitere Zeilen werden dort fortgesetzt, wo die vorherige aufgehört hat, Wort-Arrays nehmen 16-Bit-Werte an), ohne den `read` Stream zu berühren.
+- **Layout passt sich dem Fenster an** – die Editor-Panels nehmen exakt die verbleibende Fensterhöhe ein, sodass die Anwendung keine vertikale Scrollleiste mehr anzeigt; das ASM-Ausgabe-Panel behält eine Mindestbreite von 440 Pixeln; der Pfad zum Arbeitsordner wird in einem dezenten Badge über dem Titel der ASM-Ansicht angezeigt und verwendet denselben Badge in den Symbolleisten „Experte“ und „Ultimate Basic“. Die Beschriftungen von Dialogfeld-Schaltflächen werden nicht mehr umgebrochen.
+- **Ultimative Basic-Befehlsreferenz** — `tune` und `music` zeigen vollständige, kommentierte Beispiele (Zellenformat, Effekte, Spielernoten, `music play N`); `inst`, `order`, `pat` und tune `speed` haben ihre eigenen Einträge; `data` zeigt die neue Array-Form; die Syntax von `load sid` wurde korrigiert (`load sid "tune.sid", $2000`).
 
 ---
 
@@ -406,7 +418,24 @@ Projekt-Snapshots werden als separate JSON-Dateien auf der Festplatte gespeicher
 - **Menü → Erstellen → Vorherige Version wiederherstellen** stellt den letzten Snapshot direkt wieder her.
 - **Menü → Erstellen → Snapshot-Verlauf** öffnet den Dialog, in dem Sie Notizen hinzufügen, ältere Einträge wiederherstellen oder löschen können.
 - **Hardwareeinstellungen → Snapshot → Automatische Snapshot-Speicherung** steuert, ob die App nach Bearbeitungen automatisch Snapshots erstellt. Die Standardverzögerung beträgt ca. 2,5 Sekunden, und die Einstellung gilt pro Tab.
-- Wenn ein Projekt noch nicht gespeichert wurde, werden Snapshots im App-Konfigurationsverzeichnis gespeichert, bis dem Projekt ein Dateipfad zugewiesen wird. | **Wissensdatenbank** | Referenzlinks (6502 Opcodes, C64-Kernel, Speicherbelegung, Farben) | | **Nach Updates suchen** | Öffnen Sie die itch.io-Seite, um nach einer neueren Version zu suchen.
+- Wenn ein Projekt noch nicht gespeichert wurde, werden Snapshots im App-Konfigurationsverzeichnis gespeichert, bis dem Projekt ein Dateipfad zugewiesen wird. | **Wissensdatenbank** | Referenzlinks (6502 Opcodes, C64-Kernel, Speicherbelegung, Farben) | | **Nach Updates suchen** | Auf c64va.tech nach einer neueren Version suchen und diese herunterladen/installieren – siehe [In-App-Updates](#in-app-updates) |
+
+### In-App-Updates
+
+**Menü → Nach Updates suchen** sucht die neueste Version auf c64va.tech (liest die Download-Links für Ihre Plattform aus) und vergleicht sie mit der aktuell laufenden Version:
+
+- **Aktuell** — so steht es im Dialog.
+- **Update verfügbar** — wählen Sie **Jetzt aktualisieren**, um das Installationsprogramm herunterzuladen (ein Fortschrittsbalken zeigt den Download an), **Später**, um das Dialogfeld zu schließen, oder **Diese Version überspringen**, um zu verhindern, dass die automatische Suche diese Version erneut anbietet.
+
+Nach dem Herunterladen installiert die App das Update und startet neu:
+
+| Plattform   | Was geschieht                                                                                                                                                                                                                                                |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Windows** | Die Installation läuft im passiven Modus (nur Fortschrittsanzeige) und startet nach Abschluss die neue Version. Bei einer Installation pro Rechner werden Administratorrechte (Benutzerkontensteuerung) angefordert.                                         |
+| **macOS**   | Die DMG-Datei wird eingebunden und das App-Bundle an dessen Stelle ersetzt, anschließend startet die neue Version. Falls der App-Ordner nicht beschreibbar ist, wird die DMG-Datei einfach geöffnet, sodass Sie die App per Drag & Drop hineinziehen können. |
+| **Linux**   | Eine AppImage-Datei wird durch die neue ersetzt. Eine `.deb` / `.rpm`-Installation wird mit `pkexec` aktualisiert (Sie werden nach Ihrem Passwort gefragt); ohne `pkexec` wird das Paket im Software-Installer geöffnet.                                     |
+
+Sind nicht gespeicherte Tabs vorhanden, fragt die App vor dem Schließen. Dieselbe Prüfung läuft nach jedem Start einige Sekunden lang im Hintergrund: Es wird nichts angezeigt, solange keine neuere Version verfügbar ist. Das Ergebnis erscheint auch in der Statusleiste von Ultimate Basic – entweder **Aktuell (vX)** oder ein hervorgehobenes **Update verfügbar: vY**, das den Update-Dialog öffnet.
 
 ### Arbeitsbereiche
 
@@ -3727,11 +3756,13 @@ Jede Kopier-/Einfügeausgabe beginnt mit einem Kopfzeilenkommentar, der die Kurv
 **Kopieren / Einfügen:** Die beiden Symbole der Symbolleiste – **Kopieren** legt die Tabelle in die Zwischenablage; **In Editor einfügen** fügt die Tabelle (und den Reader, falls aktiviert) als Blöcke an das aktuelle Programm an. Erneutes Einfügen**ersetzt** den vorherigen Eintrag im Kurveneditor, anstatt Duplikate zu stapeln (funktioniert im Block- und Expertenmodus).
 
 **Menü „Dateien“:**
-| Aktion                         | Was es tut                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Kurve speichern (.bin)…**    | Speichert die Rohdaten der Tabelle exakt so, wie der C64 sie über `INCBIN` lesen würde. 16 Bit: N LO-Bytes, gefolgt von N HI-Bytes.                                                                                                                                                                                                                                                                                                            |
-| **Lastkurve (.bin)…**          | Lädt die Rohdaten der Tabelle zurück in den Editor, interpretiert gemäß der aktuellen Bittiefe (16 Bit: erste Hälfte niedrig, zweite Hälfte hoch). Die geladene Tabelle wird unverändert angezeigt, bis eine Kurvensteuerung eine neue Kurve generiert.                                                                                                                                                                                        |
-| **Demo in Blöcke exportieren** | Fügt eine vollständige, lauffähige Sprite-Demo hinzu: Sprite-Initialisierung, rastersynchronisierte Hauptschleife, die eingebettete Tabelle und die Daten des Kugel-Sprites. Die X-Achse durchläuft den Bereich von 0 bis 320 in 8,8-Punkt-Festkommadarstellung mit dem MSB `$D010`, während die Tabelle die Sprite-Y-Achse steuert – exakt entsprechend der Editor-Vorschau. Der erneute Export ersetzt den vorherigen Kurveneditor-Einschub. |
+| Aktion                         | Was es tut                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Kurve speichern (.bin)…**    | Speichert die Rohdaten der Tabelle exakt so, wie der C64 sie über `INCBIN` lesen würde. 16 Bit: N LO-Bytes, gefolgt von N HI-Bytes.                                                                                                                                                                                                                                                                                                                                    |
+| **Lastkurve (.bin)…**          | Lädt die Rohdaten der Tabelle zurück in den Editor, interpretiert gemäß der aktuellen Bittiefe (16 Bit: erste Hälfte niedrig, zweite Hälfte hoch). Die geladene Tabelle wird unverändert angezeigt, bis eine Kurvensteuerung eine neue Kurve generiert.                                                                                                                                                                                                                |
+| **Demo in Blöcke exportieren** | Fügt eine vollständige, lauffähige Sprite-Demo hinzu: Sprite-Initialisierung, rastersynchronisierte Hauptschleife, die eingebettete Tabelle und die Daten des Kugel-Sprites. Die X-Achse durchläuft den Bereich von 0 bis 320 in 8,8-Punkt-Festkommadarstellung mit dem MSB `$D010`, während die Tabelle die Sprite-Y-Achse steuert – exakt entsprechend der Editor-Vorschau. Der erneute Export ersetzt den vorherigen Kurveneditor-Einschub.                         |
+| **Export nach UltimateBasic**  | Schreibt die Tabelle als initialisiertes Ultimate Basic-Array – `var name = array(N)` (oder `array_word(N)` für 16 Bit), gefolgt von `data name: …` Zeilen – und fügt sie an der Cursorposition des UB-Editors ein (außerhalb des UB-Modus wird sie in die Zwischenablage kopiert). Die Bezeichnung wird zu einem gültigen UB-Namen in Kleinbuchstaben; die Tabelle wird als `name[i]` indiziert. Benötigt Ultimate Basic 1.5.8+ (im Lieferumfang enthalten).          |
+| **Export UltimateBasic Demo**  | Erzeugt ein vollständiges, sofort ausführbares UB-Programm: einen Ball-Sprite (`sprdef 0`), die Tabelle und eine rastersynchronisierte Schleife, die pro Frame einen Tabelleneintrag abspielt. 8-Bit-Tabellen steuern den Sprite **Y**, während X den Bereich von 0 bis 320 durchläuft; 16-Bit-Tabellen (0 bis 320) steuern den Sprite **X**, während Y den Bereich von 0 bis 200 durchläuft. Tabellen mit mehr als 256 Einträgen spielen ihre ersten 256 Einträge ab. |
 
 **Entsprechend der Vorschau auf dem C64:** Die Vorschau liest die Tabelle **linear, in einer Schleife von 0 → N-1 → 0, ein Wert pro Frame**. Um dies exakt zu reproduzieren, muss die Tabelle auf dieselbe Weise angesteuert werden (Index einmal pro Frame inkrementieren, Überlauf bei Tabellenlänge). Eine Ping-Pong- oder Teilbereichswiedergabe verhält sich anders, obwohl die Bytewerte identisch sind. Ein funktionierendes 16-Bit-Sprite-X-Beispiel finden Sie unter `samples/curve-new-demo.asm`.
 

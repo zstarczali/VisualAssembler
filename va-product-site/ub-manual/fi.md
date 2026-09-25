@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.7 — Kieliopas
+# Ultimate Basic v1.5.8 — Kieliopas
 
 Täydellinen kieli- ja komentoriviviite Ultimate Basicille, BASICin kaltaiselle
 kielelle, joka kääntyy suoraan 6502-konekoodiksi Commodore 64:lle. Tuloste:
@@ -843,10 +843,10 @@ nollatäyttösilmukan – nopeammin kuin 25 yksittäistä työntöä.
 ### Ei-estävät äänitehosteet (`sfx`) — uutta versiossa 1.5.7
 
 ```basic
-ääni 0, $2000, 25 # LOHKOJA: ohjelma odottaa tässä 25 kehystä
-sfx 0, $2000, 25 # palaa heti; nuotti vaimenee itsestään
-sfx 1, $0500, 8, 128 # valinnainen aalto: 16 kolmio, 32 saha (oletus), 64 pulssi, 128 kohina
-sfx 0, freq_word, 4, 16 # freq voi olla vakio, sanamuuttuja tai 8-bittinen lauseke
+sound 0, $2000, 25            # BLOCKS: the program waits 25 frames here
+sfx 0, $2000, 25              # returns at once; the note fades out by itself
+sfx 1, $0500, 8, 128          # optional wave: 16 triangle, 32 saw (default), 64 pulse, 128 noise
+sfx 0, freq_word, 4, 16       # freq may be a constant, a word var or an 8-bit expression
 ```
 
 `sfx <channel>, <freq>, <frames> [, <wave>]` ohjelmoi yhden SID-äänen ja
@@ -860,11 +860,105 @@ päälle) ja asettaa päääänenvoimakkuuden `$0F`. `channel` (0-2), `frames` (
 ja `wave` on oltava käännösaikavakioita.
 
 
+### SID-musiikki
+
+```basic
+load sid "tune.sid"            # embed SID music at its native load address
+load sid "tune.sid", $2000     # override: embed at $2000 regardless of SID header
+```
+
+`load sid` lukee PSID- tai RSID-tiedoston **käännöksen aikana**, poistaa otsikon
+ja lisää raakatuota musiikkiin tulosteen `.prg` jälkeen. `load sid` jälkeen
+käytettävissä on kaksi käännösaikaista vakiota:
+
+| Vakio      | Kuvaus                                                                         |
+| ---------- | ------------------------------------------------------------------------------ |
+| `sid_init` | Init-rutiinin osoite — kutsu kerran, jossa A = kappaleen numero (0-pohjainen)  |
+| `sid_play` | Toista rutiinin osoite — kutsu jokaista kehystä (50 Hz PAL) IRQ-käsittelijältä |
+
+Molemmat vakiot toimivat kaikkialla, missä vakio-osoite hyväksytään: `sys`,
+`irq`, `poke`, lausekkeet.
+
+**Tyypillinen käyttö:**
+
+```basic
+load sid "music.sid"
+
+sub music_irq()
+  poke $D019, $FF       # ACK VIC raster IRQ
+  sys sid_play          # advance one frame of music
+  irq_exit              # JMP $EA81: restore A/X/Y + RTI (proper IRQ exit)
+end
+
+sys sid_init, 0         # initialise SID chip: A=0 → first sub-tune
+irq music_irq, $C0      # raster IRQ at line $C0 → 50 Hz on PAL
+
+sid volume 15           # master volume on
+```
+
+**Huomautuksia:**
+- SID-tiedot sijoitetaan kaiken luodun koodin **jälkeen**, ja ne täytetään
+  nollilla latausosoitteeseen asti. Kääntäjä varoittaa, jos SID:n latausosoite
+  menee päällekkäin luodun koodin kanssa.
+- PSID-versioita 1 ja 2 tuetaan. Jos SID-otsikon latausosoite on 0, kahta
+  ensimmäistä datatavua käytetään osoitteena (PRG-tyylinen, little-endian).
+- Vain yksi `load sid` ohjelmaa kohden on merkityksellinen (viimeinen voittaa).
+
+### Seurantamelodiat (`tune`)
+
+```basic
+tune                       # optional: tune at $C800  (default $8000)
+  speed 6                  # frames per row (50 Hz PAL)
+  inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
+  inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+  order 0, 1, 0            # pattern order (patterns may repeat)
+  pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
+  pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+end
+music play                 # or: sys sid_init / irq handler calling sys sid_play
+```
+
+`tune ... end` kuvaa kolmiäänisen seurantasävelmän selkokielellä (sama
+solunotaatio kuin Visual Assembler SID-editorissa) ja rakentaa soittimen **
+käännösaikana **. Se määrittelee `sid_init` / `sid_play` täsmälleen samalla
+tavalla kuin `load sid`, joten `music play`, `music stop`, `music pause` ja
+`music resume` (ja manuaalinen `irq`-käsittelijä, joka kutsuu `sys sid_play`)
+toimivat muuttumattomina.
+
+| Linja                                                 | Merkitys                                                                                                                                                                                                                                                               |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `speed N`                                             | Kehyksiä seurantariviä kohden (1–255).                                                                                                                                                                                                                                 |
+| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Yksi instrumentti: ohjausrekisteri (aaltomuodon bitit; soittaja lisää porttibitin), attack/decay, sustain/release, 12-bittinen pulssinleveys, 11-bittinen suodattimen katkaisu, resonanssi-/suodattimen reititystavu (`$D417`) ja tila-/äänenvoimakkuustavu (`$D418`). |
+| `order p, p, ...`                                     | Kuviojärjestys. Viivat kasautuvat, jopa 255 askelta.                                                                                                                                                                                                                   |
+| `pat p, v, "cell", ...`                               | Jopa 32 riviä äänelle `v` (0-2) kuviossa `p` (0-7). Puuttuvat rivit ovat tyhjiä.                                                                                                                                                                                       |
+
+**solu** on `NOTE INST FX`: `C-4`, `D#3`, `Eb2` tai `...` ei nuottia,
+kaksinumeroinen heksadecimal-instrumentti (`..` sen jättämiseksi) ja valinnainen
+efekti - `Vxy` vibrato (x = rivien pito, y = syvyys), `Uxx` / `Dxx` liuku
+ylös/alas, `C` nuotin leikkaus, `Fxx` asetettu nopeus. Pelkkä vaikutus -solu
+voidaan kirjoittaa muodossa `"... .. F06"` tai vain `"F06"`.
+
+Huomioita soittimesta:
+
+- Kaikki pelaajan tilatiedot sijaitsevat **-blobin sisällä ** (absoluuttinen
+  osoitus) - se ei käytä nollasivua, joten se ei voi törmätä
+  UltimateBasic-muuttujiin tai väliaikaisiin muuttujiin, ja se jatkaa
+  toimintaansa, kun ohjelma palaa BASIC-tilaan.
+- Blob-objekti sijoitetaan kiinteään osoitteeseen (oletusarvo `$8000` tai `tune
+  at $addr`) ja `.prg`-tiedosto täytetään siihen, kuten `load sid`. Pidä se
+  erillään koodistasi, taulukoistasi (`$C000+`) ja kaikesta
+  bittikartta-/merkistömuistista. Yksi lohko tarvitsee noin 1,3 kt + 12 tavua
+  riviä ja saraketta kohden.
+- Enintään 8 kuviota (32 riviä kukin); järjestysluettelo voi toistaa niitä
+  vapaasti.
+- `music play` käyttää CIA1-ajastinta 50 Hz:n taajuudella; älä yhdistä sitä
+  toiseen `load sid`/`tune` (viimeinen voittaa).
+
 ### Musiikin toisto
 
-`music play/stop/pause/resume` on korkean tason vaihtoehto manuaaliselle `sys
-sid_init` / `cia_timer` -määritykselle. Vaatii edeltävän `load sid` -lausekkeen
-(määrittelee `sid_init` / `sid_play`).
+`music play/stop/pause/resume` on korkeamman tason vaihtoehto manuaaliselle `sys
+sid_init` / `cia_timer` -asennukselle. Vaatii aiemman `load sid` -lausekkeen tai
+`tune ... end` -lohkon (molemmat määrittelevät `sid_init` / `sid_play`).
 
 ```basic
 load sid "tune.sid"         # embed SID file (defines sid_init / sid_play)
@@ -1074,10 +1168,10 @@ ohjelmassa.
 ### Koodin asettelu: `org` — uutta versiossa 1.5.7
 
 ```basic
-sub a() ... end # ali-/funktiot sijoitetaan peräkkäin pääosan lopusta
-org $4000 # seuraavat ali-/funktiot jatkuvat kohdasta $4000; $xxxx-$3FFF pysyy nollilla täytettynä
+sub a() ... end          # subs/fns are placed one after another from the end of the main body
+org $4000                # the next subs/fns continue at $4000; $xxxx-$3FFF stays zero-filled
 sub b() ... end
-incbin "font.bin", $3800 # tiedot voivat sijaita aukossa ($3800-$3FFF on kokonainen VIC-merkistöpaikka)
+incbin "font.bin", $3800 # data can live in the gap ($3800-$3FFF is a whole VIC charset slot)
 ```
 
 `org addr` siirtyy **ali-/fn-määritelmien väliin** (sitä ei huomioida pääosiossa
@@ -1116,10 +1210,10 @@ VIC-II:n käyttämään joukkoa, kytke se päälle (ja pois päältä uudelleen,
 valmis):
 ```basic
 charset $3800
-chardef 1 $FF,$81,$81,$81,$81,$81,$81,$FF end # laatikon reuna
-charset on # VIC-II lukee merkkejä laatikosta $3800 (näyttömatriisi koskematon)
+chardef 1  $FF,$81,$81,$81,$81,$81,$81,$FF  end  # box border
+charset on          # VIC-II reads characters from $3800 (screen matrix untouched)
 ...
-charset off # takaisin ROM-joukkoon ($1800, jos `lowercase` ovat aktiivisia, muuten $1000)
+charset off         # back to the ROM set ($1800 if `lowercase` is active, else $1000)
 ```
 
 `charset on` read-modify-writes `$D018` bitit 1-3 viimeisestä `charset addr`
@@ -1170,100 +1264,6 @@ Ilman osoitetta: toissijainen osoite 0 (tiedoston oma 2-tavuinen otsikko
 käytetään latausosoitteena). Osoitteen kanssa: toissijainen osoite 1 (tiedosto
 ladataan määritettyyn sijaintiin). `save` kutsuu `SETNAM`+`SETLFS`+`SAVE`
 (`$FFBD`/`$FFBA`/`$FFD8`). Vaatii sekä `addr` että `len`.
-
-### Seurantamelodiat (`tune`)
-
-```basic
-viritys # valinnainen: viritys taajuudella $C800 (oletus $8000)
-nopeus 6 # kehyksiä rivillä (50 Hz PAL)
-inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
-inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
-order 0, 1, 0 # kuviojärjestys (kuviot voivat toistua)
-pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
-pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
-end
-musiikin toisto # tai: sys sid_init / irq-käsittelijä kutsuu sys sid_play:tä
-```
-
-`tune ... end` kuvaa kolmiäänisen seurantasävelmän selkokielellä (sama
-solunotaatio kuin Visual Assembler SID-editorissa) ja rakentaa soittimen **
-käännösaikana **. Se määrittelee `sid_init` / `sid_play` täsmälleen samalla
-tavalla kuin `load sid`, joten `music play`, `music stop`, `music pause` ja
-`music resume` (ja manuaalinen `irq`-käsittelijä, joka kutsuu `sys sid_play`)
-toimivat muuttumattomina.
-
-| Linja                                                 | Merkitys                                                                                                                                                                                                                                                               |
-| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `speed N`                                             | Kehyksiä seurantariviä kohden (1–255).                                                                                                                                                                                                                                 |
-| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Yksi instrumentti: ohjausrekisteri (aaltomuodon bitit; soittaja lisää porttibitin), attack/decay, sustain/release, 12-bittinen pulssinleveys, 11-bittinen suodattimen katkaisu, resonanssi-/suodattimen reititystavu (`$D417`) ja tila-/äänenvoimakkuustavu (`$D418`). |
-| `order p, p, ...`                                     | Kuviojärjestys. Viivat kasautuvat, jopa 255 askelta.                                                                                                                                                                                                                   |
-| `pat p, v, "cell", ...`                               | Jopa 32 riviä äänelle `v` (0-2) kuviossa `p` (0-7). Puuttuvat rivit ovat tyhjiä.                                                                                                                                                                                       |
-
-**solu** on `NOTE INST FX`: `C-4`, `D#3`, `Eb2` tai `...` ei nuottia,
-kaksinumeroinen heksadecimal-instrumentti (`..` sen jättämiseksi) ja valinnainen
-efekti - `Vxy` vibrato (x = rivien pito, y = syvyys), `Uxx` / `Dxx` liuku
-ylös/alas, `C` nuotin leikkaus, `Fxx` asetettu nopeus. Pelkkä vaikutus -solu
-voidaan kirjoittaa muodossa `"... .. F06"` tai vain `"F06"`.
-
-Huomioita soittimesta:
-
-- Kaikki pelaajan tilatiedot sijaitsevat **-blobin sisällä ** (absoluuttinen
-  osoitus) - se ei käytä nollasivua, joten se ei voi törmätä
-  UltimateBasic-muuttujiin tai väliaikaisiin muuttujiin, ja se jatkaa
-  toimintaansa, kun ohjelma palaa BASIC-tilaan.
-- Blob-objekti sijoitetaan kiinteään osoitteeseen (oletusarvo `$8000` tai `tune
-  at $addr`) ja `.prg`-tiedosto täytetään siihen, kuten `load sid`. Pidä se
-  erillään koodistasi, taulukoistasi (`$C000+`) ja kaikesta
-  bittikartta-/merkistömuistista. Yksi lohko tarvitsee noin 1,3 kt + 12 tavua
-  riviä ja saraketta kohden.
-- Enintään 8 kuviota (32 riviä kukin); järjestysluettelo voi toistaa niitä
-  vapaasti.
-- `music play` käyttää CIA1-ajastinta 50 Hz:n taajuudella; älä yhdistä sitä
-  toiseen `load sid`/`tune` (viimeinen voittaa).
-
-### SID-musiikki
-
-```basic
-load sid "tune.sid"            # embed SID music at its native load address
-load sid "tune.sid", $2000     # override: embed at $2000 regardless of SID header
-```
-
-`load sid` lukee PSID- tai RSID-tiedoston **käännöksen aikana**, poistaa otsikon
-ja lisää raakatuota musiikkiin tulosteen `.prg` jälkeen. `load sid` jälkeen
-käytettävissä on kaksi käännösaikaista vakiota:
-
-| Vakio      | Kuvaus                                                                         |
-| ---------- | ------------------------------------------------------------------------------ |
-| `sid_init` | Init-rutiinin osoite — kutsu kerran, jossa A = kappaleen numero (0-pohjainen)  |
-| `sid_play` | Toista rutiinin osoite — kutsu jokaista kehystä (50 Hz PAL) IRQ-käsittelijältä |
-
-Molemmat vakiot toimivat kaikkialla, missä vakio-osoite hyväksytään: `sys`,
-`irq`, `poke`, lausekkeet.
-
-**Tyypillinen käyttö:**
-
-```basic
-load sid "music.sid"
-
-sub music_irq()
-  poke $D019, $FF       # ACK VIC raster IRQ
-  sys sid_play          # advance one frame of music
-  irq_exit              # JMP $EA81: restore A/X/Y + RTI (proper IRQ exit)
-end
-
-sys sid_init, 0         # initialise SID chip: A=0 → first sub-tune
-irq music_irq, $C0      # raster IRQ at line $C0 → 50 Hz on PAL
-
-sid volume 15           # master volume on
-```
-
-**Huomautuksia:**
-- SID-tiedot sijoitetaan kaiken luodun koodin **jälkeen**, ja ne täytetään
-  nollilla latausosoitteeseen asti. Kääntäjä varoittaa, jos SID:n latausosoite
-  menee päällekkäin luodun koodin kanssa.
-- PSID-versioita 1 ja 2 tuetaan. Jos SID-otsikon latausosoite on 0, kahta
-  ensimmäistä datatavua käytetään osoitteena (PRG-tyylinen, little-endian).
-- Vain yksi `load sid` ohjelmaa kohden on merkityksellinen (viimeinen voittaa).
 
 ### Sarjakanavan tiedosto I/O
 
@@ -1527,11 +1527,11 @@ tuetaan.
 ### Käännösaikainen tiedostojen upottaminen (`incbin` skip / length, uusi versiossa 1.5.7)
 
 ```basic
-incbin "sprites.bin" # upottaa raakabinääritavut nykyiseen koodipaikkaan
-incbin "charset.bin", $2000 # upottaa absoluuttiseen osoitteeseen, täydentäen tarvittaessa
-incbin "font.prg", $3C00, 2 # ...ohita kaksi ensimmäistä tavua (esim. .prg-latausosoite)
-incbin "big.bin", $4000, 16, 256 # ...ohita 16 tavua, ota sitten enintään 256 tavua
-include "defs.ub" # upottaa toisen .ub-lähdekooditiedoston (leksattu ja jäsennetty paikalleen)
+incbin "sprites.bin"            # embed raw binary bytes at current code position
+incbin "charset.bin", $2000     # embed at an absolute address, padding as needed
+incbin "font.prg", $3C00, 2       # ...skipping the first 2 bytes (e.g. a .prg load address)
+incbin "big.bin", $4000, 16, 256  # ...skip 16 bytes, then take at most 256 bytes
+include "defs.ub"        # inline another .ub source file (lexed+parsed in place)
 ```
 
 `incbin "file", addr, skip [, length]` poistaa tiedostosta ensimmäiset `skip`
@@ -1550,6 +1550,25 @@ read varname             # load next byte into varname (auto-declares if needed)
 Kaikki `data`-arvot kerätään käännösaikana. Ohjelmalle varataan ja alustetaan
 automaattisesti 2-tavuinen ZP-osoitin. Jokainen `read` siirtää osoitinta
 eteenpäin.
+
+**Alustetut taulukot — `data <taulukko>: …` (uusi versiossa 1.5.8)**
+
+```basic
+var sinus = array(8)
+data sinus: 128, 218, 255, 218
+data sinus: 128, 37, 0, 37      # further lines continue where the previous one stopped
+print sinus[i]                  # random access, like any array
+
+var xpos = array_word(2)
+data xpos: 24, 300              # word arrays take 16-bit values (stored lo, hi)
+```
+
+Rivi `data`, jonka ensimmäinen alkio on `name:`, täyttää ilmoitetun `array` /
+`array_word` -virran `read`-virran sijaan. Arvot tallennetaan koodin jälkeen ja
+kopioidaan taulukkoon kerran ohjelman käynnistyessä (heti taulukoiden
+nollaamisen jälkeen), joten taulukkoon voi kirjoittaa ja se indeksoidaan kuten
+mikä tahansa muu taulukko. Enemmän arvoja kuin taulukossa on tai ilmoittamaton
+nimi on käännösvirhe. Nämä rivit eivät vaikuta `read`-virtaan.
 
 ### Sisäänrakennettu kokoonpano
 
@@ -1912,6 +1931,6 @@ heksaedrisen vedoksen.
 | `plot4`                                     | Ei rajojen tarkistusta — x:n on oltava 0–79, y:n on oltava 0–49 (lohkotila)                                                                                                                                                                                                                                                                                                                                                |
 | `circle4`                                   | Leikkaa näytön ulkopuolisia lohkopikseleitä; hyödyllinen säde on noin 0–49 80×50-lohkotilassa                                                                                                                                                                                                                                                                                                                              |
 | `chr$`                                      | Ei PETSCII↔ASCII-määritystä — n välitetään sellaisenaan CHROUT-funktiolle                                                                                                                                                                                                                                                                                                                                                  |
-| `music play`                                | Vaatii `load sid`; vain yksi CIA1-kääre lähetetään (viimeinen `music play` voittaa)                                                                                                                                                                                                                                                                                                                                        |
+| `music play`                                | Vaatii `load sid`- tai `tune`-lohkon; vain yksi CIA1-kääre lähetetään (viimeinen `music play` voittaa)                                                                                                                                                                                                                                                                                                                     |
 | `graphics on double`                        | Vain palkattu; käyttää `$4000–$7FFF`-merkkiä takapuskurissa, joten ohjelmakoodin on pysyttävä `$4400`-merkkiä pienempänä; ei yhdistettävissä spritien tai moniväristen kanssa                                                                                                                                                                                                                                              |
 | Virheraportointi                            | Vain käännösaikana; `onerr goto` käsittelee KERNAL I/O -virheet ajonaikana                                                                                                                                                                                                                                                                                                                                                 |

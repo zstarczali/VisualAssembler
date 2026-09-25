@@ -1,5 +1,7 @@
 # macOS Installation Guide
-Version 2.4.6
+Version 2.4.7
+
+2.4.7: In-app updates — Menu → Check for Update checks c64va.tech for a newer release and, on confirmation, downloads the installer for your platform with a progress bar and installs it (Windows: passive installer + restart; macOS: app bundle replaced from the DMG; Linux: AppImage swapped or .deb/.rpm installed via pkexec). The check also runs quietly at every start, and the Ultimate Basic status bar shows "Up to date" or a clickable "Update available". Curve Editor → UltimateBasic export: the table as an initialised UB array (data name: …) plus a ready-to-run UB sprite demo. Bundled Ultimate Basic 1.5.8 with the new data <array>: initialiser. The editor panels now fit the window height (no page scrollbar), the ASM output panel keeps a 440 px minimum width, and the working-folder path uses a subtle badge.
 
 2.4.6: SID Editor → UltimateBasic export — Files → Export to UltimateBasic writes the tune as a tune ... end block (instruments, order list and pattern rows as text) followed by music play, and inserts it at the cursor of the Ultimate Basic editor (outside UB mode it is copied to the clipboard). The UltimateBasic compiler builds a zero-page-free player from it at compile time, so music play / music stop control the tune and nothing collides with UB variables. Vibrato, slide, note-cut and speed effects are supported; up to 8 patterns, any order-list length. Requires an UltimateBasic compiler with tune support. Ultimate Basic language update — syntax highlighting and the command reference now cover sfx (non-blocking SID effect: sfx channel, freq, frames [, wave]), org (continue sub/fn code at an address, leaving a zero-filled gap that can hold incbin data), charset on / charset off (switch the VIC-II to the RAM character set and back) and incbin slicing (incbin "font.prg", $3C00, 2 skips the first bytes, an optional fourth argument limits the length). Multi-block highlight in the ASM view — selecting several blocks highlights all of their ASM lines at once, the scroll position stays stable while you select, and the line numbers are softer with a subtle vertical separator rule. Assembler mode preserved across Ultimate Basic switches — opening a project or a built-in sample while Ultimate Basic is active now leaves UB first and returns to your last Block/Expert mode, so the UB buffer can no longer overwrite the new tab's mode or title. New tabs are created in the correct mode. Kung Fu Flash 2 settings — a Detect USB button in Hardware Settings re-scans for the cartridge's serial port, and the KFF2 prerequisites now state the required Kung Fu Flash firmware (v2.07+).
 
@@ -23,7 +25,7 @@ Version 2.4.6
 
 ## Quick Install
 
-1. **Download** the 2.4.6 DMG for your architecture from the releases page
+1. **Download** the 2.4.7 DMG for your architecture from the releases page
 2. **Mount** the DMG and drag the app to `/Applications`
 3. **First launch**: Right-click the app → **"Open"** (macOS will block double-click)
 4. Click **"Open"** in the security dialog
@@ -71,4 +73,4 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.4.6 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.4.7 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Podręcznik użytkownika
 
-**Wersja 2.4.6**
+**Wersja 2.4.7**
 
 Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągając i upuszczając bloki instrukcji, i oglądaj generowany kod assemblera i maszynowy w czasie rzeczywistym.
 
@@ -9,6 +9,7 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
 ## Spis treści
 
 - [C64 Visual Assembler — Podręcznik użytkownika](#c64-visual-assembler--user-manual)
+    - [Najważniejsze cechy wersji 2.4.7](#version-247-highlights)
     - [Najważniejsze cechy wersji 2.4.6](#version-246-highlights)
     - [Najważniejsze cechy wersji 2.4.5](#version-245-highlights)
     - [Najważniejsze cechy wersji 2.4.3](#version-243-highlights)
@@ -157,6 +158,17 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
     - [Edytor map (mapy kafelkowe wielowarstwowe)](#map-editor-multilayer-tilemaps)
     - [Edytor SID (śledzenie 3-głosowe)](#sid-editor-3-voice-tracker)
     - [Edytor krzywych](#curve-editor)
+
+---
+
+## Najważniejsze cechy wersji 2.4.7
+
+- **Aktualizacje w aplikacji** — **Menu → Sprawdź dostępność aktualizacji** sprawdza, czy w pliku c64va.tech jest dostępna nowsza wersja, a po potwierdzeniu pobiera instalator dla Twojej platformy z paskiem postępu i instaluje go. Zobacz [Aktualizacje w aplikacji](#in-app-updates). To sprawdzanie jest również uruchamiane po cichu przy każdym uruchomieniu.
+- **Status aktualizacji na pasku stanu Ultimate Basic** — pokazuje **Aktualne (vX)** lub podświetlony **Dostępna aktualizacja: vY**, którego kliknięcie otwiera okno dialogowe aktualizacji.
+- **Edytor krzywych → Eksport UltimateBasic** — **Pliki → Eksport do UltimateBasic** zapisuje tabelę jako zainicjowaną tablicę UB; **Pliki → Eksport demonstracji UltimateBasic** generuje gotową do uruchomienia demonstrację sprite'ów UB. Zobacz [Edytor krzywych](#curve-editor).
+- **Ultimate Basic 1.5.8 w pakiecie** — nowy formularz **`data <array>: v, …`** wypełnia zadeklarowaną tablicę `array` / `array_word` na początku programu (dalsze wiersze są kontynuowane tam, gdzie zakończył się poprzedni, tablice słów przyjmują wartości 16-bitowe) bez dotykania strumienia `read`.
+- **Układ dopasowany do okna** — panele edytora zajmują dokładnie pozostałą wysokość okna, więc aplikacja nie wyświetla już pionowego paska przewijania na poziomie strony; panel wyjściowy ASM zachowuje minimalną szerokość 440 px; ścieżka do folderu roboczego znajduje się w subtelnym znaczniku nad tytułem widoku ASM i korzysta z tego samego znacznika na paskach narzędzi Expert i Ultimate Basic. Etykiety przycisków dialogowych nie zawijają się już.
+- **Odniesienie do poleceń Ultimate Basic** — polecenia `tune` i `music` zawierają pełne, skomentowane przykłady (format komórki, efekty, notatki gracza, `music play N`); polecenia `inst`, `order`, `pat` i tune `speed` mają własne wpisy; polecenia `data` zawierają nową formę tablicy; poprawiono składnię polecenia `load sid` (`load sid "tune.sid", $2000`).
 
 ---
 
@@ -406,7 +418,24 @@ Migawki projektu są przechowywane jako pliki JSON sidecar na dysku, a nie w pam
 - **Menu → Kompilacja → Przywróć poprzednią wersję** przywraca bezpośrednio najnowszą migawkę.
 - **Menu → Kompilacja → Historia migawek** otwiera okno dialogowe, w którym można dodawać notatki, przywracać starsze wpisy lub je usuwać.
 - **Ustawienia sprzętowe → Migawka → Automatyczne zapisywanie migawek** – określa, czy aplikacja ma automatycznie tworzyć migawki po edycjach. Domyślne opóźnienie wynosi około 2,5 sekundy, a ustawienie ma zastosowanie dla każdej karty.
-- Jeśli projekt nie został jeszcze zapisany, migawki są przechowywane w katalogu konfiguracji aplikacji, dopóki projekt nie otrzyma ścieżki dostępu do pliku. | **Baza wiedzy** | Linki referencyjne (kody operacji 6502, jądro C64, mapa pamięci, kolory) | | **Sprawdź dostępność aktualizacji** | Otwórz stronę itch.io, aby sprawdzić dostępność nowszej wersji |
+- Jeśli projekt nie został jeszcze zapisany, migawki są przechowywane w katalogu konfiguracji aplikacji, dopóki projekt nie otrzyma ścieżki do pliku. | **Baza wiedzy** | Linki referencyjne (kody operacji 6502, JĄDRO C64, mapa pamięci, kolory) | | **Sprawdź dostępność aktualizacji** | Sprawdź, czy w pliku c64va.tech jest dostępna nowsza wersja i pobierz ją/zainstaluj — zobacz [Aktualizacje w aplikacji](#in-app-updates) |
+
+### Aktualizacje w aplikacji
+
+**Menu → Sprawdź dostępność aktualizacji** wyszukuje najnowszą wersję na c64va.tech (odczytuje linki do pobrania dla Twojej platformy) i porównuje ją z bieżącą wersją:
+
+- **Aktualne** — tak podaje okno dialogowe.
+- **Dostępna aktualizacja** — wybierz opcję **Aktualizuj teraz**, aby pobrać instalator (pasek postępu pobierania będzie pokazywał postęp pobierania), **Później**, aby zamknąć okno dialogowe lub **Pomiń tę wersję**, aby automatyczne sprawdzanie nie oferowało ponownie tej wersji.
+
+Po pobraniu aplikacja zainstaluje aktualizację i uruchomi się ponownie:
+
+| Platforma | Co się dzieje                                                                                                                                                                                                                          |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Okna**  | Instalacja przebiega w trybie pasywnym (tylko postęp) i uruchamia nową wersję po jej zakończeniu. Instalacja na komputerze wymaga uprawnień administratora (UAC).                                                                      |
+| **macOS** | Plik DMG zostaje zamontowany, a pakiet aplikacji zostaje zastąpiony nowym, po czym uruchamiana jest nowa wersja. Jeśli folder aplikacji nie jest zapisywalny, plik DMG jest po prostu otwierany, aby można było przeciągnąć aplikację. |
+| **Linux** | Obraz aplikacji zostaje zamieniony na nowy. Instalacja `.deb` / `.rpm` zostaje zaktualizowana za pomocą `pkexec` (zostaniesz poproszony o podanie hasła); bez `pkexec` pakiet zostanie otwarty w instalatorze oprogramowania.          |
+
+Jeśli istnieją niezapisane karty, aplikacja pyta o nie przed zamknięciem. To samo sprawdzanie jest wykonywane cicho kilka sekund po każdym uruchomieniu: nic nie jest wyświetlane, chyba że istnieje nowsza wersja. Wynik pojawia się również na pasku stanu Ultimate Basic — **Aktualne (vX)** lub podświetlony komunikat **Dostępna aktualizacja: vY**, który otwiera okno dialogowe aktualizacji.
 
 ### Przestrzenie robocze
 
@@ -3727,11 +3756,13 @@ Każde wyjście Kopiuj/Wstaw rozpoczyna się komentarzem nagłówkowym dokumentu
 **Kopiuj/Wstaw:** dwie ikony paska narzędzi — **Kopiuj** umieszcza tabelę w schowku; **Wstaw do edytora** dołącza tabelę (i czytnik, jeśli jest włączony) jako bloki do bieżącego programu. Ponowne wstawienie **zastępuje** poprzednią operację wstawiania w Edytorze krzywych zamiast układania duplikatów (działa w trybie blokowym i eksperckim).
 
 **Menu Pliki:**
-| Działanie                     | Co to robi                                                                                                                                                                                                                                                                                                                                                              |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Zapisz krzywą (.bin)…**     | Zapisuje surowe bajty tabeli dokładnie tak, jak C64 odczytałby je za pomocą `INCBIN`. 16-bit: N bajtów niskich, po których następuje N bajtów wysokich.                                                                                                                                                                                                                 |
-| **Krzywa obciążenia (.bin)…** | Ładuje surowe bajty tabeli z powrotem do edytora, interpretowane zgodnie z bieżącą głębokością bitową (16 bitów: pierwsza połowa lo, druga połowa hi). Załadowana tabela jest wyświetlana bez zmian, dopóki którykolwiek z elementów sterujących krzywą nie wygeneruje nowej krzywej.                                                                                   |
-| **Eksportuj demo do bloków**  | Dodaje kompletne, uruchamialne demo sprite'a: inicjalizację sprite'a, pętlę główną zsynchronizowaną z rastrem, osadzoną tabelę i dane sprite'a piłki. Przesunięcie X o 0–320 w punkcie stałym 8,8 z `$D010` MSB, podczas gdy tabela steruje sprite'em Y — dokładnie tak, jak w podglądzie edytora. Ponowny eksport zastępuje poprzednie wstawienie w edytorze krzywych. |
+| Działanie                                         | Co to robi                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Zapisz krzywą (.bin)…**                         | Zapisuje surowe bajty tabeli dokładnie tak, jak C64 odczytałby je za pomocą `INCBIN`. 16-bit: N bajtów niskich, po których następuje N bajtów wysokich.                                                                                                                                                                                                                                                                            |
+| **Krzywa obciążenia (.bin)…**                     | Ładuje surowe bajty tabeli z powrotem do edytora, interpretowane zgodnie z bieżącą głębokością bitową (16 bitów: pierwsza połowa lo, druga połowa hi). Załadowana tabela jest wyświetlana bez zmian, dopóki którykolwiek z elementów sterujących krzywą nie wygeneruje nowej krzywej.                                                                                                                                              |
+| **Eksportuj demo do bloków**                      | Dodaje kompletne, uruchamialne demo sprite'a: inicjalizację sprite'a, pętlę główną zsynchronizowaną z rastrem, osadzoną tabelę i dane sprite'a piłki. Przesunięcie X o 0–320 w punkcie stałym 8,8 z `$D010` MSB, podczas gdy tabela steruje sprite'em Y — dokładnie tak, jak w podglądzie edytora. Ponowny eksport zastępuje poprzednie wstawienie w edytorze krzywych.                                                            |
+| **Eksportuj do UltimateBasic**                    | Zapisuje tabelę jako zainicjowaną tablicę Ultimate Basic — `var name = array(N)` (lub `array_word(N)` dla 16-bitów), a następnie `data name: …` wierszy — i wstawia ją w miejscu kursora edytora UB (poza trybem UB jest kopiowana do schowka). Etykieta staje się prawidłową nazwą UB pisaną małymi literami; indeksowanie tabeli następuje jako `name[i]`. Wymagany jest Ultimate Basic w wersji 1.5.8 lub nowszej (w pakiecie). |
+| **Eksportuj wersję demonstracyjną UltimateBasic** | Tworzy kompletny, gotowy do uruchomienia program UB: sprite'a piłki (`sprdef 0`), tabelę oraz pętlę zsynchronizowaną z rastrem, która odtwarza jeden wpis tabeli na klatkę. Tabele 8-bitowe sterują sprite'em **Y**, podczas gdy X wykonuje ruch od 0 do 320; tablice 16-bitowe (0 do 320) sterują sprite'em **X**, podczas gdy Y wykonuje ruch od 0 do 200. Tabele dłuższe niż 256 wpisów odtwarzają swoje pierwsze 256.          |
 
 **Dopasowanie podglądu na C64:** podgląd odczytuje tabelę **liniowo, zapętlając 0 → N-1 → 0, jedna wartość na klatkę**. Aby odtworzyć to dokładnie, należy sterować tabelą w ten sam sposób (zwiększać indeks raz na klatkę, przewijać na całej długości tabeli). Odtwarzanie ping-pongowe lub częściowe będzie przebiegać inaczej, mimo że wartości bajtów są identyczne. Zobacz `samples/curve-new-demo.asm`, aby uzyskać działający 16-bitowy przykład sprite-X.
 

@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.4.6**
+**Versio 2.4.7**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin reaaliajassa.
 
@@ -9,6 +9,7 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 ## Sisällysluettelo
 
 - [C64 Visual Assembler — Käyttöopas](#c64-visual-assembler--user-manual)
+    - [Version 2.4.7 kohokohdat](#version-247-highlights)
     - [Version 2.4.6 kohokohdat](#version-246-highlights)
     - [Version 2.4.5 kohokohdat](#version-245-highlights)
     - [Version 2.4.3 kohokohdat](#version-243-highlights)
@@ -157,6 +158,17 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
     - [Karttaeditori (monikerroksiset laattakartat)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Käyränmuokkausohjelma](#curve-editor)
+
+---
+
+## Version 2.4.7 kohokohdat
+
+- **Sovelluksen sisäiset päivitykset** — **Valikko → Tarkista päivitykset** tarkistaa c64va.tech-sivustolta uudemman version ja lataa vahvistuksen jälkeen alustallesi sopivan asennusohjelman edistymispalkilla ja asentaa sen. Katso [Sovelluksen sisäiset päivitykset](#in-app-updates). Tarkistus suoritetaan myös hiljaisesti jokaisen käynnistyksen yhteydessä.
+- **Päivityksen tila Ultimate Basicin tilarivillä** — näyttää **Päivitetty (vX)** tai korostetun **Päivitys saatavilla: vY**, joka avaa päivitysikkunan napsautettaessa.
+- **Käyräeditori → UltimateBasic-vienti** — **Tiedostot → Vie UltimateBasic-muotoon** kirjoittaa taulukon alustettuna UB-taulukkona; **Tiedostot → Vie UltimateBasic-demo** tuottaa käyttövalmiin UB-sprite-demon. Katso [Käyräeditori]{1].
+- **Ultimate Basic 1.5.8 mukana** — uusi **`data <taulukko>: v, …`** -lomake täyttää ilmoitetun `taulukko` / `taulukko_sana` -taulukon ohjelman käynnistyessä (jatkossa rivit jatkuvat edelliseen, sanataulukot ottavat 16-bittisiä arvoja) koskematta `read` -virtaan.
+- **Asettelu mukautuu ikkunaan** — editoripaneelit ottavat täsmälleen jäljellä olevan ikkunan korkeuden, joten sovellus ei enää näytä sivutason pystysuuntaista vierityspalkkia; ASM-tulostuspaneelin vähimmäisleveys on 440 pikseliä; työkansion polku sijaitsee hienovaraisessa merkissä ASM-näkymän otsikon yläpuolella ja käyttää samaa merkkiä sekä Expert- että Ultimate Basic -työkaluriveillä. Valintaikkunoiden painikkeiden otsikot eivät enää rivity.
+- **Ultimate Basic -komentoviite** — `tune` ja `music` näyttävät täydelliset esimerkit kommentoituina (solumuoto, tehosteet, soittajan muistiinpanot, `musiikin toisto N`); `inst`, `order`, `pat` ja tune `speed` -komennoilla on omat merkintänsä; `data` näyttää uuden taulukkomuodon; `load sid` -syntaksi on korjattu (`load sid "tune.sid", $2000`).
 
 ---
 
@@ -406,7 +418,24 @@ Projektin tilannevedokset tallennetaan levylle sidecar-JSON-tiedostoina, eivätk
 - **Valikko → Rakenna → Palauta edellinen versio** palauttaa uusimman tilannevedoksen suoraan.
 - **Valikko → Rakenna → Tilannevedoshistoria** avaa valintaikkunan, jossa voit lisätä muistiinpanoja, palauttaa vanhempia merkintöjä tai poistaa niitä.
 - **Laitteistoasetukset → Tilannekuva → Automaattinen tilannevedosten tallennus** määrittää, luoko sovellus tilannevedoksia automaattisesti muokkausten jälkeen. Oletusviive on noin 2,5 sekuntia, ja asetus koskee välilehteä.
-- Jos projektia ei ole vielä tallennettu, tilannevedokset tallennetaan sovelluksen asetushakemistoon, kunnes projekti saa tiedostopolun. | **Tietokanta** | Viitelinkit (6502 operaatiokoodit, C64 KERNAL, muistikartta, värit) | | **Tarkista päivitykset** | Avaa itch.io-sivu tarkistaaksesi uudemman julkaisun |
+- Jos projektia ei ole vielä tallennettu, tilannevedokset tallennetaan sovelluksen määrityshakemistoon, kunnes projekti saa tiedostopolun. | **Tietokanta** | Viitelinkit (6502-operaatiokoodit, C64 KERNAL, muistikartta, värit) | | **Tarkista päivitykset** | Tarkista osoitteesta c64va.tech uudemman version varalta ja lataa/asenna se — katso [Sovelluksen sisäiset päivitykset](#in-app-updates) |
+
+### Sovelluksen sisäiset päivitykset
+
+**Valikko → Tarkista päivitykset** etsii uusimman version c64va.tech-sivustolta (se lukee alustasi latauslinkit) ja vertaa sitä käynnissä olevaan versioon:
+
+- **Ajan tasalla** — valintaikkunassa lukee niin.
+- **Päivitys saatavilla** — valitse **Päivitä nyt** ladataksesi asennusohjelman (edistymispalkki näyttää latauksen), **Myöhemmin** sulkeaksesi valintaikkunan tai **Ohita tämä versio** estääksesi automaattista tarkistusta tarjoamasta kyseistä versiota uudelleen.
+
+Latauksen jälkeen sovellus asentaa päivityksen ja käynnistyy uudelleen:
+
+| Alusta      | Mitä tapahtuu                                                                                                                                                                                               |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Windows** | Asennusohjelma toimii passiivisessa tilassa (vain edistyminen) ja käynnistää uuden version, kun se on valmis. Konekohtainen asennus pyytää järjestelmänvalvojan oikeuksia (UAC).                            |
+| **macOS**   | DMG liitetään ja sovelluspaketti korvataan paikalleen, minkä jälkeen uusi versio käynnistyy. Jos sovelluskansioon ei voi kirjoittaa, DMG yksinkertaisesti avataan, jotta voit vetää sovelluksen sen päälle. |
+| Linux       | AppImage vaihdetaan uuteen. `.deb` / `.rpm` -asennus päivitetään tiedostolla `pkexec` (sinulta kysytään salasanaasi); ilman `pkexec` paketti avataan ohjelmiston asennusohjelmassa.                         |
+
+Jos tallentamattomia välilehtiä on, sovellus kysyy niitä ennen sulkemista. Sama tarkistus suoritetaan hiljaisesti muutaman sekunnin jokaisen käynnistyksen jälkeen: mitään ei näytetä, ellei uudempaa versiota ole olemassa. Tulos näkyy myös Ultimate Basicin tilarivillä — **Päivitetty (vX)** tai korostettuna **Päivitys saatavilla: vY**, joka avaa päivitysvalintaikkunan.
 
 ### Työtilat
 
@@ -3727,11 +3756,13 @@ Jokainen kopiointi-/lisäystuloste alkaa otsikkokommentilla, joka dokumentoi kä
 **Kopioi / Lisää:** työkalupalkin kaksi kuvaketta — **Kopioi** lisää taulukon leikepöydälle; **Lisää editoriin** liittää taulukon (ja lukijan, jos käytössä) lohkoina nykyiseen ohjelmaan. Uudelleen lisääminen **korvaa** edellisen käyräeditorin lisäyksen kaksoiskappaleiden pinoamisen sijaan (toimii lohko- ja asiantuntijatilassa).
 
 **Tiedostot-valikko:**
-| Toiminta                   | Mitä se tekee                                                                                                                                                                                                                                                                                                                    |
-| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Tallenna käyrä (.bin)…** | Tallentaa raakataulukon tavut täsmälleen samalla tavalla kuin C64 lukisi ne `INCBIN`-komennon kautta. 16-bittinen: N lo-tavua ja sitten N hi-tavua.                                                                                                                                                                              |
-| **Kuormituskäyrä (.bin)…** | Lataa raakataulukon tavut takaisin editoriin, tulkittuna nykyisen bittisyvyyden mukaan (16-bittinen: ensimmäinen puolisko lo, toinen puolisko hi). Ladattu taulukko näytetään sellaisenaan, kunnes jokin käyrän säätö luo uuden käyrän.                                                                                          |
-| **Vie demo lohkoiksi**     | Liittää täydellisen, ajettavan sprite-demon: sprite-alustus, rasterisynkronoitu pääsilmukka, upotettu taulukko ja pallosprite-data. X pyyhkäisee 0..320 8.8-kiintopisteessä `$D010` MSB:llä, kun taulukko ajaa sprite-Y:tä – täsmälleen editorin esikatselun mukaisesti. Uudelleenvienti korvaa aiemman käyräeditorin lisäyksen. |
+| Toiminta                   | Mitä se tekee                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Tallenna käyrä (.bin)…** | Tallentaa raakataulukon tavut täsmälleen samalla tavalla kuin C64 lukisi ne `INCBIN`-komennon kautta. 16-bittinen: N lo-tavua ja sitten N hi-tavua.                                                                                                                                                                                                                                                                                        |
+| **Kuormituskäyrä (.bin)…** | Lataa raakataulukon tavut takaisin editoriin, tulkittuna nykyisen bittisyvyyden mukaan (16-bittinen: ensimmäinen puolisko lo, toinen puolisko hi). Ladattu taulukko näytetään sellaisenaan, kunnes jokin käyrän säätö luo uuden käyrän.                                                                                                                                                                                                    |
+| **Vie demo lohkoiksi**     | Liittää täydellisen, ajettavan sprite-demon: sprite-alustus, rasterisynkronoitu pääsilmukka, upotettu taulukko ja pallosprite-data. X pyyhkäisee 0..320 8.8-kiintopisteessä `$D010` MSB:llä, kun taulukko ajaa sprite-Y:tä – täsmälleen editorin esikatselun mukaisesti. Uudelleenvienti korvaa aiemman käyräeditorin lisäyksen.                                                                                                           |
+| **Vie UltimateBasiciin**   | Kirjoittaa taulukon alustettuna Ultimate Basic -taulukkona — `muuttujanimi = array(N)` (tai `array_word(N)` 16-bittiselle järjestelmälle), jota seuraa `datanimi: …` riviä — ja lisää sen UB-editorin kursoriin (UB-tilan ulkopuolella se kopioidaan leikepöydälle). Otsikosta tulee kelvollinen, pienillä kirjaimilla kirjoitettu UB-nimi; taulukko indeksoidaan muodossa `nimi[i]`. Vaatii Ultimate Basic 1.5.8+ (sisältyy pakkaukseen). |
+| **Vie UltimateBasic-demo** | Tuottaa täydellisen, käyttövalmiin UB-ohjelman: pallospriten (`sprdef 0`), taulukon ja rasterisynkronoidun silmukan, joka toistaa yhden taulukkomerkinnän kehystä kohden. 8-bittiset taulukot ohjaavat spriteä **Y**, kun X pyyhkäisee väliä 0..320; 16-bittiset (0..320) taulukot ohjaavat spriteä **X**, kun Y pyyhkäisee väliä 0..200. Yli 256 merkintää sisältävät taulukot toistavat ensimmäiset 256 merkintää.                       |
 
 **Vastaa C64:n esikatselua:** esikatselu lukee taulukon **lineaarisesti, toistaen 0 → N-1 → 0, yksi arvo kehystä kohden**. Tarkan toiston aikaansaamiseksi taulukkoa on ajettava samalla tavalla (indeksiä lisätään kerran kehystä kohden, ja jaetaan taulukon pituus). Ping-pong- tai osittaisen alueen toisto liikkuu eri tavalla, vaikka tavuarvot ovat identtiset. Katso toimivan 16-bittisen sprite-X-esimerkin tiedostosta `samples/curve-new-demo.asm`.
 

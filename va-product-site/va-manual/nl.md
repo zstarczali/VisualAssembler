@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Gebruikershandleiding
 
-**Versie 2.4.6**
+**Versie 2.4.7**
 
 Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma's door instructieblokken te slepen en neer te zetten, en bekijk de gegenereerde assembly- en machinecode in realtime.
 
@@ -9,6 +9,7 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
 ## Inhoudsopgave
 
 - [C64 Visual Assembler — Gebruikershandleiding](#c64-visual-assembler--user-manual)
+    - [Hoogtepunten van versie 2.4.7](#version-247-highlights)
     - [Hoogtepunten van versie 2.4.6](#version-246-highlights)
     - [Hoogtepunten van versie 2.4.5](#version-245-highlights)
     - [Hoogtepunten van versie 2.4.3](#version-243-highlights)
@@ -157,6 +158,17 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
     - [Kaarteditor (Meerlaagse tegelkaarten)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve-editor](#curve-editor)
+
+---
+
+## Hoogtepunten van versie 2.4.7
+
+- **In-app updates** — **Menu → Controleren op updates** controleert c64va.tech op een nieuwere versie en downloadt, na bevestiging, het installatieprogramma voor uw platform met een voortgangsbalk en installeert het. Zie [In-app updates](#in-app-updates). De controle wordt ook op de achtergrond uitgevoerd bij elke opstart.
+- **Updatestatus in de Ultimate Basic-statusbalk** — toont **Update (vX)**, of een gemarkeerde **Update beschikbaar: vY** die het updatedialoogvenster opent wanneer erop geklikt wordt.
+- **Curve Editor → UltimateBasic exporteren** — **Bestanden → Exporteren naar UltimateBasic** schrijft de tabel als een geïnitialiseerde UB-array; **Bestanden → UltimateBasic-demo exporteren** produceert een kant-en-klare UB-sprite-demo. Zie [Curve Editor](#curve-editor).
+- **Ultimate Basic 1.5.8 gebundeld** — de nieuwe **`data <array>: v, …`** vorm vult een gedeclareerde `array` / `array_word` bij programmastart (verdere regels gaan verder waar de vorige is geëindigd, woordarrays nemen 16-bits waarden aan) zonder de `read` stream aan te raken.
+- **Layout past zich aan het venster aan** — de editorpanelen nemen precies de resterende vensterhoogte in beslag, waardoor de app geen verticale schuifbalk op paginaniveau meer weergeeft; het ASM-uitvoerpaneel behoudt een minimale breedte van 440 px; het pad naar de werkmap bevindt zich in een subtiele badge boven de titel van de ASM-weergave en gebruikt dezelfde badge in de Expert- en Ultimate Basic-werkbalken. Labels van dialoogvensterknoppen worden niet langer afgebroken.
+- **Ultieme Basic-opdrachtreferentie** — `tune` en `music` tonen volledige, van commentaar voorziene voorbeelden (celindeling, effecten, spelernotities, `music play N`); `inst`, `order`, `pat` en de tune `speed` hebben hun eigen vermeldingen; `data` toont de nieuwe arrayvorm; de `load sid`-syntaxis is gecorrigeerd (`load sid "tune.sid", $2000`).
 
 ---
 
@@ -406,7 +418,24 @@ Projectsnapshots worden opgeslagen als JSON-bestanden op de schijf, niet in loca
 - **Menu → Bouwen → Vorige versie herstellen** herstelt direct de meest recente snapshot.
 - **Menu → Bouwen → Momentopnamegeschiedenis** opent het dialoogvenster waarin u notities kunt toevoegen, oudere vermeldingen kunt herstellen of verwijderen.
 - **Hardware-instellingen → Momentopname → Automatisch momentopnamen opslaan** bepaalt of de app automatisch momentopnamen maakt na bewerkingen. De standaardvertraging is ongeveer 2,5 seconden en de instelling geldt per tabblad.
-- Als een project nog niet is opgeslagen, worden momentopnamen bewaard in de configuratiemap van de app totdat het project een bestandspad krijgt. | **Kennisbank** | Referentielinks (6502 opcodes, C64 KERNAL, geheugenkaart, kleuren) | | **Controleren op updates** | Open de itch.io-pagina om te controleren op een nieuwere release |
+- Als een project nog niet is opgeslagen, worden momentopnamen opgeslagen in de configuratiemap van de app totdat het project een bestandspad krijgt. | **Kennisbank** | Referentielinks (6502 opcodes, C64 KERNAL, geheugenkaart, kleuren) | | **Controleren op updates** | Controleer c64va.tech voor een nieuwere versie en download/installeer deze — zie [In-app updates](#in-app-updates) |
+
+### In-app updates
+
+**Menu → Controleren op updates** zoekt de nieuwste versie op c64va.tech (het leest de downloadlinks voor uw platform) en vergelijkt deze met de actieve versie:
+
+- **Up-to-date** — dat zegt het dialoogvenster.
+- **Update beschikbaar** — kies **Nu bijwerken** om het installatieprogramma te downloaden (een voortgangsbalk toont de download), **Later** om het dialoogvenster te sluiten, of **Deze versie overslaan** om te voorkomen dat de automatische controle deze release opnieuw aanbiedt.
+
+Na het downloaden installeert de app de update en start opnieuw op:
+
+| Platform    | Wat gebeurt er?                                                                                                                                                                                                               |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Windows** | De installatie verloopt in passieve modus (alleen voortgangsregistratie) en start de nieuwe versie zodra deze is voltooid. Een installatie per machine vraagt om beheerdersrechten (UAC).                                     |
+| **macOS**   | Het DMG-bestand wordt gekoppeld en de app-bundel wordt op de juiste plek vervangen, waarna de nieuwe versie start. Als de app-map niet beschrijfbaar is, wordt het DMG-bestand geopend zodat je de app ernaartoe kunt slepen. |
+| **Linux**   | Een AppImage wordt vervangen door de nieuwe. Een `.deb` / `.rpm` installatie wordt bijgewerkt met `pkexec` (u wordt gevraagd om uw wachtwoord); zonder `pkexec` wordt het pakket geopend in uw software-installatieprogramma. |
+
+Als er niet-opgeslagen tabbladen zijn, vraagt de app hierom voordat hij wordt afgesloten. Dezelfde controle wordt een paar seconden na elke opstart stilzwijgend uitgevoerd: er wordt niets weergegeven tenzij er een nieuwere versie beschikbaar is. Het resultaat verschijnt ook in de statusbalk van Ultimate Basic — **Up-to-date (vX)**, of een gemarkeerde **Update beschikbaar: vY** die het updatedialoogvenster opent.
 
 ### Werkruimtes
 
@@ -3727,11 +3756,13 @@ Elke uitvoer van kopiëren/invoegen begint met een koptekstcommentaar waarin de 
 **Kopiëren / Invoegen:** de twee pictogrammen van de werkbalk — **Kopiëren** plaatst de tabel op het klembord; **Invoegen in editor** voegt de tabel (en lezer, indien ingeschakeld) als blokken toe aan het huidige programma. Opnieuw invoegen **vervangt** de vorige invoeging in de Curve Editor in plaats van duplicaten te stapelen (werkt in blok- en expertmodus).
 
 **Bestandenmenu:**
-| Actie                           | Wat het doet                                                                                                                                                                                                                                                                                                                                                    |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Curve opslaan (.bin)…**       | Slaat de ruwe tabelbytes exact op zoals de C64 ze zou lezen via `INCBIN`. 16-bit: N lage bytes gevolgd door N hoge bytes.                                                                                                                                                                                                                                       |
-| **Laadcurve (.bin)…**           | Laadt de onbewerkte tabelbytes terug in de editor, geïnterpreteerd volgens de huidige bitdiepte (16-bits: eerste helft laag, tweede helft hoog). De geladen tabel wordt ongewijzigd weergegeven totdat een curvebesturing een nieuwe curve genereert.                                                                                                           |
-| **Exporteer demo naar blokken** | Voegt een complete, uitvoerbare sprite-demo toe: sprite-initialisatie, raster-gesynchroniseerde hoofdloop, de ingebedde tabel en bal-spritegegevens. X veegt van 0 tot 320 in 8.8 fixed point met de `$D010` MSB terwijl de tabel de sprite-Y aanstuurt — exact overeenkomend met de preview in de editor. Re-export vervangt de vorige Curve Editor-invoeging. |
+| Actie                             | Wat het doet                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Curve opslaan (.bin)…**         | Slaat de ruwe tabelbytes exact op zoals de C64 ze zou lezen via `INCBIN`. 16-bit: N lage bytes gevolgd door N hoge bytes.                                                                                                                                                                                                                                                                                                     |
+| **Laadcurve (.bin)…**             | Laadt de onbewerkte tabelbytes terug in de editor, geïnterpreteerd volgens de huidige bitdiepte (16-bits: eerste helft laag, tweede helft hoog). De geladen tabel wordt ongewijzigd weergegeven totdat een curvebesturing een nieuwe curve genereert.                                                                                                                                                                         |
+| **Exporteer demo naar blokken**   | Voegt een complete, uitvoerbare sprite-demo toe: sprite-initialisatie, raster-gesynchroniseerde hoofdloop, de ingebedde tabel en bal-spritegegevens. X veegt van 0 tot 320 in 8.8 fixed point met de `$D010` MSB terwijl de tabel de sprite-Y aanstuurt — exact overeenkomend met de preview in de editor. Re-export vervangt de vorige Curve Editor-invoeging.                                                               |
+| **Exporteren naar UltimateBasic** | Schrijft de tabel als een geïnitialiseerde Ultimate Basic-array — `var name = array(N)` (of `array_word(N)` voor 16-bits) gevolgd door `data name: …` lines — en voegt deze in op de cursorpositie in de UB-editor (buiten de UB-modus wordt deze naar het klembord gekopieerd). Het label wordt een geldige UB-naam in kleine letters; indexeer de tabel als `name[i]`. Vereist Ultimate Basic 1.5.8 of hoger (meegeleverd). |
+| **Exporteer UltimateBasic demo**  | Produceert een compleet, direct uitvoerbaar UB-programma: een bal-sprite (`sprdef 0`), de tafel en een raster-gesynchroniseerde lus die één tafel-item per frame afspeelt. 8-bits tafels sturen sprite **Y** aan terwijl X van 0 tot 320 loopt; 16-bits (0 tot 320) tafels sturen sprite **X** aan terwijl Y van 0 tot 200 loopt. Tafels met meer dan 256 items spelen de eerste 256 af.                                      |
 
 **Overeenkomend met de preview op de C64:** de preview leest de tabel **lineair, in een lus van 0 → N-1 → 0, één waarde per frame**. Om dit exact te reproduceren, moet u de tabel op dezelfde manier aansturen (de index één keer per frame verhogen, terugspringen bij de lengte van de tabel). Een pingpong- of gedeeltelijke weergave zal anders bewegen, ook al zijn de byte-waarden identiek. Zie `samples/curve-new-demo.asm` voor een werkend 16-bits sprite-X-voorbeeld.
 

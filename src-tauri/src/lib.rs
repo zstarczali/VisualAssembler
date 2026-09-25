@@ -3284,6 +3284,342 @@ mod tests {
     }
 }
 
+// ── Self-update ──────────────────────────────────────────────────────────────
+// A legfrissebb verziót a termékoldal letöltési linkjeiből (downloads/VA/...)
+// olvassuk ki — nincs külön manifest. Ha a főoldalon nem található platformhoz
+// illő link, a downloads/VA/ könyvtárlistázást is megpróbáljuk.
+
+const UPDATE_PAGE_URLS: [&str; 2] = [
+    "https://www.c64va.tech/",
+    "https://www.c64va.tech/downloads/VA/",
+];
+const UPDATE_DOWNLOAD_BASE: &str = "https://www.c64va.tech/downloads/VA/";
+
+fn parse_version_triplet(s: &str) -> Option<(u32, u32, u32)> {
+    let mut parts = s.trim().trim_start_matches('v').split('.');
+    let major = parts.next()?.parse().ok()?;
+    let minor = parts.next()?.parse().ok()?;
+    let patch = parts.next().unwrap_or("0").parse().ok()?;
+    if parts.next().is_some() {
+        return None;
+    }
+    Some((major, minor, patch))
+}
+
+/// A futó platformhoz illő telepítőfájl neve: prefix + verzió + suffix.
+fn update_asset_pattern() -> Option<(&'static str, &'static str)> {
+    #[cfg(all(target_os = "windows", target_arch = "aarch64"))]
+    return Some(("C64 Visual Assembler_", "_arm64-setup.exe"));
+    #[cfg(all(target_os = "windows", not(target_arch = "aarch64")))]
+    return Some(("C64 Visual Assembler_", "_x64-setup.exe"));
+    #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+    return Some(("C64 Visual Assembler_", "_aarch64.dmg"));
+    #[cfg(all(target_os = "macos", not(target_arch = "aarch64")))]
+    return Some(("C64 Visual Assembler_", "_x64.dmg"));
+    #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+    {
+        if std::env::var_os("APPIMAGE").is_some() {
+            return Some(("C64 Visual Assembler_", "_amd64.AppImage"));
+        }
+        let rpm_based = Path::new("/etc/redhat-release").exists()
+            || Path::new("/etc/fedora-release").exists()
+            || (!Path::new("/usr/bin/dpkg").exists() && Path::new("/usr/bin/rpm").exists());
+        return if rpm_based {
+            Some(("C64 Visual Assembler-", "-1.x86_64.rpm"))
+        } else {
+            Some(("C64 Visual Assembler_", "_amd64.deb"))
+        };
+    }
+    #[allow(unreachable_code)]
+    None
+}
+
+fn update_asset_name(version: &str) -> Option<String> {
+    let (prefix, suffix) = update_asset_pattern()?;
+    Some(format!("{}{}{}", prefix, version, suffix))
+}
+
+/// A HTML-ben (vagy könyvtárlistában) előforduló legnagyobb `prefix<ver>suffix` verzió.
+fn find_latest_asset_version(html: &str, prefix: &str, suffix: &str) -> Option<(u32, u32, u32)> {
+    let text = html.replace("%20", " ");
+    let mut best: Option<(u32, u32, u32)> = None;
+    let mut rest = text.as_str();
+    while let Some(pos) = rest.find(prefix) {
+        rest = &rest[pos + prefix.len()..];
+        let ver_len = rest
+            .find(|c: char| !(c.is_ascii_digit() || c == '.'))
+            .unwrap_or(rest.len());
+        let (ver, tail) = rest.split_at(ver_len);
+        if !tail.starts_with(suffix) {
+            continue;
+        }
+        if let Some(v) = parse_version_triplet(ver) {
+            if best.map_or(true, |b| v > b) {
+                best = Some(v);
+            }
+        }
+    }
+    best
+}
+
+fn update_http_client(app: &AppHandle, timeout_secs: u64) -> Result<reqwest::Client, String> {
+    reqwest::Client::builder()
+        .timeout(Duration::from_secs(timeout_secs))
+        .user_agent(format!("C64VisualAssembler/{}", app.package_info().version))
+        .build()
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn check_for_update(app: AppHandle) -> Result<serde_json::Value, String> {
+    let current = app.package_info().version.to_string();
+    let Some((prefix, suffix)) = update_asset_pattern() else {
+        return Ok(serde_json::json!({ "supported": false, "currentVersion": current }));
+    };
+    let client = update_http_client(&app, 15)?;
+
+    let mut latest: Option<(u32, u32, u32)> = None;
+    let mut last_err = String::new();
+    for url in UPDATE_PAGE_URLS {
+        match client.get(url).send().await.and_then(|r| r.error_for_status()) {
+            Ok(resp) => match resp.text().await {
+                Ok(html) => latest = find_latest_asset_version(&html, prefix, suffix),
+                Err(e) => last_err = e.to_string(),
+            },
+            Err(e) => last_err = e.to_string(),
+        }
+        if latest.is_some() {
+            break;
+        }
+    }
+
+    let Some((ma, mi, pa)) = latest else {
+        return Err(if last_err.is_empty() {
+            "No download found for this platform.".into()
+        } else {
+            last_err
+        });
+    };
+    let latest_str = format!("{}.{}.{}", ma, mi, pa);
+    let current_v = parse_version_triplet(&current).unwrap_or((0, 0, 0));
+    let file_name = update_asset_name(&latest_str).unwrap_or_default();
+    Ok(serde_json::json!({
+        "supported": true,
+        "currentVersion": current,
+        "latestVersion": latest_str,
+        "updateAvailable": (ma, mi, pa) > current_v,
+        "fileName": file_name,
+        "url": format!("{}{}", UPDATE_DOWNLOAD_BASE, urlencoding::encode(&file_name)),
+    }))
+}
+
+#[cfg(not(target_os = "windows"))]
+fn spawn_update_script(script: &str, args: &[&str]) -> Result<(), String> {
+    let dir = std::env::temp_dir().join("c64-visual-assembler").join("update");
+    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    let script_path = dir.join("apply-update.sh");
+    fs::write(&script_path, script).map_err(|e| e.to_string())?;
+    Command::new("/bin/sh")
+        .arg(&script_path)
+        .args(args)
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .spawn()
+        .map(|_| ())
+        .map_err(|e| e.to_string())
+}
+
+#[cfg(not(target_os = "windows"))]
+fn dir_writable(dir: &Path) -> bool {
+    let probe = dir.join(".c64va-write-test");
+    let ok = fs::write(&probe, b"").is_ok();
+    let _ = fs::remove_file(&probe);
+    ok
+}
+
+/// Elindítja a letöltött telepítőt. `Ok(true)` = az app kilép és a helper újraindítja,
+/// `Ok(false)` = csak megnyitottuk a telepítőt, a felhasználó fejezi be kézzel.
+fn launch_update_installer(app: &AppHandle, file: &Path) -> Result<bool, String> {
+    let file_str = file.to_string_lossy().to_string();
+
+    #[cfg(target_os = "windows")]
+    {
+        let _ = app;
+        // Start-Process → ShellExecuteEx: kezeli az UAC elevationt (per-machine
+        // telepítésnél a CreateProcess ERROR_ELEVATION_REQUIRED-del elhasalna).
+        // Tauri NSIS: /P = passive (csak progress), /R = telepítés után újraindítja az appot.
+        let ps_cmd = format!(
+            "Start-Process -FilePath '{}' -ArgumentList '/P','/R'",
+            file_str.replace('\'', "''")
+        );
+        let out = Command::new("powershell")
+            .args(["-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden", "-Command", &ps_cmd])
+            .stdin(std::process::Stdio::null())
+            .creation_flags(0x08000000) // CREATE_NO_WINDOW
+            .output()
+            .map_err(|e| e.to_string())?;
+        if !out.status.success() {
+            return Err(String::from_utf8_lossy(&out.stderr).trim().to_string());
+        }
+        return Ok(true);
+    }
+
+    #[cfg(target_os = "macos")]
+    {
+        let _ = app;
+        let pid = std::process::id().to_string();
+        let bundle = std::env::current_exe()
+            .ok()
+            .and_then(|exe| exe.ancestors().find(|p| p.extension().map_or(false, |e| e == "app")).map(Path::to_path_buf));
+        let Some(bundle) = bundle.filter(|b| b.parent().map_or(false, dir_writable)) else {
+            Command::new("open").arg(&file_str).spawn().map_err(|e| e.to_string())?;
+            return Ok(false);
+        };
+        let script = r#"PID="$1"; DMG="$2"; TARGET="$3"
+while kill -0 "$PID" 2>/dev/null; do sleep 0.5; done
+MNT=$(mktemp -d /tmp/c64va-update.XXXXXX)
+if ! hdiutil attach -nobrowse -quiet -mountpoint "$MNT" "$DMG"; then open "$DMG"; exit 1; fi
+SRC=$(ls -d "$MNT"/*.app 2>/dev/null | head -n 1)
+if [ -n "$SRC" ] && rm -rf "$TARGET.new" && ditto "$SRC" "$TARGET.new"; then
+  rm -rf "$TARGET.old"; mv "$TARGET" "$TARGET.old" && mv "$TARGET.new" "$TARGET" && rm -rf "$TARGET.old"
+  hdiutil detach -quiet "$MNT"
+  xattr -dr com.apple.quarantine "$TARGET" 2>/dev/null
+  open "$TARGET"
+else
+  hdiutil detach -quiet "$MNT"; open "$DMG"
+fi
+"#;
+        spawn_update_script(script, &[&pid, &file_str, &bundle.to_string_lossy()])?;
+        return Ok(true);
+    }
+
+    #[cfg(target_os = "linux")]
+    {
+        let _ = app;
+        let pid = std::process::id().to_string();
+        if let Some(appimage) = std::env::var_os("APPIMAGE").map(PathBuf::from) {
+            if !appimage.parent().map_or(false, dir_writable) {
+                return Err(format!("Not writable: {}", appimage.display()));
+            }
+            let script = r#"PID="$1"; NEW="$2"; TARGET="$3"
+while kill -0 "$PID" 2>/dev/null; do sleep 0.5; done
+chmod +x "$NEW" && cp -f "$NEW" "$TARGET.new" && mv -f "$TARGET.new" "$TARGET" && rm -f "$NEW"
+exec "$TARGET"
+"#;
+            spawn_update_script(script, &[&pid, &file_str, &appimage.to_string_lossy()])?;
+            return Ok(true);
+        }
+        if !Path::new("/usr/bin/pkexec").exists() {
+            Command::new("xdg-open").arg(&file_str).spawn().map_err(|e| e.to_string())?;
+            return Ok(false);
+        }
+        let exe = std::env::current_exe().map_err(|e| e.to_string())?;
+        let script = r#"PID="$1"; PKG="$2"; EXE="$3"
+while kill -0 "$PID" 2>/dev/null; do sleep 0.5; done
+case "$PKG" in
+  *.deb) if command -v apt-get >/dev/null; then pkexec apt-get install -y "$PKG"; else pkexec dpkg -i "$PKG"; fi ;;
+  *.rpm) if command -v dnf >/dev/null; then pkexec dnf install -y "$PKG"; else pkexec rpm -U "$PKG"; fi ;;
+esac
+if [ $? -ne 0 ]; then xdg-open "$PKG"; fi
+exec "$EXE"
+"#;
+        spawn_update_script(script, &[&pid, &file_str, &exe.to_string_lossy()])?;
+        return Ok(true);
+    }
+
+    #[allow(unreachable_code)]
+    Err("Self-update is not supported on this platform.".into())
+}
+
+#[tauri::command]
+async fn download_and_install_update(app: AppHandle, version: String) -> Result<serde_json::Value, String> {
+    use tauri::Emitter;
+
+    // Csak verziót fogadunk a JS-től, az URL-t mi rakjuk össze → nem lehet
+    // tetszőleges fájlt letöltetni és futtatni.
+    if parse_version_triplet(&version).is_none() {
+        return Err(format!("Invalid version: {}", version));
+    }
+    let file_name = update_asset_name(&version).ok_or("Self-update is not supported on this platform.")?;
+    let url = format!("{}{}", UPDATE_DOWNLOAD_BASE, urlencoding::encode(&file_name));
+
+    let dir = std::env::temp_dir().join("c64-visual-assembler").join("update");
+    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    let target = dir.join(&file_name);
+    let partial = dir.join(format!("{}.part", file_name));
+
+    let client = update_http_client(&app, 600)?;
+    let mut resp = client
+        .get(&url)
+        .send()
+        .await
+        .and_then(|r| r.error_for_status())
+        .map_err(|e| e.to_string())?;
+    let total = resp.content_length().unwrap_or(0);
+    let mut out = fs::File::create(&partial).map_err(|e| e.to_string())?;
+    let mut received: u64 = 0;
+    let mut last_pct: i64 = -1;
+    while let Some(chunk) = resp.chunk().await.map_err(|e| e.to_string())? {
+        out.write_all(&chunk).map_err(|e| e.to_string())?;
+        received += chunk.len() as u64;
+        let pct = if total > 0 { (received * 100 / total) as i64 } else { -1 };
+        if pct != last_pct {
+            last_pct = pct;
+            let _ = app.emit("update-download-progress", serde_json::json!({ "received": received, "total": total }));
+        }
+    }
+    out.flush().map_err(|e| e.to_string())?;
+    drop(out);
+
+    if (total > 0 && received != total) || received < 1024 * 1024 {
+        let _ = fs::remove_file(&partial);
+        return Err(format!("Incomplete download ({} / {} bytes).", received, total));
+    }
+    let _ = fs::remove_file(&target);
+    fs::rename(&partial, &target).map_err(|e| e.to_string())?;
+
+    let restarting = launch_update_installer(&app, &target)?;
+    if restarting {
+        let handle = app.clone();
+        thread::spawn(move || {
+            thread::sleep(Duration::from_millis(800));
+            handle.exit(0);
+        });
+    }
+    Ok(serde_json::json!({ "restarting": restarting, "path": target.to_string_lossy() }))
+}
+
+#[cfg(test)]
+mod update_tests {
+    use super::*;
+
+    #[test]
+    fn finds_highest_matching_version() {
+        let html = r#"<a href="downloads/VA/C64%20Visual%20Assembler_2.4.6_x64-setup.exe">
+            <a href="downloads/VA/C64%20Visual%20Assembler_2.10.0_arm64-setup.exe">
+            <a href="downloads/VA/C64 Visual Assembler_2.5.1_x64-setup.exe">
+            <a href="downloads/VA/C64%20Visual%20Assembler-2.9.0-1.x86_64.rpm">"#;
+        assert_eq!(
+            find_latest_asset_version(html, "C64 Visual Assembler_", "_x64-setup.exe"),
+            Some((2, 5, 1))
+        );
+        assert_eq!(
+            find_latest_asset_version(html, "C64 Visual Assembler-", "-1.x86_64.rpm"),
+            Some((2, 9, 0))
+        );
+        assert_eq!(find_latest_asset_version(html, "C64 Visual Assembler_", "_x64.dmg"), None);
+    }
+
+    #[test]
+    fn compares_versions_numerically() {
+        assert!(parse_version_triplet("2.10.0") > parse_version_triplet("2.9.9"));
+        assert_eq!(parse_version_triplet("v2.4"), Some((2, 4, 0)));
+        assert_eq!(parse_version_triplet("2.4.6.1"), None);
+        assert_eq!(parse_version_triplet("../x"), None);
+    }
+}
+
 // ── App setup ────────────────────────────────────────────────────────────────
 
 pub fn run() {
@@ -3310,6 +3646,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             get_app_version,
             get_ultimate_basic_version,
+            check_for_update,
+            download_and_install_update,
             set_title,
             open_external,
             quit_app,

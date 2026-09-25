@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.7 — Språkmanual
+# Ultimate Basic v1.5.8 — Språkmanual
 
 Komplett språk- och CLI-referens för Ultimate Basic, ett BASIC-liknande språk
 som kompilerar direkt till 6502-maskinkod för Commodore 64. Utdata: `.prg` filer
@@ -831,10 +831,10 @@ individuella pokes.
 ### Icke-blockerande ljudeffekter (`sfx`) — nytt i 1.5.7
 
 ```basic
-ljud 0, $2000, 25 # BLOCK: programmet väntar 25 bildrutor här
-sfx 0, $2000, 25 # returnerar direkt; tonen tonar ut av sig själv
-sfx 1, $0500, 8, 128 # valfri våg: 16 triangel, 32 såg (standard), 64 puls, 128 brus
-sfx 0, freq_word, 4, 16 # freq kan vara en konstant, en ordvariabel eller ett 8-bitarsuttryck
+sound 0, $2000, 25            # BLOCKS: the program waits 25 frames here
+sfx 0, $2000, 25              # returns at once; the note fades out by itself
+sfx 1, $0500, 8, 128          # optional wave: 16 triangle, 32 saw (default), 64 pulse, 128 noise
+sfx 0, freq_word, 4, 16       # freq may be a constant, a word var or an 8-bit expression
 ```
 
 `sfx <channel>, <freq>, <frames> [, <wave>]` programmerar en SID-röst och
@@ -847,11 +847,103 @@ så tonen dör bort under ungefär den tiden. Den återaktiverar rösten varje a
 (1-255) och `wave` måste vara kompileringstidskonstanter.
 
 
+### SID Music
+
+```basic
+load sid "tune.sid"            # embed SID music at its native load address
+load sid "tune.sid", $2000     # override: embed at $2000 regardless of SID header
+```
+
+`load sid` läser en PSID- eller RSID-fil vid **kompileringstid**, raderar
+rubriken och lägger till de råa musikbytena i utdata `.prg`. Efter `load sid`
+blir två kompileringstidskonstanter tillgängliga:
+
+| Konstant   | Beskrivning                                                                     |
+| ---------- | ------------------------------------------------------------------------------- |
+| `sid_init` | Init-rutinadress — anropa en gång med A = låtnummer (0-baserat)                 |
+| `sid_play` | Spela upp rutinadress — anropa varje bildruta (50 Hz PAL) från en IRQ-hanterare |
+
+Båda konstanterna fungerar överallt där en konstant adress accepteras: `sys`,
+`irq`, `poke`, uttryck.
+
+**Typisk användning:**
+
+```basic
+load sid "music.sid"
+
+sub music_irq()
+  poke $D019, $FF       # ACK VIC raster IRQ
+  sys sid_play          # advance one frame of music
+  irq_exit              # JMP $EA81: restore A/X/Y + RTI (proper IRQ exit)
+end
+
+sys sid_init, 0         # initialise SID chip: A=0 → first sub-tune
+irq music_irq, $C0      # raster IRQ at line $C0 → 50 Hz on PAL
+
+sid volume 15           # master volume on
+```
+
+**Anteckningar:**
+- SID-data placeras **efter** all genererad kod, utfylld med nollor upp till
+  laddningsadressen. Kompilatorn varnar om SID-laddningsadressen skulle
+  överlappa genererad kod.
+- PSID v1 och v2 stöds. Om SID-headerns laddningsadress är 0 används de två
+  första databytena som adress (PRG-stil, little-endian).
+- Endast en `load sid` per program är meningsfull (den sista vinner).
+
+### Tracker-låtar (`tune`)
+
+```basic
+tune                       # optional: tune at $C800  (default $8000)
+  speed 6                  # frames per row (50 Hz PAL)
+  inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
+  inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+  order 0, 1, 0            # pattern order (patterns may repeat)
+  pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
+  pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+end
+music play                 # or: sys sid_init / irq handler calling sys sid_play
+```
+
+`tune ... end` beskriver en 3-stämmig spårningsmelodi i klartext (samma
+cellnotation som Visual Assembler SID-editorn visar) och bygger spelaren **vid
+kompileringstid**. Den definierar `sid_init` / `sid_play` exakt som `load sid`,
+så `music play`, `music stop`, `music pause` och `music resume` (och en manuell
+`irq`-hanterare som anropar `sys sid_play`) fungerar oförändrat.
+
+| Linje                                                 | Menande                                                                                                                                                                                                                                      |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `speed N`                                             | Bildrutor per spårningsrad (1–255).                                                                                                                                                                                                          |
+| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Ett instrument: kontrollregister (vågformsbitar; gate-biten läggs till av spelaren), attack/decay, sustain/release, 12-bitars pulsbredd, 11-bitars filteravstängning, resonans-/filterrouting-byte (`$D417`) och mode-/volym-byte (`$D418`). |
+| `order p, p, ...`                                     | Mönsterordning. Linjerna ackumuleras, upp till 255 steg.                                                                                                                                                                                     |
+| `pat p, v, "cell", ...`                               | Upp till 32 rader för röst `v` (0-2) av mönster `p` (0-7). Saknade rader är tomma.                                                                                                                                                           |
+
+En **cell** är `NOTE INST FX`: `C-4`, `D#3`, `Eb2` eller `...` för ingen not,
+ett tvåsiffrigt hexagonalt instrument (`..` för att lämna det), och en valfri
+effekt - `Vxy` vibrato (x = håll rader, y = djup), `Uxx` / `Dxx` glid upp / ner,
+`C` notklipp, `Fxx` inställd hastighet. En cell med endast effekter kan skrivas
+som `"... .. F06"` eller bara `"F06"`.
+
+Anteckningar om spelaren:
+
+- Alla spelartillstånd finns ** inuti blobben ** (absolut adressering) - den
+  använder ingen nollasida, så den kan inte kollidera med
+  UltimateBasic-variabler eller temporära variabler, och den fortsätter att
+  fungera när programmet återgår till BASIC.
+- Blobben placeras på en fast adress (standard `$8000`, eller `tune at $addr`)
+  och `.prg` utfylls upp till den, som `load sid`. Håll den fri från din kod,
+  arrayer (`$C000+`) och eventuellt bitmapps-/teckenuppsättningsminne. En tune
+  behöver cirka 1,3 KB plus 12 byte per rad-kolumn med data.
+- Högst 8 mönster (32 rader vardera); beställningslistan kan upprepa dem fritt.
+- `music play` använder CIA1-timern vid 50 Hz; kombinera den inte med en annan
+  `load sid`/`tune` (den sista vinner).
+
 ### Musikuppspelning
 
-`music play/stop/pause/resume` är ett övergripande alternativ till den manuella
-`sys sid_init` / `cia_timer`-inställningen. Kräver en föregående `load sid`-sats
-(definierar `sid_init` / `sid_play`).
+`musik spela/stoppa/pausa/återuppta` är ett övergripande alternativ till den
+manuella `sys sid_init` / `cia_timer`-installationen. Kräver en tidigare `load
+sid`-sats eller ett `tune ... end`-block (båda definierar `sid_init` /
+`sid_play`).
 
 ```basic
 load sid "tune.sid"         # embed SID file (defines sid_init / sid_play)
@@ -1056,10 +1148,10 @@ Koala-import kan för närvarande inte kombineras med `load sid` i samma program
 ### Kodlayout: `org` — nytt i 1.5.7
 
 ```basic
-sub a() ... end # subs/fns placeras efter varandra från slutet av huvuddelen
-org $4000 # nästa subs/fns fortsätter vid $4000; $xxxx-$3FFF förblir nollfylld
+sub a() ... end          # subs/fns are placed one after another from the end of the main body
+org $4000                # the next subs/fns continue at $4000; $xxxx-$3FFF stays zero-filled
 sub b() ... end
-incbin "font.bin", $3800 # data kan finnas i mellanrummet ($3800-$3FFF är en hel VIC-teckenuppsättningsplats)
+incbin "font.bin", $3800 # data can live in the gap ($3800-$3FFF is a whole VIC charset slot)
 ```
 
 `org addr` går **mellan sub/fn-definitioner** (den ignoreras i huvuddelen och
@@ -1096,11 +1188,11 @@ programmeraren (manualen sa det före 1.5.7 — det var fel).
 För att få VIC-II att använda setet, slå på det (och stäng av det igen när du är
 klar):
 ```basic
-teckenuppsättning $3800
-chardef 1 $FF,$81,$81,$81,$81,$81,$81,$81,$FF slut # boxkant
-teckenuppsättning på # VIC-II läser tecken från $3800 (skärmmatris orörd)
+charset $3800
+chardef 1  $FF,$81,$81,$81,$81,$81,$81,$FF  end  # box border
+charset on          # VIC-II reads characters from $3800 (screen matrix untouched)
 ...
-teckenuppsättning av # tillbaka till ROM-uppsättningen ($1800 om `lowercase` är aktiv, annars $1000)
+charset off         # back to the ROM set ($1800 if `lowercase` is active, else $1000)
 ```
 
 `charset on` läs-ändra-skriver `$D018` bitarna 1-3 från den sista `charset addr`
@@ -1151,91 +1243,6 @@ adress: sekundär adress 0 (filens egen 2-byte-rubrik används som
 laddningsadress). Med adress: sekundär adress 1 (filen laddad till angiven
 plats). `save` anropar `SETNAM`+`SETLFS`+`SAVE` (`$FFBD`/`$FFBA`/`$FFD8`).
 Kräver både `addr` och `len`.
-
-### Tracker-låtar (`tune`)
-
-```basic
-stämma # valfritt: stämma vid $C800 (standard $8000) hastighet 6 # bildrutor per rad (50 Hz PAL) inst 0, $41, $09, $F0, $0800, $0064, $27, $1F inst 1, $10, $08, $A8, $0400, $0000, $00, $0F ordning 0, 1, 0 # mönsterordning (mönster kan upprepas) pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00" pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
-slut
-musikuppspelning # eller: sys sid_init / irq-hanterare som anropar sys sid_play
-```
-
-`tune ... end` beskriver en 3-stämmig spårningsmelodi i klartext (samma
-cellnotation som Visual Assembler SID-editorn visar) och bygger spelaren **vid
-kompileringstid**. Den definierar `sid_init` / `sid_play` exakt som `load sid`,
-så `music play`, `music stop`, `music pause` och `music resume` (och en manuell
-`irq`-hanterare som anropar `sys sid_play`) fungerar oförändrat.
-
-| Linje                                                 | Menande                                                                                                                                                                                                                                      |
-| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `speed N`                                             | Bildrutor per spårningsrad (1–255).                                                                                                                                                                                                          |
-| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Ett instrument: kontrollregister (vågformsbitar; gate-biten läggs till av spelaren), attack/decay, sustain/release, 12-bitars pulsbredd, 11-bitars filteravstängning, resonans-/filterrouting-byte (`$D417`) och mode-/volym-byte (`$D418`). |
-| `order p, p, ...`                                     | Mönsterordning. Linjerna ackumuleras, upp till 255 steg.                                                                                                                                                                                     |
-| `pat p, v, "cell", ...`                               | Upp till 32 rader för röst `v` (0-2) av mönster `p` (0-7). Saknade rader är tomma.                                                                                                                                                           |
-
-En **cell** är `NOTE INST FX`: `C-4`, `D#3`, `Eb2` eller `...` för ingen not,
-ett tvåsiffrigt hexagonalt instrument (`..` för att lämna det), och en valfri
-effekt - `Vxy` vibrato (x = håll rader, y = djup), `Uxx` / `Dxx` glid upp / ner,
-`C` notklipp, `Fxx` inställd hastighet. En cell med endast effekter kan skrivas
-som `"... .. F06"` eller bara `"F06"`.
-
-Anteckningar om spelaren:
-
-- Alla spelartillstånd finns ** inuti blobben ** (absolut adressering) - den
-  använder ingen nollasida, så den kan inte kollidera med
-  UltimateBasic-variabler eller temporära variabler, och den fortsätter att
-  fungera när programmet återgår till BASIC.
-- Blobben placeras på en fast adress (standard `$8000`, eller `tune at $addr`)
-  och `.prg` utfylls upp till den, som `load sid`. Håll den fri från din kod,
-  arrayer (`$C000+`) och eventuellt bitmapps-/teckenuppsättningsminne. En tune
-  behöver cirka 1,3 KB plus 12 byte per rad-kolumn med data.
-- Högst 8 mönster (32 rader vardera); beställningslistan kan upprepa dem fritt.
-- `music play` använder CIA1-timern vid 50 Hz; kombinera den inte med en annan
-  `load sid`/`tune` (den sista vinner).
-
-### SID Music
-
-```basic
-load sid "tune.sid"            # embed SID music at its native load address
-load sid "tune.sid", $2000     # override: embed at $2000 regardless of SID header
-```
-
-`load sid` läser en PSID- eller RSID-fil vid **kompileringstid**, raderar
-rubriken och lägger till de råa musikbytena i utdata `.prg`. Efter `load sid`
-blir två kompileringstidskonstanter tillgängliga:
-
-| Konstant   | Beskrivning                                                                     |
-| ---------- | ------------------------------------------------------------------------------- |
-| `sid_init` | Init-rutinadress — anropa en gång med A = låtnummer (0-baserat)                 |
-| `sid_play` | Spela upp rutinadress — anropa varje bildruta (50 Hz PAL) från en IRQ-hanterare |
-
-Båda konstanterna fungerar överallt där en konstant adress accepteras: `sys`,
-`irq`, `poke`, uttryck.
-
-**Typisk användning:**
-
-```basic
-load sid "music.sid"
-
-sub music_irq()
-  poke $D019, $FF       # ACK VIC raster IRQ
-  sys sid_play          # advance one frame of music
-  irq_exit              # JMP $EA81: restore A/X/Y + RTI (proper IRQ exit)
-end
-
-sys sid_init, 0         # initialise SID chip: A=0 → first sub-tune
-irq music_irq, $C0      # raster IRQ at line $C0 → 50 Hz on PAL
-
-sid volume 15           # master volume on
-```
-
-**Anteckningar:**
-- SID-data placeras **efter** all genererad kod, utfylld med nollor upp till
-  laddningsadressen. Kompilatorn varnar om SID-laddningsadressen skulle
-  överlappa genererad kod.
-- PSID v1 och v2 stöds. Om SID-headerns laddningsadress är 0 används de två
-  första databytena som adress (PRG-stil, little-endian).
-- Endast en `load sid` per program är meningsfull (den sista vinner).
 
 ### Seriell kanalfil I/O
 
@@ -1498,11 +1505,11 @@ Framåtriktade referenser (etikett definierad efter `onerr goto`) stöds.
 ### Inbäddning av filer vid kompilering (`incbin` hoppa över / längd nytt i 1.5.7)
 
 ```basic
-incbin "sprites.bin" # bädda in råa binära byte vid aktuell kodposition
-incbin "charset.bin", $2000 # bädda in vid en absolut adress, utfyllnad efter behov
-incbin "font.prg", $3C00, 2 # ...hoppar över de första 2 byten (t.ex. en .prg-laddningsadress)
-incbin "big.bin", $4000, 16, 256 # ...hoppar över 16 byte, ta sedan högst 256 byte
-include "defs.ub" # infogar en annan .ub-källfil (lexed+parsad på plats)
+incbin "sprites.bin"            # embed raw binary bytes at current code position
+incbin "charset.bin", $2000     # embed at an absolute address, padding as needed
+incbin "font.prg", $3C00, 2       # ...skipping the first 2 bytes (e.g. a .prg load address)
+incbin "big.bin", $4000, 16, 256  # ...skip 16 bytes, then take at most 256 bytes
+include "defs.ub"        # inline another .ub source file (lexed+parsed in place)
 ```
 
 `incbin "file", addr, skip [, length]` tar bort de första `skip` bytena i filen
@@ -1521,6 +1528,25 @@ read varname             # load next byte into varname (auto-declares if needed)
 Alla `data`-värden samlas in vid kompileringstillfället. En 2-byte ZP-pekare
 allokeras och initieras automatiskt vid programstart. Varje `read` flyttar
 pekaren framåt.
+
+**Initialiserade arrayer — `data <array>: …` (nytt i 1.5.8)**
+
+```basic
+var sinus = array(8)
+data sinus: 128, 218, 255, 218
+data sinus: 128, 37, 0, 37      # further lines continue where the previous one stopped
+print sinus[i]                  # random access, like any array
+
+var xpos = array_word(2)
+data xpos: 24, 300              # word arrays take 16-bit values (stored lo, hi)
+```
+
+En `data`-rad vars första element är `name:` fyller en deklarerad `array` /
+`array_word` istället för `read`-strömmen. Värdena lagras efter koden och
+kopieras till arrayen en gång vid programstart (direkt efter att arrayerna
+nollställts), så tabellen är fullt skrivbar och indexerad som vilken annan array
+som helst. Fler värden än arrayen innehåller, eller ett odeklarerat namn, är ett
+kompileringsfel. Dessa rader påverkar inte `read`.
 
 ### Inline-montering
 
@@ -1877,6 +1903,6 @@ hex-dump.
 | `plot4`                               | Ingen gränskontroll — x måste vara 0–79, y måste vara 0–49 (blockläge)                                                                                                                                                                                                                                                                                                          |
 | `circle4`                             | Klipp ut blockpixlar utanför skärmen; användbar radie är ungefär 0–49 i 80×50 blockläge                                                                                                                                                                                                                                                                                         |
 | `chr$`                                | Ingen PETSCII↔ASCII-mappning — n skickas som det är till CHROUT                                                                                                                                                                                                                                                                                                                 |
-| `music play`                          | Kräver `load sid`; endast en CIA1-omslagsfil genereras (den sista `music play` vinner)                                                                                                                                                                                                                                                                                          |
+| `music play`                          | Kräver `load sid` eller ett `tune`-block; endast en CIA1-omslagsfil genereras (den sista `musikuppspelningen` vinner)                                                                                                                                                                                                                                                           |
 | `graphics on double`                  | Anställer endast; använder `$4000–$7FFF` för backbufferten, så programkoden måste hålla sig under `$4400`; kan inte kombineras med sprites eller multicolor                                                                                                                                                                                                                     |
 | Felrapportering                       | Endast vid kompilering; `onerr goto` hanterar KERNAL I/O-fel vid körning                                                                                                                                                                                                                                                                                                        |

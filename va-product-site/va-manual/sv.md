@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.4.6**
+**Version 2.4.7**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att dra och släppa instruktionsblock och se den genererade assemblern och maskinkoden i realtid.
 
@@ -9,6 +9,7 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
 ## Innehållsförteckning
 
 - [C64 Visual Assembler — Användarmanual](#c64-visual-assembler--user-manual)
+    - [Höjdpunkter i version 2.4.7](#version-247-highlights)
     - [Höjdpunkter i version 2.4.6](#version-246-highlights)
     - [Höjdpunkter i version 2.4.5](#version-245-highlights)
     - [Höjdpunkter i version 2.4.3](#version-243-highlights)
@@ -157,6 +158,17 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
     - [Kartredigerare (Flerskiktade kakelkartor)](#map-editor-multilayer-tilemaps)
     - [SID-redigerare (3-röstsspårare)](#sid-editor-3-voice-tracker)
     - [Kurvredigerare](#curve-editor)
+
+---
+
+## Höjdpunkter i version 2.4.7
+
+- **Uppdateringar i appen** — **Meny → Sök efter uppdateringar** söker efter en nyare version i c64va.tech och laddar ner installationsprogrammet för din plattform med en förloppsindikator efter bekräftelse och installerar det. Se [Uppdateringar i appen](#in-app-updates). Kontrollen körs också tyst vid varje start.
+- **Uppdateringsstatus i statusfältet för Ultimate Basic** — visar **Uppdaterad (vX)** eller en markerad **Uppdatering tillgänglig: vY** som öppnar uppdateringsdialogrutan när du klickar på den.
+- **Kurvredigerare → UltimateBasic export** — **Filer → Exportera till UltimateBasic** skriver tabellen som en initialiserad UB-array; **Filer → Exportera UltimateBasic-demo** producerar en körklar UB-spritedemo. Se [Kurvredigerare](#curve-editor).
+- **Ultimate Basic 1.5.8 bundled** — den nya **`data <array>: v, …`**-formen fyller en deklarerad `array` / `array_word` vid programstart (ytterligare rader fortsätter där den föregående slutade, ordarrayer tar 16-bitarsvärden) utan att vidröra `read`-strömmen.
+- **Layouten passar fönstret** — redigeringspanelerna tar exakt den återstående fönsterhöjden, så appen visar inte längre en vertikal rullningslist på sidnivå; ASM-utdatapanelen behåller en minsta bredd på 440 px; arbetsmappens sökväg sitter i en diskret markering ovanför ASM-vytiteln och använder samma markering i verktygsfälten Expert och Ultimate Basic. Etiketter för dialogknappar radbryts inte längre.
+- **Ultimate Basic-kommandoreferens** — `tune` och `music` visar fullständiga, kommenterade exempel (cellformat, effekter, spelarnoter, `musikuppspelning N`); `inst`, `order`, `pat` och tune `speed` har sina egna poster; `data` visar den nya arrayformen; syntaxen `load sid` är korrigerad (`load sid "tune.sid", $2000`).
 
 ---
 
@@ -406,7 +418,24 @@ Projektbilder lagras som sidofiler av JSON på disk, inte i localStorage. De är
 - **Meny → Bygg → Återställ tidigare version.** återställer den senaste ögonblicksbilden direkt.
 - **Meny → Skapa → Ögonblicksbildshistorik** öppnar dialogrutan där du kan lägga till anteckningar, återställa äldre poster eller ta bort dem.
 - **Maskinvaruinställningar → Ögonblicksbild → Automatisk sparning av ögonblicksbilder** styr om appen skapar ögonblicksbilder automatiskt efter redigeringar. Standardfördröjningen är cirka 2,5 sekunder och inställningen gäller per flik.
-- Om ett projekt inte har sparats än lagras ögonblicksbilder i appens konfigurationskatalog tills projektet får en sökväg. | **Kunskapsbas** | Referenslänkar (6502 opkoder, C64 KERNAL, minneskarta, färger) | | **Sök efter uppdateringar** | Öppna itch.io-sidan för att söka efter en nyare version |
+- Om ett projekt inte har sparats ännu lagras ögonblicksbilder i appens konfigurationskatalog tills projektet får en sökväg. | **Kunskapsbas** | Referenslänkar (6502 opkoder, C64 KERNAL, minneskarta, färger) | | **Sök efter uppdateringar** | Sök efter en nyare version på c64va.tech och ladda ner/installera den — se [Uppdateringar i appen](#in-app-updates) |
+
+### Uppdateringar i appen
+
+**Meny → Sök efter uppdateringar** söker upp den senaste versionen på c64va.tech (den läser nedladdningslänkarna för din plattform) och jämför den med den version som körs:
+
+- **Uppdaterad** — det står i dialogrutan.
+- **Uppdatering tillgänglig** — välj **Uppdatera nu** för att ladda ner installationsprogrammet (en förloppsindikator visar nedladdningen), **Senare** för att stänga dialogrutan eller **Hoppa över den här versionen** för att stoppa den automatiska kontrollen från att erbjuda den versionen igen.
+
+Efter nedladdningen installerar appen uppdateringen och startar om:
+
+| Plattform  | Vad händer                                                                                                                                                                                  |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Windows ** | Installationsprogrammet körs i passivt läge (endast fortskridande) och startar den nya versionen när det är klart. En installation per maskin ber om administratörsrättigheter (UAC).       |
+| **macOS**  | DMG-filen monteras och app-paketet sätts tillbaka på plats, sedan startar den nya versionen. Om app-mappen inte är skrivbar öppnas DMG-filen helt enkelt så att du kan dra appen över.      |
+| **Linux**  | En AppImage byts ut mot en ny. En `.deb` / `.rpm`-installation uppdateras med `pkexec` (du blir ombedd att ange ditt lösenord); utan `pkexec` öppnas paketet i din programvaruinstallation. |
+
+Om det finns osparade flikar frågar appen innan den stängs. Samma kontroll körs tyst några sekunder efter varje start: ingenting visas om inte en nyare version finns. Resultatet visas också i statusfältet för Ultimate Basic — **Uppdaterad (vX)**, eller en markerad **Uppdatering tillgänglig: vY** som öppnar uppdateringsdialogrutan.
 
 ### Arbetsytor
 
@@ -3727,11 +3756,13 @@ Varje kopierings-/infogningsutdata börjar med en rubrikkommentar som dokumenter
 **Kopiera / Infoga:** verktygsfältets två ikoner — **Kopiera** placerar tabellen på urklipp; **Infoga i redigerare** lägger till tabellen (och läsaren, om aktiverad) som block i det aktuella programmet. Om du infogar **ersätts** den tidigare kurvredigerarinfogningen istället för att stapla dubbletter (fungerar i block- och expertläge).
 
 **Filmeny:**
-| Handling                      | Vad den gör                                                                                                                                                                                                                                                                                                                         |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Spara kurva (.bin)…**       | Sparar de råa tabellbytena exakt som C64 skulle läsa dem via `INCBIN`. 16-bitars: N låga byte följt av N höga byte.                                                                                                                                                                                                                 |
-| **Lastkurva (.bin)…**         | Läser in råa tabellbyte tillbaka till editorn, tolkade enligt det aktuella bitdjupet (16-bitars: första halvan låg, andra halvan hög). Den inlästa tabellen visas som den är tills någon kurvkontroll genererar en ny kurva.                                                                                                        |
-| **Exportera demo till block** | Lägger till en komplett, körbar sprite-demo: sprite-init, rastersynkroniserad huvudloop, den inbäddade tabellen och boll-sprite-data. X sveper 0..320 i 8.8 fixpunkt med `$D010` MSB medan tabellen driver sprite Y — vilket exakt matchar editorns förhandsgranskning. Återexport ersätter den tidigare Curve Editor-insättningen. |
+| Handling                          | Vad den gör                                                                                                                                                                                                                                                                                                                                                                 |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Spara kurva (.bin)…**           | Sparar de råa tabellbytena exakt som C64 skulle läsa dem via `INCBIN`. 16-bitars: N låga byte följt av N höga byte.                                                                                                                                                                                                                                                         |
+| **Lastkurva (.bin)…**             | Läser in råa tabellbyte tillbaka till editorn, tolkade enligt det aktuella bitdjupet (16-bitars: första halvan låg, andra halvan hög). Den inlästa tabellen visas som den är tills någon kurvkontroll genererar en ny kurva.                                                                                                                                                |
+| **Exportera demo till block**     | Lägger till en komplett, körbar sprite-demo: sprite-init, rastersynkroniserad huvudloop, den inbäddade tabellen och boll-sprite-data. X sveper 0..320 i 8.8 fixpunkt med `$D010` MSB medan tabellen driver sprite Y — vilket exakt matchar editorns förhandsgranskning. Återexport ersätter den tidigare Curve Editor-insättningen.                                         |
+| **Exportera till UltimateBasic**  | Skriver tabellen som en initialiserad Ultimate Basic-array — `var name = array(N)` (eller `array_word(N)` för 16-bitars) följt av `data name: …` rader — och infogar den vid UB-redigerarens markör (utanför UB-läge kopieras den till urklipp). Etiketten blir ett giltigt UB-namn med gemener; indexera tabellen som `name[i]`. Kräver Ultimate Basic 1.5.8+ (medföljer). |
+| **Exportera UltimateBasic-demo ** | Producerar ett komplett, körklart UB-program: en bollsprite (`sprdef 0`), tabellen och en rastersynkroniserad loop som spelar upp en tabellpost per bildruta. 8-bitarstabeller driver spriten **Y** medan X sveper 0..320; 16-bitarstabeller (0..320) driver spriten **X** medan Y sveper 0..200. Tabeller längre än 256 poster spelar upp sina första 256.                 |
 
 **Matcha förhandsgranskningen på C64:** förhandsgranskningen läser tabellen **linjärt, loopande 0 → N-1 → 0, ett värde per bildruta**. För att reproducera det exakt, kör tabellen på samma sätt (öka indexet en gång per bildruta, radbryt vid tabellens längd). En pingis- eller partiell uppspelning kommer att röra sig olika även om bytevärdena är identiska. Se `samples/curve-new-demo.asm` för ett fungerande 16-bitars sprite-X-exempel.
 

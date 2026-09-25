@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.7 — Nyelvi kézikönyv
+# Ultimate Basic v1.5.8 — Nyelvi kézikönyv
 
 Teljes nyelvi és parancssori felület (CLI) referencia az Ultimate Basichez, egy
 BASIC-szerű nyelvhez, amely közvetlenül 6502-es gépi kóddá fordul Commodore
@@ -852,10 +852,10 @@ gyorsabban, mint 25 egyedi piszkálás.
 ### Nem blokkoló hangeffektek (`sfx`) — újdonság az 1.5.7-es verzióban
 
 ```basic
-sound 0, $2000, 25 # BLOCKS: a program itt 25 képkockát vár
-sfx 0, $2000, 25 # azonnal visszatér; a hang magától elhalkul
-sfx 1, $0500, 8, 128 # opcionális wave: 16 triangle, 32 saw (alapértelmezett), 64 pulse, 128 noise
-sfx 0, freq_word, 4, 16 # a freq lehet konstans, szóváltozó vagy 8 bites kifejezés
+sound 0, $2000, 25            # BLOCKS: the program waits 25 frames here
+sfx 0, $2000, 25              # returns at once; the note fades out by itself
+sfx 1, $0500, 8, 128          # optional wave: 16 triangle, 32 saw (default), 64 pulse, 128 noise
+sfx 0, freq_word, 4, 16       # freq may be a constant, a word var or an 8-bit expression
 ```
 
 Az `sfx <channel>, <freq>, <frames> [, <wave>]` egy SID hangot programoz, és
@@ -869,11 +869,106 @@ be), és beállítja a fő hangerőt `$0F`. Az `channel` (0-2), az `frames` (1-2
 és az `wave` értékeknek fordítási idejű állandóknak kell lenniük.
 
 
+### SID Zene
+
+```basic
+load sid "tune.sid"            # embed SID music at its native load address
+load sid "tune.sid", $2000     # override: embed at $2000 regardless of SID header
+```
+
+A `load sid` **fordítási időben** beolvassa a PSID vagy RSID fájlt, eltávolítja
+a fejlécet, és hozzáfűzi a nyers zenei bájtokat a kimenethez. `.prg`. A `load
+sid` után két fordítási idejű állandó válik elérhetővé:
+
+| Állandó    | Leírás                                                                     |
+| ---------- | -------------------------------------------------------------------------- |
+| `sid_init` | Init rutin cím — egyszeri hívás A = dalszámmal (0-alapú)                   |
+| `sid_play` | Rutincím lejátszása — minden keret meghívása (50 Hz PAL) egy IRQ kezelőből |
+
+Mindkét konstans bárhol működik, ahol konstans címet fogadnak el: `sys`, `irq`,
+`poke`, kifejezések.
+
+**Tipikus használat:**
+
+```basic
+load sid "music.sid"
+
+sub music_irq()
+  poke $D019, $FF       # ACK VIC raster IRQ
+  sys sid_play          # advance one frame of music
+  irq_exit              # JMP $EA81: restore A/X/Y + RTI (proper IRQ exit)
+end
+
+sys sid_init, 0         # initialise SID chip: A=0 → first sub-tune
+irq music_irq, $C0      # raster IRQ at line $C0 → 50 Hz on PAL
+
+sid volume 15           # master volume on
+```
+
+**Megjegyzések:**
+- A SID adatok a generált kód **után** kerülnek elhelyezésre, nullákkal
+  kiegészítve a betöltési címig. A fordító figyelmeztet, ha a SID betöltési címe
+  átfedésben lenne a generált kóddal.
+- A PSID v1 és v2 támogatott. Ha a SID fejléc betöltési címe 0, akkor az első
+  két adatbájtot használja címként (PRG stílusú, little-endian).
+- Programonként csak egy `load sid` értelmes (az utolsó nyer).
+
+### Tracker dallamok (`tune`)
+
+```basic
+tune                       # optional: tune at $C800  (default $8000)
+  speed 6                  # frames per row (50 Hz PAL)
+  inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
+  inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
+  order 0, 1, 0            # pattern order (patterns may repeat)
+  pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
+  pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
+end
+music play                 # or: sys sid_init / irq handler calling sys sid_play
+```
+
+Az `tune ... end` egy 3 hangú követő dallamot ír le egyszerű szövegben
+(ugyanazzal a cellajelöléssel, mint amit a Visual Assembler SID szerkesztő
+mutat), és fordítási időben felépíti a lejátszót ****. A `sid_init` / `sid_play`
+paramétert pontosan úgy definiálja, mint a `load sid` paramétert, így a `music
+play`, `music stop`, `music pause` és `music resume` (és egy manuális `irq`
+kezelő, amely a `sys sid_play` függvényt hívja meg) változatlanul működik.
+
+| Vonal                                                 | Jelentés                                                                                                                                                                                                                                             |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `speed N`                                             | Keretek követő soronként (1-255).                                                                                                                                                                                                                    |
+| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Egy hangszer: vezérlőregiszter (hullámforma bitek; a gate bitet a játékos adja hozzá), attack/decay, sustain/release, 12 bites impulzusszélesség, 11 bites szűrő levágás, rezonancia/szűrő-útválasztás bájt (`$D417`) és mód/hangerő bájt (`$D418`). |
+| `order p, p, ...`                                     | Minta sorrend. A vonalak felhalmozódnak, akár 255 lépésben.                                                                                                                                                                                          |
+| `pat p, v, "cell", ...`                               | Legfeljebb 32 sor a `v` (0-2) hanghoz, amely a `p` (0-7) mintában található. A hiányzó sorok üresek.                                                                                                                                                 |
+
+Egy **cell** a `NOTE INST FX`: `C-4`, `D#3`, `Eb2` vagy `...` ha nincs hang, egy
+kétjegyű hex hangszer (`..` ha ki akarja hagyni), és egy opcionális effekt -
+`Vxy` vibrato (x = sorok tartása, y = mélység), `Uxx` / `Dxx` csúsztatás fel /
+le, `C` hangvágás, `Fxx` beállított sebesség. Egy csak hatást tartalmazó cella
+felírható `"... .. F06"` vagy egyszerűen `"F06"` alakban.
+
+Megjegyzések a lejátszóról:
+
+- Minden játékosállapot a **blobon belül található ** (abszolút címzés) - nem
+  használ nulla oldalt, így nem ütközik az UltimateBasic változókkal vagy
+  ideiglenes értékekkel, és akkor is működik tovább, amikor a program visszatér
+  BASIC-be.
+- A blob egy fix címen található (alapértelmezett: `$8000`, vagy `tune at $addr`
+  címen), és az `.prg` fájlt ehhez igazítják, például: `load sid`. Tartsd távol
+  a kódodtól, tömböktől (`$C000+`) és bármilyen bitképes/karakterkészletes
+  memóriától. Egy blobnak körülbelül 1,3 KB-ra van szüksége, plusz
+  soronként-oszloponként 12 bájtra.
+- Legfeljebb 8 minta (egyenként 32 sor); a rendezési lista szabadon ismételheti
+  őket.
+- Az `music play` a CIA1 időzítőt használja 50 Hz-en; ne kombináld másik `load
+  sid`/`tune` (az utolsó nyer).
+
 ### Zenelejátszás
 
 Az `music play/stop/pause/resume` egy magas szintű alternatívája a manuális `sys
-sid_init` / `cia_timer` beállításnak. Előzetes `load sid` utasítást igényel (a
-`sid_init` / `sid_play` definiálja).
+sid_init` / `cia_timer` beállításnak. Előzetes `load sid` utasítást vagy `tune
+... end` blokkot igényel (mindkettő a `sid_init` / `sid_play` függvényt
+definiálja).
 
 ```basic
 load sid "tune.sid"         # embed SID file (defines sid_init / sid_play)
@@ -1084,10 +1179,10 @@ fordító hibát jelez. A Koala importálás jelenleg nem kombinálható a `load
 ### Kód elrendezése: `org` — újdonság az 1.5.7-es verzióban
 
 ```basic
-sub a() ... end # a rész/fn-ek egymás után kerülnek elhelyezésre a törzs végétől számítva
-org $4000 # a következő rész/fn-ek $4000-nél folytatódnak; $xxxx-$3FFF nullával kitöltve marad
+sub a() ... end          # subs/fns are placed one after another from the end of the main body
+org $4000                # the next subs/fns continue at $4000; $xxxx-$3FFF stays zero-filled
 sub b() ... end
-incbin "font.bin", $3800 # az adatok elhelyezkedhetnek a résben ($3800-$3FFF egy teljes VIC karakterkészlet slot)
+incbin "font.bin", $3800 # data can live in the gap ($3800-$3FFF is a whole VIC charset slot)
 ```
 
 Az `org addr` függvény az **alprogram/fn definíciók között helyezkedik el** (a
@@ -1125,11 +1220,11 @@ Az `charset addr` csak az `chardef` célállomást állítja be; nem bocsát ki 
 Ahhoz, hogy a VIC-II ezt a készletet használja, kapcsolja be (és kapcsolja ki,
 ha végzett):
 ```basic
-karakterkészlet $3800
-chardef 1 $FF,$81,$81,$81,$81,$81,$81,$FF vége # mező kerete
-karakterkészlet bekapcsolva # A VIC-II karaktereket olvas $3800-ból (a képernyőmátrix érintetlen)
+charset $3800
+chardef 1  $FF,$81,$81,$81,$81,$81,$81,$FF  end  # box border
+charset on          # VIC-II reads characters from $3800 (screen matrix untouched)
 ...
-karakterkészlet kikapcsolva # Vissza a ROM készlethez ($1800, ha a `lowercase` aktív, egyébként $1000)
+charset off         # back to the ROM set ($1800 if `lowercase` is active, else $1000)
 ```
 
 `charset on` olvasási-módosítási-írási műveletén keresztül `$D018` bitek 1-3-át
@@ -1181,100 +1276,6 @@ Az `load` meghívja a KERNAL-t: `SETNAM`+`SETLFS`+`LOAD`
 fejléce betöltési címként használatos). Címmel: másodlagos cím: 1 (a fájl a
 megadott helyre töltődik be). Az `save` meghívja a `SETNAM`+`SETLFS`+`SAVE`
 (`$FFBD`/`$FFBA`/`$FFD8`). Mind a `addr`, mind a `len` címet megköveteli.
-
-### Tracker dallamok (`tune`)
-
-```basic
-hangolás # opcionális: hangolás $C800 sebességgel (alapértelmezett $8000)
-sebesség 6 # képkocka soronként (50 Hz PAL)
-inst 0, $41, $09, $F0, $0800, $0064, $27, $1F
-inst 1, $10, $08, $A8, $0400, $0000, $00, $0F
-order 0, 1, 0 # minta sorrend (a minták ismétlődhetnek)
-pat 0, 0, "C-4 00", "...", "E-4 00 V24", "...", "G-4 00", "... .. C00"
-pat 0, 1, "C-2 01", "...", "...", "...", "G-2 01 F03"
-end
-music play # vagy: sys sid_init / irq kezelő hívja a sys sid_play-t
-```
-
-Az `tune ... end` egy 3 hangú követő dallamot ír le egyszerű szövegben
-(ugyanazzal a cellajelöléssel, mint amit a Visual Assembler SID szerkesztő
-mutat), és fordítási időben felépíti a lejátszót ****. A `sid_init` / `sid_play`
-paramétert pontosan úgy definiálja, mint a `load sid` paramétert, így a `music
-play`, `music stop`, `music pause` és `music resume` (és egy manuális `irq`
-kezelő, amely a `sys sid_play` függvényt hívja meg) változatlanul működik.
-
-| Vonal                                                 | Jelentés                                                                                                                                                                                                                                             |
-| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `speed N`                                             | Keretek követő soronként (1-255).                                                                                                                                                                                                                    |
-| `inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol` | Egy hangszer: vezérlőregiszter (hullámforma bitek; a gate bitet a játékos adja hozzá), attack/decay, sustain/release, 12 bites impulzusszélesség, 11 bites szűrő levágás, rezonancia/szűrő-útválasztás bájt (`$D417`) és mód/hangerő bájt (`$D418`). |
-| `order p, p, ...`                                     | Minta sorrend. A vonalak felhalmozódnak, akár 255 lépésben.                                                                                                                                                                                          |
-| `pat p, v, "cell", ...`                               | Legfeljebb 32 sor a `v` (0-2) hanghoz, amely a `p` (0-7) mintában található. A hiányzó sorok üresek.                                                                                                                                                 |
-
-Egy **cell** a `NOTE INST FX`: `C-4`, `D#3`, `Eb2` vagy `...` ha nincs hang, egy
-kétjegyű hex hangszer (`..` ha ki akarja hagyni), és egy opcionális effekt -
-`Vxy` vibrato (x = sorok tartása, y = mélység), `Uxx` / `Dxx` csúsztatás fel /
-le, `C` hangvágás, `Fxx` beállított sebesség. Egy csak hatást tartalmazó cella
-felírható `"... .. F06"` vagy egyszerűen `"F06"` alakban.
-
-Megjegyzések a lejátszóról:
-
-- Minden játékosállapot a **blobon belül található ** (abszolút címzés) - nem
-  használ nulla oldalt, így nem ütközik az UltimateBasic változókkal vagy
-  ideiglenes értékekkel, és akkor is működik tovább, amikor a program visszatér
-  BASIC-be.
-- A blob egy fix címen található (alapértelmezett: `$8000`, vagy `tune at $addr`
-  címen), és az `.prg` fájlt ehhez igazítják, például: `load sid`. Tartsd távol
-  a kódodtól, tömböktől (`$C000+`) és bármilyen bitképes/karakterkészletes
-  memóriától. Egy blobnak körülbelül 1,3 KB-ra van szüksége, plusz
-  soronként-oszloponként 12 bájtra.
-- Legfeljebb 8 minta (egyenként 32 sor); a rendezési lista szabadon ismételheti
-  őket.
-- Az `music play` a CIA1 időzítőt használja 50 Hz-en; ne kombináld másik `load
-  sid`/`tune` (az utolsó nyer).
-
-### SID Zene
-
-```basic
-load sid "tune.sid"            # embed SID music at its native load address
-load sid "tune.sid", $2000     # override: embed at $2000 regardless of SID header
-```
-
-A `load sid` **fordítási időben** beolvassa a PSID vagy RSID fájlt, eltávolítja
-a fejlécet, és hozzáfűzi a nyers zenei bájtokat a kimenethez. `.prg`. A `load
-sid` után két fordítási idejű állandó válik elérhetővé:
-
-| Állandó    | Leírás                                                                     |
-| ---------- | -------------------------------------------------------------------------- |
-| `sid_init` | Init rutin cím — egyszeri hívás A = dalszámmal (0-alapú)                   |
-| `sid_play` | Rutincím lejátszása — minden keret meghívása (50 Hz PAL) egy IRQ kezelőből |
-
-Mindkét konstans bárhol működik, ahol konstans címet fogadnak el: `sys`, `irq`,
-`poke`, kifejezések.
-
-**Tipikus használat:**
-
-```basic
-load sid "music.sid"
-
-sub music_irq()
-  poke $D019, $FF       # ACK VIC raster IRQ
-  sys sid_play          # advance one frame of music
-  irq_exit              # JMP $EA81: restore A/X/Y + RTI (proper IRQ exit)
-end
-
-sys sid_init, 0         # initialise SID chip: A=0 → first sub-tune
-irq music_irq, $C0      # raster IRQ at line $C0 → 50 Hz on PAL
-
-sid volume 15           # master volume on
-```
-
-**Megjegyzések:**
-- A SID adatok a generált kód **után** kerülnek elhelyezésre, nullákkal
-  kiegészítve a betöltési címig. A fordító figyelmeztet, ha a SID betöltési címe
-  átfedésben lenne a generált kóddal.
-- A PSID v1 és v2 támogatott. Ha a SID fejléc betöltési címe 0, akkor az első
-  két adatbájtot használja címként (PRG stílusú, little-endian).
-- Programonként csak egy `load sid` értelmes (az utolsó nyer).
 
 ### Soros csatorna fájl I/O
 
@@ -1540,11 +1541,11 @@ mutató hivatkozások (a `onerr goto` után definiált címke) támogatottak.
 ### Fordítási idejű fájlbeágyazás (`incbin` skip / length, új az 1.5.7-es verzióban)
 
 ```basic
-incbin "sprites.bin" # nyers bináris bájtok beágyazása az aktuális kódpozícióba
-incbin "charset.bin", $2000 # beágyazás abszolút címre, szükség szerint kitöltve
-incbin "font.prg", $3C00, 2 # ...az első 2 bájt kihagyása (pl. egy .prg betöltési cím)
-incbin "big.bin", $4000, 16, 256 # ...16 bájt kihagyása, majd legfeljebb 256 bájt felhasználása
-include "defs.ub" # egy másik .ub forrásfájl beágyazása (lexikálisan + helyben értelmezve)
+incbin "sprites.bin"            # embed raw binary bytes at current code position
+incbin "charset.bin", $2000     # embed at an absolute address, padding as needed
+incbin "font.prg", $3C00, 2       # ...skipping the first 2 bytes (e.g. a .prg load address)
+incbin "big.bin", $4000, 16, 256  # ...skip 16 bytes, then take at most 256 bytes
+include "defs.ub"        # inline another .ub source file (lexed+parsed in place)
 ```
 
 Az `incbin "file", addr, skip [, length]` függvény eldobja a fájl első `skip`
@@ -1563,6 +1564,26 @@ read varname             # load next byte into varname (auto-declares if needed)
 Az összes `data` értéket fordítási időben gyűjti össze a rendszer. A program
 indításakor automatikusan lefoglal és inicializál egy 2 bájtos ZP mutatót.
 Minden `read` lépéssel előrébb viszi a mutatót.
+
+**Inicializált tömbök — `data <tömb>: …` (új az 1.5.8-as verzióban)**
+
+```basic
+var sinus = array(8)
+data sinus: 128, 218, 255, 218
+data sinus: 128, 37, 0, 37      # further lines continue where the previous one stopped
+print sinus[i]                  # random access, like any array
+
+var xpos = array_word(2)
+data xpos: 24, 300              # word arrays take 16-bit values (stored lo, hi)
+```
+
+Egy `data` sor, amelynek első eleme `name:`, egy deklarált `array` /
+`array_word` adatfolyamot tölt ki a `read` adatfolyam helyett. Az értékek a kód
+után tárolódnak, és a program indításakor egyszer másolódnak a tömbbe
+(közvetlenül a tömbök nullázása után), így a táblázat teljesen írható és
+indexelhető, mint bármely más tömb. A tömbben lévőnél több érték, vagy a nem
+deklarált név fordítási hibát jelent. Ezek a sorok nem befolyásolják az `read`
+adatfolyamot.
 
 ### Soros összeszerelés
 
@@ -1930,6 +1951,6 @@ teljes hexadecimális kiírást.
 | `plot4`                               | Nincs határérték-ellenőrzés — x értékének 0–79, y értékének 0–49 között kell lennie (blokk mód)                                                                                                                                                                                                                                                                                                                   |
 | `circle4`                             | Kivágja a képernyőn kívüli blokkképpontokat; a hasznos sugár nagyjából 0–49 80×50-es blokk módban.                                                                                                                                                                                                                                                                                                                |
 | `chr$`                                | Nincs PETSCII↔ASCII leképezés — az n értékét változatlanul adja át a CHROUT-nak                                                                                                                                                                                                                                                                                                                                   |
-| `music play`                          | `load sid` szükséges; csak egy CIA1 wrapper kerül kibocsátásra (az utolsó `music play` nyer)                                                                                                                                                                                                                                                                                                                      |
+| `music play`                          | `load sid` vagy `tune` blokkot igényel; csak egy CIA1 wrapper kerül kibocsátásra (az utolsó `musicplay` nyer)                                                                                                                                                                                                                                                                                                     |
 | `graphics on double`                  | Csak bérelt példányok; `$4000–$7FFF` karaktereket használ a hátsó pufferhez, így a programkódnak `$4400` alatt kell maradnia; nem kombinálható sprite-okkal vagy többszínűvel                                                                                                                                                                                                                                     |
 | Hibajelentés                          | Csak fordítási időben; a `onerr goto` futási időben kezeli a KERNAL I/O hibákat                                                                                                                                                                                                                                                                                                                                   |
