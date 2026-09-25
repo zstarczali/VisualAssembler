@@ -4080,6 +4080,16 @@ body.expert-mode .expert-panel {
   overflow: visible;
   display: flex;
   justify-content: flex-end;
+  /* Ugyanaz a halvány chip, mint az ASM nézet .panel-heading-meta--path-je. */
+  padding: 3px 8px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--muted) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--panel-border) 55%, transparent);
+  opacity: 0.8;
+}
+
+.expert-working-folder:has(.expert-working-folder__text:empty) {
+  display: none;
 }
 
 .expert-working-folder__text {
@@ -4090,9 +4100,10 @@ body.expert-mode .expert-panel {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  opacity: 0.65;
   text-align: right;
-  font-size: 0.65rem;
+  font-size: 0.72rem;
+  line-height: 1.2;
+  color: var(--muted);
 }
 
 /* Custom tooltip for the working-folder pill on the toolbar right edge.
