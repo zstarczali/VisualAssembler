@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.7 — Manuel de langue
+# Ultimate Basic v1.5.8 — Manuel de langue
 
 Référence complète du langage et de l'interface de ligne de commande pour
 Ultimate Basic, un langage de type BASIC qui se compile directement en code
@@ -985,7 +985,8 @@ Remarques sur le joueur :
 
 `music play/stop/pause/resume` est une alternative de haut niveau à la
 configuration manuelle `sys sid_init` / `cia_timer`. Nécessite une instruction
-`load sid` préalable (définit `sid_init` / `sid_play`).
+`load sid` ou un bloc `tune ... end` (les deux définissent `sid_init` /
+`sid_play`).
 
 ```basic
 load sid "tune.sid"         # embed SID file (defines sid_init / sid_play)
@@ -1597,6 +1598,27 @@ Toutes les valeurs `data` sont collectées à la compilation. Un pointeur ZP de 
 octets est automatiquement alloué et initialisé au démarrage du programme.
 Chaque `read` incrémente le pointeur.
 
+**Tableaux initialisés — `données <tableau> : …` (nouveauté de la version
+1.5.8)**
+
+```basic
+var sinus = array(8)
+data sinus: 128, 218, 255, 218
+data sinus: 128, 37, 0, 37      # further lines continue where the previous one stopped
+print sinus[i]                  # random access, like any array
+
+var xpos = array_word(2)
+data xpos: 24, 300              # word arrays take 16-bit values (stored lo, hi)
+```
+
+Une ligne `data` dont le premier élément est `name:` remplit un tableau `array`
+/ `array_word` déclaré, au lieu du flux `read`. Les valeurs sont stockées après
+le code et copiées dans le tableau une seule fois, au démarrage du programme
+(juste après l'initialisation des tableaux à zéro). Le tableau est donc
+entièrement accessible en écriture et indexé comme n'importe quel autre tableau.
+Un nombre de valeurs supérieur à la capacité du tableau, ou un nom non déclaré,
+provoque une erreur de compilation. Ces lignes n'affectent pas `read`.
+
 ### Assemblage en ligne
 
 ```basic
@@ -1967,6 +1989,6 @@ hexadécimal complet.
 | `plot4`                                  | Aucune vérification des limites — x doit être compris entre 0 et 79, y doit être compris entre 0 et 49 (mode bloc)                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | `circle4`                                | Découpe les pixels hors écran ; le rayon utile est d'environ 0 à 49 en mode bloc 80×50.                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | `chr$`                                   | Aucune correspondance PETSCII↔ASCII — n est transmis tel quel à CHROUT                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| `music play`                             | Nécessite `load sid` ; un seul wrapper CIA1 est émis (le dernier `music play` l'emporte)                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| `music play`                             | Nécessite `load sid` ou un bloc `tune` ; un seul wrapper CIA1 est émis (le dernier `music play` l'emporte)                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | `graphics on double`                     | Résolution uniquement ; utilise `$4000–$7FFF` pour le tampon arrière, le code du programme doit donc rester en dessous de `$4400` ; non compatible avec les sprites ou les couleurs multiples                                                                                                                                                                                                                                                                                                                                        |
 | Signalement des erreurs                  | Uniquement à la compilation ; `onerr goto` gère les erreurs d'E/S du noyau à l'exécution                                                                                                                                                                                                                                                                                                                                                                                                                                             |

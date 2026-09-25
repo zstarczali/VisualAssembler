@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.7 — Sprachhandbuch
+# Ultimate Basic v1.5.8 — Sprachhandbuch
 
 Vollständige Sprach- und CLI-Referenz für Ultimate Basic, eine BASIC-ähnliche
 Sprache, die direkt in 6502-Maschinencode für den Commodore 64 kompiliert wird.
@@ -973,9 +973,10 @@ Hinweise zum Player:
 
 ### Musikwiedergabe
 
-`music play/stop/pause/resume` ist eine alternative, höherwertige Lösung zur
-manuellen Einrichtung von `sys sid_init` / `cia_timer`. Sie erfordert eine
-vorherige Anweisung `load sid` (definiert `sid_init` / `sid_play`).
+`music play/stop/pause/resume` ist eine Alternative auf höherer Ebene zur
+manuellen Einrichtung von `sys sid_init` / `cia_timer`. Erfordert eine vorherige
+Anweisung `load sid` oder einen Block `tune ... end` (beide definieren
+`sid_init` / `sid_play`).
 
 ```basic
 load sid "tune.sid"         # embed SID file (defines sid_init / sid_play)
@@ -1582,6 +1583,26 @@ Alle `data`-Werte werden zur Kompilierzeit erfasst. Ein 2-Byte-ZP-Zeiger wird
 beim Programmstart automatisch allokiert und initialisiert. Jedes `read` erhöht
 die Position des Zeigers.
 
+**Initialisierte Arrays — `data <array>: …` (neu in 1.5.8)**
+
+```basic
+var sinus = array(8)
+data sinus: 128, 218, 255, 218
+data sinus: 128, 37, 0, 37      # further lines continue where the previous one stopped
+print sinus[i]                  # random access, like any array
+
+var xpos = array_word(2)
+data xpos: 24, 300              # word arrays take 16-bit values (stored lo, hi)
+```
+
+Eine `data`-Zeile, deren erstes Element `name:` ist, füllt ein deklariertes
+`array` / `array_word` anstelle des `read`-Streams. Die Werte werden nach dem
+Code gespeichert und einmalig beim Programmstart (direkt nach dem Nullsetzen der
+Arrays) in das Array kopiert, sodass die Tabelle vollständig beschreibbar und
+wie jedes andere Array indiziert ist. Mehr Werte als das Array aufnehmen kann
+oder ein nicht deklarierter Name führt zu einem Kompilierfehler. Diese Zeilen
+haben keinen Einfluss auf `read`.
+
 ### Inline-Montage
 
 ```basic
@@ -1950,6 +1971,6 @@ Hex-Dump angezeigt.
 | `plot4`                               | Keine Bereichsprüfung — x muss zwischen 0 und 79 liegen, y muss zwischen 0 und 49 liegen (Blockmodus)                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | `circle4`                             | Schneidet Pixel außerhalb des Bildschirms ab; der nutzbare Radius beträgt im 80×50-Blockmodus ungefähr 0–49.                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `chr$`                                | Keine PETSCII↔ASCII-Zuordnung — n wird unverändert an CHROUT übergeben                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| `music play`                          | Erfordert `load sid`; es wird nur ein CIA1-Wrapper ausgegeben (der letzte `music play` gewinnt)                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `music play`                          | Erfordert `load sid` oder einen `tune`-Block; es wird nur ein CIA1-Wrapper ausgegeben (der letzte `music play` gewinnt)                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | `graphics on double`                  | Nur für hochauflösende Darstellungen; verwendet `$4000–$7FFF` als Backbuffer, daher muss der Programmcode unterhalb von `$4400` bleiben; nicht kombinierbar mit Sprites oder Mehrfarben.                                                                                                                                                                                                                                                                                                                                                            |
 | Fehlerberichterstattung               | Nur zur Kompilierzeit; `onerr goto` behandelt KERNAL-E/A-Fehler zur Laufzeit.                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |

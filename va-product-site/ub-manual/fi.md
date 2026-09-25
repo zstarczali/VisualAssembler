@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.7 — Kieliopas
+# Ultimate Basic v1.5.8 — Kieliopas
 
 Täydellinen kieli- ja komentoriviviite Ultimate Basicille, BASICin kaltaiselle
 kielelle, joka kääntyy suoraan 6502-konekoodiksi Commodore 64:lle. Tuloste:
@@ -956,9 +956,9 @@ Huomioita soittimesta:
 
 ### Musiikin toisto
 
-`music play/stop/pause/resume` on korkean tason vaihtoehto manuaaliselle `sys
-sid_init` / `cia_timer` -määritykselle. Vaatii edeltävän `load sid` -lausekkeen
-(määrittelee `sid_init` / `sid_play`).
+`music play/stop/pause/resume` on korkeamman tason vaihtoehto manuaaliselle `sys
+sid_init` / `cia_timer` -asennukselle. Vaatii aiemman `load sid` -lausekkeen tai
+`tune ... end` -lohkon (molemmat määrittelevät `sid_init` / `sid_play`).
 
 ```basic
 load sid "tune.sid"         # embed SID file (defines sid_init / sid_play)
@@ -1551,6 +1551,25 @@ Kaikki `data`-arvot kerätään käännösaikana. Ohjelmalle varataan ja alustet
 automaattisesti 2-tavuinen ZP-osoitin. Jokainen `read` siirtää osoitinta
 eteenpäin.
 
+**Alustetut taulukot — `data <taulukko>: …` (uusi versiossa 1.5.8)**
+
+```basic
+var sinus = array(8)
+data sinus: 128, 218, 255, 218
+data sinus: 128, 37, 0, 37      # further lines continue where the previous one stopped
+print sinus[i]                  # random access, like any array
+
+var xpos = array_word(2)
+data xpos: 24, 300              # word arrays take 16-bit values (stored lo, hi)
+```
+
+Rivi `data`, jonka ensimmäinen alkio on `name:`, täyttää ilmoitetun `array` /
+`array_word` -virran `read`-virran sijaan. Arvot tallennetaan koodin jälkeen ja
+kopioidaan taulukkoon kerran ohjelman käynnistyessä (heti taulukoiden
+nollaamisen jälkeen), joten taulukkoon voi kirjoittaa ja se indeksoidaan kuten
+mikä tahansa muu taulukko. Enemmän arvoja kuin taulukossa on tai ilmoittamaton
+nimi on käännösvirhe. Nämä rivit eivät vaikuta `read`-virtaan.
+
 ### Sisäänrakennettu kokoonpano
 
 ```basic
@@ -1912,6 +1931,6 @@ heksaedrisen vedoksen.
 | `plot4`                                     | Ei rajojen tarkistusta — x:n on oltava 0–79, y:n on oltava 0–49 (lohkotila)                                                                                                                                                                                                                                                                                                                                                |
 | `circle4`                                   | Leikkaa näytön ulkopuolisia lohkopikseleitä; hyödyllinen säde on noin 0–49 80×50-lohkotilassa                                                                                                                                                                                                                                                                                                                              |
 | `chr$`                                      | Ei PETSCII↔ASCII-määritystä — n välitetään sellaisenaan CHROUT-funktiolle                                                                                                                                                                                                                                                                                                                                                  |
-| `music play`                                | Vaatii `load sid`; vain yksi CIA1-kääre lähetetään (viimeinen `music play` voittaa)                                                                                                                                                                                                                                                                                                                                        |
+| `music play`                                | Vaatii `load sid`- tai `tune`-lohkon; vain yksi CIA1-kääre lähetetään (viimeinen `music play` voittaa)                                                                                                                                                                                                                                                                                                                     |
 | `graphics on double`                        | Vain palkattu; käyttää `$4000–$7FFF`-merkkiä takapuskurissa, joten ohjelmakoodin on pysyttävä `$4400`-merkkiä pienempänä; ei yhdistettävissä spritien tai moniväristen kanssa                                                                                                                                                                                                                                              |
 | Virheraportointi                            | Vain käännösaikana; `onerr goto` käsittelee KERNAL I/O -virheet ajonaikana                                                                                                                                                                                                                                                                                                                                                 |

@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.7 — Nyelvi kézikönyv
+# Ultimate Basic v1.5.8 — Nyelvi kézikönyv
 
 Teljes nyelvi és parancssori felület (CLI) referencia az Ultimate Basichez, egy
 BASIC-szerű nyelvhez, amely közvetlenül 6502-es gépi kóddá fordul Commodore
@@ -966,8 +966,9 @@ Megjegyzések a lejátszóról:
 ### Zenelejátszás
 
 Az `music play/stop/pause/resume` egy magas szintű alternatívája a manuális `sys
-sid_init` / `cia_timer` beállításnak. Előzetes `load sid` utasítást igényel (a
-`sid_init` / `sid_play` definiálja).
+sid_init` / `cia_timer` beállításnak. Előzetes `load sid` utasítást vagy `tune
+... end` blokkot igényel (mindkettő a `sid_init` / `sid_play` függvényt
+definiálja).
 
 ```basic
 load sid "tune.sid"         # embed SID file (defines sid_init / sid_play)
@@ -1564,6 +1565,26 @@ Az összes `data` értéket fordítási időben gyűjti össze a rendszer. A pro
 indításakor automatikusan lefoglal és inicializál egy 2 bájtos ZP mutatót.
 Minden `read` lépéssel előrébb viszi a mutatót.
 
+**Inicializált tömbök — `data <tömb>: …` (új az 1.5.8-as verzióban)**
+
+```basic
+var sinus = array(8)
+data sinus: 128, 218, 255, 218
+data sinus: 128, 37, 0, 37      # further lines continue where the previous one stopped
+print sinus[i]                  # random access, like any array
+
+var xpos = array_word(2)
+data xpos: 24, 300              # word arrays take 16-bit values (stored lo, hi)
+```
+
+Egy `data` sor, amelynek első eleme `name:`, egy deklarált `array` /
+`array_word` adatfolyamot tölt ki a `read` adatfolyam helyett. Az értékek a kód
+után tárolódnak, és a program indításakor egyszer másolódnak a tömbbe
+(közvetlenül a tömbök nullázása után), így a táblázat teljesen írható és
+indexelhető, mint bármely más tömb. A tömbben lévőnél több érték, vagy a nem
+deklarált név fordítási hibát jelent. Ezek a sorok nem befolyásolják az `read`
+adatfolyamot.
+
 ### Soros összeszerelés
 
 ```basic
@@ -1930,6 +1951,6 @@ teljes hexadecimális kiírást.
 | `plot4`                               | Nincs határérték-ellenőrzés — x értékének 0–79, y értékének 0–49 között kell lennie (blokk mód)                                                                                                                                                                                                                                                                                                                   |
 | `circle4`                             | Kivágja a képernyőn kívüli blokkképpontokat; a hasznos sugár nagyjából 0–49 80×50-es blokk módban.                                                                                                                                                                                                                                                                                                                |
 | `chr$`                                | Nincs PETSCII↔ASCII leképezés — az n értékét változatlanul adja át a CHROUT-nak                                                                                                                                                                                                                                                                                                                                   |
-| `music play`                          | `load sid` szükséges; csak egy CIA1 wrapper kerül kibocsátásra (az utolsó `music play` nyer)                                                                                                                                                                                                                                                                                                                      |
+| `music play`                          | `load sid` vagy `tune` blokkot igényel; csak egy CIA1 wrapper kerül kibocsátásra (az utolsó `musicplay` nyer)                                                                                                                                                                                                                                                                                                     |
 | `graphics on double`                  | Csak bérelt példányok; `$4000–$7FFF` karaktereket használ a hátsó pufferhez, így a programkódnak `$4400` alatt kell maradnia; nem kombinálható sprite-okkal vagy többszínűvel                                                                                                                                                                                                                                     |
 | Hibajelentés                          | Csak fordítási időben; a `onerr goto` futási időben kezeli a KERNAL I/O hibákat                                                                                                                                                                                                                                                                                                                                   |

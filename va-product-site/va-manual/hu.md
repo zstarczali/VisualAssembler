@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**2.4.6-os verzió**
+**2.4.7-es verzió**
 
 Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat létre húzással és elengedéssel (fogd és vidd) utasításblokkokkal, és valós időben tekintheti meg a létrehozott assembly és gépi kódot.
 
@@ -9,6 +9,7 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
 ## Tartalomjegyzék
 
 - [C64 Visual Assembler — Felhasználói kézikönyv](#c64-visual-assembler--user-manual)
+    - [2.4.7-es verzió – kiemelt funkciók](#version-247-highlights)
     - [2.4.6-os verzió kiemelt funkciói](#version-246-highlights)
     - [2.4.5-ös verzió – kiemelt funkciók](#version-245-highlights)
     - [2.4.3-as verzió kiemelt funkciói](#version-243-highlights)
@@ -157,6 +158,17 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
     - [Térképszerkesztő (Többrétegű csempetérképek)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Görbeszerkesztő](#curve-editor)
+
+---
+
+## A 2.4.7-es verzió főbb jellemzői
+
+- **Alkalmazáson belüli frissítések** — **Menü → Frissítések keresése** ellenőrzi a c64va.tech webhelyen az újabb verziókat, és a megerősítést követően letölti a platformodhoz tartozó telepítőt egy folyamatjelző sávval, majd telepíti azt. Lásd: [Alkalmazáson belüli frissítések](#in-app-updates). Az ellenőrzés minden indításkor csendben fut.
+- **Frissítési állapot az Ultimate Basic állapotsorán** — a **Frissítés (vX)** feliratot, vagy a kiemelt **Elérhető frissítés: vY** feliratot jeleníti meg, amelyre kattintva megnyílik a frissítési párbeszédablak.
+- **Görbeszerkesztő → UltimateBasic export** — **Fájlok → Exportálás UltimateBasic-be** inicializált UB tömbként írja ki a táblázatot; a **Fájlok → UltimateBasic demó exportálása** egy futtatásra kész UB sprite demót hoz létre. Lásd: [Görbeszerkesztő](#curve-editor).
+- **Ultimate Basic 1.5.8 csomagban** — az új **`data <tömb>: v, …`** űrlap kitölti a deklarált `tömböt` / `array_word` a program indításakor (a további sorok ott folytatódnak, ahol az előző abbamaradt, a szótömbök 16 bites értékeket vesznek fel) anélkül, hogy érintené a `read` folyamot.
+- **Az elrendezés illeszkedik az ablakhoz** — a szerkesztőpanelek pontosan a fennmaradó ablakmagasságot veszik fel, így az alkalmazás már nem jelenít meg oldalszintű függőleges görgetősávot; az ASM kimeneti panel minimális szélessége 440 px; a munkamappa elérési útja egy finom jelvényben található az ASM nézet címe felett, és ugyanazt a jelvényt használja a Szakértő és az Ultimate Basic eszköztáron is. A párbeszédpanelek feliratai már nem tördelődnek.
+- **Ultimate Basic parancsreferencia** — A `tune` és az `music` teljes, kommentált példákat mutat (cellaponkénti formátum, effektek, játékosjegyzetek, `music lejátszás N`); az `inst`, `order`, `pat` és a tune `speed` saját bejegyzésekkel rendelkezik; a `data` az új tömbformát mutatja; a `load sid` szintaxis javítva lett (`load sid "tune.sid", $2000`).
 
 ---
 
@@ -406,7 +418,24 @@ A projekt pillanatképei JSON fájlként, lemezen tárolódnak, nem pedig a loca
 - **Menü → Építés → Előző verzió visszaállítása** közvetlenül visszaállítja a legutóbbi pillanatképet.
 - **Menü → Létrehozás → Pillanatkép előzmények** megnyitja a párbeszédablakot, ahol jegyzeteket adhat hozzá, visszaállíthatja a régebbi bejegyzéseket, vagy törölheti azokat.
 - **Hardverbeállítások → Pillanatkép → Automatikus pillanatkép-mentés** szabályozza, hogy az alkalmazás automatikusan létrehozzon-e pillanatképeket a szerkesztések után. Az alapértelmezett késleltetés körülbelül 2,5 másodperc, és a beállítás laponként érvényes.
-- Ha egy projektet még nem mentettek el, a pillanatképek az alkalmazás konfigurációs könyvtárában tárolódnak, amíg a projekt nem kap egy fájlútvonalat. | **Tudásbázis** | Referencia linkek (6502 opcode-ok, C64 KERNAL, memóriatérkép, színek) | | **Frissítések keresése** | Nyissa meg az itch.io oldalt az újabb kiadások kereséséhez |
+- Ha egy projektet még nem mentettek el, a pillanatképek az alkalmazás konfigurációs könyvtárában tárolódnak, amíg a projekt nem kap egy fájlútvonalat. | **Tudásbázis** | Referencia linkek (6502 opkódok, C64 KERNAL, memóriatérkép, színek) | | **Frissítések keresése** | Keressen újabb verziót a c64va.tech oldalon, és töltse le / telepítse – lásd: [Alkalmazáson belüli frissítések](#in-app-updates) |
+
+### Alkalmazáson belüli frissítések
+
+**Menü → Frissítések keresése** megkeresi a legújabb kiadást a c64va.tech oldalon (beolvassa a platformod letöltési linkjeit), és összehasonlítja a futó verzióval:
+
+- **Naprakész** — ezt írja a párbeszédpanel.
+- **Elérhető frissítés** — válassza a **Frissítés most** lehetőséget a telepítő letöltéséhez (a letöltést egy folyamatjelző sáv mutatja), a **Később** lehetőséget a párbeszédpanel bezárásához, vagy a **Verzió kihagyása** lehetőséget, ha azt szeretné, hogy az automatikus ellenőrzés ne ajánlja fel újra az adott kiadást.
+
+A letöltés után az alkalmazás telepíti a frissítést, majd újraindul:
+
+| Platform    | Mi történik?                                                                                                                                                                            |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Ablakok** | A telepítő passzív módban fut (csak folyamatban lévő műveletek), és a befejezése után elindítja az új verziót. A gépenkénti telepítés rendszergazdai jogosultságokat (UAC) kér.         |
+| **macOS**   | A DMG csatolásra kerül, az alkalmazáscsomag a helyére kerül, majd elindul az új verzió. Ha az alkalmazásmappa nem írható, a DMG egyszerűen megnyílik, így áthúzhatja az alkalmazást.    |
+| Linux       | Egy AppImage fájl kicserélődik az újra. Egy `.deb` / `.rpm` telepítés frissül a `pkexec` fájllal (jelszót kér a rendszer); a `pkexec` nélkül a csomag a szoftvertelepítőben nyílik meg. |
+
+Ha vannak mentetlen lapok, az alkalmazás bezárás előtt rákérdez. Ugyanez az ellenőrzés minden indítás után néhány másodperccel csendben lefut: semmi sem jelenik meg, hacsak nincs újabb verzió. Az eredmény az Ultimate Basic állapotsorában is megjelenik — **Up to date (vX)**, vagy egy kiemelt **Frissítés elérhető: vY** szöveg, amely megnyitja a frissítési párbeszédablakot.
 
 ### Munkaterületek
 
@@ -3727,11 +3756,13 @@ Minden másolási/beszúrási kimenet egy fejlécommenttel kezdődik, amely doku
 **Másolás / Beszúrás:** az eszköztár két ikonja — **Másolás** a vágólapra helyezi a táblázatot; **Beszúrás a szerkesztőbe** blokkként hozzáfűzi a táblázatot (és az olvasót, ha engedélyezve van) az aktuális programhoz. Az újbóli beszúrás **lecseréli** az előző Görbeszerkesztő beszúrást a duplikátumok egymásra halmozása helyett (Blokk és Szakértő módban működik).
 
 **Fájlok menü:**
-| Akció                          | Mit csinál                                                                                                                                                                                                                                                                                                                                                                |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Görbe mentése (.bin)…**      | A nyers tábla bájtjait pontosan úgy menti el, ahogyan a C64 olvasná azokat az `INCBIN` paraméterrel. 16 bites: N lo bájt, majd N hi bájt.                                                                                                                                                                                                                                 |
-| **Terhelési görbe (.bin)…**    | Betölti a nyers tábla bájtjait a szerkesztőbe, az aktuális bitmélységnek megfelelően értelmezve (16 bit: első fele lo, második fele hi). A betöltött tábla jelenlegi állapotában jelenik meg, amíg valamelyik görbevezérlő új görbét nem generál.                                                                                                                         |
-| **Demó exportálása blokkokba** | Hozzáfűz egy teljes, futtatható sprite demót: sprite init, raszterrel szinkronizált fő ciklus, a beágyazott táblázat és golyós sprite adatok. Az X 0..320-at söpör be a 8.8-as fixpontban az `$D010` MSB-vel, miközben a táblázat az Y sprite-ot hajtja – pontosan megegyezik a szerkesztő előnézetével. Az újraexportálás lecseréli a korábbi görbeszerkesztő beszúrást. |
+| Akció                              | Mit csinál                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Görbe mentése (.bin)…**          | A nyers tábla bájtjait pontosan úgy menti el, ahogyan a C64 olvasná azokat az `INCBIN` paraméterrel. 16 bites: N lo bájt, majd N hi bájt.                                                                                                                                                                                                                                                                                                        |
+| **Terhelési görbe (.bin)…**        | Betölti a nyers tábla bájtjait a szerkesztőbe, az aktuális bitmélységnek megfelelően értelmezve (16 bit: első fele lo, második fele hi). A betöltött tábla jelenlegi állapotában jelenik meg, amíg valamelyik görbevezérlő új görbét nem generál.                                                                                                                                                                                                |
+| **Demó exportálása blokkokba**     | Hozzáfűz egy teljes, futtatható sprite demót: sprite init, raszterrel szinkronizált fő ciklus, a beágyazott táblázat és golyós sprite adatok. Az X 0..320-at söpör be a 8.8-as fixpontban az `$D010` MSB-vel, miközben a táblázat az Y sprite-ot hajtja – pontosan megegyezik a szerkesztő előnézetével. Az újraexportálás lecseréli a korábbi görbeszerkesztő beszúrást.                                                                        |
+| **Exportálás UltimateBasic-be**    | A táblázatot inicializált Ultimate Basic tömbként írja ki — `var name = array(N)` (vagy `array_word(N)` 16 bites esetén), majd `data name: …` sor — és beszúrja az UB szerkesztő kurzorához (UB módon kívül a vágólapra másolja). A címke egy érvényes, kisbetűs UB névvé válik; a táblázat indexelése `name[i]` néven történik. Ultimate Basic 1.5.8+ verzió szükséges (csomagban).                                                             |
+| **UltimateBasic demó exportálása** | Egy teljes, futtatásra kész UB programot hoz létre: egy golyós sprite-ot (`sprdef 0`), a táblázatot és egy raszterrel szinkronizált ciklust, amely képkockánként egy táblázatbejegyzést játszik le. A 8 bites táblázatok a **Y** sprite-ot hajtják végre, míg az X 0..320-at söpri; a 16 bites (0..320) táblázatok a **X** sprite-ot hajtják végre, míg az Y 0..200-at söpri. A 256 bejegyzésnél hosszabb táblázatok az első 256-ot játsszák le. |
 
 **A C64 előnézetének megfelelően:** az előnézet lineárisan olvassa a táblázatot **, 0 → N-1 → 0 ciklusokban, képkockánként egy értékkel**. A pontos reprodukáláshoz ugyanúgy kell futtatni a táblázatot (az indexet képkockánként egyszer növelni, a táblázat hosszánál sortöréssel). Egy pingpong vagy részleges tartományú lejátszás másképp fog mozogni, még akkor is, ha a bájtértékek azonosak. Lásd a `samples/curve-new-demo.asm` fájlt egy működő 16 bites sprite-X példáért.
 

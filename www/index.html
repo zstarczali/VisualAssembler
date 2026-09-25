@@ -1143,22 +1143,22 @@ PRINTABLE CHARACTERS
       <p class="whats-new-version">v2.4.7</p>
       <ul class="whats-new-list">
         <li>
-          <strong>New: in-app updates</strong> &mdash; <strong>Menu &rarr; Check for Update</strong> checks c64va.tech for a newer release and, on confirmation, downloads the installer for your platform with a progress bar and installs it (Windows: passive installer that restarts the app; macOS: the app bundle is replaced from the DMG; Linux: the AppImage is swapped or the <code>.deb</code>/<code>.rpm</code> is installed via <code>pkexec</code>). The check also runs quietly at every start; <strong>Skip this version</strong> silences a release you don't want.
+          <strong>New: in-app updates:</strong> <strong>Menu &rarr; Check for Update</strong> checks c64va.tech for a newer release and, on confirmation, downloads the installer for your platform with a progress bar and installs it (Windows: passive installer that restarts the app; macOS: the app bundle is replaced from the DMG; Linux: the AppImage is swapped or the <code>.deb</code>/<code>.rpm</code> is installed via <code>pkexec</code>). The check also runs quietly at every start; <strong>Skip this version</strong> silences a release you don't want.
         </li>
         <li>
-          <strong>New: update status in the Ultimate Basic status bar</strong> &mdash; shows <em>Up to date (vX)</em>, or a highlighted <em>Update available: vY</em> that opens the update dialog when clicked.
+          <strong>New: update status in the Ultimate Basic status bar:</strong> shows <em>Up to date (vX)</em>, or a highlighted <em>Update available: vY</em> that opens the update dialog when clicked.
         </li>
         <li>
-          <strong>New: Curve Editor &rarr; UltimateBasic export</strong> &mdash; <strong>Files &rarr; Export to UltimateBasic</strong> writes the table as an initialised UB array (<code>var name = array(N)</code>, or <code>array_word(N)</code> for 16-bit, plus <code>data name: &hellip;</code> lines). <strong>Files &rarr; Export UltimateBasic demo</strong> produces a ready-to-run sprite demo: a ball follows the curve (8-bit tables drive sprite Y, 16-bit 0..320 tables drive sprite X).
+          <strong>New: Curve Editor &rarr; UltimateBasic export:</strong> <strong>Files &rarr; Export to UltimateBasic</strong> writes the table as an initialised UB array (<code>var name = array(N)</code>, or <code>array_word(N)</code> for 16-bit, plus <code>data name: &hellip;</code> lines). <strong>Files &rarr; Export UltimateBasic demo</strong> produces a ready-to-run sprite demo: a ball follows the curve (8-bit tables drive sprite Y, 16-bit 0..320 tables drive sprite X).
         </li>
         <li>
-          <strong>New: Ultimate Basic 1.5.8</strong> &mdash; the bundled compiler adds <code>data &lt;array&gt;: v, &hellip;</code>, which fills a declared array at program start (further lines continue where the previous one stopped, word arrays take 16-bit values) without touching the <code>read</code> stream.
+          <strong>New: Ultimate Basic 1.5.8:</strong> the bundled compiler adds <code>data &lt;array&gt;: v, &hellip;</code>, which fills a declared array at program start (further lines continue where the previous one stopped, word arrays take 16-bit values) without touching the <code>read</code> stream.
         </li>
         <li>
-          <strong>Improved: layout fits the window</strong> &mdash; the editor panels take exactly the remaining window height, so there is no page-level vertical scrollbar any more; the ASM output panel keeps a 440&nbsp;px minimum width; the working-folder path sits in a subtle badge above the ASM view title and uses the same badge in the Expert and Ultimate Basic toolbars. Dialog button labels no longer wrap.
+          <strong>Improved: layout fits the window:</strong> the editor panels take exactly the remaining window height, so there is no page-level vertical scrollbar any more; the ASM output panel keeps a 440&nbsp;px minimum width; the working-folder path sits in a subtle badge above the ASM view title and uses the same badge in the Expert and Ultimate Basic toolbars. Dialog button labels no longer wrap.
         </li>
         <li>
-          <strong>Improved: Ultimate Basic command reference</strong> &mdash; <code>tune</code> and <code>music</code> show full, commented examples (cell format, effects, player notes, <code>music play N</code>); <code>inst</code>, <code>order</code>, <code>pat</code> and the tune <code>speed</code> have their own entries; <code>data</code> shows the new array form; the <code>load sid</code> syntax is corrected.
+          <strong>Improved: Ultimate Basic command reference:</strong> <code>tune</code> and <code>music</code> show full, commented examples (cell format, effects, player notes, <code>music play N</code>); <code>inst</code>, <code>order</code>, <code>pat</code> and the tune <code>speed</code> have their own entries; <code>data</code> shows the new array form; the <code>load sid</code> syntax is corrected.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>

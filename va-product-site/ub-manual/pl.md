@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.7 — Podręcznik językowy
+# Ultimate Basic v1.5.8 — Podręcznik językowy
 
 Kompletny podręcznik języka i interfejsu wiersza poleceń dla Ultimate Basic,
 języka podobnego do BASIC-a, który kompiluje się bezpośrednio do kodu
@@ -957,9 +957,10 @@ Uwagi dotyczące odtwarzacza:
 
 ### Odtwarzanie muzyki
 
-`music play/stop/pause/resume` to zaawansowana alternatywa dla ręcznej
-konfiguracji `sys sid_init` / `cia_timer`. Wymaga wcześniejszego użycia
-instrukcji `load sid` (definiującej `sid_init` / `sid_play`).
+`Odtwarzanie/zatrzymywanie/pauza/wznawianie muzyki` to alternatywa wysokiego
+poziomu dla ręcznej konfiguracji `sys sid_init` / `cia_timer`. Wymaga
+wcześniejszego wykonania polecenia `load sid` lub bloku `tune ... end` (oba
+definiują `sid_init` / `sid_play`).
 
 ```basic
 load sid "tune.sid"         # embed SID file (defines sid_init / sid_play)
@@ -1552,6 +1553,26 @@ Wszystkie wartości `data` są zbierane w momencie kompilacji. 2-bajtowy wskaźn
 ZP jest automatycznie przydzielany i inicjowany na początku programu. Każde
 `read` przesuwa wskaźnik do przodu.
 
+**Zainicjowane tablice — `dane <tablica>: …` (nowość w wersji 1.5.8)**
+
+```basic
+var sinus = array(8)
+data sinus: 128, 218, 255, 218
+data sinus: 128, 37, 0, 37      # further lines continue where the previous one stopped
+print sinus[i]                  # random access, like any array
+
+var xpos = array_word(2)
+data xpos: 24, 300              # word arrays take 16-bit values (stored lo, hi)
+```
+
+Wiersz `data`, którego pierwszym elementem jest `name:`, wypełnia zadeklarowaną
+tablicę `array` / `array_word` zamiast strumienia `read`. Wartości są zapisywane
+po kodzie i kopiowane do tablicy jednorazowo na początku programu (zaraz po
+wyzerowaniu tablic), dzięki czemu tabela jest w pełni zapisywalna i indeksowana
+jak każda inna tablica. Wiersz zawierający więcej wartości niż mieści tablica
+lub niezadeklarowana nazwa jest błędem kompilacji. Te wiersze nie wpływają na
+`read`.
+
 ### Montaż liniowy
 
 ```basic
@@ -1914,6 +1935,6 @@ pełny zrzut szesnastkowy.
 | `plot4`                               | Brak sprawdzania granic — x musi być w zakresie 0–79, y musi być w zakresie 0–49 (tryb blokowy)                                                                                                                                                                                                                                                                                                                                          |
 | `circle4`                             | Przycina piksele bloków poza ekranem; użyteczny promień wynosi około 0–49 w trybie bloku 80×50                                                                                                                                                                                                                                                                                                                                           |
 | `chr$`                                | Brak mapowania PETSCII↔ASCII — n jest przekazywane bez zmian do CHROUT                                                                                                                                                                                                                                                                                                                                                                   |
-| `music play`                          | Wymaga `load sid`; emitowany jest tylko jeden wrapper CIA1 (ostatni `music play` wygrywa)                                                                                                                                                                                                                                                                                                                                                |
+| `music play`                          | Wymaga bloku `load sid` lub `tune`; emitowany jest tylko jeden wrapper CIA1 (ostatnie `odtworzenie muzyki` wygrywa)                                                                                                                                                                                                                                                                                                                      |
 | `graphics on double`                  | Tylko wynajem; używa `$4000–$7FFF` jako bufora tylnego, więc kod programu musi znajdować się poniżej `$4400`; nie można łączyć ze sprite'ami ani obiektami wielokolorowymi                                                                                                                                                                                                                                                               |
 | Raportowanie błędów                   | Tylko w czasie kompilacji; `onerr goto` obsługuje błędy wejścia/wyjścia KERNAL w czasie wykonywania                                                                                                                                                                                                                                                                                                                                      |

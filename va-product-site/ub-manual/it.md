@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.7 — Manuale della lingua
+# Ultimate Basic v1.5.8 — Manuale di lingua
 
 Manuale completo del linguaggio e della riga di comando per Ultimate Basic, un
 linguaggio simile al BASIC che compila direttamente in codice macchina 6502 per
@@ -969,8 +969,9 @@ Note sul lettore:
 ### Riproduzione musicale
 
 `music play/stop/pause/resume` è un'alternativa di alto livello alla
-configurazione manuale `sys sid_init` / `cia_timer`. Richiede una precedente
-istruzione `load sid` (definisce `sid_init` / `sid_play`).
+configurazione manuale `sys sid_init` / `cia_timer`. Richiede un'istruzione
+`load sid` precedente o un blocco `tune ... end` (entrambi definiscono
+`sid_init` / `sid_play`).
 
 ```basic
 load sid "tune.sid"         # embed SID file (defines sid_init / sid_play)
@@ -1572,6 +1573,26 @@ Tutti i valori `data` vengono raccolti in fase di compilazione. Un puntatore ZP
 di 2 byte viene allocato e inizializzato automaticamente all'avvio del
 programma. Ogni `read` fa avanzare il puntatore.
 
+**Array inizializzati — `dati <array>: …` (novità nella 1.5.8)**
+
+```basic
+var sinus = array(8)
+data sinus: 128, 218, 255, 218
+data sinus: 128, 37, 0, 37      # further lines continue where the previous one stopped
+print sinus[i]                  # random access, like any array
+
+var xpos = array_word(2)
+data xpos: 24, 300              # word arrays take 16-bit values (stored lo, hi)
+```
+
+Una riga `data` il cui primo elemento è `name:` riempie un `array` /
+`array_word` dichiarato invece del flusso `read`. I valori vengono memorizzati
+dopo il codice e copiati nell'array una sola volta all'avvio del programma
+(subito dopo che gli array sono stati azzerati), quindi la tabella è
+completamente scrivibile e indicizzata come qualsiasi altro array. Un numero di
+valori superiore a quello che l'array può contenere, o un nome non dichiarato, è
+un errore di compilazione. Queste righe non influiscono su `read`.
+
 ### Assemblaggio in linea
 
 ```basic
@@ -1940,6 +1961,6 @@ completo.
 | `plot4`                               | Nessun controllo dei limiti: x deve essere compreso tra 0 e 79, y deve essere compreso tra 0 e 49 (modalità a blocchi)                                                                                                                                                                                                                                                                                                                                                         |
 | `circle4`                             | Ritaglia i pixel del blocco fuori dallo schermo; il raggio utile è approssimativamente compreso tra 0 e 49 nella modalità blocco 80×50.                                                                                                                                                                                                                                                                                                                                        |
 | `chr$`                                | Nessuna mappatura PETSCII↔ASCII: n viene passato così com'è a CHROUT                                                                                                                                                                                                                                                                                                                                                                                                           |
-| `music play`                          | Richiede `load sid`; viene emesso un solo wrapper CIA1 (l'ultimo `music play` vince)                                                                                                                                                                                                                                                                                                                                                                                           |
+| `music play`                          | Richiede `load sid` o un blocco `tune`; viene emesso un solo wrapper CIA1 (l'ultimo `music play` ha la precedenza)                                                                                                                                                                                                                                                                                                                                                             |
 | `graphics on double`                  | Solo Hires; utilizza `$4000–$7FFF` per il back buffer, quindi il codice del programma deve rimanere sotto `$4400`; non combinabile con sprite o multicolore                                                                                                                                                                                                                                                                                                                    |
 | Segnalazione degli errori             | Solo in fase di compilazione; `onerr goto` gestisce gli errori di I/O del KERNAL in fase di esecuzione                                                                                                                                                                                                                                                                                                                                                                         |

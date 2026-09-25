@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.7 — Taalhandleiding
+# Ultimate Basic v1.5.8 — Taalhandleiding
 
 Complete taal- en CLI-referentie voor Ultimate Basic, een BASIC-achtige taal die
 direct compileert naar 6502-machinecode voor de Commodore 64. Uitvoer: `.prg`
@@ -957,9 +957,10 @@ Opmerkingen over de speler:
 
 ### Muziek afspelen
 
-`music play/stop/pause/resume` is een alternatief op hoog niveau voor de
-handmatige configuratie van `sys sid_init` / `cia_timer`. Vereist een
-voorafgaande `load sid`-instructie (definieert `sid_init` / `sid_play`).
+`muziek afspelen/stoppen/pauzeren/hervatten` is een alternatief op hoog niveau
+voor de handmatige `sys sid_init` / `cia_timer`-configuratie. Vereist een
+voorafgaande `load sid`-instructie of een `tune ... end`-blok (beide definiëren
+`sid_init` / `sid_play`).
 
 ```basic
 load sid "tune.sid"         # embed SID file (defines sid_init / sid_play)
@@ -1555,6 +1556,26 @@ Alle `data`-waarden worden tijdens het compileren verzameld. Een 2-byte
 ZP-pointer wordt automatisch toegewezen en geïnitialiseerd bij de start van het
 programma. Elke `read` verhoogt de pointer.
 
+**Initialiseerde arrays — `data <array>: …` (nieuw in 1.5.8)**
+
+```basic
+var sinus = array(8)
+data sinus: 128, 218, 255, 218
+data sinus: 128, 37, 0, 37      # further lines continue where the previous one stopped
+print sinus[i]                  # random access, like any array
+
+var xpos = array_word(2)
+data xpos: 24, 300              # word arrays take 16-bit values (stored lo, hi)
+```
+
+Een `data`-regel waarvan het eerste item `name:` is, vult een gedeclareerde
+`array` / `array_word` in plaats van de `read`-stream. De waarden worden na de
+code opgeslagen en eenmaal bij de start van het programma naar de array
+gekopieerd (direct nadat de arrays op nul zijn gezet), waardoor de tabel
+volledig beschrijfbaar en geïndexeerd is zoals elke andere array. Meer waarden
+dan de array kan bevatten, of een niet-gedeclareerde naam, is een compileerfout.
+Deze regels hebben geen invloed op `read`.
+
 ### Inline-assemblage
 
 ```basic
@@ -1921,6 +1942,6 @@ hex-dump.
 | `plot4`                               | Geen grenscontrole — x moet tussen 0 en 79 liggen, y moet tussen 0 en 49 liggen (blokmodus)                                                                                                                                                                                                                                                                                                                                                                  |
 | `circle4`                             | Snijdt pixels buiten het scherm af; de bruikbare straal is ongeveer 0–49 in de 80×50 blokmodus.                                                                                                                                                                                                                                                                                                                                                              |
 | `chr$`                                | Geen PETSCII↔ASCII-mapping — n wordt ongewijzigd doorgegeven aan CHROUT                                                                                                                                                                                                                                                                                                                                                                                      |
-| `music play`                          | Vereist `load sid`; er wordt slechts één CIA1-wrapper gegenereerd (de laatste `music play` wint)                                                                                                                                                                                                                                                                                                                                                             |
+| `music play`                          | Vereist `load sid` of een `tune` blok; er wordt slechts één CIA1 wrapper uitgezonden (de laatste `music play` wint)                                                                                                                                                                                                                                                                                                                                          |
 | `graphics on double`                  | Alleen voor huurlingen; gebruikt `$4000–$7FFF` voor de backbuffer, dus programmacode moet onder `$4400` blijven; niet combineerbaar met sprites of meerkleurig                                                                                                                                                                                                                                                                                               |
 | Foutrapportage                        | Alleen tijdens het compileren; `onerr goto` behandelt kernel-I/O-fouten tijdens de uitvoering.                                                                                                                                                                                                                                                                                                                                                               |

@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.7 — Språkmanual
+# Ultimate Basic v1.5.8 — Språkmanual
 
 Komplett språk- och CLI-referens för Ultimate Basic, ett BASIC-liknande språk
 som kompilerar direkt till 6502-maskinkod för Commodore 64. Utdata: `.prg` filer
@@ -940,9 +940,10 @@ Anteckningar om spelaren:
 
 ### Musikuppspelning
 
-`music play/stop/pause/resume` är ett övergripande alternativ till den manuella
-`sys sid_init` / `cia_timer`-inställningen. Kräver en föregående `load sid`-sats
-(definierar `sid_init` / `sid_play`).
+`musik spela/stoppa/pausa/återuppta` är ett övergripande alternativ till den
+manuella `sys sid_init` / `cia_timer`-installationen. Kräver en tidigare `load
+sid`-sats eller ett `tune ... end`-block (båda definierar `sid_init` /
+`sid_play`).
 
 ```basic
 load sid "tune.sid"         # embed SID file (defines sid_init / sid_play)
@@ -1528,6 +1529,25 @@ Alla `data`-värden samlas in vid kompileringstillfället. En 2-byte ZP-pekare
 allokeras och initieras automatiskt vid programstart. Varje `read` flyttar
 pekaren framåt.
 
+**Initialiserade arrayer — `data <array>: …` (nytt i 1.5.8)**
+
+```basic
+var sinus = array(8)
+data sinus: 128, 218, 255, 218
+data sinus: 128, 37, 0, 37      # further lines continue where the previous one stopped
+print sinus[i]                  # random access, like any array
+
+var xpos = array_word(2)
+data xpos: 24, 300              # word arrays take 16-bit values (stored lo, hi)
+```
+
+En `data`-rad vars första element är `name:` fyller en deklarerad `array` /
+`array_word` istället för `read`-strömmen. Värdena lagras efter koden och
+kopieras till arrayen en gång vid programstart (direkt efter att arrayerna
+nollställts), så tabellen är fullt skrivbar och indexerad som vilken annan array
+som helst. Fler värden än arrayen innehåller, eller ett odeklarerat namn, är ett
+kompileringsfel. Dessa rader påverkar inte `read`.
+
 ### Inline-montering
 
 ```basic
@@ -1883,6 +1903,6 @@ hex-dump.
 | `plot4`                               | Ingen gränskontroll — x måste vara 0–79, y måste vara 0–49 (blockläge)                                                                                                                                                                                                                                                                                                          |
 | `circle4`                             | Klipp ut blockpixlar utanför skärmen; användbar radie är ungefär 0–49 i 80×50 blockläge                                                                                                                                                                                                                                                                                         |
 | `chr$`                                | Ingen PETSCII↔ASCII-mappning — n skickas som det är till CHROUT                                                                                                                                                                                                                                                                                                                 |
-| `music play`                          | Kräver `load sid`; endast en CIA1-omslagsfil genereras (den sista `music play` vinner)                                                                                                                                                                                                                                                                                          |
+| `music play`                          | Kräver `load sid` eller ett `tune`-block; endast en CIA1-omslagsfil genereras (den sista `musikuppspelningen` vinner)                                                                                                                                                                                                                                                           |
 | `graphics on double`                  | Anställer endast; använder `$4000–$7FFF` för backbufferten, så programkoden måste hålla sig under `$4400`; kan inte kombineras med sprites eller multicolor                                                                                                                                                                                                                     |
 | Felrapportering                       | Endast vid kompilering; `onerr goto` hanterar KERNAL I/O-fel vid körning                                                                                                                                                                                                                                                                                                        |

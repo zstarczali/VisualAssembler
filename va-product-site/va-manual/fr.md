@@ -1,6 +1,6 @@
 # Manuel d'utilisation de l'assembleur visuel C64
 
-**Version 2.4.6**
+**Version 2.4.7**
 
 Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez des programmes en faisant glisser et en déposant des blocs d'instructions, et visualisez en temps réel le code assembleur et le code machine générés.
 
@@ -9,6 +9,7 @@ Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez de
 ## Table des matières
 
 - [C64 Visual Assembler — Manuel de l'utilisateur](#c64-visual-assembler--user-manual)
+    - [Points saillants de la version 2.4.7](#version-247-highlights)
     - [Points saillants de la version 2.4.6](#version-246-highlights)
     - [Points saillants de la version 2.4.5](#version-245-highlights)
     - [Points saillants de la version 2.4.3](#version-243-highlights)
@@ -157,6 +158,17 @@ Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez de
     - [Éditeur de cartes (Cartes de tuiles multicouches)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Éditeur de courbes](#curve-editor)
+
+---
+
+## Points forts de la version 2.4.7
+
+- **Mises à jour intégrées** — **Menu → Rechercher les mises à jour** vérifie la disponibilité d'une version plus récente sur c64va.tech et, après confirmation, télécharge le programme d'installation pour votre plateforme (avec une barre de progression) et l'installe. Voir [Mises à jour intégrées](#in-app-updates). La vérification s'effectue également automatiquement à chaque démarrage.
+- **État de la mise à jour dans la barre d'état Ultimate Basic** — affiche **À jour (vX)**, ou une mise en évidence **Mise à jour disponible : vY** qui ouvre la boîte de dialogue de mise à jour lorsqu'on clique dessus.
+- **Éditeur de courbes → Exportation UltimateBasic** — **Fichiers → Exporter vers UltimateBasic** enregistre le tableau sous forme de tableau UB initialisé ; **Fichiers → Exporter la démo UltimateBasic** génère une démo de sprites UB prête à l’emploi. Voir [Éditeur de courbes](#curve-editor).
+- **Ultimate Basic 1.5.8 intégré** — la nouvelle forme **`data <array>: v, …`** remplit un `array` / `array_word` déclaré au démarrage du programme (les lignes suivantes continuent là où la précédente s'est arrêtée, les tableaux de mots prennent des valeurs de 16 bits) sans toucher au flux `read`.
+- **La mise en page s'adapte à la fenêtre** : les panneaux de l'éditeur occupent exactement la hauteur restante de la fenêtre, l'application n'affiche donc plus de barre de défilement verticale au niveau de la page ; le panneau de sortie ASM conserve une largeur minimale de 440 px ; le chemin du dossier de travail est discrètement affiché au-dessus du titre de la vue ASM et utilise le même badge dans les barres d'outils Expert et Ultimate Basic. Les étiquettes des boutons de boîte de dialogue ne sont plus renvoyées à la ligne.
+- **Référence des commandes Ultimate Basic** — `tune` et `music` affichent des exemples complets et commentés (format de cellule, effets, notes du joueur, `music play N`) ; `inst`, `order`, `pat` et la commande `speed` ont leurs propres entrées ; `data` affiche le nouveau format de tableau ; la syntaxe de `load sid` est corrigée (`load sid "tune.sid", $2000`).
 
 ---
 
@@ -406,7 +418,24 @@ Les instantanés de projet sont stockés sur disque dans des fichiers JSON exter
 - **Menu → Build → Restaurer la version précédente** restaure directement le dernier instantané.
 - **Menu → Build → Snapshot history** ouvre la boîte de dialogue où vous pouvez ajouter des notes, restaurer des entrées plus anciennes ou les supprimer.
 - **Paramètres matériels → Instantané → Enregistrement automatique des instantanés** détermine si l'application crée automatiquement des instantanés après les modifications. Le délai par défaut est d'environ 2,5 secondes et ce paramètre s'applique à chaque onglet.
-- Si un projet n'a pas encore été enregistré, des instantanés sont stockés dans le répertoire de configuration de l'application jusqu'à ce qu'un chemin d'accès soit défini pour le projet. | **Base de connaissances** | Liens de référence (opcodes 6502, noyau C64, carte mémoire, couleurs) | | **Recherche de mises à jour** | Consultez la page itch.io pour vérifier la disponibilité d'une nouvelle version |
+- Si un projet n'a pas encore été enregistré, des instantanés sont stockés dans le répertoire de configuration de l'application jusqu'à ce qu'un chemin d'accès soit défini pour le projet. | **Base de connaissances** | Liens de référence (opcodes 6502, noyau C64, carte mémoire, couleurs) | | **Rechercher une mise à jour** | Consultez c64va.tech pour une version plus récente et téléchargez-la/installez-la — voir [Mises à jour intégrées](#in-app-updates) |
+
+### Mises à jour intégrées à l'application
+
+**Menu → Rechercher les mises à jour** recherche la dernière version sur c64va.tech (il lit les liens de téléchargement pour votre plateforme) et la compare avec la version en cours d'exécution :
+
+- **À jour** — la boîte de dialogue l'indique.
+- **Mise à jour disponible** — choisissez **Mettre à jour maintenant** pour télécharger le programme d'installation (une barre de progression affiche le téléchargement), **Plus tard** pour fermer la boîte de dialogue, ou **Ignorer cette version** pour empêcher la vérification automatique de proposer à nouveau cette version.
+
+Après le téléchargement, l'application installe la mise à jour et redémarre :
+
+| Plate-forme | Ce qui se produit                                                                                                                                                                                                                                  |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Windows** | L'installation s'exécute en mode passif (suivi de la progression uniquement) et lance la nouvelle version une fois terminée. L'installation par machine requiert des droits d'administrateur (UAC).                                                |
+| **macOS**   | L'image disque (DMG) est montée et le paquet d'application est remplacé, puis la nouvelle version démarre. Si le dossier de l'application n'est pas accessible en écriture, ouvrez simplement l'image disque pour y glisser-déposer l'application. |
+| **Linux**   | Une AppImage est remplacée par la nouvelle. Une installation `.deb` / `.rpm` est mise à jour avec `pkexec` (votre mot de passe vous est demandé) ; sans `pkexec`, le paquet est ouvert dans votre gestionnaire de logiciels.                       |
+
+Si des onglets non enregistrés sont présents, l'application vous demandera confirmation avant de se fermer. Cette même vérification s'effectue discrètement quelques secondes après chaque démarrage : aucun message n'est affiché sauf si une version plus récente est disponible. Le résultat apparaît également dans la barre d'état d'Ultimate Basic : « À jour (vX) » ou « Mise à jour disponible : vY » (en surbrillance) qui ouvre la boîte de dialogue de mise à jour.
 
 ### Espaces de travail
 
@@ -3727,11 +3756,13 @@ Chaque sortie Copie / Insertion commence par un commentaire d'en-tête documenta
 **Copier / Insérer :** les deux icônes de la barre d’outils — **Copier** place le tableau dans le presse-papiers ; **Insérer dans l’éditeur** ajoute le tableau (et le lecteur, s’il est activé) sous forme de blocs au programme actuel. La réinsertion **remplace** l’insertion précédente dans l’éditeur de courbes au lieu d’empiler les doublons (fonctionne en mode Bloc et Expert).
 
 **Menu Fichiers :**
-| Action                            | Ce que cela fait                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Enregistrer la courbe (.bin)…** | Enregistre les octets bruts de la table exactement comme le C64 les lirait via `INCBIN`. 16 bits : N octets de poids faible suivis de N octets de poids fort.                                                                                                                                                                                                                                                                                  |
-| **Courbe de charge (.bin)…**      | Charge les octets bruts de la table dans l'éditeur, interprétés selon la profondeur de bits actuelle (16 bits : première moitié à niveau bas, seconde moitié à niveau haut). La table chargée est affichée telle quelle jusqu'à ce qu'une nouvelle courbe soit régénérée par une commande de courbe.                                                                                                                                           |
-| **Exporter la démo en blocs**     | Ajoute une démo complète et fonctionnelle de sprite : initialisation du sprite, boucle principale synchronisée au raster, table intégrée et données du sprite de la balle. L’axe X balaie la plage de 0 à 320 en virgule fixe 8,8 avec le bit de poids fort `$D010`, tandis que la table pilote l’axe Y du sprite, correspondant exactement à l’aperçu de l’éditeur. La réexportation remplace l’insertion précédente de l’éditeur de courbes. |
+| Action                             | Ce que cela fait                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Enregistrer la courbe (.bin)…**  | Enregistre les octets bruts de la table exactement comme le C64 les lirait via `INCBIN`. 16 bits : N octets de poids faible suivis de N octets de poids fort.                                                                                                                                                                                                                                                                                     |
+| **Courbe de charge (.bin)…**       | Charge les octets bruts de la table dans l'éditeur, interprétés selon la profondeur de bits actuelle (16 bits : première moitié à niveau bas, seconde moitié à niveau haut). La table chargée est affichée telle quelle jusqu'à ce qu'une nouvelle courbe soit régénérée par une commande de courbe.                                                                                                                                              |
+| **Exporter la démo en blocs**      | Ajoute une démo complète et fonctionnelle de sprite : initialisation du sprite, boucle principale synchronisée au raster, table intégrée et données du sprite de la balle. L’axe X balaie la plage de 0 à 320 en virgule fixe 8,8 avec le bit de poids fort `$D010`, tandis que la table pilote l’axe Y du sprite, correspondant exactement à l’aperçu de l’éditeur. La réexportation remplace l’insertion précédente de l’éditeur de courbes.    |
+| **Exporter vers UltimateBasic**    | Crée le tableau sous forme de tableau initialisé Ultimate Basic — `var nom = tableau(N)` (ou `tableau_mot(N)` pour 16 bits) suivi de `nom_données : …` lignes — et l’insère à l’emplacement du curseur de l’éditeur UB (hors mode UB, il est copié dans le presse-papiers). L’étiquette devient un nom UB valide en minuscules ; indexez le tableau comme `nom[i]`. Nécessite Ultimate Basic 1.5.8 ou une version ultérieure (fourni).            |
+| **Exporter la démo UltimateBasic** | Génère un programme UB complet et prêt à l'emploi : un sprite de balle (`sprdef 0`), la table et une boucle synchronisée au raster qui joue une entrée de la table par image. Les tables 8 bits pilotent le sprite **Y** tandis que X parcourt les valeurs de 0 à 320 ; les tables 16 bits (0 à 320) pilotent le sprite **X** tandis que Y parcourt les valeurs de 0 à 200. Les tables de plus de 256 entrées jouent leurs 256 premières entrées. |
 
 **Reproduire l'aperçu sur C64 :** l'aperçu lit la table **linéairement, en bouclant 0 → N-1 → 0, une valeur par image**. Pour le reproduire exactement, parcourez la table de la même manière (incrémentez l'index une fois par image, retour à la fin de la table). Une lecture en ping-pong ou partielle se déplacera différemment même si les valeurs des octets sont identiques. Voir `samples/curve-new-demo.asm` pour un exemple fonctionnel de sprite-X 16 bits.
 
