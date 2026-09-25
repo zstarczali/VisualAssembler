@@ -3419,7 +3419,11 @@ fn spawn_update_script(script: &str, args: &[&str]) -> Result<(), String> {
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     let script_path = dir.join("apply-update.sh");
     fs::write(&script_path, script).map_err(|e| e.to_string())?;
+    // AppImage alatt ezek a kilépéskor eltűnő mountba mutathatnak — a helper,
+    // a pkexec/apt-get és az újraindított app ne örökölje őket.
     Command::new("/bin/sh")
+        .env_remove("LD_LIBRARY_PATH")
+        .env_remove("LD_PRELOAD")
         .arg(&script_path)
         .args(args)
         .stdin(std::process::Stdio::null())
