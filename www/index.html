@@ -393,6 +393,9 @@
       <section class="output-panel">
         <div class="panel-scroll">
           <div class="panel-heading">
+            <div id="working-folder-panel" class="panel-heading-meta panel-heading-meta--path">
+              <span class="panel-heading-meta__text"></span>
+            </div>
             <div class="panel-heading-top">
               <h2>ASM nezet</h2>
             </div>
@@ -411,9 +414,6 @@
             <div class="origin-preview-section">
               <div class="origin-preview-header">
                 <span class="panel-label" id="origin-preview-label">Compile info</span>
-                <div id="working-folder-panel" class="panel-heading-meta panel-heading-meta--path">
-                  <span class="panel-heading-meta__text"></span>
-                </div>
               </div>
               <div id="origin-preview" class="origin-preview"></div>
             </div>
@@ -860,6 +860,22 @@ PRINTABLE CHARACTERS
       <div class="app-confirm-buttons">
         <button id="app-confirm-yes" class="primary" type="button">Igen</button>
         <button id="app-confirm-no" class="secondary" type="button">Mégsem</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="update-dialog" class="app-confirm-dialog update-dialog">
+    <div class="app-confirm-card">
+      <h2 class="compile-error-title" id="update-title">Check for Update</h2>
+      <p id="update-msg" class="app-confirm-msg"></p>
+      <div id="update-progress-wrap" class="update-progress-wrap" hidden>
+        <div class="update-progress-track"><div id="update-progress-bar" class="update-progress-bar"></div></div>
+        <span id="update-progress-text" class="update-progress-text"></span>
+      </div>
+      <div class="app-confirm-buttons">
+        <button id="update-skip" class="secondary" type="button" hidden>Skip</button>
+        <button id="update-close" class="secondary" type="button">Close</button>
+        <button id="update-install" class="primary" type="button" hidden>Update</button>
       </div>
     </div>
   </dialog>

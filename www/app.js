@@ -1225,7 +1225,8 @@ function initPalette() {
     window.electronAPI?.openManual();
   });
   checkUpdateButton?.addEventListener("click", () => {
-    window.electronAPI.openExternal("https://zstarczali.itch.io/visual-assembler-commodore-64");
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    checkForAppUpdate();
   });
   reportBugButton?.addEventListener("click", async () => {
     const version = await getAppVersionText();
@@ -2162,6 +2163,8 @@ function initPalette() {
     const aboutVersion = document.getElementById('about-version');
     if (aboutVersion) aboutVersion.textContent = versionText;
   });
+
+  setTimeout(() => checkForAppUpdate({ silent: true }), 6000);
 
   // READY. typewriter effect
   (() => {
@@ -16273,6 +16276,138 @@ function _showConfirm(msg) {
     _confirmDialog?.showModal();
   });
 }
+
+// ── Self-update (c64va.tech/downloads/VA) ────────────────────────────────────
+const _UPDATE_SKIP_KEY = "c64va-update-skip-version";
+let _updateBusy = false;
+let _updateInfo = null;
+
+function _updateEls() {
+  const $ = id => document.getElementById(id);
+  return {
+    dlg: $("update-dialog"), title: $("update-title"), msg: $("update-msg"),
+    wrap: $("update-progress-wrap"), bar: $("update-progress-bar"), text: $("update-progress-text"),
+    skip: $("update-skip"), close: $("update-close"), install: $("update-install")
+  };
+}
+
+// state: null = rejtve, -1 = határozatlan (animált), 0..100 = százalék
+function _updateSetProgress(state, label = "") {
+  const { wrap, bar, text } = _updateEls();
+  if (!wrap || !bar) return;
+  wrap.hidden = state === null;
+  bar.classList.toggle("update-progress-bar--indeterminate", state === -1);
+  bar.style.width = state >= 0 ? `${state}%` : "";
+  if (text) text.textContent = label;
+}
+
+function _updateShow({ title, msg, install = false, skip = false, closeLabel = t("updateClose") }) {
+  const els = _updateEls();
+  if (!els.dlg) return;
+  els.title.textContent = title;
+  els.msg.textContent = msg;
+  els.install.hidden = !install;
+  els.install.textContent = t("updateInstallNow");
+  els.skip.hidden = !skip;
+  els.skip.textContent = t("updateSkipVersion");
+  els.close.textContent = closeLabel;
+  els.close.disabled = false;
+  if (!els.dlg.open) els.dlg.showModal();
+}
+
+async function checkForAppUpdate({ silent = false } = {}) {
+  if (_updateBusy) return;
+  if (!window.electronAPI?.checkForUpdate) {
+    if (!silent) window.electronAPI?.openExternal?.("https://www.c64va.tech/");
+    return;
+  }
+  if (!silent) {
+    _updateShow({ title: t("checkForUpdate"), msg: t("updateChecking") });
+    _updateSetProgress(-1);
+  }
+  _updateBusy = true;
+  let info;
+  try {
+    info = await window.electronAPI.checkForUpdate();
+  } catch (err) {
+    if (!silent) {
+      _updateSetProgress(null);
+      _updateShow({ title: t("checkForUpdate"), msg: tf("updateCheckFailed", { error: String(err?.message || err) }) });
+    }
+    return;
+  } finally {
+    _updateBusy = false;
+  }
+  _updateInfo = info;
+  _updateSetProgress(null);
+
+  if (!info?.supported) {
+    if (!silent) _updateShow({ title: t("checkForUpdate"), msg: t("updateUnsupported") });
+    return;
+  }
+  if (!info.updateAvailable) {
+    if (!silent) _updateShow({ title: t("checkForUpdate"), msg: tf("updateUpToDate", { version: info.currentVersion }) });
+    return;
+  }
+  let skipped = "";
+  try { skipped = localStorage.getItem(_UPDATE_SKIP_KEY) || ""; } catch (_) {}
+  if (silent && skipped === info.latestVersion) return;
+  _updateShow({
+    title: t("updateAvailableTitle"),
+    msg: tf("updateAvailableMsg", { latest: info.latestVersion, current: info.currentVersion }),
+    install: true,
+    skip: true,
+    closeLabel: t("updateLater")
+  });
+}
+
+async function _updateInstall() {
+  const version = _updateInfo?.latestVersion;
+  if (_updateBusy || !version || !_updateInfo.updateAvailable) return;
+  if (tabs.some(tab => tab.dirty) && !await _showConfirm(t("updateUnsavedConfirm"))) return;
+
+  const els = _updateEls();
+  _updateBusy = true;
+  els.install.hidden = true;
+  els.skip.hidden = true;
+  els.close.disabled = true;
+  els.msg.textContent = tf("updateDownloading", { version });
+  _updateSetProgress(-1);
+
+  let unlisten = null;
+  try {
+    unlisten = await window.electronAPI.onUpdateProgress?.(({ received, total }) => {
+      const mb = n => (n / 1048576).toFixed(1);
+      if (total > 0) _updateSetProgress(Math.min(100, Math.round(received * 100 / total)), `${mb(received)} / ${mb(total)} MB`);
+      else _updateSetProgress(-1, `${mb(received)} MB`);
+    });
+  } catch (_) { /* progress nélkül is megy */ }
+
+  try {
+    const res = await window.electronAPI.downloadAndInstallUpdate(version);
+    _updateSetProgress(100, "");
+    els.msg.textContent = res?.restarting ? t("updateRestarting") : t("updateInstallerOpened");
+  } catch (err) {
+    _updateSetProgress(null);
+    els.msg.textContent = tf("updateFailed", { error: String(err?.message || err) });
+    els.install.hidden = false;
+  } finally {
+    unlisten?.();
+    _updateBusy = false;
+    els.close.disabled = false;
+  }
+}
+
+(() => {
+  const els = _updateEls();
+  els.install?.addEventListener("click", _updateInstall);
+  els.close?.addEventListener("click", () => { if (!_updateBusy) els.dlg?.close(); });
+  els.skip?.addEventListener("click", () => {
+    try { if (_updateInfo?.latestVersion) localStorage.setItem(_UPDATE_SKIP_KEY, _updateInfo.latestVersion); } catch (_) {}
+    els.dlg?.close();
+  });
+  els.dlg?.addEventListener("cancel", e => { if (_updateBusy) e.preventDefault(); });
+})();
 
 async function _tabClose(tabId) {
   const tab = tabs.find(t => t.id === tabId);

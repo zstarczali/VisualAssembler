@@ -1516,6 +1516,19 @@ body.ub-mode .ws-resizer {
   justify-content: flex-end;
   overflow: visible;
   position: relative;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 0 8px;
+  padding: 3px 8px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--muted) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--panel-border) 55%, transparent);
+  opacity: 0.8;
+}
+
+.panel-heading-meta--path:empty,
+.panel-heading-meta--path:has(.panel-heading-meta__text:empty) {
+  display: none;
 }
 
 .panel-heading-meta__text {
@@ -5155,6 +5168,34 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
   min-height: unset;
   padding: 8px 18px;
 }
+
+.update-dialog .compile-error-title { margin: 0; }
+.update-progress-wrap { display: flex; flex-direction: column; gap: 6px; }
+.update-dialog [hidden] { display: none !important; }
+.update-progress-track {
+  height: 8px;
+  border: 1px solid var(--panel-border);
+  border-radius: 2px;
+  background: var(--control-bg);
+  overflow: hidden;
+  position: relative;
+}
+.update-progress-bar {
+  height: 100%;
+  width: 0;
+  background: var(--primary);
+  transition: width 0.15s linear;
+}
+.update-progress-bar--indeterminate {
+  width: 35%;
+  position: absolute;
+  animation: update-progress-slide 1.1s ease-in-out infinite;
+}
+@keyframes update-progress-slide {
+  from { left: -35%; }
+  to { left: 100%; }
+}
+.update-progress-text { font-size: 0.8rem; color: var(--secondary); }
 
 .compile-error-dialog::backdrop {
   background: rgba(0, 0, 0, 0.5);
