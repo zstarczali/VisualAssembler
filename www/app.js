@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "sid-ub-export-246",
+  id: "self-update-247",
   url: "https://www.c64va.tech/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.4.6-ben",
+    eyebrow: "Újdonság a 2.4.7-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>SID Editor → UltimateBasic export</strong> — a <em>Files → Export to UltimateBasic</em> <code>tune ... end</code> blokkot és <code>music play</code>-t szúr be az UB szerkesztő kurzorához.</li><li><strong>Ultimate Basic nyelvi frissítés</strong> — kiemelés és parancsreferencia: <code>sfx</code>, <code>org</code>, <code>charset on/off</code>, <code>incbin</code> szeletelés.</li><li><strong>ASM nézet többes kijelölés</strong> — több blokk összes ASM sora egyszerre kiemelve, lágyabb sorszámokkal.</li><li><strong>Stabilabb módváltás</strong> — UB-ből projekt vagy minta megnyitása után visszatér az utolsó Block/Expert módba.</li></ul>`,
+    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>Frissítés az alkalmazásból</strong> — a <em>Menü → Check for Update</em> megkeresi az újabb verziót a c64va.tech-en, majd letölti és telepíti; induláskor is automatikusan ellenőriz.</li><li><strong>Frissítés-jelző az UB statusbarban</strong> — <em>Naprakész</em>, vagy kattintható <em>Frissítés elérhető</em>.</li><li><strong>Curve Editor → UltimateBasic export</strong> — a tábla UB tömbként (<code>data név: …</code>), plusz kész, futtatható UB sprite demó.</li><li><strong>Ultimate Basic 1.5.8</strong> — új <code>data &lt;tömb&gt;: …</code> tömb-inicializálás.</li><li><strong>Ablakhoz igazodó elrendezés</strong> — nincs többé oldalszintű függőleges görgetősáv.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.4.6",
+    eyebrow: "New in 2.4.7",
     title: "Welcome to Visual Assembler",
-    body: `<p>What's new in this release:</p><ul><li><strong>SID Editor → UltimateBasic export</strong> — <em>Files → Export to UltimateBasic</em> inserts a <code>tune ... end</code> block and <code>music play</code> at the cursor of the UB editor.</li><li><strong>Ultimate Basic language update</strong> — highlighting and command reference now cover <code>sfx</code>, <code>org</code>, <code>charset on/off</code> and <code>incbin</code> slicing.</li><li><strong>ASM view multi-highlight</strong> — all ASM lines of several selected blocks are highlighted at once, with softer line numbers.</li><li><strong>Reliable mode switching</strong> — opening a project or sample from UB returns to your last Block/Expert mode.</li></ul>`,
+    body: `<p>What's new in this release:</p><ul><li><strong>In-app updates</strong> — <em>Menu → Check for Update</em> finds a newer release on c64va.tech, then downloads and installs it; the check also runs automatically at start.</li><li><strong>Update status in the UB status bar</strong> — <em>Up to date</em>, or a clickable <em>Update available</em>.</li><li><strong>Curve Editor → UltimateBasic export</strong> — the table as a UB array (<code>data name: …</code>), plus a ready-to-run UB sprite demo.</li><li><strong>Ultimate Basic 1.5.8</strong> — new <code>data &lt;array&gt;: …</code> array initialiser.</li><li><strong>Layout fits the window</strong> — no more page-level vertical scrollbar.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.4.6",
+    eyebrow: "Novedad en la 2.4.7",
     title: "Bienvenido a Visual Assembler",
-    body: `<p>Novedades de esta versión:</p><ul><li><strong>Exportación del SID Editor a UltimateBasic</strong> — <em>Files → Export to UltimateBasic</em> inserta un bloque <code>tune ... end</code> y <code>music play</code> en el cursor del editor UB.</li><li><strong>Actualización del lenguaje Ultimate Basic</strong> — el resaltado y la referencia de comandos cubren <code>sfx</code>, <code>org</code>, <code>charset on/off</code> y el recorte de <code>incbin</code>.</li><li><strong>Resaltado múltiple en la vista ASM</strong> — todas las líneas ASM de varios bloques seleccionados se resaltan a la vez.</li><li><strong>Cambio de modo más fiable</strong> — al abrir un proyecto o ejemplo desde UB se vuelve al último modo Bloques/Expert.</li></ul>`,
+    body: `<p>Novedades de esta versión:</p><ul><li><strong>Actualizaciones desde la aplicación</strong> — <em>Menu → Check for Update</em> busca una versión nueva en c64va.tech, la descarga y la instala; la comprobación también se ejecuta al iniciar.</li><li><strong>Estado de actualización en la barra de estado de UB</strong> — <em>Actualizado</em> o un <em>Actualización disponible</em> clicable.</li><li><strong>Exportación Curve Editor → UltimateBasic</strong> — la tabla como array UB (<code>data nombre: …</code>) y una demo de sprite UB lista para ejecutar.</li><li><strong>Ultimate Basic 1.5.8</strong> — nuevo inicializador de arrays <code>data &lt;array&gt;: …</code>.</li><li><strong>El diseño se ajusta a la ventana</strong> — ya no hay barra de desplazamiento vertical de página.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.4.6",
+    eyebrow: "Neu in 2.4.7",
     title: "Willkommen bei Visual Assembler",
-    body: `<p>Neu in dieser Version:</p><ul><li><strong>SID-Editor → UltimateBasic-Export</strong> — <em>Files → Export to UltimateBasic</em> fügt einen <code>tune ... end</code>-Block und <code>music play</code> an der Cursorposition des UB-Editors ein.</li><li><strong>Ultimate-Basic-Sprachupdate</strong> — Hervorhebung und Befehlsreferenz umfassen <code>sfx</code>, <code>org</code>, <code>charset on/off</code> und <code>incbin</code>-Ausschnitte.</li><li><strong>Mehrfachmarkierung in der ASM-Ansicht</strong> — alle ASM-Zeilen mehrerer ausgewählter Blöcke werden gleichzeitig hervorgehoben.</li><li><strong>Zuverlässiger Moduswechsel</strong> — beim Öffnen eines Projekts oder Beispiels aus UB wird zum letzten Block-/Expert-Modus zurückgekehrt.</li></ul>`,
+    body: `<p>Neu in dieser Version:</p><ul><li><strong>Updates aus der App</strong> — <em>Menu → Check for Update</em> sucht auf c64va.tech nach einer neueren Version, lädt sie herunter und installiert sie; die Prüfung läuft auch automatisch beim Start.</li><li><strong>Update-Status in der UB-Statusleiste</strong> — <em>Aktuell</em> oder ein anklickbares <em>Update verfügbar</em>.</li><li><strong>Curve Editor → UltimateBasic-Export</strong> — die Tabelle als UB-Array (<code>data name: …</code>) plus eine lauffähige UB-Sprite-Demo.</li><li><strong>Ultimate Basic 1.5.8</strong> — neue Array-Initialisierung <code>data &lt;array&gt;: …</code>.</li><li><strong>Layout passt sich dem Fenster an</strong> — keine vertikale Bildlaufleiste auf Seitenebene mehr.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.4.6",
+    eyebrow: "Nieuw in 2.4.7",
     title: "Welkom bij Visual Assembler",
-    body: `<p>Nieuw in deze versie:</p><ul><li><strong>SID-editor → UltimateBasic-export</strong> — <em>Files → Export to UltimateBasic</em> voegt een <code>tune ... end</code>-blok en <code>music play</code> in op de cursor van de UB-editor.</li><li><strong>Ultimate Basic-taalupdate</strong> — markering en commandoreferentie omvatten <code>sfx</code>, <code>org</code>, <code>charset on/off</code> en <code>incbin</code>-uitsneden.</li><li><strong>Meervoudige markering in de ASM-weergave</strong> — alle ASM-regels van meerdere geselecteerde blokken worden tegelijk gemarkeerd.</li><li><strong>Betrouwbaardere moduswissel</strong> — bij het openen van een project of voorbeeld vanuit UB keer je terug naar de laatste Block/Expert-modus.</li></ul>`,
+    body: `<p>Nieuw in deze versie:</p><ul><li><strong>Updates vanuit de app</strong> — <em>Menu → Check for Update</em> zoekt een nieuwere versie op c64va.tech, downloadt en installeert die; de controle draait ook automatisch bij het starten.</li><li><strong>Updatestatus in de UB-statusbalk</strong> — <em>Up-to-date</em> of een klikbare <em>Update beschikbaar</em>.</li><li><strong>Curve Editor → UltimateBasic-export</strong> — de tabel als UB-array (<code>data naam: …</code>) plus een kant-en-klare UB-sprite-demo.</li><li><strong>Ultimate Basic 1.5.8</strong> — nieuwe array-initialisatie <code>data &lt;array&gt;: …</code>.</li><li><strong>Indeling past in het venster</strong> — geen verticale schuifbalk op paginaniveau meer.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.4.6",
+    eyebrow: "Nowość w 2.4.7",
     title: "Witamy w Visual Assembler",
-    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Eksport SID Editor → UltimateBasic</strong> — <em>Files → Export to UltimateBasic</em> wstawia blok <code>tune ... end</code> i <code>music play</code> w miejscu kursora edytora UB.</li><li><strong>Aktualizacja języka Ultimate Basic</strong> — podświetlanie i referencja poleceń obejmują <code>sfx</code>, <code>org</code>, <code>charset on/off</code> oraz wycinanie w <code>incbin</code>.</li><li><strong>Wielokrotne podświetlanie w widoku ASM</strong> — wszystkie linie ASM kilku zaznaczonych bloków są podświetlane jednocześnie.</li><li><strong>Pewniejsze przełączanie trybów</strong> — otwarcie projektu lub przykładu z UB wraca do ostatniego trybu Block/Expert.</li></ul>`,
+    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Aktualizacje z poziomu aplikacji</strong> — <em>Menu → Check for Update</em> szuka nowszej wersji na c64va.tech, pobiera ją i instaluje; sprawdzanie odbywa się też automatycznie przy starcie.</li><li><strong>Stan aktualizacji na pasku stanu UB</strong> — <em>Aktualna wersja</em> lub klikalne <em>Dostępna aktualizacja</em>.</li><li><strong>Eksport Curve Editor → UltimateBasic</strong> — tabela jako tablica UB (<code>data nazwa: …</code>) oraz gotowe do uruchomienia demo sprite'a w UB.</li><li><strong>Ultimate Basic 1.5.8</strong> — nowa inicjalizacja tablic <code>data &lt;tablica&gt;: …</code>.</li><li><strong>Układ dopasowuje się do okna</strong> — koniec z pionowym paskiem przewijania całej strony.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.4.6",
+    eyebrow: "Novità nella 2.4.7",
     title: "Benvenuto in Visual Assembler",
-    body: `<p>Novità di questa versione:</p><ul><li><strong>Esportazione SID Editor → UltimateBasic</strong> — <em>Files → Export to UltimateBasic</em> inserisce un blocco <code>tune ... end</code> e <code>music play</code> nel cursore dell'editor UB.</li><li><strong>Aggiornamento del linguaggio Ultimate Basic</strong> — evidenziazione e riferimento comandi coprono <code>sfx</code>, <code>org</code>, <code>charset on/off</code> e il ritaglio di <code>incbin</code>.</li><li><strong>Evidenziazione multipla nella vista ASM</strong> — tutte le righe ASM di più blocchi selezionati sono evidenziate insieme.</li><li><strong>Cambio modalità più affidabile</strong> — aprendo un progetto o un esempio da UB si torna all'ultima modalità Blocchi/Expert.</li></ul>`,
+    body: `<p>Novità di questa versione:</p><ul><li><strong>Aggiornamenti dall'app</strong> — <em>Menu → Check for Update</em> cerca una versione più recente su c64va.tech, la scarica e la installa; il controllo viene eseguito anche all'avvio.</li><li><strong>Stato aggiornamento nella barra di stato UB</strong> — <em>Aggiornato</em> oppure un <em>Aggiornamento disponibile</em> cliccabile.</li><li><strong>Esportazione Curve Editor → UltimateBasic</strong> — la tabella come array UB (<code>data nome: …</code>) più una demo sprite UB pronta da eseguire.</li><li><strong>Ultimate Basic 1.5.8</strong> — nuovo inizializzatore di array <code>data &lt;array&gt;: …</code>.</li><li><strong>Il layout si adatta alla finestra</strong> — niente più barra di scorrimento verticale a livello di pagina.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -393,6 +393,7 @@ let blockPaletteSync = true;
 let asmOutputBase = "hex";
 let _wsProgramShare = 0.5;
 const _WS_PANEL_MIN = 260;
+const _WS_OUTPUT_MIN = 440; // a view-mode fülek (ASM…Toolkit) + compile info ne törjön; a style.css grid minimumával egyezzen
 let originBase = "hex";
 let workingFolder = "";
 let ubWorkingFolder = "";
@@ -687,6 +688,50 @@ function _applyWorkspaceColumns() {
   ws.style.setProperty("--ws-output-fr", `${Math.round((1 - share) * 1000)}fr`);
 }
 
+// A panelek magasságát a workspace tényleges tetejéből és az alatta lévő elemekből
+// számoljuk (nem fix 150px becslésből), így az app-shell-en nincs függőleges scroll.
+// Nyitott memória panelnél csak az összecsukott (summary) magasságát vesszük számba.
+function _fitWorkspaceHeight() {
+  const shell = document.querySelector(".app-shell");
+  const ws = document.querySelector(".workspace");
+  if (!shell || !ws) return;
+  if (window.matchMedia("(max-width: 1100px)").matches) {
+    shell.style.removeProperty("--editor-max-depth");
+    return;
+  }
+  const outerH = el => {
+    const cs = getComputedStyle(el);
+    if (cs.display === "none") return 0;
+    const box = el.matches("details[open]")
+      ? (el.querySelector(":scope > summary")?.offsetHeight || 0) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth)
+      : el.offsetHeight;
+    return box + parseFloat(cs.marginTop) + parseFloat(cs.marginBottom);
+  };
+  let below = 0;
+  for (let el = ws.nextElementSibling; el; el = el.nextElementSibling) below += outerH(el);
+  const wsTop = ws.getBoundingClientRect().top + window.scrollY;
+  const padBottom = parseFloat(getComputedStyle(shell).paddingBottom) || 0;
+  const avail = Math.floor(window.innerHeight - wsTop - below - padBottom);
+  shell.style.setProperty("--editor-max-depth", `${Math.max(320, avail)}px`);
+}
+
+function _initWorkspaceHeightFit() {
+  let timer = 0;
+  const schedule = () => {
+    clearTimeout(timer);
+    timer = setTimeout(_fitWorkspaceHeight, 16);
+  };
+  window.addEventListener("resize", schedule);
+  const shell = document.querySelector(".app-shell");
+  if (shell && window.ResizeObserver) {
+    const ro = new ResizeObserver(schedule);
+    [...shell.children].filter(el => !el.classList.contains("workspace")).forEach(el => ro.observe(el));
+  }
+  // body class váltás (expert/ub mód) a hero magasságát is változtatja
+  new MutationObserver(schedule).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+  schedule();
+}
+
 function _initWorkspaceResizers() {
   const ws = document.querySelector(".workspace");
   const outRes = document.getElementById("ws-resizer-output");
@@ -698,8 +743,8 @@ function _initWorkspaceResizers() {
     const pw = program.getBoundingClientRect().width;
     const ow = output.getBoundingClientRect().width;
     const sum = pw + ow;
-    if (sum <= 2 * _WS_PANEL_MIN) return;
-    const newP = Math.max(_WS_PANEL_MIN, Math.min(sum - _WS_PANEL_MIN, pw + dx));
+    if (sum <= _WS_PANEL_MIN + _WS_OUTPUT_MIN) return;
+    const newP = Math.max(_WS_PANEL_MIN, Math.min(sum - _WS_OUTPUT_MIN, pw + dx));
     _wsProgramShare = newP / sum;
     _applyWorkspaceColumns();
   };
@@ -1308,6 +1353,7 @@ function initPalette() {
     document.addEventListener("mouseup", onUp);
   });
   _initWorkspaceResizers();
+  _initWorkspaceHeightFit();
   const ubPanelsResizer = document.getElementById("ub-panels-resizer");
   ubPanelsResizer?.addEventListener("mousedown", event => {
     event.preventDefault();
@@ -2984,6 +3030,7 @@ function handleLanguageChange() {
   renderProgram();
   if (expertMode) _expertRenderProjectTree();
   if (ultimateBasicMode) { _ubRenderProjectFiles(); _ubRenderCommandReference(); }
+  _updateRenderStatusbar();
   saveUiSettings();
 }
 
@@ -3612,6 +3659,8 @@ function _applyEditorTranslations() {
   setText("#sid-export-asm", t("sidExportAsm"));
   setText("#sid-export-ub", t("sidExportUb"));
   setText("#cg-export-demo", t("cgExportDemo"));
+  setText("#cg-export-ub", t("sidExportUb"));
+  setText("#cg-export-ub-demo", t("cgExportUbDemo"));
   // Curve Editor
   setText("#cg-title", t("cgTitle"));
   setText("#cg-save-bin", t("cgSaveBin"));
@@ -6083,9 +6132,13 @@ const ubCommandDescriptionsEn = {
   "sound": "Plays a SID voice with fixed ADSR and sawtooth waveform.",
   "sfx": "Non-blocking SID sound effect: programs one voice and returns at once. Optional wave: 16 triangle, 32 saw (default), 64 pulse, 128 noise. Channel, frames and wave must be constants.",
   "org": "Placed between sub/fn definitions: the next subs continue at the given address, the gap is zero-filled and can hold incbin data.",
-  "tune": "Inline SID tracker tune: instruments, order list and per-voice pattern rows (cells like C-4 01 V24). The compiler builds a zero-page-free player at compile time and defines sid_init / sid_play, so music play, stop, pause and resume work. tune at $addr moves it (default $8000).",
-  "load sid": "Embeds a PSID/RSID file at compile time.",
-  "music": "Controls music loaded with load sid.",
+  "tune": "Inline 3-voice SID tracker tune written as plain text, with the same cell notation the Visual Assembler SID editor shows. The compiler builds a self-contained player at compile time and defines sid_init / sid_play exactly like load sid, so music play, stop, pause and resume (and a manual irq handler calling sys sid_play) work unchanged. The player keeps all state inside the blob (no zero page), so it never collides with UltimateBasic variables and keeps running after the program returns to BASIC. The blob sits at a fixed address (default $8000, or tune at $addr) and needs about 1.3 KB plus 12 bytes per pattern row; keep it clear of your code, arrays ($C000+) and bitmap/charset memory. At most 8 patterns of 32 rows; the order list may repeat them (up to 255 steps). music play uses the CIA1 timer at 50 Hz; do not combine it with another load sid / tune (the last one wins).",
+  "inst": "Defines one instrument inside a tune ... end block: control register (waveform bits; the player adds the gate bit), attack/decay, sustain/release, 12-bit pulse width, 11-bit filter cutoff, resonance/filter routing byte ($D417) and mode/volume byte ($D418).",
+  "order": "Pattern order of a tune block. Patterns may repeat; several order lines accumulate, up to 255 steps.",
+  "pat": "Up to 32 rows for voice v (0-2) in pattern p (0-7); missing rows are empty. A cell is NOTE INST FX: C-4, D#3, Eb2 or ... for no note, a two-digit hex instrument (.. to skip) and an optional effect - Vxy vibrato (x = rows held, y = depth), Uxx / Dxx slide up / down, C note cut, Fxx set speed. An effect-only cell can be written as \"... .. F06\" or just \"F06\".",
+  "tune speed": "Frames per tracker row inside a tune ... end block (1-255, 50 Hz PAL). The Fxx effect changes it while playing.",
+  "load sid": "Embeds a PSID/RSID file at compile time: the header is stripped and the music bytes are placed at the file's load address (or at the given address). Defines the constants sid_init and sid_play. Only one load sid per program is meaningful (the last one wins).",
+  "music": "High-level alternative to a manual sys sid_init / cia_timer setup for music from load sid or a tune block: play initialises a sub-tune and starts a CIA1 50 Hz IRQ, stop silences the SID, pause / resume freeze and continue playback.",
   "irq": "Installs a raster interrupt handler at line 0 or the given raster line.",
   "irq_exit": "Exits a raster IRQ through the KERNAL.",
   "poke": "Writes an 8-bit or 16-bit value to memory.",
@@ -6094,7 +6147,7 @@ const ubCommandDescriptionsEn = {
   "asm": "Embeds raw bytes or a full inline 6502 assembly block.",
   "include": "Includes another UltimateBasic source file.",
   "incbin": "Embeds binary data inline or at an absolute address; optional skip and length slice the file (e.g. skip a .prg load address).",
-  "data": "Defines compile-time byte data and reads it sequentially.",
+  "data": "Defines compile-time byte data and reads it sequentially; data arr: v, … fills a declared array instead.",
   "reu": "Transfers memory using the REU DMA controller.",
   "turbo": "Controls C64 Ultimate/SuperCPU acceleration.",
   "wait": "Waits for raster transitions or for a specific raster line.",
@@ -6198,9 +6251,13 @@ const ubCommandDescriptionsHu = {
   "sound": "Megszólaltat egy SID hangcsatornát fix ADSR-rel és fűrészfog hullámformával.",
   "sfx": "Nem blokkoló SID hangeffekt: beállít egy hangcsatornát és azonnal visszatér. Opcionális hullámforma: 16 háromszög, 32 fűrész (alap), 64 pulzus, 128 zaj. A csatorna, a frame-szám és a hullámforma konstans kell legyen.",
   "org": "Sub/fn definíciók között áll: a következő subok a megadott címen folytatódnak, a rés nullákkal kitöltött és incbin adatot fogadhat.",
-  "tune": "Beágyazott SID tracker dal: hangszerek, sorrend lista és hangonkénti pattern sorok (cellák pl. C-4 01 V24). A fordító zero-page-mentes lejátszót épít, és definiálja a sid_init / sid_play-t, így a music play, stop, pause és resume működik. A tune at $addr áthelyezi (alap: $8000).",
-  "load sid": "Beágyaz egy PSID/RSID zenefájlt fordítási időben.",
-  "music": "Vezérli a load sid paranccsal betöltött zenelejátszást (play, stop, pause, resume).",
+  "tune": "Beágyazott, 3 hangú SID tracker dal egyszerű szövegként, ugyanazzal a cellajelöléssel, amit a Visual Assembler SID szerkesztője mutat. A fordító fordítási időben önálló lejátszót épít, és a load sid-hez hasonlóan definiálja a sid_init / sid_play-t, így a music play, stop, pause és resume (és egy sys sid_play-t hívó kézi irq kezelő) változatlanul működik. A lejátszó minden állapotát a blobon belül tartja (nincs zero page), így nem ütközik az UltimateBasic változókkal, és tovább szól akkor is, ha a program visszatér a BASIC-be. A blob fix címen van (alap: $8000, vagy tune at $addr), kb. 1,3 KB + pattern soronként 12 bájt kell neki; tartsd távol a kódodtól, a tömböktől ($C000+) és a bitmap/charset memóriától. Legfeljebb 8 pattern, egyenként 32 sor; a sorrend lista ismételheti őket (max. 255 lépés). A music play a CIA1 időzítőt használja 50 Hz-en; ne kombináld másik load sid / tune paranccsal (az utolsó nyer).",
+  "inst": "Egy hangszert definiál a tune ... end blokkon belül: vezérlőregiszter (hullámforma bitek; a gate bitet a lejátszó adja hozzá), attack/decay, sustain/release, 12 bites impulzusszélesség, 11 bites szűrő-levágás, rezonancia/szűrő-útválasztás bájt ($D417) és mód/hangerő bájt ($D418).",
+  "order": "A tune blokk pattern-sorrendje. A patternek ismétlődhetnek; több order sor összeadódik, legfeljebb 255 lépésig.",
+  "pat": "Legfeljebb 32 sor a v (0-2) hanghoz a p (0-7) patternben; a hiányzó sorok üresek. Egy cella NOTE INST FX: C-4, D#3, Eb2 vagy ... ha nincs hang, kétjegyű hex hangszer (.. ha kimarad) és opcionális effekt - Vxy vibrato (x = kitartott sorok, y = mélység), Uxx / Dxx csúszás fel / le, C hangvágás, Fxx sebesség beállítás. Csak effektet tartalmazó cella írható \"... .. F06\" vagy egyszerűen \"F06\" alakban.",
+  "tune speed": "Képkockák száma tracker soronként a tune ... end blokkon belül (1-255, 50 Hz PAL). Az Fxx effekt lejátszás közben módosítja.",
+  "load sid": "Beágyaz egy PSID/RSID zenefájlt fordítási időben: a fejlécet levágja, a zene bájtjait a fájl betöltési címére (vagy a megadott címre) teszi. Definiálja a sid_init és sid_play konstansokat. Programonként csak egy load sid értelmes (az utolsó nyer).",
+  "music": "A kézi sys sid_init / cia_timer beállítás magas szintű alternatívája a load sid-del vagy tune blokkal megadott zenéhez: a play inicializál egy subtune-t és elindít egy 50 Hz-es CIA1 IRQ-t, a stop elnémítja a SID-et, a pause / resume megállítja és folytatja a lejátszást.",
   "irq": "Raszter megszakításkezelőt telepít a 0. vagy a megadott rasztersorhoz.",
   "irq_exit": "Kilép a raszter IRQ megszakításból a KERNAL-on keresztül ($EA31).",
   "poke": "8 bites vagy 16 bites értéket ír a memóriába.",
@@ -6209,7 +6266,7 @@ const ubCommandDescriptionsHu = {
   "asm": "Nyers bájtokat vagy beágyazott inline 6502 assembly blokkot szúr be.",
   "include": "Egy másik UltimateBasic forrásfájlt fűz be a programba.",
   "incbin": "Bináris adatfájlt ágyaz be inline vagy abszolút memóriacímre; az opcionális skip és length szeleteli a fájlt (pl. .prg betöltési cím kihagyása).",
-  "data": "Fordítási idejű bájtadatokat definiál (data) és egymás után beolvassa őket (read).",
+  "data": "Fordítási idejű bájtadatokat definiál (data) és egymás után beolvassa őket (read); a data tömb: v, … alak egy deklarált tömböt tölt fel.",
   "reu": "Memóriát mozgat a C64 REU DMA vezérlőjével (stash, fetch, swap).",
   "turbo": "Vezérli a C64 Ultimate és SuperCPU gyorsítást (on, off, speed).",
   "wait": "Raszter átmenetekre vagy egy megadott rasztersorra vár.",
@@ -6313,9 +6370,13 @@ const ubCommandDescriptionsEs = {
   "sound": "Reproduce una voz del SID con ADSR fijo y forma de onda de diente de sierra.",
   "sfx": "Efecto de sonido SID sin bloqueo: programa una voz y vuelve de inmediato. Onda opcional: 16 triángulo, 32 sierra (por defecto), 64 pulso, 128 ruido. Canal, frames y onda deben ser constantes.",
   "org": "Se coloca entre definiciones sub/fn: las siguientes subs continúan en la dirección dada; el hueco se rellena con ceros y puede contener datos incbin.",
-  "tune": "Melodía tracker SID integrada: instrumentos, lista de orden y filas de patrón por voz (celdas como C-4 01 V24). El compilador genera un reproductor sin página cero y define sid_init / sid_play, así que music play, stop, pause y resume funcionan. tune at $addr lo mueve (por defecto $8000).",
-  "load sid": "Incrusta un archivo PSID/RSID en tiempo de compilación.",
-  "music": "Controla la música cargada con load sid.",
+  "tune": "Melodía tracker SID de 3 voces escrita como texto, con la misma notación de celdas que muestra el editor SID de Visual Assembler. El compilador construye un reproductor autónomo en tiempo de compilación y define sid_init / sid_play igual que load sid, así que music play, stop, pause y resume (y un manejador irq manual que llame a sys sid_play) funcionan sin cambios. El reproductor guarda todo su estado dentro del bloque (sin página cero), por lo que no choca con las variables de UltimateBasic y sigue sonando al volver a BASIC. El bloque está en una dirección fija (por defecto $8000, o tune at $addr) y necesita unos 1,3 KB más 12 bytes por fila de patrón; mantenlo lejos de tu código, de los arrays ($C000+) y de la memoria bitmap/charset. Como máximo 8 patrones de 32 filas; la lista de orden puede repetirlos (hasta 255 pasos). music play usa el temporizador CIA1 a 50 Hz; no lo combines con otro load sid / tune (gana el último).",
+  "inst": "Define un instrumento dentro de un bloque tune ... end: registro de control (bits de forma de onda; el reproductor añade el bit gate), attack/decay, sustain/release, ancho de pulso de 12 bits, corte de filtro de 11 bits, byte de resonancia/enrutado de filtro ($D417) y byte de modo/volumen ($D418).",
+  "order": "Orden de patrones de un bloque tune. Los patrones pueden repetirse; varias líneas order se acumulan, hasta 255 pasos.",
+  "pat": "Hasta 32 filas para la voz v (0-2) del patrón p (0-7); las filas que faltan quedan vacías. Una celda es NOTA INST FX: C-4, D#3, Eb2 o ... sin nota, un instrumento hex de dos dígitos (.. para omitirlo) y un efecto opcional - Vxy vibrato (x = filas mantenidas, y = profundidad), Uxx / Dxx deslizamiento arriba / abajo, C corte de nota, Fxx fijar velocidad. Una celda solo con efecto puede escribirse \"... .. F06\" o simplemente \"F06\".",
+  "tune speed": "Fotogramas por fila del tracker dentro de un bloque tune ... end (1-255, 50 Hz PAL). El efecto Fxx la cambia durante la reproducción.",
+  "load sid": "Incrusta un archivo PSID/RSID en tiempo de compilación: quita la cabecera y coloca los bytes de la música en su dirección de carga (o en la dirección indicada). Define las constantes sid_init y sid_play. Solo tiene sentido un load sid por programa (gana el último).",
+  "music": "Alternativa de alto nivel a configurar manualmente sys sid_init / cia_timer para la música de load sid o de un bloque tune: play inicializa una subcanción e inicia una IRQ CIA1 de 50 Hz, stop silencia el SID, pause / resume detienen y reanudan la reproducción.",
   "irq": "Instala un controlador de interrupciones de trama en la línea 0 o la línea indicada.",
   "irq_exit": "Sale de una interrupción IRQ de trama mediante el KERNAL.",
   "poke": "Escribe un valor de 8 o 16 bits en la memoria.",
@@ -6324,7 +6385,7 @@ const ubCommandDescriptionsEs = {
   "asm": "Incrusta bytes directos o un bloque completo de ensamblador 6502 integrado.",
   "include": "Incluye otro archivo fuente de UltimateBasic.",
   "incbin": "Incrusta datos binarios de forma integrada o en una dirección absoluta.",
-  "data": "Define datos de bytes en tiempo de compilación y los lee secuencialmente.",
+  "data": "Define datos de bytes en tiempo de compilación y los lee secuencialmente; data arr: v, … rellena un array declarado.",
   "reu": "Transfiere memoria mediante el controlador DMA de la REU.",
   "turbo": "Controla la aceleración de C64 Ultimate/SuperCPU.",
   "wait": "Espera transiciones de trama o una línea de trama específica.",
@@ -6428,9 +6489,13 @@ const ubCommandDescriptionsDe = {
   "sound": "Spielt eine SID-Stimme mit festem ADSR und Sägezahn-Wellenform ab.",
   "sfx": "Nicht blockierender SID-Soundeffekt: programmiert eine Stimme und kehrt sofort zurück. Optionale Wellenform: 16 Dreieck, 32 Sägezahn (Standard), 64 Puls, 128 Rauschen. Kanal, Frames und Wellenform müssen Konstanten sein.",
   "org": "Steht zwischen sub/fn-Definitionen: die folgenden Subs setzen sich an der Adresse fort; die Lücke wird mit Nullen gefüllt und kann incbin-Daten aufnehmen.",
-  "tune": "Eingebettete SID-Tracker-Melodie: Instrumente, Reihenfolgeliste und Pattern-Zeilen je Stimme (Zellen wie C-4 01 V24). Der Compiler baut einen Player ohne Zeropage und definiert sid_init / sid_play, sodass music play, stop, pause und resume funktionieren. tune at $addr verschiebt ihn (Standard $8000).",
-  "load sid": "Bettet eine PSID/RSID-Datei zur Kompilierzeit ein.",
-  "music": "Steuert die mit load sid geladene Musik.",
+  "tune": "Eingebettete 3-stimmige SID-Tracker-Melodie als Klartext, mit derselben Zellnotation wie im SID-Editor von Visual Assembler. Der Compiler baut zur Kompilierzeit einen eigenständigen Player und definiert sid_init / sid_play wie bei load sid, sodass music play, stop, pause und resume (und ein manueller irq-Handler mit sys sid_play) unverändert funktionieren. Der Player hält seinen gesamten Zustand im Blob (keine Zeropage), kollidiert also nicht mit UltimateBasic-Variablen und spielt weiter, wenn das Programm zu BASIC zurückkehrt. Der Blob liegt an einer festen Adresse (Standard $8000 oder tune at $addr) und braucht etwa 1,3 KB plus 12 Byte pro Pattern-Zeile; halte ihn von Code, Arrays ($C000+) und Bitmap-/Zeichensatzspeicher fern. Höchstens 8 Patterns mit je 32 Zeilen; die Reihenfolgeliste darf sie wiederholen (bis 255 Schritte). music play nutzt den CIA1-Timer mit 50 Hz; nicht mit einem weiteren load sid / tune kombinieren (das letzte gewinnt).",
+  "inst": "Definiert ein Instrument in einem tune ... end-Block: Steuerregister (Wellenform-Bits; das Gate-Bit setzt der Player), Attack/Decay, Sustain/Release, 12-Bit-Pulsbreite, 11-Bit-Filtergrenzfrequenz, Resonanz-/Filterrouting-Byte ($D417) und Modus-/Lautstärke-Byte ($D418).",
+  "order": "Pattern-Reihenfolge eines tune-Blocks. Patterns dürfen sich wiederholen; mehrere order-Zeilen werden aneinandergehängt, bis zu 255 Schritte.",
+  "pat": "Bis zu 32 Zeilen für Stimme v (0-2) in Pattern p (0-7); fehlende Zeilen sind leer. Eine Zelle ist NOTE INST FX: C-4, D#3, Eb2 oder ... ohne Note, ein zweistelliges Hex-Instrument (.. zum Auslassen) und ein optionaler Effekt - Vxy Vibrato (x = gehaltene Zeilen, y = Tiefe), Uxx / Dxx Slide auf / ab, C Note-Cut, Fxx Tempo setzen. Eine reine Effektzelle kann als \"... .. F06\" oder einfach \"F06\" geschrieben werden.",
+  "tune speed": "Frames pro Tracker-Zeile in einem tune ... end-Block (1-255, 50 Hz PAL). Der Effekt Fxx ändert sie während der Wiedergabe.",
+  "load sid": "Bettet eine PSID/RSID-Datei zur Kompilierzeit ein: Der Header wird entfernt, die Musikbytes landen an der Ladeadresse der Datei (oder an der angegebenen Adresse). Definiert die Konstanten sid_init und sid_play. Pro Programm ist nur ein load sid sinnvoll (das letzte gewinnt).",
+  "music": "Hochsprachliche Alternative zur manuellen Einrichtung mit sys sid_init / cia_timer für Musik aus load sid oder einem tune-Block: play initialisiert einen Subtune und startet einen CIA1-IRQ mit 50 Hz, stop bringt den SID zum Schweigen, pause / resume halten die Wiedergabe an und setzen sie fort.",
   "irq": "Installiert einen Raster-Interrupt-Handler in Zeile 0 oder der angegebenen Rasterzeile.",
   "irq_exit": "Beendet einen Raster-IRQ über das KERNAL.",
   "poke": "Schreibt einen 8-Bit- oder 16-Bit-Wert in den Speicher.",
@@ -6439,7 +6504,7 @@ const ubCommandDescriptionsDe = {
   "asm": "Bettet direkte Bytes oder einen vollständigen 6502-Inline-Assemblerblock ein.",
   "include": "Bindet eine andere UltimateBasic-Quelldatei ein.",
   "incbin": "Bettet Binärdaten inline oder an einer absoluten Adresse ein.",
-  "data": "Definiert Byte-Daten zur Kompilierzeit und liest sie sequentiell ein.",
+  "data": "Definiert Byte-Daten zur Kompilierzeit und liest sie sequentiell ein; data arr: v, … füllt ein deklariertes Array.",
   "reu": "Überträgt Speicher über den REU-DMA-Controller.",
   "turbo": "Steuert die C64 Ultimate/SuperCPU-Beschleunigung.",
   "wait": "Wartet auf Rasterübergänge oder eine bestimmte Rasterzeile.",
@@ -6543,9 +6608,13 @@ const ubCommandDescriptionsNl = {
   "sound": "Speelt een SID-stem af met vaste ADSR en zaagtandgolfvorm.",
   "sfx": "Niet-blokkerend SID-geluidseffect: programmeert één stem en keert direct terug. Optionele golfvorm: 16 driehoek, 32 zaagtand (standaard), 64 puls, 128 ruis. Kanaal, frames en golfvorm moeten constanten zijn.",
   "org": "Staat tussen sub/fn-definities: de volgende subs gaan verder op het opgegeven adres; het gat wordt met nullen gevuld en kan incbin-data bevatten.",
-  "tune": "Ingebouwde SID-trackertune: instrumenten, volgordelijst en patroonrijen per stem (cellen zoals C-4 01 V24). De compiler bouwt een speler zonder zero page en definieert sid_init / sid_play, zodat music play, stop, pause en resume werken. tune at $addr verplaatst hem (standaard $8000).",
-  "load sid": "Sluit een PSID/RSID-bestand in tijdens het compileren.",
-  "music": "Bestuurt muziek geladen met load sid.",
+  "tune": "Ingebouwde 3-stemmige SID-trackertune als platte tekst, met dezelfde celnotatie als de SID-editor van Visual Assembler. De compiler bouwt tijdens het compileren een zelfstandige speler en definieert sid_init / sid_play net als load sid, zodat music play, stop, pause en resume (en een handmatige irq-handler die sys sid_play aanroept) ongewijzigd werken. De speler houdt al zijn toestand binnen de blob (geen zero page), botst dus niet met UltimateBasic-variabelen en blijft spelen als het programma terugkeert naar BASIC. De blob staat op een vast adres (standaard $8000, of tune at $addr) en heeft ongeveer 1,3 KB plus 12 bytes per patroonrij nodig; houd hem weg van je code, arrays ($C000+) en bitmap-/tekensetgeheugen. Maximaal 8 patronen van 32 rijen; de volgordelijst mag ze herhalen (tot 255 stappen). music play gebruikt de CIA1-timer op 50 Hz; combineer het niet met een andere load sid / tune (de laatste wint).",
+  "inst": "Definieert één instrument binnen een tune ... end-blok: besturingsregister (golfvormbits; de speler voegt de gatebit toe), attack/decay, sustain/release, 12-bits pulsbreedte, 11-bits filterafsnijding, resonantie-/filterrouteringsbyte ($D417) en modus-/volumebyte ($D418).",
+  "order": "Patroonvolgorde van een tune-blok. Patronen mogen herhalen; meerdere order-regels tellen op, tot 255 stappen.",
+  "pat": "Maximaal 32 rijen voor stem v (0-2) in patroon p (0-7); ontbrekende rijen zijn leeg. Een cel is NOOT INST FX: C-4, D#3, Eb2 of ... zonder noot, een tweecijferig hex-instrument (.. om over te slaan) en een optioneel effect - Vxy vibrato (x = vastgehouden rijen, y = diepte), Uxx / Dxx slide omhoog / omlaag, C noot afkappen, Fxx snelheid instellen. Een cel met alleen een effect kan als \"... .. F06\" of gewoon \"F06\" worden geschreven.",
+  "tune speed": "Frames per trackerrij binnen een tune ... end-blok (1-255, 50 Hz PAL). Het effect Fxx wijzigt dit tijdens het afspelen.",
+  "load sid": "Sluit een PSID/RSID-bestand in tijdens het compileren: de header wordt verwijderd en de muziekbytes komen op het laadadres van het bestand (of op het opgegeven adres). Definieert de constanten sid_init en sid_play. Per programma heeft maar één load sid zin (de laatste wint).",
+  "music": "Hoog-niveau alternatief voor het handmatig instellen van sys sid_init / cia_timer voor muziek uit load sid of een tune-blok: play initialiseert een subtune en start een CIA1-IRQ van 50 Hz, stop legt de SID stil, pause / resume pauzeren en hervatten het afspelen.",
   "irq": "Installeert een rasteronderbrekingshandler op lijn 0 of de opgegeven rasterlijn.",
   "irq_exit": "Verlaat een raster-IRQ via de KERNAL.",
   "poke": "Schrijft een 8-bits of 16-bits waarde naar het geheugen.",
@@ -6554,7 +6623,7 @@ const ubCommandDescriptionsNl = {
   "asm": "Sluit ruwe bytes of een volledig inline 6502 assemblyblok in.",
   "include": "Sluit een ander UltimateBasic-bronbestand in.",
   "incbin": "Sluit binaire gegevens inline of op een absoluut adres in.",
-  "data": "Definieert bytedata tijdens het compileren en leest deze opeenvolgend uit.",
+  "data": "Definieert bytedata tijdens het compileren en leest deze opeenvolgend uit; data arr: v, … vult een gedeclareerde array.",
   "reu": "Draagt geheugen over met de REU DMA-controller.",
   "turbo": "Bestuurt C64 Ultimate/SuperCPU versnelling.",
   "wait": "Wacht op rasterovergangen of op een specifieke rasterlijn.",
@@ -6658,9 +6727,13 @@ const ubCommandDescriptionsPl = {
   "sound": "Odtwarza głos SID ze stałym ADSR i falą piłokształtną.",
   "sfx": "Nieblokujący efekt dźwiękowy SID: programuje jeden głos i natychmiast wraca. Opcjonalna fala: 16 trójkąt, 32 piła (domyślnie), 64 impuls, 128 szum. Kanał, liczba ramek i fala muszą być stałymi.",
   "org": "Występuje między definicjami sub/fn: kolejne suby kontynuują pod podanym adresem; luka jest wypełniona zerami i może zawierać dane incbin.",
-  "tune": "Wbudowany utwór trackerowy SID: instrumenty, lista kolejności i wiersze patternów dla każdego głosu (komórki jak C-4 01 V24). Kompilator buduje odtwarzacz bez strony zerowej i definiuje sid_init / sid_play, więc music play, stop, pause i resume działają. tune at $addr przenosi go (domyślnie $8000).",
-  "load sid": "Osadza plik PSID/RSID w czasie kompilacji.",
-  "music": "Steruje muzyką wczytaną przez load sid.",
+  "tune": "Wbudowany 3-głosowy utwór trackerowy SID zapisany zwykłym tekstem, w tej samej notacji komórek, którą pokazuje edytor SID Visual Assemblera. Kompilator buduje w czasie kompilacji samodzielny odtwarzacz i definiuje sid_init / sid_play tak jak load sid, więc music play, stop, pause i resume (oraz ręczny handler irq wywołujący sys sid_play) działają bez zmian. Odtwarzacz trzyma cały swój stan wewnątrz bloku (bez strony zerowej), więc nie koliduje ze zmiennymi UltimateBasic i gra dalej po powrocie programu do BASIC. Blok leży pod stałym adresem (domyślnie $8000 lub tune at $addr) i potrzebuje ok. 1,3 KB plus 12 bajtów na wiersz patternu; trzymaj go z dala od kodu, tablic ($C000+) i pamięci bitmapy/zestawu znaków. Najwyżej 8 patternów po 32 wiersze; lista kolejności może je powtarzać (do 255 kroków). music play używa timera CIA1 z częstotliwością 50 Hz; nie łącz go z innym load sid / tune (wygrywa ostatni).",
+  "inst": "Definiuje jeden instrument w bloku tune ... end: rejestr sterujący (bity kształtu fali; bit gate dodaje odtwarzacz), attack/decay, sustain/release, 12-bitowa szerokość impulsu, 11-bitowa częstotliwość odcięcia filtra, bajt rezonansu/routingu filtra ($D417) i bajt trybu/głośności ($D418).",
+  "order": "Kolejność patternów bloku tune. Patterny mogą się powtarzać; kilka wierszy order sumuje się, do 255 kroków.",
+  "pat": "Do 32 wierszy dla głosu v (0-2) w patternie p (0-7); brakujące wiersze są puste. Komórka to NUTA INST FX: C-4, D#3, Eb2 lub ... bez nuty, dwucyfrowy instrument hex (.. aby pominąć) i opcjonalny efekt - Vxy vibrato (x = trzymane wiersze, y = głębokość), Uxx / Dxx poślizg w górę / w dół, C ucięcie nuty, Fxx ustawienie tempa. Komórkę tylko z efektem można zapisać jako \"... .. F06\" lub po prostu \"F06\".",
+  "tune speed": "Liczba ramek na wiersz trackera w bloku tune ... end (1-255, 50 Hz PAL). Efekt Fxx zmienia ją podczas odtwarzania.",
+  "load sid": "Osadza plik PSID/RSID w czasie kompilacji: usuwa nagłówek i umieszcza bajty muzyki pod adresem ładowania pliku (lub pod podanym adresem). Definiuje stałe sid_init i sid_play. W programie ma sens tylko jedno load sid (wygrywa ostatnie).",
+  "music": "Wysokopoziomowa alternatywa dla ręcznej konfiguracji sys sid_init / cia_timer dla muzyki z load sid lub bloku tune: play inicjuje podutwór i uruchamia przerwanie CIA1 50 Hz, stop wycisza SID, pause / resume wstrzymują i wznawiają odtwarzanie.",
   "irq": "Instaluje procedurę przerwania rastrowego na linii 0 lub podanej linii rastra.",
   "irq_exit": "Kończy przerwanie rastrowe przez KERNAL.",
   "poke": "Zapisuje wartość 8- lub 16-bitową do pamięci.",
@@ -6669,7 +6742,7 @@ const ubCommandDescriptionsPl = {
   "asm": "Osadza surowe bajty lub pełny inline blok asemblera 6502.",
   "include": "Dołącza inny plik źródłowy UltimateBasic.",
   "incbin": "Osadza dane binarne w linii lub pod adresem bezwzględnym.",
-  "data": "Definiuje dane bajtowe znane w czasie kompilacji i odczytuje je sekwencyjnie.",
+  "data": "Definiuje dane bajtowe znane w czasie kompilacji i odczytuje je sekwencyjnie; data arr: v, … wypełnia zadeklarowaną tablicę.",
   "reu": "Przesyła pamięć za pomocą kontrolera DMA REU.",
   "turbo": "Steruje akceleracją C64 Ultimate/SuperCPU.",
   "wait": "Czeka na przejścia rastra lub konkretną linię rastra.",
@@ -6773,9 +6846,13 @@ const ubCommandDescriptionsIt = {
   "sound": "Riproduce una voce SID con ADSR fisso e forma d'onda a dente di sega.",
   "sfx": "Effetto sonoro SID non bloccante: programma una voce e ritorna subito. Onda opzionale: 16 triangolare, 32 dente di sega (predefinita), 64 impulso, 128 rumore. Canale, frame e onda devono essere costanti.",
   "org": "Si trova tra le definizioni sub/fn: le sub successive continuano all'indirizzo indicato; il vuoto è riempito di zeri e può contenere dati incbin.",
-  "tune": "Brano tracker SID integrato: strumenti, lista d'ordine e righe di pattern per voce (celle come C-4 01 V24). Il compilatore genera un player senza pagina zero e definisce sid_init / sid_play, quindi music play, stop, pause e resume funzionano. tune at $addr lo sposta (predefinito $8000).",
-  "load sid": "Incorpora un file PSID/RSID in fase di compilazione.",
-  "music": "Controlla la musica caricata con load sid.",
+  "tune": "Brano tracker SID a 3 voci scritto come testo, con la stessa notazione delle celle mostrata dall'editor SID di Visual Assembler. Il compilatore costruisce in fase di compilazione un player autonomo e definisce sid_init / sid_play come load sid, quindi music play, stop, pause e resume (e un gestore irq manuale che chiama sys sid_play) funzionano senza modifiche. Il player tiene tutto il suo stato dentro il blocco (niente pagina zero), quindi non entra in conflitto con le variabili di UltimateBasic e continua a suonare quando il programma torna al BASIC. Il blocco sta a un indirizzo fisso (predefinito $8000, oppure tune at $addr) e richiede circa 1,3 KB più 12 byte per riga di pattern; tienilo lontano dal codice, dagli array ($C000+) e dalla memoria bitmap/charset. Al massimo 8 pattern da 32 righe; la lista d'ordine può ripeterli (fino a 255 passi). music play usa il timer CIA1 a 50 Hz; non combinarlo con un altro load sid / tune (vince l'ultimo).",
+  "inst": "Definisce uno strumento in un blocco tune ... end: registro di controllo (bit della forma d'onda; il bit gate lo aggiunge il player), attack/decay, sustain/release, ampiezza d'impulso a 12 bit, taglio del filtro a 11 bit, byte di risonanza/instradamento filtro ($D417) e byte modo/volume ($D418).",
+  "order": "Ordine dei pattern di un blocco tune. I pattern possono ripetersi; più righe order si sommano, fino a 255 passi.",
+  "pat": "Fino a 32 righe per la voce v (0-2) nel pattern p (0-7); le righe mancanti sono vuote. Una cella è NOTA STRUM FX: C-4, D#3, Eb2 oppure ... senza nota, uno strumento esadecimale a due cifre (.. per saltarlo) e un effetto opzionale - Vxy vibrato (x = righe mantenute, y = profondità), Uxx / Dxx slide su / giù, C taglio nota, Fxx imposta velocità. Una cella con solo l'effetto si può scrivere \"... .. F06\" o semplicemente \"F06\".",
+  "tune speed": "Frame per riga del tracker in un blocco tune ... end (1-255, 50 Hz PAL). L'effetto Fxx la cambia durante la riproduzione.",
+  "load sid": "Incorpora un file PSID/RSID in fase di compilazione: rimuove l'intestazione e colloca i byte della musica all'indirizzo di caricamento del file (o all'indirizzo indicato). Definisce le costanti sid_init e sid_play. In un programma ha senso un solo load sid (vince l'ultimo).",
+  "music": "Alternativa di alto livello alla configurazione manuale di sys sid_init / cia_timer per la musica di load sid o di un blocco tune: play inizializza un sotto-brano e avvia un IRQ CIA1 a 50 Hz, stop silenzia il SID, pause / resume sospendono e riprendono la riproduzione.",
   "irq": "Installa un gestore di interrupt raster sulla linea 0 o sulla linea raster indicata.",
   "irq_exit": "Esce da un IRQ raster tramite il KERNAL.",
   "poke": "Scrive un valore a 8 o 16 bit in memoria.",
@@ -6784,7 +6861,7 @@ const ubCommandDescriptionsIt = {
   "asm": "Incorpora byte grezzi o un blocco completo di assembly 6502 inline.",
   "include": "Include un altro file sorgente UltimateBasic.",
   "incbin": "Incorpora dati binari in linea o a un indirizzo assoluto.",
-  "data": "Definisce dati byte noti in fase di compilazione e li legge sequenzialmente.",
+  "data": "Definisce dati byte noti in fase di compilazione e li legge sequenzialmente; data arr: v, … riempie un array dichiarato.",
   "reu": "Trasferisce memoria usando il controller DMA della REU.",
   "turbo": "Controlla l'accelerazione C64 Ultimate/SuperCPU.",
   "wait": "Attende le transizioni raster o una specifica linea raster.",
@@ -6897,10 +6974,14 @@ const _UB_COMMAND_REFERENCE = [
   ["sprdef", "sprdef id\n  byte values...\nend", "Embeds and installs a 63-byte sprite definition."],
   ["sound", "sound channel, frequency, duration", "Plays a SID voice with fixed ADSR and sawtooth waveform."],
   ["sfx", "sfx channel, frequency, frames [, wave]", "Starts a SID sound effect and returns immediately; the note decays by itself."],
-  ["tune", "tune [at addr]\n  speed n\n  inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol\n  order p, p, ...\n  pat p, voice, \"C-4 01 V24\", ...\nend", "Inline SID tracker tune; the compiler builds a zero-page-free player, and music play/stop control it."],
+  ["tune", "tune                       # optional: tune at $C800  (default $8000)\n  speed 6                  # frames per row (1-255, 50 Hz PAL)\n  inst 0, $41, $09, $F0, $0800, $0064, $27, $1F\n  inst 1, $10, $08, $A8, $0400, $0000, $00, $0F\n  order 0, 1, 0            # pattern order (patterns may repeat)\n  pat 0, 0, \"C-4 00\", \"...\", \"E-4 00 V24\", \"...\", \"G-4 00\", \"... .. C00\"\n  pat 0, 1, \"C-2 01\", \"...\", \"...\", \"...\", \"G-2 01 F03\"\nend\nmusic play                 # or: sys sid_init / irq handler calling sys sid_play\n\n# inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol\n#   ctrl = waveform bits (gate is added by the player), pw 12-bit,\n#   cutoff 11-bit, resfilt = $D417, modevol = $D418\n# pat p, v, cell...  p = pattern 0-7, v = voice 0-2, max 32 rows\n# cell = NOTE INST FX:  C-4 / D#3 / Eb2 / ... (no note), inst 00-FF or ..\n#   FX: Vxy vibrato (x = rows held, y = depth), Uxx / Dxx slide up/down,\n#       C note cut, Fxx set speed; effect-only cell: \"... .. F06\" or \"F06\"", "Inline SID tracker tune; the compiler builds a zero-page-free player, and music play/stop control it."],
+  ["inst", "inst id, ctrl, ad, sr, pw, cutoff, resfilt, modevol   # inside tune ... end\ninst 0, $41, $09, $F0, $0800, $0064, $27, $1F\n#   ctrl    = waveform bits ($10 tri, $20 saw, $40 pulse, $80 noise; gate added by the player)\n#   ad / sr = attack/decay, sustain/release\n#   pw      = 12-bit pulse width, cutoff = 11-bit filter cutoff\n#   resfilt = resonance / filter routing ($D417), modevol = mode / volume ($D418)", "Defines one instrument of a tune block."],
+  ["order", "order p, p, ...            # inside tune ... end\norder 0, 1, 0, 2           # patterns may repeat\norder 3, 3                 # further order lines append (up to 255 steps)", "Pattern order of a tune block."],
+  ["pat", "pat p, v, \"cell\", ...      # inside tune ... end; p = pattern 0-7, v = voice 0-2\npat 0, 0, \"C-4 00\", \"...\", \"E-4 00 V24\", \"... .. C00\"\npat 0, 1, \"C-2 01\", \"...\", \"G-2 01 F03\", \"F06\"\n# cell = NOTE INST FX: C-4 / D#3 / Eb2 / ... (no note), inst 00-FF or ..\n#   FX: Vxy vibrato (x = rows held, y = depth), Uxx / Dxx slide up / down,\n#       C note cut, Fxx set speed", "Rows of one voice in one pattern of a tune block."],
+  ["tune speed", "speed n                    # inside tune ... end: frames per tracker row (1-255)\nspeed 6                    # 50 Hz PAL: 6 frames = 120 ms per row", "Tracker speed of a tune block."],
   ["org", "org address", "Continues subroutine/function code at the given address, leaving a gap for data."],
-  ["load sid", "load sid \"file.sid\" [at address]", "Embeds a PSID/RSID file at compile time."],
-  ["music", "music play | stop | pause | resume", "Controls music loaded with load sid."],
+  ["load sid", "load sid \"tune.sid\"            # embed SID music at its native load address\nload sid \"tune.sid\", $2000     # override: embed at $2000 regardless of SID header\n\nmusic play                     # simplest: CIA1 50 Hz IRQ plays it\nsys sid_init, 0                # or manually: init sub-tune 0 (A = song) ...\nsys sid_play                   # ... and call sid_play once per frame (e.g. from an irq)", "Embeds a PSID/RSID file at compile time."],
+  ["music", "load sid \"tune.sid\"         # or a tune ... end block (defines sid_init / sid_play)\n\nmusic play                  # initialise sub-tune 0 + start CIA1 50 Hz IRQ\nmusic play 1                # start from sub-tune 1 (song number 0-based)\nmusic stop                  # stop playback + zero all 25 SID registers ($D400-$D418)\nmusic pause                 # disable CIA1 timer A IRQ (music freezes, SID unchanged)\nmusic resume                # re-enable CIA1 timer A IRQ (continues from pause point)", "Controls music loaded with load sid or defined by a tune block."],
   ["irq", "irq handler [, raster_line]", "Installs a raster interrupt handler at line 0 or the given raster line."],
   ["irq_exit", "irq_exit", "Exits a raster IRQ through the KERNAL."],
   ["poke", "poke address, value\npoke16 address, value", "Writes an 8-bit or 16-bit value to memory."],
@@ -6909,7 +6990,7 @@ const _UB_COMMAND_REFERENCE = [
   ["asm", "asm byte [, byte ...]\nasm {\n  6502 instructions\n}", "Embeds raw bytes or a full inline 6502 assembly block."],
   ["include", "include \"file.ub\"", "Includes another UltimateBasic source file."],
   ["incbin", "incbin \"file.bin\"\nincbin \"file.bin\", $address [, skip [, length]]", "Embeds binary data inline or at an absolute address."],
-  ["data", "data value [, value ...]\nread variable", "Defines compile-time byte data and reads it sequentially."],
+  ["data", "data 1, 2, 3, 255           # constant byte table (read stream)\nread variable               # load the next data byte into variable\n\nvar sinus = array(8)\ndata sinus: 128, 218, 255, 218   # initial contents of a declared array (UB 1.5.8+)\ndata sinus: 128, 37, 0, 37       # further lines continue; index as sinus[i]", "Defines compile-time byte data and reads it sequentially."],
   ["reu", "reu stash|fetch|swap c64_address, bank, reu_address, length", "Transfers memory using the REU DMA controller."],
   ["turbo", "turbo on | off\nspeed mhz", "Controls C64 Ultimate/SuperCPU acceleration."],
   ["wait", "wait transitions\nwait raster raster_line", "Waits for raster transitions or for a specific raster line."],
@@ -16315,6 +16396,32 @@ function _updateShow({ title, msg, install = false, skip = false, closeLabel = t
   if (!els.dlg.open) els.dlg.showModal();
 }
 
+// UB statusbar jelző: "Naprakész (vX)" vagy kattintható "Frissítés elérhető: vY".
+function _updateRenderStatusbar() {
+  const el = document.getElementById("ub-update-status");
+  const info = _updateInfo;
+  if (!el) return;
+  if (!info?.supported || !info.latestVersion) { el.hidden = true; return; }
+  const available = !!info.updateAvailable;
+  el.hidden = false;
+  el.classList.toggle("ub-update-status--available", available);
+  el.textContent = available
+    ? tf("updateStatusAvailable", { latest: info.latestVersion })
+    : tf("updateStatusUpToDate", { version: info.currentVersion });
+}
+
+function _updateShowAvailable() {
+  const info = _updateInfo;
+  if (!info?.updateAvailable) return;
+  _updateShow({
+    title: t("updateAvailableTitle"),
+    msg: tf("updateAvailableMsg", { latest: info.latestVersion, current: info.currentVersion }),
+    install: true,
+    skip: true,
+    closeLabel: t("updateLater")
+  });
+}
+
 async function checkForAppUpdate({ silent = false } = {}) {
   if (_updateBusy) return;
   if (!window.electronAPI?.checkForUpdate) {
@@ -16340,6 +16447,7 @@ async function checkForAppUpdate({ silent = false } = {}) {
   }
   _updateInfo = info;
   _updateSetProgress(null);
+  _updateRenderStatusbar();
 
   if (!info?.supported) {
     if (!silent) _updateShow({ title: t("checkForUpdate"), msg: t("updateUnsupported") });
@@ -16352,13 +16460,7 @@ async function checkForAppUpdate({ silent = false } = {}) {
   let skipped = "";
   try { skipped = localStorage.getItem(_UPDATE_SKIP_KEY) || ""; } catch (_) {}
   if (silent && skipped === info.latestVersion) return;
-  _updateShow({
-    title: t("updateAvailableTitle"),
-    msg: tf("updateAvailableMsg", { latest: info.latestVersion, current: info.currentVersion }),
-    install: true,
-    skip: true,
-    closeLabel: t("updateLater")
-  });
+  _updateShowAvailable();
 }
 
 async function _updateInstall() {
@@ -16407,6 +16509,7 @@ async function _updateInstall() {
     els.dlg?.close();
   });
   els.dlg?.addEventListener("cancel", e => { if (_updateBusy) e.preventDefault(); });
+  document.getElementById("ub-update-status")?.addEventListener("click", _updateShowAvailable);
 })();
 
 async function _tabClose(tabId) {
@@ -36679,7 +36782,12 @@ function _sidExportUbBlock() {
 }
 
 function _sidExportToUb() {
-  const txt = _sidExportUbBlock();
+  return _ubInsertOrCopy(_sidExportUbBlock());
+}
+
+// UB szöveg beszúrása a kurzor sorának elejére (UB módban), egyébként vágólapra.
+// true = beszúrva (a hívó zárhatja a dialógust).
+function _ubInsertOrCopy(txt) {
   if (!txt) return false;
   if (_isUltimateBasicEditorActive() && typeof ubEditor !== "undefined" && ubEditor) {
     const pos = ubEditor.selectionStart || 0;
@@ -37176,6 +37284,40 @@ function _cgFormatBytes() {
   return lines.join("\n");
 }
 
+/* UltimateBasic export: an initialised array (`data <name>: …`, UB 1.5.8+).
+ * 8-bit → array(N), 16-bit (0..320) → array_word(N); index it as name[i]. */
+function _cgUbName() {
+  let name = String(_CG_STATE.label || "table").toLowerCase().replace(/[^a-z0-9_]/g, "_");
+  if (!/^[a-z_]/.test(name)) name = "t_" + name;
+  if (_UB_KEYWORDS.has(name)) name += "_tbl";
+  return name;
+}
+
+function _cgExportUb() {
+  const s = _CG_STATE;
+  const samples = s.samples;
+  if (!samples || !samples.length) return "";
+  const name = _cgUbName();
+  const is16 = s.bits === 16;
+  const per = Math.max(1, s.perLine | 0);
+  const asHex = s.base === "hex";
+  const cell = v => asHex ? "$" + v.toString(16).toUpperCase().padStart(is16 ? 4 : 2, "0") : String(v);
+  const n = samples.length;
+  let minV = Infinity, maxV = 0;
+  for (const v of samples) { if (v < minV) minV = v; if (v > maxV) maxV = v; }
+  const curveName = _CG_CURVE_LABELS[s.curve] || s.curve;
+  const curveDesc = curveName + (s.combine ? " + " + (_CG_CURVE_LABELS[s.curve2] || s.curve2) + " (" + s.combineMode + " " + s.mix + "%)" : "");
+  const lines = [
+    "# Curve Editor - " + curveDesc + (is16 ? "  (16-bit)" : ""),
+    "# Range: " + minV + ".." + maxV + "   Count: " + n + "   Usage: " + name + "[i], i = 0.." + (n - 1),
+    "var " + name + " = " + (is16 ? "array_word(" : "array(") + n + ")"
+  ];
+  for (let i = 0; i < n; i += per) {
+    lines.push("data " + name + ": " + Array.from(samples.slice(i, i + per), cell).join(", "));
+  }
+  return lines.join("\n");
+}
+
 /* Build a complete, runnable demo program around the current table (sprite
  * init + raster-synced main loop + embedded table + ball sprite data).
  * Both modes look like the editor graph: X sweeps the full 0..320 width
@@ -37347,6 +37489,79 @@ function _cgExportDemoAsm() {
   ];
   ballRows.forEach((row) => lines.push("    .byte " + row));
   lines.push("    .byte $00");
+  return lines.join("\n");
+}
+
+const _CG_BALL_ROWS = [
+  "$00,$00,$00", "$00,$3C,$00", "$01,$FF,$80", "$07,$FF,$E0", "$0F,$FF,$F0",
+  "$1F,$FF,$F8", "$3F,$FF,$FC", "$3F,$FF,$FC", "$7F,$FF,$FE", "$7F,$FF,$FE",
+  "$7F,$FF,$FE", "$7F,$FF,$FE", "$7F,$FF,$FE", "$3F,$FF,$FC", "$3F,$FF,$FC",
+  "$1F,$FF,$F8", "$0F,$FF,$F0", "$07,$FF,$E0", "$01,$FF,$80", "$00,$3C,$00",
+  "$00,$00,$00"
+];
+
+/* Runnable UltimateBasic sprite demo around the current table (needs `data arr:`).
+ * 8-bit: the table drives sprite Y while X sweeps 0..320. 16-bit (0..320): the
+ * table drives sprite X natively while Y sweeps 0..200. The sweep is a
+ * multiply-free Bresenham step (acc += range; while acc >= N: pos++), one table
+ * entry per frame. Byte index → at most the first 256 entries are played. */
+function _cgExportDemoUb() {
+  const s = _CG_STATE;
+  if (!s.samples || !s.samples.length) return "";
+  const name = _cgUbName();
+  const n = s.samples.length;
+  const wrap = Math.min(256, n);
+  const is16 = s.bits === 16;
+  const range = is16 ? 200 : 320;
+  const curveName = _CG_CURVE_LABELS[s.curve] || s.curve;
+  const lines = [
+    "# Curve Editor demo - " + curveName + " (UltimateBasic, sprite 0)",
+    is16
+      ? "# The 16-bit table drives sprite X (0..320), Y sweeps down the screen."
+      : "# The table drives sprite Y, X sweeps across the screen (0..320).",
+    "# One table step per frame."
+  ];
+  if (n > 256) lines.push("# NOTE: table has " + n + " entries; the demo plays the first 256.");
+  lines.push(
+    "",
+    "color border 0",
+    "color bg 0",
+    "cls",
+    "",
+    "sprdef 0"
+  );
+  for (let i = 0; i < _CG_BALL_ROWS.length; i += 3) {
+    const row = _CG_BALL_ROWS.slice(i, i + 3).join(",  ");
+    lines.push("  " + row + (i + 3 < _CG_BALL_ROWS.length ? "," : ""));
+  }
+  lines.push(
+    "end",
+    "sprite color 0, 7",
+    "sprite on 0",
+    "",
+    _cgExportUb(),
+    "",
+    "var idx = 0",
+    "var v" + (is16 ? ": word" : "") + " = 0",
+    "var pos: word = 0      # linear sweep 0.." + range,
+    "var acc: word = 0      # Bresenham accumulator",
+    "loop",
+    "  wait raster 250",
+    "  v = " + name + "[idx]",
+    is16 ? "  sprite 0, v, pos" : "  sprite 0, pos, v",
+    "  idx = idx + 1",
+    "  acc = acc + " + range,
+    "  while acc >= " + wrap,
+    "    acc = acc - " + wrap,
+    "    pos = pos + 1",
+    "  end",
+    wrap === 256 ? "  if idx == 0 then" : "  if idx == " + wrap + " then",
+    ...(wrap === 256 ? [] : ["    idx = 0"]),
+    "    pos = 0",
+    "    acc = 0",
+    "  end",
+    "end"
+  );
   return lines.join("\n");
 }
 
@@ -37820,6 +38035,14 @@ function _cgWireDialog() {
     // Same shared key as Insert: the demo embeds the table, so it must also
     // replace a previously inserted standalone table (and vice versa).
     _cgInsertTagged(_cgExportDemoAsm(), _CG_INSERT_KEY, "cgDemoInserted");
+  });
+  document.getElementById("cg-export-ub")?.addEventListener("click", () => {
+    if (!_CG_STATE.samples) _cgGenerateSamples();
+    if (_ubInsertOrCopy(_cgExportUb())) _cgCloseDialog();
+  });
+  document.getElementById("cg-export-ub-demo")?.addEventListener("click", () => {
+    if (!_CG_STATE.samples) _cgGenerateSamples();
+    if (_ubInsertOrCopy(_cgExportDemoUb())) _cgCloseDialog();
   });
   // Close
   document.getElementById("cg-close")?.addEventListener("click", _cgCloseDialog);

@@ -13,25 +13,28 @@ const appJs = fs.readFileSync(path.join(__dirname, "..", "www", "app.js"), "utf8
 function loadCgCore() {
   const start = appJs.indexOf("const _CG_STATE = {");
   assert.notStrictEqual(start, -1, "Missing _CG_STATE");
-  const fnMarker = "function _cgExportDemoAsm(";
+  const fnMarker = "function _cgExportDemoUb(";
   const fnStart = appJs.indexOf(fnMarker);
-  assert.notStrictEqual(fnStart, -1, "Missing _cgExportDemoAsm");
+  assert.notStrictEqual(fnStart, -1, "Missing _cgExportDemoUb");
   let depth = 0, end = -1, seenBrace = false;
   for (let i = fnStart; i < appJs.length; i++) {
     const ch = appJs[i];
     if (ch === "{") { depth += 1; seenBrace = true; }
     else if (ch === "}") { depth -= 1; if (seenBrace && depth === 0) { end = i + 1; break; } }
   }
-  assert.notStrictEqual(end, -1, "Could not parse _cgExportDemoAsm");
+  assert.notStrictEqual(end, -1, "Could not parse _cgExportDemoUb");
   const src = appJs.slice(start, end);
-  const context = {};
+  // _cgExportUb avoids UB keywords; the real set lives far outside the slice.
+  const context = { _UB_KEYWORDS: new Set(["data", "print", "sprite"]) };
   vm.createContext(context);
   vm.runInContext(
     src + "\n; this._CG_STATE = _CG_STATE;" +
     " this._cgRefMax = _cgRefMax;" +
     " this._cgGenerateSamples = _cgGenerateSamples;" +
     " this._cgFormatBytes = _cgFormatBytes;" +
-    " this._cgExportDemoAsm = _cgExportDemoAsm;",
+    " this._cgExportDemoAsm = _cgExportDemoAsm;" +
+    " this._cgExportUb = _cgExportUb;" +
+    " this._cgExportDemoUb = _cgExportDemoUb;",
     context
   );
   return context;
@@ -215,4 +218,47 @@ test("demo export (16-bit, 256 entries) resets the X sweep on automatic wrap", (
   assert.match(demo, /sta xpos/);
   assert.match(demo, /sta xfrac/);
   assert.match(demo, /adc #\$40/);                   // X step lo of $0140 = 1.25 px/frame
+});
+
+test("UB export: 8-bit declares array(N) and fills it with data <name>: lines", () => {
+  const { ctx, state } = run({ ...DEFAULTS, count: 20, perLine: 8, base: "dec", label: "sinusTable" });
+  const lines = ctx._cgExportUb().split("\n");
+  assert.ok(lines.includes("var sinustable = array(20)"));
+  const data = lines.filter(l => l.startsWith("data sinustable: "));
+  assert.equal(data.length, 3);
+  const values = data.flatMap(l => l.slice("data sinustable: ".length).split(", ").map(Number));
+  assert.deepEqual(values, Array.from(state.samples));
+});
+
+test("UB export: 16-bit uses array_word and 4-digit hex", () => {
+  const { ctx } = run({ ...DEFAULTS, bits: 16, start: 0, end: 320, count: 4, base: "hex" });
+  const out = ctx._cgExportUb();
+  assert.match(out, /^var tbl = array_word\(4\)$/m);
+  assert.match(out, /^data tbl: \$0000, /m);
+});
+
+test("UB export: label is sanitised and never a UB keyword", () => {
+  assert.match(run({ ...DEFAULTS, label: "9 x-pos" }).ctx._cgExportUb(), /^var t_9_x_pos = array\(8\)$/m);
+  assert.match(run({ ...DEFAULTS, label: "Sprite" }).ctx._cgExportUb(), /^var sprite_tbl = array\(8\)$/m);
+});
+
+test("UB demo: 8-bit drives sprite Y, sweeps X over 320 and wraps 256 entries by overflow", () => {
+  const { ctx } = run({ ...DEFAULTS, count: 256, label: "wave" });
+  const demo = ctx._cgExportDemoUb();
+  assert.match(demo, /^sprdef 0$/m);
+  assert.match(demo, /^var wave = array\(256\)$/m);
+  assert.match(demo, /^  sprite 0, pos, v$/m);
+  assert.match(demo, /^  acc = acc \+ 320$/m);
+  assert.match(demo, /^  if idx == 0 then$/m);
+  assert.doesNotMatch(demo, /^    idx = 0$/m);
+});
+
+test("UB demo: 16-bit drives sprite X from a word table and wraps short tables explicitly", () => {
+  const { ctx } = run({ ...DEFAULTS, bits: 16, end: 320, count: 64 });
+  const demo = ctx._cgExportDemoUb();
+  assert.match(demo, /^var tbl = array_word\(64\)$/m);
+  assert.match(demo, /^var v: word = 0$/m);
+  assert.match(demo, /^  sprite 0, v, pos$/m);
+  assert.match(demo, /^  while acc >= 64$/m);
+  assert.match(demo, /^  if idx == 64 then$/m);
 });

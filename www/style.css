@@ -1261,7 +1261,7 @@ html[data-theme="commodore77"] .primary {
 
 .workspace {
   display: grid;
-  grid-template-columns: minmax(240px, 300px) minmax(0, var(--ws-program-fr, 500fr)) 14px minmax(0, var(--ws-output-fr, 500fr));
+  grid-template-columns: minmax(240px, 300px) minmax(260px, var(--ws-program-fr, 500fr)) 14px minmax(440px, var(--ws-output-fr, 500fr));
   gap: 0;
   align-items: stretch;
 }
@@ -5171,6 +5171,7 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 
 .app-confirm-buttons {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   justify-content: flex-end;
 }
@@ -5178,9 +5179,37 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 .app-confirm-buttons button {
   min-height: unset;
   padding: 8px 18px;
+  white-space: nowrap;
+}
+
+.update-dialog {
+  max-width: 520px;
 }
 
 .update-dialog .compile-error-title { margin: 0; }
+
+.ub-update-status {
+  margin-left: auto;
+  margin-right: 12px;
+  min-height: 0;
+  padding: 1px 6px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  font-size: inherit;
+  cursor: default;
+}
+.ub-update-status[hidden] { display: none; }
+.ub-update-status--available {
+  color: var(--primary);
+  border-color: color-mix(in srgb, var(--primary) 45%, transparent);
+  cursor: pointer;
+}
+.ub-update-status--available:hover {
+  background: color-mix(in srgb, var(--primary) 14%, transparent);
+}
 .update-progress-wrap { display: flex; flex-direction: column; gap: 6px; }
 .update-dialog [hidden] { display: none !important; }
 .update-progress-track {

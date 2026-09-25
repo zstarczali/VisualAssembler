@@ -2,9 +2,19 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.4.6**
+**Current version: v2.4.7**
 
-## What's New in v2.4.6
+## What's New in v2.4.7
+
+- **In-app updates** — **Menu → Check for Update** now checks c64va.tech for a newer release, and on confirmation downloads the installer for your platform (with a progress bar) and installs it: the Windows installer runs in passive mode and restarts the app, on macOS the app bundle is replaced from the DMG, and on Linux the AppImage is swapped or the `.deb`/`.rpm` is installed via `pkexec`. The check also runs quietly at every start; **Skip this version** silences a release you don't want.
+- **Update status in the Ultimate Basic status bar** — shows **Up to date (vX)**, or a highlighted **Update available: vY** that opens the update dialog when clicked.
+- **Curve Editor → UltimateBasic export** — **Files → Export to UltimateBasic** writes the table as an initialised UB array (`var name = array(N)` / `array_word(N)` for 16-bit, followed by `data name: …` lines). **Files → Export UltimateBasic demo** produces a ready-to-run sprite demo: a ball sprite follows the curve (8-bit tables drive sprite Y, 16-bit 0..320 tables drive sprite X). Both are inserted at the UB editor cursor, or copied to the clipboard outside UB mode.
+- **Ultimate Basic 1.5.8 bundled** — new **`data <array>: v, …`** form fills a declared array at program start (several lines continue where the previous one stopped, word arrays take 16-bit values) without touching the `read` stream.
+- **Layout fits the window** — the editor panels now take exactly the remaining window height, so the app no longer shows a page-level vertical scrollbar; the ASM output panel can no longer be squeezed below 440 px; the working-folder path sits in a subtle badge above the ASM view title and uses the same badge style in the Expert and Ultimate Basic toolbars.
+- **Ultimate Basic command reference** — `tune` and `music` now show full, commented examples (cell format, effects, player notes, `music play N`), `inst`, `order`, `pat` and the tune `speed` have their own entries, `data` shows the new array form, and the `load sid` syntax is corrected (`load sid "tune.sid", $2000`).
+- **Dialog buttons** no longer break their labels onto two lines.
+
+## Earlier: v2.4.6
 
 - **SID Editor → UltimateBasic export** — **Files → Export to UltimateBasic** writes the tune as a `tune ... end` block (instruments, order list and pattern rows as text) followed by `music play`, and inserts it at the cursor of the Ultimate Basic editor (outside UB mode it is copied to the clipboard). The UltimateBasic compiler builds a zero-page-free player from it at compile time, so `music play` / `music stop` control the tune and nothing collides with UB variables. Vibrato, slide, note-cut and speed effects are supported; up to 8 patterns, any order-list length. Requires an UltimateBasic compiler with `tune` support.
 - **Ultimate Basic language update** — syntax highlighting and the command reference now cover **`sfx`** (non-blocking SID effect: `sfx channel, freq, frames [, wave]`), **`org`** (continue sub/fn code at an address, leaving a zero-filled gap that can hold `incbin` data), **`charset on` / `charset off`** (switch the VIC-II to the RAM character set and back) and **`incbin` slicing** (`incbin "font.prg", $3C00, 2` skips the first bytes, an optional fourth argument limits the length).

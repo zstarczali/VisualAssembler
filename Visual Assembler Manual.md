@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.4.6**
+**Version 2.4.7**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.4.7 Highlights](#version-247-highlights)
     - [Version 2.4.6 Highlights](#version-246-highlights)
     - [Version 2.4.5 Highlights](#version-245-highlights)
     - [Version 2.4.3 Highlights](#version-243-highlights)
@@ -157,6 +158,17 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Map Editor (Multilayer Tilemaps)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve Editor](#curve-editor)
+
+---
+
+## Version 2.4.7 Highlights
+
+- **In-app updates** — **Menu → Check for Update** checks c64va.tech for a newer release and, on confirmation, downloads the installer for your platform with a progress bar and installs it. See [In-app updates](#in-app-updates). The check also runs quietly at every start.
+- **Update status in the Ultimate Basic status bar** — shows **Up to date (vX)**, or a highlighted **Update available: vY** that opens the update dialog when clicked.
+- **Curve Editor → UltimateBasic export** — **Files → Export to UltimateBasic** writes the table as an initialised UB array; **Files → Export UltimateBasic demo** produces a ready-to-run UB sprite demo. See [Curve Editor](#curve-editor).
+- **Ultimate Basic 1.5.8 bundled** — the new **`data <array>: v, …`** form fills a declared `array` / `array_word` at program start (further lines continue where the previous one stopped, word arrays take 16-bit values) without touching the `read` stream.
+- **Layout fits the window** — the editor panels take exactly the remaining window height, so the app no longer shows a page-level vertical scrollbar; the ASM output panel keeps a 440 px minimum width; the working-folder path sits in a subtle badge above the ASM view title and uses the same badge in the Expert and Ultimate Basic toolbars. Dialog button labels no longer wrap.
+- **Ultimate Basic command reference** — `tune` and `music` show full, commented examples (cell format, effects, player notes, `music play N`); `inst`, `order`, `pat` and the tune `speed` have their own entries; `data` shows the new array form; the `load sid` syntax is corrected (`load sid "tune.sid", $2000`).
 
 ---
 
@@ -408,7 +420,24 @@ Project snapshots are stored as on-disk sidecar JSON files, not in localStorage.
 - **Hardware Settings → Snapshot → Automatic snapshot saving** controls whether the app creates snapshots automatically after edits. The default delay is about 2.5 seconds, and the setting applies per tab.
 - If a project has not been saved yet, snapshots are stored in the app config directory until the project gets a file path.
 | **Knowledge Base** | Reference links (6502 opcodes, C64 KERNAL, memory map, colors) |
-| **Check for Update** | Open the itch.io page to check for a newer release |
+| **Check for Update** | Check c64va.tech for a newer release and download / install it — see [In-app updates](#in-app-updates) |
+
+### In-app updates
+
+**Menu → Check for Update** looks up the newest release on c64va.tech (it reads the download links for your platform) and compares it with the running version:
+
+- **Up to date** — the dialog says so.
+- **Update available** — choose **Update now** to download the installer (a progress bar shows the download), **Later** to close the dialog, or **Skip this version** to stop the automatic check from offering that release again.
+
+After the download the app installs the update and restarts:
+
+| Platform | What happens |
+|---|---|
+| **Windows** | The setup runs in passive mode (progress only) and starts the new version when it finishes. A per-machine install asks for administrator rights (UAC). |
+| **macOS** | The DMG is mounted and the app bundle is replaced in place, then the new version starts. If the app folder is not writable, the DMG is simply opened so you can drag the app over. |
+| **Linux** | An AppImage is swapped for the new one. A `.deb` / `.rpm` installation is updated with `pkexec` (you are asked for your password); without `pkexec` the package is opened in your software installer. |
+
+If there are unsaved tabs, the app asks before closing. The same check runs quietly a few seconds after every start: nothing is shown unless a newer version exists. The result also appears in the Ultimate Basic status bar — **Up to date (vX)**, or a highlighted **Update available: vY** that opens the update dialog.
 
 ### Workspaces
 
@@ -3764,6 +3793,8 @@ Every Copy / Insert output starts with a header comment documenting the curve, a
 | **Save curve (.bin)…** | Saves the raw table bytes exactly as the C64 would read them via `INCBIN`. 16-bit: N lo bytes followed by N hi bytes. |
 | **Load curve (.bin)…** | Loads raw table bytes back into the editor, interpreted per the current bit depth (16-bit: first half lo, second half hi). The loaded table is shown as-is until any curve control regenerates a fresh curve. |
 | **Export demo to blocks** | Appends a complete, runnable sprite demo: sprite init, raster-synced main loop, the embedded table, and ball sprite data. X sweeps 0..320 in 8.8 fixed point with the `$D010` MSB while the table drives sprite Y — exactly matching the editor preview. Re-export replaces the previous Curve Editor insert. |
+| **Export to UltimateBasic** | Writes the table as an initialised Ultimate Basic array — `var name = array(N)` (or `array_word(N)` for 16-bit) followed by `data name: …` lines — and inserts it at the UB editor cursor (outside UB mode it is copied to the clipboard). The label becomes a valid, lower-case UB name; index the table as `name[i]`. Needs Ultimate Basic 1.5.8+ (bundled). |
+| **Export UltimateBasic demo** | Produces a complete, ready-to-run UB program: a ball sprite (`sprdef 0`), the table, and a raster-synced loop that plays one table entry per frame. 8-bit tables drive sprite **Y** while X sweeps 0..320; 16-bit (0..320) tables drive sprite **X** while Y sweeps 0..200. Tables longer than 256 entries play their first 256. |
 
 **Matching the preview on the C64:** the preview reads the table **linearly, looping 0 → N-1 → 0, one value per frame**. To reproduce it exactly, drive the table the same way (increment the index once per frame, wrap at the table length). A ping-pong or partial-range playback will move differently even though the byte values are identical. See `samples/curve-new-demo.asm` for a working 16-bit sprite-X example.
 
