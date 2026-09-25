@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>C64 Visual Assembler — Commodore 64 IDE</title>
   <meta name="description" content="C64 Visual Assembler is a modern Commodore 64 IDE for building 6502 assembly and Ultimate Basic programs with visual blocks, a full text editor, live ASM output and VICE integration.">
-  <meta name="keywords" content="Commodore 64 IDE, C64 IDE, C64 programming, 6502 assembler, Commodore 64 development, Ultimate Basic, VICE">
+  <meta name="keywords" content="Commodore 64 IDE, c64 ide, Commodore 64 Ultimate IDE, Commodore Ultimate Basic, Commodore 64 Assembly, Commodore 64 assembler, C64 programming, 6502 assembler, Commodore 64 development, Ultimate Basic, VICE">
   <meta property="og:title" content="C64 Visual Assembler — Commodore 64 IDE">
   <meta property="og:description" content="A modern Commodore 64 IDE for visual 6502 assembly, full text coding, Ultimate Basic and real C64 hardware.">
   <meta property="og:type" content="website">
@@ -18,7 +18,8 @@
       "name": "C64 Visual Assembler",
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "Windows, macOS, Linux",
-      "description": "A modern Commodore 64 IDE for visual 6502 assembly, full text programming, Ultimate Basic, VICE and real C64 hardware."
+      "description": "A modern Commodore 64 IDE for visual 6502 assembly, full text programming, Ultimate Basic, VICE and real C64 hardware.",
+      "keywords": "Commodore 64 IDE, c64 ide, Commodore 64 Ultimate IDE, Commodore Ultimate Basic, Commodore 64 Assembly, Commodore 64 assembler"
     }
   </script>
   <style>
@@ -888,7 +889,7 @@
     }
 
     .dl-inner {
-      max-width: 800px;
+      max-width: 1120px;
       margin: 0 auto;
       text-align: center
     }
@@ -969,6 +970,107 @@
       color: var(--txt-dim);
       margin-top: 28px;
       letter-spacing: 2px
+    }
+
+    .download-groups {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+      margin-top: 32px;
+      text-align: left
+    }
+
+    .download-group {
+      border: 1px solid var(--brd);
+      background: rgba(0, 0, 0, .22);
+      padding: 22px
+    }
+
+    .download-group:last-child {
+      grid-column: 1 / -1
+    }
+
+    .download-group-title {
+      color: var(--txt-hi);
+      font-family: 'C64Pro', monospace;
+      font-size: 13px;
+      letter-spacing: 2px;
+      margin-bottom: 16px
+    }
+
+    .download-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px
+    }
+
+    .download-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 46px;
+      padding: 10px 12px;
+      border: 1px solid var(--brd);
+      color: var(--txt);
+      font-size: 10px;
+      letter-spacing: 1px;
+      line-height: 1.4
+    }
+
+    .download-item::after {
+      content: '↓';
+      color: var(--ylw);
+      font-size: 15px
+    }
+
+    .download-item:hover {
+      border-color: var(--ylw);
+      color: var(--txt-hi);
+      background: rgba(184, 199, 111, .06)
+    }
+
+    .download-picker-label {
+      margin: 0 0 8px;
+      color: var(--txt-dim);
+      font-size: 10px;
+      letter-spacing: 1px
+    }
+
+    .platform-choices {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 16px
+    }
+
+    .platform-choice {
+      min-height: 38px;
+      padding: 8px;
+      border: 1px solid var(--brd);
+      background: transparent;
+      color: var(--txt-dim);
+      font-family: 'C64Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1px;
+      cursor: pointer
+    }
+
+    .platform-choice:hover,
+    .platform-choice[aria-pressed="true"] {
+      border-color: var(--ylw);
+      color: var(--ylw);
+      background: rgba(184, 199, 111, .08)
+    }
+
+    .download-variant {
+      display: none;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px
+    }
+
+    .download-variant.is-active {
+      display: grid
     }
 
     /* ── MERCH ── */
@@ -1524,6 +1626,23 @@
       .nav-brand {
         font-size: 11px;
         letter-spacing: 1px
+      }
+
+      .download-groups,
+      .download-list {
+        grid-template-columns: 1fr
+      }
+
+      .download-variant {
+        grid-template-columns: 1fr
+      }
+
+      .download-group:last-child {
+        grid-column: auto
+      }
+
+      .dl-box {
+        padding: 42px 18px
       }
 
       .hero {
@@ -2494,23 +2613,71 @@
         <div class="sec-s" style="text-align:center;margin-bottom:16px">// DOWNLOAD</div>
         <h2 class="sec-t" style="text-align:center">C64 VISUAL ASSEMBLER<br><span style="color:var(--ylw)">V2.4.6 —
             FREE</span></h2>
-        <p class="sec-d" style="text-align:center;margin:0 auto 8px;max-width:460px">Desktop app for Windows, macOS and
-          Linux. Requires Node.js and Rust to build from source, or download a prebuilt installer.</p>
-        <p style="text-align:center;margin:16px auto 20px"><a class="btn" href="https://github.com/zstarczali/VisualAssembler/releases/tag/2.4.6" target="_blank" rel="noopener" style="font-size:12px;padding:10px 22px;border-color:var(--ylw);color:var(--ylw)">★ LATEST RELEASE 2.4.5 ON GITHUB</a></p>
-        <div class="dl-plats">
-          <a class="dl-p btn" href="#" onclick="openItch();return false" style="border-color:var(--brd-hi)"><span
-              style="color:var(--ylw)">■</span> WINDOWS</a>
-          <a class="dl-p btn" href="#" onclick="openItch();return false" style="border-color:var(--brd-hi)"><span
-              style="color:var(--ylw)">■</span> MACOS</a>
-          <a class="dl-p btn" href="#" onclick="openItch();return false" style="border-color:var(--brd-hi)"><span
-              style="color:var(--ylw)">■</span> LINUX</a>
+        <p class="sec-d">Download the ready-to-use Visual Assembler installer for your system, Ultimate Basic command-line packages, manuals and example projects directly from this site.</p>
+        <div class="download-groups">
+          <div class="download-group">
+            <div class="download-group-title">VISUAL ASSEMBLER</div>
+            <div class="download-picker" data-download-picker>
+              <p class="download-picker-label">1. SELECT YOUR PLATFORM</p>
+              <div class="platform-choices" role="group" aria-label="Visual Assembler platform">
+                <button class="platform-choice" type="button" data-platform="windows" aria-pressed="true">WINDOWS</button>
+                <button class="platform-choice" type="button" data-platform="macos" aria-pressed="false">MACOS</button>
+                <button class="platform-choice" type="button" data-platform="linux" aria-pressed="false">LINUX</button>
+              </div>
+              <p class="download-picker-label">2. SELECT YOUR PROCESSOR / PACKAGE</p>
+              <div class="download-variant is-active" data-platform="windows">
+                <a class="download-item" href="downloads/VA/C64%20Visual%20Assembler_2.4.6_x64-setup.exe" download>INTEL / AMD X64 INSTALLER</a>
+                <a class="download-item" href="downloads/VA/C64%20Visual%20Assembler_2.4.6_arm64-setup.exe" download>WINDOWS ARM64 INSTALLER</a>
+              </div>
+              <div class="download-variant" data-platform="macos">
+                <a class="download-item" href="downloads/VA/C64%20Visual%20Assembler_2.4.6_x64.dmg" download>INTEL MAC DMG</a>
+                <a class="download-item" href="downloads/VA/C64%20Visual%20Assembler_2.4.6_aarch64.dmg" download>APPLE SILICON DMG</a>
+              </div>
+              <div class="download-variant" data-platform="linux">
+                <a class="download-item" href="downloads/VA/C64%20Visual%20Assembler_2.4.6_amd64.AppImage" download>APPIMAGE X64</a>
+                <a class="download-item" href="downloads/VA/C64%20Visual%20Assembler_2.4.6_amd64.deb" download>DEBIAN / UBUNTU X64</a>
+                <a class="download-item" href="downloads/VA/C64%20Visual%20Assembler-2.4.6-1.x86_64.rpm" download>FEDORA / RPM X64</a>
+              </div>
+            </div>
+          </div>
+          <div class="download-group">
+            <div class="download-group-title">ULTIMATE BASIC</div>
+            <div class="download-picker" data-download-picker>
+              <p class="download-picker-label">1. SELECT YOUR PLATFORM</p>
+              <div class="platform-choices" role="group" aria-label="Ultimate Basic platform">
+                <button class="platform-choice" type="button" data-platform="windows" aria-pressed="true">WINDOWS</button>
+                <button class="platform-choice" type="button" data-platform="macos" aria-pressed="false">MACOS</button>
+                <button class="platform-choice" type="button" data-platform="linux" aria-pressed="false">LINUX</button>
+              </div>
+              <p class="download-picker-label">2. SELECT YOUR PROCESSOR</p>
+              <div class="download-variant is-active" data-platform="windows">
+                <a class="download-item" href="downloads/UB/ultimate-basic-windows-x64.zip" download>INTEL / AMD X64</a>
+                <a class="download-item" href="downloads/UB/ultimate-basic-windows-arm64.zip" download>WINDOWS ARM64</a>
+              </div>
+              <div class="download-variant" data-platform="macos">
+                <a class="download-item" href="downloads/UB/ultimate-basic-macos-x64.zip" download>INTEL MAC</a>
+                <a class="download-item" href="downloads/UB/ultimate-basic-macos-arm64.zip" download>APPLE SILICON</a>
+              </div>
+              <div class="download-variant" data-platform="linux">
+                <a class="download-item" href="downloads/UB/ultimate-basic-linux-x64.zip" download>LINUX X64</a>
+              </div>
+            </div>
+          </div>
+          <div class="download-group">
+            <div class="download-group-title">MANUALS &amp; EXAMPLES</div>
+            <div class="download-list">
+              <a class="download-item" href="downloads/VA/Visual%20Assembler%20Manual.pdf" download>VISUAL ASSEMBLER MANUAL</a>
+              <a class="download-item" href="downloads/VA/Visual%20Assembler%20Manual.hu.pdf" download>HUNGARIAN MANUAL</a>
+              <a class="download-item" href="downloads/VA/MANUAL.pdf" download>ULTIMATE BASIC MANUAL</a>
+              <a class="download-item" href="downloads/VA/va-samples.zip" download>VISUAL ASSEMBLER SAMPLES</a>
+              <a class="download-item" href="downloads/VA/ub-examples.zip" download>ULTIMATE BASIC EXAMPLES</a>
+              <a class="download-item" href="downloads/VA/README.txt" download>README</a>
+              <a class="download-item" href="downloads/VA/whatnews.txt" download>WHAT'S NEW</a>
+            </div>
+          </div>
         </div>
         <div class="dl-sub">OPEN SOURCE — MIT LICENSE — BUILT WITH TAURI + RUST</div>
         <div style="margin-top:20px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
-          <a class="btn btn-o" href="https://zstarczali.itch.io/visual-assembler-commodore-64" target="_blank"
-            rel="noopener" style="font-size:12px;padding:10px 22px">⬡ VIEW ON ITCH.IO</a>
-          <a class="btn btn-o" href="https://github.com/zstarczali/VisualAssembler" target="_blank" rel="noopener"
-            style="font-size:12px;padding:10px 22px">► VIEW ON GITHUB</a>
           <a class="btn facebook-link" href="https://www.facebook.com/groups/4435397303367080/" target="_blank"
             rel="noopener" aria-label="Join the Visual Assembler Facebook group"
             style="font-size:12px;padding:10px 22px">
@@ -2683,12 +2850,11 @@
       <div>
         <div class="sec-s">// WRITTEN IN VISUAL ASSEMBLER &mdash; IN ULTIMATE BASIC</div>
         <h2 class="sec-t" id="tetris-title">TRICKY TETRIS<br><span style="color:var(--ylw)">A C64 GAME</span></h2>
-        <p class="sec-d">Tricky Tetris is a Commodore 64 take on the falling-blocks classic, written entirely in <b>Ultimate Basic</b>, inside <b>C64 Visual Assembler</b> &mdash; the same editor you can download here. Grab it on itch.io and play it on real hardware or in an emulator.</p>
-        <a class="btn btn-y" href="https://zstarczali.itch.io/tricy-tetris" target="_blank" rel="noopener">► PLAY ON ITCH.IO</a>
+        <p class="sec-d">Tricky Tetris is a Commodore 64 take on the falling-blocks classic, written entirely in <b>Ultimate Basic</b>, inside <b>C64 Visual Assembler</b> &mdash; the same editor you can download here and use for projects targeting real hardware or an emulator.</p>
       </div>
-      <a class="kff2-cart-shot" href="https://zstarczali.itch.io/tricy-tetris" target="_blank" rel="noopener" aria-label="Open Tricky Tetris on itch.io">
+      <div class="kff2-cart-shot">
         <img src="uploads/tricky.webp" alt="Tricky Tetris running on a Commodore 64" width="1536" height="1024" loading="lazy">
-      </a>
+      </div>
     </div>
   </section>
 
@@ -2702,7 +2868,6 @@
           an octopus having to save his world from an unexpected evil's thirst for power.</p>
         <a class="btn btn-o" href="https://www.owlycode.tech" target="_blank" rel="noopener">► VISIT OWLYCODE.TECH</a>
       </div>
-      <a class="btn btn-o octopulous-play" href="https://therealowlycode.itch.io/octopulous" target="_blank" rel="noopener">► PLAY OCTOPULOUS ON ITCH.IO</a>
     </div>
   </section>
 
@@ -2723,12 +2888,6 @@
   </footer>
 
   <script>
-    function openItch() {
-      const w = 900, h = 700, l = Math.round((screen.width - w) / 2), t = Math.round((screen.height - h) / 2);
-      window.open('https://zstarczali.itch.io/visual-assembler-commodore-64/purchase', 'itch_dl',
-        'width=' + w + ',height=' + h + ',left=' + l + ',top=' + t + ',toolbar=0,menubar=0,location=0,status=0,scrollbars=1');
-    }
-
     (() => {
       const nav = document.querySelector('nav');
       const btn = nav.querySelector('.nav-toggle');
@@ -2742,6 +2901,20 @@
       document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
       window.addEventListener('resize', () => { if (window.innerWidth > 1500) setOpen(false); });
     })();
+
+    document.querySelectorAll('[data-download-picker]').forEach(picker => {
+      picker.querySelectorAll('.platform-choice').forEach(button => {
+        button.addEventListener('click', () => {
+          const platform = button.dataset.platform;
+          picker.querySelectorAll('.platform-choice').forEach(option => {
+            option.setAttribute('aria-pressed', String(option === button));
+          });
+          picker.querySelectorAll('.download-variant').forEach(variant => {
+            variant.classList.toggle('is-active', variant.dataset.platform === platform);
+          });
+        });
+      });
+    });
 
     function showTab(id) {
       document.querySelectorAll('.tab').forEach(t => {
