@@ -167,6 +167,7 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
 
 - **Nowe makro KOALA** — `.koala "picture.koa"` (opcjonalnie `, $2000`) ładuje obrazek Koala Painter i wyświetla go za pomocą 86-bajtowej procedury wyświetlania. Zobacz [KOALA](#koala).
 - **Import/eksport plików Koala w edytorze Hires** — **Pliki → Importuj pliki Koala (.koa)…** / **Eksportuj pliki Koala (.koa)…** (standardowy plik 10003-bajtowy; zdjęcia w wysokiej rozdzielczości są podczas eksportu redukowane do wielokolorowych). Pliki `.koa` / `.kla` są również rozpoznawane przez **Importuj obraz / .bin**.
+- **W pakiecie Ultimate Basic 1.5.9 ** — nowy `łańcuch „PLIK” [, urządzenie]` (ładuje inny program nad działającym i URUCHOM go); `ładowanie „PLIK”` ładuje pod adres pliku, `ładowanie „PLIK”, addr` do `addr`; poprawki błędów D64. `łańcuch` jest podświetlony i wymieniony w odniesieniu do poleceń.
 - **Status aktualizacji na pasku stanu eksperta** — ten sam wskaźnik *Aktualny* / klikalny *Dostępna aktualizacja* co w trybie Ultimate Basic.
 - **Okna dialogowe zapisu** oferują własny typ pliku (np. *KOA*) zamiast *Binarny (\*.bin)*.
 - **Bardziej kompleksowa kontrola aktualizacji** — lista instalatorów jest opublikowana na stronie c64va.tech/downloads/VA/, więc kontrola działa z nową stroną pobierania; pomocnik aktualizacji systemu Linux nie dziedziczy już ścieżek bibliotek AppImage.

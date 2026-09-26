@@ -6202,6 +6202,7 @@ const ubCommandDescriptionsEn = {
   "print#": "Writes values to an open logical file.",
   "load": "Loads a disk file at its native or an overridden address.",
   "save": "Saves a memory range to device 8 through the KERNAL.",
+  "chain": "Loads another program to its own load address (normally $0801, over the running program) and RUNs it, as if LOAD\"FILE\",8,1 and RUN had been typed; for boot / title programs. The I/O is reset first (VIC IRQs off, SID volume 0, IOINIT, RESTOR), so music and custom IRQs stop, while the screen stays as it is. Without a device the drive the program came from is used. If the file cannot be loaded, the program continues after chain. The file name must be a string literal of 1-16 characters.",
   "memcopy": "Copies a block of memory.",
   "drawmem": "Copies a packed 2-D rectangle to strided destination memory.",
   "map": "Loads, draws, and modifies character tile maps.",
@@ -6321,6 +6322,7 @@ const ubCommandDescriptionsHu = {
   "print#": "Értékeket ír ki egy megnyitott logikai fájlba.",
   "load": "Lemezfájlt tölt be az eredeti vagy felülbírált memóriacímre.",
   "save": "Memóriatartományt ment a 8-as meghajtóra a KERNAL segítségével.",
+  "chain": "Egy másik programot tölt be a saját betöltési címére (általában $0801, a futó program fölé), és elindítja, mintha LOAD\"FILE\",8,1 és RUN lett volna begépelve; boot / címképernyő programokhoz. Előtte alaphelyzetbe állítja az I/O-t (VIC IRQ ki, SID hangerő 0, IOINIT, RESTOR), így a zene és az egyedi IRQ-k leállnak, a képernyő viszont megmarad. Eszközszám nélkül arról a meghajtóról tölt, ahonnan a program indult. Ha a fájl nem tölthető be, a program a chain utáni utasítással folytatódik. A fájlnév 1-16 karakteres string literál.",
   "memcopy": "Átmásol egy memóriablokkot a forráscímről a célcímre.",
   "drawmem": "Tömör 2D téglalap alakú memóriaterületet másol át sorléptetéses (strided) célmemóriába.",
   "map": "Karakteres csempetérképeket tölt be, rajzol ki és módosít (.ubmap).",
@@ -6440,6 +6442,7 @@ const ubCommandDescriptionsEs = {
   "print#": "Escribe valores en un archivo lógico abierto.",
   "load": "Carga un archivo de disco en su dirección nativa o personalizada.",
   "save": "Guarda un rango de memoria en el dispositivo 8 mediante el KERNAL.",
+  "chain": "Carga otro programa en su propia dirección de carga (normalmente $0801, sobre el programa en ejecución) y lo ejecuta con RUN, como si se hubiera tecleado LOAD\"FILE\",8,1 y RUN; para programas de arranque / título. Antes reinicia la E/S (IRQ del VIC desactivadas, volumen del SID a 0, IOINIT, RESTOR), así que la música y las IRQ propias se detienen, mientras la pantalla se conserva. Sin dispositivo usa la unidad desde la que se cargó el programa. Si el archivo no se puede cargar, el programa continúa tras chain. El nombre debe ser un literal de 1-16 caracteres.",
   "memcopy": "Copia un bloque de memoria.",
   "drawmem": "Copia un rectángulo 2D empaquetado a una memoria de destino con paso (stride).",
   "map": "Carga, dibuja y modifica mapas de casillas de caracteres.",
@@ -6559,6 +6562,7 @@ const ubCommandDescriptionsDe = {
   "print#": "Schreibt Werte in eine geöffnete logische Datei.",
   "load": "Lädt eine Datei von Diskette an ihre native oder eine angegebene Adresse.",
   "save": "Speichert einen Speicherbereich über das KERNAL auf Gerät 8.",
+  "chain": "Lädt ein anderes Programm an seine eigene Ladeadresse (meist $0801, über das laufende Programm) und startet es mit RUN, als wären LOAD\"FILE\",8,1 und RUN eingetippt worden; für Boot-/Titelprogramme. Vorher wird die I/O zurückgesetzt (VIC-IRQs aus, SID-Lautstärke 0, IOINIT, RESTOR), Musik und eigene IRQs stoppen, der Bildschirm bleibt erhalten. Ohne Geräteangabe wird das Laufwerk benutzt, von dem das Programm kam. Lässt sich die Datei nicht laden, läuft das Programm nach chain weiter. Der Dateiname muss ein String-Literal mit 1-16 Zeichen sein.",
   "memcopy": "Kopiert einen Speicherblock.",
   "drawmem": "Kopiert ein gepacktes 2D-Rechteck in Zielspeicher mit Zeilensprung (Stride).",
   "map": "Lädt, zeichnet und ändert Zeichen-Tilemaps.",
@@ -6678,6 +6682,7 @@ const ubCommandDescriptionsNl = {
   "print#": "Schrijft waarden naar een geopend logisch bestand.",
   "load": "Laadt een schijfbestand op het eigen of een aangepast adres.",
   "save": "Slaat een geheugengebied op naar apparaat 8 via de KERNAL.",
+  "chain": "Laadt een ander programma op zijn eigen laadadres (meestal $0801, over het lopende programma) en start het met RUN, alsof LOAD\"FILE\",8,1 en RUN waren ingetypt; voor boot-/titelprogramma's. Eerst wordt de I/O gereset (VIC-IRQ's uit, SID-volume 0, IOINIT, RESTOR), dus muziek en eigen IRQ's stoppen, terwijl het scherm blijft staan. Zonder apparaat wordt de drive gebruikt waarvan het programma kwam. Kan het bestand niet worden geladen, dan gaat het programma verder na chain. De bestandsnaam moet een string-literal van 1-16 tekens zijn.",
   "memcopy": "Kopieert een geheugenblok.",
   "drawmem": "Kopiert een compacte 2D-rechthoek naar bestemmingsgeheugen met rijstap (stride).",
   "map": "Laadt, tekent en bewerkt teken-tilemaps.",
@@ -6797,6 +6802,7 @@ const ubCommandDescriptionsPl = {
   "print#": "Zapisuje wartości do otwartego pliku logicznego.",
   "load": "Wczytuje plik z dysku pod jego własnym lub nadpisanym adresem.",
   "save": "Zapisuje zakres pamięci na urządzenie 8 przez KERNAL.",
+  "chain": "Wczytuje inny program pod jego własny adres ładowania (zwykle $0801, na miejsce działającego programu) i uruchamia go przez RUN, jakby wpisano LOAD\"FILE\",8,1 i RUN; do programów startowych / ekranów tytułowych. Najpierw resetuje I/O (przerwania VIC wyłączone, głośność SID 0, IOINIT, RESTOR), więc muzyka i własne przerwania się zatrzymują, a ekran zostaje. Bez numeru urządzenia używa napędu, z którego program został wczytany. Jeśli pliku nie da się wczytać, program działa dalej po chain. Nazwa pliku musi być literałem tekstowym o długości 1-16 znaków.",
   "memcopy": "Kopiuje blok pamięci.",
   "drawmem": "Kopiuje spakowany prostokąt 2D do pamięci docelowej z krokiem (stride).",
   "map": "Wczytuje, rysuje i modyfikuje mapy kafelków znaków.",
@@ -6916,6 +6922,7 @@ const ubCommandDescriptionsIt = {
   "print#": "Scrive valori in un file logico aperto.",
   "load": "Carica un file da disco al suo indirizzo nativo o a uno sovrascritto.",
   "save": "Salva un intervallo di memoria sulla periferica 8 tramite il KERNAL.",
+  "chain": "Carica un altro programma al suo indirizzo di caricamento (di solito $0801, sopra il programma in esecuzione) e lo avvia con RUN, come se si fossero digitati LOAD\"FILE\",8,1 e RUN; per programmi di boot / schermate iniziali. Prima reimposta l'I/O (IRQ del VIC disattivati, volume SID a 0, IOINIT, RESTOR), quindi musica e IRQ personalizzati si fermano, mentre lo schermo resta com'è. Senza dispositivo usa l'unità da cui è stato caricato il programma. Se il file non si può caricare, il programma prosegue dopo chain. Il nome del file deve essere un letterale di 1-16 caratteri.",
   "memcopy": "Copia un blocco di memoria.",
   "drawmem": "Copia un rettangolo 2D compattato in memoria di destinazione con passo (stride).",
   "map": "Carica, disegna e modifica mappe di tile di caratteri.",
@@ -7035,7 +7042,7 @@ const _UB_COMMAND_REFERENCE = [
   ["fill", "fill screen value\nfill color value\nfill address, length, value", "Fills screen RAM, color RAM, or an arbitrary memory range."],
   ["sprite control", "sprite id, on|off|color value|multi on|off|expand x|y|priority front|back", "Controls hardware sprite attributes."],
   ["sprite_frame", "sprite_frame id, data_address [, frame]", "Selects a sprite animation frame. The optional frame indexes consecutive 64-byte images from data_address; without it, the command selects the base image."],
-  ["sprite collision", "sprite_hit()\nsprite_bg_hit()", "Reads sprite/sprite or sprite/background collision flags."],
+  ["sprite collision", "sprite_hit()               # short form: sprhit()\nsprite_bg_hit()            # short form: sprbghit()", "Reads sprite/sprite or sprite/background collision flags."],
   ["sprite position", "sprite_x(id)\nsprite_y(id)", "Reads a hardware sprite coordinate."],
   ["chardef", "chardef character\n  byte values...\nend", "Embeds an 8-byte custom character definition."],
   ["charset", "charset address\ncharset on | off", "Sets the RAM character-set base address; on/off switches the VIC-II to or from it."],
@@ -7049,6 +7056,7 @@ const _UB_COMMAND_REFERENCE = [
   ["print#", "print# channel, expression [, expression ...]", "Writes values to an open logical file."],
   ["load", "load filename [, address]", "Loads a disk file at its native or an overridden address."],
   ["save", "save filename, start_address, length", "Saves a memory range to device 8 through the KERNAL."],
+  ["chain", "chain \"GAME\"             # load GAME from the drive we were started from and RUN it\nchain \"GAME\", 9          # from drive 9 (any expression)\nprint \"LOAD ERROR\"       # only reached if the file could not be loaded", "Loads another program over this one and RUNs it (UB 1.5.9+)."],
   ["memcopy", "memcopy source, destination, length", "Copies a block of memory."],
   ["drawmem", "drawmem source, destination, width, height, stride", "Copies a packed 2-D rectangle to strided destination memory."],
   ["map", "map load \"file.ubmap\"\nmap draw x, y\nmap set x, y, tile\nmap color x, y, color", "Loads, draws, and modifies character tile maps."],
@@ -7150,7 +7158,7 @@ function _ubApplyLeftViews(persist = true) {
   if (persist) saveUiSettings();
 }
 
-const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound sfx org tune music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read restore asm include incbin load open close save memcopy drawmem map koala show hide set draw poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll type endtype pen mline mrect mcircle").split(" "));
+const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound sfx org tune music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read restore asm include incbin load open close save chain memcopy drawmem map koala show hide set draw poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll type endtype pen mline mrect mcircle").split(" "));
 const _UB_TYPES = new Set(["int", "word", "float", "string", "array", "array_word"]);
 const _UB_FUNCTIONS = new Set(("str_to_int numstr chr$ str$ inkey waitkey len asc val reudet reu_present turbo clamp peek peek16 rnd abs min max sgn spc tab joy mouse_x mouse_x_hi mouse_y mouse_btn sprhit sprbghit sprite_hit sprite_bg_hit sprite_x sprite_y map_tile map_color box_hit sin cos hex bin getch").split(" "));
 const _UB_ASM_MNEMONICS = new Set(("adc and asl bcc bcs beq bit bmi bne bpl brk bvc bvs clc cld cli clv cmp cpx cpy dec dex dey eor inc inx iny jmp jsr lda ldx ldy lsr nop ora pha php pla plp rol ror rti rts sbc sec sed sei sta stx sty tax tay tsx txa txs tya").split(" "));

@@ -167,6 +167,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 - **New KOALA macro** — `.koala "picture.koa"` (optionally `, $2000`) loads a Koala Painter picture and shows it with an 86-byte display routine. See [KOALA](#koala).
 - **Koala import/export in the Hires editor** — **Files → Import Koala (.koa)…** / **Export Koala (.koa)…** (standard 10003-byte file; hi-res pictures are reduced to multicolor on export). `.koa` / `.kla` are also recognised by **Import image / .bin**.
+- **Ultimate Basic 1.5.9 bundled** — new `chain "FILE" [, device]` (load another program over the running one and RUN it); `load "FILE"` loads to the file's own address, `load "FILE", addr` to `addr`; D64 fixes. `chain` is highlighted and listed in the command reference.
 - **Update status in the Expert status bar** — the same *Up to date* / clickable *Update available* indicator as in Ultimate Basic mode.
 - **Save dialogs** offer the file's own type (e.g. *KOA*) instead of *Binary (\*.bin)*.
 - **More robust update check** — the installer list is published at c64va.tech/downloads/VA/, so the check works with the new download page; the Linux update helper no longer inherits the AppImage library paths.
