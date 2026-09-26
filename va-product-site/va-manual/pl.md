@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Podręcznik użytkownika
 
-**Wersja 2.4.7**
+**Wersja 2.4.8**
 
 Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągając i upuszczając bloki instrukcji, i oglądaj generowany kod assemblera i maszynowy w czasie rzeczywistym.
 
@@ -9,6 +9,7 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
 ## Spis treści
 
 - [C64 Visual Assembler — Podręcznik użytkownika](#c64-visual-assembler--user-manual)
+    - [Najważniejsze cechy wersji 2.4.8](#version-248-highlights)
     - [Najważniejsze cechy wersji 2.4.7](#version-247-highlights)
     - [Najważniejsze cechy wersji 2.4.6](#version-246-highlights)
     - [Najważniejsze cechy wersji 2.4.5](#version-245-highlights)
@@ -82,6 +83,7 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
     - [CHARDEF](#chardef)
     - [BOX_HIT](#box_hit)
     - [INCBIN](#incbin)
+    - [KOALA](#koala)
     - [SID](#sid)
     - [INCLUDE](#include)
     - [TABLE](#table)
@@ -158,6 +160,16 @@ Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągaj�
     - [Edytor map (mapy kafelkowe wielowarstwowe)](#map-editor-multilayer-tilemaps)
     - [Edytor SID (śledzenie 3-głosowe)](#sid-editor-3-voice-tracker)
     - [Edytor krzywych](#curve-editor)
+
+---
+
+## Najważniejsze cechy wersji 2.4.8
+
+- **Nowe makro KOALA** — `.koala "picture.koa"` (opcjonalnie `, $2000`) ładuje obrazek Koala Painter i wyświetla go za pomocą 86-bajtowej procedury wyświetlania. Zobacz [KOALA](#koala).
+- **Import/eksport plików Koala w edytorze Hires** — **Pliki → Importuj pliki Koala (.koa)…** / **Eksportuj pliki Koala (.koa)…** (standardowy plik 10003-bajtowy; zdjęcia w wysokiej rozdzielczości są podczas eksportu redukowane do wielokolorowych). Pliki `.koa` / `.kla` są również rozpoznawane przez **Importuj obraz / .bin**.
+- **Status aktualizacji na pasku stanu eksperta** — ten sam wskaźnik *Aktualny* / klikalny *Dostępna aktualizacja* co w trybie Ultimate Basic.
+- **Okna dialogowe zapisu** oferują własny typ pliku (np. *KOA*) zamiast *Binarny (\*.bin)*.
+- **Bardziej kompleksowa kontrola aktualizacji** — lista instalatorów jest opublikowana na stronie c64va.tech/downloads/VA/, więc kontrola działa z nową stroną pobierania; pomocnik aktualizacji systemu Linux nie dziedziczy już ścieżek bibliotek AppImage.
 
 ---
 
@@ -1558,6 +1570,35 @@ Podobnie jak **BLOAD w BASIC** — pobiera zewnętrzny plik binarny (`.bin`, `.p
 ```
 
 **Rozmiar w kodzie:** 0 bajtów (sekcja danych odroczonych). Plik binarny jest osadzony pod podanym adresem.
+
+---
+
+### KOALA
+
+Ładuje obraz **Koala Painter** (`.koa` / `.kla`, 160×200, wielokolorowy) i wyświetla go. Dane obrazu są osadzone pod stałym adresem, takim jak `INCBIN` (2-bajtowy adres ładowania pliku `$6000` jest usuwany), a sam blok kompiluje się do 86-bajtowej procedury wyświetlania, która jest uruchamiana w miejscu, w którym znajduje się blok.
+
+| Pole  | Opis                                                                                                                                                 |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Plik  | Przeglądaj, aby wybrać plik `.koa` / `.kla` (10003 bajtów lub 10001 bez adresu ładowania)                                                            |
+| Adres | Adres mapy bitowej: `$6000` (domyślny, natywny dla Koali, bank VIC 1, pamięć RAM ekranu `$4400`) lub `$2000` (bank VIC 0, pamięć RAM ekranu `$0400`) |
+
+Procedura wyświetlania kopiuje część pamięci RAM ekranu na ekran, a część pamięci RAM kolorów do `$D800`, zapisuje bajt tła do `$D021`, wybiera bank VIC w `$DD00` (zachowując pozostałe bity portu) i przełącza na tryb wielokolorowej mapy bitowej (`$D011 = $3B`, `$D016 = $18`, `$D018 = $18`). Pozostałe adresy są odrzucane: pozostałe sloty 8K znajdują się pod pamięcią ROM BASIC/KERNAL (pętla kopiowania odczytałaby pamięć ROM) lub nakładają się na cień pamięci ROM znaków.
+
+**Składnia ekspercka:**
+```
+.koala "picture.koa"
+.koala "picture.koa", $2000
+```
+
+**Przykład — pokaż obrazek i poczekaj:**
+```
+* = $0801
+.koala "picture.koa"
+wait:
+    JMP wait
+```
+
+**Rozmiar w kodzie: ** 86 bajtów (program wyświetlania); 10001 bajtów danych obrazu trafia pod podany adres. Edytor Hires, polecenie **Pliki → Eksportuj Koala (.koa)…** generuje zgodny plik.
 
 ---
 

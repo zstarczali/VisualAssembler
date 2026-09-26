@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.8 — Manuel de langue
+# Ultimate Basic v1.5.9 — Manuel de langue
 
 Référence complète du langage et de l'interface de ligne de commande pour
 Ultimate Basic, un langage de type BASIC qui se compile directement en code
@@ -70,10 +70,10 @@ se transforme en `Number(0)`) — choisissez donc un autre nom.
 `array_word`
 
 **Impression et E/S** `print`, `spc`, `tab`, `at`, `input`, `chr$`, `str$`,
-`hex`, `bin`, `open`, `close`, `load`, `save`, `data`, `read`, `include`,
-`incbin` (également `dec` — indiqué ci-dessus comme l'instruction de
+`hex`, `bin`, `open`, `close`, `load`, `save`, `chain`, `data`, `read`,
+`include`, `incbin` (également `dec` — listé ci-dessus comme l'instruction de
 décrémentation ; le même jeton est utilisé pour le format d'impression `dec(n,
-width)`)
+largeur)`)
 
 **Fonctions mathématiques et de chaînes de caractères intégrées** `abs`, `min`,
 `max`, `clamp`, `sgn`, `mod`, `rnd`, `sin`, `cos`, `and`, `or`, `xor`, `not`,
@@ -1290,17 +1290,64 @@ poke16 ptr, w                 # word var as address; word var as value
 ```basic
 load "PROGRAM"           # KERNAL LOAD: loads file from device 8 to its native address
 load "DATA", $C000       # loads file to a specific address
+chain "GAME"             # load another program over this one and RUN it (see below)
 load "DATA", ptr         # addr from word variable
 
 save "DATA", $C000, 4096 # KERNAL SAVE from $C000, 4096 bytes → device 8
 save "PROG", start, len  # addr and len from word/int variables
 ```
 
-`load` appelle KERNAL `SETNAM`+`SETLFS`+`LOAD` (`$FFBD`/`$FFBA`/`$FFD5`). Sans
-adresse : adresse secondaire 0 (l’en-tête de 2 octets du fichier est utilisé
-comme adresse de chargement). Avec adresse : adresse secondaire 1 (fichier
-chargé à l’emplacement spécifié). `save` appelle `SETNAM`+`SETLFS`+`SAVE`
-(`$FFBD`/`$FFBA`/`$FFD8`). Nécessite `addr` et `len`.
+La fonction `load` appelle les fonctions KERNAL `SETNAM`+`SETLFS`+`LOAD`
+(`$FFBD`/`$FFBA`/`$FFD5`). Sans adresse : l’adresse secondaire est 1 (l’en-tête
+de 2 octets du fichier est l’adresse de chargement). Avec adresse : l’adresse
+secondaire est 0 (le fichier est chargé à l’adresse indiquée, son en-tête est
+ignoré). (Corrigé dans la version 1.5.9 — auparavant, les deux étaient inversés
+: `load "F"` chargé dans `$0000`.) `save` appelle `SETNAM`+`SETLFS`+`SAVE`
+(`$FFBD`/`$FFBA`/`$FFD8`). Nécessite à la fois `addr` et `len`.
+
+#### Enchaînement avec un autre programme — `chaîne` (nouveauté de la version 1.5.9)
+
+```basic
+chaîne "GAME" # charge le jeu depuis le lecteur où il a été lancé et l'exécute
+chaîne "GAME", 9 # depuis le lecteur 9 (expression quelconque)
+print "LOAD ERROR" # uniquement si le fichier n'a pas pu être chargé
+```
+
+La commande `chain` charge un autre programme à sa propre adresse de chargement
+— généralement `$0801`, juste au-dessus du programme en cours d'exécution — et
+le lance exactement comme si les commandes `LOAD"GAME",8,1` et `RUN` avaient été
+saisies. C'est ce dont un programme de démarrage/titre a besoin. Une simple
+commande `load` ne peut pas le faire : le fichier chargé écraserait le code qui
+exécute la commande `load`.
+
+Comment ça marche :
+
+- Un chargeur de 46 octets, indépendant de la position, plus le nom du fichier,
+  est copié dans le tampon de cassette (`$033C`), sur lequel ni un programme
+  Ultimate Basic ni un fichier compressé Exomizer ne se charge.
+- Avant cela, la machine est remise dans un état initial : les interruptions VIC
+  sont désactivées, le volume SID est à 0, `IOINIT` (`$FDA3` : temporisateurs
+  CIA, interruption clavier, bus série), `RESTOR` (`$FF8A` : vecteurs
+  d’interruption/de rupture/d’interruption non masquable par défaut et d’E/S),
+  `$01 = $37`. Les interruptions raster personnalisées, `lecture musicale` et
+  `nmi` sont arrêtées. L'écran, les couleurs et les registres de banque VIC
+  autres que `$DD00` sont laissés tels quels, de sorte qu'une image peut rester
+  à l'écran pendant que le programme suivant se charge (`IOINIT` sélectionne la
+  banque VIC 0).
+- Le chargeur appelle `SETNAM` / `SETLFS` (secondaire 1) / `LOAD`. Sans argument
+  de périphérique, il utilise le lecteur à partir duquel le programme a été
+  chargé (`$BA`), ou le lecteur 8.
+- Après un chargement réussi, il positionne le pointeur de fin de programme
+  (`$2D/$2E`), réinitialise BASIC (`$E453`, `$E3BF` — un programme
+  auto-extractible comme Exomizer `sfx` a pu utiliser la page zéro de BASIC) et
+  exécute le programme (`$A659`, `$A7AE`). Il fonctionne aussi bien avec les
+  programmes Ultimate Basic, les fichiers compressés (`exomizer sfx sys`)
+  qu'avec les programmes BASIC ordinaires.
+- Si le fichier ne peut pas être chargé (introuvable, aucun lecteur), `chain`
+  retourne et le programme continue avec l'instruction suivante.
+
+Le nom du fichier doit être une chaîne de caractères littérale de 1 à 16
+caractères.
 
 ### Entrées/sorties de fichiers sur canal série
 

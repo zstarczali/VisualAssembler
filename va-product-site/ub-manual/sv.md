@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.8 — Språkmanual
+# Ultimate Basic v1.5.9 — Språkmanual
 
 Komplett språk- och CLI-referens för Ultimate Basic, ett BASIC-liknande språk
 som kompilerar direkt till 6502-maskinkod för Commodore 64. Utdata: `.prg` filer
@@ -66,10 +66,10 @@ viks till `Number(0)`) — så välj ett annat namn.
 **Typer och typrelaterade** `int`, `word`, `float`, `string`, `array`,
 `array_word`
 
-**Utskrift och I/O** `print`, `spc`, `tab`, `at`, `input`, `chr$`, `str$`,
-`hex`, `bin`, `open`, `close`, `load`, `save`, `data`, `read`, `include`,
-`incbin` (även `dec` — listad ovan som minskningssats; samma token används för
-utskriftsformatet `dec(n, width)`)
+**Skriv ut och I/O** `skriv ut`, `spc`, `tab`, `vid`, `inmatning`, `chr$`,
+`str$`, `hex`, `bin`, `öppna`, `stäng`, `ladda`, `spara`, `kedja`, `data`,
+`läs`, `include`, `incbin` (även `dec` — listad ovan som minskningssatsen; samma
+token används för utskriftsformatet `dec(n, width)`)
 
 **Inbyggda matematik- och strängfunktioner** `abs`, `min`, `max`, `clamp`,
 `sgn`, `mod`, `rnd`, `sin`, `cos`, `and`, `or`, `xor`, `not`, `bnot`, `shl`,
@@ -1232,6 +1232,7 @@ poke16 ptr, w                 # word var as address; word var as value
 ```basic
 load "PROGRAM"           # KERNAL LOAD: loads file from device 8 to its native address
 load "DATA", $C000       # loads file to a specific address
+chain "GAME"             # load another program over this one and RUN it (see below)
 load "DATA", ptr         # addr from word variable
 
 save "DATA", $C000, 4096 # KERNAL SAVE from $C000, 4096 bytes → device 8
@@ -1239,10 +1240,50 @@ save "PROG", start, len  # addr and len from word/int variables
 ```
 
 `load` anropar KERNAL `SETNAM`+`SETLFS`+`LOAD` (`$FFBD`/`$FFBA`/`$FFD5`). Utan
-adress: sekundär adress 0 (filens egen 2-byte-rubrik används som
-laddningsadress). Med adress: sekundär adress 1 (filen laddad till angiven
-plats). `save` anropar `SETNAM`+`SETLFS`+`SAVE` (`$FFBD`/`$FFBA`/`$FFD8`).
+adress: sekundär adress 1 (filens egen 2-byte-rubrik är laddningsadressen). Med
+adress: sekundär adress 0 (filen laddas till den angivna adressen, dess rubrik
+hoppas över). (Åtgärdat i 1.5.9 — tidigare byttes de två: `load "F"` laddad till
+`$0000`.) `save` anropar `SETNAM`+`SETLFS`+`SAVE` (`$FFBD`/`$FFBA`/`$FFD8`).
 Kräver både `addr` och `len`.
+
+#### Kedja till ett annat program — `kedja` (nytt i 1.5.9)
+
+```basic
+kedja "GAME" # ladda GAME från den enhet vi startades från och KÖR det
+kedja "GAME", 9 # från enhet 9 (valfritt uttryck)
+print "LOAD ERROR" # nåddes endast om filen inte kunde laddas
+```
+
+`chain` laddar ett annat program till sin egen laddningsadress — normalt
+`$0801`, direkt ovanför det program som körs — och startar det exakt som om
+`LOAD"GAME",8,1` och `RUN` hade skrivits. Detta är vad ett start-/titelprogram
+behöver. En vanlig `load` kan inte göra det: den laddade filen skulle skriva
+över koden som kör `load`.
+
+Hur det fungerar:
+
+- En 46-byte, positionsoberoende laddare plus filnamnet kopieras till
+  kassettbufferten (`$033C`), som varken ett Ultimate Basic-program eller en
+  Exomizer-packad fil laddas över.
+- Innan dess sätts maskinen tillbaka till ett rent tillstånd: VIC IRQ av,
+  SID-volym 0, `IOINIT` (`$FDA3`: CIA-timers, tangentbords-IRQ, seriell buss),
+  `RESTOR` (`$FF8A`: standard-IRQ/BRK/NMI och I/O-vektorer), `$01 = $37`.
+  Anpassade raster-IRQ, hanterare för `musikuppspelning` och `nmi` stoppas.
+  Skärm, färger och VIC-bankregister, förutom `$DD00`, lämnas som de är, så en
+  bild kan finnas kvar på skärmen medan nästa program laddas (`IOINIT` väljer
+  VIC-bank 0).
+- Laddaren anropar `SETNAM` / `SETLFS` (sekundär 1) / `LOAD`. Utan ett
+  enhetsargument använder den enheten som själva programmet laddades från
+  (`$BA`), eller enhet 8.
+- Efter en lyckad laddning ställer den in programslutspekaren (`$2D/$2E`),
+  ominitialiserar BASIC (`$E453`, `$E3BF` — en självuppackande cruncher som
+  Exomizer `sfx` kan ha använt BASICs nollpsida) och KÖR programmet (`$A659`,
+  `$A7AE`). Den fungerar för både Ultimate Basic-program, crunkade (`exomizer
+  sfx sys`) filer och vanliga BASIC-program.
+- Om filen inte kan läsas in (hittas inte, ingen enhet) returnerar `chain` och
+  programmet fortsätter med nästa kommando.
+
+Filnamnet måste vara en strängliteral på 1–16 tecken.
 
 ### Seriell kanalfil I/O
 

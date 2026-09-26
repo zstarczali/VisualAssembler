@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.8 — Kieliopas
+# Ultimate Basic v1.5.9 — Kieliopas
 
 Täydellinen kieli- ja komentoriviviite Ultimate Basicille, BASICin kaltaiselle
 kielelle, joka kääntyy suoraan 6502-konekoodiksi Commodore 64:lle. Tuloste:
@@ -67,10 +67,10 @@ times`, taittuu muotoon `Number(0)`) – joten valitse eri nimi.
 **Tyypit ja tyyppiin liittyvät** `int`, `word`, `float`, `string`, `array`,
 `array_word`
 
-**Tulostus ja I/O** `print`, `spc`, `tab`, `at`, `input`, `chr$`, `str$`, `hex`,
-`bin`, `open`, `close`, `load`, `save`, `data`, `read`, `include`, `incbin`
-(myös `dec` — yllä mainittu vähennyslauseena; samaa tunnusta käytetään `dec(n,
-width)` tulostusmuodolle)
+**Tulostus ja I/O** `tulostus`, `spc`, `välilehti`, `at`, `tulo`, `ketju`,
+`jono`, `heksa`, `roska`, `avaa`, `sulje`, `lataus`, `tallenna`, `ketju`,
+`tiedot`, `read`, `include`, `incbin` (myös `dec` — yllä mainittu
+vähennyslauseena; samaa tunnusta käytetään tulostusmuodossa `dec(n, width)`)
 
 **Sisäänrakennetut matemaattiset ja merkkijonofunktiot** `abs`, `min`, `max`,
 `clamp`, `sgn`, `mod`, `rnd`, `sin`, `cos`, `and`, `or`, `xor`, `not`, `bnot`,
@@ -1253,17 +1253,60 @@ kirjoittaa ensin lo ja sitten hi.
 ```basic
 load "PROGRAM"           # KERNAL LOAD: loads file from device 8 to its native address
 load "DATA", $C000       # loads file to a specific address
+chain "GAME"             # load another program over this one and RUN it (see below)
 load "DATA", ptr         # addr from word variable
 
 save "DATA", $C000, 4096 # KERNAL SAVE from $C000, 4096 bytes → device 8
 save "PROG", start, len  # addr and len from word/int variables
 ```
 
-`load` kutsuu KERNAL-käskyä `SETNAM`+`SETLFS`+`LOAD` (`$FFBD`/`$FFBA`/`$FFD5`).
-Ilman osoitetta: toissijainen osoite 0 (tiedoston oma 2-tavuinen otsikko
-käytetään latausosoitteena). Osoitteen kanssa: toissijainen osoite 1 (tiedosto
-ladataan määritettyyn sijaintiin). `save` kutsuu `SETNAM`+`SETLFS`+`SAVE`
+`load` kutsuu KERNAL `SETNAM`+`SETLFS`+`LOAD` (`$FFBD`/`$FFBA`/`$FFD5`)
+-funktiota. Ilman osoitetta: toissijainen osoite 1 (tiedoston oma 2-tavuinen
+otsikko on latausosoite). Osoitteen kanssa: toissijainen osoite 0 (tiedosto
+ladataan annettuun osoitteeseen, sen otsikko ohitetaan). (Korjattu versiossa
+1.5.9 — aiemmin nämä kaksi olivat vaihtaneet paikkaa: `load "F"` ladattu
+kohteeseen `$0000`.) `save` kutsuu funktiota `SETNAM`+`SETLFS`+`SAVE`
 (`$FFBD`/`$FFBA`/`$FFD8`). Vaatii sekä `addr` että `len`.
+
+#### Ketjuttaminen toiseen ohjelmaan — `ketju` (uusi versiossa 1.5.9)
+
+```basic
+chain "GAME" # lataa GAME käynnistysasemalta ja SUORITA se
+chain "GAME", 9 # asemalta 9 (mikä tahansa lauseke)
+print "LOAD ERROR" # saavutetaan vain, jos tiedostoa ei voitu ladata
+```
+
+`chain` lataa toisen ohjelman omaan latausosoitteeseensa — normaalisti `$0801`,
+suoraan käynnissä olevan ohjelman päälle — ja käynnistää sen täsmälleen ikään
+kuin olisi kirjoitettu `LOAD"GAME",8,1` ja `RUN`. Tätä tarvitsee
+käynnistys-/title-ohjelma. Tavallinen `load` ei voi tehdä tätä: ladattu tiedosto
+korvaa `load`-komentoa suorittavan koodin.
+
+Näin se toimii:
+
+- 46-tavuinen, sijainnista riippumaton lataaja ja tiedostonimi kopioidaan
+  kasettipuskuriin (`$033C`), jonka yli ei lataudu Ultimate Basic -ohjelma eikä
+  Exomizerilla pakattu tiedosto.
+- Ennen sitä kone palautetaan puhtaaseen tilaan: VIC-IRQ:t pois päältä,
+  SID-äänenvoimakkuus 0, `IOINIT` (`$FDA3`: CIA-ajastimet, näppäimistön IRQ,
+  sarjaväylä), `RESTOR` (`$FF8A`: oletus-IRQ/BRK/NMI- ja I/O-vektorit), `$01 =
+  $37`. Mukautetut rasteri-IRQ:t, `musiikin toisto` ja `nmi` -käsittelijät
+  pysähtyvät. Näyttö, värit ja VIC-pankkirekisterit `$DD00` lukuun ottamatta
+  jätetään ennalleen, joten kuva voi pysyä näytöllä seuraavan ohjelman
+  latautumisen ajan (`IOINIT` valitsee VIC-pankin 0).
+- Lataaja kutsuu funktiota `SETNAM` / `SETLFS` (toissijainen 1) / `LOAD`. Ilman
+  laiteargumenttia se käyttää asemaa, josta ohjelma itse ladattiin (`$BA`), tai
+  asemaa 8.
+- Onnistuneen latauksen jälkeen se asettaa ohjelman loppuosoittimen (`$2D/$2E`),
+  alustaa BASICin uudelleen (`$E453`, `$E3BF` — itsepurkautuva murskaustyökalu,
+  kuten Exomizer `sfx`, on saattanut käyttää BASICin nollasivua) ja SUORITAA
+  ohjelman (`$A659`, `$A7AE`). Se toimii sekä Ultimate Basic -ohjelmien,
+  murskattujen (`exomizer sfx sys`) tiedostojen että tavallisten BASIC-ohjelmien
+  kanssa.
+- Jos tiedostoa ei voida ladata (ei löydy, ei asemaa), `chain` palauttaa ja
+  ohjelma jatkuu seuraavalla lausekkeella.
+
+Tiedostonimen on oltava merkkijono, jonka pituus on 1–16 merkkiä.
 
 ### Sarjakanavan tiedosto I/O
 

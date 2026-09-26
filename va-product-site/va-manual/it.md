@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Manuale utente
 
-**Versione 2.4.7**
+**Versione 2.4.8**
 
 Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502. Crea programmi trascinando e rilasciando blocchi di istruzioni e visualizza in tempo reale il codice assembly e il codice macchina generati.
 
@@ -9,6 +9,7 @@ Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502. 
 ## Sommario
 
 - [C64 Visual Assembler — Manuale utente](#c64-visual-assembler--user-manual)
+    - [Punti salienti della versione 2.4.8](#version-248-highlights)
     - [Punti salienti della versione 2.4.7](#version-247-highlights)
     - [Punti salienti della versione 2.4.6](#version-246-highlights)
     - [Punti salienti della versione 2.4.5](#version-245-highlights)
@@ -82,6 +83,7 @@ Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502. 
     - [CHARDEF](#chardef)
     - [BOX_HIT](#box_hit)
     - [INCBIN](#incbin)
+    - [KOALA](#koala)
     - [SID](#sid)
     - [INCLUDE](#include)
     - [TABLE](#table)
@@ -158,6 +160,16 @@ Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502. 
     - [Editor di mappe (mappe a tessere multilivello)](#map-editor-multilayer-tilemaps)
     - [Editor SID (Tracker a 3 voci)](#sid-editor-3-voice-tracker)
     - [Editor di curve](#curve-editor)
+
+---
+
+## Punti salienti della versione 2.4.8
+
+- **Nuova macro KOALA** — `.koala "picture.koa"` (opzionalmente `, $2000`) carica un'immagine di Koala Painter e la visualizza con una routine di visualizzazione da 86 byte. Vedi [KOALA](#koala).
+- **Importazione/esportazione di Koala nell'editor Hires** — **File → Importa Koala (.koa)…** / **Esporta Koala (.koa)…** (file standard da 10003 byte; le immagini ad alta risoluzione vengono ridotte a multicolore durante l'esportazione). `.koa` / `.kla` sono riconosciuti anche da **Importa immagine / .bin**.
+- **Stato di aggiornamento nella barra di stato Expert** — lo stesso indicatore *Aggiornato* / cliccabile *Aggiornamento disponibile* della modalità Ultimate Basic.
+- **Le finestre di dialogo di salvataggio** offrono il tipo di file (ad esempio *KOA*) invece di *Binario (\*.bin)*.
+- **Controllo degli aggiornamenti più robusto** — l'elenco dei programmi di installazione è pubblicato su c64va.tech/downloads/VA/, quindi il controllo funziona con la nuova pagina di download; l'assistente di aggiornamento di Linux non eredita più i percorsi della libreria AppImage.
 
 ---
 
@@ -1558,6 +1570,35 @@ Come **BLOAD in BASIC** — preleva un file binario esterno (`.bin`, `.prg`, `.s
 ```
 
 **Dimensione nel codice:** 0 byte (sezione dati differiti). Il binario è incorporato all'indirizzo specificato.
+
+---
+
+### KOALA
+
+Carica un'immagine **Koala Painter** (`.koa` / `.kla`, 160×200 multicolore) e la visualizza. I dati dell'immagine sono incorporati in un indirizzo fisso come `INCBIN` (l'indirizzo di caricamento del file di 2 byte `$6000` viene rimosso) e il blocco stesso viene compilato in una routine di visualizzazione di 86 byte che viene eseguita dove si trova il blocco.
+
+| Campo     | Descrizione                                                                                                                          |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| File      | Sfoglia per selezionare un file `.koa` / `.kla` (10003 byte, o 10001 senza indirizzo di caricamento)                                 |
+| Indirizzo | Indirizzo bitmap: `$6000` (predefinito, nativo Koala, VIC banco 1, RAM schermo `$4400`) o `$2000` (VIC banco 0, RAM schermo `$0400`) |
+
+La routine di visualizzazione copia la parte RAM dello schermo sullo schermo e la parte RAM del colore in `$D800`, scrive il byte di sfondo in `$D021`, seleziona il banco VIC in `$DD00` (mantenendo gli altri bit della porta) e attiva la modalità bitmap multicolore (`$D011 = $3B`, `$D016 = $18`, `$D018 = $18`). Altri indirizzi vengono rifiutati: gli slot 8K rimanenti si trovano sotto la ROM BASIC/KERNAL (il ciclo di copia leggerebbe la ROM) o si sovrappongono all'ombra della ROM dei caratteri.
+
+**Sintassi esperta:**
+```
+.koala "picture.koa"
+.koala "picture.koa", $2000
+```
+
+**Esempio: mostra un'immagine e attendi:**
+```
+* = $0801
+.koala "picture.koa"
+wait:
+    JMP wait
+```
+
+**Dimensione nel codice:** 86 byte (routine di visualizzazione); i 10001 byte di dati dell'immagine vanno all'indirizzo specificato. L'editor Hires **File → Esporta Koala (.koa)…** produce un file compatibile.
 
 ---
 

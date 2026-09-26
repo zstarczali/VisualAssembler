@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.8 — Manuale di lingua
+# Ultimate Basic v1.5.9 — Manuale della lingua
 
 Manuale completo del linguaggio e della riga di comando per Ultimate Basic, un
 linguaggio simile al BASIC che compila direttamente in codice macchina 6502 per
@@ -69,10 +69,10 @@ in `Number(0)`), quindi scegli un nome diverso.
 **Tipi e relativi ai tipi** `int`, `word`, `float`, `string`, `array`,
 `array_word`
 
-**Stampa e I/O** `print`, `spc`, `tab`, `at`, `input`, `chr$`, `str$`, `hex`,
-`bin`, `open`, `close`, `load`, `save`, `data`, `read`, `include`, `incbin`
-(anche `dec` — elencato sopra come istruzione di decremento; lo stesso token
-viene utilizzato per il formato di stampa `dec(n, width)`)
+**Stampa e I/O** `stampa`, `spc`, `tab`, `at`, `input`, `chr$`, `str$`, `hex`,
+`bin`, `apri`, `chiudi`, `carica`, `salva`, `chain`, `dati`, `read`, `include`,
+`incbin` (anche `dec` — elencato sopra come istruzione di decremento; lo stesso
+token viene utilizzato per il formato di stampa `dec(n, larghezza)`)
 
 **Funzioni matematiche e stringhe integrate** `abs`, `min`, `max`, `clamp`,
 `sgn`, `mod`, `rnd`, `sin`, `cos`, `and`, `or`, `xor`, `not`, `bnot`, `shl`,
@@ -1270,6 +1270,7 @@ lo e poi hi.
 ```basic
 load "PROGRAM"           # KERNAL LOAD: loads file from device 8 to its native address
 load "DATA", $C000       # loads file to a specific address
+chain "GAME"             # load another program over this one and RUN it (see below)
 load "DATA", ptr         # addr from word variable
 
 save "DATA", $C000, 4096 # KERNAL SAVE from $C000, 4096 bytes → device 8
@@ -1277,11 +1278,54 @@ save "PROG", start, len  # addr and len from word/int variables
 ```
 
 `load` chiama KERNAL `SETNAM`+`SETLFS`+`LOAD` (`$FFBD`/`$FFBA`/`$FFD5`). Senza
-indirizzo: indirizzo secondario 0 (intestazione di 2 byte del file stesso
-utilizzata come indirizzo di caricamento). Con indirizzo: indirizzo secondario 1
-(file caricato nella posizione specificata). `save` chiama
-`SETNAM`+`SETLFS`+`SAVE` (`$FFBD`/`$FFBA`/`$FFD8`). Richiede sia `addr` che
-`len`.
+indirizzo: indirizzo secondario 1 (l'intestazione di 2 byte del file è
+l'indirizzo di caricamento). Con indirizzo: indirizzo secondario 0 (il file
+viene caricato all'indirizzo specificato, la sua intestazione viene saltata).
+(Corretto nella versione 1.5.9 — prima, i due erano invertiti: `load "F"`
+caricato in `$0000`.) `save` chiama `SETNAM`+`SETLFS`+`SAVE`
+(`$FFBD`/`$FFBA`/`$FFD8`). Richiede sia `addr` che `len`.
+
+#### Collegamento a un altro programma — `chain` (novità nella versione 1.5.9)
+
+```basic
+catena "GIOCO" # carica GIOCO dall'unità da cui è stato avviato ed eseguilo
+catena "GIOCO", 9 # dall'unità 9 (qualsiasi espressione)
+stampa "ERRORE DI CARICAMENTO" # viene raggiunto solo se il file non può essere caricato
+```
+
+`chain` carica un altro programma al proprio indirizzo di caricamento —
+normalmente `$0801`, direttamente sopra il programma in esecuzione — e lo avvia
+esattamente come se fossero stati digitati `LOAD"GAME",8,1` e `RUN`. Questo è
+ciò di cui ha bisogno un programma di avvio/titolo. Un semplice `load` non può
+farlo: il file caricato sovrascriverebbe il codice che sta eseguendo `load`.
+
+Come funziona:
+
+- Un caricatore indipendente dalla posizione di 46 byte, insieme al nome del
+  file, viene copiato nel buffer della cassetta (`$033C`), che non viene
+  caricato né da un programma Ultimate Basic né da un file compresso con
+  Exomizer.
+- Prima di ciò la macchina viene riportata a uno stato pulito: VIC IRQs
+  disattivati, volume SID 0, `IOINIT` (`$FDA3`: timer CIA, IRQ tastiera, bus
+  seriale), `RESTOR` (`$FF8A`: vettori I/O e IRQ/BRK/NMI predefiniti), `$01 =
+  $37`. Interrompi gli IRQ raster personalizzati, i gestori di riproduzione
+  musicale` e nmi` e `nmi`. Lo schermo, i colori e i registri del banco VIC
+  diversi da `$DD00` vengono lasciati invariati, in modo che un'immagine possa
+  rimanere sullo schermo mentre il programma successivo si carica (`IOINIT`
+  seleziona il banco VIC 0).
+- Il caricatore chiama `SETNAM` / `SETLFS` (secondario 1) / `LOAD`. Senza un
+  argomento dispositivo, utilizza l'unità da cui è stato caricato il programma
+  stesso (`$BA`), ovvero l'unità 8.
+- Dopo un caricamento riuscito, imposta il puntatore di fine programma
+  (`$2D/$2E`), reinizializza BASIC (`$E453`, `$E3BF` - un programma di
+  estrazione automatica come Exomizer `sfx` potrebbe aver utilizzato la pagina
+  zero di BASIC) ed esegue il programma (`$A659`, `$A7AE`). Funziona sia per i
+  programmi Ultimate Basic, sia per i file elaborati (`exomizer sfx sys`) e per
+  i normali programmi BASIC.
+- Se il file non può essere caricato (non trovato, nessuna unità), `chain`
+  restituisce e il programma continua con l'istruzione successiva.
+
+Il nome del file deve essere una stringa letterale di 1-16 caratteri.
 
 ### I/O di file del canale seriale
 
