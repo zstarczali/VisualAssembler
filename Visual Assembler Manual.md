@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.4.7**
+**Version 2.4.8**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -9,6 +9,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Table of Contents
 
 - [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
+    - [Version 2.4.8 Highlights](#version-248-highlights)
     - [Version 2.4.7 Highlights](#version-247-highlights)
     - [Version 2.4.6 Highlights](#version-246-highlights)
     - [Version 2.4.5 Highlights](#version-245-highlights)
@@ -82,6 +83,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [CHARDEF](#chardef)
     - [BOX_HIT](#box_hit)
     - [INCBIN](#incbin)
+    - [KOALA](#koala)
     - [SID](#sid)
     - [INCLUDE](#include)
     - [TABLE](#table)
@@ -158,6 +160,16 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
     - [Map Editor (Multilayer Tilemaps)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve Editor](#curve-editor)
+
+---
+
+## Version 2.4.8 Highlights
+
+- **New KOALA macro** — `.koala "picture.koa"` (optionally `, $2000`) loads a Koala Painter picture and shows it with an 86-byte display routine. See [KOALA](#koala).
+- **Koala import/export in the Hires editor** — **Files → Import Koala (.koa)…** / **Export Koala (.koa)…** (standard 10003-byte file; hi-res pictures are reduced to multicolor on export). `.koa` / `.kla` are also recognised by **Import image / .bin**.
+- **Update status in the Expert status bar** — the same *Up to date* / clickable *Update available* indicator as in Ultimate Basic mode.
+- **Save dialogs** offer the file's own type (e.g. *KOA*) instead of *Binary (\*.bin)*.
+- **More robust update check** — the installer list is published at c64va.tech/downloads/VA/, so the check works with the new download page; the Linux update helper no longer inherits the AppImage library paths.
 
 ---
 
@@ -1583,6 +1595,35 @@ Like **BLOAD in BASIC** — picks up an external binary file (`.bin`, `.prg`, `.
 ```
 
 **Size in code:** 0 bytes (deferred data section). The binary is embedded at the given address.
+
+---
+
+### KOALA
+
+Loads a **Koala Painter** picture (`.koa` / `.kla`, 160×200 multicolor) and shows it. The picture data is embedded at a fixed address like `INCBIN` (the file's 2-byte `$6000` load address is stripped), and the block itself compiles to an 86-byte display routine that runs where the block sits.
+
+| Field | Description |
+|---|---|
+| File | Browse to select a `.koa` / `.kla` file (10003 bytes, or 10001 without load address) |
+| Address | Bitmap address: `$6000` (default, Koala native, VIC bank 1, screen RAM `$4400`) or `$2000` (VIC bank 0, screen RAM `$0400`) |
+
+The display routine copies the screen RAM part to the screen and the color RAM part to `$D800`, writes the background byte to `$D021`, selects the VIC bank in `$DD00` (keeping the other port bits) and switches on multicolor bitmap mode (`$D011 = $3B`, `$D016 = $18`, `$D018 = $18`). Other addresses are rejected: the remaining 8K slots are under the BASIC/KERNAL ROM (the copy loop would read ROM) or overlap the character-ROM shadow.
+
+**Expert syntax:**
+```
+.koala "picture.koa"
+.koala "picture.koa", $2000
+```
+
+**Example — show a picture and wait:**
+```
+* = $0801
+.koala "picture.koa"
+wait:
+    JMP wait
+```
+
+**Size in code:** 86 bytes (display routine); the 10001 bytes of picture data go to the given address. The Hires editor's **Files → Export Koala (.koa)…** produces a compatible file.
 
 ---
 

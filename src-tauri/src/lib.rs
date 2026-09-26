@@ -1587,7 +1587,17 @@ async fn save_bin(app: AppHandle, payload: SaveBinPayload) -> serde_json::Value 
         let cfg = read_config(&app);
         get_working_folder_path(&cfg)
     };
-    let mut dialog = app.dialog().file()
+    // A javasolt fájlnév kiterjesztése legyen az első szűrő (pl. Koala .koa),
+    // különben a dialógus a "Binary (*.bin)" szűrőt kínálja fel.
+    let ext = payload.file_name.as_deref()
+        .and_then(|n| Path::new(n).extension())
+        .map(|e| e.to_string_lossy().to_lowercase())
+        .filter(|e| e != "bin");
+    let mut dialog = app.dialog().file();
+    if let Some(ext) = ext.as_deref() {
+        dialog = dialog.add_filter(ext.to_uppercase(), &[ext]);
+    }
+    dialog = dialog
         .add_filter("Binary", &["bin"])
         .add_filter("All files", &["*"]);
     if let Some(folder) = working_folder {

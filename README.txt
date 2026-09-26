@@ -1,7 +1,9 @@
 C64 Visual Assembler - Installation Guide
-Version 2.4.7
+Version 2.4.8
 Support: https://zstarczali.itch.io/visual-assembler-commodore-64
 ==========================================================================
+
+2.4.8: New KOALA macro — .koala "picture.koa" [, $2000] loads a Koala Painter picture and shows it: the data goes to $6000 (or $2000) and the block compiles to an 86-byte display routine (screen/color RAM copy, background colour, VIC bank, multicolor bitmap mode). The Hires editor can import and export Koala pictures (Files → Import Koala / Export Koala, standard 10003-byte .koa; hi-res pictures are converted to multicolor on export). The update status now also shows in the Expert status bar, save dialogs offer the file's own type (e.g. .koa), and the update check reads the installer list from c64va.tech/downloads/VA/ so it keeps working with the new download page.
 
 2.4.7: In-app updates — Menu → Check for Update checks c64va.tech for a newer release and, on confirmation, downloads the installer for your platform with a progress bar and installs it (Windows: passive installer + restart; macOS: app bundle replaced from the DMG; Linux: AppImage swapped or .deb/.rpm installed via pkexec). The check also runs quietly at every start, and the Ultimate Basic status bar shows "Up to date" or a clickable "Update available". Curve Editor → UltimateBasic export: the table as an initialised UB array (data name: …) plus a ready-to-run UB sprite demo. Bundled Ultimate Basic 1.5.8 with the new data <array>: initialiser. The editor panels now fit the window height (no page scrollbar), the ASM output panel keeps a 440 px minimum width, and the working-folder path uses a subtle badge.
 
@@ -35,7 +37,7 @@ Tested on Ubuntu 22.04 and 24.04.
 -----------------------
 Download the .deb package from the releases page and install:
 
-  sudo dpkg -i "c64-visual-assembler_2.4.7_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.4.8_amd64.deb"
   sudo apt-get install -f   # fix any missing dependencies
 
 Launch from the Applications menu or:
@@ -128,7 +130,7 @@ Requirements: macOS 11.0+, Apple Silicon (M1/M2/M3)
 
 1. C64 Visual Assembler
 -----------------------
-1. Download the 2.4.7 DMG for your architecture from the releases page
+1. Download the 2.4.8 DMG for your architecture from the releases page
 2. Mount the DMG and drag the app to /Applications
 3. First launch: Right-click the app -> "Open" (macOS will block double-click)
 4. Click "Open" in the security dialog

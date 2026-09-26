@@ -2,9 +2,17 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.4.7**
+**Current version: v2.4.8**
 
-## What's New in v2.4.7
+## What's New in v2.4.8
+
+- **New KOALA macro** — `.koala "picture.koa"` (optionally `, $2000`) loads a Koala Painter picture and shows it. The picture data is placed at `$6000` (Koala native, VIC bank 1) or `$2000` (VIC bank 0) with the file's load address stripped, and the block compiles to an 86-byte display routine: it copies screen and color RAM, sets the background colour, selects the VIC bank and switches on multicolor bitmap mode. Available in the block palette next to INCBIN, with its own description, syntax hint and validation (address and file size).
+- **Koala import/export in the Hires editor** — **Files → Import Koala (.koa)…** / **Export Koala (.koa)…**. Export writes the standard 10003-byte file (`$6000` load address, bitmap, screen RAM, color RAM, background); a hi-res picture is reduced to multicolor on export. Import accepts files with or without the load address; `.koa` / `.kla` are also recognised by **Import image / .bin**.
+- **Update status in the Expert status bar** — the same *Up to date* / clickable *Update available* indicator as in Ultimate Basic mode.
+- **Save dialogs offer the file's own type** — e.g. *KOA (\*.koa)* instead of *Binary (\*.bin)*.
+- **More robust update check** — c64va.tech now publishes the installer list at `downloads/VA/`, so the check works with the new download page (also for 2.4.6 / 2.4.7); the Linux update helper no longer inherits the AppImage library paths.
+
+## Earlier: v2.4.7
 
 - **In-app updates** — **Menu → Check for Update** now checks c64va.tech for a newer release, and on confirmation downloads the installer for your platform (with a progress bar) and installs it: the Windows installer runs in passive mode and restarts the app, on macOS the app bundle is replaced from the DMG, and on Linux the AppImage is swapped or the `.deb`/`.rpm` is installed via `pkexec`. The check also runs quietly at every start; **Skip this version** silences a release you don't want.
 - **Update status in the Ultimate Basic status bar** — shows **Up to date (vX)**, or a highlighted **Update available: vY** that opens the update dialog when clicked.
