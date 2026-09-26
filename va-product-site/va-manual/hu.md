@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**2.4.7-es verzió**
+**Version 2.4.8**
 
 Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat létre húzással és elengedéssel (fogd és vidd) utasításblokkokkal, és valós időben tekintheti meg a létrehozott assembly és gépi kódot.
 
@@ -9,6 +9,7 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
 ## Tartalomjegyzék
 
 - [C64 Visual Assembler — Felhasználói kézikönyv](#c64-visual-assembler--user-manual)
+    - [Version 2.4.8 Highlights](#version-248-highlights)
     - [2.4.7-es verzió – kiemelt funkciók](#version-247-highlights)
     - [2.4.6-os verzió kiemelt funkciói](#version-246-highlights)
     - [2.4.5-ös verzió – kiemelt funkciók](#version-245-highlights)
@@ -82,6 +83,7 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
     - [CHARDEF](#chardef)
     - [BOX_HIT](#box_hit)
     - [INCBIN](#incbin)
+    - [KOALA](#koala)
     - [SID](#sid)
     - [INCLUDE](#include)
     - [TABLE](#table)
@@ -158,6 +160,16 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
     - [Térképszerkesztő (Többrétegű csempetérképek)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Görbeszerkesztő](#curve-editor)
+
+---
+
+## Version 2.4.8 Highlights
+
+- **New KOALA macro** — `.koala "picture.koa"` (optionally `, $2000`) loads a Koala Painter picture and shows it with an 86-byte display routine. See [KOALA](#koala).
+- **Koala import/export in the Hires editor** — **Files → Import Koala (.koa)…** / **Export Koala (.koa)…** (standard 10003-byte file; hi-res pictures are reduced to multicolor on export). `.koa` / `.kla` are also recognised by **Import image / .bin**.
+- **Update status in the Expert status bar** — the same *Up to date* / clickable *Update available* indicator as in Ultimate Basic mode.
+- **Save dialogs** offer the file's own type (e.g. *KOA*) instead of *Binary (\*.bin)*.
+- **More robust update check** — the installer list is published at c64va.tech/downloads/VA/, so the check works with the new download page; the Linux update helper no longer inherits the AppImage library paths.
 
 ---
 
@@ -294,13 +306,13 @@ A paletta tetején található **keresőmezővel** név szerinti szűréshez kat
 
 A Program panel fejlécében található egy bekapcsolható **minimap** gomb. Engedélyezése esetén egy keskeny `56 px` vászonsáv jelenik meg a panel jobb szélén, amely az összes blokkot színkódolt vízszintes sávokként mutatja:
 
-| Sáv színe | Blokk típusa                           |
-| --------- | -------------------------------------- |
-| Cián      | Címkék                                 |
-| Kék/lila  | Makrók és direktívák                   |
-| Sárga     | Utasítás                               |
-| Zöld      | Megjegyzések és üres sorok             |
-| Piros     | Érvényesítési hibát tartalmazó blokkok |
+| Bar colour | Blokk típusa                           |
+| ---------- | -------------------------------------- |
+| Cyan       | Címkék                                 |
+| Kék/lila   | Makrók és direktívák                   |
+| Sárga      | Utasítás                               |
+| Zöld       | Megjegyzések és üres sorok             |
+| Piros      | Érvényesítési hibát tartalmazó blokkok |
 
 Az összecsukott blokkok csökkentett átlátszósággal jelennek meg. Kattintson vagy húzzon a minitérkép bármely pontjára, hogy a programlistát az adott pozícióba görgessen. A nézetablak-jelző (ékezetes színű téglalap) követi a lista látható részét. Az állapot a felhasználói felület beállításaiban marad meg (`blockMinimap` billentyű).
 
@@ -317,11 +329,11 @@ A jobb oldali panel valós időben mutatja a generált kimenetet.
 
 ### Kimeneti módok
 
-| Mód               | Leírás                                                                                                                                                                                                                                                                                                             |
+| Mode              | Leírás                                                                                                                                                                                                                                                                                                             |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **ASM**           | 6502 assembly forráskód címekkel és címkékkel                                                                                                                                                                                                                                                                      |
 | **Monitor**       | Hex / bájt kiíratás (C64 monitor stílus)                                                                                                                                                                                                                                                                           |
-| **Diazmus**       | Tiszta 6502 szétszerelés: cím · hex bájtok · feloldott numerikus operandusokkal ellátott mnemonikok. A makrók kibővítve egyedi utasításokra (TEXT → LDA/STA párok, LOOP → LDX, stb.). A BYTE/WORD/FILL adatok darabolt hex dumpként jelennek meg. A kimenetben nincsenek makrónevek, megjegyzések vagy annotációk. |
+| **Disasm**        | Tiszta 6502 szétszerelés: cím · hex bájtok · feloldott numerikus operandusokkal ellátott mnemonikok. A makrók kibővítve egyedi utasításokra (TEXT → LDA/STA párok, LOOP → LDX, stb.). A BYTE/WORD/FILL adatok darabolt hex dumpként jelennek meg. A kimenetben nincsenek makrónevek, megjegyzések vagy annotációk. |
 | **Mindkettő**     | ASM felül, monitor alul                                                                                                                                                                                                                                                                                            |
 | **Szétszerelő**   | Ugyanaz, mint a Disasm — dedikált fül a szétszerelési nézethez                                                                                                                                                                                                                                                     |
 | **Eszközkészlet** | C64 referencia panel: 16 színű palettaminta + PETSCII vezérlőkód és nyomtatható karakterfelismerő lap. Csak olvasható – a részletekért lásd az alábbi „Eszközkészlet fül” alszakaszt.                                                                                                                              |
@@ -377,7 +389,7 @@ A modális ablak automatikusan bezárul, ha a művelet befejeződik vagy sikerte
 
 ## 5. Beállítások és eszköztár
 
-| Ellenőrzés                              | Leírás                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Control                                 | Leírás                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Számrendszer (HEX / DEC / BIN)**      | Beállítja az operandusok megjelenítési/beviteli formátumát a felhasználói felületen. A BIN mód bináris formátumban jeleníti meg az értékeket `%` előtaggal (pl. `%11111000`). Az ASM nézet mindig minden blokkot a saját formátumában jelenít meg.                                                                                                                                                                                                                                                                                                            |
 | **Nyelv**                               | Váltás a felhasználói felület között angol, magyar, spanyol, német és holland (holland) nyelven                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
@@ -534,7 +546,7 @@ A projektpanel eszköztárán két hozzáadás gomb található, a fájl párbes
 
 A fában lévő mappák egy összecsukó/kibontó nyíllal rendelkeznek, és a **jobb gombbal kattintson egy mappára** egy vagy több beágyazott fájl hozzáadásához (behúzva látható). Minden bejegyzéshez tartozik egy törlés (✕) gomb; a nem `.ub` bejegyzések csak referenciaként szolgálnak, és kattintással nem nyílnak meg.
 
-Az **Projekt mentése** gomb automatikusan kikapcsol és „Mentett” állapotot mutat, ha a projektnek nincsenek függőben lévő módosításai, majd automatikusan újra engedélyeződik, amint hozzáad, eltávolít vagy átszervez egy fájlt vagy mappát.
+The **Save project** button disables itself and shows a "Saved" state once the project has no pending changes, and re-enables automatically the moment you add, remove, or reorganize a file or folder.
 
 ### Épület és diagnosztika
 
@@ -553,13 +565,13 @@ A Build Info jelentéseket tartalmaz a betöltési/befejezési címekről, a kó
 
 A fő **Futtatás** gomb minden normál célhelyen támogatja az Ultimate Basic-et:
 
-| Futási mód                      | Végső alapvető viselkedés                                                                                                                                                |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Futtatás PRG-ként**           | Fordítsd le és indítsd el a PRG-t közvetlenül a VICE-ban.                                                                                                                |
-| **Futtatás a D64-en keresztül** | Fordítsd le, nyisd meg a szokásos D64 csomagolási párbeszédablakot, majd indítsd el a lemezt a VICE-ban.                                                                 |
-| **Futtatás Ultimate-on**        | Töltse fel és futtassa a PRG-t a konfigurált C64 Ultimate REST kapcsolaton keresztül.                                                                                    |
-| **D64 futtatása hardveren**     | Csomagolj be egy D64-et, és küldd el a konfigurált C64 Ultimate-nek.                                                                                                     |
-| Kung Fu Flash 2 **              | Fordítsd le az UB indító forráskódját, és töltsd fel a PRG-t USB-n keresztül egy valódi C64/C128-ra, amely Kung Fu Flash 2 kazettát használ. Lásd: [Kung Fu Flash 2]{1]. |
+| Futási mód                  | Végső alapvető viselkedés                                                                                                                                                |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Run as PRG**              | Fordítsd le és indítsd el a PRG-t közvetlenül a VICE-ban.                                                                                                                |
+| **Run via D64**             | Fordítsd le, nyisd meg a szokásos D64 csomagolási párbeszédablakot, majd indítsd el a lemezt a VICE-ban.                                                                 |
+| **Futtatás Ultimate-on**    | Töltse fel és futtassa a PRG-t a konfigurált C64 Ultimate REST kapcsolaton keresztül.                                                                                    |
+| **D64 futtatása hardveren** | Csomagolj be egy D64-et, és küldd el a konfigurált C64 Ultimate-nek.                                                                                                     |
+| **Kung Fu Flash 2**         | Fordítsd le az UB indító forráskódját, és töltsd fel a PRG-t USB-n keresztül egy valódi C64/C128-ra, amely Kung Fu Flash 2 kazettát használ. Lásd: [Kung Fu Flash 2]{1]. |
 
 A globális **Beállítások → Exomizer** opció az UB buildekre és a normál futtatású célpontokra is vonatkozik; nincs szükség külön UB eszköztár kapcsolóra. A hibakereső indításai szándékosan a tömörítetlen PRG-t használják, így a fordító címei és szimbólumai továbbra is megegyeznek a végrehajtott programmal.
 
@@ -607,11 +619,11 @@ A Szakértői mód egy teljes funkcionalitású, közvetlen szöveges 6502-es as
 └────────────┴────────────────────────────┴────────────┘
 ```
 
-| Panel               | Váltás                    | Leírás                                                                                                                   |
-| ------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| **Paletták**        | `#szakértői-paletta-gomb` | A bal oldali blokkpaletta – húzzon blokkokat a szerkesztőbe, vagy kattintson a kurzorhoz való beszúráshoz                |
-| **ASM szerkesztő**  | mindig látható            | Teljesen egyszélességű szövegterület élő szintaxiskiemeléssel                                                            |
-| **Hamisítás panel** | `#szakértői-disazm-gomb`  | Pure 6502 szétszerelés: minden utasítás címet, hex bájtokat és numerikus operandusokat mutat; a makrók teljesen kibontva |
+| Panel               | Toggle                | Leírás                                                                                                                   |
+| ------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| **Palette**         | `#expert-palette-btn` | A bal oldali blokkpaletta – húzzon blokkokat a szerkesztőbe, vagy kattintson a kurzorhoz való beszúráshoz                |
+| **ASM szerkesztő**  | mindig látható        | Teljesen egyszélességű szövegterület élő szintaxiskiemeléssel                                                            |
+| **Hamisítás panel** | `#expert-disasm-btn`  | Pure 6502 szétszerelés: minden utasítás címet, hex bájtokat és numerikus operandusokat mutat; a makrók teljesen kibontva |
 
 ### Eszköztár gombjai
 
@@ -628,8 +640,8 @@ A Szakértői mód egy teljes funkcionalitású, közvetlen szöveges 6502-es as
 | **Sorszámok**                             | `#szakértői-sorszámok-gomb`                                 | Be-/kikapcsolhatod a sorszámozás utáni kötésmargót a szerkesztő bal oldalán. A kötésmargó szinkronban marad a görgetési pozícióval, és gépelés közben frissül élőben.                                                                                                                        |
 | **Keresés**                               | `#szakértői-kereső-gomb`                                    | Nyisd meg a lebegő keresősávot (`Ctrl+F`). Gépelj be a kereséshez; a találatok kiemelve jelennek meg az átfedésben. Az `Enter` / `Shift+Enter` navigál a találatok között. Az `Escape` bezárja a sávot.                                                                                      |
 | **Kicsinyítés / Kicsinyítés**             | `#szakértői-kicsinyítés-gomb` / `#szakértői-közelítés-gomb` | A szerkesztő betűméretének csökkentése/növelése (8–28 px). A beállítás megmarad.                                                                                                                                                                                                             |
-| **Paletták**                              | `#szakértői-paletta-gomb`                                   | A bal oldali mnemonikus paletta megjelenítése/elrejtése                                                                                                                                                                                                                                      |
-| **Diazmus**                               | `#szakértői-disazm-gomb`                                    | A szétszerelési panel megjelenítése/elrejtése (tiszta 6502, makrók kibontva)                                                                                                                                                                                                                 |
+| **Palette**                               | `#expert-palette-btn`                                       | A bal oldali mnemonikus paletta megjelenítése/elrejtése                                                                                                                                                                                                                                      |
+| **Disasm**                                | `#expert-disasm-btn`                                        | A szétszerelési panel megjelenítése/elrejtése (tiszta 6502, makrók kibontva)                                                                                                                                                                                                                 |
 | **Monitor**                               | `#szakértői-monitor-gomb`                                   | A monitor hex-dump paneljének megjelenítése/elrejtése                                                                                                                                                                                                                                        |
 | **Minitérkép**                            | `#szakértői-minitérkép-gomb`                                | A kód minitérkép sávjának megjelenítése/elrejtése a szerkesztő jobb oldalán                                                                                                                                                                                                                  |
 
@@ -639,7 +651,7 @@ Szerkesztői gyorsbillentyűk: Az `Ctrl+/` (macOS rendszeren `Cmd+/`) a jelenleg
 
 A Szakértői szerkesztő minitérképe egy keskeny vászoncsík (`88 px`) a szerkesztőterület jobb szélén. Minden forrássor kicsinyített ábrázolását jeleníti meg:
 
-| Sáv színe        | Token típusa                                              |
+| Bar colour       | Token típusa                                              |
 | ---------------- | --------------------------------------------------------- |
 | Megjegyzés színe | `;` kezdetű sorok                                         |
 | Címke színe      | `címkével ellátott vonalak:` definíció                    |
@@ -656,12 +668,12 @@ A sikertelenül lefordított sorokat valós időben **piros** (színezett hátt�
 
 A szerkesztő egy átlátszó `<div>` réteget (`expert-hl`) használ, amely a szövegterület tartalmát színes `<span>` elemekkel tükrözi. A kiemelés kikapcsolható az **HL** gombbal a nagyon nagy programok teljesítményének javítása érdekében.
 
-| Szín       | Jelképes                                                                                                                                              |
+| Colour     | Jelképes                                                                                                                                              |
 | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Sárgászöld | Mnemonikok (`LDA`, `STA`, `JMP`, …) és hosszú elágazású pszeudo-opciók (`LBNE`, `LBEQ`, …)                                                            |
 | Kék        | Irányelvek (`.byte`, `.word`, `.fill`, `.assert`, `*=`, …)                                                                                            |
 | Narancs    | Számok (`$FF`, `%1010`, `255`)                                                                                                                        |
-| Cián       | Címkék — `:` végződésű sorok, beleértve a lokális címkéket (`.loop:`) és az önmódosító kódú operandus címkéket (`value:` az `LDA value:#$00` részben) |
+| Cyan       | Címkék — `:` végződésű sorok, beleértve a lokális címkéket (`.loop:`) és az önmódosító kódú operandus címkéket (`value:` az `LDA value:#$00` részben) |
 | Böjti réce | Karakterlánc literálok                                                                                                                                |
 | Ibolya     | Egyéni makrónevek — a `.macro`, `.invoke` és `.call`, valamint a Kick-stílusú `:name(...)` hívások utáni név                                          |
 | Víz        | Makróparaméterek – a paraméterek nevei a `.macro` fejlécben és a `{param}` helyettesítések a makró törzsében                                          |
@@ -690,14 +702,14 @@ A Szakértő mód támogatja a **projektpanelt** (`#expert-project-panel`) több
 - Minden fájl megjelölhető **indítófájlként** (★ csillag ikon). Amikor beállít egy indítófájlt, a **Futtatás** gomb (PRG, D64, Ultimate) mindig összeállítja és futtatja az adott fájl kódját – függetlenül attól, hogy melyik lap aktív. Ez blokk módban és Szakértő módban is működik.
 - Az eszköztár **Hozzáadás** gombja egyszerre egy vagy több fájlt választ ki (bármilyen típust, nem csak az `.json`/`.asm`), és a projektben hivatkozik rájuk anélkül, hogy megnyitná őket – bináris eszközökhöz, például az `incbin` adatokhoz használható. A párbeszédpanel alapértelmezés szerint a VA munkamappát használja. A szomszédos **Mappa hozzáadása** gomb ugyanígy hivatkozik egy egész mappára (pl. egy eszközkönyvtárra). A csak hivatkozásként szolgáló bejegyzéseknél egy törlés (✕) gomb látható, de rájuk kattintva nem nyílnak meg.
 - A fában lévő mappák egy összecsukó/kibontó nyíllal rendelkeznek, és a **jobb gombbal kattintson egy mappára** egy vagy több beágyazott fájl hozzáadásához (behúzva látható).
-- Az **Projekt mentése** gomb automatikusan kikapcsol és „Mentett” állapotot mutat, ha a projektnek nincsenek függőben lévő módosításai, majd automatikusan újra engedélyeződik, amint hozzáad, eltávolít vagy átszervez egy fájlt vagy mappát.
+- The **Save project** button disables itself and shows a "Saved" state once the project has no pending changes, and re-enables automatically the moment you add, remove, or reorganize a file or folder.
 - A projektpanel alján található **szimbólumok** szakasz függőlegesen átméretezhető a fájlfa és a szimbólumlista közötti elválasztóval, így a hosszú szimbólumlisták szükség esetén több helyet foglalhatnak el.
 
 ### Tab sáv
 
 A fülsáv a szerkesztő felett jelenik meg, ha egynél több fül van megnyitva.
 
-| Jellemző                         | Leírás                                                                                                                                                                                                                                                                                                                      |
+| Feature                          | Leírás                                                                                                                                                                                                                                                                                                                      |
 | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Piszkos pötty**                | A lap nevében egy kis, színes pont jelzi a nem mentett módosításokat.                                                                                                                                                                                                                                                       |
 | **Görgetőnyilak**                | Bal/jobb görgetőgombok jelennek meg, ha több fül van, mint amennyi elfér a sávon                                                                                                                                                                                                                                            |
@@ -713,9 +725,9 @@ A fülsáv a szerkesztő felett jelenik meg, ha egynél több fül van megnyitva
 
 Minden 6502-es utasítás egy vagy több címzési módot támogat. A módválasztó minden blokkon megjelenik.
 
-| Mód             | Címke          | Példa               | Leírás                                                                         |
+| Mode            | Label          | Example             | Leírás                                                                         |
 | --------------- | -------------- | ------------------- | ------------------------------------------------------------------------------ |
-| **implicitált** | Hallgatólagos  | `NEM `              | Nincs operandus; az utasítás önálló                                            |
+| **implicitált** | Hallgatólagos  | `NOP`               | Nincs operandus; az utasítás önálló                                            |
 | **azonnali**    | Azonnali       | `LDA #$FF`          | Beágyazott állandó; az assembler automatikusan hozzáadja az `#` értékeket      |
 | **nullaOldal**  | Nulla oldal    | `LDA $10`           | Egybájtos cím a nulladik oldalon (0–255)                                       |
 | **nullaOldalX** | Nulla oldal, X | `LDA $10,X`         | Nulla oldalcím + X regiszter eltolás (az eredmény a 0. oldalon tördelődik)     |
@@ -732,7 +744,7 @@ Minden 6502-es utasítás egy vagy több címzési módot támogat. A módválas
 
 Bármely operandusmező, amely címet vagy azonnali értéket fogad el, közvetlenül elfogad egy **konstans nevű** értéket is (egy `CONST` blokkból vagy egy `LABEL`-ből). Ezenkívül használhatod a **label+offset** vagy az **label−offset** kifejezéseket egy elnevezett konstanshoz viszonyított címre való hivatkozáshoz:
 
-| Szintaxis         | Példa                      | Leírás                                                                                                             |
+| Syntax            | Example                    | Leírás                                                                                                             |
 | ----------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | `címke`           | `STA képernyő_RAM,X`       | Feloldódik a címke/állandó értékére                                                                                |
 | `címke+$hex`      | `STA képernyő_RAM+$0100,X` | Címkecím plusz egy hexadecimális eltolás                                                                           |
@@ -757,7 +769,7 @@ clear:
 
 *(Újdonság a 2.3.9-es verzióban.)* `*` már nem korlátozódik a teljes operandusra – megjelenhet **egy operanduskifejezésen belül bárhol**, és annak az utasításnak a címét jelöli, amelyre írták. Assembly időben feloldódik az utasítás valódi címe alapján, így nincs szükség címkére a rövid relatív ugrásokhoz vagy a PC-hez viszonyított adatolvasásokhoz.
 
-| Szintaxis           | Példa                      | Jelentés                                            |
+| Syntax              | Example                    | Meaning                                             |
 | ------------------- | -------------------------- | --------------------------------------------------- |
 | `*`                 | `BNE *`                    | Elágazás önmagához (végtelen ciklus, eltolás `$FE`) |
 | `*-n` / `*+n`       | `BNE *-5`, `BEQ *+4`       | Elágazás az aktuális PC-hez képest *n* bájttal      |
@@ -875,7 +887,7 @@ LBEQ done      ; assembles to:   BNE *+3   ($D0 $03)
                ;                 JMP done  ($4C lo hi)
 ```
 
-| Hosszú op | Állapot                     | Kibocsátva mint          |
+| Hosszú op | Condition                   | Kibocsátva mint          |
 | --------- | --------------------------- | ------------------------ |
 | `LBNE`    | nem egyenlő (Z=0)           | `BEQ *+3 / JMP cél`      |
 | `LBEQ`    | egyenlő (Z=1)               | `BNE *+3 / JMP célpont`  |
@@ -934,7 +946,7 @@ LBEQ done      ; assembles to:   BNE *+3   ($D0 $03)
 | `SEC`            | Carry zászló beállítása                      |
 | `SED`            | Decimális mód beállítása                     |
 | `SEI`            | Megszakítás letiltásának beállítása          |
-| `NEM `           | Nincs művelet                                |
+| `NOP`            | Nincs művelet                                |
 | `BRK`            | Kényszermegszakítás / szoftveres megszakítás |
 
 ### Illegális / Nem dokumentált utasítások
@@ -955,16 +967,16 @@ A makróblokkok lehetővé teszik a gyakori feladatok egyetlen lépésben tört�
 
 Mint egy **sorszám a BASIC**-ben — de névvel a szám helyett. Ugrási célpontok a `JMP`, `JSR`, `BNE` stb. fájlokhoz.
 
-| Mező       | Leírás                                                    |
+| Field      | Leírás                                                    |
 | ---------- | --------------------------------------------------------- |
 | Címke neve | Az `JMP`, `JSR`, `BNE` stb. fájlokban használt azonosító. |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 loop:
 ```
 
-**Generált ASM:**
+**Generated ASM:**
 ```
 loop:  ; $0820
 ```
@@ -977,12 +989,12 @@ Az aktuális cím megjegyzésként jelenik meg. A címkék mérete **0 bájt**.
 
 Mint a **REM a BASIC-ben** — egy megjegyzés magadnak, amit az assembler teljesen figyelmen kívül hagy.
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 ; Your comment text here
 ```
 
-**Generált ASM:**
+**Generated ASM:**
 ```
 ; Your comment text here
 ```
@@ -993,16 +1005,16 @@ Mint a **REM a BASIC-ben** — egy megjegyzés magadnak, amit az assembler telje
 
 Mint az **DATA a BASIC**-ben — nyers bájtértékek listáját tárolja a programban.
 
-| Mező      | Leírás                                                                    |
-| --------- | ------------------------------------------------------------------------- |
-| Operandus | Vesszővel elválasztott bájtértékek (pl. `$01, $02, $FF` vagy `1, 2, 255`) |
+| Field   | Leírás                                                                    |
+| ------- | ------------------------------------------------------------------------- |
+| Operand | Vesszővel elválasztott bájtértékek (pl. `$01, $02, $FF` vagy `1, 2, 255`) |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .byte $01, $02, $FF
 ```
 
-**Generált ASM:**
+**Generated ASM:**
 ```
     .byte $01, $02, $FF
 ```
@@ -1023,16 +1035,16 @@ Ez a(z) `frame_0` címének alsó bájtját tárolja, majd a felső bájtot, vé
 
 Mint a BASIC **DATA függvénye, de 16 bites számokhoz**. Minden érték két bájtként tárolódik (először az alacsony bájt, majd a magasabb – 6502 kis-endián sorrend).
 
-| Mező      | Leírás                                                       |
-| --------- | ------------------------------------------------------------ |
-| Operandus | Vesszővel elválasztott 16 bites értékek (pl. `$0400, $C000`) |
+| Field   | Leírás                                                       |
+| ------- | ------------------------------------------------------------ |
+| Operand | Vesszővel elválasztott 16 bites értékek (pl. `$0400, $C000`) |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .word $0400, $C000
 ```
 
-**Generált ASM:**
+**Generated ASM:**
 ```
     .word $0400, $C000
 ```
@@ -1045,31 +1057,31 @@ Mint a BASIC **DATA függvénye, de 16 bites számokhoz**. Minden érték két b
 
 Mint például a `FOR I=1 TO N : POKE addr+I, val : NEXT` — egy memóriablokkot tölt ki ugyanazzal a bájttal, de egyetlen blokkban. Nagyszerű területek törlésére vagy táblázatok előzetes feltöltésére.
 
-| Mező      | Leírás                                                  |
-| --------- | ------------------------------------------------------- |
-| Operandus | `count,value` — pl. `256,0` 256 bájtot nullával tölt ki |
+| Field   | Leírás                                                  |
+| ------- | ------------------------------------------------------- |
+| Operand | `count,value` — pl. `256,0` 256 bájtot nullával tölt ki |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .fill 256, $00
 ```
 
-**Generált ASM:**
+**Generated ASM:**
 ```
     .fill 256, $00
 ```
 
 **Kifejezés szintaxisa:** Mind a `count`, mind az `value` elfogad aritmetikai kifejezéseket. Hivatkozhatsz CONST nevekre, használhatsz hex/bináris literálokat, és meghívhatsz beépített matematikai függvényeket:
 
-| Kifejezés                   | Jelentés                              |
+| Expression                  | Meaning                               |
 | --------------------------- | ------------------------------------- |
 | `CSEMPE_SZÁMA, $00`         | count from a CONST, value hex literal |
 | `40*25, 0`                  | soron belüli szorzás                  |
 | `round(sin(PI/4)*255), $80` | trigonometria                         |
 
-**Beépített függvények:** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, konstans `PI`
+**Built-in functions:** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, constant `PI`
 
-Operátorok: `+ - * /` Literálok: `$FF` (hex), `%10110000` (bináris) Alacsony/magas bájt: `lo(kifejezés)`, `hi(kifejezés)`
+Operators: `+ - * /` Literals: `$FF` (hex), `%10110000` (binary) Low/high byte: `lo(expr)`, `hi(expr)`
 
 **Méret:** A számláló értéke bájtban.
 
@@ -1079,17 +1091,17 @@ Operátorok: `+ - * /` Literálok: `$FF` (hex), `%10110000` (bináris) Alacsony/
 
 Nullákkal kiegészített bájtok beszúrásával az aktuális címet előrecsúsztatja a következő tiszta határra. A C64 megköveteli, hogy a sprite adatok 64 bájtos határon kezdődjenek — az `ALIGN 64` ezt automatikusan kezeli.
 
-| Mező  | Leírás                                                                     |
+| Field | Leírás                                                                     |
 | ----- | -------------------------------------------------------------------------- |
 | Határ | Igazítási érték — pl. `64` (sprite határ), `256` (oldal), `$2000` (bitkép) |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .align 64
 .align $2000
 ```
 
-**Generált ASM:**
+**Generated ASM:**
 ```
     ; ALIGN 64 → $0840 (12 bytes padding)
 ```
@@ -1104,19 +1116,19 @@ Nullákkal kiegészített bájtok beszúrásával az aktuális címet előrecsú
 
 A **PRINT AT** parancshoz hasonlóan — közvetlenül a C64 képernyőjére írja a szöveget egy adott oszlopba és sorba, a KERNAL használata nélkül. Karakterenként egy LDA/STA párt generál, a képernyő RAM-ját a `$0400` tárolóhelyre célozva.
 
-| Mező                     | Leírás                                                          |
-| ------------------------ | --------------------------------------------------------------- |
-| Szöveg                   | A megjelenítendő karakterlánc                                   |
-| X                        | Oszlop (0–39)                                                   |
-| Y                        | Sor (0–24)                                                      |
-| Címke (opcionális)       | Hozzárendel egy címkét, amely a kiszámított képernyőcímre mutat |
-| Kisbetűs karakterkészlet | Jelölőnégyzet – lásd alább                                      |
+| Field             | Leírás                                                          |
+| ----------------- | --------------------------------------------------------------- |
+| Text              | A megjelenítendő karakterlánc                                   |
+| X                 | Oszlop (0–39)                                                   |
+| Y                 | Sor (0–24)                                                      |
+| Label (optional)  | Hozzárendel egy címkét, amely a kiszámított képernyőcímre mutat |
+| Lowercase charset | Checkbox — see below                                            |
 
-**Karakterkészlet módok:**
+**Charset modes:**
 
 A C64 két karakterkészlettel rendelkezik, amelyek futásidőben választhatók ki:
 
-| Mód                                      | $D018 1. bit | Nagybetűs bevitel                 | Kisbetűs bevitel               |
+| Mode                                     | $D018 1. bit | Nagybetűs bevitel                 | Kisbetűs bevitel               |
 | ---------------------------------------- | ------------ | --------------------------------- | ------------------------------ |
 | **Nagybetűs/grafikus** (alapértelmezett) | 0            | `A`–`Z` → képernyőkódok $01–$1A ✓ | nagybetűként kezelve is        |
 | **Kisbetű/nagybetű** (CHARSET után)      | 1            | `A`–`Z` → $01–$1A (nagybetűs)     | `a`–`z` → $41–$5A (kisbetűs) ✓ |
@@ -1133,7 +1145,7 @@ A C64 két karakterkészlettel rendelkezik, amelyek futásidőben választhatók
     ...
 ```
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .text 0, 2, "HELLO"           ; uppercase charset (default)
 .text 0, 2, "hello", lower    ; lowercase charset
@@ -1147,15 +1159,15 @@ A karakterek **képernyőkódként** vannak kódolva (nem PETSCII). **Méret:** 
 
 Mint például egy **karakterlánc beszúrása** bármely memóriacímre futásidőben. LDA/STA párokat generál, amelyek minden karakter képernyőkódját egymást követő címekre másolják.
 
-| Mező                     | Leírás                                                                               |
-| ------------------------ | ------------------------------------------------------------------------------------ |
-| Szöveg                   | A kiírandó karakterlánc                                                              |
-| Cím                      | Cél memóriacím — `$C000` hex vagy egy **címkenév**                                   |
-| Címke (opcionális)       | Hozzárendel egy címkét, amely a célcímre mutat                                       |
-| Váltás                   | Hex érték (00–FF) hozzáadva minden képernyőkód bájthoz (pl. `$80` = fordított videó) |
-| Kisbetűs karakterkészlet | Jelölőnégyzet – ugyanaz a szemantika, mint a TEXT esetében (lásd a TEXT részt)       |
+| Field             | Leírás                                                                        |
+| ----------------- | ----------------------------------------------------------------------------- |
+| Text              | A kiírandó karakterlánc                                                       |
+| Address           | Target memory address — `$C000` hex or a **label name**                       |
+| Label (optional)  | Assigns a label pointing to the target address                                |
+| Shift             | Hex value (00–FF) added to each screen code byte (e.g. `$80` = reverse video) |
+| Lowercase charset | Checkbox — same semantics as TEXT (see TEXT section)                          |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .string $C000, "HELLO"                  ; uppercase charset (default)
 .string $C000, "hello", lower           ; lowercase charset
@@ -1164,7 +1176,7 @@ Mint például egy **karakterlánc beszúrása** bármely memóriacímre futási
 .string $C000, "HELLO" :my_string      ; with macroLabel
 ```
 
-**Generált ASM:**
+**Generated ASM:**
 ```
     LDA #$08      ; 'H' screen code
     STA $C000
@@ -1181,20 +1193,20 @@ A karaktereket **képernyőkódként** kódoljuk (nem PETSCII). Az opcionális *
 
 Mint egy **POKE ciklus** — futásidőben egy nyers bájtok listáját írja ki egy memóriacímre, bájtonként egy LDA/STA párt.
 
-| Mező               | Leírás                                             |
-| ------------------ | -------------------------------------------------- |
-| Bájtok             | Vesszővel elválasztott bájtértékek                 |
-| Cím                | Cél memóriacím — `$C000` hex vagy egy **címkenév** |
-| Címke (opcionális) | Hozzárendel egy címkét, amely a célcímre mutat     |
+| Field            | Leírás                                                  |
+| ---------------- | ------------------------------------------------------- |
+| Bytes            | Comma-separated byte values                             |
+| Address          | Target memory address — `$C000` hex or a **label name** |
+| Label (optional) | Assigns a label pointing to the target address          |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .data $C000, $01, $02, $03          ; hex address
 .data my_buf, $01, $02, $03         ; label address
 .data $C000, $01, $02, $03 :mydata  ; with macroLabel
 ```
 
-**Generált ASM:**
+**Generated ASM:**
 ```
     LDA #$01
     STA $C000
@@ -1211,20 +1223,20 @@ Mint egy **POKE ciklus** — futásidőben egy nyers bájtok listáját írja ki
 
 Mint az **DATA, ami közvetlenül a memóriába töltődik** – egyáltalán nincs futásidejű kód. A bájtok a PRG betöltésének pillanatától kezdve jelen vannak, még mielőtt a kódod elindulna. Használd ezt sprite adatokhoz, szinttérképekhez, keresőtáblákhoz, bármihez, aminek csak egy adott címen kell lennie.
 
-| Mező               | Leírás                                             |
-| ------------------ | -------------------------------------------------- |
-| Bájtok             | Vesszővel elválasztott bájtértékek                 |
-| Cím                | Cél memóriacím — `$C000` hex vagy egy **címkenév** |
-| Címke (opcionális) | Hozzárendel egy címkét, amely a célcímre mutat     |
+| Field            | Leírás                                                  |
+| ---------------- | ------------------------------------------------------- |
+| Bytes            | Comma-separated byte values                             |
+| Address          | Target memory address — `$C000` hex or a **label name** |
+| Label (optional) | Assigns a label pointing to the target address          |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .rawbytes $C000, $00, $00, $00      ; hex address
 .rawbytes sprite_data, $00, $00     ; label address
 .rawbytes $0C50, $00, $00 :nev      ; with macroLabel — other code can use LDA nev,X
 ```
 
-**Méret a kódban:** 0 bájt. Az adat a kimenetben megadott címre kerül.
+**Size in code:** 0 bytes. The data is placed at the given address in the output.
 
 > **DATA vs RAWBYTES:** A DATA LDA/STA kódot generál, amely futásidőben másolja a bájtokat (lassabb, de működik, ha az adatoknak dinamikusnak kell lenniük). A RAWBYTES közvetlenül elhelyezi a bájtokat – nincs kód, azonnal, nulla költséggel.
 
@@ -1234,15 +1246,15 @@ Mint az **DATA, ami közvetlenül a memóriába töltődik** – egyáltalán ni
 
 Mint a RAWBYTES, de szöveg esetén — képernyőkódként kódolja a karakterláncot, és a bájtokat egy fix címre helyezi **futásidejű kód nélkül**. A szöveg a PRG betöltése után azonnal készen áll a memóriában.
 
-| Mező                     | Leírás                                                                               |
-| ------------------------ | ------------------------------------------------------------------------------------ |
-| Szöveg                   | Kódolandó karakterlánc                                                               |
-| Cím                      | Cél memóriacím — `$C000` hex vagy egy **címkenév**                                   |
-| Címke (opcionális)       | Hozzárendel egy címkét, amely a célcímre mutat                                       |
-| Váltás                   | Hex érték (00–FF) hozzáadva minden képernyőkód bájthoz (pl. `$80` = fordított videó) |
-| Kisbetűs karakterkészlet | Jelölőnégyzet – ugyanaz a szemantika, mint a TEXT esetében (lásd a TEXT részt)       |
+| Field             | Leírás                                                                        |
+| ----------------- | ----------------------------------------------------------------------------- |
+| Text              | Kódolandó karakterlánc                                                        |
+| Address           | Target memory address — `$C000` hex or a **label name**                       |
+| Label (optional)  | Assigns a label pointing to the target address                                |
+| Shift             | Hex value (00–FF) added to each screen code byte (e.g. `$80` = reverse video) |
+| Lowercase charset | Checkbox — same semantics as TEXT (see TEXT section)                          |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .rawtext $C000, "HELLO"                 ; uppercase charset (default)
 .rawtext $C000, "hello", lower          ; lowercase charset
@@ -1251,7 +1263,7 @@ Mint a RAWBYTES, de szöveg esetén — képernyőkódként kódolja a karakterl
 .rawtext $0400, "HELLO" :my_text       ; with macroLabel
 ```
 
-**Generált ASM:**
+**Generated ASM:**
 ```
 ; .rawtext "HELLO" -> $C000
 ; $C000
@@ -1262,7 +1274,7 @@ Mint a RAWBYTES, de szöveg esetén — képernyőkódként kódolja a karakterl
     .byte $48, $45, $4C, $4C, $4F   ; h e l l o (lowercase screen codes $41–$5A range)
 ```
 
-**Méret a kódban:** 0 bájt. Az adat a kimenetben megadott címre kerül.
+**Size in code:** 0 bytes. The data is placed at the given address in the output.
 
 > **STRING vs RAWTEXT:** A STRING LDA/STA kódot generál, amely futásidőben másolja a szöveget. A RAWTEXT betöltéskor beépíti a bájtokat a PRG-be – nincs kód, nincs várakozás.
 
@@ -1274,21 +1286,21 @@ Mint az **RAWBYTES, de a KERNAL kimenete** — PETSCII bájtként kódolja a kar
 
 > **PETSCII vs. képernyőkódok:** A PETSCII és a képernyőkódok két különböző kódolás. A képernyőkód: `$01` = A betű; a PETSCII `$41` = A betű (CHROUT-on keresztül). A PETSCII-t csak KERNAL-on keresztüli nyomtatáskor használd; a képernyő RAM-jába való közvetlen íráshoz használd a TEXT/STRING/RAWTEXT kódolást.
 
-| Mező               | Leírás                                             |
-| ------------------ | -------------------------------------------------- |
-| Szöveg             | PETSCII bájtként kódolandó karakterlánc            |
-| Cím                | Cél memóriacím — `$C000` hex vagy egy **címkenév** |
-| Címke (opcionális) | Hozzárendel egy címkét, amely a célcímre mutat     |
-| Kisbetűs PETSCII   | Jelölőnégyzet – lásd alább                         |
+| Field            | Leírás                                                  |
+| ---------------- | ------------------------------------------------------- |
+| Text             | PETSCII bájtként kódolandó karakterlánc                 |
+| Address          | Target memory address — `$C000` hex or a **label name** |
+| Label (optional) | Assigns a label pointing to the target address          |
+| Kisbetűs PETSCII | Checkbox — see below                                    |
 
-**Karakterkészlet módok:**
+**Charset modes:**
 
-| Mód                                             | Nagybetűs bevitel (`A`–`Z`)                                                                                                      | Kisbetűs bevitel (`a`–`z`)         |
+| Mode                                            | Nagybetűs bevitel (`A`–`Z`)                                                                                                      | Kisbetűs bevitel (`a`–`z`)         |
 | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
 | **Nagybetű (alapértelmezett, nincs bejelölve)** | `$41`–`$5A` (PETSCII nagybetűs CHROUT-on keresztül)                                                                              | szintén leképezve a `$41`–`$5A`-re |
 | **Kisbetűs (bejelölve)**                        | Az ábécé betűi át lettek képezve, így a látható kis- és nagybetűs karakterkészletben a kis- és nagybetűk változatlanok maradnak. | Ugyanaz a szabály                  |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .petscii $C000, "HELLO"              ; uppercase PETSCII (default)
 .petscii $C000, "hello", lower       ; lowercase PETSCII ($61–$7A)
@@ -1325,7 +1337,7 @@ done:
 | -------------------------------------- | ------------------------------------ | ------------ |
 | `A`–`Z`                                | `$41`–`$5A`                          | `$61`–`$7A`  |
 | `a`–`z`                                | `$41`–`$5A` (kényszerített nagybetű) | `$41`–`$5A`  |
-| Szóköz, számjegyek, írásjelek (32–126) | ahogy van                            | ahogy van    |
+| Szóköz, számjegyek, írásjelek (32–126) | as-is                                | as-is        |
 | Új sor                                 | `$0D` (VISSZATÉRÍTÉS)                | `$0D`        |
 | Más                                    | `$20` (szóköz)                       | `$20`        |
 
@@ -1337,17 +1349,17 @@ done:
 
 Futásidőben a `$D018` 1. bitjének módosításával átkapcsolja a VIC-II karakter ROM-ot nagybetűs/grafikus mód (C64 alapértelmezett) és kisbetűs/nagybetűs mód között.
 
-| Mező | Leírás                                                                                                                                                   |
-| ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Mód  | **Kisbetűs** — engedélyezi a kisbetűs/nagybetűs karakterkészletet; **Nagybetűs** — visszaállítja az alapértelmezett nagybetűs/grafikus karakterkészletet |
+| Field | Leírás                                                                                                                                                   |
+| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Mode  | **Kisbetűs** — engedélyezi a kisbetűs/nagybetűs karakterkészletet; **Nagybetűs** — visszaállítja az alapértelmezett nagybetűs/grafikus karakterkészletet |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .charset lower    ; switch to lowercase charset
 .charset upper    ; switch back to uppercase/graphics charset
 ```
 
-**Generált ASM:**
+**Generated ASM:**
 
 Kisbetűs mód:
 ```
@@ -1367,7 +1379,7 @@ Nagybetűs mód:
 
 **Miért ORA/ÉS a közvetlen írás helyett?** `$D018` a képernyő RAM helyét is vezérli (7–4. bitek). Csak az 1. bit bekapcsolása őrzi meg a regiszter többi részét.
 
-**Tipikus munkafolyamat:**
+**Typical workflow:**
 
 ```
     CHARSET lower             ; switch to lowercase charset
@@ -1393,13 +1405,13 @@ Szakértő módban az `.charset` blokk mostantól a mód legördülő menüben i
 
 Egyetlen 8×8-as egyéni karaktert definiál egy RAM-alapú karakterkészletben. Beágyazott futásidejű kódot bocsát ki, amely végrehajtáskor 8 bájtot másol a `base + index * 8` mappába – nincs szükség megelőző címkére vagy `ORG` indexre.
 
-| Mező                 | Leírás                                                                                                               |
+| Field                | Leírás                                                                                                               |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | Karakterkészlet alap | A RAM karakterkészlet alapcíme (alapértelmezett: `$3800`). Úgy kell beállítani, hogy a VIC-II láthassa (lásd alább). |
 | Karakterindex        | Melyik karakterhelyet kell újradefiniálni, 0–255. `65` = 'A' az alapértelmezett képernyőkód-elrendezésben.           |
 | 8 bájt               | Vesszővel elválasztott bitképsorok, fentről lefelé. Minden bájt 7. bitje = a bal szélső képpont.                     |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .chardef $3800, 65, $18,$3C,$66,$7E,$66,$66,$66,$00
 ```
@@ -1428,7 +1440,7 @@ Egyetlen 8×8-as egyéni karaktert definiál egy RAM-alapú karakterkészletben.
 
 **Méret:** 40 bájt karakterenként (8 × 5).
 
-**Tipikus munkafolyamat:**
+**Typical workflow:**
 ```
     ; Point VIC-II at RAM charset at $3800
     LDA $D018
@@ -1458,21 +1470,21 @@ Egyetlen 8×8-as egyéni karaktert definiál egy RAM-alapú karakterkészletben.
 
 Tengelyhez igazított határolókeret (AABB) ütközési teszt két, 4 bájtos nulla oldalas struktúrákkal leírt téglalap között. Az eredményt az akkumulátorban adja vissza: **A = 1** átfedés esetén, **A = 0** egyébként. Tisztán inline assembly, nincs alprogramhívás.
 
-| Mező              | Leírás                                                                                    |
+| Field             | Leírás                                                                                    |
 | ----------------- | ----------------------------------------------------------------------------------------- |
 | Box1 irányítószám | Az első doboz 4 bájtos struktúrájának nulladik oldalas alapja (alapértelmezett: `$FB`).   |
 | Box2 irányítószám | A második doboz 4 bájtos struktúrájának nulladik oldalas alapja (alapértelmezett: `$F7`). |
 
 **Struktúra elrendezés** (4 bájt dobozonként, előjel nélküli 8 bites koordináták):
 
-| Eltolás | Mező   |
-| ------- | ------ |
-| `+0`    | Balra  |
-| `+1`    | Felső  |
-| `+2`    | Jobbra |
-| `+3`    | Alsó   |
+| Eltolás | Field |
+| ------- | ----- |
+| `+0`    | Left  |
+| `+1`    | Felső |
+| `+2`    | Right |
+| `+3`    | Alsó  |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .box_hit $FB, $F7
 ```
@@ -1499,7 +1511,7 @@ done:
 
 **Méret:** 30 bájt.
 
-**Tipikus munkafolyamat:**
+**Typical workflow:**
 
 ```
     ; Player sprite box at $FB..$FE
@@ -1541,17 +1553,17 @@ no_collision:
 
 Mint a BASIC**-ben található**BLOAD — kiválaszt egy külső bináris fájlt (`.bin`, `.prg`, `.sid`, `.raw`) és közvetlenül beágyazza az összeállított PRG-be a megadott címen.
 
-| Mező | Leírás                                                                 |
-| ---- | ---------------------------------------------------------------------- |
-| Fájl | Tallózással válasszon ki egy `.bin`, `.prg`, `.sid` vagy `.raw` fájlt. |
-| Cím  | Cél betöltési cím (pl. `$C000`)                                        |
+| Field   | Leírás                                                                 |
+| ------- | ---------------------------------------------------------------------- |
+| File    | Tallózással válasszon ki egy `.bin`, `.prg`, `.sid` vagy `.raw` fájlt. |
+| Address | Cél betöltési cím (pl. `$C000`)                                        |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .incbin "music.bin", $C000
 ```
 
-**Generált ASM megjegyzés:**
+**Generated ASM comment:**
 ```
     ; INCBIN "music.bin" @ $C000 (2048 bytes)
     .byte $01, $02, ...
@@ -1561,13 +1573,42 @@ Mint a BASIC**-ben található**BLOAD — kiválaszt egy külső bináris fájlt
 
 ---
 
+### KOALA
+
+Loads a **Koala Painter** picture (`.koa` / `.kla`, 160×200 multicolor) and shows it. The picture data is embedded at a fixed address like `INCBIN` (the file's 2-byte `$6000` load address is stripped), and the block itself compiles to an 86-byte display routine that runs where the block sits.
+
+| Field   | Leírás                                                                                                                      |
+| ------- | --------------------------------------------------------------------------------------------------------------------------- |
+| File    | Browse to select a `.koa` / `.kla` file (10003 bytes, or 10001 without load address)                                        |
+| Address | Bitmap address: `$6000` (default, Koala native, VIC bank 1, screen RAM `$4400`) or `$2000` (VIC bank 0, screen RAM `$0400`) |
+
+The display routine copies the screen RAM part to the screen and the color RAM part to `$D800`, writes the background byte to `$D021`, selects the VIC bank in `$DD00` (keeping the other port bits) and switches on multicolor bitmap mode (`$D011 = $3B`, `$D016 = $18`, `$D018 = $18`). Other addresses are rejected: the remaining 8K slots are under the BASIC/KERNAL ROM (the copy loop would read ROM) or overlap the character-ROM shadow.
+
+**Expert syntax:**
+```
+.koala "picture.koa"
+.koala "picture.koa", $2000
+```
+
+**Example — show a picture and wait:**
+```
+* = $0801
+.koala "picture.koa"
+wait:
+    JMP wait
+```
+
+**Size in code:** 86 bytes (display routine); the 10001 bytes of picture data go to the given address. The Hires editor's **Files → Export Koala (.koa)…** produces a compatible file.
+
+---
+
 ### SID
 
 Mint a **BLOAD a zenéhez** — betölt egy `.sid` fájlt a PRG-be, és automatikusan beolvassa az Init és Play címeket a fejlécből. Indításkor egyszer hívja meg az Init függvényt, majd minden képkockán hívja meg a Play függvényt az IRQ kezelőjéből.
 
-| Mező                    | Leírás                                                                                                                      |
+| Field                   | Leírás                                                                                                                      |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Fájl                    | Tallózással válasszon ki egy `.sid` fájlt                                                                                   |
+| File                    | Tallózással válasszon ki egy `.sid` fájlt                                                                                   |
 | Egyéni cím (opcionális) | Írja felül a SID natív betöltési címét (pl. `$1000`). Hagyja üresen, ha a SID fejlécben található címet szeretné használni. |
 
 A blokk a következőket jeleníti meg:
@@ -1577,13 +1618,13 @@ A blokk a következőket jeleníti meg:
 - **Lejátszási cím** — ezt JSR-rel hívjuk meg minden IRQ kezelő keretén (áthelyezéshez igazítva)
 - Egy **(áthelyezett)** jelvény jelenik meg, ha egy egyéni cím elmozdítja az adatokat az eredeti pozíciójukból.
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .sid "Ikari_Warriors.sid"
 .sid "Ikari_Warriors.sid", $1000
 ```
 
-**Generált ASM megjegyzés:**
+**Generated ASM comment:**
 ```
     ; SID "Ikari_Warriors.sid" @ $1000  Init:$1000  Play:$1006  (4096 bytes)
 ```
@@ -1604,9 +1645,9 @@ Két fájltípus támogatott:
 - **Visual Assembler projekt** (`.json`) — a projekt blokkjai eredeti állapotukban kerülnek beillesztésre.
 - **Plain assembly source** (`.inc`, `.asm`, `.s`) — a fájl szövegként kerül beolvasásra és elemzésre ugyanúgy, mint a szakértői módban. Minden fordításkor a fájl újraolvasásra kerül a lemezről (az igazság forrása = a fájl), így külsőleg szerkeszthető bármilyen szerkesztővel.
 
-| Mező                       | Leírás                                                                                                                                                                                                                                                                                |
+| Field                      | Leírás                                                                                                                                                                                                                                                                                |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Fájl                       | Tallózással válasszon ki egy `.json` projektet vagy egy `.inc`/`.asm`/`.s` assembly forrást.                                                                                                                                                                                          |
+| File                       | Tallózással válasszon ki egy `.json` projektet vagy egy `.inc`/`.asm`/`.s` assembly forrást.                                                                                                                                                                                          |
 | Betöltési cím (opcionális) | Ha be van állítva (hex, pl. `C000`), akkor a beszúrt blokkok erre a címre kerülnek – egy szintetikus `ORG` kerül beszúrásra eléjük, felülírva a beszúrt fájlban lévő ORG blokkokat. Hagyja üresen, ha azt szeretné, hogy a beszúrt fájl saját ORG blokkjai vezéreljék az elhelyezést. |
 
 **Szakértői mód szintaxisa:**
@@ -1640,24 +1681,24 @@ Két fájltípus támogatott:
 
 Mint az **DIM egy adott címen** — elnevezi a keresőtáblát, és meghatározza, hogy hol található a memóriában. A tábla tartalmának meghatározásához BYTE, WORD vagy FILL blokkokat kell utána elhelyezni.
 
-| Mező | Leírás                                           |
-| ---- | ------------------------------------------------ |
-| Név  | A tábla címkéjének azonosítója (pl. `színtábla`) |
-| Cím  | Fix cím, ahol a tábla kezdődik (pl. `$C000`)     |
+| Field   | Leírás                                           |
+| ------- | ------------------------------------------------ |
+| Name    | A tábla címkéjének azonosítója (pl. `színtábla`) |
+| Address | Fix cím, ahol a tábla kezdődik (pl. `$C000`)     |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .table color_table, $C000
 ```
 
-**Generált ASM:**
+**Generated ASM:**
 ```
 color_table:
 ```
 
 A programszámláló a megadott címre ugrik. A tartalom kitöltéséhez a TABLE után BYTE/WORD/FILL blokkokat kell elhelyezni.
 
-**Méret:** 0 bájt.
+**Size:** 0 bytes.
 
 ---
 
@@ -1665,17 +1706,17 @@ A programszámláló a megadott címre ugrik. A tartalom kitöltéséhez a TABLE
 
 Beállítja, hogy a program (vagy annak egy része) hova kerüljön a memóriában – mintha egy kezdőcímet választanánk ki a gépi kód beírása előtt. Minden programhoz legalább egy ORG szükséges. A szabványos C64 BASIC által betölthető kezdőcím az `$0801`.
 
-| Mező      | Leírás                                                          |
+| Field     | Leírás                                                          |
 | --------- | --------------------------------------------------------------- |
-| Cím       | Az új forráscím (pl. `0801` HEX-ben, vagy `2049` DEC-ben)       |
+| Address   | Az új forráscím (pl. `0801` HEX-ben, vagy `2049` DEC-ben)       |
 | HEX / DEC | Váltás a címbevitel hexadecimális és decimális kijelzése között |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 * = $C000
 ```
 
-**Generált ASM:**
+**Generated ASM:**
 ```
 * = $C000
 ```
@@ -1709,18 +1750,18 @@ Mint a BASIC-ben a **`FOR X=N TO 1 STEP -1 : ... : NEXT X`** — N-től 1-ig sz�
 
 #### LOOP
 
-| Mező          | Leírás                                                  |
-| ------------- | ------------------------------------------------------- |
-| Nyilvántartás | `X` vagy `Y` — a számlálóregiszter                      |
-| Gróf          | Ciklus iterációszám (hex vagy decimális, pl. `0A` = 10) |
-| Címke         | Automatikusan generált cikluscímke (pl. `ciklus0`)      |
+| Field    | Leírás                                                  |
+| -------- | ------------------------------------------------------- |
+| Register | `X` or `Y` — the counter register                       |
+| Count    | Ciklus iterációszám (hex vagy decimális, pl. `0A` = 10) |
+| Label    | Automatikusan generált cikluscímke (pl. `ciklus0`)      |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .loop X, 10, loop0
 ```
 
-**Generált ASM:**
+**Generated ASM:**
 ```
     LDX #$0A
 loop0:
@@ -1730,17 +1771,17 @@ loop0:
 
 #### NEXT
 
-| Mező          | Leírás                                        |
-| ------------- | --------------------------------------------- |
-| Nyilvántartás | Automatikusan illeszkedik a LOOP regiszterhez |
-| Címke         | Automatikusan kapcsolódik a LOOP címkéhez     |
+| Field    | Leírás                                        |
+| -------- | --------------------------------------------- |
+| Register | Automatikusan illeszkedik a LOOP regiszterhez |
+| Label    | Automatikusan kapcsolódik a LOOP címkéhez     |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .next loop0
 ```
 
-**Generált ASM:**
+**Generated ASM:**
 ```
     DEX
     BNE loop0
@@ -1766,18 +1807,18 @@ Mint a BASIC-ben a **`FOR X=0 TO N-1 : ... : NEXT X`** — 0-tól *felfelé* sz�
 
 #### FOR
 
-| Mező          | Leírás                                                                      |
-| ------------- | --------------------------------------------------------------------------- |
-| Nyilvántartás | `X` vagy `Y` — a számlálóregiszter                                          |
-| Gróf          | Ciklushatár (hex vagy decimális, pl. `$12` = 18). Az X/Y 0-tól 1-ig terjed. |
-| Címke         | Automatikusan generált cikluscímke (pl. `for0`)                             |
+| Field    | Leírás                                                                      |
+| -------- | --------------------------------------------------------------------------- |
+| Register | `X` or `Y` — the counter register                                           |
+| Count    | Ciklushatár (hex vagy decimális, pl. `$12` = 18). Az X/Y 0-tól 1-ig terjed. |
+| Label    | Automatikusan generált cikluscímke (pl. `for0`)                             |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .for X, $12, for0
 ```
 
-**Generált ASM:**
+**Generated ASM:**
 ```
     LDX #$00
 for0:
@@ -1787,18 +1828,18 @@ for0:
 
 #### ENDF
 
-| Mező          | Leírás                                       |
-| ------------- | -------------------------------------------- |
-| Nyilvántartás | Automatikusan illeszkedik a FOR regiszterhez |
-| Címke         | Automatikusan kapcsolódik a FOR címkéhez     |
-| Gróf          | Automatikusan másolva a párosított FOR-ból   |
+| Field    | Leírás                                       |
+| -------- | -------------------------------------------- |
+| Register | Automatikusan illeszkedik a FOR regiszterhez |
+| Label    | Automatikusan kapcsolódik a FOR címkéhez     |
+| Count    | Automatikusan másolva a párosított FOR-ból   |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .endf for0
 ```
 
-**Generált ASM:**
+**Generated ASM:**
 ```
     INX
     CPX #$12
@@ -1833,16 +1874,16 @@ Like **saving variables before a GOSUB and restoring them after** — but uses t
 
 Egy vagy több regisztert helyez a verembe. A sorrend mindig A → X → Y (a legbelső először).
 
-| Mező        | Leírás                                                     |
-| ----------- | ---------------------------------------------------------- |
-| Regiszterek | Bármely kombináció: `A`, `X`, `Y`, `AX`, `AY`, `XY`, `AXY` |
+| Field     | Leírás                                                     |
+| --------- | ---------------------------------------------------------- |
+| Registers | Bármely kombináció: `A`, `X`, `Y`, `AX`, `AY`, `XY`, `AXY` |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .push AXY
 ```
 
-**Generált ASM (példa: `AX`):**
+**Generated ASM (example: `AX`):**
 ```
     PHA
     TXA
@@ -1855,16 +1896,16 @@ Egy vagy több regisztert helyez a verembe. A sorrend mindig A → X → Y (a le
 
 Restores registers from the stack in **reverse order** (Y → X → A).
 
-| Mező        | Leírás                                                            |
-| ----------- | ----------------------------------------------------------------- |
-| Regiszterek | Ugyanaz, mint a PUSH – meg kell egyeznie a megfelelő PUSH blokkal |
+| Field     | Leírás                                                            |
+| --------- | ----------------------------------------------------------------- |
+| Registers | Ugyanaz, mint a PUSH – meg kell egyeznie a megfelelő PUSH blokkal |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .pull AXY
 ```
 
-**Generált ASM (példa: `AX`):**
+**Generated ASM (example: `AX`):**
 ```
     PLA
     TAX
@@ -1879,12 +1920,12 @@ Restores registers from the stack in **reverse order** (Y → X → A).
 
 Az **RTS-hez hasonlóan, egy barátságosabb makrónévvel** — az `.end` egyetlen `RTS` bájtot bocsát ki, és szakértői módban rövid alprogramterminátorként viselkedik.
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .end
 ```
 
-**Generált ASM:**
+**Generated ASM:**
 ```
     RTS
 ```
@@ -1901,21 +1942,21 @@ Like **a named GOSUB with parameters** — define a reusable chunk of code once 
 
 #### MACRO (definition start)
 
-| Mező        | Leírás                                                                             |
+| Field       | Leírás                                                                             |
 | ----------- | ---------------------------------------------------------------------------------- |
-| Név         | A makró azonosítója (pl. `setColor`)                                               |
+| Name        | A makró azonosítója (pl. `setColor`)                                               |
 | Paraméterek | Opcionális vesszővel elválasztott paraméternevek (pl. `color` vagy `color, count`) |
 
 A makródefiníció kezdetét jelzi. A MACRO és ENDM közötti blokkok a makró törzsét alkotják – ezek **nem generálnak semmilyen kódot** ott, ahol a definíció található. Az argumentumokhoz használd a `{paramName}` karakterláncot helykitöltőként.
 
-**Generált ASM:**
+**Generated ASM:**
 ```
 ; .MACRO setColor (color)
     ... (body blocks)
 ; .ENDM
 ```
 
-**Szakértői mód szintaxisa:**
+**Expert mode syntax:**
 ```
 .macro setColor color
     LDA {color}
@@ -1931,19 +1972,19 @@ Bezárja az aktuális makródefiníciót. Nincsenek mezők.
 
 Meghív egy definiált makrót ezen a pozíción, és a megadott argumentumértékeket helyettesíti a törzsben lévő `{paramName}` helyőrzők helyére.
 
-| Mező       | Leírás                                                                                                 |
+| Field      | Leírás                                                                                                 |
 | ---------- | ------------------------------------------------------------------------------------------------------ |
 | Makró neve | Válasszon a definiált makrók legördülő menüjéből                                                       |
 | érvek      | Vesszővel elválasztott argumentumértékek, amelyek megegyeznek a makró paraméterlistájával (pl. `#$07`) |
 
-**Generált ASM:**
+**Generated ASM:**
 ```
 ; .invoke setColor(#$07)
     LDA #$07
     STA $D020
 ```
 
-**Szakértői mód szintaxisa:**
+**Expert mode syntax:**
 ```
 ; single argument:
 .invoke setColor(#$07)
@@ -1976,11 +2017,11 @@ A makró törzse kibővül a `{paramName}` paraméterrel, amelyet a tényleges a
 
 Tisztán vizuális csoportosítás — **nulla bájt**, nulla hatás az összeállított kódra. Mint amikor egy BASIC program egy szakaszát egy elnevezett blokkba hajtogatod, hogy aztán összecsukhasd és valami másra koncentrálhass.
 
-| Mező       | Leírás                                                                        |
+| Field      | Leírás                                                                        |
 | ---------- | ----------------------------------------------------------------------------- |
 | Régió neve | Szabad szöveges címkék a szakaszhoz (pl. `init`, `game_loop`, `sprite_setup`) |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .region init
     ; blocks...
@@ -1994,7 +2035,7 @@ Tisztán vizuális csoportosítás — **nulla bájt**, nulla hatás az összeá
 - **⧉ Régió másolása** — a REGION blokkot, az összes gyermekblokkot és a hozzá tartozó ENDREGION-t a vágólapra másolja. Egy ✓ villogó jel megerősíti a másolást.
 - **⎘ Régió beillesztése** — beszúrja a másolt régiót új régióként közvetlenül az aktuális régió ENDREGION-ja után, és odagörget. A gomb halványan jelenik meg, amíg a régió másolása meg nem történik.
 
-**Generált ASM:**
+**Generated ASM:**
 ```
 ; region init
     SEI
@@ -2021,16 +2062,16 @@ Mint egy **kapcsoló, az assembler a következőt olvassa:** — `DEFINE DEBUG` 
 
 #### DEFINE
 
-| Mező      | Leírás                                                                                         |
+| Field     | Leírás                                                                                         |
 | --------- | ---------------------------------------------------------------------------------------------- |
 | Szimbólum | Egy vagy több vesszővel elválasztott azonosító az aktiváláshoz (pl. `DEBUG` vagy `DEBUG, PAL`) |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .define DEBUG, PAL
 ```
 
-**Generált ASM:**
+**Generated ASM:**
 ```
 ; .DEFINE DEBUG
 ; .DEFINE DEBUG, PAL
@@ -2040,16 +2081,16 @@ Egy `DEFINE` blokk egyszerre több szimbólumot is aktiválhat (vesszővel elvá
 
 #### IF
 
-| Mező    | Leírás                                                                              |
-| ------- | ----------------------------------------------------------------------------------- |
-| Állapot | Tesztelendő azonosító (egyeznie kell egy `DEFINE` szimbólummal az aktív állapothoz) |
+| Field     | Leírás                                                                              |
+| --------- | ----------------------------------------------------------------------------------- |
+| Condition | Tesztelendő azonosító (egyeznie kell egy `DEFINE` szimbólummal az aktív állapothoz) |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .if DEBUG
 ```
 
-**Generált ASM:**
+**Generated ASM:**
 ```
 ; .IF DEBUG
 ```
@@ -2060,12 +2101,12 @@ Az `IF` és `ENDIF` (vagy `ELSE`) közötti blokkok attól függően kerülnek b
 
 Nincsenek mezők. Az alternatív ágat jelöli — akkor állítódik össze, amikor az `IF` feltétel *not* aktív.
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .else
 ```
 
-**Generált ASM:**
+**Generated ASM:**
 ```
 ; .ELSE
 ```
@@ -2074,12 +2115,12 @@ Nincsenek mezők. Az alternatív ágat jelöli — akkor állítódik össze, am
 
 Nincsenek mezők. Lezárja a feltételes blokkot.
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .endif
 ```
 
-**Generált ASM:**
+**Generated ASM:**
 ```
 ; .ENDIF
 ```
@@ -2118,12 +2159,12 @@ A beágyazott `IF` blokkok támogatottak. Ha egy külső blokkot kihagy, a bels�
 
 *(Újdonság a 2.3.9-es verzióban.)* Egy **fordítási idejű épségellenőrzés**. Az `.assert` kiértékel egy kifejezést az összeszerelés során; ha hamis (`0`), a fordítás egy tiszta hibával leáll, amely tartalmazza a tényleges értéket. Ha igaz (nem nulla), akkor semmit nem bocsát ki.
 
-| Mező      | Leírás                                                                                                                                                          |
-| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Kifejezés | Bármely assembler kifejezés: címkék, `CONST`s, `*` (programszámláló), aritmetikai műveletek és összehasonlítások (`&lt;`, `&lt;=`, `&gt;`, `&gt;=`, `==`, `!=`) |
-| Üzenet    | A hibaüzenethez hozzáfűzött opcionális szöveg                                                                                                                   |
+| Field      | Leírás                                                                                                                                                          |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Expression | Bármely assembler kifejezés: címkék, `CONST`s, `*` (programszámláló), aritmetikai műveletek és összehasonlítások (`&lt;`, `&lt;=`, `&gt;`, `&gt;=`, `==`, `!=`) |
+| Üzenet     | A hibaüzenethez hozzáfűzött opcionális szöveg                                                                                                                   |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .assert spriteData < $C000
 .assert * < $A000
@@ -2132,7 +2173,7 @@ A beágyazott `IF` blokkok támogatottak. Ha egy külső blokkot kihagy, a bels�
 
 **Viselkedés:**
 
-- **Méret:** 0 bájt.
+- **Size:** 0 bytes.
 - Egy hamis állítás megszakítja az összeszerelést: `` `.assert end - start &lt;= 256` is false (value: 0). sprite tábla túlcsordult egy oldalon.``
 - Egy olyan állítás, amely nem értékelhető ki (nincs definiált címke stb.), szintén sikertelen, a következő hibakóddal: *"nem értékelhető ki assembly időben"*.
 - Az összehasonlítások eredményeként `1` / `0` címet kapunk; az `.assert` címet a programfolyamat bármely pontjára helyezzük el — a program a rajta lévő címen ellenőrzi, tehát az `.assert * &lt; $D000` az aktuális kimeneti pozíciót teszteli.
@@ -2153,19 +2194,19 @@ sprite_data_end:
 
 Mint egy **nevű változó, ami sosem változik** — `SCREEN = $0400`. Használd a nevet a nyers címek begépelése helyett, így a kód könnyebben olvasható és később módosítható.
 
-| Mező     | Leírás                                                                                                                     |
+| Field    | Leírás                                                                                                                     |
 | -------- | -------------------------------------------------------------------------------------------------------------------------- |
-| Név      | A konstans azonosítója (pl. `SCREEN`)                                                                                      |
-| Érték    | Numerikus érték a kiválasztott számrendszerben (pl. `0400` HEX = $0400 cím esetén), vagy PC-relatív kifejezés (lásd alább) |
+| Name     | A konstans azonosítója (pl. `SCREEN`)                                                                                      |
+| Value    | Numerikus érték a kiválasztott számrendszerben (pl. `0400` HEX = $0400 cím esetén), vagy PC-relatív kifejezés (lásd alább) |
 | Formátum | HEX vagy DEC — az érték bevitelének és megjelenítésének módját szabályozza                                                 |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .const SCREEN = $0400
 .const FRAMES_1S = 60
 ```
 
-**Generált ASM:**
+**Generated ASM:**
 ```
 ; .CONST SCREEN = $0400
 ```
@@ -2197,11 +2238,11 @@ Az érték mező általános aritmetikai műveleteket fogad el, beleértve a kor
 .const SIN_TABLE   = round(sin(PI/8) * 127)   ; pre-computed sine value
 ```
 
-**Beépített függvények:** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, konstans `PI`
+**Built-in functions:** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`, `abs()`, constant `PI`
 
-Operátorok: `+ - * /` Literálok: `$FF` (hex), `%10110000` (bináris) Alacsony/magas bájt: `lo(kifejezés)`, `hi(kifejezés)`
+Operators: `+ - * /` Literals: `$FF` (hex), `%10110000` (binary) Low/high byte: `lo(expr)`, `hi(expr)`
 
-**Méret:** 0 bájt.
+**Size:** 0 bytes.
 
 ---
 
@@ -2209,12 +2250,12 @@ Operátorok: `+ - * /` Literálok: `$FF` (hex), `%10110000` (bináris) Alacsony/
 
 Mint az **CONST, de automatikusan lefoglalt** — Az `VAR` lefoglalja a nulla oldalas tárhelyet egy címkének anélkül, hogy be kellene gépelni a címet. Használja számlálókhoz, mutatókhoz és a ZP-be tartozó rövid életű állapotokhoz.
 
-| Mező               | Leírás                                                       |
+| Field              | Leírás                                                       |
 | ------------------ | ------------------------------------------------------------ |
-| Név                | Változó neve / címkéje                                       |
+| Name               | Változó neve / címkéje                                       |
 | Méret (opcionális) | A lefoglalandó bájtok száma. Egyetlen bájt esetén hagyja ki. |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .var counter
 .var timer, 2
@@ -2232,7 +2273,7 @@ LDA #$00
 STA counter
 ```
 
-**Generált ASM:**
+**Generated ASM:**
 ```
 ; .var counter
 ```
@@ -2247,13 +2288,13 @@ A lefoglaló végigsétál egy konfigurálható nulla oldalas kurzoron (`$02` - 
 
 Mint egy **egy igazi elágazási sablon** — ez a verzió futásidőben működik, nem fordítási időben. Összehasonlítja az `A`, `X` vagy `Y` értékeket egy azonnali értékkel, és kiadja a helyes `CMP` / `CPX` / `CPY` + elágazási szekvenciát.
 
-| Mező          | Leírás                                       |
-| ------------- | -------------------------------------------- |
-| Nyilvántartás | `A`, `X` vagy `Y`                            |
-| Operátor      | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
-| Érték         | Azonnali érték HEX vagy DEC formátumban      |
+| Field    | Leírás                               |
+| -------- | ------------------------------------ |
+| Register | `A`, `X`, or `Y`                     |
+| Operator | `==`, `!=`, `<`, `<=`, `>`, `>=`     |
+| Value    | Immediate value in HEX or DEC format |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .if A == #$10
     LDA #$07
@@ -2272,20 +2313,20 @@ Az összehasonlítás alapértelmezés szerint előjel nélküli. Az `&lt;=` és
 
 Mint egy **futásidejű ciklus tetején egy teszttel** — a törzs addig fut, amíg a feltétel igaz marad.
 
-| Mező          | Leírás                                       |
-| ------------- | -------------------------------------------- |
-| Nyilvántartás | `A`, `X` vagy `Y`                            |
-| Operátor      | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
-| Érték         | Azonnali érték HEX vagy DEC formátumban      |
+| Field    | Leírás                               |
+| -------- | ------------------------------------ |
+| Register | `A`, `X`, or `Y`                     |
+| Operator | `==`, `!=`, `<`, `<=`, `>`, `>=`     |
+| Value    | Immediate value in HEX or DEC format |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .while A != #$00
     JSR getchar
 .endw
 ```
 
-**Méret:** A ciklus törzsétől és az összehasonlítás formájától függ.
+**Size:** Depends on the loop body and compare form.
 
 Használd az `WHILE` függvényt, ha a ciklus az első iteráció befejezése előtt véget érhet. Ez a számlálóalapú `LOOP / NEXT` segédfüggvény futásidejű megfelelője.
 
@@ -2295,20 +2336,20 @@ Használd az `WHILE` függvényt, ha a ciklus az első iteráció befejezése el
 
 Mint egy **futásidejű ciklus alul egy teszttel** — a törzs mindig lefut legalább egyszer, majd a feltétel eldönti, hogy leálljon-e.
 
-| Mező          | Leírás                                       |
-| ------------- | -------------------------------------------- |
-| Nyilvántartás | `A`, `X` vagy `Y`                            |
-| Operátor      | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
-| Érték         | Azonnali érték HEX vagy DEC formátumban      |
+| Field    | Leírás                               |
+| -------- | ------------------------------------ |
+| Register | `A`, `X`, or `Y`                     |
+| Operator | `==`, `!=`, `<`, `<=`, `>`, `>=`     |
+| Value    | Immediate value in HEX or DEC format |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .repeat
     JSR getchar
 .until A == #$00
 ```
 
-**Méret:** A ciklus törzsétől és az összehasonlítás formájától függ.
+**Size:** Depends on the loop body and compare form.
 
 Használd az `REPEAT / UNTIL` függvényt, ha azt szeretnéd, hogy a törzs legalább egyszer lefusson a kilépési ellenőrzés előtt.
 
@@ -2318,12 +2359,12 @@ Használd az `REPEAT / UNTIL` függvényt, ha azt szeretnéd, hogy a törzs lega
 
 Mint a(z) **kis memóriarutinok, amelyekhez folyamatosan nyúlsz** — a(z) `MEMCPY` egy összefüggő blokkot másol, a(z) `MEMSET` pedig egy tartományt tölt ki egyetlen bájttal.
 
-| Makró    | Mezők                    |
+| Macro    | Mezők                    |
 | -------- | ------------------------ |
 | `MEMCPY` | `forrás`, `dst`, `méret` |
 | `MEMSET` | `cím`, `érték`, `méret`  |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .memcpy src=$C000, dst=$D000, size=$0100
 .memset addr=$0400, value=#$20, size=$03E8
@@ -2341,7 +2382,7 @@ A legfeljebb 256 bájtos méretek egy rövid, 8 bites ciklust használnak. Nagyo
 
 Mint a **PETSCII kimenet a sablonos** nélkül — egy karakterláncot nyomtat ki a `CHROUT` blokkon keresztül, ugyanazzal a nagybetűs/kisbetűs kezeléssel, mint a PETSCII blokk. A kisbetűs jelölőnégyzet meg van osztva a PETSCII kódolóval, így a szöveg elérési útja konzisztens marad.
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .print "HELLO"
 .print "hello", lower
@@ -2351,7 +2392,7 @@ Mint a **PETSCII kimenet a sablonos** nélkül — egy karakterláncot nyomtat k
 
 Kiír egy PETSCII bájtot numerikus kódként, és elküldi azt a `CHROUT` metóduson keresztül. Az érték lehet egy elnevezett konstans vagy címke is, amely összeszereléskor bájtra oldódik fel, mind Blokk, mind Szakértő módban.
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .print_char 65
 .print_char $41
@@ -2362,7 +2403,7 @@ Kiír egy PETSCII bájtot numerikus kódként, és elküldi azt a `CHROUT` metó
 
 Egy 8 bites értéket nyomtat ki hexadecimális szövegként a normál KERNAL kimeneti útvonalon keresztül.
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .print_hex A
 ```
@@ -2371,7 +2412,7 @@ Egy 8 bites értéket nyomtat ki hexadecimális szövegként a normál KERNAL ki
 
 A szabványos C64 képernyős vezérlőkód gyorsbillentyűje.
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .clear_screen
 ```
@@ -2380,7 +2421,7 @@ A szabványos C64 képernyős vezérlőkód gyorsbillentyűje.
 
 Megvárja, amíg lenyomnak egy billentyűt, így nem kell minden alkalommal kézzel futtatni a `GETIN` ciklust.
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .wait_key
 ```
@@ -2389,7 +2430,7 @@ Megvárja, amíg lenyomnak egy billentyűt, így nem kell minden alkalommal kéz
 
 Egy megosztott segítőrutinon keresztül megvárja a kért számú képkockát. Ezt rövid szünetekhez és időzítési hézagokhoz használjuk, amikor egy teljes egyéni ciklus túlzás lenne. A képkockaszám lehet nyers szám vagy egy elnevezett konstans, és az `.wait` csak az `.delay` álneve.
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .delay 29
 .wait 29
@@ -2402,7 +2443,7 @@ Blokk módban a késleltetés mező egy kompakt konstansválasztót használ, ha
 
 Kényelmi burkolók a VIC-II színregiszterekhez. A színérték lehet nyers szám vagy egy elnevezett konstans, amely 0–15-re oldódik fel. Mind a Blokk mód, mind a Szakértő mód elfogad szimbolikus konstansneveket.
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .set_border 6
 .set_bg 0
@@ -2420,12 +2461,12 @@ Blokk módban ezek a mezők szintén a konstansválasztót használják, így a 
 
 Egyetlen lépésben beállít egy raszteres IRQ kezelőt. A makró kiírja az IRQ vektort, engedélyezi a raszteres IRQ-kat, beállítja a vonalat, letiltja a gyakori CIA IRQ forrásokat, és a `CLI` paranccsal visszatér a normál végrehajtáshoz.
 
-| Mező    | Leírás                                                            |
+| Field   | Leírás                                                            |
 | ------- | ----------------------------------------------------------------- |
 | Kezelő  | IRQ rutin címkéje (pl. `my_irq`)                                  |
 | Raszter | Raszteres vonal hexadecimális vagy decimális formában (pl. `$FA`) |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .irq_setup handler=my_irq, raster=$FA
 ```
@@ -2440,11 +2481,11 @@ Ezt akkor használd, ha a megszokott "SEI / telepítéskezelő / IRQ engedélyez
 
 Mint egy **apró, beépített PRNG** — egy 8 bites pszeudovéletlenszerű értéket ad vissza egy kompakt nulla oldalas kezdőértékből.
 
-| Mező | Leírás                                                                 |
-| ---- | ---------------------------------------------------------------------- |
-| Mag  | Opcionális nulla oldalas kezdőbájt vagy címke (alapértelmezett: `$FB`) |
+| Field | Leírás                                                                 |
+| ----- | ---------------------------------------------------------------------- |
+| Mag   | Opcionális nulla oldalas kezdőbájt vagy címke (alapértelmezett: `$FB`) |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .rand
 ```
@@ -2460,21 +2501,21 @@ A generátor játékmenetre, effektvariációkra és gyors tesztadatokra készü
 
 Beállít egy VIC-II sprite-ot egyetlen blokkban — a BASIC-ben körülbelül 6 POKE utasítás írása helyett csak töltse ki a mezőket. Beállítja a sprite adatmutatóját, bekapcsolja azt, opcionálisan engedélyezi a többszínű módot, és beállítja a színét.
 
-| Mező      | Leírás                                                                |
+| Field     | Leírás                                                                |
 | --------- | --------------------------------------------------------------------- |
-| Sprite #  | Sprite-szám 0–7                                                       |
-| Szín      | Színindex 0–15 (C64 paletta)                                          |
+| Sprite #  | Sprite number 0–7                                                     |
+| Colour    | Színindex 0–15 (C64 paletta)                                          |
 | Adatoldal | Sprite adatcím / 64 (pl. `$21`, ha az adat a `$0840` címen található) |
 | Sokszínű  | Be-/kikapcsolja a sprite többszínű bitjét (`$D01C`)                   |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .sprite_init 0, 7, $21
 .sprite_init 0, 7, $21, multicolor
 .sprite_init 0, 7, $21, mono
 ```
 
-**Generált ASM:**
+**Generated ASM:**
 ```
     LDA #$21
     STA $07F8       ; sprite pointer register ($07F8 + N)
@@ -2499,13 +2540,13 @@ Beállít egy VIC-II sprite-ot egyetlen blokkban — a BASIC-ben körülbelül 6
 
 Mint a BASIC-ben található **`POKE 53248, x : POKE 53249, y`** — beállítja egy sprite kezdőpozícióját. A koordináták az összeszereléskor kerülnek beillesztésre, és a mezők blokk módban fogadnak konstansokat; animációhoz használd közvetlenül a sprite regiszteren az `INC`/`DEC` metódust.
 
-| Mező     | Leírás                   |
+| Field    | Leírás                   |
 | -------- | ------------------------ |
-| Sprite # | Sprite-szám 0–7          |
+| Sprite # | Sprite number 0–7        |
 | X        | Vízszintes pozíció 0–319 |
 | Y        | Függőleges pozíció 0–255 |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .sprite_pos 0, 152, 100
 ```
@@ -2534,16 +2575,16 @@ X > 255 esetén a makró a megfelelő bitet az `$D010` mappában törli, ahelyet
 
 Megvárja, amíg a VIC-II elektronnyaláb eléri a megadott pásztázási vonalat – mintha egy tévéképernyő képkockájához szinkronizálna. Tedd ezt a játék ciklusának elejére, hogy megakadályozd a sprite-ok szakadását. Nincs szükség JSR-re, nincs szükség címkére.
 
-| Mező            | Leírás                                                    |
+| Field           | Leírás                                                    |
 | --------------- | --------------------------------------------------------- |
 | Raszteres vonal | Cél raszteres vonal hexadecimálisan (pl. `FF` = 255. sor) |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .wait_raster $FF
 ```
 
-**Generált ASM:**
+**Generated ASM:**
 ```
 wait:
     LDA $D012       ; current raster line
@@ -2561,12 +2602,12 @@ wait:
 
 Mintha a **`PEEK($DC00)`** parancsot olvasná be, majd a sprite pozícióját POKE-olná – de egy blokkban. Egy CIA joystick portot olvas be, és ennek megfelelően állítja be a sprite X/Y regisztereit. Teljesen inline, nincs szükség JSR-re.
 
-| Mező     | Leírás                                                                 |
+| Field    | Leírás                                                                 |
 | -------- | ---------------------------------------------------------------------- |
-| Kikötő   | `1` = 1-es port (`$DC01`) vagy `2` = 2-es port (`$DC00`)               |
+| Port     | `1` = 1-es port (`$DC01`) vagy `2` = 2-es port (`$DC00`)               |
 | Sprite # | Sprite szám 0–7 (azt vezérli, hogy melyik X/Y regiszterpár frissüljön) |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .joystick 2, 0
 ```
@@ -2594,13 +2635,13 @@ skip_right:
 
 **Joystick bittérkép (aktív-LOW — a 0 bit azt jelenti, hogy lenyomva):**
 
-| Bit | Irány  | CIA-nyilvántartás                     |
-| --- | ------ | ------------------------------------- |
-| 0   | Fel    | $DC00 (2-es port) / $DC01 (1-es port) |
-| 1   | Le     |                                       |
-| 2   | Balra  |                                       |
-| 3   | Jobbra |                                       |
-| 4   | Tűz    | (ez a makró nem kezeli)               |
+| Bit | Direction | CIA-nyilvántartás                     |
+| --- | --------- | ------------------------------------- |
+| 0   | Fel       | $DC00 (2-es port) / $DC01 (1-es port) |
+| 1   | Le        |                                       |
+| 2   | Left      |                                       |
+| 3   | Right     |                                       |
+| 4   | Tűz       | (ez a makró nem kezeli)               |
 
 **Méret:** 27 bájt. Az `BCS` eltolás mindig `+3` (kihagyja a következő 3 bájtos `DEC`/`INC abs` utasítást).
 
@@ -2619,10 +2660,10 @@ skip_right:
 
 Commodore 1351 proporcionális egér adatait olvassa és egy sprite-ot mozgat. Teljesen **inline** — nincs szükség JSR-re vagy címkére. A makró kiválasztja a CIA portot, megvárja, amíg a SID lapát bemenetek leülepednek, majd dekódolja a delta mozgást a szabványos 1351-es illesztőprogram-minta segítségével, és alkalmazza azt a sprite regiszterekre.
 
-| Mező      | Leírás                                                            |
+| Field     | Leírás                                                            |
 | --------- | ----------------------------------------------------------------- |
-| Kikötő    | `1` = CIA `$DC00` bit `7:6` = `%01`; `2` = `%10`                  |
-| Sprite #  | Sprite-szám 0–7                                                   |
+| Port      | `1` = CIA `$DC00` bit `7:6` = `%01`; `2` = `%10`                  |
+| Sprite #  | Sprite number 0–7                                                 |
 | ZP bájt X | Nulla oldalas cím (hex) az előző POTX minta tárolására (pl. `FD`) |
 | ZP bájt Y | Nulla oldalas cím (hex) az előző POTY minta tárolására (pl. `FE`) |
 
@@ -2714,7 +2755,7 @@ ydone:
 
 **Méret:** 142 bájt.
 
-**Szakértői mód szintaxisa:**
+**Expert mode syntax:**
 ```
 .mouse port, spriteNum, zpX, zpY
 ; example:
@@ -2738,12 +2779,12 @@ ydone:
 
 Mint a BASIC-ben lévő **`PEEK($D01E)`** — ellenőrzi a VIC-II hardveres ütközési regisztereket, és megmondja, hogy egy sprite egy másik sprite-ba vagy a háttérbe ütközött-e. Teljesen inline, nincs szükség JSR-re.
 
-| Mező           | Leírás                                                                                                         |
+| Field          | Leírás                                                                                                         |
 | -------------- | -------------------------------------------------------------------------------------------------------------- |
 | Sprite #       | Sprite szám 0–7 (melyik sprite bitjét kell ellenőrizni)                                                        |
 | Ütközés típusa | `Sprite-Sprite ($D01E)` — ütközés egy másik sprite-tal; `Sprite-Background ($D01F)` — ütközés háttérgrafikával |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .sprite_col 0, sprite
 .sprite_col 0, background
@@ -2760,7 +2801,7 @@ Mint a BASIC-ben lévő **`PEEK($D01E)`** — ellenőrzi a VIC-II hardveres ütk
 
 > **Fontos:** A(z) `$D01E`/`$D01F` **beolvasása törli a(z)** regisztert. Olvasd be képkockánként egyszer, és azonnal reagálj az eredményre a(z) `BEQ`/`BNE` paranccsal.
 
-**Tipikus használat:**
+**Typical usage:**
 ```
 gameloop:
     WAIT_RASTER ($FF)
@@ -2784,14 +2825,14 @@ no_hit:
 
 Mint a BASIC-ben a **`LOAD "fájl",8`** — futásidőben betölt egy fájlt egy D64 lemezről a KERNAL LOAD rutin használatával. Ezzel adatokat, zenét vagy extra kódot tölthet be lemezről a program futása közben.
 
-| Mező                        | Leírás                                                                                                                                                                                                                  |
+| Field                       | Leírás                                                                                                                                                                                                                  |
 | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Fájlnév                     | Fájlnév a lemezen (maximum 16 karakter, automatikus nagybetűs írásmód; a következő karakterek szűrve: `,`, `"`, `/`, `\`, `:`, `*`, `?`, `&lt;`, `&gt;`, `|`)                                                           |
 | Eszköz                      | Eszközszám 8–30 (alapértelmezett: `8`)                                                                                                                                                                                  |
 | Cím felülírása (opcionális) | Hex betöltési cím (pl. `C000`). Ha be van állítva, a fájl erre a címre töltődik be (`sec=0`, figyelmen kívül hagyva a PRG fejlécet). Hagyja üresen, ha a fájl saját 2 bájtos PRG fejlécét szeretné használni (`sec=1`). |
 | Hibacímke (opcionális)      | Ha be van állítva, a JSR LOAD után egy `BCS` utasítás generálódik. Ha a KERNAL carry set (hiba) értékkel tér vissza, a végrehajtás erre a címkére ugrik.                                                                |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .loadfile "DEMO-COLORS", 8
 .loadfile "DEMO-COLORS", 8, $C000
@@ -2830,11 +2871,11 @@ skip_filename:
 
 Programon belüli **Exomizer kicsomagolás**. Ezt a makrót közvetlenül egy `LOADFILE` után használjuk, amely egy Exomizer `mem` módú tömörített adatfolyamot töltött be — az EXODECRUNCH visszafelé kicsomagolja azt a adatfolyamba beágyazott címre.
 
-| Mező          | Leírás                                                                                                                 |
+| Field         | Leírás                                                                                                                 |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | Depakoló címe | A kicsomagoló kód memóriában való tárolási helye (alapértelmezett: `B000`). 16 bites hexadecimális címnek kell lennie. |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .exodecrunch
 .exodecrunch depacker=$B000
@@ -2873,7 +2914,7 @@ Programon belüli **Exomizer kicsomagolás**. Ezt a makrót közvetlenül egy `L
 
 Észleli, hogy van-e Commodore RAM bővítőegység (REU) csatlakoztatva – mintha a `PEEK($D010)` regisztert ellenőrizné a hardver meglétének megállapítására. Két minta `$DF04` REU regiszterbe való visszaírásával és visszaolvasásával teszteli.
 
-| Mező      | Leírás                |
+| Field     | Leírás                |
 | --------- | --------------------- |
 | Egyik sem | Nincsenek operandusok |
 
@@ -2899,18 +2940,18 @@ done:
 ```
 > A makró normalizálja az eredményt, így a következő ág egyszerű marad: az `BNE` REU jelenlétét, az `BEQ` hiányzó REU-t jelent.
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .reu_check
 ```
 
-**Eredmény a jelzőkben:**
+**Result in flags:**
 - **Z = 0** (eredmény ≠ 0) → REU jelen → `BNE` használata
 - **Z = 1** (eredmény = 0) → nincs REU → használja az `BEQ`
 
 **Nincsenek konfigurálható mezők** — a makró minden alkalommal ugyanazt a kódot generálja.
 
-**Tipikus használat:**
+**Typical usage:**
 ```assembly
 REU_CHECK
 BEQ no_reu        ; skip if REU not present
@@ -2924,22 +2965,22 @@ no_reu:
 
 DMA blokkátvitel C64 RAM és REU bővítőmemória között – mint egy nagyon gyors POKE ciklus, de a CPU nem végez semmilyen munkát (a REU chip másolja az adatokat, miközben a CPU áll). Egy `$1000` bájtos átvitel gyakorlatilag azonnali.
 
-| Makró       | Irány         | `$DF01` parancs |
+| Macro       | Direction     | `$DF01` parancs |
 | ----------- | ------------- | --------------- |
 | `REU_STASH` | C64 RAM → REU | `$90`           |
 | `REU_FETCH` | REU → C64 RAM | `$91`           |
 | `REU_SWAP`  | C64 RAM ↔ REU | `$92`           |
 
-**Mezők:**
+**Fields:**
 
-| Mező     | Leírás                                | Példa  |
-| -------- | ------------------------------------- | ------ |
-| C64 cím  | Forrás/cél a C64 RAM-ban (hex)        | `C000` |
-| REU-cím  | Forrás/cél REU-ban (hex, 16 bites)    | `0000` |
-| REU bank | REU memóriabank (0–7)                 | `0`    |
-| Hossz    | Átviendő bájtok száma (hex, 16 bites) | `1000` |
+| Field    | Leírás                                | Example |
+| -------- | ------------------------------------- | ------- |
+| C64 cím  | Forrás/cél a C64 RAM-ban (hex)        | `C000`  |
+| REU-cím  | Forrás/cél REU-ban (hex, 16 bites)    | `0000`  |
+| REU bank | REU memóriabank (0–7)                 | `0`     |
+| Hossz    | Átviendő bájtok száma (hex, 16 bites) | `1000`  |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .reu_stash $C000, $0000, 0, $1000
 .reu_fetch $C000, $0000, 0, $1000
@@ -2968,22 +3009,22 @@ LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immedi
 
 Beállítja az **Ultimate-64 (U64) CPU sebességét** a `$D031` regiszteren keresztül. Nincs hatással egy valódi C64-re vagy más emulátorokra.
 
-**Mezők:**
+**Fields:**
 
-| Mező        | Leírás               | Hatótávolság                                         |
+| Field       | Leírás               | Hatótávolság                                         |
 | ----------- | -------------------- | ---------------------------------------------------- |
 | Sebesség    | CPU sebességindex    | 0 = 1 MHz … 7 ≈ 10 MHz … 15 ≈ 48 MHz                 |
 | Rossz vonal | Rossz vonal emuláció | Engedélyezett (C64 kompatibilis) / Letiltott (turbó) |
 
 A sebességbájt kiszámítása a következőképpen történik: `(speedIndex &amp; 0x0F) | (badline_disabled ? 0x80 : 0x00)`.
 
-**Generált kód (5 bájt):**
+**Generated code (5 bytes):**
 ```
 A9 xx   LDA #speed_byte
 8D 31 D0   STA $D031
 ```
 
-**Szakértői mód szintaxisa:**
+**Expert mode syntax:**
 ```
 .turbo_set 7,0    ; speed=7 (~10 MHz), badline enabled
 .turbo_set 15,1   ; speed=15 (~48 MHz), badline disabled
@@ -2997,24 +3038,24 @@ A9 xx   LDA #speed_byte
 
 Ellenőrzi, hogy van-e telepítve **CMD SuperCPU** gyorsító — például `PEEK($D0B8)` —, hogy a `$FF`-től eltérő értéket ad-e vissza.
 
-**Generált kód (5 bájt):**
+**Generated code (5 bytes):**
 ```
 AD B8 D0   LDA $D0B8
 C9 FF      CMP #$FF
 ```
 
-**Eredmény a jelzőkben:**
+**Result in flags:**
 - **Z = 0** → SuperCPU jelen → `BNE` használata
 - **Z = 1** → Nem található SuperCPU → használja az `BEQ` függvényt
 
 **Nincsenek konfigurálható mezők.**
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .supercpu_detect
 ```
 
-**Tipikus használat:**
+**Typical usage:**
 ```assembly
 SUPERCPU_DETECT
 BEQ no_scpu       ; skip if SuperCPU not present
@@ -3028,18 +3069,18 @@ no_scpu:
 
 Be- vagy kikapcsolja a(z) **CMD SuperCPU turbó módot**. Először hívja meg a(z) `SUPERCPU_DETECT` függvényt, és hagyja ki ezt, ha a SuperCPU nincs jelen.
 
-| Mód          | Nyilvántartás | Hatás                                         |
-| ------------ | ------------- | --------------------------------------------- |
-| Engedélyezés | `$D07A`       | Turbó bekapcsolása (akár 20 MHz SuperCPU-val) |
-| Letiltás     | `$D07B`       | Visszatérés 1 MHz-es kompatibilitási módba    |
+| Mode         | Register | Effect                                        |
+| ------------ | -------- | --------------------------------------------- |
+| Engedélyezés | `$D07A`  | Turbó bekapcsolása (akár 20 MHz SuperCPU-val) |
+| Letiltás     | `$D07B`  | Visszatérés 1 MHz-es kompatibilitási módba    |
 
-**Generált kód (5 bájt):**
+**Generated code (5 bytes):**
 ```
 A9 00         LDA #$00
 8D 7A D0      STA $D07A    ; (or $D07B for disable)
 ```
 
-**Szakértői mód szintaxisa:**
+**Expert mode syntax:**
 ```
 .turbo_enable on
 .turbo_enable off
@@ -3054,7 +3095,7 @@ A9 00         LDA #$00
 
 Egy forráscímről egy tilemap-et másol a képernyő RAM-ba (és opcionálisan a szín RAM-ba) `LDA abs,X` / `STA abs,X` ciklusok sorozatát használva. Ciklusonként egy 256 bájtos oldal másolódik; egy részleges oldal a végén a `CPX #rem / BNE` paranccsal állítja le. Nincs szükség JSR-re — az összes kód inline generálódik.
 
-| Mező                  | Leírás                                                                                                                                                                                     |
+| Field                 | Leírás                                                                                                                                                                                     |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Forráscím (képernyő)  | A térképadatok betöltés utáni helyének hexadecimális címe (pl. `C000`)                                                                                                                     |
 | Képernyő RAM cél      | Hová másolja a képernyőkódokat (pl. `0400`)                                                                                                                                                |
@@ -3098,7 +3139,7 @@ A Térképszerkesztő **Fájlok → Térkép + színes RAM (.bin)** parancsa egy
     MAP_COPY src=$C000 dst=$0400 size=1000 combined color_dst=$D800
 ```
 
-**Szakértői mód szintaxisa:**
+**Expert mode syntax:**
 ```
 .map_copy $C000, $0400, 1000               ; screen only
 .map_copy $C000, $0400, 1000, auto, $D800  ; combined (color at src+size)
@@ -3121,7 +3162,7 @@ Egy 16×16 karakteres területet másol ki egy kompakt, 256 bájtos képernyők�
 | Képernyő RAM célhelye  | `0400 $ + sor×40 + oszlop` |
 | Színes RAM célhely     | `$D800 + sor×40 + oszlop`  |
 
-**Szakértői mód szintaxisa:**
+**Expert mode syntax:**
 ```
 .map_copy16x16 $3000, 12, 4
 .map_copy16x16 $3000, 12, 4, $0400, $3100, $D800
@@ -3162,9 +3203,9 @@ loop:
 
 Minden híváskor egy sprite animációs képkockát léptet előre, és frissíti a VIC-II sprite adatmutatót. Képkockánként egy bájtot tároljon egy táblázatban (a sprite adatlap száma = `adat_cím / 64`), mutasson rá a SPRITE_ANIM-mel, és játékkockánként egyszer hívja meg – nincs szükség JSR-re.
 
-| Mező            | Leírás                                                                                       |
+| Field           | Leírás                                                                                       |
 | --------------- | -------------------------------------------------------------------------------------------- |
-| Sprite #        | Sprite-szám 0–7                                                                              |
+| Sprite #        | Sprite number 0–7                                                                            |
 | Keretlista címe | A frame tábla hex címe — keretenként egy bájt, minden bájt = sprite oldal (`data_addr / 64`) |
 | Képkockák száma | Képkockák száma összesen (1–255)                                                             |
 | ZP keret        | Nulla oldalszámú bájt, amelyet keretszámlálóként használnak (pl. `FB`)                       |
@@ -3184,7 +3225,7 @@ Minden híváskor egy sprite animációs képkockát léptet előre, és frissí
 
 **Méret:** 19 bájt.
 
-**Tipikus használat:**
+**Typical usage:**
 ```
 frameTable:
     .byte $21, $22, $23, $24   ; 4 frames at $0840, $0880, $08C0, $0900
@@ -3195,7 +3236,7 @@ gameloop:
     JMP gameloop
 ```
 
-**Szakértői mód szintaxisa:**
+**Expert mode syntax:**
 ```
 .sprite_anim spriteNum, frameListAddr, frameCount, zpByte
 ; example:
@@ -3211,14 +3252,14 @@ gameloop:
 
 Hozzáad egy fixpontos értéket egy memóriában tárolt többbájtos BCD-pontszámhoz, majd minden számjegyet képernyőkód karakterként jelenít meg a képernyő RAM-ban. A 6502-es decimális módot (`SED`/`CLD`) használja a hordozható BCD-aritmetikához – nincs szükség kézi hordozás-zsonglőrködésre.
 
-| Mező              | Leírás                                                                                                       |
+| Field             | Leírás                                                                                                       |
 | ----------------- | ------------------------------------------------------------------------------------------------------------ |
 | Pontszám címe     | A BCD pontszámbájtok hexadecimális címe (pl. `C200`). Az alsó bájttól kezdődik.                              |
 | Számjegyek        | BCD bájtok száma (mindegyik bájt két számjegyet tartalmaz: `$99` = "99"). `4` bájt = legfeljebb 99999999.    |
 | Pontok hozzáadása | Hívásonként hozzáadandó decimális érték (pl. `100`).                                                         |
 | Képernyőcím       | Hová kell írni a számjegy képernyőkódokat (pl. `0400`). Számjegyenként egy bájt (a magasabb nibble először). |
 
-**Szakértői szintaxis:**
+**Expert syntax:**
 ```
 .score_bcd $C200, 4, 100, $0400
 ```
@@ -3260,7 +3301,7 @@ digit_loop:
 
 **Méret:** `3 + számjegy×8` bájt (SED + CLC + CLD többletterhelés + 8 bájt BCD bájtonként az ADC + kijelzőhurok számára).
 
-**Szakértői mód szintaxisa:**
+**Expert mode syntax:**
 ```
 .score_bcd $C200, 4, 100, $0400
 ```
@@ -3298,7 +3339,7 @@ Kattintson a töréspont ikonra (●) bármelyik utasításblokkon, ha azt tör�
 
 ### Hibakereső jelzők (Beállítások fül)
 
-| Váltás                            | Zászló                         | Hatás                                                                  |
+| Toggle                            | Zászló                         | Effect                                                                 |
 | --------------------------------- | ------------------------------ | ---------------------------------------------------------------------- |
 | `-jump` BE                        | `-jump $CÍM`                   | Betöltés után közvetlenül a program kezdőcímére ugorhat                |
 | `-szüneteltetés megszüntetése` BE | `-szüneteltetés megszüntetése` | A hibakereső szüneteltetésének azonnali feloldása betöltéskor          |
@@ -3333,19 +3374,19 @@ Az 1.5.1-es verzió lehetővé teszi a program (és a további adatfájlok) C64 
 
 Az eszköztár **Futtatás** gombját egy **osztott gomb** váltotta fel:
 
-| Rész                | Akció                                               |
+| Rész                | Action                                              |
 | ------------------- | --------------------------------------------------- |
 | **▶ Futtatás** (fő) | Végrehajtja az aktuálisan kiválasztott futási módot |
 | **▾** (nyíl)        | Megnyitja az üzemmódválasztót                       |
 
 **Elérhető futási módok:**
 
-| Mód                             | Leírás                                                                                                                                                                                                                                    |
-| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Futtatás PRG-ként**           | Összegyűjtjük egy ideiglenes `.prg` fájlt, és közvetlenül elindítjuk a VICE-t. Klasszikus viselkedés.                                                                                                                                     |
-| **Futtatás a D64-en keresztül** | Állítsd össze, készíts egy `.d64` lemezképet (c1541 használatával), add hozzá a konfigurált extra fájlokat, majd indítsd el a VICE-t a lemezről. Használd ezt, amikor a programod futásidőben fájlokat tölt be (pl. a LOADFILE makróval). |
-| **Hardveren futtatva**          | Gyűjtsd össze PRG-re, és küldd el egy **1541 Ultimate / Ultimate 64** eszközre a helyi hálózaton keresztül. Lásd: [13. szakasz](#13-hardware-settings).                                                                                   |
-| Kung Fu Flash 2 **              | Rakd össze PRG-re, majd töltsd fel USB soros porton keresztül egy igazi C64/C128-ra egy **Kung Fu Flash 2** patronnal. Lásd: [Kung Fu Flash 2]{1].                                                                                        |
+| Mode                   | Leírás                                                                                                                                                                                                                                    |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Run as PRG**         | Összegyűjtjük egy ideiglenes `.prg` fájlt, és közvetlenül elindítjuk a VICE-t. Klasszikus viselkedés.                                                                                                                                     |
+| **Run via D64**        | Állítsd össze, készíts egy `.d64` lemezképet (c1541 használatával), add hozzá a konfigurált extra fájlokat, majd indítsd el a VICE-t a lemezről. Használd ezt, amikor a programod futásidőben fájlokat tölt be (pl. a LOADFILE makróval). |
+| **Hardveren futtatva** | Gyűjtsd össze PRG-re, és küldd el egy **1541 Ultimate / Ultimate 64** eszközre a helyi hálózaton keresztül. Lásd: [13. szakasz](#13-hardware-settings).                                                                                   |
+| **Kung Fu Flash 2**    | Rakd össze PRG-re, majd töltsd fel USB soros porton keresztül egy igazi C64/C128-ra egy **Kung Fu Flash 2** patronnal. Lásd: [Kung Fu Flash 2]{1].                                                                                        |
 
 A kiválasztott mód a munkamenetek között mentésre kerül.
 
@@ -3377,7 +3418,7 @@ A Görbeszerkesztő utáni eszköztár ikon megnyitja a **D64 szerkesztőt** –
 
 **Fájlok ▾ menü:**
 
-| Tétel                   | Akció                                                                                               |
+| Tétel                   | Action                                                                                              |
 | ----------------------- | --------------------------------------------------------------------------------------------------- |
 | **Új D64…**             | Válasszon ki egy cél elérési utat, és hozzon létre ott egy frissen formázott, üres lemezképet.      |
 | **D64 megnyitása…**     | Válassz ki egy meglévő `.d64` fájlt és töltsd be a könyvtárát.                                      |
@@ -3386,7 +3427,7 @@ A Görbeszerkesztő utáni eszköztár ikon megnyitja a **D64 szerkesztőt** –
 
 **Eszköztár:**
 
-| Ikon                     | Akció                                                                                                                                                                        |
+| Ikon                     | Action                                                                                                                                                                       |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Program hozzáadása**   | Válassz ki egy helyi fájlt, és írd be a lemez könyvtárába.                                                                                                                   |
 | **Kijelöltek kinyerése** | A kiválasztott bejegyzés bájtjainak mentése egy helyi `.prg` fájlba.                                                                                                         |
@@ -3468,22 +3509,22 @@ Nyissa meg az eszköztár menüjének **Beállítások → Hardverbeállítások
 
 ### VICE emulátor
 
-| Beállítás             | Leírás                                                                     |
-| --------------------- | -------------------------------------------------------------------------- |
-| **Válassza a VICE-t** | Tallózz a(z) `x64sc` (vagy `x64`) VICE futtatható fájlhoz.                 |
-| **Állapot**           | Megjeleníti, hogy a végrehajtható fájl elérési útja érvényes és elérhető-e |
+| Setting               | Leírás                                                     |
+| --------------------- | ---------------------------------------------------------- |
+| **Válassza a VICE-t** | Tallózz a(z) `x64sc` (vagy `x64`) VICE futtatható fájlhoz. |
+| **Status**            | Shows whether the executable path is valid and accessible  |
 
 VICE szükséges a **Futtatás PRG-ként**, **Futtatás D64-en keresztül** és **Exportálás D64-be** parancsokhoz.
 
 ### Exomizer
 
-| Beállítás                                | Leírás                                                                                                                                                                                       |
+| Setting                                  | Leírás                                                                                                                                                                                       |
 | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Válaszd az Exomizert**                 | Tallózással keresd meg az `exomizer` futtatható fájlt.                                                                                                                                       |
 | **Szegélyvillanás dekompresszió közben** | Ha engedélyezve van, az SFX-tömörített PRG-k az exomizer beépített `-x1` gyors szegélyvillanás effektjét használják; ha le van tiltva, az `-n` effektust adják át a csendes kicsomagoláshoz. |
-| **Állapot**                              | Megjeleníti, hogy a végrehajtható fájl elérési útja érvényes és elérhető-e                                                                                                                   |
+| **Status**                               | Shows whether the executable path is valid and accessible                                                                                                                                    |
 
-**Munkafolyamat:**
+**Workflow:**
 1. Telepítsd az Exomizer bináris fájlt:
    - **Windows:** töltse le az előre elkészített `win32/exomizer.exe` fájlt a https://bitbucket.org/magli143/exomizer/wiki/Home vagy a https://csdb.dk/release/?id=244342 oldalról.
    - **macOS:** `brew install exomizer` (Magnus Lind hivatalos 3.1.2-es buildjét telepíti).
@@ -3495,7 +3536,7 @@ Az Exomizer ugyanúgy működik Windows és macOS rendszereken – a parancssori
 
 **Két belső tömörítési módot használnak:**
 
-| Mód                | Használta                                                    | Hívási konvenció                                                                                                                                                                                    |
+| Mode               | Használta                                                    | Hívási konvenció                                                                                                                                                                                    |
 | ------------------ | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `sfx rendszer`     | Építés/Futtatás Exomizerrel kapcsolóval (fő PRG útvonal)     | Önkicsomagoló PRG beépített decruncherrel; a Border-flash beállítás a `-x1` és a `-n` közötti tartományokat szabályozza.                                                                            |
 | `mem` (visszafelé) | D64-en keresztül futtatva → fájlonként **EXO** jelölőnégyzet | Minden extra fájlt `mem` módú adatfolyamba tömörít; a program futásidőben kicsomagolja azt az **EXODECRUNCH** makró és egy előre elkészített kicsomagoló (`samples/exo-decrunch.bin`) segítségével. |
@@ -3506,10 +3547,10 @@ Az Exomizer ugyanúgy működik Windows és macOS rendszereken – a parancssori
 
 ### Retro hibakereső
 
-| Beállítás                      | Leírás                                                    |
+| Setting                        | Leírás                                                    |
 | ------------------------------ | --------------------------------------------------------- |
 | **RetroDebugger kiválasztása** | Tallózással keresse meg az `RetroDebugger` bináris fájlt. |
-| **Állapot**                    | Megmutatja, hogy az elérési út érvényes-e                 |
+| **Status**                     | Megmutatja, hogy az elérési út érvényes-e                 |
 
 A teljes hibakereső dokumentációt lásd a [9. szakasz](#9-debugger-integration) alatt.
 
@@ -3517,13 +3558,13 @@ A teljes hibakereső dokumentációt lásd a [9. szakasz](#9-debugger-integratio
 
 Összeállított PRG-ket futtathat közvetlenül valódi hardveren a helyi hálózaton keresztül az Ultimate REST API használatával.
 
-| Beállítás                | Leírás                                                                 |
+| Setting                  | Leírás                                                                 |
 | ------------------------ | ---------------------------------------------------------------------- |
 | **Gép (IP)**             | Az eszköz IP-címe (pl. `192.168.1.100`)                                |
 | **Jelszó**               | Opcionális – ha az eszköz hitelesítést igényel                         |
 | **Kapcsolat tesztelése** | Tesztkérést küld a(z) `/v3/runners/info` címre; OK-t vagy hibát jelez. |
 
-**Munkafolyamat:**
+**Workflow:**
 1. Csatlakoztassa a 1541 Ultimate / Ultimate 64 készüléket a helyi hálózathoz.
 2. Adja meg az IP-címét (és a jelszavát, ha be van állítva) a Hardverbeállítások részben.
 3. Válaszd a **Futtatás hardveren** lehetőséget a megosztott futtatás menüből.
@@ -3540,11 +3581,11 @@ Futtasson összeszerelt programokat egy **real Commodore 64 vagy C128** processz
 - **Kung Fu Flash firmware v2.07 vagy újabb** a kazettán — a korábbi firmware verziók nem támogatják a Visual Assembler által használt feltöltési protokollt. Firmware kiadások: <https://codeberg.org/KimJorgensen/KungFuFlash2/releases/>;
 - egy **USB-kábel**, amely a kazettát a Visual Assembler programot futtató számítógéphez csatlakoztatja (virtuális soros portként jelenik meg).
 
-| Beállítás      | Leírás                                                                                                                                                                                                                                                                                                                                                                              |
+| Setting        | Leírás                                                                                                                                                                                                                                                                                                                                                                              |
 | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Soros port** | A kazetta USB soros portja, pl. `COM4` (Windows), `/dev/cu.usbmodem…` (macOS) vagy `/dev/ttyACM0` (Linux). Automatikusan megtalálható az USB azonosítója (`0483:5740`) alapján az alkalmazás indításakor; a mező alatti állapotsorban a `KFF2: <port>` felirat látható, vagy ha nem található port, manuálisan kell beírni a portot. Az érték a munkamenetek között mentésre kerül. |
 
-**Munkafolyamat:**
+**Workflow:**
 1. Helyezze a Kung Fu Flash 2-t a C64 kazettacsatlakozójába, kapcsolja be a számítógépet, és csatlakoztassa az USB-kábelt a PC-hez/Mac-hez.
 2. Nyisd meg a **Hardverbeállítások** ablakot, és ellenőrizd a **Kung Fu Flash 2** részt – a portnak már ki kell töltenie.
 3. Válaszd ki az **Kung Fu Flash 2** elemet a megosztott futtatás menüjéből (a választást a rendszer megjegyzi, és a projektfájlokban is tárolja).
@@ -3570,39 +3611,39 @@ A vizuális szerkesztő párbeszédablakok a fejlécüknél fogva húzhatók a t
 
 Pixel szintű bitképszerkesztő 320×200 nagy felbontású és 160×200 többszínű móddal. Megnyitás a Toolkit → Nagy felbontású szerkesztő menüpontban.
 
-| Jellemző                  | Leírás                                                                                                                          |
+| Feature                   | Leírás                                                                                                                          |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | Módváltás                 | A **Többszínű** jelölőnégyzet a nagy felbontású (cellánként fekete-fehér) és a többszínű (cellánként 4 szín) között vált.       |
-| Eszközök                  | Ceruza, radír, vonal, téglalap, kitöltött téglalap, ovális, kitöltött ovális, kitöltés.                                         |
-| Szóróeszköz               | Airbrush stílusú festő, amely rajzolás közben pixeleket szór a kurzor körül.                                                    |
-| Permetezés intenzitása    | A szóróeszköz melletti legördülő menüvel szabályozható az egyes szóróvonások sűrűsége.                                          |
+| Tools                     | Ceruza, radír, vonal, téglalap, kitöltött téglalap, ovális, kitöltött ovális, kitöltés.                                         |
+| Spray tool                | Airbrush stílusú festő, amely rajzolás közben pixeleket szór a kurzor körül.                                                    |
+| Spray intensity           | A szóróeszköz melletti legördülő menüvel szabályozható az egyes szóróvonások sűrűsége.                                          |
 | Színpaletta               | Előtér (tinta) + papír (háttér) választó. A többszínű mód automatikusan cellánként 3 extrát követ.                              |
 | Visszavonás / Újraindítás | Löketenkénti előzmények, ctrl-Z / ctrl-Y.                                                                                       |
 | Rács + Raszter            | Opcionális 8×8-as rács és raszteres sorrátét a cellaigazításhoz.                                                                |
 | Kép importálása           | A vászonra dobott PNG/JPEG/GIF fájlok automatikusan kvantálódnak a 16 színű C64 palettára.                                      |
-| Blokk exportálása         | BYTE/RAWBYTES blokkokat fűz a programhoz a kódolt bitképes, képernyő- és színadatokkal.                                         |
+| Export blocks             | BYTE/RAWBYTES blokkokat fűz a programhoz a kódolt bitképes, képernyő- és színadatokkal.                                         |
 | Exportálás: `.bin`        | Elmenti a natív többszínű formátumot (10000 bájt: 8000 bitkép + 1000 képernyő + 1000 szín) a LOADFILE-ra $2000 fájlformátumban. |
 
 ### Sprite-szerkesztő
 
 24×21 pixeles sprite szerkesztő több képkockás animációval. Megnyitás a Toolkit → Sprite szerkesztő menüpontban.
 
-| Jellemző                  | Leírás                                                                                                                                                                                                                                                      |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Keretek                   | Keretek hozzáadása / eltávolítása / átrendezése; a keretsáv alul látható.                                                                                                                                                                                   |
-| Mód                       | Monokróm / többszínű váltás.                                                                                                                                                                                                                                |
-| Eszközök                  | Ceruza, kitöltés, vonal, téglalap, kör – plusz vízszintes tükrözés, függőleges tükrözés, eltolás balra/jobbra/fel/le (opcionális körbefuttatás). Az alakzateszközök élő előnézetet jelenítenek meg húzás közben; a véglegesítéshez engedje el a billentyűt. |
-| Visszavonás / újraindítás | Teljes visszavonás/ismétlés művelet képkockánként. Ctrl/Cmd+Z / Ctrl/Cmd+Y vagy az eszköztár gombjai.                                                                                                                                                       |
-| Képimportálás             | PNG vagy JPEG fájl importálása a Fájlok → Kép importálása menüpontban. Az importáló minden képpontot a legközelebbi C64 palettaszínhez rendel, és beírja az aktuális képkockába.                                                                            |
-| Animáció előnézete        | Lejátszás / leállítás konfigurálható sebességgel.                                                                                                                                                                                                           |
-| Blokk exportálása         | Minden képkockához beszúr egy RAWBYTES blokkot 64 bájtos, egymáshoz igazított címen, valamint egy sprite pointer beállítást.                                                                                                                                |
-| Mentés `.bin`             | Képkockánként 64 bájtot ír (nyers sprite adatok kitöltés nélkül).                                                                                                                                                                                           |
+| Feature            | Leírás                                                                                                                                                                                                                                                      |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Keretek            | Keretek hozzáadása / eltávolítása / átrendezése; a keretsáv alul látható.                                                                                                                                                                                   |
+| Mode               | Monokróm / többszínű váltás.                                                                                                                                                                                                                                |
+| Tools              | Ceruza, kitöltés, vonal, téglalap, kör – plusz vízszintes tükrözés, függőleges tükrözés, eltolás balra/jobbra/fel/le (opcionális körbefuttatás). Az alakzateszközök élő előnézetet jelenítenek meg húzás közben; a véglegesítéshez engedje el a billentyűt. |
+| Undo / redo        | Teljes visszavonás/ismétlés művelet képkockánként. Ctrl/Cmd+Z / Ctrl/Cmd+Y vagy az eszköztár gombjai.                                                                                                                                                       |
+| Image import       | PNG vagy JPEG fájl importálása a Fájlok → Kép importálása menüpontban. Az importáló minden képpontot a legközelebbi C64 palettaszínhez rendel, és beírja az aktuális képkockába.                                                                            |
+| Animáció előnézete | Lejátszás / leállítás konfigurálható sebességgel.                                                                                                                                                                                                           |
+| Export blocks      | Minden képkockához beszúr egy RAWBYTES blokkot 64 bájtos, egymáshoz igazított címen, valamint egy sprite pointer beállítást.                                                                                                                                |
+| Mentés `.bin`      | Képkockánként 64 bájtot ír (nyers sprite adatok kitöltés nélkül).                                                                                                                                                                                           |
 
 ### C64 karakter ROM böngésző ("Karaktertérkép")
 
 A C64 karakter ROM (a beépített PETSCII betűtípus) csak olvasható megjelenítője. Megnyitható az **C64 chargen** bejegyzéssel az Eszközkészlet menüben. Hasznos egy karakterjel képernyőkódjának megkereséséhez, mielőtt azt a `RAWBYTES` vagy `TEXT` paranccsal megírná.
 
-| Jellemző            | Leírás                                                                                                                                                                                                                                             |
+| Feature             | Leírás                                                                                                                                                                                                                                             |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Két karakterkészlet | 1. fül: **1. készlet — Felső/Grafika** (alapértelmezett mód bekapcsolás után). 2. fül: **2. készlet — Alsó/Felső** (`$0E` váltás után).                                                                                                            |
 | Karakterjelrács     | 16×16-os rács, mind a 256 karakterből. Kattintson egy karakterjelre a részletes panel megtekintéséhez: nagyított 8×8 pixeles nézet, képernyőkód (decimális + hex), PETSCII kódok (alapértelmezett és eltolt is), valamint a nyers 8 bájtos bitkép. |
@@ -3613,7 +3654,7 @@ A C64 karakter ROM (a beépített PETSCII betűtípus) csak olvasható megjelen�
 
 256 karakteres, 8×8 karakterkészlet-szerkesztő. Megnyitás az Eszköztár → Karakterszerkesztő menüpontban.
 
-| Jellemző                   | Leírás                                                                                                                                                                                         |
+| Feature                    | Leírás                                                                                                                                                                                         |
 | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ROM betöltése              | Importálja a C64 ROM karakterkészletet közvetlenül a VICE `chargen` fájljából (fájlválasztó nélkül).                                                                                           |
 | Betöltés `.bin`            | Importál egy külső, 2048 bájtos karakterkészletű bináris fájlt.                                                                                                                                |
@@ -3621,7 +3662,7 @@ A C64 karakter ROM (a beépített PETSCII betűtípus) csak olvasható megjelen�
 | Pixel szerkesztő           | 8×8-as egykarakteres szerkesztő váltó/invertáló/törlés eszközökkel.                                                                                                                            |
 | Karakterenkénti szín       | Minden karakterjelhez egy alapértelmezett Color RAM értéket tárol. Többszínű karaktermódban ez megőrzi a cellánkénti többszínű engedélyezési bitet és a karakter saját alsó 3 bites színét is. |
 | Metaadatok oda-vissza útja | Kompatibilis adatok betöltésekor Charset Canvas / Map munkafolyamatokból a karakterenkénti szín metaadatok megmaradnak, így a szerkesztések a színszándék elvesztése nélkül folytatódhatnak.   |
-| Blokk exportálása          | A RAWBYTES értékét a $0800 (2. blokk) vagy a $3800 (7. blokk) értéknél a kódolt karakterkészlettel fűzi hozzá.                                                                                 |
+| Export blocks              | A RAWBYTES értékét a $0800 (2. blokk) vagy a $3800 (7. blokk) értéknél a kódolt karakterkészlettel fűzi hozzá.                                                                                 |
 
 ### Karakterkészlet-vászonszerkesztő
 
@@ -3629,13 +3670,13 @@ Teljes vászon karakterkészlet-festő képernyők létrehozásához egy teljes 
 
 A vászon 16×16 karakteres. Monokróm módban ez 128×128 pixeles munkaterületet biztosít; többszínű karaktermódban 64×128 pixeles széles munkaterületet biztosít a C64 valódi karaktereinek többszínűségi szabályait használva.
 
-| Jellemző                                    | Leírás                                                                                                                                                                                                                |
+| Feature                                     | Leírás                                                                                                                                                                                                                |
 | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Monokróm / többszínű                        | A monokróm mód 1 bites 8×8-as karakterjeleket tárol. A többszínű mód két bites vízszintes pixelpárokat tárol, és a felhasznált cellákat a Color RAM 3-as bitjével jelöli.                                             |
 | C64 színmodell                              | A háttér az `$D021` biteket használja; a megosztott többszínű 1 az `$D022` biteket használja; a megosztott többszínű 2 az `$D023` biteket használja; minden karakter saját színe a Color RAM 0–2 bitjeiből származik. |
 | Rajzeszközök                                | A ceruza, radír, vonal, téglalap, ovális és elárasztásos kitöltés a karakterhatárokon átívelően működik.                                                                                                              |
-| Szóróeszköz                                 | Airbrush stílusú rajz, amely pixeleket szór szét a szomszédos cellákon/karaktereken.                                                                                                                                  |
-| Permetezés intenzitása                      | A szóróeszköz melletti legördülő menüvel állíthatja be a vonal sűrűségét.                                                                                                                                             |
+| Spray tool                                  | Airbrush stílusú rajz, amely pixeleket szór szét a szomszédos cellákon/karaktereken.                                                                                                                                  |
+| Spray intensity                             | A szóróeszköz melletti legördülő menüvel állíthatja be a vonal sűrűségét.                                                                                                                                             |
 | Rács váltása                                | A Rács jelölőnégyzet megjeleníti vagy elrejti a 16×16 karakteres rácsot.                                                                                                                                              |
 | Karakterkészlet mentése: `.bin`             | Menti a 2048 bájtos karakteres bitképes adatokat.                                                                                                                                                                     |
 | 16×16-os térkép + Színes RAM mentése `.bin` | 256 képernyőkódot, majd 256 színes RAM-értéket ment. Használja ezt a `MAP_COPY16X16` paranccsal.                                                                                                                      |
@@ -3647,17 +3688,17 @@ A vászon 16×16 karakteres. Monokróm módban ez 128×128 pixeles munkaterület
 
 Réteges csempetérkép-szerkesztő statikus tájképekhez, sprite-alapú spawn-térképekhez, ütközési adatokhoz és hasonlókhoz. Megnyitás az Eszköztár → Térképszerkesztő menüpontban.
 
-| Jellemző                                  | Leírás                                                                                                                                                                                                                                                                              |
+| Feature                                   | Leírás                                                                                                                                                                                                                                                                              |
 | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Rétegek                                   | Több elnevezett réteg, mindegyik saját csempével és átlátszósággal.                                                                                                                                                                                                                 |
 | Ecsetek                                   | Egyetlen csempés, kitöltés, vonal, téglalap és kör módok. Az alakzateszközök élő előnézetet jelenítenek meg húzás közben; a véglegesítéshez engedje el az egérgombot.                                                                                                               |
-| Visszavonás / újraindítás                 | Teljes visszavonás/ismétlés művelet rétegenként. Ctrl/Cmd+Z / Ctrl/Cmd+Y vagy az eszköztár gombjai.                                                                                                                                                                                 |
+| Undo / redo                               | Teljes visszavonás/ismétlés művelet rétegenként. Ctrl/Cmd+Z / Ctrl/Cmd+Y vagy az eszköztár gombjai.                                                                                                                                                                                 |
 | Menü törlése                              | Rétegenkénti vagy teljes térképi törlés megerősítéssel.                                                                                                                                                                                                                             |
-| Képimportálás                             | Helyezzen el egy tilemap PNG-jét; a szerkesztő automatikusan csempékre szeleteli.                                                                                                                                                                                                   |
+| Image import                              | Helyezzen el egy tilemap PNG-jét; a szerkesztő automatikusan csempékre szeleteli.                                                                                                                                                                                                   |
 | Másolás / beillesztés                     | Másolja ki a kijelölt csempeterületet, majd illessze be normál módon, vagy használjon átlátszó pasztát az üres csempék átlátszóságának megőrzéséhez.                                                                                                                                |
 | Többszínű csempe színezés                 | Kompatibilis karakterkészlet metaadatokkal a festés a csempe tárolt Color RAM alapértelmezett értékeit használja (beleértve a többszínűséggel kapcsolatos kódolást is) egy általános, egyszínű helyett.                                                                             |
 | Egyéni karakterkészlet színek             | Amikor egy karakterkészlet `charColors` metaadatot hordoz, a Térképszerkesztő a kiválasztott csempe alapértelmezett Szín RAM értékét használja festés közben.                                                                                                                       |
-| Blokk exportálása                         | RAWBYTES blokkokat bocsát ki a csempék grafikáihoz + térképadatokhoz.                                                                                                                                                                                                               |
+| Export blocks                             | RAWBYTES blokkokat bocsát ki a csempék grafikáihoz + térképadatokhoz.                                                                                                                                                                                                               |
 | Képernyő RAM mentése (.bin)…              | Csak az aktuális térképréteg képernyőkódjait menti el (40×25 = 1000 bájt).                                                                                                                                                                                                          |
 | Képernyő RAM + Színes RAM (.bin) mentése… | A színes RAM-értékekkel összefűzött képernyőkódokat egyetlen 2000 bájtos fájlba menti (`screen[0..999]`, majd `color[0..999]`). Használja ezt az **MAP_COPY** makróval (kombinált .bin mód) a képernyő és a színek egyetlen művelettel történő visszaállításához futásidejű módban. |
 
@@ -3689,7 +3730,7 @@ Többhangú, 3 hangú követő Web Audio előnézeti motorral. Megnyitás a Tool
 
 **Effekt oszlop:** Minden cella egy effektet tartalmazhat a hangjegye és a hangszere mellett, amelyet rövid kódként kell megadni közvetlenül a hangjegy után (pl. `C-4 01 V24`), vagy önállóan egy hangjegy nélküli effekt sor esetén (pl. `F06`):
 
-| Kód | Hatás                           | Érték                                                         |
+| Kód | Effect                          | Value                                                         |
 | --- | ------------------------------- | ------------------------------------------------------------- |
 | `V` | Vibrato                         | kis harapás = mélység, nagy harapás = tartáshossz             |
 | `U` | Felfelé csúsztatás (portamento) | a soronkénti gyakorisághoz hozzáadott összeg                  |
@@ -3706,7 +3747,7 @@ Az effektek soronként egyszer frissülnek (az exportált lejátszó időzítés
 - Az akkord- és arpeggio-előnézetek megvilágítják a megfelelő zongorabillentyűket, amikor a billentyűzet nyitva van.
 
 **Fájlok menü exportálása:**
-| Export                               | Mit csinál                                                                                                                                                                                                                                                                                                                   |
+| Export                               | What it does                                                                                                                                                                                                                                                                                                                 |
 | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ` .bin mentése…`                     | A szerkesztő natív szerializált formátumát írja (hangszerek + minták + szekvencia).                                                                                                                                                                                                                                          |
 | `Blokkok exportálása (csak adatok)`  | A `* = $C000` helyen hozzáfűzi a műszertáblázatot + minta blokkokat a programhoz.                                                                                                                                                                                                                                            |
@@ -3730,7 +3771,7 @@ Használatra kész `.byte` keresőtáblákat generál matematikai görbékből �
 **Görbék:** Szinusz, koszinusz, lineáris, Könnyű be/ki/be/ki (négyszög és harmadfokú), Könnyű be/ki (kör), Háromszög, Fűrészfog, Négyzet és Könnyű be/ki/be/ki pattogás.
 
 **Vezérlők:**
-| Ellenőrzés                   | Cél                                                                                                                                                                                                                                        |
+| Control                      | Cél                                                                                                                                                                                                                                        |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Kezdő / Záró érték**       | Kimeneti tartomány. 0..255 8 bites módban, 0..320 16 bites módban.                                                                                                                                                                         |
 | **Értékek száma**            | Táblázat hossza, 4–512 bejegyzés.                                                                                                                                                                                                          |
@@ -3742,7 +3783,7 @@ Használatra kész `.byte` keresőtáblákat generál matematikai görbékből �
 | **Értékek soronként**        | 8 / 16 / 32 bájt `.bájt` soronként.                                                                                                                                                                                                        |
 
 **Kimeneti módok:**
-| Mód          | Kibocsát                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Mode         | Kibocsát                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **8 bites**  | Egyetlen `.byte` tábla (értékek 0..255). Olvasható az `LDX #index / LDA table,X` paranccsal. Opcionálisan kibocsát egy **sprite-Y olvasó rutint** (`<címke>_set_y`) — `LDA <címke>,X` / `STA $D001+2N` — egy választható sprite számhoz 0-7 között.                                                                                                                                                                                        |
 | **16 bites** | Két párhuzamos bájttábla — `<címke>_lo` (alsó 8 bit) és `<címke>_hi` (9. bit, 0/1) — a **same** X által indexelve (bejegyzésenként 2 bájt). Szükséges a sprite X teljes képernyős megjelenítéséhez (0..320 > egy bájt). Opcionálisan kibocsát egy **sprite-X olvasó rutint** (`<címke>_set_x`), amely az alsó bájtot a `$D000+2N` mappába írja, és beállítja/törli a sprite MSB-jét a `$D010` mappában, egy választható spriteszámhoz 0-7. |
@@ -3756,7 +3797,7 @@ Minden másolási/beszúrási kimenet egy fejlécommenttel kezdődik, amely doku
 **Másolás / Beszúrás:** az eszköztár két ikonja — **Másolás** a vágólapra helyezi a táblázatot; **Beszúrás a szerkesztőbe** blokkként hozzáfűzi a táblázatot (és az olvasót, ha engedélyezve van) az aktuális programhoz. Az újbóli beszúrás **lecseréli** az előző Görbeszerkesztő beszúrást a duplikátumok egymásra halmozása helyett (Blokk és Szakértő módban működik).
 
 **Fájlok menü:**
-| Akció                              | Mit csinál                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Action                             | What it does                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Görbe mentése (.bin)…**          | A nyers tábla bájtjait pontosan úgy menti el, ahogyan a C64 olvasná azokat az `INCBIN` paraméterrel. 16 bites: N lo bájt, majd N hi bájt.                                                                                                                                                                                                                                                                                                        |
 | **Terhelési görbe (.bin)…**        | Betölti a nyers tábla bájtjait a szerkesztőbe, az aktuális bitmélységnek megfelelően értelmezve (16 bit: első fele lo, második fele hi). A betöltött tábla jelenlegi állapotában jelenik meg, amíg valamelyik görbevezérlő új görbét nem generál.                                                                                                                                                                                                |

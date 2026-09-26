@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.8 — Nyelvi kézikönyv
+# Ultimate Basic v1.5.9 — Nyelvi kézikönyv
 
 Teljes nyelvi és parancssori felület (CLI) referencia az Ultimate Basichez, egy
 BASIC-szerű nyelvhez, amely közvetlenül 6502-es gépi kóddá fordul Commodore
@@ -67,10 +67,10 @@ vagy egy olyan kifejezés, mint a `for i = 1 to times`, `Number(0)`-ra hajtódik
 **Típusok és típussal kapcsolatos** `int`, `word`, `float`, `string`, `array`,
 `array_word`
 
-**Nyomtatás és I/O** `print`, `spc`, `tab`, `at`, `input`, `chr$`, `str$`,
-`hex`, `bin`, `open`, `close`, `load`, `save`, `data`, `read`, `include`,
-`incbin` (szintén `dec` — fentebb csökkentési utasításként szerepel; ugyanazt a
-tokent használjuk a `dec(n, width)` nyomtatási formátumhoz)
+**Nyomtatás és I/O** `nyomtatás`, `spc`, `tab`, `at`, `bemenet`, `chr$`, `str$`,
+`hex`, `bin`, `megnyitás`, `bezárás`, `betöltés`, `mentés`, `lánc`, `adat`,
+`read`, `include`, `incbin` (szintén `dec` — fentebb csökkentési utasításként
+szerepel; ugyanazt a tokent használjuk a `dec(n, width)` nyomtatási formátumhoz)
 
 **Beépített matematikai és karakterlánc-funkciók** `abs`, `min`, `max`, `clamp`,
 `sgn`, `mod`, `rnd`, `sin`, `cos`, `and`, `or`, `xor`, `not`, `bnot`, `shl`,
@@ -1265,17 +1265,60 @@ A `peek16(addr)` két egymást követő bájtot (lo, hi) `word`-ként olvas be. 
 ```basic
 load "PROGRAM"           # KERNAL LOAD: loads file from device 8 to its native address
 load "DATA", $C000       # loads file to a specific address
+chain "GAME"             # load another program over this one and RUN it (see below)
 load "DATA", ptr         # addr from word variable
 
 save "DATA", $C000, 4096 # KERNAL SAVE from $C000, 4096 bytes → device 8
 save "PROG", start, len  # addr and len from word/int variables
 ```
 
-Az `load` meghívja a KERNAL-t: `SETNAM`+`SETLFS`+`LOAD`
-(`$FFBD`/`$FFBA`/`$FFD5`). Cím nélkül: másodlagos cím: 0 (a fájl saját 2 bájtos
-fejléce betöltési címként használatos). Címmel: másodlagos cím: 1 (a fájl a
-megadott helyre töltődik be). Az `save` meghívja a `SETNAM`+`SETLFS`+`SAVE`
-(`$FFBD`/`$FFBA`/`$FFD8`). Mind a `addr`, mind a `len` címet megköveteli.
+A `load` függvény meghívja a KERNAL `SETNAM`+`SETLFS`+`LOAD`
+(`$FFBD`/`$FFBA`/`$FFD5`) függvényt. Cím nélkül: másodlagos cím 1 (a fájl saját
+2 bájtos fejléce a betöltési cím). Címmel: másodlagos cím 0 (a fájl a megadott
+címre töltődik be, a fejléce kimarad). (Javítva az 1.5.9-es verzióban — korábban
+a kettő felcserélődött: `load "F"` betöltése a következőbe: `$0000`.) A `save`
+meghívja a `SETNAM`+`SETLFS`+`SAVE` (`$FFBD`/`$FFBA`/`$FFD8`) metódust.
+Szükséges mind az `addr`, mind a `len` metódus.
+
+#### Láncolás egy másik programhoz — `lánc` (újdonság az 1.5.9-es verzióban)
+
+```basic
+chain "GAME" # betöltjük a GAME-et arról a meghajtóról, amelyről elindítottuk, és FUTJUK
+chain "GAME", 9 # a 9-es meghajtóról (bármilyen kifejezés)
+print "BETÖLTÉSI HIBA" # csak akkor érhető el, ha a fájlt nem sikerült betölteni
+```
+
+Az `chain` parancs betölt egy másik programot a saját betöltési címére —
+általában `$0801`, közvetlenül a futó program fölé —, és pontosan úgy indítja
+el, mintha a `LOAD"GAME",8,1` és az `RUN` parancsokat beírtuk volna. Erre van
+szüksége egy boot / title programnak. Egy sima `load` nem tudja ezt megtenni: a
+betöltött fájl felülírná a `load` parancsot végrehajtó kódot.
+
+Hogyan működik:
+
+- Egy 46 bájtos, pozíciófüggetlen betöltő plusz a fájlnév másolásra kerül a
+  kazettapufferbe (`$033C`), amelyet sem egy Ultimate Basic program, sem egy
+  Exomizerrel csomagolt fájl nem tölt be.
+- Előtte a gép visszakerül tiszta állapotba: VIC IRQ-k kikapcsolva, SID hangerő
+  0, `IOINIT` (`$FDA3`: CIA időzítők, billentyűzet IRQ, soros busz), `RESTOR`
+  (`$FF8A`: alapértelmezett IRQ/BRK/NMI és I/O vektorok), `$01 = $37`. Az egyéni
+  raszteres IRQ-k, a `zenelejátszás` és az `nmi` kezelők leállnak. A képernyő, a
+  színek és a `$DD00` regiszteren kívüli VIC bankregiszterek változatlanok
+  maradnak, így a kép a képernyőn maradhat, amíg a következő program be nem
+  töltődik (az `IOINIT` a 0. VIC bankot választja ki).
+- A betöltő meghívja az `SETNAM` / `SETLFS` (másodlagos 1) / `LOAD` függvényt.
+  Eszköz argumentum nélkül azt a meghajtót használja, ahonnan a program
+  betöltésre került (`$BA`), vagyis a 8-as meghajtót.
+- Sikeres betöltés után beállítja a program vége mutatót (`$2D/$2E`),
+  újrainicializálja a BASIC-et (`$E453`, `$E3BF` — egy önkicsomagoló feldolgozó
+  program, mint például az Exomizer `sfx`, esetleg a BASIC nulla oldalát
+  használta), és FUTATJA a programot (`$A659`, `$A7AE`). Működik Ultimate Basic
+  programoknál, feldolgozó (`exomizer sfx sys`) fájloknál és hagyományos BASIC
+  programoknál egyaránt.
+- Ha a fájl nem tölthető be (nem található, nincs meghajtó), akkor az `chain`
+  értéket adja vissza, és a program a következő utasítással folytatódik.
+
+A fájlnévnek 1–16 karakter hosszúságú karakterláncnak kell lennie.
 
 ### Soros csatorna fájl I/O
 

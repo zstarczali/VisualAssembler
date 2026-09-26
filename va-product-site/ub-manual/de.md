@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.8 — Sprachhandbuch
+# Ultimate Basic v1.5.9 — Sprachhandbuch
 
 Vollständige Sprach- und CLI-Referenz für Ultimate Basic, eine BASIC-ähnliche
 Sprache, die direkt in 6502-Maschinencode für den Commodore 64 kompiliert wird.
@@ -69,10 +69,10 @@ wählen Sie daher einen anderen Namen.
 **Typen & typbezogene Daten** `int`, `word`, `float`, `string`, `array`,
 `array_word`
 
-**Drucken & Ein-/Ausgabe** `print`, `spc`, `tab`, `at`, `input`, `chr$`, `str$`,
-`hex`, `bin`, `open`, `close`, `load`, `save`, `data`, `read`, `include`,
-`incbin` (auch `dec` — oben als Dekrementierungsanweisung aufgeführt; dasselbe
-Token wird für das Druckformat `dec(n, width)` verwendet)
+**Print & I/O** `print`, `spc`, `tab`, `at`, `input`, `chr$`, `str$`, `hex`,
+`bin`, `open`, `close`, `load`, `save`, `chain`, `data`, `read`, `include`,
+`incbin` (auch `dec` — oben als Dekrement-Anweisung aufgeführt; dasselbe Token
+wird für das Druckformat `dec(n, width)` verwendet)
 
 **Mathematik- und String-Funktionen** `abs`, `min`, `max`, `clamp`, `sgn`,
 `mod`, `rnd`, `sin`, `cos`, `and`, `or`, `xor`, `not`, `bnot`, `shl`, `shr`,
@@ -1278,6 +1278,7 @@ poke16 ptr, w                 # word var as address; word var as value
 ```basic
 load "PROGRAM"           # KERNAL LOAD: loads file from device 8 to its native address
 load "DATA", $C000       # loads file to a specific address
+chain "GAME"             # load another program over this one and RUN it (see below)
 load "DATA", ptr         # addr from word variable
 
 save "DATA", $C000, 4096 # KERNAL SAVE from $C000, 4096 bytes → device 8
@@ -1285,10 +1286,53 @@ save "PROG", start, len  # addr and len from word/int variables
 ```
 
 `load` ruft KERNAL `SETNAM`+`SETLFS`+`LOAD` (`$FFBD`/`$FFBA`/`$FFD5`) auf. Ohne
-Adresse: Sekundäre Adresse 0 (eigener 2-Byte-Header der Datei wird als
-Ladeadresse verwendet). Mit Adresse: Sekundäre Adresse 1 (Datei wird an den
-angegebenen Speicherort geladen). `save` ruft `SETNAM`+`SETLFS`+`SAVE`
-(`$FFBD`/`$FFBA`/`$FFD8`) auf. Erfordert sowohl `addr` als auch `len`.
+Adresse: Sekundäre Adresse 1 (der 2-Byte-Header der Datei dient als
+Ladeadresse). Mit Adresse: Sekundäre Adresse 0 (die Datei wird an die angegebene
+Adresse geladen, ihr Header wird übersprungen). (Behoben in Version 1.5.9 –
+zuvor waren die beiden Befehle vertauscht: `load "F"` wurde nach `$0000`
+geladen.) `save` ruft `SETNAM`+`SETLFS`+`SAVE` (`$FFBD`/`$FFBA`/`$FFD8`) auf.
+Benötigt sowohl `addr` als auch `len`.
+
+#### Verkettung mit einem anderen Programm — `chain` (neu in 1.5.9)
+
+```basic
+chain "GAME" # Lädt das Spiel vom Startlaufwerk und führt es aus
+chain "GAME", 9 # von Laufwerk 9 (beliebiger Ausdruck)
+print "LOAD ERROR" # Wird nur erreicht, wenn die Datei nicht geladen werden konnte
+```
+
+`chain` lädt ein anderes Programm an seine eigene Ladeadresse – normalerweise
+`$0801`, direkt über das laufende Programm – und startet es genau so, als ob
+`LOAD"GAME",8,1` und `RUN` eingegeben worden wären. Genau das benötigt ein
+Boot-/Titelprogramm. Ein einfaches `load` kann das nicht leisten: Die geladene
+Datei würde den Code überschreiben, der gerade `load` ausführt.
+
+So funktioniert es:
+
+- Ein 46 Byte großer, positionsunabhängiger Loader plus der Dateiname wird in
+  den Kassettenpuffer (`$033C`) kopiert, über den weder ein Ultimate
+  Basic-Programm noch eine Exomizer-gepackte Datei geladen wird.
+- Zuvor wird die Maschine in einen sauberen Zustand zurückgesetzt: VIC-IRQs
+  deaktiviert, SID-Lautstärke 0, `IOINIT` (`$FDA3`: CIA-Timer, Tastatur-IRQ,
+  serieller Bus), `RESTOR` (`$FF8A`: Standard-IRQ/BRK/NMI- und I/O-Vektoren),
+  `$01 = $37`. Benutzerdefinierte Raster-IRQs, `Musikwiedergabe` und
+  `NMI`-Handler werden beendet. Bildschirm, Farben und VIC-Bankregister außer
+  `$DD00` bleiben unverändert, sodass ein Bild auf dem Bildschirm bleiben kann,
+  während das nächste Programm geladen wird (`IOINIT` wählt VIC-Bank 0 aus).
+- Der Loader ruft `SETNAM` / `SETLFS` (sekundär 1) / `LOAD` auf. Ohne
+  Geräteargument verwendet er das Laufwerk, von dem das Programm selbst geladen
+  wurde (`$BA`), oder Laufwerk 8.
+- Nach erfolgreichem Laden wird der Programmendezeiger gesetzt (`$2D/$2E`),
+  BASIC neu initialisiert (`$E453`, `$E3BF` – ein selbstextrahierender
+  Programmzerkleinerer wie Exomizer `sfx` hat möglicherweise die Nullseite von
+  BASIC verwendet) und das Programm ausgeführt (`$A659`, `$A7AE`). Es
+  funktioniert gleichermaßen für Ultimate Basic-Programme, komprimierte Dateien
+  (`exomizer sfx sys`) und normale BASIC-Programme.
+- Wenn die Datei nicht geladen werden kann (nicht gefunden, kein Laufwerk
+  vorhanden), gibt `chain` zurück und das Programm fährt mit der nächsten
+  Anweisung fort.
+
+Der Dateiname muss eine Zeichenkette mit 1 bis 16 Zeichen sein.
 
 ### Serielle Kanaldatei-E/A
 

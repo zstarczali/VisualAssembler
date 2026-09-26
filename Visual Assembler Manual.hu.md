@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.4.7**
+**Verzió: 2.4.8**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -26,6 +26,16 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - [12b. CRT export (Magic Desk 64K cartridge)](#12b-crt-export-magic-desk-64k-cartridge)
 - [13. Hardver beállítások](#13-hardver-beállítások)
 - [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit)
+
+---
+
+## A 2.4.8 verzió újdonságai
+
+- **Új KOALA makró** — a `.koala "picture.koa"` (opcionálisan `, $2000`) betölt egy Koala Painter képet, és egy 86 bájtos megjelenítő rutinnal meg is mutatja. Lásd: [KOALA](#koala).
+- **Koala import/export a Hires szerkesztőben** — **Files → Koala betöltés (.koa)…** / **Koala mentés (.koa)…** (szabványos 10003 bájtos fájl; a hires kép mentéskor multicolorra alakul). A `.koa` / `.kla` fájlokat a **Kép / .bin betöltés** is felismeri.
+- **Frissítés-jelző az Expert statusbarban** — ugyanaz a *Naprakész* / kattintható *Frissítés elérhető* jelző, mint Ultimate Basic módban.
+- **Mentési dialógusok** — a fájl saját típusát kínálják (pl. *KOA*) a *Binary (\*.bin)* helyett.
+- **Megbízhatóbb frissítés-ellenőrzés** — a telepítők listája a c64va.tech/downloads/VA/ címen érhető el, így az ellenőrzés az új letöltési oldallal is működik; a Linux frissítő segéd már nem örökli az AppImage könyvtár-útvonalait.
 
 ---
 
@@ -1451,6 +1461,35 @@ Mint a **BLOAD BASIC-ben** — beemel egy külső binárisfájlt (`.bin`, `.prg`
 ```
 
 **Méret a kódban:** 0 byte (halasztott adat-szegmens). A bináris a megadott címre ágyazódik.
+
+---
+
+### KOALA
+
+Egy **Koala Painter** képet (`.koa` / `.kla`, 160×200 multicolor) tölt be és jelenít meg. A képadat az `INCBIN`-hez hasonlóan fix címre ágyazódik (a fájl 2 bájtos `$6000` betöltési címét levágja), maga a blokk pedig egy 86 bájtos megjelenítő rutinra fordul, ami a blokk helyén fut.
+
+| Mező | Leírás |
+|---|---|
+| File | Tallózz egy `.koa` / `.kla` fájlt (10003 bájt, vagy 10001 betöltési cím nélkül) |
+| Address | A bitmap címe: `$6000` (alapértelmezett, Koala natív, VIC bank 1, screen RAM `$4400`) vagy `$2000` (VIC bank 0, screen RAM `$0400`) |
+
+A megjelenítő rutin a screen RAM részt a képernyőre, a color RAM részt a `$D800`-ra másolja, a háttér bájtot a `$D021`-be írja, a `$DD00`-ban kiválasztja a VIC bankot (a port többi bitjét megtartva), és bekapcsolja a multicolor bitmap módot (`$D011 = $3B`, `$D016 = $18`, `$D018 = $18`). Más címet elutasít: a többi 8K-s terület a BASIC/KERNAL ROM alatt van (a másoló ciklus a ROM-ot olvasná), vagy a karakter-ROM árnyékba esik.
+
+**Expert szintaxis:**
+```
+.koala "picture.koa"
+.koala "picture.koa", $2000
+```
+
+**Példa — kép megjelenítése és várakozás:**
+```
+* = $0801
+.koala "picture.koa"
+wait:
+    JMP wait
+```
+
+**Méret a kódban:** 86 byte (megjelenítő rutin); a 10001 bájt képadat a megadott címre kerül. A Hires szerkesztő **Files → Koala mentés (.koa)…** menüpontja kompatibilis fájlt készít.
 
 ---
 

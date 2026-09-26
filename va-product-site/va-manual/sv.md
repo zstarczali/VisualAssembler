@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.4.7**
+**Version 2.4.8**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att dra och släppa instruktionsblock och se den genererade assemblern och maskinkoden i realtid.
 
@@ -9,6 +9,7 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
 ## Innehållsförteckning
 
 - [C64 Visual Assembler — Användarmanual](#c64-visual-assembler--user-manual)
+    - [Höjdpunkter i version 2.4.8](#version-248-highlights)
     - [Höjdpunkter i version 2.4.7](#version-247-highlights)
     - [Höjdpunkter i version 2.4.6](#version-246-highlights)
     - [Höjdpunkter i version 2.4.5](#version-245-highlights)
@@ -82,6 +83,7 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
     - [CHARDEF](#chardef)
     - [BOX_HIT](#box_hit)
     - [INCBIN](#incbin)
+    - [KOALA](#koala)
     - [SID](#sid)
     - [INCLUDE](#include)
     - [TABLE](#table)
@@ -158,6 +160,16 @@ En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom at
     - [Kartredigerare (Flerskiktade kakelkartor)](#map-editor-multilayer-tilemaps)
     - [SID-redigerare (3-röstsspårare)](#sid-editor-3-voice-tracker)
     - [Kurvredigerare](#curve-editor)
+
+---
+
+## Höjdpunkter i version 2.4.8
+
+- **Nytt KOALA-makro** — `.koala "picture.koa"` (valfritt `, $2000`) laddar en Koala Painter-bild och visar den med en 86-byte-visningsrutin. Se [KOALA](#koala).
+- **Koala import/export i Hires-redigeraren** — **Filer → Importera Koala (.koa)…** / **Exportera Koala (.koa)…** (standard 10003-byte-fil; högupplösta bilder reduceras till flerfärgade vid export). `.koa` / `.kla` känns också igen av **Importera bild / .bin**.
+- **Uppdateringsstatus i expertstatusfältet ** — samma *Uppdaterad * / klickbara *Uppdatering tillgänglig *-indikator som i Ultimate Basic-läget.
+- **Spara-dialogrutor** erbjuder filens egen typ (t.ex. *KOA*) istället för *Binär (\*.bin)*.
+- **Mer robust uppdateringskontroll** — installationslistan publiceras på c64va.tech/downloads/VA/, så kontrollen fungerar med den nya nedladdningssidan; Linux-uppdateringshjälpen ärver inte längre AppImage-bibliotekets sökvägar.
 
 ---
 
@@ -1558,6 +1570,35 @@ Liksom **BLOAD i BASIC** — hämtar en extern binärfil (`.bin`, `.prg`, `.sid`
 ```
 
 **Storlek i kod:** 0 byte (uppskjuten datasektion). Binärfilen är inbäddad på den angivna adressen.
+
+---
+
+### KOALA
+
+Laddar en **Koala Painter**-bild (`.koa` / `.kla`, 160×200 flerfärgad) och visar den. Bilddatan är inbäddad på en fast adress som `INCBIN` (filens 2-byte `$6000` laddningsadress tas bort), och själva blocket kompileras till en 86-byte visningsrutin som körs där blocket finns.
+
+| Fält   | Beskrivning                                                                                                                   |
+| ------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| Fil    | Bläddra för att välja en `.koa` / `.kla`-fil (10003 byte, eller 10001 utan laddningsadress)                                   |
+| Adress | Bitmap-adress: `$6000` (standard, Koala-inbyggt, VIC-bank 1, skärm-RAM `$4400`) eller `$2000` (VIC-bank 0, skärm-RAM `$0400`) |
+
+Visningsrutinen kopierar skärmens RAM-del till skärmen och färg-RAM-delen till `$D800`, skriver bakgrundsbyten till `$D021`, väljer VIC-banken i `$DD00` (med behållna andra portbitar) och växlar till flerfärgsbitmappsläge (`$D011 = $3B`, `$D016 = $18`, `$D018 = $18`). Andra adresser avvisas: de återstående 8K-platserna ligger under BASIC/KERNAL ROM (kopieringsslingan skulle läsa ROM) eller överlappar tecken-ROM-skuggan.
+
+**Expertsyntax:**
+```
+.koala "picture.koa"
+.koala "picture.koa", $2000
+```
+
+**Exempel — visa en bild och vänta:**
+```
+* = $0801
+.koala "picture.koa"
+wait:
+    JMP wait
+```
+
+**Storlek i kod:** 86 byte (visningsrutin); de 10001 byten med bilddata går till den angivna adressen. Hires-redigerarens **Filer → Exportera Koala (.koa)…** producerar en kompatibel fil.
 
 ---
 

@@ -5197,8 +5197,9 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
   border-radius: 2px;
   background: none;
   box-shadow: none;
-  color: inherit;
-  font-size: inherit;
+  color: var(--muted);
+  font-size: .78rem;
+  line-height: 1.3;
   cursor: default;
 }
 .ub-update-status[hidden] { display: none; }

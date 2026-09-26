@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.8 — Podręcznik językowy
+# Ultimate Basic v1.5.9 — Podręcznik językowy
 
 Kompletny podręcznik języka i interfejsu wiersza poleceń dla Ultimate Basic,
 języka podobnego do BASIC-a, który kompiluje się bezpośrednio do kodu
@@ -66,8 +66,8 @@ i = 1 to times` jest składane do `Number(0)`) — wybierz więc inną nazwę.
 
 **Typy i pokrewne typy** `int`, `word`, `float`, `string`, `array`, `array_word`
 
-**Drukowanie i wejście/wyjście** `print`, `spc`, `tab`, `at`, `input`, `chr$`,
-`str$`, `hex`, `bin`, `open`, `close`, `load`, `save`, `data`, `read`,
+**Drukuj i we/wy** `drukuj`, `spc`, `tab`, `w`, `wejście`, `chr$`, `str$`,
+`hex`, `bin`, `otwórz`, `zamknij`, `ładuj`, `zapisz`, `łańcuch`, `data`, `read`,
 `include`, `incbin` (również `dec` — wymienione powyżej jako polecenie
 dekrementacji; ten sam token jest używany dla formatu wydruku `dec(n, width)`)
 
@@ -1251,6 +1251,7 @@ zapisuje lo, a następnie hi.
 ```basic
 load "PROGRAM"           # KERNAL LOAD: loads file from device 8 to its native address
 load "DATA", $C000       # loads file to a specific address
+chain "GAME"             # load another program over this one and RUN it (see below)
 load "DATA", ptr         # addr from word variable
 
 save "DATA", $C000, 4096 # KERNAL SAVE from $C000, 4096 bytes → device 8
@@ -1258,10 +1259,53 @@ save "PROG", start, len  # addr and len from word/int variables
 ```
 
 `load` wywołuje KERNAL `SETNAM`+`SETLFS`+`LOAD` (`$FFBD`/`$FFBA`/`$FFD5`). Bez
-adresu: adres pomocniczy 0 (własny 2-bajtowy nagłówek pliku używany jako adres
-ładowania). Z adresem: adres pomocniczy 1 (plik ładowany do określonej
-lokalizacji). `save` wywołuje `SETNAM`+`SETLFS`+`SAVE`
-(`$FFBD`/`$FFBA`/`$FFD8`). Wymaga zarówno `addr`, jak i `len`.
+adresu: adres pomocniczy 1 (adresem ładowania jest własny 2-bajtowy nagłówek
+pliku). Z adresem: adres pomocniczy 0 (plik jest ładowany pod podany adres, jego
+nagłówek jest pomijany). (Naprawiono w wersji 1.5.9 — wcześniej te dwie wartości
+były zamienione: `load "F"` loaded to `$0000`.) `save` wywołuje
+`SETNAM`+`SETLFS`+`SAVE` (`$FFBD`/`$FFBA`/`$FFD8`). Wymaga zarówno `addr`, jak i
+`len`.
+
+#### Łączenie z innym programem — `łańcuch` (nowość w wersji 1.5.9)
+
+```basic
+łańcuch "GRA" # załaduj GRĘ z dysku, z którego została uruchomiona i URUCHOM ją
+łańcuch "GRA", 9 # z dysku 9 (dowolne wyrażenie)
+drukuj "BŁĄD WCZYTANIA" # osiągnięty tylko wtedy, gdy nie można załadować pliku
+```
+
+`łańcuch` ładuje inny program pod swój własny adres ładowania — normalnie
+`$0801`, tuż nad działającym programem — i uruchamia go dokładnie tak, jakby
+wpisano `LOAD"GAME",8,1` i `RUN`. Tego właśnie potrzebuje program
+rozruchowy/tytułowy. Zwykły `load` tego nie zrobi: załadowany plik nadpisałby
+kod wykonujący `load`.
+
+Jak to działa:
+
+- 46-bajtowy, niezależny od pozycji moduł ładujący wraz z nazwą pliku jest
+  kopiowany do bufora kasety (`$033C`), do którego nie ładuje się ani program
+  Ultimate Basic, ani plik spakowany przez Exomizer.
+- Przedtem maszyna zostaje przywrócona do stanu czystego: przerwania VIC
+  wyłączone, wolumin SID 0, `IOINIT` (`$FDA3`: timery CIA, przerwanie
+  klawiatury, magistrala szeregowa), `RESTOR` (`$FF8A`: domyślne wektory
+  IRQ/BRK/NMI i I/O), `$01 = $37`. Niestandardowe przerwania rastrowe,
+  `odtwarzanie muzyki` i `nmi` zostają zatrzymane. Ekran, kolory i rejestry
+  banku VIC inne niż `$DD00` pozostają bez zmian, dzięki czemu obraz może
+  pozostać na ekranie podczas ładowania następnego programu (`IOINIT` wybiera
+  bank VIC 0).
+- Program ładujący wywołuje `SETNAM` / `SETLFS` (pomocniczy 1) / `LOAD`. Bez
+  argumentu urządzenia używa dysku, z którego załadowano sam program (`$BA`),
+  czyli dysku 8.
+- Po pomyślnym załadowaniu ustawia wskaźnik końca programu (`$2D/$2E`), ponownie
+  inicjuje BASIC (`$E453`, `$E3BF` — samorozpakowujący się program do
+  przetwarzania plików, taki jak Exomizer `sfx`, mógł korzystać ze strony
+  zerowej BASIC-a) i uruchamia program (`$A659`, `$A7AE`). Działa zarówno z
+  programami Ultimate Basic, plikami skompresowanymi (`exomizer sfx sys`), jak i
+  zwykłymi programami BASIC.
+- Jeżeli pliku nie można załadować (nie znaleziono, brak napędu), `chain` zwraca
+  kod i program kontynuuje działanie od następnego polecenia.
+
+Nazwa pliku musi być ciągiem znaków o długości od 1 do 16 znaków.
 
 ### Plik wejścia/wyjścia kanału szeregowego
 

@@ -297,7 +297,17 @@
       "Bash(sed -i 's/    src, out = Path\\(src\\), Path\\(out\\)/    src, out = Path\\(src\\).resolve\\(\\), Path\\(out\\).resolve\\(\\)/' C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/417dc66c-f8ef-40e4-bae4-a7fe70729f8f/scratchpad/md2pdf.py)",
       "Bash(python - C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/417dc66c-f8ef-40e4-bae4-a7fe70729f8f/scratchpad/md2pdf.py)",
       "Bash(python C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/417dc66c-f8ef-40e4-bae4-a7fe70729f8f/scratchpad/ubref.py)",
-      "Bash(python C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/417dc66c-f8ef-40e4-bae4-a7fe70729f8f/scratchpad/ubref2.py)"
+      "Bash(python C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/417dc66c-f8ef-40e4-bae4-a7fe70729f8f/scratchpad/ubref2.py)",
+      "Bash(curl -s -A \"C64VisualAssembler/2.4.6\" https://www.c64va.tech/ -o /tmp/p.html)",
+      "Bash(cd /f/Development/VisualAssembler; sed -n 30,40p .gitignore; which php 2>/dev/null || ls /c/xampp/php/php.exe /c/php/php.exe 2>/dev/null || echo \"no php\")",
+      "Bash(git status *)",
+      "Bash(grep -i \"regex\\\\|match\\(\\\\|/\\\\^\")",
+      "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/417dc66c-f8ef-40e4-bae4-a7fe70729f8f/scratchpad/koala_macro.py\")",
+      "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/417dc66c-f8ef-40e4-bae4-a7fe70729f8f/scratchpad/koala_macro2.py\")",
+      "Bash(node --test tests/koala-macro.test.js)",
+      "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/417dc66c-f8ef-40e4-bae4-a7fe70729f8f/scratchpad/koala_manual.py\")",
+      "Bash(grep -n \"Visual Assembler Manual.md\\\\`-ből generált\" CLAUDE.md)",
+      "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/417dc66c-f8ef-40e4-bae4-a7fe70729f8f/scratchpad/release248.py\")"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"

@@ -33,4 +33,8 @@ samples/*.snapshots.json
 .claude/settings.local.json
 .claude/settings.local.json
 .claude/settings.local.json
-/va-product-site/downloads
+/va-product-site/downloads/*
+!/va-product-site/downloads/VA/
+/va-product-site/downloads/VA/*
+!/va-product-site/downloads/VA/index.php
+!/va-product-site/downloads/VA/.htaccess

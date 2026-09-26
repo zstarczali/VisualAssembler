@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "self-update-247",
+  id: "koala-248",
   url: "https://www.c64va.tech/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.4.7-ben",
+    eyebrow: "Újdonság a 2.4.8-ban",
     title: "Üdvözöl a Visual Assembler",
-    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>Frissítés az alkalmazásból:</strong> a <em>Menü → Check for Update</em> megkeresi az újabb verziót a c64va.tech-en, majd letölti és telepíti; induláskor is automatikusan ellenőriz.</li><li><strong>Frissítés-jelző az UB statusbarban:</strong> <em>Naprakész</em>, vagy kattintható <em>Frissítés elérhető</em>.</li><li><strong>Curve Editor → UltimateBasic export:</strong> a tábla UB tömbként (<code>data név: …</code>), plusz kész, futtatható UB sprite demó.</li><li><strong>Ultimate Basic 1.5.8:</strong> új <code>data &lt;tömb&gt;: …</code> tömb-inicializálás.</li><li><strong>Ablakhoz igazodó elrendezés:</strong> nincs többé oldalszintű függőleges görgetősáv.</li></ul>`,
+    body: `<p>Ami új ebben a kiadásban:</p><ul><li><strong>Új KOALA makró:</strong> a <code>.koala "kep.koa"</code> betölt és megjelenít egy Koala Painter képet (adat $6000-on vagy $2000-on, 86 bájtos megjelenítő rutin).</li><li><strong>Koala a Hires szerkesztőben:</strong> <em>Files → Koala betöltés / Koala mentés</em>, szabványos .koa fájllal.</li><li><strong>Frissítés-jelző Expert módban is:</strong> a statusbarban <em>Naprakész</em>, vagy kattintható <em>Frissítés elérhető</em>.</li><li><strong>Megbízhatóbb frissítés-ellenőrzés:</strong> az új letöltési oldallal is működik.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.4.7",
+    eyebrow: "New in 2.4.8",
     title: "Welcome to Visual Assembler",
-    body: `<p>What's new in this release:</p><ul><li><strong>In-app updates:</strong> <em>Menu → Check for Update</em> finds a newer release on c64va.tech, then downloads and installs it; the check also runs automatically at start.</li><li><strong>Update status in the UB status bar:</strong> <em>Up to date</em>, or a clickable <em>Update available</em>.</li><li><strong>Curve Editor → UltimateBasic export:</strong> the table as a UB array (<code>data name: …</code>), plus a ready-to-run UB sprite demo.</li><li><strong>Ultimate Basic 1.5.8:</strong> new <code>data &lt;array&gt;: …</code> array initialiser.</li><li><strong>Layout fits the window:</strong> no more page-level vertical scrollbar.</li></ul>`,
+    body: `<p>What's new in this release:</p><ul><li><strong>New KOALA macro:</strong> <code>.koala "picture.koa"</code> loads and shows a Koala Painter picture (data at $6000 or $2000, 86-byte display routine).</li><li><strong>Koala in the Hires editor:</strong> <em>Files → Import Koala / Export Koala</em> with the standard .koa file.</li><li><strong>Update status in Expert mode too:</strong> the status bar shows <em>Up to date</em> or a clickable <em>Update available</em>.</li><li><strong>Sturdier update check:</strong> works with the new download page.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.4.7",
+    eyebrow: "Novedad en la 2.4.8",
     title: "Bienvenido a Visual Assembler",
-    body: `<p>Novedades de esta versión:</p><ul><li><strong>Actualizaciones desde la aplicación:</strong> <em>Menu → Check for Update</em> busca una versión nueva en c64va.tech, la descarga y la instala; la comprobación también se ejecuta al iniciar.</li><li><strong>Estado de actualización en la barra de estado de UB:</strong> <em>Actualizado</em> o un <em>Actualización disponible</em> clicable.</li><li><strong>Exportación Curve Editor → UltimateBasic:</strong> la tabla como array UB (<code>data nombre: …</code>) y una demo de sprite UB lista para ejecutar.</li><li><strong>Ultimate Basic 1.5.8:</strong> nuevo inicializador de arrays <code>data &lt;array&gt;: …</code>.</li><li><strong>El diseño se ajusta a la ventana:</strong> ya no hay barra de desplazamiento vertical de página.</li></ul>`,
+    body: `<p>Novedades de esta versión:</p><ul><li><strong>Nueva macro KOALA:</strong> <code>.koala "imagen.koa"</code> carga y muestra una imagen Koala Painter (datos en $6000 o $2000, rutina de 86 bytes).</li><li><strong>Koala en el editor Hires:</strong> <em>Files → Importar Koala / Exportar Koala</em> con el archivo .koa estándar.</li><li><strong>Estado de actualización también en modo Expert:</strong> la barra de estado muestra <em>Actualizado</em> o un <em>Actualización disponible</em> clicable.</li><li><strong>Comprobación de actualizaciones más robusta:</strong> funciona con la nueva página de descargas.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.4.7",
+    eyebrow: "Neu in 2.4.8",
     title: "Willkommen bei Visual Assembler",
-    body: `<p>Neu in dieser Version:</p><ul><li><strong>Updates aus der App:</strong> <em>Menu → Check for Update</em> sucht auf c64va.tech nach einer neueren Version, lädt sie herunter und installiert sie; die Prüfung läuft auch automatisch beim Start.</li><li><strong>Update-Status in der UB-Statusleiste:</strong> <em>Aktuell</em> oder ein anklickbares <em>Update verfügbar</em>.</li><li><strong>Curve Editor → UltimateBasic-Export:</strong> die Tabelle als UB-Array (<code>data name: …</code>) plus eine lauffähige UB-Sprite-Demo.</li><li><strong>Ultimate Basic 1.5.8:</strong> neue Array-Initialisierung <code>data &lt;array&gt;: …</code>.</li><li><strong>Layout passt sich dem Fenster an:</strong> keine vertikale Bildlaufleiste auf Seitenebene mehr.</li></ul>`,
+    body: `<p>Neu in dieser Version:</p><ul><li><strong>Neues KOALA-Makro:</strong> <code>.koala "bild.koa"</code> lädt und zeigt ein Koala-Painter-Bild (Daten bei $6000 oder $2000, 86-Byte-Anzeigeroutine).</li><li><strong>Koala im Hires-Editor:</strong> <em>Files → Koala importieren / Koala exportieren</em> mit der Standard-.koa-Datei.</li><li><strong>Update-Status auch im Expert-Modus:</strong> die Statusleiste zeigt <em>Aktuell</em> oder ein anklickbares <em>Update verfügbar</em>.</li><li><strong>Robustere Update-Prüfung:</strong> funktioniert mit der neuen Download-Seite.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.4.7",
+    eyebrow: "Nieuw in 2.4.8",
     title: "Welkom bij Visual Assembler",
-    body: `<p>Nieuw in deze versie:</p><ul><li><strong>Updates vanuit de app:</strong> <em>Menu → Check for Update</em> zoekt een nieuwere versie op c64va.tech, downloadt en installeert die; de controle draait ook automatisch bij het starten.</li><li><strong>Updatestatus in de UB-statusbalk:</strong> <em>Up-to-date</em> of een klikbare <em>Update beschikbaar</em>.</li><li><strong>Curve Editor → UltimateBasic-export:</strong> de tabel als UB-array (<code>data naam: …</code>) plus een kant-en-klare UB-sprite-demo.</li><li><strong>Ultimate Basic 1.5.8:</strong> nieuwe array-initialisatie <code>data &lt;array&gt;: …</code>.</li><li><strong>Indeling past in het venster:</strong> geen verticale schuifbalk op paginaniveau meer.</li></ul>`,
+    body: `<p>Nieuw in deze versie:</p><ul><li><strong>Nieuwe KOALA-macro:</strong> <code>.koala "plaatje.koa"</code> laadt en toont een Koala Painter-afbeelding (data op $6000 of $2000, weergaveroutine van 86 bytes).</li><li><strong>Koala in de Hires-editor:</strong> <em>Files → Koala importeren / Koala exporteren</em> met het standaard .koa-bestand.</li><li><strong>Updatestatus ook in Expert-modus:</strong> de statusbalk toont <em>Up-to-date</em> of een klikbare <em>Update beschikbaar</em>.</li><li><strong>Robuustere updatecontrole:</strong> werkt met de nieuwe downloadpagina.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.4.7",
+    eyebrow: "Nowość w 2.4.8",
     title: "Witamy w Visual Assembler",
-    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Aktualizacje z poziomu aplikacji:</strong> <em>Menu → Check for Update</em> szuka nowszej wersji na c64va.tech, pobiera ją i instaluje; sprawdzanie odbywa się też automatycznie przy starcie.</li><li><strong>Stan aktualizacji na pasku stanu UB:</strong> <em>Aktualna wersja</em> lub klikalne <em>Dostępna aktualizacja</em>.</li><li><strong>Eksport Curve Editor → UltimateBasic:</strong> tabela jako tablica UB (<code>data nazwa: …</code>) oraz gotowe do uruchomienia demo sprite'a w UB.</li><li><strong>Ultimate Basic 1.5.8:</strong> nowa inicjalizacja tablic <code>data &lt;tablica&gt;: …</code>.</li><li><strong>Układ dopasowuje się do okna:</strong> koniec z pionowym paskiem przewijania całej strony.</li></ul>`,
+    body: `<p>Co nowego w tej wersji:</p><ul><li><strong>Nowe makro KOALA:</strong> <code>.koala "obraz.koa"</code> wczytuje i wyświetla obraz Koala Painter (dane pod $6000 lub $2000, 86-bajtowa procedura wyświetlania).</li><li><strong>Koala w edytorze Hires:</strong> <em>Files → Importuj Koala / Eksportuj Koala</em> ze standardowym plikiem .koa.</li><li><strong>Stan aktualizacji także w trybie Expert:</strong> pasek stanu pokazuje <em>Aktualna wersja</em> lub klikalne <em>Dostępna aktualizacja</em>.</li><li><strong>Pewniejsze sprawdzanie aktualizacji:</strong> działa z nową stroną pobierania.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.4.7",
+    eyebrow: "Novità nella 2.4.8",
     title: "Benvenuto in Visual Assembler",
-    body: `<p>Novità di questa versione:</p><ul><li><strong>Aggiornamenti dall'app:</strong> <em>Menu → Check for Update</em> cerca una versione più recente su c64va.tech, la scarica e la installa; il controllo viene eseguito anche all'avvio.</li><li><strong>Stato aggiornamento nella barra di stato UB:</strong> <em>Aggiornato</em> oppure un <em>Aggiornamento disponibile</em> cliccabile.</li><li><strong>Esportazione Curve Editor → UltimateBasic:</strong> la tabella come array UB (<code>data nome: …</code>) più una demo sprite UB pronta da eseguire.</li><li><strong>Ultimate Basic 1.5.8:</strong> nuovo inizializzatore di array <code>data &lt;array&gt;: …</code>.</li><li><strong>Il layout si adatta alla finestra:</strong> niente più barra di scorrimento verticale a livello di pagina.</li></ul>`,
+    body: `<p>Novità di questa versione:</p><ul><li><strong>Nuova macro KOALA:</strong> <code>.koala "immagine.koa"</code> carica e mostra un'immagine Koala Painter (dati a $6000 o $2000, routine di visualizzazione da 86 byte).</li><li><strong>Koala nell'editor Hires:</strong> <em>Files → Importa Koala / Esporta Koala</em> con il file .koa standard.</li><li><strong>Stato aggiornamento anche in modalità Expert:</strong> la barra di stato mostra <em>Aggiornato</em> o un <em>Aggiornamento disponibile</em> cliccabile.</li><li><strong>Controllo aggiornamenti più robusto:</strong> funziona con la nuova pagina di download.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -229,6 +229,7 @@ const mnemonicLibrary = {
     { mnemonic: "CHARDEF", description: "Egyetlen 8x8 karakter definialasa RAM charset-be. Base ($3800) + index (0-255) + 8 byte. Runtime kod: 8x LDA #b/STA base+index*8+n = 40 byte inline.", modes: ["implied"], isCharDefMacro: true },
     { mnemonic: "BOX_HIT", description: "AABB (tengely-igazitott) tegla utkozes teszt ket 4-byte ZP struktura kozott (L,T,R,B). Eredmeny A regiszterben: 1=talalt, 0=nincs. ~31 byte inline asm.", modes: ["implied"], isBoxHitMacro: true },
     { mnemonic: "INCBIN", description: "Kulso binarfajl beillesztese megadott memoriacimtol, kod generalas nelkul.", modes: ["implied"], isIncBinMacro: true },
+    { mnemonic: "KOALA", description: "Koala Painter kep (.koa) betoltese es megjelenitese: a bitmap $6000-ra (vagy $2000-ra) kerul, a blokk helyen futo kod bemasolja a screen/color RAM-ot, beallitja a hatterszint es a multicolor bitmap modot.", modes: ["implied"], isIncBinMacro: true, incBinKoala: true },
     { mnemonic: "SID", description: "SID zenefajl betoltese kozvetlenul a memoriaba. A fejlecet automatikusan eltavolitja, a Load/Init/Play cimeket kinyeri.", modes: ["implied"], isSidMacro: true },
     { mnemonic: "INCLUDE", description: "Masik projekt JSON fajl blokkjainak beillesztese erre a helyre (csak olvasható).", modes: ["implied"], isIncludeMacro: true },
     { mnemonic: "LOOP", description: "Szamlalo ciklus: LD* #count, majd cimke a body elejere. NEXT blokkal zarjuk.", modes: ["implied"], isLoopMacro: true },
@@ -895,6 +896,7 @@ const mnemonicExpertHints = {
   BOX_HIT: mnemonicSyntax("box_hit", "$FB", "$F7"),
   SID: mnemonicSyntax("sid", `"music.sid"`),
   INCBIN: mnemonicSyntax("incbin", `"sprite.bin"`, "$2000"),
+  KOALA: mnemonicSyntax("koala", `"picture.koa"`, "$6000"),
   INCLUDE: mnemonicSyntax("include", `"other.json"`),
   LOOP: mnemonicSyntax("loop", "X", "4"),
   NEXT: ".next",
@@ -3576,6 +3578,8 @@ function _applyEditorTranslations() {
   setText(".hg-title", t("hgTitle"));
   setText("#hg-import", t("hgImport"));
   setText("#hg-export", t("hgExport"));
+  setText("#hg-import-koala", t("hgImportKoala"));
+  setText("#hg-export-koala", t("hgExportKoala"));
   setText("#hg-export-blocks", t("hgExportBlocks"));
   setText("#hg-save-d64", t("hgSaveD64"));
   setAttr('.hg-tool[data-tool="pencil"]', t("hgToolPencil"));
@@ -4070,6 +4074,13 @@ function renderMnemonicDescription() {
     });
     return;
   }
+  if (item.isIncBinMacro && item.incBinKoala) {
+    mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
+      lines: [t("macroAddrKoala"), t("macroAddrKoalaAddress"), t("macroAddrKoalaBrowse")],
+      example: '.koala "picture.koa", $6000'
+    });
+    return;
+  }
   if (item.isIncBinMacro) {
     mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
       lines: [t("macroAddrIncbin"), t("macroAddrBrowseAfter")]
@@ -4142,7 +4153,7 @@ function renderPaletteItems() {
               : item.isRawTextMacro
                 ? `${t("paletteRawText")} | ${preview.preview}`
                 : item.isIncBinMacro
-                  ? `${t("paletteBinAtAddr")}`
+                  ? `${t(item.incBinKoala ? "paletteKoala" : "paletteBinAtAddr")}`
                   : item.isIncludeMacro
                   ? `${t("paletteIncludeProj")}`
                   : item.isSidMacro
@@ -4548,12 +4559,13 @@ function createBlockFromMnemonic(item) {
       description: item.description,
       addressingMode: "implied",
       base: "hex",
-      validationError: t("incbinMacroNeedsFile"),
+      validationError: t(item.incBinKoala ? "koalaMacroNeedsFile" : "incbinMacroNeedsFile"),
       collapsed: true,
       isIncBinMacro: true,
+      ...(item.incBinKoala ? { incBinKoala: true } : {}),
       incBinFile: "",
       incBinFileName: "",
-      incBinAddress: "$C000",
+      incBinAddress: item.incBinKoala ? "$6000" : "$C000",
       incBinBytes: []
     };
   }
@@ -5713,6 +5725,7 @@ function _blockToExpertLine(block) {
   }
   if (block.isFillMacro)      return `.fill ${fmtRaw(block.rawOperand, block.base)}`;
   if (block.isAlignMacro)     return `.align ${block.rawOperand || "64"}`;
+  if (block.isIncBinMacro && block.incBinKoala) return `.koala "${block.incBinFileName || "picture.koa"}"${block.incBinAddress && parseAddressValue(block.incBinAddress) !== 0x6000 ? ", $" + block.incBinAddress.replace(/^\$/, "") : ""}`;
   if (block.isIncBinMacro)    return `.incbin "${block.incBinFileName || "data.bin"}"${block.incBinAddress && block.incBinAddress !== "$C000" ? ", $" + block.incBinAddress.replace(/^\$/,"") : ""}`;
   if (block.isPetsciiMacro)   return `.petscii ${fmtAddr(block.petsciiAddress)}, "${block.rawOperand || "HELLO"}"${block.petsciiCharset === "lower" ? ", lower" : ""}${block.petsciiNullTerminated ? ", null" : ""}${fmtMacroLabel(block.macroLabel)}`;
   if (block.isCharsetMacro)   return `.charset ${block.charsetMode || "lower"}`;
@@ -8462,7 +8475,7 @@ const _EXPERT_MNEM_SET = new Set([
 // Directive name (without dot) → uppercase mnemonic in mnemonicLibrary
 const _DIRECTIVE_TO_MNEM = {
   text:"TEXT", string:"STRING", rawtext:"RAWTEXT", rawbytes:"RAWBYTES", data:"DATA",
-  byte:"BYTE", word:"WORD", fill:"FILL", align:"ALIGN", incbin:"INCBIN",
+  byte:"BYTE", word:"WORD", fill:"FILL", align:"ALIGN", incbin:"INCBIN", koala:"KOALA",
   petscii:"PETSCII", table:"TABLE", loadfile:"LOADFILE", sid:"SID", include:"INCLUDE",
   loop:"LOOP", next:"NEXT", for:"FOR", endf:"ENDF", push:"PUSH", pull:"PULL",
   macro:"MACRO", endm:"ENDM", invoke:"INVOKE", call:"INVOKE",
@@ -8499,7 +8512,7 @@ const _AC_DIRECTIVE_DESC = {
   ".org":"set origin", ".byte":"raw byte(s)", ".word":"16-bit value",
   ".fill":"repeat bytes", ".align":"align boundary", ".text":"screen text macro",
   ".string":"string at address", ".rawtext":"raw screen codes", ".rawbytes":"raw bytes at addr",
-  ".data":"data macro", ".incbin":"include binary", ".sid":"SID player macro",
+  ".data":"data macro", ".incbin":"include binary", ".koala":"Koala picture + display", ".sid":"SID player macro",
   ".include":"include file", ".loop":"loop start", ".next":"loop end",
   ".for":"counted loop start", ".endf":"counted loop end", ".exodecrunch":"Exomizer depack",
   ".push":"push registers", ".pull":"pop registers",
@@ -9128,7 +9141,7 @@ function _expertHighlightLine(raw) {
   if (!code.trim()) return esc(code) + commentHtml;
 
   // Token regex (order matters)
-  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|assert|loop|next|for|endf|push|pull|endif|endregion|region|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|delay|wait|set_border|set_bg|irq_setup|sprite_init|sprite_pos|wait_raster|joystick|mouse|sprite_col|map_copy16x16|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|include|sid|petscii|charset|table|loadfile|invoke|call|rand|exodecrunch|reu_check|reu_stash|reu_fetch|reu_swap|turbo_set|turbo_enable|supercpu_detect|chardef|box_hit)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)|(\{[A-Za-z_][A-Za-z0-9_]*\})|(:[A-Za-z_][A-Za-z0-9_]*)/gi;
+  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|assert|loop|next|for|endf|push|pull|endif|endregion|region|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|delay|wait|set_border|set_bg|irq_setup|sprite_init|sprite_pos|wait_raster|joystick|mouse|sprite_col|map_copy16x16|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|koala|include|sid|petscii|charset|table|loadfile|invoke|call|rand|exodecrunch|reu_check|reu_stash|reu_fetch|reu_swap|turbo_set|turbo_enable|supercpu_detect|chardef|box_hit)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)|(\{[A-Za-z_][A-Za-z0-9_]*\})|(:[A-Za-z_][A-Za-z0-9_]*)/gi;
 
   let result = "";
   let lastIdx = 0;
@@ -10077,7 +10090,7 @@ function _expertDrawMinimap() {
       color = cComment;
     } else if (/^[A-Za-z_][A-Za-z0-9_]*:/.test(trimmed)) {
       color = cLabel;
-    } else if (/^\.(const|if|else|endif|macro|endm|invoke|region|endregion|define|org|byte|word|fill|text|string|data|rawbytes|rawtext|align|table|push|pull|for|endf|loop|next|blank|incbin|sid|include|loadfile|sprite|wait|joystick|mouse|reu|turbo|supercpu)\b/i.test(trimmed)) {
+    } else if (/^\.(const|if|else|endif|macro|endm|invoke|region|endregion|define|org|byte|word|fill|text|string|data|rawbytes|rawtext|align|table|push|pull|for|endf|loop|next|blank|incbin|koala|sid|include|loadfile|sprite|wait|joystick|mouse|reu|turbo|supercpu)\b/i.test(trimmed)) {
       color = cDirective;
     } else if (/^\d|#\$|^\$[0-9A-Fa-f]/.test(trimmed)) {
       color = cNumber;
@@ -10632,6 +10645,14 @@ function parseExpertText(text) {
       continue;
     }
 
+    // .koala "picture.koa" [, $ADDR]  (INCBIN variant with a picture-display routine)
+    const koalaM = line.match(/^\.koala\s+"([^"]*)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$/i);
+    if (koalaM) {
+      blocks.push(_importMakeKoala(koalaM[1], koalaM[2] ? koalaM[2].toUpperCase() : ""));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
     // .incbin "filename" [, $ADDR]
     const incbinM = line.match(/^\.incbin\s+"([^"]*)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$/i);
     if (incbinM) {
@@ -10663,13 +10684,15 @@ function parseExpertText(text) {
     // Malformed asset directives — `.include`, `.incbin`, `.sid` without a
     // quoted filename must still surface as an error instead of silently
     // becoming a comment via the fallback path.
-    const bareAssetDirM = line.match(/^\.(include|incbin|sid)\b(.*)$/i);
+    const bareAssetDirM = line.match(/^\.(include|incbin|koala|sid)\b(.*)$/i);
     if (bareAssetDirM) {
       const kind = bareAssetDirM[1].toLowerCase();
       if (kind === "include") {
         blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "INCLUDE", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: t("includeMacroNeedsFile"), collapsed: true, isIncludeMacro: true, includeFile: "", includeFileName: "", includeAddress: "", includeCollapsed: false, includedBlocks: [] });
       } else if (kind === "incbin") {
         blocks.push(_importMakeIncBin("", ""));
+      } else if (kind === "koala") {
+        blocks.push(_importMakeKoala("", ""));
       } else {
         blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SID", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: t("sidMacroNeedsFile"), collapsed: true, isSidMacro: true, sidFile: "", sidFileName: "", sidTitle: "", sidAuthor: "", sidLoadAddress: 0, sidInitAddress: 0, sidPlayAddress: 0, sidBytes: [], sidCustomAddress: "" });
       }
@@ -11876,7 +11899,7 @@ function _disasmLineSortAddress(line, labelMap = null) {
   if (block.isPetsciiMacro) {
     return parseAddressValue(block.petsciiAddress, labelMap) ?? 0xC000;
   }
-  if (block.isIncBinMacro) {
+  if (block.isIncBinMacro && !block.incBinKoala) {
     return parseMacroAddress(block.incBinAddress || "$C000", labelMap) ?? 0xC000;
   }
   if (block.isSidMacro) {
@@ -11994,7 +12017,7 @@ function _buildDisasmHTML(originOverride, basicStubSection = null) {
       const block = line.block;
 
       // INCBIN: deferred binary file — show hex dump at incBinAddress
-      if (block.isIncBinMacro) {
+      if (block.isIncBinMacro && !block.incBinKoala) {
         const incBytes = Array.isArray(block.incBinBytes) ? block.incBinBytes : [];
         const incAddr = parseMacroAddress(block.incBinAddress || "$C000", labelMap) ?? 0xC000;
         const incAddrHex = incAddr.toString(16).toUpperCase().padStart(4, "0");
@@ -13287,7 +13310,7 @@ function updateProgramBlock(index, field, value) {
       block.operand = block.rawOperand.trim();
       block.validationError = validateDataMacro(block.rawOperand, block.rawBytesAddress, block.base);
     } else if (block.isIncBinMacro) {
-      block.validationError = validateIncBinMacro(block.incBinBytes, block.incBinAddress);
+      block.validationError = validateIncBinMacro(block.incBinBytes, block.incBinAddress) || (block.incBinKoala ? _koalaError(block) : "");
     } else if (block.isRawTextMacro) {
       block.operand = block.rawOperand.trim();
       block.validationError = validateStringMacroAddress(block.rawTextAddress);
@@ -14761,7 +14784,7 @@ function validateAssetMacroHasFile(block) {
     }
   } else if (block.isIncBinMacro) {
     if (!nonEmpty(block.incBinFile) && !nonEmpty(block.incBinFileName)) {
-      return t("incbinMacroNeedsFile");
+      return t(block.incBinKoala ? "koalaMacroNeedsFile" : "incbinMacroNeedsFile");
     }
   } else if (block.isSidMacro) {
     if (!nonEmpty(block.sidFile) && !nonEmpty(block.sidFileName)) {
@@ -16398,16 +16421,17 @@ function _updateShow({ title, msg, install = false, skip = false, closeLabel = t
 
 // UB statusbar jelző: "Naprakész (vX)" vagy kattintható "Frissítés elérhető: vY".
 function _updateRenderStatusbar() {
-  const el = document.getElementById("ub-update-status");
   const info = _updateInfo;
-  if (!el) return;
-  if (!info?.supported || !info.latestVersion) { el.hidden = true; return; }
-  const available = !!info.updateAvailable;
-  el.hidden = false;
-  el.classList.toggle("ub-update-status--available", available);
-  el.textContent = available
+  const show = !!(info?.supported && info.latestVersion);
+  const available = show && !!info.updateAvailable;
+  const text = !show ? "" : available
     ? tf("updateStatusAvailable", { latest: info.latestVersion })
     : tf("updateStatusUpToDate", { version: info.currentVersion });
+  document.querySelectorAll("[data-update-status]").forEach(el => {
+    el.hidden = !show;
+    el.classList.toggle("ub-update-status--available", available);
+    el.textContent = text;
+  });
 }
 
 function _updateShowAvailable() {
@@ -16509,7 +16533,7 @@ async function _updateInstall() {
     els.dlg?.close();
   });
   els.dlg?.addEventListener("cancel", e => { if (_updateBusy) e.preventDefault(); });
-  document.getElementById("ub-update-status")?.addEventListener("click", _updateShowAvailable);
+  document.querySelectorAll("[data-update-status]").forEach(el => el.addEventListener("click", _updateShowAvailable));
 })();
 
 async function _tabClose(tabId) {
@@ -19342,6 +19366,57 @@ function _importMakeIncBin(fileName, addressHex) {
   };
 }
 
+function _importMakeKoala(fileName, addressHex) {
+  return {
+    ..._importMakeIncBin(fileName, addressHex || "6000"),
+    mnemonic: "KOALA",
+    incBinKoala: true,
+    validationError: (fileName || "").trim() ? "" : t("koalaMacroNeedsFile")
+  };
+}
+
+/* KOALA = INCBIN variant (incBinKoala). File: [$00 $60] + 8000 bitmap + 1000 screen
+   RAM + 1000 color RAM + 1 background. The data is placed at incBinAddress ($6000 =
+   Koala native, or $2000); the block itself emits a fixed 86-byte display routine.
+   Only $2000 (VIC bank 0, screen $0400) and $6000 (bank 1, screen $4400) are
+   allowed: other 8K slots are under ROM (the copy loop would read ROM) or hit the
+   char-ROM shadow. D018 = $18 in both cases (screen +$0400, bitmap +$2000). */
+const _KOALA_SHOW_SIZE = 86;
+
+function _koalaData(block) {
+  const bytes = block?.incBinBytes || [];
+  return bytes.length === 10003 ? Array.from(bytes).slice(2) : Array.from(bytes);
+}
+
+function _koalaError(block) {
+  const addr = parseAddressValue(block.incBinAddress) ?? 0x6000;
+  if (addr !== 0x2000 && addr !== 0x6000) return t("koalaAddressInvalid");
+  const len = (block.incBinBytes || []).length;
+  if (len && len !== 10001 && len !== 10003) return tf("koalaSizeInvalid", { size: len });
+  return "";
+}
+
+function _koalaShowBytes(addr) {
+  const lo = v => v & 0xFF, hi = v => (v >> 8) & 0xFF;
+  const screen = (addr === 0x2000 ? 0x0000 : 0x4000) + 0x0400;
+  const out = [0xA2, 0x00];                                   // LDX #0
+  const copy = (src, dst) => {
+    for (let k = 0; k < 4; k++) {
+      out.push(0xBD, lo(src + k * 250), hi(src + k * 250));   // LDA src+k*250,X
+      out.push(0x9D, lo(dst + k * 250), hi(dst + k * 250));   // STA dst+k*250,X
+    }
+  };
+  copy(addr + 8000, screen);                                  // screen RAM
+  copy(addr + 9000, 0xD800);                                  // color RAM
+  out.push(0xE8, 0xE0, 0xFA, 0xD0, 0xCB);                     // INX / CPX #250 / BNE loop (-53)
+  out.push(0xAD, lo(addr + 10000), hi(addr + 10000), 0x8D, 0x21, 0xD0);   // background → $D021
+  out.push(0xAD, 0x00, 0xDD, 0x29, 0xFC, 0x09, addr === 0x2000 ? 0x03 : 0x02, 0x8D, 0x00, 0xDD); // VIC bank
+  out.push(0xA9, 0x3B, 0x8D, 0x11, 0xD0);                     // bitmap mode
+  out.push(0xA9, 0x18, 0x8D, 0x16, 0xD0);                     // multicolor
+  out.push(0xA9, 0x18, 0x8D, 0x18, 0xD0);                     // screen +$0400, bitmap +$2000
+  return out;
+}
+
 function _importMakeConst(name, rawValue) {
   const scalar = _importParseScalar(rawValue);
   return {
@@ -20505,7 +20580,7 @@ function _buildUniversalAsmExportText() {
       continue;
     }
 
-    if (block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || block.isIncBinMacro || block.isSidMacro) {
+    if (block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || (block.isIncBinMacro && !block.incBinKoala) || block.isSidMacro) {
       continue;
     }
 
@@ -21379,7 +21454,7 @@ function assembleProgramToPrg(originOverride) {
       const addr = parseAddressValue(block.petsciiAddress, labels) ?? 0xC000;
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
     } else if (block.isIncBinMacro) {
-      const chunkBytes = block.incBinBytes || [];
+      const chunkBytes = block.incBinKoala ? _koalaData(block) : (block.incBinBytes || []);
       const addr = parseAddressValue(block.incBinAddress) ?? 0xC000;
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: Array.from(chunkBytes) });
     } else if (block.isSidMacro) {
@@ -21581,6 +21656,17 @@ function compileLineBytes(line, labels) {
       ok: true,
       bytes: [],
       comment: `RAWBYTES ${block.rawOperand || ""} @ ${formatAddress(parseAddressValue(block.rawBytesAddress) ?? 0xC000)}`
+    };
+  }
+
+  if (block.isIncBinMacro && block.incBinKoala) {
+    const err = _koalaError(block);
+    if (err) return { ok: false, error: err };
+    const addr = parseAddressValue(block.incBinAddress) ?? 0x6000;
+    return {
+      ok: true,
+      bytes: _koalaShowBytes(addr),
+      comment: `KOALA "${block.incBinFileName || block.incBinFile || ""}" @ ${formatAddress(addr)} (display routine)`
     };
   }
 
@@ -24046,7 +24132,7 @@ function getInstructionSize(block) {
   }
 
   if (block.isIncBinMacro) {
-    return 0;
+    return block.incBinKoala ? _KOALA_SHOW_SIZE : 0;
   }
 
   if (block.isSidMacro) {
@@ -24811,7 +24897,7 @@ function getDeferredMemorySections(layout) {
       }
 
       if (line.block.isIncBinMacro) {
-        const bytes = line.block.incBinBytes || [];
+        const bytes = line.block.incBinKoala ? _koalaData(line.block) : (line.block.incBinBytes || []);
         const startAddress = parseAddressValue(line.block.incBinAddress) ?? 0xC000;
         return {
           type: "incbin",
@@ -28958,6 +29044,23 @@ function renderAsmOutput() {
       });
       const rawbytesLabel = line.block.macroLabel ? line.block.macroLabel.trim() : `rawbytes_${lineNumber}`;
       return `; .rawbytes ${rawbytesLabel}`;
+    }
+
+    if (line.block.isIncBinMacro && line.block.incBinKoala) {
+      const bytes = _koalaData(line.block);
+      const startAddress = parseAddressValue(line.block.incBinAddress) ?? 0x6000;
+      const fileName = line.block.incBinFileName || line.block.incBinFile || "?";
+      if (bytes.length > 0) {
+        const expanded = chunkBytes(bytes, 16).map((chunk, chunkIndex) => {
+          const byteList = chunk.map((byte) => toHex(byte, 2)).join(", ");
+          return `    ; ${formatAddress(startAddress + chunkIndex * 16)}\n    .byte ${byteList}`;
+        }).join("\n");
+        deferredDataSections.push({
+          address: startAddress,
+          text: `koala_${lineNumber}:\n    ; .koala "${fileName}" -> ${formatAddress(startAddress)}\n${expanded}`
+        });
+      }
+      return `; .koala "${fileName}" @ ${formatAddress(startAddress)} (${_KOALA_SHOW_SIZE} bytes display routine)`;
     }
 
     if (line.block.isIncBinMacro) {
@@ -33717,7 +33820,7 @@ function _hgImportImage(img) {
 }
 
 function _hgIsBinFile(file) {
-  return /\.(bin|prg|raw)$/i.test(file.name) || file.type === "application/octet-stream";
+  return /\.(bin|prg|raw|koa|kla)$/i.test(file.name) || file.type === "application/octet-stream";
 }
 
 function _hgIsImageFile(file) {
@@ -33928,6 +34031,41 @@ function _hgExportMultiNative() {
   return out;
 }
 
+/* Koala Painter: $6000 load address + 8000 bitmap + 1000 screen RAM + 1000 color RAM
+   + 1 background byte = 10003 bytes. Always multicolor; a hi-res picture is reduced
+   to 160×200 (of each horizontal pixel pair a non-paper pixel wins, keeping thin lines). */
+function _hgExportKoala() {
+  _hgInit();
+  let savedMC = null;
+  if (!_hgMulti) {
+    savedMC = _hgPixMC;
+    const mc = new Uint8Array(160 * 200);
+    for (let y = 0; y < 200; y++)
+      for (let x = 0; x < 160; x++) {
+        const a = _hgGet(x * 2, y), b = _hgGet(x * 2 + 1, y);
+        mc[y * 160 + x] = a !== _hgPaper ? a : b;
+      }
+    _hgPixMC = mc;
+  }
+  const native = _hgExportMultiNative();
+  if (savedMC) _hgPixMC = savedMC;
+  const out = new Uint8Array(10003);
+  out[0] = 0x00; out[1] = 0x60;
+  out.set(native, 2);
+  out[10002] = _hgPaper & 0x0F;
+  return out;
+}
+
+// Koala with the 2-byte load address (10003) or without it (10001) → false if not Koala.
+function _hgImportKoala(src) {
+  const data = src.length === 10003 ? src.subarray(2) : src;
+  if (data.length !== 10001) return false;
+  _hgPaper = data[10000] & 0x0F;
+  _hgUpdatePaperSwatch();
+  _hgImportBytes(data.subarray(0, 10000));
+  return true;
+}
+
 function setupHiresEditor() {
   const dialog = document.getElementById("hires-editor-dialog");
   if (!dialog) return;
@@ -34069,7 +34207,10 @@ function setupHiresEditor() {
     if (!file) return;
     if (_hgIsBinFile(file) && !_hgIsImageFile(file)) {
       const reader = new FileReader();
-      reader.onload = function() { _hgImportBytes(new Uint8Array(reader.result)); };
+      reader.onload = function() {
+        const bytes = new Uint8Array(reader.result);
+        if (!_hgImportKoala(bytes)) _hgImportBytes(bytes);
+      };
       reader.readAsArrayBuffer(file);
     } else {
       _hgImportImageFile(file);
@@ -34077,7 +34218,23 @@ function setupHiresEditor() {
     e.target.value = "";
   });
 
+  const koalaFile = document.getElementById("hg-koala-file");
+  document.getElementById("hg-import-koala")?.addEventListener("click", function() { koalaFile?.click(); });
+  koalaFile?.addEventListener("change", function(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function() {
+      if (!_hgImportKoala(new Uint8Array(reader.result))) showViceToast(t("hgKoalaInvalid"), true);
+    };
+    reader.readAsArrayBuffer(file);
+    e.target.value = "";
+  });
+
   // Export / Save
+  document.getElementById("hg-export-koala")?.addEventListener("click", function() {
+    _saveBinFile(_hgExportKoala(), "image.koa");
+  });
   document.getElementById("hg-export")?.addEventListener("click", function() {
     _saveBinFile(_hgMulti ? _hgExportMultiNative() : _hgExportBytes(), _hgMulti ? "image-mc-native.bin" : "image-hires.bin");
   });

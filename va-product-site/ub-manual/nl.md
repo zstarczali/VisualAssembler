@@ -1,4 +1,4 @@
-# Ultimate Basic v1.5.8 — Taalhandleiding
+# Ultimate Basic v1.5.9 — Taalhandleiding
 
 Complete taal- en CLI-referentie voor Ultimate Basic, een BASIC-achtige taal die
 direct compileert naar 6502-machinecode voor de Commodore 64. Uitvoer: `.prg`
@@ -68,10 +68,10 @@ kies daarom een andere naam.
 **Typen en typegerelateerd** `int`, `word`, `float`, `string`, `array`,
 `array_word`
 
-**Afdrukken & I/O** `print`, `spc`, `tab`, `at`, `input`, `chr$`, `str$`, `hex`,
-`bin`, `open`, `close`, `load`, `save`, `data`, `read`, `include`, `incbin` (ook
-`dec` — hierboven vermeld als de decrement-instructie; hetzelfde token wordt
-gebruikt voor de `dec(n, width)` afdrukindeling)
+**Print & I/O** `print`, `spc`, `tab`, `at`, `input`, `chr$`, `str$`, `hex`,
+`bin`, `open`, `close`, `load`, `save`, `chain`, `data`, `read`, `include`,
+`incbin` (ook `dec` — hierboven vermeld als de decrement-instructie; hetzelfde
+token wordt gebruikt voor de `dec(n, width)` print-indeling)
 
 **Ingebouwde wiskundige en tekenreeksfuncties** `abs`, `min`, `max`, `clamp`,
 `sgn`, `mod`, `rnd`, `sin`, `cos`, `and`, `or`, `xor`, `not`, `bnot`, `shl`,
@@ -1255,17 +1255,60 @@ schrijft eerst lo en daarna hi.
 ```basic
 load "PROGRAM"           # KERNAL LOAD: loads file from device 8 to its native address
 load "DATA", $C000       # loads file to a specific address
+chain "GAME"             # load another program over this one and RUN it (see below)
 load "DATA", ptr         # addr from word variable
 
 save "DATA", $C000, 4096 # KERNAL SAVE from $C000, 4096 bytes → device 8
 save "PROG", start, len  # addr and len from word/int variables
 ```
 
-`load` roept KERNAL `SETNAM`+`SETLFS`+`LOAD` aan (`$FFBD`/`$FFBA`/`$FFD5`).
-Zonder adres: secundair adres 0 (de eigen 2-byte header van het bestand wordt
-gebruikt als laadadres). Met adres: secundair adres 1 (bestand geladen op de
-opgegeven locatie). `save` roept `SETNAM`+`SETLFS`+`SAVE` aan
-(`$FFBD`/`$FFBA`/`$FFD8`). Vereist zowel `addr` als `len`.
+`load` roept KERNAL `SETNAM`+`SETLFS`+`LOAD` (`$FFBD`/`$FFBA`/`$FFD5`) aan.
+Zonder adres: secundair adres 1 (de eigen 2-byte header van het bestand is het
+laadadres). Met adres: secundair adres 0 (het bestand wordt geladen naar het
+opgegeven adres, de header wordt overgeslagen). (Opgelost in 1.5.9 — voorheen
+waren de twee verwisseld: `load "F"` geladen naar `$0000`.) `save` roept
+`SETNAM`+`SETLFS`+`SAVE` (`$FFBD`/`$FFBA`/`$FFD8`) aan. Vereist zowel `addr` als
+`len`.
+
+#### Doorverbinden naar een ander programma — `chain` (nieuw in 1.5.9)
+
+```basic
+chain "GAME" # laad GAME vanaf de schijf waar we begonnen zijn en VOER het UIT
+chain "GAME", 9 # vanaf schijf 9 (willekeurige expressie)
+print "LAADFOUT" # wordt alleen bereikt als het bestand niet kon worden geladen
+```
+
+`chain` laadt een ander programma naar zijn eigen laadadres — normaal gesproken
+`$0801`, direct over het draaiende programma heen — en start het precies alsof
+`LOAD"GAME",8,1` en `RUN` waren getypt. Dit is wat een opstart-/titelprogramma
+nodig heeft. Een simpele `load` kan dit niet: het geladen bestand zou de code
+overschrijven die de `load` uitvoert.
+
+Hoe het werkt:
+
+- Een 46-byte, positie-onafhankelijke loader plus de bestandsnaam wordt
+  gekopieerd naar de cassettebuffer (`$033C`), waarover noch een Ultimate
+  Basic-programma noch een Exomizer-gecomprimeerd bestand wordt geladen.
+- Voordat dat gebeurt, wordt de machine teruggezet naar een schone staat: VIC
+  IRQ's uit, SID-volume 0, `IOINIT` (`$FDA3`: CIA-timers, toetsenbord-IRQ,
+  seriële bus), `RESTOR` (`$FF8A`: standaard IRQ/BRK/NMI- en I/O-vectoren), `$01
+  = $37`. Aangepaste raster-IRQ's, `muziek afspelen` en `nmi` handlers stoppen.
+  Scherm, kleuren en VIC-bankregisters, met uitzondering van `$DD00`, blijven
+  ongewijzigd, zodat een afbeelding op het scherm kan blijven staan terwijl het
+  volgende programma wordt geladen (`IOINIT` selecteert VIC-bank 0).
+- De loader roept `SETNAM` / `SETLFS` (secundair 1) / `LOAD` aan. Zonder een
+  apparaatargument gebruikt hij de schijf waarvan het programma zelf is geladen
+  (`$BA`), of schijf 8.
+- Na een succesvolle laadbewerking stelt het de end-of-program pointer in
+  (`$2D/$2E`), initialiseert het BASIC opnieuw (`$E453`, `$E3BF` — een
+  zelf-uitpakkende cruncher zoals Exomizer `sfx` heeft mogelijk de zero page van
+  BASIC gebruikt) en voert het het programma uit (`$A659`, `$A7AE`). Het werkt
+  voor zowel Ultimate Basic-programma's, gecomprimeerde (`exomizer sfx sys`)
+  bestanden als gewone BASIC-programma's.
+- Als het bestand niet kan worden geladen (niet gevonden, geen schijfstation),
+  keert `chain` terug en gaat het programma verder met de volgende instructie.
+
+De bestandsnaam moet een tekenreeks zijn van 1 tot en met 16 tekens.
 
 ### Seriële kanaal bestands-I/O
 

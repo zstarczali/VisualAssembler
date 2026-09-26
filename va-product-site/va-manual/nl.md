@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Gebruikershandleiding
 
-**Versie 2.4.7**
+**Versie 2.4.8**
 
 Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma's door instructieblokken te slepen en neer te zetten, en bekijk de gegenereerde assembly- en machinecode in realtime.
 
@@ -9,6 +9,7 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
 ## Inhoudsopgave
 
 - [C64 Visual Assembler — Gebruikershandleiding](#c64-visual-assembler--user-manual)
+    - [Hoogtepunten van versie 2.4.8](#version-248-highlights)
     - [Hoogtepunten van versie 2.4.7](#version-247-highlights)
     - [Hoogtepunten van versie 2.4.6](#version-246-highlights)
     - [Hoogtepunten van versie 2.4.5](#version-245-highlights)
@@ -82,6 +83,7 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
     - [CHARDEF](#chardef)
     - [BOX_HIT](#box_hit)
     - [INCBIN](#incbin)
+    - [KOALA](#koala)
     - [SID](#sid)
     - [INCLUDE](#include)
     - [TABLE](#table)
@@ -158,6 +160,16 @@ Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw programma'
     - [Kaarteditor (Meerlaagse tegelkaarten)](#map-editor-multilayer-tilemaps)
     - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
     - [Curve-editor](#curve-editor)
+
+---
+
+## Hoogtepunten van versie 2.4.8
+
+- **Nieuwe KOALA-macro** — `.koala "picture.koa"` (optioneel `, $2000`) laadt een Koala Painter-afbeelding en toont deze met een 86-byte weergaveroutine. Zie [KOALA](#koala).
+- **Koala importeren/exporteren in de Hires-editor** — **Bestanden → Koala importeren (.koa)…** / **Koala exporteren (.koa)…** (standaardbestand van 10003 bytes; afbeeldingen met hoge resolutie worden bij het exporteren gereduceerd tot meerdere kleuren). `.koa` / `.kla` worden ook herkend door **Afbeelding importeren / .bin**.
+- **Updatestatus in de Expert-statusbalk** — dezelfde *Update* / klikbare *Update beschikbaar* indicator als in de Ultimate Basic-modus.
+- **Opslaandialoogvensters** bieden het eigen bestandstype aan (bijv. *KOA*) in plaats van *Binair (\*.bin)*.
+- **Betere updatecontrole** — de lijst met installatieprogramma's is gepubliceerd op c64va.tech/downloads/VA/, dus de controle werkt met de nieuwe downloadpagina; de Linux-updatehelper erft niet langer de AppImage-bibliotheekpaden.
 
 ---
 
@@ -1558,6 +1570,35 @@ Net als **BLOAD in BASIC** — pakt een extern binair bestand (`.bin`, `.prg`, `
 ```
 
 **Grootte in code:** 0 bytes (uitgestelde datasectie). De binaire code is ingebed op het opgegeven adres.
+
+---
+
+### KOALA
+
+Laadt een **Koala Painter**-afbeelding (`.koa` / `.kla`, 160×200 meerkleurig) en toont deze. De afbeeldingsgegevens zijn ingebed op een vast adres zoals `INCBIN` (het 2-byte `$6000` laadadres van het bestand wordt verwijderd), en het blok zelf compileert naar een 86-byte weergaveroutine die wordt uitgevoerd op de plaats waar het blok zich bevindt.
+
+| Veld    | Beschrijving                                                                                                               |
+| ------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Bestand | Blader om een `.koa` / `.kla`-bestand te selecteren (10003 bytes, of 10001 zonder laadadres)                               |
+| Adres   | Bitmapadres: `$6000` (standaard, Koala native, VIC bank 1, scherm-RAM `$4400`) of `$2000` (VIC bank 0, scherm-RAM `$0400`) |
+
+De weergaveroutine kopieert het scherm-RAM-gedeelte naar het scherm en het kleur-RAM-gedeelte naar `$D800`, schrijft de achtergrondbyte naar `$D021`, selecteert de VIC-bank in `$DD00` (waarbij de andere poortbits behouden blijven) en schakelt de meerkleurige bitmapmodus in (`$D011 = $3B`, `$D016 = $18`, `$D018 = $18`). Andere adressen worden afgewezen: de resterende 8K-slots bevinden zich onder het BASIC/KERNAL-ROM (de kopieerlus zou ROM lezen) of overlappen de karakter-ROM-schaduw.
+
+**Expert syntax:**
+```
+.koala "picture.koa"
+.koala "picture.koa", $2000
+```
+
+**Voorbeeld — toon een afbeelding en wacht:**
+```
+* = $0801
+.koala "picture.koa"
+wait:
+    JMP wait
+```
+
+**Grootte in code:** 86 bytes (weergaveroutine); de 10001 bytes aan beeldgegevens gaan naar het opgegeven adres. De Hires-editor **Bestanden → Koala exporteren (.koa)…** produceert een compatibel bestand.
 
 ---
 
