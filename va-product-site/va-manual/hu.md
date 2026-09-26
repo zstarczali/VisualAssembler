@@ -167,6 +167,7 @@ Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat l�
 
 - **Új KOALA makró** — `.koala "picture.koa"` (opcionálisan `, $2000`) betölt egy Koala Painter képet, és egy 86 bájtos megjelenítési rutinnal jeleníti meg. Lásd: [KOALA](#koala).
 - **Koala import/export a Hires szerkesztőben** — **Fájlok → Koala importálása (.koa)…** / **Koala exportálása (.koa)…** (szabványos 10003 bájtos fájl; a nagy felbontású képek exportáláskor többszínűvé válnak). A(z) `.koa` / `.kla` fájlokat a(z) **Kép importálása / .bin** is felismeri.
+- **Az Ultimate Basic 1.5.9 verziója a csomagban** — új `chain "FILE" [, eszköz]` (tölts be egy másik programot a futó fölé és FUTSD); `load "FILE"` a fájl saját címére töltődik be, `load "FILE", addr` a `addr` címre töltődik; D64 javítások. A `chain` kiemelve és felsorolva van a parancsreferenciában.
 - **Frissítés állapota a Szakértői állapotsorban** — ugyanaz a *Naprakész* / kattintható *Elérhető frissítés* jelző, mint az Alapfokú Alapmódban.
 - A **Mentés párbeszédablakok** a fájl saját típusát kínálják fel (pl. *KOA*) a *Bináris (\*.bin)* helyett.
 - **Hatalmasabb frissítés-ellenőrzés** — a telepítők listája a c64va.tech/downloads/VA/ címen található, így az ellenőrzés az új letöltési oldallal is működik; a Linux frissítési segéd már nem örökli az AppImage könyvtár elérési útját.

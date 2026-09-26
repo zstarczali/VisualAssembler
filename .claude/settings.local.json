@@ -307,7 +307,8 @@
       "Bash(node --test tests/koala-macro.test.js)",
       "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/417dc66c-f8ef-40e4-bae4-a7fe70729f8f/scratchpad/koala_manual.py\")",
       "Bash(grep -n \"Visual Assembler Manual.md\\\\`-ből generált\" CLAUDE.md)",
-      "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/417dc66c-f8ef-40e4-bae4-a7fe70729f8f/scratchpad/release248.py\")"
+      "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/417dc66c-f8ef-40e4-bae4-a7fe70729f8f/scratchpad/release248.py\")",
+      "Bash(grep -o '^ *\"[a-z_$#0-9]*\" => Token::' src/compiler/lexer.rs)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"

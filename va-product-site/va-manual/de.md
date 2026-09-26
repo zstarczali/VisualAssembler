@@ -167,6 +167,7 @@ Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Si
 
 - **Neues KOALA-Makro** — `.koala "picture.koa"` (optional `, $2000`) lädt ein Koala Painter-Bild und zeigt es mit einer 86-Byte-Anzeigeroutine an. Siehe [KOALA](#koala).
 - **Koala-Import/Export im HiRes-Editor** — **Dateien → Koala importieren (.koa)…** / **Koala exportieren (.koa)…** (Standarddatei mit 10003 Byte; hochauflösende Bilder werden beim Export auf Mehrfarben reduziert). `.koa` / `.kla` werden auch von **Bild importieren / .bin** erkannt.
+- **Ultimate Basic 1.5.9 enthalten** – neu `chain "FILE" [, Gerät]` (lädt ein anderes Programm über das laufende und führt es aus); `load "FILE"` lädt in die Adresse der Datei, `load "FILE", addr` bis `addr`; D64-Korrekturen. `chain` ist hervorgehoben und in der Befehlsreferenz aufgeführt.
 - **Aktualisierungsstatus in der Expert-Statusleiste** — der gleiche *Aktuell* / anklickbare *Update verfügbar* Indikator wie im Ultimate Basic-Modus.
 - **Speicherdialoge** bieten den Dateityp selbst an (z. B. *KOA*) anstelle von *Binär (\*.bin)*.
 - **Robustere Updateprüfung** — Die Installerliste wird unter c64va.tech/downloads/VA/ veröffentlicht, sodass die Prüfung mit der neuen Downloadseite funktioniert; der Linux-Update-Helfer erbt nicht mehr die AppImage-Bibliothekspfade.

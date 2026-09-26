@@ -10,6 +10,7 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 - **Koala import/export in the Hires editor** — **Files → Import Koala (.koa)…** / **Export Koala (.koa)…**. Export writes the standard 10003-byte file (`$6000` load address, bitmap, screen RAM, color RAM, background); a hi-res picture is reduced to multicolor on export. Import accepts files with or without the load address; `.koa` / `.kla` are also recognised by **Import image / .bin**.
 - **Update status in the Expert status bar** — the same *Up to date* / clickable *Update available* indicator as in Ultimate Basic mode.
 - **Save dialogs offer the file's own type** — e.g. *KOA (\*.koa)* instead of *Binary (\*.bin)*.
+- **Ultimate Basic 1.5.9 bundled** — new **`chain "FILE" [, device]`** loads another program over the running one and RUNs it (boot / title programs); `load "FILE"` now loads to the file's own address and `load "FILE", addr` to `addr` (the secondary address was swapped); `--d64` directory entries, BAM offsets and sector allocation fixed. `chain` is highlighted in the UB editor and listed in the command reference (together with the `sprhit()` / `sprbghit()` short forms).
 - **More robust update check** — c64va.tech now publishes the installer list at `downloads/VA/`, so the check works with the new download page (also for 2.4.6 / 2.4.7); the Linux update helper no longer inherits the AppImage library paths.
 
 ## Earlier: v2.4.7

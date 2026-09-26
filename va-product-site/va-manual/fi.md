@@ -167,6 +167,7 @@ Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 
 - **Uusi KOALA-makro** — `.koala "kuva.koa"` (valinnainen `, $2000`) lataa Koala Painter -kuvan ja näyttää sen 86-tavuisella näyttörutiinilla. Katso [KOALA](#koala).
 - **Koalan tuonti/vienti Hires-editorissa** — **Tiedostot → Tuo Koala (.koa)…** / **Vie Koala (.koa)…** (vakiokokoinen 10003 tavun tiedosto; korkearesoluutioiset kuvat pienennetään monivärisiksi viennin yhteydessä). `.koa` / `.kla` tunnistetaan myös **Tuo kuva / .bin** -komennolla.
+- **Ultimate Basic 1.5.9 mukana** — uusi `chain "FILE" [, laite]` (lataa toinen ohjelma käynnissä olevan päälle ja SUORITA se); `load "FILE"` latautuu tiedoston omaan osoitteeseen, `load "FILE", addr` kohteeseen `addr`; D64 korjaukset. `chain` on korostettu ja lueteltu komentoviitteessä.
 - **Päivityksen tila asiantuntijan tilapalkissa** — sama *Ajan tasalla* / klikattava *Päivitys saatavilla* -ilmaisin kuin Ultimate Basic -tilassa.
 - **Tallennusikkunat** tarjoavat tiedostolle oman tyypin (esim. *KOA*) tyypin *Binary (\*.bin)* sijaan.
 - **Vankempi päivitysten tarkistus** — asennusohjelmien luettelo julkaistaan osoitteessa c64va.tech/downloads/VA/, joten tarkistus toimii uuden lataussivun kanssa; Linuxin päivitysavustaja ei enää peri AppImage-kirjastopolkuja.

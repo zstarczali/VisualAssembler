@@ -1073,6 +1073,51 @@
       display: grid
     }
 
+    .download-support-modal[hidden] {
+      display: none
+    }
+
+    .download-support-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 10050;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(0, 0, 0, .72)
+    }
+
+    .download-support-card {
+      width: min(100%, 480px);
+      padding: 34px;
+      border: 2px solid var(--brd-hi);
+      background: var(--scr-darker);
+      box-shadow: 0 20px 80px rgba(0, 0, 0, .6);
+      text-align: center
+    }
+
+    .download-support-card h2 {
+      margin-bottom: 14px;
+      color: var(--txt-hi);
+      font-family: 'C64Pro', monospace;
+      font-size: clamp(18px, 3vw, 26px);
+      letter-spacing: 2px
+    }
+
+    .download-support-card p {
+      margin-bottom: 24px;
+      color: var(--txt);
+      font-size: 12px;
+      line-height: 1.8
+    }
+
+    .download-support-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px
+    }
+
     /* ── MERCH ── */
     .merch {
       background: var(--scr-darker);
@@ -1645,6 +1690,10 @@
         padding: 42px 18px
       }
 
+      .download-support-card {
+        padding: 28px 20px
+      }
+
       .hero {
         grid-template-columns: 1fr
       }
@@ -1854,6 +1903,10 @@
           <div class="fi">
             <div class="fi-dot">&#9658;</div>
             <div><b>Koala in the Hires editor</b> <span>&mdash; import and export the standard 10003-byte <code>.koa</code> file; hi-res pictures are converted to multicolor on export.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">&#9658;</div>
+            <div><b>Ultimate Basic 1.5.9</b> <span>&mdash; new <code>chain "FILE"</code> loads another program over the running one and starts it; <code>load</code> and D64 fixes.</span></div>
           </div>
           <div class="fi">
             <div class="fi-dot">&#9658;</div>
@@ -2939,6 +2992,18 @@
     </div>
   </section>
 
+  <div class="download-support-modal" id="download-support-modal" role="dialog" aria-modal="true" aria-labelledby="download-support-title" hidden>
+    <div class="download-support-card">
+      <div class="sec-s" style="margin-bottom:12px">// SUPPORT DEVELOPMENT</div>
+      <h2 id="download-support-title">ENJOYING C64VA?</h2>
+      <p>A $5 PAYPAL CONTRIBUTION HELPS KEEP VISUAL ASSEMBLER AND ULTIMATE BASIC FREE TO DOWNLOAD.</p>
+      <div class="download-support-actions">
+        <a class="btn btn-y" href="https://paypal.me/ZsoltTarczali/5" target="_blank" rel="noopener">♥ SEND $5 VIA PAYPAL</a>
+        <button class="btn btn-o" type="button" data-download-continue>CONTINUE FREE DOWNLOAD</button>
+      </div>
+    </div>
+  </div>
+
   <!-- FOOTER -->
   <footer>
     <div class="foot-inner">
@@ -2983,6 +3048,31 @@
         });
       });
     });
+
+    (() => {
+      const modal = document.getElementById('download-support-modal');
+      const continueButton = modal.querySelector('[data-download-continue]');
+      let pendingDownload = '';
+      const close = () => { modal.hidden = true; pendingDownload = ''; };
+
+      document.querySelectorAll('.download-picker .download-item').forEach(link => {
+        link.addEventListener('click', event => {
+          event.preventDefault();
+          pendingDownload = link.href;
+          modal.hidden = false;
+          continueButton.focus();
+        });
+      });
+
+      continueButton.addEventListener('click', () => {
+        if (!pendingDownload) return close();
+        const download = pendingDownload;
+        close();
+        location.href = download;
+      });
+      modal.addEventListener('click', event => { if (event.target === modal) close(); });
+      document.addEventListener('keydown', event => { if (event.key === 'Escape' && !modal.hidden) close(); });
+    })();
 
     function showTab(id) {
       document.querySelectorAll('.tab').forEach(t => {

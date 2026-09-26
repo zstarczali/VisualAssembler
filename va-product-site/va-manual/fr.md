@@ -167,6 +167,7 @@ Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez de
 
 - **Nouvelle macro KOALA** — `.koala "picture.koa"` (optionnellement `, $2000`) charge une image Koala Painter et l'affiche avec une routine d'affichage de 86 octets. Voir [KOALA](#koala).
 - **Importation/exportation Koala dans l'éditeur haute résolution** — **Fichiers → Importer Koala (.koa)…** / **Exporter Koala (.koa)…** (fichier standard de 10 003 octets ; les images haute résolution sont converties en multicolore à l'exportation). `.koa` / `.kla` sont également reconnus par **Importer une image / .bin**.
+- **Ultimate Basic 1.5.9 intégré** — nouvelle `chaîne « FICHIER » [, périphérique]` (charge un autre programme par-dessus celui en cours d'exécution et l'exécute) ; `charger « FICHIER »` charge à l'adresse du fichier, `charger « FICHIER », addr` vers `addr` ; corrections D64. `chaîne` est mise en évidence et répertoriée dans le guide de référence des commandes.
 - **État de la mise à jour dans la barre d'état Expert** — le même *À jour* / indicateur cliquable *Mise à jour disponible* qu'en mode Ultimate Basic.
 - **Les boîtes de dialogue d'enregistrement** proposent le type propre du fichier (par exemple *KOA*) au lieu de *Binaire (\*.bin)*.
 - **Vérification de mise à jour plus robuste** — la liste des installateurs est publiée sur c64va.tech/downloads/VA/, la vérification fonctionne donc avec la nouvelle page de téléchargement ; l’assistant de mise à jour Linux n’hérite plus des chemins de la bibliothèque AppImage.
