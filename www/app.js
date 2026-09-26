@@ -2031,6 +2031,10 @@ function initPalette() {
   savePrgButton?.addEventListener("click", savePrgToFile);
   saveD64Button?.addEventListener("click", saveD64ToFile);
   saveCrtButton?.addEventListener("click", saveCrtToFile);
+  document.getElementById("build-project")?.addEventListener("click", async () => {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    await buildProjectToFiles();
+  });
 
   // Global Ctrl+S / Cmd+S — works in both block mode and expert mode
   document.addEventListener("keydown", (e) => {
@@ -3254,6 +3258,7 @@ function applyTranslations() {
     setText("#versioning-section-label", t("versioningSection"));
     setText("#save-d64", t("saveD64"));
     setText("#save-crt", t("saveCrt"));
+    setText("#build-project", t("buildProject"));
     setText("#d64-export-title", t("d64ExportTitle"));
     setText("#d64-export-diskname-label", t("d64ExportDiskName"));
     setText("#d64-export-progname-label", t("d64ExportProgName"));
@@ -7127,6 +7132,7 @@ function setUltimateBasicMode(on) {
     _ubRenderProjectFiles();
     _ubRenderCommandReference();
   }
+  renderMemoryMap();
   _historySyncCurrent();
   saveUiSettings();
 }
@@ -8220,8 +8226,11 @@ async function _ubCompile(showProgress = false, options = {}) {
     return null;
   }
   _ubLastResult = result;
+  const buildTab = _getActiveTab();
+  if (buildTab) buildTab._ubBuildResult = result;
   _ubRenderDisassembly(result);
   _ubRenderMonitor(result);
+  renderMemoryMap();
   if (!result?.ok) {
     if (showProgress) hideWorkProgress();
     const errors = result?.errors || [result?.error || "Compilation failed"];
@@ -8310,8 +8319,11 @@ async function _ubCompileSource(source, sourcePath, label = "startup file", opti
   _ubSetStatus(`Building ${label}…`);
   const result = await window.electronAPI?.compileUltimateBasic?.(source, _ubCompileSourcePath(sourcePath), _ubExplicit);
   _ubLastResult = result;
+  const sourceTab = sourcePath ? _findTabByPath(sourcePath) : null;
+  if (sourceTab) sourceTab._ubBuildResult = result;
   _ubRenderDisassembly(result);
   _ubRenderMonitor(result);
+  renderMemoryMap();
   if (!result?.ok) {
     const errors = result?.errors || [result?.error || "Compilation failed"];
     _ubSetBuildOutput(errors.join("\n"), true);
@@ -16323,6 +16335,7 @@ function _tabActivate(tabId) {
   renderTabBar();
   renderProgram();
   renderAsmOutput();
+  if (ultimateBasicMode) renderMemoryMap();
   _historySyncCurrent();
   if (_expertProjectVisible && _expertProjectData) _expertRenderProjectTree();
 }
@@ -17148,6 +17161,186 @@ async function savePrgToFile() {
     const fileName = result.filePath.split(/[\\/]/).pop();
     emulatorStatus.textContent = `${t("savePrgSuccess")}: ${fileName}`;
   }
+}
+
+// ── Build project — minden projekt-fájl (vagy projekt híján minden nyitott fül)
+// lefordítása; a PRG a forrás mellé kerül azonos néven (.prg).
+function _flattenProjectFiles(nodes, out = []) {
+  for (const node of nodes || []) {
+    if (node.type === "folder") _flattenProjectFiles(node.children, out);
+    else if (node.path) out.push(node);
+  }
+  return out;
+}
+
+function _findTabByPath(path) {
+  const norm = _normFilePath(path);
+  return tabs.find(tab => _normFilePath(tab.ubFilePath || tab.filePath) === norm) || null;
+}
+
+function _collectIncludedNames(text, blocks) {
+  const names = new Set();
+  const baseName = (p) => String(p || "").replace(/\\/g, "/").split("/").pop().toLowerCase();
+  for (const m of String(text || "").matchAll(/(?:^|[\s.#])(?:include|import)\s+"([^"]+)"/gim)) {
+    names.add(baseName(m[1]));
+  }
+  for (const block of blocks || []) {
+    if (block?.isIncludeMacro && block.includeFile) names.add(baseName(block.includeFile));
+  }
+  return names;
+}
+
+function _collectBuildProjectTargets() {
+  if (ultimateBasicMode && _ubProjectData) {
+    return _flattenProjectFiles(_ubProjectData.files)
+      .filter(f => /\.ub$/i.test(f.path))
+      .map(f => ({ name: f.name, path: _ubResolveProjectPath(f.path), kind: "ub", entry: f }));
+  }
+  if (!ultimateBasicMode && _expertProjectData) {
+    return _flattenProjectFiles(_expertProjectData.files)
+      .filter(f => /\.(asm|s|a65|json)$/i.test(f.path))
+      .map(f => ({ name: f.name, path: _projResolveAbsPath(f.path), kind: "asm", entry: f }));
+  }
+  return tabs.filter(_tabHasContent).map(tab => ({
+    name: tab.name,
+    path: tab.ubFilePath || tab.filePath || "",
+    kind: tab.editorMode === "ub" ? "ub" : "asm",
+    tabId: tab.id
+  }));
+}
+
+async function _buildProjectAsmTarget(target) {
+  let tab = target.tabId ? tabs.find(tb => tb.id === target.tabId) : _findTabByPath(target.path);
+  if (!tab && target.entry) {
+    await _expertProjectOpenFile(target.entry);
+    tab = _findTabByPath(target.path);
+  }
+  if (!tab) return { ok: false, error: `${t("projError")}: ${target.path}` };
+  if (tab.id !== activeTabId) _tabActivate(tab.id);
+
+  const savedProgram = program;
+  const savedUserMacros = userMacros;
+  let prg;
+  let sidecars = null;
+  try {
+    if (expertMode) program = _expertBuildProgram();
+    parseUserMacros();
+    prg = _buildAutostartPrgCore();
+    // A layout a swap-olt program[]-ból számol, ezért még a visszaállítás előtt.
+    if (prg.ok) sidecars = _buildDebuggerSidecarPayload(prg, { sourcePath: target.path });
+  } finally {
+    program = savedProgram;
+    userMacros = savedUserMacros;
+  }
+  if (!prg.ok) {
+    const errors = prg.errors?.length ? prg.errors.map(e => e?.text || String(e)) : [prg.error || t("savePrgFailed")];
+    return { ok: false, error: errors.join("\n") };
+  }
+  const packed = await _applyExomizerToPrg(prg);
+  return packed.ok ? { ...packed, sidecars } : packed;
+}
+
+async function _buildProjectUbTarget(target, text) {
+  let result;
+  try {
+    result = await window.electronAPI?.compileUltimateBasic?.(text, _ubCompileSourcePath(target.path), _ubExplicit);
+  } catch (error) {
+    return { ok: false, error: error?.message || String(error) };
+  }
+  if (!result?.ok) return { ok: false, error: (result?.errors || [result?.error || "Compilation failed"]).join("\n") };
+  if (!(await _ubApplyExomizer(result, target.name))) return { ok: false, error: "Exomizer" };
+  return { ok: true, bytes: Uint8Array.from(result.outputPrg || result.prg || []), sidecars: _ubBuildSidecars(result) };
+}
+
+async function buildProjectToFiles() {
+  _tabSaveCurrent();
+  const targets = _collectBuildProjectTargets();
+  if (!targets.length) {
+    showViceToast(t("buildProjectNothing"), true);
+    return;
+  }
+
+  const originalTabId = activeTabId;
+  const results = [];
+  await showWorkProgress("workProgressBuildProject");
+  try {
+    // Forrásszöveg / blokkok előzetes begyűjtése, hogy a más fájlba include-olt
+    // modulokat ne fordítsuk önálló PRG-vé.
+    for (const target of targets) {
+      const tab = target.tabId ? tabs.find(tb => tb.id === target.tabId) : _findTabByPath(target.path);
+      if (tab) {
+        target.text = target.kind === "ub" ? tab.ubText || "" : tab.expertText || "";
+        target.blocks = tab.program;
+      } else if (target.path) {
+        const res = await window.electronAPI?.readTextFile?.(target.path);
+        target.text = res?.ok ? res.content || "" : "";
+        if (/\.json$/i.test(target.path)) {
+          try { target.blocks = JSON.parse(target.text).program; } catch (_) { target.blocks = null; }
+          target.text = "";
+        }
+      }
+    }
+    const included = new Set();
+    targets.forEach(target => _collectIncludedNames(target.text, target.blocks).forEach(n => included.add(n)));
+
+    for (const [i, target] of targets.entries()) {
+      setWorkProgress(Math.round((i / targets.length) * 95));
+      if (!target.path) { results.push({ name: target.name, skipped: t("buildProjectUntitled") }); continue; }
+      const fileName = target.path.replace(/\\/g, "/").split("/").pop();
+      if (/\.inc$/i.test(fileName) || included.has(fileName.toLowerCase())) {
+        results.push({ name: fileName, skipped: t("buildProjectIncluded") });
+        continue;
+      }
+
+      const prg = target.kind === "ub"
+        ? await _buildProjectUbTarget(target, target.text)
+        : await _buildProjectAsmTarget(target);
+      if (!prg?.ok) { results.push({ name: fileName, error: prg?.error || t("savePrgFailed") }); continue; }
+
+      const outPath = target.path.replace(/\.[^./\\]+$/, "") + ".prg";
+      const write = await window.electronAPI?.writeBinFile?.(outPath, Array.from(prg.bytes), prg.sidecars || null);
+      if (!write?.ok) { results.push({ name: fileName, error: write?.error || t("savePrgFailed") }); continue; }
+      results.push({ name: fileName, outPath, size: prg.bytes.length });
+    }
+  } finally {
+    if (originalTabId && activeTabId !== originalTabId && tabs.some(tb => tb.id === originalTabId)) {
+      _tabActivate(originalTabId);
+    }
+  }
+
+  const built = results.filter(r => r.outPath).length;
+  const failed = results.filter(r => r.error).length;
+  const compiledTotal = built + failed;
+  if (failed === 0 && built > 0) await completeWorkProgress("workProgressSuccessBuildProject", 600);
+  else hideWorkProgress();
+
+  const summary = tf("buildProjectSummary", { ok: built, total: compiledTotal });
+  if (emulatorStatus) emulatorStatus.textContent = summary;
+  if (ultimateBasicMode) _ubSetStatus(summary, failed > 0);
+  _showBuildProjectReport(results, summary);
+}
+
+function _showBuildProjectReport(results, summary) {
+  const dialog = document.getElementById("build-info-dialog");
+  const content = document.getElementById("build-info-content");
+  const title = document.getElementById("build-info-title");
+  if (!dialog || !content) return;
+  const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const rows = results.map(r => {
+    const cls = r.error ? " build-info-err" : "";
+    const val = r.error
+      ? esc(r.error).replace(/\n/g, "<br>")
+      : r.skipped ? esc(r.skipped) : `${r.size} bytes`;
+    const note = r.outPath ? esc(r.outPath.replace(/\\/g, "/").split("/").pop()) : "";
+    return `<tr class="build-info-row${cls}"><th class="build-info-row-key">${esc(r.name)}</th><td class="build-info-row-val">${val}</td><td class="build-info-row-note">${note}</td></tr>`;
+  });
+  if (title) title.textContent = t("buildProjectTitle");
+  content.innerHTML = `
+    <section class="build-info-section">
+      <div class="build-info-section-label">${esc(summary)}</div>
+      <table class="build-info-table"><tbody>${rows.join("")}</tbody></table>
+    </section>`;
+  dialog.showModal();
 }
 
 // ── Magic Desk CRT (type 19) — 8 x 8K banks at $8000 ─────────────────────────
@@ -18336,14 +18529,40 @@ function defaultDiskName() {
   return "DISK";
 }
 
+// A D64 dialógus (Build D64 / Run via D64 / Ultimate D64) mindig az aktív
+// szerkesztő-mód working folderét használja: UB → ubWorkingFolder, Block/Expert → workingFolder.
+function _d64ModeWorkingFolder() {
+  return (ultimateBasicMode ? ubWorkingFolder : workingFolder) || "";
+}
+
+function _d64SettingsKey() {
+  return ultimateBasicMode ? "d64LastSettingsUb" : "d64LastSettings";
+}
+
+// Módváltáskor a másik mód extráit/neveit eldobjuk, hogy a dialógus az aktív
+// mód mentett beállításaiból (és working folderéből) töltsön újra.
+function _d64SyncModeState() {
+  const mode = ultimateBasicMode ? "ub" : "va";
+  if (d64ExportState.mode && d64ExportState.mode !== mode) {
+    d64ExportState.extras = [];
+    d64ExportState.diskName = "";
+    d64ExportState.progName = "";
+  }
+  d64ExportState.mode = mode;
+}
+
+function d64ReadSavedSettings() {
+  try { return JSON.parse(localStorage.getItem(_d64SettingsKey()) || "null"); } catch (_) { return null; }
+}
+
 function d64SaveSettings(diskName, progName) {
   d64ExportState.diskName = diskName;
   d64ExportState.progName = progName;
   const meta = d64ExportState.extras.map(e => ({ name: e.name, sourcePath: e.sourcePath, loadAddress: e.loadAddress, decompressAddress: e.decompressAddress || "", crunch: e.crunch || false }));
-  try { localStorage.setItem("d64LastSettings", JSON.stringify({ diskName, progName, extras: meta })); } catch (_) {}
+  try { localStorage.setItem(_d64SettingsKey(), JSON.stringify({ diskName, progName, extras: meta })); } catch (_) {}
 }
 
-async function d64LoadSavedExtras(savedExtras, baseDir = "") {
+async function d64LoadSavedExtras(savedExtras, baseDir = _d64ModeWorkingFolder()) {
   if (!window.electronAPI?.readBinFile) return [];
   const restored = [];
   for (const meta of savedExtras) {
@@ -18369,6 +18588,7 @@ async function openD64ExportDialog(prgBytes, sidecars = null, runModeOverride = 
   const progInput = document.getElementById("d64-export-progname");
   const errorBox = document.getElementById("d64-export-error");
 
+  _d64SyncModeState();
   let diskName = d64ExportState.diskName || defaultDiskName();
   let progName = d64ExportState.progName || defaultDiskName();
   if (d64ExportState.extras.length === 0) {
@@ -18378,7 +18598,7 @@ async function openD64ExportDialog(prgBytes, sidecars = null, runModeOverride = 
       d64ExportState._pendingExtrasBaseDir = "";
     } else {
       try {
-        const saved = JSON.parse(localStorage.getItem("d64LastSettings") || "null");
+        const saved = d64ReadSavedSettings();
         if (saved) {
           if (!d64ExportState.diskName && saved.diskName) diskName = saved.diskName;
           if (!d64ExportState.progName && saved.progName) progName = saved.progName;
@@ -18455,7 +18675,7 @@ function renderD64ExtraFiles() {
 
 async function pickD64ExtraFile() {
   if (!window.electronAPI?.chooseIncBinFile) return;
-  const result = await window.electronAPI.chooseIncBinFile();
+  const result = await window.electronAPI.chooseIncBinFile(_d64ModeWorkingFolder());
   if (result?.canceled || !result?.bytes) return;
 
   // Default name = uppercase basename without extension, max 16 chars.
@@ -18606,7 +18826,7 @@ async function confirmD64Export() {
     } else if (isRunMode) {
       result = await window.electronAPI.runD64({ diskName, files, sidecars: d64ExportState.sidecars });
     } else {
-      result = await window.electronAPI.saveD64({ diskName, files, sidecars: d64ExportState.sidecars });
+      result = await window.electronAPI.saveD64({ diskName, files, sidecars: d64ExportState.sidecars, directory: _d64ModeWorkingFolder() || null });
     }
   } finally {
     if (confirmBtn) {
@@ -18754,6 +18974,7 @@ async function runViaD64() {
   const errorBox = document.getElementById("d64-export-error");
   const confirmBtn = document.getElementById("d64-export-confirm");
 
+  _d64SyncModeState();
   let diskName = d64ExportState.diskName || defaultDiskName();
   let progName = d64ExportState.progName || defaultDiskName();
   if (d64ExportState.extras.length === 0) {
@@ -18763,7 +18984,7 @@ async function runViaD64() {
       d64ExportState._pendingExtrasBaseDir = "";
     } else {
       try {
-        const saved = JSON.parse(localStorage.getItem("d64LastSettings") || "null");
+        const saved = d64ReadSavedSettings();
         if (saved) {
           if (!d64ExportState.diskName && saved.diskName) diskName = saved.diskName;
           if (!d64ExportState.progName && saved.progName) progName = saved.progName;
@@ -18863,7 +19084,10 @@ async function buildRunPrgForCurrentMode() {
 
   const prg = buildAutostartPrgForEmulator();
   if (!prg.ok) return prg;
+  return _applyExomizerToPrg(prg);
+}
 
+async function _applyExomizerToPrg(prg) {
   if (!exomizerEnabled) return { ...prg, sysAddress: prg.sysAddress };
 
   if (!exomizerPath) {
@@ -19105,6 +19329,7 @@ async function runUltimateD64() {
   const errorBox = document.getElementById("d64-export-error");
   const confirmBtn = document.getElementById("d64-export-confirm");
 
+  _d64SyncModeState();
   let diskName = d64ExportState.diskName || defaultDiskName();
   let progName = d64ExportState.progName || defaultDiskName();
   if (d64ExportState.extras.length === 0) {
@@ -19114,7 +19339,7 @@ async function runUltimateD64() {
       d64ExportState._pendingExtrasBaseDir = "";
     } else {
       try {
-        const saved = JSON.parse(localStorage.getItem("d64LastSettings") || "null");
+        const saved = d64ReadSavedSettings();
         if (saved) {
           if (!d64ExportState.diskName && saved.diskName) diskName = saved.diskName;
           if (!d64ExportState.progName && saved.progName) progName = saved.progName;
@@ -24992,7 +25217,119 @@ function countRangeBytes(ranges, start, end) {
   }, 0);
 }
 
-function getMemoryUsage(layout = getProgramLayout()) {
+// UB módban a memória panel / overlay csík az utolsó UB build map-jéből számol.
+// A PRG egy összefüggő, nullákkal kitöltött blokk: a `ub_*padding*` régiók és az
+// `org` által hagyott (a fordító által nem jelentett) hosszú nulla-futások szabadnak számítanak.
+const _UB_FREE_ZERO_RUN = 256;
+
+function _ubRegionLabel(name) {
+  const n = String(name || "");
+  if (n.startsWith("incbin_")) return `INCBIN ${n.slice(7)}`;
+  if (n === "ub_koala_data") return "KOALA";
+  if (n === "ub_sid_data") return "SID";
+  return n.replace(/^ub_/, "").toUpperCase();
+}
+
+function _ubMemoryUsage(result = _getActiveTab()?._ubBuildResult || null) {
+  const occupiedRanges = [];
+  const regions = [];
+  const map = result?.ok ? result.map : null;
+  const prg = map ? (result.prg || []) : [];
+
+  if (prg.length > 2) {
+    const prgStart = prg[0] | (prg[1] << 8);
+    const prgEnd = Math.min(0xFFFF, prgStart + prg.length - 3);
+    const codeBase = Number(map.loadAddress) || prgStart;
+    const kind = new Uint8Array(0x10000); // 0 = szabad, 1 = kód, 2 = beágyazott adat
+    kind.fill(1, prgStart, prgEnd + 1);
+
+    const dataRegions = (map.dataRegions || [])
+      .filter(r => r.end > r.start)
+      .map(r => ({ start: codeBase + r.start, end: Math.min(0xFFFF, codeBase + r.end - 1), name: r.name }));
+    const payload = dataRegions.filter(r => !/padding/i.test(r.name));
+    payload.forEach(r => kind.fill(2, r.start, r.end + 1));
+    dataRegions.filter(r => /padding/i.test(r.name)).forEach(r => kind.fill(0, r.start, r.end + 1));
+
+    let runStart = -1;
+    for (let addr = prgStart; addr <= prgEnd + 1; addr++) {
+      const zero = addr <= prgEnd && kind[addr] === 1 && prg[addr - prgStart + 2] === 0;
+      if (zero && runStart < 0) runStart = addr;
+      else if (!zero && runStart >= 0) {
+        if (addr - runStart >= _UB_FREE_ZERO_RUN) kind.fill(0, runStart, addr);
+        runStart = -1;
+      }
+    }
+
+    let segStart = -1;
+    for (let addr = prgStart; addr <= prgEnd + 1; addr++) {
+      const isCode = addr <= prgEnd && kind[addr] === 1;
+      if (isCode && segStart < 0) segStart = addr;
+      else if (!isCode && segStart >= 0) {
+        regions.push({ start: segStart, end: addr - 1, type: "code", label: `${t("memoryOverlapCode")} ${formatAddress(segStart)}–${formatAddress(addr - 1)}` });
+        segStart = -1;
+      }
+    }
+    payload.forEach(r => regions.push({ start: r.start, end: r.end, type: "data", label: `${_ubRegionLabel(r.name)} ${formatAddress(r.start)}–${formatAddress(r.end)}` }));
+  }
+
+  if (map) {
+    (map.arrays || []).filter(a => Number(a.size) > 0).forEach(a => {
+      const start = Number(a.address);
+      const end = Math.min(0xFFFF, start + Number(a.size) - 1);
+      regions.push({ start, end, type: "array", label: `ARRAY ${a.name} ${formatAddress(start)}–${formatAddress(end)}` });
+    });
+
+    const internal = map.internal || {};
+    const zpEnds = [
+      ...(map.variables || []).map(v => Number(v.address) + 1),
+      internal.plotZp != null ? internal.plotZp + 5 : null,
+      internal.lineZp != null ? internal.lineZp + 14 : null,
+      internal.rectZp != null ? internal.rectZp + 8 : null,
+      internal.dataZp != null ? internal.dataZp + 1 : null
+    ].filter(Number.isFinite);
+    if (zpEnds.length) {
+      const zpEnd = Math.min(0xFF, Math.max(...zpEnds));
+      regions.push({ start: 0x02, end: zpEnd, type: "zp", label: `UB zero page ${formatAddress(0x02)}–${formatAddress(zpEnd)}` });
+    }
+  }
+
+  regions.forEach(r => occupiedRanges.push({ start: r.start, end: r.end, type: r.type, label: r.label }));
+
+  // Ütközés: a futásidejű tömbök (heap, $C000+) rálóghatnak a kódra / beágyazott adatra / egymásra.
+  const overlaps = [];
+  for (let i = 0; i < regions.length; i++) {
+    for (let j = i + 1; j < regions.length; j++) {
+      const a = regions[i];
+      const b = regions[j];
+      if (a.type !== "array" && b.type !== "array") continue;
+      const overlapStart = Math.max(a.start, b.start);
+      const overlapEnd = Math.min(a.end, b.end);
+      if (overlapStart <= overlapEnd) {
+        overlaps.push({ regionA: a, regionB: b, overlapStart, overlapEnd, bytes: overlapEnd - overlapStart + 1 });
+      }
+    }
+  }
+
+  const mergedOccupied = mergeMemoryRanges(occupiedRanges);
+  const ramSegments = memorySegments.filter((segment) => segment.kind === "ram");
+  const totalRamBytes = ramSegments.reduce((sum, segment) => sum + (segment.end - segment.start + 1), 0);
+  const occupiedRamBytes = ramSegments.reduce((sum, segment) => sum + countRangeBytes(mergedOccupied, segment.start, segment.end), 0);
+
+  return {
+    layout: { lines: [] },
+    deferredSections: [],
+    occupiedRanges,
+    mergedOccupied,
+    totalRamBytes,
+    occupiedRamBytes,
+    freeRamBytes: Math.max(0, totalRamBytes - occupiedRamBytes),
+    overlaps
+  };
+}
+
+function getMemoryUsage(layout) {
+  if (ultimateBasicMode) return _ubMemoryUsage();
+  layout = layout || getProgramLayout();
   const occupiedRanges = [];
 
   if (program.length && layout.start <= layout.end) {

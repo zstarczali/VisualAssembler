@@ -47,6 +47,26 @@ const translations = {
     "workProgressSuccessDebug": "Build sikeres, debugger indítva.",
     "workProgressSuccessImport": "Import sikeres.",
     "savePrg": "Build PRG",
+
+    "buildProject": "Build projekt",
+
+    "buildProjectTitle": "Projekt fordítása",
+
+    "buildProjectNothing": "Nincs fordítható fájl a projektben (vagy a nyitott füleken).",
+
+    "buildProjectSummary": "{ok} / {total} fájl lefordítva",
+
+    "buildProjectUntitled": "nincs mentve — kihagyva",
+
+    "buildProjectIncluded": "include — kihagyva",
+
+    "workProgressBuildProject": "Projekt fájlok fordítása…",
+
+    "workProgressSuccessBuildProject": "Minden fájl lefordítva.",
+
+    "buildProjectFile": "Fájl",
+
+    "buildProjectResult": "Eredmény",
     "saveCrt": "Build CRT",
     "buildSection": "Build",
     "versioningSection": "Verziókezelés",
@@ -1348,6 +1368,26 @@ const translations = {
     "workProgressSuccessDebug": "Build successful, debugger launched.",
     "workProgressSuccessImport": "Import successful.",
     "savePrg": "Build PRG",
+
+    "buildProject": "Build project",
+
+    "buildProjectTitle": "Build project",
+
+    "buildProjectNothing": "No buildable file in the project (or in the open tabs).",
+
+    "buildProjectSummary": "{ok} / {total} files built",
+
+    "buildProjectUntitled": "not saved — skipped",
+
+    "buildProjectIncluded": "include — skipped",
+
+    "workProgressBuildProject": "Building project files…",
+
+    "workProgressSuccessBuildProject": "All files built.",
+
+    "buildProjectFile": "File",
+
+    "buildProjectResult": "Result",
     "buildSection": "Build",
     "versioningSection": "Versioning",
     "savePrgFailed": "PRG save failed",
@@ -2809,6 +2849,26 @@ const translations = {
     "workProgressSuccessDebug": "Build exitoso, depurador iniciado.",
     "workProgressSuccessImport": "Importación exitosa.",
     "savePrg": "Build PRG",
+
+    "buildProject": "Compilar proyecto",
+
+    "buildProjectTitle": "Compilar proyecto",
+
+    "buildProjectNothing": "No hay archivos compilables en el proyecto (ni en las pestañas abiertas).",
+
+    "buildProjectSummary": "{ok} / {total} archivos compilados",
+
+    "buildProjectUntitled": "no guardado — omitido",
+
+    "buildProjectIncluded": "include — omitido",
+
+    "workProgressBuildProject": "Compilando archivos del proyecto…",
+
+    "workProgressSuccessBuildProject": "Todos los archivos compilados.",
+
+    "buildProjectFile": "Archivo",
+
+    "buildProjectResult": "Resultado",
     "buildSection": "Build",
     "versioningSection": "Control de versiones",
     "savePrgFailed": "Error al guardar PRG",
@@ -4270,6 +4330,26 @@ const translations = {
     "workProgressSuccessDebug": "Build erfolgreich, Debugger gestartet.",
     "workProgressSuccessImport": "Import erfolgreich.",
     "savePrg": "PRG erstellen",
+
+    "buildProject": "Projekt erstellen",
+
+    "buildProjectTitle": "Projekt erstellen",
+
+    "buildProjectNothing": "Keine übersetzbare Datei im Projekt (oder in den offenen Tabs).",
+
+    "buildProjectSummary": "{ok} / {total} Dateien erstellt",
+
+    "buildProjectUntitled": "nicht gespeichert — übersprungen",
+
+    "buildProjectIncluded": "Include — übersprungen",
+
+    "workProgressBuildProject": "Projektdateien werden erstellt…",
+
+    "workProgressSuccessBuildProject": "Alle Dateien erstellt.",
+
+    "buildProjectFile": "Datei",
+
+    "buildProjectResult": "Ergebnis",
     "buildSection": "Build",
     "versioningSection": "Versionierung",
     "savePrgFailed": "PRG-Speicherung fehlgeschlagen",
@@ -5731,6 +5811,26 @@ const translations = {
     "workProgressSuccessDebug": "RetroDebugger succesvol gestart.",
     "workProgressSuccessImport": "ASM-broncode succesvol geïmporteerd.",
     "savePrg": "PRG opslaan",
+
+    "buildProject": "Project bouwen",
+
+    "buildProjectTitle": "Project bouwen",
+
+    "buildProjectNothing": "Geen bouwbaar bestand in het project (of in de open tabbladen).",
+
+    "buildProjectSummary": "{ok} / {total} bestanden gebouwd",
+
+    "buildProjectUntitled": "niet opgeslagen — overgeslagen",
+
+    "buildProjectIncluded": "include — overgeslagen",
+
+    "workProgressBuildProject": "Projectbestanden bouwen…",
+
+    "workProgressSuccessBuildProject": "Alle bestanden gebouwd.",
+
+    "buildProjectFile": "Bestand",
+
+    "buildProjectResult": "Resultaat",
     "buildSection": "Bouwen",
     "versioningSection": "Versiebeheer",
     "savePrgFailed": "Fout bij opslaan van PRG: {error}",
@@ -7203,6 +7303,26 @@ const translations = {
     "workProgressSuccessDebug": "Kompilacja zakończona sukcesem, debuger uruchomiony.",
     "workProgressSuccessImport": "Import zakończony sukcesem.",
     "savePrg": "Zbuduj PRG",
+
+    "buildProject": "Zbuduj projekt",
+
+    "buildProjectTitle": "Zbuduj projekt",
+
+    "buildProjectNothing": "Brak plików do zbudowania w projekcie (ani w otwartych kartach).",
+
+    "buildProjectSummary": "Zbudowano {ok} / {total} plików",
+
+    "buildProjectUntitled": "niezapisany — pominięty",
+
+    "buildProjectIncluded": "include — pominięty",
+
+    "workProgressBuildProject": "Budowanie plików projektu…",
+
+    "workProgressSuccessBuildProject": "Wszystkie pliki zbudowane.",
+
+    "buildProjectFile": "Plik",
+
+    "buildProjectResult": "Wynik",
     "buildSection": "Budowanie",
     "versioningSection": "Wersjonowanie",
     "savePrgFailed": "Zapis PRG nie powiódł się",
@@ -8675,6 +8795,26 @@ const translations = {
     "workProgressSuccessDebug": "Compilazione riuscita, debugger avviato.",
     "workProgressSuccessImport": "Importazione riuscita.",
     "savePrg": "Crea PRG",
+
+    "buildProject": "Crea progetto",
+
+    "buildProjectTitle": "Crea progetto",
+
+    "buildProjectNothing": "Nessun file compilabile nel progetto (o nelle schede aperte).",
+
+    "buildProjectSummary": "{ok} / {total} file compilati",
+
+    "buildProjectUntitled": "non salvato — saltato",
+
+    "buildProjectIncluded": "include — saltato",
+
+    "workProgressBuildProject": "Compilazione dei file del progetto…",
+
+    "workProgressSuccessBuildProject": "Tutti i file compilati.",
+
+    "buildProjectFile": "File",
+
+    "buildProjectResult": "Risultato",
     "buildSection": "Compilazione",
     "versioningSection": "Versionamento",
     "savePrgFailed": "Salvataggio PRG non riuscito",

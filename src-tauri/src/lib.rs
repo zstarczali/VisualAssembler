@@ -1007,11 +1007,13 @@ async fn launch_debugger(app: AppHandle, payload: LaunchDebuggerPayload) -> serd
 }
 
 #[tauri::command]
-async fn choose_incbin_file(app: AppHandle) -> serde_json::Value {
-    let working_folder = {
-        let cfg = read_config(&app);
-        get_working_folder_path(&cfg)
-    };
+async fn choose_incbin_file(app: AppHandle, directory: Option<String>) -> serde_json::Value {
+    // Explicit directory (e.g. the UB working folder while in UB mode) wins over the VA working folder.
+    let working_folder = directory
+        .map(|d| d.trim().to_string())
+        .filter(|d| !d.is_empty())
+        .map(PathBuf::from)
+        .or_else(|| get_working_folder_path(&read_config(&app)));
     let mut dialog = app.dialog().file()
         .add_filter("Binary files", &["bin", "prg", "sid", "raw"])
         .add_filter("All files", &["*"])
@@ -1481,14 +1483,20 @@ fn read_bin_file(path: String) -> serde_json::Value {
 // the Rust side at all; track/sector offset math and the BAM parse both
 // live in JS, same as the block editor's read path.
 #[tauri::command]
-fn write_bin_file(path: String, bytes: Vec<u8>) -> serde_json::Value {
+fn write_bin_file(path: String, bytes: Vec<u8>, sidecars: Option<DebuggerSidecars>) -> serde_json::Value {
     if path.is_empty() {
         return serde_json::json!({ "ok": false, "error": "Empty path" });
     }
-    match fs::write(&path, &bytes) {
-        Ok(_) => serde_json::json!({ "ok": true }),
-        Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+    if let Err(e) = fs::write(&path, &bytes) {
+        return serde_json::json!({ "ok": false, "error": e.to_string() });
     }
+    // Build project: .dbg/.sym/.vs/.asm a PRG mellé, ha a "Generate debug files" be van kapcsolva.
+    if let Some(sidecars) = &sidecars {
+        if let Err(e) = write_debugger_sidecars(Path::new(&path), sidecars) {
+            return serde_json::json!({ "ok": false, "error": e });
+        }
+    }
+    serde_json::json!({ "ok": true })
 }
 
 // Deletes a plain file at an explicit path, no confirmation/trash — used
@@ -1690,6 +1698,9 @@ struct SaveD64Payload {
     disk_name: Option<String>,
     #[serde(default)]
     sidecars: Option<DebuggerSidecars>,
+    /// Start folder of the save dialog — the working folder of the active editor mode (VA or UB).
+    #[serde(default)]
+    directory: Option<String>,
 }
 
 #[tauri::command]
@@ -1714,7 +1725,11 @@ async fn save_d64(app: AppHandle, payload: SaveD64Payload) -> serde_json::Value 
     };
 
     // 2. Ask user where to save
-    let working_folder = get_working_folder_path(&cfg);
+    let working_folder = payload.directory.as_deref()
+        .map(str::trim)
+        .filter(|d| !d.is_empty())
+        .map(PathBuf::from)
+        .or_else(|| get_working_folder_path(&cfg));
     let mut dialog = app.dialog().file()
         .add_filter("Commodore 64 disk image", &["d64"])
         .add_filter("All files", &["*"]);
@@ -3042,7 +3057,9 @@ fn compile_ultimate_basic(source: String, source_path: Option<String>, explicit:
                     "variables": map.variables.iter().map(|v| serde_json::json!({"name": v.name, "address": v.zp_addr, "type": v.type_str})).collect::<Vec<_>>(),
                     "subroutines": map.subroutines.iter().map(|s| serde_json::json!({"name": s.name, "address": s.addr})).collect::<Vec<_>>(),
                     "labels": map.labels.iter().map(|label| serde_json::json!({"name": label.name, "address": label.addr})).collect::<Vec<_>>(),
-                    "arrays": map.arrays.iter().map(|a| serde_json::json!({"name": a.name, "address": a.base_addr, "size": a.size})).collect::<Vec<_>>()
+                    "arrays": map.arrays.iter().map(|a| serde_json::json!({"name": a.name, "address": a.base_addr, "size": a.size})).collect::<Vec<_>>(),
+                    // Kód-relatív [start, end) byte-tartományok: `ub_*padding*` = üres kitöltés, a többi beágyazott adat (incbin/koala/sid/sprite).
+                    "dataRegions": map.data_regions.iter().map(|r| serde_json::json!({"start": r.start, "end": r.end, "name": r.name})).collect::<Vec<_>>()
                     ,"internal": {
                         "plotZp": map.plot_zp,
                         "lineZp": map.line_zp,

@@ -308,7 +308,9 @@
       "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/417dc66c-f8ef-40e4-bae4-a7fe70729f8f/scratchpad/koala_manual.py\")",
       "Bash(grep -n \"Visual Assembler Manual.md\\\\`-ből generált\" CLAUDE.md)",
       "Bash(python \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/417dc66c-f8ef-40e4-bae4-a7fe70729f8f/scratchpad/release248.py\")",
-      "Bash(grep -o '^ *\"[a-z_$#0-9]*\" => Token::' src/compiler/lexer.rs)"
+      "Bash(grep -o '^ *\"[a-z_$#0-9]*\" => Token::' src/compiler/lexer.rs)",
+      "Bash(node \"C:/Users/rlung/AppData/Local/Temp/claude/F--Development-VisualAssembler/125a6b5a-0e68-4ee6-a2ba-dd09f059c686/scratchpad/add-i18n.js\")",
+      "Bash(node --check www/tauri-bridge.js)"
     ],
     "additionalDirectories": [
       "/Users/ztarczali/dev/VisualAssembler/www"
