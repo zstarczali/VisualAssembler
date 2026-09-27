@@ -16648,8 +16648,48 @@ function _workspaceBuildPayload(name = "") {
     version: 2,
     name: name || _currentWorkspaceName || "",
     activeIndex,
-    tabs: entries
+    tabs: entries,
+    projects: {
+      expert: _workspaceProjectSnapshot(_expertProjectData, _expertProjectDirty),
+      ub: _workspaceProjectSnapshot(_ubProjectData, _ubProjectDirty)
+    }
   };
+}
+
+// A projekt (.proj) teljes állapota a workspace-be ágyazva — a mentetlen
+// projektfa-változások is visszajönnek, a _projPath pedig a Save célja marad.
+function _workspaceProjectSnapshot(data, dirty) {
+  if (!data) return null;
+  const cleanNodes = (nodes) => (nodes || [])
+    .filter(n => !n.type || n.type === "file" || n.type === "folder")
+    .map(n => n.type === "folder"
+      ? { type: "folder", name: n.name, path: n.path, children: cleanNodes(n.children), ...(n._collapsed ? { _collapsed: true } : {}) }
+      : { type: "file", name: n.name, path: n.path });
+  return {
+    name: data.name || "",
+    files: cleanNodes(data.files),
+    startupFile: data.startupFile || null,
+    projPath: data._projPath || null,
+    dirty: !!dirty
+  };
+}
+
+function _workspaceRestoreProjects(projects) {
+  const toData = (snap) => snap && typeof snap === "object"
+    ? { name: snap.name || "", files: Array.isArray(snap.files) ? snap.files : [], startupFile: snap.startupFile || null, _projPath: snap.projPath || null }
+    : null;
+  _expertProjectData = toData(projects?.expert);
+  _expertProjectDirty = !!projects?.expert?.dirty;
+  _ubProjectData = toData(projects?.ub);
+  _ubProjectDirty = !!projects?.ub?.dirty;
+
+  _ubStartupTabId = null;
+  if (_ubProjectData?.startupFile) {
+    const startupTab = _findTabByPath(_ubResolveProjectPath(_ubProjectData.startupFile));
+    _ubStartupTabId = startupTab?.id ?? null;
+  }
+  _expertRenderProjectTree();
+  _ubRenderProjectFiles();
 }
 
 async function _workspaceSaveAs() {
@@ -16808,6 +16848,11 @@ async function _workspaceRestoreFromPayload(workspace, workspacePath, { silent =
   // activeTabId first makes that internal flush a no-op.
   activeTabId = null;
   _tabActivate(newActiveTabId || createdTabIds[0]);
+
+  // Régi (projekt nélküli) workspace-nél nincs `projects` kulcs → a nyitott projekt marad.
+  if (workspace.projects && typeof workspace.projects === "object") {
+    _workspaceRestoreProjects(workspace.projects);
+  }
 
   _currentWorkspacePath = workspacePath;
   _currentWorkspaceName = (workspacePath.replace(/\\/g, "/").split("/").pop() || "").replace(/\.(vaws|json)$/i, "");
