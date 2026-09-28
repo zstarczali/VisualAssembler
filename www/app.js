@@ -1455,6 +1455,7 @@ function initPalette() {
   });
   document.getElementById("ub-zoom-in-btn")?.addEventListener("click", () => _ubZoom(1));
   document.getElementById("ub-zoom-out-btn")?.addEventListener("click", () => _ubZoom(-1));
+  _bindCtrlWheelZoom(document.querySelector(".ub-editor-wrap"), _ubZoom);
   ubEditor?.addEventListener("input", () => { _ubDirty = true; markTabDirty(); _ubRefreshEditor(); _ubAcUpdate(); });
   ubEditor?.addEventListener("keyup", _ubUpdateCursor);
   ubEditor?.addEventListener("click", _ubUpdateCursor);
@@ -1645,6 +1646,7 @@ function initPalette() {
   // Zoom
   expertZoomInBtn?.addEventListener("click",  () => _expertZoom(1));
   expertZoomOutBtn?.addEventListener("click", () => _expertZoom(-1));
+  _bindCtrlWheelZoom(document.querySelector(".expert-editor-wrap"), _expertZoom);
 
   // Line numbers
   document.getElementById("expert-line-numbers-btn")?.addEventListener("click", () => {
@@ -10024,6 +10026,23 @@ function _expertZoom(delta) {
   _applyExpertFontSize();
   if (_expertLineNumbersEnabled) _expertUpdateLineNumbers();
   saveUiSettings();
+}
+
+// Ctrl(/Cmd)+görgő → zoomFn(±1). Touchpad pinch sok apró deltát küld, ezért
+// gyűjtjük, és ~egy egér-notch-nyi (50 px) összegenként lépünk.
+function _bindCtrlWheelZoom(el, zoomFn) {
+  if (!el) return;
+  let acc = 0;
+  el.addEventListener("wheel", (e) => {
+    if (!e.ctrlKey && !e.metaKey) return;
+    e.preventDefault();
+    acc += e.deltaMode === 1 ? e.deltaY * 50 : e.deltaY;
+    while (Math.abs(acc) >= 50) {
+      const step = acc < 0 ? 1 : -1;
+      zoomFn(step);
+      acc += step * 50;
+    }
+  }, { passive: false });
 }
 
 // ── Minimap ───────────────────────────────────────────────────────────────────
